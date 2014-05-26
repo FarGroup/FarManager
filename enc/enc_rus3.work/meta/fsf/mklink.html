@@ -20,9 +20,9 @@
 
 <pre class=syntax>
 BOOL WINAPI MkLink(
-  const wchar_t *Src,
-  const wchar_t *Dest,
-  enum LINK_TYPE Type,
+  const wchar_t *Target,
+  const wchar_t *LinkName,
+  enum LINK_TYPE LinkType,
   MKLINK_FLAGS Flags
 );
 </pre>
@@ -30,11 +30,11 @@ BOOL WINAPI MkLink(
 <h3>Параметры</h3>
 
 <div class=descr>
-  <div class=dfn>Src</div>
+  <div class=dfn>Target</div>
     <div class=dfndescr>Имя файлового объекта, на который создаётся ссылка.</div>
-  <div class=dfn>Dest</div>
+  <div class=dfn>LinkName</div>
     <div class=dfndescr>Имя создаваемой ссылки.</div>
-  <div class=dfn>Type</div>
+  <div class=dfn>LinkType</div>
     <div class=dfndescr>Тип операции. Одно из (перечисление <a name="LINK_TYPE">LINK_TYPE</a>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Операция</th><th class="cont" width="60%">Описание</th></tr>
@@ -60,6 +60,8 @@ BOOL WINAPI MkLink(
     <td class="cont" width="60%">выводить сообщения об ошибках</td></tr>
     <tr><td class="cont" width="40%"><a name="MLF_DONOTUPDATEPANEL">MLF_DONOTUPDATEPANEL</a></td>
     <td class="cont" width="60%">после создания ссылки не обновлять панели</td></tr>
+    <tr><td class="cont" width="40%"><a name="MLF_HOLDTARGET">MLF_HOLDTARGET</a></td>
+    <td class="cont" width="60%">для символических ссылок не конвертировать Target в полный путь</td></tr>
     <tr><td class="cont" width="40%"><a name="MLF_NONE">MLF_NONE</a></td>
     <td class="cont" width="60%">нулевой флаг</td></tr>
     </table>
@@ -73,25 +75,25 @@ BOOL WINAPI MkLink(
 <ul>
 <li>Для жёстких ссылок:
   <ul>
-   <li>Src или Dest находятся на разных разделах;
+   <li>Target или LinkName находятся на разных разделах;
    <li>раздел не NTFS;
    <li>раздел не локальный;
-   <li>Src не существует или не является файлом.
-   <li>Dest уже существует;
+   <li>Target не существует или не является файлом.
+   <li>LinkName уже существует;
   </ul>
 <li>Для связей:
   <ul>
-   <li>Src или Dest находятся не на локальных разделах;
+   <li>Target или LinkName находятся не на локальных разделах;
    <li>раздел не NTFS 5.0;
-   <li>Src не существует или не является каталогом;
-   <li>Dest существует, но не пустой каталог.
+   <li>Target не существует или не является каталогом;
+   <li>LinkName существует, но не пустой каталог.
   </ul>
 <li>Для монтирования дисков:
   <ul>
-   <li>Src или Dest находятся не на локальных разделах;
-   <li>раздел для Dest не NTFS 5.0;
+   <li>Target или LinkName находятся не на локальных разделах;
+   <li>раздел для LinkName не NTFS 5.0;
    <li>Src не существует или диск является не локальным;
-   <li>Dest существует, но не пустой каталог.
+   <li>LinkName существует, но не пустой каталог.
   </ul>
 </ul>
 </div>
@@ -105,8 +107,8 @@ BOOL WINAPI MkLink(
   <li>связи (junction) создаются только для каталогов в пределах локальных NTFS-разделов;
   <li>монтирование локальных дисков на файловую систему только на NTFS-раздел.
   </ul>
-<li>Если в качестве Src было передано значение, например L"C:", то вместо связи каталогов будет монтирован диск.
-<li>Если для монтирования диска Dest оканчивается слешем, то в Dest будет создан каталог "disk_N" (где N - буква диска).
+<li>Если в качестве Target было передано значение, например L"C:", то вместо связи каталогов будет монтирован диск.
+<li>Если для монтирования диска LinkName оканчивается слешем, то в LinkName будет создан каталог "disk_N" (где N - буква диска).
 
 <li>В Windows 2000 напрямую делать связи на папки CD-ROM нельзя, но можно это ограничение обойти, смонтировав CD-ROM диск на папку NTFS-раздела
 (т.н. <a href="../other/dict.html#mountpoints">Mount Points</a>). И уже из этой папки сделать нужную связь.

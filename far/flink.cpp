@@ -763,7 +763,6 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 
 					if (CutToSlash(strPath))
 					{
-						// создаём
 						if (api::GetFileAttributes(strPath)==INVALID_FILE_ATTRIBUTES)
 							CreatePath(strPath);
 
@@ -775,7 +774,7 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 					}
 				}
 
-				if (api::GetFileAttributes(strFullLink) == INVALID_FILE_ATTRIBUTES) // так. все очень даже плохо.
+				if (api::GetFileAttributes(strFullLink) == INVALID_FILE_ATTRIBUTES)
 				{
 					if (!Silent)
 					{

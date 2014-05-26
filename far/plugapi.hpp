@@ -119,7 +119,7 @@ namespace pluginapi
 	BOOL     WINAPI apiColorDialog(const GUID* PluginId, COLORDIALOGFLAGS Flags, struct FarColor *Color);
 	size_t   WINAPI apiInputRecordToKeyName(const INPUT_RECORD* Key, wchar_t *KeyText, size_t Size);
 	BOOL     WINAPI apiKeyNameToInputRecord(const wchar_t *Name,INPUT_RECORD* RecKey);
-	BOOL     WINAPI apiMkLink(const wchar_t *Src,const wchar_t *Dest, LINK_TYPE Type, MKLINK_FLAGS Flags);
+	BOOL     WINAPI apiMkLink(const wchar_t *Target, const wchar_t *LinkName, LINK_TYPE Type, MKLINK_FLAGS Flags);
 	BOOL     WINAPI apiAddEndSlash(wchar_t *Path);
 	wchar_t* WINAPI apiXlat(wchar_t *Line,intptr_t StartPos,intptr_t EndPos,XLAT_FLAGS Flags);
 	//arclite
