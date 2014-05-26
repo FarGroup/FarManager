@@ -41,3 +41,4 @@ View.Space.lua Viewer: Use Space for listing in the viewer (like in Outlook Expr
 WheelScreenSwitch.lua Use Shift-MsWheel to switch between screens
 Descript.ion File descriptions
 Panel.EscKeyBar.lua Use Esc to toggle panels on/off (with keybar)
+Symlink.lua Alternative way to create symbolic links
