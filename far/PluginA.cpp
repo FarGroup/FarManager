@@ -3709,13 +3709,13 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CON
 			if (!ksA->Count || !ksA->Sequence)
 				return FALSE;
 
-			MACROFLAGS_MFLAGS Flags=MFLAGS_ENABLEOUTPUT;
+			FARKEYMACROFLAGS Flags=KMFLAGS_LUA;
 
-			if (ksA->Flags&oldfar::KSFLAGS_DISABLEOUTPUT)
-			  Flags&=~MFLAGS_ENABLEOUTPUT;
+			if (!(ksA->Flags&oldfar::KSFLAGS_DISABLEOUTPUT))
+			  Flags|=KMFLAGS_ENABLEOUTPUT;
 
 			if (ksA->Flags&oldfar::KSFLAGS_NOSENDKEYSTOPLUGINS)
-			  Flags|=MFLAGS_NOSENDKEYSTOPLUGINS;
+			  Flags|=KMFLAGS_NOSENDKEYSTOPLUGINS;
 
 			string strSequence=L"Keys(\"";
 			string strKeyText;
@@ -3728,7 +3728,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CON
 			}
 			strSequence += L"\")";
 
-			intptr_t ret = Global->CtrlObject->Macro.PostNewMacro(L"lua", strSequence.data(), Flags);
+			intptr_t ret = Global->CtrlObject->Macro.PostNewMacro(strSequence.data(), Flags);
 
 			return ret;
 		}

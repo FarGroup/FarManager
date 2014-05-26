@@ -36,8 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "tvar.hpp"
 #include "noncopyable.hpp"
 
-struct GetMacroData;
-
 // Macro Const
 enum {
 	constMsX          = 0,
@@ -94,16 +92,6 @@ enum MACRORECORDANDEXECUTETYPE
 	MACROMODE_RECORDING_COMMON =4,  // запись: с передачей плагину пимп
 };
 
-inline const wchar_t* GetMacroLanguage(FARKEYMACROFLAGS Flags)
-{
-	switch(Flags & KMFLAGS_LANGMASK)
-	{
-		default:
-		case KMFLAGS_LUA:        return L"lua";
-		case KMFLAGS_MOONSCRIPT: return L"moonscript";
-	}
-}
-
 struct MacroPanelSelect
 {
 	__int64 Index;
@@ -143,9 +131,9 @@ public:
 	const wchar_t* GetStringToPrint() const { return m_StringToPrint; }
 	int  IsRecording() const { return m_Recording; }
 	bool Load(bool InitedRAM=true,bool LoadAll=true);
-	bool ParseMacroString(const wchar_t* lang,const wchar_t* Sequence,bool onlyCheck,bool skipFile);
+	bool ParseMacroString(const wchar_t* Sequence,FARKEYMACROFLAGS Flags,bool skipFile);
 	int  PeekKey() const;
-	bool PostNewMacro(const wchar_t* lang,const wchar_t* PlainText,UINT64 Flags=0,DWORD AKey=0);
+	bool PostNewMacro(const wchar_t* Sequence,FARKEYMACROFLAGS Flags,DWORD AKey=0);
 	int  ProcessEvent(const FAR_INPUT_RECORD *Rec);
 	void SetMode(FARMACROAREA Mode) { m_Mode=Mode; }
 	void SuspendMacros(bool Suspend) { Suspend ? ++m_InternalInput : --m_InternalInput; }
