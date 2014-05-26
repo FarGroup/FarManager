@@ -387,13 +387,7 @@ local function EnumMacros (strArea, resetEnum)
       local macro = LoadedMacros[EnumState.index]
       if macro then
         if macro.area and macro.area:lower():find(area) then
-          local code = macro.code
-          if not code then
-            code = ("@%s (Id=%d)"):format(macro.FileName, macro.id)
-            local len = code:len()
-            if len > 62 then code = ("@...%s (Id=%d)"):format(macro.FileName:sub(len-58), macro.id) end
-          end
-          LastMessage = pack(macro.id, macro.key, macro.flags, code, macro.description or "")
+          LastMessage = pack(macro.key, macro.description or "")
           return F.MPRT_NORMALFINISH, LastMessage
         end
       else
