@@ -52,10 +52,10 @@ local function dlg_proc(hDlg, Msg, Param1, Param2)
 end
 
 Macro {
-  area="Shell"; key="AltShiftF6"; flags="NoPluginPanels"; description="Make symlink";
+  area="Shell"; key="AltShiftF6"; flags="NoPluginPanels NoPluginPPanels"; description="Make symlink";
   condition = function()
-    return APanel.Visible and APanel.FilePanel and APanel.Format==""
-       and PPanel.Visible and PPanel.FilePanel and PPanel.Format==""
+    return APanel.Visible and PPanel.Visible and PPanel.FilePanel
+  end;   condition = function()
   end;
   action = function()
    if (9 == far.Dialog(guid,-1,-1,69,11,nil,Items,nil,dlg_proc) and link_name ~= "") then
