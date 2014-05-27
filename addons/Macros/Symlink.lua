@@ -55,7 +55,6 @@ Macro {
   area="Shell"; key="AltShiftF6"; flags="NoPluginPanels NoPluginPPanels"; description="Make symlink";
   condition = function()
     return APanel.Visible and PPanel.Visible and PPanel.FilePanel
-  end;   condition = function()
   end;
   action = function()
    if (9 == far.Dialog(guid,-1,-1,69,11,nil,Items,nil,dlg_proc) and link_name ~= "") then
