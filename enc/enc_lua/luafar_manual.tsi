@@ -1753,7 +1753,7 @@ id=109
 lv=2
 dt=Text
 nm=export.Open
-mtime=3602446378
+mtime=3610442975
 <article>
 #_ret = export.Open (OpenFrom, Guid, Item)
 #_
@@ -1763,6 +1763,9 @@ mtime=3602446378
 #_  **"binary"**
 #_    By convention, it is a string enclosed in a table as its first element.
 #_    The string is intended to be passed to and from without conversions UTF-8 <-> UTF-16LE.
+#_  **"panel"**
+#_    By convention, it is a panel handle (any non-false Lua value) enclosed in a table
+#_    as its first element. The table must contain the field ["type"]="panel".
 #_
 #_**Parameters:**
 #_  OpenFrom: integer
@@ -1792,7 +1795,8 @@ mtime=3602446378
 #_  if OpenFrom == OPEN_FROMMACRO:
 #_    0 or more Lua values.
 #_    Currently, values of the following types are supported:
-#_      string, nil, boolean, number, "int64", or "binary".
+#_        string, nil, boolean, number, "int64", "binary", or "panel".
+#_    To open a panel, return a "panel" value as the first return value.
 #_  if OpenFrom == something else:
 #_    ret: any Lua value; it is processed by LuaFAR as follows:
 #_    - Nil and false: NULL is returned to Far.

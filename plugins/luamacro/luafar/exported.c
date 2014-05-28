@@ -854,8 +854,36 @@ HANDLE LF_Open(lua_State* L, const struct OpenInfo *Info)
 		int top = lua_gettop(L);
 		if (pcall_msg(L, 3, LUA_MULTRET) == 0)
 		{
-			int narg = lua_gettop(L) - top + 4;
-			HANDLE ret = FillFarMacroCall(L,narg);
+			HANDLE ret;
+			int narg = lua_gettop(L) - top + 4; // narg
+			if (narg > 0 && lua_istable(L, -narg))
+			{
+				lua_getfield(L, -narg, "type"); // narg+1
+				if (lua_type(L,-1)==LUA_TSTRING && lua_objlen(L,-1)==5 && !strcmp("panel",lua_tostring(L,-1)))
+				{
+					lua_pop(L,1); // narg
+					lua_rawgeti(L,-narg,1); // narg+1
+					if(lua_toboolean(L, -1))
+					{
+						struct FarMacroCall* fmc = (struct FarMacroCall*)
+						  malloc(sizeof(struct FarMacroCall)+sizeof(struct FarMacroValue));
+						fmc->StructSize = sizeof(*fmc);
+						fmc->Count = 1;
+						fmc->Values = (struct FarMacroValue*)(fmc+1);
+						fmc->Callback = FillFarMacroCall_Callback;
+						fmc->CallbackData = fmc;
+						fmc->Values[0].Type = FMVT_PANEL;
+						fmc->Values[0].Value.Pointer = RegisterObject(L); // narg
+
+						lua_pop(L,narg); // +0
+						return fmc;
+					}
+					lua_pop(L,narg+1); // +0
+					return NULL;
+				}
+				lua_pop(L,1); // narg
+			}
+			ret = FillFarMacroCall(L,narg);
 			lua_pop(L,narg);
 			return ret;
 		}
