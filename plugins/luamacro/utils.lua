@@ -44,7 +44,7 @@ local Events
 local EventGroups = {"dialogevent","editorevent","editorinput","exitfar","viewerevent"}
 local AddMacro_filename
 
-package.nounload = {}
+package.nounload = {lpeg=true}
 local initial_modules = {}
 for k in pairs(package.loaded) do initial_modules[k]=true end
 
