@@ -2091,17 +2091,20 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void **
 
 			if (OpenFrom == OPEN_FROMMACRO)
 			{
-				//в windows гарантируется, что не бывает указателей меньше 0x10000
-				HANDLE handle = hNewPlugin->hPlugin;
-				if (reinterpret_cast<uintptr_t>(handle) >= 0x10000 && handle != INVALID_HANDLE_VALUE)
+				if (hNewPlugin)
 				{
-					FarMacroCall *fmc = reinterpret_cast<FarMacroCall*>(handle);
-					if (fmc->Count > 0 && fmc->Values[0].Type == FMVT_PANEL)
+					//в windows гарантируется, что не бывает указателей меньше 0x10000
+					HANDLE handle = hNewPlugin->hPlugin;
+					if (reinterpret_cast<uintptr_t>(handle) >= 0x10000 && handle != INVALID_HANDLE_VALUE)
 					{
-						process = true;
-						hNewPlugin->hPlugin = fmc->Values[0].Pointer;
-						if (fmc->Callback)
-							fmc->Callback(fmc->CallbackData, fmc->Values, fmc->Count);
+						FarMacroCall *fmc = reinterpret_cast<FarMacroCall*>(handle);
+						if (fmc->Count > 0 && fmc->Values[0].Type == FMVT_PANEL)
+						{
+							process = true;
+							hNewPlugin->hPlugin = fmc->Values[0].Pointer;
+							if (fmc->Callback)
+								fmc->Callback(fmc->CallbackData, fmc->Values, fmc->Count);
+						}
 					}
 				}
 			}
