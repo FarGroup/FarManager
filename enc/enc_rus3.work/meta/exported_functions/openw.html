@@ -41,10 +41,15 @@ HANDLE WINAPI OpenW(
 
 <p class=note><img src="../../images/note.gif" alt="Замечание для OpenW" width="10" height="10"> Внимание!</p>
 <UL class=note><LI>Если значение поля <a href="../structures/openinfo.html">OpenInfo::OpenFrom</a>, принимаемое плагином, равно <code>OPEN_FROMMACRO</code>, то возвращаемое значение формируется по правилам:<br>
-- если плагин вернул <code>0</code>, макросу возвращается <code>false</code>;<br>
-- если плагин вернул <code>1</code> или <code>INVALID_HANDLE_VALUE</code>, макросу возвращается <code>true</code>.<br>
-Также, для того, чтобы вернуть макросу более одной величины (или одну величину не-булевого типа), плагин должен заполнить структуру
-<a href="../structures/farmacrocall.html">FarMacroCall</a> и вернуть в Far Manager указатель на неё.
+- Если плагин вернул <code>0</code>, макросу возвращается <code>false</code>.<br>
+- Если плагин вернул <code>1</code> или <code>INVALID_HANDLE_VALUE</code>, макросу возвращается <code>true</code>.<br>
+- Чтобы вернуть макросу более одной величины (или одну величину не-булевого типа), плагин должен заполнить структуру
+<a href="../structures/farmacrocall.html">FarMacroCall</a> и вернуть в Far Manager указатель на эту структуру.<br>
+- Если плагин хочет открыть панель, он должен поместить её описатель в начальный
+  элемент массива <code>Values</code> структуры
+  <a href="../structures/farmacrocall.html">FarMacroCall</a> и вернуть в Far
+  Manager указатель на эту структуру. Элемент должен быть типа
+  <code>FMVT_PANEL</code>. Макросу возвращается значение <code>true</code>.
 </LI></UL>
 
 </div>

@@ -2091,9 +2091,19 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void **
 
 			if (OpenFrom == OPEN_FROMMACRO)
 			{
-				// <????>
-				;
-				// </????>
+				//в windows гарантируется, что не бывает указателей меньше 0x10000
+				HANDLE handle = hNewPlugin->hPlugin;
+				if (reinterpret_cast<uintptr_t>(handle) >= 0x10000 && handle != INVALID_HANDLE_VALUE)
+				{
+					FarMacroCall *fmc = reinterpret_cast<FarMacroCall*>(handle);
+					if (fmc->Count > 0 && fmc->Values[0].Type == FMVT_PANEL)
+					{
+						process = true;
+						hNewPlugin->hPlugin = fmc->Values[0].Pointer;
+						if (fmc->Callback)
+							fmc->Callback(fmc->CallbackData, fmc->Values, fmc->Count);
+					}
+				}
 			}
 			else
 			{
@@ -2114,15 +2124,18 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void **
 				//	Код закомментирован! Попытка исключить ненужные вызовы в CallPlugin()
 				//	Если что-то не так - раскомментировать!!!
 
-				//NewPanel->Update(0);
-				//NewPanel->Show();
+				NewPanel->Update(0);
+				NewPanel->Show();
 			}
 
 			if (Ret)
 			{
 				PluginHandle *handle=(PluginHandle *)hNewPlugin;
-				*Ret = hNewPlugin?handle->hPlugin:nullptr;
-				delete handle;
+				if (OpenFrom == OPEN_FROMMACRO && process)
+					*Ret = (void*)1;
+				else
+					*Ret = hNewPlugin?handle->hPlugin:nullptr;
+				//delete handle;
 			}
 
 			return TRUE;

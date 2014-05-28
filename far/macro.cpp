@@ -832,8 +832,6 @@ void KeyMacro::CallPlugin(MacroPluginReturn *mpr, FarMacroValue *fmvalue, bool C
 
 		if (StrToGuid(SysID,guid) && Global->CtrlObject->Plugins->FindPlugin(guid))
 		{
-			FarMacroCall* ResultCallPlugin=nullptr;
-
 			FarMacroValue *vParams = count>1 ? mpr->Values+1:nullptr;
 			OpenMacroInfo info={sizeof(OpenMacroInfo),count-1,vParams};
 			size_t EntryStackSize = GetStateStackSize();
@@ -850,7 +848,8 @@ void KeyMacro::CallPlugin(MacroPluginReturn *mpr, FarMacroValue *fmvalue, bool C
 			int lockCount = Global->ScrBuf->GetLockCount();
 			Global->ScrBuf->SetLockCount(0);
 
-			if (!Global->CtrlObject->Plugins->CallPlugin(guid,OPEN_FROMMACRO,&info,(void**)&ResultCallPlugin))
+			void* ResultCallPlugin = nullptr;
+			if (!Global->CtrlObject->Plugins->CallPlugin(guid,OPEN_FROMMACRO,&info,&ResultCallPlugin))
 				ResultCallPlugin = nullptr;
 
 			Global->ScrBuf->SetLockCount(lockCount);
@@ -870,12 +869,9 @@ void KeyMacro::CallPlugin(MacroPluginReturn *mpr, FarMacroValue *fmvalue, bool C
 			{
 				//в windows гарантируется, что не бывает указателей меньше 0x10000
 				if (reinterpret_cast<uintptr_t>(ResultCallPlugin) >= 0x10000 && ResultCallPlugin != INVALID_HANDLE_VALUE)
-				{
-					fmvalue->Type=FMVT_POINTER;
-					fmvalue->Pointer=ResultCallPlugin;
-				}
+					*fmvalue = ResultCallPlugin;
 				else
-					fmvalue->Boolean=(ResultCallPlugin != nullptr);
+					*fmvalue = (ResultCallPlugin != nullptr);
 			}
 		}
 	}

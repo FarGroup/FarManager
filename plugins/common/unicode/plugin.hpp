@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 3920
+  Plugin API for Far Manager 3.0 build 3924
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 3920
+#define FARMANAGERVERSION_BUILD 3924
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1126,6 +1126,7 @@ enum FARMACROVARTYPE
 	FMVT_POINTER                = 6,
 	FMVT_NIL                    = 7,
 	FMVT_ARRAY                  = 8,
+	FMVT_PANEL                  = 9,
 };
 
 struct FarMacroValue
