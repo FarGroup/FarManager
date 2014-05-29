@@ -163,6 +163,7 @@ function KeyMacro.mmode (Action, nValue)     -- N=MMode(Action[,Value])
     nValue = type(nValue)=="number" and math.floor(nValue)
     if nValue and nValue>=0 and nValue<=2 and nValue~=Result then
       TopMacro.m_flags = bxor(TopMacro.m_flags, MFLAGS_ENABLEOUTPUT)
+      far.Text()
     end
     return Result
 
