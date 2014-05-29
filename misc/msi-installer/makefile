@@ -54,6 +54,10 @@ VC10OBJ = $(OUTDIR)\vc_crt_fix.obj
 VC10CPP = ..\..\unicode_far\vc_crt_fix_impl.cpp
 !endif
 
+!ifdef NIGHTLY
+$(MSI_NAME): $(OUTDIR) $(WIXOBJ) en-us.wxl ui_en-us.wxl $(OUTDIR)\customact.dll
+  light $(LIGHTFLAGS) -cultures:en-us -loc en-us.wxl -loc ui_en-us.wxl -out $@ $(WIXOBJ)
+!else
 $(MSI_NAME): $(OUTDIR) $(OUTDIR)\1033.msi
   copy /y $(OUTDIR)\1033.msi $(MSI_NAME)
 
@@ -65,6 +69,7 @@ $(OUTDIR)\1049.msi: $(WIXOBJ) ru-ru.wxl ui_ru-ru.wxl $(OUTDIR)\customact.dll
 
 $(OUTDIR)\1049: $(OUTDIR)\1033.msi $(OUTDIR)\1049.msi
   torch -nologo -t language $(OUTDIR)\1033.msi $(OUTDIR)\1049.msi -out $@
+!endif
 
 $(OUTDIR)\customact.dll: customact.cpp $(VC10CPP) customact.def $(OUTDIR)\customact.res $(VC10OBJ)
   cl $(CPPFLAGS) -EHsc customact.cpp $(VC10CPP) -link $(LINKFLAGS) $(WINSUBSYSTEM) -dll -out:$@ -def:customact.def $(OUTDIR)\customact.res $(VC10OBJ) msi.lib shell32.lib rpcrt4.lib
