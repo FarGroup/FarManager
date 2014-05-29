@@ -179,7 +179,11 @@ local function CheckCurMacro()
   if macro then
     local handle = macro:GetHandle()
     if handle == 0 then
+      --MacroPluginIsRunning = MacroPluginIsRunning + 1
+      PushState(false)
       handle = MacroInit(macro.m_macroId, macro.m_lang, macro.m_code)
+      PopState(false)
+      --MacroPluginIsRunning = MacroPluginIsRunning - 1
       if handle then macro:SetHandle(handle) end
     end
     if handle and handle ~= 0 then
