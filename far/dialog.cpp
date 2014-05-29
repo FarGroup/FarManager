@@ -850,7 +850,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 
 				// если DI_FIXEDIT, то курсор сразу ставитс€ на замену...
 				//   ай-ай - было недокументированно :-)
-				DialogEdit->SetMaxLength(Items[I].X2-Items[I].X1+1+(Items[I].X2==Items[I].X1));
+				DialogEdit->SetMaxLength(Items[I].X2-Items[I].X1+1);
 				DialogEdit->SetOvertypeMode(true);
 				/* $ 12.08.2000 KM
 				   ≈сли тип строки ввода DI_FIXEDIT и установлен флаг DIF_MASKEDIT

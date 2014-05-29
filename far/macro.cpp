@@ -928,7 +928,7 @@ int KeyMacro::GetKey()
 				if (!StrCmpI(key, L"AKey"))
 				{
 					DWORD aKey=KEY_NONE;
-					MacroRecord macro;
+					MacroRecord macro = {};
 					GetCurMacro(&macro);
 
 					if (!(macro.Flags&MFLAGS_POSTFROMPLUGIN))
