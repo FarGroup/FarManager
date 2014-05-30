@@ -17,32 +17,32 @@ local Items = {
 
 local function mk_target(lname, spath, absp)
   local same, pos = 0, 0
-  if (not absp) then
+  if not absp then
     while true do
       pos = lname:cfind("\\",pos+1)
-      if (not pos or lname:sub(1,pos):lower() ~= spath:sub(1,pos):lower()) then break else same=pos end
+      if not pos or lname:sub(1,pos):lower() ~= spath:sub(1,pos):lower() then break else same=pos end
     end
   end
-  if (same <= 0 or same >= lname:len()) then return spath else
+  if same <= 0 or same >= lname:len() then return spath else
     local target = ""; pos = same
-    while (lname:cfind("\\",pos+1)) do target = target .. "..\\"; pos = lname:cfind("\\",pos+1) end
+    while lname:cfind("\\",pos+1) do target = target .. "..\\"; pos = lname:cfind("\\",pos+1) end
     return target .. spath:sub(same+1)
   end
 end
 
 local function dlg_proc(hDlg, Msg, Param1, Param2)
-  if (Msg == F.DN_INITDIALOG) then
+  if Msg == F.DN_INITDIALOG then
     src = APanel.Current
-    if (not APanel.Plugin) then src = APanel.Path .. (src == ".." and "" or "\\" .. src) end
+    if APanel.Path ~= "" then src = APanel.Path .. (src == ".." and "" or "\\" .. src) end
     link_name = PPanel.Path .. "\\" .. mf.fsplit(src, 4+8)
     hDlg:send(F.DM_SETTEXT,  3, link_name)
     hDlg:send(F.DM_SETCHECK, 6, abs_path and F.BSTATE_CHECKED or F.BSTATE_UNCHECKED)
     hDlg:send(F.DM_SETCHECK, 7, symlink and F.BSTATE_CHECKED or F.BSTATE_UNCHECKED)
-  elseif (Msg == F.DN_BTNCLICK and Param1 == 6) then   -- [x] Abs
+  elseif Msg == F.DN_BTNCLICK and Param1 == 6 then   -- [x] Abs
     abs_path = Param2 ~= 0
-  elseif (Msg == F.DN_BTNCLICK and Param1 == 7) then   -- [x] Symlink
+  elseif Msg == F.DN_BTNCLICK and Param1 == 7 then   -- [x] Symlink
     symlink = Param2 ~= 0
-  elseif (Msg == F.DN_EDITCHANGE and Param1 == 3) then -- link name changed 
+  elseif Msg == F.DN_EDITCHANGE and Param1 == 3 then -- link name changed 
     link_name = hDlg:send(F.DM_GETTEXT, 3)
   else
     return
@@ -52,18 +52,18 @@ local function dlg_proc(hDlg, Msg, Param1, Param2)
   return true
 end
 
+local REALNAMES = 0x20
 Macro {
   area="Shell"; key="AltShiftF6"; flags="NoPluginPPanels"; description="Make symlink";
   condition = function()
-    return PPanel.FilePanel and PPanel.Visible
-       and APanel.FilePanel and (not APanel.Plugin or APanel.Prefix=="tmp")
+    return PPanel.FilePanel and PPanel.Visible and (not APanel.Plugin or band(APanel.OPIFlags,REALNAMES)~=0)
   end;
   action = function()
    if (9 == far.Dialog(guid,-1,-1,69,11,nil,Items,nil,dlg_proc) and link_name ~= "") then
      local attr = win.GetFileAttr(src)
      local dir = attr and attr:find("d")
      local link_type = dir and F.LINK_SYMLINKDIR or F.LINK_SYMLINKFILE
-     if (not symlink) then link_type = dir and F.LINK_JUNCTION or F.LINK_HARDLINK end
+     if not symlink then link_type = dir and F.LINK_JUNCTION or F.LINK_HARDLINK end
      far.MkLink(target_path, link_name, link_type, F.MLF_SHOWERRMSG+F.MLF_HOLDTARGET)
    end
   end;
