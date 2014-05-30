@@ -2123,12 +2123,12 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void **
 					UserDataItem UserData = {};  // !!! NEED CHECK !!!
 					SetDirectory(hNewPlugin,(const wchar_t *)Data,0,&UserData);
 				}
-				// $ 04.04.2001 SVS
-				//	Код закомментирован! Попытка исключить ненужные вызовы в CallPlugin()
-				//	Если что-то не так - раскомментировать!!!
 
-				NewPanel->Update(0);
-				NewPanel->Show();
+				if (OpenFrom == OPEN_FROMMACRO)
+				{
+					NewPanel->Update(0);
+					NewPanel->Show();
+				}
 			}
 
 			if (Ret)
