@@ -18,10 +18,9 @@ local Items = {
 local function mk_target(lname, spath, absp)
   local same, pos = 0, 0
   if not absp then
-    while true do
-      pos = lname:cfind("\\",pos+1)
-      if not pos or lname:sub(1,pos):lower() ~= spath:sub(1,pos):lower() then break else same=pos end
-    end
+    repeat
+      same = pos; pos = lname:cfind("\\",pos+1)
+    until not pos or lname:sub(1,pos):lower() ~= spath:sub(1,pos):lower()
   end
   if same <= 0 or same >= lname:len() then return spath else
     local target = ""; pos = same
