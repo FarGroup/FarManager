@@ -52,11 +52,10 @@ local function dlg_proc(hDlg, Msg, Param1, Param2)
   return true
 end
 
-local REALNAMES = 0x20
 Macro {
   area="Shell"; key="AltShiftF6"; flags="NoPluginPPanels"; description="Make symlink";
   condition = function()
-    return PPanel.FilePanel and PPanel.Visible and (not APanel.Plugin or band(APanel.OPIFlags,REALNAMES)~=0)
+    return PPanel.FilePanel and PPanel.Visible and (not APanel.Plugin or band(APanel.OPIFlags,F.OPIF_REALNAMES)~=0)
   end;
   action = function()
    if (9 == far.Dialog(guid,-1,-1,69,11,nil,Items,nil,dlg_proc) and link_name ~= "") then
