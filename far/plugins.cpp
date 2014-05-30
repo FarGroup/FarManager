@@ -2137,8 +2137,10 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void **
 				if (OpenFrom == OPEN_FROMMACRO && process)
 					*Ret = (void*)1;
 				else
+				{
 					*Ret = hNewPlugin?handle->hPlugin:nullptr;
-				//delete handle;
+					delete handle;
+				}
 			}
 
 			return TRUE;
