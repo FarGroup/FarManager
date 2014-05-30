@@ -3,16 +3,16 @@ local guid = win.Uuid("84CFDB2D-416F-4E29-813C-24F96BF77533")
 local src, link_name, target_path, abs_path, symlink = "", "", "", false, true
 
 local Items = {
---[[1]] {F.DI_DOUBLEBOX, 3,1, 65,9, 0, 0,0, 0, "Create Link"},
---[[2]] {F.DI_TEXT,      5,2, 14,2, 0, 0,0, 0, "&Link name:"},
---[[3]] {F.DI_EDIT,      5,3, 63,3, 0, 0,0, 0, ""},
---[[4]] {F.DI_TEXT,      5,4, 11,4, 0, 0,0, 0, "Target:"},
---[[5]] {F.DI_EDIT,      5,5, 63,5, 0, 0,0, F.DIF_READONLY, ""},
---[[6]] {F.DI_CHECKBOX,  5,6, 21,6, 0, 0,0, 0, "&Absolute Path"},
---[[7]] {F.DI_CHECKBOX, 31,6, 44,6, 0, 0,0, 0, "&Symlink"},
---[[8]] {F.DI_TEXT,     -1,7,  0,0, 0, 0,0, F.DIF_SEPARATOR,""},
---[[9]] {F.DI_BUTTON,    0,8,  0,0, 0, 0,0, F.DIF_DEFAULTBUTTON+F.DIF_CENTERGROUP,"Ok"},
---[[10]] {F.DI_BUTTON,   0,8,  0,0, 0, 0,0, F.DIF_CENTERGROUP,"Cancel"}
+--[[ 1]] {F.DI_DOUBLEBOX, 3,1, 65,9, 0, 0,0, 0, "Create Link"},
+--[[ 2]] {F.DI_TEXT,      5,2, 14,2, 0, 0,0, 0, "&Link name:"},
+--[[ 3]] {F.DI_EDIT,      5,3, 63,3, 0, 0,0, 0, ""},
+--[[ 4]] {F.DI_TEXT,      5,4, 11,4, 0, 0,0, 0, "Target:"},
+--[[ 5]] {F.DI_EDIT,      5,5, 63,5, 0, 0,0, F.DIF_READONLY, ""},
+--[[ 6]] {F.DI_CHECKBOX,  5,6, 21,6, 0, 0,0, 0, "&Absolute Path"},
+--[[ 7]] {F.DI_CHECKBOX, 31,6, 44,6, 0, 0,0, 0, "&Symlink"},
+--[[ 8]] {F.DI_TEXT,     -1,7,  0,0, 0, 0,0, F.DIF_SEPARATOR,""},
+--[[ 9]] {F.DI_BUTTON,    0,8,  0,0, 0, 0,0, F.DIF_DEFAULTBUTTON+F.DIF_CENTERGROUP,"Ok"},
+--[[10]] {F.DI_BUTTON,    0,8,  0,0, 0, 0,0, F.DIF_CENTERGROUP,"Cancel"}
 }
 
 local function mk_target(lname, spath, absp)
@@ -32,7 +32,8 @@ end
 
 local function dlg_proc(hDlg, Msg, Param1, Param2)
   if (Msg == F.DN_INITDIALOG) then
-    src = APanel.Current == ".." and APanel.Path or APanel.Path .. "\\" .. APanel.Current
+    src = APanel.Current
+    if (not APanel.Plugin) then src = APanel.Path .. (src == ".." and "" or "\\" .. src) end
     link_name = PPanel.Path .. "\\" .. mf.fsplit(src, 4+8)
     hDlg:send(F.DM_SETTEXT,  3, link_name)
     hDlg:send(F.DM_SETCHECK, 6, abs_path and F.BSTATE_CHECKED or F.BSTATE_UNCHECKED)
@@ -52,9 +53,10 @@ local function dlg_proc(hDlg, Msg, Param1, Param2)
 end
 
 Macro {
-  area="Shell"; key="AltShiftF6"; flags="NoPluginPanels NoPluginPPanels"; description="Make symlink";
+  area="Shell"; key="AltShiftF6"; flags="NoPluginPPanels"; description="Make symlink";
   condition = function()
-    return APanel.Visible and PPanel.Visible and PPanel.FilePanel
+    return PPanel.FilePanel and PPanel.Visible
+       and APanel.FilePanel and (not APanel.Plugin or APanel.Prefix=="tmp")
   end;
   action = function()
    if (9 == far.Dialog(guid,-1,-1,69,11,nil,Items,nil,dlg_proc) and link_name ~= "") then
