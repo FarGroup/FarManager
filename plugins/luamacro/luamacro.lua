@@ -117,14 +117,14 @@ local function SplitMacroString (Text)
 end
 
 local function loadmacro (Lang, Text, Env)
-  local f1,f2,msg
-  local fname,params = SplitMacroString(Text)
   local _loadstring, _loadfile = loadstring, loadfile
   if Lang == "moonscript" then
     local ms = require "moonscript"
     _loadstring, _loadfile = ms.loadstring, ms.loadfile
   end
 
+  local f1,f2,msg
+  local fname,params = SplitMacroString(Text)
   if fname then
     fname = ExpandEnv(fname)
     if params then
@@ -227,13 +227,13 @@ local function MacroStep (handle, ...)
   end
 end
 
-local function MacroParse (lang, text, onlyCheck, skipFile, title, buttons)
+local function MacroParse (lang, text, onlyCheck, skipFile)
   local isFile = string.sub(text,1,1) == "@"
   if not (isFile and skipFile) then
     local chunk, msg = loadmacro(lang, text)
     if not chunk then
       if not onlyCheck then
-        far.Message(msg, title, buttons, "lw")
+        far.Message(msg, M.MMacroPErrorTitle, M.MOk, "lw")
       end
       LastMessage = pack(
         msg, -- keep alive from gc
@@ -356,7 +356,7 @@ end
 
 local function Init()
   local Shared = { ErrMsg=ErrMsg, pack=pack, checkarg=checkarg, loadmacro=loadmacro, yieldcall=yieldcall,
-                   MacroInit=MacroInit, MacroStep=MacroStep }
+                   MacroInit=MacroInit, MacroStep=MacroStep, MacroParse=MacroParse }
 
   local ModuleDir = far.PluginStartupInfo().ModuleDir
   local function RunPluginFile (fname, param)

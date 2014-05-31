@@ -686,7 +686,7 @@ void PushFarMacroValue(lua_State* L, const struct FarMacroValue* val)
 	else if (val->Type == FMVT_DOUBLE)  lua_pushnumber(L, val->Value.Double);
 	else if (val->Type == FMVT_STRING)  push_utf8_string(L, val->Value.String, -1);
 	else if (val->Type == FMVT_BOOLEAN) lua_pushboolean(L, (int)val->Value.Boolean);
-	else if (val->Type == FMVT_POINTER) lua_pushlightuserdata(L, val->Value.Pointer);
+	else if (val->Type == FMVT_POINTER || val->Type == FMVT_PANEL) lua_pushlightuserdata(L, val->Value.Pointer);
 	else if (val->Type == FMVT_BINARY)
 	{
 		lua_createtable(L,1,0);

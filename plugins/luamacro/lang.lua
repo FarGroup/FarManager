@@ -1,4 +1,7 @@
 local list = {
+  "MOk",
+  "MMacroPErrorTitle",
+
   "UtExecuteMacroTitle",
   "UtExecuteMacroBottom",
 

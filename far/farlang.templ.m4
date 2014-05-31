@@ -18140,16 +18140,6 @@ MMacroSettingsSelectionBlockPresent
 "Selección de &bloque presente"
 "Existujúci blok výber&u"
 
-MMacroPErrorTitle
-"Ошибка при разборе макроса"
-"Error parsing macro"
-"Chyba při zpracování makra"
-upd:"Error parsing macro"
-upd:"Error parsing macro"
-upd:"Error parsing macro"
-"Error analizando macro"
-"Error parsing macro"
-
 MMacroPluginLuamacroNotLoaded
 "Плагин LuaMacro не загружен"
 "Plugin LuaMacro is not loaded"

@@ -2,7 +2,7 @@
 
 local Shared = ...
 local pack, utils = Shared.pack, Shared.utils
-local MacroInit, MacroStep = Shared.MacroInit, Shared.MacroStep
+local MacroInit, MacroStep, MacroParse = Shared.MacroInit, Shared.MacroStep, Shared.MacroParse
 
 local F = far.Flags
 local bit = bit or bit64
@@ -48,7 +48,7 @@ local NewMacroRecord do
   function MacroRecord:GetValue() return self.m_macrovalue end
   function MacroRecord:SetValue(val) self.m_macrovalue=val end
 
-  NewMacroRecord = function (MacroId, Lang, Flags, Key, Code)
+  NewMacroRecord = function (MacroId, Lang, Code, Flags, Key)
     local mr = {
       m_macroId=MacroId, m_lang=Lang, m_flags=Flags, m_key=Key, m_code=Code,
       m_macrovalue=nil,
@@ -255,7 +255,7 @@ function KeyMacro.PostNewMacro (macroId, code, flags, key, postFromPlugin)
         AKey = dKey
       end
     end
-    table.insert(CurState.MacroQueue, NewMacroRecord(macroId,"lua",flags,AKey,code))
+    table.insert(CurState.MacroQueue, NewMacroRecord(macroId,"lua",code,flags,AKey))
     return true
   end
   return false
@@ -298,8 +298,11 @@ function KeyMacro.Dispatch (opcode, ...)
   elseif opcode==10 then return #StateStack
   elseif opcode==11 then return CurState.IntKey
   elseif opcode==12 then
-    table.insert(CurState.MacroQueue, NewMacroRecord(0, ...))
-    return true
+    local Lang,Code,Flags,AKey = ...
+    if MacroParse(Lang,Code,false,true) == F.MPRT_NORMALFINISH then
+      table.insert(CurState.MacroQueue, NewMacroRecord(0,Lang,Code,Flags,AKey))
+      return true
+    end
   elseif opcode==13 then local t=StateStack:top() return t and t.IntKey or 0
   elseif opcode==14 then
     local m = GetCurMacro()

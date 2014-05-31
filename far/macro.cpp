@@ -1130,20 +1130,15 @@ bool KeyMacro::DelMacro(const GUID& PluginId,void* Id)
 
 bool KeyMacro::PostNewMacro(const wchar_t* Sequence,FARKEYMACROFLAGS InputFlags,DWORD AKey)
 {
-	if (ParseMacroString(Sequence, InputFlags&~KMFLAGS_SILENTCHECK, true))
-	{
-		const wchar_t* Lang = GetMacroLanguage(InputFlags);
+	const wchar_t* Lang = GetMacroLanguage(InputFlags);
+	MACROFLAGS_MFLAGS Flags = MFLAGS_POSTFROMPLUGIN;
+	if (InputFlags & KMFLAGS_ENABLEOUTPUT)        Flags |= MFLAGS_ENABLEOUTPUT;
+	if (InputFlags & KMFLAGS_NOSENDKEYSTOPLUGINS) Flags |= MFLAGS_NOSENDKEYSTOPLUGINS;
 
-		MACROFLAGS_MFLAGS Flags = MFLAGS_POSTFROMPLUGIN;
-		if (InputFlags & KMFLAGS_ENABLEOUTPUT)        Flags |= MFLAGS_ENABLEOUTPUT;
-		if (InputFlags & KMFLAGS_NOSENDKEYSTOPLUGINS) Flags |= MFLAGS_NOSENDKEYSTOPLUGINS;
-
-		FarMacroValue values[]={12.0,Lang,(double)Flags,(double)AKey,Sequence};
-		FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
-		OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
-		return CallMacroPluginSimple(&info);
-	}
-	return false;
+	FarMacroValue values[]={12.0,Lang,Sequence,(double)Flags,(double)AKey};
+	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
+	OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
+	return CallMacroPluginSimple(&info);
 }
 
 static BOOL CheckEditSelected(FARMACROAREA Mode, UINT64 CurFlags)
@@ -1487,7 +1482,7 @@ bool KeyMacro::ParseMacroString(const wchar_t* Sequence, FARKEYMACROFLAGS Flags,
 
 	// Перекладываем вывод сообщения об ошибке на плагин, т.к. штатный Message()
 	// не умеет сворачивать строки и обрезает сообщение.
-	FarMacroValue values[]={lang,Sequence,onlyCheck,skipFile,MSG(MMacroPErrorTitle),MSG(MOk)};
+	FarMacroValue values[]={lang,Sequence,onlyCheck,skipFile};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_MACROPARSE,0,&fmc};
 
