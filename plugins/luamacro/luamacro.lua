@@ -16,7 +16,6 @@ local co_yield, co_resume, co_status, co_wrap =
 local PROPAGATE={} -- a unique value, inaccessible to scripts.
 local gmeta = { __index=_G }
 local RunningMacros = {}
-local PostedMacros = {}
 local LastMessage = {}
 local TablePanelSort -- must be separate from LastMessage, otherwise Far crashes after a macro is called from CtrlF12.
 local TableExecString -- must be separate from LastMessage, otherwise Far crashes
@@ -148,23 +147,22 @@ end
 
 local function postmacro (f, ...)
   if type(f) == "function" then
-    local Id = #PostedMacros+1
-    PostedMacros[Id] = pack(f, ...)
-    return keymacro.PostNewMacro(-Id, "", 0, nil, true)
+    return keymacro.PostNewMacro(pack(f, ...), "", 0, nil, true)
   end
   return false
 end
 
 local function MacroInit (Id, Lang, Text)
   local chunk, params
-  if Id == 0 then -- Id==0 может быть только для "одноразовых" макросов, запускаемых посредством MSSC_POST.
+  if Id == 0 then -- макросы, запускаемые посредством MSSC_POST
     chunk, params = loadmacro(Lang, Text)
-  elseif Id < 0 then -- Id<0 может быть только для макросов, запускаемых посредством mf.postmacro.
-    local mtable = PostedMacros[-Id]
-    PostedMacros[-Id] = false
-    chunk = mtable[1]
-    params = function() return unpack(mtable, 2, mtable.n) end
-  else
+  elseif type(Id)=="table" then
+    if Id.commandline then
+      chunk, params = Id[1], Id[2] -- макросы, запускаемые с командной строки
+    else
+      chunk, params = Id[1], function() return unpack(Id,2,Id.n) end -- макросы, запускаемые через mf.postmacro
+    end
+  else -- загруженные или "добавленные" макросы
     local mtable = utils.GetMacroById(Id)
     if mtable then
       chunk = mtable.action
@@ -288,7 +286,10 @@ local function ProcessCommandLine (CmdLine)
           if params then text = text.." "..params end
         end
       end
-      far.MacroPost(text, prefix=="lua" and "KMFLAGS_LUA" or "KMFLAGS_MOONSCRIPT")
+      local f1,f2 = loadmacro(prefix=="lua" and "lua" or "moonscript", text)
+      if f1 then keymacro.PostNewMacro({ f1,f2,commandline=true }, "", 0, nil, true)
+      else ErrMsg(f2)
+      end
     end
   end
 end

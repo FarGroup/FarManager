@@ -245,20 +245,17 @@ local function GetInputFromMacro()
 end
 
 function KeyMacro.PostNewMacro (macroId, code, flags, key, postFromPlugin)
-  if macroId then
-    flags = flags or 0
-    flags = postFromPlugin and bor(flags,MFLAGS_POSTFROMPLUGIN) or flags
-    local AKey = 0
-    if key then
-      local dKey = Import.KeyNameToKey(key)
-      if dKey ~= -1 then
-        AKey = dKey
-      end
+  flags = flags or 0
+  flags = postFromPlugin and bor(flags,MFLAGS_POSTFROMPLUGIN) or flags
+  local AKey = 0
+  if key then
+    local dKey = Import.KeyNameToKey(key)
+    if dKey ~= -1 then
+      AKey = dKey
     end
-    table.insert(CurState.MacroQueue, NewMacroRecord(macroId,"lua",code,flags,AKey))
-    return true
   end
-  return false
+  table.insert(CurState.MacroQueue, NewMacroRecord(macroId,"lua",code,flags,AKey))
+  return true
 end
 
 local function TryToPostMacro (Mode, TextKey, IntKey)
