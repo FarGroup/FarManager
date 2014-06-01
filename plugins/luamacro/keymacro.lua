@@ -37,7 +37,7 @@ local NewMacroRecord do
     m_code="",        -- оригинальный "текст" макроса
     m_macroId=0,      -- Идентификатор загруженного макроса в плагине LuaMacro; 0 для макроса, запускаемого посредством MSSC_POST.
     m_macrovalue=nil, -- Значение, хранимое исполняющимся макросом
-    m_handle=0        -- Хэндл исполняющегося макроса
+    m_handle=nil      -- Хэндл исполняющегося макроса
   }
   local meta = { __index=MacroRecord }
 
@@ -51,7 +51,7 @@ local NewMacroRecord do
     local mr = {
       m_macroId=MacroId, m_lang=Lang, m_flags=Flags, m_key=Key, m_code=Code,
       m_macrovalue=nil,
-      m_handle=0
+      m_handle=nil
     }
     return setmetatable(mr, meta)
   end
@@ -97,7 +97,7 @@ local function RemoveCurMacro() CurState:RemoveCurMacro() end
 
 local function IsExecuting()
   local m = GetCurMacro()
-  if m and m:GetHandle()~=0 then
+  if m and m:GetHandle() then
     return band(m:Flags(),MFLAGS_NOSENDKEYSTOPLUGINS)~=0 and MACROMODE_EXECUTING or MACROMODE_EXECUTING_COMMON
   else
     return StateStack[1] and MACROMODE_EXECUTING_COMMON or MACROMODE_NOMACRO
@@ -177,7 +177,7 @@ local function CheckCurMacro()
   local macro = GetCurMacro()
   if macro then
     local handle = macro:GetHandle()
-    if handle == 0 then
+    if handle == nil then
       --MacroPluginIsRunning = MacroPluginIsRunning + 1
       PushState(false)
       handle = MacroInit(macro.m_macroId, macro.m_lang, macro.m_code)
@@ -185,7 +185,7 @@ local function CheckCurMacro()
       --MacroPluginIsRunning = MacroPluginIsRunning - 1
       if handle then macro:SetHandle(handle) end
     end
-    if handle and handle ~= 0 then
+    if handle then
       return macro
     end
     RemoveCurMacro()

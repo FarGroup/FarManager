@@ -664,7 +664,7 @@ void FileList::SortFileList(int KeepPosition)
 
 			FarMacroValue values[]={&cs};
 			FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
-			OpenMacroPluginInfo info={MCT_PANELSORT,0,&fmc};
+			OpenMacroPluginInfo info={MCT_PANELSORT,&fmc};
 			void *ptr;
 			if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Luamacro.Id, OPEN_LUAMACRO, &info, &ptr) && ptr)
 			{
@@ -4537,7 +4537,7 @@ void FileList::SelectSortMode()
 
 	static const MenuDataEx MenuSeparator = { L"",LIF_SEPARATOR };
 
-	OpenMacroPluginInfo ompInfo = { MCT_GETCUSTOMSORTMODES,0,nullptr };
+	OpenMacroPluginInfo ompInfo = { MCT_GETCUSTOMSORTMODES,nullptr };
 	MacroPluginReturn* mpr = nullptr;
 	size_t extra = 0; // number of additional menu items due to custom sort modes
 	{

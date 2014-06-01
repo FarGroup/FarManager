@@ -15,7 +15,6 @@ local co_yield, co_resume, co_status, co_wrap =
 
 local PROPAGATE={} -- a unique value, inaccessible to scripts.
 local gmeta = { __index=_G }
-local RunningMacros = {}
 local LastMessage = {}
 local TablePanelSort -- must be separate from LastMessage, otherwise Far crashes after a macro is called from CtrlF12.
 local TableExecString -- must be separate from LastMessage, otherwise Far crashes
@@ -171,15 +170,14 @@ local function MacroInit (Id, Lang, Text)
   end
   if chunk then
     local macro = { coro=coroutine.create(chunk), params=params, store={} }
-    table.insert(RunningMacros, macro)
-    return #RunningMacros
+    return macro
   else
     ErrMsg(params)
   end
 end
 
 local function MacroStep (handle, ...)
-  local macro = RunningMacros[handle]
+  local macro = handle
   if macro then
     local status = co_status(macro.coro)
     if status == "suspended" then
@@ -202,7 +200,6 @@ local function MacroStep (handle, ...)
             return ret_type, macro.store
           end
         else
-          RunningMacros[handle] = false
           LastMessage[1] = ""
           return F.MPRT_NORMALFINISH
         end
@@ -210,7 +207,6 @@ local function MacroStep (handle, ...)
         ret1 = type(ret1)=="string" and ret1 or "(error object is not a string)"
         ret1 = debug.traceback(macro.coro, ret1):gsub("\n\t","\n   ")
         ErrMsg(ret1)
-        RunningMacros[handle] = false
         LastMessage[1] = ret1
         return F.MPRT_ERRORFINISH, LastMessage
       end
@@ -307,9 +303,9 @@ local function ProcessCommandLine (CmdLine)
   end
 end
 
-function export.Open (OpenFrom, arg1, arg2, ...)
+function export.Open (OpenFrom, arg1, ...)
   if OpenFrom == F.OPEN_LUAMACRO then
-    local calltype, handle = arg1, arg2
+    local calltype = arg1
     if     calltype==F.MCT_KEYMACRO       then return keymacro.Dispatch(...)
     elseif calltype==F.MCT_MACROPARSE     then return MacroParse(...)
     elseif calltype==F.MCT_DELMACRO       then return utils.DelMacro(...)
@@ -337,11 +333,11 @@ function export.Open (OpenFrom, arg1, arg2, ...)
     end
 
   elseif OpenFrom == F.OPEN_COMMANDLINE then
-    local guid, cmdline =  arg1, arg2
+    local guid, cmdline =  arg1, ...
     return ProcessCommandLine(cmdline)
 
   elseif OpenFrom == F.OPEN_FROMMACRO then
-    local guid, args =  arg1, arg2
+    local guid, args =  arg1, ...
     if args[1]=="argtest" then -- argtest: return received arguments
       return unpack(args,2,args.n)
     elseif args[1]=="macropost" then -- test Mantis # 2222

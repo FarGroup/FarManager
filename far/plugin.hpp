@@ -2666,7 +2666,6 @@ enum MACROPLUGINRETURNTYPE
 struct OpenMacroPluginInfo
 {
 	enum MACROCALLTYPE CallType;
-	intptr_t Handle;
 	struct FarMacroCall *Data;
 	struct MacroPluginReturn Ret;
 };

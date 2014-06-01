@@ -433,7 +433,7 @@ template<class T> bool MacroPluginOp(double OpCode, T Param, MacroPluginReturn* 
 {
 	FarMacroValue values[]={OpCode,Param};
 	FarMacroCall fmc={sizeof(FarMacroCall),2,values,nullptr,nullptr};
-	OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
+	OpenMacroPluginInfo info={MCT_KEYMACRO,&fmc};
 	if (CallMacroPluginSimple(&info))
 	{
 		if (Ret) *Ret=info.Ret;
@@ -535,7 +535,7 @@ static void SetMacroValue(FarMacroValue* Value)
 		values[1]=*Value;
 
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
-	OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
+	OpenMacroPluginInfo info={MCT_KEYMACRO,&fmc};
 	CallMacroPluginSimple(&info);
 }
 
@@ -543,7 +543,7 @@ static bool TryToPostMacro(FARMACROAREA Mode,const string& TextKey,DWORD IntKey)
 {
 	FarMacroValue values[] = {16.0,(double)Mode,TextKey.data(),(double)IntKey};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
-	OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
+	OpenMacroPluginInfo info={MCT_KEYMACRO,&fmc};
 	return CallMacroPluginSimple(&info);
 }
 
@@ -570,13 +570,13 @@ bool KeyMacro::Load(bool InitedRAM, bool LoadAll)
 
 	FarMacroValue values[]={InitedRAM,LoadAll};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
-	OpenMacroPluginInfo info={MCT_LOADMACROS,0,&fmc};
+	OpenMacroPluginInfo info={MCT_LOADMACROS,&fmc};
 	return CallMacroPlugin(&info);
 }
 
 bool KeyMacro::Save(bool /*always*/)
 {
-	OpenMacroPluginInfo info={MCT_WRITEMACROS,0,nullptr};
+	OpenMacroPluginInfo info={MCT_WRITEMACROS,nullptr};
 	return CallMacroPlugin(&info);
 }
 
@@ -596,7 +596,7 @@ static bool GetInputFromMacro(MacroPluginReturn *mpr)
 {
 	FarMacroValue values[]={15.0};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
-	OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
+	OpenMacroPluginInfo info={MCT_KEYMACRO,&fmc};
 
 	if (CallMacroPlugin(&info))
 	{
@@ -649,7 +649,7 @@ static bool LM_GetMacro(GetMacroData* Data, FARMACROAREA Mode, const string& Tex
 {
 	FarMacroValue InValues[]={(double)Mode,TextKey,UseCommon,CheckOnly};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(InValues),InValues,nullptr,nullptr};
-	OpenMacroPluginInfo info={MCT_GETMACRO,0,&fmc};
+	OpenMacroPluginInfo info={MCT_GETMACRO,&fmc};
 
 	if (CallMacroPlugin(&info) && info.Ret.Count>=5)
 	{
@@ -679,7 +679,7 @@ static void LM_ProcessRecordedMacro(FARMACROAREA Mode, const string& TextKey, co
 {
 	FarMacroValue values[]={(double)Mode,TextKey,Code,Flags,Description};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
-	OpenMacroPluginInfo info={MCT_RECORDEDMACRO,0,&fmc};
+	OpenMacroPluginInfo info={MCT_RECORDEDMACRO,&fmc};
 	CallMacroPlugin(&info);
 }
 
@@ -1050,7 +1050,7 @@ bool KeyMacro::GetMacroKeyInfo(const string& strMode, int Pos, string &strKeyNam
 {
 	FarMacroValue values[]={strMode,!Pos};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
-	OpenMacroPluginInfo info={MCT_ENUMMACROS,0,&fmc};
+	OpenMacroPluginInfo info={MCT_ENUMMACROS,&fmc};
 
 	if (CallMacroPlugin(&info) && info.Ret.Count >= 2)
 	{
@@ -1084,7 +1084,7 @@ void KeyMacro::RunStartMacro()
 	if (!IsRunStartMacro && !IsInside)
 	{
 		IsInside = true;
-		OpenMacroPluginInfo info = {MCT_RUNSTARTMACRO,0,nullptr};
+		OpenMacroPluginInfo info = {MCT_RUNSTARTMACRO,nullptr};
 		IsRunStartMacro = CallMacroPlugin(&info);
 		IsInside = false;
 	}
@@ -1116,7 +1116,7 @@ bool KeyMacro::AddMacro(const GUID& PluginId, const MacroAddMacro* Data)
 		Data->Id
 	};
 	FarMacroCall fmc = {sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
-	OpenMacroPluginInfo info = {MCT_ADDMACRO,0,&fmc};
+	OpenMacroPluginInfo info = {MCT_ADDMACRO,&fmc};
 	return CallMacroPlugin(&info);
 }
 
@@ -1124,7 +1124,7 @@ bool KeyMacro::DelMacro(const GUID& PluginId,void* Id)
 {
 	FarMacroValue values[]={PluginId,Id};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
-	OpenMacroPluginInfo info={MCT_DELMACRO,0,&fmc};
+	OpenMacroPluginInfo info={MCT_DELMACRO,&fmc};
 	return CallMacroPlugin(&info);
 }
 
@@ -1137,7 +1137,7 @@ bool KeyMacro::PostNewMacro(const wchar_t* Sequence,FARKEYMACROFLAGS InputFlags,
 
 	FarMacroValue values[]={12.0,Lang,Sequence,(double)Flags,(double)AKey};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
-	OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
+	OpenMacroPluginInfo info={MCT_KEYMACRO,&fmc};
 	return CallMacroPluginSimple(&info);
 }
 
@@ -1484,7 +1484,7 @@ bool KeyMacro::ParseMacroString(const wchar_t* Sequence, FARKEYMACROFLAGS Flags,
 	// не умеет сворачивать строки и обрезает сообщение.
 	FarMacroValue values[]={lang,Sequence,onlyCheck,skipFile};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
-	OpenMacroPluginInfo info={MCT_MACROPARSE,0,&fmc};
+	OpenMacroPluginInfo info={MCT_MACROPARSE,&fmc};
 
 	if (CallMacroPlugin(&info))
 	{
@@ -1512,7 +1512,7 @@ bool KeyMacro::ExecuteString(MacroExecuteString *Data)
 {
 	FarMacroValue values[]={GetMacroLanguage(Data->Flags), Data->SequenceText, FarMacroValue(Data->InValues,Data->InCount)};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
-	OpenMacroPluginInfo info={MCT_EXECSTRING,0,&fmc};
+	OpenMacroPluginInfo info={MCT_EXECSTRING,&fmc};
 
 	if (CallMacroPlugin(&info) && info.Ret.ReturnType == MPRT_NORMALFINISH)
 	{
