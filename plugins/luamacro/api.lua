@@ -1,7 +1,7 @@
 -- api.lua
 
-local args = ...
-local M, checkarg, utils, yieldcall = args.M, args.checkarg, args.utils, args.yieldcall
+local Shared = ...
+local M, checkarg, utils, yieldcall = Shared.M, Shared.checkarg, Shared.utils, Shared.yieldcall
 
 local F=far.Flags
 local band,bor = bit64.band,bit64.bor
@@ -285,7 +285,7 @@ SetProperties(Menu, {
 
 Far = {
   Cfg_Get        = function(...) return MacroCallFar(0x80C58, ...) end,
-  DisableHistory = function(...) return args.keymacro.DisableHistory(...) end,
+  DisableHistory = function(...) return Shared.keymacro.DisableHistory(...) end,
   KbdLayout      = function(...) return MacroCallFar(0x80C49, ...) end,
   KeyBar_Show    = function(...) return MacroCallFar(0x80C4B, ...) end,
   Window_Scroll  = function(...) return MacroCallFar(0x80C4A, ...) end,
@@ -399,7 +399,7 @@ function mf.eval (str, mode, lang)
     end
   end
 
-  local chunk, params = args.loadmacro(lang, str, getfenv(2))
+  local chunk, params = Shared.loadmacro(lang, str, getfenv(2))
   if chunk then
     if mode==1 then return 0 end
     if mode==3 then return "" end
@@ -409,7 +409,7 @@ function mf.eval (str, mode, lang)
     return 0
   else
     local msg = params
-    if mode==0 or mode==2 then args.ErrMsg(msg) end
+    if mode==0 or mode==2 then Shared.ErrMsg(msg) end
     return mode==3 and msg or 11
   end
 end

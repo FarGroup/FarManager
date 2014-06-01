@@ -154,11 +154,9 @@ end
 
 local function MacroInit (Id, Lang, Text)
   local chunk, params
-  if Id == 0 then -- макросы, запускаемые посредством MSSC_POST
-    chunk, params = loadmacro(Lang, Text)
-  elseif type(Id)=="table" then
-    if Id.commandline then
-      chunk, params = Id[1], Id[2] -- макросы, запускаемые с командной строки
+  if type(Id) == "table" then
+    if Id.HasFunction then
+      chunk, params = Id[1], Id[2] -- макросы, запускаемые посредством MSSC_POST или с командной строки
     else
       chunk, params = Id[1], function() return unpack(Id,2,Id.n) end -- макросы, запускаемые через mf.postmacro
     end
@@ -225,21 +223,36 @@ local function MacroStep (handle, ...)
   end
 end
 
-local function MacroParse (lang, text, onlyCheck, skipFile)
-  local isFile = string.sub(text,1,1) == "@"
-  if not (isFile and skipFile) then
-    local chunk, msg = loadmacro(lang, text)
-    if not chunk then
-      if not onlyCheck then
-        far.Message(msg, M.MMacroPErrorTitle, M.MOk, "lw")
-      end
-      LastMessage = pack(
-        msg, -- keep alive from gc
-        tonumber(msg:match(":(%d+): ")) or 0)
-      return F.MPRT_ERRORPARSE, LastMessage
-    end
+local function MacroParse (Lang, Text, onlyCheck, skipFile)
+  local _loadstring, _loadfile = loadstring, loadfile
+  if Lang == "moonscript" then
+    local ms = require "moonscript"
+    _loadstring, _loadfile = ms.loadstring, ms.loadfile
   end
-  LastMessage[1] = ""
+
+  local ok,msg = true,nil
+  local fname,params = SplitMacroString(Text)
+  if fname then
+    if params then
+      ok,msg = _loadstring("return "..params)
+    end
+    if ok and not skipFile then
+      ok,msg = _loadfile(ExpandEnv(fname))
+    end
+  else
+    ok,msg = _loadstring(Text)
+  end
+
+  if not ok then
+    if not onlyCheck then
+      far.Message(msg, M.MMacroPErrorTitle, M.MOk, "lw")
+    end
+    LastMessage = pack(
+      msg, -- keep alive from gc
+      tonumber(msg:match(":(%d+): ")) or 0)
+    return F.MPRT_ERRORPARSE, LastMessage
+  end
+
   return F.MPRT_NORMALFINISH
 end
 
@@ -287,7 +300,7 @@ local function ProcessCommandLine (CmdLine)
         end
       end
       local f1,f2 = loadmacro(prefix=="lua" and "lua" or "moonscript", text)
-      if f1 then keymacro.PostNewMacro({ f1,f2,commandline=true }, "", 0, nil, true)
+      if f1 then keymacro.PostNewMacro({ f1,f2,HasFunction=true }, "", 0, nil, true)
       else ErrMsg(f2)
       end
     end
@@ -357,7 +370,7 @@ end
 
 local function Init()
   local Shared = { ErrMsg=ErrMsg, pack=pack, checkarg=checkarg, loadmacro=loadmacro, yieldcall=yieldcall,
-                   MacroInit=MacroInit, MacroStep=MacroStep, MacroParse=MacroParse }
+                   MacroInit=MacroInit, MacroStep=MacroStep }
 
   local ModuleDir = far.PluginStartupInfo().ModuleDir
   local function RunPluginFile (fname, param)

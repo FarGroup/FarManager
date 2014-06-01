@@ -1,8 +1,7 @@
 -- coding: utf-8
 
 local Shared = ...
-local pack, utils = Shared.pack, Shared.utils
-local MacroInit, MacroStep, MacroParse = Shared.MacroInit, Shared.MacroStep, Shared.MacroParse
+local M, MacroInit, MacroStep = Shared.M, Shared.MacroInit, Shared.MacroStep
 
 local F = far.Flags
 local bit = bit or bit64
@@ -259,7 +258,7 @@ function KeyMacro.PostNewMacro (macroId, code, flags, key, postFromPlugin)
 end
 
 local function TryToPostMacro (Mode, TextKey, IntKey)
-  local m = utils.GetMacro(Mode, TextKey, true, false)
+  local m = Shared.utils.GetMacro(Mode, TextKey, true, false)
   if m then
     KeyMacro.PostNewMacro(m.id, m.code, m.flags, TextKey, false)
     SetHistoryDisableMask(0)
@@ -288,7 +287,7 @@ function KeyMacro.Dispatch (opcode, ...)
     local mr
     if opcode==7 then mr=GetCurMacro() else mr=GetTopMacro() end
     if mr then
-      LastMessage = pack(mr.m_flags, mr.m_key)
+      LastMessage = Shared.pack(mr.m_flags, mr.m_key)
       return F.MPRT_NORMALFINISH, LastMessage
     end
   elseif opcode==9  then return GetCurMacro() and 0 or 1
@@ -296,9 +295,12 @@ function KeyMacro.Dispatch (opcode, ...)
   elseif opcode==11 then return CurState.IntKey
   elseif opcode==12 then
     local Lang,Code,Flags,AKey = ...
-    if MacroParse(Lang,Code,false,true) == F.MPRT_NORMALFINISH then
-      table.insert(CurState.MacroQueue, NewMacroRecord(0,Lang,Code,Flags,AKey))
+    local f1,f2 = Shared.loadmacro(Lang,Code)
+    if f1 then
+      table.insert(CurState.MacroQueue, NewMacroRecord({ f1,f2,HasFunction=true },Lang,Code,Flags,AKey))
       return true
+    else
+      Shared.ErrMsg(f2, M.MMacroPErrorTitle)
     end
   elseif opcode==13 then local t=StateStack:top() return t and t.IntKey or 0
   elseif opcode==14 then
