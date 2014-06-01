@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 3925
+  Plugin API for Far Manager 3.0 build 3931
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 3925
+#define FARMANAGERVERSION_BUILD 3931
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -2515,7 +2515,6 @@ enum MACROPLUGINRETURNTYPE
 struct OpenMacroPluginInfo
 {
 	enum MACROCALLTYPE CallType;
-	intptr_t Handle;
 	struct FarMacroCall *Data;
 	struct MacroPluginReturn Ret;
 };
