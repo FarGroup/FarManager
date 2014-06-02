@@ -34,6 +34,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "components.hpp"
+
 #pragma warning(push, 1)
 
 #ifdef __GNUC__
@@ -75,7 +77,6 @@ namespace ucd
 
 #pragma warning(pop)
 
-#include "components.hpp"
 static string getInfo() { return L"Mozilla Universal Charset Detector"; } // BUGBUG, version unknown
 SCOPED_ACTION(components::component)(getInfo);
 
