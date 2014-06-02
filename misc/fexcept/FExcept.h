@@ -17,11 +17,7 @@ struct PLUGINRECORD       // информация о плагине
 {
 	DWORD TypeRec;          // Тип записи = RTYPE_PLUGIN
 	DWORD SizeRec;          // Размер
-	DWORD Reserved1;
-
-	DWORD WorkFlags;        // рабочие флаги текущего плагина
-	DWORD FuncFlags;        // битовые маски эксп.функций плагина (бит есть - ест и функция)
-	DWORD CallFlags;        // битовые маски вызова эксп.функций плагина
+	DWORD Reserved1[4];
 
 	// DWORD SysID; GUID
 
