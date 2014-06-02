@@ -349,6 +349,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="cmdline.cpp" />
     <ClCompile Include="codepage.cpp" />
     <ClCompile Include="colormix.cpp" />
+    <ClCompile Include="components.cpp" />
     <ClCompile Include="config.cpp" />
     <ClCompile Include="console.cpp" />
     <ClCompile Include="constitle.cpp" />
@@ -525,6 +526,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Include\farcolor.hpp;%(Outputs)</Outputs>
     </CustomBuild>
     <ClInclude Include="common.hpp" />
+    <ClInclude Include="components.hpp" />
     <ClInclude Include="config.hpp" />
     <ClInclude Include="console.hpp" />
     <ClInclude Include="constitle.hpp" />

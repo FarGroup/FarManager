@@ -68,6 +68,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "constitle.hpp"
 #include "language.hpp"
+#include "components.hpp"
 
 enum
 {
@@ -1292,6 +1293,49 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			return FALSE; // מעהאהטלסÿ COMSPEC`ף
 
 		Global->FrameManager->ExitMainLoop(FALSE);
+		return TRUE;
+	}
+	else if (IsCommand(L"VER", false))
+	{
+		ShowBackground();
+		Redraw();
+		GotoXY(X2 + 1, Y1);
+		Text(L' ');
+		Global->ScrBuf->Flush();
+		Console().SetTextAttributes(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
+		string strOut(L"\n");
+
+		strOut.append(Global->Version()).append(1, L'\n');
+		strOut.append(Global->Copyright()).append(1, L'\n');
+
+		const auto& ComponentsInfo = components::GetComponentsInfo();
+		if (!ComponentsInfo.empty())
+		{
+			strOut += L"\nLibraries:\n\n";
+
+			FOR(const auto& i, ComponentsInfo)
+			{
+				strOut.append(i).append(1, L'\n');
+			}
+		}
+
+		if (Global->CtrlObject->Plugins->GetPluginsCount())
+		{
+			strOut += L"\nPlugins:\n\n";
+
+			FOR(const auto& i, *Global->CtrlObject->Plugins)
+			{
+				strOut.append(i->GetTitle()).append(L", version ").append(i->GetVersionString()).append(1, L'\n');
+			}
+		}
+
+		strOut.append(L"\n\n", Global->Opt->ShowKeyBar ? 2 : 1);
+
+		Console().Write(strOut);
+		Console().Commit();
+		Global->ScrBuf->FillBuf();
+		SaveBackground();
+		PrintCommand = false;
 		return TRUE;
 	}
 

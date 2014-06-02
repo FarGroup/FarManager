@@ -38,6 +38,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "config.hpp"
 #include "synchro.hpp"
+#include "components.hpp"
+
+static string getInfo() { return L"SQLite, version " + wide(SQLITE_VERSION); }
+SCOPED_ACTION(components::component)(getInfo);
 
 static void GetDatabasePath(const string& FileName, string &strOut, bool Local)
 {

@@ -44,6 +44,7 @@ class FileEditor;
 class Viewer;
 class Frame;
 class Panel;
+class Dialog;
 
 enum
 {
@@ -55,64 +56,7 @@ enum
 	PLUGIN_FAROTHER
 };
 
-// флаги для поля Plugin.WorkFlags
-enum PLUGINITEMWORKFLAGS
-{
-	PIWF_CACHED        = 0x00000001, // кешируется
-	PIWF_PRELOADED     = 0x00000002, //
-	PIWF_DONTLOADAGAIN = 0x00000004, // не загружать плагин снова, ставится в
-	//   результате проверки требуемой версии фара
-	PIWF_DATALOADED    = 0x00000008, // LoadData успешно выполнилась
-};
-
-// флаги для поля Plugin.FuncFlags - активности функций
-enum PLUGINITEMCALLFUNCFLAGS
-{
-	PICFF_LOADED               = 0x00000001, // DLL загружен ;-)
-	PICFF_OPENPANEL            = 0x00000004, //
-	PICFF_ANALYSE              = 0x00000008, //
-	PICFF_CLOSEPANEL           = 0x00000010, //
-	PICFF_GETGLOBALINFO        = 0x00000002, //
-	PICFF_SETSTARTUPINFO       = 0x00000004, //
-	PICFF_OPENPLUGIN           = 0x00000008, //
-	PICFF_OPENFILEPLUGIN       = 0x00000010, //
-	PICFF_CLOSEPLUGIN          = 0x00000020, //
-	PICFF_GETPLUGININFO        = 0x00000040, //
-	PICFF_GETOPENPANELINFO     = 0x00000080, //
-	PICFF_GETFINDDATA          = 0x00000100, //
-	PICFF_FREEFINDDATA         = 0x00000200, //
-	PICFF_GETVIRTUALFINDDATA   = 0x00000400, //
-	PICFF_FREEVIRTUALFINDDATA  = 0x00000800, //
-	PICFF_SETDIRECTORY         = 0x00001000, //
-	PICFF_GETFILES             = 0x00002000, //
-	PICFF_PUTFILES             = 0x00004000, //
-	PICFF_DELETEFILES          = 0x00008000, //
-	PICFF_MAKEDIRECTORY        = 0x00010000, //
-	PICFF_PROCESSHOSTFILE      = 0x00020000, //
-	PICFF_SETFINDLIST          = 0x00040000, //
-	PICFF_CONFIGURE            = 0x00080000, //
-	PICFF_EXITFAR              = 0x00100000, //
-	PICFF_PROCESSPANELINPUT    = 0x00200000, //
-	PICFF_PROCESSPANELEVENT    = 0x00400000, //
-	PICFF_PROCESSEDITOREVENT   = 0x00800000, //
-	PICFF_COMPARE              = 0x01000000, //
-	PICFF_PROCESSEDITORINPUT   = 0x02000000, //
-	PICFF_MINFARVERSION        = 0x04000000, //
-	PICFF_PROCESSVIEWEREVENT   = 0x08000000, //
-	PICFF_PROCESSDIALOGEVENT   = 0x10000000, //
-	PICFF_PROCESSSYNCHROEVENT  = 0x20000000, //
-	PICFF_PROCESSCONSOLEINPUT  = 0x40000000, //
-	PICFF_CLOSEANALYSE         = 0x80000000, //
-};
-
-// флаги для поля PluginManager.Flags
-enum PLUGINSETFLAGS
-{
-	PSIF_ENTERTOOPENPLUGIN        = 0x00000001, // ввалились в плагин OpenPlugin
-	PSIF_PLUGINSLOADDED           = 0x80000000, // плагины загружены
-};
-
-ENUM(OPENFILEPLUGINTYPE)
+enum OPENFILEPLUGINTYPE
 {
 	OFP_NORMAL,
 	OFP_ALTERNATIVE,
@@ -137,8 +81,6 @@ struct PluginHandle
 	HANDLE hPlugin;
 	Plugin *pPlugin;
 };
-
-class Dialog;
 
 class PluginManager: NonCopyable
 {
@@ -211,13 +153,11 @@ public:
 #ifndef NO_WRAPPER
 	size_t OemPluginsPresent() const { return OemPluginsCount > 0; }
 #endif // NO_WRAPPER
-	bool IsPluginsLoaded() const { return Flags.Check(PSIF_PLUGINSLOADDED); }
-	bool CheckFlags(DWORD NewFlags) const { return Flags.Check(NewFlags); }
+	bool IsPluginsLoaded() const { return m_PluginsLoaded; }
 	void Configure(int StartPos=0);
 	int CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName=nullptr);
 	bool GetDiskMenuItem(Plugin *pPlugin, size_t PluginItem, bool &ItemPresent, wchar_t& PluginHotkey, string &strPluginText, GUID &Guid);
 	void ReloadLanguage();
-	void DiscardCache();
 	int ProcessCommandLine(const string& Command,Panel *Target=nullptr);
 	size_t GetPluginInformation(Plugin *pPlugin, FarGetPluginInformation *pInfo, size_t BufferSize);
 	// $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
@@ -247,18 +187,14 @@ private:
 	bool UpdateId(Plugin *pPlugin, const GUID& Id);
 	void LoadPluginsFromCache();
 
-	static void ReadUserBackgound(SaveScreen *SaveScr);
-	static void GetHotKeyPluginKey(Plugin *pPlugin, string &strPluginKey);
-	static void GetPluginHotKey(Plugin *pPlugin, const GUID& Guid, PluginsHotkeysConfig::HotKeyTypeEnum HotKeyType, string &strHotKey);
-
 	std::vector<std::unique_ptr<GenericPluginModel>> PluginModels;
 	std::unordered_map<GUID, std::unique_ptr<Plugin>, uuid_hash, uuid_equal> Plugins;
 	plugins_set SortedPlugins;
 	std::list<Plugin*> UnloadedPlugins;
-	BitFlags Flags;
 #ifndef NO_WRAPPER
 	size_t OemPluginsCount;
 #endif // NO_WRAPPER
 	FileEditor* m_CurEditor;
 	Viewer* m_CurViewer;
+	bool m_PluginsLoaded;
 };

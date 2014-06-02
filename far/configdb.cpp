@@ -2036,9 +2036,9 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb {
 	SQLiteStmt stmtDeleteOldEditor;
 	SQLiteStmt stmtDeleteOldViewer;
 
-	static unsigned __int64 CalcDays(int Days)
+	static inline uint64_t DaysToUI64(int Days)
 	{
-		return ((unsigned __int64)Days) * 24ull * 60ull * 60ull * 10000000ull;
+		return Days * 24ull * 60ull * 60ull * 10000000ull;
 	}
 
 	Thread WorkThread;
@@ -2061,7 +2061,7 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb {
 		string strData;
 	};
 
-	SyncedQueue<AsyncWorkItem*> WorkQueue;
+	SyncedQueue<std::unique_ptr<AsyncWorkItem>> WorkQueue;
 
 	void WaitAllAsync() const { AllWaiter.Wait(true,INFINITE); }
 	void WaitCommitAsync() const { AsyncCommitDone.Wait(); }
@@ -2105,7 +2105,7 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb {
 			bool bAddDelete=false, bCommit=false;
 			while (!WorkQueue.Empty())
 			{
-				AsyncWorkItem *item = WorkQueue.Pop();
+				auto item = WorkQueue.Pop();
 
 				if (item) //DeleteAndAddAsync
 				{
@@ -2114,7 +2114,6 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb {
 						DeleteInternal(item->DeleteId);
 					AddInternal(item->TypeHistory,item->HistoryName,item->strName,item->Type,item->Lock,item->strGuid,item->strFile,item->strData);
 					SQLiteDb::EndTransaction();
-					delete item;
 					bAddDelete = true;
 				}
 				else // EndTransaction
@@ -2149,8 +2148,7 @@ public:
 
 	bool EndTransaction()
 	{
-		AsyncWorkItem *item = nullptr;
-		WorkQueue.Push(item);
+		WorkQueue.Push(std::make_unique<AsyncWorkItem>());
 		WaitAllAsync();
 		AsyncCommitDone.Reset();
 		AsyncWork.Set();
@@ -2331,7 +2329,7 @@ public:
 
 	bool DeleteAndAddAsync(unsigned __int64 DeleteId, DWORD TypeHistory, const string& HistoryName, string strName, int Type, bool Lock, string &strGuid, string &strFile, string &strData)
 	{
-		AsyncWorkItem *item = new AsyncWorkItem;
+		auto item = std::make_unique<AsyncWorkItem>();
 		item->DeleteId=DeleteId;
 		item->TypeHistory=TypeHistory;
 		item->HistoryName=HistoryName;
@@ -2342,7 +2340,7 @@ public:
 		item->strFile=strFile;
 		item->strData=strData;
 
-		WorkQueue.Push(item);
+		WorkQueue.Push(std::move(item));
 
 		WaitAllAsync();
 		AsyncDeleteAddDone.Reset();
@@ -2354,7 +2352,7 @@ public:
 	{
 		WaitAllAsync();
 		unsigned __int64 older = GetCurrentUTCTimeInUI64();
-		older -= CalcDays(DaysToKeep);
+		older -= DaysToUI64(DaysToKeep);
 		return stmtDeleteOldUnlocked.Bind((int)TypeHistory).Bind(HistoryName).Bind(older).Bind(MinimumEntries).StepAndReset();
 	}
 
@@ -2611,7 +2609,7 @@ public:
 	{
 		WaitCommitAsync();
 		unsigned __int64 older = GetCurrentUTCTimeInUI64();
-		older -= CalcDays(DaysToKeep);
+		older -= DaysToUI64(DaysToKeep);
 		stmtDeleteOldEditor.Bind(older).Bind(MinimumEntries).StepAndReset();
 		stmtDeleteOldViewer.Bind(older).Bind(MinimumEntries).StepAndReset();
 	}

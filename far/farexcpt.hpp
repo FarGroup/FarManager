@@ -85,26 +85,11 @@ struct SYSINFOHEADER      // информация о системе
 	OSVERSIONINFO WinVer;   // версия виндов
 };
 
-// флаги для поля PluginItem.WorkFlags
-enum EX_PLUGINITEMWORKFLAGS
-{
-	EXPIWF_CACHED        = 0x00000001, // кешируется
-	EXPIWF_PRELOADED     = 0x00000002, //
-	EXPIWF_DONTLOADAGAIN = 0x00000004, // не загружать плагин снова, ставится в
-	//   результате проверки требуемой версии фара
-	EXPIWF_DATALOADED    = 0x00000008, // LoadData успешно выполнилась
-};
-
-
 struct PLUGINRECORD       // информация о плагине
 {
 	DWORD TypeRec;          // Тип записи = RTYPE_PLUGIN
 	DWORD SizeRec;          // Размер
-	DWORD Reserved1;
-
-	DWORD WorkFlags;        // рабочие флаги текущего плагина
-	DWORD FuncFlags;        // битовые маски эксп.функций плагина (бит есть - ест и функция)
-	DWORD CallFlags;        // битовые маски вызова эксп.функций плагина
+	DWORD Reserved1[4];
 
 	// DWORD SysID; GUID
 

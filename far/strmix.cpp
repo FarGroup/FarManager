@@ -447,11 +447,7 @@ string& RemoveExternalSpaces(string &strStr)
 */
 string& RemoveUnprintableCharacters(string &strStr)
 {
-	for (size_t i = 0; i != strStr.size(); ++i)
-	{
-		if (IsEol(strStr[i]))
-			strStr[i] = L' ';
-	}
+	std::replace_if(ALL_RANGE(strStr), IsEol, L' ');
 	return RemoveExternalSpaces(strStr);
 }
 

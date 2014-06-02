@@ -2092,12 +2092,13 @@ long TreeList::FindNext(int StartPos, const string& Name)
 {
 	if (static_cast<size_t>(StartPos) < ListData.size())
 	{
-		for (size_t i = StartPos; i < ListData.size(); ++i)
+		auto ItemIterator = std::find_if(CONST_RANGE(ListData, i)
 		{
-			if (CmpName(Name.data(), ListData[i].strName.data(), true))
-				if (!TestParentFolderName(ListData[i].strName))
-					return static_cast<long>(i);
-		}
+			return CmpName(Name.data(), i.strName.data(), true) && !TestParentFolderName(i.strName);
+		});
+
+		if (ItemIterator != ListData.cend())
+			return static_cast<long>(ItemIterator - ListData.cbegin());
 	}
 
 	return -1;

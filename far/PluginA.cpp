@@ -1926,7 +1926,7 @@ static void AnsiDialogItemToUnicode(oldfar::FarDialogItem &diA, FarDialogItem &d
 		case DI_LISTBOX:
 		case DI_COMBOBOX:
 		{
-			if (diA.ListItems && Global->IsPtr(diA.ListItems))
+			if (diA.ListItems && global::IsPtr(diA.ListItems))
 			{
 				l.Items = new FarListItem[diA.ListItems->ItemsNumber];
 				l.ItemsNumber = diA.ListItems->ItemsNumber;

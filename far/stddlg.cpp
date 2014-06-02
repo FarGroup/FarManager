@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "TaskBar.hpp"
 #include "language.hpp"
 #include "DlgGuid.hpp"
+#include "datetime.hpp"
 
 int GetSearchReplaceString(
 	bool IsReplaceMode,
@@ -563,7 +564,7 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 							if (hProcess)
 							{
 								FILETIME ftCreate, ftExit, ftKernel, ftUser;
-								if (GetProcessTimes(hProcess, &ftCreate, &ftExit, &ftKernel, &ftUser) && CompareFileTime(&rgpi[i].Process.ProcessStartTime, &ftCreate) == 0)
+								if (GetProcessTimes(hProcess, &ftCreate, &ftExit, &ftKernel, &ftUser) && rgpi[i].Process.ProcessStartTime == ftCreate)
 								{
 									string Name;
 									if (api::GetModuleFileNameEx(hProcess, nullptr, Name))

@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "config.hpp"
 #include "plugins.hpp"
+#include "datetime.hpp"
 
 namespace api
 {
@@ -120,14 +121,10 @@ static HANDLE FindFirstFileInternal(const string& Name, FAR_FIND_DATA& FindData)
 					{
 						auto DirectoryInfo = reinterpret_cast<PFILE_ID_BOTH_DIR_INFORMATION>(Handle->BufferBase.get());
 						FindData.dwFileAttributes = DirectoryInfo->FileAttributes;
-						FindData.ftCreationTime.dwLowDateTime = DirectoryInfo->CreationTime.LowPart;
-						FindData.ftCreationTime.dwHighDateTime = DirectoryInfo->CreationTime.HighPart;
-						FindData.ftLastAccessTime.dwLowDateTime = DirectoryInfo->LastAccessTime.LowPart;
-						FindData.ftLastAccessTime.dwHighDateTime = DirectoryInfo->LastAccessTime.HighPart;
-						FindData.ftLastWriteTime.dwLowDateTime = DirectoryInfo->LastWriteTime.LowPart;
-						FindData.ftLastWriteTime.dwHighDateTime = DirectoryInfo->LastWriteTime.HighPart;
-						FindData.ftChangeTime.dwLowDateTime = DirectoryInfo->ChangeTime.LowPart;
-						FindData.ftChangeTime.dwHighDateTime = DirectoryInfo->ChangeTime.HighPart;
+						FindData.ftCreationTime = UI64ToFileTime(DirectoryInfo->CreationTime.QuadPart);
+						FindData.ftLastAccessTime = UI64ToFileTime(DirectoryInfo->LastAccessTime.QuadPart);
+						FindData.ftLastWriteTime = UI64ToFileTime(DirectoryInfo->LastWriteTime.QuadPart);
+						FindData.ftChangeTime = UI64ToFileTime(DirectoryInfo->ChangeTime.QuadPart);
 						FindData.nFileSize = DirectoryInfo->EndOfFile.QuadPart;
 						FindData.nAllocationSize = DirectoryInfo->AllocationSize.QuadPart;
 						FindData.dwReserved0 = FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT?DirectoryInfo->EaSize:0;
@@ -216,14 +213,10 @@ static bool FindNextFileInternal(HANDLE Find, FAR_FIND_DATA& FindData)
 	if(Status)
 	{
 		FindData.dwFileAttributes = DirectoryInfo->FileAttributes;
-		FindData.ftCreationTime.dwLowDateTime = DirectoryInfo->CreationTime.LowPart;
-		FindData.ftCreationTime.dwHighDateTime = DirectoryInfo->CreationTime.HighPart;
-		FindData.ftLastAccessTime.dwLowDateTime = DirectoryInfo->LastAccessTime.LowPart;
-		FindData.ftLastAccessTime.dwHighDateTime = DirectoryInfo->LastAccessTime.HighPart;
-		FindData.ftLastWriteTime.dwLowDateTime = DirectoryInfo->LastWriteTime.LowPart;
-		FindData.ftLastWriteTime.dwHighDateTime = DirectoryInfo->LastWriteTime.HighPart;
-		FindData.ftChangeTime.dwLowDateTime = DirectoryInfo->ChangeTime.LowPart;
-		FindData.ftChangeTime.dwHighDateTime = DirectoryInfo->ChangeTime.HighPart;
+		FindData.ftCreationTime = UI64ToFileTime(DirectoryInfo->CreationTime.QuadPart);
+		FindData.ftLastAccessTime = UI64ToFileTime(DirectoryInfo->LastAccessTime.QuadPart);
+		FindData.ftLastWriteTime = UI64ToFileTime(DirectoryInfo->LastWriteTime.QuadPart);
+		FindData.ftChangeTime = UI64ToFileTime(DirectoryInfo->ChangeTime.QuadPart);
 		FindData.nFileSize = DirectoryInfo->EndOfFile.QuadPart;
 		FindData.nAllocationSize = DirectoryInfo->AllocationSize.QuadPart;
 		FindData.dwReserved0 = FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT?DirectoryInfo->EaSize:0;
@@ -974,7 +967,7 @@ DWORD GetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFileName)
 
 	do
 	{
-		BufferSize <<= 1;
+		BufferSize *= 2;
 		FileName.reset(BufferSize);
 		if (hProcess)
 		{
@@ -1329,7 +1322,7 @@ HANDLE FindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,LPVOI
 					NTSTATUS Result = STATUS_SEVERITY_ERROR;
 					do
 					{
-						Handle->BufferSize<<=1;
+						Handle->BufferSize *= 2;
 						Handle->BufferBase.reset(Handle->BufferSize);
 						if (Handle->BufferBase)
 						{
@@ -1642,23 +1635,19 @@ bool GetFileTimeEx(HANDLE Object, LPFILETIME CreationTime, LPFILETIME LastAccess
 	{
 		if(CreationTime)
 		{
-			CreationTime->dwLowDateTime = fbi->CreationTime.LowPart;
-			CreationTime->dwHighDateTime = fbi->CreationTime.HighPart;
+			*CreationTime = UI64ToFileTime(fbi->CreationTime.QuadPart);
 		}
 		if(LastAccessTime)
 		{
-			LastAccessTime->dwLowDateTime = fbi->LastAccessTime.LowPart;
-			LastAccessTime->dwHighDateTime = fbi->LastAccessTime.HighPart;
+			*LastAccessTime = UI64ToFileTime(fbi->LastAccessTime.QuadPart);
 		}
 		if(LastWriteTime)
 		{
-			LastWriteTime->dwLowDateTime = fbi->LastWriteTime.LowPart;
-			LastWriteTime->dwHighDateTime = fbi->LastWriteTime.HighPart;
+			*LastWriteTime = UI64ToFileTime(fbi->LastWriteTime.QuadPart);
 		}
 		if(ChangeTime)
 		{
-			ChangeTime->dwLowDateTime = fbi->ChangeTime.LowPart;
-			ChangeTime->dwHighDateTime = fbi->ChangeTime.HighPart;
+			*ChangeTime = UI64ToFileTime(fbi->ChangeTime.QuadPart);
 		}
 		Result = true;
 	}
@@ -1673,23 +1662,19 @@ bool SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILETIME* 
 	auto fbi = reinterpret_cast<PFILE_BASIC_INFORMATION>(Buffer);
 	if(CreationTime)
 	{
-		fbi->CreationTime.HighPart = CreationTime->dwHighDateTime;
-		fbi->CreationTime.LowPart = CreationTime->dwLowDateTime;
+		fbi->CreationTime.QuadPart = FileTimeToUI64(*CreationTime);
 	}
 	if(LastAccessTime)
 	{
-		fbi->LastAccessTime.HighPart = LastAccessTime->dwHighDateTime;
-		fbi->LastAccessTime.LowPart = LastAccessTime->dwLowDateTime;
+		fbi->LastAccessTime.QuadPart = FileTimeToUI64(*LastAccessTime);
 	}
 	if(LastWriteTime)
 	{
-		fbi->LastWriteTime.HighPart = LastWriteTime->dwHighDateTime;
-		fbi->LastWriteTime.LowPart = LastWriteTime->dwLowDateTime;
+		fbi->LastWriteTime.QuadPart = FileTimeToUI64(*LastWriteTime);
 	}
 	if(ChangeTime)
 	{
-		fbi->ChangeTime.HighPart = ChangeTime->dwHighDateTime;
-		fbi->ChangeTime.LowPart = ChangeTime->dwLowDateTime;
+		fbi->ChangeTime.QuadPart = FileTimeToUI64(*ChangeTime);
 	}
 	IO_STATUS_BLOCK IoStatusBlock;
 	NTSTATUS Status = Imports().NtSetInformationFile(Object, &IoStatusBlock, fbi, Length, FileBasicInformation);

@@ -679,10 +679,10 @@ bool Plugin::Load()
 	if (!WorkFlags.Check(PIWF_DATALOADED)&&!LoadData())
 		return false;
 
-	if (FuncFlags.Check(PICFF_LOADED))
+	if (WorkFlags.Check(PIWF_LOADED))
 		return true;
 
-	FuncFlags.Set(PICFF_LOADED);
+	WorkFlags.Set(PIWF_LOADED);
 
 	bool Inited = false;
 
@@ -768,7 +768,7 @@ int Plugin::Unload(bool bExitFAR)
 {
 	int nResult = TRUE;
 
-	if (FuncFlags.Check(PICFF_LOADED))
+	if (WorkFlags.Check(PIWF_LOADED))
 	{
 		if (bExitFAR)
 		{
@@ -783,7 +783,7 @@ int Plugin::Unload(bool bExitFAR)
 		}
 
 		m_Instance = nullptr;
-		FuncFlags.Clear(PICFF_LOADED);
+		WorkFlags.Clear(PIWF_LOADED);
 		WorkFlags.Clear(PIWF_DATALOADED);
 		bPendingRemove = true;
 	}

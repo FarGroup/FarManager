@@ -527,160 +527,149 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 	string strProfilePath, strLocalProfilePath, strTemplatePath;
 
-	for (size_t I = 1; I < Args.size(); ++I)
+	FOR_RANGE(Args, Iter)
 	{
-		if ((Args[I][0]==L'/' || Args[I][0]==L'-') && Args[I][1])
+		const auto& Arg = *Iter;
+		if ((Arg[0]==L'/' || Arg[0]==L'-') && Arg[1])
 		{
-			switch (Upper(Args[I][1]))
+			switch (Upper(Arg[1]))
 			{
 				case L'A':
-
-					switch (Upper(Args[I][2]))
+					switch (Upper(Arg[2]))
 					{
-						case 0:
-							Global->Opt->CleanAscii = true;
-							break;
-						case L'G':
+					case 0:
+						Global->Opt->CleanAscii = true;
+						break;
 
-							if (!Args[I][3])
-								Global->Opt->NoGraphics = true;
-
-							break;
+					case L'G':
+						if (!Arg[3])
+							Global->Opt->NoGraphics = true;
+						break;
 					}
-
 					break;
-				case L'E':
 
-					if (iswdigit(Args[I][2]))
+				case L'E':
+					if (iswdigit(Arg[2]))
 					{
-						StartLine=_wtoi(&Args[I][2]);
-						const wchar_t *ChPtr=wcschr(&Args[I][2],L':');
+						StartLine=_wtoi(&Arg[2]);
+						const wchar_t *ChPtr=wcschr(&Arg[2],L':');
 
 						if (ChPtr)
 							StartChar=_wtoi(ChPtr+1);
 					}
 
-					if (I + 1 < Args.size())
+					if (Iter + 1 != Args.end())
 					{
-						strEditName = Args[I+1];
-						I++;
+						strEditName = *++Iter;
 					}
-
 					break;
+
 				case L'V':
-
-					if (I + 1 < Args.size())
+					if (Iter + 1 != Args.end())
 					{
-						strViewName = Args[I+1];
-						I++;
+						strViewName = *++Iter;
 					}
-
 					break;
+
 				case L'M':
-
-					switch (Upper(Args[I][2]))
+					switch (Upper(Arg[2]))
 					{
-						case 0:
-							Global->Opt->Macro.DisableMacro|=MDOL_ALL;
-							break;
-						case L'A':
+					case L'\0':
+						Global->Opt->Macro.DisableMacro|=MDOL_ALL;
+						break;
 
-							if (!Args[I][3])
-								Global->Opt->Macro.DisableMacro|=MDOL_AUTOSTART;
-
-							break;
+					case L'A':
+						if (!Arg[3])
+							Global->Opt->Macro.DisableMacro|=MDOL_AUTOSTART;
+						break;
 					}
-
 					break;
+
 #ifndef NO_WRAPPER
 				case L'U':
-
-					if (I + 1 < Args.size())
+					if (Iter + 1 != Args.end())
 					{
 						//Affects OEM plugins only!
-						Global->strRegUser = Args[I+1];
-						I++;
+						Global->strRegUser = *++Iter;
 					}
 					break;
 #endif // NO_WRAPPER
 
 				case L'S':
-
-					if (I + 1 < Args.size())
+					if (Iter + 1 != Args.end())
 					{
-						strProfilePath = Args[I+1];
-						I++;
-						if (I + 1 < Args.size() && Args[I + 1][0] != L'-'  && Args[I + 1][0] != L'/')
+						strProfilePath = *++Iter;
+						auto Next = Iter + 1;
+						if (Next != Args.end() && *Next[0] != L'-'  && *Next[0] != L'/')
 						{
-							strLocalProfilePath = Args[I+1];
-							I++;
+							strLocalProfilePath = *Next;
+							Iter = Next;
 						}
 					}
 					break;
 
 				case L'T':
-					if (I + 1 < Args.size())
+					if (Iter + 1 != Args.end())
 					{
-						strTemplatePath = Args[++I];
+						strTemplatePath = *++Iter;
 					}
 					break;
 
 				case L'P':
-				{
-					Global->Opt->LoadPlug.PluginsPersonal = false;
-					Global->Opt->LoadPlug.MainPluginDir = false;
-
-					if (Args[I][2])
 					{
-						ConvertNameToFull(Unquote(api::env::expand_strings(&Args[I][2])), Global->Opt->LoadPlug.strCustomPluginsPath);
-					}
-					else
-					{
-						// если указан -P без <путь>, то, считаем, что основные
-						//  плагины не загружать вооообще!!!
-						Global->Opt->LoadPlug.strCustomPluginsPath.clear();
-					}
+						Global->Opt->LoadPlug.PluginsPersonal = false;
+						Global->Opt->LoadPlug.MainPluginDir = false;
 
+						if (Arg[2])
+						{
+							ConvertNameToFull(Unquote(api::env::expand_strings(&Arg[2])), Global->Opt->LoadPlug.strCustomPluginsPath);
+						}
+						else
+						{
+							// если указан -P без <путь>, то, считаем, что основные
+							//  плагины не загружать вооообще!!!
+							Global->Opt->LoadPlug.strCustomPluginsPath.clear();
+						}
+					}
 					break;
-				}
-				case L'C':
 
-					if (Upper(Args[I][2])==L'O' && !Args[I][3])
+				case L'C':
+					if (Upper(Arg[2])==L'O' && !Arg[3])
 					{
 						Global->Opt->LoadPlug.PluginsCacheOnly = true;
 						Global->Opt->LoadPlug.PluginsPersonal = false;
 					}
-
 					break;
+
 				case L'?':
 				case L'H':
 					ControlObject::ShowCopyright(1);
 					show_help();
 					return 0;
+
 #ifdef DIRECT_RT
 				case L'D':
-
-					if (Upper(Args[I][2])==L'O' && !Args[I][3])
+					if (Upper(Arg[2])==L'O' && !Arg[3])
 						Global->DirectRT=true;
-
 					break;
 #endif
 				case L'W':
 					{
-						if(Args[I][2] == L'-')
+						if(Arg[2] == L'-')
 						{
 							Global->Opt->WindowMode= false;
 						}
-						else if(!Args[I][2])
+						else if(!Arg[2])
 						{
 							Global->Opt->WindowMode= true;
 						}
 					}
 					break;
+
 				case L'R':
-					if (Upper(Args[I][2]) == L'O') // -ro
+					if (Upper(Arg[2]) == L'O') // -ro
 						Global->Opt->ReadOnlyConfig = TRUE;
-					if (Upper(Args[I][2]) == L'W') // -rw
+					if (Upper(Arg[2]) == L'W') // -rw
 						Global->Opt->ReadOnlyConfig = FALSE;
 					break;
 			}
@@ -689,13 +678,13 @@ static int mainImpl(const range<wchar_t**>& Args)
 		{
 			if (CntDestName < 2)
 			{
-				if (IsPluginPrefixPath(Args[I]))
+				if (IsPluginPrefixPath(Arg))
 				{
-					DestNames[CntDestName++] = Args[I];
+					DestNames[CntDestName++] = Arg;
 				}
 				else
 				{
-					string ArgvI = Unquote(api::env::expand_strings(Args[I]));
+					string ArgvI = Unquote(api::env::expand_strings(Arg));
 					ConvertNameToFull(ArgvI, ArgvI);
 
 					if (api::GetFileAttributes(ArgvI) != INVALID_FILE_ATTRIBUTES)
@@ -767,6 +756,8 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 	return Result;
 }
+
+#include "components.hpp"
 
 int wmain(int Argc, wchar_t *Argv[])
 {

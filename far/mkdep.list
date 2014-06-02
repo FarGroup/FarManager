@@ -16,6 +16,8 @@ codepage.hpp
 colormix.hpp
 colormix.cpp
 colors.hpp
+components.hpp
+components.cpp
 config.cpp
 config.hpp
 configdb.cpp

@@ -808,7 +808,7 @@ static inline bool local_to_utc(const SYSTEMTIME &lst, SYSTEMTIME &ust)
 	{
 		bool ok = false;
 
-		struct tm ltm;
+		tm ltm;
 		ltm.tm_year = lst.wYear - 1900;
 		ltm.tm_mon  = lst.wMonth - 1;
 		ltm.tm_mday = lst.wDay;
@@ -820,7 +820,7 @@ static inline bool local_to_utc(const SYSTEMTIME &lst, SYSTEMTIME &ust)
 		time_t gtim = mktime(&ltm);
 		if (gtim != (time_t)-1)
 		{
-			struct tm *ptm = gmtime(&gtim);
+			tm *ptm = gmtime(&gtim);
 			if (ptm)
 			{
 				ust.wYear   = ptm->tm_year + 1900;

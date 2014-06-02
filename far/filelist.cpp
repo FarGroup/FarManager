@@ -7083,13 +7083,10 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 
 		if (ListData[CurFile].Selected)
 		{
-			for (size_t i = CurFile + 1; i < ListData.size(); ++i)
+			auto ItemIterator = std::find_if(ListData.cbegin() + CurFile + 1, ListData.cend(), [](CONST_VALUE_TYPE(ListData)& i) { return !i.Selected; });
+			if (ItemIterator != ListData.cend())
 			{
-				if (!ListData[i].Selected)
-				{
-					strNextCurName = ListData[i].strName;
-					break;
-				}
+				strNextCurName = ItemIterator->strName;
 			}
 		}
 	}

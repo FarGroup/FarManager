@@ -1,11 +1,12 @@
+#pragma once
+
 /*
-tinyxml.cpp
+components.hpp
 
-tinyxml wrapper
-
+static list of third-party components
 */
 /*
-Copyright © 2011 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -31,22 +32,40 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
-#ifdef __GNUC__
-#pragma GCC diagnostic ignored "-Wuseless-cast"
-#endif // __GNUC__
-
-#include "tinyxml.hpp"
-#include "components.hpp"
-
-namespace tinyxml
+namespace components
 {
-#include "thirdparty/tinyxml/tinyxml.cpp"
-#include "thirdparty/tinyxml/tinyxmlerror.cpp"
-#include "thirdparty/tinyxml/tinyxmlparser.cpp"
+	class component
+	{
+	public:
+		typedef string(*get_info)();
 
-	static string getInfo() { return FormatString() << L"TinyXML, version " << TIXML_MAJOR_VERSION << L"." << TIXML_MINOR_VERSION << L"." << TIXML_PATCH_VERSION; }
-	SCOPED_ACTION(components::component)(getInfo);
+		component(get_info getInfo);
+
+	private:
+		friend class components_list;
+
+		get_info m_getInfo;
+		component* m_next;
+	};
+
+	class components_list:public enumerator<component::get_info>
+	{
+	public:
+		void add(component* item);
+		bool empty() const { return list != nullptr; }
+		size_t size() const { return m_size; }
+		virtual bool get(size_t index, component::get_info& value) override;
+
+	private:
+		friend components_list& GetComponentsList();
+
+		components_list();
+
+		component* list;
+		component* ptr;
+		component* enum_ptr;
+		size_t m_size;
+	};
+
+	std::set<string>& GetComponentsInfo();
 }

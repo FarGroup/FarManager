@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filesystemwatcher.hpp"
 #include "flink.hpp"
 #include "elevation.hpp"
+#include "datetime.hpp"
 
 FileSystemWatcher::FileSystemWatcher():
 	PreviousLastWriteTime(),
@@ -147,5 +148,5 @@ void FileSystemWatcher::Release()
 
 bool FileSystemWatcher::Signaled()
 {
-	return Changed.Signaled() || CompareFileTime(&PreviousLastWriteTime, &CurrentLastWriteTime);
+	return Changed.Signaled() || PreviousLastWriteTime != CurrentLastWriteTime;
 }

@@ -103,6 +103,7 @@ LINK_OBJS = \
 	"$(INTDIR)\cmdline.obj" \
 	"$(INTDIR)\codepage.obj" \
 	"$(INTDIR)\colormix.obj" \
+	"$(INTDIR)\components.obj" \
 	"$(INTDIR)\config.obj" \
 	"$(INTDIR)\configdb.obj" \
 	"$(INTDIR)\console.obj" \

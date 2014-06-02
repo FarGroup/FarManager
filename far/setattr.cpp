@@ -597,7 +597,7 @@ bool ReadFileTime(int Type,const string& Name,FILETIME& FileTime,const string& O
 
 			if (Local2Utc(st, FileTime))
 			{
-				Result=CompareFileTime(&FileTime,OriginalFileTime)!=0;
+				Result= FileTime != *OriginalFileTime;
 			}
 		}
 	}

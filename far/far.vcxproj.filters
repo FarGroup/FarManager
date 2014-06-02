@@ -53,6 +53,9 @@
     <ClCompile Include="colormix.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="components.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="config.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -438,6 +441,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="common.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="components.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="config.hpp">

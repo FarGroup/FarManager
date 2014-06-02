@@ -68,7 +68,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #define LAMBDA_PREDICATE(T, i, ...) [&](T_VALUE_TYPE(T)& i, ##__VA_ARGS__)
-#define CONST_LAMBDA_PREDICATE(T, i, ...) [&](const T_CONST_VALUE_TYPE(T)& i, ##__VA_ARGS__)
+#define CONST_LAMBDA_PREDICATE(T, i, ...) [&](T_CONST_VALUE_TYPE(T)& i, ##__VA_ARGS__)
 
 #define ALL_RANGE(T) std::begin(T), std::end(T)
 #define ALL_REVERSE_RANGE(T) std::rbegin(T), std::rend(T)

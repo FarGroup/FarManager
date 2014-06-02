@@ -70,6 +70,52 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static const wchar_t *PluginsFolderName=L"Plugins";
 
+static void ReadUserBackgound(SaveScreen *SaveScr)
+{
+	FilePanels *FPanel = Global->CtrlObject->Cp();
+	FPanel->LeftPanel->ProcessingPluginCommand++;
+	FPanel->RightPanel->ProcessingPluginCommand++;
+
+	if (Global->KeepUserScreen)
+	{
+		if (SaveScr)
+			SaveScr->Discard();
+
+		RedrawDesktop Redraw;
+	}
+
+	FPanel->LeftPanel->ProcessingPluginCommand--;
+	FPanel->RightPanel->ProcessingPluginCommand--;
+}
+
+static void GetHotKeyPluginKey(Plugin *pPlugin, string &strPluginKey)
+{
+	/*
+	FarPath
+	C:\Program Files\Far\
+
+	ModuleName                                             PluginName
+	---------------------------------------------------------------------------------------
+	C:\Program Files\Far\Plugins\MultiArc\MULTIARC.DLL  -> Plugins\MultiArc\MULTIARC.DLL
+	C:\MultiArc\MULTIARC.DLL                            -> C:\MultiArc\MULTIARC.DLL
+	---------------------------------------------------------------------------------------
+	*/
+	strPluginKey = pPlugin->GetHotkeyName();
+#ifndef NO_WRAPPER
+	size_t FarPathLength = Global->g_strFarPath.size();
+	if (pPlugin->IsOemPlugin() && FarPathLength < pPlugin->GetModuleName().size() && !StrCmpNI(pPlugin->GetModuleName().data(), Global->g_strFarPath.data(), FarPathLength))
+		strPluginKey.erase(0, FarPathLength);
+#endif // NO_WRAPPER
+}
+
+static void GetPluginHotKey(Plugin *pPlugin, const GUID& Guid, PluginsHotkeysConfig::HotKeyTypeEnum HotKeyType, string &strHotKey)
+{
+	string strPluginKey;
+	strHotKey.clear();
+	GetHotKeyPluginKey(pPlugin, strPluginKey);
+	strHotKey = Global->Db->PlHotkeyCfg()->GetHotkey(strPluginKey, GuidToStr(Guid), HotKeyType);
+}
+
 bool PluginManager::plugin_less::operator ()(const Plugin* a, const Plugin *b) const
 {
 	return StrCmpI(PointToName(a->GetModuleName()),PointToName(b->GetModuleName())) < 0;
@@ -77,10 +123,11 @@ bool PluginManager::plugin_less::operator ()(const Plugin* a, const Plugin *b) c
 
 PluginManager::PluginManager():
 #ifndef NO_WRAPPER
-	OemPluginsCount(0),
+	OemPluginsCount(),
 #endif // NO_WRAPPER
-	m_CurEditor(nullptr),
-	m_CurViewer(nullptr)
+	m_CurEditor(),
+	m_CurViewer(),
+	m_PluginsLoaded()
 {
 }
 
@@ -329,7 +376,7 @@ void PluginManager::LoadModels()
 void PluginManager::LoadPlugins()
 {
 	SCOPED_ACTION(IndeterminateTaskBar)(false);
-	Flags.Clear(PSIF_PLUGINSLOADDED);
+	m_PluginsLoaded = false;
 
 	LoadModels();
 
@@ -390,7 +437,7 @@ void PluginManager::LoadPlugins()
 		});
 	}
 
-	Flags.Set(PSIF_PLUGINSLOADDED);
+	m_PluginsLoaded = true;
 }
 
 /* $ 01.09.2000 tran
@@ -1547,34 +1594,6 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 	return TRUE;
 }
 
-void PluginManager::GetHotKeyPluginKey(Plugin *pPlugin, string &strPluginKey)
-{
-	/*
-	FarPath
-	C:\Program Files\Far\
-
-	ModuleName                                             PluginName
-	---------------------------------------------------------------------------------------
-	C:\Program Files\Far\Plugins\MultiArc\MULTIARC.DLL  -> Plugins\MultiArc\MULTIARC.DLL
-	C:\MultiArc\MULTIARC.DLL                            -> C:\MultiArc\MULTIARC.DLL
-	---------------------------------------------------------------------------------------
-	*/
-	strPluginKey = pPlugin->GetHotkeyName();
-#ifndef NO_WRAPPER
-	size_t FarPathLength=Global->g_strFarPath.size();
-	if (pPlugin->IsOemPlugin() && FarPathLength < pPlugin->GetModuleName().size() && !StrCmpNI(pPlugin->GetModuleName().data(), Global->g_strFarPath.data(), FarPathLength))
-		strPluginKey.erase(0, FarPathLength);
-#endif // NO_WRAPPER
-}
-
-void PluginManager::GetPluginHotKey(Plugin *pPlugin, const GUID& Guid, PluginsHotkeysConfig::HotKeyTypeEnum HotKeyType, string &strHotKey)
-{
-	string strPluginKey;
-	strHotKey.clear();
-	GetHotKeyPluginKey(pPlugin, strPluginKey);
-	strHotKey = Global->Db->PlHotkeyCfg()->GetHotkey(strPluginKey, GuidToStr(Guid), HotKeyType);
-}
-
 bool PluginManager::SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHotkeysConfig::HotKeyTypeEnum HotKeyType, const string& DlgPluginTitle)
 {
 	string strPluginKey;
@@ -1897,16 +1916,8 @@ int PluginManager::UseFarCommand(PluginHandle* hPlugin,int CommandType)
 void PluginManager::ReloadLanguage()
 {
 	std::for_each(ALL_CONST_RANGE(SortedPlugins), std::mem_fn(&Plugin::CloseLang));
-	DiscardCache();
-}
-
-
-void PluginManager::DiscardCache()
-{
-	std::for_each(ALL_CONST_RANGE(SortedPlugins), std::mem_fn(&Plugin::Load));
 	Global->Db->PlCacheCfg()->DiscardCache();
 }
-
 
 void PluginManager::LoadIfCacheAbsent()
 {
@@ -2047,25 +2058,6 @@ int PluginManager::ProcessCommandLine(const string& CommandParam,Panel *Target)
 }
 
 
-void PluginManager::ReadUserBackgound(SaveScreen *SaveScr)
-{
-	FilePanels *FPanel=Global->CtrlObject->Cp();
-	FPanel->LeftPanel->ProcessingPluginCommand++;
-	FPanel->RightPanel->ProcessingPluginCommand++;
-
-	if (Global->KeepUserScreen)
-	{
-		if (SaveScr)
-			SaveScr->Discard();
-
-		RedrawDesktop Redraw;
-	}
-
-	FPanel->LeftPanel->ProcessingPluginCommand--;
-	FPanel->RightPanel->ProcessingPluginCommand--;
-}
-
-
 /* $ 27.09.2000 SVS
   Функция CallPlugin - найти плагин по ID и запустить
   в зачаточном состоянии!
@@ -2093,11 +2085,9 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void **
 			{
 				if (hNewPlugin)
 				{
-					//в windows гарантируется, что не бывает указателей меньше 0x10000
-					HANDLE handle = hNewPlugin->hPlugin;
-					if (reinterpret_cast<uintptr_t>(handle) >= 0x10000 && handle != INVALID_HANDLE_VALUE)
+					if (global::IsPtr(hNewPlugin->hPlugin) && hNewPlugin->hPlugin != INVALID_HANDLE_VALUE)
 					{
-						FarMacroCall *fmc = reinterpret_cast<FarMacroCall*>(handle);
+						FarMacroCall *fmc = reinterpret_cast<FarMacroCall*>(hNewPlugin->hPlugin);
 						if (fmc->Count > 0 && fmc->Values[0].Type == FMVT_PANEL)
 						{
 							process = true;
@@ -2131,16 +2121,18 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void **
 				}
 			}
 
-			if (Ret)
+			if (OpenFrom == OPEN_FROMMACRO && process)
 			{
-				PluginHandle *handle=(PluginHandle *)hNewPlugin;
-				if (OpenFrom == OPEN_FROMMACRO && process)
-					*Ret = (void*)1;
-				else
+				if (Ret)
 				{
-					*Ret = hNewPlugin?handle->hPlugin:nullptr;
-					delete handle;
+					*Ret = (void*)1;
 				}
+			}
+			else
+			{
+				if (Ret)
+					*Ret = hNewPlugin? hNewPlugin->hPlugin : nullptr;
+				delete hNewPlugin;
 			}
 
 			return TRUE;
@@ -2415,7 +2407,7 @@ void PluginManager::RefreshPluginsList()
 {
 	if(!UnloadedPlugins.empty())
 	{
-		UnloadedPlugins.remove_if([&](const T_CONST_VALUE_TYPE(UnloadedPlugins)& i) -> bool
+		UnloadedPlugins.remove_if([&](CONST_VALUE_TYPE(UnloadedPlugins)& i) -> bool
 		{
 			if (!i->Active())
 			{

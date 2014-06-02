@@ -75,6 +75,14 @@ enum EXPORTS_ENUM
 	ExportsCount
 };
 
+enum PLUGINWORKFLAGS
+{
+	PIWF_LOADED        = BIT(0), // DLL загружена
+	PIWF_CACHED        = BIT(1), // кешируется
+	PIWF_PRELOADED     = BIT(2), //
+	PIWF_DONTLOADAGAIN = BIT(3), // не загружать плагин снова, ставится в результате проверки требуемой версии фара
+	PIWF_DATALOADED    = BIT(4), // LoadData успешно выполнилась
+};
 
 extern PluginStartupInfo NativeInfo;
 extern FarStandardFunctions NativeFSF;
@@ -235,8 +243,6 @@ public:
 	const wchar_t *GetMsg(LNGID nID) const;
 
 	bool CheckWorkFlags(DWORD flags) const { return WorkFlags.Check(flags); }
-	DWORD GetWorkFlags() const { return WorkFlags.Flags(); }
-	DWORD GetFuncFlags() const { return FuncFlags.Flags(); }
 
 	bool Load();
 	int Unload(bool bExitFAR = false);
@@ -288,7 +294,6 @@ private:
 	string m_strCacheName;
 
 	BitFlags WorkFlags;      // рабочие флаги текущего плагина
-	BitFlags FuncFlags;      // битовые маски вызова эксп.функций плагина
 
 	GenericPluginModel::plugin_instance m_Instance;
 

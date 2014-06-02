@@ -18,6 +18,7 @@ SRCS = \
 	cmdline.cpp \
 	codepage.cpp \
 	colormix.cpp \
+	components.cpp \
 	config.cpp \
 	configdb.cpp \
 	console.cpp \

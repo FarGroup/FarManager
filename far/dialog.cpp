@@ -296,7 +296,7 @@ void ItemToItemEx(const FarDialogItem* Item, DialogItemEx *ItemEx, size_t Count,
 		ItemEx->X2 = std::max(ItemEx->X1, ItemEx->X2);
 		ItemEx->Y2 = std::max(ItemEx->Y1, ItemEx->Y2);
 
-		if ((ItemEx->Type == DI_COMBOBOX || ItemEx->Type == DI_LISTBOX) && !Global->IsPtr(Item->ListItems))
+		if ((ItemEx->Type == DI_COMBOBOX || ItemEx->Type == DI_LISTBOX) && !global::IsPtr(Item->ListItems))
 		{
 			ItemEx->ListItems=nullptr;
 		}

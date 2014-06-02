@@ -75,6 +75,10 @@ namespace ucd
 
 #pragma warning(pop)
 
+#include "components.hpp"
+static string getInfo() { return L"Mozilla Universal Charset Detector"; } // BUGBUG, version unknown
+SCOPED_ACTION(components::component)(getInfo);
+
 static const std::unordered_map<std::string, uintptr_t>& CpMap()
 {
 	static FN_RETURN_TYPE(CpMap) sCpMap;

@@ -56,7 +56,6 @@ DizList::DizList():
 
 DizList::~DizList()
 {
-	Reset();
 }
 
 void DizList::Reset()

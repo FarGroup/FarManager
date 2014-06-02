@@ -103,18 +103,18 @@ VMenu::VMenu(const string& Title,       // заголовок меню
 	// инициализируем перед тем, как добавлять айтема
 	UpdateMaxLengthFromTitles();
 
-	for (size_t I=0; I < Items.size(); I++)
+	FOR(const auto& i, make_range(Data, Data + ItemsCount))
 	{
 		MenuItemEx NewItem;
 
-		if (!Global->IsPtr(Data[I].Name))
-			NewItem.strName = MSG(static_cast<LNGID>(reinterpret_cast<intptr_t>(Data[I].Name)));
+		if (!global::IsPtr(i.Name))
+			NewItem.strName = MSG(static_cast<LNGID>(reinterpret_cast<intptr_t>(i.Name)));
 		else
-			NewItem.strName = Data[I].Name;
+			NewItem.strName = i.Name;
 
 		//NewItem.AmpPos = -1;
-		NewItem.AccelKey = Data[I].AccelKey;
-		NewItem.Flags = Data[I].Flags;
+		NewItem.AccelKey = i.AccelKey;
+		NewItem.Flags = i.Flags;
 		AddItem(NewItem);
 	}
 
@@ -2053,18 +2053,18 @@ void VMenu::ShowMenu(bool IsParent)
 	bool HasSubMenus = ItemSubMenusCount > 0;
 
 	//BUGBUG, this must be optimized
-	for (size_t i = 0; i < Items.size(); i++)
+	std::for_each(CONST_RANGE(Items, i)
 	{
 		int ItemLen;
 
 		if (CheckFlags(VMENU_SHOWAMPERSAND))
-			ItemLen = static_cast<int>(Items[i].strName.size());
+			ItemLen = static_cast<int>(i.strName.size());
 		else
-			ItemLen = HiStrlen(Items[i].strName);
+			ItemLen = HiStrlen(i.strName);
 
 		if (ItemLen > MaxItemLength)
 			MaxItemLength = ItemLen;
-	}
+	});
 
 	MaxLineWidth = X2 - X1 + 1;
 
@@ -2304,11 +2304,7 @@ void VMenu::ShowMenu(bool IsParent)
 
 				// табуляции меняем только при показе!!!
 				// для сохранение оригинальной строки!!!
-				for (size_t i = 0; i < strMenuLine.size(); ++i)
-				{
-					if (strMenuLine[i] == L'\t')
-						strMenuLine[i] = L' ';
-				}
+				std::replace(ALL_RANGE(strMenuLine), L'\t', L' ');
 
 				FarColor Col;
 

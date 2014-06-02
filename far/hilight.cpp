@@ -464,13 +464,7 @@ static void ApplyFinalColors(HighlightFiles::highlight_item& Colors)
 
 void HighlightFiles::UpdateCurrentTime()
 {
-	SYSTEMTIME cst;
-	GetSystemTime(&cst);
-	FILETIME cft;
-	if (SystemTimeToFileTime(&cst, &cft))
-	{
-		CurrentTime = FileTimeToUI64(cft);
-	}
+	CurrentTime = GetCurrentUTCTimeInUI64();
 }
 
 void HighlightFiles::GetHiColor(FileListItem* To, bool UseAttrHighlighting)

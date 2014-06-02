@@ -76,7 +76,7 @@ enum enumFDateType
 
 class FileFilterParams: NonCopyable
 {
-	public:
+public:
 
 	FileFilterParams();
 
@@ -206,7 +206,6 @@ private:
 	} FHighlight;
 
 	std::array<DWORD, FFFT_COUNT> FFlags;
-
 };
 
 STD_SWAP_SPEC(FileFilterParams);
