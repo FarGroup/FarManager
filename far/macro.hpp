@@ -53,16 +53,6 @@ enum MACRODISABLEONLOAD
 	MDOL_AUTOSTART      = 0x00000001, // дисаблим автостартующие макросы
 };
 
-// коды возврата для KeyMacro::GetCurRecord()
-enum MACRORECORDANDEXECUTETYPE
-{
-	MACROMODE_NOMACRO          =0,  // не в режиме макро
-	MACROMODE_EXECUTING        =1,  // исполнение: без передачи плагину пимп
-	MACROMODE_EXECUTING_COMMON =2,  // исполнение: с передачей плагину пимп
-	MACROMODE_RECORDING        =3,  // запись: без передачи плагину пимп
-	MACROMODE_RECORDING_COMMON =4,  // запись: с передачей плагину пимп
-};
-
 struct MacroPanelSelect
 {
 	__int64 Index;
@@ -120,7 +110,7 @@ private:
 	FARMACROAREA m_Mode;
 	FARMACROAREA m_RecMode;
 	FARMACROAREA m_StartMode;
-	MACRORECORDANDEXECUTETYPE m_Recording;
+	FARMACROSTATE m_Recording;
 	string m_RecCode;
 	string m_RecDescription;
 	string m_LastErrorStr;

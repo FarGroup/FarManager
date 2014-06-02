@@ -347,7 +347,7 @@ int GetString(
 
 		ExitCode=Dlg.GetExitCode();
 
-		if (ExitCode == -2 && Global->CtrlObject->Macro.IsExecuting() != MACROMODE_NOMACRO)
+		if (ExitCode == -2 && Global->CtrlObject->Macro.IsExecuting() != MACROSTATE_NOMACRO)
 			Global->CtrlObject->Macro.SendDropProcess();
 	}
 

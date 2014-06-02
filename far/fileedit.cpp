@@ -919,11 +919,11 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 	_SVS(if (Key=='n' || Key=='m'))
 		_SVS(SysLog(L"%d Key='%c'",__LINE__,Key));
 
-	if (!CalledFromControl && (Global->CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING_COMMON || Global->CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING_COMMON || Global->CtrlObject->Macro.GetCurRecord() == MACROMODE_NOMACRO))
+	if (!CalledFromControl && (Global->CtrlObject->Macro.IsRecording() == MACROSTATE_RECORDING_COMMON || Global->CtrlObject->Macro.IsExecuting() == MACROSTATE_EXECUTING_COMMON || Global->CtrlObject->Macro.GetCurRecord() == MACROSTATE_NOMACRO))
 	{
 
-		_SVS(if (Global->CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING_COMMON || Global->CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING_COMMON))
-			_SVS(SysLog(L"%d !!!! Global->CtrlObject->Macro.GetCurRecord() != MACROMODE_NOMACRO !!!!",__LINE__));
+		_SVS(if (Global->CtrlObject->Macro.IsRecording() == MACROSTATE_RECORDING_COMMON || Global->CtrlObject->Macro.IsExecuting() == MACROSTATE_EXECUTING_COMMON))
+			_SVS(SysLog(L"%d !!!! Global->CtrlObject->Macro.GetCurRecord() != MACROSTATE_NOMACRO !!!!",__LINE__));
 
 		ProcessedNext=!ProcessEditorInput(Global->FrameManager->GetLastInputRecord());
 	}
@@ -1348,7 +1348,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			}
 			default:
 			{
-				if (Flags.Check(FFILEEDIT_FULLSCREEN) && Global->CtrlObject->Macro.IsExecuting() == MACROMODE_NOMACRO)
+				if (Flags.Check(FFILEEDIT_FULLSCREEN) && Global->CtrlObject->Macro.IsExecuting() == MACROSTATE_NOMACRO)
 					if (Global->Opt->EdOpt.ShowKeyBar)
 						EditKeyBar.Show();
 
@@ -2638,7 +2638,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		}
 		case ECTL_READINPUT:
 		{
-			if (Global->CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING || Global->CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING)
+			if (Global->CtrlObject->Macro.IsRecording() == MACROSTATE_RECORDING || Global->CtrlObject->Macro.IsExecuting() == MACROSTATE_EXECUTING)
 			{
 //        return FALSE;
 			}

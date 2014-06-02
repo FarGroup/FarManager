@@ -1507,7 +1507,7 @@ bool CheckForEscSilent()
 	*/
 
 	// если в "макросе"...
-	if (Global->CtrlObject->Macro.IsExecuting() != MACROMODE_NOMACRO && Global->FrameManager->GetCurrentFrame())
+	if (Global->CtrlObject->Macro.IsExecuting() != MACROSTATE_NOMACRO && Global->FrameManager->GetCurrentFrame())
 	{
 		if (Global->CtrlObject->Macro.IsDisableOutput())
 			Processed = false;
@@ -1521,7 +1521,7 @@ bool CheckForEscSilent()
 			return true;
 		if (Key==KEY_BREAK)
 		{
-			if (Global->CtrlObject->Macro.IsExecuting() != MACROMODE_NOMACRO)
+			if (Global->CtrlObject->Macro.IsExecuting() != MACROSTATE_NOMACRO)
 				Global->CtrlObject->Macro.SendDropProcess();
 			return true;
 		}
@@ -1529,7 +1529,7 @@ bool CheckForEscSilent()
 			Global->FrameManager->ProcessKey(Manager::Key(KEY_ALTF9));
 	}
 
-	if (!Processed && Global->CtrlObject->Macro.IsExecuting() != MACROMODE_NOMACRO)
+	if (!Processed && Global->CtrlObject->Macro.IsExecuting() != MACROSTATE_NOMACRO)
 		Global->ScrBuf->Flush();
 
 	return false;
@@ -2895,7 +2895,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 		if (KeyCode>='0' && KeyCode<='9')
 		{
 			if (Global->WaitInFastFind > 0 &&
-			        Global->CtrlObject->Macro.GetCurRecord() < MACROMODE_RECORDING &&
+			        Global->CtrlObject->Macro.GetCurRecord() < MACROSTATE_RECORDING &&
 			        !Global->CtrlObject->Macro.MacroExists(KEY_ALTSHIFT0+KeyCode-'0',MACROAREA_SEARCH,true))
 			{
 				return Modif|Char;

@@ -455,7 +455,7 @@ inline void PopState(bool withClip)
 int KeyMacro::IsExecuting()
 {
 	MacroPluginReturn Ret;
-	return MacroPluginOp(3.0,false,&Ret) ? Ret.ReturnType : MACROMODE_NOMACRO;
+	return MacroPluginOp(3.0,false,&Ret) ? Ret.ReturnType : MACROSTATE_NOMACRO;
 }
 
 int KeyMacro::IsDisableOutput()
@@ -551,7 +551,7 @@ KeyMacro::KeyMacro():
 	m_Mode(MACROAREA_SHELL),
 	m_RecMode(MACROAREA_OTHER),
 	m_StartMode(MACROAREA_OTHER),
-	m_Recording(MACROMODE_NOMACRO),
+	m_Recording(MACROSTATE_NOMACRO),
 	m_LastErrorLine(0),
 	m_InternalInput(0),
 	m_DisableNested(0),
@@ -566,7 +566,7 @@ bool KeyMacro::Load(bool InitedRAM, bool LoadAll)
 	if (Global->Opt->Macro.DisableMacro&MDOL_ALL)
 		return false;
 
-	m_Recording = MACROMODE_NOMACRO;
+	m_Recording = MACROSTATE_NOMACRO;
 
 	FarMacroValue values[]={InitedRAM,LoadAll};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
@@ -589,7 +589,7 @@ void KeyMacro::SetMacroConst(int ConstIndex, __int64 Value)
 
 int KeyMacro::GetCurRecord() const
 {
-	return (m_Recording != MACROMODE_NOMACRO) ? m_Recording : IsExecuting();
+	return (m_Recording != MACROSTATE_NOMACRO) ? m_Recording : IsExecuting();
 }
 
 static bool GetInputFromMacro(MacroPluginReturn *mpr)
@@ -694,7 +694,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 		bool ctrldot = Rec->IntKey == Global->Opt->Macro.KeyMacroCtrlDot || Rec->IntKey == Global->Opt->Macro.KeyMacroRCtrlDot;
 		bool ctrlshiftdot = Rec->IntKey == Global->Opt->Macro.KeyMacroCtrlShiftDot || Rec->IntKey == Global->Opt->Macro.KeyMacroRCtrlShiftDot;
 
-		if (m_Recording==MACROMODE_NOMACRO)
+		if (m_Recording==MACROSTATE_NOMACRO)
 		{
 			if ((ctrldot||ctrlshiftdot) && !IsExecuting())
 			{
@@ -712,7 +712,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 				m_StartMode=m_RecMode;
 				// В зависимости от того, КАК НАЧАЛИ писать макрос, различаем общий режим (Ctrl-.
 				// с передачей плагину кеев) или специальный (Ctrl-Shift-. - без передачи клавиш плагину)
-				m_Recording=ctrldot?MACROMODE_RECORDING_COMMON:MACROMODE_RECORDING;
+				m_Recording=ctrldot?MACROSTATE_RECORDING_COMMON:MACROSTATE_RECORDING;
 
 				m_RecCode.clear();
 				m_RecDescription.clear();
@@ -745,7 +745,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 				}
 			}
 		}
-		else // m_Recording!=MACROMODE_NOMACRO
+		else // m_Recording!=MACROSTATE_NOMACRO
 		{
 			if (ctrldot||ctrlshiftdot) // признак конца записи?
 			{
@@ -779,12 +779,12 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 				{
 					string strKey;
 					KeyToText(MacroKey, strKey);
-					Flags |= (m_Recording==MACROMODE_RECORDING_COMMON?0:MFLAGS_NOSENDKEYSTOPLUGINS);
+					Flags |= (m_Recording==MACROSTATE_RECORDING_COMMON?0:MFLAGS_NOSENDKEYSTOPLUGINS);
 					LM_ProcessRecordedMacro(m_StartMode,strKey,m_RecCode,Flags,m_RecDescription);
 				}
 
 				//{FILE* log=fopen("c:\\plugins.log","at"); if(log) {fprintf(log,"%ls\n",m_RecCode.data()); fclose(log);}}
-				m_Recording=MACROMODE_NOMACRO;
+				m_Recording=MACROSTATE_NOMACRO;
 				m_RecCode.clear();
 				m_RecDescription.clear();
 				Global->ScrBuf->RestoreMacroChar();
