@@ -87,7 +87,7 @@ private:
 	int GetItemsCount();
 	int GetCodePageInsertPosition(uintptr_t codePage, int start, int length);
 	void AddCodePages(DWORD codePages);
-	void ProcessSelected(bool select);
+	void SetFavorite(bool State);
 	void FillCodePagesVMenu(bool bShowUnicode, bool bViewOnly=false, bool bShowAutoDetect=false);
 	intptr_t EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	void EditCodePageName();

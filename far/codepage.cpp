@@ -182,14 +182,13 @@ inline bool codepages::IsPositionStandard(UINT position)
 // ѕровер€ем попадает или нет позици€ в диапазон избранных кодовых страниц (правильность работы дл€ разделителей не гарантируетс€)
 inline bool codepages::IsPositionFavorite(UINT position)
 {
-	return position>=(UINT)CodePagesMenu->GetItemCount()-normalCodePages;
+	return favoriteCodePages && position < (UINT)CodePagesMenu->GetItemCount() - normalCodePages;
 }
 
 // ѕровер€ем попадает или нет позици€ в диапазон обыкновенных кодовых страниц (правильность работы дл€ разделителей не гарантируетс€)
 inline bool codepages::IsPositionNormal(UINT position)
 {
-	UINT ItemCount = CodePagesMenu->GetItemCount();
-	return position>=ItemCount-normalCodePages-favoriteCodePages-(normalCodePages?1:0) && position<ItemCount-normalCodePages;
+	return position >= CodePagesMenu->GetItemCount() - normalCodePages;
 }
 
 // ‘ормируем строку дл€ визуального представлени€ таблицы символов
@@ -474,7 +473,7 @@ void codepages::AddCodePages(DWORD codePages)
 		else if (CallbackCallSource == CodePagesFill || CallbackCallSource == CodePagesFill2 || !Global->Opt->CPMenuMode)
 		{
 			// добавл€ем разделитель между стандартными и системными таблицами символов
-			if (!favoriteCodePages && !normalCodePages)
+			if (!normalCodePages)
 				AddSeparator(MSG(MGetCodePageOther));
 
 			// ƒобавл€ем таблицу символов в нормальные
@@ -490,21 +489,21 @@ void codepages::AddCodePages(DWORD codePages)
 }
 
 // ќбработка добавлени€/удалени€ в/из список выбранных таблиц символов
-void codepages::ProcessSelected(bool select)
+void codepages::SetFavorite(bool State)
 {
-	if (Global->Opt->CPMenuMode && select)
+	if (Global->Opt->CPMenuMode && State)
 		return;
 
 	UINT itemPosition = CodePagesMenu->GetSelectPos();
 	uintptr_t codePage = GetMenuItemCodePage();
 
-	if ((select && IsPositionFavorite(itemPosition)) || (!select && IsPositionNormal(itemPosition)))
+	if ((State && IsPositionNormal(itemPosition)) || (!State && IsPositionFavorite(itemPosition)))
 	{
 		// ѕолучаем текущее состо€ние флага в реестре
 		long long selectType = GetFavorite(codePage);
 
 		// ”дал€ем/добавл€ем в ресестре информацию о выбранной кодовой странице
-		if (select)
+		if (State)
 			SetFavorite(codePage, CPST_FAVORITE | (selectType & CPST_FIND ? CPST_FIND : 0));
 		else if (selectType & CPST_FIND)
 			SetFavorite(codePage, CPST_FIND);
@@ -521,7 +520,7 @@ void codepages::ProcessSelected(bool select)
 		CodePagesMenu->DeleteItem(CodePagesMenu->GetSelectPos());
 
 		// ƒобавл€ем пункт меню в новое место
-		if (select)
+		if (State)
 		{
 			// ƒобавл€ем разделитель, если выбранных кодовых страниц ещЄ не было
 			// и после добавлени€ останутс€ нормальные кодовые страницы
@@ -763,12 +762,12 @@ bool codepages::SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bVie
 			// ќбработка удалени€ таблицы символов из списка выбранных
 			case KEY_DEL:
 			case KEY_NUMDEL:
-				ProcessSelected(false);
+				SetFavorite(false);
 				break;
 			// ќбработка добавлени€ таблицы символов в список выбранных
 			case KEY_INS:
 			case KEY_NUMPAD0:
-				ProcessSelected(true);
+				SetFavorite(true);
 				break;
 			// –едактируем им€ таблицы символов
 			case KEY_F4:
