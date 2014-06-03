@@ -1,7 +1,7 @@
 -- encoding: UTF-8
 
-local args = ...
-local M, utils = args.M, args.utils
+local Shared = ...
+local Msg, utils = Shared.Msg, Shared.utils
 
 local F = far.Flags
 local MCODE_F_CHECKALL     = 0x80C64
@@ -12,7 +12,7 @@ local Message = function (str,title,...) return far.Message(str,title or Title,.
 
 local areaCodes = {
   other="O", shell="S", viewer="V", editor="E", dialog="D", search="S",
-  disks="D", mainmenu="M", menu="M", help="H", info="I", qview="Q", tree="T",
+  disks="D", mainmenu="Msg", menu="Msg", help="H", info="I", qview="Q", tree="T",
   findfolder="F", usermenu="U", shellautocompletion="S",
   dialogautocompletion="D", common="C",
 }
@@ -23,7 +23,7 @@ local areaArr = {
   "findfolder", "usermenu", "shellautocompletion",
   "dialogautocompletion", "common",
 }
--- O S V E D S D M M H I Q T F U S D C
+-- O S V E D S D Msg Msg H I Q T F U S D C
 --   1     2 1 2 3 3             1 2
 
 local function GetItems (fcomp, sortmark, onlyactive)
@@ -66,14 +66,14 @@ local function GetItems (fcomp, sortmark, onlyactive)
 
   items[#items+1] = {
     separator=true,
-    text=("%s [ %s ]"):format(onlyactive and M.MBSepActiveMacros or M.MBSepMacros, sortmark) }
+    text=("%s [ %s ]"):format(onlyactive and Msg.MBSepActiveMacros or Msg.MBSepMacros, sortmark) }
 
   local fmt = ("%%s %%s │ %%-%ds │ %%s"):format(maxKeyLen)
   for i,m in ipairs(macros) do
     items[#items+1] = { text=fmt:format(m.active and "√" or " ", m.codedArea, m.codedKey, m.description), macro=m }
   end
 
-  items[#items+1] = { separator=true, text=M.MBSepEvents }
+  items[#items+1] = { separator=true, text=Msg.MBSepEvents }
 
   for i,m in ipairs(events) do
     items[#items+1] = { text=("%-19s │ %s"):format(
@@ -123,8 +123,8 @@ local ShowOnlyActive = Data and Data.ShowOnlyActive
 local function ShowHelp()
   far.Message(
     ("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s"):format(
-      M.MBHelpLine1, M.MBHelpLine2, M.MBHelpLine3, M.MBHelpLine4, M.MBHelpLine5,
-      M.MBHelpLine6, M.MBHelpLine7, M.MBHelpLine8, M.MBHelpLine9, M.MBHelpLine10),
+      Msg.MBHelpLine1, Msg.MBHelpLine2, Msg.MBHelpLine3, Msg.MBHelpLine4, Msg.MBHelpLine5,
+      Msg.MBHelpLine6, Msg.MBHelpLine7, Msg.MBHelpLine8, Msg.MBHelpLine9, Msg.MBHelpLine10),
     Title, nil, "l")
 end
 
@@ -153,8 +153,8 @@ code        │ %s
               m.action and tostring(m.action) or "",
               code,
               "\1",
-              m.FileName or "<"..M.MBNoFileNameAvail..">")
-    far.Message(str,M.MBTitleMacro,nil,"l")
+              m.FileName or "<"..Msg.MBNoFileNameAvail..">")
+    far.Message(str,Msg.MBTitleMacro,nil,"l")
   else
     local str = ([[
 description │ %s
@@ -172,7 +172,7 @@ action      │ %s
               m.action and tostring(m.action) or "",
               "\1",
               m.FileName)
-    far.Message(str,M.MBTitleEventHandler,nil,"l")
+    far.Message(str,Msg.MBTitleEventHandler,nil,"l")
   end
 end
 
@@ -218,7 +218,7 @@ local function MenuLoop()
               if not m.keyregex then
                 local key1 = m.key:match("%S+")
                 if (not m.condition or m.condition(key1)) then
-                  args.keymacro.PostNewMacro(m.id, m.code, m.flags, key1, true)
+                  Shared.keymacro.PostNewMacro(m.id, m.code, m.flags, key1, true)
                   break
                 else Message("condition() check failed")
                 end
@@ -264,7 +264,7 @@ local function MenuLoop()
           end
         end
       else
-        Message(M.MBNoFileNameAvail)
+        Message(Msg.MBNoFileNameAvail)
       end
     ----------------------------------------------------------------------------
     elseif BrKey=="C+PRIOR" and items[pos] then -- CtrlPgUp - locate the file in active panel
@@ -273,10 +273,10 @@ local function MenuLoop()
         if LocateFile(m.FileName) then
           break
         else
-          Message(M.MBFileNotFound)
+          Message(Msg.MBFileNotFound)
         end
       else
-        Message(M.MBNoFileNameAvail)
+        Message(Msg.MBNoFileNameAvail)
       end
     ----------------------------------------------------------------------------
     end

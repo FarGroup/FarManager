@@ -2,8 +2,8 @@
 
 --------------------------------------------------------------------------------
 local Shared = ...
-local M, MacroInit, MacroStep, ErrMsg, pack, loadmacro =
-  Shared.M, Shared.MacroInit, Shared.MacroStep, Shared.ErrMsg, Shared.pack, Shared.loadmacro
+local Msg, MacroInit, MacroStep, ErrMsg, pack, loadmacro =
+  Shared.Msg, Shared.MacroInit, Shared.MacroStep, Shared.ErrMsg, Shared.pack, Shared.loadmacro
 
 local F = far.Flags
 local MPRT_NORMALFINISH, MPRT_ERRORFINISH, MPRT_HASNOMACRO =
@@ -341,7 +341,7 @@ function KeyMacro.Dispatch (opcode, ...)
       CurState.MacroQueue:add(NewMacroRecord({ f1,f2,HasFunction=true },Lang,Code,Flags,AKey))
       return true
     else
-      ErrMsg(f2, M.MMacroPErrorTitle)
+      ErrMsg(f2, Msg.MMacroPErrorTitle)
     end
   elseif opcode==13 then local t=StateStack:top() return t and t.IntKey or 0
   elseif opcode==14 then

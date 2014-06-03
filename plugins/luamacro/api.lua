@@ -1,7 +1,7 @@
 -- api.lua
 
 local Shared = ...
-local M, checkarg, utils, yieldcall = Shared.M, Shared.checkarg, Shared.utils, Shared.yieldcall
+local checkarg, utils, yieldcall = Shared.checkarg, Shared.utils, Shared.yieldcall
 
 local F=far.Flags
 local band,bor = bit64.band,bit64.bor

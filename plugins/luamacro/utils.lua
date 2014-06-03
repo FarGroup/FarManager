@@ -1,5 +1,5 @@
 local Shared = ...
-local M, ErrMsg, pack = Shared.M, Shared.ErrMsg, Shared.pack
+local Msg, ErrMsg, pack = Shared.Msg, Shared.ErrMsg, Shared.pack
 
 local F = far.Flags
 local type = type
@@ -565,7 +565,7 @@ local function GetFromMenu (macrolist)
     menuitems[i] = { text = descr }
   end
 
-  local props, bkeys = {Title=M.UtExecuteMacroTitle,Bottom=M.UtExecuteMacroBottom}, {{BreakKey="A+F4"}}
+  local props, bkeys = {Title=Msg.UtExecuteMacroTitle,Bottom=Msg.UtExecuteMacroBottom}, {{BreakKey="A+F4"}}
   while true do
     local item, pos = far.Menu(props, menuitems, bkeys)
     if not item then

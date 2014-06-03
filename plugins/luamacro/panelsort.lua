@@ -1,5 +1,5 @@
-local args = ...
-local M = args.M
+local Shared = ...
+local Msg = Shared.Msg
 local ffi = require "ffi"
 local C = ffi.C
 local F = far.Flags
@@ -116,10 +116,10 @@ end
 local function CustomSortMenu()
   local items, bkeys = {}, {{BreakKey="C+RETURN"},{BreakKey="CS+RETURN"}}
   for k,v in pairs(CustomSortModes) do
-    items[#items+1] = { text=v.Description and tostring(v.Description) or M.PSDefaultMenuItemText..k; Mode=k; }
+    items[#items+1] = { text=v.Description and tostring(v.Description) or Msg.PSDefaultMenuItemText..k; Mode=k; }
   end
   table.sort(items, function(a,b) return a.Mode < b.Mode end)
-  local r, pos = far.Menu({Title=M.PSMenuTitle}, items, bkeys)
+  local r, pos = far.Menu({Title=Msg.PSMenuTitle}, items, bkeys)
   if r then
     if r.BreakKey == "C+RETURN" then
       SetCustomSortMode(items[pos].Mode,1)

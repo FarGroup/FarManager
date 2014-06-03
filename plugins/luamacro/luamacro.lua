@@ -8,7 +8,7 @@ local function LOG (fmt, ...)
   end
 end
 
-local F, M = far.Flags, nil
+local F, Msg = far.Flags, nil
 local bor = bit64.bor
 local co_yield, co_resume, co_status, co_wrap =
   coroutine.yield, coroutine.resume, coroutine.status, coroutine.wrap
@@ -241,7 +241,7 @@ local function MacroParse (Lang, Text, onlyCheck, skipFile)
 
   if not ok then
     if not onlyCheck then
-      far.Message(msg, M.MMacroPErrorTitle, M.MOk, "lw")
+      far.Message(msg, Msg.MMacroPErrorTitle, Msg.MOk, "lw")
     end
     LastMessage = pack(
       msg, -- keep alive from gc
@@ -279,7 +279,7 @@ local function ProcessCommandLine (CmdLine)
     elseif cmd == "unload" then utils.UnloadMacros()
     elseif cmd == "post" then -- DEPRECATED, to be removed on 2014-Oct-29.
       prefix, text = "lua", text:match("%S+%s*(.*)")
-    elseif cmd ~= "" then ErrMsg(M.CL_UnsupportedCommand .. cmd) end
+    elseif cmd ~= "" then ErrMsg(Msg.CL_UnsupportedCommand .. cmd) end
   end
   if prefix == "lua" or prefix == "moon" then
     if text~="" then
@@ -374,8 +374,8 @@ local function Init()
     return func(param)
   end
 
-  M = RunPluginFile("lang.lua");
-  Shared.M = M
+  Msg = RunPluginFile("lang.lua");
+  Shared.Msg = Msg
 
   utils = RunPluginFile("utils.lua", Shared)
   Shared.utils = utils
