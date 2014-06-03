@@ -12,7 +12,7 @@ local Message = function (str,title,...) return far.Message(str,title or Title,.
 
 local areaCodes = {
   other="O", shell="S", viewer="V", editor="E", dialog="D", search="S",
-  disks="D", mainmenu="Msg", menu="Msg", help="H", info="I", qview="Q", tree="T",
+  disks="D", mainmenu="M", menu="M", help="H", info="I", qview="Q", tree="T",
   findfolder="F", usermenu="U", shellautocompletion="S",
   dialogautocompletion="D", common="C",
 }
@@ -23,7 +23,7 @@ local areaArr = {
   "findfolder", "usermenu", "shellautocompletion",
   "dialogautocompletion", "common",
 }
--- O S V E D S D Msg Msg H I Q T F U S D C
+-- O S V E D S D M M H I Q T F U S D C
 --   1     2 1 2 3 3             1 2
 
 local function GetItems (fcomp, sortmark, onlyactive)
