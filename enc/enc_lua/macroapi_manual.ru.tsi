@@ -1495,7 +1495,7 @@ lv=2
 dt=Text
 nm=Стационарные макросы
 ctime=3580139016
-mtime=3607713714
+mtime=3610997553
 <article>
 #_<markdown>
 #_
@@ -1518,7 +1518,7 @@ mtime=3607713714
 #_```
 #_  Macro {
 #_    area        = "Shell Info Tree";                         -- string
-#_    key         = "CtrlF11 ShiftHome";                       -- string
+#_    key         = "CtrlF11 ShiftHome";                       -- string (опциональное поле)
 #_    description = "Macro example";                           -- string (опциональное поле)
 #_    flags       = "NoPluginPanels EmptyCommandLine";         -- string (опциональное поле)
 #_    filemask    = "*.txt,*.cpp";                             -- string (опциональное поле)

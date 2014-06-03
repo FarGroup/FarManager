@@ -223,13 +223,14 @@ end
 
 local function AddRegularMacro (srctable)
   local macro = {}
-  if type(srctable)=="table" and type(srctable.area)=="string" and type(srctable.key)=="string" then
-    macro.area, macro.key = srctable.area, srctable.key
+  if type(srctable)=="table" and type(srctable.area)=="string" then
+    macro.area = srctable.area
+    macro.key = type(srctable.key)=="string" and srctable.key or "none"
   else
     return
   end
 
-  local keyregex = srctable.key:match("^/(.+)/$")
+  local keyregex = macro.key:match("^/(.+)/$")
   if keyregex then
     if pcall(regex.new, keyregex) then
       macro.keyregex = regex.new("^("..keyregex..")$", "i")
@@ -268,7 +269,7 @@ local function AddRegularMacro (srctable)
         table.insert(arTable[1], macro)
       else
         local keyFound = {} -- prevent multiple inclusions
-        for k in srctable.key:lower():gmatch("%S+") do
+        for k in macro.key:lower():gmatch("%S+") do
           local t,n = ExpandKey(k)
           for i=1,n do
             local normkey = t[i]

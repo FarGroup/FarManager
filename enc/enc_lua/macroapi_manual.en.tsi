@@ -1502,7 +1502,7 @@ lv=2
 dt=Text
 nm=Regular macros
 ctime=3580139016
-mtime=3607713609
+mtime=3610997580
 <article>
 #_<markdown>
 #_
@@ -1526,7 +1526,7 @@ mtime=3607713609
 #_```
 #_  Macro {
 #_    area        = "Shell Info Tree";                         -- string
-#_    key         = "CtrlF11 ShiftHome";                       -- string
+#_    key         = "CtrlF11 ShiftHome";                       -- string (optional field)
 #_    description = "Macro example";                           -- string (optional field)
 #_    flags       = "NoPluginPanels EmptyCommandLine";         -- string (optional field)
 #_    filemask    = "*.txt,*.cpp";                             -- string (optional field)
