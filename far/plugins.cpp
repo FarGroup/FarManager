@@ -2121,18 +2121,16 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void **
 				}
 			}
 
-			if (OpenFrom == OPEN_FROMMACRO && process)
+			if (Ret)
 			{
-				if (Ret)
-				{
+				auto handle = reinterpret_cast<PluginHandle*>(hNewPlugin);
+				if (OpenFrom == OPEN_FROMMACRO && process)
 					*Ret = (void*)1;
+				else
+				{
+					*Ret = hNewPlugin? handle->hPlugin : nullptr;
+					delete handle;
 				}
-			}
-			else
-			{
-				if (Ret)
-					*Ret = hNewPlugin? hNewPlugin->hPlugin : nullptr;
-				delete hNewPlugin;
 			}
 
 			return TRUE;

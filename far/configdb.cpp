@@ -2148,7 +2148,7 @@ public:
 
 	bool EndTransaction()
 	{
-		WorkQueue.Push(std::make_unique<AsyncWorkItem>());
+		WorkQueue.Push(nullptr);
 		WaitAllAsync();
 		AsyncCommitDone.Reset();
 		AsyncWork.Set();
