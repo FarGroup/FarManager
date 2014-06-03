@@ -781,7 +781,7 @@ void FileFilter::InitFilter()
 
 		//Дефолтные значения выбраны так чтоб как можно правильней загрузить
 		//настройки старых версий фара.
-		FilterData().back().SetTitle(strTitle);
+		NewItem.SetTitle(strTitle);
 
 		strMask.clear();
 		cfg->GetValue(key,L"Mask",strMask);

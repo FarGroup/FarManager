@@ -773,7 +773,7 @@ int wmain(int Argc, wchar_t *Argv[])
 		SetUnhandledExceptionFilter(FarUnhandledExceptionFilter);
 #endif
 
-		return mainImpl(make_range(Argv, Argv + Argc));
+		return mainImpl(make_range(Argv + 1, Argv + Argc));
 	}
 	catch (const SException& e)
 	{
