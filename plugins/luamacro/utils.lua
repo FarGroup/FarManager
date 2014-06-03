@@ -235,7 +235,7 @@ local function AddRegularMacro (srctable)
     if pcall(regex.new, keyregex) then
       macro.keyregex = regex.new("^("..keyregex..")$", "i")
     else
-      ErrMsg("Invalid regex: "..srctable.key)
+      ErrMsg("Invalid regex: "..macro.key)
       return
     end
   end
