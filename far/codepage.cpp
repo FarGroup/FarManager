@@ -188,7 +188,7 @@ inline bool codepages::IsPositionFavorite(UINT position)
 // Проверяем попадает или нет позиция в диапазон обыкновенных кодовых страниц (правильность работы для разделителей не гарантируется)
 inline bool codepages::IsPositionNormal(UINT position)
 {
-	return position >= CodePagesMenu->GetItemCount() - normalCodePages;
+	return position >= CodePagesMenu->GetItemCount() - static_cast<UINT>(normalCodePages);
 }
 
 // Формируем строку для визуального представления таблицы символов
