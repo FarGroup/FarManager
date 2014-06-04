@@ -2108,13 +2108,15 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void **
 				int CurFocus=Global->CtrlObject->Cp()->ActivePanel->GetFocus();
 				Panel *NewPanel=Global->CtrlObject->Cp()->ChangePanel(Global->CtrlObject->Cp()->ActivePanel,FILE_PANEL,TRUE,TRUE);
 				NewPanel->SetPluginMode(hNewPlugin,L"",CurFocus || !Global->CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible());
-				if (Data && *(const wchar_t *)Data)
+				if (OpenFrom != OPEN_FROMMACRO)
 				{
-					UserDataItem UserData = {};  // !!! NEED CHECK !!!
-					SetDirectory(hNewPlugin,(const wchar_t *)Data,0,&UserData);
+					if (Data && *(const wchar_t *)Data)
+					{
+						UserDataItem UserData = {};  // !!! NEED CHECK !!!
+						SetDirectory(hNewPlugin,(const wchar_t *)Data,0,&UserData);
+					}
 				}
-
-				if (OpenFrom == OPEN_FROMMACRO)
+				else
 				{
 					NewPanel->Update(0);
 					NewPanel->Show();
