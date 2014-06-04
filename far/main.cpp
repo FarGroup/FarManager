@@ -399,25 +399,25 @@ static bool ProcessServiceModes(const range<wchar_t**>& Args, int& ServiceResult
 	};
 
 	// no isArg here - used by Far internally
-	if (Args.size() == 5 && !StrCmp(Args[1], L"/elevation")) // /elevation {GUID} PID UsePrivileges
+	if (Args.size() == 4 && !StrCmp(Args[0], L"/elevation")) // /elevation {GUID} PID UsePrivileges
 	{
-		ServiceResult = ElevationMain(Args[2], _wtoi(Args[3]), *Args[4] == L'1');
+		ServiceResult = ElevationMain(Args[1], _wtoi(Args[2]), *Args[3] == L'1');
 		return true;
 	}
-	else if (Args.size() <= 6 && Args.size() >= 3 && (isArg(Args[1], L"export") || isArg(Args[1], L"import")))
+	else if (InRange(size_t(2), Args.size(), size_t(5)) && (isArg(Args[0], L"export") || isArg(Args[0], L"import")))
 	{
-		bool Export = isArg(Args[1], L"export");
-		string strProfilePath(Args.size() > 3 ? Args[3] : L""), strLocalProfilePath(Args.size() > 4 ? Args[4] : L""), strTemplatePath(Args.size() > 5 ? Args[5] : L"");
+		bool Export = isArg(Args[0], L"export");
+		string strProfilePath(Args.size() > 2 ? Args[2] : L""), strLocalProfilePath(Args.size() > 3 ? Args[3] : L""), strTemplatePath(Args.size() > 4 ? Args[4] : L"");
 		InitTemplateProfile(strTemplatePath);
 		InitProfile(strProfilePath, strLocalProfilePath);
 		Global->Db = new Database(Export ? Database::export_mode : Database::import_mode);
-		ServiceResult = !(Export ? Global->Db->Export(Args[2]) : Global->Db->Import(Args[2]));
+		ServiceResult = !(Export ? Global->Db->Export(Args[1]) : Global->Db->Import(Args[1]));
 		return true;
 	}
-	else if (InRange(size_t(2), Args.size(), size_t(4)) && isArg(Args[1], L"clearcache"))
+	else if (InRange(size_t(1), Args.size(), size_t(3)) && isArg(Args[0], L"clearcache"))
 	{
-		string strProfilePath(Args.size() > 2 ? Args[2] : L"");
-		string strLocalProfilePath(Args.size() > 3 ? Args[3] : L"");
+		string strProfilePath(Args.size() > 1 ? Args[1] : L"");
+		string strLocalProfilePath(Args.size() > 2 ? Args[2] : L"");
 		InitProfile(strProfilePath, strLocalProfilePath);
 		Database::ClearPluginsCache();
 		ServiceResult = 0;
