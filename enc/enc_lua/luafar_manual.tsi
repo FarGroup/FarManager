@@ -5381,7 +5381,7 @@ id=7
 lv=2
 dt=Text
 nm=panel.GetPanelInfo
-mtime=3602447338
+mtime=3611063236
 <article>
 #_tPanelInfo = panel.GetPanelInfo ([handle], whatpanel)
 #_
@@ -5393,7 +5393,7 @@ mtime=3602447338
 #_  tPanelInfo: table, or nil
 #_    fields of tPanelInfo:
 #_      OwnerGuid:           string
-#_      PluginHandle:        userdata
+#_      PluginHandle:        userdata, or nil
 #_      PanelType:           integer
 #_      PanelRect:           table (fields: left, top, right, bottom)
 #_      ItemsNumber:         integer

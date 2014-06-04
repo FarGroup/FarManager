@@ -338,10 +338,15 @@ TPluginData* GetPluginData(lua_State* L)
 
 static void PushPluginHandle(lua_State *L, HANDLE Handle)
 {
-	HANDLE *p = (HANDLE*)lua_newuserdata(L, sizeof(HANDLE));
-	*p = Handle;
-	luaL_getmetatable(L, PluginHandleType);
-	lua_setmetatable(L, -2);
+	if (Handle)
+	{
+		HANDLE *p = (HANDLE*)lua_newuserdata(L, sizeof(HANDLE));
+		*p = Handle;
+		luaL_getmetatable(L, PluginHandleType);
+		lua_setmetatable(L, -2);
+	}
+	else
+		lua_pushnil(L);
 }
 
 void ConvertLuaValue (lua_State *L, int pos, struct FarMacroValue *target)
