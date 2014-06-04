@@ -1027,8 +1027,17 @@ void Options::SetFilePanelModes()
 				{
 				case KEY_CTRLENTER:
 				case KEY_RCTRLENTER:
-					Global->CtrlObject->Cp()->ActivePanel->SetViewMode(static_cast<int>(DisplayModeToReal(ModeList.GetSelectPos())));
-					Global->CtrlObject->Cp()->Redraw();
+				case KEY_CTRLSHIFTENTER:
+				case KEY_RCTRLSHIFTENTER:
+					{
+						auto PanelPtr = Global->CtrlObject->Cp()->ActivePanel;
+						if (Key & KEY_SHIFT)
+						{
+							PanelPtr = Global->CtrlObject->Cp()->GetAnotherPanel(PanelPtr);
+						}
+						PanelPtr->SetViewMode(static_cast<int>(DisplayModeToReal(ModeList.GetSelectPos())));
+						Global->CtrlObject->Cp()->Redraw();
+					}
 					return 1;
 
 				case KEY_INS:
@@ -1060,12 +1069,25 @@ void Options::SetFilePanelModes()
 
 		if (DeleteMode)
 		{
+			auto SwitchToAnotherMode = [&](Panel* p)
+			{
+				auto RealMode = static_cast<int>(DisplayModeToReal(CurMode));
+				if (p->GetViewMode() == RealMode)
+				{
+					p->SetViewMode(RealMode - 1);
+				}
+			};
+
+			SwitchToAnotherMode(Global->CtrlObject->Cp()->ActivePanel);
+			SwitchToAnotherMode(Global->CtrlObject->Cp()->GetAnotherPanel(Global->CtrlObject->Cp()->ActivePanel));
+
+			Global->CtrlObject->Cp()->Redraw();
+
 			DeleteViewSettings(ModeNumber);
 			--CurMode;
 			if (CurMode == predefined_panel_modes_count) //separator
 				--CurMode;
-			Global->CtrlObject->Cp()->ActivePanel->SetViewMode(static_cast<int>(DisplayModeToReal(CurMode)));
-			Global->CtrlObject->Cp()->Redraw();
+
 			continue;
 		}
 

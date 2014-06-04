@@ -919,7 +919,6 @@ PluginHandle* Plugin::Open(OpenInfo* Info)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	CheckScreenLock(); //??
-	Global->g_strDirToSet.clear();
 	ExecuteStruct es = {iOpen};
 	if (Load() && Exports[es.id] && !Global->ProcessException)
 	{

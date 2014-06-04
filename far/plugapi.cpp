@@ -1155,7 +1155,6 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 	switch (Command)
 	{
 		case FCTL_CLOSEPANEL:
-			Global->g_strDirToSet = NullToEmpty((wchar_t *)Param2);
 		case FCTL_GETPANELINFO:
 		case FCTL_GETPANELITEM:
 		case FCTL_GETSELECTEDPANELITEM:

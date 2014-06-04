@@ -4985,8 +4985,6 @@ PluginHandle* PluginA::Open(OpenInfo* Info)
 
 	CheckScreenLock();
 
-	Global->g_strDirToSet.clear();
-
 	ExecuteStruct es = {iOpen};
 
 	if (Load() && Exports[es.id] && !Global->ProcessException)
