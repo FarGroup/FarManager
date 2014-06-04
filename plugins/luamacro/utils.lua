@@ -187,37 +187,37 @@ local function export_ProcessEditorInput (Rec)
   return EV_Handler(Events.editorinput, editor.GetFileName(nil), Rec)
 end
 
-local ExpandKey do -- измеренное врем€ исполнени€ на ключе "CtrlAltShiftF12" = 8.4 микросекунды.
-  local PatExpandKey = regex.new("ctrl|alt|shift|lctrl|rctrl|lalt|ralt|.*")
-  local lctrl,rctrl,lalt,ralt,rest
+local ExpandKey do -- измеренное врем€ исполнени€ на ключе "CtrlAltShiftF12" = 5.7uS (Lua); 3.5uS (LuaJIT);
+  local p = "(?:([lr]?ctrl)|([lr]?alt)|(shift))?"
+  local PatExpandKey = regex.new("^"..p..p..p.."(.*)")
   local t={}
 
-  local function ExpandKeyCallback (elem)
-    if     elem=="ctrl"  then lctrl,rctrl="lctrl","rctrl"
-    elseif elem=="alt"   then lalt,ralt="lalt","ralt"
-    elseif elem=="shift" then rest="shift"
-    elseif elem=="lctrl" then lctrl=elem
-    elseif elem=="rctrl" then rctrl=elem
-    elseif elem=="lalt"  then lalt=elem
-    elseif elem=="ralt"  then ralt=elem
-    else rest=rest..elem
-    end
-  end
-
   ExpandKey = function (key)
-    lctrl,rctrl,lalt,ralt,rest = nil,nil,nil,nil,""
-    PatExpandKey:gsub(key:lower(), ExpandKeyCallback)
-    local n = (lctrl and rctrl and 2 or 1) * (lalt and ralt and 2 or 1)
-    if n==1 then
-      t[1] = (lctrl or rctrl or "")..(lalt or ralt or "")..rest
-    elseif n==2 then
-      t[1] = (lctrl or rctrl or "")..(lalt or ralt or "")..rest
-      t[2] = (rctrl or lctrl or "")..(ralt or lalt or "")..rest
+    local c1,c2,c3,c4,c5,c6,c7,c8,c9,c10 = PatExpandKey:match(key:lower())
+    local ctrl = c1 or c4 or c7 or ""
+    local alt = c2 or c5 or c8 or ""
+    local rest = (c3 or c6 or c9 or "") .. c10
+
+    if ctrl=="ctrl" then
+      if alt=="alt" then
+        t[1] = "lctrllalt"..rest; t[2] = "lctrlralt"..rest
+        t[3] = "rctrllalt"..rest; t[4] = "rctrlralt"..rest
+        return t,4
+      else
+        t[1] = "lctrl"..alt..rest
+        t[2] = "rctrl"..alt..rest
+        return t,2
+      end
     else
-      t[1] = "lctrllalt"..rest; t[2] = "lctrlralt"..rest
-      t[3] = "rctrllalt"..rest; t[4] = "rctrlralt"..rest
+      if alt=="alt" then
+        t[1] = ctrl.."lalt"..rest
+        t[2] = ctrl.."ralt"..rest
+        return t,2
+      else
+        t[1] = ctrl..alt..rest
+        return t,1
+      end
     end
-    return t,n
   end
 end
 
