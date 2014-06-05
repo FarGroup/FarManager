@@ -174,7 +174,7 @@ bool dlgBadEditorCodepage(uintptr_t &codepage)
 	id_ok = id+2; Builder.AddOKCancel();
 
    Builder.SetDialogMode(DMODE_WARNINGSTYLE);
-	//Builder.SetId(...);
+	Builder.SetId(BadEditorCodePageId);
 	return Builder.ShowDialog();
 }
 
@@ -1530,7 +1530,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		}
 	}
 
-	for (;;)
+	for (BitFlags f0 = m_editor->Flags; true; m_editor->Flags = f0)
 	{
 		m_editor->FreeAllocatedData(false);
 		bool bCached = LoadFromCache(pc);
