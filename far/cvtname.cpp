@@ -571,7 +571,7 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 					DirOffset = 4;
 				}
 
-				size_t StartPos = DirOffset + (IsSlash(strPath[DirOffset])? 1 : 0);
+				size_t StartPos = DirOffset + (IsSlash(strPath.data()[DirOffset])? 1 : 0);
 
 				if (StartPos < strPath.size())
 				{

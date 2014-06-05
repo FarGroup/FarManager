@@ -167,3 +167,4 @@ class FileEditor : public Frame
 };
 
 bool dlgOpenEditor(string &strFileName, uintptr_t &codepage);
+bool dlgBadEditorCodepage(uintptr_t &codepage);

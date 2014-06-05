@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "dialog.hpp"
+#include "FarDlgBuilder.hpp"
 #include "fileview.hpp"
 #include "help.hpp"
 #include "ctrlobj.hpp"
@@ -140,6 +141,41 @@ bool dlgOpenEditor(string &strFileName, uintptr_t &codepage)
 	}
 
 	return false;
+}
+
+bool dlgBadEditorCodepage(uintptr_t &codepage)
+{
+	intptr_t id = 0, id_cp, id_ok;
+
+	DialogBuilder Builder(MWarning, nullptr, [&](Dialog* dlg, intptr_t msg,intptr_t p1,void* p2) -> intptr_t
+	{
+		if (msg == DN_INITDIALOG)
+		{
+			Codepages().FillCodePagesList(dlg, id_cp, codepage, true, false, true, false);
+		}
+		else if (msg == DN_CLOSE && p1 == id_ok)
+		{
+			FarListPos pos={sizeof(FarListPos)};
+			dlg->SendMessage(DM_LISTGETCURPOS, id_cp, &pos);
+			codepage = *(uintptr_t*)dlg->SendMessage(DM_LISTGETDATA, id_cp, ToPtr(pos.SelectPos));
+			return TRUE;
+		}
+		return dlg->DefProc(msg, p1, p2);
+	});
+
+	++id; Builder.AddText(MEditorLoadCPWarn1)->Flags = DIF_CENTERTEXT;
+	++id; Builder.AddText(MEditorLoadCPWarn2)->Flags = DIF_CENTERTEXT;
+	++id; Builder.AddText(MEditorSaveNotRecommended)->Flags = DIF_CENTERTEXT;
+	++id; Builder.AddSeparator();
+
+	IntOption cp_val;
+	std::vector<DialogBuilderListItem2> items;
+	id_cp = ++id; Builder.AddComboBox(cp_val, 46, items, DIF_LISTWRAPMODE);
+	id_ok = id+2; Builder.AddOKCancel();
+
+   Builder.SetDialogMode(DMODE_WARNINGSTYLE);
+	//Builder.SetId(...);
+	return Builder.ShowDialog();
 }
 
 enum enumSaveFileAs
@@ -1494,129 +1530,148 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		}
 	}
 
-	m_editor->FreeAllocatedData(false);
-	bool bCached = LoadFromCache(pc);
-
-	DWORD FileAttributes=api::GetFileAttributes(Name);
-	if((m_editor->EdOpt.ReadOnlyLock&1) && FileAttributes != INVALID_FILE_ATTRIBUTES && (FileAttributes & (FILE_ATTRIBUTE_READONLY|((m_editor->EdOpt.ReadOnlyLock&0x60)>>4))))
+	for (;;)
 	{
-		m_editor->Flags.Swap(Editor::FEDITOR_LOCKMODE);
-	}
+		m_editor->FreeAllocatedData(false);
+		bool bCached = LoadFromCache(pc);
 
-	// Проверяем поддерживается или нет загруженная кодовая страница
-	if (bCached && pc.CodePage && !Codepages().IsCodePageSupported(pc.CodePage))
-		pc.CodePage = 0;
-
-	m_editor->GlobalEOL.clear(); //BUGBUG???
-	uintptr_t dwCP=0;
-	bool Detect=false;
-
-	bool redetect = (m_codepage == CP_REDETECT);
-	if (redetect)
-		m_codepage = CP_DEFAULT;
-
-	if (m_codepage == CP_DEFAULT || IsUnicodeOrUtfCodePage(m_codepage))
-	{
-		Detect=GetFileFormat(EditFile,dwCP,&m_bAddSignature,redetect || Global->Opt->EdOpt.AutoDetectCodePage!=0);
-
-		// Проверяем поддерживается или нет задетектировання кодовая страница
-		if (Detect)
-			Detect = Codepages().IsCodePageSupported(dwCP);
-	}
-
-	if (m_codepage == CP_DEFAULT)
-	{
-		if (Detect)
+		DWORD FileAttributes=api::GetFileAttributes(Name);
+		if((m_editor->EdOpt.ReadOnlyLock&1) && FileAttributes != INVALID_FILE_ATTRIBUTES && (FileAttributes & (FILE_ATTRIBUTE_READONLY|((m_editor->EdOpt.ReadOnlyLock&0x60)>>4))))
 		{
-			m_codepage=dwCP;
+			m_editor->Flags.Swap(Editor::FEDITOR_LOCKMODE);
 		}
 
-		if (!redetect && bCached)
+		// Проверяем поддерживается или нет загруженная кодовая страница
+		if (bCached && pc.CodePage && !Codepages().IsCodePageSupported(pc.CodePage))
+			pc.CodePage = 0;
+
+		m_editor->GlobalEOL.clear(); //BUGBUG???
+		uintptr_t dwCP=0;
+		bool Detect=false;
+
+		bool redetect = (m_codepage == CP_REDETECT);
+		if (redetect)
+			m_codepage = CP_DEFAULT;
+
+		if (m_codepage == CP_DEFAULT || IsUnicodeOrUtfCodePage(m_codepage))
 		{
-			if (pc.CodePage)
+			Detect=GetFileFormat(EditFile,dwCP,&m_bAddSignature,redetect || Global->Opt->EdOpt.AutoDetectCodePage!=0);
+
+			// Проверяем поддерживается или нет задетектировання кодовая страница
+			if (Detect)
+				Detect = Codepages().IsCodePageSupported(dwCP);
+		}
+
+		if (m_codepage == CP_DEFAULT)
+		{
+			if (Detect)
 			{
-				m_codepage = pc.CodePage;
-				Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
+				m_codepage=dwCP;
 			}
-		}
 
-		if (m_codepage==CP_DEFAULT)
-			m_codepage = GetDefaultCodePage();
-	}
-	else
-	{
-		Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
-	}
-
-	m_editor->SetCodePage(m_codepage);  //BUGBUG
-
-	if (!IsUnicodeOrUtfCodePage(m_codepage))
-	{
-		EditFile.SetPointer(0, nullptr, FILE_BEGIN);
-	}
-
-	UINT64 FileSize=0;
-	EditFile.GetSize(FileSize);
-	DWORD StartTime=GetTickCount();
-
-	GetFileString GetStr(EditFile, m_codepage);
-
-	wchar_t *Str;
-	size_t StrLength;
-	while (GetStr.GetString(&Str, StrLength))
-	{
-		LastLineCR=0;
-		DWORD CurTime=GetTickCount();
-
-		if (CurTime-StartTime>(DWORD)Global->Opt->RedrawTimeout)
-		{
-			StartTime=CurTime;
-
-			if (CheckForEscSilent())
+			if (!redetect && bCached)
 			{
-				if (ConfirmAbortOp())
+				if (pc.CodePage)
 				{
-					UserBreak = 1;
-					EditFile.Close();
-					return FALSE;
+					m_codepage = pc.CodePage;
+					Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
 				}
 			}
 
-			SetCursorType(false, 0);
-			INT64 CurPos = EditFile.GetPointer();
-			int Percent=static_cast<int>(CurPos*100/FileSize);
-			// В случае если во время загрузки файл увеличивается размере, то количество
-			// процентов может быть больше 100. Обрабатываем эту ситуацию.
-			if (Percent>100)
+			if (m_codepage==CP_DEFAULT)
+				m_codepage = GetDefaultCodePage();
+		}
+		else
+		{
+			Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
+		}
+
+		m_editor->SetCodePage(m_codepage);  //BUGBUG
+
+		if (!IsUnicodeOrUtfCodePage(m_codepage))
+		{
+			EditFile.SetPointer(0, nullptr, FILE_BEGIN);
+		}
+
+		UINT64 FileSize=0;
+		EditFile.GetSize(FileSize);
+		DWORD StartTime=GetTickCount();
+
+		GetFileString GetStr(EditFile, m_codepage);
+
+		wchar_t *Str;
+		size_t StrLength;
+		while (GetStr.GetString(&Str, StrLength))
+		{
+			LastLineCR=0;
+			DWORD CurTime=GetTickCount();
+
+			if (CurTime-StartTime>(DWORD)Global->Opt->RedrawTimeout)
 			{
-				EditFile.GetSize(FileSize);
-				Percent=static_cast<int>(CurPos*100/FileSize);
+				StartTime=CurTime;
+
+				if (CheckForEscSilent())
+				{
+					if (ConfirmAbortOp())
+					{
+						UserBreak = 1;
+						EditFile.Close();
+						return FALSE;
+					}
+				}
+
+				SetCursorType(false, 0);
+				INT64 CurPos = EditFile.GetPointer();
+				int Percent=static_cast<int>(CurPos*100/FileSize);
+				// В случае если во время загрузки файл увеличивается размере, то количество
+				// процентов может быть больше 100. Обрабатываем эту ситуацию.
 				if (Percent>100)
 				{
-					Percent=100;
+					EditFile.GetSize(FileSize);
+					Percent=static_cast<int>(CurPos*100/FileSize);
+					if (Percent>100)
+					{
+						Percent=100;
+					}
 				}
+				Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditReading),Name,Percent);
 			}
-			Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditReading),Name,Percent);
+
+			const wchar_t *CurEOL;
+
+			size_t Offset = StrLength > 3 ? StrLength - 3 : 0;
+
+			if ((CurEOL = wmemchr(Str+Offset,L'\r',StrLength-Offset))  ||
+				(CurEOL = wmemchr(Str+Offset,L'\n',StrLength-Offset)))
+			{
+				m_editor->GlobalEOL = CurEOL;
+				LastLineCR=1;
+			}
+
+			m_editor->InsertString(Str, static_cast<int>(StrLength), m_editor->LastLine);
 		}
 
-		const wchar_t *CurEOL;
-
-		size_t Offset = StrLength > 3 ? StrLength - 3 : 0;
-
-		if ((CurEOL = wmemchr(Str+Offset,L'\r',StrLength-Offset))  ||
-			(CurEOL = wmemchr(Str+Offset,L'\n',StrLength-Offset)))
+		BadConversion = !GetStr.IsConversionValid();
+		if (BadConversion)
 		{
-			m_editor->GlobalEOL = CurEOL;
-			LastLineCR=1;
+			uintptr_t cp = m_codepage;
+			if (!dlgBadEditorCodepage(cp)) // cancel
+			{
+				EditFile.Close();
+				SetLastError(SysErrorCode=ERROR_OPEN_FAILED);
+				UserBreak=1;
+				Flags.Set(FFILEEDIT_OPENFAILED);
+				return FALSE;
+			}
+			else if (cp != m_codepage)
+			{
+				m_codepage = cp;
+				EditFile.SetPointer(0, nullptr, FILE_BEGIN);
+				continue;
+			}
+			// else -- codepage accepted
 		}
-
-		m_editor->InsertString(Str, static_cast<int>(StrLength), m_editor->LastLine);
-	}
-
-	BadConversion = !GetStr.IsConversionValid();
-	if (BadConversion)
-	{
-		Message(MSG_WARNING,1,MSG(MWarning),MSG(MEditorLoadCPWarn1),MSG(MEditorLoadCPWarn2),MSG(MEditorSaveNotRecommended),MSG(MOk));
+		break;
 	}
 
 	if (LastLineCR||!m_editor->NumLastLine)
