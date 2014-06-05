@@ -252,7 +252,17 @@ local function MenuLoop()
     elseif (BrKey=="F4" or BrKey=="A+F4") and items[pos] then -- edit
       local m = items[pos].macro
       if m.FileName then
+        local isMoonScript = string.find(m.FileName, "[nN]", -1)
         local startline = m.action and debug.getinfo(m.action,"S").linedefined
+        if isMoonScript then
+          local line_tables = require("moonscript.line_tables")
+          local errors = require("moonscript.errors")
+          local cache = {}
+          local table = line_tables[m.FileName]
+          if table then
+            startline = errors.reverse_line_number(m.FileName, table, startline, cache)
+          end
+        end
         if BrKey=="A+F4" then -- modal editor
           editor.Editor(m.FileName,nil,nil,nil,nil,nil,nil,startline,nil,65001)
         elseif BrKey=="F4" then -- non-modal editor
