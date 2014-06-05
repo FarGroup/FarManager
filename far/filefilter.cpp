@@ -976,7 +976,7 @@ int FileFilter::ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, 
 	// Если маска содержит разделитель (',' или ';'), то возьмем ее в кавычки
 	if (DotPos == string::npos)
 		strMask = L"*.";
-	else if (FileName.find_last_of(L",;", DotPos) != string::npos)
+	else if (FileName.find_first_of(L",;", DotPos) != string::npos)
 		strMask.assign(L"\"*", 2).append(FileName, DotPos, string::npos).append(1, '"');
 	else
 		strMask.assign(1, L'*').append(FileName, DotPos, string::npos);
