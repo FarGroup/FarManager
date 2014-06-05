@@ -5217,7 +5217,7 @@ MEditOpenAutoDetect
 upd:"Automatic detection"
 "Automatikus felismerés"
 "Wykryj automatycznie"
-"Detección automática"
+"Detección &automática"
 "Automatické zistenie"
 
 MDefaultCP
