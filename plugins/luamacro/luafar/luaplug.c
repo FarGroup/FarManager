@@ -165,7 +165,7 @@ int LUAPLUG GetMinFarVersionW()
 //---------------------------------------------------------------------------
 
 #ifdef EXPORT_OPEN
-static void RecreateLuaState()
+static int RecreateLuaState()
 {
 	lua_getglobal(LS, "RecreateLuaState");
 	if (lua_toboolean(LS,-1))
@@ -194,9 +194,10 @@ static void RecreateLuaState()
 				lua_close(LS); LS=NULL;
 			}
 		}
+		return 1;
 	}
-	else
-		lua_pop(LS,1);
+	lua_pop(LS,1);
+	return 0;
 }
 
 HANDLE LUAPLUG OpenW(const struct OpenInfo *Info)
@@ -211,8 +212,7 @@ HANDLE LUAPLUG OpenW(const struct OpenInfo *Info)
 #else
 		h = LF_Open(LS, Info);
 #endif
-		RecreateLuaState();
-		return LS ? h : NULL;
+		return !RecreateLuaState() && LS ? h : NULL;
 	}
 	return NULL;
 }
