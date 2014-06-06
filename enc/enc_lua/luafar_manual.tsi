@@ -141,7 +141,7 @@ id=214
 lv=1
 dt=Text
 nm=Generic LuaFAR plugin
-mtime=3602275505
+mtime=3611263369
 <article>
 #_<markdown>
 #_
@@ -166,6 +166,23 @@ mtime=3602275505
 #_
 #_- **`ENV_PREFIX`** - prefix for LuaFAR-specific environment variables.
 #_Defaults to `L"LUAFAR"` for 32-bit plugins, and to `L"LUAFAR64"` for 64-bit plugins. (See [`LF_InitLuaState1`](385.html) for details).
+#_
+#_
+#_### Recreation of the Lua virtual machine
+#_It is possible to "recreate" the Lua virtual machine (`lua_State`), used by the plugin, i.e: to close the current one and create a new one.
+#_
+#_* In order to do that the global variable `RecreateLuaState` should be
+#_  assigned a true value.
+#_* The analysis of `RecreateLuaState` and the virtual machine recreation
+#_  are conducted in the `OpenW` plugin's exported function, just before
+#_  returning control to Far Manager.
+#_* Prior to the virtual machine recreation the [`LF_ExitFAR`](162.html)
+#_  function is called.
+#_* After the virtual machine is recreated all actions that normally occur
+#_  when Far Manager loads a LuaFAR plugin are conducted, including running
+#_  the plugin's "starting" Lua script.
+#_* After the virtual machine is recreated the global variable `IsLuaStateRecreated`
+#_  is set to true.
 #_
 #_<a name="luaopen_luaplug"></a>
 #_### Extra exported function: `luaopen_luaplug`
