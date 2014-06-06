@@ -91,7 +91,7 @@ public:
 	FARMACROAREA GetMode() const { return m_Mode; }
 	const wchar_t* GetStringToPrint() const { return m_StringToPrint; }
 	int  IsRecording() const { return m_Recording; }
-	bool Load(bool InitedRAM=true,bool LoadAll=true);
+	bool Load(bool FromFar,bool InitedRAM=true,bool LoadAll=true);
 	bool ParseMacroString(const wchar_t* Sequence,FARKEYMACROFLAGS Flags,bool skipFile);
 	int  PeekKey() const;
 	bool PostNewMacro(const wchar_t* Sequence,FARKEYMACROFLAGS Flags,DWORD AKey=0);
@@ -116,7 +116,6 @@ private:
 	string m_LastErrorStr;
 	int m_LastErrorLine;
 	int m_InternalInput;
-	int m_DisableNested;
 	int m_WaitKey;
 	const wchar_t* m_StringToPrint;
 };

@@ -554,17 +554,22 @@ KeyMacro::KeyMacro():
 	m_Recording(MACROSTATE_NOMACRO),
 	m_LastErrorLine(0),
 	m_InternalInput(0),
-	m_DisableNested(0),
 	m_WaitKey(0),
 	m_StringToPrint()
 {
 	//print_opcodes();
 }
 
-bool KeyMacro::Load(bool InitedRAM, bool LoadAll)
+bool KeyMacro::Load(bool FromFar, bool InitedRAM, bool LoadAll)
 {
-	if (Global->Opt->Macro.DisableMacro&MDOL_ALL)
-		return false;
+	if (FromFar)
+	{
+		if (Global->Opt->Macro.DisableMacro&MDOL_ALL) return false;
+	}
+	else
+	{
+		if (!Global->CtrlObject->Plugins->IsPluginsLoaded()) return false;
+	}
 
 	m_Recording = MACROSTATE_NOMACRO;
 
@@ -723,7 +728,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 			}
 			else
 			{
-				if (!IsExecuting()||(IsMacroQueueEmpty()&&!m_DisableNested))
+				if (!IsExecuting()||(IsMacroQueueEmpty()&&!m_WaitKey))
 				{
 					DWORD key = Rec->IntKey;
 					if ((key&0x00FFFFFF) > 0x7F && (key&0x00FFFFFF) < 0xFFFF)
@@ -1073,7 +1078,7 @@ bool KeyMacro::CheckWaitKeyFunc() const
 // Функция, запускающая макросы при старте ФАРа
 void KeyMacro::RunStartMacro()
 {
-	if ((Global->Opt->Macro.DisableMacro&MDOL_ALL) || (Global->Opt->Macro.DisableMacro&MDOL_AUTOSTART))
+	if (Global->Opt->Macro.DisableMacro & (MDOL_ALL|MDOL_AUTOSTART))
 		return;
 
 	if (!Global->CtrlObject || !Global->CtrlObject->Cp() || !Global->CtrlObject->Cp()->ActivePanel || !Global->CtrlObject->Plugins->IsPluginsLoaded())
@@ -2432,9 +2437,9 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			MacroRecord TopMacro;
 			LockOutput Lock(GetTopMacro(&TopMacro) && !(TopMacro.Flags&MFLAGS_ENABLEOUTPUT));
 
-			++m_DisableNested; ++m_WaitKey;
+			++m_WaitKey;
 			bool result=waitkeyFunc(Data);
-			--m_DisableNested; --m_WaitKey;
+			--m_WaitKey;
 
 			return result;
 		}

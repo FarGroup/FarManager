@@ -2039,7 +2039,7 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 			// Param1=0, Param2 - 0
 			case MCTL_LOADALL: // из реестра в память ФАР с затиранием предыдущего
 			{
-				return !Macro.IsRecording() && Macro.Load(!Macro.IsExecuting(), !Global->Opt->OnlyEditorViewerUsed);
+				return !Macro.IsRecording() && Macro.Load(false, !Macro.IsExecuting(), !Global->Opt->OnlyEditorViewerUsed);
 			}
 
 			// Param1=0, Param2 - 0
