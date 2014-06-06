@@ -930,14 +930,15 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 
 	LastCmdPartLength=-1;
 
-	if(!StrCmpI(CmdLine.data(),L"far:config"))
+	if (!StrCmpI(CmdLine.data(),L"far:config"))
 	{
 		SetString(L"", false);
 		Show();
 		return Global->Opt->AdvancedConfig();
 	}
+	bool far_ver = !StrCmpI(CmdLine.data(),L"far:ver");
 
-	if (!SeparateWindow && Global->CtrlObject->Plugins->ProcessCommandLine(CmdLine))
+	if (!far_ver && !SeparateWindow && Global->CtrlObject->Plugins->ProcessCommandLine(CmdLine))
 	{
 		/* $ 12.05.2001 DJ - рисуемся только если остались верхним фреймом */
 		if (Global->CtrlObject->Cp()->IsTopFrame())
@@ -1295,7 +1296,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		Global->FrameManager->ExitMainLoop(FALSE);
 		return TRUE;
 	}
-	else if (IsCommand(L"VER", false))
+	else if (IsCommand(L"FAR:VER", false))
 	{
 		ShowBackground();
 		Redraw();
@@ -1303,7 +1304,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		Text(L' ');
 		Global->ScrBuf->Flush();
 		Console().SetTextAttributes(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
-		string strOut(L"\n");
+		string strOut(L"\n\n");
 
 		strOut.append(Global->Version()).append(1, L'\n');
 		strOut.append(Global->Copyright()).append(1, L'\n');
@@ -1311,7 +1312,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		const auto& ComponentsInfo = components::GetComponentsInfo();
 		if (!ComponentsInfo.empty())
 		{
-			strOut += L"\nLibraries:\n\n";
+			strOut += L"\nLibraries:\n";
 
 			FOR(const auto& i, ComponentsInfo)
 			{
@@ -1321,7 +1322,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 
 		if (Global->CtrlObject->Plugins->GetPluginsCount())
 		{
-			strOut += L"\nPlugins:\n\n";
+			strOut += L"\nPlugins:\n";
 
 			FOR(const auto& i, *Global->CtrlObject->Plugins)
 			{
