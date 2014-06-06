@@ -165,19 +165,54 @@ int LUAPLUG GetMinFarVersionW()
 //---------------------------------------------------------------------------
 
 #ifdef EXPORT_OPEN
+static void RecreateLuaState()
+{
+	lua_getglobal(LS, "RecreateLuaState");
+	if (lua_toboolean(LS,-1))
+	{
+#ifdef EXPORT_EXITFAR
+		struct ExitInfo Info = { sizeof(struct ExitInfo) };
+		LF_ExitFAR(LS, &Info);
+#endif
+		lua_close(LS);
+		LS = luaL_newstate();
+		if (LS)
+		{
+			int OK = 0;
+			struct GlobalInfo GInfo;
+			LF_InitLuaState1(LS, FUNC_OPENLIBS);
+			if (LF_GetGlobalInfo(LS, &GInfo, PluginDir))
+			{
+				LF_InitLuaState2(LS, &PluginData);
+				LF_ProcessEnvVars(LS, ENV_PREFIX, PluginDir);
+				lua_pushboolean(LS,1);
+				lua_setglobal(LS, "IsLuaStateRecreated");
+				OK = LF_RunDefaultScript(LS);
+			}
+			if (!OK)
+			{
+				lua_close(LS); LS=NULL;
+			}
+		}
+	}
+	else
+		lua_pop(LS,1);
+}
+
 HANDLE LUAPLUG OpenW(const struct OpenInfo *Info)
 {
 	if(LS)
 	{
-#ifdef EXPORT_PROCESSDIALOGEVENT
 		HANDLE h;
+#ifdef EXPORT_PROCESSDIALOGEVENT
 		EnterCriticalSection(&FindFileSection);
 		h = LF_Open(LS, Info);
 		LeaveCriticalSection(&FindFileSection);
-		return h;
 #else
-		return LF_Open(LS, Info);
+		h = LF_Open(LS, Info);
 #endif
+		RecreateLuaState();
+		return LS ? h : NULL;
 	}
 	return NULL;
 }

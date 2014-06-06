@@ -401,7 +401,7 @@ local function EnumMacros (strArea, resetEnum)
   end
 end
 
-local function LoadMacros (allAreas, unload)
+local function LoadMacros (unload)
   if LoadingInProgress then return end
   LoadingInProgress = true
 
@@ -410,6 +410,7 @@ local function LoadMacros (allAreas, unload)
     export_ExitFAR()
   end
 
+  local allAreas = band(MacroCallFar(MCODE_F_GETOPTIONS),0x3) == 0
   local numerrors=0
   local newAreas = {}
   Events,Subscriptions = {},{}
@@ -517,8 +518,7 @@ local function LoadMacros (allAreas, unload)
 end
 
 local function InitMacroSystem()
-  local allAreas = band(MacroCallFar(MCODE_F_GETOPTIONS),0x3) == 0
-  LoadMacros(allAreas,true)
+  LoadMacros(true)
 end
 
 local function WriteOneMacro (dir, macro, keyname, delete)

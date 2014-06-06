@@ -312,9 +312,9 @@ function export.Open (OpenFrom, arg1, ...)
     elseif calltype==F.MCT_ENUMMACROS     then return utils.EnumMacros(...)
     elseif calltype==F.MCT_GETMACRO       then return utils.GetMacroWrapper(...)
     elseif calltype==F.MCT_LOADMACROS     then
-      local InitedRAM, LoadAll = ...
+      local InitedRAM = ...
       keymacro.InitInternalVars(InitedRAM)
-      return utils.LoadMacros(LoadAll)
+      return utils.LoadMacros()
     elseif calltype==F.MCT_RECORDEDMACRO  then return utils.ProcessRecordedMacro(...)
     elseif calltype==F.MCT_RUNSTARTMACRO  then return utils.RunStartMacro()
     elseif calltype==F.MCT_WRITEMACROS    then return utils.WriteMacros()
@@ -413,6 +413,11 @@ local function Init()
   package.path = modules.."?.lua;"..modules.."?\\init.lua;"..package.path
   package.moonpath = modules.."?.moon;"..modules.."?\\init.moon;"..package.moonpath
   package.cpath = modules.."?.dll;"..package.cpath
+
+  if _G.IsLuaStateRecreated then
+    _G.IsLuaStateRecreated = nil
+    utils.LoadMacros()
+  end
 end
 
 local ok, msg = pcall(Init) -- pcall is used to handle RunPluginFile() failure in one place only
