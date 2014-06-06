@@ -560,7 +560,7 @@ KeyMacro::KeyMacro():
 	//print_opcodes();
 }
 
-bool KeyMacro::Load(bool FromFar, bool InitedRAM, bool LoadAll)
+bool KeyMacro::Load(bool FromFar, bool InitedRAM)
 {
 	if (FromFar)
 	{
@@ -573,7 +573,7 @@ bool KeyMacro::Load(bool FromFar, bool InitedRAM, bool LoadAll)
 
 	m_Recording = MACROSTATE_NOMACRO;
 
-	FarMacroValue values[]={InitedRAM,LoadAll};
+	FarMacroValue values[]={InitedRAM};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_LOADMACROS,&fmc};
 	return CallMacroPlugin(&info);
