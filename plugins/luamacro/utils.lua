@@ -39,6 +39,7 @@ local MCODE_F_GETOPTIONS   = 0x80C65
 local Areas
 local LoadedMacros
 local LoadMacrosDone
+local LoadingInProgress
 local EnumState = {}
 local Events
 local EventGroups = {"dialogevent","editorevent","editorinput","exitfar","viewerevent"}
@@ -226,6 +227,7 @@ local function AddRegularMacro (srctable)
   if type(srctable)=="table" and type(srctable.area)=="string" then
     macro.area = srctable.area
     macro.key = type(srctable.key)=="string" and srctable.key or "none"
+    if not macro.key:find("%S") then macro.key = "none" end
   else
     return
   end
@@ -400,6 +402,9 @@ local function EnumMacros (strArea, resetEnum)
 end
 
 local function LoadMacros (allAreas, unload)
+  if LoadingInProgress then return end
+  LoadingInProgress = true
+
   if LoadMacrosDone then
     LoadMacrosDone = false
     export_ExitFAR()
@@ -507,6 +512,7 @@ local function LoadMacros (allAreas, unload)
   export.ProcessEditorInput = Events.editorinput[1] and export_ProcessEditorInput
   export.ProcessViewerEvent = Events.viewerevent[1] and export_ProcessViewerEvent
 
+  LoadingInProgress = nil
   return numerrors==0
 end
 
@@ -587,7 +593,7 @@ end
 local GetMacro_keypat = regex.new("^(r?ctrl)?(r?alt)?(.*)")
 
 local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
-  if not LoadMacrosDone then return end
+  if LoadingInProgress then return end
 
   local area = GetAreaName(argMode)
   if not area then return end -- трюк используется в CheckForEscSilent() в Фаре
