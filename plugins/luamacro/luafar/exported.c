@@ -428,11 +428,15 @@ intptr_t LF_GetFiles(lua_State* L, struct GetFilesInfo *Info)
 static BOOL CheckReloadDefaultScript(lua_State *L)
 {
 	// reload default script?
-	int reload;
+	int reload = 0;
 	lua_getglobal(L, "far");
-	lua_getfield(L, -1, "ReloadDefaultScript");
-	reload = lua_toboolean(L, -1);
-	lua_pop(L, 2);
+	if (lua_istable(L, -1))
+	{
+		lua_getfield(L, -1, "ReloadDefaultScript");
+		reload = lua_toboolean(L, -1);
+		lua_pop(L, 1);
+	}
+	lua_pop(L, 1);
 	return !reload || LF_RunDefaultScript(L);
 }
 
