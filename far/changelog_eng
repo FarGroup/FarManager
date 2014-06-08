@@ -3,6 +3,84 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 08.06.2014 22:47:12 +0200 - build 3948
+
+1. Refactoring.
+
+svs 07.06.2014 11:16:01 +0400 - build 3947
+
+1. SQLite 3.8.5
+
+shmuel 06.06.2014 21:35:19 +0200 - build 3946
+
+1. Refactoring.
+
+drkns 06.06.2014 19:00:44 +0200 - build 3945
+
+1. far:ver -> far:about
+
+shmuel 06.06.2014 16:21:30 +0200 - build 3944
+
+1. far /m disables initial loading of macros only, later the macros can be
+   loaded in any possible manner.
+
+w17 06.06.2014 12:37:17 +0400 - build 3943
+
+1. ver -> far:ver
+
+drkns 05.06.2014 20:51:49 +0200 - build 3942
+
+1. Forum: error of autofilter creation, if the name of a file contains ,;
+
+w17 05.06.2014 16:23:29 +0400 - build 3941
+
+1. M#2250: Text in 1251 is not shown in an UTF8 file
+   The codepage can be changed on file open, if the current codepage does not allow the file be shown without loss of information.
+
+drkns 05.06.2014 01:06:34 +0200 - build 3940
+
+1. FAR crash while deleting a custom panel view mode, if it was set on a passive panel.
+
+2. Also, CtrlShiftEnter is added - set view mode of a passive panel.
+
+drkns 04.06.2014 20:11:04 +0200 - build 3939
+
+1. And more.
+
+shmuel 04.06.2014 13:52:16 +0200 - build 3938
+
+1. Correction of 3925.
+
+drkns 03.06.2014 17:35:54 +0200 - build 3937
+
+1. Another couple of bugs in 3934.
+
+drkns 03.06.2014 09:15:51 +0200 - build 3936
+
+1. A couple of bugs in 3934.
+
+drkns 03.06.2014 03:21:08 +0200 - build 3935
+
+1. GCC.
+
+drkns 03.06.2014 02:42:03 +0200 - build 3934
+
+1. Random refactoring.
+
+2. Far processes 'ver' command showing its own version, versions of used libraries and installed plugins.
+
+drkns 03.06.2014 02:16:43 +0200 - build 3933
+
+1. 0002687: Codepages menu: --Other-- separator disappears
+
+shmuel 02.06.2014 18:15:07 +0200 - build 3932
+
+1. Refactoring.
+
+shmuel 02.06.2014 00:17:53 +0200 - build 3931
+
+1. Refactoring.
+
 shmuel 31.05.2014 17:30:49 +0200 - build 3930
 
 1. Refactoring.
