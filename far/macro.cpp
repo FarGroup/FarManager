@@ -649,10 +649,9 @@ struct GetMacroData
 	MACROFLAGS_MFLAGS Flags;
 };
 
-// эта функция может вывести меню выбора макроса
-static bool LM_GetMacro(GetMacroData* Data, FARMACROAREA Mode, const string& TextKey, bool UseCommon, bool CheckOnly)
+static bool LM_GetMacro(GetMacroData* Data, FARMACROAREA Mode, const string& TextKey, bool UseCommon)
 {
-	FarMacroValue InValues[]={(double)Mode,TextKey,UseCommon,CheckOnly};
+	FarMacroValue InValues[]={(double)Mode,TextKey,UseCommon};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(InValues),InValues,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_GETMACRO,&fmc};
 
@@ -676,7 +675,7 @@ bool KeyMacro::MacroExists(int Key, FARMACROAREA CheckMode, bool UseCommon)
 {
 	GetMacroData dummy;
 	string strKey;
-	return KeyToText(Key,strKey) && LM_GetMacro(&dummy,CheckMode,strKey,UseCommon,true);
+	return KeyToText(Key,strKey) && LM_GetMacro(&dummy,CheckMode,strKey,UseCommon);
 }
 
 static void LM_ProcessRecordedMacro(FARMACROAREA Mode, const string& TextKey, const string& Code,
@@ -5551,7 +5550,7 @@ M1:
 
 		// если УЖЕ есть такой макрос...
 		GetMacroData Data;
-		if (LM_GetMacro(&Data,KMParam->Mode,strKeyText,true,true) && Data.MacroId)
+		if (LM_GetMacro(&Data,KMParam->Mode,strKeyText,true) && Data.MacroId)
 		{
 			// общие макросы учитываем только при удалении.
 			if (m_RecCode.empty() || Data.Area!=MACROAREA_COMMON_INTERNAL)

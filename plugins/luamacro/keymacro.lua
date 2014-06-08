@@ -301,9 +301,11 @@ end
 local function TryToPostMacro (Mode, TextKey, IntKey)
   local m = Shared.utils.GetMacro(Mode, TextKey, true, false)
   if m then
-    KeyMacro.PostNewMacro(m.id, m.code, m.flags, TextKey, false)
-    SetHistoryDisableMask(0)
-    CurState.IntKey = IntKey
+    if m.id then
+      KeyMacro.PostNewMacro(m.id, m.code, m.flags, TextKey, false)
+      SetHistoryDisableMask(0)
+      CurState.IntKey = IntKey
+    end
     return true
   end
 end
