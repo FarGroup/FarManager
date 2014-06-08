@@ -269,6 +269,25 @@ local function ExecString (lang, text, params)
   end
 end
 
+local function About()
+  -- LuaMacro
+  local GInfo = export.GetGlobalInfo()
+  local text = ("%s %d.%d.%d build %d"):format(GInfo.Title, unpack(GInfo.Version))
+
+  -- Lua/LuaJIT
+  text = text.."\n"..(jit and jit.version or _VERSION)
+
+  -- MoonScript and LPeg
+  local ok,lib = pcall(require, "moonscript.version")
+  if ok then
+    text = text.."\nMoonScript "..lib.version
+    if lpeg then text = text.."\nLPeg "..lpeg.version() end
+  end
+
+  -- All together
+  far.Message(text, "About", nil, "l")
+end
+
 local function ProcessCommandLine (CmdLine)
   local prefix, text = CmdLine:match("^%s*(%w+):%s*(.-)%s*$")
   prefix = prefix:lower()
@@ -282,6 +301,7 @@ local function ProcessCommandLine (CmdLine)
     elseif cmd == "unload" then utils.UnloadMacros()
     elseif cmd == "post" then -- DEPRECATED, to be removed on 2014-Oct-29.
       prefix, text = "lua", text:match("%S+%s*(.*)")
+    elseif cmd == "about" then About()
     elseif cmd ~= "" then ErrMsg(Msg.CL_UnsupportedCommand .. cmd) end
   end
   if prefix == "lua" or prefix == "moon" then
