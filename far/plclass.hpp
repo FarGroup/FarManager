@@ -240,6 +240,7 @@ public:
 	const VersionInfo& GetMinFarVersion() const { return MinFarVersion; }
 	const string& GetVersionString() const { return VersionString; }
 	const GUID& GetGUID() const { return m_Guid; }
+	bool IsPendingRemove() const { return bPendingRemove; }
 	const wchar_t *GetMsg(LNGID nID) const;
 
 	bool CheckWorkFlags(DWORD flags) const { return WorkFlags.Check(flags); }

@@ -702,7 +702,8 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 		{
 			if ((ctrldot||ctrlshiftdot) && !IsExecuting())
 			{
-				if (!Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Luamacro.Id))
+				Plugin* LuaMacro = Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Luamacro.Id);
+				if (!LuaMacro || LuaMacro->IsPendingRemove())
 				{
 					Message(MSG_WARNING,1,MSG(MError),
 					   MSG(MMacroPluginLuamacroNotLoaded),
