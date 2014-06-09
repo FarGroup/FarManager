@@ -1478,7 +1478,7 @@ string str_printf(const wchar_t * format, ...)
 	return result;
 }
 
-std::list<string> StringToList(const string& InitString, DWORD Flags, const wchar_t* Separators)
+std::list<string> StringToList(const string& InitString, DWORD InitFlags, const wchar_t* Separators)
 {
 	struct ListItem
 	{
@@ -1666,7 +1666,7 @@ std::list<string> StringToList(const string& InitString, DWORD Flags, const wcha
 		std::list<ListItem> ItemsList;
 	};
 
-	UserDefinedList list(InitString, Flags, Separators);
+	UserDefinedList list(InitString, InitFlags, Separators);
 	return std::list<string>(list.ItemsList.begin(), list.ItemsList.end());
 }
 

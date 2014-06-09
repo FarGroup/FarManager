@@ -242,6 +242,20 @@ public:
 		}
 	}
 
+	far_bad_alloc(const far_bad_alloc& rhs):
+		std::bad_alloc(rhs),
+		m_What(rhs.m_What)
+	{
+	}
+
+	far_bad_alloc& operator=(const far_bad_alloc& rhs)
+	{
+		std::bad_alloc::operator=(rhs);
+		m_What = rhs.m_What;
+		return *this;
+	}
+
+
 	far_bad_alloc(far_bad_alloc&& rhs) noexcept { *this = std::move(rhs); }
 	MOVE_OPERATOR_BY_SWAP(far_bad_alloc);
 

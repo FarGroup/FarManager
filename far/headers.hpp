@@ -105,6 +105,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define NOMINMAX
 #endif
 
+#if defined(_MSC_VER) && _MSC_VER >= 1900
+#pragma warning( disable: 4458 5024 5025 5026 5027)
+#endif
+
 #define WIN32_NO_STATUS //exclude ntstatus.h macros from winnt.h
 #include <windows.h>
 #undef WIN32_NO_STATUS

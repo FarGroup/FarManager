@@ -1710,9 +1710,10 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		if (Ask)
 		{
 			const wchar_t* const Items[] = {MSG(MEditAskSave),MSG(MHYes),MSG(MHNo),MSG(MHCancel)};
-			int Code = Global->AllowCancelExit?
-					Message(MSG_WARNING,3,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditAskSaveId):
-					Message(MSG_WARNING,2,MSG(MEditTitle),Items, ARRAYSIZE(Items)-1, nullptr, nullptr, &EditAskSaveId);
+			int ButtonsCount = Global->AllowCancelExit? 3 : 2;
+			size_t ItemsCount = Global->AllowCancelExit? ARRAYSIZE(Items) : ARRAYSIZE(Items) - 1;
+			int Code = Message(MSG_WARNING, ButtonsCount, MSG(MEditTitle), Items, ItemsCount, nullptr, nullptr, &EditAskSaveId);
+
 			if(Code < 0 && !Global->AllowCancelExit)
 			{
 				Code = 1; // close == not save

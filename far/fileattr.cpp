@@ -272,7 +272,7 @@ static bool SetFileSparse(const string& Name,bool State)
 	if (file.Open(Name,FILE_WRITE_DATA,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING))
 	{
 		DWORD BytesReturned;
-		FILE_SET_SPARSE_BUFFER sb={State};
+		FILE_SET_SPARSE_BUFFER sb={static_cast<BOOLEAN>(State)};
 		Ret=file.IoControl(FSCTL_SET_SPARSE,&sb,sizeof(sb),nullptr,0,&BytesReturned,nullptr);
 	}
 	return Ret;

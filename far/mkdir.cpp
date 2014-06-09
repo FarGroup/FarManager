@@ -177,12 +177,12 @@ void ShellMakeDir(Panel *SrcPanel)
 			string Part;
 			Part.reserve(strDirName.size());
 
-			for (size_t i = DirOffset + (IsSlash(strDirName[DirOffset])? 1 : 0); i <= strDirName.size(); ++i)
+			for (size_t j = DirOffset + (IsSlash(strDirName[DirOffset])? 1 : 0); j <= strDirName.size(); ++j)
 			{
-				if (i == strDirName.size() || IsSlash(strDirName[i]))
+				if (j == strDirName.size() || IsSlash(strDirName[j]))
 				{
-					Part = strDirName.substr(0, i);
-					if (api::GetFileAttributes(Part) == INVALID_FILE_ATTRIBUTES || i == strDirName.size()) // skip all intermediate dirs, but not last.
+					Part = strDirName.substr(0, j);
+					if (api::GetFileAttributes(Part) == INVALID_FILE_ATTRIBUTES || j == strDirName.size()) // skip all intermediate dirs, but not last.
 					{
 						while(!(bSuccess=(api::CreateDirectory(Part, nullptr)!=FALSE)) && !SkipAll)
 						{

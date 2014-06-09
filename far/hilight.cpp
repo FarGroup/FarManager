@@ -181,10 +181,10 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 					HLS.MarkCharSelectedCursorColor,
 				};
 
-				FOR(const auto& i, Names)
+				FOR(const auto& j, Names)
 				{
 					static const FarColor DefaultColor = {FCF_FG_4BIT | FCF_BG_4BIT, 0xff000000, 0x00000000};
-					cfg->SetValue(key, i, &DefaultColor, sizeof(DefaultColor));
+					cfg->SetValue(key, j, &DefaultColor, sizeof(DefaultColor));
 				}
 			}
 		}

@@ -1527,14 +1527,14 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber,int X,int Y,int MaxHeight,DWO
 			NewBreakKeys.resize(BreakKeysCount);
 			std::transform(BreakKeys, BreakKeys + BreakKeysCount, NewBreakKeys.begin(), [&](int i) -> VALUE_TYPE(NewBreakKeys)
 			{
-				VALUE_TYPE(NewBreakKeys) Item;
-				Item.VirtualKeyCode = i & 0xffff;
-				Item.ControlKeyState = 0;
-				DWORD Flags = i >> 16;
-				if (Flags & oldfar::PKF_CONTROL) Item.ControlKeyState|=LEFT_CTRL_PRESSED;
-				if (Flags & oldfar::PKF_ALT) Item.ControlKeyState |= LEFT_ALT_PRESSED;
-				if (Flags & oldfar::PKF_SHIFT) Item.ControlKeyState |= SHIFT_PRESSED;
-				return Item;
+				VALUE_TYPE(NewBreakKeys) NewItem;
+				NewItem.VirtualKeyCode = i & 0xffff;
+				NewItem.ControlKeyState = 0;
+				DWORD ItemFlags = i >> 16;
+				if (ItemFlags & oldfar::PKF_CONTROL) NewItem.ControlKeyState |= LEFT_CTRL_PRESSED;
+				if (ItemFlags & oldfar::PKF_ALT) NewItem.ControlKeyState |= LEFT_ALT_PRESSED;
+				if (ItemFlags & oldfar::PKF_SHIFT) NewItem.ControlKeyState |= SHIFT_PRESSED;
+				return NewItem;
 			});
 		}
 	}
@@ -3533,7 +3533,7 @@ static __int64 GetSetting(FARSETTINGS_SUBFOLDERS Root,const wchar_t* Name)
 	HANDLE Settings=NativeInfo.SettingsControl(INVALID_HANDLE_VALUE,SCTL_CREATE,0,&settings)?settings.Handle:0;
 	if(Settings)
 	{
-		FarSettingsItem item={sizeof(FarSettingsItem),Root,Name,FST_UNKNOWN,{}};
+		FarSettingsItem item = { sizeof(FarSettingsItem), static_cast<size_t>(Root), Name, FST_UNKNOWN, {} };
 		if(NativeInfo.SettingsControl(Settings,SCTL_GET,0,&item)&&FST_QWORD==item.Type)
 		{
 			result=item.Number;
@@ -3633,7 +3633,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CON
 			if (!Param) return FALSE;
 
 			oldfar::ActlKeyMacro *kmA=(oldfar::ActlKeyMacro *)Param;
-			FAR_MACRO_CONTROL_COMMANDS Command = MCTL_LOADALL;
+			FAR_MACRO_CONTROL_COMMANDS MacroCommand = MCTL_LOADALL;
 			int Param1=0;
 			bool Process=true;
 
@@ -3643,16 +3643,16 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CON
 			switch (kmA->Command)
 			{
 				case oldfar::MCMD_LOADALL:
-					Command=MCTL_LOADALL;
+					MacroCommand = MCTL_LOADALL;
 					break;
 				case oldfar::MCMD_SAVEALL:
-					Command=MCTL_SAVEALL;
+					MacroCommand = MCTL_SAVEALL;
 					break;
 				case oldfar::MCMD_GETSTATE:
-					Command=MCTL_GETSTATE;
+					MacroCommand = MCTL_GETSTATE;
 					break;
 				case oldfar::MCMD_POSTMACROSTRING:
-					Command=MCTL_SENDSTRING;
+					MacroCommand = MCTL_SENDSTRING;
 					Param1=MSSC_POST;
 					mtW.SequenceText=AnsiToUnicode(kmA->PlainText.SequenceText);
 
@@ -3663,7 +3663,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CON
 					break;
 
 				case oldfar::MCMD_CHECKMACRO:
-					Command=MCTL_SENDSTRING;
+					MacroCommand = MCTL_SENDSTRING;
 					Param1=MSSC_CHECK;
 					mtW.SequenceText=AnsiToUnicode(kmA->PlainText.SequenceText);
 					break;
@@ -3677,7 +3677,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CON
 
 			if (Process)
 			{
-				res = NativeInfo.MacroControl(0,Command,Param1,&mtW);
+				res = NativeInfo.MacroControl(0, MacroCommand, Param1, &mtW);
 
 				if (Command == MCTL_SENDSTRING)
 				{

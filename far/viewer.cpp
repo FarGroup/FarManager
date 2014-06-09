@@ -692,10 +692,10 @@ int Viewer::txt_dump(const unsigned char *line, DWORD nr, int width, wchar_t *ou
 	}
 	else if (cp == CP_UTF8)
 	{
-		int tail, nw;
+		int dummy_tail, nw;
 		std::vector<wchar_t> w2(width);
 		ib = iw = 0;
-		nw = utf8_to_WideChar(reinterpret_cast<const char*>(line), (int)nr, w1.data(), w2.data(), width, tail);
+		nw = utf8_to_WideChar(reinterpret_cast<const char*>(line), (int)nr, w1.data(), w2.data(), width, dummy_tail);
 		bool first = true;
 		while (ib < width && iw < nw)
 		{
