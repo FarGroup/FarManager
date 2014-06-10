@@ -3679,7 +3679,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CON
 			{
 				res = NativeInfo.MacroControl(0, MacroCommand, Param1, &mtW);
 
-				if (Command == MCTL_SENDSTRING)
+				if (MacroCommand == MCTL_SENDSTRING)
 				{
 					switch (Param1)
 					{
