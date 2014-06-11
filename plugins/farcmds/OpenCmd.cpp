@@ -441,7 +441,7 @@ int OpenFromCommandLine(const wchar_t *_farcmd)
 {
 	if (!_farcmd) return FALSE;
 
-	int View=0,Edit=0,Goto=0,Far=0,Clip=0,WhereIs=0,Link=0,Run=0, Load=0,Unload=0;
+	int View=0,Edit=0,Goto=0,Clip=0,WhereIs=0,Link=0,Run=0, Load=0,Unload=0;
 	size_t PrefIdx=static_cast<size_t>(-1);
 	struct
 	{
@@ -450,8 +450,6 @@ int OpenFromCommandLine(const wchar_t *_farcmd)
 		LPCTSTR HelpName;
 	} Pref[]=
 	{
-		// far:<command>[<options>]<separator><object>
-		{Far,L"FAR",L"Contents"},  // Ё“ќ“ самый первый!
 		// view:[<separator>]<object>
 		// view<separator><object>
 		{View,L"VIEW",L"View"},
@@ -554,7 +552,6 @@ int OpenFromCommandLine(const wchar_t *_farcmd)
 				}
 				else
 					BracketsOk=TRUE;
-				Far=0;
 			}
 			else if (Run)   // п€тница, 26 апрел€ 2002, 13:50:08
 			{
@@ -569,11 +566,7 @@ int OpenFromCommandLine(const wchar_t *_farcmd)
 					farcmd = pCmd;
 					showhelp=FALSE;
 				}
-				Far=0;
 			}
-
-			if (Far && BracketsOk && cBracket)
-				farcmd=cBracket+1;
 
 			if (*farcmd==L'<')
 			{
@@ -583,41 +576,23 @@ int OpenFromCommandLine(const wchar_t *_farcmd)
 			}
 			else
 			{
-				/* $ 21.06.2001 SVS
-				   Ёто делаем только, если был префикс "far:",
-				   иначе глотаетс€ первое слово.
-				*/
-				if (Far)
-					pCmd=wcsstr(farcmd,Opt.Separator);
-
 				if (pCmd)
 				{
-					if (Far)
-						pCmd+=SeparatorLen;
-					else
-					{
-						wchar_t *Quote=wcschr(farcmd,L'\"');
+					wchar_t *Quote=wcschr(farcmd,L'\"');
 
-						if (Quote)
-						{
-							if (Quote<=pCmd)
-								pCmd=farcmd;
-							else
-								pCmd+=SeparatorLen;
-						}
+					if (Quote)
+					{
+						if (Quote<=pCmd)
+							pCmd=farcmd;
 						else
 							pCmd+=SeparatorLen;
 					}
+					else
+						pCmd+=SeparatorLen;
 				}
 				else
 				{
-					if (Far)
-					{
-						if (BracketsOk && cBracket)
-							pCmd=farcmd;
-					}
-					else
-						pCmd=farcmd;
+					pCmd=farcmd;
 				}
 			}
 

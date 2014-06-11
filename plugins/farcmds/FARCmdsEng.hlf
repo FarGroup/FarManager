@@ -304,13 +304,6 @@ $^#Notes#
    4. You can use console aliases as #command#
       (Console aliases - macros defined by command DOSKEY)
 
-   5. Before each command it's allowed to additionally specify the prefix #far:#
-
-      #command:#[#options#] #object#
-      #far:command# [#options#] #object#
-
-      Both notation forms are equivalent.
-
 
    See also: ~Contents~@Contents@
 
@@ -359,7 +352,7 @@ $^#Configuring FAR Commands#
 
    #Intercept stdout and #       Intercept stdout and #stderr#
    #stderr separately#           separately. It has sense only in
-                               commands #far:view <# and #far:edit <#.
+                               commands #view:<# and #edit:<#.
                                In other cases same as #<*#.
                                Can't be used with #<+#.
                                Same as using  #<?# instead of #<#.
