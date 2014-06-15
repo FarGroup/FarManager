@@ -406,8 +406,13 @@ local function LoadMacros (unload)
   LoadingInProgress = true
 
   if LoadMacrosDone then
+    local ok, msg = pcall(export_ExitFAR)
+    if not ok then
+      ErrMsg(msg)
+      LoadingInProgress = false
+      return false
+    end
     LoadMacrosDone = false
-    export_ExitFAR()
   end
 
   local allAreas = band(MacroCallFar(MCODE_F_GETOPTIONS),0x3) == 0
