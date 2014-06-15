@@ -9,7 +9,7 @@ shmuel 10.06.2014 11:38:11 +0200 - build 3951
 
 shmuel 10.06.2014 00:45:54 +0200 - build 3950
 
-1. On LuaMacro unload manual macros storing was not immediately set to disabled as the result of an exception.
+1. When LuaMacro plugin was unloaded due to an exception the manual macro recording was not disabled immediately.
 
 drkns 09.06.2014 22:12:24 +0200 - build 3949
 
@@ -420,9 +420,9 @@ svs 15.04.2014 12:37:20 +0400 - build 3866
 
 2. Mantis#0002608: Editor function: possiblility of the already loaded file is not always taken into account
 
-    If the file is already opened, then repeated modal opening shows a message 
+    If the file is already opened, then repeated modal opening shows a message
     "already loaded. How to open this file?" with two buttons "{ New instance }" and "[ Cancel ]".
-    API: from EF_OPENMODE_* modes, support only EF_OPENMODE_QUERY, EF_OPENMODE_NEWIFOPEN and 
+    API: from EF_OPENMODE_* modes, support only EF_OPENMODE_QUERY, EF_OPENMODE_NEWIFOPEN and
     EF_OPENMODE_BREAKIFOPEN (i.e. the buttons "New instance" and "Cancel").
 
     (partial solution so far)
@@ -433,7 +433,7 @@ svs 15.04.2014 12:37:20 +0400 - build 3866
     (for non-modal ones - GUID==EditorReloadId)
 
     EditorCanNotEditDirectoryId = {CCA2C4D0-8705-4FA1-9B10-C9E3C8F37A65}  --> Dlg.Id
-    Editor. Warning on attempt of directory editing 
+    Editor. Warning on attempt of directory editing
 
     EditorFileLongId            = {E3AFCD2D-BDE5-4E92-82B6-87C6A7B78FB6}  --> Dlg.Id
     Editor. Warning on exceeding the size of the edited file (see Editor.FileSizeLimit and Editor.FileSizeLimitHi settings)
@@ -489,7 +489,7 @@ drkns 09.04.2014 22:19:59 +0200 - build 3857
 2. In viewer opened from the rewrite dialog, transition on Add/Subtract works.
 
 3. In editor, reverse search did not work for "Cursor at end".
- 
+
 4. Debug target did not build - DN_ACTIVATEAPP was not removed completely in 3856.
 
 5. Refactoring.
@@ -639,7 +639,7 @@ svs 21.03.2014 16:28:10 +0400 - build 3839
 
 1. Correction of DN_DRAWDLGITEMDONE
    The scheme is following:
-      1. Drawing the whole dialog: 
+      1. Drawing the whole dialog:
           DN_DRAWDIALOG
           DN_CTLCOLORDIALOG
           CountItem times {
@@ -649,7 +649,7 @@ svs 21.03.2014 16:28:10 +0400 - build 3839
           }
           DN_DRAWDIALOGDONE
 
-      2. Drawing a single item: 
+      2. Drawing a single item:
           DN_DRAWDLGITEM
           DN_CTLCOLORDLGLIST
           DN_DRAWDLGITEMDONE
@@ -660,7 +660,7 @@ svs 21.03.2014 16:28:10 +0400 - build 3839
 svs 21.03.2014 13:59:21 +0400 - build 3838
 
 1. Dialog API. Addition:
-    
+
     DM_GETDIALOGTITLE message (67) allows to get the caption of the dialog.
       Param1 = 0
       Param2 = Pointer to FarDialogItemData structure
@@ -683,7 +683,7 @@ svs 21.03.2014 13:59:21 +0400 - build 3838
     (the same as for drawing the whole dialog).
 
     Now:
-      1. Drawing the whole dialog: 
+      1. Drawing the whole dialog:
           DN_DRAWDIALOG
           DN_CTLCOLORDIALOG
           CountItem times {
@@ -692,7 +692,7 @@ svs 21.03.2014 13:59:21 +0400 - build 3838
           }
           DN_DRAWDIALOGDONE
 
-      2. Drawing a single item: 
+      2. Drawing a single item:
           DN_DRAWDLGITEM
           DN_CTLCOLORDLGLIST
           DN_DRAWDLGITEMDONE
@@ -712,11 +712,11 @@ svs 21.03.2014 13:59:21 +0400 - build 3838
 
 svs 19.03.2014 16:17:34 +0400 - build 3837
 
-1. Mantis#0000327: [X] Save bookmarks does not work without [X] Save file position 
+1. Mantis#0000327: [X] Save bookmarks does not work without [X] Save file position
 
    The options have become independent, although:
 
-   The variant without history.db redone. 
+   The variant without history.db redone.
    Now tables editorposition_history/viewerbookmarks_history depend on
    editorposition_history/viewerposition_history (the latter ones contain the filename).
 
@@ -730,7 +730,7 @@ svs 19.03.2014 16:17:34 +0400 - build 3837
 svs 18.03.2014 15:20:34 +0400 - build 3836
 
 1. GUID for the login and password duery dialog.
-    
+
     GetNameAndPasswordId  = {CD2AC546-9E4F-4445-A258-AB5F7A7800E0}  --> Dlg.Id
 
     It is shown (optionally) on opening a mapped volume from the drive selection menu.
@@ -1062,7 +1062,7 @@ w17 17.01.2014 14:12:54 +0400 - build 3776
    true -- taking the case when the list of items to delete differs from the item under the cursor.
 
    b) Interface.DelShowSelected -- int, default = 10
-   Show names in multiple files deletion, but not more than the number specified, 
+   Show names in multiple files deletion, but not more than the number specified,
    scaled to range 1..screen_length/2
 
    Old behavior = (false, 1)
@@ -1257,7 +1257,7 @@ drkns 08.12.2013 23:04:44 +0200 - build 3733
 
 svs 06.12.2013 14:31:24 +0400 - build 3732
 
-1. Mantis#0002331: Hotkeys and/or GUIDs for Folder Shortcuts 
+1. Mantis#0002331: Hotkeys and/or GUIDs for Folder Shortcuts
 
     FolderShortcutsDlgId  = {DC8D98AC-475C-4f37-AB1D-45765EF06269} --> Dlg.Id
       Path editing dialog.
@@ -1482,7 +1482,7 @@ drkns 02.10.2013 12:44:54 +0200 - build 3687
 
 drkns 02.10.2013 11:23:30 +0200 - build 3686
 
-1. For a date format beginning with the year it was shown without leading zero. 
+1. For a date format beginning with the year it was shown without leading zero.
 
 drkns 01.10.2013 18:51:46 +0200 - build 3685
 
@@ -1852,7 +1852,7 @@ shmuel 10.08.2013 19:41:07 +0200 - build 3607
 
 drkns 10.08.2013 18:58:13 +0200 - build 3606
 
-1. Continuation of 3596. BOOL Initialize(GlobalInfo*) (called when loading) and 
+1. Continuation of 3596. BOOL Initialize(GlobalInfo*) (called when loading) and
    void Free(ExitInfo*) functions  (called when unloading) are added for adapters.
    Both must be present, fill GlobalInfo properly in Initialize.
 
@@ -1959,7 +1959,7 @@ drkns 30.07.2013 14:26:32 +0200 - build 3584
 
 drkns 30.07.2013 10:31:31 +0200 - build 3583
 
-1. Correction of 3579. 
+1. Correction of 3579.
 
 drkns 30.07.2013 00:55:42 +0200 - build 3582
 
@@ -3358,7 +3358,7 @@ drkns 28.03.2013 22:42:42 +0200 - build 3286
 
 drkns 28.03.2013 20:46:57 +0200 - build 3285
 
-1. Correction of SEH exceptions processing. 
+1. Correction of SEH exceptions processing.
 
 drkns 28.03.2013 20:02:12 +0200 - build 3284
 
@@ -3379,7 +3379,7 @@ drkns 28.03.2013 09:58:16 +0200 - build 3281
 
 1. vc10.
 
-svs 28.03.2013 11:16:18 +0400 - build 
+svs 28.03.2013 11:16:18 +0400 - build
 
 1. Corrections (a few of) on TREEFILE_PROJECT (Mantis#0000186)
    without a build because they have no influence on the main code.
@@ -3533,7 +3533,7 @@ drkns 17.03.2013 22:54:00 +0200 - build 3255
 
 drkns 17.03.2013 18:35:35 +0200 - build 3254
 
-1. Continuation of 3253 - the task list could be called twice if the first call was from the main menu. 
+1. Continuation of 3253 - the task list could be called twice if the first call was from the main menu.
 
 w17 17.03.2013 20:06:26 +0400 - build 3253
 
@@ -3655,7 +3655,7 @@ drkns 02.03.2013 22:18:14 +0200 - build 3228
 
 drkns 02.03.2013 21:38:22 +0200 - build 3227
 
-1. pushd c:\ + popd caused crash. 
+1. pushd c:\ + popd caused crash.
 
 shmuel 02.03.2013 01:17:54 +0200 - build 3226
 
@@ -3784,7 +3784,7 @@ shmuel 16.02.2013 23:01:07 +0200 - build
 
 drkns 16.02.2013 20:14:37 +0200 - build 3203
 
-1. The length of the prompt was not restored after $#nn removed from the format string. 
+1. The length of the prompt was not restored after $#nn removed from the format string.
 
 drkns 16.02.2013 15:19:37 +0200 - build 3202
 
@@ -3835,14 +3835,14 @@ drkns 16.02.2013 02:44:09 +0200 - build 3197
 drkns 15.02.2013 23:09:33 +0200 - build 3196
 
 1. 0002304: External editor launch erases the command line.
-   Launcher is altered a little once again, bugs possible. 
+   Launcher is altered a little once again, bugs possible.
 
 drkns 14.02.2013 21:11:45 +0200 - build 3195
 
-1. In GetReparsePointInfo(), unknown reparse points were treated as junctions, with all the consequences. 
+1. In GetReparsePointInfo(), unknown reparse points were treated as junctions, with all the consequences.
 
 2. Ability of detection of reparse points with DEDUP and NFS tags.
- 
+
 t-rex 14.02.2013 20:37:28 +0200 - build 3194
 
 1. Removing the previous ones, now the configuration of the width resides in the prompt line - $#nn.
@@ -4050,7 +4050,7 @@ shmuel 07.02.2013 20:15:14 +0200 - build
    * In EditorEvent group, 'name' can have the 'Read' and 'Save' values.
    * In ViewerEvent group, 'name' can have the 'Read' value.
    * New function NoEvent similar to NoMacro.
-   * One cannot call functions listed in the article "Limitations on the use of certain functions" 
+   * One cannot call functions listed in the article "Limitations on the use of certain functions"
      of the MacroAPI manual, from 'action' function.
      If these functions are necessary, one can call them via far.MacroPost().
    * Example:
@@ -4110,7 +4110,7 @@ shmuel 05.02.2013 17:11:26 +0200 - build
 
      a) Matching of "filemask" field (if specified) to the file name is checked.
      b) Flagged conditions are checked.
-     c) If 'condition' function is present then it is called with the parameter 
+     c) If 'condition' function is present then it is called with the parameter
         ID (the identifier of this editor/viewer instance).
      d) If (a,b,c) conditions do not prevent it, 'action' function is called.
 
@@ -4181,7 +4181,7 @@ drkns 01.02.2013 18:50:55 +0200 - build 3142
 
 drkns 01.02.2013 17:36:21 +0200 - build 3141
 
-1. If panel items are equal from the current sorting criterion's point of view (and, therefore, are sorted by name) 
+1. If panel items are equal from the current sorting criterion's point of view (and, therefore, are sorted by name)
    then change of sorting direction does not affect them.
 
 t-rex 01.02.2013 12:24:37 +0200 - build 3140
@@ -4437,7 +4437,7 @@ drkns 16.01.2013 22:58:06 +0200 - build 3087
 
 svs 16.01.2013 23:56:44 +0400 - build 3086
 
-1. Mantins#0002260: GUID is needed in file reopen dialog 
+1. Mantins#0002260: GUID is needed in file reopen dialog
      EditorReloadId={AFDAD388-494C-41e8-BAC6-BBE9115E1CC0}
 
 drkns 15.01.2013 23:37:28 +0200 - build 3085
@@ -4699,14 +4699,14 @@ svs 21.12.2012 16:15:36 +0400 - build 3040
 
 1. Mantis#0002207: SetDirectoryW() always passes NULL in SetDirectoryInfo->UserData field
    Changes (minor ones) in API.
-   
+
    In SetDirectoryInfo (there was UserData and no FreeData)
      a) "intptr_t UserData" -> "intptr_t Reserved"
      b) "struct UserDataItem UserData" added
 
    In OpenPanelInfo
      a) "struct UserDataItem UserData" added
-        this component is related to OpenPanelInfo::CurDir; a plugin must (if it fills them) 
+        this component is related to OpenPanelInfo::CurDir; a plugin must (if it fills them)
         place data here, related to CurDir, FAR will place these values in SetDirectoryInfo.
 
    Obscurities:
@@ -4745,12 +4745,12 @@ svs 20.12.2012 11:31:27 +0400 - build 3035
 1. SQLite 3.7.15.1
 
 2. Drawing artifacts in InfoPanel
-                                          
+
 drkns 19.12.2012 22:50:44 +0200 - build 3034
 
 1. In menu2, one could "press" grayed & disabled items.
 
-2. Continuation of 3028. 
+2. Continuation of 3028.
 
 svs 19.12.2012 13:13:17 +0400 - build 3033
 
@@ -4789,7 +4789,7 @@ drkns 16.12.2012 21:55:11 +0200 - build 3028
 
 2. Memory leaks in Language class and GetVHDName() function.
 
-3. Similar counter is added for allocations/deallocations performed by a plugin. Only for SCTL_CREATE/SCTL_FREE so far. 
+3. Similar counter is added for allocations/deallocations performed by a plugin. Only for SCTL_CREATE/SCTL_FREE so far.
 
 shmuel 16.12.2012 20:48:37 +0200 - build 3027
 
@@ -4996,7 +4996,7 @@ drkns 04.12.2012 21:09:45 +0200 - build 2993
 w17 04.12.2012 17:02:23 +0400 - build 2992
 
 1. Experimental. Returning old behavior...
-   On key press with RCtrl/RAlt modifiers the macro assigned 
+   On key press with RCtrl/RAlt modifiers the macro assigned
    to this key with Ctrl/Alt modifiers is run (if it exists and if
    there is no macro explicitly bound to 'right' modifiers).
 
@@ -5016,7 +5016,7 @@ drkns 02.12.2012 12:42:54 +0200 - build 2989
 
 drkns 02.12.2012 01:20:47 +0200 - build 2988
 
-1. Continuation of 2987. 
+1. Continuation of 2987.
 
 drkns 01.12.2012 23:53:07 +0200 - build 2987
 
