@@ -3,6 +3,18 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 10.06.2014 11:38:11 +0200 - build 3951
+
+1. Correction of 3949.
+
+shmuel 10.06.2014 00:45:54 +0200 - build 3950
+
+1. On LuaMacro unload manual macros storing was not immediately set to disabled as the result of an exception.
+
+drkns 09.06.2014 22:12:24 +0200 - build 3949
+
+1. Support for VS 14 (CTP), with warnings so far.
+
 shmuel 08.06.2014 22:47:12 +0200 - build 3948
 
 1. Refactoring.
