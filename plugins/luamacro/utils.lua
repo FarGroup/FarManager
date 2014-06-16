@@ -407,11 +407,7 @@ local function LoadMacros (unload)
 
   if LoadMacrosDone then
     local ok, msg = pcall(export_ExitFAR)
-    if not ok then
-      ErrMsg(msg)
-      LoadingInProgress = false
-      return false
-    end
+    if not ok then ErrMsg(msg) end
     LoadMacrosDone = false
   end
 
