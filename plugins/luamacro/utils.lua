@@ -310,7 +310,7 @@ local function AddRegularMacro (srctable)
 
     macro.id = #LoadedMacros+1
     LoadedMacros[macro.id] = macro
-    return macro.id
+    return macro
   end
 end
 
@@ -759,10 +759,14 @@ local function AddMacroFromFAR (mode, key, lang, code, flags, description, guid,
   -- MCTL_ADDMACRO may be called during LoadMacros execution, hence AddMacro_filename should be restored.
   local fname = AddMacro_filename
   AddMacro_filename = nil
-  local res = AddRegularMacro { area=area, key=key, code=code, flags=flags, description=description,
-                                guid=guid, callback=callback, callbackId=callbackId, language=lang }
+  local macro = AddRegularMacro { area=area, key=key, code=code, flags=flags, description=description,
+                                  guid=guid, callback=callback, callbackId=callbackId, language=lang }
+  if macro and macro.action then
+    local env = setmetatable({}, gmeta)
+    setfenv(macro.action, env)
+  end
   AddMacro_filename = fname
-  return not not res
+  return not not macro
 end
 
 local function DelMacro (guid, callbackId) -- MCTL_DELMACRO
