@@ -1818,7 +1818,7 @@ int RegExp::InnerMatch(const wchar_t* str,const wchar_t* strend,RegExpMatch* mat
 
 		if (str<=strend)
 		{
-			auto MinSkip = [&](bool cmp)
+			auto MinSkip = [&](const std::function<bool()>& cmp)
 			{
 				int jj;
 				switch(op->next->op)
@@ -1827,10 +1827,10 @@ int RegExp::InnerMatch(const wchar_t* str,const wchar_t* strend,RegExpMatch* mat
 					jj=op->next->symbol;
 					if(*str!=jj)
 					{
-						while(str<strend && cmp && st->max--)
+						while(str<strend && cmp() && st->max--)
 						{
 							str++;
-							if(str[1]!=jj)
+							if(str[0]==jj)
 								break;
 						}
 					}
@@ -1840,10 +1840,10 @@ int RegExp::InnerMatch(const wchar_t* str,const wchar_t* strend,RegExpMatch* mat
 					jj=op->next->symbol;
 					if(*str==jj)
 					{
-						while(str<strend && cmp && st->max--)
+						while(str<strend && cmp() && st->max--)
 						{
 							str++;
-							if(str[1]==jj)
+							if(str[0]!=jj)
 								break;
 						}
 					}
@@ -1853,10 +1853,10 @@ int RegExp::InnerMatch(const wchar_t* str,const wchar_t* strend,RegExpMatch* mat
 					jj=op->next->symbol;
 					if(TOLOWER(*str)!=jj)
 					{
-						while(str<strend && cmp && st->max--)
+						while(str<strend && cmp() && st->max--)
 						{
 							str++;
-							if(TOLOWER(str[1])!=jj)
+							if(TOLOWER(str[0])==jj)
 								break;
 						}
 					}
@@ -1866,10 +1866,10 @@ int RegExp::InnerMatch(const wchar_t* str,const wchar_t* strend,RegExpMatch* mat
 					jj=op->next->symbol;
 					if(TOLOWER(*str)==jj)
 					{
-						while(str<strend && cmp && st->max--)
+						while(str<strend && cmp() && st->max--)
 						{
 							str++;
-							if(TOLOWER(str[1])==jj)
+							if(TOLOWER(str[0])!=jj)
 								break;
 						}
 					}
@@ -1879,10 +1879,10 @@ int RegExp::InnerMatch(const wchar_t* str,const wchar_t* strend,RegExpMatch* mat
 					jj=op->next->type;
 					if(!isType(*str,jj))
 					{
-						while(str<strend && cmp && st->max--)
+						while(str<strend && cmp() && st->max--)
 						{
 							str++;
-							if(!isType(str[1],jj))
+							if(isType(str[0],jj))
 								break;
 						}
 					}
@@ -1892,10 +1892,10 @@ int RegExp::InnerMatch(const wchar_t* str,const wchar_t* strend,RegExpMatch* mat
 					jj=op->next->type;
 					if(isType(*str,jj))
 					{
-						while(str<strend && cmp && st->max--)
+						while(str<strend && cmp() && st->max--)
 						{
 							str++;
-							if(isType(str[1],jj))
+							if(!isType(str[0],jj))
 								break;
 						}
 					}
@@ -1905,10 +1905,10 @@ int RegExp::InnerMatch(const wchar_t* str,const wchar_t* strend,RegExpMatch* mat
 					cl=op->next->symbolclass;
 					if(!cl->GetBit(*str))
 					{
-						while(str<strend && cmp && st->max--)
+						while(str<strend && cmp() && st->max--)
 						{
 							str++;
-							if(!cl->GetBit(str[1]))
+							if(cl->GetBit(str[0]))
 								break;
 						}
 					}
@@ -2446,7 +2446,7 @@ int RegExp::InnerMatch(const wchar_t* str,const wchar_t* strend,RegExpMatch* mat
 						}
 						else
 						{
-							MinSkip(*str!=0x0d && *str!=0x0a);
+							MinSkip([str]()-> bool { return *str != L'\r' && *str != L'\n'; });
 
 							if (st->max==-1)break;
 						}
@@ -2482,7 +2482,7 @@ int RegExp::InnerMatch(const wchar_t* str,const wchar_t* strend,RegExpMatch* mat
 						}
 						else
 						{
-							MinSkip(true);
+							MinSkip([]()-> bool { return true; });
 
 							if (st->max==-1)break;
 						}
@@ -2520,7 +2520,7 @@ int RegExp::InnerMatch(const wchar_t* str,const wchar_t* strend,RegExpMatch* mat
 						}
 						else
 						{
-							MinSkip(TOLOWER(*str)==op->range.symbol);
+							MinSkip([str, op]()-> bool { return TOLOWER(*str) == op->range.symbol; });
 
 							if (st->max==-1)break;
 						}
@@ -2542,7 +2542,7 @@ int RegExp::InnerMatch(const wchar_t* str,const wchar_t* strend,RegExpMatch* mat
 						}
 						else
 						{
-							MinSkip(*str==op->range.symbol);
+							MinSkip([str, op]()-> bool { return *str == op->range.symbol; });
 
 							if (st->max==-1)break;
 						}
@@ -2580,7 +2580,7 @@ int RegExp::InnerMatch(const wchar_t* str,const wchar_t* strend,RegExpMatch* mat
 						}
 						else
 						{
-							MinSkip(TOLOWER(*str)!=op->range.symbol);
+							MinSkip([str, op]()-> bool 	{ return TOLOWER(*str) != op->range.symbol; });
 
 							if (st->max==-1)break;
 						}
@@ -2602,7 +2602,7 @@ int RegExp::InnerMatch(const wchar_t* str,const wchar_t* strend,RegExpMatch* mat
 						}
 						else
 						{
-							MinSkip(*str!=op->range.symbol);
+							MinSkip([str, op]()-> bool 	{ return *str != op->range.symbol; });
 
 							if (st->max==-1)break;
 						}
@@ -2638,7 +2638,7 @@ int RegExp::InnerMatch(const wchar_t* str,const wchar_t* strend,RegExpMatch* mat
 					}
 					else
 					{
-						MinSkip(op->range.symbolclass->GetBit(*str));
+						MinSkip([str, op]()-> bool 	{ return op->range.symbolclass->GetBit(*str); });
 
 						if (st->max==-1)break;
 					}
@@ -2673,7 +2673,7 @@ int RegExp::InnerMatch(const wchar_t* str,const wchar_t* strend,RegExpMatch* mat
 					}
 					else
 					{
-						MinSkip(isType(*str,op->range.type));
+						MinSkip([str, op]()-> bool 	{ return isType(*str, op->range.type); 	});
 
 						if (st->max==-1)break;
 					}
@@ -2708,7 +2708,7 @@ int RegExp::InnerMatch(const wchar_t* str,const wchar_t* strend,RegExpMatch* mat
 					}
 					else
 					{
-						MinSkip(!isType(*str,op->range.type));
+						MinSkip([str, op]()-> bool { 	return !isType(*str, op->range.type); });
 
 						if (st->max==-1)break;
 					}
@@ -2752,7 +2752,7 @@ int RegExp::InnerMatch(const wchar_t* str,const wchar_t* strend,RegExpMatch* mat
 					}
 					else
 					{
-						MinSkip(StrCmp(str,start+m->start,start+m->end) != 0);
+						MinSkip([&]()-> bool { return this->StrCmp(str,start+m->start,start+m->end) != 0; });
 
 						if (st->max==-1)break;
 					}
