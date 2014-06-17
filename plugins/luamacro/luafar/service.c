@@ -813,7 +813,34 @@ static int _EditorInsertText(lua_State *L, int is_wide)
 {
 	intptr_t EditorId = luaL_optinteger(L, 1, CURRENT_EDITOR);
 	PSInfo *Info = GetPluginData(L)->Info;
-	const wchar_t* text = is_wide ? check_utf16_string(L,2,NULL) : check_utf8_string(L,2,NULL);
+	const wchar_t* text;
+	if (is_wide)
+	{
+		size_t len;
+		const char *s = luaL_checklstring(L,2,&len);
+		int needZero = 0;
+		if (len % sizeof(wchar_t))
+		{
+			if (s[len-1] && --len)
+				needZero = 1;
+		}
+		else
+			needZero = len && (s[len-2] || s[len-1]);
+
+		if (needZero)
+		{
+			lua_pushlstring(L, s, len);
+			lua_pushlstring(L, "\0", 1);
+			lua_concat(L, 2);
+			text = (const wchar_t*)lua_tostring(L, -1);
+		}
+		else
+			text = len ? (const wchar_t*)s : L"";
+	}
+	else
+	{
+		text = check_utf8_string(L,2,NULL);
+	}
 	lua_pushboolean(L, Info->EditorControl(EditorId, ECTL_INSERTTEXT, 0, (void*)text) != 0);
 	return 1;
 }

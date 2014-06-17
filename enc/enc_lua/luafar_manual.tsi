@@ -4575,9 +4575,12 @@ lv=2
 dt=Text
 nm=editor.InsertTextW
 ctime=3523911742
-mtime=3523911803
+mtime=3612182828
 <article>
 #_Same as `editor.InsertText` but *text* should be encoded in UTF-16LE.
+#_
+#_If *text* argument does not have two zero bytes at the end, the function adds them,
+#_so the caller does not have to.
 #_
 #_@@@
 #_[editor.InsertText]: 33.html
