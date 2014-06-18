@@ -2880,7 +2880,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 				//AY: Это что бы при FastShow LeftPos не становился в конец строки.
 				CurLine->SetRightCoord(XX2);
 
-				if (CurLine->ProcessKey(Key))
+				if (CurLine->ProcessKey(Manager::Key(LocalKey)))
 				{
 					intptr_t SelStart,SelEnd;
 
