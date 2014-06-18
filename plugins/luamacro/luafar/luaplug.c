@@ -42,7 +42,7 @@ struct FarStandardFunctions FSF;
 GUID PluginId;
 TPluginData PluginData = { &Info, &FSF, &PluginId, DlgProc, MacroCallback, NULL, NULL, laction, SIG_DFL };
 wchar_t PluginName[512], PluginDir[512];
-int Init1_Done = 0, Init2_Done = 0; // Ensure intializations are done only once
+int Init1_Done = 0, Init2_Done = 0; // Ensure initializations are done only once
 
 static void lstop(lua_State *L, lua_Debug *ar)
 {
@@ -176,29 +176,26 @@ static int RecreateLuaState()
 	lua_getglobal(LS, "RecreateLuaState");
 	if (lua_toboolean(LS,-1))
 	{
-#ifdef EXPORT_EXITFAR
 		struct ExitInfo Info = { sizeof(struct ExitInfo) };
-		LF_ExitFAR(LS, &Info);
-#endif
-		lua_close(LS);
-		LS = luaL_newstate();
-		if (LS)
+		lua_State *newLS = LS;
+		LS = NULL;
+		LF_ExitFAR(newLS, &Info);
+		lua_close(newLS);
+		if ((newLS = luaL_newstate()) != NULL)
 		{
 			int OK = 0;
 			struct GlobalInfo GInfo;
-			LF_InitLuaState1(LS, FUNC_OPENLIBS);
-			if (LF_GetGlobalInfo(LS, &GInfo, PluginDir))
+			LF_InitLuaState1(newLS, FUNC_OPENLIBS);
+			if (LF_GetGlobalInfo(newLS, &GInfo, PluginDir))
 			{
-				LF_InitLuaState2(LS, &PluginData);
-				LF_ProcessEnvVars(LS, ENV_PREFIX, PluginDir);
-				lua_pushboolean(LS,1);
-				lua_setglobal(LS, "IsLuaStateRecreated");
-				OK = LF_RunDefaultScript(LS);
+				LF_InitLuaState2(newLS, &PluginData);
+				LF_ProcessEnvVars(newLS, ENV_PREFIX, PluginDir);
+				lua_pushboolean(newLS,1);
+				lua_setglobal(newLS, "IsLuaStateRecreated");
+				OK = LF_RunDefaultScript(newLS);
 			}
-			if (!OK)
-			{
-				lua_close(LS); LS=NULL;
-			}
+			if (OK) LS = newLS;
+			else lua_close(newLS);
 		}
 		return 1;
 	}
@@ -210,7 +207,9 @@ HANDLE LUAPLUG OpenW(const struct OpenInfo *Info)
 {
 	if(LS)
 	{
+		static int Depth = 0; // prevents crashes (this function can be called recursively)
 		HANDLE h;
+		++Depth;
 #ifdef EXPORT_PROCESSDIALOGEVENT
 		EnterCriticalSection(&FindFileSection);
 		h = LF_Open(LS, Info);
@@ -218,7 +217,7 @@ HANDLE LUAPLUG OpenW(const struct OpenInfo *Info)
 #else
 		h = LF_Open(LS, Info);
 #endif
-		return !RecreateLuaState() && LS ? h : NULL;
+		return --Depth==0 && RecreateLuaState() ? NULL : LS ? h : NULL;
 	}
 	return NULL;
 }
