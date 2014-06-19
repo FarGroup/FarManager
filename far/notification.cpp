@@ -61,12 +61,13 @@ void notification::notify(std::unique_ptr<const payload> p)
 
 void notification::dispatch()
 {
-	while(!m_events.Empty())
+	decltype(m_events)::value_type item;
+
+	while(m_events.PopIfNotEmpty(item))
 	{
-		auto p = m_events.Pop();
 		std::for_each(RANGE(m_listeners, i)
 		{
-			i->callback(*p);
+			i->callback(*item);
 		});
 	}
 }

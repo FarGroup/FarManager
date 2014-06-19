@@ -48,6 +48,7 @@ enum FINDAREA
 
 class Dialog;
 struct PluginHandle;
+struct THREADPARAM;
 
 class FindFiles: NonCopyable
 {
@@ -75,7 +76,7 @@ private:
 	void DoScanTree(Dialog* Dlg, const string& strRoot);
 	void ScanPluginTree(Dialog* Dlg, PluginHandle* hPlugin, UINT64 Flags, int& RecurseLevel);
 	void DoPrepareFileList(Dialog* Dlg);
-	unsigned int ThreadRoutine(LPVOID Param);
+	unsigned int ThreadRoutine(THREADPARAM* Param);
 	bool FindFilesProcess();
 
 	static intptr_t AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);

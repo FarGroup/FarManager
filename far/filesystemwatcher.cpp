@@ -79,7 +79,7 @@ unsigned int FileSystemWatcher::WatchRegister(LPVOID lpParameter)
 	MultiWaiter waiter;
 	waiter.Add(Handle);
 	waiter.Add(Done);
-	if (waiter.Wait(false, INFINITE) == WAIT_OBJECT_0)
+	if (waiter.Wait(MultiWaiter::wait_any) == WAIT_OBJECT_0)
 	{
 		Changed.Set();
 		Done.Wait();

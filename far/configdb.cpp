@@ -2063,7 +2063,7 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb {
 
 	SyncedQueue<std::unique_ptr<AsyncWorkItem>> WorkQueue;
 
-	void WaitAllAsync() const { AllWaiter.Wait(true,INFINITE); }
+	void WaitAllAsync() const { AllWaiter.Wait(); }
 	void WaitCommitAsync() const { AsyncCommitDone.Wait(); }
 
 	void StartThread()
@@ -2097,15 +2097,16 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb {
 
 		while (true)
 		{
-			DWORD wait = Waiter.Wait(false, INFINITE);
+			DWORD wait = Waiter.Wait(MultiWaiter::wait_any);
 
 			if (wait != WAIT_OBJECT_0)
 				break;
 
 			bool bAddDelete=false, bCommit=false;
-			while (!WorkQueue.Empty())
+
+			decltype(WorkQueue)::value_type item;
+			while (WorkQueue.PopIfNotEmpty(item))
 			{
-				auto item = WorkQueue.Pop();
 
 				if (item) //DeleteAndAddAsync
 				{

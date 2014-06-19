@@ -299,7 +299,7 @@ public:
 	int ShowProblems();
 
 	void AddThread(const HandleWrapper& Thread) {ThreadWaiter.Add(Thread);}
-	void WaitForThreads() const {ThreadWaiter.Wait(true, INFINITE);}
+	void WaitForThreads() const {ThreadWaiter.Wait();}
 
 	static void ClearPluginsCache();
 

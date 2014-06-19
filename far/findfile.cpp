@@ -2707,13 +2707,12 @@ struct THREADPARAM
 	Dialog* Dlg;
 };
 
-unsigned int FindFiles::ThreadRoutine(LPVOID Param)
+unsigned int FindFiles::ThreadRoutine(THREADPARAM* Param)
 {
 	try
 	{
 		InitInFileSearch();
-		auto tParam = static_cast<THREADPARAM*>(Param);
-		tParam->PluginMode?DoPreparePluginList(tParam->Dlg, false):DoPrepareFileList(tParam->Dlg);
+		Param->PluginMode? DoPreparePluginList(Param->Dlg, false) : DoPrepareFileList(Param->Dlg);
 		ReleaseInFileSearch();
 	}
 	catch (SException& e)

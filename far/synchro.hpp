@@ -113,8 +113,8 @@ public:
 		return Starter(std::bind(Function, Parameter));
 	}
 
-	template<class T>
-	bool Start(unsigned int (T::*Function)(void*), T* Object, void* Parameter = nullptr)
+	template<class T, class Y>
+	bool Start(unsigned int (T::*Function)(Y*), T* Object, Y* Parameter = nullptr)
 	{
 		return Starter(std::bind(Function, Object, Parameter));
 	}
@@ -220,6 +220,7 @@ template<class T> class SyncedQueue: NonCopyable {
 	CriticalSection csQueueAccess;
 
 public:
+	typedef T value_type;
 
 	SyncedQueue() {}
 	~SyncedQueue() {}
@@ -242,23 +243,32 @@ public:
 		Queue.push(std::forward<T>(item));
 	}
 
-	T Pop()
+	bool PopIfNotEmpty(T& To)
 	{
 		SCOPED_ACTION(CriticalSectionLock)(csQueueAccess);
-		T item = std::move(Queue.front());
-		Queue.pop();
-		return item;
+		if (!Queue.empty())
+		{
+			To = std::move(Queue.front());
+			Queue.pop();
+			return true;
+		}
+		return false;
 	}
 };
 
 class MultiWaiter: NonCopyable
 {
 public:
+	enum wait_mode
+	{
+		wait_any,
+		wait_all
+	};
 	MultiWaiter() { Objects.reserve(10); }
 	~MultiWaiter() {}
 	void Add(const HandleWrapper& Object) { Objects.emplace_back(Object.GetHandle()); }
 	void Add(HANDLE handle) { Objects.emplace_back(handle); }
-	DWORD Wait(bool WaitAll, DWORD Milliseconds) const { return WaitForMultipleObjects(static_cast<DWORD>(Objects.size()), Objects.data(), WaitAll, Milliseconds); }
+	DWORD Wait(wait_mode Mode = wait_all, DWORD Milliseconds = INFINITE) const { return WaitForMultipleObjects(static_cast<DWORD>(Objects.size()), Objects.data(), Mode == wait_all, Milliseconds); }
 	void Clear() {Objects.clear();}
 
 private:
