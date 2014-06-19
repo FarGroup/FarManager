@@ -220,4 +220,96 @@ BOOL ProcessOSAliases(wchar_t *Str,int SizeStr)
 	return TRUE;
 }
 
+
+bool GetShellLinkPath(const wchar_t *LinkFile,wchar_t *Path,int PathSize)
+{
+	bool Result=false;
+
+	wchar_t FileName[MAX_PATH*5];
+	ExpandEnvironmentStrings(LinkFile, FileName, ARRAYSIZE(FileName));
+	FSF.Unquote(FileName);
+	FSF.ConvertPath(CPM_NATIVE, FileName, FileName, ARRAYSIZE(FileName));
+	wchar_t *ptrFileName=FileName;
+
+	if (!(*ptrFileName && FileExists(ptrFileName)))
+		return false;
+
+	// <Check lnk-header>
+	HANDLE hFile = CreateFile(ptrFileName, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL );
+
+	if (hFile != INVALID_HANDLE_VALUE)
+	{
+		struct ShellLinkHeader
+		{
+			DWORD    HeaderSize;
+			BYTE     LinkCLSID[16];
+			DWORD    LinkFlags;
+			DWORD    FileAttributes;
+			FILETIME CreationTime;
+			FILETIME AccessTime;
+			FILETIME WriteTime;
+			DWORD    FileSize;
+			DWORD    IconIndex;
+			DWORD    ShowCommand;
+			WORD     HotKey;
+			WORD     Reserved1;
+			DWORD    Reserved2;
+			DWORD    Reserved3;
+		};
+
+		ShellLinkHeader slh = { 0 };
+		DWORD read = 0;
+		ReadFile( hFile, &slh, sizeof( ShellLinkHeader ), &read, NULL );
+
+		if ( read == sizeof( ShellLinkHeader ) && slh.HeaderSize == 0x0000004C)
+		{
+			if (!memcmp( slh.LinkCLSID, "\x01\x14\x02\x00\x00\x00\x00\x00\xC0\x00\x00\x00\x00\x00\x00\x46\x9b", 16 ))
+				Result=true;
+		}
+
+		CloseHandle( hFile );
+	}
+	// </Check lnk-header>
+
+	if (Result)
+	{
+		// <get target>
+		Result=false;
+		HRESULT hres0 = CoInitialize(NULL);
+
+		IShellLink* psl = NULL;
+		HRESULT hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (LPVOID*)&psl);
+		if (SUCCEEDED(hres))
+		{
+			IPersistFile* ppf = NULL;
+			hres = psl->QueryInterface(IID_IPersistFile, (void**)&ppf);
+			if (SUCCEEDED(hres))
+			{
+				hres = ppf->Load(ptrFileName, STGM_READ);
+				if (SUCCEEDED(hres))
+				{
+					hres = psl->Resolve(NULL, 0);
+					if (SUCCEEDED(hres))
+					{
+						wchar_t TargPath[MAX_PATH] = {0};
+						hres = psl->GetPath(TargPath, ARRAYSIZE(TargPath), NULL, SLGP_RAWPATH);
+						if (SUCCEEDED(hres))
+						{
+							lstrcpyn(Path, TargPath, PathSize);
+							Result=true;
+						}
+					}
+				}
+				ppf->Release();
+			}
+			psl->Release();
+		}
+
+		CoUninitialize();
+		// </get target>
+	}
+
+	return Result;
+}
+
 #endif

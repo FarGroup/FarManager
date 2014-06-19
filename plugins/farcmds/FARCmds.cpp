@@ -1,3 +1,5 @@
+#include <objbase.h>
+#include <shlobj.h>
 #include <CRT/crt.hpp>
 #include <plugin.hpp>
 #include <DlgBuilder.hpp>

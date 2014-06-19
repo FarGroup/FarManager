@@ -141,7 +141,8 @@ path to the folder is not terminated with a backslash, the cursor on the
 panels is positioned to the specified folder.
 
    At most 1299 bytes are read from the file "#filename#" to specify
-the path to a directory or file.
+the path to a directory or file. Если файла "#имяфайла#" является ярлыком
+Windows, то плагин переходит к объекту, на который ссылается lnk-файл.
 
    When panels are turned off, the cursor is not positioned on the requested object,
 only the switching to the required folder occurs.

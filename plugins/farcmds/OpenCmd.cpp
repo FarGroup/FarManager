@@ -623,19 +623,29 @@ int OpenFromCommandLine(const wchar_t *_farcmd)
 						if (outputtofile)
 						{
 							size_t shift;
-							bool foundFile;
-							wchar_t *Ptr = loadFile(pCmd, Opt.MaxDataSize/sizeof(wchar_t), outputtofile, shift, foundFile);
+							bool foundFile=false;
+							wchar_t *Ptr=nullptr;
 
-							if (Ptr)
+							if (Goto)
 							{
-								lstrcpyn(selectItem, Ptr+shift, ARRAYSIZE(selectItem)-1);
-								free(Ptr);
+								foundFile = GetShellLinkPath(pCmd,selectItem,ARRAYSIZE(selectItem)-1);
+							}
 
-								if (NULL==(Ptr=wcschr(selectItem,L'\r')))
-									Ptr=wcschr(selectItem,L'\n');
+							if (!foundFile)
+							{
+								Ptr = loadFile(pCmd, Opt.MaxDataSize/sizeof(wchar_t), outputtofile, shift, foundFile);
 
-								if (Ptr!=NULL)
-									*Ptr=0;
+								if (Ptr)
+								{
+									lstrcpyn(selectItem, Ptr+shift, ARRAYSIZE(selectItem)-1);
+									free(Ptr);
+
+									if (NULL==(Ptr=wcschr(selectItem,L'\r')))
+										Ptr=wcschr(selectItem,L'\n');
+
+									if (Ptr!=NULL)
+										*Ptr=0;
+								}
 							}
 						}
 						else
