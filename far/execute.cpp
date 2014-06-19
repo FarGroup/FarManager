@@ -485,7 +485,7 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 
 	strValue += L"\\shell";
 
-	if (RegOpenKeyEx(HKEY_CLASSES_ROOT, strValue.data(), 0, KEY_QUERY_VALUE, &hKey)!=ERROR_SUCCESS)
+	if (RegOpenKeyEx(HKEY_CLASSES_ROOT, strValue.data(), 0, KEY_QUERY_VALUE | KEY_ENUMERATE_SUB_KEYS, &hKey)!=ERROR_SUCCESS)
 		return nullptr;
 
 	strValue += L"\\";
@@ -547,21 +547,24 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 			strValue += strAction;
 			RetPtr = strAction.data();
 		}
-
-		// ... а теперь все остальное, если "open" нету
-		FOR(const auto& i, api::reg::enum_key(hKey))
+		else
 		{
-			strAction = i;
-
-			// ѕроверим наличие "команды" у этого ключа
-			strNewValue = strValue;
-			strNewValue += strAction;
-			strNewValue += command_action;
-
-			if (api::reg::key(HKEY_CLASSES_ROOT, strNewValue.data(), KEY_QUERY_VALUE))
+			// ... а теперь все остальное, если "open" нету
+			FOR(const auto& i, api::reg::enum_key(hKey))
 			{
-				strValue += strAction;
-				RetPtr = strAction.data();
+				strAction = i;
+
+				// ѕроверим наличие "команды" у этого ключа
+				strNewValue = strValue;
+				strNewValue += strAction;
+				strNewValue += command_action;
+
+				if (api::reg::key(HKEY_CLASSES_ROOT, strNewValue.data(), KEY_QUERY_VALUE))
+				{
+					strValue += strAction;
+					RetPtr = strAction.data();
+					break;
+				}
 			}
 		}
 	}
