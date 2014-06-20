@@ -5630,6 +5630,12 @@ void FileList::PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi)
 
 	fi->CustomColumnNumber=pi->CustomColumnNumber;
 	fi->CRC32=pi->CRC32;
+
+	if (fi->FileAttr & FILE_ATTRIBUTE_REPARSE_POINT)
+	{
+		// we don't really know, but it's better than show it as 'unknown'
+		fi->ReparseTag = IO_REPARSE_TAG_SYMLINK;
+	}
 }
 
 
