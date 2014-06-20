@@ -936,9 +936,8 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 		Show();
 		return Global->Opt->AdvancedConfig();
 	}
-	bool far_about = !StrCmpI(CmdLine.data(),L"far:about");
 
-	if (!far_about && !SeparateWindow && Global->CtrlObject->Plugins->ProcessCommandLine(CmdLine))
+	if (!SeparateWindow && Global->CtrlObject->Plugins->ProcessCommandLine(CmdLine))
 	{
 		/* $ 12.05.2001 DJ - рисуемся только если остались верхним фреймом */
 		if (Global->CtrlObject->Cp()->IsTopFrame())

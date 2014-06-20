@@ -150,6 +150,7 @@ class FileEditor : public Frame
 		bool isTemporary() const;
 		virtual void ResizeConsole() override;
 		int LoadFile(const string& Name, int &UserBreak);
+		bool ReloadFile(uintptr_t codepage);
 		//TextFormat, Codepage и AddSignature используются ТОЛЬКО, если bSaveAs = true!
 		int SaveFile(const string& Name, int Ask, bool bSaveAs, int TextFormat = 0, uintptr_t Codepage = CP_UNICODE, bool AddSignature=false);
 		void SetTitle(const string* Title);

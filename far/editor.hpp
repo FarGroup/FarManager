@@ -241,6 +241,7 @@ private:
 	DWORD EditSetCodePage(iterator edit, uintptr_t codepage, bool check_only);
 	iterator InsertString(const wchar_t *lpwszStr, int nLength, iterator pAfter, int AfterLineNumber = -1);
 	void TurnOffMarkingBlock();
+	void SwapState(Editor& swap_state);
 
 	static bool InitSessionBookmarksForPlugin(EditorBookmarks *Param, size_t Count, size_t& Size);
 	static void EditorShowMsg(const string& Title, const string& Msg, const string& Name, int Percent);
@@ -320,6 +321,8 @@ private:
 	FarColor SelColor;
 	int MacroSelectionStart;
 	int CursorPos;
+
+	bool fake_editor;
 
 	struct EditorPreRedrawItem : public PreRedrawItem
 	{

@@ -7511,6 +7511,27 @@ upd:"correctly read using selected codepage."
 "correctamente leídos con la página de códigos (codepage) seleccionada."
 "správne prečítať so zvolenou tabuľkou znakov."
 
+MEditorReloadCPWarnLost1
+"Для смены кодовой страницы требуется перезагрузка файла."
+"File have to be reloaded to change codepage."
+upd:"File have to be reloaded to change codepage."
+upd:"File have to be reloaded to change codepage."
+upd:"File have to be reloaded to change codepage."
+upd:"File have to be reloaded to change codepage."
+upd:"File have to be reloaded to change codepage."
+upd:"File have to be reloaded to change codepage."
+
+MEditorReloadCPWarnLost2
+"Все несохранённые изменения будут потеряны."
+"All unsaved changes will be lost."
+upd:"All unsaved changes will be lost."
+upd:"All unsaved changes will be lost."
+upd:"All unsaved changes will be lost."
+upd:"All unsaved changes will be lost."
+upd:"All unsaved changes will be lost."
+upd:"All unsaved changes will be lost."
+
+
 MEditorSaveCPWarn1
 "Редактор содержит символы, которые невозможно"
 "Editor contains characters, which cannot be"

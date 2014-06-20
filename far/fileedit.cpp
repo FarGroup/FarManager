@@ -1298,30 +1298,16 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 				return TRUE;
 			}
-			case KEY_F8:
-			{
-				if (!IsUnicodeCodePage(m_codepage))
-				{
-					if (SetCodePage(m_codepage==GetACP()?GetOEMCP():GetACP()))
-					{
-						Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
-						ChangeEditKeyBar();
-					}
-				}
-				else
-				{
-					const wchar_t* const Items[] = {MSG(MEditorSwitchUnicodeCPDisabled),MSG(MEditorTryReloadFile),MSG(MOk)};
-					Message(MSG_WARNING,1,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditorSwitchUnicodeCPDisabledId);
-				}
 
-				return TRUE;
-			}
+			case KEY_F8:
 			case KEY_SHIFTF8:
 			{
-				if (!IsUnicodeCodePage(m_codepage))
+				uintptr_t codepage = m_codepage;
+				if (Key == KEY_F8)
+					codepage = m_codepage == GetACP() ? GetOEMCP() : GetACP();
+				else
 				{
-					uintptr_t codepage = m_codepage;
-					if (Codepages().SelectCodePage(codepage, false, false, true))
+					if (Codepages().SelectCodePage(codepage, true, false, true))
 					{
 						if (codepage == CP_DEFAULT)
 						{
@@ -1333,16 +1319,11 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 								detect = GetFileFormat(edit_file,codepage,&sig_found,true);
 								edit_file.Close();
 							}
-							if ( !detect )
+							if (!detect)
 							{
 								Message(MSG_WARNING,1,MSG(MEditTitle),MSG(MEditorCPNotDetected),MSG(MOk));
 							}
-							else if ( IsUnicodeCodePage(codepage) )
-							{
-								detect = false;
-								Message(MSG_WARNING, 1, MSG(MEditTitle), (LangString(MEditorSwitchToUnicodeCPDisabled) << codepage).data(), MSG(MEditorTryReloadFile), MSG(MOk));
-							}
-							else if ( !Codepages().IsCodePageSupported(codepage) )
+							else if (!Codepages().IsCodePageSupported(codepage))
 							{
 								detect = false;
 								Message(MSG_WARNING, 1, MSG(MEditTitle), (LangString(MEditorCPNotSupported) << codepage).data(), MSG(MOk));
@@ -1350,18 +1331,39 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 							if ( !detect )
 								codepage = m_codepage;
 						}
-						if (codepage != m_codepage)
-						{
-							SetCodePage(codepage);
-							InitKeyBar();
-							Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
-						}
 					}
 				}
-				else
+
+				bool need_reload = BadConversion
+				|| IsUnicodeCodePage(m_codepage) || m_codepage == CP_UTF7
+				|| IsUnicodeCodePage(codepage);
+
+				if (codepage != m_codepage && need_reload && IsFileChanged())
 				{
-					const wchar_t* const Items[] = {MSG(MEditorSwitchUnicodeCPDisabled),MSG(MEditorTryReloadFile),MSG(MOk)};
-					Message(MSG_WARNING,1,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditorSwitchUnicodeCPDisabledId);
+					int res = Message(
+						MSG_WARNING, 2, MSG(MEditTitle),
+						MSG(MEditorReloadCPWarnLost1), MSG(MEditorReloadCPWarnLost2),
+						MSG(MOk), MSG(MCancel)
+					);
+					if (res != 0)
+						codepage = m_codepage;
+				}
+				
+				if (codepage != m_codepage)
+				{
+					uintptr_t cp0 = m_codepage;
+					if (need_reload)
+					{
+						ReloadFile(codepage);
+					}
+					else
+						SetCodePage(codepage);
+
+					if (m_codepage != cp0)
+					{
+						InitKeyBar();
+						Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
+					}
 				}
 
 				return TRUE;
@@ -1686,8 +1688,45 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 	return TRUE;
 }
 
-//TextFormat и Codepage используются ТОЛЬКО, если bSaveAs = true!
+bool FileEditor::ReloadFile(uintptr_t codepage)
+{
+	// save state
+	auto save_codepage = m_codepage;
+	auto save_bAddSignature = m_bAddSignature;
+	auto save_BadConversiom = BadConversion;
+	auto save_Flags(Flags);
 
+	Editor saved;
+	saved.fake_editor = true;
+	saved.m_codepage = m_editor->m_codepage;
+	m_editor->SwapState(saved);
+
+	int user_break = 0;
+	m_codepage = codepage;
+	int loaded = LoadFile(strFullFileName, user_break);
+	if (!loaded)
+	{
+		// restore state
+		m_codepage = save_codepage;
+		m_bAddSignature = save_bAddSignature;
+		BadConversion = save_BadConversiom;
+		Flags = save_Flags;
+		m_editor->SwapState(saved);
+
+		if (user_break != 1)
+		{
+			SetLastError(SysErrorCode);
+			Global->CatchError();
+			OperationFailed(strFullFileName, MEditTitle, MSG(MEditCannotOpen), false);
+		}
+		return false;
+	}
+
+	Show();
+	return true;
+}
+
+//TextFormat и codepage используются ТОЛЬКО, если bSaveAs = true!
 int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextFormat, uintptr_t codepage, bool AddSignature)
 {
 	if (!bSaveAs)
@@ -1710,10 +1749,8 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		if (Ask)
 		{
 			const wchar_t* const Items[] = {MSG(MEditAskSave),MSG(MHYes),MSG(MHNo),MSG(MHCancel)};
-			int ButtonsCount = Global->AllowCancelExit? 3 : 2;
-			size_t ItemsCount = Global->AllowCancelExit? ARRAYSIZE(Items) : ARRAYSIZE(Items) - 1;
-			int Code = Message(MSG_WARNING, ButtonsCount, MSG(MEditTitle), Items, ItemsCount, nullptr, nullptr, &EditAskSaveId);
-
+			int skip = Global->AllowCancelExit ? 0 : 1;
+			int Code = Message(MSG_WARNING,3-skip,MSG(MEditTitle),Items, ARRAYSIZE(Items)-skip, nullptr, nullptr, &EditAskSaveId);
 			if(Code < 0 && !Global->AllowCancelExit)
 			{
 				Code = 1; // close == not save

@@ -137,7 +137,8 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed):
 	Color(ColorIndexToColor(COL_EDITORTEXT)),
 	SelColor(ColorIndexToColor(COL_EDITORSELECTEDTEXT)),
 	MacroSelectionStart(-1),
-	CursorPos(0)
+	CursorPos(0),
+	fake_editor(false)
 {
 	_KEYMACRO(SysLog(L"Editor::Editor()"));
 	_KEYMACRO(SysLog(1));
@@ -146,21 +147,13 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed):
 	if (DialogUsed)
 		Flags.Set(FEDITOR_DIALOGMEMOEDIT);
 
-	/* $ 26.10.2003 KM
-	   Если установлен глобальный режим поиска 16-ричных кодов, тогда
-	   сконвертируем GlobalSearchString в строку, ибо она содержит строку в
-	   16-ричном представлении.
-	*/
 	if (Global->GlobalSearchHex)
 		Transform(strLastSearchStr,Global->strGlobalSearchString.data(),L'S');
 	else
 		strLastSearchStr = Global->strGlobalSearchString;
 
 	UnmarkMacroBlock();
-	/* $ 12.01.2002 IS
-	   По умолчанию конец строки так или иначе равен \r\n, поэтому нечего
-	   пудрить мозги, пропишем его явно.
-	*/
+
 	GlobalEOL = DOS_EOL_fmt;
 	InsertString(nullptr, 0, LastLine);
 }
@@ -170,7 +163,8 @@ Editor::~Editor()
 {
 	//_SVS(SysLog(L"[%p] Editor::~Editor()",this));
 	FreeAllocatedData();
-	KeepInitParameters();
+	if (!fake_editor)
+		KeepInitParameters();
 	_KEYMACRO(SysLog(-1));
 	_KEYMACRO(SysLog(L"Editor::~Editor()"));
 }
@@ -184,6 +178,30 @@ void Editor::FreeAllocatedData(bool FreeUndo)
 	ClearSessionBookmarks();
 	BlockStart = VBlockStart = LastGetLine = FirstLine = LastLine = CurLine = Lines.end();
 	NumLastLine = 0;
+}
+
+void Editor::SwapState(Editor& swap_state)
+{
+	std::swap(Flags, swap_state.Flags);
+	std::swap(Lines, swap_state.Lines);
+	std::swap(BlockStart, swap_state.BlockStart);
+	std::swap(VBlockStart, swap_state.VBlockStart);
+	std::swap(LastGetLine, swap_state.LastGetLine);
+	std::swap(LastGetLineNumber, swap_state.LastGetLineNumber);
+	std::swap(TopScreen, swap_state.TopScreen);
+	std::swap(FirstLine, swap_state.FirstLine);
+	std::swap(CurLine, swap_state.CurLine);
+	std::swap(NumLine, swap_state.NumLine);
+	std::swap(NumLastLine, swap_state.NumLastLine);
+	std::swap(UndoData, swap_state.UndoData);
+	std::swap(UndoPos, swap_state.UndoPos);
+	std::swap(UndoSavePos, swap_state.UndoSavePos);
+	std::swap(UndoSkipLevel, swap_state.UndoSkipLevel);
+	std::swap(SessionBookmarks, swap_state.SessionBookmarks);
+	std::swap(SavePos, swap_state.SavePos);
+	std::swap(NewSessionPos, swap_state.NewSessionPos);
+	std::swap(m_codepage, swap_state.m_codepage);
+	std::swap(GlobalEOL, swap_state.GlobalEOL);
 }
 
 void Editor::KeepInitParameters()
@@ -5216,14 +5234,26 @@ long Editor::GetCurPos( bool file_pos, bool add_bom ) const
 	auto CurPtr = FirstLine;
 	long TotalSize=0;
 	int mult = 1, bom = 0;
-	if ( file_pos ) {
-		if ( m_codepage == CP_UNICODE || m_codepage == CP_REVERSEBOM ) {
+	if (file_pos)
+	{
+		if (m_codepage == CP_UNICODE || m_codepage == CP_REVERSEBOM)
+		{
 			mult = 2;
-			if ( add_bom ) bom += 2;
+			if (add_bom)
+				bom += 2;
 		}
-		else if ( m_codepage == CP_UTF8 ) {
+		else if (m_codepage == CP_UTF8)
+		{
 			mult = -1;
-			if ( add_bom ) bom += 3;
+			if (add_bom)
+				bom += 3;
+		}
+		else {
+			string cp_name;
+			UINT cp_maxlen = 0;
+			std::tie(cp_maxlen, cp_name) = Codepages().GetCodePageInfo(m_codepage);
+			if (cp_maxlen > 1)
+				mult = -static_cast<int>(cp_maxlen);
 		}
 	}
 
@@ -5232,14 +5262,14 @@ long Editor::GetCurPos( bool file_pos, bool add_bom ) const
 		const wchar_t *SaveStr,*EndSeq;
 		intptr_t Length;
 		CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
-		if ( mult > 0 )
+		if (mult > 0)
 			TotalSize += Length + StrLength(EndSeq);
 		else
-			TotalSize -= WideCharToMultiByte(CP_UTF8,0,SaveStr,Length,nullptr,0,nullptr,nullptr)+StrLength(EndSeq);
+			TotalSize -= WideCharToMultiByte(m_codepage,0,SaveStr,Length,nullptr,0,nullptr,nullptr)+StrLength(EndSeq);
 		++CurPtr;
 	}
 
-	return TotalSize * mult + bom;
+	return TotalSize * (mult > 0 ? mult : 1) + bom;
 }
 
 
