@@ -221,9 +221,10 @@ BOOL ProcessOSAliases(wchar_t *Str,int SizeStr)
 }
 
 
-bool GetShellLinkPath(const wchar_t *LinkFile,wchar_t *Path,int PathSize)
+wchar_t *GetShellLinkPath(const wchar_t *LinkFile)
 {
 	bool Result=false;
+	wchar_t *Path=nullptr;
 
 	wchar_t FileName[MAX_PATH*5];
 	ExpandEnvironmentStrings(LinkFile, FileName, ARRAYSIZE(FileName));
@@ -232,7 +233,7 @@ bool GetShellLinkPath(const wchar_t *LinkFile,wchar_t *Path,int PathSize)
 	wchar_t *ptrFileName=FileName;
 
 	if (!(*ptrFileName && FileExists(ptrFileName)))
-		return false;
+		return nullptr;
 
 	// <Check lnk-header>
 	HANDLE hFile = CreateFile(ptrFileName, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL );
@@ -295,8 +296,9 @@ bool GetShellLinkPath(const wchar_t *LinkFile,wchar_t *Path,int PathSize)
 						hres = psl->GetPath(TargPath, ARRAYSIZE(TargPath), NULL, SLGP_RAWPATH);
 						if (SUCCEEDED(hres))
 						{
-							lstrcpyn(Path, TargPath, PathSize);
-							Result=true;
+							Path=new wchar_t[lstrlen(TargPath)+1];
+							if (Path)
+								lstrcpy(Path, TargPath);
 						}
 					}
 				}
@@ -309,7 +311,57 @@ bool GetShellLinkPath(const wchar_t *LinkFile,wchar_t *Path,int PathSize)
 		// </get target>
 	}
 
-	return Result;
+	return Path;
+}
+
+wchar_t* GetSameFolder(struct PanelInfo& PInfo,HANDLE SrcPanel, HANDLE DstPanel)
+{
+    wchar_t *RetObject=nullptr;
+	wchar_t *DestObject=nullptr;
+	int dirSize=(int)Info.PanelControl(SrcPanel,FCTL_GETPANELDIRECTORY,0,0);
+
+	FarPanelDirectory* dirInfo=(FarPanelDirectory*)malloc(dirSize);
+	if (dirInfo)
+	{
+		dirInfo->StructSize = sizeof(FarPanelDirectory);
+		Info.PanelControl(SrcPanel,FCTL_GETPANELDIRECTORY,dirSize,dirInfo);
+
+		int lenName=lstrlen(dirInfo->Name);
+		DestObject=(wchar_t*)malloc(sizeof(wchar_t)*(lenName+2));
+		if (DestObject)
+		{
+			lstrcpy(DestObject,dirInfo->Name);
+
+			if (*DestObject)
+				FSF.AddEndSlash(DestObject);
+
+			size_t Size = Info.PanelControl(SrcPanel,FCTL_GETPANELITEM,PInfo.CurrentItem,0);
+			PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
+
+			if (PPI)
+			{
+				FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
+				Info.PanelControl(SrcPanel,FCTL_GETPANELITEM,PInfo.CurrentItem,&gpi);
+
+				wchar_t *NewSrc=(wchar_t*)realloc(DestObject,sizeof(wchar_t)*(lstrlen(DestObject)+lstrlen(PPI->FileName)+1));
+				if (NewSrc)
+				{
+					DestObject=NewSrc;
+					lstrcat(DestObject,PPI->FileName);
+					RetObject=DestObject;
+				}
+				free(PPI);
+			}
+		}
+
+		free(dirInfo);
+	}
+
+	if (!RetObject)
+		if (DestObject)
+			free(DestObject);
+
+	return RetObject;
 }
 
 #endif

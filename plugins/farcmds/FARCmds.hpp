@@ -24,3 +24,6 @@ struct Options
 	DWORD MaxDataSize;
 	wchar_t Separator[4];
 } Opt;
+
+extern struct PluginStartupInfo Info;
+extern struct FarStandardFunctions FSF;

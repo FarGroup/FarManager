@@ -4,6 +4,7 @@
 #include <plugin.hpp>
 #include <DlgBuilder.hpp>
 #include <PluginSettings.hpp>
+
 #include "FARCmds.hpp"
 #include "Lang.hpp"
 #include "version.hpp"
@@ -41,11 +42,8 @@ struct OptionsName OptName={
 	L"MaxDataSize",
 };
 
-static struct PluginStartupInfo Info;
-static struct FarStandardFunctions FSF;
-struct PanelInfo PInfo;
-wchar_t selectItem[MAX_PATH*5];
-wchar_t fullcmd[MAX_PATH*5],cmd[MAX_PATH*5];
+struct PluginStartupInfo Info;
+struct FarStandardFunctions FSF;
 
 #include "Mix.cpp"
 #include "OpenCmd.cpp"
@@ -81,20 +79,25 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *psInfo)
 HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 {
 	HANDLE SrcPanel = PANEL_ACTIVE, DstPanel = PANEL_PASSIVE;
+	struct PanelInfo PInfo={};
 	PInfo.StructSize = sizeof(PInfo);
 	Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELINFO,0,&PInfo);
-	fullcmd[0]=cmd[0]=selectItem[0]=L'\0';
 
-	if (OInfo->OpenFrom==OPEN_COMMANDLINE)
+	wchar_t *pTemp=nullptr;
+	bool DynTemp=false;
+
+	if (OInfo->OpenFrom==OPEN_COMMANDLINE) // prefix
 	{
 		DstPanel = PANEL_ACTIVE;
-		OpenFromCommandLine(((OpenCommandLineInfo *)OInfo->Data)->CommandLine);
+		pTemp=OpenFromCommandLine(((OpenCommandLineInfo *)OInfo->Data)->CommandLine);
+		//if (pTemp)
+		//	DynTemp=true;
 	}
 	else if (OInfo->OpenFrom == OPEN_PLUGINSMENU && !OInfo->Data && PInfo.PanelType != PTYPE_FILEPANEL)
 	{
 		return nullptr;
 	}
-	else
+	else // Same Folder
 	{
 		if((OInfo->OpenFrom == OPEN_LEFTDISKMENU && (PInfo.Flags&PFLAGS_PANELLEFT)) ||
 		   (OInfo->OpenFrom == OPEN_RIGHTDISKMENU && !(PInfo.Flags&PFLAGS_PANELLEFT)))
@@ -102,49 +105,47 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 			SrcPanel = PANEL_PASSIVE;
 			DstPanel = PANEL_ACTIVE;
 		}
-		int dirSize=(int)Info.PanelControl(SrcPanel,FCTL_GETPANELDIRECTORY,0,0);
-
-		FarPanelDirectory* dirInfo=(FarPanelDirectory*)new char[dirSize];
-		dirInfo->StructSize = sizeof(FarPanelDirectory);
-		Info.PanelControl(SrcPanel,FCTL_GETPANELDIRECTORY,dirSize,dirInfo);
-		lstrcpy(selectItem,dirInfo->Name);
-		delete[](char*)dirInfo;
-
-		if (*selectItem)
-			FSF.AddEndSlash(selectItem);
-
-		size_t Size = Info.PanelControl(SrcPanel,FCTL_GETPANELITEM,PInfo.CurrentItem,0);
-		PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
-
-		if (PPI)
-		{
-			FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
-			Info.PanelControl(SrcPanel,FCTL_GETPANELITEM,PInfo.CurrentItem,&gpi);
-			lstrcat(selectItem,PPI->FileName);
-			free(PPI);
-		}
+		pTemp=GetSameFolder(PInfo,SrcPanel,DstPanel);
+		DynTemp=true;
 	}
 
 	/*установить курсор на объект*/
-	if (lstrlen(selectItem))
+	if (pTemp && *pTemp)
 	{
 		static struct PanelRedrawInfo PRI={sizeof(PanelRedrawInfo)};
-		static wchar_t Name[MAX_PATH], Dir[MAX_PATH*5];
 		int pathlen;
-		lstrcpy(Name,FSF.PointToName(selectItem));
-		pathlen=(int)(FSF.PointToName(selectItem)-selectItem);
+		const wchar_t *pName=FSF.PointToName(pTemp);
+		wchar_t *Name=new wchar_t[lstrlen(pName)+1];
 
-		if (pathlen)
-			wmemcpy(Dir,selectItem,pathlen);
-
-		Dir[pathlen]=0;
-		FSF.Trim(Name);
-		FSF.Trim(Dir);
-		FSF.Unquote(Name);
-		FSF.Unquote(Dir);
-
-		if (*Dir)
+		if (!Name)
 		{
+			if (DynTemp)
+				delete [] pTemp;
+			return nullptr;
+		}
+		lstrcpy(Name,pName);
+		FSF.Trim(Name);
+		FSF.Unquote(Name);
+
+		pathlen=(int)(pName-pTemp);
+
+		wchar_t *Dir=nullptr;
+
+		if (pathlen > 0 && *pTemp)
+		{
+			Dir=new wchar_t[pathlen+1];
+			if (!Dir)
+			{
+				delete[] Name;
+				if (DynTemp)
+					delete [] pTemp;
+				return nullptr;
+			}
+			wmemcpy(Dir,pTemp,pathlen);
+			Dir[pathlen]=0;
+			FSF.Trim(Dir);
+			FSF.Unquote(Dir);
+
 			FarPanelDirectory dirInfo={sizeof(FarPanelDirectory),Dir,NULL,{0},NULL};
 			Info.PanelControl(DstPanel,FCTL_SETPANELDIRECTORY,0,&dirInfo);
 		}
@@ -176,11 +177,18 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		}
 
 		Info.PanelControl(DstPanel,FCTL_REDRAWPANEL,0,&PRI);
+
+		if (Dir)
+			delete[] Dir;
+		delete[] Name;
 	}
 	else
 	{
 		Info.PanelControl(DstPanel,FCTL_REDRAWPANEL,0,0);
 	}
+
+	if (DynTemp)
+		delete [] pTemp;
 
 	return nullptr;
 }

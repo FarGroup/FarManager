@@ -10,7 +10,6 @@
 #define SIGN_UTF8_LO    0xBBEF
 #define SIGN_UTF8_HI    0xBF
 
-
 static inline bool vh(HANDLE h)
 {
 	return h != INVALID_HANDLE_VALUE;
@@ -253,6 +252,7 @@ DWORD WINAPI ThreadWhatUpdateScreen(LPVOID par)
 static bool MakeTempNames(wchar_t* tempFileName1, wchar_t* tempFileName2, size_t szTempNames)
 {
 	static const wchar_t tmpPrefix[] = L"FCP";
+	wchar_t fullcmd[MAX_PATH*2];
 
 	if (FSF.MkTemp(tempFileName1,szTempNames,tmpPrefix) > 1)
 	{
@@ -421,25 +421,145 @@ static void ParseCmdSyntax(wchar_t*& pCmd, int& ShowCmdOutput, int& stream)
 	FSF.LTrim(pCmd);
 }
 
-// тестирует префиск Pref
-// сдвигает Src, если нашел (на длину префиска)
-// возвращает длину.
-static int TestPrefix(wchar_t*& Src,const wchar_t *Pref)
-{
-	int lenPref=lstrlen(Pref);
 
-	if (!_memicmp(Src,Pref,lenPref))
+bool __proc_Load_Unload(bool Load,wchar_t *pCmd)
+{
+	bool Ret=false;
+	FSF.Unquote(pCmd);
+	DWORD sizeExp=ExpandEnvironmentStrings(pCmd,NULL,0);
+	wchar_t *temp=new wchar_t[sizeExp+1];
+	if (temp)
 	{
-		Src+=lenPref;
-		return lenPref;
+		ExpandEnvironmentStrings(pCmd,temp,sizeExp);
+
+		if (Load)
+			Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_LOADPLUGIN,PLT_PATH,temp);
+		else
+		{
+			HANDLE hPlugin = reinterpret_cast<HANDLE>(Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_FINDPLUGIN,PFM_MODULENAME,temp));
+			if(hPlugin)
+			{
+				Info.PluginsControl(hPlugin,PCTL_UNLOADPLUGIN,0,nullptr);
+			}
+		}
+
+		delete[] temp;
 	}
 
-	return 0;
+	return Ret;
 }
 
-int OpenFromCommandLine(const wchar_t *_farcmd)
+wchar_t* __proc_Goto(int outputtofile,wchar_t *pCmd)
 {
-	if (!_farcmd) return FALSE;
+	wchar_t *Ptr=outputtofile?GetShellLinkPath(pCmd):pCmd;
+
+	if (Ptr)
+	{
+		DWORD sizeExp=ExpandEnvironmentStrings(Ptr,NULL,0);
+		wchar_t *temp=new wchar_t[sizeExp+1];
+		if (temp)
+		{
+			ExpandEnvironmentStrings(Ptr,temp,sizeExp);
+			if (outputtofile)
+				delete[] Ptr;
+			Ptr=temp;
+		}
+		else
+		{
+			if (outputtofile)
+				delete[] Ptr;
+		}
+	}
+
+	return Ptr;
+}
+
+bool __proc_WhereIs(int outputtofile,wchar_t *pCmd, wchar_t* DestPath, size_t DestPathSize)
+{
+	if (outputtofile)
+	{
+		bool foundFile=false;
+		size_t shift;
+		wchar_t *Ptr = loadFile(pCmd, Opt.MaxDataSize/sizeof(wchar_t), outputtofile, shift, foundFile);
+
+		if (Ptr)
+		{
+			lstrcpyn(DestPath, Ptr+shift, DestPathSize-1);
+			free(Ptr);
+
+			if (NULL==(Ptr=wcschr(DestPath,L'\r')))
+				Ptr=wcschr(DestPath,L'\n');
+
+			if (Ptr!=NULL)
+				*Ptr=0;
+		}
+	}
+	else
+		lstrcpy(DestPath,pCmd);
+
+	wchar_t *pCmdCopy=new wchar_t[DestPathSize+1];
+	lstrcpy(pCmdCopy,DestPath);
+	wchar_t *Path = NULL, *pFile, temp[MAX_PATH*5], *FARHOMEPath = NULL;
+
+	size_t Length=FSF.GetCurrentDirectory(0,nullptr);
+	wchar_t *cmd=new wchar_t[Length+1];
+	FSF.GetCurrentDirectory(Length,cmd);
+
+	int PathLength=GetEnvironmentVariable(L"PATH", Path, 0);
+	int FARHOMELength=GetEnvironmentVariable(L"FARHOME", FARHOMEPath, 0);
+	FSF.Unquote(pCmdCopy);
+	ExpandEnvironmentStrings(pCmdCopy,temp,ARRAYSIZE(temp));
+
+	if (Length+PathLength)
+	{
+		if (NULL!=(Path=(wchar_t *)malloc((Length+PathLength+FARHOMELength+3)*sizeof(wchar_t))))
+		{
+			FSF.sprintf(Path,L"%s;", cmd);
+			GetEnvironmentVariable(L"FARHOME", Path+lstrlen(Path), FARHOMELength);
+			lstrcat(Path,L";");
+			GetEnvironmentVariable(L"PATH", Path+lstrlen(Path), PathLength);
+			*DestPath=0;
+			SearchPath(Path, temp, NULL, DestPathSize, DestPath, &pFile);
+			free(Path);
+		}
+
+		if (*DestPath==0)
+			SearchPath(NULL, temp, NULL, DestPathSize, DestPath, &pFile);
+	}
+
+	if (*DestPath==0)
+	{
+		HKEY RootFindKey[2]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE},hKey;
+		wchar_t FullKeyName[512];
+
+		for (size_t I=0; I < ARRAYSIZE(RootFindKey); ++I)
+		{
+			FSF.sprintf(FullKeyName,L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s",pCmdCopy);
+
+			if (RegOpenKeyEx(RootFindKey[I], FullKeyName, 0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
+			{
+				DWORD Type, DataSize=DestPathSize;
+				RegQueryValueEx(hKey,L"", 0, &Type, (LPBYTE) DestPath, &DataSize);
+				RegCloseKey(hKey);
+				break;
+			}
+		}
+	}
+
+	if (cmd)
+		delete[] cmd;
+	if (pCmdCopy)
+		delete[] pCmdCopy;
+
+	return true;
+}
+
+
+
+wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
+{
+	if (!_farcmd)
+		return nullptr;
 
 	int View=0,Edit=0,Goto=0,Clip=0,WhereIs=0,Link=0,Run=0, Load=0,Unload=0;
 	size_t PrefIdx=static_cast<size_t>(-1);
@@ -479,6 +599,12 @@ int OpenFromCommandLine(const wchar_t *_farcmd)
 		{Unload,L"UNLOAD",L"Unload"},
 	};
 
+	static wchar_t selectItem[MAX_PATH*5];
+	static wchar_t cmd[MAX_PATH*5];
+	wchar_t fullcmd[MAX_PATH*5];
+
+	fullcmd[0]=cmd[0]=selectItem[0]=L'\0';
+
 	static wchar_t farcmdbuf[MAX_PATH*10], *farcmd;
 	farcmd=farcmdbuf;
 	lstrcpy(farcmdbuf, _farcmd);
@@ -491,24 +617,24 @@ int OpenFromCommandLine(const wchar_t *_farcmd)
 		int StartLine=-1, StartChar=-1;
 		int ShowCmdOutput=Opt.ShowCmdOutput;
 		int stream=Opt.CatchMode;
-		BOOL outputtofile=0, allOK=TRUE;
+		int outputtofile=0;
+		BOOL allOK=TRUE;
 		wchar_t *pCmd=NULL;
 
 		for (size_t I=0; I < ARRAYSIZE(Pref); ++I)
 		{
-			Pref[I].Pref=TestPrefix(farcmd,Pref[I].Name);
+			int lenPref=lstrlen(Pref[I].Name);
+
+			if (!_memicmp(farcmd,Pref[I].Name,lenPref))
+			{
+				farcmd+=lenPref;
+				Pref[I].Pref=lenPref;
+			}
 
 			if (Pref[I].Pref)
 			{
 				if (*farcmd == L':')
 					farcmd++;
-
-				if (!I)
-				{
-					//  farcmd = <command>[<options>]<separator><object>
-					//  farcmd = <command><separator><object>
-					continue;  // для "FAR:" продолжаем
-				}
 
 				PrefIdx=I;
 				break;
@@ -615,96 +741,22 @@ int OpenFromCommandLine(const wchar_t *_farcmd)
 				{
 					showhelp=FALSE;
 
-					if (outputtofile && !(WhereIs || Goto || Link))
-						ProcessOSAliases(pCmd,ARRAYSIZE(farcmdbuf));
-
-					if (WhereIs || Goto)
-					{
-						if (outputtofile)
-						{
-							size_t shift;
-							bool foundFile=false;
-							wchar_t *Ptr=nullptr;
-
-							if (Goto)
-							{
-								foundFile = GetShellLinkPath(pCmd,selectItem,ARRAYSIZE(selectItem)-1);
-							}
-
-							if (!foundFile)
-							{
-								Ptr = loadFile(pCmd, Opt.MaxDataSize/sizeof(wchar_t), outputtofile, shift, foundFile);
-
-								if (Ptr)
-								{
-									lstrcpyn(selectItem, Ptr+shift, ARRAYSIZE(selectItem)-1);
-									free(Ptr);
-
-									if (NULL==(Ptr=wcschr(selectItem,L'\r')))
-										Ptr=wcschr(selectItem,L'\n');
-
-									if (Ptr!=NULL)
-										*Ptr=0;
-								}
-							}
-						}
-						else
-							lstrcpy(selectItem,pCmd);
-					}
-
-
 					if (Goto)
 					{
-						wchar_t ExpSelectItem[ARRAYSIZE(selectItem)];
-						ExpandEnvironmentStrings(selectItem,ExpSelectItem,ARRAYSIZE(ExpSelectItem));
-						lstrcpy(selectItem,ExpSelectItem);
+						wchar_t *Ptr=__proc_Goto(outputtofile,pCmd);
+						if (Ptr)
+						{
+							lstrcpyn(selectItem,Ptr,ARRAYSIZE(selectItem)-1);
+							delete[] Ptr;
+						}
 					}
 					else if (WhereIs)
 					{
-						wchar_t pCmdCopy[ARRAYSIZE(selectItem)];
-						lstrcpy(pCmdCopy,selectItem);
-						wchar_t *Path = NULL, *pFile, temp[MAX_PATH*5], *FARHOMEPath = NULL;
-						int Length=(int)FSF.GetCurrentDirectory(ARRAYSIZE(cmd),cmd);
-						int PathLength=GetEnvironmentVariable(L"PATH", Path, 0);
-						int FARHOMELength=GetEnvironmentVariable(L"FARHOME", FARHOMEPath, 0);
-						FSF.Unquote(pCmdCopy);
-						ExpandEnvironmentStrings(pCmdCopy,temp,ARRAYSIZE(temp));
-
-						if (Length+PathLength)
-						{
-							if (NULL!=(Path=(wchar_t *)malloc((Length+PathLength+FARHOMELength+3)*sizeof(wchar_t))))
-							{
-								FSF.sprintf(Path,L"%s;", cmd);
-								GetEnvironmentVariable(L"FARHOME", Path+lstrlen(Path), FARHOMELength);
-								lstrcat(Path,L";");
-								GetEnvironmentVariable(L"PATH", Path+lstrlen(Path), PathLength);
-								*selectItem=0;
-								SearchPath(Path, temp, NULL, ARRAYSIZE(selectItem), selectItem, &pFile);
-								free(Path);
-							}
-
-							if (*selectItem==0)
-								SearchPath(NULL, temp, NULL, ARRAYSIZE(selectItem), selectItem, &pFile);
-						}
-
-						if (*selectItem==0)
-						{
-							HKEY RootFindKey[2]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE},hKey;
-							wchar_t FullKeyName[512];
-
-							for (size_t I=0; I < ARRAYSIZE(RootFindKey); ++I)
-							{
-								FSF.sprintf(FullKeyName,L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s",pCmdCopy);
-
-								if (RegOpenKeyEx(RootFindKey[I], FullKeyName, 0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
-								{
-									DWORD Type, DataSize=sizeof(selectItem);
-									RegQueryValueEx(hKey,L"", 0, &Type, (LPBYTE) selectItem, &DataSize);
-									RegCloseKey(hKey);
-									break;
-								}
-							}
-						}
+						__proc_WhereIs(outputtofile,pCmd,selectItem,ARRAYSIZE(selectItem));
+					}
+					else if (Load || Unload)  // <file>
+					{
+						__proc_Load_Unload(Load?true:false,pCmd);
 					}
 					else if (Link) //link [/msg] [/n] источник назначение
 					{
@@ -810,25 +862,11 @@ int OpenFromCommandLine(const wchar_t *_farcmd)
 						else
 							Info.ShowHelp(Info.ModuleName,(PrefIdx==static_cast<size_t>(-1))?L"Contents":Pref[PrefIdx].HelpName,0);
 					}
-					else if (Load || Unload)
-					{
-						wchar_t temp[MAX_PATH*5];
-						FSF.Unquote(pCmd);
-						ExpandEnvironmentStrings(pCmd,temp,ARRAYSIZE(temp));
-
-						if (Load)
-							Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_LOADPLUGIN,PLT_PATH,temp);
-						else
-						{
-							HANDLE hPlugin = reinterpret_cast<HANDLE>(Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_FINDPLUGIN,PFM_MODULENAME,temp));
-							if(hPlugin)
-							{
-								Info.PluginsControl(hPlugin,PCTL_UNLOADPLUGIN,0,nullptr);
-							}
-						}
-					}
 					else
 					{
+						if (outputtofile)
+							ProcessOSAliases(pCmd,ARRAYSIZE(farcmdbuf));
+
 						wchar_t *tempDir = NULL, temp[MAX_PATH*5];
 						wchar_t TempFileNameOut[MAX_PATH*5], TempFileNameErr[ARRAYSIZE(TempFileNameOut)];
 						TempFileNameOut[0] = TempFileNameErr[0] = 0;
@@ -1268,9 +1306,9 @@ int OpenFromCommandLine(const wchar_t *_farcmd)
 	if (showhelp)
 	{
 		Info.ShowHelp(Info.ModuleName,(PrefIdx==static_cast<size_t>(-1))?L"Contents":Pref[PrefIdx].HelpName,0);
-		return TRUE;
+		return nullptr;
 	}
 
-	return FALSE;
+	return selectItem;
 }
 #endif
