@@ -3492,6 +3492,7 @@ intptr_t LF_DlgProc(lua_State *L, HANDLE hDlg, intptr_t Msg, intptr_t Param1, vo
 	if(dd->wasError)
 		return Info->DefDlgProc(hDlg, Msg, Param1, Param2);
 
+	L = dd->L; // the dialog may be called from a lua_State other than the main one
 	lua_pushlightuserdata(L, dd);        //+1   retrieve the table
 	lua_rawget(L, LUA_REGISTRYINDEX);    //+1
 	lua_rawgeti(L, -1, 2);               //+2   retrieve the procedure

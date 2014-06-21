@@ -139,6 +139,9 @@ void LUAPLUG SetStartupInfoW(const struct PluginStartupInfo *aInfo)
 		LF_InitLuaState2(LS, &PluginData);
 		LF_ProcessEnvVars(LS, ENV_PREFIX, PluginDir);
 
+		lua_pushcfunction(LS, luaopen_luaplug);
+		lua_setglobal(LS, "_luaplug");
+
 		if(LF_RunDefaultScript(LS) == FALSE)
 		{
 			lua_close(LS);

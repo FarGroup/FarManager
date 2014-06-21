@@ -141,15 +141,28 @@ id=214
 lv=1
 dt=Text
 nm=Generic LuaFAR plugin
-mtime=3611263369
+mtime=3612529667
 <article>
 #_<markdown>
 #_
-#_### Introduction
 #_There are two files in the LuaFAR distribution (**`luaplug.c`** and **`luaplug.mak`**) that do not participate in the build of LuaFAR DLL, they comprise the "generic LuaFAR plugin". It is called generic, since most of a LuaFAR plugin functionality is contained in its Lua part, and its C-part is more or less the same for most LuaFAR plugins.
 #_
-#_<a name="customizing"></a>
-#_### Customizing the generic plugin
+#_- [Customizing the generic plugin](494.html)
+#_- [Recreation of the Lua virtual machine](495.html)
+#_- [Extra exported function: `luaopen_luaplug`](496.html)
+#_
+</article>
+</node>
+<node>
+id=494
+lv=2
+dt=Text
+nm=Customizing the generic plugin
+ctime=3612528153
+mtime=3612528581
+<article>
+#_<markdown>
+#_
 #_The easiest way to build a LuaFAR plugin DLL is via `luaplug.mak`
 #_makefile (MinGW is required). This makefile can be used either directly or included in another makefile. It accepts the following parameters:
 #_
@@ -167,8 +180,25 @@ mtime=3611263369
 #_- **`ENV_PREFIX`** - prefix for LuaFAR-specific environment variables.
 #_Defaults to `L"LUAFAR"` for 32-bit plugins, and to `L"LUAFAR64"` for 64-bit plugins. (See [`LF_InitLuaState1`](385.html) for details).
 #_
+#_@@@
+#_{getglobalinfow}: http://api.farmanager.com/ru/exported_functions/getglobalinfow.html
+#_{getplugininfow}: http://api.farmanager.com/ru/exported_functions/getplugininfow.html
+#_{processsynchroeventw}: http://api.farmanager.com/ru/exported_functions/processsynchroeventw.html
+#_{setstartupinfow}: http://api.farmanager.com/ru/exported_functions/setstartupinfow.html
 #_
-#_### Recreation of the Lua virtual machine
+#_
+</article>
+</node>
+<node>
+id=495
+lv=2
+dt=Text
+nm=Recreation of the Lua virtual machine
+ctime=3612528168
+mtime=3612529005
+<article>
+#_<markdown>
+#_
 #_It is possible to "recreate" the Lua virtual machine (`lua_State`), used by the plugin, i.e: to close the current one and create a new one.
 #_
 #_* In order to do that the global variable `RecreateLuaState` should be
@@ -184,10 +214,26 @@ mtime=3611263369
 #_* After the virtual machine is recreated the global variable `IsLuaStateRecreated`
 #_  is set to true.
 #_
-#_<a name="luaopen_luaplug"></a>
-#_### Extra exported function: `luaopen_luaplug`
-#_Some libraries (e.g. `rings`) can create additional `lua_State` instances from Lua scripts. To initialize those instances with libraries included in LuaFAR (`far`, `bit64`, `win`, `unicode`), call `luaopen_luaplug`. The function must be loaded via `package.loadlib`. Internally, it calls [`LF_InitLuaState1`](385.html), [`LF_InitLuaState2`](423.html) and
-#_[`LF_ProcessEnvVars`](441.html).
+#_
+</article>
+</node>
+<node>
+id=496
+lv=2
+dt=Text
+nm=Extra exported function: luaopen_luaplug
+ctime=3612528187
+mtime=3612535539
+<article>
+#_<markdown>
+#_
+#_Some libraries (e.g. `rings`) can create additional `lua_State` instances from Lua scripts. To initialize those instances with libraries included in LuaFAR (`far`, `bit64`, `win`, `unicode`), call `luaopen_luaplug()` passing it the `lua_State*` to be initialized.
+#_
+#_This function is also accessible from Lua as the global variable `_luaplug`.
+#_It is NOT intended to be called from the running `lua_State` but rather to be passed
+#_to another `lua_State` for its initialization.
+#_
+#_Alternatively, this function can be loaded via `package.loadlib` as in the following example.
 #_
 #_**Example:**
 #_      local rings = require "rings"
@@ -198,11 +244,8 @@ mtime=3611263369
 #_        far.Message ("Hello world", "Called from a ring")
 #_      ]], far.PluginStartupInfo().ModuleName)
 #_
-#_@@@
-#_{getglobalinfow}: http://api.farmanager.com/ru/exported_functions/getglobalinfow.html
-#_{getplugininfow}: http://api.farmanager.com/ru/exported_functions/getplugininfow.html
-#_{processsynchroeventw}: http://api.farmanager.com/ru/exported_functions/processsynchroeventw.html
-#_{setstartupinfow}: http://api.farmanager.com/ru/exported_functions/setstartupinfow.html
+#_**Note:**<br>
+#_After replacing the standard Lua 5.1 DLL with one from LuaJIT 2.0, this example has stopped working. The issue is investigated.
 #_
 </article>
 </node>
@@ -259,13 +302,13 @@ lv=1
 dt=Text
 nm=Version 2.7.0
 ctime=3504008153
-mtime=3504008179
+mtime=3612528603
 <article>
 #_<markdown>
 #_
 #_* The first LuaFAR version that compiles for both 32
 #_  and 64-bit DLLs.
-#_* Generic plugin [customization](214.html#customizing):
+#_* Generic plugin [customization](494.html):
 #_  added a new parameter `ENV_PREFIX`.
 #_* Source code: all C++ files were rewritten in C.
 #_
@@ -298,14 +341,14 @@ lv=1
 dt=Text
 nm=Version 2.6.0
 ctime=3499339019
-mtime=3499339042
+mtime=3612528784
 <article>
 #_<markdown>
 #_
 #_###Added functions
 #_1. [`regex:gsub`](386.html)
 #_1. [`LF_InitLuaState`](385.html)
-#_1. [`luaopen_luaplug`](214.html#luaopen_luaplug)
+#_1. [`luaopen_luaplug`](496.html)
 #_
 #_###Modified functions
 #_1. [`far.Editor`](21.html) -- default values for `StartLine`, `StartChar` made `-1` (was: `0`).
