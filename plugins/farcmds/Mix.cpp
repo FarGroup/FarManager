@@ -276,7 +276,7 @@ wchar_t *GetShellLinkPath(const wchar_t *LinkFile)
 	{
 		// <get target>
 		Result=false;
-		HRESULT hres0 = CoInitialize(NULL);
+		/*HRESULT hres0 = */CoInitialize(NULL);
 
 		IShellLink* psl = NULL;
 		HRESULT hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (LPVOID*)&psl);
