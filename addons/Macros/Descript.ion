@@ -4,19 +4,20 @@ AltSearch.lua Use Alt for search by name
 AltX.lua Alt-X - Close Viewer&Editor, Exit FAR
 CtrlDel.lua Ctrl-Del removes selected editor block
 CtrlF10.lua Quit from editor/viewer and position to the current file
+Descript.ion File descriptions
 Dialog.AltDown.lua Open combobox and history list (as Ctrl-Down pressed)
 Edit.Notepad.lua Editor: like Notepad
+Edit.OpenURL.lua Editor: Open URL under cursor
 Edit.SaveAndExit.lua Editor: Save File and Exit
 Edit.SaveFile.lua Editor: Save File
 F3.lua Use internal editor as viewer
 F9DeactivateMenu.lua Use F9 to deactivate main menu
 F9Table.lua Use F9 to change current table in viewer and editor
-Macrossssss.xls Predefined macro constants
 OpeningLastFile.lua Opening last view/edit of a file
 Panel.AltBS.lua Panel: Use Alt-BS to undo folder changes
 Panel.Apps.lua Panel: Apps - Change drive in current panel
 Panel.BS.lua Panel: Use BS to go to upper folder
-Panel.CtrlIns..lua Panel: If CtrlIns was pressed while on . and command line is empty then copy to clipboard the path of the current folder
+Panel.CtrlIns...lua Panel: If CtrlIns was pressed while on . and command line is empty then copy to clipboard the path of the current folder
 Panel.CtrlLeft.lua Panel: Use Ctrl-Left to change current drive to the previous
 Panel.CtrlQ.lua Panel: Toggle quick view panel
 Panel.CtrlRight.lua Panel: Use Ctrl-Right to change current drive to the next
@@ -24,21 +25,21 @@ Panel.CtrlShiftBackSlash.lua Panel: Activate the same folder in the passive pane
 Panel.CtrlShiftPgUpDn.lua Panel: Jump to the previous/next folder on the same level
 Panel.Del.lua Panel: Use Del to remove files
 Panel.Esc.lua Panel: Use Esc to toggle panels on/off
+Panel.EscKeyBar.lua Use Esc to toggle panels on/off (with keybar)
 Panel.JumpToSelectedFile.lua Panel: Navigate through selected files
 Panel.Lynx-mot.lua Panel: LYNX-style motion
 Panel.MouseWheelTilt.lua Panel: Use CtrlPgUp/CtrlPgDn via extended buttons mouse
 Panel.Numpad.lua Panel: Use numpad keys in command line
 Panel.SelectFromClipboard.lua Panel: Use Ctrl-S for select files from Clipboard
 Panel.SpaceToSelect.lua Panel: Use Space to select files
+Search.CtrlIns.lua Fast find: CtrlIns in fast search
 ShiftBS.lua Converts the word before cursor using XLat function.
 ShiftF1.lua Select archive format
 ShiftTab.lua Shift-Tab = Ctrl-Shift-Tab
+Symlink.lua Alternative way to create symbolic links
 View.CtrlUpDown.lua Viewer: Scroll Up/Down text in internal viewer
 View.NextPrevFile.lua Viewer: update panel position when navigating through files
 View.PgDn.lua Viewer: PgDn at the end of file works as in Far Manager 1.70 beta 4 and earlier
 View.ShiftInsSearch.lua Viewer: Use Shift-Ins to search text from clipboard in internal viewer
 View.Space.lua Viewer: Use Space for listing in the viewer (like in Outlook Express or The Bat!)
 WheelScreenSwitch.lua Use Shift-MsWheel to switch between screens
-Descript.ion File descriptions
-Panel.EscKeyBar.lua Use Esc to toggle panels on/off (with keybar)
-Symlink.lua Alternative way to create symbolic links

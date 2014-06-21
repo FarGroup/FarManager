@@ -55,6 +55,7 @@
           <ComponentRef Id="Descript.ion_6" />
           <ComponentRef Id="Dialog.AltDown.lua" />
           <ComponentRef Id="Edit.Notepad.lua" />
+          <ComponentRef Id="Edit.OpenURL.lua" />
           <ComponentRef Id="Edit.SaveAndExit.lua" />
           <ComponentRef Id="Edit.SaveFile.lua" />
           <ComponentRef Id="F3.lua" />

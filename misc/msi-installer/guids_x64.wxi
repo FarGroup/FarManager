@@ -74,6 +74,7 @@
 <?define Guid.Descript.ion_6 = "261A0639-EEC2-4144-A0E9-9D380CD2F5EA" ?>
 <?define Guid.Dialog.AltDown.lua = "7B741D6B-D0AD-4C86-AC80-EB69A2998CD4" ?>
 <?define Guid.Edit.Notepad.lua = "1F461D75-267D-4E06-A3ED-FF61732FC4B8" ?>
+<?define Guid.Edit.OpenURL.lua = "CD3C7FB1-A6E7-40B4-AA15-333F14A6D7EF" ?>
 <?define Guid.Edit.SaveAndExit.lua = "CE3C86E9-DFC9-462E-A142-38566F24C54A" ?>
 <?define Guid.Edit.SaveFile.lua = "AD682164-EFAB-42BA-9643-DBBE07170964" ?>
 <?define Guid.F3.lua = "283D34FE-6E3F-4532-8A2D-CCB405A98925" ?>

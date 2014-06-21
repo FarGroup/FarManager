@@ -206,6 +206,9 @@
           <Component Id="Edit.Notepad.lua" Guid="$(var.Guid.Edit.Notepad.lua)" Win64="$(var.Win64)">
             <File Id="Edit.Notepad.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Edit.Notepad.lua" />
           </Component>
+          <Component Id="Edit.OpenURL.lua" Guid="$(var.Guid.Edit.OpenURL.lua)" Win64="$(var.Win64)">
+            <File Id="Edit.OpenURL.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Edit.OpenURL.lua" />
+          </Component>
           <Component Id="Edit.SaveAndExit.lua" Guid="$(var.Guid.Edit.SaveAndExit.lua)" Win64="$(var.Win64)">
             <File Id="Edit.SaveAndExit.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Edit.SaveAndExit.lua" />
           </Component>
