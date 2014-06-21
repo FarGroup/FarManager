@@ -622,7 +622,8 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 						if (Arg[2])
 						{
-							ConvertNameToFull(Unquote(api::env::expand_strings(&Arg[2])), Global->Opt->LoadPlug.strCustomPluginsPath);
+							// we can't expand it here - some environment variables might not be available yet
+							Global->Opt->LoadPlug.strCustomPluginsPath = &Arg[2];
 						}
 						else
 						{
@@ -721,6 +722,8 @@ static int mainImpl(const range<wchar_t**>& Args)
 	Global->Lang = new Language(Global->g_strFarPath, MNewFileName + 1);
 
 	api::env::set_variable(L"FARLANG", Global->Opt->strLanguage);
+
+	ConvertNameToFull(Unquote(api::env::expand_strings(Global->Opt->LoadPlug.strCustomPluginsPath)), Global->Opt->LoadPlug.strCustomPluginsPath);
 
 	UpdateErrorMode();
 
