@@ -1,6 +1,8 @@
 ﻿-- Open URL (http://url.spec.whatwg.org) or UNC under cursor.
 -- In rare case if last URL symbol is lost, add "#": https://www.google.com/search?q=hello!#
 
+local NeedQuery = true
+
 local patt = regex.new( [=[
 (?:
   (?<=  [`()[\]{}‘’‚‛‹›“”„‟«»"'<>]) (?: \b \i[\d\i+.-]*: | \\ | \b www)
@@ -31,7 +33,9 @@ Macro {
       if e >= pos then
         local url = win.Utf16ToUtf8(win.subW(text,b,e))
         --far.Show(url)
-        win.ShellExecute(nil, "open", url)
+        if not NeedQuery or 1==far.Message(url, "Do you want to run this?", ";YesNo", "l") then
+          win.ShellExecute(nil, "open", url)
+        end
         break
       end
       start = e+1
