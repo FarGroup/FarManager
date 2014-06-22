@@ -3,6 +3,34 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 21.06.2014 15:51:25 +0200 - build 3958
+
+1. On launch via 'Far.exe /p%FARPROFILE%\Plugins' the plugins were not loaded.
+
+drkns 20.06.2014 20:12:27 +0200 - build 3957
+
+1. If the plugin panel contains items with FILE_ATTRIBUTE_REPARSE_POINT attributes, treat them as symlinks.
+
+w17 20.06.2014 13:46:02 +0400 - build 3956
+
+1. Experimental. M#2684: A possibility of changing the codepage on file reread
+
+drkns 19.06.2014 09:33:50 +0200 - build 3955
+
+1. A potential problem in SyncedQueue and a couple of fixes in Thread and MultiWaiter in order to improve readability.
+
+drkns 19.06.2014 08:46:39 +0200 - build 3954
+
+1. In 3842, launcher failed in some cases.
+
+zg 18.06.2014 10:56:30 +0200 - build 3953
+
+1. after 3895, alt-d did not work in editor.
+
+w17 16.06.2014 23:43:57 +0400 - build 3952
+
+1. M#2708: Regexp "^(.*?\-\-)" != "^(.*?\-{2})"
+
 shmuel 10.06.2014 11:38:11 +0200 - build 3951
 
 1. Correction of 3949.
@@ -454,7 +482,7 @@ drkns 12.04.2014 19:15:45 +0200 - build 3864
 
 drkns 12.04.2014 14:26:37 +0200 - build 3863
 
-1. 0002591: Time is not set in file attribures dialog.
+1. 0002591: Time is not set in file attributes dialog.
 
 drkns 12.04.2014 13:29:05 +0200 - build 3862
 
