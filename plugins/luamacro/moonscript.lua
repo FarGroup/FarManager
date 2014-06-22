@@ -1,11 +1,212 @@
-package.preload["moonscript.version"] = function()
-
-module("moonscript.version", package.seeall)
-
-version = "0.2.5"
-function print_version()
-	print("MoonScript version "..version)
+package.preload["moonscript.cmd.moonc"] = function()
+local lfs = require("lfs")
+local split
+do
+  local _obj_0 = require("moonscript.util")
+  split = _obj_0.split
 end
+local dirsep, dirsep_chars, mkdir, normalize_dir, parse_dir, parse_file, convert_path, format_time, gettime, compile_file_text, write_file, compile_and_write, is_abs_path, path_to_target
+dirsep = package.config:sub(1, 1)
+if dirsep == "\\" then
+  dirsep_chars = "\\/"
+else
+  dirsep_chars = dirsep
+end
+mkdir = function(path)
+  local chunks = split(path, dirsep)
+  local accum
+  for _index_0 = 1, #chunks do
+    local dir = chunks[_index_0]
+    accum = accum and tostring(accum) .. tostring(dirsep) .. tostring(dir) or dir
+    lfs.mkdir(accum)
+  end
+  return lfs.attributes(path, "mode")
+end
+normalize_dir = function(path)
+  return path:match("^(.-)[" .. tostring(dirsep_chars) .. "]*$") .. dirsep
+end
+parse_dir = function(path)
+  return (path:match("^(.-)[^" .. tostring(dirsep_chars) .. "]*$"))
+end
+parse_file = function(path)
+  return (path:match("^.-([^" .. tostring(dirsep_chars) .. "]*)$"))
+end
+convert_path = function(path)
+  local new_path = path:gsub("%.moon$", ".lua")
+  if new_path == path then
+    new_path = path .. ".lua"
+  end
+  return new_path
+end
+format_time = function(time)
+  return ("%.3fms"):format(time * 1000)
+end
+do
+  local socket
+  gettime = function()
+    if socket == nil then
+      pcall(function()
+        socket = require("socket")
+      end)
+      if not (socket) then
+        socket = false
+      end
+    end
+    if socket then
+      return socket.gettime()
+    else
+      return nil, "LuaSocket needed for benchmark"
+    end
+  end
+end
+compile_file_text = function(text, fname, opts)
+  if opts == nil then
+    opts = { }
+  end
+  local parse = require("moonscript.parse")
+  local compile = require("moonscript.compile")
+  local parse_time
+  if opts.benchmark then
+    parse_time = assert(gettime())
+  end
+  local tree, err = parse.string(text)
+  if not (tree) then
+    return nil, err
+  end
+  if parse_time then
+    parse_time = gettime() - parse_time
+  end
+  if opts.show_parse_tree then
+    local dump = require("moonscript.dump")
+    dump.tree(tree)
+    return true
+  end
+  local compile_time
+  if opts.benchmark then
+    compile_time = gettime()
+  end
+  local code, posmap_or_err, err_pos = compile.tree(tree)
+  if not (code) then
+    return nil, compile.format_error(posmap_or_err, err_pos, text)
+  end
+  if compile_time then
+    compile_time = gettime() - compile_time
+  end
+  if opts.show_posmap then
+    local debug_posmap
+    do
+      local _obj_0 = require("moonscript.util")
+      debug_posmap = _obj_0.debug_posmap
+    end
+    print("Pos", "Lua", ">>", "Moon")
+    print(debug_posmap(posmap_or_err, text, code))
+    return true
+  end
+  if opts.benchmark then
+    print(table.concat({
+      fname,
+      "Parse time  \t" .. format_time(parse_time),
+      "Compile time\t" .. format_time(compile_time),
+      ""
+    }, "\n"))
+    return nil
+  end
+  return code
+end
+write_file = function(fname, code)
+  mkdir(parse_dir(fname))
+  local f, err = io.open(fname, "w")
+  if not (f) then
+    return nil, err
+  end
+  assert(f:write(code))
+  assert(f:write("\n"))
+  f:close()
+  return "build"
+end
+compile_and_write = function(src, dest, opts)
+  if opts == nil then
+    opts = { }
+  end
+  local f = io.open(src)
+  if not (f) then
+    return nil, "Can't find file"
+  end
+  local text = assert(f:read("*a"))
+  f:close()
+  local code, err = compile_file_text(text, opts)
+  if not code then
+    return nil, err
+  end
+  if code == true then
+    return true
+  end
+  if opts.print then
+    print(text)
+    return true
+  end
+  return write_file(dest, code)
+end
+is_abs_path = function(path)
+  local first = path:sub(1, 1)
+  if dirsep == "\\" then
+    return first == "/" or first == "\\" or path:sub(2, 1) == ":"
+  else
+    return first == dirsep
+  end
+end
+path_to_target = function(path, target_dir, base_dir)
+  if target_dir == nil then
+    target_dir = nil
+  end
+  if base_dir == nil then
+    base_dir = nil
+  end
+  local target = convert_path(path)
+  if target_dir then
+    target_dir = normalize_dir(target_dir)
+  end
+  if base_dir and target_dir then
+    local head = base_dir:match("^(.-)[^" .. tostring(dirsep_chars) .. "]*[" .. tostring(dirsep_chars) .. "]?$")
+    if head then
+      local start, stop = target:find(head, 1, true)
+      if start == 1 then
+        target = target:sub(stop + 1)
+      end
+    end
+  end
+  if target_dir then
+    if is_abs_path(target) then
+      target = parse_file(target)
+    end
+    target = target_dir .. target
+  end
+  return target
+end
+return {
+  dirsep = dirsep,
+  mkdir = mkdir,
+  normalize_dir = normalize_dir,
+  parse_dir = parse_dir,
+  parse_file = parse_file,
+  new_path = new_path,
+  convert_path = convert_path,
+  gettime = gettime,
+  format_time = format_time,
+  path_to_target = path_to_target,
+  compile_file_text = compile_file_text,
+  compile_and_write = compile_and_write
+}
+end
+
+package.preload["moonscript.version"] = function()
+local version = "0.2.6"
+return {
+  version = version,
+  print_version = function()
+    return print("MoonScript version " .. tostring(version))
+  end
+}
 end
 
 package.preload["moonscript.dump"] = function()
@@ -65,7 +266,6 @@ local types = require"moonscript.types"
 
 local ntype = types.ntype
 
-local dump = util.dump
 local trim = util.trim
 
 local getfenv = util.getfenv
@@ -181,7 +381,7 @@ end
 
 local function extract_line(str, start_pos)
 	str = str:sub(start_pos)
-	m = str:match"^(.-)\n"
+	local m = str:match"^(.-)\n"
 	if m then return m end
 	return str:match"^.-$"
 end
@@ -209,13 +409,6 @@ local function got(what)
 		print("++ got "..what, "["..extract_line(str, pos).."]")
 		return true
 	end)
-end
-
-local function flatten(tbl)
-	if #tbl == 1 then
-		return tbl[1]
-	end
-	return tbl
 end
 
 local function flatten_or_mark(name)
@@ -289,7 +482,7 @@ end
 local function simple_string(delim, allow_interpolation)
 	local inner = P('\\'..delim) + "\\\\" + (1 - P(delim))
 	if allow_interpolation then
-		inter = symx"#{" * V"Exp" * sym"}"
+		local inter = symx"#{" * V"Exp" * sym"}"
 		inner = (C((inner - inter)^1) + inter / mark"interpolate")^0
 	else
 		inner = C(inner^0)
@@ -333,16 +526,6 @@ end
 local function wrap_decorator(stm, dec)
 	if not dec then return stm end
 	return { "decorated", stm, dec }
-end
-
--- wrap if statement if there is a conditional decorator
-local function wrap_if(stm, cond)
-	if cond then
-		local pass, fail = unpack(cond)
-		if fail then fail = {"else", {fail}} end
-		return {"if", cond[2], {stm}, fail}
-	end
-	return stm
 end
 
 local function check_lua_string(str, pos, right, left)
@@ -398,18 +581,12 @@ local build_grammar = wrap_env(function()
 		return true
 	end
 
-	local function enable_do(str_pos)
-		_do_stack:push(true)
-		return true
-	end
-
 	local function pop_do(str, pos)
 		if nil == _do_stack:pop() then error("unexpected do pop") end
 		return true
 	end
 
 	local DisableDo = Cmt("", disable_do)
-	local EnableDo = Cmt("", enable_do)
 	local PopDo = Cmt("", pop_do)
 
 	local keywords = {}
@@ -1566,159 +1743,6 @@ end
 return moon
 end
 
-package.preload["moonscript.cmd.coverage"] = function()
-local log
-log = function(str)
-  if str == nil then
-    str = ""
-  end
-  return io.stderr:write(str .. "\n")
-end
-local create_counter
-create_counter = function()
-  return setmetatable({ }, {
-    __index = function(self, name)
-      do
-        local tbl = setmetatable({ }, {
-          __index = function(self)
-            return 0
-          end
-        })
-        self[name] = tbl
-        return tbl
-      end
-    end
-  })
-end
-local position_to_lines
-position_to_lines = function(file_content, positions)
-  local lines = { }
-  local current_pos = 0
-  local line_no = 1
-  for char in file_content:gmatch(".") do
-    do
-      local count = rawget(positions, current_pos)
-      if count then
-        lines[line_no] = count
-      end
-    end
-    if char == "\n" then
-      line_no = line_no + 1
-    end
-    current_pos = current_pos + 1
-  end
-  return lines
-end
-local format_file
-format_file = function(fname, positions)
-  local file = assert(io.open(fname))
-  local content = file:read("*a")
-  file:close()
-  local lines = position_to_lines(content, positions)
-  log("------| @" .. tostring(fname))
-  local line_no = 1
-  for line in (content .. "\n"):gmatch("(.-)\n") do
-    local foramtted_no = ("% 5d"):format(line_no)
-    local sym = lines[line_no] and "*" or " "
-    log(tostring(sym) .. tostring(foramtted_no) .. "| " .. tostring(line))
-    line_no = line_no + 1
-  end
-  return log()
-end
-local CodeCoverage
-do
-  local _base_0 = {
-    reset = function(self)
-      self.line_counts = create_counter()
-    end,
-    start = function(self)
-      return debug.sethook((function()
-        local _base_1 = self
-        local _fn_0 = _base_1.process_line
-        return function(...)
-          return _fn_0(_base_1, ...)
-        end
-      end)(), "l")
-    end,
-    stop = function(self)
-      return debug.sethook()
-    end,
-    print_results = function(self)
-      return self:format_results()
-    end,
-    process_line = function(self, _, line_no)
-      local debug_data = debug.getinfo(2, "S")
-      local source = debug_data.source
-      self.line_counts[source][line_no] = self.line_counts[source][line_no] + 1
-    end,
-    format_results = function(self)
-      local line_table = require("moonscript.line_tables")
-      local positions = create_counter()
-      for file, lines in pairs(self.line_counts) do
-        local _continue_0 = false
-        repeat
-          local file_table = line_table[file]
-          if not (file_table) then
-            _continue_0 = true
-            break
-          end
-          for line, count in pairs(lines) do
-            local _continue_1 = false
-            repeat
-              local position = file_table[line]
-              if not (position) then
-                _continue_1 = true
-                break
-              end
-              positions[file][position] = positions[file][position] + count
-              _continue_1 = true
-            until true
-            if not _continue_1 then
-              break
-            end
-          end
-          _continue_0 = true
-        until true
-        if not _continue_0 then
-          break
-        end
-      end
-      for file, ps in pairs(positions) do
-        format_file(file, ps)
-      end
-    end
-  }
-  _base_0.__index = _base_0
-  local _class_0 = setmetatable({
-    __init = function(self)
-      return self:reset()
-    end,
-    __base = _base_0,
-    __name = "CodeCoverage"
-  }, {
-    __index = _base_0,
-    __call = function(cls, ...)
-      local _self_0 = setmetatable({}, _base_0)
-      cls.__init(_self_0, ...)
-      return _self_0
-    end
-  })
-  _base_0.__class = _class_0
-  CodeCoverage = _class_0
-end
-return {
-  CodeCoverage = CodeCoverage
-}
-end
-
-package.preload["moonscript.init"] = function()
-do
-  local _with_0 = require("moonscript.base")
-  _with_0.insert_loader()
-  return _with_0
-end
-end
-
 package.preload["moonscript.compile"] = function()
 local util = require("moonscript.util")
 local dump = require("moonscript.dump")
@@ -1783,6 +1807,7 @@ do
         local _exp_0 = mtype(l)
         if "string" == _exp_0 or DelayedLine == _exp_0 then
           line_no = line_no + 1
+          out[line_no] = posmap[i]
           for _ in l:gmatch("\n") do
             line_no = line_no + 1
           end
@@ -1823,7 +1848,6 @@ do
             end
           end
           insert(buffer, "\n")
-          local last = l
         elseif Lines == _exp_0 then
           l:flatten(indent and indent .. indent_char or indent_char, buffer)
         else
@@ -1872,38 +1896,30 @@ end
 do
   local _base_0 = {
     pos = nil,
-    _append_single = function(self, item)
-      if Line == mtype(item) then
-        if not (self.pos) then
-          self.pos = item.pos
-        end
-        for _index_0 = 1, #item do
-          local value = item[_index_0]
-          self:_append_single(value)
-        end
-      else
-        insert(self, item)
-      end
-      return nil
-    end,
     append_list = function(self, items, delim)
       for i = 1, #items do
-        self:_append_single(items[i])
+        self:append(items[i])
         if i < #items then
           insert(self, delim)
         end
       end
       return nil
     end,
-    append = function(self, ...)
-      local _list_0 = {
-        ...
-      }
-      for _index_0 = 1, #_list_0 do
-        local item = _list_0[_index_0]
-        self:_append_single(item)
+    append = function(self, first, ...)
+      if Line == mtype(first) then
+        if not (self.pos) then
+          self.pos = first.pos
+        end
+        for _index_0 = 1, #first do
+          local value = first[_index_0]
+          self:append(value)
+        end
+      else
+        insert(self, first)
       end
-      return nil
+      if ... then
+        return self:append(...)
+      end
     end,
     render = function(self, buffer)
       local current = { }
@@ -1931,7 +1947,7 @@ do
           insert(current, chunk)
         end
       end
-      if #current > 0 then
+      if current[1] then
         add_current()
       end
       return buffer
@@ -2145,8 +2161,14 @@ do
       })
       return name
     end,
-    add = function(self, item)
-      self._lines:add(item)
+    add = function(self, item, pos)
+      do
+        local _with_0 = self._lines
+        _with_0:add(item)
+        if pos then
+          _with_0:mark_pos(pos)
+        end
+      end
       return item
     end,
     render = function(self, buffer)
@@ -2425,7 +2447,6 @@ tree = function(tree, options)
   if not (success) then
     local error_msg, error_pos
     if type(err) == "table" then
-      local error_type = err[1]
       local _exp_0 = err[1]
       if "user-error" == _exp_0 or "compile-error" == _exp_0 then
         error_msg, error_pos = unpack(err, 2)
@@ -2463,9 +2484,161 @@ return {
 }
 end
 
+package.preload["moonscript.init"] = function()
+do
+  local _with_0 = require("moonscript.base")
+  _with_0.insert_loader()
+  return _with_0
+end
+end
+
+package.preload["moonscript.cmd.coverage"] = function()
+local log
+log = function(str)
+  if str == nil then
+    str = ""
+  end
+  return io.stderr:write(str .. "\n")
+end
+local create_counter
+create_counter = function()
+  return setmetatable({ }, {
+    __index = function(self, name)
+      do
+        local tbl = setmetatable({ }, {
+          __index = function(self)
+            return 0
+          end
+        })
+        self[name] = tbl
+        return tbl
+      end
+    end
+  })
+end
+local position_to_lines
+position_to_lines = function(file_content, positions)
+  local lines = { }
+  local current_pos = 0
+  local line_no = 1
+  for char in file_content:gmatch(".") do
+    do
+      local count = rawget(positions, current_pos)
+      if count then
+        lines[line_no] = count
+      end
+    end
+    if char == "\n" then
+      line_no = line_no + 1
+    end
+    current_pos = current_pos + 1
+  end
+  return lines
+end
+local format_file
+format_file = function(fname, positions)
+  local file = assert(io.open(fname))
+  local content = file:read("*a")
+  file:close()
+  local lines = position_to_lines(content, positions)
+  log("------| @" .. tostring(fname))
+  local line_no = 1
+  for line in (content .. "\n"):gmatch("(.-)\n") do
+    local foramtted_no = ("% 5d"):format(line_no)
+    local sym = lines[line_no] and "*" or " "
+    log(tostring(sym) .. tostring(foramtted_no) .. "| " .. tostring(line))
+    line_no = line_no + 1
+  end
+  return log()
+end
+local CodeCoverage
+do
+  local _base_0 = {
+    reset = function(self)
+      self.line_counts = create_counter()
+    end,
+    start = function(self)
+      return debug.sethook((function()
+        local _base_1 = self
+        local _fn_0 = _base_1.process_line
+        return function(...)
+          return _fn_0(_base_1, ...)
+        end
+      end)(), "l")
+    end,
+    stop = function(self)
+      return debug.sethook()
+    end,
+    print_results = function(self)
+      return self:format_results()
+    end,
+    process_line = function(self, _, line_no)
+      local debug_data = debug.getinfo(2, "S")
+      local source = debug_data.source
+      self.line_counts[source][line_no] = self.line_counts[source][line_no] + 1
+    end,
+    format_results = function(self)
+      local line_table = require("moonscript.line_tables")
+      local positions = create_counter()
+      for file, lines in pairs(self.line_counts) do
+        local _continue_0 = false
+        repeat
+          local file_table = line_table[file]
+          if not (file_table) then
+            _continue_0 = true
+            break
+          end
+          for line, count in pairs(lines) do
+            local _continue_1 = false
+            repeat
+              local position = file_table[line]
+              if not (position) then
+                _continue_1 = true
+                break
+              end
+              positions[file][position] = positions[file][position] + count
+              _continue_1 = true
+            until true
+            if not _continue_1 then
+              break
+            end
+          end
+          _continue_0 = true
+        until true
+        if not _continue_0 then
+          break
+        end
+      end
+      for file, ps in pairs(positions) do
+        format_file(file, ps)
+      end
+    end
+  }
+  _base_0.__index = _base_0
+  local _class_0 = setmetatable({
+    __init = function(self)
+      return self:reset()
+    end,
+    __base = _base_0,
+    __name = "CodeCoverage"
+  }, {
+    __index = _base_0,
+    __call = function(cls, ...)
+      local _self_0 = setmetatable({}, _base_0)
+      cls.__init(_self_0, ...)
+      return _self_0
+    end
+  })
+  _base_0.__class = _class_0
+  CodeCoverage = _class_0
+end
+return {
+  CodeCoverage = CodeCoverage
+}
+end
+
 package.preload["moonscript.compile.statement"] = function()
 local util = require("moonscript.util")
-local data = require("moonscript.data")
 local reversed, unpack
 reversed, unpack = util.reversed, util.unpack
 local ntype
@@ -2545,7 +2718,7 @@ return {
         _with_0:append(declare)
       else
         if #undeclared > 0 then
-          self:add(declare)
+          self:add(declare, node[-1])
         end
         _with_0:append_list((function()
           local _accum_0 = { }
@@ -3113,8 +3286,8 @@ rewrite_traceback = function(text, err)
   local cache = { }
   local rewrite_single
   rewrite_single = function(trace)
-    local fname, line, msg = trace:match('^%[string "(.-)"]:(%d+): (.*)$')
-    local tbl = line_tables[fname]
+    local fname, line, msg = trace:match('^(.-):(%d+): (.*)$')
+    local tbl = line_tables["@" .. tostring(fname)]
     if fname and tbl then
       return concat({
         fname,
@@ -3178,7 +3351,6 @@ do
   local _obj_0 = require("moonscript.errors")
   user_error = _obj_0.user_error
 end
-local util = require("moonscript.util")
 local join
 join = function(...)
   do
@@ -3734,7 +3906,7 @@ to_lua = function(text, options)
   end
   if "string" ~= type(text) then
     local t = type(text)
-    return nil, "expecting string (got " .. t .. ")", 2
+    return nil, "expecting string (got " .. t .. ")"
   end
   local tree, err = parse.string(text)
   if not tree then
@@ -3742,7 +3914,7 @@ to_lua = function(text, options)
   end
   local code, ltable, pos = compile.tree(tree, options)
   if not code then
-    return nil, compile.format_error(ltable, pos, text), 2
+    return nil, compile.format_error(ltable, pos, text)
   end
   return code, ltable
 end
@@ -3761,7 +3933,7 @@ moon_loader = function(name)
   if file then
     local text = file:read("*a")
     file:close()
-    local res, err = loadstring(text, file_path)
+    local res, err = loadstring(text, "@" .. tostring(file_path))
     if not res then
       error(file_path .. ": " .. err)
     end
@@ -3792,7 +3964,7 @@ loadfile = function(fname, ...)
   local text = assert(file:read("*a"))
   if string.sub(text,1,3)=="\239\187\191" then text=string.sub(text,4) end
   file:close()
-  return loadstring(text, fname, ...)
+  return loadstring(text, "@" .. tostring(fname), ...)
 end
 dofile = function(...)
   local f = assert(loadfile(...))
@@ -3830,7 +4002,6 @@ return {
   insert_loader = insert_loader,
   remove_loader = remove_loader,
   to_lua = to_lua,
-  moon_chunk = moon_chunk,
   moon_loader = moon_loader,
   dirsep = dirsep,
   dofile = dofile,
