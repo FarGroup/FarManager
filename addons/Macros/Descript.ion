@@ -7,7 +7,7 @@ CtrlF10.lua Quit from editor/viewer and position to the current file
 Descript.ion File descriptions
 Dialog.AltDown.lua Open combobox and history list (as Ctrl-Down pressed)
 Edit.Notepad.lua Editor: like Notepad
-Edit.OpenURL.lua Editor: Open URL under cursor
+Edit.OpenURL.lua Editor: Open URL or UNC under cursor
 Edit.SaveAndExit.lua Editor: Save File and Exit
 Edit.SaveFile.lua Editor: Save File
 F3.lua Use internal editor as viewer
