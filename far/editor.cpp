@@ -182,7 +182,6 @@ void Editor::FreeAllocatedData(bool FreeUndo)
 
 void Editor::SwapState(Editor& swap_state)
 {
-	std::swap(Flags, swap_state.Flags);
 	std::swap(Lines, swap_state.Lines);
 	std::swap(BlockStart, swap_state.BlockStart);
 	std::swap(VBlockStart, swap_state.VBlockStart);
@@ -190,6 +189,7 @@ void Editor::SwapState(Editor& swap_state)
 	std::swap(LastGetLineNumber, swap_state.LastGetLineNumber);
 	std::swap(TopScreen, swap_state.TopScreen);
 	std::swap(FirstLine, swap_state.FirstLine);
+	std::swap(LastLine, swap_state.LastLine);
 	std::swap(CurLine, swap_state.CurLine);
 	std::swap(NumLine, swap_state.NumLine);
 	std::swap(NumLastLine, swap_state.NumLastLine);
@@ -200,7 +200,6 @@ void Editor::SwapState(Editor& swap_state)
 	std::swap(SessionBookmarks, swap_state.SessionBookmarks);
 	std::swap(SavePos, swap_state.SavePos);
 	std::swap(NewSessionPos, swap_state.NewSessionPos);
-	std::swap(m_codepage, swap_state.m_codepage);
 	std::swap(GlobalEOL, swap_state.GlobalEOL);
 }
 

@@ -1690,15 +1690,15 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 
 bool FileEditor::ReloadFile(uintptr_t codepage)
 {
-	// save state
-	auto save_codepage = m_codepage;
-	auto save_bAddSignature = m_bAddSignature;
-	auto save_BadConversiom = BadConversion;
-	auto save_Flags(Flags);
+	m_editor->Lock();
+
+	auto save_codepage(m_codepage), save_codepage1(m_editor->m_codepage);
+	auto save_bAddSignature(m_bAddSignature);
+	auto save_BadConversiom(BadConversion);
+	auto save_Flags(Flags), save_Flags1(m_editor->Flags);
 
 	Editor saved;
 	saved.fake_editor = true;
-	saved.m_codepage = m_editor->m_codepage;
 	m_editor->SwapState(saved);
 
 	int user_break = 0;
@@ -1706,11 +1706,12 @@ bool FileEditor::ReloadFile(uintptr_t codepage)
 	int loaded = LoadFile(strFullFileName, user_break);
 	if (!loaded)
 	{
-		// restore state
 		m_codepage = save_codepage;
 		m_bAddSignature = save_bAddSignature;
 		BadConversion = save_BadConversiom;
 		Flags = save_Flags;
+		m_editor->m_codepage = save_codepage1;
+		m_editor->Flags = save_Flags1;
 		m_editor->SwapState(saved);
 
 		if (user_break != 1)
@@ -1719,11 +1720,11 @@ bool FileEditor::ReloadFile(uintptr_t codepage)
 			Global->CatchError();
 			OperationFailed(strFullFileName, MEditTitle, MSG(MEditCannotOpen), false);
 		}
-		return false;
 	}
 
+	m_editor->Unlock();
 	Show();
-	return true;
+	return loaded != FALSE;
 }
 
 //TextFormat и codepage используются ТОЛЬКО, если bSaveAs = true!
