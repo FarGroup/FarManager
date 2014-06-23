@@ -209,47 +209,88 @@ return {
 }
 end
 
-package.preload["moonscript.dump"] = function()
-local flat_value
-flat_value = function(op, depth)
-  if depth == nil then
-    depth = 1
+package.preload["moonscript.data"] = function()
+local concat, remove, insert
+do
+  local _obj_0 = table
+  concat, remove, insert = _obj_0.concat, _obj_0.remove, _obj_0.insert
+end
+local Set
+Set = function(items)
+  local _tbl_0 = { }
+  for _index_0 = 1, #items do
+    local k = items[_index_0]
+    _tbl_0[k] = true
   end
-  if type(op) == "string" then
-    return '"' .. op .. '"'
-  end
-  if type(op) ~= "table" then
-    return tostring(op)
-  end
-  local items
-  do
-    local _accum_0 = { }
-    local _len_0 = 1
-    for _index_0 = 1, #op do
-      local item = op[_index_0]
-      _accum_0[_len_0] = flat_value(item, depth + 1)
-      _len_0 = _len_0 + 1
+  return _tbl_0
+end
+local Stack
+do
+  local _base_0 = {
+    __tostring = function(self)
+      return "<Stack {" .. concat(self, ", ") .. "}>"
+    end,
+    pop = function(self)
+      return remove(self)
+    end,
+    push = function(self, value, ...)
+      insert(self, value)
+      if ... then
+        return self:push(...)
+      else
+        return value
+      end
+    end,
+    top = function(self)
+      return self[#self]
     end
-    items = _accum_0
-  end
-  local pos = op[-1]
-  return "{" .. (pos and "[" .. pos .. "] " or "") .. table.concat(items, ", ") .. "}"
+  }
+  _base_0.__index = _base_0
+  local _class_0 = setmetatable({
+    __init = function(self, ...)
+      self:push(...)
+      return nil
+    end,
+    __base = _base_0,
+    __name = "Stack"
+  }, {
+    __index = _base_0,
+    __call = function(cls, ...)
+      local _self_0 = setmetatable({}, _base_0)
+      cls.__init(_self_0, ...)
+      return _self_0
+    end
+  })
+  _base_0.__class = _class_0
+  Stack = _class_0
 end
-local value
-value = function(op)
-  return flat_value(op)
-end
-local tree
-tree = function(block)
-  local _list_0 = block
-  for _index_0 = 1, #_list_0 do
-    value = _list_0[_index_0]
-    print(flat_value(value))
-  end
-end
+local lua_keywords = Set({
+  'and',
+  'break',
+  'do',
+  'else',
+  'elseif',
+  'end',
+  'false',
+  'for',
+  'function',
+  'if',
+  'in',
+  'local',
+  'nil',
+  'not',
+  'or',
+  'repeat',
+  'return',
+  'then',
+  'true',
+  'until',
+  'while'
+})
 return {
-  value = value,
-  tree = tree
+  Set = Set,
+  Stack = Stack,
+  lua_keywords = lua_keywords
 }
 end
 
@@ -1446,120 +1487,6 @@ return {
 }
 end
 
-package.preload["moonscript.transform.names"] = function()
-local build
-do
-  local _obj_0 = require("moonscript.types")
-  build = _obj_0.build
-end
-local unpack
-do
-  local _obj_0 = require("moonscript.util")
-  unpack = _obj_0.unpack
-end
-local LocalName
-do
-  local _base_0 = {
-    get_name = function(self)
-      return self.name
-    end
-  }
-  _base_0.__index = _base_0
-  local _class_0 = setmetatable({
-    __init = function(self, name)
-      self.name = name
-      self[1] = "temp_name"
-    end,
-    __base = _base_0,
-    __name = "LocalName"
-  }, {
-    __index = _base_0,
-    __call = function(cls, ...)
-      local _self_0 = setmetatable({}, _base_0)
-      cls.__init(_self_0, ...)
-      return _self_0
-    end
-  })
-  _base_0.__class = _class_0
-  LocalName = _class_0
-end
-local NameProxy
-do
-  local _base_0 = {
-    get_name = function(self, scope, dont_put)
-      if dont_put == nil then
-        dont_put = true
-      end
-      if not self.name then
-        self.name = scope:free_name(self.prefix, dont_put)
-      end
-      return self.name
-    end,
-    chain = function(self, ...)
-      local items = {
-        base = self,
-        ...
-      }
-      for k, v in ipairs(items) do
-        if type(v) == "string" then
-          items[k] = {
-            "dot",
-            v
-          }
-        else
-          items[k] = v
-        end
-      end
-      return build.chain(items)
-    end,
-    index = function(self, key)
-      if type(key) == "string" then
-        key = {
-          "ref",
-          key
-        }
-      end
-      return build.chain({
-        base = self,
-        {
-          "index",
-          key
-        }
-      })
-    end,
-    __tostring = function(self)
-      if self.name then
-        return ("name<%s>"):format(self.name)
-      else
-        return ("name<prefix(%s)>"):format(self.prefix)
-      end
-    end
-  }
-  _base_0.__index = _base_0
-  local _class_0 = setmetatable({
-    __init = function(self, prefix)
-      self.prefix = prefix
-      self[1] = "temp_name"
-    end,
-    __base = _base_0,
-    __name = "NameProxy"
-  }, {
-    __index = _base_0,
-    __call = function(cls, ...)
-      local _self_0 = setmetatable({}, _base_0)
-      cls.__init(_self_0, ...)
-      return _self_0
-    end
-  })
-  _base_0.__class = _class_0
-  NameProxy = _class_0
-end
-return {
-  NameProxy = NameProxy,
-  LocalName = LocalName
-}
-end
-
 package.preload["moon.init"] = function()
 local util = require("moonscript.util")
 local lua = {
@@ -1735,12 +1662,1471 @@ return {
 }
 end
 
+package.preload["moonscript.transform.names"] = function()
+local build
+do
+  local _obj_0 = require("moonscript.types")
+  build = _obj_0.build
+end
+local unpack
+do
+  local _obj_0 = require("moonscript.util")
+  unpack = _obj_0.unpack
+end
+local LocalName
+do
+  local _base_0 = {
+    get_name = function(self)
+      return self.name
+    end
+  }
+  _base_0.__index = _base_0
+  local _class_0 = setmetatable({
+    __init = function(self, name)
+      self.name = name
+      self[1] = "temp_name"
+    end,
+    __base = _base_0,
+    __name = "LocalName"
+  }, {
+    __index = _base_0,
+    __call = function(cls, ...)
+      local _self_0 = setmetatable({}, _base_0)
+      cls.__init(_self_0, ...)
+      return _self_0
+    end
+  })
+  _base_0.__class = _class_0
+  LocalName = _class_0
+end
+local NameProxy
+do
+  local _base_0 = {
+    get_name = function(self, scope, dont_put)
+      if dont_put == nil then
+        dont_put = true
+      end
+      if not self.name then
+        self.name = scope:free_name(self.prefix, dont_put)
+      end
+      return self.name
+    end,
+    chain = function(self, ...)
+      local items = {
+        base = self,
+        ...
+      }
+      for k, v in ipairs(items) do
+        if type(v) == "string" then
+          items[k] = {
+            "dot",
+            v
+          }
+        else
+          items[k] = v
+        end
+      end
+      return build.chain(items)
+    end,
+    index = function(self, key)
+      if type(key) == "string" then
+        key = {
+          "ref",
+          key
+        }
+      end
+      return build.chain({
+        base = self,
+        {
+          "index",
+          key
+        }
+      })
+    end,
+    __tostring = function(self)
+      if self.name then
+        return ("name<%s>"):format(self.name)
+      else
+        return ("name<prefix(%s)>"):format(self.prefix)
+      end
+    end
+  }
+  _base_0.__index = _base_0
+  local _class_0 = setmetatable({
+    __init = function(self, prefix)
+      self.prefix = prefix
+      self[1] = "temp_name"
+    end,
+    __base = _base_0,
+    __name = "NameProxy"
+  }, {
+    __index = _base_0,
+    __call = function(cls, ...)
+      local _self_0 = setmetatable({}, _base_0)
+      cls.__init(_self_0, ...)
+      return _self_0
+    end
+  })
+  _base_0.__class = _class_0
+  NameProxy = _class_0
+end
+return {
+  NameProxy = NameProxy,
+  LocalName = LocalName
+}
+end
+
 package.preload["moon.all"] = function()
 local moon = require("moon")
 for k, v in pairs(moon) do
   _G[k] = v
 end
 return moon
+end
+
+package.preload["moonscript.util"] = function()
+local concat
+do
+  local _obj_0 = table
+  concat = _obj_0.concat
+end
+local unpack = unpack or table.unpack
+local type = type
+local moon = {
+  is_object = function(value)
+    return type(value) == "table" and value.__class
+  end,
+  is_a = function(thing, t)
+    if not (type(thing) == "table") then
+      return false
+    end
+    local cls = thing.__class
+    while cls do
+      if cls == t then
+        return true
+      end
+      cls = cls.__parent
+    end
+    return false
+  end,
+  type = function(value)
+    local base_type = type(value)
+    if base_type == "table" then
+      local cls = value.__class
+      if cls then
+        return cls
+      end
+    end
+    return base_type
+  end
+}
+local pos_to_line
+pos_to_line = function(str, pos)
+  local line = 1
+  for _ in str:sub(1, pos):gmatch("\n") do
+    line = line + 1
+  end
+  return line
+end
+local trim
+trim = function(str)
+  return str:match("^%s*(.-)%s*$")
+end
+local get_line
+get_line = function(str, line_num)
+  for line in str:gmatch("([^\n]*)\n?") do
+    if line_num == 1 then
+      return line
+    end
+    line_num = line_num - 1
+  end
+end
+local get_closest_line
+get_closest_line = function(str, line_num)
+  local line = get_line(str, line_num)
+  if (not line or trim(line) == "") and line_num > 1 then
+    return get_closest_line(str, line_num - 1)
+  else
+    return line, line_num
+  end
+end
+local reversed
+reversed = function(seq)
+  return coroutine.wrap(function()
+    for i = #seq, 1, -1 do
+      coroutine.yield(i, seq[i])
+    end
+  end)
+end
+local split
+split = function(str, delim)
+  if str == "" then
+    return { }
+  end
+  str = str .. delim
+  local _accum_0 = { }
+  local _len_0 = 1
+  for m in str:gmatch("(.-)" .. delim) do
+    _accum_0[_len_0] = m
+    _len_0 = _len_0 + 1
+  end
+  return _accum_0
+end
+local dump
+dump = function(what)
+  local seen = { }
+  local _dump
+  _dump = function(what, depth)
+    if depth == nil then
+      depth = 0
+    end
+    local t = type(what)
+    if t == "string" then
+      return '"' .. what .. '"\n'
+    elseif t == "table" then
+      if seen[what] then
+        return "recursion(" .. tostring(what) .. ")...\n"
+      end
+      seen[what] = true
+      depth = depth + 1
+      local lines
+      do
+        local _accum_0 = { }
+        local _len_0 = 1
+        for k, v in pairs(what) do
+          _accum_0[_len_0] = (" "):rep(depth * 4) .. "[" .. tostring(k) .. "] = " .. _dump(v, depth)
+          _len_0 = _len_0 + 1
+        end
+        lines = _accum_0
+      end
+      seen[what] = false
+      return "{\n" .. concat(lines) .. (" "):rep((depth - 1) * 4) .. "}\n"
+    else
+      return tostring(what) .. "\n"
+    end
+  end
+  return _dump(what)
+end
+local debug_posmap
+debug_posmap = function(posmap, moon_code, lua_code)
+  local tuples
+  do
+    local _accum_0 = { }
+    local _len_0 = 1
+    for k, v in pairs(posmap) do
+      _accum_0[_len_0] = {
+        k,
+        v
+      }
+      _len_0 = _len_0 + 1
+    end
+    tuples = _accum_0
+  end
+  table.sort(tuples, function(a, b)
+    return a[1] < b[1]
+  end)
+  local lines
+  do
+    local _accum_0 = { }
+    local _len_0 = 1
+    for _index_0 = 1, #tuples do
+      local pair = tuples[_index_0]
+      local lua_line, pos = unpack(pair)
+      local moon_line = pos_to_line(moon_code, pos)
+      local lua_text = get_line(lua_code, lua_line)
+      local moon_text = get_closest_line(moon_code, moon_line)
+      local _value_0 = tostring(pos) .. "\t " .. tostring(lua_line) .. ":[ " .. tostring(trim(lua_text)) .. " ] >> " .. tostring(moon_line) .. ":[ " .. tostring(trim(moon_text)) .. " ]"
+      _accum_0[_len_0] = _value_0
+      _len_0 = _len_0 + 1
+    end
+    lines = _accum_0
+  end
+  return concat(lines, "\n")
+end
+local setfenv = setfenv or function(fn, env)
+  local name
+  local i = 1
+  while true do
+    name = debug.getupvalue(fn, i)
+    if not name or name == "_ENV" then
+      break
+    end
+    i = i + 1
+  end
+  if name then
+    debug.upvaluejoin(fn, i, (function()
+      return env
+    end), 1)
+  end
+  return fn
+end
+local getfenv = getfenv or function(fn)
+  local i = 1
+  while true do
+    local name, val = debug.getupvalue(fn, i)
+    if not (name) then
+      break
+    end
+    if name == "_ENV" then
+      return val
+    end
+    i = i + 1
+  end
+  return nil
+end
+local get_options
+get_options = function(...)
+  local count = select("#", ...)
+  local opts = select(count, ...)
+  if type(opts) == "table" then
+    return opts, unpack({
+      ...
+    }, nil, count - 1)
+  else
+    return { }, ...
+  end
+end
+return {
+  moon = moon,
+  pos_to_line = pos_to_line,
+  get_closest_line = get_closest_line,
+  get_line = get_line,
+  reversed = reversed,
+  trim = trim,
+  split = split,
+  dump = dump,
+  debug_posmap = debug_posmap,
+  getfenv = getfenv,
+  setfenv = setfenv,
+  get_options = get_options,
+  unpack = unpack
+}
+end
+
+package.preload["moonscript.cmd.coverage"] = function()
+local log
+log = function(str)
+  if str == nil then
+    str = ""
+  end
+  return io.stderr:write(str .. "\n")
+end
+local create_counter
+create_counter = function()
+  return setmetatable({ }, {
+    __index = function(self, name)
+      do
+        local tbl = setmetatable({ }, {
+          __index = function(self)
+            return 0
+          end
+        })
+        self[name] = tbl
+        return tbl
+      end
+    end
+  })
+end
+local position_to_lines
+position_to_lines = function(file_content, positions)
+  local lines = { }
+  local current_pos = 0
+  local line_no = 1
+  for char in file_content:gmatch(".") do
+    do
+      local count = rawget(positions, current_pos)
+      if count then
+        lines[line_no] = count
+      end
+    end
+    if char == "\n" then
+      line_no = line_no + 1
+    end
+    current_pos = current_pos + 1
+  end
+  return lines
+end
+local format_file
+format_file = function(fname, positions)
+  local file = assert(io.open(fname))
+  local content = file:read("*a")
+  file:close()
+  local lines = position_to_lines(content, positions)
+  log("------| @" .. tostring(fname))
+  local line_no = 1
+  for line in (content .. "\n"):gmatch("(.-)\n") do
+    local foramtted_no = ("% 5d"):format(line_no)
+    local sym = lines[line_no] and "*" or " "
+    log(tostring(sym) .. tostring(foramtted_no) .. "| " .. tostring(line))
+    line_no = line_no + 1
+  end
+  return log()
+end
+local CodeCoverage
+do
+  local _base_0 = {
+    reset = function(self)
+      self.line_counts = create_counter()
+    end,
+    start = function(self)
+      return debug.sethook((function()
+        local _base_1 = self
+        local _fn_0 = _base_1.process_line
+        return function(...)
+          return _fn_0(_base_1, ...)
+        end
+      end)(), "l")
+    end,
+    stop = function(self)
+      return debug.sethook()
+    end,
+    print_results = function(self)
+      return self:format_results()
+    end,
+    process_line = function(self, _, line_no)
+      local debug_data = debug.getinfo(2, "S")
+      local source = debug_data.source
+      self.line_counts[source][line_no] = self.line_counts[source][line_no] + 1
+    end,
+    format_results = function(self)
+      local line_table = require("moonscript.line_tables")
+      local positions = create_counter()
+      for file, lines in pairs(self.line_counts) do
+        local _continue_0 = false
+        repeat
+          local file_table = line_table[file]
+          if not (file_table) then
+            _continue_0 = true
+            break
+          end
+          for line, count in pairs(lines) do
+            local _continue_1 = false
+            repeat
+              local position = file_table[line]
+              if not (position) then
+                _continue_1 = true
+                break
+              end
+              positions[file][position] = positions[file][position] + count
+              _continue_1 = true
+            until true
+            if not _continue_1 then
+              break
+            end
+          end
+          _continue_0 = true
+        until true
+        if not _continue_0 then
+          break
+        end
+      end
+      for file, ps in pairs(positions) do
+        format_file(file, ps)
+      end
+    end
+  }
+  _base_0.__index = _base_0
+  local _class_0 = setmetatable({
+    __init = function(self)
+      return self:reset()
+    end,
+    __base = _base_0,
+    __name = "CodeCoverage"
+  }, {
+    __index = _base_0,
+    __call = function(cls, ...)
+      local _self_0 = setmetatable({}, _base_0)
+      cls.__init(_self_0, ...)
+      return _self_0
+    end
+  })
+  _base_0.__class = _class_0
+  CodeCoverage = _class_0
+end
+return {
+  CodeCoverage = CodeCoverage
+}
+end
+
+package.preload["moonscript.init"] = function()
+do
+  local _with_0 = require("moonscript.base")
+  _with_0.insert_loader()
+  return _with_0
+end
+end
+
+package.preload["moonscript.compile.statement"] = function()
+local util = require("moonscript.util")
+local reversed, unpack
+reversed, unpack = util.reversed, util.unpack
+local ntype
+do
+  local _obj_0 = require("moonscript.types")
+  ntype = _obj_0.ntype
+end
+local concat, insert
+do
+  local _obj_0 = table
+  concat, insert = _obj_0.concat, _obj_0.insert
+end
+return {
+  raw = function(self, node)
+    return self:add(node[2])
+  end,
+  lines = function(self, node)
+    local _list_0 = node[2]
+    for _index_0 = 1, #_list_0 do
+      local line = _list_0[_index_0]
+      self:add(line)
+    end
+  end,
+  declare = function(self, node)
+    local names = node[2]
+    local undeclared = self:declare(names)
+    if #undeclared > 0 then
+      do
+        local _with_0 = self:line("local ")
+        _with_0:append_list((function()
+          local _accum_0 = { }
+          local _len_0 = 1
+          for _index_0 = 1, #undeclared do
+            local name = undeclared[_index_0]
+            _accum_0[_len_0] = self:name(name)
+            _len_0 = _len_0 + 1
+          end
+          return _accum_0
+        end)(), ", ")
+        return _with_0
+      end
+    end
+  end,
+  declare_with_shadows = function(self, node)
+    local names = node[2]
+    self:declare(names)
+    do
+      local _with_0 = self:line("local ")
+      _with_0:append_list((function()
+        local _accum_0 = { }
+        local _len_0 = 1
+        for _index_0 = 1, #names do
+          local name = names[_index_0]
+          _accum_0[_len_0] = self:name(name)
+          _len_0 = _len_0 + 1
+        end
+        return _accum_0
+      end)(), ", ")
+      return _with_0
+    end
+  end,
+  assign = function(self, node)
+    local _, names, values = unpack(node)
+    local undeclared = self:declare(names)
+    local declare = "local " .. concat(undeclared, ", ")
+    local has_fndef = false
+    local i = 1
+    while i <= #values do
+      if ntype(values[i]) == "fndef" then
+        has_fndef = true
+      end
+      i = i + 1
+    end
+    do
+      local _with_0 = self:line()
+      if #undeclared == #names and not has_fndef then
+        _with_0:append(declare)
+      else
+        if #undeclared > 0 then
+          self:add(declare, node[-1])
+        end
+        _with_0:append_list((function()
+          local _accum_0 = { }
+          local _len_0 = 1
+          for _index_0 = 1, #names do
+            local name = names[_index_0]
+            _accum_0[_len_0] = self:value(name)
+            _len_0 = _len_0 + 1
+          end
+          return _accum_0
+        end)(), ", ")
+      end
+      _with_0:append(" = ")
+      _with_0:append_list((function()
+        local _accum_0 = { }
+        local _len_0 = 1
+        for _index_0 = 1, #values do
+          local v = values[_index_0]
+          _accum_0[_len_0] = self:value(v)
+          _len_0 = _len_0 + 1
+        end
+        return _accum_0
+      end)(), ", ")
+      return _with_0
+    end
+  end,
+  ["return"] = function(self, node)
+    return self:line("return ", (function()
+      if node[2] ~= "" then
+        return self:value(node[2])
+      end
+    end)())
+  end,
+  ["break"] = function(self, node)
+    return "break"
+  end,
+  ["if"] = function(self, node)
+    local cond, block = node[2], node[3]
+    local root
+    do
+      local _with_0 = self:block(self:line("if ", self:value(cond), " then"))
+      _with_0:stms(block)
+      root = _with_0
+    end
+    local current = root
+    local add_clause
+    add_clause = function(clause)
+      local type = clause[1]
+      local i = 2
+      local next
+      if type == "else" then
+        next = self:block("else")
+      else
+        i = i + 1
+        next = self:block(self:line("elseif ", self:value(clause[2]), " then"))
+      end
+      next:stms(clause[i])
+      current.next = next
+      current = next
+    end
+    for _index_0 = 4, #node do
+      cond = node[_index_0]
+      add_clause(cond)
+    end
+    return root
+  end,
+  ["repeat"] = function(self, node)
+    local cond, block = unpack(node, 2)
+    do
+      local _with_0 = self:block("repeat", self:line("until ", self:value(cond)))
+      _with_0:stms(block)
+      return _with_0
+    end
+  end,
+  ["while"] = function(self, node)
+    local _, cond, block = unpack(node)
+    do
+      local _with_0 = self:block(self:line("while ", self:value(cond), " do"))
+      _with_0:stms(block)
+      return _with_0
+    end
+  end,
+  ["for"] = function(self, node)
+    local _, name, bounds, block = unpack(node)
+    local loop = self:line("for ", self:name(name), " = ", self:value({
+      "explist",
+      unpack(bounds)
+    }), " do")
+    do
+      local _with_0 = self:block(loop)
+      _with_0:declare({
+        name
+      })
+      _with_0:stms(block)
+      return _with_0
+    end
+  end,
+  foreach = function(self, node)
+    local _, names, exps, block = unpack(node)
+    local loop
+    do
+      local _with_0 = self:line()
+      _with_0:append("for ")
+      loop = _with_0
+    end
+    do
+      local _with_0 = self:block(loop)
+      loop:append_list((function()
+        local _accum_0 = { }
+        local _len_0 = 1
+        for _index_0 = 1, #names do
+          local name = names[_index_0]
+          _accum_0[_len_0] = _with_0:name(name, false)
+          _len_0 = _len_0 + 1
+        end
+        return _accum_0
+      end)(), ", ")
+      loop:append(" in ")
+      loop:append_list((function()
+        local _accum_0 = { }
+        local _len_0 = 1
+        for _index_0 = 1, #exps do
+          local exp = exps[_index_0]
+          _accum_0[_len_0] = self:value(exp)
+          _len_0 = _len_0 + 1
+        end
+        return _accum_0
+      end)(), ",")
+      loop:append(" do")
+      _with_0:declare(names)
+      _with_0:stms(block)
+      return _with_0
+    end
+  end,
+  export = function(self, node)
+    local _, names = unpack(node)
+    if type(names) == "string" then
+      if names == "*" then
+        self.export_all = true
+      elseif names == "^" then
+        self.export_proper = true
+      end
+    else
+      self:declare(names)
+    end
+    return nil
+  end,
+  run = function(self, code)
+    code:call(self)
+    return nil
+  end,
+  group = function(self, node)
+    return self:stms(node[2])
+  end,
+  ["do"] = function(self, node)
+    do
+      local _with_0 = self:block()
+      _with_0:stms(node[2])
+      return _with_0
+    end
+  end,
+  noop = function(self) end
+}
+end
+
+package.preload["moonscript.dump"] = function()
+local flat_value
+flat_value = function(op, depth)
+  if depth == nil then
+    depth = 1
+  end
+  if type(op) == "string" then
+    return '"' .. op .. '"'
+  end
+  if type(op) ~= "table" then
+    return tostring(op)
+  end
+  local items
+  do
+    local _accum_0 = { }
+    local _len_0 = 1
+    for _index_0 = 1, #op do
+      local item = op[_index_0]
+      _accum_0[_len_0] = flat_value(item, depth + 1)
+      _len_0 = _len_0 + 1
+    end
+    items = _accum_0
+  end
+  local pos = op[-1]
+  return "{" .. (pos and "[" .. pos .. "] " or "") .. table.concat(items, ", ") .. "}"
+end
+local value
+value = function(op)
+  return flat_value(op)
+end
+local tree
+tree = function(block)
+  local _list_0 = block
+  for _index_0 = 1, #_list_0 do
+    value = _list_0[_index_0]
+    print(flat_value(value))
+  end
+end
+return {
+  value = value,
+  tree = tree
+}
+end
+
+package.preload["moonscript.compile.value"] = function()
+local util = require("moonscript.util")
+local data = require("moonscript.data")
+local ntype
+do
+  local _obj_0 = require("moonscript.types")
+  ntype = _obj_0.ntype
+end
+local user_error
+do
+  local _obj_0 = require("moonscript.errors")
+  user_error = _obj_0.user_error
+end
+local concat, insert
+do
+  local _obj_0 = table
+  concat, insert = _obj_0.concat, _obj_0.insert
+end
+local unpack
+unpack = util.unpack
+local table_delim = ","
+local string_chars = {
+  ["\r"] = "\\r",
+  ["\n"] = "\\n"
+}
+return {
+  exp = function(self, node)
+    local _comp
+    _comp = function(i, value)
+      if i % 2 == 1 and value == "!=" then
+        value = "~="
+      end
+      return self:value(value)
+    end
+    do
+      local _with_0 = self:line()
+      _with_0:append_list((function()
+        local _accum_0 = { }
+        local _len_0 = 1
+        for i, v in ipairs(node) do
+          if i > 1 then
+            _accum_0[_len_0] = _comp(i, v)
+            _len_0 = _len_0 + 1
+          end
+        end
+        return _accum_0
+      end)(), " ")
+      return _with_0
+    end
+  end,
+  explist = function(self, node)
+    do
+      local _with_0 = self:line()
+      _with_0:append_list((function()
+        local _accum_0 = { }
+        local _len_0 = 1
+        for _index_0 = 2, #node do
+          local v = node[_index_0]
+          _accum_0[_len_0] = self:value(v)
+          _len_0 = _len_0 + 1
+        end
+        return _accum_0
+      end)(), ", ")
+      return _with_0
+    end
+  end,
+  parens = function(self, node)
+    return self:line("(", self:value(node[2]), ")")
+  end,
+  string = function(self, node)
+    local _, delim, inner = unpack(node)
+    local end_delim = delim:gsub("%[", "]")
+    if delim == "'" or delim == '"' then
+      inner = inner:gsub("[\r\n]", string_chars)
+    end
+    return delim .. inner .. end_delim
+  end,
+  chain = function(self, node)
+    local callee = node[2]
+    local callee_type = ntype(callee)
+    if callee == -1 then
+      callee = self:get("scope_var")
+      if not callee then
+        user_error("Short-dot syntax must be called within a with block")
+      end
+    end
+    if callee_type == "ref" and callee[2] == "super" or callee == "super" then
+      do
+        local sup = self:get("super")
+        if sup then
+          return self:value(sup(self, node))
+        end
+      end
+    end
+    local chain_item
+    chain_item = function(node)
+      local t, arg = unpack(node)
+      if t == "call" then
+        return "(", self:values(arg), ")"
+      elseif t == "index" then
+        return "[", self:value(arg), "]"
+      elseif t == "dot" then
+        return ".", tostring(arg)
+      elseif t == "colon" then
+        return ":", arg, chain_item(node[3])
+      elseif t == "colon_stub" then
+        return user_error("Uncalled colon stub")
+      else
+        return error("Unknown chain action: " .. tostring(t))
+      end
+    end
+    if (callee_type == "self" or callee_type == "self_class") and node[3] and ntype(node[3]) == "call" then
+      callee[1] = callee_type .. "_colon"
+    end
+    local callee_value = self:value(callee)
+    if ntype(callee) == "exp" then
+      callee_value = self:line("(", callee_value, ")")
+    end
+    local actions
+    do
+      local _with_0 = self:line()
+      for _index_0 = 3, #node do
+        local action = node[_index_0]
+        _with_0:append(chain_item(action))
+      end
+      actions = _with_0
+    end
+    return self:line(callee_value, actions)
+  end,
+  fndef = function(self, node)
+    local _, args, whitelist, arrow, block = unpack(node)
+    local default_args = { }
+    local self_args = { }
+    local arg_names
+    do
+      local _accum_0 = { }
+      local _len_0 = 1
+      for _index_0 = 1, #args do
+        local arg = args[_index_0]
+        local name, default_value = unpack(arg)
+        if type(name) == "string" then
+          name = name
+        else
+          if name[1] == "self" or name[1] == "self_class" then
+            insert(self_args, name)
+          end
+          name = name[2]
+        end
+        if default_value then
+          insert(default_args, arg)
+        end
+        local _value_0 = name
+        _accum_0[_len_0] = _value_0
+        _len_0 = _len_0 + 1
+      end
+      arg_names = _accum_0
+    end
+    if arrow == "fat" then
+      insert(arg_names, 1, "self")
+    end
+    do
+      local _with_0 = self:block()
+      if #whitelist > 0 then
+        _with_0:whitelist_names(whitelist)
+      end
+      for _index_0 = 1, #arg_names do
+        local name = arg_names[_index_0]
+        _with_0:put_name(name)
+      end
+      for _index_0 = 1, #default_args do
+        local default = default_args[_index_0]
+        local name, value = unpack(default)
+        if type(name) == "table" then
+          name = name[2]
+        end
+        _with_0:stm({
+          'if',
+          {
+            'exp',
+            {
+              "ref",
+              name
+            },
+            '==',
+            'nil'
+          },
+          {
+            {
+              'assign',
+              {
+                name
+              },
+              {
+                value
+              }
+            }
+          }
+        })
+      end
+      local self_arg_values
+      do
+        local _accum_0 = { }
+        local _len_0 = 1
+        for _index_0 = 1, #self_args do
+          local arg = self_args[_index_0]
+          _accum_0[_len_0] = arg[2]
+          _len_0 = _len_0 + 1
+        end
+        self_arg_values = _accum_0
+      end
+      if #self_args > 0 then
+        _with_0:stm({
+          "assign",
+          self_args,
+          self_arg_values
+        })
+      end
+      _with_0:stms(block)
+      if #args > #arg_names then
+        do
+          local _accum_0 = { }
+          local _len_0 = 1
+          for _index_0 = 1, #args do
+            local arg = args[_index_0]
+            _accum_0[_len_0] = arg[1]
+            _len_0 = _len_0 + 1
+          end
+          arg_names = _accum_0
+        end
+      end
+      _with_0.header = "function(" .. concat(arg_names, ", ") .. ")"
+      return _with_0
+    end
+  end,
+  table = function(self, node)
+    local _, items = unpack(node)
+    do
+      local _with_0 = self:block("{", "}")
+      local format_line
+      format_line = function(tuple)
+        if #tuple == 2 then
+          local key, value = unpack(tuple)
+          if ntype(key) == "key_literal" and data.lua_keywords[key[2]] then
+            key = {
+              "string",
+              '"',
+              key[2]
+            }
+          end
+          local assign
+          if ntype(key) == "key_literal" then
+            assign = key[2]
+          else
+            assign = self:line("[", _with_0:value(key), "]")
+          end
+          _with_0:set("current_block", key)
+          local out = self:line(assign, " = ", _with_0:value(value))
+          _with_0:set("current_block", nil)
+          return out
+        else
+          return self:line(_with_0:value(tuple[1]))
+        end
+      end
+      if items then
+        local count = #items
+        for i, tuple in ipairs(items) do
+          local line = format_line(tuple)
+          if not (count == i) then
+            line:append(table_delim)
+          end
+          _with_0:add(line)
+        end
+      end
+      return _with_0
+    end
+  end,
+  minus = function(self, node)
+    return self:line("-", self:value(node[2]))
+  end,
+  temp_name = function(self, node, ...)
+    return node:get_name(self, ...)
+  end,
+  number = function(self, node)
+    return node[2]
+  end,
+  length = function(self, node)
+    return self:line("#", self:value(node[2]))
+  end,
+  ["not"] = function(self, node)
+    return self:line("not ", self:value(node[2]))
+  end,
+  self = function(self, node)
+    return "self." .. self:name(node[2])
+  end,
+  self_class = function(self, node)
+    return "self.__class." .. self:name(node[2])
+  end,
+  self_colon = function(self, node)
+    return "self:" .. self:name(node[2])
+  end,
+  self_class_colon = function(self, node)
+    return "self.__class:" .. self:name(node[2])
+  end,
+  ref = function(self, value)
+    do
+      local sup = value[2] == "super" and self:get("super")
+      if sup then
+        return self:value(sup(self))
+      end
+    end
+    return tostring(value[2])
+  end,
+  raw_value = function(self, value)
+    if value == "..." then
+      self:send("varargs")
+    end
+    return tostring(value)
+  end
+}
+end
+
+package.preload["moonscript.errors"] = function()
+local util = require("moonscript.util")
+local lpeg = require("lpeg")
+local concat, insert
+do
+  local _obj_0 = table
+  concat, insert = _obj_0.concat, _obj_0.insert
+end
+local split, pos_to_line
+split, pos_to_line = util.split, util.pos_to_line
+local user_error
+user_error = function(...)
+  return error({
+    "user-error",
+    ...
+  })
+end
+local lookup_line
+lookup_line = function(fname, pos, cache)
+  if not cache[fname] then
+    do
+      local _with_0 = io.open(fname)
+      cache[fname] = _with_0:read("*a")
+      _with_0:close()
+    end
+  end
+  return pos_to_line(cache[fname], pos)
+end
+local reverse_line_number
+reverse_line_number = function(fname, line_table, line_num, cache)
+  for i = line_num, 0, -1 do
+    if line_table[i] then
+      return lookup_line(fname, line_table[i], cache)
+    end
+  end
+  return "unknown"
+end
+local truncate_traceback
+truncate_traceback = function(traceback, chunk_func)
+  if chunk_func == nil then
+    chunk_func = "moonscript_chunk"
+  end
+  traceback = split(traceback, "\n")
+  local stop = #traceback
+  while stop > 1 do
+    if traceback[stop]:match(chunk_func) then
+      break
+    end
+    stop = stop - 1
+  end
+  do
+    local _accum_0 = { }
+    local _len_0 = 1
+    local _max_0 = stop
+    for _index_0 = 1, _max_0 < 0 and #traceback + _max_0 or _max_0 do
+      local t = traceback[_index_0]
+      _accum_0[_len_0] = t
+      _len_0 = _len_0 + 1
+    end
+    traceback = _accum_0
+  end
+  local rep = "function '" .. chunk_func .. "'"
+  traceback[#traceback] = traceback[#traceback]:gsub(rep, "main chunk")
+  return concat(traceback, "\n")
+end
+local rewrite_traceback
+rewrite_traceback = function(text, err)
+  local line_tables = require("moonscript.line_tables")
+  local V, S, Ct, C
+  V, S, Ct, C = lpeg.V, lpeg.S, lpeg.Ct, lpeg.C
+  local header_text = "stack traceback:"
+  local Header, Line = V("Header"), V("Line")
+  local Break = lpeg.S("\n")
+  local g = lpeg.P({
+    Header,
+    Header = header_text * Break * Ct(Line ^ 1),
+    Line = "\t" * C((1 - Break) ^ 0) * (Break + -1)
+  })
+  local cache = { }
+  local rewrite_single
+  rewrite_single = function(trace)
+    local fname, line, msg = trace:match('^(.-):(%d+): (.*)$')
+    local tbl = line_tables["@" .. tostring(fname)]
+    if fname and tbl then
+      return concat({
+        fname,
+        ":",
+        reverse_line_number(fname, tbl, line, cache),
+        ": ",
+        "(",
+        line,
+        ") ",
+        msg
+      })
+    else
+      return trace
+    end
+  end
+  err = rewrite_single(err)
+  local match = g:match(text)
+  if not (match) then
+    return nil
+  end
+  for i, trace in ipairs(match) do
+    match[i] = rewrite_single(trace)
+  end
+  return concat({
+    "moon: " .. err,
+    header_text,
+    "\t" .. concat(match, "\n\t")
+  }, "\n")
+end
+return {
+  rewrite_traceback = rewrite_traceback,
+  truncate_traceback = truncate_traceback,
+  user_error = user_error,
+  reverse_line_number = reverse_line_number
+}
+end
+
+package.preload["moonscript.transform.destructure"] = function()
+local ntype, mtype, build
+do
+  local _obj_0 = require("moonscript.types")
+  ntype, mtype, build = _obj_0.ntype, _obj_0.mtype, _obj_0.build
+end
+local NameProxy
+do
+  local _obj_0 = require("moonscript.transform.names")
+  NameProxy = _obj_0.NameProxy
+end
+local insert
+do
+  local _obj_0 = table
+  insert = _obj_0.insert
+end
+local unpack
+do
+  local _obj_0 = require("moonscript.util")
+  unpack = _obj_0.unpack
+end
+local user_error
+do
+  local _obj_0 = require("moonscript.errors")
+  user_error = _obj_0.user_error
+end
+local join
+join = function(...)
+  do
+    local out = { }
+    local i = 1
+    local _list_0 = {
+      ...
+    }
+    for _index_0 = 1, #_list_0 do
+      local tbl = _list_0[_index_0]
+      for _index_1 = 1, #tbl do
+        local v = tbl[_index_1]
+        out[i] = v
+        i = i + 1
+      end
+    end
+    return out
+  end
+end
+local has_destructure
+has_destructure = function(names)
+  for _index_0 = 1, #names do
+    local n = names[_index_0]
+    if ntype(n) == "table" then
+      return true
+    end
+  end
+  return false
+end
+local extract_assign_names
+extract_assign_names = function(name, accum, prefix)
+  if accum == nil then
+    accum = { }
+  end
+  if prefix == nil then
+    prefix = { }
+  end
+  local i = 1
+  local _list_0 = name[2]
+  for _index_0 = 1, #_list_0 do
+    local tuple = _list_0[_index_0]
+    local value, suffix
+    if #tuple == 1 then
+      local s = {
+        "index",
+        {
+          "number",
+          i
+        }
+      }
+      i = i + 1
+      value, suffix = tuple[1], s
+    else
+      local key = tuple[1]
+      local s
+      if ntype(key) == "key_literal" then
+        local key_name = key[2]
+        if ntype(key_name) == "colon_stub" then
+          s = key_name
+        else
+          s = {
+            "dot",
+            key_name
+          }
+        end
+      else
+        s = {
+          "index",
+          key
+        }
+      end
+      value, suffix = tuple[2], s
+    end
+    suffix = join(prefix, {
+      suffix
+    })
+    local _exp_0 = ntype(value)
+    if "value" == _exp_0 or "ref" == _exp_0 or "chain" == _exp_0 or "self" == _exp_0 then
+      insert(accum, {
+        value,
+        suffix
+      })
+    elseif "table" == _exp_0 then
+      extract_assign_names(value, accum, suffix)
+    else
+      user_error("Can't destructure value of type: " .. tostring(ntype(value)))
+    end
+  end
+  return accum
+end
+local build_assign
+build_assign = function(scope, destruct_literal, receiver)
+  local extracted_names = extract_assign_names(destruct_literal)
+  local names = { }
+  local values = { }
+  local inner = {
+    "assign",
+    names,
+    values
+  }
+  local obj
+  if scope:is_local(receiver) then
+    obj = receiver
+  else
+    do
+      obj = NameProxy("obj")
+      inner = build["do"]({
+        build.assign_one(obj, receiver),
+        {
+          "assign",
+          names,
+          values
+        }
+      })
+      obj = obj
+    end
+  end
+  for _index_0 = 1, #extracted_names do
+    local tuple = extracted_names[_index_0]
+    insert(names, tuple[1])
+    insert(values, NameProxy.chain(obj, unpack(tuple[2])))
+  end
+  return build.group({
+    {
+      "declare",
+      names
+    },
+    inner
+  })
+end
+local split_assign
+split_assign = function(scope, assign)
+  local names, values = unpack(assign, 2)
+  local g = { }
+  local total_names = #names
+  local total_values = #values
+  local start = 1
+  for i, n in ipairs(names) do
+    if ntype(n) == "table" then
+      if i > start then
+        local stop = i - 1
+        insert(g, {
+          "assign",
+          (function()
+            local _accum_0 = { }
+            local _len_0 = 1
+            for i = start, stop do
+              _accum_0[_len_0] = names[i]
+              _len_0 = _len_0 + 1
+            end
+            return _accum_0
+          end)(),
+          (function()
+            local _accum_0 = { }
+            local _len_0 = 1
+            for i = start, stop do
+              _accum_0[_len_0] = values[i]
+              _len_0 = _len_0 + 1
+            end
+            return _accum_0
+          end)()
+        })
+      end
+      insert(g, build_assign(scope, n, values[i]))
+      start = i + 1
+    end
+  end
+  if total_names >= start or total_values >= start then
+    local name_slice
+    if total_names < start then
+      name_slice = {
+        "_"
+      }
+    else
+      do
+        local _accum_0 = { }
+        local _len_0 = 1
+        for i = start, total_names do
+          _accum_0[_len_0] = names[i]
+          _len_0 = _len_0 + 1
+        end
+        name_slice = _accum_0
+      end
+    end
+    local value_slice
+    if total_values < start then
+      value_slice = {
+        "nil"
+      }
+    else
+      do
+        local _accum_0 = { }
+        local _len_0 = 1
+        for i = start, total_values do
+          _accum_0[_len_0] = values[i]
+          _len_0 = _len_0 + 1
+        end
+        value_slice = _accum_0
+      end
+    end
+    insert(g, {
+      "assign",
+      name_slice,
+      value_slice
+    })
+  end
+  return build.group(g)
+end
+return {
+  has_destructure = has_destructure,
+  split_assign = split_assign,
+  build_assign = build_assign
+}
 end
 
 package.preload["moonscript.compile"] = function()
@@ -2481,1532 +3867,6 @@ return {
   format_error = format_error,
   Block = Block,
   RootBlock = RootBlock
-}
-end
-
-package.preload["moonscript.init"] = function()
-do
-  local _with_0 = require("moonscript.base")
-  _with_0.insert_loader()
-  return _with_0
-end
-end
-
-package.preload["moonscript.cmd.coverage"] = function()
-local log
-log = function(str)
-  if str == nil then
-    str = ""
-  end
-  return io.stderr:write(str .. "\n")
-end
-local create_counter
-create_counter = function()
-  return setmetatable({ }, {
-    __index = function(self, name)
-      do
-        local tbl = setmetatable({ }, {
-          __index = function(self)
-            return 0
-          end
-        })
-        self[name] = tbl
-        return tbl
-      end
-    end
-  })
-end
-local position_to_lines
-position_to_lines = function(file_content, positions)
-  local lines = { }
-  local current_pos = 0
-  local line_no = 1
-  for char in file_content:gmatch(".") do
-    do
-      local count = rawget(positions, current_pos)
-      if count then
-        lines[line_no] = count
-      end
-    end
-    if char == "\n" then
-      line_no = line_no + 1
-    end
-    current_pos = current_pos + 1
-  end
-  return lines
-end
-local format_file
-format_file = function(fname, positions)
-  local file = assert(io.open(fname))
-  local content = file:read("*a")
-  file:close()
-  local lines = position_to_lines(content, positions)
-  log("------| @" .. tostring(fname))
-  local line_no = 1
-  for line in (content .. "\n"):gmatch("(.-)\n") do
-    local foramtted_no = ("% 5d"):format(line_no)
-    local sym = lines[line_no] and "*" or " "
-    log(tostring(sym) .. tostring(foramtted_no) .. "| " .. tostring(line))
-    line_no = line_no + 1
-  end
-  return log()
-end
-local CodeCoverage
-do
-  local _base_0 = {
-    reset = function(self)
-      self.line_counts = create_counter()
-    end,
-    start = function(self)
-      return debug.sethook((function()
-        local _base_1 = self
-        local _fn_0 = _base_1.process_line
-        return function(...)
-          return _fn_0(_base_1, ...)
-        end
-      end)(), "l")
-    end,
-    stop = function(self)
-      return debug.sethook()
-    end,
-    print_results = function(self)
-      return self:format_results()
-    end,
-    process_line = function(self, _, line_no)
-      local debug_data = debug.getinfo(2, "S")
-      local source = debug_data.source
-      self.line_counts[source][line_no] = self.line_counts[source][line_no] + 1
-    end,
-    format_results = function(self)
-      local line_table = require("moonscript.line_tables")
-      local positions = create_counter()
-      for file, lines in pairs(self.line_counts) do
-        local _continue_0 = false
-        repeat
-          local file_table = line_table[file]
-          if not (file_table) then
-            _continue_0 = true
-            break
-          end
-          for line, count in pairs(lines) do
-            local _continue_1 = false
-            repeat
-              local position = file_table[line]
-              if not (position) then
-                _continue_1 = true
-                break
-              end
-              positions[file][position] = positions[file][position] + count
-              _continue_1 = true
-            until true
-            if not _continue_1 then
-              break
-            end
-          end
-          _continue_0 = true
-        until true
-        if not _continue_0 then
-          break
-        end
-      end
-      for file, ps in pairs(positions) do
-        format_file(file, ps)
-      end
-    end
-  }
-  _base_0.__index = _base_0
-  local _class_0 = setmetatable({
-    __init = function(self)
-      return self:reset()
-    end,
-    __base = _base_0,
-    __name = "CodeCoverage"
-  }, {
-    __index = _base_0,
-    __call = function(cls, ...)
-      local _self_0 = setmetatable({}, _base_0)
-      cls.__init(_self_0, ...)
-      return _self_0
-    end
-  })
-  _base_0.__class = _class_0
-  CodeCoverage = _class_0
-end
-return {
-  CodeCoverage = CodeCoverage
-}
-end
-
-package.preload["moonscript.compile.statement"] = function()
-local util = require("moonscript.util")
-local reversed, unpack
-reversed, unpack = util.reversed, util.unpack
-local ntype
-do
-  local _obj_0 = require("moonscript.types")
-  ntype = _obj_0.ntype
-end
-local concat, insert
-do
-  local _obj_0 = table
-  concat, insert = _obj_0.concat, _obj_0.insert
-end
-return {
-  raw = function(self, node)
-    return self:add(node[2])
-  end,
-  lines = function(self, node)
-    local _list_0 = node[2]
-    for _index_0 = 1, #_list_0 do
-      local line = _list_0[_index_0]
-      self:add(line)
-    end
-  end,
-  declare = function(self, node)
-    local names = node[2]
-    local undeclared = self:declare(names)
-    if #undeclared > 0 then
-      do
-        local _with_0 = self:line("local ")
-        _with_0:append_list((function()
-          local _accum_0 = { }
-          local _len_0 = 1
-          for _index_0 = 1, #undeclared do
-            local name = undeclared[_index_0]
-            _accum_0[_len_0] = self:name(name)
-            _len_0 = _len_0 + 1
-          end
-          return _accum_0
-        end)(), ", ")
-        return _with_0
-      end
-    end
-  end,
-  declare_with_shadows = function(self, node)
-    local names = node[2]
-    self:declare(names)
-    do
-      local _with_0 = self:line("local ")
-      _with_0:append_list((function()
-        local _accum_0 = { }
-        local _len_0 = 1
-        for _index_0 = 1, #names do
-          local name = names[_index_0]
-          _accum_0[_len_0] = self:name(name)
-          _len_0 = _len_0 + 1
-        end
-        return _accum_0
-      end)(), ", ")
-      return _with_0
-    end
-  end,
-  assign = function(self, node)
-    local _, names, values = unpack(node)
-    local undeclared = self:declare(names)
-    local declare = "local " .. concat(undeclared, ", ")
-    local has_fndef = false
-    local i = 1
-    while i <= #values do
-      if ntype(values[i]) == "fndef" then
-        has_fndef = true
-      end
-      i = i + 1
-    end
-    do
-      local _with_0 = self:line()
-      if #undeclared == #names and not has_fndef then
-        _with_0:append(declare)
-      else
-        if #undeclared > 0 then
-          self:add(declare, node[-1])
-        end
-        _with_0:append_list((function()
-          local _accum_0 = { }
-          local _len_0 = 1
-          for _index_0 = 1, #names do
-            local name = names[_index_0]
-            _accum_0[_len_0] = self:value(name)
-            _len_0 = _len_0 + 1
-          end
-          return _accum_0
-        end)(), ", ")
-      end
-      _with_0:append(" = ")
-      _with_0:append_list((function()
-        local _accum_0 = { }
-        local _len_0 = 1
-        for _index_0 = 1, #values do
-          local v = values[_index_0]
-          _accum_0[_len_0] = self:value(v)
-          _len_0 = _len_0 + 1
-        end
-        return _accum_0
-      end)(), ", ")
-      return _with_0
-    end
-  end,
-  ["return"] = function(self, node)
-    return self:line("return ", (function()
-      if node[2] ~= "" then
-        return self:value(node[2])
-      end
-    end)())
-  end,
-  ["break"] = function(self, node)
-    return "break"
-  end,
-  ["if"] = function(self, node)
-    local cond, block = node[2], node[3]
-    local root
-    do
-      local _with_0 = self:block(self:line("if ", self:value(cond), " then"))
-      _with_0:stms(block)
-      root = _with_0
-    end
-    local current = root
-    local add_clause
-    add_clause = function(clause)
-      local type = clause[1]
-      local i = 2
-      local next
-      if type == "else" then
-        next = self:block("else")
-      else
-        i = i + 1
-        next = self:block(self:line("elseif ", self:value(clause[2]), " then"))
-      end
-      next:stms(clause[i])
-      current.next = next
-      current = next
-    end
-    for _index_0 = 4, #node do
-      cond = node[_index_0]
-      add_clause(cond)
-    end
-    return root
-  end,
-  ["repeat"] = function(self, node)
-    local cond, block = unpack(node, 2)
-    do
-      local _with_0 = self:block("repeat", self:line("until ", self:value(cond)))
-      _with_0:stms(block)
-      return _with_0
-    end
-  end,
-  ["while"] = function(self, node)
-    local _, cond, block = unpack(node)
-    do
-      local _with_0 = self:block(self:line("while ", self:value(cond), " do"))
-      _with_0:stms(block)
-      return _with_0
-    end
-  end,
-  ["for"] = function(self, node)
-    local _, name, bounds, block = unpack(node)
-    local loop = self:line("for ", self:name(name), " = ", self:value({
-      "explist",
-      unpack(bounds)
-    }), " do")
-    do
-      local _with_0 = self:block(loop)
-      _with_0:declare({
-        name
-      })
-      _with_0:stms(block)
-      return _with_0
-    end
-  end,
-  foreach = function(self, node)
-    local _, names, exps, block = unpack(node)
-    local loop
-    do
-      local _with_0 = self:line()
-      _with_0:append("for ")
-      loop = _with_0
-    end
-    do
-      local _with_0 = self:block(loop)
-      loop:append_list((function()
-        local _accum_0 = { }
-        local _len_0 = 1
-        for _index_0 = 1, #names do
-          local name = names[_index_0]
-          _accum_0[_len_0] = _with_0:name(name, false)
-          _len_0 = _len_0 + 1
-        end
-        return _accum_0
-      end)(), ", ")
-      loop:append(" in ")
-      loop:append_list((function()
-        local _accum_0 = { }
-        local _len_0 = 1
-        for _index_0 = 1, #exps do
-          local exp = exps[_index_0]
-          _accum_0[_len_0] = self:value(exp)
-          _len_0 = _len_0 + 1
-        end
-        return _accum_0
-      end)(), ",")
-      loop:append(" do")
-      _with_0:declare(names)
-      _with_0:stms(block)
-      return _with_0
-    end
-  end,
-  export = function(self, node)
-    local _, names = unpack(node)
-    if type(names) == "string" then
-      if names == "*" then
-        self.export_all = true
-      elseif names == "^" then
-        self.export_proper = true
-      end
-    else
-      self:declare(names)
-    end
-    return nil
-  end,
-  run = function(self, code)
-    code:call(self)
-    return nil
-  end,
-  group = function(self, node)
-    return self:stms(node[2])
-  end,
-  ["do"] = function(self, node)
-    do
-      local _with_0 = self:block()
-      _with_0:stms(node[2])
-      return _with_0
-    end
-  end,
-  noop = function(self) end
-}
-end
-
-package.preload["moonscript.compile.value"] = function()
-local util = require("moonscript.util")
-local data = require("moonscript.data")
-local ntype
-do
-  local _obj_0 = require("moonscript.types")
-  ntype = _obj_0.ntype
-end
-local user_error
-do
-  local _obj_0 = require("moonscript.errors")
-  user_error = _obj_0.user_error
-end
-local concat, insert
-do
-  local _obj_0 = table
-  concat, insert = _obj_0.concat, _obj_0.insert
-end
-local unpack
-unpack = util.unpack
-local table_delim = ","
-local string_chars = {
-  ["\r"] = "\\r",
-  ["\n"] = "\\n"
-}
-return {
-  exp = function(self, node)
-    local _comp
-    _comp = function(i, value)
-      if i % 2 == 1 and value == "!=" then
-        value = "~="
-      end
-      return self:value(value)
-    end
-    do
-      local _with_0 = self:line()
-      _with_0:append_list((function()
-        local _accum_0 = { }
-        local _len_0 = 1
-        for i, v in ipairs(node) do
-          if i > 1 then
-            _accum_0[_len_0] = _comp(i, v)
-            _len_0 = _len_0 + 1
-          end
-        end
-        return _accum_0
-      end)(), " ")
-      return _with_0
-    end
-  end,
-  explist = function(self, node)
-    do
-      local _with_0 = self:line()
-      _with_0:append_list((function()
-        local _accum_0 = { }
-        local _len_0 = 1
-        for _index_0 = 2, #node do
-          local v = node[_index_0]
-          _accum_0[_len_0] = self:value(v)
-          _len_0 = _len_0 + 1
-        end
-        return _accum_0
-      end)(), ", ")
-      return _with_0
-    end
-  end,
-  parens = function(self, node)
-    return self:line("(", self:value(node[2]), ")")
-  end,
-  string = function(self, node)
-    local _, delim, inner = unpack(node)
-    local end_delim = delim:gsub("%[", "]")
-    if delim == "'" or delim == '"' then
-      inner = inner:gsub("[\r\n]", string_chars)
-    end
-    return delim .. inner .. end_delim
-  end,
-  chain = function(self, node)
-    local callee = node[2]
-    local callee_type = ntype(callee)
-    if callee == -1 then
-      callee = self:get("scope_var")
-      if not callee then
-        user_error("Short-dot syntax must be called within a with block")
-      end
-    end
-    if callee_type == "ref" and callee[2] == "super" or callee == "super" then
-      do
-        local sup = self:get("super")
-        if sup then
-          return self:value(sup(self, node))
-        end
-      end
-    end
-    local chain_item
-    chain_item = function(node)
-      local t, arg = unpack(node)
-      if t == "call" then
-        return "(", self:values(arg), ")"
-      elseif t == "index" then
-        return "[", self:value(arg), "]"
-      elseif t == "dot" then
-        return ".", tostring(arg)
-      elseif t == "colon" then
-        return ":", arg, chain_item(node[3])
-      elseif t == "colon_stub" then
-        return user_error("Uncalled colon stub")
-      else
-        return error("Unknown chain action: " .. tostring(t))
-      end
-    end
-    if (callee_type == "self" or callee_type == "self_class") and node[3] and ntype(node[3]) == "call" then
-      callee[1] = callee_type .. "_colon"
-    end
-    local callee_value = self:value(callee)
-    if ntype(callee) == "exp" then
-      callee_value = self:line("(", callee_value, ")")
-    end
-    local actions
-    do
-      local _with_0 = self:line()
-      for _index_0 = 3, #node do
-        local action = node[_index_0]
-        _with_0:append(chain_item(action))
-      end
-      actions = _with_0
-    end
-    return self:line(callee_value, actions)
-  end,
-  fndef = function(self, node)
-    local _, args, whitelist, arrow, block = unpack(node)
-    local default_args = { }
-    local self_args = { }
-    local arg_names
-    do
-      local _accum_0 = { }
-      local _len_0 = 1
-      for _index_0 = 1, #args do
-        local arg = args[_index_0]
-        local name, default_value = unpack(arg)
-        if type(name) == "string" then
-          name = name
-        else
-          if name[1] == "self" or name[1] == "self_class" then
-            insert(self_args, name)
-          end
-          name = name[2]
-        end
-        if default_value then
-          insert(default_args, arg)
-        end
-        local _value_0 = name
-        _accum_0[_len_0] = _value_0
-        _len_0 = _len_0 + 1
-      end
-      arg_names = _accum_0
-    end
-    if arrow == "fat" then
-      insert(arg_names, 1, "self")
-    end
-    do
-      local _with_0 = self:block()
-      if #whitelist > 0 then
-        _with_0:whitelist_names(whitelist)
-      end
-      for _index_0 = 1, #arg_names do
-        local name = arg_names[_index_0]
-        _with_0:put_name(name)
-      end
-      for _index_0 = 1, #default_args do
-        local default = default_args[_index_0]
-        local name, value = unpack(default)
-        if type(name) == "table" then
-          name = name[2]
-        end
-        _with_0:stm({
-          'if',
-          {
-            'exp',
-            {
-              "ref",
-              name
-            },
-            '==',
-            'nil'
-          },
-          {
-            {
-              'assign',
-              {
-                name
-              },
-              {
-                value
-              }
-            }
-          }
-        })
-      end
-      local self_arg_values
-      do
-        local _accum_0 = { }
-        local _len_0 = 1
-        for _index_0 = 1, #self_args do
-          local arg = self_args[_index_0]
-          _accum_0[_len_0] = arg[2]
-          _len_0 = _len_0 + 1
-        end
-        self_arg_values = _accum_0
-      end
-      if #self_args > 0 then
-        _with_0:stm({
-          "assign",
-          self_args,
-          self_arg_values
-        })
-      end
-      _with_0:stms(block)
-      if #args > #arg_names then
-        do
-          local _accum_0 = { }
-          local _len_0 = 1
-          for _index_0 = 1, #args do
-            local arg = args[_index_0]
-            _accum_0[_len_0] = arg[1]
-            _len_0 = _len_0 + 1
-          end
-          arg_names = _accum_0
-        end
-      end
-      _with_0.header = "function(" .. concat(arg_names, ", ") .. ")"
-      return _with_0
-    end
-  end,
-  table = function(self, node)
-    local _, items = unpack(node)
-    do
-      local _with_0 = self:block("{", "}")
-      local format_line
-      format_line = function(tuple)
-        if #tuple == 2 then
-          local key, value = unpack(tuple)
-          if ntype(key) == "key_literal" and data.lua_keywords[key[2]] then
-            key = {
-              "string",
-              '"',
-              key[2]
-            }
-          end
-          local assign
-          if ntype(key) == "key_literal" then
-            assign = key[2]
-          else
-            assign = self:line("[", _with_0:value(key), "]")
-          end
-          _with_0:set("current_block", key)
-          local out = self:line(assign, " = ", _with_0:value(value))
-          _with_0:set("current_block", nil)
-          return out
-        else
-          return self:line(_with_0:value(tuple[1]))
-        end
-      end
-      if items then
-        local count = #items
-        for i, tuple in ipairs(items) do
-          local line = format_line(tuple)
-          if not (count == i) then
-            line:append(table_delim)
-          end
-          _with_0:add(line)
-        end
-      end
-      return _with_0
-    end
-  end,
-  minus = function(self, node)
-    return self:line("-", self:value(node[2]))
-  end,
-  temp_name = function(self, node, ...)
-    return node:get_name(self, ...)
-  end,
-  number = function(self, node)
-    return node[2]
-  end,
-  length = function(self, node)
-    return self:line("#", self:value(node[2]))
-  end,
-  ["not"] = function(self, node)
-    return self:line("not ", self:value(node[2]))
-  end,
-  self = function(self, node)
-    return "self." .. self:name(node[2])
-  end,
-  self_class = function(self, node)
-    return "self.__class." .. self:name(node[2])
-  end,
-  self_colon = function(self, node)
-    return "self:" .. self:name(node[2])
-  end,
-  self_class_colon = function(self, node)
-    return "self.__class:" .. self:name(node[2])
-  end,
-  ref = function(self, value)
-    do
-      local sup = value[2] == "super" and self:get("super")
-      if sup then
-        return self:value(sup(self))
-      end
-    end
-    return tostring(value[2])
-  end,
-  raw_value = function(self, value)
-    if value == "..." then
-      self:send("varargs")
-    end
-    return tostring(value)
-  end
-}
-end
-
-package.preload["moonscript.errors"] = function()
-local util = require("moonscript.util")
-local lpeg = require("lpeg")
-local concat, insert
-do
-  local _obj_0 = table
-  concat, insert = _obj_0.concat, _obj_0.insert
-end
-local split, pos_to_line
-split, pos_to_line = util.split, util.pos_to_line
-local user_error
-user_error = function(...)
-  return error({
-    "user-error",
-    ...
-  })
-end
-local lookup_line
-lookup_line = function(fname, pos, cache)
-  if not cache[fname] then
-    do
-      local _with_0 = io.open(fname)
-      cache[fname] = _with_0:read("*a")
-      _with_0:close()
-    end
-  end
-  return pos_to_line(cache[fname], pos)
-end
-local reverse_line_number
-reverse_line_number = function(fname, line_table, line_num, cache)
-  for i = line_num, 0, -1 do
-    if line_table[i] then
-      return lookup_line(fname, line_table[i], cache)
-    end
-  end
-  return "unknown"
-end
-local truncate_traceback
-truncate_traceback = function(traceback, chunk_func)
-  if chunk_func == nil then
-    chunk_func = "moonscript_chunk"
-  end
-  traceback = split(traceback, "\n")
-  local stop = #traceback
-  while stop > 1 do
-    if traceback[stop]:match(chunk_func) then
-      break
-    end
-    stop = stop - 1
-  end
-  do
-    local _accum_0 = { }
-    local _len_0 = 1
-    local _max_0 = stop
-    for _index_0 = 1, _max_0 < 0 and #traceback + _max_0 or _max_0 do
-      local t = traceback[_index_0]
-      _accum_0[_len_0] = t
-      _len_0 = _len_0 + 1
-    end
-    traceback = _accum_0
-  end
-  local rep = "function '" .. chunk_func .. "'"
-  traceback[#traceback] = traceback[#traceback]:gsub(rep, "main chunk")
-  return concat(traceback, "\n")
-end
-local rewrite_traceback
-rewrite_traceback = function(text, err)
-  local line_tables = require("moonscript.line_tables")
-  local V, S, Ct, C
-  V, S, Ct, C = lpeg.V, lpeg.S, lpeg.Ct, lpeg.C
-  local header_text = "stack traceback:"
-  local Header, Line = V("Header"), V("Line")
-  local Break = lpeg.S("\n")
-  local g = lpeg.P({
-    Header,
-    Header = header_text * Break * Ct(Line ^ 1),
-    Line = "\t" * C((1 - Break) ^ 0) * (Break + -1)
-  })
-  local cache = { }
-  local rewrite_single
-  rewrite_single = function(trace)
-    local fname, line, msg = trace:match('^(.-):(%d+): (.*)$')
-    local tbl = line_tables["@" .. tostring(fname)]
-    if fname and tbl then
-      return concat({
-        fname,
-        ":",
-        reverse_line_number(fname, tbl, line, cache),
-        ": ",
-        "(",
-        line,
-        ") ",
-        msg
-      })
-    else
-      return trace
-    end
-  end
-  err = rewrite_single(err)
-  local match = g:match(text)
-  if not (match) then
-    return nil
-  end
-  for i, trace in ipairs(match) do
-    match[i] = rewrite_single(trace)
-  end
-  return concat({
-    "moon: " .. err,
-    header_text,
-    "\t" .. concat(match, "\n\t")
-  }, "\n")
-end
-return {
-  rewrite_traceback = rewrite_traceback,
-  truncate_traceback = truncate_traceback,
-  user_error = user_error,
-  reverse_line_number = reverse_line_number
-}
-end
-
-package.preload["moonscript.transform.destructure"] = function()
-local ntype, mtype, build
-do
-  local _obj_0 = require("moonscript.types")
-  ntype, mtype, build = _obj_0.ntype, _obj_0.mtype, _obj_0.build
-end
-local NameProxy
-do
-  local _obj_0 = require("moonscript.transform.names")
-  NameProxy = _obj_0.NameProxy
-end
-local insert
-do
-  local _obj_0 = table
-  insert = _obj_0.insert
-end
-local unpack
-do
-  local _obj_0 = require("moonscript.util")
-  unpack = _obj_0.unpack
-end
-local user_error
-do
-  local _obj_0 = require("moonscript.errors")
-  user_error = _obj_0.user_error
-end
-local join
-join = function(...)
-  do
-    local out = { }
-    local i = 1
-    local _list_0 = {
-      ...
-    }
-    for _index_0 = 1, #_list_0 do
-      local tbl = _list_0[_index_0]
-      for _index_1 = 1, #tbl do
-        local v = tbl[_index_1]
-        out[i] = v
-        i = i + 1
-      end
-    end
-    return out
-  end
-end
-local has_destructure
-has_destructure = function(names)
-  for _index_0 = 1, #names do
-    local n = names[_index_0]
-    if ntype(n) == "table" then
-      return true
-    end
-  end
-  return false
-end
-local extract_assign_names
-extract_assign_names = function(name, accum, prefix)
-  if accum == nil then
-    accum = { }
-  end
-  if prefix == nil then
-    prefix = { }
-  end
-  local i = 1
-  local _list_0 = name[2]
-  for _index_0 = 1, #_list_0 do
-    local tuple = _list_0[_index_0]
-    local value, suffix
-    if #tuple == 1 then
-      local s = {
-        "index",
-        {
-          "number",
-          i
-        }
-      }
-      i = i + 1
-      value, suffix = tuple[1], s
-    else
-      local key = tuple[1]
-      local s
-      if ntype(key) == "key_literal" then
-        local key_name = key[2]
-        if ntype(key_name) == "colon_stub" then
-          s = key_name
-        else
-          s = {
-            "dot",
-            key_name
-          }
-        end
-      else
-        s = {
-          "index",
-          key
-        }
-      end
-      value, suffix = tuple[2], s
-    end
-    suffix = join(prefix, {
-      suffix
-    })
-    local _exp_0 = ntype(value)
-    if "value" == _exp_0 or "ref" == _exp_0 or "chain" == _exp_0 or "self" == _exp_0 then
-      insert(accum, {
-        value,
-        suffix
-      })
-    elseif "table" == _exp_0 then
-      extract_assign_names(value, accum, suffix)
-    else
-      user_error("Can't destructure value of type: " .. tostring(ntype(value)))
-    end
-  end
-  return accum
-end
-local build_assign
-build_assign = function(scope, destruct_literal, receiver)
-  local extracted_names = extract_assign_names(destruct_literal)
-  local names = { }
-  local values = { }
-  local inner = {
-    "assign",
-    names,
-    values
-  }
-  local obj
-  if scope:is_local(receiver) then
-    obj = receiver
-  else
-    do
-      obj = NameProxy("obj")
-      inner = build["do"]({
-        build.assign_one(obj, receiver),
-        {
-          "assign",
-          names,
-          values
-        }
-      })
-      obj = obj
-    end
-  end
-  for _index_0 = 1, #extracted_names do
-    local tuple = extracted_names[_index_0]
-    insert(names, tuple[1])
-    insert(values, NameProxy.chain(obj, unpack(tuple[2])))
-  end
-  return build.group({
-    {
-      "declare",
-      names
-    },
-    inner
-  })
-end
-local split_assign
-split_assign = function(scope, assign)
-  local names, values = unpack(assign, 2)
-  local g = { }
-  local total_names = #names
-  local total_values = #values
-  local start = 1
-  for i, n in ipairs(names) do
-    if ntype(n) == "table" then
-      if i > start then
-        local stop = i - 1
-        insert(g, {
-          "assign",
-          (function()
-            local _accum_0 = { }
-            local _len_0 = 1
-            for i = start, stop do
-              _accum_0[_len_0] = names[i]
-              _len_0 = _len_0 + 1
-            end
-            return _accum_0
-          end)(),
-          (function()
-            local _accum_0 = { }
-            local _len_0 = 1
-            for i = start, stop do
-              _accum_0[_len_0] = values[i]
-              _len_0 = _len_0 + 1
-            end
-            return _accum_0
-          end)()
-        })
-      end
-      insert(g, build_assign(scope, n, values[i]))
-      start = i + 1
-    end
-  end
-  if total_names >= start or total_values >= start then
-    local name_slice
-    if total_names < start then
-      name_slice = {
-        "_"
-      }
-    else
-      do
-        local _accum_0 = { }
-        local _len_0 = 1
-        for i = start, total_names do
-          _accum_0[_len_0] = names[i]
-          _len_0 = _len_0 + 1
-        end
-        name_slice = _accum_0
-      end
-    end
-    local value_slice
-    if total_values < start then
-      value_slice = {
-        "nil"
-      }
-    else
-      do
-        local _accum_0 = { }
-        local _len_0 = 1
-        for i = start, total_values do
-          _accum_0[_len_0] = values[i]
-          _len_0 = _len_0 + 1
-        end
-        value_slice = _accum_0
-      end
-    end
-    insert(g, {
-      "assign",
-      name_slice,
-      value_slice
-    })
-  end
-  return build.group(g)
-end
-return {
-  has_destructure = has_destructure,
-  split_assign = split_assign,
-  build_assign = build_assign
-}
-end
-
-package.preload["moonscript.util"] = function()
-local concat
-do
-  local _obj_0 = table
-  concat = _obj_0.concat
-end
-local unpack = unpack or table.unpack
-local type = type
-local moon = {
-  is_object = function(value)
-    return type(value) == "table" and value.__class
-  end,
-  is_a = function(thing, t)
-    if not (type(thing) == "table") then
-      return false
-    end
-    local cls = thing.__class
-    while cls do
-      if cls == t then
-        return true
-      end
-      cls = cls.__parent
-    end
-    return false
-  end,
-  type = function(value)
-    local base_type = type(value)
-    if base_type == "table" then
-      local cls = value.__class
-      if cls then
-        return cls
-      end
-    end
-    return base_type
-  end
-}
-local pos_to_line
-pos_to_line = function(str, pos)
-  local line = 1
-  for _ in str:sub(1, pos):gmatch("\n") do
-    line = line + 1
-  end
-  return line
-end
-local trim
-trim = function(str)
-  return str:match("^%s*(.-)%s*$")
-end
-local get_line
-get_line = function(str, line_num)
-  for line in str:gmatch("([^\n]*)\n?") do
-    if line_num == 1 then
-      return line
-    end
-    line_num = line_num - 1
-  end
-end
-local get_closest_line
-get_closest_line = function(str, line_num)
-  local line = get_line(str, line_num)
-  if (not line or trim(line) == "") and line_num > 1 then
-    return get_closest_line(str, line_num - 1)
-  else
-    return line, line_num
-  end
-end
-local reversed
-reversed = function(seq)
-  return coroutine.wrap(function()
-    for i = #seq, 1, -1 do
-      coroutine.yield(i, seq[i])
-    end
-  end)
-end
-local split
-split = function(str, delim)
-  if str == "" then
-    return { }
-  end
-  str = str .. delim
-  local _accum_0 = { }
-  local _len_0 = 1
-  for m in str:gmatch("(.-)" .. delim) do
-    _accum_0[_len_0] = m
-    _len_0 = _len_0 + 1
-  end
-  return _accum_0
-end
-local dump
-dump = function(what)
-  local seen = { }
-  local _dump
-  _dump = function(what, depth)
-    if depth == nil then
-      depth = 0
-    end
-    local t = type(what)
-    if t == "string" then
-      return '"' .. what .. '"\n'
-    elseif t == "table" then
-      if seen[what] then
-        return "recursion(" .. tostring(what) .. ")...\n"
-      end
-      seen[what] = true
-      depth = depth + 1
-      local lines
-      do
-        local _accum_0 = { }
-        local _len_0 = 1
-        for k, v in pairs(what) do
-          _accum_0[_len_0] = (" "):rep(depth * 4) .. "[" .. tostring(k) .. "] = " .. _dump(v, depth)
-          _len_0 = _len_0 + 1
-        end
-        lines = _accum_0
-      end
-      seen[what] = false
-      return "{\n" .. concat(lines) .. (" "):rep((depth - 1) * 4) .. "}\n"
-    else
-      return tostring(what) .. "\n"
-    end
-  end
-  return _dump(what)
-end
-local debug_posmap
-debug_posmap = function(posmap, moon_code, lua_code)
-  local tuples
-  do
-    local _accum_0 = { }
-    local _len_0 = 1
-    for k, v in pairs(posmap) do
-      _accum_0[_len_0] = {
-        k,
-        v
-      }
-      _len_0 = _len_0 + 1
-    end
-    tuples = _accum_0
-  end
-  table.sort(tuples, function(a, b)
-    return a[1] < b[1]
-  end)
-  local lines
-  do
-    local _accum_0 = { }
-    local _len_0 = 1
-    for _index_0 = 1, #tuples do
-      local pair = tuples[_index_0]
-      local lua_line, pos = unpack(pair)
-      local moon_line = pos_to_line(moon_code, pos)
-      local lua_text = get_line(lua_code, lua_line)
-      local moon_text = get_closest_line(moon_code, moon_line)
-      local _value_0 = tostring(pos) .. "\t " .. tostring(lua_line) .. ":[ " .. tostring(trim(lua_text)) .. " ] >> " .. tostring(moon_line) .. ":[ " .. tostring(trim(moon_text)) .. " ]"
-      _accum_0[_len_0] = _value_0
-      _len_0 = _len_0 + 1
-    end
-    lines = _accum_0
-  end
-  return concat(lines, "\n")
-end
-local setfenv = setfenv or function(fn, env)
-  local name
-  local i = 1
-  while true do
-    name = debug.getupvalue(fn, i)
-    if not name or name == "_ENV" then
-      break
-    end
-    i = i + 1
-  end
-  if name then
-    debug.upvaluejoin(fn, i, (function()
-      return env
-    end), 1)
-  end
-  return fn
-end
-local getfenv = getfenv or function(fn)
-  local i = 1
-  while true do
-    local name, val = debug.getupvalue(fn, i)
-    if not (name) then
-      break
-    end
-    if name == "_ENV" then
-      return val
-    end
-    i = i + 1
-  end
-  return nil
-end
-local get_options
-get_options = function(...)
-  local count = select("#", ...)
-  local opts = select(count, ...)
-  if type(opts) == "table" then
-    return opts, unpack({
-      ...
-    }, nil, count - 1)
-  else
-    return { }, ...
-  end
-end
-return {
-  moon = moon,
-  pos_to_line = pos_to_line,
-  get_closest_line = get_closest_line,
-  get_line = get_line,
-  reversed = reversed,
-  trim = trim,
-  split = split,
-  dump = dump,
-  debug_posmap = debug_posmap,
-  getfenv = getfenv,
-  setfenv = setfenv,
-  get_options = get_options,
-  unpack = unpack
-}
-end
-
-package.preload["moonscript.data"] = function()
-local concat, remove, insert
-do
-  local _obj_0 = table
-  concat, remove, insert = _obj_0.concat, _obj_0.remove, _obj_0.insert
-end
-local Set
-Set = function(items)
-  local _tbl_0 = { }
-  for _index_0 = 1, #items do
-    local k = items[_index_0]
-    _tbl_0[k] = true
-  end
-  return _tbl_0
-end
-local Stack
-do
-  local _base_0 = {
-    __tostring = function(self)
-      return "<Stack {" .. concat(self, ", ") .. "}>"
-    end,
-    pop = function(self)
-      return remove(self)
-    end,
-    push = function(self, value, ...)
-      insert(self, value)
-      if ... then
-        return self:push(...)
-      else
-        return value
-      end
-    end,
-    top = function(self)
-      return self[#self]
-    end
-  }
-  _base_0.__index = _base_0
-  local _class_0 = setmetatable({
-    __init = function(self, ...)
-      self:push(...)
-      return nil
-    end,
-    __base = _base_0,
-    __name = "Stack"
-  }, {
-    __index = _base_0,
-    __call = function(cls, ...)
-      local _self_0 = setmetatable({}, _base_0)
-      cls.__init(_self_0, ...)
-      return _self_0
-    end
-  })
-  _base_0.__class = _class_0
-  Stack = _class_0
-end
-local lua_keywords = Set({
-  'and',
-  'break',
-  'do',
-  'else',
-  'elseif',
-  'end',
-  'false',
-  'for',
-  'function',
-  'if',
-  'in',
-  'local',
-  'nil',
-  'not',
-  'or',
-  'repeat',
-  'return',
-  'then',
-  'true',
-  'until',
-  'while'
-})
-return {
-  Set = Set,
-  Stack = Stack,
-  lua_keywords = lua_keywords
-}
-end
-
-package.preload["moonscript.base"] = function()
-local compile = require("moonscript.compile")
-local parse = require("moonscript.parse")
-local concat, insert, remove
-do
-  local _obj_0 = table
-  concat, insert, remove = _obj_0.concat, _obj_0.insert, _obj_0.remove
-end
-local split, dump, get_options, unpack
-do
-  local _obj_0 = require("moonscript.util")
-  split, dump, get_options, unpack = _obj_0.split, _obj_0.dump, _obj_0.get_options, _obj_0.unpack
-end
-local lua = {
-  loadstring = loadstring,
-  load = load
-}
-local dirsep, line_tables, create_moonpath, to_lua, moon_loader, loadstring, loadfile, dofile, insert_loader, remove_loader
-dirsep = "/"
-line_tables = require("moonscript.line_tables")
-create_moonpath = function(package_path)
-  local paths = split(package_path, ";")
-  for i, path in ipairs(paths) do
-    local p = path:match("^(.-)%.lua$")
-    if p then
-      paths[i] = p .. ".moon"
-    end
-  end
-  return concat(paths, ";")
-end
-to_lua = function(text, options)
-  if options == nil then
-    options = { }
-  end
-  if "string" ~= type(text) then
-    local t = type(text)
-    return nil, "expecting string (got " .. t .. ")"
-  end
-  local tree, err = parse.string(text)
-  if not tree then
-    return nil, err
-  end
-  local code, ltable, pos = compile.tree(tree, options)
-  if not code then
-    return nil, compile.format_error(ltable, pos, text)
-  end
-  return code, ltable
-end
-moon_loader = function(name)
-  local name_path = name:gsub("%.", dirsep)
-  local file, file_path
-  local _list_0 = split(package.moonpath, ";")
-  for _index_0 = 1, #_list_0 do
-    local path = _list_0[_index_0]
-    file_path = path:gsub("?", name_path)
-    file = io.open(file_path)
-    if file then
-      break
-    end
-  end
-  if file then
-    local text = file:read("*a")
-    file:close()
-    local res, err = loadstring(text, "@" .. tostring(file_path))
-    if not res then
-      error(file_path .. ": " .. err)
-    end
-    return res
-  end
-  return nil, "Could not find moon file"
-end
-loadstring = function(...)
-  local options, str, chunk_name, mode, env = get_options(...)
-  chunk_name = chunk_name or "=(moonscript.loadstring)"
-  local code, ltable_or_err = to_lua(str, options)
-  if not (code) then
-    return nil, ltable_or_err
-  end
-  if chunk_name then
-    line_tables[chunk_name] = ltable_or_err
-  end
-  return (lua.loadstring or lua.load)(code, chunk_name, unpack({
-    mode,
-    env
-  }))
-end
-loadfile = function(fname, ...)
-  local file, err = io.open(fname)
-  if not (file) then
-    return nil, err
-  end
-  local text = assert(file:read("*a"))
-  if string.sub(text,1,3)=="\239\187\191" then text=string.sub(text,4) end
-  file:close()
-  return loadstring(text, "@" .. tostring(fname), ...)
-end
-dofile = function(...)
-  local f = assert(loadfile(...))
-  return f()
-end
-insert_loader = function(pos)
-  if pos == nil then
-    pos = 2
-  end
-  if not package.moonpath then
-    package.moonpath = create_moonpath(package.path)
-  end
-  local loaders = package.loaders or package.searchers
-  for _index_0 = 1, #loaders do
-    local loader = loaders[_index_0]
-    if loader == moon_loader then
-      return false
-    end
-  end
-  insert(loaders, pos, moon_loader)
-  return true
-end
-remove_loader = function()
-  local loaders = package.loaders or package.searchers
-  for i, loader in ipairs(loaders) do
-    if loader == moon_loader then
-      remove(loaders, i)
-      return true
-    end
-  end
-  return false
-end
-return {
-  _NAME = "moonscript",
-  insert_loader = insert_loader,
-  remove_loader = remove_loader,
-  to_lua = to_lua,
-  moon_loader = moon_loader,
-  dirsep = dirsep,
-  dofile = dofile,
-  loadfile = loadfile,
-  loadstring = loadstring
 }
 end
 
@@ -5648,6 +5508,150 @@ return {
   Value = Value,
   Run = Run
 }
+end
+
+package.preload["moonscript.base"] = function()
+local compile = require("moonscript.compile")
+local parse = require("moonscript.parse")
+local concat, insert, remove
+do
+  local _obj_0 = table
+  concat, insert, remove = _obj_0.concat, _obj_0.insert, _obj_0.remove
+end
+local split, dump, get_options, unpack
+do
+  local _obj_0 = require("moonscript.util")
+  split, dump, get_options, unpack = _obj_0.split, _obj_0.dump, _obj_0.get_options, _obj_0.unpack
+end
+local lua = {
+  loadstring = loadstring,
+  load = load
+}
+local dirsep, line_tables, create_moonpath, to_lua, moon_loader, loadstring, loadfile, dofile, insert_loader, remove_loader
+dirsep = "/"
+line_tables = require("moonscript.line_tables")
+create_moonpath = function(package_path)
+  local paths = split(package_path, ";")
+  for i, path in ipairs(paths) do
+    local p = path:match("^(.-)%.lua$")
+    if p then
+      paths[i] = p .. ".moon"
+    end
+  end
+  return concat(paths, ";")
+end
+to_lua = function(text, options)
+  if options == nil then
+    options = { }
+  end
+  if "string" ~= type(text) then
+    local t = type(text)
+    return nil, "expecting string (got " .. t .. ")"
+  end
+  local tree, err = parse.string(text)
+  if not tree then
+    return nil, err
+  end
+  local code, ltable, pos = compile.tree(tree, options)
+  if not code then
+    return nil, compile.format_error(ltable, pos, text)
+  end
+  return code, ltable
+end
+moon_loader = function(name)
+  local name_path = name:gsub("%.", dirsep)
+  local file, file_path
+  local _list_0 = split(package.moonpath, ";")
+  for _index_0 = 1, #_list_0 do
+    local path = _list_0[_index_0]
+    file_path = path:gsub("?", name_path)
+    file = io.open(file_path)
+    if file then
+      break
+    end
+  end
+  if file then
+    local text = file:read("*a")
+    file:close()
+    local res, err = loadstring(text, "@" .. tostring(file_path))
+    if not res then
+      error(file_path .. ": " .. err)
+    end
+    return res
+  end
+  return nil, "Could not find moon file"
+end
+loadstring = function(...)
+  local options, str, chunk_name, mode, env = get_options(...)
+  chunk_name = chunk_name or "=(moonscript.loadstring)"
+  local code, ltable_or_err = to_lua(str, options)
+  if not (code) then
+    return nil, ltable_or_err
+  end
+  if chunk_name then
+    line_tables[chunk_name] = ltable_or_err
+  end
+  return (lua.loadstring or lua.load)(code, chunk_name, unpack({
+    mode,
+    env
+  }))
+end
+loadfile = function(fname, ...)
+  local file, err = io.open(fname)
+  if not (file) then
+    return nil, err
+  end
+  local text = assert(file:read("*a"))
+  if string.sub(text,1,3)=="\239\187\191" then text=string.sub(text,4) end
+  file:close()
+  return loadstring(text, "@" .. tostring(fname), ...)
+end
+dofile = function(...)
+  local f = assert(loadfile(...))
+  return f()
+end
+insert_loader = function(pos)
+  if pos == nil then
+    pos = 2
+  end
+  if not package.moonpath then
+    package.moonpath = create_moonpath(package.path)
+  end
+  local loaders = package.loaders or package.searchers
+  for _index_0 = 1, #loaders do
+    local loader = loaders[_index_0]
+    if loader == moon_loader then
+      return false
+    end
+  end
+  insert(loaders, pos, moon_loader)
+  return true
+end
+remove_loader = function()
+  local loaders = package.loaders or package.searchers
+  for i, loader in ipairs(loaders) do
+    if loader == moon_loader then
+      remove(loaders, i)
+      return true
+    end
+  end
+  return false
+end
+return {
+  _NAME = "moonscript",
+  insert_loader = insert_loader,
+  remove_loader = remove_loader,
+  to_lua = to_lua,
+  moon_loader = moon_loader,
+  dirsep = dirsep,
+  dofile = dofile,
+  loadfile = loadfile,
+  loadstring = loadstring
+}
+end
+
+package.preload["moon"] = function()
+return require "moon.init"
 end
 
 package.preload["moonscript.line_tables"] = function()
