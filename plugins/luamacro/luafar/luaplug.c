@@ -36,6 +36,7 @@ intptr_t WINAPI MacroCallback(void* Id, FARADDKEYMACROFLAGS Flags)
 	return LF_MacroCallback(LS, Id, Flags);
 }
 
+static void InitLuaState2(lua_State *L, TPluginData* PluginData);  /* forward declaration */
 static void laction(int i);  /* forward declaration */
 struct PluginStartupInfo Info;
 struct FarStandardFunctions FSF;
@@ -90,15 +91,20 @@ __declspec(dllexport) int luaopen_luaplug(lua_State *L)
 {
 	TPluginData *pd = (TPluginData*)lua_newuserdata(L, sizeof(TPluginData));
 	memcpy(pd, &PluginData, sizeof(TPluginData));
-
 	LF_InitLuaState1(L, FUNC_OPENLIBS);
-	LF_InitLuaState2(L, pd);
-	LF_ProcessEnvVars(L, ENV_PREFIX, PluginDir);
-
+	InitLuaState2(L, pd);
 	luaL_ref(L, LUA_REGISTRYINDEX);
-
 	return 0;
 }
+
+static void InitLuaState2(lua_State *L, TPluginData* PluginData)
+{
+	LF_InitLuaState2(L, PluginData);
+	LF_ProcessEnvVars(L, ENV_PREFIX, PluginDir);
+	lua_pushcfunction(L, luaopen_luaplug);
+	lua_setglobal(L, "_luaplug");
+}
+
 //---------------------------------------------------------------------------
 
 __declspec(dllexport) lua_State* GetLuaState()
@@ -136,11 +142,7 @@ void LUAPLUG SetStartupInfoW(const struct PluginStartupInfo *aInfo)
 		Info = *aInfo;
 		FSF = *aInfo->FSF;
 		Info.FSF = &FSF;
-		LF_InitLuaState2(LS, &PluginData);
-		LF_ProcessEnvVars(LS, ENV_PREFIX, PluginDir);
-
-		lua_pushcfunction(LS, luaopen_luaplug);
-		lua_setglobal(LS, "_luaplug");
+		InitLuaState2(LS, &PluginData);
 
 		if(LF_RunDefaultScript(LS) == FALSE)
 		{
@@ -191,8 +193,7 @@ static int RecreateLuaState()
 			LF_InitLuaState1(newLS, FUNC_OPENLIBS);
 			if (LF_GetGlobalInfo(newLS, &GInfo, PluginDir))
 			{
-				LF_InitLuaState2(newLS, &PluginData);
-				LF_ProcessEnvVars(newLS, ENV_PREFIX, PluginDir);
+				InitLuaState2(newLS, &PluginData);
 				lua_pushboolean(newLS,1);
 				lua_setglobal(newLS, "IsLuaStateRecreated");
 				OK = LF_RunDefaultScript(newLS);
