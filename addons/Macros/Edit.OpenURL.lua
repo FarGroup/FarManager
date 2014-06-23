@@ -1,7 +1,8 @@
 ﻿-- Open URL (http://url.spec.whatwg.org) or UNC under cursor.
 -- In rare case if last URL symbol is lost, add "#": https://www.google.com/search?q=hello!#
 
-local NeedQuery = true
+-- Confirm launching the URL under cursor. Change it to false if you want no confirmations.
+local Confirm = true
 
 local patt = regex.new( [=[
 (?:
@@ -28,12 +29,10 @@ Macro {
     local text, start = s.StringText.."\0", 1
     while true do
       local b,e = patt:findW(text,start)
-      --far.Show(b,e)
       if b == nil or b > pos then break end
       if e >= pos then
         local url = win.Utf16ToUtf8(win.subW(text,b,e))
-        --far.Show(url)
-        if not NeedQuery or 1==far.Message(url, "Do you want to run this?", ";YesNo", "l") then
+        if not Confirm or 1==far.Message(url, "Do you want to run this?", ";YesNo") then
           win.ShellExecute(nil, "open", url)
         end
         break

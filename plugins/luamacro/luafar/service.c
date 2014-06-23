@@ -48,9 +48,6 @@ extern int far_FarMacroCallToLua(lua_State *L);
 extern void PackMacroValues(lua_State* L, size_t Count, const struct FarMacroValue* Values);
 extern void PushFarMacroValue(lua_State* L, const struct FarMacroValue* val);
 
-#define CAST(tp,expr) (tp)(expr)
-#define DIM(buff) (sizeof(buff)/sizeof(buff[0]))
-
 const char FarFileFilterType[] = "FarFileFilter";
 const char FarTimerType[]      = "FarTimer";
 const char FarDialogType[]     = "FarDialog";
@@ -403,7 +400,7 @@ static int far_GetFileOwner(lua_State *L)
 	const wchar_t *Computer = opt_utf8_string(L, 1, NULL);
 	const wchar_t *Name = check_utf8_string(L, 2, NULL);
 
-	if(GetPluginData(L)->FSF->GetFileOwner(Computer, Name, Owner, DIM(Owner)))
+	if(GetPluginData(L)->FSF->GetFileOwner(Computer, Name, Owner, ARRSIZE(Owner)))
 		push_utf8_string(L, Owner, -1);
 	else
 		lua_pushnil(L);
@@ -985,7 +982,7 @@ static int editor_SetParam(lua_State *L)
 	if(esp.Type == ESPT_GETWORDDIV)
 	{
 		esp.Param.wszParam = buf;
-		esp.Size = DIM(buf);
+		esp.Size = ARRSIZE(buf);
 	}
 
 	//-----------------------------------------------------
@@ -3185,9 +3182,9 @@ static int far_SendDlgMessage(lua_State *L)
 			struct FarListTitles flt;
 			flt.StructSize = sizeof(flt);
 			flt.Title = buf;
-			flt.Bottom = buf + DIM(buf)/2;
-			flt.TitleSize = DIM(buf)/2;
-			flt.BottomSize = DIM(buf)/2;
+			flt.Bottom = buf + ARRSIZE(buf)/2;
+			flt.TitleSize = ARRSIZE(buf)/2;
+			flt.BottomSize = ARRSIZE(buf)/2;
 			if (Info->SendDlgMessage(hDlg, Msg, Param1, &flt))
 			{
 				lua_createtable(L,0,2);
@@ -4024,7 +4021,7 @@ static int far_InputRecordToName(lua_State *L)
 	INPUT_RECORD ir;
 	size_t result;
 	FillInputRecord(L, 1, &ir);
-	result = GetPluginData(L)->FSF->FarInputRecordToName(&ir, buf, DIM(buf)-1);
+	result = GetPluginData(L)->FSF->FarInputRecordToName(&ir, buf, ARRSIZE(buf)-1);
 
 	if(result > 0)
 	{
@@ -5161,7 +5158,7 @@ static int far_FormatFileSize(lua_State *L)
 	if(Flags & FFFS_MINSIZEINDEX)
 		Flags |= (luaL_optinteger(L, 4, 0) & FFFS_MINSIZEINDEX_MASK);
 
-	GetPluginData(L)->FSF->FormatFileSize(Size, Width, Flags, buf, DIM(buf));
+	GetPluginData(L)->FSF->FormatFileSize(Size, Width, Flags, buf, ARRSIZE(buf));
 	push_utf8_string(L, buf, -1);
 	return 1;
 }
@@ -6047,7 +6044,7 @@ void LF_ProcessEnvVars(lua_State *L, const wchar_t* aEnvPrefix, const wchar_t* P
 	const int VALSIZE = 16384;
 	wchar_t* bufVal = NULL;
 
-	if(aEnvPrefix && wcslen(aEnvPrefix) <=  DIM(bufName) - 8)
+	if(aEnvPrefix && wcslen(aEnvPrefix) <=  ARRSIZE(bufName) - 8)
 		bufVal = (wchar_t*)lua_newuserdata(L, VALSIZE*sizeof(wchar_t));
 
 	if(bufVal)
@@ -6168,7 +6165,7 @@ void LF_InitLuaState1(lua_State *L, lua_CFunction aOpenLibs)
 			int i;
 			static const char* names[] = { "bit", "ffi", "jit" };
 			const lua_CFunction funcs[] = { luaopen_bit, luaopen_ffi, luaopen_jit };
-			for(i=0; i<DIM(names); i++)
+			for(i=0; i<ARRSIZE(names); i++)
 			{
 				if(funcs[i])
 				{

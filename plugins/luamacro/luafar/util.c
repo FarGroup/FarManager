@@ -1,8 +1,6 @@
 #include "ustring.h"
 #include "util.h"
 
-#define CAST(tp,expr) (tp)(expr)
-
 // stack[-2] - table
 // stack[-1] - value
 int luaLF_SlotError(lua_State *L, int key, const char* expected_typename)

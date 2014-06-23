@@ -6,7 +6,6 @@
 #include "ustring.h"
 #include "compat52.h"
 
-#define CAST(tp,expr) ((tp)(expr))
 #define TRANSFORM_REF(L,h)   ((char*)(L)+(h))
 #define UNTRANSFORM_REF(L,h) (int)((char*)(h)-(char*)(L))
 

@@ -4,8 +4,6 @@
 #include "ustring.h"
 #include "compat52.h"
 
-#define DIM(buff) (sizeof(buff)/sizeof(buff[0]))
-
 extern const char* VirtualKeyStrings[256];
 extern void pushFileTime(lua_State *L, const FILETIME *ft);
 extern void NewVirtualKeyTable(lua_State* L, BOOL twoways);
@@ -16,11 +14,11 @@ static int win_GetEnv(lua_State *L)
 {
 	const wchar_t* name = check_utf8_string(L, 1, NULL);
 	wchar_t buf[256];
-	DWORD res = GetEnvironmentVariableW(name, buf, DIM(buf));
+	DWORD res = GetEnvironmentVariableW(name, buf, ARRSIZE(buf));
 	lua_pushnil(L);
 	if(res)
 	{
-		if(res < DIM(buf))
+		if(res < ARRSIZE(buf))
 			push_utf8_string(L, buf, -1);
 		else
 		{
@@ -206,7 +204,7 @@ static int win_EnumRegKey(lua_State *L)
 	wchar_t* Key = (wchar_t*)check_utf8_string(L, 2, NULL);
 	DWORD dwIndex = (DWORD)luaL_checkinteger(L, 3);
 	wchar_t Name[512];
-	DWORD NameSize = DIM(Name);
+	DWORD NameSize = ARRSIZE(Name);
 	FILETIME LastWriteTime;
 
 	if(RegOpenKeyExW(hRoot, Key, 0, KEY_ENUMERATE_SUB_KEYS, &hKey)!=ERROR_SUCCESS)
@@ -249,7 +247,7 @@ static int win_EnumRegValue(lua_State *L)
 	wchar_t* Key = (wchar_t*)check_utf8_string(L, 2, NULL);
 	DWORD dwIndex = (DWORD)luaL_checkinteger(L, 3);
 	wchar_t Name[512];
-	DWORD NameSize = DIM(Name);
+	DWORD NameSize = ARRSIZE(Name);
 	DWORD Type;
 
 	if(RegOpenKeyExW(hRoot, Key, 0, KEY_QUERY_VALUE, &hKey)!=ERROR_SUCCESS)

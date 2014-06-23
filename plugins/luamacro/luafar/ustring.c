@@ -2,14 +2,11 @@
 #include "ustring.h"
 #include "compat52.h"
 
-#define CAST(tp,expr) (tp)(expr)
-#define DIM(buff) (sizeof(buff)/sizeof(buff[0]))
-
 // This function was initially taken from Lua 5.0.2 (loadlib.c)
 void pusherrorcode(lua_State *L, int error)
 {
 	wchar_t buffer[256];
-	const int BUFSZ = DIM(buffer);
+	const int BUFSZ = ARRSIZE(buffer);
 	int num = FormatMessageW(FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM,
 	                         0, error, 0, buffer, BUFSZ, 0);
 
