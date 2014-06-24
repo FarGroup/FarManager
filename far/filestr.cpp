@@ -174,6 +174,32 @@ bool GetFileString::GetString(LPWSTR* DestStr, size_t& Length)
 		}
 		return false;
 
+	case CP_UTF7:
+		{
+			std::vector<char> CharStr;
+			CharStr.reserve(DELTA);
+			bool ExitCode = GetTString(m_ReadBuf, CharStr);
+
+			if (ExitCode)
+			{
+				UTF7::Errs errs;
+				int len = UTF7::ToWideChar(CharStr.data(), static_cast<int>(CharStr.size())-1, m_wStr.data(), static_cast<int>(m_wStr.size()), &errs);
+
+				SomeDataLost = SomeDataLost || errs.count > 0;
+				if (errs.small_buff)
+				{
+					std::vector<wchar_t>(len + 1).swap(m_wStr);
+					UTF7::ToWideChar(CharStr.data(), static_cast<int>(CharStr.size())-1, m_wStr.data(), len, nullptr);
+				}
+
+				m_wStr.resize(len+1);
+				m_wStr[len] = L'\0';
+				*DestStr = m_wStr.data();
+				Length = m_wStr.size() - 1;
+			}
+			return ExitCode;
+		}
+
 	default:
 		{
 			std::vector<char> CharStr;
@@ -189,8 +215,7 @@ bool GetFileString::GetString(LPWSTR* DestStr, size_t& Length)
 
 				if (!SomeDataLost)
 				{
-					// при CP_UTF7 dwFlags должен быть 0, см. MSDN
-					nResultLength = MultiByteToWideChar(m_CodePage, (SomeDataLost || m_CodePage == CP_UTF7) ? 0 : MB_ERR_INVALID_CHARS, CharStr.data(), static_cast<int>(CharStr.size()), m_wStr.data(), static_cast<int>(m_wStr.size()));
+					nResultLength = MultiByteToWideChar(m_CodePage, SomeDataLost ? 0 : MB_ERR_INVALID_CHARS, CharStr.data(), static_cast<int>(CharStr.size()), m_wStr.data(), static_cast<int>(m_wStr.size()));
 
 					if (!nResultLength)
 					{

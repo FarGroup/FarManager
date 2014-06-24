@@ -7434,43 +7434,46 @@ DWORD Editor::EditSetCodePage(iterator edit, uintptr_t codepage, bool check_only
 	if (codepage == m_codepage)
 		return Ret;
 
-	//DWORD wc2mbFlags=WC_NO_BEST_FIT_CHARS;
-	BOOL UsedDefaultChar=FALSE;
-	LPBOOL lpUsedDefaultChar = &UsedDefaultChar;
-	if (m_codepage==CP_UTF7 || m_codepage==CP_UTF8) // BUGBUG: CP_SYMBOL, 50xxx, 57xxx too
-	{
-		//wc2mbFlags=0;
-		lpUsedDefaultChar=nullptr;
-	}
-	DWORD mb2wcFlags = (codepage == CP_UTF7  ? 0 : MB_ERR_INVALID_CHARS); // BUGBUG: CP_SYMBOL, 50xxx, 57xxx too
+	BOOL UsedDefaultChar = FALSE;
+	assert(m_codepage != CP_UTF7); // BUGBUG: CP_SYMBOL, 50xxx, 57xxx
+	LPBOOL lpUsedDefaultChar = m_codepage == CP_UTF8 ? nullptr : &UsedDefaultChar;
 
 	if ( edit->Str && edit->StrSize )
 	{
-		if ( 3*static_cast<size_t>(edit->StrSize)+1 > decoded.size() )
-		{
+		if (3*static_cast<size_t>(edit->StrSize)+1 > decoded.size())
 			decoded.resize(256 + 4*edit->StrSize);
-			// TODO: out_of_memory handling
-		}
 
 		int length = WideCharToMultiByte(m_codepage, 0, edit->Str, edit->StrSize, decoded.data(), static_cast<int>(decoded.size()), nullptr, lpUsedDefaultChar);
 		if (!length || UsedDefaultChar)
 		{
 			Ret |= SETCP_WC2MBERROR;
-			if ( check_only )
+			if (check_only)
 				return Ret;
 		}
 
-		int length2 = MultiByteToWideChar(codepage, mb2wcFlags, decoded.data(), length, nullptr, 0);
-		if (!length2 && GetLastError() == ERROR_NO_UNICODE_TRANSLATION)
+		int length2;
+		if (codepage == CP_UTF7)
 		{
-			Ret |= SETCP_MB2WCERROR;
-			if ( !check_only )
-				length2 = MultiByteToWideChar(codepage, 0, decoded.data(), length, nullptr, 0);
+			UTF7::Errs errs;
+			length2 = UTF7::ToWideChar(decoded.data(), length, nullptr, 0, &errs);
+			if (errs.count > 0)
+				Ret |= SETCP_MB2WCERROR;
 		}
-		if ( check_only )
+		else
+		{
+			// BUGBUG: CP_SYMBOL, 50xxx, 57xxx
+			length2 = MultiByteToWideChar(codepage, MB_ERR_INVALID_CHARS, decoded.data(), length, nullptr, 0);
+			if (!length2 && GetLastError() == ERROR_NO_UNICODE_TRANSLATION)
+			{
+				Ret |= SETCP_MB2WCERROR;
+				if (!check_only)
+					length2 = MultiByteToWideChar(codepage, 0, decoded.data(), length, nullptr, 0);
+			}
+		}
+		if (check_only)
 			return Ret;
 
-		if ( edit->StrSize < length2 )
+		if (edit->StrSize < length2)
 		{
 			wchar_t *encoded = (wchar_t*)xf_malloc((length2+1)*sizeof(wchar_t));
 			if (!encoded)
@@ -7479,14 +7482,17 @@ DWORD Editor::EditSetCodePage(iterator edit, uintptr_t codepage, bool check_only
 			edit->Str = encoded;
 		}
 
-		length2 = MultiByteToWideChar(codepage, 0, decoded.data(), length, edit->Str, length2);
+		if (codepage == CP_UTF7)
+			length2 = UTF7::ToWideChar(decoded.data(), length, edit->Str, length2, nullptr);
+		else
+			length2 = MultiByteToWideChar(codepage, 0, decoded.data(), length, edit->Str, length2);
+
 		edit->Str[edit->StrSize = length2] = L'\0';
 	}
 
-	if ( !check_only )
-	{
+	if (!check_only)
 		edit->Changed();
-	}
+
 	return Ret;
 }
 
@@ -7496,6 +7502,7 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 	if ( m_codepage == codepage )
 		return true;
 
+	assert(m_codepage != CP_UTF7);
 	int line = 0;
 
 	FOR_RANGE(Lines, i)
@@ -7505,24 +7512,79 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 		{
 			Y = line;
 			X = 0;
-			BOOL def = FALSE, *p_def = (m_codepage == CP_UTF8 || m_codepage == CP_UTF7 ? nullptr : &def);
-			DWORD mb2wcFlags = (codepage == CP_UTF7  ? 0 : MB_ERR_INVALID_CHARS);
+
+			if (3*static_cast<size_t>(i->StrSize)+1 > decoded.size())
+				decoded.resize(256 + 4*i->StrSize);
+
+			std::vector<int> wchar_offsets;
+			wchar_offsets.reserve(i->StrSize + 1);
+			int total_len = 0;
+
+			BOOL def = FALSE, *p_def = m_codepage == CP_UTF8 ? nullptr : &def;
 			for (int j=0; j < i->StrSize; ++j)
 			{
-				char s[10];
-				int len = WideCharToMultiByte(m_codepage, 0, i->Str+j, 1, s, sizeof(s), nullptr, p_def);
+				wchar_offsets.push_back(total_len);
+				char *s = decoded.data() + total_len;
+
+				int len = WideCharToMultiByte(m_codepage, 0, i->Str+j, 1, s, 3, nullptr, p_def);
 				if (len <= 0 || def)
 				{
 					X = j;
-					break;
+					return false;
 				}
-				int len2 = MultiByteToWideChar(codepage, mb2wcFlags, s, len, nullptr, 0);
-				if (len2 <= 0 && GetLastError() == ERROR_NO_UNICODE_TRANSLATION)
+				total_len += len;
+			}
+			wchar_offsets.push_back(total_len);
+
+			int err_pos = -1;
+			if (codepage == CP_UTF7)
+			{
+				UTF7::Errs errs;
+				UTF7::ToWideChar(decoded.data(), total_len, nullptr,0, &errs);
+				err_pos = errs.first_src;
+			}
+			else
+			{
+				int max_len = codepage == CP_UTF8 ? 3 : 2;
+				for (int j=0; j < total_len; )
 				{
-					X = j;
-					break;
+					int len;
+					for (len=1; len <= max_len; ++len)
+					{
+						if (j + len <= total_len)
+						{
+							int len2 = MultiByteToWideChar(codepage, MB_ERR_INVALID_CHARS, decoded.data()+j, len, nullptr, 0);
+							if (len2 <= 0 && GetLastError() == ERROR_NO_UNICODE_TRANSLATION)
+								continue;
+							else
+								break;
+						}
+					}
+					if (len <= max_len)
+					{
+						j += len;
+						continue;
+					}
+					else
+					{
+						err_pos = j;
+						break;
+					}
 				}
 			}
+
+			if (err_pos >= 0)
+			{
+				for (size_t k=0; k < wchar_offsets.size()-1; ++k)
+				{
+					if (wchar_offsets[k] <= err_pos && wchar_offsets[k+1] > err_pos)
+					{
+						X = static_cast<int>(k);
+						break;
+					}
+				}
+			}
+
 			return false;
 		}
 		++line;

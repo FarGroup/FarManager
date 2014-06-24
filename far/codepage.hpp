@@ -140,3 +140,16 @@ private:
 
 //#############################################################################
 
+namespace UTF7 {
+	struct Errs
+	{
+		int first_src;
+		int first_out;
+		int count;
+		bool small_buff;
+	};
+
+	int ToWideChar(const char *src, int len, wchar_t* out, int wc, Errs *errs);
+}
+
+//#############################################################################

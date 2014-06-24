@@ -986,3 +986,221 @@ int MultibyteCodepageDecoder::GetChar(const BYTE *bf, size_t cb, wchar_t& wc) co
 		return +2;
 	}
 }
+
+
+namespace UTF7 {
+#if 0
+static const char base64[65]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdrfghijklmnopqrstuvwxyz0123456789+/";
+#endif
+
+static const int ill = 0x0100; // illegal
+static const int dir = 0x0200; // direct
+static const int opt = 0x0400; // optional direct
+static const int b64 = 0x0800; // base64 symbol
+static const int pls = 0x1000; // +
+static const int mns = 0x2000; // -
+
+static const int ILL = ill + 255;
+static const int DIR = dir + 255;
+static const int OPT = opt + 255;
+static const int D64 = dir + b64;
+#define D(n) D64 + n
+static const int PLS = pls + D(62);
+static const int MNS = mns + dir + 255;
+
+static const short m7[128] =
+//  x00   x01   x02   x03   x04   x05   x06   x07   x08   x09   x0a   x0b   x0c   x0d   x0e   x0f
+{   ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  DIR,  DIR,  ILL,  ILL,  DIR,  ILL,  ILL
+
+//  x10   x11   x12   x13   x14   x15   x16   x17   x18   x19   x1a   x1b   x1c   x1d   x1e   x1f
+,   ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL
+
+// =x20 !=x21 "=x22 #=x23 $=x24 %=x25 &=x26 '=x27 (=x28 )=x29 *=x2a +=x2b ,x=2c -=x2d .=x2e /=x2f
+,   DIR,  OPT,  OPT,  OPT,  OPT,  OPT,  OPT,  DIR,  DIR,  DIR,  OPT,  PLS,  DIR,  MNS, DIR, D(63)
+
+//0=x30 1=x31 2=x32 3=x33 4=x34 5=x35 6=x36 7=x37 8=x38 9=x39 :=x3a ;=x3b <=x3c ==x3d >=x3e ?=x3f
+, D(52),D(53),D(54),D(55),D(56),D(57),D(58),D(59),D(60),D(61),  DIR,  OPT,  OPT,  OPT,  OPT,  DIR
+
+//@=x40 A=x41 B=x42 C=x43 D=x44 E=x45 F=x46 G=x47 H=x48 I=x49 J=x4a K=x4b L=x4c M=x4d N=x4e O=x4f
+,   OPT, D(0), D(1), D(2), D(3), D(4), D(5), D(6), D(7), D(8), D(9),D(10),D(11),D(12),D(13),D(14)
+
+//P=x50 Q=x51 R=x52 S=x53 T=x54 U=x55 V=x56 W=x57 X=x58 Y=x59 Z=x5a [=x5b \=x5c ]=x5d ^=x5e _=x5f
+, D(15),D(16),D(17),D(18),D(19),D(20),D(21),D(22),D(23),D(24),D(25),  OPT,  ILL,  OPT,  OPT,  OPT
+
+//`=x60 a=x61 b=x62 c=x63 d=x64 e=x65 f=x66 g=x67 h=x68 i=x69 j=x6a k=x6b l=x6c m=x6d n=x6e o=x6f
+,   OPT,D(26),D(27),D(28),D(29),D(30),D(31),D(32),D(33),D(34),D(35),D(36),D(37),D(38),D(39),D(40)
+
+//p=x70 q=x71 r=x72 s=x73 t=x74 u=x75 v=x76 w=x77 x=x78 y=x79 z=x7a {=x7b |=x7c }=x7d ~=x7e   x7f
+, D(41),D(42),D(43),D(44),D(45),D(46),D(47),D(48),D(49),D(50),D(51),  OPT,  OPT,  OPT,  ILL,  ILL
+};
+
+int GetChar(const BYTE *bf, size_t cb, wchar_t& wc, int& state)
+{
+	if (!cb)
+		return 0;
+
+	int nc= 1, m[3];
+	BYTE c = *bf++;
+	if (c >= 128)
+		return -nc;
+
+	union
+	{
+		int state;
+		struct { BYTE carry_bits; BYTE carry_count; bool base64; BYTE unused; } s;
+	} u;
+	u.state = state;
+
+	m[0] = static_cast<int>(m7[c]);
+	if ((m[0] & ill) != 0)
+		return -nc;
+
+	if (!u.s.base64)
+	{
+		if (c != (BYTE)'+')
+		{
+			wc = static_cast<wchar_t>(c);
+			return nc;
+		}
+		if (cb < 2)
+			return -nc;
+
+		c = *bf++;
+		nc = 2;
+		if (c >= 128)
+			return -nc;
+
+		if (c == (BYTE)'-')
+		{
+			wc = L'+';
+			return nc;
+		}
+
+		m[0] = static_cast<int>(m7[c]);
+		u.s.base64 = true;
+		u.s.carry_count = 0;
+	}
+
+	int a = 2 - u.s.carry_count / 4;
+	if (cb < static_cast<size_t>(nc) + a)
+		return -nc-a;
+
+	if ((c = *bf++) >= 128)
+	{
+		u.s.base64 = false;
+		state = u.state;
+		return -nc;
+	}
+	m[1] = static_cast<int>(m7[c]);
+	if (0 == (m[1] & b64))
+	{
+		u.s.base64 = false;
+		state = u.state;
+		return -nc;
+	}
+	if (a < 2)
+	{
+		wc = static_cast<wchar_t>((u.s.carry_bits << 12) | ((BYTE)m[0] << 6) | (BYTE)m[1]);
+		u.s.carry_count = 0;
+	}
+	else
+	{
+		++nc;
+		if ((c = *bf++) >= 128)
+		{
+			u.s.base64 = false;
+			state = u.state;
+			return -nc;
+		}
+		m[2] = static_cast<int>(m7[c]);
+		if (0 == (m[2] & b64))
+		{
+			u.s.base64 = false;
+			state = u.state;
+			return -nc;
+		}
+		unsigned m18 = ((BYTE)m[0] << 12) | ((BYTE)m[1] << 6) | ((BYTE)m[2]);
+
+		if (u.s.carry_count == 0)
+		{
+			wc = static_cast<wchar_t>(m18 >> 2);
+			u.s.carry_bits = (BYTE)(m18 & 0x03);
+			u.s.carry_count = 2;
+		}
+		else
+		{
+			wc = static_cast<wchar_t>((u.s.carry_bits << 14) | (m18 >> 4));
+			u.s.carry_bits = (BYTE)(m18 & 0x07);
+			u.s.carry_count = 4;
+		}
+	}
+	++nc;
+
+	if (cb > static_cast<size_t>(nc) && *bf == (BYTE)'-')
+	{
+		u.s.base64 = false;
+		++nc;
+	}
+
+	state = u.state;
+	return nc;
+}
+
+static const wchar_t REPLACE_CHAR = L'\xFFFD'; // Replacement
+
+int ToWideChar(const char *src, int length, wchar_t* out, int wc, Errs *errs)
+{
+	if (errs)
+	{
+		errs->first_src = errs->first_out = -1;
+		errs->count = 0;
+		errs->small_buff = false;
+	}
+
+	if (!src || length <= 0)
+		return 0;
+
+	int state = 0, no = 0, ns = 0, ne = 0, move = 1;
+	wchar_t dummy_out, w1;
+	if (!out)
+	{
+		out = &dummy_out; move = 0;
+	}
+
+	while (length > ns)
+	{
+		int nc = GetChar((const BYTE *)src+ns, length-ns, w1, state);
+		if (!nc)
+			break;
+
+		if (nc < 0)
+		{
+			w1 = REPLACE_CHAR; nc = -nc;
+			if (errs && 1 == ++ne)
+			{
+				errs->first_src = ns; errs->first_out = no;
+			}
+		}
+
+		if (move && --wc < 0)
+		{
+			if (errs)
+				errs->small_buff = true;
+
+			out = &dummy_out;
+			move = 0;
+		}
+
+		*out = w1;
+		out += move;
+		++no;
+		ns += nc;
+	}
+
+	if (errs)
+		errs->count = ne;
+
+	return no;
+}
+
+} // namespace UTF7
