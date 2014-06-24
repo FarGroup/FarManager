@@ -723,7 +723,8 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 	api::env::set_variable(L"FARLANG", Global->Opt->strLanguage);
 
-	ConvertNameToFull(Unquote(api::env::expand_strings(Global->Opt->LoadPlug.strCustomPluginsPath)), Global->Opt->LoadPlug.strCustomPluginsPath);
+	if (!Global->Opt->LoadPlug.strCustomPluginsPath.empty())
+		ConvertNameToFull(Unquote(api::env::expand_strings(Global->Opt->LoadPlug.strCustomPluginsPath)), Global->Opt->LoadPlug.strCustomPluginsPath);
 
 	UpdateErrorMode();
 
