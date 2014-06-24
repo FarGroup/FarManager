@@ -1077,6 +1077,9 @@ int GetChar(const BYTE *bf, size_t cb, wchar_t& wc, int& state)
 		}
 
 		m[0] = static_cast<int>(m7[c]);
+		if (0 == (m[0] & b64))
+			return -nc;
+
 		u.s.base64 = true;
 		u.s.carry_count = 0;
 	}
