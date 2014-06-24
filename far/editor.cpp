@@ -7534,7 +7534,6 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 				}
 				total_len += len;
 			}
-			wchar_offsets.push_back(total_len);
 
 			int err_pos = -1;
 			if (codepage == CP_UTF7)
@@ -7575,16 +7574,10 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 
 			if (err_pos >= 0)
 			{
-				for (size_t k=0; k < wchar_offsets.size()-1; ++k)
-				{
-					if (wchar_offsets[k] <= err_pos && wchar_offsets[k+1] > err_pos)
-					{
-						X = static_cast<int>(k);
-						break;
-					}
-				}
+				auto low_pos = std::lower_bound(wchar_offsets.begin(), wchar_offsets.end(), err_pos);
+				if (low_pos != wchar_offsets.end())
+					X = *low_pos;
 			}
-
 			return false;
 		}
 		++line;
