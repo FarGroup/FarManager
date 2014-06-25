@@ -33,7 +33,7 @@ _CRTIMP unsigned int __cdecl __MINGW_NOTHROW _control87 (unsigned int unNew, uns
 		struct FarStandardFunctions *FSF;
 		GUID *PluginId;
 		FARWINDOWPROC DlgProc;
-		FARMACROCALLBACK MacroCallback;
+		void *Reserved1;
 		lua_Alloc origAlloc;
 		void *origUserdata;
 		void (*new_action)(int i);
@@ -54,8 +54,6 @@ _CRTIMP unsigned int __cdecl __MINGW_NOTHROW _control87 (unsigned int unNew, uns
 	DLLFUNC void    LF_InitLuaState2(lua_State *L, TPluginData *aData);
 	DLLFUNC int     LF_LoadFile(lua_State *L, const wchar_t* filename);
 	DLLFUNC int     LF_DoFile(lua_State *L, const wchar_t *fname, int argc, wchar_t* argv[]);
-	DLLFUNC void    LF_LuaClose(lua_State* L);
-	DLLFUNC lua_State* LF_LuaOpen(void);
 	DLLFUNC int     LF_Message(lua_State *L, const wchar_t* aMsg, const wchar_t* aTitle, const wchar_t* aButtons, const char* aFlags, const wchar_t* aHelpTopic, const GUID* aId);
 	DLLFUNC void    LF_ProcessEnvVars(lua_State *L, const wchar_t* aEnvPrefix, const wchar_t* PluginDir);
 	DLLFUNC BOOL    LF_RunDefaultScript(lua_State* L);

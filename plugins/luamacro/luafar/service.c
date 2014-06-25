@@ -54,6 +54,7 @@ const char FarDialogType[]     = "FarDialog";
 const char SettingsType[]      = "FarSettings";
 const char SettingsHandles[]   = "FarSettingsHandles";
 const char PluginHandleType[]  = "FarPluginHandle";
+const char AddMacroDataType[]  = "FarAddMacroData";
 
 const char FAR_VIRTUALKEYS[]   = "far.virtualkeys";
 const char FAR_FLAGSTABLE[]    = "far.Flags";
@@ -3482,8 +3483,7 @@ int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2)
 intptr_t LF_DlgProc(lua_State *L, HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *Param2)
 {
 	intptr_t ret;
-	TPluginData *pd = GetPluginData(L);
-	PSInfo *Info = pd->Info;
+	PSInfo *Info = GetPluginData(L)->Info;
 	TDialogData *dd = (TDialogData*) Info->SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
 
 	if(dd->wasError)
@@ -4630,15 +4630,26 @@ static int far_MacroGetLastError(lua_State* L)
 	return 1;
 }
 
-intptr_t LF_MacroCallback(lua_State* L, void* Id, FARADDKEYMACROFLAGS Flags)
+typedef struct
 {
-	int result = FALSE;
-	int funcref = (int)(intptr_t) Id;
-	lua_rawgeti(L, LUA_REGISTRYINDEX, funcref);
+	lua_State *L;
+	int funcref;
+} MacroAddData;
+
+intptr_t WINAPI MacroAddCallback (void* Id, FARADDKEYMACROFLAGS Flags)
+{
+	lua_State *L;
+	int result = TRUE;
+	MacroAddData *data = (MacroAddData*)Id;
+	if ((L = data->L) == NULL)
+		return FALSE;
+
+	lua_rawgeti(L, LUA_REGISTRYINDEX, data->funcref);
 
 	if(lua_type(L,-1) == LUA_TFUNCTION)
 	{
 		lua_pushlightuserdata(L, Id);
+		lua_rawget(L, LUA_REGISTRYINDEX);
 		bit64_push(L, Flags);
 
 		if(lua_pcall(L, 2, 1, 0) == 0)
@@ -4652,7 +4663,6 @@ intptr_t LF_MacroCallback(lua_State* L, void* Id, FARADDKEYMACROFLAGS Flags)
 static int far_MacroAdd(lua_State* L)
 {
 	TPluginData *pd = GetPluginData(L);
-	int ref;
 	struct MacroAddMacro data;
 	memset(&data, 0, sizeof(data));
 	data.StructSize = sizeof(data);
@@ -4661,26 +4671,28 @@ static int far_MacroAdd(lua_State* L)
 	OptInputRecord(L, pd, 3, &data.AKey);
 	data.SequenceText = check_utf8_string(L, 4, NULL);
 	data.Description = opt_utf8_string(L, 5, L"");
-
-	if(lua_isnoneornil(L, 6))
-		lua_pushboolean(L, 1);
-	else
+	lua_settop(L, 6);
+	if (lua_toboolean(L, 6))
 	{
 		luaL_checktype(L, 6, LUA_TFUNCTION);
-		data.Callback = pd->MacroCallback;
-		lua_pushvalue(L, 6);
+		data.Callback = MacroAddCallback;
 	}
+	data.Id = lua_newuserdata(L, sizeof(MacroAddData));
 
-	ref = luaL_ref(L, LUA_REGISTRYINDEX);
-	data.Id = (void*)(intptr_t) ref;
-
-	if(pd->Info->MacroControl(pd->PluginId, MCTL_ADDMACRO, 0, &data))
-		lua_pushlightuserdata(L, data.Id);
-	else
+	if (pd->Info->MacroControl(pd->PluginId, MCTL_ADDMACRO, 0, &data))
 	{
-		luaL_unref(L, LUA_REGISTRYINDEX, ref);
-		lua_pushnil(L);
+		MacroAddData* Id = (MacroAddData*)data.Id;
+		lua_isfunction(L, 6) ? lua_pushvalue(L, 6) : lua_pushboolean(L, 1);
+		Id->funcref = luaL_ref(L, LUA_REGISTRYINDEX);
+		Id->L = L;
+		luaL_getmetatable(L, AddMacroDataType);
+		lua_setmetatable(L, -2);
+		lua_pushlightuserdata(L, Id); // Place it in the registry to protect from gc. It should be collected only at lua_close().
+		lua_pushvalue(L, -2);
+		lua_rawset(L, LUA_REGISTRYINDEX);
 	}
+	else
+		lua_pushnil(L);
 
 	return 1;
 }
@@ -4688,17 +4700,31 @@ static int far_MacroAdd(lua_State* L)
 static int far_MacroDelete(lua_State* L)
 {
 	TPluginData *pd = GetPluginData(L);
-	void *Id;
-	int result;
+	MacroAddData *Id;
+	int result = FALSE;
 
-	luaL_checktype(L, 1, LUA_TLIGHTUSERDATA);
-	Id = lua_touserdata(L, 1);
-	result = (int)pd->Info->MacroControl(pd->PluginId, MCTL_DELMACRO, 0, Id);
-	if(result)
-		luaL_unref(L, LUA_REGISTRYINDEX, (int)(intptr_t)Id);
+	Id = (MacroAddData*)luaL_checkudata(L, 1, AddMacroDataType);
+	if (Id->L)
+	{
+		result = (int)pd->Info->MacroControl(pd->PluginId, MCTL_DELMACRO, 0, Id);
+		if(result)
+		{
+			luaL_unref(L, LUA_REGISTRYINDEX, Id->funcref);
+			Id->L = NULL;
+			lua_pushlightuserdata(L, Id);
+			lua_pushnil(L);
+			lua_rawset(L, LUA_REGISTRYINDEX);
+		}
+	}
 
 	lua_pushboolean(L, result);
 	return 1;
+}
+
+static int AddMacroData_gc(lua_State* L)
+{
+	far_MacroDelete(L);
+	return 0;
 }
 
 static int far_MacroExecute(lua_State* L)
@@ -5977,6 +6003,11 @@ static int luaopen_far(lua_State *L)
 
 	(void) luaL_dostring(L, far_Dialog);
 	luaL_newmetatable(L, PluginHandleType);
+
+	luaL_newmetatable(L, AddMacroDataType);
+	lua_pushcfunction(L, AddMacroData_gc);
+	lua_setfield(L, -2, "__gc");
+
 	return 0;
 }
 
@@ -6208,9 +6239,8 @@ void LF_InitLuaState2(lua_State *L, TPluginData *aInfo)
 	lua_call(L, 0, 0);
 }
 
-// These 2 exported functions are needed for old builds of the plugins.
-lua_State* LF_LuaOpen() { return luaL_newstate(); }
-void LF_LuaClose(lua_State* L) { lua_close(L); }
+// This exported function is needed for old builds of the plugins.
+intptr_t LF_MacroCallback(lua_State* L, void* Id, FARADDKEYMACROFLAGS Flags) { return 0; }
 
 int LF_DoFile(lua_State *L, const wchar_t *fname, int argc, wchar_t* argv[])
 {

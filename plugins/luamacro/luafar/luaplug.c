@@ -31,17 +31,12 @@ intptr_t WINAPI DlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *Param2
 	return LF_DlgProc(LS, hDlg, Msg, Param1, Param2);
 }
 
-intptr_t WINAPI MacroCallback(void* Id, FARADDKEYMACROFLAGS Flags)
-{
-	return LF_MacroCallback(LS, Id, Flags);
-}
-
 static void InitLuaState2(lua_State *L, TPluginData* PluginData);  /* forward declaration */
 static void laction(int i);  /* forward declaration */
 struct PluginStartupInfo Info;
 struct FarStandardFunctions FSF;
 GUID PluginId;
-TPluginData PluginData = { &Info, &FSF, &PluginId, DlgProc, MacroCallback, NULL, NULL, laction, SIG_DFL };
+TPluginData PluginData = { &Info, &FSF, &PluginId, DlgProc, NULL, NULL, NULL, laction, SIG_DFL };
 wchar_t PluginName[512], PluginDir[512];
 int Init1_Done = 0, Init2_Done = 0; // Ensure initializations are done only once
 
@@ -275,8 +270,10 @@ void LUAPLUG ExitFARW(const struct ExitInfo *Info)
 {
 	if(LS)
 	{
-		LF_ExitFAR(LS, Info);
-		lua_close(LS); LS = NULL;
+		lua_State* oldState = LS;
+		LS = NULL;
+		LF_ExitFAR(oldState, Info);
+		lua_close(oldState);
 	}
 }
 #endif

@@ -1,4 +1,8 @@
-﻿shmuel 24.06.2014 01:36:45 +0200 - build 381
+﻿shmuel 25.06.2014 13:37:44 +0200 - build 382
+
+1. LuaFAR: far.MacroAdd и far.MacroDelete могут работать не только из основного lua_State, но и из дополнительных.
+
+shmuel 24.06.2014 01:36:45 +0200 - build 381
 
 1. MoonScript: в сборку не был включён файл moon.lua.
 
