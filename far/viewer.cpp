@@ -87,15 +87,8 @@ static void ViewerSearchMsg(const string& name, int percent, int search_hex);
 
 static int ViewerID=0;
 
-static int utf8_to_WideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int wlen, int &tail);
-
 #define MAX_VIEWLINE  (ViOpt.MaxLineSize+ 0) // 0x800 // 0x400
 #define MAX_VIEWLINEB (ViOpt.MaxLineSize+15) // 0x80f // 0x40f
-
-static const wchar_t REPLACE_CHAR = L'\xFFFD'; // Replacement
-static const wchar_t CONTINUE_CHAR = L'\x203A'; // Single Right-Pointing Angle Quotation Mark
-static const wchar_t BOM_CHAR = L'\xFEFF'; // Zero Length Space
-
 #define ZERO_CHAR     (ViOpt.Visible0x00 && ViOpt.ZeroChar > 0 ? (wchar_t)(ViOpt.ZeroChar) : L' ')
 
 static bool IsCodePageSupported(uintptr_t cp)
@@ -680,7 +673,7 @@ int Viewer::txt_dump(const unsigned char *line, DWORD nr, int width, wchar_t *ou
 		ib = (int)(nr / 2);
 		memcpy(outstr, line, ib*2);
 		if ( nr & 1)
-			outstr[ib++] = REPLACE_CHAR;
+			outstr[ib++] = Utf::REPLACE_CHAR;
 	}
 	else if (cp == CP_REVERSEBOM)
 	{
@@ -688,29 +681,29 @@ int Viewer::txt_dump(const unsigned char *line, DWORD nr, int width, wchar_t *ou
 		for ( iw=0; iw < ib; ++iw )
 			outstr[iw] = (wchar_t)((line[iw*2] << 8) | line[iw*2+1]);
 		if ( nr & 1)
-			outstr[ib++] = REPLACE_CHAR;
+			outstr[ib++] = Utf::REPLACE_CHAR;
 	}
 	else if (cp == CP_UTF8)
 	{
 		int dummy_tail, nw;
 		std::vector<wchar_t> w2(width);
 		ib = iw = 0;
-		nw = utf8_to_WideChar(reinterpret_cast<const char*>(line), (int)nr, w1.data(), w2.data(), width, dummy_tail);
+		nw = Utf8::ToWideChar(reinterpret_cast<const char*>(line), (int)nr, w1.data(), w2.data(), width, dummy_tail);
 		bool first = true;
 		while (ib < width && iw < nw)
 		{
-			if (first && w1[iw] == REPLACE_CHAR && w2[iw] == L'?')
+			if (first && w1[iw] == Utf::REPLACE_CHAR && w2[iw] == L'?')
 			{
-				outstr[ib++] = CONTINUE_CHAR; // это может быть не совсем корректно дл€ 'плохих' utf-8
-			}                                // но усложн€ть из-за этого код на мой взг€д не стоит...
+				outstr[ib++] = Utf::CONTINUE_CHAR; // это может быть не совсем корректно дл€ 'плохих' utf-8
+			}                                     // но усложн€ть из-за этого код на мой взг€д не стоит...
 			else
 			{
 				first = false;
-				outstr[ib++] = w1[iw];
+				outstr[ib++] = (w1[iw] == Utf::BOM_CHAR ? Utf::REPLACE_CHAR : w1[iw]); // BOM can be Zero Length
 			}
 			int clen = WideCharToMultiByte(CP_UTF8, 0, w2.data()+iw, 1, nullptr,0, nullptr,nullptr);
 			while (--clen > 0 && ib < width)
-				outstr[ib++] = CONTINUE_CHAR;
+				outstr[ib++] = Utf::CONTINUE_CHAR;
 			++iw;
 		}
 	}
@@ -722,20 +715,20 @@ int Viewer::txt_dump(const unsigned char *line, DWORD nr, int width, wchar_t *ou
 			if (tail)
 			{
 				--tail;
-				outstr[ib++] = CONTINUE_CHAR;
+				outstr[ib++] = Utf::CONTINUE_CHAR;
 				continue;
 			}
 
 			int clen = MB.GetChar(line+ib, nr-static_cast<DWORD>(ib), *(outstr+ib));
 			if (clen <= 0)
 			{
-				outstr[ib++] = REPLACE_CHAR;
+				outstr[ib++] = Utf::REPLACE_CHAR;
 				continue;
 			}
 
 			++ib;
 			while (--clen > 0 && ib < width)
-				outstr[ib++] = CONTINUE_CHAR;
+				outstr[ib++] = Utf::CONTINUE_CHAR;
 
 			if (clen > 0) // char continues on the next line
 				tail = clen;
@@ -904,7 +897,7 @@ void Viewer::ShowHex()
 						_snwprintf(OutStr+out_len+o1, ARRAYSIZE(OutStr)-out_len-o1, L"%02X", line[X]);
 						OutStr[out_len+2-o1] = OutStr[out_len+2-o1+1] = L'x';
 						OutStr[out_len+4] = L' ';
-						TextStr[TextPos++] = REPLACE_CHAR;
+						TextStr[TextPos++] = Utf::REPLACE_CHAR;
 					}
 					else // no character
 					{
@@ -1059,7 +1052,7 @@ void Viewer::SetStatusMode(int Mode)
 
 static bool is_word_div(const wchar_t ch)
 {
-	static const wchar_t extra_div[] = { BOM_CHAR, REPLACE_CHAR };
+	static const wchar_t extra_div[] = { Utf::BOM_CHAR, Utf::REPLACE_CHAR };
 	return IsSpaceOrEos(ch) || IsEol(ch) || Global->Opt->strWordDiv.Get().find(ch) != string::npos ||
 		std::find(ALL_CONST_RANGE(extra_div), ch) != std::cend(extra_div);
 }
@@ -1122,7 +1115,7 @@ void Viewer::ReadString( ViewerString *pString, int MaxSize, bool update_cache )
 			}
 		}
 
-		if (!fpos && BOM_CHAR == ch)
+		if (!fpos && Utf::BOM_CHAR == ch)
 		{
 			continue; // skip BOM
 		}
@@ -2764,17 +2757,35 @@ struct Viewer::search_data
 	}
 };
 
-int Viewer::search_hex_forward( search_data* sd )
+ENUM(SEARCHER_RESULT)
+{
+	Search_NotFound  = 0,
+	Search_Continue  = 1,
+	Search_Eof       = 2,
+	Search_Bof       = 3,
+	Search_Cycle     = 4,
+	Search_Found     = 5,
+};
+
+ENUM(SEARCH_WRAP_MODE)
+{
+	SearchWrap_NO    = 0,
+	SearchWrap_END   = 1,
+	SearchWrap_CYCLE = 2,
+};
+
+SEARCHER_RESULT Viewer::search_hex_forward( search_data* sd )
 {
 	char *buff = (char *)Search_buffer.data();
 	const char *search_str = sd->search_bytes;
 	int bsize = static_cast<int>(Search_buffer.size() * sizeof(wchar_t)), slen = sd->search_len;
 	INT64 to, cpos = sd->CurPos;
+	int wrap = ViOpt.SearchWrapStop;
 
 	bool up_half = cpos >= StartSearchPos;
-	if ( up_half )
+	if ( wrap != SearchWrap_CYCLE || up_half )
 	{
-		if ( (to = FileSize) - cpos <= bsize )
+		if ( FileSize - cpos <= bsize )
 			SetFileSize();
 		to = FileSize;
 	}
@@ -2789,43 +2800,57 @@ int Viewer::search_hex_forward( search_data* sd )
 	vseek(cpos, SEEK_SET);
 	DWORD nr = 0;
 	Reader.Read(buff, static_cast<DWORD>(nb), &nr);
+	to = cpos + nr;
 	int n1 = static_cast<int>(nr);
 	if ( n1 != nb )
 		SetFileSize();
 
-	if ( n1 < slen )
-	{
-		if ( !up_half || StartSearchPos <= 0 )
-			return -1;
-		sd->CurPos = 0;
-		return 0;
-	}
-
 	char *ps = buff;
-	while ( nullptr != (ps = static_cast<char *>(memchr(ps, search_str[0], n1-slen+1))) )
+	while (n1 >= slen)
 	{
+		ps = static_cast<char *>(memchr(ps, search_str[0], n1-slen+1));
+		if (!ps)
+			break;
+
 		if ( slen <= 1 || 0 == memcmp(ps+1, search_str+1, slen-1) )
 		{
-			sd->MatchPos = cpos + (ps - buff);
-			return +1; // found
+			sd->MatchPos = cpos + static_cast<INT64>(ps - buff);
+			return Search_Found;
 		}
 		++ps;
 		n1 = static_cast<int>(nr - (ps - buff));
 	}
 
+	if ((LastSelectPos <= 0 && to >= FileSize) || (LastSelectPos > 0 && cpos < LastSelectPos && to >= LastSelectPos))
+		return Search_NotFound;
+
 	sd->CurPos = cpos + nr - slen + 1;
-	return (up_half || sd->CurPos < StartSearchPos)? 0 : -1;
+	if (sd->CurPos + slen > FileSize)
+	{
+		sd->CurPos = 0;
+		if (wrap == SearchWrap_CYCLE && StartSearchPos == 0)
+			return Search_Cycle;
+		else if (wrap == SearchWrap_END)
+			return Search_Eof;
+		else
+			return Search_Continue;
+	}
+	if (wrap == SearchWrap_CYCLE && !up_half && sd->CurPos >= StartSearchPos)
+		return Search_Cycle;
+	else
+		return Search_Continue;
 }
 
-int Viewer::search_hex_backward( search_data* sd )
+SEARCHER_RESULT Viewer::search_hex_backward( search_data* sd )
 {
 	char *buff = (char *)Search_buffer.data();
 	const char *search_str = sd->search_bytes;
 	int bsize = static_cast<int>(Search_buffer.size() * sizeof(wchar_t)), slen = sd->search_len;
 	INT64 to, cpos = sd->CurPos;
+	int wrap = ViOpt.SearchWrapStop;
 
 	bool lo_half = cpos <= StartSearchPos;
-	if ( lo_half )
+	if ( wrap != SearchWrap_CYCLE || lo_half )
 	{
 		to = 0;
 	}
@@ -2837,7 +2862,7 @@ int Viewer::search_hex_backward( search_data* sd )
 	}
 
 	int nb = (cpos - to < bsize ? static_cast<int>(cpos - to) : bsize);
-	vseek(cpos-nb, SEEK_SET);
+	vseek(to = cpos-nb, SEEK_SET);
 	DWORD nr = 0;
 	Reader.Read(buff, static_cast<DWORD>(nb), &nr);
 	int n1 = static_cast<int>(nr);
@@ -2847,46 +2872,55 @@ int Viewer::search_hex_backward( search_data* sd )
 		cpos = vtell();
 	}
 
-	if ( n1 < slen )
+	char *ps = buff + n1 - 1, last_char = search_str[slen-1];
+	while (n1 >= slen)
 	{
-		if ( !lo_half )
-			return -1;
-		SetFileSize();
-		if ( StartSearchPos >= FileSize )
-			return -1;
-		sd->CurPos = FileSize;
-		return 0;
-	}
-
-	for ( char *ps = buff + n1 - 1; ps >= buff + slen - 1; --ps )
-	{
-		if ( *ps == search_str[slen-1] )
+		if (*ps == last_char)
 		{
-			if ( slen <= 1 || 0 == memcmp(ps-slen+1, search_str, slen-1) )
+			if (slen <= 1 || 0 == memcmp(ps-slen+1, search_str, slen-1))
 			{
-				sd->MatchPos = cpos-n1+(ps-slen+1-buff);
-				return +1;
+				sd->MatchPos = cpos - nr + n1 - slen;
+				return Search_Found;
 			}
 		}
+		--ps;
+		--n1;
 	}
 
+	if ((LastSelectPos >= FileSize && to <= 0) || (LastSelectPos > 0 && to <= LastSelectPos && cpos > LastSelectPos))
+		return Search_NotFound;
+
 	sd->CurPos = cpos - nr + slen - 1;
-	return (lo_half || sd->CurPos > StartSearchPos)? 0 : -1;
+	if (sd->CurPos < slen)
+	{
+		sd->CurPos = FileSize;
+		if (wrap == SearchWrap_CYCLE && StartSearchPos >= FileSize)
+			return Search_Cycle;
+		else if (wrap == SearchWrap_END)
+			return Search_Bof;
+		else
+			return Search_Continue;
+	}
+	if (wrap == SearchWrap_CYCLE && !lo_half && sd->CurPos <= StartSearchPos)
+		return Search_Cycle;
+	else
+		return Search_Continue;
 }
 
-int Viewer::search_text_forward( search_data* sd )
+SEARCHER_RESULT Viewer::search_text_forward( search_data* sd )
 {
 	int bsize = 8192, slen = sd->search_len, ww = (LastSearchWholeWords ? 1 : 0);
 	wchar_t prev_char = L'\0', *buff = Search_buffer.data(), *t_buff = (sd->ch_size < 0 ? buff + bsize : nullptr);
 	const wchar_t *search_str = sd->search_text;
 	INT64 to1, to, cpos = sd->CurPos;
+	int wrap = ViOpt.SearchWrapStop;
 
 	vseek(cpos, SEEK_SET);
 	if ( ww )
 		prev_char = vgetc_prev();
 
 	bool up_half = cpos >= StartSearchPos;
-	if ( up_half )
+	if ( wrap != SearchWrap_CYCLE || up_half )
 	{
 		if ( (to = FileSize) - cpos <= bsize )
 			SetFileSize();
@@ -2902,7 +2936,7 @@ int Viewer::search_text_forward( search_data* sd )
 	int nb = (to - cpos > bsize ? bsize : static_cast<int>(to - cpos));
 	int nw = vread(buff, nb, t_buff);
 	to1 = vtell();
-	if ( !up_half && nb + 3*(slen+ww) < bsize && !veof() )
+	if ( wrap == SearchWrap_CYCLE && !up_half && nb + 3*(slen+ww) < bsize && !veof() )
 	{
 		int nw1 = vread(buff+nw, 3*(slen+ww), t_buff ? t_buff+nw : nullptr);
 		nw1 = std::max(nw1, slen+ww-1);
@@ -2930,35 +2964,45 @@ int Viewer::search_text_forward( search_data* sd )
 
 		sd->MatchPos = cpos + GetStrBytesNum(t_buff, i);
 		sd->search_len = GetStrBytesNum(t_buff+i, slen);
-		return +1;
+		return Search_Found;
 	}
 
-	if ( up_half && is_eof )
+	if (is_eof)
 	{
 		sd->CurPos = 0;
-		return (StartSearchPos > 0)? 0 : -1;
+
+		if (LastSelectPos <= 0 || cpos < LastSelectPos)
+			return Search_NotFound;
+		else if (wrap == SearchWrap_CYCLE && StartSearchPos == 0)
+			return Search_Cycle;
+		else if (wrap == SearchWrap_END)
+			return Search_Eof;
 	}
 	else
 	{
-		if ( iLast < 0 || (!up_half && to1 > StartSearchPos) )
-			return -1;
 		sd->CurPos = to1 - GetStrBytesNum(t_buff+iLast+1, nw-iLast-1);
-		return 0;
+
+		if (LastSelectPos > 0 && cpos < LastSelectPos && sd->CurPos >= LastSelectPos)
+			return Search_NotFound;
+		else if (wrap == SearchWrap_CYCLE && !up_half && sd->CurPos >= StartSearchPos)
+			return Search_Cycle;
 	}
+	return Search_Continue;
 }
 
-int Viewer::search_text_backward( search_data* sd )
+SEARCHER_RESULT Viewer::search_text_backward( search_data* sd )
 {
 	int bsize = 8192, slen = sd->search_len, ww = (LastSearchWholeWords ? 1 : 0);
 	wchar_t *buff = Search_buffer.data(), *t_buff = (sd->ch_size < 0 ? buff + bsize : nullptr);
 	const wchar_t *search_str = sd->search_text;
 	INT64 to, cpos = sd->CurPos;
+	int wrap = ViOpt.SearchWrapStop;
 
 	bool up_half = cpos > StartSearchPos;
-	to = (up_half ? StartSearchPos : 0);
+	to = (up_half && wrap == SearchWrap_CYCLE ? StartSearchPos : 0);
 
 	int nb = (cpos - to > bsize ? bsize : static_cast<int>(cpos- to));
-	if ( up_half && nb + 3*(slen+ww) < bsize && cpos > nb )
+	if (up_half && wrap == SearchWrap_CYCLE && nb + 3*(slen+ww) < bsize && cpos > nb)
 	{
 		if ( sd->ch_size > 0 )
 		{
@@ -3003,12 +3047,14 @@ int Viewer::search_text_backward( search_data* sd )
 
 		sd->MatchPos = cpos + GetStrBytesNum(t_buff, i);
 		sd->search_len = GetStrBytesNum(t_buff+i, slen);
-		return +1;
+		return Search_Found;
 	}
 
-	int ret = 0, adjust = 1;
+
+
+	SEARCHER_RESULT ret = Search_Continue; int adjust = 1;
 	if ( up_half )
-		ret = (cpos <= StartSearchPos ? -1 : 0);
+		ret = (cpos <= StartSearchPos ? Search_NotFound : Search_Continue);
 	else
 	{
 		if ( cpos <= 0 )
@@ -3016,7 +3062,7 @@ int Viewer::search_text_backward( search_data* sd )
 			adjust = 0;
 			SetFileSize();
 			cpos = FileSize;
-			ret = (StartSearchPos >= FileSize ? -1 : 0);
+			ret = (StartSearchPos >= FileSize ? Search_NotFound : Search_Continue);
 		}
 	}
 	sd->CurPos = cpos + (ret ? 0 : adjust*GetStrBytesNum(t_buff,iFirst+slen-1));
@@ -3055,7 +3101,7 @@ int Viewer::read_line(wchar_t *buf, wchar_t *tbuf, INT64 cpos, int adjust, INT64
 	return llen;
 }
 
-int Viewer::search_regex_forward( search_data* sd )
+SEARCHER_RESULT Viewer::search_regex_forward( search_data* sd )
 {
 	assert(sd->pRex);
 	assert(Search_buffer.size() >= static_cast<size_t>(2*MAX_VIEWLINEB));
@@ -3071,7 +3117,7 @@ int Viewer::search_regex_forward( search_data* sd )
 	if ( lsize <= 0 )
 	{
 		sd->CurPos = 0;
-		return (up_half && StartSearchPos > 0)? 0 : -1;
+		return (up_half && StartSearchPos > 0 ? Search_Continue : Search_NotFound);
 	}
 
 	int off = 0;
@@ -3099,7 +3145,7 @@ int Viewer::search_regex_forward( search_data* sd )
 		{
 			sd->MatchPos = fpos;
 			sd->search_len = GetStrBytesNum(t_line+off, m[0].end - m[0].start);
-			return +1;
+			return Search_Found;
 		}
 	}
 
@@ -3109,17 +3155,17 @@ int Viewer::search_regex_forward( search_data* sd )
 		if ( veof() )
 		{
 			sd->CurPos = 0;
-			return (StartSearchPos > 0)? 0 : -1;
+			return (StartSearchPos > 0 ? Search_Continue : Search_NotFound);
 		}
-		return 0;
+		return Search_Continue;
 	}
 	else
 	{
-		return (sd->CurPos >= StartSearchPos)? -1 : 0;
+		return (sd->CurPos >= StartSearchPos ? Search_NotFound : Search_Continue);
 	}
 }
 
-int Viewer::search_regex_backward( search_data* sd )
+SEARCHER_RESULT Viewer::search_regex_backward( search_data* sd )
 {
 	assert(sd->pRex);
 	assert(Search_buffer.size() >= static_cast<size_t>(2*MAX_VIEWLINEB));
@@ -3160,25 +3206,23 @@ int Viewer::search_regex_backward( search_data* sd )
 	{
 		sd->MatchPos = prev_pos;
 		sd->search_len = prev_len;
-		return +1;
+		return Search_Found;
 	}
 
 	if ( (sd->CurPos = bpos) <= 0 )
 	{
 		SetFileSize();
 		sd->CurPos = FileSize;
-		return (StartSearchPos >= FileSize)? -1 : 0;
+		return (StartSearchPos >= FileSize ? Search_NotFound : Search_Continue);
 	}
-	return (up_half && bpos <= StartSearchPos)? -1 : 0;
+	return (up_half && bpos <= StartSearchPos ? Search_NotFound : Search_Continue);
 }
-
 
 /*
  + ѕараметр Next может принимать значени€:
  0 - Ќовый поиск
  1 - ѕродолжить поиск со следующей позиции
 -1 - ѕродолжить поиск со следующей позиции в противоположном направлении
- 2 - ѕродолжить поиск с начала/конца файла
 */
 void Viewer::Search(int Next,int FirstChar)
 {
@@ -3199,7 +3243,7 @@ void Viewer::Search(int Next,int FirstChar)
 		strSearchStr = strLastSearchStr;
 
 	search_data sd;
-	int (Viewer::* searcher)( Viewer::search_data *p_sd ) = nullptr;
+	SEARCHER_RESULT (Viewer::* searcher)( Viewer::search_data *p_sd ) = nullptr;
 
 	if ( !Next )
 	{
@@ -3336,14 +3380,9 @@ void Viewer::Search(int Next,int FirstChar)
 		sd.search_text = strSearchStr.data();
 	}
 
-	int found = 0;
-
 	int search_direction = ReverseSearch ? -1 : +1;
 	switch (Next)
 	{
-		case 2:
-			StartSearchPos = LastSelectPos = (ReverseSearch ? FileSize : 0);
-		break;
 		case +1: case -1:
 			if ( SelectPos >= 0 && SelectSize >= 0 )
 			{
@@ -3370,12 +3409,11 @@ void Viewer::Search(int Next,int FirstChar)
 				}
 				if (search_direction != LastSearchDirection)
 					StartSearchPos = LastSelectPos;
-				else if ( LastSelectPos == StartSearchPos ) // боремс€ с
-					found = -1;                          // зацикливанием
 
 				break;
 			} // else pass to case 0 (below)
-		case 0:
+		default: //case 0:
+			assert(Next >= -1 && Next <= +1);
 			if (!Next || LastSelectSize < 0)
 				LastSelectSize = SelectSize = -1;
 			StartSearchPos = LastSelectPos = (ReverseSearch ? EndOfScreen(0) : BegOfScreen());
@@ -3387,7 +3425,6 @@ void Viewer::Search(int Next,int FirstChar)
 		return;
 
 	sd.CurPos = LastSelectPos;
-	if ( !found )
 	{
 		SCOPED_ACTION(IndeterminateTaskBar);
 		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<ViewerPreRedrawItem>());
@@ -3396,9 +3433,38 @@ void Viewer::Search(int Next,int FirstChar)
 		DWORD start_time = GetTickCount();
 		for (;;)
 		{
-			found = (this->*searcher)(&sd);
-			if ( found != 0 )
+			SEARCHER_RESULT found = (this->*searcher)(&sd);
+			if (found == Search_Found)
 				break;
+
+			else if (found == Search_Continue)
+				;
+
+			else if (found == Search_NotFound)
+			{
+				Message(
+					MSG_WARNING, 1, MSG(MViewSearchTitle),
+					(SearchHex ? MSG(MViewSearchCannotFindHex) : MSG(MViewSearchCannotFind)),
+					strMsgStr.data(),	MSG(MOk)
+				);
+				return;
+			}
+			else // Search_ Eof/Bof/Cycle
+			{	  // MviewSearch Eod,FromBegin/Bod,FromEnd/Cycle,Repeat
+				static_assert(Search_Bof-Search_Eof==1 && Search_Cycle-Search_Eof==2, "Wrong enum order");
+				static_assert(MViewSearchFromBegin-MViewSearchEod==1, "Wrong .lng file order");
+				static_assert(MViewSearchFromEnd - MViewSearchBod==1, "Wrong .lng file order");
+				static_assert(MViewSearchRepeat -MViewSearchCycle==1, "Wrong .lng file order");
+				static_assert(MViewSearchBod-MViewSearchEod==2 && MViewSearchCycle-MViewSearchEod==4, "Wrong .lng file order");
+				int choice = Message(
+					0, 2, MSG(MViewSearchTitle),
+					MSG(MViewSearchEod+2*(found-Search_Eof)),
+					MSG(MViewSearchFromBegin+2*(found-Search_Eof)),
+					strMsgStr.data(),	MSG(MYes), MSG(MCancel)
+				);
+				if (choice < 0 || choice == 1) // cancel search
+					return;
+			}
 
 			DWORD cur_time = GetTickCount();
 			if ( cur_time - start_time > (DWORD)Global->Opt->RedrawTimeout )
@@ -3456,16 +3522,6 @@ void Viewer::Search(int Next,int FirstChar)
 		AdjustSelPosition = true;
 		Show();
 		AdjustSelPosition = false;
-	}
-	else
-	{
-		Message(
-			MSG_WARNING, 1,
-			MSG(MViewSearchTitle),
-			(SearchHex ? MSG(MViewSearchCannotFindHex) : MSG(MViewSearchCannotFind)),
-			strMsgStr.data(),
-			MSG(MOk)
-		);
 	}
 }
 
@@ -3545,117 +3601,6 @@ void Viewer::SetNamesList(NamesList& List)
 	ViewNamesList = std::move(List);
 }
 
-
-static int utf8_to_WideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int wlen, int &tail )
-{
-	bool need_one = wlen <= 0;
-	if (need_one)
-		wlen = 2;
-
-	int ic = 0, nw = 0, wc;
-
-	while ( ic < nc )
-	{
-		unsigned char c1 = ((const unsigned char *)s)[ic++];
-
-		if (c1 < 0x80) // simple ASCII
-			wc = (wchar_t)c1;
-		else if ( c1 < 0xC2 || c1 >= 0xF5 ) // illegal 1-st byte
-			wc = -1;
-		else
-		{ // multibyte (2, 3, 4)
-			if (ic + 0 >= nc )
-			{ // unfinished
-			unfinished:
-				if ( nw > 0 )
-					tail = nc - ic + 1;
-				else
-				{
-					tail = 0;
-					w1[0] = REPLACE_CHAR;
-					if (w2)
-						w2[0] = L'?';
-					nw = 1;
-				}
-				return nw;
-			}
-			unsigned char c2 = ((const unsigned char *)s)[ic];
-			if ( 0x80 != (c2 & 0xC0)       // illegal 2-nd byte
-			 || (0xE0 == c1 && c2 <= 0x9F) // illegal 3-byte start (overlaps with 2-byte)
-			 || (0xF0 == c1 && c2 <= 0x8F) // illegal 4-byte start (overlaps with 3-byte)
-			 || (0xF4 == c1 && c2 >= 0x90) // illegal 4-byte (out of unicode range)
-			)
-			{
-				wc = -1;
-			}
-			else if ( c1 < 0xE0 )
-			{ // legal 2-byte
-				++ic;
-				wc = ((c1 & 0x1F) << 6) | (c2 & 0x3F);
-			}
-			else
-			{ // 3 or 4-byte
-				if (ic + 1 >= nc )
-					goto unfinished;
-				unsigned char c3 = ((const unsigned char *)s)[ic+1];
-				if ( 0x80 != (c3 & 0xC0) ) // illegal 3-rd byte
-					wc = -1;
-				else if ( c1 < 0xF0 )
-				{ // legal 3-byte
-					ic += 2;
-					wc = ((c1 & 0x0F) << 12) | ((c2 & 0x3F) << 6) | (c3 & 0x3F);
-				}
-				else
-				{ // 4-byte
-					if (ic + 2 >= nc )
-						goto unfinished;
-
-					unsigned char c4 = ((const unsigned char *)s)[ic+2];
-					if ( 0x80 != (c4 & 0xC0) ) // illegal 4-th byte
-						wc = -1;
-					else
-					{ // legal 4-byte (produce 2 WCHARs)
-						ic += 3;
-						wc = ((c1 & 0x07) << 18) | ((c2 & 0x3F) << 12) | ((c3 & 0x3F) << 6) | (c4 & 0x3F);
-						wc -= 0x10000;
-						w1[nw] = (wchar_t)(0xD800 + (wc >> 10));
-						if (w2)
-							w2[nw] = w1[nw];
-						++nw;
-						wc = 0xDC00 + (wc & 0x3FF);
-#if 0
-						_ASSERTE(nw < wlen); //??? caller should be fixed to avoid this...
-#endif
-						if (nw >= wlen)
-						{
-							--nw;
-							wc = REPLACE_CHAR;
-						}
-					}
-				}
-			}
-		}
-
-		if ( wc >= 0 )
-		{
-			w1[nw] = (wchar_t)wc;
-			if (w2)
-				w2[nw] = (wchar_t)wc;
-		}
-		else
-		{
-			w1[nw] = REPLACE_CHAR;
-			if (w2)
-				w2[nw] = L'?';
-		}
-		if (++nw >= wlen || need_one)
-			break;
-	}
-
-	tail = nc - ic;
-	return nw;
-}
-
 int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 {
 	if (Count <= 0)
@@ -3670,8 +3615,8 @@ int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 		Reader.Read(Buf, Count, &ReadSize);
 		if (0 != (ReadSize & 1))
 		{
-			((char *)Buf)[ReadSize-1+rev] = (char)(REPLACE_CHAR & 0xff);
-			((char *)Buf)[ReadSize-0-rev] = (char)(REPLACE_CHAR >> 8);
+			((char *)Buf)[ReadSize-1+rev] = (char)(Utf::REPLACE_CHAR & 0xff);
+			((char *)Buf)[ReadSize-0-rev] = (char)(Utf::REPLACE_CHAR >> 8);
 			++ReadSize;
 		}
 		if (CP_REVERSEBOM == VM.CodePage)
@@ -3700,7 +3645,7 @@ int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 		if (VM.CodePage == CP_UTF8)
 		{
 			int tail;
-			ReadSize = (DWORD)utf8_to_WideChar(TmpBuf, ConvertSize, Buf,Buf2, Count, tail);
+			ReadSize = (DWORD)Utf8::ToWideChar(TmpBuf, ConvertSize, Buf,Buf2, Count, tail);
 			if (tail)
 				Reader.Unread(tail);
 		}
@@ -3728,7 +3673,7 @@ int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 					if (Buf2)
 						Buf2[ReadSize] = L'?';
 
-					Buf[ReadSize++] = REPLACE_CHAR;
+					Buf[ReadSize++] = Utf::REPLACE_CHAR;
 					++ib;
 				}
 			}
@@ -3815,14 +3760,14 @@ bool Viewer::vgetc(wchar_t *pCh)
 	{
 		case CP_REVERSEBOM:
 			if (vgetc_ib == vgetc_cb-1)
-				*pCh = REPLACE_CHAR;
+				*pCh = Utf::REPLACE_CHAR;
 			else
 				*pCh = (wchar_t)((vgetc_buffer[vgetc_ib] << 8) | vgetc_buffer[vgetc_ib+1]);
 			vgetc_ib += 2;
 		break;
 		case CP_UNICODE:
 			if (vgetc_ib == vgetc_cb-1)
-				*pCh = REPLACE_CHAR;
+				*pCh = Utf::REPLACE_CHAR;
 			else
 				*pCh = (wchar_t)((vgetc_buffer[vgetc_ib+1] << 8) | vgetc_buffer[vgetc_ib]);
 			vgetc_ib += 2;
@@ -3831,7 +3776,7 @@ bool Viewer::vgetc(wchar_t *pCh)
 		{
 			int tail;
 			wchar_t w[2];
-			int nw = utf8_to_WideChar((const char *)vgetc_buffer+vgetc_ib, vgetc_cb-vgetc_ib, w,nullptr, -2,tail);
+			int nw = Utf8::ToWideChar((const char *)vgetc_buffer+vgetc_ib, vgetc_cb-vgetc_ib, w,nullptr, -2,tail);
 			vgetc_ib = vgetc_cb - tail;
 			*pCh = w[0];
 			if (nw > 1)
@@ -3848,12 +3793,12 @@ bool Viewer::vgetc(wchar_t *pCh)
 				}
 				else if (clen < -10) // end of data
 				{
-					*pCh = REPLACE_CHAR;
+					*pCh = Utf::REPLACE_CHAR;
 					vgetc_ib = vgetc_cb;
 				}
 				else // bad sequence
 				{
-					*pCh = REPLACE_CHAR;
+					*pCh = Utf::REPLACE_CHAR;
 					++vgetc_ib;
 				}
 			}
@@ -3876,7 +3821,7 @@ wchar_t Viewer::vgetc_prev()
 
 	int nb, ch_size = getCharSize();
 	if ( pos < ch_size )
-		return REPLACE_CHAR;
+		return Utf::REPLACE_CHAR;
 
    if ((nb = ch_size) < 0)	// UTF-8 or MB decoder
 	{
@@ -3892,7 +3837,7 @@ wchar_t Viewer::vgetc_prev()
 
 	vseek(pos, SEEK_SET);
 
-	wchar_t ch = REPLACE_CHAR;
+	wchar_t ch = Utf::REPLACE_CHAR;
 	if ( static_cast<int>(nr) == nb )
 	{
 		switch ( VM.CodePage )
@@ -3907,7 +3852,7 @@ wchar_t Viewer::vgetc_prev()
 			{
 				int tail = 0;
 				wchar_t w[4];
-				int nw = utf8_to_WideChar(ss, nb, w,nullptr, 4,tail);
+				int nw = Utf8::ToWideChar(ss, nb, w,nullptr, 4,tail);
 				if ( !tail && nw > 0 )
 					ch = w[nw-1];
 				break;

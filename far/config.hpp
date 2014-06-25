@@ -386,24 +386,25 @@ public:
 			eMaxLineSize = 100*1000
 		};
 
-		IntOption  TabSize;
 		BoolOption AutoDetectCodePage;
-		BoolOption ShowScrollbar;
-		BoolOption ShowArrows;
+		IntOption   DefaultCodePage;
+		IntOption   MaxLineSize; // 1000..100000, default=10000
 		BoolOption PersistentBlocks;
-		BoolOption ViewerIsWrap; // (Wrap|WordWarp)=1 | UnWrap=0
-		BoolOption ViewerWrap; // Wrap=0|WordWarp=1
+		BoolOption  SaveCodepage;
 		BoolOption SavePos;
-		BoolOption SaveCodepage;
+		BoolOption  SaveShortPos;
 		BoolOption SaveWrapMode;
-		BoolOption SaveShortPos;
-		BoolOption UseExternalViewer;
+		BoolOption  SearchEditFocus; // auto-focus on edit text/hex window
+		BoolOption  SearchRegexp;
+		Bool3Option SearchWrapStop; // [NonStop] / {Start-End} / [Full Cycle]
+		BoolOption  ShowArrows;
 		BoolOption ShowKeyBar;
-		IntOption  DefaultCodePage;
+		BoolOption  ShowScrollbar;
 		BoolOption ShowTitleBar;
-		BoolOption SearchRegexp;
-		IntOption  MaxLineSize; // 1000..100000, default=10000
-		BoolOption SearchEditFocus; // auto-focus on edit text/hex window
+		IntOption   TabSize;
+		BoolOption  UseExternalViewer;
+		BoolOption  ViewerIsWrap; // (Wrap|WordWarp)=1 | UnWrap=0
+		BoolOption  ViewerWrap; // Wrap=0|WordWarp=1
 		BoolOption Visible0x00;
 		IntOption  ZeroChar;
 	};

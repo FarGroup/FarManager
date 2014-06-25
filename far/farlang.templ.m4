@@ -17406,9 +17406,21 @@ MViewSearchCannotFindHex
 "No se puede encontrar los bytes"
 "Nemôžem nájsť sekvenciu bajtov"
 
+#fixed order begin
+#
+MViewSearchEod
+"Достигнут конец документа"
+upd:"End of the document reached"
+upd:"End of the document reached"
+upd:"End of the document reached"
+upd:"End of the document reached"
+upd:"End of the document reached"
+upd:"End of the document reached"
+upd:"End of the document reached"
+
 MViewSearchFromBegin
 "Продолжить поиск с начала документа?"
-"Continue the search from the beginning of the document?"
+"Continue from the beginning of the document?"
 "Pokračovat s hledáním od začátku dokumentu?"
 "Mit Suche am Anfang des Dokuments fortfahren?"
 "Folytassam a keresést a dokumentum elejétől?"
@@ -17416,15 +17428,47 @@ MViewSearchFromBegin
 "Continuar búsqueda desde el comienzo del documento?"
 "Pokračovať v hľadaní od začiatku dokumentu?"
 
+MViewSearchBod
+"Достигнуто начало документа"
+upd:"Begin of the document reached"
+upd:"Begin of the document reached"
+upd:"Begin of the document reached"
+upd:"Begin of the document reached"
+upd:"Begin of the document reached"
+upd:"Begin of the document reached"
+upd:"Begin of the document reached"
+
 MViewSearchFromEnd
 "Продолжить поиск с конца документа?"
-"Continue the search from the end of the document?"
+"Continue from the end of the document?"
 "Pokračovat s hledáním od konce dokumentu?"
 "Mit Suche am Ende des Dokuments fortfahren?"
 "Folytassam a keresést a dokumentum végétől?"
 "Kontynuować wyszukiwanie od końca dokumentu?"
 "Continuar búsqueda desde el final del documento?"
 "Pokračovať v hľadaní od konca dokumentu?"
+
+MViewSearchCycle
+"Просмотрен весь документ"
+upd:"Whole document scanned"
+upd:"Whole document scanned"
+upd:"Whole document scanned"
+upd:"Whole document scanned"
+upd:"Whole document scanned"
+upd:"Whole document scanned"
+upd:"Whole document scanned"
+
+MViewSearchRepeat
+"Повторить поиск в документе?"
+upd:"Repeat the search in the document?"
+upd:"Repeat the search in the document?"
+upd:"Repeat the search in the document?"
+upd:"Repeat the search in the document?"
+upd:"Repeat the search in the document?"
+upd:"Repeat the search in the document?"
+upd:"Repeat the search in the document?"
+#
+#fixed order end
 
 MPrintTitle
 l:

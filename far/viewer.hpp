@@ -44,6 +44,8 @@ class FileViewer;
 class KeyBar;
 class Dialog;
 
+ENUM(SEARCHER_RESULT);
+
 class Viewer:public ScreenObject
 {
 public:
@@ -115,12 +117,12 @@ private:
 	void ChangeViewKeyBar();
 	void Search(int Next,int FirstChar);
 	struct search_data;
-	int search_hex_forward( search_data* sd );
-	int search_hex_backward( search_data* sd );
-	int search_text_forward( search_data* sd );
-	int search_text_backward( search_data* sd );
-	int search_regex_forward( search_data* sd );
-	int search_regex_backward( search_data* sd );
+	SEARCHER_RESULT search_hex_forward( search_data* sd );
+	SEARCHER_RESULT search_hex_backward( search_data* sd );
+	SEARCHER_RESULT search_text_forward( search_data* sd );
+	SEARCHER_RESULT search_text_backward( search_data* sd );
+	SEARCHER_RESULT search_regex_forward( search_data* sd );
+	SEARCHER_RESULT search_regex_backward( search_data* sd );
 	int read_line(wchar_t *buf, wchar_t *tbuf, INT64 cpos, int adjust, INT64 &lpos, int &lsize);
 	int vread(wchar_t *Buf, int Count, wchar_t *Buf2 = nullptr);
 	bool vseek(__int64 Offset, int Whence);

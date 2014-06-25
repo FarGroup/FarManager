@@ -56,7 +56,7 @@ public:
 	void SetCacheParams(EditorPosCache &pc, bool count_bom = false);
 	void GetCacheParams(EditorPosCache &pc);
 	bool TryCodePage(uintptr_t codepage, int &X, int &Y);
-	bool SetCodePage(uintptr_t codepage); //BUGBUG
+	bool SetCodePage(uintptr_t codepage, bool *BOM=nullptr); //BUGBUG
 	uintptr_t GetCodePage() const; //BUGBUG
 	int SetRawData(const wchar_t *SrcBuf, int SizeSrcBuf, int TextFormat); // преобразование из буфера в список
 	int GetRawData(wchar_t **DestBuf, int& SizeDestBuf, int TextFormat = 0); // преобразование из списка в буфер

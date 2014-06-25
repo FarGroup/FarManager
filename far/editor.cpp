@@ -7452,10 +7452,10 @@ DWORD Editor::EditSetCodePage(iterator edit, uintptr_t codepage, bool check_only
 		}
 
 		int length2;
-		if (codepage == CP_UTF7)
+		if (codepage == CP_UTF8 || codepage == CP_UTF7)
 		{
-			UTF7::Errs errs;
-			length2 = UTF7::ToWideChar(decoded.data(), length, nullptr, 0, &errs);
+			Utf::Errs errs;
+			length2 = Utf::ToWideChar(codepage, decoded.data(), length, nullptr, 0, &errs);
 			if (errs.count > 0)
 				Ret |= SETCP_MB2WCERROR;
 		}
@@ -7482,8 +7482,8 @@ DWORD Editor::EditSetCodePage(iterator edit, uintptr_t codepage, bool check_only
 			edit->Str = encoded;
 		}
 
-		if (codepage == CP_UTF7)
-			length2 = UTF7::ToWideChar(decoded.data(), length, edit->Str, length2, nullptr);
+		if (codepage == CP_UTF8 || codepage == CP_UTF7)
+			length2 = Utf::ToWideChar(codepage, decoded.data(), length, edit->Str, length2, nullptr);
 		else
 			length2 = MultiByteToWideChar(codepage, 0, decoded.data(), length, edit->Str, length2);
 
@@ -7536,10 +7536,10 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 			}
 
 			int err_pos = -1;
-			if (codepage == CP_UTF7)
+			if (codepage == CP_UTF8 || codepage == CP_UTF7)
 			{
-				UTF7::Errs errs;
-				UTF7::ToWideChar(decoded.data(), total_len, nullptr,0, &errs);
+				Utf::Errs errs;
+				Utf::ToWideChar(codepage, decoded.data(), total_len, nullptr,0, &errs);
 				err_pos = errs.first_src;
 			}
 			else
@@ -7585,7 +7585,7 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 	return true;
 }
 
-bool Editor::SetCodePage(uintptr_t codepage)
+bool Editor::SetCodePage(uintptr_t codepage, bool *BOM)
 {
 	if ( m_codepage == codepage )
 		return true;
@@ -7595,6 +7595,21 @@ bool Editor::SetCodePage(uintptr_t codepage)
 	FOR_RANGE(Lines, i)
 	{
 		Result |= EditSetCodePage(i, codepage, false);
+	}
+
+	if (BOM)
+	{
+		*BOM = false;
+		if (codepage == CP_UTF8 && !Lines.empty())
+		{
+			auto first = Lines.begin();
+			if (first->StrSize > 0 && first->Str[0] == Utf::BOM_CHAR)
+			{
+				wmemmove(first->Str, first->Str+1, first->StrSize); // with trailing L'\0'
+				--first->StrSize;
+				*BOM = true;
+			}
+		}
 	}
 
 	m_codepage = codepage;

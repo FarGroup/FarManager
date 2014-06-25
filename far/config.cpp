@@ -709,35 +709,60 @@ void Options::SetDizConfig()
 
 void Options::ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local)
 {
-	DialogBuilder Builder(MViewConfigTitle, L"ViewerSettings");
+	intptr_t save_pos = 0, save_cp = 0, id = 0;
+	bool prev_save_cp_value = ViOpt.SaveCodepage, inside = false;
+
+	DialogBuilder Builder(MViewConfigTitle, L"ViewerSettings", [&](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) -> intptr_t
+	{
+		if (Msg == DN_INITDIALOG && save_pos)
+		{
+			Dlg->SendMessage(DM_ENABLE, save_cp, reinterpret_cast<void *>(ViOpt.SavePos ? false : true));
+			ViOpt.SaveCodepage = (ViOpt.SavePos ? true : ViOpt.SaveCodepage);
+		}
+		else if (Msg == DN_BTNCLICK && save_pos)
+		{
+			if (Param1 == save_pos)
+			{
+				inside = true;
+				Dlg->SendMessage(DM_SETCHECK, save_cp, reinterpret_cast<void *>(Param2 ? true : prev_save_cp_value));
+				Dlg->SendMessage(DM_ENABLE, save_cp, reinterpret_cast<void *>(Param2 ? false : true));
+				inside = false;
+			}
+			else if (Param1 == save_cp && !inside)
+			{
+				prev_save_cp_value = (Param2 != 0);
+			}
+		}
+		return Dlg->DefProc(Msg, Param1, Param2);
+	});
 
 	std::vector<DialogBuilderListItem2> Items; //Must live until Dialog end
 
 	if (!Local)
 	{
-		Builder.AddCheckbox(MViewConfigExternalF3, ViOpt.UseExternalViewer);
-		Builder.AddText(MViewConfigExternalCommand);
-		Builder.AddEditField(strExternalViewer, 64, L"ExternalViewer", DIF_EDITPATH|DIF_EDITPATHEXEC);
-		Builder.AddSeparator(MViewConfigInternal);
+		++id; Builder.AddCheckbox(MViewConfigExternalF3, ViOpt.UseExternalViewer);
+		++id; Builder.AddText(MViewConfigExternalCommand);
+		++id; Builder.AddEditField(strExternalViewer, 64, L"ExternalViewer", DIF_EDITPATH|DIF_EDITPATHEXEC);
+		++id; Builder.AddSeparator(MViewConfigInternal);
 	}
 
 	Builder.StartColumns();
-	Builder.AddCheckbox(MViewConfigPersistentSelection, ViOptRef.PersistentBlocks);
-	Builder.AddCheckbox(MViewConfigEditAutofocus, ViOptRef.SearchEditFocus);
-	DialogItemEx *TabSize = Builder.AddIntEditField(ViOptRef.TabSize, 3);
-	Builder.AddTextAfter(TabSize, MViewConfigTabSize);
+	++id; Builder.AddCheckbox(MViewConfigPersistentSelection, ViOptRef.PersistentBlocks);
+	++id; Builder.AddCheckbox(MViewConfigEditAutofocus, ViOptRef.SearchEditFocus);
+	++id; DialogItemEx *TabSize = Builder.AddIntEditField(ViOptRef.TabSize, 3);
+	++id; Builder.AddTextAfter(TabSize, MViewConfigTabSize);
 	Builder.ColumnBreak();
-	Builder.AddCheckbox(MViewConfigArrows, ViOptRef.ShowArrows);
-	Builder.AddCheckbox(MViewConfigVisible0x00, ViOptRef.Visible0x00);
-	Builder.AddCheckbox(MViewConfigScrollbar, ViOptRef.ShowScrollbar);
+	++id; Builder.AddCheckbox(MViewConfigArrows, ViOptRef.ShowArrows);
+	++id; Builder.AddCheckbox(MViewConfigVisible0x00, ViOptRef.Visible0x00);
+	++id; Builder.AddCheckbox(MViewConfigScrollbar, ViOptRef.ShowScrollbar);
 	Builder.EndColumns();
 
 	if (!Local)
 	{
-		Builder.AddSeparator();
+		++id; Builder.AddSeparator();
 		Builder.StartColumns();
-		Builder.AddCheckbox(MViewConfigSavePos, ViOpt.SavePos);
-		Builder.AddCheckbox(MViewConfigSaveCodepage, ViOpt.SaveCodepage);
+		save_pos = ++id; Builder.AddCheckbox(MViewConfigSavePos, ViOpt.SavePos);
+		save_cp = ++id; Builder.AddCheckbox(MViewConfigSaveCodepage, ViOpt.SaveCodepage);
 		DialogItemEx *MaxLineSize = Builder.AddIntEditField(ViOpt.MaxLineSize, 6);
 		Builder.AddTextAfter(MaxLineSize, MViewConfigMaxLineSize);
 		Builder.ColumnBreak();
@@ -756,9 +781,6 @@ void Options::ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local)
 	{
 		if (!Local)
 		{
-			if (ViOpt.SavePos)
-			ViOpt.SaveCodepage = true; // codepage is part of saved position
-
 			if (!ViOpt.MaxLineSize)
 				ViOpt.MaxLineSize = Options::ViewerOptions::eDefLineSize;
 			else
@@ -1879,17 +1901,18 @@ void Options::InitRoamingCFG()
 		{FSSF_PRIVATE,       NKeyViewer,L"IsWrap", &ViOpt.ViewerIsWrap, true},
 		{FSSF_PRIVATE,       NKeyViewer,L"MaxLineSize", &ViOpt.MaxLineSize, ViewerOptions::eDefLineSize},
 		{FSSF_PRIVATE,       NKeyViewer,L"PersistentBlocks", &ViOpt.PersistentBlocks, false},
+		{FSSF_PRIVATE,       NKeyViewer,L"SaveViewerCodepage", &ViOpt.SaveCodepage, true},
 		{FSSF_PRIVATE,       NKeyViewer,L"SaveViewerPos", &ViOpt.SavePos, true},
 		{FSSF_PRIVATE,       NKeyViewer,L"SaveViewerShortPos", &ViOpt.SaveShortPos, true},
-		{FSSF_PRIVATE,       NKeyViewer,L"SaveViewerCodepage", &ViOpt.SaveCodepage, true},
 		{FSSF_PRIVATE,       NKeyViewer,L"SaveViewerWrapMode", &ViOpt.SaveWrapMode, false},
 		{FSSF_PRIVATE,       NKeyViewer,L"SearchEditFocus", &ViOpt.SearchEditFocus, false},
 		{FSSF_PRIVATE,       NKeyViewer,L"SearchRegexp", &ViOpt.SearchRegexp, false},
+		{FSSF_PRIVATE,       NKeyViewer,L"SearchWrapStop", &ViOpt.SearchWrapStop, 1}, // Bool3 -- True
 		{FSSF_PRIVATE,       NKeyViewer,L"ShowArrows", &ViOpt.ShowArrows, true},
 		{FSSF_PRIVATE,       NKeyViewer,L"ShowKeyBar", &ViOpt.ShowKeyBar, true},
-		{FSSF_PRIVATE,       NKeyViewer,L"ShowTitleBar", &ViOpt.ShowTitleBar, true},
 		{FSSF_PRIVATE,       NKeyViewer,L"ShowScrollbar", &ViOpt.ShowScrollbar, false},
 		{FSSF_PRIVATE,       NKeyViewer,L"TabSize", &ViOpt.TabSize, DefaultTabSize},
+		{FSSF_PRIVATE,       NKeyViewer,L"ShowTitleBar", &ViOpt.ShowTitleBar, true},
 		{FSSF_PRIVATE,       NKeyViewer,L"UseExternalViewer", &ViOpt.UseExternalViewer, false},
 		{FSSF_PRIVATE,       NKeyViewer,L"Visible0x00", &ViOpt.Visible0x00, false},
 		{FSSF_PRIVATE,       NKeyViewer,L"Wrap", &ViOpt.ViewerWrap, false},

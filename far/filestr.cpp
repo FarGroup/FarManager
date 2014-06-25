@@ -174,6 +174,7 @@ bool GetFileString::GetString(LPWSTR* DestStr, size_t& Length)
 		}
 		return false;
 
+	case CP_UTF8:
 	case CP_UTF7:
 		{
 			std::vector<char> CharStr;
@@ -182,14 +183,14 @@ bool GetFileString::GetString(LPWSTR* DestStr, size_t& Length)
 
 			if (ExitCode)
 			{
-				UTF7::Errs errs;
-				int len = UTF7::ToWideChar(CharStr.data(), static_cast<int>(CharStr.size())-1, m_wStr.data(), static_cast<int>(m_wStr.size()), &errs);
+				Utf::Errs errs;
+				int len = Utf::ToWideChar(m_CodePage, CharStr.data(), static_cast<int>(CharStr.size())-1, m_wStr.data(), static_cast<int>(m_wStr.size()), &errs);
 
 				SomeDataLost = SomeDataLost || errs.count > 0;
 				if (errs.small_buff)
 				{
 					std::vector<wchar_t>(len + 1).swap(m_wStr);
-					UTF7::ToWideChar(CharStr.data(), static_cast<int>(CharStr.size())-1, m_wStr.data(), len, nullptr);
+					Utf::ToWideChar(m_CodePage, CharStr.data(), static_cast<int>(CharStr.size())-1, m_wStr.data(), len, nullptr);
 				}
 
 				m_wStr.resize(len+1);

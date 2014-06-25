@@ -17,6 +17,7 @@
 @Interface.CursorSize2=Interface.CursorSize
 @Interface.CursorSize3=Interface.CursorSize
 @Interface.CursorSize4=Interface.CursorSize
+@Interface.DelShowSelected=Interface.DelHighlightSelected
 @System.MsWheelDeltaView=System.MsWheelDelta
 @System.MsWheelDeltaEdit=System.MsWheelDelta
 @System.MsWheelDeltaHelp=System.MsWheelDelta
@@ -6165,6 +6166,21 @@ $ #far:config Macros.ShowPlayIndicator#
 
     Изменение этого параметра возможно через ~far:config~@FarConfig@
 
+@Viewer.SearchWrapStop
+$ #far:config Viewer.SearchWrapStop#
+    Параметр "Viewer.SearchWrapStop" позволяет изменять поведение при прохождении через начало/конец
+файла при поиске в просмотрщике.
+
+     False - ^<wrap>Тихий переход через начало/конец файла
+
+     True  - ^<wrap>Показывается сообщение о переходе через начало/конец файла
+
+     Other - ^<wrap>Сообщение выводится при переходе через точку начала поиска (пройден весь файл)
+
+    По умолчанию значение = True
+
+    Изменение этого параметра возможно через ~far:config~@FarConfig@
+
 @XLat.Layouts
 $ #far:config XLat.Layouts#
     Параметр "XLat.Layouts" позволяет задавать номера раскладок клавиатуры (через ';'), которые будут переключаться,
@@ -6222,8 +6238,22 @@ $ #far:config XLat.Tables#
     Rules2=?,&?/.,б.ю^::Ж;ж$;@@""Э
     Rules3=^::ЖЖ^$;;жж$@""ЭЭ@@&??,,бб&/..юю/
 
+    Изменить эти параметры можно через ~far:config~@FarConfig@
 
-    Изменить эти параметры возможно через ~far:config~@FarConfig@
+@Interface.DelHighlightSelected
+$ #far:config Interface.DelHighlightSelected#
+$ #far:config Interface.DelShowSelected#
+
+Interface.DelHighlightSelected -- bool, default = true.
+true -- выделяем случай, когда список удаляемых объектов отличаеся от объекта под курсором.
+
+Interface.DelShowSelected -- int, default = 10.
+При множественном удалении показываем имена удаляемых объектов. Не более чем заданное число,
+приведённое к диапазону 1..высота_окна/2
+
+Старое поведение = (false, 1)
+
+    Изменить эти параметры можно через ~far:config~@FarConfig@
 
 @History.Config
 $ #far:config History.*#

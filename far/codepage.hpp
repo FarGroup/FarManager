@@ -140,7 +140,13 @@ private:
 
 //#############################################################################
 
-namespace UTF7 {
+namespace Utf
+{
+	const wchar_t REPLACE_CHAR  = L'\xFFFD'; // Replacement
+	const wchar_t BOM_CHAR      = L'\xFEFF'; // Zero Length Space
+	const wchar_t CONTINUE_CHAR = L'\x203A'; // Single Right-Pointing Angle Quotation Mark
+
+
 	struct Errs
 	{
 		int first_src;
@@ -149,7 +155,16 @@ namespace UTF7 {
 		bool small_buff;
 	};
 
-	int ToWideChar(const char *src, int len, wchar_t* out, int wc, Errs *errs);
+	int ToWideChar(uintptr_t cp,const char *src, int len, wchar_t* out, int wlen, Errs *errs);
+}
+
+namespace Utf7 {
+	int ToWideChar(const char *src, int len, wchar_t* out, int wlen, Utf::Errs *errs);
+}
+
+namespace Utf8 {
+	int ToWideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int wlen, int &tail);
+	int ToWideChar(const char *src, int len, wchar_t* out, int wlen, Utf::Errs *errs);
 }
 
 //#############################################################################

@@ -987,11 +987,26 @@ int MultibyteCodepageDecoder::GetChar(const BYTE *bf, size_t cb, wchar_t& wc) co
 	}
 }
 
+//################################################################################################
+//################################################################################################
 
-namespace UTF7 {
-#if 0
-static const char base64[65]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdrfghijklmnopqrstuvwxyz0123456789+/";
-#endif
+int Utf::ToWideChar(uintptr_t cp,const char *src, int len, wchar_t* out, int wlen, Errs *errs)
+{
+	if (cp == CP_UTF8)
+		return Utf8::ToWideChar(src, len, out, wlen, errs);
+
+	else if (cp == CP_UTF7)
+		return Utf7::ToWideChar(src, len, out, wlen, errs);
+
+	else
+		return -1;
+}
+
+//################################################################################################
+
+//                                   2                         5         6
+//	        0                         6                         2         2
+// base64: ABCDEFGHIJKLMNOPQRSTUVWXYZabcdrfghijklmnopqrstuvwxyz0123456789+/
 
 static const int ill = 0x0100; // illegal
 static const int dir = 0x0200; // direct
@@ -1003,10 +1018,9 @@ static const int mns = 0x2000; // -
 static const int ILL = ill + 255;
 static const int DIR = dir + 255;
 static const int OPT = opt + 255;
-static const int D64 = dir + b64;
-#define D(n) D64 + n
-static const int PLS = pls + D(62);
+static const int PLS = pls + b64 + 62;
 static const int MNS = mns + dir + 255;
+#define D(n) dir + b64 + n
 
 static const short m7[128] =
 //  x00   x01   x02   x03   x04   x05   x06   x07   x08   x09   x0a   x0b   x0c   x0d   x0e   x0f
@@ -1034,7 +1048,7 @@ static const short m7[128] =
 , D(41),D(42),D(43),D(44),D(45),D(46),D(47),D(48),D(49),D(50),D(51),  OPT,  OPT,  OPT,  ILL,  ILL
 };
 
-int GetChar(const BYTE *bf, size_t cb, wchar_t& wc, int& state)
+static int Utf7_GetChar(const BYTE *bf, size_t cb, wchar_t& wc, int& state)
 {
 	if (!cb)
 		return 0;
@@ -1149,9 +1163,7 @@ int GetChar(const BYTE *bf, size_t cb, wchar_t& wc, int& state)
 	return nc;
 }
 
-static const wchar_t REPLACE_CHAR = L'\xFFFD'; // Replacement
-
-int ToWideChar(const char *src, int length, wchar_t* out, int wc, Errs *errs)
+int Utf7::ToWideChar(const char *src, int length, wchar_t* out, int wlen, Utf::Errs *errs)
 {
 	if (errs)
 	{
@@ -1172,20 +1184,20 @@ int ToWideChar(const char *src, int length, wchar_t* out, int wc, Errs *errs)
 
 	while (length > ns)
 	{
-		int nc = GetChar((const BYTE *)src+ns, length-ns, w1, state);
+		int nc = Utf7_GetChar((const BYTE *)src+ns, length-ns, w1, state);
 		if (!nc)
 			break;
 
 		if (nc < 0)
 		{
-			w1 = REPLACE_CHAR; nc = -nc;
+			w1 = Utf::REPLACE_CHAR; nc = -nc;
 			if (errs && 1 == ++ne)
 			{
 				errs->first_src = ns; errs->first_out = no;
 			}
 		}
 
-		if (move && --wc < 0)
+		if (move && --wlen < 0)
 		{
 			if (errs)
 				errs->small_buff = true;
@@ -1206,4 +1218,185 @@ int ToWideChar(const char *src, int length, wchar_t* out, int wc, Errs *errs)
 	return no;
 }
 
-} // namespace UTF7
+//################################################################################################
+
+int Utf8::ToWideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int wlen, int &tail )
+{
+	bool need_one = wlen <= 0;
+	if (need_one)
+		wlen = 2;
+
+	int ic = 0, nw = 0, wc;
+
+	while ( ic < nc )
+	{
+		unsigned char c1 = ((const unsigned char *)s)[ic++];
+
+		if (c1 < 0x80) // simple ASCII
+			wc = (wchar_t)c1;
+		else if ( c1 < 0xC2 || c1 >= 0xF5 ) // illegal 1-st byte
+			wc = -1;
+		else
+		{ // multibyte (2, 3, 4)
+			if (ic + 0 >= nc )
+			{ // unfinished
+unfinished:
+				if ( nw > 0 )
+					tail = nc - ic + 1;
+				else
+				{
+					tail = 0;
+					w1[0] = Utf::REPLACE_CHAR;
+					if (w2)
+						w2[0] = L'?';
+					nw = 1;
+				}
+				return nw;
+			}
+			unsigned char c2 = ((const unsigned char *)s)[ic];
+			if ( 0x80 != (c2 & 0xC0)       // illegal 2-nd byte
+				|| (0xE0 == c1 && c2 <= 0x9F) // illegal 3-byte start (overlaps with 2-byte)
+				|| (0xF0 == c1 && c2 <= 0x8F) // illegal 4-byte start (overlaps with 3-byte)
+				|| (0xF4 == c1 && c2 >= 0x90) // illegal 4-byte (out of unicode range)
+				)
+			{
+				wc = -1;
+			}
+			else if ( c1 < 0xE0 )
+			{ // legal 2-byte
+				++ic;
+				wc = ((c1 & 0x1F) << 6) | (c2 & 0x3F);
+			}
+			else
+			{ // 3 or 4-byte
+				if (ic + 1 >= nc )
+					goto unfinished;
+				unsigned char c3 = ((const unsigned char *)s)[ic+1];
+				if ( 0x80 != (c3 & 0xC0) ) // illegal 3-rd byte
+					wc = -1;
+				else if ( c1 < 0xF0 )
+				{ // legal 3-byte
+					ic += 2;
+					wc = ((c1 & 0x0F) << 12) | ((c2 & 0x3F) << 6) | (c3 & 0x3F);
+				}
+				else
+				{ // 4-byte
+					if (ic + 2 >= nc )
+						goto unfinished;
+
+					unsigned char c4 = ((const unsigned char *)s)[ic+2];
+					if ( 0x80 != (c4 & 0xC0) ) // illegal 4-th byte
+						wc = -1;
+					else
+					{ // legal 4-byte (produce 2 WCHARs)
+						ic += 3;
+						wc = ((c1 & 0x07) << 18) | ((c2 & 0x3F) << 12) | ((c3 & 0x3F) << 6) | (c4 & 0x3F);
+						wc -= 0x10000;
+						w1[nw] = (wchar_t)(0xD800 + (wc >> 10));
+						if (w2)
+							w2[nw] = w1[nw];
+						++nw;
+						wc = 0xDC00 + (wc & 0x3FF);
+#if 0
+						_ASSERTE(nw < wlen); //??? caller should be fixed to avoid this...
+#endif
+						if (nw >= wlen)
+						{
+							--nw;
+							wc = Utf::REPLACE_CHAR;
+						}
+					}
+				}
+			}
+		}
+
+		if ( wc >= 0 )
+		{
+			w1[nw] = (wchar_t)wc;
+			if (w2)
+				w2[nw] = (wchar_t)wc;
+		}
+		else
+		{
+			w1[nw] = Utf::REPLACE_CHAR;
+			if (w2)
+				w2[nw] = L'?';
+		}
+		if (++nw >= wlen || need_one)
+			break;
+	}
+
+	tail = nc - ic;
+	return nw;
+}
+
+static inline int Utf8_GetChar(const char *src, int length, wchar_t &wc)
+{
+	wchar_t w1[2], w2[2];
+	int tail;
+	if (Utf8::ToWideChar(src, length, w1, w2, -2, tail) <= 0)
+		return 0;
+
+	if ((wc = w1[0]) == Utf::REPLACE_CHAR && w2[0] == L'?')
+		return tail - length; // failed: negative
+	else
+		return length - tail; // succeed: positive
+ }
+
+int Utf8::ToWideChar(const char *src, int length, wchar_t* out, int wlen, Utf::Errs *errs)
+{
+	if (errs)
+	{
+		errs->first_src = errs->first_out = -1;
+		errs->count = 0;
+		errs->small_buff = false;
+	}
+
+	if (!src || length <= 0)
+		return 0;
+
+	int no = 0, ns = 0, ne = 0, move = 1;
+	wchar_t dummy_out, w1;
+	if (!out)
+	{
+		out = &dummy_out; move = 0;
+	}
+
+	while (length > ns)
+	{
+		int nc = Utf8_GetChar(src+ns, length-ns, w1);
+		if (!nc)
+			break;
+
+		if (nc < 0)
+		{
+			w1 = Utf::REPLACE_CHAR; nc = -nc;
+			if (errs && 1 == ++ne)
+			{
+				errs->first_src = ns; errs->first_out = no;
+			}
+		}
+
+		if (move && --wlen < 0)
+		{
+			if (errs)
+				errs->small_buff = true;
+
+			out = &dummy_out;
+			move = 0;
+		}
+
+		*out = w1;
+		out += move;
+		++no;
+		ns += nc;
+	}
+
+	if (errs)
+		errs->count = ne;
+
+	return no;
+}
+
+//################################################################################################
+//################################################################################################

@@ -987,7 +987,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 				if (!m_editor->Flags.Check(Editor::FEDITOR_LOCKMODE))
 				{
 					m_editor->Pasting++;
-					m_editor->TextChanged(1);
+					m_editor->TextChanged(true);
 
 					if (!m_editor->EdOpt.PersistentBlocks && (m_editor->VBlockStart != m_editor->Lines.end() || m_editor->BlockStart != m_editor->Lines.end()))
 					{
@@ -1338,7 +1338,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 				|| IsUnicodeCodePage(m_codepage) || m_codepage == CP_UTF7
 				|| IsUnicodeCodePage(codepage);
 
-				if (codepage != m_codepage && need_reload && IsFileChanged())
+				if (codepage != m_codepage && need_reload && IsFileModified())
 				{
 					int res = Message(
 						MSG_WARNING, 2, MSG(MEditTitle),
@@ -1371,7 +1371,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			case KEY_ALTSHIFTF9:
 			case KEY_RALTSHIFTF9:
 			{
-				//     Работа с локальной копией EditorOptions
+				// Работа с локальной копией EditorOptions
 				Options::EditorOptions EdOpt;
 				GetEditorOptions(EdOpt);
 				Global->Opt->LocalEditorConfig(EdOpt); // $ 27.11.2001 DJ - Local в EditorConfig
@@ -1721,6 +1721,11 @@ bool FileEditor::ReloadFile(uintptr_t codepage)
 			OperationFailed(strFullFileName, MEditTitle, MSG(MEditCannotOpen), false);
 		}
 	}
+	else
+	{
+		m_editor->Flags.Set(Editor::FEDITOR_WASCHANGED);
+		m_editor->Flags.Clear(Editor::FEDITOR_MODIFIED);
+	}
 
 	m_editor->Unlock();
 	Show();
@@ -1765,7 +1770,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 				case 0:  // Save
 					break;
 				case 1:  // Not Save
-					m_editor->TextChanged(0); // 10.08.2000 skv: TextChanged() support;
+					m_editor->TextChanged(false); // 10.08.2000 skv: TextChanged() support;
 					return SAVEFILE_SUCCESS;
 			}
 		}
@@ -2163,7 +2168,7 @@ end:
 	  ! Проверить на успешную запись */
 	if (RetCode==SAVEFILE_SUCCESS)
 	{
-		m_editor->TextChanged(0);
+		m_editor->TextChanged(false);
 		m_editor->Flags.Set(Editor::FEDITOR_NEWUNDO);
 	}
 
@@ -2897,7 +2902,7 @@ bool FileEditor::SetCodePage(uintptr_t codepage)
 		}
 	}
 	m_codepage = codepage;
-	BadConversion = !m_editor->SetCodePage(m_codepage);
+	BadConversion = !m_editor->SetCodePage(m_codepage, &m_bAddSignature);
 	return true;
 }
 
