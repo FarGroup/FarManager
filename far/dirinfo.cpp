@@ -157,7 +157,8 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, c
 	}
 	while (ScTree.GetNextName(&FindData,strFullName))
 	{
-		if (!Global->CtrlObject->Macro.IsExecuting())
+		// Mantis#0002692
+		//if (!Global->CtrlObject->Macro.IsExecuting())
 		{
 			INPUT_RECORD rec;
 
