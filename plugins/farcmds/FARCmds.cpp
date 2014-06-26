@@ -32,14 +32,12 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 #endif
 
 struct OptionsName OptName={
-	L"Add2PlugMenu",
-	L"Add2DisksMenu",
-	L"Separator",
 	L"ShowCmdOutput",
 	L"CatchMode",
 	L"ViewZeroFiles",
 	L"EditNewFiles",
 	L"MaxDataSize",
+	L"Separator",
 };
 
 struct PluginStartupInfo Info;
@@ -67,8 +65,6 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *psInfo)
 
 	PluginSettings settings(MainGuid, Info.SettingsControl);
 	settings.Get(0,OptName.Separator,Opt.Separator,ARRAYSIZE(Opt.Separator),L" ");
-	Opt.Add2PlugMenu=settings.Get(0,OptName.Add2PlugMenu,0);
-	Opt.Add2DisksMenu=settings.Get(0,OptName.Add2DisksMenu,0);
 	Opt.ShowCmdOutput=settings.Get(0,OptName.ShowCmdOutput,0);
 	Opt.CatchMode=settings.Get(0,OptName.CatchMode,0);
 	Opt.ViewZeroFiles=settings.Get(0,OptName.ViewZeroFiles,1);
@@ -92,21 +88,6 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		pTemp=OpenFromCommandLine(((OpenCommandLineInfo *)OInfo->Data)->CommandLine);
 		//if (pTemp)
 		//	DynTemp=true;
-	}
-	else if (OInfo->OpenFrom == OPEN_PLUGINSMENU && !OInfo->Data && PInfo.PanelType != PTYPE_FILEPANEL)
-	{
-		return nullptr;
-	}
-	else // Same Folder
-	{
-		if((OInfo->OpenFrom == OPEN_LEFTDISKMENU && (PInfo.Flags&PFLAGS_PANELLEFT)) ||
-		   (OInfo->OpenFrom == OPEN_RIGHTDISKMENU && !(PInfo.Flags&PFLAGS_PANELLEFT)))
-		{
-			SrcPanel = PANEL_PASSIVE;
-			DstPanel = PANEL_ACTIVE;
-		}
-		pTemp=GetSameFolder(PInfo,SrcPanel,DstPanel);
-		DynTemp=true;
 	}
 
 	/*установить курсор на объект*/
@@ -198,25 +179,7 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 	Info->StructSize=sizeof(*Info);
 	Info->Flags=PF_FULLCMDLINE;
 
-	static const wchar_t *PluginMenuStrings[1];
 	static const wchar_t *PluginConfigStrings[1];
-	static const wchar_t *DiskMenuStrings[1];
-
-	if (Opt.Add2PlugMenu)
-	{
-		PluginMenuStrings[0]=GetMsg(MSetSameDir);
-        Info->PluginMenu.Guids=&SameFolderMenuGuid;
-        Info->PluginMenu.Strings=PluginMenuStrings;
-        Info->PluginMenu.Count=ARRAYSIZE(PluginMenuStrings);
-	}
-
-	if (Opt.Add2DisksMenu)
-	{
-		DiskMenuStrings[0]=(wchar_t*)GetMsg(MSetSameDir);
-        Info->DiskMenu.Guids=&SameFolderMenuGuid;
-        Info->DiskMenu.Strings=DiskMenuStrings;
-        Info->DiskMenu.Count=ARRAYSIZE(DiskMenuStrings);
-	}
 
 	PluginConfigStrings[0]=GetMsg(MConfig);
     Info->PluginConfig.Guids=&ConfigMenuGuid;
@@ -229,11 +192,6 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 intptr_t WINAPI ConfigureW(const ConfigureInfo* CfgInfo)
 {
     PluginDialogBuilder Builder(Info, MainGuid, DialogGuid, MConfig, L"Config");
-
-    Builder.AddCheckbox(MAddSetPassiveDir2PlugMenu, &Opt.Add2PlugMenu);
-    Builder.AddCheckbox(MAddToDisksMenu, &Opt.Add2DisksMenu);
-
-    Builder.AddSeparator();
 
     const int CmdOutIDs[] = {MHideCmdOutput, MKeepCmdOutput, MEchoCmdOutput};
     Builder.AddRadioButtons(&Opt.ShowCmdOutput, 3, CmdOutIDs);
@@ -258,8 +216,6 @@ intptr_t WINAPI ConfigureW(const ConfigureInfo* CfgInfo)
     if (Builder.ShowDialog())
 	{
 		PluginSettings settings(MainGuid, Info.SettingsControl);
-		settings.Set(0,OptName.Add2PlugMenu,Opt.Add2PlugMenu);
-		settings.Set(0,OptName.Add2DisksMenu,Opt.Add2DisksMenu);
 		settings.Set(0,OptName.ShowCmdOutput,Opt.ShowCmdOutput);
 		settings.Set(0,OptName.CatchMode,Opt.CatchMode);
 		settings.Set(0,OptName.ViewZeroFiles,Opt.ViewZeroFiles);

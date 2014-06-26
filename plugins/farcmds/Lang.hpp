@@ -3,8 +3,6 @@ enum
 	MConfig,
 	MSetSameDir,
 
-	MAddSetPassiveDir2PlugMenu,
-	MAddToDisksMenu,
 	MSeparator,
 	MHideCmdOutput,
 	MKeepCmdOutput,

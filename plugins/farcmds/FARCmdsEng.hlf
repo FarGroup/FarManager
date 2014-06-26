@@ -6,9 +6,6 @@
 $^#FAR Commands#
    The FAR Commands plugin (FARCmds) provides a number of additional commands.
 
-   Except command ~"Same Folder"~@TheSameCatalogue@, all the rest have to be
-invoked via command line prefixes.
-
    Besides ~command line~@:CmdLineCmd@, prefixes may be used in ~User Menu~@:UserMenu@,
 in ~file associations~@:FileAssoc@, as well as in dialog ~Apply Command~@:ApplyCmd@ (#Ctrl-G#)
 
@@ -283,15 +280,6 @@ command text must be separated from it by some symbol.
 
    See also: ~Notes~@Remark@ | ~Contents~@Contents@
 
-@TheSameFolder
-$^#Same Folder
-   To set the current folder of the passive panel to the same as
-in the active one, choose the item "#Same Directory#" in the ~plugins menu~@:PluginCommands@
-or in the ~drives menu~@:DriveDlg@.
-
-
-   See also: ~Configuration~@Config@ | ~Contents~@Contents@
-
 @Remark
 $^#Notes#
 
@@ -310,12 +298,6 @@ $^#Notes#
 
 @Config
 $^#Configuring FAR Commands#
-
- #Add "Same Folder"#            Adds the ~Same Folder~@TheSameFolder@ command
- #to the Plugins menu#          to the ~Plugins menu~@:PluginCommands@.
-
- #Add "Same Folder"#            Adds the ~Same Folder~@TheSameFolder@ command
- #to the Disks menu#            to the ~Disks menu~@:DriveDlg@.
 
  #External commands screen output# Control program screen ~output~@Direction@:
 

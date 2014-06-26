@@ -43,6 +43,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Network", "network\Network.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProcList", "proclist\ProcList.vcxproj", "{1F12132B-4424-48C4-8B9C-B10E8AEDE9C7}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SameFolder", "samefolder\SameFolder.vcxproj", "{090E1BF4-BF2A-42F6-9DCF-64603F62A1D3}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TmpPanel", "tmppanel\TmpPanel.vcxproj", "{B40A055F-5616-4001-B4C0-3DAF156B168C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MultiArc", "multiarc\MultiArc.vcxproj", "{7EF4D5DD-4136-42AB-893B-BE75B63A2217}"
@@ -235,6 +237,18 @@ Global
 		{C87BBC63-9CA9-4421-8589-5FFDEB000361}.Release|Win32.Build.0 = Release|Win32
 		{C87BBC63-9CA9-4421-8589-5FFDEB000361}.Release|x64.ActiveCfg = Release|x64
 		{C87BBC63-9CA9-4421-8589-5FFDEB000361}.Release|x64.Build.0 = Release|x64
+		{090E1BF4-BF2A-42F6-9DCF-64603F62A1D3}.Debug|Itanium.ActiveCfg = Debug|Itanium
+		{090E1BF4-BF2A-42F6-9DCF-64603F62A1D3}.Debug|Itanium.Build.0 = Debug|Itanium
+		{090E1BF4-BF2A-42F6-9DCF-64603F62A1D3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{090E1BF4-BF2A-42F6-9DCF-64603F62A1D3}.Debug|Win32.Build.0 = Debug|Win32
+		{090E1BF4-BF2A-42F6-9DCF-64603F62A1D3}.Debug|x64.ActiveCfg = Debug|x64
+		{090E1BF4-BF2A-42F6-9DCF-64603F62A1D3}.Debug|x64.Build.0 = Debug|x64
+		{090E1BF4-BF2A-42F6-9DCF-64603F62A1D3}.Release|Itanium.ActiveCfg = Release|Itanium
+		{090E1BF4-BF2A-42F6-9DCF-64603F62A1D3}.Release|Itanium.Build.0 = Release|Itanium
+		{090E1BF4-BF2A-42F6-9DCF-64603F62A1D3}.Release|Win32.ActiveCfg = Release|Win32
+		{090E1BF4-BF2A-42F6-9DCF-64603F62A1D3}.Release|Win32.Build.0 = Release|Win32
+		{090E1BF4-BF2A-42F6-9DCF-64603F62A1D3}.Release|x64.ActiveCfg = Release|x64
+		{090E1BF4-BF2A-42F6-9DCF-64603F62A1D3}.Release|x64.Build.0 = Release|x64
 		{CC7215CC-15E2-48CF-ABAB-294E9600B22E}.Debug|Itanium.ActiveCfg = Debug|Itanium
 		{CC7215CC-15E2-48CF-ABAB-294E9600B22E}.Debug|Itanium.Build.0 = Debug|Itanium
 		{CC7215CC-15E2-48CF-ABAB-294E9600B22E}.Debug|Win32.ActiveCfg = Debug|Win32

@@ -1,0 +1,11 @@
+!include ../makefile_vc_base
+
+NAME = SameFolder
+LINK_OBJS = $(OBJDIR)\SameFolder.obj
+DOCS = SameFolderEng.hlf SameFolderRus.hlf SameFolderEng.lng SameFolderRus.lng SameFolderSky.lng SameFolderSpa.lng
+
+!include ..\makefile_vc_def_inc
+
+!include ..\makefile_vc_target_inc
+
+$(OBJDIR)\SameFolder.obj: SameFolder.cpp SameFolder.hpp Lang.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp

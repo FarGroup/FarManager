@@ -19,7 +19,7 @@
 #############################################################################
 
 ALLDIRS = align arclite autowrap brackets compare drawline editcase emenu farcmds \
-          filecase hlfviewer network proclist tmppanel \
+          filecase hlfviewer network proclist tmppanel samefolder \
 !if "$(BUILD_PLATFORM)" != "IA64"
           luamacro \
 !endif

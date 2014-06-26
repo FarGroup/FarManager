@@ -1,0 +1,29 @@
+﻿.Language=English,English (English)
+.PluginContents=Same Folder
+.Options CtrlStartPosChar=^<wrap>
+
+@Contents
+$^#Same Folder#
+   Плагин добавляет пункт "#Такая же папка#" ("Same Folder") в #меню плагинов# и #меню дисков#.
+
+   - ^<wrap>При вызове из ~меню плагинов~@:PluginCommands@ на пассивной панели устанавливается такая же
+папка, как и на активной.
+
+   - ^<wrap>При вызове из ~меню дисков~@:DriveDlg@ на выбранной панели устанавливается такая же
+папка, как и на противоположной.
+
+   По умолчанию пункт для вызова плагина добавляется только в #меню плагинов#.
+
+   See also: ~Configuring Same Folder~@Config@
+
+@Config
+$^#Configuring Same Folder#
+
+ #Add "Same Folder"#            Adds the Same Folder command
+ #to the Plugins menu#          to the ~Plugins menu~@:PluginCommands@.
+
+ #Add "Same Folder"#            Adds the Same Folder command
+ #to the Disks menu#            to the ~Disks menu~@:DriveDlg@.
+
+
+   See also: ~Contents~@Contents@
