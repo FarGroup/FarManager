@@ -304,6 +304,15 @@
 <?define Guid.FARCmdsRus.lng = "D66BABA6-CA13-4364-8946-49D8A4D52A66" ?>
 <?define Guid.FARCmdsSky.lng = "76824CB8-130D-43CF-A91E-3739AA4B33C0" ?>
 <?define Guid.FARCmdsSpa.lng = "42A63BEB-9148-49A6-A448-C5C48D83D4C9" ?>
+<?define Guid.changelog_20      = "174FE7F9-0E39-41FE-8150-868D2A3A0BFD" ?>
+<?define Guid.SameFolder.dll    = "3BE9F9B7-5A0A-4960-964F-B4210AF15E19" ?>
+<?define Guid.SameFolder.map    = "CC51C51B-A929-4DE0-ABA5-7E3A4B487231" ?>
+<?define Guid.SameFolderEng.hlf = "E7C44526-BB6B-4489-98CE-E0E91565B233" ?>
+<?define Guid.SameFolderEng.lng = "51BD91B2-4CB6-4CC2-BCB1-3D3127209A6C" ?>
+<?define Guid.SameFolderRus.hlf = "B4DAAABD-4E15-440F-BAFB-DEE03BFA22DB" ?>
+<?define Guid.SameFolderRus.lng = "16D07F1A-9F03-45EE-8816-30DAF493B0F3" ?>
+<?define Guid.SameFolderSky.lng = "7A951C71-74B5-4196-9D9D-AC7C3054E748" ?>
+<?define Guid.SameFolderSpa.lng = "F317160A-D553-4E89-956A-F88392EC251E" ?>
 <?define Guid.CaseEng.hlf = "A097C155-2906-4B4E-858A-910D948F84D5" ?>
 <?define Guid.CaseEng.lng = "901A4175-A4DB-46D4-ADF8-DECE89BFDD31" ?>
 <?define Guid.CaseRus.hlf = "C6122853-D4C1-45FA-8F73-34536B0F2BF0" ?>

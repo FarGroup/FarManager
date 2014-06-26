@@ -102,4 +102,6 @@
 <String Id="Feature.Description.TmpPanel">Temporary panel.</String>
 <String Id="Feature.Title.LuaMacro">LuaMacro</String>
 <String Id="Feature.Description.LuaMacro">Macros in Lua language.</String>
+<String Id="Feature.Title.SameFolder">SameFolder</String>
+<String Id="Feature.Description.SameFolder">Same Folder.</String>
 </WixLocalization>

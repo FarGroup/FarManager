@@ -88,6 +88,8 @@
 <String Id="Feature.Description.FarColorer">Подсветка синтаксиса.</String>
 <String Id="Feature.Title.FARCmds">FARCmds</String>
 <String Id="Feature.Description.FARCmds">Расширенные команды управления Far Manager.</String>
+<String Id="Feature.Title.FARCmds">SameFolder</String>
+<String Id="Feature.Description.SameFolder">Установка такой же папки.</String>
 <String Id="Feature.Title.FileCase">FileCase</String>
 <String Id="Feature.Description.FileCase">Преобразование регистра имен файлов.</String>
 <String Id="Feature.Title.NetBox">NetBox</String>

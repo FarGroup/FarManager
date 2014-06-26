@@ -999,6 +999,37 @@
             <File Id="FARCmdsSpa.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarCmds\FARCmdsSpa.lng" />
           </Component>
         </Directory>
+        <Directory Id="SameFolder" Name="SameFolder">
+          <Component Id="changelog_20" Guid="$(var.Guid.changelog_20)" Win64="$(var.Win64)">
+            <File Id="changelog_20" KeyPath="yes" Source="$(var.SourceDir)\Plugins\SameFolder\changelog" />
+          </Component>
+          <Component Id="SameFolder.dll" Guid="$(var.Guid.SameFolder.dll)" Win64="$(var.Win64)">
+            <File Id="SameFolder.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\SameFolder\SameFolder.dll" />
+          </Component>
+<?if $(var.Platform) = x86 ?>
+          <Component Id="SameFolder.map" Guid="$(var.Guid.SameFolder.map)" Win64="$(var.Win64)">
+            <File Id="SameFolder.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\SameFolder\SameFolder.map" />
+          </Component>
+<?endif?>
+          <Component Id="SameFolderEng.hlf" Guid="$(var.Guid.SameFolderEng.hlf)" Win64="$(var.Win64)">
+            <File Id="SameFolderEng.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\SameFolder\SameFolderEng.hlf" />
+          </Component>
+          <Component Id="SameFolderEng.lng" Guid="$(var.Guid.SameFolderEng.lng)" Win64="$(var.Win64)">
+            <File Id="SameFolderEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\SameFolder\SameFolderEng.lng" />
+          </Component>
+          <Component Id="SameFolderRus.hlf" Guid="$(var.Guid.SameFolderRus.hlf)" Win64="$(var.Win64)">
+            <File Id="SameFolderRus.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\SameFolder\SameFolderRus.hlf" />
+          </Component>
+          <Component Id="SameFolderRus.lng" Guid="$(var.Guid.SameFolderRus.lng)" Win64="$(var.Win64)">
+            <File Id="SameFolderRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\SameFolder\SameFolderRus.lng" />
+          </Component>
+          <Component Id="SameFolderSky.lng" Guid="$(var.Guid.SameFolderSky.lng)" Win64="$(var.Win64)">
+            <File Id="SameFolderSky.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\SameFolder\SameFolderSky.lng" />
+          </Component>
+          <Component Id="SameFolderSpa.lng" Guid="$(var.Guid.SameFolderSpa.lng)" Win64="$(var.Win64)">
+            <File Id="SameFolderSpa.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\SameFolder\SameFolderSpa.lng" />
+          </Component>
+        </Directory>
         <Directory Id="FileCase" Name="FileCase">
           <Component Id="CaseEng.hlf" Guid="$(var.Guid.CaseEng.hlf)" Win64="$(var.Win64)">
             <File Id="CaseEng.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FileCase\CaseEng.hlf" />

@@ -511,6 +511,25 @@
             <ComponentRef Id="changelog_9" />
           </Feature>
         </Feature>
+        <Feature Id="SameFolder" Level="1" Title="!(loc.Feature.Title.SameFolder)" AllowAdvertise="no" Description="!(loc.Feature.Description.SameFolder)">
+          <ComponentRef Id="SameFolder.dll" />
+          <ComponentRef Id="SameFolderEng.hlf" />
+          <ComponentRef Id="SameFolderEng.lng" />
+          <ComponentRef Id="SameFolderSky.lng" />
+          <ComponentRef Id="SameFolderSpa.lng" />
+          <Feature Id="SameFolder.Russian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="SameFolderRus.hlf" />
+            <ComponentRef Id="SameFolderRus.lng" />
+          </Feature>
+<?if $(var.Platform) = x86 ?>
+          <Feature Id="SameFolder.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="SameFolder.map" />
+          </Feature>
+<?endif?>
+          <Feature Id="SameFolder.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="changelog_20" />
+          </Feature>
+        </Feature>
         <Feature Id="FileCase" Level="1" Title="!(loc.Feature.Title.FileCase)" AllowAdvertise="no" Description="!(loc.Feature.Description.FileCase)">
           <ComponentRef Id="CaseEng.hlf" />
           <ComponentRef Id="CaseEng.lng" />
