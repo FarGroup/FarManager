@@ -779,40 +779,22 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 		LPCTSTR HelpName;
 	} Pref[]=
 	{
-		// view:[<separator>]<object>
-		// view<separator><object>
-		{View,L"VIEW",L"View"},
-		// clip:[<separator>]<object>
-		// clip:<separator><object>
-		{Clip,L"CLIP",L"Clip"},
-		// whereis:[<separator>]<object>
-		// whereis<separator><object>
-		{WhereIs,L"WHEREIS",L"WhereIs"},
-		// edit:[[<options>]<separator>]<object>
-		// edit[<options>]<separator><object>
-		{Edit,L"EDIT",L"Edit"},
-		// goto:[<separator>]<object>
-		// goto<separator><object>
-		{Goto,L"GOTO",L"Goto"},
-		// link:[<separator>][<op>]<separator><source><separator><dest>
-		// link<separator>[<op>]<separator><source><separator><dest>
-		{Link,L"LINK",L"Link"},
-		// run:[<separator>]<file> < <command>
-		// run<separator><file> < <command>
-		{Run,L"RUN",L"Run"},
-		// load:[<separator>]<file>
-		// load<separator><file>
-		{Load,L"LOAD",L"Load"},
-		// unload:[<separator>]<file>
-		// unload<separator><file>
-		{Unload,L"UNLOAD",L"Unload"},
+		{Run,     L"RUN",     L"Run"},         // run:[<separator>]<file> < <command>
+		{View,    L"VIEW",    L"View"},        // view:[<separator>]<object>
+		{Clip,    L"CLIP",    L"Clip"},        // clip:[<separator>]<object>
+		{WhereIs, L"WHEREIS", L"WhereIs"},     // whereis:[<separator>]<object>
+		{Edit,    L"EDIT",    L"Edit"},        // edit:[[<options>]<separator>]<object>
+		{Goto,    L"GOTO",    L"Goto"},        // goto:[<separator>]<object>
+		{Link,    L"LINK",    L"Link"},        // link:[<separator>][<op>]<separator><source><separator><dest>
+		{Load,    L"LOAD",    L"Load"},        // load:[<separator>]<file>
+		{Unload,  L"UNLOAD",  L"Unload"},      // unload:[<separator>]<file>
 	};
 
-	static wchar_t selectItem[MAX_PATH*5];
+	wchar_t *selectItem=nullptr;
 	static wchar_t cmd[MAX_PATH*5];
 	wchar_t fullcmd[MAX_PATH*5];
 
-	fullcmd[0]=cmd[0]=selectItem[0]=L'\0';
+	fullcmd[0]=cmd[0]=L'\0';
 
 	static wchar_t farcmdbuf[MAX_PATH*10], *farcmd;
 	farcmd=farcmdbuf;
@@ -950,23 +932,13 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 				{
 					showhelp=FALSE;
 
-					if (Goto)
+					if (Goto) // goto:[<separator>]<object>
 					{
-						wchar_t *Ptr=__proc_Goto(outputtofile,pCmd);
-						if (Ptr)
-						{
-							lstrcpyn(selectItem,Ptr,ARRAYSIZE(selectItem)-1);
-							delete[] Ptr;
-						}
+						return __proc_Goto(outputtofile,pCmd);
 					}
 					else if (WhereIs)
 					{
-						wchar_t *Ptr=__proc_WhereIs(outputtofile,pCmd);
-						if (Ptr)
-						{
-							lstrcpyn(selectItem,Ptr,ARRAYSIZE(selectItem)-1);
-							delete[] Ptr;
-						}
+						return __proc_WhereIs(outputtofile,pCmd);
 					}
 					else if (Load || Unload)  // <file>
 					{
@@ -1101,6 +1073,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 									DWORD ConsoleMode;
 									StdInput  = GetStdHandle(STD_INPUT_HANDLE);
 									StdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+
 									static STARTUPINFO si;
 									memset(&si,0,sizeof(si));
 									si.cb=sizeof(si);
@@ -1118,15 +1091,21 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 									if (ShowCmdOutput)
 									{
 										GetConsoleScreenBufferInfo(StdOutput,&csbi);
-										wchar_t Blank[1024];
-										wmemset(Blank, L' ', csbi.dwSize.X);
+										wchar_t* Blank=new wchar_t[csbi.dwSize.X+1];
+										if (Blank)
+										{
+											wmemset(Blank, L' ', csbi.dwSize.X);
+											Blank[csbi.dwSize.X]=0;
 
-										FarColor Color={};
-										Color.Flags = FCF_FG_4BIT|FCF_BG_4BIT;
-										Color.ForegroundColor = LIGHTGRAY;
-										Color.BackgroundColor = 0;
-										for (int Y = 0 ; Y < csbi.dwSize.Y ; Y++)
-											Info.Text(0, Y, &Color, Blank);
+											FarColor Color={};
+											Color.Flags = FCF_FG_4BIT|FCF_BG_4BIT;
+											Color.ForegroundColor = LIGHTGRAY;
+											Color.BackgroundColor = 0;
+											for (int Y = 0 ; Y < csbi.dwSize.Y ; Y++)
+												Info.Text(0, Y, &Color, Blank);
+
+											delete[] Blank;
+										}
 
 										Info.Text(0, 0, 0, NULL);
 										COORD C;
@@ -1195,9 +1174,9 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 									wchar_t consoleTitle[256];
 									DWORD tlen = GetConsoleTitle(consoleTitle, 256);
 									SetConsoleTitle(cmd);
+
 									LPTSTR CurDir=NULL;
 									size_t Size=FSF.GetCurrentDirectory(0,NULL);
-
 									if (Size)
 									{
 										CurDir=new WCHAR[Size];
@@ -1415,6 +1394,6 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 		return nullptr;
 	}
 
-	return selectItem;
+	return nullptr;
 }
 #endif

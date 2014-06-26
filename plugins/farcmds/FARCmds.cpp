@@ -80,17 +80,14 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELINFO,0,&PInfo);
 
 	wchar_t *pTemp=nullptr;
-	bool DynTemp=false;
 
 	if (OInfo->OpenFrom==OPEN_COMMANDLINE) // prefix
 	{
 		DstPanel = PANEL_ACTIVE;
 		pTemp=OpenFromCommandLine(((OpenCommandLineInfo *)OInfo->Data)->CommandLine);
-		//if (pTemp)
-		//	DynTemp=true;
 	}
 
-	/*установить курсор на объект*/
+	// set cursor
 	if (pTemp && *pTemp)
 	{
 		static struct PanelRedrawInfo PRI={sizeof(PanelRedrawInfo)};
@@ -100,8 +97,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 
 		if (!Name)
 		{
-			if (DynTemp)
-				delete [] pTemp;
+			delete [] pTemp;
 			return nullptr;
 		}
 		lstrcpy(Name,pName);
@@ -118,8 +114,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 			if (!Dir)
 			{
 				delete[] Name;
-				if (DynTemp)
-					delete [] pTemp;
+				delete [] pTemp;
 				return nullptr;
 			}
 			wmemcpy(Dir,pTemp,pathlen);
@@ -168,7 +163,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		Info.PanelControl(DstPanel,FCTL_REDRAWPANEL,0,0);
 	}
 
-	if (DynTemp)
+	if (pTemp)
 		delete [] pTemp;
 
 	return nullptr;

@@ -1,7 +1,6 @@
 enum
 {
 	MConfig,
-	MSetSameDir,
 
 	MSeparator,
 	MHideCmdOutput,
