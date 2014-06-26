@@ -7513,13 +7513,13 @@ upd:"correctly read using selected codepage."
 
 MEditorReloadCPWarnLost1
 "Для смены кодовой страницы требуется перезагрузка файла."
-"File have to be reloaded to change codepage."
-upd:"File have to be reloaded to change codepage."
-upd:"File have to be reloaded to change codepage."
-upd:"File have to be reloaded to change codepage."
-upd:"File have to be reloaded to change codepage."
-upd:"File have to be reloaded to change codepage."
-upd:"File have to be reloaded to change codepage."
+"File has to be reloaded to change codepage."
+upd:"File has to be reloaded to change codepage."
+upd:"File has to be reloaded to change codepage."
+upd:"File has to be reloaded to change codepage."
+upd:"File has to be reloaded to change codepage."
+upd:"File has to be reloaded to change codepage."
+upd:"File has to be reloaded to change codepage."
 
 MEditorReloadCPWarnLost2
 "Все несохранённые изменения будут потеряны."
