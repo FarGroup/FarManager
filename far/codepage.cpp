@@ -1176,7 +1176,7 @@ int Utf7::ToWideChar(const char *src, int length, wchar_t* out, int wlen, Utf::E
 		return 0;
 
 	int state = 0, no = 0, ns = 0, ne = 0, move = 1;
-	wchar_t dummy_out, w1;
+	wchar_t dummy_out, w1 = Utf::REPLACE_CHAR;
 	if (!out)
 	{
 		out = &dummy_out; move = 0;

@@ -208,7 +208,7 @@ public:
 	Dialog(T&& Src, O* object, intptr_t(O::*function)(Dialog*, intptr_t, intptr_t, void*), void* InitParam = nullptr):
 		bInitOK(false),
 		DataDialog(InitParam),
-		m_handler((object && function)? std::bind(function, object, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4) : dialog_handler())
+		m_handler((object && function)? [=](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2){ return (object->*function)(Dlg, Msg, Param1, Param2); } : dialog_handler())
 	{
 		AddToList();
 		auto Ptr = Src.data();

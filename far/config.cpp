@@ -717,7 +717,10 @@ void Options::ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local)
 		if (Msg == DN_INITDIALOG && save_pos)
 		{
 			Dlg->SendMessage(DM_ENABLE, save_cp, reinterpret_cast<void *>(ViOpt.SavePos ? false : true));
-			ViOpt.SaveCodepage = (ViOpt.SavePos ? true : ViOpt.SaveCodepage);
+			if (ViOpt.SavePos)
+			{
+				ViOpt.SaveCodepage = true;
+			}
 		}
 		else if (Msg == DN_BTNCLICK && save_pos)
 		{

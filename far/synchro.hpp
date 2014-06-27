@@ -42,8 +42,8 @@ public:
 	CriticalSection() { InitializeCriticalSection(&object); }
 	~CriticalSection() { DeleteCriticalSection(&object); }
 
-	void Enter() { EnterCriticalSection(&object); }
-	void Leave() { LeaveCriticalSection(&object); }
+	void lock() { EnterCriticalSection(&object); }
+	void unlock() { LeaveCriticalSection(&object); }
 
 private:
 	CRITICAL_SECTION object;
@@ -52,8 +52,8 @@ private:
 class CriticalSectionLock: NonCopyable
 {
 public:
-	CriticalSectionLock(CriticalSection &object): object(object) { object.Enter(); }
-	~CriticalSectionLock() { object.Leave(); }
+	CriticalSectionLock(CriticalSection &object): object(object) { object.lock(); }
+	~CriticalSectionLock() { object.unlock(); }
 
 private:
 	CriticalSection &object;
@@ -110,13 +110,13 @@ public:
 
 	bool Start(const std::function<unsigned int(void*)>& Function, void* Parameter)
 	{
-		return Starter(std::bind(Function, Parameter));
+		return Starter([=]{ return Function(Parameter); });
 	}
 
 	template<class T, class Y>
 	bool Start(unsigned int (T::*Function)(Y*), T* Object, Y* Parameter = nullptr)
 	{
-		return Starter(std::bind(Function, Object, Parameter));
+		return Starter([=]{ return (Object->*Function)(Parameter); });
 	}
 
 	unsigned int GetId() const { return m_ThreadId; }

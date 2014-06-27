@@ -133,8 +133,8 @@ public:
 
 	std::list<FindListItem>& GetFindList() {return FindList;}
 
-	void Lock() {DataCS.Enter();}
-	void Unlock() {DataCS.Leave();}
+	void Lock() {DataCS.lock();}
+	void Unlock() {DataCS.unlock();}
 
 	ArcListItem* GetFindFileArcItem()
 	{
