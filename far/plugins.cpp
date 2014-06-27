@@ -946,14 +946,14 @@ int PluginManager::SetDirectory(PluginHandle* hPlugin, const string& Dir, int Op
 int PluginManager::GetFile(PluginHandle* hPlugin, PluginPanelItem *PanelItem, const string& DestPath, string &strResultName, int OpMode)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-	SaveScreen *SaveScr=nullptr;
+	std::unique_ptr<SaveScreen> SaveScr;
 	int Found=FALSE;
 	Global->KeepUserScreen=FALSE;
 
 	if (!(OpMode & OPM_FIND))
-		SaveScr = new SaveScreen; //???
+		SaveScr = std::make_unique<SaveScreen>(); //???
 
-	UndoGlobalSaveScrPtr UndSaveScr(SaveScr);
+	UndoGlobalSaveScrPtr UndSaveScr(SaveScr.get());
 
 	GetFilesInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->hPlugin;
@@ -986,8 +986,7 @@ int PluginManager::GetFile(PluginHandle* hPlugin, PluginPanelItem *PanelItem, co
 			Found=TRUE;
 	}
 
-	ReadUserBackgound(SaveScr);
-	delete SaveScr;
+	ReadUserBackgound(SaveScr.get());
 	return Found;
 }
 

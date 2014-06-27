@@ -1911,7 +1911,7 @@ void Panel::Show()
 	{
 		if (SaveScr)
 		{
-			SaveScr->AppendArea(AnotherPanel->SaveScr);
+			SaveScr->AppendArea(AnotherPanel->SaveScr.get());
 		}
 
 		if (AnotherPanel->GetFocus())

@@ -479,8 +479,7 @@ void HMenu::ResizeConsole()
 	if (SaveScr)
 	{
 		SaveScr->Discard();
-		delete SaveScr;
-		SaveScr=nullptr;
+		SaveScr.reset();
 	}
 
 	Hide();

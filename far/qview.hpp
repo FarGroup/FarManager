@@ -68,7 +68,7 @@ private:
 	void SetMacroMode(int Restore = FALSE);
 	void DynamicUpdateKeyBar() const;
 
-	Viewer *QView;
+	std::unique_ptr<Viewer> QView;
 
 	string strCurFileName;
 	string strCurFileType;

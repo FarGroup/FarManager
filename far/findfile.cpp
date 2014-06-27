@@ -102,7 +102,7 @@ struct FindListItem
 	FARPANELITEMFREECALLBACK FreeData;
 };
 
-struct InterThreadData
+class InterThreadData
 {
 private:
 	CriticalSection DataCS;
@@ -118,6 +118,8 @@ private:
 
 public:
 	InterThreadData() {Init();}
+	~InterThreadData() { ClearAllLists(); }
+
 	void Init()
 	{
 		SCOPED_ACTION(CriticalSectionLock)(DataCS);
@@ -148,11 +150,7 @@ public:
 		FindFileArcItem = Value;
 	}
 
-	int GetPercent()
-	{
-		SCOPED_ACTION(CriticalSectionLock)(DataCS);
-		return Percent;
-	}
+	int GetPercent() const { return Percent; }
 
 	void SetPercent(int Value)
 	{
@@ -160,11 +158,7 @@ public:
 		Percent = Value;
 	}
 
-	int GetLastFoundNumber()
-	{
-		SCOPED_ACTION(CriticalSectionLock)(DataCS);
-		return LastFoundNumber;
-	}
+	int GetLastFoundNumber() const { return LastFoundNumber; }
 
 	void SetLastFoundNumber(int Value)
 	{
@@ -172,11 +166,7 @@ public:
 		LastFoundNumber = Value;
 	}
 
-	int GetFileCount()
-	{
-		SCOPED_ACTION(CriticalSectionLock)(DataCS);
-		return FileCount;
-	}
+	int GetFileCount() const { return FileCount; }
 
 	void SetFileCount(int Value)
 	{
@@ -184,11 +174,7 @@ public:
 		FileCount = Value;
 	}
 
-	int GetDirCount()
-	{
-		SCOPED_ACTION(CriticalSectionLock)(DataCS);
-		return DirCount;
-	}
+	int GetDirCount() const { return DirCount; }
 
 	void SetDirCount(int Value)
 	{
@@ -196,11 +182,7 @@ public:
 		DirCount = Value;
 	}
 
-	size_t GetFindListCount()
-	{
-		SCOPED_ACTION(CriticalSectionLock)(DataCS);
-		return FindList.size();
-	}
+	size_t GetFindListCount() const { return FindList.size(); }
 
 	void GetFindMessage(string& To)
 	{
@@ -265,8 +247,7 @@ public:
 		FindList.emplace_back(NewItem);
 		return FindList.back();
 	}
-}
-*itd;
+};
 
 
 enum
@@ -1483,8 +1464,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 		Dlg->SendMessage( DM_SETTEXTPTR, FD_BUTTON_STOP, const_cast<wchar_t*>(MSG(MFindCancel)));
 		Dlg->SendMessage( DM_ENABLEREDRAW, TRUE, 0);
 		ConsoleTitle::SetFarTitle(strMessage);
-		delete TB;
-		TB=nullptr;
+		TB.reset();
 		Finalized=true;
 	}
 
@@ -1927,8 +1907,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 						return TRUE;
 					}
 					FindExitItem = *reinterpret_cast<FindListItem**>(ListBox->GetUserData(nullptr, 0));
-					delete TB;
-					TB=nullptr;
+					TB.reset();
 					return FALSE;
 				}
 				break;
@@ -2285,7 +2264,7 @@ void FindFiles::ArchiveSearch(Dialog* Dlg, const string& ArcName)
 		return;
 	}
 
-	int SaveSearchMode=SearchMode;
+	FINDAREA SaveSearchMode = SearchMode;
 	ArcListItem* SaveArcItem = itd->GetFindFileArcItem();
 	{
 		int SavePluginsOutput=Global->DisablePluginsOutput;
@@ -2829,7 +2808,7 @@ bool FindFiles::FindFilesProcess()
 	Thread FindThread;
 	if (FindThread.Start(&FindFiles::ThreadRoutine, this, &Param))
 	{
-		TB = new IndeterminateTaskBar;
+		TB = std::make_unique<IndeterminateTaskBar>();
 		SCOPED_ACTION(wakeful);
 		Dlg.Process();
 		FindThread.Wait();
@@ -3018,53 +2997,57 @@ bool FindFiles::FindFilesProcess()
 }
 
 FindFiles::FindFiles():
-	TB(nullptr),
-	m_Autodetection(false)
+	AnySetFindList(),
+	CmpCase(),
+	WholeWords(),
+	SearchInArchives(),
+	SearchHex(),
+	NotContaining(),
+	UseFilter(),
+	m_Autodetection(),
+	InFileSearchInited(),
+	FindFoldersChanged(),
+	SearchFromChanged(),
+	FindPositionChanged(),
+	Finalized(),
+	PluginMode(),
+	SearchMode(FINDAREA_ALL),
+	favoriteCodePages(),
+	readBufferA(),
+	readBuffer(),
+	findString(),
+	hexFindString(),
+	hexFindStringSize(),
+	CodePage(CP_DEFAULT),
+	skipCharsTable(),
+	SearchInFirst(),
+	FindExitItem(),
+	FileMaskForFindFile(std::make_unique<filemasks>()),
+	Filter(std::make_unique<FileFilter>(Global->CtrlObject->Cp()->ActivePanel, FFT_FINDFILE)),
+	itd(std::make_unique<InterThreadData>())
 {
 
 	PauseEvent.Open(true, true);
 	StopEvent.Open(true, false);
 
-	// BUGBUG
-	FileMaskForFindFile = new filemasks;
-	AnySetFindList = false;
-	CmpCase = false;
-	WholeWords = false;
-	SearchInArchives = false;
-	SearchHex = false;
-	NotContaining = false;
-	SearchMode = 0;
-	UseFilter = false;
-	CodePage=CP_DEFAULT;
-	SearchInFirst=0;
-	readBufferA = nullptr;
-	readBuffer = nullptr;
-	hexFindString = nullptr;
-	hexFindStringSize = 0;
-	findString = nullptr;
-	skipCharsTable = nullptr;
-	favoriteCodePages = 0;
-	InFileSearchInited = false;
-
 	_ALGO(CleverSysLog clv(L"FindFiles::FindFiles()"));
+
 	static string strLastFindMask=L"*.*", strLastFindStr;
-	// Статической структуре и статические переменные
+
 	static string strSearchFromRoot;
-	static bool LastCmpCase=0,LastWholeWords=0,LastSearchInArchives=0,LastSearchHex=0, LastNotContaining = 0;
-	// Создадим объект фильтра
-	Filter=new FileFilter(Global->CtrlObject->Cp()->ActivePanel,FFT_FINDFILE);
+	strSearchFromRoot = MSG(MSearchFromRootFolder);
+
+	static bool LastCmpCase = 0, LastWholeWords = 0, LastSearchInArchives = 0, LastSearchHex = 0, LastNotContaining = 0;
+
 	CmpCase=LastCmpCase;
 	WholeWords=LastWholeWords;
 	SearchInArchives=LastSearchInArchives;
 	SearchHex=LastSearchHex;
 	NotContaining = LastNotContaining;
-	SearchMode=Global->Opt->FindOpt.FileSearchMode;
-	UseFilter=Global->Opt->FindOpt.UseFilter!=0;
+	SearchMode = static_cast<FINDAREA>(Global->Opt->FindOpt.FileSearchMode.Get());
+	UseFilter=Global->Opt->FindOpt.UseFilter.Get();
 	strFindMask = strLastFindMask;
 	strFindStr = strLastFindStr;
-	strSearchFromRoot = MSG(MSearchFromRootFolder);
-
-	itd = new InterThreadData;
 
 	do
 	{
@@ -3073,8 +3056,7 @@ FindFiles::FindFiles():
 		SearchFromChanged=false;
 		FindPositionChanged=false;
 		Finalized=false;
-		delete TB;
-		TB=nullptr;
+		TB.reset();
 		itd->ClearAllLists();
 		Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 		PluginMode=ActivePanel->GetMode()==PLUGIN_PANEL && ActivePanel->IsVisible();
@@ -3275,11 +3257,5 @@ FindFiles::FindFiles():
 
 FindFiles::~FindFiles()
 {
-	itd->ClearAllLists();
 	Global->ScrBuf->ResetShadow();
-
-	delete itd;
-	delete Filter;
-	delete FileMaskForFindFile;
-	delete TB;
 }

@@ -39,7 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 
 ScreenObject::ScreenObject():
-	SaveScr(),
 	pOwner(),
 	nLockCount(),
 	X1(),
@@ -51,7 +50,6 @@ ScreenObject::ScreenObject():
 }
 
 ScreenObject::ScreenObject(ScreenObject&& rhs):
-	SaveScr(),
 	pOwner(),
 	nLockCount(),
 	X1(),
@@ -70,8 +68,6 @@ ScreenObject::~ScreenObject()
 		if (SaveScr)
 			SaveScr->Discard();
 	}
-
-	delete SaveScr;
 }
 
 void ScreenObject::Lock()
@@ -100,8 +96,7 @@ void ScreenObject::SetPosition(int X1,int Y1,int X2,int Y2)
 	    предотвращения восстановления ранее сохранённого
 	    изображения в новом месте.
 	*/
-	delete SaveScr;
-	SaveScr=nullptr;
+	SaveScr.reset();
 
 	ScreenObject::X1=X1;
 	ScreenObject::Y1=Y1;
@@ -132,8 +127,7 @@ void ScreenObject::Hide()
 
 	Flags.Clear(FSCROBJ_VISIBLE);
 
-	delete SaveScr;
-	SaveScr=nullptr;
+	SaveScr.reset();
 }
 
 /* $ 15.07.2000 tran
@@ -172,7 +166,7 @@ void ScreenObject::SavePrevScreen()
 		Flags.Set(FSCROBJ_VISIBLE);
 
 		if (Flags.Check(FSCROBJ_ENABLERESTORESCREEN) && !SaveScr)
-			SaveScr=new SaveScreen(X1,Y1,X2,Y2);
+			SaveScr = std::make_unique<SaveScreen>(X1, Y1, X2, Y2);
 	}
 }
 
@@ -184,6 +178,10 @@ void ScreenObject::Redraw()
 		Show();
 }
 
+ScreenObjectWithShadow::ScreenObjectWithShadow()
+{
+}
+
 ScreenObjectWithShadow::~ScreenObjectWithShadow()
 {
 	if (!Flags.Check(FSCROBJ_ENABLERESTORESCREEN))
@@ -191,7 +189,6 @@ ScreenObjectWithShadow::~ScreenObjectWithShadow()
 		if (ShadowSaveScr)
 			ShadowSaveScr->Discard();
 	}
-	delete ShadowSaveScr;
 }
 
 void ScreenObjectWithShadow::Hide()
@@ -199,8 +196,7 @@ void ScreenObjectWithShadow::Hide()
 	if (!Flags.Check(FSCROBJ_VISIBLE))
 		return;
 
-	delete ShadowSaveScr;
-	ShadowSaveScr=nullptr;
+	ShadowSaveScr.reset();
 
 	ScreenObject::Hide();
 }
@@ -212,14 +208,14 @@ void ScreenObjectWithShadow::Shadow(bool Full)
 		if(Full)
 		{
 			if (!ShadowSaveScr)
-				ShadowSaveScr=new SaveScreen(0,0,ScrX,ScrY);
+				ShadowSaveScr = std::make_unique<SaveScreen>(0,0,ScrX,ScrY);
 
 			MakeShadow(0,0,ScrX,ScrY);
 		}
 		else
 		{
 			if (!ShadowSaveScr)
-				ShadowSaveScr=new SaveScreen(X1,Y1,X2+2,Y2+1);
+				ShadowSaveScr = std::make_unique<SaveScreen>(X1, Y1, X2 + 2, Y2 + 1);
 
 			MakeShadow(X1+2,Y2+1,X2+1,Y2+1);
 			MakeShadow(X2+1,Y1+1,X2+2,Y2+1);

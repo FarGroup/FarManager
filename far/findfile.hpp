@@ -49,6 +49,10 @@ enum FINDAREA
 class Dialog;
 struct PluginHandle;
 struct THREADPARAM;
+class IndeterminateTaskBar;
+class InterThreadData;
+class filemasks;
+class FileFilter;
 
 class FindFiles: NonCopyable
 {
@@ -87,42 +91,42 @@ private:
 private:
 	// BUGBUG
 	bool AnySetFindList;
-	string strFindMask;
-	string strFindStr;
 	bool CmpCase;
 	bool WholeWords;
 	bool SearchInArchives;
 	bool SearchHex;
 	bool NotContaining;
-	int SearchMode;
-	string strLastDirName;
-	string strPluginSearchPath;
 	bool UseFilter;
-	uintptr_t CodePage;
-	UINT64 SearchInFirst;
-	char *readBufferA;
-	wchar_t *readBuffer;
-	unsigned char *hexFindString;
-	size_t hexFindStringSize;
-	const wchar_t *findString;
-	string findStringBuffer;
-	size_t* skipCharsTable;
-	int favoriteCodePages;
+
+	bool m_Autodetection;
 	bool InFileSearchInited;
-	class filemasks* FileMaskForFindFile;
-	class FileFilter *Filter;
-	struct FindListItem* FindExitItem;
 	bool FindFoldersChanged;
 	bool SearchFromChanged;
 	bool FindPositionChanged;
 	bool Finalized;
 	bool PluginMode;
-	class IndeterminateTaskBar *TB;
-
+	FINDAREA SearchMode;
+	int favoriteCodePages;
+	char *readBufferA;
+	wchar_t *readBuffer;
+	const wchar_t *findString;
+	unsigned char *hexFindString;
+	size_t hexFindStringSize;
+	uintptr_t CodePage;
+	size_t* skipCharsTable;
+	UINT64 SearchInFirst;
+	struct FindListItem* FindExitItem;
+	string strFindMask;
+	string strFindStr;
+	string strLastDirName;
+	string strPluginSearchPath;
+	string findStringBuffer;
+	std::unique_ptr<filemasks> FileMaskForFindFile;
+	std::unique_ptr<FileFilter> Filter;
+	std::unique_ptr<IndeterminateTaskBar> TB;
+	std::unique_ptr<InterThreadData> itd;
 	struct CodePageInfo;
 	std::list<CodePageInfo> m_CodePages;
-	bool m_Autodetection;
-
 	CriticalSection PluginCS;
 	Event PauseEvent;
 	Event StopEvent;

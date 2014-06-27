@@ -1606,33 +1606,15 @@ static FarList& CurrentList(HANDLE hDlg,int ItemNumber)
 	return FindDialogData(hDlg)->l[ItemNumber];
 }
 
-std::stack<FarDialogEvent>* OriginalEvents;
-
-class StackHandler
+static std::stack<FarDialogEvent>& OriginalEvents()
 {
-public:
-	StackHandler(FarDialogEvent& e)
-	{
-		if (!OriginalEvents)
-		{
-			OriginalEvents = new PTRTYPE(OriginalEvents);
-		}
-		OriginalEvents->push(e);
-	}
-	~StackHandler()
-	{
-		OriginalEvents->pop();
-		if (OriginalEvents->empty())
-		{
-			delete OriginalEvents;
-			OriginalEvents = nullptr;
-		}
-	}
-};
+	static FN_RETURN_TYPE(OriginalEvents) sOriginalEvents;
+	return sOriginalEvents;
+}
 
 static intptr_t WINAPI FarDefDlgProcA(HANDLE hDlg, int Msg, int Param1, void* Param2)
 {
-	FarDialogEvent& TopEvent = OriginalEvents->top();
+	FarDialogEvent& TopEvent = OriginalEvents().top();
 	intptr_t Result = NativeInfo.DefDlgProc(TopEvent.hDlg, TopEvent.Msg, TopEvent.Param1, TopEvent.Param2);
 	switch(Msg)
 	{
@@ -2246,7 +2228,9 @@ static oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di,HANDLE h
 static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, void* Param2)
 {
 	FarDialogEvent e = {sizeof(FarDialogEvent), hDlg, NewMsg, Param1, Param2};
-	StackHandler sh(e);
+
+	OriginalEvents().push(e);
+	SCOPE_EXIT{ OriginalEvents().pop(); };
 
 	int Msg = oldfar::DM_FIRST;
 	if(NewMsg>DM_USER)

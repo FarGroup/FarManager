@@ -1917,15 +1917,13 @@ void VMenu::Hide()
 
 	if (!CheckFlags(VMENU_LISTBOX) && SaveScr)
 	{
-		delete SaveScr;
-		SaveScr = nullptr;
+		SaveScr.reset();
 		ScreenObjectWithShadow::Hide();
 	}
 
 	SetFlags(VMENU_UPDATEREQUIRED);
 
-	delete OldTitle;
-	OldTitle = nullptr;
+	OldTitle.reset();
 }
 
 void VMenu::DisplayObject()
@@ -1951,9 +1949,9 @@ void VMenu::DisplayObject()
 	if (!CheckFlags(VMENU_LISTBOX) && !SaveScr)
 	{
 		if (!CheckFlags(VMENU_DISABLEDRAWBACKGROUND) && !(BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX))
-			SaveScr = new SaveScreen(X1-2,Y1-1,X2+4,Y2+2);
+			SaveScr = std::make_unique<SaveScreen>(X1-2,Y1-1,X2+4,Y2+2);
 		else
-			SaveScr = new SaveScreen(X1,Y1,X2+2,Y2+1);
+			SaveScr = std::make_unique<SaveScreen>(X1, Y1, X2 + 2, Y2 + 1);
 	}
 
 	if (!CheckFlags(VMENU_DISABLEDRAWBACKGROUND) && !CheckFlags(VMENU_LISTBOX))
@@ -2669,14 +2667,13 @@ void VMenu::SetTitle(const string& Title)
 		if (!strTitle.empty())
 		{
 			if (!OldTitle)
-				OldTitle = new ConsoleTitle;
+				OldTitle = std::make_unique<ConsoleTitle>();
 
 			ConsoleTitle::SetFarTitle(strTitle);
 		}
 		else
 		{
-			delete OldTitle;
-			OldTitle = nullptr;
+			OldTitle.reset();
 		}
 	}
 }
@@ -2688,8 +2685,7 @@ void VMenu::ResizeConsole()
 	if (SaveScr)
 	{
 		SaveScr->Discard();
-		delete SaveScr;
-		SaveScr = nullptr;
+		SaveScr.reset();
 	}
 }
 

@@ -474,7 +474,7 @@ void QuickView::ShowFile(const string& FileName, int TempFile, PluginHandle* hDi
 	{
 		if (!strCurFileName.empty())
 		{
-			QView=new Viewer(true);
+			QView = std::make_unique<Viewer>(true);
 			QView->SetRestoreScreenMode(false);
 			QView->SetPosition(X1+1,Y1+1,X2-1,Y2-3);
 			QView->SetStatusMode(0);
@@ -510,8 +510,7 @@ void QuickView::CloseFile()
 		LastWrapType=QView->GetWrapType();
 		QView->SetWrapMode(OldWrapMode);
 		QView->SetWrapType(OldWrapType);
-		delete QView;
-		QView=nullptr;
+		QView.reset();
 	}
 
 	strCurFileType.clear();
@@ -530,8 +529,7 @@ void QuickView::QViewDelTempName()
 			LastWrapType=QView->GetWrapType();
 			QView->SetWrapMode(OldWrapMode);
 			QView->SetWrapType(OldWrapType);
-			delete QView;
-			QView=nullptr;
+			QView.reset();
 		}
 
 		api::SetFileAttributes(strTempName, FILE_ATTRIBUTE_ARCHIVE);

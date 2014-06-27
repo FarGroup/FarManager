@@ -348,7 +348,7 @@ private:
 	Dialog *ParentDialog;
 	size_t DialogItemID;
 	FARWINDOWPROC VMenuProc;
-	ConsoleTitle *OldTitle;
+	std::unique_ptr<ConsoleTitle> OldTitle;
 	CriticalSection CS;
 	bool bFilterEnabled;
 	bool bFilterLocked;

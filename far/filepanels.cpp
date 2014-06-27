@@ -886,7 +886,7 @@ Panel* FilePanels::GetAnotherPanel(const Panel *Current)
 Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Force)
 {
 	Panel *NewPanel;
-	SaveScreen *SaveScr=nullptr;
+	std::unique_ptr<SaveScreen> TemporarySaveScr;
 	// OldType не инициализировался...
 	int OldType=Current->GetType(),X1,Y1,X2,Y2;
 	int OldPanelMode=Current->GetMode();
@@ -918,14 +918,12 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 
 	if (!ChangePosition)
 	{
-		SaveScr=Current->SaveScr;
-		Current->SaveScr=nullptr;
+		TemporarySaveScr = std::move(Current->SaveScr);
 	}
 
 	if (OldType==FILE_PANEL && NewType!=FILE_PANEL)
 	{
-		delete Current->SaveScr;
-		Current->SaveScr=nullptr;
+		Current->SaveScr.reset();
 
 		if (LastFilePanel!=Current)
 		{
@@ -938,8 +936,7 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 		if (LastFilePanel->SaveScr)
 		{
 			LastFilePanel->SaveScr->Discard();
-			delete LastFilePanel->SaveScr;
-			LastFilePanel->SaveScr=nullptr;
+			LastFilePanel->SaveScr.reset();
 		}
 	}
 	else
@@ -973,14 +970,12 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 			{
 				Panel *AnotherPanel=GetAnotherPanel(Current);
 
-				if (SaveScr && AnotherPanel->IsVisible() &&
+				if (TemporarySaveScr && AnotherPanel->IsVisible() &&
 				        AnotherPanel->GetType()==FILE_PANEL && AnotherPanel->IsFullScreen())
-					SaveScr->Discard();
-
-				delete SaveScr;
+					TemporarySaveScr->Discard();
 			}
 			else
-				NewPanel->SaveScr=SaveScr;
+				NewPanel->SaveScr = std::move(TemporarySaveScr);
 		}
 
 		if (!OldFocus && NewPanel->GetFocus())
@@ -1023,7 +1018,7 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 		}
 		else
 		{
-			NewPanel->SaveScr=SaveScr;
+			NewPanel->SaveScr = std::move(SaveScr);
 			NewPanel->SetPosition(X1,Y1,X2,Y2);
 		}
 

@@ -174,7 +174,7 @@ SetAutocomplete::SetAutocomplete(EditControl* edit, bool NewState):
 }
 
 SetAutocomplete::SetAutocomplete(DlgEdit* dedit, bool NewState):
-	edit(dedit->lineEdit),
+	edit(dedit->lineEdit.get()),
 	OldState(edit->GetAutocomplete())
 {
 	edit->SetAutocomplete(NewState);

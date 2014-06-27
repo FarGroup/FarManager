@@ -117,13 +117,16 @@ namespace std
 	#define LIST3(MODE, n1, n2, n3) LIST2(MODE, n1, n2), MODE(n3)
 	#define LIST4(MODE, n1, n2, n3, n4) LIST3(MODE, n1, n2, n3), MODE(n4)
 	#define LIST5(MODE, n1, n2, n3, n4, n5) LIST4(MODE, n1, n2, n3, n4), MODE(n5)
+	#define LIST6(MODE, n1, n2, n3, n4, n5, n6) LIST5(MODE, n1, n2, n3, n4, n5), MODE(n6)
 
 	MAKE_UNIQUE(LIST1, a1)
 	MAKE_UNIQUE(LIST2, a1, a2)
 	MAKE_UNIQUE(LIST3, a1, a2, a3)
 	MAKE_UNIQUE(LIST4, a1, a2, a3, a4)
 	MAKE_UNIQUE(LIST5, a1, a2, a3, a4, a5)
+	MAKE_UNIQUE(LIST6, a1, a2, a3, a4, a5, a6)
 
+	#undef LIST6
 	#undef LIST5
 	#undef LIST4
 	#undef LIST3

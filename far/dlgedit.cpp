@@ -93,7 +93,7 @@ DlgEdit::DlgEdit(Dialog* pOwner,size_t Index,DLGEDITTYPE Type):
 					iFlags|=EditControl::EC_COMPLETE_PATH;
 				}
 			}
-			lineEdit=new EditControl(pOwner,&callback,true,iHistory,iList,iFlags);
+			lineEdit = std::make_unique<EditControl>(pOwner,&callback,true,iHistory.get(),iList,iFlags);
 		}
 		break;
 	}
@@ -101,8 +101,6 @@ DlgEdit::DlgEdit(Dialog* pOwner,size_t Index,DLGEDITTYPE Type):
 
 DlgEdit::~DlgEdit()
 {
-	delete iHistory;
-	delete lineEdit;
 #if defined(PROJECT_DI_MEMOEDIT)
 	delete multiEdit;
 #endif
@@ -111,8 +109,7 @@ DlgEdit::~DlgEdit()
 
 void DlgEdit::SetHistory(const string& Name)
 {
-	delete iHistory;
-	iHistory=new History(HISTORYTYPE_DIALOG, Name, Global->Opt->Dialogs.EditHistory);
+	iHistory = std::make_unique<History>(HISTORYTYPE_DIALOG, Name, Global->Opt->Dialogs.EditHistory);
 }
 
 int DlgEdit::ProcessKey(const Manager::Key& Key)

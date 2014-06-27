@@ -58,7 +58,7 @@ public:
 
 	void swap(ScreenObject& rhs) noexcept
 	{
-		std::swap(SaveScr, rhs.SaveScr);
+		SaveScr.swap(rhs.SaveScr);
 		std::swap(pOwner, rhs.pOwner);
 		std::swap(Flags, rhs.Flags);
 		std::swap(nLockCount, rhs.nLockCount);
@@ -100,7 +100,7 @@ private:
 
 public:
 	// KEEP ALIGNED!
-	SaveScreen *SaveScr;
+	std::unique_ptr<SaveScreen> SaveScr;
 
 protected:
 	// KEEP ALIGNED!
@@ -114,9 +114,7 @@ protected:
 class ScreenObjectWithShadow:public ScreenObject
 {
 public:
-	ScreenObjectWithShadow():
-		ShadowSaveScr(nullptr)
-	{}
+	ScreenObjectWithShadow();
 	virtual ~ScreenObjectWithShadow();
 
 	virtual void Hide() override;
@@ -124,5 +122,5 @@ public:
 	void Shadow(bool Full=false);
 
 protected:
-	SaveScreen *ShadowSaveScr;
+	std::unique_ptr<SaveScreen> ShadowSaveScr;
 };

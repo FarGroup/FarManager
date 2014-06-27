@@ -145,7 +145,7 @@ public:
 
 	bool HistoryGetSimilar(string &strStr, int LastCmdPartLength, bool bAppend=false);
 
-	History* GetHistory() const {return iHistory;}
+	const std::unique_ptr<History>& GetHistory() const { return iHistory; }
 	void SetHistory(const string& Name);
 
 private:
@@ -154,9 +154,8 @@ private:
 	Dialog* m_Dialog;
 	size_t m_Index;
 	DLGEDITTYPE Type;
-	History* iHistory;
-
-	EditControl   *lineEdit;
+	std::unique_ptr<History> iHistory;
+	std::unique_ptr<EditControl> lineEdit;
 #if defined(PROJECT_DI_MEMOEDIT)
 	Editor *multiEdit;
 #endif

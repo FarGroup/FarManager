@@ -1010,7 +1010,7 @@ void Dialog::ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex)
 	{
 		if (auto EditPtr = static_cast<DlgEdit*>(CurItem->ObjPtr))
 		{
-			History *DlgHistory = EditPtr->GetHistory();
+			auto& DlgHistory = EditPtr->GetHistory();
 			if(DlgHistory)
 			{
 				DlgHistory->ReadLastItem(CurItem->strHistory, strData);
@@ -4074,7 +4074,7 @@ BOOL Dialog::SelectFromEditHistory(const DialogItemEx *CurItem,
 
 	string strStr;
 	history_return_type ret = HRT_CANCEL;
-	auto DlgHist = static_cast<DlgEdit*>(CurItem->ObjPtr)->GetHistory();
+	auto& DlgHist = static_cast<DlgEdit*>(CurItem->ObjPtr)->GetHistory();
 
 	if(DlgHist)
 	{
@@ -4124,7 +4124,7 @@ int Dialog::AddToEditHistory(const DialogItemEx* CurItem, const string& AddStr)
 		return FALSE;
 	}
 
-	auto DlgHist = static_cast<DlgEdit*>(CurItem->ObjPtr)->GetHistory();
+	auto& DlgHist = static_cast<DlgEdit*>(CurItem->ObjPtr)->GetHistory();
 	if(DlgHist)
 	{
 		DlgHist->AddToHistory(AddStr);
