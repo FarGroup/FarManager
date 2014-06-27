@@ -4,26 +4,28 @@
 
 @Contents
 $^#Same Folder#
-   Плагин добавляет пункт "#Такая же папка#" ("Same Folder") в #меню плагинов# и #меню дисков#.
+   The plugin adds item "Same Folder" to the #plugins menu# and the #drives menu#.
 
-   - ^<wrap>При вызове из ~меню плагинов~@:PluginCommands@ на пассивной панели устанавливается такая же
-папка, как и на активной.
+   - ^<wrap>If called from the ~plugins menu~@:PluginCommands@ then it sets
+the passive panel to the same folder as in the active one.
 
-   - ^<wrap>При вызове из ~меню дисков~@:DriveDlg@ на выбранной панели устанавливается такая же
-папка, как и на противоположной.
+   - ^<wrap>If called from the ~drives menu~@:DriveDlg@ then it sets
+the choosen panel to the same folder as in the opposite one.
 
-   По умолчанию пункт для вызова плагина добавляется только в #меню плагинов#.
 
-   See also: ~Configuring Same Folder~@Config@
+   By default the item is added only to the #plugins menu#.
+
+   See also: ~Configuring~@Config@ the plugin
+
 
 @Config
 $^#Configuring Same Folder#
 
- #Add "Same Folder"#            Adds the Same Folder command
- #to the Plugins menu#          to the ~Plugins menu~@:PluginCommands@.
+ #Add "Same Folder"#        Adds the command to the ~Plugins menu~@:PluginCommands@.
+ #to the Plugins menu#      ^<wrap>(sets the passive panel's folder to the active's one)
 
- #Add "Same Folder"#            Adds the Same Folder command
- #to the Disks menu#            to the ~Disks menu~@:DriveDlg@.
+ #Add "Same Folder"#        Adds the command to the ~Disks menu~@:DriveDlg@
+ #to the Disks menu#        ^<wrap>(sets the choosen panel's folder to the opposite's one)
 
 
    See also: ~Contents~@Contents@
