@@ -4,10 +4,11 @@
 
 @Contents
 $^#FAR Commands#
-   The FAR Commands plugin (FARCmds) provides a number of additional commands.
+   The FAR Commands plugin (FARCmds) provides a number of additional commands available
+in command line via prefixes.
 
-   Besides ~command line~@:CmdLineCmd@, prefixes may be used in ~User Menu~@:UserMenu@,
-in ~file associations~@:FileAssoc@, as well as in dialog ~Apply Command~@:ApplyCmd@ (#Ctrl-G#)
+   In addition, the commands can be used in ~User Menu~@:UserMenu@,
+in ~file associations~@:FileAssoc@, and in dialog ~Apply Command~@:ApplyCmd@ (#Ctrl-G#)
 
 
   #Command Line Syntax#
