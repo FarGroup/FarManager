@@ -188,8 +188,8 @@ local function export_ProcessEditorInput (Rec)
   return EV_Handler(Events.editorinput, editor.GetFileName(nil), Rec)
 end
 
-local function EventProcessCommandLine (text)
-  return EV_Handler(Events.commandline, nil, text)
+local function CommandLineEvent (args)
+  return EV_Handler(Events.commandline, nil, args)
 end
 
 local ExpandKey do -- измеренное время исполнения на ключе "CtrlAltShiftF12" = 5.7uS (Lua); 3.5uS (LuaJIT);
@@ -843,5 +843,5 @@ return {
   GetMacroCopy = GetMacroCopy,
   CheckFileName = CheckFileName,
   FlagsToString = FlagsToString,
-  EventProcessCommandLine = EventProcessCommandLine,
+  CommandLineEvent = CommandLineEvent,
 }

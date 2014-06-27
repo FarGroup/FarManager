@@ -1700,7 +1700,7 @@ lv=1
 dt=Text
 nm=LuaMacro plugin
 ctime=3551991405
-mtime=3613048096
+mtime=3613076399
 <article>
 #_<markdown>
 #_This plugin is necessary for macros to work, therefore it should be installed. The same is true regarding the runtime (*lua51.dll*, *luafar3.dll* and *lpeg.dll*) that is necessary for plugin's work.
@@ -1719,7 +1719,7 @@ mtime=3613048096
 #_   Show versions of the plugin and the libraries it is using.
 #_* `macro: user [<text>]`<br>
 #_   Initiate event `"CommandLine"`. [Handlers](78.html) of this event, if any, receive
-#_   the value of `<text>`.
+#_   a table - an array of arguments extracted from the string `<text>`.
 #_* `lua: <code>`
 #_* `moon: <code>`<br>
 #_   Execute the code `<code>` written correspondingly in Lua or MoonScript.<br>
