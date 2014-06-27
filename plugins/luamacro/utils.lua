@@ -42,7 +42,7 @@ local LoadMacrosDone
 local LoadingInProgress
 local EnumState = {}
 local Events
-local EventGroups = {"dialogevent","editorevent","editorinput","exitfar","viewerevent"}
+local EventGroups = {"dialogevent","editorevent","editorinput","exitfar","viewerevent","commandline"}
 local AddMacro_filename
 
 package.nounload = {lpeg=true}
@@ -134,7 +134,7 @@ local function EV_Handler (macros, filename, ...)
   for _,i in ipairs(indexes) do
     if priorities[i] < 0 then break end
     local ret = macros[i].action(...)
-    if ret and (macros==Events.dialogevent or macros==Events.editorinput) then
+    if ret and (macros==Events.dialogevent or macros==Events.editorinput or macros==Events.commandline) then
       return ret
     end
   end
@@ -186,6 +186,10 @@ end
 
 local function export_ProcessEditorInput (Rec)
   return EV_Handler(Events.editorinput, editor.GetFileName(nil), Rec)
+end
+
+local function EventProcessCommandLine (text)
+  return EV_Handler(Events.commandline, nil, text)
 end
 
 local ExpandKey do -- измеренное время исполнения на ключе "CtrlAltShiftF12" = 5.7uS (Lua); 3.5uS (LuaJIT);
@@ -839,4 +843,5 @@ return {
   GetMacroCopy = GetMacroCopy,
   CheckFileName = CheckFileName,
   FlagsToString = FlagsToString,
+  EventProcessCommandLine = EventProcessCommandLine,
 }

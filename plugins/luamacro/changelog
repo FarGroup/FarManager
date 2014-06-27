@@ -1,4 +1,8 @@
-﻿shmuel 25.06.2014 13:37:44 +0200 - build 382
+﻿shmuel 27.06.2014 16:54:07 +0200 - build 383
+
+1. Новая команда macro:user (lm:user) и новый тип обработчика событий group="CommandLine". Подробности - в мануале.
+
+shmuel 25.06.2014 13:37:44 +0200 - build 382
 
 1. LuaFAR: far.MacroAdd и far.MacroDelete могут работать не только из основного lua_State, но и из дополнительных.
 

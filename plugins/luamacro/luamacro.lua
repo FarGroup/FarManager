@@ -291,9 +291,6 @@ end
 local function ProcessCommandLine (CmdLine)
   local prefix, text = CmdLine:match("^%s*(%w+):%s*(.-)%s*$")
   prefix = prefix:lower()
---  if type(LuaMacroCommandLine)=="function" and LuaMacroCommandLine(prefix,text) then
---    return
---  end
   if prefix == "lm" or prefix == "macro" then
     local cmd = text:match("%S*"):lower()
     if cmd == "load" then far.MacroLoadAll()
@@ -302,6 +299,7 @@ local function ProcessCommandLine (CmdLine)
     elseif cmd == "post" then -- DEPRECATED, to be removed on 2014-Oct-29.
       prefix, text = "lua", text:match("%S+%s*(.*)")
     elseif cmd == "about" then About()
+    elseif cmd == "user" then utils.EventProcessCommandLine(text:match("%S+%s*(.-)%s*$"))
     elseif cmd ~= "" then ErrMsg(Msg.CL_UnsupportedCommand .. cmd) end
   end
   if prefix == "lua" or prefix == "moon" then

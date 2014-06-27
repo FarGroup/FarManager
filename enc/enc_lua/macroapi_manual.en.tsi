@@ -1635,7 +1635,7 @@ lv=2
 dt=Text
 nm=Event handlers
 ctime=3580139337
-mtime=3600533342
+mtime=3613049071
 <article>
 #_<markdown>
 #_
@@ -1655,12 +1655,16 @@ mtime=3600533342
 #_```
 #_
 #_The field `group` can have one of the following values:<br>
-#_`"DialogEvent", "EditorEvent", "EditorInput", "ExitFAR", "ViewerEvent"`.<br>
-#_These names are derived from names of the corresponding functions, exported by the plugin, e.g.:<br>
+#_`"DialogEvent", "EditorEvent", "EditorInput", "ExitFAR", "ViewerEvent",
+#_"CommandLine"`.<br>
+#_These names (except `CommandLine`) are derived from names of the corresponding functions, exported by the plugin, e.g.:<br>
 #_        export.ProcessDialogEvent -> DialogEvent
 #_The functions `condition` and `action` are called with the same parameters as the corresponding exported functions are called (see LuaFAR manual).
 #_
 #_When there are multiple event handlers for the same event (i.e. handlers with the same `group` value), these handlers will be called one after one: a handler having higher priority is called first. Priorities are evaluated dynamically accounting for `condition()` results if any, the same way it is done for macros.
+#_
+#_When there are multiple `CommandLine` handlers, and one of them returned
+#_a true value, then the rest of those handlers will not be called.
 #_
 #_The `ExitFAR` handler is called in the following cases: (a) exit from Far Manager,
 #_(b) unloading LuaMacro plugin, \(c) unloading or reloading macros.
@@ -1696,7 +1700,7 @@ lv=1
 dt=Text
 nm=LuaMacro plugin
 ctime=3551991405
-mtime=3611392016
+mtime=3613048096
 <article>
 #_<markdown>
 #_This plugin is necessary for macros to work, therefore it should be installed. The same is true regarding the runtime (*lua51.dll*, *luafar3.dll* and *lpeg.dll*) that is necessary for plugin's work.
@@ -1713,6 +1717,9 @@ mtime=3611392016
 #_   Unload macros (except those created with operation `MCTL_ADDMACRO`) and event handlers.
 #_* `macro: about`<br>
 #_   Show versions of the plugin and the libraries it is using.
+#_* `macro: user [<text>]`<br>
+#_   Initiate event `"CommandLine"`. [Handlers](78.html) of this event, if any, receive
+#_   the value of `<text>`.
 #_* `lua: <code>`
 #_* `moon: <code>`<br>
 #_   Execute the code `<code>` written correspondingly in Lua or MoonScript.<br>
