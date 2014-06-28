@@ -290,7 +290,7 @@ end
 
 local SplitCommandLine do
   local pattern = regex.new([=[
-    " ( (?: \\" | [^"] )* ) (?: " | $) |
+    " ( (?: \\" | [^"] )* ) "? |
     ( (?: \\" | [^"\s] )+ ) |
     \s+
   ]=], "x")

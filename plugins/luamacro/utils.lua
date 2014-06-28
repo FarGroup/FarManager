@@ -189,7 +189,7 @@ local function export_ProcessEditorInput (Rec)
 end
 
 local function CommandLineEvent (args)
-  return EV_Handler(Events.commandline, nil, args)
+  return EV_Handler(Events.commandline, nil, unpack(args))
 end
 
 local ExpandKey do -- измеренное время исполнения на ключе "CtrlAltShiftF12" = 5.7uS (Lua); 3.5uS (LuaJIT);
