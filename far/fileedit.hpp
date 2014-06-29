@@ -118,6 +118,7 @@ class FileEditor : public Frame
 		DWORD SysErrorCode;
 		bool m_bClosing;               // 28.04.2005 AY: true когда редактор закрываеться (т.е. в деструкторе)
 		bool bEE_READ_Sent;
+		bool bLoaded;
 		bool m_bAddSignature;
 		bool BadConversion;
 		uintptr_t m_codepage; //BUGBUG
@@ -163,6 +164,7 @@ class FileEditor : public Frame
 		const wchar_t *GetPluginData() {return strPluginData.data();}
 		bool LoadFromCache(EditorPosCache &pc);
 		void SaveToCache();
+		virtual void OnInserted(void) override;
 
 		static uintptr_t GetDefaultCodePage();
 };

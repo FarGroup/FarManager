@@ -142,6 +142,8 @@ private:
 	void ActivateCommit(); //
 	void UpdateCommit();   // выполняется тогда, когда нужно заменить один фрейм на другой
 	void InsertCommit();
+	static void Inserted(Frame*& NewFrame);
+	void InsertFinish(void);
 	void DeleteCommit();
 	void ExecuteCommit();
 	void ModalizeCommit();

@@ -67,6 +67,7 @@ public:
 	virtual int GetType() const = 0;
 	virtual void OnDestroy() {}  // вызывается перед уничтожением окна
 	virtual void OnChangeFocus(int focus); // вызывается при смене фокуса
+	virtual void OnInserted(void) {} //фрэйм реально попал в список фреймов оконного "менеджера".
 	virtual void Refresh() {OnChangeFocus(1);}  // Просто перерисоваться :)
 	virtual void InitKeyBar() {}
 	virtual void RedrawKeyBar() { UpdateKeyBar(); }

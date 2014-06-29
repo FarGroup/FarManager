@@ -230,7 +230,7 @@ void Manager::ExecuteNonModal()
 		InsertedFrame=NonModal;
 		ExecutedFrame=nullptr;
 		InsertCommit();
-		InsertedFrame=nullptr;
+		Inserted(InsertedFrame);
 	}
 	else
 	{
@@ -1210,14 +1210,14 @@ bool Manager::Commit()
 	{
 		UpdateCommit();
 		DeletedFrame = nullptr;
-		InsertedFrame = nullptr;
-		ExecutedFrame=nullptr;
+		Inserted(InsertedFrame);
+		Inserted(ExecutedFrame);
 		Result=true;
 	}
 	else if (ExecutedFrame)
 	{
 		ExecuteCommit();
-		ExecutedFrame=nullptr;
+		Inserted(ExecutedFrame);
 		Result=true;
 	}
 	else if (DeletedFrame)
@@ -1229,7 +1229,7 @@ bool Manager::Commit()
 	else if (InsertedFrame)
 	{
 		InsertCommit();
-		InsertedFrame = nullptr;
+		Inserted(InsertedFrame);
 		Result=true;
 	}
 	else if (DeactivatedFrame)
@@ -1362,11 +1362,16 @@ void Manager::UpdateCommit()
 
 	if (ExecutedFrame)
 	{
+		// магия для корректной работы f6 в редакторе/просмотре.
+		// вариант для модальных редакторов/просмотров. такие встречаются в поиске, например.
 		DeleteCommit();
 		ExecuteCommit();
 		return;
 	}
 
+	// магия для корректной работы f6 в редакторе/просмотре.
+	// при одновременном удалении например редактора и создании просмотра,
+	// просмотр попадает не в конец списка окон, а на место только что удалённого редактора.
 	int FrameIndex=IndexOf(DeletedFrame);
 
 	if (-1!=FrameIndex)
@@ -1490,7 +1495,19 @@ void Manager::InsertCommit()
 		if (!ActivatedFrame)
 		{
 			ActivatedFrame=InsertedFrame;
+			ActivateCommit();
+			ActivatedFrame=nullptr;
 		}
+	}
+}
+
+void Manager::Inserted(Frame*& NewFrame)
+{
+	if (NewFrame)
+	{
+		Frame *tmp = NewFrame;
+		NewFrame = nullptr;
+		tmp->OnInserted();
 	}
 }
 

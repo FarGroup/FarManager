@@ -449,6 +449,7 @@ void FileEditor::Init(
 	//AY: флаг оповещающий закрытие редактора.
 	m_bClosing = false;
 	bEE_READ_Sent = false;
+	bLoaded = false;
 	m_bAddSignature = false;
 	m_editor = new Editor;
 
@@ -681,8 +682,6 @@ void FileEditor::Init(
 	}
 
 	Global->CtrlObject->Plugins->SetCurEditor(this); //&FEdit;
-	Global->CtrlObject->Plugins->ProcessEditorEvent(EE_READ,nullptr,m_editor->EditorID);
-	bEE_READ_Sent = true;
 	if (GetExitCode() == XC_LOADING_INTERRUPTED || GetExitCode() == XC_OPEN_ERROR)
 		return;
 
@@ -698,11 +697,18 @@ void FileEditor::Init(
 	Global->CtrlObject->Macro.SetMode(MACROAREA_EDITOR);
 
 	F4KeyOnly=true;
+	bLoaded = true;
 
 	if (Flags.Check(FFILEEDIT_ENABLEF6))
 		Global->FrameManager->InsertFrame(this);
 	else
 		Global->FrameManager->ExecuteFrame(this);
+}
+
+void FileEditor::OnInserted(void)
+{
+	Global->CtrlObject->Plugins->ProcessEditorEvent(EE_READ,nullptr,m_editor->EditorID);
+	bEE_READ_Sent = true;
 }
 
 void FileEditor::InitKeyBar()
@@ -1348,7 +1354,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					if (res != 0)
 						codepage = m_codepage;
 				}
-				
+
 				if (codepage != m_codepage)
 				{
 					uintptr_t cp0 = m_codepage;
@@ -2724,7 +2730,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		}
 		case ECTL_QUIT:
 		{
-			if (!this->bEE_READ_Sent) // do not delete not created frame
+			if (!this->bLoaded) // do not delete not created frame
 			{
 				SetExitCode(XC_LOADING_INTERRUPTED);
 			}
