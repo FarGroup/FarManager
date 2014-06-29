@@ -57,7 +57,7 @@ struct FileListItem: NonCopyable
 
 	size_t Position;
 	int SortGroup;
-	wchar_t *DizText;
+	const wchar_t *DizText;
 	bool DeleteDiz;
 	string strOwner;
 	wchar_t **CustomColumnData;

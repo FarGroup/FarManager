@@ -67,7 +67,7 @@ private:
 	void SetCoords();
 
 	TreeList *Tree;
-	EditControl *FindEdit;
+	std::unique_ptr<EditControl> FindEdit;
 	// ךויבאנ
 	KeyBar TreeKeyBar;
 	int ModalMode;

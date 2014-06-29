@@ -37,8 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "editor.hpp"
 #include "keybar.hpp"
 #include "plugin.hpp"
-
-class NamesList;
+#include "namelist.hpp"
 
 // коды возврата Editor::SaveFile()
 enum
@@ -101,9 +100,9 @@ class FileEditor : public Frame
 		static const FileEditor *CurrentEditor;
 
 	private:
-		Editor *m_editor;
+		std::unique_ptr<Editor> m_editor;
 		KeyBar EditKeyBar;
-		NamesList *EditNamesList;
+		NamesList EditNamesList;
 		bool F4KeyOnly;
 		string strFileName;
 		string strFullFileName;

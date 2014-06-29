@@ -159,7 +159,7 @@ public:
 	block_ptr(){}
 	block_ptr(block_ptr&& Right){char_ptr::swap(Right);}
 	block_ptr(size_t size, bool init = false):char_ptr(size, init){}
-	block_ptr& operator=(block_ptr&& Right){char_ptr::swap(Right); return *this;}
+	MOVE_OPERATOR_BY_SWAP(block_ptr);
 	T* get() const {return reinterpret_cast<T*>(char_ptr::get());}
 	T* operator->() const {return get();}
 	T& operator*() const {return *get();}

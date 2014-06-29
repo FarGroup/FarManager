@@ -442,12 +442,12 @@ template<class T> bool MacroPluginOp(double OpCode, T Param, MacroPluginReturn* 
 	return false;
 }
 
-inline void PushState(bool withClip)
+static inline void PushState(bool withClip)
 {
 	MacroPluginOp(1.0, withClip);
 }
 
-inline void PopState(bool withClip)
+static inline void PopState(bool withClip)
 {
 	MacroPluginOp(2.0, withClip);
 }
@@ -464,13 +464,13 @@ int KeyMacro::IsDisableOutput()
 	return MacroPluginOp(4.0,false,&Ret) ? Ret.ReturnType : 0;
 }
 
-inline DWORD SetHistoryDisableMask(DWORD Mask)
+static inline DWORD SetHistoryDisableMask(DWORD Mask)
 {
 	MacroPluginReturn Ret;
 	return MacroPluginOp(5.0,(double)Mask,&Ret) ? Ret.ReturnType : 0;
 }
 
-inline DWORD GetHistoryDisableMask()
+static inline DWORD GetHistoryDisableMask()
 {
 	MacroPluginReturn Ret;
 	return MacroPluginOp(5.0,false,&Ret) ? Ret.ReturnType : 0;
@@ -504,25 +504,25 @@ static bool GetTopMacro(MacroRecord* macro)
 	return false;
 }
 
-inline bool IsMacroQueueEmpty()
+static inline bool IsMacroQueueEmpty()
 {
 	MacroPluginReturn Ret;
 	return !MacroPluginOp(9.0,false,&Ret) || Ret.ReturnType==1;
 }
 
-inline size_t GetStateStackSize()
+static inline size_t GetStateStackSize()
 {
 	MacroPluginReturn Ret;
 	return MacroPluginOp(10.0,false,&Ret) ? Ret.ReturnType : 0;
 }
 
-inline DWORD GetIntKey()
+static inline DWORD GetIntKey()
 {
 	MacroPluginReturn Ret;
 	return MacroPluginOp(11.0,false,&Ret) ? Ret.ReturnType : 0;
 }
 
-inline DWORD GetTopIntKey()
+static inline DWORD GetTopIntKey()
 {
 	MacroPluginReturn Ret;
 	return MacroPluginOp(13.0,false,&Ret) ? Ret.ReturnType : 0;
@@ -1611,7 +1611,7 @@ static int PassString (const wchar_t *str, FarMacroCall* Data)
 	return 1;
 }
 
-inline int PassString (const string& str, FarMacroCall* Data)
+static inline int PassString(const string& str, FarMacroCall* Data)
 {
 	return PassString(str.data(), Data);
 }
@@ -1654,13 +1654,13 @@ static int PassValue (const TVar* Var, FarMacroCall* Data)
 		double dd;
 
 		if (Var->isDouble())
-			val = Var->d();
+			val = Var->asDouble();
 		else if (Var->isString())
-			val = Var->s();
-		else if (ToDouble(Var->i(), &dd))
+			val = Var->asString();
+		else if (ToDouble(Var->asInteger(), &dd))
 			val = dd;
 		else
-			val = Var->i();
+			val = Var->asInteger();
 
 		Data->Callback(Data->CallbackData, &val, 1);
 	}
@@ -1693,7 +1693,7 @@ static void parseParams(TVar* Params, size_t Count, FarMacroCall* Data)
 }
 
 template<size_t N>
-const std::array<TVar, N> parseParams(FarMacroCall* Data)
+static const std::array<TVar, N> parseParams(FarMacroCall* Data)
 {
 	std::array<TVar, N> result;
 	parseParams(result.data(), N, Data);
@@ -2539,9 +2539,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			if (f)
 			{
-				p1.toInteger();
-				p2.toInteger();
-				Result=f->VMProcess(CheckCode,ToPtr(p2.i()),p1.i());
+				Result = f->VMProcess(CheckCode, ToPtr(p2.toInteger()), p1.toInteger());
 			}
 
 			return Result;
@@ -2573,7 +2571,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 				if (f)
 				{
-					__int64 MenuItemPos=tmpVar.i()-1;
+					__int64 MenuItemPos=tmpVar.asInteger()-1;
 					if (CheckCode == MCODE_F_MENU_GETHOTKEY)
 					{
 						__int64 Result = f->VMProcess(CheckCode,nullptr,MenuItemPos);
@@ -2622,9 +2620,9 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			__int64 tmpDir=0;
 
 			if (CheckCode == MCODE_F_MENU_SELECT)
-				tmpDir=Params[2].getInteger();
+				tmpDir=Params[2].asInteger();
 
-			tmpMode=Params[1].getInteger();
+			tmpMode=Params[1].asInteger();
 
 			if (CheckCode == MCODE_F_MENU_SELECT)
 				tmpMode |= (tmpDir << 8);
@@ -2650,7 +2648,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					f=fo;
 
 				if (f)
-					Result=f->VMProcess(CheckCode, const_cast<wchar_t*>(Params[0].toString()), tmpMode);
+					Result=f->VMProcess(CheckCode, const_cast<wchar_t*>(Params[0].toString().data()), tmpMode);
 			}
 
 			PassNumber(Result,Data);
@@ -2721,8 +2719,8 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_F_AKEY:                // V=akey(Mode[,Type])
 		{
 			auto Params = parseParams<2>(Data);
-			int tmpType=(int)Params[1].getInteger();
-			int tmpMode=(int)Params[0].getInteger();
+			int tmpType=(int)Params[1].asInteger();
+			int tmpMode=(int)Params[0].asInteger();
 
 			MacroRecord TopMacro;
 			if (!GetTopMacro(&TopMacro))
@@ -2761,8 +2759,8 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 static bool trimFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<2>(Data);
-	int  mode = (int) Params[1].getInteger();
-	wchar_t *p = const_cast<wchar_t*>(Params[0].toString());
+	int  mode = (int) Params[1].asInteger();
+	string p = Params[0].toString();
 	bool Ret=true;
 
 	switch (mode)
@@ -2795,10 +2793,10 @@ static bool substrFunc(FarMacroCall* Data)
 	auto Params = parseParams<3>(Data);
 	bool Ret=false;
 
-	int  start     = (int)Params[1].getInteger();
-	wchar_t *p = const_cast<wchar_t*>(Params[0].toString());
-	int length_str = StrLength(p);
-	int length=Params[2].isUnknown()?length_str:(int)Params[2].getInteger();
+	int  start     = (int)Params[1].asInteger();
+	auto& p = Params[0].toString();
+	int length_str = static_cast<int>(p.size());
+	int length=Params[2].isUnknown()?length_str:(int)Params[2].asInteger();
 
 	if (length)
 	{
@@ -2838,20 +2836,15 @@ static bool substrFunc(FarMacroCall* Data)
 	}
 	else
 	{
-		p += start;
-		p[length] = 0;
 		Ret=true;
-		PassString(p, Data);
+		PassString(p.substr(start, length), Data);
 	}
 
 	return Ret;
 }
 
-static BOOL SplitFileName(const wchar_t *lpFullName,string &strDest,int nFlags)
+static BOOL SplitFileName(const string& lpFullName,string &strDest,int nFlags)
 {
-	if (!lpFullName)
-		return FALSE;
-
 	enum
 	{
 		FLAG_DISK = 1,
@@ -2859,9 +2852,9 @@ static BOOL SplitFileName(const wchar_t *lpFullName,string &strDest,int nFlags)
 		FLAG_NAME = 4,
 		FLAG_EXT  = 8,
 	};
-	const wchar_t *s = lpFullName; //start of sub-string
+	const wchar_t *s = lpFullName.data(); //start of sub-string
 	const wchar_t *p = s; //current string pointer
-	const wchar_t *es = s + wcslen(s); //end of string
+	const wchar_t *es = s + lpFullName.size(); //end of string
 	const wchar_t *e; //end of sub-string
 
 	if (!*p)
@@ -2970,12 +2963,11 @@ static BOOL SplitFileName(const wchar_t *lpFullName,string &strDest,int nFlags)
 static bool fsplitFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<2>(Data);
-	int m = (int)Params[1].getInteger();
-	const wchar_t *s = Params[0].toString();
+	int m = (int)Params[1].asInteger();
 	bool Ret=false;
 	string strPath;
 
-	if (!SplitFileName(s,strPath,m))
+	if (!SplitFileName(Params[0].toString().data(), strPath, m))
 		strPath.clear();
 	else
 		Ret=true;
@@ -2989,8 +2981,16 @@ static bool atoiFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<2>(Data);
 	bool Ret=true;
-	wchar_t *endptr;
-	PassInteger(wcstoll(Params[0].toString(), &endptr, (int) Params[1].toInteger()), Data);
+	long long Value = 0;
+	try
+	{
+		Value = std::stoull(Params[0].toString(), nullptr, (int)Params[1].toInteger());
+	}
+	catch (std::exception&)
+	{
+		// TODO: log
+	}
+	PassInteger(Value, Data);
 	return Ret;
 }
 
@@ -3003,8 +3003,8 @@ static bool windowscrollFunc(FarMacroCall* Data)
 
 	if (Global->Opt->WindowMode)
 	{
-		int Lines=(int)Params[0].i(), Columns=0;
-		if (Params[1].i())
+		int Lines=(int)Params[0].asInteger(), Columns=0;
+		if (Params[1].asInteger())
 		{
 			Columns=Lines;
 			Lines=0;
@@ -3047,7 +3047,7 @@ static bool itowFunc(FarMacroCall* Data)
 static bool sleepFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<1>(Data);
-	long Period=(long)Params[0].getInteger();
+	long Period=(long)Params[0].asInteger();
 
 	if (Period > 0)
 	{
@@ -3086,7 +3086,7 @@ static bool keybarshowFunc(FarMacroCall* Data)
 	if (!f)
 		f=fo;
 
-	PassNumber(f?f->VMProcess(MCODE_F_KEYBAR_SHOW,nullptr,Params[0].getInteger())-1:-1, Data);
+	PassNumber(f?f->VMProcess(MCODE_F_KEYBAR_SHOW,nullptr,Params[0].asInteger())-1:-1, Data);
 	return f != nullptr;
 }
 
@@ -3099,16 +3099,16 @@ static bool keyFunc(FarMacroCall* Data)
 
 	if (Params[0].isInteger() || Params[0].isDouble())
 	{
-		if (Params[0].i())
-			KeyToText((int)Params[0].i(),strKeyText);
+		if (Params[0].asInteger())
+			KeyToText((int)Params[0].asInteger(), strKeyText);
 	}
 	else
 	{
 		// Проверим...
-		int Key=KeyNameToKey(Params[0].s());
+		int Key=KeyNameToKey(Params[0].asString());
 
 		if (Key != -1)
-			strKeyText=Params[0].s();
+			strKeyText=Params[0].asString();
 	}
 
 	PassString(strKeyText, Data);
@@ -3119,8 +3119,8 @@ static bool keyFunc(FarMacroCall* Data)
 static bool waitkeyFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<2>(Data);
-	long Type=(long)Params[1].getInteger();
-	long Period=(long)Params[0].getInteger();
+	long Type=(long)Params[1].asInteger();
+	long Period=(long)Params[0].asInteger();
 	DWORD Key=WaitKey((DWORD)-1,Period);
 
 	if (!Type)
@@ -3163,7 +3163,7 @@ static bool modFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<2>(Data);
 
-	if (!Params[1].i())
+	if (!Params[1].asInteger())
 	{
 		_KEYMACRO(___FILEFUNCLINE___;SysLog(L"Error: Divide (mod) by zero"));
 		PassNumber(0, Data);
@@ -3179,9 +3179,9 @@ static bool modFunc(FarMacroCall* Data)
 static bool indexFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<3>(Data);
-	const wchar_t *s = Params[0].toString();
-	const wchar_t *p = Params[1].toString();
-	const wchar_t *i = !Params[2].getInteger() ? StrStrI(s,p) : StrStr(s,p);
+	const wchar_t *s = Params[0].toString().data();
+	const wchar_t *p = Params[1].toString().data();
+	const wchar_t *i = !Params[2].asInteger() ? StrStrI(s,p) : StrStr(s,p);
 	bool Ret = i != nullptr;
 	PassNumber((i ? i-s : -1), Data);
 	return Ret;
@@ -3191,9 +3191,9 @@ static bool indexFunc(FarMacroCall* Data)
 static bool rindexFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<3>(Data);
-	const wchar_t *s = Params[0].toString();
-	const wchar_t *p = Params[1].toString();
-	const wchar_t *i = !Params[2].getInteger() ? RevStrStrI(s,p) : RevStrStr(s,p);
+	const wchar_t *s = Params[0].toString().data();
+	const wchar_t *p = Params[1].toString().data();
+	const wchar_t *i = !Params[2].asInteger() ? RevStrStrI(s,p) : RevStrStr(s,p);
 	bool Ret = i != nullptr;
 	PassNumber((i ? i-s : -1), Data);
 	return Ret;
@@ -3203,10 +3203,10 @@ static bool rindexFunc(FarMacroCall* Data)
 static bool size2strFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<3>(Data);
-	int Width = (int)Params[2].getInteger();
+	int Width = (int)Params[2].asInteger();
 
 	string strDestStr;
-	FileSizeToStr(strDestStr,Params[0].i(), !Width?-1:Width, Params[1].i());
+	FileSizeToStr(strDestStr,Params[0].asInteger(), !Width?-1:Width, Params[1].asInteger());
 
 	PassString(strDestStr, Data);
 	return true;
@@ -3217,10 +3217,10 @@ static bool dateFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<1>(Data);
 
-	if (Params[0].isInteger() && !Params[0].i())
+	if (Params[0].isInteger() && !Params[0].asInteger())
 		Params[0]=L"";
 
-	const wchar_t *s = Params[0].toString();
+	const wchar_t *s = Params[0].toString().data();
 	bool Ret=false;
 	string strTStr;
 
@@ -3243,8 +3243,8 @@ static bool dateFunc(FarMacroCall* Data)
 static bool xlatFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<2>(Data);
-	wchar_t *Str = const_cast<wchar_t*>(Params[0].toString());
-	bool Ret = Xlat(Str,0,StrLength(Str),Params[1].i()) != nullptr;
+	wchar_t* Str = const_cast<wchar_t*>(Params[0].toString().data());
+	bool Ret = Xlat(Str,0,StrLength(Str),Params[1].asInteger()) != nullptr;
 	PassString(Str, Data);
 	return Ret;
 }
@@ -3267,7 +3267,7 @@ static bool beepFunc(FarMacroCall* Data)
 		SIMPLE_BEEP = 0xffffffff
 		    Встроенный динамик
 	*/
-	bool Ret=MessageBeep((UINT)Params[0].i()) != FALSE;
+	bool Ret=MessageBeep((UINT)Params[0].asInteger()) != FALSE;
 
 	/*
 		http://msdn.microsoft.com/en-us/library/dd743680%28VS.85%29.aspx
@@ -3303,7 +3303,7 @@ Res=kbdLayout([N])
 static bool kbdLayoutFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<1>(Data);
-	DWORD dwLayout = (DWORD)Params[0].getInteger();
+	DWORD dwLayout = (DWORD)Params[0].asInteger();
 
 	BOOL Ret=TRUE;
 	HKL RetLayout=0;
@@ -3353,7 +3353,7 @@ static bool promptFunc(FarMacroCall* Data)
 	auto Params = parseParams<5>(Data);
 	TVar& ValHistory(Params[4]);
 	TVar& ValSrc(Params[3]);
-	DWORD Flags = (DWORD)Params[2].getInteger();
+	DWORD Flags = (DWORD)Params[2].asInteger();
 	TVar& ValPrompt(Params[1]);
 	TVar& ValTitle(Params[0]);
 	bool Ret=false;
@@ -3361,21 +3361,21 @@ static bool promptFunc(FarMacroCall* Data)
 	const wchar_t *history=nullptr;
 	const wchar_t *title=nullptr;
 
-	if (!(ValTitle.isInteger() && !ValTitle.i()))
-		title=ValTitle.s();
+	if (!(ValTitle.isInteger() && ValTitle.asInteger() == 0))
+		title=ValTitle.asString().data();
 
-	if (!(ValHistory.isInteger() && !ValHistory.i()))
-		history=ValHistory.s();
+	if (!(ValHistory.isInteger() && !ValHistory.asInteger()))
+		history=ValHistory.asString().data();
 
 	const wchar_t *src=L"";
 
-	if (!(ValSrc.isInteger() && !ValSrc.i()))
-		src=ValSrc.s();
+	if (!(ValSrc.isInteger() && ValSrc.asInteger() == 0))
+		src=ValSrc.asString().data();
 
 	const wchar_t *prompt=L"";
 
-	if (!(ValPrompt.isInteger() && !ValPrompt.i()))
-		prompt=ValPrompt.s();
+	if (!(ValPrompt.isInteger() && ValPrompt.asInteger() == 0))
+		prompt=ValPrompt.asString().data();
 
 	string strDest;
 
@@ -3401,18 +3401,18 @@ static bool promptFunc(FarMacroCall* Data)
 static bool msgBoxFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<3>(Data);
-	DWORD Flags = (DWORD)Params[2].getInteger();
+	DWORD Flags = (DWORD)Params[2].asInteger();
 	TVar& ValB(Params[1]);
 	TVar& ValT(Params[0]);
 	const wchar_t *title = L"";
 
-	if (!(ValT.isInteger() && !ValT.i()))
-		title=NullToEmpty(ValT.toString());
+	if (!(ValT.isInteger() && !ValT.asInteger()))
+		title = ValT.toString().data();
 
 	const wchar_t *text  = L"";
 
-	if (!(ValB.isInteger() && !ValB.i()))
-		text =NullToEmpty(ValB.toString());
+	if (!(ValB.isInteger() && !ValB.asInteger()))
+		text = ValB.toString().data();
 
 	Flags&=~(FMSG_KEEPBACKGROUND|FMSG_ERRORTYPE);
 	Flags|=FMSG_ALLINONE;
@@ -3434,23 +3434,6 @@ static bool msgBoxFunc(FarMacroCall* Data)
 	return true;
 }
 
-static struct menu_less
-{
-	bool operator()(const MenuItemEx& a, const MenuItemEx& b, const SortItemParam& Param) const
-	{
-		if (a.Flags & LIF_SEPARATOR || b.Flags & LIF_SEPARATOR)
-			return false;
-
-		string strName1(a.strName);
-		string strName2(b.strName);
-		RemoveChar(strName1,L'&',true);
-		RemoveChar(strName2,L'&',true);
-		bool Less = NumStrCmpI(strName1.data() + Param.Offset, strName2.data() + Param.Offset) < 0;
-
-		return Param.Reverse? !Less : Less;
-	}
-} MenuLess;
-
 //S=Menu.Show(Items[,Title[,Flags[,FindOrFilter[,X[,Y]]]]])
 //Flags:
 //0x001 - BoxType
@@ -3471,7 +3454,7 @@ static bool menushowFunc(FarMacroCall* Data)
 	TVar& VY(Params[5]);
 	TVar& VX(Params[4]);
 	TVar& VFindOrFilter(Params[3]);
-	DWORD Flags = (DWORD)Params[2].getInteger();
+	DWORD Flags = (DWORD)Params[2].asInteger();
 	TVar& Title(Params[1]);
 
 	if (Title.isUnknown())
@@ -3602,7 +3585,21 @@ static bool menushowFunc(FarMacroCall* Data)
 	}
 
 	if (bSorting)
-		Menu.SortItems(MenuLess);
+	{
+		Menu.SortItems([](const MenuItemEx& a, const MenuItemEx& b, const SortItemParam& Param) -> bool
+		{
+			if (a.Flags & LIF_SEPARATOR || b.Flags & LIF_SEPARATOR)
+				return false;
+
+			string strName1(a.strName);
+			string strName2(b.strName);
+			RemoveChar(strName1, L'&', true);
+			RemoveChar(strName2, L'&', true);
+			bool Less = NumStrCmpI(strName1.data() + Param.Offset, strName2.data() + Param.Offset) < 0;
+
+			return Param.Reverse ? !Less : Less;
+		});
+	}
 
 	if (bPacking)
 		Menu.Pack();
@@ -3799,9 +3796,9 @@ static bool environFunc(FarMacroCall* Data)
 	else
 		strEnv.clear();
 
-	if (Mode.i()) // Mode != 0: Set
+	if (Mode.asInteger()) // Mode != 0: Set
 	{
-		if (Value.isUnknown() || !*Value.s())
+		if (Value.isUnknown() || Value.asString().empty())
 			api::env::delete_variable(S.toString());
 		else
 			api::env::set_variable(S.toString(), Value.toString());
@@ -3816,9 +3813,9 @@ static bool panelselectFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<4>(Data);
 	TVar& ValItems(Params[3]);
-	int Mode=(int)Params[2].getInteger();
-	DWORD Action=(int)Params[1].getInteger();
-	int typePanel=(int)Params[0].getInteger();
+	int Mode=(int)Params[2].asInteger();
+	DWORD Action=(int)Params[1].asInteger();
+	int typePanel=(int)Params[0].asInteger();
 	__int64 Result=-1;
 
 	Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
@@ -3834,7 +3831,7 @@ static bool panelselectFunc(FarMacroCall* Data)
 		__int64 Index=-1;
 		if (Mode == 1)
 		{
-			Index=ValItems.getInteger();
+			Index=ValItems.asInteger();
 			if (!Index)
 				Index=SelPanel->GetCurrentPos();
 			else
@@ -3843,7 +3840,7 @@ static bool panelselectFunc(FarMacroCall* Data)
 
 		if (Mode == 2 || Mode == 3)
 		{
-			string strStr=ValItems.s();
+			string strStr=ValItems.asString();
 			ReplaceStrings(strStr,L"\r",L"\n");
 			ReplaceStrings(strStr,L"\n\n",L"\n");
 			ValItems=strStr;
@@ -3881,8 +3878,8 @@ static bool _fattrFunc(int Type, FarMacroCall* Data)
 	{
 		auto Params = parseParams<2>(Data);
 		TVar& S(Params[1]);
-		int typePanel=(int)Params[0].getInteger();
-		const wchar_t *Str = S.toString();
+		int typePanel=(int)Params[0].asInteger();
+		const auto& Str = S.toString();
 		Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 		Panel *PassivePanel=nullptr;
 
@@ -3894,10 +3891,10 @@ static bool _fattrFunc(int Type, FarMacroCall* Data)
 
 		if (SelPanel)
 		{
-			if (wcspbrk(Str,L"*?") )
+			if (Str.find_first_of(L"*?") != string::npos)
 				Pos=SelPanel->FindFirst(Str);
 			else
-				Pos = SelPanel->FindFile(Str,wcspbrk(Str,L"\\/:") != nullptr);
+				Pos = SelPanel->FindFile(Str, Str.find_first_of(L"\\/:") != string::npos);
 
 			if (Pos >= 0)
 			{
@@ -3961,8 +3958,8 @@ static bool flockFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<2>(Data);
 	int Ret = -1;
-	int stateFLock=(int)Params[1].getInteger();
-	UINT vkKey=(UINT)Params[0].getInteger();
+	int stateFLock=(int)Params[1].asInteger();
+	UINT vkKey=(UINT)Params[0].asInteger();
 
 	switch (vkKey)
 	{
@@ -3992,7 +3989,7 @@ static bool dlgsetfocusFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<1>(Data);
 	TVar Ret(-1);
-	unsigned Index=(unsigned)Params[0].getInteger()-1;
+	unsigned Index=(unsigned)Params[0].asInteger()-1;
 	Frame* CurFrame = Global->FrameManager->GetCurrentFrame();
 
 	if (Global->CtrlObject->Macro.GetMode()==MACROAREA_DIALOG && CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG)
@@ -4006,18 +4003,18 @@ static bool dlgsetfocusFunc(FarMacroCall* Data)
 	}
 
 	PassValue(&Ret, Data);
-	return Ret.i()!=-1; // ?? <= 0 ??
+	return Ret.asInteger() != -1; // ?? <= 0 ??
 }
 
 // V=Far.Cfg.Get(Key,Name)
-bool farcfggetFunc(FarMacroCall* Data)
+static bool farcfggetFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<2>(Data);
 	TVar& Name(Params[1]);
 	TVar& Key(Params[0]);
 
 	string strValue;
-	bool result = Global->Opt->GetConfigValue(Key.s(),Name.s(), strValue);
+	bool result = Global->Opt->GetConfigValue(Key.asString().data(), Name.asString().data(), strValue);
 	result ? PassString(strValue,Data) : PassBoolean(0,Data);
 	return result;
 }
@@ -4033,12 +4030,12 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 	{
 		auto Dlg = static_cast<Dialog*>(CurFrame);
 		TVarType typeIndex=Params[0].type();
-		size_t Index=(unsigned)Params[0].getInteger()-1;
+		size_t Index=(unsigned)Params[0].asInteger()-1;
 		if (typeIndex == vtUnknown || ((typeIndex==vtInteger || typeIndex==vtDouble) && (int)Index < -1))
 			Index=Dlg->GetDlgFocusPos();
 
 		TVarType typeInfoID=Params[1].type();
-		int InfoID=(int)Params[1].getInteger();
+		int InfoID=(int)Params[1].asInteger();
 		if (typeInfoID == vtUnknown || (typeInfoID == vtInteger && InfoID < 0))
 			InfoID=0;
 
@@ -4169,13 +4166,13 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 			{
 				case vtUnknown:
 				case vtInteger:
-					fgv.Value.Integer=Ret.i();
+					fgv.Value.Integer=Ret.asInteger();
 					break;
 				case vtString:
-					fgv.Value.String=Ret.s();
+					fgv.Value.String=Ret.asString().data();
 					break;
 				case vtDouble:
-					fgv.Value.Double=Ret.d();
+					fgv.Value.Double=Ret.asDouble();
 					break;
 			}
 
@@ -4204,7 +4201,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 	}
 
 	PassValue(&Ret, Data);
-	return Ret.i()!=-1;
+	return Ret.asInteger() != -1;
 }
 
 // N=Editor.Pos(Op,What[,Where])
@@ -4213,9 +4210,9 @@ static bool editorposFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<3>(Data);
 	TVar Ret(-1);
-	int Where = (int)Params[2].getInteger();
-	int What  = (int)Params[1].getInteger();
-	int Op    = (int)Params[0].getInteger();
+	int Where = (int)Params[2].asInteger();
+	int What  = (int)Params[1].asInteger();
+	int Op    = (int)Params[0].asInteger();
 
 	if (Global->CtrlObject->Macro.GetMode()==MACROAREA_EDITOR && Global->CtrlObject->Plugins->GetCurEditor() && Global->CtrlObject->Plugins->GetCurEditor()->IsVisible())
 	{
@@ -4318,7 +4315,7 @@ static bool editorposFunc(FarMacroCall* Data)
 	}
 
 	PassValue(&Ret, Data);
-	return Ret.i() != -1;
+	return Ret.asInteger() != -1;
 }
 
 // OldVar=Editor.Set(Idx,Value)
@@ -4327,7 +4324,7 @@ static bool editorsetFunc(FarMacroCall* Data)
 	auto Params = parseParams<2>(Data);
 	TVar Ret(-1);
 	TVar& Value(Params[1]);
-	int Index=(int)Params[0].getInteger();
+	int Index=(int)Params[0].asInteger();
 
 	if (Global->CtrlObject->Macro.GetMode()==MACROAREA_EDITOR && Global->CtrlObject->Plugins->GetCurEditor() && Global->CtrlObject->Plugins->GetCurEditor()->IsVisible())
 	{
@@ -4337,7 +4334,7 @@ static bool editorsetFunc(FarMacroCall* Data)
 			longState=(long)Value.toInteger();
 		else
 		{
-			if (Value.isString() || Value.i() != -1)
+			if (Value.isString() || Value.asInteger() != -1)
 				longState=0;
 		}
 
@@ -4443,7 +4440,7 @@ static bool editorsetFunc(FarMacroCall* Data)
 	}
 
 	PassValue(&Ret, Data);
-	return Ret.i()==-1;
+	return Ret.asInteger() == -1;
 }
 
 // V=Clip(N[,V])
@@ -4451,10 +4448,10 @@ static bool clipFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<2>(Data);
 	TVar& Val(Params[1]);
-	int cmdType=(int)Params[0].getInteger();
+	int cmdType=(int)Params[0].asInteger();
 
 	// принудительно второй параметр ставим AS string
-	if (cmdType != 5 && Val.isInteger() && !Val.i())
+	if (cmdType != 5 && Val.isInteger() && !Val.asInteger())
 	{
 		Val=L"";
 		Val.toString();
@@ -4477,7 +4474,8 @@ static bool clipFunc(FarMacroCall* Data)
 		}
 		case 1: // Put "S" into Clipboard
 		{
-			if (!*Val.s())
+			auto Str = Val.asString();
+			if (Str.empty())
 			{
 				Clipboard clip;
 				if (clip.Open())
@@ -4488,7 +4486,7 @@ static bool clipFunc(FarMacroCall* Data)
 			}
 			else
 			{
-				Ret=SetClipboard(Val.s());
+				Ret=SetClipboard(Str);
 			}
 
 			PassNumber(Ret, Data); // 0!  ???
@@ -4496,7 +4494,7 @@ static bool clipFunc(FarMacroCall* Data)
 		}
 		case 2: // Add "S" into Clipboard
 		{
-			TVar varClip(Val.s());
+			TVar varClip(Val.asString());
 			Clipboard clip;
 
 			Ret=FALSE;
@@ -4506,10 +4504,10 @@ static bool clipFunc(FarMacroCall* Data)
 				string CopyData;
 				if (clip.Get(CopyData))
 				{
-					varClip = CopyData + Val.s();
+					varClip = CopyData + Val.asString();
 				}
 
-				Ret=clip.Set(varClip.s());
+				Ret=clip.Set(varClip.asString());
 			}
 
 			PassNumber(Ret, Data); // 0!  ???
@@ -4533,7 +4531,7 @@ static bool clipFunc(FarMacroCall* Data)
 		case 5: // ClipMode
 		{
 			// 0 - flip, 1 - виндовый буфер, 2 - внутренний, -1 - что сейчас?
-			int Action=(int)Val.getInteger();
+			int Action=(int)Val.asInteger();
 			bool mode=Clipboard::GetUseInternalClipboardState();
 			if (Action >= 0)
 			{
@@ -4560,9 +4558,9 @@ static bool clipFunc(FarMacroCall* Data)
 static bool panelsetposidxFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<3>(Data);
-	int InSelection=(int)Params[2].getInteger();
-	long idxItem=(long)Params[1].getInteger();
-	int typePanel=(int)Params[0].getInteger();
+	int InSelection=(int)Params[2].asInteger();
+	long idxItem=(long)Params[1].asInteger();
+	int typePanel=(int)Params[0].asInteger();
 	Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 	Panel *PassivePanel=nullptr;
 
@@ -4682,16 +4680,12 @@ static bool panelsetpathFunc(FarMacroCall* Data)
 	auto Params = parseParams<3>(Data);
 	TVar& ValFileName(Params[2]);
 	TVar& Val(Params[1]);
-	int typePanel=(int)Params[0].getInteger();
+	int typePanel=(int)Params[0].asInteger();
 	__int64 Ret=0;
 
-	if (!(Val.isInteger() && !Val.i()))
+	if (!(Val.isInteger() && !Val.asInteger()))
 	{
-		const wchar_t *pathName=Val.s();
-		const wchar_t *fileName=L"";
-
-		if (!ValFileName.isInteger())
-			fileName=ValFileName.s();
+		const auto& pathName=Val.asString();
 
 		Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 		Panel *PassivePanel=nullptr;
@@ -4716,7 +4710,7 @@ static bool panelsetpathFunc(FarMacroCall* Data)
 				// Need PointToName()?
 				if (SelPanel)
 				{
-					SelPanel->GoToFile(fileName); // здесь без проверки, т.к. параметр fileName аля опциональный
+					SelPanel->GoToFile(ValFileName.isInteger()? L"" : ValFileName.asString()); // здесь без проверки, т.к. параметр fileName аля опциональный
 					//SelPanel->Show();
 					// <Mantis#0000289> - грозно, но со вкусом :-)
 					//ShellUpdatePanels(SelPanel);
@@ -4738,11 +4732,8 @@ static bool panelsetposFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<2>(Data);
 	TVar& Val(Params[1]);
-	int typePanel=(int)Params[0].getInteger();
-	const wchar_t *fileName=Val.s();
-
-	if (!fileName || !*fileName)
-		fileName=L"";
+	int typePanel=(int)Params[0].asInteger();
+	const auto& fileName=Val.asString();
 
 	Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 	Panel *PassivePanel=nullptr;
@@ -4793,7 +4784,7 @@ Mode:
 static bool replaceFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<5>(Data);
-	int Mode=(int)Params[4].getInteger();
+	int Mode=(int)Params[4].asInteger();
 	TVar& Count(Params[3]);
 	TVar& Repl(Params[2]);
 	TVar& Find(Params[1]);
@@ -4802,16 +4793,16 @@ static bool replaceFunc(FarMacroCall* Data)
 	// TODO: Здесь нужно проверить в соответствии с УНИХОДОМ!
 	string strStr;
 	//int lenS=(int)StrLength(Src.s());
-	size_t lenF = wcslen(Find.s());
+	size_t lenF = Find.asString().size();
 	//int lenR=(int)StrLength(Repl.s());
 	int cnt=0;
 
 	if( lenF )
 	{
-		const wchar_t *Ptr=Src.s();
+		const wchar_t *Ptr=Src.asString().data();
 		if( !Mode )
 		{
-			while ((Ptr=StrStrI(Ptr,Find.s())) )
+			while ((Ptr = StrStrI(Ptr, Find.asString().data())))
 			{
 				cnt++;
 				Ptr+=lenF;
@@ -4819,7 +4810,7 @@ static bool replaceFunc(FarMacroCall* Data)
 		}
 		else
 		{
-			while ((Ptr=StrStr(Ptr,Find.s())) )
+			while ((Ptr = StrStr(Ptr, Find.asString().data())))
 			{
 				cnt++;
 				Ptr+=lenF;
@@ -4832,13 +4823,13 @@ static bool replaceFunc(FarMacroCall* Data)
 		//if (lenR > lenF)
 		//	lenS+=cnt*(lenR-lenF+1); //???
 
-		strStr=Src.s();
-		cnt=(int)Count.i();
+		strStr=Src.asString();
+		cnt=(int)Count.asInteger();
 
 		if (cnt <= 0)
 			cnt=-1;
 
-		ReplaceStrings(strStr,Find.s(),Repl.s(),cnt,!Mode);
+		ReplaceStrings(strStr,Find.asString(),Repl.asString(),cnt,!Mode);
 		PassString(strStr, Data);
 	}
 	else
@@ -4853,7 +4844,7 @@ static bool panelitemFunc(FarMacroCall* Data)
 	auto Params = parseParams<3>(Data);
 	TVar& P2(Params[2]);
 	TVar& P1(Params[1]);
-	int typePanel=(int)Params[0].getInteger();
+	int typePanel=(int)Params[0].asInteger();
 	TVar Ret(0ll);
 	Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 	Panel *PassivePanel=nullptr;
@@ -5001,7 +4992,7 @@ static bool panelitemFunc(FarMacroCall* Data)
 static bool lenFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<1>(Data);
-	PassNumber(StrLength(Params[0].toString()), Data);
+	PassNumber(Params[0].toString().size(), Data);
 	return true;
 }
 
@@ -5009,7 +5000,8 @@ static bool ucaseFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<1>(Data);
 	TVar& Val(Params[0]);
-	StrUpper(const_cast<wchar_t*>(Val.toString()));
+	string Copy = Val.toString();
+	Val = Upper(Copy);
 	PassValue(&Val, Data);
 	return true;
 }
@@ -5018,7 +5010,8 @@ static bool lcaseFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<1>(Data);
 	TVar& Val(Params[0]);
-	StrLower(const_cast<wchar_t*>(Val.toString()));
+	string Copy = Val.toString();
+	Val = Lower(Copy);
 	PassValue(&Val, Data);
 	return true;
 }
@@ -5035,7 +5028,6 @@ static bool stringFunc(FarMacroCall* Data)
 // S=StrPad(Src,Cnt[,Fill[,Op]])
 static bool strpadFunc(FarMacroCall* Data)
 {
-	string strDest;
 	auto Params = parseParams<4>(Data);
 	TVar& Src(Params[0]);
 	if (Src.isUnknown())
@@ -5043,17 +5035,17 @@ static bool strpadFunc(FarMacroCall* Data)
 		Src=L"";
 		Src.toString();
 	}
-	int Cnt=(int)Params[1].getInteger();
+	int Cnt=(int)Params[1].asInteger();
 	TVar& Fill(Params[2]);
 	if (Fill.isUnknown())
 		Fill=L" ";
-	DWORD Op=(DWORD)Params[3].getInteger();
+	DWORD Op=(DWORD)Params[3].asInteger();
 
-	strDest=Src.s();
-	size_t LengthFill = wcslen(Fill.s());
+	string strDest=Src.asString();
+	size_t LengthFill = Fill.asString().size();
 	if (Cnt > 0 && LengthFill)
 	{
-		int LengthSrc  = StrLength(Src.s());
+		int LengthSrc = static_cast<int>(strDest.size());
 		int FineLength = Cnt-LengthSrc;
 
 		if (FineLength > 0)
@@ -5061,7 +5053,7 @@ static bool strpadFunc(FarMacroCall* Data)
 			wchar_t_ptr NewFill(FineLength + 1);
 			if (NewFill)
 			{
-				const wchar_t *pFill=Fill.s();
+				const auto& pFill = Fill.asString();
 
 				for (int I=0; I < FineLength; ++I)
 					NewFill[I]=pFill[I%LengthFill];
@@ -5104,19 +5096,19 @@ static bool strpadFunc(FarMacroCall* Data)
 static bool strwrapFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<4>(Data);
-	DWORD Flags=(DWORD)Params[3].getInteger();
+	DWORD Flags=(DWORD)Params[3].asInteger();
 	TVar& Break(Params[2]);
-	int Width=(int)Params[1].getInteger();
+	int Width=(int)Params[1].asInteger();
 	TVar& Text(Params[0]);
 
-	if (Break.isInteger() && !Break.i())
+	if (Break.isInteger() && !Break.asInteger())
 	{
 		Break=L"";
 		Break.toString();
 	}
 
 	string strDest;
-	FarFormatText(Text.s(),Width,strDest,*Break.s()?Break.s():nullptr,Flags);
+	FarFormatText(Text.asString(), Width,strDest, EmptyToNull(Break.asString().data()), Flags);
 	PassString(strDest, Data);
 	return true;
 }
@@ -5126,7 +5118,7 @@ static bool intFunc(FarMacroCall* Data)
 	auto Params = parseParams<1>(Data);
 	TVar& Val(Params[0]);
 	Val.toInteger();
-	PassInteger(Val.i(), Data);
+	PassInteger(Val.asInteger(), Data);
 	return true;
 }
 
@@ -5157,7 +5149,7 @@ static bool ascFunc(FarMacroCall* Data)
 	TVar& tmpVar(Params[0]);
 
 	if (tmpVar.isString())
-		PassNumber((DWORD)(WORD)*tmpVar.toString(), Data);
+		PassNumber((DWORD)(WORD)*tmpVar.toString().data(), Data);
 	else
 		PassValue(&tmpVar, Data);
 
@@ -5171,7 +5163,7 @@ static bool chrFunc(FarMacroCall* Data)
 
 	if (tmpVar.isNumber())
 	{
-		const wchar_t tmp[]={static_cast<wchar_t>(tmpVar.i()), L'\0'};
+		const wchar_t tmp[]={static_cast<wchar_t>(tmpVar.asInteger()), L'\0'};
 		tmpVar = tmp;
 		tmpVar.toString();
 	}
@@ -5238,13 +5230,13 @@ static bool editorselFunc(FarMacroCall* Data)
 	if (CurFrame && CurFrame->GetType()==NeedType)
 	{
 		if (Mode==MACROAREA_SHELL && Global->CtrlObject->CmdLine->IsVisible())
-			Ret=Global->CtrlObject->CmdLine->VMProcess(MCODE_F_EDITOR_SEL,ToPtr(Action.toInteger()),Opts.i());
+			Ret=Global->CtrlObject->CmdLine->VMProcess(MCODE_F_EDITOR_SEL,ToPtr(Action.toInteger()),Opts.asInteger());
 		else
-			Ret=CurFrame->VMProcess(MCODE_F_EDITOR_SEL,ToPtr(Action.toInteger()),Opts.i());
+			Ret=CurFrame->VMProcess(MCODE_F_EDITOR_SEL,ToPtr(Action.toInteger()),Opts.asInteger());
 	}
 
 	PassValue(&Ret, Data);
-	return Ret.i() == 1;
+	return Ret.asInteger() == 1;
 }
 
 // V=Editor.Undo(Action)
@@ -5262,7 +5254,7 @@ static bool editorundoFunc(FarMacroCall* Data)
 	}
 
 	PassValue(&Ret, Data);
-	return Ret.i()!=0;
+	return Ret.asInteger()!=0;
 }
 
 // N=Editor.SetTitle([Title])
@@ -5274,16 +5266,16 @@ static bool editorsettitleFunc(FarMacroCall* Data)
 
 	if (Global->CtrlObject->Macro.GetMode()==MACROAREA_EDITOR && Global->CtrlObject->Plugins->GetCurEditor() && Global->CtrlObject->Plugins->GetCurEditor()->IsVisible())
 	{
-		if (Title.isInteger() && !Title.i())
+		if (Title.isInteger() && !Title.asInteger())
 		{
 			Title=L"";
 			Title.toString();
 		}
-		Ret = Global->CtrlObject->Plugins->GetCurEditor()->EditorControl(ECTL_SETTITLE, 0, const_cast<wchar_t*>(Title.s()));
+		Ret = Global->CtrlObject->Plugins->GetCurEditor()->EditorControl(ECTL_SETTITLE, 0, const_cast<wchar_t*>(Title.asString().data()));
 	}
 
 	PassValue(&Ret, Data);
-	return Ret.i()!=0;
+	return Ret.asInteger()!=0;
 }
 
 // N=Editor.DelLine([Line])
@@ -5297,12 +5289,12 @@ static bool editordellineFunc(FarMacroCall* Data)
 	{
 		if (Line.isNumber())
 		{
-			Ret = Global->CtrlObject->Plugins->GetCurEditor()->VMProcess(MCODE_F_EDITOR_DELLINE, nullptr, Line.getInteger()-1);
+			Ret = Global->CtrlObject->Plugins->GetCurEditor()->VMProcess(MCODE_F_EDITOR_DELLINE, nullptr, Line.asInteger()-1);
 		}
 	}
 
 	PassValue(&Ret, Data);
-	return Ret.i()!=0;
+	return Ret.asInteger()!=0;
 }
 
 // N=Editor.InsStr([S[,Line]])
@@ -5323,12 +5315,12 @@ static bool editorinsstrFunc(FarMacroCall* Data)
 				S.toString();
 			}
 
-			Ret = Global->CtrlObject->Plugins->GetCurEditor()->VMProcess(MCODE_F_EDITOR_INSSTR, const_cast<wchar_t*>(S.s()), Line.getInteger()-1);
+			Ret = Global->CtrlObject->Plugins->GetCurEditor()->VMProcess(MCODE_F_EDITOR_INSSTR, const_cast<wchar_t*>(S.asString().data()), Line.asInteger()-1);
 		}
 	}
 
 	PassValue(&Ret, Data);
-	return Ret.i()!=0;
+	return Ret.asInteger()!=0;
 }
 
 // N=Editor.SetStr([S[,Line]])
@@ -5349,12 +5341,12 @@ static bool editorsetstrFunc(FarMacroCall* Data)
 				S.toString();
 			}
 
-			Ret = Global->CtrlObject->Plugins->GetCurEditor()->VMProcess(MCODE_F_EDITOR_SETSTR, const_cast<wchar_t*>(S.s()), Line.getInteger()-1);
+			Ret = Global->CtrlObject->Plugins->GetCurEditor()->VMProcess(MCODE_F_EDITOR_SETSTR, const_cast<wchar_t*>(S.asString().data()), Line.asInteger()-1);
 		}
 	}
 
 	PassValue(&Ret, Data);
-	return Ret.i()!=0;
+	return Ret.asInteger()!=0;
 }
 
 // N=Plugin.Exist(Guid)
@@ -5376,11 +5368,10 @@ static bool pluginloadFunc(FarMacroCall* Data)
 	auto Params = parseParams<2>(Data);
 	TVar Ret(0ll);
 	TVar& ForceLoad(Params[1]);
-	TVar& DllPath(Params[0]);
-	if (DllPath.s())
-		Ret = pluginapi::apiPluginsControl(nullptr, !ForceLoad.i()?PCTL_LOADPLUGIN:PCTL_FORCEDLOADPLUGIN, 0, const_cast<wchar_t*>(DllPath.s()));
+	const auto& DllPath = Params[0].asString();
+	Ret = pluginapi::apiPluginsControl(nullptr, !ForceLoad.asInteger()?PCTL_LOADPLUGIN:PCTL_FORCEDLOADPLUGIN, 0, const_cast<wchar_t*>(DllPath.data()));
 	PassValue(&Ret, Data);
-	return Ret.i()!=0;
+	return Ret.asInteger()!=0;
 }
 
 // N=Plugin.UnLoad(DllPath)
@@ -5418,7 +5409,7 @@ static bool testfolderFunc(FarMacroCall* Data)
 	if (tmpVar.isString())
 	{
 		SCOPED_ACTION(elevation::suppress);
-		Ret=(__int64)TestFolder(tmpVar.s());
+		Ret=(__int64)TestFolder(tmpVar.asString());
 	}
 
 	PassNumber(Ret, Data);

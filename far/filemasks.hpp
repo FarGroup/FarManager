@@ -47,7 +47,7 @@ public:
 	~filemasks();
 	filemasks(filemasks&& rhs);
 
-	filemasks& operator=(filemasks&& rhs) noexcept;
+	MOVE_OPERATOR_BY_SWAP(filemasks);
 
 	void swap(filemasks& rhs) noexcept;
 	bool Set(const string& Masks, DWORD Flags = 0);

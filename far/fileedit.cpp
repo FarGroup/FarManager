@@ -417,9 +417,7 @@ FileEditor::~FileEditor()
 		}
 	}
 
-	delete m_editor;
 	CurrentEditor=nullptr;
-	delete EditNamesList;
 }
 
 void FileEditor::Init(
@@ -451,9 +449,9 @@ void FileEditor::Init(
 	bEE_READ_Sent = false;
 	bLoaded = false;
 	m_bAddSignature = false;
-	m_editor = new Editor;
+	m_editor = std::make_unique<Editor>();
 
-	SCOPED_ACTION(SmartLock)(m_editor);
+	SCOPED_ACTION(SmartLock)(m_editor.get());
 
 	m_codepage = codepage;
 	m_editor->SetOwner(this);
@@ -463,7 +461,6 @@ void FileEditor::Init(
 	FileAttributes=INVALID_FILE_ATTRIBUTES;
 	FileAttributesModified=false;
 	SetTitle(Title);
-	EditNamesList = nullptr;
 	KeyBarVisible = Global->Opt->EdOpt.ShowKeyBar;
 	TitleBarVisible = Global->Opt->EdOpt.ShowTitleBar;
 	// $ 17.08.2001 KM - Добавлено для поиска по AltF7. При редактировании найденного файла из архива для клавиши F2 сделать вызов ShiftF2.
@@ -748,10 +745,7 @@ void FileEditor::InitKeyBar()
 
 void FileEditor::SetNamesList(NamesList& Names)
 {
-	if (!EditNamesList)
-		EditNamesList = new NamesList;
-
-	*EditNamesList = std::move(Names);
+	EditNamesList = std::move(Names);
 }
 
 void FileEditor::Show()
@@ -926,7 +920,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 						new FileViewer(
 							strFullFileName,
 							GetCanLoseFocus(), Flags.Check(FFILEEDIT_DISABLEHISTORY), FALSE,
-							FilePos, nullptr, EditNamesList, Flags.Check(FFILEEDIT_SAVETOSAVEAS), cp,
+							FilePos, nullptr, &EditNamesList, Flags.Check(FFILEEDIT_SAVETOSAVEAS), cp,
 							strTitle.empty() ? nullptr : strTitle.data(),
 							delete_on_close);
 					}

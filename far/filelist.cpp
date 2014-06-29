@@ -815,7 +815,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			{
 				if (mps->Mode == 2)
 				{
-					itemsList = StringToList(mps->Item->s(), STLF_UNIQUE,  L"\r\n");
+					itemsList = StringToList(mps->Item->asString(), STLF_UNIQUE,  L"\r\n");
 					if (itemsList.empty())
 						return Result;
 				}
@@ -853,7 +853,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							break;
 						}
 						case 3: // масками файлов, разделенных запятыми
-							Result=SelectFiles(SELECT_REMOVEMASK,mps->Item->s());
+							Result=SelectFiles(SELECT_REMOVEMASK,mps->Item->asString().data());
 							break;
 					}
 					break;
@@ -889,7 +889,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							break;
 						}
 						case 3: // масками файлов, разделенных запятыми
-							Result=SelectFiles(SELECT_ADDMASK,mps->Item->s());
+							Result=SelectFiles(SELECT_ADDMASK,mps->Item->asString().data());
 							break;
 					}
 					break;
@@ -925,7 +925,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							break;
 						}
 						case 3: // масками файлов, разделенных запятыми
-							Result=SelectFiles(SELECT_INVERTMASK,mps->Item->s());
+							Result=SelectFiles(SELECT_INVERTMASK,mps->Item->asString().data());
 							break;
 					}
 					break;
@@ -5590,8 +5590,9 @@ void FileList::PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi)
 
 	if (pi->Description)
 	{
-		fi->DizText=new wchar_t[StrLength(pi->Description)+1];
-		wcscpy(fi->DizText, pi->Description);
+		auto Str = new wchar_t[StrLength(pi->Description)+1];
+		wcscpy(Str, pi->Description);
+		fi->DizText = Str;
 		fi->DeleteDiz=true;
 	}
 	else
@@ -7319,7 +7320,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 		if (!i.DizText)
 		{
 			i.DeleteDiz = false;
-			i.DizText = const_cast<wchar_t*>(Diz.GetDizTextAddr(i.strName, i.strShortName, i.FileSize));
+			i.DizText = Diz.GetDizTextAddr(i.strName, i.strShortName, i.FileSize);
 		}
 	});
 }

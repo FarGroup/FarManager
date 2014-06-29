@@ -82,7 +82,7 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,b
 		// если было прерывание в процессе сканирования и это было дерево копира...
 		if (Tree->GetExitCode())
 		{
-			FindEdit = new EditControl(this);
+			FindEdit = std::make_unique<EditControl>(this);
 			FindEdit->SetEditBeyondEnd(false);
 			FindEdit->SetPersistentBlocks(Global->Opt->Dialogs.EditBlock);
 			InitKeyBar();
@@ -97,7 +97,6 @@ FolderTree::~FolderTree()
 	Global->CtrlObject->Macro.SetMode(PrevMacroMode);
 
 	// delete TopScreen;
-	delete FindEdit;
 
 	if (Tree)
 		Tree->Destroy();

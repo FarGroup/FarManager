@@ -4327,7 +4327,11 @@ void Dialog::Process()
 	ClearStruct(PrevMouseRecord);
 	ClearDone();
 	InitDialog();
-	TaskBarError *TBE=DialogMode.Check(DMODE_WARNINGSTYLE)?new TaskBarError:nullptr;
+	std::unique_ptr<TaskBarError> TBE;
+	if (DialogMode.Check(DMODE_WARNINGSTYLE))
+	{
+		TBE = std::make_unique<TaskBarError>();
+	}
 
 	if (ExitCode == -1)
 	{
@@ -4352,8 +4356,6 @@ void Dialog::Process()
 
 	if (SavedItems)
 		std::transform(ALL_CONST_RANGE(Items), SavedItems, [](const VALUE_TYPE(Items)& i) { return i; });
-
-	delete TBE;
 }
 
 intptr_t Dialog::CloseDialog()

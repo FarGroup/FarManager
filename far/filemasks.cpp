@@ -119,12 +119,6 @@ filemasks::filemasks(filemasks&& rhs)
 	*this = std::move(rhs);
 }
 
-filemasks& filemasks::operator=(filemasks&& rhs) noexcept
-{
-	swap(rhs);
-	return *this;
-}
-
 void filemasks::swap(filemasks& rhs) noexcept
 {
 	Include.swap(rhs.Include);
