@@ -3,6 +3,62 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 29.06.2014 19:09:47 +0200 - build 3969
+
+1. Refactoring.
+
+2. Removed unused code from tvar.?pp.
+
+zg 29.06.2014 16:27:02 +0200 - build 3968
+
+1. 0002723: ECTL_GETINFO does not work when invoking an editor from an editor
+
+drkns 28.06.2014 02:43:22 +0200 - build 3967
+
+1. Refactoring.
+
+drkns 27.06.2014 19:53:08 +0200 - build 3966
+
+1. Restore broken GCC build.
+
+2. GCC warning.
+
+3. Refactoring.
+
+svs 26.06.2014 14:23:24 +0400 - build 3965
+
+1. Mantis#0002692: No way to cancel an operation launched from a macro
+   Rollback of build 3963 until better times. Bugs spotted.
+
+w17 26.06.2014 00:16:21 +0400 - build 3964
+
+1. Another correction of 3956.
+   It still does not work via Plugin API.
+
+2. M#2540: Viewer Search always starts from the beginning of the file
+   INCOMPLETED!
+
+svs 25.06.2014 11:17:19 +0400 - build 3963
+
+1. Mantis#0002692: No way to cancel an operation launched from a macro
+   Let's comment it and watch.
+
+w17 25.06.2014 00:16:56 +0400 - build 3962
+
+1. Correction of 3960.
+
+drkns 24.06.2014 19:41:46 +0200 - build 3961
+
+1. Correction of 3958.
+
+w17 24.06.2014 20:02:53 +0400 - build 3960
+
+1. M#2706: Errors not processed while converting to UTF-7
+
+w17 23.06.2014 14:41:05 +0400 - build 3959
+
+1. Correction of 3956.
+
 drkns 21.06.2014 15:51:25 +0200 - build 3958
 
 1. On launch via 'Far.exe /p%FARPROFILE%\Plugins' the plugins were not loaded.
