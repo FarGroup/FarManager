@@ -247,8 +247,12 @@ local function test_key()
   assert(mf.key("foobar")=="")
 end
 
-local function test_float()
-  assert(mf.float("2.56e1")==25.6)
+-- Separate tests for mf.float and mf.string are locale-dependant, thus they are tested together.
+local function test_float_and_string()
+  local t = { 0, -0, 2.56e1, -5.37, -2.2e100, 2.2e-100 }
+  for _,num in ipairs(t) do
+    assert(mf.float(mf.string(num))==num)
+  end
 end
 
 local function test_lcase()
@@ -298,10 +302,6 @@ local function test_rindex()
   assert(mf.rindex("language","a",1)==5)
   assert(mf.rindex("language","A",1)==-1)
   assert(mf.rindex("language","A",0)==5)
-end
-
-local function test_string()
-  assert(mf.string(-5.7)=="-5.7")
 end
 
 local function test_strpad()
@@ -469,7 +469,7 @@ local function test_mf()
   test_exit()
   test_fattr()
   test_fexist()
-  test_float()
+  test_float_and_string()
   test_flock()
   test_fmatch()
   test_fsplit()
@@ -496,7 +496,6 @@ local function test_mf()
   test_rindex()
   test_size2str()
   test_sleep()
-  test_string()
   test_strpad()
   test_strwrap()
   test_substr()
