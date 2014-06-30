@@ -40,11 +40,15 @@ private:
 	class function_pointer
 	{
 	public:
-		function_pointer():pointer(nullptr) {}
-		function_pointer& operator=(FARPROC value) {pointer = reinterpret_cast<T>(value); return *this;}
-		operator T() const {return pointer;}
+		operator T() const { return pointer; }
 
 	private:
+		friend class ImportedFunctions;
+
+		function_pointer(): pointer(nullptr) {}
+		function_pointer& operator=(FARPROC value) { pointer = reinterpret_cast<T>(value); return *this; }
+		function_pointer& operator=(T value) { pointer = value; return *this; }
+
 		T pointer;
 	};
 
@@ -63,9 +67,9 @@ private:
 	};
 
 #define DECLARE_IMPORT_FUNCTION(RETTYPE, CALLTYPE, NAME, ARGS)\
-private: function_pointer<RETTYPE (CALLTYPE*)ARGS> pfn##NAME;\
-public: RETTYPE NAME ARGS const;\
-public: bool NAME##Present() const {return pfn##NAME != nullptr;}
+public: function_pointer<RETTYPE (CALLTYPE*)ARGS> NAME;\
+private: static RETTYPE CALLTYPE stub_##NAME ARGS;\
+public: bool NAME##Present() const {return NAME.pointer != &ImportedFunctions::stub_##NAME;}
 
 	// kernel32
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, GetConsoleKeyboardLayoutNameW, (LPWSTR Buffer))

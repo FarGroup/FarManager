@@ -75,7 +75,10 @@ ImportedFunctions::ImportedFunctions():
 	m_VirtDisk(L"virtdisk"),
 	m_RstrtMgr(L"rstrtmgr")
 {
-	#define InitImport(Module, Name) pfn##Name = Module.GetProcAddress(#Name)
+	#define InitImport(Module, Name)\
+	Name = Module.GetProcAddress(#Name);\
+	if (!Name)\
+		Name = &ImportedFunctions::stub_##Name;
 
 	if (m_Kernel)
 	{
@@ -146,478 +149,209 @@ ImportedFunctions::ImportedFunctions():
 }
 
 
-BOOL ImportedFunctions::GetConsoleKeyboardLayoutNameW(LPWSTR Buffer) const
+BOOL ImportedFunctions::stub_GetConsoleKeyboardLayoutNameW(LPWSTR Buffer)
 {
-	if(pfnGetConsoleKeyboardLayoutNameW)
-	{
-		return pfnGetConsoleKeyboardLayoutNameW(Buffer);
-	}
-	else
-	{
-		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-		return FALSE;
-	}
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return FALSE;
 }
 
-BOOLEAN ImportedFunctions::CreateSymbolicLinkW(LPCWSTR SymlinkFileName, LPCWSTR TargetFileName, DWORD Flags) const
+BOOLEAN ImportedFunctions::stub_CreateSymbolicLinkW(LPCWSTR SymlinkFileName, LPCWSTR TargetFileName, DWORD Flags)
 {
-	if(pfnCreateSymbolicLinkW)
-	{
-		return pfnCreateSymbolicLinkW(SymlinkFileName, TargetFileName, Flags);
-	}
-	else
-	{
-		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-		return FALSE;
-	}
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return FALSE;
 }
 
-HANDLE ImportedFunctions::FindFirstFileNameW(LPCWSTR FileName, DWORD Flags, LPDWORD StringLength, LPWSTR LinkName) const
+HANDLE ImportedFunctions::stub_FindFirstFileNameW(LPCWSTR FileName, DWORD Flags, LPDWORD StringLength, LPWSTR LinkName)
 {
-	if(pfnFindFirstFileNameW)
-	{
-		return pfnFindFirstFileNameW(FileName, Flags, StringLength, LinkName);
-	}
-	else
-	{
-		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-		return INVALID_HANDLE_VALUE;
-	}
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return INVALID_HANDLE_VALUE;
 }
 
-BOOL ImportedFunctions::FindNextFileNameW(HANDLE FindStream, LPDWORD StringLength, PWCHAR LinkName) const
+BOOL ImportedFunctions::stub_FindNextFileNameW(HANDLE FindStream, LPDWORD StringLength, PWCHAR LinkName)
 {
-	if(pfnFindNextFileNameW)
-	{
-		return pfnFindNextFileNameW(FindStream, StringLength, LinkName);
-	}
-	else
-	{
-		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-		return FALSE;
-	}
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return FALSE;
 }
 
-HANDLE ImportedFunctions::FindFirstStreamW(LPCWSTR FileName, STREAM_INFO_LEVELS InfoLevel, LPVOID FindStreamData, DWORD Flags) const
+HANDLE ImportedFunctions::stub_FindFirstStreamW(LPCWSTR FileName, STREAM_INFO_LEVELS InfoLevel, LPVOID FindStreamData, DWORD Flags)
 {
-	if(pfnFindFirstStreamW)
-	{
-		return pfnFindFirstStreamW(FileName, InfoLevel, FindStreamData, Flags);
-	}
-	else
-	{
-		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-		return INVALID_HANDLE_VALUE;
-	}
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return INVALID_HANDLE_VALUE;
 }
 
-BOOL ImportedFunctions::FindNextStreamW(HANDLE FindStream, LPVOID FindStreamData) const
+BOOL ImportedFunctions::stub_FindNextStreamW(HANDLE FindStream, LPVOID FindStreamData)
 {
-	if(pfnFindNextStreamW)
-	{
-		return pfnFindNextStreamW(FindStream, FindStreamData);
-	}
-	else
-	{
-		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-		return FALSE;
-	}
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return FALSE;
 }
 
-DWORD ImportedFunctions::GetFinalPathNameByHandleW(HANDLE File, LPWSTR FilePath, DWORD FilePathSize, DWORD Flags) const
+DWORD ImportedFunctions::stub_GetFinalPathNameByHandleW(HANDLE File, LPWSTR FilePath, DWORD FilePathSize, DWORD Flags)
 {
-	if(pfnGetFinalPathNameByHandleW)
-	{
-		// It is known that GetFinalPathNameByHandle crashes on Windows 7 with Ext2FSD
-		try
-		{
-			return pfnGetFinalPathNameByHandleW(File, FilePath, FilePathSize, Flags);
-		}
-		catch (SException& e)
-		{
-			if (e.GetCode() == EXCEPTION_ACCESS_VIOLATION)
-				return 0;
-			throw;
-		}
-	}
-	else
-	{
-		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-		return 0;
-	}
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return 0;
 }
 
-BOOL ImportedFunctions::GetVolumePathNamesForVolumeNameW(LPCWSTR VolumeName, LPWSTR VolumePathNames, DWORD BufferLength, PDWORD ReturnLength) const
+BOOL ImportedFunctions::stub_GetVolumePathNamesForVolumeNameW(LPCWSTR VolumeName, LPWSTR VolumePathNames, DWORD BufferLength, PDWORD ReturnLength)
 {
-	if(pfnGetVolumePathNamesForVolumeNameW)
-	{
-		return pfnGetVolumePathNamesForVolumeNameW(VolumeName, VolumePathNames, BufferLength, ReturnLength);
-	}
-	else
-	{
-		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-		return FALSE;
-	}
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return FALSE;
 }
 
-BOOL ImportedFunctions::GetPhysicallyInstalledSystemMemory(PULONGLONG TotalMemoryInKilobytes) const
+BOOL ImportedFunctions::stub_GetPhysicallyInstalledSystemMemory(PULONGLONG TotalMemoryInKilobytes)
 {
-	if(pfnGetPhysicallyInstalledSystemMemory)
-	{
-		return pfnGetPhysicallyInstalledSystemMemory(TotalMemoryInKilobytes);
-	}
-	else
-	{
-		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-		return FALSE;
-	}
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return FALSE;
 }
 
-BOOL ImportedFunctions::HeapSetInformation(HANDLE HeapHandle, HEAP_INFORMATION_CLASS HeapInformationClass, PVOID HeapInformation, SIZE_T HeapInformationLength) const
+BOOL ImportedFunctions::stub_HeapSetInformation(HANDLE HeapHandle, HEAP_INFORMATION_CLASS HeapInformationClass, PVOID HeapInformation, SIZE_T HeapInformationLength)
 {
-	if(pfnHeapSetInformation)
-	{
-		return pfnHeapSetInformation(HeapHandle, HeapInformationClass, HeapInformation, HeapInformationLength);
-	}
-	else
-	{
-		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-		return FALSE;
-	}
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return FALSE;
 }
 
-BOOL ImportedFunctions::IsWow64Process(HANDLE Process, PBOOL Wow64Process) const
+BOOL ImportedFunctions::stub_IsWow64Process(HANDLE Process, PBOOL Wow64Process)
 {
-	if(pfnIsWow64Process)
-	{
-		return pfnIsWow64Process(Process, Wow64Process);
-	}
-	else
-	{
-		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-		return FALSE;
-	}
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return FALSE;
 }
 
-BOOL ImportedFunctions::GetNamedPipeServerProcessId(HANDLE Pipe, PULONG ServerProcessId) const
+BOOL ImportedFunctions::stub_GetNamedPipeServerProcessId(HANDLE Pipe, PULONG ServerProcessId)
 {
-	if(pfnGetNamedPipeServerProcessId)
-	{
-		return pfnGetNamedPipeServerProcessId(Pipe, ServerProcessId);
-	}
-	else
-	{
-		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-		return FALSE;
-	}
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return FALSE;
 }
 
-BOOL ImportedFunctions::CancelSynchronousIo(HANDLE Thread) const
+BOOL ImportedFunctions::stub_CancelSynchronousIo(HANDLE Thread)
 {
-	if(pfnCancelSynchronousIo)
-	{
-		return pfnCancelSynchronousIo(Thread);
-	}
-	else
-	{
-		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-		return FALSE;
-	}
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return FALSE;
 }
 
-BOOL ImportedFunctions::SetConsoleKeyShortcuts(BOOL Set, BYTE ReserveKeys, LPVOID AppKeys, DWORD NumAppKeys) const
+BOOL ImportedFunctions::stub_SetConsoleKeyShortcuts(BOOL Set, BYTE ReserveKeys, LPVOID AppKeys, DWORD NumAppKeys)
 {
-	if(pfnSetConsoleKeyShortcuts)
-	{
-		return pfnSetConsoleKeyShortcuts(Set, ReserveKeys, AppKeys, NumAppKeys);
-	}
-	else
-	{
-		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-		return FALSE;
-	}
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return FALSE;
 }
 
-BOOL ImportedFunctions::GetConsoleScreenBufferInfoEx(HANDLE ConsoleOutput, PCONSOLE_SCREEN_BUFFER_INFOEX ConsoleScreenBufferInfoEx) const
+BOOL ImportedFunctions::stub_GetConsoleScreenBufferInfoEx(HANDLE ConsoleOutput, PCONSOLE_SCREEN_BUFFER_INFOEX ConsoleScreenBufferInfoEx)
 {
-	if(pfnGetConsoleScreenBufferInfoEx)
-	{
-		return pfnGetConsoleScreenBufferInfoEx(ConsoleOutput, ConsoleScreenBufferInfoEx);
-	}
-	else
-	{
-		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-		return FALSE;
-	}
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return FALSE;
 }
 
-BOOL ImportedFunctions::TzSpecificLocalTimeToSystemTime(const TIME_ZONE_INFORMATION* TimeZoneInformation, const SYSTEMTIME* LocalTime, LPSYSTEMTIME UniversalTime) const
+BOOL ImportedFunctions::stub_TzSpecificLocalTimeToSystemTime(const TIME_ZONE_INFORMATION* TimeZoneInformation, const SYSTEMTIME* LocalTime, LPSYSTEMTIME UniversalTime)
 {
-	if(pfnTzSpecificLocalTimeToSystemTime)
-	{
-		return pfnTzSpecificLocalTimeToSystemTime(TimeZoneInformation, LocalTime, UniversalTime);
-	}
-	else
-	{
-		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-		return FALSE;
-	}
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return FALSE;
 }
 
 
-NTSTATUS ImportedFunctions::NtQueryDirectoryFile(HANDLE FileHandle, HANDLE Event, PVOID ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, BOOLEAN ReturnSingleEntry, PUNICODE_STRING FileName, BOOLEAN RestartScan) const
+NTSTATUS ImportedFunctions::stub_NtQueryDirectoryFile(HANDLE FileHandle, HANDLE Event, PVOID ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, BOOLEAN ReturnSingleEntry, PUNICODE_STRING FileName, BOOLEAN RestartScan)
 {
-	if(pfnNtQueryDirectoryFile)
-	{
-		return pfnNtQueryDirectoryFile(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, FileName, RestartScan);
-	}
-	else
-	{
+	return STATUS_NOT_IMPLEMENTED;
+}
+
+NTSTATUS ImportedFunctions::stub_NtQueryInformationFile(HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass)
+{
+	return STATUS_NOT_IMPLEMENTED;
+}
+
+NTSTATUS ImportedFunctions::stub_NtSetInformationFile(HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass)
+{
+	return STATUS_NOT_IMPLEMENTED;
+}
+
+NTSTATUS ImportedFunctions::stub_NtQueryObject(HANDLE Handle, OBJECT_INFORMATION_CLASS ObjectInformationClass, PVOID ObjectInformation, ULONG ObjectInformationLength, PULONG ReturnLength)
+{
+	return STATUS_NOT_IMPLEMENTED;
+}
+
+NTSTATUS ImportedFunctions::stub_NtOpenSymbolicLinkObject(PHANDLE LinkHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes)
+{
+	return STATUS_NOT_IMPLEMENTED;
+}
+
+NTSTATUS ImportedFunctions::stub_NtQuerySymbolicLinkObject(HANDLE LinkHandle, PUNICODE_STRING LinkTarget, PULONG ReturnedLength)
+{
+	return STATUS_NOT_IMPLEMENTED;
+}
+
+NTSTATUS ImportedFunctions::stub_NtClose(HANDLE Handle)
+{
+	return STATUS_NOT_IMPLEMENTED;
+}
+
+NTSTATUS ImportedFunctions::stub_RtlGetLastNtStatus()
+{
 		return STATUS_NOT_IMPLEMENTED;
-	}
 }
 
-NTSTATUS ImportedFunctions::NtQueryInformationFile(HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass) const
+NTSTATUS ImportedFunctions::stub_RtlNtStatusToDosError(NTSTATUS Status)
 {
-	if(pfnNtQueryInformationFile)
-	{
-		return pfnNtQueryInformationFile(FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass);
-	}
-	else
-	{
-		return STATUS_NOT_IMPLEMENTED;
-	}
-}
-
-NTSTATUS ImportedFunctions::NtSetInformationFile(HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass) const
-{
-	if(pfnNtSetInformationFile)
-	{
-		return pfnNtSetInformationFile(FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass);
-	}
-	else
-	{
-		return STATUS_NOT_IMPLEMENTED;
-	}
-}
-
-NTSTATUS ImportedFunctions::NtQueryObject(HANDLE Handle, OBJECT_INFORMATION_CLASS ObjectInformationClass, PVOID ObjectInformation, ULONG ObjectInformationLength, PULONG ReturnLength) const
-{
-	if(pfnNtQueryObject)
-	{
-		return pfnNtQueryObject(Handle, ObjectInformationClass, ObjectInformation, ObjectInformationLength, ReturnLength);
-	}
-	else
-	{
-		return STATUS_NOT_IMPLEMENTED;
-	}
-}
-
-NTSTATUS ImportedFunctions::NtOpenSymbolicLinkObject(PHANDLE LinkHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes) const
-{
-	if(pfnNtOpenSymbolicLinkObject)
-	{
-		return pfnNtOpenSymbolicLinkObject(LinkHandle, DesiredAccess, ObjectAttributes);
-	}
-	else
-	{
-		return STATUS_NOT_IMPLEMENTED;
-	}
-}
-
-NTSTATUS ImportedFunctions::NtQuerySymbolicLinkObject(HANDLE LinkHandle, PUNICODE_STRING LinkTarget, PULONG ReturnedLength) const
-{
-	if(pfnNtQuerySymbolicLinkObject)
-	{
-		return pfnNtQuerySymbolicLinkObject(LinkHandle, LinkTarget, ReturnedLength);
-	}
-	else
-	{
-		return STATUS_NOT_IMPLEMENTED;
-	}
-}
-
-NTSTATUS ImportedFunctions::NtClose(HANDLE Handle) const
-{
-	if(pfnNtClose)
-	{
-		return pfnNtClose(Handle);
-	}
-	else
-	{
-		return STATUS_NOT_IMPLEMENTED;
-	}
-}
-
-NTSTATUS ImportedFunctions::RtlGetLastNtStatus() const
-{
-	if(pfnRtlGetLastNtStatus)
-	{
-		return pfnRtlGetLastNtStatus();
-	}
-	else
-	{
-		return STATUS_NOT_IMPLEMENTED;
-	}
-}
-
-NTSTATUS ImportedFunctions::RtlNtStatusToDosError(NTSTATUS Status) const
-{
-	if(pfnRtlNtStatusToDosError)
-	{
-		return pfnRtlNtStatusToDosError(Status);
-	}
-	else
-	{
-		return STATUS_NOT_IMPLEMENTED;
-	}
+	return STATUS_NOT_IMPLEMENTED;
 }
 
 
-HRESULT ImportedFunctions::SHCreateAssociationRegistration(REFIID riid, void ** ppv) const
+HRESULT ImportedFunctions::stub_SHCreateAssociationRegistration(REFIID riid, void ** ppv)
 {
-	if(pfnSHCreateAssociationRegistration)
-	{
-		return pfnSHCreateAssociationRegistration(riid, ppv);
-	}
-	else
-	{
-		return ERROR_CALL_NOT_IMPLEMENTED;
-	}
+	return ERROR_CALL_NOT_IMPLEMENTED;
 }
 
 
-DWORD ImportedFunctions::GetStorageDependencyInformation(HANDLE ObjectHandle, GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed) const
+DWORD ImportedFunctions::stub_GetStorageDependencyInformation(HANDLE ObjectHandle, GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed)
 {
-	if(pfnGetStorageDependencyInformation)
-	{
-		return pfnGetStorageDependencyInformation(ObjectHandle, Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed);
-	}
-	else
-	{
-		return ERROR_CALL_NOT_IMPLEMENTED;
-	}
+	return ERROR_CALL_NOT_IMPLEMENTED;
 }
 
-DWORD ImportedFunctions::OpenVirtualDisk(PVIRTUAL_STORAGE_TYPE VirtualStorageType, PCWSTR Path, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, POPEN_VIRTUAL_DISK_PARAMETERS Parameters, PHANDLE Handle) const
+DWORD ImportedFunctions::stub_OpenVirtualDisk(PVIRTUAL_STORAGE_TYPE VirtualStorageType, PCWSTR Path, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, POPEN_VIRTUAL_DISK_PARAMETERS Parameters, PHANDLE Handle)
 {
-	if(pfnOpenVirtualDisk)
-	{
-		return pfnOpenVirtualDisk(VirtualStorageType, Path, VirtualDiskAccessMask, Flags, Parameters, Handle);
-	}
-	else
-	{
-		return ERROR_CALL_NOT_IMPLEMENTED;
-	}
+	return ERROR_CALL_NOT_IMPLEMENTED;
 }
 
-DWORD ImportedFunctions::DetachVirtualDisk(HANDLE VirtualDiskHandle, DETACH_VIRTUAL_DISK_FLAG Flags, ULONG ProviderSpecificFlags) const
+DWORD ImportedFunctions::stub_DetachVirtualDisk(HANDLE VirtualDiskHandle, DETACH_VIRTUAL_DISK_FLAG Flags, ULONG ProviderSpecificFlags)
 {
-	if(pfnDetachVirtualDisk)
-	{
-		return pfnDetachVirtualDisk(VirtualDiskHandle, Flags, ProviderSpecificFlags);
-	}
-	else
-	{
-		return ERROR_CALL_NOT_IMPLEMENTED;
-	}
+	return ERROR_CALL_NOT_IMPLEMENTED;
 }
 
-BOOL ImportedFunctions::UnregisterPowerSettingNotification(HPOWERNOTIFY Handle) const
+BOOL ImportedFunctions::stub_UnregisterPowerSettingNotification(HPOWERNOTIFY Handle)
 {
-	if(pfnUnregisterPowerSettingNotification)
-	{
-		return pfnUnregisterPowerSettingNotification(Handle);
-	}
-	else
-	{
 		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 		return FALSE;
-	}
 }
 
-HPOWERNOTIFY ImportedFunctions::RegisterPowerSettingNotification(HANDLE hRecipient,LPCGUID PowerSettingGuid,DWORD Flags) const
+HPOWERNOTIFY ImportedFunctions::stub_RegisterPowerSettingNotification(HANDLE hRecipient, LPCGUID PowerSettingGuid, DWORD Flags)
 {
-	if(pfnRegisterPowerSettingNotification)
-	{
-		return pfnRegisterPowerSettingNotification(hRecipient,PowerSettingGuid,Flags);
-	}
-	else
-	{
-		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-		return nullptr;
-	}
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return nullptr;
 }
 
-BOOL ImportedFunctions::QueryFullProcessImageNameW(HANDLE Process, DWORD Flags, LPWSTR ExeName, PDWORD Size) const
+BOOL ImportedFunctions::stub_QueryFullProcessImageNameW(HANDLE Process, DWORD Flags, LPWSTR ExeName, PDWORD Size)
 {
-	if(pfnQueryFullProcessImageNameW)
-	{
-		return pfnQueryFullProcessImageNameW(Process, Flags, ExeName, Size);
-	}
-	else
-	{
-		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-		return FALSE;
-	}
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return FALSE;
 }
 
-DWORD ImportedFunctions::RmStartSession(DWORD *SessionHandle, DWORD SessionFlags, WCHAR strSessionKey[]) const
+DWORD ImportedFunctions::stub_RmStartSession(DWORD *SessionHandle, DWORD SessionFlags, WCHAR strSessionKey [])
 {
-	if(pfnRmStartSession)
-	{
-		return pfnRmStartSession(SessionHandle, SessionFlags, strSessionKey);
-	}
-	else
-	{
-		return ERROR_CALL_NOT_IMPLEMENTED;
-	}
+	return ERROR_CALL_NOT_IMPLEMENTED;
 }
 
-DWORD ImportedFunctions::RmEndSession(DWORD dwSessionHandle) const
+DWORD ImportedFunctions::stub_RmEndSession(DWORD dwSessionHandle)
 {
-	if(pfnRmEndSession)
-	{
-		return pfnRmEndSession(dwSessionHandle);
-	}
-	else
-	{
-		return ERROR_CALL_NOT_IMPLEMENTED;
-	}
+	return ERROR_CALL_NOT_IMPLEMENTED;
 }
 
-DWORD ImportedFunctions::RmRegisterResources(DWORD dwSessionHandle, UINT nFiles, LPCWSTR rgsFilenames[], UINT nApplications, RM_UNIQUE_PROCESS rgApplications[], UINT nServices, LPCWSTR rgsServiceNames[]) const
+DWORD ImportedFunctions::stub_RmRegisterResources(DWORD dwSessionHandle, UINT nFiles, LPCWSTR rgsFilenames [], UINT nApplications, RM_UNIQUE_PROCESS rgApplications [], UINT nServices, LPCWSTR rgsServiceNames [])
 {
-	if(pfnRmRegisterResources)
-	{
-		return pfnRmRegisterResources(dwSessionHandle, nFiles, rgsFilenames, nApplications, rgApplications, nServices, rgsServiceNames);
-	}
-	else
-	{
-		return ERROR_CALL_NOT_IMPLEMENTED;
-	}
+	return ERROR_CALL_NOT_IMPLEMENTED;
 }
 
-DWORD ImportedFunctions::RmGetList(DWORD dwSessionHandle, UINT *pnProcInfoNeeded, UINT *pnProcInfo, RM_PROCESS_INFO rgAffectedApps[], LPDWORD lpdwRebootReasons) const
+DWORD ImportedFunctions::stub_RmGetList(DWORD dwSessionHandle, UINT *pnProcInfoNeeded, UINT *pnProcInfo, RM_PROCESS_INFO rgAffectedApps [], LPDWORD lpdwRebootReasons)
 {
-	if(pfnRmGetList)
-	{
-		return pfnRmGetList(dwSessionHandle, pnProcInfoNeeded, pnProcInfo, rgAffectedApps, lpdwRebootReasons);
-	}
-	else
-	{
-		return ERROR_CALL_NOT_IMPLEMENTED;
-	}
+	return ERROR_CALL_NOT_IMPLEMENTED;
 }
 
-NET_API_STATUS ImportedFunctions::NetDfsGetInfo(LPWSTR path, LPWSTR reserved1, LPWSTR reserved2, DWORD level, LPBYTE *buff) const
+NET_API_STATUS ImportedFunctions::stub_NetDfsGetInfo(LPWSTR path, LPWSTR reserved1, LPWSTR reserved2, DWORD level, LPBYTE *buff)
 {
-	if (pfnNetDfsGetInfo)
-	{
-		return pfnNetDfsGetInfo(path, reserved1, reserved2, level, buff);
-	}
-	else
-	{
-		return NERR_InvalidAPI;
-	}
+	return NERR_InvalidAPI;
 }
