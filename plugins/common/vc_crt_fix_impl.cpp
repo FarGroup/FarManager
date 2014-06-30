@@ -32,51 +32,65 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <windows.h>
 
-// EncodePointer / DecodePointer (VC2010)
-static PVOID WINAPI ReturnSamePointer(PVOID Ptr)
+template<typename T>
+inline T GetFunctionPointer(const wchar_t* ModuleName, const char* FunctionName, T Replacement)
 {
-	return Ptr;
+	auto Address = GetProcAddress(GetModuleHandleW(ModuleName), FunctionName);
+	return Address? reinterpret_cast<T>(Address) : Replacement;
 }
 
-template<class T>
-static PVOID WINAPI Wrapper(PVOID Ptr)
+#define CREATE_FUNCTION_POINTER(ModuleName, FunctionName)\
+static auto Function = GetFunctionPointer(ModuleName, #FunctionName, &implementation::FunctionName)
+
+static const wchar_t kernel32[] = L"kernel32";
+
+// EncodePointer (VC2010)
+extern "C" PVOID WINAPI EncodePointerWrapper(PVOID Ptr)
 {
-	typedef PVOID (WINAPI *PointerFunction)(PVOID);
-	static PVOID FunctionAddress = GetProcAddress(GetModuleHandleW(L"kernel32"), T::get());
-	static PointerFunction ProcessPointer = FunctionAddress? reinterpret_cast<PointerFunction>(FunctionAddress) : ReturnSamePointer;
-	return ProcessPointer(Ptr);
+	struct implementation
+	{
+		static PVOID WINAPI EncodePointer(PVOID Ptr) { return Ptr; }
+	};
+
+	CREATE_FUNCTION_POINTER(kernel32, EncodePointer);
+	return Function(Ptr);
 }
 
-#define STRING_OBJECT(name, string) struct name {static const char* get() {return string;}}
-extern "C"
+// DecodePointer(VC2010)
+extern "C" PVOID WINAPI DecodePointerWrapper(PVOID Ptr)
 {
-	PVOID WINAPI EncodePointerWrapper(PVOID Ptr) {STRING_OBJECT(EncodePointerName, "EncodePointer"); return Wrapper<EncodePointerName>(Ptr);}
-	PVOID WINAPI DecodePointerWrapper(PVOID Ptr) {STRING_OBJECT(DecodePointerName, "DecodePointer"); return Wrapper<DecodePointerName>(Ptr);}
-}
+	struct implementation
+	{
+		static PVOID WINAPI DecodePointer(PVOID Ptr) { return Ptr; }
+	};
 
+	CREATE_FUNCTION_POINTER(kernel32, DecodePointer);
+	return Function(Ptr);
+}
 
 // GetModuleHandleExW (VC2012)
-static BOOL WINAPI GetModuleHandleExWImpl(DWORD Flags, LPCWSTR ModuleName, HMODULE *Module)
-{
-	BOOL Result = FALSE;
-	if (Flags)
-	{
-		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-	}
-	else
-	{
-		if ((*Module = GetModuleHandleW(ModuleName)))
-		{
-			Result = TRUE;
-		}
-	}
-	return Result;
-}
-
 extern "C" BOOL WINAPI GetModuleHandleExWWrapper(DWORD Flags, LPCWSTR ModuleName, HMODULE *Module)
 {
-	typedef BOOL (WINAPI *GetModuleHandleExWFunction)(DWORD, LPCWSTR, HMODULE*);
-	static PVOID FunctionAddress = GetProcAddress(GetModuleHandleW(L"kernel32"), "GetModuleHandleExW");
-	static GetModuleHandleExWFunction ProcessGetModuleHandleExW = FunctionAddress? reinterpret_cast<GetModuleHandleExWFunction>(FunctionAddress) : GetModuleHandleExWImpl;
-	return ProcessGetModuleHandleExW(Flags, ModuleName, Module);
+	struct implementation
+	{
+		static BOOL WINAPI GetModuleHandleExW(DWORD Flags, LPCWSTR ModuleName, HMODULE *Module)
+		{
+			BOOL Result = FALSE;
+			if (Flags)
+			{
+				SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+			}
+			else
+			{
+				if ((*Module = GetModuleHandleW(ModuleName)))
+				{
+					Result = TRUE;
+				}
+			}
+			return Result;
+		}
+	};
+
+	CREATE_FUNCTION_POINTER(kernel32, GetModuleHandleExW);
+	return Function(Flags, ModuleName, Module);
 }
