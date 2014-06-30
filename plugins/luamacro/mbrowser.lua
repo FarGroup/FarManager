@@ -184,6 +184,7 @@ local function MenuLoop()
     Title = Title,
     Flags = {FMENU_SHOWAMPERSAND=1,FMENU_WRAPMODE=1,FMENU_CHANGECONSOLETITLE=1},
     MaxHeight = farRect.Bottom - farRect.Top - 6,
+    Id = win.Uuid("03DEFB28-8734-4EC0-8B25-C879846F0BE5"),
   }
 
   local bkeys = {

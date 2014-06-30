@@ -288,32 +288,6 @@ local function About()
   far.Message(text, "About", nil, "l")
 end
 
-local SplitCommandLine do
-  local pattern = regex.new([=[
-    " ( (?: \\" | [^"] )* ) "? |
-    ( (?: \\" | [^"\s] )+ ) |
-    \s+
-  ]=], "x")
-  SplitCommandLine = function (str)
-    local t, n, outside = {}, 0, true
-    pattern:gsub(str, function(a,b)
-        if a or b then
-          a = (a or b):gsub("\\\"", "\"")
-          if outside then
-            n = n + 1
-            t[n] = a
-            outside = false
-          else
-            t[n] = t[n]..a
-          end
-        else
-          outside = true
-        end
-      end)
-    return t
-  end
-end
-
 local function ProcessCommandLine (CmdLine)
   local prefix, text = CmdLine:match("^%s*(%w+):%s*(.-)%s*$")
   prefix = prefix:lower()
@@ -325,7 +299,14 @@ local function ProcessCommandLine (CmdLine)
     elseif cmd == "post" then -- DEPRECATED, to be removed on 2014-Oct-29.
       prefix, text = "lua", text:match("%S+%s*(.*)")
     elseif cmd == "about" then About()
-    elseif cmd == "user" then utils.CommandLineEvent(SplitCommandLine(text:sub(5)))
+    elseif cmd == "user" then
+      local f,msg = loadstring("return "..text:sub(5))
+      if f then
+        local env = setmetatable({}, gmeta)
+        utils.CommandLineEvent(pcall(setfenv(f, env)))
+      else
+        ErrMsg(msg)
+      end
     elseif cmd ~= "" then ErrMsg(Msg.CL_UnsupportedCommand .. cmd) end
   end
   if prefix == "lua" or prefix == "moon" then
