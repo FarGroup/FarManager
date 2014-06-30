@@ -55,7 +55,9 @@ DIRBIT=32
 
 !if !defined(VC) && defined(_NMAKE_VER)
 
-!if "$(_NMAKE_VER)">"11"
+!if "$(_NMAKE_VER)">"14"
+VC=14
+!elseif "$(_NMAKE_VER)">"11"
 VC=11
 !else
 #default
@@ -302,6 +304,10 @@ LINKFLAGS=$(LINKFLAGS) /machine:ARM
 !endif
 
 # compiler-specific
+!if $(VC) >= 14
+FIXCRT_CPPFLAGS = /Zc:threadSafeInit-
+!endif
+
 !ifdef ICL
 CPP = icl
 LINK = xilink
@@ -363,7 +369,7 @@ $(INTDIR)\initguid.obj: initguid.cpp
 	$(CPP) $(CPPFLAGS) initguid.cpp
 
 $(INTDIR)\vc_crt_fix_impl.obj: vc_crt_fix_impl.cpp
-	$(CPP) $(CPPFLAGS) vc_crt_fix_impl.cpp
+	$(CPP) $(CPPFLAGS) $(FIXCRT_CPPFLAGS) vc_crt_fix_impl.cpp
 
 $(INTDIR)\vc_crt_fix_ulink.obj: vc_crt_fix_ulink.cpp
 	$(CPP) $(CPPFLAGS) vc_crt_fix_ulink.cpp
