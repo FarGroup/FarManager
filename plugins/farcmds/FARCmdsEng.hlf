@@ -39,18 +39,32 @@ in ~file associations~@:FileAssoc@, and in dialog ~Apply Command~@:ApplyCmd@ (#C
 
 @Load
 $ #The Load command#
-   Command #load# allows you to load the plugin #DLL_module_name#.
+   Команда #load# позволяет загрузить плагин одним из 2-х способов:
 
-   #load:DLL_module_name#
+   1. Путь к плагину непосредственно в команде
+
+      #load:имя_DLL_модуля#
+
+   2. Путь к плагину берётся из заданного файла "#имяфайла#"
+
+      #load: <имяфайла#
 
 
    See also: ~unload~@Unload@ | ~Notes~@Remark@ | ~Contents~@Contents@
 
 @Unload
 $ #The Unload command#
-   Command #unload# allows you to unload the plugin #DLL_module_name#.
+   Команда #unload# позволяет выгрузить плагин одним из 2-х способов:
 
-   #unload:DLL_module_name#
+   1. Путь к плагину непосредственно в команде
+
+      #unload:DLL_module_name#
+
+   2. Путь к плагину берётся из заданного файла "#filename#"
+
+      #unload: <filename#
+
+   Вместо полного пути к DLL-модулю можно указать GUID плагина.
 
 
    See also: ~load~@Load@ | ~Notes~@Remark@ | ~Contents~@Contents@

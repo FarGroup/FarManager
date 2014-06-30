@@ -422,34 +422,7 @@ static void ParseCmdSyntax(wchar_t*& pCmd, int& ShowCmdOutput, int& stream)
 }
 
 
-bool __proc_Load_Unload(int /*outputtofile*/,wchar_t *pCmd,bool Load)
-{
-	bool Ret=false;
-	FSF.Unquote(pCmd);
-	DWORD sizeExp=ExpandEnvironmentStrings(pCmd,NULL,0);
-	wchar_t *temp=new wchar_t[sizeExp+1];
-	if (temp)
-	{
-		ExpandEnvironmentStrings(pCmd,temp,sizeExp);
-
-		if (Load)
-			Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_LOADPLUGIN,PLT_PATH,temp);
-		else
-		{
-			HANDLE hPlugin = reinterpret_cast<HANDLE>(Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_FINDPLUGIN,PFM_MODULENAME,temp));
-			if(hPlugin)
-			{
-				Info.PluginsControl(hPlugin,PCTL_UNLOADPLUGIN,0,nullptr);
-			}
-		}
-
-		delete[] temp;
-	}
-
-	return Ret;
-}
-
-wchar_t* __getContent(int outputtofile,wchar_t *pCmd)
+static wchar_t* __getContent(int outputtofile,wchar_t *pCmd)
 {
 	wchar_t *Ptr=nullptr;
 
@@ -489,6 +462,91 @@ wchar_t* __getContent(int outputtofile,wchar_t *pCmd)
 	}
 
 	return Ptr;
+}
+
+/*
+load:path
+load:<path
+*/
+wchar_t* __proc_Load(int outputtofile,wchar_t *pCmd)
+{
+	wchar_t *Ptr=__getContent(outputtofile,pCmd);
+
+	if (Ptr)
+	{
+		FSF.Unquote(Ptr);
+		DWORD sizeExp=ExpandEnvironmentStrings(Ptr,NULL,0);
+		wchar_t *temp=new wchar_t[sizeExp+1];
+		if (temp)
+		{
+			ExpandEnvironmentStrings(Ptr,temp,sizeExp);
+
+			Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_LOADPLUGIN,PLT_PATH,temp);
+
+			delete[] temp;
+		}
+
+		delete[] Ptr;
+	}
+
+	return nullptr;
+}
+
+/*
+unload:path
+unload:guid
+unload:<path
+*/
+wchar_t* __proc_Unload(int outputtofile,wchar_t *pCmd)
+{
+	wchar_t *Ptr=__getContent(outputtofile,pCmd);
+
+	if (Ptr)
+	{
+		GUID FindGuid;
+		bool guidMode=StrToGuid(Ptr,&FindGuid);
+		if (!guidMode && *Ptr == L'{')
+		{
+			wchar_t *PtrTemp=Ptr+1;
+			wchar_t *ptrNameEnd=PtrTemp+lstrlen(PtrTemp)-1;
+
+        	if (*ptrNameEnd == L'}')
+				*ptrNameEnd=0;
+			guidMode=StrToGuid(PtrTemp,&FindGuid);
+		}
+
+		if (guidMode)
+		{
+			HANDLE hPlugin = reinterpret_cast<HANDLE>(Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_FINDPLUGIN,PFM_GUID,&FindGuid));
+
+			if(hPlugin)
+			{
+				Info.PluginsControl(hPlugin,PCTL_UNLOADPLUGIN,0,nullptr);
+			}
+		}
+		else
+		{
+			FSF.Unquote(Ptr);
+			DWORD sizeExp=ExpandEnvironmentStrings(Ptr,NULL,0);
+			wchar_t *temp=new wchar_t[sizeExp+1];
+			if (temp)
+			{
+				ExpandEnvironmentStrings(Ptr,temp,sizeExp);
+
+				HANDLE hPlugin = reinterpret_cast<HANDLE>(Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_FINDPLUGIN,PFM_MODULENAME,temp));
+				if(hPlugin)
+				{
+					Info.PluginsControl(hPlugin,PCTL_UNLOADPLUGIN,0,nullptr);
+				}
+
+				delete[] temp;
+			}
+		}
+
+		delete[] Ptr;
+	}
+
+	return nullptr;
 }
 
 /*
@@ -940,14 +998,19 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 					{
 						return __proc_WhereIs(outputtofile,pCmd);
 					}
-					else if (Load || Unload)  // <file>
+					else if (Load)  // <file>
 					{
-						__proc_Load_Unload(outputtofile,pCmd,Load?true:false);
+						return __proc_Load(outputtofile,pCmd);
+					}
+					else if (Unload)  // <file>
+					{
+						return __proc_Unload(outputtofile,pCmd);
 					}
 					else if (Link) //link [/msg] [/n] источник назначение
 					{
 						if (!__proc_Link(outputtofile,pCmd))
 							Info.ShowHelp(Info.ModuleName,(PrefIdx==static_cast<size_t>(-1))?L"Contents":Pref[PrefIdx].HelpName,0);
+						return nullptr;
 					}
 					else
 					{

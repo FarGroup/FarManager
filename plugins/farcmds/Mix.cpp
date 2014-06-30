@@ -314,4 +314,9 @@ wchar_t *GetShellLinkPath(const wchar_t *LinkFile)
 	return Path;
 }
 
+bool StrToGuid(const wchar_t *Value,GUID *Guid)
+{
+	return UuidFromString(reinterpret_cast<unsigned short*>((void*)Value), Guid) == RPC_S_OK;
+}
+
 #endif
