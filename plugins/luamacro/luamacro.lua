@@ -299,14 +299,6 @@ local function ProcessCommandLine (CmdLine)
     elseif cmd == "post" then -- DEPRECATED, to be removed on 2014-Oct-29.
       prefix, text = "lua", text:match("%S+%s*(.*)")
     elseif cmd == "about" then About()
-    elseif cmd == "user" then
-      local f,msg = loadstring("return "..text:sub(5))
-      if f then
-        local env = setmetatable({}, gmeta)
-        utils.CommandLineEvent(pcall(setfenv(f, env)))
-      else
-        ErrMsg(msg)
-      end
     elseif cmd ~= "" then ErrMsg(Msg.CL_UnsupportedCommand .. cmd) end
   end
   if prefix == "lua" or prefix == "moon" then

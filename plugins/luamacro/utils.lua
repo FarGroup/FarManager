@@ -42,7 +42,7 @@ local LoadMacrosDone
 local LoadingInProgress
 local EnumState = {}
 local Events
-local EventGroups = {"dialogevent","editorevent","editorinput","exitfar","viewerevent","commandline"}
+local EventGroups = {"dialogevent","editorevent","editorinput","exitfar","viewerevent"}
 local AddMacro_filename
 
 package.nounload = {lpeg=true}
@@ -186,11 +186,6 @@ end
 
 local function export_ProcessEditorInput (Rec)
   return EV_Handler(Events.editorinput, editor.GetFileName(nil), Rec)
-end
-
-local function CommandLineEvent (ok, ...)
-  if ok then return EV_Handler(Events.commandline, nil, ...) end
-  ErrMsg((...))
 end
 
 local ExpandKey do -- измеренное время исполнения на ключе "CtrlAltShiftF12" = 5.7uS (Lua); 3.5uS (LuaJIT);
@@ -406,6 +401,46 @@ local function EnumMacros (strArea, resetEnum)
   end
 end
 
+local function GetMoonscriptLineNumber (filename, line)
+  local line_tables = require("moonscript.line_tables")
+  local errors = require("moonscript.errors")
+  local cache = {}
+  local table = line_tables["@"..filename]
+  if table then
+    return errors.reverse_line_number(filename, table, line, cache)
+  end
+end
+
+-- ...nager\unicode_far\CommonProfile\Macros\scripts\test1.lua:9:
+-- attempt to perform arithmetic on a nil value
+
+local function ErrMsgLoad (msg, filename, isMoonScript, mode)
+  local title = isMoonScript and mode=="compile" and "MoonScript" or "LuaMacro"
+  local string_sub = string.sub
+
+  if mode=="run" then
+    local fname = msg:match("^(.-):%d+:")
+    if string_sub(fname,1,3)=="..." then
+      fname=string_sub(fname,4)
+      -- for k=1,5 do
+      --   if fname:utf8valid() then break end
+      --   fname = string_sub(fname,2)
+      -- end
+    end
+    if #filename >= #fname and string_sub(filename,-#fname) ~= fname then
+      far.Message(msg, title, "OK", "wl") -- temporary "solution"
+      return
+    end
+  end
+
+  if 2==far.Message(msg, title, "OK;Edit", "wl") then
+    local pattern = isMoonScript and mode=="compile" and "%[(%d+)%] >>" or "^[^\n]-:(%d+):"
+    local line = tonumber(msg:match(pattern))
+    if line and isMoonScript and mode=="run" then line = GetMoonscriptLineNumber(filename,line) end
+    editor.Editor(filename,nil,nil,nil,nil,nil,nil,line or 1,nil,65001)
+  end
+end
+
 local function LoadMacros (unload)
   if LoadingInProgress then return end
   LoadingInProgress = true
@@ -473,7 +508,9 @@ local function LoadMacros (unload)
       local isMoonScript = string.find(FullPath, "[nN]", -1)
       local f, msg = (isMoonScript and moonscript.loadfile or loadfile)(FullPath)
       if not f then
-        numerrors=numerrors+1; ErrMsg(msg,isMoonScript and "MoonScript"); return
+        numerrors=numerrors+1
+        ErrMsgLoad(msg,FullPath,isMoonScript,"compile")
+        return
       end
       local env = {Macro=AddRegularMacro,Event=AddEvent,NoMacro=DummyFunc,NoEvent=DummyFunc}
       setmetatable(env,gmeta)
@@ -483,7 +520,8 @@ local function LoadMacros (unload)
       if ok then
         env.Macro,env.Event,env.NoMacro,env.NoEvent = nil,nil,nil,nil
       else
-        numerrors=numerrors+1; ErrMsg(msg)
+        numerrors=numerrors+1
+        ErrMsgLoad(msg,FullPath,isMoonScript,"run")
       end
     end
 
@@ -844,5 +882,5 @@ return {
   GetMacroCopy = GetMacroCopy,
   CheckFileName = CheckFileName,
   FlagsToString = FlagsToString,
-  CommandLineEvent = CommandLineEvent,
+  GetMoonscriptLineNumber = GetMoonscriptLineNumber,
 }
