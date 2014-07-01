@@ -43,13 +43,6 @@ ImportedFunctions& Imports()
 	return ifn;
 }
 
-ImportedFunctions::module::module(const wchar_t* name):
-	m_name(name),
-	m_module(),
-	m_loaded()
-{
-}
-
 ImportedFunctions::module::~module()
 {
 	if (m_loaded)
@@ -73,10 +66,6 @@ HMODULE ImportedFunctions::module::get_module() const
 	return m_module;
 }
 
-FARPROC ImportedFunctions::module::GetProcAddress(const char* name) const
-{
-	return ::GetProcAddress(get_module(), name);
-}
 
 ImportedFunctions::ImportedFunctions():
 	m_ntdll(L"ntdll"),
