@@ -697,7 +697,7 @@ int FileWalker::GetPercent() const
 
 NTSTATUS GetLastNtStatus()
 {
-	return Imports().RtlGetLastNtStatusPresent()?Imports().RtlGetLastNtStatus():STATUS_SUCCESS;
+	return Imports().RtlGetLastNtStatus.exists()? Imports().RtlGetLastNtStatus() : STATUS_SUCCESS;
 }
 
 BOOL DeleteFile(const string& FileName)
@@ -971,7 +971,7 @@ DWORD GetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFileName)
 		FileName.reset(BufferSize);
 		if (hProcess)
 		{
-			if (Imports().QueryFullProcessImageNameWPresent() && !hModule)
+			if (Imports().QueryFullProcessImageNameW.exists() && !hModule)
 			{
 				DWORD sz = BufferSize;
 				Size = 0;
@@ -1248,7 +1248,7 @@ BOOL SetFileAttributes(const string& FileName,DWORD dwFileAttributes)
 
 bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD dwFlags)
 {
-	return Imports().CreateSymbolicLinkWPresent()?
+	return Imports().CreateSymbolicLinkW.exists()?
 		(Imports().CreateSymbolicLink(Object.data(), Target.data(), dwFlags) != FALSE) :
 		CreateReparsePoint(Target, Object, dwFlags&SYMBOLIC_LINK_FLAG_DIRECTORY?RP_SYMLINKDIR:RP_SYMLINKFILE);
 }
@@ -1304,7 +1304,7 @@ BOOL CreateHardLink(const string& FileName, const string& ExistingFileName, LPSE
 HANDLE FindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,LPVOID lpFindStreamData,DWORD dwFlags)
 {
 	HANDLE Ret=INVALID_HANDLE_VALUE;
-	if(Imports().FindFirstStreamWPresent())
+	if(Imports().FindFirstStreamW.exists())
 	{
 		Ret=Imports().FindFirstStreamW(NTPath(FileName).data(),InfoLevel,lpFindStreamData,dwFlags);
 	}
@@ -1363,7 +1363,7 @@ HANDLE FindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,LPVOI
 BOOL FindNextStream(HANDLE hFindStream,LPVOID lpFindStreamData)
 {
 	BOOL Ret=FALSE;
-	if(Imports().FindFirstStreamWPresent())
+	if(Imports().FindFirstStreamW.exists())
 	{
 		Ret=Imports().FindNextStreamW(hFindStream,lpFindStreamData);
 	}
@@ -1393,7 +1393,7 @@ BOOL FindStreamClose(HANDLE hFindStream)
 {
 	BOOL Ret=FALSE;
 
-	if(Imports().FindFirstStreamWPresent())
+	if(Imports().FindFirstStreamW.exists())
 	{
 		Ret=::FindClose(hFindStream);
 	}
@@ -1519,7 +1519,7 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 
 bool GetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 {
-	if (Imports().GetFinalPathNameByHandleWPresent())
+	if (Imports().GetFinalPathNameByHandleW.exists())
 	{
 		wchar_t Buffer[MAX_PATH];
 		size_t Size = Imports().GetFinalPathNameByHandle(hFile, Buffer, ARRAYSIZE(Buffer), VOLUME_NAME_GUID);
@@ -1594,7 +1594,7 @@ bool GetVolumeNameForVolumeMountPoint(const string& VolumeMountPoint,string& Vol
 
 void EnableLowFragmentationHeap()
 {
-	if (Imports().HeapSetInformationPresent())
+	if (Imports().HeapSetInformation.exists())
 	{
 		std::vector<HANDLE> Heaps(10);
 		DWORD ActualNumHeaps = ::GetProcessHeaps(static_cast<DWORD>(Heaps.size()), Heaps.data());

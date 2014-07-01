@@ -44,13 +44,10 @@ ImportedFunctions& Imports()
 }
 
 ImportedFunctions::module::module(const wchar_t* name):
-	m_module(GetModuleHandle(name)),
-	m_loaded(false)
+	m_name(name),
+	m_module(),
+	m_loaded()
 {
-	if (!m_module)
-	{
-		m_loaded = (m_module = LoadLibrary(name)) != nullptr;
-	}
 }
 
 ImportedFunctions::module::~module()
@@ -61,281 +58,330 @@ ImportedFunctions::module::~module()
 	}
 }
 
+HMODULE ImportedFunctions::module::get_module() const
+{
+	if (!m_module)
+	{
+		m_module = GetModuleHandle(m_name);
+		if (!m_module)
+		{
+			m_module = LoadLibrary(m_name);
+			// TODO: log if nullptr
+			m_loaded = m_module != nullptr;
+		}
+	}
+	return m_module;
+}
+
 FARPROC ImportedFunctions::module::GetProcAddress(const char* name) const
 {
-	return ::GetProcAddress(m_module, name);
+	return ::GetProcAddress(get_module(), name);
 }
 
 ImportedFunctions::ImportedFunctions():
-	m_Ntdll(L"ntdll"),
-	m_Kernel(L"kernel32"),
-	m_Shell(L"shell32"),
-	m_User32(L"user32"),
-	m_NetApi(L"netapi32"),
-	m_VirtDisk(L"virtdisk"),
-	m_RstrtMgr(L"rstrtmgr")
+	m_ntdll(L"ntdll"),
+	m_kernel32(L"kernel32"),
+	m_shell32(L"shell32"),
+	m_user32(L"user32"),
+	m_virtdisk(L"virtdisk"),
+	m_rstrtmgr(L"rstrtmgr"),
+	m_netapi32(L"netapi32"),
+
+// just to make it more readable
+#define INIT_IMPORT(module, pointer) pointer(module)
+
+	INIT_IMPORT(m_ntdll, NtQueryDirectoryFile),
+	INIT_IMPORT(m_ntdll, NtQueryInformationFile),
+	INIT_IMPORT(m_ntdll, NtSetInformationFile),
+	INIT_IMPORT(m_ntdll, NtQueryObject),
+	INIT_IMPORT(m_ntdll, NtOpenSymbolicLinkObject),
+	INIT_IMPORT(m_ntdll, NtQuerySymbolicLinkObject),
+	INIT_IMPORT(m_ntdll, NtClose),
+	INIT_IMPORT(m_ntdll, RtlGetLastNtStatus),
+	INIT_IMPORT(m_ntdll, RtlNtStatusToDosError),
+
+	INIT_IMPORT(m_kernel32, GetConsoleKeyboardLayoutNameW),
+	INIT_IMPORT(m_kernel32, CreateSymbolicLinkW),
+	INIT_IMPORT(m_kernel32, FindFirstFileNameW),
+	INIT_IMPORT(m_kernel32, FindNextFileNameW),
+	INIT_IMPORT(m_kernel32, FindFirstStreamW),
+	INIT_IMPORT(m_kernel32, FindNextStreamW),
+	INIT_IMPORT(m_kernel32, GetFinalPathNameByHandleW),
+	INIT_IMPORT(m_kernel32, GetVolumePathNamesForVolumeNameW),
+	INIT_IMPORT(m_kernel32, GetPhysicallyInstalledSystemMemory),
+	INIT_IMPORT(m_kernel32, HeapSetInformation),
+	INIT_IMPORT(m_kernel32, IsWow64Process),
+	INIT_IMPORT(m_kernel32, GetNamedPipeServerProcessId),
+	INIT_IMPORT(m_kernel32, CancelSynchronousIo),
+	INIT_IMPORT(m_kernel32, SetConsoleKeyShortcuts),
+	INIT_IMPORT(m_kernel32, GetConsoleScreenBufferInfoEx),
+	INIT_IMPORT(m_kernel32, QueryFullProcessImageNameW),
+	INIT_IMPORT(m_kernel32, TzSpecificLocalTimeToSystemTime),
+
+	INIT_IMPORT(m_shell32, SHCreateAssociationRegistration),
+
+	INIT_IMPORT(m_user32, RegisterPowerSettingNotification),
+	INIT_IMPORT(m_user32, UnregisterPowerSettingNotification),
+
+	INIT_IMPORT(m_virtdisk, GetStorageDependencyInformation),
+	INIT_IMPORT(m_virtdisk, OpenVirtualDisk),
+	INIT_IMPORT(m_virtdisk, DetachVirtualDisk),
+
+	INIT_IMPORT(m_rstrtmgr, RmStartSession),
+	INIT_IMPORT(m_rstrtmgr, RmEndSession),
+	INIT_IMPORT(m_rstrtmgr, RmRegisterResources),
+	INIT_IMPORT(m_rstrtmgr, RmGetList),
+
+	INIT_IMPORT(m_netapi32, NetDfsGetInfo)
+
+#undef INIT_IMPORT
 {
-	#define InitImport(Module, Name)\
-	if (Module)\
-	{\
-		Name = Module.GetProcAddress(#Name);\
-	}\
-	if (!Name)\
-	{\
-		Name = &ImportedFunctions::stub_##Name;\
-	}
-
-	InitImport(m_Kernel, GetConsoleKeyboardLayoutNameW);
-	InitImport(m_Kernel, CreateSymbolicLinkW);
-	InitImport(m_Kernel, FindFirstFileNameW);
-	InitImport(m_Kernel, FindNextFileNameW);
-	InitImport(m_Kernel, FindFirstStreamW);
-	InitImport(m_Kernel, FindNextStreamW);
-	InitImport(m_Kernel, GetFinalPathNameByHandleW);
-	InitImport(m_Kernel, GetVolumePathNamesForVolumeNameW);
-	InitImport(m_Kernel, GetPhysicallyInstalledSystemMemory);
-	InitImport(m_Kernel, HeapSetInformation);
-	InitImport(m_Kernel, IsWow64Process);
-	InitImport(m_Kernel, GetNamedPipeServerProcessId);
-	InitImport(m_Kernel, CancelSynchronousIo);
-	InitImport(m_Kernel, SetConsoleKeyShortcuts);
-	InitImport(m_Kernel, GetConsoleScreenBufferInfoEx);
-	InitImport(m_Kernel, QueryFullProcessImageNameW);
-	InitImport(m_Kernel, TzSpecificLocalTimeToSystemTime);
-
-	InitImport(m_Ntdll, NtQueryDirectoryFile);
-	InitImport(m_Ntdll, NtQueryInformationFile);
-	InitImport(m_Ntdll, NtSetInformationFile);
-	InitImport(m_Ntdll, NtQueryObject);
-	InitImport(m_Ntdll, NtOpenSymbolicLinkObject);
-	InitImport(m_Ntdll, NtQuerySymbolicLinkObject);
-	InitImport(m_Ntdll, NtClose);
-	InitImport(m_Ntdll, RtlGetLastNtStatus);
-	InitImport(m_Ntdll, RtlNtStatusToDosError);
-
-	InitImport(m_Shell, SHCreateAssociationRegistration);
-
-	InitImport(m_NetApi, NetDfsGetInfo);
-
-	InitImport(m_VirtDisk, GetStorageDependencyInformation);
-	InitImport(m_VirtDisk, OpenVirtualDisk);
-	InitImport(m_VirtDisk, DetachVirtualDisk);
-
-	InitImport(m_User32, RegisterPowerSettingNotification);
-	InitImport(m_User32, UnregisterPowerSettingNotification);
-
-	InitImport(m_RstrtMgr, RmStartSession);
-	InitImport(m_RstrtMgr, RmEndSession);
-	InitImport(m_RstrtMgr, RmRegisterResources);
-	InitImport(m_RstrtMgr, RmGetList);
-
-	#undef InitImport
 }
 
+// ntdll
+NTSTATUS ImportedFunctions::stub_NtQueryDirectoryFile(HANDLE FileHandle, HANDLE Event, PVOID ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, BOOLEAN ReturnSingleEntry, PUNICODE_STRING FileName, BOOLEAN RestartScan)
+{
+	// TODO: log
+	return STATUS_NOT_IMPLEMENTED;
+}
 
+NTSTATUS ImportedFunctions::stub_NtQueryInformationFile(HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass)
+{
+	// TODO: log
+	return STATUS_NOT_IMPLEMENTED;
+}
+
+NTSTATUS ImportedFunctions::stub_NtSetInformationFile(HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass)
+{
+	// TODO: log
+	return STATUS_NOT_IMPLEMENTED;
+}
+
+NTSTATUS ImportedFunctions::stub_NtQueryObject(HANDLE Handle, OBJECT_INFORMATION_CLASS ObjectInformationClass, PVOID ObjectInformation, ULONG ObjectInformationLength, PULONG ReturnLength)
+{
+	// TODO: log
+	return STATUS_NOT_IMPLEMENTED;
+}
+
+NTSTATUS ImportedFunctions::stub_NtOpenSymbolicLinkObject(PHANDLE LinkHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes)
+{
+	// TODO: log
+	return STATUS_NOT_IMPLEMENTED;
+}
+
+NTSTATUS ImportedFunctions::stub_NtQuerySymbolicLinkObject(HANDLE LinkHandle, PUNICODE_STRING LinkTarget, PULONG ReturnedLength)
+{
+	// TODO: log
+	return STATUS_NOT_IMPLEMENTED;
+}
+
+NTSTATUS ImportedFunctions::stub_NtClose(HANDLE Handle)
+{
+	// TODO: log
+	return STATUS_NOT_IMPLEMENTED;
+}
+
+NTSTATUS ImportedFunctions::stub_RtlGetLastNtStatus()
+{
+	// TODO: log
+	return STATUS_NOT_IMPLEMENTED;
+}
+
+NTSTATUS ImportedFunctions::stub_RtlNtStatusToDosError(NTSTATUS Status)
+{
+	// TODO: log
+	return STATUS_NOT_IMPLEMENTED;
+}
+
+// kernel32
 BOOL ImportedFunctions::stub_GetConsoleKeyboardLayoutNameW(LPWSTR Buffer)
 {
+	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return FALSE;
 }
 
 BOOLEAN ImportedFunctions::stub_CreateSymbolicLinkW(LPCWSTR SymlinkFileName, LPCWSTR TargetFileName, DWORD Flags)
 {
+	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return FALSE;
 }
 
 HANDLE ImportedFunctions::stub_FindFirstFileNameW(LPCWSTR FileName, DWORD Flags, LPDWORD StringLength, LPWSTR LinkName)
 {
+	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return INVALID_HANDLE_VALUE;
 }
 
 BOOL ImportedFunctions::stub_FindNextFileNameW(HANDLE FindStream, LPDWORD StringLength, PWCHAR LinkName)
 {
+	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return FALSE;
 }
 
 HANDLE ImportedFunctions::stub_FindFirstStreamW(LPCWSTR FileName, STREAM_INFO_LEVELS InfoLevel, LPVOID FindStreamData, DWORD Flags)
 {
+	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return INVALID_HANDLE_VALUE;
 }
 
 BOOL ImportedFunctions::stub_FindNextStreamW(HANDLE FindStream, LPVOID FindStreamData)
 {
+	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return FALSE;
 }
 
 DWORD ImportedFunctions::stub_GetFinalPathNameByHandleW(HANDLE File, LPWSTR FilePath, DWORD FilePathSize, DWORD Flags)
 {
+	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return 0;
 }
 
 BOOL ImportedFunctions::stub_GetVolumePathNamesForVolumeNameW(LPCWSTR VolumeName, LPWSTR VolumePathNames, DWORD BufferLength, PDWORD ReturnLength)
 {
+	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return FALSE;
 }
 
 BOOL ImportedFunctions::stub_GetPhysicallyInstalledSystemMemory(PULONGLONG TotalMemoryInKilobytes)
 {
+	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return FALSE;
 }
 
 BOOL ImportedFunctions::stub_HeapSetInformation(HANDLE HeapHandle, HEAP_INFORMATION_CLASS HeapInformationClass, PVOID HeapInformation, SIZE_T HeapInformationLength)
 {
+	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return FALSE;
 }
 
 BOOL ImportedFunctions::stub_IsWow64Process(HANDLE Process, PBOOL Wow64Process)
 {
+	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return FALSE;
 }
 
 BOOL ImportedFunctions::stub_GetNamedPipeServerProcessId(HANDLE Pipe, PULONG ServerProcessId)
 {
+	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return FALSE;
 }
 
 BOOL ImportedFunctions::stub_CancelSynchronousIo(HANDLE Thread)
 {
+	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return FALSE;
 }
 
 BOOL ImportedFunctions::stub_SetConsoleKeyShortcuts(BOOL Set, BYTE ReserveKeys, LPVOID AppKeys, DWORD NumAppKeys)
 {
+	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return FALSE;
 }
 
 BOOL ImportedFunctions::stub_GetConsoleScreenBufferInfoEx(HANDLE ConsoleOutput, PCONSOLE_SCREEN_BUFFER_INFOEX ConsoleScreenBufferInfoEx)
 {
+	// TODO: log
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return FALSE;
+}
+
+BOOL ImportedFunctions::stub_QueryFullProcessImageNameW(HANDLE Process, DWORD Flags, LPWSTR ExeName, PDWORD Size)
+{
+	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return FALSE;
 }
 
 BOOL ImportedFunctions::stub_TzSpecificLocalTimeToSystemTime(const TIME_ZONE_INFORMATION* TimeZoneInformation, const SYSTEMTIME* LocalTime, LPSYSTEMTIME UniversalTime)
 {
+	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return FALSE;
 }
 
-
-NTSTATUS ImportedFunctions::stub_NtQueryDirectoryFile(HANDLE FileHandle, HANDLE Event, PVOID ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, BOOLEAN ReturnSingleEntry, PUNICODE_STRING FileName, BOOLEAN RestartScan)
-{
-	return STATUS_NOT_IMPLEMENTED;
-}
-
-NTSTATUS ImportedFunctions::stub_NtQueryInformationFile(HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass)
-{
-	return STATUS_NOT_IMPLEMENTED;
-}
-
-NTSTATUS ImportedFunctions::stub_NtSetInformationFile(HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass)
-{
-	return STATUS_NOT_IMPLEMENTED;
-}
-
-NTSTATUS ImportedFunctions::stub_NtQueryObject(HANDLE Handle, OBJECT_INFORMATION_CLASS ObjectInformationClass, PVOID ObjectInformation, ULONG ObjectInformationLength, PULONG ReturnLength)
-{
-	return STATUS_NOT_IMPLEMENTED;
-}
-
-NTSTATUS ImportedFunctions::stub_NtOpenSymbolicLinkObject(PHANDLE LinkHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes)
-{
-	return STATUS_NOT_IMPLEMENTED;
-}
-
-NTSTATUS ImportedFunctions::stub_NtQuerySymbolicLinkObject(HANDLE LinkHandle, PUNICODE_STRING LinkTarget, PULONG ReturnedLength)
-{
-	return STATUS_NOT_IMPLEMENTED;
-}
-
-NTSTATUS ImportedFunctions::stub_NtClose(HANDLE Handle)
-{
-	return STATUS_NOT_IMPLEMENTED;
-}
-
-NTSTATUS ImportedFunctions::stub_RtlGetLastNtStatus()
-{
-		return STATUS_NOT_IMPLEMENTED;
-}
-
-NTSTATUS ImportedFunctions::stub_RtlNtStatusToDosError(NTSTATUS Status)
-{
-	return STATUS_NOT_IMPLEMENTED;
-}
-
-
+// shell32
 HRESULT ImportedFunctions::stub_SHCreateAssociationRegistration(REFIID riid, void ** ppv)
 {
+	// TODO: log
 	return ERROR_CALL_NOT_IMPLEMENTED;
 }
 
+// user32
+BOOL ImportedFunctions::stub_UnregisterPowerSettingNotification(HPOWERNOTIFY Handle)
+{
+	// TODO: log
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return FALSE;
+}
 
+HPOWERNOTIFY ImportedFunctions::stub_RegisterPowerSettingNotification(HANDLE hRecipient, LPCGUID PowerSettingGuid, DWORD Flags)
+{
+	// TODO: log
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return nullptr;
+}
+
+// virtdisk
 DWORD ImportedFunctions::stub_GetStorageDependencyInformation(HANDLE ObjectHandle, GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed)
 {
+	// TODO: log
 	return ERROR_CALL_NOT_IMPLEMENTED;
 }
 
 DWORD ImportedFunctions::stub_OpenVirtualDisk(PVIRTUAL_STORAGE_TYPE VirtualStorageType, PCWSTR Path, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, POPEN_VIRTUAL_DISK_PARAMETERS Parameters, PHANDLE Handle)
 {
+	// TODO: log
 	return ERROR_CALL_NOT_IMPLEMENTED;
 }
 
 DWORD ImportedFunctions::stub_DetachVirtualDisk(HANDLE VirtualDiskHandle, DETACH_VIRTUAL_DISK_FLAG Flags, ULONG ProviderSpecificFlags)
 {
+	// TODO: log
 	return ERROR_CALL_NOT_IMPLEMENTED;
 }
 
-BOOL ImportedFunctions::stub_UnregisterPowerSettingNotification(HPOWERNOTIFY Handle)
-{
-		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-		return FALSE;
-}
-
-HPOWERNOTIFY ImportedFunctions::stub_RegisterPowerSettingNotification(HANDLE hRecipient, LPCGUID PowerSettingGuid, DWORD Flags)
-{
-	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-	return nullptr;
-}
-
-BOOL ImportedFunctions::stub_QueryFullProcessImageNameW(HANDLE Process, DWORD Flags, LPWSTR ExeName, PDWORD Size)
-{
-	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-	return FALSE;
-}
-
+// rstrtmgr
 DWORD ImportedFunctions::stub_RmStartSession(DWORD *SessionHandle, DWORD SessionFlags, WCHAR strSessionKey [])
 {
+	// TODO: log
 	return ERROR_CALL_NOT_IMPLEMENTED;
 }
 
 DWORD ImportedFunctions::stub_RmEndSession(DWORD dwSessionHandle)
 {
+	// TODO: log
 	return ERROR_CALL_NOT_IMPLEMENTED;
 }
 
 DWORD ImportedFunctions::stub_RmRegisterResources(DWORD dwSessionHandle, UINT nFiles, LPCWSTR rgsFilenames [], UINT nApplications, RM_UNIQUE_PROCESS rgApplications [], UINT nServices, LPCWSTR rgsServiceNames [])
 {
+	// TODO: log
 	return ERROR_CALL_NOT_IMPLEMENTED;
 }
 
 DWORD ImportedFunctions::stub_RmGetList(DWORD dwSessionHandle, UINT *pnProcInfoNeeded, UINT *pnProcInfo, RM_PROCESS_INFO rgAffectedApps [], LPDWORD lpdwRebootReasons)
 {
+	// TODO: log
 	return ERROR_CALL_NOT_IMPLEMENTED;
 }
 
+// netapi32
 NET_API_STATUS ImportedFunctions::stub_NetDfsGetInfo(LPWSTR path, LPWSTR reserved1, LPWSTR reserved2, DWORD level, LPBYTE *buff)
 {
+	// TODO: log
 	return NERR_InvalidAPI;
 }

@@ -176,7 +176,7 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 						DWORD Attr = api::GetFileAttributes(Target);
 						Type = ((Attr != INVALID_FILE_ATTRIBUTES) && (Attr&FILE_ATTRIBUTE_DIRECTORY)? RP_SYMLINKDIR : RP_SYMLINKFILE);
 					}
-					if (Imports().CreateSymbolicLinkWPresent() && !ObjectExist)
+					if (Imports().CreateSymbolicLinkW.exists() && !ObjectExist)
 					{
 						Result=api::CreateSymbolicLink(Object,Target,Type==RP_SYMLINKDIR?SYMBOLIC_LINK_FLAG_DIRECTORY:0);
 					}

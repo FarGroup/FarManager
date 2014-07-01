@@ -36,22 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class ImportedFunctions: NonCopyable
 {
 private:
-	template<typename T>
-	class function_pointer
-	{
-	public:
-		operator T() const { return pointer; }
-
-	private:
-		friend class ImportedFunctions;
-
-		function_pointer(): pointer(nullptr) {}
-		function_pointer& operator=(FARPROC value) { pointer = reinterpret_cast<T>(value); return *this; }
-		function_pointer& operator=(T value) { pointer = value; return *this; }
-
-		T pointer;
-	};
-
 	class module
 	{
 	public:
@@ -59,17 +43,61 @@ private:
 		~module();
 
 		FARPROC GetProcAddress(const char* name) const;
-		operator bool() const { return m_module != nullptr; }
+		operator bool() const { return get_module() != nullptr; }
 
 	private:
-		HMODULE m_module;
-		bool m_loaded;
+		HMODULE get_module() const;
+
+		const wchar_t* m_name;
+		mutable HMODULE m_module;
+		mutable bool m_loaded;
 	};
 
+	template<typename T, class Y, T stub>
+	class function_pointer
+	{
+	public:
+		operator T() const { return get_pointer(); }
+		bool exists() const { return get_pointer() != stub; }
+
+	private:
+		friend class ImportedFunctions;
+
+		function_pointer(module& Module): m_module(Module) {}
+		T get_pointer() const
+		{
+			static T dyn_pointer = reinterpret_cast<T>(m_module.GetProcAddress(Y::get()));
+			// TODO: log if nullptr
+			static T pointer = dyn_pointer? dyn_pointer : stub;
+			return pointer;
+		}
+
+		module& m_module;
+	};
+
+	module m_ntdll;
+	module m_kernel32;
+	module m_shell32;
+	module m_user32;
+	module m_virtdisk;
+	module m_rstrtmgr;
+	module m_netapi32;
+
 #define DECLARE_IMPORT_FUNCTION(RETTYPE, CALLTYPE, NAME, ARGS)\
-public: function_pointer<RETTYPE (CALLTYPE*)ARGS> NAME;\
 private: static RETTYPE CALLTYPE stub_##NAME ARGS;\
-public: bool NAME##Present() const {return NAME.pointer != &ImportedFunctions::stub_##NAME;}
+private: struct name_##NAME { static const char* get() { return #NAME; } };\
+public: function_pointer<decltype(&ImportedFunctions::stub_##NAME), name_##NAME, ImportedFunctions::stub_##NAME> NAME;\
+
+	// ntdll
+	DECLARE_IMPORT_FUNCTION(NTSTATUS, NTAPI, NtQueryDirectoryFile, (HANDLE FileHandle, HANDLE Event, PVOID ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, BOOLEAN ReturnSingleEntry, PUNICODE_STRING FileName, BOOLEAN RestartScan));
+	DECLARE_IMPORT_FUNCTION(NTSTATUS, NTAPI, NtQueryInformationFile, (HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass));
+	DECLARE_IMPORT_FUNCTION(NTSTATUS, NTAPI, NtSetInformationFile, (HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass));
+	DECLARE_IMPORT_FUNCTION(NTSTATUS, NTAPI, NtQueryObject, (HANDLE Handle, OBJECT_INFORMATION_CLASS ObjectInformationClass, PVOID ObjectInformation, ULONG ObjectInformationLength, PULONG ReturnLength));
+	DECLARE_IMPORT_FUNCTION(NTSTATUS, NTAPI, NtOpenSymbolicLinkObject, (PHANDLE LinkHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes));
+	DECLARE_IMPORT_FUNCTION(NTSTATUS, NTAPI, NtQuerySymbolicLinkObject, (HANDLE LinkHandle, PUNICODE_STRING LinkTarget, PULONG ReturnedLength));
+	DECLARE_IMPORT_FUNCTION(NTSTATUS, NTAPI, NtClose, (HANDLE Handle));
+	DECLARE_IMPORT_FUNCTION(NTSTATUS, NTAPI, RtlGetLastNtStatus, ());
+	DECLARE_IMPORT_FUNCTION(NTSTATUS, NTAPI, RtlNtStatusToDosError, (NTSTATUS Status));
 
 	// kernel32
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, GetConsoleKeyboardLayoutNameW, (LPWSTR Buffer))
@@ -90,31 +118,17 @@ public: bool NAME##Present() const {return NAME.pointer != &ImportedFunctions::s
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, QueryFullProcessImageNameW, (HANDLE Process, DWORD Flags, LPWSTR ExeName, PDWORD Size));
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, TzSpecificLocalTimeToSystemTime, (const TIME_ZONE_INFORMATION* TimeZoneInformation, const SYSTEMTIME* LocalTime, LPSYSTEMTIME UniversalTime));
 
-	// ntdll
-	DECLARE_IMPORT_FUNCTION(NTSTATUS, NTAPI, NtQueryDirectoryFile, (HANDLE FileHandle, HANDLE Event, PVOID ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, BOOLEAN ReturnSingleEntry, PUNICODE_STRING FileName, BOOLEAN RestartScan));
-	DECLARE_IMPORT_FUNCTION(NTSTATUS, NTAPI, NtQueryInformationFile, (HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass));
-	DECLARE_IMPORT_FUNCTION(NTSTATUS, NTAPI, NtSetInformationFile, (HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass));
-	DECLARE_IMPORT_FUNCTION(NTSTATUS, NTAPI, NtQueryObject, (HANDLE Handle, OBJECT_INFORMATION_CLASS ObjectInformationClass, PVOID ObjectInformation, ULONG ObjectInformationLength, PULONG ReturnLength));
-	DECLARE_IMPORT_FUNCTION(NTSTATUS, NTAPI, NtOpenSymbolicLinkObject, (PHANDLE LinkHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes));
-	DECLARE_IMPORT_FUNCTION(NTSTATUS, NTAPI, NtQuerySymbolicLinkObject, (HANDLE LinkHandle, PUNICODE_STRING LinkTarget, PULONG ReturnedLength));
-	DECLARE_IMPORT_FUNCTION(NTSTATUS, NTAPI, NtClose, (HANDLE Handle));
-	DECLARE_IMPORT_FUNCTION(NTSTATUS, NTAPI, RtlGetLastNtStatus, ());
-	DECLARE_IMPORT_FUNCTION(NTSTATUS, NTAPI, RtlNtStatusToDosError, (NTSTATUS Status));
-
 	// shell32
 	DECLARE_IMPORT_FUNCTION(HRESULT, STDAPICALLTYPE, SHCreateAssociationRegistration, (REFIID riid, void ** ppv));
-
-	// virtdisk
-	DECLARE_IMPORT_FUNCTION(DWORD, WINAPI, GetStorageDependencyInformation, (HANDLE ObjectHandle, GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed));
-	DECLARE_IMPORT_FUNCTION(DWORD, WINAPI, OpenVirtualDisk, (PVIRTUAL_STORAGE_TYPE VirtualStorageType, PCWSTR Path, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, POPEN_VIRTUAL_DISK_PARAMETERS Parameters, PHANDLE Handle));
-	DECLARE_IMPORT_FUNCTION(DWORD, WINAPI, DetachVirtualDisk, (HANDLE VirtualDiskHandle, DETACH_VIRTUAL_DISK_FLAG Flags, ULONG ProviderSpecificFlags));
 
 	// user32
 	DECLARE_IMPORT_FUNCTION(HPOWERNOTIFY, WINAPI, RegisterPowerSettingNotification, (HANDLE hRecipient, LPCGUID PowerSettingGuid, DWORD Flags));
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, UnregisterPowerSettingNotification, (HPOWERNOTIFY Handle));
 
-	// netapi32
-	DECLARE_IMPORT_FUNCTION(NET_API_STATUS, NET_API_FUNCTION, NetDfsGetInfo, (LPWSTR path, LPWSTR reserved_serv, LPWSTR reserved_share, DWORD level, LPBYTE *buff));
+	// virtdisk
+	DECLARE_IMPORT_FUNCTION(DWORD, WINAPI, GetStorageDependencyInformation, (HANDLE ObjectHandle, GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed));
+	DECLARE_IMPORT_FUNCTION(DWORD, WINAPI, OpenVirtualDisk, (PVIRTUAL_STORAGE_TYPE VirtualStorageType, PCWSTR Path, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, POPEN_VIRTUAL_DISK_PARAMETERS Parameters, PHANDLE Handle));
+	DECLARE_IMPORT_FUNCTION(DWORD, WINAPI, DetachVirtualDisk, (HANDLE VirtualDiskHandle, DETACH_VIRTUAL_DISK_FLAG Flags, ULONG ProviderSpecificFlags));
 
 	// rstrtmgr
 	DECLARE_IMPORT_FUNCTION(DWORD, WINAPI, RmStartSession, (DWORD *SessionHandle, DWORD SessionFlags, WCHAR strSessionKey[]));
@@ -122,6 +136,8 @@ public: bool NAME##Present() const {return NAME.pointer != &ImportedFunctions::s
 	DECLARE_IMPORT_FUNCTION(DWORD, WINAPI, RmRegisterResources, (DWORD dwSessionHandle, UINT nFiles, LPCWSTR rgsFilenames[], UINT nApplications, RM_UNIQUE_PROCESS rgApplications[], UINT nServices, LPCWSTR rgsServiceNames[]));
 	DECLARE_IMPORT_FUNCTION(DWORD, WINAPI, RmGetList, (DWORD dwSessionHandle, UINT *pnProcInfoNeeded, UINT *pnProcInfo, RM_PROCESS_INFO rgAffectedApps[], LPDWORD lpdwRebootReasons));
 
+	// netapi32
+	DECLARE_IMPORT_FUNCTION(NET_API_STATUS, NET_API_FUNCTION, NetDfsGetInfo, (LPWSTR path, LPWSTR reserved_serv, LPWSTR reserved_share, DWORD level, LPBYTE *buff));
 
 #undef DECLARE_IMPORT_FUNCTION
 
@@ -129,14 +145,6 @@ private:
 	friend ImportedFunctions& Imports();
 
 	ImportedFunctions();
-
-	module m_Ntdll;
-	module m_Kernel;
-	module m_Shell;
-	module m_User32;
-	module m_NetApi;
-	module m_VirtDisk;
-	module m_RstrtMgr;
 };
 
 ImportedFunctions& Imports();

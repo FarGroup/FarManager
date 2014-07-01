@@ -933,7 +933,7 @@ bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus)
 	bool Result = false;
 	if(Global && Global->Opt && Global->Opt->ElevationMode & Mode)
 	{
-		if(UseNtStatus && Imports().RtlGetLastNtStatusPresent())
+		if(UseNtStatus && Imports().RtlGetLastNtStatus.exists())
 		{
 			NTSTATUS LastNtStatus = api::GetLastNtStatus();
 			Result = LastNtStatus == STATUS_ACCESS_DENIED || LastNtStatus == STATUS_PRIVILEGE_NOT_HELD;
@@ -976,7 +976,7 @@ public:
 		if (Pipe != INVALID_HANDLE_VALUE)
 		{
 			ULONG ServerProcessId;
-			if(!Imports().GetNamedPipeServerProcessIdPresent() || (Imports().GetNamedPipeServerProcessId(Pipe, &ServerProcessId) && ServerProcessId == PID))
+			if(!Imports().GetNamedPipeServerProcessId.exists() || (Imports().GetNamedPipeServerProcessId(Pipe, &ServerProcessId) && ServerProcessId == PID))
 			{
 				HANDLE ParentProcess = OpenProcess(PROCESS_QUERY_INFORMATION|PROCESS_VM_READ, FALSE, PID);
 				if(ParentProcess)
