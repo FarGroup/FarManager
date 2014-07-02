@@ -43,7 +43,7 @@ public:
 	void Check();
 
 private:
-	unsigned int WindowThreadRoutine(void* Param);
+	void WindowThreadRoutine();
 
 	notifier* m_Owner;
 	Thread m_Thread;

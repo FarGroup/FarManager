@@ -108,26 +108,42 @@ public:
 
 	virtual const wchar_t *GetNamespace() const override { return L""; }
 
-	bool Start(const std::function<unsigned int(void*)>& Function, void* Parameter)
-	{
-		return Starter([=]{ return Function(Parameter); });
-	}
+	template<typename T>
+	bool Start(T&& Function) { return Starter(std::bind(Function)); }
 
-	template<class T, class Y>
-	bool Start(unsigned int (T::*Function)(Y*), T* Object, Y* Parameter = nullptr)
+	template<typename T, typename A1>
+	bool Start(T&& Function, A1&& Arg1) { return Starter(std::bind(Function, Arg1)); }
+
+	template<typename T, typename A1, typename A2>
+	bool Start(T&& Function, A1&& Arg1, A2&& Arg2) { return Starter(std::bind(Function, Arg1, Arg2)); }
+
+	template<typename T, typename A1, typename A2, typename A3>
+	bool Start(T&& Function, A1&& Arg1, A2&& Arg2, A3&& Arg3) { return Starter(std::bind(Function, Arg1, Arg2, Arg3)); }
+
+	template<typename T, typename A1, typename A2, typename A3, typename A4>
+	bool Start(T&& Function, A1&& Arg1, A2&& Arg2, A3&& Arg3, A4&& Arg4) { return Starter(std::bind(Function, Arg1, Arg2, Arg3, Arg4)); }
+
+	// and so on...
+
+#if 0
+	// or variadic when we have them:
+	template<class T, class... A>
+	bool Start(T&& Function, A&&... Args)
 	{
-		return Starter([=]{ return (Object->*Function)(Parameter); });
+		return Starter(std::bind(Function, Args...));
 	}
+#endif
 
 	unsigned int GetId() const { return m_ThreadId; }
 
 private:
-	bool Starter(const std::function<unsigned int()>& f)
+	template<class T>
+	bool Starter(T&& f)
 	{
 		assert(!h);
 
-		auto Param = new std::function<unsigned int()>(f);
-		if (!(h = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, Wrapper, Param, 0, &m_ThreadId))))
+		auto Param = new T(std::move(f));
+		if (!(h = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, Wrapper<T>, Param, 0, &m_ThreadId))))
 		{
 			delete Param;
 			return false;
@@ -135,15 +151,16 @@ private:
 		return true;
 	}
 
+	template<class T>
 	static unsigned int WINAPI Wrapper(void* p)
 	{
 		EnableSeTranslation();
 
-		auto pParam = reinterpret_cast<std::function<unsigned int()>*>(p);
-		auto Param = *pParam;
+		auto pParam = reinterpret_cast<T*>(p);
+		auto Param = std::move(*pParam);
 		delete pParam;
-
-		return Param();
+		Param();
+		return 0;
 	}
 
 	unsigned int m_ThreadId;

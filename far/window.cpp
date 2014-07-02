@@ -153,7 +153,7 @@ void window_handler::Check()
 	}
 }
 
-unsigned int window_handler::WindowThreadRoutine(void* Param)
+void window_handler::WindowThreadRoutine()
 {
 	WNDCLASSEX wc={sizeof(wc)};
 	wc.lpfnWndProc = WndProc;
@@ -180,5 +180,4 @@ unsigned int window_handler::WindowThreadRoutine(void* Param)
 		}
 		UnregisterClass(wc.lpszClassName, 0);
 	}
-	return 0;
 }

@@ -168,7 +168,7 @@ BOOL WINAPI CtrlHandler(DWORD CtrlType)
 		{
 			CancelIoInProgress().Set();
 			Thread CancelSynchronousIoThread;
-			CancelSynchronousIoThread.Start(CancelSynchronousIoWrapper, Global->MainThreadHandle());
+			CancelSynchronousIoThread.Start(&CancelSynchronousIoWrapper, Global->MainThreadHandle());
 		}
 		WriteInput(KEY_BREAK);
 

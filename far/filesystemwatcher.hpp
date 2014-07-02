@@ -46,7 +46,7 @@ public:
 
 private:
 
-	unsigned int WatchRegister(LPVOID lpParameter);
+	void WatchRegister();
 
 	string Directory;
 	FILETIME PreviousLastWriteTime, CurrentLastWriteTime;

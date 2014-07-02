@@ -66,7 +66,7 @@ void FileSystemWatcher::Set(const string& Directory, bool WatchSubtree)
 		CurrentLastWriteTime = PreviousLastWriteTime;
 }
 
-unsigned int FileSystemWatcher::WatchRegister(LPVOID lpParameter)
+void FileSystemWatcher::WatchRegister()
 {
 	HANDLE Handle=FindFirstChangeNotification(Directory.data(), WatchSubtree,
 									FILE_NOTIFY_CHANGE_FILE_NAME|
@@ -87,8 +87,6 @@ unsigned int FileSystemWatcher::WatchRegister(LPVOID lpParameter)
 
 	DoneDone.Set();
 	FindCloseChangeNotification(Handle);
-
-	return 0;
 }
 
 void FileSystemWatcher::Watch(bool got_focus, bool check_time)

@@ -500,10 +500,9 @@ class HierarchicalConfigDb: public HierarchicalConfig, public SQLiteDb {
 
 	Event AsyncDone;
 
-	unsigned int ThreadProc(LPVOID lpParameter)
+	void AsyncDelete()
 	{
 		delete this;
-		return 0;
 	}
 
 protected:
@@ -525,13 +524,13 @@ public:
 	{
 		AsyncDone.Reset();
 		Thread FinishThread;
-		if (FinishThread.Start(&HierarchicalConfigDb::ThreadProc, this))
+		if (FinishThread.Start(&HierarchicalConfigDb::AsyncDelete, this))
 		{
 			Global->Db->AddThread(FinishThread);
 		}
 		else
 		{
-			ThreadProc(nullptr);
+			AsyncDelete();
 		}
 	}
 
@@ -2089,7 +2088,7 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb {
 		WorkThread.Wait();
 	}
 
-	unsigned int ThreadProc(LPVOID lpParameter)
+	void ThreadProc()
 	{
 		MultiWaiter Waiter;
 		Waiter.Add(AsyncWork);
@@ -2129,8 +2128,6 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb {
 			if (bCommit)
 				AsyncCommitDone.Set();
 		}
-
-		return 0;
 	}
 
 	bool AddInternal(DWORD TypeHistory, const string& HistoryName, const string &strName, int Type, bool Lock, const string &strGuid, const string &strFile, const string &strData)
