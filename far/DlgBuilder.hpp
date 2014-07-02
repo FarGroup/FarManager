@@ -816,6 +816,42 @@ public:
 	}
 };
 
+class PluginComboboxBinding : public DialogAPIBinding
+{
+private:
+	int *SelectedIndex;
+	wchar_t *TextBuf;
+	FarList *List;
+	
+public:
+	PluginComboboxBinding(const PluginStartupInfo &aInfo, HANDLE *aHandle, int aID, int *aValue, wchar_t *aText, FarList *aList)
+		: DialogAPIBinding(aInfo, aHandle, aID), SelectedIndex(aValue), TextBuf(aText), List(aList)
+	{
+	}
+
+	~PluginComboboxBinding()
+	{
+		if (List)
+		{
+			delete[] List->Items;
+		}
+		delete List;
+	}
+
+	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
+	{
+		if (SelectedIndex)
+		{
+			*SelectedIndex = Info.SendDlgMessage(*DialogHandle, DM_LISTGETCURPOS, ID, 0);
+		}
+		if (TextBuf)
+		{
+			FarDialogItemData fdid = {sizeof(FarDialogItemData), 0, TextBuf};
+			Info.SendDlgMessage(*DialogHandle, DM_GETTEXT, ID, &fdid);
+		}
+	}
+};
+
 /*
 Версия класса для динамического построения диалогов, используемая в плагинах к Far.
 */
@@ -950,6 +986,52 @@ public:
 
 			SetLastItemBinding(new PluginEditFieldBinding(Info, &DialogHandle, DialogItemsCount-1, Value, MaxSize));
 			return Item;
+		}
+
+		FarDialogItem *AddComboBox(int *SelectedItem, wchar_t *Text, int Width, const wchar_t* ItemsText[], size_t ItemCount, FARDIALOGITEMFLAGS Flags)
+		{
+			FarDialogItem *Item = AddDialogItem(DI_COMBOBOX, Text ? Text : L"");
+			SetNextY(Item);
+			Item->X2 = Item->X1 + Width;
+			Item->Flags |= Flags;
+
+			FarListItem *ListItems = nullptr;
+			if (ItemsText)
+			{
+				ListItems = new FarListItem[ItemCount];
+				for(size_t i=0; i<ItemCount; i++)
+				{
+					ListItems[i].Text = ItemsText[i];
+					ListItems[i].Flags = (*SelectedItem == static_cast<int>(i)) ? LIF_SELECTED : 0;
+				}
+			}
+			FarList *List = new FarList;
+			List->StructSize = sizeof(FarList);
+			List->Items = ListItems;
+			List->ItemsNumber = ListItems ? ItemCount : 0;
+			Item->ListItems = List;
+
+			SetLastItemBinding(new PluginComboboxBinding(Info, &DialogHandle, DialogItemsCount - 1, SelectedItem, Text, List));
+			return Item;
+		}
+
+		FarDialogItem *AddComboBox(int *SelectedItem, wchar_t *Text,  int Width, const int MessageIDs[], size_t ItemCount, FARDIALOGITEMFLAGS Flags)
+		{
+			const wchar_t** ItemsText = nullptr;
+			if (MessageIDs)
+			{
+				ItemsText = new const wchar_t*[ItemCount];
+				for (size_t i = 0; i < ItemCount; i++)
+				{
+					ItemsText[i] = GetLangString(MessageIDs[i]);
+				}
+			}
+			
+			FarDialogItem* result = AddComboBox(SelectedItem, Text, Width, ItemsText, ItemCount, Flags);
+			
+			delete [] ItemsText;
+
+			return result;
 		}
 };
 #endif /* __DLGBUILDER_HPP__ */
