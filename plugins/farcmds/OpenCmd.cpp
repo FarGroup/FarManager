@@ -11,14 +11,17 @@
 #define SIGN_UTF8_HI    0xBF
 
 
-static wchar_t* getCurrDir()
+static wchar_t* getCurrDir(bool winApi)
 {
 	wchar_t *CurDir=nullptr;
-	DWORD Size=GetCurrentDirectory(0,nullptr);
+	DWORD Size=winApi?GetCurrentDirectory(0,nullptr):FSF.GetCurrentDirectory(0,nullptr);
 	if (Size)
 	{
 		CurDir=new wchar_t[Size];
-		GetCurrentDirectory(Size,CurDir);
+		if (winApi)
+			GetCurrentDirectory(Size,CurDir);
+		else
+			FSF.GetCurrentDirectory(Size,CurDir);
 	}
 	return CurDir;
 }
@@ -1250,7 +1253,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 
 									if (tempDir)
 									{
-										SaveDir=getCurrDir();
+										SaveDir=getCurrDir(true);
 										DWORD sizeExp=ExpandEnvironmentStrings(tempDir,NULL,0);
 										wchar_t *workDir=new wchar_t[sizeExp+1];
 										if (workDir)
@@ -1263,7 +1266,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 
 									ConsoleTitle consoleTitle(cmd);
 
-									wchar_t* CurDir=getCurrDir();
+									wchar_t* CurDir=getCurrDir(tempDir != nullptr);
 
 									BOOL Created=CreateProcess(NULL,fullcmd,NULL,NULL,TRUE,0,NULL,CurDir,&si,&pi);
 
