@@ -50,6 +50,29 @@ class ConsoleTitle{
 };
 
 
+class MakeVETitle{
+	private:
+		wchar_t *Title;
+
+	public:
+		MakeVETitle(const wchar_t *Pref, const wchar_t *Cmd)
+		{
+			Title=new wchar_t[lstrlen(Pref)+(Cmd?lstrlen(Cmd):0)+1];
+			if (Title)
+			{
+				lstrcpy(Title,Pref);
+				if (Cmd) lstrcat(Title,Cmd);
+			}
+		}
+		~MakeVETitle()
+		{
+			if (Title)
+				delete[] Title;
+		}
+		const wchar_t *Get() {return Title;}
+};
+
+
 #define THREADSLEEP  200
 #define THREADREDRAW 10
 
