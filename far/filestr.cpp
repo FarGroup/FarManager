@@ -451,14 +451,15 @@ bool GetFileFormat(api::File& file, uintptr_t& nCodePage, bool* pSignatureFound,
 						bDetect = true;
 					}
 				}
+
+				if (!bDetect && IsTextUTF8(Buffer.get(), ReadSize))
+				{
+					nCodePage = CP_UTF8;
+					bDetect = true;
+				}
 			}
 
-			if (!bDetect && IsTextUTF8(Buffer.get(), ReadSize))
-			{
-				nCodePage=CP_UTF8;
-				bDetect=true;
-			}
-			else
+			if (!bDetect)
 			{
 				int cp = GetCpUsingUniversalDetector(Buffer.get(), ReadSize);
 				if ( cp >= 0 )
