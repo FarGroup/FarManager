@@ -7518,7 +7518,7 @@ upd:"File has to be reloaded to change codepage."
 upd:"File has to be reloaded to change codepage."
 upd:"File has to be reloaded to change codepage."
 upd:"File has to be reloaded to change codepage."
-upd:"File has to be reloaded to change codepage."
+"Archivo tiene que ser recargado para cambiar página de códigos."
 upd:"File has to be reloaded to change codepage."
 
 MEditorReloadCPWarnLost2
@@ -7528,7 +7528,7 @@ upd:"All unsaved changes will be lost."
 upd:"All unsaved changes will be lost."
 upd:"All unsaved changes will be lost."
 upd:"All unsaved changes will be lost."
-upd:"All unsaved changes will be lost."
+"Todos los cambios no guardados serán perdidos."
 upd:"All unsaved changes will be lost."
 
 
@@ -17415,7 +17415,7 @@ upd:"End of the document reached"
 upd:"End of the document reached"
 upd:"End of the document reached"
 upd:"End of the document reached"
-upd:"End of the document reached"
+"Fin del documento alcanzado"
 upd:"End of the document reached"
 
 MViewSearchFromBegin
@@ -17435,7 +17435,7 @@ upd:"Begin of the document reached"
 upd:"Begin of the document reached"
 upd:"Begin of the document reached"
 upd:"Begin of the document reached"
-upd:"Begin of the document reached"
+"Comienzo del documento alcanzado"
 upd:"Begin of the document reached"
 
 MViewSearchFromEnd
@@ -17455,7 +17455,7 @@ upd:"Whole document scanned"
 upd:"Whole document scanned"
 upd:"Whole document scanned"
 upd:"Whole document scanned"
-upd:"Whole document scanned"
+"Documento completo escaneado"
 upd:"Whole document scanned"
 
 MViewSearchRepeat
@@ -17465,7 +17465,7 @@ upd:"Repeat the search in the document?"
 upd:"Repeat the search in the document?"
 upd:"Repeat the search in the document?"
 upd:"Repeat the search in the document?"
-upd:"Repeat the search in the document?"
+"Repetir la búsqueda en el documento?"
 upd:"Repeat the search in the document?"
 #
 #fixed order end
