@@ -1,7 +1,7 @@
 !include ../makefile_vc_base
 
 NAME = FARCmds
-LINK_OBJS = $(OBJDIR)\FARCmds.obj
+LINK_OBJS = $(OBJDIR)\FARCmds.obj $(OBJDIR)\Mix.obj $(OBJDIR)\OpenCmd.obj
 DOCS = FARCmdsEng.hlf FARCmdsRus.hlf FARCmdsEng.lng FARCmdsRus.lng FARCmdsSky.lng FARCmdsSpa.lng
 USERLIBS = rpcrt4.lib
 
@@ -9,4 +9,6 @@ USERLIBS = rpcrt4.lib
 
 !include ..\makefile_vc_target_inc
 
-$(OBJDIR)\FARCmds.obj: FARCmds.cpp Mix.cpp OpenCmd.cpp FARCmds.hpp Lang.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp
+$(OBJDIR)\FARCmds.obj: FARCmds.cpp FARCmds.hpp Lang.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp
+$(OBJDIR)\Mix.obj: Mix.cpp FARCmds.hpp Lang.hpp version.hpp guid.hpp $(COMINC)\plugin.hpp
+$(OBJDIR)\OpenCmd.obj: OpenCmd.cpp FARCmds.hpp Lang.hpp version.hpp guid.hpp $(COMINC)\plugin.hpp

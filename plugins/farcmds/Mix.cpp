@@ -1,5 +1,34 @@
-#ifndef __mix_cpp
-#define __mix_cpp
+#include <CRT/crt.hpp>
+#include <objbase.h>
+#include <shlobj.h>
+#include <plugin.hpp>
+
+#include "FARCmds.hpp"
+#include "Lang.hpp"
+#include <initguid.h>
+#include "guid.hpp"
+
+
+const wchar_t *GetMsg(int MsgId)
+{
+	return Info.GetMsg(&MainGuid,MsgId);
+}
+
+// need "delete[]"
+wchar_t *ExpandEnv(const wchar_t* Src, DWORD* Length)
+{
+	DWORD sizeExp=ExpandEnvironmentStrings(Src,NULL,0);
+	wchar_t *temp=new wchar_t[sizeExp+1];
+	if (temp)
+		ExpandEnvironmentStrings(Src,temp,sizeExp);
+	else
+		sizeExp=0;
+
+	if (Length)
+		*Length=sizeExp;
+
+	return temp;
+}
 
 /*
  возвращает число, вырезав его из строки, или -2 в случае ошибки
@@ -11,7 +40,7 @@ int GetInt(wchar_t *Start, wchar_t *End)
 
 	if (End >= Start)
 	{
-		wchar_t Tmp[11];
+		wchar_t Tmp[16];
 		int Size=(int)(End-Start);
 
 		if (Size)
@@ -29,53 +58,6 @@ int GetInt(wchar_t *Start, wchar_t *End)
 
 	return Ret;
 }
-
-const wchar_t *GetMsg(int MsgId)
-{
-	return Info.GetMsg(&MainGuid,MsgId);
-}
-
-/*Возвращает TRUE, если файл name существует*/
-BOOL FileExists(const wchar_t *Name)
-{
-	return GetFileAttributes(Name)!=0xFFFFFFFF;
-}
-
-wchar_t *GetCommaWord(wchar_t *Src,wchar_t *Word,wchar_t Separator)
-{
-	int WordPos,SkipBrackets;
-
-	if (*Src==0)
-		return(NULL);
-
-	SkipBrackets=FALSE;
-
-	for (WordPos=0; *Src!=0; Src++,WordPos++)
-	{
-		if (*Src==L'[' && wcschr(Src+1,L']')!=NULL)
-			SkipBrackets=TRUE;
-
-		if (*Src==L']')
-			SkipBrackets=FALSE;
-
-		if (*Src==Separator && !SkipBrackets)
-		{
-			Word[WordPos]=0;
-			Src++;
-
-			while (IsSpace(*Src))
-				Src++;
-
-			return(Src);
-		}
-		else
-			Word[WordPos]=*Src;
-	}
-
-	Word[WordPos]=0;
-	return(Src);
-}
-
 
 // Заменить в строке Str Count вхождений подстроки FindStr на подстроку ReplStr
 // Если Count < 0 - заменять "до полной победы"
@@ -113,68 +95,87 @@ int ReplaceStrings(wchar_t *Str,const wchar_t *FindStr,const wchar_t *ReplStr,in
 	return J;
 }
 
+
 /*
  возвращает PipeFound
 */
 int PartCmdLine(const wchar_t *CmdStr,wchar_t *NewCmdStr,int SizeNewCmdStr,wchar_t *NewCmdPar,int SizeNewCmdPar)
 {
 	int PipeFound = FALSE;
-	int QuoteFound = FALSE;
-	ExpandEnvironmentStrings(CmdStr, NewCmdStr, SizeNewCmdStr);
-	FSF.Trim(NewCmdStr);
-	wchar_t *CmdPtr = NewCmdStr;
-	wchar_t *ParPtr = NULL;
-	// Разделим собственно команду для исполнения и параметры.
-	// При этом заодно определим наличие символов переопределения потоков
-	// Работаем с учетом кавычек. Т.е. пайп в кавычках - не пайп.
 
-	while (*CmdPtr)
+	if (NewCmdStr)
+		*NewCmdStr=0;
+	if (NewCmdPar)
+		*NewCmdPar=0;
+
+	wchar_t *Temp=ExpandEnv(CmdStr,nullptr);
+
+	if (Temp)
 	{
-		if (*CmdPtr == L'"')
-			QuoteFound = !QuoteFound;
+		FSF.Trim(Temp);
+		wchar_t *CmdPtr = Temp;
+		wchar_t *ParPtr = NULL;
+		int QuoteFound = FALSE;
 
-		if (!QuoteFound && CmdPtr != NewCmdStr)
+		// Разделим собственно команду для исполнения и параметры.
+		// При этом заодно определим наличие символов переопределения потоков
+		// Работаем с учетом кавычек. Т.е. пайп в кавычках - не пайп.
+
+		while (*CmdPtr)
 		{
-			if (*CmdPtr == L'>' || *CmdPtr == L'<' ||
-			        *CmdPtr == L'|' || *CmdPtr == L' ' ||
-			        *CmdPtr == L'/' ||      // вариант "far.exe/?"
-			        *CmdPtr == L'&'
-			   )
-			{
-				if (!ParPtr)
-					ParPtr = CmdPtr;
+			if (*CmdPtr == L'"')
+				QuoteFound = !QuoteFound;
 
-				if (*CmdPtr != L' ' && *CmdPtr != L'/')
-					PipeFound = TRUE;
+			if (!QuoteFound && CmdPtr != Temp)
+			{
+				if (*CmdPtr == L'>' || *CmdPtr == L'<' ||
+				        *CmdPtr == L'|' || *CmdPtr == L' ' ||
+				        *CmdPtr == L'/' ||      // вариант "far.exe/?"
+				        *CmdPtr == L'&'
+				   )
+				{
+					if (!ParPtr)
+						ParPtr = CmdPtr;
+
+					if (*CmdPtr != L' ' && *CmdPtr != L'/')
+						PipeFound = TRUE;
+				}
 			}
+
+			if (ParPtr && PipeFound) // Нам больше ничего не надо узнавать
+				break;
+
+			CmdPtr++;
 		}
 
-		if (ParPtr && PipeFound) // Нам больше ничего не надо узнавать
-			break;
+		if (NewCmdPar && ParPtr) // Мы нашли параметры и отделяем мух от котлет
+		{
+			if (*ParPtr == L' ') //AY: первый пробел между командой и параметрами не нужен,
+				*(ParPtr++)=0;     //    он добавляется заново в Execute.
 
-		CmdPtr++;
+			lstrcpyn(NewCmdPar, ParPtr, SizeNewCmdPar-1);
+			*ParPtr = 0;
+		}
+
+		if (NewCmdStr)
+		{
+			lstrcpyn(NewCmdStr, Temp, SizeNewCmdStr-1);
+			FSF.Unquote(NewCmdStr);
+		}
+
+		delete[] Temp;
 	}
 
-	if (ParPtr) // Мы нашли параметры и отделяем мух от котлет
-	{
-		if (*ParPtr == L' ') //AY: первый пробел между командой и параметрами не нужен,
-			*(ParPtr++)=0;     //    он добавляется заново в Execute.
-
-		lstrcpyn(NewCmdPar, ParPtr, SizeNewCmdPar-1);
-		*ParPtr = 0;
-	}
-
-	FSF.Unquote(NewCmdStr);
 	return PipeFound;
 }
 
 BOOL ProcessOSAliases(wchar_t *Str,int SizeStr)
 {
 	typedef DWORD (WINAPI *PGETCONSOLEALIAS)(
-	    wchar_t *lpSource,
-	    wchar_t *lpTargetBuffer,
-	    DWORD TargetBufferLength,
-	    wchar_t *lpExeName
+	    wchar_t *lpSource,          // in
+	    wchar_t *lpTargetBuffer,    // out
+	    DWORD TargetBufferLength,   // in
+	    wchar_t *lpExeName          // in
 	);
 	static PGETCONSOLEALIAS pGetConsoleAlias=NULL;
 
@@ -188,25 +189,42 @@ BOOL ProcessOSAliases(wchar_t *Str,int SizeStr)
 
 	wchar_t NewCmdStr[4096];
 	wchar_t NewCmdPar[4096];
-	*NewCmdStr=0;
-	*NewCmdPar=0;
+
 	PartCmdLine(Str,NewCmdStr,ARRAYSIZE(NewCmdStr),NewCmdPar,ARRAYSIZE(NewCmdPar));
-	wchar_t ModuleName[MAX_PATH];
-	GetModuleFileName(NULL,ModuleName,ARRAYSIZE(ModuleName));
-	wchar_t* ExeName=(wchar_t*)FSF.PointToName(ModuleName);
-	int ret=pGetConsoleAlias(NewCmdStr,NewCmdStr,sizeof(NewCmdStr),ExeName);
+
+	DWORD SizeModuleName = 0;
+	wchar_t *ModuleName=nullptr;
+	// <GetModuleFileName>
+	{
+		DWORD BufferSize = MAX_PATH;
+
+		do {
+			BufferSize *= 2;
+			wchar_t *ModuleNameTemp=(wchar_t*)realloc(ModuleName,BufferSize);
+			if (ModuleNameTemp)
+			{
+				ModuleName=ModuleNameTemp;
+				SizeModuleName = GetModuleFileName(NULL, ModuleName, BufferSize);
+			}
+		} while ((SizeModuleName >= BufferSize) || (!SizeModuleName && GetLastError() == ERROR_INSUFFICIENT_BUFFER));
+	}
+
+	int ret=pGetConsoleAlias(NewCmdStr,NewCmdStr,sizeof(NewCmdStr),(wchar_t*)FSF.PointToName(ModuleName));
 
 	if (!ret)
 	{
-		if (ExpandEnvironmentStrings(L"%COMSPEC%",ModuleName,ARRAYSIZE(ModuleName)))
+		wchar_t *CSModuleName=ExpandEnv(L"%COMSPEC%",nullptr);
+		if (CSModuleName)
 		{
-			ExeName=(wchar_t*)FSF.PointToName(ModuleName);
-			ret=pGetConsoleAlias(NewCmdStr,NewCmdStr,sizeof(NewCmdStr),ExeName);
+			ret=pGetConsoleAlias(NewCmdStr,NewCmdStr,sizeof(NewCmdStr),(wchar_t*)FSF.PointToName(CSModuleName));
+			delete[] CSModuleName;
 		}
 	}
 
 	if (!ret)
 	{
+		if (ModuleName)
+			free(ModuleName);
 		return FALSE;
 	}
 
@@ -217,6 +235,10 @@ BOOL ProcessOSAliases(wchar_t *Str,int SizeStr)
 	}
 
 	lstrcpyn(Str,NewCmdStr,SizeStr-1);
+
+	if (ModuleName)
+		free(ModuleName);
+
 	return TRUE;
 }
 
@@ -226,17 +248,29 @@ wchar_t *GetShellLinkPath(const wchar_t *LinkFile)
 	bool Result=false;
 	wchar_t *Path=nullptr;
 
-	wchar_t FileName[MAX_PATH*5];
-	ExpandEnvironmentStrings(LinkFile, FileName, ARRAYSIZE(FileName));
-	FSF.Unquote(FileName);
-	FSF.ConvertPath(CPM_NATIVE, FileName, FileName, ARRAYSIZE(FileName));
-	wchar_t *ptrFileName=FileName;
-
-	if (!(*ptrFileName && FileExists(ptrFileName)))
+	wchar_t *Temp=ExpandEnv(LinkFile,nullptr);
+	if (!Temp)
 		return nullptr;
 
+	FSF.Unquote(Temp);
+	size_t SizeNativePath=FSF.ConvertPath(CPM_NATIVE, Temp, nullptr, 0);
+	wchar_t *FileName=new wchar_t[SizeNativePath+1];
+	if (!FileName)
+	{
+		delete[] Temp;
+		return nullptr;
+	}
+	FSF.ConvertPath(CPM_NATIVE, Temp, FileName, SizeNativePath);
+	delete[] Temp;
+
+	if (!(*FileName && FileExists(FileName)))
+	{
+		delete[] FileName;
+		return nullptr;
+	}
+
 	// <Check lnk-header>
-	HANDLE hFile = CreateFile(ptrFileName, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL );
+	HANDLE hFile = CreateFile(FileName, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL );
 
 	if (hFile != INVALID_HANDLE_VALUE)
 	{
@@ -286,7 +320,7 @@ wchar_t *GetShellLinkPath(const wchar_t *LinkFile)
 			hres = psl->QueryInterface(IID_IPersistFile, (void**)&ppf);
 			if (SUCCEEDED(hres))
 			{
-				hres = ppf->Load(ptrFileName, STGM_READ);
+				hres = ppf->Load(FileName, STGM_READ);
 				if (SUCCEEDED(hres))
 				{
 					hres = psl->Resolve(NULL, 0);
@@ -311,6 +345,8 @@ wchar_t *GetShellLinkPath(const wchar_t *LinkFile)
 		// </get target>
 	}
 
+	delete[] FileName;
+
 	return Path;
 }
 
@@ -318,5 +354,3 @@ bool StrToGuid(const wchar_t *Value,GUID *Guid)
 {
 	return UuidFromString(reinterpret_cast<unsigned short*>((void*)Value), Guid) == RPC_S_OK;
 }
-
-#endif

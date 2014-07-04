@@ -42,9 +42,7 @@ struct OptionsName OptName={
 
 struct PluginStartupInfo Info;
 struct FarStandardFunctions FSF;
-
-#include "Mix.cpp"
-#include "OpenCmd.cpp"
+struct Options Opt;
 
 void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 {

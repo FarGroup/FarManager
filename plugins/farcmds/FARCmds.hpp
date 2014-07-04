@@ -8,9 +8,6 @@ struct OptionsName
 	const wchar_t *Separator;
 };
 
-inline int IsSpace(int x) { return x==L' ' || x==L'\t'; }
-inline int IsEol(int x)  { return x==L'\r' || x==L'\n'; }
-
 struct Options
 {
 	int ShowCmdOutput;
@@ -19,7 +16,7 @@ struct Options
 	int EditNewFiles;
 	DWORD MaxDataSize;
 	wchar_t Separator[4];
-} Opt;
+};
 
 class ConsoleTitle{
 	private:
@@ -103,14 +100,21 @@ enum enShowCmdOutput {
 
 extern struct PluginStartupInfo Info;
 extern struct FarStandardFunctions FSF;
+extern struct Options Opt;
+
+
+inline int IsSpace(int x) { return x==L' ' || x==L'\t'; }
+inline int IsEol(int x)  { return x==L'\r' || x==L'\n'; }
+
+inline bool FileExists(const wchar_t *Name)  { return GetFileAttributes(Name)!=0xFFFFFFFF; }
 
 
 bool StrToGuid(const wchar_t *Value,GUID *Guid);
 int GetInt(wchar_t *Start, wchar_t *End);
 const wchar_t *GetMsg(int MsgId);
-BOOL FileExists(const wchar_t *Name);
-wchar_t *GetCommaWord(wchar_t *Src,wchar_t *Word,wchar_t Separator);
 int ReplaceStrings(wchar_t *Str,const wchar_t *FindStr,const wchar_t *ReplStr,int Count,BOOL IgnoreCase);
 int PartCmdLine(const wchar_t *CmdStr,wchar_t *NewCmdStr,int SizeNewCmdStr,wchar_t *NewCmdPar,int SizeNewCmdPar);
 BOOL ProcessOSAliases(wchar_t *Str,int SizeStr);
 wchar_t *GetShellLinkPath(const wchar_t *LinkFile);
+wchar_t *OpenFromCommandLine(const wchar_t *_farcmd);
+wchar_t *ExpandEnv(const wchar_t* Src, DWORD* Length);
