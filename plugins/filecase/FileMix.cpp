@@ -1,3 +1,7 @@
+#include <CRT/crt.hpp>
+#include "FileCase.hpp"
+#include "guid.hpp"
+
 const wchar_t *GetMsg(int MsgId)
 {
 	return Info.GetMsg(&MainGuid,MsgId);

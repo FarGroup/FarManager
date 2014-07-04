@@ -1,3 +1,5 @@
+#include "FileCase.hpp"
+
 //   Process case conversion of single file\directory
 //     ProcessName - convert case of given filename
 //                   use all options from `Opt`

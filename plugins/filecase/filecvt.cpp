@@ -1,3 +1,9 @@
+#include "FileCase.hpp"
+#include <DlgBuilder.hpp>
+#include <PluginSettings.hpp>
+#include "FileLng.hpp"
+#include "guid.hpp"
+
 int ResetButtonID;
 int WordDivEditID;
 

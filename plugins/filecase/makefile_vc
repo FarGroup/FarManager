@@ -1,11 +1,14 @@
 !include ../makefile_vc_base
 
 NAME = FileCase
-LINK_OBJS = $(OBJDIR)\FileCase.obj
+LINK_OBJS = $(OBJDIR)\FileCase.obj $(OBJDIR)\filecvt.obj $(OBJDIR)\FileMix.obj $(OBJDIR)\ProcessName.obj
 DOCS = CaseEng.hlf CaseRus.hlf CaseEng.lng CaseRus.lng CaseSky.lng CaseSpa.lng
 
 !include ..\makefile_vc_def_inc
 
 !include ..\makefile_vc_target_inc
 
-$(OBJDIR)\FileCase.obj: FileCase.cpp filecvt.cpp FileMix.cpp ProcessName.cpp FileCase.hpp FileLng.hpp version.hpp guid.hpp $(COMINC)\plugin.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp
+$(OBJDIR)\FileCase.obj: FileCase.cpp FileCase.hpp FileLng.hpp version.hpp guid.hpp $(COMINC)\plugin.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp
+$(OBJDIR)\filecvt.obj: filecvt.cpp FileCase.hpp FileLng.hpp guid.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp
+$(OBJDIR)\FileMix.obj: FileMix.cpp FileCase.hpp guid.hpp
+$(OBJDIR)\ProcessName.obj: ProcessName.cpp FileCase.hpp

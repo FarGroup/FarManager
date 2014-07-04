@@ -1,25 +1,13 @@
 #include <CRT/crt.hpp>
-#include <plugin.hpp>
 #include <PluginSettings.hpp>
-#include <DlgBuilder.hpp>
-#include "FileLng.hpp"
 #include "FileCase.hpp"
 #include "version.hpp"
 #include <initguid.h>
 #include "guid.hpp"
+#include "FileLng.hpp"
 
 #if defined(__GNUC__)
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-	BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
-#ifdef __cplusplus
-};
-#endif
-
-BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
+extern "C" BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 {
 	(void) lpReserved;
 	(void) dwReason;
@@ -28,23 +16,9 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 }
 #endif
 
-static struct PluginStartupInfo Info;
-static struct FarStandardFunctions FSF;
-
-struct Options
-{
-	int ConvertMode;
-	int ConvertModeExt;
-	int SkipMixedCase;
-	int ProcessSubDir;
-	int ProcessDir;
-	wchar_t WordDiv[512];
-	int WordDivLen;
-} Opt;
-
-#include "FileMix.cpp"
-#include "filecvt.cpp"
-#include "ProcessName.cpp"
+PluginStartupInfo Info;
+FarStandardFunctions FSF;
+Options Opt;
 
 void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 {
