@@ -1330,14 +1330,22 @@ unfinished:
 	return nw;
 }
 
-static inline int Utf8_GetChar(const char *src, int length, wchar_t &wc)
+static inline int Utf8_GetChar(const char *src, int length, wchar_t* wc)
 {
 	wchar_t w1[2], w2[2];
 	int tail;
-	if (Utf8::ToWideChar(src, length, w1, w2, -2, tail) <= 0)
+	int WCharCount = Utf8::ToWideChar(src, length, w1, w2, -2, tail);
+	
+	if (WCharCount <= 0)
 		return 0;
 
-	if ((wc = w1[0]) == Utf::REPLACE_CHAR && w2[0] == L'?')
+	wc[0] = w1[0];
+	if (WCharCount > 1)
+	{
+		wc[1] = w1[1];
+	}
+
+	if (w1[0] == Utf::REPLACE_CHAR && w2[0] == L'?')
 		return tail - length; // failed: negative
 	else
 		return length - tail; // succeed: positive
@@ -1356,7 +1364,7 @@ int Utf8::ToWideChar(const char *src, int length, wchar_t* out, int wlen, Utf::E
 		return 0;
 
 	int no = 0, ns = 0, ne = 0, move = 1;
-	wchar_t dummy_out, w1;
+	wchar_t dummy_out;
 	if (!out)
 	{
 		out = &dummy_out; move = 0;
@@ -1364,13 +1372,14 @@ int Utf8::ToWideChar(const char *src, int length, wchar_t* out, int wlen, Utf::E
 
 	while (length > ns)
 	{
+		wchar_t w1[2] = {};
 		int nc = Utf8_GetChar(src+ns, length-ns, w1);
 		if (!nc)
 			break;
 
 		if (nc < 0)
 		{
-			w1 = Utf::REPLACE_CHAR; nc = -nc;
+			w1[0] = Utf::REPLACE_CHAR; nc = -nc;
 			if (errs && 1 == ++ne)
 			{
 				errs->first_src = ns; errs->first_out = no;
@@ -1386,9 +1395,17 @@ int Utf8::ToWideChar(const char *src, int length, wchar_t* out, int wlen, Utf::E
 			move = 0;
 		}
 
-		*out = w1;
+		*out = w1[0];
 		out += move;
 		++no;
+
+		if (w1[1])
+		{
+			*out = w1[1];
+			out += move;
+			++no;
+		}
+
 		ns += nc;
 	}
 
