@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?> 
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets">
   </ImportGroup>
@@ -21,9 +21,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="UserMacros">
-  <SrcRoot>$(MSBuildThisFileDirectory)..\..\..\</SrcRoot>
-  <CurPath>$(Configuration).$(Platform).v$(VisualStudioVersion)\$(OutDir)</CurPath>
-  <OutputsRoot>$(MSBuildThisFileDirectory)..\_output\</OutputsRoot>
+    <SrcRoot>$(MSBuildThisFileDirectory)..\..\..\</SrcRoot>
+    <CurPath>$(Configuration).$(Platform).v$(VisualStudioVersion)\$(OutDir)</CurPath>
+    <OutputsRoot>$(MSBuildThisFileDirectory)..\_output\</OutputsRoot>
   </PropertyGroup>
   <PropertyGroup>
     <RootNamespace>$(ProjectName)</RootNamespace>
@@ -78,7 +78,8 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <LinkTimeCodeGeneration></LinkTimeCodeGeneration>
+      <LinkTimeCodeGeneration>
+      </LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
 
@@ -97,6 +98,10 @@
     <Link>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
+    <PostBuildEvent>
+      <Message>Fixing subsystem version</Message>
+      <Command>editbin /nologo /subsystem:console,5.0 /osversion:5.0 $(OutDir)$(TargetName)$(TargetExt) &gt; nul</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
 
   <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
@@ -112,7 +117,6 @@
     <Link>
     </Link>
   </ItemDefinitionGroup>
-
   <ItemGroup>
     <ClCompile Include="*.cpp" />
     <ClCompile Include="*.c" />
@@ -131,17 +135,17 @@
     <None Include="changelog" />
     <CustomBuild Include="*.lng">
       <Message>%(Identity)</Message>
-      <Command>copy %(Identity) $(OutDir) > nul</Command>
+      <Command>copy %(Identity) $(OutDir) &gt; nul</Command>
       <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="*.hlf">
       <Message>%(Identity)</Message>
-      <Command>copy %(Identity) $(OutDir) > nul</Command>
+      <Command>copy %(Identity) $(OutDir) &gt; nul</Command>
       <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="*.farconfig">
       <Message>%(Identity)</Message>
-      <Command>copy %(Identity) $(OutDir) > nul</Command>
+      <Command>copy %(Identity) $(OutDir) &gt; nul</Command>
       <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
   </ItemGroup>

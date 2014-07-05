@@ -27,5 +27,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <OutDir>plugins\$(ProjectName)</OutDir>
   </PropertyGroup>
-  <Import Project="$(ProjectDir)..\..\_build\vc\config\common.props" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(ProjectDir)..\..\_build\vc\config\common.props" />
+  </ImportGroup>
 </Project>
