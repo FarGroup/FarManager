@@ -91,24 +91,16 @@ end
 -- END: Functions implemented via "returning a key" to Far
 -------------------------------------------------------------------------------
 
-local PluginInfo = {
-  Flags = bor(F.PF_PRELOAD,F.PF_FULLCMDLINE,F.PF_EDITOR,F.PF_VIEWER,F.PF_DIALOG),
-  CommandPrefix = "lm:macro:lua:moon",
-  PluginMenuGuids = win.Uuid("EF6D67A2-59F7-4DF3-952E-F9049877B492"),
-  PluginMenuStrings = { "Macro Browser" },
-}
-
-local FullPluginInfo
+local PluginInfo
 
 function export.GetPluginInfo()
-  local out = {
-    Flags = PluginInfo.Flags,
-    CommandPrefix = PluginInfo.CommandPrefix,
-    PluginMenuGuids = PluginInfo.PluginMenuGuids,
-    PluginMenuStrings = {}
+  PluginInfo = {
+    Flags = bor(F.PF_PRELOAD,F.PF_FULLCMDLINE,F.PF_EDITOR,F.PF_VIEWER,F.PF_DIALOG),
+    CommandPrefix = "lm:macro:lua:moon",
+    PluginMenuGuids = win.Uuid("EF6D67A2-59F7-4DF3-952E-F9049877B492"),
+    PluginMenuStrings = { "Macro Browser" },
   }
-  FullPluginInfo = out
-  for i,v in ipairs(PluginInfo.PluginMenuStrings) do out.PluginMenuStrings[i]=v end
+  local out = PluginInfo
 
   local wtype = far.AdvControl("ACTL_GETWINDOWTYPE").Type
   for _,item in ipairs(utils.GetMenuItems()) do
