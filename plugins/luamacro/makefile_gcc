@@ -12,7 +12,7 @@ DOCS = _globalinfo.lua api.lua luamacro.lua macrotest.lua utils.lua \
        mbrowser.lua lang.lua panelsort.lua winapi.lua farapi.lua moonscript.lua \
        keymacro.lua lm_eng.lng lm_rus.lng lm_sky.lng lm_spa.lng
 SRCS = luafar/luaplug.c
-USERCPP = -Iluasdk/include -DEXPORT_OPEN -DEXPORT_EXITFAR \
+USERCPP = -Iluasdk/include -DEXPORT_OPEN -DEXPORT_EXITFAR -DEXPORT_CONFIGURE \
           -DEXPORT_PROCESSEDITOREVENT -DEXPORT_PROCESSVIEWEREVENT \
           -DEXPORT_PROCESSDIALOGEVENT -DEXPORT_PROCESSEDITORINPUT
 USERLIBS = $(LUALIB) luasdk/$(DIRBIT)/lua$(LUAVER).dll

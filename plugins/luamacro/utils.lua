@@ -379,6 +379,44 @@ local function AddEvent (srctable)
   return macro.id
 end
 
+local AddedMenuItems = {}
+
+local function AddMenuItem (srctable)
+  if type(srctable)=="table" and
+     type(srctable.menu)=="string" and
+     type(srctable.area)=="string" and
+     type(srctable.guid)=="string" and
+     type(srctable.title)=="function" and
+     type(srctable.action)=="function"
+  then
+    local item = {}
+    item.guid = win.Uuid()
+    if item.guid then
+      item.flags = {}
+      for w in srctable.menu:lower():gmatch("%S+") do
+        if w=="plugins" or w=="disks" or w=="config" then item.flags[w]=true end
+      end
+      for w in srctable.area:lower():gmatch("%S+") do
+        if     w=="shell"  then item.flags[F.WTYPE_PANELS]=true
+        elseif w=="editor" then item.flags[F.WTYPE_EDITOR]=true
+        elseif w=="viewer" then item.flags[F.WTYPE_VIEWER]=true
+        elseif w=="dialog" then item.flags[F.WTYPE_DIALOG]=true
+        elseif w=="menu"   then item.flags[F.WTYPE_VMENU]=true
+        end
+      end
+      item.title = srctable.title
+      item.action = srctable.action
+      item.description = type(srctable.description)=="string" and srctable.description or ""
+      item.FileName = AddMacro_filename
+      item.id = #AddedMenuItems + 1
+      AddedMenuItems[item.id] = item
+      AddedMenuItems[item.guid] = item
+      return true
+    end
+  end
+  return false
+end
+
 local function EnumMacros (strArea, resetEnum)
   local area = strArea:lower()
   if Areas[area] then
@@ -419,25 +457,45 @@ local function ErrMsgLoad (msg, filename, isMoonScript, mode)
   local string_sub = string.sub
 
   if mode=="run" then
-    local fname = msg:match("^(.-):%d+:")
-    if string_sub(fname,1,3)=="..." then
-      fname=string_sub(fname,4)
-      -- for k=1,5 do
-      --   if fname:utf8valid() then break end
-      --   fname = string_sub(fname,2)
-      -- end
+    local found = false
+    local fname,line = msg:match("^(.-):(%d+):")
+    if fname then
+      line = tonumber(line)
+      if string_sub(fname,1,3) ~= "..." then
+        found = true
+      else
+        fname = string_sub(fname,4)
+        -- for k=1,5 do
+        --   if fname:utf8valid() then break end
+        --   fname = string_sub(fname,2)
+        -- end
+        fname = fname:gsub("/", "\\")
+        local middle = fname:match([=[^[^\\]*\[^\\]+\]=])
+        if middle then
+          local from = string.find(filename:lower(), middle:lower(), 1, true)
+          if from then
+            fname = string_sub(filename,1,from-1) .. fname
+            local attr = win.GetFileAttr(fname)
+            found = attr and not attr:find("d")
+          end
+        end
+      end
     end
-    if #filename >= #fname and string_sub(filename,-#fname) ~= fname then
-      far.Message(msg, title, "OK", "wl") -- temporary "solution"
-      return
+    if found then
+      if 2 == far.Message(msg, title, "OK;Edit", "wl") then
+        if isMoonScript then line = GetMoonscriptLineNumber(fname,line) end
+        editor.Editor(fname,nil,nil,nil,nil,nil,nil,line or 1,nil,65001)
+      end
+    else
+      far.Message(msg, title, "OK", "wl")
     end
-  end
-
-  if 2==far.Message(msg, title, "OK;Edit", "wl") then
-    local pattern = isMoonScript and mode=="compile" and "%[(%d+)%] >>" or "^[^\n]-:(%d+):"
-    local line = tonumber(msg:match(pattern))
-    if line and isMoonScript and mode=="run" then line = GetMoonscriptLineNumber(filename,line) end
-    editor.Editor(filename,nil,nil,nil,nil,nil,nil,line or 1,nil,65001)
+  else
+    if 2 == far.Message(msg, title, "OK;Edit", "wl") then
+      local pattern = isMoonScript and "%[(%d+)%] >>" or "^[^\n]-:(%d+):"
+      local line = tonumber(msg:match(pattern))
+      if line and isMoonScript and mode=="run" then line = GetMoonscriptLineNumber(filename,line) end
+      editor.Editor(filename,nil,nil,nil,nil,nil,nil,line or 1,nil,65001)
+    end
   end
 end
 
@@ -457,6 +515,7 @@ local function LoadMacros (unload)
   Events,Subscriptions = {},{}
   EnumState = {}
   LoadedMacros = {}
+  AddedMenuItems = {}
   if Shared.panelsort then Shared.panelsort.DeleteSortModes() end
 
   local AreaNames = allAreas and AllAreaNames or SomeAreaNames
@@ -512,7 +571,8 @@ local function LoadMacros (unload)
         ErrMsgLoad(msg,FullPath,isMoonScript,"compile")
         return
       end
-      local env = {Macro=AddRegularMacro,Event=AddEvent,NoMacro=DummyFunc,NoEvent=DummyFunc}
+      local env = {Macro=AddRegularMacro,Event=AddEvent,NoMacro=DummyFunc,NoEvent=DummyFunc,
+                   MenuItem=AddMenuItem,NoMenuItem=DummyFunc}
       setmetatable(env,gmeta)
       setfenv(f, env)
       AddMacro_filename = FullPath
@@ -883,4 +943,5 @@ return {
   CheckFileName = CheckFileName,
   FlagsToString = FlagsToString,
   GetMoonscriptLineNumber = GetMoonscriptLineNumber,
+  GetMenuItems = function() return AddedMenuItems end,
 }

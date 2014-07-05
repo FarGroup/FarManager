@@ -1,4 +1,5 @@
 EXPORTS 
+    ConfigureW
     ExitFARW
     GetGlobalInfoW
     GetMinFarVersionW

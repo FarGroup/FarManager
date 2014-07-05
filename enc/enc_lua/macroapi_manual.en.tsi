@@ -1673,6 +1673,20 @@ mtime=3613334457
 </article>
 </node>
 <node>
+id=90
+lv=2
+dt=Text
+nm=Adding items to Far Manager menus
+ctime=3613740592
+mtime=3613740694
+<article>
+#_<markdown>
+#_
+#_Under construction.
+#_
+</article>
+</node>
+<node>
 id=77
 lv=2
 dt=Text

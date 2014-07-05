@@ -97,8 +97,41 @@ local PluginInfo = {
   PluginMenuGuids = win.Uuid("EF6D67A2-59F7-4DF3-952E-F9049877B492"),
   PluginMenuStrings = { "Macro Browser" },
 }
+
+local FullPluginInfo
+
 function export.GetPluginInfo()
-  return PluginInfo
+  local out = {
+    Flags = PluginInfo.Flags,
+    CommandPrefix = PluginInfo.CommandPrefix,
+    PluginMenuGuids = PluginInfo.PluginMenuGuids,
+    PluginMenuStrings = {}
+  }
+  FullPluginInfo = out
+  for i,v in ipairs(PluginInfo.PluginMenuStrings) do out.PluginMenuStrings[i]=v end
+
+  local wtype = far.AdvControl("ACTL_GETWINDOWTYPE").Type
+  for _,item in ipairs(utils.GetMenuItems()) do
+    local title = item.title(wtype)
+    if type(title) == "string" then
+      if item.flags.config then
+        out.PluginConfigStrings = out.PluginConfigStrings or {}
+        table.insert(out.PluginConfigStrings, title)
+        out.PluginConfigGuids = out.PluginConfigGuids and out.PluginConfigGuids..item.guid or item.guid
+      end
+      if item.flags.disks then
+        out.DiskMenuStrings = out.DiskMenuStrings or {}
+        table.insert(out.DiskMenuStrings, title)
+        out.DiskMenuGuids = out.DiskMenuGuids and out.DiskMenuGuids..item.guid or item.guid
+      end
+      if item.flags.plugins and item.flags[wtype] then
+        out.PluginMenuStrings = out.PluginMenuStrings or {}
+        table.insert(out.PluginMenuStrings, title)
+        out.PluginMenuGuids = out.PluginMenuGuids and out.PluginMenuGuids..item.guid or item.guid
+      end
+    end
+  end
+  return out
 end
 
 local PatSplitMacroString = regex.new([[
@@ -365,9 +398,19 @@ function export.Open (OpenFrom, arg1, ...)
     end
 
   else
-    macrobrowser()
+    local items = utils.GetMenuItems()
+    if items[arg1] then
+      items[arg1].action(OpenFrom, ...)
+    else
+      macrobrowser()
+    end
 
   end
+end
+
+function export.Configure (guid)
+  local items = utils.GetMenuItems()
+  if items[guid] then items[guid].action() end
 end
 
 -- Add function unicode.utf8.cfind:
