@@ -390,8 +390,8 @@ local function AddMenuItem (srctable)
      type(srctable.action)=="function"
   then
     local item = {}
-    item.guid = win.Uuid()
-    if item.guid then
+    item.guid = win.Uuid(srctable.guid)
+    if item.guid and #item.guid==16 and not AddedMenuItems[item.guid] then
       item.flags = {}
       for w in srctable.menu:lower():gmatch("%S+") do
         if w=="plugins" or w=="disks" or w=="config" then item.flags[w]=true end
