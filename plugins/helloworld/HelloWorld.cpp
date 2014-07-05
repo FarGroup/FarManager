@@ -98,3 +98,27 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 
 	return nullptr;
 }
+
+intptr_t WINAPI ProcessEditorInputW(const struct ProcessEditorInputInfo *Info)
+{
+   if
+   (
+      (Info->Rec.EventType != KEY_EVENT && Info->Rec.EventType != 0x8001) ||
+      Info->Rec.Event.KeyEvent.bKeyDown == 0
+   ) return 0;
+
+   if ((Info->Rec.EventType == KEY_EVENT) && (Info->Rec.Event.KeyEvent.uChar.UnicodeChar == L'{'))
+   {
+      INPUT_RECORD tr;
+      tr.EventType = KEY_EVENT;
+      tr.Event.KeyEvent.bKeyDown = true;
+      tr.Event.KeyEvent.wRepeatCount = 1;
+      tr.Event.KeyEvent.wVirtualKeyCode = VK_RETURN;
+      tr.Event.KeyEvent.wVirtualScanCode = 0;
+      tr.Event.KeyEvent.uChar.UnicodeChar = 0;
+      tr.Event.KeyEvent.dwControlKeyState = 0;
+      ::Info.EditorControl (-1, ECTL_PROCESSINPUT, 0, &tr); 
+      return 1;
+   }
+   return 0;
+}

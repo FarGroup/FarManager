@@ -2,13 +2,6 @@
 #include "Proclng.hpp"
 #include "perfthread.hpp"
 
-//#ifdef _WIN64
-extern "C"
-{
-	int _fltused = 0;
-}
-//#endif
-
 // obtained from PSAPI.DLL
 /*
 struct ModuleData {
