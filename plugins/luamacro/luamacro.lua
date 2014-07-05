@@ -112,19 +112,20 @@ function export.GetPluginInfo()
 
   local wtype = far.AdvControl("ACTL_GETWINDOWTYPE").Type
   for _,item in ipairs(utils.GetMenuItems()) do
-    local title = item.title(wtype)
+    local flags = item.flags
+    local title = (flags.config or flags.disks or flags.plugins and flags[wtype]) and item.title(wtype)
     if type(title) == "string" then
-      if item.flags.config then
+      if flags.config then
         out.PluginConfigStrings = out.PluginConfigStrings or {}
         table.insert(out.PluginConfigStrings, title)
         out.PluginConfigGuids = out.PluginConfigGuids and out.PluginConfigGuids..item.guid or item.guid
       end
-      if item.flags.disks then
+      if flags.disks then
         out.DiskMenuStrings = out.DiskMenuStrings or {}
         table.insert(out.DiskMenuStrings, title)
         out.DiskMenuGuids = out.DiskMenuGuids and out.DiskMenuGuids..item.guid or item.guid
       end
-      if item.flags.plugins and item.flags[wtype] then
+      if flags.plugins and flags[wtype] then
         out.PluginMenuStrings = out.PluginMenuStrings or {}
         table.insert(out.PluginMenuStrings, title)
         out.PluginMenuGuids = out.PluginMenuGuids and out.PluginMenuGuids..item.guid or item.guid
