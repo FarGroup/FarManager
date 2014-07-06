@@ -386,7 +386,7 @@ local function AddMenuItem (srctable)
      type(srctable.menu)=="string" and
      type(srctable.area)=="string" and
      type(srctable.guid)=="string" and
-     type(srctable.title)=="function" and
+     type(srctable.text)=="function" and
      type(srctable.action)=="function"
   then
     local item = {}
@@ -404,7 +404,7 @@ local function AddMenuItem (srctable)
         elseif w=="menu"   then item.flags[F.WTYPE_VMENU]=true
         end
       end
-      item.title = srctable.title
+      item.text = srctable.text
       item.action = srctable.action
       item.description = type(srctable.description)=="string" and srctable.description or ""
       item.FileName = AddMacro_filename
