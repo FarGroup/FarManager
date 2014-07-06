@@ -384,7 +384,6 @@ local AddedMenuItems = {}
 local function AddMenuItem (srctable)
   if type(srctable)=="table" and
      type(srctable.menu)=="string" and
-     type(srctable.area)=="string" and
      type(srctable.guid)=="string" and
      type(srctable.text)=="function" and
      type(srctable.action)=="function"
@@ -396,12 +395,14 @@ local function AddMenuItem (srctable)
       for w in srctable.menu:lower():gmatch("%S+") do
         if w=="plugins" or w=="disks" or w=="config" then item.flags[w]=true end
       end
-      for w in srctable.area:lower():gmatch("%S+") do
-        if     w=="shell"  then item.flags[F.WTYPE_PANELS]=true
-        elseif w=="editor" then item.flags[F.WTYPE_EDITOR]=true
-        elseif w=="viewer" then item.flags[F.WTYPE_VIEWER]=true
-        elseif w=="dialog" then item.flags[F.WTYPE_DIALOG]=true
-        elseif w=="menu"   then item.flags[F.WTYPE_VMENU]=true
+      if type(srctable.area)=="string" then
+        for w in srctable.area:lower():gmatch("%S+") do
+          if     w=="shell"  then item.flags[F.WTYPE_PANELS]=true
+          elseif w=="editor" then item.flags[F.WTYPE_EDITOR]=true
+          elseif w=="viewer" then item.flags[F.WTYPE_VIEWER]=true
+          elseif w=="dialog" then item.flags[F.WTYPE_DIALOG]=true
+          elseif w=="menu"   then item.flags[F.WTYPE_VMENU]=true
+          end
         end
       end
       item.text = srctable.text
