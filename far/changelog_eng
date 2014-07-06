@@ -3,6 +3,47 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 06.07.2014 15:24:29 +0200 - build 3979
+
+1. Refactoring.
+
+drkns 04.07.2014 22:46:04 +0200 - build 3978
+
+1. Inner utf8 -> utf16 convertor processed 4-byte characters incorrectly.
+
+drkns 03.07.2014 19:16:23 +0200 - build 3977
+
+1. Correction of 3869.
+
+drkns 03.07.2014 00:19:44 +0200 - build 3976
+
+1. Support for combined lists in DialogBuilder.
+
+drkns 02.07.2014 23:55:43 +0200 - build 3975
+
+1. Interface of Thread class is brought slightly closer to standard: now it accepts anything, not only uint(void*).
+
+drkns 01.07.2014 19:49:09 +0200 - build 3974
+
+1. Continuation of 3970, a couple of issues.
+
+drkns 01.07.2014 15:43:01 +0200 - build 3973
+
+1. Continuation of 3970. Initialization of imports on demand.
+
+drkns 01.07.2014 12:29:19 +0200 - build 3972
+
+1. Continuation of 3970.
+
+drkns 01.07.2014 00:43:59 +0200 - build 3971
+
+1. VS14 presumes that %s is char* which is technically correct but breaks everything.
+   A good reason for wiping *printf, and for now let's define _CRT_STDIO_LEGACY_WIDE_SPECIFIERS.
+
+drkns 30.06.2014 19:07:38 +0200 - build 3970
+
+1. Refactoring.
+
 drkns 29.06.2014 19:09:47 +0200 - build 3969
 
 1. Refactoring.
