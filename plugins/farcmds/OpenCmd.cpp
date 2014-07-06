@@ -1153,14 +1153,18 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 							if (!outputtofile && temp)
 								FSF.Unquote(temp);
 
-							// <NEED???>
-							//wchar_t *EpxTemp=ExpandEnv(temp,nullptr);
-							//if (EpxTemp)
-							//{
-							//	lstrcpy(temp,ExpTemp);
-							//	delete[] ExpTemp;
-							//}
-							// </NEED???>
+							if (temp)
+							{
+								wchar_t *EpxTemp=ExpandEnv(temp,nullptr);
+								if (EpxTemp)
+								{
+									delete[] temp;
+									temp=new wchar_t[lstrlen(EpxTemp)+1];
+									if (temp)
+										lstrcpy(temp,EpxTemp);
+									delete[] EpxTemp;
+								}
+							}
 
 							const wchar_t *titleOut=L"", *titleErr=L"";
 
