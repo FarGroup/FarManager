@@ -108,6 +108,7 @@ public:
 
 	virtual const wchar_t *GetNamespace() const override { return L""; }
 
+#if defined _MSC_VER && _MSC_VER < 1800
 	template<typename T>
 	bool Start(T&& Function) { return Starter(std::bind(Function)); }
 
@@ -124,9 +125,7 @@ public:
 	bool Start(T&& Function, A1&& Arg1, A2&& Arg2, A3&& Arg3, A4&& Arg4) { return Starter(std::bind(Function, Arg1, Arg2, Arg3, Arg4)); }
 
 	// and so on...
-
-#if 0
-	// or variadic when we have them:
+#else
 	template<class T, class... A>
 	bool Start(T&& Function, A&&... Args)
 	{

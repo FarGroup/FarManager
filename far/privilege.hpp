@@ -35,13 +35,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class Privilege: NonCopyable
 {
 public:
-	Privilege(LPCWSTR PrivilegeName);
+	Privilege(const std::vector<const wchar_t*>& PrivilegeNames);
 	~Privilege();
 
 private:
 	HANDLE hToken;
 	bool Changed;
-	TOKEN_PRIVILEGES SavedState;
+	block_ptr<TOKEN_PRIVILEGES> SavedState;
 };
 
 bool CheckPrivilege(LPCWSTR PrivilegeName);

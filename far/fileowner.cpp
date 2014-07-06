@@ -183,8 +183,7 @@ bool SetOwnerInternal(const string& Object, const string& Owner)
 	}
 	if(Sid)
 	{
-		SCOPED_ACTION(Privilege)(SE_TAKE_OWNERSHIP_NAME);
-		SCOPED_ACTION(Privilege)(SE_RESTORE_NAME);
+		SCOPED_ACTION(Privilege)(make_vector(SE_TAKE_OWNERSHIP_NAME, SE_RESTORE_NAME));
 		DWORD dwResult = SetNamedSecurityInfo(const_cast<LPWSTR>(Object.data()), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, Sid, nullptr, nullptr, nullptr);
 		if(dwResult == ERROR_SUCCESS)
 		{

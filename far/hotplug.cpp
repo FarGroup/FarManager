@@ -69,10 +69,15 @@ public:
 			SetupDiDestroyDeviceInfoList(m_info);
 	}
 
-	bool Create(const wchar_t* id)
+	bool Create(DEVINST DevInst)
 	{
-		m_id = id;
-		m_info = SetupDiGetClassDevs(&GUID_DEVINTERFACE_VOLUME, m_id.data(), nullptr, DIGCF_DEVICEINTERFACE|DIGCF_PRESENT);
+		wchar_t szDeviceID[MAX_DEVICE_ID_LEN];
+		if (CM_Get_Device_ID(DevInst, szDeviceID, ARRAYSIZE(szDeviceID), 0) == CR_SUCCESS)
+		{
+			m_id = szDeviceID;
+			m_info = SetupDiGetClassDevs(&GUID_DEVINTERFACE_VOLUME, m_id.data(), nullptr, DIGCF_DEVICEINTERFACE | DIGCF_PRESENT);
+		}
+		// TODO: log if failed
 		return m_info != INVALID_HANDLE_VALUE;
 	}
 
@@ -143,20 +148,16 @@ static bool IsChildDeviceHotplug(DEVINST hDevInst)
 	DEVINST hDevChild;
 	if (CM_Get_Child(&hDevChild,hDevInst,0)==CR_SUCCESS)
 	{
-		wchar_t szDeviceID[MAX_DEVICE_ID_LEN];
-		if (CM_Get_Device_ID(hDevChild, szDeviceID, ARRAYSIZE(szDeviceID), 0) == CR_SUCCESS)
+		dev_info Info;
+		if (Info.Create(hDevChild))
 		{
-			dev_info Info;
-			if(Info.Create(szDeviceID))
+			SP_DEVINFO_DATA DeviceInfoData = { sizeof(DeviceInfoData) };
+			if (Info.OpenDeviceInfo(DeviceInfoData))
 			{
-				SP_DEVINFO_DATA DeviceInfoData = {sizeof(DeviceInfoData)};
-				if(Info.OpenDeviceInfo(DeviceInfoData))
+				DWORD Capabilities = 0;
+				if (Info.GetDeviceRegistryProperty(DeviceInfoData, SPDRP_CAPABILITIES, nullptr, reinterpret_cast<PBYTE>(&Capabilities), sizeof(Capabilities), nullptr))
 				{
-					DWORD Capabilities = 0;
-					if(Info.GetDeviceRegistryProperty(DeviceInfoData, SPDRP_CAPABILITIES, nullptr, reinterpret_cast<PBYTE>(&Capabilities), sizeof(Capabilities), nullptr))
-					{
-						Result=!(Capabilities&CM_DEVCAP_SURPRISEREMOVALOK)&&(Capabilities&CM_DEVCAP_UNIQUEID);
-					}
+					Result = !(Capabilities&CM_DEVCAP_SURPRISEREMOVALOK) && (Capabilities&CM_DEVCAP_UNIQUEID);
 				}
 			}
 		}
@@ -167,29 +168,25 @@ static bool IsChildDeviceHotplug(DEVINST hDevInst)
 static bool IsDeviceHotplug(DEVINST hDevInst)
 {
 	bool Result = false;
-	wchar_t szDeviceID[MAX_DEVICE_ID_LEN];
-	if (CM_Get_Device_ID(hDevInst, szDeviceID, ARRAYSIZE(szDeviceID), 0) == CR_SUCCESS)
+	dev_info Info;
+	if (Info.Create(hDevInst))
 	{
-		dev_info Info;
-		if(Info.Create(szDeviceID))
+		SP_DEVINFO_DATA DeviceInfoData = {sizeof(DeviceInfoData)};
+		if(Info.OpenDeviceInfo(DeviceInfoData))
 		{
-			SP_DEVINFO_DATA DeviceInfoData = {sizeof(DeviceInfoData)};
-			if(Info.OpenDeviceInfo(DeviceInfoData))
+			DWORD Capabilities = 0;
+			if(Info.GetDeviceRegistryProperty(DeviceInfoData, SPDRP_CAPABILITIES, nullptr, reinterpret_cast<PBYTE>(&Capabilities), sizeof(Capabilities), nullptr))
 			{
-				DWORD Capabilities = 0;
-				if(Info.GetDeviceRegistryProperty(DeviceInfoData, SPDRP_CAPABILITIES, nullptr, reinterpret_cast<PBYTE>(&Capabilities), sizeof(Capabilities), nullptr))
+				DWORD Status = 0, Problem = 0;
+				if (CM_Get_DevNode_Status(&Status, &Problem, hDevInst, 0) == CR_SUCCESS)
 				{
-					DWORD Status = 0, Problem = 0;
-					if (CM_Get_DevNode_Status(&Status, &Problem, hDevInst, 0) == CR_SUCCESS)
-					{
-						if ((Problem != CM_PROB_DEVICE_NOT_THERE) &&
-								(Problem != CM_PROB_HELD_FOR_EJECT) && //возможно, надо проверять на наличие проблем вообще
-								(Problem != CM_PROB_DISABLED) &&
-								(Capabilities & CM_DEVCAP_REMOVABLE) &&
-								(!(Capabilities & CM_DEVCAP_SURPRISEREMOVALOK) || IsChildDeviceHotplug(hDevInst)) &&
-								!(Capabilities & CM_DEVCAP_DOCKDEVICE))
-							Result = true;
-					}
+					if ((Problem != CM_PROB_DEVICE_NOT_THERE) &&
+							(Problem != CM_PROB_HELD_FOR_EJECT) && //возможно, надо проверять на наличие проблем вообще
+							(Problem != CM_PROB_DISABLED) &&
+							(Capabilities & CM_DEVCAP_REMOVABLE) &&
+							(!(Capabilities & CM_DEVCAP_SURPRISEREMOVALOK) || IsChildDeviceHotplug(hDevInst)) &&
+							!(Capabilities & CM_DEVCAP_DOCKDEVICE))
+						Result = true;
 				}
 			}
 		}
@@ -217,27 +214,23 @@ static DWORD DriveMaskFromVolumeName(const string& VolumeName)
 static DWORD GetDriveMaskFromMountPoints(DEVINST hDevInst)
 {
 	DWORD dwMask = 0;
-	wchar_t szDeviceID[MAX_DEVICE_ID_LEN];
-	if (CM_Get_Device_ID(hDevInst, szDeviceID, ARRAYSIZE(szDeviceID), 0) == CR_SUCCESS)
+	dev_info Info;
+	if (Info.Create(hDevInst))
 	{
-		dev_info Info;
-		if(Info.Create(szDeviceID))
+		auto interfaces = Info.GetDeviceInterfaces(GUID_DEVINTERFACE_VOLUME);
+		std::for_each(RANGE(interfaces, i)
 		{
-			auto interfaces = Info.GetDeviceInterfaces(GUID_DEVINTERFACE_VOLUME);
-			std::for_each(RANGE(interfaces, i)
+			string strMountPoint(Info.GetDevicePath(i));
+			if (!strMountPoint.empty())
 			{
-				string strMountPoint(Info.GetDevicePath(i));
-				if (!strMountPoint.empty())
+				AddEndSlash(strMountPoint);
+				string strVolumeName;
+				if (api::GetVolumeNameForVolumeMountPoint(strMountPoint,strVolumeName))
 				{
-					AddEndSlash(strMountPoint);
-					string strVolumeName;
-					if (api::GetVolumeNameForVolumeMountPoint(strMountPoint,strVolumeName))
-					{
-						dwMask |= DriveMaskFromVolumeName(strVolumeName);
-					}
+					dwMask |= DriveMaskFromVolumeName(strVolumeName);
 				}
-			});
-		}
+			}
+		});
 	}
 	return dwMask;
 }
@@ -308,35 +301,31 @@ static std::bitset<32> GetDisksForDevice(DEVINST hDevInst)
 static bool GetDeviceProperty(DEVINST hDevInst, DWORD Property, string& strValue, bool bSearchChild)
 {
 	bool Result = false;
-	wchar_t szDeviceID[MAX_DEVICE_ID_LEN];
-	if (CM_Get_Device_ID(hDevInst, szDeviceID, ARRAYSIZE(szDeviceID), 0) == CR_SUCCESS)
+	dev_info Info;
+	if (Info.Create(hDevInst))
 	{
-		dev_info Info;
-		if(Info.Create(szDeviceID))
+		SP_DEVINFO_DATA DeviceInfoData = {sizeof(DeviceInfoData)};
+		if(Info.OpenDeviceInfo(DeviceInfoData))
 		{
-			SP_DEVINFO_DATA DeviceInfoData = {sizeof(DeviceInfoData)};
-			if(Info.OpenDeviceInfo(DeviceInfoData))
+			DWORD RequiredSize = 0;
+			Info.GetDeviceRegistryProperty(DeviceInfoData, Property, nullptr, nullptr, 0, &RequiredSize);
+			if(RequiredSize)
 			{
-				DWORD RequiredSize = 0;
-				Info.GetDeviceRegistryProperty(DeviceInfoData, Property, nullptr, nullptr, 0, &RequiredSize);
-				if(RequiredSize)
+				wchar_t_ptr Buffer(RequiredSize);
+				if(Info.GetDeviceRegistryProperty(DeviceInfoData, Property, nullptr, reinterpret_cast<BYTE*>(Buffer.get()), RequiredSize, nullptr))
 				{
-					wchar_t_ptr Buffer(RequiredSize);
-					if(Info.GetDeviceRegistryProperty(DeviceInfoData, Property, nullptr, reinterpret_cast<BYTE*>(Buffer.get()), RequiredSize, nullptr))
-					{
-						Result = true;
-					}
-					strValue.assign(Buffer.get());
+					Result = true;
 				}
-				else
+				strValue.assign(Buffer.get());
+			}
+			else
+			{
+				if(bSearchChild)
 				{
-					if(bSearchChild)
+					DEVINST hDevChild;
+					if (CM_Get_Child(&hDevChild, hDevInst, 0) == CR_SUCCESS)
 					{
-						DEVINST hDevChild;
-						if (CM_Get_Child(&hDevChild, hDevInst, 0) == CR_SUCCESS)
-						{
-							Result = GetDeviceProperty(hDevChild, Property, strValue, bSearchChild);
-						}
+						Result = GetDeviceProperty(hDevChild, Property, strValue, bSearchChild);
 					}
 				}
 			}

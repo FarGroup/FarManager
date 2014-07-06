@@ -114,7 +114,7 @@ bool SetREPARSE_DATA_BUFFER(const string& Object,PREPARSE_DATA_BUFFER rdb)
 	bool Result=false;
 	if (IsReparseTagValid(rdb->ReparseTag))
 	{
-		SCOPED_ACTION(Privilege)(SE_CREATE_SYMBOLIC_LINK_NAME);
+		SCOPED_ACTION(Privilege)(make_vector(SE_CREATE_SYMBOLIC_LINK_NAME));
 		api::File fObject;
 
 		bool ForceElevation=false;

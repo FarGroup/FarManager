@@ -36,19 +36,30 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "privilege.hpp"
 #include "lasterror.hpp"
 
-Privilege::Privilege(LPCWSTR PrivilegeName):hToken(INVALID_HANDLE_VALUE),Changed(false)
+Privilege::Privilege(const std::vector<const wchar_t*>& PrivilegeNames):
+	hToken(INVALID_HANDLE_VALUE),
+	Changed(false)
 {
-	if (PrivilegeName && OpenProcessToken(GetCurrentProcess(),TOKEN_ADJUST_PRIVILEGES|TOKEN_QUERY,&hToken))
+	if (OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken))
 	{
-		TOKEN_PRIVILEGES NewState={1};
-		if (LookupPrivilegeValue(nullptr,PrivilegeName,&NewState.Privileges[0].Luid))
+		block_ptr<TOKEN_PRIVILEGES> NewState(sizeof(TOKEN_PRIVILEGES) + sizeof(LUID_AND_ATTRIBUTES) * (PrivilegeNames.size() - 1));
+		NewState->PrivilegeCount = static_cast<DWORD>(PrivilegeNames.size());
+
+		std::transform(ALL_CONST_RANGE(PrivilegeNames), std::begin(NewState->Privileges), [&](CONST_VALUE_TYPE(PrivilegeNames)& i) -> LUID_AND_ATTRIBUTES
 		{
-			NewState.Privileges[0].Attributes=SE_PRIVILEGE_ENABLED;
-			DWORD ReturnLength=sizeof(SavedState);
-			if (AdjustTokenPrivileges(hToken,FALSE,&NewState,sizeof(NewState),&SavedState,&ReturnLength) && GetLastError()==ERROR_SUCCESS)
-			{
-				Changed=true;
-			}
+			LUID_AND_ATTRIBUTES laa = { {}, SE_PRIVILEGE_ENABLED };
+			LookupPrivilegeValue(nullptr, i, &laa.Luid);
+			// TODO: log if failed
+			return laa;
+		});
+
+		SavedState.reset(NewState.size());
+
+		DWORD ReturnLength;
+		// TODO: log if failed
+		if (AdjustTokenPrivileges(hToken, FALSE, NewState.get(), static_cast<DWORD>(NewState.size()), SavedState.get(), &ReturnLength) && GetLastError() == ERROR_SUCCESS)
+		{
+			Changed = true;
 		}
 	}
 }
@@ -60,7 +71,7 @@ Privilege::~Privilege()
 		SCOPED_ACTION(GuardLastError);
 		if(Changed)
 		{
-			AdjustTokenPrivileges(hToken,FALSE,&SavedState,sizeof(SavedState),nullptr,nullptr);
+			AdjustTokenPrivileges(hToken, FALSE, SavedState.get(), static_cast<DWORD>(SavedState.size()), nullptr, nullptr);
 		}
 		CloseHandle(hToken);
 	}

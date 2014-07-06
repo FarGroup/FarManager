@@ -408,6 +408,50 @@ inline range<iterator_type> make_range(iterator_type i_begin, iterator_type i_en
 	return range<iterator_type>(i_begin, i_end);
 }
 
+template<class T, class Y>
+T emplace_back(T&& container, Y value) { container.emplace_back(value); return std::move(container); }
+
+#if defined _MSC_VER && _MSC_VER < 1800
+template<class T> std::vector<T> make_vector(T a1)
+{ return emplace_back(std::vector<T>(), a1); }
+
+template<class T> std::vector<T> make_vector(T a1, T a2)
+{ return emplace_back(make_vector(a1), a2); }
+
+template<class T> std::vector<T> make_vector(T a1, T a2, T a3)
+{ return emplace_back(make_vector(a1, a2), a3); }
+
+template<class T> std::vector<T> make_vector(T a1, T a2, T a3, T a4)
+{ return emplace_back(make_vector(a1, a2, a3), a4); }
+
+template<class T> std::vector<T> make_vector(T a1, T a2, T a3, T a4, T a5)
+{ return emplace_back(make_vector(a1, a2, a3, a4), a5); }
+
+template<class T> std::vector<T> make_vector(T a1, T a2, T a3, T a4, T a5, T a6)
+{ return emplace_back(make_vector(a1, a2, a3, a4, a5), a6); }
+
+template<class T> std::vector<T> make_vector(T a1, T a2, T a3, T a4, T a5, T a6, T a7)
+{ return emplace_back(make_vector(a1, a2, a3, a4, a5, a6), a7); }
+
+template<class T> std::vector<T> make_vector(T a1, T a2, T a3, T a4, T a5, T a6, T a7, T a8)
+{ return emplace_back(make_vector(a1, a2, a3, a4, a5, a6, a7), a8); }
+
+template<class T> std::vector<T> make_vector(T a1, T a2, T a3, T a4, T a5, T a6, T a7, T a8, T a9)
+{ return emplace_back(make_vector(a1, a2, a3, a4, a5, a6, a7, a8), a9); }
+#else
+template<class T, class Y, class... Args>
+T emplace_back(T&& container, Y value, Args... args)
+{
+	container.emplace_back(value);
+	return emplace_back(std::move(container), args...);
+}
+
+template<class T, class... Args> std::vector<T> make_vector(T value, Args... args)
+{
+	return emplace_back(std::vector<T>(), value, args...);
+}
+#endif
+
 template<typename T>
 inline void ClearStruct(T& s)
 {
