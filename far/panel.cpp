@@ -731,7 +731,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					{
 						const wchar_t DeviceName[] = {item->cDrive, L':', L'\\', 0};
 						struct DiskMenuParam {const wchar_t* CmdLine; BOOL Apps;} p = {DeviceName, Key!=KEY_MSRCLICK};
-						Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, OPEN_LEFTDISKMENU, &p); // EMenu Plugin :-)
+						Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, (Global->CtrlObject->Cp()->LeftPanel == this)?OPEN_LEFTDISKMENU:OPEN_RIGHTDISKMENU, &p); // EMenu Plugin :-)
 					}
 					break;
 				}
