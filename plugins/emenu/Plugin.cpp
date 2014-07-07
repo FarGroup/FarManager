@@ -269,6 +269,7 @@ CPlugin::EDoMenu CPlugin::OpenPluginBkg(int nOpenFrom, INT_PTR nItem)
     break;
 
   case OPEN_LEFTDISKMENU:
+  case OPEN_RIGHTDISKMENU:
     {
       struct DiskMenuParam {const wchar_t* CmdLine; BOOL Apps;} *p = reinterpret_cast<DiskMenuParam*>(nItem);
       Mode = p->Apps? CALL_APPS : CALL_RIGHTCLICK;

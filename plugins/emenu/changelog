@@ -1,3 +1,7 @@
+svs 07.07.2014 13:57:19 +0400 - build 61
+
+1. Добавлена обработка OPEN_RIGHTDISKMENU
+
 drkns 13.11.2013 22:10:48 +0200 - build 60
 
 1. Убираем DisableThreadLibraryCalls.
