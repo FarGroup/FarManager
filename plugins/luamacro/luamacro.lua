@@ -94,33 +94,39 @@ end
 local PluginInfo
 
 function export.GetPluginInfo()
-  PluginInfo = {
+  local out = {
     Flags = bor(F.PF_PRELOAD,F.PF_FULLCMDLINE,F.PF_EDITOR,F.PF_VIEWER,F.PF_DIALOG),
     CommandPrefix = "lm:macro:lua:moon",
     PluginMenuGuids = win.Uuid("EF6D67A2-59F7-4DF3-952E-F9049877B492"),
     PluginMenuStrings = { "Macro Browser" },
   }
-  local out = PluginInfo
+  PluginInfo = out
 
   local wtype = far.AdvControl("ACTL_GETWINDOWTYPE").Type
   for _,item in ipairs(utils.GetMenuItems()) do
     local flags = item.flags
-    local text = (flags.config or flags.disks or flags.plugins and flags[wtype]) and item.text(wtype)
-    if type(text) == "string" then
-      if flags.config then
-        out.PluginConfigStrings = out.PluginConfigStrings or {}
-        table.insert(out.PluginConfigStrings, text)
-        out.PluginConfigGuids = out.PluginConfigGuids and out.PluginConfigGuids..item.guid or item.guid
-      end
-      if flags.disks then
-        out.DiskMenuStrings = out.DiskMenuStrings or {}
-        table.insert(out.DiskMenuStrings, text)
-        out.DiskMenuGuids = out.DiskMenuGuids and out.DiskMenuGuids..item.guid or item.guid
-      end
-      if flags.plugins and flags[wtype] then
-        out.PluginMenuStrings = out.PluginMenuStrings or {}
-        table.insert(out.PluginMenuStrings, text)
-        out.PluginMenuGuids = out.PluginMenuGuids and out.PluginMenuGuids..item.guid or item.guid
+    if flags.config or flags.disks or flags.plugins and flags[wtype] then
+      local ok, text = pcall(item.text, wtype)
+      if ok then
+        if type(text) == "string" then
+          if flags.config then
+            out.PluginConfigStrings = out.PluginConfigStrings or {}
+            table.insert(out.PluginConfigStrings, text)
+            out.PluginConfigGuids = out.PluginConfigGuids and out.PluginConfigGuids..item.guid or item.guid
+          end
+          if flags.disks then
+            out.DiskMenuStrings = out.DiskMenuStrings or {}
+            table.insert(out.DiskMenuStrings, text)
+            out.DiskMenuGuids = out.DiskMenuGuids and out.DiskMenuGuids..item.guid or item.guid
+          end
+          if flags.plugins and flags[wtype] then
+            out.PluginMenuStrings = out.PluginMenuStrings or {}
+            table.insert(out.PluginMenuStrings, text)
+            out.PluginMenuGuids = out.PluginMenuGuids and out.PluginMenuGuids..item.guid or item.guid
+          end
+        end
+      else
+        ErrMsg(text)
       end
     end
   end

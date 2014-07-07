@@ -1678,11 +1678,39 @@ lv=2
 dt=Text
 nm=Adding items to plugins' menus
 ctime=3613740592
-mtime=3613740694
+mtime=3613906941
 <article>
 #_<markdown>
 #_
-#_Under construction.
+#_Like the [regular macros][1], the added menu items are loaded from Lua- and MoonScript-files,  residing in the directory `%FARPROFILE%\Macros\scripts` and its subdirectories.
+#_
+#_A menu item is loaded by the global function `MenuItem` that takes one argument - a table with parameters. The function returns `true` on success.
+#_
+#_```
+#_MenuItem {
+#_  description = "Menu item";                       -- string (optional field)
+#_  menu   = "Plugins Disks Config";                 -- string
+#_  area   = "Shell Editor Viewer Dialog Menu";      -- string (optional field)
+#_  guid   = "A435D567-AD64-4DD1-8C61-28CB90358817"; -- string
+#_  text   = function(wtype) return "Hello!" end;    -- function
+#_  action = function(OpenFrom, Item) ...... end;    -- function
+#_}
+#_```
+#_The fields `description` and `area` are optional with the default values being an empty string. Other fields are mandatory.
+#_
+#_* The field `menu` is the list of Far Manager menus the given menu item should be added to. The valid values of list elements are `"Plugins"`, `"Disks"` and `"Config"` that stand for plugins menu, disk menu and plugins configuration menu respectively.
+#_
+#_* The field `area` is the list of areas, where the given menu item should be added to the **plugins menu** when it is envoked. This field is used only if the field `menu` contains `Plugins`. The valid values of list elements are `"Shell"`, `"Editor"`, `"Viewer"`, `"Dialog"` and `"Menu"`.
+#_
+#_* The field `guid` contains a unique identifier (GUID) of the given menu item.
+#_
+#_* The field `text` is the function returning a string - the text of the given menu item. The menu item is added only if the function returned a string value. The function takes 1 аргумент - the type of window (see [`WINDOWINFO_TYPE`][2]), that gives it some information about which menu will be envoked.
+#_
+#_* The field `action` is the function that is called upon activation of the given menu item. It takes the same arguments as the function `export.Open` (see `luafar_manual.chm`), except `Guid`. If the function is called from the plugins configuration menu then both the arguments have `nil` value. The returned value is not used.
+#_
+#_[1]: 75.html
+#_[2]: http://api.farmanager.com/ru/structures/windowtype.html#WINDOWINFO_TYPE
+#_@@@
 #_
 </article>
 </node>
