@@ -31,8 +31,8 @@ wchar_t *ExpandEnv(const wchar_t* Src, DWORD* Length)
 }
 
 /*
- возвращает число, вырезав его из строки, или -2 в случае ошибки
- Start, End - начало и конец строки
+	возвращает число, вырезав его из строки, или -2 в случае ошибки
+	Start, End - начало и конец строки
 */
 int GetInt(wchar_t *Start, wchar_t *End)
 {
@@ -59,9 +59,11 @@ int GetInt(wchar_t *Start, wchar_t *End)
 	return Ret;
 }
 
-// Заменить в строке Str Count вхождений подстроки FindStr на подстроку ReplStr
-// Если Count < 0 - заменять "до полной победы"
-// Return - количество замен
+/*
+	Заменить в строке Str Count вхождений подстроки FindStr на подстроку ReplStr
+	Если Count < 0 - заменять "до полной победы"
+	Return - количество замен
+*/
 int ReplaceStrings(wchar_t *Str,const wchar_t *FindStr,const wchar_t *ReplStr,int Count,BOOL IgnoreCase)
 {
 	int I=0, J=0, Res;
@@ -97,7 +99,7 @@ int ReplaceStrings(wchar_t *Str,const wchar_t *FindStr,const wchar_t *ReplStr,in
 
 
 /*
- возвращает PipeFound
+	возвращает PipeFound
 */
 int PartCmdLine(const wchar_t *CmdStr,wchar_t *NewCmdStr,int SizeNewCmdStr,wchar_t *NewCmdPar,int SizeNewCmdPar)
 {
@@ -172,10 +174,10 @@ int PartCmdLine(const wchar_t *CmdStr,wchar_t *NewCmdStr,int SizeNewCmdStr,wchar
 BOOL ProcessOSAliases(wchar_t *Str,int SizeStr)
 {
 	typedef DWORD (WINAPI *PGETCONSOLEALIAS)(
-	    wchar_t *lpSource,          // in
-	    wchar_t *lpTargetBuffer,    // out
-	    DWORD TargetBufferLength,   // in
-	    wchar_t *lpExeName          // in
+		wchar_t *lpSource,          // in
+		wchar_t *lpTargetBuffer,    // out
+		DWORD TargetBufferLength,   // in
+		wchar_t *lpExeName          // in
 	);
 	static PGETCONSOLEALIAS pGetConsoleAlias=NULL;
 
@@ -209,10 +211,12 @@ BOOL ProcessOSAliases(wchar_t *Str,int SizeStr)
 		} while ((SizeModuleName >= BufferSize) || (!SizeModuleName && GetLastError() == ERROR_INSUFFICIENT_BUFFER));
 	}
 
+	// find alias for Far.exe
 	int ret=pGetConsoleAlias(NewCmdStr,NewCmdStr,sizeof(NewCmdStr),(wchar_t*)FSF.PointToName(ModuleName));
 
-	if (!ret)
+	if (!ret) // if Ret == 0 then not found alias for Far.exe
 	{
+		// find alias for cmd.exe
 		wchar_t *CSModuleName=ExpandEnv(L"%COMSPEC%",nullptr);
 		if (CSModuleName)
 		{
@@ -225,6 +229,7 @@ BOOL ProcessOSAliases(wchar_t *Str,int SizeStr)
 	{
 		if (ModuleName)
 			free(ModuleName);
+
 		return FALSE;
 	}
 

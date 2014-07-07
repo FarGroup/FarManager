@@ -46,13 +46,13 @@ struct Options Opt;
 
 void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 {
-  Info->StructSize=sizeof(GlobalInfo);
-  Info->MinFarVersion=FARMANAGERVERSION;
-  Info->Version=PLUGIN_VERSION;
-  Info->Guid=MainGuid;
-  Info->Title=PLUGIN_NAME;
-  Info->Description=PLUGIN_DESC;
-  Info->Author=PLUGIN_AUTHOR;
+	Info->StructSize=sizeof(GlobalInfo);
+	Info->MinFarVersion=FARMANAGERVERSION;
+	Info->Version=PLUGIN_VERSION;
+	Info->Guid=MainGuid;
+	Info->Title=PLUGIN_NAME;
+	Info->Description=PLUGIN_DESC;
+	Info->Author=PLUGIN_AUTHOR;
 }
 
 void WINAPI SetStartupInfoW(const struct PluginStartupInfo *psInfo)
@@ -175,38 +175,38 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 	static const wchar_t *PluginConfigStrings[1];
 
 	PluginConfigStrings[0]=GetMsg(MConfig);
-    Info->PluginConfig.Guids=&ConfigMenuGuid;
-    Info->PluginConfig.Strings=PluginConfigStrings;
-    Info->PluginConfig.Count=ARRAYSIZE(PluginConfigStrings);
+	Info->PluginConfig.Guids=&ConfigMenuGuid;
+	Info->PluginConfig.Strings=PluginConfigStrings;
+	Info->PluginConfig.Count=ARRAYSIZE(PluginConfigStrings);
 
 	Info->CommandPrefix=L"view:edit:goto:clip:whereis:link:run:load:unload";
 }
 
 intptr_t WINAPI ConfigureW(const ConfigureInfo* CfgInfo)
 {
-    PluginDialogBuilder Builder(Info, MainGuid, DialogGuid, MConfig, L"Config");
+	PluginDialogBuilder Builder(Info, MainGuid, DialogGuid, MConfig, L"Config");
 
-    const int CmdOutIDs[] = {MHideCmdOutput, MKeepCmdOutput, MEchoCmdOutput};
-    Builder.AddRadioButtons(&Opt.ShowCmdOutput, 3, CmdOutIDs);
+	const int CmdOutIDs[] = {MHideCmdOutput, MKeepCmdOutput, MEchoCmdOutput};
+	Builder.AddRadioButtons(&Opt.ShowCmdOutput, 3, CmdOutIDs);
 
-    Builder.AddSeparator();
+	Builder.AddSeparator();
 
-    const int CatchIDs[] = {MCatchAllInOne, MCatchStdOutput, MCatchStdError, MCatchSeparate};
-    Builder.AddRadioButtons(&Opt.CatchMode, 4, CatchIDs);
+	const int CatchIDs[] = {MCatchAllInOne, MCatchStdOutput, MCatchStdError, MCatchSeparate};
+	Builder.AddRadioButtons(&Opt.CatchMode, 4, CatchIDs);
 
-    Builder.AddSeparator();
+	Builder.AddSeparator();
 
-    Builder.AddCheckbox(MViewZeroFiles, &Opt.ViewZeroFiles);
-    Builder.AddCheckbox(MEditNewFiles, &Opt.EditNewFiles);
+	Builder.AddCheckbox(MViewZeroFiles, &Opt.ViewZeroFiles);
+	Builder.AddCheckbox(MEditNewFiles, &Opt.EditNewFiles);
 
-    Builder.AddSeparator();
+	Builder.AddSeparator();
 
-    FarDialogItem *MaxData = Builder.AddUIntEditField((unsigned int *)&Opt.MaxDataSize, 10);
-    Builder.AddTextBefore(MaxData, MMaxDataSize);
+	FarDialogItem *MaxData = Builder.AddUIntEditField((unsigned int *)&Opt.MaxDataSize, 10);
+	Builder.AddTextBefore(MaxData, MMaxDataSize);
 
-    Builder.AddOKCancel(MOk, MCancel);
+	Builder.AddOKCancel(MOk, MCancel);
 
-    if (Builder.ShowDialog())
+	if (Builder.ShowDialog())
 	{
 		PluginSettings settings(MainGuid, Info.SettingsControl);
 		settings.Set(0,OptName.ShowCmdOutput,Opt.ShowCmdOutput);

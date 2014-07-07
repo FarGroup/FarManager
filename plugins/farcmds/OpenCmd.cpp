@@ -386,36 +386,84 @@ DWORD WINAPI ThreadWhatUpdateScreen(LPVOID par)
 }
 
 
-static bool MakeTempNames(wchar_t* tempFileName1, wchar_t* tempFileName2, size_t szTempNames)
+// два файла в одном каталоге
+static bool MakeTempNames(wchar_t** FileName1, wchar_t** FileName2)
 {
 	static const wchar_t tmpPrefix[] = L"FCP";
-	wchar_t fullcmd[MAX_PATH*2];
 
-	if (FSF.MkTemp(tempFileName1,szTempNames,tmpPrefix) > 1)
+	// create temp-dir
+	size_t sizeTempName=FSF.MkTemp(nullptr,0,tmpPrefix);
+	wchar_t *NameDir=new wchar_t[sizeTempName+1];
+	if (NameDir)
 	{
-		DeleteFile(tempFileName1);
+		FSF.MkTemp(NameDir,sizeTempName,tmpPrefix);
 
-		if (CreateDirectory(tempFileName1, NULL))
+		DeleteFile(NameDir);
+
+		if (CreateDirectory(NameDir, NULL))
 		{
-			bool ok = true;
+			bool ok = false;
 
-			if (GetTempFileName(tempFileName1, tmpPrefix, 0, fullcmd))
-				lstrcpy(tempFileName2, fullcmd);
-			else
-				ok = false;
+			wchar_t *tempFileName1=nullptr;
+			wchar_t *tempFileName2=nullptr;
 
-			if (ok && GetTempFileName(tempFileName1, tmpPrefix, 0, fullcmd))
-				lstrcpy(tempFileName1, fullcmd);
-			else
-				ok = false;
+			wchar_t fullcmd[MAX_PATH*2]; // ????
+
+			// create temp-file1
+			if (GetTempFileName(NameDir, tmpPrefix, 0, fullcmd))
+			{
+				tempFileName1=new wchar_t[lstrlen(fullcmd)+1];
+				if (tempFileName1)
+				{
+					lstrcpy(tempFileName1, fullcmd);
+
+					// create temp-file2
+					if (GetTempFileName(NameDir, tmpPrefix, 0, fullcmd))
+					{
+						tempFileName2=new wchar_t[lstrlen(fullcmd)+1];
+						if (tempFileName2)
+						{
+							lstrcpy(tempFileName2, fullcmd);
+							ok=true;
+						}
+					}
+				}
+			}
 
 			if (ok)
-				return true;
+			{
+				if (FileName1)
+					*FileName1=tempFileName1;
 
-			RemoveDirectory(tempFileName1);
+				if (FileName2)
+					*FileName2=tempFileName2;
+
+				delete[] NameDir;
+				return true;
+			}
+
+			if (tempFileName1)
+			{
+				DeleteFile(tempFileName1);
+				delete[] tempFileName1;
+				tempFileName1=nullptr;
+			}
+
+			if (tempFileName2)
+			{
+				DeleteFile(tempFileName2);
+				delete[] tempFileName2;
+				tempFileName2=nullptr;
+			}
+
+			RemoveDirectory(NameDir);
 		}
+
+		delete[] NameDir;
 	}
+
 	return false;
+
 }
 /*
   Возвращает указатель на выделенный кусок, которому после использования сделать free
@@ -993,18 +1041,38 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 		if (PrefIdx != prefNone)
 		{
 			int SeparatorLen=lstrlen(Opt.Separator);
-			wchar_t *cBracket=NULL, *runFile=nullptr;
-			BOOL BracketsOk=TRUE;
+			wchar_t *cBracket=nullptr, *runFile=nullptr;
+			bool BracketsOk=true;
 
 			if (PrefIdx == prefEdit)
 			{
-				// edit:['['<options>']'<separator>]<object>
-				//  edit['['<options>']'<separator>]<object>
+				// edit:[Y,X] object
+				// edit:[Y] object
+				// edit: object
+				// edit:object
+				// edit:<[Y,X] object
+				// edit:<[Y] object
+				// edit:< object
+				// edit:<object
 				//      ^---farcmd
-				wchar_t *oBracket;
-				BracketsOk=FALSE;
-				FSF.LTrim(farcmd);
-				oBracket=wcschr(farcmd,L'[');
+
+                /* need:
+					edit:[.exe                    - file = '[.exe' (отсутствует закрывающаяся скобка)
+					edit:"[.exe" --params ]       - ok
+					edit: [.exe --params ]        - ok
+					edit:[.exe --params ]         - bug
+
+					edit:[1].txt                  - line = '1', file = '.txt'
+					edit: [1].txt                 - file = '.txt'
+					edit:"[1].txt"                - file = '[1].txt'
+					edit:[4,2].txt                - line = '4', col = '2', file = '.txt'
+					edit: [4,2].txt               - file = '[4,2].txt'
+                */
+				BracketsOk=false;
+
+				//<Parser needs to be improved>
+				FSF.LTrim(farcmd); // BUGBUG!!!
+				wchar_t *oBracket=wcschr(farcmd,L'[');
 
 				if (*farcmd != L'"' && oBracket && oBracket<wcsstr(farcmd,Opt.Separator))
 				{
@@ -1017,14 +1085,17 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 						{
 							if (comma > oBracket && comma < cBracket)
 								if ((StartLine=GetInt(oBracket+1,comma))>-2 && (StartChar=GetInt(comma+1,cBracket))>-2)
-									BracketsOk=TRUE;
+									BracketsOk=true;
 						}
 						else if ((StartLine=GetInt(oBracket+1,cBracket))>-2)
-							BracketsOk=TRUE;
+							BracketsOk=true;
 					}
+					else if (!wcschr(oBracket,L']')) // костыль для M#1143
+						BracketsOk=true;
 				}
 				else
-					BracketsOk=TRUE;
+					BracketsOk=true;
+				//</Parser needs to be improved>
 			}
 			else if (PrefIdx == prefRun)
 			{
@@ -1097,19 +1168,19 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 
 					switch (PrefIdx)
 					{
-						case prefGoto: // goto:[<separator>]<object>
+						case prefGoto: // goto:[<]object
 						{
 							return __proc_Goto(outputtofile,pCmd);
 						}
-						case prefWhereIs:
+						case prefWhereIs: // whereis:[<]object
 						{
 							return __proc_WhereIs(outputtofile,pCmd);
 						}
-						case prefLoad:  // <file>
+						case prefLoad:  // load:[<]file
 						{
 							return __proc_Load(outputtofile,pCmd);
 						}
-						case prefUnload:  // <file>
+						case prefUnload:  // unload:[<]file
 						{
 							return __proc_Unload(outputtofile,pCmd);
 						}
@@ -1125,11 +1196,11 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 							wchar_t *cmd=nullptr;
 
 							if (outputtofile)
-								ProcessOSAliases(pCmd,ARRAYSIZE(farcmdbuf));
+								ProcessOSAliases(pCmd,ARRAYSIZE(farcmdbuf)); // BUGBUG!!!
 
 							wchar_t *tempDir = nullptr;
-							wchar_t TempFileNameOut[MAX_PATH*5], TempFileNameErr[ARRAYSIZE(TempFileNameOut)];   // BUGBUG!!!
-							TempFileNameOut[0] = TempFileNameErr[0] = 0;
+							wchar_t *pTempFileNameOut=nullptr, *pTempFileNameErr=nullptr;
+
 							if (outputtofile)
 							{
 								// check work dir
@@ -1148,21 +1219,20 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 
 							wchar_t *temp=new wchar_t[lstrlen(pCmd)+1];
 							if (temp)
+							{
 								lstrcpy(temp,pCmd);
 
-							if (!outputtofile && temp)
-								FSF.Unquote(temp);
+								if (!outputtofile)
+									FSF.Unquote(temp);
 
-							if (temp)
-							{
-								wchar_t *EpxTemp=ExpandEnv(temp,nullptr);
-								if (EpxTemp)
+								if (temp)
 								{
-									delete[] temp;
-									temp=new wchar_t[lstrlen(EpxTemp)+1];
-									if (temp)
-										lstrcpy(temp,EpxTemp);
-									delete[] EpxTemp;
+									wchar_t *EpxTemp=ExpandEnv(temp,nullptr);
+									if (EpxTemp)
+									{
+										delete[] temp;
+										temp=EpxTemp;
+									}
 								}
 							}
 
@@ -1170,7 +1240,14 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 
 							if (!outputtofile)
 							{
-								FSF.ConvertPath(CPM_FULL, temp, TempFileNameOut, ARRAYSIZE(TempFileNameOut));
+								size_t SizeFullPath=FSF.ConvertPath(CPM_FULL, temp, nullptr, 0);
+								pTempFileNameOut=new wchar_t[SizeFullPath+1];
+								if (pTempFileNameOut)
+								{
+									FSF.ConvertPath(CPM_FULL, temp, pTempFileNameOut, SizeFullPath);
+								}
+								else
+									allOK = FALSE;
 							}
 							else // <Start process>
 							{
@@ -1179,19 +1256,38 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 								int catchStdError  = stream != 1;
 								int catchSeparate  = (stream == 3) && (PrefIdx == prefView || PrefIdx == prefEdit || PrefIdx == prefClip);
 								int catchAllInOne  = 0;
+								/*
+									                |stream                  |mode         |
+									                |<   |<1  |<2  |<*  |<?  |<<  |<>  |<+ |
+									catchAllInOne   |0 1 |0 0 |0 0 |0 1 |0 0 |0 1 |0 1 |0 1|
+									catchSeparate   |0 0 |0 0 |0 0 |0 0 |1 1 |0 0 |0 0 |0 0|
+									catchStdOutput  |1 1 |1 1 |0 0 |1 1 |1 1 |1 1 |1 1 |1 1|
+									catchStdError   |1 0 |0 0 |1 1 |1 0 |1 1 |1 0 |1 0 |1 0|
+									ShowCmdOutput   |0 0 |0 0 |0 0 |0 0 |0 0 |1 1 |0 0 |2 2|
+								*/
+
 
 								if (PrefIdx == prefRun)
 								{
 									if (runFile && *runFile)
 									{
 										FSF.Unquote(runFile);
-										ExpandEnvironmentStrings(runFile,TempFileNameErr,ARRAYSIZE(TempFileNameErr)); // --> ExpandEnv
-										lstrcpy(TempFileNameOut,TempFileNameErr);
-										allOK = TRUE;
+										pTempFileNameErr=ExpandEnv(runFile,nullptr);
+										if (pTempFileNameErr)
+										{
+											pTempFileNameOut=new wchar_t[lstrlen(pTempFileNameErr)+1];
+											if (pTempFileNameOut)
+											{
+												lstrcpy(pTempFileNameOut,pTempFileNameErr);
+												allOK = TRUE;
+											}
+										}
 									}
 								}
 								else
-									allOK = MakeTempNames(TempFileNameOut, TempFileNameErr, ARRAYSIZE(TempFileNameOut));
+								{
+									allOK = MakeTempNames(&pTempFileNameOut, &pTempFileNameErr);
+								}
 
 
 								if (allOK)
@@ -1232,8 +1328,8 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 										}
 									}
 
-									HANDLE FileHandleOut=createFile(TempFileNameOut,catchStdOutput);
-									HANDLE FileHandleErr=createFile(TempFileNameErr,catchStdError);
+									HANDLE FileHandleOut=pTempFileNameOut?createFile(pTempFileNameOut,catchStdOutput):INVALID_HANDLE_VALUE;
+									HANDLE FileHandleErr=pTempFileNameErr?createFile(pTempFileNameErr,catchStdError):INVALID_HANDLE_VALUE;
 
 									if ((!catchStdOutput || FileHandleOut != INVALID_HANDLE_VALUE) && (!catchStdError || FileHandleErr != INVALID_HANDLE_VALUE))
 									{
@@ -1294,11 +1390,11 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 													sd->hRead = sd->hWrite = sd->hConsole = INVALID_HANDLE_VALUE;
 												}
 
-												if (catchStdError)
-													createFileStream(TempFileNameErr,FileHandleErr,&(td->stream[enStreamErr]),StdOutput);
+												if (catchStdError && pTempFileNameErr)
+													createFileStream(pTempFileNameErr,FileHandleErr,&(td->stream[enStreamErr]),StdOutput);
 
-												if (catchStdOutput)
-													createFileStream(TempFileNameOut,FileHandleOut,&(td->stream[enStreamOut]),StdOutput);
+												if (catchStdOutput && pTempFileNameOut)
+													createFileStream(pTempFileNameOut,FileHandleOut,&(td->stream[enStreamOut]),StdOutput);
 											}
 										}
 
@@ -1343,6 +1439,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 												if (hThread)
 													WaitForSingleObject(hThread, INFINITE);
 
+												// "дочищаем" остатки вывода, которые не успели вывестись в ThreadWhatUpdateScreen()
 												for (int i = 0 ; i < enStreamMAX ; i++)
 												{
 													TShowOutputStreamData *sd = &(td->stream[i]);
@@ -1452,21 +1549,24 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 										if (outputtofile)
 											Flags |= VF_DISABLEHISTORY|VF_DELETEONCLOSE;
 
-										if (validForView(TempFileNameErr, Opt.ViewZeroFiles, 0))
+										if (pTempFileNameErr)
 										{
-											MakeVETitle te(titleErr, cmd);
-											Info.Viewer(TempFileNameErr,outputtofile?te.Get():NULL,0,0,-1,-1,Flags,CP_DEFAULT);
+											if (validForView(pTempFileNameErr, Opt.ViewZeroFiles, 0))
+											{
+												MakeVETitle te(titleErr, cmd);
+												Info.Viewer(pTempFileNameErr,outputtofile?te.Get():NULL,0,0,-1,-1,Flags,CP_DEFAULT);
+											}
+											else if (outputtofile)
+												killTemp(pTempFileNameErr);
 										}
-										else if (outputtofile)
-											killTemp(TempFileNameErr);
 
-										if (validForView(TempFileNameOut, Opt.ViewZeroFiles, 0))
+										if (validForView(pTempFileNameOut, Opt.ViewZeroFiles, 0))
 										{
 											MakeVETitle to(titleOut, cmd);
-											Info.Viewer(TempFileNameOut,outputtofile?to.Get():NULL,0,0,-1,-1,Flags,CP_DEFAULT);
+											Info.Viewer(pTempFileNameOut,outputtofile?to.Get():NULL,0,0,-1,-1,Flags,CP_DEFAULT);
 										}
 										else if (outputtofile)
-											killTemp(TempFileNameOut);
+											killTemp(pTempFileNameOut);
 
 										outputtofile=FALSE;
 
@@ -1480,21 +1580,24 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 										if (outputtofile)
 											Flags |= EF_DISABLEHISTORY|EF_DELETEONCLOSE;
 
-										if (validForView(TempFileNameErr, Opt.ViewZeroFiles, Opt.EditNewFiles))
+										if (pTempFileNameErr)
 										{
-											MakeVETitle te(titleErr, cmd);
-											Info.Editor(TempFileNameErr,outputtofile?te.Get():NULL,0,0,-1,-1,Flags,StartLine,StartChar,CP_DEFAULT);
+											if (validForView(pTempFileNameErr, Opt.ViewZeroFiles, Opt.EditNewFiles))
+											{
+												MakeVETitle te(titleErr, cmd);
+												Info.Editor(pTempFileNameErr,outputtofile?te.Get():NULL,0,0,-1,-1,Flags,StartLine,StartChar,CP_DEFAULT);
+											}
+											else if (outputtofile)
+												killTemp(pTempFileNameErr);
 										}
-										else if (outputtofile)
-											killTemp(TempFileNameErr);
 
-										if (validForView(TempFileNameOut, Opt.ViewZeroFiles, Opt.EditNewFiles))
+										if (validForView(pTempFileNameOut, Opt.ViewZeroFiles, Opt.EditNewFiles))
 										{
 											MakeVETitle to(titleOut, cmd);
-											Info.Editor(TempFileNameOut,outputtofile?to.Get():NULL,0,0,-1,-1,Flags,StartLine,StartChar,CP_DEFAULT);
+											Info.Editor(pTempFileNameOut,outputtofile?to.Get():NULL,0,0,-1,-1,Flags,StartLine,StartChar,CP_DEFAULT);
 										}
 										else if (outputtofile)
-											killTemp(TempFileNameOut);
+											killTemp(pTempFileNameOut);
 
 										outputtofile=FALSE;
 
@@ -1512,7 +1615,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 									{
 										size_t shift;
 										bool foundFile;
-										wchar_t *Ptr = loadFile(TempFileNameOut, Opt.MaxDataSize/sizeof(wchar_t), outputtofile, shift, foundFile);
+										wchar_t *Ptr = loadFile(pTempFileNameOut, Opt.MaxDataSize/sizeof(wchar_t), outputtofile, shift, foundFile);
 
 										FSF.CopyToClipboard(FCT_STREAM,Ptr?Ptr+shift:nullptr);
 										if (Ptr)
@@ -1533,10 +1636,20 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 
 							} // </"Show" result>
 
-							if (outputtofile)
+							if (pTempFileNameOut)
 							{
-								killTemp(TempFileNameOut);
-								killTemp(TempFileNameErr);
+								if (outputtofile)
+									killTemp(pTempFileNameOut);
+
+								delete[] pTempFileNameOut;
+							}
+
+							if (pTempFileNameErr)
+							{
+								if (outputtofile)
+									killTemp(pTempFileNameErr);
+
+								delete[] pTempFileNameErr;
 							}
 
 							if (cmd)
