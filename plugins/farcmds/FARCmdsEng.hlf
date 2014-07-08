@@ -160,7 +160,7 @@ a backslash ('#\#'), the plugin jumps to the specified folder. If the
 path to the folder is not terminated with a backslash, the cursor on the
 panels is positioned to the specified folder.
 
-   Если файла "#имяфайла#" является ярлыком Windows, то плагин переходит
+   Если файл "#имяфайла#" является ярлыком Windows, то плагин переходит
 к объекту, на который ссылается lnk-файл.
 
    When panels are turned off, the cursor is not positioned on the requested object,
