@@ -129,15 +129,16 @@ BOOL Manager::ExitAll()
 void Manager::CloseAll()
 {
 	_MANAGER(CleverSysLog clv(L"Manager::CloseAll()"));
-	std::for_each(CONST_RANGE(ModalFrames, ii)
+	while(!ModalFrames.empty())
 	{
-		DeleteFrame(ii);
-	});
-	std::for_each(CONST_RANGE(Frames, ii)
+		DeleteFrame(ModalFrames.back());
+		Commit();
+	}
+	while(!Frames.empty())
 	{
-		DeleteFrame(ii);
-	});
-	Commit();
+		DeleteFrame(Frames.back());
+		Commit();
+	}
 	Frames.clear();
 }
 
@@ -157,7 +158,6 @@ void Manager::InsertFrame(Frame *Inserted)
 	_MANAGER(SysLog(L"Inserted=%p, Index=%i",Inserted, Index));
 
 	PushFrame(Inserted,&Manager::InsertCommit);
-	//ActivateFrame(Inserted);
 }
 
 void Manager::DeleteFrame(Frame *Deleted)
@@ -1190,7 +1190,7 @@ void Manager::DeleteCommit(Frame* Param)
 
 		if (Param->FrameToBack==Global->CtrlObject->Cp())
 		{
-			ActivateFrame(Frames[FramePos]);
+			ActivateFrame(FramePos);
 		}
 		else
 		{
