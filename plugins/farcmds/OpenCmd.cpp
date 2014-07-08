@@ -38,7 +38,9 @@ static void killTemp(wchar_t *TempFileName)
 	if (FileExists(TempFileName))
 	{
 		DeleteFile(TempFileName);
-		*(wchar_t*)(FSF.PointToName(TempFileName)-1) = 0;
+		wchar_t *PtrName=(wchar_t*)FSF.PointToName(TempFileName);
+		if (PtrName > TempFileName)
+			*PtrName = 0;
 		RemoveDirectory(TempFileName);
 	}
 }
@@ -1041,7 +1043,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 		if (PrefIdx != prefNone)
 		{
 			int SeparatorLen=lstrlen(Opt.Separator);
-			wchar_t *cBracket=nullptr, *runFile=nullptr;
+			wchar_t *runFile=nullptr;
 			bool BracketsOk=true;
 
 			if (PrefIdx == prefEdit)
@@ -1055,47 +1057,44 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 				// edit:< object
 				// edit:<object
 				//      ^---farcmd
-
-                /* need:
-					edit:[.exe                    - file = '[.exe' (отсутствует закрывающа€с€ скобка)
-					edit:"[.exe" --params ]       - ok
-					edit: [.exe --params ]        - ok
-					edit:[.exe --params ]         - bug
-
-					edit:[1].txt                  - line = '1', file = '.txt'
-					edit: [1].txt                 - file = '.txt'
-					edit:"[1].txt"                - file = '[1].txt'
-					edit:[4,2].txt                - line = '4', col = '2', file = '.txt'
-					edit: [4,2].txt               - file = '[4,2].txt'
-                */
 				BracketsOk=false;
 
-				//<Parser needs to be improved>
-				FSF.LTrim(farcmd); // BUGBUG!!!
-				wchar_t *oBracket=wcschr(farcmd,L'[');
-
-				if (*farcmd != L'"' && oBracket && oBracket<wcsstr(farcmd,Opt.Separator))
+				if (*farcmd == L'[')
 				{
-					if ((cBracket=wcschr(oBracket,L']')) != 0 && oBracket < cBracket)
+					wchar_t *oBracket=farcmd;
+					wchar_t *cBracket=wcschr(oBracket,L']');
+					wchar_t *ptrSep=wcsstr(oBracket,Opt.Separator);
+					if (cBracket && (!ptrSep || (ptrSep && cBracket<ptrSep)))
 					{
-						farcmd=cBracket+1;
 						wchar_t *comma=wcschr(oBracket,L',');
-
 						if (comma)
 						{
 							if (comma > oBracket && comma < cBracket)
-								if ((StartLine=GetInt(oBracket+1,comma))>-2 && (StartChar=GetInt(comma+1,cBracket))>-2)
+							{
+								StartLine=GetInt(oBracket+1,comma);
+								StartChar=GetInt(comma+1,cBracket);
+
+								if (StartLine>-2 && StartChar>-2)
+								{
+									farcmd=cBracket+1;
 									BracketsOk=true;
+								}
+							}
 						}
 						else if ((StartLine=GetInt(oBracket+1,cBracket))>-2)
+						{
+							farcmd=cBracket+1;
 							BracketsOk=true;
+						}
 					}
-					else if (!wcschr(oBracket,L']')) // костыль дл€ M#1143
+					else
 						BracketsOk=true;
 				}
 				else
 					BracketsOk=true;
-				//</Parser needs to be improved>
+
+				FSF.LTrim(farcmd);
+
 			}
 			else if (PrefIdx == prefRun)
 			{
@@ -1306,8 +1305,8 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 									{
 										lstrcpy(cmd,L"%COMSPEC% /c ");
 
-										if (*temp == L'"')
-											lstrcat(cmd, L"\"");
+										//if (*temp == L'"')
+										//	lstrcat(cmd, L"\"\" ");
 
 										lstrcat(cmd, temp);
 										fullcmd=ExpandEnv(cmd,nullptr);

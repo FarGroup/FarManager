@@ -40,16 +40,24 @@ int GetInt(wchar_t *Start, wchar_t *End)
 
 	if (End >= Start)
 	{
-		wchar_t Tmp[16];
 		int Size=(int)(End-Start);
 
-		if (Size)
+		if (Size > 0)
 		{
-			if (Size < 11)
+			wchar_t *Tmp=new wchar_t[Size+1];
+			if (Tmp)
 			{
 				wmemcpy(Tmp,Start,Size);
 				Tmp[Size]=0;
+
+				if (wcschr(Tmp,L'%')) // Env
+				{
+					wchar_t *Tmp0=ExpandEnv(Tmp,nullptr);
+					delete[] Tmp;
+					Tmp=Tmp0;
+				}
 				Ret=FSF.atoi(Tmp);
+				delete[] Tmp;
 			}
 		}
 		else
@@ -100,8 +108,9 @@ int ReplaceStrings(wchar_t *Str,const wchar_t *FindStr,const wchar_t *ReplStr,in
 
 /*
 	возвращает PipeFound
+	NewCmdStr и NewCmdPar после использования удалить
 */
-int PartCmdLine(const wchar_t *CmdStr,wchar_t *NewCmdStr,int SizeNewCmdStr,wchar_t *NewCmdPar,int SizeNewCmdPar)
+int PartCmdLine(const wchar_t *CmdStr,wchar_t **NewCmdStr,wchar_t **NewCmdPar)
 {
 	int PipeFound = FALSE;
 
@@ -155,14 +164,21 @@ int PartCmdLine(const wchar_t *CmdStr,wchar_t *NewCmdStr,int SizeNewCmdStr,wchar
 			if (*ParPtr == L' ') //AY: первый пробел между командой и параметрами не нужен,
 				*(ParPtr++)=0;     //    он добавляется заново в Execute.
 
-			lstrcpyn(NewCmdPar, ParPtr, SizeNewCmdPar-1);
-			*ParPtr = 0;
+			wchar_t *ptrNewCmdPar=new wchar_t[lstrlen(ParPtr)+1];
+			if (ptrNewCmdPar)
+				lstrcpy(ptrNewCmdPar, ParPtr);
+			*NewCmdPar=ptrNewCmdPar;
 		}
 
 		if (NewCmdStr)
 		{
-			lstrcpyn(NewCmdStr, Temp, SizeNewCmdStr-1);
-			FSF.Unquote(NewCmdStr);
+			wchar_t *ptrNewCmdStr=new wchar_t[lstrlen(Temp)+1];
+			if (ptrNewCmdStr)
+			{
+				lstrcpy(ptrNewCmdStr, Temp);
+				FSF.Unquote(ptrNewCmdStr);
+			}
+			*NewCmdStr=ptrNewCmdStr;
 		}
 
 		delete[] Temp;
@@ -189,10 +205,26 @@ BOOL ProcessOSAliases(wchar_t *Str,int SizeStr)
 			return FALSE;
 	}
 
-	wchar_t NewCmdStr[4096];
-	wchar_t NewCmdPar[4096];
+	wchar_t NewCmdStr[4096], *pNewCmdStr=nullptr;
+	wchar_t NewCmdPar[4096], *pNewCmdPar=nullptr;
 
-	PartCmdLine(Str,NewCmdStr,ARRAYSIZE(NewCmdStr),NewCmdPar,ARRAYSIZE(NewCmdPar));
+	PartCmdLine(Str,&pNewCmdStr,&pNewCmdPar);
+
+	if (pNewCmdStr)
+	{
+		lstrcpyn(NewCmdStr,pNewCmdStr,ARRAYSIZE(NewCmdStr));
+		delete[] pNewCmdStr;
+	}
+	else
+		NewCmdStr[0]=0;
+
+	if (pNewCmdPar)
+	{
+		lstrcpyn(NewCmdPar,pNewCmdPar,ARRAYSIZE(NewCmdStr));
+		delete[] pNewCmdPar;
+	}
+	else
+		NewCmdPar[0]=0;
 
 	DWORD SizeModuleName = 0;
 	wchar_t *ModuleName=nullptr;
