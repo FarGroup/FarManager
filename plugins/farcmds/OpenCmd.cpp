@@ -16,7 +16,7 @@ static wchar_t* getCurrDir(bool winApi)
 	DWORD Size=winApi?GetCurrentDirectory(0,nullptr):FSF.GetCurrentDirectory(0,nullptr);
 	if (Size)
 	{
-		CurDir=new wchar_t[Size];
+		CurDir=new wchar_t[Size+1];
 		if (winApi)
 			GetCurrentDirectory(Size,CurDir);
 		else
@@ -1279,6 +1279,13 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 											{
 												lstrcpy(pTempFileNameOut,pTempFileNameErr);
 												allOK = TRUE;
+
+												wchar_t* CurDir=getCurrDir(false); // get Far CurDir.
+												if (CurDir)
+												{
+													SetCurrentDirectory(CurDir); // set real CurDir.
+													delete[] CurDir;
+												}
 											}
 										}
 									}
@@ -1414,7 +1421,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 
 										ConsoleTitle consoleTitle(cmd);
 
-										wchar_t* CurDir=getCurrDir(tempDir?true:false);
+										wchar_t* CurDir=getCurrDir(!runFile || tempDir?true:false);
 
 										BOOL Created=CreateProcess(NULL,fullcmd,NULL,NULL,TRUE,0,NULL,CurDir,&si,&pi);
 
