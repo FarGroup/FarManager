@@ -26,13 +26,12 @@ in ~file associations~@:FileAssoc@, and in dialog ~Apply Command~@:ApplyCmd@ (#C
              ~load~@Load@     - load plugin
              ~unload~@Unload@   - unload plugin
 
-   #options# - optional parameters, see corresponding commands descriptions.
+   #options# - ^<wrap>optional parameters, see corresponding commands descriptions.
 
-   #object#  - one of the following:
-             #filename# - name of the file to be viewed, edited or jumped to.
-             #path#     - file or directory path to jump to.
-             #<command# - ~intercept output~@Direction@ of operation system command.
-                        Symbol #<# is obligatory.
+   #object#  - ^<wrap>one of the following:
+             #filename# - ^<wrap>name of the file to be viewed, edited or jumped to.
+             #path#     - ^<wrap>file or directory path to jump to.
+             #<command# - ^<wrap>~intercept output~@Direction@ of operation system command. Symbol #<# is obligatory.
 
 
    See also: ~Configuring FAR Commands~@Config@ | ~Notes~@Remark@
@@ -117,12 +116,21 @@ in the FAR built-in ~editor~@:Editor@.
    If the newly created file is not changed before leaving the editor, it will
 be deleted (same behaviour as #Shift-F4#).
 
-   When opening a file, you can go directly to a given position. To do this, specify the row and, optionally, the column.
-   The square brackets are mandatory!
+   При открытии файла можно сразу перейти в заданную позицию. Для этого в квадратных скобках
+надо указать нужную строку и колонку (любую компоненту можно не указывать, по умолчнию одна будет равна 1).
+Квадратные скобки обязательны!
 
-      #edit:[line] filename#
+      #edit:[строка] имяфайла#
 
-      #edit:[line,column] filename#
+      #edit:[строка,колонка] имяфайла#
+
+      #edit:[,колонка] имяфайла#
+
+   В качестве строки и колонки допускается указывать переменные среды, содержащие числа.
+Например, переменная среды Line равна 10. В этом случае произойдёт позиционирование курсора
+на 10 строку (позиция в строке 1) в файле "File.txt":
+
+   edit:[%Line%,] File.txt
 
    If the filename contains square brackets (for example: "[1].txt"), then for
 the correct opening of the file in the editor you must provide at least one delimiter
@@ -152,9 +160,8 @@ a backslash ('#\#'), the plugin jumps to the specified folder. If the
 path to the folder is not terminated with a backslash, the cursor on the
 panels is positioned to the specified folder.
 
-   At most 1299 bytes are read from the file "#filename#" to specify
-the path to a directory or file. Если файла "#имяфайла#" является ярлыком
-Windows, то плагин переходит к объекту, на который ссылается lnk-файл.
+   Если файла "#имяфайла#" является ярлыком Windows, то плагин переходит
+к объекту, на который ссылается lnk-файл.
 
    When panels are turned off, the cursor is not positioned on the requested object,
 only the switching to the required folder occurs.
@@ -175,8 +182,8 @@ It also allows to mount local disks on file system.
 
      #file#   : #hard link# is created
      #folder# : #junction# is created
-     #drive#  : drive is mounted (#volume mount point# is created)
-              "drive" should be a sequence "#drive_letter:\#", e.g. "#C:\#"
+     #drive#  : ^<wrap>drive is mounted (#volume mount point# is created)
+"drive" should be a sequence "#drive_letter:\#", e.g. "#C:\#"
 
    Switch #/msg# turns on the output of error messages
 
@@ -219,9 +226,9 @@ successful.
    5. Windows NT: 16 bit Windows' system folder (SYSTEM)
    6. Windows folder.
    7. Contents of the registry key:
-      #HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\App Paths#
+      #HKCU\Software\Microsoft\Windows\CurrentVersion\App Paths#
    8. Contents of the registry key:
-      #HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\App Paths#
+      #HKLM\Software\Microsoft\Windows\CurrentVersion\App Paths#
 
    When panels are turned off, the cursor is not positioned on the requested object,
 only the switching to the required folder occurs.
@@ -240,21 +247,23 @@ $ #Output Redirection#
              #2# - redirect only standard output stream #stderr#.
              #*# - redirect #stderr# and #stdout# as one stream.
              #?# - redirect #stderr# and #stdout# as different streams.
-                 For commands ~view~@View@ and ~edit~@Edit@ the streams will be opened
-                 in separate windows. For other commands same behavior as #*#.
-             Default value of this parameter can be defined in ~config~@Config@.
+                 ^<wrap>For commands ~view~@View@ and ~edit~@Edit@ the streams will be opened
+in separate windows. For other commands same behavior as #*#.
 
-    #mode#   - controls direct console output (not via standard streams)
-             #># - ignore the console output of the program
-                 and display only message about its execution.
-             #<# - save console output and make it available
-                 for viewing with #Ctrl-O#.
-             #+# - same as #<#, but displays on the screen redirected output
-                 of the program along with console output.
-             Default value of this parameter can be defined in ~config~@Config@.
+             ^<wrap>Default value of this parameter can be defined in ~config~@Config@.
 
-    #|path|# - command can be executed in the folder different from the
-             current one. To do this specify the path (enclosed in pipes '#|#')
+    #mode#   - ^<wrap>controls direct console output (not via standard streams)
+             #># - ^<wrap>ignore the console output of the program
+and display only message about its execution.
+             #<# - ^<wrap>save console output and make it available
+for viewing with #Ctrl-O#.
+             #+# - ^<wrap>same as #<#, but displays on the screen redirected output
+of the program along with console output.
+
+             ^<wrap>Default value of this parameter can be defined in ~config~@Config@.
+
+    #|path|# - ^<wrap>command can be executed in the folder different from the
+current one. To do this specify the path (enclosed in pipes '#|#')
              For example: #edit:<|%TEMP%|dir#
 
    Program output can be opened in viewer: #~view~@View@:<command#
@@ -265,19 +274,19 @@ $ #Output Redirection#
 
   #Notes:#
 
-   #1#. The entire string after the symbol '#<#' and optional modifiers
+   #1#. ^<wrap>The entire string after the symbol '#<#' and optional modifiers
 is sent to the command processor (%COMSPEC%)
 
-   #2#. Program output is placed in a temporary file, which is deleted automatically when FAR Manager
+   #2#. ^<wrap>Program output is placed in a temporary file, which is deleted automatically when FAR Manager
 doesn't need it.
 
-   #3#. Some programs do not use standard output stream(s), but
+   #3#. ^<wrap>Some programs do not use standard output stream(s), but
 print directly to the console. To store console output
 and make it available for viewing with #Ctrl-O#
 use modifiers '#<#' and '#+#'. To ignore it - use '#>#'
-      You can change default behavior in the ~configuration~@Config@.
+      ^<wrap>You can change default behavior in the ~configuration~@Config@.
 
-   #4#. If the #stream# parameter equals #1# or #2# then the start of the
+   #4#. ^<wrap>If the #stream# parameter equals #1# or #2# then the start of the
 command text must be separated from it by some symbol.
 
 
@@ -298,15 +307,13 @@ command text must be separated from it by some symbol.
 @Remark
 $^#Notes#
 
-   1. It is possible to enclose parameters #filename#,
-      #path# and #command# in quotes.
+   1. ^<wrap>It is possible to enclose parameters #filename#, #path# and #command# in quotes.
 
    2. You can use environment variables.
 
    3. If you make a syntax error, the help will pop up.
 
-   4. You can use console aliases as #command#
-      (Console aliases - macros defined by command DOSKEY)
+   4. ^<wrap>You can use console aliases as #command# (Console aliases - macros defined by command DOSKEY)
 
 
    See also: ~Contents~@Contents@
