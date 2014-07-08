@@ -60,12 +60,14 @@ public:
 	void ActivateFrame(int Index);
 	void RefreshFrame(Frame *Refreshed = nullptr);
 	void RefreshFrame(int Index);
+	void UpdateFrame(Frame* Old,Frame* New);
+	void CallbackFrame(const std::function<void(void)>& Callback);
 	//! Функции для запуска модальных фреймов.
 	void ExecuteFrame(Frame *Executed);
 	//! Входит в новый цикл обработки событий
 	void ExecuteModal(Frame *Executed = nullptr);
 	//! Запускает немодальный фрейм в модальном режиме
-	void ExecuteNonModal();
+	void ExecuteNonModal(Frame *NonModal);
 	//!  Функции, которые работают с очередью немодально фрейма.
 	//  Сейчас используются только для хранения информаци о наличии запущенных объектов типа VFMenu
 	void ModalizeFrame(Frame *Modalized = nullptr, int Mode = TRUE);
@@ -82,7 +84,7 @@ public:
 	/*$ 26.06.2001 SKV
 	Для вызова через ACTL_COMMIT
 	*/
-	BOOL PluginCommit();
+	void PluginCommit();
 	int CountFramesWithName(const string& Name, BOOL IgnoreCase = TRUE);
 	bool IsPanelsActive(bool and_not_qview = false) const; // используется как признак Global->WaitInMainLoop
 	int  FindFrameByFile(int ModalType, const string& FileName, const wchar_t *Dir = nullptr);
@@ -133,33 +135,22 @@ private:
 
 	Frame *FrameMenu(); //    вместо void SelectFrame(); // show window menu (F12)
 	bool HaveAnyFrame() const;
-	bool Commit();         // завершает транзакцию по изменениям в очереди и стеке фреймов
+	void Commit(void);         // завершает транзакцию по изменениям в очереди и стеке фреймов
 	// Она в цикле вызывает себя, пока хотябы один из указателей отличен от nullptr
 	// Функции, "подмастерья начальника" - Commit'a
 	// Иногда вызываются не только из него и из других мест
-	void RefreshCommit();  //
-	void DeactivateCommit(); //
-	void ActivateCommit(); //
-	void UpdateCommit();   // выполняется тогда, когда нужно заменить один фрейм на другой
-	void InsertCommit();
-	static void Inserted(Frame*& NewFrame);
-	void InsertFinish(void);
-	void DeleteCommit();
-	void ExecuteCommit();
-	void ModalizeCommit();
-	void UnmodalizeCommit();
+	void InsertCommit(Frame* Param);
+	void DeleteCommit(Frame* Param);
+	void ActivateCommit(Frame* Param);
+	void RefreshCommit(Frame* Param);
+	void ModalizeCommit(Frame* Param);
+	void UnmodalizeCommit(Frame* Param);
+	void DeactivateCommit(Frame* Param);
+	void ExecuteCommit(Frame* Param);
+	void UpdateCommit(Frame* Old,Frame* New);
 	int GetModalExitCode() const;
 
 	INPUT_RECORD LastInputRecord;
-	/*$ Претенденты на ... */
-	Frame *InsertedFrame;   // Фрейм, который будет добавлен в конец немодальной очереди
-	Frame *DeletedFrame;    // Фрейм, предназначений для удаления из модальной очереди, из модального стека, либо одиночный (которого нет ни там, ни там)
-	Frame *ActivatedFrame;  // Фрейм, который необходимо активировать после каких нибудь изменений
-	Frame *RefreshedFrame;  // Фрейм, который нужно просто освежить, т.е. перерисовать
-	Frame *ModalizedFrame;  // Фрейм, который становится в "очередь" к текущему немодальному фрейму
-	Frame *UnmodalizedFrame;// Фрейм, убираюющийся из "очереди" немодального фрейма
-	Frame *DeactivatedFrame;// Фрейм, который указывает на предудущий активный фрейм
-	Frame *ExecutedFrame;   // Фрейм, которого вскорости нужно будет поставить на вершину модального сттека
 	Frame *CurrentFrame;     // текущий фрейм. Он может нахлодиться как в немодальной очереди, так и в можальном стеке, его можно получить с помощью FrameManager->GetCurrentFrame();
 	std::vector<Frame*> ModalFrames;     // Стек модальных фреймов
 	std::vector<Frame*> Frames;       // Очередь модальных фреймов
@@ -178,4 +169,41 @@ private:
 	int ModalExitCode;
 	int  StartManager;
 	static long CurrentWindowType;
+private:
+	class MessageAbstract
+	{
+		public:
+			virtual ~MessageAbstract() {}
+			virtual void Process(void)=0;
+	};
+	class MessageCallback: public MessageAbstract
+	{
+		private:
+			std::function<void(void)> m_Callback;
+		public:
+			MessageCallback(const std::function<void(void)>& Callback): m_Callback(Callback) {}
+			virtual void Process(void) override {m_Callback();}
+	};
+	class MessageOneFrame: public MessageAbstract
+	{
+		private:
+			Frame* m_Param;
+			std::function<void(Frame*)> m_Callback;
+		public:
+			MessageOneFrame(Frame* Param,const std::function<void(Frame*)>& Callback): m_Param(Param),m_Callback(Callback) {}
+			virtual void Process(void) override {m_Callback(m_Param);}
+	};
+	class MessageTwoFrames: public MessageAbstract
+	{
+		private:
+			Frame* m_Param1;
+			Frame* m_Param2;
+			std::function<void(Frame*,Frame*)> m_Callback;
+		public:
+			MessageTwoFrames(Frame* Param1,Frame* Param2,const std::function<void(Frame*,Frame*)>& Callback): m_Param1(Param1),m_Param2(Param2),m_Callback(Callback) {}
+			virtual void Process(void) override {m_Callback(m_Param1,m_Param2);}
+	};
+
+	std::list<std::unique_ptr<MessageAbstract>> m_Queue;
+	void PushFrame(Frame* Param,void(Manager::*Callback)(Frame*));
 };

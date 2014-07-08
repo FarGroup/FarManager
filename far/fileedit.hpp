@@ -73,7 +73,7 @@ class FileEditor : public Frame
 {
 	public:
 		FileEditor(const string&  Name, uintptr_t codepage, DWORD InitFlags,int StartLine=-1,int StartChar=-1,const string* PluginData=nullptr,EDITOR_FLAGS OpenModeExstFile=EF_OPENMODE_QUERY);
-		FileEditor(const string&  Name, uintptr_t codepage, DWORD InitFlags,int StartLine,int StartChar,const string* Title,int X1,int Y1,int X2,int Y2,int DeleteOnClose=0,EDITOR_FLAGS OpenModeExstFile=EF_OPENMODE_QUERY);
+		FileEditor(const string&  Name, uintptr_t codepage, DWORD InitFlags,int StartLine,int StartChar,const string* Title,int X1,int Y1,int X2,int Y2,int DeleteOnClose=0,Frame* Update=nullptr,EDITOR_FLAGS OpenModeExstFile=EF_OPENMODE_QUERY);
 		virtual ~FileEditor();
 
 		void ShowStatus();
@@ -123,7 +123,7 @@ class FileEditor : public Frame
 		uintptr_t m_codepage; //BUGBUG
 
 		virtual void DisplayObject() override;
-		int  ProcessQuitKey(int FirstSave,BOOL NeedQuestion=TRUE);
+		int  ProcessQuitKey(int FirstSave,BOOL NeedQuestion=TRUE,bool DeleteFrame=true);
 		BOOL UpdateFileList();
 		/* Ret:
 		      0 - не удалять ничего
@@ -133,7 +133,7 @@ class FileEditor : public Frame
 		void SetDeleteOnClose(int NewMode);
 		int ReProcessKey(int Key,int CalledFromControl=TRUE);
 		bool AskOverwrite(const string& FileName);
-		void Init(const string& Name, uintptr_t codepage, const string* Title, DWORD InitFlags, int StartLine, int StartChar, const string* PluginData, int DeleteOnClose, EDITOR_FLAGS OpenModeExstFile);
+		void Init(const string& Name, uintptr_t codepage, const string* Title, DWORD InitFlags, int StartLine, int StartChar, const string* PluginData, int DeleteOnClose, Frame* Update, EDITOR_FLAGS OpenModeExstFile);
 		virtual void InitKeyBar() override;
 		virtual int ProcessKey(const Manager::Key& Key) override;
 		virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
@@ -163,7 +163,7 @@ class FileEditor : public Frame
 		const wchar_t *GetPluginData() {return strPluginData.data();}
 		bool LoadFromCache(EditorPosCache &pc);
 		void SaveToCache();
-		virtual void OnInserted(void) override;
+		void ReadEvent(void);
 
 		static uintptr_t GetDefaultCodePage();
 };

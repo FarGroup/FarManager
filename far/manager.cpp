@@ -63,14 +63,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 long Manager::CurrentWindowType=-1;
 
 Manager::Manager():
-	InsertedFrame(nullptr),
-	DeletedFrame(nullptr),
-	ActivatedFrame(nullptr),
-	RefreshedFrame(nullptr),
-	ModalizedFrame(nullptr),
-	UnmodalizedFrame(nullptr),
-	DeactivatedFrame(nullptr),
-	ExecutedFrame(nullptr),
 	CurrentFrame(nullptr),
 	FramePos(-1),
 	ModalEVCount(0),
@@ -137,24 +129,26 @@ BOOL Manager::ExitAll()
 void Manager::CloseAll()
 {
 	_MANAGER(CleverSysLog clv(L"Manager::CloseAll()"));
-
-	// BUGBUG don't use iterators here, may be invalidated by DeleteCommit()
-	while(!ModalFrames.empty())
+	std::for_each(CONST_RANGE(ModalFrames, ii)
 	{
-		DeleteFrame(ModalFrames.back());
-		DeleteCommit();
-		DeletedFrame=nullptr;
-	}
-
-	// BUGBUG don't use iterators here, may be invalidated by DeleteCommit()
-	while(!Frames.empty())
+		DeleteFrame(ii);
+	});
+	std::for_each(CONST_RANGE(Frames, ii)
 	{
-		DeleteFrame(Frames.back());
-		DeleteCommit();
-		DeletedFrame=nullptr;
-	}
-
+		DeleteFrame(ii);
+	});
+	Commit();
 	Frames.clear();
+}
+
+void Manager::PushFrame(Frame* Param,void(Manager::*Callback)(Frame*))
+{
+	m_Queue.push_back(std::make_unique<MessageOneFrame>(Param,[this,Callback](Frame* Param){(this->*Callback)(Param);}));
+}
+
+void Manager::CallbackFrame(const std::function<void(void)>& Callback)
+{
+	m_Queue.push_back(std::make_unique<MessageCallback>(Callback));
 }
 
 void Manager::InsertFrame(Frame *Inserted)
@@ -162,7 +156,8 @@ void Manager::InsertFrame(Frame *Inserted)
 	_MANAGER(CleverSysLog clv(L"Manager::InsertFrame(Frame *Inserted, int Index)"));
 	_MANAGER(SysLog(L"Inserted=%p, Index=%i",Inserted, Index));
 
-	InsertedFrame=Inserted;
+	PushFrame(Inserted,&Manager::InsertCommit);
+	//ActivateFrame(Inserted);
 }
 
 void Manager::DeleteFrame(Frame *Deleted)
@@ -173,14 +168,7 @@ void Manager::DeleteFrame(Frame *Deleted)
 	if (std::any_of(CONST_RANGE(Frames, i) {return i->RemoveModal(Deleted);}))
 		return;
 
-	if (!Deleted)
-	{
-		DeletedFrame=CurrentFrame;
-	}
-	else
-	{
-		DeletedFrame=Deleted;
-	}
+	PushFrame(Deleted?Deleted:CurrentFrame,&Manager::DeleteCommit);
 }
 
 void Manager::DeleteFrame(int Index)
@@ -195,49 +183,20 @@ void Manager::ModalizeFrame(Frame *Modalized, int Mode)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::ModalizeFrame (Frame *Modalized, int Mode)"));
 	_MANAGER(SysLog(L"Modalized=%p",Modalized));
-	ModalizedFrame=Modalized;
-	ModalizeCommit();
+	PushFrame(Modalized,&Manager::ModalizeCommit);
 }
 
 void Manager::UnmodalizeFrame(Frame *Unmodalized)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::UnmodalizeFrame (Frame *Unmodalized)"));
 	_MANAGER(SysLog(L"Unmodalized=%p",Unmodalized));
-	UnmodalizedFrame=Unmodalized;
-	UnmodalizeCommit();
+	PushFrame(Unmodalized,&Manager::UnmodalizeCommit);
 }
 
-void Manager::ExecuteNonModal()
+void Manager::ExecuteNonModal(Frame *NonModal)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::ExecuteNonModal ()"));
-	_MANAGER(SysLog(L"ExecutedFrame=%p, InsertedFrame=%p, DeletedFrame=%p",ExecutedFrame, InsertedFrame, DeletedFrame));
-	Frame *NonModal=InsertedFrame?InsertedFrame:(ExecutedFrame?ExecutedFrame:ActivatedFrame);
-
-	if (!NonModal)
-	{
-		return;
-	}
-
-	/* $ 14.05.2002 SKV
-	  Положим текущий фрэйм в список "родителей" полумодальных фрэймов
-	*/
-	//Frame *SaveFrame=CurrentFrame;
-	//AddSemiModalBackFrame(SaveFrame);
-	int NonModalIndex=IndexOf(NonModal);
-
-	if (-1==NonModalIndex)
-	{
-		InsertedFrame=NonModal;
-		ExecutedFrame=nullptr;
-		InsertCommit();
-		Inserted(InsertedFrame);
-	}
-	else
-	{
-		ActivateFrame(NonModalIndex);
-	}
-
-	//Frame* ModalStartLevel=NonModal;
+	if (!NonModal) return;
 	for (;;)
 	{
 		Commit();
@@ -249,35 +208,16 @@ void Manager::ExecuteNonModal()
 
 		ProcessMainLoop();
 	}
-
-	//ExecuteModal(NonModal);
-	/* $ 14.05.2002 SKV
-	  ... и уберём его же.
-	*/
-	//RemoveSemiModalBackFrame(SaveFrame);
 }
 
 void Manager::ExecuteModal(Frame *Executed)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::ExecuteModal (Frame *Executed)"));
-	_MANAGER(SysLog(L"Executed=%p, ExecutedFrame=%p",Executed,ExecutedFrame));
-
-	if (!Executed && !ExecutedFrame)
-	{
-		return;
-	}
+	_MANAGER(SysLog(L"Executed=%p",Executed));
 
 	if (Executed)
 	{
-		if (ExecutedFrame)
-		{
-			_MANAGER(SysLog(L"WARNING! Попытка в одном цикле запустить в модальном режиме два фрейма. Executed=%p, ExecitedFrame=%p",Executed, ExecutedFrame));
-			return;// nullptr; //?? Определить, какое значение правильно возвращать в этом случае
-		}
-		else
-		{
-			ExecutedFrame=Executed;
-		}
+		PushFrame(Executed,&Manager::ExecuteCommit);
 	}
 
 	auto ModalStartLevel=ModalFrames.size();
@@ -384,11 +324,10 @@ Frame *Manager::FrameMenu()
 	{
 		if (ExitCode>=0)
 		{
-			ActivateFrame(ExitCode);
+			Frame* ActivatedFrame=GetFrame(ExitCode);
+			ActivateFrame(ActivatedFrame);
 			return (ActivatedFrame == CurrentFrame || !CurrentFrame->GetCanLoseFocus())? nullptr : CurrentFrame;
 		}
-
-		return (ActivatedFrame == CurrentFrame)? nullptr : CurrentFrame;
 	}
 
 	return nullptr;
@@ -401,8 +340,7 @@ int Manager::GetFrameCountByType(int Type)
 
 	std::for_each(CONST_RANGE(Frames, i)
 	{
-		// не учитываем фрейм, который собираемся удалять
-		if (i != DeletedFrame && i->GetExitCode() != XC_QUIT && i->GetType() == Type)
+		if (i->GetExitCode() != XC_QUIT && i->GetType() == Type)
 			ret++;
 	});
 
@@ -460,13 +398,7 @@ void Manager::ActivateFrame(Frame *Activated)
 	_MANAGER(CleverSysLog clv(L"Manager::ActivateFrame(Frame *Activated)"));
 	_MANAGER(SysLog(L"Activated=%i",Activated));
 
-	if (IndexOf(Activated)==-1 && IndexOfStack(Activated)==-1)
-		return;
-
-	if (!ActivatedFrame)
-	{
-		ActivatedFrame=Activated;
-	}
+	PushFrame(Activated,&Manager::ActivateCommit);
 }
 
 void Manager::ActivateFrame(int Index)
@@ -508,7 +440,7 @@ void Manager::DeactivateFrame(Frame *Deactivated,int Direction)
 		// Direct access from menu or (in future) from plugin
 	}
 
-	DeactivatedFrame=Deactivated;
+	PushFrame(Deactivated,&Manager::DeactivateCommit);
 }
 
 void Manager::RefreshFrame(Frame *Refreshed)
@@ -516,20 +448,7 @@ void Manager::RefreshFrame(Frame *Refreshed)
 	_MANAGER(CleverSysLog clv(L"Manager::RefreshFrame(Frame *Refreshed)"));
 	_MANAGER(SysLog(L"Refreshed=%p",Refreshed));
 
-	if (ActivatedFrame)
-		return;
-
-	if (Refreshed)
-	{
-		RefreshedFrame=Refreshed;
-	}
-	else
-	{
-		RefreshedFrame=CurrentFrame;
-	}
-
-	if (IndexOf(Refreshed)==-1 && IndexOfStack(Refreshed)==-1)
-		return;
+	PushFrame(Refreshed?Refreshed:CurrentFrame,&Manager::RefreshCommit);
 }
 
 void Manager::RefreshFrame(int Index)
@@ -543,9 +462,13 @@ void Manager::ExecuteFrame(Frame *Executed)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::ExecuteFrame(Frame *Executed)"));
 	_MANAGER(SysLog(L"Executed=%p",Executed));
-	ExecutedFrame=Executed;
+	PushFrame(Executed,&Manager::ExecuteCommit);
 }
 
+void Manager::UpdateFrame(Frame* Old,Frame* New)
+{
+	m_Queue.push_back(std::make_unique<MessageTwoFrames>(Old,New,[this](Frame* Param1,Frame* Param2){this->UpdateCommit(Param1,Param2);}));
+}
 
 /* $ 10.05.2001 DJ
    переключается на панели (фрейм с номером 0)
@@ -560,8 +483,7 @@ void Manager::SwitchToPanels()
 
 bool Manager::HaveAnyFrame() const
 {
-	return !Frames.empty() || InsertedFrame || DeletedFrame || ActivatedFrame || RefreshedFrame ||
-		ModalizedFrame || DeactivatedFrame || ExecutedFrame || CurrentFrame;
+	return !Frames.empty() || !m_Queue.empty();
 }
 
 void Manager::EnterMainLoop()
@@ -1200,136 +1122,118 @@ int Manager::IndexOf(Frame *Frame)
 	})? Result - 1 : -1;
 }
 
-bool Manager::Commit()
+void Manager::Commit(void)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::Commit()"));
 	_MANAGER(ManagerClass_Dump(L"ManagerClass"));
-	bool Result = false;
-
-	if (DeletedFrame && (InsertedFrame||ExecutedFrame))
+	while (m_Queue.size())
 	{
-		UpdateCommit();
-		DeletedFrame = nullptr;
-		Inserted(InsertedFrame);
-		Inserted(ExecutedFrame);
-		Result=true;
+		auto message=std::move(m_Queue.front());
+		m_Queue.pop_front();
+		message->Process();
 	}
-	else if (ExecutedFrame)
-	{
-		ExecuteCommit();
-		Inserted(ExecutedFrame);
-		Result=true;
-	}
-	else if (DeletedFrame)
-	{
-		DeleteCommit();
-		DeletedFrame = nullptr;
-		Result=true;
-	}
-	else if (InsertedFrame)
-	{
-		InsertCommit();
-		Inserted(InsertedFrame);
-		Result=true;
-	}
-	else if (DeactivatedFrame)
-	{
-		DeactivateCommit();
-		DeactivatedFrame=nullptr;
-		Result=true;
-	}
-	else if (ActivatedFrame)
-	{
-		ActivateCommit();
-		ActivatedFrame=nullptr;
-		Result=true;
-	}
-	else if (RefreshedFrame)
-	{
-		RefreshCommit();
-		RefreshedFrame=nullptr;
-		Result=true;
-	}
-	else if (ModalizedFrame)
-	{
-		ModalizeCommit();
-//    ModalizedFrame=nullptr;
-		Result=true;
-	}
-	else if (UnmodalizedFrame)
-	{
-		UnmodalizeCommit();
-//    UnmodalizedFrame=nullptr;
-		Result=true;
-	}
-
-	if (Result)
-	{
-		Result=Commit();
-	}
-
-	return Result;
 }
 
-void Manager::DeactivateCommit()
+void Manager::InsertCommit(Frame* Param)
 {
-	_MANAGER(CleverSysLog clv(L"Manager::DeactivateCommit()"));
-	_MANAGER(SysLog(L"DeactivatedFrame=%p",DeactivatedFrame));
-
-	/*$ 18.04.2002 skv
-	  Если нечего активировать, то в общем-то не надо и деактивировать.
-	*/
-	if (!DeactivatedFrame || !ActivatedFrame)
+	_MANAGER(CleverSysLog clv(L"Manager::InsertCommit()"));
+	_MANAGER(SysLog(L"InsertedFrame=%p",Param));
+	if (Param)
 	{
-		return;
-	}
-
-	if (!ActivatedFrame)
-	{
-		_MANAGER("WARNING! !ActivatedFrame");
-	}
-
-	if (DeactivatedFrame)
-	{
-		DeactivatedFrame->OnChangeFocus(0);
-	}
-
-	int modalIndex=IndexOfStack(DeactivatedFrame);
-
-	if (-1 != modalIndex && modalIndex == static_cast<int>(ModalFrames.size() - 1))
-	{
-		/*if (IsSemiModalBackFrame(ActivatedFrame))
-		{ // Является ли "родителем" полумодального фрэйма?
-		  ModalStackCount--;
-		}
-		else
-		{*/
-		if (IndexOfStack(ActivatedFrame)==-1)
-		{
-			ModalFrames.back() = ActivatedFrame;
-		}
-		else
-		{
-			ModalFrames.pop_back();
-		}
-
-//    }
+		Param->FrameToBack=CurrentFrame;
+		Frames.emplace_back(Param);
+		ActivateFrame(Param);
 	}
 }
 
+void Manager::DeleteCommit(Frame* Param)
+{
+	_MANAGER(CleverSysLog clv(L"Manager::DeleteCommit()"));
+	_MANAGER(SysLog(L"DeletedFrame=%p",Param));
 
-void Manager::ActivateCommit()
+	if (!Param)
+		return;
+
+	int ModalIndex=IndexOfStack(Param);
+
+	if (ModalIndex!=-1)
+	{
+		/* $ 14.05.2002 SKV
+		  Надёжнее найти и удалить именно то, что
+		  нужно, а не просто верхний.
+		*/
+		auto frame = std::find(ModalFrames.begin(), ModalFrames.end(), Param);
+		if (frame != ModalFrames.end())
+			ModalFrames.erase(frame);
+		if (!ModalFrames.empty())
+			ActivateFrame(ModalFrames.back());
+	}
+
+	std::for_each(CONST_RANGE(Frames, i)
+	{
+		if (i->FrameToBack==Param)
+		{
+			i->FrameToBack=Global->CtrlObject->Cp();
+		}
+	});
+
+	int FrameIndex=IndexOf(Param);
+
+	if (-1!=FrameIndex)
+	{
+		Frames.erase(Frames.begin() + FrameIndex);
+
+		if (FramePos >= static_cast<int>(Frames.size()))
+		{
+			FramePos=0;
+		}
+
+		if (Param->FrameToBack==Global->CtrlObject->Cp())
+		{
+			ActivateFrame(Frames[FramePos]);
+		}
+		else
+		{
+			ActivateFrame(Param->FrameToBack);
+		}
+	}
+
+	Param->OnDestroy();
+
+	if (CurrentFrame==Param)
+	{
+		CurrentFrame=0;
+		InterlockedExchange(&CurrentWindowType,-1);
+	}
+
+	if (Param->GetDynamicallyBorn())
+	{
+		_MANAGER(SysLog(L"delete DeletedFrame %p", Param));
+		delete Param;
+	}
+
+	if (!ModalFrames.empty())
+	{
+		ActivateFrame(ModalFrames.back());
+	}
+	else
+	{
+		ActivateFrame(FramePos);
+	}
+}
+
+void Manager::ActivateCommit(Frame* Param)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::ActivateCommit()"));
-	_MANAGER(SysLog(L"ActivatedFrame=%p",ActivatedFrame));
+	_MANAGER(SysLog(L"ActivatedFrame=%p",Param));
 
-	if (CurrentFrame==ActivatedFrame)
+	if (CurrentFrame==Param)
 	{
-		RefreshedFrame=ActivatedFrame;
+		RefreshFrame(Param);
 		return;
 	}
 
-	int FrameIndex=IndexOf(ActivatedFrame);
+	int FrameIndex=IndexOf(Param);
 
 	if (-1!=FrameIndex)
 	{
@@ -1343,7 +1247,7 @@ void Manager::ActivateCommit()
 
 	std::any_of(RANGE(ModalFrames, i)->bool
 	{
-		if (i == ActivatedFrame)
+		if (i == Param)
 		{
 			std::swap(ModalFrames.back(), i);
 			return true;
@@ -1351,34 +1255,91 @@ void Manager::ActivateCommit()
 		return false;
 	});
 
-	RefreshedFrame=CurrentFrame=ActivatedFrame;
+	CurrentFrame=Param;
+	RefreshFrame(Param);
 	InterlockedExchange(&CurrentWindowType,CurrentFrame->GetType());
 }
 
-void Manager::UpdateCommit()
+void Manager::RefreshCommit(Frame* Param)
 {
-	_MANAGER(CleverSysLog clv(L"Manager::UpdateCommit()"));
-	_MANAGER(SysLog(L"DeletedFrame=%p, InsertedFrame=%p, ExecutedFrame=%p",DeletedFrame,InsertedFrame, ExecutedFrame));
+	_MANAGER(CleverSysLog clv(L"Manager::RefreshCommit()"));
+	_MANAGER(SysLog(L"RefreshedFrame=%p",Param));
 
-	if (ExecutedFrame)
-	{
-		// магия для корректной работы f6 в редакторе/просмотре.
-		// вариант для модальных редакторов/просмотров. такие встречаются в поиске, например.
-		DeleteCommit();
-		ExecuteCommit();
+	if (!Param)
 		return;
+
+	if (IndexOf(Param)==-1 && IndexOfStack(Param)==-1)
+		return;
+
+	if (!Param->Locked())
+	{
+		if (!Global->IsRedrawFramesInProcess)
+			Param->ShowConsoleTitle();
+
+		Param->Refresh();
+
+		Global->CtrlObject->Macro.SetMode(Param->GetMacroMode());
 	}
 
-	// магия для корректной работы f6 в редакторе/просмотре.
-	// при одновременном удалении например редактора и создании просмотра,
-	// просмотр попадает не в конец списка окон, а на место только что удалённого редактора.
-	int FrameIndex=IndexOf(DeletedFrame);
+	if
+	(
+		(Global->Opt->ViewerEditorClock && (Param->GetType() == MODALTYPE_EDITOR || Param->GetType() == MODALTYPE_VIEWER))
+		||
+		(Global->WaitInMainLoop && Global->Opt->Clock)
+	)
+		ShowTime(1);
+}
+
+void Manager::ModalizeCommit(Frame* Param)
+{
+	CurrentFrame->Push(Param);
+}
+
+void Manager::UnmodalizeCommit(Frame* Param)
+{
+	std::any_of(CONST_RANGE(Frames, i)
+	{
+		return i->RemoveModal(Param);
+	});
+
+	std::any_of(CONST_RANGE(ModalFrames, i)
+	{
+		return i->RemoveModal(Param);
+	});
+}
+
+void Manager::DeactivateCommit(Frame* Param)
+{
+	_MANAGER(CleverSysLog clv(L"Manager::DeactivateCommit()"));
+	_MANAGER(SysLog(L"DeactivatedFrame=%p",Param));
+	if (Param)
+	{
+		Param->OnChangeFocus(0);
+	}
+}
+
+void Manager::ExecuteCommit(Frame* Param)
+{
+	_MANAGER(CleverSysLog clv(L"Manager::ExecuteCommit()"));
+	_MANAGER(SysLog(L"ExecutedFrame=%p",Param));
+
+	if (Param)
+	{
+		ModalFrames.emplace_back(Param);
+		ActivateFrame(Param);
+	}
+}
+
+void Manager::UpdateCommit(Frame* Old,Frame* New)
+{
+	int FrameIndex=IndexOf(Old);
 
 	if (-1!=FrameIndex)
 	{
-		ActivateFrame(Frames[FrameIndex] = InsertedFrame);
-		ActivatedFrame->FrameToBack=CurrentFrame;
-		DeleteCommit();
+		Frames[FrameIndex]=New;
+		New->FrameToBack=CurrentFrame;
+		ActivateFrame(New);
+		DeleteFrame(Old);
 	}
 	else
 	{
@@ -1386,183 +1347,12 @@ void Manager::UpdateCommit()
 	}
 }
 
-//! Удаляет DeletedFrame изо всех очередей!
-//! Назначает следующий активный, (исходя из своих представлений)
-//! Но только в том случае, если активный фрейм еще не назначен заранее.
-void Manager::DeleteCommit()
-{
-	_MANAGER(CleverSysLog clv(L"Manager::DeleteCommit()"));
-	_MANAGER(SysLog(L"DeletedFrame=%p",DeletedFrame));
-
-	if (!DeletedFrame)
-	{
-		return;
-	}
-
-	// <ifDoubleInstance>
-	//BOOL ifDoubI=ifDoubleInstance(DeletedFrame);
-	// </ifDoubleInstance>
-	int ModalIndex=IndexOfStack(DeletedFrame);
-
-	if (ModalIndex!=-1)
-	{
-		/* $ 14.05.2002 SKV
-		  Надёжнее найти и удалить именно то, что
-		  нужно, а не просто верхний.
-		*/
-		auto frame = std::find(ModalFrames.begin(), ModalFrames.end(), DeletedFrame);
-		if (frame != ModalFrames.end())
-			ModalFrames.erase(frame);
-
-		if (!ModalFrames.empty())
-		{
-			ActivateFrame(ModalFrames.back());
-		}
-	}
-
-	std::for_each(CONST_RANGE(Frames, i)
-	{
-		if (i->FrameToBack==DeletedFrame)
-		{
-			i->FrameToBack=Global->CtrlObject->Cp();
-		}
-	});
-
-	int FrameIndex=IndexOf(DeletedFrame);
-
-	if (-1!=FrameIndex)
-	{
-		Frames.erase(Frames.begin() + FrameIndex);
-
-		if (FramePos >= static_cast<int>(Frames.size()))
-		{
-			FramePos=0;
-		}
-
-		if (DeletedFrame->FrameToBack==Global->CtrlObject->Cp())
-		{
-			ActivateFrame(Frames[FramePos]);
-		}
-		else
-		{
-			ActivateFrame(DeletedFrame->FrameToBack);
-		}
-	}
-
-	DeletedFrame->OnDestroy();
-
-	if (CurrentFrame==DeletedFrame)
-	{
-		CurrentFrame=0;
-		InterlockedExchange(&CurrentWindowType,-1);
-	}
-
-	if (DeletedFrame->GetDynamicallyBorn())
-	{
-		_MANAGER(SysLog(L"delete DeletedFrame %p", DeletedFrame));
-
-		/* $ 14.05.2002 SKV
-		  Так как в деструкторе фрэйма неявно может быть
-		  вызван commit, то надо подстраховаться.
-		*/
-		Frame *tmp=DeletedFrame;
-		DeletedFrame=nullptr;
-		delete tmp;
-	}
-
-	// Полагаемся на то, что в ActevateFrame не будет переписан уже
-	// присвоенный  ActivatedFrame
-	if (!ModalFrames.empty())
-	{
-		ActivateFrame(ModalFrames.back());
-	}
-	else
-	{
-		ActivateFrame(FramePos);
-	}
-}
-
-void Manager::InsertCommit()
-{
-	_MANAGER(CleverSysLog clv(L"Manager::InsertCommit()"));
-	_MANAGER(SysLog(L"InsertedFrame=%p",InsertedFrame));
-
-	if (InsertedFrame)
-	{
-		InsertedFrame->FrameToBack=CurrentFrame;
-		Frames.emplace_back(InsertedFrame);
-
-		if (!ActivatedFrame)
-		{
-			ActivatedFrame=InsertedFrame;
-			ActivateCommit();
-			ActivatedFrame=nullptr;
-		}
-	}
-}
-
-void Manager::Inserted(Frame*& NewFrame)
-{
-	if (NewFrame)
-	{
-		Frame *tmp = NewFrame;
-		NewFrame = nullptr;
-		tmp->OnInserted();
-	}
-}
-
-void Manager::RefreshCommit()
-{
-	_MANAGER(CleverSysLog clv(L"Manager::RefreshCommit()"));
-	_MANAGER(SysLog(L"RefreshedFrame=%p",RefreshedFrame));
-
-	if (!RefreshedFrame)
-		return;
-
-	if (IndexOf(RefreshedFrame)==-1 && IndexOfStack(RefreshedFrame)==-1)
-		return;
-
-	if (!RefreshedFrame->Locked())
-	{
-		if (!Global->IsRedrawFramesInProcess)
-			RefreshedFrame->ShowConsoleTitle();
-
-		if (RefreshedFrame)
-			RefreshedFrame->Refresh();
-
-		if (!RefreshedFrame)
-			return;
-
-		Global->CtrlObject->Macro.SetMode(RefreshedFrame->GetMacroMode());
-	}
-
-	if ((Global->Opt->ViewerEditorClock &&
-	        (RefreshedFrame->GetType() == MODALTYPE_EDITOR ||
-	         RefreshedFrame->GetType() == MODALTYPE_VIEWER))
-	        || (Global->WaitInMainLoop && Global->Opt->Clock))
-		ShowTime(1);
-}
-
-void Manager::ExecuteCommit()
-{
-	_MANAGER(CleverSysLog clv(L"Manager::ExecuteCommit()"));
-	_MANAGER(SysLog(L"ExecutedFrame=%p",ExecutedFrame));
-
-	if (!ExecutedFrame)
-	{
-		return;
-	}
-
-	ModalFrames.emplace_back(ExecutedFrame);
-	ActivatedFrame=ExecutedFrame;
-}
-
 /*$ 26.06.2001 SKV
   Для вызова из плагинов посредством ACTL_COMMIT
 */
-BOOL Manager::PluginCommit()
+void Manager::PluginCommit()
 {
-	return Commit();
+	Commit();
 }
 
 /* $ Введена для нужд CtrlAltShift OT */
@@ -1640,27 +1430,6 @@ void Manager::ImmediateHide()
 		if (Global->CtrlObject->CmdLine)
 			Global->CtrlObject->CmdLine->ShowBackground();
 	}
-}
-
-void Manager::ModalizeCommit()
-{
-	CurrentFrame->Push(ModalizedFrame);
-	ModalizedFrame=nullptr;
-}
-
-void Manager::UnmodalizeCommit()
-{
-	std::any_of(CONST_RANGE(Frames, i)
-	{
-		return i->RemoveModal(UnmodalizedFrame);
-	});
-
-	std::any_of(CONST_RANGE(ModalFrames, i)
-	{
-		return i->RemoveModal(UnmodalizedFrame);
-	});
-
-	UnmodalizedFrame=nullptr;
 }
 
 /*  Вызов ResizeConsole для всех NextModal у

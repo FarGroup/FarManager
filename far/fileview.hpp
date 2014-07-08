@@ -43,7 +43,7 @@ class FileViewer:public Frame
 	FileViewer(const string& Name,int EnableSwitch=FALSE,int DisableHistory=FALSE,
 		int DisableEdit=FALSE,__int64 ViewStartPos=-1,const wchar_t *PluginData=nullptr,
 		NamesList *ViewNamesList=nullptr,bool ToSaveAs=false,uintptr_t aCodePage=CP_DEFAULT,
-		const wchar_t *Title=nullptr, int DeleteOnClose=0);
+		const wchar_t *Title=nullptr, int DeleteOnClose=0, Frame* Update=nullptr);
 	FileViewer(const string& Name,int EnableSwitch,int DisableHistory,
 		const wchar_t *Title,int X1,int Y1,int X2,int Y2,uintptr_t aCodePage=CP_DEFAULT);
 	virtual ~FileViewer();
@@ -63,7 +63,7 @@ class FileViewer:public Frame
 	virtual int FastHide() override;
 	virtual const string& GetTitle(string &Title) override;
 
-	void Init(const string& Name, int EnableSwitch, int DisableHistory, __int64 ViewStartPos, const wchar_t *PluginData, NamesList *ViewNamesList, bool ToSaveAs);
+	void Init(const string& Name, int EnableSwitch, int DisableHistory, __int64 ViewStartPos, const wchar_t *PluginData, NamesList *ViewNamesList, bool ToSaveAs, Frame* Update=nullptr);
 	/* $ 14.06.2002 IS
 	   Параметр DeleteFolder - удалить не только файл, но и каталог, его
 	   содержащий (если каталог пуст). По умолчанию - TRUE (получаем

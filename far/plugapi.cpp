@@ -593,7 +593,8 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		*/
 		case ACTL_COMMIT:
 		{
-			return Global->FrameManager->PluginCommit();
+			Global->FrameManager->PluginCommit();
+			return TRUE;
 		}
 		/* $ 15.09.2001 tran
 		   пригодится плагинам */
@@ -1512,7 +1513,7 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 		*/
 		if (!(Flags&VF_IMMEDIATERETURN))
 		{
-			Global->FrameManager->ExecuteNonModal();
+			Global->FrameManager->ExecuteNonModal(Viewer);
 		}
 		else
 		{
@@ -1604,7 +1605,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 		                                   (DisableSavePos?FFILEEDIT_DISABLESAVEPOS:0),
 		                                  StartLine,StartChar,&strTitle,
 		                                  X1,Y1,X2,Y2,
-		                                  DeleteOnClose,OpMode);
+		                                  DeleteOnClose,nullptr,OpMode);
 
 		if (Editor)
 		{
@@ -1637,7 +1638,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 			/* $ 21.05.2002 SKV - Запускаем свой цикл, только если не был указан флаг. */
 			if (!(Flags&EF_IMMEDIATERETURN))
 			{
-				Global->FrameManager->ExecuteNonModal();
+				Global->FrameManager->ExecuteNonModal(Editor);
 				if (Global->FrameManager->IndexOf(Editor) != -1)
 					ExitCode = Editor->IsFileChanged() ? EEC_MODIFIED : EEC_NOT_MODIFIED;
 				else
@@ -1667,7 +1668,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 		                    (DisableSavePos?FFILEEDIT_DISABLESAVEPOS:0),
 		                  StartLine,StartChar,&strTitle,
 		                  X1,Y1,X2,Y2,
-		                  DeleteOnClose,OpMode);
+		                  DeleteOnClose,nullptr,OpMode);
 		editorExitCode=Editor.GetExitCode();
 
 		// выполним предпроверку (ошибки разные могут быть)

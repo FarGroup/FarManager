@@ -59,7 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 FileViewer::FileViewer(const string& Name,int EnableSwitch,int DisableHistory, int DisableEdit,
                        __int64 ViewStartPos,const wchar_t *PluginData, NamesList *ViewNamesList,bool ToSaveAs,
-                       uintptr_t aCodePage, const wchar_t *Title, int DeleteOnClose):
+                       uintptr_t aCodePage, const wchar_t *Title, int DeleteOnClose, Frame* Update):
 	View(false,aCodePage),
 	FullScreen(true),
 	DisableEdit(DisableEdit),
@@ -75,7 +75,7 @@ FileViewer::FileViewer(const string& Name,int EnableSwitch,int DisableHistory, i
 		SetTempViewName(Name, DeleteOnClose == 1);
 	}
 	SetPosition(0,0,ScrX,ScrY);
-	Init(Name,EnableSwitch,DisableHistory,ViewStartPos,PluginData,ViewNamesList,ToSaveAs);
+	Init(Name,EnableSwitch,DisableHistory,ViewStartPos,PluginData,ViewNamesList,ToSaveAs,Update);
 }
 
 
@@ -121,7 +121,7 @@ FileViewer::FileViewer(const string& Name,int EnableSwitch,int DisableHistory,
 
 void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 	__int64 ViewStartPos,const wchar_t *PluginData,
-	NamesList *ViewNamesList,bool ToSaveAs)
+	NamesList *ViewNamesList,bool ToSaveAs, Frame* Update)
 {
 	RedrawTitle = FALSE;
 	ViewKeyBar.SetOwner(this);
@@ -165,10 +165,12 @@ void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 
 	if (EnableSwitch)
 	{
-		Global->FrameManager->InsertFrame(this);
+		if (Update) Global->FrameManager->UpdateFrame(Update,this);
+		else Global->FrameManager->InsertFrame(this);
 	}
 	else
 	{
+		if (Update) Global->FrameManager->DeleteFrame(Update);
 		Global->FrameManager->ExecuteFrame(this);
 	}
 }
@@ -359,7 +361,7 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 					strViewFileName, cp, flags, -2,
 					static_cast<int>(FilePos), // TODO: Editor StartChar should be __int64
 					str_title.empty() ? nullptr: &str_title,
-					-1,-1, -1, -1, delete_on_close );
+					-1,-1, -1, -1, delete_on_close, this );
 
 				int load = ShellEditor->GetExitCode();
 				if (load == XC_LOADING_INTERRUPTED || load == XC_OPEN_ERROR)
@@ -375,8 +377,6 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 					// Если переключаемся в редактор, то удалять файл уже не нужно
 					SetTempViewName(L"");
 					SetExitCode(0);
-
-					Global->FrameManager->DeleteFrame(this); // Insert уже есть внутри конструктора
 				}
 				ShowTime(2);
 			}

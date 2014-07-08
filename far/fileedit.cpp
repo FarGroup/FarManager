@@ -327,11 +327,11 @@ FileEditor::FileEditor(const string& Name, uintptr_t codepage, DWORD InitFlags, 
 	ScreenObjectWithShadow::SetPosition(0,0,ScrX,ScrY);
 	Flags.Set(InitFlags);
 	Flags.Set(FFILEEDIT_FULLSCREEN);
-	Init(Name,codepage, nullptr, InitFlags, StartLine, StartChar, PluginData, FALSE, OpenModeExstFile);
+	Init(Name,codepage, nullptr, InitFlags, StartLine, StartChar, PluginData, FALSE, nullptr, OpenModeExstFile);
 }
 
 
-FileEditor::FileEditor(const string& Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose, EDITOR_FLAGS OpenModeExstFile):
+FileEditor::FileEditor(const string& Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose, Frame* Update, EDITOR_FLAGS OpenModeExstFile):
 	BadConversion(false)
 {
 	Flags.Set(InitFlags);
@@ -363,7 +363,7 @@ FileEditor::FileEditor(const string& Name, uintptr_t codepage, DWORD InitFlags, 
 	ScreenObjectWithShadow::SetPosition(X1,Y1,X2,Y2);
 	Flags.Change(FFILEEDIT_FULLSCREEN,(!X1 && !Y1 && X2==ScrX && Y2==ScrY));
 	string EmptyTitle;
-	Init(Name,codepage, Title, InitFlags, StartLine, StartChar, &EmptyTitle, DeleteOnClose, OpenModeExstFile);
+	Init(Name,codepage, Title, InitFlags, StartLine, StartChar, &EmptyTitle, DeleteOnClose, Update, OpenModeExstFile);
 }
 
 /* $ 07.05.2001 DJ
@@ -429,6 +429,7 @@ void FileEditor::Init(
     int StartChar,
     const string* PluginData,
     int DeleteOnClose,
+    Frame* Update,
     EDITOR_FLAGS OpenModeExstFile
 )
 {
@@ -697,12 +698,19 @@ void FileEditor::Init(
 	bLoaded = true;
 
 	if (Flags.Check(FFILEEDIT_ENABLEF6))
-		Global->FrameManager->InsertFrame(this);
+	{
+		if (Update) Global->FrameManager->UpdateFrame(Update,this);
+		else Global->FrameManager->InsertFrame(this);
+	}
 	else
+	{
+		if (Update) Global->FrameManager->DeleteFrame(Update);
 		Global->FrameManager->ExecuteFrame(this);
+	}
+	Global->FrameManager->CallbackFrame([this](){this->ReadEvent();});
 }
 
-void FileEditor::OnInserted(void)
+void FileEditor::ReadEvent(void)
 {
 	Global->CtrlObject->Plugins->ProcessEditorEvent(EE_READ,nullptr,m_editor->EditorID);
 	bEE_READ_Sent = true;
@@ -907,7 +915,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					   ! Открываем вьюер с указанием длинного имени файла, а не короткого
 					*/
 					int NeedQuestion = 1;
-					if (ProcessQuitKey(FirstSave,NeedQuestion))
+					if (ProcessQuitKey(FirstSave,NeedQuestion,false))
 					{
 						int delete_on_close = 0;
 						if (Flags.Check(FFILEEDIT_DELETEONCLOSE))
@@ -916,13 +924,12 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 							delete_on_close = 2;
 						SetDeleteOnClose(0);
 
-						//объект будет в конце удалён во FrameManager
-						new FileViewer(
+						new	FileViewer(
 							strFullFileName,
 							GetCanLoseFocus(), Flags.Check(FFILEEDIT_DISABLEHISTORY), FALSE,
 							FilePos, nullptr, &EditNamesList, Flags.Check(FFILEEDIT_SAVETOSAVEAS), cp,
 							strTitle.empty() ? nullptr : strTitle.data(),
-							delete_on_close);
+							delete_on_close, this);
 					}
 
 					ShowTime(2);
@@ -1399,7 +1406,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 }
 
 
-int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
+int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion,bool DeleteFrame)
 {
 	string strOldCurDir;
 	api::GetCurrentDirectory(strOldCurDir);
@@ -1429,7 +1436,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
 				}
 			}
 
-			Global->FrameManager->DeleteFrame();
+			if (DeleteFrame) Global->FrameManager->DeleteFrame();
 			SetExitCode(XC_QUIT);
 			break;
 		}
