@@ -104,6 +104,6 @@ private:
 };
 
 void ElevationApproveDlgSync(LPVOID Param);
-
 bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus = true);
 int ElevationMain(const wchar_t* guid, DWORD PID, bool UsePrivileges);
+bool IsElevationArgument(const wchar_t* Argument);

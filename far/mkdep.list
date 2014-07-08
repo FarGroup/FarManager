@@ -185,6 +185,8 @@ panelmix.cpp
 panelmix.hpp
 pathmix.cpp
 pathmix.hpp
+pipe.cpp
+pipe.hpp
 plclass.cpp
 plclass.hpp
 plist.cpp

@@ -183,6 +183,7 @@ LINK_OBJS = \
 	"$(INTDIR)\panel.obj" \
 	"$(INTDIR)\panelmix.obj" \
 	"$(INTDIR)\pathmix.obj" \
+	"$(INTDIR)\pipe.obj" \
 	"$(INTDIR)\plclass.obj" \
 	"$(INTDIR)\plist.obj" \
 	"$(INTDIR)\plugapi.obj" \

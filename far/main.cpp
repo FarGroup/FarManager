@@ -398,8 +398,7 @@ static bool ProcessServiceModes(const range<wchar_t**>& Args, int& ServiceResult
 		return (*Arg == L'/' || *Arg == L'-') && !StrCmpI(Arg + 1, Name);
 	};
 
-	// no isArg here - used by Far internally
-	if (Args.size() == 4 && !StrCmp(Args[0], L"/elevation")) // /elevation {GUID} PID UsePrivileges
+	if (Args.size() == 4 && IsElevationArgument(Args[0])) // /service:elevation {GUID} PID UsePrivileges
 	{
 		ServiceResult = ElevationMain(Args[1], _wtoi(Args[2]), *Args[3] == L'1');
 		return true;

@@ -389,6 +389,9 @@
     <ClCompile Include="farversion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="pipe.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="plclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -687,6 +690,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="pathmix.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pipe.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="plclass.hpp">

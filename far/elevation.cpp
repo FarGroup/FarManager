@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarGuid.hpp"
 #include "strmix.hpp"
 #include "manager.hpp"
+#include "pipe.hpp"
 
 const int CallbackMagic= 0xCA11BAC6;
 
@@ -75,101 +76,7 @@ ENUM(ELEVATION_COMMAND)
 	C_COMMANDS_COUNT
 };
 
-namespace pipe
-{
-	bool ReadPipe(HANDLE Pipe, void* Data, size_t DataSize)
-	{
-		DWORD n;
-		return ReadFile(Pipe, Data, static_cast<DWORD>(DataSize), &n, nullptr) && n==DataSize;
-	}
-
-	bool WritePipe(HANDLE Pipe, const void* Data, size_t DataSize)
-	{
-		DWORD n;
-		return WriteFile(Pipe, Data, static_cast<DWORD>(DataSize), &n, nullptr) && n==DataSize;
-	}
-
-	template<typename T>
-	inline bool Read(HANDLE Pipe, T& Data)
-	{
-		static_assert(!std::is_pointer<T>::value, "ReadPipe template requires a reference to an object");
-
-		bool Result=false;
-		size_t DataSize = 0;
-		if(ReadPipe(Pipe, &DataSize, sizeof(DataSize)))
-		{
-			assert(DataSize == sizeof(Data));
-			Result = ReadPipe(Pipe, &Data, sizeof(Data));
-		}
-		return Result;
-	}
-
-	template<>
-	inline bool Read(HANDLE Pipe, string& Data)
-	{
-		bool Result=false;
-		size_t DataSize = 0;
-		if(ReadPipe(Pipe, &DataSize, sizeof(DataSize)))
-		{
-			if(DataSize)
-			{
-				wchar_t_ptr Buffer(DataSize / sizeof(wchar_t) );
-				if(ReadPipe(Pipe, Buffer.get(), DataSize))
-				{
-					Data.assign(Buffer.get(), Buffer.size() - 1);
-					Result=true;
-				}
-			}
-			else
-			{
-				Result=true;
-			}
-		}
-		return Result;
-	}
-
-	template<>
-	inline bool Read(HANDLE Pipe, char_ptr& Data)
-	{
-		bool Result=false;
-		size_t DataSize = 0;
-		if(ReadPipe(Pipe, &DataSize, sizeof(DataSize)))
-		{
-			if(DataSize)
-			{
-				Data.reset(DataSize);
-				if(ReadPipe(Pipe, Data.get(), DataSize))
-				{
-					Result=true;
-				}
-			}
-			else
-			{
-				Result=true;
-			}
-		}
-		return Result;
-	}
-
-	bool Write(HANDLE Pipe, const void* Data, size_t DataSize)
-	{
-		bool Result=false;
-		if(WritePipe(Pipe, &DataSize, sizeof(DataSize)) && WritePipe(Pipe, Data, DataSize))
-		{
-			Result=true;
-		}
-		return Result;
-	}
-
-	template<typename T>
-	inline bool Write(HANDLE Pipe, const T& Data)
-	{
-		static_assert(!std::is_pointer<T>::value, "WritePipe template requires a reference to an object");
-
-		return Write(Pipe, &Data, sizeof(Data));
-	}
-}
-
+static const wchar_t ElevationArgument[] = L"/service:elevation";
 
 elevation::elevation():
 	m_suppressions(),
@@ -224,22 +131,10 @@ inline bool elevation::Read(T& Data) const
 	return pipe::Read(m_pipe, Data);
 }
 
-template<>
-inline bool elevation::Read(char_ptr& Data) const
-{
-	return pipe::Read(m_pipe, Data);
-}
-
 template<typename T>
 inline bool elevation::Write(const T& Data) const
 {
 	return pipe::Write(m_pipe, Data);
-}
-
-template<>
-inline bool elevation::Write(const string& Data) const
-{
-	return Write(Data.data(), (Data.size()+1)*sizeof(wchar_t));
 }
 
 bool elevation::SendCommand(ELEVATION_COMMAND Command) const
@@ -247,19 +142,40 @@ bool elevation::SendCommand(ELEVATION_COMMAND Command) const
 	return pipe::Write(m_pipe, Command);
 }
 
+// workaround for VC2010 is_standard_layout bug
 struct ERRORCODES
 {
-	DWORD Win32Error;
-	NTSTATUS NtError;
+	struct
+	{
+		DWORD Win32Error;
+		NTSTATUS NtError;
+	}
+	Codes;
 
-	ERRORCODES():Win32Error(GetLastError()), NtError(Imports().RtlGetLastNtStatus()){}
-	ERRORCODES(DWORD Win32Error, NTSTATUS NtError):Win32Error(Win32Error), NtError(NtError){}
+	DWORD& Win32Error;
+	NTSTATUS& NtError;
+
+	ERRORCODES():
+		Win32Error(Codes.Win32Error),
+		NtError(Codes.NtError)
+	{
+		Win32Error = GetLastError();
+		NtError = Imports().RtlGetLastNtStatus();
+	}
+	
+	ERRORCODES(DWORD InitWin32Error, NTSTATUS InitNtError):
+		Win32Error(Codes.Win32Error),
+		NtError(Codes.NtError)
+	{
+		Win32Error = InitWin32Error;
+		NtError = InitNtError;
+	}
 };
 
 bool elevation::ReceiveLastError() const
 {
 	ERRORCODES ErrorCodes(ERROR_SUCCESS, STATUS_SUCCESS);
-	bool Result = Read(ErrorCodes);
+	bool Result = Read(ErrorCodes.Codes);
 	SetLastError(ErrorCodes.Win32Error);
 	Imports().RtlNtStatusToDosError(ErrorCodes.NtError);
 	return Result;
@@ -349,7 +265,7 @@ bool elevation::Initialize()
 				}
 			}
 
-			string Param = L"/elevation " + strPipeID + L' ' + std::to_wstring(GetCurrentProcessId()) + L' ' + ((Global->Opt->ElevationMode&ELEVATION_USE_PRIVILEGES)? L'1' : L'0');
+			string Param = string(ElevationArgument) + L" " + strPipeID + L' ' + std::to_wstring(GetCurrentProcessId()) + L' ' + ((Global->Opt->ElevationMode&ELEVATION_USE_PRIVILEGES) ? L'1' : L'0');
 
 			SHELLEXECUTEINFO info=
 			{
@@ -1005,20 +921,10 @@ private:
 		return pipe::Read(Pipe, Data);
 	}
 
-	inline bool Read(char_ptr& Data) const
-	{
-		return pipe::Read(Pipe, Data);
-	}
-
 	template<typename T>
 	inline bool Write(const T& Data) const
 	{
 		return pipe::Write(Pipe, Data);
-	}
-
-	inline bool Write(const string& Data) const
-	{
-		return Write(Data.data(), (Data.size()+1)*sizeof(wchar_t));
 	}
 
 	void ExitHandler() const
@@ -1039,7 +945,7 @@ private:
 				ERRORCODES ErrorCodes;
 				if(Write(Result))
 				{
-					Write(ErrorCodes);
+					Write(ErrorCodes.Codes);
 				}
 			}
 		}
@@ -1054,7 +960,7 @@ private:
 			ERRORCODES ErrorCodes;
 			if(Write(Result))
 			{
-				Write(ErrorCodes);
+				Write(ErrorCodes.Codes);
 			}
 		}
 	}
@@ -1068,7 +974,7 @@ private:
 			ERRORCODES ErrorCodes;
 			if(Write(Result))
 			{
-				Write(ErrorCodes);
+				Write(ErrorCodes.Codes);
 			}
 		}
 	}
@@ -1086,7 +992,7 @@ private:
 			ERRORCODES ErrorCodes;
 			if(Write(Result))
 			{
-				Write(ErrorCodes);
+				Write(ErrorCodes.Codes);
 			}
 		}
 	}
@@ -1101,7 +1007,7 @@ private:
 			ERRORCODES ErrorCodes;
 			if(Write(Result))
 			{
-				Write(ErrorCodes);
+				Write(ErrorCodes.Codes);
 			}
 		}
 	}
@@ -1115,7 +1021,7 @@ private:
 			ERRORCODES ErrorCodes;
 			if(Write(Result))
 			{
-				Write(ErrorCodes);
+				Write(ErrorCodes.Codes);
 			}
 		}
 	}
@@ -1130,7 +1036,7 @@ private:
 			ERRORCODES ErrorCodes;
 			if(Write(Result))
 			{
-				Write(ErrorCodes);
+				Write(ErrorCodes.Codes);
 			}
 		}
 	}
@@ -1145,7 +1051,7 @@ private:
 			ERRORCODES ErrorCodes;
 			if(Write(Result))
 			{
-				Write(ErrorCodes);
+				Write(ErrorCodes.Codes);
 			}
 		}
 	}
@@ -1160,7 +1066,7 @@ private:
 			ERRORCODES ErrorCodes;
 			if(Write(Result))
 			{
-				Write(ErrorCodes);
+				Write(ErrorCodes.Codes);
 			}
 		}
 	}
@@ -1189,7 +1095,7 @@ private:
 			ERRORCODES ErrorCodes;
 			if(Write(Result))
 			{
-				Write(ErrorCodes);
+				Write(ErrorCodes.Codes);
 			}
 		}
 	}
@@ -1218,7 +1124,7 @@ private:
 			ERRORCODES ErrorCodes;
 			if(Write(reinterpret_cast<intptr_t>(Result)))
 			{
-				Write(ErrorCodes);
+				Write(ErrorCodes.Codes);
 			}
 		}
 	}
@@ -1233,7 +1139,7 @@ private:
 			ERRORCODES ErrorCodes;
 			if(Write(Result))
 			{
-				Write(ErrorCodes);
+				Write(ErrorCodes.Codes);
 			}
 		}
 	}
@@ -1262,7 +1168,7 @@ private:
 				}
 			}
 			ERRORCODES ErrorCodes;
-			if(Write(Result) && Write(ErrorCodes))
+			if (Write(Result) && Write(ErrorCodes.Codes))
 			{
 				if(Result)
 				{
@@ -1334,4 +1240,9 @@ private:
 int ElevationMain(const wchar_t* guid, DWORD PID, bool UsePrivileges)
 {
 	return elevated().Run(guid, PID, UsePrivileges);
+}
+
+bool IsElevationArgument(const wchar_t* Argument)
+{
+	return !StrCmp(Argument, ElevationArgument);
 }

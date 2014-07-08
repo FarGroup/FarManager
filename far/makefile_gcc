@@ -95,6 +95,7 @@ SRCS = \
 	panel.cpp \
 	panelmix.cpp \
 	pathmix.cpp \
+	pipe.cpp \
 	plist.cpp \
 	plclass.cpp \
 	plugapi.cpp \

@@ -455,16 +455,16 @@ template<class T, class... Args> std::vector<T> make_vector(T value, Args... arg
 template<typename T>
 inline void ClearStruct(T& s)
 {
-	static_assert(std::is_pod<T>::value, "ClearStruct template requires a POD type");
-	static_assert(!std::is_pointer<T>::value, "ClearStruct template requires a reference to an object");
+	static_assert(!std::is_pointer<T>::value, "This template requires a reference to an object");
+	static_assert(std::is_standard_layout<T>::value, "This template requires a type with standard layout"); // TODO: replace with is_trivially_copyable
 	memset(&s, 0, sizeof(s));
 }
 
 template<typename T>
 inline void ClearArray(T& a)
 {
-	static_assert(std::is_pod<T>::value, "ClearArray template requires a POD type");
-	static_assert(std::is_array<T>::value, "ClearArray template requires an array");
+	static_assert(std::is_array<T>::value, "This template requires an array");
+	static_assert(std::is_standard_layout<T>::value, "This template requires a type with standard layout"); // TODO: replace with is_trivially_copyable
 	memset(a, 0, sizeof(a));
 }
 

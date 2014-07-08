@@ -378,6 +378,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="farwinapi.cpp" />
     <ClCompile Include="filesystemwatcher.cpp" />
     <ClCompile Include="nsUniversalDetectorEx.cpp" />
+    <ClCompile Include="pipe.cpp" />
     <ClCompile Include="plclass.cpp" />
     <ClCompile Include="shortcuts.cpp" />
     <ClCompile Include="fileattr.cpp" />
@@ -632,6 +633,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="panel.hpp" />
     <ClInclude Include="panelmix.hpp" />
     <ClInclude Include="pathmix.hpp" />
+    <ClInclude Include="pipe.hpp" />
     <ClInclude Include="plclass.hpp" />
     <ClInclude Include="plist.hpp" />
     <ClInclude Include="plugapi.hpp" />
