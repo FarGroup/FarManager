@@ -482,7 +482,6 @@ static const wchar_t* MakeExecuteString(const wchar_t *Cmd)
 		// 1.1 если команда не содержит полный путь...
 		if (!wcschr(NewCmdStr,L'\\'))
 		{
-			// 1.1.1 ...пытаемся её найти
 			wchar_t *fpath=__proc_WhereIs(false,NewCmdStr);
 			if (fpath)
 			{
@@ -628,35 +627,50 @@ static wchar_t *loadFile(const wchar_t *fn, DWORD maxSize, BOOL outputtofile, si
 // Default:
 // 	ShowCmdOutput <- Opt.ShowCmdOutput
 //	stream        <- Opt.CatchMode
-static void ParseCmdSyntax(wchar_t*& pCmd, int& ShowCmdOutput, int& stream)
+static void GetStreamAndMode(wchar_t*& pCmd, int& ShowCmdOutput, int& stream)
 {
+	// edit:<O
+	// edit:<SO
+	// edit:<SMO
+	bool foundStream=true;
+
+	// edit:<SM object
+	//       ^pCmd
 	switch (*pCmd)
 	{                                          // stream
 		case L'*': stream = 0; ++pCmd; break;  // redirect #stderr# and #stdout# as one stream
 		case L'1': stream = 1; ++pCmd; break;  // redirect only standard output stream #stdout#
 		case L'2': stream = 2; ++pCmd; break;  // redirect only standard output stream #stderr#
 		case L'?': stream = 3; ++pCmd; break;  // redirect #stderr# and #stdout# as different streams
+		default:   foundStream=false;  break;
 	}
 
-	bool flg_stream = false;
+	static struct {
+		wchar_t C;
+		enShowCmdOutput M;
+	} mode[]={
+		{L'>', scoHide},    // ignore the console output of the program and display only message about its execution.
+		{L'<', scoShow},    // save console output and make it available for viewing with #Ctrl-O#.
+		{L'+', scoShowAll}, // same as #<#, but displays on the screen redirected output of the program along with console output
+	};
 
-	switch (*pCmd)
-	{                                                                   // mode:
-		case L'>': ShowCmdOutput = scoHide;    flg_stream = true; ++pCmd; break; // ignore the console output of the program and display only message about its execution.
-		case L'<': ShowCmdOutput = scoShow;    flg_stream = true; ++pCmd; break; // save console output and make it available for viewing with #Ctrl-O#.
-		case L'+': ShowCmdOutput = scoShowAll; flg_stream = true; ++pCmd; break; // same as #<#, but displays on the screen redirected output of the program along with console output
-
-		case L' ': flg_stream = true; break;
-		case L'|': flg_stream = true; break;
-		case L'"': flg_stream = true; break;
-	}
-
-	if ((!flg_stream) && (stream == 1 || stream == 2))
+	// edit:<SM object
+	//        ^pCmd
+	for(size_t I=0; I < ARRAYSIZE(mode); ++I)
 	{
-		;//--pCmd;
+		if (mode[I].C == *pCmd && foundStream)
+		{
+			ShowCmdOutput = mode[I].M;
+			++pCmd;
+			break;
+		}
 	}
+	// edit:<SM object
+	//         ^pCmd
 
 	FSF.LTrim(pCmd);
+	// edit:<SM object
+	//          ^pCmd
 }
 
 
@@ -831,6 +845,26 @@ wchar_t* __proc_WhereIs(int outputtofile,wchar_t *pCmd)
 			int    FARHOMELength=GetEnvironmentVariable(L"FARHOME", FARHOMEPath, 0);
 			int    PathLength=GetEnvironmentVariable(L"PATH", Path, 0);
 
+			wchar_t *PathExt = nullptr;
+			int PathExtLength=0;
+			if (Opt.SubstExt)
+			{
+				PathExtLength=GetEnvironmentVariable(L"PATHEXT", PathExt, 0);
+				PathExt=new wchar_t[PathExtLength+1];
+				if (PathExt)
+				{
+					GetEnvironmentVariable(L"PATHEXT", PathExt, PathExtLength);
+					wchar_t *pPathExt=PathExt;
+					while(*pPathExt)
+					{
+						if (*pPathExt == L';')
+							*pPathExt=0;
+						pPathExt++;
+					}
+					PathExt[PathExtLength]=0;
+				}
+			}
+
 			wchar_t *AllPath=new wchar_t[CurDirLength+FARHOMELength+PathLength+8];
 			if (AllPath)
 			{
@@ -849,18 +883,51 @@ wchar_t* __proc_WhereIs(int outputtofile,wchar_t *pCmd)
 				// 3. Folders in the system environment variable #PATH#
 				GetEnvironmentVariable(L"PATH", ptrAllPath, PathLength);
 
-				DWORD DestPathSize = SearchPath(AllPath,temp,nullptr,0,nullptr,nullptr);
-				DestPath=new wchar_t[DestPathSize+1];
-				if (DestPath)
+
+				wchar_t *pPathExt=PathExt;
+				wchar_t *ptempFind=nullptr;
+				wchar_t *tempFind=Opt.SubstExt?new wchar_t[lstrlen(temp)+(pPathExt?PathExtLength:0)+1]:nullptr;
+
+				if (tempFind)
 				{
-					*DestPath=0;
-
-					wchar_t *pFile;
-					SearchPath(AllPath, temp, NULL, DestPathSize, DestPath, &pFile);
-
-					if (*DestPath==0) // 4..6
-						SearchPath(NULL, temp, NULL, DestPathSize, DestPath, &pFile);
+					lstrcpy(tempFind,temp);
+					ptempFind=tempFind+lstrlen(tempFind);
 				}
+
+				for (;;)
+				{
+					DWORD DestPathSize = SearchPath(AllPath,(tempFind?tempFind:temp),nullptr,0,nullptr,nullptr);
+					DestPath=new wchar_t[DestPathSize+1];
+					if (DestPath)
+					{
+						*DestPath=0;
+
+						wchar_t *pFile;
+						SearchPath(AllPath, (tempFind?tempFind:temp), NULL, DestPathSize, DestPath, &pFile);
+
+						if (*DestPath==0) // 4..6
+							SearchPath(NULL, (tempFind?tempFind:temp), NULL, DestPathSize, DestPath, &pFile);
+
+						if (*DestPath)
+						{
+							break;
+						}
+					}
+
+					if (pPathExt)
+					{
+						pPathExt+=lstrlen(pPathExt)+1;
+						if (!*pPathExt)
+							break;
+						if (ptempFind)
+							lstrcpy(ptempFind,pPathExt);
+					}
+					else
+						break;
+				}
+
+				if (tempFind)
+					delete[] tempFind;
 
 				delete[] AllPath;
 			}
@@ -872,48 +939,80 @@ wchar_t* __proc_WhereIs(int outputtofile,wchar_t *pCmd)
 					delete[] DestPath;
 				DestPath=nullptr;
 
-				const wchar_t RegPath[]=L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
-				wchar_t *FullKeyName=new wchar_t[lstrlen(RegPath)+lstrlen(Ptr)+1];
-				if (FullKeyName)
-				{
-					lstrcpy(FullKeyName,RegPath);
-					lstrcat(FullKeyName,Ptr);
+				wchar_t *pPathExt=PathExt;
+				wchar_t *ptempFind=nullptr;
+				wchar_t *tempFind=Opt.SubstExt?new wchar_t[lstrlen(Ptr)+(pPathExt?PathExtLength:0)+1]:nullptr;
 
-					HKEY RootFindKey[2]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE},hKey;
-					for (size_t I=0; I < ARRAYSIZE(RootFindKey); ++I)
+				if (tempFind)
+				{
+					lstrcpy(tempFind,Ptr);
+					ptempFind=tempFind+lstrlen(tempFind);
+				}
+
+				const wchar_t RegPath[]=L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
+
+				bool found=false;
+				while (!found)
+				{
+					wchar_t *FullKeyName=new wchar_t[lstrlen(RegPath)+lstrlen(tempFind?tempFind:Ptr)+1];
+					if (FullKeyName)
 					{
-						if (RegOpenKeyEx(RootFindKey[I], FullKeyName, 0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
+						lstrcpy(FullKeyName,RegPath);
+						lstrcat(FullKeyName,(tempFind?tempFind:Ptr));
+
+						HKEY RootFindKey[2]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE},hKey;
+						for (size_t I=0; I < ARRAYSIZE(RootFindKey); ++I)
 						{
-							DWORD Type, DestPathSize=0;
-							if (RegQueryValueEx(hKey,L"", nullptr, nullptr, nullptr, &DestPathSize) == ERROR_SUCCESS)
+							if (RegOpenKeyEx(RootFindKey[I], FullKeyName, 0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
 							{
-								DestPath=new wchar_t[DestPathSize+1];
-								if (DestPath)
+								DWORD Type, DestPathSize=0;
+								if (RegQueryValueEx(hKey,L"", nullptr, nullptr, nullptr, &DestPathSize) == ERROR_SUCCESS)
 								{
-									RegQueryValueEx(hKey,L"", 0, &Type, (LPBYTE) DestPath, &DestPathSize);
-									delete[] Ptr;
-									Ptr=ExpandEnv(DestPath,nullptr);
-									delete[] DestPath;
+									DestPath=new wchar_t[DestPathSize+1];
+									if (DestPath)
+									{
+										RegQueryValueEx(hKey,L"", 0, &Type, (LPBYTE) DestPath, &DestPathSize);
+										delete[] Ptr;
+										Ptr=ExpandEnv(DestPath,nullptr);
+										delete[] DestPath;
+										found=true;
+									}
 								}
+								RegCloseKey(hKey);
+								break;
 							}
-							RegCloseKey(hKey);
-							break;
 						}
+
+						delete[] FullKeyName;
+					}
+					else
+					{
+						delete[] Ptr;
+						Ptr=nullptr;
 					}
 
-					delete[] FullKeyName;
+					if (pPathExt)
+					{
+						pPathExt+=lstrlen(pPathExt)+1;
+						if (!*pPathExt)
+							break;
+						if (ptempFind)
+							lstrcpy(ptempFind,pPathExt);
+					}
+					else
+						break;
 				}
-				else
-				{
-					delete[] Ptr;
-					Ptr=nullptr;
-				}
+				if (tempFind)
+					delete[] tempFind;
 			}
 			else
 			{
 				delete[] Ptr;
 				Ptr=DestPath;
 			}
+
+			if (PathExt)
+				delete[] PathExt;
 
 			delete[] temp;
 		}
@@ -1047,6 +1146,48 @@ bool __proc_Link(int /*outputtofile*/,wchar_t *pCmd)
 	return Ret;
 }
 
+static wchar_t *GetEditParam(wchar_t *farcmd, int &StartLine, int &StartChar, bool &BracketsOk)
+{
+	BracketsOk=false;
+
+	if (*farcmd == L'[')
+	{
+		wchar_t *oBracket=farcmd;
+		wchar_t *cBracket=wcschr(oBracket,L']');
+		wchar_t *ptrSep=wcsstr(oBracket,Opt.Separator);
+		if (cBracket && (!ptrSep || (ptrSep && cBracket<ptrSep)))
+		{
+			wchar_t *comma=wcschr(oBracket,L',');
+			if (comma)
+			{
+				if (comma > oBracket && comma < cBracket)
+				{
+					StartLine=GetInt(oBracket+1,comma);
+					StartChar=GetInt(comma+1,cBracket);
+
+					if (StartLine>-2 && StartChar>-2)
+					{
+						farcmd=cBracket+1;
+						BracketsOk=true;
+					}
+				}
+			}
+			else if ((StartLine=GetInt(oBracket+1,cBracket))>-2)
+			{
+				farcmd=cBracket+1;
+				BracketsOk=true;
+			}
+		}
+		else
+			BracketsOk=true;
+	}
+	else
+		BracketsOk=true;
+
+	FSF.LTrim(farcmd);
+	return farcmd;
+}
+
 wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 {
 	if (!_farcmd)
@@ -1122,61 +1263,30 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 			wchar_t *runFile=nullptr;
 			bool BracketsOk=true;
 
-			if (PrefIdx == prefEdit)
+			if (PrefIdx == prefEdit) //edit:
 			{
-				// edit:[Y,X] object
-				// edit:[Y] object
-				// edit: object
-				// edit:object
-				// edit:<[Y,X] object
-				// edit:<[Y] object
-				// edit:< object
-				// edit:<object
-				//      ^---farcmd
-				BracketsOk=false;
-
-				if (*farcmd == L'[')
-				{
-					wchar_t *oBracket=farcmd;
-					wchar_t *cBracket=wcschr(oBracket,L']');
-					wchar_t *ptrSep=wcsstr(oBracket,Opt.Separator);
-					if (cBracket && (!ptrSep || (ptrSep && cBracket<ptrSep)))
-					{
-						wchar_t *comma=wcschr(oBracket,L',');
-						if (comma)
-						{
-							if (comma > oBracket && comma < cBracket)
-							{
-								StartLine=GetInt(oBracket+1,comma);
-								StartChar=GetInt(comma+1,cBracket);
-
-								if (StartLine>-2 && StartChar>-2)
-								{
-									farcmd=cBracket+1;
-									BracketsOk=true;
-								}
-							}
-						}
-						else if ((StartLine=GetInt(oBracket+1,cBracket))>-2)
-						{
-							farcmd=cBracket+1;
-							BracketsOk=true;
-						}
-					}
-					else
-						BracketsOk=true;
-				}
-				else
-					BracketsOk=true;
-
-				FSF.LTrim(farcmd);
-
+				// [Y,X] object
+				// [Y] object
+				//  object
+				// object
+				// <[Y,X] object
+				// <[Y] object
+				// < object
+				// <object
+				// ^---farcmd
+				farcmd=GetEditParam(farcmd,StartLine,StartChar,BracketsOk);
+				// object
+				// ^farcmd
 			}
-			else if (PrefIdx == prefRun)
+			else if (PrefIdx == prefRun) // run:
 			{
+				// file<command
+				// ^farcmd
 				pCmd = wcschr(farcmd,L'<');
 				if (pCmd)
 				{
+					// file<command
+					//     ^pCmd
 					*pCmd = 0;
 					runFile=new wchar_t[lstrlen(farcmd)+1];
 					if (runFile)
@@ -1186,19 +1296,31 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 					}
 					*pCmd = L'<';
 					farcmd = pCmd;
+					// <command
+					// ^farcmd
+					// ^pCmd
 					showhelp=FALSE;
 				}
 			}
-//
 
-//
-
-
-			if (*farcmd==L'<')
+			// <object
+			// <S object
+			// <SM object
+			// object
+			// S object
+			// SM object
+			// ^farcmd
+			if (*farcmd==L'<') // start process?
 			{
 				pCmd=farcmd+1;
+				//object
+				//S object
+				//SM object
+				//^farcmd
 				outputtofile=1;
-				ParseCmdSyntax(pCmd, ShowCmdOutput, stream);
+				GetStreamAndMode(pCmd, ShowCmdOutput, stream);
+				//object
+				//^farcmd
 			}
 			else
 			{
@@ -1226,6 +1348,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 			{
 				FSF.LTrim(pCmd);
 
+				/*
 				if (!outputtofile)
 				{
 					if (*pCmd==L'<')
@@ -1235,8 +1358,8 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 				}
 
 				if (outputtofile && (PrefIdx == prefView||PrefIdx == prefEdit||PrefIdx == prefClip))
-					ParseCmdSyntax(pCmd, ShowCmdOutput, stream);
-
+					GetStreamAndMode(pCmd, ShowCmdOutput, stream);
+                */
 				if (*pCmd && BracketsOk)
 				{
 					showhelp=FALSE;

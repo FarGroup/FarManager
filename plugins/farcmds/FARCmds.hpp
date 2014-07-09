@@ -6,6 +6,7 @@ struct OptionsName
 	const wchar_t *EditNewFiles;
 	const wchar_t *MaxDataSize;
 	const wchar_t *Separator;
+	const wchar_t *SubstExt;
 };
 
 struct Options
@@ -16,6 +17,7 @@ struct Options
 	int EditNewFiles;
 	DWORD MaxDataSize;
 	wchar_t Separator[4];
+	int SubstExt;
 };
 
 class ConsoleTitle{

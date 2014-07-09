@@ -3,15 +3,20 @@
 "FAR Commands"
 
 "Command/object separator"
+
 "&Hide external command output"
 "&Keep external command output"
 "D&uplicate Intercepted output to screen"
+
 "Intercept &both stdout and stderr"
 "Intercept std&out only (Standard output stream)"
 "Intercept std&err only (Standard errors stream)"
 "Intercept stdout &and stderr separately"
+
 "View/edit e&mpty files"
 "Edit &new files"
+"Subs&titution extensions"
+
 "The &size of read data"
 "<stdout>:"
 "<stderr>:"

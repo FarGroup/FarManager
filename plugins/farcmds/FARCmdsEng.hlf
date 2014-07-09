@@ -166,6 +166,7 @@ panels is positioned to the specified folder.
    When panels are turned off, the cursor is not positioned on the requested object,
 only the switching to the required folder occurs.
 
+   Плагин осуществляет переход как указано, не пытаясь найти файловый объект.
 
    See also: ~whereis~@WhereIs@ | ~Notes~@Remark@ | ~Contents~@Contents@
 
@@ -230,6 +231,10 @@ successful.
    8. Contents of the registry key:
       #HKLM\Software\Microsoft\Windows\CurrentVersion\App Paths#
 
+   Если в настройках включена опция "Подстановка расширений", то плагин
+пытается найти файловый объект сначала как указано, а затем производит
+поиск объекта с расширениями из списка переменной среды PATHEXT.
+
    When panels are turned off, the cursor is not positioned on the requested object,
 only the switching to the required folder occurs.
 
@@ -261,6 +266,7 @@ for viewing with #Ctrl-O#.
 of the program along with console output.
 
              ^<wrap>Default value of this parameter can be defined in ~config~@Config@.
+             ^<wrap>Параметр #mode# можно указывать только после #stream#.
 
     #|path|# - ^<wrap>command can be executed in the folder different from the
 current one. To do this specify the path (enclosed in pipes '#|#')
@@ -274,20 +280,23 @@ current one. To do this specify the path (enclosed in pipes '#|#')
 
   #Notes:#
 
-   #1#. ^<wrap>The entire string after the symbol '#<#' and optional modifiers
+   1. ^<wrap>The entire string after the symbol '#<#' and optional modifiers
 is sent to the command processor (%COMSPEC%)
 
-   #2#. ^<wrap>Program output is placed in a temporary file, which is deleted automatically when FAR Manager
+   2. ^<wrap>Program output is placed in a temporary file, which is deleted automatically when FAR Manager
 doesn't need it.
 
-   #3#. ^<wrap>Some programs do not use standard output stream(s), but
+   3. ^<wrap>Some programs do not use standard output stream(s), but
 print directly to the console. To store console output
 and make it available for viewing with #Ctrl-O#
 use modifiers '#<#' and '#+#'. To ignore it - use '#>#'
       ^<wrap>You can change default behavior in the ~configuration~@Config@.
 
-   #4#. ^<wrap>If the #stream# parameter equals #1# or #2# then the start of the
+   4. ^<wrap>If the #stream# parameter equals #1# or #2# then the start of the
 command text must be separated from it by some symbol.
+
+   5. ^<wrap>Если #command# указан без пути, то плагин пытается найти исполняемй
+модуль, как это делает команда ~whereis~@WhereIs@.
 
 
   #Examples:#
@@ -368,6 +377,9 @@ $^#Configuring FAR Commands#
 
  #Edit new files#                Allows to open the editor with non
                                existing files.
+
+ #Подстановка расширений#        ^<wrap>Плагин пытается найти файловый объект, подставляя
+расширения из списка переменной среды PATHEXT.
 
  #The size of read data#         ^<wrap>Позволяет задавать максимальный размер
 считываемых из файла данных в командах ~clip~@clip@, ~goto~@goto@ и ~whereis~@whereis@.

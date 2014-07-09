@@ -3,15 +3,20 @@
 "Príkazy FAR"
 
 "Oddeľovač ptíkazov/objektov"
+
 "&Skryť výstup externých príkazov"
 "Po&nechať výstup externých príkazov"
 "Sko&pírovať zadržaný výstup na obrazovku"
+
 "Zadržať o&ba stdout aj stderr"
 "Zadržať len std&out (Standard output stream)"
 "Zadržať len std&err (Standard errors stream)"
 "Zadržať stdout &a stderr oddelene"
+
 "Zobraziť/upraviť prá&zdne súbory"
 "Upraviť &nové súbory"
+"Substitution extensions"
+
 "&Veľkosť prečítaných dát"
 "<stdout>:"
 "<stderr>:"

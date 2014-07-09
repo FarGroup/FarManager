@@ -3,15 +3,20 @@
 "Comandos FAR"
 
 "Separador comando/objeto"
+
 "&Ocultar salida de comando externo"
 "&Mantener salida de comando externo"
 "D&uplicar salida interceptada a pantalla"
+
 "Interceptar am&bos stdout y stderr"
 "Interceptar std&out solamente (Cadena de salida estándar)"
 "Interceptar std&err solamente (Cadena de errores estándar)"
 "Interceptar stdout &y stderr separadamente"
+
 "Ver/editar archivos &vacíos"
 "Editar archivos &nuevos"
+"Substitution extensions"
+
 "El &tamaño de lectura de datos"
 "<stdout>:"
 "<stderr>:"

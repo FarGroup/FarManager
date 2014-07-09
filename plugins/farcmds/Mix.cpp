@@ -161,13 +161,11 @@ int PartCmdLine(const wchar_t *CmdStr,wchar_t **NewCmdStr,wchar_t **NewCmdPar)
 
 		if (NewCmdPar && ParPtr) // Мы нашли параметры и отделяем мух от котлет
 		{
-			if (*ParPtr == L' ') //AY: первый пробел между командой и параметрами не нужен,
-				*(ParPtr++)=0;     //    он добавляется заново в Execute.
-
 			wchar_t *ptrNewCmdPar=new wchar_t[lstrlen(ParPtr)+1];
 			if (ptrNewCmdPar)
 				lstrcpy(ptrNewCmdPar, ParPtr);
 			*NewCmdPar=ptrNewCmdPar;
+			*ParPtr=0;
 		}
 
 		if (NewCmdStr)
