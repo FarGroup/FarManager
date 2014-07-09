@@ -388,10 +388,7 @@ FileEditor::~FileEditor()
 
 	if (bEE_READ_Sent && Global->CtrlObject)
 	{
-		FileEditor *save = Global->CtrlObject->Plugins->GetCurEditor();
-		Global->CtrlObject->Plugins->SetCurEditor(this);
-		Global->CtrlObject->Plugins->ProcessEditorEvent(EE_CLOSE,nullptr,FEditEditorID);
-		Global->CtrlObject->Plugins->SetCurEditor(save);
+		Global->FrameManager->CallbackFrame([FEditEditorID](){Global->CtrlObject->Plugins->ProcessEditorEvent(EE_CLOSE,nullptr,FEditEditorID);});
 	}
 
 	if (!Flags.Check(FFILEEDIT_OPENFAILED))

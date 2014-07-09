@@ -207,8 +207,8 @@ Viewer::~Viewer()
 
 	if (!OpenFailed && bVE_READ_Sent)
 	{
-		Global->CtrlObject->Plugins->SetCurViewer(this); //HostFileViewer;
-		Global->CtrlObject->Plugins->ProcessViewerEvent(VE_CLOSE,nullptr,ViewerID);
+		int FViewerID=ViewerID;
+		Global->FrameManager->CallbackFrame([FViewerID](){Global->CtrlObject->Plugins->ProcessViewerEvent(VE_CLOSE,nullptr,FViewerID);});
 	}
 
 	if (this == Global->CtrlObject->Plugins->GetCurViewer())
