@@ -313,7 +313,7 @@ static int iso8601wknum(const tm *timeptr)
 
 size_t StrFTime(string &strDest, const wchar_t *Format,const tm *t)
 {
-	if (CurLang==-1 && Global->Lang)
+	if (CurLang==-1 && Global && Global->Lang)
 		PrepareStrFTime();
 
 	// меняем язык.

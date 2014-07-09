@@ -261,7 +261,10 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 void SQLiteDb::Initialize(const string& DbName, bool Local)
 {
 	string &path = Local ? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath;
-	AutoMutex m(path.data(), DbName.data());
+
+	Mutex m(path.data(), DbName.data());
+	SCOPED_ACTION(lock_guard<Mutex>)(m);
+
 	strName = DbName;
 	init_status = 0;
 

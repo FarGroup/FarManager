@@ -193,6 +193,47 @@ private:
 	size_t Size;
 };
 
+template<class container>
+const string FlagsToString(unsigned long long Flags, const container& From, wchar_t Separator = L' ')
+{
+	string strFlags;
+	std::for_each(CONST_RANGE(From, i)
+	{
+		if (Flags & i.first)
+		{
+			strFlags.append(i.second).append(1, Separator);
+		}
+	});
+
+	if (!strFlags.empty())
+	{
+		strFlags.pop_back();
+	}
+
+	return strFlags;
+}
+
+template<class container>
+unsigned long long StringToFlags(const string& strFlags, const container& From, const wchar_t* Separators = L"|;, ")
+{
+	auto Flags = decltype(std::begin(From)->first)();
+	if (!strFlags.empty())
+	{
+		auto FlagList(StringToList(strFlags, STLF_UNIQUE, Separators));
+		std::for_each(CONST_RANGE(FlagList, i)
+		{
+			auto ItemIterator = std::find_if(CONST_RANGE(From, j)
+			{
+				return !StrCmpI(i, j.second);
+			});
+			if (ItemIterator != std::cend(From))
+				Flags |= ItemIterator->first;
+		});
+	}
+	return Flags;
+}
+
+
 };
 
 using namespace strmix;

@@ -39,71 +39,70 @@ class CriticalSection: NonCopyable
 {
 
 public:
-	CriticalSection() { InitializeCriticalSection(&object); }
-	~CriticalSection() { DeleteCriticalSection(&object); }
+	CriticalSection() { InitializeCriticalSection(&m_object); }
+	~CriticalSection() { DeleteCriticalSection(&m_object); }
 
-	void lock() { EnterCriticalSection(&object); }
-	void unlock() { LeaveCriticalSection(&object); }
+	void lock() { EnterCriticalSection(&m_object); }
+	void unlock() { LeaveCriticalSection(&m_object); }
 
 private:
-	CRITICAL_SECTION object;
+	CRITICAL_SECTION m_object;
 };
 
-class CriticalSectionLock: NonCopyable
+template<class T> class lock_guard: NonCopyable
 {
 public:
-	CriticalSectionLock(CriticalSection &object): object(object) { object.lock(); }
-	~CriticalSectionLock() { object.unlock(); }
+	explicit lock_guard(T& object): m_object(object) { m_object.lock(); }
+	~lock_guard() { m_object.unlock(); }
 
 private:
-	CriticalSection &object;
+	T& m_object;
 };
+
+typedef lock_guard<CriticalSection> CriticalSectionLock;
 
 class HandleWrapper: NonCopyable
 {
-protected:
-
-	HANDLE h;
-	string strName;
-
 public:
-
-	HandleWrapper() : h(nullptr) {}
-
-	void SetName(const string& HashPart, const string& TextPart)
-	{
-		strName = GetNamespace() + std::to_wstring(make_hash(HashPart)) + L"_" + TextPart;
-	}
+	HandleWrapper(): m_Handle() {}
+	virtual ~HandleWrapper() { Close(); }
 
 	virtual const wchar_t *GetNamespace() const = 0;
 
-	bool Opened() const { return h != nullptr; }
+	void SetName(const string& HashPart, const string& TextPart)
+	{
+		m_Name = GetNamespace() + std::to_wstring(make_hash(HashPart)) + L"_" + TextPart;
+	}
+
+	bool Opened() const { return m_Handle != nullptr; }
 
 	bool Close()
 	{
-		if (!h) return true;
-		bool ret = CloseHandle(h) != FALSE;
-		h = nullptr;
+		if (!m_Handle)
+			return true;
+		bool ret = CloseHandle(m_Handle) != FALSE;
+		m_Handle = nullptr;
 		return ret;
 	}
 
-	bool Wait(DWORD Milliseconds = INFINITE) const{ return WaitForSingleObject(h, Milliseconds) == WAIT_OBJECT_0; }
+	bool Wait(DWORD Milliseconds = INFINITE) const { return WaitForSingleObject(m_Handle, Milliseconds) == WAIT_OBJECT_0; }
 
 	bool Signaled() const { return Wait(0); }
 
-	virtual ~HandleWrapper() { Close(); }
+protected:
+	HANDLE m_Handle;
+	string m_Name;
 
 private:
 	friend class MultiWaiter;
 
-	HANDLE GetHandle() const { return h; }
+	HANDLE GetHandle() const { return m_Handle; }
 };
 
 class Thread: public HandleWrapper
 {
 public:
-	Thread() : m_ThreadId(0) {}
-
+	Thread(): m_ThreadId(0) {}
 	virtual ~Thread() {}
 
 	virtual const wchar_t *GetNamespace() const override { return L""; }
@@ -139,10 +138,10 @@ private:
 	template<class T>
 	bool Starter(T&& f)
 	{
-		assert(!h);
+		assert(!m_Handle);
 
 		auto Param = new T(std::move(f));
-		if (!(h = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, Wrapper<T>, Param, 0, &m_ThreadId))))
+		if (!(m_Handle = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, Wrapper<T>, Param, 0, &m_ThreadId))))
 		{
 			delete Param;
 			return false;
@@ -170,6 +169,11 @@ class Mutex: public HandleWrapper
 public:
 
 	Mutex() {}
+	Mutex(const wchar_t *HashPart, const wchar_t *TextPart)
+	{
+		SetName(HashPart, TextPart);
+		Open();
+	}
 
 	virtual ~Mutex() {}
 
@@ -177,58 +181,39 @@ public:
 
 	bool Open()
 	{
-		assert(!h);
+		assert(!m_Handle);
 
-		h = CreateMutex(nullptr, FALSE, strName.empty() ? nullptr : strName.data());
-		return h != nullptr;
+		m_Handle = CreateMutex(nullptr, FALSE, EmptyToNull(m_Name.data()));
+		return m_Handle != nullptr;
 	}
 
-	bool Lock() const { return Wait(); }
+	bool lock() const { return Wait(); }
 
-	bool Unlock() const { return ReleaseMutex(h) != FALSE; }
-};
-
-class AutoMutex: NonCopyable
-{
-public:
-
-	AutoMutex(const wchar_t *HashPart=nullptr, const wchar_t *TextPart=nullptr)
-	{
-		m.SetName(HashPart, TextPart);
-		m.Open();
-		m.Lock();
-	}
-
-	~AutoMutex() { m.Unlock(); }
-
-private:
-
-	Mutex m;
+	bool unlock() const { return ReleaseMutex(m_Handle) != FALSE; }
 };
 
 class Event: public HandleWrapper
 {
 public:
-
 	Event() {}
-
+	Event(bool ManualReset, bool InitialState) { Open(ManualReset, InitialState); }
 	virtual ~Event() {}
 
 	virtual const wchar_t *GetNamespace() const override { return L"Far_Manager_Event_"; }
 
 	bool Open(bool ManualReset=false, bool InitialState=false)
 	{
-		assert(!h);
+		assert(!m_Handle);
 
-		h = CreateEvent(nullptr, ManualReset, InitialState, strName.empty() ? nullptr : strName.data());
-		return h != nullptr;
+		m_Handle = CreateEvent(nullptr, ManualReset, InitialState, EmptyToNull(m_Name.data()));
+		return m_Handle != nullptr;
 	}
 
-	bool Set() const { return SetEvent(h) != FALSE; }
+	bool Set() const { return SetEvent(m_Handle) != FALSE; }
 
-	bool Reset() const { return ResetEvent(h) != FALSE; }
+	bool Reset() const { return ResetEvent(m_Handle) != FALSE; }
 
-	void Associate(OVERLAPPED& o) const { o.hEvent = h; }
+	void Associate(OVERLAPPED& o) const { o.hEvent = m_Handle; }
 };
 
 template<class T> class SyncedQueue: NonCopyable {
@@ -269,6 +254,12 @@ public:
 			return true;
 		}
 		return false;
+	}
+
+	size_t Size()
+	{
+		SCOPED_ACTION(CriticalSectionLock)(csQueueAccess);
+		return Queue.size();
 	}
 };
 

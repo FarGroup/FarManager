@@ -874,47 +874,6 @@ static const simple_pair<FARCOLORFLAGS, const wchar_t*> ColorFlagNames[] =
 	{FCF_FG_UNDERLINE, L"underline"},
 };
 
-template<class container>
-const string FlagsToString(unsigned long long Flags, const container& From, wchar_t Separator = L' ')
-{
-	string strFlags;
-	std::for_each(CONST_RANGE(From, i)
-	{
-		if (Flags & i.first)
-		{
-			strFlags.append(i.second).append(1, Separator);
-		}
-	});
-
-	if(!strFlags.empty())
-	{
-		strFlags.pop_back();
-	}
-
-	return strFlags;
-}
-
-template<class container>
-unsigned long long StringToFlags(const string& strFlags, const container& From, const wchar_t* Separators = L"|;, ")
-{
-	auto Flags = decltype(std::begin(From)->first)();
-	if(!strFlags.empty())
-	{
-		auto FlagList(StringToList(strFlags, STLF_UNIQUE, Separators));
-		std::for_each(CONST_RANGE(FlagList, i)
-		{
-			auto ItemIterator = std::find_if(CONST_RANGE(From, j)
-			{
-				return !StrCmpI(i, j.second);
-			});
-			if (ItemIterator != std::cend(From))
-				Flags |= ItemIterator->first;
-		});
-	}
-	return Flags;
-}
-
-
 class HighlightHierarchicalConfigDb: public HierarchicalConfigDb
 {
 public:
@@ -2106,7 +2065,6 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb {
 			decltype(WorkQueue)::value_type item;
 			while (WorkQueue.PopIfNotEmpty(item))
 			{
-
 				if (item) //DeleteAndAddAsync
 				{
 					SQLiteDb::BeginTransaction();

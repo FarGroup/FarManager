@@ -136,6 +136,7 @@ namespace api
 		bool Eof();
 		bool Opened() const {return Handle != INVALID_HANDLE_VALUE;}
 		const string& GetName() const { return name; }
+		HANDLE GetHandle() const { return Handle; }
 
 	private:
 		HANDLE Handle;
