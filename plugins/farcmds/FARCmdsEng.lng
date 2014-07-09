@@ -9,11 +9,11 @@
 "D&uplicate Intercepted output to screen"
 
 "Intercept &both stdout and stderr"
-"Intercept std&out only (Standard output stream)"
-"Intercept std&err only (Standard errors stream)"
+"Intercept std&out only"
+"Intercept std&err only"
 "Intercept stdout &and stderr separately"
-
 "View/edit e&mpty files"
+
 "Edit &new files"
 "Subs&titution extensions"
 

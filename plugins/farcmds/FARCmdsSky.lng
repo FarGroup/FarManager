@@ -9,11 +9,11 @@
 "Sko&pírovať zadržaný výstup na obrazovku"
 
 "Zadržať o&ba stdout aj stderr"
-"Zadržať len std&out (Standard output stream)"
-"Zadržať len std&err (Standard errors stream)"
+"Zadržať len std&out"
+"Zadržať len std&err"
 "Zadržať stdout &a stderr oddelene"
-
 "Zobraziť/upraviť prá&zdne súbory"
+
 "Upraviť &nové súbory"
 "Substitution extensions"
 

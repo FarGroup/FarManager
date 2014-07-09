@@ -12,8 +12,8 @@ enum
 	MCatchStdOutput,
 	MCatchStdError,
 	MCatchSeparate,
-
 	MViewZeroFiles,
+
 	MEditNewFiles,
 	MSubstExt,
 

@@ -195,10 +195,10 @@ intptr_t WINAPI ConfigureW(const ConfigureInfo* CfgInfo)
 
 	const int CatchIDs[] = {MCatchAllInOne, MCatchStdOutput, MCatchStdError, MCatchSeparate};
 	Builder.AddRadioButtons(&Opt.CatchMode, 4, CatchIDs);
+	Builder.AddCheckbox(MViewZeroFiles, &Opt.ViewZeroFiles);
 
 	Builder.AddSeparator();
 
-	Builder.AddCheckbox(MViewZeroFiles, &Opt.ViewZeroFiles);
 	Builder.AddCheckbox(MEditNewFiles, &Opt.EditNewFiles);
 	Builder.AddCheckbox(MSubstExt, &Opt.SubstExt);
 

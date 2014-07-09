@@ -357,11 +357,11 @@ $^#Configuring FAR Commands#
                                Same as using #<*# instead of #<#.
 
 
-   #Intercept stdout only#       Intercept only #stdout#.
-   #(Standard output stream)#    Same as using #<1# instead of #<#.
+   #Intercept stdout only#       ^<wrap>Intercept only #stdout# (standard output stream).
+                               Same as using #<1# instead of #<#.
 
-   #Intercept stderr only#       Intercept only #stderr#.
-   #(Standard errors stream)#    Same as using #<2# instead of #<#.
+   #Intercept stderr only#       ^<wrap>Intercept only #stderr# (standard errors stream).
+                               Same as using #<2# instead of #<#.
 
 
    #Intercept stdout and #       Intercept stdout and #stderr#
@@ -371,17 +371,19 @@ $^#Configuring FAR Commands#
                                Can't be used with #<+#.
                                Same as using  #<?# instead of #<#.
 
- #View/edit empty files#         With this options off, zero sized
+   #View/edit empty files#       With this options off, zero sized
                                files will not be opened for viewing
                                or editing.
 
- #Edit new files#                Allows to open the editor with non
+ #Other#
+
+   #Edit new files#              Allows to open the editor with non
                                existing files.
 
- #Подстановка расширений#        ^<wrap>Плагин пытается найти файловый объект, подставляя
-расширения из списка переменной среды PATHEXT.
+   #Подстановка расширений#      ^<wrap>Во время поиска (для команды whereis или исполняемого файла)
+плагин пытается найти файловый объект, перебирая расширения из списка переменной среды PATHEXT.
 
- #The size of read data#         ^<wrap>Позволяет задавать максимальный размер
+   #The size of read data#       ^<wrap>Позволяет задавать максимальный размер
 считываемых из файла данных в командах ~clip~@clip@, ~goto~@goto@ и ~whereis~@whereis@.
                                По умолчанию - 1048576 (1 MB).
                                Максимальное значение - 4294967295 (4 GB-1).

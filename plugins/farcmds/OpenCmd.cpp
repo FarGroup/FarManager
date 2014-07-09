@@ -136,7 +136,7 @@ inline bool isDevice(const wchar_t* FileName, const wchar_t* dev_begin)
 	return !*FileName;
 }
 
-static bool validForView(const wchar_t *FileName, int viewEmpty, int editNew)
+static bool validForView(const wchar_t *FileName, bool viewEmpty, bool editNew)
 {
 	if (!wmemcmp(FileName, L"\\\\.\\", 4) &&  // специальная обработка имен
 			FSF.LIsAlpha(FileName[4]) &&          // вида: \\.\буква:
@@ -526,7 +526,7 @@ static const wchar_t* MakeExecuteString(const wchar_t *Cmd)
        	if (NewCmdPar)
        	{
 			lstrcat(temp,L" ");
-			lstrcat(temp,NewCmdPar);
+			lstrcat(temp,FSF.Trim(NewCmdPar));
 		}
 
 		if(quoted_par)
@@ -1609,7 +1609,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 
 										ConsoleTitle consoleTitle(cmd);
 
-										wchar_t* CurDir=getCurrDir(!runFile || tempDir?true:false);
+										wchar_t* CurDir=getCurrDir(runFile || tempDir?true:false);
 
 										BOOL Created=CreateProcess(NULL,(LPWSTR)fullcmd,NULL,NULL,TRUE,0,NULL,CurDir,&si,&pi);
 
@@ -1745,7 +1745,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 
 										if (pTempFileNameErr)
 										{
-											if (validForView(pTempFileNameErr, Opt.ViewZeroFiles, 0))
+											if (validForView(pTempFileNameErr, outputtofile?Opt.ViewZeroFiles!=0:true, false))
 											{
 												MakeVETitle te(titleErr, cmd);
 												Info.Viewer(pTempFileNameErr,outputtofile?te.Get():NULL,0,0,-1,-1,Flags,CP_DEFAULT);
@@ -1754,7 +1754,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 												killTemp(pTempFileNameErr);
 										}
 
-										if (validForView(pTempFileNameOut, Opt.ViewZeroFiles, 0))
+										if (validForView(pTempFileNameOut, outputtofile?Opt.ViewZeroFiles!=0:true, false))
 										{
 											MakeVETitle to(titleOut, cmd);
 											Info.Viewer(pTempFileNameOut,outputtofile?to.Get():NULL,0,0,-1,-1,Flags,CP_DEFAULT);
@@ -1776,7 +1776,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 
 										if (pTempFileNameErr)
 										{
-											if (validForView(pTempFileNameErr, Opt.ViewZeroFiles, Opt.EditNewFiles))
+											if (validForView(pTempFileNameErr, outputtofile?Opt.ViewZeroFiles!=0:true, Opt.EditNewFiles!=0))
 											{
 												MakeVETitle te(titleErr, cmd);
 												Info.Editor(pTempFileNameErr,outputtofile?te.Get():NULL,0,0,-1,-1,Flags,StartLine,StartChar,CP_DEFAULT);
@@ -1785,7 +1785,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 												killTemp(pTempFileNameErr);
 										}
 
-										if (validForView(pTempFileNameOut, Opt.ViewZeroFiles, Opt.EditNewFiles))
+										if (validForView(pTempFileNameOut, outputtofile?Opt.ViewZeroFiles!=0:true, Opt.EditNewFiles!=0))
 										{
 											MakeVETitle to(titleOut, cmd);
 											Info.Editor(pTempFileNameOut,outputtofile?to.Get():NULL,0,0,-1,-1,Flags,StartLine,StartChar,CP_DEFAULT);

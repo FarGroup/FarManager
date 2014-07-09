@@ -9,11 +9,11 @@
 "D&uplicar salida interceptada a pantalla"
 
 "Interceptar am&bos stdout y stderr"
-"Interceptar std&out solamente (Cadena de salida estándar)"
-"Interceptar std&err solamente (Cadena de errores estándar)"
+"Interceptar std&out solamente"
+"Interceptar std&err solamente"
 "Interceptar stdout &y stderr separadamente"
-
 "Ver/editar archivos &vacíos"
+
 "Editar archivos &nuevos"
 "Substitution extensions"
 
