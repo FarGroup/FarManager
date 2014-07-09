@@ -142,6 +142,7 @@ private:
 	void InsertCommit(Frame* Param);
 	void DeleteCommit(Frame* Param);
 	void ActivateCommit(Frame* Param);
+	void ActivateCommit(int Index);
 	void RefreshCommit(Frame* Param);
 	void ModalizeCommit(Frame* Param);
 	void UnmodalizeCommit(Frame* Param);

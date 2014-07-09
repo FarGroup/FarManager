@@ -398,7 +398,7 @@ void Manager::ActivateFrame(Frame *Activated)
 	_MANAGER(CleverSysLog clv(L"Manager::ActivateFrame(Frame *Activated)"));
 	_MANAGER(SysLog(L"Activated=%i",Activated));
 
-	PushFrame(Activated,&Manager::ActivateCommit);
+	if (Activated) PushFrame(Activated,&Manager::ActivateCommit);
 }
 
 void Manager::ActivateFrame(int Index)
@@ -1142,7 +1142,7 @@ void Manager::InsertCommit(Frame* Param)
 	{
 		Param->FrameToBack=CurrentFrame;
 		Frames.emplace_back(Param);
-		ActivateFrame(Param);
+		ActivateCommit(Param);
 	}
 }
 
@@ -1169,12 +1169,12 @@ void Manager::DeleteCommit(Frame* Param)
 			ModalFrames.erase(frame);
 		if (!ModalFrames.empty())
 		{
-			ActivateFrame(ModalFrames.back());
+			ActivateCommit(ModalFrames.back());
 		}
 		else
 		{
 			assert(FramePos < static_cast<int>(Frames.size()));
-			ActivateFrame(FramePos);
+			ActivateCommit(FramePos);
 		}
 	}
 
@@ -1197,11 +1197,12 @@ void Manager::DeleteCommit(Frame* Param)
 
 		if (Param->FrameToBack==Global->CtrlObject->Cp())
 		{
-			ActivateFrame(FramePos);
+			ActivateCommit(FramePos);
 		}
 		else
 		{
-			ActivateFrame(Param->FrameToBack);
+			assert(Param->FrameToBack);
+			ActivateCommit(Param->FrameToBack);
 		}
 	}
 
@@ -1209,7 +1210,8 @@ void Manager::DeleteCommit(Frame* Param)
 
 	if (CurrentFrame==Param)
 	{
-		CurrentFrame=0;
+		assert(true);
+		CurrentFrame=nullptr;
 		InterlockedExchange(&CurrentWindowType,-1);
 	}
 
@@ -1256,6 +1258,11 @@ void Manager::ActivateCommit(Frame* Param)
 	CurrentFrame=Param;
 	RefreshFrame(Param);
 	InterlockedExchange(&CurrentWindowType,CurrentFrame->GetType());
+}
+
+void Manager::ActivateCommit(int Index)
+{
+	ActivateCommit(GetFrame(Index));
 }
 
 void Manager::RefreshCommit(Frame* Param)
@@ -1324,7 +1331,7 @@ void Manager::ExecuteCommit(Frame* Param)
 	if (Param)
 	{
 		ModalFrames.emplace_back(Param);
-		ActivateFrame(Param);
+		ActivateCommit(Param);
 	}
 }
 
@@ -1336,7 +1343,7 @@ void Manager::UpdateCommit(Frame* Old,Frame* New)
 	{
 		Frames[FrameIndex]=New;
 		New->FrameToBack=CurrentFrame;
-		ActivateFrame(New);
+		ActivateCommit(New);
 		DeleteFrame(Old);
 	}
 	else
