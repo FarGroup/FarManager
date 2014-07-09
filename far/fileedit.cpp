@@ -563,12 +563,7 @@ void FileEditor::Init(
 
 			if (SwitchTo)
 			{
-				//BUGBUG:
-				//в очереди есть уже удаление модального фрейма от Message, которое сделает активацию панелей после
-				//активации редактора.
-				Global->FrameManager->CallbackFrame([FramePos](){Global->FrameManager->ActivateFrame(FramePos);});
-				//FrameManager->PluginCommit();
-				//SetExitCode((OpenModeExstFile != EF_OPENMODE_QUERY) ? XC_EXISTS : XC_MODIFIED); // TRUE???
+				Global->FrameManager->ActivateFrame(FramePos);
 				return ;
 			}
 		}

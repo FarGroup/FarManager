@@ -1155,6 +1155,8 @@ void Manager::DeleteCommit(Frame* Param)
 		return;
 
 	int ModalIndex=IndexOfStack(Param);
+	int FrameIndex=IndexOf(Param);
+	assert(!(-1!=ModalIndex&&-1!=FrameIndex));
 
 	if (ModalIndex!=-1)
 	{
@@ -1166,7 +1168,14 @@ void Manager::DeleteCommit(Frame* Param)
 		if (frame != ModalFrames.end())
 			ModalFrames.erase(frame);
 		if (!ModalFrames.empty())
+		{
 			ActivateFrame(ModalFrames.back());
+		}
+		else
+		{
+			assert(FramePos < static_cast<int>(Frames.size()));
+			ActivateFrame(FramePos);
+		}
 	}
 
 	std::for_each(CONST_RANGE(Frames, i)
@@ -1176,8 +1185,6 @@ void Manager::DeleteCommit(Frame* Param)
 			i->FrameToBack=Global->CtrlObject->Cp();
 		}
 	});
-
-	int FrameIndex=IndexOf(Param);
 
 	if (-1!=FrameIndex)
 	{
@@ -1210,15 +1217,6 @@ void Manager::DeleteCommit(Frame* Param)
 	{
 		_MANAGER(SysLog(L"delete DeletedFrame %p", Param));
 		delete Param;
-	}
-
-	if (!ModalFrames.empty())
-	{
-		ActivateFrame(ModalFrames.back());
-	}
-	else
-	{
-		ActivateFrame(FramePos);
 	}
 }
 
