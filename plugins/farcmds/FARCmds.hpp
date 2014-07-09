@@ -118,3 +118,10 @@ BOOL ProcessOSAliases(wchar_t *Str,int SizeStr);
 wchar_t *GetShellLinkPath(const wchar_t *LinkFile);
 wchar_t *OpenFromCommandLine(const wchar_t *_farcmd);
 wchar_t *ExpandEnv(const wchar_t* Src, DWORD* Length);
+
+wchar_t* __proc_Load(int outputtofile,wchar_t *pCmd);
+wchar_t* __proc_Unload(int outputtofile,wchar_t *pCmd);
+wchar_t* __proc_Goto(int outputtofile,wchar_t *pCmd);
+wchar_t* __proc_WhereIs(int outputtofile,wchar_t *pCmd);
+
+bool __proc_Link(int outputtofile,wchar_t *pCmd);

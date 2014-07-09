@@ -467,6 +467,82 @@ static bool MakeTempNames(wchar_t** FileName1, wchar_t** FileName2)
 	return false;
 
 }
+
+static const wchar_t* MakeExecuteString(const wchar_t *Cmd)
+{
+	bool quote_cmd=false, quoted_par=false;
+	const wchar_t COMSPEC[]=L"%COMSPEC% /c ";
+
+	// 1. разбор строки на команду и параметры
+	wchar_t *NewCmdStr=nullptr, *NewCmdPar=nullptr;
+	PartCmdLine(Cmd,&NewCmdStr,&NewCmdPar);
+
+	if (NewCmdStr)
+	{
+		// 1.1 если команда не содержит полный путь...
+		if (!wcschr(NewCmdStr,L'\\'))
+		{
+			// 1.1.1 ...пытаемся её найти
+			wchar_t *fpath=__proc_WhereIs(false,NewCmdStr);
+			if (fpath)
+			{
+				delete[] NewCmdStr;
+				NewCmdStr=fpath;
+			}
+		}
+	}
+
+	// 2. обкавычим, если путь к команде получился с пробелами
+	if (NewCmdStr && wcschr(NewCmdStr,L' '))
+		quote_cmd=true;
+
+	// 3. проверим параметр
+	if (NewCmdPar && wcschr(NewCmdPar,L'"'))
+		quoted_par=true;
+
+
+	// 4. собираем всё обратно
+	wchar_t* temp=new wchar_t[
+		lstrlen(COMSPEC)+
+		(NewCmdStr?lstrlen(NewCmdStr)+(quote_cmd?2:0):0)+1+
+		(NewCmdPar?lstrlen(NewCmdPar)+(quote_cmd?2:0):0)+1+
+		8
+	];
+
+	if (temp)
+	{
+		lstrcpy(temp,COMSPEC);
+
+		if(quoted_par)
+			lstrcat(temp,L"\"");
+
+		if (NewCmdStr)
+		{
+			if(quote_cmd)
+				lstrcat(temp,L"\"");
+			lstrcat(temp,NewCmdStr);
+			if(quote_cmd)
+				lstrcat(temp,L"\"");
+		}
+       	if (NewCmdPar)
+       	{
+			lstrcat(temp,L" ");
+			lstrcat(temp,NewCmdPar);
+		}
+
+		if(quoted_par)
+			lstrcat(temp,L"\"");
+
+		wchar_t *fullcmd=ExpandEnv(temp,nullptr);
+
+		delete[] temp;
+
+		return fullcmd;
+	}
+
+	return nullptr;
+}
+
 /*
   Возвращает указатель на выделенный кусок, которому после использования сделать free
 
@@ -816,7 +892,8 @@ wchar_t* __proc_WhereIs(int outputtofile,wchar_t *pCmd)
 								{
 									RegQueryValueEx(hKey,L"", 0, &Type, (LPBYTE) DestPath, &DestPathSize);
 									delete[] Ptr;
-									Ptr=DestPath;
+									Ptr=ExpandEnv(DestPath,nullptr);
+									delete[] DestPath;
 								}
 							}
 							RegCloseKey(hKey);
@@ -969,7 +1046,6 @@ bool __proc_Link(int /*outputtofile*/,wchar_t *pCmd)
 
 	return Ret;
 }
-
 
 wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 {
@@ -1298,8 +1374,6 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 
 								if (allOK)
 								{
-									wchar_t* fullcmd=nullptr;
-
 									DWORD InMode=0, OutMode=0, ErrMode=0;
 									GetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), &OutMode);
 									GetConsoleMode(GetStdHandle(STD_ERROR_HANDLE),  &ErrMode);
@@ -1307,18 +1381,9 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 
 									allOK = FALSE;
 
-									cmd=new wchar_t[lstrlen(temp)+64];
-									if (cmd)
-									{
-										lstrcpy(cmd,L"%COMSPEC% /c ");
+									wchar_t *cmd=temp;
 
-										//if (*temp == L'"')
-										//	lstrcat(cmd, L"\"\" ");
-
-										lstrcat(cmd, temp);
-										fullcmd=ExpandEnv(cmd,nullptr);
-										lstrcpy(cmd, temp);
-									}
+									const wchar_t* fullcmd=MakeExecuteString(cmd);
 
 									if (catchStdOutput && catchStdError)
 									{
@@ -1423,7 +1488,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 
 										wchar_t* CurDir=getCurrDir(!runFile || tempDir?true:false);
 
-										BOOL Created=CreateProcess(NULL,fullcmd,NULL,NULL,TRUE,0,NULL,CurDir,&si,&pi);
+										BOOL Created=CreateProcess(NULL,(LPWSTR)fullcmd,NULL,NULL,TRUE,0,NULL,CurDir,&si,&pi);
 
 										if (CurDir)
 											delete[] CurDir;
@@ -1524,12 +1589,12 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 
 									}
 
+									if (fullcmd)
+										delete[] fullcmd;
+
 									SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), OutMode);
 									SetConsoleMode(GetStdHandle(STD_ERROR_HANDLE), ErrMode);
 									SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), InMode);
-
-									if (fullcmd)
-										delete[] fullcmd;
 								}
 
 								if (PrefIdx == prefView || PrefIdx == prefEdit)
@@ -1657,9 +1722,6 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 
 								delete[] pTempFileNameErr;
 							}
-
-							if (cmd)
-								delete[] cmd;
 
 							if (temp)
 								delete[] temp;

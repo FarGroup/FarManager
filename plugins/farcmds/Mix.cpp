@@ -31,8 +31,8 @@ wchar_t *ExpandEnv(const wchar_t* Src, DWORD* Length)
 }
 
 /*
-	возвращает число, вырезав его из строки, или -2 в случае ошибки
-	Start, End - начало и конец строки
+	тючтЁр∙рхЄ ўшёыю, т√Ёхчрт хую шч ёЄЁюъш, шыш -2 т ёыєўрх ю°шсъш
+	Start, End - эрўрыю ш ъюэхЎ ёЄЁюъш
 */
 int GetInt(wchar_t *Start, wchar_t *End)
 {
@@ -68,9 +68,9 @@ int GetInt(wchar_t *Start, wchar_t *End)
 }
 
 /*
-	Заменить в строке Str Count вхождений подстроки FindStr на подстроку ReplStr
-	Если Count < 0 - заменять "до полной победы"
-	Return - количество замен
+	╟рьхэшЄ№ т ёЄЁюъх Str Count тїюцфхэшщ яюфёЄЁюъш FindStr эр яюфёЄЁюъє ReplStr
+	┼ёыш Count < 0 - чрьхэ Є№ "фю яюыэющ яюсхф√"
+	Return - ъюышўхёЄтю чрьхэ
 */
 int ReplaceStrings(wchar_t *Str,const wchar_t *FindStr,const wchar_t *ReplStr,int Count,BOOL IgnoreCase)
 {
@@ -107,8 +107,8 @@ int ReplaceStrings(wchar_t *Str,const wchar_t *FindStr,const wchar_t *ReplStr,in
 
 
 /*
-	возвращает PipeFound
-	NewCmdStr и NewCmdPar после использования удалить
+	тючтЁр∙рхЄ PipeFound
+	NewCmdStr ш NewCmdPar яюёых шёяюы№чютрэш  єфрышЄ№
 */
 int PartCmdLine(const wchar_t *CmdStr,wchar_t **NewCmdStr,wchar_t **NewCmdPar)
 {
@@ -128,9 +128,9 @@ int PartCmdLine(const wchar_t *CmdStr,wchar_t **NewCmdStr,wchar_t **NewCmdPar)
 		wchar_t *ParPtr = NULL;
 		int QuoteFound = FALSE;
 
-		// Разделим собственно команду для исполнения и параметры.
-		// При этом заодно определим наличие символов переопределения потоков
-		// Работаем с учетом кавычек. Т.е. пайп в кавычках - не пайп.
+		// ╨рчфхышь ёюсёЄтхээю ъюьрэфє фы  шёяюыэхэш  ш ярЁрьхЄЁ√.
+		// ╧Ёш ¤Єюь чрюфэю юяЁхфхышь эрышўшх ёшьтюыют яхЁхюяЁхфхыхэш  яюЄюъют
+		// ╨рсюЄрхь ё єўхЄюь ърт√ўхъ. ╥.х. ярщя т ърт√ўърї - эх ярщя.
 
 		while (*CmdPtr)
 		{
@@ -141,7 +141,7 @@ int PartCmdLine(const wchar_t *CmdStr,wchar_t **NewCmdStr,wchar_t **NewCmdPar)
 			{
 				if (*CmdPtr == L'>' || *CmdPtr == L'<' ||
 				        *CmdPtr == L'|' || *CmdPtr == L' ' ||
-				        *CmdPtr == L'/' ||      // вариант "far.exe/?"
+				        *CmdPtr == L'/' ||      // трЁшрэЄ "far.exe/?"
 				        *CmdPtr == L'&'
 				   )
 				{
@@ -153,16 +153,16 @@ int PartCmdLine(const wchar_t *CmdStr,wchar_t **NewCmdStr,wchar_t **NewCmdPar)
 				}
 			}
 
-			if (ParPtr && PipeFound) // Нам больше ничего не надо узнавать
+			if (ParPtr && PipeFound) // ═рь сюы№°х эшўхую эх эрфю єчэртрЄ№
 				break;
 
 			CmdPtr++;
 		}
 
-		if (NewCmdPar && ParPtr) // Мы нашли параметры и отделяем мух от котлет
+		if (NewCmdPar && ParPtr) // ╠√ эр°ыш ярЁрьхЄЁ√ ш юЄфхы хь ьєї юЄ ъюЄыхЄ
 		{
-			if (*ParPtr == L' ') //AY: первый пробел между командой и параметрами не нужен,
-				*(ParPtr++)=0;     //    он добавляется заново в Execute.
+			if (*ParPtr == L' ') //AY: яхЁт√щ яЁюсхы ьхцфє ъюьрэфющ ш ярЁрьхЄЁрьш эх эєцхэ,
+				*(ParPtr++)=0;     //    юэ фюсрты хЄё  чрэютю т Execute.
 
 			wchar_t *ptrNewCmdPar=new wchar_t[lstrlen(ParPtr)+1];
 			if (ptrNewCmdPar)
