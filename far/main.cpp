@@ -164,7 +164,7 @@ static int MainProcess(
 			else if (!vname.empty())
 			{
 				Global->Opt->OnlyEditorViewerUsed=2;
-				FileViewer *ShellViewer=new FileViewer(vname,FALSE);
+				FileViewer *ShellViewer=new FileViewer(vname,TRUE);
 
 				if (!ShellViewer->GetExitCode())
 				{

@@ -483,7 +483,7 @@ void Manager::SwitchToPanels()
 
 bool Manager::HaveAnyFrame() const
 {
-	return !Frames.empty() || !m_Queue.empty();
+	return !Frames.empty() || !m_Queue.empty() || CurrentFrame;
 }
 
 void Manager::EnterMainLoop()
@@ -1158,26 +1158,6 @@ void Manager::DeleteCommit(Frame* Param)
 	int FrameIndex=IndexOf(Param);
 	assert(!(-1!=ModalIndex&&-1!=FrameIndex));
 
-	if (ModalIndex!=-1)
-	{
-		/* $ 14.05.2002 SKV
-		  Надёжнее найти и удалить именно то, что
-		  нужно, а не просто верхний.
-		*/
-		auto frame = std::find(ModalFrames.begin(), ModalFrames.end(), Param);
-		if (frame != ModalFrames.end())
-			ModalFrames.erase(frame);
-		if (!ModalFrames.empty())
-		{
-			ActivateCommit(ModalFrames.back());
-		}
-		else
-		{
-			assert(FramePos < static_cast<int>(Frames.size()));
-			ActivateCommit(FramePos);
-		}
-	}
-
 	std::for_each(CONST_RANGE(Frames, i)
 	{
 		if (i->FrameToBack==Param)
@@ -1186,7 +1166,22 @@ void Manager::DeleteCommit(Frame* Param)
 		}
 	});
 
-	if (-1!=FrameIndex)
+	if (ModalIndex!=-1)
+	{
+		ModalFrames.erase(ModalFrames.begin() + ModalIndex);
+
+		if (!ModalFrames.empty())
+		{
+			ActivateCommit(ModalFrames.back());
+		}
+		else if (Frames.size())
+		{
+			assert(FramePos < static_cast<int>(Frames.size()));
+			assert(FramePos>=0);
+			ActivateCommit(FramePos);
+		}
+	}
+	else if (-1!=FrameIndex)
 	{
 		Frames.erase(Frames.begin() + FrameIndex);
 
@@ -1195,25 +1190,30 @@ void Manager::DeleteCommit(Frame* Param)
 			FramePos=0;
 		}
 
-		if (Param->FrameToBack==Global->CtrlObject->Cp())
+		if (Frames.size())
 		{
-			ActivateCommit(FramePos);
+			if (Param->FrameToBack==Global->CtrlObject->Cp())
+			{
+				ActivateCommit(FramePos);
+			}
+			else
+			{
+				assert(Param->FrameToBack);
+				ActivateCommit(Param->FrameToBack);
+			}
 		}
 		else
 		{
-			assert(Param->FrameToBack);
-			ActivateCommit(Param->FrameToBack);
+			CurrentFrame=nullptr;
+			InterlockedExchange(&CurrentWindowType,-1);
 		}
 	}
 
+	assert(CurrentFrame!=Param);
+
 	Param->OnDestroy();
 
-	if (CurrentFrame==Param)
-	{
-		assert(true);
-		CurrentFrame=nullptr;
-		InterlockedExchange(&CurrentWindowType,-1);
-	}
+	assert(CurrentFrame!=Param);
 
 	if (Param->GetDynamicallyBorn())
 	{
