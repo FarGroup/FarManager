@@ -88,6 +88,8 @@ public:
 	bool RemoveModal(const Frame *aFrame);
 	bool HasSaveScreen() const;
 	void SetFlags( DWORD flags ) { Flags.Set(flags); }
+	void SetDeleting(void);
+	bool IsDeleting(void);
 
 protected:
 	bool DynamicallyBorn;
@@ -104,4 +106,5 @@ private:
 	void Push(Frame* Modalized);
 	Frame *FrameToBack;
 	Frame *NextModal;
+	bool Deleting;
 };

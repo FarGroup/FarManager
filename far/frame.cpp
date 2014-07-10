@@ -48,7 +48,8 @@ Frame::Frame():
 	FrameKeyBar(nullptr),
 	MacroMode(MACROAREA_OTHER),
 	FrameToBack(nullptr),
-	NextModal(nullptr)
+	NextModal(nullptr),
+	Deleting(false)
 {
 	_OT(SysLog(L"[%p] Frame::Frame()", this));
 }
@@ -160,4 +161,14 @@ bool Frame::HasSaveScreen() const
 	}
 
 	return false;
+}
+
+void Frame::SetDeleting(void)
+{
+	Deleting=true;
+}
+
+bool Frame::IsDeleting(void)
+{
+	return Deleting;
 }

@@ -144,7 +144,8 @@ void Manager::CloseAll()
 
 void Manager::PushFrame(Frame* Param,void(Manager::*Callback)(Frame*))
 {
-	m_Queue.push_back(std::make_unique<MessageOneFrame>(Param,[this,Callback](Frame* Param){(this->*Callback)(Param);}));
+	//assert(Param);
+	if (Param&&!Param->IsDeleting()) m_Queue.push_back(std::make_unique<MessageOneFrame>(Param,[this,Callback](Frame* Param){(this->*Callback)(Param);}));
 }
 
 void Manager::ProcessFrameByPos(int Index,void(Manager::*Callback)(Frame*))
@@ -175,7 +176,10 @@ void Manager::DeleteFrame(Frame *Deleted)
 	if (std::any_of(CONST_RANGE(Frames, i) {return i->RemoveModal(Deleted);}))
 		return;
 
-	PushFrame(Deleted?Deleted:CurrentFrame,&Manager::DeleteCommit);
+	Frame* frame=Deleted?Deleted:CurrentFrame;
+	assert(frame);
+	PushFrame(frame,&Manager::DeleteCommit);
+	frame->SetDeleting();
 }
 
 void Manager::DeleteFrame(int Index)
@@ -347,7 +351,7 @@ int Manager::GetFrameCountByType(int Type)
 
 	std::for_each(CONST_RANGE(Frames, i)
 	{
-		if (i->GetExitCode() != XC_QUIT && i->GetType() == Type)
+		if (!i->IsDeleting() && i->GetExitCode() != XC_QUIT && i->GetType() == Type)
 			ret++;
 	});
 
@@ -374,7 +378,7 @@ int  Manager::FindFrameByFile(int ModalType,const string& FileName, const wchar_
 		string strType, strName;
 
 		// Mantis#0000469 - получать Name будем только при совпадении ModalType
-		if (i->GetType()==ModalType)
+		if (!i->IsDeleting()&&i->GetType()==ModalType)
 		{
 			i->GetTypeAndName(strType, strName);
 
