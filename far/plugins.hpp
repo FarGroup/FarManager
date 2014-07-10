@@ -41,7 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class SaveScreen;
 class FileEditor;
-class Viewer;
+class ViewerBase;
 class Frame;
 class Panel;
 class Dialog;
@@ -168,8 +168,8 @@ public:
 	void UndoRemove(Plugin* plugin);
 	FileEditor* GetCurEditor() const { return m_CurEditor; }
 	void SetCurEditor(FileEditor* Editor) { m_CurEditor = Editor; }
-	Viewer* GetCurViewer() const { return m_CurViewer; }
-	void SetCurViewer(Viewer* Viewer) { m_CurViewer = Viewer; }
+	ViewerBase* GetCurViewer() const { return m_CurViewer; }
+	void SetCurViewer(ViewerBase* Viewer) { m_CurViewer = Viewer; }
 
 	static void ConfigureCurrent(Plugin *pPlugin, const GUID& Guid);
 	static int UseFarCommand(PluginHandle* hPlugin, int CommandType);
@@ -195,6 +195,6 @@ private:
 	size_t OemPluginsCount;
 #endif // NO_WRAPPER
 	FileEditor* m_CurEditor;
-	Viewer* m_CurViewer;
+	ViewerBase* m_CurViewer;
 	bool m_PluginsLoaded;
 };

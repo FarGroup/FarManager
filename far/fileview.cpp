@@ -173,6 +173,7 @@ void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 		if (Update) Global->FrameManager->DeleteFrame(Update);
 		Global->FrameManager->ExecuteFrame(this);
 	}
+	Global->FrameManager->CallbackFrame([this](){this->View.ReadEvent();});
 }
 
 

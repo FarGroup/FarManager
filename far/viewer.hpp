@@ -46,11 +46,11 @@ class Dialog;
 
 ENUM(SEARCHER_RESULT);
 
-class Viewer:public ScreenObject
+class ViewerBase:public ScreenObject
 {
 public:
-	Viewer(bool bQuickView = false, uintptr_t aCodePage = CP_DEFAULT);
-	virtual ~Viewer();
+	ViewerBase(bool bQuickView = false, uintptr_t aCodePage = CP_DEFAULT);
+	virtual ~ViewerBase();
 
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
@@ -91,7 +91,6 @@ public:
 	int ProcessWrapMode(int newMode, bool isRedraw = true);
 	int ProcessTypeWrapMode(int newMode, bool isRedraw = true);
 	void SearchTextTransform(string& to, const wchar_t *from, bool hex2text, intptr_t &pos);
-	void CloseEvent(void);
 
 private:
 	struct ViewerString;
@@ -140,6 +139,11 @@ private:
 	int txt_dump(const unsigned char *line, DWORD nr, int width, wchar_t *outstr, wchar_t zch, int tail) const;
 
 	static uintptr_t GetDefaultCodePage();
+
+protected:
+	virtual void OnRead(void) {}
+	void ReadEvent(void);
+	void CloseEvent(void);
 
 private:
 	friend class FileViewer;
@@ -257,4 +261,13 @@ private:
 	int dump_text_mode;
 
 	std::vector<wchar_t> ReadBuffer;
+};
+
+class Viewer:public ViewerBase
+{
+	public:
+		Viewer(bool bQuickView = false, uintptr_t aCodePage = CP_DEFAULT);
+		virtual ~Viewer();
+	protected:
+		virtual void OnRead(void) override;
 };

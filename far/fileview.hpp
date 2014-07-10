@@ -88,7 +88,7 @@ private:
 	virtual void Show() override;
 	virtual void DisplayObject() override;
 
-	Viewer View;
+	ViewerBase View;
 	int RedrawTitle;
 	KeyBar ViewKeyBar;
 	bool F3KeyOnly;
