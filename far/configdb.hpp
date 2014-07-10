@@ -298,7 +298,7 @@ public:
 	bool Export(const string& File);
 	int ShowProblems();
 
-	void AddThread(const HandleWrapper& Thread) {ThreadWaiter.Add(Thread);}
+	void AddThread(Thread&& thread) {ThreadWaiter.AddThread(std::move(thread));}
 	void WaitForThreads() const {ThreadWaiter.Wait();}
 
 	static void ClearPluginsCache();

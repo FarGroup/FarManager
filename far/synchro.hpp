@@ -90,6 +90,12 @@ public:
 	bool Signaled() const { return Wait(0); }
 
 protected:
+	void swap(HandleWrapper& rhs)
+	{
+		std::swap(m_Handle, rhs.m_Handle);
+		m_Name.swap(rhs.m_Name);
+	}
+
 	HANDLE m_Handle;
 	string m_Name;
 
@@ -102,10 +108,19 @@ private:
 class Thread: public HandleWrapper
 {
 public:
-	Thread(): m_ThreadId(0) {}
+	Thread(): m_ThreadId() {}
+	Thread(Thread&& rhs): m_ThreadId() { *this = std::move(rhs); }
 	virtual ~Thread() {}
 
 	virtual const wchar_t *GetNamespace() const override { return L""; }
+
+	MOVE_OPERATOR_BY_SWAP(Thread);
+
+	void swap(Thread& rhs)
+	{
+		HandleWrapper::swap(rhs);
+		std::swap(m_ThreadId, rhs.m_ThreadId);
+	}
 
 #if defined _MSC_VER && _MSC_VER < 1800
 	template<typename T>
@@ -164,6 +179,8 @@ private:
 	unsigned int m_ThreadId;
 };
 
+STD_SWAP_SPEC(Thread);
+
 class Mutex: public HandleWrapper
 {
 public:
@@ -174,10 +191,18 @@ public:
 		SetName(HashPart, TextPart);
 		Open();
 	}
+	Mutex(Mutex& rhs) { *this = std::move(rhs); }
 
 	virtual ~Mutex() {}
 
 	virtual const wchar_t *GetNamespace() const override { return L"Far_Manager_Mutex_"; }
+
+	MOVE_OPERATOR_BY_SWAP(Mutex);
+
+	void swap(Mutex& rhs)
+	{
+		HandleWrapper::swap(rhs);
+	}
 
 	bool Open()
 	{
@@ -192,14 +217,24 @@ public:
 	bool unlock() const { return ReleaseMutex(m_Handle) != FALSE; }
 };
 
+STD_SWAP_SPEC(Mutex);
+
 class Event: public HandleWrapper
 {
 public:
 	Event() {}
 	Event(bool ManualReset, bool InitialState) { Open(ManualReset, InitialState); }
+	Event(Event& rhs) { *this = std::move(rhs); }
 	virtual ~Event() {}
 
 	virtual const wchar_t *GetNamespace() const override { return L"Far_Manager_Event_"; }
+
+	MOVE_OPERATOR_BY_SWAP(Event);
+
+	void swap(Event& rhs)
+	{
+		HandleWrapper::swap(rhs);
+	}
 
 	bool Open(bool ManualReset=false, bool InitialState=false)
 	{
@@ -215,6 +250,8 @@ public:
 
 	void Associate(OVERLAPPED& o) const { o.hEvent = m_Handle; }
 };
+
+STD_SWAP_SPEC(Event);
 
 template<class T> class SyncedQueue: NonCopyable {
 	std::queue<T> Queue;
@@ -273,6 +310,7 @@ public:
 	};
 	MultiWaiter() { Objects.reserve(10); }
 	~MultiWaiter() {}
+	void AddThread(Thread&& Object) { Objects.emplace_back(Object.GetHandle()); Threads.emplace_back(std::move(Object)); }
 	void Add(const HandleWrapper& Object) { Objects.emplace_back(Object.GetHandle()); }
 	void Add(HANDLE handle) { Objects.emplace_back(handle); }
 	DWORD Wait(wait_mode Mode = wait_all, DWORD Milliseconds = INFINITE) const { return WaitForMultipleObjects(static_cast<DWORD>(Objects.size()), Objects.data(), Mode == wait_all, Milliseconds); }
@@ -280,4 +318,5 @@ public:
 
 private:
 	std::vector<HANDLE> Objects;
+	std::vector<Thread> Threads;
 };

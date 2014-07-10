@@ -526,7 +526,7 @@ public:
 		Thread FinishThread;
 		if (FinishThread.Start(&HierarchicalConfigDb::AsyncDelete, this))
 		{
-			Global->Db->AddThread(FinishThread);
+			Global->Db->AddThread(std::move(FinishThread));
 		}
 		else
 		{
