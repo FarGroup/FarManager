@@ -1161,6 +1161,8 @@ void Manager::DeleteCommit(Frame* Param)
 	if (!Param)
 		return;
 
+	Param->OnDestroy();
+
 	int ModalIndex=IndexOfStack(Param);
 	int FrameIndex=IndexOf(Param);
 	assert(!(-1!=ModalIndex&&-1!=FrameIndex));
@@ -1215,10 +1217,6 @@ void Manager::DeleteCommit(Frame* Param)
 			InterlockedExchange(&CurrentWindowType,-1);
 		}
 	}
-
-	assert(CurrentFrame!=Param);
-
-	Param->OnDestroy();
 
 	assert(CurrentFrame!=Param);
 

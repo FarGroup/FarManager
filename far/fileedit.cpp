@@ -378,18 +378,8 @@ FileEditor::FileEditor(const string& Name, uintptr_t codepage, DWORD InitFlags, 
 */
 FileEditor::~FileEditor()
 {
-	//AY: флаг оповещающий закрытие редактора.
-	m_bClosing = true;
-
 	if (!Flags.Check(FFILEEDIT_DISABLESAVEPOS) && (m_editor->EdOpt.SavePos || m_editor->EdOpt.SaveShortPos) && Global->CtrlObject)
 		SaveToCache();
-
-	int FEditEditorID=m_editor->EditorID;
-
-	if (bEE_READ_Sent && Global->CtrlObject)
-	{
-		Global->FrameManager->CallbackFrame([FEditEditorID](){Global->CtrlObject->Plugins->ProcessEditorEvent(EE_CLOSE,nullptr,FEditEditorID);});
-	}
 
 	if (!Flags.Check(FFILEEDIT_OPENFAILED))
 	{
@@ -781,7 +771,7 @@ void FileEditor::Show()
 
 void FileEditor::DisplayObject()
 {
-	if (!m_editor->Locked())
+	if (!m_editor->Locked()&&!m_bClosing)
 	{
 		if (m_editor->Flags.Check(Editor::FEDITOR_ISRESIZEDCONSOLE))
 		{
@@ -2236,6 +2226,16 @@ void FileEditor::OnDestroy()
 
 	if (!Flags.Check(FFILEEDIT_DISABLEHISTORY) && StrCmpI(strFileName.data(),MSG(MNewFileName)))
 		Global->CtrlObject->ViewHistory->AddToHistory(strFullFileName, m_editor->Flags.Check(Editor::FEDITOR_LOCKMODE) ? HR_EDITOR_RO : HR_EDITOR);
+
+	//AY: флаг оповещающий закрытие редактора.
+	m_bClosing = true;
+
+	int FEditEditorID=m_editor->EditorID;
+
+	if (bEE_READ_Sent && Global->CtrlObject)
+	{
+		Global->CtrlObject->Plugins->ProcessEditorEvent(EE_CLOSE,nullptr,FEditEditorID);
+	}
 
 	if (Global->CtrlObject->Plugins->GetCurEditor() == this)//&this->FEdit)
 	{

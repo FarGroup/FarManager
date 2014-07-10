@@ -466,6 +466,7 @@ void FileViewer::OnDestroy()
 		View.GetFileName(strFullFileName);
 		Global->CtrlObject->ViewHistory->AddToHistory(strFullFileName, HR_VIEWER);
 	}
+	View.CloseEvent();
 }
 
 int FileViewer::FastHide()

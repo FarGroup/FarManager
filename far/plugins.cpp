@@ -784,7 +784,7 @@ int PluginManager::ProcessEditorEvent(int Event,void *Param,int EditorID) const
 {
 	int nResult = 0;
 
-	if (Global->CtrlObject->Plugins->GetCurEditor()||EE_CLOSE==Event) //EE_CLOSE приходит после закрытия редактора.
+	if (Global->CtrlObject->Plugins->GetCurEditor())
 	{
 		ProcessEditorEventInfo Info = {sizeof(Info)};
 		Info.Event = Event;

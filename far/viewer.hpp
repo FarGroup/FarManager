@@ -91,6 +91,7 @@ public:
 	int ProcessWrapMode(int newMode, bool isRedraw = true);
 	int ProcessTypeWrapMode(int newMode, bool isRedraw = true);
 	void SearchTextTransform(string& to, const wchar_t *from, bool hex2text, intptr_t &pos);
+	void CloseEvent(void);
 
 private:
 	struct ViewerString;

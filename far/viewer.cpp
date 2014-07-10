@@ -205,16 +205,20 @@ Viewer::~Viewer()
 		}
 	}
 
-	if (!OpenFailed && bVE_READ_Sent)
-	{
-		int FViewerID=ViewerID;
-		Global->FrameManager->CallbackFrame([FViewerID](){Global->CtrlObject->Plugins->ProcessViewerEvent(VE_CLOSE,nullptr,FViewerID);});
-	}
+	CloseEvent();
 
 	if (this == Global->CtrlObject->Plugins->GetCurViewer())
 		Global->CtrlObject->Plugins->SetCurViewer(nullptr);
 }
 
+void Viewer::CloseEvent(void)
+{
+	if (!OpenFailed && bVE_READ_Sent)
+	{
+		bVE_READ_Sent=false;
+		Global->CtrlObject->Plugins->ProcessViewerEvent(VE_CLOSE,nullptr,ViewerID);;
+	}
+}
 
 struct Viewer::ViewerUndoData
 {
