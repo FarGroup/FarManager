@@ -100,6 +100,13 @@ enum enShowCmdOutput {
 	scoShowAll        // <+
 };
 
+enum CatchModeType {
+	cmtAllInOne  = 0,  // <* - redirect #stderr# and #stdout# as one stream
+	cmtStdOut    = 1,  // <1 - redirect only standard output stream #stdout#
+	cmtStdErr    = 2,  // <2 - redirect only standard output stream #stderr#
+	cmtDiff      = 3,  // <? - redirect #stderr# and #stdout# as different streams
+};
+
 extern struct PluginStartupInfo Info;
 extern struct FarStandardFunctions FSF;
 extern struct Options Opt;

@@ -627,7 +627,7 @@ static wchar_t *loadFile(const wchar_t *fn, DWORD maxSize, BOOL outputtofile, si
 // Default:
 // 	ShowCmdOutput <- Opt.ShowCmdOutput
 //	stream        <- Opt.CatchMode
-static void GetStreamAndMode(wchar_t*& pCmd, int& ShowCmdOutput, int& stream)
+static void GetStreamAndMode(wchar_t*& pCmd, int& ShowCmdOutput, int& CatchMode)
 {
 	// edit:<O
 	// edit:<SO
@@ -638,10 +638,10 @@ static void GetStreamAndMode(wchar_t*& pCmd, int& ShowCmdOutput, int& stream)
 	//       ^pCmd
 	switch (*pCmd)
 	{                                          // stream
-		case L'*': stream = 0; ++pCmd; break;  // redirect #stderr# and #stdout# as one stream
-		case L'1': stream = 1; ++pCmd; break;  // redirect only standard output stream #stdout#
-		case L'2': stream = 2; ++pCmd; break;  // redirect only standard output stream #stderr#
-		case L'?': stream = 3; ++pCmd; break;  // redirect #stderr# and #stdout# as different streams
+		case L'*': CatchMode = cmtAllInOne; ++pCmd; break;  // <* - redirect #stderr# and #stdout# as one stream
+		case L'1': CatchMode = cmtStdOut;   ++pCmd; break;  // <1 - redirect only standard output stream #stdout#
+		case L'2': CatchMode = cmtStdErr;   ++pCmd; break;  // <2 - redirect only standard output stream #stderr#
+		case L'?': CatchMode = cmtDiff;     ++pCmd; break;  // <? - redirect #stderr# and #stdout# as different streams
 		default:   foundStream=false;  break;
 	}
 
@@ -1205,7 +1205,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 	if (lstrlen(farcmd) > 3)
 	{
 		int ShowCmdOutput=Opt.ShowCmdOutput;
-		int stream=Opt.CatchMode;
+		int CatchMode=Opt.CatchMode;
 
 		int StartLine=-1, StartChar=-1;
 		int outputtofile=0;
@@ -1318,7 +1318,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 				//SM object
 				//^farcmd
 				outputtofile=1;
-				GetStreamAndMode(pCmd, ShowCmdOutput, stream);
+				GetStreamAndMode(pCmd, ShowCmdOutput, CatchMode);
 				//object
 				//^farcmd
 			}
@@ -1358,7 +1358,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 				}
 
 				if (outputtofile && (PrefIdx == prefView||PrefIdx == prefEdit||PrefIdx == prefClip))
-					GetStreamAndMode(pCmd, ShowCmdOutput, stream);
+					GetStreamAndMode(pCmd, ShowCmdOutput, CatchMode);
                 */
 				if (*pCmd && BracketsOk)
 				{
@@ -1449,13 +1449,14 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 							}
 							else // <Start process>
 							{
+								wchar_t *SaveRunDir=nullptr;
 								// разделение потоков
-								int catchStdOutput = stream != 2;
-								int catchStdError  = stream != 1;
-								int catchSeparate  = (stream == 3) && (PrefIdx == prefView || PrefIdx == prefEdit || PrefIdx == prefClip);
+								int catchStdOutput = CatchMode != cmtStdErr;
+								int catchStdError  = CatchMode != cmtStdOut;
+								int catchSeparate  = (CatchMode == cmtDiff) && (PrefIdx == prefView || PrefIdx == prefEdit || PrefIdx == prefClip);
 								int catchAllInOne  = 0;
 								/*
-									                |stream                  |mode         |
+									                |CatchMode               |mode         |
 									                |<   |<1  |<2  |<*  |<?  |<<  |<>  |<+ |
 									catchAllInOne   |0 1 |0 0 |0 0 |0 1 |0 0 |0 1 |0 1 |0 1|
 									catchSeparate   |0 0 |0 0 |0 0 |0 0 |1 1 |0 0 |0 0 |0 0|
@@ -1479,6 +1480,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 												lstrcpy(pTempFileNameOut,pTempFileNameErr);
 												allOK = TRUE;
 
+												SaveRunDir=getCurrDir(true); // save real CurDir
 												wchar_t* CurDir=getCurrDir(false); // get Far CurDir.
 												if (CurDir)
 												{
@@ -1549,8 +1551,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 
 										TThreadData *td = nullptr;
 
-										//if (ShowCmdOutput == scoShow)
-										//	hScreen = Info.SaveScreen(0, 0, -1, -1);
+										//if (ShowCmdOutput == scoHide) hScreen = Info.SaveScreen(0, 0, -1, -1);
 
 										if (ShowCmdOutput)
 											Info.PanelControl(INVALID_HANDLE_VALUE, FCTL_GETUSERSCREEN,0,0);
@@ -1609,7 +1610,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 
 										ConsoleTitle consoleTitle(cmd);
 
-										wchar_t* CurDir=getCurrDir(runFile || tempDir?true:false);
+										wchar_t* CurDir=getCurrDir(/*runFile || tempDir?true:*/false);
 
 										BOOL Created=CreateProcess(NULL,(LPWSTR)fullcmd,NULL,NULL,TRUE,0,NULL,CurDir,&si,&pi);
 
@@ -1707,8 +1708,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 										}
 
 
-										//if (ShowCmdOutput == scoShow && hScreen != INVALID_HANDLE_VALUE)
-										//	Info.RestoreScreen(hScreen);
+										//if (ShowCmdOutput == scoHide && hScreen != INVALID_HANDLE_VALUE) Info.RestoreScreen(hScreen);
 
 									}
 
@@ -1727,6 +1727,12 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 
 									if (catchStdError && catchStdOutput && catchSeparate)
 										titleOut = GetMsg(MStdOut);
+								}
+
+								if (SaveRunDir)
+								{
+									SetCurrentDirectory(SaveRunDir);
+									delete[] SaveRunDir;
 								}
 
 							} // </Start process>
