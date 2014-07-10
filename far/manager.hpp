@@ -207,4 +207,5 @@ private:
 
 	std::list<std::unique_ptr<MessageAbstract>> m_Queue;
 	void PushFrame(Frame* Param,void(Manager::*Callback)(Frame*));
+	void ProcessFrameByPos(int Index,void(Manager::*Callback)(Frame*));
 };

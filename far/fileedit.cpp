@@ -532,10 +532,15 @@ void FileEditor::Init(
 						break;
 					case 2:         // Reload
 					{
-						Global->FrameManager->DeleteFrame(FramePos);
-						Frame *deleted_frame = Global->FrameManager->GetFrame(FramePos);
-						if ( deleted_frame )
-							deleted_frame->SetFlags(FFILEEDIT_DISABLESAVEPOS);
+						//файл могли уже закрыть. например макросом в диалоговой процедуре предыдущего Message.
+						FramePos = Global->FrameManager->FindFrameByFile(MODALTYPE_EDITOR, strFullFileName);
+						if (-1!=FramePos)
+						{
+							Global->FrameManager->DeleteFrame(FramePos);
+							Frame *deleted_frame = Global->FrameManager->GetFrame(FramePos);
+							if ( deleted_frame )
+								deleted_frame->SetFlags(FFILEEDIT_DISABLESAVEPOS);
+						}
 						SetExitCode(XC_RELOAD); // -2 ???
 						break;
 					}
@@ -560,7 +565,12 @@ void FileEditor::Init(
 
 			if (SwitchTo)
 			{
-				Global->FrameManager->ActivateFrame(FramePos);
+				//файл могли уже закрыть. например макросом в диалоговой процедуре предыдущего Message.
+				FramePos = Global->FrameManager->FindFrameByFile(MODALTYPE_EDITOR, strFullFileName);
+				if (-1!=FramePos)
+				{
+					Global->FrameManager->ActivateFrame(FramePos);
+				}
 				return ;
 			}
 		}

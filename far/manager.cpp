@@ -147,6 +147,13 @@ void Manager::PushFrame(Frame* Param,void(Manager::*Callback)(Frame*))
 	m_Queue.push_back(std::make_unique<MessageOneFrame>(Param,[this,Callback](Frame* Param){(this->*Callback)(Param);}));
 }
 
+void Manager::ProcessFrameByPos(int Index,void(Manager::*Callback)(Frame*))
+{
+	Frame* frame=GetFrame(Index);
+	assert(frame); //eсли frame==nullptr -> используется устаревший индекс.
+	(this->*Callback)(frame);
+}
+
 void Manager::CallbackFrame(const std::function<void(void)>& Callback)
 {
 	m_Queue.push_back(std::make_unique<MessageCallback>(Callback));
@@ -175,7 +182,7 @@ void Manager::DeleteFrame(int Index)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::DeleteFrame(int Index)"));
 	_MANAGER(SysLog(L"Index=%i",Index));
-	DeleteFrame(GetFrame(Index));
+	ProcessFrameByPos(Index,&Manager::DeleteFrame);
 }
 
 
@@ -405,7 +412,7 @@ void Manager::ActivateFrame(int Index)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::ActivateFrame(int Index)"));
 	_MANAGER(SysLog(L"Index=%i",Index));
-	ActivateFrame(GetFrame(Index));
+	ProcessFrameByPos(Index,&Manager::ActivateFrame);
 }
 
 void Manager::DeactivateFrame(Frame *Deactivated,int Direction)
@@ -455,7 +462,7 @@ void Manager::RefreshFrame(int Index)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::RefreshFrame(int Index)"));
 	_MANAGER(SysLog(L"Index=%d",Index));
-	RefreshFrame(GetFrame(Index));
+	ProcessFrameByPos(Index,&Manager::RefreshFrame);
 }
 
 void Manager::ExecuteFrame(Frame *Executed)
@@ -1262,7 +1269,7 @@ void Manager::ActivateCommit(Frame* Param)
 
 void Manager::ActivateCommit(int Index)
 {
-	ActivateCommit(GetFrame(Index));
+	ProcessFrameByPos(Index,&Manager::ActivateCommit);
 }
 
 void Manager::RefreshCommit(Frame* Param)
