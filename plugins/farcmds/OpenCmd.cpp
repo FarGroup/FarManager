@@ -846,23 +846,19 @@ wchar_t* __proc_WhereIs(int outputtofile,wchar_t *pCmd)
 			int    PathLength=GetEnvironmentVariable(L"PATH", Path, 0);
 
 			wchar_t *PathExt = nullptr;
-			int PathExtLength=0;
-			if (Opt.SubstExt)
+			int PathExtLength=GetEnvironmentVariable(L"PATHEXT", PathExt, 0);
+			PathExt=new wchar_t[PathExtLength+1];
+			if (PathExt)
 			{
-				PathExtLength=GetEnvironmentVariable(L"PATHEXT", PathExt, 0);
-				PathExt=new wchar_t[PathExtLength+1];
-				if (PathExt)
+				GetEnvironmentVariable(L"PATHEXT", PathExt, PathExtLength);
+				wchar_t *pPathExt=PathExt;
+				while(*pPathExt)
 				{
-					GetEnvironmentVariable(L"PATHEXT", PathExt, PathExtLength);
-					wchar_t *pPathExt=PathExt;
-					while(*pPathExt)
-					{
-						if (*pPathExt == L';')
-							*pPathExt=0;
-						pPathExt++;
-					}
-					PathExt[PathExtLength]=0;
+					if (*pPathExt == L';')
+						*pPathExt=0;
+					pPathExt++;
 				}
+				PathExt[PathExtLength]=0;
 			}
 
 			wchar_t *AllPath=new wchar_t[CurDirLength+FARHOMELength+PathLength+8];
@@ -886,7 +882,7 @@ wchar_t* __proc_WhereIs(int outputtofile,wchar_t *pCmd)
 
 				wchar_t *pPathExt=PathExt;
 				wchar_t *ptempFind=nullptr;
-				wchar_t *tempFind=Opt.SubstExt?new wchar_t[lstrlen(temp)+(pPathExt?PathExtLength:0)+1]:nullptr;
+				wchar_t *tempFind=new wchar_t[lstrlen(temp)+(pPathExt?PathExtLength:0)+1];
 
 				if (tempFind)
 				{
@@ -941,7 +937,7 @@ wchar_t* __proc_WhereIs(int outputtofile,wchar_t *pCmd)
 
 				wchar_t *pPathExt=PathExt;
 				wchar_t *ptempFind=nullptr;
-				wchar_t *tempFind=Opt.SubstExt?new wchar_t[lstrlen(Ptr)+(pPathExt?PathExtLength:0)+1]:nullptr;
+				wchar_t *tempFind=new wchar_t[lstrlen(Ptr)+(pPathExt?PathExtLength:0)+1];
 
 				if (tempFind)
 				{
@@ -1449,7 +1445,6 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 							}
 							else // <Start process>
 							{
-								wchar_t *SaveRunDir=nullptr;
 								// разделение потоков
 								int catchStdOutput = CatchMode != cmtStdErr;
 								int catchStdError  = CatchMode != cmtStdOut;
@@ -1471,23 +1466,25 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 									if (runFile && *runFile)
 									{
 										FSF.Unquote(runFile);
-										pTempFileNameErr=ExpandEnv(runFile,nullptr);
-										if (pTempFileNameErr)
-										{
-											pTempFileNameOut=new wchar_t[lstrlen(pTempFileNameErr)+1];
-											if (pTempFileNameOut)
-											{
-												lstrcpy(pTempFileNameOut,pTempFileNameErr);
-												allOK = TRUE;
 
-												SaveRunDir=getCurrDir(true); // save real CurDir
-												wchar_t* CurDir=getCurrDir(false); // get Far CurDir.
-												if (CurDir)
+										wchar_t *pTempFileNameErrExp=ExpandEnv(runFile,nullptr);
+										if (pTempFileNameErrExp)
+										{
+											size_t sizeRunFile=FSF.ConvertPath(CPM_FULL,pTempFileNameErrExp,nullptr,0);
+
+											pTempFileNameErr=new wchar_t[sizeRunFile+1];
+											if (pTempFileNameErr)
+											{
+												FSF.ConvertPath(CPM_FULL,pTempFileNameErrExp,pTempFileNameErr,sizeRunFile);
+
+												pTempFileNameOut=new wchar_t[lstrlen(pTempFileNameErr)+1];
+												if (pTempFileNameOut)
 												{
-													SetCurrentDirectory(CurDir); // set real CurDir.
-													delete[] CurDir;
+													lstrcpy(pTempFileNameOut,pTempFileNameErr);
+													allOK = TRUE;
 												}
 											}
+											delete[] pTempFileNameErrExp;
 										}
 									}
 								}
@@ -1610,7 +1607,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 
 										ConsoleTitle consoleTitle(cmd);
 
-										wchar_t* CurDir=getCurrDir(/*runFile || tempDir?true:*/false);
+										wchar_t* CurDir=getCurrDir(tempDir?true:false);
 
 										BOOL Created=CreateProcess(NULL,(LPWSTR)fullcmd,NULL,NULL,TRUE,0,NULL,CurDir,&si,&pi);
 
@@ -1727,12 +1724,6 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 
 									if (catchStdError && catchStdOutput && catchSeparate)
 										titleOut = GetMsg(MStdOut);
-								}
-
-								if (SaveRunDir)
-								{
-									SetCurrentDirectory(SaveRunDir);
-									delete[] SaveRunDir;
 								}
 
 							} // </Start process>

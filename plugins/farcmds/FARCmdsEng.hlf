@@ -231,8 +231,7 @@ successful.
    8. Contents of the registry key:
       #HKLM\Software\Microsoft\Windows\CurrentVersion\App Paths#
 
-   Если в настройках включена опция "Подстановка расширений", то плагин
-пытается найти файловый объект сначала как указано, а затем производит
+   Плагин пытается найти файловый объект сначала как указано, а затем производит
 поиск объекта с расширениями из списка переменной среды PATHEXT.
 
    When panels are turned off, the cursor is not positioned on the requested object,
@@ -379,9 +378,6 @@ $^#Configuring FAR Commands#
 
    #Edit new files#              Allows to open the editor with non
                                existing files.
-
-   #Подстановка расширений#      ^<wrap>Во время поиска (для команды whereis или исполняемого файла)
-плагин пытается найти файловый объект, перебирая расширения из списка переменной среды PATHEXT.
 
    #The size of read data#       ^<wrap>Позволяет задавать максимальный размер
 считываемых из файла данных в командах ~clip~@clip@, ~goto~@goto@ и ~whereis~@whereis@.

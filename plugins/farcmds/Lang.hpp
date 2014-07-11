@@ -15,7 +15,6 @@ enum
 	MViewZeroFiles,
 
 	MEditNewFiles,
-	MSubstExt,
 
 	MMaxDataSize,
 	MStdOut,

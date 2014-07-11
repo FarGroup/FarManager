@@ -38,7 +38,6 @@ struct OptionsName OptName={
 	L"EditNewFiles",
 	L"MaxDataSize",
 	L"Separator",
-	L"SubstExt",
 };
 
 struct PluginStartupInfo Info;
@@ -68,7 +67,6 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *psInfo)
 	Opt.CatchMode=settings.Get(0,OptName.CatchMode,0);
 	Opt.ViewZeroFiles=settings.Get(0,OptName.ViewZeroFiles,1);
 	Opt.EditNewFiles=settings.Get(0,OptName.EditNewFiles,1);
-	Opt.SubstExt=settings.Get(0,OptName.SubstExt,1);
 	Opt.MaxDataSize=settings.Get(0,OptName.MaxDataSize,1048576);
 }
 
@@ -194,13 +192,12 @@ intptr_t WINAPI ConfigureW(const ConfigureInfo* CfgInfo)
 	Builder.AddSeparator();
 
 	const int CatchIDs[] = {MCatchAllInOne, MCatchStdOutput, MCatchStdError, MCatchSeparate};
-	Builder.AddRadioButtons(&Opt.CatchMode, 4, CatchIDs);
+	Builder.AddRadioButtons(&Opt.CatchMode, ARRAYSIZE(CatchIDs), CatchIDs);
 	Builder.AddCheckbox(MViewZeroFiles, &Opt.ViewZeroFiles);
 
 	Builder.AddSeparator();
 
 	Builder.AddCheckbox(MEditNewFiles, &Opt.EditNewFiles);
-	Builder.AddCheckbox(MSubstExt, &Opt.SubstExt);
 
 	Builder.AddSeparator();
 
@@ -216,7 +213,6 @@ intptr_t WINAPI ConfigureW(const ConfigureInfo* CfgInfo)
 		settings.Set(0,OptName.CatchMode,Opt.CatchMode);
 		settings.Set(0,OptName.ViewZeroFiles,Opt.ViewZeroFiles);
 		settings.Set(0,OptName.EditNewFiles,Opt.EditNewFiles);
-		settings.Set(0,OptName.SubstExt,Opt.SubstExt);
 		if (!Opt.MaxDataSize)
 			Opt.MaxDataSize=1048576;
 		if (Opt.MaxDataSize > 0xFFFFFFFFU)
