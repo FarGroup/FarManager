@@ -46,11 +46,11 @@ class Dialog;
 
 ENUM(SEARCHER_RESULT);
 
-class ViewerBase:public ScreenObject
+class Viewer:public ScreenObject
 {
 public:
-	ViewerBase(bool bQuickView = false, uintptr_t aCodePage = CP_DEFAULT);
-	virtual ~ViewerBase();
+	Viewer(bool bQuickView = false, uintptr_t aCodePage = CP_DEFAULT);
+	virtual ~Viewer();
 
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
@@ -141,7 +141,6 @@ private:
 	static uintptr_t GetDefaultCodePage();
 
 protected:
-	virtual void OnRead(void) {}
 	void ReadEvent(void);
 	void CloseEvent(void);
 
@@ -261,13 +260,4 @@ private:
 	int dump_text_mode;
 
 	std::vector<wchar_t> ReadBuffer;
-};
-
-class Viewer:public ViewerBase
-{
-	public:
-		Viewer(bool bQuickView = false, uintptr_t aCodePage = CP_DEFAULT);
-		virtual ~Viewer();
-	protected:
-		virtual void OnRead(void) override;
 };

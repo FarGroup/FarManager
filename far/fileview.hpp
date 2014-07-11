@@ -82,13 +82,15 @@ class FileViewer:public Frame
 	__int64 GetViewFilePos() const;
 	void ShowStatus();
 	int GetId() const { return View.ViewerID; }
+	void OnReload(void);
+	void ReadEvent(void);
 
 
 private:
 	virtual void Show() override;
 	virtual void DisplayObject() override;
 
-	ViewerBase View;
+	Viewer View;
 	int RedrawTitle;
 	KeyBar ViewKeyBar;
 	bool F3KeyOnly;

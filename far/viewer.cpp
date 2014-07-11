@@ -97,7 +97,7 @@ static bool IsCodePageSupported(uintptr_t cp)
 }
 
 // seems like this initialization list is toooooo long
-ViewerBase::ViewerBase(bool bQuickView, uintptr_t aCodePage):
+Viewer::Viewer(bool bQuickView, uintptr_t aCodePage):
 	ViOpt(Global->Opt->ViOpt),
 	Signature(),
 	ViewKeyBar(),
@@ -162,7 +162,7 @@ ViewerBase::ViewerBase(bool bQuickView, uintptr_t aCodePage):
 	dump_text_mode(-1),
 	ReadBuffer(MAX_VIEWLINEB)
 {
-	_OT(SysLog(L"[%p] ViewerBase::ViewerBase()", this));
+	_OT(SysLog(L"[%p] Viewer::Viewer()", this));
 
 	if (DefCodePage != CP_DEFAULT)
 		MB.SetCP(DefCodePage);
@@ -175,7 +175,7 @@ ViewerBase::ViewerBase(bool bQuickView, uintptr_t aCodePage):
 	Global->CtrlObject->Plugins->SetCurViewer(this);
 }
 
-ViewerBase::~ViewerBase()
+Viewer::~Viewer()
 {
 	KeepInitParameters();
 
@@ -185,7 +185,7 @@ ViewerBase::~ViewerBase()
 		SavePosition();
 	}
 
-	_tran(SysLog(L"[%p] ViewerBase::~ViewerBase, TempViewName=[%s]",this,TempViewName));
+	_tran(SysLog(L"[%p] Viewer::~Viewer, TempViewName=[%s]",this,TempViewName));
 	/* $ 11.10.2001 IS
 	   Удаляем файл только, если нет открытых фреймов с таким именем.
 	*/
@@ -205,11 +205,13 @@ ViewerBase::~ViewerBase()
 		}
 	}
 
+	if (!HostFileViewer) CloseEvent();
+
 	if (this == Global->CtrlObject->Plugins->GetCurViewer())
 		Global->CtrlObject->Plugins->SetCurViewer(nullptr);
 }
 
-struct ViewerBase::ViewerUndoData
+struct Viewer::ViewerUndoData
 {
 	ViewerUndoData(__int64 UndoAddr, __int64 UndoLeft):
 		UndoAddr(UndoAddr),
@@ -220,7 +222,7 @@ struct ViewerBase::ViewerUndoData
 	__int64 UndoLeft;
 };
 
-void ViewerBase::SavePosition()
+void Viewer::SavePosition()
 {
 	if (Global->Opt->ViOpt.SaveShortPos || Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SaveWrapMode)
 	{
@@ -237,7 +239,7 @@ void ViewerBase::SavePosition()
 	}
 }
 
-void ViewerBase::KeepInitParameters() const
+void Viewer::KeepInitParameters() const
 {
 	Global->strGlobalSearchString = strLastSearchStr;
 	Global->GlobalSearchCase=LastSearchCase;
@@ -249,7 +251,7 @@ void ViewerBase::KeepInitParameters() const
 	Global->Opt->ViOpt.SearchRegexp=LastSearchRegexp;
 }
 
-int ViewerBase::OpenFile(const string& Name,int warning)
+int Viewer::OpenFile(const string& Name,int warning)
 {
 	VM.CodePage=DefCodePage;
 	DefCodePage=CP_DEFAULT;
@@ -404,7 +406,7 @@ int ViewerBase::OpenFile(const string& Name,int warning)
 	ChangeViewKeyBar();
 	AdjustWidth();
 	Global->CtrlObject->Plugins->SetCurViewer(this); // HostFileViewer;
-	OnRead();
+	if (!HostFileViewer) ReadEvent();
 
 	last_update_check = GetTickCount();
 	string strRoot;
@@ -424,7 +426,7 @@ int ViewerBase::OpenFile(const string& Name,int warning)
 	return TRUE;
 }
 
-bool ViewerBase::isBinaryFile(uintptr_t cp) // very approximate: looks for 0x00,0x00 in first 2048 bytes
+bool Viewer::isBinaryFile(uintptr_t cp) // very approximate: looks for 0x00,0x00 in first 2048 bytes
 {
 	unsigned char bf[2048+1]; // not fit to any device sector size
 	DWORD nb = static_cast<DWORD>(sizeof(bf)), nr = 0;
@@ -453,7 +455,7 @@ bool ViewerBase::isBinaryFile(uintptr_t cp) // very approximate: looks for 0x00,
 	return false;
 }
 
-void ViewerBase::AdjustWidth()
+void Viewer::AdjustWidth()
 {
 	Width=X2-X1+1;
 	XX2=X2;
@@ -465,7 +467,7 @@ void ViewerBase::AdjustWidth()
 	}
 }
 
-void ViewerBase::ShowPage(int nMode)
+void Viewer::ShowPage(int nMode)
 {
 	AdjustWidth();
 
@@ -630,13 +632,13 @@ void ViewerBase::ShowPage(int nMode)
 	ShowStatus();
 }
 
-void ViewerBase::DisplayObject()
+void Viewer::DisplayObject()
 {
 	ShowPage(VM.Hex ? (VM.Hex > 1 ? SHOW_DUMP : SHOW_HEX) : SHOW_RELOAD);
 }
 
 
-int ViewerBase::getCharSize() const
+int Viewer::getCharSize() const
 {
 	if (CP_UTF8 == VM.CodePage)
 		return -1;
@@ -654,7 +656,7 @@ static inline int getChSize( UINT cp )
 		return +1;
 }
 
-int ViewerBase::txt_dump(const unsigned char *line, DWORD nr, int width, wchar_t *outstr, wchar_t zch, int tail) const
+int Viewer::txt_dump(const unsigned char *line, DWORD nr, int width, wchar_t *outstr, wchar_t zch, int tail) const
 {
 	int ib, iw;
 	std::vector<wchar_t> w1(width);
@@ -745,7 +747,7 @@ int ViewerBase::txt_dump(const unsigned char *line, DWORD nr, int width, wchar_t
 }
 
 
-void ViewerBase::ShowDump()
+void Viewer::ShowDump()
 {
 	int Y, EndFile = 0, ch_size = getChSize(VM.CodePage);
 	int tail = 0, xl = VM.CodePage == CP_UTF8 ? 4-1 : (VM.CodePage==MB.current_cp ? MB.current_mb-1 : 0);
@@ -792,7 +794,7 @@ void ViewerBase::ShowDump()
 	}
 }
 
-void ViewerBase::ShowHex()
+void Viewer::ShowHex()
 {
 	wchar_t OutStr[128],TextStr[20];
 	int EndFile;
@@ -981,7 +983,7 @@ void ViewerBase::ShowHex()
 /* $ 27.04.2001 DJ
    отрисовка скроллбара - в отдельную функцию
 */
-void ViewerBase::DrawScrollbar()
+void Viewer::DrawScrollbar()
 {
 	if (ViOpt.ShowScrollbar)
 	{
@@ -1015,7 +1017,7 @@ void ViewerBase::DrawScrollbar()
 }
 
 
-const string& ViewerBase::GetTitle(string &strName)
+const string& Viewer::GetTitle(string &strName)
 {
 	if (!strTitle.empty())
 	{
@@ -1029,14 +1031,14 @@ const string& ViewerBase::GetTitle(string &strName)
 	return strName;
 }
 
-void ViewerBase::ShowStatus()
+void Viewer::ShowStatus()
 {
 	if (HostFileViewer)
 		HostFileViewer->ShowStatus();
 }
 
 
-void ViewerBase::SetStatusMode(int Mode)
+void Viewer::SetStatusMode(int Mode)
 {
 	ShowStatusLine=Mode;
 }
@@ -1055,7 +1057,7 @@ static inline bool wrapped_char(const wchar_t ch)
 	return IsSpaceOrEos(ch) || std::find(ALL_CONST_RANGE(wrapped_chars), ch) != std::cend(wrapped_chars);
 }
 
-void ViewerBase::ReadString( ViewerString *pString, int MaxSize, bool update_cache )
+void Viewer::ReadString( ViewerString *pString, int MaxSize, bool update_cache )
 {
 	AdjustWidth();
 
@@ -1231,7 +1233,7 @@ void ViewerBase::ReadString( ViewerString *pString, int MaxSize, bool update_cac
 }
 
 
-__int64 ViewerBase::EndOfScreen( int line )
+__int64 Viewer::EndOfScreen( int line )
 {
 	__int64 pos;
 
@@ -1274,7 +1276,7 @@ __int64 ViewerBase::EndOfScreen( int line )
 }
 
 
-__int64 ViewerBase::BegOfScreen()
+__int64 Viewer::BegOfScreen()
 {
 	__int64 pos = FilePos;
 
@@ -1310,7 +1312,7 @@ __int64 ViewerBase::BegOfScreen()
 }
 
 
-__int64 ViewerBase::VMProcess(int OpCode,void *vParam,__int64 iParam)
+__int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
 	switch (OpCode)
 	{
@@ -1343,7 +1345,7 @@ __int64 ViewerBase::VMProcess(int OpCode,void *vParam,__int64 iParam)
 	return 0;
 }
 
-int ViewerBase::ProcessKey(const Manager::Key& Key)
+int Viewer::ProcessKey(const Manager::Key& Key)
 {
 	int LocalKey=Key.FarKey;
 	if ( !ViOpt.PersistentBlocks &&
@@ -1529,6 +1531,7 @@ int ViewerBase::ProcessKey(const Manager::Key& Key)
 					{
 						SecondPos=0;
 						Show();
+						if (HostFileViewer) HostFileViewer->OnReload();
 					}
 
 					ShowConsoleTitle();
@@ -1936,7 +1939,7 @@ int ViewerBase::ProcessKey(const Manager::Key& Key)
 	return FALSE;
 }
 
-int ViewerBase::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
+int Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if (!(MouseEvent->dwButtonState & 3))
 		return FALSE;
@@ -2035,7 +2038,7 @@ int ViewerBase::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 }
 
 
-void ViewerBase::CacheLine( __int64 start, int length, bool have_eol )
+void Viewer::CacheLine( __int64 start, int length, bool have_eol )
 {
 	assert(start >= 0 && length >= 0);
 	if (!length) // empty lines beyond EOF
@@ -2115,7 +2118,7 @@ void ViewerBase::CacheLine( __int64 start, int length, bool have_eol )
 	}
 }
 
-int ViewerBase::CacheFindUp( __int64 start )
+int Viewer::CacheFindUp( __int64 start )
 {
 	if ( lcache_ready
 		&& (lcache_wrap != VM.Wrap || lcache_wwrap != VM.WordWrap || lcache_width != Width)
@@ -2140,7 +2143,7 @@ int ViewerBase::CacheFindUp( __int64 start )
 	}
 }
 
-void ViewerBase::Up( int nlines, bool adjust )
+void Viewer::Up( int nlines, bool adjust )
 {
 	assert( nlines > 0 );
 
@@ -2309,7 +2312,7 @@ void ViewerBase::Up( int nlines, bool adjust )
 	}
 }
 
-int ViewerBase::GetStrBytesNum( const wchar_t *Str, int Length )
+int Viewer::GetStrBytesNum( const wchar_t *Str, int Length )
 {
 	int ch_size = getCharSize();
 	if (ch_size > 0)
@@ -2318,13 +2321,13 @@ int ViewerBase::GetStrBytesNum( const wchar_t *Str, int Length )
 		return WideCharToMultiByte(VM.CodePage,0, Str,Length, nullptr,0, nullptr,nullptr);
 }
 
-void ViewerBase::SetViewKeyBar(KeyBar *ViewKeyBar)
+void Viewer::SetViewKeyBar(KeyBar *ViewKeyBar)
 {
-	ViewerBase::ViewKeyBar=ViewKeyBar;
+	Viewer::ViewKeyBar=ViewKeyBar;
 	ChangeViewKeyBar();
 }
 
-void ViewerBase::ChangeViewKeyBar()
+void Viewer::ChangeViewKeyBar()
 {
 	if (ViewKeyBar)
 	{
@@ -2371,13 +2374,13 @@ enum
 
 struct MyDialogData
 {
-	ViewerBase* viewer;
+	Viewer* viewer;
 	bool edit_autofocus;
 	bool hex_mode;
 	bool recursive;
 };
 
-intptr_t ViewerBase::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
+intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	switch (Msg)
 	{
@@ -2645,7 +2648,7 @@ static int hex2ss(const wchar_t *from, char *c1, int mb, intptr_t *pos = 0)
 	return nb;
 }
 
-void ViewerBase::SearchTextTransform(string &to, const wchar_t *from, bool hex2text, intptr_t &pos)
+void Viewer::SearchTextTransform(string &to, const wchar_t *from, bool hex2text, intptr_t &pos)
 {
 	int nb;
 	char c1[128];
@@ -2717,7 +2720,7 @@ void ViewerBase::SearchTextTransform(string &to, const wchar_t *from, bool hex2t
 	}
 }
 
-struct ViewerBase::search_data
+struct Viewer::search_data
 {
 	INT64 CurPos;
 	INT64 MatchPos;
@@ -2766,7 +2769,7 @@ ENUM(SEARCH_WRAP_MODE)
 	SearchWrap_CYCLE = 2,
 };
 
-SEARCHER_RESULT ViewerBase::search_hex_forward( search_data* sd )
+SEARCHER_RESULT Viewer::search_hex_forward( search_data* sd )
 {
 	char *buff = (char *)Search_buffer.data();
 	const char *search_str = sd->search_bytes;
@@ -2833,7 +2836,7 @@ SEARCHER_RESULT ViewerBase::search_hex_forward( search_data* sd )
 		return Search_Continue;
 }
 
-SEARCHER_RESULT ViewerBase::search_hex_backward( search_data* sd )
+SEARCHER_RESULT Viewer::search_hex_backward( search_data* sd )
 {
 	char *buff = (char *)Search_buffer.data();
 	const char *search_str = sd->search_bytes;
@@ -2899,7 +2902,7 @@ SEARCHER_RESULT ViewerBase::search_hex_backward( search_data* sd )
 		return Search_Continue;
 }
 
-SEARCHER_RESULT ViewerBase::search_text_forward( search_data* sd )
+SEARCHER_RESULT Viewer::search_text_forward( search_data* sd )
 {
 	int bsize = 8192, slen = sd->search_len, ww = (LastSearchWholeWords ? 1 : 0);
 	wchar_t prev_char = L'\0', *buff = Search_buffer.data(), *t_buff = (sd->ch_size < 0 ? buff + bsize : nullptr);
@@ -2982,7 +2985,7 @@ SEARCHER_RESULT ViewerBase::search_text_forward( search_data* sd )
 	return Search_Continue;
 }
 
-SEARCHER_RESULT ViewerBase::search_text_backward( search_data* sd )
+SEARCHER_RESULT Viewer::search_text_backward( search_data* sd )
 {
 	int bsize = 8192, slen = sd->search_len, ww = (LastSearchWholeWords ? 1 : 0);
 	wchar_t *buff = Search_buffer.data(), *t_buff = (sd->ch_size < 0 ? buff + bsize : nullptr);
@@ -3061,7 +3064,7 @@ SEARCHER_RESULT ViewerBase::search_text_backward( search_data* sd )
 	return ret;
 }
 
-int ViewerBase::read_line(wchar_t *buf, wchar_t *tbuf, INT64 cpos, int adjust, INT64 &lpos, int &lsize)
+int Viewer::read_line(wchar_t *buf, wchar_t *tbuf, INT64 cpos, int adjust, INT64 &lpos, int &lsize)
 {
 	int llen = 0;
 
@@ -3093,7 +3096,7 @@ int ViewerBase::read_line(wchar_t *buf, wchar_t *tbuf, INT64 cpos, int adjust, I
 	return llen;
 }
 
-SEARCHER_RESULT ViewerBase::search_regex_forward( search_data* sd )
+SEARCHER_RESULT Viewer::search_regex_forward( search_data* sd )
 {
 	assert(sd->pRex);
 	assert(Search_buffer.size() >= static_cast<size_t>(2*MAX_VIEWLINEB));
@@ -3157,7 +3160,7 @@ SEARCHER_RESULT ViewerBase::search_regex_forward( search_data* sd )
 	}
 }
 
-SEARCHER_RESULT ViewerBase::search_regex_backward( search_data* sd )
+SEARCHER_RESULT Viewer::search_regex_backward( search_data* sd )
 {
 	assert(sd->pRex);
 	assert(Search_buffer.size() >= static_cast<size_t>(2*MAX_VIEWLINEB));
@@ -3216,7 +3219,7 @@ SEARCHER_RESULT ViewerBase::search_regex_backward( search_data* sd )
  1 - Продолжить поиск со следующей позиции
 -1 - Продолжить поиск со следующей позиции в противоположном направлении
 */
-void ViewerBase::Search(int Next,int FirstChar)
+void Viewer::Search(int Next,int FirstChar)
 {
 	if (!ViewFile.Opened() || (Next && strLastSearchStr.empty()))
 		return;
@@ -3235,7 +3238,7 @@ void ViewerBase::Search(int Next,int FirstChar)
 		strSearchStr = strLastSearchStr;
 
 	search_data sd;
-	SEARCHER_RESULT (ViewerBase::* searcher)( ViewerBase::search_data *p_sd ) = nullptr;
+	SEARCHER_RESULT (Viewer::* searcher)( Viewer::search_data *p_sd ) = nullptr;
 
 	if ( !Next )
 	{
@@ -3284,7 +3287,7 @@ void ViewerBase::Search(int Next,int FirstChar)
 		//
 		SearchDlg[SD_EDIT_TEXT].UserData = (intptr_t)&my;
 
-		Dialog Dlg(SearchDlg, this, &ViewerBase::ViewerSearchDlgProc);
+		Dialog Dlg(SearchDlg, this, &Viewer::ViewerSearchDlgProc);
 		Dlg.SetPosition(-1,-1,76,13);
 		Dlg.SetHelp(L"ViewerSearch");
 
@@ -3340,7 +3343,7 @@ void ViewerBase::Search(int Next,int FirstChar)
 		sd.ch_size = 1;
 		Case = true;
 		WholeWords = SearchRegexp = false;
-		searcher = (ReverseSearch ? &ViewerBase::search_hex_backward : &ViewerBase::search_hex_forward);
+		searcher = (ReverseSearch ? &Viewer::search_hex_backward : &Viewer::search_hex_forward);
 	}
 	else
 	{
@@ -3350,7 +3353,7 @@ void ViewerBase::Search(int Next,int FirstChar)
 		if ( SearchRegexp )
 		{
 			WholeWords = false;
-			searcher = (ReverseSearch ? &ViewerBase::search_regex_backward : &ViewerBase::search_regex_forward);
+			searcher = (ReverseSearch ? &Viewer::search_regex_backward : &Viewer::search_regex_forward);
 			InsertRegexpQuote(strMsgStr);
 			string strSlash = strSearchStr;
 			InsertRegexpQuote(strSlash);
@@ -3361,7 +3364,7 @@ void ViewerBase::Search(int Next,int FirstChar)
 		}
 		else
 		{
-			searcher = (ReverseSearch ? &ViewerBase::search_text_backward : &ViewerBase::search_text_forward);
+			searcher = (ReverseSearch ? &Viewer::search_text_backward : &Viewer::search_text_forward);
 			InsertQuote(strMsgStr);
 		}
 	}
@@ -3518,37 +3521,37 @@ void ViewerBase::Search(int Next,int FirstChar)
 }
 
 
-bool ViewerBase::GetWrapMode() const
+bool Viewer::GetWrapMode() const
 {
 	return VM.Wrap != 0;
 }
 
-void ViewerBase::SetWrapMode(bool Wrap)
+void Viewer::SetWrapMode(bool Wrap)
 {
-	ViewerBase::VM.Wrap=Wrap;
+	Viewer::VM.Wrap=Wrap;
 }
 
-void ViewerBase::EnableHideCursor(int HideCursor)
+void Viewer::EnableHideCursor(int HideCursor)
 {
-	ViewerBase::HideCursor=HideCursor;
+	Viewer::HideCursor=HideCursor;
 }
 
-bool ViewerBase::GetWrapType() const
+bool Viewer::GetWrapType() const
 {
 	return VM.WordWrap != 0;
 }
 
-void ViewerBase::SetWrapType(bool TypeWrap)
+void Viewer::SetWrapType(bool TypeWrap)
 {
-	ViewerBase::VM.WordWrap=TypeWrap;
+	Viewer::VM.WordWrap=TypeWrap;
 }
 
-void ViewerBase::GetFileName(string &strName) const
+void Viewer::GetFileName(string &strName) const
 {
 	strName = strFullFileName;
 }
 
-void ViewerBase::ShowConsoleTitle()
+void Viewer::ShowConsoleTitle()
 {
 	string strViewerTitleFormat=Global->Opt->strViewerTitleFormat.Get();
 	ReplaceStrings(strViewerTitleFormat,L"%Lng",MSG(MInViewer),-1,true);
@@ -3556,7 +3559,7 @@ void ViewerBase::ShowConsoleTitle()
 	ConsoleTitle::SetFarTitle(strViewerTitleFormat);
 }
 
-void ViewerBase::SetTempViewName(const string& Name, BOOL DeleteFolder)
+void Viewer::SetTempViewName(const string& Name, BOOL DeleteFolder)
 {
 	if (!Name.empty())
 		ConvertNameToFull(Name,strTempViewName);
@@ -3566,10 +3569,10 @@ void ViewerBase::SetTempViewName(const string& Name, BOOL DeleteFolder)
 		DeleteFolder=FALSE;
 	}
 
-	ViewerBase::DeleteFolder=DeleteFolder;
+	Viewer::DeleteFolder=DeleteFolder;
 }
 
-void ViewerBase::SetTitle(const wchar_t *Title)
+void Viewer::SetTitle(const wchar_t *Title)
 {
 	if (!Title)
 		strTitle.clear();
@@ -3577,23 +3580,23 @@ void ViewerBase::SetTitle(const wchar_t *Title)
 		strTitle = Title;
 }
 
-void ViewerBase::SetFilePos(__int64 Pos)
+void Viewer::SetFilePos(__int64 Pos)
 {
 	FilePos=Pos;
 	AdjustFilePos();
 };
 
-void ViewerBase::SetPluginData(const wchar_t *PluginData)
+void Viewer::SetPluginData(const wchar_t *PluginData)
 {
-	ViewerBase::strPluginData = NullToEmpty(PluginData);
+	Viewer::strPluginData = NullToEmpty(PluginData);
 }
 
-void ViewerBase::SetNamesList(NamesList& List)
+void Viewer::SetNamesList(NamesList& List)
 {
 	ViewNamesList = std::move(List);
 }
 
-int ViewerBase::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
+int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 {
 	if (Count <= 0)
 		return 0;
@@ -3679,7 +3682,7 @@ int ViewerBase::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 	return (int)ReadSize;
 }
 
-bool ViewerBase::vseek(__int64 Offset, int Whence)
+bool Viewer::vseek(__int64 Offset, int Whence)
 {
 	if (FILE_CURRENT == Whence)
 	{
@@ -3697,7 +3700,7 @@ bool ViewerBase::vseek(__int64 Offset, int Whence)
 	return ViewFile.SetPointer(Offset, nullptr, Whence);
 }
 
-__int64 ViewerBase::vtell()
+__int64 Viewer::vtell()
 {
 	__int64 Ptr = ViewFile.GetPointer();
 
@@ -3707,7 +3710,7 @@ __int64 ViewerBase::vtell()
 	return Ptr;
 }
 
-bool ViewerBase::veof()
+bool Viewer::veof()
 {
 	if (vgetc_ready && vgetc_ib < vgetc_cb)
 		return false;
@@ -3715,7 +3718,7 @@ bool ViewerBase::veof()
 		return ViewFile.Eof();
 }
 
-bool ViewerBase::vgetc(wchar_t *pCh)
+bool Viewer::vgetc(wchar_t *pCh)
 {
 	if (!vgetc_ready)
 		vgetc_cb = vgetc_ib = (int)(vgetc_composite = 0);
@@ -3805,7 +3808,7 @@ bool ViewerBase::vgetc(wchar_t *pCh)
 	return true;
 }
 
-wchar_t ViewerBase::vgetc_prev()
+wchar_t Viewer::vgetc_prev()
 {
 	INT64 pos = vtell();
 	if ( pos <= 0 )
@@ -3872,7 +3875,7 @@ wchar_t ViewerBase::vgetc_prev()
 	return ch;
 }
 
-void ViewerBase::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
+void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 {
 	enum
 	{
@@ -3996,7 +3999,7 @@ void ViewerBase::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 		Show();
 }
 
-void ViewerBase::AdjustFilePos()
+void Viewer::AdjustFilePos()
 {
 	wchar_t ch;
 
@@ -4040,7 +4043,7 @@ void ViewerBase::AdjustFilePos()
 	}
 }
 
-void ViewerBase::SetFileSize()
+void Viewer::SetFileSize()
 {
 	if (!ViewFile.Opened())
 		return;
@@ -4051,7 +4054,7 @@ void ViewerBase::SetFileSize()
 }
 
 
-void ViewerBase::GetSelectedParam(__int64 &Pos, __int64 &Length, DWORD &Flags)
+void Viewer::GetSelectedParam(__int64 &Pos, __int64 &Length, DWORD &Flags)
 {
 	Pos=SelectPos;
 	Length=SelectSize;
@@ -4061,7 +4064,7 @@ void ViewerBase::GetSelectedParam(__int64 &Pos, __int64 &Length, DWORD &Flags)
 // Flags=0x01 - показывать [делать Show()]
 //       0x02 - "обратный поиск" ?
 //
-void ViewerBase::SelectText(const __int64 &match_pos,const __int64 &search_len, const DWORD flags)
+void Viewer::SelectText(const __int64 &match_pos,const __int64 &search_len, const DWORD flags)
 {
 	if (!ViewFile.Opened())
 		return;
@@ -4109,7 +4112,7 @@ void ViewerBase::SelectText(const __int64 &match_pos,const __int64 &search_len, 
 }
 
 
-int ViewerBase::ViewerControl(int Command, intptr_t Param1, void *Param2)
+int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 {
 	switch (Command)
 	{
@@ -4119,7 +4122,7 @@ int ViewerBase::ViewerControl(int Command, intptr_t Param1, void *Param2)
 			if (CheckStructSize(Info))
 			{
 				memset(&Info->ViewerID,0,Info->StructSize-sizeof(Info->StructSize));
-				Info->ViewerID=ViewerBase::ViewerID;
+				Info->ViewerID=Viewer::ViewerID;
 				Info->WindowSizeX=ObjWidth();
 				Info->WindowSizeY=Y2-Y1+1;
 				Info->FilePos=FilePos;
@@ -4303,12 +4306,12 @@ int ViewerBase::ViewerControl(int Command, intptr_t Param1, void *Param2)
 	return FALSE;
 }
 
-bool ViewerBase::isTemporary() const
+bool Viewer::isTemporary() const
 {
 	return !strTempViewName.empty();
 }
 
-int ViewerBase::ProcessHexMode(int newMode, bool isRedraw)
+int Viewer::ProcessHexMode(int newMode, bool isRedraw)
 {
 	int oldHex=VM.Hex;
 	VM.Hex=newMode % 3;
@@ -4325,7 +4328,7 @@ int ViewerBase::ProcessHexMode(int newMode, bool isRedraw)
 	return oldHex;
 }
 
-int ViewerBase::ProcessWrapMode(int newMode, bool isRedraw)
+int Viewer::ProcessWrapMode(int newMode, bool isRedraw)
 {
 	int oldWrap=VM.Wrap;
 	VM.Wrap=newMode&1;
@@ -4346,7 +4349,7 @@ int ViewerBase::ProcessWrapMode(int newMode, bool isRedraw)
 	return oldWrap;
 }
 
-int ViewerBase::ProcessTypeWrapMode(int newMode, bool isRedraw)
+int Viewer::ProcessTypeWrapMode(int newMode, bool isRedraw)
 {
 	int oldTypeWrap=VM.WordWrap;
 	VM.WordWrap=newMode&1;
@@ -4370,7 +4373,7 @@ int ViewerBase::ProcessTypeWrapMode(int newMode, bool isRedraw)
 	return oldTypeWrap;
 }
 
-uintptr_t ViewerBase::GetDefaultCodePage()
+uintptr_t Viewer::GetDefaultCodePage()
 {
 	intptr_t cp = Global->Opt->ViOpt.DefaultCodePage;
 	if (cp == CP_ACP)
@@ -4384,31 +4387,17 @@ uintptr_t ViewerBase::GetDefaultCodePage()
 	return cp;
 }
 
-void ViewerBase::ReadEvent(void)
+void Viewer::ReadEvent(void)
 {
 	Global->CtrlObject->Plugins->ProcessViewerEvent(VE_READ,nullptr,ViewerID);
 	bVE_READ_Sent = true;
 }
 
-void ViewerBase::CloseEvent(void)
+void Viewer::CloseEvent(void)
 {
 	if (!OpenFailed && bVE_READ_Sent)
 	{
 		bVE_READ_Sent=false;
 		Global->CtrlObject->Plugins->ProcessViewerEvent(VE_CLOSE,nullptr,ViewerID);;
 	}
-}
-
-Viewer::Viewer(bool bQuickView,uintptr_t aCodePage): ViewerBase(bQuickView,aCodePage)
-{
-}
-
-Viewer::~Viewer()
-{
-	CloseEvent();
-}
-
-void Viewer::OnRead(void)
-{
-	ReadEvent();
 }

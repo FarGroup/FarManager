@@ -173,7 +173,7 @@ void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 		if (Update) Global->FrameManager->DeleteFrame(Update);
 		Global->FrameManager->ExecuteFrame(this);
 	}
-	Global->FrameManager->CallbackFrame([this](){this->View.ReadEvent();});
+	ReadEvent();
 }
 
 
@@ -538,4 +538,14 @@ void FileViewer::OnChangeFocus(int focus)
 	Global->CtrlObject->Plugins->SetCurViewer(&View);
 	int FCurViewerID=View.ViewerID;
 	Global->CtrlObject->Plugins->ProcessViewerEvent(focus?VE_GOTFOCUS:VE_KILLFOCUS,nullptr,FCurViewerID);
+}
+
+void FileViewer::OnReload(void)
+{
+	ReadEvent();
+}
+
+void FileViewer::ReadEvent(void)
+{
+	Global->FrameManager->CallbackFrame([this](){this->View.ReadEvent();});
 }
