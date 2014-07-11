@@ -194,14 +194,14 @@ void Manager::ModalizeFrame(Frame *Modalized, int Mode)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::ModalizeFrame (Frame *Modalized, int Mode)"));
 	_MANAGER(SysLog(L"Modalized=%p",Modalized));
-	PushFrame(Modalized,&Manager::ModalizeCommit);
+	ModalizeCommit(Modalized);
 }
 
 void Manager::UnmodalizeFrame(Frame *Unmodalized)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::UnmodalizeFrame (Frame *Unmodalized)"));
 	_MANAGER(SysLog(L"Unmodalized=%p",Unmodalized));
-	PushFrame(Unmodalized,&Manager::UnmodalizeCommit);
+	UnmodalizeCommit(Unmodalized);
 }
 
 void Manager::ExecuteNonModal(Frame *NonModal)
