@@ -2094,23 +2094,23 @@ void Options::Load(std::vector<std::pair<string, string>>& Overridden)
 	string strDefaultLanguage = GetFarIniString(L"General", L"DefaultLanguage", L"English");
 	xwcsncpy(DefaultLanguage, strDefaultLanguage.data(), ARRAYSIZE(DefaultLanguage));
 
-	std::for_each(RANGE(Config, i)
+	FOR(auto& i, Config)
 	{
 		auto Cfg = i.GetConfig();
-		std::for_each(RANGE(i, j)
+		FOR(auto& j, i)
 		{
 			j.Value->ReceiveValue(Cfg, j.KeyName, j.ValName, &j.Default);
 
-			std::for_each(RANGE(Overridden, ovr)
+			FOR(const auto& ovr, Overridden)
 			{
 				auto DotPos = ovr.first.rfind(L'.');
-				if (!StrCmpNI(ovr.first.data(), j.KeyName, DotPos) && !StrCmpI(ovr.first.data() + DotPos + 1, j.ValName))
+				if (DotPos != string::npos && !StrCmpNI(ovr.first.data(), j.KeyName, DotPos) && !StrCmpI(ovr.first.data() + DotPos + 1, j.ValName))
 				{
 					j.Value->fromString(ovr.second);
 				}
-			});
-		});
-	});
+			}
+		}
+	}
 
 	/* <ПОСТПРОЦЕССЫ> *************************************************** */
 
@@ -2156,18 +2156,25 @@ void Options::Load(std::vector<std::pair<string, string>>& Overridden)
 
 	HelpTabSize = DefaultTabSize; // пока жестко пропишем...
 
+	static const struct
+	{
+		StringOption* ConfigPtr;
+		DWORD* RuntimePtr;
+		DWORD Default;
+	}
+	MacroControlKeys[] =
+	{
+		{ &Macro.strKeyMacroCtrlDot, &Macro.KeyMacroCtrlDot, KEY_CTRLDOT },
+		{ &Macro.strKeyMacroRCtrlDot, &Macro.KeyMacroRCtrlDot, KEY_RCTRLDOT },
+		{ &Macro.strKeyMacroCtrlShiftDot, &Macro.KeyMacroCtrlShiftDot, KEY_CTRLSHIFTDOT },
+		{ &Macro.strKeyMacroRCtrlShiftDot, &Macro.KeyMacroRCtrlShiftDot, KEY_RCTRL | KEY_SHIFT | KEY_DOT },
+	};
 
-	if ((Macro.KeyMacroCtrlDot=KeyNameToKey(Macro.strKeyMacroCtrlDot)) == static_cast<DWORD>(-1))
-		Macro.KeyMacroCtrlDot=KEY_CTRLDOT;
-
-	if ((Macro.KeyMacroRCtrlDot=KeyNameToKey(Macro.strKeyMacroRCtrlDot)) == static_cast<DWORD>(-1))
-		Macro.KeyMacroRCtrlDot=KEY_RCTRLDOT;
-
-	if ((Macro.KeyMacroCtrlShiftDot=KeyNameToKey(Macro.strKeyMacroCtrlShiftDot)) == static_cast<DWORD>(-1))
-		Macro.KeyMacroCtrlShiftDot=KEY_CTRLSHIFTDOT;
-
-	if ((Macro.KeyMacroRCtrlShiftDot=KeyNameToKey(Macro.strKeyMacroRCtrlShiftDot)) == static_cast<DWORD>(-1))
-		Macro.KeyMacroRCtrlShiftDot=KEY_RCTRL|KEY_SHIFT|KEY_DOT;
+	FOR(const auto& i, MacroControlKeys)
+	{
+		if ((*i.RuntimePtr = KeyNameToKey(*i.ConfigPtr)) == static_cast<DWORD>(-1))
+			*i.RuntimePtr = i.Default;
+	}
 
 	EdOpt.strWordDiv = strWordDiv;
 	ReadPanelModes();

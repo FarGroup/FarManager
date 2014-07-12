@@ -600,12 +600,9 @@ static int mainImpl(const range<wchar_t**>& Args)
 				case L'S':
 					if (!StrCmpNI(Arg + 1, L"set:", 4))
 					{
-						auto EqualPtr = wcschr(Arg + 1, L'=');
-						if (EqualPtr)
+						if (const auto EqualPtr = wcschr(Arg + 1, L'='))
 						{
-							string Name(Arg + 1 + 4, EqualPtr);
-							string Value(EqualPtr + 1);
-							Overridden.push_back(VALUE_TYPE(Overridden)(Name, Value));
+							Overridden.push_back(VALUE_TYPE(Overridden)(string(Arg + 1 + 4, EqualPtr), EqualPtr + 1));
 						}
 					}
 					else if (Iter + 1 != Args.end())
