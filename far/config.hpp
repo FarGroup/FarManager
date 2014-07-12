@@ -93,6 +93,7 @@ public:
 	virtual ~Option(){}
 
 	virtual const string toString() const = 0;
+	virtual void fromString(const string& value) = 0;
 	virtual const string ExInfo() const = 0;
 	virtual const string typeToString() const = 0;
 	virtual bool IsDefault(const struct FARConfigItem* Holder) const = 0;
@@ -132,6 +133,7 @@ public:
 	BoolOption(const BoolOption& Value):Option(Value.Get()){}
 
 	virtual const string toString() const override { return Get() ? L"true" : L"false"; }
+	virtual void fromString(const string& value) override;
 	virtual const string ExInfo() const override { return string(); }
 	virtual const string typeToString() const override { return L"boolean"; }
 	virtual bool IsDefault(const struct FARConfigItem* Holder) const override;
@@ -157,7 +159,8 @@ public:
 	Bool3Option(const int& Value):Option(Value % 3){}
 	Bool3Option(const Bool3Option& Value):Option(Value.Get() % 3){}
 
-	virtual const string toString() const override { int v = Get(); return v ? (v == 1 ? L"True" : L"Other") : L"False"; }
+	virtual const string toString() const override { int v = Get(); return v ? (v == 1 ? L"true" : L"other") : L"false"; }
+	virtual void fromString(const string& value) override;
 	virtual const string ExInfo() const override { return string(); }
 	virtual const string typeToString() const override { return L"3-state"; }
 	virtual bool IsDefault(const struct FARConfigItem* Holder) const override;
@@ -188,6 +191,7 @@ public:
 	IntOption(const IntOption& Value):Option(Value.Get()){}
 
 	virtual const string toString() const override { return std::to_wstring(Get()); }
+	virtual void fromString(const string& value) override;
 	virtual const string ExInfo() const override;
 	virtual const string typeToString() const override { return L"integer"; }
 	virtual bool IsDefault(const struct FARConfigItem* Holder) const override;
@@ -223,6 +227,7 @@ public:
 	~StringOption(){Free();}
 
 	virtual const string toString() const override { return Get(); }
+	virtual void fromString(const string& value) override { Set(value); }
 	virtual const string ExInfo() const override { return string(); }
 	virtual const string typeToString() const override { return L"string"; }
 	virtual bool IsDefault(const struct FARConfigItem* Holder) const override;
@@ -263,7 +268,7 @@ public:
 	Options();
 	~Options();
 	void ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent);
-	void Load();
+	void Load(std::vector<std::pair<string, string>>& Overridden);
 	void Save(bool Manual);
 	bool GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &strValue);
 	bool GetConfigValue(size_t Root, const wchar_t* Name, Option*& Data);

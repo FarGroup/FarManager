@@ -101,6 +101,8 @@ static void show_help()
 		L" -ro[-] Read-Only or Normal config mode.\n"
 		L" -s <profilepath> [<localprofilepath>]\n"
 		L"      Custom location for Far configuration files - overrides Far.exe.ini.\n"
+		L" -set:<parameter>=<value>\n"
+		L"      Override the configuration parameter, see far:config for details.\n"
 		L" -t <path>\n"
 		L"      Location of Far template configuration file - overrides Far.exe.ini.\n"
 #ifndef NO_WRAPPER
@@ -526,6 +528,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 	string strProfilePath, strLocalProfilePath, strTemplatePath;
 
+	std::vector<std::pair<string, string>> Overridden;
 	FOR_RANGE(Args, Iter)
 	{
 		const auto& Arg = *Iter;
@@ -595,7 +598,17 @@ static int mainImpl(const range<wchar_t**>& Args)
 #endif // NO_WRAPPER
 
 				case L'S':
-					if (Iter + 1 != Args.end())
+					if (!StrCmpNI(Arg + 1, L"set:", 4))
+					{
+						auto EqualPtr = wcschr(Arg + 1, L'=');
+						if (EqualPtr)
+						{
+							string Name(Arg + 1 + 4, EqualPtr);
+							string Value(EqualPtr + 1);
+							Overridden.push_back(VALUE_TYPE(Overridden)(Name, Value));
+						}
+					}
+					else if (Iter + 1 != Args.end())
 					{
 						strProfilePath = *++Iter;
 						auto Next = Iter + 1;
@@ -700,7 +713,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 	InitProfile(strProfilePath, strLocalProfilePath);
 	Global->Db = new Database;
 
-	Global->Opt->Load();
+	Global->Opt->Load(Overridden);
 
 	//Инициализация массива клавиш.
 	InitKeysArray();

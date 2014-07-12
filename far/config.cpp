@@ -1313,6 +1313,54 @@ struct FARConfigItem
 	}
 };
 
+inline bool ParseIntValue(const string& sValue, long long& iValue)
+{
+	bool Result = false;
+
+	try
+	{
+		iValue = std::stoll(sValue);
+		Result = true;
+	}
+	catch (std::exception&)
+	{
+		try
+		{
+			iValue = std::stoull(sValue);
+			Result = true;
+		}
+		catch (std::exception&)
+		{
+			if (!StrCmpI(sValue, L"false"))
+			{
+				iValue = 0;
+				Result = true;
+			}
+			else if (!StrCmpI(sValue, L"true"))
+			{
+				iValue = 1;
+				Result = true;
+			}
+			else if (!StrCmpI(sValue, L"other"))
+			{
+				iValue = 2;
+				Result = true;
+			}
+			// TODO: else log
+		}
+	}
+
+	return Result;
+}
+
+void BoolOption::fromString(const string& value)
+{
+	long long iValue;
+	if (ParseIntValue(value, iValue))
+	{
+		Set(iValue);
+	}
+}
 
 bool BoolOption::IsDefault(const struct FARConfigItem* Holder) const
 {
@@ -1355,6 +1403,15 @@ bool BoolOption::StoreValue(GeneralConfig* Storage, const string& KeyName, const
 }
 
 
+void Bool3Option::fromString(const string& value)
+{
+	long long iValue;
+	if (ParseIntValue(value, iValue))
+	{
+		Set(iValue);
+	}
+}
+
 bool Bool3Option::IsDefault(const struct FARConfigItem* Holder) const
 {
 	return Get() == Holder->Default.iDefault;
@@ -1395,6 +1452,15 @@ bool Bool3Option::StoreValue(GeneralConfig* Storage, const string& KeyName, cons
 	return (!always && !Changed()) || Storage->SetValue(KeyName, ValueName, Get());
 }
 
+
+void IntOption::fromString(const string& value)
+{
+	long long iValue;
+	if (ParseIntValue(value, iValue))
+	{
+		Set(iValue);
+	}
+}
 
 bool IntOption::IsDefault(const struct FARConfigItem* Holder) const
 {
@@ -1995,7 +2061,7 @@ void Options::InitConfig()
 	}
 }
 
-void Options::Load()
+void Options::Load(std::vector<std::pair<string, string>>& Overridden)
 {
 	// KnownModulesIDs::GuidOption::Default pointer is used in the static config structure, so it MUST be initialized before calling InitConfig()
 	static simple_pair<GUID, string> DefaultKnownGuids[] = { { NetworkGuid }, { EMenuGuid }, { ArcliteGuid }, { LuamacroGuid }, { NetBoxGuid } };
@@ -2034,6 +2100,15 @@ void Options::Load()
 		std::for_each(RANGE(i, j)
 		{
 			j.Value->ReceiveValue(Cfg, j.KeyName, j.ValName, &j.Default);
+
+			std::for_each(RANGE(Overridden, ovr)
+			{
+				auto DotPos = ovr.first.rfind(L'.');
+				if (!StrCmpNI(ovr.first.data(), j.KeyName, DotPos) && !StrCmpI(ovr.first.data() + DotPos + 1, j.ValName))
+				{
+					j.Value->fromString(ovr.second);
+				}
+			});
 		});
 	});
 
