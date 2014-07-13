@@ -179,7 +179,8 @@ void Manager::DeleteFrame(Frame *Deleted)
 	Frame* frame=Deleted?Deleted:CurrentFrame;
 	assert(frame);
 	PushFrame(frame,&Manager::DeleteCommit);
-	frame->SetDeleting();
+	if (frame->GetDynamicallyBorn())
+		frame->SetDeleting();
 }
 
 void Manager::DeleteFrame(int Index)
