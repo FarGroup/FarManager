@@ -76,6 +76,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "manager.hpp"
 #include "language.hpp"
+#include "locale.hpp"
 
 static const size_t predefined_panel_modes_count = 10;
 
@@ -1362,12 +1363,12 @@ void BoolOption::fromString(const string& value)
 	}
 }
 
-bool BoolOption::IsDefault(const struct FARConfigItem* Holder) const
+bool BoolOption::IsDefault(const FARConfigItem* Holder) const
 {
 	return Get() == Holder->Default.bDefault;
 }
 
-void BoolOption::SetDefault(const struct FARConfigItem* Holder)
+void BoolOption::SetDefault(const FARConfigItem* Holder)
 {
 	Set(Holder->Default.bDefault);
 }
@@ -1412,12 +1413,12 @@ void Bool3Option::fromString(const string& value)
 	}
 }
 
-bool Bool3Option::IsDefault(const struct FARConfigItem* Holder) const
+bool Bool3Option::IsDefault(const FARConfigItem* Holder) const
 {
 	return Get() == Holder->Default.iDefault;
 }
 
-void Bool3Option::SetDefault(const struct FARConfigItem* Holder)
+void Bool3Option::SetDefault(const FARConfigItem* Holder)
 {
 	Set(Holder->Default.iDefault);
 }
@@ -1462,12 +1463,12 @@ void IntOption::fromString(const string& value)
 	}
 }
 
-bool IntOption::IsDefault(const struct FARConfigItem* Holder) const
+bool IntOption::IsDefault(const FARConfigItem* Holder) const
 {
 	return Get() == Holder->Default.iDefault;
 }
 
-void IntOption::SetDefault(const struct FARConfigItem* Holder)
+void IntOption::SetDefault(const FARConfigItem* Holder)
 {
 	Set(Holder->Default.iDefault);
 }
@@ -1508,27 +1509,17 @@ bool IntOption::StoreValue(GeneralConfig* Storage, const string& KeyName, const 
 const string IntOption::ExInfo() const
 {
 	std::wostringstream oss;
-	auto v = Get();
-	auto w1 = static_cast<wchar_t>(v);
-	oss << L" = 0x" << std::hex << v;
-	if (w1 > 0x001f && w1 < 0x8000)
-	{
-		oss << L" = '" << w1;
-		auto w2 = static_cast<wchar_t>(v >> 16); //???
-		if (w2 > 0x001f && w2 < 0x8000)
-			oss << w2;
-		oss << L"'";
-	}
+	oss << L" = 0x" << std::hex << Get();
 	return oss.str();
 }
 
 
-bool StringOption::IsDefault(const struct FARConfigItem* Holder) const
+bool StringOption::IsDefault(const FARConfigItem* Holder) const
 {
 	return Get() == Holder->Default.sDefault;
 }
 
-void StringOption::SetDefault(const struct FARConfigItem* Holder)
+void StringOption::SetDefault(const FARConfigItem* Holder)
 {
 	Set(Holder->Default.sDefault);
 }
@@ -1751,7 +1742,7 @@ void Options::InitRoamingCFG()
 		{FSSF_PRIVATE,       NKeyInterface, L"CursorSize3", &CursorSize[2], 99},
 		{FSSF_PRIVATE,       NKeyInterface, L"CursorSize4", &CursorSize[3], 99},
 		{FSSF_PRIVATE,       NKeyInterface, L"EditorTitleFormat", &strEditorTitleFormat, L"%Lng %File"},
-		{FSSF_PRIVATE,       NKeyInterface, L"FormatNumberSeparators", &FormatNumberSeparators, 0},
+		{FSSF_PRIVATE,       NKeyInterface, L"FormatNumberSeparators", &FormatNumberSeparators, L""},
 		{FSSF_PRIVATE,       NKeyInterface, L"Mouse", &Mouse, true},
 		{FSSF_PRIVATE,       NKeyInterface, L"SetIcon", &SetIcon, false},
 		{FSSF_PRIVATE,       NKeyInterface, L"SetAdminIcon", &SetAdminIcon, true},

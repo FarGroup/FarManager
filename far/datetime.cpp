@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "imports.hpp"
 #include "notification.hpp"
+#include "locale.hpp"
 
 struct loc_names
 {
@@ -73,48 +74,18 @@ DWORD ConvertYearToFull(DWORD ShortYear)
 	return (UpperBoundary/100-(ShortYear<UpperBoundary%100?0:1))*100+ShortYear;
 }
 
-int GetDateFormat()
-{
-	int Result = 0;
-	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_IDATE|LOCALE_RETURN_NUMBER,reinterpret_cast<LPWSTR>(&Result),sizeof(Result)/sizeof(WCHAR));
-	return Result;
-}
-
-wchar_t GetDateSeparator()
-{
-	wchar_t Info[100];
-	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_SDATE,Info,ARRAYSIZE(Info));
-	return *Info;
-}
-
-wchar_t GetTimeSeparator()
-{
-	wchar_t Info[100];
-	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_STIME,Info,ARRAYSIZE(Info));
-	return *Info;
-}
 
 void PrepareStrFTime()
 {
-	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_IFIRSTDAYOFWEEK|LOCALE_RETURN_NUMBER,reinterpret_cast<LPWSTR>(&WeekFirst),sizeof(WeekFirst)/sizeof(WCHAR));
+	WeekFirst = locale::GetFirstDayOfWeek();
 
 	std::for_each(RANGE(GetNames(), i)
 	{
 		LCID CurLCID=MAKELCID(MAKELANGID(i.Locale, SUBLANG_DEFAULT), SORT_DEFAULT);
-
-		auto GetValue = [CurLCID](size_t Id, string& To)
-		{
-			wchar_t_ptr Buffer(GetLocaleInfo(CurLCID, static_cast<DWORD>(Id), nullptr, 0));
-			GetLocaleInfo(CurLCID, static_cast<DWORD>(Id), Buffer.get(), static_cast<DWORD>(Buffer.size()));
-			To.assign(Buffer.get(), Buffer.size() - 1);
-			if (!To.empty())
-				To[0] = Upper(To[0]);
-		};
-
-		for_each_cnt(RANGE(i.Month, j, size_t index) {GetValue(LOCALE_SMONTHNAME1 + index, j);});
-		for_each_cnt(RANGE(i.AMonth, j, size_t index) {GetValue(LOCALE_SABBREVMONTHNAME1 + index, j);});
-		for_each_cnt(RANGE(i.Weekday, j, size_t index) {GetValue(LOCALE_SDAYNAME1 + index, j);});
-		for_each_cnt(RANGE(i.AWeekday, j, size_t index) {GetValue(LOCALE_SABBREVDAYNAME1 + index, j);});
+		for_each_cnt(RANGE(i.Month, j, size_t index) { j = locale::GetValue(CurLCID, LOCALE_SMONTHNAME1 + index); });
+		for_each_cnt(RANGE(i.AMonth, j, size_t index) { j = locale::GetValue(CurLCID, LOCALE_SABBREVMONTHNAME1 + index); });
+		for_each_cnt(RANGE(i.Weekday, j, size_t index) { j = locale::GetValue(CurLCID, LOCALE_SDAYNAME1 + index); });
+		for_each_cnt(RANGE(i.AWeekday, j, size_t index) { j = locale::GetValue(CurLCID, LOCALE_SABBREVDAYNAME1 + index); });
 	});
 
 	CurLang=0;
@@ -136,7 +107,7 @@ static int atime(string &strDest,const tm *tmPtr)
 
 static int st_time(string &strDest,const tm *tmPtr,const wchar_t chr)
 {
-	wchar_t DateSeparator=GetDateSeparator();
+	wchar_t DateSeparator = locale::GetDateSeparator();
 
 	if (chr==L'v')
 	{
@@ -149,7 +120,7 @@ static int st_time(string &strDest,const tm *tmPtr,const wchar_t chr)
 		Upper(strDest, 3, 3);
 	}
 	else
-		switch (GetDateFormat())
+		switch (locale::GetDateFormat())
 		{
 			case 0:
 				strDest = str_printf(L"%02d%c%02d%c%4d",
@@ -466,7 +437,7 @@ size_t StrFTime(string &strDest, const wchar_t *Format,const tm *t)
 				case L'T':
 				case L'X':
 				{
-					wchar_t TimeSeparator=GetTimeSeparator();
+					wchar_t TimeSeparator = locale::GetTimeSeparator();
 					strBuf = str_printf(L"%02d%c%02d%c%02d",t->tm_hour,TimeSeparator,t->tm_min,TimeSeparator,t->tm_sec);
 					break;
 				}
@@ -654,10 +625,10 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 
 	if (!IntlInit)
 	{
-		DateFormat=GetDateFormat();
-		DateSeparator=GetDateSeparator();
-		TimeSeparator=GetTimeSeparator();
-		DecimalSeparator=GetDecimalSeparator();
+		DateFormat = locale::GetDateFormat();
+		DateSeparator = locale::GetDateSeparator();
+		TimeSeparator = locale::GetTimeSeparator();
+		DecimalSeparator = locale::GetDecimalSeparator();
 		GetLocalTime(&lt);
 		IntlInit = true;
 	}
@@ -772,7 +743,7 @@ void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeT
 	UINT64 d = time/=24;
 
 	strDaysText = std::to_wstring(d);
-	strTimeText = FormatString()<<fmt::MinWidth(2)<<fmt::FillChar(L'0')<<h<<GetTimeSeparator()<<fmt::MinWidth(2)<<fmt::FillChar(L'0')<<m<<GetTimeSeparator()<<fmt::MinWidth(2)<<fmt::FillChar(L'0')<<s<<GetDecimalSeparator()<<fmt::MinWidth(3)<<fmt::FillChar(L'0')<<ms;
+	strTimeText = FormatString() << fmt::MinWidth(2) << fmt::FillChar(L'0') << h << locale::GetTimeSeparator() << fmt::MinWidth(2) << fmt::FillChar(L'0') << m << locale::GetTimeSeparator() << fmt::MinWidth(2) << fmt::FillChar(L'0') << s << locale::GetDecimalSeparator() << fmt::MinWidth(3) << fmt::FillChar(L'0') << ms;
 }
 
 bool Utc2Local(const FILETIME &ft, SYSTEMTIME &lst)

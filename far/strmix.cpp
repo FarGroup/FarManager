@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "pathmix.hpp"
 #include "preservestyle.hpp"
+#include "locale.hpp"
 
 namespace strmix
 {
@@ -48,21 +49,13 @@ string &FormatNumber(const string& Src, string &strDest, int NumDigits)
 {
 	static bool first = true;
 	static NUMBERFMT fmt;
-	static wchar_t DecimalSep[4];
-	static wchar_t ThousandSep[4];
+	static wchar_t DecimalSep[4] = {};
+	static wchar_t ThousandSep[4] = {};
 
 	if (first)
 	{
-		GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_STHOUSAND,ThousandSep,ARRAYSIZE(ThousandSep));
-		GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_SDECIMAL,DecimalSep,ARRAYSIZE(DecimalSep));
-		DecimalSep[1]=0;  //В винде сепараторы цифр могут быть больше одного символа
-		ThousandSep[1]=0; //но для нас это будет не очень хорошо
-
-		if (LOWORD(Global->Opt->FormatNumberSeparators))
-			*DecimalSep=LOWORD(Global->Opt->FormatNumberSeparators);
-
-		if (HIWORD(Global->Opt->FormatNumberSeparators))
-			*ThousandSep=HIWORD(Global->Opt->FormatNumberSeparators);
+		DecimalSep[0] = locale::GetDecimalSeparator();
+		ThousandSep[0] = locale::GetThousandSeparator();
 
 		fmt.LeadingZero = 1;
 		fmt.Grouping = 3;
@@ -1226,13 +1219,6 @@ void Transform(string &strBuffer,const wchar_t *ConvStr,wchar_t TransformType)
 	}
 
 	strBuffer=strTemp;
-}
-
-wchar_t GetDecimalSeparator()
-{
-	wchar_t Separator[4];
-	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_SDECIMAL,Separator,ARRAYSIZE(Separator));
-	return *Separator;
 }
 
 string ReplaceBrackets(const wchar_t *SearchStr,const string& ReplaceStr, const RegExpMatch* Match,int Count)

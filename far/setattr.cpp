@@ -62,6 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "imports.hpp"
 #include "language.hpp"
+#include "locale.hpp"
 
 enum SETATTRDLG
 {
@@ -427,7 +428,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 			{
 				if(Param1 == SA_EDIT_WDATE || Param1 == SA_EDIT_CDATE || Param1 == SA_EDIT_ADATE || Param1 == SA_EDIT_XDATE)
 				{
-					if(GetDateFormat()==2)
+					if(locale::GetDateFormat() == 2)
 					{
 						if(reinterpret_cast<LPCWSTR>(Dlg->SendMessage( DM_GETCONSTTEXTPTR, Param1, 0))[0] == L' ')
 						{
@@ -561,12 +562,12 @@ bool ReadFileTime(int Type,const string& Name,FILETIME& FileTime,const string& O
 		if(Utc2Local(*OriginalFileTime,ost))
 		{
 			WORD DateN[3]={};
-			GetFileDateAndTime(OSrcDate, DateN, ARRAYSIZE(DateN), GetDateSeparator());
+			GetFileDateAndTime(OSrcDate, DateN, ARRAYSIZE(DateN), locale::GetDateSeparator());
 			WORD TimeN[4]={};
-			GetFileDateAndTime(OSrcTime, TimeN, ARRAYSIZE(TimeN), GetTimeSeparator());
+			GetFileDateAndTime(OSrcTime, TimeN, ARRAYSIZE(TimeN), locale::GetTimeSeparator());
 			SYSTEMTIME st={};
 
-			switch (GetDateFormat())
+			switch (locale::GetDateFormat())
 			{
 				case 0:
 					st.wMonth=DateN[0]!=(WORD)-1?DateN[0]:ost.wMonth;
@@ -749,15 +750,15 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		if (!SelCount || (SelCount==1 && TestParentFolderName(strSelName)))
 			return false;
 
-		wchar_t DateSeparator=GetDateSeparator();
-		wchar_t TimeSeparator=GetTimeSeparator();
-		wchar_t DecimalSeparator=GetDecimalSeparator();
+		wchar_t DateSeparator = locale::GetDateSeparator();
+		wchar_t TimeSeparator = locale::GetTimeSeparator();
+		wchar_t DecimalSeparator = locale::GetDecimalSeparator();
 		LPCWSTR FmtMask1=L"99%c99%c99%c999",FmtMask2=L"99%c99%c9999N",FmtMask3=L"N9999%c99%c99";
 		string strDMask, strTMask = str_printf(FmtMask1,TimeSeparator,TimeSeparator,DecimalSeparator);
 
 		LangString DateFormat;
 
-		switch (GetDateFormat())
+		switch (locale::GetDateFormat())
 		{
 			case 0:
 				DateFormat = MSetAttrTimeTitle1;
@@ -1247,7 +1248,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 				std::for_each(CONST_RANGE(Times, i)
 				{
-					AttrDlg[i].strData[8]=GetTimeSeparator();
+					AttrDlg[i].strData[8] = locale::GetTimeSeparator();
 				});
 
 				SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<AttrPreRedrawItem>());

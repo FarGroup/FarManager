@@ -271,7 +271,16 @@ public:
 	{
 		bool b = stmtGetValue.Bind(Key).Bind(Name).Step();
 		if (b)
-			*Value = stmtGetValue.GetColInt64(0);
+		{
+			if (stmtGetValue.GetColType(0) == TYPE_INTEGER)
+			{
+				*Value = stmtGetValue.GetColInt64(0);
+			}
+			else
+			{
+				// TODO: log
+			}
+		}
 		stmtGetValue.Reset();
 		return b;
 	}
@@ -280,7 +289,16 @@ public:
 	{
 		bool b = stmtGetValue.Bind(Key).Bind(Name).Step();
 		if (b)
-			strValue = stmtGetValue.GetColText(0);
+		{
+			if (stmtGetValue.GetColType(0) == TYPE_STRING)
+			{
+				strValue = stmtGetValue.GetColText(0);
+			}
+			else
+			{
+				// TODO: log
+			}
+		}
 		stmtGetValue.Reset();
 		return b;
 	}
@@ -290,10 +308,17 @@ public:
 		int realsize = 0;
 		if (stmtGetValue.Bind(Key).Bind(Name).Step())
 		{
-			const char *blob = stmtGetValue.GetColBlob(0);
-			realsize = stmtGetValue.GetColBytes(0);
-			if (Value)
-				memcpy(Value,blob,std::min(realsize,static_cast<int>(Size)));
+			if (stmtGetValue.GetColType(0) == TYPE_BLOB)
+			{
+				const char *blob = stmtGetValue.GetColBlob(0);
+				realsize = stmtGetValue.GetColBytes(0);
+				if (Value)
+					memcpy(Value, blob, std::min(realsize, static_cast<int>(Size)));
+			}
+			else
+			{
+				// TODO: log
+			}
 		}
 		stmtGetValue.Reset();
 		return realsize;
@@ -301,7 +326,7 @@ public:
 
 	bool GetValue(const string& Key, const string& Name, long long *Value, long long Default)
 	{
-		unsigned __int64 v;
+		unsigned __int64 v = 0;
 		if (GetValue(Key,Name,&v))
 		{
 			*Value = v;
@@ -309,14 +334,6 @@ public:
 		}
 		*Value = Default;
 		return false;
-	}
-
-	int GetValue(const string& Key, const string& Name, int Default)
-	{
-		unsigned __int64 v;
-		if (GetValue(Key,Name,&v))
-			return (int)v;
-		return Default;
 	}
 
 	bool GetValue(const string& Key, const string& Name, string &strValue, const wchar_t *Default)

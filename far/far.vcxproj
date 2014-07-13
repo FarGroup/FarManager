@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -228,6 +228,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Cpp0xSupport>true</Cpp0xSupport>
       <DisableSpecificDiagnostics>869,3280</DisableSpecificDiagnostics>
+      <SmallerTypeCheck>true</SmallerTypeCheck>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -276,6 +277,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Cpp0xSupport>true</Cpp0xSupport>
       <DisableSpecificDiagnostics>869,3280</DisableSpecificDiagnostics>
+      <SmallerTypeCheck>true</SmallerTypeCheck>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -431,6 +433,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="keyboard.cpp" />
     <ClCompile Include="language.cpp" />
     <ClCompile Include="local.cpp" />
+    <ClCompile Include="locale.cpp" />
     <ClCompile Include="lockscrn.cpp" />
     <ClCompile Include="macro.cpp" />
     <ClCompile Include="main.cpp" />
@@ -616,6 +619,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="language.hpp" />
     <ClInclude Include="lasterror.hpp" />
     <ClInclude Include="local.hpp" />
+    <ClInclude Include="locale.hpp" />
     <ClInclude Include="lockscrn.hpp" />
     <ClInclude Include="macro.hpp" />
     <ClInclude Include="macroopcode.hpp" />

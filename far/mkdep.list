@@ -149,6 +149,8 @@ language.hpp
 lasterror.hpp
 local.cpp
 local.hpp
+locale.cpp
+locale.hpp
 lockscrn.cpp
 lockscrn.hpp
 macro.cpp

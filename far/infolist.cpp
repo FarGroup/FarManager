@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "window.hpp"
 #include "language.hpp"
 #include "dizviewer.hpp"
+#include "locale.hpp"
 
 static bool LastMode = false;
 static bool LastDizWrapMode = false;
@@ -518,7 +519,7 @@ void InfoList::DisplayObject()
 				DWORD s = PowerStatus.BatteryLifeTime%60;
 				DWORD m = (PowerStatus.BatteryLifeTime/60)%60;
 				DWORD h = PowerStatus.BatteryLifeTime/3600;
-				PrintInfo(FormatString()<<fmt::MinWidth(2)<<fmt::FillChar(L'0')<<h<<GetTimeSeparator()<<fmt::MinWidth(2)<<fmt::FillChar(L'0')<<m<<GetTimeSeparator()<<fmt::MinWidth(2)<<fmt::FillChar(L'0')<<s);
+				PrintInfo(FormatString() << fmt::MinWidth(2) << fmt::FillChar(L'0') << h << locale::GetTimeSeparator() << fmt::MinWidth(2) << fmt::FillChar(L'0') << m << locale::GetTimeSeparator() << fmt::MinWidth(2) << fmt::FillChar(L'0') << s);
 			}
 			else
 				PrintInfo(MSG(MInfoPowerStatusBCTMUnknown));
@@ -530,7 +531,7 @@ void InfoList::DisplayObject()
 				DWORD s = PowerStatus.BatteryLifeTime%60;
 				DWORD m = (PowerStatus.BatteryLifeTime/60)%60;
 				DWORD h = PowerStatus.BatteryLifeTime/3600;
-				PrintInfo(FormatString()<<fmt::MinWidth(2)<<fmt::FillChar(L'0')<<h<<GetTimeSeparator()<<fmt::MinWidth(2)<<fmt::FillChar(L'0')<<m<<GetTimeSeparator()<<fmt::MinWidth(2)<<fmt::FillChar(L'0')<<s);
+				PrintInfo(FormatString() << fmt::MinWidth(2) << fmt::FillChar(L'0') << h << locale::GetTimeSeparator() << fmt::MinWidth(2) << fmt::FillChar(L'0') << m << locale::GetTimeSeparator() << fmt::MinWidth(2) << fmt::FillChar(L'0') << s);
 			}
 			else
 				PrintInfo(MSG(MInfoPowerStatusBCFTMUnknown));

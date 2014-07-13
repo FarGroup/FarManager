@@ -1759,7 +1759,7 @@ bool KeyToTextImpl(int Key0, string& strKeyText, tfkey_to_text ToText, add_separ
 			else
 #endif
 			{
-				FKey=Upper((wchar_t)Key&0xFFFF);
+				FKey=Upper((wchar_t)(Key&0xFFFF));
 
 				wchar_t KeyText[2]={};
 
@@ -1771,7 +1771,7 @@ bool KeyToTextImpl(int Key0, string& strKeyText, tfkey_to_text ToText, add_separ
 						KeyText[0]=(wchar_t)(Key&0xFFFF);
 				}
 				else
-					KeyText[0]=(wchar_t)Key&0xFFFF;
+					KeyText[0]=(wchar_t)(Key&0xFFFF);
 
 				AddSeparator(strKeyText);
 				strKeyText += KeyText;

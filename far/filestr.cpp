@@ -88,7 +88,7 @@ bool IsTextUTF8(const char* Buffer,size_t Length)
 			{
 				while (c&0x80)
 				{
-					c *= 2;
+					c <<= 1;
 					Octets++;
 				}
 

@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "flink.hpp"
 #include "language.hpp"
+#include "locale.hpp"
 
 FileFilterParams::FileFilterParams():
 	FDate(),
@@ -837,10 +838,10 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	const wchar_t DaysMask[] = L"9999";
 	string strDateMask, strTimeMask;
 	// ќпределение параметров даты и времени в системе.
-	wchar_t DateSeparator=GetDateSeparator();
-	wchar_t TimeSeparator=GetTimeSeparator();
-	wchar_t DecimalSeparator=GetDecimalSeparator();
-	int DateFormat=GetDateFormat();
+	wchar_t DateSeparator = locale::GetDateSeparator();
+	wchar_t TimeSeparator = locale::GetTimeSeparator();
+	wchar_t DecimalSeparator = locale::GetDecimalSeparator();
+	int DateFormat = locale::GetDateFormat();
 
 	switch (DateFormat)
 	{

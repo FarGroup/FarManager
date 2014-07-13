@@ -224,6 +224,9 @@
     <ClCompile Include="local.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="locale.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="lockscrn.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -639,6 +642,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="local.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="locale.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="lockscrn.hpp">

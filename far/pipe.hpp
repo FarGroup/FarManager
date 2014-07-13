@@ -6,7 +6,6 @@ pipe.hpp
 Pipe-based IPC
 */
 /*
-Copyright © 1996 Eugene Roshal
 Copyright © 2014 Far Group
 All rights reserved.
 

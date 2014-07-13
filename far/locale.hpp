@@ -1,11 +1,11 @@
-/*
-sqlite.c
+#pragma once
 
-sqlite wrapper
+/*
+locale.hpp
 
 */
 /*
-Copyright © 2011 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -31,22 +31,13 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-#pragma warning(push, 1)
-#pragma warning(disable:4701)
-#pragma runtime_checks("c", off)
-#ifdef __GNUC__
-#pragma GCC diagnostic ignored "-Warray-bounds"
-#pragma GCC diagnostic ignored "-Wstrict-overflow"
-#pragma GCC diagnostic ignored "-Wuninitialized"
-#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#pragma GCC diagnostic ignored "-Wcast-qual"
-#endif // __GNUC__
-
-//to enable DESC indexes
-#define SQLITE_DEFAULT_FILE_FORMAT 4
-
-#include "thirdparty/sqlite/sqlite3.c"
-
-#pragma warning(pop)
+namespace locale
+{
+	int GetDateFormat();
+	int GetFirstDayOfWeek();
+	wchar_t GetDateSeparator();
+	wchar_t GetTimeSeparator();
+	wchar_t GetDecimalSeparator();
+	wchar_t GetThousandSeparator();
+	string GetValue(LCID lcid, size_t id);
+}

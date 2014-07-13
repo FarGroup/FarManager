@@ -676,7 +676,7 @@ public:
 	BoolOption ShowScreensNumber;
 	BoolOption ShowSortMode;
 	BoolOption ShowMenuBar;
-	IntOption FormatNumberSeparators;
+	StringOption FormatNumberSeparators;
 	BoolOption CleanAscii;
 	BoolOption NoGraphics;
 
