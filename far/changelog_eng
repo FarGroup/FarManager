@@ -3,6 +3,103 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 13.07.2014 14:50:01 +0200 - build 3999
+
+1. correction of 3992: dialogs were shown onlyl one time after creation.
+
+drkns 13.07.2014 14:24:22 +0200 - build 3998
+
+1. Interface.FormatNumberSeparators option now has string type.
+
+2. SmallerTypeCheck is switched on in debug build.
+
+3. Refactoring.
+
+drkns 12.07.2014 20:33:45 +0200 - build 3997
+
+1. Correction of 3996 and a couple of issues.
+
+drkns 12.07.2014 14:18:49 +0200 - build 3996
+
+1. /set:<parameter>=<value> option is added which allows for redefinition of main settings (see far:config).
+
+drkns 12.07.2014 09:45:28 +0200
+
+1. Support for lists in external DialogBuilder.
+
+zg 11.07.2014 22:11:38 +0200 - build 3995
+
+1. correction of 3993: EE_READ was not called in viewer if it was opened with +/-.
+
+zg 11.07.2014 19:21:21 +0200 - build 3994
+
+1. correction of 3981 for the horizontal menu.
+
+zg 10.07.2014 22:54:11 +0200 - build 3993
+
+1. VE_READ is called when the viewport is fully constructed.
+
+zg 10.07.2014 20:54:25 +0200 - build 3992
+
+1. correction of 3981.
+
+zg 10.07.2014 15:49:53 +0200 - build 3991
+
+1. correction of 3985: ECTL_GETINFO and ECTL_GETBOOKMARKS did not work in EE_CLOSE.
+
+zg 10.07.2014 13:54:25 +0200 - build 3990
+
+1. on file reopen in editor a wrong frame could be closed. even panels could.
+
+drkns 10.07.2014 09:14:35 +0200 - build 3989
+
+1. An ancient bug, which revealed itself in recent crashes on exit:
+   - do not close handles awaited by WaitForMultipleObjects.
+
+zg 10.07.2014 03:05:00 +0200 - build 3988
+
+1. correction of 3981: /v key did not work.
+
+2. correction of 3986: crash on exit.
+
+drkns 09.07.2014 22:10:05 +0200 - build 3987
+
+1. Refactoring.
+
+zg 09.07.2014 21:38:08 +0200 - build 3986
+
+1. редкое падение при переоткрытии файла в редакторе.
+
+2. зависание при последовательном открытии/закрытии редактора через апи.
+
+3. correction of 3981.
+
+zg 09.07.2014 15:36:33 +0200 - build 3985
+
+1. forum: "ACTL_GETWINDOWTYPE and ACTL_GETWINDOWINFO don't work when called from EE_CLOSE/VE_CLOSE".
+
+zg 09.07.2014 12:47:11 +0200 - build 3984
+
+1. correction of 3981: sometimes on windows close other unexpected windows were activated.
+
+drkns 09.07.2014 00:54:24 +0200 - build 3983
+
+1. Refactoring.
+
+zg 08.07.2014 21:06:45 +0200 - build 3982
+
+1. correction of 3981.
+
+zg 08.07.2014 13:53:39 +0200 - build 3981
+
+1. refactoring of window manager. now there is a common queue for messages.
+   with the queue now one can run any code asynchronously.
+   an example can be found in implementation of EE_READ.
+
+svs 07.07.2014 13:58:08 +0400 - build 3980
+
+1. EMenu was always called with OPEN_LEFTDISKMENU
+
 drkns 06.07.2014 15:24:29 +0200 - build 3979
 
 1. Refactoring.
