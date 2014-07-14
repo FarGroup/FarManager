@@ -398,7 +398,10 @@ void ElevationApproveDlgSync(LPVOID Param)
 	{
 		Current->Lock();
 	}
+	auto Lock = Global->ScrBuf->GetLockCount();
+	Global->ScrBuf->SetLockCount(0);
 	Dlg.Process();
+	Global->ScrBuf->SetLockCount(Lock);
 	if(Current)
 	{
 		Current->Unlock();
