@@ -1,6 +1,6 @@
 ﻿shmuel 14.07.2014 20:56:15 +0200 - build 4001
 
-1. Plugin.Menu(), PluginConfig() и Plugin.Command() возвращают false при неудаче.
+1. Plugin.Menu(), Plugin.Config() и Plugin.Command() возвращают false при неудаче.
 
 drkns 14.07.2014 14:39:33 +0200 - build 4000
 
