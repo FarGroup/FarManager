@@ -134,7 +134,7 @@ local KeyMacro = {}
 local CurState = NewMacroState()
 local StateStack = NewStack()
 local LastMessage = {}
-local MacroPluginIsRunning = 0
+local MacroIsRunning = 0
 --------------------------------------------------------------------------------
 
 local function GetCurMacro() return CurState:GetCurMacro() end
@@ -219,11 +219,11 @@ local function CheckCurMacro()
   if macro then
     local handle = macro:GetHandle()
     if handle == nil then
-      --MacroPluginIsRunning = MacroPluginIsRunning + 1
+      --MacroIsRunning = MacroIsRunning + 1
       PushState(false)
       handle = MacroInit(macro.m_macroId, macro.m_lang, macro.m_code)
       PopState(false)
-      --MacroPluginIsRunning = MacroPluginIsRunning - 1
+      --MacroIsRunning = MacroIsRunning - 1
       if handle then macro:SetHandle(handle) end
     end
     if handle then
@@ -270,7 +270,7 @@ local function CallStep()
 end
 
 local function GetInputFromMacro()
-  if MacroPluginIsRunning==0 and not GetCurMacro() then
+  if MacroIsRunning==0 and not GetCurMacro() then
     if StateStack[1] then
       PopState(true)
       return false
@@ -278,9 +278,9 @@ local function GetInputFromMacro()
       return MPRT_HASNOMACRO
     end
   end
-  MacroPluginIsRunning = MacroPluginIsRunning + 1
+  MacroIsRunning = MacroIsRunning + 1
   local r1,r2 = CallStep()
-  MacroPluginIsRunning = MacroPluginIsRunning - 1
+  MacroIsRunning = MacroIsRunning - 1
   return r1,r2
 end
 
@@ -318,25 +318,53 @@ function KeyMacro.DisableHistory (State)
   return oldHistoryDisable
 end
 
+local OP_PUSHSTATE          =  1
+local OP_POPSTATE           =  2
+local OP_ISEXECUTING        =  3
+local OP_ISDISABLEOUTPUT    =  4
+local OP_HISTORYDISABLEMASK =  5
+local OP_ISHISTORYDISABLE   =  6
+local OP_GETCURMACRO        =  7
+local OP_GETTOPMACRO        =  8
+local OP_ISMACROQUEUEEMPTY  =  9
+local OP_GETSTATESTACKSIZE  = 10
+local OP_GETINTKEY          = 11
+local OP_POSTNEWMACRO       = 12
+local OP_GETTOPINTKEY       = 13
+local OP_SETMACROVALUE      = 14
+local OP_GETINPUTFROMMACRO  = 15
+local OP_TRYTOPOSTMACRO     = 16
+
 function KeyMacro.Dispatch (opcode, ...)
   local p1 = (...)
-  if     opcode==1 then PushState(p1)
-  elseif opcode==2 then PopState(p1)
-  elseif opcode==3 then return IsExecuting()
-  elseif opcode==4 then return IsDisableOutput()
-  elseif opcode==5 then return p1 and SetHistoryDisableMask(p1) or GetHistoryDisableMask()
-  elseif opcode==6 then return IsHistoryDisable(p1)
-  elseif opcode==7 or opcode==8 then
+  if opcode == OP_ISEXECUTING then
+    return IsExecuting()
+  elseif opcode == OP_GETINPUTFROMMACRO then
+    return GetInputFromMacro()
+  elseif opcode == OP_PUSHSTATE then
+    PushState(p1)
+  elseif opcode == OP_POPSTATE then
+    PopState(p1)
+  elseif opcode == OP_ISDISABLEOUTPUT then
+    return IsDisableOutput()
+  elseif opcode == OP_HISTORYDISABLEMASK then
+    return p1 and SetHistoryDisableMask(p1) or GetHistoryDisableMask()
+  elseif opcode == OP_ISHISTORYDISABLE then
+    return IsHistoryDisable(p1)
+  elseif opcode == OP_GETCURMACRO or opcode==OP_GETTOPMACRO then
     local mr
-    if opcode==7 then mr=GetCurMacro() else mr=GetTopMacro() end
+    if opcode==OP_GETCURMACRO then mr=GetCurMacro() else mr=GetTopMacro() end
     if mr then
       LastMessage = pack(mr.m_flags, mr.m_key)
       return MPRT_NORMALFINISH, LastMessage
     end
-  elseif opcode==9  then return GetCurMacro() and 0 or 1
-  elseif opcode==10 then return #StateStack
-  elseif opcode==11 then return CurState.IntKey
-  elseif opcode==12 then
+  elseif opcode == OP_ISMACROQUEUEEMPTY then
+    return GetCurMacro() and 0 or 1
+  elseif opcode == OP_GETSTATESTACKSIZE then
+    return #StateStack
+  elseif opcode == OP_GETINTKEY then
+    return CurState.IntKey
+  elseif opcode == OP_POSTNEWMACRO then
     local Lang,Code,Flags,AKey = ...
     local f1,f2 = loadmacro(Lang,Code)
     if f1 then
@@ -345,12 +373,14 @@ function KeyMacro.Dispatch (opcode, ...)
     else
       ErrMsg(f2, Msg.MMacroPErrorTitle)
     end
-  elseif opcode==13 then local t=StateStack:top() return t and t.IntKey or 0
-  elseif opcode==14 then
+  elseif opcode == OP_GETTOPINTKEY then
+    local t=StateStack:top()
+    return t and t.IntKey or 0
+  elseif opcode == OP_SETMACROVALUE then
     local m = GetCurMacro()
     if m then m:SetValue(p1) end
-  elseif opcode==15 then return GetInputFromMacro()
-  elseif opcode==16 then return TryToPostMacro(...)
+  elseif opcode == OP_TRYTOPOSTMACRO then
+    return TryToPostMacro(...)
   end
 end
 
