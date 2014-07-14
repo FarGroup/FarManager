@@ -698,8 +698,13 @@ local function test_Dlg()
   Keys"Esc"
 end
 
-local function test_Plugin() -- Plugin.Call, Plugin.SyncCall: test arguments and returns
-  local function test (func, N)
+local function test_Plugin()
+  assert(Plugin.Menu()==false)
+  assert(Plugin.Config()==false)
+  assert(Plugin.Command()==false)
+  assert(Plugin.Command(luamacroId)==true)
+
+  local function test (func, N) -- Plugin.Call, Plugin.SyncCall: test arguments and returns
     local i1 = bit64.new("0x8765876587658765")
     local r1,r2,r3,r4,r5 = func(luamacroId, "argtest", "foo", i1, -2.34, false, {"foo\0bar"})
     assert(r1=="foo" and r2==i1 and r3==-2.34 and r4==false and type(r5)=="table" and r5[1]=="foo\0bar")

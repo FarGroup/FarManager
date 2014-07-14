@@ -324,6 +324,7 @@ end
 
 local function ProcessCommandLine (CmdLine)
   local prefix, text = CmdLine:match("^%s*(%w+):%s*(.-)%s*$")
+  if not prefix then return end -- this can occur with Plugin.Command()
   prefix = prefix:lower()
   if prefix == "lm" or prefix == "macro" then
     local cmd = text:match("%S*"):lower()
