@@ -528,12 +528,9 @@ static inline DWORD GetTopIntKey()
 	return MacroPluginOp(13.0,false,&Ret) ? Ret.ReturnType : 0;
 }
 
-static void SetMacroValue(FarMacroValue* Value)
+static void SetMacroValue(const FarMacroValue& Value)
 {
-	FarMacroValue values[2]={14.0};
-	if (Value)
-		values[1]=*Value;
-
+	FarMacroValue values[2]={14.0,Value};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_KEYMACRO,&fmc};
 	CallMacroPluginSimple(&info);
@@ -844,7 +841,7 @@ void KeyMacro::CallPlugin(MacroPluginReturn *mpr, FarMacroValue *fmvalue, bool C
 			if (CallPluginRules)
 			{
 				*fmvalue = true;
-				SetMacroValue(fmvalue);
+				SetMacroValue(true);
 				PushState(true);
 			}
 			else
@@ -963,7 +960,7 @@ int KeyMacro::GetKey()
 			{
 				FarMacroValue fmvalue;
 				CallPlugin(&mpr, &fmvalue, true);
-				SetMacroValue(&fmvalue);
+				SetMacroValue(fmvalue);
 				break;
 			}
 
@@ -971,69 +968,49 @@ int KeyMacro::GetKey()
 			case MPRT_PLUGINCONFIG: // N=Plugin.Config(Guid[,MenuGuid])
 			case MPRT_PLUGINCOMMAND: // N=Plugin.Command(Guid[,Command])
 			{
-				const wchar_t *Arg = nullptr;
-				const wchar_t *Guid = nullptr;
+				const wchar_t *Arg = L"";
 				GUID guid, menuGuid;
 				PluginManager::CallPluginInfo cpInfo = { CPT_CHECKONLY };
-				bool ItemFailed=false;
-				FarMacroValue fmvalue=false;
+				SetMacroValue(false);
 
-				if (mpr.Count>0 && mpr.Values[0].Type==FMVT_STRING)
-					Guid = mpr.Values[0].String;
-				else
+				if (!(mpr.Count>0 && mpr.Values[0].Type==FMVT_STRING && StrToGuid(mpr.Values[0].String,guid)))
 					break;
 
 				if (mpr.Count>1 && mpr.Values[1].Type==FMVT_STRING)
-					Arg=mpr.Values[1].String;
-
-				switch (mpr.ReturnType)
 				{
-					default:
-					case MPRT_PLUGINMENU:
-						cpInfo.CallFlags |= CPT_MENU;
-						if (Arg)
-						{
-							if (StrToGuid(Arg,menuGuid))
-								cpInfo.ItemGuid=&menuGuid;
-							else
-								ItemFailed=true;
-						}
-						break;
-					case MPRT_PLUGINCONFIG:
-						cpInfo.CallFlags |= CPT_CONFIGURE;
-						if (Arg)
-						{
-							if (StrToGuid(Arg,menuGuid))
-								cpInfo.ItemGuid=&menuGuid;
-							else
-								ItemFailed=true;
-						}
-						break;
-					case MPRT_PLUGINCOMMAND:
-						cpInfo.CallFlags |= CPT_CMDLINE;
-						if (Arg)
-							cpInfo.Command=Arg;
-						else
-							cpInfo.Command=L"";
-						break;
-				}
-
-				if (!ItemFailed && StrToGuid(Guid,guid) && Global->CtrlObject->Plugins->FindPlugin(guid))
-				{
-					// Чтобы вернуть результат "выполнения" нужно проверить наличие плагина/пункта
-					int Ret=Global->CtrlObject->Plugins->CallPluginItem(guid,&cpInfo);
-					if (Ret)
+					Arg = mpr.Values[1].String;
+					if (mpr.ReturnType==MPRT_PLUGINMENU || mpr.ReturnType==MPRT_PLUGINCONFIG)
 					{
-						// Если нашли успешно - то теперь выполнение
-						fmvalue=true;
-						SetMacroValue(&fmvalue);
-						cpInfo.CallFlags&=~CPT_CHECKONLY;
-						Global->CtrlObject->Plugins->CallPluginItem(guid,&cpInfo);
+						if (StrToGuid(Arg, menuGuid))
+							cpInfo.ItemGuid = &menuGuid;
+						else
+							break;
 					}
 				}
 
-				// По аналогии с KEY_F11
-				Global->FrameManager->RefreshFrame();
+				if (Global->CtrlObject->Plugins->FindPlugin(guid))
+				{
+					if (mpr.ReturnType == MPRT_PLUGINMENU)
+						cpInfo.CallFlags |= CPT_MENU;
+					else if (mpr.ReturnType == MPRT_PLUGINCONFIG)
+						cpInfo.CallFlags |= CPT_CONFIGURE;
+					else if (mpr.ReturnType == MPRT_PLUGINCOMMAND)
+					{
+						cpInfo.CallFlags |= CPT_CMDLINE;
+						cpInfo.Command = Arg;
+					}
+
+					// Чтобы вернуть результат "выполнения" нужно проверить наличие плагина/пункта
+					if (Global->CtrlObject->Plugins->CallPluginItem(guid,&cpInfo))
+					{
+						// Если нашли успешно - то теперь выполнение
+						SetMacroValue(true);
+						cpInfo.CallFlags&=~CPT_CHECKONLY;
+						Global->CtrlObject->Plugins->CallPluginItem(guid,&cpInfo);
+					}
+					// По аналогии с KEY_F11
+					Global->FrameManager->RefreshFrame();
+				}
 				break;
 			}
 
