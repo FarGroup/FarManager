@@ -1,4 +1,8 @@
-﻿shmuel 14.07.2014 20:56:15 +0200 - build 4001
+﻿zg 15.07.2014 21:39:44 +0200 - build 4002
+
+1. с форума: падние в ACTL_GETWINDOWINFO.
+
+shmuel 14.07.2014 20:56:15 +0200 - build 4001
 
 1. Plugin.Menu(), Plugin.Config() и Plugin.Command() возвращают false при неудаче.
 

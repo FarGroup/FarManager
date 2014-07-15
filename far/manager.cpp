@@ -1180,6 +1180,11 @@ void Manager::DeleteCommit(Frame* Param)
 		}
 	});
 
+	auto ClearCurrentFrame=[this]
+	{
+		this->CurrentFrame=nullptr;
+		InterlockedExchange(&CurrentWindowType,-1);
+	};
 	if (ModalIndex!=-1)
 	{
 		ModalFrames.erase(ModalFrames.begin() + ModalIndex);
@@ -1194,6 +1199,7 @@ void Manager::DeleteCommit(Frame* Param)
 			assert(FramePos>=0);
 			ActivateCommit(FramePos);
 		}
+		else ClearCurrentFrame();
 	}
 	else if (-1!=FrameIndex)
 	{
@@ -1216,11 +1222,7 @@ void Manager::DeleteCommit(Frame* Param)
 				ActivateCommit(Param->FrameToBack);
 			}
 		}
-		else
-		{
-			CurrentFrame=nullptr;
-			InterlockedExchange(&CurrentWindowType,-1);
-		}
+		else ClearCurrentFrame();
 	}
 
 	assert(CurrentFrame!=Param);
