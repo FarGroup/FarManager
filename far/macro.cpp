@@ -1008,8 +1008,6 @@ int KeyMacro::GetKey()
 						cpInfo.CallFlags&=~CPT_CHECKONLY;
 						Global->CtrlObject->Plugins->CallPluginItem(guid,&cpInfo);
 					}
-					// По аналогии с KEY_F11
-					Global->FrameManager->RefreshFrame();
 				}
 				break;
 			}
