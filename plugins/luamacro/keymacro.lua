@@ -27,13 +27,15 @@ local MFLAGS_POSTFROMPLUGIN      = 0x10000000 -- последовательно�
 
 local MCODE_F_KEYMACRO = 0x80C68
 local Import = {
-  RestoreMacroChar        = function()  far_MacroCallFar(MCODE_F_KEYMACRO, 1) end,
-  ScrBufLock              = function()  far_MacroCallFar(MCODE_F_KEYMACRO, 2) end,
-  ScrBufUnlock            = function()  far_MacroCallFar(MCODE_F_KEYMACRO, 3) end,
-  ScrBufResetLockCount    = function()  far_MacroCallFar(MCODE_F_KEYMACRO, 4) end,
-  GetUseInternalClipboard = function()  return far_MacroCallFar(MCODE_F_KEYMACRO, 5) end,
-  SetUseInternalClipboard = function(v) far_MacroCallFar(MCODE_F_KEYMACRO, 6, v) end,
-  KeyNameToKey            = function(v) return far_MacroCallFar(MCODE_F_KEYMACRO, 7, v) end,
+  RestoreMacroChar        = function()  return far_MacroCallFar(MCODE_F_KEYMACRO, 1) end,
+  ScrBufLock              = function()  return far_MacroCallFar(MCODE_F_KEYMACRO, 2) end,
+  ScrBufUnlock            = function()  return far_MacroCallFar(MCODE_F_KEYMACRO, 3) end,
+  ScrBufResetLockCount    = function()  return far_MacroCallFar(MCODE_F_KEYMACRO, 4) end,
+  ScrBufGetLockCount      = function()  return far_MacroCallFar(MCODE_F_KEYMACRO, 5) end,
+  ScrBufSetLockCount      = function(v) return far_MacroCallFar(MCODE_F_KEYMACRO, 6, v) end,
+  GetUseInternalClipboard = function()  return far_MacroCallFar(MCODE_F_KEYMACRO, 7) end,
+  SetUseInternalClipboard = function(v) return far_MacroCallFar(MCODE_F_KEYMACRO, 8, v) end,
+  KeyNameToKey            = function(v) return far_MacroCallFar(MCODE_F_KEYMACRO, 9, v) end,
 }
 --------------------------------------------------------------------------------
 
@@ -234,6 +236,24 @@ local function CheckCurMacro()
   end
 end
 
+local function ACall (macro, param)
+  local EntryStackSize = #StateStack
+  macro:SetValue(true)
+  PushState(true)
+
+  local lockCount = Import.ScrBufGetLockCount()
+  Import.ScrBufSetLockCount(0)
+
+  local Result = pack(param[1](unpack(param,2,param.n)))
+
+  Import.ScrBufSetLockCount(lockCount)
+
+  if #StateStack > EntryStackSize then
+    PopState(true)
+    macro:SetValue(Result)
+  end
+end
+
 local function CallStep()
   while true do
     local macro = CheckCurMacro()
@@ -246,6 +266,8 @@ local function CallStep()
     local value, handle = macro:GetValue(), macro:GetHandle()
     if type(value) == "userdata" then
       r1,r2 = MacroStep(handle, far_FarMacroCallToLua(value))
+    elseif type(value) == "table" --[[and value.n]] then
+      r1,r2 = MacroStep(handle, unpack(value,1,value.n))
     elseif value ~= nil then
       r1,r2 = MacroStep(handle, value)
     else
@@ -281,6 +303,12 @@ local function GetInputFromMacro()
   MacroIsRunning = MacroIsRunning + 1
   local r1,r2 = CallStep()
   MacroIsRunning = MacroIsRunning - 1
+
+  if r1 == "acall" then
+    ACall(GetCurMacro(), r2)
+    return GetInputFromMacro() -- tail recursion
+  end
+
   return r1,r2
 end
 

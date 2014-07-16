@@ -231,7 +231,7 @@ local function MacroStep (handle, ...)
         if status == "suspended" and ret1 == PROPAGATE and ret_type ~= "exit" then
           macro.store[1] = ret_values
           if ret_type==F.MPRT_PLUGINCALL or ret_type==F.MPRT_PLUGINMENU or ret_type==F.MPRT_PLUGINCONFIG or
-             ret_type==F.MPRT_PLUGINCOMMAND or ret_type==F.MPRT_USERMENU then
+             ret_type==F.MPRT_PLUGINCOMMAND or ret_type==F.MPRT_USERMENU or ret_type=="acall" then
             return ret_type, ret_values
           else
             return ret_type, macro.store
@@ -447,6 +447,10 @@ local function Init()
 
   RunPluginFile("api.lua", Shared)
   mf.postmacro = postmacro
+  mf.acall = function(f, ...)
+    checkarg(f, 1, "function")
+    return yieldcall("acall", f, ...)
+  end
 
   keymacro = RunPluginFile("keymacro.lua", Shared)
   Shared.keymacro = keymacro

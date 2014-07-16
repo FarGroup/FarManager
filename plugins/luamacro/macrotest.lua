@@ -109,6 +109,13 @@ local function test_abs()
   assert(mf.abs(0)==0)
 end
 
+local function test_acall()
+  local a,b,c,d = mf.acall(function(p) return 3, nil, p, "foo" end, 77)
+  assert(a==3 and b==nil and c==77 and d=="foo")
+  -- assert(true == mf.acall(far.Show))
+  -- Keys"Esc"
+end
+
 local function test_asc()
   assert(mf.asc("0")==48)
   assert(mf.asc("Я")==1071)
@@ -456,6 +463,7 @@ end
 
 local function test_mf()
   test_abs()
+  test_acall()
   test_akey()
   test_asc()
   test_atoi()
