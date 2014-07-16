@@ -707,8 +707,8 @@ void FileEditor::Init(
 
 void FileEditor::ReadEvent(void)
 {
-	Global->CtrlObject->Plugins->ProcessEditorEvent(EE_READ,nullptr,m_editor->EditorID);
 	bEE_READ_Sent = true;
+	Global->CtrlObject->Plugins->ProcessEditorEvent(EE_READ,nullptr,m_editor->EditorID);
 }
 
 void FileEditor::InitKeyBar()

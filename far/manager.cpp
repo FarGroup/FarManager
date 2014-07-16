@@ -1188,17 +1188,20 @@ void Manager::DeleteCommit(Frame* Param)
 	{
 		ModalFrames.erase(ModalFrames.begin() + ModalIndex);
 
-		if (!ModalFrames.empty())
+		if (CurrentFrame==Param)
 		{
-			ActivateCommit(ModalFrames.back());
+			if (!ModalFrames.empty())
+			{
+				ActivateCommit(ModalFrames.back());
+			}
+			else if (Frames.size())
+			{
+				assert(FramePos < static_cast<int>(Frames.size()));
+				assert(FramePos>=0);
+				ActivateCommit(FramePos);
+			}
+			else ClearCurrentFrame();
 		}
-		else if (Frames.size())
-		{
-			assert(FramePos < static_cast<int>(Frames.size()));
-			assert(FramePos>=0);
-			ActivateCommit(FramePos);
-		}
-		else ClearCurrentFrame();
 	}
 	else if (-1!=FrameIndex)
 	{
@@ -1209,19 +1212,30 @@ void Manager::DeleteCommit(Frame* Param)
 			FramePos=0;
 		}
 
-		if (Frames.size())
+		if (CurrentFrame==Param)
 		{
-			if (Param->FrameToBack==Global->CtrlObject->Cp())
+			if (Frames.size())
 			{
-				ActivateCommit(FramePos);
+				if (Param->FrameToBack==Global->CtrlObject->Cp())
+				{
+					ActivateCommit(FramePos);
+				}
+				else
+				{
+					assert(Param->FrameToBack);
+					ActivateCommit(Param->FrameToBack);
+				}
 			}
-			else
+			else ClearCurrentFrame();
+		}
+		else
+		{
+			if (Frames.size())
 			{
-				assert(Param->FrameToBack);
-				ActivateCommit(Param->FrameToBack);
+				RefreshFrame(FramePos);
+				RefreshFrame(CurrentFrame);
 			}
 		}
-		else ClearCurrentFrame();
 	}
 
 	assert(CurrentFrame!=Param);
