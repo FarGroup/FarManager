@@ -572,7 +572,7 @@ int main (int argc, const char* argv[])
 											pLangEntries[i].lpLanguageName
 											);
 									*/
-
+									SmartWrite (pLangEntries[i].hLNGFile, "// need translation:\r\n", &pLangEntries[i].dwCRC32, pLangEntries[i].nEncoding);
 									pLangEntries[i].cNeedUpdate++;
 								}
 
