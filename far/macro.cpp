@@ -2473,14 +2473,18 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_F_KEYMACRO:
 			if (Data->Count && Data->Values[0].Type==FMVT_DOUBLE)
 			{
-				double op = Data->Values[0].Double;
-				if (op == 1)      RestoreMacroChar();
-				else if (op == 2) Global->ScrBuf->Lock();
-				else if (op == 3) Global->ScrBuf->Unlock();
-				else if (op == 4) Global->ScrBuf->ResetLockCount();
-				else if (op == 5) PassBoolean(Clipboard::GetUseInternalClipboardState(), Data);
-				else if (op == 6 && Data->Count > 1) Clipboard::SetUseInternalClipboardState(Data->Values[1].Boolean != 0);
-				else if (op == 7 && Data->Count > 1) PassNumber(KeyNameToKey(Data->Values[1].String), Data);
+				switch ((int)Data->Values[0].Double)
+				{
+					case 1: RestoreMacroChar(); break;
+					case 2: Global->ScrBuf->Lock(); break;
+					case 3: Global->ScrBuf->Unlock(); break;
+					case 4: Global->ScrBuf->ResetLockCount(); break;
+					case 5: PassNumber(Global->ScrBuf->GetLockCount(), Data); break;
+					case 6: if (Data->Count > 1) Global->ScrBuf->SetLockCount(Data->Values[1].Double); break;
+					case 7: PassBoolean(Clipboard::GetUseInternalClipboardState(), Data); break;
+					case 8: if (Data->Count > 1) Clipboard::SetUseInternalClipboardState(Data->Values[1].Boolean != 0); break;
+					case 9: if (Data->Count > 1) PassNumber(KeyNameToKey(Data->Values[1].String), Data); break;
+				}
 			}
 			break;
 
