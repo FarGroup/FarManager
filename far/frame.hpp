@@ -90,6 +90,9 @@ public:
 	void SetFlags( DWORD flags ) { Flags.Set(flags); }
 	void SetDeleting(void);
 	bool IsDeleting(void);
+	void Lock(void);
+	void Unlock(void);
+	bool IsLocked(void);
 
 protected:
 	bool DynamicallyBorn;
@@ -107,4 +110,5 @@ private:
 	Frame *FrameToBack;
 	Frame *NextModal;
 	bool Deleting;
+	long LockCounter;
 };

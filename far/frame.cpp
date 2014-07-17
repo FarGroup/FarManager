@@ -49,7 +49,8 @@ Frame::Frame():
 	MacroMode(MACROAREA_OTHER),
 	FrameToBack(nullptr),
 	NextModal(nullptr),
-	Deleting(false)
+	Deleting(false),
+	LockCounter(0)
 {
 	_OT(SysLog(L"[%p] Frame::Frame()", this));
 }
@@ -171,4 +172,20 @@ void Frame::SetDeleting(void)
 bool Frame::IsDeleting(void)
 {
 	return Deleting;
+}
+
+void Frame::Lock(void)
+{
+	++LockCounter;
+}
+
+void Frame::Unlock(void)
+{
+	assert(LockCounter>0);
+	--LockCounter;
+}
+
+bool Frame::IsLocked(void)
+{
+	return LockCounter>0;
 }

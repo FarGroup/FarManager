@@ -547,5 +547,12 @@ void FileViewer::OnReload(void)
 
 void FileViewer::ReadEvent(void)
 {
-	Global->FrameManager->CallbackFrame([this](){this->View.ReadEvent();});
+
+	Global->FrameManager->CallbackFrame([this]()
+	{
+		this->Lock();
+		this->View.ReadEvent();
+		this->Unlock();
+	});
+
 }

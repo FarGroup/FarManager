@@ -175,7 +175,7 @@ private:
 	{
 		public:
 			virtual ~MessageAbstract() {}
-			virtual void Process(void)=0;
+			virtual bool Process(void)=0;
 	};
 	class MessageCallback: public MessageAbstract
 	{
@@ -183,7 +183,7 @@ private:
 			std::function<void(void)> m_Callback;
 		public:
 			MessageCallback(const std::function<void(void)>& Callback): m_Callback(Callback) {}
-			virtual void Process(void) override {m_Callback();}
+			virtual bool Process(void) override {m_Callback();return true;}
 	};
 	class MessageOneFrame: public MessageAbstract
 	{
@@ -192,7 +192,7 @@ private:
 			std::function<void(Frame*)> m_Callback;
 		public:
 			MessageOneFrame(Frame* Param,const std::function<void(Frame*)>& Callback): m_Param(Param),m_Callback(Callback) {}
-			virtual void Process(void) override {m_Callback(m_Param);}
+			virtual bool Process(void) override {m_Callback(m_Param);return true;}
 	};
 	class MessageTwoFrames: public MessageAbstract
 	{
@@ -202,10 +202,18 @@ private:
 			std::function<void(Frame*,Frame*)> m_Callback;
 		public:
 			MessageTwoFrames(Frame* Param1,Frame* Param2,const std::function<void(Frame*,Frame*)>& Callback): m_Param1(Param1),m_Param2(Param2),m_Callback(Callback) {}
-			virtual void Process(void) override {m_Callback(m_Param1,m_Param2);}
+			virtual bool Process(void) override {m_Callback(m_Param1,m_Param2);return true;}
+	};
+	class MessageStop: public MessageAbstract
+	{
+		public:
+			MessageStop() {}
+			virtual bool Process(void) override {return false;}
 	};
 
 	std::list<std::unique_ptr<MessageAbstract>> m_Queue;
 	void PushFrame(Frame* Param,void(Manager::*Callback)(Frame*));
+	void CheckAndPushFrame(Frame* Param,void(Manager::*Callback)(Frame*));
 	void ProcessFrameByPos(int Index,void(Manager::*Callback)(Frame*));
+	void RedeleteFrame(Frame *Deleted);
 };

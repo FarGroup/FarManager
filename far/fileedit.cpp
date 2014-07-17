@@ -707,8 +707,10 @@ void FileEditor::Init(
 
 void FileEditor::ReadEvent(void)
 {
-	bEE_READ_Sent = true;
+	Lock();
 	Global->CtrlObject->Plugins->ProcessEditorEvent(EE_READ,nullptr,m_editor->EditorID);
+	Unlock();
+	bEE_READ_Sent = true;
 }
 
 void FileEditor::InitKeyBar()

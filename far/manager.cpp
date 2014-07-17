@@ -144,8 +144,13 @@ void Manager::CloseAll()
 
 void Manager::PushFrame(Frame* Param,void(Manager::*Callback)(Frame*))
 {
+	m_Queue.push_back(std::make_unique<MessageOneFrame>(Param,[this,Callback](Frame* Param){(this->*Callback)(Param);}));
+}
+
+void Manager::CheckAndPushFrame(Frame* Param,void(Manager::*Callback)(Frame*))
+{
 	//assert(Param);
-	if (Param&&!Param->IsDeleting()) m_Queue.push_back(std::make_unique<MessageOneFrame>(Param,[this,Callback](Frame* Param){(this->*Callback)(Param);}));
+	if (Param&&!Param->IsDeleting()) PushFrame(Param,Callback);
 }
 
 void Manager::ProcessFrameByPos(int Index,void(Manager::*Callback)(Frame*))
@@ -165,7 +170,7 @@ void Manager::InsertFrame(Frame *Inserted)
 	_MANAGER(CleverSysLog clv(L"Manager::InsertFrame(Frame *Inserted, int Index)"));
 	_MANAGER(SysLog(L"Inserted=%p, Index=%i",Inserted, Index));
 
-	PushFrame(Inserted,&Manager::InsertCommit);
+	CheckAndPushFrame(Inserted,&Manager::InsertCommit);
 }
 
 void Manager::DeleteFrame(Frame *Deleted)
@@ -178,7 +183,7 @@ void Manager::DeleteFrame(Frame *Deleted)
 
 	Frame* frame=Deleted?Deleted:CurrentFrame;
 	assert(frame);
-	PushFrame(frame,&Manager::DeleteCommit);
+	CheckAndPushFrame(frame,&Manager::DeleteCommit);
 	if (frame->GetDynamicallyBorn())
 		frame->SetDeleting();
 }
@@ -190,6 +195,11 @@ void Manager::DeleteFrame(int Index)
 	ProcessFrameByPos(Index,&Manager::DeleteFrame);
 }
 
+void Manager::RedeleteFrame(Frame *Deleted)
+{
+	m_Queue.push_back(std::make_unique<MessageStop>());
+	PushFrame(Deleted,&Manager::DeleteCommit);
+}
 
 void Manager::ModalizeFrame(Frame *Modalized, int Mode)
 {
@@ -229,7 +239,7 @@ void Manager::ExecuteModal(Frame *Executed)
 
 	if (Executed)
 	{
-		PushFrame(Executed,&Manager::ExecuteCommit);
+		CheckAndPushFrame(Executed,&Manager::ExecuteCommit);
 	}
 
 	auto ModalStartLevel=ModalFrames.size();
@@ -410,7 +420,7 @@ void Manager::ActivateFrame(Frame *Activated)
 	_MANAGER(CleverSysLog clv(L"Manager::ActivateFrame(Frame *Activated)"));
 	_MANAGER(SysLog(L"Activated=%i",Activated));
 
-	if (Activated) PushFrame(Activated,&Manager::ActivateCommit);
+	if (Activated) CheckAndPushFrame(Activated,&Manager::ActivateCommit);
 }
 
 void Manager::ActivateFrame(int Index)
@@ -452,7 +462,7 @@ void Manager::DeactivateFrame(Frame *Deactivated,int Direction)
 		// Direct access from menu or (in future) from plugin
 	}
 
-	PushFrame(Deactivated,&Manager::DeactivateCommit);
+	CheckAndPushFrame(Deactivated,&Manager::DeactivateCommit);
 }
 
 void Manager::RefreshFrame(Frame *Refreshed)
@@ -460,7 +470,7 @@ void Manager::RefreshFrame(Frame *Refreshed)
 	_MANAGER(CleverSysLog clv(L"Manager::RefreshFrame(Frame *Refreshed)"));
 	_MANAGER(SysLog(L"Refreshed=%p",Refreshed));
 
-	PushFrame(Refreshed?Refreshed:CurrentFrame,&Manager::RefreshCommit);
+	CheckAndPushFrame(Refreshed?Refreshed:CurrentFrame,&Manager::RefreshCommit);
 }
 
 void Manager::RefreshFrame(int Index)
@@ -474,7 +484,7 @@ void Manager::ExecuteFrame(Frame *Executed)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::ExecuteFrame(Frame *Executed)"));
 	_MANAGER(SysLog(L"Executed=%p",Executed));
-	PushFrame(Executed,&Manager::ExecuteCommit);
+	CheckAndPushFrame(Executed,&Manager::ExecuteCommit);
 }
 
 void Manager::UpdateFrame(Frame* Old,Frame* New)
@@ -1141,7 +1151,7 @@ void Manager::Commit(void)
 	{
 		auto message=std::move(m_Queue.front());
 		m_Queue.pop_front();
-		message->Process();
+		if (!message->Process()) break;
 	}
 }
 
@@ -1164,6 +1174,12 @@ void Manager::DeleteCommit(Frame* Param)
 
 	if (!Param)
 		return;
+
+	if (Param->IsLocked())
+	{
+		RedeleteFrame(Param);
+		return;
+	}
 
 	Param->OnDestroy();
 

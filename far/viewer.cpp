@@ -4389,8 +4389,8 @@ uintptr_t Viewer::GetDefaultCodePage()
 
 void Viewer::ReadEvent(void)
 {
-	bVE_READ_Sent = true;
 	Global->CtrlObject->Plugins->ProcessViewerEvent(VE_READ,nullptr,ViewerID);
+	bVE_READ_Sent = true;
 }
 
 void Viewer::CloseEvent(void)
