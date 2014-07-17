@@ -6774,10 +6774,10 @@ bool Editor::GetSessionBookmark(int iIdx, InternalEditorBookmark *Param)
 	if (!SessionBookmarks.empty() && Param)
 	{
 		auto sb_temp = PointerToSessionBookmark(iIdx);
-		if (Param->Line)       Param->Line = sb_temp->Line;
-		if (Param->Cursor)     Param->Cursor     =sb_temp->Cursor;
-		if (Param->LeftPos)    Param->LeftPos    =sb_temp->LeftPos;
-		if (Param->ScreenLine) Param->ScreenLine =sb_temp->ScreenLine;
+		Param->Line = sb_temp->Line;
+		Param->Cursor     =sb_temp->Cursor;
+		Param->LeftPos    =sb_temp->LeftPos;
+		Param->ScreenLine =sb_temp->ScreenLine;
 
 		return true;
 	}
