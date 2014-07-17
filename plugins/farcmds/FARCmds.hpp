@@ -117,11 +117,11 @@ inline bool FileExists(const wchar_t *Name)  { return GetFileAttributes(Name)!=0
 
 
 bool StrToGuid(const wchar_t *Value,GUID *Guid);
-int GetInt(wchar_t *Start, wchar_t *End);
+int GetInt(const wchar_t *Start, wchar_t *End);
 const wchar_t *GetMsg(int MsgId);
 int ReplaceStrings(wchar_t *Str,const wchar_t *FindStr,const wchar_t *ReplStr,int Count,BOOL IgnoreCase);
 int PartCmdLine(const wchar_t *CmdStr,wchar_t **NewCmdStr,wchar_t **NewCmdPar);
-BOOL ProcessOSAliases(wchar_t *Str,int SizeStr);
+wchar_t *ProcessOSAliases(const wchar_t *Str);
 wchar_t *GetShellLinkPath(const wchar_t *LinkFile);
 wchar_t *OpenFromCommandLine(const wchar_t *_farcmd);
 wchar_t *ExpandEnv(const wchar_t* Src, DWORD* Length);

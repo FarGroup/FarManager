@@ -34,7 +34,7 @@ wchar_t *ExpandEnv(const wchar_t* Src, DWORD* Length)
 	возвращает число, вырезав его из строки, или -2 в случае ошибки
 	Start, End - начало и конец строки
 */
-int GetInt(wchar_t *Start, wchar_t *End)
+int GetInt(const wchar_t *Start, wchar_t *End)
 {
 	int Ret=-2;
 
@@ -185,96 +185,159 @@ int PartCmdLine(const wchar_t *CmdStr,wchar_t **NewCmdStr,wchar_t **NewCmdPar)
 	return PipeFound;
 }
 
-BOOL ProcessOSAliases(wchar_t *Str,int SizeStr)
+static wchar_t *GetAlias(const wchar_t *ModuleName, const wchar_t *FindAlias)
 {
-	typedef DWORD (WINAPI *PGETCONSOLEALIAS)(
-		wchar_t *lpSource,          // in
-		wchar_t *lpTargetBuffer,    // out
-		DWORD TargetBufferLength,   // in
-		wchar_t *lpExeName          // in
-	);
-	static PGETCONSOLEALIAS pGetConsoleAlias=NULL;
+	wchar_t *FoundAlias=nullptr;
 
-	if (!pGetConsoleAlias)
+	bool found=false;
+	int ret=GetConsoleAliasesLength((LPWSTR)ModuleName);
+	if (ret)
 	{
-		pGetConsoleAlias = (PGETCONSOLEALIAS)GetProcAddress(GetModuleHandleW(L"kernel32"),"GetConsoleAliasW");
-
-		if (!pGetConsoleAlias)
-			return FALSE;
-	}
-
-	wchar_t NewCmdStr[4096], *pNewCmdStr=nullptr;
-	wchar_t NewCmdPar[4096], *pNewCmdPar=nullptr;
-
-	PartCmdLine(Str,&pNewCmdStr,&pNewCmdPar);
-
-	if (pNewCmdStr)
-	{
-		lstrcpyn(NewCmdStr,pNewCmdStr,ARRAYSIZE(NewCmdStr));
-		delete[] pNewCmdStr;
-	}
-	else
-		NewCmdStr[0]=0;
-
-	if (pNewCmdPar)
-	{
-		lstrcpyn(NewCmdPar,pNewCmdPar,ARRAYSIZE(NewCmdStr));
-		delete[] pNewCmdPar;
-	}
-	else
-		NewCmdPar[0]=0;
-
-	DWORD SizeModuleName = 0;
-	wchar_t *ModuleName=nullptr;
-	// <GetModuleFileName>
-	{
-		DWORD BufferSize = MAX_PATH;
-
-		do {
-			BufferSize *= 2;
-			wchar_t *ModuleNameTemp=(wchar_t*)realloc(ModuleName,BufferSize);
-			if (ModuleNameTemp)
-			{
-				ModuleName=ModuleNameTemp;
-				SizeModuleName = GetModuleFileName(NULL, ModuleName, BufferSize);
-			}
-		} while ((SizeModuleName >= BufferSize) || (!SizeModuleName && GetLastError() == ERROR_INSUFFICIENT_BUFFER));
-	}
-
-	// find alias for Far.exe
-	int ret=pGetConsoleAlias(NewCmdStr,NewCmdStr,sizeof(NewCmdStr),(wchar_t*)FSF.PointToName(ModuleName));
-
-	if (!ret) // if Ret == 0 then not found alias for Far.exe
-	{
-		// find alias for cmd.exe
-		wchar_t *CSModuleName=ExpandEnv(L"%COMSPEC%",nullptr);
-		if (CSModuleName)
+		wchar_t *AllAliases=new wchar_t[ret];
+		if (AllAliases)
 		{
-			ret=pGetConsoleAlias(NewCmdStr,NewCmdStr,sizeof(NewCmdStr),(wchar_t*)FSF.PointToName(CSModuleName));
-			delete[] CSModuleName;
+			ret=GetConsoleAliases(AllAliases, ret, (LPWSTR)ModuleName);
+			if (ret)
+			{
+				wchar_t *ptr=AllAliases;
+				while(*ptr)
+				{
+					wchar_t *p=wcschr(ptr,L'=');
+					if (p)
+					{
+						*p=0;
+						if (!FSF.LStricmp(ptr,FindAlias))
+						{
+							FoundAlias=new wchar_t[lstrlen(p+1)+1];
+							if (FoundAlias)
+								lstrcpy(FoundAlias,p+1);
+							break;
+						}
+						*p=L'=';
+					}
+					ptr+=lstrlen(ptr)+1;
+				}
+			}
+			delete[] AllAliases;
 		}
 	}
 
-	if (!ret)
+	return FoundAlias;
+}
+
+wchar_t* ProcessOSAliases(const wchar_t *Str)
+{
+	wchar_t *pNewCmdStr=nullptr;
+	wchar_t *pNewCmdPar=nullptr;
+
+	PartCmdLine(Str,&pNewCmdStr,&pNewCmdPar);
+
+	if (!pNewCmdStr)
 	{
+		if (!pNewCmdPar)
+			return nullptr;
+	}
+
+
+	wchar_t *ptrAlias=nullptr;
+
+	if (pNewCmdStr)
+	{
+		// <GetModuleFileName>
+		wchar_t *ModuleName=nullptr;
+
+		{
+			DWORD SizeModuleName = 0;
+			DWORD BufferSize = MAX_PATH;
+
+			do {
+				BufferSize *= 2;
+				wchar_t *ModuleNameTemp=(wchar_t*)realloc(ModuleName,BufferSize);
+				if (ModuleNameTemp)
+				{
+					ModuleName=ModuleNameTemp;
+					SizeModuleName = GetModuleFileName(NULL, ModuleName, BufferSize);
+				}
+			} while ((SizeModuleName >= BufferSize) || (!SizeModuleName && GetLastError() == ERROR_INSUFFICIENT_BUFFER));
+		}
+
+		// find alias for Far.exe
 		if (ModuleName)
-			free(ModuleName);
+		{
+			ptrAlias=GetAlias(FSF.PointToName(ModuleName), pNewCmdStr);
+			if (ModuleName)
+				free(ModuleName);
+		}
 
-		return FALSE;
+		if (!ptrAlias)
+		{
+			// find alias for cmd.exe
+			wchar_t *CSModuleName=ExpandEnv(L"%COMSPEC%",nullptr);
+			if (CSModuleName)
+			{
+				ptrAlias=GetAlias(FSF.PointToName(CSModuleName), pNewCmdStr);
+				delete[] CSModuleName;
+			}
+		}
 	}
 
-	if (!ReplaceStrings(NewCmdStr,L"$*",NewCmdPar,-1,FALSE))
+	if (!ptrAlias)
 	{
-		lstrcat(NewCmdStr,L" ");
-		lstrcat(NewCmdStr,NewCmdPar);
+		if (pNewCmdStr)
+			delete[] pNewCmdStr;
+
+		if (pNewCmdPar)
+			delete[] pNewCmdPar;
+		return nullptr;
+	}
+	else
+	{
+		if (pNewCmdStr)
+			delete[] pNewCmdStr;
 	}
 
-	lstrcpyn(Str,NewCmdStr,SizeStr-1);
+	wchar_t *ptrCmdStr=ptrAlias;
 
-	if (ModuleName)
-		free(ModuleName);
+	// count "$*"
+	size_t countP=1;
+	while (*ptrCmdStr)
+	{
+		wchar_t *p=wcsstr(ptrCmdStr,L"$*");
+		if (p)
+		{
+			countP++;
+			ptrCmdStr=p+2;
+		}
+	}
 
-	return TRUE;
+	// alloc memory
+	wchar_t *tempCmdStr=new wchar_t[lstrlen(ptrAlias)+countP*(pNewCmdPar?lstrlen(pNewCmdPar):0)+1];
+	if (tempCmdStr)
+	{
+		lstrcpy(tempCmdStr,ptrAlias);
+		// replace
+		if (!ReplaceStrings(tempCmdStr,L"$*",pNewCmdPar?pNewCmdPar:L"",-1,FALSE))
+		{
+			//... or merge
+			if (pNewCmdPar)
+			{
+				lstrcat(tempCmdStr,L" ");
+				lstrcat(tempCmdStr,pNewCmdPar);
+			}
+		}
+		ptrCmdStr=tempCmdStr;
+		delete[] ptrAlias;
+	}
+	else
+	{
+		delete[] ptrAlias;
+		return nullptr;
+	}
+
+	if (pNewCmdPar)
+		delete[] pNewCmdPar;
+
+	return ptrCmdStr;
 }
 
 

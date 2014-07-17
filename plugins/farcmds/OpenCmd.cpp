@@ -149,63 +149,72 @@ static bool validForView(const wchar_t *FileName, bool viewEmpty, bool editNew)
 	if (isDevice(FileName, L"\\\\.\\cdrom"))
 		return true;
 
-	const wchar_t *ptrFileName=FileName;
-	wchar_t *ptrCurDir=NULL;
 
-	if (*ptrFileName && FSF.PointToName(ptrFileName) == ptrFileName)
+	bool Ret=false;
+	wchar_t *ptrFileName=new wchar_t[lstrlen(FileName)+1];
+	wchar_t *ptrCurDir=nullptr;
+
+	if (ptrFileName)
 	{
-		int dirSize=(int)Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,0,0);
+		lstrcpy(ptrFileName,FileName);
 
-		if (dirSize)
+		if (*ptrFileName && FSF.PointToName(ptrFileName) == ptrFileName)
 		{
-		    FarPanelDirectory* dirInfo=(FarPanelDirectory*)new char[dirSize];
-		    dirInfo->StructSize = sizeof(FarPanelDirectory);
-			Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,dirSize,dirInfo);
-			int Size=lstrlen(dirInfo->Name)+1;
-			ptrCurDir=new WCHAR[Size+lstrlen(FileName)+8];
-			lstrcpy(ptrCurDir,dirInfo->Name);
-			lstrcat(ptrCurDir,L"\\");
-			lstrcat(ptrCurDir,ptrFileName);
-			ptrFileName=(const wchar_t *)ptrCurDir;
-			delete[](char*)dirInfo;
+			int dirSize=(int)Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,0,0);
+
+			if (dirSize)
+			{
+			    FarPanelDirectory* dirInfo=(FarPanelDirectory*)new char[dirSize];
+			    if (dirInfo)
+			    {
+				    dirInfo->StructSize = sizeof(FarPanelDirectory);
+					Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,dirSize,dirInfo);
+
+					int Size=lstrlen(dirInfo->Name)+1;
+					ptrCurDir=new wchar_t[Size+lstrlen(FileName)+8];
+					if (ptrCurDir)
+					{
+						lstrcpy(ptrCurDir,dirInfo->Name);
+						lstrcat(ptrCurDir,L"\\");
+						lstrcat(ptrCurDir,ptrFileName);
+
+						delete[] ptrFileName;
+						ptrFileName=ptrCurDir;
+					}
+
+					delete[](char*)dirInfo;
+				}
+			}
 		}
 	}
 
-	if (*ptrFileName && FileExists(ptrFileName))
+	if (ptrFileName && *ptrFileName && FileExists(ptrFileName))
 	{
 		if (viewEmpty)
+			Ret = true;
+		else
 		{
-			if (ptrCurDir)
-				delete[] ptrCurDir;
+			HANDLE Handle = CreateFile(ptrFileName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL);
 
-			return true;
-		}
+			if (Handle != INVALID_HANDLE_VALUE)
+			{
+				DWORD size = GetFileSize(Handle, NULL);
+				CloseHandle(Handle);
 
-		HANDLE Handle = CreateFile(ptrFileName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL);
-
-		if (Handle != INVALID_HANDLE_VALUE)
-		{
-			DWORD size = GetFileSize(Handle, NULL);
-			CloseHandle(Handle);
-
-			if (ptrCurDir)
-				delete[] ptrCurDir;
-
-			return size && (size != 0xFFFFFFFF);
+				Ret = size && (size != 0xFFFFFFFF);
+			}
 		}
 	}
 	else if (editNew)
-	{
-		if (ptrCurDir)
-			delete[] ptrCurDir;
-
-		return true;
-	}
+		Ret=true;
 
 	if (ptrCurDir)
 		delete[] ptrCurDir;
 
-	return false;
+	if (ptrFileName)
+		delete[] ptrFileName;
+
+	return Ret;
 }
 
 wchar_t *ConvertBuffer(wchar_t* Ptr,size_t PtrSize,BOOL outputtofile, size_t& shift,bool *unicode)
@@ -220,14 +229,16 @@ wchar_t *ConvertBuffer(wchar_t* Ptr,size_t PtrSize,BOOL outputtofile, size_t& sh
 		if (Ptr[0]==SIGN_UNICODE)
 		{
 			shift=1;
-			if (unicode) *unicode=true;
+			if (unicode)
+				*unicode=true;
 		}
 		else if (Ptr[0]==SIGN_REVERSEBOM)
 		{
 			shift=1;
 			size_t PtrLength=lstrlen(Ptr);
 			swab((char*)Ptr,(char*)Ptr,int(PtrLength*sizeof(wchar_t)));
-			if (unicode) *unicode=true;
+			if (unicode)
+				*unicode=true;
 		}
 		else
 		{
@@ -1390,7 +1401,14 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 							wchar_t *cmd=nullptr;
 
 							if (outputtofile)
-								ProcessOSAliases(pCmd,ARRAYSIZE(farcmdbuf)); // BUGBUG!!!
+							{
+								wchar_t *resAlias=ProcessOSAliases(pCmd);
+								if (resAlias)
+								{
+									lstrcpyn(pCmd,resAlias,ARRAYSIZE(farcmdbuf)-(pCmd-farcmdbuf)/sizeof(wchar_t));
+									delete[] resAlias;
+								}
+							}
 
 							wchar_t *tempDir = nullptr;
 							wchar_t *pTempFileNameOut=nullptr, *pTempFileNameErr=nullptr;
