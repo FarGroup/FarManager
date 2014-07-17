@@ -181,15 +181,26 @@ static int IsFarSpring(lua_State *L)
 
 HANDLE OptHandle(lua_State *L)
 {
-	return lua_isnoneornil(L, 1) ?
-	       INVALID_HANDLE_VALUE : (HANDLE)luaL_checkinteger(L, 1);
+	switch(lua_type(L,1))
+	{
+		case LUA_TNONE:
+		case LUA_TNIL:
+			break;
+		case LUA_TNUMBER:
+			return (HANDLE)lua_tointeger(L,1);
+		case LUA_TUSERDATA:
+			return *(HANDLE*)luaL_checkudata(L, 1, PluginHandleType);
+		case LUA_TLIGHTUSERDATA:
+			return lua_touserdata(L,1);
+		default:
+			luaL_typerror(L, 1, "integer or userdata");
+	}
+	return NULL;
 }
 
 HANDLE OptHandle2(lua_State *L)
 {
-	return lua_isnoneornil(L, 1) ?
-	       (luaL_checkinteger(L, 2) % 2 ? PANEL_ACTIVE:PANEL_PASSIVE) :
-		       (HANDLE)luaL_checkinteger(L, 1);
+	return lua_isnoneornil(L,1) ? (luaL_checkinteger(L,2) % 2 ? PANEL_ACTIVE:PANEL_PASSIVE) : OptHandle(L);
 }
 
 static UINT64 get_env_flag(lua_State *L, int pos, int *success)
