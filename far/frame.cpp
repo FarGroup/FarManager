@@ -50,7 +50,7 @@ Frame::Frame():
 	FrameToBack(nullptr),
 	NextModal(nullptr),
 	Deleting(false),
-	LockCounter(0)
+	BlockCounter(0)
 {
 	_OT(SysLog(L"[%p] Frame::Frame()", this));
 }
@@ -174,18 +174,18 @@ bool Frame::IsDeleting(void)
 	return Deleting;
 }
 
-void Frame::Lock(void)
+void Frame::SetBlock(void)
 {
-	++LockCounter;
+	++BlockCounter;
 }
 
-void Frame::Unlock(void)
+void Frame::RemoveBlock(void)
 {
-	assert(LockCounter>0);
-	--LockCounter;
+	assert(BlockCounter>0);
+	--BlockCounter;
 }
 
-bool Frame::IsLocked(void)
+bool Frame::IsBlocked(void)
 {
-	return LockCounter>0;
+	return BlockCounter>0;
 }

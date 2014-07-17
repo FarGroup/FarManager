@@ -707,9 +707,9 @@ void FileEditor::Init(
 
 void FileEditor::ReadEvent(void)
 {
-	Lock();
+	SetBlock();
 	Global->CtrlObject->Plugins->ProcessEditorEvent(EE_READ,nullptr,m_editor->EditorID);
-	Unlock();
+	RemoveBlock();
 	bEE_READ_Sent = true;
 }
 

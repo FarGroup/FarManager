@@ -1175,7 +1175,7 @@ void Manager::DeleteCommit(Frame* Param)
 	if (!Param)
 		return;
 
-	if (Param->IsLocked())
+	if (Param->IsBlocked())
 	{
 		RedeleteFrame(Param);
 		return;

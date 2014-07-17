@@ -550,9 +550,9 @@ void FileViewer::ReadEvent(void)
 
 	Global->FrameManager->CallbackFrame([this]()
 	{
-		this->Lock();
+		this->SetBlock();
 		this->View.ReadEvent();
-		this->Unlock();
+		this->RemoveBlock();
 	});
 
 }
