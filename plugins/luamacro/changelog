@@ -1,4 +1,8 @@
-﻿shmuel 17.07.2014 16:38:07 +0200 - build 400
+﻿shmuel 18.07.2014 07:46:24 +0200 - build 401
+
+1. LuaFAR: функции editor.GetBookmarks и editor.GetSessionBookmarks неправильно работали и вызывали падение.
+
+shmuel 17.07.2014 16:38:07 +0200 - build 400
 
 1. LuaFAR: функции panel.* не работали с хэндлами панелей, полученными от panel.GetPanelInfo().
 

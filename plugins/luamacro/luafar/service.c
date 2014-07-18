@@ -1056,29 +1056,25 @@ static int editor_ExpandTabs(lua_State *L)
 
 static int PushBookmarks(lua_State *L, int command)
 {
-	int i;
-	struct EditorBookmarks ebm;
 	intptr_t EditorId = luaL_optinteger(L, 1, CURRENT_EDITOR);
-	memset(&ebm, 0, sizeof(ebm));
-	ebm.StructSize = sizeof(ebm);
-	ebm.Size = GetPluginData(L)->Info->EditorControl(EditorId, command, 0, &ebm);
-	if(ebm.Size)
+	size_t size = GetPluginData(L)->Info->EditorControl(EditorId, command, 0, NULL);
+	if (size)
 	{
-		ebm.Line = (intptr_t*)lua_newuserdata(L, ebm.Size);
-		ebm.Cursor     = ebm.Line + ebm.Count;
-		ebm.ScreenLine = ebm.Cursor + ebm.Count;
-		ebm.LeftPos    = ebm.ScreenLine + ebm.Count;
-		if(GetPluginData(L)->Info->EditorControl(EditorId, command, 0, &ebm))
+		struct EditorBookmarks *ebm = (struct EditorBookmarks*)lua_newuserdata(L, size);
+		ebm->StructSize = sizeof(*ebm);
+		ebm->Size = size;
+		if(GetPluginData(L)->Info->EditorControl(EditorId, command, 0, ebm))
 		{
-			lua_createtable(L, (int)ebm.Count, 0);
-			for(i=0; i < (int)ebm.Count; i++)
+			int i;
+			lua_createtable(L, (int)ebm->Count, 0);
+			for(i=0; i < (int)ebm->Count; i++)
 			{
 				lua_pushinteger(L, i+1);
 				lua_createtable(L, 0, 4);
-				PutNumToTable(L, "Line", (double) ebm.Line[i] + 1);
-				PutNumToTable(L, "Cursor", (double) ebm.Cursor[i] + 1);
-				PutNumToTable(L, "ScreenLine", (double) ebm.ScreenLine[i] + 1);
-				PutNumToTable(L, "LeftPos", (double) ebm.LeftPos[i] + 1);
+				PutNumToTable(L, "Line", (double) ebm->Line[i] + 1);
+				PutNumToTable(L, "Cursor", (double) ebm->Cursor[i] + 1);
+				PutNumToTable(L, "ScreenLine", (double) ebm->ScreenLine[i] + 1);
+				PutNumToTable(L, "LeftPos", (double) ebm->LeftPos[i] + 1);
 				lua_rawset(L, -3);
 			}
 			return 1;
