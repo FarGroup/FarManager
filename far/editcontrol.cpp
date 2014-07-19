@@ -218,25 +218,24 @@ bool EnumModules(const string& Module, VMenu2* DestMenu)
 	if(!Module.empty() && !FirstSlash(Module.data()))
 	{
 		std::unordered_set<string> Modules;
-		auto ExcludeCmdsList(StringToList(Global->Opt->Exec.strExcludeCmds));
-		std::for_each(CONST_RANGE(ExcludeCmdsList, i)
+		FOR(const auto& i, split_to_vector::get(Global->Opt->Exec.strExcludeCmds))
 		{
 			if (!StrCmpNI(Module.data(), i.data(), Module.size()))
 			{
 				Modules.emplace(i);
 				Result = true;
 			}
-		});
+		}
 
 		string strName=Module;
 		string strPathExt(L".COM;.EXE;.BAT;.CMD;.VBS;.JS;.WSH");
 		api::env::get_variable(L"PATHEXT", strPathExt);
-		auto PathExtList(StringToList(strPathExt));
+		auto PathExtList(split_to_vector::get(strPathExt));
 
 		string strPathEnv;
 		if (api::env::get_variable(L"PATH", strPathEnv))
 		{
-			auto PathList(StringToList(strPathEnv));
+			auto PathList(split_to_vector::get(strPathEnv));
 
 			std::for_each(CONST_RANGE(PathList, i)
 			{

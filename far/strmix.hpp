@@ -159,7 +159,22 @@ enum STL_FLAGS
 	STLF_NOUNQUOTE      =0x00000080,
 };
 
-std::list<string> StringToList(const string& InitString, DWORD Flags = 0, const wchar_t* Separators = L";,");
+void split_string(const string& InitString, DWORD Flags, const wchar_t* Separators, const std::function<void(string&)>& inserter); // don't use string&& here - VC2010 bug
+
+template <class Container>
+struct split:NonCopyable
+{
+	static Container get(const string& InitString, DWORD Flags = 0, const wchar_t* Separators = L";,")
+	{
+		Container Result;
+		split_string(InitString, Flags, Separators, [&](string& str) { Result.insert(Result.end(), std::move(str)); });
+		return std::move(Result);
+	}
+};
+
+typedef split<std::vector<string>> split_to_vector;
+typedef split<std::list<string>> split_to_list;
+typedef split<std::set<string>> split_to_set;
 
 class Utf8String: NonCopyable
 {
@@ -217,8 +232,7 @@ unsigned long long StringToFlags(const string& strFlags, const container& From, 
 	auto Flags = decltype(std::begin(From)->first)();
 	if (!strFlags.empty())
 	{
-		auto FlagList(StringToList(strFlags, STLF_UNIQUE, Separators));
-		std::for_each(CONST_RANGE(FlagList, i)
+		FOR(const auto& i, split_to_vector::get(strFlags, STLF_UNIQUE, Separators))
 		{
 			auto ItemIterator = std::find_if(CONST_RANGE(From, j)
 			{
@@ -226,7 +240,7 @@ unsigned long long StringToFlags(const string& strFlags, const container& From, 
 			});
 			if (ItemIterator != std::cend(From))
 				Flags |= ItemIterator->first;
-		});
+		}
 	}
 	return Flags;
 }

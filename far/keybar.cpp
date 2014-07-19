@@ -146,7 +146,7 @@ void KeyBar::DisplayObject()
 
 		if (Label.find(L'|') != string::npos)
 		{
-			auto LabelList(StringToList(Label, STLF_NOTRIM|STLF_NOUNQUOTE, L"|"));
+			auto LabelList(split_to_list::get(Label, STLF_NOTRIM | STLF_NOUNQUOTE, L"|"));
 			if(!LabelList.empty())
 			{
 				string strLabelTest, strLabel2;

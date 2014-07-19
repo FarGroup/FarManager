@@ -540,7 +540,7 @@ static void ConvertPanelModesA(const oldfar::PanelMode *pnmA, PanelMode **ppnmW,
 
 			for (size_t i=0; i<iCount; i++)
 			{
-				size_t iColumnCount = pnmA[i].ColumnTypes? StringToList(wide(pnmA[i].ColumnTypes), 0, L",").size() : 0;
+				size_t iColumnCount = pnmA[i].ColumnTypes? split_to_vector::get(wide(pnmA[i].ColumnTypes), 0, L",").size() : 0;
 
 				pnmW[i].ColumnTypes = (pnmA[i].ColumnTypes)?AnsiToUnicode(pnmA[i].ColumnTypes):nullptr;
 				pnmW[i].ColumnWidths = (pnmA[i].ColumnWidths)?AnsiToUnicode(pnmA[i].ColumnWidths):nullptr;

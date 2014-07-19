@@ -156,15 +156,11 @@ string& CreateTreeFileName(const string& Path, string &strDest)
 	string strPath;
 	strDest = L"";
 
-	auto ExceptPathList(StringToList(Global->Opt->Tree.strExceptPath, STLF_UNIQUE));
-	if (!ExceptPathList.empty())
+	FOR(const auto& i, split_to_vector::get(Global->Opt->Tree.strExceptPath, STLF_UNIQUE))
 	{
-		FOR(const auto& i, ExceptPathList)
+		if (strRootDir == i)
 		{
-			if (strRootDir == i)
-			{
-				return strDest;
-			}
+			return strDest;
 		}
 	}
 

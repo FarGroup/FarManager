@@ -87,7 +87,7 @@ private:
 	int SkipEncMode;
 	int SkipDeleteMode;
 	int SelectedFolderNameLength;
-	std::list<string> DestList;
+	std::vector<string> DestList;
 	// тип создаваемого репарспоинта.
 	// при AltF6 будет то, что выбрал юзер в диалоге,
 	// в остальных случаях - RP_EXACTCOPY - как у источника

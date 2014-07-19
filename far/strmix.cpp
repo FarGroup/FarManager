@@ -1464,19 +1464,11 @@ string str_printf(const wchar_t * format, ...)
 	return result;
 }
 
-std::list<string> StringToList(const string& InitString, DWORD InitFlags, const wchar_t* Separators)
-{
-	struct ListItem
-	{
-		string Str;
-		size_t index;
-
-		operator const string&() const { return Str; }
-	};
-
 	class UserDefinedList
 	{
 	public:
+		typedef std::pair<string, size_t> value_type;
+
 		UserDefinedList(const string& List, DWORD InitFlags, const wchar_t* InitSeparators)
 		{
 			BitFlags Flags(InitFlags);
@@ -1487,45 +1479,45 @@ std::list<string> StringToList(const string& InitString, DWORD InitFlags, const 
 				(Flags.Check(STLF_NOUNQUOTE) || strSeparators.find(L'\"') == string::npos) &&
 				(!Flags.Check(STLF_PROCESSBRACKETS) || std::find_first_of(ALL_CONST_RANGE(strSeparators), ALL_CONST_RANGE(Brackets)) == strSeparators.cend()))
 			{
-				ListItem item;
-				item.index=ItemsList.size();
+				value_type item;
+				item.second = ItemsList.size();
 
-				bool Error=false;
-				const wchar_t *CurList=List.data();
+				bool Error = false;
+				const wchar_t *CurList = List.data();
 				int Length, RealLength;
 				while (!Error && CurList && *CurList)
 				{
-					CurList=Skip(CurList, strSeparators, Flags, Length, RealLength, Error);
+					CurList = Skip(CurList, strSeparators, Flags, Length, RealLength, Error);
 					if (Length > 0)
 					{
-						if (Flags.Check(STLF_PACKASTERISKS) && 3==Length && !wcsncmp(CurList, L"*.*", 3))
+						if (Flags.Check(STLF_PACKASTERISKS) && 3 == Length && !wcsncmp(CurList, L"*.*", 3))
 						{
-							item.Str = L"*";
+							item.first = L"*";
 							ItemsList.emplace_back(item);
 						}
 						else
 						{
-							item.Str.assign(CurList, Length);
+							item.first.assign(CurList, Length);
 
 							if (Flags.Check(STLF_PACKASTERISKS))
 							{
-								int i=0;
-								bool lastAsterisk=false;
+								int i = 0;
+								bool lastAsterisk = false;
 
-								while (i<Length)
+								while (i < Length)
 								{
-									if (item.Str[i]==L'*')
+									if (item.first[i] == L'*')
 									{
 										if (!lastAsterisk)
-											lastAsterisk=true;
+											lastAsterisk = true;
 										else
 										{
-											item.Str.erase(i, 1);
+											item.first.erase(i, 1);
 											--i;
 										}
 									}
 									else
-										lastAsterisk=false;
+										lastAsterisk = false;
 
 									++i;
 								}
@@ -1533,24 +1525,24 @@ std::list<string> StringToList(const string& InitString, DWORD InitFlags, const 
 							ItemsList.emplace_back(item);
 						}
 
-						CurList+=RealLength;
-						++item.index;
+						CurList += RealLength;
+						++item.second;
 					}
 				}
-				if (Flags.Check(STLF_UNIQUE|STLF_SORT))
+				if (Flags.Check(STLF_UNIQUE | STLF_SORT))
 				{
-					ItemsList.sort([](const ListItem& a, const ListItem& b)
+					ItemsList.sort([](const value_type& a, const value_type& b)
 					{
-						return a.index < b.index;
+						return a.second < b.second;
 					});
 
-					if(Flags.Check(STLF_UNIQUE))
+					if (Flags.Check(STLF_UNIQUE))
 					{
-						ItemsList.unique([](ListItem& a, ListItem& b)->bool
+						ItemsList.unique([](value_type& a, value_type& b)->bool
 						{
-							if (a.index > b.index)
-								a.index = b.index;
-							return !StrCmpI(a.Str, b.Str);
+							if (a.second > b.second)
+								a.second = b.second;
+							return !StrCmpI(a.first, b.first);
 						});
 					}
 				}
@@ -1559,35 +1551,35 @@ std::list<string> StringToList(const string& InitString, DWORD InitFlags, const 
 
 		static const wchar_t *Skip(const wchar_t *Str, const string& strSeparators, const BitFlags& Flags, int &Length, int &RealLength, bool &Error)
 		{
-			Length=RealLength=0;
-			Error=false;
+			Length = RealLength = 0;
+			Error = false;
 
 			if (!Flags.Check(STLF_NOTRIM))
-				while (IsSpace(*Str)) ++Str;
+			while (IsSpace(*Str)) ++Str;
 
 			if (strSeparators.find(*Str) != string::npos)
 				++Str;
 
 			if (!Flags.Check(STLF_NOTRIM))
-				while (IsSpace(*Str)) ++Str;
+			while (IsSpace(*Str)) ++Str;
 
 			if (!*Str) return nullptr;
 
-			const wchar_t *cur=Str;
-			bool InQoutes = (*cur==L'\"');
+			const wchar_t *cur = Str;
+			bool InQoutes = (*cur == L'\"');
 
 			if (!InQoutes) // если мы в кавычках, то обработка будет позже и чуть сложнее
 			{
-				bool InBrackets=false;
+				bool InBrackets = false;
 				while (*cur) // важно! проверка *cur должна стоять первой
 				{
 					if (Flags.Check(STLF_PROCESSBRACKETS)) // чтобы не сортировать уже отсортированное
 					{
-						if (*cur==L']')
-							InBrackets=false;
+						if (*cur == L']')
+							InBrackets = false;
 
-						if (*cur==L'[' && nullptr!=wcschr(cur+1, L']'))
-							InBrackets=true;
+						if (*cur == L'[' && nullptr != wcschr(cur + 1, L']'))
+							InBrackets = true;
 					}
 
 					if (!InBrackets && strSeparators.find(*cur) != string::npos)
@@ -1599,30 +1591,30 @@ std::list<string> StringToList(const string& InitString, DWORD InitFlags, const 
 
 			if (!InQoutes || !*cur)
 			{
-				RealLength=Length=(int)(cur-Str);
+				RealLength = Length = (int)(cur - Str);
 				--cur;
 
 				if (!Flags.Check(STLF_NOTRIM))
-					while (IsSpace(*cur))
-					{
-						--Length;
-						--cur;
-					}
+				while (IsSpace(*cur))
+				{
+					--Length;
+					--cur;
+				}
 
-					return Str;
+				return Str;
 			}
 
 			// мы в кавычках - захватим все отсюда и до следующих кавычек
 			++cur;
-			const wchar_t *QuoteEnd=wcschr(cur, L'\"');
+			const wchar_t *QuoteEnd = wcschr(cur, L'\"');
 
 			if (!QuoteEnd)
 			{
-				Error=true;
+				Error = true;
 				return nullptr;
 			}
 
-			const wchar_t *End=QuoteEnd+1;
+			const wchar_t *End = QuoteEnd + 1;
 
 			if (!Flags.Check(STLF_NOTRIM))
 			{
@@ -1633,27 +1625,30 @@ std::list<string> StringToList(const string& InitString, DWORD InitFlags, const 
 			{
 				if (!Flags.Check(STLF_NOUNQUOTE))
 				{
-					Length=(int)(QuoteEnd-cur);
-					RealLength=(int)(End-cur);
+					Length = (int)(QuoteEnd - cur);
+					RealLength = (int)(End - cur);
 				}
 				else
 				{
-					Length=(int)(End-cur)+1;
-					RealLength=Length;
+					Length = (int)(End - cur) + 1;
+					RealLength = Length;
 					--cur;
 				}
 				return cur;
 			}
 
-			Error=true;
+			Error = true;
 			return nullptr;
 		}
 
-		std::list<ListItem> ItemsList;
+		std::list<value_type> ItemsList;
 	};
 
-	UserDefinedList list(InitString, InitFlags, Separators);
-	return std::list<string>(list.ItemsList.begin(), list.ItemsList.end());
+	void split_string(const string& InitString, DWORD Flags, const wchar_t* Separators, const std::function<void(string&)>& inserter)
+	{
+		FOR(auto& i, UserDefinedList(InitString, Flags, Separators).ItemsList)
+		{
+			inserter(i.first);
+		}
+	}
 }
-
-};

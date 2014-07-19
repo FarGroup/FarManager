@@ -222,7 +222,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 		// Ѕерем "исключени€" из реестра, которые должны исполн€тьс€ директом,
 		// например, некоторые внутренние команды ком. процессора.
 		string strExcludeCmds = api::env::expand_strings(Global->Opt->Exec.strExcludeCmds);
-		auto ExcludeCmdsList(StringToList(strExcludeCmds, STLF_UNIQUE));
+		auto ExcludeCmdsList(split_to_vector::get(strExcludeCmds, STLF_UNIQUE));
 
 		if (std::any_of(CONST_RANGE(ExcludeCmdsList, i) { return !StrCmpI(i, Module); }))
 		{
@@ -237,7 +237,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 			LPCWSTR ModuleExt=wcsrchr(PointToName(Module),L'.');
 			string strPathExt(L".COM;.EXE;.BAT;.CMD;.VBS;.JS;.WSH");
 			api::env::get_variable(L"PATHEXT", strPathExt);
-			auto PathExtList(StringToList(strPathExt, STLF_UNIQUE));
+			auto PathExtList(split_to_vector::get(strPathExt, STLF_UNIQUE));
 
 			FOR(const auto& i, PathExtList) // первый проход - в текущем каталоге
 			{
@@ -269,9 +269,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 
 				if (api::env::get_variable(L"PATH", strPathEnv))
 				{
-					auto PathList(StringToList(strPathEnv, STLF_UNIQUE));
-
-					FOR(const auto& Path, PathList)
+					FOR(const auto& Path, split_to_vector::get(strPathEnv, STLF_UNIQUE))
 					{
 						FOR(const auto& Ext, PathExtList)
 						{
@@ -496,7 +494,7 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 	{
 		RetPtr = EmptyToNull(strAction.data());
 		LONG RetEnum = ERROR_SUCCESS;
-		auto ActionList(StringToList(strAction, STLF_UNIQUE));
+		auto ActionList(split_to_vector::get(strAction, STLF_UNIQUE));
 
 		if (RetPtr && !ActionList.empty())
 		{
@@ -876,7 +874,7 @@ int Execute(const string& CmdStr,  //  ом.строка дл€ исполнени€
 	else
 	{
 		string strNotQuotedShell = api::env::expand_strings(Global->Opt->Exec.strNotQuotedShell);
-		auto NotQuotedShellList(StringToList(strNotQuotedShell, STLF_UNIQUE));
+		auto NotQuotedShellList(split_to_vector::get(strNotQuotedShell, STLF_UNIQUE));
 		bool bQuotedShell = !(std::any_of(CONST_RANGE(NotQuotedShellList, i) { return !StrCmpI(i,PointToName(strComspec.data())); }));
 		QuoteSpace(strNewCmdStr);
 		bool bDoubleQ = strNewCmdStr.find_first_of(L"&<>()@^|=;, ") != string::npos;
@@ -1354,7 +1352,7 @@ bool IsBatchExtType(const string& ExtPtr)
 	string strExecuteBatchType = api::env::expand_strings(Global->Opt->Exec.strExecuteBatchType);
 	if (strExecuteBatchType.empty())
 		strExecuteBatchType = L".BAT;.CMD";
-	auto BatchExtList(StringToList(strExecuteBatchType, STLF_UNIQUE));
+	auto BatchExtList(split_to_vector::get(strExecuteBatchType, STLF_UNIQUE));
 	return std::any_of(CONST_RANGE(BatchExtList, i) {return !StrCmpI(i, ExtPtr);});
 }
 

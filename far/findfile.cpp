@@ -2633,11 +2633,11 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 	{
 		InitString = strRoot;
 	}
-	auto List(StringToList(InitString, STLF_UNIQUE, L";"));
-	std::for_each(CONST_RANGE(List, i)
+
+	FOR(const auto& i, split_to_vector::get(InitString, STLF_UNIQUE))
 	{
 		DoScanTree(Dlg, i);
-	});
+	}
 
 	itd->SetPercent(0);
 	StopEvent.Set();

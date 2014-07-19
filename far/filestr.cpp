@@ -478,7 +478,7 @@ bool GetFileFormat(api::File& file, uintptr_t& nCodePage, bool* pSignatureFound,
 					}
 					else
 					{
-						const auto BannedCpList = StringToList(Global->Opt->strNoAutoDetectCP, STLF_UNIQUE);
+						const auto BannedCpList = split_to_vector::get(Global->Opt->strNoAutoDetectCP, STLF_UNIQUE);
 
 						if (std::find(ALL_CONST_RANGE(BannedCpList), std::to_wstring(cp)) != BannedCpList.cend())
 						{

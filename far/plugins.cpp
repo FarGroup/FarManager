@@ -403,10 +403,9 @@ void PluginManager::LoadPlugins()
 		{
 			strPluginsDir = Global->Opt->LoadPlug.strCustomPluginsPath;
 		}
-		auto PluginPathList(StringToList(strPluginsDir, STLF_UNIQUE));
 
 		// теперь пройдемся по всему ранее собранному списку
-		std::for_each(CONST_RANGE(PluginPathList, i)
+		FOR(const auto& i, split_to_vector::get(strPluginsDir, STLF_UNIQUE))
 		{
 			// расширяем значение пути
 			strFullName = Unquote(api::env::expand_strings(i)); //??? здесь ХЗ
@@ -434,7 +433,7 @@ void PluginManager::LoadPlugins()
 					LoadPlugin(strFullName, FindData, false);
 				}
 			} // end while
-		});
+		}
 	}
 
 	m_PluginsLoaded = true;

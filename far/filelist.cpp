@@ -809,13 +809,13 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			if (mps->Mode == 1 && static_cast<size_t>(mps->Index) >= ListData.size())
 				return Result;
 
-			std::list<string> itemsList;
+			std::vector<string> itemsList;
 
 			if (mps->Action != 3)
 			{
 				if (mps->Mode == 2)
 				{
-					itemsList = StringToList(mps->Item->asString(), STLF_UNIQUE,  L"\r\n");
+					itemsList = split_to_vector::get(mps->Item->asString(), STLF_UNIQUE, L"\r\n");
 					if (itemsList.empty())
 						return Result;
 				}

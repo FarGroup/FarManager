@@ -2218,10 +2218,8 @@ void Options::Load(std::vector<std::pair<string, string>>& Overridden)
 	{
 		if (!XLat.strLayouts.empty())
 		{
-			auto DestList(StringToList(XLat.strLayouts, STLF_UNIQUE));
 			size_t I=0;
-
-			FOR(const auto& i, DestList)
+			FOR(const auto& i, split_to_vector::get(XLat.strLayouts, STLF_UNIQUE))
 			{
 				DWORD res = std::stoul(i, nullptr, 16);
 				XLat.Layouts[I]=(HKL)(intptr_t)(HIWORD(res)? res : MAKELONG(res,res));

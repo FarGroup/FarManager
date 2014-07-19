@@ -98,7 +98,7 @@ public:
 	bool empty() const;
 
 private:
-	std::list<string> Masks;
+	std::vector<string> Masks;
 	std::unique_ptr<RegExp> re;
 	std::vector<RegExpMatch> m;
 	bool bRE;
@@ -282,7 +282,7 @@ bool filemasks::masks::Set(const string& masks)
 		string strSysPathExt;
 		if (api::env::get_variable(L"PATHEXT", strSysPathExt))
 		{
-			auto MaskList(StringToList(strSysPathExt, STLF_UNIQUE));
+			auto MaskList(split_to_vector::get(strSysPathExt, STLF_UNIQUE));
 			if (!MaskList.empty())
 			{
 				string strFarPathExt;
@@ -312,7 +312,7 @@ bool filemasks::masks::Set(const string& masks)
 	}
 	else
 	{
-		Masks = StringToList(expmasks, STLF_PACKASTERISKS|STLF_PROCESSBRACKETS|STLF_SORT|STLF_UNIQUE);
+		Masks = split_to_vector::get(expmasks, STLF_PACKASTERISKS | STLF_PROCESSBRACKETS | STLF_SORT | STLF_UNIQUE);
 		return !Masks.empty();
 	}
 }
