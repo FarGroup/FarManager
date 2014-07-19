@@ -100,7 +100,7 @@ namespace std
 
 	#define TYPE(name) name##_type
 	#define TYPENAME(name) typename TYPE(name)
-	#define ARG(name) TYPE(name) name
+	#define ARG(name) TYPE(name)&& name
 	#define FARG(name) std::forward<TYPE(name)>(name)
 
 	#define MAKE_UNIQUE_BODY(TYPENAME_LIST, ARG_LIST, FARG_LIST) \
