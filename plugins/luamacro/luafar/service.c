@@ -1105,7 +1105,7 @@ static int editor_ClearSessionBookmarks(lua_State *L)
 {
 	intptr_t EditorId = luaL_optinteger(L, 1, CURRENT_EDITOR);
 	PSInfo *Info = GetPluginData(L)->Info;
-	lua_pushinteger(L, Info->EditorControl(EditorId, ECTL_CLEARSESSIONBOOKMARKS, 0, 0));
+	lua_pushboolean(L, Info->EditorControl(EditorId, ECTL_CLEARSESSIONBOOKMARKS, 0, 0) != 0);
 	return 1;
 }
 

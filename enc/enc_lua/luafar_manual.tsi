@@ -4087,7 +4087,7 @@ id=224
 lv=2
 dt=Text
 nm=editor.ClearSessionBookmarks
-mtime=3507542594
+mtime=3614953967
 <article>
 #_result = editor.ClearSessionBookmarks (EditorId)
 #_
@@ -4095,7 +4095,7 @@ mtime=3507542594
 #_  EditorId: integer, or nil
 #_
 #_**Returns:**
-#_  result:   integer
+#_  result:   boolean
 #_
 #_**Far API used:**
 #_  EditorControl, ECTL_CLEARSESSIONBOOKMARKS

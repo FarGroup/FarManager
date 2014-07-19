@@ -1,4 +1,8 @@
-﻿shmuel 18.07.2014 07:46:24 +0200 - build 401
+﻿shmuel 19.07.2014 20:47:27 +0200 - build 402
+
+1. LuaFAR: функция editor.ClearSessionBookmarks возвращает булевое значение, а не число.
+
+shmuel 18.07.2014 07:46:24 +0200 - build 401
 
 1. LuaFAR: функции editor.GetBookmarks и editor.GetSessionBookmarks неправильно работали и вызывали падение.
 
