@@ -270,10 +270,13 @@ namespace api
 			bool m_Opened;
 		};
 
-		struct value
+		class value
 		{
-			string Name;
-			DWORD Type;
+		public:
+			value(): m_Type(REG_NONE), m_Key(nullptr) {}
+
+			const string& Name() const { return m_Name; }
+			DWORD Type() const { return m_Type; }
 
 			string GetString() const;
 			unsigned int GetUnsigned() const;
@@ -282,6 +285,8 @@ namespace api
 		private:
 			friend bool EnumValue(HKEY, size_t, value&);
 
+			string m_Name;
+			DWORD m_Type;
 			HKEY m_Key;
 		};
 

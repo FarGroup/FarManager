@@ -346,7 +346,7 @@ void InitKeysArray()
 		Layout().reserve(10);
 		FOR(const auto& i, api::reg::enum_value(HKEY_CURRENT_USER, L"Keyboard Layout\\Preload"))
 		{
-			if (i.Type == REG_SZ && std::isdigit(i.Name.front()))
+			if (i.Type() == REG_SZ && std::isdigit(i.Name().front()))
 			{
 				string Value = i.GetString();
 				if (!Value.empty() && (std::isdigit(Value.front()) || InRange(L'A', Upper(Value.front()), L'Z')))

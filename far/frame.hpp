@@ -89,10 +89,10 @@ public:
 	bool HasSaveScreen() const;
 	void SetFlags( DWORD flags ) { Flags.Set(flags); }
 	void SetDeleting(void);
-	bool IsDeleting(void);
+	bool IsDeleting(void) const;
 	void SetBlock(void);
 	void RemoveBlock(void);
-	bool IsBlocked(void);
+	bool IsBlocked(void) const;
 
 protected:
 	bool DynamicallyBorn;

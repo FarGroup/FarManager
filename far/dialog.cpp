@@ -3935,7 +3935,7 @@ int Dialog::SelectFromComboBox(
 			EditX2=EditX1+20;
 
 		SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
-		DlgProc(DN_DROPDOWNOPENED, FocusPos, (void*)1);
+		DlgProc(DN_DROPDOWNOPENED, FocusPos, ToPtr(1));
 		SetComboBoxPos(CurItem);
 		// Перед отрисовкой спросим об изменении цветовых атрибутов
 		FarColor RealColors[VMENU_COLOR_COUNT] = {};
@@ -4090,7 +4090,7 @@ BOOL Dialog::SelectFromEditHistory(const DialogItemEx *CurItem,
 		// запомним (для прорисовки)
 //		CurItem->ListPtr=&HistoryMenu;
 		SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
-		DlgProc(DN_DROPDOWNOPENED, FocusPos, (void*)1);
+		DlgProc(DN_DROPDOWNOPENED, FocusPos, ToPtr(1));
 		ret = DlgHist->Select(HistoryMenu, Global->Opt->Dialogs.CBoxMaxHeight, this, strStr);
 		SetDropDownOpened(FALSE); // Установим флаг "открытия" комбобокса.
 		DlgProc(DN_DROPDOWNOPENED, FocusPos, (void*)0);

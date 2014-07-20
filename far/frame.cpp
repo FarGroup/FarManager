@@ -123,13 +123,11 @@ bool Frame::RemoveModal(const Frame *aFrame)
 
 	Frame *Prev=this;
 	Frame *Next=NextModal;
-	bool fFound=false;
 
 	while (Next)
 	{
 		if (Next==aFrame)
 		{
-			fFound=true;
 			break;
 		}
 
@@ -137,7 +135,7 @@ bool Frame::RemoveModal(const Frame *aFrame)
 		Next=Next->NextModal;
 	}
 
-	if (fFound)
+	if (Next)
 	{
 		RemoveModal(Next->NextModal);
 		Prev->NextModal=nullptr;
@@ -169,7 +167,7 @@ void Frame::SetDeleting(void)
 	Deleting=true;
 }
 
-bool Frame::IsDeleting(void)
+bool Frame::IsDeleting(void) const
 {
 	return Deleting;
 }
@@ -185,7 +183,7 @@ void Frame::RemoveBlock(void)
 	--BlockCounter;
 }
 
-bool Frame::IsBlocked(void)
+bool Frame::IsBlocked(void) const
 {
 	return BlockCounter>0;
 }

@@ -2052,7 +2052,7 @@ void Options::InitConfig()
 	}
 }
 
-void Options::Load(std::vector<std::pair<string, string>>& Overridden)
+void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 {
 	// KnownModulesIDs::GuidOption::Default pointer is used in the static config structure, so it MUST be initialized before calling InitConfig()
 	static simple_pair<GUID, string> DefaultKnownGuids[] = { { NetworkGuid }, { EMenuGuid }, { ArcliteGuid }, { LuamacroGuid }, { NetBoxGuid } };

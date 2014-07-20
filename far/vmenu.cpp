@@ -821,6 +821,7 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_F_MENU_SELECT:
 		{
 			const wchar_t *str = (const wchar_t *)vParam;
+			const size_t strLength = wcslen(str);
 
 			if (*str)
 			{
@@ -880,7 +881,7 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							break;
 						case 2: // end compare
 							p = RevStrStrI(strTemp.data(),str);
-							Res = p && !*(p + wcslen(str));
+							Res = p && !*(p + strLength);
 							break;
 						case 3: // in str
 							Res = StrStrI(strTemp.data(),str)!=nullptr;

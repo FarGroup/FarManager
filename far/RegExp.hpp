@@ -33,10 +33,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-enum
-{
-	RE_CHAR_COUNT = 1<<sizeof(wchar_t)*8,
-};
+//#define RE_DEBUG
 
 //! Possible compile and runtime errors returned by LastError.
 enum REError
@@ -71,20 +68,6 @@ enum REError
 	errVariableLengthLookBehind
 };
 
-//! Used internally
-struct REOpCode;
-//! Used internally
-typedef REOpCode *PREOpCode;
-
-//! Max brackets depth
-enum
-{
-	MAXDEPTH=256,
-};
-
-/**
-  \defgroup options Regular expression compile time options
-*/
 enum
 {
 	//! Match in a case insensitive manner
@@ -106,69 +89,6 @@ enum
 	OP_CPPMODE      =0x0080,
 };
 
-
-
-/**
- \defgroup localebits Locale Info bits
-
-*/
-enum
-{
-	//! Digits
-	TYPE_DIGITCHAR  =0x01,
-	//! space, newlines tab etc
-	TYPE_SPACECHAR  =0x02,
-	//! alphanumeric and _
-	TYPE_WORDCHAR   =0x04,
-	//! lo-case symbol
-	TYPE_LOWCASE    =0x08,
-	//! up-case symbol
-	TYPE_UPCASE     =0x10,
-	//! letter
-	TYPE_ALPHACHAR  =0x20,
-};
-
-/**
-  \defgroup brhactions Bracket handler actions
-
-*/
-enum
-{
-	//! Matched Closing bracket
-	bhMatch=1,
-	//! Bracket rollback
-	bhRollBack=2,
-};
-
-//! default preallocated stack size, and stack page size
-enum
-{
-	STACK_PAGE_SIZE=16,
-};
-
-//! Used internally
-typedef struct StateStackItem
-{
-	int op;
-	REOpCode* pos;
-	const wchar_t* savestr;
-	const wchar_t* startstr;
-	int min;
-	int cnt;
-	int max;
-	int forward;
-}*PStateStackItem;
-
-//! Used internally
-typedef struct StateStackPage
-{
-	PStateStackItem stack;
-	StateStackPage* prev;
-	StateStackPage* next;
-}*PStateStackPage;
-
-struct UniSet;
-
 /*! Regular expressions support class.
 
 Expressions must be Compile'ed first,
@@ -176,26 +96,23 @@ and than Match string or Search for matching fragment.
 */
 class RegExp:NonCopyable
 {
+public:
+	struct REOpCode;
+	struct UniSet;
+
+public:
 	private:
+		struct StateStackItem;
+
 		// code
-		PREOpCode code;
-#ifdef RE_DEBUG
-		wchar_t* resrc;
-#endif
-
-		StateStackItem initstack[STACK_PAGE_SIZE];
-		StateStackPage initstackpage;
-
-// current stack page and upper stack element
-		PStateStackItem stack,st;
-		int stackcount;
+		std::vector<REOpCode> code;
+		std::vector<StateStackItem> stack;
 		char slashChar;
 		char backslashChar;
 
-		PStateStackPage firstpage;
-		PStateStackPage lastpage;
+		std::unique_ptr<UniSet> firstptr;
+		UniSet& first;
 
-		UniSet *firstptr;
 		int havefirst;
 		int havelookahead;
 
@@ -215,56 +132,30 @@ class RegExp:NonCopyable
 		const wchar_t* end;
 		const wchar_t* trimend;
 
+#ifdef RE_DEBUG
+		string resrc;
+#endif
+
 		int CalcLength(const wchar_t* src,int srclength);
 		int InnerCompile(const wchar_t* src,int srclength,int options);
 
 		int InnerMatch(const wchar_t* str,const wchar_t* end,RegExpMatch* match,intptr_t& matchcount);
 
-		void TrimTail(const wchar_t*& end);
+		void TrimTail(const wchar_t*& end) const;
 
 		int SetError(int _code,int pos) {errorcode=_code; errorpos=pos; return 0;}
 
-		int GetNum(const wchar_t* src,int& i);
+		const StateStackItem& FindStateByPos(REOpCode* pos,int op);
 
-		static inline void SetBit(wchar_t* bitset,int charindex)
-		{
-			bitset[charindex>>3]|=1<<(charindex&7);
-		}
-		static inline int GetBit(const wchar_t* bitset,int charindex)
-		{
-			return bitset[charindex>>3]&(1<<(charindex&7));
-		}
-
-		void PushState();
-		StateStackItem* GetState();
-		StateStackItem* FindStateByPos(PREOpCode pos,int op);
-		int PopState();
-
-
-		int StrCmp(const wchar_t*& str,const wchar_t* start,const wchar_t* end);
-
-		void Init(const wchar_t*,int options);
-		//RegExp(const RegExp& re) {};
+		int StrCmp(const wchar_t*& str,const wchar_t* start,const wchar_t* end) const;
 
 	public:
 		//! Default constructor.
 		RegExp();
-		/*! Create object with compiled expression
-
-		   \param expr - source of expression
-		   \param options - compilation options
-
-		   By default expression in perl style expected,
-		   and will be optimized after compilation.
-
-		   Compilation status can be verified with LastError method.
-		   \sa LastError
-		*/
-		RegExp(const wchar_t* expr,int options=OP_PERLSTYLE|OP_OPTIMIZE);
-		virtual ~RegExp();
+		~RegExp();
 
 		/*! Compile regular expression
-		    Generate internall op-codes of expression.
+		    Generate internal op-codes of expression.
 
 		    \param src - source of expression
 		    \param options - compile options

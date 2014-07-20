@@ -168,7 +168,7 @@ struct split:NonCopyable
 	{
 		Container Result;
 		split_string(InitString, Flags, Separators, [&](string& str) { Result.insert(Result.end(), std::move(str)); });
-		return std::move(Result);
+		return Result;
 	}
 };
 

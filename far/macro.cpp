@@ -1506,7 +1506,7 @@ bool KeyMacro::ExecuteString(MacroExecuteString *Data)
 
 void KeyMacro::GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc) const
 {
-	*ErrCode = m_LastErrorStr == L"" ? MPEC_SUCCESS : MPEC_ERROR;
+	*ErrCode = m_LastErrorStr.empty()? MPEC_SUCCESS : MPEC_ERROR;
 	ErrPos->X = 0;
 	ErrPos->Y = static_cast<SHORT>(m_LastErrorLine);
 	*ErrSrc = m_LastErrorStr;

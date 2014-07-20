@@ -208,20 +208,20 @@ void ReloadEnvironment()
 		{
 			FOR(const auto& j, api::reg::enum_value(i.first, i.second))
 			{
-				if(j.Type == t)
+				if(j.Type() == t)
 				{
 					string Value = j.GetString();
-					if(j.Type==REG_EXPAND_SZ)
+					if(j.Type() == REG_EXPAND_SZ)
 					{
 						Value = api::env::expand_strings(Value);
 					}
 					if (i.first==HKEY_CURRENT_USER)
 					{
 						// see http://support.microsoft.com/kb/100843 for details
-						if(!StrCmpI(j.Name.data(), L"path") || !StrCmpI(j.Name.data(), L"libpath") || !StrCmpI(j.Name.data(), L"os2libpath"))
+						if(!StrCmpI(j.Name().data(), L"path") || !StrCmpI(j.Name().data(), L"libpath") || !StrCmpI(j.Name().data(), L"os2libpath"))
 						{
 							string strMergedPath;
-							api::env::get_variable(j.Name, strMergedPath);
+							api::env::get_variable(j.Name(), strMergedPath);
 							if(strMergedPath.back() != L';')
 							{
 								strMergedPath+=L';';
@@ -229,7 +229,7 @@ void ReloadEnvironment()
 							Value = strMergedPath + Value;
 						}
 					}
-					api::env::set_variable(j.Name, Value);
+					api::env::set_variable(j.Name(), Value);
 				}
 			}
 		}

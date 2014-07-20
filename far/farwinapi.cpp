@@ -1802,10 +1802,10 @@ DWORD GetAppPathsRedirectionFlag()
 			{
 				wchar_t_ptr Buffer(Size);
 				DWORD RetSize = Size;
-				ExitCode = RegEnumValue(Key, static_cast<DWORD>(Index), Buffer.get(), &RetSize, nullptr, &Value.Type, nullptr, nullptr);
+				ExitCode = RegEnumValue(Key, static_cast<DWORD>(Index), Buffer.get(), &RetSize, nullptr, &Value.m_Type, nullptr, nullptr);
 				if (ExitCode == ERROR_SUCCESS)
 				{
-					Value.Name.assign(Buffer.get(), RetSize);
+					Value.m_Name.assign(Buffer.get(), RetSize);
 					Value.m_Key = Key;
 				}
 			}
@@ -1860,31 +1860,31 @@ DWORD GetAppPathsRedirectionFlag()
 
 		string value::GetString() const
 		{
-			if (!IsStringType(Type))
+			if (!IsStringType(m_Type))
 				throw std::runtime_error("bad value type");
 
 			string Result;
-			GetValue(m_Key, Name.data(), Result);
+			GetValue(m_Key, m_Name.data(), Result);
 			return Result;
 		}
 
 		unsigned int value::GetUnsigned() const
 		{
-			if (Type != REG_DWORD)
+			if (m_Type != REG_DWORD)
 				throw std::runtime_error("bad value type");
 
 			unsigned int Result = 0;
-			GetValue(m_Key, Name.data(), Result);
+			GetValue(m_Key, m_Name.data(), Result);
 			return Result;
 		}
 
 		uint64_t value::GetUnsigned64() const
 		{
-			if (Type != REG_QWORD)
+			if (m_Type != REG_QWORD)
 				throw std::runtime_error("bad value type");
 
 			uint64_t Result = 0;
-			GetValue(m_Key, Name.data(), Result);
+			GetValue(m_Key, m_Name.data(), Result);
 			return Result;
 		}
 	}

@@ -144,7 +144,8 @@ namespace std
 #define thread_local __declspec(thread)
 #endif
 
-#ifdef _MSC_VER
+// already included in VC2014
+#if defined _MSC_VER && _MSC_VER < 1900
 #define noexcept throw()
 #endif
 

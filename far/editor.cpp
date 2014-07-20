@@ -3684,7 +3684,7 @@ class AutoUndoBlock {
 
 BOOL Editor::Search(int Next)
 {
-	iterator CurPtr = Lines.end(), TmpPtr = Lines.end();
+	iterator CurPtr = Lines.end(), TmpPtr = CurPtr;
 	string strSearchStr, strReplaceStr;
 	static string strLastReplaceStr;
 	string strMsgStr;

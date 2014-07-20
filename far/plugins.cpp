@@ -562,8 +562,7 @@ PluginHandle* PluginManager::OpenFilePlugin(
 			break;
 	}
 
-	auto pResult = items.end();
-	auto pAnalyse = items.end();
+	auto pResult = items.end(), pAnalyse = pResult;
 	if (!items.empty() && (hResult != PANEL_STOP))
 	{
 		bool OnlyOne = (items.size() == 1) && !(Name && Global->Opt->PluginConfirm.OpenFilePlugin && Global->Opt->PluginConfirm.StandardAssociation && Global->Opt->PluginConfirm.EvenIfOnlyOnePlugin);
@@ -2125,7 +2124,7 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void **
 			{
 				auto handle = reinterpret_cast<PluginHandle*>(hNewPlugin);
 				if (OpenFrom == OPEN_FROMMACRO && process)
-					*Ret = (void*)1;
+					*Ret = ToPtr(1);
 				else
 				{
 					*Ret = hNewPlugin? handle->hPlugin : nullptr;

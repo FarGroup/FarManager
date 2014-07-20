@@ -189,9 +189,9 @@ static bool SearchExtHandlerFromList(HKEY hExtKey, string &strType)
 {
 	FOR(const auto& i, api::reg::enum_value(hExtKey, L"OpenWithProgids"))
 	{
-		if (i.Type == REG_SZ && IsProperProgID(i.Name))
+		if (i.Type() == REG_SZ && IsProperProgID(i.Name()))
 		{
-			strType = i.Name;
+			strType = i.Name();
 			return true;
 		}
 	}

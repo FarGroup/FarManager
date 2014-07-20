@@ -268,7 +268,7 @@ public:
 	Options();
 	~Options();
 	void ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent);
-	void Load(std::vector<std::pair<string, string>>& Overridden);
+	void Load(const std::vector<std::pair<string, string>>& Overridden);
 	void Save(bool Manual);
 	bool GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &strValue);
 	bool GetConfigValue(size_t Root, const wchar_t* Name, Option*& Data);

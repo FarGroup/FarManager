@@ -49,21 +49,12 @@ enum
 template<char c0, char c1, char c2, char c3>
 struct MakeFourCC
 {
-	static const int value =
-		(DWORD)(BYTE)(c0) |
-		((DWORD)(BYTE)(c1) << 8) |
-		((DWORD)(BYTE)(c2) << 16) |
-		((DWORD)(BYTE)(c3) << 24);
+	enum { value = MAKELONG(MAKEWORD(c0, c1), MAKEWORD(c2, c3)) };
 };
 
 enum FARRECORDTYPE
 {
-	RTYPE_SYSINFO      = MakeFourCC<'S','Y','S','T'>::value, // информаци€ о системе
-	RTYPE_EXCEPTION    = MakeFourCC<'E','X','C','T'>::value, // про исключение
 	RTYPE_PLUGIN       = MakeFourCC<'C','P','L','G'>::value, // информаци€ о текущем плагине
-	RTYPE_FARAREA      = MakeFourCC<'A','R','E','A'>::value, // "где мы сейчас находимс€?"
-	RTYPE_MACRO        = MakeFourCC<'M','A','C','R'>::value, // ћакросы
-	RTYPE_RAWDARA      = MakeFourCC<'R','A','W','D'>::value, // произвольные данные
 };
 
 struct RECHEADER          // заголовок рекорда

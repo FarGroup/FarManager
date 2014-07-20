@@ -811,9 +811,9 @@ void FileFilter::InitFilter()
 
 		unsigned __int64 UseHardLinks = 0;
 		cfg->GetValue(key,L"UseHardLinks",&UseHardLinks);
-		unsigned __int64 HardLinksAbove;
+		unsigned __int64 HardLinksAbove = 0;
 		cfg->GetValue(key,L"HardLinksAbove",&HardLinksAbove);
-		unsigned __int64 HardLinksBelow;
+		unsigned __int64 HardLinksBelow = 0;
 		cfg->GetValue(key,L"HardLinksAbove",&HardLinksBelow);
 		NewItem.SetHardLinks(UseHardLinks != 0, HardLinksAbove, HardLinksBelow);
 
