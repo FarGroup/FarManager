@@ -3,6 +3,63 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 20.07.2014 23:32:48 +0200 - build 4012
+
+1. correction of 4003.
+
+drkns 20.07.2014 21:59:46 +0200 - build 4011
+
+1. Refactoring.
+
+drkns 19.07.2014 20:04:59 +0200 - build 4010
+
+1. Refactoring.
+
+drkns 19.07.2014 13:01:14 +0200 - build 4009
+
+1. Correction of std::make_unique emulation: parameters were passed by value.
+
+zg 18.07.2014 01:59:14 +0200 - build 4008
+
+1. correction of 4006.
+
+drkns 18.07.2014 01:49:25 +0200 - build 4007
+
+1. Obtaining of bookmarks did not work in editor. For a long time already.
+
+zg 18.07.2014 01:06:52 +0200 - build 4006
+
+1. on editor close inside EE_READ event, the editor is deleted only after this event processing finished.
+
+2. on viewer close inside EE_READ event, the viewer is deleted only after this event processing finished.
+
+zg 17.07.2014 02:44:33 +0200 - build 4005
+
+1. 0002734: Dialogs broken.
+   an ancient bug is revealed: on inactive window close the active window disappears.
+
+2. editor and viewer could corrupt the memory under certain conditions.
+
+shmuel 16.07.2014 18:15:38 +0200 - build 4004
+
+1. Addition to LuaMacro plugin's access to the screen buffer.
+
+zg 16.07.2014 01:13:27 +0200 - build 4003
+
+1. forum: incorrect console caption when calling the macrobrowser via Plugin.Menu.
+
+zg 15.07.2014 21:39:44 +0200 - build 4002
+
+1. forum: crash in ACTL_GETWINDOWINFO.
+
+shmuel 14.07.2014 20:56:15 +0200 - build 4001
+
+1. Plugin.Menu(), Plugin.Config() and Plugin.Command() return false on failure.
+
+drkns 14.07.2014 14:39:33 +0200 - build 4000
+
+1. 0002709: Query for administrator privileges may be invisible if called from a macro
+
 zg 13.07.2014 14:50:01 +0200 - build 3999
 
 1. correction of 3992: dialogs were shown onlyl one time after creation.
