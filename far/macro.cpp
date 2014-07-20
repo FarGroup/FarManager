@@ -1008,6 +1008,9 @@ int KeyMacro::GetKey()
 						cpInfo.CallFlags&=~CPT_CHECKONLY;
 						Global->CtrlObject->Plugins->CallPluginItem(guid,&cpInfo);
 					}
+					Global->FrameManager->RefreshFrame();
+					//с текущим переключением окон могут быть проблемы с заголовком консоли.
+					Global->FrameManager->PluginCommit();
 				}
 				break;
 			}

@@ -903,6 +903,7 @@ int Manager::ProcessKey(Key key)
 					}
 
 					PluginsMenu();
+					Global->FrameManager->RefreshFrame();
 					//_MANAGER(SysLog(-1));
 					return TRUE;
 				}
