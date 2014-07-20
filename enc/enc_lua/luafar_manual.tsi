@@ -5123,8 +5123,17 @@ lv=1
 dt=Text
 nm=Panel functions
 ctime=3523954698
-mtime=3523954698
+mtime=3615036414
 <article>
+#_<markdown>
+#_### Note about parameters in some panel functions
+#_
+#_Many panel functions have the 1-st parameter *handle* and the 2-nd parameter *whatpanel*.
+#_Only one of them is actually used:
+#_
+#_* If *handle* parameter is supplied as a non-nil value then *whatpanel* parameter is ignored
+#_* If *handle* parameter is nil then *whatpanel* parameter is mandatory
+#_
 </article>
 </node>
 <node>
@@ -5288,9 +5297,9 @@ id=258
 lv=2
 dt=Text
 nm=panel.GetColumnTypes
-mtime=3571802960
+mtime=3615035274
 <article>
-#_ColumnTypes = panel.GetColumnTypes ([handle], whatpanel)
+#_ColumnTypes = panel.GetColumnTypes (handle, whatpanel)
 #_
 #_**Parameters:**
 #_  handle:      panel handle, or nil
@@ -5313,9 +5322,9 @@ id=259
 lv=2
 dt=Text
 nm=panel.GetColumnWidths
-mtime=3571802965
+mtime=3615035289
 <article>
-#_ColumnWidths = panel.GetColumnWidths ([handle], whatpanel)
+#_ColumnWidths = panel.GetColumnWidths (handle, whatpanel)
 #_
 #_**Parameters:**
 #_  handle:       panel handle, or nil
@@ -5365,9 +5374,9 @@ id=260
 lv=2
 dt=Text
 nm=panel.GetPanelDirectory
-mtime=3602278434
+mtime=3615035305
 <article>
-#_PanelDir = panel.GetPanelDirectory ([handle], whatpanel)
+#_PanelDir = panel.GetPanelDirectory (handle, whatpanel)
 #_
 #_**Parameters:**
 #_  handle:    panel handle, or nil
@@ -5393,9 +5402,9 @@ lv=2
 dt=Text
 nm=panel.GetPanelFormat
 ctime=3492068593
-mtime=3571802983
+mtime=3615035321
 <article>
-#_PanelFormat = panel.GetPanelFormat ([handle], whatpanel)
+#_PanelFormat = panel.GetPanelFormat (handle, whatpanel)
 #_
 #_**Parameters:**
 #_  handle:    panel handle, or nil
@@ -5419,9 +5428,9 @@ lv=2
 dt=Text
 nm=panel.GetPanelHostFile
 ctime=3492068606
-mtime=3571802988
+mtime=3615035340
 <article>
-#_HostFile = panel.GetPanelHostFile ([handle], whatpanel)
+#_HostFile = panel.GetPanelHostFile (handle, whatpanel)
 #_
 #_**Parameters:**
 #_  handle:    panel handle, or nil
@@ -5444,9 +5453,9 @@ id=7
 lv=2
 dt=Text
 nm=panel.GetPanelInfo
-mtime=3611063236
+mtime=3615035351
 <article>
-#_tPanelInfo = panel.GetPanelInfo ([handle], whatpanel)
+#_tPanelInfo = panel.GetPanelInfo (handle, whatpanel)
 #_
 #_**Parameters:**
 #_  handle:    panel handle, or nil
@@ -5482,9 +5491,9 @@ id=253
 lv=2
 dt=Text
 nm=panel.GetPanelItem
-mtime=3602278929
+mtime=3615035361
 <article>
-#_item = panel.GetPanelItem ([handle], whatpanel, itemindex)
+#_item = panel.GetPanelItem (handle, whatpanel, itemindex)
 #_
 #_**Parameters:**
 #_  handle:    panel handle, or nil
@@ -5511,9 +5520,9 @@ lv=2
 dt=Text
 nm=panel.GetPanelPrefix
 ctime=3525948213
-mtime=3571803002
+mtime=3615035370
 <article>
-#_Prefix = panel.GetPanelPrefix ([handle], whatpanel)
+#_Prefix = panel.GetPanelPrefix (handle, whatpanel)
 #_
 #_**Parameters:**
 #_  handle:    panel handle, or nil
@@ -5536,9 +5545,9 @@ id=254
 lv=2
 dt=Text
 nm=panel.GetSelectedPanelItem
-mtime=3602278934
+mtime=3615035379
 <article>
-#_item = panel.GetSelectedPanelItem ([handle], whatpanel, itemindex)
+#_item = panel.GetSelectedPanelItem (handle, whatpanel, itemindex)
 #_
 #_**Parameters:**
 #_  handle:    panel handle, or nil
