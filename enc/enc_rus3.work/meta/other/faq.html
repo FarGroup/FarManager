@@ -311,7 +311,7 @@ end;
 <pre class=code>
 {
   struct PanelInfo PInfo;
-  Info.Control(INVALID_HANDLE_VALUE,FCTL_GETPANELINFO,&amp;PInfo);
+  Info.PanelControl(INVALID_HANDLE_VALUE,FCTL_GETPANELINFO,&amp;PInfo);
 
   // установить позицию на элементе панели selectItem
 
@@ -332,8 +332,8 @@ end;
   Info.FSF-&gt;Unquote(Dir);
 
   if(*Dir)
-    Info.Control(INVALID_HANDLE_VALUE,FCTL_SETPANELDIR,&amp;Dir);
-  Info.Control(INVALID_HANDLE_VALUE,FCTL_GETPANELINFO,&amp;PInfo);
+    Info.PanelControl(INVALID_HANDLE_VALUE,FCTL_SETPANELDIR,&amp;Dir);
+  Info.PanelControl(INVALID_HANDLE_VALUE,FCTL_GETPANELINFO,&amp;PInfo);
 
   PRI.CurrentItem=PInfo.CurrentItem;
   PRI.TopPanelItem=PInfo.TopPanelItem;
@@ -347,14 +347,14 @@ end;
       break;
     }
   }
-  Info.Control(INVALID_HANDLE_VALUE,FCTL_REDRAWPANEL,&amp;PRI);
+  Info.PanelControl(INVALID_HANDLE_VALUE,FCTL_REDRAWPANEL,&amp;PRI);
 }
 </pre>
   <br><br></li>
 
   <li><span class=faqq>Q:</span> <a name="exec1"><span class=faqqb>Как из плагина запустить что-нибудь? И как показать вывод этой программы под панелями?</span></a>
   <br><span class=faqa>A:</span>
-<pre class=code>Info.Control(INVALID_HANDLE_VALUE,FCTL_GETUSERSCREEN,NULL);
+<pre class=code>Info.PanelControl(INVALID_HANDLE_VALUE,FCTL_GETUSERSCREEN,NULL);
 
 if (CreateProcess(NULL,"ls.exe",NULL,NULL,TRUE,0,NULL,NULL,&amp;si,&amp;pi))
 {
@@ -363,7 +363,7 @@ if (CreateProcess(NULL,"ls.exe",NULL,NULL,TRUE,0,NULL,NULL,&amp;si,&amp;pi))
   CloseHandle( pi.hThread );
 }
 
-Info.Control(INVALID_HANDLE_VALUE,FCTL_SETUSERSCREEN,NULL);
+Info.PanelControl(INVALID_HANDLE_VALUE,FCTL_SETUSERSCREEN,NULL);
 </pre>
   <br><br></li>
 
@@ -395,7 +395,7 @@ Info.Control(INVALID_HANDLE_VALUE,FCTL_SETUSERSCREEN,NULL);
   <li><span class=faqq>Q:</span> <a name="dialog10"><span class=faqqb>Каким-то образом у меня получилось, что SEPARATOR, что бы я не делал не желал доходить до правого конца рамки, когда сделал с нуля - исправилось.</span></a>
   <br><span class=faqa>A:</span> См. замечания для флага <a href="../dialogapi/flags/dif_separator.html">DIF_SEPARATOR</a><br><br>
 
- 
+
 </ol>
 
 <div class=seecont><a href="#top">наверх</a></div>
