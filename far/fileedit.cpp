@@ -2645,6 +2645,17 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		{
 			return CheckNullOrStructSize((EditorBookmarks *)Param2)?m_editor->GetSessionBookmarksForPlugin((EditorBookmarks *)Param2):0;
 		}
+		case ECTL_GETTITLE:
+		{
+			string strLocalTitle;
+			GetTitle(strLocalTitle);
+			if (Param2&&(size_t)Param1>strLocalTitle.size())
+			{
+				wcscpy(static_cast<LPWSTR>(Param2),strLocalTitle.data());
+			}
+
+			return strLocalTitle.size()+1;
+		}
 		case ECTL_SETTITLE:
 		{
 			strPluginTitle = NullToEmpty(reinterpret_cast<const wchar_t*>(Param2));
