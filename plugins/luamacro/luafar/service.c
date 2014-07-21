@@ -1143,6 +1143,24 @@ static int editor_SetTitle(lua_State *L)
 	return 1;
 }
 
+static int editor_GetTitle(lua_State *L)
+{
+	intptr_t EditorId = luaL_optinteger(L, 1, CURRENT_EDITOR);
+	PSInfo *Info = GetPluginData(L)->Info;
+	size_t size = Info->EditorControl(EditorId, ECTL_GETTITLE, 0, NULL);
+	if (size)
+	{
+		wchar_t* buf = (wchar_t*)lua_newuserdata(L, size*sizeof(wchar_t));
+		if (size == Info->EditorControl(EditorId, ECTL_GETTITLE, size, buf))
+		{
+			push_utf8_string(L, buf, -1);
+			return 1;
+		}
+	}
+	lua_pushnil(L);
+	return 1;
+}
+
 static int editor_Quit(lua_State *L)
 {
 	intptr_t EditorId = luaL_optinteger(L, 1, CURRENT_EDITOR);
@@ -5798,6 +5816,7 @@ const luaL_Reg editor_funcs[] =
 	{"SetString",           editor_SetString},
 	{"SetStringW",          editor_SetStringW},
 	{"SetTitle",            editor_SetTitle},
+	{"GetTitle",            editor_GetTitle},
 	{"SubscribeChangeEvent",editor_SubscribeChangeEvent},
 	{"TabToReal",           editor_TabToReal},
 	{"UndoRedo",            editor_UndoRedo},

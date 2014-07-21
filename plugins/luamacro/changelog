@@ -1,4 +1,8 @@
-﻿shmuel 19.07.2014 20:47:27 +0200 - build 402
+﻿shmuel 21.07.2014 20:32:05 +0200 - build 403
+
+1. LuaFAR: новая функция editor.GetTitle.
+
+shmuel 19.07.2014 20:47:27 +0200 - build 402
 
 1. LuaFAR: функция editor.ClearSessionBookmarks возвращает булевое значение, а не число.
 

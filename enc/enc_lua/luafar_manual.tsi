@@ -4563,6 +4563,31 @@ mtime=3523911537
 </article>
 </node>
 <node>
+id=497
+lv=2
+dt=Text
+nm=editor.GetTitle
+ctime=3615110277
+mtime=3615110403
+<article>
+#_Title = editor.GetTitle (EditorId)
+#_
+#_**Parameters:**
+#_  EditorId: integer, or nil
+#_
+#_**Returns:**
+#_  Title:    string, or nil
+#_
+#_**Far API used:**
+#_  EditorControl, ECTL_GETTITLE
+#_
+#_@@@
+#_{ectl_gettitle}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_GETTITLE
+#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_
+</article>
+</node>
+<node>
 id=32
 lv=2
 dt=Text
