@@ -1484,15 +1484,9 @@ void Manager::ImmediateHide()
 */
 void Manager::ResizeAllModal(Frame *ModalFrame)
 {
-	if (!ModalFrame->NextModal)
-		return;
-
-	Frame *iModal=ModalFrame->NextModal;
-
-	while (iModal)
+	FOR(auto& i, ModalFrame->m_ModalFrames)
 	{
-		iModal->ResizeConsole();
-		iModal=iModal->NextModal;
+		i->ResizeConsole();
 	}
 }
 

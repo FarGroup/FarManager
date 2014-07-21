@@ -48,7 +48,6 @@ Frame::Frame():
 	FrameKeyBar(nullptr),
 	MacroMode(MACROAREA_OTHER),
 	FrameToBack(nullptr),
-	NextModal(nullptr),
 	Deleting(false),
 	BlockCounter(0)
 {
@@ -81,14 +80,11 @@ void Frame::OnChangeFocus(int focus)
 	if (focus)
 	{
 		Show();
-		Frame *iModal=NextModal;
 
-		while (iModal)
+		FOR(const auto& i, m_ModalFrames)
 		{
-			if (iModal->GetType()!=MODALTYPE_COMBOBOX && iModal->IsVisible())
-				iModal->Show();
-
-			iModal=iModal->NextModal;
+			if (i->GetType() != MODALTYPE_COMBOBOX && i->IsVisible())
+				i->Show();
 		}
 	}
 	else
@@ -99,14 +95,7 @@ void Frame::OnChangeFocus(int focus)
 
 void Frame::Push(Frame* Modalized)
 {
-	if (!NextModal)
-	{
-		NextModal=Modalized;
-	}
-	else
-	{
-		NextModal->Push(Modalized);
-	}
+	m_ModalFrames.push_back(Modalized);
 }
 
 int Frame::FastHide()
@@ -121,30 +110,13 @@ bool Frame::RemoveModal(const Frame *aFrame)
 		return false;
 	}
 
-	Frame *Prev=this;
-	Frame *Next=NextModal;
-
-	while (Next)
+	auto ItemIterator = std::find(ALL_RANGE(m_ModalFrames), aFrame);
+	if (ItemIterator != m_ModalFrames.end())
 	{
-		if (Next==aFrame)
-		{
-			break;
-		}
-
-		Prev=Next;
-		Next=Next->NextModal;
-	}
-
-	if (Next)
-	{
-		RemoveModal(Next->NextModal);
-		Prev->NextModal=nullptr;
+		m_ModalFrames.erase(ItemIterator, m_ModalFrames.end());
 		return true;
 	}
-	else
-	{
-		return false;
-	}
+	return false;
 }
 
 void Frame::ResizeConsole()

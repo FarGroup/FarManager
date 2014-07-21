@@ -82,7 +82,7 @@ public:
 	void UpdateKeyBar();
 	int IsTitleBarVisible() const {return TitleBarVisible;}
 	int IsTopFrame() const;
-	Frame *GetTopModal() {return NextModal;}
+	Frame *GetTopModal() { return m_ModalFrames.empty()? nullptr : m_ModalFrames.front(); }
 	void SetDynamicallyBorn(bool Born) {DynamicallyBorn=Born;}
 	bool GetDynamicallyBorn() const {return DynamicallyBorn;}
 	bool RemoveModal(const Frame *aFrame);
@@ -108,7 +108,7 @@ private:
 
 	void Push(Frame* Modalized);
 	Frame *FrameToBack;
-	Frame *NextModal;
+	std::vector<Frame*> m_ModalFrames;
 	bool Deleting;
 	long BlockCounter;
 };
