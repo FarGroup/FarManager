@@ -185,10 +185,17 @@ int WriteEvent(DWORD DumpType, // FLOG_*
 
 
 // for plugins
-DWORD WINAPI xfilter(Plugin *Module, const wchar_t* function, EXCEPTION_POINTERS *xp);
+bool ProcessSEHException(Plugin *Module, const wchar_t* function, EXCEPTION_POINTERS *xp);
 
 // for Far
-inline DWORD WINAPI xfilter(const wchar_t* function, EXCEPTION_POINTERS *xp) { return xfilter(nullptr, function, xp); }
+inline bool ProcessSEHException(const wchar_t* function, EXCEPTION_POINTERS *xp) { return ProcessSEHException(nullptr, function, xp); }
+
+// for plugins
+bool ProcessStdException(const std::exception& e, Plugin *Module, const wchar_t* function);
+
+// for Far
+inline bool ProcessStdException(const std::exception& e, const wchar_t* function) { return ProcessStdException(e, nullptr, function); }
+
 
 class SException: public std::exception
 {
@@ -213,3 +220,5 @@ inline void EnableSeTranslation()
 	_set_se_translator(SETranslator);
 #endif
 }
+
+void attach_debugger();

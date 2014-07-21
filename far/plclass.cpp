@@ -456,11 +456,24 @@ void Plugin::ExecuteFunction(ExecuteStruct& es, const std::function<void()>& f)
 	}
 	catch (SException &e)
 	{
-		if (xfilter(this, m_model->GetExportName(es.id), e.GetInfo()) == EXCEPTION_EXECUTE_HANDLER)
+		if (ProcessSEHException(this, m_model->GetExportName(es.id), e.GetInfo()))
 		{
 			m_model->GetOwner()->UnloadPlugin(this, es.id);
 			es.Result = es.Default;
 			Global->ProcessException=FALSE;
+		}
+		else
+		{
+			throw;
+		}
+	}
+	catch (std::exception &e)
+	{
+		if (ProcessStdException(e, this, m_model->GetExportName(es.id)))
+		{
+			m_model->GetOwner()->UnloadPlugin(this, es.id);
+			es.Result = es.Default;
+			Global->ProcessException = FALSE;
 		}
 		else
 		{

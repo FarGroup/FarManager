@@ -293,7 +293,7 @@ static int MainProcess(
 #ifndef _MSC_VER
 static LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS *ExceptionInfo)
 {
-	return xfilter(L"FarUnhandledExceptionFilter", ExceptionInfo);
+	return ProcessSEHException(L"FarUnhandledExceptionFilter", ExceptionInfo)? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH;
 }
 #endif
 
@@ -751,13 +751,27 @@ static int mainImpl(const range<wchar_t**>& Args)
 	}
 	catch (const SException& e)
 	{
-		if (xfilter(L"mainImpl", e.GetInfo()) == EXCEPTION_EXECUTE_HANDLER)
+		if (ProcessSEHException(L"mainImpl", e.GetInfo()))
+		{
 			std::terminate();
+		}
+		else
+		{
+			SetErrorMode(Global->ErrorMode&~SEM_NOGPFAULTERRORBOX);
+			throw;
+		}
 	}
 	catch (const std::exception& e)
 	{
-		if (Message(MSG_WARNING, 2, MSG(MExcTrappedException), wide(e.what()).data(), MSG(MExcTerminate), MSG(MExcDebugger)) == 0)
+		if (ProcessStdException(e, nullptr, L"mainImpl"))
+		{
 			std::terminate();
+		}
+		else
+		{
+			SetErrorMode(Global->ErrorMode&~SEM_NOGPFAULTERRORBOX);
+			throw;
+		}
 	}
 
 	delete Global->CtrlObject;
@@ -788,8 +802,14 @@ int wmain(int Argc, wchar_t *Argv[])
 	}
 	catch (const SException& e)
 	{
-		if (xfilter(L"wmain", e.GetInfo()) == EXCEPTION_EXECUTE_HANDLER)
+		if (ProcessSEHException(L"wmain", e.GetInfo()))
+		{
 			std::terminate();
+		}
+		else
+		{
+			throw;
+		}
 	}
 	catch (const std::exception& e)
 	{

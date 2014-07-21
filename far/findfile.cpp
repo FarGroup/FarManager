@@ -2696,9 +2696,14 @@ unsigned int FindFiles::ThreadRoutine(THREADPARAM* Param)
 	}
 	catch (SException& e)
 	{
-		if (xfilter(L"FindFiles::ThreadRoutine", e.GetInfo()) == EXCEPTION_EXECUTE_HANDLER)
+		if (ProcessSEHException(L"FindFiles::ThreadRoutine", e.GetInfo()))
+		{
 			std::terminate();
-		throw;
+		}
+		else
+		{
+			throw;
+		}
 	}
 	return 0;
 }

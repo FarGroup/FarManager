@@ -683,12 +683,14 @@ int Manager::ProcessKey(Key key)
 // сей код для проверки исключатор, просьба не трогать :-)
 		if (key.FarKey == KEY_CTRLALTAPPS || key.FarKey == KEY_RCTRLRALTAPPS || key.FarKey == KEY_CTRLRALTAPPS || key.FarKey == KEY_RCTRLALTAPPS)
 		{
-			struct __ECODE
+			static const struct ECODE
 			{
 				NTSTATUS Code;
 				const wchar_t *Name;
-			} ECode[]=
+			}
+			ECode[]=
 			{
+				{0, L"C++ std::exception",},
 				{EXCEPTION_ACCESS_VIOLATION,L"Access Violation (Read)"},
 				{EXCEPTION_ACCESS_VIOLATION,L"Access Violation (Write)"},
 				{EXCEPTION_INT_DIVIDE_BY_ZERO,L"Divide by zero"},
@@ -740,15 +742,17 @@ int Manager::ProcessKey(Key key)
 				case -1:
 					return TRUE;
 				case 0:
+					throw std::runtime_error("test error");
+				case 1:
 					zero_const.i=*zero_const.iptr;
 					break;
-				case 1:
+				case 2:
 					*zero_const.iptr = 0;
 					break;
-				case 2:
+				case 3:
 					zero_const.i=1/zero_const.i;
 					break;
-				case 3:
+				case 4:
 #if defined(_MSC_VER)
 #ifdef _M_IA64
 					const int REG_IA64_IntR0 = 1024;
@@ -760,17 +764,17 @@ int Manager::ProcessKey(Key key)
 					asm("ud2");
 #endif
 					break;
-				case 4:
+				case 5:
 					Test_EXCEPTION_STACK_OVERFLOW(nullptr);
 					break;
-				case 5:
+				case 6:
 					//refers.d = 1.0/zero_const.d;
 					break;
-				case 6:
-					DebugBreak();
+				case 7:
+					attach_debugger();
 					break;
 #ifdef _M_IA64
-				case 7:
+				case 8:
 				{
 					BYTE temp[10]={};
 					double* val;

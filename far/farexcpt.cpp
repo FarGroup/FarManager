@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "console.hpp"
 #include "language.hpp"
+#include "message.hpp"
 
 int WriteEvent(DWORD DumpType, // FLOG_*
                EXCEPTION_POINTERS *xp,
@@ -64,8 +65,7 @@ int WriteEvent(DWORD DumpType, // FLOG_*
    Простенький обработчик исключений.
 */
 
-static bool Is_STACK_OVERFLOW=false;
-bool UseExternalHandler=false;
+static bool Is_STACK_OVERFLOW = false;
 
 // Some parametes for _xfilter function
 static const wchar_t* From=0;
@@ -101,23 +101,14 @@ intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 				int key = InputRecordToKey(record);
 				if (Param1==10 && (key==KEY_LEFT || key == KEY_NUMPAD4 || key==KEY_SHIFTTAB))
 				{
-					Dlg->SendMessage(DM_SETFOCUS,11,0);
+					Dlg->SendMessage(DM_SETFOCUS,12,0);
 					return TRUE;
 				}
-				else if (Param1==11 && (key==KEY_RIGHT || key == KEY_NUMPAD6 || key==KEY_TAB))
+				else if (Param1==12 && (key==KEY_RIGHT || key == KEY_NUMPAD6 || key==KEY_TAB))
 				{
 					Dlg->SendMessage(DM_SETFOCUS,10,0);
 					return TRUE;
 				}
-			}
-		}
-		break;
-
-		case DN_CLOSE:
-		{
-			if (Param1 == 10 && !Module) //terminate
-			{
-				std::terminate();
 			}
 		}
 		break;
@@ -133,7 +124,14 @@ static bool LanguageLoaded()
 	return Global && Global->Lang;
 }
 
-static bool ExcDialog(const string& ModuleName,LPCWSTR Exception,LPVOID Adress)
+enum reply
+{
+	reply_handle,
+	reply_debug,
+	reply_ignore,
+};
+
+static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, LPVOID Adress)
 {
 	string strAddr = str_printf(L"0x%p",Adress);
 
@@ -151,16 +149,27 @@ static bool ExcDialog(const string& ModuleName,LPCWSTR Exception,LPVOID Adress)
 		{DI_TEXT,    -1,6, 0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_CENTERGROUP,MSG(Module? MExcUnload : MExcTerminate)},
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MExcDebugger)},
+		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MIgnore)},
 	};
 	auto EditDlg = MakeDialogItemsEx(EditDlgData);
 	Dialog Dlg(EditDlg, ExcDlgProc);
 	Dlg.SetDialogMode(DMODE_WARNINGSTYLE|DMODE_NOPLUGINS);
 	Dlg.SetPosition(-1,-1,76,10);
 	Dlg.Process();
-	return Dlg.GetExitCode()==11;
+
+	switch (Dlg.GetExitCode())
+	{
+	case 10:
+		return reply_handle;
+	case 11:
+		return reply_debug;
+	case 12:
+	default:
+		return reply_ignore;
+	}
 }
 
-static bool ExcDump(const string& ModuleName,LPCWSTR Exception,LPVOID Adress)
+static void ExcDump(const string& ModuleName,LPCWSTR Exception,LPVOID Adress)
 {
 	string strAddr = str_printf(L"0x%p",Adress);
 
@@ -187,15 +196,12 @@ static bool ExcDump(const string& ModuleName,LPCWSTR Exception,LPVOID Adress)
 		Msg[3] + L" " + ModuleName + L"\n";
 
 	std::wcerr << Dump << std::endl;
-
-	return false;
 }
 
-static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
+static bool ProcessSEHExceptionImpl()
 {
 	if (Global)
 		Global->ProcessException=TRUE;
-	DWORD Result = EXCEPTION_EXECUTE_HANDLER;
 	BOOL Res=FALSE;
 
 	if (!Is_STACK_OVERFLOW &&Global && Global->Opt->ExceptUsed && !Global->Opt->strExceptEventSvc.empty())
@@ -228,7 +234,8 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 					PlugRec.ModuleName=Module->GetModuleName().data();
 				}
 
-				Res=p(xp,(Module?&PlugRec:nullptr),&LocalStartupInfo,&Result);
+				DWORD dummy;
+				Res=p(xp,(Module?&PlugRec:nullptr),&LocalStartupInfo,&dummy);
 			}
 
 			FreeLibrary(m);
@@ -243,37 +250,35 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 				Global->CriticalInternalError=TRUE;
 		}
 
-		return Result;
+		return true;
 	}
 
-	struct __ECODE
+	static const struct
 	{
 		NTSTATUS Code;     // код исключения
 		const wchar_t* DefaultMsg; // Lng-files may not be loaded yet
 		LNGID IdMsg;    // ID сообщения из LNG-файла
-		DWORD RetCode;  // Что вернем?
-	} ECode[]=
-
+	}
+	ECode[]=
 	{
 		#define CODEANDTEXT(x) x, L###x
-		{CODEANDTEXT(EXCEPTION_ACCESS_VIOLATION), MExcRAccess, EXCEPTION_EXECUTE_HANDLER},
-		{CODEANDTEXT(EXCEPTION_ARRAY_BOUNDS_EXCEEDED), MExcOutOfBounds, EXCEPTION_EXECUTE_HANDLER},
-		{CODEANDTEXT(EXCEPTION_INT_DIVIDE_BY_ZERO),MExcDivideByZero, EXCEPTION_EXECUTE_HANDLER},
-		{CODEANDTEXT(EXCEPTION_STACK_OVERFLOW),MExcStackOverflow, EXCEPTION_EXECUTE_HANDLER},
-		{CODEANDTEXT(EXCEPTION_BREAKPOINT),MExcBreakPoint, EXCEPTION_EXECUTE_HANDLER},
-		{CODEANDTEXT(EXCEPTION_FLT_DIVIDE_BY_ZERO),MExcFloatDivideByZero,EXCEPTION_EXECUTE_HANDLER}, // BUGBUG: Floating-point exceptions (VC) are disabled by default. See http://msdn2.microsoft.com/en-us/library/aa289157(vs.71).aspx#floapoint_topic8
-		{CODEANDTEXT(EXCEPTION_FLT_OVERFLOW),MExcFloatOverflow,EXCEPTION_EXECUTE_HANDLER},           // BUGBUG:  ^^^
-		{CODEANDTEXT(EXCEPTION_FLT_STACK_CHECK),MExcFloatStackOverflow,EXCEPTION_EXECUTE_HANDLER},   // BUGBUG:  ^^^
-		{CODEANDTEXT(EXCEPTION_FLT_UNDERFLOW),MExcFloatUnderflow,EXCEPTION_EXECUTE_HANDLER},         // BUGBUG:  ^^^
-		{CODEANDTEXT(EXCEPTION_ILLEGAL_INSTRUCTION),MExcBadInstruction,EXCEPTION_EXECUTE_HANDLER},
-		{CODEANDTEXT(EXCEPTION_PRIV_INSTRUCTION),MExcBadInstruction,EXCEPTION_EXECUTE_HANDLER},
-		{CODEANDTEXT(EXCEPTION_DATATYPE_MISALIGNMENT), MExcDatatypeMisalignment, EXCEPTION_EXECUTE_HANDLER},
+		{CODEANDTEXT(EXCEPTION_ACCESS_VIOLATION), MExcRAccess},
+		{CODEANDTEXT(EXCEPTION_ARRAY_BOUNDS_EXCEEDED), MExcOutOfBounds},
+		{CODEANDTEXT(EXCEPTION_INT_DIVIDE_BY_ZERO),MExcDivideByZero},
+		{CODEANDTEXT(EXCEPTION_STACK_OVERFLOW),MExcStackOverflow},
+		{CODEANDTEXT(EXCEPTION_BREAKPOINT),MExcBreakPoint},
+		{CODEANDTEXT(EXCEPTION_FLT_DIVIDE_BY_ZERO),MExcFloatDivideByZero}, // BUGBUG: Floating-point exceptions (VC) are disabled by default. See http://msdn2.microsoft.com/en-us/library/aa289157(vs.71).aspx#floapoint_topic8
+		{CODEANDTEXT(EXCEPTION_FLT_OVERFLOW),MExcFloatOverflow},           // BUGBUG:  ^^^
+		{CODEANDTEXT(EXCEPTION_FLT_STACK_CHECK),MExcFloatStackOverflow},   // BUGBUG:  ^^^
+		{CODEANDTEXT(EXCEPTION_FLT_UNDERFLOW),MExcFloatUnderflow},         // BUGBUG:  ^^^
+		{CODEANDTEXT(EXCEPTION_ILLEGAL_INSTRUCTION),MExcBadInstruction},
+		{CODEANDTEXT(EXCEPTION_PRIV_INSTRUCTION),MExcBadInstruction},
+		{CODEANDTEXT(EXCEPTION_DATATYPE_MISALIGNMENT), MExcDatatypeMisalignment},
 		// сюды добавляем.
 
 		#undef CODEANDTEXT
 	};
-	// EXCEPTION_CONTINUE_EXECUTION  ??????
-	DWORD rc;
+
 	string strBuf1, strBuf2;
 	LangString strBuf;
 	string strFileName;
@@ -283,14 +288,6 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 
 	// выведим дамп перед выдачей сообщений
 	WriteEvent(FLOG_ALL,xp,Module,nullptr,0);
-
-	// CONTEXT можно использовать для отображения или записи в лог
-	//         содержимого регистров...
-	// CONTEXT *xc = xp->ContextRecord;
-	rc = Result;// EXCEPTION_EXECUTE_HANDLER;
-	/*$ 23.01.2001 skv
-	  Неизвестное исключение не стоит игнорировать.
-	*/
 
 	if (!Module)
 	{
@@ -318,7 +315,6 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 	if (ItemIterator != std::cend(ECode))
 	{
 		Exception=LanguageLoaded()? MSG(ItemIterator->IdMsg) : ItemIterator->DefaultMsg;
-		rc=ItemIterator->RetCode;
 
 		if (xr->ExceptionCode == static_cast<DWORD>(EXCEPTION_ACCESS_VIOLATION))
 		{
@@ -364,7 +360,8 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 		Exception = strBuf2.data();
 	}
 
-	int MsgCode=0;
+	reply MsgCode = reply_handle;
+
 	if (Global && Global->FrameManager && !Global->FrameManager->ManagerIsDown())
 	{
 		MsgCode=ExcDialog(strFileName,Exception,xr->ExceptionAddress);
@@ -372,7 +369,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 	}
 	else
 	{
-		MsgCode = ExcDump(strFileName,Exception,xr->ExceptionAddress);
+		ExcDump(strFileName, Exception, xr->ExceptionAddress);
 	}
 
 	if (ShowMessages && (Is_STACK_OVERFLOW || !Module))
@@ -380,78 +377,58 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 		Global->CriticalInternalError=TRUE;
 	}
 
-	if(MsgCode==1)
+	switch (MsgCode)
 	{
-		SetErrorMode(Global->ErrorMode&~SEM_NOGPFAULTERRORBOX);
-		rc=EXCEPTION_CONTINUE_SEARCH;
-		UseExternalHandler=true;
+	case reply_handle:
+		return true;
+
+	case reply_debug:
+		attach_debugger();
+		return false;
+
+	case reply_ignore:
+	default:
+		return false;
+	}
+}
+
+bool ProcessSEHException(Plugin *Module, const wchar_t* From, EXCEPTION_POINTERS *xp)
+{
+	// dummy parametrs setting
+	::From=From;
+	::xp=xp;
+	::Module=Module;
+
+	if (xp->ExceptionRecord->ExceptionCode == static_cast<DWORD>(STATUS_STACK_OVERFLOW))
+	{
+		return false;
 	}
 	else
 	{
-		rc = EXCEPTION_EXECUTE_HANDLER;
+		return ProcessSEHExceptionImpl();
 	}
-	//return UnhandledExceptionFilter(xp);
-	return rc;
 }
 
-DWORD WINAPI xfilter(Plugin *Module, const wchar_t* From, EXCEPTION_POINTERS *xp)
+void attach_debugger()
 {
-	DWORD Result=EXCEPTION_CONTINUE_SEARCH;
+	SetErrorMode(Global->ErrorMode&~SEM_NOGPFAULTERRORBOX);
+	DebugBreak();
+	SetErrorMode(Global->ErrorMode);
+}
 
-	if(!UseExternalHandler)
+bool ProcessStdException(const std::exception& e, Plugin *Module, const wchar_t* function)
+{
+	if (Global)
+		Global->ProcessException = TRUE;
+	switch (Message(MSG_WARNING, 3, MSG(MExcTrappedException), wide(e.what()).data(), MSG(Module? MExcUnload : MExcTerminate), MSG(MExcDebugger), MSG(MIgnore)))
 	{
-		// dummy parametrs setting
-		::From=From;
-		::xp=xp;
-		::Module=Module;
-
-		if (xp->ExceptionRecord->ExceptionCode == static_cast<DWORD>(STATUS_STACK_OVERFLOW)) // restore stack & call_xfilter ;
-		{
-			Is_STACK_OVERFLOW=true;
-#ifdef _M_IA64
-			// TODO: Bad way to restore IA64 stacks (CreateThread)
-			// Can you do smartly? See REMINDER file, section IA64Stacks
-			static HANDLE hThread = nullptr;
-
-			if (!(hThread = CreateThread(nullptr, 0, _xfilter, nullptr, 0, nullptr)))
-			{
-				std::terminate();
-			}
-
-			WaitForSingleObject(hThread, INFINITE);
-			CloseHandle(hThread);
-#else
-			static struct
-			{
-				BYTE      stack_space[32768];
-				intptr_t ret_addr;
-				intptr_t args[4];
-			} _stack;
-			_stack.ret_addr = 0;
-#ifndef _WIN64
-#ifdef _M_ARM
-			// BUGBUG
-#else
-			//_stack.args[0] = (intptr_t)From;
-			//_stack.args[1] = (intptr_t)xp;
-			//_stack.args[2] = (intptr_t)Module;
-			xp->ContextRecord->Esp = (DWORD)(intptr_t)(&_stack.ret_addr);
-			xp->ContextRecord->Eip = (DWORD)(intptr_t)(&_xfilter);
-#endif
-#else
-			//xp->ContextRecord->Rcx = (intptr_t)From;
-			//xp->ContextRecord->Rdx = (intptr_t)xp;
-			//xp->ContextRecord->R8  = (intptr_t)Module;
-			xp->ContextRecord->Rsp = (intptr_t)(&_stack.ret_addr);
-			xp->ContextRecord->Rip = (intptr_t)(&_xfilter);
-#endif
-#endif
-			Result=EXCEPTION_CONTINUE_EXECUTION;
-		}
-		else
-		{
-			Result=_xfilter();
-		}
+	case 0:
+		return true;
+	case 1:
+		attach_debugger();
+		return false;
+	case 2:
+	default:
+		return false;
 	}
-	return Result;
 }
