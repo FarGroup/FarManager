@@ -130,6 +130,13 @@ Info.EditorControl(-1,ECTL_GETSTRING,0,&amp;egs);
     </pre>
     Если указанная строка отсутствует, то возвращается <code>FALSE</code>, иначе <code>TRUE</code>.</td></tr>
 
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_GETTITLE">ECTL_GETTITLE</a></td>
+    <td class="cont" width="60%">Получить заголовок редактора.<br>
+    <code>Param1</code> - размер буфера в символах, который выделил плагин для данных.<br>
+    <code>Param2</code> указывает на буфер, выделенный плагином, куда будет помещен заголовок редактора.<br>
+    Функция возвращает требуемый размер буфера в символах, с учетом завершающего нуля.<br>
+    Если <code>Param2 = NULL</code> или <code>Param1</code> меньше требуемого размера, функция просто вернет необходимый размер буфера.</td></tr>
+
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_INSERTSTRING">ECTL_INSERTSTRING</a></td>
     <td class="cont" width="60%">Вставить новую строку (разорвать строку) с текущей позиции курсора и переместить курсор либо на первую позицию новой строки, либо на позицию с учётом отступа.<br>
     <code>Param1</code> не используется.<br>
