@@ -1,4 +1,9 @@
-﻿shmuel 22.07.2014 09:07:35 +0200 - build 405
+﻿shmuel 22.07.2014 10:13:18 +0200 - build 406
+
+1. LuaFAR: в таблице, возвращаемой вызовом export.ProcessEditorEvent(EE_CHANGE),
+   значения поля 'StringNumber' отсчитываются от 1.
+
+shmuel 22.07.2014 09:07:35 +0200 - build 405
 
 1. Уточнение 404.
 

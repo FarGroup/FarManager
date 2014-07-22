@@ -1244,7 +1244,7 @@ intptr_t LF_ProcessEditorEvent(lua_State* L, const struct ProcessEditorEventInfo
 				const struct EditorChange *ec = (const struct EditorChange*) Info->Param;
 				lua_createtable(L, 0, 2);
 				PutNumToTable(L, "Type", ec->Type);
-				PutNumToTable(L, "StringNumber", (double)ec->StringNumber);
+				PutNumToTable(L, "StringNumber", (double)(ec->StringNumber+1));
 				break;
 			}
 			case EE_SAVE:

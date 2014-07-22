@@ -2074,7 +2074,7 @@ id=110
 lv=2
 dt=Text
 nm=export.ProcessEditorEvent
-mtime=3602341363
+mtime=3615182470
 <article>
 #_result = export.ProcessEditorEvent (EditorID, Event, Param)
 #_
@@ -2083,7 +2083,7 @@ mtime=3602341363
 #_  Event:    integer
 #_  Param:    - table (for Event == EE_CHANGE):
 #_                Type:         integer
-#_                StringNumber: integer
+#_                StringNumber: integer (1-based)
 #_            - table (for Event == EE_SAVE)
 #_                FileName:     string
 #_                FileEOL:      string
