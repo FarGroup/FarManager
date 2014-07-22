@@ -1310,6 +1310,8 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 				}
 			}
 
+			FSF.LTrim(farcmd); //???
+
 			// <object
 			// <S object
 			// <SM object
