@@ -50,24 +50,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "language.hpp"
 #include "message.hpp"
-
-int WriteEvent(DWORD DumpType, // FLOG_*
-               EXCEPTION_POINTERS *xp,
-               Plugin *Module,
-               void *RawData,DWORD RawDataSize,
-               DWORD RawDataFlags,DWORD RawType)
-{
-	return 0;
-}
+#include "imports.hpp"
 
 /* ************************************************************************
    $ 16.10.2000 SVS
    Простенький обработчик исключений.
 */
 
-static bool Is_STACK_OVERFLOW = false;
-
-// Some parametes for _xfilter function
 static const wchar_t* From=0;
 static EXCEPTION_POINTERS *xp=nullptr;    // данные ситуации
 static Plugin *Module=nullptr;     // модуль, приведший к исключению.
@@ -113,6 +102,17 @@ intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 		}
 		break;
 
+		case DN_CLOSE:
+		{
+			if (Param1 == 11) // debug
+			{
+				// It's better to attach debugger ASAP, closing the dialog causes too much work in window manager
+				attach_debugger();
+				return FALSE;
+			}
+		}
+		break;
+
 	default:
 		break;
 	}
@@ -133,6 +133,9 @@ enum reply
 
 static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, LPVOID Adress)
 {
+	// TODO: Far Dialog is not the best choice for exception reporting
+	// replace with something trivial
+
 	string strAddr = str_printf(L"0x%p",Adress);
 
 	FarDialogItem EditDlgData[]=
@@ -198,18 +201,40 @@ static void ExcDump(const string& ModuleName,LPCWSTR Exception,LPVOID Adress)
 	std::wcerr << Dump << std::endl;
 }
 
+template<char c0, char c1, char c2, char c3>
+struct MakeFourCC
+{
+	enum { value = MAKELONG(MAKEWORD(c0, c1), MAKEWORD(c2, c3)) };
+};
+
+enum FARRECORDTYPE
+{
+	RTYPE_PLUGIN = MakeFourCC<'C', 'P', 'L', 'G'>::value, // информация о текущем плагине
+};
+
 static bool ProcessSEHExceptionImpl()
 {
 	if (Global)
 		Global->ProcessException=TRUE;
 	BOOL Res=FALSE;
 
-	if (!Is_STACK_OVERFLOW &&Global && Global->Opt->ExceptUsed && !Global->Opt->strExceptEventSvc.empty())
+	if (Global && Global->Opt->ExceptUsed && !Global->Opt->strExceptEventSvc.empty())
 	{
 		HMODULE m = LoadLibrary(Global->Opt->strExceptEventSvc.data());
 
 		if (m)
 		{
+			struct PLUGINRECORD       // информация о плагине
+			{
+				DWORD TypeRec;          // Тип записи = RTYPE_PLUGIN
+				DWORD SizeRec;          // Размер
+				DWORD Reserved1[4];
+				// DWORD SysID; GUID
+				const wchar_t *ModuleName;
+				DWORD Reserved2[2];    // разерв :-)
+				DWORD SizeModuleName;
+			};
+
 			typedef BOOL (WINAPI *ExceptionProc_t)(EXCEPTION_POINTERS *xp,
 				                                    const PLUGINRECORD *Module,
 				                                    const PluginStartupInfo *LocalStartupInfo,
@@ -285,9 +310,6 @@ static bool ProcessSEHExceptionImpl()
 	BOOL ShowMessages=FALSE;
 	// получим запись исключения
 	EXCEPTION_RECORD *xr = xp->ExceptionRecord;
-
-	// выведим дамп перед выдачей сообщений
-	WriteEvent(FLOG_ALL,xp,Module,nullptr,0);
 
 	if (!Module)
 	{
@@ -372,7 +394,7 @@ static bool ProcessSEHExceptionImpl()
 		ExcDump(strFileName, Exception, xr->ExceptionAddress);
 	}
 
-	if (ShowMessages && (Is_STACK_OVERFLOW || !Module))
+	if (ShowMessages && !Module)
 	{
 		Global->CriticalInternalError=TRUE;
 	}
@@ -399,14 +421,7 @@ bool ProcessSEHException(Plugin *Module, const wchar_t* From, EXCEPTION_POINTERS
 	::xp=xp;
 	::Module=Module;
 
-	if (xp->ExceptionRecord->ExceptionCode == static_cast<DWORD>(STATUS_STACK_OVERFLOW))
-	{
-		return false;
-	}
-	else
-	{
-		return ProcessSEHExceptionImpl();
-	}
+	return ProcessSEHExceptionImpl();
 }
 
 void attach_debugger()
@@ -430,5 +445,80 @@ bool ProcessStdException(const std::exception& e, Plugin *Module, const wchar_t*
 	case 2:
 	default:
 		return false;
+	}
+}
+
+static DWORD WINAPI ProcessSEHExceptionWrapper(EXCEPTION_POINTERS* xp)
+{
+	ProcessSEHException(nullptr, nullptr, xp);
+	return 0;
+}
+
+LONG WINAPI VectoredExceptionHandler(EXCEPTION_POINTERS *xp)
+{
+	// restore stack & call ProcessSEHExceptionWrapper
+	if (xp->ExceptionRecord->ExceptionCode == STATUS_STACK_OVERFLOW)
+	{
+#ifdef _M_IA64
+		// TODO: Bad way to restore IA64 stacks (CreateThread)
+		// Can you do smartly? See REMINDER file, section IA64Stacks
+		static HANDLE hThread = nullptr;
+
+		if (!(hThread = CreateThread(nullptr, 0, ProcessSEHExceptionWrapper, xp, 0, nullptr)))
+		{
+			TerminateProcess(GetCurrentProcess(), 1);
+		}
+
+		WaitForSingleObject(hThread, INFINITE);
+		CloseHandle(hThread);
+#else
+		static struct
+		{
+			BYTE stack_space[32768];
+			DWORD_PTR ret_addr;
+			DWORD_PTR args[4];
+		}
+		stack;
+		stack.ret_addr = 0;
+#ifndef _WIN64
+		stack.args[0] = reinterpret_cast<DWORD_PTR>(xp);
+		//stack.args[1] = ...
+		//stack.args[2] = ...
+		//stack.args[3] = ...
+		xp->ContextRecord->Esp = reinterpret_cast<DWORD_PTR>(&stack.ret_addr);
+		xp->ContextRecord->Eip = reinterpret_cast<DWORD_PTR>(&ProcessSEHExceptionWrapper);
+#else
+		xp->ContextRecord->Rcx = reinterpret_cast<DWORD_PTR>(xp);
+		//xp->ContextRecord->Rdx = ...
+		//xp->ContextRecord->R8  = ...
+		//xp->ContextRecord->R9  = ...
+		xp->ContextRecord->Rsp = reinterpret_cast<DWORD_PTR>(&stack.ret_addr);
+		xp->ContextRecord->Rip = reinterpret_cast<DWORD_PTR>(&ProcessSEHExceptionWrapper);
+#endif
+#endif
+		return EXCEPTION_CONTINUE_EXECUTION;
+	}
+	return EXCEPTION_CONTINUE_SEARCH;
+}
+
+inline void SETranslator(UINT Code, EXCEPTION_POINTERS* ExceptionInfo)
+{
+	throw SException(Code, ExceptionInfo);
+}
+
+void EnableSeTranslation()
+{
+#ifdef _MSC_VER
+	_set_se_translator(SETranslator);
+#endif
+}
+
+void EnableVectoredExceptionHandling()
+{
+	static bool VEH_installed = false;
+	if (!VEH_installed)
+	{
+		Imports().AddVectoredExceptionHandler(TRUE, &VectoredExceptionHandler);
+		VEH_installed = true;
 	}
 }

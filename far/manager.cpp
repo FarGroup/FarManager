@@ -607,11 +607,6 @@ void Manager::ExitMainLoop(int Ask)
 #if defined(_MSC_VER)
 #pragma warning( push )
 #pragma warning( disable : 4717)
-#ifndef _M_IA64
-extern "C" void __ud2();
-#else
-extern "C" void __setReg(int, unsigned __int64);
-#endif
 #endif
 static void Test_EXCEPTION_STACK_OVERFLOW(char* target)
 {

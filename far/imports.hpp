@@ -115,6 +115,7 @@ public: function_pointer<decltype(&ImportedFunctions::stub_##NAME), name_##NAME,
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, GetConsoleScreenBufferInfoEx, HANDLE ConsoleOutput, PCONSOLE_SCREEN_BUFFER_INFOEX ConsoleScreenBufferInfoEx);
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, QueryFullProcessImageNameW, HANDLE Process, DWORD Flags, LPWSTR ExeName, PDWORD Size);
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, TzSpecificLocalTimeToSystemTime, const TIME_ZONE_INFORMATION* TimeZoneInformation, const SYSTEMTIME* LocalTime, LPSYSTEMTIME UniversalTime);
+	DECLARE_IMPORT_FUNCTION(PVOID, WINAPI, AddVectoredExceptionHandler, ULONG First, PVECTORED_EXCEPTION_HANDLER Handler);
 
 	// shell32
 	DECLARE_IMPORT_FUNCTION(HRESULT, STDAPICALLTYPE, SHCreateAssociationRegistration, REFIID riid, void** ppv);

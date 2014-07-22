@@ -794,6 +794,7 @@ int wmain(int Argc, wchar_t *Argv[])
 #endif
 		_wsetlocale(LC_ALL, L"");
 		EnableSeTranslation();
+		EnableVectoredExceptionHandling();
 #ifndef _MSC_VER
 		SetUnhandledExceptionFilter(FarUnhandledExceptionFilter);
 #endif

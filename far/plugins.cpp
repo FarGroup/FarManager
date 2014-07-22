@@ -1466,12 +1466,6 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 							pluginapi::apiShowHelp(item->pPlugin->GetModuleName().data(),HistoryName,FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS);
 						break;
 
-					case KEY_ALTF11:
-					case KEY_RALTF11:
-						WriteEvent(FLOG_PLUGINSINFO);
-						break;
-
-
 					case KEY_F3:
 						if (item)
 						{

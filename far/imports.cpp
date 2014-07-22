@@ -106,6 +106,7 @@ ImportedFunctions::ImportedFunctions():
 	INIT_IMPORT(m_kernel32, GetConsoleScreenBufferInfoEx),
 	INIT_IMPORT(m_kernel32, QueryFullProcessImageNameW),
 	INIT_IMPORT(m_kernel32, TzSpecificLocalTimeToSystemTime),
+	INIT_IMPORT(m_kernel32, AddVectoredExceptionHandler),
 
 	INIT_IMPORT(m_shell32, SHCreateAssociationRegistration),
 
@@ -300,6 +301,13 @@ BOOL ImportedFunctions::stub_TzSpecificLocalTimeToSystemTime(const TIME_ZONE_INF
 	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return FALSE;
+}
+
+PVOID ImportedFunctions::stub_AddVectoredExceptionHandler(ULONG First, PVECTORED_EXCEPTION_HANDLER Handler)
+{
+	// TODO: log
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return nullptr;
 }
 
 // shell32
