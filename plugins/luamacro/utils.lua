@@ -150,19 +150,16 @@ function editor.SubscribeChangeEvent (EditorID, Subscribe)
     EditorID = info.EditorID
   end
 
-  local count = Subscriptions[EditorID]
-  if count then
-    local result = true
-    if Subscribe then
-      if count==0 then result=SubscribeChangeEvent(EditorID,true) end
-      if result then Subscriptions[EditorID]=count+1 end
-    else
-      if count==1 then result=SubscribeChangeEvent(EditorID,false) end
-      if result and count>0 then Subscriptions[EditorID]=count-1 end
-    end
-    return result
+  local count = Subscriptions[EditorID] or 0
+  local result = true
+  if Subscribe then
+    if count==0 then result=SubscribeChangeEvent(EditorID,true) end
+    if result then Subscriptions[EditorID]=count+1 end
+  else
+    if count==1 then result=SubscribeChangeEvent(EditorID,false) end
+    if result and count>0 then Subscriptions[EditorID]=count-1 end
   end
-  return false
+  return result
 end
 
 local function export_ProcessEditorEvent (EditorID, Event, Param)

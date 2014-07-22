@@ -1,4 +1,8 @@
-﻿shmuel 21.07.2014 20:32:05 +0200 - build 403
+﻿shmuel 22.07.2014 08:00:07 +0200 - build 404
+
+1. Функция editor.SubscribeChangeEvent не работала, будучи вызвана из макроса.
+
+shmuel 21.07.2014 20:32:05 +0200 - build 403
 
 1. LuaFAR: новая функция editor.GetTitle.
 
