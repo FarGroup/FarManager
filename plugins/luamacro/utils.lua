@@ -150,19 +150,22 @@ function editor.SubscribeChangeEvent (EditorID, Subscribe)
     EditorID = info.EditorID
   end
 
-  local count = Subscriptions[EditorID] or 0
-  local result = true
-  if Subscribe then
-    if count==0 then result=SubscribeChangeEvent(EditorID,true) end
-    if result then Subscriptions[EditorID]=count+1 end
-  else
-    if count==1 then result=SubscribeChangeEvent(EditorID,false) end
-    if result and count>0 then Subscriptions[EditorID]=count-1 end
+  local count = Subscriptions[EditorID]
+  if count then
+    local result = true
+    if Subscribe then
+      if count==0 then result=SubscribeChangeEvent(EditorID,true) end
+      if result then Subscriptions[EditorID]=count+1 end
+    else
+      if count==1 then result=SubscribeChangeEvent(EditorID,false) end
+      if result and count>0 then Subscriptions[EditorID]=count-1 end
+    end
+    return result
   end
-  return result
+  return false
 end
 
-local function export_ProcessEditorEvent (EditorID, Event, Param)
+function export.ProcessEditorEvent (EditorID, Event, Param)
   if     Event==F.EE_READ  then Subscriptions[EditorID]=0
   elseif Event==F.EE_CLOSE then Subscriptions[EditorID]=nil
   end
@@ -510,7 +513,7 @@ local function LoadMacros (unload)
   local allAreas = band(MacroCallFar(MCODE_F_GETOPTIONS),0x3) == 0
   local numerrors=0
   local newAreas = {}
-  Events,Subscriptions = {},{}
+  Events = {}
   EnumState = {}
   LoadedMacros = {}
   AddedMenuItems = {}
@@ -611,7 +614,6 @@ local function LoadMacros (unload)
 
   export.ExitFAR = Events.exitfar[1] and export_ExitFAR
   export.ProcessDialogEvent = Events.dialogevent[1] and export_ProcessDialogEvent
-  export.ProcessEditorEvent = Events.editorevent[1] and export_ProcessEditorEvent
   export.ProcessEditorInput = Events.editorinput[1] and export_ProcessEditorInput
   export.ProcessViewerEvent = Events.viewerevent[1] and export_ProcessViewerEvent
 
