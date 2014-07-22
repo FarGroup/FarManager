@@ -6552,6 +6552,7 @@ void Editor::ClearSessionBookmarks()
 {
 	NewSessionPos = false;
 	SessionBookmarks.clear();
+	SessionPos = SessionBookmarks.end();
 }
 
 bool Editor::DeleteSessionBookmark(bookmark_list::iterator sb_delete)

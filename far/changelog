@@ -1,4 +1,8 @@
-﻿drkns 22.07.2014 01:04:14 +0200 - build 4015
+﻿drkns 22.07.2014 20:15:47 +0200 - build 4016
+
+1. 0002741: ECTL_CLEARSESSIONBOOKMARKS приводит к падению
+
+drkns 22.07.2014 01:04:14 +0200 - build 4015
 
 1. Exception mix:
    - обрабатываем std::exception при вызове плагинов
