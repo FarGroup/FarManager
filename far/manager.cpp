@@ -932,7 +932,7 @@ int Manager::ProcessKey(Key key)
 				{
 					int TypeFrame = Global->FrameManager->GetCurrentFrame()->GetType();
 
-					if (TypeFrame != MODALTYPE_HELP && TypeFrame != MODALTYPE_DIALOG && TypeFrame != MODALTYPE_VMENU)
+					if (TypeFrame != MODALTYPE_HELP && TypeFrame != MODALTYPE_DIALOG && TypeFrame != MODALTYPE_VMENU && TypeFrame != MODALTYPE_GRABBER && TypeFrame != MODALTYPE_HMENU)
 					{
 						DeactivateFrame(FrameMenu(),0);
 						//_MANAGER(SysLog(-1));
