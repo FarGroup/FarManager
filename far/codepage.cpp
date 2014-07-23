@@ -1364,10 +1364,10 @@ int Utf8::ToWideChar(const char *src, int length, wchar_t* out, int wlen, Utf::E
 		return 0;
 
 	int no = 0, ns = 0, ne = 0, move = 1;
-	wchar_t dummy_out;
+	wchar_t dummy_out[2];
 	if (!out)
 	{
-		out = &dummy_out; move = 0;
+		out = dummy_out; move = 0;
 	}
 
 	while (length > ns)
@@ -1386,12 +1386,13 @@ int Utf8::ToWideChar(const char *src, int length, wchar_t* out, int wlen, Utf::E
 			}
 		}
 
-		if (move && --wlen < 0)
+		auto Decrement = w1[1]? 2 : 1;
+		if (move && (wlen -= Decrement) < 0)
 		{
 			if (errs)
 				errs->small_buff = true;
 
-			out = &dummy_out;
+			out = dummy_out;
 			move = 0;
 		}
 

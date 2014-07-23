@@ -2450,28 +2450,15 @@ wchar_t VMenu::GetHighlights(const MenuItemEx *_item)
 
 	if (_item)
 	{
-		const wchar_t *Name = _item->strName.data();
-		const wchar_t *ChPtr = wcschr(Name,L'&');
-
-		if (ChPtr || _item->AmpPos > -1)
+		if (_item->AmpPos != -1)
 		{
-			if (!ChPtr && _item->AmpPos > -1)
-			{
-				ChPtr = Name + _item->AmpPos;
-				Ch = *ChPtr;
-			}
-			else
-			{
-				Ch = ChPtr[1];
-			}
-
-			if (CheckFlags(VMENU_SHOWAMPERSAND))
-			{
-				ChPtr = wcschr(ChPtr+1,L'&');
-
-				if (ChPtr)
-					Ch = ChPtr[1];
-			}
+			Ch = _item->strName[_item->AmpPos];
+		}
+		else if (!CheckFlags(VMENU_SHOWAMPERSAND))
+		{
+			auto AmpPos = _item->strName.find(L'&');
+			if (AmpPos != string::npos && AmpPos + 1 != _item->strName.size())
+			Ch = _item->strName[AmpPos + 1];
 		}
 	}
 
@@ -2504,22 +2491,14 @@ void VMenu::AssignHighlights(int Reverse)
 	{
 		wchar_t Ch = 0;
 		int ShowPos = HiFindRealPos(Items[I].strName, Items[I].ShowPos, CheckFlags(VMENU_SHOWAMPERSAND));
-		const wchar_t *Name = Items[I].strName.data() + ShowPos;
 		Items[I].AmpPos = -1;
 		// TODO: проверка на LIF_HIDDEN
-		const wchar_t *ChPtr = wcschr(Name, L'&');
-
-		if (ChPtr)
+		size_t AmpPos = -1;
+		if (!CheckFlags(VMENU_SHOWAMPERSAND))
 		{
-			Ch = ChPtr[1];
-
-			if (Ch && VMFlags.Check(VMENU_SHOWAMPERSAND))
-			{
-				ChPtr = wcschr(ChPtr+1, L'&');
-
-				if (ChPtr)
-					Ch=ChPtr[1];
-			}
+			AmpPos = Items[I].strName.find(L'&', ShowPos);
+			if (AmpPos != string::npos && AmpPos + 1 != Items[I].strName.size())
+				Ch = Items[I].strName[AmpPos + 1];
 		}
 
 		if (Ch && !Used[Upper(Ch)] && !Used[Lower(Ch)])
@@ -2529,7 +2508,7 @@ void VMenu::AssignHighlights(int Reverse)
 			Used[Lower(ChKey)] = true;
 			Used[Upper(Ch)] = true;
 			Used[Lower(Ch)] = true;
-			Items[I].AmpPos = static_cast<short>(ChPtr-Name)+static_cast<short>(ShowPos);
+			Items[I].AmpPos = static_cast<short>(AmpPos + ShowPos);
 		}
 	}
 
