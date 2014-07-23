@@ -112,15 +112,12 @@ public:
 	void ExitModalEV() { ModalEVCount--; }
 	BOOL InModalEV() const { return ModalEVCount; }
 	void ResizeAllFrame();
-	// возвращает top-модал или сам фрейм, если у фрейма нету модалов
-	Frame* GetTopModal();
 	size_t GetModalStackCount() const { return ModalFrames.size(); }
 	Frame* GetModalFrame(size_t index) const { return ModalFrames[index]; }
 	/* $ 13.04.2002 KM
 	Для вызова ResizeConsole для всех NextModal у
 	модального фрейма.
 	*/
-	static void ResizeAllModal(Frame *ModalFrame);
 	static long GetCurrentWindowType() { return CurrentWindowType; }
 	static bool ShowBackground();
 
@@ -140,8 +137,6 @@ private:
 	void ActivateCommit(Frame* Param);
 	void ActivateCommit(int Index);
 	void RefreshCommit(Frame* Param);
-	void ModalizeCommit(Frame* Param);
-	void UnmodalizeCommit(Frame* Param);
 	void DeactivateCommit(Frame* Param);
 	void ExecuteCommit(Frame* Param);
 	void UpdateCommit(Frame* Old,Frame* New);

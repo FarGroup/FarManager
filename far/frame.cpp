@@ -80,12 +80,6 @@ void Frame::OnChangeFocus(int focus)
 	if (focus)
 	{
 		Show();
-
-		FOR(const auto& i, m_ModalFrames)
-		{
-			if (i->GetType() != MODALTYPE_COMBOBOX && i->IsVisible())
-				i->Show();
-		}
 	}
 	else
 	{
@@ -93,35 +87,9 @@ void Frame::OnChangeFocus(int focus)
 	}
 }
 
-void Frame::Push(Frame* Modalized)
-{
-	m_ModalFrames.push_back(Modalized);
-}
-
 int Frame::FastHide()
 {
 	return TRUE;
-}
-
-bool Frame::RemoveModal(const Frame *aFrame)
-{
-	if (!aFrame)
-	{
-		return false;
-	}
-
-	auto ItemIterator = std::find(ALL_RANGE(m_ModalFrames), aFrame);
-	if (ItemIterator != m_ModalFrames.end())
-	{
-		m_ModalFrames.erase(ItemIterator, m_ModalFrames.end());
-		return true;
-	}
-	return false;
-}
-
-void Frame::ResizeConsole()
-{
-	Global->FrameManager->ResizeAllModal(this);
 }
 
 bool Frame::HasSaveScreen() const

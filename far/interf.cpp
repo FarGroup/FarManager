@@ -482,7 +482,7 @@ void ShowTime(int ShowAlways)
 	string strClockText = str_printf(L"%02d:%02d",tm.wHour,tm.wMinute);
 	GotoXY(ScrX-4,0);
 
-	Frame *CurFrame = Global->FrameManager->GetTopModal();
+	Frame *CurFrame = Global->FrameManager->GetCurrentFrame();
 	if (CurFrame)
 	{
 		int ModType=CurFrame->GetType();

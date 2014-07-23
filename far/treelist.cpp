@@ -922,7 +922,7 @@ int TreeList::ReadTree()
 		if (CheckForEscSilent())
 		{
 			// BUGBUG, Dialog calls Commit, TreeList redraws and crashes.
-			Frame *f = Global->FrameManager->GetTopModal();
+			Frame *f = Global->FrameManager->GetCurrentFrame();
 			if (f)
 				f->Lock();
 

@@ -74,7 +74,6 @@ public:
 	virtual int FastHide();
 	virtual const string& GetTitle(string &Title) = 0;
 	virtual bool ProcessEvents() {return true;}
-	virtual void ResizeConsole();
 
 	void SetCanLoseFocus(int Mode) { CanLoseFocus=Mode; }
 	int GetExitCode() const { return ExitCode; }
@@ -82,10 +81,8 @@ public:
 	void UpdateKeyBar();
 	int IsTitleBarVisible() const {return TitleBarVisible;}
 	int IsTopFrame() const;
-	Frame *GetTopModal() { return m_ModalFrames.empty()? nullptr : m_ModalFrames.front(); }
 	void SetDynamicallyBorn(bool Born) {DynamicallyBorn=Born;}
 	bool GetDynamicallyBorn() const {return DynamicallyBorn;}
-	bool RemoveModal(const Frame *aFrame);
 	bool HasSaveScreen() const;
 	void SetFlags( DWORD flags ) { Flags.Set(flags); }
 	void SetDeleting(void);
@@ -106,9 +103,7 @@ protected:
 private:
 	friend class Manager;
 
-	void Push(Frame* Modalized);
 	Frame *FrameToBack;
-	std::vector<Frame*> m_ModalFrames;
 	bool Deleting;
 	long BlockCounter;
 };

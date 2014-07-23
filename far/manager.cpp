@@ -178,9 +178,6 @@ void Manager::DeleteFrame(Frame *Deleted)
 	_MANAGER(CleverSysLog clv(L"Manager::DeleteFrame(Frame *Deleted)"));
 	_MANAGER(SysLog(L"Deleted=%p",Deleted));
 
-	if (std::any_of(CONST_RANGE(Frames, i) {return i->RemoveModal(Deleted);}))
-		return;
-
 	Frame* frame=Deleted?Deleted:CurrentFrame;
 	assert(frame);
 	CheckAndPushFrame(frame,&Manager::DeleteCommit);
@@ -1322,24 +1319,6 @@ void Manager::RefreshCommit(Frame* Param)
 		ShowTime(1);
 }
 
-void Manager::ModalizeCommit(Frame* Param)
-{
-	CurrentFrame->Push(Param);
-}
-
-void Manager::UnmodalizeCommit(Frame* Param)
-{
-	std::any_of(CONST_RANGE(Frames, i)
-	{
-		return i->RemoveModal(Param);
-	});
-
-	std::any_of(CONST_RANGE(ModalFrames, i)
-	{
-		return i->RemoveModal(Param);
-	});
-}
-
 void Manager::DeactivateCommit(Frame* Param)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::DeactivateCommit()"));
@@ -1464,17 +1443,6 @@ void Manager::ImmediateHide()
 	}
 }
 
-/*  Вызов ResizeConsole для всех NextModal у
-    модального фрейма. KM
-*/
-void Manager::ResizeAllModal(Frame *ModalFrame)
-{
-	FOR(auto& i, ModalFrame->m_ModalFrames)
-	{
-		i->ResizeConsole();
-	}
-}
-
 void Manager::ResizeAllFrame()
 {
 	Global->ScrBuf->Lock();
@@ -1483,10 +1451,6 @@ void Manager::ResizeAllFrame()
 	std::for_each(CONST_RANGE(ModalFrames, i)
 	{
 		i->ResizeConsole();
-		/* $ 13.04.2002 KM
-		  - А теперь проресайзим все NextModal...
-		*/
-		ResizeAllModal(i);
 	});
 
 	ImmediateHide();
@@ -1497,21 +1461,4 @@ void Manager::ResizeAllFrame()
 void Manager::InitKeyBar()
 {
 	std::for_each(ALL_CONST_RANGE(Frames), std::mem_fn(&Frame::InitKeyBar));
-}
-
-// возвращает top-модал или сам фрейм, если у фрейма нету модалов
-Frame* Manager::GetTopModal()
-{
-	Frame *f=CurrentFrame, *fo=nullptr;
-
-	while (f)
-	{
-		fo=f;
-		f=f->GetTopModal();
-	}
-
-	if (!f)
-		f=fo;
-
-	return f;
 }

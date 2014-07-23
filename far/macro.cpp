@@ -1803,17 +1803,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			}
 			else
 			{
-				Frame *f = Global->FrameManager->GetCurrentFrame(), *fo=nullptr;
-
-				while (f)
-				{
-					fo=f;
-					f=f->GetTopModal();
-				}
-
-				if (!f)
-					f=fo;
-
+				Frame *f = Global->FrameManager->GetCurrentFrame();
 				if (f)
 				{
 					ret=f->VMProcess(CheckCode);
@@ -1838,16 +1828,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			else
 			{
 				{
-					Frame* f = Global->FrameManager->GetCurrentFrame(), *fo=nullptr;
-
-					while (f)
-					{
-						fo=f;
-						f=f->GetTopModal();
-					}
-
-					if (!f)
-						f=fo;
+					Frame* f = Global->FrameManager->GetCurrentFrame();
 
 					if (f)
 					{
@@ -2164,7 +2145,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 		case MCODE_V_TITLE: // Title
 		{
-			Frame *f = Global->FrameManager->GetTopModal();
+			Frame *f = Global->FrameManager->GetCurrentFrame();
 
 			if (f)
 			{
@@ -2194,7 +2175,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_HEIGHT:  // Height - высота текущего объекта
 		case MCODE_V_WIDTH:   // Width - ширина текущего объекта
 		{
-			Frame *f = Global->FrameManager->GetTopModal();
+			Frame *f = Global->FrameManager->GetCurrentFrame();
 
 			if (f)
 			{
@@ -2223,16 +2204,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			if (IsMenuArea(CurMMode) || CurMMode == MACROAREA_DIALOG)
 			{
-				Frame *f = Global->FrameManager->GetCurrentFrame(), *fo=nullptr;
-
-				while (f)
-				{
-					fo=f;
-					f=f->GetTopModal();
-				}
-
-				if (!f)
-					f=fo;
+				Frame *f = Global->FrameManager->GetCurrentFrame();
 
 				if (f)
 				{
@@ -2261,16 +2233,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_ITEMCOUNT: // ItemCount - число элементов в текущем объекте
 		case MCODE_V_CURPOS: // CurPos - текущий индекс в текущем объекте
 		{
-			Frame *f = Global->FrameManager->GetCurrentFrame(), *fo=nullptr;
-
-			while (f)
-			{
-				fo=f;
-				f=f->GetTopModal();
-			}
-
-			if (!f)
-				f=fo;
+			Frame *f = Global->FrameManager->GetCurrentFrame();
 
 			if (f)
 			{
@@ -2508,16 +2471,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			TVar& p2(Params[1]);
 
 			__int64 Result=0;
-			Frame *f = Global->FrameManager->GetCurrentFrame(), *fo=nullptr;
-
-			while (f)
-			{
-				fo=f;
-				f=f->GetTopModal();
-			}
-
-			if (!f)
-				f=fo;
+			Frame *f = Global->FrameManager->GetCurrentFrame();
 
 			if (f)
 			{
@@ -2540,16 +2494,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			if (IsMenuArea(CurMMode) || CurMMode == MACROAREA_DIALOG)
 			{
-				Frame *f = Global->FrameManager->GetCurrentFrame(), *fo=nullptr;
-
-				while (f)
-				{
-					fo=f;
-					f=f->GetTopModal();
-				}
-
-				if (!f)
-					f=fo;
+				Frame *f = Global->FrameManager->GetCurrentFrame();
 
 				if (f)
 				{
@@ -2618,16 +2563,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			if (IsMenuArea(CurMMode) || CurMMode == MACROAREA_DIALOG)
 			{
-				Frame *f = Global->FrameManager->GetCurrentFrame(), *fo=nullptr;
-
-				while (f)
-				{
-					fo=f;
-					f=f->GetTopModal();
-				}
-
-				if (!f)
-					f=fo;
+				Frame *f = Global->FrameManager->GetCurrentFrame();
 
 				if (f)
 					Result=f->VMProcess(CheckCode, const_cast<wchar_t*>(Params[0].toString().data()), tmpMode);
@@ -2652,16 +2588,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			if (IsMenuArea(CurMMode) || CurMMode == MACROAREA_DIALOG)
 			{
-				Frame *f = Global->FrameManager->GetCurrentFrame(), *fo=nullptr;
-
-				while (f)
-				{
-					fo=f;
-					f=f->GetTopModal();
-				}
-
-				if (!f)
-					f=fo;
+				Frame *f = Global->FrameManager->GetCurrentFrame();
 
 				if (f)
 				{
@@ -3056,17 +2983,7 @@ static bool keybarshowFunc(FarMacroCall* Data)
 		ret: prev mode or -1 - KeyBar not found
     */
 	auto Params = parseParams<1>(Data);
-	Frame *f = Global->FrameManager->GetCurrentFrame(), *fo=nullptr;
-
-	//f=f->GetTopModal();
-	while (f)
-	{
-		fo=f;
-		f=f->GetTopModal();
-	}
-
-	if (!f)
-		f=fo;
+	Frame *f = Global->FrameManager->GetCurrentFrame();
 
 	PassNumber(f?f->VMProcess(MCODE_F_KEYBAR_SHOW,nullptr,Params[0].asInteger())-1:-1, Data);
 	return f != nullptr;
@@ -4618,7 +4535,7 @@ static bool panelsetposidxFunc(FarMacroCall* Data)
 						// <Mantis#0000289> - грозно, но со вкусом :-)
 						//ShellUpdatePanels(SelPanel);
 						//SelPanel->UpdateIfChanged(UIC_UPDATE_NORMAL);
-						//FrameManager->RefreshFrame(FrameManager->GetTopModal());
+						//FrameManager->RefreshFrame(FrameManager->GetCurrentFrame());
 						// </Mantis#0000289>
 
 						if ( !InSelection )
@@ -4698,7 +4615,7 @@ static bool panelsetpathFunc(FarMacroCall* Data)
 					//ShellUpdatePanels(SelPanel);
 					SelPanel->UpdateIfChanged(UIC_UPDATE_NORMAL);
 				}
-				Global->FrameManager->RefreshFrame(Global->FrameManager->GetTopModal());
+				Global->FrameManager->RefreshFrame(Global->FrameManager->GetCurrentFrame());
 				// </Mantis#0000289>
 				Ret=1;
 			}
@@ -4740,7 +4657,7 @@ static bool panelsetposFunc(FarMacroCall* Data)
 				// <Mantis#0000289> - грозно, но со вкусом :-)
 				//ShellUpdatePanels(SelPanel);
 				SelPanel->UpdateIfChanged(UIC_UPDATE_NORMAL);
-				Global->FrameManager->RefreshFrame(Global->FrameManager->GetTopModal());
+				Global->FrameManager->RefreshFrame(Global->FrameManager->GetCurrentFrame());
 				// </Mantis#0000289>
 				Ret=(__int64)(SelPanel->GetCurrentPos()+1);
 			}
