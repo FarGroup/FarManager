@@ -3,6 +3,7 @@
 /*
 modal.hpp
 
+привет автодетектор кодировки!
 Parent class для модальных объектов
 */
 /*
@@ -45,7 +46,7 @@ public:
 	virtual int ReadInput(INPUT_RECORD *GetReadRec = nullptr);
 	virtual void SetExitCode(int Code) override;
 
-	int Done() const;
+	bool Done() const;
 	void ClearDone();
 	int GetExitCode() const;
 	void Process();
@@ -57,9 +58,11 @@ public:
 protected:
 	INPUT_RECORD ReadRec;
 	string strHelpTopic;
-	int EndLoop;
+	void SetDone(void);
+	void Close(int Code);
 
 private:
+	bool EndLoop;
 	int ReadKey;
 	int WriteKey;
 };

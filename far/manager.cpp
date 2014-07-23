@@ -201,20 +201,6 @@ void Manager::RedeleteFrame(Frame *Deleted)
 	PushFrame(Deleted,&Manager::DeleteCommit);
 }
 
-void Manager::ModalizeFrame(Frame *Modalized, int Mode)
-{
-	_MANAGER(CleverSysLog clv(L"Manager::ModalizeFrame (Frame *Modalized, int Mode)"));
-	_MANAGER(SysLog(L"Modalized=%p",Modalized));
-	ModalizeCommit(Modalized);
-}
-
-void Manager::UnmodalizeFrame(Frame *Unmodalized)
-{
-	_MANAGER(CleverSysLog clv(L"Manager::UnmodalizeFrame (Frame *Unmodalized)"));
-	_MANAGER(SysLog(L"Unmodalized=%p",Unmodalized));
-	UnmodalizeCommit(Unmodalized);
-}
-
 void Manager::ExecuteNonModal(Frame *NonModal)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::ExecuteNonModal ()"));

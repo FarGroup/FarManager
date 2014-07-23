@@ -457,7 +457,7 @@ static DWORD WINAPI ProcessSEHExceptionWrapper(EXCEPTION_POINTERS* xp)
 LONG WINAPI VectoredExceptionHandler(EXCEPTION_POINTERS *xp)
 {
 	// restore stack & call ProcessSEHExceptionWrapper
-	if (xp->ExceptionRecord->ExceptionCode == STATUS_STACK_OVERFLOW)
+	if (xp->ExceptionRecord->ExceptionCode == (DWORD)STATUS_STACK_OVERFLOW)
 	{
 #ifdef _M_IA64
 		// TODO: Bad way to restore IA64 stacks (CreateThread)

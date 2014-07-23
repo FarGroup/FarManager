@@ -60,12 +60,10 @@ HMenu::HMenu(HMenuData *Item,int ItemCount):
 {
 	SetDynamicallyBorn(false);
 	SetRestoreScreenMode(true);
-	Global->FrameManager->ModalizeFrame(this);
 }
 
 HMenu::~HMenu()
 {
-	Global->FrameManager->UnmodalizeFrame(this);
 	Global->FrameManager->RefreshFrame();
 }
 
@@ -229,8 +227,7 @@ int HMenu::ProcessKey(const Manager::Key& Key)
 
 				if (VExitCode!=-1)
 				{
-					EndLoop=TRUE;
-					ExitCode=SelectPos;
+					Close(SelectPos);
 				}
 
 				return TRUE;
@@ -266,8 +263,7 @@ int HMenu::ProcessKey(const Manager::Key& Key)
 		case KEY_ESC:
 		case KEY_F10:
 		{
-			EndLoop=TRUE;
-			ExitCode=-1;
+			Close(-1);
 			return FALSE;
 		}
 		case KEY_HOME:      case KEY_NUMPAD7:

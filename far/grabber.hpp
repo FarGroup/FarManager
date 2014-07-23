@@ -50,6 +50,7 @@ public:
 
 	virtual int GetType() const override { return MODALTYPE_GRABBER; }
 	virtual int GetTypeAndName(string &, string &) override { return MODALTYPE_GRABBER; }
+	virtual void ResizeConsole(void) override;
 
 private:
 	virtual void DisplayObject() override;

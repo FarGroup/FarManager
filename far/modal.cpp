@@ -1,6 +1,7 @@
 /*
 modal.cpp
 
+привет автодетектор кодировки!
 Parent class для модальных объектов
 */
 /*
@@ -42,7 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 
 Modal::Modal():
-	EndLoop(0),
+	EndLoop(false),
 	ReadKey(-1),
 	WriteKey(-1)
 {
@@ -51,15 +52,8 @@ Modal::Modal():
 
 void Modal::Process()
 {
-	Show();
-
-	while (!Done())
-	{
-		ReadInput();
-		ProcessInput();
-	}
+	Global->FrameManager->ExecuteModal(this);
 }
-
 
 int Modal::ReadInput(INPUT_RECORD *GetReadRec)
 {
@@ -96,12 +90,10 @@ int Modal::ReadInput(INPUT_RECORD *GetReadRec)
 	return ReadKey;
 }
 
-
 void Modal::WriteInput(int Key)
 {
 	WriteKey=Key;
 }
-
 
 void Modal::ProcessInput()
 {
@@ -111,8 +103,7 @@ void Modal::ProcessInput()
 		ProcessKey(Manager::Key(ReadKey));
 }
 
-
-int Modal::Done() const
+bool Modal::Done() const
 {
 	return EndLoop;
 }
@@ -120,9 +111,13 @@ int Modal::Done() const
 
 void Modal::ClearDone()
 {
-	EndLoop=0;
+	EndLoop=false;
 }
 
+void Modal::SetDone(void)
+{
+	EndLoop=true;
+}
 
 int Modal::GetExitCode() const
 {
@@ -133,9 +128,15 @@ int Modal::GetExitCode() const
 void Modal::SetExitCode(int Code)
 {
 	ExitCode=Code;
-	EndLoop=TRUE;
+	SetDone();
 }
 
+void Modal::Close(int Code)
+{
+	SetExitCode(Code);
+	Hide();
+	Global->FrameManager->DeleteFrame(this);
+}
 
 void Modal::SetHelp(const wchar_t *Topic)
 {

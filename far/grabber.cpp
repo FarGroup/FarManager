@@ -52,6 +52,7 @@ Grabber::Grabber():
 	ResetArea(true),
 	VerticalBlock(false)
 {
+	SetDynamicallyBorn(false);
 	Frame *pFrame = Global->FrameManager->GetCurrentFrame();
 	pFrame->Lock();
 	SaveScr=new SaveScreen;
@@ -287,7 +288,7 @@ int Grabber::ProcessKey(const Manager::Key& Key)
 			GArea.X1=-2;
 			break;
 		case KEY_ESC:
-			SetExitCode(0);
+			Close(0);
 			break;
 		case KEY_NUMENTER:
 		case KEY_ENTER:
@@ -296,7 +297,7 @@ int Grabber::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLADD:
 		case KEY_RCTRLADD:
 			CopyGrabbedArea(LocalKey == KEY_CTRLADD || LocalKey == KEY_RCTRLADD,VerticalBlock);
-			SetExitCode(1);
+			Close(1);
 			break;
 		case KEY_LEFT:      case KEY_NUMPAD4:   case L'4':
 
@@ -592,6 +593,11 @@ void Grabber::Reset()
 	GArea.Y1=GArea.Y2=GArea.CurY;
 	ResetArea = false;
 	//DisplayObject();
+}
+
+void Grabber::ResizeConsole(void)
+{
+	Close(0);
 }
 
 bool RunGraber()

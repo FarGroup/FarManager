@@ -1226,8 +1226,7 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 			{
 				if (ItemCanBeEntered(Items[SelectPos].Flags))
 				{
-					EndLoop = TRUE;
-					ExitCode = SelectPos;
+					SetExitCode(SelectPos);
 				}
 			}
 
@@ -1238,8 +1237,7 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 		{
 			if (!ParentDialog || CheckFlags(VMENU_COMBOBOX))
 			{
-				EndLoop = TRUE;
-				ExitCode = -1;
+				SetExitCode(-1);
 			}
 
 			break;
@@ -1505,7 +1503,7 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 				{
 					UpdateItemFlags(OldSelectPos,Items[OldSelectPos].Flags|LIF_SELECTED);
 					ShowMenu(true);
-					EndLoop = FALSE;
+					ClearDone();
 					break;
 				}
 				else
@@ -1514,11 +1512,11 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 					{
 						if (SetSelectPos(NewPos, 1) < 0)
 						{
-							EndLoop = FALSE;
+							ClearDone();
 						}
 						else
 						{
-							EndLoop = CheckFlags(VMENU_COMBOBOX) ? TRUE : FALSE;
+							CheckFlags(VMENU_COMBOBOX) ? SetDone() : ClearDone();
 						}
 
 						break;
@@ -1542,9 +1540,7 @@ int VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (!GetShowItemCount())
 	{
 		if (MouseEvent->dwButtonState && !MouseEvent->dwEventFlags)
-			EndLoop=TRUE;
-
-		ExitCode=-1;
+			SetExitCode(-1);
 		return FALSE;
 	}
 
@@ -2550,7 +2546,7 @@ bool VMenu::CheckKeyHiOrAcc(DWORD Key, int Type, int Translate,bool ChangePos, i
 
 	//не забудем сбросить EndLoop для листбокса, иначе не будут работать хоткеи в активном списке
 	if (CheckFlags(VMENU_LISTBOX))
-		EndLoop = FALSE;
+		ClearDone();
 
 	FOR_CONST_RANGE(Items, Iterator)
 	{
@@ -2566,15 +2562,14 @@ bool VMenu::CheckKeyHiOrAcc(DWORD Key, int Type, int Translate,bool ChangePos, i
 
 			if ((!ParentDialog  || CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX)) && ItemCanBeEntered(Items[SelectPos].Flags))
 			{
-				ExitCode = NewPos;
-				EndLoop = TRUE;
+				SetExitCode(NewPos);
 			}
 
 			return true;
 		}
 	}
 
-	return EndLoop==TRUE;
+	return Done();
 }
 
 void VMenu::UpdateMaxLengthFromTitles()

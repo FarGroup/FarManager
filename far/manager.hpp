@@ -68,10 +68,6 @@ public:
 	void ExecuteModal(Frame *Executed = nullptr);
 	//! Запускает немодальный фрейм в модальном режиме
 	void ExecuteNonModal(Frame *NonModal);
-	//!  Функции, которые работают с очередью немодально фрейма.
-	//  Сейчас используются только для хранения информаци о наличии запущенных объектов типа VFMenu
-	void ModalizeFrame(Frame *Modalized = nullptr, int Mode = TRUE);
-	void UnmodalizeFrame(Frame *Unmodalized);
 	void CloseAll();
 	/* $ 29.12.2000 IS
 	Аналог CloseAll, но разрешает продолжение полноценной работы в фаре,
