@@ -92,6 +92,9 @@ static const int DefaultTabSize = 8;
 
 static wchar_t DefaultLanguage[100] = {};
 
+static const size_t default_copy_buffer_size = 32 * 1024;
+
+
 #if defined(TREEFILE_PROJECT)
 static const wchar_t* constLocalDiskTemplate=L"LD.%D.%SN.tree";
 static const wchar_t* constNetDiskTemplate=L"ND.%D.%SN.tree";
@@ -2259,6 +2262,11 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 		{
 			StrToGuid(i->StrId, i->Id);
 		}
+	}
+
+	if (!CMOpt.BufferSize)
+	{
+		CMOpt.BufferSize = default_copy_buffer_size;
 	}
 
 /* *************************************************** </оняропнжеяяш> */

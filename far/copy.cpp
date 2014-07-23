@@ -86,7 +86,6 @@ static long OldCalcTime;
 enum
 {
 	SDDATA_SIZE = 64*1024,
-	COPY_BUFFER_SIZE = 0x10000,
 };
 
 enum
@@ -925,7 +924,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	DestPanelMode(ToPlugin? DestPanel->GetMode() : NORMAL_PANEL),
 	SrcDriveType(),
 	DestDriveType(),
-	CopyBufferSize(Global->Opt->CMOpt.BufferSize ? Global->Opt->CMOpt.BufferSize : COPY_BUFFER_SIZE),
+	CopyBufferSize(Global->Opt->CMOpt.BufferSize),
 	SelectedFolderNameLength(),
 	RPT(RP_EXACTCOPY),
 	AltF10(),

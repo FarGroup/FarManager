@@ -76,7 +76,7 @@ private:
 	DizList DestDiz;
 	string strDestDizPath;
 	char_ptr CopyBuffer;
-	size_t CopyBufferSize;
+	const size_t CopyBufferSize;
 	string strCopiedName;
 	string strRenamedName;
 	string strRenamedFilesPath;
