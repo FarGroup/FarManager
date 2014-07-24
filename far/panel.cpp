@@ -1576,7 +1576,7 @@ int  Panel::PanelProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 				if (!MouseEvent->dwMousePosition.X)
 					Global->CtrlObject->Cp()->ProcessKey(Manager::Key(KEY_CTRLO));
 				else
-					Global->Opt->ShellOptions(0,MouseEvent);
+					Global->Opt->ShellOptions(false,MouseEvent);
 
 				return TRUE;
 			}

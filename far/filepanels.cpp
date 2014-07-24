@@ -817,12 +817,12 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_F9:
 		{
-			Global->Opt->ShellOptions(0,nullptr);
+			Global->Opt->ShellOptions(false,nullptr);
 			return TRUE;
 		}
 		case KEY_SHIFTF10:
 		{
-			Global->Opt->ShellOptions(1,nullptr);
+			Global->Opt->ShellOptions(true,nullptr);
 			return TRUE;
 		}
 		default:

@@ -2757,7 +2757,7 @@ void SetLeftRightMenuChecks(MenuDataEx *pMenu, bool bLeft)
 	pMenu[MENU_LEFT_LONGNAMES].SetCheck(!pPanel->GetShowShortNamesMode());
 }
 
-void Options::ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent)
+void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	auto ApplyViewModesNames = [this](MenuDataEx* Menu)
 	{
@@ -2927,6 +2927,7 @@ void Options::ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent
 		HMenu HOptMenu(MainMenu,ARRAYSIZE(MainMenu));
 		HOptMenu.SetHelp(L"Menus");
 		HOptMenu.SetPosition(0,0,ScrX,0);
+		Global->FrameManager->ExecuteFrame(&HOptMenu);
 
 		if (LastCommand)
 		{
@@ -2946,11 +2947,7 @@ void Options::ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent
 			MainMenu[HItemToShow].Selected = 1;
 			VMenuTable[HItemToShow][0].SetSelect(0);
 			VMenuTable[HItemToShow][LastVItem].SetSelect(1);
-			HOptMenu.Show();
-			{
-				SCOPED_ACTION(ChangeMacroMode)(MACROAREA_MAINMENU);
-				HOptMenu.ProcessKey(Manager::Key(KEY_DOWN));
-			}
+			Global->FrameManager->CallbackFrame([&HOptMenu](){HOptMenu.ProcessKey(Manager::Key(KEY_DOWN));});
 		}
 		else
 		{
@@ -2964,14 +2961,12 @@ void Options::ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent
 
 		if (MouseEvent)
 		{
-			SCOPED_ACTION(ChangeMacroMode)(MACROAREA_MAINMENU);
-			HOptMenu.Show();
-			HOptMenu.ProcessMouse(MouseEvent);
+			Global->FrameManager->CallbackFrame([&HOptMenu,MouseEvent](){HOptMenu.ProcessMouse(MouseEvent);});
 		}
 
 		{
 			SCOPED_ACTION(ChangeMacroMode)(MACROAREA_MAINMENU);
-			HOptMenu.Process();
+			Global->FrameManager->ExecuteModal();
 		}
 
 		HOptMenu.GetExitCode(HItem,VItem);
