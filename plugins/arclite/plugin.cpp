@@ -985,7 +985,7 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
   else if (info->OpenFrom == OPEN_SHORTCUT) {
     const OpenShortcutInfo* osi = reinterpret_cast<const OpenShortcutInfo*>(info->Data);
     OpenOptions options;
-    options.arc_path = osi->HostFile;
+    options.arc_path = null_to_empty(osi->HostFile);
     options.arc_types = ArcAPI::formats().get_arc_types();
     options.detect = true;
     return Plugin::open(*Archive::open(options));
