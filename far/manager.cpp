@@ -1280,8 +1280,8 @@ void Manager::ActivateCommit(Frame* Param)
 	});
 
 	CurrentFrame=Param;
-	RefreshCommit(Param);
 	InterlockedExchange(&CurrentWindowType,CurrentFrame->GetType());
+	RefreshCommit(Param);
 }
 
 void Manager::ActivateCommit(int Index)
