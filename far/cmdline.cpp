@@ -986,7 +986,7 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 		strTempStr = CmdLine;
 
 		if (Code == -1)
-			ReplaceStrings(strTempStr,L"/",L"\\",-1);
+			ReplaceSlashToBSlash(strTempStr);
 
 		Code=Execute(strTempStr,AlwaysWaitFinish,SeparateWindow,DirectRun, 0, WaitForIdle, Silent, RunAs);
 	}

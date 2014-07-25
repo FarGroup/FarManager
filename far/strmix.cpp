@@ -771,7 +771,7 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 // Заменить в строке Str Count вхождений подстроки FindStr на подстроку ReplStr
 // Если Count < 0 - заменять "до полной победы"
 // Return - количество замен
-int ReplaceStrings(string &strStr,const string& FindStr,const string& ReplStr,int Count,bool IgnoreCase)
+int ReplaceStrings(string &strStr, const string& FindStr, const string& ReplStr, bool IgnoreCase, int Count)
 {
 	const int LenFindStr = static_cast<int>(FindStr.size());
 	if ( !LenFindStr || !Count )

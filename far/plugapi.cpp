@@ -2372,14 +2372,14 @@ intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS
 				{
 					if (data->Guid == FarGuid)
 					{
-						settings = new FarSettings();
+						settings = AbstractSettings::CreateFarSettings();
 					}
 					else
 					{
 						Plugin* plugin = Global->CtrlObject->Plugins->FindPlugin(data->Guid);
 						if (plugin)
 						{
-							settings = new PluginSettings(data->Guid, Param1 == PSL_LOCAL);
+							settings = AbstractSettings::CreatePluginSettings(data->Guid, Param1 == PSL_LOCAL);
 						}
 					}
 					if (settings && settings->IsValid())

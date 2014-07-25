@@ -2752,7 +2752,7 @@ struct Viewer::search_data
 	}
 };
 
-ENUM(SEARCHER_RESULT)
+ENUM(Viewer::SEARCHER_RESULT)
 {
 	Search_NotFound  = 0,
 	Search_Continue  = 1,
@@ -2769,7 +2769,7 @@ ENUM(SEARCH_WRAP_MODE)
 	SearchWrap_CYCLE = 2,
 };
 
-SEARCHER_RESULT Viewer::search_hex_forward( search_data* sd )
+Viewer::SEARCHER_RESULT Viewer::search_hex_forward(search_data* sd)
 {
 	char *buff = (char *)Search_buffer.data();
 	const char *search_str = sd->search_bytes;
@@ -2836,7 +2836,7 @@ SEARCHER_RESULT Viewer::search_hex_forward( search_data* sd )
 		return Search_Continue;
 }
 
-SEARCHER_RESULT Viewer::search_hex_backward( search_data* sd )
+Viewer::SEARCHER_RESULT Viewer::search_hex_backward(search_data* sd)
 {
 	char *buff = (char *)Search_buffer.data();
 	const char *search_str = sd->search_bytes;
@@ -2902,7 +2902,7 @@ SEARCHER_RESULT Viewer::search_hex_backward( search_data* sd )
 		return Search_Continue;
 }
 
-SEARCHER_RESULT Viewer::search_text_forward( search_data* sd )
+Viewer::SEARCHER_RESULT Viewer::search_text_forward(search_data* sd)
 {
 	int bsize = 8192, slen = sd->search_len, ww = (LastSearchWholeWords ? 1 : 0);
 	wchar_t prev_char = L'\0', *buff = Search_buffer.data(), *t_buff = (sd->ch_size < 0 ? buff + bsize : nullptr);
@@ -2985,7 +2985,7 @@ SEARCHER_RESULT Viewer::search_text_forward( search_data* sd )
 	return Search_Continue;
 }
 
-SEARCHER_RESULT Viewer::search_text_backward( search_data* sd )
+Viewer::SEARCHER_RESULT Viewer::search_text_backward(search_data* sd)
 {
 	int bsize = 8192, slen = sd->search_len, ww = (LastSearchWholeWords ? 1 : 0);
 	wchar_t *buff = Search_buffer.data(), *t_buff = (sd->ch_size < 0 ? buff + bsize : nullptr);
@@ -3096,7 +3096,7 @@ int Viewer::read_line(wchar_t *buf, wchar_t *tbuf, INT64 cpos, int adjust, INT64
 	return llen;
 }
 
-SEARCHER_RESULT Viewer::search_regex_forward( search_data* sd )
+Viewer::SEARCHER_RESULT Viewer::search_regex_forward(search_data* sd)
 {
 	assert(sd->pRex);
 	assert(Search_buffer.size() >= static_cast<size_t>(2*MAX_VIEWLINEB));
@@ -3160,7 +3160,7 @@ SEARCHER_RESULT Viewer::search_regex_forward( search_data* sd )
 	}
 }
 
-SEARCHER_RESULT Viewer::search_regex_backward( search_data* sd )
+Viewer::SEARCHER_RESULT Viewer::search_regex_backward(search_data* sd)
 {
 	assert(sd->pRex);
 	assert(Search_buffer.size() >= static_cast<size_t>(2*MAX_VIEWLINEB));
@@ -3554,8 +3554,8 @@ void Viewer::GetFileName(string &strName) const
 void Viewer::ShowConsoleTitle()
 {
 	string strViewerTitleFormat=Global->Opt->strViewerTitleFormat.Get();
-	ReplaceStrings(strViewerTitleFormat,L"%Lng",MSG(MInViewer),-1,true);
-	ReplaceStrings(strViewerTitleFormat,L"%File",PointToName(strFileName),-1,true);
+	ReplaceStrings(strViewerTitleFormat, L"%Lng", MSG(MInViewer), true);
+	ReplaceStrings(strViewerTitleFormat, L"%File", PointToName(strFileName), true);
 	ConsoleTitle::SetFarTitle(strViewerTitleFormat);
 }
 

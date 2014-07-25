@@ -36,12 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "modal.hpp"
 #include "macro.hpp"
 
-struct GrabberArea
-{
-	SHORT X1,Y1,X2,Y2;
-	SHORT CurX,CurY;
-};
-
 class Grabber:Modal
 {
 public:
@@ -60,6 +54,12 @@ private:
 
 	void CopyGrabbedArea(bool Append, bool VerticalBlock);
 	void Reset();
+
+	struct GrabberArea
+	{
+		SHORT X1, Y1, X2, Y2;
+		SHORT CurX, CurY;
+	};
 
 	SaveScreen *SaveScr;
 	GrabberArea PrevArea;

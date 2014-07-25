@@ -799,7 +799,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					*/
 					//;
 					string strTempStr = (*CurrentMenuItem)->strLabel;
-					ReplaceStrings(strTempStr,L"&",L"",-1);
+					ReplaceStrings(strTempStr, L"&", L"");
 
 					int PreserveLFN=SubstFileName(strTempStr.data(),strCommand, strName, strShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName, FALSE, strCmdLineDir.data());
 					bool ListFileUsed=!strListName.empty()||!strAnotherListName.empty()||!strShortListName.empty()||!strAnotherShortListName.empty();

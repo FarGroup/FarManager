@@ -4728,7 +4728,7 @@ static bool replaceFunc(FarMacroCall* Data)
 		if (cnt <= 0)
 			cnt=-1;
 
-		ReplaceStrings(strStr,Find.asString(),Repl.asString(),cnt,!Mode);
+		ReplaceStrings(strStr, Find.asString(), Repl.asString(), !Mode, cnt);
 		PassString(strStr, Data);
 	}
 	else

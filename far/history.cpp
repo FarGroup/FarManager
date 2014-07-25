@@ -251,7 +251,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 				strRecord += strHName;
 
 				if (TypeHistory != HISTORYTYPE_DIALOG)
-					ReplaceStrings(strRecord, L"&",L"&&", -1);
+					ReplaceStrings(strRecord, L"&", L"&&");
 
 				MenuItemEx MenuItem(strRecord);
 				MenuItem.SetCheck(HLock?1:0);

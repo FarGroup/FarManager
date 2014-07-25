@@ -312,7 +312,7 @@ Frame *Manager::FrameMenu()
 				strNumText = L"&   ";
 
 			//TruncPathStr(strName,ScrX-24);
-			ReplaceStrings(strName,L"&",L"&&",-1);
+			ReplaceStrings(strName, L"&", L"&&");
 			/*  добавляется "*" если файл изменен */
 			ModalMenuItem.strName = str_printf(L"%s%-10.10s %c %s", strNumText.data(), strType.data(),(i->IsFileModified()?L'*':L' '), strName.data());
 			ModalMenuItem.SetSelect(static_cast<int>(n) == FramePos);

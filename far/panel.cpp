@@ -1269,7 +1269,7 @@ void Panel::FastFindProcessName(Edit *FindEdit,const string& Src,string &strLast
 				break;
 			}
 
-			if (FindPartName(Ptr,FALSE,1,1))
+			if (FindPartName(Ptr, FALSE, 1))
 			{
 				*EndPtr=0;
 				FindEdit->SetString(Ptr);
@@ -1422,13 +1422,13 @@ void Panel::FastFind(int FirstKey)
 				}
 				case KEY_CTRLNUMENTER:   case KEY_RCTRLNUMENTER:
 				case KEY_CTRLENTER:      case KEY_RCTRLENTER:
-					FindPartName(strName,TRUE,1,1);
+					FindPartName(strName, TRUE, 1);
 					FindEdit.Show();
 					FastFindShow(FindX,FindY);
 					break;
 				case KEY_CTRLSHIFTNUMENTER:  case KEY_RCTRLSHIFTNUMENTER:
 				case KEY_CTRLSHIFTENTER:     case KEY_RCTRLSHIFTENTER:
-					FindPartName(strName,TRUE,-1,1);
+					FindPartName(strName, TRUE, -1);
 					FindEdit.Show();
 					FastFindShow(FindX,FindY);
 					break;
@@ -1470,7 +1470,7 @@ void Panel::FastFind(int FirstKey)
 							FindEdit.SetString(strName.data());
 						}
 
-						if (FindPartName(strName,FALSE,1,1))
+						if (FindPartName(strName, FALSE, 1))
 						{
 							strLastName = strName;
 						}
@@ -2801,4 +2801,11 @@ bool Panel::CreateFullPathName(const string& Name, const string& ShortName,DWORD
 
 	strDest = strFileName;
 	return !strDest.empty();
+}
+
+void Panel::exclude_sets(string& mask)
+{
+	ReplaceStrings(mask, L"[", L"<[%>", true);
+	ReplaceStrings(mask, L"]", L"[]]", true);
+	ReplaceStrings(mask, L"<[%>", L"[[]", true);
 }

@@ -2209,8 +2209,8 @@ int FileEditor::GetTypeAndName(string &strType, string &strName)
 void FileEditor::ShowConsoleTitle()
 {
 	string strEditorTitleFormat=Global->Opt->strEditorTitleFormat.Get();
-	ReplaceStrings(strEditorTitleFormat,L"%Lng",MSG(MInEditor),-1,true);
-	ReplaceStrings(strEditorTitleFormat,L"%File",PointToName(strFileName),-1,true);
+	ReplaceStrings(strEditorTitleFormat, L"%Lng", MSG(MInEditor), true);
+	ReplaceStrings(strEditorTitleFormat, L"%File", PointToName(strFileName), true);
 	ConsoleTitle::SetFarTitle(strEditorTitleFormat);
 	Flags.Clear(FFILEEDIT_REDRAWTITLE);
 }

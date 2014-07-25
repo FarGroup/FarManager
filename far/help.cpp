@@ -431,9 +431,9 @@ int Help::ReadHelp(const string& Mask)
 					string keys = strKeyName.substr(0, nl);
 					strKeyName.erase(0, nl+1);
 
-					ReplaceStrings(keys, L"~", L"~~",-1);
-					ReplaceStrings(keys, L"#", L"##",-1);
-					ReplaceStrings(keys, L"@", L"@@",-1);
+					ReplaceStrings(keys, L"~", L"~~");
+					ReplaceStrings(keys, L"#", L"##");
+					ReplaceStrings(keys, L"@", L"@@");
 
 					strReadStr += L" #" + keys + L"#\n";
 				}
@@ -442,9 +442,9 @@ int Help::ReadHelp(const string& Mask)
 					strKeyName.resize(SizeKeyName); // cut key names
 			}
 
-			ReplaceStrings(strKeyName,L"~",L"~~",-1);
-			ReplaceStrings(strKeyName,L"#",L"##",-1);
-			ReplaceStrings(strKeyName,L"@",L"@@",-1);
+			ReplaceStrings(strKeyName, L"~", L"~~");
+			ReplaceStrings(strKeyName, L"#", L"##");
+			ReplaceStrings(strKeyName, L"@", L"@@");
 
 			if (strKeyName.find(L'~') != string::npos) // коррекция размера
 				SizeKeyName++;
@@ -453,9 +453,9 @@ int Help::ReadHelp(const string& Mask)
 
 			if (!strDescription.empty())
 			{
-				ReplaceStrings(strDescription,L"#",L"##",-1);
-				ReplaceStrings(strDescription,L"~",L"~~",-1);
-				ReplaceStrings(strDescription,L"@",L"@@",-1);
+				ReplaceStrings(strDescription, L"#", L"##");
+				ReplaceStrings(strDescription, L"~", L"~~");
+				ReplaceStrings(strDescription, L"@", L"@@");
 				strReadStr += strCtrlStartPosChar;
 				strReadStr += strDescription;
 			}
@@ -2215,7 +2215,7 @@ static int RunURL(const string& Protocol, const string& URLPath)
 						STARTUPINFO si={sizeof(si)};
 						PROCESS_INFORMATION pi={};
 
-						if (ReplaceStrings(strAction, L"%1", FilteredURLPath, 1) == 0) //if %1 not found
+						if (ReplaceStrings(strAction, L"%1", FilteredURLPath, false, 1) == 0) //if %1 not found
 						{
 							strAction += L" ";
 							strAction += FilteredURLPath;

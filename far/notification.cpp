@@ -54,7 +54,7 @@ listener::~listener()
 	m_notification.unsubscribe(this);
 }
 
-void notification::notify(std::unique_ptr<const payload> p)
+void notification::notify(std::unique_ptr<const payload>&& p)
 {
 	m_events.Push(std::move(p));
 }
@@ -93,7 +93,7 @@ void notifier::dispatch()
 	m_Window->Check();
 }
 
-void notifier::add(std::unique_ptr<notification> i)
+void notifier::add(std::unique_ptr<notification>&& i)
 {
 	auto Name = i->name();
 	m_notifications.insert(VALUE_TYPE(m_notifications)(std::move(Name), std::move(i)));

@@ -138,11 +138,11 @@ string& ConvertTemplateTreeName(string &strDest, const string &strTemplate, cons
     	 %SH   - share name
 	*/
 	string strDiskLetter(D ? D : L"", 1);
-	ReplaceStrings(strDest,L"%D",strDiskLetter,-1);
-	ReplaceStrings(strDest,L"%SN",strDiskNumber,-1);
-	ReplaceStrings(strDest,L"%L",L && *L?L:L"",-1);
-	ReplaceStrings(strDest,L"%SR",SR && *SR?SR:L"",-1);
-	ReplaceStrings(strDest,L"%SH",SH && *SH?SH:L"",-1);
+	ReplaceStrings(strDest, L"%D", strDiskLetter);
+	ReplaceStrings(strDest, L"%SN", strDiskNumber);
+	ReplaceStrings(strDest, L"%L", L && *L? L : L"");
+	ReplaceStrings(strDest, L"%SR", SR && *SR? SR : L"");
+	ReplaceStrings(strDest, L"%SH", SH && *SH? SH : L"");
 
 	return strDest;
 }
@@ -1818,18 +1818,13 @@ bool TreeList::GetPlainString(string& Dest, int ListPos) const
 	return false;
 }
 
-int TreeList::FindPartName(const string& Name,int Next,int Direct,int ExcludeSets)
+int TreeList::FindPartName(const string& Name,int Next,int Direct)
 {
 	string strMask;
 	strMask = Name;
 	strMask += L"*";
 
-	if (ExcludeSets)
-	{
-		ReplaceStrings(strMask,L"[",L"<[%>",-1,true);
-		ReplaceStrings(strMask,L"]",L"[]]",-1,true);
-		ReplaceStrings(strMask,L"<[%>",L"[[]",-1,true);
-	}
+	Panel::exclude_sets(strMask);
 
 	for (int i=CurFile+(Next?Direct:0); i >= 0 && static_cast<size_t>(i) < ListData.size(); i+=Direct)
 	{

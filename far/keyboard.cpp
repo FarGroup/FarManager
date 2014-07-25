@@ -1634,7 +1634,7 @@ int KeyNameToKey(const string& Name)
 	{
 		if (strTmpName.find(ModifKeyName[I].UName) != string::npos && !(Key&ModifKeyName[I].Key))
 		{
-			int CntReplace=ReplaceStrings(strTmpName,ModifKeyName[I].UName,L"",-1,true);
+			int CntReplace = ReplaceStrings(strTmpName, ModifKeyName[I].UName, L"", true);
 			Key|=ModifKeyName[I].Key;
 			Pos+=ModifKeyName[I].Len*CntReplace;
 		}

@@ -63,9 +63,9 @@ static const string& GetFarTitleAddons()
 	static const string strBuild = std::to_wstring(FAR_VERSION.Build);
 	static const string strPID = std::to_wstring(GetCurrentProcessId());
 
-	ReplaceStrings(strTitleAddons,L"%PID",strPID,-1,true);
-	ReplaceStrings(strTitleAddons,L"%Ver",strVer,-1,true);
-	ReplaceStrings(strTitleAddons,L"%Build",strBuild,-1,true);
+	ReplaceStrings(strTitleAddons, L"%PID", strPID, true);
+	ReplaceStrings(strTitleAddons, L"%Ver", strVer, true);
+	ReplaceStrings(strTitleAddons, L"%Build", strBuild, true);
 	ReplaceStrings(strTitleAddons,L"%Platform",
 #ifdef _WIN64
 #ifdef _M_IA64
@@ -76,8 +76,8 @@ static const string& GetFarTitleAddons()
 #else
 	L"x86",
 #endif
-	-1,true);
-	ReplaceStrings(strTitleAddons,L"%Admin",Global->IsUserAdmin()?MSG(MFarTitleAddonsAdmin):L"",-1,true);
+	true);
+	ReplaceStrings(strTitleAddons, L"%Admin", Global->IsUserAdmin() ? MSG(MFarTitleAddonsAdmin) : L"", true);
 	RemoveTrailingSpaces(strTitleAddons);
 
 	return strTitleAddons;

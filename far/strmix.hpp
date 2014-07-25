@@ -86,7 +86,7 @@ string& QuoteSpaceOnly(string &strStr);
 string& QuoteLeadingSpace(string &strStr);
 
 string &RemoveChar(string &strStr,wchar_t Target,bool Dup=true);
-int ReplaceStrings(string &strStr,const string& FindStr,const string& ReplStr,int Count=-1,bool IgnoreCase=false);
+int ReplaceStrings(string &strStr, const string& FindStr, const string& ReplStr, bool IgnoreCase = false, int Count = -1);
 
 const wchar_t *GetCommaWord(const wchar_t *Src,string &strWord,wchar_t Separator=L',');
 

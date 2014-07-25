@@ -47,7 +47,7 @@ private:
 
 	CriticalSection CS;
 	struct SynchroData;
-	std::list<struct SynchroData> Data;
+	std::list<SynchroData> Data;
 };
 
 PluginSynchro& PluginSynchroManager();

@@ -291,7 +291,7 @@ bool filemasks::masks::Set(const string& masks)
 					strFarPathExt.append(1, '*').append(i).append(1, ',');
 				});
 				strFarPathExt.pop_back();
-				ReplaceStrings(expmasks, PathExtName, strFarPathExt, -1, true);
+				ReplaceStrings(expmasks, PathExtName, strFarPathExt, true);
 			}
 		}
 	}

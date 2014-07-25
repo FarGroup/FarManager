@@ -273,7 +273,7 @@ public:
 	virtual void UpdateIfRequired() {}
 	virtual void StartFSWatcher(bool got_focus=false, bool check_time=true) {}
 	virtual void StopFSWatcher() {}
-	virtual int FindPartName(const string& Name,int Next,int Direct=1,int ExcludeSets=0) {return FALSE;}
+	virtual int FindPartName(const string& Name,int Next,int Direct=1) {return FALSE;}
 	virtual bool GetPlainString(string& Dest, int ListPos) const { return false; }
 	virtual int GoToFile(long idxItem) {return TRUE;}
 	virtual int GoToFile(const string& Name,BOOL OnlyPartName=FALSE) {return TRUE;}
@@ -303,6 +303,8 @@ public:
 	virtual void Hide() override;
 	virtual void Show() override;
 	virtual void DisplayObject() override {}
+
+	static void exclude_sets(string& mask);
 
 	int GetMode() const { return PanelMode; }
 	void SetMode(int Mode) {PanelMode=Mode;}

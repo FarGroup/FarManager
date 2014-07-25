@@ -282,7 +282,7 @@ public:
 	virtual bool GetPrevDirectoriesFirst() const override;
 	virtual int GetFileName(string &strName, int Pos, DWORD &FileAttr) const override;
 	virtual int GetCurrentPos() const override;
-	virtual int FindPartName(const string& Name,int Next,int Direct=1,int ExcludeSets=0) override;
+	virtual int FindPartName(const string& Name,int Next,int Direct=1) override;
 	virtual bool GetPlainString(string& Dest, int ListPos) const override;
 	virtual int GoToFile(long idxItem) override;
 	virtual int GoToFile(const string& Name,BOOL OnlyPartName=FALSE) override;

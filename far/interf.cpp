@@ -720,7 +720,7 @@ void HiText(const string& Str,const FarColor& HiColor,int isVertText)
 
 				SetColor(SaveColor);
 				string strText = (ChPtr+1);
-				ReplaceStrings(strText,L"&&",L"&",-1);
+				ReplaceStrings(strText, L"&&", L"&");
 
 				if (isVertText)
 					VText(strText.data()+1);
@@ -730,7 +730,7 @@ void HiText(const string& Str,const FarColor& HiColor,int isVertText)
 		}
 		else
 		{
-			ReplaceStrings(strTextStr,L"&&",L"&",-1);
+			ReplaceStrings(strTextStr, L"&&", L"&");
 
 			if (isVertText)
 				VText(strTextStr);
@@ -1109,13 +1109,13 @@ string& HiText2Str(string& strDest, const string& Str)
 				wchar_t Chr[]={ChPtr[1],0};
 				strDestTemp+=Chr;
 				string strText = (ChPtr+1);
-				ReplaceStrings(strText,L"&&",L"&",-1);
+				ReplaceStrings(strText, L"&&", L"&");
 				strDestTemp+=strText.data()+1;
 			}
 		}
 		else
 		{
-			ReplaceStrings(strDestTemp,L"&&",L"&",-1);
+			ReplaceStrings(strDestTemp, L"&&", L"&");
 		}
 	}
 

@@ -62,7 +62,7 @@ public:
 	notification(const string& name): m_name(name) {}
 	~notification() {}
 
-	void notify(std::unique_ptr<const payload> p);
+	void notify(std::unique_ptr<const payload>&& p);
 	void dispatch();
 	void subscribe(listener* l) { m_listeners.emplace_back(l); }
 	void unsubscribe(listener* l) { m_listeners.remove(l); }
@@ -82,7 +82,7 @@ public:
 	notification& at(const string& key) { return *m_notifications.at(key).get(); }
 
 	void dispatch();
-	void add(std::unique_ptr<notification> i);
+	void add(std::unique_ptr<notification>&& i);
 
 private:
 	friend notifier& Notifier();

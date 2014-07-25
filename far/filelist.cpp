@@ -3424,7 +3424,7 @@ bool FileList::FileInFilter(size_t idxItem)
 }
 
 // $ 02.08.2000 IG  Wish.Mix #21 - при нажатии '/' или '\' в QuickSerach переходим на директорию
-int FileList::FindPartName(const string& Name,int Next,int Direct,int ExcludeSets)
+int FileList::FindPartName(const string& Name,int Next,int Direct)
 {
 #if !defined(Mantis_698)
 	int DirFind = 0;
@@ -3438,12 +3438,7 @@ int FileList::FindPartName(const string& Name,int Next,int Direct,int ExcludeSet
 
 	strMask += L"*";
 
-	if (ExcludeSets)
-	{
-		ReplaceStrings(strMask,L"[",L"<[%>",-1,true);
-		ReplaceStrings(strMask,L"]",L"[]]",-1,true);
-		ReplaceStrings(strMask,L"<[%>",L"[[]",-1,true);
-	}
+	Panel::exclude_sets(strMask);
 
 	for (int I=CurFile+(Next?Direct:0); I >= 0 && I < static_cast<int>(ListData.size()); I+=Direct)
 	{
@@ -3497,12 +3492,7 @@ int FileList::FindPartName(const string& Name,int Next,int Direct,int ExcludeSet
 /*
 	strMask += L"*";
 
-	if (ExcludeSets)
-	{
-		ReplaceStrings(strMask,L"[",L"<[%>",-1,true);
-		ReplaceStrings(strMask,L"]",L"[]]",-1,true);
-		ReplaceStrings(strMask,L"<[%>",L"[[]",-1,true);
-	}
+	Panel::exclude_sets(strMask);
 */
 
 	for (int I=CurFile+(Next?Direct:0); I >= 0 && I < ListData.size(); I+=Direct)

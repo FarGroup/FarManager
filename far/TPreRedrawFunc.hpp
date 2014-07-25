@@ -47,7 +47,7 @@ struct PreRedrawItem: NonCopyable
 class TPreRedrawFunc: NonCopyable
 {
 public:
-	void push(std::unique_ptr<PreRedrawItem> Source){return Items.emplace(std::move(Source));}
+	void push(std::unique_ptr<PreRedrawItem>&& Source){return Items.emplace(std::move(Source));}
 	void pop() { Items.pop(); }
 	PreRedrawItem* top() {return Items.top().get();}
 	std::unique_ptr<PreRedrawItem> take() { auto Top = std::move(Items.top()); Items.pop(); return Top; }
@@ -69,7 +69,7 @@ inline TPreRedrawFunc& PreRedrawStack()
 class TPreRedrawFuncGuard: NonCopyable
 {
 public:
-	TPreRedrawFuncGuard(std::unique_ptr<PreRedrawItem> Item)
+	TPreRedrawFuncGuard(std::unique_ptr<PreRedrawItem>&& Item)
 	{
 		PreRedrawStack().push(std::move(Item));
 	}

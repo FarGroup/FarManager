@@ -44,7 +44,6 @@ class FileViewer;
 class KeyBar;
 class Dialog;
 
-ENUM(SEARCHER_RESULT);
 
 class Viewer:public ScreenObject
 {
@@ -94,6 +93,7 @@ public:
 
 private:
 	struct ViewerString;
+	ENUM(SEARCHER_RESULT);
 
 	virtual void DisplayObject() override;
 	void ShowPage(int nMode);

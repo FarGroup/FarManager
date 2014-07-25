@@ -58,6 +58,33 @@ void* AbstractSettings::Add(size_t Size)
 	return m_Data.back().get();
 }
 
+class PluginSettings: public AbstractSettings
+{
+public:
+	PluginSettings(const GUID& Guid, bool Local);
+	virtual ~PluginSettings();
+	virtual bool IsValid() const override;
+	virtual int Set(const FarSettingsItem& Item) override;
+	virtual int Get(FarSettingsItem& Item) override;
+	virtual int Enum(FarSettingsEnum& Enum) override;
+	virtual int Delete(const FarSettingsValue& Value) override;
+	virtual int SubKey(const FarSettingsValue& Value, bool bCreate) override;
+
+	class FarSettingsNameItems;
+
+private:
+	std::vector<FarSettingsNameItems> m_Enum;
+	std::vector<uint64_t> m_Keys;
+	HierarchicalConfigUniquePtr PluginsCfg;
+};
+
+
+AbstractSettings* AbstractSettings::CreatePluginSettings(const GUID& Guid, bool Local)
+{
+	return new PluginSettings(Guid, Local);
+}
+
+
 PluginSettings::PluginSettings(const GUID& Guid, bool Local):
 	PluginsCfg(nullptr)
 {
@@ -220,6 +247,32 @@ void PluginSettings::FarSettingsNameItems::add(FarSettingsName& Item, const stri
 {
 	Item.Name=AddString(String);
 	Items.emplace_back(Item);
+}
+
+class FarSettings: public AbstractSettings
+{
+public:
+	FarSettings();
+	virtual ~FarSettings();
+	virtual bool IsValid() const override { return true; }
+	virtual int Set(const FarSettingsItem& Item) override;
+	virtual int Get(FarSettingsItem& Item) override;
+	virtual int Enum(FarSettingsEnum& Enum) override;
+	virtual int Delete(const FarSettingsValue& Value) override;
+	virtual int SubKey(const FarSettingsValue& Value, bool bCreate) override;
+
+	class FarSettingsHistoryItems;
+
+private:
+	int FillHistory(int Type, const string& HistoryName, FarSettingsEnum& Enum, const std::function<bool(history_record_type)>& Filter);
+	std::vector<FarSettingsHistoryItems> m_Enum;
+	std::vector<string> m_Keys;
+};
+
+
+AbstractSettings* AbstractSettings::CreateFarSettings()
+{
+	return new FarSettings();
 }
 
 
