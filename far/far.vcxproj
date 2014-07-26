@@ -411,7 +411,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="hilight.cpp" />
     <ClCompile Include="history.cpp" />
     <ClCompile Include="hmenu.cpp" />
-    <ClCompile Include="hook_wow64.c">
+    <ClCompile Include="hook_wow64.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

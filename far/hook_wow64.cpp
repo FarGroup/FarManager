@@ -1,5 +1,5 @@
 /*
-hook_wow64.c
+hook_wow64.cpp
 */
 /*
 Copyright © 2007 Far Group
@@ -42,140 +42,123 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //-----------------------------------------------------------------------------
 static
-#if defined(__GNUC__)
-__thread
-#endif
-PVOID
-#if !defined(__GNUC__)
+#ifdef __GNUC__
+thread_local
+#else
 __declspec(thread)
 #endif
-saveval;
+PVOID saveval;
 
-typedef BOOL (WINAPI *DISABLE)(PVOID*);
-typedef BOOL (WINAPI *REVERT)(PVOID);
-typedef BOOL (WINAPI *ISWOW)(HANDLE,PBOOL);
+typedef decltype(&Wow64DisableWow64FsRedirection) DISABLE;
+typedef decltype(&Wow64RevertWow64FsRedirection) REVERT;
+typedef decltype(&IsWow64Process) ISWOW;
 
-typedef struct
+struct WOW
 {
 	DISABLE disable;
 	REVERT revert;
-} WOW;
+};
 
-static BOOL WINAPI e_disable(PVOID* p) { (void)p; return FALSE; }
-static BOOL WINAPI e_revert(PVOID p) { (void)p; return FALSE; }
+static BOOL WINAPI e_disable(PVOID* p) { return FALSE; }
+static BOOL WINAPI e_revert(PVOID p) { return FALSE; }
 
 volatile const WOW wow = { e_disable, e_revert };
 
 //-----------------------------------------------------------------------------
-void wow_restore(void)
+#ifdef __GNUC__
+extern "C" void wow_restore(void) __asm__("wow_restore");
+extern "C" PVOID wow_disable(void) __asm__("wow_disable");
+#endif 
+
+extern "C" void wow_restore(void)
 {
 	wow.revert(saveval);
 }
 
-PVOID wow_disable(void)
+extern "C" PVOID wow_disable(void)
 {
 	PVOID p;
 	wow.disable(&p);
 	return p;
 }
 
-static void wow_disable_and_save(void)
-{
-	saveval = wow_disable();
-}
-
 //-----------------------------------------------------------------------------
 static void init_hook(void);
 static void WINAPI HookProc(PVOID h, DWORD dwReason, PVOID u)
 {
-	(void)h;
-	(void)u;
-
 	switch (dwReason)
 	{
 		case DLL_PROCESS_ATTACH:
 			init_hook();
 		case DLL_THREAD_ATTACH:
-			wow_disable_and_save();
+			saveval = wow_disable();
 		default:
 			break;
 	}
 }
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-#if defined(_MSC_VER)
+#ifdef _MSC_VER
 #pragma const_seg(".CRT$XLY")
-const
-	PIMAGE_TLS_CALLBACK hook_wow64_tlscb = HookProc;
+#endif 
+extern "C" const PIMAGE_TLS_CALLBACK hook_wow64_tlscb
+#ifdef __GNUC__
+__attribute__((section(".CRT$XLY")))
+#endif
+= HookProc;
+#ifdef _MSC_VER
 #pragma const_seg()
-#else
-const PIMAGE_TLS_CALLBACK hook_wow64_tlscb __attribute__((section(".CRT$XLY"))) = HookProc;
 #endif
 
-#ifdef __cplusplus
-}
-#endif
 // for ulink
 #pragma comment(linker, "/include:_hook_wow64_tlscb")
 
 //-----------------------------------------------------------------------------
 static void
-#if defined(__GNUC__)
-// Unfortunatly GCC doesn't support this attribute on x86
+#ifdef __GNUC__
+// Unfortunately GCC doesn't support this attribute on x86
 //__attribute__((naked))
 #else
 __declspec(naked)
 #endif
 hook_ldr(void)
 {
-#if !defined(__GNUC__)
-	__asm
-	{
-		call    wow_restore                                      // 5
-		pop     edx             // real call                     // 1
-		pop     eax             // real return                   // 1
-		pop     ecx             // arg1                          // 1
-		xchg    eax, [esp+8]    // real return <=> arg4          // 4
-		xchg    eax, [esp+4]    // arg4 <=> arg3                 // 4
-		xchg    eax, [esp]      // arg3 <=> arg2                 // 3
-		push    eax             // arg2                          // 1
-		push    ecx             // arg1                          // 1
-		call    _l1                                              // 5
-		push    eax     // answer                                // 1
-		call    wow_disable                                      // 5
-		pop     eax                                              // 1
-		retn                                                     // 1
-//-----
-_l1:    push    240h                                             //+1 = 35
-		jmp     edx
-	}
+#ifdef __GNUC__
+#define ASM_BLOCK_START __asm__(
+#define ASM_BLOCK_END );
+#define ASM(...) #__VA_ARGS__"\n"
 #else
-__asm__("call    _wow_restore \n\t"
-        "popl    %edx         \n\t" // real call
-        "popl    %eax         \n\t" // real return
-        "popl    %ecx         \n\t" // arg1
-        "xchg    8(%esp),%eax \n\t" // real return <=> arg4
-        "xchg    4(%esp),%eax \n\t" // arg4 <=> arg3
-        "xchg    (%esp),%eax  \n\t" // arg3 <=> arg2
-        "pushl   %eax         \n\t" // arg2
-        "pushl   %ecx         \n\t" // arg1
-        "call    _l1          \n\t"
-        "pushl   %eax         \n\t" // answer
-        "call    _wow_disable \n\t"
-        "popl    %eax         \n\t"
-        "ret                  \n\t"
-        "_l1:                 \n\t"
-        "pushl   $0x240       \n\t"
-        "jmp     *%edx");
+#define ASM_BLOCK_START __asm {
+#define ASM_BLOCK_END }
+#define ASM(...) __VA_ARGS__
 #endif
+
+	ASM_BLOCK_START
+		ASM(call    wow_restore )                                  // 5
+		ASM(pop     edx         ) // real call                     // 1
+		ASM(pop     eax         ) // real return                   // 1
+		ASM(pop     ecx         ) // arg1                          // 1
+		ASM(xchg    eax, [esp+8]) // real return <=> arg4          // 4
+		ASM(xchg    eax, [esp+4]) // arg4 <=> arg3                 // 4
+		ASM(xchg    eax, [esp]  ) // arg3 <=> arg2                 // 3
+		ASM(push    eax         ) // arg2                          // 1
+		ASM(push    ecx         ) // arg1                          // 1
+		ASM(call    _l1         )                                  // 5
+		ASM(push    eax         ) // answer                        // 1
+		ASM(call    wow_disable )                                  // 5
+		ASM(pop     eax         )                                  // 1
+		ASM(ret                 )                                  // 1
+		ASM(_l1:                )
+		ASM(push    0x240       )                                  //+1 = 35
+		ASM(jmp     edx         )
+	ASM_BLOCK_END
+
 #define HOOK_PUSH_OFFSET  35
+
+#undef ASM_BLOCK_START
+#undef ASM_BLOCK_END
+#undef ASM
 }
 
-//-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 static void init_hook(void)
 {
@@ -188,14 +171,22 @@ static void init_hook(void)
 	WOW rwow;
 	BOOL b=FALSE;
 	ISWOW IsWow = NULL;
+#ifdef __GNUC__
 #pragma pack(1)
+#else
+#pragma pack(push,1)
+#endif
 	struct
 	{
 		BYTE  cod;
 		DWORD off;
 	} data = { 0xE8, (DWORD)(SIZE_T)((LPCH)hook_ldr - sizeof(data)) };
+#ifdef __GNUC__
 #pragma pack()
-	register union
+#else
+#pragma pack(pop)
+#endif
+	union
 	{
 		HMODULE h;
 		FARPROC f;
@@ -244,7 +235,7 @@ static void init_hook(void)
 	if (!VirtualProtect((void*)&wow, sizeof(wow), PAGE_EXECUTE_READWRITE, &data.off))
 		return;
 
-	*(WOW*)&wow = rwow;
+	const_cast<WOW&>(wow) = rwow;
 	VirtualProtect((void*)&wow, sizeof(wow), data.off, &p);
 }
 

@@ -127,7 +127,7 @@ history.cpp
 history.hpp
 hmenu.cpp
 hmenu.hpp
-hook_wow64.c
+hook_wow64.cpp
 hotplug.cpp
 hotplug.hpp
 imports.cpp

@@ -138,7 +138,7 @@ SRCS = \
 	xlat.cpp \
 
 ifeq ($(DIRBIT),32)
-	SRCS += hook_wow64.c
+	SRCS += hook_wow64.cpp
 endif
 
 OBJS = $(patsubst %.c,$(OBJDIR)%.o,$(filter %.c,$(SRCS))) $(patsubst %.cpp,$(OBJDIR)%.o,$(filter %.cpp,$(SRCS)))
@@ -181,9 +181,9 @@ $(OBJDIR)sqlite.o: sqlite.c
 	@echo $<
 	@$(CC) $(CFLAGS) -Wno-array-bounds -c -o $@ $<
 
-$(OBJDIR)hook_wow64.o: hook_wow64.c
+$(OBJDIR)hook_wow64.o: hook_wow64.cpp
 	@echo $<
-	@$(CC) $(CFLAGS) -fomit-frame-pointer -c -o $@ $<
+	@$(CC) $(CCFLAGS) -masm=intel -fomit-frame-pointer -c -o $@ $<
 
 $(OBJDIR)initguid.o: initguid.cpp
 	@echo $<

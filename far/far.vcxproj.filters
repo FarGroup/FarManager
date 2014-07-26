@@ -194,7 +194,7 @@
     <ClCompile Include="hmenu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="hook_wow64.c">
+    <ClCompile Include="hook_wow64.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="hotplug.cpp">
