@@ -371,6 +371,9 @@ $(PCH_FILE): headers.cpp headers.hpp
 $(INTDIR)\initguid.obj: initguid.cpp
 	$(CPP) $(CPPFLAGS) initguid.cpp
 
+$(INTDIR)\hook_wow64.obj: hook_wow64.cpp
+	$(CPP) $(CPPFLAGS) hook_wow64.cpp
+
 $(INTDIR)\vc_crt_fix_impl.obj: vc_crt_fix_impl.cpp
 	$(CPP) $(CPPFLAGS) $(FIXCRT_CPPFLAGS) vc_crt_fix_impl.cpp
 
