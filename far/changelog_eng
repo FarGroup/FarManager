@@ -3,6 +3,89 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 26.07.2014 15:29:52 +0200 - build 4028
+
+1. For the sake of abstract perfectness, compiling hook_wow64 as C++.
+
+drkns 25.07.2014 23:09:46 +0200 - build 4027
+
+1. Refactoring.
+
+zg 25.07.2014 13:55:39 +0200 - build 4026
+
+1. correction of 4025 for ACTL_GETWINDOWTYPE.
+
+2. correction of 4025 for the editor.
+
+zg 25.07.2014 12:40:09 +0200 - build 4025
+
+1. correction of 3981.
+
+drkns 24.07.2014 23:19:41 +0200 - build 4024
+
+1. On codepage detection, Unicode is selected only if the text is definitely unlike ASCII.
+   This must decrease the number of false detections of Unicode (and thus increase the number of false detections of ASCII).
+
+zg 24.07.2014 12:53:54 +0200 - build 4023
+
+1. correction of 4020: activation of the last item in the horizontal menu with shift-f10 and activation of the menu with the mouse did not work.
+
+zg 24.07.2014 01:40:17 +0200 - build 4022
+
+1. correction of 4020: do not show window list in the horizontal menu and the grabber.
+
+zg 24.07.2014 00:20:25 +0200 - build 4021
+
+1. unused code removed in window manager.
+
+zg 23.07.2014 23:11:32 +0200 - build 4020
+
+1. the horizontal menu and the grabber are now real windows.
+
+2. при изменении размеров консоли граббер закрывается. раньше падал.
+
+3. gcc warning.
+
+drkns 23.07.2014 19:55:47 +0200 - build 4019
+
+1. Built-in copy function buffer size is now 32 K instead of 64.
+
+drkns 23.07.2014 03:30:09 +0200 - build 4018
+
+1. Correction of 3978.
+
+2. Weird autobinding of hotkeys in menu. Could have missed something.
+
+drkns 22.07.2014 23:18:52 +0200 - build 4017
+
+1. Continuation of 4015:
+   - restore attempts of stack overflow handling.
+
+drkns 22.07.2014 20:15:47 +0200 - build 4016
+
+1. 0002741: ECTL_CLEARSESSIONBOOKMARKS causes a crash
+
+drkns 22.07.2014 01:04:14 +0200 - build 4015
+
+1. Exception mix:
+   - handle std::exception when calling plugins
+   - invoking the debugger worked incorrectly
+   - refactoring
+
+drkns 21.07.2014 21:28:10 +0200 - build 4014
+
+1. One more homemade linked list down.
+
+svs 21.07.2014 11:49:01 +0400 - build 4013
+
+1. Mantis#0002743: ECTL_SETTITLE lacks matching ECTL_GETTITLE
+     ECTL_GETTITLE
+     Get editor caption.
+     Param1 - buffer size in characters, allocated by the plugin for the data.
+     Param2 points to a buffer allocated by the plugin for the editor caption.
+     The function returns required buffer size in characters, including trailing zero.
+     If Param2 = NULL, or Param1 is less than the required size, the function just returns the required size. 
+
 zg 20.07.2014 23:32:48 +0200 - build 4012
 
 1. correction of 4003.
