@@ -54,9 +54,7 @@ wchar_t *ParseParam(wchar_t *& str);
 void GetOptions(void);
 void WFD2FFD(WIN32_FIND_DATA &wfd, PluginPanelItem &ffd);
 
-#define BOM_UCS2     0xFEFF
-#define BOM_UCS2_BE  0xFFFE
-#define BOM_UTF8     0xBFBBEF
+bool IsTextUTF8(const char* Buffer,size_t Length);
 
 #define NT_MAX_PATH 32768
 

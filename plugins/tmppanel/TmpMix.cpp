@@ -252,3 +252,47 @@ wchar_t* GetFullPath(const wchar_t* input, StrBuf& output)
 
 	return output;
 }
+
+bool IsTextUTF8(const char* Buffer,size_t Length)
+{
+	bool Ascii=true;
+	size_t Octets=0;
+	size_t LastOctetsPos = 0;
+	const size_t MaxCharSize = 4;
+
+	for (size_t i=0; i<Length; i++)
+	{
+		BYTE c=Buffer[i];
+
+		if (c&0x80)
+			Ascii=false;
+
+		if (Octets)
+		{
+			if ((c&0xC0)!=0x80)
+				return false;
+
+			Octets--;
+		}
+		else
+		{
+			LastOctetsPos = i;
+
+			if (c&0x80)
+			{
+				while (c&0x80)
+				{
+					c <<= 1;
+					Octets++;
+				}
+
+				Octets--;
+
+				if (!Octets)
+					return false;
+			}
+		}
+	}
+
+	return (!Octets || Length - LastOctetsPos < MaxCharSize) && !Ascii;
+}

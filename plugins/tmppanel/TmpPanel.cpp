@@ -144,45 +144,64 @@ void ReadFileLines(HANDLE hFileMapping, DWORD FileSizeLow, wchar_t **argv, wchar
 
 	StrBuf TMP(NT_MAX_PATH); //BUGBUG
 	DWORD Len,Pos=0,Size=FileSizeLow;
-	bool  ucs2 = false;
+	UINT cp=CP_OEMCP;
 
-	if (Size >= 2) switch (*(LPWORD)FileData)
+	#define SIGN_UNICODE    0xFEFF
+	#define SIGN_REVERSEBOM 0xFFFE
+	#define SIGN_UTF8_LO    0xBBEF
+	#define SIGN_UTF8_HI    0xBF
+
+	#define CP_UNICODE    ((uintptr_t)1200)
+	#define CP_REVERSEBOM ((uintptr_t)1201)
+
+	wchar_t *Ptr=(wchar_t *)FileData;
+
+	if (Ptr[0]==SIGN_UNICODE)
+	{
+		Pos += 2;
+		cp=CP_UNICODE;
+	}
+	else if (Ptr[0]==SIGN_REVERSEBOM)
+	{
+		Pos += 2;
+		cp=CP_REVERSEBOM;
+	}
+	else if (Ptr[0]==SIGN_UTF8_LO&&(Ptr[1]&0xff)==SIGN_UTF8_HI)
+	{
+		Pos += 3;
+		cp=CP_UTF8;
+	}
+	else
+	{
+		if (IsTextUTF8(FileData,Size))
 		{
-			case(BOM_UTF8 & 0xFFFF):
-
-				if (Size >= 3 && ((LPBYTE)FileData)[2] == (BYTE)(BOM_UTF8>>16))
-				{
-				case BOM_UCS2_BE:
-					goto done;
-				}
-
-			default:
-				break;
-			case BOM_UCS2:
-				ucs2 = true;
-				Pos += 2;
-				break;
+			cp=CP_UTF8;
 		}
+		else
+		{
+			int test = IS_TEXT_UNICODE_UNICODE_MASK | IS_TEXT_UNICODE_REVERSE_MASK | IS_TEXT_UNICODE_NOT_UNICODE_MASK;
+			IsTextUnicode(Ptr, Size, &test); // return value is ignored, it's ok.
+
+			if (!(test & IS_TEXT_UNICODE_NOT_UNICODE_MASK) || (test & IS_TEXT_UNICODE_ODD_LENGTH)) // ignore odd
+			{
+				if (test & IS_TEXT_UNICODE_STATISTICS) // !!! допускаем возможность, что это Unicode
+				{
+					cp=CP_UNICODE;
+				}
+			}
+		}
+	}
 
 	while (Pos<Size)
 	{
-		if (!ucs2)
+		#if 0
+		if (cp == CP_REVERSEBOM)
 		{
-			char c;
-
-			while (Pos<Size && ((c = FileData[Pos]) == '\r' || c == '\n'))
-				Pos++;
-
-			DWORD Off = Pos;
-
-			while (Pos<Size && (c = FileData[Pos]) != '\r' && c != '\n')
-				Pos++;
-
-			Len = Pos - Off;
-			Len = MultiByteToWideChar(CP_OEMCP, MB_PRECOMPOSED|MB_ERR_INVALID_CHARS,
-			                          &FileData[Off], Len, TMP, (DWORD)(TMP.Size()-1));
+			swab((char*)&FileData[Off],(char*)TMP.Ptr(),Len*sizeof(wchar_t));
+			cp = CP_UNICODE;
 		}
-		else
+		#endif
+		if (cp == CP_UNICODE)
 		{
 			wchar_t c;
 			--Size;
@@ -204,6 +223,21 @@ void ReadFileLines(HANDLE hFileMapping, DWORD FileSizeLow, wchar_t **argv, wchar
 				Len = (DWORD)(TMP.Size()-1);
 
 			memcpy(TMP.Ptr(), &FileData[Off], Len*sizeof(wchar_t));
+		}
+		else
+		{
+			char c;
+
+			while (Pos<Size && ((c = FileData[Pos]) == '\r' || c == '\n'))
+				Pos++;
+
+			DWORD Off = Pos;
+
+			while (Pos<Size && (c = FileData[Pos]) != '\r' && c != '\n')
+				Pos++;
+
+			Len = Pos - Off;
+			Len = MultiByteToWideChar(cp, 0, &FileData[Off], Len, TMP, (DWORD)(TMP.Size()-1));
 		}
 
 		if (!Len)
@@ -230,7 +264,6 @@ void ReadFileLines(HANDLE hFileMapping, DWORD FileSizeLow, wchar_t **argv, wchar
 		++*numargs;
 	}
 
-done:
 	UnmapViewOfFile((LPVOID)FileData);
 }
 
@@ -256,8 +289,7 @@ static void ReadFileList(wchar_t *filename, int *argc, wchar_t ***argv)
 			UINT i;
 			ReadFileLines(hFileMapping, FileSizeLow, NULL, NULL, (UINT*)argc, &i);
 			*argv = (wchar_t**)malloc(*argc*sizeof(wchar_t*) + i*sizeof(wchar_t));
-			ReadFileLines(hFileMapping, FileSizeLow, *argv, (wchar_t*)&(*argv)[*argc],
-			              (UINT*)argc, &i);
+			ReadFileLines(hFileMapping, FileSizeLow, *argv, (wchar_t*)&(*argv)[*argc], (UINT*)argc, &i);
 			CloseHandle(hFileMapping);
 		}
 	}
@@ -306,8 +338,8 @@ static void ShowMenuFromList(wchar_t *Name)
 			ExpandEnvStrs(argv[i],TMP);
 			param=ParseParam(p);
 			FSF.TruncStr(param?param:p,67);
-			fmi[i].Text = wcsdup(param?param:p);
 			fmi[i].Flags = !lstrcmp(param,L"-")?MIF_SEPARATOR:0;
+			fmi[i].Text = wcsdup(param?fmi[i].Flags & MIF_SEPARATOR?L"":param:p);
 		}
 
 //    fmi[0].Selected=TRUE;
