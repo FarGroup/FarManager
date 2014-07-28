@@ -3765,6 +3765,14 @@ static int far_SetDlgItem(lua_State *L)
 	return SetDlgItem(L, hDlg, numitem, 3, Info);
 }
 
+static int far_SubscribeDialogDrawEvents(lua_State *L)
+{
+	intptr_t old = GetPluginData(L)->DialogEventDrawGroup;
+	GetPluginData(L)->DialogEventDrawGroup = lua_toboolean(L, 1);
+	lua_pushboolean(L, old != 0);
+	return 1;
+}
+
 static int editor_Editor(lua_State *L)
 {
 	PSInfo *Info = GetPluginData(L)->Info;
@@ -5887,6 +5895,7 @@ const luaL_Reg far_funcs[] =
 	{"SendDlgMessage",      far_SendDlgMessage},
 	{"GetDlgItem",          far_GetDlgItem},
 	{"SetDlgItem",          far_SetDlgItem},
+	{"SubscribeDialogDrawEvents", far_SubscribeDialogDrawEvents},
 	{"GetDirList",          far_GetDirList},
 	{"GetMsg",              far_GetMsg},
 	{"GetPluginDirList",    far_GetPluginDirList},
@@ -6251,6 +6260,7 @@ static void* CustomAllocator(void *ud, void *ptr, size_t osize, size_t nsize)
 void LF_InitLuaState2(lua_State *L, TPluginData *aInfo)
 {
 	FP_PROTECT();
+	aInfo->DialogEventDrawGroup = 0;
 	aInfo->origAlloc = lua_getallocf(L, &aInfo->origUserdata);
 	lua_setallocf(L, CustomAllocator, aInfo);
 	// open "far" library

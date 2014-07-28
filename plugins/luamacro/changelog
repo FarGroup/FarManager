@@ -1,4 +1,8 @@
-﻿shmuel 22.07.2014 10:13:18 +0200 - build 406
+﻿shmuel 28.07.2014 15:40:16 +0200 - build 407
+
+1. LuaFAR + generic plugin: новая функция far.SubscribeDialogDrawEvents.
+
+shmuel 22.07.2014 10:13:18 +0200 - build 406
 
 1. LuaFAR: в таблице, возвращаемой вызовом export.ProcessEditorEvent(EE_CHANGE),
    значения поля 'StringNumber' отсчитываются от 1.

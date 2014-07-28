@@ -1298,6 +1298,16 @@ intptr_t LF_ProcessDialogEvent(lua_State* L, const struct ProcessDialogEventInfo
 	intptr_t ret = 0;
 	struct FarDialogEvent *fde = Info->Param;
 
+	if (!GetPluginData(L)->DialogEventDrawGroup && (
+		fde->Msg == DN_CTLCOLORDIALOG  ||
+		fde->Msg == DN_CTLCOLORDLGITEM ||
+		fde->Msg == DN_CTLCOLORDLGLIST ||
+		fde->Msg == DN_DRAWDIALOG      ||
+		fde->Msg == DN_DRAWDIALOGDONE  ||
+		fde->Msg == DN_DRAWDLGITEM     ||
+		fde->Msg == DN_DRAWDLGITEMDONE
+	)) return 0;
+
 	if (!GetExportFunction(L, "ProcessDialogEvent")) //+1: Func
 		return 0;
 

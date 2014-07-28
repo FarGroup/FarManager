@@ -33,7 +33,7 @@ _CRTIMP unsigned int __cdecl __MINGW_NOTHROW _control87 (unsigned int unNew, uns
 		struct FarStandardFunctions *FSF;
 		GUID *PluginId;
 		FARWINDOWPROC DlgProc;
-		void *Reserved1;
+		intptr_t DialogEventDrawGroup;
 		lua_Alloc origAlloc;
 		void *origUserdata;
 		void (*new_action)(int i);

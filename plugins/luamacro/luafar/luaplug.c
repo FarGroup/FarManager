@@ -36,7 +36,7 @@ static void laction(int i);  /* forward declaration */
 struct PluginStartupInfo Info;
 struct FarStandardFunctions FSF;
 GUID PluginId;
-TPluginData PluginData = { &Info, &FSF, &PluginId, DlgProc, NULL, NULL, NULL, laction, SIG_DFL };
+TPluginData PluginData = { &Info, &FSF, &PluginId, DlgProc, 0, NULL, NULL, laction, SIG_DFL };
 wchar_t PluginName[512], PluginDir[512];
 int Init1_Done = 0, Init2_Done = 0; // Ensure initializations are done only once
 
