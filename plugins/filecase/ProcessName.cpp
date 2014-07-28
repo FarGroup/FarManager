@@ -6,11 +6,14 @@
 //                   Call recurse for subdirectories
 void ProcessName(const wchar_t *OldFullName, DWORD FileAttributes)
 {
-	wchar_t NewFullName[MAX_PATH];
-	wchar_t NewName[MAX_PATH];
-	wchar_t NewExt[MAX_PATH];
-	wchar_t *ExtPtr;
+	wchar_t *NewFullName=new wchar_t[lstrlen(OldFullName)+8];
+	if (!NewFullName)
+		return;
+
 	lstrcpy(NewFullName, OldFullName);
+
+	wchar_t *ExtPtr;
+
 	// Path
 	ExtPtr = wcsrchr(NewFullName,L'\\');
 
@@ -20,20 +23,47 @@ void ProcessName(const wchar_t *OldFullName, DWORD FileAttributes)
 		NewFullName[0] = 0;
 
 	//Name
-	lstrcpy(NewName,GetOnlyName(OldFullName));
+	ExtPtr=(wchar_t*)FSF.PointToName(OldFullName);
+	wchar_t *NewName=new wchar_t[lstrlen(ExtPtr)+1];
+	if (!NewName)
+	{
+		delete[] NewFullName;
+		return;
+	}
+	lstrcpy(NewName,ExtPtr);
+
 	//Ext
+	bool dynExt=true;
 	ExtPtr = wcsrchr(NewName,L'.');
+	wchar_t *NewExt=nullptr;
 
 	if (ExtPtr)
 	{
 		ExtPtr[0] = 0; //delete extension from name
+		NewExt=new wchar_t[lstrlen(ExtPtr+1)+1];
+		if (!NewExt)
+		{
+			delete[] NewName;
+			delete[] NewFullName;
+			return;
+		}
 		lstrcpy(NewExt,ExtPtr+1);
 	}
 	else
-		NewExt[0] = 0;
+	{
+		static wchar_t dummy[1]={};
+		NewExt = dummy;
+		dynExt = false;
+	}
 
 	if (*NewExt==0 && (*NewName==0 || (*NewName==L'.' && NewName[1]==0) || (*NewName==L'.' && NewName[1]==L'.' && NewName[2]==0)))
+	{
+		if (dynExt)
+			delete[] NewExt;
+		delete[] NewName;
+		delete[] NewFullName;
 		return;
+	}
 
 	//Check need to convert
 	int mN = Opt.ConvertMode!=MODE_NONE && (!Opt.SkipMixedCase || !IsCaseMixed(NewName));
@@ -58,6 +88,11 @@ void ProcessName(const wchar_t *OldFullName, DWORD FileAttributes)
 
 		MoveFile(OldFullName,NewFullName);
 	}
+
+	if (dynExt)
+		delete[] NewExt;
+	delete[] NewName;
+	delete[] NewFullName;
 
 	//Recurce to directories
 	if (Opt.ProcessSubDir && (FileAttributes&FILE_ATTRIBUTE_DIRECTORY))

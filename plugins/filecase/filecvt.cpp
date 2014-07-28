@@ -4,8 +4,8 @@
 #include "FileLng.hpp"
 #include "guid.hpp"
 
-int ResetButtonID;
-int WordDivEditID;
+int ResetButtonID=0;
+int WordDivEditID=0;
 
 INT_PTR WINAPI DlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void *Param2)
 {
@@ -13,9 +13,9 @@ INT_PTR WINAPI DlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void *Param2)
 	{
 		case DN_BTNCLICK:
 
-			if (Param1==22)
+			if (Param1==ResetButtonID)
 			{
-				Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,21,(void *)L" _");
+				Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,WordDivEditID,(void *)L" _");
 				return TRUE;
 			}
 
@@ -29,6 +29,7 @@ void CaseConvertion()
 {
 	struct Options Backup;
 	memcpy(&Backup,&Opt,sizeof(Backup));
+
 	PluginDialogBuilder Builder(Info, MainGuid, DialogGuid, MFileCase, L"Contents", DlgProc);
 	Builder.StartColumns();
 	Builder.AddText(MName);
@@ -61,31 +62,44 @@ void CaseConvertion()
 			Opt.WordDivLen=lstrlen(Opt.WordDiv);
 			struct PanelInfo PInfo = {sizeof(PanelInfo)};
 			Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELINFO,0,&PInfo);
+
 			HANDLE hScreen=Info.SaveScreen(0,0,-1,-1);
+
 			const wchar_t *MsgItems[]={GetMsg(MFileCase),GetMsg(MConverting)};
 			Info.Message(&MainGuid, nullptr,0,NULL,MsgItems,ARRAYSIZE(MsgItems),0);
-			wchar_t FullName[MAX_PATH];
+
 			int Size=(int)Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,0,0);
-			FarPanelDirectory* dirInfo=(FarPanelDirectory*)new char[Size];
-			dirInfo->StructSize = sizeof(FarPanelDirectory);
-			Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,Size,dirInfo);
-
-			for (size_t I=0; I < PInfo.SelectedItemsNumber; I++)
+			FarPanelDirectory* dirInfo=(FarPanelDirectory*)malloc(Size);
+			if (dirInfo)
 			{
-				size_t Size = Info.PanelControl(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,I,0);
-				PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
+				dirInfo->StructSize = sizeof(FarPanelDirectory);
+				Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,Size,dirInfo);
 
-				if (PPI)
+				for (size_t I=0; I < PInfo.SelectedItemsNumber; I++)
 				{
-					FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
-					Info.PanelControl(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,I,&gpi);
-					GetFullName(FullName,dirInfo->Name,PPI->FileName);
-					ProcessName(FullName,(DWORD)PPI->FileAttributes);
-					free(PPI);
-				}
-			}
+					size_t Size = Info.PanelControl(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,I,0);
+					PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
 
-			delete[](char*)dirInfo;
+					if (PPI)
+					{
+						FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
+						Info.PanelControl(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,I,&gpi);
+						wchar_t *FullName=new wchar_t[lstrlen(dirInfo->Name)+lstrlen(PPI->FileName)+8];
+						if (FullName)
+						{
+							lstrcpy(FullName,dirInfo->Name);
+							FSF.AddEndSlash(FullName);
+							lstrcat(FullName,PPI->FileName);
+							ProcessName(FullName,(DWORD)PPI->FileAttributes);
+
+							delete[] FullName;
+						}
+						free(PPI);
+					}
+				}
+
+				free(dirInfo);
+			}
 
 			if (!CurRun)
 			{

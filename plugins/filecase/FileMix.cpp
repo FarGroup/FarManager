@@ -22,33 +22,6 @@ int IsCaseMixed(const wchar_t *Str)
 	return FALSE;
 }
 
-const wchar_t *GetOnlyName(const wchar_t *FullName)
-{
-	const wchar_t *Name=wcsrchr(FullName,L'\\');
-
-	if (Name) ++Name;
-	else Name=FullName;
-
-	return Name;
-}
-
-wchar_t *GetFullName(wchar_t *Dest,const wchar_t *Dir,const wchar_t *Name)
-{
-	lstrcpy(Dest,Dir);
-	int len=lstrlen(Dest);
-
-	if (len)
-	{
-		if (Dest[len-1]==L'\\') --len;
-		else Dest[len]=L'\\';
-
-		lstrcpy(Dest+len+1,GetOnlyName(Name));
-	}
-	else lstrcpy(Dest, Name);
-
-	return Dest;
-}
-
 BOOL IsWordDiv(int c)
 {
 	return (wmemchr(Opt.WordDiv, c, Opt.WordDivLen)!=NULL);
@@ -57,6 +30,9 @@ BOOL IsWordDiv(int c)
 //  CaseWord - convert case of string by given type
 void CaseWord(wchar_t *nm, int Type)
 {
+	if (!nm || !*nm)
+		return;
+
 	int I;
 
 	switch (Type)

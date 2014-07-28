@@ -24,8 +24,6 @@ extern struct Options
 
 const wchar_t *GetMsg(int MsgId);
 int IsCaseMixed(const wchar_t *Str);
-const wchar_t *GetOnlyName(const wchar_t *FullName);
-wchar_t *GetFullName(wchar_t *Dest,const wchar_t *Dir,const wchar_t *Name);
 void CaseWord( wchar_t *nm, int Type );
 void ProcessName(const wchar_t *OldFullName, DWORD FileAttributes);
 void CaseConvertion();

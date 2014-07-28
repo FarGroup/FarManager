@@ -1,6 +1,6 @@
 #include "farversion.hpp"
 
-#define PLUGIN_BUILD 36
+#define PLUGIN_BUILD 37
 #define PLUGIN_DESC L"File names case conversion for Far Manager"
 #define PLUGIN_NAME L"FileCase"
 #define PLUGIN_FILENAME L"FileCase.dll"
