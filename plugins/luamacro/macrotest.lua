@@ -564,6 +564,33 @@ local function test_Far()
   assert(type(Far.Window_Scroll)=="function")
 end
 
+local function test_CheckAndGetHotKey()
+  mf.acall(far.Menu, {Flags="FMENU_AUTOHIGHLIGHT"},
+    {{text="abcd"},{text="abc&d"},{text="abcd"},{text="abcd"},{text="abcd"}})
+
+  assert(Object.CheckHotkey("a")==1)
+  assert(Object.GetHotkey(1)=="a")
+  assert(Object.GetHotkey()=="a")
+  assert(Object.GetHotkey(0)=="a")
+
+  assert(Object.CheckHotkey("b")==3)
+  assert(Object.GetHotkey(3)=="b")
+
+  assert(Object.CheckHotkey("c")==4)
+  assert(Object.GetHotkey(4)=="c")
+
+  assert(Object.CheckHotkey("d")==2)
+  assert(Object.GetHotkey(2)=="d")
+
+  assert(Object.CheckHotkey("e")==0)
+
+  assert(Object.CheckHotkey("")==5)
+  assert(Object.GetHotkey(5)=="")
+  assert(Object.GetHotkey(6)=="")
+
+  Keys("Esc")
+end
+
 local function test_Object()
   assert(type(Object.Bof)         == "boolean")
   assert(type(Object.CurPos)      == "number")
@@ -575,8 +602,7 @@ local function test_Object()
   assert(type(Object.Title)       == "string")
   assert(type(Object.Width)       == "number")
 
-  assert(type(Object.CheckHotkey) == "function")
-  assert(type(Object.GetHotkey)   == "function")
+  test_CheckAndGetHotKey()
 end
 
 local function test_Drv()
