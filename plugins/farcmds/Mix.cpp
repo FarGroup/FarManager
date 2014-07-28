@@ -452,3 +452,171 @@ bool StrToGuid(const wchar_t *Value,GUID *Guid)
 {
 	return UuidFromString(reinterpret_cast<unsigned short*>((void*)Value), Guid) == RPC_S_OK;
 }
+
+bool IsTextUTF8(const char* Buffer,size_t Length)
+{
+	bool Ascii=true;
+	size_t Octets=0;
+	size_t LastOctetsPos = 0;
+	const size_t MaxCharSize = 4;
+
+	for (size_t i=0; i<Length; i++)
+	{
+		BYTE c=Buffer[i];
+
+		if (c&0x80)
+			Ascii=false;
+
+		if (Octets)
+		{
+			if ((c&0xC0)!=0x80)
+				return false;
+
+			Octets--;
+		}
+		else
+		{
+			LastOctetsPos = i;
+
+			if (c&0x80)
+			{
+				while (c&0x80)
+				{
+					c <<= 1;
+					Octets++;
+				}
+
+				Octets--;
+
+				if (!Octets)
+					return false;
+			}
+		}
+	}
+
+	return (!Octets || Length - LastOctetsPos < MaxCharSize) && !Ascii;
+}
+
+UINT GetCPBuffer(const void* data, size_t size, size_t* off)
+{
+	#define SIGN_UNICODE    0xFEFF
+	#define SIGN_REVERSEBOM 0xFFFE
+	#define SIGN_UTF8_LO    0xBBEF
+	#define SIGN_UTF8_HI    0xBF
+
+	UINT cp=(UINT)-1;
+	size_t Pos = 0;
+	wchar_t* Ptr = (wchar_t *)data;
+	size_t PtrSize = size;
+
+	if (Ptr)
+	{
+		if (Ptr[0]==SIGN_UNICODE)
+		{
+			Pos += 2;
+			cp=CP_UNICODE;
+		}
+		else if (Ptr[0]==SIGN_REVERSEBOM)
+		{
+			Pos += 2;
+			cp=CP_REVERSEBOM;
+		}
+		else if (Ptr[0]==SIGN_UTF8_LO&&(Ptr[1]&0xff)==SIGN_UTF8_HI)
+		{
+			Pos += 3;
+			cp=CP_UTF8;
+		}
+		else
+		{
+			if (IsTextUTF8((char*)Ptr,PtrSize))
+			{
+				cp=CP_UTF8;
+			}
+			else
+			{
+				int test = IS_TEXT_UNICODE_UNICODE_MASK | IS_TEXT_UNICODE_REVERSE_MASK | IS_TEXT_UNICODE_NOT_UNICODE_MASK | IS_TEXT_UNICODE_NOT_ASCII_MASK;
+				IsTextUnicode(Ptr, PtrSize, &test); // return value is ignored, it's ok.
+				if (!(test & IS_TEXT_UNICODE_NOT_UNICODE_MASK) || (test & IS_TEXT_UNICODE_ODD_LENGTH)) // ignore odd
+				{
+					if (test & IS_TEXT_UNICODE_UNICODE_MASK)
+					{
+						cp=CP_UNICODE;
+					}
+					else if (test & IS_TEXT_UNICODE_REVERSE_MASK)
+					{
+						cp=CP_REVERSEBOM;
+					}
+					else if (test & IS_TEXT_UNICODE_STATISTICS) // !!! допускаем возможность, что это Unicode
+					{
+						cp=CP_UNICODE;
+					}
+				}
+			}
+		}
+	}
+
+	if (off)
+		*off=Pos;
+
+	return cp;
+}
+
+wchar_t *ConvertBuffer(wchar_t* Ptr,size_t PtrSize,BOOL outputtofile, size_t& shift,bool *unicode)
+{
+
+	if (Ptr)
+	{
+		size_t off=0;
+		UINT cp=GetCPBuffer(Ptr,PtrSize,&off);
+
+		if (cp == (UINT)-1)
+			cp=outputtofile?GetConsoleOutputCP():GetACP();
+
+		switch (cp)
+		{
+			case CP_UNICODE:
+			{
+				shift=off/2;
+				if (unicode)
+					*unicode=true;
+				break;
+			}
+
+			case CP_REVERSEBOM:
+			{
+				shift=off/2;
+				size_t PtrLength=lstrlen(Ptr);
+				swab((char*)Ptr,(char*)Ptr,int(PtrLength*sizeof(wchar_t)));
+				if (unicode)
+					*unicode=true;
+				break;
+			}
+
+			//case CP_UTF8:
+			default:
+			{
+				size_t PtrLength=MultiByteToWideChar(cp,0,(char*)Ptr+off,-1,NULL,0);
+
+				if (PtrLength)
+				{
+					wchar_t* NewPtr=new wchar_t[PtrLength+1];
+					if (NewPtr)
+					{
+						if (MultiByteToWideChar(cp,0,(char*)Ptr+off,-1,NewPtr,(int)PtrLength))
+						{
+							delete[] Ptr;
+							Ptr=NewPtr;
+						}
+						else
+						{
+							delete[] NewPtr;
+						}
+					}
+				}
+				break;
+			}
+
+		}
+	}
+	return Ptr;
+}

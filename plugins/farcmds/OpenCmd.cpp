@@ -217,77 +217,6 @@ static bool validForView(const wchar_t *FileName, bool viewEmpty, bool editNew)
 	return Ret;
 }
 
-wchar_t *ConvertBuffer(wchar_t* Ptr,size_t PtrSize,BOOL outputtofile, size_t& shift,bool *unicode)
-{
-	#define SIGN_UNICODE    0xFEFF
-	#define SIGN_REVERSEBOM 0xFFFE
-	#define SIGN_UTF8_LO    0xBBEF
-	#define SIGN_UTF8_HI    0xBF
-
-	if (Ptr)
-	{
-		if (Ptr[0]==SIGN_UNICODE)
-		{
-			shift=1;
-			if (unicode)
-				*unicode=true;
-		}
-		else if (Ptr[0]==SIGN_REVERSEBOM)
-		{
-			shift=1;
-			size_t PtrLength=lstrlen(Ptr);
-			swab((char*)Ptr,(char*)Ptr,int(PtrLength*sizeof(wchar_t)));
-			if (unicode)
-				*unicode=true;
-		}
-		else
-		{
-			UINT cp=outputtofile?GetConsoleOutputCP():GetACP();
-
-			if (Ptr[0]==SIGN_UTF8_LO&&(Ptr[1]&0xff)==SIGN_UTF8_HI)
-			{
-				shift=1;
-				cp=CP_UTF8;
-			}
-			else
-			{
-				int test = IS_TEXT_UNICODE_UNICODE_MASK | IS_TEXT_UNICODE_REVERSE_MASK | IS_TEXT_UNICODE_NOT_UNICODE_MASK;
-				IsTextUnicode(Ptr, PtrSize, &test); // return value is ignored, it's ok.
-				if (!(test & IS_TEXT_UNICODE_NOT_UNICODE_MASK) || (test & IS_TEXT_UNICODE_ODD_LENGTH)) // ignore odd
-				{
-					if (test & IS_TEXT_UNICODE_STATISTICS) // !!! допускаем возможность, что это Unicode
-					{
-						shift=0;
-						if (unicode) *unicode=true;
-						return Ptr;
-					}
-				}
-			}
-
-
-			size_t PtrLength=MultiByteToWideChar(cp,0,(char*)Ptr,-1,NULL,0);
-
-			if (PtrLength)
-			{
-				wchar_t* NewPtr=new wchar_t[PtrLength+1];
-				if (NewPtr)
-				{
-					if (MultiByteToWideChar(cp,0,(char*)Ptr,-1,NewPtr,(int)PtrLength))
-					{
-						delete[] Ptr;
-						Ptr=NewPtr;
-					}
-					else
-					{
-						delete[] NewPtr;
-					}
-				}
-			}
-		}
-	}
-	return Ptr;
-}
-
 // нитка параллельного вывода на экран для ":<+"
 static DWORD showPartOfOutput(TShowOutputStreamData *sd, bool mainProc)
 {
@@ -653,7 +582,7 @@ static void GetStreamAndMode(wchar_t*& pCmd, int& ShowCmdOutput, int& CatchMode)
 		case L'1': CatchMode = cmtStdOut;   ++pCmd; break;  // <1 - redirect only standard output stream #stdout#
 		case L'2': CatchMode = cmtStdErr;   ++pCmd; break;  // <2 - redirect only standard output stream #stderr#
 		case L'?': CatchMode = cmtDiff;     ++pCmd; break;  // <? - redirect #stderr# and #stdout# as different streams
-		default:   foundStream=false;  break;
+		//default:   foundStream=false;  break;
 	}
 
 	static struct {
