@@ -347,7 +347,6 @@ private:
 	// Для LisBox - родитель в виде диалога
 	Dialog *ParentDialog;
 	size_t DialogItemID;
-	FARWINDOWPROC VMenuProc;
 	std::unique_ptr<ConsoleTitle> OldTitle;
 	CriticalSection CS;
 	bool bFilterEnabled;

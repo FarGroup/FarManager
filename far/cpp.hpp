@@ -146,7 +146,9 @@ namespace std
 
 // already included in VC2014
 #if defined _MSC_VER && _MSC_VER < 1900
+#ifndef __clang__
 #define noexcept throw()
+#endif
 #endif
 
 // already included in VC2013

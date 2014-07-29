@@ -5050,7 +5050,7 @@ void Editor::AddUndoData(int Type,const wchar_t *Str,const wchar_t *Eol,int StrN
 				Flags.Set(FEDITOR_UNDOSAVEPOSLOST);
 
 			if (ub==UndoSavePos)
-				UndoSavePos == UndoData.end();
+				UndoSavePos = UndoData.end();
 
 			UndoData.pop_front();
 		}
@@ -6919,7 +6919,7 @@ Editor::iterator Editor::GetStringByNumber(int DestLine)
 		for (int Line=StartLine; Line!=DestLine; Line--)
 		{
 			if (CurPtr == FirstLine)
-				CurPtr == Lines.end();
+				CurPtr = Lines.end();
 			else
 				--CurPtr;
 

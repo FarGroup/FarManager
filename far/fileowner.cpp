@@ -123,7 +123,7 @@ static bool SidToNameCached(PSID Sid, string& Name, const string& Computer)
 	{
 		if (SidToName(Sid, Name, Computer))
 		{
-			SIDCache.insert(std::make_pair(std::move(SidCopy), Name));
+			SIDCache.emplace(std::make_pair(std::move(SidCopy), Name));
 			Result = true;
 		}
 	}

@@ -53,7 +53,6 @@ enum
 KeyBar::KeyBar():
 	Items(KBL_GROUP_COUNT),
 	CustomArea(),
-	Owner(nullptr),
 	AltState(0),
 	CtrlState(0),
 	ShiftState(0),
@@ -384,8 +383,6 @@ int KeyBar::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	else
 		Key+=KEY_F1;
 
-	//if (Owner)
-	//Owner->ProcessKey(Key);
 	Global->FrameManager->ProcessKey(Manager::Key(Key));
 	return TRUE;
 }

@@ -1893,8 +1893,7 @@ DWORD GetAppPathsRedirectionFlag()
 	namespace env
 	{
 		enum_strings::enum_strings():
-			m_Environment(GetEnvironmentStrings()),
-			m_Ptr(m_Environment)
+			m_Environment(GetEnvironmentStrings())
 		{
 		}
 

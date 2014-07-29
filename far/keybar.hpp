@@ -90,7 +90,6 @@ private:
 	std::vector<std::vector<std::pair<string, string>>> Items;
 	string strLanguage;
 	KEYBARAREA CustomArea;
-	ScreenObject *Owner;
 	int AltState,CtrlState,ShiftState;
 	bool CustomLabelsReaded;
 };

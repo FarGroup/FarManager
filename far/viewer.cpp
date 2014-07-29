@@ -3319,9 +3319,6 @@ void Viewer::Search(int Next,int FirstChar)
 		else
 		{
 			strSearchStr = SearchDlg[SD_EDIT_TEXT].strData;
-			size_t pos;
-			while ((pos = strSearchStr.find(0xffff)) != string::npos)
-				strSearchStr.replace(pos, 1, L'\0');
 		}
 	}
 

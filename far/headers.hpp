@@ -33,6 +33,11 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifdef __clang__
+// test only
+#define _HAS_EXCEPTIONS 0
+#endif
+
 #include <array>
 #include <algorithm>
 #include <bitset>
@@ -107,6 +112,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #if defined(_MSC_VER) && _MSC_VER >= 1900
 #pragma warning( disable: 4458 5024 5025 5026 5027)
+#endif
+
+#ifdef __clang__
+// test only
+#define try if(true)
+#define catch(x) if(false)
+#define throw if(false)
 #endif
 
 #define WIN32_NO_STATUS //exclude ntstatus.h macros from winnt.h

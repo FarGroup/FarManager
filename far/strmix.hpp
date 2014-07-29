@@ -71,10 +71,10 @@ wchar_t* QuoteSpaceOnly(wchar_t *Str);
 string &QuoteSpace(string &strStr);
 
 string& InsertQuote(string& strStr);
-inline string InsertQuote(string&& strStr) { return std::move(InsertQuote(strStr)); }
+inline string InsertQuote(string&& strStr) { InsertQuote(strStr); return strStr; }
 
 string& Unquote(string &strStr);
-inline string Unquote(string&& strStr) { return std::move(Unquote(strStr)); }
+inline string Unquote(string&& strStr) { Unquote(strStr); return strStr; }
 
 string& InsertRegexpQuote(string& strStr);
 void UnquoteExternal(string &strStr);
@@ -140,6 +140,8 @@ string str_vprintf(const wchar_t * format, va_list argptr);
 
 inline string& Upper(string& str, size_t pos = 0, size_t n = string::npos) {std::transform(str.begin() + pos, n == string::npos? str.end() : str.begin() + pos + n, str.begin() + pos, towupper); return str;}
 inline string& Lower(string& str, size_t pos = 0, size_t n = string::npos) {std::transform(str.begin() + pos, n == string::npos? str.end() : str.begin() + pos + n, str.begin() + pos, towlower); return str;}
+inline string Upper(string&& str, size_t pos = 0, size_t n = string::npos) { Upper(str); return str; }
+inline string Lower(string&& str, size_t pos = 0, size_t n = string::npos) { Lower(str); return str; }
 
 inline wchar_t* UNSAFE_CSTR(const string& s) {return const_cast<wchar_t*>(s.data());}
 

@@ -99,7 +99,7 @@ static void WINAPI HookProc(PVOID h, DWORD dwReason, PVOID u)
 
 #ifdef _MSC_VER
 #pragma const_seg(".CRT$XLY")
-#endif 
+#endif
 extern "C" const PIMAGE_TLS_CALLBACK hook_wow64_tlscb
 #ifdef __GNUC__
 __attribute__((section(".CRT$XLY")))
@@ -123,16 +123,16 @@ __declspec(naked)
 hook_ldr(void)
 {
 #ifdef __GNUC__
-#define ASM_BLOCK_START __asm__(
+#define ASM_BLOCK_BEGIN __asm__(
 #define ASM_BLOCK_END );
 #define ASM(...) #__VA_ARGS__"\n"
 #else
-#define ASM_BLOCK_START __asm {
+#define ASM_BLOCK_BEGIN __asm {
 #define ASM_BLOCK_END }
 #define ASM(...) __VA_ARGS__
 #endif
 
-	ASM_BLOCK_START
+	ASM_BLOCK_BEGIN
 		ASM(call    wow_restore )                                  // 5
 		ASM(pop     edx         ) // real call                     // 1
 		ASM(pop     eax         ) // real return                   // 1
@@ -154,7 +154,7 @@ hook_ldr(void)
 
 #define HOOK_PUSH_OFFSET  35
 
-#undef ASM_BLOCK_START
+#undef ASM_BLOCK_BEGIN
 #undef ASM_BLOCK_END
 #undef ASM
 }

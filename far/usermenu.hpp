@@ -56,7 +56,6 @@ private:
 
 	MENUMODE MenuMode;
 	bool MenuModified;
-	bool MenuNeedRefresh;
 	bool ItemChanged;
 	menu_container Menu;
 };

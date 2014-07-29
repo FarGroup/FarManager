@@ -216,7 +216,6 @@ static void MenuFileToList(UserMenu::menu_container& Menu, GetFileString& GetStr
 UserMenu::UserMenu(bool MenuType):
 	MenuMode(MM_LOCAL),
 	MenuModified(false),
-	MenuNeedRefresh(false),
 	ItemChanged(false)
 {
 	ProcessUserMenu(MenuType, string());
@@ -225,7 +224,6 @@ UserMenu::UserMenu(bool MenuType):
 UserMenu::UserMenu(const string& MenuFileName):
 	MenuMode(MM_LOCAL),
 	MenuModified(false),
-	MenuNeedRefresh(false),
 	ItemChanged(false)
 {
 	ProcessUserMenu(false, MenuFileName);

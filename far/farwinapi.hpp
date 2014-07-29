@@ -356,7 +356,6 @@ namespace api
 
 		private:
 			wchar_t* m_Environment;
-			const wchar_t* m_Ptr;
 		};
 
 		bool get_variable(const wchar_t* Name, string& strBuffer);

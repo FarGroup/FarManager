@@ -38,8 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dialog.hpp"
 #include "interf.hpp"
 
-const int DEFAULT_INDENT = 5;
-
 template<class T>
 struct EditFieldBinding: public DialogItemBinding<DialogItemEx>
 {
