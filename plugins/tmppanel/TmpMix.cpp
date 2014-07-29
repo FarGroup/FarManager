@@ -5,7 +5,11 @@ Temporary panel miscellaneous utility functions
 
 */
 
+#include <CRT/crt.hpp>
+#include "plugin.hpp"
+
 #include "TmpPanel.hpp"
+#include <initguid.h>
 #include "guid.hpp"
 
 const wchar_t *GetMsg(int MsgId)

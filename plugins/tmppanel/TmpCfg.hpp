@@ -15,6 +15,7 @@ typedef struct options_s
 	int FullScreenPanel;
 	int LastSearchResultsPanel;
 	int SelectedCopyContents;
+	int ListUTF8;
 	wchar_t ColumnTypes[64];
 	wchar_t ColumnWidths[64];
 	wchar_t StatusColumnTypes[64];

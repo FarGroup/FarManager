@@ -8,15 +8,6 @@ Temporary panel header file
 #ifndef __TMPPANEL_HPP__
 #define __TMPPANEL_HPP__
 
-#include <CRT/crt.hpp>
-#include "plugin.hpp"
-#include <shellapi.h>
-
-#include "TmpLng.hpp"
-#include "TmpClass.hpp"
-#include "TmpCfg.hpp"
-#include "version.hpp"
-
 #define COMMONPANELSNUMBER 10
 
 typedef struct _MyInitDialogItem
@@ -57,6 +48,12 @@ void WFD2FFD(WIN32_FIND_DATA &wfd, PluginPanelItem &ffd);
 bool IsTextUTF8(const char* Buffer,size_t Length);
 
 #define NT_MAX_PATH 32768
+
+#define SIGN_UNICODE    0xFEFF
+#define SIGN_REVERSEBOM 0xFFFE
+#define SIGN_UTF8_LO    0xBBEF
+#define SIGN_UTF8_HI    0xBF
+
 
 class StrBuf
 {

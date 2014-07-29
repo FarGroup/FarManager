@@ -6,7 +6,17 @@ Temporary panel plugin class implementation
 */
 
 
+#include <CRT/crt.hpp>
+#include "plugin.hpp"
+#include <shellapi.h>
+#include <PluginSettings.hpp>
+#include <DlgBuilder.hpp>
+
+#include "TmpLng.hpp"
+#include "TmpCfg.hpp"
+#include "TmpClass.hpp"
 #include "TmpPanel.hpp"
+#include <initguid.h>
 #include "guid.hpp"
 #include <SimpleString.hpp>
 
@@ -857,16 +867,41 @@ void TmpPanel::SaveListFile(const wchar_t *Path)
 	}
 
 	DWORD BytesWritten;
-	static const unsigned short bom = BOM_UCS2;
-	WriteFile(hFile, &bom, sizeof(bom), &BytesWritten, NULL);
+
+	if (!Opt.ListUTF8)
+	{
+		static const unsigned short bom = SIGN_UNICODE;
+		WriteFile(hFile, &bom, sizeof(bom), &BytesWritten, NULL);
+	}
+	else
+	{
+		static const unsigned char bomhi = SIGN_UTF8_HI;
+		static const unsigned short bomlo = SIGN_UTF8_LO;
+		WriteFile(hFile, &bomlo, sizeof(bomlo), &BytesWritten, NULL);
+		WriteFile(hFile, &bomhi, sizeof(bomhi), &BytesWritten, NULL);
+	}
+
 	size_t i = 0;
 
 	do
 	{
-		static const wchar_t *CRLF = L"\r\n";
 		const wchar_t *FName = TmpPanelItem[i].FileName;
-		WriteFile(hFile, FName, sizeof(wchar_t)*lstrlen(FName), &BytesWritten, NULL);
-		WriteFile(hFile, CRLF, 2*sizeof(wchar_t), &BytesWritten, NULL);
+
+		if (!Opt.ListUTF8)
+		{
+			static const wchar_t *CRLF = L"\r\n";
+			WriteFile(hFile, FName, sizeof(wchar_t)*lstrlen(FName), &BytesWritten, NULL);
+			WriteFile(hFile, CRLF, 2*sizeof(wchar_t), &BytesWritten, NULL);
+		}
+		else
+		{
+			static const char *CRLF = "\r\n";
+			char *dest=new char[lstrlen(FName)*3+1];
+			WideCharToMultiByte(CP_UTF8, 0, FName, -1, dest, (int) lstrlen(FName)*3+1, nullptr, nullptr);
+			WriteFile(hFile, dest, strlen(dest), &BytesWritten, NULL);
+			delete[] dest;
+			WriteFile(hFile, CRLF, 2*sizeof(char), &BytesWritten, NULL);
+		}
 	}
 	while (++i < TmpItemsNumber);
 

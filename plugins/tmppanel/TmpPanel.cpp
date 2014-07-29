@@ -5,10 +5,19 @@ Temporary panel main plugin code
 
 */
 
-#include "TmpPanel.hpp"
+#include <CRT/crt.hpp>
+#include "plugin.hpp"
+#include <shellapi.h>
+#include <PluginSettings.hpp>
+#include <DlgBuilder.hpp>
 
+#include "TmpLng.hpp"
+#include "TmpCfg.hpp"
+#include "TmpClass.hpp"
+#include "TmpPanel.hpp"
 #include <initguid.h>
 #include "guid.hpp"
+#include "version.hpp"
 
 //wchar_t *PluginRootKey;
 unsigned int CurrentCommonPanel;
@@ -145,11 +154,6 @@ void ReadFileLines(HANDLE hFileMapping, DWORD FileSizeLow, wchar_t **argv, wchar
 	StrBuf TMP(NT_MAX_PATH); //BUGBUG
 	DWORD Len,Pos=0,Size=FileSizeLow;
 	UINT cp=CP_OEMCP;
-
-	#define SIGN_UNICODE    0xFEFF
-	#define SIGN_REVERSEBOM 0xFFFE
-	#define SIGN_UTF8_LO    0xBBEF
-	#define SIGN_UTF8_HI    0xBF
 
 	#define CP_UNICODE    ((uintptr_t)1200)
 	#define CP_REVERSEBOM ((uintptr_t)1201)

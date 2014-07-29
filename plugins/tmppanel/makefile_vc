@@ -10,3 +10,8 @@ DOCS = TmpEng.hlf TmpRus.hlf TmpEng.lng TmpRus.lng TmpSky.lng TmpSpa.lng shortcu
 !include ..\makefile_vc_def_inc
 
 !include ..\makefile_vc_target_inc
+
+$(OBJDIR)\TmpPanel.obj: TmpPanel.cpp guid.hpp TmpCfg.hpp TmpClass.hpp TmpLng.hpp TmpPanel.hpp version.hpp $(COMINC)\plugin.hpp 
+$(OBJDIR)\TmpCfg.obj: TmpCfg.cpp guid.hpp TmpCfg.hpp TmpClass.hpp TmpLng.hpp TmpPanel.hpp version.hpp $(COMINC)\plugin.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp
+$(OBJDIR)\TmpClass.obj: TmpClass.cpp guid.hpp TmpCfg.hpp TmpClass.hpp TmpLng.hpp TmpPanel.hpp version.hpp $(COMINC)\plugin.hpp 
+$(OBJDIR)\TmpMix.obj: TmpMix.cpp guid.hpp TmpPanel.hpp $(COMINC)\plugin.hpp

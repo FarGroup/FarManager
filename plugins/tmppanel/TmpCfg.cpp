@@ -5,9 +5,17 @@ Temporary panel configuration
 
 */
 
-#include "TmpPanel.hpp"
+#include <CRT/crt.hpp>
+#include "plugin.hpp"
+#include <shellapi.h>
 #include <PluginSettings.hpp>
 #include <DlgBuilder.hpp>
+
+#include "TmpLng.hpp"
+#include "TmpCfg.hpp"
+#include "TmpClass.hpp"
+#include "TmpPanel.hpp"
+#include <initguid.h>
 #include "guid.hpp"
 
 options_t Opt;
@@ -28,6 +36,7 @@ void GetOptions(void)
 	Opt.MenuForFilelist=settings.Get(0,L"MenuForFilelist",0);
 	Opt.NewPanelForSearchResults=settings.Get(0,L"NewPanelForSearchResults",0);
 	Opt.FullScreenPanel=settings.Get(0,L"FullScreenPanel",0);
+	Opt.ListUTF8=settings.Get(0,L"ListUTF8",1);
 
 	settings.Get(0,L"ColumnTypes",Opt.ColumnTypes,ARRAYSIZE(Opt.ColumnTypes),L"N,S");
 	settings.Get(0,L"ColumnWidths",Opt.ColumnWidths,ARRAYSIZE(Opt.ColumnWidths),L"0,8");
@@ -101,6 +110,7 @@ int Config()
 		settings.Set(0,L"MenuForFilelist",Opt.MenuForFilelist);
 		settings.Set(0,L"NewPanelForSearchResults",Opt.NewPanelForSearchResults);
 		settings.Set(0,L"FullScreenPanel",Opt.FullScreenPanel);
+		settings.Set(0,L"ListUTF8",Opt.ListUTF8);
 
 		settings.Set(0,L"ColumnTypes",Opt.ColumnTypes);
 		settings.Set(0,L"ColumnWidths",Opt.ColumnWidths);
