@@ -2286,12 +2286,9 @@ void VMenu::ShowMenu(bool IsParent)
 				{
 					int AmpPos = Items[I].AmpPos - ShowPos;
 
-					if ((AmpPos >= 0) && (static_cast<size_t>(AmpPos) < strMItemPtr.size()) && (strMItemPtr[AmpPos] != L'&'))
+					if ((AmpPos >= 0) && (static_cast<size_t>(AmpPos) < strMItemPtr.size()) && (!AmpPos || strMItemPtr[AmpPos - 1] != L'&'))
 					{
-						string strEnd = strMItemPtr.data() + AmpPos;
-						strMItemPtr.resize(AmpPos);
-						strMItemPtr += L"&";
-						strMItemPtr += strEnd;
+						strMItemPtr.insert(AmpPos, 1, L'&');
 					}
 				}
 
@@ -2504,7 +2501,7 @@ void VMenu::AssignHighlights(int Reverse)
 			Used[Lower(ChKey)] = true;
 			Used[Upper(Ch)] = true;
 			Used[Lower(Ch)] = true;
-			Items[I].AmpPos = static_cast<short>(AmpPos + ShowPos);
+			Items[I].AmpPos = static_cast<short>(AmpPos + 1 + ShowPos);
 		}
 	}
 
