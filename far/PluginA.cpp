@@ -4588,17 +4588,17 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize)
 			TableSet->LowerTable[i] = LocalLower(i);
 		}
 
-		UINT nCP = ConvertCharTableToCodePage(Command);
+		auto nCP = ConvertCharTableToCodePage(Command);
 
 		if (nCP==CP_DEFAULT) return -1;
 
 		CPINFOEX cpiex;
 
-		if (!GetCPInfoEx(nCP, 0, &cpiex))
+		if (!GetCPInfoEx(static_cast<UINT>(nCP), 0, &cpiex))
 		{
 			CPINFO cpi;
 
-			if (!GetCPInfo(nCP, &cpi))
+			if (!GetCPInfo(static_cast<UINT>(nCP), &cpi))
 				return -1;
 
 			cpiex.MaxCharSize = cpi.MaxCharSize;
@@ -4616,12 +4616,12 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize)
 		UnicodeToOEM(sTableName.data(), TableSet->TableName, sizeof(TableSet->TableName) - 1);
 		wchar_t *us=AnsiToUnicodeBin((char*)TableSet->DecodeTable, sizeof(TableSet->DecodeTable), nCP);
 		CharLowerBuff(us, sizeof(TableSet->DecodeTable));
-		WideCharToMultiByte(nCP, 0, us, sizeof(TableSet->DecodeTable), (char*)TableSet->LowerTable, sizeof(TableSet->DecodeTable), nullptr, nullptr);
+		WideCharToMultiByte(static_cast<UINT>(nCP), 0, us, sizeof(TableSet->DecodeTable), (char*)TableSet->LowerTable, sizeof(TableSet->DecodeTable), nullptr, nullptr);
 		CharUpperBuff(us, sizeof(TableSet->DecodeTable));
-		WideCharToMultiByte(nCP, 0, us, sizeof(TableSet->DecodeTable), (char*)TableSet->UpperTable, sizeof(TableSet->DecodeTable), nullptr, nullptr);
+		WideCharToMultiByte(static_cast<UINT>(nCP), 0, us, sizeof(TableSet->DecodeTable), (char*)TableSet->UpperTable, sizeof(TableSet->DecodeTable), nullptr, nullptr);
 		delete[] us;
-		MultiByteRecode(nCP, CP_OEMCP, (char *) TableSet->DecodeTable, sizeof(TableSet->DecodeTable));
-		MultiByteRecode(CP_OEMCP, nCP, (char *) TableSet->EncodeTable, sizeof(TableSet->EncodeTable));
+		MultiByteRecode(static_cast<UINT>(nCP), CP_OEMCP, (char *)TableSet->DecodeTable, sizeof(TableSet->DecodeTable));
+		MultiByteRecode(CP_OEMCP, static_cast<UINT>(nCP), (char *)TableSet->EncodeTable, sizeof(TableSet->EncodeTable));
 		return Command;
 	}
 
