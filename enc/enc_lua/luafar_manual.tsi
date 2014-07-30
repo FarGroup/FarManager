@@ -2177,7 +2177,7 @@ id=221
 lv=2
 dt=Text
 nm=export.ProcessDialogEvent
-mtime=3602341668
+mtime=3615807656
 <article>
 #_ret = export.ProcessDialogEvent (Event, Param)
 #_
@@ -2197,10 +2197,16 @@ mtime=3602341668
 #_  Otherwise, it is assumed that the plugin has processed the event, and *ret*
 #_  will then be used as the return value of the dialog event handler.
 #_
+#_**Note:**
+#_  There is a group of drawing and coloring events that by default do not come
+#_  to this function. See `far.SubscribeDialogDrawEvents` for the details.
+#_
 #_**Far API used:**
 #_  ProcessDialogEventW, ProcessDialogEventInfo, FarDialogEvent
 #_
 #_@@@
+#_[far.SubscribeDialogDrawEvents]: 498.html
+#_
 #_{fardialogevent}: http://api.farmanager.com/ru/structures/fardialogevent.html
 #_{processdialogeventinfo}: http://api.farmanager.com/ru/structures/processdialogeventinfo.html
 #_{processdialogeventw}: http://api.farmanager.com/ru/exported_functions/processdialogeventw.html
