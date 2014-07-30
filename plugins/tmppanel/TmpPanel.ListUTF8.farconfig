@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+    <pluginsconfig>
+        <plugin guid="B77C964B-E31E-4D4C-8FE5-D6B0C6853E7C">
+            <hierarchicalconfig>         
+                <key name="B77C964B-E31E-4D4C-8FE5-D6B0C6853E7C" description="TmpPanel">
+                    <!-- 0=Unicode, 1=UTF8 -->
+                    <value name="ListUTF8" type="qword" value="0000000000000001" />
+                </key>
+            </hierarchicalconfig>
+        </plugin>
+    </pluginsconfig>
+</farconfig>
