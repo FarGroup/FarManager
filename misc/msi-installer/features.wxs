@@ -655,6 +655,7 @@
           <ComponentRef Id="disks.eng.temp" />
           <ComponentRef Id="shortcuts.eng.lua" />
           <ComponentRef Id="shortcuts.eng.temp" />
+          <ComponentRef Id="TmpPanel.ListUTF8.farconfig" />
           <ComponentRef Id="TmpEng.hlf" />
           <ComponentRef Id="TmpEng.lng" />
           <ComponentRef Id="TmpSky.lng" />

@@ -361,6 +361,7 @@
 <?define Guid.shortcuts.eng.temp = "04E708AC-7206-4B63-8967-0B50087F252E" ?>
 <?define Guid.shortcuts.rus.lua = "799132F1-9585-41F6-85E1-8931570E358D" ?>
 <?define Guid.shortcuts.rus.temp = "24921709-63FE-4D18-9F4C-2C5B9EF1214C" ?>
+<?define Guid.TmpPanel.ListUTF8.farconfig = "2F8191AC-BE10-4AAE-BC11-BDF64AF76D71" ?>
 <?define Guid.TmpEng.hlf = "C09313B4-E1C2-42A2-AE50-1B961FA14C26" ?>
 <?define Guid.TmpEng.lng = "7ECFC88E-35F3-46E7-BE50-CB273720CBE1" ?>
 <?define Guid.TmpPanel.dll = "AA130A2E-B418-4007-929C-0D66110BCAE0" ?>

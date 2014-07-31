@@ -1254,6 +1254,9 @@
           <Component Id="shortcuts.rus.temp" Guid="$(var.Guid.shortcuts.rus.temp)" Win64="$(var.Win64)">
             <File Id="shortcuts.rus.temp" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\shortcuts.rus.temp" />
           </Component>
+          <Component Id="TmpPanel.ListUTF8.farconfig" Guid="$(var.Guid.TmpPanel.ListUTF8.farconfig)" Win64="$(var.Win64)">
+            <File Id="TmpPanel.ListUTF8.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\TmpPanel.ListUTF8.farconfig" />
+          </Component>
           <Component Id="TmpEng.hlf" Guid="$(var.Guid.TmpEng.hlf)" Win64="$(var.Win64)">
             <File Id="TmpEng.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\TmpEng.hlf" />
           </Component>
