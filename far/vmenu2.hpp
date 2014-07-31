@@ -44,7 +44,7 @@ public:
 	virtual int GetType() const override { return MODALTYPE_VMENU; }
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual void SetPosition(int X1, int Y1, int X2, int Y2) override;
-	virtual FARMACROAREA GetMacroMode() override { return MacroMode; }
+	virtual FARMACROAREA GetMacroMode() const override { return MacroMode; }
 
 	void Resize(bool force=false);
 	void SetTitle(const string& Title);

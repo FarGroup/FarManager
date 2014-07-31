@@ -81,6 +81,7 @@ public:
 	static bool Save(bool always);
 	static void SendDropProcess();
 	static void SetMacroConst(int ConstIndex, __int64 Value);
+	static bool PostNewMacro(const wchar_t* Sequence, FARKEYMACROFLAGS Flags, DWORD AKey = 0);
 
 	intptr_t CallFar(intptr_t OpCode, FarMacroCall* Data);
 	void CallPluginSynchro(MacroPluginReturn *Params, FarMacroCall **Target, int *Boolean);
@@ -94,7 +95,6 @@ public:
 	bool Load(bool FromFar,bool InitedRAM=true);
 	bool ParseMacroString(const wchar_t* Sequence,FARKEYMACROFLAGS Flags,bool skipFile);
 	int  PeekKey() const;
-	bool PostNewMacro(const wchar_t* Sequence,FARKEYMACROFLAGS Flags,DWORD AKey=0);
 	int  ProcessEvent(const FAR_INPUT_RECORD *Rec);
 	void SetMode(FARMACROAREA Mode) { m_Mode=Mode; }
 	void SuspendMacros(bool Suspend) { Suspend ? ++m_InternalInput : --m_InternalInput; }

@@ -42,7 +42,7 @@ public:
 	void Set(const string& Directory, bool WatchSubtree);
 	void Watch(bool got_focus=false, bool check_time=true);
 	void Release();
-	bool Signaled();
+	bool Signaled() const;
 
 private:
 

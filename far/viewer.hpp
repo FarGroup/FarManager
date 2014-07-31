@@ -68,7 +68,7 @@ public:
 	void GetFileName(string &strName) const;
 	void SetTempViewName(const string& Name, BOOL DeleteFolder);
 	void SetTitle(const wchar_t *Title);
-	const string& GetTitle(string &Title);
+	const string& GetTitle(string &Title) const;
 	void SetFilePos(__int64 Pos);
 	__int64 GetFilePos() const { return FilePos; }
 	__int64 GetViewFilePos() const { return FilePos; }

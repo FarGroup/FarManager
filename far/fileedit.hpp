@@ -156,7 +156,7 @@ class FileEditor : public Frame
 		void SetTitle(const string* Title);
 		virtual const string& GetTitle(string &Title) override;
 		BOOL SetFileName(const string& NewFileName);
-		int ProcessEditorInput(INPUT_RECORD *Rec);
+		int ProcessEditorInput(const INPUT_RECORD *Rec);
 		void ChangeEditKeyBar();
 		DWORD EditorGetFileAttributes(const string& Name);
 		void SetPluginData(const string* PluginData);

@@ -64,19 +64,21 @@ public:
 			bool operator ==(const color& rhs) const { return FileColor == rhs.FileColor && MarkColor == rhs.MarkColor; }
 		};
 
-	public:
-		std::array<color, HIGHLIGHT_COUNT> Color;
-
-		struct
+		struct mark
 		{
 			wchar_t Char;
 			bool Transparent;
-		}
-		Mark;
+
+			bool operator ==(const mark& rhs) const { return Char == rhs.Char && Transparent == rhs.Transparent; }
+		};
+
+	public:
+		std::array<color, HIGHLIGHT_COUNT> Color;
+		mark Mark;
 
 		bool operator ==(const highlight_item& rhs) const
 		{
-			return Color == rhs.Color && Mark.Char == rhs.Mark.Char && Mark.Transparent == rhs.Mark.Transparent;
+			return Color == rhs.Color && Mark == rhs.Mark;
 		}
 	};
 

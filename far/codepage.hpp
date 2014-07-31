@@ -63,10 +63,11 @@ public:
 	UINT FillCodePagesList(Dialog* Dlg, UINT controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault, bool bViewOnly=false);
 	void FillCodePagesList(std::vector<DialogBuilderListItem2> &List, bool allowAuto, bool allowAll, bool allowDefault, bool bViewOnly=false);
 	string& FormatCodePageName(uintptr_t CodePage, string& CodePageName) const;
-	long long GetFavorite(uintptr_t cp) const;
-	void SetFavorite(uintptr_t cp, long long value);
-	void DeleteFavorite(uintptr_t cp);
-	GeneralConfig::values_enumerator<DWORD> GetFavoritesEnumerator();
+
+	static long long GetFavorite(uintptr_t cp);
+	static void SetFavorite(uintptr_t cp, long long value);
+	static void DeleteFavorite(uintptr_t cp);
+	static GeneralConfig::values_enumerator<DWORD> GetFavoritesEnumerator();
 
 private:
 	friend codepages& Codepages();

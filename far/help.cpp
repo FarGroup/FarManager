@@ -713,7 +713,7 @@ m1:
 						if (strSplitLine[I] == L' ')
 						{
 							string FirstPart = strSplitLine.substr(0, I);
-							if (StringLen(FirstPart.data()) < RealMaxLength)
+							if (StringLen(FirstPart) < RealMaxLength)
 							{
 								AddLine(FirstPart);
 								strSplitLine.erase(1, I);

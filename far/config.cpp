@@ -1608,6 +1608,7 @@ STD_SWAP_SPEC(Options::farconfig);
 
 
 Options::Options():
+	KnownIDs(),
 	ReadOnlyConfig(-1),
 	UseExceptionHandler(0),
 	ElevationMode(0),

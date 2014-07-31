@@ -59,7 +59,7 @@ public:
 	virtual void ResizeConsole() override;
 	virtual int FastHide() override;
 	virtual void Refresh() override;
-	virtual FARMACROAREA GetMacroMode() override;
+	virtual FARMACROAREA GetMacroMode() const override;
 
 	void Init(int DirCount);
 	Panel* GetAnotherPanel(const Panel *Current);

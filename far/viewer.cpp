@@ -1017,7 +1017,7 @@ void Viewer::DrawScrollbar()
 }
 
 
-const string& Viewer::GetTitle(string &strName)
+const string& Viewer::GetTitle(string &strName) const
 {
 	if (!strTitle.empty())
 	{

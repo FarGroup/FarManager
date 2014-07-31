@@ -198,7 +198,7 @@ void Manager::RedeleteFrame(Frame *Deleted)
 	PushFrame(Deleted,&Manager::DeleteCommit);
 }
 
-void Manager::ExecuteNonModal(Frame *NonModal)
+void Manager::ExecuteNonModal(const Frame *NonModal)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::ExecuteNonModal ()"));
 	if (!NonModal) return;
@@ -1130,7 +1130,7 @@ void Manager::Commit(void)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::Commit()"));
 	_MANAGER(ManagerClass_Dump(L"ManagerClass"));
-	while (m_Queue.size())
+	while (!m_Queue.empty())
 	{
 		auto message=std::move(m_Queue.front());
 		m_Queue.pop_front();

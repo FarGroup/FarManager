@@ -144,7 +144,7 @@ void FileSystemWatcher::Release()
 	PreviousLastWriteTime = CurrentLastWriteTime;
 }
 
-bool FileSystemWatcher::Signaled()
+bool FileSystemWatcher::Signaled() const
 {
 	return Changed.Signaled() || PreviousLastWriteTime != CurrentLastWriteTime;
 }

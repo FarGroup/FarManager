@@ -861,7 +861,7 @@ bool codepages::IsCodePageSupported(uintptr_t CodePage, size_t MaxCharSize) cons
 	return CharSize != 0 && CharSize <= MaxCharSize;
 }
 
-long long codepages::GetFavorite(uintptr_t cp) const
+long long codepages::GetFavorite(uintptr_t cp)
 {
 	long long value = 0;
 	Global->Db->GeneralCfg()->GetValue(FavoriteCodePagesKey, std::to_wstring(cp), &value, 0);

@@ -4433,7 +4433,7 @@ int Dialog::GetTypeAndName(string &strType, string &strName)
 }
 
 
-FARMACROAREA Dialog::GetMacroMode()
+FARMACROAREA Dialog::GetMacroMode() const
 {
 	return MACROAREA_DIALOG;
 }
@@ -4954,11 +4954,11 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		// Param1=0, Param2=FarDialogItemData, Ret=size (without '\0')
 		case DM_GETDIALOGTITLE:
 		{
-			const wchar_t *Ptr=nullptr;
+			const wchar_t *Ptr = nullptr;
 			size_t Len=0;
 
 			FarDialogItemData *did=(FarDialogItemData*)Param2;
-			auto InitItemData=[did,&Ptr,&Len](void)->void
+			auto InitItemData=[did,&Ptr,&Len]
 			{
 				if (!did->PtrLength)
 					did->PtrLength=Len;
@@ -5685,7 +5685,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		case DM_GETTEXT:
 		{
 			FarDialogItemData *did=(FarDialogItemData*)Param2;
-			auto InitItemData=[did,&Ptr,&Len](void)->void
+			auto InitItemData=[did,&Ptr,&Len]
 			{
 				if (!did->PtrLength)
 					did->PtrLength=Len;

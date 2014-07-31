@@ -2227,7 +2227,7 @@ void FileEditor::OnDestroy()
 {
 	_OT(SysLog(L"[%p] FileEditor::OnDestroy()",this));
 
-	if (!Flags.Check(FFILEEDIT_DISABLEHISTORY) && StrCmpI(strFileName.data(),MSG(MNewFileName)))
+	if (Global->CtrlObject && !Flags.Check(FFILEEDIT_DISABLEHISTORY) && StrCmpI(strFileName.data(), MSG(MNewFileName)))
 		Global->CtrlObject->ViewHistory->AddToHistory(strFullFileName, m_editor->Flags.Check(Editor::FEDITOR_LOCKMODE) ? HR_EDITOR_RO : HR_EDITOR);
 
 	//AY: флаг оповещающий закрытие редактора.
@@ -2286,7 +2286,7 @@ void FileEditor::ResizeConsole()
 	m_editor->PrepareResizedConsole();
 }
 
-int FileEditor::ProcessEditorInput(INPUT_RECORD *Rec)
+int FileEditor::ProcessEditorInput(const INPUT_RECORD *Rec)
 {
 	int RetCode;
 	Global->CtrlObject->Plugins->SetCurEditor(this);

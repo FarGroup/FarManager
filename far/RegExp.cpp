@@ -3504,7 +3504,7 @@ int RegExp::Search(const wchar_t* textstart,const wchar_t* textend,RegExpMatch* 
 	}
 	else
 	{
-		if (!code[0].bracket.nextalt && code[1].op == opDataEnd && code[1].op == opClosingBracket)
+		if (!code[0].bracket.nextalt && code[1].op == opDataEnd && code[2].op == opClosingBracket)
 		{
 			matchcount=1;
 			match[0].start = textend - textstart;

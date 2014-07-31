@@ -69,7 +69,7 @@ class DialogBuilder: NonCopyable, public DialogBuilderBase<DialogItemEx>
 		bool IdExist;
 		Dialog::dialog_handler m_handler;
 
-		void LinkFlagsByID(DialogItemEx *Parent, DialogItemEx* Target, FARDIALOGITEMFLAGS Flags);
+		static void LinkFlagsByID(DialogItemEx *Parent, DialogItemEx* Target, FARDIALOGITEMFLAGS Flags);
 
 	protected:
 		virtual void InitDialogItem(DialogItemEx *Item, const wchar_t* Text) override;

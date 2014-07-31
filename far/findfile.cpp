@@ -2610,7 +2610,7 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 		bool End = false;
 		HANDLE hFind = INVALID_HANDLE_VALUE;
 
-		for(hFind = FindFirstVolume(VolumeName, ARRAYSIZE(VolumeName)); hFind != INVALID_HANDLE_VALUE && !End; End = FindNextVolume(hFind, VolumeName, ARRAYSIZE(VolumeName)) == FALSE)
+		for(hFind = FindFirstVolume(VolumeName, ARRAYSIZE(VolumeName)); hFind != INVALID_HANDLE_VALUE && !End; End = !FindNextVolume(hFind, VolumeName, ARRAYSIZE(VolumeName)))
 		{
 			int DriveType=FAR_GetDriveType(VolumeName);
 

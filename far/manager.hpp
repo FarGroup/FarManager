@@ -67,7 +67,7 @@ public:
 	//! Входит в новый цикл обработки событий
 	void ExecuteModal(Frame *Executed = nullptr);
 	//! Запускает немодальный фрейм в модальном режиме
-	void ExecuteNonModal(Frame *NonModal);
+	void ExecuteNonModal(const Frame *NonModal);
 	void CloseAll();
 	/* $ 29.12.2000 IS
 	Аналог CloseAll, но разрешает продолжение полноценной работы в фаре,

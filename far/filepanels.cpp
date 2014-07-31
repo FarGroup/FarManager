@@ -690,12 +690,12 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 			bool Set=false;
 			if (Global->Opt->LeftHeightDecrement<ScrY-7)
 			{
-				Global->Opt->LeftHeightDecrement++;
+				++Global->Opt->LeftHeightDecrement;
 				Set=true;
 			}
 			if (Global->Opt->RightHeightDecrement<ScrY-7)
 			{
-				Global->Opt->RightHeightDecrement++;
+				++Global->Opt->RightHeightDecrement;
 				Set=true;
 			}
 			if(Set)
@@ -712,12 +712,12 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 			bool Set=false;
 			if (Global->Opt->LeftHeightDecrement>0)
 			{
-				Global->Opt->LeftHeightDecrement--;
+				--Global->Opt->LeftHeightDecrement;
 				Set=true;
 			}
 			if (Global->Opt->RightHeightDecrement>0)
 			{
-				Global->Opt->RightHeightDecrement--;
+				--Global->Opt->RightHeightDecrement;
 				Set=true;
 			}
 			if(Set)
@@ -760,7 +760,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		{
 			if (Global->Opt->WidthDecrement<ScrX/2-10)
 			{
-				Global->Opt->WidthDecrement++;
+				++Global->Opt->WidthDecrement;
 				SetScreenPosition();
 				Global->FrameManager->RefreshFrame();
 			}
@@ -772,7 +772,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		{
 			if (Global->Opt->WidthDecrement>-(ScrX/2-10))
 			{
-				Global->Opt->WidthDecrement--;
+				--Global->Opt->WidthDecrement;
 				SetScreenPosition();
 				Global->FrameManager->RefreshFrame();
 			}
@@ -1242,7 +1242,7 @@ void FilePanels::GoToFile(const string& FileName)
 }
 
 
-FARMACROAREA FilePanels::GetMacroMode()
+FARMACROAREA FilePanels::GetMacroMode() const
 {
 	switch (ActivePanel->GetType())
 	{

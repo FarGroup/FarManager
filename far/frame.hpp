@@ -70,7 +70,7 @@ public:
 	virtual void Refresh() {OnChangeFocus(1);}  // Просто перерисоваться :)
 	virtual void InitKeyBar() {}
 	virtual void RedrawKeyBar() { UpdateKeyBar(); }
-	virtual FARMACROAREA GetMacroMode() { return MacroMode; }
+	virtual FARMACROAREA GetMacroMode() const { return MacroMode; }
 	virtual int FastHide();
 	virtual const string& GetTitle(string &Title) = 0;
 	virtual bool ProcessEvents() {return true;}

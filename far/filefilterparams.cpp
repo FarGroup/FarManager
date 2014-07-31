@@ -803,11 +803,11 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 			if (Param1 == ID_FF_OK && Dlg->SendMessage(DM_GETCHECK,ID_FF_MATCHSIZE,0))
 			{
 				string Size = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ID_FF_SIZEFROMEDIT, 0));
-				bool Ok = Size.empty() || CheckFileSizeStringFormat(Size.data());
+				bool Ok = Size.empty() || CheckFileSizeStringFormat(Size);
 				if (Ok)
 				{
 					Size = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ID_FF_SIZETOEDIT, 0));
-					Ok = Size.empty() || CheckFileSizeStringFormat(Size.data());
+					Ok = Size.empty() || CheckFileSizeStringFormat(Size);
 				}
 				if (!Ok)
 				{

@@ -233,8 +233,11 @@ FileList::FileList():
 	UpdateDisabled(0),
 	SortGroupsRead(FALSE),
 	InternalProcessKey(FALSE),
-	CacheSelIndex(-1), CacheSelPos(0),
-	CacheSelClearIndex(-1), CacheSelClearPos(0)
+	CacheSelIndex(-1),
+	CacheSelPos(0),
+	CacheSelClearIndex(-1),
+	CacheSelClearPos(0),
+	CustomSortIndicator()
 {
 	_OT(SysLog(L"[%p] FileList::FileList()", this));
 	{
