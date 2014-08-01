@@ -1248,7 +1248,7 @@ static int editor_GetSelection(lua_State *L)
 		if(!FastGetString(EditorId, to, &egs, Info))
 			return lua_pushnil(L), 1;
 
-		if(egs.SelStart < 0 || egs.SelEnd == 0)
+		if(egs.SelStart < 0)
 			break;
 	}
 
@@ -1263,7 +1263,7 @@ static int editor_GetSelection(lua_State *L)
 		if(!FastGetString(EditorId, curr, &egs, Info))
 			return lua_pushnil(L), 1;
 
-		if(egs.SelStart < 0 || egs.SelEnd == 0)
+		if(egs.SelStart < 0)
 		{
 			if(curr == to)
 				break;
