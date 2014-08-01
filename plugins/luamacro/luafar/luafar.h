@@ -36,6 +36,7 @@ _CRTIMP unsigned int __cdecl __MINGW_NOTHROW _control87 (unsigned int unNew, uns
 		intptr_t DialogEventDrawGroup;
 		lua_Alloc origAlloc;
 		void *origUserdata;
+		lua_State *MainLuaState;
 		void (*new_action)(int i);
 		void (*old_action)(int i);
 	} TPluginData;

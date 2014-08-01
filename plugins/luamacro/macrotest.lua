@@ -802,6 +802,23 @@ local function test_far_MacroAdd()
 
   Id = far.MacroAdd(nil, nil, key, [[@c:\myscript]])
   assert(type(Id)=="userdata" and far.MacroDelete(Id)) -- check default area (MACROAREA_COMMON)
+
+  local Id = far.MacroAdd(area,nil,key,[[Keys"F7" assert(Dlg.Id=="FAD00DBE-3FFF-4095-9232-E1CC70C67737") Keys"Esc"]],descr)
+  assert(0==mf.eval("Shell/"..key, 2))
+  assert(far.MacroDelete(Id))
+
+  Id = far.MacroAdd(area,nil,key,[[a=5]],descr,function(id,flags) return false end)
+  assert(-2 == mf.eval("Shell/"..key, 2))
+  assert(far.MacroDelete(Id))
+
+  Id = far.MacroAdd(area,nil,key,[[a=5]],descr,function(id,flags) error"deliberate error" end)
+  assert(-2 == mf.eval("Shell/"..key, 2))
+  assert(far.MacroDelete(Id))
+
+  Id = far.MacroAdd(area,nil,key,[[a=5]],descr,function(id,flags) return id==Id end)
+  assert(0 == mf.eval("Shell/"..key, 2))
+  assert(far.MacroDelete(Id))
+
 end
 
 local function test_far_MacroCheck()

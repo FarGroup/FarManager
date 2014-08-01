@@ -4684,9 +4684,7 @@ intptr_t WINAPI MacroAddCallback (void* Id, FARADDKEYMACROFLAGS Flags)
 		lua_pushlightuserdata(L, Id);
 		lua_rawget(L, LUA_REGISTRYINDEX);
 		bit64_push(L, Flags);
-
-		if(lua_pcall(L, 2, 1, 0) == 0)
-			result = lua_toboolean(L, -1);
+		result = !lua_pcall(L, 2, 1, 0) && lua_toboolean(L, -1);
 	}
 
 	lua_pop(L, 1);
@@ -4717,7 +4715,7 @@ static int far_MacroAdd(lua_State* L)
 		MacroAddData* Id = (MacroAddData*)data.Id;
 		lua_isfunction(L, 6) ? lua_pushvalue(L, 6) : lua_pushboolean(L, 1);
 		Id->funcref = luaL_ref(L, LUA_REGISTRYINDEX);
-		Id->L = L;
+		Id->L = pd->MainLuaState;
 		luaL_getmetatable(L, AddMacroDataType);
 		lua_setmetatable(L, -2);
 		lua_pushlightuserdata(L, Id); // Place it in the registry to protect from gc. It should be collected only at lua_close().
@@ -6260,6 +6258,7 @@ static void* CustomAllocator(void *ud, void *ptr, size_t osize, size_t nsize)
 void LF_InitLuaState2(lua_State *L, TPluginData *aInfo)
 {
 	FP_PROTECT();
+	aInfo->MainLuaState = L;
 	aInfo->DialogEventDrawGroup = 0;
 	aInfo->origAlloc = lua_getallocf(L, &aInfo->origUserdata);
 	lua_setallocf(L, CustomAllocator, aInfo);
