@@ -2831,23 +2831,72 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			InsertQuote(strMsg2);
 
 			int MsgCode;
+			if ((SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED))
+			{
+				if (SkipEncMode != -1)
+				{
+					MsgCode = SkipEncMode;
 
-			if (SkipMode!=-1)
-				MsgCode=SkipMode;
+					if (SkipEncMode == 1)
+						Flags |= FCOPY_DECRYPTED_DESTINATION;
+				}
+				else
+				{
+					// Better to set it always, just in case
+					//if (GetLastError() == ERROR_ACCESS_DENIED)
+					{
+						SetLastError(ERROR_ENCRYPTION_FAILED);
+					}
+					Global->CatchError();
+
+					MsgCode = Message(MSG_WARNING | MSG_ERRORTYPE, 5, MSG(MError),
+						MSG(MsgMCannot),
+						strMsg1.data(),
+						MSG(MCannotCopyTo),
+						strMsg2.data(),
+						MSG(MCopyDecrypt),
+						MSG(MCopyDecryptAll),
+						MSG(MCopySkip),
+						MSG(MCopySkipAll),
+						MSG(MCopyCancel));
+				}
+				switch (MsgCode)
+				{
+				case 1:
+					SkipEncMode = 1;
+				case 0:
+					Flags |= FCOPY_DECRYPTED_DESTINATION;
+					break;
+
+				case 3:
+					SkipEncMode = 3;
+				case 2:
+					return COPY_NEXT;
+
+				case -1:
+				case -2:
+				case 4:
+					return COPY_CANCEL;
+				}
+			}
 			else
 			{
-				Global->CatchError();
-				MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
-						        MSG(MsgMCannot),
-						        strMsg1.data(),
-						        MSG(MCannotCopyTo),
-						        strMsg2.data(),
-						        MSG(MCopyRetry),MSG(MCopySkip),
-						        MSG(MCopySkipAll),MSG(MCopyCancel));
-			}
+				if (SkipMode!=-1)
+					MsgCode=SkipMode;
+				else
+				{
+					Global->CatchError();
+					MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+									MSG(MsgMCannot),
+									strMsg1.data(),
+									MSG(MCannotCopyTo),
+									strMsg2.data(),
+									MSG(MCopyRetry),MSG(MCopySkip),
+									MSG(MCopySkipAll),MSG(MCopyCancel));
+				}
 
-			switch (MsgCode)
-			{
+				switch (MsgCode)
+				{
 				case  1:
 					return COPY_NEXT;
 				case  2:
@@ -2857,8 +2906,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				case -2:
 				case  3:
 					return COPY_CANCEL;
+				}
 			}
-
 			TotalCopiedSize=SaveTotalSize;
 			int RetCode = COPY_CANCEL;
 			string strNewName;

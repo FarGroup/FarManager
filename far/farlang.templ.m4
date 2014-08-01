@@ -4027,6 +4027,28 @@ MCopyCancel
 "&Zrušiť"
 "&Annulla"
 
+MCopyDecrypt
+"Рас&шифровать"
+"&Decrypt"
+"&Dešifrovat"
+"Ent&schlüsseln"
+"&Titk. felold"
+"&Deszyfruj"
+"&Descifrar"
+"upd:Decrypt"
+"upd:Decrypt"
+
+MCopyDecryptAll
+"&Все"
+"Decrypt &all"
+"Deš&ifrovat vše"
+"Alle e&ntschlüsseln"
+"&Mind"
+"Deszyfruj ws&zystkie"
+"Descifrar &Todo"
+"upd:Decrypt all"
+"upd:Decrypt all"
+
 MCopyCannotCreateLink
 l:
 "Ошибка создания ссылки"
