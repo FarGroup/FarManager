@@ -858,11 +858,17 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			// если это SymLink
 			if (FileAttr!=INVALID_FILE_ATTRIBUTES && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT))
 			{
-				DWORD ReparseTag=0;
+				DWORD ReparseTag = FindData.dwReserved0;
+				DWORD ReparseTagAlternative = 0;
 				bool KnownReparsePoint = false;
 				if (!DlgParam.Plugin)
 				{
-					KnownReparsePoint = GetReparsePointInfo(strSelName, strLinkName,&ReparseTag);
+					KnownReparsePoint = GetReparsePointInfo(strSelName, strLinkName, &ReparseTagAlternative);
+					if (ReparseTagAlternative && !ReparseTag)
+					{
+						ReparseTag = ReparseTagAlternative;
+					}
+
 					if (!KnownReparsePoint)
 					{
 						if (ReparseTag == IO_REPARSE_TAG_DEDUP)
@@ -870,47 +876,36 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 							KnownReparsePoint = true;
 							strLinkName = MSG(MListDEDUP);
 						}
-						else // try DFS link
+						else if (ReparseTag == IO_REPARSE_TAG_DFS)
 						{
-							string path(SrcPanel->GetCurDir());
-							bool share = false;
-							if (path.size() >= 5 && path[0] == L'\\' && path[1] == L'\\') // \\ServerOrDomainName\Dfsname
+							string path(SrcPanel->GetCurDir() + L'\\' + strSelName);
+							PDFS_INFO_3 pData;
+							if (Imports().NetDfsGetInfo(UNSAFE_CSTR(path), nullptr, nullptr, 3, (LPBYTE *)&pData) == NERR_Success)
 							{
-								size_t pos = path.find(L'\\', 2);
-								share = pos != string::npos && pos > 2 && pos < path.size()-1 && (pos = path.find(L'\\', pos + 1)) == string::npos;
-							}
-							if (share)
-							{
-								path += L"\\" + strSelName;
-								PDFS_INFO_3 pData;
-								NET_API_STATUS ns = Imports().NetDfsGetInfo(UNSAFE_CSTR(path), nullptr, nullptr, 3, (LPBYTE *)&pData);
-								if (NERR_Success == ns)
+								SCOPE_EXIT{ NetApiBufferFree(pData); };
+
+								KnownReparsePoint = true;
+
+								NameList.ItemsNumber = pData->NumberOfStorages;
+
+								ListItems.resize(NameList.ItemsNumber);
+								Links.resize(NameList.ItemsNumber);
+
+								NameList.Items = ListItems.data();
+
+								for (size_t i = 0; i < NameList.ItemsNumber; ++i)
 								{
-									KnownReparsePoint = true;
-									ReparseTag = IO_REPARSE_TAG_DFS;
-
-									NameList.ItemsNumber = pData->NumberOfStorages;
-
-									ListItems.resize(NameList.ItemsNumber);
-									Links.resize(NameList.ItemsNumber);
-
-									NameList.Items = ListItems.data();
-
-									for (size_t i = 0; i < NameList.ItemsNumber; ++i)
-									{
-										Links[i] = string(L"\\\\") + pData->Storage[i].ServerName + L"\\" + pData->Storage[i].ShareName;
-										NameList.Items[i].Text = Links[i].data();
-										NameList.Items[i].Flags = (pData->Storage[i].State & DFS_STORAGE_STATE_ACTIVE) ? LIF_CHECKED | LIF_SELECTED : LIF_NONE;
-										if (pData->Storage[i].State & DFS_STORAGE_STATE_OFFLINE)	NameList.Items[i].Flags |= LIF_DISABLE;
-									}
-
-									AttrDlg[SA_EDIT_SYMLINK].Flags |= DIF_HIDDEN;
-									AttrDlg[SA_COMBO_SYMLINK].Flags &= ~DIF_HIDDEN;
-									AttrDlg[SA_COMBO_SYMLINK].ListItems = &NameList;
-									AttrDlg[SA_COMBO_SYMLINK].strData = string(MSG(MSetAttrDfsTargets)) + L" (" + std::to_wstring(NameList.ItemsNumber) + L")";
-
-									NetApiBufferFree(pData);
+									Links[i] = string(L"\\\\") + pData->Storage[i].ServerName + L'\\' + pData->Storage[i].ShareName;
+									NameList.Items[i].Text = Links[i].data();
+									NameList.Items[i].Flags =
+										((pData->Storage[i].State & DFS_STORAGE_STATE_ACTIVE)? (LIF_CHECKED | LIF_SELECTED) : LIF_NONE) |
+										((pData->Storage[i].State & DFS_STORAGE_STATE_OFFLINE)? LIF_GRAYED : LIF_NONE);
 								}
+
+								AttrDlg[SA_EDIT_SYMLINK].Flags |= DIF_HIDDEN;
+								AttrDlg[SA_COMBO_SYMLINK].Flags &= ~DIF_HIDDEN;
+								AttrDlg[SA_COMBO_SYMLINK].ListItems = &NameList;
+								AttrDlg[SA_COMBO_SYMLINK].strData = string(MSG(MSetAttrDfsTargets)) + L" (" + std::to_wstring(NameList.ItemsNumber) + L")";
 							}
 						}
 					}

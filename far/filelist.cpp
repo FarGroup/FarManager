@@ -3756,6 +3756,10 @@ int FileList::GetSelName(string *strName, DWORD &FileAttr, string *strShortName,
 				fde->nAllocationSize=ListData[CurFile].AllocationSize;
 				fde->strFileName = ListData[CurFile].strName;
 				fde->strAlternateFileName = ListData[CurFile].strShortName;
+				if (fde->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
+				{
+					fde->dwReserved0 = ListData[CurFile].ReparseTag;
+				}
 			}
 
 			return TRUE;
