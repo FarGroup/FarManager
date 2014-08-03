@@ -3,6 +3,35 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 02.08.2014 14:47:23 +0200 - build 4034
+
+1. Information on DFS resources was not always displayed correctly.
+
+drkns 01.08.2014 21:36:24 +0200 - build 4033
+
+1. 0002445: Copying of encrypted (EFS) files
+
+drkns 31.07.2014 22:45:46 +0200 - build 4032
+
+1. Cppcheck warnings.
+
+drkns 31.07.2014 00:18:41 +0200 - build 4031
+
+1. More Clang.
+
+drkns 30.07.2014 21:07:46 +0200 - build 4030
+
+1. Correction of 4018.2.
+
+drkns 29.07.2014 21:22:25 +0200 - build 4029
+
+1. The first attempt of compilation with Clang. Of course it failed, but something revealed:
+   - a couple of silly bugs in editor;
+   - unused variables;
+   - viewer search tried to replace \xffff with \0 in searched text for some reason.
+
+2. A couple of minor issues.
+
 drkns 26.07.2014 15:29:52 +0200 - build 4028
 
 1. For the sake of abstract perfectness, compiling hook_wow64 as C++.
