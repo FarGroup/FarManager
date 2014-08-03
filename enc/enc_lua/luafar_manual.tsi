@@ -4494,27 +4494,27 @@ id=30
 lv=2
 dt=Text
 nm=editor.GetSelection
-mtime=3572709021
+mtime=3616180189
 <article>
-#_**Note:**
-#_--This function does not have a prototype in Far API.
-#_
-#_Info = editor.GetSelection (EditorId)
+#_Sel = editor.GetSelection (EditorId)
 #_
 #_**Parameters:**
 #_  EditorId: integer, or nil
 #_
 #_**Returns:**
-#_  Info:     table, or nil
-#_    Info fields:
+#_  Sel:      table, or nil
+#_    Sel fields:
 #_      BlockType: integer
-#_      StartLine: integer, 1-based
-#_      StartPos:  integer, 1-based
-#_      EndLine:   integer, 1-based
-#_      EndPos:    integer, 0-based (can be -1)
+#_      StartLine: integer, 1-based (Far API + 1)
+#_      StartPos:  integer, 1-based (Far API + 1)
+#_      EndLine:   integer, 1-based (Far API + 1)
+#_      EndPos:    integer, 1-based (Far API + 0)
+#_
+#_**Note:**
+#_  This function does not have a prototype in Far API.
 #_
 #_**Far API used:**
-#_  EditorControl, ECTL_GETINFO, ECTL_SETPOSITION, ECTL_GETSTRING
+#_  EditorControl, ECTL_GETINFO, ECTL_GETSTRING, ECTL_SETPOSITION
 #_
 #_@@@
 #_{ectl_getinfo}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_GETINFO
@@ -4563,11 +4563,10 @@ id=31
 lv=2
 dt=Text
 nm=editor.GetString
-mtime=3578687911
+mtime=3616180161
 <article>
 #_**Note:**
-#_--This function is an extension over its prototype in Far API.
-#_--There are concerns with regards to its API.
+#_  This function is an extension over its prototype in Far API.
 #_
 #_LineInfo = editor.GetString (EditorId, StringNumber, Mode)
 #_    or
@@ -4586,7 +4585,7 @@ mtime=3578687911
 #_      StringEOL:    string
 #_      StringLength: integer
 #_      SelStart:     integer, 1-based
-#_      SelEnd:       integer, 0-based
+#_      SelEnd:       integer, 1-based
 #_
 #_**Description:**
 #_  The function's behavior depends on its *Mode* argument:
