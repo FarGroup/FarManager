@@ -617,7 +617,7 @@ void PR_ShellSetFileAttributesMsg()
 bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-	short DlgX=70,DlgY=24;
+	short DlgX=74,DlgY=24;
 	FarDialogItem AttrDlgData[]=
 	{
 		{DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,nullptr,nullptr,0,MSG(MSetAttrTitle)},
@@ -855,57 +855,73 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				}
 			}
 
-			// если это SymLink
-			if (FileAttr!=INVALID_FILE_ATTRIBUTES && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT))
+			bool IsMountPoint = false;
+			{
+				bool IsRoot = false;
+				auto PathType = ParsePath(strSelName, nullptr, &IsRoot);
+				IsMountPoint = IsRoot && ((PathType == PATH_DRIVELETTER || PathType == PATH_DRIVELETTERUNC));
+			}
+
+			if ((FileAttr != INVALID_FILE_ATTRIBUTES && FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) || IsMountPoint)
 			{
 				DWORD ReparseTag = FindData.dwReserved0;
 				DWORD ReparseTagAlternative = 0;
 				bool KnownReparsePoint = false;
 				if (!DlgParam.Plugin)
 				{
-					KnownReparsePoint = GetReparsePointInfo(strSelName, strLinkName, &ReparseTagAlternative);
-					if (ReparseTagAlternative && !ReparseTag)
+					if (IsMountPoint)
 					{
-						ReparseTag = ReparseTagAlternative;
+						// BUGBUG, cheating
+						KnownReparsePoint = true;
+						ReparseTag = IO_REPARSE_TAG_MOUNT_POINT;
+						api::GetVolumeNameForVolumeMountPoint(strSelName, strLinkName);
 					}
-
-					if (!KnownReparsePoint)
+					else
 					{
-						if (ReparseTag == IO_REPARSE_TAG_DEDUP)
+						KnownReparsePoint = GetReparsePointInfo(strSelName, strLinkName, &ReparseTagAlternative);
+						if (ReparseTagAlternative && !ReparseTag)
 						{
-							KnownReparsePoint = true;
-							strLinkName = MSG(MListDEDUP);
+							ReparseTag = ReparseTagAlternative;
 						}
-						else if (ReparseTag == IO_REPARSE_TAG_DFS)
+
+						if (!KnownReparsePoint)
 						{
-							string path(SrcPanel->GetCurDir() + L'\\' + strSelName);
-							PDFS_INFO_3 pData;
-							if (Imports().NetDfsGetInfo(UNSAFE_CSTR(path), nullptr, nullptr, 3, (LPBYTE *)&pData) == NERR_Success)
+							if (ReparseTag == IO_REPARSE_TAG_DEDUP)
 							{
-								SCOPE_EXIT{ NetApiBufferFree(pData); };
-
 								KnownReparsePoint = true;
-
-								NameList.ItemsNumber = pData->NumberOfStorages;
-
-								ListItems.resize(NameList.ItemsNumber);
-								Links.resize(NameList.ItemsNumber);
-
-								NameList.Items = ListItems.data();
-
-								for (size_t i = 0; i < NameList.ItemsNumber; ++i)
+								strLinkName = MSG(MListDEDUP);
+							}
+							else if (ReparseTag == IO_REPARSE_TAG_DFS)
+							{
+								string path(SrcPanel->GetCurDir() + L'\\' + strSelName);
+								PDFS_INFO_3 pData;
+								if (Imports().NetDfsGetInfo(UNSAFE_CSTR(path), nullptr, nullptr, 3, (LPBYTE *)&pData) == NERR_Success)
 								{
-									Links[i] = string(L"\\\\") + pData->Storage[i].ServerName + L'\\' + pData->Storage[i].ShareName;
-									NameList.Items[i].Text = Links[i].data();
-									NameList.Items[i].Flags =
-										((pData->Storage[i].State & DFS_STORAGE_STATE_ACTIVE)? (LIF_CHECKED | LIF_SELECTED) : LIF_NONE) |
-										((pData->Storage[i].State & DFS_STORAGE_STATE_OFFLINE)? LIF_GRAYED : LIF_NONE);
-								}
+									SCOPE_EXIT{ NetApiBufferFree(pData); };
 
-								AttrDlg[SA_EDIT_SYMLINK].Flags |= DIF_HIDDEN;
-								AttrDlg[SA_COMBO_SYMLINK].Flags &= ~DIF_HIDDEN;
-								AttrDlg[SA_COMBO_SYMLINK].ListItems = &NameList;
-								AttrDlg[SA_COMBO_SYMLINK].strData = string(MSG(MSetAttrDfsTargets)) + L" (" + std::to_wstring(NameList.ItemsNumber) + L")";
+									KnownReparsePoint = true;
+
+									NameList.ItemsNumber = pData->NumberOfStorages;
+
+									ListItems.resize(NameList.ItemsNumber);
+									Links.resize(NameList.ItemsNumber);
+
+									NameList.Items = ListItems.data();
+
+									for (size_t i = 0; i < NameList.ItemsNumber; ++i)
+									{
+										Links[i] = string(L"\\\\") + pData->Storage[i].ServerName + L'\\' + pData->Storage[i].ShareName;
+										NameList.Items[i].Text = Links[i].data();
+										NameList.Items[i].Flags =
+											((pData->Storage[i].State & DFS_STORAGE_STATE_ACTIVE) ? (LIF_CHECKED | LIF_SELECTED) : LIF_NONE) |
+											((pData->Storage[i].State & DFS_STORAGE_STATE_OFFLINE) ? LIF_GRAYED : LIF_NONE);
+									}
+
+									AttrDlg[SA_EDIT_SYMLINK].Flags |= DIF_HIDDEN;
+									AttrDlg[SA_COMBO_SYMLINK].Flags &= ~DIF_HIDDEN;
+									AttrDlg[SA_COMBO_SYMLINK].ListItems = &NameList;
+									AttrDlg[SA_COMBO_SYMLINK].strData = string(MSG(MSetAttrDfsTargets)) + L" (" + std::to_wstring(NameList.ItemsNumber) + L")";
+								}
 							}
 						}
 					}

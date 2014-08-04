@@ -113,7 +113,7 @@ protected:
 
 class ScreenObjectWithShadow:public ScreenObject
 {
-public:
+protected:
 	ScreenObjectWithShadow();
 	virtual ~ScreenObjectWithShadow();
 
@@ -121,6 +121,5 @@ public:
 
 	void Shadow(bool Full=false);
 
-protected:
 	std::unique_ptr<SaveScreen> ShadowSaveScr;
 };

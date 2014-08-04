@@ -289,17 +289,35 @@ bool elevation::Initialize()
 				AEvent.Open();
 				AEvent.Associate(Overlapped);
 				ConnectNamedPipe(m_pipe, &Overlapped);
-				if(AEvent.Wait(15000))
+				MultiWaiter Waiter;
+				Waiter.Add(AEvent);
+				Waiter.Add(m_process);
+				switch (Waiter.Wait(MultiWaiter::wait_any, 15000))
 				{
-					DWORD NumberOfBytesTransferred;
-					if (GetOverlappedResult(m_pipe, &Overlapped, &NumberOfBytesTransferred, FALSE))
+				case WAIT_OBJECT_0:
 					{
-						if (Read(m_pid))
+						DWORD NumberOfBytesTransferred;
+						if (GetOverlappedResult(m_pipe, &Overlapped, &NumberOfBytesTransferred, FALSE))
 						{
-							Result = true;
+							if (Read(m_pid))
+							{
+								Result = true;
+							}
 						}
 					}
+					break;
+
+				case WAIT_OBJECT_0 + 1:
+					{
+						DWORD ExitCode;
+						SetLastError(GetExitCodeProcess(m_process, &ExitCode)? ExitCode : ERROR_GEN_FAILURE);
+					}
+					break;
+
+				default:
+					break;
 				}
+
 				if(!Result)
 				{
 					if (m_process && WaitForSingleObject(m_process, 0) == WAIT_TIMEOUT)
@@ -312,8 +330,8 @@ bool elevation::Initialize()
 							CloseHandle(m_job);
 							m_job = nullptr;
 						}
+						SetLastError(ERROR_PROCESS_ABORTED);
 					}
-					SetLastError(ERROR_PROCESS_ABORTED);
 				}
 			}
 			else
@@ -903,6 +921,10 @@ public:
 				}
 			}
 			CloseHandle(Pipe);
+		}
+		else
+		{
+			Result = GetLastError();
 		}
 		return Result;
 	}
