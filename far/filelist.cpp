@@ -1773,9 +1773,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 								RefreshedPanel = Global->FrameManager->GetCurrentFrame()->GetType() != MODALTYPE_EDITOR;
 								FileEditor ShellEditor(strFileName,codepage,(LocalKey==KEY_SHIFTF4?FFILEEDIT_CANNEWFILE:0)|FFILEEDIT_DISABLEHISTORY,-1,-1,&strPluginData);
 								ShellEditor.SetDynamicallyBorn(false);
-								Global->FrameManager->EnterModalEV();
-								Global->FrameManager->ExecuteModal();//OT
-								Global->FrameManager->ExitModalEV();
+								Global->FrameManager->ExecuteModalEV();//OT
 								/* $ 24.11.2001 IS
 								     ≈сли мы создали новый файл, то не важно, измен€лс€ он
 								     или нет, все равно добавим его на панель плагина.

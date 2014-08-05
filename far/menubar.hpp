@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "scrobj.hpp"
 
-class MenuBar:public ScreenObject
+class MenuBar:public SimpleScreenObject
 {
 public:
 	MenuBar() {}

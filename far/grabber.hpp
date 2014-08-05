@@ -61,7 +61,6 @@ private:
 		SHORT CurX, CurY;
 	};
 
-	SaveScreen *SaveScr;
 	GrabberArea PrevArea;
 	GrabberArea GArea;
 	bool ResetArea;

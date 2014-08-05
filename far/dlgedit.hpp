@@ -53,7 +53,7 @@ enum DLGEDITTYPE
 
 class Dialog;
 
-class DlgEdit: public ScreenObject
+class DlgEdit: public SimpleScreenObject
 {
 public:
 	// for CtrlEnd
@@ -73,7 +73,6 @@ public:
 	virtual void GetPosition(int& X1,int& Y1,int& X2,int& Y2) const override;
 
 	virtual void Hide() override;
-	virtual void Hide0() override;
 	virtual void ShowConsoleTitle() override;
 	virtual void SetScreenPosition() override;
 	virtual void ResizeConsole() override;

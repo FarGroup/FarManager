@@ -100,7 +100,7 @@ enum SetCPFlags
 	SETCP_OTHERERROR = 0x10000000,
 };
 
-class Edit:public ScreenObject
+class Edit:public SimpleScreenObject
 {
 	enum EDITCOLORLISTFLAGS
 	{
@@ -108,7 +108,7 @@ class Edit:public ScreenObject
 		ECLF_NEEDFREE = 0x2,
 	};
 public:
-	Edit(ScreenObject *pOwner = nullptr, bool bAllocateData = true);
+	Edit(SimpleScreenObject *pOwner = nullptr, bool bAllocateData = true);
 	Edit(Edit&& rhs);
 	virtual ~Edit();
 
@@ -116,7 +116,7 @@ public:
 
 	void swap(Edit& rhs) noexcept
 	{
-		ScreenObject::swap(rhs);
+		SimpleScreenObject::swap(rhs);
 		std::swap(Str, rhs.Str);
 		std::swap(StrSize, rhs.StrSize);
 		std::swap(CurPos, rhs.CurPos);

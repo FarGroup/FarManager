@@ -685,17 +685,6 @@ void DlgEdit::Hide()
 		lineEdit->Hide();
 }
 
-void DlgEdit::Hide0()
-{
-#if defined(PROJECT_DI_MEMOEDIT)
-
-	if (Type == DLGEDIT_MULTILINE)
-		multiEdit->Hide0();
-	else
-#endif
-		lineEdit->Hide0();
-}
-
 void DlgEdit::ShowConsoleTitle()
 {
 #if defined(PROJECT_DI_MEMOEDIT)

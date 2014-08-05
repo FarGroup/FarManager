@@ -310,9 +310,9 @@ public:
 	};
 	MultiWaiter() { Objects.reserve(10); }
 	~MultiWaiter() {}
-	void AddThread(Thread&& Object) { Objects.emplace_back(Object.GetHandle()); Threads.emplace_back(std::move(Object)); }
-	void Add(const HandleWrapper& Object) { Objects.emplace_back(Object.GetHandle()); }
-	void Add(HANDLE handle) { Objects.emplace_back(handle); }
+	void AddThread(Thread&& Object) { assert(Objects.size() < MAXIMUM_WAIT_OBJECTS); Objects.emplace_back(Object.GetHandle()); Threads.emplace_back(std::move(Object)); }
+	void Add(const HandleWrapper& Object) { assert(Objects.size() < MAXIMUM_WAIT_OBJECTS); Objects.emplace_back(Object.GetHandle()); }
+	void Add(HANDLE handle) { assert(Objects.size() < MAXIMUM_WAIT_OBJECTS); Objects.emplace_back(handle); }
 	DWORD Wait(wait_mode Mode = wait_all, DWORD Milliseconds = INFINITE) const { return WaitForMultipleObjects(static_cast<DWORD>(Objects.size()), Objects.data(), Mode == wait_all, Milliseconds); }
 	void Clear() {Objects.clear();}
 

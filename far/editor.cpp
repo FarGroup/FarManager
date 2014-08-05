@@ -100,7 +100,7 @@ private:
 	bool needCheckUnmark;
 };
 
-Editor::Editor(ScreenObject *pOwner,bool DialogUsed):
+Editor::Editor(SimpleScreenObject *pOwner, bool DialogUsed):
 	FirstLine(Lines.end()),
 	LastLine(Lines.end()),
 	TopScreen(Lines.end()),

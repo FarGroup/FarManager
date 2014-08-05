@@ -84,7 +84,7 @@ static const wchar_t EDMASK_DIGITS = L'N'; // позволяет вводить в строку ввода т
 static const wchar_t EDMASK_ALPHA  = L'A'; // позволяет вводить в строку ввода только буквы.
 static const wchar_t EDMASK_HEX    = L'H'; // позволяет вводить в строку ввода шестнадцатиричные символы.
 
-Edit::Edit(ScreenObject *pOwner, bool bAllocateData):
+Edit::Edit(SimpleScreenObject *pOwner, bool bAllocateData):
 	Str(bAllocateData ? static_cast<wchar_t*>(xf_malloc(sizeof(wchar_t))) : nullptr),
 	StrSize(0),
 	CurPos(0),

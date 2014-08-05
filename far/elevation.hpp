@@ -70,11 +70,11 @@ public:
 	class suppress: NonCopyable
 	{
 	public:
-		suppress(): m_owner(*Global->Elevation) { InterlockedIncrement(&m_owner.m_suppressions); }
-		~suppress() { InterlockedDecrement(&m_owner.m_suppressions); }
+		suppress(): m_owner(Global? Global->Elevation : nullptr) { if (m_owner) InterlockedIncrement(&m_owner->m_suppressions); }
+		~suppress() { if (m_owner) InterlockedDecrement(&m_owner->m_suppressions); }
 
 	private:
-		elevation& m_owner;
+		elevation* m_owner;
 	};
 
 private:

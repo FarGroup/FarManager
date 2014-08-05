@@ -47,8 +47,12 @@ public:
 		explicit Key(int Key): Event(), FarKey(Key), EventFilled(false) {}
 		//Key(INPUT_RECORD Key): EventFilled(true), Event(Key) {FarKey=0; /*FIXME*/ }
 	};
+
+	class MessageAbstract;
+
 public:
 	Manager();
+	~Manager();
 
 	// Эти функции можно безопасно вызывать практически из любого места кода
 	// они как бы накапливают информацию о том, что нужно будет сделать с фреймами при следующем вызове Commit()
@@ -91,7 +95,7 @@ public:
 	int ProcessMouse(const MOUSE_EVENT_RECORD *me);
 	void PluginsMenu() const; // вызываем меню по F11
 	void SwitchToPanels();
-	INPUT_RECORD *GetLastInputRecord() { return &LastInputRecord; }
+	const INPUT_RECORD& GetLastInputRecord() const { return LastInputRecord; }
 	void SetLastInputRecord(const INPUT_RECORD *Rec);
 	void ResetLastInputRecord() { LastInputRecord.EventType = 0; }
 	Frame *GetCurrentFrame() { return CurrentFrame; }
@@ -100,17 +104,11 @@ public:
 	int IndexOfStack(Frame *Frame);
 	void ImmediateHide();
 	Frame *GetBottomFrame() { return GetFrame(FramePos); }
-	BOOL ManagerIsDown() const { return EndLoop; }
-	BOOL ManagerStarted() const { return StartManager; }
+	bool ManagerIsDown() const { return EndLoop; }
+	bool ManagerStarted() const { return StartManager; }
 	void InitKeyBar();
-	/* $ 15.05.2002 SKV
-	Так как нужно это в разных местах,
-	а глобальные счётчики не концептуально,
-	то лучше это делать тут.
-	*/
-	void EnterModalEV() { ModalEVCount++; }
-	void ExitModalEV() { ModalEVCount--; }
-	BOOL InModalEV() const { return ModalEVCount; }
+	void ExecuteModalEV(Frame *Executed = nullptr) { ++ModalEVCount; ExecuteModal(Executed); --ModalEVCount; }
+	bool InModalEV() const { return ModalEVCount != 0; }
 	void ResizeAllFrame();
 	size_t GetModalStackCount() const { return ModalFrames.size(); }
 	Frame* GetModalFrame(size_t index) const { return ModalFrames[index]; }
@@ -142,6 +140,13 @@ private:
 	void UpdateCommit(Frame* Old,Frame* New);
 	int GetModalExitCode() const;
 
+	typedef void(Manager::*frame_callback)(Frame*);
+
+	void PushFrame(Frame* Param, frame_callback Callback);
+	void CheckAndPushFrame(Frame* Param, frame_callback Callback);
+	void ProcessFrameByPos(int Index, frame_callback Callback);
+	void RedeleteFrame(Frame *Deleted);
+
 	INPUT_RECORD LastInputRecord;
 	Frame *CurrentFrame;     // текущий фрейм. Он может нахлодиться как в немодальной очереди, так и в можальном стеке, его можно получить с помощью FrameManager->GetCurrentFrame();
 	std::vector<Frame*> ModalFrames;     // Стек модальных фреймов
@@ -157,54 +162,9 @@ private:
 		2) не только для editor/viewer'ов.
 	*/
 	int ModalEVCount;
-	int  EndLoop;            // Признак выхода из цикла
+	bool EndLoop;            // Признак выхода из цикла
 	int ModalExitCode;
-	int  StartManager;
+	bool StartManager;
 	static long CurrentWindowType;
-private:
-	class MessageAbstract
-	{
-		public:
-			virtual ~MessageAbstract() {}
-			virtual bool Process(void)=0;
-	};
-	class MessageCallback: public MessageAbstract
-	{
-		private:
-			std::function<void(void)> m_Callback;
-		public:
-			MessageCallback(const std::function<void(void)>& Callback): m_Callback(Callback) {}
-			virtual bool Process(void) override {m_Callback();return true;}
-	};
-	class MessageOneFrame: public MessageAbstract
-	{
-		private:
-			Frame* m_Param;
-			std::function<void(Frame*)> m_Callback;
-		public:
-			MessageOneFrame(Frame* Param,const std::function<void(Frame*)>& Callback): m_Param(Param),m_Callback(Callback) {}
-			virtual bool Process(void) override {m_Callback(m_Param);return true;}
-	};
-	class MessageTwoFrames: public MessageAbstract
-	{
-		private:
-			Frame* m_Param1;
-			Frame* m_Param2;
-			std::function<void(Frame*,Frame*)> m_Callback;
-		public:
-			MessageTwoFrames(Frame* Param1,Frame* Param2,const std::function<void(Frame*,Frame*)>& Callback): m_Param1(Param1),m_Param2(Param2),m_Callback(Callback) {}
-			virtual bool Process(void) override {m_Callback(m_Param1,m_Param2);return true;}
-	};
-	class MessageStop: public MessageAbstract
-	{
-		public:
-			MessageStop() {}
-			virtual bool Process(void) override {return false;}
-	};
-
 	std::list<std::unique_ptr<MessageAbstract>> m_Queue;
-	void PushFrame(Frame* Param,void(Manager::*Callback)(Frame*));
-	void CheckAndPushFrame(Frame* Param,void(Manager::*Callback)(Frame*));
-	void ProcessFrameByPos(int Index,void(Manager::*Callback)(Frame*));
-	void RedeleteFrame(Frame *Deleted);
 };

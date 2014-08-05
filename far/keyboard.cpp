@@ -2186,7 +2186,7 @@ int IsShiftKey(DWORD Key)
 	return std::find(ALL_CONST_RANGE(ShiftKeys), Key) != std::cend(ShiftKeys);
 }
 
-DWORD ShieldCalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlCode)
+DWORD ShieldCalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros, bool ProcessCtrlCode)
 {
 	FarKeyboardState _IntKeyState=IntKeyState; // нада! ибо CalcKeyCode "портит"... (Mantis#0001760)
 	ClearStruct(IntKeyState);
@@ -2196,7 +2196,7 @@ DWORD ShieldCalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool Proces
 }
 
 // GetAsyncKeyState(VK_RSHIFT)
-DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlCode)
+DWORD CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros, bool ProcessCtrlCode)
 {
 	_SVS(CleverSysLog Clev(L"CalcKeyCode"));
 	_SVS(SysLog(L"CalcKeyCode -> %s| RealKey=%d  *NotMacros=%d",_INPUT_RECORD_Dump(rec),RealKey,(NotMacros?*NotMacros:0)));
@@ -2336,10 +2336,6 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 				{
 					AltValue=rec->Event.KeyEvent.uChar.UnicodeChar;
 				}
-			}
-			else
-			{
-				rec->Event.KeyEvent.uChar.UnicodeChar=static_cast<WCHAR>(AltValue);
 			}
 
 			// _SVS(SysLog(L"KeyCode==VK_MENU -> AltValue=%X (%c)",AltValue,AltValue));

@@ -303,14 +303,14 @@ public:
 
 	static void ClearPluginsCache();
 
-	const std::unique_ptr<GeneralConfig>& GeneralCfg() const { return m_GeneralCfg; }
-	const std::unique_ptr<GeneralConfig>& LocalGeneralCfg() const { return m_LocalGeneralCfg; }
-	const std::unique_ptr<ColorsConfig>& ColorsCfg() const { return m_ColorsCfg; }
-	const std::unique_ptr<AssociationsConfig>& AssocConfig() const { return m_AssocConfig; }
-	const std::unique_ptr<PluginsCacheConfig>& PlCacheCfg() const { return m_PlCacheCfg; }
-	const std::unique_ptr<PluginsHotkeysConfig>& PlHotkeyCfg() const { return m_PlHotkeyCfg; }
-	const std::unique_ptr<HistoryConfig>& HistoryCfg() const { return m_HistoryCfg; }
-	const std::unique_ptr<HistoryConfig>& HistoryCfgMem() const { return m_HistoryCfgMem; }
+	GeneralConfig* GeneralCfg() const { return m_GeneralCfg.get(); }
+	GeneralConfig* LocalGeneralCfg() const { return m_LocalGeneralCfg.get(); }
+	ColorsConfig* ColorsCfg() const { return m_ColorsCfg.get(); }
+	AssociationsConfig* AssocConfig() const { return m_AssocConfig.get(); }
+	PluginsCacheConfig* PlCacheCfg() const { return m_PlCacheCfg.get(); }
+	PluginsHotkeysConfig* PlHotkeyCfg() const { return m_PlHotkeyCfg.get(); }
+	HistoryConfig* HistoryCfg() const { return m_HistoryCfg.get(); }
+	HistoryConfig* HistoryCfgMem() const { return m_HistoryCfgMem.get(); }
 
 	HierarchicalConfigUniquePtr CreatePluginsConfig(const string& guid, bool Local=false);
 	HierarchicalConfigUniquePtr CreateFiltersConfig();

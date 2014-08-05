@@ -277,10 +277,10 @@ bool elevation::Initialize()
 				Param.data(),
 				Global->g_strFarPath.data(),
 			};
-			if(ShellExecuteEx(&info))
+			if (ShellExecuteEx(&info) && info.hProcess)
 			{
 				m_process = info.hProcess;
-				if (!InJob && m_job && m_process)
+				if (!InJob && m_job)
 				{
 					AssignProcessToJobObject(m_job, m_process);
 				}
@@ -320,7 +320,7 @@ bool elevation::Initialize()
 
 				if(!Result)
 				{
-					if (m_process && WaitForSingleObject(m_process, 0) == WAIT_TIMEOUT)
+					if (WaitForSingleObject(m_process, 0) == WAIT_TIMEOUT)
 					{
 						TerminateProcess(m_process, 0);
 						CloseHandle(m_process);

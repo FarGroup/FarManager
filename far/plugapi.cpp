@@ -1532,9 +1532,7 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 
 		/* $ 28.05.2001 По умолчанию Вьюер, поэтому нужно здесь признак выставиль явно */
 		Viewer.SetDynamicallyBorn(false);
-		Global->FrameManager->EnterModalEV();
-		Global->FrameManager->ExecuteModal();
-		Global->FrameManager->ExitModalEV();
+		Global->FrameManager->ExecuteModalEV();
 
 		/* $ 14.06.2002 IS
 		   Обработка VF_DELETEONLYFILEONCLOSE - этот флаг имеет более низкий
@@ -1682,9 +1680,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 			/* $ 15.05.2002 SKV
 			  Зафиксируем вход и выход в/из модального редактора.
 			*/
-			Global->FrameManager->EnterModalEV();
-			Global->FrameManager->ExecuteModal();
-			Global->FrameManager->ExitModalEV();
+			Global->FrameManager->ExecuteModalEV();
 			editorExitCode = Editor.GetExitCode();
 
 			if (editorExitCode)

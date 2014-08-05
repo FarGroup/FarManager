@@ -55,7 +55,7 @@ Grabber::Grabber():
 	SetDynamicallyBorn(false);
 	Frame *pFrame = Global->FrameManager->GetCurrentFrame();
 	pFrame->Lock();
-	SaveScr=new SaveScreen;
+	SaveScr = std::make_unique<SaveScreen>();
 	PrevMacroMode=Global->CtrlObject->Macro.GetMode();
 	Global->CtrlObject->Macro.SetMode(MACROAREA_OTHER);
 	bool Visible=false;
@@ -75,7 +75,7 @@ Grabber::Grabber():
 	PrevArea=GArea;
 	DisplayObject();
 	Process();
-	delete SaveScr;
+	SaveScr.reset();
 	pFrame->Unlock();
 	Global->FrameManager->RefreshFrame();
 }

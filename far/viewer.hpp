@@ -45,7 +45,7 @@ class KeyBar;
 class Dialog;
 
 
-class Viewer:public ScreenObject
+class Viewer:public SimpleScreenObject
 {
 public:
 	Viewer(bool bQuickView = false, uintptr_t aCodePage = CP_DEFAULT);

@@ -65,7 +65,7 @@ enum KEYBARAREA
 	KBA_COUNT
 };
 
-class KeyBar: public ScreenObject
+class KeyBar: public SimpleScreenObject
 {
 public:
 	KeyBar();

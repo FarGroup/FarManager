@@ -47,18 +47,44 @@ enum
 	FSCROBJ_ISREDRAWING          = 0x00000008,   // идет процесс Show?
 };
 
-class ScreenObject: NonCopyable
+class SimpleScreenObject: NonCopyable
 {
 public:
-	ScreenObject();
-	ScreenObject(ScreenObject&& rhs);
-	virtual ~ScreenObject();
+	SimpleScreenObject();
+	virtual ~SimpleScreenObject();
 
-	MOVE_OPERATOR_BY_SWAP(ScreenObject);
+	int ObjWidth() const {return X2 - X1 + 1;}
+	int ObjHeight() const {return Y2 - Y1 + 1;}
 
-	void swap(ScreenObject& rhs) noexcept
+	virtual int ProcessKey(const Manager::Key& Key) { return 0; }
+	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) { return 0; }
+
+	virtual void Hide();
+	virtual void Show();
+	virtual void ShowConsoleTitle() {};
+	virtual void SetPosition(int X1,int Y1,int X2,int Y2);
+	virtual void GetPosition(int& X1,int& Y1,int& X2,int& Y2) const;
+	virtual void SetScreenPosition();
+	virtual void ResizeConsole() {};
+	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) {return 0;}
+	virtual void SavePrevScreen() {};
+
+	void Lock();
+	void Unlock();
+	bool Locked();
+	void Redraw();
+	bool IsVisible() const {return Flags.Check(FSCROBJ_VISIBLE);}
+	void SetVisible(bool Visible) {Flags.Change(FSCROBJ_VISIBLE,Visible);}
+	void SetRestoreScreenMode(bool Mode) {Flags.Change(FSCROBJ_ENABLERESTORESCREEN,Mode);}
+	void SetOwner(SimpleScreenObject *pOwner) {this->pOwner = pOwner;}
+	SimpleScreenObject* GetOwner() const {return pOwner;}
+
+private:
+	virtual void DisplayObject() = 0;
+
+protected:
+	void swap(SimpleScreenObject& rhs) noexcept
 	{
-		SaveScr.swap(rhs.SaveScr);
 		std::swap(pOwner, rhs.pOwner);
 		std::swap(Flags, rhs.Flags);
 		std::swap(nLockCount, rhs.nLockCount);
@@ -68,58 +94,53 @@ public:
 		std::swap(Y2, rhs.Y2);
 	}
 
-	int ObjWidth() const {return X2 - X1 + 1;}
-	int ObjHeight() const {return Y2 - Y1 + 1;}
-
-	virtual int ProcessKey(const Manager::Key& Key) { return 0; }
-	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) { return 0; }
-
-	virtual void Hide();
-	virtual void Hide0();   // 15.07.2000 tran - dirty hack :(
-	virtual void Show();
-	virtual void ShowConsoleTitle() {};
-	virtual void SetPosition(int X1,int Y1,int X2,int Y2);
-	virtual void GetPosition(int& X1,int& Y1,int& X2,int& Y2) const;
-	virtual void SetScreenPosition();
-	virtual void ResizeConsole() {};
-	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) {return 0;}
-
-	void Lock();
-	void Unlock();
-	bool Locked();
-	void SavePrevScreen();
-	void Redraw();
-	bool IsVisible() const {return Flags.Check(FSCROBJ_VISIBLE);}
-	void SetVisible(bool Visible) {Flags.Change(FSCROBJ_VISIBLE,Visible);}
-	void SetRestoreScreenMode(bool Mode) {Flags.Change(FSCROBJ_ENABLERESTORESCREEN,Mode);}
-	void SetOwner(ScreenObject *pOwner) {this->pOwner = pOwner;}
-	ScreenObject* GetOwner() const {return pOwner;}
-
-private:
-	virtual void DisplayObject() = 0;
-
-public:
 	// KEEP ALIGNED!
-	std::unique_ptr<SaveScreen> SaveScr;
-
-protected:
-	// KEEP ALIGNED!
-	ScreenObject *pOwner;
+	SimpleScreenObject *pOwner;
 	BitFlags Flags;
 	int nLockCount;
 	SHORT X1, Y1, X2, Y2;
 };
 
+class ScreenObject:public SimpleScreenObject
+{
+public:
+	virtual void SetPosition(int X1, int Y1, int X2, int Y2) override;
+	virtual void Hide() override;
+
+	void HideButKeepSaveScreen();
+
+protected:
+	ScreenObject();
+	virtual ~ScreenObject();
+
+	virtual void SavePrevScreen() override;
+
+	void swap(ScreenObject& rhs) noexcept
+	{
+		SimpleScreenObject::swap(rhs);
+		SaveScr.swap(rhs.SaveScr);
+	}
+
+public: // BUGBUG
+	std::unique_ptr<SaveScreen> SaveScr;
+};
+
 
 class ScreenObjectWithShadow:public ScreenObject
 {
+public:
+	virtual void Hide() override;
+
 protected:
 	ScreenObjectWithShadow();
 	virtual ~ScreenObjectWithShadow();
 
-	virtual void Hide() override;
-
 	void Shadow(bool Full=false);
+	void swap(ScreenObjectWithShadow& rhs) noexcept
+	{
+		ScreenObject::swap(rhs);
+		ShadowSaveScr.swap(rhs.ShadowSaveScr);
+	}
 
 	std::unique_ptr<SaveScreen> ShadowSaveScr;
 };

@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savescr.hpp"
 #include "interf.hpp"
 
-ScreenObject::ScreenObject():
+SimpleScreenObject::SimpleScreenObject():
 	pOwner(),
 	nLockCount(),
 	X1(),
@@ -49,33 +49,16 @@ ScreenObject::ScreenObject():
 //  _OT(SysLog(L"[%p] ScreenObject::ScreenObject()", this));
 }
 
-ScreenObject::ScreenObject(ScreenObject&& rhs):
-	pOwner(),
-	nLockCount(),
-	X1(),
-	Y1(),
-	X2(),
-	Y2()
+SimpleScreenObject::~SimpleScreenObject()
 {
-	*this = std::move(rhs);
 }
 
-ScreenObject::~ScreenObject()
-{
-//  _OT(SysLog(L"[%p] ScreenObject::~ScreenObject()", this));
-	if (!Flags.Check(FSCROBJ_ENABLERESTORESCREEN))
-	{
-		if (SaveScr)
-			SaveScr->Discard();
-	}
-}
-
-void ScreenObject::Lock()
+void SimpleScreenObject::Lock()
 {
 	nLockCount++;
 }
 
-void ScreenObject::Unlock()
+void SimpleScreenObject::Unlock()
 {
 	if (nLockCount > 0)
 		nLockCount--;
@@ -83,62 +66,41 @@ void ScreenObject::Unlock()
 		nLockCount = 0;
 }
 
-bool ScreenObject::Locked()
+bool SimpleScreenObject::Locked()
 {
 	return (nLockCount > 0) || (pOwner?pOwner->Locked():false);
 }
 
-void ScreenObject::SetPosition(int X1,int Y1,int X2,int Y2)
+void SimpleScreenObject::SetPosition(int X1,int Y1,int X2,int Y2)
 {
-	/* $ 13.04.2002 KM
-	  - Раз меняем позицию объекта на экране, то тогда
-	    перед этим восстановим изображение под ним для
-	    предотвращения восстановления ранее сохранённого
-	    изображения в новом месте.
-	*/
-	SaveScr.reset();
-
-	ScreenObject::X1=X1;
-	ScreenObject::Y1=Y1;
-	ScreenObject::X2=X2;
-	ScreenObject::Y2=Y2;
+	this->X1 = X1;
+	this->Y1 = Y1;
+	this->X2 = X2;
+	this->Y2 = Y2;
 	Flags.Set(FSCROBJ_SETPOSITIONDONE);
 }
 
-void ScreenObject::SetScreenPosition()
+void SimpleScreenObject::SetScreenPosition()
 {
 	Flags.Clear(FSCROBJ_SETPOSITIONDONE);
 }
 
 
-void ScreenObject::GetPosition(int& X1,int& Y1,int& X2,int& Y2) const
+void SimpleScreenObject::GetPosition(int& X1, int& Y1, int& X2, int& Y2) const
 {
-	X1=ScreenObject::X1;
-	Y1=ScreenObject::Y1;
-	X2=ScreenObject::X2;
-	Y2=ScreenObject::Y2;
+	X1 = this->X1;
+	Y1 = this->Y1;
+	X2 = this->X2;
+	Y2 = this->Y2;
 }
 
 
-void ScreenObject::Hide()
-{
-	if (!Flags.Check(FSCROBJ_VISIBLE))
-		return;
-
-	Flags.Clear(FSCROBJ_VISIBLE);
-
-	SaveScr.reset();
-}
-
-/* $ 15.07.2000 tran
-   add ugly new method */
-void ScreenObject::Hide0()
+void SimpleScreenObject::Hide()
 {
 	Flags.Clear(FSCROBJ_VISIBLE);
 }
-/* tran 15.07.2000 $ */
 
-void ScreenObject::Show()
+void SimpleScreenObject::Show()
 {
 	if (Locked())
 		return;
@@ -155,6 +117,50 @@ void ScreenObject::Show()
 //  Flags.Clear(FSCROBJ_ISREDRAWING);
 }
 
+void SimpleScreenObject::Redraw()
+{
+//  _tran(SysLog(L"[%p] ScreenObject::Redraw()",this));
+	if (Flags.Check(FSCROBJ_VISIBLE))
+		Show();
+}
+
+ScreenObject::ScreenObject()
+{
+}
+
+ScreenObject::~ScreenObject()
+{
+	//  _OT(SysLog(L"[%p] ScreenObject::~ScreenObject()", this));
+	if (!Flags.Check(FSCROBJ_ENABLERESTORESCREEN))
+	{
+		if (SaveScr)
+			SaveScr->Discard();
+	}
+}
+
+void ScreenObject::Hide()
+{
+	SimpleScreenObject::Hide();
+	SaveScr.reset();
+}
+
+void ScreenObject::HideButKeepSaveScreen()
+{
+	SimpleScreenObject::Hide();
+}
+
+void ScreenObject::SetPosition(int X1, int Y1, int X2, int Y2)
+{
+	/* $ 13.04.2002 KM
+	- Раз меняем позицию объекта на экране, то тогда
+	перед этим восстановим изображение под ним для
+	предотвращения восстановления ранее сохранённого
+	изображения в новом месте.
+	*/
+	SaveScr.reset();
+
+	SimpleScreenObject::SetPosition(X1, Y1, X2, Y2);
+}
 
 void ScreenObject::SavePrevScreen()
 {
@@ -168,14 +174,6 @@ void ScreenObject::SavePrevScreen()
 		if (Flags.Check(FSCROBJ_ENABLERESTORESCREEN) && !SaveScr)
 			SaveScr = std::make_unique<SaveScreen>(X1, Y1, X2, Y2);
 	}
-}
-
-
-void ScreenObject::Redraw()
-{
-//  _tran(SysLog(L"[%p] ScreenObject::Redraw()",this));
-	if (Flags.Check(FSCROBJ_VISIBLE))
-		Show();
 }
 
 ScreenObjectWithShadow::ScreenObjectWithShadow()

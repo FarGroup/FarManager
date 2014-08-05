@@ -514,7 +514,7 @@ static HistoryConfig* HistoryRef(int Type)
 			Save=Global->Opt->Dialogs.EditHistory;
 			break;
 	}
-	return Save? Global->Db->HistoryCfg().get() : Global->Db->HistoryCfgMem().get();
+	return Save? Global->Db->HistoryCfg() : Global->Db->HistoryCfgMem();
 }
 
 int FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum, const std::function<bool(history_record_type)>& Filter)

@@ -1290,13 +1290,13 @@ __int64 Panel::VMProcess(int OpCode,void *vParam,__int64 iParam)
 }
 
 // корректировка букв
-static DWORD _CorrectFastFindKbdLayout(const INPUT_RECORD *rec,DWORD Key)
+static DWORD _CorrectFastFindKbdLayout(const INPUT_RECORD& rec,DWORD Key)
 {
 	if ((Key&(KEY_ALT|KEY_RALT)))// && Key!=(KEY_ALT|0x3C))
 	{
 		// // _SVS(SysLog(L"_CorrectFastFindKbdLayout>>> %s | %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(rec)));
-		if (rec->Event.KeyEvent.uChar.UnicodeChar && (Key&KEY_MASKF) != rec->Event.KeyEvent.uChar.UnicodeChar) //???
-			Key=(Key&0xFFF10000)|rec->Event.KeyEvent.uChar.UnicodeChar;   //???
+		if (rec.Event.KeyEvent.uChar.UnicodeChar && (Key&KEY_MASKF) != rec.Event.KeyEvent.uChar.UnicodeChar) //???
+			Key = (Key & 0xFFF10000) | rec.Event.KeyEvent.uChar.UnicodeChar;   //???
 
 		// // _SVS(SysLog(L"_CorrectFastFindKbdLayout<<< %s | %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(rec)));
 	}
@@ -1383,7 +1383,7 @@ void Panel::FastFind(int FirstKey)
 						continue;
 					}
 					else
-						Key=_CorrectFastFindKbdLayout(&rec,Key);
+						Key=_CorrectFastFindKbdLayout(rec,Key);
 				}
 			}
 
@@ -1903,8 +1903,6 @@ void Panel::Show()
 	if (Global->Opt->ShowMenuBar)
 		Global->CtrlObject->TopMenuBar->Show();
 
-	/* $ 09.05.2001 OT */
-//  SavePrevScreen();
 	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 
 	if (AnotherPanel->IsVisible() && !GetModalMode())

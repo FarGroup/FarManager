@@ -158,7 +158,7 @@ void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 	ViewKeyBar.Show();
 
 	if (!Global->Opt->ViOpt.ShowKeyBar)
-		ViewKeyBar.Hide0();
+		ViewKeyBar.Hide();
 
 	ShowConsoleTitle();
 	F3KeyOnly=true;
@@ -302,7 +302,7 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 			if (Global->Opt->ViOpt.ShowKeyBar)
 				ViewKeyBar.Show();
 			else
-				ViewKeyBar.Hide0(); // 0 mean - Don't purge saved screen
+				ViewKeyBar.Hide();
 
 			Show();
 			KeyBarVisible = Global->Opt->ViOpt.ShowKeyBar;

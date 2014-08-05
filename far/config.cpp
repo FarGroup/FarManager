@@ -1997,7 +1997,7 @@ void Options::InitRoamingCFG()
 	};
 
 	assert(Config.empty());
-	Config.emplace_back(farconfig(_CFG, ARRAYSIZE(_CFG), Global->Db->GeneralCfg().get()));
+	Config.emplace_back(farconfig(_CFG, ARRAYSIZE(_CFG), Global->Db->GeneralCfg()));
 }
 
 void Options::InitLocalCFG()
@@ -2015,7 +2015,7 @@ void Options::InitLocalCFG()
 	};
 
 	assert(Config.size() == 1);
-	Config.emplace_back(farconfig(_CFG, ARRAYSIZE(_CFG), Global->Db->LocalGeneralCfg().get()));
+	Config.emplace_back(farconfig(_CFG, ARRAYSIZE(_CFG), Global->Db->LocalGeneralCfg()));
 }
 
 bool Options::GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &strValue)

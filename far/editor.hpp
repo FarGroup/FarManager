@@ -43,10 +43,10 @@ class FileEditor;
 class KeyBar;
 class Edit;
 
-class Editor: public ScreenObject
+class Editor: public SimpleScreenObject
 {
 public:
-	Editor(ScreenObject *pOwner = nullptr, bool DialogUsed = false);
+	Editor(SimpleScreenObject *pOwner = nullptr, bool DialogUsed = false);
 	virtual ~Editor();
 
 	virtual int ProcessKey(const Manager::Key& Key) override;

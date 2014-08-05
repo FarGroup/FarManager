@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrobj.hpp"
 #include "editcontrol.hpp"
 
-class CommandLine:public ScreenObject
+class CommandLine:public SimpleScreenObject
 {
 public:
 	CommandLine();

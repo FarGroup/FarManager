@@ -62,16 +62,67 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 long Manager::CurrentWindowType=-1;
 
+class Manager::MessageAbstract
+{
+public:
+	virtual ~MessageAbstract() {}
+	virtual bool Process(void) = 0;
+};
+
+class MessageCallback: public Manager::MessageAbstract
+{
+public:
+	MessageCallback(const std::function<void(void)>& Callback): m_Callback(Callback) {}
+	virtual bool Process(void) override { m_Callback(); return true; }
+
+private:
+	std::function<void(void)> m_Callback;
+};
+
+class MessageOneFrame: public Manager::MessageAbstract
+{
+public:
+	MessageOneFrame(Frame* Param, const std::function<void(Frame*)>& Callback): m_Param(Param), m_Callback(Callback) {}
+	virtual bool Process(void) override { m_Callback(m_Param); return true; }
+
+private:
+	Frame* m_Param;
+	std::function<void(Frame*)> m_Callback;
+};
+
+class MessageTwoFrames: public Manager::MessageAbstract
+{
+public:
+	MessageTwoFrames(Frame* Param1, Frame* Param2, const std::function<void(Frame*, Frame*)>& Callback): m_Param1(Param1), m_Param2(Param2), m_Callback(Callback) {}
+	virtual bool Process(void) override { m_Callback(m_Param1, m_Param2); return true; }
+
+private:
+	Frame* m_Param1;
+	Frame* m_Param2;
+	std::function<void(Frame*, Frame*)> m_Callback;
+};
+
+class MessageStop: public Manager::MessageAbstract
+{
+public:
+	MessageStop() {}
+	virtual bool Process(void) override { return false; }
+};
+
 Manager::Manager():
 	CurrentFrame(nullptr),
 	FramePos(-1),
 	ModalEVCount(0),
-	EndLoop(FALSE),
+	EndLoop(false),
 	ModalExitCode(-1),
-	StartManager(FALSE)
+	StartManager(false)
 {
 	Frames.reserve(1024);
 	ModalFrames.reserve(1024);
+}
+
+Manager::~Manager()
+{
 }
 
 /* $ 29.12.2000 IS
@@ -142,18 +193,18 @@ void Manager::CloseAll()
 	Frames.clear();
 }
 
-void Manager::PushFrame(Frame* Param,void(Manager::*Callback)(Frame*))
+void Manager::PushFrame(Frame* Param, frame_callback Callback)
 {
 	m_Queue.push_back(std::make_unique<MessageOneFrame>(Param,[this,Callback](Frame* Param){(this->*Callback)(Param);}));
 }
 
-void Manager::CheckAndPushFrame(Frame* Param,void(Manager::*Callback)(Frame*))
+void Manager::CheckAndPushFrame(Frame* Param, frame_callback Callback)
 {
 	//assert(Param);
 	if (Param&&!Param->IsDeleting()) PushFrame(Param,Callback);
 }
 
-void Manager::ProcessFrameByPos(int Index,void(Manager::*Callback)(Frame*))
+void Manager::ProcessFrameByPos(int Index, frame_callback Callback)
 {
 	Frame* frame=GetFrame(Index);
 	assert(frame); //eсли frame==nullptr -> используется устаревший индекс.
@@ -226,8 +277,8 @@ void Manager::ExecuteModal(Frame *Executed)
 	}
 
 	auto ModalStartLevel=ModalFrames.size();
-	int OriginalStartManager=StartManager;
-	StartManager=TRUE;
+	auto OriginalStartManager = StartManager;
+	StartManager = true;
 
 	for (;;)
 	{
@@ -241,7 +292,7 @@ void Manager::ExecuteModal(Frame *Executed)
 		ProcessMainLoop();
 	}
 
-	StartManager=OriginalStartManager;
+	StartManager = OriginalStartManager;
 	return;// GetModalExitCode();
 }
 
@@ -366,24 +417,25 @@ int  Manager::FindFrameByFile(int ModalType,const string& FileName, const wchar_
 		strFullFileName = strBufFileName;
 	}
 
-	int n = 0;
-	if (std::any_of(CONST_RANGE(Frames, i)->bool
+	auto ItemIterator = std::find_if(CONST_RANGE(Frames, i) -> bool
 	{
 		string strType, strName;
 
 		// Mantis#0000469 - получать Name будем только при совпадении ModalType
-		if (!i->IsDeleting()&&i->GetType()==ModalType)
+		if (!i->IsDeleting() && i->GetType() == ModalType)
 		{
 			i->GetTypeAndName(strType, strName);
 
 			if (!StrCmpI(strName, strFullFileName))
 				return true;
 		}
-		++n;
 		return false;
-	}))
-		return n;
+	});
 
+	if (ItemIterator != Frames.cend())
+	{
+		return ItemIterator - Frames.cbegin();
+	}
 	return -1;
 }
 
@@ -494,7 +546,7 @@ bool Manager::HaveAnyFrame() const
 void Manager::EnterMainLoop()
 {
 	Global->WaitInFastFind=0;
-	StartManager=TRUE;
+	StartManager = true;
 
 	for (;;)
 	{
@@ -577,7 +629,7 @@ void Manager::ExitMainLoop(int Ask)
 
 			if (!(cp = Global->CtrlObject->Cp())
 			        || (!cp->LeftPanel->ProcessPluginEvent(FE_CLOSE,nullptr) && !cp->RightPanel->ProcessPluginEvent(FE_CLOSE,nullptr)))
-				EndLoop=TRUE;
+				EndLoop=true;
 		}
 		else
 		{
@@ -964,8 +1016,8 @@ int Manager::ProcessKey(Key key)
 								int CmdLineVisible=Global->CtrlObject->CmdLine->IsVisible();
 								int KeyBarVisible=Global->CtrlObject->Cp()->MainKeyBar.IsVisible();
 								Global->CtrlObject->CmdLine->ShowBackground();
-								Global->CtrlObject->Cp()->LeftPanel->Hide0();
-								Global->CtrlObject->Cp()->RightPanel->Hide0();
+								Global->CtrlObject->Cp()->LeftPanel->HideButKeepSaveScreen();
+								Global->CtrlObject->Cp()->RightPanel->HideButKeepSaveScreen();
 
 								switch (Global->Opt->PanelCtrlAltShiftRule)
 								{
@@ -1108,22 +1160,14 @@ Frame* Manager::GetFrame(size_t Index) const
 
 int Manager::IndexOfStack(Frame *Frame)
 {
-	int Result = 0;
-	return std::any_of(CONST_RANGE(ModalFrames, i)->bool
-	{
-		++Result;
-		return Frame==i;
-	})? Result - 1 : -1;
+	auto ItemIterator = std::find(ALL_CONST_RANGE(ModalFrames), Frame);
+	return ItemIterator != ModalFrames.cend()? ItemIterator - ModalFrames.cbegin() : -1;
 }
 
 int Manager::IndexOf(Frame *Frame)
 {
-	int Result = 0;
-	return std::any_of(CONST_RANGE(Frames, i)->bool
-	{
-		++Result;
-		return Frame==i;
-	})? Result - 1 : -1;
+	auto ItemIterator = std::find(ALL_CONST_RANGE(Frames), Frame);
+	return ItemIterator != Frames.cend() ? ItemIterator - Frames.cbegin() : -1;
 }
 
 void Manager::Commit(void)
@@ -1269,15 +1313,11 @@ void Manager::ActivateCommit(Frame* Param)
 	  то надо его вытащит на верх стэка модалов.
 	*/
 
-	std::any_of(RANGE(ModalFrames, i)->bool
+	auto ItemIterator = std::find(ALL_RANGE(ModalFrames), Param);
+	if (ItemIterator != ModalFrames.end())
 	{
-		if (i == Param)
-		{
-			std::swap(ModalFrames.back(), i);
-			return true;
-		}
-		return false;
-	});
+		std::swap(*ItemIterator, ModalFrames.back());
+	}
 
 	CurrentFrame=Param;
 	InterlockedExchange(&CurrentWindowType,CurrentFrame->GetType());

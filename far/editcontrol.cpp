@@ -682,7 +682,7 @@ void EditControl::AutoComplete(bool Manual,bool DelBlock)
 		// BUGBUG, hack
 		int Wait=Global->WaitInMainLoop;
 		Global->WaitInMainLoop=1;
-		struct FAR_INPUT_RECORD irec={(DWORD)Key,*Global->FrameManager->GetLastInputRecord()};
+		struct FAR_INPUT_RECORD irec={(DWORD)Key, Global->FrameManager->GetLastInputRecord()};
 		if(!Global->CtrlObject->Macro.ProcessEvent(&irec))
 			pOwner->ProcessKey(Manager::Key(Key));
 		Global->WaitInMainLoop=Wait;

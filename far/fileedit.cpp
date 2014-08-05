@@ -684,7 +684,7 @@ void FileEditor::Init(
 	InitKeyBar();
 
 	if (!Global->Opt->EdOpt.ShowKeyBar)
-		EditKeyBar.Hide0();
+		EditKeyBar.Hide();
 
 	MacroMode=MACROAREA_EDITOR;
 	Global->CtrlObject->Macro.SetMode(MACROAREA_EDITOR);
@@ -743,7 +743,7 @@ void FileEditor::InitKeyBar()
 	if (Global->Opt->EdOpt.ShowKeyBar)
 		EditKeyBar.Show();
 	else
-		EditKeyBar.Hide0();
+		EditKeyBar.Hide();
 
 	//m_editor->SetPosition(X1,Y1+(Global->Opt->EdOpt.ShowTitleBar?1:0),X2,Y2-(Global->Opt->EdOpt.ShowKeyBar?1:0));
 	SetKeyBar(&EditKeyBar);
@@ -1225,7 +1225,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 				if (Global->Opt->EdOpt.ShowKeyBar)
 					EditKeyBar.Show();
 				else
-					EditKeyBar.Hide0(); // 0 mean - Don't purge saved screen
+					EditKeyBar.Hide();
 
 				Show();
 				KeyBarVisible = Global->Opt->EdOpt.ShowKeyBar;
@@ -2286,11 +2286,11 @@ void FileEditor::ResizeConsole()
 	m_editor->PrepareResizedConsole();
 }
 
-int FileEditor::ProcessEditorInput(const INPUT_RECORD *Rec)
+int FileEditor::ProcessEditorInput(const INPUT_RECORD& Rec)
 {
 	int RetCode;
 	Global->CtrlObject->Plugins->SetCurEditor(this);
-	RetCode=Global->CtrlObject->Plugins->ProcessEditorInput(Rec);
+	RetCode=Global->CtrlObject->Plugins->ProcessEditorInput(&Rec);
 	return RetCode;
 }
 
@@ -2495,9 +2495,9 @@ DWORD FileEditor::EditorGetFileAttributes(const string& Name)
 	return FileAttributes;
 }
 
-/* Return TRUE - панель обовили
+/* true - панель обовили
 */
-BOOL FileEditor::UpdateFileList()
+bool FileEditor::UpdateFileList()
 {
 	Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel;
 	const wchar_t *FileName = PointToName(strFullFileName);
@@ -2509,10 +2509,10 @@ BOOL FileEditor::UpdateFileList()
 	if (strPanelPath == strFilePath)
 	{
 		ActivePanel->Update(UPDATE_KEEP_SELECTION|UPDATE_DRAW_MESSAGE);
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 void FileEditor::SetPluginData(const string* PluginData)
@@ -2807,29 +2807,29 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		{
 			if (Param2)
 			{
-				INPUT_RECORD *rec=(INPUT_RECORD *)Param2;
+				auto& rec = *reinterpret_cast<const INPUT_RECORD*>(Param2);
 
 				if (ProcessEditorInput(rec))
 					return TRUE;
 
-				if (rec->EventType==MOUSE_EVENT)
-					ProcessMouse(&rec->Event.MouseEvent);
+				if (rec.EventType==MOUSE_EVENT)
+					ProcessMouse(&rec.Event.MouseEvent);
 				else
 				{
 #if defined(SYSLOG_KEYMACRO)
 
-					if (!rec->EventType || rec->EventType == KEY_EVENT || rec->EventType == FARMACRO_KEY_EVENT)
+					if (!rec.EventType || rec.EventType == KEY_EVENT || rec.EventType == FARMACRO_KEY_EVENT)
 					{
 						SysLog(L"ECTL_PROCESSINPUT={%s,{%d,%d,Vk=0x%04X,0x%08X}}",
-						       (rec->EventType == FARMACRO_KEY_EVENT?L"FARMACRO_KEY_EVENT":L"KEY_EVENT"),
-						       rec->Event.KeyEvent.bKeyDown,
-						       rec->Event.KeyEvent.wRepeatCount,
-						       rec->Event.KeyEvent.wVirtualKeyCode,
-						       rec->Event.KeyEvent.dwControlKeyState);
+						       (rec.EventType == FARMACRO_KEY_EVENT?L"FARMACRO_KEY_EVENT":L"KEY_EVENT"),
+						       rec.Event.KeyEvent.bKeyDown,
+						       rec.Event.KeyEvent.wRepeatCount,
+						       rec.Event.KeyEvent.wVirtualKeyCode,
+						       rec.Event.KeyEvent.dwControlKeyState);
 					}
 
 #endif
-					int Key=ShieldCalcKeyCode(rec,FALSE);
+					int Key=ShieldCalcKeyCode(&rec,FALSE);
 					ReProcessKey(Key);
 				}
 

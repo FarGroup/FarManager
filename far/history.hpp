@@ -92,7 +92,7 @@ public:
 private:
 	bool EqualType(history_record_type Type1, history_record_type Type2) const;
 	history_return_type ProcessMenu(string &strStr, GUID* Guid, string *File, string *Data, const wchar_t *Title, VMenu2 &HistoryMenu, int Height, history_record_type& Type, Dialog *Dlg);
-	const std::unique_ptr<HistoryConfig>& HistoryCfgRef() const;
+	HistoryConfig* HistoryCfgRef() const;
 
 	history_type TypeHistory;
 	string strHistoryName;

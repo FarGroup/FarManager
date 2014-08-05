@@ -94,8 +94,8 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro=false,bool ProcessMouse
 DWORD GetInputRecordNoMacroArea(INPUT_RECORD *rec,bool AllowSynchro=true);
 DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro=true);
 bool IsRepeatedKey();
-DWORD ShieldCalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros=nullptr, bool ProcessCtrlCode=false);
-DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros=nullptr, bool ProcessCtrlCode=false);
+DWORD ShieldCalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros = nullptr, bool ProcessCtrlCode = false);
+DWORD CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros = nullptr, bool ProcessCtrlCode = false);
 DWORD WaitKey(DWORD KeyWait=(DWORD)-1,DWORD delayMS=0,bool ExcludeMacro=true);
 int SetFLockState(UINT vkKey, int State);
 int WriteInput(int Key,DWORD Flags=0);
