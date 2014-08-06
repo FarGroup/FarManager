@@ -67,7 +67,6 @@ public:
 	virtual void SetScreenPosition();
 	virtual void ResizeConsole() {};
 	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) {return 0;}
-	virtual void SavePrevScreen() {};
 
 	void Lock();
 	void Unlock();
@@ -105,6 +104,7 @@ class ScreenObject:public SimpleScreenObject
 {
 public:
 	virtual void SetPosition(int X1, int Y1, int X2, int Y2) override;
+	virtual void Show() override;
 	virtual void Hide() override;
 
 	void HideButKeepSaveScreen();
@@ -112,8 +112,6 @@ public:
 protected:
 	ScreenObject();
 	virtual ~ScreenObject();
-
-	virtual void SavePrevScreen() override;
 
 	void swap(ScreenObject& rhs) noexcept
 	{

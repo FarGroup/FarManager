@@ -46,7 +46,6 @@ SimpleScreenObject::SimpleScreenObject():
 	X2(),
 	Y2()
 {
-//  _OT(SysLog(L"[%p] ScreenObject::ScreenObject()", this));
 }
 
 SimpleScreenObject::~SimpleScreenObject()
@@ -94,7 +93,6 @@ void SimpleScreenObject::GetPosition(int& X1, int& Y1, int& X2, int& Y2) const
 	Y2 = this->Y2;
 }
 
-
 void SimpleScreenObject::Hide()
 {
 	Flags.Clear(FSCROBJ_VISIBLE);
@@ -105,21 +103,16 @@ void SimpleScreenObject::Show()
 	if (Locked())
 		return;
 
-//  _tran(SysLog(L"[%p] ScreenObject::Show()",this));
 	if (!Flags.Check(FSCROBJ_SETPOSITIONDONE))
 		return;
 
-//  if (Flags.Check(FSCROBJ_ISREDRAWING))
-//    return;
-//  Flags.Set(FSCROBJ_ISREDRAWING);
-	SavePrevScreen();
+	Flags.Set(FSCROBJ_VISIBLE);
+
 	DisplayObject();
-//  Flags.Clear(FSCROBJ_ISREDRAWING);
 }
 
 void SimpleScreenObject::Redraw()
 {
-//  _tran(SysLog(L"[%p] ScreenObject::Redraw()",this));
 	if (Flags.Check(FSCROBJ_VISIBLE))
 		Show();
 }
@@ -130,7 +123,6 @@ ScreenObject::ScreenObject()
 
 ScreenObject::~ScreenObject()
 {
-	//  _OT(SysLog(L"[%p] ScreenObject::~ScreenObject()", this));
 	if (!Flags.Check(FSCROBJ_ENABLERESTORESCREEN))
 	{
 		if (SaveScr)
@@ -138,6 +130,22 @@ ScreenObject::~ScreenObject()
 	}
 }
 
+void ScreenObject::Show()
+{
+	if (Locked())
+		return;
+
+	if (!Flags.Check(FSCROBJ_SETPOSITIONDONE))
+		return;
+
+	if (!IsVisible())
+	{
+		if (Flags.Check(FSCROBJ_ENABLERESTORESCREEN) && !SaveScr)
+			SaveScr = std::make_unique<SaveScreen>(X1, Y1, X2, Y2);
+	}
+
+	SimpleScreenObject::Show();
+}
 void ScreenObject::Hide()
 {
 	SimpleScreenObject::Hide();
@@ -162,19 +170,6 @@ void ScreenObject::SetPosition(int X1, int Y1, int X2, int Y2)
 	SimpleScreenObject::SetPosition(X1, Y1, X2, Y2);
 }
 
-void ScreenObject::SavePrevScreen()
-{
-	if (!Flags.Check(FSCROBJ_SETPOSITIONDONE))
-		return;
-
-	if (!Flags.Check(FSCROBJ_VISIBLE))
-	{
-		Flags.Set(FSCROBJ_VISIBLE);
-
-		if (Flags.Check(FSCROBJ_ENABLERESTORESCREEN) && !SaveScr)
-			SaveScr = std::make_unique<SaveScreen>(X1, Y1, X2, Y2);
-	}
-}
 
 ScreenObjectWithShadow::ScreenObjectWithShadow()
 {
