@@ -35,13 +35,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "bitflags.hpp"
 #include "synchro.hpp"
+#include "matrix.hpp"
 
 class ScreenBuf: NonCopyable
 {
 public:
 	ScreenBuf();
 
-	void AllocBuf(int X,int Y);
+	void AllocBuf(size_t rows, size_t cols);
 	void Lock();
 	void Unlock();
 	int  GetLockCount() const {return LockCount;}
@@ -71,12 +72,11 @@ private:
 	CriticalSection CS;
 	FAR_CHAR_INFO MacroChar;
 	FAR_CHAR_INFO ElevationChar;
-	std::vector<FAR_CHAR_INFO> Buf;
-	std::vector<FAR_CHAR_INFO> Shadow;
+	matrix<FAR_CHAR_INFO> Buf;
+	matrix<FAR_CHAR_INFO> Shadow;
 	BitFlags SBFlags;
 	int LockCount;
 	DWORD CurSize;
-	SHORT BufX, BufY;
 	SHORT CurX, CurY;
 	bool MacroCharUsed;
 	bool ElevationCharUsed;

@@ -452,7 +452,7 @@ void GetVideoMode(COORD& Size)
 	if (PrevScrY == -1) PrevScrY=ScrY;
 
 	_OT(SysLog(L"ScrX=%d ScrY=%d",ScrX,ScrY));
-	Global->ScrBuf->AllocBuf(Size.X,Size.Y);
+	Global->ScrBuf->AllocBuf(Size.Y, Size.X);
 	_OT(ViewConsoleInfo());
 }
 

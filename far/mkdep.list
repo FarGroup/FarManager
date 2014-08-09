@@ -161,6 +161,7 @@ macroopcode.hpp
 main.cpp
 manager.cpp
 manager.hpp
+matrix.hpp
 menubar.cpp
 menubar.hpp
 message.cpp

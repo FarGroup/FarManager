@@ -98,16 +98,14 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 	Y1=std::min(GArea.Y1,GArea.Y2);
 	Y2=std::max(GArea.Y1,GArea.Y2);
 	int GWidth=X2-X1+1,GHeight=Y2-Y1+1;
-	int BufSize=(GWidth+3)*GHeight;
-	std::vector<FAR_CHAR_INFO> CharBuf(BufSize);
+	matrix<FAR_CHAR_INFO> CharBuf(GHeight, GWidth);
 	string CopyBuf;
-	CopyBuf.reserve(BufSize);
+	CopyBuf.reserve(GHeight * (GWidth + 2));
 	GetText(X1,Y1,X2,Y2,CharBuf.data(), CharBuf.size());
 
 	string Line;
 	Line.reserve(GWidth);
 
-	auto PtrCharBuf = CharBuf.begin();
 	for (int I=0; I<GHeight; I++)
 	{
 		Line.clear();
@@ -117,10 +115,10 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 			CopyBuf.append(L"\r\n");
 		}
 
-		for (int J=0; J<GWidth; J++, ++PtrCharBuf)
+		for (int J=0; J<GWidth; ++J)
 		{
-			WORD Chr2 = PtrCharBuf->Char;
-			wchar_t Chr=PtrCharBuf->Char;
+			WORD Chr2 = CharBuf[I][J].Char;
+			wchar_t Chr = CharBuf[I][J].Char;
 
 			if (Global->Opt->CleanAscii)
 			{
@@ -222,17 +220,16 @@ void Grabber::DisplayObject()
 
 		if (GArea.X1!=-1)
 		{
-			std::vector<FAR_CHAR_INFO> CharBuf((X2-X1+1)*(Y2-Y1+1));
+			matrix<FAR_CHAR_INFO> CharBuf(Y2 - Y1 + 1, X2 - X1 + 1);
 			GetText(X1,Y1,X2,Y2,CharBuf.data(), CharBuf.size());
 
 			for (int X=X1; X<=X2; X++)
 			{
 				for (int Y=Y1; Y<=Y2; Y++)
 				{
-					size_t Pos=(X-X1)+(Y-Y1)*(X2-X1+1);
-					const FarColor& CurColor = SaveScr->ScreenBuf[X+Y*(ScrX+1)].Attributes;
-					CharBuf[Pos].Attributes.BackgroundColor = (CurColor.Flags&FCF_BG_4BIT? ~INDEXVALUE(CurColor.BackgroundColor) : ~COLORVALUE(CurColor.BackgroundColor)) | ALPHAVALUE(CurColor.BackgroundColor);
-					CharBuf[Pos].Attributes.ForegroundColor = (CurColor.Flags&FCF_FG_4BIT? ~INDEXVALUE(CurColor.ForegroundColor) : ~COLORVALUE(CurColor.ForegroundColor)) | ALPHAVALUE(CurColor.ForegroundColor);
+					const FarColor& CurColor = SaveScr->ScreenBuf[Y][X].Attributes;
+					CharBuf[Y - Y1][X - X1].Attributes.BackgroundColor = (CurColor.Flags&FCF_BG_4BIT? ~INDEXVALUE(CurColor.BackgroundColor) : ~COLORVALUE(CurColor.BackgroundColor)) | ALPHAVALUE(CurColor.BackgroundColor);
+					CharBuf[Y - Y1][X - X1].Attributes.ForegroundColor = (CurColor.Flags&FCF_FG_4BIT ? ~INDEXVALUE(CurColor.ForegroundColor) : ~COLORVALUE(CurColor.ForegroundColor)) | ALPHAVALUE(CurColor.ForegroundColor);
 				}
 			}
 			PutText(X1, Y1, X2, Y2, CharBuf.data());

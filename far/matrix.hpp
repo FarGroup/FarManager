@@ -1,13 +1,11 @@
 #pragma once
 
 /*
-savescr.hpp
+matrix.hpp
 
-Сохраняем и восстанавливааем экран кусками и целиком
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -33,32 +31,61 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "matrix.hpp"
-
-class SaveScreen: NonCopyable
+template<class T>
+class matrix
 {
 public:
-	SaveScreen();
-	SaveScreen(int X1, int Y1, int X2, int Y2);
-	~SaveScreen();
+	class row
+	{
+	public:
+		row(T* row, size_t size): m_row(row), m_size(size) {}
+		T& operator[](size_t n) { return m_row[n]; }
+		size_t size() const { return m_size; }
 
-	void SaveArea(int X1, int Y1, int X2, int Y2);
-	void SaveArea();
-	void RestoreArea(int RestoreCursor = TRUE);
-	void Discard();
-	void AppendArea(const SaveScreen *NewArea);
-	void Resize(int ScrX, int ScrY, DWORD Corner, bool SyncWithConsole);
-	void DumpBuffer(const wchar_t *Title);
+	private:
+		T* m_row;
+		size_t m_size;
+	};
+
+	matrix(): m_rows(), m_cols() {}
+	matrix(size_t rows, size_t cols) { allocate(rows, cols); }
+
+	void allocate(size_t rows, size_t cols)
+	{
+		m_rows = rows;
+		m_cols = cols;
+
+		// don't call vector.resize() here:
+		// - it's never shrink
+		// - we don't care about old content
+		m_buffer = std::vector<T>(m_rows * m_cols);
+	}
+
+	row operator[](size_t n) { return row(m_buffer.data() + m_cols * n, m_cols); }
+
+	size_t height() const { return m_rows; }
+	size_t width() const { return m_cols; }
+
+	T& front() { return m_buffer.front(); }
+	T& back() { return m_buffer.back(); }
+
+	bool empty() const { return m_buffer.empty(); }
+	size_t size() const { return m_buffer.size(); }
+
+	T* data() { return m_buffer.data(); }
+	const T* data() const { return m_buffer.data(); }
+
+	std::vector<T>& vector() { return m_buffer; }
+
+	void swap(matrix& rhs) noexcept
+	{
+		m_buffer.swap(rhs.m_buffer);
+		std::swap(m_rows, rhs.m_rows);
+		std::swap(m_cols, rhs.m_cols);
+	}
 
 private:
-	friend class Grabber;
-
-	static void CleanupBuffer(FAR_CHAR_INFO* Buffer, size_t BufSize);
-	static void CharCopy(FAR_CHAR_INFO* ToBuffer, const FAR_CHAR_INFO* FromBuffer, int Count);
-
-	matrix<FAR_CHAR_INFO> ScreenBuf;
-	SHORT CurPosX,CurPosY;
-	bool CurVisible;
-	DWORD CurSize;
-	int X1,Y1,X2,Y2;
+	std::vector<T> m_buffer;
+	size_t m_rows;
+	size_t m_cols;
 };

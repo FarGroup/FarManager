@@ -53,7 +53,6 @@ enum
 	SBFLAGS_USESHADOW       = 0x00000008,
 };
 
-
 //#if defined(SYSLOG_OT)
 // #define DIRECT_SCREEN_OUT
 //#endif
@@ -64,8 +63,6 @@ ScreenBuf::ScreenBuf():
 	SBFlags(SBFLAGS_FLUSHED|SBFLAGS_FLUSHEDCURPOS|SBFLAGS_FLUSHEDCURTYPE),
 	LockCount(0),
 	CurSize(0),
-	BufX(0),
-	BufY(0),
 	CurX(0),
 	CurY(0),
 	MacroCharUsed(false),
@@ -74,23 +71,15 @@ ScreenBuf::ScreenBuf():
 {
 }
 
-void ScreenBuf::AllocBuf(int X,int Y)
+void ScreenBuf::AllocBuf(size_t rows, size_t cols)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
-	if (X==BufX && Y==BufY)
+	if (rows == Buf.height() && cols == Buf.width())
 		return;
 
-	size_t Cnt=X*Y;
-
-	// don't call vector.resize() here:
-	// - it's never shrink
-	// - we don't care about old content
-	resize_nomove(Buf, Cnt);
-	resize_nomove(Shadow, Cnt);
-
-	BufX=X;
-	BufY=Y;
+	Buf.allocate(rows, cols);
+	Shadow.allocate(rows, cols);
 }
 
 /* Заполнение виртуального буфера значением из консоли.
@@ -98,10 +87,10 @@ void ScreenBuf::AllocBuf(int X,int Y)
 void ScreenBuf::FillBuf()
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
-	COORD BufferSize={BufX, BufY}, BufferCoord={};
-	SMALL_RECT ReadRegion={0, 0, static_cast<SHORT>(BufX-1), static_cast<SHORT>(BufY-1)};
+	COORD BufferSize = { static_cast<SHORT>(Buf.width()), static_cast<SHORT>(Buf.height()) }, BufferCoord = {};
+	SMALL_RECT ReadRegion={0, 0, static_cast<SHORT>(Buf.width() - 1), static_cast<SHORT>(Buf.height() - 1)};
 	Console().ReadOutput(Buf.data(), BufferSize, BufferCoord, ReadRegion);
-	std::copy(ALL_CONST_RANGE(Buf), Shadow.begin());
+	Shadow = Buf;
 	SBFlags.Set(SBFLAGS_USESHADOW);
 	COORD CursorPosition;
 	Console().GetCursorPosition(CursorPosition);
@@ -122,13 +111,13 @@ void ScreenBuf::Write(int X,int Y,const FAR_CHAR_INFO *Text, size_t Size)
 		X=0;
 	}
 
-	if (X>=BufX || Y>=BufY || !Size || Y<0)
+	if (X >= static_cast<int>(Buf.width()) || Y >= static_cast<int>(Buf.height()) || !Size || Y<0)
 		return;
 
-	if (X+Size >= static_cast<size_t>(BufX))
-		Size=BufX-X; //??
+	if (static_cast<int>(X + Size) >= static_cast<int>(Buf.width()))
+		Size = Buf.width() - X; //??
 
-	FAR_CHAR_INFO *PtrBuf=Buf.data()+Y*BufX+X;
+	auto PtrBuf = &Buf[Y][X];
 
 	for (size_t i=0; i < Size; i++)
 	{
@@ -156,8 +145,12 @@ void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,FAR_CHAR_INFO *Text, size_t Siz
 	size_t Width=X2-X1+1;
 	size_t Height=Y2-Y1+1;
 
-	for (size_t Idx = 0, I = 0; I < Height; I++, Idx+=Width)
-		std::copy(Buf.data() + (Y1 + I)*BufX + X1, Buf.data() + (Y1 + I)*BufX + X1 + std::min(Width, Size), Text + Idx);
+	for (size_t Idx = 0, I = 0; I < Height; I++, Idx += Width)
+	{
+		auto begin = &Buf[Y1 + I][X1];
+		auto end = begin + std::min(Width, Size);
+		std::copy(begin, end, Text + Idx);
+	}
 }
 
 /* Изменить значение цветовых атрибутов в соответствии с маской
@@ -171,7 +164,7 @@ void ScreenBuf::ApplyShadow(int X1,int Y1,int X2,int Y2)
 	int I, J;
 	for (I=0; I < Height; I++)
 	{
-		FAR_CHAR_INFO *PtrBuf = Buf.data() + (Y1 + I)*BufX + X1;
+		auto PtrBuf = &Buf[Y1 + I][X1];
 
 		for (J=0; J < Width; J++, ++PtrBuf)
 		{
@@ -228,7 +221,7 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color, bo
 		{
 			for (I=0; I < Height; I++)
 			{
-				PtrBuf = Buf.data() + (Y1 + I)*BufX + X1;
+				PtrBuf = &Buf[Y1 + I][X1];
 				for (J=0; J < Width; J++, ++PtrBuf)
 				{
 					FARCOLORFLAGS ExFlags = PtrBuf->Attributes.Flags&FCF_EXTENDEDFLAGS;
@@ -241,7 +234,7 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color, bo
 		{
 			for (I=0; I < Height; I++)
 			{
-				PtrBuf = Buf.data() + (Y1 + I)*BufX + X1;
+				PtrBuf = &Buf[Y1 + I][X1];
 				for (J=0; J < Width; J++, ++PtrBuf)
 				{
 					PtrBuf->Attributes=Color;
@@ -275,7 +268,7 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color,con
 
 		for (int I = 0; I < Y2-Y1+1; I++)
 		{
-			FAR_CHAR_INFO* PtrBuf = Buf.data() + (Y1 + I)*BufX + X1;
+			auto PtrBuf = &Buf[Y1 + I][X1];
 			for (int J = 0; J < X2-X1+1; J++, ++PtrBuf)
 			{
 				if (PtrBuf->Attributes.ForegroundColor != ExceptColor.ForegroundColor || PtrBuf->Attributes.BackgroundColor != ExceptColor.BackgroundColor)
@@ -314,7 +307,7 @@ void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,WCHAR Ch,const FarColor& Co
 
 	for (I=0; I < Height; I++)
 	{
-		for (PtrBuf = Buf.data() + (Y1 + I)*BufX + X1, J = 0; J < Width; J++, ++PtrBuf)
+		for (PtrBuf = &Buf[Y1 + I][X1], J = 0; J < Width; J++, ++PtrBuf)
 			*PtrBuf=CI;
 	}
 
@@ -344,28 +337,28 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 				(Global->CtrlObject->Macro.IsExecuting() && Global->Opt->Macro.ShowPlayIndicator))
 			)
 			{
-				MacroChar=Buf[0];
+				MacroChar = Buf.front();
 				MacroCharUsed=true;
 
 				if(Global->CtrlObject->Macro.IsRecording())
 				{
-					Buf[0].Char=L'R';
-					Buf[0].Attributes = Colors::ConsoleColorToFarColor(B_LIGHTRED|F_WHITE);
+					Buf.front().Char = L'R';
+					Buf.front().Attributes = Colors::ConsoleColorToFarColor(B_LIGHTRED | F_WHITE);
 				}
 				else
 				{
-					Buf[0].Char=L'P';
-					Buf[0].Attributes = Colors::ConsoleColorToFarColor(B_GREEN|F_WHITE);
+					Buf.front().Char = L'P';
+					Buf.front().Attributes = Colors::ConsoleColorToFarColor(B_GREEN | F_WHITE);
 				}
 			}
 
 			if(Global->Elevation->Elevated())
 			{
-				ElevationChar=Buf[BufX*BufY-1];
+				ElevationChar = Buf.back();
 				ElevationCharUsed=true;
 
-				Buf[BufX*BufY-1].Char=L'A';
-				Buf[BufX*BufY-1].Attributes = Colors::ConsoleColorToFarColor(B_LIGHTRED|F_WHITE);
+				Buf.back().Char = L'A';
+				Buf.back().Attributes = Colors::ConsoleColorToFarColor(B_LIGHTRED | F_WHITE);
 			}
 		}
 
@@ -385,29 +378,29 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 				ShowTime(FALSE);
 			}
 
-			std::list<SMALL_RECT>WriteList;
+			std::vector<SMALL_RECT>WriteList;
 			bool Changes=false;
 
 			if (SBFlags.Check(SBFLAGS_USESHADOW))
 			{
-				FAR_CHAR_INFO* PtrBuf = Buf.data(), *PtrShadow = Shadow.data();
-
 				if (Global->Opt->ClearType)
 				{
 					//Для полного избавления от артефактов ClearType будем перерисовывать на всю ширину.
 					//Чревато тормозами/миганием в зависимости от конфигурации системы.
-					SMALL_RECT WriteRegion={0,0,static_cast<SHORT>(BufX-1),0};
+					SMALL_RECT WriteRegion={0, 0, static_cast<SHORT>(Buf.width() - 1), 0};
 
-					for (SHORT I=0; I<BufY; I++, PtrBuf+=BufX, PtrShadow+=BufX)
+					for (SHORT I = 0; I < static_cast<SHORT>(Buf.height()); ++I)
 					{
+						auto BufRow = Buf[I], ShadowRow = Shadow[I];
+
 						WriteRegion.Top=I;
 						WriteRegion.Bottom=I-1;
 
-						while (I<BufY && !std::equal(PtrBuf, PtrBuf + BufX, PtrShadow))
+						while (I < static_cast<SHORT>(Buf.height()) && !std::equal(&BufRow[0], &BufRow[0] + BufRow.size(), &ShadowRow[0]))
 						{
 							I++;
-							PtrBuf+=BufX;
-							PtrShadow+=BufX;
+							BufRow = Buf[I];
+							ShadowRow = Shadow[I];
 							WriteRegion.Bottom++;
 						}
 
@@ -421,11 +414,12 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 				else
 				{
 					bool Started=false;
-					SMALL_RECT WriteRegion={static_cast<SHORT>(BufX-1),static_cast<SHORT>(BufY-1),0,0};
+					SMALL_RECT WriteRegion = { static_cast<SHORT>(Buf.width() - 1), static_cast<SHORT>(Buf.height() - 1), 0, 0 };
 
-					for (SHORT I=0; I<BufY; I++)
+					auto PtrBuf = Buf.data(), PtrShadow = Shadow.data();
+					for (SHORT I = 0; I < static_cast<SHORT>(Buf.height()); ++I)
 					{
-						for (SHORT J=0; J<BufX; J++,++PtrBuf,++PtrShadow)
+						for (SHORT J = 0; J < static_cast<SHORT>(Buf.width()); ++J, ++PtrBuf, ++PtrShadow)
 						{
 							if (*PtrBuf != *PtrShadow)
 							{
@@ -443,7 +437,7 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 								// баг, конечно, не наш, но что делать.
 								// расширяем область прорисовки влево-вправо на 1 символ:
 								WriteRegion.Left=std::max(static_cast<SHORT>(0),static_cast<SHORT>(WriteRegion.Left-1));
-								WriteRegion.Right=std::min(static_cast<SHORT>(WriteRegion.Right+1),static_cast<SHORT>(BufX-1));
+								WriteRegion.Right = std::min(static_cast<SHORT>(WriteRegion.Right + 1), static_cast<SHORT>(Buf.width() - 1));
 								bool Merge=false;
 								if (!WriteList.empty())
 								{
@@ -461,8 +455,8 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 								if (!Merge)
 									WriteList.emplace_back(WriteRegion);
 
-								WriteRegion.Left=BufX-1;
-								WriteRegion.Top=BufY-1;
+								WriteRegion.Left = static_cast<SHORT>(Buf.width() - 1);
+								WriteRegion.Top = static_cast<SHORT>(Buf.height() - 1);
 								WriteRegion.Right=0;
 								WriteRegion.Bottom=0;
 								Started=false;
@@ -479,7 +473,7 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 			else
 			{
 				Changes=true;
-				SMALL_RECT WriteRegion={0,0,static_cast<SHORT>(BufX-1),static_cast<SHORT>(BufY-1)};
+				SMALL_RECT WriteRegion = { 0, 0, static_cast<SHORT>(Buf.width() - 1), static_cast<SHORT>(Buf.height() - 1) };
 				WriteList.emplace_back(WriteRegion);
 			}
 
@@ -487,23 +481,23 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 			{
 				std::for_each(CONST_RANGE(WriteList, i)
 				{
-					COORD BufferSize={BufX, BufY}, BufferCoord={i.Left, i.Top};
+					COORD BufferSize = { static_cast<SHORT>(Buf.width()), static_cast<SHORT>(Buf.height()) }, BufferCoord = { i.Left, i.Top };
 					SMALL_RECT WriteRegion = i;
 					Console().WriteOutput(Buf.data(), BufferSize, BufferCoord, WriteRegion);
 				});
 				Console().Commit();
-				std::copy(ALL_CONST_RANGE(Buf), Shadow.begin());
+				Shadow = Buf;
 			}
 		}
 
 		if (MacroCharUsed)
 		{
-			Buf[0]=MacroChar;
+			Buf.front() = MacroChar;
 		}
 
 		if (ElevationCharUsed)
 		{
-			Buf[BufX*BufY-1]=ElevationChar;
+			Buf.back() = ElevationChar;
 		}
 
 		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURPOS))
@@ -610,7 +604,7 @@ void ScreenBuf::RestoreElevationChar()
 {
 	if(ElevationCharUsed)
 	{
-		Write(BufX-1,BufY-1,&ElevationChar,1);
+		Write(static_cast<int>(Buf.width() - 1), static_cast<int>(Buf.height() - 1), &ElevationChar, 1);
 		ElevationCharUsed=false;
 	}
 }
@@ -620,11 +614,12 @@ void ScreenBuf::Scroll(int Num)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
-	if (Num > 0 && Num < BufY)
+	if (Num > 0 && Num < static_cast<int>(Buf.height()))
 	{
-		size_t size = Buf.size();
-		Buf.erase(Buf.begin(), Buf.begin() + Num * BufX);
-		Buf.resize(size);
+		auto& RawBuf = Buf.vector();
+		size_t size = RawBuf.size();
+		RawBuf.erase(RawBuf.begin(), RawBuf.begin() + Num * Buf.width());
+		RawBuf.resize(size);
 	}
 
 #ifdef DIRECT_SCREEN_OUT
