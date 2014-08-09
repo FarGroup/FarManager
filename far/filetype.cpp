@@ -44,7 +44,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "history.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
-#include "rdrwdsk.hpp"
 #include "savescr.hpp"
 #include "filemasks.hpp"
 #include "message.hpp"

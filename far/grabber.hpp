@@ -50,7 +50,7 @@ private:
 	virtual void DisplayObject() override;
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual const string& GetTitle(string& Title) override { return Title; }
+	virtual string GetTitle() const override { return string(); }
 
 	void CopyGrabbedArea(bool Append, bool VerticalBlock);
 	void Reset();

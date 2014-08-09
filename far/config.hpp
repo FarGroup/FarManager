@@ -629,7 +629,6 @@ public:
 	BoolOption UseRegisteredTypes;
 
 	BoolOption ViewerEditorClock;
-	IntOption OnlyEditorViewerUsed; // =1, если старт был /e; =2, если старт был /v
 	BoolOption SaveViewHistory;
 	IntOption ViewHistoryCount;
 	IntOption ViewHistoryLifetime;

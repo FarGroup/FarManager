@@ -137,9 +137,9 @@ void InfoList::Update(int Mode)
 		Redraw();
 }
 
-const string& InfoList::GetTitle(string &strTitle) const
+string InfoList::GetTitle() const
 {
-	strTitle.clear();
+	string strTitle;
 	strTitle.append(L" ").append(MSG(MInfoTitle)).append(L" ");
 	TruncStr(strTitle,X2-X1-3);
 	return strTitle;
@@ -166,7 +166,6 @@ void InfoList::DisplayObject()
 
 	Flags.Set(FSCROBJ_ISREDRAWING);
 
-	string strTitle;
 	string strOutStr;
 	Panel *AnotherPanel = Global->CtrlObject->Cp()->GetAnotherPanel(this);
 	string strDriveRoot;
@@ -178,8 +177,8 @@ void InfoList::DisplayObject()
 	Box(X1,Y1,X2,Y2,ColorIndexToColor(COL_PANELBOX),DOUBLE_BOX);
 	SetScreen(X1+1,Y1+1,X2-1,Y2-1,L' ',ColorIndexToColor(COL_PANELTEXT));
 	SetColor(Focus? COL_PANELSELECTEDTITLE : COL_PANELTITLE);
-	GetTitle(strTitle);
 
+	string strTitle = GetTitle();
 	if (!strTitle.empty())
 	{
 		GotoXY(X1+(X2-X1+1-(int)strTitle.size())/2,Y1);

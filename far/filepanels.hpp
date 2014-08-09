@@ -70,7 +70,7 @@ public:
 
 private:
 	virtual void DisplayObject() override;
-	virtual const string& GetTitle(string& Title) override {return Title;}
+	virtual string GetTitle() const override { return string(); }
 
 	Panel* CreatePanel(int Type);
 	void DeletePanel(Panel *Deleted);

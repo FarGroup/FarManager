@@ -77,6 +77,9 @@
     <ClCompile Include="delete.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="desktop.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="dialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -314,9 +317,6 @@
     <ClCompile Include="qview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="rdrwdsk.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="RefreshFrameManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -474,6 +474,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="delete.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="desktop.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dialog.hpp">
@@ -744,9 +747,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="qview.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="rdrwdsk.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RefreshFrameManager.hpp">

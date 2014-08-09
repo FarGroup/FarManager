@@ -59,8 +59,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "plugins.hpp"
 #include "language.hpp"
+#include "desktop.hpp"
 
 long Manager::CurrentWindowType=-1;
+
+// fixed indexes
+enum
+{
+	DesktopIndex,
+	FilePanelsIndex,
+};
 
 class Manager::MessageAbstract
 {
@@ -404,7 +412,7 @@ int Manager::GetFrameCountByType(int Type)
 }
 
 /*$ 11.05.2001 OT Теперь можно искать файл не только по полному имени, но и отдельно - путь, отдельно имя */
-int  Manager::FindFrameByFile(int ModalType,const string& FileName, const wchar_t *Dir)
+Frame* Manager::FindFrameByFile(int ModalType,const string& FileName, const wchar_t *Dir)
 {
 	string strBufFileName;
 	string strFullFileName = FileName;
@@ -432,23 +440,14 @@ int  Manager::FindFrameByFile(int ModalType,const string& FileName, const wchar_
 		return false;
 	});
 
-	if (ItemIterator != Frames.cend())
-	{
-		return ItemIterator - Frames.cbegin();
-	}
-	return -1;
+	return ItemIterator == Frames.cend()? nullptr : *ItemIterator;
 }
 
 bool Manager::ShowBackground()
 {
-	if (Global->CtrlObject->CmdLine)
-	{
-		Global->CtrlObject->CmdLine->ShowBackground();
-		return true;
-	}
-	return false;
+	Global->CtrlObject->Desktop->Show();
+	return true;
 }
-
 
 void Manager::ActivateFrame(Frame *Activated)
 {
@@ -472,21 +471,18 @@ void Manager::DeactivateFrame(Frame *Deactivated,int Direction)
 
 	if (Direction)
 	{
-		FramePos+=Direction;
 
-		if (Direction>0)
+		FramePos += Direction;
+
+		if (FramePos < 0)
+			FramePos = static_cast<int>(Frames.size() - 1);
+		else if (FramePos >= static_cast<int>(Frames.size()))
+			FramePos = 0;
+
+		// for now we don't want to switch the desktop window with Ctrl-[Shift-]Tab
+		if (FramePos == DesktopIndex)
 		{
-			if (FramePos >= static_cast<int>(Frames.size()))
-			{
-				FramePos=0;
-			}
-		}
-		else
-		{
-			if (FramePos<0)
-			{
-				FramePos = static_cast<int>(Frames.size()-1);
-			}
+			FramePos = FilePanelsIndex;
 		}
 
 		ActivateFrame(FramePos);
@@ -527,14 +523,13 @@ void Manager::UpdateFrame(Frame* Old,Frame* New)
 	m_Queue.push_back(std::make_unique<MessageTwoFrames>(Old,New,[this](Frame* Param1,Frame* Param2){this->UpdateCommit(Param1,Param2);}));
 }
 
-/* $ 10.05.2001 DJ
-   переключается на панели (фрейм с номером 0)
-*/
-
 void Manager::SwitchToPanels()
 {
 	_MANAGER(CleverSysLog clv(L"Manager::SwitchToPanels()"));
-	ActivateFrame(0);
+	if (!Global->OnlyEditorViewerUsed)
+	{
+		ActivateFrame(FilePanelsIndex);
+	}
 }
 
 
@@ -1003,8 +998,6 @@ int Manager::ProcessKey(Key key)
 					if (!(Global->Opt->CASRule&2) && key.FarKey == KEY_RCTRLALTSHIFTPRESS)
 						break;
 
-					if (!Global->Opt->OnlyEditorViewerUsed)
-					{
 						if (CurrentFrame->FastHide())
 						{
 							int isPanelFocus=CurrentFrame->GetType() == MODALTYPE_PANELS;
@@ -1015,7 +1008,7 @@ int Manager::ProcessKey(Key key)
 								int RightVisible=Global->CtrlObject->Cp()->RightPanel->IsVisible();
 								int CmdLineVisible=Global->CtrlObject->CmdLine->IsVisible();
 								int KeyBarVisible=Global->CtrlObject->Cp()->MainKeyBar.IsVisible();
-								Global->CtrlObject->CmdLine->ShowBackground();
+								ShowBackground();
 								Global->CtrlObject->Cp()->LeftPanel->HideButKeepSaveScreen();
 								Global->CtrlObject->Cp()->RightPanel->HideButKeepSaveScreen();
 
@@ -1050,7 +1043,6 @@ int Manager::ProcessKey(Key key)
 						}
 
 						return TRUE;
-					}
 
 					break;
 				}
@@ -1252,14 +1244,18 @@ void Manager::DeleteCommit(Frame* Param)
 
 		if (FramePos >= static_cast<int>(Frames.size()))
 		{
-			FramePos=0;
+			FramePos = FilePanelsIndex;
+			if (FramePos >= static_cast<int>(Frames.size()))
+			{
+				FramePos = DesktopIndex;
+			}
 		}
 
 		if (CurrentFrame==Param)
 		{
 			if (Frames.size())
 			{
-				if (Param->FrameToBack==Global->CtrlObject->Cp())
+				if (Param->FrameToBack==Global->CtrlObject->Desktop)
 				{
 					ActivateCommit(FramePos);
 				}
@@ -1429,8 +1425,7 @@ void Manager::ImmediateHide()
 		*/
 		if (ModalFrames.back()->GetType()==MODALTYPE_EDITOR || ModalFrames.back()->GetType()==MODALTYPE_VIEWER)
 		{
-			if (Global->CtrlObject->CmdLine)
-				Global->CtrlObject->CmdLine->ShowBackground();
+			ShowBackground();
 		}
 		else
 		{
@@ -1478,8 +1473,7 @@ void Manager::ImmediateHide()
 	}
 	else
 	{
-		if (Global->CtrlObject->CmdLine)
-			Global->CtrlObject->CmdLine->ShowBackground();
+		ShowBackground();
 	}
 }
 
@@ -1487,11 +1481,7 @@ void Manager::ResizeAllFrame()
 {
 	Global->ScrBuf->Lock();
 	std::for_each(ALL_CONST_RANGE(Frames), std::mem_fn(&Frame::ResizeConsole));
-
-	std::for_each(CONST_RANGE(ModalFrames, i)
-	{
-		i->ResizeConsole();
-	});
+	std::for_each(ALL_CONST_RANGE(ModalFrames), std::mem_fn(&Frame::ResizeConsole));
 
 	ImmediateHide();
 	RefreshFrame();

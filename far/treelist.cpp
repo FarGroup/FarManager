@@ -550,9 +550,9 @@ void TreeList::DisplayObject()
 	Flags.Clear(FSCROBJ_ISREDRAWING);
 }
 
-const string& TreeList::GetTitle(string &strTitle) const
+string TreeList::GetTitle() const
 {
-	strTitle = L" ";
+	string strTitle = L" ";
 	strTitle += ModalMode? MSG(MFindFolderTitle) : MSG(MTreeTitle);
 	strTitle += L" ";
 	TruncStr(strTitle,X2-X1-3);
@@ -585,7 +585,7 @@ void TreeList::DisplayTree(int Fast)
 	{
 		Box(X1,Y1,X2,Y2,ColorIndexToColor(COL_PANELBOX),DOUBLE_BOX);
 		DrawSeparator(Y2-2-(ModalMode));
-		GetTitle(strTitle);
+		strTitle = GetTitle();
 
 		if (!strTitle.empty())
 		{

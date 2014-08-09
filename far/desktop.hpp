@@ -1,13 +1,12 @@
 #pragma once
 
 /*
-qview.hpp
+desktop.hpp
 
-Quick view panel
+
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -33,54 +32,25 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "panel.hpp"
-#include "synchro.hpp"
-#include "dirinfo.hpp"
+#include "frame.hpp"
 
-class Viewer;
-
-class QuickView:public Panel
+class desktop: public Frame
 {
 public:
-	QuickView();
+	desktop();
+	virtual ~desktop();
 
-	void ShowFile(const string& FileName, int TempFile, PluginHandle* hDirPlugin);
+	virtual int GetType() const override { return MODALTYPE_DESKTOP; }
+	virtual int GetTypeAndName(string& Type, string& Name) override { Type = GetTitle();  return GetType(); }
+	virtual void ResizeConsole() override;
+	virtual int ProcessKey(const Manager::Key& Key) override;
+
+	void FillFromBuffer();
+	void FillFromConsole();
 
 private:
-	virtual ~QuickView();
-
-	virtual int ProcessKey(const Manager::Key& Key) override;
-	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual __int64 VMProcess(int OpCode, void *vParam = nullptr, __int64 iParam = 0) override;
-	virtual void Update(int Mode) override;
-	virtual void CloseFile() override;
-	virtual void QViewDelTempName() override;
-	virtual int UpdateIfChanged(panel_update_mode UpdateMode) override;
-	virtual void SetTitle() override;
-	virtual string GetTitle() const override;
-	virtual void SetFocus() override;
-	virtual void KillFocus() override;
-	virtual void UpdateKeyBar() override;
-	virtual int GetCurName(string &strName, string &strShortName) const override;
+	virtual string GetTitle() const override { return L"Desktop"; }
 	virtual void DisplayObject() override;
 
-	void PrintText(const string& Str);
-	void SetMacroMode(int Restore = FALSE);
-	void DynamicUpdateKeyBar() const;
-
-	std::unique_ptr<Viewer> QView;
-
-	string strCurFileName;
-	string strCurFileType;
-	string strTempName;
-
-	CriticalSection CS;
-
-	int Directory;
-	FARMACROAREA PrevMacroMode;
-	DirInfoData Data;
-	bool OldWrapMode;
-	bool OldWrapType;
-
-	bool uncomplete_dirscan;
+	std::unique_ptr<SaveScreen> m_Background;
 };

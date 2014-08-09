@@ -116,17 +116,6 @@ void SaveScreen::SaveArea()
 	GetCursorType(CurVisible,CurSize);
 }
 
-void SaveScreen::CorrectRealScreenCoord()
-{
-	if (X1 < 0) X1=0;
-
-	if (Y1 < 0) Y1=0;
-
-	if (X2 >= ScrX) X2=ScrX;
-
-	if (Y2 >= ScrY) Y2=ScrY;
-}
-
 void SaveScreen::AppendArea(const SaveScreen *NewArea)
 {
 	for (int X=X1; X<=X2; X++)

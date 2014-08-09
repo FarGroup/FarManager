@@ -2151,7 +2151,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			{
 				if (Global->CtrlObject->Cp() == f)
 				{
-					ActivePanel->GetTitle(strFileName);
+					strFileName = ActivePanel->GetTitle();
 				}
 				else
 				{
@@ -2161,7 +2161,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					{
 						case MODALTYPE_EDITOR:
 						case MODALTYPE_VIEWER:
-							f->GetTitle(strFileName);
+							strFileName = f->GetTitle();
 							break;
 					}
 				}
@@ -2407,7 +2407,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 		case MCODE_F_GETOPTIONS:
 		{
-			DWORD Options = Global->Opt->OnlyEditorViewerUsed; // bits 0x1 and 0x2
+			DWORD Options = Global->OnlyEditorViewerUsed; // bits 0x1 and 0x2
 			if (Global->Opt->Macro.DisableMacro&MDOL_ALL)       Options |= 0x4;
 			if (Global->Opt->Macro.DisableMacro&MDOL_AUTOSTART) Options |= 0x8;
 			if (Global->Opt->ReadOnlyConfig)                    Options |= 0x10;

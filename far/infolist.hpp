@@ -53,7 +53,7 @@ private:
 	virtual void Update(int Mode) override;
 	virtual void SetFocus() override;
 	virtual void KillFocus() override;
-	virtual const string& GetTitle(string &Title) const override;
+	virtual string GetTitle() const override;
 	virtual void UpdateKeyBar() override;
 	virtual void CloseFile() override;
 	virtual int GetCurName(string &strName, string &strShortName) const override;

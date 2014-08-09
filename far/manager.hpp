@@ -87,7 +87,7 @@ public:
 	void PluginCommit();
 	int CountFramesWithName(const string& Name, BOOL IgnoreCase = TRUE);
 	bool IsPanelsActive(bool and_not_qview = false) const; // используется как признак Global->WaitInMainLoop
-	int  FindFrameByFile(int ModalType, const string& FileName, const wchar_t *Dir = nullptr);
+	Frame* FindFrameByFile(int ModalType, const string& FileName, const wchar_t *Dir = nullptr);
 	void EnterMainLoop();
 	void ProcessMainLoop();
 	void ExitMainLoop(int Ask);

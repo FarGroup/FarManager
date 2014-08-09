@@ -650,7 +650,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				case KEY_RALTF4:
 				{
 					api::File MenuFile;
-					Global->FrameManager->GetFrame(0)->Unlock();
+					Global->CtrlObject->Cp()->Unlock();
 					{
 						auto OldTitle = std::make_unique<ConsoleTitle>();
 						SaveMenu(MenuFileName);

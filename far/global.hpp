@@ -75,6 +75,7 @@ public:
 	BOOL ProcessException;
 	BOOL ProcessShowClock;
 	const wchar_t *HelpFileMask;
+	bool OnlyEditorViewerUsed; // -e or -v
 #if defined(SYSLOG)
 	BOOL StartSysLog;
 #endif

@@ -472,13 +472,13 @@ void FileEditor::Init(
 	}
 
 	{
-		int FramePos = Global->FrameManager->FindFrameByFile(MODALTYPE_EDITOR, strFullFileName);
+		auto EditorFrame = Global->FrameManager->FindFrameByFile(MODALTYPE_EDITOR, strFullFileName);
 
-		if (FramePos!=-1)
+		if (EditorFrame)
 		{
 			int SwitchTo=FALSE;
 
-			if (!Global->FrameManager->GetFrame(FramePos)->GetCanLoseFocus(TRUE) || Global->Opt->Confirm.AllowReedit)
+			if (!EditorFrame->GetCanLoseFocus(TRUE) || Global->Opt->Confirm.AllowReedit)
 			{
 				int MsgCode=0;
 				if (OpenModeExstFile == EF_OPENMODE_QUERY)
@@ -523,13 +523,11 @@ void FileEditor::Init(
 					case 2:         // Reload
 					{
 						//файл могли уже закрыть. например макросом в диалоговой процедуре предыдущего Message.
-						FramePos = Global->FrameManager->FindFrameByFile(MODALTYPE_EDITOR, strFullFileName);
-						if (-1!=FramePos)
+						EditorFrame = Global->FrameManager->FindFrameByFile(MODALTYPE_EDITOR, strFullFileName);
+						if (EditorFrame)
 						{
-							Global->FrameManager->DeleteFrame(FramePos);
-							Frame *deleted_frame = Global->FrameManager->GetFrame(FramePos);
-							if ( deleted_frame )
-								deleted_frame->SetFlags(FFILEEDIT_DISABLESAVEPOS);
+							EditorFrame->SetFlags(FFILEEDIT_DISABLESAVEPOS);
+							Global->FrameManager->DeleteFrame(EditorFrame);
 						}
 						SetExitCode(XC_RELOAD); // -2 ???
 						break;
@@ -556,10 +554,10 @@ void FileEditor::Init(
 			if (SwitchTo)
 			{
 				//файл могли уже закрыть. например макросом в диалоговой процедуре предыдущего Message.
-				FramePos = Global->FrameManager->FindFrameByFile(MODALTYPE_EDITOR, strFullFileName);
-				if (-1!=FramePos)
+				auto EditorFrame = Global->FrameManager->FindFrameByFile(MODALTYPE_EDITOR, strFullFileName);
+				if (EditorFrame)
 				{
-					Global->FrameManager->ActivateFrame(FramePos);
+					Global->FrameManager->ActivateFrame(EditorFrame);
 				}
 				return ;
 			}
@@ -716,7 +714,7 @@ void FileEditor::ReadEvent(void)
 
 void FileEditor::InitKeyBar()
 {
-	EditKeyBar.SetLabels(Global->Opt->OnlyEditorViewerUsed?MSingleEditF1:MEditF1);
+	EditKeyBar.SetLabels(Global->OnlyEditorViewerUsed? MSingleEditF1 : MEditF1);
 
 	if (!GetCanLoseFocus())
 		EditKeyBar.Change(KBL_SHIFT,L"",4-1);
@@ -734,9 +732,9 @@ void FileEditor::InitKeyBar()
 		EditKeyBar.Change(KBL_ALT,L"",11-1);
 
 	if (m_codepage!=GetACP())
-		EditKeyBar.Change(KBL_MAIN,MSG(Global->Opt->OnlyEditorViewerUsed?MSingleEditF8:MEditF8),7);
+		EditKeyBar.Change(KBL_MAIN, MSG(Global->OnlyEditorViewerUsed ? MSingleEditF8 : MEditF8), 7);
 	else
-		EditKeyBar.Change(KBL_MAIN,MSG(Global->Opt->OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
+		EditKeyBar.Change(KBL_MAIN, MSG(Global->OnlyEditorViewerUsed ? MSingleEditF8DOS : MEditF8DOS), 7);
 
 	EditKeyBar.SetCustomLabels(KBA_EDITOR);
 
@@ -803,7 +801,7 @@ __int64 FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		MacroEditState|=m_editor->Flags.Check(Editor::FEDITOR_CURPOSCHANGEDBYPLUGIN)?0x00000100:0;
 		MacroEditState|=m_editor->Flags.Check(Editor::FEDITOR_LOCKMODE)?0x00000200:0;
 		MacroEditState|=m_editor->EdOpt.PersistentBlocks?0x00000400:0;
-		MacroEditState|=Global->Opt->OnlyEditorViewerUsed?0x08000000|0x00000800:0;
+		MacroEditState|=Global->OnlyEditorViewerUsed ? 0x08000000 | 0x00000800 : 0;
 		MacroEditState|=!GetCanLoseFocus()?0x00000800:0;
 		return MacroEditState;
 	}
@@ -1017,18 +1015,15 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			case KEY_CTRLO:
 			case KEY_RCTRLO:
 			{
-				if (!Global->Opt->OnlyEditorViewerUsed)
+				m_editor->Hide();  // $ 27.09.2000 skv - To prevent redraw in macro with Ctrl-O
+
+				if (Global->FrameManager->ShowBackground())
 				{
-					m_editor->Hide();  // $ 27.09.2000 skv - To prevent redraw in macro with Ctrl-O
-
-					if (Global->FrameManager->ShowBackground())
-					{
-						SetCursorType(false, 0);
-						WaitKey();
-					}
-
-					Show();
+					SetCursorType(false, 0);
+					WaitKey();
 				}
+
+				Show();
 
 				return TRUE;
 			}
@@ -1174,7 +1169,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			// $ 30.05.2003 SVS - Shift-F4 в редакторе/вьювере позволяет открывать другой редактор/вьювер (пока только редактор)
 			case KEY_SHIFTF4:
 			{
-				if (!Global->Opt->OnlyEditorViewerUsed && GetCanLoseFocus())
+				if (!Global->OnlyEditorViewerUsed && GetCanLoseFocus())
 				{
 					if (!Flags.Check(FFILEEDIT_DISABLESAVEPOS) && (m_editor->EdOpt.SavePos || m_editor->EdOpt.SaveShortPos)) // save position/codepage before reload
 						SaveToCache();
@@ -1434,7 +1429,14 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion,bool DeleteFrame)
 				}
 			}
 
-			if (DeleteFrame) Global->FrameManager->DeleteFrame();
+			if (DeleteFrame)
+			{
+				Global->FrameManager->DeleteFrame();
+				if (Global->OnlyEditorViewerUsed)
+				{
+					Global->FrameManager->ExitMainLoop(FALSE);
+				}
+			}
 			SetExitCode(XC_QUIT);
 			break;
 		}
@@ -2345,15 +2347,16 @@ void FileEditor::SetTitle(const string* Title)
 void FileEditor::ChangeEditKeyBar()
 {
 	if (m_codepage!=GetACP())
-		EditKeyBar.Change(MSG(Global->Opt->OnlyEditorViewerUsed?MSingleEditF8:MEditF8),7);
+		EditKeyBar.Change(MSG(Global->OnlyEditorViewerUsed ? MSingleEditF8 : MEditF8), 7);
 	else
-		EditKeyBar.Change(MSG(Global->Opt->OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
+		EditKeyBar.Change(MSG(Global->OnlyEditorViewerUsed ? MSingleEditF8DOS : MEditF8DOS), 7);
 
 	EditKeyBar.Redraw();
 }
 
-const string& FileEditor::GetTitle(string &strLocalTitle)
+string FileEditor::GetTitle() const
 {
+	string strLocalTitle;
 	if (!strPluginTitle.empty())
 		strLocalTitle = strPluginTitle;
 	else
@@ -2375,8 +2378,7 @@ void FileEditor::ShowStatus()
 	SetColor(COL_EDITORSTATUS);
 	GotoXY(X1,Y1); //??
 	string strLineStr;
-	string strLocalTitle;
-	GetTitle(strLocalTitle);
+	string strLocalTitle = GetTitle();
 	int NameLength = (Global->Opt->ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN)) ? 15:21;
 	if (X2 > 80)
 		NameLength += (X2-80);
@@ -2648,8 +2650,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		}
 		case ECTL_GETTITLE:
 		{
-			string strLocalTitle;
-			GetTitle(strLocalTitle);
+			string strLocalTitle = GetTitle();
 			if (Param2&&(size_t)Param1>strLocalTitle.size())
 			{
 				wcscpy(static_cast<LPWSTR>(Param2),strLocalTitle.data());

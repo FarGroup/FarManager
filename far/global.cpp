@@ -50,6 +50,7 @@ thread_local DWORD global::m_LastError = ERROR_SUCCESS;
 thread_local NTSTATUS global::m_LastStatus = STATUS_SUCCESS;
 
 global::global():
+	OnlyEditorViewerUsed(),
 	m_MainThreadId(GetCurrentThreadId()),
 	ScrBuf(nullptr),
 	Opt(nullptr),

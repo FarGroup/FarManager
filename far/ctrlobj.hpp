@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "macro.hpp"
 
+class desktop;
 class CommandLine;
 class History;
 class KeyBar;
@@ -58,6 +59,7 @@ public:
 	void CreateDummyFilePanels();
 	static void ShowCopyright(DWORD Flags=0);
 
+	desktop* Desktop;
 	CommandLine *CmdLine;
 	History* CmdHistory;
 	History* FolderHistory;

@@ -47,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "treelist.hpp"
 #include "fileview.hpp"
 #include "fileedit.hpp"
-#include "rdrwdsk.hpp"
 #include "savescr.hpp"
 #include "scrbuf.hpp"
 #include "interf.hpp"
@@ -69,6 +68,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constitle.hpp"
 #include "language.hpp"
 #include "components.hpp"
+#include "desktop.hpp"
 
 enum
 {
@@ -79,20 +79,12 @@ enum
 CommandLine::CommandLine():
 	PromptSize(DEFAULT_CMDLINE_WIDTH),
 	CmdStr(Global->CtrlObject->Cp(),0,true,Global->CtrlObject->CmdHistory,0,(Global->Opt->CmdLine.AutoComplete?EditControl::EC_ENABLEAUTOCOMPLETE:0)|EditControl::EC_COMPLETE_HISTORY|EditControl::EC_COMPLETE_FILESYSTEM|EditControl::EC_COMPLETE_PATH),
-	BackgroundScreen(nullptr),
 	LastCmdPartLength(-1)
 {
 	CmdStr.SetEditBeyondEnd(false);
 	CmdStr.SetMacroAreaAC(MACROAREA_SHELLAUTOCOMPLETION);
 	SetPersistentBlocks(Global->Opt->CmdLine.EditBlock);
 	SetDelRemovesBlocks(Global->Opt->CmdLine.DelRemovesBlocks);
-}
-
-CommandLine::~CommandLine()
-{
-	delete BackgroundScreen;
-
-	Global->ScrBuf->Flush(true);
 }
 
 void CommandLine::SetPersistentBlocks(bool Mode)
@@ -290,12 +282,6 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 			}
 		}
 		return TRUE;
-		case KEY_SHIFTF9:
-			Global->Opt->Save(true);
-			return TRUE;
-		case KEY_F10:
-			Global->FrameManager->ExitMainLoop(TRUE);
-			return TRUE;
 		case KEY_ALTF10:
 		case KEY_RALTF10:
 		{
@@ -329,9 +315,6 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 			}
 		}
 		return TRUE;
-		case KEY_F11:
-			Global->CtrlObject->Plugins->CommandsMenu(FALSE,FALSE,0);
-			return TRUE;
 		case KEY_ALTF11:
 		case KEY_RALTF11:
 			ShowViewEditHistory();
@@ -491,7 +474,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 			}
 
 			if (!CmdStr.ProcessKey(Manager::Key(LocalKey)))
-				break;
+				return Global->CtrlObject->Desktop->ProcessKey(Key);
 
 			LastCmdPartLength=-1;
 
@@ -833,42 +816,6 @@ void CommandLine::ShowViewEditHistory()
 	}
 }
 
-void CommandLine::SaveBackground(int X1,int Y1,int X2,int Y2)
-{
-	delete BackgroundScreen;
-	BackgroundScreen=new SaveScreen(X1,Y1,X2,Y2);
-}
-
-void CommandLine::SaveBackground()
-{
-	if (BackgroundScreen)
-	{
-//		BackgroundScreen->Discard();
-		BackgroundScreen->SaveArea();
-	}
-}
-void CommandLine::ShowBackground()
-{
-	if (BackgroundScreen)
-	{
-		BackgroundScreen->RestoreArea();
-	}
-}
-
-void CommandLine::CorrectRealScreenCoord()
-{
-	if (BackgroundScreen)
-	{
-		BackgroundScreen->CorrectRealScreenCoord();
-	}
-}
-
-void CommandLine::ResizeConsole()
-{
-	BackgroundScreen->Resize(ScrX+1,ScrY+1,2,Global->Opt->WindowMode!=FALSE);
-//  this->DisplayObject();
-}
-
 void CommandLine::SetPromptSize(int NewSize)
 {
 	PromptSize = NewSize? std::max(5, std::min(95, NewSize)) : DEFAULT_CMDLINE_WIDTH;
@@ -953,8 +900,6 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 	}
 
 	int Code;
-	COORD Size0;
-	Console().GetSize(Size0);
 
 	if (strCurDir.size() > 1 && strCurDir[1]==L':')
 		FarChDir(strCurDir);
@@ -965,7 +910,7 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 	{
 		if (PrintCommand)
 		{
-			ShowBackground();
+			Global->FrameManager->ShowBackground();
 			string strNewDir=strCurDir;
 			strCurDir=strPrevDir;
 			Redraw();
@@ -973,7 +918,7 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 			GotoXY(X2+1,Y1);
 			Text(L' ');
 			ScrollScreen(2);
-			SaveBackground();
+			Global->CtrlObject->Desktop->FillFromBuffer();
 		}
 
 		SetString(L"", false);
@@ -991,15 +936,6 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 		Code=Execute(strTempStr,AlwaysWaitFinish,SeparateWindow,DirectRun, 0, WaitForIdle, Silent, RunAs);
 	}
 
-	COORD Size1;
-	Console().GetSize(Size1);
-
-	if (Size0.X != Size1.X || Size0.Y != Size1.Y)
-	{
-		GotoXY(X2+1,Y1);
-		Text(L' ');
-		Global->CtrlObject->CmdLine->CorrectRealScreenCoord();
-	}
 	if (!Flags.Check(FCMDOBJ_LOCKUPDATEPANEL))
 	{
 		ShellUpdatePanels(Global->CtrlObject->Cp()->ActivePanel,FALSE);
@@ -1071,7 +1007,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			if (std::find_first_of(ALL_CONST_RANGE(strCmdLine), ALL_CONST_RANGE(CharsToFind)) != strCmdLine.cend())
 				return FALSE;
 
-			ShowBackground();  //??? почему не отдаём COMSPEC'у
+			Global->FrameManager->ShowBackground();  //??? почему не отдаём COMSPEC'у
 			// display command //???
 			Redraw();
 			GotoXY(X2+1,Y1);
@@ -1090,8 +1026,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			strOut.append(L"\n\n", Global->Opt->ShowKeyBar?2:1);
 			Console().Write(strOut);
 			Console().Commit();
-			Global->ScrBuf->FillBuf();
-			SaveBackground();
+			Global->CtrlObject->Desktop->FillFromConsole();
 			PrintCommand = false;
 			return TRUE;
 		}
@@ -1129,7 +1064,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			return FALSE; // отдадимся COMSPEC`у
 
 		ClearScreen(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
-		SaveBackground();
+		Global->CtrlObject->Desktop->FillFromBuffer();
 		PrintCommand=false;
 		return TRUE;
 	}
@@ -1297,7 +1232,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	}
 	else if (IsCommand(L"FAR:ABOUT", false))
 	{
-		ShowBackground();
+		Global->FrameManager->ShowBackground();
 		Redraw();
 		GotoXY(X2 + 1, Y1);
 		Text(L' ');
@@ -1333,8 +1268,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 
 		Console().Write(strOut);
 		Console().Commit();
-		Global->ScrBuf->FillBuf();
-		SaveBackground();
+		Global->CtrlObject->Desktop->FillFromConsole();
 		PrintCommand = false;
 		return TRUE;
 	}

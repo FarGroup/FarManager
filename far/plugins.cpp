@@ -45,7 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 #include "vmenu2.hpp"
 #include "dialog.hpp"
-#include "rdrwdsk.hpp"
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
@@ -67,6 +66,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "manager.hpp"
 #include "language.hpp"
+#include "desktop.hpp"
 
 static const wchar_t *PluginsFolderName=L"Plugins";
 
@@ -81,7 +81,7 @@ static void ReadUserBackgound(SaveScreen *SaveScr)
 		if (SaveScr)
 			SaveScr->Discard();
 
-		RedrawDesktop Redraw;
+		Global->CtrlObject->Desktop->FillFromConsole();
 	}
 
 	FPanel->LeftPanel->ProcessingPluginCommand--;
@@ -1003,8 +1003,7 @@ int PluginManager::DeleteFiles(PluginHandle* hPlugin, PluginPanelItem *PanelItem
 
 	int Code = hPlugin->pPlugin->DeleteFiles(&Info);
 
-	if (Code)
-		ReadUserBackgound(&SaveScr); //???
+	ReadUserBackgound(&SaveScr);
 
 	return Code;
 }
@@ -1025,8 +1024,7 @@ int PluginManager::MakeDirectory(PluginHandle* hPlugin, const wchar_t **Name, in
 
 	*Name = Info.Name;
 
-	if (Code != -1)   //???BUGBUG
-		ReadUserBackgound(&SaveScr);
+	ReadUserBackgound(&SaveScr);
 
 	return Code;
 }
@@ -1046,8 +1044,7 @@ int PluginManager::ProcessHostFile(PluginHandle* hPlugin, PluginPanelItem *Panel
 
 	int Code = hPlugin->pPlugin->ProcessHostFile(&Info);
 
-	if (Code)   //BUGBUG
-		ReadUserBackgound(&SaveScr);
+	ReadUserBackgound(&SaveScr);
 
 	return Code;
 }
@@ -1089,8 +1086,7 @@ int PluginManager::PutFiles(PluginHandle* hPlugin, PluginPanelItem *PanelItem, s
 
 	int Code = hPlugin->pPlugin->PutFiles(&Info);
 
-	if (Code)   //BUGBUG
-		ReadUserBackgound(&SaveScr);
+	ReadUserBackgound(&SaveScr);
 
 	return Code;
 }

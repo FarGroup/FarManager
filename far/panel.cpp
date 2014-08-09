@@ -1999,8 +1999,9 @@ void Panel::SetTitle()
 	}
 }
 
-const string& Panel::GetTitle(string &strTitle) const
+string Panel::GetTitle() const
 {
+	string strTitle;
 	if (PanelMode==PLUGIN_PANEL)
 	{
 		OpenPanelInfo Info;

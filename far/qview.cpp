@@ -84,9 +84,9 @@ QuickView::~QuickView()
 }
 
 
-const string& QuickView::GetTitle(string &strTitle) const
+string QuickView::GetTitle() const
 {
-	strTitle=L" ";
+	string strTitle = L" ";
 	strTitle+=MSG(MQuickViewTitle);
 	strTitle+=L" ";
 	TruncStr(strTitle,X2-X1-3);
@@ -99,7 +99,6 @@ void QuickView::DisplayObject()
 		return;
 
 	Flags.Set(FSCROBJ_ISREDRAWING);
-	string strTitle;
 
 	if (!QView && !ProcessingPluginCommand)
 		Global->CtrlObject->Cp()->GetAnotherPanel(this)->UpdateViewPanel();
@@ -113,8 +112,8 @@ void QuickView::DisplayObject()
 	Box(X1,Y1,X2,Y2,ColorIndexToColor(COL_PANELBOX),DOUBLE_BOX);
 	SetScreen(X1+1,Y1+1,X2-1,Y2-1,L' ',ColorIndexToColor(COL_PANELTEXT));
 	SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
-	GetTitle(strTitle);
 
+	string strTitle = GetTitle();
 	if (!strTitle.empty())
 	{
 		GotoXY(X1+(X2-X1+1-(int)strTitle.size())/2,Y1);

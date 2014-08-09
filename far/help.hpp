@@ -46,7 +46,6 @@ public:
 	Help(const string& Topic,const wchar_t *Mask=nullptr,UINT64 Flags=0);
 	virtual ~Help();
 
-	virtual void Hide() override;
 	virtual int  ProcessKey(const Manager::Key& Key) override;
 	virtual int  ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual void InitKeyBar() override;
@@ -67,7 +66,7 @@ public:
 
 private:
 	virtual void DisplayObject() override;
-	virtual const string& GetTitle(string& Title) override {return Title;}
+	virtual string GetTitle() const override { return string(); }
 	int  ReadHelp(const string& Mask);
 	void AddLine(const string& Line);
 	void AddTitle(const string& Title);

@@ -28,6 +28,7 @@ SRCS = \
 	cvtname.cpp \
 	datetime.cpp \
 	delete.cpp \
+	desktop.cpp \
 	dialog.cpp \
 	dirinfo.cpp \
 	dirmix.cpp \
@@ -111,7 +112,6 @@ SRCS = \
 	privilege.cpp \
 	processname.cpp \
 	qview.cpp \
-	rdrwdsk.cpp \
 	RefreshFrameManager.cpp \
 	RegExp.cpp \
 	savescr.cpp \

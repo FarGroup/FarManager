@@ -114,7 +114,7 @@ private:
 	virtual int GetCanLoseFocus(int DynamicMode = FALSE) const override;
 	virtual int FastHide() override; // для нужд CtrlAltShift
 	virtual void ResizeConsole() override;
-	virtual const string& GetTitle(string &Title) override;
+	virtual string GetTitle() const override;
 
 	/* Ret:
 		0 - не удалять ничего

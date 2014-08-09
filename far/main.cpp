@@ -144,7 +144,9 @@ static int MainProcess(
 
 		if (!ename.empty() || !vname.empty())
 		{
-			Panel* DummyPanel=new dummy_panel;
+			Global->OnlyEditorViewerUsed = true;
+
+			Panel* DummyPanel = new dummy_panel;
 			_tran(SysLog(L"create dummy panels"));
 			Global->CtrlObject->CreateDummyFilePanels();
 			Global->CtrlObject->Cp()->LeftPanel=Global->CtrlObject->Cp()->RightPanel=Global->CtrlObject->Cp()->ActivePanel=DummyPanel;
@@ -153,7 +155,6 @@ static int MainProcess(
 
 			if (!ename.empty())
 			{
-				Global->Opt->OnlyEditorViewerUsed=1;
 				FileEditor *ShellEditor=new FileEditor(ename,CP_DEFAULT,FFILEEDIT_CANNEWFILE|FFILEEDIT_ENABLEF6,StartLine,StartChar);
 				_tran(SysLog(L"make shelleditor %p",ShellEditor));
 
@@ -165,7 +166,6 @@ static int MainProcess(
 			// TODO: Этот else убрать только после разборок с возможностью задавать несколько /e и /v в ком.строке
 			else if (!vname.empty())
 			{
-				Global->Opt->OnlyEditorViewerUsed=2;
 				FileViewer *ShellViewer=new FileViewer(vname,TRUE);
 
 				if (!ShellViewer->GetExitCode())
@@ -183,7 +183,6 @@ static int MainProcess(
 		}
 		else
 		{
-			Global->Opt->OnlyEditorViewerUsed=0;
 			int DirCount=0;
 			string strPath;
 

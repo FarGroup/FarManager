@@ -37,6 +37,8 @@ datetime.cpp
 datetime.hpp
 delete.cpp
 delete.hpp
+desktop.cpp
+desktop.hpp
 dialog.cpp
 dialog.hpp
 dirinfo.cpp
@@ -219,8 +221,6 @@ processname.cpp
 processname.hpp
 qview.cpp
 qview.hpp
-rdrwdsk.cpp
-rdrwdsk.hpp
 RefreshFrameManager.cpp
 RefreshFrameManager.hpp
 RegExp.cpp

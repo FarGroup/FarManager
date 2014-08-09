@@ -1,13 +1,10 @@
-#pragma once
-
 /*
-rdrwdsk.hpp
+desktop.cpp
 
-class RedrawDesktop
+
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -33,14 +30,76 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class RedrawDesktop: NonCopyable
-{
-public:
-	RedrawDesktop(BOOL IsHidden=FALSE);
-	~RedrawDesktop();
+#include "headers.hpp"
+#pragma hdrstop
 
-private:
-	int LeftVisible;
-	int RightVisible;
-	bool ClockVisible;
-};
+#include "desktop.hpp"
+
+#include "global.hpp"
+#include "manager.hpp"
+#include "savescr.hpp"
+#include "interf.hpp"
+#include "config.hpp"
+#include "keys.hpp"
+#include "scrbuf.hpp"
+#include "help.hpp"
+
+desktop::desktop()
+{
+	SetCanLoseFocus(TRUE);
+	SetPosition(0, 0, ScrX, ScrY);
+}
+
+desktop::~desktop()
+{
+}
+
+void desktop::ResizeConsole()
+{
+	m_Background->Resize(ScrX + 1, ScrY + 1, 2, Global->Opt->WindowMode != FALSE);
+	SetPosition(0, 0, ScrX, ScrY);
+}
+
+void desktop::DisplayObject()
+{
+	m_Background->RestoreArea();
+}
+
+int desktop::ProcessKey(const Manager::Key& Key)
+{
+	switch (Key.FarKey)
+	{
+	case KEY_F1:
+		{
+			Help hlp(L"Contents");
+		}
+		break;
+
+	case KEY_SHIFTF9:
+		Global->Opt->Save(true);
+		return TRUE;
+
+	case KEY_F10:
+		Global->FrameManager->ExitMainLoop(TRUE);
+		return TRUE;
+	}
+	return FALSE;
+}
+
+void desktop::FillFromBuffer()
+{
+	if (!m_Background)
+		m_Background = std::make_unique<SaveScreen>(0, 0, ScrX, ScrY);
+	else
+		m_Background->SaveArea();
+}
+
+void desktop::FillFromConsole()
+{
+	Global->ScrBuf->FillBuf();
+
+	if (!m_Background)
+		m_Background = std::make_unique<SaveScreen>(0, 0, ScrX, ScrY);
+	else
+		m_Background->SaveArea();
+}

@@ -53,7 +53,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "copy.hpp"
 #include "history.hpp"
 #include "qview.hpp"
-#include "rdrwdsk.hpp"
 #include "preservelongname.hpp"
 #include "scrbuf.hpp"
 #include "filemasks.hpp"
@@ -1418,7 +1417,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 				{
 					// позиционируемся в панели
 					if (!Global->FrameManager->IsPanelsActive())
-						Global->FrameManager->ActivateFrame(0);
+						Global->FrameManager->SwitchToPanels();
 
 					Update(UPDATE_KEEP_SELECTION);
 					Redraw();
@@ -7656,7 +7655,7 @@ void FileList::ShowFileList(int Fast)
 		Global->CtrlObject->CmdLine->Show();
 	}
 
-	GetTitle(strTitle);
+	strTitle = GetTitle();
 	int TitleX2 = X2 == ScrX? X2 - 1 : X2;
 	if (Global->Opt->Clock && !Global->Opt->ShowMenuBar && X1 + strTitle.size() + 2 >= static_cast<size_t>(ScrX-5))
 		TitleX2 = std::min(ScrX-5,(int)X2);

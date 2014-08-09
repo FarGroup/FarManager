@@ -40,7 +40,6 @@ public:
 	SaveScreen(int X1, int Y1, int X2, int Y2);
 	~SaveScreen();
 
-	void CorrectRealScreenCoord();
 	void SaveArea(int X1, int Y1, int X2, int Y2);
 	void SaveArea();
 	void RestoreArea(int RestoreCursor = TRUE);

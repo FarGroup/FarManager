@@ -40,12 +40,11 @@ class CommandLine:public SimpleScreenObject
 {
 public:
 	CommandLine();
-	virtual ~CommandLine();
+	virtual ~CommandLine() {};
 
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
-	virtual void ResizeConsole() override;
 
 	int GetCurDir(string &strCurDir);
 	void SetCurDir(const string& CurDir);
@@ -63,10 +62,6 @@ public:
 	void SetAutoComplete(int Mode);
 	void GetSelection(intptr_t &Start,intptr_t &End) const { CmdStr.GetSelection(Start,End); }
 	void Select(int Start, int End) { CmdStr.Select(Start,End); CmdStr.AdjustMarkBlock(); }
-	void SaveBackground(int X1,int Y1,int X2,int Y2);
-	void SaveBackground();
-	void ShowBackground();
-	void CorrectRealScreenCoord();
 	void LockUpdatePanel(bool Mode);
 	const int GetPromptSize() const {return PromptSize;}
 	void SetPromptSize(int NewSize);
@@ -83,7 +78,6 @@ private:
 
 	int PromptSize;
 	EditControl CmdStr;
-	SaveScreen *BackgroundScreen;
 	string strCurDir;
 	string strLastCmdStr;
 	int LastCmdPartLength;

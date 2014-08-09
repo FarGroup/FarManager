@@ -272,9 +272,9 @@ void CopyProgress::Flush()
 		{
 			if (CheckForEscSilent())
 			{
-				Global->FrameManager->GetFrame(0)->Lock();
+				Global->CtrlObject->Cp()->Lock();
 				IsCancelled=ConfirmAbortOp()!=0;
-				Global->FrameManager->GetFrame(0)->Unlock();
+				Global->CtrlObject->Cp()->Unlock();
 			}
 		}
 
@@ -955,8 +955,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	// Создадим объект фильтра
 	Filter=new FileFilter(SrcPanel, FFT_COPY);
 	// $ 26.05.2001 OT Запретить перерисовку панелей во время копирования
-	_tran(SysLog(L"call (*FrameManager)[0]->LockRefresh()"));
-	Global->FrameManager->GetFrame(0)->Lock();
+	Global->CtrlObject->Cp()->Lock();
 	ShowTotalCopySize=Global->Opt->CMOpt.CopyShowTotal!=0;
 	int DestPlugin=ToPlugin;
 	ToPlugin=FALSE;
@@ -1741,9 +1740,8 @@ ShellCopy::~ShellCopy()
 	_tran(SysLog(L"[%p] ShellCopy::~ShellCopy(), CopyBufer=%p",this,CopyBuffer));
 
 	// $ 26.05.2001 OT Разрешить перерисовку панелей
-	_tran(SysLog(L"call (*FrameManager)[0]->UnlockRefresh()"));
-	Global->FrameManager->GetFrame(0)->Unlock();
-	Global->FrameManager->GetFrame(0)->Refresh();
+	Global->CtrlObject->Cp()->Unlock();
+	Global->CtrlObject->Cp()->Refresh();
 
 	delete Filter;
 }

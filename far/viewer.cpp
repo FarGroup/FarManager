@@ -264,7 +264,7 @@ int Viewer::OpenFile(const string& Name,int warning)
 	SelectSize = -1; // —бросим выделение
 	strFileName = Name;
 
-	if (Global->Opt->OnlyEditorViewerUsed && strFileName == L"-")
+	if (Global->OnlyEditorViewerUsed && strFileName == L"-")
 	{
 		string strTempName;
 
@@ -1017,8 +1017,9 @@ void Viewer::DrawScrollbar()
 }
 
 
-const string& Viewer::GetTitle(string &strName) const
+string Viewer::GetTitle() const
 {
+	string strName;
 	if (!strTitle.empty())
 	{
 		strName = strTitle;
@@ -1332,7 +1333,7 @@ __int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			MacroViewerState |= VM.WordWrap              ? 0x00000010 : 0; //word wrap
 			MacroViewerState |= VM.Hex == 1              ? 0x00000020 : 0; //hex mode
 			MacroViewerState |= VM.Hex  > 1              ? 0x00000040 : 0; //dump mode
-			MacroViewerState |= Global->Opt->OnlyEditorViewerUsed?0x08000000|0x00000800:0;
+			MacroViewerState |= Global->OnlyEditorViewerUsed ? 0x08000000 | 0x00000800 : 0;
 			MacroViewerState |= HostFileViewer && !HostFileViewer->GetCanLoseFocus()?0x00000800:0;
 			return MacroViewerState;
 		}

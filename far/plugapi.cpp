@@ -43,7 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 #include "cmdline.hpp"
 #include "scantree.hpp"
-#include "rdrwdsk.hpp"
 #include "fileview.hpp"
 #include "fileedit.hpp"
 #include "plugins.hpp"
@@ -84,6 +83,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "xlat.hpp"
 #include "dirinfo.hpp"
 #include "language.hpp"
+#include "desktop.hpp"
 
 namespace pluginapi
 {
@@ -1145,9 +1145,9 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 	_ALGO(SysLog(L"(hPlugin=0x%08X, Command=%s, Param1=[%d/0x%08X], Param2=[%d/0x%08X])",hPlugin,_FCTL_ToName(Command),(int)Param1,Param1,(int)Param2,Param2));
 
 	if (Command == FCTL_CHECKPANELSEXIST)
-		return !Global->Opt->OnlyEditorViewerUsed;
+		return !Global->OnlyEditorViewerUsed;
 
-	if (Global->Opt->OnlyEditorViewerUsed || !Global->CtrlObject || Global->FrameManager->ManagerIsDown())
+	if (Global->OnlyEditorViewerUsed || !Global->CtrlObject || Global->FrameManager->ManagerIsDown())
 		return 0;
 
 	FilePanels *FPanels=Global->CtrlObject->Cp();
@@ -1244,14 +1244,8 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 			Global->KeepUserScreen++;
 			FPanels->LeftPanel->ProcessingPluginCommand++;
 			FPanels->RightPanel->ProcessingPluginCommand++;
-			Global->ScrBuf->FillBuf();
-			ScrollScreen(1);
-			SaveScreen SaveScr;
-			{
-				RedrawDesktop Redraw;
-				CmdLine->Hide();
-				SaveScr.RestoreArea(FALSE);
-			}
+			Console().ScrollScreenBuffer(1);
+			Global->CtrlObject->Desktop->FillFromConsole();
 			Global->KeepUserScreen--;
 			FPanels->LeftPanel->ProcessingPluginCommand--;
 			FPanels->RightPanel->ProcessingPluginCommand--;

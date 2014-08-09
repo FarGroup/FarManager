@@ -213,7 +213,7 @@ public:
 
 	virtual void Show() override;
 	virtual void Hide() override;
-	virtual const string& GetTitle(string &strDest) override;
+	virtual string GetTitle() const override;
 	virtual const wchar_t *GetTypeName() override { return L"[VMenu]"; }
 	virtual int GetTypeAndName(string &strType, string &strName) override;
 	virtual int GetType() const override { return CheckFlags(VMENU_COMBOBOX) ? MODALTYPE_COMBOBOX : MODALTYPE_VMENU; }
@@ -348,7 +348,7 @@ private:
 	Dialog *ParentDialog;
 	size_t DialogItemID;
 	std::unique_ptr<ConsoleTitle> OldTitle;
-	CriticalSection CS;
+	mutable CriticalSection CS;
 	bool bFilterEnabled;
 	bool bFilterLocked;
 	string strFilter;

@@ -179,7 +179,7 @@ void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 
 void FileViewer::InitKeyBar()
 {
-	ViewKeyBar.SetLabels(Global->Opt->OnlyEditorViewerUsed?MSingleViewF1:MViewF1);
+	ViewKeyBar.SetLabels(Global->OnlyEditorViewerUsed ? MSingleViewF1 : MViewF1);
 
 	if (DisableEdit)
 		ViewKeyBar.Change(KBL_MAIN,L"",6-1);
@@ -317,15 +317,11 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_CTRLO:
 		case KEY_RCTRLO:
-
-			if (!Global->Opt->OnlyEditorViewerUsed)
+			if (Global->FrameManager->ShowBackground())
 			{
-				if (Global->FrameManager->ShowBackground())
-				{
-					SetCursorType(false, 0);
-					WaitKey();
-					Global->FrameManager->RefreshFrame();
-				}
+				SetCursorType(false, 0);
+				WaitKey();
+				Global->FrameManager->RefreshFrame();
 			}
 
 			return TRUE;
@@ -338,6 +334,10 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 		case KEY_ESC:
 		case KEY_F10:
 			Global->FrameManager->DeleteFrame();
+			if (Global->OnlyEditorViewerUsed)
+			{
+				Global->FrameManager->ExitMainLoop(FALSE);
+			}
 			return TRUE;
 		case KEY_F6:
 
@@ -482,9 +482,9 @@ int FileViewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 	return View.ViewerControl(Command,Param1,Param2);
 }
 
-const string& FileViewer::GetTitle(string &Title)
+ string FileViewer::GetTitle() const
 {
-	return View.GetTitle(Title);
+	return View.GetTitle();
 }
 
 __int64 FileViewer::GetViewFileSize() const
@@ -502,8 +502,7 @@ void FileViewer::ShowStatus()
 	if (!IsTitleBarVisible())
 		return;
 
-	string strName;
-	GetTitle(strName);
+	string strName = GetTitle();
 	int NameLength = ScrX+1 - 40;
 
 	if (Global->Opt->ViewerEditorClock && IsFullScreen())

@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "shortcuts.hpp"
 #include "poscache.hpp"
 #include "plugins.hpp"
+#include "desktop.hpp"
 
 ControlObject::ControlObject():
 	CmdLine(nullptr),
@@ -59,6 +60,16 @@ ControlObject::ControlObject():
 	FPanels(nullptr)
 {
 	_OT(SysLog(L"[%p] ControlObject::ControlObject()", this));
+
+	SetColor(COL_COMMANDLINEUSERSCREEN);
+	GotoXY(0, ScrY - 3);
+	ShowCopyright();
+	GotoXY(0, ScrY - 2);
+	MoveCursor(0, ScrY - 1);
+
+	Desktop = new desktop;
+	Global->FrameManager->InsertFrame(Desktop);
+	Desktop->FillFromBuffer();
 
 	HiFiles = new HighlightFiles;
 	Plugins = new PluginManager;
@@ -76,15 +87,9 @@ ControlObject::ControlObject():
 
 void ControlObject::Init(int DirCount)
 {
-	TreeList::ClearCache();
-	SetColor(COL_COMMANDLINEUSERSCREEN);
-	GotoXY(0,ScrY-3);
-	ShowCopyright();
-	GotoXY(0,ScrY-2);
-	MoveCursor(0,ScrY-1);
 	FPanels=new FilePanels();
 	CmdLine=new CommandLine();
-	CmdLine->SaveBackground(0,0,ScrX,ScrY);
+	Desktop->FillFromBuffer();
 	this->MainKeyBar=&(FPanels->MainKeyBar);
 	this->TopMenuBar=&(FPanels->TopMenuBar);
 	FPanels->Init(DirCount);

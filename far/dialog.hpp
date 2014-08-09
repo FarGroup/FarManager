@@ -286,7 +286,7 @@ private:
 	friend class DlgEdit;
 
 	virtual void DisplayObject() override;
-	virtual const string& GetTitle(string& Title) override;
+	virtual string GetTitle() const override;
 	typedef std::unordered_set<Dialog*> dialogs_set;
 	static dialogs_set& DialogsList();
 	void AddToList();
@@ -353,7 +353,7 @@ private:
 	int OldX1,OldX2,OldY1,OldY2;
 	string HelpTopic;
 	int DropDownOpened;// Содержит статус комбобокса и хистори: TRUE - открыт, FALSE - закрыт.
-	CriticalSection CS;
+	mutable CriticalSection CS;
 	int RealWidth, RealHeight;
 	GUID Id;
 	bool IdExist;

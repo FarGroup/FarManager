@@ -115,6 +115,7 @@ LINK_OBJS = \
 	"$(INTDIR)\cvtname.obj" \
 	"$(INTDIR)\datetime.obj" \
 	"$(INTDIR)\delete.obj" \
+	"$(INTDIR)\desktop.obj" \
 	"$(INTDIR)\dialog.obj" \
 	"$(INTDIR)\dirinfo.obj" \
 	"$(INTDIR)\dirmix.obj" \
@@ -199,7 +200,6 @@ LINK_OBJS = \
 	"$(INTDIR)\privilege.obj" \
 	"$(INTDIR)\processname.obj" \
 	"$(INTDIR)\qview.obj" \
-	"$(INTDIR)\rdrwdsk.obj" \
 	"$(INTDIR)\RefreshFrameManager.obj" \
 	"$(INTDIR)\RegExp.obj" \
 	"$(INTDIR)\savescr.obj" \

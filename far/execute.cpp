@@ -44,7 +44,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "chgprior.hpp"
 #include "cmdline.hpp"
 #include "panel.hpp"
-#include "rdrwdsk.hpp"
 #include "imports.hpp"
 #include "manager.hpp"
 #include "interf.hpp"
@@ -61,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "language.hpp"
 #include "colormix.hpp"
+#include "desktop.hpp"
 
 struct IMAGE_HEADERS
 {
@@ -815,7 +815,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		int X1, X2, Y1, Y2;
 		Global->CtrlObject->CmdLine->GetPosition(X1, Y1, X2, Y2);
 		Global->ProcessShowClock += (add_show_clock = 1);
-		Global->CtrlObject->CmdLine->ShowBackground();
+		Global->FrameManager->ShowBackground();
 		Global->CtrlObject->CmdLine->Redraw();
 		GotoXY(X2+1,Y1);
 		Text(L' ');
@@ -1101,8 +1101,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	{
 		if(!Silent)
 		{
-			Global->ScrBuf->FillBuf();
-			Global->CtrlObject->CmdLine->SaveBackground();
+			Global->CtrlObject->Desktop->FillFromConsole();
 		}
 	}
 

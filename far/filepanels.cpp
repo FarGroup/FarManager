@@ -39,7 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "macroopcode.hpp"
 #include "ctrlobj.hpp"
 #include "filelist.hpp"
-#include "rdrwdsk.hpp"
 #include "cmdline.hpp"
 #include "treelist.hpp"
 #include "qview.hpp"
@@ -55,6 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "language.hpp"
 #include "config.hpp"
+#include "desktop.hpp"
 
 FilePanels::FilePanels(bool CreatePanels):
 	LastLeftFilePanel(nullptr),
@@ -1086,7 +1086,7 @@ void FilePanels::DisplayObject()
 //  if ( !Focus )
 //      return;
 	_OT(SysLog(L"[%p] FilePanels::Redraw() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
-	Global->CtrlObject->CmdLine->ShowBackground();
+	Global->FrameManager->ShowBackground();
 
 	if (Global->Opt->ShowMenuBar)
 		Global->CtrlObject->TopMenuBar->Show();

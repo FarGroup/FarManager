@@ -118,7 +118,7 @@ private:
 	virtual size_t GetFileCount() const override { return ListData.size(); }
 	virtual int GetFileName(string &strName, int Pos, DWORD &FileAttr) const override;
 	virtual void SetTitle() override;
-	virtual const string& GetTitle(string &Title) const override;
+	virtual string GetTitle() const override;
 	virtual void SetFocus() override;
 	virtual void KillFocus() override;
 	virtual void UpdateKeyBar() override;

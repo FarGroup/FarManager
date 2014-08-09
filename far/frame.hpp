@@ -40,6 +40,7 @@ class KeyBar;
 
 enum MODALFRAME_TYPE
 {
+	MODALTYPE_DESKTOP,
 	MODALTYPE_PANELS,
 	MODALTYPE_VIEWER,
 	MODALTYPE_EDITOR,
@@ -72,7 +73,7 @@ public:
 	virtual void RedrawKeyBar() { UpdateKeyBar(); }
 	virtual FARMACROAREA GetMacroMode() const { return MacroMode; }
 	virtual int FastHide();
-	virtual const string& GetTitle(string &Title) = 0;
+	virtual string GetTitle() const = 0;
 	virtual bool ProcessEvents() {return true;}
 
 	void SetCanLoseFocus(int Mode) { CanLoseFocus=Mode; }

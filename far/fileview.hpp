@@ -61,7 +61,7 @@ class FileViewer:public Frame
 	virtual int GetType() const override { return MODALTYPE_VIEWER; }
 	/* $ ¬ведена дл€ нужд CtrlAltShift OT */
 	virtual int FastHide() override;
-	virtual const string& GetTitle(string &Title) override;
+	virtual string GetTitle() const override;
 
 	void Init(const string& Name, int EnableSwitch, int DisableHistory, __int64 ViewStartPos, const wchar_t *PluginData, NamesList *ViewNamesList, bool ToSaveAs, Frame* Update=nullptr);
 	/* $ 14.06.2002 IS

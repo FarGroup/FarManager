@@ -2594,12 +2594,11 @@ void VMenu::SetMaxHeight(int NewMaxHeight)
 		MaxHeight = ScrY-6;
 }
 
-const string& VMenu::GetTitle(string &strDest)
+string VMenu::GetTitle() const
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
-	strDest = strTitle;
-	return strDest;
+	return strTitle;
 }
 
 string &VMenu::GetBottomTitle(string &strDest)

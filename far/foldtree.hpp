@@ -61,7 +61,7 @@ public:
 	virtual int GetType() const override { return MODALTYPE_FINDFOLDER; }
 
 private:
-	virtual const string& GetTitle(string& Title) override { return Title; }
+	virtual string GetTitle() const override { return string(); }
 	virtual void DisplayObject() override;
 	void DrawEdit();
 	void SetCoords();

@@ -259,11 +259,6 @@ Help::~Help()
 	SetRestoreScreenMode(false);
 }
 
-void Help::Hide()
-{
-	ScreenObjectWithShadow::Hide();
-}
-
 int Help::ReadHelp(const string& Mask)
 {
 	string strSplitLine;

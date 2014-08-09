@@ -453,8 +453,7 @@ void Dialog::InitDialog()
 
 			if (!DialogMode.Check(DMODE_KEEPCONSOLETITLE))
 			{
-				string Title;
-				ConsoleTitle::SetFarTitle(GetTitle(Title));
+				ConsoleTitle::SetFarTitle(GetTitle());
 			}
 		}
 
@@ -971,12 +970,12 @@ size_t Dialog::InitDialogObjects(size_t ID)
 }
 
 
-const string& Dialog::GetTitle(string& Title)
+string Dialog::GetTitle() const
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 	const DialogItemEx *CurItemList=nullptr;
 
-	Title.clear();
+	string Title;
 
 	FOR_CONST_RANGE(Items, i)
 	{
@@ -995,7 +994,7 @@ const string& Dialog::GetTitle(string& Title)
 
 	if (CurItemList)
 	{
-		return CurItemList->ListPtr->GetTitle(Title);
+		Title = CurItemList->ListPtr->GetTitle();
 	}
 
 	return Title;
@@ -4428,7 +4427,7 @@ int Dialog::GetTypeAndName(string &strType, string &strName)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 	strType = MSG(MDialogType);
-	GetTitle(strName);
+	strName = GetTitle();
 	return MODALTYPE_DIALOG;
 }
 
@@ -4972,8 +4971,8 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				}
 			};
 
-			string strTitleDialog;
-			Len = GetTitle(strTitleDialog).size();
+			string strTitleDialog = GetTitle();
+			Len = strTitleDialog.size();
 			if (CheckStructSize(did)) // если здесь nullptr, то это еще один способ получить размер
 			{
 				Ptr=strTitleDialog.c_str();
@@ -5191,8 +5190,8 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						{
 
 							FarListTitles *ListTitle=(FarListTitles *)Param2;
-							string strTitle,strBottomTitle;
-							ListBox->GetTitle(strTitle);
+							string strTitle = ListBox->GetTitle();
+							string strBottomTitle;
 							ListBox->GetBottomTitle(strBottomTitle);
 
 							if (CheckStructSize(ListTitle)&&(!strTitle.empty()||!strBottomTitle.empty()))
@@ -5869,8 +5868,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						{
 							if (!DialogMode.Check(DMODE_KEEPCONSOLETITLE))
 							{
-								string Title;
-								ConsoleTitle::SetFarTitle(GetTitle(Title));
+								ConsoleTitle::SetFarTitle(GetTitle());
 							}
 							ShowDialog(Param1);
 							Global->ScrBuf->Flush();
@@ -5963,8 +5961,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				InitDialogObjects(Param1); // переинициализируем элементы диалога
 				if (!DialogMode.Check(DMODE_KEEPCONSOLETITLE))
 				{
-					string Title;
-					ConsoleTitle::SetFarTitle(GetTitle(Title));
+					ConsoleTitle::SetFarTitle(GetTitle());
 				}
 				return MaxLen;
 			}
@@ -6008,8 +6005,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			InitDialogObjects(Param1);
 			if (!DialogMode.Check(DMODE_KEEPCONSOLETITLE))
 			{
-				string Title;
-				ConsoleTitle::SetFarTitle(GetTitle(Title));
+				ConsoleTitle::SetFarTitle(GetTitle());
 			}
 			if (DialogMode.Check(DMODE_SHOW))
 			{
