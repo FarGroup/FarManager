@@ -99,7 +99,7 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 	Y2=std::max(GArea.Y1,GArea.Y2);
 
 	matrix<FAR_CHAR_INFO> CharBuf(Y2 - Y1 + 1, X2 - X1 + 1);
-	GetText(X1, Y1, X2, Y2, CharBuf.data(), CharBuf.size());
+	GetText(X1, Y1, X2, Y2, CharBuf);
 
 	string CopyBuf;
 	CopyBuf.reserve(CharBuf.height() * (CharBuf.width() + 2));
@@ -222,7 +222,7 @@ void Grabber::DisplayObject()
 		if (GArea.X1!=-1)
 		{
 			matrix<FAR_CHAR_INFO> CharBuf(Y2 - Y1 + 1, X2 - X1 + 1);
-			GetText(X1,Y1,X2,Y2,CharBuf.data(), CharBuf.size());
+			GetText(X1, Y1, X2, Y2, CharBuf);
 
 			for (int X=X1; X<=X2; X++)
 			{

@@ -470,10 +470,10 @@ void ShowTime(int ShowAlways)
 		return;
 
 	SYSTEMTIME tm;
-	FAR_CHAR_INFO colon;
+	matrix<FAR_CHAR_INFO> colon(1, 1);
 	GetLocalTime(&tm);
-	GetText(ScrX-4+2,0,ScrX-4+2,0,&colon,sizeof(colon));
-	if (!ShowAlways && lasttm.wMinute==tm.wMinute && lasttm.wHour==tm.wHour && colon.Char==L':')
+	GetText(ScrX - 4 + 2, 0, ScrX - 4 + 2, 0, colon);
+	if (!ShowAlways && lasttm.wMinute == tm.wMinute && lasttm.wHour == tm.wHour && colon[0][0].Char == L':')
 		return;
 
 	Global->ProcessShowClock++;
@@ -800,9 +800,9 @@ void ScrollScreen(int Count)
 }
 
 
-void GetText(int X1,int Y1,int X2,int Y2,FAR_CHAR_INFO* Dest,size_t DestSize)
+void GetText(int X1,int Y1,int X2,int Y2, matrix<FAR_CHAR_INFO>& Dest)
 {
-	Global->ScrBuf->Read(X1,Y1,X2,Y2,Dest,DestSize);
+	Global->ScrBuf->Read(X1, Y1, X2, Y2, Dest);
 }
 
 void PutText(int X1, int Y1, int X2, int Y2, const FAR_CHAR_INFO *Src)

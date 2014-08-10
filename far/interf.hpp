@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "strmix.hpp"
 #include "colors.hpp"
+#include "matrix.hpp"
 
 extern WCHAR Oem2Unicode[];
 extern WCHAR BoxSymbols[];
@@ -154,7 +155,7 @@ inline void VText(const string& Str) { return VText(Str.data(), Str.size()); }
 
 void HiText(const string& Str,const FarColor& HiColor,int isVertText=0);
 void PutText(int X1,int Y1,int X2,int Y2,const FAR_CHAR_INFO* Src);
-void GetText(int X1,int Y1,int X2,int Y2,FAR_CHAR_INFO* Dest,size_t DestSize);
+void GetText(int X1, int Y1, int X2, int Y2, matrix<FAR_CHAR_INFO>& Dest);
 
 void BoxText(const wchar_t* Str, size_t Size, bool IsVert = false);
 inline void BoxText(const string& Str, bool IsVert = false) { return BoxText(Str.data(), Str.size(), IsVert); }

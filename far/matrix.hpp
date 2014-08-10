@@ -87,7 +87,7 @@ public:
 	size_t height() const { return m_rows; }
 	size_t width() const { return m_cols; }
 
-	row front() { return (*this)[0] }
+	row front() { return (*this)[0]; }
 	row back() { return (*this)[m_rows - 1]; }
 
 	bool empty() const { return m_buffer.empty(); }

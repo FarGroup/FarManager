@@ -1046,17 +1046,15 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 					COORD Size;
 					if(Console().GetSize(Size))
 					{
-						COORD BufferSize = {Size.X, static_cast<SHORT>(Global->Opt->ShowKeyBar?3:2)};
-						std::vector<FAR_CHAR_INFO> Buffer(BufferSize.X * BufferSize.Y);
-						COORD BufferCoord = {};
-						SMALL_RECT ReadRegion = {0, static_cast<SHORT>(Size.Y - BufferSize.Y), static_cast<SHORT>(Size.X-1), static_cast<SHORT>(Size.Y-1)};
-						if(Console().ReadOutput(Buffer.data(), BufferSize, BufferCoord, ReadRegion))
+						matrix<FAR_CHAR_INFO> Buffer(Global->Opt->ShowKeyBar ? 3 : 2, Size.X);
+						SMALL_RECT ReadRegion = {0, static_cast<SHORT>(Size.Y - Buffer.height()), static_cast<SHORT>(Size.X-1), static_cast<SHORT>(Size.Y-1)};
+						if(Console().ReadOutput(Buffer, ReadRegion))
 						{
-							FarColor Attributes = Buffer[BufferSize.X*BufferSize.Y-1].Attributes;
+							FarColor Attributes = Buffer.back().back().Attributes;
 							SkipScroll = true;
-							for(int i = 0; i < BufferSize.X*BufferSize.Y; i++)
+							FOR(const auto& i, Buffer.vector())
 							{
-								if(Buffer[i].Char != L' ' || Buffer[i].Attributes.ForegroundColor != Attributes.ForegroundColor || Buffer[i].Attributes.BackgroundColor != Attributes.BackgroundColor || Buffer[i].Attributes.Flags != Attributes.Flags)
+								if(i.Char != L' ' || i.Attributes.ForegroundColor != Attributes.ForegroundColor || i.Attributes.BackgroundColor != Attributes.BackgroundColor || i.Attributes.Flags != Attributes.Flags)
 								{
 									SkipScroll = false;
 									break;

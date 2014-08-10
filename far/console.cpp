@@ -295,32 +295,34 @@ virtual bool WriteInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEve
 	return Result;
 }
 
-virtual bool ReadOutput(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& ReadRegion) const override
+virtual bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& ReadRegion) const override
 {
 	bool Result=false;
 	int Delta=Global->Opt->WindowMode?GetDelta():0;
 	ReadRegion.Top+=Delta;
 	ReadRegion.Bottom+=Delta;
 
+	COORD BufferSize = { static_cast<SHORT>(Buffer.width()), static_cast<SHORT>(Buffer.height()) };
+
 	// skip unused region
-	int Offset = BufferCoord.Y*BufferSize.X;
-	std::vector<CHAR_INFO> ConsoleBuffer(BufferSize.X*BufferSize.Y-Offset);
+	const size_t Offset = BufferCoord.Y * BufferSize.X;
+	matrix<CHAR_INFO> ConsoleBuffer(BufferSize.Y - BufferCoord.Y, BufferSize.X);
+	
 	BufferSize.Y-=BufferCoord.Y;
 	BufferCoord.Y=0;
 
 	if(BufferSize.X*BufferSize.Y*sizeof(CHAR_INFO)>MAXSIZE)
 	{
-		SHORT SavedY = BufferSize.Y;
-		BufferSize.Y=static_cast<SHORT>(std::max(static_cast<int>(MAXSIZE/(BufferSize.X*sizeof(CHAR_INFO))),1));
-		int Height=ReadRegion.Bottom-ReadRegion.Top+1;
+		auto SavedY = BufferSize.Y;
+		BufferSize.Y = std::max(static_cast<int>(MAXSIZE/(BufferSize.X*sizeof(CHAR_INFO))),1);
+		size_t Height = ReadRegion.Bottom - ReadRegion.Top + 1;
 		int Start=ReadRegion.Top;
 		SMALL_RECT SavedReadRegion=ReadRegion;
-		for(int i=0;i<Height;i+=BufferSize.Y)
+		for(size_t i = 0; i < Height; i += BufferSize.Y)
 		{
 			ReadRegion=SavedReadRegion;
-			ReadRegion.Top=Start+i;
-			PCHAR_INFO BufPtr=ConsoleBuffer.data()+i*BufferSize.X;
-			Result=ReadConsoleOutput(GetOutputHandle(), BufPtr, BufferSize, BufferCoord, &ReadRegion)!=FALSE;
+			ReadRegion.Top = static_cast<SHORT>(Start+i);
+			Result = ReadConsoleOutput(GetOutputHandle(), ConsoleBuffer[i].data(), BufferSize, BufferCoord, &ReadRegion) != FALSE;
 		}
 		BufferSize.Y = SavedY;
 	}
@@ -329,11 +331,12 @@ virtual bool ReadOutput(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoo
 		Result=ReadConsoleOutput(GetOutputHandle(), ConsoleBuffer.data(), BufferSize, BufferCoord, &ReadRegion)!=FALSE;
 	}
 
-	for(int i = 0; i < BufferSize.X*BufferSize.Y; ++i)
+	auto& ConsoleBufferVector = ConsoleBuffer.vector();
+	std::transform(ConsoleBufferVector.cbegin(), ConsoleBufferVector.cend(), Buffer.data() + Offset, [](const VALUE_TYPE(ConsoleBufferVector)& i) -> FAR_CHAR_INFO
 	{
-		Buffer[i+Offset].Char = ConsoleBuffer[i].Char.UnicodeChar;
-		Buffer[i+Offset].Attributes = Colors::ConsoleColorToFarColor(ConsoleBuffer[i].Attributes);
-	}
+		FAR_CHAR_INFO Result = {i.Char.UnicodeChar, Colors::ConsoleColorToFarColor(i.Attributes)};
+		return Result;
+	});
 
 	if(Global->Opt->WindowMode)
 	{
@@ -344,40 +347,41 @@ virtual bool ReadOutput(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoo
 	return Result;
 }
 
-virtual bool WriteOutput(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& WriteRegion) const override
+virtual bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& WriteRegion) const override
 {
 	bool Result=false;
 	int Delta=Global->Opt->WindowMode?GetDelta():0;
 	WriteRegion.Top+=Delta;
 	WriteRegion.Bottom+=Delta;
 
+	COORD BufferSize = { static_cast<SHORT>(Buffer.width()), static_cast<SHORT>(Buffer.height()) };
+
 	// skip unused region
-	int Offset = BufferCoord.Y*BufferSize.X;
-	std::vector<CHAR_INFO> ConsoleBuffer;
-	const size_t Size = BufferSize.X * BufferSize.Y - Offset;
-	ConsoleBuffer.reserve(Size);
-	for(size_t i = 0; i < Size; ++i)
+	const size_t Offset = BufferCoord.Y * BufferSize.X;
+	const size_t Size = BufferSize.X * (BufferSize.Y - BufferCoord.Y);
+
+	matrix<CHAR_INFO> ConsoleBuffer(BufferSize.Y - BufferCoord.Y, BufferSize.X);
+	std::transform(Buffer.data() + Offset, Buffer.data() + Offset + Size, ConsoleBuffer.data(), [](const FAR_CHAR_INFO& i) -> CHAR_INFO
 	{
-		CHAR_INFO Info = {Buffer[i + Offset].Char, Colors::FarColorToConsoleColor(Buffer[i + Offset].Attributes)};
-		ConsoleBuffer.emplace_back(Info);
-	}
+		CHAR_INFO Result = {i.Char, Colors::FarColorToConsoleColor(i.Attributes)};
+		return Result;
+	});
 
 	BufferSize.Y-=BufferCoord.Y;
 	BufferCoord.Y=0;
 
 	if(BufferSize.X*BufferSize.Y*sizeof(CHAR_INFO)>MAXSIZE)
 	{
-		SHORT SavedY = BufferSize.Y;
+		auto SavedY = BufferSize.Y;
 		BufferSize.Y=static_cast<SHORT>(std::max(static_cast<int>(MAXSIZE/(BufferSize.X*sizeof(CHAR_INFO))),1));
-		int Height=WriteRegion.Bottom-WriteRegion.Top+1;
+		size_t Height = WriteRegion.Bottom - WriteRegion.Top + 1;
 		int Start=WriteRegion.Top;
 		SMALL_RECT SavedWriteRegion=WriteRegion;
-		for(int i=0;i<Height;i+=BufferSize.Y)
+		for (size_t i = 0; i < Height; i += BufferSize.Y)
 		{
 			WriteRegion=SavedWriteRegion;
-			WriteRegion.Top=Start+i;
-			const CHAR_INFO* BufPtr=ConsoleBuffer.data()+i*BufferSize.X;
-			Result=WriteConsoleOutput(GetOutputHandle(), BufPtr, BufferSize, BufferCoord, &WriteRegion)!=FALSE;
+			WriteRegion.Top = static_cast<SHORT>(Start + i);
+			Result = WriteConsoleOutput(GetOutputHandle(), ConsoleBuffer[i].data(), BufferSize, BufferCoord, &WriteRegion) != FALSE;
 		}
 		BufferSize.Y = SavedY;
 	}
@@ -713,30 +717,32 @@ public:
 		}
 	}
 
-	virtual bool ReadOutput(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& ReadRegion) const override
+	virtual bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& ReadRegion) const override
 	{
 		bool Result = false;
 		if(Imports.pReadOutput)
 		{
-			Result = Imports.pReadOutput(Buffer, BufferSize, BufferCoord, &ReadRegion) != FALSE;
+			const COORD SizeCoord = { static_cast<SHORT>(Buffer.width()), static_cast<SHORT>(Buffer.height()) };
+			Result = Imports.pReadOutput(Buffer.data(), SizeCoord, BufferCoord, &ReadRegion) != FALSE;
 		}
 		else
 		{
-			Result = basicconsole::ReadOutput(Buffer, BufferSize, BufferCoord, ReadRegion);
+			Result = basicconsole::ReadOutput(Buffer, BufferCoord, ReadRegion);
 		}
 		return Result;
 	}
 
-	virtual bool WriteOutput(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& WriteRegion) const override
+	virtual bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& WriteRegion) const override
 	{
 		bool Result = false;
 		if(Imports.pWriteOutput)
 		{
-			Result = Imports.pWriteOutput(Buffer, BufferSize, BufferCoord, &WriteRegion) != FALSE;
+			const COORD BufferSize = { static_cast<SHORT>(Buffer.width()), static_cast<SHORT>(Buffer.height()) };
+			Result = Imports.pWriteOutput(Buffer.data(), BufferSize, BufferCoord, &WriteRegion) != FALSE;
 		}
 		else
 		{
-			Result = basicconsole::WriteOutput(Buffer, BufferSize, BufferCoord, WriteRegion);
+			Result = basicconsole::WriteOutput(Buffer, BufferCoord, WriteRegion);
 		}
 		return Result;
 	}

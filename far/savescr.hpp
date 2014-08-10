@@ -54,7 +54,7 @@ private:
 	friend class Grabber;
 
 	static void CleanupBuffer(FAR_CHAR_INFO* Buffer, size_t BufSize);
-	static void CharCopy(FAR_CHAR_INFO* ToBuffer, const FAR_CHAR_INFO* FromBuffer, int Count);
+	static void CharCopy(FAR_CHAR_INFO* ToBuffer, const FAR_CHAR_INFO* FromBuffer, size_t Count);
 
 	matrix<FAR_CHAR_INFO> ScreenBuf;
 	SHORT CurPosX,CurPosY;

@@ -32,6 +32,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "matrix.hpp"
+
 enum CLEAR_REGION
 {
 	CR_TOP=0x1,
@@ -82,8 +84,10 @@ public:
 	virtual bool PeekInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsRead) const = 0;
 	virtual bool ReadInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsRead) const = 0;
 	virtual bool WriteInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsWritten) const = 0;
-	virtual bool ReadOutput(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& ReadRegion) const = 0;
-	virtual bool WriteOutput(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& WriteRegion) const = 0;
+	virtual bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& ReadRegion) const = 0;
+	bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, SMALL_RECT& ReadRegion) const { COORD BufferCoord = {}; return ReadOutput(Buffer, BufferCoord, ReadRegion); }
+	virtual bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& WriteRegion) const = 0;
+	bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, SMALL_RECT& WriteRegion) const { COORD BufferCoord = {}; return WriteOutput(Buffer, BufferCoord, WriteRegion); }
 	virtual bool Write(LPCWSTR Buffer) const = 0;
 	virtual bool Write(const string& Buffer) const = 0;
 	virtual bool Write(LPCWSTR Buffer, size_t NumberOfCharsToWrite) const = 0;
