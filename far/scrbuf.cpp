@@ -57,6 +57,19 @@ enum
 // #define DIRECT_SCREEN_OUT
 //#endif
 
+bool is_visible(int& X1, int& Y1, int& X2, int& Y2)
+{
+	return X1 <= ScrX && Y1 <= ScrY && X2 >= 0 && Y2 >= 0;
+}
+
+static void fix_coordinates(int& X1, int& Y1, int& X2, int& Y2)
+{
+	X1 = std::max(X1, 0);
+	X2 = std::min(static_cast<int>(ScrX), X2);
+	Y1 = std::max(Y1, 0);
+	Y2 = std::min(static_cast<int>(ScrY), Y2);
+}
+
 ScreenBuf::ScreenBuf():
 	MacroChar(),
 	ElevationChar(),
@@ -117,12 +130,11 @@ void ScreenBuf::Write(int X,int Y,const FAR_CHAR_INFO *Text, size_t Size)
 	if (static_cast<int>(X + Size) >= static_cast<int>(Buf.width()))
 		Size = Buf.width() - X; //??
 
-	auto PtrBuf = &Buf[Y][X];
-
-	for (size_t i=0; i < Size; i++)
+	for (size_t i = 0; i != Size; ++i)
 	{
-		SetVidChar(PtrBuf[i],Text[i].Char);
-		PtrBuf[i].Attributes=Text[i].Attributes;
+		auto& Element = Buf[Y][X + i];
+		SetVidChar(Element, Text[i].Char);
+		Element.Attributes = Text[i].Attributes;
 	}
 
 	SBFlags.Clear(SBFLAGS_FLUSHED);
@@ -142,14 +154,15 @@ void ScreenBuf::Write(int X,int Y,const FAR_CHAR_INFO *Text, size_t Size)
 void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,FAR_CHAR_INFO *Text, size_t Size)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
-	size_t Width=X2-X1+1;
-	size_t Height=Y2-Y1+1;
+	
+	const size_t Width = X2 - X1 + 1;
+	const size_t Height = Y2 - Y1 + 1;
+	const size_t Length = std::min(Width, Size);
 
 	for (size_t Idx = 0, I = 0; I < Height; I++, Idx += Width)
 	{
 		auto begin = &Buf[Y1 + I][X1];
-		auto end = begin + std::min(Width, Size);
-		std::copy(begin, end, Text + Idx);
+		std::copy(begin, begin + Length, Text + Idx);
 	}
 }
 
@@ -158,32 +171,38 @@ void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,FAR_CHAR_INFO *Text, size_t Siz
 */
 void ScreenBuf::ApplyShadow(int X1,int Y1,int X2,int Y2)
 {
+	if (!is_visible(X1, Y1, X2, Y2))
+		return;
+
 	SCOPED_ACTION(CriticalSectionLock)(CS);
-	int Width=X2-X1+1;
-	int Height=Y2-Y1+1;
-	int I, J;
-	for (I=0; I < Height; I++)
+
+	fix_coordinates(X1, Y1, X2, Y2);
+
+	const size_t Width = X2 - X1 + 1;
+	const size_t Height = Y2 - Y1 + 1;
+
+	for (size_t i = 0; i != Height; ++i)
 	{
-		auto PtrBuf = &Buf[Y1 + I][X1];
-
-		for (J=0; J < Width; J++, ++PtrBuf)
+		for (size_t j = 0; j != Width; ++j)
 		{
-			PtrBuf->Attributes.BackgroundColor = 0;
+			auto& Element = Buf[Y1 + i][X1 + j];
 
-			if(PtrBuf->Attributes.Flags&FCF_FG_4BIT)
+			Element.Attributes.BackgroundColor = 0;
+
+			if (Element.Attributes.Flags&FCF_FG_4BIT)
 			{
-				PtrBuf->Attributes.ForegroundColor&=~0x8;
-				if(!COLORVALUE(PtrBuf->Attributes.ForegroundColor))
+				Element.Attributes.ForegroundColor &= ~0x8;
+				if (!COLORVALUE(Element.Attributes.ForegroundColor))
 				{
-					PtrBuf->Attributes.ForegroundColor=0x8;
+					Element.Attributes.ForegroundColor = 0x8;
 				}
 			}
 			else
 			{
-				PtrBuf->Attributes.ForegroundColor&=~0x808080;
-				if(!COLORVALUE(PtrBuf->Attributes.ForegroundColor))
+				Element.Attributes.ForegroundColor &= ~0x808080;
+				if (!COLORVALUE(Element.Attributes.ForegroundColor))
 				{
-					PtrBuf->Attributes.ForegroundColor = 0x808080;
+					Element.Attributes.ForegroundColor = 0x808080;
 				}
 			}
 		}
@@ -204,53 +223,47 @@ void ScreenBuf::ApplyShadow(int X1,int Y1,int X2,int Y2)
 // used in block selection
 void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color, bool PreserveExFlags)
 {
+	if (!is_visible(X1, Y1, X2, Y2))
+		return;
+
 	SCOPED_ACTION(CriticalSectionLock)(CS);
-	if(X1<=ScrX && Y1<=ScrY && X2>=0 && Y2>=0)
+
+	fix_coordinates(X1, Y1, X2, Y2);
+
+	const size_t Width = X2 - X1 + 1;
+	const size_t Height = Y2 - Y1 + 1;
+
+	if(PreserveExFlags)
 	{
-		X1=std::max(0,X1);
-		X2=std::min(static_cast<int>(ScrX),X2);
-		Y1=std::max(0,Y1);
-		Y2=std::min(static_cast<int>(ScrY),Y2);
-
-		int Width=X2-X1+1;
-		int Height=Y2-Y1+1;
-		int I, J;
-
-		FAR_CHAR_INFO *PtrBuf;
-		if(PreserveExFlags)
+		for (size_t i = 0; i != Height; ++i)
 		{
-			for (I=0; I < Height; I++)
+			for (size_t j = 0; j != Width; ++j)
 			{
-				PtrBuf = &Buf[Y1 + I][X1];
-				for (J=0; J < Width; J++, ++PtrBuf)
-				{
-					FARCOLORFLAGS ExFlags = PtrBuf->Attributes.Flags&FCF_EXTENDEDFLAGS;
-					PtrBuf->Attributes=Color;
-					PtrBuf->Attributes.Flags = (PtrBuf->Attributes.Flags&~FCF_EXTENDEDFLAGS)|ExFlags;
-				}
+				auto& Element = Buf[Y1 + i][X1 + j];
+				auto ExFlags = Element.Attributes.Flags&FCF_EXTENDEDFLAGS;
+				Element.Attributes = Color;
+				Element.Attributes.Flags = (Element.Attributes.Flags&~FCF_EXTENDEDFLAGS) | ExFlags;
 			}
 		}
-		else
+	}
+	else
+	{
+		for (size_t i = 0; i != Height; ++i)
 		{
-			for (I=0; I < Height; I++)
+			for (size_t j = 0; j != Width; ++j)
 			{
-				PtrBuf = &Buf[Y1 + I][X1];
-				for (J=0; J < Width; J++, ++PtrBuf)
-				{
-					PtrBuf->Attributes=Color;
-				}
+				auto& Element = Buf[Y1 + i][X1 + j];
+				Element.Attributes = Color;
 			}
 		}
+	}
 
 #ifdef DIRECT_SCREEN_OUT
-		Flush();
+	Flush();
 #elif defined(DIRECT_RT)
-
-		if (Global->DirectRT)
-			Flush();
-
+	if (Global->DirectRT)
+		Flush();
 #endif
-	}
 }
 
 /* Непосредственное изменение цветовых атрибутов с заданым цетом исключением
@@ -258,67 +271,75 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color, bo
 // used in stream selection
 void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color,const FarColor& ExceptColor, bool ForceExFlags)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-	if(X1<=ScrX && Y1<=ScrY && X2>=0 && Y2>=0)
-	{
-		X1=std::max(0,X1);
-		X2=std::min(static_cast<int>(ScrX),X2);
-		Y1=std::max(0,Y1);
-		Y2=std::min(static_cast<int>(ScrY),Y2);
+	if (!is_visible(X1, Y1, X2, Y2))
+		return;
 
-		for (int I = 0; I < Y2-Y1+1; I++)
+	SCOPED_ACTION(CriticalSectionLock)(CS);
+
+	fix_coordinates(X1, Y1, X2, Y2);
+
+	const size_t Height = Y2 - Y1 + 1;
+	const size_t Width = X2 - X1 + 1;
+
+	for (size_t i = 0; i != Height; ++i)
+	{
+		for (size_t j = 0; j != Width; ++j)
 		{
-			auto PtrBuf = &Buf[Y1 + I][X1];
-			for (int J = 0; J < X2-X1+1; J++, ++PtrBuf)
+			auto& Element = Buf[Y1 + i][X1 + j];
+
+			if (Element.Attributes.ForegroundColor != ExceptColor.ForegroundColor || Element.Attributes.BackgroundColor != ExceptColor.BackgroundColor)
 			{
-				if (PtrBuf->Attributes.ForegroundColor != ExceptColor.ForegroundColor || PtrBuf->Attributes.BackgroundColor != ExceptColor.BackgroundColor)
-				{
-					PtrBuf->Attributes=Color;
-				}
-				else if (ForceExFlags)
-				{
-					PtrBuf->Attributes.Flags = (PtrBuf->Attributes.Flags&~FCF_EXTENDEDFLAGS)|(Color.Flags&FCF_EXTENDEDFLAGS);
-				}
+				Element.Attributes = Color;
+			}
+			else if (ForceExFlags)
+			{
+				Element.Attributes.Flags = (Element.Attributes.Flags&~FCF_EXTENDEDFLAGS) | (Color.Flags&FCF_EXTENDEDFLAGS);
 			}
 		}
+	}
 
 #ifdef DIRECT_SCREEN_OUT
-		Flush();
+	Flush();
 #elif defined(DIRECT_RT)
-
-		if (Global->DirectRT)
-			Flush();
-
+	if (Global->DirectRT)
+		Flush();
 #endif
-	}
 }
 
 /* Закрасить прямоугольник символом Ch и цветом Color
 */
 void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,WCHAR Ch,const FarColor& Color)
 {
+	if (!is_visible(X1, Y1, X2, Y2))
+		return;
+
 	SCOPED_ACTION(CriticalSectionLock)(CS);
-	int Width=X2-X1+1;
-	int Height=Y2-Y1+1;
-	int I, J;
-	FAR_CHAR_INFO CI,*PtrBuf;
+
+	FAR_CHAR_INFO CI;
 	CI.Attributes=Color;
 	SetVidChar(CI,Ch);
 
-	for (I=0; I < Height; I++)
+	fix_coordinates(X1, Y1, X2, Y2);
+
+	const size_t Width = X2 - X1 + 1;
+	const size_t Height = Y2 - Y1 + 1;
+
+	for (size_t i = 0; i != Height; ++i)
 	{
-		for (PtrBuf = &Buf[Y1 + I][X1], J = 0; J < Width; J++, ++PtrBuf)
-			*PtrBuf=CI;
+		for (size_t j = 0; j != Width; ++j)
+		{
+			auto& Element = Buf[Y1 + i][X1 + j];
+			Element = CI;
+		}
 	}
 
 	SBFlags.Clear(SBFLAGS_FLUSHED);
+
 #ifdef DIRECT_SCREEN_OUT
 	Flush();
 #elif defined(DIRECT_RT)
-
 	if (Global->DirectRT)
 		Flush();
-
 #endif
 }
 
@@ -337,28 +358,28 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 				(Global->CtrlObject->Macro.IsExecuting() && Global->Opt->Macro.ShowPlayIndicator))
 			)
 			{
-				MacroChar = Buf.front();
+				MacroChar = Buf[0][0];
 				MacroCharUsed=true;
 
 				if(Global->CtrlObject->Macro.IsRecording())
 				{
-					Buf.front().Char = L'R';
-					Buf.front().Attributes = Colors::ConsoleColorToFarColor(B_LIGHTRED | F_WHITE);
+					Buf[0][0].Char = L'R';
+					Buf[0][0].Attributes = Colors::ConsoleColorToFarColor(B_LIGHTRED | F_WHITE);
 				}
 				else
 				{
-					Buf.front().Char = L'P';
-					Buf.front().Attributes = Colors::ConsoleColorToFarColor(B_GREEN | F_WHITE);
+					Buf[0][0].Char = L'P';
+					Buf[0][0].Attributes = Colors::ConsoleColorToFarColor(B_GREEN | F_WHITE);
 				}
 			}
 
 			if(Global->Elevation->Elevated())
 			{
-				ElevationChar = Buf.back();
+				ElevationChar = Buf.back().back();
 				ElevationCharUsed=true;
 
-				Buf.back().Char = L'A';
-				Buf.back().Attributes = Colors::ConsoleColorToFarColor(B_LIGHTRED | F_WHITE);
+				Buf.back().back().Char = L'A';
+				Buf.back().back().Attributes = Colors::ConsoleColorToFarColor(B_LIGHTRED | F_WHITE);
 			}
 		}
 
@@ -396,7 +417,7 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 						WriteRegion.Top=I;
 						WriteRegion.Bottom=I-1;
 
-						while (I < static_cast<SHORT>(Buf.height()) && !std::equal(&BufRow[0], &BufRow[0] + BufRow.size(), &ShadowRow[0]))
+						while (I < static_cast<SHORT>(Buf.height()) && !std::equal(BufRow.cbegin(), BufRow.cend(), ShadowRow.cbegin()))
 						{
 							I++;
 							BufRow = Buf[I];
@@ -492,12 +513,12 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 
 		if (MacroCharUsed)
 		{
-			Buf.front() = MacroChar;
+			Buf[0][0] = MacroChar;
 		}
 
 		if (ElevationCharUsed)
 		{
-			Buf.back() = ElevationChar;
+			Buf.back().back() = ElevationChar;
 		}
 
 		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURPOS))

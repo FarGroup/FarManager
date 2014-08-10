@@ -1326,6 +1326,7 @@ struct FarSetColors
 
 enum WINDOWINFO_TYPE
 {
+	WTYPE_DESKTOP                   = 0,
 	WTYPE_PANELS                    = 1,
 	WTYPE_VIEWER                    = 2,
 	WTYPE_EDITOR                    = 3,
@@ -1335,7 +1336,6 @@ enum WINDOWINFO_TYPE
 #ifdef FAR_USE_INTERNALS
 	WTYPE_COMBOBOX,
 	WTYPE_FINDFOLDER,
-	WTYPE_USER,
 	WTYPE_GRABBER,
 	WTYPE_HMENU,
 #endif // END FAR_USE_INTERNALS

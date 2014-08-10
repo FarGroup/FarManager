@@ -38,9 +38,30 @@ public:
 	class row
 	{
 	public:
+		typedef T value_type;
+		typedef T* iterator;
+		typedef const T* const_iterator;
+		typedef T& reference;
+
 		row(T* row, size_t size): m_row(row), m_size(size) {}
-		T& operator[](size_t n) { return m_row[n]; }
+
 		size_t size() const { return m_size; }
+
+		reference operator[](size_t n) { return m_row[n]; }
+		reference front() { return m_row[0]; }
+		reference back() { return m_row[m_size - 1]; }
+
+		T* data() { return m_row; }
+		const T* data() const { return m_row; }
+
+		iterator begin() { return m_row; }
+		iterator end() { return m_row + m_size; }
+
+		const_iterator cbegin() const { return m_row; }
+		const_iterator cend() const { return m_row + m_size; }
+
+		const_iterator begin() const { return cbegin(); }
+		const_iterator end() const { return cend(); }
 
 	private:
 		T* m_row;
@@ -66,14 +87,16 @@ public:
 	size_t height() const { return m_rows; }
 	size_t width() const { return m_cols; }
 
-	T& front() { return m_buffer.front(); }
-	T& back() { return m_buffer.back(); }
+	row front() { return (*this)[0] }
+	row back() { return (*this)[m_rows - 1]; }
 
 	bool empty() const { return m_buffer.empty(); }
 	size_t size() const { return m_buffer.size(); }
 
 	T* data() { return m_buffer.data(); }
 	const T* data() const { return m_buffer.data(); }
+
+	// TODO: iterator interface
 
 	std::vector<T>& vector() { return m_buffer; }
 

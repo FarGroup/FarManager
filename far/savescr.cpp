@@ -50,12 +50,6 @@ SaveScreen::SaveScreen()
 SaveScreen::SaveScreen(int X1,int Y1,int X2,int Y2)
 {
 	_OT(SysLog(L"[%p] SaveScreen::SaveScreen(X1=%i,Y1=%i,X2=%i,Y2=%i)",this,X1,Y1,X2,Y2));
-
-	X1=std::min(static_cast<int>(ScrX), std::max(0, X1));
-	X2=std::min(static_cast<int>(ScrX), std::max(0, X2));
-	Y1=std::min(static_cast<int>(ScrY), std::max(0, Y1));
-	Y2=std::min(static_cast<int>(ScrY), std::max(0, Y2));
-
 	SaveArea(X1,Y1,X2,Y2);
 }
 
@@ -209,17 +203,17 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 			{
 				SMALL_RECT ReadRegion={0, 0, static_cast<SHORT>(NewX-1), static_cast<SHORT>(NewY-OHe-1)};
 				Console().ReadOutput(Tmp.data(), Size, Coord, ReadRegion);
-				for(int i=0; i<Size.Y;i++)
+				for(size_t i = 0; i != Tmp.height(); ++i)
 				{
-					CharCopy(&NewBuf[i][0], &Tmp[i][0], Size.X);
+					CharCopy(NewBuf[i].data(), Tmp[i].data(), Size.X);
 				}
 			}
 			else
 			{
 				SMALL_RECT WriteRegion={0, static_cast<SHORT>(NewY-OHe), static_cast<SHORT>(NewX-1), -1};
-				for(int i=0; i<Size.Y;i++)
+				for(size_t i = 0; i != Tmp.height(); ++i)
 				{
-					CharCopy(&Tmp[i][0], &ScreenBuf[i][0], Size.X);
+					CharCopy(Tmp[i].data(), ScreenBuf[i].data(), Size.X);
 				}
 				Console().WriteOutput(Tmp.data(), Size, Coord, WriteRegion);
 				Console().Commit();
@@ -235,20 +229,20 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 			{
 				SMALL_RECT ReadRegion={static_cast<SHORT>(OWi), 0, static_cast<SHORT>(NewX-1), static_cast<SHORT>(NewY-1)};
 				Console().ReadOutput(Tmp.data(), Size, Coord, ReadRegion);
-				for(int i=0; i<NewY;i++)
+				for(size_t i = 0; i != NewBuf.height(); ++i)
 				{
-					CharCopy(&NewBuf[i][OWi], &Tmp[i][0], Size.X);
+					CharCopy(&NewBuf[i][OWi], Tmp[i].data(), Size.X);
 				}
 			}
 			else
 			{
 				SMALL_RECT WriteRegion={static_cast<SHORT>(NewX), static_cast<SHORT>(NewY-OHe), static_cast<SHORT>(OWi-1), static_cast<SHORT>(NewY-1)};
-				for(int i=0; i<Size.Y;i++)
+				for(size_t i = 0; i != Tmp.height(); ++i)
 				{
-					if (i < OHe)
-						CharCopy(&Tmp[i][0], &ScreenBuf[i][NewX], Size.X);
+					if (static_cast<int>(i) < OHe)
+						CharCopy(Tmp[i].data(), &ScreenBuf[i][NewX], Size.X);
 					else
-						CleanupBuffer(&Tmp[i][0], Size.X);
+						CleanupBuffer(Tmp[i].data(), Size.X);
 				}
 				Console().WriteOutput(Tmp.data(), Size, Coord, WriteRegion);
 				Console().Commit();

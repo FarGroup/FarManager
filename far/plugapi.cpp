@@ -328,12 +328,17 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			WINDOWINFO_TYPE type=ModalType2WType(Manager::GetCurrentWindowType());
 			switch(type)
 			{
+			case WTYPE_DESKTOP:
 			case WTYPE_PANELS:
 			case WTYPE_VIEWER:
 			case WTYPE_EDITOR:
 			case WTYPE_DIALOG:
 			case WTYPE_VMENU:
 			case WTYPE_HELP:
+			//case WTYPE_COMBOBOX:
+			//case WTYPE_FINDFOLDER:
+			//case WTYPE_GRABBER:
+			//case WTYPE_HMENU:
 				info->Type=type;
 				return TRUE;
 			default:

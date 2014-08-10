@@ -740,44 +740,18 @@ void HiText(const string& Str,const FarColor& HiColor,int isVertText)
 	}
 }
 
-
-
 void SetScreen(int X1,int Y1,int X2,int Y2,wchar_t Ch,const FarColor& Color)
 {
-	if (X1<0) X1=0;
-
-	if (Y1<0) Y1=0;
-
-	if (X2>ScrX) X2=ScrX;
-
-	if (Y2>ScrY) Y2=ScrY;
-
 	Global->ScrBuf->FillRect(X1, Y1, X2, Y2, Ch, Color);
 }
 
-
 void MakeShadow(int X1,int Y1,int X2,int Y2)
 {
-	if (X1<0) X1=0;
-
-	if (Y1<0) Y1=0;
-
-	if (X2>ScrX) X2=ScrX;
-
-	if (Y2>ScrY) Y2=ScrY;
 	Global->ScrBuf->ApplyShadow(X1,Y1,X2,Y2);
 }
 
 void ChangeBlockColor(int X1,int Y1,int X2,int Y2,const FarColor& Color)
 {
-	if (X1<0) X1=0;
-
-	if (Y1<0) Y1=0;
-
-	if (X2>ScrX) X2=ScrX;
-
-	if (Y2>ScrY) Y2=ScrY;
-
 	Global->ScrBuf->ApplyColor(X1, Y1, X2, Y2, Color, true);
 }
 

@@ -97,16 +97,17 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 	X2=std::max(GArea.X1,GArea.X2);
 	Y1=std::min(GArea.Y1,GArea.Y2);
 	Y2=std::max(GArea.Y1,GArea.Y2);
-	int GWidth=X2-X1+1,GHeight=Y2-Y1+1;
-	matrix<FAR_CHAR_INFO> CharBuf(GHeight, GWidth);
+
+	matrix<FAR_CHAR_INFO> CharBuf(Y2 - Y1 + 1, X2 - X1 + 1);
+	GetText(X1, Y1, X2, Y2, CharBuf.data(), CharBuf.size());
+
 	string CopyBuf;
-	CopyBuf.reserve(GHeight * (GWidth + 2));
-	GetText(X1,Y1,X2,Y2,CharBuf.data(), CharBuf.size());
+	CopyBuf.reserve(CharBuf.height() * (CharBuf.width() + 2));
 
 	string Line;
-	Line.reserve(GWidth);
+	Line.reserve(CharBuf.width() + 2);
 
-	for (int I=0; I<GHeight; I++)
+	for (size_t I = 0; I != CharBuf.height(); ++I)
 	{
 		Line.clear();
 
@@ -115,7 +116,7 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 			CopyBuf.append(L"\r\n");
 		}
 
-		for (int J=0; J<GWidth; ++J)
+		for (size_t J = 0; J != CharBuf.width(); ++J)
 		{
 			WORD Chr2 = CharBuf[I][J].Char;
 			wchar_t Chr = CharBuf[I][J].Char;
