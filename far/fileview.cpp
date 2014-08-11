@@ -334,10 +334,6 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 		case KEY_ESC:
 		case KEY_F10:
 			Global->FrameManager->DeleteFrame();
-			if (Global->OnlyEditorViewerUsed)
-			{
-				Global->FrameManager->ExitMainLoop(FALSE);
-			}
 			return TRUE;
 		case KEY_F6:
 

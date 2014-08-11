@@ -126,6 +126,7 @@ private:
 
 	Frame *FrameMenu(); //    вместо void SelectFrame(); // show window menu (F12)
 	bool HaveAnyFrame() const;
+	bool OnlyDesktop() const;
 	void Commit(void);         // завершает транзакцию по изменениям в очереди и стеке фреймов
 	// Она в цикле вызывает себя, пока хотябы один из указателей отличен от nullptr
 	// Функции, "подмастерья начальника" - Commit'a

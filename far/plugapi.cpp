@@ -1254,6 +1254,10 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 			Global->KeepUserScreen--;
 			FPanels->LeftPanel->ProcessingPluginCommand--;
 			FPanels->RightPanel->ProcessingPluginCommand--;
+
+			// BUGBUG
+			Global->FrameManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
+
 			return TRUE;
 		}
 		case FCTL_GETUSERSCREEN:

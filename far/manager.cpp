@@ -538,6 +538,11 @@ bool Manager::HaveAnyFrame() const
 	return !Frames.empty() || !m_Queue.empty() || CurrentFrame;
 }
 
+bool Manager::OnlyDesktop() const
+{
+	return Frames.size() == 1 && m_Queue.empty();
+}
+
 void Manager::EnterMainLoop()
 {
 	Global->WaitInFastFind=0;
@@ -547,7 +552,7 @@ void Manager::EnterMainLoop()
 	{
 		Commit();
 
-		if (EndLoop || !HaveAnyFrame())
+		if (EndLoop || (!HaveAnyFrame() || OnlyDesktop()))
 		{
 			break;
 		}
@@ -1255,7 +1260,7 @@ void Manager::DeleteCommit(Frame* Param)
 		{
 			if (Frames.size())
 			{
-				if (Param->FrameToBack==Global->CtrlObject->Desktop)
+				if (Param->FrameToBack == Global->CtrlObject->Desktop || Param->FrameToBack == Global->CtrlObject->Cp())
 				{
 					ActivateCommit(FramePos);
 				}

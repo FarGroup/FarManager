@@ -1432,10 +1432,6 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion,bool DeleteFrame)
 			if (DeleteFrame)
 			{
 				Global->FrameManager->DeleteFrame();
-				if (Global->OnlyEditorViewerUsed)
-				{
-					Global->FrameManager->ExitMainLoop(FALSE);
-				}
 			}
 			SetExitCode(XC_QUIT);
 			break;
