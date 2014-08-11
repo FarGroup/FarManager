@@ -150,6 +150,8 @@ static int MainProcess(
 			_tran(SysLog(L"create dummy panels"));
 			Global->CtrlObject->CreateDummyFilePanels();
 			Global->CtrlObject->Cp()->LeftPanel=Global->CtrlObject->Cp()->RightPanel=Global->CtrlObject->Cp()->ActivePanel=DummyPanel;
+			Global->FrameManager->PluginCommit();
+
 			Global->CtrlObject->Plugins->LoadPlugins();
 			Global->CtrlObject->Macro.Load(true, true);
 
