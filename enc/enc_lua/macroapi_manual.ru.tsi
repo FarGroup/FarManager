@@ -65,7 +65,7 @@ lv=2
 dt=Text
 nm=Изменения API в сравнении с макроязыком
 ctime=3553185939
-mtime=3607085026
+mtime=3616840039
 <article>
 #_<markdown>
 #_
@@ -92,6 +92,7 @@ mtime=3607085026
 #_1. `Dialog.AutoCompletion -> Area.DialogAutoCompletion`
 #_1. `Shell.AutoCompletion  -> Area.ShellAutoCompletion`
 #_1. `CallPlugin` -> [`Plugin.Call`][Call]. Этот вызов - всегда асинхронный. Для синхронного вызова следует использовать [`Plugin.SyncCall`][SyncCall].
+#_1. Функции `Plugin.Menu`, `Plugin.Config` и `Plugin.Command` возвращают булевое значение.
 #_1. `mmode(3,x)` больше не влияет на синхронность/асинхронность вызовов плагинов из макроса; ничего не делает; возвращает `0`.
 #_1. `Dlg.Info.Id -> Dlg.Id`
 #_1. `Dlg.Info.Owner -> Dlg.Owner`

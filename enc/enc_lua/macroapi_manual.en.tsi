@@ -65,7 +65,7 @@ lv=2
 dt=Text
 nm=API changes in comparison to the macro language
 ctime=3553185939
-mtime=3607085316
+mtime=3616840098
 <article>
 #_<markdown>
 #_
@@ -94,6 +94,7 @@ mtime=3607085316
 #_1. `Shell.AutoCompletion  -> Area.ShellAutoCompletion`
 #_1. `CallPlugin` -> [`Plugin.Call`][Call]. This call is always asynchronous.
 #_   For synchronous calls use [`Plugin.SyncCall`][SyncCall].
+#_1. Functions `Plugin.Menu`, `Plugin.Config` and `Plugin.Command` return a boolean value.
 #_1. `mmode(3,x)` no more affects synchronicity/asynchronicity of calls to plugins;
 #_   it does nothing and returns `0`.
 #_1. `Dlg.Info.Id -> Dlg.Id`
