@@ -44,7 +44,6 @@ public:
 	virtual int GetType() const override { return MODALTYPE_VMENU; }
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual void SetPosition(int X1, int Y1, int X2, int Y2) override;
-	virtual FARMACROAREA GetMacroMode() const override { return MacroMode; }
 
 	void Resize(bool force=false);
 	void SetTitle(const string& Title);
@@ -76,7 +75,6 @@ public:
 	void *GetUserData(void *Data, size_t Size, intptr_t Position=-1);
 	size_t SetUserData(LPCVOID Data, size_t Size=0, intptr_t Position=-1);
 	void Key(int key);
-	void SetMacroMode(FARMACROAREA mode) { MacroMode=mode; }
 	int GetSelectPos(FarListPos *ListPos) { return ListBox().GetSelectPos(ListPos); }
 	int SetSelectPos(const FarListPos *ListPos, int Direct=0) { return ListBox().SetSelectPos(ListPos, Direct); }
 	void SortItems(bool Reverse = false, int Offset = 0) { ListBox().SortItems(Reverse, Offset); }
@@ -104,6 +102,5 @@ private:
 	bool NeedResize;
 	bool closing;
 	bool ForceClosing;
-	FARMACROAREA MacroMode;
 	std::function<int(int Msg, void *param)> mfn;
 };

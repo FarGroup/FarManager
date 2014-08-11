@@ -129,7 +129,7 @@ void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 	KeyBarVisible = Global->Opt->ViOpt.ShowKeyBar;
 	TitleBarVisible = Global->Opt->ViOpt.ShowTitleBar;
 	FARMACROAREA OldMacroMode=Global->CtrlObject->Macro.GetMode();
-	MacroMode = MACROAREA_VIEWER;
+	SetMacroMode(MACROAREA_VIEWER);
 	Global->CtrlObject->Macro.SetMode(MACROAREA_VIEWER);
 	View.SetPluginData(PluginData);
 	View.SetHostFileViewer(this);

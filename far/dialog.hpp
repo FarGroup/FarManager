@@ -237,7 +237,6 @@ public:
 	virtual int GetTypeAndName(string &strType, string &strName) override;
 	virtual int GetType() const override { return MODALTYPE_DIALOG; }
 	virtual const wchar_t *GetTypeName() override {return L"[Dialog]";}
-	virtual FARMACROAREA GetMacroMode() const override;
 	virtual int FastHide() override;
 	virtual void ResizeConsole() override;
 	virtual void SetPosition(int X1,int Y1,int X2,int Y2) override;

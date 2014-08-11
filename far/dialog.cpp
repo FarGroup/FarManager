@@ -344,6 +344,7 @@ void Dialog::Construct(const FarDialogItem** SrcItem, size_t SrcItemCount)
 void Dialog::Init()
 {
 	_DIALOG(CleverSysLog CL(L"Dialog::Init()"));
+	SetMacroMode(MACROAREA_DIALOG);
 	SetDynamicallyBorn(false); // $OT: По умолчанию все диалоги создаются статически
 	CanLoseFocus = FALSE;
 	//Номер плагина, вызвавшего диалог (-1 = Main)
@@ -4429,12 +4430,6 @@ int Dialog::GetTypeAndName(string &strType, string &strName)
 	strType = MSG(MDialogType);
 	strName = GetTitle();
 	return MODALTYPE_DIALOG;
-}
-
-
-FARMACROAREA Dialog::GetMacroMode() const
-{
-	return MACROAREA_DIALOG;
 }
 
 int Dialog::FastHide()

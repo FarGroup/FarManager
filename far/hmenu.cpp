@@ -58,6 +58,7 @@ HMenu::HMenu(HMenuData *Item,int ItemCount):
 	VExitCode(-1),
 	ItemX()
 {
+	SetMacroMode(MACROAREA_MAINMENU);
 	SetDynamicallyBorn(false);
 	SetRestoreScreenMode(true);
 }

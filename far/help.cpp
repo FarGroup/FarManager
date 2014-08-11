@@ -233,7 +233,7 @@ Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
 	{
 		ScreenObjectWithShadow::Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
 		InitKeyBar();
-		MacroMode = MACROAREA_HELP;
+		SetMacroMode(MACROAREA_HELP);
 		MoveToReference(1,1);
 		Global->FrameManager->ExecuteModal(this); //OT
 	}

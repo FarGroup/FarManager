@@ -90,6 +90,7 @@ public:
 	void SetBlock(void);
 	void RemoveBlock(void);
 	bool IsBlocked(void) const;
+	void SetMacroMode(FARMACROAREA Area);
 
 protected:
 	bool DynamicallyBorn;
@@ -98,7 +99,6 @@ protected:
 	int KeyBarVisible;
 	int TitleBarVisible;
 	KeyBar *FrameKeyBar;
-	FARMACROAREA MacroMode;
 
 private:
 	friend class Manager;
@@ -106,4 +106,5 @@ private:
 	Frame *FrameToBack;
 	bool Deleting;
 	long BlockCounter;
+	FARMACROAREA MacroMode;
 };

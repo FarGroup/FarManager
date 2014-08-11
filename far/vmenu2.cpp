@@ -338,11 +338,10 @@ VMenu2::VMenu2(const string& Title, const MenuDataEx *Data, size_t ItemCount, in
 	DefRec(),
 	NeedResize(false),
 	closing(false),
-	ForceClosing(false),
-	MacroMode(MACROAREA_MENU)
-
+	ForceClosing(false)
 {
 	InitDialogObjects();
+	SetMacroMode(MACROAREA_MENU);
 
 	SetDialogMode(DMODE_KEEPCONSOLETITLE|DMODE_ISMENU);
 
@@ -547,7 +546,7 @@ intptr_t VMenu2::RunEx(const std::function<int(int Msg, void *param)>& fn)
 
 
 	FARMACROAREA PrevMacroMode=Global->CtrlObject->Macro.GetMode();
-	Global->CtrlObject->Macro.SetMode(MacroMode);
+	Global->CtrlObject->Macro.SetMode(GetMacroMode());
 
 	Process();
 

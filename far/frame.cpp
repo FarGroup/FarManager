@@ -46,10 +46,10 @@ Frame::Frame():
 	KeyBarVisible(0),
 	TitleBarVisible(0),
 	FrameKeyBar(nullptr),
-	MacroMode(MACROAREA_OTHER),
 	FrameToBack(nullptr),
 	Deleting(false),
-	BlockCounter(0)
+	BlockCounter(0),
+	MacroMode(MACROAREA_OTHER)
 {
 	_OT(SysLog(L"[%p] Frame::Frame()", this));
 }
@@ -126,4 +126,9 @@ void Frame::RemoveBlock(void)
 bool Frame::IsBlocked(void) const
 {
 	return BlockCounter>0;
+}
+
+void Frame::SetMacroMode(FARMACROAREA Area)
+{
+	MacroMode=Area;
 }
