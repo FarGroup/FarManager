@@ -944,4 +944,5 @@ return {
   FlagsToString = FlagsToString,
   GetMoonscriptLineNumber = GetMoonscriptLineNumber,
   GetMenuItems = function() return AddedMenuItems end,
+  LoadingInProgress = function() return LoadingInProgress end,
 }

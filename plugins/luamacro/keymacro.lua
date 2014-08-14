@@ -292,6 +292,9 @@ local function CallStep()
 end
 
 local function GetInputFromMacro()
+  if Shared.utils.LoadingInProgress() then
+    return false
+  end
   if MacroIsRunning==0 and not GetCurMacro() then
     if StateStack[1] then
       PopState(true)
