@@ -243,7 +243,7 @@ int HMenu::ProcessKey(const Manager::Key& Key)
 			/* Кусок для "некрайних" меню - прыжок к меню пассивной панели */
 			if (SelectPos  && SelectPos != ItemCount-1)
 			{
-				if (Global->CtrlObject->Cp()->ActivePanel==Global->CtrlObject->Cp()->RightPanel)
+				if (Global->CtrlObject->Cp()->ActivePanel() == Global->CtrlObject->Cp()->RightPanel)
 					SelectPos=0;
 				else
 					SelectPos=ItemCount-1;

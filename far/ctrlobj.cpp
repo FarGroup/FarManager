@@ -121,8 +121,8 @@ void ControlObject::Init(int DirCount)
 	Cp()->LeftPanel->GoToFile(Global->Opt->LeftPanel.CurFile);
 	Cp()->RightPanel->GoToFile(Global->Opt->RightPanel.CurFile);
 
-	FarChDir(Cp()->ActivePanel->GetCurDir());
-	Cp()->ActivePanel->SetFocus();
+	FarChDir(Cp()->ActivePanel()->GetCurDir());
+	Cp()->ActivePanel()->SetFocus();
 
 	Macro.Load(true);
 	Cp()->LeftPanel->SetCustomSortMode(Global->Opt->LeftPanel.SortMode, true);
@@ -148,14 +148,14 @@ ControlObject::~ControlObject()
 
 	_OT(SysLog(L"[%p] ControlObject::~ControlObject()", this));
 
-	if (Cp()&&Cp()->ActivePanel)
+	if (Cp() && Cp()->ActivePanel())
 	{
 		if (Global->Opt->AutoSaveSetup)
 			Global->Opt->Save(false);
 
-		if (Cp()->ActivePanel->GetMode()!=PLUGIN_PANEL)
+		if (Cp()->ActivePanel()->GetMode() != PLUGIN_PANEL)
 		{
-			FolderHistory->AddToHistory(Cp()->ActivePanel->GetCurDir());
+			FolderHistory->AddToHistory(Cp()->ActivePanel()->GetCurDir());
 		}
 	}
 

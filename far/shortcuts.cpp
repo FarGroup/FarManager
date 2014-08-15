@@ -324,7 +324,7 @@ static void FillMenu(VMenu2& Menu, const std::list<Shortcuts::shortcut>& List, b
 
 static bool Accept()
 {
-	Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel;
+	Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 	if (ActivePanel->GetMode() == PLUGIN_PANEL)
 	{
 		OpenPanelInfo Info;
@@ -367,7 +367,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 						if (Key == KEY_INS || Key == KEY_NUMPAD0)
 						{
 							shortcut NewItem;
-							Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
+							Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 							Global->CtrlObject->CmdLine->GetCurDir(NewItem.strFolder);
 							if (ActivePanel->GetMode() == PLUGIN_PANEL)
 							{
@@ -609,7 +609,7 @@ void Shortcuts::Configure()
 						ItemIterator = Items[Pos].end();
 						--ItemIterator;
 					}
-					Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
+					Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 					Global->CtrlObject->CmdLine->GetCurDir(ItemIterator->strFolder);
 					if (ActivePanel->GetMode() == PLUGIN_PANEL)
 					{
@@ -673,6 +673,6 @@ void Shortcuts::Configure()
 	if(ExitCode>=0)
 	{
 		Save();
-		Global->CtrlObject->Cp()->ActivePanel->ExecShortcutFolder(ExitCode, raw_mode);
+		Global->CtrlObject->Cp()->ActivePanel()->ExecShortcutFolder(ExitCode, raw_mode);
 	}
 }

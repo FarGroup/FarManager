@@ -1009,15 +1009,15 @@ Panel* TreeList::GetRootPanel()
 	if (ModalMode)
 	{
 		if (ModalMode==MODALTREE_ACTIVE)
-			RootPanel=Global->CtrlObject->Cp()->ActivePanel;
+			RootPanel=Global->CtrlObject->Cp()->ActivePanel();
 		else if (ModalMode==MODALTREE_FREE)
 			RootPanel=this;
 		else
 		{
-			RootPanel=Global->CtrlObject->Cp()->GetAnotherPanel(Global->CtrlObject->Cp()->ActivePanel);
+			RootPanel=Global->CtrlObject->Cp()->PassivePanel();
 
 			if (!RootPanel->IsVisible())
-				RootPanel=Global->CtrlObject->Cp()->ActivePanel;
+				RootPanel=Global->CtrlObject->Cp()->ActivePanel();
 		}
 	}
 	else

@@ -544,6 +544,13 @@ static bool TryToPostMacro(FARMACROAREA Mode,const string& TextKey,DWORD IntKey)
 	return CallMacroPluginSimple(&info);
 }
 
+static inline Panel* TypeToPanel(int Type)
+{
+	auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
+	auto PassivePanel = Global->CtrlObject->Cp()->PassivePanel();
+	return Type == 0 ? ActivePanel : (Type == 1 ? PassivePanel : nullptr);
+}
+
 KeyMacro::KeyMacro():
 	m_Mode(MACROAREA_SHELL),
 	m_RecMode(MACROAREA_OTHER),
@@ -1059,7 +1066,7 @@ void KeyMacro::RunStartMacro()
 	if (Global->Opt->Macro.DisableMacro & (MDOL_ALL|MDOL_AUTOSTART))
 		return;
 
-	if (!Global->CtrlObject || !Global->CtrlObject->Cp() || !Global->CtrlObject->Cp()->ActivePanel || !Global->CtrlObject->Plugins->IsPluginsLoaded())
+	if (!Global->CtrlObject || !Global->CtrlObject->Cp() || !Global->CtrlObject->Cp()->ActivePanel() || !Global->CtrlObject->Plugins->IsPluginsLoaded())
 		return;
 
 	static bool IsRunStartMacro=false, IsInside=false;
@@ -1213,8 +1220,8 @@ static BOOL CheckAll (FARMACROAREA Mode, UINT64 CurFlags)
 		return FALSE;
 
 	// проверки панели и типа файла
-	Panel *ActivePanel=Cp->ActivePanel;
-	Panel *PassivePanel=Cp->GetAnotherPanel(Cp->ActivePanel);
+	Panel *ActivePanel = Cp->ActivePanel();
+	Panel *PassivePanel = Cp->PassivePanel();
 
 	if (ActivePanel && PassivePanel)// && (CurFlags&MFLAGS_MODEMASK)==MACROAREA_SHELL)
 	{
@@ -1699,11 +1706,8 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			Global->FrameManager->GetCurrentFrame()->GetMacroMode() : GetMode(), Data);
 	}
 
-	Panel *ActivePanel=Global->CtrlObject->Cp() ? Global->CtrlObject->Cp()->ActivePanel : nullptr;
-	Panel *PassivePanel=nullptr;
-
-	if (ActivePanel)
-		PassivePanel=Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
+	Panel *ActivePanel = Global->CtrlObject->Cp() ? Global->CtrlObject->Cp()->ActivePanel() : nullptr;
+	Panel *PassivePanel = Global->CtrlObject->Cp() ? Global->CtrlObject->Cp()->PassivePanel() : nullptr;
 
 	Frame* CurFrame = Global->FrameManager->GetCurrentFrame();
 
@@ -2423,7 +2427,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			if (Data->Count>=3 && Data->Values[0].Type==FMVT_DOUBLE  &&
 				Data->Values[1].Type==FMVT_DOUBLE && Data->Values[2].Type==FMVT_BOOLEAN)
 			{
-				Panel *panel = Global->CtrlObject->Cp()->ActivePanel;
+				Panel *panel = Global->CtrlObject->Cp()->ActivePanel();
 				if (panel && Data->Values[0].Double == 1)
 					panel = Global->CtrlObject->Cp()->GetAnotherPanel(panel);
 
@@ -3717,14 +3721,7 @@ static bool panelselectFunc(FarMacroCall* Data)
 	int typePanel=(int)Params[0].asInteger();
 	__int64 Result=-1;
 
-	Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
-	Panel *PassivePanel=nullptr;
-
-	if (ActivePanel)
-		PassivePanel=Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
-
-	Panel *SelPanel = !typePanel ? ActivePanel : (typePanel == 1?PassivePanel:nullptr);
-
+	auto SelPanel = TypeToPanel(typePanel);
 	if (SelPanel)
 	{
 		__int64 Index=-1;
@@ -3779,15 +3776,8 @@ static bool _fattrFunc(int Type, FarMacroCall* Data)
 		TVar& S(Params[1]);
 		int typePanel=(int)Params[0].asInteger();
 		const auto& Str = S.toString();
-		Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
-		Panel *PassivePanel=nullptr;
 
-		if (ActivePanel)
-			PassivePanel=Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
-
-		//Frame* CurFrame=FrameManager->GetCurrentFrame();
-		Panel *SelPanel = !typePanel ? ActivePanel : (typePanel == 1?PassivePanel:nullptr);
-
+		auto SelPanel = TypeToPanel(typePanel);
 		if (SelPanel)
 		{
 			if (Str.find_first_of(L"*?") != string::npos)
@@ -4460,16 +4450,9 @@ static bool panelsetposidxFunc(FarMacroCall* Data)
 	int InSelection=(int)Params[2].asInteger();
 	long idxItem=(long)Params[1].asInteger();
 	int typePanel=(int)Params[0].asInteger();
-	Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
-	Panel *PassivePanel=nullptr;
-
-	if (ActivePanel)
-		PassivePanel=Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
-
-	//Frame* CurFrame=FrameManager->GetCurrentFrame();
-	Panel *SelPanel = typePanel? (typePanel == 1?PassivePanel:nullptr):ActivePanel;
 	__int64 Ret=0;
 
+	auto SelPanel = TypeToPanel(typePanel);
 	if (SelPanel)
 	{
 		int TypePanel=SelPanel->GetType(); //FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
@@ -4586,11 +4569,8 @@ static bool panelsetpathFunc(FarMacroCall* Data)
 	{
 		const auto& pathName=Val.asString();
 
-		Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
-		Panel *PassivePanel=nullptr;
-
-		if (ActivePanel)
-			PassivePanel=Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
+		Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
+		Panel *PassivePanel = Global->CtrlObject->Cp()->PassivePanel();
 
 		//Frame* CurFrame=FrameManager->GetCurrentFrame();
 		Panel *SelPanel = typePanel? (typePanel == 1?PassivePanel:nullptr):ActivePanel;
@@ -4599,8 +4579,9 @@ static bool panelsetpathFunc(FarMacroCall* Data)
 		{
 			if (SelPanel->SetCurDir(pathName,SelPanel->GetMode()==PLUGIN_PANEL && IsAbsolutePath(pathName), Global->FrameManager->GetCurrentFrame()->GetType() == MODALTYPE_PANELS))
 			{
-				ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
-				PassivePanel=ActivePanel?Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel):nullptr;
+				// BUGBUG, why again?
+				ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
+				PassivePanel = Global->CtrlObject->Cp()->PassivePanel();
 				SelPanel = typePanel? (typePanel == 1?PassivePanel:nullptr):ActivePanel;
 
 				//восстановим текущую папку из активной панели.
@@ -4634,16 +4615,10 @@ static bool panelsetposFunc(FarMacroCall* Data)
 	int typePanel=(int)Params[0].asInteger();
 	const auto& fileName=Val.asString();
 
-	Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
-	Panel *PassivePanel=nullptr;
-
-	if (ActivePanel)
-		PassivePanel=Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
-
 	//Frame* CurFrame=FrameManager->GetCurrentFrame();
-	Panel *SelPanel = typePanel? (typePanel == 1?PassivePanel:nullptr):ActivePanel;
 	__int64 Ret=0;
 
+	auto SelPanel = TypeToPanel(typePanel);
 	if (SelPanel)
 	{
 		int TypePanel=SelPanel->GetType(); //FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
@@ -4745,15 +4720,10 @@ static bool panelitemFunc(FarMacroCall* Data)
 	TVar& P1(Params[1]);
 	int typePanel=(int)Params[0].asInteger();
 	TVar Ret(0ll);
-	Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
-	Panel *PassivePanel=nullptr;
-
-	if (ActivePanel)
-		PassivePanel=Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
 
 	//Frame* CurFrame=FrameManager->GetCurrentFrame();
-	Panel *SelPanel = typePanel? (typePanel == 1?PassivePanel:nullptr):ActivePanel;
 
+	auto SelPanel = TypeToPanel(typePanel);
 	if (!SelPanel)
 	{
 		PassValue(&Ret, Data);

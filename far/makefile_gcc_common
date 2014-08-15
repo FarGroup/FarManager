@@ -40,10 +40,11 @@ else
  endif
 endif
 
-MKDIR = $(UTILS_PREFIX)mkdir -pv
-RM = $(UTILS_PREFIX)rm -fv
-CP = $(UTILS_PREFIX)cp -fv
-MV = $(UTILS_PREFIX)mv -fv
+LS=$(UTILS_PREFIX)ls
+MKDIR = $(UTILS_PREFIX)mkdir -p
+RM = $(UTILS_PREFIX)rm -f
+CP = $(UTILS_PREFIX)cp -f
+MV = $(UTILS_PREFIX)mv -f
 
 CXX = $(GCC_PREFIX)g++$(DW2)
 CC = $(GCC_PREFIX)gcc$(DW2)

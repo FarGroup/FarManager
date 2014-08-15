@@ -1,0 +1,17 @@
+#include <windows.h>
+#include "res.hpp"
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+FAR_ICON ICON "Far.ico"
+FAR_ICON_A ICON "FarA.ico"
+
+VS_VERSION_INFO VERSIONINFO
+#ifdef _DEBUG
+FILEFLAGS VS_FF_DEBUG
+#endif
+FILEOS VOS_NT_WINDOWS32
+FILETYPE VFT_APP
+
+#include "bootstrap/far.rc.inc"
+
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "bootstrap/Far.exe.manifest"

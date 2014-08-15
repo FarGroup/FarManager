@@ -87,7 +87,7 @@ void Frame::OnChangeFocus(int focus)
 	}
 }
 
-int Frame::FastHide()
+int Frame::CanFastHide()
 {
 	return TRUE;
 }

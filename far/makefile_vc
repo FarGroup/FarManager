@@ -324,19 +324,22 @@ ALL: AllDirs lng depfile
 
 .PHONY: lng
 lng: bootstrap\farlang.templ
-	echo generating language files
+	@echo generating language files
 	tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol "$(OUTDIR)" bootstrap\farlang.templ
 
 .PHONY: depfile
 depfile:
-	$(GAWK) -f .\scripts\mkdep.awk mkdep.list > $(DEPFILE)
+	@echo Rebuilding dependencies...
+	dir /b *.cpp *.hpp *.c *.rc > bootstrap\mkdep.list
+	$(GAWK) -f scripts\mkdep.awk bootstrap\mkdep.list > $(DEPFILE)
+	del bootstrap\mkdep.list
 
 .PHONY: build
 build: $(TEST_OBJS) "$(OUTDIR)\Far.exe" version_fix "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf" "$(OUTDIR)\FarHun.hlf" "$(OUTDIR)\File_id.diz" "$(OUTDIR)\Far.exe.example.ini" "$(FARINCLUDE)\PluginW.pas" "$(FARINCLUDE)\FarColorW.pas" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\plugin.hpp" "$(FARINCLUDE)\DlgBuilder.hpp" "$(FARINCLUDE)\vc_crt_fix_impl.cpp" "$(FARINCLUDE)\vc_crt_fix.asm" "$(FARINCLUDE)\vc_crt_fix_ulink.cpp" 
 
 .PHONY: version_fix
 version_fix: "$(OUTDIR)\Far.exe"
-	echo fixing subsystem version
+	@echo fixing subsystem version
 	editbin /nologo /subsystem:console,$(OS_VERSION) /osversion:$(OS_VERSION) $(OUTDIR)\Far.exe > nul
 
 .PHONY: AllDirs
@@ -349,8 +352,8 @@ AllDirs:
 	if not exist "$(CODDIR)\" mkdir "$(CODDIR)"
 !endif
 
-"$(OUTDIR)\Far.exe": $(PCH_FILE) $(LINK_OBJS) $(RES_FILE) bootstrap\Far.exe.manifest bootstrap\far.rc bootstrap\copyright.inc bootstrap\farversion.inc
-	echo linking $@
+"$(OUTDIR)\Far.exe": $(PCH_FILE) $(LINK_OBJS) $(RES_FILE) bootstrap\copyright.inc bootstrap\farversion.inc
+	@echo linking $@
 !ifndef LINK_ULINK
 	$(LINK) @<<
 	$(LINKFLAGS) $(LINK_OBJS) $(RES_FILE) $(LINK_LIBS)
@@ -365,7 +368,7 @@ AllDirs:
 !endif
 
 $(PCH_FILE): headers.cpp headers.hpp
-	echo making precompiled headers
+	@echo making precompiled headers
 	$(CPP) $(CPPFLAGS) headers.cpp /Yc /Fp"$(PCH_FILE)"
 
 $(INTDIR)\initguid.obj: initguid.cpp
@@ -393,33 +396,30 @@ $(INTDIR)\vc_crt_fix_ulink.obj: vc_crt_fix_ulink.cpp
 .asm{$(INTDIR)}.obj:
 	ml /nologo /c /Fo$@ $<
 
-$(RES_FILE): bootstrap\far.rc res.hpp Far.ico FarA.ico
-	echo compiling resource file
-	$(RC) $(RFLAGS) bootstrap\far.rc
+$(RES_FILE): far.rc Far.ico FarA.ico bootstrap\Far.exe.manifest
+	@echo compiling resource file
+	$(RC) $(RFLAGS) far.rc
 
 !ifdef USEDEPS
 !include "$(DEPFILE)"
 !endif
 
 $(INTDIR)\api_test_c.testobj: $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/farcolor.hpp api_test.c
-	echo testing C plugin API
+	@echo testing C plugin API
 	$(CPP) /nologo /c $(CPPFLAG1) /Fo"$@" /TC api_test.c
 
 $(INTDIR)\api_test_c++.testobj: $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/farcolor.hpp $(FARINCLUDE)/DlgBuilder.hpp api_test.c
-	echo testing C++ plugin API
+	@echo testing C++ plugin API
 	$(CPP) /nologo /c $(CPPFLAG1) /Fo"$@" /TP api_test.c
 
-MSG=echo generating $@
+MSG=@echo generating $@
 
 bootstrap\Far.exe.manifest \
 bootstrap\copyright.inc \
 bootstrap\farversion.inc \
 bootstrap\farlang.templ \
+bootstrap\far.rc.inc \
 $(OUTDIR)\File_id.diz: $(@F).m4 farversion.m4 tools.m4 vbuild.m4
-	$(MSG)
-	$(M4) $(@F).m4 > $@
-
-bootstrap\far.rc: $(@F).m4 farversion.m4 tools.m4 vbuild.m4 bootstrap\Far.exe.manifest res.hpp
 	$(MSG)
 	$(M4) $(@F).m4 > $@
 
@@ -436,7 +436,7 @@ $(OUTDIR)\FarEng.hlf \
 $(OUTDIR)\FarRus.hlf \
 $(OUTDIR)\FarHun.hlf: $(@F).m4 farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
-	$(GAWK) -f .\scripts\mkhlf.awk $(@F).m4 | $(M4) > $@
+	$(GAWK) -f scripts\mkhlf.awk $(@F).m4 | $(M4) > $@
 
 $(OUTDIR)\Far.exe.example.ini: $(@F)
 	$(MSG)
@@ -454,7 +454,7 @@ $(FARINCLUDE)\vc_crt_fix_ulink.cpp: $(@F)
 
 .PHONY: CLEAN
 CLEAN:
-	echo cleaning
+	@echo cleaning
 	for %%i in (\
 	"$(INTDIR)"\
 	"$(CODDIR)"\

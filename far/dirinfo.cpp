@@ -410,7 +410,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, Pl
 
 	static PluginHandle DirListPlugin;
 	OPERATION_MODES OpMode=0;
-	if (Global->CtrlObject->Cp()->GetAnotherPanel(Global->CtrlObject->Cp()->ActivePanel)->GetType()==QVIEW_PANEL || Global->CtrlObject->Cp()->ActivePanel->GetType()==QVIEW_PANEL)
+	if (Global->CtrlObject->Cp()->PassivePanel()->GetType()==QVIEW_PANEL || Global->CtrlObject->Cp()->ActivePanel()->GetType()==QVIEW_PANEL)
 		OpMode|=OPM_QUICKVIEW;
 
 	// А не хочет ли плагин посмотреть на текущую панель?
@@ -419,7 +419,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, Pl
 		/* $ 30.11.2001 DJ
 			А плагиновая ли это панель?
 		*/
-		auto Handle = ((!hPlugin || hPlugin==PANEL_ACTIVE)?Global->CtrlObject->Cp()->ActivePanel:Global->CtrlObject->Cp()->GetAnotherPanel(Global->CtrlObject->Cp()->ActivePanel))->GetPluginHandle();
+		auto Handle = ((!hPlugin || hPlugin==PANEL_ACTIVE)?Global->CtrlObject->Cp()->ActivePanel():Global->CtrlObject->Cp()->PassivePanel())->GetPluginHandle();
 
 		if (!Handle)
 			return FALSE;

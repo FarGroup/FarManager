@@ -55,7 +55,7 @@ public:
 	virtual void SetScreenPosition() override;
 	virtual void ResizeConsole() override;
 	/* $ ¬ведена дл€ нужд CtrlAltShift OT */
-	virtual int  FastHide() override;
+	virtual int  CanFastHide() override;
 	virtual const wchar_t *GetTypeName() override { return L"[FolderTree]"; }
 	virtual int GetTypeAndName(string &strType, string &strName) override;
 	virtual int GetType() const override { return MODALTYPE_FINDFOLDER; }

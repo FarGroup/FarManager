@@ -149,7 +149,8 @@ static int MainProcess(
 			Panel* DummyPanel = new dummy_panel;
 			_tran(SysLog(L"create dummy panels"));
 			Global->CtrlObject->CreateDummyFilePanels();
-			Global->CtrlObject->Cp()->LeftPanel=Global->CtrlObject->Cp()->RightPanel=Global->CtrlObject->Cp()->ActivePanel=DummyPanel;
+			Global->CtrlObject->Cp()->LeftPanel = Global->CtrlObject->Cp()->RightPanel = DummyPanel;
+			Global->CtrlObject->Cp()->SetActivePanel(DummyPanel);
 			Global->FrameManager->PluginCommit();
 
 			Global->CtrlObject->Plugins->LoadPlugins();
@@ -179,7 +180,8 @@ static int MainProcess(
 			}
 
 			Global->FrameManager->EnterMainLoop();
-			Global->CtrlObject->Cp()->LeftPanel=Global->CtrlObject->Cp()->RightPanel=Global->CtrlObject->Cp()->ActivePanel=nullptr;
+			Global->CtrlObject->Cp()->LeftPanel = Global->CtrlObject->Cp()->RightPanel = nullptr;
+			Global->CtrlObject->Cp()->SetActivePanel(nullptr);
 			DummyPanel->Destroy();
 			_tran(SysLog(L"editor/viewer closed, delete dummy panels"));
 		}
@@ -227,8 +229,8 @@ static int MainProcess(
 			// а теперь "провалимся" в каталог или хост-файл (если получится ;-)
 			if (!apanel.empty())  // актиная панель
 			{
-				Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
-				Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
+				Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
+				Panel *AnotherPanel = Global->CtrlObject->Cp()->PassivePanel();
 
 				if (!ppanel.empty())  // пассивная панель
 				{

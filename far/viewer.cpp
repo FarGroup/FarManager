@@ -1432,7 +1432,7 @@ int Viewer::ProcessKey(const Manager::Key& Key)
 			Global->Opt->ViOpt.ShowScrollbar=ViOpt.ShowScrollbar;
 
 			if (m_bQuickView)
-				Global->CtrlObject->Cp()->ActivePanel->Redraw();
+				Global->CtrlObject->Cp()->ActivePanel()->Redraw();
 
 			Show();
 			return TRUE;

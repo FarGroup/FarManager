@@ -1243,7 +1243,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			if (LocalKey & (KEY_ALT|KEY_RALT))
 				NewKey|=KEY_ALT;
 
-			Panel *SrcPanel = Global->CtrlObject->Cp()->GetAnotherPanel(Global->CtrlObject->Cp()->ActivePanel);
+			Panel *SrcPanel = Global->CtrlObject->Cp()->PassivePanel();
 			bool OldState = SrcPanel->IsVisible()!=0;
 			SrcPanel->SetVisible(1);
 			SrcPanel->ProcessKey(Manager::Key(NewKey));
@@ -1347,7 +1347,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 						string strPrefix;
 
 						/* $ 19.11.2001 IS оптимизация по скорости :) */
-						if (!AddPluginPrefix((FileList *)Global->CtrlObject->Cp()->ActivePanel,strPrefix).empty())
+						if (!AddPluginPrefix((FileList *)Global->CtrlObject->Cp()->ActivePanel(), strPrefix).empty())
 						{
 							strPrefix += strFileName;
 							strFileName = strPrefix;
@@ -1523,17 +1523,17 @@ int FileList::ProcessKey(const Manager::Key& Key)
 					ChangeDir(L"..");
 					NeedChangeDir=FALSE;
 					//"this" мог быть удалён в ChangeDir
-					Panel* ActivePanel = Global->CtrlObject->Cp()->ActivePanel;
+					Panel* ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 
 					if (CheckFullScreen!=ActivePanel->IsFullScreen())
-						Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel)->Show();
+						Global->CtrlObject->Cp()->PassivePanel()->Show();
 				}
 			}
 
 			if (NeedChangeDir)
 				ChangeDir(L"\\");
 
-			Global->CtrlObject->Cp()->ActivePanel->Show();
+			Global->CtrlObject->Cp()->ActivePanel()->Show();
 			return TRUE;
 		}
 		case KEY_SHIFTF1:
@@ -2384,7 +2384,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 				//"this" может быть удалён в ChangeDir
 				bool CheckFullScreen=IsFullScreen();
 				ChangeDir(L"..");
-				Panel *NewActivePanel = Global->CtrlObject->Cp()->ActivePanel;
+				Panel *NewActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 				NewActivePanel->SetViewMode(NewActivePanel->GetViewMode());
 
 				if (CheckFullScreen!=NewActivePanel->IsFullScreen())
@@ -2531,11 +2531,11 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			ChangeDir(CurPtr->strName,false,true,CurPtr);
 
 			//"this" может быть удалён в ChangeDir
-			Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel;
+			Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 
 			if (CheckFullScreen!=ActivePanel->IsFullScreen())
 			{
-				Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel)->Show();
+				Global->CtrlObject->Cp()->PassivePanel()->Show();
 			}
 
 			ActivePanel->Show();
@@ -2833,7 +2833,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 						}
 					}
 				}
-				Global->CtrlObject->Cp()->ActivePanel->ChangeDisk();
+				Global->CtrlObject->Cp()->ActivePanel()->ChangeDisk();
 				return true;
 			}
 		}
@@ -4380,7 +4380,7 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 					string strPrefix;
 
 					/* $ 19.11.2001 IS оптимизация по скорости :) */
-					if (!AddPluginPrefix(static_cast<FileList *>(Global->CtrlObject->Cp()->ActivePanel),strPrefix).empty())
+					if (!AddPluginPrefix(static_cast<FileList *>(Global->CtrlObject->Cp()->ActivePanel()), strPrefix).empty())
 					{
 						strPrefix += strQuotedName;
 						strQuotedName = strPrefix;

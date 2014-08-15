@@ -2270,7 +2270,7 @@ void Help::ResizeConsole()
 	Global->FrameManager->RefreshFrame();
 }
 
-int Help::FastHide()
+int Help::CanFastHide()
 {
 	return Global->Opt->AllCtrlAltShiftRule & CASR_HELP;
 }

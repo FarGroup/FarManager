@@ -1,5 +1,5 @@
 @echo off
-  rem gnu.cmd {cp|mv|rm|mkdir} [-vfpr] param1 [param2 ...]
+  rem gnu.cmd {ls|cp|mv|rm|mkdir} [-vfpr] param1 [param2 ...]
   rem ==================================================++
   for %%o in (v f p r) do set opt%%o=N
   for %%v in (mode last list terr) do set %%v=& rem
@@ -8,7 +8,7 @@
   for %%a in (%all:/=\%) do call :proc_param %%a
   rem
   set terr=bad or missed command: '%mode%'
-  for %%c in (cp mv rm mkdir) do if /i "%mode%" == "%%c" (set terr=& set mode=%%c)
+  for %%c in (ls cp mv rm mkdir) do if /i "%mode%" == "%%c" (set terr=& set mode=%%c)
   if not "" == "%terr%" goto :param_errors
   set terr=missed '%mode%' parameter(s)  
 goto :do_%mode%
@@ -42,6 +42,10 @@ goto :EOF
 exit 1
 
 rem =========================================
+:do_ls
+  for %%a in (%list% %last%) do dir /b %%a
+goto :EOF
+
 :do_cp
 :do_mv
   if "" == "%list%" goto :param_errors

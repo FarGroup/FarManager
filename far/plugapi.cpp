@@ -1191,7 +1191,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 
 			if (!hPlugin || hPlugin == PANEL_ACTIVE || hPlugin == PANEL_PASSIVE)
 			{
-				Panel *pPanel = (!hPlugin || hPlugin == PANEL_ACTIVE)?FPanels->ActivePanel:FPanels->GetAnotherPanel(FPanels->ActivePanel);
+				Panel *pPanel = (!hPlugin || hPlugin == PANEL_ACTIVE) ? FPanels->ActivePanel() : FPanels->PassivePanel();
 
 				if (Command == FCTL_SETACTIVEPANEL && hPlugin == PANEL_ACTIVE)
 					return TRUE;
@@ -1339,7 +1339,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 			if (!hPlugin || hPlugin == PANEL_ACTIVE)
 				return TRUE;
 
-			Panel *pPanel = FPanels->ActivePanel;
+			Panel *pPanel = FPanels->ActivePanel();
 
 			if (pPanel && (pPanel->GetMode() == PLUGIN_PANEL))
 			{

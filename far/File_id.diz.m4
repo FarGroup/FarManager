@@ -1,6 +1,5 @@
 m4_include(`farversion.m4')m4_dnl
-Far Manager `v'FULLVERSIONNOBRACES
-for Windows SUPPORTEDWINDOWSVERSIONS
+Far Manager `v'FULLVERSIONNOBRACES for Windows
 
 Text mode file and archive manager
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

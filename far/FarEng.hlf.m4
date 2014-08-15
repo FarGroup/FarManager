@@ -134,9 +134,8 @@ previous size.
 
 @About
 $ # Far: about#
-    #Far# is a text mode file and archive manager for Windows
-SUPPORTEDWINDOWSVERSIONS. It supports #long file names# and provides a wide set
-of file and folder operations.
+    #Far# is a text mode file and archive manager for Windows. It supports
+#long file names# and provides a wide set of file and folder operations.
 
     #Far# is #freeware# and #open source# software distributed under the
 revised BSD ~license~@License@.

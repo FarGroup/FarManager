@@ -4432,7 +4432,7 @@ int Dialog::GetTypeAndName(string &strType, string &strName)
 	return MODALTYPE_DIALOG;
 }
 
-int Dialog::FastHide()
+int Dialog::CanFastHide()
 {
 	return Global->Opt->AllCtrlAltShiftRule & CASR_DIALOG;
 }

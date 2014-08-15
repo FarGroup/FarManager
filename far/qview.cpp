@@ -493,7 +493,7 @@ void QuickView::ShowFile(const string& FileName, int TempFile, PluginHandle* hDi
 
 	Redraw();
 
-	if (Global->CtrlObject->Cp()->ActivePanel == this)
+	if (Global->CtrlObject->Cp()->ActivePanel() == this)
 	{
 		DynamicUpdateKeyBar();
 		Global->CtrlObject->MainKeyBar->Redraw();

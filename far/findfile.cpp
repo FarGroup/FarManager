@@ -522,7 +522,7 @@ string& FindFiles::PrepareDriveNameStr(string &strSearchFromRoot)
 
 	if (
 	    strCurDir.empty()||
-	    (Global->CtrlObject->Cp()->ActivePanel->GetMode()==PLUGIN_PANEL && Global->CtrlObject->Cp()->ActivePanel->IsVisible())
+	    (Global->CtrlObject->Cp()->ActivePanel()->GetMode()==PLUGIN_PANEL && Global->CtrlObject->Cp()->ActivePanel()->IsVisible())
 	)
 	{
 		strSearchFromRoot = MSG(MSearchFromRootFolder);
@@ -601,9 +601,9 @@ void FindFiles::SetPluginDirectory(const string& DirName, PluginHandle* hPlugin,
 		// Отрисуем панель при необходимости.
 		if (UpdatePanel)
 		{
-			Global->CtrlObject->Cp()->ActivePanel->Update(UPDATE_KEEP_SELECTION);
-			Global->CtrlObject->Cp()->ActivePanel->GoToFile(NamePtr);
-			Global->CtrlObject->Cp()->ActivePanel->Show();
+			Global->CtrlObject->Cp()->ActivePanel()->Update(UPDATE_KEEP_SELECTION);
+			Global->CtrlObject->Cp()->ActivePanel()->GoToFile(NamePtr);
+			Global->CtrlObject->Cp()->ActivePanel()->Show();
 		}
 	}
 }
@@ -739,7 +739,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				case FAD_BUTTON_DRIVE:
 				{
 					Global->IsRedrawFramesInProcess++;
-					Global->CtrlObject->Cp()->ActivePanel->ChangeDisk();
+					Global->CtrlObject->Cp()->ActivePanel()->ChangeDisk();
 					// Ну что ж, раз пошла такая пьянка рефрешить фреймы
 					// будем таким способом.
 					//FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
@@ -751,7 +751,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					Dlg->SendMessage(DM_LISTGETITEM,FAD_COMBOBOX_WHERE,&item);
 					item.Item.Text=strSearchFromRoot.data();
 					Dlg->SendMessage(DM_LISTUPDATE,FAD_COMBOBOX_WHERE,&item);
-					PluginMode=Global->CtrlObject->Cp()->ActivePanel->GetMode()==PLUGIN_PANEL;
+					PluginMode=Global->CtrlObject->Cp()->ActivePanel()->GetMode()==PLUGIN_PANEL;
 					Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_DIRS,ToPtr(!PluginMode));
 					item.ItemIndex=FADC_ALLDISKS;
 					Dlg->SendMessage(DM_LISTGETITEM,FAD_COMBOBOX_WHERE,&item);
@@ -2308,7 +2308,7 @@ void FindFiles::DoScanTree(Dialog* Dlg, const string& strRoot)
 	DWORD FileAttr;
 
 	if (SearchMode==FINDAREA_SELECTED)
-		Global->CtrlObject->Cp()->ActivePanel->GetSelName(nullptr,FileAttr);
+		Global->CtrlObject->Cp()->ActivePanel()->GetSelName(nullptr,FileAttr);
 
 	while (!StopEvent.Signaled())
 	{
@@ -2316,7 +2316,7 @@ void FindFiles::DoScanTree(Dialog* Dlg, const string& strRoot)
 
 		if (SearchMode==FINDAREA_SELECTED)
 		{
-			if (!Global->CtrlObject->Cp()->ActivePanel->GetSelName(&strSelName,FileAttr))
+			if (!Global->CtrlObject->Cp()->ActivePanel()->GetSelName(&strSelName,FileAttr))
 				break;
 
 			if (!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) || TestParentFolderName(strSelName) || strSelName == L".")
@@ -2522,7 +2522,7 @@ void FindFiles::ScanPluginTree(Dialog* Dlg, PluginHandle* hPlugin, UINT64 Flags,
 			if ((CurPanelItem->FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 			 && StrCmp(CurPanelItem->FileName, L".") && !TestParentFolderName(CurPanelItem->FileName)
 			 && (!UseFilter || Filter->FileInFilter(*CurPanelItem))
-			 && (SearchMode!=FINDAREA_SELECTED || RecurseLevel!=1 || Global->CtrlObject->Cp()->ActivePanel->IsSelected(CurPanelItem->FileName))
+			 && (SearchMode!=FINDAREA_SELECTED || RecurseLevel!=1 || Global->CtrlObject->Cp()->ActivePanel()->IsSelected(CurPanelItem->FileName))
 			) {
 				bool SetDirectoryResult=false;
 				{
@@ -2767,7 +2767,7 @@ bool FindFiles::FindFilesProcess()
 
 	if (PluginMode)
 	{
-		Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
+		Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 		auto hPlugin=ActivePanel->GetPluginHandle();
 		OpenPanelInfo Info;
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
@@ -2875,7 +2875,7 @@ bool FindFiles::FindFilesProcess()
 
 				if (hNewPlugin)
 				{
-					Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
+					Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 					Panel *NewPanel=Global->CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
 					NewPanel->SetPluginMode(hNewPlugin,L"",true);
 					NewPanel->SetVisible(true);
@@ -2892,7 +2892,7 @@ bool FindFiles::FindFilesProcess()
 			case FD_LISTBOX:
 			{
 				string strFileName=FindExitItem->FindData.strFileName;
-				Panel *FindPanel=Global->CtrlObject->Cp()->ActivePanel;
+				Panel *FindPanel = Global->CtrlObject->Cp()->ActivePanel();
 
 				if (FindExitItem->Arc)
 				{
@@ -3024,7 +3024,7 @@ FindFiles::FindFiles():
 	SearchInFirst(),
 	FindExitItem(),
 	FileMaskForFindFile(std::make_unique<filemasks>()),
-	Filter(std::make_unique<FileFilter>(Global->CtrlObject->Cp()->ActivePanel, FFT_FINDFILE)),
+	Filter(std::make_unique<FileFilter>(Global->CtrlObject->Cp()->ActivePanel(), FFT_FINDFILE)),
 	itd(std::make_unique<InterThreadData>())
 {
 
@@ -3059,7 +3059,7 @@ FindFiles::FindFiles():
 		Finalized=false;
 		TB.reset();
 		itd->ClearAllLists();
-		Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
+		Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 		PluginMode=ActivePanel->GetMode()==PLUGIN_PANEL && ActivePanel->IsVisible();
 		PrepareDriveNameStr(strSearchFromRoot);
 		const wchar_t *MasksHistoryName=L"Masks",*TextHistoryName=L"SearchText";
@@ -3253,7 +3253,7 @@ FindFiles::FindFiles():
 	}
 	while (FindFilesProcess());
 
-	Global->CtrlObject->Cp()->ActivePanel->SetTitle();
+	Global->CtrlObject->Cp()->ActivePanel()->SetTitle();
 }
 
 FindFiles::~FindFiles()

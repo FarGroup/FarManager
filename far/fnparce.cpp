@@ -444,8 +444,8 @@ int SubstFileName(const wchar_t *DlgTitle,
 	if ((pos = PSubstData->strShortNameOnly.rfind(L'.')) != string::npos)
 		PSubstData->strShortNameOnly.resize(pos);
 
-	PSubstData->ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
-	PSubstData->AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(PSubstData->ActivePanel);
+	PSubstData->ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
+	PSubstData->AnotherPanel=Global->CtrlObject->Cp()->PassivePanel();
 	PSubstData->AnotherPanel->GetCurName(PSubstData->strAnotherName,PSubstData->strAnotherShortName);
 	PSubstData->strAnotherNameOnly = PSubstData->strAnotherName;
 

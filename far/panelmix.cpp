@@ -59,7 +59,7 @@ static_assert(ARRAYSIZE(ColumnSymbol) == COLUMN_TYPES_COUNT, "wrong size of Colu
 void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
 {
 	if (!SrcPanel)
-		SrcPanel=Global->CtrlObject->Cp()->ActivePanel;
+		SrcPanel = Global->CtrlObject->Cp()->ActivePanel();
 
 	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
 
@@ -106,9 +106,9 @@ void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
 int CheckUpdateAnotherPanel(Panel *SrcPanel, const string& SelName)
 {
 	if (!SrcPanel)
-		SrcPanel=Global->CtrlObject->Cp()->ActivePanel;
+		SrcPanel = Global->CtrlObject->Cp()->ActivePanel();
 
-	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
+	Panel *AnotherPanel = Global->CtrlObject->Cp()->PassivePanel();
 	AnotherPanel->CloseFile();
 
 	if (AnotherPanel->GetMode() == NORMAL_PANEL)
@@ -192,7 +192,7 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 				case KEY_RALTSHIFTBRACKET:
 				case KEY_CTRLSHIFTBRACKET:
 				case KEY_RCTRLSHIFTBRACKET:
-					SrcPanel=Cp->ActivePanel;
+					SrcPanel=Cp->ActivePanel();
 					break;
 				case KEY_CTRLSHIFTNUMENTER:
 				case KEY_RCTRLSHIFTNUMENTER:
@@ -202,7 +202,7 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 				case KEY_RALTSHIFTBACKBRACKET:
 				case KEY_CTRLSHIFTBACKBRACKET:
 				case KEY_RCTRLSHIFTBACKBRACKET:
-					SrcPanel=Cp->GetAnotherPanel(Cp->ActivePanel);
+					SrcPanel=Cp->PassivePanel();
 					break;
 			}
 

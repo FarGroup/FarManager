@@ -462,7 +462,7 @@ void UserMenu::ProcessUserMenu(bool MenuType, const string& MenuFileName)
 	}
 
 	if (Global->FrameManager->IsPanelsActive() && (ExitCode == EC_COMMAND_SELECTED || MenuModified))
-		ShellUpdatePanels(Global->CtrlObject->Cp()->ActivePanel,FALSE);
+		ShellUpdatePanels(Global->CtrlObject->Cp()->ActivePanel(), FALSE);
 }
 
 // заполнение меню
@@ -530,7 +530,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		std::fill(ALL_RANGE(FuncPos), -1);
 
 		string strName,strShortName;
-		Global->CtrlObject->Cp()->ActivePanel->GetCurName(strName,strShortName);
+		Global->CtrlObject->Cp()->ActivePanel()->GetCurName(strName,strShortName);
 		/* $ 24.07.2000 VVM + При показе главного меню в заголовок добавляет тип - FAR/Registry */
 
 		VMenu2 UserMenu(Title, nullptr, 0, ScrY - 4);

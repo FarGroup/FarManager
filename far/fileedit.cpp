@@ -1173,7 +1173,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 				{
 					if (!Flags.Check(FFILEEDIT_DISABLESAVEPOS) && (m_editor->EdOpt.SavePos || m_editor->EdOpt.SaveShortPos)) // save position/codepage before reload
 						SaveToCache();
-					Global->CtrlObject->Cp()->ActivePanel->ProcessKey(Manager::Key(Key));
+					Global->CtrlObject->Cp()->ActivePanel()->ProcessKey(Manager::Key(Key));
 				}
 				return TRUE;
 			}
@@ -1196,7 +1196,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					strFullFileNameTemp += L"\\."; // для вваливания внутрь :-)
 				}
 
-				Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel;
+				Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 
 				if (Flags.Check(FFILEEDIT_NEW) || (ActivePanel && ActivePanel->FindFile(strFileName) == -1)) // Mantis#279
 				{
@@ -2269,7 +2269,7 @@ void FileEditor::SetLockEditor(BOOL LockMode)
 		m_editor->Flags.Clear(Editor::FEDITOR_LOCKMODE);
 }
 
-int FileEditor::FastHide()
+int FileEditor::CanFastHide()
 {
 	return Global->Opt->AllCtrlAltShiftRule & CASR_EDITOR;
 }
@@ -2497,7 +2497,7 @@ DWORD FileEditor::EditorGetFileAttributes(const string& Name)
 */
 bool FileEditor::UpdateFileList()
 {
-	Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel;
+	Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 	const wchar_t *FileName = PointToName(strFullFileName);
 	string strFilePath(strFullFileName), strPanelPath(ActivePanel->GetCurDir());
 	strFilePath.resize(FileName - strFullFileName.data());

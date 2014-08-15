@@ -112,7 +112,7 @@ private:
 	virtual int GetType() const override { return MODALTYPE_EDITOR; }
 	virtual void OnDestroy() override;
 	virtual int GetCanLoseFocus(int DynamicMode = FALSE) const override;
-	virtual int FastHide() override; // для нужд CtrlAltShift
+	virtual int CanFastHide() override; // для нужд CtrlAltShift
 	virtual void ResizeConsole() override;
 	virtual string GetTitle() const override;
 

@@ -994,9 +994,9 @@ void Options::SetFilePanelModes()
 
 	size_t CurMode=0;
 
-	if (Global->CtrlObject->Cp()->ActivePanel->GetType()==FILE_PANEL)
+	if (Global->CtrlObject->Cp()->ActivePanel()->GetType()==FILE_PANEL)
 	{
-		CurMode=Global->CtrlObject->Cp()->ActivePanel->GetViewMode();
+		CurMode=Global->CtrlObject->Cp()->ActivePanel()->GetViewMode();
 		CurMode = RealModeToDisplay(CurMode);
 	}
 
@@ -1059,10 +1059,10 @@ void Options::SetFilePanelModes()
 				case KEY_CTRLSHIFTENTER:
 				case KEY_RCTRLSHIFTENTER:
 					{
-						auto PanelPtr = Global->CtrlObject->Cp()->ActivePanel;
+						auto PanelPtr = Global->CtrlObject->Cp()->ActivePanel();
 						if (Key & KEY_SHIFT)
 						{
-							PanelPtr = Global->CtrlObject->Cp()->GetAnotherPanel(PanelPtr);
+							PanelPtr = Global->CtrlObject->Cp()->PassivePanel();
 						}
 						PanelPtr->SetViewMode(static_cast<int>(DisplayModeToReal(ModeList.GetSelectPos())));
 						Global->CtrlObject->Cp()->Redraw();
@@ -1107,8 +1107,8 @@ void Options::SetFilePanelModes()
 				}
 			};
 
-			SwitchToAnotherMode(Global->CtrlObject->Cp()->ActivePanel);
-			SwitchToAnotherMode(Global->CtrlObject->Cp()->GetAnotherPanel(Global->CtrlObject->Cp()->ActivePanel));
+			SwitchToAnotherMode(Global->CtrlObject->Cp()->ActivePanel());
+			SwitchToAnotherMode(Global->CtrlObject->Cp()->PassivePanel());
 
 			Global->CtrlObject->Cp()->Redraw();
 
@@ -2316,7 +2316,7 @@ void Options::Save(bool Manual)
 	StorePanelOptions(Global->CtrlObject->Cp()->LeftPanel, LeftPanel);
 	StorePanelOptions(Global->CtrlObject->Cp()->RightPanel, RightPanel);
 
-	LeftFocus = Global->CtrlObject->Cp()->ActivePanel == Global->CtrlObject->Cp()->LeftPanel;
+	LeftFocus = Global->CtrlObject->Cp()->ActivePanel() == Global->CtrlObject->Cp()->LeftPanel;
 
 	/* *************************************************** </опеопнжеяяш> */
 
@@ -2937,8 +2937,8 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 
 			if (HItemToShow == -1)
 			{
-				if (Global->CtrlObject->Cp()->ActivePanel == Global->CtrlObject->Cp()->RightPanel &&
-					Global->CtrlObject->Cp()->ActivePanel->IsVisible())
+				if (Global->CtrlObject->Cp()->ActivePanel() == Global->CtrlObject->Cp()->RightPanel &&
+					Global->CtrlObject->Cp()->ActivePanel()->IsVisible())
 					HItemToShow = 4;
 				else
 					HItemToShow = 0;
@@ -2952,8 +2952,8 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		}
 		else
 		{
-			if (Global->CtrlObject->Cp()->ActivePanel==Global->CtrlObject->Cp()->RightPanel &&
-				Global->CtrlObject->Cp()->ActivePanel->IsVisible())
+			if (Global->CtrlObject->Cp()->ActivePanel() == Global->CtrlObject->Cp()->RightPanel &&
+				Global->CtrlObject->Cp()->ActivePanel()->IsVisible())
 			{
 				MainMenu[0].Selected = 0;
 				MainMenu[4].Selected = 1;
@@ -3049,34 +3049,34 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 				Global->FrameManager->ProcessKey(Manager::Key(KEY_ALTDEL));
 				break;
 			case MENU_FILES_ADD:  // Add to archive
-				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(Manager::Key(KEY_SHIFTF1));
+				Global->CtrlObject->Cp()->ActivePanel()->ProcessKey(Manager::Key(KEY_SHIFTF1));
 				break;
 			case MENU_FILES_EXTRACT:  // Extract files
-				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(Manager::Key(KEY_SHIFTF2));
+				Global->CtrlObject->Cp()->ActivePanel()->ProcessKey(Manager::Key(KEY_SHIFTF2));
 				break;
 			case MENU_FILES_ARCHIVECOMMANDS:  // Archive commands
-				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(Manager::Key(KEY_SHIFTF3));
+				Global->CtrlObject->Cp()->ActivePanel()->ProcessKey(Manager::Key(KEY_SHIFTF3));
 				break;
 			case MENU_FILES_ATTRIBUTES: // File attributes
-				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(Manager::Key(KEY_CTRLA));
+				Global->CtrlObject->Cp()->ActivePanel()->ProcessKey(Manager::Key(KEY_CTRLA));
 				break;
 			case MENU_FILES_APPLYCOMMAND: // Apply command
-				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(Manager::Key(KEY_CTRLG));
+				Global->CtrlObject->Cp()->ActivePanel()->ProcessKey(Manager::Key(KEY_CTRLG));
 				break;
 			case MENU_FILES_DESCRIBE: // Describe files
-				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(Manager::Key(KEY_CTRLZ));
+				Global->CtrlObject->Cp()->ActivePanel()->ProcessKey(Manager::Key(KEY_CTRLZ));
 				break;
 			case MENU_FILES_SELECTGROUP: // Select group
-				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(Manager::Key(KEY_ADD));
+				Global->CtrlObject->Cp()->ActivePanel()->ProcessKey(Manager::Key(KEY_ADD));
 				break;
 			case MENU_FILES_UNSELECTGROUP: // Unselect group
-				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(Manager::Key(KEY_SUBTRACT));
+				Global->CtrlObject->Cp()->ActivePanel()->ProcessKey(Manager::Key(KEY_SUBTRACT));
 				break;
 			case MENU_FILES_INVERTSELECTION: // Invert selection
-				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(Manager::Key(KEY_MULTIPLY));
+				Global->CtrlObject->Cp()->ActivePanel()->ProcessKey(Manager::Key(KEY_MULTIPLY));
 				break;
 			case MENU_FILES_RESTORESELECTION: // Restore selection
-				Global->CtrlObject->Cp()->ActivePanel->RestoreSelection();
+				Global->CtrlObject->Cp()->ActivePanel()->RestoreSelection();
 				break;
 			}
 
@@ -3111,7 +3111,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 				Global->FrameManager->ProcessKey(Manager::Key(KEY_CTRLO));
 				break;
 			case MENU_COMMANDS_COMPAREFOLDERS: // Compare folders
-				Global->CtrlObject->Cp()->ActivePanel->CompareDir();
+				Global->CtrlObject->Cp()->ActivePanel()->CompareDir();
 				break;
 			case MENU_COMMANDS_EDITUSERMENU: // Edit user menu
 				{
@@ -3125,7 +3125,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 				Shortcuts().Configure();
 				break;
 			case MENU_COMMANDS_FILTER: // File panel filter
-				Global->CtrlObject->Cp()->ActivePanel->EditFilter();
+				Global->CtrlObject->Cp()->ActivePanel()->EditFilter();
 				break;
 			case MENU_COMMANDS_PLUGINCOMMANDS: // Plugin commands
 				Global->FrameManager->ProcessKey(Manager::Key(KEY_F11));

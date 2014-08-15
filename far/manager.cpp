@@ -675,11 +675,11 @@ int Manager::ProcessKey(Key key)
 					_ALGO(CleverSysLog clv(L"Manager::ProcessKey()"));
 					_ALGO(SysLog(L"Key=%s",_FARKEY_ToName(key.FarKey)));
 #ifndef NO_WRAPPER
-					if (Global->CtrlObject->Cp()->ActivePanel->GetMode() == PLUGIN_PANEL)
+					if (Global->CtrlObject->Cp()->ActivePanel()->GetMode() == PLUGIN_PANEL)
 					{
-						auto ph= Global->CtrlObject->Cp()->ActivePanel->GetPluginHandle();
+						auto ph = Global->CtrlObject->Cp()->ActivePanel()->GetPluginHandle();
 						if (ph && ph->pPlugin->IsOemPlugin())
-							if (Global->CtrlObject->Cp()->ActivePanel->SendKeyToPlugin(key.FarKey, true))
+							if (Global->CtrlObject->Cp()->ActivePanel()->SendKeyToPlugin(key.FarKey, true))
 								return TRUE;
 					}
 #endif // NO_WRAPPER
@@ -1003,7 +1003,7 @@ int Manager::ProcessKey(Key key)
 					if (!(Global->Opt->CASRule&2) && key.FarKey == KEY_RCTRLALTSHIFTPRESS)
 						break;
 
-						if (CurrentFrame->FastHide())
+						if (CurrentFrame->CanFastHide())
 						{
 							int isPanelFocus=CurrentFrame->GetType() == MODALTYPE_PANELS;
 
@@ -1103,7 +1103,7 @@ void Manager::PluginsMenu() const
 		*/
 		if (curType==MODALTYPE_PANELS)
 		{
-			int pType=Global->CtrlObject->Cp()->ActivePanel->GetType();
+			int pType=Global->CtrlObject->Cp()->ActivePanel()->GetType();
 
 			if (pType==QVIEW_PANEL || pType==INFO_PANEL)
 			{
@@ -1135,9 +1135,8 @@ bool Manager::IsPanelsActive(bool and_not_qview) const
 {
 	if (FramePos>=0 && CurrentFrame)
 	{
-		return CurrentFrame->GetType() == MODALTYPE_PANELS &&
-		   (!and_not_qview || ((FilePanels*)CurrentFrame)->ActivePanel->GetType()!=QVIEW_PANEL)
-		;
+		auto fp = dynamic_cast<FilePanels*>(CurrentFrame);
+		return fp && (!and_not_qview || fp->ActivePanel()->GetType() != QVIEW_PANEL);
 	}
 	else
 	{
@@ -1234,7 +1233,7 @@ void Manager::DeleteCommit(Frame* Param)
 			{
 				ActivateCommit(ModalFrames.back());
 			}
-			else if (Frames.size())
+			else if (!Frames.empty())
 			{
 				assert(FramePos < static_cast<int>(Frames.size()));
 				assert(FramePos>=0);
@@ -1258,7 +1257,7 @@ void Manager::DeleteCommit(Frame* Param)
 
 		if (CurrentFrame==Param)
 		{
-			if (Frames.size())
+			if (!Frames.empty())
 			{
 				if (Param->FrameToBack == Global->CtrlObject->Desktop || Param->FrameToBack == Global->CtrlObject->Cp())
 				{
@@ -1274,7 +1273,7 @@ void Manager::DeleteCommit(Frame* Param)
 		}
 		else
 		{
-			if (Frames.size())
+			if (!Frames.empty())
 			{
 				RefreshFrame(FramePos);
 				RefreshFrame(CurrentFrame);
@@ -1455,7 +1454,7 @@ void Manager::ImmediateHide()
 			{
 				FOR(const auto& i, make_range(ModalFrames.cbegin(), ModalFrames.cend() - 1))
 				{
-					if (!(i->FastHide() & CASR_HELP))
+					if (!(i->CanFastHide() & CASR_HELP))
 					{
 						RefreshFrame(i);
 						Commit();

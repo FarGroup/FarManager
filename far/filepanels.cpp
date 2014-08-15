@@ -61,11 +61,11 @@ FilePanels::FilePanels(bool CreatePanels):
 	LastRightFilePanel(nullptr),
 	LeftPanel(CreatePanels? CreatePanel(Global->Opt->LeftPanel.Type) : nullptr),
 	RightPanel(CreatePanels? CreatePanel(Global->Opt->RightPanel.Type) : nullptr),
-	ActivePanel(0),
 	LastLeftType(0),
 	LastRightType(0),
 	LeftStateBeforeHide(0),
-	RightStateBeforeHide(0)
+	RightStateBeforeHide(0),
+	m_ActivePanel()
 {
 	_OT(SysLog(L"[%p] FilePanels::FilePanels()", this));
 	SetMacroMode(MACROAREA_SHELL);
@@ -137,18 +137,18 @@ void FilePanels::Init(int DirCount)
 
 	if (Global->Opt->LeftFocus)
 	{
-		ActivePanel=LeftPanel;
+		m_ActivePanel = LeftPanel;
 		PassivePanel=RightPanel;
 		PassiveIsLeftFlag=FALSE;
 	}
 	else
 	{
-		ActivePanel=RightPanel;
+		m_ActivePanel = RightPanel;
 		PassivePanel=LeftPanel;
 		PassiveIsLeftFlag=TRUE;
 	}
 
-	ActivePanel->SetFocus();
+	m_ActivePanel->SetFocus();
 	// пытаемся избавится от зависания при запуске
 	int IsLocalPath_FarPath = ParsePath(Global->g_strFarPath)==PATH_DRIVELETTER;
 	string strLeft = Global->Opt->LeftPanel.Folder.Get(), strRight = Global->Opt->RightPanel.Folder.Get();
@@ -167,7 +167,7 @@ void FilePanels::Init(int DirCount)
 	{
 		if (DirCount >= 1)
 		{
-			if (ActivePanel==RightPanel)
+			if (m_ActivePanel == RightPanel)
 			{
 				RightPanel->InitCurDir(api::GetFileAttributes(Global->Opt->RightPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->RightPanel.Folder.Get() : Global->g_strFarPath);
 			}
@@ -178,7 +178,7 @@ void FilePanels::Init(int DirCount)
 
 			if (DirCount == 2)
 			{
-				if (ActivePanel==LeftPanel)
+				if (m_ActivePanel == LeftPanel)
 				{
 					RightPanel->InitCurDir(api::GetFileAttributes(Global->Opt->RightPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->RightPanel.Folder.Get() : Global->g_strFarPath);
 				}
@@ -297,7 +297,7 @@ void FilePanels::SetScreenPosition()
 
 void FilePanels::RedrawKeyBar()
 {
-	ActivePanel->UpdateKeyBar();
+	m_ActivePanel->UpdateKeyBar();
 	MainKeyBar.Redraw();
 }
 
@@ -347,7 +347,7 @@ int FilePanels::SetAnhoterPanelFocus()
 {
 	int Ret=FALSE;
 
-	if (ActivePanel==LeftPanel)
+	if (m_ActivePanel == LeftPanel)
 	{
 		if (RightPanel->IsVisible())
 		{
@@ -440,7 +440,7 @@ __int64 FilePanels::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		}
 		return PrevMode;
 	}
-	return ActivePanel->VMProcess(OpCode,vParam,iParam);
+	return m_ActivePanel->VMProcess(OpCode, vParam, iParam);
 }
 
 int FilePanels::ProcessKey(const Manager::Key& Key)
@@ -463,7 +463,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 	{
 		case KEY_F1:
 		{
-			if (!ActivePanel->ProcessKey(Manager::Key(KEY_F1)))
+			if (!m_ActivePanel->ProcessKey(Manager::Key(KEY_F1)))
 			{
 				Help Hlp(L"Contents");
 			}
@@ -534,9 +534,9 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLQ: case KEY_RCTRLQ:
 		case KEY_CTRLT: case KEY_RCTRLT:
 		{
-			if (ActivePanel->IsVisible())
+			if (m_ActivePanel->IsVisible())
 			{
-				Panel *AnotherPanel=GetAnotherPanel(ActivePanel);
+				Panel *AnotherPanel = PassivePanel();
 				int NewType;
 
 				if (LocalKey==KEY_CTRLL || LocalKey==KEY_RCTRLL)
@@ -546,8 +546,8 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 				else
 					NewType=TREE_PANEL;
 
-				if (ActivePanel->GetType()==NewType)
-					AnotherPanel=ActivePanel;
+				if (m_ActivePanel->GetType() == NewType)
+					AnotherPanel = m_ActivePanel;
 
 				if (!AnotherPanel->ProcessPluginEvent(FE_CLOSE,nullptr))
 				{
@@ -561,9 +561,9 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 
 					/* $ 07.09.2001 VVM
 					  ! При возврате из CTRL+Q, CTRL+L восстановим каталог, если активная панель - дерево. */
-					if (ActivePanel->GetType() == TREE_PANEL)
+					if (m_ActivePanel->GetType() == TREE_PANEL)
 					{
-						string strCurDir(ActivePanel->GetCurDir());
+						string strCurDir(m_ActivePanel->GetCurDir());
 						AnotherPanel->SetCurDir(strCurDir, true);
 						AnotherPanel->Update(0);
 					}
@@ -573,7 +573,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 					AnotherPanel->Show();
 				}
 
-				ActivePanel->SetFocus();
+				m_ActivePanel->SetFocus();
 			}
 
 			break;
@@ -605,9 +605,9 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 					if (RightStateBeforeHide)
 						RightPanel->Show();
 
-					if (!ActivePanel->IsVisible())
+					if (!m_ActivePanel->IsVisible())
 					{
-						if (ActivePanel == RightPanel)
+						if (m_ActivePanel == RightPanel)
 							LeftPanel->SetFocus();
 						else
 							RightPanel->SetFocus();
@@ -619,9 +619,9 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLP:
 		case KEY_RCTRLP:
 		{
-			if (ActivePanel->IsVisible())
+			if (m_ActivePanel->IsVisible())
 			{
-				Panel *AnotherPanel=GetAnotherPanel(ActivePanel);
+				Panel *AnotherPanel = PassivePanel();
 
 				if (AnotherPanel->IsVisible())
 					AnotherPanel->Hide();
@@ -637,7 +637,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLI:
 		case KEY_RCTRLI:
 		{
-			ActivePanel->EditFilter();
+			m_ActivePanel->EditFilter();
 			return TRUE;
 		}
 		case KEY_CTRLU:
@@ -661,8 +661,8 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		{
 			LeftPanel->ChangeDisk();
 
-			if (ActivePanel!=LeftPanel)
-				ActivePanel->SetCurPath();
+			if (ActivePanel() != LeftPanel)
+				ActivePanel()->SetCurPath();
 
 			break;
 		}
@@ -671,8 +671,8 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		{
 			RightPanel->ChangeDisk();
 
-			if (ActivePanel!=RightPanel)
-				ActivePanel->SetCurPath();
+			if (ActivePanel() != RightPanel)
+				ActivePanel()->SetCurPath();
 
 			break;
 		}
@@ -732,7 +732,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLSHIFTUP:  case KEY_CTRLSHIFTNUMPAD8:
 		case KEY_RCTRLSHIFTUP: case KEY_RCTRLSHIFTNUMPAD8:
 		{
-			IntOption& HeightDecrement=(ActivePanel==LeftPanel)?Global->Opt->LeftHeightDecrement:Global->Opt->RightHeightDecrement;
+			IntOption& HeightDecrement = (m_ActivePanel == LeftPanel) ? Global->Opt->LeftHeightDecrement : Global->Opt->RightHeightDecrement;
 			if (HeightDecrement<ScrY-7)
 			{
 				++HeightDecrement;
@@ -745,7 +745,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLSHIFTDOWN:  case KEY_CTRLSHIFTNUMPAD2:
 		case KEY_RCTRLSHIFTDOWN: case KEY_RCTRLSHIFTNUMPAD2:
 		{
-			IntOption& HeightDecrement=(ActivePanel==LeftPanel)?Global->Opt->LeftHeightDecrement:Global->Opt->RightHeightDecrement;
+			IntOption& HeightDecrement = (m_ActivePanel == LeftPanel) ? Global->Opt->LeftHeightDecrement : Global->Opt->RightHeightDecrement;
 			if (HeightDecrement>0)
 			{
 				--HeightDecrement;
@@ -828,8 +828,8 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		default:
 		{
 			if (LocalKey >= KEY_CTRL0 && LocalKey <= KEY_CTRL9)
-				ChangePanelViewMode(ActivePanel,LocalKey-KEY_CTRL0,TRUE);
-			if (!ActivePanel->ProcessKey(Key))
+				ChangePanelViewMode(m_ActivePanel, LocalKey - KEY_CTRL0, TRUE);
+			if (!m_ActivePanel->ProcessKey(Key))
 				Global->CtrlObject->CmdLine->ProcessKey(Key);
 
 			break;
@@ -987,8 +987,8 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 	{
 		NewPanel=CreatePanel(NewType);
 	}
-	if (Current==ActivePanel)
-		ActivePanel=NewPanel;
+	if (Current == m_ActivePanel)
+		m_ActivePanel = NewPanel;
 
 	if (LeftPosition)
 	{
@@ -1042,13 +1042,13 @@ int  FilePanels::GetTypeAndName(string &strType, string &strName)
 	strType = MSG(MScreensPanels);
 	string strFullName, strShortName;
 
-	switch (ActivePanel->GetType())
+	switch (m_ActivePanel->GetType())
 	{
 		case TREE_PANEL:
 		case QVIEW_PANEL:
 		case FILE_PANEL:
 		case INFO_PANEL:
-			ActivePanel->GetCurName(strFullName, strShortName);
+			m_ActivePanel->GetCurName(strFullName, strShortName);
 			ConvertNameToFull(strFullName, strFullName);
 			break;
 	}
@@ -1069,14 +1069,14 @@ void FilePanels::OnChangeFocus(int f)
 		/*$ 22.06.2001 SKV
 		  + update панелей при получении фокуса
 		*/
-		Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel)->UpdateIfChanged(UIC_UPDATE_FORCE_NOTIFICATION);
-		ActivePanel->UpdateIfChanged(UIC_UPDATE_FORCE_NOTIFICATION);
+		PassivePanel()->UpdateIfChanged(UIC_UPDATE_FORCE_NOTIFICATION);
+		m_ActivePanel->UpdateIfChanged(UIC_UPDATE_FORCE_NOTIFICATION);
 		/* $ 13.04.2002 KM
 		  ! ??? Я не понял зачем здесь Redraw, если
 		    Redraw вызывается следом во Frame::OnChangeFocus.
 		*/
 //    Redraw();
-		ActivePanel->SetCurPath();
+		m_ActivePanel->SetCurPath();
 		Frame::OnChangeFocus(1);
 	}
 }
@@ -1155,8 +1155,8 @@ void FilePanels::DisplayObject()
 
 int  FilePanels::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	if (!ActivePanel->ProcessMouse(MouseEvent))
-		if (!GetAnotherPanel(ActivePanel)->ProcessMouse(MouseEvent))
+	if (!m_ActivePanel->ProcessMouse(MouseEvent))
+		if (!PassivePanel()->ProcessMouse(MouseEvent))
 			if (!MainKeyBar.ProcessMouse(MouseEvent))
 				Global->CtrlObject->CmdLine->ProcessMouse(MouseEvent);
 
@@ -1165,8 +1165,8 @@ int  FilePanels::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 void FilePanels::ShowConsoleTitle()
 {
-	if (ActivePanel)
-		ActivePanel->SetTitle();
+	if (m_ActivePanel)
+		m_ActivePanel->SetTitle();
 }
 
 void FilePanels::ResizeConsole()
@@ -1179,7 +1179,7 @@ void FilePanels::ResizeConsole()
 	_OT(SysLog(L"[%p] FilePanels::ResizeConsole() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
 }
 
-int FilePanels::FastHide()
+int FilePanels::CanFastHide()
 {
 	return Global->Opt->AllCtrlAltShiftRule & CASR_PANEL;
 }
@@ -1199,7 +1199,7 @@ void FilePanels::GoToFile(const string& FileName)
 	if (FirstSlash(FileName.data()))
 	{
 		string ADir,PDir;
-		Panel *PassivePanel = GetAnotherPanel(ActivePanel);
+		Panel *PassivePanel = this->PassivePanel();
 		int PassiveMode = PassivePanel->GetMode();
 
 		if (PassiveMode == NORMAL_PANEL)
@@ -1208,11 +1208,11 @@ void FilePanels::GoToFile(const string& FileName)
 			AddEndSlash(PDir);
 		}
 
-		int ActiveMode = ActivePanel->GetMode();
+		int ActiveMode = m_ActivePanel->GetMode();
 
 		if (ActiveMode==NORMAL_PANEL)
 		{
-			ADir = ActivePanel->GetCurDir();
+			ADir = m_ActivePanel->GetCurDir();
 			AddEndSlash(ADir);
 		}
 
@@ -1232,19 +1232,19 @@ void FilePanels::GoToFile(const string& FileName)
 			ProcessKey(Manager::Key(KEY_TAB));
 
 		if (!AExist && !PExist)
-			ActivePanel->SetCurDir(strNameDir,true);
+			m_ActivePanel->SetCurDir(strNameDir, true);
 
-		ActivePanel->GoToFile(strNameFile);
+		m_ActivePanel->GoToFile(strNameFile);
 		// всегда обновим заголовок панели, чтобы дать обратную связь, что
 		// Ctrl-F10 обработан
-		ActivePanel->SetTitle();
+		m_ActivePanel->SetTitle();
 	}
 }
 
 
 FARMACROAREA FilePanels::GetMacroMode() const
 {
-	switch (ActivePanel->GetType())
+	switch (m_ActivePanel->GetType())
 	{
 		case TREE_PANEL:
 			return MACROAREA_TREEPANEL;

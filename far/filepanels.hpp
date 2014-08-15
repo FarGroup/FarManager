@@ -57,7 +57,7 @@ public:
 	virtual void RedrawKeyBar() override;
 	virtual void ShowConsoleTitle() override;
 	virtual void ResizeConsole() override;
-	virtual int FastHide() override;
+	virtual int CanFastHide() override;
 	virtual void Refresh() override;
 	virtual FARMACROAREA GetMacroMode() const override;
 
@@ -67,6 +67,10 @@ public:
 	Panel* ChangePanel(Panel *Current, int NewType, int CreateNew, int Force);
 	void GoToFile(const string& FileName);
 	int ChangePanelViewMode(Panel *Current, int Mode, BOOL RefreshFrame);
+	Panel* ActivePanel() { return m_ActivePanel; }
+	Panel* PassivePanel() { return GetAnotherPanel(m_ActivePanel); }
+	// BUGBUG
+	void SetActivePanel(Panel* p) { m_ActivePanel = p; }
 
 private:
 	virtual void DisplayObject() override;
@@ -84,7 +88,6 @@ public:
 	Panel *LastRightFilePanel;
 	Panel *LeftPanel;
 	Panel *RightPanel;
-	Panel *ActivePanel;
 
 	KeyBar MainKeyBar;
 	MenuBar TopMenuBar;
@@ -93,4 +96,7 @@ public:
 	int LastRightType;
 	int LeftStateBeforeHide;
 	int RightStateBeforeHide;
+
+private:
+	Panel *m_ActivePanel;
 };

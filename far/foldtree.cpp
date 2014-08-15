@@ -171,7 +171,7 @@ void FolderTree::SetScreenPosition()
 	Show();
 }
 
-int FolderTree::FastHide()
+int FolderTree::CanFastHide()
 {
 	return Global->Opt->AllCtrlAltShiftRule & CASR_DIALOG;
 }

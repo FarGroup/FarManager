@@ -52,7 +52,7 @@ public:
 	virtual void SetScreenPosition() override;
 	virtual void OnChangeFocus(int focus) override; // вызываетс€ при смене фокуса
 	virtual void ResizeConsole() override;
-	virtual int  FastHide() override; // ¬ведена дл€ нужд CtrlAltShift
+	virtual int  CanFastHide() override; // ¬ведена дл€ нужд CtrlAltShift
 	virtual const wchar_t *GetTypeName() override {return L"[Help]";}
 	virtual int GetTypeAndName(string &strType, string &strName) override;
 	virtual int GetType() const override { return MODALTYPE_HELP; }

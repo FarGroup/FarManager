@@ -87,11 +87,11 @@ Panel *FileFilter::GetHostPanel()
 {
 	if (!m_HostPanel || m_HostPanel == (Panel *)PANEL_ACTIVE)
 	{
-		return Global->CtrlObject->Cp()->ActivePanel;
+		return Global->CtrlObject->Cp()->ActivePanel();
 	}
 	else if (m_HostPanel == (Panel *)PANEL_PASSIVE)
 	{
-		return Global->CtrlObject->Cp()->GetAnotherPanel(Global->CtrlObject->Cp()->ActivePanel);
+		return Global->CtrlObject->Cp()->PassivePanel();
 	}
 
 	return m_HostPanel;

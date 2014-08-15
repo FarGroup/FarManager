@@ -583,6 +583,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="farwinapi.hpp" />
     <ClInclude Include="filemasks.hpp" />
     <ClInclude Include="filesystemwatcher.hpp" />
+    <ClInclude Include="Include\DlgBuilder.hpp" />
     <ClInclude Include="nsUniversalDetectorEx.hpp" />
     <ClInclude Include="panelctype.hpp" />
     <ClInclude Include="shortcuts.hpp" />
@@ -706,9 +707,9 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="Include\farcolor.hpp" />
     <ClInclude Include="lang.hpp" />
     <ClInclude Include="Include\plugin.hpp" />
-    <ClInclude Include="Include\DlgBuilder.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="bootstrap\far.rc.inc" />
     <None Include="bootstrap\lang.inc" />
     <CustomBuild Include="Far.exe.example.ini">
       <FileType>Document</FileType>
@@ -765,7 +766,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">bootstrap\%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
-    <CustomBuild Include="far.rc.m4">
+    <CustomBuild Include="far.rc.inc.m4">
       <FileType>Document</FileType>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compiling %(Identity)...</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\m4 -P -DFARBIT=32 %(Identity) &gt; bootstrap\%(FileName)</Command>
@@ -934,12 +935,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <None Include="changelog" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="bootstrap\far.rc">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ResourceCompile>
+    <ResourceCompile Include="far.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

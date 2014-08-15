@@ -1501,7 +1501,7 @@ void Panel::FastFind(int FirstKey)
 	Show();
 	Global->CtrlObject->MainKeyBar->Redraw();
 	Global->ScrBuf->Flush();
-	Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
+	Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 
 	if ((KeyToProcess==KEY_ENTER||KeyToProcess==KEY_NUMENTER) && ActivePanel->GetType()==TREE_PANEL)
 		((TreeList *)ActivePanel)->ProcessEnter();
@@ -1526,10 +1526,10 @@ void Panel::FastFindShow(int FindX,int FindY)
 
 void Panel::SetFocus()
 {
-	if (Global->CtrlObject->Cp()->ActivePanel!=this)
+	if (Global->CtrlObject->Cp()->ActivePanel() != this)
 	{
-		Global->CtrlObject->Cp()->ActivePanel->KillFocus();
-		Global->CtrlObject->Cp()->ActivePanel=this;
+		Global->CtrlObject->Cp()->ActivePanel()->KillFocus();
+		Global->CtrlObject->Cp()->SetActivePanel(this);
 	}
 
 	ProcessPluginEvent(FE_GOTFOCUS,nullptr);
@@ -2388,7 +2388,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				string strName(NullToEmpty(dirInfo->Name)), strFile(NullToEmpty(dirInfo->File)), strParam(NullToEmpty(dirInfo->Param));
 				Result = ExecShortcutFolder(strName,dirInfo->PluginId,strFile,strParam,false);
 				// restore current directory to active panel path
-				Panel* ActivePanel = Global->CtrlObject->Cp()->ActivePanel;
+				Panel* ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 				if (Result && this != ActivePanel)
 				{
 					ActivePanel->SetCurPath();
@@ -2674,7 +2674,7 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid
 					sizeof(OpenShortcutInfo),
 					strPluginFile.empty()?nullptr:strPluginFile.data(),
 					strPluginData.empty()?nullptr:strPluginData.data(),
-					(SrcPanel==Global->CtrlObject->Cp()->ActivePanel)?FOSF_ACTIVE:FOSF_NONE
+					(SrcPanel == Global->CtrlObject->Cp()->ActivePanel()) ? FOSF_ACTIVE : FOSF_NONE
 				};
 				auto hNewPlugin=Global->CtrlObject->Plugins->Open(pPlugin,OPEN_SHORTCUT,FarGuid,(intptr_t)&info);
 

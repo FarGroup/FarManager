@@ -272,7 +272,7 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 		case KEY_SHIFTF4:
 		{
 			if (!Global->Opt->OnlyEditorViewerUsed)
-				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(Key);
+				Global->CtrlObject->Cp()->ActivePanel()->ProcessKey(Key);
 
 			return TRUE;
 		}
@@ -457,7 +457,7 @@ void FileViewer::OnDestroy()
 {
 	_OT(SysLog(L"[%p] FileViewer::OnDestroy()",this));
 
-	if (!DisableHistory && (Global->CtrlObject->Cp()->ActivePanel || strName != L"-"))
+	if (!DisableHistory && (Global->CtrlObject->Cp()->ActivePanel() || strName != L"-"))
 	{
 		string strFullFileName;
 		View.GetFileName(strFullFileName);
@@ -466,7 +466,7 @@ void FileViewer::OnDestroy()
 	View.CloseEvent();
 }
 
-int FileViewer::FastHide()
+int FileViewer::CanFastHide()
 {
 	return Global->Opt->AllCtrlAltShiftRule & CASR_VIEWER;
 }
