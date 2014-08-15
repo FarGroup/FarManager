@@ -387,7 +387,8 @@ function mf.eval (str, mode, lang)
     if not area then return -2 end
 
     local macro = utils.GetMacro(area,key,usecommon,false)
-    if not (macro and macro.id) then return -2 end
+    if not macro then return -2 end
+    if not macro.id then return -3 end
 
     if macro.action then
       -- setfenv(macro.action, getfenv(2))
