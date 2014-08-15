@@ -648,7 +648,7 @@ int main (int argc, const char* argv[])
 					{
 						if ( pLangEntries[i].dwCRC32 == pLangEntries[i].dwOldCRC32 )
 						{
-							printf ("INFO: Language file \"%s\" doesn't need to be updated.\r\n", pLangEntries[i].lpLNGFileName);
+							// printf ("INFO: Language file \"%s\" doesn't need to be updated.\r\n", pLangEntries[i].lpLNGFileName);
 							bUpdate = false;
 						}
 						else
@@ -685,7 +685,7 @@ int main (int argc, const char* argv[])
 				{
 					if ( dwHeaderCRC32 == dwHeaderOldCRC32 )
 					{
-						printf ("INFO: Header file \"%s\" doesn't need to be updated.\r\n", lpHPPFileName);
+						// printf ("INFO: Header file \"%s\" doesn't need to be updated.\r\n", lpHPPFileName);
 						bUpdate = false;
 					}
 					else
