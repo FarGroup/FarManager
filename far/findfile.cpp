@@ -2566,7 +2566,7 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 {
 	string strRoot;
 	Global->CtrlObject->CmdLine->GetCurDir(strRoot);
-	if (strRoot.find(L';') != string::npos)
+	if (strRoot.find_first_of(L";,") != string::npos)
 		InsertQuote(strRoot);
 
 	string InitString;
