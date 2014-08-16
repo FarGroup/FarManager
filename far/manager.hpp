@@ -112,10 +112,9 @@ public:
 	void ResizeAllFrame();
 	size_t GetModalStackCount() const { return ModalFrames.size(); }
 	Frame* GetModalFrame(size_t index) const { return ModalFrames[index]; }
-	/* $ 13.04.2002 KM
-	Äכÿ גûחמגא ResizeConsole הכÿ גסוץ NextModal ף
-	למהאכüםמדמ פנוילא.
-	*/
+
+	void AddGlobalKeyHandler(const std::function<int(Key)>& Handler);
+
 	static long GetCurrentWindowType() { return CurrentWindowType; }
 	static bool ShowBackground();
 
@@ -168,4 +167,5 @@ private:
 	bool StartManager;
 	static long CurrentWindowType;
 	std::list<std::unique_ptr<MessageAbstract>> m_Queue;
+	std::vector<std::function<int(Key)>> m_GlobalKeyHandlers;
 };

@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keys.hpp"
 #include "processname.hpp"
 #include "language.hpp"
+#include "filepanels.hpp"
 
 namespace wrapper
 {
@@ -4732,6 +4733,36 @@ private:
 };
 
 
+static int SendKeyToPluginHook(Manager::Key key)
+{
+	DWORD KeyM = (key.FarKey&(~KEY_CTRLMASK));
+
+	if (!((KeyM >= KEY_MACRO_BASE && KeyM <= KEY_MACRO_ENDBASE) || (KeyM >= KEY_OP_BASE && KeyM <= KEY_OP_ENDBASE))) // пропустим макро-коды
+	{
+		if (Global->FrameManager->IsPanelsActive())
+		{
+			if (Global->CtrlObject->Cp()->ActivePanel()->GetMode() == PLUGIN_PANEL)
+			{
+				auto ph = Global->CtrlObject->Cp()->ActivePanel()->GetPluginHandle();
+				if (ph && ph->pPlugin->IsOemPlugin() && Global->CtrlObject->Cp()->ActivePanel()->SendKeyToPlugin(key.FarKey, true))
+					return TRUE;
+			}
+		}
+	}
+	return FALSE;
+}
+
+static void RegisterSendKeyToPluginHook()
+{
+	static bool registered = false;
+	if (!registered)
+	{
+		Global->FrameManager->AddGlobalKeyHandler(SendKeyToPluginHook);
+		registered = true;
+	}
+}
+
+
 PluginA::PluginA(OEMPluginModel* model, const string& lpwszModuleName) :
 	Plugin(model,lpwszModuleName),
 	PI(),
@@ -4742,6 +4773,7 @@ PluginA::PluginA(OEMPluginModel* model, const string& lpwszModuleName) :
 	opif_shortcut(false)
 {
 	LocalUpperInit();
+	RegisterSendKeyToPluginHook();
 }
 
 PluginA::~PluginA()

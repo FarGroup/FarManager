@@ -51,6 +51,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "message.hpp"
 #include "imports.hpp"
+#include "vmenu2.hpp"
+#include "interf.hpp"
 
 /* ************************************************************************
    $ 16.10.2000 SVS
@@ -521,4 +523,148 @@ void EnableVectoredExceptionHandling()
 		Imports().AddVectoredExceptionHandler(TRUE, &VectoredExceptionHandler);
 		VEH_installed = true;
 	}
+}
+
+#if defined(FAR_ALPHA_VERSION)
+#if defined(_MSC_VER)
+#pragma warning( push )
+#pragma warning( disable : 4717)
+#endif
+static void Test_EXCEPTION_STACK_OVERFLOW(char* target)
+{
+	char Buffer[1024]; /* чтобы быстрее рвануло */
+	strcpy(Buffer, "zzzz");
+	Test_EXCEPTION_STACK_OVERFLOW(Buffer);
+
+	// "side effect" to prevent deletion of this function call due to C4718.
+	Sleep(0);
+}
+#if defined(_MSC_VER)
+#pragma warning( pop )
+#endif
+#endif
+
+static int ExceptionTestHook(Manager::Key key)
+{
+	// сей код для проверки исключатор, просьба не трогать :-)
+	if (
+		key.FarKey == KEY_CTRLALTAPPS ||
+		key.FarKey == KEY_RCTRLRALTAPPS ||
+		key.FarKey == KEY_CTRLRALTAPPS ||
+		key.FarKey == KEY_RCTRLALTAPPS
+		)
+	{
+		static const struct ECODE
+		{
+			NTSTATUS Code;
+			const wchar_t *Name;
+		}
+		ECode[] =
+		{
+			{ 0, L"C++ std::exception", },
+			{ EXCEPTION_ACCESS_VIOLATION, L"Access Violation (Read)" },
+			{ EXCEPTION_ACCESS_VIOLATION, L"Access Violation (Write)" },
+			{ EXCEPTION_INT_DIVIDE_BY_ZERO, L"Divide by zero" },
+			{ EXCEPTION_ILLEGAL_INSTRUCTION, L"Illegal instruction" },
+			{ EXCEPTION_STACK_OVERFLOW, L"Stack Overflow" },
+			{ EXCEPTION_FLT_DIVIDE_BY_ZERO, L"Floating-point divide by zero" },
+			{ EXCEPTION_BREAKPOINT, L"Breakpoint" },
+#ifdef _M_IA64
+			{ EXCEPTION_DATATYPE_MISALIGNMENT, L"Alignment fault (IA64 specific)", },
+#endif
+			/*
+			{EXCEPTION_FLT_OVERFLOW,"EXCEPTION_FLT_OVERFLOW"},
+			{EXCEPTION_SINGLE_STEP,"EXCEPTION_SINGLE_STEP",},
+			{EXCEPTION_ARRAY_BOUNDS_EXCEEDED,"EXCEPTION_ARRAY_BOUNDS_EXCEEDED",},
+			{EXCEPTION_FLT_DENORMAL_OPERAND,"EXCEPTION_FLT_DENORMAL_OPERAND",},
+			{EXCEPTION_FLT_INEXACT_RESULT,"EXCEPTION_FLT_INEXACT_RESULT",},
+			{EXCEPTION_FLT_INVALID_OPERATION,"EXCEPTION_FLT_INVALID_OPERATION",},
+			{EXCEPTION_FLT_STACK_CHECK,"EXCEPTION_FLT_STACK_CHECK",},
+			{EXCEPTION_FLT_UNDERFLOW,"EXCEPTION_FLT_UNDERFLOW",},
+			{EXCEPTION_INT_OVERFLOW,"EXCEPTION_INT_OVERFLOW",0},
+			{EXCEPTION_PRIV_INSTRUCTION,"EXCEPTION_PRIV_INSTRUCTION",0},
+			{EXCEPTION_IN_PAGE_ERROR,"EXCEPTION_IN_PAGE_ERROR",0},
+			{EXCEPTION_NONCONTINUABLE_EXCEPTION,"EXCEPTION_NONCONTINUABLE_EXCEPTION",0},
+			{EXCEPTION_INVALID_DISPOSITION,"EXCEPTION_INVALID_DISPOSITION",0},
+			{EXCEPTION_GUARD_PAGE,"EXCEPTION_GUARD_PAGE",0},
+			{EXCEPTION_INVALID_HANDLE,"EXCEPTION_INVALID_HANDLE",0},
+			*/
+		};
+		static union
+		{
+			int     i;
+			int     *iptr;
+			double  d;
+		} zero_const; //, refers;
+		zero_const.i = 0L;
+		VMenu2 ModalMenu(L"Test Exceptions", nullptr, 0, ScrY - 4);
+		ModalMenu.SetFlags(VMENU_WRAPMODE);
+		ModalMenu.SetPosition(-1, -1, 0, 0);
+
+		std::for_each(CONST_RANGE(ECode, i)
+		{
+			ModalMenu.AddItem(i.Name);
+		});
+
+		int ExitCode = ModalMenu.Run();
+
+		switch (ExitCode)
+		{
+		case -1:
+			return TRUE;
+		case 0:
+			throw std::runtime_error("test error");
+		case 1:
+			zero_const.i = *zero_const.iptr;
+			break;
+		case 2:
+			*zero_const.iptr = 0;
+			break;
+		case 3:
+			zero_const.i = 1 / zero_const.i;
+			break;
+		case 4:
+#if defined(_MSC_VER)
+#ifdef _M_IA64
+			const int REG_IA64_IntR0 = 1024;
+			__setReg(REG_IA64_IntR0, 666);
+#else
+			__ud2();
+#endif
+#elif defined(__GNUC__)
+			asm("ud2");
+#endif
+			break;
+		case 5:
+			Test_EXCEPTION_STACK_OVERFLOW(nullptr);
+			break;
+		case 6:
+			//refers.d = 1.0/zero_const.d;
+			break;
+		case 7:
+			attach_debugger();
+			break;
+#ifdef _M_IA64
+		case 8:
+		{
+			BYTE temp[10] = {};
+			double* val;
+			val = (double*)(&temp[3]);
+			printf("%lf\n", *val);
+		}
+#endif
+		}
+
+		Message(MSG_WARNING, 1, L"Test Exceptions failed", L"", ECode[ExitCode].Name, L"", MSG(MOk));
+		return TRUE;
+	}
+	return FALSE;
+}
+
+
+void RegisterTestExceptionsHook()
+{
+#ifdef FAR_ALPHA_VERSION
+	Global->FrameManager->AddGlobalKeyHandler(ExceptionTestHook);
+#endif
 }

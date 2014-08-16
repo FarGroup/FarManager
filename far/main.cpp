@@ -480,6 +480,8 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 	TestPathParser();
 
+	RegisterTestExceptionsHook();
+
 	// Starting with Windows Vista, the system uses the low-fragmentation heap (LFH) as needed to service memory allocation requests.
 	// Applications do not need to enable the LFH for their heaps.
 	if (!IsWindowsVistaOrGreater())

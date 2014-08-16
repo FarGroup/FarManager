@@ -638,190 +638,18 @@ void Manager::ExitMainLoop(int Ask)
 	}
 }
 
-#if defined(FAR_ALPHA_VERSION)
-#if defined(_MSC_VER)
-#pragma warning( push )
-#pragma warning( disable : 4717)
-#endif
-static void Test_EXCEPTION_STACK_OVERFLOW(char* target)
+void Manager::AddGlobalKeyHandler(const std::function<int(Key)>& Handler)
 {
-	char Buffer[1024]; /* чтобы быстрее рвануло */
-	strcpy(Buffer, "zzzz");
-	Test_EXCEPTION_STACK_OVERFLOW(Buffer);
-
-	// "side effect" to prevent deletion of this function call due to C4718.
-	Sleep(0);
+	m_GlobalKeyHandlers.emplace_back(Handler);
 }
-#if defined(_MSC_VER)
-#pragma warning( pop )
-#endif
-#endif
-
 
 int Manager::ProcessKey(Key key)
 {
-	int ret=FALSE;
-
 	if (CurrentFrame)
 	{
-		DWORD KeyM=(key.FarKey&(~KEY_CTRLMASK));
-
-		if (!((KeyM >= KEY_MACRO_BASE && KeyM <= KEY_MACRO_ENDBASE) || (KeyM >= KEY_OP_BASE && KeyM <= KEY_OP_ENDBASE))) // пропустим макро-коды
-		{
-			switch (CurrentFrame->GetType())
-			{
-				case MODALTYPE_PANELS:
-				{
-					_ALGO(CleverSysLog clv(L"Manager::ProcessKey()"));
-					_ALGO(SysLog(L"Key=%s",_FARKEY_ToName(key.FarKey)));
-#ifndef NO_WRAPPER
-					if (Global->CtrlObject->Cp()->ActivePanel()->GetMode() == PLUGIN_PANEL)
-					{
-						auto ph = Global->CtrlObject->Cp()->ActivePanel()->GetPluginHandle();
-						if (ph && ph->pPlugin->IsOemPlugin())
-							if (Global->CtrlObject->Cp()->ActivePanel()->SendKeyToPlugin(key.FarKey, true))
-								return TRUE;
-					}
-#endif // NO_WRAPPER
-					break;
-				}
-			#if 0
-				case MODALTYPE_VIEWER:
-					//if(((FileViewer*)CurrentFrame)->ProcessViewerInput(FrameManager->GetLastInputRecord()))
-					//  return TRUE;
-					break;
-				case MODALTYPE_EDITOR:
-					//if(((FileEditor*)CurrentFrame)->ProcessEditorInput(FrameManager->GetLastInputRecord()))
-					//  return TRUE;
-					break;
-				case MODALTYPE_DIALOG:
-					//((Dialog*)CurrentFrame)->CallDlgProc(DN_KEY,((Dialog*)CurrentFrame)->GetDlgFocusPos(),Key);
-					break;
-				case MODALTYPE_VMENU:
-				case MODALTYPE_HELP:
-				case MODALTYPE_COMBOBOX:
-				case MODALTYPE_USER:
-				case MODALTYPE_FINDFOLDER:
-				default:
-					break;
-			#endif
-			}
-		}
-
-#if defined(FAR_ALPHA_VERSION)
-
-// сей код для проверки исключатор, просьба не трогать :-)
-		if (key.FarKey == KEY_CTRLALTAPPS || key.FarKey == KEY_RCTRLRALTAPPS || key.FarKey == KEY_CTRLRALTAPPS || key.FarKey == KEY_RCTRLALTAPPS)
-		{
-			static const struct ECODE
-			{
-				NTSTATUS Code;
-				const wchar_t *Name;
-			}
-			ECode[]=
-			{
-				{0, L"C++ std::exception",},
-				{EXCEPTION_ACCESS_VIOLATION,L"Access Violation (Read)"},
-				{EXCEPTION_ACCESS_VIOLATION,L"Access Violation (Write)"},
-				{EXCEPTION_INT_DIVIDE_BY_ZERO,L"Divide by zero"},
-				{EXCEPTION_ILLEGAL_INSTRUCTION,L"Illegal instruction"},
-				{EXCEPTION_STACK_OVERFLOW,L"Stack Overflow"},
-				{EXCEPTION_FLT_DIVIDE_BY_ZERO,L"Floating-point divide by zero"},
-				{EXCEPTION_BREAKPOINT,L"Breakpoint"},
-#ifdef _M_IA64
-				{EXCEPTION_DATATYPE_MISALIGNMENT,L"Alignment fault (IA64 specific)",},
-#endif
-				/*
-				        {EXCEPTION_FLT_OVERFLOW,"EXCEPTION_FLT_OVERFLOW"},
-				        {EXCEPTION_SINGLE_STEP,"EXCEPTION_SINGLE_STEP",},
-				        {EXCEPTION_ARRAY_BOUNDS_EXCEEDED,"EXCEPTION_ARRAY_BOUNDS_EXCEEDED",},
-				        {EXCEPTION_FLT_DENORMAL_OPERAND,"EXCEPTION_FLT_DENORMAL_OPERAND",},
-				        {EXCEPTION_FLT_INEXACT_RESULT,"EXCEPTION_FLT_INEXACT_RESULT",},
-				        {EXCEPTION_FLT_INVALID_OPERATION,"EXCEPTION_FLT_INVALID_OPERATION",},
-				        {EXCEPTION_FLT_STACK_CHECK,"EXCEPTION_FLT_STACK_CHECK",},
-				        {EXCEPTION_FLT_UNDERFLOW,"EXCEPTION_FLT_UNDERFLOW",},
-				        {EXCEPTION_INT_OVERFLOW,"EXCEPTION_INT_OVERFLOW",0},
-				        {EXCEPTION_PRIV_INSTRUCTION,"EXCEPTION_PRIV_INSTRUCTION",0},
-				        {EXCEPTION_IN_PAGE_ERROR,"EXCEPTION_IN_PAGE_ERROR",0},
-				        {EXCEPTION_NONCONTINUABLE_EXCEPTION,"EXCEPTION_NONCONTINUABLE_EXCEPTION",0},
-				        {EXCEPTION_INVALID_DISPOSITION,"EXCEPTION_INVALID_DISPOSITION",0},
-				        {EXCEPTION_GUARD_PAGE,"EXCEPTION_GUARD_PAGE",0},
-				        {EXCEPTION_INVALID_HANDLE,"EXCEPTION_INVALID_HANDLE",0},
-				*/
-			};
-			static union
-			{
-				int     i;
-				int     *iptr;
-				double  d;
-			} zero_const; //, refers;
-			zero_const.i=0L;
-			VMenu2 ModalMenu(L"Test Exceptions",nullptr,0,ScrY-4);
-			ModalMenu.SetFlags(VMENU_WRAPMODE);
-			ModalMenu.SetPosition(-1,-1,0,0);
-
-			std::for_each(CONST_RANGE(ECode, i)
-			{
-				ModalMenu.AddItem(i.Name);
-			});
-
-			int ExitCode=ModalMenu.Run();
-
-			switch (ExitCode)
-			{
-				case -1:
-					return TRUE;
-				case 0:
-					throw std::runtime_error("test error");
-				case 1:
-					zero_const.i=*zero_const.iptr;
-					break;
-				case 2:
-					*zero_const.iptr = 0;
-					break;
-				case 3:
-					zero_const.i=1/zero_const.i;
-					break;
-				case 4:
-#if defined(_MSC_VER)
-#ifdef _M_IA64
-					const int REG_IA64_IntR0 = 1024;
-					__setReg(REG_IA64_IntR0, 666);
-#else
-					__ud2();
-#endif
-#elif defined(__GNUC__)
-					asm("ud2");
-#endif
-					break;
-				case 5:
-					Test_EXCEPTION_STACK_OVERFLOW(nullptr);
-					break;
-				case 6:
-					//refers.d = 1.0/zero_const.d;
-					break;
-				case 7:
-					attach_debugger();
-					break;
-#ifdef _M_IA64
-				case 8:
-				{
-					BYTE temp[10]={};
-					double* val;
-					val = (double*)(&temp[3]);
-					printf("%lf\n", *val);
-				}
-#endif
-			}
-
-			Message(MSG_WARNING, 1, L"Test Exceptions failed", L"", ECode[ExitCode].Name, L"", MSG(MOk));
-			return TRUE;
-		}
-
-#endif
 		/*** БЛОК ПРИВЕЛЕГИРОВАННЫХ КЛАВИШ ! ***/
-
 		/***   КОТОРЫЕ НЕЛЬЗЯ НАМАКРОСИТЬ    ***/
+
 		switch (key.FarKey)
 		{
 			case KEY_ALT|KEY_NUMPAD0:
@@ -840,109 +668,17 @@ int Manager::ProcessKey(Key key)
 
 		/*** А вот здесь - все остальное! ***/
 		if (!Global->IsProcessAssignMacroKey)
-			// в любом случае если кому-то не нужны все клавиши или
 		{
-			bool scrollable = false;
-			if ( Global->Opt->WindowMode )
+			FOR(const auto& i, m_GlobalKeyHandlers)
 			{
-				int frame_type = CurrentFrame->GetType();
-				scrollable = frame_type != MODALTYPE_EDITOR && frame_type != MODALTYPE_VIEWER;
-			};
+				if (i(key))
+				{
+					return TRUE;
+				}
+			}
 
 			switch (key.FarKey)
 			{
-				// <Удалить после появления макрофункции Scroll>
-				case KEY_CTRLALTUP:
-				case KEY_RCTRLRALTUP:
-				case KEY_CTRLRALTUP:
-				case KEY_RCTRLALTUP:
-				case KEY_CTRLALTNUMPAD8:
-				case KEY_RCTRLALTNUMPAD8:
-				case KEY_CTRLRALTNUMPAD8:
-				case KEY_RCTRLRALTNUMPAD8:
-					if (scrollable)
-					{
-						Console().ScrollWindow(-1);
-						return TRUE;
-					}
-					break;
-
-				case KEY_CTRLALTDOWN:
-				case KEY_RCTRLRALTDOWN:
-				case KEY_CTRLRALTDOWN:
-				case KEY_RCTRLALTDOWN:
-				case KEY_CTRLALTNUMPAD2:
-				case KEY_RCTRLALTNUMPAD2:
-				case KEY_CTRLRALTNUMPAD2:
-				case KEY_RCTRLRALTNUMPAD2:
-					if (scrollable)
-					{
-						Console().ScrollWindow(1);
-						return TRUE;
-					}
-					break;
-
-				case KEY_CTRLALTPGUP:
-				case KEY_RCTRLRALTPGUP:
-				case KEY_CTRLRALTPGUP:
-				case KEY_RCTRLALTPGUP:
-				case KEY_CTRLALTNUMPAD9:
-				case KEY_RCTRLALTNUMPAD9:
-				case KEY_CTRLRALTNUMPAD9:
-				case KEY_RCTRLRALTNUMPAD9:
-					if(scrollable)
-					{
-						Console().ScrollWindow(-ScrY);
-						return TRUE;
-					}
-					break;
-
-				case KEY_CTRLALTHOME:
-				case KEY_RCTRLRALTHOME:
-				case KEY_CTRLRALTHOME:
-				case KEY_RCTRLALTHOME:
-				case KEY_CTRLALTNUMPAD7:
-				case KEY_RCTRLALTNUMPAD7:
-				case KEY_CTRLRALTNUMPAD7:
-				case KEY_RCTRLRALTNUMPAD7:
-					if (scrollable)
-					{
-						Console().ScrollWindowToBegin();
-						return TRUE;
-					}
-					break;
-
-				case KEY_CTRLALTPGDN:
-				case KEY_RCTRLRALTPGDN:
-				case KEY_CTRLRALTPGDN:
-				case KEY_RCTRLALTPGDN:
-				case KEY_CTRLALTNUMPAD3:
-				case KEY_RCTRLALTNUMPAD3:
-				case KEY_CTRLRALTNUMPAD3:
-				case KEY_RCTRLRALTNUMPAD3:
-					if(scrollable)
-					{
-						Console().ScrollWindow(ScrY);
-						return TRUE;
-					}
-					break;
-
-				case KEY_CTRLALTEND:
-				case KEY_RCTRLRALTEND:
-				case KEY_CTRLRALTEND:
-				case KEY_RCTRLALTEND:
-				case KEY_CTRLALTNUMPAD1:
-				case KEY_RCTRLALTNUMPAD1:
-				case KEY_CTRLRALTNUMPAD1:
-				case KEY_RCTRLRALTNUMPAD1:
-					if(scrollable)
-					{
-						Console().ScrollWindowToEnd();
-						return TRUE;
-					}
-					break;
-				// </Удалить после появления макрофункции Scroll>
-
 				case KEY_CTRLW:
 				case KEY_RCTRLW:
 					ShowProcessList();
@@ -1100,7 +836,7 @@ int Manager::ProcessKey(Key key)
 	}
 
 	_MANAGER(SysLog(-1));
-	return ret;
+	return FALSE;
 }
 
 int Manager::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)

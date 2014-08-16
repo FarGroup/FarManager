@@ -62,3 +62,5 @@ private:
 void EnableSeTranslation();
 void EnableVectoredExceptionHandling();
 void attach_debugger();
+
+void RegisterTestExceptionsHook();
