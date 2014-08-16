@@ -542,7 +542,6 @@ static void Test_EXCEPTION_STACK_OVERFLOW(char* target)
 #if defined(_MSC_VER)
 #pragma warning( pop )
 #endif
-#endif
 
 static int ExceptionTestHook(Manager::Key key)
 {
@@ -660,7 +659,7 @@ static int ExceptionTestHook(Manager::Key key)
 	}
 	return FALSE;
 }
-
+#endif
 
 void RegisterTestExceptionsHook()
 {
