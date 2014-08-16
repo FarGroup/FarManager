@@ -1020,11 +1020,14 @@ int Manager::ProcessKey(Key key)
 								switch (Global->Opt->PanelCtrlAltShiftRule)
 								{
 									case 0:
-										Global->CtrlObject->CmdLine->Show();
-										Global->CtrlObject->Cp()->MainKeyBar.Show();
+										if (CmdLineVisible)
+											Global->CtrlObject->CmdLine->Show();
+										if (KeyBarVisible)
+											Global->CtrlObject->Cp()->MainKeyBar.Show();
 										break;
 									case 1:
-										Global->CtrlObject->Cp()->MainKeyBar.Show();
+										if (KeyBarVisible)
+											Global->CtrlObject->Cp()->MainKeyBar.Show();
 										break;
 								}
 
