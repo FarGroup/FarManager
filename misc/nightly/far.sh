@@ -19,7 +19,7 @@ mkdir -p $OUTDIR/obj
 mkdir -p $OUTDIR/cod
 
 m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix farlang.templ.m4 > ${BOOTSTRAP}farlang.templ
-m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix far.rc.m4 > ${BOOTSTRAP}far.rc
+m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix far.rc.inc.m4 > ${BOOTSTRAP}far.rc.inc
 m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix Far.exe.manifest.m4 > ${BOOTSTRAP}Far.exe.manifest
 m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix farversion.inc.m4 > ${BOOTSTRAP}farversion.inc
 m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix copyright.inc.m4 > ${BOOTSTRAP}copyright.inc
@@ -67,8 +67,9 @@ dos2unix FarColorW.pas
 m4 -P -DFARBIT=32 -DHOSTTYPE=Unix -DINPUT=PluginW.pas headers.m4 | unix2dos > Include/PluginW.pas
 m4 -P -DFARBIT=32 -DHOSTTYPE=Unix -DINPUT=FarColorW.pas headers.m4 | unix2dos > Include/FarColorW.pas
 
-dos2unix mkdep.list
-gawk -f ./scripts/mkdep.awk mkdep.list | unix2dos > ${BOOTSTRAP}far.vc.dep
+ls *.cpp *.hpp *.c *.rc > bootstrap/mkdep.list
+gawk -f ./scripts/mkdep.awk bootstrap/mkdep.list | unix2dos > ${BOOTSTRAP}far.vc.dep
+rm bootstrap/mkdep.list
 cd ..
 
 (buildfar2 32 $1 && buildfar2 64 $1) || return 1
