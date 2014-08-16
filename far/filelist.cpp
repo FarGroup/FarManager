@@ -4085,12 +4085,10 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 
 void FileList::UpdateViewPanel()
 {
-	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+	auto ViewPanel = dynamic_cast<QuickView*>(Global->CtrlObject->Cp()->GetAnotherPanel(this));
 
-	if (!ListData.empty() && AnotherPanel->IsVisible() &&
-	        AnotherPanel->GetType()==QVIEW_PANEL && SetCurPath())
+	if (ViewPanel && !ListData.empty() && ViewPanel->IsVisible() && SetCurPath())
 	{
-		QuickView *ViewPanel=(QuickView *)AnotherPanel;
 		assert(CurFile < static_cast<int>(ListData.size()));
 		FileListItem *CurPtr = &ListData[CurFile];
 
@@ -4098,9 +4096,9 @@ void FileList::UpdateViewPanel()
 		        Global->CtrlObject->Plugins->UseFarCommand(hPlugin,PLUGIN_FARGETFILE))
 		{
 			if (TestParentFolderName(CurPtr->strName))
-				ViewPanel->ShowFile(strCurDir,FALSE,nullptr);
+				ViewPanel->ShowFile(strCurDir, false, nullptr);
 			else
-				ViewPanel->ShowFile(CurPtr->strName,FALSE,nullptr);
+				ViewPanel->ShowFile(CurPtr->strName, false, nullptr);
 		}
 		else if (!(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 		{
@@ -4118,17 +4116,17 @@ void FileList::UpdateViewPanel()
 
 			if (!Result)
 			{
-				ViewPanel->ShowFile(L"",FALSE,nullptr);
+				ViewPanel->ShowFile(L"", false, nullptr);
 				api::RemoveDirectory(strTempDir);
 				return;
 			}
 
-			ViewPanel->ShowFile(strFileName,TRUE,nullptr);
+			ViewPanel->ShowFile(strFileName, true, nullptr);
 		}
 		else if (!TestParentFolderName(CurPtr->strName))
-			ViewPanel->ShowFile(CurPtr->strName,FALSE,hPlugin);
+			ViewPanel->ShowFile(CurPtr->strName, false, hPlugin);
 		else
-			ViewPanel->ShowFile(L"",FALSE,nullptr);
+			ViewPanel->ShowFile(L"", false, nullptr);
 
 		if (ViewPanel->Destroyed())
 			return;

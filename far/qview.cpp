@@ -65,6 +65,7 @@ QuickView::QuickView():
 	Data(),
 	OldWrapMode(0),
 	OldWrapType(0),
+	m_TemporaryFile(),
 	uncomplete_dirscan(false)
 {
 	Type=QVIEW_PANEL;
@@ -415,7 +416,7 @@ void QuickView::Update(int Mode)
 	Redraw();
 }
 
-void QuickView::ShowFile(const string& FileName, int TempFile, PluginHandle* hDirPlugin)
+void QuickView::ShowFile(const string& FileName, bool TempFile, PluginHandle* hDirPlugin)
 {
 	DWORD FileAttr=0;
 	CloseFile();
@@ -432,8 +433,11 @@ void QuickView::ShowFile(const string& FileName, int TempFile, PluginHandle* hDi
 		return;
 	}
 
-	bool SameFile = strCurFileName == FileName;
-	strCurFileName = FileName;
+	string FileFullName = FileName;
+	ConvertNameToFull(FileFullName, FileFullName);
+
+	bool SameFile = strCurFileName == FileFullName;
+	strCurFileName = FileFullName;
 
 	size_t pos = strCurFileName.rfind(L'.');
 	if (pos != string::npos)
@@ -488,8 +492,7 @@ void QuickView::ShowFile(const string& FileName, int TempFile, PluginHandle* hDi
 	if (this->Destroyed())
 		return;
 
-	if (TempFile)
-		ConvertNameToFull(strCurFileName, strTempName);
+	m_TemporaryFile = TempFile;
 
 	Redraw();
 
@@ -520,7 +523,7 @@ void QuickView::CloseFile()
 
 void QuickView::QViewDelTempName()
 {
-	if (!strTempName.empty())
+	if (m_TemporaryFile)
 	{
 		if (QView)
 		{
@@ -531,11 +534,12 @@ void QuickView::QViewDelTempName()
 			QView.reset();
 		}
 
-		api::SetFileAttributes(strTempName, FILE_ATTRIBUTE_ARCHIVE);
-		api::DeleteFile(strTempName);  //BUGBUG
-		CutToSlash(strTempName);
-		api::RemoveDirectory(strTempName);
-		strTempName.clear();
+		api::SetFileAttributes(strCurFileName, FILE_ATTRIBUTE_ARCHIVE);
+		api::DeleteFile(strCurFileName);  //BUGBUG
+		string TempDirectoryName = strCurFileName;
+		CutToSlash(TempDirectoryName);
+		api::RemoveDirectory(TempDirectoryName);
+		m_TemporaryFile = false;
 	}
 }
 
@@ -554,7 +558,7 @@ int QuickView::UpdateIfChanged(panel_update_mode UpdateMode)
 	if (IsVisible() && !strCurFileName.empty() && Directory==2)
 	{
 		string strViewName = strCurFileName;
-		ShowFile(strViewName, !strTempName.empty() ,nullptr);
+		ShowFile(strViewName, m_TemporaryFile, nullptr);
 		return TRUE;
 	}
 

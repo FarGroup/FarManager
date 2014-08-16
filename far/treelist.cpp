@@ -2035,9 +2035,11 @@ void TreeList::UpdateViewPanel()
 {
 	if (!ModalMode)
 	{
-		Panel *AnotherPanel=GetRootPanel();
-		if (AnotherPanel->GetType()==QVIEW_PANEL && SetCurPath())
-			((QuickView *)AnotherPanel)->ShowFile(GetCurDir(),FALSE,nullptr);
+		auto AnotherPanel = dynamic_cast<QuickView*>(GetRootPanel());
+		if (AnotherPanel && SetCurPath())
+		{
+			AnotherPanel->ShowFile(GetCurDir(), false, nullptr);
+		}
 	}
 }
 

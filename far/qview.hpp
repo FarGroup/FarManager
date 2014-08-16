@@ -44,7 +44,7 @@ class QuickView:public Panel
 public:
 	QuickView();
 
-	void ShowFile(const string& FileName, int TempFile, PluginHandle* hDirPlugin);
+	void ShowFile(const string& FileName, bool TempFile, PluginHandle* hDirPlugin);
 
 private:
 	virtual ~QuickView();
@@ -72,7 +72,6 @@ private:
 
 	string strCurFileName;
 	string strCurFileType;
-	string strTempName;
 
 	CriticalSection CS;
 
@@ -81,6 +80,6 @@ private:
 	DirInfoData Data;
 	bool OldWrapMode;
 	bool OldWrapType;
-
+	bool m_TemporaryFile;
 	bool uncomplete_dirscan;
 };
