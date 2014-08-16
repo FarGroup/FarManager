@@ -856,7 +856,11 @@ int Manager::ProcessKey(Key key)
 				case KEY_RCTRLRALTUP:
 				case KEY_CTRLRALTUP:
 				case KEY_RCTRLALTUP:
-					if(scrollable)
+				case KEY_CTRLALTNUMPAD8:
+				case KEY_RCTRLALTNUMPAD8:
+				case KEY_CTRLRALTNUMPAD8:
+				case KEY_RCTRLRALTNUMPAD8:
+					if (scrollable)
 					{
 						Console().ScrollWindow(-1);
 						return TRUE;
@@ -867,7 +871,11 @@ int Manager::ProcessKey(Key key)
 				case KEY_RCTRLRALTDOWN:
 				case KEY_CTRLRALTDOWN:
 				case KEY_RCTRLALTDOWN:
-					if(scrollable)
+				case KEY_CTRLALTNUMPAD2:
+				case KEY_RCTRLALTNUMPAD2:
+				case KEY_CTRLRALTNUMPAD2:
+				case KEY_RCTRLRALTNUMPAD2:
+					if (scrollable)
 					{
 						Console().ScrollWindow(1);
 						return TRUE;
@@ -878,6 +886,10 @@ int Manager::ProcessKey(Key key)
 				case KEY_RCTRLRALTPGUP:
 				case KEY_CTRLRALTPGUP:
 				case KEY_RCTRLALTPGUP:
+				case KEY_CTRLALTNUMPAD9:
+				case KEY_RCTRLALTNUMPAD9:
+				case KEY_CTRLRALTNUMPAD9:
+				case KEY_RCTRLRALTNUMPAD9:
 					if(scrollable)
 					{
 						Console().ScrollWindow(-ScrY);
@@ -889,7 +901,11 @@ int Manager::ProcessKey(Key key)
 				case KEY_RCTRLRALTHOME:
 				case KEY_CTRLRALTHOME:
 				case KEY_RCTRLALTHOME:
-					if(scrollable)
+				case KEY_CTRLALTNUMPAD7:
+				case KEY_RCTRLALTNUMPAD7:
+				case KEY_CTRLRALTNUMPAD7:
+				case KEY_RCTRLRALTNUMPAD7:
+					if (scrollable)
 					{
 						Console().ScrollWindowToBegin();
 						return TRUE;
@@ -900,6 +916,10 @@ int Manager::ProcessKey(Key key)
 				case KEY_RCTRLRALTPGDN:
 				case KEY_CTRLRALTPGDN:
 				case KEY_RCTRLALTPGDN:
+				case KEY_CTRLALTNUMPAD3:
+				case KEY_RCTRLALTNUMPAD3:
+				case KEY_CTRLRALTNUMPAD3:
+				case KEY_RCTRLRALTNUMPAD3:
 					if(scrollable)
 					{
 						Console().ScrollWindow(ScrY);
@@ -911,6 +931,10 @@ int Manager::ProcessKey(Key key)
 				case KEY_RCTRLRALTEND:
 				case KEY_CTRLRALTEND:
 				case KEY_RCTRLALTEND:
+				case KEY_CTRLALTNUMPAD1:
+				case KEY_RCTRLALTNUMPAD1:
+				case KEY_CTRLRALTNUMPAD1:
+				case KEY_RCTRLRALTNUMPAD1:
 					if(scrollable)
 					{
 						Console().ScrollWindowToEnd();
