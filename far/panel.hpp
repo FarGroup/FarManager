@@ -370,9 +370,7 @@ private:
 	int DisconnectDrive(const PanelMenuItem *item, VMenu2 &ChDisk);
 	void RemoveHotplugDevice(const PanelMenuItem *item, VMenu2 &ChDisk);
 	int ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu);
-	void FastFindProcessName(Edit *FindEdit,const string& Src,string &strLastName, string &strName);
 
-	static void FastFindShow(int FindX,int FindY);
 	static void DragMessage(int X,int Y,int Move);
 
 protected:
