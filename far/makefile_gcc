@@ -144,7 +144,7 @@ ifeq ($(DIRBIT),32)
 endif
 
 OBJS = $(patsubst %.c,$(OBJDIR)%.o,$(filter %.c,$(SRCS))) $(patsubst %.cpp,$(OBJDIR)%.o,$(filter %.cpp,$(SRCS)))
-OBJS += $(OBJDIR)initguid.o
+OBJS += $(OBJDIR)initguid.o $(OBJDIR)far.rc.o
 
 MAP = $(patsubst %.exe,%.map,$(EXEFULLNAME))
 
@@ -174,7 +174,7 @@ dirs:
 .PHONY: build
 build: $(TESTOBJS) $(EXEFULLNAME) $(EXEDIR)FarEng.hlf $(EXEDIR)FarRus.hlf $(EXEDIR)FarHun.hlf $(EXEDIR)File_id.diz $(EXEDIR)Far.exe.example.ini $(FARINCLUDE)farcolor.hpp $(FARINCLUDE)plugin.hpp $(FARINCLUDE)DlgBuilder.hpp $(FARINCLUDE)PluginW.pas $(FARINCLUDE)FarColorW.pas
 
-$(EXEFULLNAME): $(BOOTSTRAPDIR)copyright.inc $(BOOTSTRAPDIR)farversion.inc $(OBJS) $(OBJDIR)far.res
+$(EXEFULLNAME): $(BOOTSTRAPDIR)copyright.inc $(BOOTSTRAPDIR)farversion.inc $(OBJS)
 	@echo linking $@
 	$(CXX) -o $@ $(OBJS) $(LNKFLAGS)
 
@@ -204,7 +204,7 @@ $(OBJDIR)headers.gch: headers.cpp headers.hpp
 
 $(OBJS): $(OBJDIR)headers.gch
 
-$(OBJDIR)far.res: far.rc $(BOOTSTRAPDIR)far.rc.inc Far.ico FarA.ico bootstrap/Far.exe.manifest
+$(OBJDIR)far.rc.o: far.rc $(BOOTSTRAPDIR)far.rc.inc Far.ico FarA.ico bootstrap/Far.exe.manifest
 	@echo compiling resource file
 	$(WINDRES) -i $< -o $@
 
