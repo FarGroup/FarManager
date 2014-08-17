@@ -3,6 +3,44 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 16.08.2014 15:31:44 +0200 - build 4051
+
+1. 0002763: Buffer scrolling function does not work with Numpad keys
+
+drkns 16.08.2014 15:25:55 +0200 - build 4050
+
+1. 0002765: "functional key bar" is hidden in panels but shown on Ctrl-Alt-Shift.
+
+drkns 16.08.2014 15:16:54 +0200 - build 4049
+
+1. 0002766: search does not work if a comma exists in the folder name.
+
+drkns 16.08.2014 15:00:36 +0200 - build 4048
+
+1. Forum: a plugin exports a file via GetFiles on F4 key press but the file is not imported back after file save and exit from editor.
+
+drkns 16.08.2014 14:49:31 +0200 - build 4047
+
+1. 0002768: Quick view – wrong plugin area
+
+drkns 16.08.2014 01:21:40 +0200 - build 4046
+
+1. Refactoring.
+
+zg 12.08.2014 01:30:09 +0200 - build 4045
+
+1. forum: MCTL_GETAREA in horizontal menu returns now MACROAREA_OTHER (instead of MACROAREA_MAINMENU).
+
+2. refactoring.
+
+drkns 11.08.2014 23:51:38 +0200 - build 4044
+
+1. In /e and /v modes plugins got control before full initialization of the manager.
+
+drkns 11.08.2014 20:24:09 +0200 - build 4043
+
+1. Continuation of 4039.
+
 drkns 10.08.2014 19:54:12 +0200 - build 4042
 
 1. Continuation of 4040.
