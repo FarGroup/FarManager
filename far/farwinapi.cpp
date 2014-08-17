@@ -1148,24 +1148,27 @@ int GetFileTypeByName(const string& Name)
 bool GetDiskSize(const string& Path,unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree)
 {
 	bool Result = false;
-	unsigned __int64 uiTotalSize,uiTotalFree,uiUserFree;
-	uiUserFree=0;
-	uiTotalSize=0;
-	uiTotalFree=0;
 	NTPath strPath(Path);
 	AddEndSlash(strPath);
-	if(::GetDiskFreeSpaceEx(strPath.data(),(PULARGE_INTEGER)&uiUserFree,(PULARGE_INTEGER)&uiTotalSize,(PULARGE_INTEGER)&uiTotalFree))
-	{
-		Result = true;
 
+	ULARGE_INTEGER FreeBytesAvailableToCaller, TotalNumberOfBytes, TotalNumberOfFreeBytes;
+
+	Result = GetDiskFreeSpaceEx(strPath.data(), &FreeBytesAvailableToCaller, &TotalNumberOfBytes, &TotalNumberOfFreeBytes) != FALSE;
+	if(!Result && ElevationRequired(ELEVATION_READ_REQUEST))
+	{
+		Result = Global->Elevation->fGetDiskFreeSpaceEx(strPath.data(), &FreeBytesAvailableToCaller, &TotalNumberOfBytes, &TotalNumberOfFreeBytes);
+	}
+
+	if (Result)
+	{
 		if (TotalSize)
-			*TotalSize = uiTotalSize;
+			*TotalSize = TotalNumberOfBytes.QuadPart;
 
 		if (TotalFree)
-			*TotalFree = uiTotalFree;
+			*TotalFree = TotalNumberOfFreeBytes.QuadPart;
 
 		if (UserFree)
-			*UserFree = uiUserFree;
+			*UserFree = FreeBytesAvailableToCaller.QuadPart;
 	}
 	return Result;
 }

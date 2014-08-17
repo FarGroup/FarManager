@@ -72,6 +72,7 @@ ENUM(ELEVATION_COMMAND)
 	C_FUNCTION_CREATEFILE,
 	C_FUNCTION_SETENCRYPTION,
 	C_FUNCTION_OPENVIRTUALDISK,
+	C_FUNCTION_GETDISKFREESPACEEX,
 
 	C_COMMANDS_COUNT
 };
@@ -850,6 +851,42 @@ bool elevation::fOpenVirtualDisk(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const
 	return Result;
 }
 
+bool elevation::fGetDiskFreeSpaceEx(const string& Object, ULARGE_INTEGER* FreeBytesAvailableToCaller, ULARGE_INTEGER* TotalNumberOfBytes, ULARGE_INTEGER* TotalNumberOfFreeBytes)
+{
+	SCOPED_ACTION(CriticalSectionLock)(CS);
+	bool Result=false;
+	if(ElevationApproveDlg(MElevationRequiredList, Object))
+	{
+		if(Global->IsUserAdmin())
+		{
+			SCOPED_ACTION(Privilege)(make_vector(SE_BACKUP_NAME, SE_RESTORE_NAME));
+			Result = GetDiskFreeSpaceEx(Object.data(), FreeBytesAvailableToCaller, TotalNumberOfBytes, TotalNumberOfFreeBytes) != FALSE;
+		}
+		else if(Initialize() && SendCommand(C_FUNCTION_GETDISKFREESPACEEX) && Write(Object))
+		{
+			bool OpResult = false;
+			if(Read(OpResult) && ReceiveLastError())
+			{
+				Result = OpResult;
+			}
+			if(Result)
+			{
+				ULARGE_INTEGER Buffer;
+				Read(Buffer);
+				if (FreeBytesAvailableToCaller)
+					*FreeBytesAvailableToCaller = Buffer;
+				Read(Buffer);
+				if (TotalNumberOfBytes)
+					*TotalNumberOfBytes = Buffer;
+				Read(Buffer);
+				if (TotalNumberOfFreeBytes)
+					*TotalNumberOfFreeBytes = Buffer;
+			}
+		}
+	}
+	return Result;
+}
+
 
 bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus)
 {
@@ -1203,6 +1240,26 @@ private:
 		}
 	}
 
+	void GetDiskFreeSpaceExHandler() const
+	{
+		ULARGE_INTEGER FreeBytesAvailableToCaller, TotalNumberOfBytes, TotalNumberOfFreeBytes;
+		string Object;
+		if(Read(Object))
+		{
+			bool Result = GetDiskFreeSpaceEx(Object.data(), &FreeBytesAvailableToCaller, &TotalNumberOfBytes, &TotalNumberOfFreeBytes) != FALSE;
+			ERRORCODES ErrorCodes;
+			if (Write(Result) && Write(ErrorCodes.Codes))
+			{
+				if(Result)
+				{
+					Write(FreeBytesAvailableToCaller);
+					Write(TotalNumberOfBytes);
+					Write(TotalNumberOfFreeBytes);
+				}
+			}
+		}
+	}
+
 	static DWORD WINAPI CopyProgressRoutineWrapper(LARGE_INTEGER TotalFileSize, LARGE_INTEGER TotalBytesTransferred, LARGE_INTEGER StreamSize, LARGE_INTEGER StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE SourceFile,HANDLE DestinationFile, LPVOID Data)
 	{
 		int Result=0;
@@ -1252,6 +1309,7 @@ private:
 			&elevated::CreateFileHandler,
 			&elevated::SetEncryptionHandler,
 			&elevated::OpenVirtualDiskHandler,
+			&elevated::GetDiskFreeSpaceExHandler,
 		};
 
 		static_assert(ARRAYSIZE(Handlers) == C_COMMANDS_COUNT, "not all commands handled");
