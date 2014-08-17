@@ -154,10 +154,14 @@ void ScreenBuf::Write(int X,int Y,const FAR_CHAR_INFO *Text, size_t Size)
 void ScreenBuf::Read(int X1, int Y1, int X2, int Y2, matrix<FAR_CHAR_INFO>& Dest)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
-	
-	for (auto i = Y1, dest_i = 0; i <= Y2; ++i, ++dest_i)
+
+	int tempX1 = X1, tempY1 = Y1;
+
+	fix_coordinates(X1, Y1, X2, Y2);
+
+	for (auto i = Y1, dest_i = Y1 - tempY1; i <= Y2; ++i, ++dest_i)
 	{
-		std::copy(&Buf[i][X1], &Buf[i][X2 + 1], Dest[dest_i].data());
+		std::copy(&Buf[i][X1], &Buf[i][X2 + 1], Dest[dest_i].data() + X1 - tempX1);
 	}
 }
 
