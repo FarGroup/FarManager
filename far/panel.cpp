@@ -1419,6 +1419,7 @@ int Search::ProcessKey(const Manager::Key& Key)
 				return TRUE;
 			}
 
+			m_FindEdit.GetString(strLastName);
 			if (m_FindEdit.ProcessKey(Manager::Key(LocalKey)))
 			{
 				m_FindEdit.GetString(strName);
@@ -1456,7 +1457,6 @@ int Search::ProcessKey(const Manager::Key& Key)
 					}
 
 					m_FindEdit.SetString(strLastName.data());
-					strName = strLastName;
 				}
 
 				m_FindEdit.Show();
