@@ -2202,24 +2202,22 @@ int RegExp::InnerMatch(const wchar_t* str,const wchar_t* strend,RegExpMatch* mat
 						{
 							tmp=op->bracket.pairindex;
 
-							do
+							while (stack.back().pos != tmp || stack.back().op != opLookAhead)
 							{
 								stack.pop_back();
 							}
-							while (stack.back().pos != tmp || stack.back().op != opLookAhead);
-
 							str = stack.back().savestr;
+							stack.pop_back();
 							continue;
 						}
 						case opNotLookAhead:
 						{
-							do
+							while (stack.back().op!=opNotLookAhead)
 							{
 								stack.pop_back();
 							}
-							while (stack.back().op!=opNotLookAhead);
-
 							str = stack.back().savestr;
+							stack.pop_back();
 							break;
 						}
 						case opLookBehind:
