@@ -42,7 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu2.hpp"
 #include "filepanels.hpp"
 #include "cmdline.hpp"
-#include "chgmmode.hpp"
 #include "chgprior.hpp"
 #include "edit.hpp"
 #include "treelist.hpp"
@@ -1568,6 +1567,7 @@ void Panel::SetFocus()
 		Global->CtrlObject->Cp()->SetActivePanel(this);
 	}
 
+	Global->FrameManager->UpdateMacroArea();
 	ProcessPluginEvent(FE_GOTFOCUS,nullptr);
 
 	if (!GetFocus())

@@ -56,8 +56,6 @@ Grabber::Grabber():
 	Frame *pFrame = Global->FrameManager->GetCurrentFrame();
 	pFrame->Lock();
 	SaveScr = std::make_unique<SaveScreen>();
-	PrevMacroMode=Global->CtrlObject->Macro.GetMode();
-	Global->CtrlObject->Macro.SetMode(MACROAREA_OTHER);
 	bool Visible=false;
 	DWORD Size=0;
 	GetCursorType(Visible,Size);
@@ -83,7 +81,6 @@ Grabber::Grabber():
 
 Grabber::~Grabber()
 {
-	Global->CtrlObject->Macro.SetMode(PrevMacroMode);
 }
 
 

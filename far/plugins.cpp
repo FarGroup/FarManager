@@ -1182,9 +1182,6 @@ struct PluginMenuItemData
 */
 void PluginManager::Configure(int StartPos)
 {
-	FARMACROAREA PrevMacroMode = Global->CtrlObject->Macro.GetMode();
-	Global->CtrlObject->Macro.SetMode(MACROAREA_MENU);
-
 	{
 		VMenu2 PluginList(MSG(MPluginConfigTitle),nullptr,0,ScrY-4);
 		PluginList.SetFlags(VMENU_WRAPMODE);
@@ -1270,7 +1267,6 @@ void PluginManager::Configure(int StartPos)
 
 			PluginList.Run([&](int Key)->int
 			{
-				Global->CtrlObject->Macro.SetMode(MACROAREA_MENU);
 				int SelPos=PluginList.GetSelectPos();
 				PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(nullptr,0,SelPos);
 				int KeyProcessed = 1;
@@ -1332,8 +1328,6 @@ void PluginManager::Configure(int StartPos)
 			}
 		}
 	}
-
-	Global->CtrlObject->Macro.SetMode(PrevMacroMode);
 }
 
 int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName)
@@ -1346,9 +1340,6 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 			return 0;
 		}
 	}
-
-	FARMACROAREA PrevMacroMode = Global->CtrlObject->Macro.GetMode();
-	Global->CtrlObject->Macro.SetMode(MACROAREA_MENU);
 
 	bool Editor = ModalType==MODALTYPE_EDITOR;
 	bool Viewer = ModalType==MODALTYPE_VIEWER;
@@ -1449,7 +1440,6 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 			PluginList.Run([&](int Key)->int
 			{
-				Global->CtrlObject->Macro.SetMode(MACROAREA_MENU);
 				int SelPos=PluginList.GetSelectPos();
 				PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(nullptr,0,SelPos);
 				int KeyProcessed = 1;
@@ -1526,7 +1516,6 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 		if (ExitCode<0)
 		{
-			Global->CtrlObject->Macro.SetMode(PrevMacroMode);
 			return FALSE;
 		}
 
@@ -1577,7 +1566,6 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 		m_CurEditor->SetPluginTitle(nullptr);
 	}
 #endif // NO_WRAPPER
-	Global->CtrlObject->Macro.SetMode(PrevMacroMode);
 	return TRUE;
 }
 

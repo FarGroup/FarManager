@@ -489,7 +489,6 @@ enum TREELIST_FLAGS
 TreeList::TreeList(bool IsPanel):
 	WorkDir(0),
 	SaveWorkDir(0),
-	PrevMacroMode(MACROAREA_INVALID),
 	GetSelPosition(0),
 	ExitCode(1)
 {
@@ -504,7 +503,6 @@ TreeList::~TreeList()
 {
 	tempTreeCache().clear();
 	FlushCache();
-	SetMacroMode(TRUE);
 }
 
 void TreeList::SetRootDir(const string& NewRootDir)
@@ -2111,7 +2109,6 @@ void TreeList::SetFocus()
 {
 	Panel::SetFocus();
 	SetTitle();
-	SetMacroMode(FALSE);
 }
 
 void TreeList::KillFocus()
@@ -2126,18 +2123,6 @@ void TreeList::KillFocus()
 	}
 
 	Panel::KillFocus();
-	SetMacroMode(TRUE);
-}
-
-void TreeList::SetMacroMode(int Restore)
-{
-	if (!Global->CtrlObject)
-		return;
-
-	if (PrevMacroMode == MACROAREA_INVALID)
-		PrevMacroMode = Global->CtrlObject->Macro.GetMode();
-
-	Global->CtrlObject->Macro.SetMode(Restore ? PrevMacroMode:MACROAREA_TREEPANEL);
 }
 
 void TreeList::UpdateKeyBar()

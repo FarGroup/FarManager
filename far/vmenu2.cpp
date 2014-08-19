@@ -544,13 +544,7 @@ intptr_t VMenu2::RunEx(const std::function<int(int Msg, void *param)>& fn)
 	mfn=fn;
 	Resize(true);
 
-
-	FARMACROAREA PrevMacroMode=Global->CtrlObject->Macro.GetMode();
-	Global->CtrlObject->Macro.SetMode(GetMacroMode());
-
 	Process();
-
-	Global->CtrlObject->Macro.SetMode(PrevMacroMode);
 
 	return GetExitCode();
 }

@@ -51,8 +51,6 @@ private:
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual __int64 VMProcess(int OpCode, void *vParam = nullptr, __int64 iParam = 0) override;
 	virtual void Update(int Mode) override;
-	virtual void SetFocus() override;
-	virtual void KillFocus() override;
 	virtual string GetTitle() const override;
 	virtual void UpdateKeyBar() override;
 	virtual void CloseFile() override;
@@ -67,11 +65,9 @@ private:
 	void SelectShowMode();
 	void DrawTitle(string &strTitle, int Id, int &CurY);
 	int  OpenDizFile(const string& DizFile, int YPos);
-	void SetMacroMode(int Restore = FALSE);
 	void DynamicUpdateKeyBar() const;
 
 	DizViewer *DizView;
-	FARMACROAREA PrevMacroMode;
 	bool OldWrapMode;
 	bool OldWrapType;
 	string strDizFileName;

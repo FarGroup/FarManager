@@ -108,8 +108,6 @@ private:
 	DWORD LastStartPos;
 	DWORD StartPos;
 
-	FARMACROAREA PrevMacroMode;        // предыдущий режим макроса
-
 	bool MouseDown;
 	bool IsNewTopic;
 	bool TopicFound;

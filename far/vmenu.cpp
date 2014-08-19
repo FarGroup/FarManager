@@ -120,21 +120,10 @@ VMenu::VMenu(const string& Title,       // заголовок меню
 
 	SetMaxHeight(MaxHeight);
 	SetColors(nullptr); //Установим цвет по умолчанию
-
-	if (!CheckFlags(VMENU_LISTBOX) && Global->CtrlObject)
-	{
-		PrevMacroMode = Global->CtrlObject->Macro.GetMode();
-
-		if (!IsMenuArea(PrevMacroMode))
-			Global->CtrlObject->Macro.SetMode(MACROAREA_MENU);
-	}
 }
 
 VMenu::~VMenu()
 {
-	if (!CheckFlags(VMENU_LISTBOX) && Global->CtrlObject)
-		Global->CtrlObject->Macro.SetMode(PrevMacroMode);
-
 	Hide();
 	DeleteItems();
 

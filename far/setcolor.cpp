@@ -44,7 +44,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savescr.hpp"
 #include "scrbuf.hpp"
 #include "panel.hpp"
-#include "chgmmode.hpp"
 #include "interf.hpp"
 #include "config.hpp"
 #include "console.hpp"
@@ -57,7 +56,6 @@ static void SetItemColors(const LNGID* ItemIds, const int* PaletteItems, size_t 
 
 void GetColor(int PaletteIndex)
 {
-	SCOPED_ACTION(ChangeMacroMode)(MACROAREA_MENU);
 	FarColor NewColor = Global->Opt->Palette[PaletteIndex-COL_FIRSTPALETTECOLOR];
 
 	if (Console().GetColorDialog(NewColor))

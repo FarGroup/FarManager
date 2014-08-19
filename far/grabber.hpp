@@ -64,7 +64,6 @@ private:
 	GrabberArea PrevArea;
 	GrabberArea GArea;
 	bool ResetArea;
-	FARMACROAREA PrevMacroMode;
 	bool VerticalBlock;
 };
 

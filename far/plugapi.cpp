@@ -737,7 +737,6 @@ intptr_t WINAPI apiMenuFn(
 	int ExitCode;
 	{
 		VMenu2 FarMenu(NullToEmpty(Title),nullptr,0,MaxHeight);
-		Global->CtrlObject->Macro.SetMode(MACROAREA_MENU);
 		FarMenu.SetPosition(X,Y,0,0);
 		if(Id)
 		{

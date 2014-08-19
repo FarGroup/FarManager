@@ -394,14 +394,8 @@ void UserMenu::ProcessUserMenu(bool MenuType, const string& MenuFileName)
 			}
 		}
 
-		FARMACROAREA PrevMacroMode=Global->CtrlObject->Macro.GetMode();
-		int _CurrentFrame = Global->FrameManager->GetCurrentFrame()->GetType();
-		Global->CtrlObject->Macro.SetMode(MACROAREA_USERMENU);
 		// вызываем меню
 		ExitCode=ProcessSingleMenu(Menu, 0, Menu, strMenuFileFullPath, GetMenuTitle(MenuMode));
-
-		if (_CurrentFrame == Global->FrameManager->GetCurrentFrame()->GetType()) //???
-			Global->CtrlObject->Macro.SetMode(PrevMacroMode);
 
 		// ...запишем изменения обратно в файл
 		SaveMenu(strMenuFileFullPath);

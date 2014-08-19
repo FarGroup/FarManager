@@ -346,7 +346,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="elevation.cpp" />
     <ClCompile Include="cache.cpp" />
     <ClCompile Include="cddrv.cpp" />
-    <ClCompile Include="chgmmode.cpp" />
     <ClCompile Include="chgprior.cpp" />
     <ClCompile Include="clipboard.cpp" />
     <ClCompile Include="cmdline.cpp" />
@@ -508,7 +507,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="bitflags.hpp" />
     <ClInclude Include="cache.hpp" />
     <ClInclude Include="cddrv.hpp" />
-    <ClInclude Include="chgmmode.hpp" />
     <ClInclude Include="chgprior.hpp" />
     <ClInclude Include="clipboard.hpp" />
     <ClInclude Include="cmdline.hpp" />

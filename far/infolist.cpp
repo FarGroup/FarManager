@@ -89,7 +89,6 @@ struct InfoList::InfoListSectionState
 
 InfoList::InfoList():
 	DizView(nullptr),
-	PrevMacroMode(MACROAREA_INVALID),
 	OldWrapMode(nullptr),
 	OldWrapType(nullptr),
 	SectionState(ILSS_SIZE),
@@ -124,7 +123,6 @@ InfoList::InfoList():
 InfoList::~InfoList()
 {
 	CloseFile();
-	SetMacroMode(TRUE);
 }
 
 // перерисовка, только если мы текущий фрейм
@@ -1072,30 +1070,6 @@ int InfoList::OpenDizFile(const string& DizFile,int YPos)
 	DrawTitle(strTitle,ILSS_DIRDESCRIPTION,CurY);
 	return TRUE;
 }
-
-void InfoList::SetFocus()
-{
-	Panel::SetFocus();
-	SetMacroMode(FALSE);
-}
-
-void InfoList::KillFocus()
-{
-	Panel::KillFocus();
-	SetMacroMode(TRUE);
-}
-
-void InfoList::SetMacroMode(int Restore)
-{
-	if (!Global->CtrlObject)
-		return;
-
-	if (PrevMacroMode == MACROAREA_INVALID)
-		PrevMacroMode = Global->CtrlObject->Macro.GetMode();
-
-	Global->CtrlObject->Macro.SetMode(Restore ? PrevMacroMode:MACROAREA_INFOPANEL);
-}
-
 
 int InfoList::GetCurName(string &strName, string &strShortName) const
 {

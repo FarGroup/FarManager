@@ -64,7 +64,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "codepage.hpp"
 #include "DlgGuid.hpp"
 #include "hmenu.hpp"
-#include "chgmmode.hpp"
 #include "usermenu.hpp"
 #include "filetype.hpp"
 #include "shortcuts.hpp"
@@ -2965,11 +2964,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 			Global->FrameManager->CallbackFrame([&HOptMenu,MouseEvent](){HOptMenu.ProcessMouse(MouseEvent);});
 		}
 
-		{
-			SCOPED_ACTION(ChangeMacroMode)(MACROAREA_MAINMENU);
-			Global->FrameManager->ExecuteModal();
-		}
-
+		Global->FrameManager->ExecuteModal();
 		HOptMenu.GetExitCode(HItem,VItem);
 	}
 

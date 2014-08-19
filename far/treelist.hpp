@@ -128,7 +128,6 @@ private:
 	virtual size_t GetSelCount() const override;
 
 	int ReadTree();
-	void SetMacroMode(int Restore = FALSE);
 	void DisplayTree(int Fast);
 	void DisplayTreeName(const wchar_t *Name, size_t Pos);
 	void Up(int Count);
@@ -153,7 +152,6 @@ private:
 	string strRoot;
 	size_t WorkDir;
 	size_t SaveWorkDir;
-	FARMACROAREA PrevMacroMode;
 	long GetSelPosition;
 	int ExitCode; // актуально только для дерева, вызванного из копира!
 };

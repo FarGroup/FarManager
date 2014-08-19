@@ -344,7 +344,6 @@ private:
 	std::vector<DialogItemEx> Items; // массив элементов диалога
 	DialogItemEx* SavedItems; // пользовательский массив элементов диалога
 	ConsoleTitle *OldTitle;     // предыдущий заголовок
-	FARMACROAREA PrevMacroMode;          // предыдущий режим макро
 
 	dialog_handler m_handler;
 

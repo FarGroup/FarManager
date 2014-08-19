@@ -59,13 +59,11 @@ private:
 	virtual void SetTitle() override;
 	virtual string GetTitle() const override;
 	virtual void SetFocus() override;
-	virtual void KillFocus() override;
 	virtual void UpdateKeyBar() override;
 	virtual int GetCurName(string &strName, string &strShortName) const override;
 	virtual void DisplayObject() override;
 
 	void PrintText(const string& Str);
-	void SetMacroMode(int Restore = FALSE);
 	void DynamicUpdateKeyBar() const;
 
 	std::unique_ptr<Viewer> QView;
@@ -76,7 +74,6 @@ private:
 	CriticalSection CS;
 
 	int Directory;
-	FARMACROAREA PrevMacroMode;
 	DirInfoData Data;
 	bool OldWrapMode;
 	bool OldWrapType;

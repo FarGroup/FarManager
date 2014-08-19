@@ -187,7 +187,6 @@ Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
 	CtrlTabSize(0),
 	LastStartPos(0),
 	StartPos(0),
-	PrevMacroMode(Global->CtrlObject->Macro.GetMode()),
 	MouseDown(false),
 	IsNewTopic(true),
 	TopicFound(false),
@@ -200,7 +199,6 @@ Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
 	KeyBarVisible=TRUE;
 	/* $ OT По умолчанию все хелпы создаются статически*/
 	SetDynamicallyBorn(false);
-	Global->CtrlObject->Macro.SetMode(MACROAREA_HELP);
 
 	StackData->Flags=Flags;
 	StackData->strHelpMask = NullToEmpty(Mask); // сохраним маску файла
@@ -255,7 +253,6 @@ Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
 
 Help::~Help()
 {
-	Global->CtrlObject->Macro.SetMode(PrevMacroMode);
 	SetRestoreScreenMode(false);
 }
 

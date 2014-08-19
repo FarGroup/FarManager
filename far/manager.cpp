@@ -570,9 +570,6 @@ void Manager::SetLastInputRecord(const INPUT_RECORD *Rec)
 
 void Manager::ProcessMainLoop()
 {
-	if ( CurrentFrame )
-		Global->CtrlObject->Macro.SetMode(CurrentFrame->GetMacroMode());
-
 	if ( CurrentFrame && !CurrentFrame->ProcessEvents() )
 	{
 		ProcessKey(Manager::Key(KEY_IDLE));
@@ -1084,6 +1081,7 @@ void Manager::ActivateCommit(Frame* Param)
 
 	CurrentFrame=Param;
 	InterlockedExchange(&CurrentWindowType,CurrentFrame->GetType());
+	UpdateMacroArea();
 	RefreshCommit(Param);
 }
 
@@ -1109,8 +1107,6 @@ void Manager::RefreshCommit(Frame* Param)
 			Param->ShowConsoleTitle();
 
 		Param->Refresh();
-
-		Global->CtrlObject->Macro.SetMode(Param->GetMacroMode());
 	}
 
 	if
@@ -1258,4 +1254,9 @@ void Manager::ResizeAllFrame()
 void Manager::InitKeyBar()
 {
 	std::for_each(ALL_CONST_RANGE(Frames), std::mem_fn(&Frame::InitKeyBar));
+}
+
+void Manager::UpdateMacroArea(void)
+{
+	if (CurrentFrame) Global->CtrlObject->Macro.SetMode(CurrentFrame->GetMacroMode());
 }

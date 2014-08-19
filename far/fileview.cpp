@@ -128,9 +128,7 @@ void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 	ViewKeyBar.SetPosition(X1,Y2,X2,Y2);
 	KeyBarVisible = Global->Opt->ViOpt.ShowKeyBar;
 	TitleBarVisible = Global->Opt->ViOpt.ShowTitleBar;
-	FARMACROAREA OldMacroMode=Global->CtrlObject->Macro.GetMode();
 	SetMacroMode(MACROAREA_VIEWER);
-	Global->CtrlObject->Macro.SetMode(MACROAREA_VIEWER);
 	View.SetPluginData(PluginData);
 	View.SetHostFileViewer(this);
 	DisableHistory=disableHistory; ///
@@ -150,7 +148,6 @@ void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 		DisableHistory = TRUE;  // $ 26.03.2002 DJ - при неудаче открыти€ - не пишем мусор в историю
 		// FrameManager->DeleteFrame(this); // «ј„≈ћ? ¬ьювер то еще не помещен в очередь манагера!
 		ExitCode=FALSE;
-		Global->CtrlObject->Macro.SetMode(OldMacroMode);
 		return;
 	}
 

@@ -674,9 +674,6 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 void EditControl::AutoComplete(bool Manual,bool DelBlock)
 {
 	int Key=0;
-	FARMACROAREA PrevMacroMode=Global->CtrlObject->Macro.GetMode();
-	if(Global->Opt->AutoComplete.ShowList)
-		Global->CtrlObject->Macro.SetMode(MacroAreaAC);
 	if(AutoCompleteProc(Manual,DelBlock,Key,MacroAreaAC))
 	{
 		// BUGBUG, hack
@@ -692,7 +689,6 @@ void EditControl::AutoComplete(bool Manual,bool DelBlock)
 			Show();
 		}
 	}
-	Global->CtrlObject->Macro.SetMode(PrevMacroMode);
 }
 
 int EditControl::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)

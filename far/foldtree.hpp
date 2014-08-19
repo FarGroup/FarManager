@@ -73,8 +73,6 @@ private:
 	int ModalMode;
 	bool IsFullScreen;
 	int IsStandalone;
-	// предыдущий режим макроса
-	FARMACROAREA PrevMacroMode;
 	string strNewFolder;
 	string strLastName;
 };

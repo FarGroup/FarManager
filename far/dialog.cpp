@@ -363,14 +363,6 @@ void Dialog::Init()
 		DialogMode.Set(DMODE_OLDSTYLE);
 	}
 
-	if (Global->CtrlObject)
-	{
-		// запомним пред. режим макро.
-		PrevMacroMode=Global->CtrlObject->Macro.GetMode();
-		// макросить будет в диалогах :-)
-		Global->CtrlObject->Macro.SetMode(MACROAREA_DIALOG);
-	}
-
 	//_SVS(SysLog(L"Dialog =%d",Global->CtrlObject->Macro.GetMode()));
 	// запоминаем предыдущий заголовок консоли
 	OldTitle=new ConsoleTitle;
@@ -388,9 +380,6 @@ Dialog::~Dialog()
 	_DIALOG(CleverSysLog CL(L"Dialog::~Dialog()"));
 	_DIALOG(SysLog(L"[%p] Dialog::~Dialog()",this));
 	DeleteDialogObjects();
-
-	if (Global->CtrlObject)
-		Global->CtrlObject->Macro.SetMode(PrevMacroMode);
 
 	Hide();
 	if (Global->Opt->Clock && Global->FrameManager->IsPanelsActive(true))

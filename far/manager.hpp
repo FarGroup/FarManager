@@ -118,6 +118,7 @@ public:
 	static long GetCurrentWindowType() { return CurrentWindowType; }
 	static bool ShowBackground();
 
+	void UpdateMacroArea(void);
 private:
 #if defined(SYSLOG)
 	friend void ManagerClass_Dump(const wchar_t *Title, FILE *fp);

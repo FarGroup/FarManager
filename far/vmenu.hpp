@@ -340,7 +340,6 @@ private:
 	Frame *CurrentFrame;
 	bool PrevCursorVisible;
 	DWORD PrevCursorSize;
-	FARMACROAREA PrevMacroMode;
 	// переменная, отвечающая за отображение scrollbar в DI_LISTBOX & DI_COMBOBOX
 	BitFlags VMFlags;
 	BitFlags VMOldFlags;
