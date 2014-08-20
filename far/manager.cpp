@@ -1213,15 +1213,8 @@ void Manager::ImmediateHide()
 			{
 				FOR(const auto& i, make_range(ModalFrames.cbegin(), ModalFrames.cend() - 1))
 				{
-					if (!(i->CanFastHide() & CASR_HELP))
-					{
-						RefreshFrame(i);
-						Commit();
-					}
-					else
-					{
-						break;
-					}
+					RefreshFrame(i);
+					Commit();
 				}
 			}
 

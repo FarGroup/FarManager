@@ -1179,9 +1179,9 @@ void FilePanels::ResizeConsole()
 	_OT(SysLog(L"[%p] FilePanels::ResizeConsole() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
 }
 
-int FilePanels::CanFastHide()
+bool FilePanels::CanFastHide() const
 {
-	return Global->Opt->AllCtrlAltShiftRule & CASR_PANEL;
+	return (Global->Opt->AllCtrlAltShiftRule & CASR_PANEL) != 0;
 }
 
 void FilePanels::Refresh()

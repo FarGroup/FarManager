@@ -174,7 +174,6 @@ string Help::MakeLink(const string& path, const string& topic)
 
 Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
 	StackData(std::make_unique<StackHelpData>()),
-	TopScreen(std::make_unique<SaveScreen>()),
 	FixCount(0),
 	FixSize(0),
 	MouseDownX(0),
@@ -199,6 +198,7 @@ Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
 	KeyBarVisible=TRUE;
 	/* $ OT По умолчанию все хелпы создаются статически*/
 	SetDynamicallyBorn(false);
+	SetRestoreScreenMode(true);
 
 	StackData->Flags=Flags;
 	StackData->strHelpMask = NullToEmpty(Mask); // сохраним маску файла
@@ -253,7 +253,6 @@ Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
 
 Help::~Help()
 {
-	SetRestoreScreenMode(false);
 }
 
 int Help::ReadHelp(const string& Mask)
@@ -787,9 +786,6 @@ void Help::HighlightsCorrection(string &strStr)
 
 void Help::DisplayObject()
 {
-	if (!TopScreen)
-		TopScreen = std::make_unique<SaveScreen>();
-
 	if (!TopicFound)
 	{
 		if (!ErrorHelp) // если это убрать, то при несуществующей ссылке
@@ -825,10 +821,15 @@ void Help::DisplayObject()
 	{
 		HelpKeyBar.Hide();
 	}
+
+	Shadow();
 }
 
 void Help::FastShow()
 {
+	if (!IsVisible())
+		return;
+
 	if (!Locked())
 		DrawWindowFrame();
 
@@ -1206,12 +1207,14 @@ int Help::ProcessKey(const Manager::Key& Key)
 		{
 			Global->Opt->FullScreenHelp=!Global->Opt->FullScreenHelp;
 			ResizeConsole();
+			Show();
 			return TRUE;
 		}
 		case KEY_ESC:
 		case KEY_F10:
 		{
-			Global->FrameManager->DeleteFrame();
+			Hide();
+			Global->FrameManager->DeleteFrame(this);
 			SetExitCode(XC_QUIT);
 			return TRUE;
 		}
@@ -1638,7 +1641,6 @@ int Help::JumpTopic()
 	   )
 		MoveToReference(1,1);
 
-	//FrameManager->ImmediateHide();
 	Global->FrameManager->RefreshFrame();
 	return TRUE;
 }
@@ -2231,21 +2233,12 @@ static int RunURL(const string& Protocol, const string& URLPath)
 	return EditCode;
 }
 
-void Help::OnChangeFocus(int Focus)
-{
-	if (Focus)
-	{
-		DisplayObject();
-	}
-}
-
 void Help::ResizeConsole()
 {
 	bool OldIsNewTopic=IsNewTopic;
 	bool ErrCannotOpenHelp=ScreenObjectWithShadow::Flags.Check(FHELPOBJ_ERRCANNOTOPENHELP);
 	ScreenObjectWithShadow::Flags.Set(FHELPOBJ_ERRCANNOTOPENHELP);
 	IsNewTopic = false;
-	TopScreen.reset();
 	Hide();
 
 	if (Global->Opt->FullScreenHelp)
@@ -2263,13 +2256,11 @@ void Help::ResizeConsole()
 	MoveToReference(1,1);
 	IsNewTopic=OldIsNewTopic;
 	ScreenObjectWithShadow::Flags.Change(FHELPOBJ_ERRCANNOTOPENHELP,ErrCannotOpenHelp);
-	Global->FrameManager->ImmediateHide();
-	Global->FrameManager->RefreshFrame();
 }
 
-int Help::CanFastHide()
+bool Help::CanFastHide() const
 {
-	return Global->Opt->AllCtrlAltShiftRule & CASR_HELP;
+	return (Global->Opt->AllCtrlAltShiftRule & CASR_HELP) != 0;
 }
 
 int Help::GetTypeAndName(string &strType, string &strName)

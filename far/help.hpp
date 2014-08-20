@@ -50,9 +50,8 @@ public:
 	virtual int  ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual void InitKeyBar() override;
 	virtual void SetScreenPosition() override;
-	virtual void OnChangeFocus(int focus) override; // вызывается при смене фокуса
 	virtual void ResizeConsole() override;
-	virtual int  CanFastHide() override; // Введена для нужд CtrlAltShift
+	virtual bool CanFastHide() const override; // Введена для нужд CtrlAltShift
 	virtual const wchar_t *GetTypeName() override {return L"[Help]";}
 	virtual int GetTypeAndName(string &strType, string &strName) override;
 	virtual int GetType() const override { return MODALTYPE_HELP; }
@@ -93,7 +92,6 @@ private:
 	string strCurPluginContents; // помним PluginContents (для отображения в заголовке)
 	string strCtrlStartPosChar;
 	string strLastSearchStr;
-	std::unique_ptr<SaveScreen> TopScreen;      // область сохранения под хелпом
 
 	int FixCount;             // количество строк непрокручиваемой области
 	int FixSize;              // Размер непрокручиваемой области

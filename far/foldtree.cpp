@@ -147,15 +147,9 @@ void FolderTree::OnChangeFocus(int focus)
 
 void FolderTree::ResizeConsole()
 {
-	//if ( TopScreen )
-	//   delete TopScreen;
-	//TopScreen=nullptr;
 	Hide();
 	SetCoords();
 	Tree->SetPosition(X1,Y1,X2,Y2);
-	//ReadHelp(StackData.HelpMask);
-	Global->FrameManager->ImmediateHide();
-	Global->FrameManager->RefreshFrame();
 }
 
 void FolderTree::SetScreenPosition()
@@ -167,9 +161,9 @@ void FolderTree::SetScreenPosition()
 	Show();
 }
 
-int FolderTree::CanFastHide()
+bool FolderTree::CanFastHide() const
 {
-	return Global->Opt->AllCtrlAltShiftRule & CASR_DIALOG;
+	return (Global->Opt->AllCtrlAltShiftRule & CASR_DIALOG) != 0;
 }
 
 

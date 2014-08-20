@@ -4421,9 +4421,9 @@ int Dialog::GetTypeAndName(string &strType, string &strName)
 	return MODALTYPE_DIALOG;
 }
 
-int Dialog::CanFastHide()
+bool Dialog::CanFastHide() const
 {
-	return Global->Opt->AllCtrlAltShiftRule & CASR_DIALOG;
+	return (Global->Opt->AllCtrlAltShiftRule & CASR_DIALOG) != 0;
 }
 
 void Dialog::ResizeConsole()

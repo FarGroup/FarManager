@@ -463,9 +463,9 @@ void FileViewer::OnDestroy()
 	View.CloseEvent();
 }
 
-int FileViewer::CanFastHide()
+bool FileViewer::CanFastHide() const
 {
-	return Global->Opt->AllCtrlAltShiftRule & CASR_VIEWER;
+	return (Global->Opt->AllCtrlAltShiftRule & CASR_VIEWER) != 0;
 }
 
 int FileViewer::ViewerControl(int Command, intptr_t Param1, void *Param2)

@@ -87,9 +87,9 @@ void Frame::OnChangeFocus(int focus)
 	}
 }
 
-int Frame::CanFastHide()
+bool Frame::CanFastHide() const
 {
-	return TRUE;
+	return true;
 }
 
 bool Frame::HasSaveScreen() const

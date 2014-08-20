@@ -42,6 +42,8 @@ class ScreenBuf: NonCopyable
 public:
 	ScreenBuf();
 
+	void DebugDump() const;
+
 	void AllocBuf(size_t rows, size_t cols);
 	void Lock();
 	void Unlock();

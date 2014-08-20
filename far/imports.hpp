@@ -57,34 +57,34 @@ private:
 	class function_pointer: NonCopyable
 	{
 	public:
-		function_pointer(module& Module): m_module(Module) {}
+		function_pointer(const module& Module): m_module(Module) {}
 		operator T() const { return get_pointer(); }
 		bool exists() const { return get_pointer() != stub; }
 
 	private:
 		T get_pointer() const
 		{
-			static T dyn_pointer = reinterpret_cast<T>(m_module.GetProcAddress(Y::get()));
+			static const T dyn_pointer = reinterpret_cast<T>(m_module.GetProcAddress(Y::get()));
 			// TODO: log if nullptr
-			static T pointer = dyn_pointer? dyn_pointer : stub;
+			static const T pointer = dyn_pointer? dyn_pointer : stub;
 			return pointer;
 		}
 
 		const module& m_module;
 	};
 
-	module m_ntdll;
-	module m_kernel32;
-	module m_shell32;
-	module m_user32;
-	module m_virtdisk;
-	module m_rstrtmgr;
-	module m_netapi32;
+	const module m_ntdll;
+	const module m_kernel32;
+	const module m_shell32;
+	const module m_user32;
+	const module m_virtdisk;
+	const module m_rstrtmgr;
+	const module m_netapi32;
 
 #define DECLARE_IMPORT_FUNCTION(RETTYPE, CALLTYPE, NAME, ...)\
 private: static RETTYPE CALLTYPE stub_##NAME(__VA_ARGS__);\
 private: struct name_##NAME { static const char* get() { return #NAME; } };\
-public: function_pointer<decltype(&ImportedFunctions::stub_##NAME), name_##NAME, ImportedFunctions::stub_##NAME> NAME;
+public: const function_pointer<decltype(&ImportedFunctions::stub_##NAME), name_##NAME, ImportedFunctions::stub_##NAME> NAME;
 
 	// ntdll
 	DECLARE_IMPORT_FUNCTION(NTSTATUS, NTAPI, NtQueryDirectoryFile, HANDLE FileHandle, HANDLE Event, PVOID ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, BOOLEAN ReturnSingleEntry, PUNICODE_STRING FileName, BOOLEAN RestartScan);
@@ -141,9 +141,9 @@ public: function_pointer<decltype(&ImportedFunctions::stub_##NAME), name_##NAME,
 #undef DECLARE_IMPORT_FUNCTION
 
 private:
-	friend ImportedFunctions& Imports();
+	friend const ImportedFunctions& Imports();
 
 	ImportedFunctions();
 };
 
-ImportedFunctions& Imports();
+const ImportedFunctions& Imports();

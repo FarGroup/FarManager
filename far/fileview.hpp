@@ -60,7 +60,7 @@ class FileViewer:public Frame
 	virtual const wchar_t *GetTypeName() override { return L"[FileView]"; }
 	virtual int GetType() const override { return MODALTYPE_VIEWER; }
 	/* $ ¬ведена дл€ нужд CtrlAltShift OT */
-	virtual int CanFastHide() override;
+	virtual bool CanFastHide() const override;
 	virtual string GetTitle() const override;
 
 	void Init(const string& Name, int EnableSwitch, int DisableHistory, __int64 ViewStartPos, const wchar_t *PluginData, NamesList *ViewNamesList, bool ToSaveAs, Frame* Update=nullptr);

@@ -57,7 +57,7 @@ public:
 	virtual void RedrawKeyBar() override;
 	virtual void ShowConsoleTitle() override;
 	virtual void ResizeConsole() override;
-	virtual int CanFastHide() override;
+	virtual bool CanFastHide() const override;
 	virtual void Refresh() override;
 	virtual FARMACROAREA GetMacroMode() const override;
 

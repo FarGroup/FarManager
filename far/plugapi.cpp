@@ -394,7 +394,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		*/
 		case ACTL_GETCOLOR:
 		{
-			if (static_cast<UINT>(Param1) < Global->Opt->Palette.size())
+			if (static_cast<size_t>(Param1) < Global->Opt->Palette.size())
 			{
 				*static_cast<FarColor*>(Param2) = Global->Opt->Palette[static_cast<size_t>(Param1)];
 				return TRUE;

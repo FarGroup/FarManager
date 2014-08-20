@@ -2268,9 +2268,9 @@ void FileEditor::SetLockEditor(BOOL LockMode)
 		m_editor->Flags.Clear(Editor::FEDITOR_LOCKMODE);
 }
 
-int FileEditor::CanFastHide()
+bool FileEditor::CanFastHide() const
 {
-	return Global->Opt->AllCtrlAltShiftRule & CASR_EDITOR;
+	return (Global->Opt->AllCtrlAltShiftRule & CASR_EDITOR) != 0;
 }
 
 bool FileEditor::isTemporary() const

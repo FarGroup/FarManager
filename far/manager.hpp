@@ -102,7 +102,6 @@ public:
 	Frame* GetFrame(size_t Index) const;
 	int IndexOf(Frame *Frame);
 	int IndexOfStack(Frame *Frame);
-	void ImmediateHide();
 	Frame *GetBottomFrame() { return GetFrame(FramePos); }
 	bool ManagerIsDown() const { return EndLoop; }
 	bool ManagerStarted() const { return StartManager; }
@@ -140,6 +139,8 @@ private:
 	void ExecuteCommit(Frame* Param);
 	void UpdateCommit(Frame* Old,Frame* New);
 	int GetModalExitCode() const;
+	// BUGBUG, do we need this?
+	void ImmediateHide();
 
 	typedef void(Manager::*frame_callback)(Frame*);
 
