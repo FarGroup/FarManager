@@ -333,13 +333,7 @@ bool filemasks::masks::operator ==(const string& FileName) const
 	{
 		intptr_t i = m.size();
 		size_t len = FileName.size();
-		bool ret = re->Search(FileName.data(), FileName.data() + len, const_cast<RegExpMatch *>(m.data()), i) != 0; // BUGBUG
-
-		//Освободим память если большая строка, чтоб не накапливалось.
-		if (len > 1024)
-			re->CleanStack();
-
-		return ret;
+		return re->Search(FileName.data(), FileName.data() + len, const_cast<RegExpMatch *>(m.data()), i) != 0; // BUGBUG
 	}
 	else
 	{

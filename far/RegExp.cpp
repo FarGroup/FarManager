@@ -462,9 +462,6 @@ RegExp::RegExp():
 	ignorecase(),
 	bracketscount(),
 	maxbackref(),
-	start(nullptr),
-	end(nullptr),
-	trimend(nullptr),
 	brhandler(nullptr),
 	brhdata(nullptr)
 {
@@ -472,7 +469,6 @@ RegExp::RegExp():
 
 RegExp::~RegExp()
 {
-	CleanStack();
 }
 
 int RegExp::CalcLength(const wchar_t* src,int srclength)
@@ -1609,7 +1605,7 @@ struct RegExp::StateStackItem
 	int forward;
 };
 
-inline const RegExp::StateStackItem& RegExp::FindStateByPos(REOpCode* pos, int op)
+inline const RegExp::StateStackItem& FindStateByPos(const std::vector<RegExp::StateStackItem>& stack, RegExp::REOpCode* pos, int op)
 {
 	return *std::find_if(ALL_CONST_REVERSE_RANGE(stack), [&](const VALUE_TYPE(stack)& i){ return i.pos == pos && i.op == op; });
 }
@@ -1642,7 +1638,7 @@ inline int RegExp::StrCmp(const wchar_t*& str, const wchar_t* _st, const wchar_t
 	return 1;
 }
 
-int RegExp::InnerMatch(const wchar_t* str,const wchar_t* strend,RegExpMatch* match,intptr_t& matchcount)
+int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str,const wchar_t* strend, RegExpMatch* match,intptr_t& matchcount) const
 {
 	int i,j;
 	int minimizing;
@@ -1655,7 +1651,8 @@ int RegExp::InnerMatch(const wchar_t* str,const wchar_t* strend,RegExpMatch* mat
 
 	if (matchcount<maxbackref)return SetError(errNotEnoughMatches,maxbackref);
 
-	stack.clear();
+	std::vector<StateStackItem> stack;
+
 	errorcode=errNone;
 
 	if (bracketscount<matchcount)matchcount=bracketscount;
@@ -1958,7 +1955,7 @@ int RegExp::InnerMatch(const wchar_t* str,const wchar_t* strend,RegExpMatch* mat
 						}
 						case opBracketRange:
 						{
-							auto st = FindStateByPos(op->bracket.pairindex,opBracketRange);
+							auto st = FindStateByPos(stack, op->bracket.pairindex,opBracketRange);
 
 							if (str==st.startstr)
 							{
@@ -2104,7 +2101,7 @@ int RegExp::InnerMatch(const wchar_t* str,const wchar_t* strend,RegExpMatch* mat
 						}
 						case opBracketMinRange:
 						{
-							auto& ps = FindStateByPos(op->bracket.pairindex,opBracketMinRange);
+							auto& ps = FindStateByPos(stack, op->bracket.pairindex, opBracketMinRange);
 							auto st = ps;
 
 							if (st.min>0)st.min--;
@@ -3147,20 +3144,20 @@ int RegExp::InnerMatch(const wchar_t* str,const wchar_t* strend,RegExpMatch* mat
 	return 1;
 }
 
-int RegExp::Match(const wchar_t* textstart,const wchar_t* textend,RegExpMatch* match,intptr_t& matchcount)
+int RegExp::Match(const wchar_t* textstart, const wchar_t* textend, RegExpMatch* match, intptr_t& matchcount) const
 {
-	start=textstart;
+	const wchar_t* const start = textstart;
 	const wchar_t* tempend=textend;
 
 	if (havefirst && !first[*start])return 0;
 
-	TrimTail(tempend);
+	TrimTail(start, tempend);
 
 	if (tempend<start)return 0;
 
 	if (minlength && tempend-start<minlength)return 0;
 
-	int res=InnerMatch(start,tempend,match,matchcount);
+	int res=InnerMatch(start, start, tempend, match, matchcount);
 
 	if (res==1)
 	{
@@ -3176,30 +3173,20 @@ int RegExp::Match(const wchar_t* textstart,const wchar_t* textend,RegExpMatch* m
 	return res;
 }
 
-int RegExp::MatchEx(const wchar_t* datastart,const wchar_t* textstart,const wchar_t* textend,RegExpMatch* match,intptr_t& matchcount)
+int RegExp::MatchEx(const wchar_t* datastart, const wchar_t* textstart, const wchar_t* textend, RegExpMatch* match, intptr_t& matchcount) const
 {
 	if (havefirst && !first[(wchar_t)*textstart])return 0;
 
 	const wchar_t* tempend=textend;
 
-	if (datastart==start && textend==end)
-	{
-		tempend=trimend;
-	}
-	else
-	{
-		start=datastart;
-		TrimTail(tempend);
-		trimend=tempend;
-	}
-
-	end=textend;
+	const wchar_t* const start = datastart;
+	TrimTail(start, tempend);
 
 	if (tempend<textstart)return 0;
 
 	if (minlength && tempend-start<minlength)return 0;
 
-	int res=InnerMatch(textstart,tempend,match,matchcount);
+	int res=InnerMatch(start, textstart, tempend, match, matchcount);
 
 	if (res==1)
 	{
@@ -3215,7 +3202,7 @@ int RegExp::MatchEx(const wchar_t* datastart,const wchar_t* textstart,const wcha
 	return res;
 }
 
-int RegExp::Match(const wchar_t* textstart,RegExpMatch* match,intptr_t& matchcount)
+int RegExp::Match(const wchar_t* textstart, RegExpMatch* match, intptr_t& matchcount) const
 {
 	const wchar_t* textend=textstart+wcslen(textstart);
 	return Match(textstart,textend,match,matchcount);
@@ -3477,18 +3464,18 @@ int RegExp::Optimize()
 	return 1;
 }
 
-int RegExp::Search(const wchar_t* textstart,RegExpMatch* match,intptr_t& matchcount)
+int RegExp::Search(const wchar_t* textstart, RegExpMatch* match, intptr_t& matchcount) const
 {
 	const wchar_t* textend=textstart+wcslen(textstart);
 	return Search(textstart,textend,match,matchcount);
 }
 
-int RegExp::Search(const wchar_t* textstart,const wchar_t* textend,RegExpMatch* match,intptr_t& matchcount)
+int RegExp::Search(const wchar_t* textstart, const wchar_t* textend, RegExpMatch* match, intptr_t& matchcount) const
 {
-	start=textstart;
+	const wchar_t* const start = textstart;
 	const wchar_t* str=start;
 	const wchar_t* tempend=textend;
-	TrimTail(tempend);
+	TrimTail(start, tempend);
 
 	if (tempend<start)return 0;
 
@@ -3498,7 +3485,7 @@ int RegExp::Search(const wchar_t* textstart,const wchar_t* textend,RegExpMatch* 
 
 	if (!code[0].bracket.nextalt && code[1].op == opDataStart)
 	{
-		res=InnerMatch(start,tempend,match,matchcount);
+		res=InnerMatch(start, start, tempend, match, matchcount);
 	}
 	else
 	{
@@ -3516,7 +3503,7 @@ int RegExp::Search(const wchar_t* textstart,const wchar_t* textend,RegExpMatch* 
 			{
 				while (!first[*str] && str<tempend)str++;
 
-				if (0!=(res=InnerMatch(str,tempend,match,matchcount)))
+				if (0!=(res=InnerMatch(start, str, tempend, match, matchcount)))
 				{
 					break;
 				}
@@ -3525,7 +3512,7 @@ int RegExp::Search(const wchar_t* textstart,const wchar_t* textend,RegExpMatch* 
 			}
 			while (str<tempend);
 
-			if (!res && InnerMatch(str,tempend,match,matchcount))
+			if (!res && InnerMatch(start, str, tempend, match, matchcount))
 			{
 				res=1;
 			}
@@ -3534,7 +3521,7 @@ int RegExp::Search(const wchar_t* textstart,const wchar_t* textend,RegExpMatch* 
 		{
 			do
 			{
-				if (0!=(res=InnerMatch(str,tempend,match,matchcount)))
+				if (0 != (res = InnerMatch(start, str, tempend, match, matchcount)))
 				{
 					break;
 				}
@@ -3559,12 +3546,12 @@ int RegExp::Search(const wchar_t* textstart,const wchar_t* textend,RegExpMatch* 
 	return res;
 }
 
-int RegExp::SearchEx(const wchar_t* datastart,const wchar_t* textstart,const wchar_t* textend,RegExpMatch* match,intptr_t& matchcount)
+int RegExp::SearchEx(const wchar_t* datastart, const wchar_t* textstart, const wchar_t* textend, RegExpMatch* match, intptr_t& matchcount) const
 {
-	start=datastart;
+	const wchar_t* const start = datastart;
 	const wchar_t* str=textstart;
 	const wchar_t* tempend=textend;
-	TrimTail(tempend);
+	TrimTail(start, tempend);
 
 	if (tempend<start)return 0;
 
@@ -3574,7 +3561,7 @@ int RegExp::SearchEx(const wchar_t* datastart,const wchar_t* textstart,const wch
 
 	if (!code[0].bracket.nextalt && code[1].op == opDataStart)
 	{
-		res=InnerMatch(str,tempend,match,matchcount);
+		res = InnerMatch(start, str, tempend, match, matchcount);
 	}
 	else
 	{
@@ -3592,7 +3579,7 @@ int RegExp::SearchEx(const wchar_t* datastart,const wchar_t* textstart,const wch
 			{
 				while (!first[*str] && str<tempend)str++;
 
-				if (0!=(res=InnerMatch(str,tempend,match,matchcount)))
+				if (0 != (res = InnerMatch(start, str, tempend, match, matchcount)))
 				{
 					break;
 				}
@@ -3601,7 +3588,7 @@ int RegExp::SearchEx(const wchar_t* datastart,const wchar_t* textstart,const wch
 			}
 			while (str<tempend);
 
-			if (!res && InnerMatch(str,tempend,match,matchcount))
+			if (!res && InnerMatch(start, str, tempend, match, matchcount))
 			{
 				res=1;
 			}
@@ -3610,7 +3597,7 @@ int RegExp::SearchEx(const wchar_t* datastart,const wchar_t* textstart,const wch
 		{
 			do
 			{
-				if (0!=(res=InnerMatch(str,tempend,match,matchcount)))
+				if (0 != (res = InnerMatch(start, str, tempend, match, matchcount)))
 				{
 					break;
 				}
@@ -3635,7 +3622,7 @@ int RegExp::SearchEx(const wchar_t* datastart,const wchar_t* textstart,const wch
 	return res;
 }
 
-void RegExp::TrimTail(const wchar_t*& strend) const
+void RegExp::TrimTail(const wchar_t* const start, const wchar_t*& strend) const
 {
 	if (havelookahead)return;
 
@@ -3761,9 +3748,4 @@ void RegExp::TrimTail(const wchar_t*& strend) const
 	}
 
 	strend++;
-}
-
-void RegExp::CleanStack()
-{
-	clear_and_shrink(stack);
 }

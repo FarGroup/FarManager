@@ -99,14 +99,12 @@ class RegExp:NonCopyable
 public:
 	struct REOpCode;
 	struct UniSet;
+	struct StateStackItem;
 
 public:
 	private:
-		struct StateStackItem;
-
 		// code
 		std::vector<REOpCode> code;
-		std::vector<StateStackItem> stack;
 		char slashChar;
 		char backslashChar;
 
@@ -119,18 +117,14 @@ public:
 		int minlength;
 
 		// error info
-		int errorcode;
-		int errorpos;
+		mutable int errorcode;
+		mutable int errorpos;
 
 		// options
 		int ignorecase;
 
 		int bracketscount;
 		int maxbackref;
-
-		const wchar_t* start;
-		const wchar_t* end;
-		const wchar_t* trimend;
 
 #ifdef RE_DEBUG
 		string resrc;
@@ -139,13 +133,13 @@ public:
 		int CalcLength(const wchar_t* src,int srclength);
 		int InnerCompile(const wchar_t* src,int srclength,int options);
 
-		int InnerMatch(const wchar_t* str,const wchar_t* end,RegExpMatch* match,intptr_t& matchcount);
+		int InnerMatch(const wchar_t* const start, const wchar_t* str, const wchar_t* end, RegExpMatch* match, intptr_t& matchcount) const;
 
-		void TrimTail(const wchar_t*& end) const;
+		void TrimTail(const wchar_t* const start, const wchar_t*& end) const;
 
-		int SetError(int _code,int pos) {errorcode=_code; errorpos=pos; return 0;}
-
-		const StateStackItem& FindStateByPos(REOpCode* pos,int op);
+		// BUGBUG not thread safe!
+		// TODO: split to compile errors (stateful) and match errors (stateless)
+		int SetError(int _code, int pos) const { errorcode = _code; errorpos = pos; return 0; }
 
 		int StrCmp(const wchar_t*& str,const wchar_t* start,const wchar_t* end) const;
 
@@ -186,34 +180,28 @@ public:
 		    \return 1 on success, 0 if match failed.
 		    \sa SMatch
 		*/
-		int Match(const wchar_t* textstart,const wchar_t* textend,RegExpMatch* match,intptr_t& matchcount);
+		int Match(const wchar_t* textstart,const wchar_t* textend,RegExpMatch* match,intptr_t& matchcount) const;
 		/*! Same as Match(const char* textstart,const char* textend,...), but for ASCIIZ string.
 		    textend calculated automatically.
 		*/
-		int Match(const wchar_t* textstart,RegExpMatch* match,intptr_t& matchcount);
+		int Match(const wchar_t* textstart, RegExpMatch* match, intptr_t& matchcount) const;
 		/*! Advanced version of match. Can be used for multiple matches
 		    on one string (to imitate /g modifier of perl regexp
 		*/
-		int MatchEx(const wchar_t* datastart,const wchar_t* textstart,const wchar_t* textend,RegExpMatch* match,intptr_t& matchcount);
+		int MatchEx(const wchar_t* datastart, const wchar_t* textstart, const wchar_t* textend, RegExpMatch* match, intptr_t& matchcount) const;
 		/*! Try to find substring that will match regexp.
 		    Parameters and return value are the same as for Match.
 		    It is highly recommended to call Optimize before Search.
 		*/
-		int Search(const wchar_t* textstart,const wchar_t* textend,RegExpMatch* match,intptr_t& matchcount);
+		int Search(const wchar_t* textstart, const wchar_t* textend, RegExpMatch* match, intptr_t& matchcount) const;
 		/*! Same as Search with specified textend, but for ASCIIZ strings only.
 		    textend calculated automatically.
 		*/
-		int Search(const wchar_t* textstart,RegExpMatch* match,intptr_t& matchcount);
+		int Search(const wchar_t* textstart, RegExpMatch* match, intptr_t& matchcount) const;
 		/*! Advanced version of search. Can be used for multiple searches
 		    on one string (to imitate /g modifier of perl regexp
 		*/
-		int SearchEx(const wchar_t* datastart,const wchar_t* textstart,const wchar_t* textend,RegExpMatch* match,intptr_t& matchcount);
-
-		/*! Clean regexp execution stack.
-		    After match large string with complex regexp, significant
-		    amount of memory can be allocated for execution stack.
-		*/
-		void CleanStack();
+		int SearchEx(const wchar_t* datastart,const wchar_t* textstart,const wchar_t* textend,RegExpMatch* match,intptr_t& matchcount) const;
 
 		/*! Get last error
 		    \return code of the last error
