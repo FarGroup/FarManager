@@ -130,7 +130,6 @@ void ScreenBuf::FillBuf()
 */
 void ScreenBuf::Write(int X,int Y,const FAR_CHAR_INFO *Text, size_t Size)
 {
-	DebugDump();
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
 	if (X<0)
