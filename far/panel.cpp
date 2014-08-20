@@ -1309,7 +1309,7 @@ void Search::Process(void)
 {
 	Global->FrameManager->ExecuteFrame(this);
 	if(m_FirstKey) Global->FrameManager->CallbackFrame([this](){this->ProcessKey(Manager::Key(this->m_FirstKey));});
-	Global->FrameManager->ExecuteModal();
+	Global->FrameManager->ExecuteModal(this);
 }
 
 int Search::ProcessKey(const Manager::Key& Key)

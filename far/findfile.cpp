@@ -1760,7 +1760,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 										ShellViewer.SetSaveToSaveAs(true);
 									}
 								}
-								Global->FrameManager->ExecuteModalEV();
+								Global->FrameManager->ExecuteModalEV(&ShellViewer);
 								// заставляем рефрешится экран
 								Global->FrameManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
 							}
@@ -1834,7 +1834,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 											ShellEditor.SetSaveToSaveAs(true);
 										}
 									}
-									Global->FrameManager->ExecuteModalEV();
+									Global->FrameManager->ExecuteModalEV(&ShellEditor);
 									// заставляем рефрешится экран
 									Global->FrameManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
 								}

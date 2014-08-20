@@ -72,13 +72,14 @@ struct ProcessEditorEventInfo
     <p class=note><img src="../../images/note.gif" alt="Замечание для EE_CHANGE" width="10" height="10"> Замечание.</p>
     <UL class=note><LI><a href="../service_functions/editorcontrol.html">EditorControl</a> вызванная из <code>EE_CHANGE</code> вернет <code>FALSE</code>.</LI></UL></td></tr>
     </table>
-    <p class=warning><img src="../../images/warning.gif" alt="Замечание для EE_REDRAW" width="10" height="10"> Внимание!</p>
+    <p class=warning><img src="../../images/warning.gif" alt="Замечание для EE_REDRAW и EE_GOTFOCUS" width="10" height="10"> Внимание!</p>
     <UL class=warning>
-       <LI><b>При обработке <code>EE_REDRAW</code> <u>НЕЖЕЛАТЕЛЬНО</u> ИСПОЛЬЗОВАТЬ
+       <LI><b>При обработке <code>EE_REDRAW</code> и <code>EE_GOTFOCUS</code> <u>НЕЖЕЛАТЕЛЬНО</u> ИСПОЛЬЗОВАТЬ
        <a href="../service_functions/message.html">Info.Message</a>,
        <a href="../service_functions/menu.html">Info.Menu</a>,
-       <a href="../service_functions/dialogrun.html">Info.DialogRun</a>.
-       Вызов этих функций приводит к рекурсивному вызову <code>EE_REDRAW</code>.</b>
+       <a href="../service_functions/dialogrun.html">Info.DialogRun</a>,
+       <a href="../service_functions/showhelp.html">Info.ShowHelp</a>.
+       Вызов этих функций приводит к рекурсивному вызову <code>EE_REDRAW</code> и <code>EE_GOTFOCUS</code> соответственно.</b>
        </LI></UL>
     </div>
   <div class=dfn>Param</div>

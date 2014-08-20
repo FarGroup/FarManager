@@ -279,12 +279,11 @@ void Manager::ExecuteModal(Frame *Executed)
 	_MANAGER(CleverSysLog clv(L"Manager::ExecuteModal (Frame *Executed)"));
 	_MANAGER(SysLog(L"Executed=%p",Executed));
 
-	if (Executed)
-	{
-		CheckAndPushFrame(Executed,&Manager::ExecuteCommit);
-	}
+	volatile bool stop=false;
+	auto& stop_ref=m_Executed[Executed];
+	if (stop_ref) return;
+	stop_ref=&stop;
 
-	auto ModalStartLevel=ModalFrames.size();
 	auto OriginalStartManager = StartManager;
 	StartManager = true;
 
@@ -292,7 +291,7 @@ void Manager::ExecuteModal(Frame *Executed)
 	{
 		Commit();
 
-		if (ModalFrames.size()<=ModalStartLevel)
+		if (stop)
 		{
 			break;
 		}
@@ -1047,6 +1046,12 @@ void Manager::DeleteCommit(Frame* Param)
 	{
 		_MANAGER(SysLog(L"delete DeletedFrame %p", Param));
 		delete Param;
+	}
+	auto stop=m_Executed.find(Param);
+	if (stop != m_Executed.end())
+	{
+		*(stop->second)=true;
+		m_Executed.erase(stop);
 	}
 }
 

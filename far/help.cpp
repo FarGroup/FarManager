@@ -233,6 +233,7 @@ Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
 		InitKeyBar();
 		SetMacroMode(MACROAREA_HELP);
 		MoveToReference(1,1);
+		Global->FrameManager->ExecuteFrame(this); //OT
 		Global->FrameManager->ExecuteModal(this); //OT
 	}
 	else

@@ -69,7 +69,7 @@ public:
 	//! Функции для запуска модальных фреймов.
 	void ExecuteFrame(Frame *Executed);
 	//! Входит в новый цикл обработки событий
-	void ExecuteModal(Frame *Executed = nullptr);
+	void ExecuteModal(Frame *Executed);
 	//! Запускает немодальный фрейм в модальном режиме
 	void ExecuteNonModal(const Frame *NonModal);
 	void CloseAll();
@@ -106,7 +106,7 @@ public:
 	bool ManagerIsDown() const { return EndLoop; }
 	bool ManagerStarted() const { return StartManager; }
 	void InitKeyBar();
-	void ExecuteModalEV(Frame *Executed = nullptr) { ++ModalEVCount; ExecuteModal(Executed); --ModalEVCount; }
+	void ExecuteModalEV(Frame *Executed) { ++ModalEVCount; ExecuteModal(Executed); --ModalEVCount; }
 	bool InModalEV() const { return ModalEVCount != 0; }
 	void ResizeAllFrame();
 	size_t GetModalStackCount() const { return ModalFrames.size(); }
@@ -170,4 +170,5 @@ private:
 	static long CurrentWindowType;
 	std::list<std::unique_ptr<MessageAbstract>> m_Queue;
 	std::vector<std::function<int(Key)>> m_GlobalKeyHandlers;
+	std::map<Frame*,volatile bool*> m_Executed;
 };

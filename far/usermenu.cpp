@@ -651,7 +651,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 						FileEditor ShellEditor(MenuFileName,CP_UNICODE,FFILEEDIT_DISABLEHISTORY,-1,-1,nullptr);
 						OldTitle.reset();
 						ShellEditor.SetDynamicallyBorn(false);
-						Global->FrameManager->ExecuteModalEV();
+						Global->FrameManager->ExecuteModalEV(&ShellEditor);
 						if (!ShellEditor.IsFileChanged() || (!MenuFile.Open(MenuFileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING)))
 						{
 							ReturnCode=0;

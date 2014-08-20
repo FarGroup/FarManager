@@ -4336,6 +4336,7 @@ void Dialog::Process()
 			WaitUserTime = -1;
 		}
 
+		Global->FrameManager->ExecuteFrame(this);
 		Global->FrameManager->ExecuteModal(this);
 		save += (clock() - btm);
 

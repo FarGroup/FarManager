@@ -52,6 +52,7 @@ Modal::Modal():
 
 void Modal::Process()
 {
+	Global->FrameManager->ExecuteFrame(this);
 	Global->FrameManager->ExecuteModal(this);
 }
 

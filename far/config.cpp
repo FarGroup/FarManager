@@ -2964,7 +2964,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 			Global->FrameManager->CallbackFrame([&HOptMenu,MouseEvent](){HOptMenu.ProcessMouse(MouseEvent);});
 		}
 
-		Global->FrameManager->ExecuteModal();
+		Global->FrameManager->ExecuteModal(&HOptMenu);
 		HOptMenu.GetExitCode(HItem,VItem);
 	}
 
