@@ -241,10 +241,10 @@ local function MenuLoop()
       props.SelectIndex = 1
     ----------------------------------------------------------------------------
     elseif BrKey=="F1" then
-      ShowHelp()
+      mf.postmacro(mf.acall, ShowHelp)
     ----------------------------------------------------------------------------
     elseif BrKey=="F3" and items[pos] then
-      ShowInfo(items[pos].macro)
+      mf.postmacro(mf.acall, ShowInfo, items[pos].macro)
     ----------------------------------------------------------------------------
     elseif BrKey=="C+H" then -- hide inactive macros
       ShowOnlyActive = not ShowOnlyActive
@@ -290,16 +290,4 @@ local function MenuLoop()
     { SortKey=SortKey, InvSort=InvSort, ShowOnlyActive=ShowOnlyActive })
 end
 
-local function export_ProcessSynchroEvent (event,param)
-  export.ProcessSynchroEvent = nil
-  MenuLoop()
-end
-
--- This function is needed to make far.MacroGetArea work properly:
--- otherwise it returns 8 (MACROAREA_MENU) when called from Plugins Menu.
-local function RunMenuLoop()
-  export.ProcessSynchroEvent = export_ProcessSynchroEvent
-  far.AdvControl("ACTL_SYNCHRO",0)
-end
-
-return RunMenuLoop
+return MenuLoop
