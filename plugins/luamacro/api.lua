@@ -3,6 +3,7 @@
 local Shared = ...
 local checkarg, utils, yieldcall = Shared.checkarg, Shared.utils, Shared.yieldcall
 
+local MCODE_F_USERMENU = 0x80C66
 local F=far.Flags
 local band,bor = bit64.band,bit64.bor
 local MacroCallFar = far.MacroCallFar
@@ -73,7 +74,7 @@ mf.usermenu = function(mode, filename)
   local sync_call = band(mode,0x100) ~= 0
   mode = band(mode,0xFF)
   if mode==0 or mode==1 then
-    if sync_call then return MacroCallFar(0x80C67, mode==1)
+    if sync_call then return MacroCallFar(MCODE_F_USERMENU, mode==1)
     else return yieldcall(F.MPRT_USERMENU, mode==1)
     end
   elseif (mode==2 or mode==3) and type(filename)=="string" then
@@ -82,7 +83,7 @@ mf.usermenu = function(mode, filename)
         filename = win.GetEnv("farprofile").."\\Menus\\"..filename
       end
     end
-    if sync_call then return MacroCallFar(0x80C67, filename)
+    if sync_call then return MacroCallFar(MCODE_F_USERMENU, filename)
     else return yieldcall(F.MPRT_USERMENU, filename)
     end
   end

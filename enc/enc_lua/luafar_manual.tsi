@@ -7996,7 +7996,7 @@ id=211
 lv=2
 dt=Text
 nm=far.RecursiveSearch
-mtime=3602448062
+mtime=3617913893
 <article>
 #_far.RecursiveSearch (InitDir, Mask, UserFunc [, Flags [, ...]])
 #_
@@ -8016,7 +8016,7 @@ mtime=3602448062
 #_  On every file found, *UserFunc* is called with the following arguments passed to it:
 #_      (1) a `tPluginPanelItem` table
 #_      (2) the full pathname of the found file
-#_      (3...) additional arguments that was passed to far.RecursiveSearch
+#_      (3...) additional arguments (if any) that were passed to far.RecursiveSearch
 #_
 #_  If the 1-st return value of *UserFunc* is neither *false* nor *nil* then the search
 #_  is stopped.
