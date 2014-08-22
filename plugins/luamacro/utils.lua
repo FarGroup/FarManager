@@ -638,7 +638,7 @@ local function LoadMacros (unload)
     local cfg, msg = ReadIniFile(far.PluginStartupInfo().ModuleDir.."luamacro.ini")
     if cfg then
       local p = cfg[1].MacroPath
-      if p and then paths = p:gsub("%%(.-)%%", win.GetEnv) end
+      if p then paths = p:gsub("%%(.-)%%", win.GetEnv) end
     else
       if msg then ErrMsg(msg) end
     end
