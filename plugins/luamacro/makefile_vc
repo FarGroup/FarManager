@@ -18,7 +18,8 @@ LUALIB=$(FAR_WORKDIR)\luafar3.lib
 
 DOCS=_globalinfo.lua api.lua luamacro.lua macrotest.lua utils.lua \
      mbrowser.lua lang.lua panelsort.lua winapi.lua farapi.lua moonscript.lua \
-     keymacro.lua lm_eng.lng lm_rus.lng lm_sky.lng lm_spa.lng
+     keymacro.lua lm_eng.lng lm_rus.lng lm_sky.lng lm_spa.lng \
+     luamacro.example.ini
 
 NEEDENTRY = 1
 NEEDDEFLIB = 1

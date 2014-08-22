@@ -1170,6 +1170,9 @@
           <Component Id="lm_spa.lng" Guid="$(var.Guid.lm_spa.lng)" Win64="$(var.Win64)">
             <File Id="lm_spa.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\lm_spa.lng" />
           </Component>
+          <Component Id="luamacro.example.ini" Guid="$(var.Guid.luamacro.example.ini)" Win64="$(var.Win64)">
+            <File Id="luamacro.example.ini" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\luamacro.example.ini" />
+          </Component>
 <?if $(var.Platform) = x86 ?>
           <Component Id="LuaMacro.map" Guid="$(var.Guid.LuaMacro.map)" Win64="$(var.Win64)">
             <File Id="LuaMacro.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\LuaMacro.map" />

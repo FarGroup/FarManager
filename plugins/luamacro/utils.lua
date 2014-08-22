@@ -106,6 +106,37 @@ local StringToFlags, FlagsToString do
   end
 end
 
+local function ReadIniFile (filename)
+  local fp = io.open(filename)
+  if not fp then return nil end
+
+  local pat = [[
+    ^ \s* \[ (\w+) \] \s*       $ |
+    ^ \s* (\w+) = \s* (.*?) \s* $ |
+    ^ \s* (?: ; .*)?            $ |
+    ^ (.*)
+  ]]
+  local currsect = 1
+  local t = { [currsect]={} }
+  local numline = 0
+  for line in fp:lines() do
+    numline = numline + 1
+    for sect,id,val,bad in regex.gmatch(line,pat,"x") do
+      if bad then
+        fp:close()
+        return nil, (("%s:%d: invalid line in ini-file"):format(filename,numline))
+      elseif sect then
+        t[sect] = t[sect] or {}
+        currsect = sect
+      elseif id then
+        t[currsect][id] = val
+      end
+    end
+  end
+  fp:close()
+  return t
+end
+
 local function EV_Handler (macros, filename, ...)
   -- Get current priorities.
   local indexes,priorities = {},{}
@@ -557,12 +588,11 @@ local function LoadMacros (unload)
       win.CreateDir(win.GetEnv("farprofile").."\\Menus", true)
     end
 
-    local macroinit_name, macroinit_exist = dir.."\\scripts\\_macroinit.lua", false
     local moonscript = require "moonscript"
 
-    local function LoadRegularFile (FindData, FullPath)
+    local function LoadRegularFile (FindData, FullPath, macroinit)
       if FindData.FileAttributes:find("d") then return end
-      if macroinit_exist and #FullPath==#macroinit_name and far.LStricmp(FullPath,macroinit_name)==0 then
+      if macroinit and #FullPath==#macroinit and far.LStricmp(FullPath,macroinit)==0 then
         return
       end
       local isMoonScript = string.find(FullPath, "[nN]", -1)
@@ -602,13 +632,28 @@ local function LoadMacros (unload)
       end
     end
 
-    local info = win.GetFileInfo(macroinit_name)
-    if info and not info.FileAttributes:find("d") then
-      LoadRegularFile(info, macroinit_name)
-      macroinit_exist = true
-    end
-    far.RecursiveSearch (dir.."\\scripts", "*.lua,*.moon", LoadRegularFile, bor(F.FRS_RECUR,F.FRS_SCANSYMLINK))
     far.RecursiveSearch (dir.."\\internal", "*.lua", LoadRecordedFile, 0)
+
+    local paths = dir.."\\scripts"
+    local cfg, msg = ReadIniFile(far.PluginStartupInfo().ModuleDir.."luamacro.ini")
+    if cfg then
+      local p = cfg[1].MacroPath
+      if p and then paths = p:gsub("%%(.-)%%", win.GetEnv) end
+    else
+      if msg then ErrMsg(msg) end
+    end
+
+    for p in paths:gmatch("[^;]+") do
+      local macroinit = p:gsub("[\\/]*$", "\\_macroinit.lua")
+      local info = win.GetFileInfo(macroinit)
+      if info and not info.FileAttributes:find("d") then
+        LoadRegularFile(info, macroinit, nil)
+      else
+        macroinit = nil
+      end
+      far.RecursiveSearch (p, "*.lua,*.moon", LoadRegularFile, bor(F.FRS_RECUR,F.FRS_SCANSYMLINK), macroinit)
+    end
+
     LoadMacrosDone = true
   end
 

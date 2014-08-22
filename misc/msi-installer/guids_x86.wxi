@@ -389,6 +389,7 @@
 <?define Guid.lm_rus.lng = "77516C3A-46FC-4709-A21C-77C13F4DCDFB" ?>
 <?define Guid.lm_sky.lng = "CA4E6E77-0A9B-4AB1-9546-582622BECD97" ?>
 <?define Guid.lm_spa.lng = "0F5E0D6A-68F4-45A1-AEC9-25C88E9CFE74" ?>
+<?define Guid.luamacro.example.ini = "8E03CCC4-572B-40D6-900A-A4F1524A7F0D" ?>
 <?define Guid.lua5.1.dll = "26D2B351-46E7-48F7-9193-69A277D47643" ?>
 <?define Guid.lua51.dll = "1D39E4A8-1D26-44B0-8189-418D87D83809" ?>
 <?define Guid.lpeg.dll = "57D8A59A-E866-42EA-9861-5895976405BE" ?>

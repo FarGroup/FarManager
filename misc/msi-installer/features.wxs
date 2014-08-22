@@ -602,6 +602,7 @@
           <ComponentRef Id="lm_eng.lng" />
           <ComponentRef Id="lm_sky.lng" />
           <ComponentRef Id="lm_spa.lng" />
+          <ComponentRef Id="luamacro.example.ini" />
           <Feature Id="LuaMacro.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="lm_rus.lng" />
           </Feature>
