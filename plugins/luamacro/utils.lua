@@ -119,6 +119,8 @@ local function ReadIniFile (filename)
   local currsect = 1
   local t = { [currsect]={} }
   local numline = 0
+
+  if fp:read(3) ~= "\239\187\191" then fp:seek("set",0) end -- skip UTF-8 BOM
   for line in fp:lines() do
     numline = numline + 1
     for sect,id,val,bad in regex.gmatch(line,pat,"x") do
