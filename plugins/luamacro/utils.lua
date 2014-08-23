@@ -634,8 +634,6 @@ local function LoadMacros (unload)
       end
     end
 
-    far.RecursiveSearch (dir.."\\internal", "*.lua", LoadRecordedFile, 0)
-
     local paths = dir.."\\scripts"
     local cfg, msg = ReadIniFile(far.PluginStartupInfo().ModuleDir.."luamacro.ini")
     if cfg then
@@ -655,6 +653,8 @@ local function LoadMacros (unload)
       end
       far.RecursiveSearch (p, "*.lua,*.moon", LoadRegularFile, bor(F.FRS_RECUR,F.FRS_SCANSYMLINK), macroinit)
     end
+
+    far.RecursiveSearch (dir.."\\internal", "*.lua", LoadRecordedFile, 0)
 
     LoadMacrosDone = true
   end
