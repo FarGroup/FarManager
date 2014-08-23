@@ -42,6 +42,7 @@ public:
 		typedef T* iterator;
 		typedef const T* const_iterator;
 		typedef T& reference;
+		typedef const T& const_reference;
 
 		row(T* row, size_t size): m_row(row), m_size(size) {}
 
@@ -49,7 +50,7 @@ public:
 
 		// assert for <= is ok, &row[size] can be used as an 'end' iterator
 		reference operator[](size_t n) { assert(n <= m_size); return m_row[n]; }
-		const reference operator[](size_t n) const { assert(n <= m_size); return m_row[n]; }
+		const_reference operator[](size_t n) const { assert(n <= m_size); return m_row[n]; }
 		reference front() { assert(m_size != 0); return m_row[0]; }
 		reference back() { assert(m_size != 0); return m_row[m_size - 1]; }
 

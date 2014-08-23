@@ -334,7 +334,7 @@ bool enum_file::get(size_t index, FAR_FIND_DATA& FindData)
 
 	// skip ".." & "."
 	if(Result && FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY && FindData.strFileName[0] == L'.' &&
-		((FindData.strFileName.size() == 2 && FindData.strFileName[0] == L'.') || FindData.strFileName.size() == 1) &&
+		((FindData.strFileName.size() == 2 && FindData.strFileName[1] == L'.') || FindData.strFileName.size() == 1) &&
 		// хитрый способ - у виртуальных папок не бывает SFN, в отличие от. (UPD: или бывает, но такое же)
 		(FindData.strAlternateFileName.empty() || FindData.strAlternateFileName == FindData.strFileName))
 	{
