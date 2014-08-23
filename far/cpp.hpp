@@ -140,7 +140,8 @@ namespace std
 };
 #endif
 
-#ifdef _MSC_VER
+#if defined _MSC_VER && _MSC_VER < 1900
+// already included in VC2014
 #define thread_local __declspec(thread)
 #endif
 
@@ -158,6 +159,6 @@ namespace std
 
 // already fixed in VC2013
 #if defined _MSC_VER && _MSC_VER < 1800
-// operator :: not works with decltype(T) in VC prior to 2013, this trick fixes it:
+// operator :: doesn't work with decltype(T) in VC prior to 2013, this trick fixes it:
 #define decltype(T) std::enable_if<true, decltype(T)>::type
 #endif

@@ -362,15 +362,15 @@ public:
 		return stmtDelValue.Bind(Key).Bind(Name).StepAndReset();
 	}
 
-	bool EnumValues(const string& Key, DWORD Index, string &strName, string &strValue)
+	bool EnumValues(const string& Key, DWORD Index, string &Name, string &Value)
 	{
 		if (Index == 0)
 			stmtEnumValues.Reset().Bind(Key,false);
 
 		if (stmtEnumValues.Step())
 		{
-			strName = stmtEnumValues.GetColText(0);
-			strValue = stmtEnumValues.GetColText(1);
+			Name = stmtEnumValues.GetColText(0);
+			Value = stmtEnumValues.GetColText(1);
 			return true;
 		}
 
@@ -378,14 +378,14 @@ public:
 		return false;
 	}
 
-	bool EnumValues(const string& Key, DWORD Index, string &strName, DWORD& Value)
+	bool EnumValues(const string& Key, DWORD Index, string &Name, DWORD& Value)
 	{
 		if (Index == 0)
 			stmtEnumValues.Reset().Bind(Key,false);
 
 		if (stmtEnumValues.Step())
 		{
-			strName = stmtEnumValues.GetColText(0);
+			Name = stmtEnumValues.GetColText(0);
 			Value = (DWORD)stmtEnumValues.GetColInt(1);
 			return true;
 		}
@@ -531,7 +531,7 @@ public:
 
 	explicit HierarchicalConfigDb(const string& DbName, bool Local = false)
 	{
-		AsyncDone.SetName(strPath, strName);
+		AsyncDone.SetName(strPath, m_Name);
 		AsyncDone.Open(true,true); // If a thread with same event name is running, we will open that event here
 		AsyncDone.Wait();          // and wait for the signal
 		Initialize(DbName, Local);
@@ -704,14 +704,14 @@ public:
 		return stmtDelValue.Bind(Root).Bind(Name).StepAndReset();
 	}
 
-	bool EnumKeys(unsigned __int64 Root, DWORD Index, string &strName)
+	bool EnumKeys(unsigned __int64 Root, DWORD Index, string& Name)
 	{
 		if (Index == 0)
 			stmtEnumKeys.Reset().Bind(Root);
 
 		if (stmtEnumKeys.Step())
 		{
-			strName = stmtEnumKeys.GetColText(0);
+			Name = stmtEnumKeys.GetColText(0);
 			return true;
 		}
 
@@ -719,14 +719,14 @@ public:
 		return false;
 	}
 
-	bool EnumValues(unsigned __int64 Root, DWORD Index, string &strName, DWORD *Type)
+	bool EnumValues(unsigned __int64 Root, DWORD Index, string& Name, DWORD *Type)
 	{
 		if (Index == 0)
 			stmtEnumValues.Reset().Bind(Root);
 
 		if (stmtEnumValues.Step())
 		{
-			strName = stmtEnumValues.GetColText(0);
+			Name = stmtEnumValues.GetColText(0);
 			*Type = stmtEnumValues.GetColType(1);
 			return true;
 		}
@@ -2046,8 +2046,8 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb {
 		StopEvent.Open();
 		if (strPath != L":memory:")
 		{
-			AsyncDeleteAddDone.SetName(strPath, strName);
-			AsyncCommitDone.SetName(strPath, strName);
+			AsyncDeleteAddDone.SetName(strPath, m_Name);
+			AsyncCommitDone.SetName(strPath, m_Name);
 		}
 		AsyncDeleteAddDone.Open(true,true);
 		AsyncCommitDone.Open(true,true);
@@ -2105,9 +2105,9 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb {
 		}
 	}
 
-	bool AddInternal(DWORD TypeHistory, const string& HistoryName, const string &strName, int Type, bool Lock, const string &strGuid, const string &strFile, const string &strData)
+	bool AddInternal(DWORD TypeHistory, const string& HistoryName, const string &Name, int Type, bool Lock, const string &strGuid, const string &strFile, const string &strData)
 	{
-		return stmtAdd.Bind((int)TypeHistory).Bind(HistoryName).Bind(Type).Bind(Lock?1:0).Bind(strName).Bind(GetCurrentUTCTimeInUI64()).Bind(strGuid).Bind(strFile).Bind(strData).StepAndReset();
+		return stmtAdd.Bind((int) TypeHistory).Bind(HistoryName).Bind(Type).Bind(Lock ? 1 : 0).Bind(Name).Bind(GetCurrentUTCTimeInUI64()).Bind(strGuid).Bind(strFile).Bind(strData).StepAndReset();
 	}
 
 	bool DeleteInternal(unsigned __int64 id)
@@ -2275,7 +2275,7 @@ public:
 		return DeleteInternal(id);
 	}
 
-	bool Enum(DWORD index, DWORD TypeHistory, const string& HistoryName, unsigned __int64 *id, string &strName, history_record_type* Type, bool *Lock, unsigned __int64 *Time, string &strGuid, string &strFile, string &strData, bool Reverse=false)
+	bool Enum(DWORD index, DWORD TypeHistory, const string& HistoryName, unsigned __int64 *id, string &Name, history_record_type* Type, bool *Lock, unsigned __int64 *Time, string &strGuid, string &strFile, string &strData, bool Reverse=false)
 	{
 		WaitAllAsync();
 		SQLiteStmt &stmt = Reverse ? stmtEnumDesc : stmtEnum;
@@ -2286,7 +2286,7 @@ public:
 		if (stmt.Step())
 		{
 			*id = stmt.GetColInt64(0);
-			strName = stmt.GetColText(1);
+			Name = stmt.GetColText(1);
 			*Type = static_cast<history_record_type>(stmt.GetColInt(2));
 			*Lock = stmt.GetColInt(3) != 0;
 			*Time = stmt.GetColInt64(4);
@@ -2300,13 +2300,13 @@ public:
 		return false;
 	}
 
-	bool DeleteAndAddAsync(unsigned __int64 DeleteId, DWORD TypeHistory, const string& HistoryName, string strName, int Type, bool Lock, string &strGuid, string &strFile, string &strData)
+	bool DeleteAndAddAsync(unsigned __int64 DeleteId, DWORD TypeHistory, const string& HistoryName, string Name, int Type, bool Lock, string &strGuid, string &strFile, string &strData)
 	{
 		auto item = std::make_unique<AsyncWorkItem>();
 		item->DeleteId=DeleteId;
 		item->TypeHistory=TypeHistory;
 		item->HistoryName=HistoryName;
-		item->strName=strName;
+		item->strName=Name;
 		item->Type=Type;
 		item->Lock=Lock;
 		item->strGuid=strGuid;
@@ -2345,37 +2345,37 @@ public:
 		return false;
 	}
 
-	bool GetNewest(DWORD TypeHistory, const string& HistoryName, string &strName)
+	bool GetNewest(DWORD TypeHistory, const string& HistoryName, string& Name)
 	{
 		WaitAllAsync();
 		bool b = stmtGetNewestName.Bind((int)TypeHistory).Bind(HistoryName).Step();
 		if (b)
 		{
-			strName = stmtGetNewestName.GetColText(0);
+			Name = stmtGetNewestName.GetColText(0);
 		}
 		stmtGetNewestName.Reset();
 		return b;
 	}
 
-	bool Get(unsigned __int64 id, string &strName)
+	bool Get(unsigned __int64 id, string& Name)
 	{
 		WaitAllAsync();
 		bool b = stmtGetName.Bind(id).Step();
 		if (b)
 		{
-			strName = stmtGetName.GetColText(0);
+			Name = stmtGetName.GetColText(0);
 		}
 		stmtGetName.Reset();
 		return b;
 	}
 
-	bool Get(unsigned __int64 id, string &strName, history_record_type* Type, string &strGuid, string &strFile, string &strData)
+	bool Get(unsigned __int64 id, string& Name, history_record_type* Type, string &strGuid, string &strFile, string &strData)
 	{
 		WaitAllAsync();
 		bool b = stmtGetNameAndType.Bind(id).Step();
 		if (b)
 		{
-			strName = stmtGetNameAndType.GetColText(0);
+			Name = stmtGetNameAndType.GetColText(0);
 			*Type = static_cast<history_record_type>(stmtGetNameAndType.GetColInt(1));
 			strGuid = stmtGetNameAndType.GetColText(2);
 			strFile = stmtGetNameAndType.GetColText(3);
@@ -2421,33 +2421,33 @@ public:
 		return stmtDelUnlocked.Bind((int)TypeHistory).Bind(HistoryName).StepAndReset();
 	}
 
-	unsigned __int64 GetNext(DWORD TypeHistory, const string& HistoryName, unsigned __int64 id, string &strName)
+	unsigned __int64 GetNext(DWORD TypeHistory, const string& HistoryName, unsigned __int64 id, string& Name)
 	{
 		WaitAllAsync();
-		strName.clear();
+		Name.clear();
 		unsigned __int64 nid = 0;
 		if (!id)
 			return nid;
 		if (stmtGetNext.Bind(id).Bind((int)TypeHistory).Bind(HistoryName).Step())
 		{
 			nid = stmtGetNext.GetColInt64(0);
-			strName = stmtGetNext.GetColText(1);
+			Name = stmtGetNext.GetColText(1);
 		}
 		stmtGetNext.Reset();
 		return nid;
 	}
 
-	unsigned __int64 GetPrev(DWORD TypeHistory, const string& HistoryName, unsigned __int64 id, string &strName)
+	unsigned __int64 GetPrev(DWORD TypeHistory, const string& HistoryName, unsigned __int64 id, string& Name)
 	{
 		WaitAllAsync();
-		strName.clear();
+		Name.clear();
 		unsigned __int64 nid = 0;
 		if (!id)
 		{
 			if (stmtGetNewest.Bind((int)TypeHistory).Bind(HistoryName).Step())
 			{
 				nid = stmtGetNewest.GetColInt64(0);
-				strName = stmtGetNewest.GetColText(1);
+				Name = stmtGetNewest.GetColText(1);
 			}
 			stmtGetNewest.Reset();
 			return nid;
@@ -2455,9 +2455,9 @@ public:
 		if (stmtGetPrev.Bind(id).Bind((int)TypeHistory).Bind(HistoryName).Step())
 		{
 			nid = stmtGetPrev.GetColInt64(0);
-			strName = stmtGetPrev.GetColText(1);
+			Name = stmtGetPrev.GetColText(1);
 		}
-		else if (Get(id, strName))
+		else if (Get(id, Name))
 		{
 			nid = id;
 		}
@@ -2465,17 +2465,17 @@ public:
 		return nid;
 	}
 
-	unsigned __int64 CyclicGetPrev(DWORD TypeHistory, const string& HistoryName, unsigned __int64 id, string &strName)
+	unsigned __int64 CyclicGetPrev(DWORD TypeHistory, const string& HistoryName, unsigned __int64 id, string& Name)
 	{
 		WaitAllAsync();
-		strName.clear();
+		Name.clear();
 		unsigned __int64 nid = 0;
 		if (!id)
 		{
 			if (stmtGetNewest.Bind((int)TypeHistory).Bind(HistoryName).Step())
 			{
 				nid = stmtGetNewest.GetColInt64(0);
-				strName = stmtGetNewest.GetColText(1);
+				Name = stmtGetNewest.GetColText(1);
 			}
 			stmtGetNewest.Reset();
 			return nid;
@@ -2483,7 +2483,7 @@ public:
 		if (stmtGetPrev.Bind(id).Bind((int)TypeHistory).Bind(HistoryName).Step())
 		{
 			nid = stmtGetPrev.GetColInt64(0);
-			strName = stmtGetPrev.GetColText(1);
+			Name = stmtGetPrev.GetColText(1);
 		}
 		stmtGetPrev.Reset();
 		return nid;

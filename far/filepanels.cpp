@@ -59,8 +59,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 FilePanels::FilePanels(bool CreatePanels):
 	LastLeftFilePanel(nullptr),
 	LastRightFilePanel(nullptr),
-	LeftPanel(CreatePanels? CreatePanel(Global->Opt->LeftPanel.Type) : nullptr),
-	RightPanel(CreatePanels? CreatePanel(Global->Opt->RightPanel.Type) : nullptr),
+	LeftPanel(CreatePanels? CreatePanel(Global->Opt->LeftPanel.m_Type) : nullptr),
+	RightPanel(CreatePanels? CreatePanel(Global->Opt->RightPanel.m_Type) : nullptr),
 	LastLeftType(0),
 	LastRightType(0),
 	LeftStateBeforeHide(0),
@@ -69,7 +69,7 @@ FilePanels::FilePanels(bool CreatePanels):
 {
 	_OT(SysLog(L"[%p] FilePanels::FilePanels()", this));
 	SetMacroMode(MACROAREA_SHELL);
-	KeyBarVisible = Global->Opt->ShowKeyBar;
+	m_KeyBarVisible = Global->Opt->ShowKeyBar;
 //  SetKeyBar(&MainKeyBar);
 //  _D(SysLog(L"MainKeyBar=0x%p",&MainKeyBar));
 }
@@ -287,7 +287,7 @@ void FilePanels::SetPanelPositions(bool LeftFullScreen, bool RightFullScreen)
 
 void FilePanels::SetScreenPosition()
 {
-	_OT(SysLog(L"[%p] FilePanels::SetScreenPosition() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
+	_OT(SysLog(L"[%p] FilePanels::SetScreenPosition() {%d, %d - %d, %d}", this,m_X1,m_Y1,m_X2,m_Y2));
 	Global->CtrlObject->CmdLine->SetPosition(0,ScrY-(Global->Opt->ShowKeyBar),ScrX-1,ScrY-(Global->Opt->ShowKeyBar));
 	TopMenuBar.SetPosition(0,0,ScrX,0);
 	MainKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
@@ -420,14 +420,14 @@ __int64 FilePanels::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			case 1:
 				Global->Opt->ShowKeyBar=1;
 				MainKeyBar.Show();
-				KeyBarVisible = Global->Opt->ShowKeyBar;
+				m_KeyBarVisible = Global->Opt->ShowKeyBar;
 				SetScreenPosition();
 				Global->FrameManager->RefreshFrame();
 				break;
 			case 2:
 				Global->Opt->ShowKeyBar=0;
 				MainKeyBar.Hide();
-				KeyBarVisible = Global->Opt->ShowKeyBar;
+				m_KeyBarVisible = Global->Opt->ShowKeyBar;
 				SetScreenPosition();
 				Global->FrameManager->RefreshFrame();
 				break;
@@ -521,9 +521,9 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_RCTRLB:
 		{
 			Global->Opt->ShowKeyBar=!Global->Opt->ShowKeyBar;
-			KeyBarVisible = Global->Opt->ShowKeyBar;
+			m_KeyBarVisible = Global->Opt->ShowKeyBar;
 
-			if (!KeyBarVisible)
+			if (!m_KeyBarVisible)
 				MainKeyBar.Hide();
 
 			SetScreenPosition();
@@ -1085,7 +1085,7 @@ void FilePanels::DisplayObject()
 {
 //  if ( !Focus )
 //      return;
-	_OT(SysLog(L"[%p] FilePanels::Redraw() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
+	_OT(SysLog(L"[%p] FilePanels::Redraw() {%d, %d - %d, %d}", this,m_X1,m_Y1,m_X2,m_Y2));
 	Global->FrameManager->ShowBackground();
 
 	if (Global->Opt->ShowMenuBar)
@@ -1098,7 +1098,7 @@ void FilePanels::DisplayObject()
 	else if (MainKeyBar.IsVisible())
 		MainKeyBar.Hide();
 
-	KeyBarVisible=Global->Opt->ShowKeyBar;
+	m_KeyBarVisible=Global->Opt->ShowKeyBar;
 #if 1
 
 	if (LeftPanel->IsVisible())
@@ -1176,7 +1176,7 @@ void FilePanels::ResizeConsole()
 	MainKeyBar.ResizeConsole();
 	TopMenuBar.ResizeConsole();
 	SetScreenPosition();
-	_OT(SysLog(L"[%p] FilePanels::ResizeConsole() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
+	_OT(SysLog(L"[%p] FilePanels::ResizeConsole() {%d, %d - %d, %d}", this,m_X1,m_Y1,m_X2,m_Y2));
 }
 
 bool FilePanels::CanFastHide() const

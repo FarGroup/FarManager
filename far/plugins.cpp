@@ -608,12 +608,12 @@ PluginHandle* PluginManager::OpenFilePlugin(
 			pAnalyse = pResult;
 			OpenAnalyseInfo oainfo={sizeof(OpenAnalyseInfo),&Info,pResult->Analyse};
 
-			OpenInfo Info = {sizeof(Info)};
-			Info.OpenFrom = OPEN_ANALYSE;
-			Info.Guid = &FarGuid;
-			Info.Data = (intptr_t)&oainfo;
+			OpenInfo oInfo = {sizeof(oInfo)};
+			oInfo.OpenFrom = OPEN_ANALYSE;
+			oInfo.Guid = &FarGuid;
+			oInfo.Data = (intptr_t)&oainfo;
 
-			HANDLE h = pResult->Handle.pPlugin->Open(&Info);
+			HANDLE h = pResult->Handle.pPlugin->Open(&oInfo);
 
 			if (h == PANEL_STOP)
 			{
@@ -637,18 +637,18 @@ PluginHandle* PluginManager::OpenFilePlugin(
 		{
 			if (i.Handle.hPlugin)
 			{
-				ClosePanelInfo Info = {sizeof(Info)};
-				Info.hPanel = i.Handle.hPlugin;
-				i.Handle.pPlugin->ClosePanel(&Info);
+				ClosePanelInfo cpInfo = {sizeof(cpInfo)};
+				cpInfo.hPanel = i.Handle.hPlugin;
+				i.Handle.pPlugin->ClosePanel(&cpInfo);
 			}
 		}
 		if (pAnalyse == items.end() || i != *pAnalyse)
 		{
 			if(i.Analyse)
 			{
-				CloseAnalyseInfo Info = {sizeof(Info)};
-				Info.Handle = i.Analyse;
-				i.Handle.pPlugin->CloseAnalyse(&Info);
+				CloseAnalyseInfo cpInfo = {sizeof(cpInfo)};
+				cpInfo.Handle = i.Analyse;
+				i.Handle.pPlugin->CloseAnalyse(&cpInfo);
 			}
 		}
 	});
@@ -1441,33 +1441,33 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 			PluginList.Run([&](int Key)->int
 			{
 				int SelPos=PluginList.GetSelectPos();
-				PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(nullptr,0,SelPos);
+				PluginMenuItemData *ItemPtr = (PluginMenuItemData*)PluginList.GetUserData(nullptr,0,SelPos);
 				int KeyProcessed = 1;
 
 				switch (Key)
 				{
 					case KEY_SHIFTF1:
 						// Вызываем нужный топик, который передали в CommandsMenu()
-						if (item)
-							pluginapi::apiShowHelp(item->pPlugin->GetModuleName().data(),HistoryName,FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS);
+						if (ItemPtr)
+							pluginapi::apiShowHelp(ItemPtr->pPlugin->GetModuleName().data(), HistoryName, FHELP_SELFHELP | FHELP_NOSHOWERROR | FHELP_USECONTENTS);
 						break;
 
 					case KEY_F3:
-						if (item)
+						if (ItemPtr)
 						{
-							ShowPluginInfo(item->pPlugin, item->Guid);
+							ShowPluginInfo(ItemPtr->pPlugin, ItemPtr->Guid);
 						}
 						break;
 
 					case KEY_F4:
-						if (item)
+						if (ItemPtr)
 						{
 							string strTitle;
 							int nOffset = HotKeysPresent?3:0;
 							strTitle = PluginList.GetItemPtr()->strName.substr(nOffset);
 							RemoveExternalSpaces(strTitle);
 
-							if (SetHotKeyDialog(item->pPlugin, item->Guid, PluginsHotkeysConfig::PLUGINS_MENU, strTitle))
+							if (SetHotKeyDialog(ItemPtr->pPlugin, ItemPtr->Guid, PluginsHotkeysConfig::PLUGINS_MENU, strTitle))
 							{
 								NeedUpdateItems = true;
 								StartPos = SelPos;
@@ -1479,7 +1479,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 					case KEY_ALTSHIFTF9:
 					case KEY_RALTSHIFTF9:
 					{
-						if (item)
+						if (ItemPtr)
 						{
 							NeedUpdateItems = true;
 							StartPos = SelPos;
@@ -1491,13 +1491,13 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 					case KEY_SHIFTF9:
 					{
-						if (item)
+						if (ItemPtr)
 						{
 							NeedUpdateItems = true;
 							StartPos=SelPos;
 
-							if (item->pPlugin->HasConfigure())
-								ConfigureCurrent(item->pPlugin, item->Guid);
+							if (ItemPtr->pPlugin->HasConfigure())
+								ConfigureCurrent(ItemPtr->pPlugin, ItemPtr->Guid);
 
 							PluginList.Close(SelPos);
 						}

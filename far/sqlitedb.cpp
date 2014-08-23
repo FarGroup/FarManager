@@ -265,7 +265,7 @@ void SQLiteDb::Initialize(const string& DbName, bool Local)
 	Mutex m(path.data(), DbName.data());
 	SCOPED_ACTION(lock_guard<Mutex>)(m);
 
-	strName = DbName;
+	m_Name = DbName;
 	init_status = 0;
 
 	if (!InitializeImpl(DbName, Local))
@@ -287,7 +287,7 @@ void SQLiteDb::Initialize(const string& DbName, bool Local)
 
 int SQLiteDb::InitStatus(string& name, bool full_name)
 {
-	name = (full_name && !strPath.empty() && strPath != L":memory:") ? strPath : strName;
+	name = (full_name && !strPath.empty() && strPath != L":memory:") ? strPath : m_Name;
 	return init_status;
 }
 

@@ -200,24 +200,24 @@ enum enumSaveFileAs
 
 intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 {
-	static uintptr_t codepage = 0;
+	static uintptr_t CurrentCodepage = 0;
 
 	switch (msg)
 	{
 		case DN_INITDIALOG:
 		{
-			codepage = *(uintptr_t *)Dlg->SendMessage(DM_GETDLGDATA, 0, 0);
-			Codepages().FillCodePagesList(Dlg, ID_SF_CODEPAGE, codepage, false, false, false, false);
+			CurrentCodepage = *(uintptr_t *) Dlg->SendMessage(DM_GETDLGDATA, 0, 0);
+			Codepages().FillCodePagesList(Dlg, ID_SF_CODEPAGE, CurrentCodepage, false, false, false, false);
 			break;
 		}
 		case DN_CLOSE:
 		{
 			if (param1 == ID_SF_OK)
 			{
-				uintptr_t *codepage = (uintptr_t *)Dlg->SendMessage(DM_GETDLGDATA, 0, 0);
+				uintptr_t *CodepagePtr = (uintptr_t *)Dlg->SendMessage(DM_GETDLGDATA, 0, 0);
 				FarListPos pos={sizeof(FarListPos)};
 				Dlg->SendMessage(DM_LISTGETCURPOS, ID_SF_CODEPAGE, &pos);
-				*codepage = *(UINT*)Dlg->SendMessage(DM_LISTGETDATA, ID_SF_CODEPAGE, ToPtr(pos.SelectPos));
+				*CodepagePtr = *(UINT*)Dlg->SendMessage(DM_LISTGETDATA, ID_SF_CODEPAGE, ToPtr(pos.SelectPos));
 				return TRUE;
 			}
 
@@ -231,11 +231,11 @@ intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 				Dlg->SendMessage(DM_LISTGETCURPOS,ID_SF_CODEPAGE,&pos);
 				auto cp = *reinterpret_cast<UINT*>(Dlg->SendMessage(DM_LISTGETDATA,ID_SF_CODEPAGE,ToPtr(pos.SelectPos)));
 
-				if (cp != codepage)
+				if (cp != CurrentCodepage)
 				{
 					if (IsUnicodeOrUtfCodePage(cp))
 					{
-						if (!IsUnicodeOrUtfCodePage(codepage))
+						if (!IsUnicodeOrUtfCodePage(CurrentCodepage))
 							Dlg->SendMessage(DM_SETCHECK,ID_SF_SIGNATURE,ToPtr(Global->Opt->EdOpt.AddUnicodeBOM));
 						Dlg->SendMessage(DM_ENABLE,ID_SF_SIGNATURE,ToPtr(TRUE));
 					}
@@ -245,7 +245,7 @@ intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 						Dlg->SendMessage(DM_ENABLE, ID_SF_SIGNATURE, ToPtr(FALSE));
 					}
 
-					codepage = cp;
+					CurrentCodepage = cp;
 					return TRUE;
 				}
 			}
@@ -325,8 +325,8 @@ FileEditor::FileEditor(const string& Name, uintptr_t codepage, DWORD InitFlags, 
 	BadConversion(false)
 {
 	ScreenObjectWithShadow::SetPosition(0,0,ScrX,ScrY);
-	Flags.Set(InitFlags);
-	Flags.Set(FFILEEDIT_FULLSCREEN);
+	m_Flags.Set(InitFlags);
+	m_Flags.Set(FFILEEDIT_FULLSCREEN);
 	Init(Name,codepage, nullptr, InitFlags, StartLine, StartChar, PluginData, FALSE, nullptr, OpenModeExstFile);
 }
 
@@ -334,7 +334,7 @@ FileEditor::FileEditor(const string& Name, uintptr_t codepage, DWORD InitFlags, 
 FileEditor::FileEditor(const string& Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose, Frame* Update, EDITOR_FLAGS OpenModeExstFile):
 	BadConversion(false)
 {
-	Flags.Set(InitFlags);
+	m_Flags.Set(InitFlags);
 
 	if (X1 < 0)
 		X1=0;
@@ -361,7 +361,7 @@ FileEditor::FileEditor(const string& Name, uintptr_t codepage, DWORD InitFlags, 
 	}
 
 	ScreenObjectWithShadow::SetPosition(X1,Y1,X2,Y2);
-	Flags.Change(FFILEEDIT_FULLSCREEN,(!X1 && !Y1 && X2==ScrX && Y2==ScrY));
+	m_Flags.Change(FFILEEDIT_FULLSCREEN,(!X1 && !Y1 && X2==ScrX && Y2==ScrY));
 	string EmptyTitle;
 	Init(Name,codepage, Title, InitFlags, StartLine, StartChar, &EmptyTitle, DeleteOnClose, Update, OpenModeExstFile);
 }
@@ -378,10 +378,10 @@ FileEditor::FileEditor(const string& Name, uintptr_t codepage, DWORD InitFlags, 
 */
 FileEditor::~FileEditor()
 {
-	if (!Flags.Check(FFILEEDIT_DISABLESAVEPOS) && (m_editor->EdOpt.SavePos || m_editor->EdOpt.SaveShortPos) && Global->CtrlObject)
+	if (!m_Flags.Check(FFILEEDIT_DISABLESAVEPOS) && (m_editor->EdOpt.SavePos || m_editor->EdOpt.SaveShortPos) && Global->CtrlObject)
 		SaveToCache();
 
-	if (!Flags.Check(FFILEEDIT_OPENFAILED))
+	if (!m_Flags.Check(FFILEEDIT_OPENFAILED))
 	{
 		/* $ 11.10.2001 IS
 		   Удалим файл вместе с каталогом, если это просится и файла с таким же
@@ -391,10 +391,10 @@ FileEditor::~FileEditor()
 		   Если установлен FEDITOR_DELETEONLYFILEONCLOSE и сброшен
 		   FEDITOR_DELETEONCLOSE, то удаляем только файл.
 		*/
-		if (Flags.Check(FFILEEDIT_DELETEONCLOSE|FFILEEDIT_DELETEONLYFILEONCLOSE) &&
+		if (m_Flags.Check(FFILEEDIT_DELETEONCLOSE|FFILEEDIT_DELETEONLYFILEONCLOSE) &&
 		        !Global->FrameManager->CountFramesWithName(strFullFileName))
 		{
-			if (Flags.Check(FFILEEDIT_DELETEONCLOSE))
+			if (m_Flags.Check(FFILEEDIT_DELETEONCLOSE))
 				DeleteFileWithFolder(strFullFileName);
 			else
 			{
@@ -446,15 +446,15 @@ void FileEditor::Init(
 	m_editor->SetCodePage(m_codepage);
 	*AttrStr=0;
 	CurrentEditor=this;
-	FileAttributes=INVALID_FILE_ATTRIBUTES;
+	m_FileAttributes=INVALID_FILE_ATTRIBUTES;
 	FileAttributesModified=false;
 	SetTitle(Title);
-	KeyBarVisible = Global->Opt->EdOpt.ShowKeyBar;
-	TitleBarVisible = Global->Opt->EdOpt.ShowTitleBar;
+	m_KeyBarVisible = Global->Opt->EdOpt.ShowKeyBar;
+	m_TitleBarVisible = Global->Opt->EdOpt.ShowTitleBar;
 	// $ 17.08.2001 KM - Добавлено для поиска по AltF7. При редактировании найденного файла из архива для клавиши F2 сделать вызов ShiftF2.
-	Flags.Change(FFILEEDIT_SAVETOSAVEAS, BlankFileName != 0);
+	m_Flags.Change(FFILEEDIT_SAVETOSAVEAS, BlankFileName != 0);
 
-	if (BlankFileName && !Flags.Check(FFILEEDIT_CANNEWFILE))
+	if (BlankFileName && !m_Flags.Check(FFILEEDIT_CANNEWFILE))
 	{
 		SetExitCode(XC_OPEN_ERROR);
 		return;
@@ -462,7 +462,7 @@ void FileEditor::Init(
 
 	SetPluginData(PluginData);
 	m_editor->SetHostFileEditor(this);
-	SetCanLoseFocus(Flags.Check(FFILEEDIT_ENABLEF6));
+	SetCanLoseFocus(m_Flags.Check(FFILEEDIT_ENABLEF6));
 	api::GetCurrentDirectory(strStartDir);
 
 	if (!SetFileName(Name))
@@ -483,7 +483,7 @@ void FileEditor::Init(
 				int MsgCode=0;
 				if (OpenModeExstFile == EF_OPENMODE_QUERY)
 				{
-					if (Flags.Check(FFILEEDIT_ENABLEF6))
+					if (m_Flags.Check(FFILEEDIT_ENABLEF6))
 					{
 						const wchar_t* const Items[] = {strFullFileName.data(), MSG(MAskReload), MSG(MCurrent), MSG(MNewOpen), MSG(MReload)};
 						MsgCode=Message(0, 3, MSG(MEditTitle),Items, ARRAYSIZE(Items), L"EditorReload", nullptr, &EditorReloadId);
@@ -500,7 +500,7 @@ void FileEditor::Init(
 				}
 				else
 				{
-					if (Flags.Check(FFILEEDIT_ENABLEF6))
+					if (m_Flags.Check(FFILEEDIT_ENABLEF6))
 						MsgCode=(OpenModeExstFile==EF_OPENMODE_USEEXISTING)?0:
 					        (OpenModeExstFile==EF_OPENMODE_NEWIFOPEN?1:
 					         (OpenModeExstFile==EF_OPENMODE_RELOADIFOPEN?2:-100)
@@ -554,7 +554,7 @@ void FileEditor::Init(
 			if (SwitchTo)
 			{
 				//файл могли уже закрыть. например макросом в диалоговой процедуре предыдущего Message.
-				auto EditorFrame = Global->FrameManager->FindFrameByFile(MODALTYPE_EDITOR, strFullFileName);
+				EditorFrame = Global->FrameManager->FindFrameByFile(MODALTYPE_EDITOR, strFullFileName);
 				if (EditorFrame)
 				{
 					Global->FrameManager->ActivateFrame(EditorFrame);
@@ -608,7 +608,7 @@ void FileEditor::Init(
 		}
 	}
 
-	m_editor->SetPosition(X1,Y1+(Global->Opt->EdOpt.ShowTitleBar?1:0),X2,Y2-(Global->Opt->EdOpt.ShowKeyBar?1:0));
+	m_editor->SetPosition(m_X1,m_Y1+(Global->Opt->EdOpt.ShowTitleBar?1:0),m_X2,m_Y2-(Global->Opt->EdOpt.ShowKeyBar?1:0));
 	m_editor->SetStartPos(StartLine,StartChar);
 	SetDeleteOnClose(DeleteOnClose);
 	int UserBreak;
@@ -618,26 +618,26 @@ void FileEditor::Init(
 	   не нарушать однообразие.
 	*/
 	if (FAttr == INVALID_FILE_ATTRIBUTES)
-		Flags.Set(FFILEEDIT_NEW);
+		m_Flags.Set(FFILEEDIT_NEW);
 
-	if (BlankFileName && Flags.Check(FFILEEDIT_CANNEWFILE))
-		Flags.Set(FFILEEDIT_NEW);
+	if (BlankFileName && m_Flags.Check(FFILEEDIT_CANNEWFILE))
+		m_Flags.Set(FFILEEDIT_NEW);
 
-	if (Flags.Check(FFILEEDIT_NEW))
+	if (m_Flags.Check(FFILEEDIT_NEW))
 	  m_bAddSignature = Global->Opt->EdOpt.AddUnicodeBOM;
 
-	if (Flags.Check(FFILEEDIT_LOCKED))
-		m_editor->Flags.Set(Editor::FEDITOR_LOCKMODE);
+	if (m_Flags.Check(FFILEEDIT_LOCKED))
+		m_editor->m_Flags.Set(Editor::FEDITOR_LOCKMODE);
 
 	while (!LoadFile(strFullFileName,UserBreak))
 	{
 		if (BlankFileName)
 		{
-			Flags.Clear(FFILEEDIT_OPENFAILED); //AY: ну так как редактор мы открываем то видимо надо и сбросить ошибку открытия
+			m_Flags.Clear(FFILEEDIT_OPENFAILED); //AY: ну так как редактор мы открываем то видимо надо и сбросить ошибку открытия
 			UserBreak=0;
 		}
 
-		if (!Flags.Check(FFILEEDIT_NEW) || UserBreak)
+		if (!m_Flags.Check(FFILEEDIT_NEW) || UserBreak)
 		{
 			if (UserBreak!=1)
 			{
@@ -668,7 +668,7 @@ void FileEditor::Init(
 			m_codepage = GetDefaultCodePage();
 
 		m_editor->SetCodePage(m_codepage);
-		Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
+		m_Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
 		break;
 	}
 
@@ -678,7 +678,7 @@ void FileEditor::Init(
 
 	ShowConsoleTitle();
 	EditKeyBar.SetOwner(this);
-	EditKeyBar.SetPosition(X1,Y2,X2,Y2);
+	EditKeyBar.SetPosition(m_X1,m_Y2,m_X2,m_Y2);
 	InitKeyBar();
 
 	if (!Global->Opt->EdOpt.ShowKeyBar)
@@ -689,7 +689,7 @@ void FileEditor::Init(
 	F4KeyOnly=true;
 	bLoaded = true;
 
-	if (Flags.Check(FFILEEDIT_ENABLEF6))
+	if (m_Flags.Check(FFILEEDIT_ENABLEF6))
 	{
 		if (Update) Global->FrameManager->UpdateFrame(Update,this);
 		else Global->FrameManager->InsertFrame(this);
@@ -718,10 +718,10 @@ void FileEditor::InitKeyBar()
 	if (!GetCanLoseFocus())
 		EditKeyBar.Change(KBL_SHIFT,L"",4-1);
 
-	if (Flags.Check(FFILEEDIT_SAVETOSAVEAS))
+	if (m_Flags.Check(FFILEEDIT_SAVETOSAVEAS))
 		EditKeyBar.Change(KBL_MAIN,MSG(MEditShiftF2),2-1);
 
-	if (!Flags.Check(FFILEEDIT_ENABLEF6))
+	if (!m_Flags.Check(FFILEEDIT_ENABLEF6))
 		EditKeyBar.Change(KBL_MAIN,L"",6-1);
 
 	if (!GetCanLoseFocus())
@@ -753,7 +753,7 @@ void FileEditor::SetNamesList(NamesList& Names)
 
 void FileEditor::Show()
 {
-	if (Flags.Check(FFILEEDIT_FULLSCREEN))
+	if (m_Flags.Check(FFILEEDIT_FULLSCREEN))
 	{
 		if (Global->Opt->EdOpt.ShowKeyBar)
 		{
@@ -773,9 +773,9 @@ void FileEditor::DisplayObject()
 {
 	if (!m_editor->Locked()&&!m_bClosing)
 	{
-		if (m_editor->Flags.Check(Editor::FEDITOR_ISRESIZEDCONSOLE))
+		if (m_editor->m_Flags.Check(Editor::FEDITOR_ISRESIZEDCONSOLE))
 		{
-			m_editor->Flags.Clear(Editor::FEDITOR_ISRESIZEDCONSOLE);
+			m_editor->m_Flags.Clear(Editor::FEDITOR_ISRESIZEDCONSOLE);
 			Global->CtrlObject->Plugins->SetCurEditor(this);
 			Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,m_editor->EditorID);
 		}
@@ -789,16 +789,16 @@ __int64 FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 	if (OpCode == MCODE_V_EDITORSTATE)
 	{
 		DWORD MacroEditState=0;
-		MacroEditState|=Flags.Check(FFILEEDIT_NEW)?0x00000001:0;
-		MacroEditState|=Flags.Check(FFILEEDIT_ENABLEF6)?0x00000002:0;
-		MacroEditState|=Flags.Check(FFILEEDIT_DELETEONCLOSE)?0x00000004:0;
-		MacroEditState|=m_editor->Flags.Check(Editor::FEDITOR_MODIFIED)?0x00000008:0;
+		MacroEditState|=m_Flags.Check(FFILEEDIT_NEW)?0x00000001:0;
+		MacroEditState|=m_Flags.Check(FFILEEDIT_ENABLEF6)?0x00000002:0;
+		MacroEditState|=m_Flags.Check(FFILEEDIT_DELETEONCLOSE)?0x00000004:0;
+		MacroEditState|=m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED)?0x00000008:0;
 		MacroEditState|=m_editor->BlockStart != m_editor->Lines.end()? 0x00000010 : 0;
 		MacroEditState|=m_editor->VBlockStart != m_editor->Lines.end()? 0x00000020 : 0;
-		MacroEditState|=m_editor->Flags.Check(Editor::FEDITOR_WASCHANGED)?0x00000040:0;
-		MacroEditState|=m_editor->Flags.Check(Editor::FEDITOR_OVERTYPE)?0x00000080:0;
-		MacroEditState|=m_editor->Flags.Check(Editor::FEDITOR_CURPOSCHANGEDBYPLUGIN)?0x00000100:0;
-		MacroEditState|=m_editor->Flags.Check(Editor::FEDITOR_LOCKMODE)?0x00000200:0;
+		MacroEditState|=m_editor->m_Flags.Check(Editor::FEDITOR_WASCHANGED)?0x00000040:0;
+		MacroEditState|=m_editor->m_Flags.Check(Editor::FEDITOR_OVERTYPE)?0x00000080:0;
+		MacroEditState|=m_editor->m_Flags.Check(Editor::FEDITOR_CURPOSCHANGEDBYPLUGIN)?0x00000100:0;
+		MacroEditState|=m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE)?0x00000200:0;
 		MacroEditState|=m_editor->EdOpt.PersistentBlocks?0x00000400:0;
 		MacroEditState|=Global->OnlyEditorViewerUsed ? 0x08000000 | 0x00000800 : 0;
 		MacroEditState|=!GetCanLoseFocus()?0x00000800:0;
@@ -825,13 +825,13 @@ __int64 FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				Global->Opt->EdOpt.ShowKeyBar=1;
 				EditKeyBar.Show();
 				Show();
-				KeyBarVisible = Global->Opt->EdOpt.ShowKeyBar;
+				m_KeyBarVisible = Global->Opt->EdOpt.ShowKeyBar;
 				break;
 			case 2:
 				Global->Opt->EdOpt.ShowKeyBar=0;
 				EditKeyBar.Hide();
 				Show();
-				KeyBarVisible = Global->Opt->EdOpt.ShowKeyBar;
+				m_KeyBarVisible = Global->Opt->EdOpt.ShowKeyBar;
 				break;
 			case 3:
 				ProcessKey(Manager::Key(KEY_CTRLB));
@@ -857,7 +857,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 	if (Key!=KEY_F4 && Key!=KEY_IDLE)
 		F4KeyOnly=false;
 
-	if (Flags.Check(FFILEEDIT_REDRAWTITLE) && (((unsigned int)Key & 0x00ffffff) < KEY_END_FKEY || IsInternalKeyReal((unsigned int)Key & 0x00ffffff)))
+	if (m_Flags.Check(FFILEEDIT_REDRAWTITLE) && (((unsigned int)Key & 0x00ffffff) < KEY_END_FKEY || IsInternalKeyReal((unsigned int)Key & 0x00ffffff)))
 		ShowConsoleTitle();
 
 	// Все сотальные необработанные клавиши пустим далее
@@ -875,7 +875,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 	{
 		case KEY_F6:
 		{
-			if (Flags.Check(FFILEEDIT_ENABLEF6))
+			if (m_Flags.Check(FFILEEDIT_ENABLEF6))
 			{
 				int FirstSave=1;
 				UINT cp=m_codepage;
@@ -913,16 +913,16 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					if (ProcessQuitKey(FirstSave,NeedQuestion,false))
 					{
 						int delete_on_close = 0;
-						if (Flags.Check(FFILEEDIT_DELETEONCLOSE))
+						if (m_Flags.Check(FFILEEDIT_DELETEONCLOSE))
 							delete_on_close = 1;
-						else if (Flags.Check(FFILEEDIT_DELETEONLYFILEONCLOSE))
+						else if (m_Flags.Check(FFILEEDIT_DELETEONLYFILEONCLOSE))
 							delete_on_close = 2;
 						SetDeleteOnClose(0);
 
 						new	FileViewer(
 							strFullFileName,
-							GetCanLoseFocus(), Flags.Check(FFILEEDIT_DISABLEHISTORY), FALSE,
-							FilePos, nullptr, &EditNamesList, Flags.Check(FFILEEDIT_SAVETOSAVEAS), cp,
+							GetCanLoseFocus(), m_Flags.Check(FFILEEDIT_DISABLEHISTORY), FALSE,
+							FilePos, nullptr, &EditNamesList, m_Flags.Check(FFILEEDIT_SAVETOSAVEAS), cp,
 							strTitle.empty() ? nullptr : strTitle.data(),
 							delete_on_close, this);
 					}
@@ -986,7 +986,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			case KEY_CTRLF:
 			case KEY_RCTRLF:
 			{
-				if (!m_editor->Flags.Check(Editor::FEDITOR_LOCKMODE))
+				if (!m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE))
 				{
 					m_editor->Pasting++;
 					m_editor->TextChanged(true);
@@ -1052,7 +1052,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 							        !(FNAttr&FILE_ATTRIBUTE_DIRECTORY)
 							        //|| LocalStricmp(OldCurDir,FullFileName)  // <- это видимо лишнее.
 							   )
-								Flags.Set(FFILEEDIT_SAVETOSAVEAS);
+								m_Flags.Set(FFILEEDIT_SAVETOSAVEAS);
 						}
 					}
 
@@ -1061,24 +1061,24 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					        !(FNAttr&FILE_ATTRIBUTE_DIRECTORY)
 					   )
 					{
-						Flags.Clear(FFILEEDIT_SAVETOSAVEAS);
+						m_Flags.Clear(FFILEEDIT_SAVETOSAVEAS);
 					}
 
 					static int TextFormat=0;
 					uintptr_t codepage = m_codepage;
-					bool SaveAs = Key==KEY_SHIFTF2 || Flags.Check(FFILEEDIT_SAVETOSAVEAS);
+					bool SaveAs = Key==KEY_SHIFTF2 || m_Flags.Check(FFILEEDIT_SAVETOSAVEAS);
 					int NameChanged=FALSE;
 					string strFullSaveAsName = strFullFileName;
 
 					if (SaveAs)
 					{
-						string strSaveAsName = Flags.Check(FFILEEDIT_SAVETOSAVEAS)?strFullFileName:strFileName;
+						string strSaveAsName = m_Flags.Check(FFILEEDIT_SAVETOSAVEAS)?strFullFileName:strFileName;
 
 						if (!dlgSaveFileAs(strSaveAsName, TextFormat, codepage, m_bAddSignature))
 							return FALSE;
 
 						strSaveAsName = Unquote(api::env::expand_strings(strSaveAsName));
-						NameChanged=StrCmpI(strSaveAsName, Flags.Check(FFILEEDIT_SAVETOSAVEAS)? strFullFileName : strFileName);
+						NameChanged=StrCmpI(strSaveAsName, m_Flags.Check(FFILEEDIT_SAVETOSAVEAS)? strFullFileName : strFileName);
 
 						if (!NameChanged)
 							FarChDir(strStartDir); // ПОЧЕМУ? А нужно ли???
@@ -1170,7 +1170,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			{
 				if (!Global->OnlyEditorViewerUsed && GetCanLoseFocus())
 				{
-					if (!Flags.Check(FFILEEDIT_DISABLESAVEPOS) && (m_editor->EdOpt.SavePos || m_editor->EdOpt.SaveShortPos)) // save position/codepage before reload
+					if (!m_Flags.Check(FFILEEDIT_DISABLESAVEPOS) && (m_editor->EdOpt.SavePos || m_editor->EdOpt.SaveShortPos)) // save position/codepage before reload
 						SaveToCache();
 					Global->CtrlObject->Cp()->ActivePanel()->ProcessKey(Manager::Key(Key));
 				}
@@ -1197,16 +1197,16 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 				Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 
-				if (Flags.Check(FFILEEDIT_NEW) || (ActivePanel && ActivePanel->FindFile(strFileName) == -1)) // Mantis#279
+				if (m_Flags.Check(FFILEEDIT_NEW) || (ActivePanel && ActivePanel->FindFile(strFileName) == -1)) // Mantis#279
 				{
 					UpdateFileList();
-					Flags.Clear(FFILEEDIT_NEW);
+					m_Flags.Clear(FFILEEDIT_NEW);
 				}
 
 				{
 					SaveScreen Sc;
 					Global->CtrlObject->Cp()->GoToFile(strFullFileNameTemp);
-					Flags.Set(FFILEEDIT_REDRAWTITLE);
+					m_Flags.Set(FFILEEDIT_REDRAWTITLE);
 				}
 
 				return TRUE;
@@ -1222,14 +1222,14 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					EditKeyBar.Hide();
 
 				Show();
-				KeyBarVisible = Global->Opt->EdOpt.ShowKeyBar;
+				m_KeyBarVisible = Global->Opt->EdOpt.ShowKeyBar;
 				return TRUE;
 			}
 			case KEY_CTRLSHIFTB:
 			case KEY_RCTRLSHIFTB:
 			{
 				Global->Opt->EdOpt.ShowTitleBar=!Global->Opt->EdOpt.ShowTitleBar;
-				TitleBarVisible = Global->Opt->EdOpt.ShowTitleBar;
+				m_TitleBarVisible = Global->Opt->EdOpt.ShowTitleBar;
 				Show();
 				return TRUE;
 			}
@@ -1248,7 +1248,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 				if (Key != KEY_SHIFTF10)   // KEY_SHIFTF10 не учитываем!
 				{
-					bool FilePlaced=api::GetFileAttributes(strFullFileName) == INVALID_FILE_ATTRIBUTES && !Flags.Check(FFILEEDIT_NEW);
+					bool FilePlaced=api::GetFileAttributes(strFullFileName) == INVALID_FILE_ATTRIBUTES && !m_Flags.Check(FFILEEDIT_NEW);
 
 					if (m_editor->IsFileChanged() || // в текущем сеансе были изменения?
 					        FilePlaced) // а сам файл то еще на месте?
@@ -1288,7 +1288,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 								return FALSE;
 						}
 					}
-					else if (!m_editor->Flags.Check(Editor::FEDITOR_MODIFIED)) //????
+					else if (!m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED)) //????
 						NeedQuestion=0;
 				}
 
@@ -1361,7 +1361,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					if (m_codepage != cp0)
 					{
 						InitKeyBar();
-						Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
+						m_Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
 					}
 				}
 
@@ -1385,7 +1385,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			}
 			default:
 			{
-				if (Flags.Check(FFILEEDIT_FULLSCREEN) && Global->CtrlObject->Macro.IsExecuting() == MACROSTATE_NOMACRO)
+				if (m_Flags.Check(FFILEEDIT_FULLSCREEN) && Global->CtrlObject->Macro.IsExecuting() == MACROSTATE_NOMACRO)
 					if (Global->Opt->EdOpt.ShowKeyBar)
 						EditKeyBar.Show();
 
@@ -1478,7 +1478,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		if ((SysErrorCode != ERROR_FILE_NOT_FOUND) && (SysErrorCode != ERROR_PATH_NOT_FOUND))
 		{
 			UserBreak = -1;
-			Flags.Set(FFILEEDIT_OPENFAILED);
+			m_Flags.Set(FFILEEDIT_OPENFAILED);
 		}
 
 		return FALSE;
@@ -1515,7 +1515,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 					EditFile.Close();
 					SetLastError(ERROR_OPEN_FAILED); //????
 					UserBreak=1;
-					Flags.Set(FFILEEDIT_OPENFAILED);
+					m_Flags.Set(FFILEEDIT_OPENFAILED);
 					return FALSE;
 				}
 			}
@@ -1528,13 +1528,13 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 				EditFile.Close();
 				SetLastError(SysErrorCode=ERROR_OPEN_FAILED); //????
 				UserBreak=1;
-				Flags.Set(FFILEEDIT_OPENFAILED);
+				m_Flags.Set(FFILEEDIT_OPENFAILED);
 				return FALSE;
 			}
 		}
 	}
 
-	for (BitFlags f0 = m_editor->Flags; true; m_editor->Flags = f0)
+	for (BitFlags f0 = m_editor->m_Flags; true; m_editor->m_Flags = f0)
 	{
 		m_editor->FreeAllocatedData(false);
 		bool bCached = LoadFromCache(pc);
@@ -1542,7 +1542,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		DWORD FileAttributes=api::GetFileAttributes(Name);
 		if((m_editor->EdOpt.ReadOnlyLock&1) && FileAttributes != INVALID_FILE_ATTRIBUTES && (FileAttributes & (FILE_ATTRIBUTE_READONLY|((m_editor->EdOpt.ReadOnlyLock&0x60)>>4))))
 		{
-			m_editor->Flags.Swap(Editor::FEDITOR_LOCKMODE);
+			m_editor->m_Flags.Swap(Editor::FEDITOR_LOCKMODE);
 		}
 
 		// Проверяем поддерживается или нет загруженная кодовая страница
@@ -1578,7 +1578,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 				if (pc.CodePage)
 				{
 					m_codepage = pc.CodePage;
-					Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
+					m_Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
 				}
 			}
 
@@ -1587,7 +1587,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		}
 		else
 		{
-			Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
+			m_Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
 		}
 
 		m_editor->SetCodePage(m_codepage);  //BUGBUG
@@ -1664,7 +1664,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 				EditFile.Close();
 				SetLastError(SysErrorCode=ERROR_OPEN_FAILED);
 				UserBreak=1;
-				Flags.Set(FFILEEDIT_OPENFAILED);
+				m_Flags.Set(FFILEEDIT_OPENFAILED);
 				return FALSE;
 			}
 			else if (cp != m_codepage)
@@ -1697,7 +1697,7 @@ bool FileEditor::ReloadFile(uintptr_t codepage)
 	auto save_codepage(m_codepage), save_codepage1(m_editor->m_codepage);
 	auto save_bAddSignature(m_bAddSignature);
 	auto save_BadConversiom(BadConversion);
-	auto save_Flags(Flags), save_Flags1(m_editor->Flags);
+	auto save_Flags(m_Flags), save_Flags1(m_editor->m_Flags);
 
 	Editor saved;
 	saved.fake_editor = true;
@@ -1711,9 +1711,9 @@ bool FileEditor::ReloadFile(uintptr_t codepage)
 		m_codepage = save_codepage;
 		m_bAddSignature = save_bAddSignature;
 		BadConversion = save_BadConversiom;
-		Flags = save_Flags;
+		m_Flags = save_Flags;
 		m_editor->m_codepage = save_codepage1;
-		m_editor->Flags = save_Flags1;
+		m_editor->m_Flags = save_Flags1;
 		m_editor->SwapState(saved);
 
 		if (user_break != 1)
@@ -1725,8 +1725,8 @@ bool FileEditor::ReloadFile(uintptr_t codepage)
 	}
 	else
 	{
-		m_editor->Flags.Set(Editor::FEDITOR_WASCHANGED);
-		m_editor->Flags.Clear(Editor::FEDITOR_MODIFIED);
+		m_editor->m_Flags.Set(Editor::FEDITOR_WASCHANGED);
+		m_editor->m_Flags.Clear(Editor::FEDITOR_MODIFIED);
 	}
 
 	m_editor->Unlock();
@@ -1746,12 +1746,12 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 	SCOPED_ACTION(IndeterminateTaskBar);
 	SCOPED_ACTION(wakeful);
 
-	if (m_editor->Flags.Check(Editor::FEDITOR_LOCKMODE) && !m_editor->Flags.Check(Editor::FEDITOR_MODIFIED) && !bSaveAs)
+	if (m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE) && !m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED) && !bSaveAs)
 		return SAVEFILE_SUCCESS;
 
 	if (Ask)
 	{
-		if (!m_editor->Flags.Check(Editor::FEDITOR_MODIFIED))
+		if (!m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED))
 			return SAVEFILE_SUCCESS;
 
 		if (Ask)
@@ -1781,10 +1781,10 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 	int NewFile=TRUE;
 	FileAttributesModified=false;
 
-	if ((FileAttributes=api::GetFileAttributes(Name))!=INVALID_FILE_ATTRIBUTES)
+	if ((m_FileAttributes=api::GetFileAttributes(Name))!=INVALID_FILE_ATTRIBUTES)
 	{
 		// Проверка времени модификации...
-		if (!Flags.Check(FFILEEDIT_SAVEWQUESTIONS))
+		if (!m_Flags.Check(FFILEEDIT_SAVEWQUESTIONS))
 		{
 			api::FAR_FIND_DATA FInfo;
 
@@ -1813,10 +1813,10 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			}
 		}
 
-		Flags.Clear(FFILEEDIT_SAVEWQUESTIONS);
+		m_Flags.Clear(FFILEEDIT_SAVEWQUESTIONS);
 		NewFile=FALSE;
 
-		if (FileAttributes & FILE_ATTRIBUTE_READONLY)
+		if (m_FileAttributes & FILE_ATTRIBUTE_READONLY)
 		{
 			//BUGBUG
 			const wchar_t* const Items[] = {Name.data(),MSG(MEditRO),MSG(MEditOvr),MSG(MYes),MSG(MNo)};
@@ -1825,11 +1825,11 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			if (AskOverwrite)
 				return SAVEFILE_CANCEL;
 
-			api::SetFileAttributes(Name,FileAttributes & ~FILE_ATTRIBUTE_READONLY); // сняты атрибуты
+			api::SetFileAttributes(Name,m_FileAttributes & ~FILE_ATTRIBUTE_READONLY); // сняты атрибуты
 			FileAttributesModified=true;
 		}
 
-		if (FileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))
+		if (m_FileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))
 		{
 			api::SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
 			FileAttributesModified=true;
@@ -1874,7 +1874,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 	int RetCode=SAVEFILE_SUCCESS;
 
 	if (TextFormat)
-		m_editor->Flags.Set(Editor::FEDITOR_WASCHANGED);
+		m_editor->m_Flags.Set(Editor::FEDITOR_WASCHANGED);
 
 	switch (TextFormat)
 	{
@@ -1893,14 +1893,14 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 	}
 
 	if (api::GetFileAttributes(Name) == INVALID_FILE_ATTRIBUTES)
-		Flags.Set(FFILEEDIT_NEW);
+		m_Flags.Set(FFILEEDIT_NEW);
 
 	{
 		//SaveScreen SaveScr;
 		/* $ 11.10.2001 IS
 		   Если было произведено сохранение с любым результатом, то не удалять файл
 		*/
-		Flags.Clear(FFILEEDIT_DELETEONCLOSE|FFILEEDIT_DELETEONLYFILEONCLOSE);
+		m_Flags.Clear(FFILEEDIT_DELETEONCLOSE|FFILEEDIT_DELETEONLYFILEONCLOSE);
 		Global->CtrlObject->Plugins->SetCurEditor(this);
 //_D(SysLog(L"%08d EE_SAVE",__LINE__));
 
@@ -1969,7 +1969,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		api::File EditFile;
 		DWORD dwWritten=0;
 		// Don't use CreationDisposition=CREATE_ALWAYS here - it's kills alternate streams
-		if(!EditFile.Open(Name, Flags.Check(FFILEEDIT_NEW)? FILE_WRITE_DATA : GENERIC_WRITE, FILE_SHARE_READ, nullptr, Flags.Check(FFILEEDIT_NEW)? CREATE_NEW : TRUNCATE_EXISTING, FILE_ATTRIBUTE_ARCHIVE|FILE_FLAG_SEQUENTIAL_SCAN))
+		if(!EditFile.Open(Name, m_Flags.Check(FFILEEDIT_NEW)? FILE_WRITE_DATA : GENERIC_WRITE, FILE_SHARE_READ, nullptr, m_Flags.Check(FFILEEDIT_NEW)? CREATE_NEW : TRUNCATE_EXISTING, FILE_ATTRIBUTE_ARCHIVE|FILE_FLAG_SEQUENTIAL_SCAN))
 		{
 			//_SVS(SysLogLastError();SysLog(L"Name='%s',FileAttributes=%d",Name,FileAttributes));
 			RetCode=SAVEFILE_ERROR;
@@ -1978,7 +1978,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		}
 
 		m_editor->UndoSavePos=m_editor->UndoPos;
-		m_editor->Flags.Clear(Editor::FEDITOR_UNDOSAVEPOSLOST);
+		m_editor->m_Flags.Clear(Editor::FEDITOR_UNDOSAVEPOSLOST);
 //    ConvertNameToFull(Name,FileName, sizeof(FileName));
 		/*
 		    if (ConvertNameToFull(Name,m_editor->FileName, sizeof(m_editor->FileName)) >= sizeof(m_editor->FileName))
@@ -2148,16 +2148,16 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 
 end:
 
-	if (FileAttributes!=INVALID_FILE_ATTRIBUTES && FileAttributesModified)
+	if (m_FileAttributes!=INVALID_FILE_ATTRIBUTES && FileAttributesModified)
 	{
-		api::SetFileAttributes(Name,FileAttributes|FILE_ATTRIBUTE_ARCHIVE);
+		api::SetFileAttributes(Name,m_FileAttributes|FILE_ATTRIBUTE_ARCHIVE);
 	}
 
 	api::GetFindDataEx(Name, FileInfo);
 	EditorGetFileAttributes(Name);
 
-	if (m_editor->Flags.Check(Editor::FEDITOR_MODIFIED) || NewFile)
-		m_editor->Flags.Set(Editor::FEDITOR_WASCHANGED);
+	if (m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED) || NewFile)
+		m_editor->m_Flags.Set(Editor::FEDITOR_WASCHANGED);
 
 	/* Этот кусок раскомметировать в том случае, если народ решит, что
 	   для если файл был залочен и мы его переписали под други именем...
@@ -2171,7 +2171,7 @@ end:
 	if (RetCode==SAVEFILE_SUCCESS)
 	{
 		m_editor->TextChanged(false);
-		m_editor->Flags.Set(Editor::FEDITOR_NEWUNDO);
+		m_editor->m_Flags.Set(Editor::FEDITOR_NEWUNDO);
 	}
 
 	if (GetDynamicallyBorn()) // принудительно сбросим Title // Flags.Check(FFILEEDIT_SAVETOSAVEAS) ????????
@@ -2179,7 +2179,7 @@ end:
 
 	Show();
 	// ************************************
-	Flags.Clear(FFILEEDIT_NEW);
+	m_Flags.Clear(FFILEEDIT_NEW);
 	return RetCode;
 }
 
@@ -2209,12 +2209,12 @@ void FileEditor::ShowConsoleTitle()
 	ReplaceStrings(strEditorTitleFormat, L"%Lng", MSG(MInEditor), true);
 	ReplaceStrings(strEditorTitleFormat, L"%File", PointToName(strFileName), true);
 	ConsoleTitle::SetFarTitle(strEditorTitleFormat);
-	Flags.Clear(FFILEEDIT_REDRAWTITLE);
+	m_Flags.Clear(FFILEEDIT_REDRAWTITLE);
 }
 
 void FileEditor::SetScreenPosition()
 {
-	if (Flags.Check(FFILEEDIT_FULLSCREEN))
+	if (m_Flags.Check(FFILEEDIT_FULLSCREEN))
 	{
 		SetPosition(0,0,ScrX,ScrY);
 	}
@@ -2224,8 +2224,8 @@ void FileEditor::OnDestroy()
 {
 	_OT(SysLog(L"[%p] FileEditor::OnDestroy()",this));
 
-	if (Global->CtrlObject && !Flags.Check(FFILEEDIT_DISABLEHISTORY) && StrCmpI(strFileName.data(), MSG(MNewFileName)))
-		Global->CtrlObject->ViewHistory->AddToHistory(strFullFileName, m_editor->Flags.Check(Editor::FEDITOR_LOCKMODE) ? HR_EDITOR_RO : HR_EDITOR);
+	if (Global->CtrlObject && !m_Flags.Check(FFILEEDIT_DISABLEHISTORY) && StrCmpI(strFileName.data(), MSG(MNewFileName)))
+		Global->CtrlObject->ViewHistory->AddToHistory(strFullFileName, m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE) ? HR_EDITOR_RO : HR_EDITOR);
 
 	//AY: флаг оповещающий закрытие редактора.
 	m_bClosing = true;
@@ -2254,7 +2254,7 @@ int FileEditor::GetCanLoseFocus(int DynamicMode) const
 	}
 	else
 	{
-		return CanLoseFocus;
+		return m_CanLoseFocus;
 	}
 
 	return TRUE;
@@ -2263,9 +2263,9 @@ int FileEditor::GetCanLoseFocus(int DynamicMode) const
 void FileEditor::SetLockEditor(BOOL LockMode)
 {
 	if (LockMode)
-		m_editor->Flags.Set(Editor::FEDITOR_LOCKMODE);
+		m_editor->m_Flags.Set(Editor::FEDITOR_LOCKMODE);
 	else
-		m_editor->Flags.Clear(Editor::FEDITOR_LOCKMODE);
+		m_editor->m_Flags.Clear(Editor::FEDITOR_LOCKMODE);
 }
 
 bool FileEditor::CanFastHide() const
@@ -2371,12 +2371,12 @@ void FileEditor::ShowStatus()
 		return;
 
 	SetColor(COL_EDITORSTATUS);
-	GotoXY(X1,Y1); //??
+	GotoXY(m_X1,m_Y1); //??
 	string strLineStr;
 	string strLocalTitle = GetTitle();
-	int NameLength = (Global->Opt->ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN)) ? 15:21;
-	if (X2 > 80)
-		NameLength += (X2-80);
+	int NameLength = (Global->Opt->ViewerEditorClock && m_Flags.Check(FFILEEDIT_FULLSCREEN)) ? 15:21;
+	if (m_X2 > 80)
+		NameLength += (m_X2-80);
 
 	if (!strPluginTitle.empty() || !strTitle.empty())
 		TruncPathStr(strLocalTitle, (ObjWidth()<NameLength?ObjWidth():NameLength));
@@ -2396,9 +2396,9 @@ void FileEditor::ShowStatus()
 	string strAttr(AttrStr);
 	FormatString FString;
 	FString<<fmt::LeftAlign()<<fmt::MinWidth(NameLength)<<strLocalTitle<<L' '<<
-		(m_editor->Flags.Check(Editor::FEDITOR_MODIFIED) ? L'*':L' ')<<
-		(m_editor->Flags.Check(Editor::FEDITOR_LOCKMODE) ? L'-':L' ')<<
-		(m_editor->Flags.Check(Editor::FEDITOR_PROCESSCTRLQ) ? L'"':L' ')<<
+		(m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED) ? L'*':L' ')<<
+		(m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE) ? L'-':L' ')<<
+		(m_editor->m_Flags.Check(Editor::FEDITOR_PROCESSCTRLQ) ? L'"':L' ')<<
 		fmt::MinWidth(5)<<m_codepage<<L' '<<fmt::MinWidth(3)<<MSG(MEditStatusLine)<<L' '<<
 		fmt::ExactWidth(SizeLineStr)<<strLineStr<<L' '<<
 		fmt::MinWidth(3)<<MSG(MEditStatusCol)<<L' '<<
@@ -2407,7 +2407,7 @@ void FileEditor::ShowStatus()
 		fmt::LeftAlign()<<fmt::MinWidth(4)<<m_editor->CurLine->GetCurPos()+1<<L' '<<
 		fmt::MinWidth(3)<<strAttr;
 
-	int StatusWidth=ObjWidth() - ((Global->Opt->ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN))?5:0);
+	int StatusWidth=ObjWidth() - ((Global->Opt->ViewerEditorClock && m_Flags.Check(FFILEEDIT_FULLSCREEN))?5:0);
 
 	if (StatusWidth<0)
 		StatusWidth=0;
@@ -2421,7 +2421,7 @@ void FileEditor::ShowStatus()
 
 		if (CurPos<Length)
 		{
-			GotoXY(X2-((Global->Opt->ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN)) ? 14:8)-(!m_editor->EdOpt.CharCodeBase?3:0),Y1);
+			GotoXY(m_X2-((Global->Opt->ViewerEditorClock && m_Flags.Check(FFILEEDIT_FULLSCREEN)) ? 14:8)-(!m_editor->EdOpt.CharCodeBase?3:0),m_Y1);
 			SetColor(COL_EDITORSTATUS);
 			/* $ 27.02.2001 SVS
 			Показываем в зависимости от базы */
@@ -2466,7 +2466,7 @@ void FileEditor::ShowStatus()
 		}
 	}
 
-	if (Global->Opt->ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN))
+	if (Global->Opt->ViewerEditorClock && m_Flags.Check(FFILEEDIT_FULLSCREEN))
 		ShowTime(FALSE);
 }
 
@@ -2476,20 +2476,20 @@ void FileEditor::ShowStatus()
 */
 DWORD FileEditor::EditorGetFileAttributes(const string& Name)
 {
-	FileAttributes=api::GetFileAttributes(Name);
+	m_FileAttributes=api::GetFileAttributes(Name);
 	int ind=0;
 
-	if (FileAttributes!=INVALID_FILE_ATTRIBUTES)
+	if (m_FileAttributes!=INVALID_FILE_ATTRIBUTES)
 	{
-		if (FileAttributes&FILE_ATTRIBUTE_READONLY) AttrStr[ind++]=L'R';
+		if (m_FileAttributes&FILE_ATTRIBUTE_READONLY) AttrStr[ind++]=L'R';
 
-		if (FileAttributes&FILE_ATTRIBUTE_SYSTEM) AttrStr[ind++]=L'S';
+		if (m_FileAttributes&FILE_ATTRIBUTE_SYSTEM) AttrStr[ind++]=L'S';
 
-		if (FileAttributes&FILE_ATTRIBUTE_HIDDEN) AttrStr[ind++]=L'H';
+		if (m_FileAttributes&FILE_ATTRIBUTE_HIDDEN) AttrStr[ind++]=L'H';
 	}
 
 	AttrStr[ind]=0;
-	return FileAttributes;
+	return m_FileAttributes;
 }
 
 /* true - панель обовили
@@ -2525,12 +2525,12 @@ void FileEditor::SetPluginData(const string* PluginData)
 */
 void FileEditor::SetDeleteOnClose(int NewMode)
 {
-	Flags.Clear(FFILEEDIT_DELETEONCLOSE|FFILEEDIT_DELETEONLYFILEONCLOSE);
+	m_Flags.Clear(FFILEEDIT_DELETEONCLOSE|FFILEEDIT_DELETEONLYFILEONCLOSE);
 
 	if (NewMode==1)
-		Flags.Set(FFILEEDIT_DELETEONCLOSE);
+		m_Flags.Set(FFILEEDIT_DELETEONCLOSE);
 	else if (NewMode==2)
-		Flags.Set(FFILEEDIT_DELETEONLYFILEONCLOSE);
+		m_Flags.Set(FFILEEDIT_DELETEONLYFILEONCLOSE);
 }
 
 void FileEditor::GetEditorOptions(Options::EditorOptions& EdOpt) const
@@ -2585,12 +2585,12 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		case ECTL_GETBOOKMARKS:
 		{
 			auto ebm = static_cast<EditorBookmarks*>(Param2);
-			if (!Flags.Check(FFILEEDIT_OPENFAILED) && CheckNullOrStructSize(ebm))
+			if (!m_Flags.Check(FFILEEDIT_OPENFAILED) && CheckNullOrStructSize(ebm))
 			{
 				size_t size;
-				if(Editor::InitSessionBookmarksForPlugin(ebm, m_editor->SavePos.size(), size))
+				if(Editor::InitSessionBookmarksForPlugin(ebm, m_editor->m_SavePos.size(), size))
 				{
-					for_each_cnt(CONST_RANGE(m_editor->SavePos, i, size_t index)
+					for_each_cnt(CONST_RANGE(m_editor->m_SavePos, i, size_t index)
 					{
 						if (ebm->Line)
 						{
@@ -2736,7 +2736,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 						}
 					}
 
-					Flags.Set(FFILEEDIT_SAVEWQUESTIONS);
+					m_Flags.Set(FFILEEDIT_SAVEWQUESTIONS);
 					//всегда записываем в режиме save as - иначе не сменить кодировку и концы линий.
 					return SaveFile(strName,FALSE,true,EOL,codepage,m_bAddSignature);
 				}
@@ -2892,9 +2892,9 @@ void FileEditor::SaveToCache()
 	m_editor->GetCacheParams(pc);
 	string strCacheName=strPluginData.empty()?strFullFileName:strPluginData+PointToName(strFullFileName);
 
-	if (!Flags.Check(FFILEEDIT_OPENFAILED))   //????
+	if (!m_Flags.Check(FFILEEDIT_OPENFAILED))   //????
 	{
-		pc.CodePage = (Flags.Check(FFILEEDIT_CODEPAGECHANGEDBYUSER) && !BadConversion)?m_codepage:0;
+		pc.CodePage = (m_Flags.Check(FFILEEDIT_CODEPAGECHANGEDBYUSER) && !BadConversion)?m_codepage:0;
 
 		FilePositionCache::AddPosition(strCacheName, pc);
 	}
@@ -2942,7 +2942,7 @@ bool FileEditor::AskOverwrite(const string& FileName)
 		}
 		else
 		{
-			Flags.Set(FFILEEDIT_SAVEWQUESTIONS);
+			m_Flags.Set(FFILEEDIT_SAVEWQUESTIONS);
 		}
 	}
 

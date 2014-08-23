@@ -285,16 +285,16 @@ public:
 	virtual void SetSelectedFirstMode(bool) {}
 	virtual bool GetSelectedFirstMode() const { return false; }
 	virtual void SetViewMode(int ViewMode);
-	virtual int GetPrevViewMode() const {return PrevViewMode;}
-	virtual int GetPrevSortMode() const {return SortMode;}
-	virtual bool GetPrevSortOrder() const { return ReverseSortOrder; }
-	virtual bool GetPrevNumericSort() const { return NumericSort; }
+	virtual int GetPrevViewMode() const {return m_PrevViewMode;}
+	virtual int GetPrevSortMode() const {return m_SortMode;}
+	virtual bool GetPrevSortOrder() const { return m_ReverseSortOrder; }
+	virtual bool GetPrevNumericSort() const { return m_NumericSort; }
 	virtual void ChangeNumericSort(bool Mode) { SetNumericSort(Mode); }
-	virtual bool GetPrevCaseSensitiveSort() const { return CaseSensitiveSort; }
+	virtual bool GetPrevCaseSensitiveSort() const { return m_CaseSensitiveSort; }
 	virtual void ChangeCaseSensitiveSort(bool Mode) {SetCaseSensitiveSort(Mode);}
-	virtual bool GetPrevDirectoriesFirst() const { return DirectoriesFirst; }
+	virtual bool GetPrevDirectoriesFirst() const { return m_DirectoriesFirst; }
 	virtual void ChangeDirectoriesFirst(bool Mode) { SetDirectoriesFirst(Mode); }
-	virtual void SetSortMode(int Mode, bool KeepOrder = false) {SortMode=Mode;}
+	virtual void SetSortMode(int Mode, bool KeepOrder = false) {m_SortMode=Mode;}
 	virtual void SetCustomSortMode(int SortMode, bool KeepOrder = false, bool InvertByDefault = false) {}
 	virtual void ChangeSortOrder(bool Reverse) {SetSortOrder(Reverse);}
 	virtual void IfGoHome(wchar_t Drive) {}
@@ -306,25 +306,25 @@ public:
 
 	static void exclude_sets(string& mask);
 
-	int GetMode() const { return PanelMode; }
-	void SetMode(int Mode) {PanelMode=Mode;}
-	int GetModalMode() const { return ModalMode; }
-	void SetModalMode(int ModalMode) {Panel::ModalMode=ModalMode;}
-	int GetViewMode() const { return ViewMode; }
-	void SetPrevViewMode(int PrevViewMode) {Panel::PrevViewMode=PrevViewMode;}
-	int GetSortMode() const { return SortMode; }
-	bool GetNumericSort() const { return NumericSort; }
-	void SetNumericSort(bool Mode) { NumericSort = Mode; }
-	bool GetCaseSensitiveSort() const { return CaseSensitiveSort; }
-	void SetCaseSensitiveSort(bool Mode) {CaseSensitiveSort = Mode;}
-	bool GetDirectoriesFirst() const { return DirectoriesFirst; }
-	void SetDirectoriesFirst(bool Mode) { DirectoriesFirst = Mode != 0; }
-	bool GetSortOrder() const { return ReverseSortOrder; }
-	void SetSortOrder(bool Reverse) {ReverseSortOrder = Reverse;}
-	bool GetSortGroups() const { return SortGroups; }
-	void SetSortGroups(bool Mode) {SortGroups=Mode;}
-	bool GetShowShortNamesMode() const { return ShowShortNames; }
-	void SetShowShortNamesMode(bool Mode) {ShowShortNames=Mode;}
+	int GetMode() const { return m_PanelMode; }
+	void SetMode(int Mode) {m_PanelMode=Mode;}
+	int GetModalMode() const { return m_ModalMode; }
+	void SetModalMode(int ModalMode) {m_ModalMode=ModalMode;}
+	int GetViewMode() const { return m_ViewMode; }
+	void SetPrevViewMode(int PrevViewMode) {m_PrevViewMode=PrevViewMode;}
+	int GetSortMode() const { return m_SortMode; }
+	bool GetNumericSort() const { return m_NumericSort; }
+	void SetNumericSort(bool Mode) { m_NumericSort = Mode; }
+	bool GetCaseSensitiveSort() const { return m_CaseSensitiveSort; }
+	void SetCaseSensitiveSort(bool Mode) {m_CaseSensitiveSort = Mode;}
+	bool GetDirectoriesFirst() const { return m_DirectoriesFirst; }
+	void SetDirectoriesFirst(bool Mode) { m_DirectoriesFirst = Mode != 0; }
+	bool GetSortOrder() const { return m_ReverseSortOrder; }
+	void SetSortOrder(bool Reverse) {m_ReverseSortOrder = Reverse;}
+	bool GetSortGroups() const { return m_SortGroups; }
+	void SetSortGroups(bool Mode) {m_SortGroups=Mode;}
+	bool GetShowShortNamesMode() const { return m_ShowShortNames; }
+	void SetShowShortNamesMode(bool Mode) {m_ShowShortNames=Mode;}
 	void InitCurDir(const string& CurDir);
 	bool ExecShortcutFolder(int Pos, bool raw=false);
 	bool ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid, const string& strPluginFile, const string& strPluginData, bool CheckType);
@@ -332,14 +332,14 @@ public:
 	int SetPluginCommand(int Command,int Param1,void* Param2);
 	int PanelProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent,int &RetCode);
 	void ChangeDisk();
-	bool GetFocus() const { return Focus; }
-	int GetType() const {return Type;}
-	void SetUpdateMode(int Mode) {EnableUpdate=Mode;}
+	bool GetFocus() const { return m_Focus; }
+	int GetType() const {return m_Type;}
+	void SetUpdateMode(int Mode) {m_EnableUpdate=Mode;}
 	bool MakeListFile(string &strListFileName,bool ShortNames,const string& Modifers);
 	int SetCurPath();
 	BOOL NeedUpdatePanel(const Panel *AnotherPanel);
-	bool IsFullScreen() const { return (ViewSettings.Flags & PVS_FULLSCREEN) != 0; }
-	void SetFullScreen() { ViewSettings.Flags |= PVS_FULLSCREEN; }
+	bool IsFullScreen() const { return (m_ViewSettings.Flags & PVS_FULLSCREEN) != 0; }
+	void SetFullScreen() { m_ViewSettings.Flags |= PVS_FULLSCREEN; }
 	bool CreateFullPathName(const string& Name, const string& ShortName, DWORD FileAttr, string &strDest, int UNC, int ShortNameAsIs = TRUE) const;
 
 
@@ -374,25 +374,26 @@ private:
 	static void DragMessage(int X,int Y,int Move);
 
 protected:
-	PanelViewSettings ViewSettings;
-	string strCurDir;
-	bool Focus;
-	int Type;
-	int EnableUpdate;
-	int PanelMode;
-	int SortMode;
-	bool ReverseSortOrder;
-	bool SortGroups;
-	int PrevViewMode,ViewMode;
-	int CurTopFile;
-	int CurFile;
-	bool ShowShortNames;
-	bool NumericSort;
-	bool CaseSensitiveSort;
-	bool DirectoriesFirst;
-	int ModalMode;
-	int PluginCommand;
-	string strPluginParam;
+	PanelViewSettings m_ViewSettings;
+	string m_CurDir;
+	bool m_Focus;
+	int m_Type;
+	int m_EnableUpdate;
+	int m_PanelMode;
+	int m_SortMode;
+	bool m_ReverseSortOrder;
+	bool m_SortGroups;
+	int m_PrevViewMode;
+	int m_ViewMode;
+	int m_CurTopFile;
+	int m_CurFile;
+	bool m_ShowShortNames;
+	bool m_NumericSort;
+	bool m_CaseSensitiveSort;
+	bool m_DirectoriesFirst;
+	int m_ModalMode;
+	int m_PluginCommand;
+	string m_PluginParam;
 
 private:
 	string strDragName;

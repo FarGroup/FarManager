@@ -60,7 +60,7 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,b
 	SetRestoreScreenMode(true);
 	if (ModalMode != MODALTREE_FREE)
 		strResultFolder.clear();
-	KeyBarVisible = TRUE;  // Заставим обновлятся кейбар
+	m_KeyBarVisible = TRUE;  // Заставим обновлятся кейбар
 	//TopScreen=new SaveScreen;
 	SetCoords();
 
@@ -69,7 +69,7 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,b
 		SetMacroMode(MACROAREA_FINDFOLDER);
 		strLastName.clear();
 		Tree->SetModalMode(ModalMode);
-		Tree->SetPosition(X1,Y1,X2,Y2);
+		Tree->SetPosition(m_X1,m_Y1,m_X2,m_Y2);
 
 		if (ModalMode == MODALTREE_FREE)
 			Tree->SetRootDir(strResultFolder);
@@ -150,7 +150,7 @@ void FolderTree::ResizeConsole()
 {
 	Hide();
 	SetCoords();
-	Tree->SetPosition(X1,Y1,X2,Y2);
+	Tree->SetPosition(m_X1,m_Y1,m_X2,m_Y2);
 }
 
 void FolderTree::SetScreenPosition()
@@ -309,7 +309,7 @@ int FolderTree::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	int MsX=MouseEvent->dwMousePosition.X;
 	int MsY=MouseEvent->dwMousePosition.Y;
 
-	if ((MsX<X1 || MsY<Y1 || MsX>X2 || MsY>Y2) && IntKeyState.MouseEventFlags != MOUSE_MOVED)
+	if ((MsX<m_X1 || MsY<m_Y1 || MsX>m_X2 || MsY>m_Y2) && IntKeyState.MouseEventFlags != MOUSE_MOVED)
 	{
 		if (!(MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (Global->Opt->Dialogs.MouseButton&DMOUSEBUTTON_LEFT))
 			ProcessKey(Manager::Key(KEY_ESC));
@@ -319,7 +319,7 @@ int FolderTree::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return TRUE;
 	}
 
-	if (MsY == Y2-2)
+	if (MsY == m_Y2-2)
 		FindEdit->ProcessMouse(MouseEvent);
 	else
 	{
@@ -335,19 +335,19 @@ int FolderTree::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 void FolderTree::DrawEdit()
 {
-	int FindY=Y2-2;
+	int FindY=m_Y2-2;
 	const wchar_t *SearchTxt=MSG(MFoldTreeSearch);
-	GotoXY(X1+1,FindY);
+	GotoXY(m_X1+1,FindY);
 	SetColor(COL_PANELTEXT);
 	Global->FS << SearchTxt<<L"  ";
-	FindEdit->SetPosition(X1+StrLength(SearchTxt)+2,FindY,std::min(X2-1,X1+25),FindY);
+	FindEdit->SetPosition(m_X1+StrLength(SearchTxt)+2,FindY,std::min(m_X2-1,m_X1+25),FindY);
 	FindEdit->SetObjectColor(COL_DIALOGEDIT);
 	FindEdit->Show();
 
-	if (WhereX()<X2)
+	if (WhereX()<m_X2)
 	{
 		SetColor(COL_PANELTEXT);
-		Global->FS << fmt::MinWidth(X2-WhereX())<<L"";
+		Global->FS << fmt::MinWidth(m_X2-WhereX())<<L"";
 	}
 }
 

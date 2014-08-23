@@ -264,7 +264,7 @@ public:
 	intptr_t CloseDialog();
 	// For MACRO
 	const std::vector<DialogItemEx>& GetAllItem() const { return Items; }
-	size_t GetDlgFocusPos() const {return FocusPos;}
+	size_t GetDlgFocusPos() const {return m_FocusPos;}
 	int SetAutomation(WORD IDParent,WORD id, FARDIALOGITEMFLAGS UncheckedSet,FARDIALOGITEMFLAGS UncheckedSkip, FARDIALOGITEMFLAGS CheckedSet,FARDIALOGITEMFLAGS CheckedSkip,
 		FARDIALOGITEMFLAGS Checked3Set=DIF_NONE,FARDIALOGITEMFLAGS Checked3Skip=DIF_NONE);
 
@@ -272,7 +272,7 @@ public:
 	BOOL IsInited();
 	virtual bool ProcessEvents() override;
 	void SetId(const GUID& Id);
-	const GUID& GetId() const {return Id;}
+	const GUID& GetId() const {return m_Id;}
 	intptr_t SendMessage(intptr_t Msg,intptr_t Param1,void* Param2);
 	intptr_t DefProc(intptr_t Msg,intptr_t Param1,void* Param2);
 	static bool IsValid(Dialog* Handle);
@@ -336,7 +336,7 @@ private:
 
 	bool bInitOK;               // диалог был успешно инициализирован
 	class Plugin* PluginOwner;       // Плагин, для формирования HelpTopic
-	size_t FocusPos;               // всегда известно какой элемент в фокусе
+	size_t m_FocusPos;               // всегда известно какой элемент в фокусе
 	size_t PrevFocusPos;           // всегда известно какой элемент был в фокусе
 	int IsEnableRedraw;         // Разрешена перерисовка диалога? ( 0 - разрешена)
 	BitFlags DialogMode;        // Флаги текущего режима диалога
@@ -353,7 +353,7 @@ private:
 	int DropDownOpened;// Содержит статус комбобокса и хистори: TRUE - открыт, FALSE - закрыт.
 	mutable CriticalSection CS;
 	int RealWidth, RealHeight;
-	GUID Id;
+	GUID m_Id;
 	bool IdExist;
 	MOUSE_EVENT_RECORD PrevMouseRecord;
 };

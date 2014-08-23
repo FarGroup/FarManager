@@ -221,13 +221,13 @@ static bool IsEditField(DialogItemEx *Item)
 */
 
 DialogBuilder::DialogBuilder(LNGID TitleMessageId, const wchar_t *HelpTopic, Dialog::dialog_handler handler):
-	HelpTopic(NullToEmpty(HelpTopic)), Mode(0), IdExist(false), m_handler(handler)
+	m_HelpTopic(NullToEmpty(HelpTopic)), m_Mode(0), m_IdExist(false), m_handler(handler)
 {
 	AddBorder(GetLangString(TitleMessageId));
 }
 
 DialogBuilder::DialogBuilder():
-	HelpTopic(L""),  Mode(0), IdExist(false)
+	m_HelpTopic(L""),  m_Mode(0), m_IdExist(false)
 {
 	AddBorder(L"");
 }
@@ -571,9 +571,9 @@ void DialogBuilder::LinkFlags(DialogItemEx *Parent, DialogItemEx *Target, FARDIA
 		if (Binding)
 		{
 			if (Binding->BeforeLabelID != -1)
-				LinkFlagsByID(Parent, &DialogItems[Binding->BeforeLabelID], Flags);
+				LinkFlagsByID(Parent, &m_DialogItems[Binding->BeforeLabelID], Flags);
 			if (Binding->AfterLabelID != -1)
-				LinkFlagsByID(Parent, &DialogItems[Binding->AfterLabelID], Flags);
+				LinkFlagsByID(Parent, &m_DialogItems[Binding->AfterLabelID], Flags);
 		}
 	}
 }
@@ -587,20 +587,20 @@ void DialogBuilder::LinkFlagsByID(DialogItemEx *Parent, DialogItemEx* Target, FA
 
 intptr_t DialogBuilder::DoShowDialog()
 {
-	Dialog Dlg(make_range(DialogItems, DialogItems + DialogItemsCount), m_handler, nullptr);
-	Dlg.SetHelp(HelpTopic);
-	Dlg.SetPosition(-1, -1, DialogItems [0].X2+4, DialogItems [0].Y2+2);
-	if (Mode)
-		Dlg.SetDialogMode(Mode);
-	if (IdExist)
-		Dlg.SetId(Id);
+	Dialog Dlg(make_range(m_DialogItems, m_DialogItems + m_DialogItemsCount), m_handler, nullptr);
+	Dlg.SetHelp(m_HelpTopic);
+	Dlg.SetPosition(-1, -1, m_DialogItems [0].X2+4, m_DialogItems [0].Y2+2);
+	if (m_Mode)
+		Dlg.SetDialogMode(m_Mode);
+	if (m_IdExist)
+		Dlg.SetId(m_Id);
 	Dlg.Process();
 	return Dlg.GetExitCode();
 }
 
 void DialogBuilder::SetDialogMode(DWORD Flags)
 {
-	Mode = Flags;
+	m_Mode = Flags;
 }
 
 void DialogBuilder::AddOKCancel()
@@ -635,6 +635,6 @@ int DialogBuilder::AddTextWrap(const wchar_t *text, bool center, int width)
 
 void DialogBuilder::SetId(const GUID& Id)
 {
-	this->Id=Id;
-	IdExist=true;
+	m_Id=Id;
+	m_IdExist=true;
 }

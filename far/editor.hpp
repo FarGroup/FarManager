@@ -68,7 +68,7 @@ public:
 	long GetCurPos(bool file_pos = false, bool add_bom = false) const;
 	int EditorControl(int Command, intptr_t Param1, void *Param2);
 	void SetHostFileEditor(FileEditor *Editor) { HostFileEditor = Editor; }
-	void PrepareResizedConsole() { Flags.Set(FEDITOR_ISRESIZEDCONSOLE); }
+	void PrepareResizedConsole() { m_Flags.Set(FEDITOR_ISRESIZEDCONSOLE); }
 	void SetOptions(const Options::EditorOptions& Options);
 	void SetTabSize(int NewSize);
 	int GetTabSize() const { return EdOpt.TabSize; }
@@ -114,8 +114,8 @@ public:
 	void Xlat();
 	void FreeAllocatedData(bool FreeUndo = true);
 	void SetDialogParent(DWORD Sets);
-	void SetReadOnly(bool NewReadOnly) { Flags.Change(FEDITOR_LOCKMODE, NewReadOnly); }
-	bool GetReadOnly() const { return Flags.Check(FEDITOR_LOCKMODE); }
+	void SetReadOnly(bool NewReadOnly) { m_Flags.Change(FEDITOR_LOCKMODE, NewReadOnly); }
+	bool GetReadOnly() const { return m_Flags.Check(FEDITOR_LOCKMODE); }
 	void SetOvertypeMode(int Mode);
 	bool GetOvertypeMode() const;
 	void SetEditBeyondEnd(int Mode);
@@ -301,10 +301,10 @@ private:
 	string strLastSearchStr;
 	bool LastSearchCase, LastSearchWholeWords, LastSearchReverse, LastSearchRegexp, LastSearchPreserveStyle;
 	uintptr_t m_codepage; //BUGBUG
-	int StartLine;
+	int m_StartLine;
 	int StartChar;
 	//numbered bookmarks (accessible by Ctrl-0..9)
-	Bookmarks<editor_bookmark> SavePos;
+	Bookmarks<editor_bookmark> m_SavePos;
 
 	bookmark_list SessionBookmarks;
 	//pointer to the current "session" bookmark (in the list of "session" bookmarks accessible through BM.Goto(n))

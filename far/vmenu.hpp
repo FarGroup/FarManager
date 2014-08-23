@@ -335,8 +335,8 @@ private:
 	int TopPos;
 	int MaxHeight;
 	bool WasAutoHeight;
-	int MaxLength;
-	int BoxType;
+	int m_MaxLength;
+	int m_BoxType;
 	Frame *CurrentFrame;
 	bool PrevCursorVisible;
 	DWORD PrevCursorSize;

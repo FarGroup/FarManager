@@ -109,15 +109,15 @@ protected:
 	virtual void Commit(const string& Data)=0;
 
 private:
-	size_t MinWidth;
-	size_t MaxWidth;
-	wchar_t FillChar;
-	fmt::AlignType Align;
-	int Radix;
-
-	void Reset();
 	template<class T>
 	BaseFormat& ToString(T Value);
+	void Reset();
+
+	size_t m_MinWidth;
+	size_t m_MaxWidth;
+	wchar_t m_FillChar;
+	fmt::AlignType m_Align;
+	int m_Radix;
 };
 
 class FormatString:public BaseFormat, public string

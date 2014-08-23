@@ -48,12 +48,13 @@ private:
 
 	void WatchRegister();
 
-	string Directory;
-	FILETIME PreviousLastWriteTime, CurrentLastWriteTime;
-	bool bOpen;
-	bool WatchSubtree;
-	Event WatchRegistered;
-	Event Done;
-	Event DoneDone;
-	Event Changed;
+	string m_Directory;
+	FILETIME m_PreviousLastWriteTime;
+	FILETIME m_CurrentLastWriteTime;
+	bool m_bOpen;
+	bool m_WatchSubtree;
+	Event m_WatchRegistered;
+	Event m_Done;
+	Event m_DoneDone;
+	Event m_Changed;
 };

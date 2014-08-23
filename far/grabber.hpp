@@ -64,7 +64,7 @@ private:
 	GrabberArea PrevArea;
 	GrabberArea GArea;
 	bool ResetArea;
-	bool VerticalBlock;
+	bool m_VerticalBlock;
 };
 
 bool RunGraber();

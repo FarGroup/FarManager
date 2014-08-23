@@ -43,9 +43,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 
 Modal::Modal():
-	EndLoop(false),
-	ReadKey(-1),
-	WriteKey(-1)
+	m_EndLoop(false),
+	m_ReadKey(-1),
+	m_WriteKey(-1)
 {
 }
 
@@ -61,22 +61,22 @@ int Modal::ReadInput(INPUT_RECORD *GetReadRec)
 	if (GetReadRec)
 		ClearStruct(*GetReadRec);
 
-	if (WriteKey>=0)
+	if (m_WriteKey>=0)
 	{
-		ReadKey=WriteKey;
-		WriteKey=-1;
+		m_ReadKey=m_WriteKey;
+		m_WriteKey=-1;
 	}
 	else
 	{
-		ReadKey=GetInputRecord(&ReadRec);
+		m_ReadKey=GetInputRecord(&m_ReadRec);
 
 		if (GetReadRec)
 		{
-			*GetReadRec=ReadRec;
+			*GetReadRec=m_ReadRec;
 		}
 	}
 
-	if (ReadKey == KEY_CONSOLE_BUFFER_RESIZE)
+	if (m_ReadKey == KEY_CONSOLE_BUFFER_RESIZE)
 	{
 		LockScreen LckScr;
 		Hide();
@@ -88,47 +88,47 @@ int Modal::ReadInput(INPUT_RECORD *GetReadRec)
 		SetExitCode(-1);
 	}
 
-	return ReadKey;
+	return m_ReadKey;
 }
 
 void Modal::WriteInput(int Key)
 {
-	WriteKey=Key;
+	m_WriteKey=Key;
 }
 
 void Modal::ProcessInput()
 {
-	if (ReadRec.EventType==MOUSE_EVENT && !(ReadKey==KEY_MSWHEEL_UP || ReadKey==KEY_MSWHEEL_DOWN || ReadKey==KEY_MSWHEEL_RIGHT || ReadKey==KEY_MSWHEEL_LEFT))
-		ProcessMouse(&ReadRec.Event.MouseEvent);
+	if (m_ReadRec.EventType==MOUSE_EVENT && !(m_ReadKey==KEY_MSWHEEL_UP || m_ReadKey==KEY_MSWHEEL_DOWN || m_ReadKey==KEY_MSWHEEL_RIGHT || m_ReadKey==KEY_MSWHEEL_LEFT))
+		ProcessMouse(&m_ReadRec.Event.MouseEvent);
 	else
-		ProcessKey(Manager::Key(ReadKey));
+		ProcessKey(Manager::Key(m_ReadKey));
 }
 
 bool Modal::Done() const
 {
-	return EndLoop;
+	return m_EndLoop;
 }
 
 
 void Modal::ClearDone()
 {
-	EndLoop=false;
+	m_EndLoop=false;
 }
 
 void Modal::SetDone(void)
 {
-	EndLoop=true;
+	m_EndLoop=true;
 }
 
 int Modal::GetExitCode() const
 {
-	return ExitCode;
+	return m_ExitCode;
 }
 
 
 void Modal::SetExitCode(int Code)
 {
-	ExitCode=Code;
+	m_ExitCode=Code;
 	SetDone();
 }
 
@@ -141,12 +141,12 @@ void Modal::Close(int Code)
 
 void Modal::SetHelp(const wchar_t *Topic)
 {
-	strHelpTopic = Topic;
+	m_HelpTopic = Topic;
 }
 
 
 void Modal::ShowHelp()
 {
-	if (!strHelpTopic.empty())
-		Help Hlp(strHelpTopic);
+	if (!m_HelpTopic.empty())
+		Help Hlp(m_HelpTopic);
 }

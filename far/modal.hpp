@@ -56,13 +56,14 @@ public:
 	void ShowHelp();
 
 protected:
-	INPUT_RECORD ReadRec;
-	string strHelpTopic;
 	void SetDone(void);
 	void Close(int Code);
 
+	INPUT_RECORD m_ReadRec;
+	string m_HelpTopic;
+
 private:
-	bool EndLoop;
-	int ReadKey;
-	int WriteKey;
+	bool m_EndLoop;
+	int m_ReadKey;
+	int m_WriteKey;
 };

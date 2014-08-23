@@ -60,8 +60,8 @@ public:
 	Frame();
 	virtual ~Frame();
 
-	virtual int GetCanLoseFocus(int DynamicMode=FALSE) const { return CanLoseFocus; }
-	virtual void SetExitCode(int Code) { ExitCode=Code; }
+	virtual int GetCanLoseFocus(int DynamicMode=FALSE) const { return m_CanLoseFocus; }
+	virtual void SetExitCode(int Code) { m_ExitCode=Code; }
 	virtual BOOL IsFileModified() const { return FALSE; }
 	virtual const wchar_t *GetTypeName() {return L"[FarModal]";}
 	virtual int GetTypeAndName(string &strType, string &strName) = 0;
@@ -71,21 +71,21 @@ public:
 	virtual void Refresh() {OnChangeFocus(1);}  // Просто перерисоваться :)
 	virtual void InitKeyBar() {}
 	virtual void RedrawKeyBar() { UpdateKeyBar(); }
-	virtual FARMACROAREA GetMacroMode() const { return MacroMode; }
+	virtual FARMACROAREA GetMacroMode() const { return m_MacroMode; }
 	virtual bool CanFastHide() const;
 	virtual string GetTitle() const = 0;
 	virtual bool ProcessEvents() {return true;}
 
-	void SetCanLoseFocus(int Mode) { CanLoseFocus=Mode; }
-	int GetExitCode() const { return ExitCode; }
+	void SetCanLoseFocus(int Mode) { m_CanLoseFocus=Mode; }
+	int GetExitCode() const { return m_ExitCode; }
 	void SetKeyBar(KeyBar *FrameKeyBar);
 	void UpdateKeyBar();
-	int IsTitleBarVisible() const {return TitleBarVisible;}
+	int IsTitleBarVisible() const {return m_TitleBarVisible;}
 	int IsTopFrame() const;
-	void SetDynamicallyBorn(bool Born) {DynamicallyBorn=Born;}
-	bool GetDynamicallyBorn() const {return DynamicallyBorn;}
+	void SetDynamicallyBorn(bool Born) {m_DynamicallyBorn=Born;}
+	bool GetDynamicallyBorn() const {return m_DynamicallyBorn;}
 	bool HasSaveScreen() const;
-	void SetFlags( DWORD flags ) { Flags.Set(flags); }
+	void SetFlags( DWORD flags ) { m_Flags.Set(flags); }
 	void SetDeleting(void);
 	bool IsDeleting(void) const;
 	void SetBlock(void);
@@ -94,18 +94,18 @@ public:
 	void SetMacroMode(FARMACROAREA Area);
 
 protected:
-	bool DynamicallyBorn;
-	int CanLoseFocus;
-	int ExitCode;
-	int KeyBarVisible;
-	int TitleBarVisible;
-	KeyBar *FrameKeyBar;
+	bool m_DynamicallyBorn;
+	int m_CanLoseFocus;
+	int m_ExitCode;
+	int m_KeyBarVisible;
+	int m_TitleBarVisible;
+	KeyBar *m_FrameKeyBar;
 
 private:
 	friend class Manager;
 
-	Frame *FrameToBack;
-	bool Deleting;
-	long BlockCounter;
-	FARMACROAREA MacroMode;
+	Frame *m_FrameToBack;
+	bool m_Deleting;
+	long m_BlockCounter;
+	FARMACROAREA m_MacroMode;
 };

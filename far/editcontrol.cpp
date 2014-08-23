@@ -85,7 +85,7 @@ EditControl::EditControl(ScreenObject *pOwner,Callback* aCallback,bool bAllocate
 
 void EditControl::Show()
 {
-	if(X2-X1+1>StrSize)
+	if(m_X2-m_X1+1>m_StrSize)
 	{
 		SetLeftPos(0);
 	}
@@ -97,7 +97,7 @@ void EditControl::Show()
 
 void EditControl::Changed(bool DelBlock)
 {
-	Flags.Set(FEDITLINE_CMP_CHANGED);
+	m_Flags.Set(FEDITLINE_CMP_CHANGED);
 	if(m_Callback.Active)
 	{
 		if(m_Callback.m_Callback)
@@ -112,16 +112,16 @@ void EditControl::SetMenuPos(VMenu2& menu)
 {
 	int MaxHeight = std::min(Global->Opt->Dialogs.CBoxMaxHeight.Get(),(long long)menu.GetItemCount())+2;
 
-	int NewX2 = std::max(std::min(ScrX-2,(int)X2), X1 + 20);
+	int NewX2 = std::max(std::min(ScrX-2,(int)m_X2), m_X1 + 20);
 
-	if((ScrY-Y1<MaxHeight && Y1>ScrY/2) || MenuUp)
+	if((ScrY-m_Y1<MaxHeight && m_Y1>ScrY/2) || MenuUp)
 	{
 		MenuUp = true;
-		menu.SetPosition(X1, std::max(0, Y1-1-MaxHeight), NewX2, Y1-1);
+		menu.SetPosition(m_X1, std::max(0, m_Y1-1-MaxHeight), NewX2, m_Y1-1);
 	}
 	else
 	{
-		menu.SetPosition(X1, Y1+1, NewX2, std::min(static_cast<int>(ScrY), Y1+1+MaxHeight));
+		menu.SetPosition(m_X1, m_Y1+1, NewX2, std::min(static_cast<int>(ScrY), m_Y1+1+MaxHeight));
 	}
 }
 
@@ -279,17 +279,17 @@ bool EnumModules(const string& Module, VMenu2* DestMenu)
 			HKEY hKey;
 			if (RegOpenKeyEx(RootFindKey[i], RegPath, 0, samDesired, &hKey) == ERROR_SUCCESS)
 			{
-				FOR(const auto& i, api::reg::enum_key(hKey))
+				FOR(const auto& Subkey, api::reg::enum_key(hKey))
 				{
 					HKEY hSubKey;
-					if (RegOpenKeyEx(hKey, i.data(), 0, samDesired, &hSubKey) == ERROR_SUCCESS)
+					if (RegOpenKeyEx(hKey, Subkey.data(), 0, samDesired, &hSubKey) == ERROR_SUCCESS)
 					{
 						DWORD cbSize = 0;
 						if(RegQueryValueEx(hSubKey, L"", nullptr, nullptr, nullptr, &cbSize) == ERROR_SUCCESS)
 						{
-							if (!StrCmpNI(Module.data(), i.data(), Module.size()))
+							if (!StrCmpNI(Module.data(), Subkey.data(), Module.size()))
 							{
-								Modules.emplace(i);
+								Modules.emplace(Subkey);
 								Result=true;
 							}
 						}
@@ -338,21 +338,21 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 	string CurrentLine;
 	size_t EventsCount = 0;
 	Console().GetNumberOfInputEvents(EventsCount);
-	if(ECFlags.Check(EC_ENABLEAUTOCOMPLETE) && *Str && !Reenter && !EventsCount && (Global->CtrlObject->Macro.GetCurRecord() == MACROSTATE_NOMACRO || Manual))
+	if(ECFlags.Check(EC_ENABLEAUTOCOMPLETE) && *m_Str && !Reenter && !EventsCount && (Global->CtrlObject->Macro.GetCurRecord() == MACROSTATE_NOMACRO || Manual))
 	{
 		Reenter++;
 
-		if(Global->Opt->AutoComplete.AppendCompletion && !Flags.Check(FEDITLINE_CMP_CHANGED))
+		if(Global->Opt->AutoComplete.AppendCompletion && !m_Flags.Check(FEDITLINE_CMP_CHANGED))
 		{
-			CurrentLine = Str;
+			CurrentLine = m_Str;
 			DeleteBlock();
 		}
-		Flags.Clear(FEDITLINE_CMP_CHANGED);
+		m_Flags.Clear(FEDITLINE_CMP_CHANGED);
 
 		VMenu2 ComplMenu(string(),nullptr,0,0);
 		ComplMenu.SetDialogMode(DMODE_NODRAWSHADOW);
 		ComplMenu.SetModeMoving(false);
-		string strTemp=Str;
+		string strTemp=m_Str;
 
 		ComplMenu.SetMacroMode(Area);
 
@@ -389,17 +389,17 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 		if(ComplMenu.GetItemCount()>1 || (ComplMenu.GetItemCount()==1 && StrCmpI(strTemp, ComplMenu.GetItemPtr(0)->strName)))
 		{
 			ComplMenu.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
-			if(!DelBlock && Global->Opt->AutoComplete.AppendCompletion && (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS) || Global->Opt->AutoComplete.ShowList))
+			if(!DelBlock && Global->Opt->AutoComplete.AppendCompletion && (!m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS) || Global->Opt->AutoComplete.ShowList))
 			{
 				int SelStart=GetLength();
 
 				// magic
-				if(IsSlash(Str[SelStart-1]) && Str[SelStart-2] == L'"' && IsSlash(ComplMenu.GetItemPtr(0)->strName[SelStart-2]))
+				if(IsSlash(m_Str[SelStart-1]) && m_Str[SelStart-2] == L'"' && IsSlash(ComplMenu.GetItemPtr(0)->strName[SelStart-2]))
 				{
-					Str[SelStart-2] = Str[SelStart-1];
-					StrSize--;
+					m_Str[SelStart-2] = m_Str[SelStart-1];
+					m_StrSize--;
 					SelStart--;
-					CurPos--;
+					m_CurPos--;
 				}
 				int Offset = 0;
 				if(!CurrentLine.empty())
@@ -416,8 +416,8 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 				}
 				AppendString(ComplMenu.GetItemPtr(Offset)->strName.data()+SelStart);
 				Select(SelStart, GetLength());
-				Flags.Clear(FEDITLINE_CMP_CHANGED);
-				CurPos = GetLength();
+				m_Flags.Clear(FEDITLINE_CMP_CHANGED);
+				m_CurPos = GetLength();
 				Show();
 			}
 			if(Global->Opt->AutoComplete.ShowList)
@@ -499,17 +499,17 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 										int SelStart=GetLength();
 
 										// magic
-										if(IsSlash(Str[SelStart-1]) && Str[SelStart-2] == L'"' && IsSlash(ComplMenu.GetItemPtr(0)->strName[SelStart-2]))
+										if(IsSlash(m_Str[SelStart-1]) && m_Str[SelStart-2] == L'"' && IsSlash(ComplMenu.GetItemPtr(0)->strName[SelStart-2]))
 										{
-											Str[SelStart-2] = Str[SelStart-1];
-											StrSize--;
+											m_Str[SelStart-2] = m_Str[SelStart-1];
+											m_StrSize--;
 											SelStart--;
-											CurPos--;
+											m_CurPos--;
 										}
 
 										DisableCallback();
 										AppendString(ComplMenu.GetItemPtr(0)->strName.data()+SelStart);
-										if(X2-X1>GetLength())
+										if(m_X2-m_X1>GetLength())
 											SetLeftPos(0);
 										this->Select(SelStart, GetLength());
 										RevertCallback();
@@ -697,8 +697,8 @@ int EditControl::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	{
 		while(IsMouseButtonPressed()==FROM_LEFT_1ST_BUTTON_PRESSED)
 		{
-			Flags.Clear(FEDITLINE_CLEARFLAG);
-			SetTabCurPos(IntKeyState.MouseX - X1 + GetLeftPos());
+			m_Flags.Clear(FEDITLINE_CLEARFLAG);
+			SetTabCurPos(IntKeyState.MouseX - m_X1 + GetLeftPos());
 			if(IntKeyState.MouseEventFlags&MOUSE_MOVED)
 			{
 				if(!Selection)
@@ -711,9 +711,9 @@ int EditControl::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				{
 					if(SelectionStart==-1)
 					{
-						SelectionStart=CurPos;
+						SelectionStart=m_CurPos;
 					}
-					Select(std::min(SelectionStart,CurPos),std::min(StrSize,std::max(SelectionStart,CurPos)));
+					Select(std::min(SelectionStart,m_CurPos),std::min(m_StrSize,std::max(SelectionStart,m_CurPos)));
 					Show();
 				}
 			}
@@ -726,38 +726,38 @@ int EditControl::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 void EditControl::SetObjectColor(PaletteColors Color,PaletteColors SelColor,PaletteColors ColorUnChanged)
 {
-	this->Color=ColorIndexToColor(Color);
-	this->SelColor=ColorIndexToColor(SelColor);
-	this->ColorUnChanged=ColorIndexToColor(ColorUnChanged);
+	m_Color=ColorIndexToColor(Color);
+	m_SelectedColor=ColorIndexToColor(SelColor);
+	m_UnchangedColor=ColorIndexToColor(ColorUnChanged);
 }
 
 void EditControl::SetObjectColor(const FarColor& Color,const FarColor& SelColor, const FarColor& ColorUnChanged)
 {
-	this->Color=Color;
-	this->SelColor=SelColor;
-	this->ColorUnChanged=ColorUnChanged;
+	m_Color=Color;
+	m_SelectedColor=SelColor;
+	m_UnchangedColor=ColorUnChanged;
 }
 
 void EditControl::GetObjectColor(FarColor& Color, FarColor& SelColor, FarColor& ColorUnChanged)
 {
-	Color = this->Color;
-	SelColor = this->SelColor;
-	ColorUnChanged = this->ColorUnChanged;
+	Color = m_Color;
+	SelColor = m_SelectedColor;
+	ColorUnChanged = m_UnchangedColor;
 }
 
 const FarColor& EditControl::GetNormalColor() const
 {
-	return Color;
+	return m_Color;
 }
 
 const FarColor& EditControl::GetSelectedColor() const
 {
-	return SelColor;
+	return m_SelectedColor;
 }
 
 const FarColor& EditControl::GetUnchangedColor() const
 {
-	return ColorUnChanged;
+	return m_UnchangedColor;
 }
 
 const int EditControl::GetTabSize() const
@@ -772,8 +772,8 @@ const EXPAND_TABS EditControl::GetTabExpandMode() const
 
 const void EditControl::SetInputMask(const string& InputMask)
 {
-	Mask = InputMask;
-	if (!Mask.empty())
+	m_Mask = InputMask;
+	if (!m_Mask.empty())
 	{
 		RefreshStrByMask(TRUE);
 	}
@@ -787,29 +787,29 @@ void EditControl::RefreshStrByMask(int InitMode)
 	{
 		int MaskLen = static_cast<int>(Mask.size());
 
-		if (StrSize!=MaskLen)
+		if (m_StrSize!=MaskLen)
 		{
-			wchar_t *NewStr=(wchar_t *)xf_realloc(Str,(MaskLen+1)*sizeof(wchar_t));
+			wchar_t *NewStr=(wchar_t *)xf_realloc(m_Str,(MaskLen+1)*sizeof(wchar_t));
 
 			if (!NewStr)
 				return;
 
-			Str=NewStr;
+			m_Str=NewStr;
 
-			for (int i=StrSize; i<MaskLen; i++)
-				Str[i]=L' ';
+			for (int i=m_StrSize; i<MaskLen; i++)
+				m_Str[i]=L' ';
 
-			StrSize=MaxLength=MaskLen;
-			Str[StrSize]=0;
+			m_StrSize=MaxLength=MaskLen;
+			m_Str[m_StrSize]=0;
 		}
 
 		for (int i=0; i<MaskLen; i++)
 		{
 			if (InitMode)
-				Str[i]=L' ';
+				m_Str[i]=L' ';
 
 			if (!CheckCharMask(Mask[i]))
-				Str[i]=Mask[i];
+				m_Str[i]=Mask[i];
 		}
 	}
 }

@@ -38,6 +38,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma GCC diagnostic ignored "-Wuseless-cast"
 #endif // __GNUC__
 
+#if defined(_MSC_VER) && _MSC_VER >= 1900
+#pragma warning(push)
+#pragma warning(disable: 4458)
+#endif
+
 #include "tinyxml.hpp"
 #include "components.hpp"
 
@@ -50,3 +55,7 @@ namespace tinyxml
 	static string getInfo() { return FormatString() << L"TinyXML, version " << TIXML_MAJOR_VERSION << L"." << TIXML_MINOR_VERSION << L"." << TIXML_PATCH_VERSION; }
 	SCOPED_ACTION(components::component)(getInfo);
 }
+
+#if defined(_MSC_VER) && _MSC_VER >= 1900
+#pragma warning(pop)
+#endif

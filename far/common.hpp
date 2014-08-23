@@ -493,6 +493,15 @@ bool InRange(const T& from, const T& what, const T& to)
 	return from <= what && what <= to;
 };
 
+template<class T>
+inline void repeat(size_t count, const T& f)
+{
+	for(size_t i = 0; i != count; ++i)
+	{
+		f();
+	}
+}
+
 template <class F> struct return_type;
 #define DEFINE_R_TYPE { typedef typename std::remove_const<typename std::remove_reference<R>::type>::type type; };
 #if defined _MSC_VER && _MSC_VER < 1800

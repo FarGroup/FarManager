@@ -909,11 +909,11 @@ BOOL SetCurrentDirectory(const string& PathName, bool Validate)
 
 	if (Validate)
 	{
-		string strDir=PathName;
-		AddEndSlash(strDir);
-		strDir+=L"*";
+		string TestDir=PathName;
+		AddEndSlash(TestDir);
+		TestDir += L"*";
 		FAR_FIND_DATA fd;
-		if (!GetFindDataEx(strDir, fd))
+		if (!GetFindDataEx(TestDir, fd))
 		{
 			DWORD LastError = ::GetLastError();
 			if(!(LastError == ERROR_FILE_NOT_FOUND || LastError == ERROR_NO_MORE_FILES))

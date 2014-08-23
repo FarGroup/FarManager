@@ -78,7 +78,7 @@ private:
 
 	int PromptSize;
 	EditControl CmdStr;
-	string strCurDir;
+	string m_CurDir;
 	string strLastCmdStr;
 	int LastCmdPartLength;
 	std::stack<string> ppstack;

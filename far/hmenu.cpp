@@ -55,7 +55,7 @@ HMenu::HMenu(HMenuData *Item,int ItemCount):
 	Item(Item),
 	SelectPos(),
 	ItemCount(ItemCount),
-	VExitCode(-1),
+	m_VExitCode(-1),
 	ItemX()
 {
 	SetMacroMode(MACROAREA_MAINMENU);
@@ -70,7 +70,7 @@ HMenu::~HMenu()
 
 void HMenu::DisplayObject()
 {
-	SetScreen(X1,Y1,X2,Y2,L' ',ColorIndexToColor(COL_HMENUTEXT));
+	SetScreen(m_X1,m_Y1,m_X2,m_Y2,L' ',ColorIndexToColor(COL_HMENUTEXT));
 	SetCursorType(0,10);
 	ShowMenu();
 }
@@ -79,7 +79,7 @@ void HMenu::DisplayObject()
 void HMenu::ShowMenu()
 {
 	string strTmpStr;
-	GotoXY(X1+2,Y1);
+	GotoXY(m_X1+2,m_Y1);
 
 	for (int i=0; i<ItemCount; i++)
 	{
@@ -224,9 +224,9 @@ int HMenu::ProcessKey(const Manager::Key& Key)
 			{
 				ProcessSubMenu(Item[SelectPos].SubMenu,Item[SelectPos].SubMenuSize,
 				               Item[SelectPos].SubMenuHelp,ItemX[SelectPos],
-				               Y1+1,VExitCode);
+				               m_Y1+1,m_VExitCode);
 
-				if (VExitCode!=-1)
+				if (m_VExitCode!=-1)
 				{
 					Close(SelectPos);
 				}
@@ -354,7 +354,7 @@ bool HMenu::TestMouse(const MOUSE_EVENT_RECORD *MouseEvent) const
 	int MsX=MouseEvent->dwMousePosition.X;
 	int MsY=MouseEvent->dwMousePosition.Y;
 
-	return MsY!=Y1 || (MsX>=ItemX[SelectPos] && MsX<ItemX[SelectPos+1]);
+	return MsY!=m_Y1 || (MsX>=ItemX[SelectPos] && MsX<ItemX[SelectPos+1]);
 }
 
 int HMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
@@ -374,7 +374,7 @@ int HMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	MsX=MouseEvent->dwMousePosition.X;
 	MsY=MouseEvent->dwMousePosition.Y;
 
-	if (MsY==Y1 && MsX>=X1 && MsX<=X2)
+	if (MsY==m_Y1 && MsX>=m_X1 && MsX<=m_X2)
 	{
 		for (int i=0; i<ItemCount; i++)
 			if (MsX>=ItemX[i] && MsX<ItemX[i+1])
@@ -398,8 +398,8 @@ int HMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 void HMenu::GetExitCode(int &ExitCode,int &VExitCode)
 {
-	ExitCode=this->ExitCode;
-	VExitCode=this->VExitCode;
+	ExitCode = m_ExitCode;
+	VExitCode = m_VExitCode;
 }
 
 
@@ -442,7 +442,7 @@ void HMenu::ProcessSubMenu(const MenuDataEx *Data,int DataCount,
 				SubMenu->Close(-1);
 				return 1;
 			}
-			if (rec.Event.MouseEvent.dwMousePosition.Y==Y1)
+			if (rec.Event.MouseEvent.dwMousePosition.Y==m_Y1)
 				return 1;
 		}
 		else

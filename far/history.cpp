@@ -53,13 +53,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 
 History::History(history_type TypeHistory, const string& HistoryName, const BoolOption& EnableSave):
-	TypeHistory(TypeHistory),
-	strHistoryName(HistoryName),
-	EnableSave(EnableSave),
-	EnableAdd(true),
-	KeepSelectedPos(false),
-	RemoveDups(1),
-	CurrentItem(0)
+	m_TypeHistory(TypeHistory),
+	m_HistoryName(HistoryName),
+	m_EnableSave(EnableSave),
+	m_EnableAdd(true),
+	m_KeepSelectedPos(false),
+	m_RemoveDups(1),
+	m_CurrentItem(0)
 {
 }
 
@@ -89,13 +89,13 @@ void History::CompactHistory()
 */
 void History::AddToHistory(const string& Str, history_record_type Type, const GUID* Guid, const wchar_t *File, const wchar_t *Data, bool SaveForbid)
 {
-	if (!EnableAdd || SaveForbid)
+	if (!m_EnableAdd || SaveForbid)
 		return;
 
-	if (Global->CtrlObject->Macro.IsExecuting() && Global->CtrlObject->Macro.IsHistoryDisable((int)TypeHistory))
+	if (Global->CtrlObject->Macro.IsExecuting() && Global->CtrlObject->Macro.IsHistoryDisable((int)m_TypeHistory))
 		return;
 
-	if (TypeHistory!=HISTORYTYPE_DIALOG && (TypeHistory!=HISTORYTYPE_FOLDER || !Guid || *Guid == FarGuid) && Str.empty())
+	if (m_TypeHistory!=HISTORYTYPE_DIALOG && (m_TypeHistory!=HISTORYTYPE_FOLDER || !Guid || *Guid == FarGuid) && Str.empty())
 		return;
 
 	bool Lock = false;
@@ -104,7 +104,7 @@ void History::AddToHistory(const string& Str, history_record_type Type, const GU
 
 	unsigned __int64 DeleteId = 0;
 
-	if (RemoveDups) // удалять дубликаты?
+	if (m_RemoveDups) // удалять дубликаты?
 	{
 		DWORD index=0;
 		string strHName,strHGuid,strHFile,strHData;
@@ -112,18 +112,18 @@ void History::AddToHistory(const string& Str, history_record_type Type, const GU
 		bool HLock;
 		unsigned __int64 id;
 		unsigned __int64 Time;
-		while (HistoryCfgRef()->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData))
+		while (HistoryCfgRef()->Enum(index++,m_TypeHistory,m_HistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData))
 		{
 			if (EqualType(Type,HType))
 			{
 				typedef int (*CompareFunction)(const string&, const string&);
 				CompareFunction CaseSensitive = StrCmp, CaseInsensitive = StrCmpI;
-				CompareFunction CmpFunction = (RemoveDups == 2 ? CaseInsensitive : CaseSensitive);
+				CompareFunction CmpFunction = (m_RemoveDups == 2 ? CaseInsensitive : CaseSensitive);
 
 				if (!CmpFunction(strName, strHName) &&
 					!CmpFunction(strGuid, strHGuid) &&
 					!CmpFunction(strFile, strHFile) &&
-					(TypeHistory == HISTORYTYPE_CMD || !CmpFunction(strData, strHData)))
+					(m_TypeHistory == HISTORYTYPE_CMD || !CmpFunction(strData, strHData)))
 				{
 					Lock = Lock || HLock;
 					DeleteId = id;
@@ -133,7 +133,7 @@ void History::AddToHistory(const string& Str, history_record_type Type, const GU
 		}
 	}
 
-	HistoryCfgRef()->DeleteAndAddAsync(DeleteId, TypeHistory, strHistoryName, strName, Type, Lock, strGuid, strFile, strData);  //Async - should never be used in a transaction
+	HistoryCfgRef()->DeleteAndAddAsync(DeleteId, m_TypeHistory, m_HistoryName, strName, Type, Lock, strGuid, strFile, strData);  //Async - should never be used in a transaction
 
 	ResetPosition();
 }
@@ -155,8 +155,8 @@ history_return_type History::Select(const wchar_t *Title, const wchar_t *HelpTop
 
 	HistoryMenu.SetPosition(-1,-1,0,0);
 
-	if (TypeHistory == HISTORYTYPE_CMD || TypeHistory == HISTORYTYPE_FOLDER || TypeHistory == HISTORYTYPE_VIEW)
-		HistoryMenu.SetId(TypeHistory == HISTORYTYPE_CMD?HistoryCmdId:(TypeHistory == HISTORYTYPE_FOLDER?HistoryFolderId:HistoryEditViewId));
+	if (m_TypeHistory == HISTORYTYPE_CMD || m_TypeHistory == HISTORYTYPE_FOLDER || m_TypeHistory == HISTORYTYPE_VIEW)
+		HistoryMenu.SetId(m_TypeHistory == HISTORYTYPE_CMD?HistoryCmdId:(m_TypeHistory == HISTORYTYPE_FOLDER?HistoryFolderId:HistoryEditViewId));
 
 	auto ret = ProcessMenu(strStr, Guid, File, Data, Title, HistoryMenu, Height, Type, nullptr);
 	Global->ScrBuf->Flush();
@@ -180,7 +180,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 	bool Done=false;
 	bool SetUpMenuPos=false;
 
-	if (TypeHistory == HISTORYTYPE_DIALOG && !HistoryCfgRef()->Count(TypeHistory,strHistoryName))
+	if (m_TypeHistory == HISTORYTYPE_DIALOG && !HistoryCfgRef()->Count(m_TypeHistory,m_HistoryName))
 		return HRT_CANCEL;
 
 	while (!Done)
@@ -216,14 +216,14 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 				return L"";
 			};
 
-			while (HistoryCfgRef()->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData,TypeHistory==HISTORYTYPE_DIALOG))
+			while (HistoryCfgRef()->Enum(index++,m_TypeHistory,m_HistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData,m_TypeHistory==HISTORYTYPE_DIALOG))
 			{
 				string strRecord;
 
-				if (TypeHistory == HISTORYTYPE_VIEW)
+				if (m_TypeHistory == HISTORYTYPE_VIEW)
 					strRecord = GetTitle(HType) + string(L":") + (HType == HR_EDITOR_RO ? L"-" : L" ");
 
-				else if (TypeHistory == HISTORYTYPE_FOLDER)
+				else if (m_TypeHistory == HISTORYTYPE_FOLDER)
 				{
 					GUID HGuid;
 					if(StrToGuid(strHGuid,HGuid) &&  HGuid != FarGuid)
@@ -250,13 +250,13 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 				}
 				strRecord += strHName;
 
-				if (TypeHistory != HISTORYTYPE_DIALOG)
+				if (m_TypeHistory != HISTORYTYPE_DIALOG)
 					ReplaceStrings(strRecord, L"&", L"&&");
 
 				MenuItemEx MenuItem(strRecord);
 				MenuItem.SetCheck(HLock?1:0);
 
-				if (!SetUpMenuPos && CurrentItem==id)
+				if (!SetUpMenuPos && m_CurrentItem==id)
 				{
 					MenuItem.SetSelect(TRUE);
 					bSelected=true;
@@ -265,7 +265,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 				HistoryMenu.SetUserData(&id,sizeof(id),HistoryMenu.AddItem(MenuItem));
 			}
 
-			if (!SetUpMenuPos && !bSelected && TypeHistory!=HISTORYTYPE_DIALOG)
+			if (!SetUpMenuPos && !bSelected && m_TypeHistory!=HISTORYTYPE_DIALOG)
 			{
 				FarListPos p={sizeof(FarListPos)};
 				p.SelectPos = HistoryMenu.GetItemCount()-1;
@@ -280,7 +280,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 		//MenuItem.SetSelect(CurLastPtr==-1 || CurLastPtr>=HistoryList.Length);
 		//HistoryMenu.SetUserData(nullptr,sizeof(OneItem *),HistoryMenu.AddItem(&MenuItem));
 
-		if (TypeHistory == HISTORYTYPE_DIALOG)
+		if (m_TypeHistory == HISTORYTYPE_DIALOG)
 		{
 			int X1,Y1,X2,Y2;
 			Dlg->CalcComboBoxPos(nullptr, HistoryMenu.GetItemCount(), X1, Y1, X2, Y2);
@@ -311,12 +311,12 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 				}
 		*/
 
-		if(TypeHistory == HISTORYTYPE_DIALOG && !HistoryMenu.GetItemCount())
+		if(m_TypeHistory == HISTORYTYPE_DIALOG && !HistoryMenu.GetItemCount())
 			return HRT_CANCEL;
 
 		MenuExitCode=HistoryMenu.Run([&](int Key)->int
 		{
-			if (TypeHistory == HISTORYTYPE_DIALOG && Key==KEY_TAB) // Tab в списке хистори диалогов - аналог Enter
+			if (m_TypeHistory == HISTORYTYPE_DIALOG && Key==KEY_TAB) // Tab в списке хистори диалогов - аналог Enter
 			{
 				HistoryMenu.Close();
 				return 1;
@@ -332,11 +332,11 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 				case KEY_CTRLR: // обновить с удалением недоступных
 				case KEY_RCTRLR:
 				{
-					if (TypeHistory == HISTORYTYPE_FOLDER || TypeHistory == HISTORYTYPE_VIEW)
+					if (m_TypeHistory == HISTORYTYPE_FOLDER || m_TypeHistory == HISTORYTYPE_VIEW)
 					{
 						bool ModifiedHistory=false;
 
-						SCOPED_ACTION(auto)(HistoryCfgRef()->ScopedTransaction());
+						SCOPED_ACTION(auto) = HistoryCfgRef()->ScopedTransaction();
 
 						DWORD index=0;
 						string strHName,strHGuid,strHFile,strHData;
@@ -344,7 +344,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 						bool HLock;
 						unsigned __int64 id;
 						unsigned __int64 Time;
-						while (HistoryCfgRef()->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData))
+						while (HistoryCfgRef()->Enum(index++,m_TypeHistory,m_HistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData))
 						{
 							if (HLock) // залоченные не трогаем
 								continue;
@@ -397,7 +397,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 				case KEY_CTRLRALTNUMENTER:
 				case KEY_RCTRLALTNUMENTER:
 				{
-					if (TypeHistory == HISTORYTYPE_DIALOG)
+					if (m_TypeHistory == HISTORYTYPE_DIALOG)
 						break;
 
 					HistoryMenu.Close(Pos.SelectPos);
@@ -413,7 +413,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 				case KEY_F4:
 				case KEY_NUMPAD5:  case KEY_SHIFTNUMPAD5:
 				{
-					if (TypeHistory != HISTORYTYPE_VIEW)
+					if (m_TypeHistory != HISTORYTYPE_VIEW)
 						break;
 
 					HistoryMenu.Close(Pos.SelectPos);
@@ -472,12 +472,12 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 					        (!Global->Opt->Confirm.HistoryClear ||
 					         (Global->Opt->Confirm.HistoryClear &&
 					          !Message(MSG_WARNING,2,
-					                  MSG((TypeHistory==HISTORYTYPE_CMD || TypeHistory==HISTORYTYPE_DIALOG?MHistoryTitle:
-					                       (TypeHistory==HISTORYTYPE_FOLDER?MFolderHistoryTitle:MViewHistoryTitle))),
+					                  MSG((m_TypeHistory==HISTORYTYPE_CMD || m_TypeHistory==HISTORYTYPE_DIALOG?MHistoryTitle:
+					                       (m_TypeHistory==HISTORYTYPE_FOLDER?MFolderHistoryTitle:MViewHistoryTitle))),
 					                  MSG(MHistoryClear),
 					                  MSG(MClear),MSG(MCancel)))))
 					{
-						HistoryCfgRef()->DeleteAllUnlocked(TypeHistory,strHistoryName);
+						HistoryCfgRef()->DeleteAllUnlocked(m_TypeHistory,m_HistoryName);
 
 						ResetPosition();
 						HistoryMenu.Close(Pos.SelectPos);
@@ -509,12 +509,12 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 				return HRT_CANCEL;
 
 			if (SelectedRecordType != HR_EXTERNAL && SelectedRecordType != HR_EXTERNAL_WAIT
-				&& RetCode != HRT_CTRLENTER && ((TypeHistory == HISTORYTYPE_FOLDER && strSelectedRecordGuid.empty()) || TypeHistory == HISTORYTYPE_VIEW) && api::GetFileAttributes(strSelectedRecordName) == INVALID_FILE_ATTRIBUTES)
+				&& RetCode != HRT_CTRLENTER && ((m_TypeHistory == HISTORYTYPE_FOLDER && strSelectedRecordGuid.empty()) || m_TypeHistory == HISTORYTYPE_VIEW) && api::GetFileAttributes(strSelectedRecordName) == INVALID_FILE_ATTRIBUTES)
 			{
 				SetLastError(ERROR_FILE_NOT_FOUND);
 				Global->CatchError();
 
-				if (SelectedRecordType == HR_EDITOR && TypeHistory == HISTORYTYPE_VIEW) // Edit? тогда спросим и если надо создадим
+				if (SelectedRecordType == HR_EDITOR && m_TypeHistory == HISTORYTYPE_VIEW) // Edit? тогда спросим и если надо создадим
 				{
 					if (!Message(MSG_WARNING|MSG_ERRORTYPE,2,Title,strSelectedRecordName.data(),MSG(MViewHistoryIsCreate),MSG(MHYes),MSG(MHNo)))
 						break;
@@ -534,9 +534,9 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 	if (MenuExitCode < 0 || !SelectedRecord)
 		return HRT_CANCEL;
 
-	if (KeepSelectedPos)
+	if (m_KeepSelectedPos)
 	{
-		CurrentItem = SelectedRecord;
+		m_CurrentItem = SelectedRecord;
 	}
 
 	strStr = strSelectedRecordName;
@@ -577,13 +577,13 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 
 void History::GetPrev(string &strStr)
 {
-	CurrentItem = HistoryCfgRef()->GetPrev(TypeHistory, strHistoryName, CurrentItem, strStr);
+	m_CurrentItem = HistoryCfgRef()->GetPrev(m_TypeHistory, m_HistoryName, m_CurrentItem, strStr);
 }
 
 
 void History::GetNext(string &strStr)
 {
-	CurrentItem = HistoryCfgRef()->GetNext(TypeHistory, strHistoryName, CurrentItem, strStr);
+	m_CurrentItem = HistoryCfgRef()->GetNext(m_TypeHistory, m_HistoryName, m_CurrentItem, strStr);
 }
 
 
@@ -601,14 +601,14 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 
 	int i=0;
 	string strName;
-	unsigned __int64 HistoryItem=HistoryCfgRef()->CyclicGetPrev(TypeHistory, strHistoryName, CurrentItem, strName);
-	while (HistoryItem != CurrentItem)
+	unsigned __int64 HistoryItem=HistoryCfgRef()->CyclicGetPrev(m_TypeHistory, m_HistoryName, m_CurrentItem, strName);
+	while (HistoryItem != m_CurrentItem)
 	{
 		if (!HistoryItem)
 		{
 			if (++i > 1) //infinite loop
 				break;
-			HistoryItem = HistoryCfgRef()->CyclicGetPrev(TypeHistory, strHistoryName, HistoryItem, strName);
+			HistoryItem = HistoryCfgRef()->CyclicGetPrev(m_TypeHistory, m_HistoryName, HistoryItem, strName);
 			continue;
 		}
 
@@ -619,11 +619,11 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 			else
 				strStr = strName;
 
-			CurrentItem = HistoryItem;
+			m_CurrentItem = HistoryItem;
 			return true;
 		}
 
-		HistoryItem = HistoryCfgRef()->CyclicGetPrev(TypeHistory, strHistoryName, HistoryItem, strName);
+		HistoryItem = HistoryCfgRef()->CyclicGetPrev(m_TypeHistory, m_HistoryName, HistoryItem, strName);
 	}
 
 	return false;
@@ -638,7 +638,7 @@ bool History::GetAllSimilar(VMenu2 &HistoryMenu,const string& Str)
 	bool HLock;
 	unsigned __int64 id;
 	unsigned __int64 Time;
-	while (HistoryCfgRef()->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData,true))
+	while (HistoryCfgRef()->Enum(index++,m_TypeHistory,m_HistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData,true))
 	{
 		if (!StrCmpNI(Str.data(),strHName.data(),Length))
 		{
@@ -675,17 +675,17 @@ bool History::DeleteIfUnlocked(unsigned __int64 id)
 
 void History::SetAddMode(bool EnableAdd, int RemoveDups, bool KeepSelectedPos)
 {
-	this->EnableAdd=EnableAdd;
-	this->RemoveDups=RemoveDups;
-	this->KeepSelectedPos=KeepSelectedPos;
+	m_EnableAdd=EnableAdd;
+	m_RemoveDups=RemoveDups;
+	m_KeepSelectedPos=KeepSelectedPos;
 }
 
 bool History::EqualType(history_record_type Type1, history_record_type Type2) const
 {
-	return Type1 == Type2 || (TypeHistory == HISTORYTYPE_VIEW && ((Type1 == HR_EDITOR_RO && Type2 == HR_EDITOR) || (Type1 == HR_EDITOR && Type2 == HR_EDITOR_RO)));
+	return Type1 == Type2 || (m_TypeHistory == HISTORYTYPE_VIEW && ((Type1 == HR_EDITOR_RO && Type2 == HR_EDITOR) || (Type1 == HR_EDITOR && Type2 == HR_EDITOR_RO)));
 }
 
 HistoryConfig* History::HistoryCfgRef() const
 {
-	return EnableSave? Global->Db->HistoryCfg() : Global->Db->HistoryCfgMem();
+	return m_EnableSave? Global->Db->HistoryCfg() : Global->Db->HistoryCfgMem();
 }

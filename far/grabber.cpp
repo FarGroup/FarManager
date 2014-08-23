@@ -50,7 +50,7 @@ Grabber::Grabber():
 	PrevArea(),
 	GArea(),
 	ResetArea(true),
-	VerticalBlock(false)
+	m_VerticalBlock(false)
 {
 	SetDynamicallyBorn(false);
 	Frame *pFrame = Global->FrameManager->GetCurrentFrame();
@@ -291,7 +291,7 @@ int Grabber::ProcessKey(const Manager::Key& Key)
 		case KEY_RCTRLINS:  case KEY_RCTRLNUMPAD0:
 		case KEY_CTRLADD:
 		case KEY_RCTRLADD:
-			CopyGrabbedArea(LocalKey == KEY_CTRLADD || LocalKey == KEY_RCTRLADD,VerticalBlock);
+			CopyGrabbedArea(LocalKey == KEY_CTRLADD || LocalKey == KEY_RCTRLADD,m_VerticalBlock);
 			Close(1);
 			break;
 		case KEY_LEFT:      case KEY_NUMPAD4:   case L'4':

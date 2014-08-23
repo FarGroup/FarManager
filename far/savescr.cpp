@@ -73,7 +73,7 @@ void SaveScreen::RestoreArea(int RestoreCursor)
 	if (ScreenBuf.empty())
 		return;
 
-	PutText(X1, Y1, X2, Y2, ScreenBuf.data());
+	PutText(m_X1, m_Y1, m_X2, m_Y2, ScreenBuf.data());
 
 	if (RestoreCursor)
 	{
@@ -85,10 +85,10 @@ void SaveScreen::RestoreArea(int RestoreCursor)
 
 void SaveScreen::SaveArea(int X1,int Y1,int X2,int Y2)
 {
-	SaveScreen::X1=X1;
-	SaveScreen::Y1=Y1;
-	SaveScreen::X2=X2;
-	SaveScreen::Y2=Y2;
+	m_X1=X1;
+	m_Y1=Y1;
+	m_X2=X2;
+	m_Y2=Y2;
 
 	ScreenBuf.allocate(Y2 - Y1 + 1, X2 - X1 + 1);
 
@@ -102,18 +102,18 @@ void SaveScreen::SaveArea()
 	if (ScreenBuf.empty())
 		return;
 
-	GetText(X1, Y1, X2, Y2, ScreenBuf);
+	GetText(m_X1, m_Y1, m_X2, m_Y2, ScreenBuf);
 	GetCursorPos(CurPosX,CurPosY);
 	GetCursorType(CurVisible,CurSize);
 }
 
 void SaveScreen::AppendArea(const SaveScreen *NewArea)
 {
-	for (int X=X1; X<=X2; X++)
-		if (X>=NewArea->X1 && X<=NewArea->X2)
-			for (int Y=Y1; Y<=Y2; Y++)
-				if (Y>=NewArea->Y1 && Y<=NewArea->Y2)
-					ScreenBuf.data()[X-X1+(X2-X1+1)*(Y-Y1)] = (NewArea->ScreenBuf.data())[X-NewArea->X1+(NewArea->X2-NewArea->X1+1)*(Y-NewArea->Y1)];
+	for (int X = m_X1; X <= m_X2; X++)
+		if (X >= NewArea->m_X1 && X <= NewArea->m_X2)
+			for (int Y = m_Y1; Y <= m_Y2; Y++)
+				if (Y >= NewArea->m_Y1 && Y <= NewArea->m_Y2)
+					ScreenBuf.data()[X - m_X1 + (m_X2 - m_X1 + 1)*(Y - m_Y1)] = (NewArea->ScreenBuf.data())[X - NewArea->m_X1 + (NewArea->m_X2 - NewArea->m_X1 + 1)*(Y - NewArea->m_Y1)];
 }
 
 void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
@@ -122,7 +122,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 //  |     |
 //  2 --- 3
 {
-	int OWi=X2-X1+1, OHe=Y2-Y1+1, iY=0;
+	int OWi = m_X2 - m_X1 + 1, OHe = m_Y2 - m_Y1 + 1, iY = 0;
 
 	if (OWi==NewX && OHe==NewY)
 	{
@@ -141,20 +141,20 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 
 	if (Corner & 2)
 	{
-		NY2=Y1+NewY-1; NY1=NY2-NewY+1;
+		NY2 = m_Y1 + NewY - 1; NY1 = NY2 - NewY + 1;
 	}
 	else
 	{
-		NY1=Y1; NY2=NY1+NewY-1;
+		NY1 = m_Y1; NY2 = NY1 + NewY - 1;
 	}
 
 	if (Corner & 1)
 	{
-		NX2=X1+NewX-1; NX1=NX2-NewX+1;
+		NX2 = m_X1 + NewX - 1; NX1 = NX2 - NewX + 1;
 	}
 	else
 	{
-		NX1=X1; NX2=NX1+NewX-1;
+		NX1 = m_X1; NX2 = NX1 + NewX - 1;
 	}
 
 	for (iY=0; iY<NewHeight; iY++)
@@ -247,7 +247,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 	}
 
 	ScreenBuf.swap(NewBuf);
-	X1=NX1; Y1=NY1; X2=NX2; Y2=NY2;
+	m_X1 = NX1; m_Y1 = NY1; m_X2 = NX2; m_Y2 = NY2;
 }
 
 void SaveScreen::CharCopy(FAR_CHAR_INFO* ToBuffer, const FAR_CHAR_INFO* FromBuffer, size_t Count)
@@ -263,5 +263,5 @@ void SaveScreen::CleanupBuffer(FAR_CHAR_INFO* Buffer, size_t BufSize)
 
 void SaveScreen::DumpBuffer(const wchar_t *Title)
 {
-	SaveScreenDumpBuffer(Title, ScreenBuf.data(), X1, Y1, X2, Y2, nullptr);
+	SaveScreenDumpBuffer(Title, ScreenBuf.data(), m_X1, m_Y1, m_X2, m_Y2, nullptr);
 }

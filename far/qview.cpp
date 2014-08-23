@@ -67,7 +67,7 @@ QuickView::QuickView():
 	m_TemporaryFile(),
 	uncomplete_dirscan(false)
 {
-	Type=QVIEW_PANEL;
+	m_Type=QVIEW_PANEL;
 	if (!LastMode)
 	{
 		LastMode = true;
@@ -88,16 +88,16 @@ string QuickView::GetTitle() const
 	string strTitle = L" ";
 	strTitle+=MSG(MQuickViewTitle);
 	strTitle+=L" ";
-	TruncStr(strTitle,X2-X1-3);
+	TruncStr(strTitle,m_X2-m_X1-3);
 	return strTitle;
 }
 
 void QuickView::DisplayObject()
 {
-	if (Flags.Check(FSCROBJ_ISREDRAWING))
+	if (m_Flags.Check(FSCROBJ_ISREDRAWING))
 		return;
 
-	Flags.Set(FSCROBJ_ISREDRAWING);
+	m_Flags.Set(FSCROBJ_ISREDRAWING);
 
 	if (!QView && !ProcessingPluginCommand)
 		Global->CtrlObject->Cp()->GetAnotherPanel(this)->UpdateViewPanel();
@@ -106,32 +106,32 @@ void QuickView::DisplayObject()
 		return;
 
 	if (QView)
-		QView->SetPosition(X1+1,Y1+1,X2-1,Y2-3);
+		QView->SetPosition(m_X1+1,m_Y1+1,m_X2-1,m_Y2-3);
 
-	Box(X1,Y1,X2,Y2,ColorIndexToColor(COL_PANELBOX),DOUBLE_BOX);
-	SetScreen(X1+1,Y1+1,X2-1,Y2-1,L' ',ColorIndexToColor(COL_PANELTEXT));
-	SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
+	Box(m_X1,m_Y1,m_X2,m_Y2,ColorIndexToColor(COL_PANELBOX),DOUBLE_BOX);
+	SetScreen(m_X1+1,m_Y1+1,m_X2-1,m_Y2-1,L' ',ColorIndexToColor(COL_PANELTEXT));
+	SetColor(m_Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
 
 	string strTitle = GetTitle();
 	if (!strTitle.empty())
 	{
-		GotoXY(X1+(X2-X1+1-(int)strTitle.size())/2,Y1);
+		GotoXY(m_X1+(m_X2-m_X1+1-(int)strTitle.size())/2,m_Y1);
 		Text(strTitle);
 	}
 
-	DrawSeparator(Y2-2);
+	DrawSeparator(m_Y2-2);
 	SetColor(COL_PANELTEXT);
-	GotoXY(X1+1,Y2-1);
-	Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(X2-X1-1)<<PointToName(strCurFileName);
+	GotoXY(m_X1+1,m_Y2-1);
+	Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(m_X2-m_X1-1)<<PointToName(strCurFileName);
 
 	if (!strCurFileType.empty())
 	{
 		string strTypeText=L" ";
 		strTypeText+=strCurFileType;
 		strTypeText+=L" ";
-		TruncStr(strTypeText,X2-X1-1);
+		TruncStr(strTypeText,m_X2-m_X1-1);
 		SetColor(COL_PANELSELECTEDINFO);
-		GotoXY(X1+(X2-X1+1-(int)strTypeText.size())/2,Y2-2);
+		GotoXY(m_X1+(m_X2-m_X1+1-(int)strTypeText.size())/2,m_Y2-2);
 		Text(strTypeText);
 	}
 
@@ -139,10 +139,10 @@ void QuickView::DisplayObject()
 	{
 		FormatString FString;
 		string DisplayName(strCurFileName);
-		TruncPathStr(DisplayName,std::max(0, X2-X1-1-StrLength(MSG(MQuickViewFolder))-5));
+		TruncPathStr(DisplayName,std::max(0, m_X2-m_X1-1-StrLength(MSG(MQuickViewFolder))-5));
 		FString<<MSG(MQuickViewFolder)<<L" \""<<DisplayName<<L"\"";
 		SetColor(COL_PANELTEXT);
-		GotoXY(X1+2,Y1+2);
+		GotoXY(m_X1+2,m_Y1+2);
 		PrintText(FString);
 
 		DWORD currAttr=api::GetFileAttributes(strCurFileName); // обламывается, если нет доступа
@@ -225,11 +225,11 @@ void QuickView::DisplayObject()
 				Target = MSG(MQuickViewNoData);
 			}
 
-			TruncPathStr(Target,std::max(0, X2-X1-1-StrLength(PtrName)-5));
+			TruncPathStr(Target,std::max(0, m_X2-m_X1-1-StrLength(PtrName)-5));
 			FString.clear();
 			FString<<PtrName<<L" \""<<Target<<L"\"";
 			SetColor(COL_PANELTEXT);
-			GotoXY(X1+2,Y1+3);
+			GotoXY(m_X1+2,m_Y1+3);
 			PrintText(FString);
 		}
 
@@ -237,30 +237,30 @@ void QuickView::DisplayObject()
 		{
 			int iColor = uncomplete_dirscan ? COL_PANELHIGHLIGHTTEXT : COL_PANELINFOTEXT;
 			const wchar_t *prefix = uncomplete_dirscan ? L"~" : L"";
-			GotoXY(X1+2,Y1+4);
+			GotoXY(m_X1+2,m_Y1+4);
 			PrintText(MSG(MQuickViewContains));
-			GotoXY(X1+2,Y1+6);
+			GotoXY(m_X1+2,m_Y1+6);
 			PrintText(MSG(MQuickViewFolders));
 			SetColor(iColor);
 			FString.clear();
 			FString<<prefix<<Data.DirCount;
 			PrintText(FString);
 			SetColor(COL_PANELTEXT);
-			GotoXY(X1+2,Y1+7);
+			GotoXY(m_X1+2,m_Y1+7);
 			PrintText(MSG(MQuickViewFiles));
 			SetColor(iColor);
 			FString.clear();
 			FString<<prefix<<Data.FileCount;
 			PrintText(FString);
 			SetColor(COL_PANELTEXT);
-			GotoXY(X1+2,Y1+8);
+			GotoXY(m_X1+2,m_Y1+8);
 			PrintText(MSG(MQuickViewBytes));
 			SetColor(iColor);
 			string strSize;
 			InsertCommas(Data.FileSize,strSize);
 			PrintText(prefix+strSize);
 			SetColor(COL_PANELTEXT);
-			GotoXY(X1+2,Y1+9);
+			GotoXY(m_X1+2,m_Y1+9);
 			PrintText(MSG(MQuickViewAllocated));
 			SetColor(iColor);
 			InsertCommas(Data.AllocationSize,strSize);
@@ -271,14 +271,14 @@ void QuickView::DisplayObject()
 			if (Directory!=4)
 			{
 				SetColor(COL_PANELTEXT);
-				GotoXY(X1+2,Y1+11);
+				GotoXY(m_X1+2,m_Y1+11);
 				PrintText(MSG(MQuickViewCluster));
 				SetColor(iColor);
 				InsertCommas(Data.ClusterSize,strSize);
 				PrintText(prefix+strSize);
 
 				SetColor(COL_PANELTEXT);
-				GotoXY(X1+2,Y1+12);
+				GotoXY(m_X1+2,m_Y1+12);
 				PrintText(MSG(MQuickViewSlack));
 				SetColor(iColor);
 				InsertCommas(Data.FilesSlack, strSize);
@@ -287,7 +287,7 @@ void QuickView::DisplayObject()
 				PrintText(FString);
 
 				SetColor(COL_PANELTEXT);
-				GotoXY(X1+2,Y1+13);
+				GotoXY(m_X1+2,m_Y1+13);
 				PrintText(MSG(MQuickViewMFTOverhead));
 				SetColor(iColor);
 				InsertCommas(Data.MFTOverhead, strSize);
@@ -301,7 +301,7 @@ void QuickView::DisplayObject()
 	else if (QView)
 		QView->Show();
 
-	Flags.Clear(FSCROBJ_ISREDRAWING);
+	m_Flags.Clear(FSCROBJ_ISREDRAWING);
 }
 
 
@@ -405,7 +405,7 @@ int QuickView::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 void QuickView::Update(int Mode)
 {
-	if (!EnableUpdate)
+	if (!m_EnableUpdate)
 		return;
 
 	if (strCurFileName.empty())
@@ -477,7 +477,7 @@ void QuickView::ShowFile(const string& FileName, bool TempFile, PluginHandle* hD
 		{
 			QView = std::make_unique<Viewer>(true);
 			QView->SetRestoreScreenMode(false);
-			QView->SetPosition(X1+1,Y1+1,X2-1,Y2-3);
+			QView->SetPosition(m_X1+1,m_Y1+1,m_X2-1,m_Y2-3);
 			QView->SetStatusMode(0);
 			QView->EnableHideCursor(0);
 			OldWrapMode = QView->GetWrapMode();
@@ -544,10 +544,10 @@ void QuickView::QViewDelTempName()
 
 void QuickView::PrintText(const string& Str)
 {
-	if (WhereY()>Y2-3 || WhereX()>X2-2)
+	if (WhereY()>m_Y2-3 || WhereX()>m_X2-2)
 		return;
 
-	Global->FS << fmt::MaxWidth(X2-2-WhereX()+1)<<Str;
+	Global->FS << fmt::MaxWidth(m_X2-2-WhereX()+1)<<Str;
 }
 
 

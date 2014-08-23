@@ -1725,11 +1725,11 @@ bool KeyToTextImpl(int Key0, string& strKeyText, tfkey_to_text ToText, add_separ
 
 	GetShiftKeyName(strKeyText, Key, ToText, AddSeparator);
 
-	auto ItemIterator = std::find(ALL_CONST_RANGE(FKeys1), FKey);
-	if (ItemIterator != std::cend(FKeys1))
+	auto FKeys1Iterator = std::find(ALL_CONST_RANGE(FKeys1), FKey);
+	if (FKeys1Iterator != std::cend(FKeys1))
 	{
 		AddSeparator(strKeyText);
-		strKeyText += ToText(ItemIterator);
+		strKeyText += ToText(FKeys1Iterator);
 	}
 	else
 	{
@@ -1750,11 +1750,11 @@ bool KeyToTextImpl(int Key0, string& strKeyText, tfkey_to_text ToText, add_separ
 		{
 #if defined(SYSLOG)
 			// Этот кусок кода нужен только для того, что "спецклавиши" логировались нормально
-			auto ItemIterator = std::find(ALL_CONST_RANGE(SpecKeyName), FKey);
-			if (ItemIterator != std::cend(SpecKeyName))
+			auto SpecKeyIterator = std::find(ALL_CONST_RANGE(SpecKeyName), FKey);
+			if (SpecKeyIterator != std::cend(SpecKeyName))
 			{
 				AddSeparator(strKeyText);
-				strKeyText += ToText(ItemIterator);
+				strKeyText += ToText(SpecKeyIterator);
 			}
 			else
 #endif
@@ -1829,12 +1829,14 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 	             (FShift&KEY_RCTRL?PKF_RCONTROL:0)|
 	             (FShift&KEY_CTRL?PKF_CONTROL:0);
 
-	bool KeyInTable=false;
-	auto ItemIterator = std::find_if(CONST_RANGE(Table_KeyToVK, i) {return static_cast<DWORD>(i.first) == FKey;});
-	if (ItemIterator != std::cend(Table_KeyToVK))
+	bool KeyInTable = false;
 	{
-		VirtKey = ItemIterator->second;
-		KeyInTable = true;
+		auto ItemIterator = std::find_if(CONST_RANGE(Table_KeyToVK, i) { return static_cast<DWORD>(i.first) == FKey; });
+		if (ItemIterator != std::cend(Table_KeyToVK))
+		{
+			VirtKey = ItemIterator->second;
+			KeyInTable = true;
+		}
 	}
 
 	if (!KeyInTable)

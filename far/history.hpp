@@ -83,7 +83,7 @@ public:
 	bool GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend=false);
 	bool GetAllSimilar(VMenu2 &HistoryMenu,const string& Str);
 	void SetAddMode(bool EnableAdd, int RemoveDups, bool KeepSelectedPos);
-	void ResetPosition() { CurrentItem = 0; }
+	void ResetPosition() { m_CurrentItem = 0; }
 	bool DeleteIfUnlocked(unsigned __int64 id);
 	bool ReadLastItem(const string& HistoryName, string &strStr) const;
 
@@ -94,11 +94,11 @@ private:
 	history_return_type ProcessMenu(string &strStr, GUID* Guid, string *File, string *Data, const wchar_t *Title, VMenu2 &HistoryMenu, int Height, history_record_type& Type, Dialog *Dlg);
 	HistoryConfig* HistoryCfgRef() const;
 
-	history_type TypeHistory;
-	string strHistoryName;
-	const BoolOption& EnableSave;
-	bool EnableAdd;
-	bool KeepSelectedPos;
-	int RemoveDups;
-	unsigned __int64 CurrentItem;
+	history_type m_TypeHistory;
+	string m_HistoryName;
+	const BoolOption& m_EnableSave;
+	bool m_EnableAdd;
+	bool m_KeepSelectedPos;
+	int m_RemoveDups;
+	unsigned __int64 m_CurrentItem;
 };

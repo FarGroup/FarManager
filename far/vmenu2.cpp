@@ -208,8 +208,8 @@ void VMenu2::Resize(bool force)
 	SendMessage(DM_LISTINFO, 0, &info);
 
 
-	int X1=this->X1;
-	int Y1=this->Y1;
+	int X1 = m_X1;
+	int Y1 = m_Y1;
 	if(!ShortBox)
 	{
 		if(X1>1)
@@ -220,8 +220,8 @@ void VMenu2::Resize(bool force)
 
 
 	int width=info.MaxLength+(ShortBox?2:6) + 3;
-	if(X2>0)
-		width=X2-X1+1;
+	if(m_X2>0)
+		width=m_X2-X1+1;
 
 	if(width>ScrX+1)
 		width=ScrX+1;
@@ -232,8 +232,8 @@ void VMenu2::Resize(bool force)
 		height=MaxHeight;
 
 	height+=ShortBox?2:4;
-	if(Y2>0)
-		height=Y2-Y1+1;
+	if(m_Y2>0)
+		height=m_Y2-Y1+1;
 
 
 	int mh=Y1<0 ? ScrY : ScrY-Y1;
@@ -244,7 +244,7 @@ void VMenu2::Resize(bool force)
 		mh=0;
 	if(height>mh)
 	{
-		if(Y2<=0 && Y1>=ScrY/2)
+		if(m_Y2<=0 && Y1>=ScrY/2)
 		{
 			Y1+=ShortBox?1:3;
 			if(height>Y1)
@@ -330,10 +330,10 @@ VMenu2::VMenu2(const string& Title, const MenuDataEx *Data, size_t ItemCount, in
 	Dialog(VMenu2DialogItems, this, &VMenu2::VMenu2DlgProc),
 	MaxHeight(MaxHeight),
 	cancel(0),
-	X1(-1),
-	Y1(-1),
-	X2(0),
-	Y2(0),
+	m_X1(-1),
+	m_Y1(-1),
+	m_X2(0),
+	m_Y2(0),
 	ShortBox(false),
 	DefRec(),
 	NeedResize(false),
@@ -530,10 +530,10 @@ void VMenu2::SetPosition(int X1,int Y1,int X2,int Y2)
 	if((X2>0 && X2<X1) || (Y2>0 && Y2<Y1))
 		return;
 
-	this->X1=X1;
-	this->Y1=Y1;
-	this->X2=X2;
-	this->Y2=Y2;
+	m_X1=X1;
+	m_Y1=Y1;
+	m_X2=X2;
+	m_Y2=Y2;
 	Resize();
 }
 
@@ -639,8 +639,8 @@ static int ClickHandler(VMenu2* Menu, const IntOption& MenuClick)
 
 int VMenu2::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	if (MouseEvent->dwMousePosition.X < Dialog::X1 || MouseEvent->dwMousePosition.Y < Dialog::Y1 ||
-		MouseEvent->dwMousePosition.X > Dialog::X2 || MouseEvent->dwMousePosition.Y > Dialog::Y2)
+	if (MouseEvent->dwMousePosition.X < m_X1 || MouseEvent->dwMousePosition.Y < m_Y1 ||
+		MouseEvent->dwMousePosition.X > m_X2 || MouseEvent->dwMousePosition.Y > m_Y2)
 	{
 		if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
 			return ClickHandler(this, Global->Opt->VMenu.LBtnClick);

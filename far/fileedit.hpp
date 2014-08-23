@@ -83,18 +83,18 @@ public:
 
 	void ShowStatus();
 	void SetLockEditor(BOOL LockMode);
-	bool IsFullScreen() { return Flags.Check(FFILEEDIT_FULLSCREEN); }
+	bool IsFullScreen() { return m_Flags.Check(FFILEEDIT_FULLSCREEN); }
 	void SetNamesList(NamesList& Names);
-	void SetEnableF6(bool AEnableF6) { Flags.Change(FFILEEDIT_ENABLEF6, AEnableF6); InitKeyBar(); }
+	void SetEnableF6(bool AEnableF6) { m_Flags.Change(FFILEEDIT_ENABLEF6, AEnableF6); InitKeyBar(); }
 	// ƒобавлено дл€ поиска по AltF7. ѕри редактировании найденного файла из
 	// архива дл€ клавиши F2 сделать вызов ShiftF2.
-	void SetSaveToSaveAs(bool ToSaveAs) { Flags.Change(FFILEEDIT_SAVETOSAVEAS, ToSaveAs); InitKeyBar(); }
+	void SetSaveToSaveAs(bool ToSaveAs) { m_Flags.Change(FFILEEDIT_SAVETOSAVEAS, ToSaveAs); InitKeyBar(); }
 	intptr_t EditorControl(int Command, intptr_t Param1, void *Param2);
 	bool SetCodePage(uintptr_t codepage);  //BUGBUG
 	BOOL IsFileChanged() const { return m_editor->IsFileChanged(); }
 	void GetEditorOptions(Options::EditorOptions& EdOpt) const;
 	void SetEditorOptions(const Options::EditorOptions& EdOpt);
-	void CodepageChangedByUser() { Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER); }
+	void CodepageChangedByUser() { m_Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER); }
 	void SetPluginTitle(const string* PluginTitle);
 	int GetId() const { return m_editor->EditorID; }
 
@@ -159,7 +159,7 @@ private:
 	string strPluginData;
 	api::FAR_FIND_DATA FileInfo;
 	wchar_t AttrStr[4];            // 13.02.2001 IS - —юда запомним буквы атрибутов, чтобы не вычисл€ть их много раз
-	DWORD FileAttributes;          // 12.02.2001 IS - сюда запомним атрибуты файла при открытии, пригод€тс€ где-нибудь...
+	DWORD m_FileAttributes;          // 12.02.2001 IS - сюда запомним атрибуты файла при открытии, пригод€тс€ где-нибудь...
 	BOOL  FileAttributesModified;  // 04.11.2003 SKV - надо ли восстанавливать аттрибуты при save
 	DWORD SysErrorCode;
 	bool m_bClosing;               // 28.04.2005 AY: true когда редактор закрываетьс€ (т.е. в деструкторе)

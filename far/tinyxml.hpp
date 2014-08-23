@@ -33,6 +33,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace tinyxml
 {
+#if defined(_MSC_VER) && _MSC_VER >= 1900
+#pragma warning(push)
+#pragma warning(disable: 4458)
+#endif
+
 #define TIXML_USE_STL
+
 #include "thirdparty/tinyxml/tinyxml.h"
+
+#if defined(_MSC_VER) && _MSC_VER >= 1900
+#pragma warning(pop)
+#endif
+
 }

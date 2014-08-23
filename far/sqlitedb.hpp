@@ -102,7 +102,7 @@ protected:
 	unsigned __int64 LastInsertRowID();
 
 	string strPath;
-	string strName;
+	string m_Name;
 
 private:
 	virtual bool InitializeImpl(const string& DbName, bool Local) = 0;

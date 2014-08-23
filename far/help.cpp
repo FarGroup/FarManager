@@ -188,14 +188,14 @@ Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
 	StartPos(0),
 	MouseDown(false),
 	IsNewTopic(true),
-	TopicFound(false),
+	m_TopicFound(false),
 	ErrorHelp(true),
 	LastSearchCase(Global->GlobalSearchCase),
 	LastSearchWholeWords(Global->GlobalSearchWholeWords),
 	LastSearchRegexp(Global->Opt->HelpSearchRegexp)
 {
-	CanLoseFocus=FALSE;
-	KeyBarVisible=TRUE;
+	m_CanLoseFocus=FALSE;
+	m_KeyBarVisible=TRUE;
 	/* $ OT По умолчанию все хелпы создаются статически*/
 	SetDynamicallyBorn(false);
 	SetRestoreScreenMode(true);
@@ -229,7 +229,7 @@ Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
 
 	if (!HelpList.empty())
 	{
-		ScreenObjectWithShadow::Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
+		m_Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
 		InitKeyBar();
 		SetMacroMode(MACROAREA_HELP);
 		MoveToReference(1,1);
@@ -242,12 +242,12 @@ Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
 
 		if (!(Flags&FHELP_NOSHOWERROR))
 		{
-			if (!ScreenObjectWithShadow::Flags.Check(FHELPOBJ_ERRCANNOTOPENHELP))
+			if (!m_Flags.Check(FHELPOBJ_ERRCANNOTOPENHELP))
 			{
 				Message(MSG_WARNING, 1, MSG(MHelpTitle), MSG(MHelpTopicNotFound), StackData->strHelpTopic.data(), MSG(MOk));
 			}
 
-			ScreenObjectWithShadow::Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
+			m_Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
 		}
 	}
 }
@@ -263,7 +263,7 @@ int Help::ReadHelp(const string& Mask)
 	bool drawline = false;
 	wchar_t DrawLineChar=0;
 	size_t PosTab;
-	const int MaxLength=X2-X1-1;
+	const int MaxLength=m_X2-m_X1-1;
 	string strTabSpace;
 	string strPath;
 
@@ -300,9 +300,9 @@ int Help::ReadHelp(const string& Mask)
 	{
 		ErrorHelp = true;
 
-		if (!ScreenObjectWithShadow::Flags.Check(FHELPOBJ_ERRCANNOTOPENHELP))
+		if (!m_Flags.Check(FHELPOBJ_ERRCANNOTOPENHELP))
 		{
-			ScreenObjectWithShadow::Flags.Set(FHELPOBJ_ERRCANNOTOPENHELP);
+			m_Flags.Set(FHELPOBJ_ERRCANNOTOPENHELP);
 
 			if (!(StackData->Flags&FHELP_NOSHOWERROR))
 			{
@@ -350,7 +350,7 @@ int Help::ReadHelp(const string& Mask)
 	}
 
 	FixCount=0;
-	TopicFound=0;
+	m_TopicFound=0;
 	RepeatLastLine=FALSE;
 	BreakProcess=FALSE;
 	int NearTopicFound=0;
@@ -480,14 +480,14 @@ int Help::ReadHelp(const string& Mask)
 			}
 		}
 
-		if (TopicFound)
+		if (m_TopicFound)
 		{
 			HighlightsCorrection(strReadStr);
 		}
 
 		if (!strReadStr.empty() && strReadStr[0]==L'@' && !BreakProcess)
 		{
-			if (TopicFound)
+			if (m_TopicFound)
 			{
 				if (strReadStr == L"@+")
 				{
@@ -526,7 +526,7 @@ int Help::ReadHelp(const string& Mask)
 			}
 			else if (!StrCmpI(strReadStr.data() + 1, StackData->strHelpTopic.data()))
 			{
-				TopicFound=1;
+				m_TopicFound=1;
 				NearTopicFound=1;
 			}
 			else // redirection @SearchTopic=RealTopic
@@ -546,7 +546,7 @@ m1:
 			if (strReadStr.empty() && BreakProcess && strSplitLine.empty())
 				break;
 
-			if (TopicFound)
+			if (m_TopicFound)
 			{
 				if (!StrCmpNI(strReadStr.data(),L"<!Macro:",8) && Global->CtrlObject)
 				{
@@ -659,7 +659,7 @@ m1:
 						}
 						wchar_t userSeparator[4] = { L' ', (DrawLineChar ? DrawLineChar : BoxSymbols[BS_H1]), L' ', 0 }; // left-center-right
 						int Mul = (DrawLineChar == L'@' || DrawLineChar == L'~' || DrawLineChar == L'#' ? 2 : 1); // Double. See Help::OutString
-						AddLine(MakeSeparator((X2 - X1 - 1) * Mul - (Mul>>1), 12, userSeparator)); // 12 -> UserSep horiz
+						AddLine(MakeSeparator((m_X2 - m_X1 - 1) * Mul - (Mul>>1), 12, userSeparator)); // 12 -> UserSep horiz
 						strReadStr.clear();
 						strSplitLine.clear();
 						continue;
@@ -751,7 +751,7 @@ m1:
 		StackData->TopStr = 0;
 	}
 
-	return TopicFound;
+	return m_TopicFound;
 }
 
 void Help::AddLine(const string& Line)
@@ -787,7 +787,7 @@ void Help::HighlightsCorrection(string &strStr)
 
 void Help::DisplayObject()
 {
-	if (!TopicFound)
+	if (!m_TopicFound)
 	{
 		if (!ErrorHelp) // если это убрать, то при несуществующей ссылке
 		{               // с нынешним манагером попадаем в бесконечный цикл.
@@ -842,7 +842,7 @@ void Help::FastShow()
 	*/
 	CurColor=COL_HELPTEXT;
 
-	for (int i=0; i<Y2-Y1-1; i++)
+	for (int i=0; i<m_Y2-m_Y1-1; i++)
 	{
 		int StrPos;
 
@@ -854,9 +854,9 @@ void Help::FastShow()
 		{
 			if (!Locked())
 			{
-				GotoXY(X1,Y1+i+1);
+				GotoXY(m_X1,m_Y1+i+1);
 				SetColor(COL_HELPBOX);
-				ShowSeparator(X2-X1+1,1);
+				ShowSeparator(m_X2-m_X1+1,1);
 			}
 
 			continue;
@@ -876,11 +876,11 @@ void Help::FastShow()
 			if (*OutStr==L'^')
 			{
 				OutStr++;
-				GotoXY(X1+1+std::max(0,(X2-X1-1-StringLen(OutStr))/2),Y1+i+1);
+				GotoXY(m_X1+1+std::max(0,(m_X2-m_X1-1-StringLen(OutStr))/2),m_Y1+i+1);
 			}
 			else
 			{
-				GotoXY(X1+1,Y1+i+1);
+				GotoXY(m_X1+1,m_Y1+i+1);
 			}
 
 			OutString(OutStr);
@@ -890,14 +890,14 @@ void Help::FastShow()
 	if (!Locked())
 	{
 		SetColor(COL_HELPSCROLLBAR);
-		ScrollBarEx(X2, Y1 + FixSize + 1, Y2 - Y1 - FixSize - 1, StackData->TopStr, HelpList.size() - FixCount);
+		ScrollBarEx(m_X2, m_Y1 + FixSize + 1, m_Y2 - m_Y1 - FixSize - 1, StackData->TopStr, HelpList.size() - FixCount);
 	}
 }
 
 void Help::DrawWindowFrame()
 {
-	SetScreen(X1,Y1,X2,Y2,L' ',ColorIndexToColor(COL_HELPTEXT));
-	Box(X1,Y1,X2,Y2,ColorIndexToColor(COL_HELPBOX),DOUBLE_BOX);
+	SetScreen(m_X1,m_Y1,m_X2,m_Y2,L' ',ColorIndexToColor(COL_HELPTEXT));
+	Box(m_X1,m_Y1,m_X2,m_Y2,ColorIndexToColor(COL_HELPBOX),DOUBLE_BOX);
 	SetColor(COL_HELPBOXTITLE);
 	string strHelpTitleBuf;
 	strHelpTitleBuf = MSG(MHelpTitle);
@@ -908,8 +908,8 @@ void Help::DrawWindowFrame()
 	else
 		strHelpTitleBuf += L"FAR";
 
-	TruncStrFromEnd(strHelpTitleBuf,X2-X1-3);
-	GotoXY(X1+(X2-X1+1-(int)strHelpTitleBuf.size()-2)/2,Y1);
+	TruncStrFromEnd(strHelpTitleBuf,m_X2-m_X1-3);
+	GotoXY(m_X1+(m_X2-m_X1+1-(int)strHelpTitleBuf.size()-2)/2,m_Y1);
 	Global->FS << L" "<<strHelpTitleBuf<<L" ";
 }
 
@@ -1022,17 +1022,17 @@ static bool FastParseLine(const wchar_t *Str, int *pLen, int x0, int realX, stri
 bool Help::GetTopic(int realX, int realY, string& strTopic)
 {
 	strTopic.clear();
-	if (realY <= Y1 || realY >= Y2 || realX <= X1 || realX >= X2)
+	if (realY <= m_Y1 || realY >= m_Y2 || realX <= m_X1 || realX >= m_X2)
 		return false;
 
 	int y = -1;
-	if (realY-Y1 <= FixSize)
+	if (realY-m_Y1 <= FixSize)
 	{
 		if (y != FixCount)
-			y = realY - Y1 - 1;
+			y = realY - m_Y1 - 1;
 	}
 	else
-		y = realY - Y1 - 1 - FixSize+FixCount + StackData->TopStr;
+		y = realY - m_Y1 - 1 - FixSize+FixCount + StackData->TopStr;
 
 	if (y < 0 || y >= static_cast<int>(HelpList.size()))
 		return false;
@@ -1042,11 +1042,11 @@ bool Help::GetTopic(int realX, int realY, string& strTopic)
 	if (!*Str)
 		return false;
 
-	int x = X1 + 1;
+	int x = m_X1 + 1;
 	if (*Str == L'^') // center
 	{
 		int w = StringLen(++Str);
-		x = X1 + 1 + std::max(0, (X2 - X1 - 1 - w)/2);
+		x = m_X1 + 1 + std::max(0, (m_X2 - m_X1 - 1 - w)/2);
 	}
 
 	return FastParseLine(Str, nullptr, x, realX, &strTopic, strCtrlColorChar.data()[0]);
@@ -1086,8 +1086,8 @@ void Help::OutString(const wchar_t *Str)
 			if (Topic)
 			{
 				int RealCurX,RealCurY;
-				RealCurX=X1+StackData->CurX+1;
-				RealCurY=Y1+StackData->CurY+FixSize+1;
+				RealCurX=m_X1+StackData->CurX+1;
+				RealCurY=m_Y1+StackData->CurY+FixSize+1;
 				bool found = WhereY()==RealCurY && RealCurX>=WhereX() && RealCurX<WhereX()+(Str-StartTopic)-1;
 
 				SetColor(found ? COL_HELPSELECTEDTOPIC : COL_HELPTOPIC);
@@ -1104,8 +1104,8 @@ void Help::OutString(const wchar_t *Str)
 
 			/* $ 24.09.2001 VVM
 			  ! Обрежем длинные строки при показе. Такое будет только при длинных ссылках... */
-			if (StrLength(OutStr) + WhereX() > X2)
-				OutStr[X2 - WhereX()] = 0;
+			if (StrLength(OutStr) + WhereX() > m_X2)
+				OutStr[m_X2 - WhereX()] = 0;
 
 			if (Locked())
 				GotoXY(WhereX()+StrLength(OutStr),WhereY());
@@ -1141,25 +1141,25 @@ void Help::OutString(const wchar_t *Str)
 		}
 	}
 
-	if (!Locked() && WhereX()<X2)
+	if (!Locked() && WhereX()<m_X2)
 	{
 		SetColor(CurColor);
-		Global->FS << fmt::MinWidth(X2-WhereX())<<L"";
+		Global->FS << fmt::MinWidth(m_X2-WhereX())<<L"";
 	}
 }
 
 void Help::CorrectPosition()
 {
-	if (StackData->CurX>X2-X1-2)
-		StackData->CurX=X2-X1-2;
+	if (StackData->CurX>m_X2-m_X1-2)
+		StackData->CurX=m_X2-m_X1-2;
 
 	if (StackData->CurX<0)
 		StackData->CurX=0;
 
-	if (StackData->CurY>Y2-Y1-2-FixSize)
+	if (StackData->CurY>m_Y2-m_Y1-2-FixSize)
 	{
-		StackData->TopStr+=StackData->CurY-(Y2-Y1-2-FixSize);
-		StackData->CurY=Y2-Y1-2-FixSize;
+		StackData->TopStr+=StackData->CurY-(m_Y2-m_Y1-2-FixSize);
+		StackData->CurY=m_Y2-m_Y1-2-FixSize;
 	}
 
 	if (StackData->CurY<0)
@@ -1168,7 +1168,7 @@ void Help::CorrectPosition()
 		StackData->CurY=0;
 	}
 
-	StackData->TopStr = std::max(0, std::min(StackData->TopStr, static_cast<int>(HelpList.size()) - FixCount - (Y2 - Y1 - 1 - FixSize)));
+	StackData->TopStr = std::max(0, std::min(StackData->TopStr, static_cast<int>(HelpList.size()) - FixCount - (m_Y2 - m_Y1 - 1 - FixSize)));
 }
 
 __int64 Help::VMProcess(int OpCode,void *vParam,__int64 iParam)
@@ -1247,7 +1247,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 			if (StackData->strSelTopic.empty())
 			{
 				StackData->CurX=0;
-				StackData->CurY=Y2-Y1-2-FixSize;
+				StackData->CurY=m_Y2-m_Y1-2-FixSize;
 				MoveToReference(0,1);
 			}
 
@@ -1259,9 +1259,9 @@ int Help::ProcessKey(const Manager::Key& Key)
 			{
 				StackData->TopStr--;
 
-				if (StackData->CurY<Y2-Y1-2-FixSize)
+				if (StackData->CurY<m_Y2-m_Y1-2-FixSize)
 				{
-					StackData->CurX=X2-X1-2;
+					StackData->CurX=m_X2-m_X1-2;
 					StackData->CurY++;
 				}
 
@@ -1277,7 +1277,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_DOWN:        case KEY_NUMPAD2:
 		{
-			if (StackData->TopStr < static_cast<int>(HelpList.size()) - FixCount - (Y2 - Y1 - 1 - FixSize))
+			if (StackData->TopStr < static_cast<int>(HelpList.size()) - FixCount - (m_Y2 - m_Y1 - 1 - FixSize))
 			{
 				StackData->TopStr++;
 
@@ -1320,7 +1320,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 		case KEY_PGUP:      case KEY_NUMPAD9:
 		{
 			StackData->CurX=StackData->CurY=0;
-			StackData->TopStr-=Y2-Y1-2-FixSize;
+			StackData->TopStr-=m_Y2-m_Y1-2-FixSize;
 			FastShow();
 
 			if (StackData->strSelTopic.empty())
@@ -1335,7 +1335,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 		{
 			{
 				int PrevTopStr=StackData->TopStr;
-				StackData->TopStr+=Y2-Y1-2-FixSize;
+				StackData->TopStr+=m_Y2-m_Y1-2-FixSize;
 				FastShow();
 
 				if (StackData->TopStr==PrevTopStr)
@@ -1622,7 +1622,7 @@ int Help::JumpTopic()
 		ReadHelp(StackData->strHelpMask);
 	}
 
-	ScreenObjectWithShadow::Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
+	m_Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
 
 	if (HelpList.empty())
 	{
@@ -1663,11 +1663,11 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	bool simple_move = (IntKeyState.MouseEventFlags == MOUSE_MOVED);
 
 
-	if ((MsX<X1 || MsY<Y1 || MsX>X2 || MsY>Y2) && IntKeyState.MouseEventFlags != MOUSE_MOVED)
+	if ((MsX<m_X1 || MsY<m_Y1 || MsX>m_X2 || MsY>m_Y2) && IntKeyState.MouseEventFlags != MOUSE_MOVED)
 	{
 		static const int HELPMODE_CLICKOUTSIDE = 0x20000000; // было нажатие мыши вне хелпа?
 
-		if (Flags.Check(HELPMODE_CLICKOUTSIDE))
+		if (m_Flags.Check(HELPMODE_CLICKOUTSIDE))
 		{
 			// Вываливаем если предыдущий эвент не был двойным кликом
 			if (IntKeyState.PreMouseEventFlags != DOUBLE_CLICK)
@@ -1675,15 +1675,15 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		}
 
 		if (MouseEvent->dwButtonState)
-			Flags.Set(HELPMODE_CLICKOUTSIDE);
+			m_Flags.Set(HELPMODE_CLICKOUTSIDE);
 
 		return TRUE;
 	}
 
-	if (IntKeyState.MouseX==X2 && (MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED))
+	if (IntKeyState.MouseX==m_X2 && (MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED))
 	{
-		int ScrollY=Y1+FixSize+1;
-		int Height=Y2-Y1-FixSize-1;
+		int ScrollY=m_Y1+FixSize+1;
+		int Height=m_Y2-m_Y1-FixSize-1;
 
 		if (IntKeyState.MouseY==ScrollY)
 		{
@@ -1706,10 +1706,10 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	/* $ 15.03.2002 DJ
 	   обработаем щелчок в середине скроллбара
 	*/
-	if (IntKeyState.MouseX == X2)
+	if (IntKeyState.MouseX == m_X2)
 	{
-		int ScrollY=Y1+FixSize+1;
-		int Height=Y2-Y1-FixSize-1;
+		int ScrollY=m_Y1+FixSize+1;
+		int Height=m_Y2-m_Y1-FixSize-1;
 
 		if (static_cast<int>(HelpList.size()) > Height)
 		{
@@ -1731,23 +1731,23 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	// DoubliClock - свернуть/развернуть хелп.
 	if (MouseEvent->dwEventFlags==DOUBLE_CLICK &&
 	        (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) &&
-	        MouseEvent->dwMousePosition.Y<Y1+1+FixSize)
+	        MouseEvent->dwMousePosition.Y<m_Y1+1+FixSize)
 	{
 		ProcessKey(Manager::Key(KEY_F5));
 		return TRUE;
 	}
 
-	if (MouseEvent->dwMousePosition.Y<Y1+1+FixSize)
+	if (MouseEvent->dwMousePosition.Y<m_Y1+1+FixSize)
 	{
-		while (IsMouseButtonPressed() && IntKeyState.MouseY<Y1+1+FixSize)
+		while (IsMouseButtonPressed() && IntKeyState.MouseY<m_Y1+1+FixSize)
 			ProcessKey(Manager::Key(KEY_UP));
 
 		return TRUE;
 	}
 
-	if (MouseEvent->dwMousePosition.Y>=Y2)
+	if (MouseEvent->dwMousePosition.Y>=m_Y2)
 	{
-		while (IsMouseButtonPressed() && IntKeyState.MouseY>=Y2)
+		while (IsMouseButtonPressed() && IntKeyState.MouseY>=m_Y2)
 			ProcessKey(Manager::Key(KEY_DOWN));
 
 		return TRUE;
@@ -1760,8 +1760,8 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	{
 		BeforeMouseDownX = StackData->CurX;
 		BeforeMouseDownY = StackData->CurY;
-		StackData->CurX = MouseDownX = MsX-X1-1;
-		StackData->CurY = MouseDownY = MsY-Y1-1-FixSize;
+		StackData->CurX = MouseDownX = MsX-m_X1-1;
+		StackData->CurY = MouseDownY = MsY-m_Y1-1-FixSize;
 		MouseDown = true;
 		simple_move = false;
 	}
@@ -1794,8 +1794,8 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		{
 			//if (strTopic != StackData->strSelTopic)
 			{
-				StackData->CurX = MsX-X1-1;
-				StackData->CurY = MsY-Y1-1-FixSize;
+				StackData->CurX = MsX-m_X1-1;
+				StackData->CurY = MsY-m_Y1-1-FixSize;
 			}
 		}
 	}
@@ -1834,28 +1834,28 @@ void Help::MoveToReference(int Forward,int CurScreen)
 			if (Forward)
 			{
 				if (!StackData->CurX && !ReferencePresent)
-					StackData->CurX=X2-X1-2;
+					StackData->CurX=m_X2-m_X1-2;
 
-				if (++StackData->CurX >= X2-X1-2)
+				if (++StackData->CurX >= m_X2-m_X1-2)
 				{
 					StartSelection=0;
 					StackData->CurX=0;
 					StackData->CurY++;
 
 					if (StackData->TopStr + StackData->CurY >= static_cast<int>(HelpList.size()) - FixCount ||
-					        (CurScreen && StackData->CurY>Y2-Y1-2-FixSize))
+					        (CurScreen && StackData->CurY>m_Y2-m_Y1-2-FixSize))
 						break;
 				}
 			}
 			else
 			{
-				if (StackData->CurX==X2-X1-2 && !ReferencePresent)
+				if (StackData->CurX==m_X2-m_X1-2 && !ReferencePresent)
 					StackData->CurX=0;
 
 				if (--StackData->CurX < 0)
 				{
 					StartSelection=0;
-					StackData->CurX=X2-X1-2;
+					StackData->CurX=m_X2-m_X1-2;
 					StackData->CurY--;
 
 					if (StackData->TopStr+StackData->CurY<0 ||
@@ -1896,7 +1896,7 @@ void Help::Search(api::File& HelpFile,uintptr_t nCodePage)
 	FixCount=1;
 	FixSize=2;
 	StackData->TopStr=0;
-	TopicFound = true;
+	m_TopicFound = true;
 	StackData->CurX=StackData->CurY=0;
 	strCtrlColorChar.clear();
 
@@ -1986,7 +1986,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 	FixCount=1;
 	FixSize=2;
 	StackData->TopStr=0;
-	TopicFound = true;
+	m_TopicFound = true;
 	StackData->CurX=StackData->CurY=0;
 	strCtrlColorChar.clear();
 	const wchar_t *PtrTitle=0, *ContentsName=0;
@@ -2237,8 +2237,8 @@ static int RunURL(const string& Protocol, const string& URLPath)
 void Help::ResizeConsole()
 {
 	bool OldIsNewTopic=IsNewTopic;
-	bool ErrCannotOpenHelp=ScreenObjectWithShadow::Flags.Check(FHELPOBJ_ERRCANNOTOPENHELP);
-	ScreenObjectWithShadow::Flags.Set(FHELPOBJ_ERRCANNOTOPENHELP);
+	bool ErrCannotOpenHelp=m_Flags.Check(FHELPOBJ_ERRCANNOTOPENHELP);
+	m_Flags.Set(FHELPOBJ_ERRCANNOTOPENHELP);
 	IsNewTopic = false;
 	Hide();
 
@@ -2256,7 +2256,7 @@ void Help::ResizeConsole()
 	StackData->CurX--;
 	MoveToReference(1,1);
 	IsNewTopic=OldIsNewTopic;
-	ScreenObjectWithShadow::Flags.Change(FHELPOBJ_ERRCANNOTOPENHELP,ErrCannotOpenHelp);
+	m_Flags.Change(FHELPOBJ_ERRCANNOTOPENHELP,ErrCannotOpenHelp);
 }
 
 bool Help::CanFastHide() const

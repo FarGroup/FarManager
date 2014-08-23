@@ -44,58 +44,58 @@ BaseFormat::BaseFormat()
 
 BaseFormat& BaseFormat::SetMaxWidth(size_t Precision)
 {
-	this->MaxWidth = Precision;
+	m_MaxWidth = Precision;
 	return *this;
 }
 
 BaseFormat& BaseFormat::SetMinWidth(size_t Width)
 {
-	this->MinWidth = Width;
+	m_MinWidth = Width;
 	return *this;
 }
 
 BaseFormat& BaseFormat::SetExactWidth(size_t SetExactWidth)
 {
-	this->MinWidth = SetExactWidth;
-	this->MaxWidth = SetExactWidth;
+	m_MinWidth = SetExactWidth;
+	m_MaxWidth = SetExactWidth;
 	return *this;
 }
 
 BaseFormat& BaseFormat::SetAlign(fmt::AlignType Align)
 {
-	this->Align = Align;
+	m_Align = Align;
 	return *this;
 }
 BaseFormat& BaseFormat::SetFillChar(wchar_t Char)
 {
-	this->FillChar = Char;
+	m_FillChar = Char;
 	return *this;
 }
 
 BaseFormat& BaseFormat::SetRadix(int Radix)
 {
-	this->Radix=Radix;
+	m_Radix=Radix;
 	return *this;
 }
 
 BaseFormat& BaseFormat::Put(LPCWSTR Data, size_t Length)
 {
-	if (MaxWidth == fmt::MaxWidth::GetDefault())
+	if (m_MaxWidth == fmt::MaxWidth::GetDefault())
 	{
-		MaxWidth = Length;
+		m_MaxWidth = Length;
 	}
 
-	string OutStr(Data, std::min(MaxWidth, Length));
+	string OutStr(Data, std::min(m_MaxWidth, Length));
 
-	if (OutStr.size() < MinWidth)
+	if (OutStr.size() < m_MinWidth)
 	{
-		if (Align == fmt::A_RIGHT)
+		if (m_Align == fmt::A_RIGHT)
 		{
-			OutStr.insert(0, MinWidth - OutStr.size(), FillChar);
+			OutStr.insert(0, m_MinWidth - OutStr.size(), m_FillChar);
 		}
 		else
 		{
-			OutStr.append(MinWidth - OutStr.size(), FillChar);
+			OutStr.append(m_MinWidth - OutStr.size(), m_FillChar);
 		}
 	}
 
@@ -207,11 +207,11 @@ BaseFormat& BaseFormat::operator<<(const fmt::Flush& Manipulator)
 
 void BaseFormat::Reset()
 {
-	MinWidth = fmt::MinWidth::GetDefault();
-	MaxWidth = fmt::MaxWidth::GetDefault();
-	FillChar = fmt::FillChar::GetDefault();
-	Align = fmt::Align::GetDefault();
-	Radix = fmt::Radix::GetDefault();
+	m_MinWidth = fmt::MinWidth::GetDefault();
+	m_MaxWidth = fmt::MaxWidth::GetDefault();
+	m_FillChar = fmt::FillChar::GetDefault();
+	m_Align = fmt::Align::GetDefault();
+	m_Radix = fmt::Radix::GetDefault();
 }
 
 template<class T>
@@ -219,8 +219,8 @@ BaseFormat& BaseFormat::ToString(T Value)
 {
 	static_assert(std::is_integral<T>::value, "Value type is not integral");
 	wchar_t Buffer[65];
-	std::is_signed<T>::value? _i64tow(Value, Buffer, Radix) : _ui64tow(Value, Buffer, Radix);
-	if (Radix > 10)
+	std::is_signed<T>::value? _i64tow(Value, Buffer, m_Radix) : _ui64tow(Value, Buffer, m_Radix);
+	if (m_Radix > 10)
 	{
 		UpperBuf(Buffer, ARRAYSIZE(Buffer));
 	}

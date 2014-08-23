@@ -137,25 +137,25 @@ STD_SWAP_SPEC(ChDiskPluginItem);
 
 Panel::Panel():
 	ProcessingPluginCommand(0),
-	Focus(false),
-	Type(0),
-	EnableUpdate(TRUE),
-	PanelMode(NORMAL_PANEL),
-	SortMode(UNSORTED),
-	ReverseSortOrder(false),
-	SortGroups(0),
-	PrevViewMode(VIEW_3),
-	ViewMode(0),
-	CurTopFile(0),
-	CurFile(0),
-	ShowShortNames(0),
-	NumericSort(0),
-	CaseSensitiveSort(0),
-	DirectoriesFirst(1),
-	ModalMode(0),
-	PluginCommand(0)
+	m_Focus(false),
+	m_Type(0),
+	m_EnableUpdate(TRUE),
+	m_PanelMode(NORMAL_PANEL),
+	m_SortMode(UNSORTED),
+	m_ReverseSortOrder(false),
+	m_SortGroups(0),
+	m_PrevViewMode(VIEW_3),
+	m_ViewMode(0),
+	m_CurTopFile(0),
+	m_CurFile(0),
+	m_ShowShortNames(0),
+	m_NumericSort(0),
+	m_CaseSensitiveSort(0),
+	m_DirectoriesFirst(1),
+	m_ModalMode(0),
+	m_PluginCommand(0)
 {
-	ViewSettings.clear();
+	m_ViewSettings.clear();
 	_OT(SysLog(L"[%p] Panel::Panel()", this));
 	SrcDragPanel=nullptr;
 	DragX=DragY=-1;
@@ -171,8 +171,8 @@ Panel::~Panel()
 
 void Panel::SetViewMode(int ViewMode)
 {
-	PrevViewMode=ViewMode;
-	this->ViewMode=ViewMode;
+	m_PrevViewMode=ViewMode;
+	m_ViewMode=ViewMode;
 };
 
 
@@ -188,9 +188,9 @@ void Panel::ChangeDisk()
 {
 	int Pos=0,FirstCall=TRUE;
 
-	if (!strCurDir.empty() && strCurDir[1]==L':')
+	if (!m_CurDir.empty() && m_CurDir[1]==L':')
 	{
-		Pos=std::max(0, Upper(strCurDir[0])-L'A');
+		Pos=std::max(0, Upper(m_CurDir[0])-L'A');
 	}
 
 	while (Pos!=-1)
@@ -385,7 +385,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 	PanelMenuItem Item, *mitem=0;
 	{ // эта скобка надо, см. M#605
-		VMenu2 ChDisk(MSG(MChangeDriveTitle),nullptr,0,ScrY-Y1-3);
+		VMenu2 ChDisk(MSG(MChangeDriveTitle),nullptr,0,ScrY-m_Y1-3);
 		ChDisk.SetBottomTitle(MSG(MChangeDriveMenuFooter));
 
 		ChDisk.SetHelp(L"DriveDlg");
@@ -602,10 +602,10 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		DE.reset();
 
-		int X=X1+5;
+		int X=m_X1+5;
 
-		if ((this == Global->CtrlObject->Cp()->RightPanel) && IsFullScreen() && (X2-X1 > 40))
-			X = (X2-X1+1)/2+5;
+		if ((this == Global->CtrlObject->Cp()->RightPanel) && IsFullScreen() && (m_X2-m_X1 > 40))
+			X = (m_X2-m_X1+1)/2+5;
 
 		ChDisk.SetPosition(X,-1,0,0);
 
@@ -857,10 +857,10 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			return RetCode;
 
 		if (ChDisk.GetExitCode()<0 &&
-			        !strCurDir.empty() &&
-			        (StrCmpN(strCurDir.data(),L"\\\\",2) ))
+			        !m_CurDir.empty() &&
+			        (StrCmpN(m_CurDir.data(),L"\\\\",2) ))
 			{
-				const wchar_t RootDir[4] = {strCurDir[0],L':',L'\\',L'\0'};
+				const wchar_t RootDir[4] = {m_CurDir[0],L':',L'\\',L'\0'};
 
 				if (FAR_GetDriveType(RootDir) == DRIVE_NO_ROOT_DIR)
 				return ChDisk.GetSelectPos();
@@ -958,9 +958,9 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		string strNewCurDir;
 		api::GetCurrentDirectory(strNewCurDir);
 
-		if ((PanelMode == NORMAL_PANEL) &&
+		if ((m_PanelMode == NORMAL_PANEL) &&
 		        (GetType() == FILE_PANEL) &&
-		        !StrCmpI(strCurDir, strNewCurDir) &&
+		        !StrCmpI(m_CurDir, strNewCurDir) &&
 		        IsVisible())
 		{
 			// А нужно ли делать здесь Update????
@@ -1308,7 +1308,7 @@ Search::Search(Panel* Owner, int FirstKey, int X, int Y): m_Owner(Owner), m_Firs
 void Search::Process(void)
 {
 	Global->FrameManager->ExecuteFrame(this);
-	if(m_FirstKey) Global->FrameManager->CallbackFrame([this](){this->ProcessKey(Manager::Key(this->m_FirstKey));});
+	if(m_FirstKey) Global->FrameManager->CallbackFrame([this](){this->ProcessKey(Manager::Key(m_FirstKey));});
 	Global->FrameManager->ExecuteModal(this);
 }
 
@@ -1479,12 +1479,12 @@ int Search::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 void Search::ShowBorder(void)
 {
 	SetColor(COL_DIALOGTEXT);
-	GotoXY(X1+1,Y1+1);
+	GotoXY(m_X1+1,m_Y1+1);
 	Text(L' ');
-	GotoXY(X1+20,Y1+1);
+	GotoXY(m_X1+20,m_Y1+1);
 	Text(L' ');
-	Box(X1,Y1,X1+21,Y1+2,ColorIndexToColor(COL_DIALOGBOX),DOUBLE_BOX);
-	GotoXY(X1+7,Y1);
+	Box(m_X1,m_Y1,m_X1+21,m_Y1+2,ColorIndexToColor(COL_DIALOGBOX),DOUBLE_BOX);
+	GotoXY(m_X1+7,m_Y1);
 	SetColor(COL_DIALOGBOXTITLE);
 	Text(MSearchFileTitle);
 }
@@ -1541,8 +1541,8 @@ void Panel::FastFind(int FirstKey)
 	int KeyToProcess=0;
 	Global->WaitInFastFind++;
 	{
-		int FindX=std::min(X1+9,ScrX-22);
-		int FindY=std::min(Y2,static_cast<SHORT>(ScrY-2));
+		int FindX=std::min(m_X1+9,ScrX-22);
+		int FindY=std::min(m_Y2,static_cast<SHORT>(ScrY-2));
 		Search search(this,FirstKey,FindX,FindY);
 		search.Process();
 		KeyToProcess=search.KeyToProcess();
@@ -1573,16 +1573,16 @@ void Panel::SetFocus()
 	if (!GetFocus())
 	{
 		Global->CtrlObject->Cp()->RedrawKeyBar();
-		Focus = true;
+		m_Focus = true;
 		Redraw();
-		FarChDir(strCurDir);
+		FarChDir(m_CurDir);
 	}
 }
 
 
 void Panel::KillFocus()
 {
-	Focus = false;
+	m_Focus = false;
 	ProcessPluginEvent(FE_KILLFOCUS,nullptr);
 	Redraw();
 }
@@ -1592,7 +1592,7 @@ int  Panel::PanelProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 {
 	RetCode=TRUE;
 
-	if (!ModalMode && !MouseEvent->dwMousePosition.Y)
+	if (!m_ModalMode && !MouseEvent->dwMousePosition.Y)
 	{
 		if (MouseEvent->dwMousePosition.X==ScrX)
 		{
@@ -1620,8 +1620,8 @@ int  Panel::PanelProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 	}
 
 	if (!IsVisible() ||
-	        (MouseEvent->dwMousePosition.X<X1 || MouseEvent->dwMousePosition.X>X2 ||
-	         MouseEvent->dwMousePosition.Y<Y1 || MouseEvent->dwMousePosition.Y>Y2))
+	        (MouseEvent->dwMousePosition.X<m_X1 || MouseEvent->dwMousePosition.X>m_X2 ||
+	         MouseEvent->dwMousePosition.Y<m_Y1 || MouseEvent->dwMousePosition.Y>m_Y2))
 	{
 		RetCode=FALSE;
 		return TRUE;
@@ -1643,7 +1643,7 @@ int  Panel::PanelProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 			return TRUE;
 		}
 
-		if (MouseEvent->dwMousePosition.Y<=Y1 || MouseEvent->dwMousePosition.Y>=Y2 ||
+		if (MouseEvent->dwMousePosition.Y<=m_Y1 || MouseEvent->dwMousePosition.Y>=m_Y2 ||
 		        !Global->CtrlObject->Cp()->GetAnotherPanel(SrcDragPanel)->IsVisible())
 		{
 			EndDrag();
@@ -1656,7 +1656,7 @@ int  Panel::PanelProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 		if (MouseEvent->dwButtonState & 1)
 		{
 			if ((abs(MouseEvent->dwMousePosition.X-DragX)>15 || SrcDragPanel!=this) &&
-			        !ModalMode)
+			        !m_ModalMode)
 			{
 				if (SrcDragPanel->GetSelCount()==1 && !DragSaveScr)
 				{
@@ -1679,7 +1679,7 @@ int  Panel::PanelProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 		return TRUE;
 
 	if ((MouseEvent->dwButtonState & 1) && !MouseEvent->dwEventFlags &&
-	        X2-X1<ScrX)
+	        m_X2-m_X1<ScrX)
 	{
 		DWORD FileAttr;
 		MoveToMouse(MouseEvent);
@@ -1766,7 +1766,7 @@ void Panel::DragMessage(int X,int Y,int Move)
 
 const string& Panel::GetCurDir() const
 {
-	return strCurDir;
+	return m_CurDir;
 }
 
 
@@ -1779,16 +1779,16 @@ bool Panel::SetCurDir(const string& CurDir,bool ClosePanel,bool /*IsUpdated*/)
 
 void Panel::InitCurDir(const string& CurDir)
 {
-	if (StrCmpI(strCurDir, CurDir) || !TestCurrentDirectory(CurDir))
+	if (StrCmpI(m_CurDir, CurDir) || !TestCurrentDirectory(CurDir))
 	{
-		strCurDir = CurDir;
+		m_CurDir = CurDir;
 
-		if (PanelMode!=PLUGIN_PANEL)
+		if (m_PanelMode!=PLUGIN_PANEL)
 		{
-			PrepareDiskPath(strCurDir);
-			if(!IsRootPath(strCurDir))
+			PrepareDiskPath(m_CurDir);
+			if(!IsRootPath(m_CurDir))
 			{
-				DeleteEndSlash(strCurDir);
+				DeleteEndSlash(m_CurDir);
 			}
 		}
 	}
@@ -1820,35 +1820,35 @@ int Panel::SetCurPath()
 
 	if (AnotherPanel->GetType()!=PLUGIN_PANEL)
 	{
-		if (AnotherPanel->strCurDir.size() > 1 && AnotherPanel->strCurDir[1]==L':' &&
-		        (strCurDir.empty() || Upper(AnotherPanel->strCurDir[0])!=Upper(strCurDir[0])))
+		if (AnotherPanel->m_CurDir.size() > 1 && AnotherPanel->m_CurDir[1]==L':' &&
+		        (m_CurDir.empty() || Upper(AnotherPanel->m_CurDir[0])!=Upper(m_CurDir[0])))
 		{
 			// сначала установим переменные окружения для пассивной панели
 			// (без реальной смены пути, чтобы лишний раз пассивный каталог
 			// не перечитывать)
-			FarChDir(AnotherPanel->strCurDir,FALSE);
+			FarChDir(AnotherPanel->m_CurDir,FALSE);
 		}
 	}
 
-	if (!FarChDir(strCurDir))
+	if (!FarChDir(m_CurDir))
 	{
 		// здесь на выбор :-)
 #if 1
 
-		while (!FarChDir(strCurDir))
+		while (!FarChDir(m_CurDir))
 		{
 			string strRoot;
-			GetPathRoot(strCurDir, strRoot);
+			GetPathRoot(m_CurDir, strRoot);
 
 			if (FAR_GetDriveType(strRoot) != DRIVE_REMOVABLE || api::IsDiskInDrive(strRoot))
 			{
-				int Result=TestFolder(strCurDir);
+				int Result=TestFolder(m_CurDir);
 
 				if (Result == TSTFLD_NOTFOUND)
 				{
-					if (CheckShortcutFolder(&strCurDir, FALSE, TRUE) && FarChDir(strCurDir))
+					if (CheckShortcutFolder(&m_CurDir, FALSE, TRUE) && FarChDir(m_CurDir))
 					{
-						SetCurDir(strCurDir,true);
+						SetCurDir(m_CurDir,true);
 						return TRUE;
 					}
 				}
@@ -1863,19 +1863,19 @@ int Panel::SetCurPath()
 			}
 			else                                               // оппа...
 			{
-				string strTemp(strCurDir);
-				CutToFolderNameIfFolder(strCurDir);             // подымаемся вверх, для очередной порции ChDir
+				string strTemp(m_CurDir);
+				CutToFolderNameIfFolder(m_CurDir);             // подымаемся вверх, для очередной порции ChDir
 
-				if (strTemp.size()==strCurDir.size())  // здесь проблема - видимо диск недоступен
+				if (strTemp.size()==m_CurDir.size())  // здесь проблема - видимо диск недоступен
 				{
 					SetCurDir(Global->g_strFarPath,true);                 // тогда просто сваливаем в каталог, откуда стартанул FAR.
 					break;
 				}
 				else
 				{
-					if (FarChDir(strCurDir))
+					if (FarChDir(m_CurDir))
 					{
-						SetCurDir(strCurDir,true);
+						SetCurDir(m_CurDir,true);
 						break;
 					}
 				}
@@ -1973,18 +1973,18 @@ void Panel::Show()
 
 void Panel::DrawSeparator(int Y)
 {
-	if (Y<Y2)
+	if (Y<m_Y2)
 	{
 		SetColor(COL_PANELBOX);
-		GotoXY(X1,Y);
-		ShowSeparator(X2-X1+1,1);
+		GotoXY(m_X1,Y);
+		ShowSeparator(m_X2-m_X1+1,1);
 	}
 }
 
 
 void Panel::ShowScreensCount()
 {
-	if (Global->Opt->ShowScreensNumber && !X1)
+	if (Global->Opt->ShowScreensNumber && !m_X1)
 	{
 		int Viewers = Global->FrameManager->GetFrameCountByType(MODALTYPE_VIEWER);
 		int Editors = Global->FrameManager->GetFrameCountByType(MODALTYPE_EDITOR);
@@ -1992,7 +1992,7 @@ void Panel::ShowScreensCount()
 
 		if (Viewers>0 || Editors>0 || Dialogs > 0)
 		{
-			GotoXY(Global->Opt->ShowColumnTitles ? X1:X1+2,Y1);
+			GotoXY(Global->Opt->ShowColumnTitles ? m_X1:m_X1+2,m_Y1);
 			SetColor(COL_PANELSCREENSNUMBER);
 
 			Global->FS << L"[" << Viewers;
@@ -2018,9 +2018,9 @@ void Panel::SetTitle()
 	{
 		string strTitleDir(L"{");
 
-		if (!strCurDir.empty())
+		if (!m_CurDir.empty())
 		{
-			strTitleDir += strCurDir;
+			strTitleDir += m_CurDir;
 		}
 		else
 		{
@@ -2038,7 +2038,7 @@ void Panel::SetTitle()
 string Panel::GetTitle() const
 {
 	string strTitle;
-	if (PanelMode==PLUGIN_PANEL)
+	if (m_PanelMode==PLUGIN_PANEL)
 	{
 		OpenPanelInfo Info;
 		GetOpenPanelInfo(&Info);
@@ -2047,10 +2047,10 @@ string Panel::GetTitle() const
 	}
 	else
 	{
-		if (ShowShortNames)
-			ConvertNameToShort(strCurDir,strTitle);
+		if (m_ShowShortNames)
+			ConvertNameToShort(m_CurDir,strTitle);
 		else
-			strTitle = strCurDir;
+			strTitle = m_CurDir;
 
 	}
 
@@ -2112,8 +2112,8 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 		}
 
 		case FCTL_CLOSEPANEL:
-			PluginCommand=Command;
-			strPluginParam = NullToEmpty((const wchar_t *)Param2);
+			m_PluginCommand=Command;
+			m_PluginParam = NullToEmpty((const wchar_t *)Param2);
 			Result=TRUE;
 			break;
 
@@ -2404,8 +2404,8 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 			if (CheckStructSize(Info))
 			{
-				CurFile=static_cast<int>(Info->CurrentItem);
-				CurTopFile=static_cast<int>(Info->TopPanelItem);
+				m_CurFile=static_cast<int>(Info->CurrentItem);
+				m_CurTopFile=static_cast<int>(Info->TopPanelItem);
 			}
 
 			// $ 12.05.2001 DJ перерисовываемся только в том случае, если мы - текущий фрейм
@@ -2557,7 +2557,7 @@ BOOL Panel::NeedUpdatePanel(const Panel *AnotherPanel)
 {
 	/* Обновить, если обновление разрешено и пути совпадают */
 	if ((!Global->Opt->AutoUpdateLimit || static_cast<unsigned>(GetFileCount()) <= static_cast<unsigned>(Global->Opt->AutoUpdateLimit)) &&
-	        !StrCmpI(AnotherPanel->strCurDir, strCurDir))
+	        !StrCmpI(AnotherPanel->m_CurDir, m_CurDir))
 		return TRUE;
 
 	return FALSE;
@@ -2566,7 +2566,7 @@ BOOL Panel::NeedUpdatePanel(const Panel *AnotherPanel)
 bool Panel::GetShortcutInfo(ShortcutInfo& ShortcutInfo) const
 {
 	bool result=true;
-	if (PanelMode==PLUGIN_PANEL)
+	if (m_PanelMode==PLUGIN_PANEL)
 	{
 		auto ph = GetPluginHandle();
 		ShortcutInfo.PluginGuid = ph->pPlugin->GetGUID();
@@ -2582,7 +2582,7 @@ bool Panel::GetShortcutInfo(ShortcutInfo& ShortcutInfo) const
 		ShortcutInfo.PluginGuid=FarGuid;
 		ShortcutInfo.PluginFile.clear();
 		ShortcutInfo.PluginData.clear();
-		ShortcutInfo.ShortcutFolder = strCurDir;
+		ShortcutInfo.ShortcutFolder = m_CurDir;
 	}
 	return result;
 }
@@ -2791,7 +2791,7 @@ bool Panel::CreateFullPathName(const string& Name, const string& ShortName,DWORD
 	}
 	*/
 
-	if (ShowShortNames && ShortNameAsIs)
+	if (m_ShowShortNames && ShortNameAsIs)
 		ConvertNameToShort(strFileName,strFileName);
 
 	/* $ 29.01.2001 VVM
@@ -2804,7 +2804,7 @@ bool Panel::CreateFullPathName(const string& Name, const string& ShortName,DWORD
 	{
 		/* $ 13.10.2000 tran
 		  по Ctrl-f имя должно отвечать условиям на панели */
-		if (ViewSettings.Flags&PVS_FOLDERUPPERCASE)
+		if (m_ViewSettings.Flags&PVS_FOLDERUPPERCASE)
 		{
 			if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
 			{
@@ -2817,7 +2817,7 @@ bool Panel::CreateFullPathName(const string& Name, const string& ShortName,DWORD
 			}
 		}
 
-		if ((ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE) && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+		if ((m_ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE) && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 		{
 			size_t pos;
 
@@ -2825,7 +2825,7 @@ bool Panel::CreateFullPathName(const string& Name, const string& ShortName,DWORD
 				Lower(strFileName, pos);
 		}
 
-		if ((ViewSettings.Flags&PVS_FILELOWERCASE) && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+		if ((m_ViewSettings.Flags&PVS_FILELOWERCASE) && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 		{
 			size_t pos;
 

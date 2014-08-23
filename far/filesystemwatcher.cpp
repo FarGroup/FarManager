@@ -39,15 +39,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 
 FileSystemWatcher::FileSystemWatcher():
-	PreviousLastWriteTime(),
-	CurrentLastWriteTime(),
-	bOpen(false),
-	WatchSubtree(false)
+	m_PreviousLastWriteTime(),
+	m_CurrentLastWriteTime(),
+	m_bOpen(false),
+	m_WatchSubtree(false)
 {
-	WatchRegistered.Open(true, true);
-	Changed.Open(true, false);
-	Done.Open(true, false);
-	DoneDone.Open(true, false);
+	m_WatchRegistered.Open(true, true);
+	m_Changed.Open(true, false);
+	m_Done.Open(true, false);
+	m_DoneDone.Open(true, false);
 }
 
 
@@ -58,34 +58,34 @@ FileSystemWatcher::~FileSystemWatcher()
 
 void FileSystemWatcher::Set(const string& Directory, bool WatchSubtree)
 {
-	WatchRegistered.Wait();
-	this->Directory = Directory;
-	this->WatchSubtree = WatchSubtree;
+	m_WatchRegistered.Wait();
+	this->m_Directory = Directory;
+	this->m_WatchSubtree = WatchSubtree;
 
-	if (api::GetFileTimeSimple(Directory,nullptr,nullptr,&PreviousLastWriteTime,nullptr))
-		CurrentLastWriteTime = PreviousLastWriteTime;
+	if (api::GetFileTimeSimple(Directory,nullptr,nullptr,&m_PreviousLastWriteTime,nullptr))
+		m_CurrentLastWriteTime = m_PreviousLastWriteTime;
 }
 
 void FileSystemWatcher::WatchRegister()
 {
-	HANDLE Handle=FindFirstChangeNotification(Directory.data(), WatchSubtree,
+	HANDLE Handle=FindFirstChangeNotification(m_Directory.data(), m_WatchSubtree,
 									FILE_NOTIFY_CHANGE_FILE_NAME|
 									FILE_NOTIFY_CHANGE_DIR_NAME|
 									FILE_NOTIFY_CHANGE_ATTRIBUTES|
 									FILE_NOTIFY_CHANGE_SIZE|
 									FILE_NOTIFY_CHANGE_LAST_WRITE);
-	WatchRegistered.Set();
+	m_WatchRegistered.Set();
 
 	MultiWaiter waiter;
 	waiter.Add(Handle);
-	waiter.Add(Done);
+	waiter.Add(m_Done);
 	if (waiter.Wait(MultiWaiter::wait_any) == WAIT_OBJECT_0)
 	{
-		Changed.Set();
-		Done.Wait();
+		m_Changed.Set();
+		m_Done.Wait();
 	}
 
-	DoneDone.Set();
+	m_DoneDone.Set();
 	FindCloseChangeNotification(Handle);
 }
 
@@ -93,12 +93,12 @@ void FileSystemWatcher::Watch(bool got_focus, bool check_time)
 {
 	SCOPED_ACTION(elevation::suppress);
 
-	if(!bOpen)
+	if(!m_bOpen)
 	{
-		bOpen = true;
-		Done.Reset();
-		DoneDone.Reset();
-		WatchRegistered.Reset();
+		m_bOpen = true;
+		m_Done.Reset();
+		m_DoneDone.Reset();
+		m_WatchRegistered.Reset();
 		Thread WatchThread;
 		WatchThread.Start(&FileSystemWatcher::WatchRegister, this);
 	}
@@ -107,7 +107,7 @@ void FileSystemWatcher::Watch(bool got_focus, bool check_time)
 	{
 		bool isFAT = false;
 		string strRoot, strFileSystem;
-		GetPathRoot(Directory, strRoot);
+		GetPathRoot(m_Directory, strRoot);
 		if (!strRoot.empty())
 		{
 			if (api::GetVolumeInformation(strRoot, nullptr, nullptr, nullptr, nullptr, &strFileSystem))
@@ -116,35 +116,35 @@ void FileSystemWatcher::Watch(bool got_focus, bool check_time)
 		if (isFAT)             // emulate FAT folder time change
 		{                      // otherwise changes missed (FAT folder time is NOT modified)
 			check_time = false; // the price is directory reload on each GOT_FOCUS event
-			PreviousLastWriteTime.dwLowDateTime = CurrentLastWriteTime.dwLowDateTime - 1;
+			m_PreviousLastWriteTime.dwLowDateTime = m_CurrentLastWriteTime.dwLowDateTime - 1;
 		}
 	}
 
 	if (check_time)
 	{
-		if (!api::GetFileTimeSimple(Directory,nullptr,nullptr,&CurrentLastWriteTime,nullptr))
+		if (!api::GetFileTimeSimple(m_Directory,nullptr,nullptr,&m_CurrentLastWriteTime,nullptr))
 		{
-			PreviousLastWriteTime.dwLowDateTime = 0;
-			PreviousLastWriteTime.dwHighDateTime = 0;
-			CurrentLastWriteTime.dwLowDateTime = 0;
-			CurrentLastWriteTime.dwHighDateTime = 0;
+			m_PreviousLastWriteTime.dwLowDateTime = 0;
+			m_PreviousLastWriteTime.dwHighDateTime = 0;
+			m_CurrentLastWriteTime.dwLowDateTime = 0;
+			m_CurrentLastWriteTime.dwHighDateTime = 0;
 		}
 	}
 }
 
 void FileSystemWatcher::Release()
 {
-	if (bOpen)
+	if (m_bOpen)
 	{
-		Done.Set();
-		DoneDone.Wait();
-		bOpen = false;
-		Changed.Reset();
+		m_Done.Set();
+		m_DoneDone.Wait();
+		m_bOpen = false;
+		m_Changed.Reset();
 	}
-	PreviousLastWriteTime = CurrentLastWriteTime;
+	m_PreviousLastWriteTime = m_CurrentLastWriteTime;
 }
 
 bool FileSystemWatcher::Signaled() const
 {
-	return Changed.Signaled() || PreviousLastWriteTime != CurrentLastWriteTime;
+	return m_Changed.Signaled() || m_PreviousLastWriteTime != m_CurrentLastWriteTime;
 }

@@ -44,8 +44,8 @@ void MenuBar::DisplayObject()
 	string strSpace=L"    ";
 	string strMsg=strSpace+MSG(MMenuLeftTitle)+strSpace+MSG(MMenuFilesTitle)+strSpace+MSG(MMenuCommandsTitle)+strSpace+MSG(MMenuOptionsTitle)+strSpace+MSG(MMenuRightTitle);
 	RemoveHighlights(strMsg);
-	int Length=X2-X1+1;
-	GotoXY(X1,Y1);
+	int Length=m_X2-m_X1+1;
+	GotoXY(m_X1,m_Y1);
 	SetColor(COL_HMENUTEXT);
 	Global->FS << fmt::LeftAlign() << fmt::ExactWidth(Length) << strMsg;
 }

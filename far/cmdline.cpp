@@ -108,7 +108,7 @@ void CommandLine::DisplayObject()
 	auto PromptList = GetPrompt();
 	size_t MaxLength = PromptSize*ObjWidth()/100;
 	size_t CurLength = 0;
-	GotoXY(X1,Y1);
+	GotoXY(m_X1,m_Y1);
 
 	std::for_each(CONST_RANGE(PromptList, i)
 	{
@@ -121,10 +121,10 @@ void CommandLine::DisplayObject()
 	});
 
 	CmdStr.SetObjectColor(COL_COMMANDLINE,COL_COMMANDLINESELECTED);
-	CmdStr.SetPosition(X1+(int)CurLength,Y1,X2,Y2);
+	CmdStr.SetPosition(m_X1+(int)CurLength,m_Y1,m_X2,m_Y2);
 	CmdStr.Show();
 
-	GotoXY(X2+1,Y1);
+	GotoXY(m_X2+1,m_Y1);
 	SetColor(COL_COMMANDLINEPREFIX);
 	Text(L'\x2191'); // up arrow
 }
@@ -396,7 +396,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 			ActivePanel->SetCurPath();
 
 			if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTCMDLINE))
-				Global->CtrlObject->CmdHistory->AddToHistory(strStr, HR_DEFAULT, nullptr, nullptr, strCurDir.data());
+				Global->CtrlObject->CmdHistory->AddToHistory(strStr, HR_DEFAULT, nullptr, nullptr, m_CurDir.data());
 
 
 			if (!ActivePanel->ProcessPluginEvent(FE_COMMAND, UNSAFE_CSTR(strStr)))
@@ -487,9 +487,9 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 
 void CommandLine::SetCurDir(const string& CurDir)
 {
-	if (StrCmpI(strCurDir, CurDir) || !TestCurrentDirectory(CurDir))
+	if (StrCmpI(m_CurDir, CurDir) || !TestCurrentDirectory(CurDir))
 	{
-		strCurDir = CurDir;
+		m_CurDir = CurDir;
 
 		//Mantis#2350 - тормоз, это и так делаетс€ выше
 		//if (Global->CtrlObject->Cp()->ActivePanel()->GetMode()!=PLUGIN_PANEL)
@@ -498,10 +498,10 @@ void CommandLine::SetCurDir(const string& CurDir)
 }
 
 
-int CommandLine::GetCurDir(string &strCurDir)
+int CommandLine::GetCurDir(string &CurDir)
 {
-	strCurDir = CommandLine::strCurDir;
-	return (int)strCurDir.size();
+	CurDir = m_CurDir;
+	return (int)CurDir.size();
 }
 
 
@@ -525,7 +525,7 @@ void CommandLine::InsertString(const string& Str)
 
 int CommandLine::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	if(MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED && MouseEvent->dwMousePosition.X==X2+1)
+	if(MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED && MouseEvent->dwMousePosition.X==m_X2+1)
 	{
 		return ProcessKey(Manager::Key(KEY_ALTF8));
 	}
@@ -648,7 +648,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 							case L'M': // $M - ќтображение полного имени удаленного диска, св€занного с именем текущего диска, или пустой строки, если текущий диск не €вл€етс€ сетевым.
 							{
 								string strTemp;
-								if (DriveLocalToRemoteName(DRIVE_REMOTE,strCurDir[0],strTemp))
+								if (DriveLocalToRemoteName(DRIVE_REMOTE,m_CurDir[0],strTemp))
 								{
 									strDestStr += strTemp;
 									//strDestStr += L" "; // ???
@@ -695,25 +695,25 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 							}
 							case L'N': // $N - Current drive
 							{
-								PATH_TYPE Type = ParsePath(strCurDir);
+								PATH_TYPE Type = ParsePath(m_CurDir);
 								if(Type == PATH_DRIVELETTER)
-									strDestStr += Upper(strCurDir[0]);
+									strDestStr += Upper(m_CurDir[0]);
 								else if(Type == PATH_DRIVELETTERUNC)
-									strDestStr += Upper(strCurDir[4]);
+									strDestStr += Upper(m_CurDir[4]);
 								else
 									strDestStr += L'?';
 								break;
 							}
 							case L'W': // $W - “екущий рабочий каталог (без указани€ пути)
 							{
-								const wchar_t *ptrCurDir=LastSlash(strCurDir.data());
+								const wchar_t *ptrCurDir=LastSlash(m_CurDir.data());
 								if (ptrCurDir)
 									strDestStr += ptrCurDir+1;
 								break;
 							}
 							case L'P': // $P - Current drive and path
 							{
-								strDestStr += strCurDir;
+								strDestStr += m_CurDir;
 								break;
 							}
 							case L'#': //$#nn - max promt width in %
@@ -752,7 +752,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 	else
 	{
 		// default prompt = "$p$g"
-		Result.emplace_back(VALUE_TYPE(Result)(strCurDir + L">", PrefixColor));
+		Result.emplace_back(VALUE_TYPE(Result)(m_CurDir + L">", PrefixColor));
 	}
 	SetPromptSize(NewPromptSize);
 	return Result;
@@ -890,8 +890,8 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 		if (Global->CtrlObject->Cp()->IsTopFrame())
 		{
 			//CmdStr.SetString(L"");
-			GotoXY(X1,Y1);
-			Global->FS << fmt::MinWidth(X2-X1+1)<<L"";
+			GotoXY(m_X1,m_Y1);
+			Global->FS << fmt::MinWidth(m_X2-m_X1+1)<<L"";
 			Show();
 			Global->ScrBuf->Flush();
 		}
@@ -901,21 +901,21 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 
 	int Code;
 
-	if (strCurDir.size() > 1 && strCurDir[1]==L':')
-		FarChDir(strCurDir);
+	if (m_CurDir.size() > 1 && m_CurDir[1]==L':')
+		FarChDir(m_CurDir);
 
-	string strPrevDir=strCurDir;
+	string strPrevDir=m_CurDir;
 	bool PrintCommand=true;
 	if ((Code=ProcessOSCommands(CmdLine,SeparateWindow,PrintCommand)) == TRUE)
 	{
 		if (PrintCommand)
 		{
 			Global->FrameManager->ShowBackground();
-			string strNewDir=strCurDir;
-			strCurDir=strPrevDir;
+			string strNewDir=m_CurDir;
+			m_CurDir=strPrevDir;
 			Redraw();
-			strCurDir=strNewDir;
-			GotoXY(X2+1,Y1);
+			m_CurDir=strNewDir;
+			GotoXY(m_X2+1,m_Y1);
 			Text(L' ');
 			ScrollScreen(2);
 			Global->CtrlObject->Desktop->FillFromBuffer();
@@ -936,7 +936,7 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 		Code=Execute(strTempStr,AlwaysWaitFinish,SeparateWindow,DirectRun, 0, WaitForIdle, Silent, RunAs);
 	}
 
-	if (!Flags.Check(FCMDOBJ_LOCKUPDATEPANEL))
+	if (!m_Flags.Check(FCMDOBJ_LOCKUPDATEPANEL))
 	{
 		ShellUpdatePanels(Global->CtrlObject->Cp()->ActivePanel(), FALSE);
 		if (Global->Opt->ShowKeyBar)
@@ -1010,7 +1010,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			Global->FrameManager->ShowBackground();  //??? почему не отдаЄм COMSPEC'у
 			// display command //???
 			Redraw();
-			GotoXY(X2+1,Y1);
+			GotoXY(m_X2+1,m_Y1);
 			Text(L' ');
 			Global->ScrBuf->Flush();
 			Console().SetTextAttributes(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
@@ -1077,7 +1077,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		if (CheckCmdLineForHelp(strCmdLine.data()))
 			return FALSE; // отдадимс€ COMSPEC`у
 
-		string PushDir = strCurDir;
+		string PushDir = m_CurDir;
 
 		if (IntChDir(strCmdLine,true,SilentInt))
 		{
@@ -1178,8 +1178,8 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		if (PtrCmd && *PtrCmd && Global->CtrlObject->Plugins->ProcessCommandLine(PtrCmd))
 		{
 			//CmdStr.SetString(L"");
-			GotoXY(X1,Y1);
-			Global->FS << fmt::MinWidth(X2-X1+1)<<L"";
+			GotoXY(m_X1,m_Y1);
+			Global->FS << fmt::MinWidth(m_X2-m_X1+1)<<L"";
 			Show();
 			return TRUE;
 		}
@@ -1234,7 +1234,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	{
 		Global->FrameManager->ShowBackground();
 		Redraw();
-		GotoXY(X2 + 1, Y1);
+		GotoXY(m_X2 + 1, m_Y1);
 		Text(L' ');
 		Global->ScrBuf->Flush();
 		Console().SetTextAttributes(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
@@ -1401,5 +1401,5 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 
 void CommandLine::LockUpdatePanel(bool Mode)
 {
-	Flags.Change(FCMDOBJ_LOCKUPDATEPANEL,Mode);
+	m_Flags.Change(FCMDOBJ_LOCKUPDATEPANEL,Mode);
 }

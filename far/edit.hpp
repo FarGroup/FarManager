@@ -117,14 +117,14 @@ public:
 	void swap(Edit& rhs) noexcept
 	{
 		SimpleScreenObject::swap(rhs);
-		std::swap(Str, rhs.Str);
-		std::swap(StrSize, rhs.StrSize);
-		std::swap(CurPos, rhs.CurPos);
+		std::swap(m_Str, rhs.m_Str);
+		std::swap(m_StrSize, rhs.m_StrSize);
+		std::swap(m_CurPos, rhs.m_CurPos);
 		std::swap(ColorList, rhs.ColorList);
 		std::swap(ColorCount, rhs.ColorCount);
 		std::swap(MaxColorCount, rhs.MaxColorCount);
-		std::swap(SelStart, rhs.SelStart);
-		std::swap(SelEnd, rhs.SelEnd);
+		std::swap(m_SelStart, rhs.m_SelStart);
+		std::swap(m_SelEnd, rhs.m_SelEnd);
 		std::swap(LeftPos, rhs.LeftPos);
 		std::swap(ColorListFlags, rhs.ColorListFlags);
 		std::swap(EndType, rhs.EndType);
@@ -135,11 +135,11 @@ public:
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
 	virtual void Changed(bool DelBlock=false){};
-	void SetDelRemovesBlocks(bool Mode) {Flags.Change(FEDITLINE_DELREMOVESBLOCKS,Mode);}
-	int GetDelRemovesBlocks() const {return Flags.Check(FEDITLINE_DELREMOVESBLOCKS); }
-	void SetPersistentBlocks(bool Mode) {Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Mode);}
-	int GetPersistentBlocks() const {return Flags.Check(FEDITLINE_PERSISTENTBLOCKS); }
-	void SetShowWhiteSpace(int Mode) {Flags.Change(FEDITLINE_SHOWWHITESPACE, Mode!=0); Flags.Change(FEDITLINE_SHOWLINEBREAK, Mode == 1);}
+	void SetDelRemovesBlocks(bool Mode) {m_Flags.Change(FEDITLINE_DELREMOVESBLOCKS,Mode);}
+	int GetDelRemovesBlocks() const {return m_Flags.Check(FEDITLINE_DELREMOVESBLOCKS); }
+	void SetPersistentBlocks(bool Mode) {m_Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Mode);}
+	int GetPersistentBlocks() const {return m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS); }
+	void SetShowWhiteSpace(int Mode) {m_Flags.Change(FEDITLINE_SHOWWHITESPACE, Mode!=0); m_Flags.Change(FEDITLINE_SHOWLINEBREAK, Mode == 1);}
 	void GetString(wchar_t *Str, int MaxSize) const;
 	void GetString(string &strStr) const;
 	const wchar_t* GetStringAddr() const;
@@ -156,30 +156,30 @@ public:
 	void InsertString(const string& Str);
 	void InsertBinaryString(const wchar_t *Str,int Length);
 	int Search(const string& Str,const string &UpperStr, const string &LowerStr, RegExp &re, RegExpMatch *pm,string& ReplaceStr,int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength);
-	void SetClearFlag(bool Flag) {Flags.Change(FEDITLINE_CLEARFLAG,Flag);}
-	int GetClearFlag() const {return Flags.Check(FEDITLINE_CLEARFLAG);}
-	void SetCurPos(int NewPos) {CurPos=NewPos; SetPrevCurPos(NewPos);}
+	void SetClearFlag(bool Flag) {m_Flags.Change(FEDITLINE_CLEARFLAG,Flag);}
+	int GetClearFlag() const {return m_Flags.Check(FEDITLINE_CLEARFLAG);}
+	void SetCurPos(int NewPos) {m_CurPos=NewPos; SetPrevCurPos(NewPos);}
 	void AdjustMarkBlock();
 	void AdjustPersistentMark();
-	int GetCurPos() const { return CurPos; }
+	int GetCurPos() const { return m_CurPos; }
 	int GetTabCurPos() const;
 	void SetTabCurPos(int NewPos);
 	int GetLeftPos() const {return LeftPos;}
 	void SetLeftPos(int NewPos) {LeftPos=NewPos;}
-	void SetPasswordMode(bool Mode) {Flags.Change(FEDITLINE_PASSWORDMODE,Mode);}
+	void SetPasswordMode(bool Mode) {m_Flags.Change(FEDITLINE_PASSWORDMODE,Mode);}
 	// Получение максимального значения строки для потребностей Dialod API
 	virtual int GetMaxLength() const {return -1;}
-	void SetOvertypeMode(bool Mode) {Flags.Change(FEDITLINE_OVERTYPE, Mode);}
-	bool GetOvertypeMode() const {return Flags.Check(FEDITLINE_OVERTYPE);}
+	void SetOvertypeMode(bool Mode) {m_Flags.Change(FEDITLINE_OVERTYPE, Mode);}
+	bool GetOvertypeMode() const {return m_Flags.Check(FEDITLINE_OVERTYPE);}
 	int RealPosToTab(int Pos) const;
 	int TabPosToReal(int Pos) const;
 	void Select(int Start,int End);
 	void AddSelect(int Start,int End);
 	void GetSelection(intptr_t &Start,intptr_t &End) const;
-	bool IsSelection() const {return !(SelStart==-1 && !SelEnd); }
+	bool IsSelection() const {return !(m_SelStart==-1 && !m_SelEnd); }
 	void GetRealSelection(intptr_t &Start,intptr_t &End) const;
-	void SetEditBeyondEnd(bool Mode) {Flags.Change(FEDITLINE_EDITBEYONDEND, Mode);}
-	void SetEditorMode(bool Mode) {Flags.Change(FEDITLINE_EDITORMODE, Mode);}
+	void SetEditBeyondEnd(bool Mode) {m_Flags.Change(FEDITLINE_EDITBEYONDEND, Mode);}
+	void SetEditorMode(bool Mode) {m_Flags.Change(FEDITLINE_EDITORMODE, Mode);}
 	bool ReplaceTabs();
 	void InsertTab();
 	void AddColor(ColorItem *col,bool skipsort=false);
@@ -190,8 +190,8 @@ public:
 	void SetDialogParent(DWORD Sets);
 	void SetCursorType(bool Visible, DWORD Size);
 	void GetCursorType(bool& Visible, DWORD& Size) const;
-	bool GetReadOnly() const {return Flags.Check(FEDITLINE_READONLY);}
-	void SetReadOnly(bool NewReadOnly) {Flags.Change(FEDITLINE_READONLY,NewReadOnly);}
+	bool GetReadOnly() const {return m_Flags.Check(FEDITLINE_READONLY);}
+	void SetReadOnly(bool NewReadOnly) {m_Flags.Change(FEDITLINE_READONLY,NewReadOnly);}
 
 protected:
 	virtual void DisableCallback() {}
@@ -232,13 +232,13 @@ private:
 	int ProcessInsPath(int Key,int PrevSelStart=-1,int PrevSelEnd=0);
 	int RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos) const;
 	void FixLeftPos(int TabCurPos=-1);
-	void SetRightCoord(int Value) {SetPosition(X1, Y2, Value, Y2);}
+	void SetRightCoord(int Value) {SetPosition(m_X1, m_Y2, Value, m_Y2);}
 
 protected:
 	// KEEP ALIGNED!
-	wchar_t *Str;
-	int StrSize;
-	int CurPos;
+	wchar_t *m_Str;
+	int m_StrSize;
+	int m_CurPos;
 private:
 	friend class DlgEdit;
 	friend class Editor;
@@ -248,8 +248,8 @@ private:
 	ColorItem *ColorList;
 	int ColorCount;
 	int MaxColorCount;
-	int SelStart;
-	int SelEnd;
+	int m_SelStart;
+	int m_SelEnd;
 	int LeftPos;
 	TBitFlags<unsigned char> ColorListFlags;
 	unsigned char EndType;

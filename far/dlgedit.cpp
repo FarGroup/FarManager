@@ -616,7 +616,7 @@ int  DlgEdit::GetStrSize(int Row) const
 		return 0;//multiEdit->
 	else
 #endif
-		return lineEdit->StrSize;
+		return lineEdit->m_StrSize;
 }
 
 void DlgEdit::SetCursorType(bool Visible, DWORD Size)
@@ -668,10 +668,10 @@ BitFlags& DlgEdit::Flags()
 #if defined(PROJECT_DI_MEMOEDIT)
 
 	if (Type == DLGEDIT_MULTILINE)
-		return multiEdit->Flags;
+		return multiEdit->m_Flags;
 	else
 #endif
-		return lineEdit->Flags;
+		return lineEdit->m_Flags;
 }
 
 void DlgEdit::Hide()

@@ -791,7 +791,7 @@ int Execute(const string& CmdStr,  //  ом.строка дл€ исполнени€
 	}
 
 	bool Visible=false;
-	DWORD Size=0;
+	DWORD CursorSize=0;
 	SMALL_RECT ConsoleWindowRect;
 	COORD ConsoleSize={};
 	int ConsoleCP = CP_OEMCP;
@@ -820,7 +820,7 @@ int Execute(const string& CmdStr,  //  ом.строка дл€ исполнени€
 		GotoXY(X2+1,Y1);
 		Text(L' ');
 		MoveCursor(X1,Y1);
-		GetCursorType(Visible,Size);
+		GetCursorType(Visible, CursorSize);
 		SetInitialCursorType();
 	}
 
@@ -1085,8 +1085,8 @@ int Execute(const string& CmdStr,  //  ом.строка дл€ исполнени€
 	/* ѕринудительна€ установка курсора, т.к. SetCursorType иногда не спасает
 	    вследствие своей оптимизации, котора€ в данном случае выходит боком.
 	*/
-	SetCursorType(Visible,Size);
-	CONSOLE_CURSOR_INFO cci={Size, Visible};
+	SetCursorType(Visible, CursorSize);
+	CONSOLE_CURSOR_INFO cci = { CursorSize, Visible };
 	Console().SetCursorInfo(cci);
 
 	COORD ConSize;

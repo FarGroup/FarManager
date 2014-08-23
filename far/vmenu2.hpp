@@ -93,10 +93,10 @@ private:
 
 	int MaxHeight;
 	int cancel;
-	int X1;
-	int Y1;
-	int X2;
-	int Y2;
+	int m_X1;
+	int m_Y1;
+	int m_X2;
+	int m_Y2;
 	bool ShortBox;
 	INPUT_RECORD DefRec;
 	bool NeedResize;

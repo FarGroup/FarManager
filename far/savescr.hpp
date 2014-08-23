@@ -60,5 +60,5 @@ private:
 	SHORT CurPosX,CurPosY;
 	bool CurVisible;
 	DWORD CurSize;
-	int X1,Y1,X2,Y2;
+	int m_X1, m_Y1, m_X2, m_Y2;
 };

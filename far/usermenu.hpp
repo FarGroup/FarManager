@@ -54,8 +54,8 @@ private:
 	void SaveMenu(const string& MenuFileName);
 	intptr_t EditMenuDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 
-	MENUMODE MenuMode;
-	bool MenuModified;
-	bool ItemChanged;
-	menu_container Menu;
+	MENUMODE m_MenuMode;
+	bool m_MenuModified;
+	bool m_ItemChanged;
+	menu_container m_Menu;
 };

@@ -100,9 +100,9 @@ static bool IsCodePageSupported(uintptr_t cp)
 Viewer::Viewer(bool bQuickView, uintptr_t aCodePage):
 	ViOpt(Global->Opt->ViOpt),
 	Signature(),
-	ViewKeyBar(),
+	m_ViewKeyBar(),
 	Reader(ViewFile, (Global->Opt->ViOpt.MaxLineSize*2*64 > 64*1024 ? Global->Opt->ViOpt.MaxLineSize*2*64 : 64*1024)),
-	DeleteFolder(true),
+	m_DeleteFolder(true),
 	strLastSearchStr(Global->strGlobalSearchString),
 	LastSearchCase(Global->GlobalSearchCase),
 	LastSearchWholeWords(Global->GlobalSearchWholeWords),
@@ -123,7 +123,7 @@ Viewer::Viewer(bool bQuickView, uintptr_t aCodePage):
 	SelectSize(-1),
 	SelectFlags(),
 	ShowStatusLine(true),
-	HideCursor(true),
+	m_HideCursor(true),
 	CodePageChangedByUser(),
 	ReadStdin(),
 	InternalKey(),
@@ -196,7 +196,7 @@ Viewer::~Viewer()
 		   Если DeleteFolder сброшен, то удаляем только файл. Иначе - удаляем еще
 		   и каталог.
 		*/
-		if (DeleteFolder)
+		if (m_DeleteFolder)
 			DeleteFileWithFolder(strTempViewName);
 		else
 		{
@@ -457,8 +457,8 @@ bool Viewer::isBinaryFile(uintptr_t cp) // very approximate: looks for 0x00,0x00
 
 void Viewer::AdjustWidth()
 {
-	Width=X2-X1+1;
-	XX2=X2;
+	Width=m_X2-m_X1+1;
+	XX2=m_X2;
 
 	if (ViOpt.ShowScrollbar && !m_bQuickView)
 	{
@@ -475,17 +475,17 @@ void Viewer::ShowPage(int nMode)
 	{
 		if (!strFileName.empty() && ((nMode == SHOW_RELOAD) || (nMode == SHOW_HEX)|| (nMode == SHOW_DUMP)))
 		{
-			SetScreen(X1,Y1,X2,Y2,L' ',ColorIndexToColor(COL_VIEWERTEXT));
-			GotoXY(X1,Y1);
+			SetScreen(m_X1,m_Y1,m_X2,m_Y2,L' ',ColorIndexToColor(COL_VIEWERTEXT));
+			GotoXY(m_X1,m_Y1);
 			SetColor(COL_WARNDIALOGTEXT);
-			Global->FS << fmt::MaxWidth(XX2-X1+1)<<MSG(MViewerCannotOpenFile);
+			Global->FS << fmt::MaxWidth(XX2-m_X1+1)<<MSG(MViewerCannotOpenFile);
 			ShowStatus();
 		}
 
 		return;
 	}
 
-	if (HideCursor)
+	if (m_HideCursor)
 		SetCursorType(0,10);
 
 	vseek(FilePos,SEEK_SET);
@@ -509,12 +509,12 @@ void Viewer::ShowPage(int nMode)
 			{
 				Strings.clear();
 
-				for (int Y = Y1; Y<=Y2; ++Y)
+				for (int Y = m_Y1; Y<=m_Y2; ++Y)
 				{
 					Strings.emplace_back(VALUE_TYPE(Strings)());
 					Strings.back().nFilePos = vtell();
 
-					if (Y==Y1+1 && !veof())
+					if (Y==m_Y1+1 && !veof())
 						SecondPos=vtell();
 
 					ReadString(&Strings.back(), -1);
@@ -522,7 +522,7 @@ void Viewer::ShowPage(int nMode)
 			}
 			break;
 		case SHOW_UP:
-			if (Y2 > Y1)
+			if (m_Y2 > m_Y1)
 			{
 				SecondPos = Strings.front().nFilePos;
 				Strings.pop_back();
@@ -538,7 +538,7 @@ void Viewer::ShowPage(int nMode)
 			break;
 
 		case SHOW_DOWN:
-			if (Y2 > Y1)
+			if (m_Y2 > m_Y1)
 			{
 				Strings.pop_front();
 				Strings.emplace_back(VALUE_TYPE(Strings)());
@@ -561,12 +561,12 @@ void Viewer::ShowPage(int nMode)
 
 	if (nMode != SHOW_HEX && nMode != SHOW_DUMP)
 	{
-		int Y = Y1 - 1;
+		int Y = m_Y1 - 1;
 		FOR (auto& i, Strings)
 		{
 			++Y;
 			SetColor(COL_VIEWERTEXT);
-			GotoXY(X1,Y);
+			GotoXY(m_X1,Y);
 
 			if (static_cast<long long>(i.Data.size()) > LeftPos)
 			{
@@ -582,11 +582,11 @@ void Viewer::ShowPage(int nMode)
 				__int64 SelX1;
 
 				if (LeftPos > i.nSelStart)
-					SelX1 = X1;
+					SelX1 = m_X1;
 				else
 					SelX1 = i.nSelStart - LeftPos;
 
-				if (!VM.Wrap && (i.nSelStart < LeftPos || i.nSelStart > LeftPos + XX2 - X1))
+				if (!VM.Wrap && (i.nSelStart < LeftPos || i.nSelStart > LeftPos + XX2 - m_X1))
 				{
 					if (AdjustSelPosition)
 					{
@@ -599,7 +599,7 @@ void Viewer::ShowPage(int nMode)
 				else
 				{
 					SetColor(COL_VIEWERSELECTEDTEXT);
-					GotoXY(static_cast<int>(X1+SelX1),Y);
+					GotoXY(static_cast<int>(m_X1+SelX1),Y);
 					__int64 Length = i.nSelEnd - i.nSelStart;
 
 					if (LeftPos > i.nSelStart)
@@ -621,7 +621,7 @@ void Viewer::ShowPage(int nMode)
 
 			if (LeftPos>0 && !i.Data.empty() && ViOpt.ShowArrows)
 			{
-				GotoXY(X1,Y);
+				GotoXY(m_X1,Y);
 				SetColor(COL_VIEWERARROWS);
 				BoxText(0xab);
 			}
@@ -760,10 +760,10 @@ void Viewer::ShowDump()
 	FilePos -= FilePos % ch_size;
 	vseek(SEEK_SET, SecondPos = FilePos);
 
-	for (EndFile=0,Y=Y1; Y<=Y2; Y++)
+	for (EndFile=0,Y=m_Y1; Y<=m_Y2; Y++)
 	{
 		SetColor(COL_VIEWERTEXT);
-		GotoXY(X1, Y);
+		GotoXY(m_X1, Y);
 
 		if (EndFile)
 		{
@@ -771,7 +771,7 @@ void Viewer::ShowDump()
 			continue;
 		}
 		bpos = vtell();
-		if (Y == Y1+1)
+		if (Y == m_Y1+1)
 			SecondPos = bpos;
 
 		nr = 0;
@@ -805,13 +805,13 @@ void Viewer::ShowHex()
 	const wchar_t BorderLine[] = {BoxSymbols[BS_V1],L' ',0};
 	int tail = 0, border_len = (int)wcslen(BorderLine);
 
-	for (LastPage=EndFile=0,Y=Y1; Y<=Y2; Y++)
+	for (LastPage=EndFile=0,Y=m_Y1; Y<=m_Y2; Y++)
 	{
 		bool bSelStartFound = false;
 		bool bSelEndFound = false;
 		__int64 SelSize=0;
 		SetColor(COL_VIEWERTEXT);
-		GotoXY(X1,Y);
+		GotoXY(m_X1,Y);
 
 		if (EndFile)
 		{
@@ -819,7 +819,7 @@ void Viewer::ShowHex()
 			continue;
 		}
 
-		if (Y==Y1+1 && !veof())
+		if (Y==m_Y1+1 && !veof())
 			SecondPos=vtell();
 
 		int out_len = _snwprintf(OutStr,ARRAYSIZE(OutStr),L"%010I64X: ", vtell());
@@ -973,7 +973,7 @@ void Viewer::ShowHex()
 		if (bSelStartFound && bSelEndFound)
 		{
 			SetColor(COL_VIEWERSELECTEDTEXT);
-			GotoXY((int)((__int64)X1+SelStart-HexLeftPos),Y);
+			GotoXY((int)((__int64)m_X1+SelStart-HexLeftPos),Y);
 			Global->FS << fmt::MaxWidth(SelEnd-SelStart+1)<<OutStr+static_cast<size_t>(SelStart);
 			SelSize = 0;
 		}
@@ -992,8 +992,8 @@ void Viewer::DrawScrollbar()
 		else
 			SetColor(COL_VIEWERSCROLLBAR);
 
-		UINT x = X2 + (m_bQuickView ? 1 : 0);
-		UINT h = Y2 - Y1 + 1;
+		UINT x = m_X2 + (m_bQuickView ? 1 : 0);
+		UINT h = m_Y2 - m_Y1 + 1;
 		UINT64 start, end, total;
 
 		if ( !VM.Hex )
@@ -1012,7 +1012,7 @@ void Viewer::DrawScrollbar()
 			start = FilePos /lin_size + ((FilePos % lin_size) ? 1 : 0);
 			end = start + h;
 		}
-		ScrollBarEx3(x,Y1,h, start,end,total);
+		ScrollBarEx3(x,m_Y1,h, start,end,total);
 	}
 }
 
@@ -1240,7 +1240,7 @@ __int64 Viewer::EndOfScreen( int line )
 
 	if (!VM.Hex)
 	{
-		auto i = std::next(Strings.begin(), Y2-Y1+line);
+		auto i = std::next(Strings.begin(), m_Y2-m_Y1+line);
 		pos = i->nFilePos + i->linesize;
 		if ( !line && !VM.Wrap && Strings.back().linesize > 0 )
 		{
@@ -1266,7 +1266,7 @@ __int64 Viewer::EndOfScreen( int line )
 		}
 	}
 	else
-		pos =	FilePos + (VM.Hex < 2 ? 16 : Width*getChSize(VM.CodePage)) * (Y2-Y1+1+line);
+		pos =	FilePos + (VM.Hex < 2 ? 16 : Width*getChSize(VM.CodePage)) * (m_Y2-m_Y1+1+line);
 
 	if (pos < 0)
 		pos = 0;
@@ -1733,7 +1733,7 @@ int Viewer::ProcessKey(const Manager::Key& Key)
 		{
 			if (ViewFile.Opened())
 			{
-				Up(Y2-Y1, false);
+				Up(m_Y2-m_Y1, false);
 				Show();
 			}
 
@@ -1749,7 +1749,7 @@ int Viewer::ProcessKey(const Manager::Key& Key)
 			if (LocalKey == KEY_CTRLDOWN || LocalKey == KEY_RCTRLDOWN)
 			{
 				vseek(vString.nFilePos = FilePos, SEEK_SET);
-				for (int i=Y1; i<=Y2; i++)
+				for (int i=m_Y1; i<=m_Y2; i++)
 				{
 					ReadString(&vString,-1);
 					vString.nFilePos += vString.linesize;
@@ -1893,7 +1893,7 @@ int Viewer::ProcessKey(const Manager::Key& Key)
 
 			if (ViewFile.Opened())
 			{
-				int max_counter = Y2 - Y1;
+				int max_counter = m_Y2 - m_Y1;
 				int ch_size = getChSize(VM.CodePage);
 
 				if (VM.Hex)
@@ -1903,9 +1903,9 @@ int Viewer::ProcessKey(const Manager::Key& Key)
 					FilePos = vtell();
 					FilePos -= FilePos % ch_size;
 					if ((FilePos % lin_siz) == 0)
-						FilePos -= lin_siz * (Y2 - Y1 + 1);
+						FilePos -= lin_siz * (m_Y2 - m_Y1 + 1);
 					else
-						FilePos -= (FilePos % lin_siz) + lin_siz * (Y2 - Y1);
+						FilePos -= (FilePos % lin_siz) + lin_siz * (m_Y2 - m_Y1);
 					if (FilePos < 0)
 						FilePos = 0;
 				}
@@ -1945,27 +1945,27 @@ int Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (!(MouseEvent->dwButtonState & 3))
 		return FALSE;
 
-	if (ViOpt.ShowScrollbar && IntKeyState.MouseX==X2+(m_bQuickView?1:0))
+	if (ViOpt.ShowScrollbar && IntKeyState.MouseX==m_X2+(m_bQuickView?1:0))
 	{
-		if (IntKeyState.MouseY == Y1)
+		if (IntKeyState.MouseY == m_Y1)
 			while (IsMouseButtonPressed())
 				ProcessKey(Manager::Key(KEY_UP));
-		else if (IntKeyState.MouseY==Y2)
+		else if (IntKeyState.MouseY==m_Y2)
 		{
 			while (IsMouseButtonPressed())
 			{
 				ProcessKey(Manager::Key(KEY_DOWN));
 			}
 		}
-		else if (IntKeyState.MouseY == Y1+1)
+		else if (IntKeyState.MouseY == m_Y1+1)
 			ProcessKey(Manager::Key(KEY_CTRLHOME));
-		else if (IntKeyState.MouseY == Y2-1)
+		else if (IntKeyState.MouseY == m_Y2-1)
 			ProcessKey(Manager::Key(KEY_CTRLEND));
 		else
 		{
 			while (IsMouseButtonPressed())
 			{
-				FilePos=(FileSize-1)/(Y2-Y1-1)*(IntKeyState.MouseY-Y1);
+				FilePos=(FileSize-1)/(m_Y2-m_Y1-1)*(IntKeyState.MouseY-m_Y1);
 				int Perc;
 
 				if (FilePos > FileSize)
@@ -1996,10 +1996,10 @@ int Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return TRUE;
 	}
 
-	if (IntKeyState.MouseY == (Y1-1) && (HostFileViewer && HostFileViewer->IsTitleBarVisible()))
+	if (IntKeyState.MouseY == (m_Y1-1) && (HostFileViewer && HostFileViewer->IsTitleBarVisible()))
 	{
 		while (IsMouseButtonPressed()) {}
-		if (IntKeyState.MouseY != Y1-1)
+		if (IntKeyState.MouseY != m_Y1-1)
 			return TRUE;
 
 		int NameLen = std::max(20, ObjWidth()-40-(Global->Opt->ViewerEditorClock && HostFileViewer && HostFileViewer->IsFullScreen() ? 3+5 : 0));
@@ -2019,20 +2019,20 @@ int Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		}
 	}
 
-	if (IntKeyState.MouseX<X1 || IntKeyState.MouseX>X2 || IntKeyState.MouseY<Y1 || IntKeyState.MouseY>Y2)
+	if (IntKeyState.MouseX<m_X1 || IntKeyState.MouseX>m_X2 || IntKeyState.MouseY<m_Y1 || IntKeyState.MouseY>m_Y2)
 		return FALSE;
 
-	if (IntKeyState.MouseX<X1+7)
-		while (IsMouseButtonPressed() && IntKeyState.MouseX<X1+7)
+	if (IntKeyState.MouseX<m_X1+7)
+		while (IsMouseButtonPressed() && IntKeyState.MouseX<m_X1+7)
 			ProcessKey(Manager::Key(KEY_LEFT));
-	else if (IntKeyState.MouseX>X2-7)
-		while (IsMouseButtonPressed() && IntKeyState.MouseX>X2-7)
+	else if (IntKeyState.MouseX>m_X2-7)
+		while (IsMouseButtonPressed() && IntKeyState.MouseX>m_X2-7)
 			ProcessKey(Manager::Key(KEY_RIGHT));
-	else if (IntKeyState.MouseY<Y1+(Y2-Y1)/2)
-		while (IsMouseButtonPressed() && IntKeyState.MouseY<Y1+(Y2-Y1)/2)
+	else if (IntKeyState.MouseY<m_Y1+(m_Y2-m_Y1)/2)
+		while (IsMouseButtonPressed() && IntKeyState.MouseY<m_Y1+(m_Y2-m_Y1)/2)
 			ProcessKey(Manager::Key(KEY_UP));
 	else
-		while (IsMouseButtonPressed() && IntKeyState.MouseY>=Y1+(Y2-Y1)/2)
+		while (IsMouseButtonPressed() && IntKeyState.MouseY>=m_Y1+(m_Y2-m_Y1)/2)
 			ProcessKey(Manager::Key(KEY_DOWN));
 
 	return TRUE;
@@ -2324,13 +2324,13 @@ int Viewer::GetStrBytesNum( const wchar_t *Str, int Length )
 
 void Viewer::SetViewKeyBar(KeyBar *ViewKeyBar)
 {
-	Viewer::ViewKeyBar=ViewKeyBar;
+	m_ViewKeyBar=ViewKeyBar;
 	ChangeViewKeyBar();
 }
 
 void Viewer::ChangeViewKeyBar()
 {
-	if (ViewKeyBar)
+	if (m_ViewKeyBar)
 	{
 		const wchar_t *f2_label = L"", *shiftf2_label = L"";
 		if (!VM.Hex)
@@ -2338,12 +2338,12 @@ void Viewer::ChangeViewKeyBar()
 			f2_label = MSG((!VM.Wrap)?((!VM.WordWrap)?MViewF2:MViewShiftF2):MViewF2Unwrap);
 			shiftf2_label = MSG((VM.WordWrap) ? MViewF2 : MViewShiftF2);
 		}
-		ViewKeyBar->Change(f2_label, 2-1);
-		ViewKeyBar->Change(KBL_SHIFT, shiftf2_label, 2-1);
-		ViewKeyBar->Change(MSG(VM.Hex != 1 ? MViewF4 : (dump_text_mode ? MViewF4Dump : MViewF4Text)), 4-1);
-		ViewKeyBar->Change(MSG(VM.CodePage == GetACP() ? MViewF8DOS : MViewF8),8-1);
+		m_ViewKeyBar->Change(f2_label, 2-1);
+		m_ViewKeyBar->Change(KBL_SHIFT, shiftf2_label, 2-1);
+		m_ViewKeyBar->Change(MSG(VM.Hex != 1 ? MViewF4 : (dump_text_mode ? MViewF4Dump : MViewF4Text)), 4-1);
+		m_ViewKeyBar->Change(MSG(VM.CodePage == GetACP() ? MViewF8DOS : MViewF8),8-1);
 
-		ViewKeyBar->Redraw();
+		m_ViewKeyBar->Redraw();
 	}
 
 	Global->CtrlObject->Plugins->SetCurViewer(this); //HostFileViewer;
@@ -3531,7 +3531,7 @@ void Viewer::SetWrapMode(bool Wrap)
 
 void Viewer::EnableHideCursor(int HideCursor)
 {
-	Viewer::HideCursor=HideCursor;
+	m_HideCursor=HideCursor;
 }
 
 bool Viewer::GetWrapType() const
@@ -3567,7 +3567,7 @@ void Viewer::SetTempViewName(const string& Name, BOOL DeleteFolder)
 		DeleteFolder=FALSE;
 	}
 
-	Viewer::DeleteFolder=DeleteFolder;
+	m_DeleteFolder=DeleteFolder;
 }
 
 void Viewer::SetTitle(const wchar_t *Title)
@@ -4122,7 +4122,7 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 				memset(&Info->ViewerID,0,Info->StructSize-sizeof(Info->StructSize));
 				Info->ViewerID=Viewer::ViewerID;
 				Info->WindowSizeX=ObjWidth();
-				Info->WindowSizeY=Y2-Y1+1;
+				Info->WindowSizeY=m_Y2-m_Y1+1;
 				Info->FilePos=FilePos;
 				Info->FileSize=FileSize;
 				Info->CurMode.CodePage=VM.CodePage;
@@ -4224,11 +4224,11 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 				if ((intptr_t)Param2 != -1) // не только перерисовать?
 				{
 					if(CheckStructSize(Kbt))
-						ViewKeyBar->Change(Kbt->Titles);
+						m_ViewKeyBar->Change(Kbt->Titles);
 					else
 						return FALSE;
 				}
-				ViewKeyBar->Show();
+				m_ViewKeyBar->Show();
 				Global->ScrBuf->Flush(); //?????
 			}
 

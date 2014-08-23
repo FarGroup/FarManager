@@ -208,7 +208,7 @@ static int MainProcess(
 				}
 
 				auto& CurrentPanelOptions = (Global->Opt->LeftFocus == active)? Global->Opt->LeftPanel : Global->Opt->RightPanel;
-				CurrentPanelOptions.Type=FILE_PANEL;  // сменим моду панели
+				CurrentPanelOptions.m_Type = FILE_PANEL;  // сменим моду панели
 				CurrentPanelOptions.Visible = true;     // и включим ее
 				CurrentPanelOptions.Folder = strPath;
 			};

@@ -214,17 +214,17 @@ static void MenuFileToList(UserMenu::menu_container& Menu, GetFileString& GetStr
 }
 
 UserMenu::UserMenu(bool MenuType):
-	MenuMode(MM_LOCAL),
-	MenuModified(false),
-	ItemChanged(false)
+	m_MenuMode(MM_LOCAL),
+	m_MenuModified(false),
+	m_ItemChanged(false)
 {
 	ProcessUserMenu(MenuType, string());
 }
 
 UserMenu::UserMenu(const string& MenuFileName):
-	MenuMode(MM_LOCAL),
-	MenuModified(false),
-	ItemChanged(false)
+	m_MenuMode(MM_LOCAL),
+	m_MenuModified(false),
+	m_ItemChanged(false)
 {
 	ProcessUserMenu(false, MenuFileName);
 }
@@ -235,7 +235,7 @@ UserMenu::~UserMenu()
 
 void UserMenu::SaveMenu(const string& MenuFileName)
 {
-	if (MenuModified)
+	if (m_MenuModified)
 	{
 		DWORD FileAttr=api::GetFileAttributes(MenuFileName);
 
@@ -261,7 +261,7 @@ void UserMenu::SaveMenu(const string& MenuFileName)
 			CachedWrite CW(MenuFile);
 			WCHAR Data = SIGN_UNICODE;
 			CW.Write(&Data, 1*sizeof(WCHAR));
-			MenuListToFile(Menu, CW);
+			MenuListToFile(m_Menu, CW);
 			CW.Flush();
 			UINT64 Size = 0;
 			MenuFile.GetSize(Size);
@@ -312,8 +312,8 @@ void UserMenu::ProcessUserMenu(bool MenuType, const string& MenuFileName)
 	string strMenuFilePath;
 	Global->CtrlObject->CmdLine->GetCurDir(strMenuFilePath);
 	// по умолчанию меню - это FarMenu.ini
-	MenuMode = MM_LOCAL;
-	MenuModified = false;
+	m_MenuMode = MM_LOCAL;
+	m_MenuModified = false;
 
 	if (MenuType)
 	{
@@ -324,7 +324,7 @@ void UserMenu::ProcessUserMenu(bool MenuType, const string& MenuFileName)
 
 		if (!EditChoice)
 		{
-			MenuMode = MM_GLOBAL;
+			m_MenuMode = MM_GLOBAL;
 			strMenuFilePath = Global->Opt->GlobalUserMenuDir;
 		}
 	}
@@ -347,7 +347,7 @@ void UserMenu::ProcessUserMenu(bool MenuType, const string& MenuFileName)
 			strMenuFileFullPath = MenuFileName;
 		}
 
-		Menu.clear();
+		m_Menu.clear();
 
 		// Пытаемся открыть файл на локальном диске
 		api::File MenuFile;
@@ -359,15 +359,15 @@ void UserMenu::ProcessUserMenu(bool MenuType, const string& MenuFileName)
 				MenuCP = CP_OEMCP;
 
 			GetFileString GetStr(MenuFile, MenuCP);
-			MenuFileToList(Menu, GetStr);
+			MenuFileToList(m_Menu, GetStr);
 			MenuFile.Close();
 		}
-		else if (MenuMode != MM_USER)
+		else if (m_MenuMode != MM_USER)
 		{
 			// Файл не открылся. Смотрим дальше.
-			if (MenuMode == MM_GLOBAL) // был в %FARHOME%?
+			if (m_MenuMode == MM_GLOBAL) // был в %FARHOME%?
 			{
-				MenuMode = MM_USER;
+				m_MenuMode = MM_USER;
 				strMenuFilePath = Global->Opt->ProfilePath;
 				continue;
 			}
@@ -388,14 +388,14 @@ void UserMenu::ProcessUserMenu(bool MenuType, const string& MenuFileName)
 				}
 
 				FirstRun = false;
-				MenuMode = MM_GLOBAL;
+				m_MenuMode = MM_GLOBAL;
 				strMenuFilePath = Global->Opt->GlobalUserMenuDir;
 				continue;
 			}
 		}
 
 		// вызываем меню
-		ExitCode=ProcessSingleMenu(Menu, 0, Menu, strMenuFileFullPath, GetMenuTitle(MenuMode));
+		ExitCode=ProcessSingleMenu(m_Menu, 0, m_Menu, strMenuFileFullPath, GetMenuTitle(m_MenuMode));
 
 		// ...запишем изменения обратно в файл
 		SaveMenu(strMenuFileFullPath);
@@ -406,7 +406,7 @@ void UserMenu::ProcessUserMenu(bool MenuType, const string& MenuFileName)
 				// Показать меню родительского каталога
 			case EC_PARENT_MENU:
 			{
-				if (MenuMode == MM_LOCAL)
+				if (m_MenuMode == MM_LOCAL)
 				{
 					if(!IsRootPath(strMenuFilePath))
 					{
@@ -418,12 +418,12 @@ void UserMenu::ProcessUserMenu(bool MenuType, const string& MenuFileName)
 						}
 					}
 
-					MenuMode = MM_GLOBAL;
+					m_MenuMode = MM_GLOBAL;
 					strMenuFilePath = Global->Opt->GlobalUserMenuDir;
 				}
 				else
 				{
-					MenuMode = MM_USER;
+					m_MenuMode = MM_USER;
 					strMenuFilePath = Global->Opt->ProfilePath;
 				}
 
@@ -433,21 +433,21 @@ void UserMenu::ProcessUserMenu(bool MenuType, const string& MenuFileName)
 			case EC_MAIN_MENU:
 			{
 				// $ 14.07.2000 VVM: Shift+F2 переключает Главное меню/локальное в цикле
-				switch (MenuMode)
+				switch (m_MenuMode)
 				{
 					case MM_LOCAL:
-						MenuMode = MM_GLOBAL;
+						m_MenuMode = MM_GLOBAL;
 						strMenuFilePath = Global->Opt->GlobalUserMenuDir;
 						break;
 
 					case MM_GLOBAL:
-						MenuMode = MM_USER;
+						m_MenuMode = MM_USER;
 						strMenuFilePath = Global->Opt->ProfilePath;
 						break;
 
 					default: // MM_USER
 						Global->CtrlObject->CmdLine->GetCurDir(strMenuFilePath);
-						MenuMode=MM_LOCAL;
+						m_MenuMode=MM_LOCAL;
 				}
 
 				break;
@@ -455,7 +455,7 @@ void UserMenu::ProcessUserMenu(bool MenuType, const string& MenuFileName)
 		}
 	}
 
-	if (Global->FrameManager->IsPanelsActive() && (ExitCode == EC_COMMAND_SELECTED || MenuModified))
+	if (Global->FrameManager->IsPanelsActive() && (ExitCode == EC_COMMAND_SELECTED || m_MenuModified))
 		ShellUpdatePanels(Global->CtrlObject->Cp()->ActivePanel(), FALSE);
 }
 
@@ -620,7 +620,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 						int Pos=UserMenu.GetSelectPos();
 						if (!((Key==KEY_CTRLUP || Key==KEY_RCTRLUP) && !Pos) && !((Key==KEY_CTRLDOWN || Key==KEY_RCTRLDOWN) && Pos==UserMenu.GetItemCount()-1))
 						{
-							MenuModified = true;
+							m_MenuModified = true;
 							auto Other = *CurrentMenuItem;
 							if (Key==KEY_CTRLUP || Key==KEY_RCTRLUP)
 							{
@@ -668,7 +668,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					GetFileString GetStr(MenuFile, MenuCP);
 					MenuFileToList(MenuRoot, GetStr);
 					MenuFile.Close();
-					MenuModified=true;
+					m_MenuModified=true;
 					ReturnCode=0;
 					UserMenu.Close(-1);
 
@@ -692,7 +692,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 
 				case KEY_BS: // Показать меню из родительского каталога только в MM_LOCAL режиме
 
-					if (MenuMode == MM_LOCAL)
+					if (m_MenuMode == MM_LOCAL)
 					{
 						ReturnCode=EC_PARENT_MENU;
 						UserMenu.Close(-1);
@@ -876,7 +876,7 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 #else
 			if (Param1 >= EM_EDITLINE_0 && Param1 <= EM_EDITLINE_9)
 #endif
-				ItemChanged = true;
+				m_ItemChanged = true;
 			break;
 
 		case DN_CLOSE:
@@ -917,7 +917,7 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 
 				return Result;
 			}
-			else if (ItemChanged)
+			else if (m_ItemChanged)
 			{
 				switch(Message(MSG_WARNING, 3, MSG(MUserMenuTitle), MSG(MEditMenuConfirmation), MSG(MHYes), MSG(MHNo), MSG(MHCancel)))
 				{
@@ -946,7 +946,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 	bool Result = false;
 	bool SubMenu = false;
 	bool Continue = true;
-	ItemChanged = false;
+	m_ItemChanged = false;
 
 	if (Create)
 	{
@@ -1038,7 +1038,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 
 		if (Dlg.GetExitCode()==EM_BUTTON_OK)
 		{
-			MenuModified=true;
+			m_MenuModified=true;
 			auto NewItemIterator = Menu.end();
 
 			if (Create)
@@ -1092,7 +1092,7 @@ bool UserMenu::DeleteMenuRecord(std::list<UserMenuItem>& Menu, const std::list<U
 	if (Message(MSG_WARNING,2,MSG(MUserMenuTitle),MSG(!MenuItem->Submenu?MAskDeleteMenuItem:MAskDeleteSubMenuItem),strItemName.data(),MSG(MDelete),MSG(MCancel)))
 		return false;
 
-	MenuModified=true;
+	m_MenuModified=true;
 	Menu.erase(MenuItem);
 	return true;
 }

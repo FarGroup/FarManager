@@ -111,7 +111,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #if defined(_MSC_VER) && _MSC_VER >= 1900
-#pragma warning( disable: 4458 5024 5025 5026 5027)
+#pragma warning( disable: 5024 5025 5026 5027)
 #endif
 
 #ifdef __clang__

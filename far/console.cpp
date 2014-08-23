@@ -334,8 +334,8 @@ virtual bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_
 	auto& ConsoleBufferVector = ConsoleBuffer.vector();
 	std::transform(ConsoleBufferVector.cbegin(), ConsoleBufferVector.cend(), Buffer.data() + Offset, [](const VALUE_TYPE(ConsoleBufferVector)& i) -> FAR_CHAR_INFO
 	{
-		FAR_CHAR_INFO Result = {i.Char.UnicodeChar, Colors::ConsoleColorToFarColor(i.Attributes)};
-		return Result;
+		FAR_CHAR_INFO FCI = {i.Char.UnicodeChar, Colors::ConsoleColorToFarColor(i.Attributes)};
+		return FCI;
 	});
 
 	if(Global->Opt->WindowMode)
@@ -363,8 +363,8 @@ virtual bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord,
 	matrix<CHAR_INFO> ConsoleBuffer(BufferSize.Y - BufferCoord.Y, BufferSize.X);
 	std::transform(Buffer.data() + Offset, Buffer.data() + Offset + Size, ConsoleBuffer.data(), [](const FAR_CHAR_INFO& i) -> CHAR_INFO
 	{
-		CHAR_INFO Result = {i.Char, Colors::FarColorToConsoleColor(i.Attributes)};
-		return Result;
+		CHAR_INFO CI = {i.Char, Colors::FarColorToConsoleColor(i.Attributes)};
+		return CI;
 	});
 
 	BufferSize.Y-=BufferCoord.Y;

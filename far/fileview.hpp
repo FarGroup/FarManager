@@ -81,7 +81,7 @@ class FileViewer:public Frame
 	__int64 GetViewFileSize() const;
 	__int64 GetViewFilePos() const;
 	void ShowStatus();
-	int GetId() const { return View.ViewerID; }
+	int GetId() const { return m_View.ViewerID; }
 	void OnReload(void);
 	void ReadEvent(void);
 
@@ -90,14 +90,14 @@ private:
 	virtual void Show() override;
 	virtual void DisplayObject() override;
 
-	Viewer View;
+	Viewer m_View;
 	int RedrawTitle;
 	KeyBar ViewKeyBar;
 	bool F3KeyOnly;
 	bool FullScreen;
 	int DisableEdit;
 	int DisableHistory;
-	string strName;
+	string m_Name;
 	bool SaveToSaveAs;
 	int delete_on_close;
 	string str_title;

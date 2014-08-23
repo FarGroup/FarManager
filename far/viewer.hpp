@@ -152,7 +152,7 @@ private:
 	bool Signature;
 
 	NamesList ViewNamesList;
-	KeyBar *ViewKeyBar;
+	KeyBar *m_ViewKeyBar;
 
 	std::list<ViewerString> Strings;
 
@@ -166,7 +166,7 @@ private:
 
 	string strTempViewName;
 
-	BOOL DeleteFolder;
+	BOOL m_DeleteFolder;
 
 	string strLastSearchStr;
 	bool LastSearchCase,LastSearchWholeWords,LastSearchReverse,LastSearchHex,LastSearchRegexp;
@@ -193,7 +193,8 @@ private:
 	__int64 LastPage;
 	__int64 SelectPos,SelectSize;
 	DWORD SelectFlags;
-	int ShowStatusLine,HideCursor;
+	int ShowStatusLine;
+	int m_HideCursor;
 
 	string strTitle;
 

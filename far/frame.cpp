@@ -40,16 +40,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 
 Frame::Frame():
-	DynamicallyBorn(true),
-	CanLoseFocus(FALSE),
-	ExitCode(-1),
-	KeyBarVisible(0),
-	TitleBarVisible(0),
-	FrameKeyBar(nullptr),
-	FrameToBack(nullptr),
-	Deleting(false),
-	BlockCounter(0),
-	MacroMode(MACROAREA_OTHER)
+	m_DynamicallyBorn(true),
+	m_CanLoseFocus(FALSE),
+	m_ExitCode(-1),
+	m_KeyBarVisible(0),
+	m_TitleBarVisible(0),
+	m_FrameKeyBar(nullptr),
+	m_FrameToBack(nullptr),
+	m_Deleting(false),
+	m_BlockCounter(0),
+	m_MacroMode(MACROAREA_OTHER)
 {
 	_OT(SysLog(L"[%p] Frame::Frame()", this));
 }
@@ -61,13 +61,13 @@ Frame::~Frame()
 
 void Frame::SetKeyBar(KeyBar *FrameKeyBar)
 {
-	Frame::FrameKeyBar=FrameKeyBar;
+	m_FrameKeyBar=FrameKeyBar;
 }
 
 void Frame::UpdateKeyBar()
 {
-	if (FrameKeyBar && KeyBarVisible)
-		FrameKeyBar->RedrawIfChanged();
+	if (m_FrameKeyBar && m_KeyBarVisible)
+		m_FrameKeyBar->RedrawIfChanged();
 }
 
 int Frame::IsTopFrame() const
@@ -104,31 +104,31 @@ bool Frame::HasSaveScreen() const
 
 void Frame::SetDeleting(void)
 {
-	Deleting=true;
+	m_Deleting=true;
 }
 
 bool Frame::IsDeleting(void) const
 {
-	return Deleting;
+	return m_Deleting;
 }
 
 void Frame::SetBlock(void)
 {
-	++BlockCounter;
+	++m_BlockCounter;
 }
 
 void Frame::RemoveBlock(void)
 {
-	assert(BlockCounter>0);
-	--BlockCounter;
+	assert(m_BlockCounter>0);
+	--m_BlockCounter;
 }
 
 bool Frame::IsBlocked(void) const
 {
-	return BlockCounter>0;
+	return m_BlockCounter>0;
 }
 
 void Frame::SetMacroMode(FARMACROAREA Area)
 {
-	MacroMode=Area;
+	m_MacroMode=Area;
 }

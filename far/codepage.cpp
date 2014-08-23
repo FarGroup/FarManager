@@ -237,11 +237,11 @@ void codepages::AddCodePage(const string& codePageName, uintptr_t codePage, int 
 
 		dialog->SendMessage(DM_LISTINSERT, control, &item);
 		// Устанавливаем данные для элемента
-		FarListItemData data={sizeof(FarListItemData)};
-		data.Index = position;
-		data.Data = &codePage;
-		data.DataSize = sizeof(codePage);
-		dialog->SendMessage(DM_LISTSETDATA, control, &data);
+		FarListItemData fli_data={sizeof(FarListItemData)};
+		fli_data.Index = position;
+		fli_data.Data = &codePage;
+		fli_data.DataSize = sizeof(codePage);
+		dialog->SendMessage(DM_LISTSETDATA, control, &fli_data);
 	}
 	else if (CallbackCallSource == CodePagesFill2)
 	{

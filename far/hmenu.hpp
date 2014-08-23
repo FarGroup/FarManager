@@ -77,7 +77,7 @@ private:
 	HMenuData* Item;
 	int SelectPos;
 	int ItemCount;
-	int VExitCode;
+	int m_VExitCode;
 	int ItemX[16];
 	CriticalSection CS;
 };

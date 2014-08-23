@@ -943,7 +943,7 @@ void Manager::InsertCommit(Frame* Param)
 	_MANAGER(SysLog(L"InsertedFrame=%p",Param));
 	if (Param)
 	{
-		Param->FrameToBack=CurrentFrame;
+		Param->m_FrameToBack=CurrentFrame;
 		Frames.emplace_back(Param);
 		ActivateCommit(Param);
 	}
@@ -971,9 +971,9 @@ void Manager::DeleteCommit(Frame* Param)
 
 	std::for_each(CONST_RANGE(Frames, i)
 	{
-		if (i->FrameToBack==Param)
+		if (i->m_FrameToBack == Param)
 		{
-			i->FrameToBack=Global->CtrlObject->Cp();
+			i->m_FrameToBack = Global->CtrlObject->Cp();
 		}
 	});
 
@@ -1018,14 +1018,14 @@ void Manager::DeleteCommit(Frame* Param)
 		{
 			if (!Frames.empty())
 			{
-				if (Param->FrameToBack == Global->CtrlObject->Desktop || Param->FrameToBack == Global->CtrlObject->Cp())
+				if (Param->m_FrameToBack == Global->CtrlObject->Desktop || Param->m_FrameToBack == Global->CtrlObject->Cp())
 				{
 					ActivateCommit(FramePos);
 				}
 				else
 				{
-					assert(Param->FrameToBack);
-					ActivateCommit(Param->FrameToBack);
+					assert(Param->m_FrameToBack);
+					ActivateCommit(Param->m_FrameToBack);
 				}
 			}
 			else ClearCurrentFrame();
@@ -1152,7 +1152,7 @@ void Manager::UpdateCommit(Frame* Old,Frame* New)
 	if (-1!=FrameIndex)
 	{
 		Frames[FrameIndex]=New;
-		New->FrameToBack=CurrentFrame;
+		New->m_FrameToBack=CurrentFrame;
 		ActivateCommit(New);
 		DeleteFrame(Old);
 	}

@@ -63,10 +63,10 @@ struct DialogBuilderListItem2
 class DialogBuilder: NonCopyable, public DialogBuilderBase<DialogItemEx>
 {
 	private:
-		const wchar_t *HelpTopic;
-		DWORD Mode;
-		GUID Id;
-		bool IdExist;
+		const wchar_t *m_HelpTopic;
+		DWORD m_Mode;
+		GUID m_Id;
+		bool m_IdExist;
 		Dialog::dialog_handler m_handler;
 
 		static void LinkFlagsByID(DialogItemEx *Parent, DialogItemEx* Target, FARDIALOGITEMFLAGS Flags);
@@ -144,5 +144,5 @@ class DialogBuilder: NonCopyable, public DialogBuilderBase<DialogItemEx>
 		int AddTextWrap(const wchar_t *text, bool center=false, int width=0);
 
 		void SetId(const GUID& Id);
-		const GUID& GetId() const {return Id;}
+		const GUID& GetId() const {return m_Id;}
 };

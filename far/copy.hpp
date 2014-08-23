@@ -87,16 +87,16 @@ private:
 	int SkipEncMode;
 	int SkipDeleteMode;
 	int SelectedFolderNameLength;
-	std::vector<string> DestList;
+	std::vector<string> m_DestList;
 	// тип создаваемого репарспоинта.
 	// при AltF6 будет то, что выбрал юзер в диалоге,
 	// в остальных случаях - RP_EXACTCOPY - как у источника
 	ReparsePointTypes RPT;
 	string strPluginFormat;
 	int AltF10;
-	int CopySecurity;
+	int m_CopySecurity;
 	size_t SelCount;
-	DWORD FileAttr;
+	DWORD m_FileAttr;
 	bool FolderPresent;
 	bool FilesPresent;
 	bool AskRO;

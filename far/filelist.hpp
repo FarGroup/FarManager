@@ -306,7 +306,7 @@ public:
 	virtual void CopyDiz(const string& Name, const string& ShortName, const string& DestName, const string& DestShortName, DizList *DestDiz) override;
 	virtual bool IsDizDisplayed() override;
 	virtual bool IsColumnDisplayed(int Type) override;
-	virtual int GetColumnsCount() const override { return Columns; }
+	virtual int GetColumnsCount() const override { return m_Columns; }
 	virtual void SetReturnCurrentFile(int Mode) override;
 	virtual void GetOpenPanelInfo(OpenPanelInfo *Info) const override;
 	virtual void SetPluginMode(PluginHandle* hPlugin,const string& PluginFile,bool SendOnFocus=false) override;
@@ -321,7 +321,7 @@ public:
 	virtual void SetPluginModified() override;
 	virtual int ProcessPluginEvent(int Event,void *Param) override;
 	virtual void SetTitle() override;
-	virtual size_t GetFileCount() const override { return ListData.size(); }
+	virtual size_t GetFileCount() const override { return m_ListData.size(); }
 	const FileListItem* GetItem(size_t Index) const;
 	virtual void UpdateKeyBar() override;
 	virtual void IfGoHome(wchar_t Drive) override;
@@ -418,7 +418,7 @@ private:
 
 	static void AddParentPoint(FileListItem *CurPtr, size_t CurFilePos, const FILETIME* Times=nullptr, const string& Owner = string());
 
-	std::unique_ptr<FileFilter> Filter;
+	std::unique_ptr<FileFilter> m_Filter;
 	DizList Diz;
 	int DizRead;
 	/* $ 09.11.2001 IS
@@ -429,8 +429,8 @@ private:
 
 	string strOriginalCurDir;
 	string strPluginDizName;
-	std::vector<FileListItem> ListData;
-	PluginHandle* hPlugin;
+	std::vector<FileListItem> m_ListData;
+	PluginHandle* m_hPlugin;
 	std::list<PrevDataItem> PrevDataList;
 	std::list<PluginsListItem> PluginsList;
 	FileSystemWatcher FSWatcher;
@@ -443,7 +443,8 @@ private:
 	unsigned __int64 TotalFileSize;
 	unsigned __int64 FreeDiskSize;
 	clock_t LastUpdateTime;
-	int Height,Columns;
+	int m_Height;
+	int m_Columns;
 
 	int ColumnsInGlobal;
 

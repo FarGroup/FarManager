@@ -60,7 +60,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 static const wchar_t* From=0;
-static EXCEPTION_POINTERS *xp=nullptr;    // данные ситуации
 static Plugin *Module=nullptr;     // модуль, приведший к исключению.
 
 extern void CreatePluginStartupInfo(const Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF);
@@ -214,7 +213,7 @@ enum FARRECORDTYPE
 	RTYPE_PLUGIN = MakeFourCC<'C', 'P', 'L', 'G'>::value, // информация о текущем плагине
 };
 
-static bool ProcessSEHExceptionImpl()
+static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 {
 	if (Global)
 		Global->ProcessException=TRUE;
@@ -420,10 +419,9 @@ bool ProcessSEHException(Plugin *Module, const wchar_t* From, EXCEPTION_POINTERS
 {
 	// dummy parametrs setting
 	::From=From;
-	::xp=xp;
 	::Module=Module;
 
-	return ProcessSEHExceptionImpl();
+	return ProcessSEHExceptionImpl(xp);
 }
 
 void attach_debugger()

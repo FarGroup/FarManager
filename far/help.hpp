@@ -108,7 +108,7 @@ private:
 
 	bool MouseDown;
 	bool IsNewTopic;
-	bool TopicFound;
+	bool m_TopicFound;
 	bool ErrorHelp;
 	bool LastSearchCase, LastSearchWholeWords, LastSearchRegexp;
 };

@@ -88,8 +88,8 @@ struct column;
 class Option: NonCopyable
 {
 public:
-	explicit Option(const string& Value):sValue(new string(Value)), ValueChanged(false){}
-	explicit Option(const long long Value):iValue(Value), ValueChanged(false){}
+	explicit Option(const string& Value):m_sValue(new string(Value)), ValueChanged(false){}
+	explicit Option(const long long Value):m_iValue(Value), ValueChanged(false){}
 	virtual ~Option(){}
 
 	virtual const string toString() const = 0;
@@ -104,11 +104,11 @@ public:
 	bool Changed() const { return ValueChanged; }
 
 protected:
-	const string& GetString() const {return *sValue;}
-	const long long GetInt() const {return iValue;}
-	void Set(const string& NewValue) {if(*sValue != NewValue) {*sValue = NewValue; ValueChanged = true;}}
-	void Set(const long long NewValue) {if(iValue != NewValue) {iValue = NewValue; ValueChanged = true;}}
-	void Free() {delete sValue;}
+	const string& GetString() const {return *m_sValue;}
+	const long long GetInt() const {return m_iValue;}
+	void Set(const string& NewValue) {if(*m_sValue != NewValue) {*m_sValue = NewValue; ValueChanged = true;}}
+	void Set(const long long NewValue) {if(m_iValue != NewValue) {m_iValue = NewValue; ValueChanged = true;}}
+	void Free() {delete m_sValue;}
 
 private:
 	friend class Options;
@@ -119,8 +119,8 @@ private:
 	void MakeUnchanged(){ ValueChanged = false; }
 	union
 	{
-		string* sValue;
-		long long iValue;
+		string* m_sValue;
+		long long m_iValue;
 	};
 	bool ValueChanged;
 };
@@ -278,7 +278,7 @@ public:
 
 	struct PanelOptions
 	{
-		IntOption Type;
+		IntOption m_Type;
 		BoolOption Visible;
 		IntOption ViewMode;
 		IntOption SortMode;

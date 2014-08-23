@@ -53,8 +53,8 @@ public:
 	SimpleScreenObject();
 	virtual ~SimpleScreenObject();
 
-	int ObjWidth() const {return X2 - X1 + 1;}
-	int ObjHeight() const {return Y2 - Y1 + 1;}
+	int ObjWidth() const {return m_X2 - m_X1 + 1;}
+	int ObjHeight() const {return m_Y2 - m_Y1 + 1;}
 
 	virtual int ProcessKey(const Manager::Key& Key) { return 0; }
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) { return 0; }
@@ -72,9 +72,9 @@ public:
 	void Unlock();
 	bool Locked();
 	void Redraw();
-	bool IsVisible() const {return Flags.Check(FSCROBJ_VISIBLE);}
-	void SetVisible(bool Visible) {Flags.Change(FSCROBJ_VISIBLE,Visible);}
-	void SetRestoreScreenMode(bool Mode) {Flags.Change(FSCROBJ_ENABLERESTORESCREEN,Mode);}
+	bool IsVisible() const {return m_Flags.Check(FSCROBJ_VISIBLE);}
+	void SetVisible(bool Visible) {m_Flags.Change(FSCROBJ_VISIBLE,Visible);}
+	void SetRestoreScreenMode(bool Mode) {m_Flags.Change(FSCROBJ_ENABLERESTORESCREEN,Mode);}
 	void SetOwner(SimpleScreenObject *pOwner) {this->pOwner = pOwner;}
 	SimpleScreenObject* GetOwner() const {return pOwner;}
 
@@ -85,19 +85,19 @@ protected:
 	void swap(SimpleScreenObject& rhs) noexcept
 	{
 		std::swap(pOwner, rhs.pOwner);
-		std::swap(Flags, rhs.Flags);
+		std::swap(m_Flags, rhs.m_Flags);
 		std::swap(nLockCount, rhs.nLockCount);
-		std::swap(X1, rhs.X1);
-		std::swap(Y1, rhs.Y1);
-		std::swap(X2, rhs.X2);
-		std::swap(Y2, rhs.Y2);
+		std::swap(m_X1, rhs.m_X1);
+		std::swap(m_Y1, rhs.m_Y1);
+		std::swap(m_X2, rhs.m_X2);
+		std::swap(m_Y2, rhs.m_Y2);
 	}
 
 	// KEEP ALIGNED!
 	SimpleScreenObject *pOwner;
-	BitFlags Flags;
+	BitFlags m_Flags;
 	int nLockCount;
-	SHORT X1, Y1, X2, Y2;
+	SHORT m_X1, m_Y1, m_X2, m_Y2;
 };
 
 class ScreenObject:public SimpleScreenObject

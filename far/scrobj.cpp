@@ -41,10 +41,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 SimpleScreenObject::SimpleScreenObject():
 	pOwner(),
 	nLockCount(),
-	X1(),
-	Y1(),
-	X2(),
-	Y2()
+	m_X1(),
+	m_Y1(),
+	m_X2(),
+	m_Y2()
 {
 }
 
@@ -72,30 +72,30 @@ bool SimpleScreenObject::Locked()
 
 void SimpleScreenObject::SetPosition(int X1,int Y1,int X2,int Y2)
 {
-	this->X1 = X1;
-	this->Y1 = Y1;
-	this->X2 = X2;
-	this->Y2 = Y2;
-	Flags.Set(FSCROBJ_SETPOSITIONDONE);
+	m_X1 = X1;
+	m_Y1 = Y1;
+	m_X2 = X2;
+	m_Y2 = Y2;
+	m_Flags.Set(FSCROBJ_SETPOSITIONDONE);
 }
 
 void SimpleScreenObject::SetScreenPosition()
 {
-	Flags.Clear(FSCROBJ_SETPOSITIONDONE);
+	m_Flags.Clear(FSCROBJ_SETPOSITIONDONE);
 }
 
 
 void SimpleScreenObject::GetPosition(int& X1, int& Y1, int& X2, int& Y2) const
 {
-	X1 = this->X1;
-	Y1 = this->Y1;
-	X2 = this->X2;
-	Y2 = this->Y2;
+	X1 = m_X1;
+	Y1 = m_Y1;
+	X2 = m_X2;
+	Y2 = m_Y2;
 }
 
 void SimpleScreenObject::Hide()
 {
-	Flags.Clear(FSCROBJ_VISIBLE);
+	m_Flags.Clear(FSCROBJ_VISIBLE);
 }
 
 void SimpleScreenObject::Show()
@@ -103,17 +103,17 @@ void SimpleScreenObject::Show()
 	if (Locked())
 		return;
 
-	if (!Flags.Check(FSCROBJ_SETPOSITIONDONE))
+	if (!m_Flags.Check(FSCROBJ_SETPOSITIONDONE))
 		return;
 
-	Flags.Set(FSCROBJ_VISIBLE);
+	m_Flags.Set(FSCROBJ_VISIBLE);
 
 	DisplayObject();
 }
 
 void SimpleScreenObject::Redraw()
 {
-	if (Flags.Check(FSCROBJ_VISIBLE))
+	if (m_Flags.Check(FSCROBJ_VISIBLE))
 		Show();
 }
 
@@ -123,7 +123,7 @@ ScreenObject::ScreenObject()
 
 ScreenObject::~ScreenObject()
 {
-	if (!Flags.Check(FSCROBJ_ENABLERESTORESCREEN))
+	if (!m_Flags.Check(FSCROBJ_ENABLERESTORESCREEN))
 	{
 		if (SaveScr)
 			SaveScr->Discard();
@@ -135,13 +135,13 @@ void ScreenObject::Show()
 	if (Locked())
 		return;
 
-	if (!Flags.Check(FSCROBJ_SETPOSITIONDONE))
+	if (!m_Flags.Check(FSCROBJ_SETPOSITIONDONE))
 		return;
 
 	if (!IsVisible())
 	{
-		if (Flags.Check(FSCROBJ_ENABLERESTORESCREEN) && !SaveScr)
-			SaveScr = std::make_unique<SaveScreen>(X1, Y1, X2, Y2);
+		if (m_Flags.Check(FSCROBJ_ENABLERESTORESCREEN) && !SaveScr)
+			SaveScr = std::make_unique<SaveScreen>(m_X1, m_Y1, m_X2, m_Y2);
 	}
 
 	SimpleScreenObject::Show();
@@ -177,7 +177,7 @@ ScreenObjectWithShadow::ScreenObjectWithShadow()
 
 ScreenObjectWithShadow::~ScreenObjectWithShadow()
 {
-	if (!Flags.Check(FSCROBJ_ENABLERESTORESCREEN))
+	if (!m_Flags.Check(FSCROBJ_ENABLERESTORESCREEN))
 	{
 		if (ShadowSaveScr)
 			ShadowSaveScr->Discard();
@@ -186,7 +186,7 @@ ScreenObjectWithShadow::~ScreenObjectWithShadow()
 
 void ScreenObjectWithShadow::Hide()
 {
-	if (!Flags.Check(FSCROBJ_VISIBLE))
+	if (!m_Flags.Check(FSCROBJ_VISIBLE))
 		return;
 
 	ShadowSaveScr.reset();
@@ -196,7 +196,7 @@ void ScreenObjectWithShadow::Hide()
 
 void ScreenObjectWithShadow::Shadow(bool Full)
 {
-	if (Flags.Check(FSCROBJ_VISIBLE))
+	if (m_Flags.Check(FSCROBJ_VISIBLE))
 	{
 		if(Full)
 		{
@@ -208,10 +208,10 @@ void ScreenObjectWithShadow::Shadow(bool Full)
 		else
 		{
 			if (!ShadowSaveScr)
-				ShadowSaveScr = std::make_unique<SaveScreen>(X1, Y1, X2 + 2, Y2 + 1);
+				ShadowSaveScr = std::make_unique<SaveScreen>(m_X1, m_Y1, m_X2 + 2, m_Y2 + 1);
 
-			MakeShadow(X1+2,Y2+1,X2+1,Y2+1);
-			MakeShadow(X2+1,Y1+1,X2+2,Y2+1);
+			MakeShadow(m_X1+2,m_Y2+1,m_X2+1,m_Y2+1);
+			MakeShadow(m_X2+1,m_Y1+1,m_X2+2,m_Y2+1);
 		}
 	}
 }

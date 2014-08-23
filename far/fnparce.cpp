@@ -804,7 +804,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 				{
 					if (Modifers.find(L'F') != string::npos && PointToName(strFileName) == strFileName.data()) // 'F' - использовать полный путь; //BUGBUG ?
 					{
-						string strTempFileName(strCurDir);
+						string strTempFileName(m_CurDir);
 
 						if (ShortNames)
 							ConvertNameToShort(strTempFileName,strTempFileName);

@@ -94,7 +94,7 @@ InfoList::InfoList():
 	SectionState(ILSS_SIZE),
 	PowerListener(L"power", [&]() { if (Global->Opt->InfoPanel.ShowPowerStatus && IsVisible() && SectionState[ILSS_POWERSTATUS].Show) { Redraw(); }})
 {
-	Type=INFO_PANEL;
+	m_Type=INFO_PANEL;
 	if (Global->Opt->InfoPanel.strShowStatusInfo.empty())
 	{
 		std::for_each(RANGE(SectionState, i)
@@ -128,7 +128,7 @@ InfoList::~InfoList()
 // перерисовка, только если мы текущий фрейм
 void InfoList::Update(int Mode)
 {
-	if (!EnableUpdate)
+	if (!m_EnableUpdate)
 		return;
 
 	if (Global->CtrlObject->Cp() == Global->FrameManager->GetCurrentFrame())
@@ -139,7 +139,7 @@ string InfoList::GetTitle() const
 {
 	string strTitle;
 	strTitle.append(L" ").append(MSG(MInfoTitle)).append(L" ");
-	TruncStr(strTitle,X2-X1-3);
+	TruncStr(strTitle,m_X2-m_X1-3);
 	return strTitle;
 }
 
@@ -148,10 +148,10 @@ void InfoList::DrawTitle(string &strTitle,int Id,int &CurY)
 	SetColor(COL_PANELBOX);
 	DrawSeparator(CurY);
 	SetColor(COL_PANELTEXT);
-	TruncStr(strTitle,X2-X1-3);
-	GotoXY(X1+(X2-X1+1-(int)strTitle.size())/2,CurY);
+	TruncStr(strTitle,m_X2-m_X1-3);
+	GotoXY(m_X1+(m_X2-m_X1+1-(int)strTitle.size())/2,CurY);
 	PrintText(strTitle);
-	GotoXY(X1+1,CurY);
+	GotoXY(m_X1+1,CurY);
 	PrintText(SectionState[Id].Show?L"[-]":L"[+]");
 	SectionState[Id].Y=CurY;
 	CurY++;
@@ -159,10 +159,10 @@ void InfoList::DrawTitle(string &strTitle,int Id,int &CurY)
 
 void InfoList::DisplayObject()
 {
-	if (Flags.Check(FSCROBJ_ISREDRAWING))
+	if (m_Flags.Check(FSCROBJ_ISREDRAWING))
 		return;
 
-	Flags.Set(FSCROBJ_ISREDRAWING);
+	m_Flags.Set(FSCROBJ_ISREDRAWING);
 
 	string strOutStr;
 	Panel *AnotherPanel = Global->CtrlObject->Cp()->GetAnotherPanel(this);
@@ -172,20 +172,20 @@ void InfoList::DisplayObject()
 	FormatString strDiskNumber;
 	CloseFile();
 
-	Box(X1,Y1,X2,Y2,ColorIndexToColor(COL_PANELBOX),DOUBLE_BOX);
-	SetScreen(X1+1,Y1+1,X2-1,Y2-1,L' ',ColorIndexToColor(COL_PANELTEXT));
-	SetColor(Focus? COL_PANELSELECTEDTITLE : COL_PANELTITLE);
+	Box(m_X1,m_Y1,m_X2,m_Y2,ColorIndexToColor(COL_PANELBOX),DOUBLE_BOX);
+	SetScreen(m_X1+1,m_Y1+1,m_X2-1,m_Y2-1,L' ',ColorIndexToColor(COL_PANELTEXT));
+	SetColor(m_Focus? COL_PANELSELECTEDTITLE : COL_PANELTITLE);
 
 	string strTitle = GetTitle();
 	if (!strTitle.empty())
 	{
-		GotoXY(X1+(X2-X1+1-(int)strTitle.size())/2,Y1);
+		GotoXY(m_X1+(m_X2-m_X1+1-(int)strTitle.size())/2,m_Y1);
 		Text(strTitle);
 	}
 
 	SetColor(COL_PANELTEXT);
 
-	int CurY=Y1+1;
+	int CurY=m_Y1+1;
 
 	/* #1 - computer name/user name */
 	{
@@ -199,7 +199,7 @@ void InfoList::DisplayObject()
 		}
 		strComputerName.assign(ComputerName.get());
 
-		GotoXY(X1+2,CurY++);
+		GotoXY(m_X1+2,CurY++);
 		PrintText(MInfoCompName);
 		PrintInfo(strComputerName);
 
@@ -208,7 +208,7 @@ void InfoList::DisplayObject()
 		{
 			if(ServerInfo->sv101_comment && *ServerInfo->sv101_comment)
 			{
-				GotoXY(X1+2,CurY++);
+				GotoXY(m_X1+2,CurY++);
 				PrintText(MInfoCompDescription);
 				PrintInfo(ServerInfo->sv101_comment);
 			}
@@ -225,7 +225,7 @@ void InfoList::DisplayObject()
 		}
 		strUserName.assign(UserName.get());
 
-		GotoXY(X1+2,CurY++);
+		GotoXY(m_X1+2,CurY++);
 		PrintText(MInfoUserName);
 		PrintInfo(strUserName);
 
@@ -238,7 +238,7 @@ void InfoList::DisplayObject()
 			{
 				if(UserInfo->usri1_comment && *UserInfo->usri1_comment)
 				{
-					GotoXY(X1+2,CurY++);
+					GotoXY(m_X1+2,CurY++);
 					PrintText(MInfoUserDescription);
 					PrintInfo(UserInfo->usri1_comment);
 				}
@@ -255,7 +255,7 @@ void InfoList::DisplayObject()
 					LabelId = MInfoUserAccessLevelAdministrator;
 						break;
 				}
-				GotoXY(X1+2,CurY++);
+				GotoXY(m_X1+2,CurY++);
 				PrintText(MInfoUserAccessLevel);
 				PrintInfo(LabelId);
 
@@ -268,27 +268,27 @@ void InfoList::DisplayObject()
 	/* #2 - disk info */
 	if (SectionState[ILSS_DISKINFO].Show)
 	{
-		strCurDir = AnotherPanel->GetCurDir();
+		m_CurDir = AnotherPanel->GetCurDir();
 
-		if (strCurDir.empty())
-			api::GetCurrentDirectory(strCurDir);
+		if (m_CurDir.empty())
+			api::GetCurrentDirectory(m_CurDir);
 
 		/*
 			Корректно отображать инфу при заходе в Juction каталог
 			Рут-диск может быть другим
 		*/
-		if ((api::GetFileAttributes(strCurDir)&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
+		if ((api::GetFileAttributes(m_CurDir)&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
 		{
 			string strJuncName;
 
-			if (GetReparsePointInfo(strCurDir, strJuncName))
+			if (GetReparsePointInfo(m_CurDir, strJuncName))
 			{
 				NormalizeSymlinkName(strJuncName);
 				GetPathRoot(strJuncName,strDriveRoot); //"\??\D:\Junc\Src\"
 			}
 		}
 		else
-			GetPathRoot(strCurDir, strDriveRoot);
+			GetPathRoot(m_CurDir, strDriveRoot);
 
 		if (api::GetVolumeInformation(strDriveRoot,&strVolumeName,
 		                            &VolumeNumber,&MaxNameLength,&FileSystemFlags,
@@ -372,25 +372,25 @@ void InfoList::DisplayObject()
 		/* #2.2 - disk info: size */
 		unsigned __int64 TotalSize, UserFree;
 
-		if (api::GetDiskSize(strCurDir,&TotalSize, nullptr, &UserFree))
+		if (api::GetDiskSize(m_CurDir,&TotalSize, nullptr, &UserFree))
 		{
-			GotoXY(X1+2,CurY++);
+			GotoXY(m_X1+2,CurY++);
 			PrintText(MInfoDiskTotal);
 			InsertCommas(TotalSize,strOutStr);
 			PrintInfo(strOutStr);
 
-			GotoXY(X1+2,CurY++);
+			GotoXY(m_X1+2,CurY++);
 			PrintText(MInfoDiskFree);
 			InsertCommas(UserFree,strOutStr);
 			PrintInfo(strOutStr);
 		}
 
 		/* #4 - disk info: label & SN */
-		GotoXY(X1+2,CurY++);
+		GotoXY(m_X1+2,CurY++);
 		PrintText(MInfoDiskLabel);
 		PrintInfo(strVolumeName);
 
-	    GotoXY(X1+2,CurY++);
+	    GotoXY(m_X1+2,CurY++);
 		PrintText(MInfoDiskNumber);
 		PrintInfo(strDiskNumber);
 	}
@@ -407,45 +407,45 @@ void InfoList::DisplayObject()
 			if (!ms.dwMemoryLoad)
 				ms.dwMemoryLoad=100-ToPercent(ms.ullAvailPhys+ms.ullAvailPageFile,ms.ullTotalPhys+ms.ullTotalPageFile);
 
-			GotoXY(X1+2,CurY++);
+			GotoXY(m_X1+2,CurY++);
 			PrintText(MInfoMemoryLoad);
 			PrintInfo(str_printf(L"%d%%",ms.dwMemoryLoad));
 
 			ULONGLONG TotalMemoryInKilobytes=0;
 			if(Imports().GetPhysicallyInstalledSystemMemory(&TotalMemoryInKilobytes))
 			{
-				GotoXY(X1+2,CurY++);
+				GotoXY(m_X1+2,CurY++);
 				PrintText(MInfoMemoryInstalled);
 				InsertCommas(TotalMemoryInKilobytes<<10,strOutStr);
 				PrintInfo(strOutStr);
 			}
 
-			GotoXY(X1+2,CurY++);
+			GotoXY(m_X1+2,CurY++);
 			PrintText(MInfoMemoryTotal);
 			InsertCommas(ms.ullTotalPhys,strOutStr);
 			PrintInfo(strOutStr);
 
-			GotoXY(X1+2,CurY++);
+			GotoXY(m_X1+2,CurY++);
 			PrintText(MInfoMemoryFree);
 			InsertCommas(ms.ullAvailPhys,strOutStr);
 			PrintInfo(strOutStr);
 
-			GotoXY(X1+2,CurY++);
+			GotoXY(m_X1+2,CurY++);
 			PrintText(MInfoVirtualTotal);
 			InsertCommas(ms.ullTotalVirtual,strOutStr);
 			PrintInfo(strOutStr);
 
-			GotoXY(X1+2,CurY++);
+			GotoXY(m_X1+2,CurY++);
 			PrintText(MInfoVirtualFree);
 			InsertCommas(ms.ullAvailVirtual,strOutStr);
 			PrintInfo(strOutStr);
 
-			GotoXY(X1+2,CurY++);
+			GotoXY(m_X1+2,CurY++);
 			PrintText(MInfoPageFileTotal);
 			InsertCommas(ms.ullTotalPageFile,strOutStr);
 			PrintInfo(strOutStr);
 
-			GotoXY(X1+2,CurY++);
+			GotoXY(m_X1+2,CurY++);
 			PrintText(MInfoPageFileFree);
 			InsertCommas(ms.ullAvailPageFile,strOutStr);
 			PrintInfo(strOutStr);
@@ -464,7 +464,7 @@ void InfoList::DisplayObject()
 			SYSTEM_POWER_STATUS PowerStatus;
 			GetSystemPowerStatus(&PowerStatus);
 
-			GotoXY(X1+2,CurY++);
+			GotoXY(m_X1+2,CurY++);
 			PrintText(MInfoPowerStatusAC);
 			switch(PowerStatus.ACLineStatus)
 			{
@@ -475,7 +475,7 @@ void InfoList::DisplayObject()
 			}
 			PrintInfo(MSG(MsgID));
 
-			GotoXY(X1+2,CurY++);
+			GotoXY(m_X1+2,CurY++);
 			PrintText(MInfoPowerStatusBCLifePercent);
 			if (PowerStatus.BatteryLifePercent > 100)
 				strOutStr = MSG(MInfoPowerStatusBCLifePercentUnknown);
@@ -483,7 +483,7 @@ void InfoList::DisplayObject()
 				strOutStr = str_printf(L"%d%%",PowerStatus.BatteryLifePercent);
 			PrintInfo(strOutStr);
 
-			GotoXY(X1+2,CurY++);
+			GotoXY(m_X1+2,CurY++);
 			PrintText(MInfoPowerStatusBC);
 			strOutStr.clear();
 			// PowerStatus.BatteryFlag == 0: The value is zero if the battery is not being charged and the battery capacity is between low and high.
@@ -509,7 +509,7 @@ void InfoList::DisplayObject()
 			}
 			PrintInfo(strOutStr);
 
-			GotoXY(X1+2,CurY++);
+			GotoXY(m_X1+2,CurY++);
 			PrintText(MInfoPowerStatusBCTimeRem);
 			if (PowerStatus.BatteryLifeTime != BATTERY_LIFE_UNKNOWN)
 			{
@@ -521,7 +521,7 @@ void InfoList::DisplayObject()
 			else
 				PrintInfo(MSG(MInfoPowerStatusBCTMUnknown));
 
-			GotoXY(X1+2,CurY++);
+			GotoXY(m_X1+2,CurY++);
 			PrintText(MInfoPowerStatusBCFullTimeRem);
 			if (PowerStatus.BatteryFullLifeTime != BATTERY_LIFE_UNKNOWN)
 			{
@@ -543,14 +543,14 @@ void InfoList::DisplayObject()
 
 		if (SectionState[ILSS_DIRDESCRIPTION].Show)
 		{
-			if (CurY < Y2 && ShowDirDescription(CurY))
+			if (CurY < m_Y2 && ShowDirDescription(CurY))
 			{
-				DizView->SetPosition(X1+1,CurY,X2-1,Y2-1);
-				CurY=Y2-1;
+				DizView->SetPosition(m_X1+1,CurY,m_X2-1,m_Y2-1);
+				CurY=m_Y2-1;
 			}
 			else
 			{
-				GotoXY(X1+2,CurY++);
+				GotoXY(m_X1+2,CurY++);
 				PrintText(MInfoDizAbsent);
 			}
 		}
@@ -570,7 +570,7 @@ void InfoList::DisplayObject()
 		}
 	}
 
-	Flags.Clear(FSCROBJ_ISREDRAWING);
+	m_Flags.Clear(FSCROBJ_ISREDRAWING);
 }
 
 __int64 InfoList::VMProcess(int OpCode,void *vParam,__int64 iParam)
@@ -620,7 +620,7 @@ void InfoList::SelectShowMode()
 
 		VMenu2 ShowModeMenu(MSG(MMenuInfoShowModeTitle),ShowModeMenuItem,ARRAYSIZE(ShowModeMenuItem),0);
 		ShowModeMenu.SetHelp(L"InfoPanelShowMode");
-		ShowModeMenu.SetPosition(X1+4,-1,0,0);
+		ShowModeMenu.SetPosition(m_X1+4,-1,0,0);
 		ShowModeMenu.SetFlags(VMENU_WRAPMODE);
 
 		ShowCode=ShowModeMenu.Run([&](int Key)->int
@@ -708,8 +708,8 @@ int InfoList::ProcessKey(const Manager::Key& Key)
 
 			if (!strDizFileName.empty())
 			{
-				strCurDir = Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir();
-				FarChDir(strCurDir);
+				m_CurDir = Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir();
+				FarChDir(m_CurDir);
 				new FileViewer(strDizFileName,TRUE);//OT
 			}
 
@@ -723,8 +723,8 @@ int InfoList::ProcessKey(const Manager::Key& Key)
 			*/
 		{
 			Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
-			strCurDir = AnotherPanel->GetCurDir();
-			FarChDir(strCurDir);
+			m_CurDir = AnotherPanel->GetCurDir();
+			FarChDir(m_CurDir);
 
 			if (!strDizFileName.empty())
 			{
@@ -764,7 +764,7 @@ int InfoList::ProcessKey(const Manager::Key& Key)
 		int DVX1,DVX2,DVY1,DVY2;
 		DizView->GetPosition(DVX1,DVY1,DVX2,DVY2);
 
-		if (DVY1 < Y2)
+		if (DVY1 < m_Y2)
 		{
 			int ret = DizView->ProcessKey(Key);
 
@@ -840,7 +840,7 @@ int InfoList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	{
 		int DVX1,DVX2,DVY2;
 		DizView->GetPosition(DVX1,DVY1,DVX2,DVY2);
-		if (DVY1 < Y2)
+		if (DVY1 < m_Y2)
 		{
 			if (SectionState[ILSS_DIRDESCRIPTION].Show && MouseEvent->dwMousePosition.Y > SectionState[ILSS_DIRDESCRIPTION].Y)
 			{
@@ -871,7 +871,7 @@ int InfoList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	if (DizView)
 	{
-		if (DVY1 < Y2)
+		if (DVY1 < m_Y2)
 			return DizView->ProcessMouse(MouseEvent);
 	}
 	return TRUE;
@@ -880,9 +880,9 @@ int InfoList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 void InfoList::PrintText(const string& Str) const
 {
-	if (WhereY()<=Y2-1)
+	if (WhereY()<=m_Y2-1)
 	{
-		Global->FS << fmt::MaxWidth(X2-WhereX())<<Str;
+		Global->FS << fmt::MaxWidth(m_X2-WhereX())<<Str;
 	}
 }
 
@@ -895,11 +895,11 @@ void InfoList::PrintText(LNGID MsgID) const
 
 void InfoList::PrintInfo(const string& str) const
 {
-	if (WhereY()>Y2-1)
+	if (WhereY()>m_Y2-1)
 		return;
 
 	FarColor SaveColor=GetColor();
-	int MaxLength=X2-WhereX()-2;
+	int MaxLength=m_X2-WhereX()-2;
 
 	if (MaxLength<0)
 		MaxLength=0;
@@ -907,9 +907,9 @@ void InfoList::PrintInfo(const string& str) const
 	string strStr = str;
 	TruncStr(strStr,MaxLength);
 	int Length=(int)strStr.size();
-	int NewX=X2-Length-1;
+	int NewX=m_X2-Length-1;
 
-	if (NewX>X1 && NewX>WhereX())
+	if (NewX>m_X1 && NewX>WhereX())
 	{
 		GotoXY(NewX,WhereY());
 		SetColor(COL_PANELINFOTEXT);
@@ -969,18 +969,18 @@ bool InfoList::ShowPluginDescription(int YPos)
 	int Y=YPos;
 	for (size_t I=0; I<Info.InfoLinesNumber; I++, Y++)
 	{
-		if (Y >= Y2)
+		if (Y >= m_Y2)
 			break;
 
 		const InfoPanelLine *InfoLine=&Info.InfoLines[I];
-		GotoXY(X1,Y);
+		GotoXY(m_X1,Y);
 		SetColor(COL_PANELBOX);
 		Text(VertcalLine);
 		SetColor(COL_PANELTEXT);
-		Global->FS << fmt::MinWidth(X2-X1-1)<<L"";
+		Global->FS << fmt::MinWidth(m_X2-m_X1-1)<<L"";
 		SetColor(COL_PANELBOX);
 		Text(VertcalLine);
-		GotoXY(X1+2,Y);
+		GotoXY(m_X1+2,Y);
 
 		if (InfoLine->Flags&IPLFLAGS_SEPARATOR)
 		{
@@ -990,8 +990,8 @@ bool InfoList::ShowPluginDescription(int YPos)
 				strTitle.append(L" ").append(InfoLine->Text).append(L" ");
 
 			DrawSeparator(Y);
-			TruncStr(strTitle,X2-X1-3);
-			GotoXY(X1+(X2-X1-(int)strTitle.size())/2,Y);
+			TruncStr(strTitle,m_X2-m_X1-3);
+			GotoXY(m_X1+(m_X2-m_X1-(int)strTitle.size())/2,Y);
 			SetColor(COL_PANELTEXT);
 			PrintText(strTitle);
 		}
@@ -1035,7 +1035,7 @@ int InfoList::OpenDizFile(const string& DizFile,int YPos)
 
 		_tran(SysLog(L"InfoList::OpenDizFile() create new Viewer = %p",DizView));
 		DizView->SetRestoreScreenMode(false);
-		DizView->SetPosition(X1+1,YPos,X2-1,Y2-1);
+		DizView->SetPosition(m_X1+1,YPos,m_X2-1,m_Y2-1);
 		DizView->SetStatusMode(0);
 		DizView->EnableHideCursor(0);
 		OldWrapMode = DizView->GetWrapMode();

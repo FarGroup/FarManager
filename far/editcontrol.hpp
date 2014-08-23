@@ -56,8 +56,8 @@ public:
 	void SetObjectColor(PaletteColors Color = COL_DIALOGEDIT, PaletteColors SelColor = COL_DIALOGEDITSELECTED, PaletteColors ColorUnChanged=COL_DIALOGEDITUNCHANGED);
 	void SetObjectColor(const FarColor& Color,const FarColor& SelColor, const FarColor& ColorUnChanged);
 	void GetObjectColor(FarColor& Color, FarColor& SelColor, FarColor& ColorUnChanged);
-	int GetDropDownBox() {return Flags.Check(FEDITLINE_DROPDOWNBOX);}
-	void SetDropDownBox(bool NewDropDownBox) {Flags.Change(FEDITLINE_DROPDOWNBOX,NewDropDownBox);}
+	int GetDropDownBox() {return m_Flags.Check(FEDITLINE_DROPDOWNBOX);}
+	void SetDropDownBox(bool NewDropDownBox) {m_Flags.Change(FEDITLINE_DROPDOWNBOX,NewDropDownBox);}
 	virtual int GetMaxLength() const override {return MaxLength;}
 	void SetMaxLength(int Length) {MaxLength=Length;}
 
@@ -80,7 +80,7 @@ private:
 	virtual const FarColor& GetUnchangedColor() const override;
 	virtual const int GetTabSize() const override;
 	virtual const EXPAND_TABS GetTabExpandMode() const override;
-	virtual const string GetInputMask() const override {return Mask;}
+	virtual const string GetInputMask() const override {return m_Mask;}
 	virtual const void SetInputMask(const string& InputMask) override;
 	virtual const string& WordDiv() const override;
 	virtual int GetPrevCurPos() const override { return PrevCurPos; }
@@ -111,13 +111,13 @@ private:
 		void* m_Param;
 	};
 
-	string Mask;
+	string m_Mask;
 	History* pHistory;
 	FarList* pList;
 
-	FarColor Color;
-	FarColor SelColor;
-	FarColor ColorUnChanged;
+	FarColor m_Color;
+	FarColor m_SelectedColor;
+	FarColor m_UnchangedColor;
 
 	int MaxLength;
 	int CursorSize;

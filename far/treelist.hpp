@@ -91,7 +91,7 @@ public:
 
 	void SetRootDir(const string& NewRootDir);
 	void ProcessEnter();
-	int GetExitCode() const { return ExitCode; }
+	int GetExitCode() const { return m_ExitCode; }
 	const TreeItem* GetItem(size_t Index) const;
 
 	static void AddTreeName(const string& Name);
@@ -115,7 +115,7 @@ private:
 	virtual long FindFile(const string& Name, BOOL OnlyPartName = FALSE) override;
 	virtual long FindFirst(const string& Name) override;
 	virtual long FindNext(int StartPos, const string& Name) override;
-	virtual size_t GetFileCount() const override { return ListData.size(); }
+	virtual size_t GetFileCount() const override { return m_ListData.size(); }
 	virtual int GetFileName(string &strName, int Pos, DWORD &FileAttr) const override;
 	virtual void SetTitle() override;
 	virtual string GetTitle() const override;
@@ -146,14 +146,14 @@ private:
 	bool SaveState();
 	bool RestoreState();
 
-	std::vector<TreeItem> ListData;
-	std::vector<TreeItem> SaveListData;
-	const string Empty; // bugbug
-	string strRoot;
-	size_t WorkDir;
-	size_t SaveWorkDir;
-	long GetSelPosition;
-	int ExitCode; // актуально только для дерева, вызванного из копира!
+	std::vector<TreeItem> m_ListData;
+	std::vector<TreeItem> m_SavedListData;
+	const string m_Empty; // bugbug
+	string m_Root;
+	size_t m_WorkDir;
+	size_t m_SavedWorkDir;
+	long m_GetSelPosition;
+	int m_ExitCode; // актуально только для дерева, вызванного из копира!
 };
 
 STD_SWAP_SPEC(TreeList::TreeItem);

@@ -1822,7 +1822,7 @@ void Options::InitRoamingCFG()
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"SortGroups", &LeftPanel.SortGroups, false},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"SortMode", &LeftPanel.SortMode, 1},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"ReverseSortOrder", &LeftPanel.ReverseSortOrder, false},
-		{FSSF_PRIVATE,       NKeyPanelLeft,L"Type", &LeftPanel.Type, 0},
+		{FSSF_PRIVATE,       NKeyPanelLeft,L"Type", &LeftPanel.m_Type, 0},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"ViewMode", &LeftPanel.ViewMode, 2},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"Visible", &LeftPanel.Visible, true},
 
@@ -1834,7 +1834,7 @@ void Options::InitRoamingCFG()
 		{FSSF_PRIVATE,       NKeyPanelRight,L"SortGroups", &RightPanel.SortGroups, false},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"SortMode", &RightPanel.SortMode, 1},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"ReverseSortOrder", &RightPanel.ReverseSortOrder, false},
-		{FSSF_PRIVATE,       NKeyPanelRight,L"Type", &RightPanel.Type, 0},
+		{FSSF_PRIVATE,       NKeyPanelRight,L"Type", &RightPanel.m_Type, 0},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"ViewMode", &RightPanel.ViewMode, 2},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"Visible", &RightPanel.Visible, true},
 
@@ -2294,7 +2294,7 @@ void Options::Save(bool Manual)
 	{
 		if (PanelPtr->GetMode()==NORMAL_PANEL)
 		{
-			Panel.Type = PanelPtr->GetType();
+			Panel.m_Type = PanelPtr->GetType();
 			Panel.ViewMode = PanelPtr->GetViewMode();
 			Panel.SortMode = PanelPtr->GetSortMode();
 			Panel.ReverseSortOrder = PanelPtr->GetSortOrder();
@@ -2326,7 +2326,7 @@ void Options::Save(bool Manual)
 	std::for_each(CONST_RANGE(Config, i)
 	{
 		auto Cfg = i.GetConfig();
-		SCOPED_ACTION(auto)(Cfg->ScopedTransaction());
+		SCOPED_ACTION(auto) = Cfg->ScopedTransaction();
 		std::for_each(CONST_RANGE(i, j)
 		{
 			j.Value->StoreValue(Cfg, j.KeyName, j.ValName, Manual);
