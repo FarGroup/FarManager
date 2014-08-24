@@ -639,8 +639,10 @@ static int ClickHandler(VMenu2* Menu, const IntOption& MenuClick)
 
 int VMenu2::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	if (MouseEvent->dwMousePosition.X < m_X1 || MouseEvent->dwMousePosition.Y < m_Y1 ||
-		MouseEvent->dwMousePosition.X > m_X2 || MouseEvent->dwMousePosition.Y > m_Y2)
+	// BUGBUG
+	// m_X1, m_X2, m_Y1, m_Y2 hides the same members from base class, fix it ASAP
+	if (MouseEvent->dwMousePosition.X < Dialog::m_X1 || MouseEvent->dwMousePosition.Y < Dialog::m_Y1 ||
+		MouseEvent->dwMousePosition.X > Dialog::m_X2 || MouseEvent->dwMousePosition.Y > Dialog::m_Y2)
 	{
 		if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
 			return ClickHandler(this, Global->Opt->VMenu.LBtnClick);
