@@ -51,8 +51,8 @@ class XmlConfig: NonCopyable
 public:
 
 	virtual ~XmlConfig() {}
-	virtual tinyxml::TiXmlElement *Export() { return nullptr; }
-	virtual bool Import(const tinyxml::TiXmlHandle &root) { return true; }
+	virtual void Export(tinyxml::TiXmlElement& Parent) = 0;
+	virtual void Import(const tinyxml::TiXmlHandle& root) = 0;
 };
 
 class Transactional

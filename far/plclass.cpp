@@ -882,7 +882,7 @@ bool Plugin::InitLang(const string& Path)
 	{
 		try
 		{
-			PluginLang.reset(new Language(Path));
+			PluginLang = std::make_unique<Language>(Path);
 		}
 		catch (const std::exception&)
 		{
@@ -902,12 +902,12 @@ const wchar_t* Plugin::GetMsg(LNGID nID) const
 	return PluginLang->GetMsg(nID);
 }
 
-PluginHandle* Plugin::OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode)
+void* Plugin::OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode)
 {
 	return nullptr;
 }
 
-PluginHandle* Plugin::Analyse(AnalyseInfo *Info)
+void* Plugin::Analyse(AnalyseInfo *Info)
 {
 	ExecuteStruct es = {iAnalyse};
 	if (Load() && Exports[es.id] && !Global->ProcessException)
@@ -928,7 +928,7 @@ void Plugin::CloseAnalyse(CloseAnalyseInfo* Info)
 	}
 }
 
-PluginHandle* Plugin::Open(OpenInfo* Info)
+void* Plugin::Open(OpenInfo* Info)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	CheckScreenLock(); //??

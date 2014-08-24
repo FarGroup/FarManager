@@ -521,18 +521,16 @@ PluginHandle* PluginManager::OpenFilePlugin(
 			}
 		}
 
-		PluginHandle* hPlugin;
-
 		if (i->HasOpenFilePlugin())
 		{
 			if (Global->Opt->ShowCheckingFile)
 				ct << MSG(MCheckingFileInPlugin) << L" - [" << PointToName(i->GetModuleName()) << L"]..." << fmt::Flush();
 
-			hPlugin = i->OpenFilePlugin(Name? Name->data() : nullptr, (BYTE*)Info.Buffer, Info.BufferSize, OpMode);
+			auto hPlugin = i->OpenFilePlugin(Name? Name->data() : nullptr, (BYTE*)Info.Buffer, Info.BufferSize, OpMode);
 
 			if (hPlugin == PANEL_STOP)   //сразу на выход, плагин решил нагло обработать все сам (Autorun/PictureView)!!!
 			{
-				hResult = hPlugin;
+				hResult = reinterpret_cast<PluginHandle*>(PANEL_STOP);
 				break;
 			}
 
@@ -2347,7 +2345,7 @@ PluginHandle* PluginManager::Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,
 		return handle;
 	}
 
-	return hPlugin;
+	return nullptr;
 }
 
 string PluginManager::GetCustomData(const string& Name) const

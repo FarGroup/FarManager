@@ -4988,14 +4988,16 @@ bool PluginA::CheckMinFarVersion()
 	return true;
 }
 
-static PluginHandle* TranslateResult(PluginHandle* hResult)
+static void* TranslateResult(void* hResult)
 {
-	if(INVALID_HANDLE_VALUE==hResult) return nullptr;
-	if(hResult == reinterpret_cast<PluginHandle*>(-2)) return static_cast<PluginHandle*>(PANEL_STOP);
+	if(INVALID_HANDLE_VALUE==hResult)
+		return nullptr;
+	if (hResult == reinterpret_cast<void*>(-2))
+		return static_cast<void*>(PANEL_STOP);
 	return hResult;
 }
 
-PluginHandle* PluginA::Open(OpenInfo* Info)
+void* PluginA::Open(OpenInfo* Info)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
@@ -5089,7 +5091,7 @@ PluginHandle* PluginA::Open(OpenInfo* Info)
 	return TranslateResult(es);
 }
 
-PluginHandle* PluginA::OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode)
+void* PluginA::OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode)
 {
 	ExecuteStruct es = {iOpenFilePlugin};
 	if (Load() && Exports[es.id] && !Global->ProcessException)
@@ -5718,7 +5720,7 @@ bool PluginA::InitLang(const string& Path)
 	{
 		try
 		{
-			PluginLang.reset(new AnsiLanguage(Path));
+			PluginLang = std::make_unique<AnsiLanguage>(Path);
 		}
 		catch (const std::exception&)
 		{

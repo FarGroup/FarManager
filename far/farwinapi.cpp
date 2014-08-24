@@ -90,19 +90,14 @@ static HANDLE FindFirstFileInternal(const string& Name, FAR_FIND_DATA& FindData)
 					if (QueryResult) // try next read immediately to avoid M#2128 bug
 					{
 						Handle->Buffer2.reset(Handle->BufferSize);
-						if (!Handle->Buffer2)
-							QueryResult = false;
-						else
+						bool QueryResult2 = Handle->Object.NtQueryDirectoryFile(Handle->Buffer2.get(), Handle->BufferSize, FileIdBothDirectoryInformation, false, NamePtr, false);
+						if (!QueryResult2)
 						{
-							bool QueryResult2 = Handle->Object.NtQueryDirectoryFile(Handle->Buffer2.get(), Handle->BufferSize, FileIdBothDirectoryInformation, false, NamePtr, false);
-							if (!QueryResult2)
-							{
-								Handle->Buffer2.reset();
-								if (GetLastError() != ERROR_INVALID_LEVEL)
-									Handle->ReadDone = true;
-								else
-									QueryResult = false;
-							}
+							Handle->Buffer2.reset();
+							if (GetLastError() != ERROR_INVALID_LEVEL)
+								Handle->ReadDone = true;
+							else
+								QueryResult = false;
 						}
 					}
 

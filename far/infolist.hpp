@@ -67,7 +67,7 @@ private:
 	int  OpenDizFile(const string& DizFile, int YPos);
 	void DynamicUpdateKeyBar() const;
 
-	DizViewer *DizView;
+	std::unique_ptr<DizViewer> DizView;
 	bool OldWrapMode;
 	bool OldWrapType;
 	string strDizFileName;

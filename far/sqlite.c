@@ -44,9 +44,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma GCC diagnostic ignored "-Wcast-qual"
 #endif // __GNUC__
 
-//to enable DESC indexes
-#define SQLITE_DEFAULT_FILE_FORMAT 4
-
 #include "thirdparty/sqlite/sqlite3.c"
 
 #pragma warning(pop)

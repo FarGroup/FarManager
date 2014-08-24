@@ -54,13 +54,10 @@ taskbar::taskbar():
 		case S_FALSE:
 			CoInited=true;
 		case RPC_E_CHANGED_MODE:
-			if (CoCreateInstance(CLSID_TaskbarList, nullptr, CLSCTX_INPROC_SERVER,
-#ifdef __GNUC__
-				IID_ITaskbarList3, IID_PPV_ARGS_Helper(&pTaskbarList)
-#else
-				IID_PPV_ARGS(&pTaskbarList)
+#ifdef _MSC_VER
+			assert(__uuidof(*pTaskbarList) == IID_ITaskbarList3);
 #endif
-			) != S_OK)
+			if (CoCreateInstance(CLSID_TaskbarList, nullptr, CLSCTX_INPROC_SERVER, IID_ITaskbarList3, IID_PPV_ARGS_Helper(&pTaskbarList)) != S_OK)
 				pTaskbarList = nullptr;
 			break;
 		default:

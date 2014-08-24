@@ -1017,8 +1017,7 @@ void InfoList::CloseFile()
 		LastDizShowScrollbar=DizView->GetShowScrollbar();
 		DizView->SetWrapMode(OldWrapMode);
 		DizView->SetWrapType(OldWrapType);
-		delete DizView;
-		DizView=nullptr;
+		DizView.reset();
 	}
 
 	strDizFileName.clear();
@@ -1031,7 +1030,7 @@ int InfoList::OpenDizFile(const string& DizFile,int YPos)
 
 	if (!DizView)
 	{
-		DizView=new DizViewer;
+		DizView = std::make_unique<DizViewer>();
 
 		_tran(SysLog(L"InfoList::OpenDizFile() create new Viewer = %p",DizView));
 		DizView->SetRestoreScreenMode(false);
@@ -1054,8 +1053,7 @@ int InfoList::OpenDizFile(const string& DizFile,int YPos)
 	{
 		if (!DizView->OpenFile(DizFile,FALSE))
 		{
-			delete DizView;
-			DizView = nullptr;
+			DizView.reset();
 			return FALSE;
 		}
 
