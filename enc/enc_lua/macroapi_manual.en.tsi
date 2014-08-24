@@ -1783,15 +1783,27 @@ lv=1
 dt=Text
 nm=LuaMacro plugin
 ctime=3551991405
-mtime=3613334359
+mtime=3617997203
 <article>
 #_<markdown>
 #_This plugin is necessary for macros to work, therefore it should be installed. The same is true regarding the runtime (*lua51.dll*, *luafar3.dll* and *lpeg.dll*) that is necessary for plugin's work.
 #_
 #_When Far Manager exits the LuaMacro plugin is unloaded after all other plugins, in order to be able to process `MCTL_XXX` requests from `ExitFARW` functions of other plugins.
 #_
-#_### Command line operations
+#_@@@
+#_{exitfarw}: http://api.farmanager.com/ru/exported_functions/exitfarw.html
 #_
+</article>
+</node>
+<node>
+id=92
+lv=2
+dt=Text
+nm=Command line operations
+ctime=3617997112
+mtime=3617997232
+<article>
+#_<markdown>
 #_* `macro: load`<br>
 #_  (Re)load macros and event handlers.
 #_* `macro: save`<br>
@@ -1821,9 +1833,26 @@ mtime=3613334359
 #_[1]: 76.html
 #_
 #_@@@
-#_{exitfarw}: http://api.farmanager.com/ru/exported_functions/exitfarw.html
 #_{mctl_addmacro}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_ADDMACRO
 #_
+#_
+</article>
+</node>
+<node>
+id=93
+lv=2
+dt=Text
+nm=File luamacro.ini
+ctime=3617998172
+mtime=3618041778
+<article>
+#_<markdown>
+#_The file `luamacro.ini` contains some plugin's settings. If the file is missing, or some setting is missing then the plugin will use the default value for the given setting.
+#_
+#_* `MacroPath`<br>
+#_  Defines paths from which macrofiles are loaded.<br>
+#_  It is a sequence of 0 or more paths separated with semicolons.<br>
+#_  The default value is `%FARPROFILE%\Macros\scripts`.
 #_
 </article>
 </node>

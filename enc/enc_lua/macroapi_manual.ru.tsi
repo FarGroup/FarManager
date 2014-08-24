@@ -1776,15 +1776,27 @@ lv=1
 dt=Text
 nm=Плагин LuaMacro
 ctime=3551991405
-mtime=3613334178
+mtime=3617996565
 <article>
 #_<markdown>
 #_Данный плагин необходим для работы макросов, поэтому должен быть установлен. То же касается и рантайма (*lua51.dll*, *luafar3.dll* и *lpeg.dll*), необходимого для работы плагина.
 #_
 #_При выходе из Far Manager плагин LuaMacro выгружается последним, чтобы могли быть обработаны запросы `MCTL_XXX` из функций `ExitFARW` других плагинов.
 #_
-#_### Работа с командной строки
+#_@@@
+#_{exitfarw}: http://api.farmanager.com/ru/exported_functions/exitfarw.html
 #_
+</article>
+</node>
+<node>
+id=92
+lv=2
+dt=Text
+nm=Работа с командной строки
+ctime=3617996372
+mtime=3617996595
+<article>
+#_<markdown>
 #_* `macro: load`<br>
 #_   (Пере)загрузить макросы и обработчики событий.
 #_* `macro: save`<br>
@@ -1812,8 +1824,26 @@ mtime=3613334178
 #_[1]: 76.html
 #_
 #_@@@
-#_{exitfarw}: http://api.farmanager.com/ru/exported_functions/exitfarw.html
 #_{mctl_addmacro}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_ADDMACRO
+#_
+</article>
+</node>
+<node>
+id=93
+lv=2
+dt=Text
+nm=Файл luamacro.ini
+ctime=3617997289
+mtime=3618035419
+<article>
+#_<markdown>
+#_Файл `luamacro.ini` содержит некоторые настройки плагина. Если файла нет, или в нём отсуствует определённая настройка, плагин использует умолчательное значение для данной настройки.
+#_
+#_* `MacroPath`<br>
+#_  Определяет пути, с которых будут грузиться макрофайлы.<br>
+#_  Представляет собой последовательность из 0 или более путей, разделённых
+#_  точками с запятой.<br>
+#_  Значение по умолчанию: `%FARPROFILE%\Macros\scripts`.
 #_
 </article>
 </node>
