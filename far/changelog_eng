@@ -3,6 +3,77 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 24.08.2014 18:51:17 +0200 - build 4066
+
+1. Refactoring.
+
+drkns 23.08.2014 22:57:24 +0200 - build 4065
+
+1. Mistype in 3542 which lead to invisibility of directories ".?" under some circumstances.
+
+2. clang warning.
+
+drkns 23.08.2014 17:09:59 +0200 - build 4064
+
+1. A big pack of renamings: get rid of name collisions and related warnings from analyzers and VS 14.
+
+svs 21.08.2014 15:07:45 +0400 - build 4063
+
+1. SQLite 3.8.6
+
+drkns 21.08.2014 02:09:09 +0200 - build 4062
+
+1. As it turned out, the current regex implementation is not thread safe.
+   As a consequence, it could crash могло in a bizarre way if something were done during the search. Especially in debug.
+   Trying to fix.
+
+zg 21.08.2014 01:26:03 +0200 - build 4061
+
+1. Launch of modal windows is redone.
+
+2. viewer is not removed during VE_GOTFOCUS/VE_KILLFOCUS processing.
+
+drkns 21.08.2014 00:45:30 +0200 - build 4060
+
+1. Remove some misconception from help.?pp.
+
+2. Add some asserts and const-ness.
+
+2. Other refactoring.
+
+zg 19.08.2014 22:40:41 +0200 - build 4059
+
+1. simplify setting the current macro area.
+
+zg 18.08.2014 20:22:56 +0200 - build 4058
+
+1. correction of 4011: regexp search crashed on (?=pattern) and (?!pattern).
+
+zg 18.08.2014 19:26:05 +0200 - build 4057
+
+1. correction of 4053: when an incorrect (missing in the name) character is typed after a few correct characters 
+   then the fast search line is cleared.
+
+zg 17.08.2014 23:36:15 +0200 - build 4056
+
+1. crash on drawing the shadow of a dialog beyond the screen limits.
+
+drkns 17.08.2014 21:15:50 +0200 - build 4055
+
+1. The support for elevation getting the amount of full/free volume size.
+
+drkns 17.08.2014 00:53:51 +0200 - build 4054
+
+1. Correction of 4052.
+
+zg 16.08.2014 22:08:40 +0200 - build 4053
+
+1. fast search in panels - the real window.
+
+drkns 16.08.2014 20:39:09 +0200 - build 4052
+
+1. Move the processing of unnecessary keys out of the window manager.
+
 drkns 16.08.2014 15:31:44 +0200 - build 4051
 
 1. 0002763: Buffer scrolling function does not work with Numpad keys
