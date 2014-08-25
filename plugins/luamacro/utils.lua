@@ -110,12 +110,12 @@ local function ReadIniFile (filename)
   local fp = io.open(filename)
   if not fp then return nil end
 
-  local pat = [[
+  local pat = regex.new([[
     ^ \s* \[ (\w+) \] \s*       $ |
     ^ \s*(\w+)\s* = \s*(.*?)\s* $ |
     ^ \s* (?: ; .*)?            $ |
-    ^ (.*)
-  ]]
+    ^ (.*?)
+  ]], "x")
   local currsect = 1
   local t = { [currsect]={} }
   local numline = 0
@@ -123,16 +123,15 @@ local function ReadIniFile (filename)
   if fp:read(3) ~= "\239\187\191" then fp:seek("set",0) end -- skip UTF-8 BOM
   for line in fp:lines() do
     numline = numline + 1
-    for sect,id,val,bad in regex.gmatch(line,pat,"x") do
-      if bad then
-        fp:close()
-        return nil, (("%s:%d: invalid line in ini-file"):format(filename,numline))
-      elseif sect then
-        t[sect] = t[sect] or {}
-        currsect = sect
-      elseif id then
-        t[currsect][id] = val
-      end
+    local sect,id,val,bad = pat:match(line)
+    if sect then
+      t[sect] = t[sect] or {}
+      currsect = sect
+    elseif id then
+      t[currsect][id] = val
+    elseif bad then
+      fp:close()
+      return nil, (("%s:%d: invalid line in ini-file"):format(filename,numline))
     end
   end
   fp:close()
