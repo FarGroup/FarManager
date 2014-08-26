@@ -1,5 +1,5 @@
 local Shared = ...
-local Msg, ErrMsg, pack = Shared.Msg, Shared.ErrMsg, Shared.pack
+local Msg, ErrMsg, pack, ExpandEnv = Shared.Msg, Shared.ErrMsg, Shared.pack, Shared.ExpandEnv
 
 local F = far.Flags
 local type = type
@@ -532,7 +532,7 @@ local function ErrMsgLoad (msg, filename, isMoonScript, mode)
   end
 end
 
-local function LoadMacros (unload)
+local function LoadMacros (unload, paths)
   if LoadingInProgress then return end
   LoadingInProgress = true
 
@@ -633,16 +633,21 @@ local function LoadMacros (unload)
       end
     end
 
-    local paths = dir.."\\scripts"
-    local cfg, msg = ReadIniFile(far.PluginStartupInfo().ModuleDir.."luamacro.ini")
-    if cfg then
-      local p = cfg[1].MacroPath
-      if p then paths = p:gsub("%%(.-)%%", win.GetEnv) end
+    if paths then
+      paths = ExpandEnv(paths)
     else
-      if msg then ErrMsg(msg) end
+      paths = dir.."\\scripts"
+      local cfg, msg = ReadIniFile(far.PluginStartupInfo().ModuleDir.."luamacro.ini")
+      if cfg then
+        local p = cfg[1].MacroPath
+        if p then paths = ExpandEnv(p) end
+      else
+        if msg then ErrMsg(msg) end
+      end
     end
 
     for p in paths:gmatch("[^;]+") do
+      p = far.ConvertPath(p, F.CPM_FULL) -- needed for relative paths
       local macroinit = p:gsub("[\\/]*$", "\\_macroinit.lua")
       local info = win.GetFileInfo(macroinit)
       if info and not info.FileAttributes:find("d") then

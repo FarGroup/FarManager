@@ -4591,7 +4591,8 @@ static int far_AdvControl(lua_State *L)
 static int far_MacroLoadAll(lua_State* L)
 {
 	TPluginData *pd = GetPluginData(L);
-	lua_pushboolean(L, pd->Info->MacroControl(pd->PluginId, MCTL_LOADALL, 0, 0) != 0);
+	const wchar_t *paths = opt_utf8_string(L, 1, NULL);
+	lua_pushboolean(L, pd->Info->MacroControl(pd->PluginId, MCTL_LOADALL, 0, (void*)paths) != 0);
 	return 1;
 }
 

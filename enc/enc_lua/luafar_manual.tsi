@@ -6852,12 +6852,12 @@ lv=2
 dt=Text
 nm=far.MacroLoadAll
 ctime=3507631227
-mtime=3523362830
+mtime=3618249489
 <article>
-#_result = far.MacroLoadAll ()
+#_result = far.MacroLoadAll ([path])
 #_
 #_**Parameters:**
-#_  none
+#_  path:   string, or nil
 #_
 #_**Returns:**
 #_  result: boolean

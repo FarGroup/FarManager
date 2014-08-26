@@ -367,9 +367,9 @@ function export.Open (OpenFrom, arg1, ...)
     elseif calltype==F.MCT_ENUMMACROS     then return utils.EnumMacros(...)
     elseif calltype==F.MCT_GETMACRO       then return utils.GetMacroWrapper(...)
     elseif calltype==F.MCT_LOADMACROS     then
-      local InitedRAM = ...
+      local InitedRAM,Paths = ...
       keymacro.InitInternalVars(InitedRAM)
-      return utils.LoadMacros()
+      return utils.LoadMacros(false,Paths)
     elseif calltype==F.MCT_RECORDEDMACRO  then return utils.ProcessRecordedMacro(...)
     elseif calltype==F.MCT_RUNSTARTMACRO  then return utils.RunStartMacro()
     elseif calltype==F.MCT_WRITEMACROS    then return utils.WriteMacros()
@@ -431,7 +431,7 @@ end
 
 local function Init()
   local Shared = { ErrMsg=ErrMsg, pack=pack, checkarg=checkarg, loadmacro=loadmacro, yieldcall=yieldcall,
-                   MacroInit=MacroInit, MacroStep=MacroStep }
+                   MacroInit=MacroInit, MacroStep=MacroStep, ExpandEnv=ExpandEnv }
 
   local ModuleDir = far.PluginStartupInfo().ModuleDir
   local function RunPluginFile (fname, param)
