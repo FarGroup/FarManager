@@ -1794,11 +1794,12 @@ lv=2
 dt=Text
 nm=Работа с командной строки
 ctime=3617996372
-mtime=3617996595
+mtime=3618256405
 <article>
 #_<markdown>
-#_* `macro: load`<br>
-#_   (Пере)загрузить макросы и обработчики событий.
+#_* `macro: load [path]`<br>
+#_   (Пере)загрузить макросы и обработчики событий. Опциональный параметр `path` имеет тот же
+#_   смысл, что `Param2` в `MCTL_LOADALL`.
 #_* `macro: save`<br>
 #_   Сохранить созданные или модифицированные [клавиатурные][1] макросы.
 #_* `macro: unload`<br>
@@ -1825,6 +1826,7 @@ mtime=3617996595
 #_
 #_@@@
 #_{mctl_addmacro}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_ADDMACRO
+#_{mctl_loadall}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_LOADALL
 #_
 </article>
 </node>

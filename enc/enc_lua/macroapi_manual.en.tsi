@@ -1801,11 +1801,12 @@ lv=2
 dt=Text
 nm=Command line operations
 ctime=3617997112
-mtime=3617997232
+mtime=3618256380
 <article>
 #_<markdown>
-#_* `macro: load`<br>
-#_  (Re)load macros and event handlers.
+#_* `macro: load [path]`<br>
+#_  (Re)load macros and event handlers. An optional parameter `path` has the same
+#_   meaning as `Param2` in `MCTL_LOADALL`.
 #_* `macro: save`<br>
 #_   Save the created or modified [keyboard][1] macros.
 #_* `macro: unload`<br>
@@ -1834,7 +1835,7 @@ mtime=3617997232
 #_
 #_@@@
 #_{mctl_addmacro}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_ADDMACRO
-#_
+#_{mctl_loadall}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_LOADALL
 #_
 </article>
 </node>
