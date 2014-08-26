@@ -2335,7 +2335,7 @@ void Options::Save(bool Manual)
 
 	FileFilter::Save(Manual);
 	SavePanelModes(Manual);
-	Global->CtrlObject->Macro.Save(Manual);
+	Global->CtrlObject->Macro.SaveMacros(Manual);
 }
 
 intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)

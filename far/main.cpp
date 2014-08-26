@@ -154,7 +154,7 @@ static int MainProcess(
 			Global->FrameManager->PluginCommit();
 
 			Global->CtrlObject->Plugins->LoadPlugins();
-			Global->CtrlObject->Macro.Load(true, true);
+			Global->CtrlObject->Macro.LoadMacros(true, true);
 
 			if (!ename.empty())
 			{

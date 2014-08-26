@@ -2038,13 +2038,13 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 			// Param1=0, Param2 - 0
 			case MCTL_LOADALL: // из реестра в память ФАР с затиранием предыдущего
 			{
-				return !Macro.IsRecording() && Macro.Load(false, !Macro.IsExecuting());
+				return !Macro.IsRecording() && Macro.LoadMacros(false, !Macro.IsExecuting(), (const wchar_t*)Param2);
 			}
 
 			// Param1=0, Param2 - 0
 			case MCTL_SAVEALL:
 			{
-				return !Macro.IsRecording() && Macro.Save(true);
+				return !Macro.IsRecording() && Macro.SaveMacros(true);
 			}
 
 			// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*

@@ -564,7 +564,7 @@ KeyMacro::KeyMacro():
 	//print_opcodes();
 }
 
-bool KeyMacro::Load(bool FromFar, bool InitedRAM)
+bool KeyMacro::LoadMacros(bool FromFar, bool InitedRAM, const wchar_t *Path)
 {
 	if (FromFar)
 	{
@@ -577,13 +577,14 @@ bool KeyMacro::Load(bool FromFar, bool InitedRAM)
 
 	m_Recording = MACROSTATE_NOMACRO;
 
-	FarMacroValue values[]={InitedRAM};
+	FarMacroValue values[]={InitedRAM,false};
+	if (Path) values[1] = Path;
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_LOADMACROS,&fmc};
 	return CallMacroPlugin(&info);
 }
 
-bool KeyMacro::Save(bool /*always*/)
+bool KeyMacro::SaveMacros(bool /*always*/)
 {
 	OpenMacroPluginInfo info={MCT_WRITEMACROS,nullptr};
 	return CallMacroPlugin(&info);
@@ -800,7 +801,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 				Global->WaitInFastFind++;
 
 				if (Global->Opt->AutoSaveSetup)
-					Save(false); // записать только изменения!
+					SaveMacros(false); // записать только изменения!
 
 				return true;
 			}

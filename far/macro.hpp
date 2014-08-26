@@ -78,7 +78,7 @@ public:
 	static bool IsHistoryDisable(int TypeHistory);
 	static bool MacroExists(int Key, FARMACROAREA CheckMode, bool UseCommon);
 	static void RunStartMacro();
-	static bool Save(bool always);
+	static bool SaveMacros(bool always);
 	static void SendDropProcess();
 	static void SetMacroConst(int ConstIndex, __int64 Value);
 	static bool PostNewMacro(const wchar_t* Sequence, FARKEYMACROFLAGS Flags, DWORD AKey = 0);
@@ -92,7 +92,7 @@ public:
 	FARMACROAREA GetMode() const { return m_Mode; }
 	const wchar_t* GetStringToPrint() const { return m_StringToPrint; }
 	int  IsRecording() const { return m_Recording; }
-	bool Load(bool FromFar,bool InitedRAM=true);
+	bool LoadMacros(bool FromFar, bool InitedRAM=true, const wchar_t *Path=nullptr);
 	bool ParseMacroString(const wchar_t* Sequence,FARKEYMACROFLAGS Flags,bool skipFile);
 	int  PeekKey() const;
 	int  ProcessEvent(const FAR_INPUT_RECORD *Rec);
