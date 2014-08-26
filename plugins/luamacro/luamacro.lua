@@ -328,7 +328,10 @@ local function ProcessCommandLine (CmdLine)
   prefix = prefix:lower()
   if prefix == "lm" or prefix == "macro" then
     local cmd = text:match("%S*"):lower()
-    if cmd == "load" then far.MacroLoadAll(text:match("%S.*",5))
+    if cmd == "load" then
+      local paths = text:match("%S.*",5)
+      paths = paths and paths:gsub([[^"(.+)"$]], "%1")
+      far.MacroLoadAll(paths)
     elseif cmd == "save" then utils.WriteMacros()
     elseif cmd == "unload" then utils.UnloadMacros()
     elseif cmd == "post" then -- DEPRECATED, to be removed on 2014-Oct-29.
