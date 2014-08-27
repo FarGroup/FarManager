@@ -409,9 +409,9 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		*/
 		case ACTL_GETARRAYCOLOR:
 		{
-			if (Param2 && static_cast<size_t>(Param1) >= Global->Opt->Palette.size())
+			if (Param1 && Param2)
 			{
-				Global->Opt->Palette.CopyTo(reinterpret_cast<FarColor*>(Param2));
+				Global->Opt->Palette.CopyTo(reinterpret_cast<FarColor*>(Param2), Param1);
 			}
 			return Global->Opt->Palette.size();
 		}

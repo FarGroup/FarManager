@@ -113,7 +113,7 @@ private:
 	unsigned char *hexFindString;
 	size_t hexFindStringSize;
 	uintptr_t CodePage;
-	size_t* skipCharsTable;
+	std::vector<size_t> skipCharsTable;
 	UINT64 SearchInFirst;
 	struct FindListItem* FindExitItem;
 	string strFindMask;

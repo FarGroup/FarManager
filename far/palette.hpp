@@ -42,7 +42,7 @@ public:
 	void ResetToDefault();
 	void ResetToBlack();
 	void Set(size_t StartOffset, FarColor* Value, size_t Count);
-	void CopyTo(FarColor* Destination) const;
+	void CopyTo(FarColor* Destination, size_t Size) const;
 	const FarColor& operator[](size_t Index) const {return CurrentPalette[Index];}
 	size_t size() const {return CurrentPalette.size();}
 

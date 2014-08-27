@@ -1333,9 +1333,11 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					}
 				}
 
-				bool need_reload = BadConversion
-				|| IsUnicodeCodePage(m_codepage) || m_codepage == CP_UTF7
-				|| IsUnicodeCodePage(codepage);
+				bool need_reload = !m_Flags.Check(FFILEEDIT_NEW) // we can't reload non-existing file
+					&& (BadConversion
+					|| IsUnicodeCodePage(m_codepage) || m_codepage == CP_UTF7
+					|| IsUnicodeCodePage(codepage));
+				
 
 				if (codepage != m_codepage && need_reload && IsFileModified())
 				{

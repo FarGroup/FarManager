@@ -764,9 +764,9 @@ static void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::Plu
 	PanelItemA.FindData.ftCreationTime = PanelItem.CreationTime;
 	PanelItemA.FindData.ftLastAccessTime = PanelItem.LastAccessTime;
 	PanelItemA.FindData.ftLastWriteTime = PanelItem.LastWriteTime;
-	PanelItemA.FindData.nFileSizeLow = (DWORD)PanelItem.FileSize;
+	PanelItemA.FindData.nFileSizeLow = (DWORD)(PanelItem.FileSize & 0xFFFFFFFF);
 	PanelItemA.FindData.nFileSizeHigh = (DWORD)(PanelItem.FileSize>>32);
-	PanelItemA.PackSize = (DWORD)PanelItem.AllocationSize;
+	PanelItemA.PackSize = (DWORD)(PanelItem.AllocationSize & 0xFFFFFFFF);
 	PanelItemA.PackSizeHigh = (DWORD)(PanelItem.AllocationSize>>32);
 	UnicodeToOEM(PanelItem.FileName + PathOffset,PanelItemA.FindData.cFileName,sizeof(PanelItemA.FindData.cFileName));
 	UnicodeToOEM(PanelItem.AlternateFileName,PanelItemA.FindData.cAlternateFileName,sizeof(PanelItemA.FindData.cAlternateFileName));

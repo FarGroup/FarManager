@@ -1421,6 +1421,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	}
 
 	ReadOnlyDelMode=ReadOnlyOvrMode=OvrMode=SkipEncMode=SkipMode=SkipDeleteMode=-1;
+	SkipSecurityErrors = false;
 
 	if (Link)
 	{
@@ -3946,37 +3947,59 @@ int ShellCopy::AskOverwrite(const api::FAR_FIND_DATA &SrcData,
 
 
 
-int ShellCopy::GetSecurity(const string& FileName, api::FAR_SECURITY_DESCRIPTOR& sd)
+bool ShellCopy::GetSecurity(const string& FileName, api::FAR_SECURITY_DESCRIPTOR& sd)
 {
-	bool RetSec = api::GetFileSecurity(NTPath(FileName), DACL_SECURITY_INFORMATION, sd);
-
-	if (!RetSec)
+	if (!api::GetFileSecurity(NTPath(FileName), DACL_SECURITY_INFORMATION, sd))
 	{
-		Global->CatchError();
-		int LastError = Global->CaughtError();
-		if (LastError!=ERROR_SUCCESS && LastError!=ERROR_FILE_NOT_FOUND &&
-		        Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
-		                MSG(MCannotGetSecurity),FileName.data(),MSG(MOk),MSG(MCancel))==1)
-			return FALSE;
+		if (!SkipSecurityErrors)
+		{
+			Global->CatchError();
+			switch (Message(MSG_WARNING | MSG_ERRORTYPE, 3, MSG(MError),
+				MSG(MCannotGetSecurity),
+				FileName.data(),
+				MSG(MSkip), MSG(MCopySkipAll), MSG(MCancel)))
+			{
+			case 0:
+				break;
+
+			case 1:
+				SkipSecurityErrors = true;
+				break;
+
+			default:
+				return false;
+			}
+		}
 	}
-	return TRUE;
+	return true;
 }
 
 
-
-int ShellCopy::SetSecurity(const string& FileName,const api::FAR_SECURITY_DESCRIPTOR& sd)
+bool ShellCopy::SetSecurity(const string& FileName, const api::FAR_SECURITY_DESCRIPTOR& sd)
 {
-	bool RetSec = api::SetFileSecurity(NTPath(FileName), DACL_SECURITY_INFORMATION, sd);
-	if (!RetSec)
+	if (!api::SetFileSecurity(NTPath(FileName), DACL_SECURITY_INFORMATION, sd))
 	{
-		Global->CatchError();
-		int LastError = Global->CaughtError();
-		if (LastError!=ERROR_SUCCESS && LastError!=ERROR_FILE_NOT_FOUND &&
-		        Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
-		                MSG(MCannotSetSecurity),FileName.data(),MSG(MOk),MSG(MCancel))==1)
-			return FALSE;
+		if (!SkipSecurityErrors)
+		{
+			Global->CatchError();
+			switch (Message(MSG_WARNING | MSG_ERRORTYPE, 3, MSG(MError),
+				MSG(MCannotSetSecurity),
+				FileName.data(),
+				MSG(MSkip), MSG(MCopySkipAll), MSG(MCancel)))
+			{
+			case 0:
+				break;
+
+			case 1:
+				SkipSecurityErrors = true;
+				break;
+
+			default:
+				return false;
+			}
+		}
 	}
-	return TRUE;
+	return true;
 }
 
 BOOL ShellCopySecuryMsg(const CopyProgress* CP, const string& Name)

@@ -56,8 +56,8 @@ private:
 	int ShellSystemCopy(const string& SrcName,const string& DestName,const api::FAR_FIND_DATA &SrcData);
 	int DeleteAfterMove(const string& Name,DWORD Attr);
 	int AskOverwrite(const api::FAR_FIND_DATA &SrcData,const string& SrcName,const string& DestName, DWORD DestAttr,int SameName,int Rename,int AskAppend, int &Append,string &strNewName,int &RetCode);
-	static int GetSecurity(const string& FileName, api::FAR_SECURITY_DESCRIPTOR& sd);
-	static int SetSecurity(const string& FileName,const api::FAR_SECURITY_DESCRIPTOR& sd);
+	bool GetSecurity(const string& FileName, api::FAR_SECURITY_DESCRIPTOR& sd);
+	bool SetSecurity(const string& FileName, const api::FAR_SECURITY_DESCRIPTOR& sd);
 	int SetRecursiveSecurity(const string& FileName,const api::FAR_SECURITY_DESCRIPTOR& sd);
 	bool CalcTotalSize();
 	bool ShellSetAttr(const string& Dest,DWORD Attr);
@@ -86,6 +86,7 @@ private:
 	int SkipMode;          // ...для пропуска при копировании залоченных файлов.
 	int SkipEncMode;
 	int SkipDeleteMode;
+	bool SkipSecurityErrors;
 	int SelectedFolderNameLength;
 	std::vector<string> m_DestList;
 	// тип создаваемого репарспоинта.

@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <functional>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <list>
 #include <queue>
 #include <map>

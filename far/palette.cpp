@@ -40,7 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "configdb.hpp"
 
-struct ColorsInit
+static const struct ColorsInit
 {
 	const wchar_t* Name;
 	int DefaultIndex;
@@ -231,9 +231,12 @@ void palette::Set(size_t StartOffset, FarColor* Value, size_t Count)
 	PaletteChanged = true;
 }
 
-void palette::CopyTo(FarColor* Destination) const
+void palette::CopyTo(FarColor* Destination, size_t Size) const
 {
-	memcpy(Destination, CurrentPalette.data(), CurrentPalette.size() * sizeof(decltype(CurrentPalette)::value_type));
+	if (Size >= CurrentPalette.size())
+	{
+		std::copy(ALL_CONST_RANGE(CurrentPalette), Destination);
+	}
 }
 
 void palette::Load()

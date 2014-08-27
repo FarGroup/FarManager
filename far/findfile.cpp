@@ -390,10 +390,7 @@ void FindFiles::InitInFileSearch()
 				findString = strFindStr.data();
 
 			// Инизиализируем данные для алгоритма поиска
-			skipCharsTable = new size_t[WCHAR_MAX + 1];
-
-			for (size_t index = 0; index < WCHAR_MAX+1; index++)
-				skipCharsTable[index] = findStringCount;
+			skipCharsTable.assign(std::numeric_limits<wchar_t>::max() + 1, findStringCount);
 
 			for (size_t index = 0; index < findStringCount-1; index++)
 				skipCharsTable[findString[index]] = findStringCount-1-index;
@@ -478,10 +475,7 @@ void FindFiles::InitInFileSearch()
 			}
 
 			// Инизиализируем данные для аглоритма поиска
-			skipCharsTable = new size_t[255 + 1];
-
-			for (size_t index = 0; index < 255+1; index++)
-				skipCharsTable[index] = hexFindStringSize;
+			skipCharsTable.assign(std::numeric_limits<unsigned char>::max() + 1, hexFindStringSize);
 
 			for (size_t index = 0; index < hexFindStringSize-1; index++)
 				skipCharsTable[hexFindString[index]] = hexFindStringSize-1-index;
@@ -501,8 +495,7 @@ void FindFiles::ReleaseInFileSearch()
 		delete[] readBuffer;
 		readBuffer = nullptr;
 
-		delete[] skipCharsTable;
-		skipCharsTable=nullptr;
+		clear_and_shrink(skipCharsTable);
 
 		m_CodePages.clear();
 
