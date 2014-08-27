@@ -564,7 +564,7 @@ KeyMacro::KeyMacro():
 	//print_opcodes();
 }
 
-bool KeyMacro::LoadMacros(bool FromFar, bool InitedRAM, const wchar_t *Path)
+bool KeyMacro::LoadMacros(bool FromFar, bool InitedRAM, const FarMacroLoad *Data)
 {
 	if (FromFar)
 	{
@@ -577,8 +577,12 @@ bool KeyMacro::LoadMacros(bool FromFar, bool InitedRAM, const wchar_t *Path)
 
 	m_Recording = MACROSTATE_NOMACRO;
 
-	FarMacroValue values[]={InitedRAM,false};
-	if (Path) values[1] = Path;
+	FarMacroValue values[]={InitedRAM,false,0.0};
+	if (Data)
+	{
+		if (Data->Path) values[1] = Data->Path;
+		values[2] = (double)Data->Flags;
+	}
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_LOADMACROS,&fmc};
 	return CallMacroPlugin(&info);

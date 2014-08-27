@@ -43,10 +43,9 @@ intptr_t WINAPI MacroControl(
       Предыдущие значения макросов при этом выгружаются, за исключением макросов,
       добавленных с помощью команды <a href="#MCTL_ADDMACRO">MCTL_ADDMACRO</a>.<br>
     <code>Param1</code> не используется.<br>
-    <code>Param2</code> указывает на строку - перечень путей, с которых должны
-      грузиться макрофайлы. Разделитель путей - точка с запятой.
-      В путях можно использовать переменные окружения.
-      Для использования путей по умолчанию установите в <code>NULL</code>.<br>
+    <code>Param2</code> указывает на структуру
+      <a href="../structures/farmacroload.html">FarMacroLoad</a>.
+      Для загрузки с параметрами по умолчанию установите в <code>NULL</code>.<br>
     Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="MCTL_SAVEALL">MCTL_SAVEALL</a></td>

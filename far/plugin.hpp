@@ -1310,6 +1310,13 @@ struct MacroExecuteString
 	const struct FarMacroValue *OutValues;
 };
 
+struct FarMacroLoad
+{
+	size_t StructSize;
+	const wchar_t *Path;
+	unsigned __int64 Flags;
+};
+
 typedef unsigned __int64 FARSETCOLORFLAGS;
 static const FARSETCOLORFLAGS
 	FSETCLR_REDRAW                 = 0x0000000000000001ULL,

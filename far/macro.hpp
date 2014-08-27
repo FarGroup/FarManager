@@ -92,7 +92,7 @@ public:
 	FARMACROAREA GetMode() const { return m_Mode; }
 	const wchar_t* GetStringToPrint() const { return m_StringToPrint; }
 	int  IsRecording() const { return m_Recording; }
-	bool LoadMacros(bool FromFar, bool InitedRAM=true, const wchar_t *Path=nullptr);
+	bool LoadMacros(bool FromFar, bool InitedRAM=true, const FarMacroLoad *Data=nullptr);
 	bool ParseMacroString(const wchar_t* Sequence,FARKEYMACROFLAGS Flags,bool skipFile);
 	int  PeekKey() const;
 	int  ProcessEvent(const FAR_INPUT_RECORD *Rec);

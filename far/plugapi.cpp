@@ -2035,10 +2035,14 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 
 		switch (Command)
 		{
-			// Param1=0, Param2 - 0
+			// Param1=0, Param2 - FarMacroLoad*
 			case MCTL_LOADALL: // из реестра в память ФАР с затиранием предыдущего
 			{
-				return !Macro.IsRecording() && Macro.LoadMacros(false, !Macro.IsExecuting(), (const wchar_t*)Param2);
+				FarMacroLoad *Data = (FarMacroLoad*)Param2;
+				return
+					!Macro.IsRecording() &&
+					(!Data || CheckStructSize(Data)) &&
+					Macro.LoadMacros(false, !Macro.IsExecuting(), Data);
 			}
 
 			// Param1=0, Param2 - 0
