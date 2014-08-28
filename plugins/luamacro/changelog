@@ -1,4 +1,8 @@
-﻿shmuel 27.08.2014 21:22:51 +0200 - build 422
+﻿shmuel 28.08.2014 21:36:52 +0200 - build 423
+
+1. 'MacroPath' в luamacro.ini должно быть внутри секции [General].
+
+shmuel 27.08.2014 21:22:51 +0200 - build 422
 
 1. LuaFAR: продолжение 419.2.
 

@@ -639,8 +639,10 @@ local function LoadMacros (unload, paths)
       paths = dir.."\\scripts"
       local cfg, msg = ReadIniFile(far.PluginStartupInfo().ModuleDir.."luamacro.ini")
       if cfg then
-        local p = cfg[1].MacroPath
-        if p then paths = ExpandEnv(p) end
+        if cfg.General then
+          local p = cfg.General.MacroPath
+          if p then paths = ExpandEnv(p) end
+        end
       else
         if msg then ErrMsg(msg) end
       end
