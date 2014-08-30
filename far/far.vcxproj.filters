@@ -174,9 +174,6 @@
     <ClCompile Include="format.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="frame.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="global.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -318,7 +315,7 @@
     <ClCompile Include="qview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RefreshFrameManager.cpp">
+    <ClCompile Include="refreshwindowmanager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RegExp.cpp">
@@ -382,6 +379,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wm_listener.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="shortcuts.cpp">
@@ -579,9 +579,6 @@
     <ClInclude Include="format.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="frame.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="global.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -741,7 +738,7 @@
     <ClInclude Include="qview.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RefreshFrameManager.hpp">
+    <ClInclude Include="refreshwindowmanager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RegExp.hpp">
@@ -820,6 +817,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="window.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wm_listener.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="shortcuts.hpp">

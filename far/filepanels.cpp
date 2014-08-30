@@ -404,7 +404,7 @@ int FilePanels::SwapPanels()
 		Ret=TRUE;
 	}
 	SetScreenPosition();
-	Global->FrameManager->RefreshFrame();
+	Global->WindowManager->RefreshWindow();
 	return Ret;
 }
 
@@ -422,14 +422,14 @@ __int64 FilePanels::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				MainKeyBar.Show();
 				m_KeyBarVisible = Global->Opt->ShowKeyBar;
 				SetScreenPosition();
-				Global->FrameManager->RefreshFrame();
+				Global->WindowManager->RefreshWindow();
 				break;
 			case 2:
 				Global->Opt->ShowKeyBar=0;
 				MainKeyBar.Hide();
 				m_KeyBarVisible = Global->Opt->ShowKeyBar;
 				SetScreenPosition();
-				Global->FrameManager->RefreshFrame();
+				Global->WindowManager->RefreshWindow();
 				break;
 			case 3:
 				ProcessKey(Manager::Key(KEY_CTRLB));
@@ -527,7 +527,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 				MainKeyBar.Hide();
 
 			SetScreenPosition();
-			Global->FrameManager->RefreshFrame();
+			Global->WindowManager->RefreshWindow();
 			break;
 		}
 		case KEY_CTRLL: case KEY_RCTRLL:
@@ -592,7 +592,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 					RightStateBeforeHide=RightVisible;
 					LeftPanel->Hide();
 					RightPanel->Hide();
-					Global->FrameManager->RefreshFrame();
+					Global->WindowManager->RefreshWindow();
 				}
 				else
 				{
@@ -631,7 +631,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 				Global->CtrlObject->CmdLine->Redraw();
 			}
 
-			Global->FrameManager->RefreshFrame();
+			Global->WindowManager->RefreshWindow();
 			break;
 		}
 		case KEY_CTRLI:
@@ -701,7 +701,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 			if(Set)
 			{
 				SetScreenPosition();
-				Global->FrameManager->RefreshFrame();
+				Global->WindowManager->RefreshWindow();
 			}
 
 			break;
@@ -723,7 +723,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 			if(Set)
 			{
 				SetScreenPosition();
-				Global->FrameManager->RefreshFrame();
+				Global->WindowManager->RefreshWindow();
 			}
 
 			break;
@@ -737,7 +737,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 			{
 				++HeightDecrement;
 				SetScreenPosition();
-				Global->FrameManager->RefreshFrame();
+				Global->WindowManager->RefreshWindow();
 			}
 			break;
 		}
@@ -750,7 +750,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 			{
 				--HeightDecrement;
 				SetScreenPosition();
-				Global->FrameManager->RefreshFrame();
+				Global->WindowManager->RefreshWindow();
 			}
 			break;
 		}
@@ -762,7 +762,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 			{
 				++Global->Opt->WidthDecrement;
 				SetScreenPosition();
-				Global->FrameManager->RefreshFrame();
+				Global->WindowManager->RefreshWindow();
 			}
 
 			break;
@@ -774,7 +774,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 			{
 				--Global->Opt->WidthDecrement;
 				SetScreenPosition();
-				Global->FrameManager->RefreshFrame();
+				Global->WindowManager->RefreshWindow();
 			}
 
 			break;
@@ -786,7 +786,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 			{
 				Global->Opt->WidthDecrement=0;
 				SetScreenPosition();
-				Global->FrameManager->RefreshFrame();
+				Global->WindowManager->RefreshWindow();
 			}
 
 			break;
@@ -810,7 +810,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 			if(Set)
 			{
 				SetScreenPosition();
-				Global->FrameManager->RefreshFrame();
+				Global->WindowManager->RefreshWindow();
 			}
 
 			break;
@@ -839,7 +839,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 	return TRUE;
 }
 
-int FilePanels::ChangePanelViewMode(Panel *Current,int Mode,BOOL RefreshFrame)
+int FilePanels::ChangePanelViewMode(Panel *Current, int Mode, BOOL RefreshWindow)
 {
 	if (Current && Mode >= VIEW_0 && Mode < (int)Global->Opt->ViewSettings.size())
 	{
@@ -849,8 +849,8 @@ int FilePanels::ChangePanelViewMode(Panel *Current,int Mode,BOOL RefreshFrame)
 		// ВНИМАНИЕ! Костыль! Но Работает!
 		SetScreenPosition();
 
-		if (RefreshFrame)
-			Global->FrameManager->RefreshFrame();
+		if (RefreshWindow)
+			Global->WindowManager->RefreshWindow();
 
 		return TRUE;
 	}
@@ -1054,7 +1054,7 @@ int  FilePanels::GetTypeAndName(string &strType, string &strName)
 	}
 
 	strName = strFullName;
-	return MODALTYPE_PANELS;
+	return windowtype_panels;
 }
 
 void FilePanels::OnChangeFocus(int f)
@@ -1073,11 +1073,11 @@ void FilePanels::OnChangeFocus(int f)
 		m_ActivePanel->UpdateIfChanged(UIC_UPDATE_FORCE_NOTIFICATION);
 		/* $ 13.04.2002 KM
 		  ! ??? Я не понял зачем здесь Redraw, если
-		    Redraw вызывается следом во Frame::OnChangeFocus.
+		    Redraw вызывается следом во window::OnChangeFocus.
 		*/
 //    Redraw();
 		m_ActivePanel->SetCurPath();
-		Frame::OnChangeFocus(1);
+		window::OnChangeFocus(1);
 	}
 }
 
@@ -1086,7 +1086,7 @@ void FilePanels::DisplayObject()
 //  if ( !Focus )
 //      return;
 	_OT(SysLog(L"[%p] FilePanels::Redraw() {%d, %d - %d, %d}", this,m_X1,m_Y1,m_X2,m_Y2));
-	Global->FrameManager->ShowBackground();
+	Global->WindowManager->ShowBackground();
 
 	if (Global->Opt->ShowMenuBar)
 		Global->CtrlObject->TopMenuBar->Show();
@@ -1171,7 +1171,7 @@ void FilePanels::ShowConsoleTitle()
 
 void FilePanels::ResizeConsole()
 {
-	Frame::ResizeConsole();
+	window::ResizeConsole();
 	Global->CtrlObject->CmdLine->ResizeConsole();
 	MainKeyBar.ResizeConsole();
 	TopMenuBar.ResizeConsole();
@@ -1187,10 +1187,10 @@ bool FilePanels::CanFastHide() const
 void FilePanels::Refresh()
 {
 	/*$ 31.07.2001 SKV
-	  Вызовем так, а не Frame::OnChangeFocus,
+	  Вызовем так, а не window::OnChangeFocus,
 	  который из этого и позовётся.
 	*/
-	//Frame::OnChangeFocus(1);
+	//window::OnChangeFocus(1);
 	OnChangeFocus(1);
 }
 

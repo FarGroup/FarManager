@@ -679,12 +679,12 @@ void EditControl::AutoComplete(bool Manual,bool DelBlock)
 		// BUGBUG, hack
 		int Wait=Global->WaitInMainLoop;
 		Global->WaitInMainLoop=1;
-		struct FAR_INPUT_RECORD irec={(DWORD)Key, Global->FrameManager->GetLastInputRecord()};
+		struct FAR_INPUT_RECORD irec={(DWORD)Key, Global->WindowManager->GetLastInputRecord()};
 		if(!Global->CtrlObject->Macro.ProcessEvent(&irec))
 			pOwner->ProcessKey(Manager::Key(Key));
 		Global->WaitInMainLoop=Wait;
-		int CurWindowType = Global->FrameManager->GetCurrentFrame()->GetType();
-		if (CurWindowType == MODALTYPE_DIALOG || CurWindowType == MODALTYPE_PANELS)
+		int CurWindowType = Global->WindowManager->GetCurrentWindow()->GetType();
+		if (CurWindowType == windowtype_dialog || CurWindowType == windowtype_panels)
 		{
 			Show();
 		}

@@ -69,8 +69,8 @@ global::global():
 
 	// идет процесс назначения клавиши в макросе?
 	IsProcessAssignMacroKey=FALSE;
-	// Идёт процесс перерисовки всех фреймов
-	IsRedrawFramesInProcess=FALSE;
+	// Идёт процесс перерисовки всех окон
+	IsRedrawWindowInProcess=FALSE;
 	PluginPanelsCount = 0;
 	// идет процесс быстрого поиска в панелях?
 	WaitInFastFind=FALSE;
@@ -104,7 +104,7 @@ global::global():
 	// BUGBUG end
 
 	ScrBuf = new ScreenBuf;
-	FrameManager = new Manager;
+	WindowManager = new Manager;
 	Opt = new Options;
 	Elevation = new elevation;
 }
@@ -122,8 +122,8 @@ global::~global()
 	Lang = nullptr;
 	delete Opt;
 	Opt = nullptr;
-	delete FrameManager;
-	FrameManager = nullptr;
+	delete WindowManager;
+	WindowManager = nullptr;
 	delete ScrBuf;
 	ScrBuf = nullptr;
 

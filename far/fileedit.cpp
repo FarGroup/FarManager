@@ -331,7 +331,7 @@ FileEditor::FileEditor(const string& Name, uintptr_t codepage, DWORD InitFlags, 
 }
 
 
-FileEditor::FileEditor(const string& Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose, Frame* Update, EDITOR_FLAGS OpenModeExstFile):
+FileEditor::FileEditor(const string& Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose, window* Update, EDITOR_FLAGS OpenModeExstFile):
 	BadConversion(false)
 {
 	m_Flags.Set(InitFlags);
@@ -385,14 +385,14 @@ FileEditor::~FileEditor()
 	{
 		/* $ 11.10.2001 IS
 		   Удалим файл вместе с каталогом, если это просится и файла с таким же
-		   именем не открыто в других фреймах.
+		   именем не открыто в других окнах.
 		*/
 		/* $ 14.06.2001 IS
 		   Если установлен FEDITOR_DELETEONLYFILEONCLOSE и сброшен
 		   FEDITOR_DELETEONCLOSE, то удаляем только файл.
 		*/
 		if (m_Flags.Check(FFILEEDIT_DELETEONCLOSE|FFILEEDIT_DELETEONLYFILEONCLOSE) &&
-		        !Global->FrameManager->CountFramesWithName(strFullFileName))
+		        !Global->WindowManager->CountWindowsWithName(strFullFileName))
 		{
 			if (m_Flags.Check(FFILEEDIT_DELETEONCLOSE))
 				DeleteFileWithFolder(strFullFileName);
@@ -416,7 +416,7 @@ void FileEditor::Init(
     int StartChar,
     const string* PluginData,
     int DeleteOnClose,
-    Frame* Update,
+    window* Update,
     EDITOR_FLAGS OpenModeExstFile
 )
 {
@@ -472,13 +472,13 @@ void FileEditor::Init(
 	}
 
 	{
-		auto EditorFrame = Global->FrameManager->FindFrameByFile(MODALTYPE_EDITOR, strFullFileName);
+		auto EditorWindow = Global->WindowManager->FindWindowByFile(windowtype_editor, strFullFileName);
 
-		if (EditorFrame)
+		if (EditorWindow)
 		{
 			int SwitchTo=FALSE;
 
-			if (!EditorFrame->GetCanLoseFocus(TRUE) || Global->Opt->Confirm.AllowReedit)
+			if (!EditorWindow->GetCanLoseFocus(TRUE) || Global->Opt->Confirm.AllowReedit)
 			{
 				int MsgCode=0;
 				if (OpenModeExstFile == EF_OPENMODE_QUERY)
@@ -513,7 +513,7 @@ void FileEditor::Init(
 				{
 					case 0:         // Current
 						SwitchTo=TRUE;
-						Global->FrameManager->DeleteFrame(this); //???
+						Global->WindowManager->DeleteWindow(this); //???
 						SetExitCode(XC_EXISTS); // ???
 						break;
 					case 1:         // NewOpen
@@ -523,11 +523,11 @@ void FileEditor::Init(
 					case 2:         // Reload
 					{
 						//файл могли уже закрыть. например макросом в диалоговой процедуре предыдущего Message.
-						EditorFrame = Global->FrameManager->FindFrameByFile(MODALTYPE_EDITOR, strFullFileName);
-						if (EditorFrame)
+						EditorWindow = Global->WindowManager->FindWindowByFile(windowtype_editor, strFullFileName);
+						if (EditorWindow)
 						{
-							EditorFrame->SetFlags(FFILEEDIT_DISABLESAVEPOS);
-							Global->FrameManager->DeleteFrame(EditorFrame);
+							EditorWindow->SetFlags(FFILEEDIT_DISABLESAVEPOS);
+							Global->WindowManager->DeleteWindow(EditorWindow);
 						}
 						SetExitCode(XC_RELOAD); // -2 ???
 						break;
@@ -536,11 +536,11 @@ void FileEditor::Init(
 						SetExitCode(XC_LOADING_INTERRUPTED);
 						return;
 					case -100:
-						//FrameManager->DeleteFrame(this);  //???
+						//WindowManager->DeleteWindow(this);  //???
 						SetExitCode(XC_EXISTS);
 						return;
 					default:
-						Global->FrameManager->DeleteFrame(this);  //???
+						Global->WindowManager->DeleteWindow(this);  //???
 						SetExitCode(XC_QUIT);
 						return;
 				}
@@ -554,10 +554,10 @@ void FileEditor::Init(
 			if (SwitchTo)
 			{
 				//файл могли уже закрыть. например макросом в диалоговой процедуре предыдущего Message.
-				EditorFrame = Global->FrameManager->FindFrameByFile(MODALTYPE_EDITOR, strFullFileName);
-				if (EditorFrame)
+				EditorWindow = Global->WindowManager->FindWindowByFile(windowtype_editor, strFullFileName);
+				if (EditorWindow)
 				{
-					Global->FrameManager->ActivateFrame(EditorFrame);
+					Global->WindowManager->ActivateWindow(EditorWindow);
 				}
 				return ;
 			}
@@ -654,12 +654,12 @@ void FileEditor::Init(
 			}
 
 			// Ахтунг. Ниже комментарии оставлены в назидании потомкам (до тех пор, пока не измениться манагер)
-			//FrameManager->DeleteFrame(this); // BugZ#546 - Editor валит фар!
+			//WindowManager->DeleteWindow(this); // BugZ#546 - Editor валит фар!
 			//Global->CtrlObject->Cp()->Redraw(); //AY: вроде как не надо, делает проблемы с проресовкой если в редакторе из истории попытаться выбрать несуществующий файл
 
 			// если прервали загрузку, то фремы нужно проапдейтить, чтобы предыдущие месаги не оставались на экране
 			if (!Global->Opt->Confirm.Esc && UserBreak && GetExitCode() == XC_LOADING_INTERRUPTED)
-				Global->FrameManager->RefreshFrame();
+				Global->WindowManager->RefreshWindow();
 
 			return;
 		}
@@ -691,15 +691,15 @@ void FileEditor::Init(
 
 	if (m_Flags.Check(FFILEEDIT_ENABLEF6))
 	{
-		if (Update) Global->FrameManager->UpdateFrame(Update,this);
-		else Global->FrameManager->InsertFrame(this);
+		if (Update) Global->WindowManager->UpdateWindow(Update,this);
+		else Global->WindowManager->InsertWindow(this);
 	}
 	else
 	{
-		if (Update) Global->FrameManager->DeleteFrame(Update);
-		Global->FrameManager->ExecuteFrame(this);
+		if (Update) Global->WindowManager->DeleteWindow(Update);
+		Global->WindowManager->ExecuteWindow(this);
 	}
-	Global->FrameManager->CallbackFrame([this](){this->ReadEvent();});
+	Global->WindowManager->CallbackWindow([this](){this->ReadEvent();});
 }
 
 void FileEditor::ReadEvent(void)
@@ -963,13 +963,13 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 		_SVS(if (Global->CtrlObject->Macro.IsRecording() == MACROSTATE_RECORDING_COMMON || Global->CtrlObject->Macro.IsExecuting() == MACROSTATE_EXECUTING_COMMON))
 			_SVS(SysLog(L"%d !!!! Global->CtrlObject->Macro.GetCurRecord() != MACROSTATE_NOMACRO !!!!",__LINE__));
 
-		ProcessedNext=!ProcessEditorInput(Global->FrameManager->GetLastInputRecord());
+		ProcessedNext=!ProcessEditorInput(Global->WindowManager->GetLastInputRecord());
 	}
 
 	if (ProcessedNext)
 #else
 	if (!CalledFromControl && //Global->CtrlObject->Macro.IsExecuting() || Global->CtrlObject->Macro.IsRecording() || // пусть доходят!
-	        !ProcessEditorInput(FrameManager->GetLastInputRecord()))
+	        !ProcessEditorInput(WindowManager->GetLastInputRecord()))
 #endif
 	{
 
@@ -1016,7 +1016,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			{
 				m_editor->Hide();  // $ 27.09.2000 skv - To prevent redraw in macro with Ctrl-O
 
-				if (Global->FrameManager->ShowBackground())
+				if (Global->WindowManager->ShowBackground())
 				{
 					SetCursorType(false, 0);
 					WaitKey();
@@ -1146,8 +1146,8 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 								int UserBreak;
 								LoadFile(strFullSaveAsName, UserBreak);
 								// TODO: возможно подобный ниже код здесь нужен (copy/paste из FileEditor::Init()). оформить его нужно по иному
-								//if(!Global->Opt->Confirm.Esc && UserBreak && GetExitCode()==XC_LOADING_INTERRUPTED && FrameManager)
-								//  FrameManager->RefreshFrame();
+								//if(!Global->Opt->Confirm.Esc && UserBreak && GetExitCode()==XC_LOADING_INTERRUPTED && WindowManager)
+								//  WindowManager->RefreshWindow();
 							}
 
 							// перерисовывать надо как минимум когда изменилась кодировка или имя файла
@@ -1400,7 +1400,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 }
 
 
-int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion,bool DeleteFrame)
+int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion,bool DeleteWindow)
 {
 	string strOldCurDir;
 	api::GetCurrentDirectory(strOldCurDir);
@@ -1430,9 +1430,9 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion,bool DeleteFrame)
 				}
 			}
 
-			if (DeleteFrame)
+			if (DeleteWindow)
 			{
-				Global->FrameManager->DeleteFrame();
+				Global->WindowManager->DeleteWindow();
 			}
 			SetExitCode(XC_QUIT);
 			break;
@@ -2189,7 +2189,7 @@ int FileEditor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	F4KeyOnly = false;
 	if (!EditKeyBar.ProcessMouse(MouseEvent))
-		if (!ProcessEditorInput(Global->FrameManager->GetLastInputRecord()))
+		if (!ProcessEditorInput(Global->WindowManager->GetLastInputRecord()))
 			if (!m_editor->ProcessMouse(MouseEvent))
 				return FALSE;
 
@@ -2201,7 +2201,7 @@ int FileEditor::GetTypeAndName(string &strType, string &strName)
 {
 	strType = MSG(MScreensEdit);
 	strName = strFullFileName;
-	return MODALTYPE_EDITOR;
+	return windowtype_editor;
 }
 
 
@@ -2547,7 +2547,7 @@ void FileEditor::SetEditorOptions(const Options::EditorOptions& EdOpt)
 
 void FileEditor::OnChangeFocus(int focus)
 {
-	Frame::OnChangeFocus(focus);
+	window::OnChangeFocus(focus);
 	Global->CtrlObject->Plugins->SetCurEditor(this);
 	int FEditEditorID=m_editor->EditorID;
 	Global->CtrlObject->Plugins->ProcessEditorEvent(focus?EE_GOTFOCUS:EE_KILLFOCUS,nullptr,FEditEditorID);
@@ -2748,13 +2748,13 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		}
 		case ECTL_QUIT:
 		{
-			if (!this->bLoaded) // do not delete not created frame
+			if (!this->bLoaded) // do not delete not created window
 			{
 				SetExitCode(XC_LOADING_INTERRUPTED);
 			}
 			else
 			{
-				Global->FrameManager->DeleteFrame(this);
+				Global->WindowManager->DeleteWindow(this);
 				SetExitCode(XC_OPEN_ERROR); // что-то меня терзают смутные сомнения ...??? SAVEFILE_ERROR ???
 			}
 			return TRUE;

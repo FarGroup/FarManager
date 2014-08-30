@@ -1395,8 +1395,8 @@ int Edit::ProcessKey(const Manager::Key& Key)
 
 			if (InsertKey(LocalKey))
 			{
-				int CurWindowType = Global->FrameManager->GetCurrentFrame()->GetType();
-				if (CurWindowType == MODALTYPE_DIALOG || CurWindowType == MODALTYPE_PANELS)
+				int CurWindowType = Global->WindowManager->GetCurrentWindow()->GetType();
+				if (CurWindowType == windowtype_dialog || CurWindowType == windowtype_panels)
 				{
 					Show();
 				}

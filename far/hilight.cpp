@@ -598,7 +598,7 @@ void HighlightFiles::UpdateHighlighting(bool RefreshMasks)
 	if(RefreshMasks)
 		std::for_each(ALL_RANGE(HiData), std::mem_fn(&FileFilterParams::RefreshMask));
 
-	//FrameManager->RefreshFrame(); // נופנורטל
+	//WindowManager->RefreshWindow(); // נופנורטל
 	Global->CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
 	Global->CtrlObject->Cp()->LeftPanel->Redraw();
 	Global->CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);

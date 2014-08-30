@@ -1,7 +1,7 @@
 #pragma once
 
 /*
-RefreshFrameManager.hpp
+RefreshWindowManager.hpp
 
 Класс для решрешки
 */
@@ -42,14 +42,14 @@ public:
 	~UndoGlobalSaveScrPtr();
 };
 
-class RefreshFrameManager: NonCopyable
+class RefreshWindowManager: NonCopyable
 {
 public:
-	RefreshFrameManager(int OScrX,int OScrY, int MsgWaitTime, BOOL DontRedrawFrame=FALSE);
-	~RefreshFrameManager();
+	RefreshWindowManager(int OScrX,int OScrY, int MsgWaitTime, BOOL DontRedrawWindow=FALSE);
+	~RefreshWindowManager();
 
 private:
 	int OScrX,OScrY;
 	long MsgWaitTime;
-	BOOL DontRedrawFrame;
+	BOOL m_DontRedrawWindow;
 };

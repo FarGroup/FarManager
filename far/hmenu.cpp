@@ -65,7 +65,7 @@ HMenu::HMenu(HMenuData *Item,int ItemCount):
 
 HMenu::~HMenu()
 {
-	Global->FrameManager->RefreshFrame();
+	Global->WindowManager->RefreshWindow();
 }
 
 void HMenu::DisplayObject()
@@ -194,7 +194,7 @@ int HMenu::ProcessKey(const Manager::Key& Key)
 	{
 		case KEY_ALTF9:
 		case KEY_RALTF9:
-			Global->FrameManager->ProcessKey(Manager::Key(KEY_ALTF9));
+			Global->WindowManager->ProcessKey(Manager::Key(KEY_ALTF9));
 			break;
 		case KEY_OP_PLAINTEXT:
 		{
@@ -480,7 +480,7 @@ void HMenu::ResizeConsole()
 	}
 
 	Hide();
-	Frame::ResizeConsole();
+	window::ResizeConsole();
 	SetPosition(0,0,::ScrX,0);
 }
 

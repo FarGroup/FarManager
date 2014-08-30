@@ -96,7 +96,7 @@ VMenu::VMenu(const string& Title,       // заголовок меню
 	SetDynamicallyBorn(false);
 	SetFlags(Flags|VMENU_MOUSEREACTION|VMENU_UPDATEREQUIRED);
 	ClearFlags(VMENU_SHOWAMPERSAND|VMENU_MOUSEDOWN);
-	CurrentFrame = Global->FrameManager->GetCurrentFrame();
+	CurrentWindow = Global->WindowManager->GetCurrentWindow();
 	GetCursorType(PrevCursorVisible,PrevCursorSize);
 	bRightBtnPressed = false;
 
@@ -127,7 +127,7 @@ VMenu::~VMenu()
 	Hide();
 	DeleteItems();
 
-	if (Global->FrameManager->GetCurrentFrame() == CurrentFrame)
+	if (Global->WindowManager->GetCurrentWindow() == CurrentWindow)
 		SetCursorType(PrevCursorVisible,PrevCursorSize);
 }
 
@@ -722,7 +722,7 @@ void VMenu::FilterStringUpdated()
 void VMenu::FilterUpdateHeight(bool bShrink)
 {
 	VMenu2 *Parent = nullptr;
-	if (ParentDialog && ParentDialog->GetType() == MODALTYPE_VMENU)
+	if (ParentDialog && ParentDialog->GetType() == windowtype_menu)
 		Parent = static_cast<VMenu2*>(ParentDialog);
 
 	if (WasAutoHeight || Parent)
@@ -1206,7 +1206,7 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 	{
 		case KEY_ALTF9:
 		case KEY_RALTF9:
-			Global->FrameManager->ProcessKey(Manager::Key(KEY_ALTF9));
+			Global->WindowManager->ProcessKey(Manager::Key(KEY_ALTF9));
 			break;
 		case KEY_NUMENTER:
 		case KEY_ENTER:
@@ -2946,7 +2946,7 @@ int VMenu::GetTypeAndName(string &strType, string &strName)
 
 	strType = MSG(MVMenuType);
 	strName = strTitle;
-	return CheckFlags(VMENU_COMBOBOX) ? MODALTYPE_COMBOBOX : MODALTYPE_VMENU;
+	return CheckFlags(VMENU_COMBOBOX) ? windowtype_combobox : windowtype_menu;
 }
 
 // return Pos || -1

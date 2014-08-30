@@ -383,7 +383,7 @@ int KeyBar::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	else
 		Key+=KEY_F1;
 
-	Global->FrameManager->ProcessKey(Manager::Key(Key));
+	Global->WindowManager->ProcessKey(Manager::Key(Key));
 	return TRUE;
 }
 

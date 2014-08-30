@@ -731,13 +731,13 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				}
 				case FAD_BUTTON_DRIVE:
 				{
-					Global->IsRedrawFramesInProcess++;
+					Global->IsRedrawWindowInProcess++;
 					Global->CtrlObject->Cp()->ActivePanel()->ChangeDisk();
-					// Ну что ж, раз пошла такая пьянка рефрешить фреймы
+					// Ну что ж, раз пошла такая пьянка рефрешить окна
 					// будем таким способом.
-					//FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
-					Global->FrameManager->ResizeAllFrame();
-					Global->IsRedrawFramesInProcess--;
+					//WindowManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
+					Global->WindowManager->ResizeAllWindows();
+					Global->IsRedrawWindowInProcess--;
 					string strSearchFromRoot;
 					PrepareDriveNameStr(strSearchFromRoot);
 					FarListGetItem item={sizeof(FarListGetItem),FADC_ROOT};
@@ -1518,7 +1518,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			case KEY_CTRLW:
 			case KEY_RCTRLW:
 				{
-					Global->FrameManager->ProcessKey(Manager::Key(key));
+					Global->WindowManager->ProcessKey(Manager::Key(key));
 					return TRUE;
 				}
 				break;
@@ -1753,9 +1753,9 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 										ShellViewer.SetSaveToSaveAs(true);
 									}
 								}
-								Global->FrameManager->ExecuteModalEV(&ShellViewer);
+								Global->WindowManager->ExecuteModalEV(&ShellViewer);
 								// заставляем рефрешится экран
-								Global->FrameManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
+								Global->WindowManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
 							}
 							Dlg->SendMessage(DM_ENABLEREDRAW,TRUE,0);
 							Dlg->SendMessage(DM_SHOWDIALOG,TRUE,0);
@@ -1768,11 +1768,11 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 								/* $ 14.08.2002 VVM
 								  ! Пока-что запретим из поиска переключаться в активный редактор.
 								    К сожалению, манагер на это не способен сейчас
-															int FramePos=FrameManager->FindFrameByFile(MODALTYPE_EDITOR,SearchFileName);
+															int WindowPos=WindowManager->FindWindowByFile(MODALTYPE_EDITOR,SearchFileName);
 															int SwitchTo=FALSE;
-															if (FramePos!=-1)
+															if (WindowPos!=-1)
 															{
-																if (!(*FrameManager)[FramePos]->GetCanLoseFocus(TRUE) ||
+																if (!(*WindowManager)[WindowPos]->GetCanLoseFocus(TRUE) ||
 																	Global->Opt->Confirm.AllowReedit)
 																{
 																	char MsgFullFileName[NM];
@@ -1803,15 +1803,15 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 															}
 															if (SwitchTo)
 															{
-																(*FrameManager)[FramePos]->SetCanLoseFocus(FALSE);
-																(*FrameManager)[FramePos]->SetDynamicallyBorn(false);
-																FrameManager->ActivateFrame(FramePos);
-																FrameManager->EnterModalEV();
-																FrameManager->ExecuteModal ();
-																FrameManager->ExitModalEV();
-																// FrameManager->ExecuteNonModal();
+																(*WindowManager)[WindowPos]->SetCanLoseFocus(FALSE);
+																(*WindowManager)[WindowPos]->SetDynamicallyBorn(false);
+																WindowManager->ActivateWindow(WindowPos);
+																WindowManager->EnterModalEV();
+																WindowManager->ExecuteModal ();
+																WindowManager->ExitModalEV();
+																// WindowManager->ExecuteNonModal();
 																// заставляем рефрешится экран
-																FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
+																WindowManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
 															}
 															else
 								*/
@@ -1827,9 +1827,9 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 											ShellEditor.SetSaveToSaveAs(true);
 										}
 									}
-									Global->FrameManager->ExecuteModalEV(&ShellEditor);
+									Global->WindowManager->ExecuteModalEV(&ShellEditor);
 									// заставляем рефрешится экран
-									Global->FrameManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
+									Global->WindowManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
 								}
 							}
 							Dlg->SendMessage(DM_ENABLEREDRAW,TRUE,0);

@@ -58,7 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "vmenu2.hpp"
 #include "datetime.hpp"
-#include "window.hpp"
+#include "wm_listener.hpp"
 #include "language.hpp"
 #include "dizviewer.hpp"
 #include "locale.hpp"
@@ -125,13 +125,13 @@ InfoList::~InfoList()
 	CloseFile();
 }
 
-// перерисовка, только если мы текущий фрейм
+// перерисовка, только если мы текущее окно
 void InfoList::Update(int Mode)
 {
 	if (!m_EnableUpdate)
 		return;
 
-	if (Global->CtrlObject->Cp() == Global->FrameManager->GetCurrentFrame())
+	if (Global->CtrlObject->Cp() == Global->WindowManager->GetCurrentWindow())
 		Redraw();
 }
 

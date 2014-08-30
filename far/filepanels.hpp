@@ -33,14 +33,14 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "frame.hpp"
+#include "window.hpp"
 #include "keybar.hpp"
 #include "menubar.hpp"
 
 class Panel;
 class CommandLine;
 
-class FilePanels:public Frame
+class FilePanels:public window
 {
 public:
 	FilePanels(bool CreatePanels = true);
@@ -51,7 +51,7 @@ public:
 	virtual __int64 VMProcess(int OpCode, void *vParam = nullptr, __int64 iParam = 0) override;
 	virtual void SetScreenPosition() override;
 	virtual int GetTypeAndName(string &strType, string &strName) override;
-	virtual int GetType() const override { return MODALTYPE_PANELS; }
+	virtual int GetType() const override { return windowtype_panels; }
 	virtual const wchar_t *GetTypeName() override { return L"[FilePanels]"; }
 	virtual void OnChangeFocus(int focus) override;
 	virtual void RedrawKeyBar() override;
@@ -66,7 +66,7 @@ public:
 	Panel* ChangePanelToFilled(Panel *Current, int NewType);
 	Panel* ChangePanel(Panel *Current, int NewType, int CreateNew, int Force);
 	void GoToFile(const string& FileName);
-	int ChangePanelViewMode(Panel *Current, int Mode, BOOL RefreshFrame);
+	int ChangePanelViewMode(Panel *Current, int Mode, BOOL RefreshWindow);
 	Panel* ActivePanel() { return m_ActivePanel; }
 	Panel* PassivePanel() { return GetAnotherPanel(m_ActivePanel); }
 	// BUGBUG

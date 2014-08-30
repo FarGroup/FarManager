@@ -35,9 +35,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-#include "frame.hpp"
+#include "window.hpp"
 
-class Modal: public Frame
+class Modal: public window
 {
 public:
 	Modal();

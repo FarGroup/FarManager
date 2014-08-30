@@ -1,10 +1,11 @@
+#pragma once
 /*
-desktop.cpp
+wm_listener.hpp
 
-
+Обработка оконных сообщений
 */
 /*
-Copyright © 2014 Far Group
+Copyright © 2010 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,76 +31,23 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
+#include "synchro.hpp"
 
-#include "desktop.hpp"
+class notifier;
 
-#include "global.hpp"
-#include "manager.hpp"
-#include "savescr.hpp"
-#include "interf.hpp"
-#include "config.hpp"
-#include "keys.hpp"
-#include "scrbuf.hpp"
-#include "help.hpp"
-
-desktop::desktop()
+class wm_listener: NonCopyable
 {
-	SetCanLoseFocus(TRUE);
-	SetPosition(0, 0, ScrX, ScrY);
-}
+public:
+	wm_listener(notifier* owner);
+	~wm_listener();
+	void Check();
 
-desktop::~desktop()
-{
-}
+private:
+	void WindowThreadRoutine();
 
-void desktop::ResizeConsole()
-{
-	m_Background->Resize(ScrX + 1, ScrY + 1, 2, Global->Opt->WindowMode != FALSE);
-	SetPosition(0, 0, ScrX, ScrY);
-}
+	notifier* m_Owner;
+	Thread m_Thread;
+	HWND m_Hwnd;
 
-void desktop::DisplayObject()
-{
-	m_Background->RestoreArea();
-}
-
-int desktop::ProcessKey(const Manager::Key& Key)
-{
-	switch (Key.FarKey)
-	{
-	case KEY_F1:
-		{
-			Help hlp(L"Contents");
-		}
-		break;
-
-	case KEY_SHIFTF9:
-		Global->Opt->Save(true);
-		return TRUE;
-
-	case KEY_F10:
-		Global->WindowManager->ExitMainLoop(TRUE);
-		return TRUE;
-	}
-	return FALSE;
-}
-
-void desktop::FillFromBuffer()
-{
-	if (!m_Background)
-		m_Background = std::make_unique<SaveScreen>(0, 0, ScrX, ScrY);
-	else
-		m_Background->SaveArea();
-}
-
-void desktop::FillFromConsole()
-{
-	Global->ScrBuf->FillBuf();
-
-	if (!m_Background)
-		m_Background = std::make_unique<SaveScreen>(0, 0, ScrX, ScrY);
-	else
-		m_Background->SaveArea();
-}
+	Event m_exitEvent;
+};

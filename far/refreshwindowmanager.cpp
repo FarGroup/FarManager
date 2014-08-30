@@ -1,5 +1,5 @@
 /*
-RefreshFrameManager.cpp
+RefreshWindowManager.cpp
 
 Класс для решрешки
 */
@@ -35,10 +35,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "lockscrn.hpp"
-#include "frame.hpp"
+#include "window.hpp"
 #include "manager.hpp"
 #include "savescr.hpp"
-#include "RefreshFrameManager.hpp"
+#include "refreshwindowmanager.hpp"
 #include "interf.hpp"
 
 UndoGlobalSaveScrPtr::UndoGlobalSaveScrPtr(SaveScreen *SaveScr)
@@ -52,22 +52,22 @@ UndoGlobalSaveScrPtr::~UndoGlobalSaveScrPtr()
 }
 
 
-RefreshFrameManager::RefreshFrameManager(int OScrX,int OScrY, int MsgWaitTime, BOOL DontRedrawFrame):
+RefreshWindowManager::RefreshWindowManager(int OScrX,int OScrY, int MsgWaitTime, BOOL DontRedrawWindow):
 	OScrX(OScrX),
 	OScrY(OScrY),
 	MsgWaitTime(MsgWaitTime),
-	DontRedrawFrame(DontRedrawFrame)
+	m_DontRedrawWindow(DontRedrawWindow)
 {
 }
 
-RefreshFrameManager::~RefreshFrameManager()
+RefreshWindowManager::~RefreshWindowManager()
 {
-	if (DontRedrawFrame || !Global->FrameManager->ManagerStarted())
+	if (m_DontRedrawWindow || !Global->WindowManager->ManagerStarted())
 		return;
 	else if (OScrX != ScrX || OScrY != ScrY || MsgWaitTime!=-1)
 	{
 		LockScreen LckScr;
-		Global->FrameManager->ResizeAllFrame();
-		Global->FrameManager->GetCurrentFrame()->Show();
+		Global->WindowManager->ResizeAllWindows();
+		Global->WindowManager->GetCurrentWindow()->Show();
 	}
 }

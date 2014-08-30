@@ -455,7 +455,7 @@ void UserMenu::ProcessUserMenu(bool MenuType, const string& MenuFileName)
 		}
 	}
 
-	if (Global->FrameManager->IsPanelsActive() && (ExitCode == EC_COMMAND_SELECTED || m_MenuModified))
+	if (Global->WindowManager->IsPanelsActive() && (ExitCode == EC_COMMAND_SELECTED || m_MenuModified))
 		ShellUpdatePanels(Global->CtrlObject->Cp()->ActivePanel(), FALSE);
 }
 
@@ -651,7 +651,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 						FileEditor ShellEditor(MenuFileName,CP_UNICODE,FFILEEDIT_DISABLEHISTORY,-1,-1,nullptr);
 						OldTitle.reset();
 						ShellEditor.SetDynamicallyBorn(false);
-						Global->FrameManager->ExecuteModalEV(&ShellEditor);
+						Global->WindowManager->ExecuteModalEV(&ShellEditor);
 						if (!ShellEditor.IsFileChanged() || (!MenuFile.Open(MenuFileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING)))
 						{
 							ReturnCode=0;

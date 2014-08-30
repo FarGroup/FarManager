@@ -52,8 +52,8 @@ Modal::Modal():
 
 void Modal::Process()
 {
-	Global->FrameManager->ExecuteFrame(this);
-	Global->FrameManager->ExecuteModal(this);
+	Global->WindowManager->ExecuteWindow(this);
+	Global->WindowManager->ExecuteModal(this);
 }
 
 int Modal::ReadInput(INPUT_RECORD *GetReadRec)
@@ -136,7 +136,7 @@ void Modal::Close(int Code)
 {
 	SetExitCode(Code);
 	Hide();
-	Global->FrameManager->DeleteFrame(this);
+	Global->WindowManager->DeleteWindow(this);
 }
 
 void Modal::SetHelp(const wchar_t *Topic)

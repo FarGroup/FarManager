@@ -41,7 +41,7 @@ public:
 
 	virtual const wchar_t *GetTypeName() override { return L"[VMenu]"; }
 	virtual int GetTypeAndName(string &strType, string &strName) override;
-	virtual int GetType() const override { return MODALTYPE_VMENU; }
+	virtual int GetType() const override { return windowtype_menu; }
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual void SetPosition(int X1, int Y1, int X2, int Y2) override;
 

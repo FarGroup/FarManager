@@ -70,7 +70,7 @@ public:
 	int CloseFAR, CloseFARMenu, AllowCancelExit;
 	int DisablePluginsOutput;
 	BOOL IsProcessAssignMacroKey;
-	BOOL IsRedrawFramesInProcess;
+	BOOL IsRedrawWindowInProcess;
 	size_t PluginPanelsCount;
 	BOOL ProcessException;
 	BOOL ProcessShowClock;
@@ -104,7 +104,7 @@ private:
 public:
 	class ScreenBuf* ScrBuf;
 	class FormatScreen FS;
-	class Manager* FrameManager;
+	class Manager* WindowManager;
 	class Options *Opt;
 	class Language *Lang;
 	class elevation *Elevation;

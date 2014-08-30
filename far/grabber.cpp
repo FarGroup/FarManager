@@ -41,7 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
 #include "manager.hpp"
-#include "frame.hpp"
+#include "window.hpp"
 #include "interf.hpp"
 #include "clipboard.hpp"
 #include "config.hpp"
@@ -53,8 +53,8 @@ Grabber::Grabber():
 	m_VerticalBlock(false)
 {
 	SetDynamicallyBorn(false);
-	Frame *pFrame = Global->FrameManager->GetCurrentFrame();
-	pFrame->Lock();
+	window *CurrentWindow = Global->WindowManager->GetCurrentWindow();
+	CurrentWindow->Lock();
 	SaveScr = std::make_unique<SaveScreen>();
 	bool Visible=false;
 	DWORD Size=0;
@@ -74,8 +74,8 @@ Grabber::Grabber():
 	DisplayObject();
 	Process();
 	SaveScr.reset();
-	pFrame->Unlock();
-	Global->FrameManager->RefreshFrame();
+	CurrentWindow->Unlock();
+	Global->WindowManager->RefreshWindow();
 }
 
 

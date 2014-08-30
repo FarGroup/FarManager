@@ -72,47 +72,47 @@ global *Global = nullptr;
 static void show_help()
 {
 	WCHAR HelpMsg[]=
-		L"Usage: far [switches] [apath [ppath]]\n\n"
-		L"where\n"
-		L"  apath - path to a folder (or a file or an archive or command with prefix)\n"
-		L"          for the active panel\n"
-		L"  ppath - path to a folder (or a file or an archive or command with prefix)\n"
-		L"          for the passive panel\n\n"
-		L"The following switches may be used in the command line:\n\n"
-		L" -?   This help.\n"
-		L" -a   Disable display of characters with codes 0 - 31 and 255.\n"
-		L" -ag  Disable display of pseudographics characters.\n"
-		L" -clearcache [profilepath [localprofilepath]]\n"
-		L"      Clear plugins cache.\n"
-		L" -co  Forces FAR to load plugins from the cache only.\n"
+		L"Usage: far [switches] [apath [ppath]]" EOL_STR EOL_STR
+		L"where" EOL_STR
+		L"  apath - path to a folder (or a file or an archive or command with prefix)" EOL_STR
+		L"          for the active panel" EOL_STR
+		L"  ppath - path to a folder (or a file or an archive or command with prefix)" EOL_STR
+		L"          for the passive panel" EOL_STR
+		L"The following switches may be used in the command line:" EOL_STR
+		L" -?   This help." EOL_STR
+		L" -a   Disable display of characters with codes 0 - 31 and 255." EOL_STR
+		L" -ag  Disable display of pseudographics characters." EOL_STR
+		L" -clearcache [profilepath [localprofilepath]]" EOL_STR
+		L"      Clear plugins cache." EOL_STR
+		L" -co  Forces FAR to load plugins from the cache only." EOL_STR
 #ifdef DIRECT_RT
-		L" -do  Direct output.\n"
+		L" -do  Direct output." EOL_STR
 #endif
-		L" -e[<line>[:<pos>]] <filename>\n"
-		L"      Edit the specified file.\n"
-		L" -export <out.farconfig> [profilepath [localprofilepath]]\n"
-		L"      Export settings.\n"
-		L" -import <in.farconfig> [profilepath [localprofilepath]]\n"
-		L"      Import settings.\n"
-		L" -m   Do not load macros.\n"
-		L" -ma  Do not execute auto run macros.\n"
-		L" -p[<path>]\n"
-		L"      Search for \"common\" plugins in the directory, specified by <path>.\n"
-		L" -ro[-] Read-Only or Normal config mode.\n"
-		L" -s <profilepath> [<localprofilepath>]\n"
-		L"      Custom location for Far configuration files - overrides Far.exe.ini.\n"
-		L" -set:<parameter>=<value>\n"
-		L"      Override the configuration parameter, see far:config for details.\n"
-		L" -t <path>\n"
-		L"      Location of Far template configuration file - overrides Far.exe.ini.\n"
+		L" -e[<line>[:<pos>]] <filename>" EOL_STR
+		L"      Edit the specified file." EOL_STR
+		L" -export <out.farconfig> [profilepath [localprofilepath]]" EOL_STR
+		L"      Export settings." EOL_STR
+		L" -import <in.farconfig> [profilepath [localprofilepath]]" EOL_STR
+		L"      Import settings." EOL_STR
+		L" -m   Do not load macros." EOL_STR
+		L" -ma  Do not execute auto run macros." EOL_STR
+		L" -p[<path>]" EOL_STR
+		L"      Search for \"common\" plugins in the directory, specified by <path>." EOL_STR
+		L" -ro[-] Read-Only or Normal config mode." EOL_STR
+		L" -s <profilepath> [<localprofilepath>]" EOL_STR
+		L"      Custom location for Far configuration files - overrides Far.exe.ini." EOL_STR
+		L" -set:<parameter>=<value>" EOL_STR
+		L"      Override the configuration parameter, see far:config for details." EOL_STR
+		L" -t <path>" EOL_STR
+		L"      Location of Far template configuration file - overrides Far.exe.ini." EOL_STR
 #ifndef NO_WRAPPER
-		L" -u <username>\n"
-		L"      Allows to have separate registry settings for different users.\n"
-		L"      Affects only 1.x Far Manager plugins\n"
+		L" -u <username>" EOL_STR
+		L"      Allows to have separate registry settings for different users." EOL_STR
+		L"      Affects only 1.x Far Manager plugins." EOL_STR
 #endif // NO_WRAPPER
-		L" -v <filename>\n"
-		L"      View the specified file. If <filename> is -, data is read from the stdin.\n"
-		L" -w[-] Stretch to console window instead of console buffer or vise versa.\n"
+		L" -v <filename>" EOL_STR
+		L"      View the specified file. If <filename> is -, data is read from the stdin." EOL_STR
+		L" -w[-] Stretch to console window instead of console buffer or vise versa." EOL_STR
 		;
 	Console().Write(HelpMsg, ARRAYSIZE(HelpMsg)-1);
 	Console().Commit();
@@ -151,7 +151,7 @@ static int MainProcess(
 			Global->CtrlObject->CreateDummyFilePanels();
 			Global->CtrlObject->Cp()->LeftPanel = Global->CtrlObject->Cp()->RightPanel = DummyPanel;
 			Global->CtrlObject->Cp()->SetActivePanel(DummyPanel);
-			Global->FrameManager->PluginCommit();
+			Global->WindowManager->PluginCommit();
 
 			Global->CtrlObject->Plugins->LoadPlugins();
 			Global->CtrlObject->Macro.LoadMacros(true, true);
@@ -163,7 +163,7 @@ static int MainProcess(
 
 				if (!ShellEditor->GetExitCode())  // ????????????
 				{
-					Global->FrameManager->ExitMainLoop(0);
+					Global->WindowManager->ExitMainLoop(0);
 				}
 			}
 			// TODO: Этот else убрать только после разборок с возможностью задавать несколько /e и /v в ком.строке
@@ -173,13 +173,13 @@ static int MainProcess(
 
 				if (!ShellViewer->GetExitCode())
 				{
-					Global->FrameManager->ExitMainLoop(0);
+					Global->WindowManager->ExitMainLoop(0);
 				}
 
 				_tran(SysLog(L"make shellviewer, %p",ShellViewer));
 			}
 
-			Global->FrameManager->EnterMainLoop();
+			Global->WindowManager->EnterMainLoop();
 			Global->CtrlObject->Cp()->LeftPanel = Global->CtrlObject->Cp()->RightPanel = nullptr;
 			Global->CtrlObject->Cp()->SetActivePanel(nullptr);
 			DummyPanel->Destroy();
@@ -277,7 +277,7 @@ static int MainProcess(
 				ActivePanel->Redraw();
 			}
 
-			Global->FrameManager->EnterMainLoop();
+			Global->WindowManager->EnterMainLoop();
 		}
 
 		TreeList::FlushCache();

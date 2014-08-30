@@ -33,17 +33,17 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "frame.hpp"
+#include "window.hpp"
 #include "viewer.hpp"
 #include "keybar.hpp"
 
-class FileViewer:public Frame
+class FileViewer:public window
 {
 	public:
 	FileViewer(const string& Name,int EnableSwitch=FALSE,int DisableHistory=FALSE,
 		int DisableEdit=FALSE,__int64 ViewStartPos=-1,const wchar_t *PluginData=nullptr,
 		NamesList *ViewNamesList=nullptr,bool ToSaveAs=false,uintptr_t aCodePage=CP_DEFAULT,
-		const wchar_t *Title=nullptr, int DeleteOnClose=0, Frame* Update=nullptr);
+		const wchar_t *Title=nullptr, int DeleteOnClose=0, window* Update=nullptr);
 	FileViewer(const string& Name,int EnableSwitch,int DisableHistory,
 		const wchar_t *Title,int X1,int Y1,int X2,int Y2,uintptr_t aCodePage=CP_DEFAULT);
 	virtual ~FileViewer();
@@ -58,12 +58,12 @@ class FileViewer:public Frame
 	virtual void OnChangeFocus(int focus) override;
 	virtual int GetTypeAndName(string &strType, string &strName) override;
 	virtual const wchar_t *GetTypeName() override { return L"[FileView]"; }
-	virtual int GetType() const override { return MODALTYPE_VIEWER; }
+	virtual int GetType() const override { return windowtype_viewer; }
 	/* $ Введена для нужд CtrlAltShift OT */
 	virtual bool CanFastHide() const override;
 	virtual string GetTitle() const override;
 
-	void Init(const string& Name, int EnableSwitch, int DisableHistory, __int64 ViewStartPos, const wchar_t *PluginData, NamesList *ViewNamesList, bool ToSaveAs, Frame* Update=nullptr);
+	void Init(const string& Name, int EnableSwitch, int DisableHistory, __int64 ViewStartPos, const wchar_t *PluginData, NamesList *ViewNamesList, bool ToSaveAs, window* Update=nullptr);
 	/* $ 14.06.2002 IS
 	   Параметр DeleteFolder - удалить не только файл, но и каталог, его
 	   содержащий (если каталог пуст). По умолчанию - TRUE (получаем

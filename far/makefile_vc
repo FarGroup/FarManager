@@ -149,7 +149,6 @@ LINK_OBJS = \
 	"$(INTDIR)\fnparce.obj" \
 	"$(INTDIR)\format.obj" \
 	"$(INTDIR)\foldtree.obj" \
-	"$(INTDIR)\frame.obj" \
 	"$(INTDIR)\global.obj" \
 	"$(INTDIR)\grabber.obj" \
 	"$(INTDIR)\headers.obj" \
@@ -199,7 +198,7 @@ LINK_OBJS = \
 	"$(INTDIR)\privilege.obj" \
 	"$(INTDIR)\processname.obj" \
 	"$(INTDIR)\qview.obj" \
-	"$(INTDIR)\RefreshFrameManager.obj" \
+	"$(INTDIR)\refreshwindowmanager.obj" \
 	"$(INTDIR)\RegExp.obj" \
 	"$(INTDIR)\savescr.obj" \
 	"$(INTDIR)\scantree.obj" \
@@ -222,6 +221,7 @@ LINK_OBJS = \
 	"$(INTDIR)\vmenu.obj" \
 	"$(INTDIR)\vmenu2.obj" \
 	"$(INTDIR)\window.obj" \
+	"$(INTDIR)\wm_listener.obj" \
 	"$(INTDIR)\xlat.obj" \
 !if defined(X86)
 !if !defined(DISABLE_WOW64_HOOK)

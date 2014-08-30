@@ -815,7 +815,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		int X1, X2, Y1, Y2;
 		Global->CtrlObject->CmdLine->GetPosition(X1, Y1, X2, Y2);
 		Global->ProcessShowClock += (add_show_clock = 1);
-		Global->FrameManager->ShowBackground();
+		Global->WindowManager->ShowBackground();
 		Global->CtrlObject->CmdLine->Redraw();
 		GotoXY(X2+1,Y1);
 		Text(L' ');

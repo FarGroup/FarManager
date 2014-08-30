@@ -42,8 +42,8 @@ public:
 	Grabber();
 	virtual ~Grabber();
 
-	virtual int GetType() const override { return MODALTYPE_GRABBER; }
-	virtual int GetTypeAndName(string &, string &) override { return MODALTYPE_GRABBER; }
+	virtual int GetType() const override { return windowtype_grabber; }
+	virtual int GetTypeAndName(string &, string &) override { return windowtype_grabber; }
 	virtual void ResizeConsole(void) override;
 
 private:

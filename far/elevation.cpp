@@ -412,7 +412,7 @@ void ElevationApproveDlgSync(LPVOID Param)
 	Dlg.SetHelp(L"ElevationDlg");
 	Dlg.SetPosition(-1,-1,DlgX,DlgY);
 	Dlg.SetDialogMode(DMODE_FULLSHADOW|DMODE_NOPLUGINS);
-	Frame* Current = Global->FrameManager->GetCurrentFrame();
+	window* Current = Global->WindowManager->GetCurrentWindow();
 	if(Current)
 	{
 		Current->Lock();
@@ -452,7 +452,7 @@ bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
 
 	if(!(Global->IsUserAdmin() && !(Global->Opt->ElevationMode&ELEVATION_USE_PRIVILEGES)) &&
 		AskApprove && !DontAskAgain && !Recurse &&
- 		Global->FrameManager && !Global->FrameManager->ManagerIsDown())
+ 		Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 	{
 		Recurse = true;
 		SCOPED_ACTION(GuardLastError);

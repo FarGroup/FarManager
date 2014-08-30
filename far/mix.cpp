@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scantree.hpp"
 #include "config.hpp"
 #include "pathmix.hpp"
-#include "frame.hpp"
+#include "window.hpp"
 
 #include "cmdline.hpp"
 #include "dlgedit.hpp"
@@ -142,21 +142,21 @@ void FreePluginPanelItemsUserData(HANDLE hPlugin,PluginPanelItem *PanelItem,size
 	}
 }
 
-WINDOWINFO_TYPE ModalType2WType(const int fType)
+WINDOWINFO_TYPE WindowTypeToPluginWindowType(const int fType)
 {
-	static const simple_pair<MODALFRAME_TYPE, WINDOWINFO_TYPE> TypesMap[] =
+	static const simple_pair<window_type, WINDOWINFO_TYPE> TypesMap[] =
 	{
-		{MODALTYPE_DESKTOP,    WTYPE_DESKTOP},
-		{MODALTYPE_PANELS,     WTYPE_PANELS},
-		{MODALTYPE_VIEWER,     WTYPE_VIEWER},
-		{MODALTYPE_EDITOR,     WTYPE_EDITOR},
-		{MODALTYPE_DIALOG,     WTYPE_DIALOG},
-		{MODALTYPE_VMENU,      WTYPE_VMENU},
-		{MODALTYPE_HELP,       WTYPE_HELP},
-		{MODALTYPE_COMBOBOX,   WTYPE_COMBOBOX},
-		{MODALTYPE_FINDFOLDER, WTYPE_FINDFOLDER},
-		{MODALTYPE_GRABBER,    WTYPE_GRABBER},
-		{MODALTYPE_HMENU,      WTYPE_HMENU},
+		{windowtype_desktop,    WTYPE_DESKTOP},
+		{windowtype_panels,     WTYPE_PANELS},
+		{windowtype_viewer,     WTYPE_VIEWER},
+		{windowtype_editor,     WTYPE_EDITOR},
+		{windowtype_dialog,     WTYPE_DIALOG},
+		{windowtype_menu,      WTYPE_VMENU},
+		{windowtype_help,       WTYPE_HELP},
+		{windowtype_combobox,   WTYPE_COMBOBOX},
+		{windowtype_findfolder, WTYPE_FINDFOLDER},
+		{windowtype_grabber,    WTYPE_GRABBER},
+		{windowtype_hmenu,      WTYPE_HMENU},
 	};
 
 	auto ItemIterator = std::find_if(CONST_RANGE(TypesMap, i)

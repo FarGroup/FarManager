@@ -74,7 +74,7 @@ private:
 	SyncedQueue<std::unique_ptr<const payload>> m_events;
 };
 
-class window_handler;
+class wm_listener;
 
 class notifier: NonCopyable
 {
@@ -90,7 +90,7 @@ private:
 	notifier();
 
 	std::map<string, std::unique_ptr<notification>> m_notifications;
-	std::unique_ptr<window_handler> m_Window;
+	std::unique_ptr<wm_listener> m_Window;
 };
 
 notifier& Notifier();

@@ -33,7 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "notification.hpp"
-#include "window.hpp"
+#include "wm_listener.hpp"
 
 listener::listener(const string& id, const std::function<void()>& function):
 	m_notification(Notifier().at(id)),
@@ -79,7 +79,7 @@ notifier& Notifier()
 }
 
 notifier::notifier():
-	m_Window(std::make_unique<window_handler>(this))
+	m_Window(std::make_unique<wm_listener>(this))
 {
 }
 

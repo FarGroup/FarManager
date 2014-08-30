@@ -187,10 +187,10 @@ Viewer::~Viewer()
 
 	_tran(SysLog(L"[%p] Viewer::~Viewer, TempViewName=[%s]",this,TempViewName));
 	/* $ 11.10.2001 IS
-	   Удаляем файл только, если нет открытых фреймов с таким именем.
+	   Удаляем файл только, если нет открытых окон с таким именем.
 	*/
 
-	if (!strTempViewName.empty() && !Global->FrameManager->CountFramesWithName(strTempViewName))
+	if (!strTempViewName.empty() && !Global->WindowManager->CountWindowsWithName(strTempViewName))
 	{
 		/* $ 14.06.2002 IS
 		   Если DeleteFolder сброшен, то удаляем только файл. Иначе - удаляем еще
@@ -1645,7 +1645,7 @@ int Viewer::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_F11:
 		{
-			Global->CtrlObject->Plugins->CommandsMenu(MODALTYPE_VIEWER,0,L"Viewer");
+			Global->CtrlObject->Plugins->CommandsMenu(windowtype_viewer,0,L"Viewer");
 			Show();
 			return TRUE;
 		}
@@ -4250,12 +4250,12 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 			   не является панелью информации и быстрого просмотра (т.е.
 			   фактически панелей на экране не видно)
 			*/
-			if (!Global->FrameManager->IsPanelsActive())
+			if (!Global->WindowManager->IsPanelsActive())
 			{
 				/* $ 29.09.2002 IS
 				   без этого не закрывался вьюер, а просили именно это
 				*/
-				Global->FrameManager->DeleteFrame(HostFileViewer);
+				Global->WindowManager->DeleteWindow(HostFileViewer);
 
 				if (HostFileViewer)
 					HostFileViewer->SetExitCode(0);

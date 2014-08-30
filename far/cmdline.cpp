@@ -841,7 +841,7 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 		{
 			if(Preserve)
 			{
-				bool redraw = Global->FrameManager->IsPanelsActive();
+				bool redraw = Global->WindowManager->IsPanelsActive();
 				Global->CtrlObject->CmdLine->SetString(strOldCmdLine, redraw);
 				Global->CtrlObject->CmdLine->SetCurPos(OldCmdLineCurPos, OldCmdLineLeftPos, redraw);
 				Global->CtrlObject->CmdLine->Select(OldCmdLineSelStart, OldCmdLineSelEnd);
@@ -886,8 +886,8 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 
 	if (!SeparateWindow && Global->CtrlObject->Plugins->ProcessCommandLine(CmdLine))
 	{
-		/* $ 12.05.2001 DJ - рисуемся только если остались верхним фреймом */
-		if (Global->CtrlObject->Cp()->IsTopFrame())
+		/* $ 12.05.2001 DJ - рисуемся только если остались верхним окном */
+		if (Global->CtrlObject->Cp()->IsTopWindow())
 		{
 			//CmdStr.SetString(L"");
 			GotoXY(m_X1,m_Y1);
@@ -910,7 +910,7 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 	{
 		if (PrintCommand)
 		{
-			Global->FrameManager->ShowBackground();
+			Global->WindowManager->ShowBackground();
 			string strNewDir=m_CurDir;
 			m_CurDir=strPrevDir;
 			Redraw();
@@ -1007,7 +1007,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			if (std::find_first_of(ALL_CONST_RANGE(strCmdLine), ALL_CONST_RANGE(CharsToFind)) != strCmdLine.cend())
 				return FALSE;
 
-			Global->FrameManager->ShowBackground();  //??? почему не отдаём COMSPEC'у
+			Global->WindowManager->ShowBackground();  //??? почему не отдаём COMSPEC'у
 			// display command //???
 			Redraw();
 			GotoXY(m_X2+1,m_Y1);
@@ -1227,12 +1227,12 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		if (CheckCmdLineForHelp(strCmdLine.data()+4))
 			return FALSE; // отдадимся COMSPEC`у
 
-		Global->FrameManager->ExitMainLoop(FALSE);
+		Global->WindowManager->ExitMainLoop(FALSE);
 		return TRUE;
 	}
 	else if (IsCommand(L"FAR:ABOUT", false))
 	{
-		Global->FrameManager->ShowBackground();
+		Global->WindowManager->ShowBackground();
 		Redraw();
 		GotoXY(m_X2 + 1, m_Y1);
 		Text(L' ');

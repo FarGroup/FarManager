@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "filelist.hpp"
 #include "manager.hpp"
-#include "frame.hpp"
+#include "window.hpp"
 #include "macroopcode.hpp"
 #include "keyboard.hpp"
 #include "datetime.hpp"
@@ -641,25 +641,25 @@ void ManagerClass_Dump(const wchar_t *Title,FILE *fp)
 
 	if (fp)
 	{
-		const Manager *Man = Global->FrameManager;
+		const Manager *Man = Global->WindowManager;
 //StartSysLog
 		string Type,Name;
-		fwprintf(fp,L"**** Queue modal frames ***\nFrameList.size()=%u, FramePos=%d\n",Man->Frames.size(),Man->FramePos);
+		fwprintf(fp,L"**** Queue modal windows ***\nwindows count=%u, WindowPos=%d\n",Man->m_windows.size(),Man->m_windowPos);
 
-		std::for_each(CONST_RANGE(Man->Frames, i)
+		std::for_each(CONST_RANGE(Man->m_windows, i)
 		{
 			if (i)
 			{
 				i->GetTypeAndName(Type,Name);
-				fwprintf(fp,L"\tFrameList item: %p  Type='%s' Name='%s'\n", i, Type.data(), Name.data());
+				fwprintf(fp,L"\twindow: %p  Type='%s' Name='%s'\n", i, Type.data(), Name.data());
 			}
 			else
-				fwprintf(fp,L"\tFrameList item nullptr\n");
+				fwprintf(fp,L"\twindow nullptr\n");
 		});
 
-		fwprintf(fp,L"**** Stack modal frames ***\nModalStack.size()=%u\n",Man->ModalFrames.size());
+		fwprintf(fp,L"**** Stack modal windows ***\nModalStack.size()=%u\n",Man->m_nodalWindows.size());
 
-		std::for_each(CONST_RANGE(Man->ModalFrames, i)
+		std::for_each(CONST_RANGE(Man->m_nodalWindows, i)
 		{
 			if (i)
 			{
@@ -672,13 +672,12 @@ void ManagerClass_Dump(const wchar_t *Title,FILE *fp)
 
 		fwprintf(fp,L"**** Detail... ***\n");
 
-		if (!Man->CurrentFrame)
+		if (!Man->m_currentWindow)
 			Type.clear(), Name.clear();
 		else
-			Man->CurrentFrame->GetTypeAndName(Type,Name);
+			Man->m_currentWindow->GetTypeAndName(Type,Name);
 
-		fwprintf(fp,L"\tCurrentFrame=%p (Type='%s' Name='%s')\n", //  - текущий фрейм. Он может находиться как в немодальной очереди, так и в модальном стеке
-		         Man->CurrentFrame,Type.data(),Name.data());
+		fwprintf(fp,L"\tCurrentWindow=%p (Type='%s' Name='%s')\n", Man->m_currentWindow,Type.data(), Name.data());
 		fwprintf(fp,L"\n");
 		fflush(fp);
 	}

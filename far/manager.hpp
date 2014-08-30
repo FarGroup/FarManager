@@ -33,7 +33,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class Frame;
+class window;
 
 class Manager: NonCopyable
 {
@@ -55,23 +55,23 @@ public:
 	~Manager();
 
 	// Эти функции можно безопасно вызывать практически из любого места кода
-	// они как бы накапливают информацию о том, что нужно будет сделать с фреймами при следующем вызове Commit()
-	void InsertFrame(Frame *NewFrame);
-	void DeleteFrame(Frame *Deleted = nullptr);
-	void DeleteFrame(int Index);
-	void DeactivateFrame(Frame *Deactivated, int Direction);
-	void ActivateFrame(Frame *Activated);
-	void ActivateFrame(int Index);
-	void RefreshFrame(Frame *Refreshed = nullptr);
-	void RefreshFrame(int Index);
-	void UpdateFrame(Frame* Old,Frame* New);
-	void CallbackFrame(const std::function<void(void)>& Callback);
-	//! Функции для запуска модальных фреймов.
-	void ExecuteFrame(Frame *Executed);
+	// они как бы накапливают информацию о том, что нужно будет сделать с окнами при следующем вызове Commit()
+	void InsertWindow(window *NewWindow);
+	void DeleteWindow(window *Deleted = nullptr);
+	void DeleteWindow(int Index);
+	void DeactivateWindow(window *Deactivated, int Direction);
+	void ActivateWindow(window *Activated);
+	void ActivateWindow(int Index);
+	void RefreshWindow(window *Refreshed = nullptr);
+	void RefreshWindow(int Index);
+	void UpdateWindow(window* Old,window* New);
+	void CallbackWindow(const std::function<void(void)>& Callback);
+	//! Функции для запуска модальных окон.
+	void ExecuteWindow(window *Executed);
 	//! Входит в новый цикл обработки событий
-	void ExecuteModal(Frame *Executed);
-	//! Запускает немодальный фрейм в модальном режиме
-	void ExecuteNonModal(const Frame *NonModal);
+	void ExecuteModal(window *Executed);
+	//! Запускает немодальное окно в модальном режиме
+	void ExecuteNonModal(const window *NonModal);
 	void CloseAll();
 	/* $ 29.12.2000 IS
 	Аналог CloseAll, но разрешает продолжение полноценной работы в фаре,
@@ -79,15 +79,15 @@ public:
 	Возвращает TRUE, если все закрыли и можно выходить из фара.
 	*/
 	BOOL ExitAll();
-	size_t GetFrameCount()const { return Frames.size(); }
-	int  GetFrameCountByType(int Type);
+	size_t GetWindowCount()const { return m_windows.size(); }
+	int  GetWindowCountByType(int Type);
 	/*$ 26.06.2001 SKV
 	Для вызова через ACTL_COMMIT
 	*/
 	void PluginCommit();
-	int CountFramesWithName(const string& Name, BOOL IgnoreCase = TRUE);
+	int CountWindowsWithName(const string& Name, BOOL IgnoreCase = TRUE);
 	bool IsPanelsActive(bool and_not_qview = false) const; // используется как признак Global->WaitInMainLoop
-	Frame* FindFrameByFile(int ModalType, const string& FileName, const wchar_t *Dir = nullptr);
+	window* FindWindowByFile(int ModalType, const string& FileName, const wchar_t *Dir = nullptr);
 	void EnterMainLoop();
 	void ProcessMainLoop();
 	void ExitMainLoop(int Ask);
@@ -98,19 +98,19 @@ public:
 	const INPUT_RECORD& GetLastInputRecord() const { return LastInputRecord; }
 	void SetLastInputRecord(const INPUT_RECORD *Rec);
 	void ResetLastInputRecord() { LastInputRecord.EventType = 0; }
-	Frame *GetCurrentFrame() { return CurrentFrame; }
-	Frame* GetFrame(size_t Index) const;
-	int IndexOf(Frame *Frame);
-	int IndexOfStack(Frame *Frame);
-	Frame *GetBottomFrame() { return GetFrame(FramePos); }
+	window *GetCurrentWindow() { return m_currentWindow; }
+	window* GetWindow(size_t Index) const;
+	int IndexOf(window* Window);
+	int IndexOfStack(window* Window);
+	window *GetBottomWindow() { return GetWindow(m_windowPos); }
 	bool ManagerIsDown() const { return EndLoop; }
 	bool ManagerStarted() const { return StartManager; }
 	void InitKeyBar();
-	void ExecuteModalEV(Frame *Executed) { ++ModalEVCount; ExecuteModal(Executed); --ModalEVCount; }
+	void ExecuteModalEV(window *Executed) { ++ModalEVCount; ExecuteModal(Executed); --ModalEVCount; }
 	bool InModalEV() const { return ModalEVCount != 0; }
-	void ResizeAllFrame();
-	size_t GetModalStackCount() const { return ModalFrames.size(); }
-	Frame* GetModalFrame(size_t index) const { return ModalFrames[index]; }
+	void ResizeAllWindows();
+	size_t GetModalWindowCount() const { return m_nodalWindows.size(); }
+	window* GetModalWindow(size_t index) const { return m_nodalWindows[index]; }
 
 	void AddGlobalKeyHandler(const std::function<int(Key)>& Handler);
 
@@ -123,38 +123,38 @@ private:
 	friend void ManagerClass_Dump(const wchar_t *Title, FILE *fp);
 #endif
 
-	Frame *FrameMenu(); //    вместо void SelectFrame(); // show window menu (F12)
-	bool HaveAnyFrame() const;
+	window *WindowMenu(); //    вместо void SelectWindow(); // show window menu (F12)
+	bool HaveAnyWindow() const;
 	bool OnlyDesktop() const;
-	void Commit(void);         // завершает транзакцию по изменениям в очереди и стеке фреймов
+	void Commit(void);         // завершает транзакцию по изменениям в контейнерах окон
 	// Она в цикле вызывает себя, пока хотябы один из указателей отличен от nullptr
 	// Функции, "подмастерья начальника" - Commit'a
 	// Иногда вызываются не только из него и из других мест
-	void InsertCommit(Frame* Param);
-	void DeleteCommit(Frame* Param);
-	void ActivateCommit(Frame* Param);
+	void InsertCommit(window* Param);
+	void DeleteCommit(window* Param);
+	void ActivateCommit(window* Param);
 	void ActivateCommit(int Index);
-	void RefreshCommit(Frame* Param);
-	void DeactivateCommit(Frame* Param);
-	void ExecuteCommit(Frame* Param);
-	void UpdateCommit(Frame* Old,Frame* New);
+	void RefreshCommit(window* Param);
+	void DeactivateCommit(window* Param);
+	void ExecuteCommit(window* Param);
+	void UpdateCommit(window* Old,window* New);
 	int GetModalExitCode() const;
 	// BUGBUG, do we need this?
 	void ImmediateHide();
 
-	typedef void(Manager::*frame_callback)(Frame*);
+	typedef void(Manager::*window_callback)(window*);
 
-	void PushFrame(Frame* Param, frame_callback Callback);
-	void CheckAndPushFrame(Frame* Param, frame_callback Callback);
-	void ProcessFrameByPos(int Index, frame_callback Callback);
-	void RedeleteFrame(Frame *Deleted);
+	void PushWindow(window* Param, window_callback Callback);
+	void CheckAndPushWindow(window* Param, window_callback Callback);
+	void ProcessWindowByPos(int Index, window_callback Callback);
+	void RedeleteWindow(window *Deleted);
 
 	INPUT_RECORD LastInputRecord;
-	Frame *CurrentFrame;     // текущий фрейм. Он может нахлодиться как в немодальной очереди, так и в можальном стеке, его можно получить с помощью FrameManager->GetCurrentFrame();
-	std::vector<Frame*> ModalFrames;     // Стек модальных фреймов
-	std::vector<Frame*> Frames;       // Очередь модальных фреймов
-	int  FramePos;           // Индекс текущий немодального фрейма. Он не всегда совпадает с CurrentFrame
-	// текущий немодальный фрейм можно получить с помощью FrameManager->GetBottomFrame();
+	window *m_currentWindow;     // текущее окно. Оно может находиться как в немодальном, так и в модальном контейнере, его можно получить с помощью WindowManager->GetCurrentWindow();
+	std::vector<window*> m_nodalWindows;
+	std::vector<window*> m_windows;
+	int  m_windowPos;           // Индекс текущего немодального окна. Оно не всегда совпадает с CurrentWindow
+	// текущее немодальное окно можно получить с помощью WindowManager->GetBottomWindow();
 	/* $ 15.05.2002 SKV
 		Так как есть полумодалы, что б не было путаницы,
 		заведём счётчик модальных editor/viewer'ов.
@@ -170,5 +170,5 @@ private:
 	static long CurrentWindowType;
 	std::list<std::unique_ptr<MessageAbstract>> m_Queue;
 	std::vector<std::function<int(Key)>> m_GlobalKeyHandlers;
-	std::map<Frame*,volatile bool*> m_Executed;
+	std::map<window*,volatile bool*> m_Executed;
 };

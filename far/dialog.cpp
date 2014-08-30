@@ -382,7 +382,7 @@ Dialog::~Dialog()
 	DeleteDialogObjects();
 
 	Hide();
-	if (Global->Opt->Clock && Global->FrameManager->IsPanelsActive(true))
+	if (Global->Opt->Clock && Global->WindowManager->IsPanelsActive(true))
 		ShowTime(0);
 
 	if(!CheckDialogMode(DMODE_ISMENU))
@@ -3063,7 +3063,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 
 	// call global ProcessKey out of critical section to avoid dead lock
 	if (doGlobalProcessKey)
-		return Global->FrameManager->ProcessKey(Key);
+		return Global->WindowManager->ProcessKey(Key);
 
 	return FALSE;
 }
@@ -4336,8 +4336,8 @@ void Dialog::Process()
 			WaitUserTime = -1;
 		}
 
-		Global->FrameManager->ExecuteFrame(this);
-		Global->FrameManager->ExecuteModal(this);
+		Global->WindowManager->ExecuteWindow(this);
+		Global->WindowManager->ExecuteModal(this);
 		save += (clock() - btm);
 
 		if (InterlockedDecrement(&in_dialog) == -1)
@@ -4360,11 +4360,11 @@ intptr_t Dialog::CloseDialog()
 		DialogMode.Set(DMODE_ENDLOOP);
 		Hide();
 
-		if (DialogMode.Check(DMODE_BEGINLOOP) && (DialogMode.Check(DMODE_MSGINTERNAL) || Global->FrameManager->ManagerStarted()))
+		if (DialogMode.Check(DMODE_BEGINLOOP) && (DialogMode.Check(DMODE_MSGINTERNAL) || Global->WindowManager->ManagerStarted()))
 		{
 			DialogMode.Clear(DMODE_BEGINLOOP);
-			Global->FrameManager->DeleteFrame(this);
-			Global->FrameManager->PluginCommit();
+			Global->WindowManager->DeleteWindow(this);
+			Global->WindowManager->PluginCommit();
 		}
 
 		_DIALOG(CleverSysLog CL(L"Close Dialog"));
@@ -4419,7 +4419,7 @@ int Dialog::GetTypeAndName(string &strType, string &strName)
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 	strType = MSG(MDialogType);
 	strName = GetTitle();
-	return MODALTYPE_DIALOG;
+	return windowtype_dialog;
 }
 
 bool Dialog::CanFastHide() const
@@ -4453,25 +4453,6 @@ void Dialog::ResizeConsole()
 		SetComboBoxPos();
 	}
 };
-
-//void Dialog::OnDestroy()
-//{
-//  /* $ 21.04.2002 KM
-//  //  Эта функция потеряла своё значение при текущем менеджере
-//  //  и системе создания и уничтожения фреймов.
-//  if(DialogMode.Check(DMODE_RESIZED))
-//  {
-//    Frame *BFrame=FrameManager->GetBottomFrame();
-//    if(BFrame)
-//      BFrame->UnlockRefresh();
-//    /* $ 21.04.2002 KM
-//        А вот этот DM_KILLSAVESCREEN здесь только вредит. Удаление
-//        диалога происходит без восстановления ShadowSaveScr и вот
-//        они: "артефакты" непрорисовки.
-//    */
-//		SendDlgMessage(this,DM_KILLSAVESCREEN,0,0);
-//  }
-//};
 
 intptr_t Dialog::DlgProc(intptr_t Msg,intptr_t Param1,void* Param2)
 {

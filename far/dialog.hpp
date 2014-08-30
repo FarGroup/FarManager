@@ -6,7 +6,7 @@ dialog.hpp
  ласс диалога Dialog.
 
 ѕредназначен дл€ отображени€ модальных диалогов.
-явл€етс€ производным от класса Frame.
+явл€етс€ производным от класса window.
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -36,7 +36,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "frame.hpp"
+#include "window.hpp"
 #include "vmenu.hpp"
 #include "bitflags.hpp"
 #include "synchro.hpp"
@@ -199,7 +199,7 @@ class Plugin;
 class Dialog;
 
 
-class Dialog: public Frame
+class Dialog: public window
 {
 public:
 	typedef std::function<intptr_t(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)> dialog_handler;
@@ -235,7 +235,7 @@ public:
 	virtual void Hide() override;
 	virtual void SetExitCode(int Code) override;
 	virtual int GetTypeAndName(string &strType, string &strName) override;
-	virtual int GetType() const override { return MODALTYPE_DIALOG; }
+	virtual int GetType() const override { return windowtype_dialog; }
 	virtual const wchar_t *GetTypeName() override {return L"[Dialog]";}
 	virtual bool CanFastHide() const override;
 	virtual void ResizeConsole() override;

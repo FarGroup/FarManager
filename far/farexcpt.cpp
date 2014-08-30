@@ -385,7 +385,7 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 
 	reply MsgCode = reply_handle;
 
-	if (Global && Global->FrameManager && !Global->FrameManager->ManagerIsDown())
+	if (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 	{
 		MsgCode=ExcDialog(strFileName,Exception,xr->ExceptionAddress);
 		ShowMessages=TRUE;
@@ -662,6 +662,6 @@ static int ExceptionTestHook(Manager::Key key)
 void RegisterTestExceptionsHook()
 {
 #ifdef FAR_ALPHA_VERSION
-	Global->FrameManager->AddGlobalKeyHandler(ExceptionTestHook);
+	Global->WindowManager->AddGlobalKeyHandler(ExceptionTestHook);
 #endif
 }

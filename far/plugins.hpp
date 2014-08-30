@@ -42,7 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class SaveScreen;
 class FileEditor;
 class Viewer;
-class Frame;
+class window;
 class Panel;
 class Dialog;
 

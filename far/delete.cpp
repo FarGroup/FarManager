@@ -326,9 +326,9 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 	int Ret;
 	BOOL NeedUpdate=TRUE, NeedSetUpADir=FALSE;
 	bool Opt_DeleteToRecycleBin=Global->Opt->DeleteToRecycleBin;
-	/*& 31.05.2001 OT Запретить перерисовку текущего фрейма*/
-	Frame *FrameFromLaunched = Global->FrameManager->GetCurrentFrame();
-	FrameFromLaunched->Lock();
+	/*& 31.05.2001 OT Запретить перерисовку текущего окна*/
+	auto WindowFromLaunched = Global->WindowManager->GetCurrentWindow();
+	WindowFromLaunched->Lock();
 	bool DeleteAllFolders=!Global->Opt->Confirm.DeleteFolder;
 	UpdateDiz=(Global->Opt->Diz.UpdateMode==DIZ_UPDATE_ALWAYS ||
 	           (SrcPanel->IsDizDisplayed() &&
@@ -337,8 +337,8 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 	SCOPE_EXIT
 	{
 		Global->Opt->DeleteToRecycleBin=Opt_DeleteToRecycleBin;
-		// Разрешить перерисовку фрейма
-		FrameFromLaunched->Unlock();
+		// Разрешить перерисовку окна
+		WindowFromLaunched->Unlock();
 
 		if (NeedUpdate)
 		{
@@ -572,7 +572,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 					{
 						DirInfoData Data = {};
 
-						if (GetDirInfo(MSG(MDeletingTitle), strSelName, Data, FirstTime? 500 : 0, nullptr, GETDIRINFO_DONTREDRAWFRAME) > 0)
+						if (GetDirInfo(MSG(MDeletingTitle), strSelName, Data, FirstTime? 500 : 0, nullptr, GETDIRINFO_NOREDRAW) > 0)
 						{
 							ItemsCount+=Data.FileCount+Data.DirCount+1;
 						}

@@ -4739,7 +4739,7 @@ static int SendKeyToPluginHook(Manager::Key key)
 
 	if (!((KeyM >= KEY_MACRO_BASE && KeyM <= KEY_MACRO_ENDBASE) || (KeyM >= KEY_OP_BASE && KeyM <= KEY_OP_ENDBASE))) // пропустим макро-коды
 	{
-		if (Global->FrameManager->IsPanelsActive())
+		if (Global->WindowManager->IsPanelsActive())
 		{
 			if (Global->CtrlObject->Cp()->ActivePanel()->GetMode() == PLUGIN_PANEL)
 			{
@@ -4757,7 +4757,7 @@ static void RegisterSendKeyToPluginHook()
 	static bool registered = false;
 	if (!registered)
 	{
-		Global->FrameManager->AddGlobalKeyHandler(SendKeyToPluginHook);
+		Global->WindowManager->AddGlobalKeyHandler(SendKeyToPluginHook);
 		registered = true;
 	}
 }

@@ -68,14 +68,14 @@ void GetColor(int PaletteIndex)
 		Global->CtrlObject->Cp()->RightPanel->Redraw();
 
 
-		Global->FrameManager->ResizeAllFrame(); // рефрешим
-		Global->FrameManager->PluginCommit(); // коммитим.
+		Global->WindowManager->ResizeAllWindows(); // рефрешим
+		Global->WindowManager->PluginCommit(); // коммитим.
 
 		if (Global->Opt->Clock)
 			ShowTime(1);
 
 		Global->ScrBuf->Unlock(); // разрешаем прорисовку
-		Global->FrameManager->PluginCommit(); // коммитим.
+		Global->WindowManager->PluginCommit(); // коммитим.
 	}
 }
 

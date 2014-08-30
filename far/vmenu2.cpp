@@ -618,7 +618,7 @@ int VMenu2::GetTypeAndName(string &strType, string &strName)
 {
 	strType = MSG(MVMenuType);
 	strName = GetMenuTitle();
-	return MODALTYPE_VMENU;
+	return windowtype_menu;
 }
 
 static int ClickHandler(VMenu2* Menu, const IntOption& MenuClick)

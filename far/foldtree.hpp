@@ -33,7 +33,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "frame.hpp"
+#include "window.hpp"
 #include "keybar.hpp"
 #include "macro.hpp"
 #include "config.hpp"
@@ -42,7 +42,7 @@ class TreeList;
 class EditControl;
 class SaveScreen;
 
-class FolderTree:public Frame
+class FolderTree:public window
 {
 public:
 	FolderTree(string &strResultFolder, int ModalMode, int IsStandalone = TRUE, bool IsFullScreen = true);
@@ -58,7 +58,7 @@ public:
 	virtual bool CanFastHide() const override;
 	virtual const wchar_t *GetTypeName() override { return L"[FolderTree]"; }
 	virtual int GetTypeAndName(string &strType, string &strName) override;
-	virtual int GetType() const override { return MODALTYPE_FINDFOLDER; }
+	virtual int GetType() const override { return windowtype_findfolder; }
 
 private:
 	virtual string GetTitle() const override { return string(); }

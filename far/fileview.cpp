@@ -59,7 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 FileViewer::FileViewer(const string& Name,int EnableSwitch,int DisableHistory, int DisableEdit,
                        __int64 ViewStartPos,const wchar_t *PluginData, NamesList *ViewNamesList,bool ToSaveAs,
-                       uintptr_t aCodePage, const wchar_t *Title, int DeleteOnClose, Frame* Update):
+                       uintptr_t aCodePage, const wchar_t *Title, int DeleteOnClose, window* Update):
 	m_View(false,aCodePage),
 	FullScreen(true),
 	DisableEdit(DisableEdit),
@@ -121,7 +121,7 @@ FileViewer::FileViewer(const string& Name,int EnableSwitch,int DisableHistory,
 
 void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 	__int64 ViewStartPos,const wchar_t *PluginData,
-	NamesList *ViewNamesList,bool ToSaveAs, Frame* Update)
+	NamesList *ViewNamesList,bool ToSaveAs, window* Update)
 {
 	RedrawTitle = FALSE;
 	ViewKeyBar.SetOwner(this);
@@ -146,7 +146,7 @@ void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 	if (!m_View.OpenFile(m_Name,TRUE)) // $ 04.07.2000 tran + add TRUE as 'warning' parameter
 	{
 		DisableHistory = TRUE;  // $ 26.03.2002 DJ - при неудаче открыти€ - не пишем мусор в историю
-		// FrameManager->DeleteFrame(this); // «ј„≈ћ? ¬ьювер то еще не помещен в очередь манагера!
+		// WindowManager->DeleteWindow(this); // «ј„≈ћ? ¬ьювер то еще не помещен в очередь манагера!
 		m_ExitCode=FALSE;
 		return;
 	}
@@ -162,13 +162,13 @@ void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 
 	if (EnableSwitch)
 	{
-		if (Update) Global->FrameManager->UpdateFrame(Update,this);
-		else Global->FrameManager->InsertFrame(this);
+		if (Update) Global->WindowManager->UpdateWindow(Update,this);
+		else Global->WindowManager->InsertWindow(this);
 	}
 	else
 	{
-		if (Update) Global->FrameManager->DeleteFrame(Update);
-		Global->FrameManager->ExecuteFrame(this);
+		if (Update) Global->WindowManager->DeleteWindow(Update);
+		Global->WindowManager->ExecuteWindow(this);
 	}
 	ReadEvent();
 }
@@ -314,11 +314,11 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_CTRLO:
 		case KEY_RCTRLO:
-			if (Global->FrameManager->ShowBackground())
+			if (Global->WindowManager->ShowBackground())
 			{
 				SetCursorType(false, 0);
 				WaitKey();
-				Global->FrameManager->RefreshFrame();
+				Global->WindowManager->RefreshWindow();
 			}
 
 			return TRUE;
@@ -330,7 +330,7 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 
 		case KEY_ESC:
 		case KEY_F10:
-			Global->FrameManager->DeleteFrame();
+			Global->WindowManager->DeleteWindow();
 			return TRUE;
 		case KEY_F6:
 
@@ -427,7 +427,7 @@ int FileViewer::GetTypeAndName(string &strType, string &strName)
 {
 	strType = MSG(MScreensView);
 	m_View.GetFileName(strName);
-	return MODALTYPE_VIEWER;
+	return windowtype_viewer;
 }
 
 
@@ -526,7 +526,7 @@ void FileViewer::ShowStatus()
 
 void FileViewer::OnChangeFocus(int focus)
 {
-	Frame::OnChangeFocus(focus);
+	window::OnChangeFocus(focus);
 	Global->CtrlObject->Plugins->SetCurViewer(&m_View);
 	int FCurViewerID=m_View.ViewerID;
 	this->SetBlock();
@@ -542,7 +542,7 @@ void FileViewer::OnReload(void)
 void FileViewer::ReadEvent(void)
 {
 
-	Global->FrameManager->CallbackFrame([this]()
+	Global->WindowManager->CallbackWindow([this]()
 	{
 		this->SetBlock();
 		this->m_View.ReadEvent();

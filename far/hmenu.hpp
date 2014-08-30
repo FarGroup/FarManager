@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "modal.hpp"
-#include "frame.hpp"
+#include "window.hpp"
 #include "synchro.hpp"
 
 struct HMenuData
@@ -58,8 +58,8 @@ public:
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual __int64 VMProcess(int OpCode, void *vParam = nullptr, __int64 iParam = 0) override;
 	virtual void ResizeConsole() override;
-	virtual int GetType() const override { return MODALTYPE_HMENU; }
-	virtual int GetTypeAndName(string &, string &) override { return MODALTYPE_HMENU; }
+	virtual int GetType() const override { return windowtype_hmenu; }
+	virtual int GetTypeAndName(string &, string &) override { return windowtype_hmenu; }
 
 	void GetExitCode(int &ExitCode, int &VExitCode);
 

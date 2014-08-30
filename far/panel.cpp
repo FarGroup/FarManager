@@ -72,7 +72,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constitle.hpp"
 #include "FarDlgBuilder.hpp"
 #include "setattr.hpp"
-#include "window.hpp"
+#include "wm_listener.hpp"
 #include "colormix.hpp"
 #include "FarGuid.hpp"
 #include "elevation.hpp"
@@ -684,8 +684,8 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 						if (Code != DRIVE_DEL_FAIL && Code != DRIVE_DEL_NONE)
 						{
 							Global->ScrBuf->Lock(); // отмен€ем вс€кую прорисовку
-							Global->FrameManager->ResizeAllFrame();
-							Global->FrameManager->PluginCommit(); // коммитим.
+							Global->WindowManager->ResizeAllWindows();
+							Global->WindowManager->PluginCommit(); // коммитим.
 							Global->ScrBuf->Unlock(); // разрешаем прорисовку
 							RetCode=(((DiskCount-SelPos)==1) && (SelPos > 0) && (Code != DRIVE_DEL_EJECT))?SelPos-1:SelPos;
 						}
@@ -1172,8 +1172,8 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 				// если мы находимс€ на удал€емом диске - уходим с него, чтобы не мешать
 				// удалению
 				IfGoHome(Drive);
-				Global->FrameManager->ResizeAllFrame();
-				Global->FrameManager->GetCurrentFrame()->Show();
+				Global->WindowManager->ResizeAllWindows();
+				Global->WindowManager->GetCurrentWindow()->Show();
 				// </ ќ—“џЋ№>
 
 				if (WNetCancelConnection2(DiskLetter.data(),UpdateProfile,FALSE)==NO_ERROR)
@@ -1269,7 +1269,7 @@ static DWORD _CorrectFastFindKbdLayout(const INPUT_RECORD& rec,DWORD Key)
 	return Key;
 }
 
-class Search: public Frame
+class Search: public window
 {
 public:
 	Search(Panel* Owner, int FirstKey, int X, int Y);
@@ -1277,8 +1277,8 @@ public:
 	void Process(void);
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual int GetType() const override { return MODALTYPE_SEARCH; }
-	virtual int GetTypeAndName(string &, string &) override { return MODALTYPE_SEARCH; }
+	virtual int GetType() const override { return windowtype_search; }
+	virtual int GetTypeAndName(string &, string &) override { return windowtype_search; }
 	int KeyToProcess(void) {return m_KeyToProcess;}
 private:
     Panel* m_Owner;
@@ -1307,15 +1307,15 @@ Search::Search(Panel* Owner, int FirstKey, int X, int Y): m_Owner(Owner), m_Firs
 
 void Search::Process(void)
 {
-	Global->FrameManager->ExecuteFrame(this);
-	if(m_FirstKey) Global->FrameManager->CallbackFrame([this](){this->ProcessKey(Manager::Key(m_FirstKey));});
-	Global->FrameManager->ExecuteModal(this);
+	Global->WindowManager->ExecuteWindow(this);
+	if(m_FirstKey) Global->WindowManager->CallbackWindow([this](){this->ProcessKey(Manager::Key(m_FirstKey));});
+	Global->WindowManager->ExecuteModal(this);
 }
 
 int Search::ProcessKey(const Manager::Key& Key)
 {
 	int LocalKey=Key.FarKey;
-	INPUT_RECORD rec=Global->FrameManager->GetLastInputRecord(); //BUGBUG: в будущем использовать Key.Event
+	INPUT_RECORD rec=Global->WindowManager->GetLastInputRecord(); //BUGBUG: в будущем использовать Key.Event
 	string strLastName, strName;
 
 	// дл€ вставки воспользуемс€ макродвижком...
@@ -1532,7 +1532,7 @@ void Search::ProcessName(const string& Src,string &strLastName,string &strName)
 void Search::Close(void)
 {
 	Hide();
-	Global->FrameManager->DeleteFrame(this);
+	Global->WindowManager->DeleteWindow(this);
 }
 
 void Panel::FastFind(int FirstKey)
@@ -1567,7 +1567,7 @@ void Panel::SetFocus()
 		Global->CtrlObject->Cp()->SetActivePanel(this);
 	}
 
-	Global->FrameManager->UpdateMacroArea();
+	Global->WindowManager->UpdateMacroArea();
 	ProcessPluginEvent(FE_GOTFOCUS,nullptr);
 
 	if (!GetFocus())
@@ -1856,7 +1856,7 @@ int Panel::SetCurPath()
 					break;
 			}
 
-			if (Global->FrameManager->ManagerStarted()) // сначала проверим - а запущен ли менеджер
+			if (Global->WindowManager->ManagerStarted()) // сначала проверим - а запущен ли менеджер
 			{
 				SetCurDir(Global->g_strFarPath,true);                    // если запущен - выставим путь который мы точно знаем что существует
 				ChangeDisk();                                    // и вызовем меню выбора дисков
@@ -1986,9 +1986,9 @@ void Panel::ShowScreensCount()
 {
 	if (Global->Opt->ShowScreensNumber && !m_X1)
 	{
-		int Viewers = Global->FrameManager->GetFrameCountByType(MODALTYPE_VIEWER);
-		int Editors = Global->FrameManager->GetFrameCountByType(MODALTYPE_EDITOR);
-		int Dialogs = Global->FrameManager->GetFrameCountByType(MODALTYPE_DIALOG);
+		int Viewers = Global->WindowManager->GetWindowCountByType(windowtype_viewer);
+		int Editors = Global->WindowManager->GetWindowCountByType(windowtype_editor);
+		int Dialogs = Global->WindowManager->GetWindowCountByType(windowtype_dialog);
 
 		if (Viewers>0 || Editors>0 || Dialogs > 0)
 		{
@@ -2068,7 +2068,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 	switch (Command)
 	{
 		case FCTL_SETVIEWMODE:
-			Result=FPanels->ChangePanelViewMode(this,Param1,FPanels->IsTopFrame());
+			Result=FPanels->ChangePanelViewMode(this,Param1,FPanels->IsTopWindow());
 			break;
 
 		case FCTL_SETSORTMODE:
@@ -2408,8 +2408,8 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				m_CurTopFile=static_cast<int>(Info->TopPanelItem);
 			}
 
-			// $ 12.05.2001 DJ перерисовываемс€ только в том случае, если мы - текущий фрейм
-			if (FPanels->IsTopFrame())
+			// $ 12.05.2001 DJ перерисовываемс€ только в том случае, если мы - текущее окно
+			if (FPanels->IsTopWindow())
 				Redraw();
 
 			Result=TRUE;

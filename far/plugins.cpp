@@ -50,7 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "farexcpt.hpp"
 #include "fileedit.hpp"
-#include "RefreshFrameManager.hpp"
+#include "refreshwindowmanager.hpp"
 #include "plugapi.hpp"
 #include "TaskBar.hpp"
 #include "pathmix.hpp"
@@ -274,18 +274,18 @@ int PluginManager::UnloadPlugin(Plugin *pPlugin, int From)
 
 	if (pPlugin && (From != iExitFAR))   //схитрим, если упали в EXITFAR, не полезем в рекурсию, мы и так в Unload
 	{
-		for(int i = static_cast<int>(Global->FrameManager->GetModalStackCount()-1); i >= 0; --i)
+		for(int i = static_cast<int>(Global->WindowManager->GetModalWindowCount()-1); i >= 0; --i)
 		{
-			Frame *frame = Global->FrameManager->GetModalFrame(i);
-			if((frame->GetType()==MODALTYPE_DIALOG && static_cast<Dialog*>(frame)->GetPluginOwner() == pPlugin) || frame->GetType()==MODALTYPE_HELP)
+			window* Window = Global->WindowManager->GetModalWindow(i);
+			if((Window->GetType()==windowtype_dialog && static_cast<Dialog*>(Window)->GetPluginOwner() == pPlugin) || Window->GetType()==windowtype_help)
 			{
-				frame->Lock();
+				Window->Lock();
 				if(i)
 				{
-					Global->FrameManager->GetModalFrame(i-1)->Lock();
+					Global->WindowManager->GetModalWindow(i-1)->Lock();
 				}
-				Global->FrameManager->DeleteFrame(frame);
-				Global->FrameManager->PluginCommit();
+				Global->WindowManager->DeleteWindow(Window);
+				Global->WindowManager->PluginCommit();
 			}
 		}
 
@@ -1330,18 +1330,18 @@ void PluginManager::Configure(int StartPos)
 
 int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName)
 {
-	if (ModalType == MODALTYPE_DIALOG || ModalType == MODALTYPE_VMENU)
+	if (ModalType == windowtype_dialog || ModalType == windowtype_menu)
 	{
-		auto dlg = static_cast<Dialog*>(Global->FrameManager->GetCurrentFrame());
+		auto dlg = static_cast<Dialog*>(Global->WindowManager->GetCurrentWindow());
 		if (dlg->CheckDialogMode(DMODE_NOPLUGINS) || dlg->GetId()==PluginsMenuId)
 		{
 			return 0;
 		}
 	}
 
-	bool Editor = ModalType==MODALTYPE_EDITOR;
-	bool Viewer = ModalType==MODALTYPE_VIEWER;
-	bool Dialog = ModalType==MODALTYPE_DIALOG || ModalType==MODALTYPE_VMENU;
+	bool Editor = ModalType==windowtype_editor;
+	bool Viewer = ModalType==windowtype_viewer;
+	bool Dialog = ModalType==windowtype_dialog || ModalType==windowtype_menu;
 
 	PluginMenuItemData item;
 
@@ -1537,7 +1537,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 	else if (Dialog)
 	{
 		OpenCode=OPEN_DIALOG;
-		pd.hDlg=(HANDLE)Global->FrameManager->GetCurrentFrame();
+		pd.hDlg=(HANDLE)Global->WindowManager->GetCurrentWindow();
 		Item=(intptr_t)&pd;
 	}
 
@@ -2037,9 +2037,9 @@ int PluginManager::ProcessCommandLine(const string& CommandParam,Panel *Target)
 */
 int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void **Ret)
 {
-	if (Global->FrameManager->GetCurrentFrame() && Global->FrameManager->GetCurrentFrame()->GetType() == MODALTYPE_DIALOG)
+	if (Global->WindowManager->GetCurrentWindow() && Global->WindowManager->GetCurrentWindow()->GetType() == windowtype_dialog)
 	{
-		if (static_cast<Dialog*>(Global->FrameManager->GetCurrentFrame())->CheckDialogMode(DMODE_NOPLUGINS))
+		if (static_cast<Dialog*>(Global->WindowManager->GetCurrentWindow())->CheckDialogMode(DMODE_NOPLUGINS))
 		{
 			return FALSE;
 		}
@@ -2121,19 +2121,19 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
 
 	if (!Global->ProcessException)
 	{
-		int curType = Global->FrameManager->GetCurrentFrame()->GetType();
+		int curType = Global->WindowManager->GetCurrentWindow()->GetType();
 
-		if (curType==MODALTYPE_DIALOG)
+		if (curType==windowtype_dialog)
 		{
-			if (static_cast<Dialog*>(Global->FrameManager->GetCurrentFrame())->CheckDialogMode(DMODE_NOPLUGINS))
+			if (static_cast<Dialog*>(Global->WindowManager->GetCurrentWindow())->CheckDialogMode(DMODE_NOPLUGINS))
 			{
 				return FALSE;
 			}
 		}
 
-		bool Editor = curType==MODALTYPE_EDITOR;
-		bool Viewer = curType==MODALTYPE_VIEWER;
-		bool Dialog = curType==MODALTYPE_DIALOG;
+		bool Editor = curType==windowtype_editor;
+		bool Viewer = curType==windowtype_viewer;
+		bool Dialog = curType==windowtype_dialog;
 
 		if (Data->CallFlags & CPT_CHECKONLY)
 		{
@@ -2148,7 +2148,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
 							return FALSE;
 						break;
 					case CPT_CONFIGURE:
-						if (curType!=MODALTYPE_PANELS)
+						if (curType!=windowtype_panels)
 						{
 							//TODO: Автокомплит не влияет?
 							return FALSE;
@@ -2157,7 +2157,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
 							return FALSE;
 						break;
 					case CPT_CMDLINE:
-						if (curType!=MODALTYPE_PANELS)
+						if (curType!=windowtype_panels)
 						{
 							//TODO: Автокомплит не влияет?
 							return FALSE;
@@ -2264,7 +2264,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
 					else if (Dialog)
 					{
 						OpenCode=OPEN_DIALOG;
-						pd.hDlg=(HANDLE)Global->FrameManager->GetCurrentFrame();
+						pd.hDlg=(HANDLE)Global->WindowManager->GetCurrentWindow();
 						Item=(intptr_t)&pd;
 					}
 

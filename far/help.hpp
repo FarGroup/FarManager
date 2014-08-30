@@ -33,14 +33,14 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "frame.hpp"
+#include "window.hpp"
 #include "keybar.hpp"
 #include "macro.hpp"
 #include "strmix.hpp"
 
 class HelpRecord;
 
-class Help:public Frame
+class Help:public window
 {
 public:
 	Help(const string& Topic,const wchar_t *Mask=nullptr,UINT64 Flags=0);
@@ -54,7 +54,7 @@ public:
 	virtual bool CanFastHide() const override; // ¬ведена дл€ нужд CtrlAltShift
 	virtual const wchar_t *GetTypeName() override {return L"[Help]";}
 	virtual int GetTypeAndName(string &strType, string &strName) override;
-	virtual int GetType() const override { return MODALTYPE_HELP; }
+	virtual int GetType() const override { return windowtype_help; }
 	virtual __int64 VMProcess(int OpCode,void *vParam,__int64 iParam) override;
 
 	BOOL GetError() const {return ErrorHelp;}
@@ -71,7 +71,7 @@ private:
 	void AddTitle(const string& Title);
 	static void HighlightsCorrection(string &strStr);
 	void FastShow();
-	void DrawWindowFrame();
+	void DrawWindowWindow();
 	void OutString(const wchar_t *Str);
 	int  StringLen(const string& Str);
 	void CorrectPosition();

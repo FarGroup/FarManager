@@ -196,7 +196,7 @@ BOOL WINAPI CtrlHandler(DWORD CtrlType)
 static int ConsoleScrollHook(Manager::Key key)
 {
 	// Удалить после появления макрофункции Scroll
-	if (Global->Opt->WindowMode && Global->FrameManager->IsPanelsActive())
+	if (Global->Opt->WindowMode && Global->WindowManager->IsPanelsActive())
 	{
 		switch (key.FarKey)
 		{
@@ -275,7 +275,7 @@ void RegisterConsoleScrollHook()
 	static bool registered = false;
 	if (!registered)
 	{
-		Global->FrameManager->AddGlobalKeyHandler(ConsoleScrollHook);
+		Global->WindowManager->AddGlobalKeyHandler(ConsoleScrollHook);
 		registered = true;
 	}
 }
@@ -570,11 +570,11 @@ void ShowTime(int ShowAlways)
 	string strClockText = str_printf(L"%02d:%02d",tm.wHour,tm.wMinute);
 	GotoXY(ScrX-4,0);
 
-	Frame *CurFrame = Global->FrameManager->GetCurrentFrame();
-	if (CurFrame)
+	window *CurrentWindow = Global->WindowManager->GetCurrentWindow();
+	if (CurrentWindow)
 	{
-		int ModType=CurFrame->GetType();
-		SetColor(ModType==MODALTYPE_VIEWER?COL_VIEWERCLOCK:(ModType==MODALTYPE_EDITOR?COL_EDITORCLOCK:COL_CLOCK));
+		int ModType=CurrentWindow->GetType();
+		SetColor(ModType==windowtype_viewer?COL_VIEWERCLOCK:(ModType==windowtype_editor?COL_EDITORCLOCK:COL_CLOCK));
 		Text(strClockText);
 	}
 

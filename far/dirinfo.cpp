@@ -39,7 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keys.hpp"
 #include "scantree.hpp"
 #include "savescr.hpp"
-#include "RefreshFrameManager.hpp"
+#include "refreshwindowmanager.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "ctrlobj.hpp"
 #include "filefilter.hpp"
@@ -126,7 +126,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, c
 	}
 
 	ConsoleTitle OldTitle;
-	RefreshFrameManager frref(ScrX,ScrY,MsgWaitTime,Flags&GETDIRINFO_DONTREDRAWFRAME);
+	RefreshWindowManager frref(ScrX,ScrY,MsgWaitTime,Flags&GETDIRINFO_NOREDRAW);
 	DWORD SectorsPerCluster=0,BytesPerSector=0,FreeClusters=0,Clusters=0;
 
 	if (GetDiskFreeSpace(strDriveRoot.data(),&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters))

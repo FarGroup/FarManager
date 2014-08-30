@@ -51,7 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "help.hpp"
 #include "lockscrn.hpp"
 #include "macroopcode.hpp"
-#include "RefreshFrameManager.hpp"
+#include "refreshwindowmanager.hpp"
 #include "scrbuf.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "TaskBar.hpp"
@@ -907,7 +907,7 @@ int TreeList::ReadTree()
 	//Redraw();
 	int FirstCall=TRUE, AscAbort=FALSE;
 	TreeStartTime = clock();
-	RefreshFrameManager frref(ScrX,ScrY,TreeStartTime,FALSE);//DontRedrawFrame);
+	RefreshWindowManager frref(ScrX,ScrY,TreeStartTime,FALSE);
 	ScTree.SetFindPath(m_Root, L"*", 0);
 	LastScrX = ScrX;
 	LastScrY = ScrY;
@@ -920,7 +920,7 @@ int TreeList::ReadTree()
 		if (CheckForEscSilent())
 		{
 			// BUGBUG, Dialog calls Commit, TreeList redraws and crashes.
-			Frame *f = Global->FrameManager->GetCurrentFrame();
+			window *f = Global->WindowManager->GetCurrentWindow();
 			if (f)
 				f->Lock();
 

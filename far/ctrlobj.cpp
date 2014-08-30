@@ -68,7 +68,7 @@ ControlObject::ControlObject():
 	MoveCursor(0, ScrY - 1);
 
 	Desktop = new desktop;
-	Global->FrameManager->InsertFrame(Desktop);
+	Global->WindowManager->InsertWindow(Desktop);
 	Desktop->FillFromBuffer();
 
 	HiFiles = new HighlightFiles;
@@ -106,11 +106,11 @@ void ControlObject::Init(int DirCount)
 
 	// LoadPlugins() before panel updates
 	//
-	Global->FrameManager->InsertFrame(FPanels); // before PluginCommit()
+	Global->WindowManager->InsertWindow(FPanels); // before PluginCommit()
 	{
 		string strOldTitle;
 		Console().GetTitle(strOldTitle);
-		Global->FrameManager->PluginCommit();
+		Global->WindowManager->PluginCommit();
 		Plugins->LoadPlugins();
 		Console().SetTitle(strOldTitle);
 	}
@@ -127,7 +127,7 @@ void ControlObject::Init(int DirCount)
 	Macro.LoadMacros(true);
 	Cp()->LeftPanel->SetCustomSortMode(Global->Opt->LeftPanel.SortMode, true);
 	Cp()->RightPanel->SetCustomSortMode(Global->Opt->RightPanel.SortMode, true);
-	Global->FrameManager->SwitchToPanels();  // otherwise panels are empty
+	Global->WindowManager->SwitchToPanels();  // otherwise panels are empty
 	/*
 		FarChDir(StartCurDir);
 	*/
@@ -159,7 +159,7 @@ ControlObject::~ControlObject()
 		}
 	}
 
-	Global->FrameManager->CloseAll();
+	Global->WindowManager->CloseAll();
 	FPanels=nullptr;
 	FileFilter::CloseFilter();
 	History::CompactHistory();
@@ -179,7 +179,7 @@ void ControlObject::ShowCopyright(DWORD Flags)
 	if (Flags&1)
 	{
 		string strOut(Global->Version());
-		strOut.append(L"\n").append(Global->Copyright()).append(L"\n");
+		strOut.append(EOL_STR).append(Global->Copyright()).append(EOL_STR);
 		Console().Write(strOut);
 		Console().Commit();
 	}

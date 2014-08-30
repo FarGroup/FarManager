@@ -540,5 +540,6 @@ namespace \
 #define SIGN_UNICODE    0xFEFF
 #define SIGN_REVERSEBOM 0xFFFE
 #define SIGN_UTF8       0xBFBBEF
+#define EOL_STR L"\r\n"
 
 typedef std::wstring string;

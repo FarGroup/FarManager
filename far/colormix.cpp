@@ -143,7 +143,7 @@ WORD Colors::FarColorToConsoleColor(const FarColor& Color)
 		Result = (IndexColors[0] << ConsoleBgShift) | (IndexColors[1] << ConsoleFgShift);
 	}
 
-	return (WORD)(Result | ((WORD)(Color.Flags) & ConsoleExtraMask));
+	return (WORD)(Result | ((WORD)(Color.Flags & ConsoleExtraMask)));
 }
 
 FarColor Colors::ConsoleColorToFarColor(WORD Color)

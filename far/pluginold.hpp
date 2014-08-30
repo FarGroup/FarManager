@@ -991,7 +991,7 @@ namespace oldfar
 	{
 		WTYPE_VIRTUAL,
 		// ПРОСЬБА НЕ ЗАБЫВАТЬ СИНХРОНИЗИРОВАТЬ ИЗМЕНЕНИЯ
-		// WTYPE_* и MODALTYPE_* (frame.hpp)!!!
+		// WTYPE_* и MODALTYPE_* (window.hpp)!!!
 		// (и не надо убирать этот комментарий, пока ситуация не изменится ;)
 		WTYPE_PANELS=1,
 		WTYPE_VIEWER,

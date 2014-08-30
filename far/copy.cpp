@@ -683,21 +683,21 @@ BOOL CheckAndUpdateConsole(BOOL IsChangeConsole)
 	{
 		ZoomedState=curZoomedState;
 		ChangeVideoMode(ZoomedState);
-		Frame *frame = Global->FrameManager->GetBottomFrame();
+		auto Window = Global->WindowManager->GetBottomWindow();
 		int LockCount=-1;
 
-		while (frame->Locked())
+		while (Window->Locked())
 		{
 			LockCount++;
-			frame->Unlock();
+			Window->Unlock();
 		}
 
-		Global->FrameManager->ResizeAllFrame();
-		Global->FrameManager->PluginCommit();
+		Global->WindowManager->ResizeAllWindows();
+		Global->WindowManager->PluginCommit();
 
 		while (LockCount > 0)
 		{
-			frame->Lock();
+			Window->Lock();
 			LockCount--;
 		}
 
@@ -3604,8 +3604,8 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 
 				FileViewer Viewer(ViewName, FALSE, FALSE, TRUE, -1, nullptr, &List, false);
 				Viewer.SetDynamicallyBorn(false);
-				Global->FrameManager->ExecuteModalEV(&Viewer);
-				Global->FrameManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
+				Global->WindowManager->ExecuteModalEV(&Viewer);
+				Global->WindowManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
 			}
 		}
 		break;

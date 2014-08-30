@@ -2927,7 +2927,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		HMenu HOptMenu(MainMenu,ARRAYSIZE(MainMenu));
 		HOptMenu.SetHelp(L"Menus");
 		HOptMenu.SetPosition(0,0,ScrX,0);
-		Global->FrameManager->ExecuteFrame(&HOptMenu);
+		Global->WindowManager->ExecuteWindow(&HOptMenu);
 
 		if (LastCommand)
 		{
@@ -2947,7 +2947,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 			MainMenu[HItemToShow].Selected = 1;
 			VMenuTable[HItemToShow][0].SetSelect(0);
 			VMenuTable[HItemToShow][LastVItem].SetSelect(1);
-			Global->FrameManager->CallbackFrame([&HOptMenu](){HOptMenu.ProcessKey(Manager::Key(KEY_DOWN));});
+			Global->WindowManager->CallbackWindow([&HOptMenu](){HOptMenu.ProcessKey(Manager::Key(KEY_DOWN));});
 		}
 		else
 		{
@@ -2961,10 +2961,10 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 
 		if (MouseEvent)
 		{
-			Global->FrameManager->CallbackFrame([&HOptMenu,MouseEvent](){HOptMenu.ProcessMouse(MouseEvent);});
+			Global->WindowManager->CallbackWindow([&HOptMenu,MouseEvent](){HOptMenu.ProcessMouse(MouseEvent);});
 		}
 
-		Global->FrameManager->ExecuteModal(&HOptMenu);
+		Global->WindowManager->ExecuteModal(&HOptMenu);
 		HOptMenu.GetExitCode(HItem,VItem);
 	}
 
@@ -3002,7 +3002,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 					pPanel->ProcessKey(Manager::Key(KEY_CTRLN));
 					break;
 				case MENU_LEFT_TOGGLEPANEL: // Panel On/Off
-					Global->FrameManager->ProcessKey(Manager::Key((HItem==MENU_LEFT)?KEY_CTRLF1:KEY_CTRLF2));
+					Global->WindowManager->ProcessKey(Manager::Key((HItem==MENU_LEFT)?KEY_CTRLF1:KEY_CTRLF2));
 					break;
 				case MENU_LEFT_REREAD: // Re-read
 					pPanel->ProcessKey(Manager::Key(KEY_CTRLR));
@@ -3020,28 +3020,28 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 			switch (VItem)
 			{
 			case MENU_FILES_VIEW:  // View
-				Global->FrameManager->ProcessKey(Manager::Key(KEY_F3));
+				Global->WindowManager->ProcessKey(Manager::Key(KEY_F3));
 				break;
 			case MENU_FILES_EDIT:  // Edit
-				Global->FrameManager->ProcessKey(Manager::Key(KEY_F4));
+				Global->WindowManager->ProcessKey(Manager::Key(KEY_F4));
 				break;
 			case MENU_FILES_COPY:  // Copy
-				Global->FrameManager->ProcessKey(Manager::Key(KEY_F5));
+				Global->WindowManager->ProcessKey(Manager::Key(KEY_F5));
 				break;
 			case MENU_FILES_MOVE:  // Rename or move
-				Global->FrameManager->ProcessKey(Manager::Key(KEY_F6));
+				Global->WindowManager->ProcessKey(Manager::Key(KEY_F6));
 				break;
 			case MENU_FILES_LINK:  // Create link
-				Global->FrameManager->ProcessKey(Manager::Key(KEY_ALTF6));
+				Global->WindowManager->ProcessKey(Manager::Key(KEY_ALTF6));
 				break;
 			case MENU_FILES_CREATEFOLDER:  // Make folder
-				Global->FrameManager->ProcessKey(Manager::Key(KEY_F7));
+				Global->WindowManager->ProcessKey(Manager::Key(KEY_F7));
 				break;
 			case MENU_FILES_DELETE:  // Delete
-				Global->FrameManager->ProcessKey(Manager::Key(KEY_F8));
+				Global->WindowManager->ProcessKey(Manager::Key(KEY_F8));
 				break;
 			case MENU_FILES_WIPE:  // Wipe
-				Global->FrameManager->ProcessKey(Manager::Key(KEY_ALTDEL));
+				Global->WindowManager->ProcessKey(Manager::Key(KEY_ALTDEL));
 				break;
 			case MENU_FILES_ADD:  // Add to archive
 				Global->CtrlObject->Cp()->ActivePanel()->ProcessKey(Manager::Key(KEY_SHIFTF1));
@@ -3082,28 +3082,28 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 			switch (VItem)
 			{
 			case MENU_COMMANDS_FINDFILE: // Find file
-				Global->FrameManager->ProcessKey(Manager::Key(KEY_ALTF7));
+				Global->WindowManager->ProcessKey(Manager::Key(KEY_ALTF7));
 				break;
 			case MENU_COMMANDS_HISTORY: // History
-				Global->FrameManager->ProcessKey(Manager::Key(KEY_ALTF8));
+				Global->WindowManager->ProcessKey(Manager::Key(KEY_ALTF8));
 				break;
 			case MENU_COMMANDS_VIDEOMODE: // Video mode
-				Global->FrameManager->ProcessKey(Manager::Key(KEY_ALTF9));
+				Global->WindowManager->ProcessKey(Manager::Key(KEY_ALTF9));
 				break;
 			case MENU_COMMANDS_FINDFOLDER: // Find folder
-				Global->FrameManager->ProcessKey(Manager::Key(KEY_ALTF10));
+				Global->WindowManager->ProcessKey(Manager::Key(KEY_ALTF10));
 				break;
 			case MENU_COMMANDS_VIEWHISTORY: // File view history
-				Global->FrameManager->ProcessKey(Manager::Key(KEY_ALTF11));
+				Global->WindowManager->ProcessKey(Manager::Key(KEY_ALTF11));
 				break;
 			case MENU_COMMANDS_FOLDERHISTORY: // Folders history
-				Global->FrameManager->ProcessKey(Manager::Key(KEY_ALTF12));
+				Global->WindowManager->ProcessKey(Manager::Key(KEY_ALTF12));
 				break;
 			case MENU_COMMANDS_SWAPPANELS: // Swap panels
-				Global->FrameManager->ProcessKey(Manager::Key(KEY_CTRLU));
+				Global->WindowManager->ProcessKey(Manager::Key(KEY_CTRLU));
 				break;
 			case MENU_COMMANDS_TOGGLEPANELS: // Panels On/Off
-				Global->FrameManager->ProcessKey(Manager::Key(KEY_CTRLO));
+				Global->WindowManager->ProcessKey(Manager::Key(KEY_CTRLO));
 				break;
 			case MENU_COMMANDS_COMPAREFOLDERS: // Compare folders
 				Global->CtrlObject->Cp()->ActivePanel()->CompareDir();
@@ -3123,10 +3123,10 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 				Global->CtrlObject->Cp()->ActivePanel()->EditFilter();
 				break;
 			case MENU_COMMANDS_PLUGINCOMMANDS: // Plugin commands
-				Global->FrameManager->ProcessKey(Manager::Key(KEY_F11));
+				Global->WindowManager->ProcessKey(Manager::Key(KEY_F11));
 				break;
 			case MENU_COMMANDS_WINDOWSLIST: // Screens list
-				Global->FrameManager->ProcessKey(Manager::Key(KEY_F12));
+				Global->WindowManager->ProcessKey(Manager::Key(KEY_F12));
 				break;
 			case MENU_COMMANDS_PROCESSLIST: // Task list
 				ShowProcessList();
@@ -3175,7 +3175,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 						api::env::set_variable(L"FARLANG", strLanguage);
 						PrepareStrFTime();
 						PrepareUnitStr();
-						Global->FrameManager->InitKeyBar();
+						Global->WindowManager->InitKeyBar();
 						Global->CtrlObject->Cp()->RedrawKeyBar();
 						Global->CtrlObject->Cp()->SetScreenPosition();
 					}
@@ -3245,11 +3245,11 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		}
 	}
 
-	int _CurrentFrame = Global->FrameManager->GetCurrentFrame()->GetType();
-	// TODO:Здесь как то нужно изменить, чтобы учесть будущие новые типы полноэкранных фреймов
+	int CurrentWindowType = Global->WindowManager->GetCurrentWindow()->GetType();
+	// TODO:Здесь как то нужно изменить, чтобы учесть будущие новые типы полноэкранных окон
 	//      или то, что, скажем редактор/вьювер может быть не полноэкранным
 
-	if (!(_CurrentFrame == MODALTYPE_VIEWER || _CurrentFrame == MODALTYPE_EDITOR))
+	if (!(CurrentWindowType == windowtype_viewer || CurrentWindowType == windowtype_editor))
 		Global->CtrlObject->CmdLine->Show();
 
 	if (HItem != -1 && VItem != -1)

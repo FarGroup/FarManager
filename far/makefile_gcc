@@ -64,7 +64,6 @@ SRCS = \
 	fnparce.cpp \
 	foldtree.cpp \
 	format.cpp \
-	frame.cpp \
 	global.cpp \
 	grabber.cpp \
 	headers.cpp \
@@ -113,7 +112,7 @@ SRCS = \
 	privilege.cpp \
 	processname.cpp \
 	qview.cpp \
-	RefreshFrameManager.cpp \
+	refreshwindowmanager.cpp \
 	RegExp.cpp \
 	savescr.cpp \
 	scantree.cpp \
@@ -136,6 +135,7 @@ SRCS = \
 	vmenu.cpp \
 	vmenu2.cpp \
 	window.cpp \
+	wm_listener.cpp \
 	xlat.cpp \
 
 ifeq ($(DIRBIT),32)

@@ -32,15 +32,15 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "frame.hpp"
+#include "window.hpp"
 
-class desktop: public Frame
+class desktop: public window
 {
 public:
 	desktop();
 	virtual ~desktop();
 
-	virtual int GetType() const override { return MODALTYPE_DESKTOP; }
+	virtual int GetType() const override { return windowtype_desktop; }
 	virtual int GetTypeAndName(string& Type, string& Name) override { Type = GetTitle();  return GetType(); }
 	virtual void ResizeConsole() override;
 	virtual int ProcessKey(const Manager::Key& Key) override;

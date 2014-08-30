@@ -33,7 +33,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "frame.hpp"
+#include "window.hpp"
 #include "editor.hpp"
 #include "keybar.hpp"
 #include "plugin.hpp"
@@ -69,11 +69,11 @@ enum FFILEEDIT_FLAGS
 };
 
 
-class FileEditor: public Frame
+class FileEditor: public window
 {
 public:
 	FileEditor(const string&  Name, uintptr_t codepage, DWORD InitFlags, int StartLine = -1, int StartChar = -1, const string* PluginData = nullptr, EDITOR_FLAGS OpenModeExstFile = EF_OPENMODE_QUERY);
-	FileEditor(const string&  Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose = 0, Frame* Update = nullptr, EDITOR_FLAGS OpenModeExstFile = EF_OPENMODE_QUERY);
+	FileEditor(const string&  Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose = 0, window* Update = nullptr, EDITOR_FLAGS OpenModeExstFile = EF_OPENMODE_QUERY);
 	virtual ~FileEditor();
 
 	virtual BOOL IsFileModified() const override { return m_editor->IsFileModified(); }
@@ -109,7 +109,7 @@ private:
 	virtual void OnChangeFocus(int focus) override;
 	virtual void SetScreenPosition() override;
 	virtual const wchar_t *GetTypeName() override { return L"[FileEdit]"; }
-	virtual int GetType() const override { return MODALTYPE_EDITOR; }
+	virtual int GetType() const override { return windowtype_editor; }
 	virtual void OnDestroy() override;
 	virtual int GetCanLoseFocus(int DynamicMode = FALSE) const override;
 	virtual bool CanFastHide() const override; // для нужд CtrlAltShift
@@ -124,7 +124,7 @@ private:
 	void SetDeleteOnClose(int NewMode);
 	int ReProcessKey(int Key, int CalledFromControl = TRUE);
 	bool AskOverwrite(const string& FileName);
-	void Init(const string& Name, uintptr_t codepage, const string* Title, DWORD InitFlags, int StartLine, int StartChar, const string* PluginData, int DeleteOnClose, Frame* Update, EDITOR_FLAGS OpenModeExstFile);
+	void Init(const string& Name, uintptr_t codepage, const string* Title, DWORD InitFlags, int StartLine, int StartChar, const string* PluginData, int DeleteOnClose, window* Update, EDITOR_FLAGS OpenModeExstFile);
 	// возвращает признак того, является ли файл временным
 	// используется для принятия решения переходить в каталог по CtrlF10
 	bool isTemporary() const;
@@ -142,7 +142,7 @@ private:
 	bool LoadFromCache(EditorPosCache &pc);
 	void SaveToCache();
 	void ReadEvent(void);
-	int  ProcessQuitKey(int FirstSave, BOOL NeedQuestion = TRUE, bool DeleteFrame = true);
+	int  ProcessQuitKey(int FirstSave, BOOL NeedQuestion = TRUE, bool DeleteWindow = true);
 	bool UpdateFileList();
 
 	static uintptr_t GetDefaultCodePage();

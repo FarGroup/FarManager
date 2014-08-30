@@ -233,8 +233,8 @@ Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
 		InitKeyBar();
 		SetMacroMode(MACROAREA_HELP);
 		MoveToReference(1,1);
-		Global->FrameManager->ExecuteFrame(this); //OT
-		Global->FrameManager->ExecuteModal(this); //OT
+		Global->WindowManager->ExecuteWindow(this); //OT
+		Global->WindowManager->ExecuteModal(this); //OT
 	}
 	else
 	{
@@ -832,7 +832,7 @@ void Help::FastShow()
 		return;
 
 	if (!Locked())
-		DrawWindowFrame();
+		DrawWindowWindow();
 
 	CorrectPosition();
 	StackData->strSelTopic.clear();
@@ -894,7 +894,7 @@ void Help::FastShow()
 	}
 }
 
-void Help::DrawWindowFrame()
+void Help::DrawWindowWindow()
 {
 	SetScreen(m_X1,m_Y1,m_X2,m_Y2,L' ',ColorIndexToColor(COL_HELPTEXT));
 	Box(m_X1,m_Y1,m_X2,m_Y2,ColorIndexToColor(COL_HELPBOX),DOUBLE_BOX);
@@ -1215,7 +1215,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 		case KEY_F10:
 		{
 			Hide();
-			Global->FrameManager->DeleteFrame(this);
+			Global->WindowManager->DeleteWindow(this);
 			SetExitCode(XC_QUIT);
 			return TRUE;
 		}
@@ -1642,7 +1642,7 @@ int Help::JumpTopic()
 	   )
 		MoveToReference(1,1);
 
-	Global->FrameManager->RefreshFrame();
+	Global->WindowManager->RefreshWindow();
 	return TRUE;
 }
 
@@ -2268,5 +2268,5 @@ int Help::GetTypeAndName(string &strType, string &strName)
 {
 	strType = MSG(MHelpType);
 	strName = strFullHelpPathName;
-	return MODALTYPE_HELP;
+	return windowtype_help;
 }

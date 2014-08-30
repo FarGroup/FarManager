@@ -691,11 +691,11 @@ void FileList::SetFocus()
 
 	/* $ 07.04.2002 KM
 	  ! Рисуем заголовок консоли фара только тогда, когда
-	    не идёт процесс перерисовки всех фреймов. В данном
+	    не идёт процесс перерисовки всех окон. В данном
 	    случае над панелями висит диалог и незачем выводить
 	    панельный заголовок.
 	*/
-	if (!Global->IsRedrawFramesInProcess)
+	if (!Global->IsRedrawWindowInProcess)
 		SetTitle();
 }
 
@@ -1416,8 +1416,8 @@ int FileList::ProcessKey(const Manager::Key& Key)
 				if (!m_ListData.empty() && ApplyCommand())
 				{
 					// позиционируемся в панели
-					if (!Global->FrameManager->IsPanelsActive())
-						Global->FrameManager->SwitchToPanels();
+					if (!Global->WindowManager->IsPanelsActive())
+						Global->WindowManager->SwitchToPanels();
 
 					Update(UPDATE_KEEP_SELECTION);
 					Redraw();
@@ -1769,10 +1769,10 @@ int FileList::ProcessKey(const Manager::Key& Key)
 								ProcessExternal(Global->Opt->strExternalEditor,strFileName,strShortFileName,PluginMode);
 							else if (PluginMode)
 							{
-								RefreshedPanel = Global->FrameManager->GetCurrentFrame()->GetType() != MODALTYPE_EDITOR;
+								RefreshedPanel = Global->WindowManager->GetCurrentWindow()->GetType() != windowtype_editor;
 								FileEditor ShellEditor(strFileName,codepage,(LocalKey==KEY_SHIFTF4?FFILEEDIT_CANNEWFILE:0)|FFILEEDIT_DISABLEHISTORY,-1,-1,&strPluginData);
 								ShellEditor.SetDynamicallyBorn(false);
-								Global->FrameManager->ExecuteModalEV(&ShellEditor);//OT
+								Global->WindowManager->ExecuteModalEV(&ShellEditor);//OT
 								/* $ 24.11.2001 IS
 								     Если мы создали новый файл, то не важно, изменялся он
 								     или нет, все равно добавим его на панель плагина.
@@ -1804,7 +1804,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 											ShellEditor->SetNamesList(EditList);
 										}
 
-										Global->FrameManager->ExecuteModal(ShellEditor);
+										Global->WindowManager->ExecuteModal(ShellEditor);
 									}
 							}
 						}
@@ -2861,7 +2861,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 	if (!FarChDir(strSetDir))
 	{
 		Global->CatchError();
-		if (Global->FrameManager->ManagerStarted())
+		if (Global->WindowManager->ManagerStarted())
 		{
 			/* $ 03.11.2001 IS Укажем имя неудачного каталога */
 			Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), (dot2Present?L"..":strSetDir.data()), MSG(MOk));
@@ -3240,7 +3240,7 @@ void FileList::SetViewMode(int Mode)
 		else
 		{
 			m_ViewMode=Mode;
-			Global->FrameManager->RefreshFrame();
+			Global->WindowManager->RefreshWindow();
 		}
 	}
 
@@ -3271,7 +3271,7 @@ void FileList::ApplySortMode(int Mode)
 		SortFileList(TRUE);
 
 	ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
-	Global->FrameManager->RefreshFrame();
+	Global->WindowManager->RefreshWindow();
 }
 
 void FileList::SetSortMode(int Mode, bool KeepOrder)
@@ -4964,7 +4964,7 @@ void FileList::CountDirSize(UINT64 PluginFlags)
 			        GetPluginDirInfo(m_hPlugin, i.strName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize))
 			        ||
 			        ((m_PanelMode!=PLUGIN_PANEL || (PluginFlags & OPIF_REALNAMES)) &&
-			         GetDirInfo(MSG(MDirInfoViewTitle), i.strName, Data, 0, m_Filter.get(), GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_SCANSYMLINKDEF)==1))
+			         GetDirInfo(MSG(MDirInfoViewTitle), i.strName, Data, 0, m_Filter.get(), GETDIRINFO_NOREDRAW|GETDIRINFO_SCANSYMLINKDEF)==1))
 			{
 				SelFileSize -= i.FileSize;
 				SelFileSize += Data.FileSize;
@@ -4986,7 +4986,7 @@ void FileList::CountDirSize(UINT64 PluginFlags)
 		        ((m_PanelMode!=PLUGIN_PANEL || (PluginFlags & OPIF_REALNAMES)) &&
 		         GetDirInfo(MSG(MDirInfoViewTitle),
 		                    TestParentFolderName(m_ListData[m_CurFile].strName) ? L".":m_ListData[m_CurFile].strName,
-		                    Data, 0, m_Filter.get(), GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_SCANSYMLINKDEF)==1))
+		                    Data, 0, m_Filter.get(), GETDIRINFO_NOREDRAW|GETDIRINFO_SCANSYMLINKDEF)==1))
 		{
 			m_ListData[m_CurFile].FileSize = Data.FileSize;
 			m_ListData[m_CurFile].AllocationSize = Data.AllocationSize;
@@ -6896,9 +6896,9 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 			GoToFile(strNextCurName);
 
 	/* $ 13.02.2002 DJ
-		SetTitle() - только если мы текущий фрейм!
+		SetTitle() - только если мы текущее окно!
 	*/
-	if (Global->CtrlObject->Cp() == Global->FrameManager->GetCurrentFrame())
+	if (Global->CtrlObject->Cp() == Global->WindowManager->GetCurrentWindow())
 		SetTitle();
 
 	FarChDir(strSaveDir); //???
