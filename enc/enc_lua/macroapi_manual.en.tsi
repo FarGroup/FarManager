@@ -1529,6 +1529,46 @@ mtime=3607110549
 </article>
 </node>
 <node>
+id=94
+lv=1
+dt=Text
+nm=Loading macrofiles
+ctime=3618592117
+mtime=3618593410
+<article>
+#_<markdown>
+#_
+#_* [Regular macros](75.html) and [event handlers](78.html) are loaded from Lua-files (extension `*.lua`) and/or MoonScript files (extension `*.moon`). Further we will call these files *macrofiles*. The macros are loaded when macrofiles are executed by [LuaMacro][LuaMacro] plugin.
+#_
+#_* Macrofiles are loaded from sequence of directories (recursively with their subdirectories),
+#_  determined by one of the following ways (in order of priorities):
+#_  1. A sequence of directories, specified explicitly (in a command or a function argument)
+#_  1. The value of `MacroPath` variable in the file [`luamacro.ini`](93.html)
+#_  1. The directory `%FARPROFILE%\Macros\scripts`<br><br>
+#_
+#_* Far Manager itself **never** makes any changes to the above mentioned directories. The files are added, removed, renamed and edited solely by the user.
+#_
+#_* One macrofile can contain arbitrary number of macros and event handlers.
+#_
+#_* When a macrofile is executed it receives one argument - the full pathname of this macrofile.
+#_    If we define a variable at top of the macrofile, e.g.<br>
+#_    `local MacroFileName = ...`<br>
+#_    then this variable will be available to all the macros and event handlers defined in that file.
+#_
+#_* If macrofiles are loaded from a sequence of trees `root1;root2;...`,
+#_  that means that:
+#_  - The tree `root2` loads only after loading `root1`
+#_  - For each tree `rootN` the first macrofile run is `rootN\_macroinit.lua`
+#_    if such a file exists. For the rest of macrofiles in the given tree order
+#_    of execution is not defined.<br><br>
+#_
+#_[LuaMacro]: 7.html
+#_
+#_@@@
+#_
+</article>
+</node>
+<node>
 id=67
 lv=1
 dt=Text
@@ -1547,26 +1587,11 @@ lv=2
 dt=Text
 nm=Regular macros
 ctime=3580139016
-mtime=3610997580
+mtime=3618592714
 <article>
 #_<markdown>
 #_
-#_* Regular macros and [event handlers][events] are loaded from Lua-files (extension `*.lua`) and/or MoonScript files (extension `*.moon`), residing in the directory `%FARPROFILE%\Macros\scripts` and its subdirectories. (Further we will call these files *macrofiles*). The macros are loaded when macrofiles are executed by [LuaMacro][LuaMacro] plugin.
-#_
-#_* Far Manager itself **never** makes any changes to the above mentioned directories. The files are added, removed, renamed and edited solely by the user.
-#_
-#_* One macrofile can contain arbitrary number of macros and event handlers.
-#_
-#_* When a macrofile is executed it receives one argument - the full pathname of this macrofile.
-#_    If we define a variable at top of the macrofile, e.g.<br>
-#_    `local MacroFileName = ...`<br>
-#_    then this variable will be available to all the macros and event handlers defined in that file.
-#_
-#_* The process of loading macros begins with executing the file<br>
-#_  `%FARPROFILE%\Macros\scripts\_macroinit.lua`,<br>
-#_  if this file exists. The order of execution for other macrofiles is not defined.
-#_
-#_* A macro is loaded by the global function `Macro` that receives one argument - a table containing parameters of the macro. On successful completion the function returns a number-identifier of the loaded macro.
+#_A macro is loaded by the global function `Macro` that receives one argument - a table containing parameters of the macro. On successful completion the function returns a number-identifier of the loaded macro.
 #_
 #_```
 #_  Macro {
@@ -1617,9 +1642,6 @@ mtime=3610997580
 #_
 #_1. More than one macro for (`key`,`area`) combination is allowed. In this case a macro with highest priority is executed. If there are multiple macros having the same priority then the macro selection menu is displayed.<br>
 #_   The auto-starting macros are executed all, one by one, independently from priorities. The order of their execution is not defined.
-#_
-#_[LuaMacro]: 7.html
-#_[events]: 78.html
 #_
 #_@@@
 #_{far.height}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.Height
@@ -1801,12 +1823,12 @@ lv=2
 dt=Text
 nm=Command line operations
 ctime=3617997112
-mtime=3618256380
+mtime=3618583193
 <article>
 #_<markdown>
 #_* `macro: load [path]`<br>
-#_  (Re)load macros and event handlers. An optional parameter `path` has the same
-#_   meaning as `Param2` in `MCTL_LOADALL`.
+#_  (Re)load macrofiles. An optional parameter `path` has the same meaning as the field
+#_  `Path` in struct `FarMacroLoad`.
 #_* `macro: save`<br>
 #_   Save the created or modified [keyboard][1] macros.
 #_* `macro: unload`<br>
@@ -1836,6 +1858,7 @@ mtime=3618256380
 #_@@@
 #_{mctl_addmacro}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_ADDMACRO
 #_{mctl_loadall}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_LOADALL
+#_{farmacroload}: http://api.farmanager.com/ru/structures/farmacroload.html
 #_
 </article>
 </node>
