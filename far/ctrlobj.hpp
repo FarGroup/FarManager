@@ -64,7 +64,6 @@ public:
 	History* CmdHistory;
 	History* FolderHistory;
 	History* ViewHistory;
-	KeyBar *MainKeyBar;
 	MenuBar *TopMenuBar;
 	HighlightFiles *HiFiles;
 	KeyMacro Macro;

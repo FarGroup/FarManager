@@ -216,11 +216,12 @@ private:
 };
 
 struct PluginHandle;
+class FilePanels;
 
 class Panel:public ScreenObject, public DelayedDestroy
 {
 public:
-	Panel();
+	Panel(FilePanels* Parent);
 
 	// TODO: make empty methods pure virtual, move empty implementations to dummy_panel class
 	virtual void CloseFile() {}
@@ -374,6 +375,7 @@ private:
 	static void DragMessage(int X,int Y,int Move);
 
 protected:
+	FilePanels* m_parent;
 	PanelViewSettings m_ViewSettings;
 	string m_CurDir;
 	bool m_Focus;
@@ -401,6 +403,9 @@ private:
 
 class dummy_panel : public Panel
 {
+public:
+	dummy_panel(FilePanels* Parent): Panel(Parent){}
+private:
 	virtual void Update(int Mode) override {};
 	virtual void UpdateKeyBar() override {}
 };

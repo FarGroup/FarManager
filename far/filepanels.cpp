@@ -55,6 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "config.hpp"
 #include "desktop.hpp"
+#include "keybar.hpp"
 
 FilePanels::FilePanels(bool CreatePanels):
 	LastLeftFilePanel(nullptr),
@@ -67,11 +68,10 @@ FilePanels::FilePanels(bool CreatePanels):
 	RightStateBeforeHide(0),
 	m_ActivePanel()
 {
+	m_windowKeyBar = std::make_unique<KeyBar>();
 	_OT(SysLog(L"[%p] FilePanels::FilePanels()", this));
 	SetMacroMode(MACROAREA_SHELL);
 	m_KeyBarVisible = Global->Opt->ShowKeyBar;
-//  SetKeyBar(&MainKeyBar);
-//  _D(SysLog(L"MainKeyBar=0x%p",&MainKeyBar));
 }
 
 static void PrepareOptFolder(string &strSrc, int IsLocalPath_FarPath)
@@ -233,8 +233,7 @@ void FilePanels::Init(int DirCount)
 		Global->CtrlObject->CmdLine->SetCurDir(PassiveIsLeftFlag?Global->Opt->RightPanel.Folder:Global->Opt->LeftPanel.Folder);
 	}
 
-	SetKeyBar(&MainKeyBar);
-	MainKeyBar.SetOwner(this);
+	m_windowKeyBar->SetOwner(this);
 }
 
 FilePanels::~FilePanels()
@@ -289,8 +288,8 @@ void FilePanels::SetScreenPosition()
 {
 	_OT(SysLog(L"[%p] FilePanels::SetScreenPosition() {%d, %d - %d, %d}", this,m_X1,m_Y1,m_X2,m_Y2));
 	Global->CtrlObject->CmdLine->SetPosition(0,ScrY-(Global->Opt->ShowKeyBar),ScrX-1,ScrY-(Global->Opt->ShowKeyBar));
-	TopMenuBar.SetPosition(0,0,ScrX,0);
-	MainKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
+	m_windowKeyBar->SetPosition(0, 0, ScrX, 0);
+	m_windowKeyBar->SetPosition(0, ScrY, ScrX, ScrY);
 	SetPanelPositions(LeftPanel->IsFullScreen(),RightPanel->IsFullScreen());
 	SetPosition(0,0,ScrX,ScrY);
 }
@@ -298,7 +297,7 @@ void FilePanels::SetScreenPosition()
 void FilePanels::RedrawKeyBar()
 {
 	m_ActivePanel->UpdateKeyBar();
-	MainKeyBar.Redraw();
+	m_windowKeyBar->Redraw();
 }
 
 
@@ -309,16 +308,16 @@ Panel* FilePanels::CreatePanel(int Type)
 	switch (Type)
 	{
 		case FILE_PANEL:
-			pResult = new FileList;
+			pResult = new FileList(this);
 			break;
 		case TREE_PANEL:
-			pResult = new TreeList;
+			pResult = new TreeList(this);
 			break;
 		case QVIEW_PANEL:
-			pResult = new QuickView;
+			pResult = new QuickView(this);
 			break;
 		case INFO_PANEL:
-			pResult = new InfoList;
+			pResult = new InfoList(this);
 			break;
 	}
 
@@ -419,14 +418,14 @@ __int64 FilePanels::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				break;
 			case 1:
 				Global->Opt->ShowKeyBar=1;
-				MainKeyBar.Show();
+				m_windowKeyBar->Show();
 				m_KeyBarVisible = Global->Opt->ShowKeyBar;
 				SetScreenPosition();
 				Global->WindowManager->RefreshWindow();
 				break;
 			case 2:
 				Global->Opt->ShowKeyBar=0;
-				MainKeyBar.Hide();
+				m_windowKeyBar->Hide();
 				m_KeyBarVisible = Global->Opt->ShowKeyBar;
 				SetScreenPosition();
 				Global->WindowManager->RefreshWindow();
@@ -524,7 +523,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 			m_KeyBarVisible = Global->Opt->ShowKeyBar;
 
 			if (!m_KeyBarVisible)
-				MainKeyBar.Hide();
+				m_windowKeyBar->Hide();
 
 			SetScreenPosition();
 			Global->WindowManager->RefreshWindow();
@@ -1094,9 +1093,9 @@ void FilePanels::DisplayObject()
 	Global->CtrlObject->CmdLine->Show();
 
 	if (Global->Opt->ShowKeyBar)
-		MainKeyBar.Show();
-	else if (MainKeyBar.IsVisible())
-		MainKeyBar.Hide();
+		m_windowKeyBar->Show();
+	else if (m_windowKeyBar->IsVisible())
+		m_windowKeyBar->Hide();
 
 	m_KeyBarVisible=Global->Opt->ShowKeyBar;
 #if 1
@@ -1157,7 +1156,7 @@ int  FilePanels::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if (!m_ActivePanel->ProcessMouse(MouseEvent))
 		if (!PassivePanel()->ProcessMouse(MouseEvent))
-			if (!MainKeyBar.ProcessMouse(MouseEvent))
+			if (!m_windowKeyBar->ProcessMouse(MouseEvent))
 				Global->CtrlObject->CmdLine->ProcessMouse(MouseEvent);
 
 	return TRUE;
@@ -1173,7 +1172,7 @@ void FilePanels::ResizeConsole()
 {
 	window::ResizeConsole();
 	Global->CtrlObject->CmdLine->ResizeConsole();
-	MainKeyBar.ResizeConsole();
+	m_windowKeyBar->ResizeConsole();
 	TopMenuBar.ResizeConsole();
 	SetScreenPosition();
 	_OT(SysLog(L"[%p] FilePanels::ResizeConsole() {%d, %d - %d, %d}", this,m_X1,m_Y1,m_X2,m_Y2));

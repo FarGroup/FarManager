@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "window.hpp"
 #include "viewer.hpp"
-#include "keybar.hpp"
 
 class FileViewer:public window
 {
@@ -92,7 +91,6 @@ private:
 
 	Viewer m_View;
 	int RedrawTitle;
-	KeyBar ViewKeyBar;
 	bool F3KeyOnly;
 	bool FullScreen;
 	int DisableEdit;

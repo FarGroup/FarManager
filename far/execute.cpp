@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "colormix.hpp"
 #include "desktop.hpp"
+#include "keybar.hpp"
 
 struct IMAGE_HEADERS
 {
@@ -1119,7 +1120,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 			Global->CtrlObject->Cp()->Redraw();
 			if (Global->Opt->ShowKeyBar)
 			{
-				Global->CtrlObject->MainKeyBar->Show();
+				Global->CtrlObject->Cp()->GetKeybar().Show();
 			}
 			if (Global->Opt->Clock)
 				ShowTime(1);

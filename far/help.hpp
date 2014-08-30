@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "window.hpp"
-#include "keybar.hpp"
 #include "macro.hpp"
 #include "strmix.hpp"
 
@@ -84,7 +83,6 @@ private:
 	int JumpTopic();
 
 	std::unique_ptr<StackHelpData> StackData;
-	KeyBar      HelpKeyBar;     // кейбар
 	std::stack<StackHelpData, std::vector<StackHelpData>> Stack; // стек возврата
 	std::vector<HelpRecord> HelpList; // "хелп" в памяти.
 	string  strFullHelpPathName;

@@ -89,6 +89,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "TaskBar.hpp"
 #include "fileowner.hpp"
 #include "colormix.hpp"
+#include "keybar.hpp"
 
 static int ListSortGroups,ListSelectedFirst,ListDirectoriesFirst;
 static int ListSortMode;
@@ -206,7 +207,8 @@ FileListItem::~FileListItem()
 }
 
 
-FileList::FileList():
+FileList::FileList(FilePanels* Parent):
+	Panel(Parent),
 	m_Filter(nullptr),
 	DizRead(FALSE),
 	m_hPlugin(nullptr),
@@ -1094,7 +1096,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			if (Global->Opt->SmartFolderMonitor)
 			{
 				StartFSWatcher(true);
-				Global->CtrlObject->Cp()->GetAnotherPanel(this)->StartFSWatcher(true);
+				m_parent->GetAnotherPanel(this)->StartFSWatcher(true);
 			}
 			break;
 
@@ -1102,7 +1104,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			if (Global->Opt->SmartFolderMonitor)
 			{
 				StopFSWatcher();
-				Global->CtrlObject->Cp()->GetAnotherPanel(this)->StopFSWatcher();
+				m_parent->GetAnotherPanel(this)->StopFSWatcher();
 			}
 			break;
 
@@ -1243,7 +1245,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			if (LocalKey & (KEY_ALT|KEY_RALT))
 				NewKey|=KEY_ALT;
 
-			Panel *SrcPanel = Global->CtrlObject->Cp()->PassivePanel();
+			auto SrcPanel = m_parent->PassivePanel();
 			bool OldState = SrcPanel->IsVisible()!=0;
 			SrcPanel->SetVisible(1);
 			SrcPanel->ProcessKey(Manager::Key(NewKey));
@@ -1347,7 +1349,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 						string strPrefix;
 
 						/* $ 19.11.2001 IS оптимизация по скорости :) */
-						if (!AddPluginPrefix((FileList *)Global->CtrlObject->Cp()->ActivePanel(), strPrefix).empty())
+						if (!AddPluginPrefix(this, strPrefix).empty())
 						{
 							strPrefix += strFileName;
 							strFileName = strPrefix;
@@ -1421,7 +1423,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 
 					Update(UPDATE_KEEP_SELECTION);
 					Redraw();
-					Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+					auto AnotherPanel = m_parent->GetAnotherPanel(this);
 					AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 					AnotherPanel->Redraw();
 				}
@@ -1441,7 +1443,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			Global->Opt->ShowHidden=!Global->Opt->ShowHidden;
 			Update(UPDATE_KEEP_SELECTION);
 			Redraw();
-			Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+			auto AnotherPanel = m_parent->GetAnotherPanel(this);
 			AnotherPanel->Update(UPDATE_KEEP_SELECTION);//|UPDATE_SECONDARY);
 			AnotherPanel->Redraw();
 			return TRUE;
@@ -1458,7 +1460,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			Update(UPDATE_KEEP_SELECTION);
 			Redraw();
 			{
-				Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+				auto AnotherPanel = m_parent->GetAnotherPanel(this);
 
 				if (AnotherPanel->GetType()!=FILE_PANEL)
 				{
@@ -1520,20 +1522,21 @@ int FileList::ProcessKey(const Manager::Key& Key)
 
 				if (!Info.CurDir || !*Info.CurDir)
 				{
+					auto Parent = m_parent;
 					ChangeDir(L"..");
 					NeedChangeDir=FALSE;
 					//"this" мог быть удалён в ChangeDir
-					Panel* ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
+					auto ActivePanel = Parent->ActivePanel();
 
 					if (CheckFullScreen!=ActivePanel->IsFullScreen())
-						Global->CtrlObject->Cp()->PassivePanel()->Show();
+						Parent->PassivePanel()->Show();
 				}
 			}
 
 			if (NeedChangeDir)
 				ChangeDir(L"\\");
 
-			Global->CtrlObject->Cp()->ActivePanel()->Show();
+			m_parent->ActivePanel()->Show();
 			return TRUE;
 		}
 		case KEY_SHIFTF1:
@@ -1917,7 +1920,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 					{
 						Update(UPDATE_KEEP_SELECTION);
 						Redraw();
-						Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+						auto AnotherPanel = m_parent->GetAnotherPanel(this);
 
 						if (AnotherPanel->GetMode()==NORMAL_PANEL)
 						{
@@ -1936,7 +1939,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			   а тут мы вызываем перерисовку панелей
 			   потому что этот viewer, editor могут нам неверно восстановить
 			   */
-//      Global->CtrlObject->Cp()->Redraw();
+//			m_parent->Redraw();
 			return TRUE;
 		}
 		case KEY_F5:
@@ -2036,7 +2039,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 						GoToFile(PointToName(strDirName));
 
 					Redraw();
-					Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+					auto AnotherPanel = m_parent->GetAnotherPanel(this);
 					/* $ 07.09.2001 VVM
 					  ! Обновить соседнюю панель с установкой на новый каталог */
 //          AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
@@ -2383,12 +2386,13 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			{
 				//"this" может быть удалён в ChangeDir
 				bool CheckFullScreen=IsFullScreen();
+				auto Parent = m_parent;
 				ChangeDir(L"..");
-				Panel *NewActivePanel = Global->CtrlObject->Cp()->ActivePanel();
+				auto NewActivePanel = Parent->ActivePanel();
 				NewActivePanel->SetViewMode(NewActivePanel->GetViewMode());
 
 				if (CheckFullScreen!=NewActivePanel->IsFullScreen())
-					Global->CtrlObject->Cp()->GetAnotherPanel(NewActivePanel)->Show();
+					Parent->GetAnotherPanel(NewActivePanel)->Show();
 
 				NewActivePanel->Show();
 			}
@@ -2528,14 +2532,15 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 		{
 			bool CheckFullScreen=IsFullScreen();
 
+			auto Parent = m_parent;
 			ChangeDir(CurPtr->strName,false,true,CurPtr);
 
 			//"this" может быть удалён в ChangeDir
-			Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
+			auto ActivePanel = Parent->ActivePanel();
 
 			if (CheckFullScreen!=ActivePanel->IsFullScreen())
 			{
-				Global->CtrlObject->Cp()->PassivePanel()->Show();
+				Parent->PassivePanel()->Show();
 			}
 
 			ActivePanel->Show();
@@ -2666,11 +2671,11 @@ bool FileList::SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated)
 				}
 			}
 
-			Global->CtrlObject->Cp()->RedrawKeyBar();
+			m_parent->RedrawKeyBar();
 
 			if (CheckFullScreen!=IsFullScreen())
 			{
-				Global->CtrlObject->Cp()->GetAnotherPanel(this)->Redraw();
+				m_parent->GetAnotherPanel(this)->Redraw();
 			}
 		}
 		else if (m_CurFile < static_cast<int>(m_ListData.size()))
@@ -2769,7 +2774,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 			}
 
 			PopPlugin(TRUE);
-			Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+			auto AnotherPanel = m_parent->GetAnotherPanel(this);
 
 			if (AnotherPanel->GetType()==INFO_PANEL)
 				AnotherPanel->Redraw();
@@ -2833,7 +2838,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 						}
 					}
 				}
-				Global->CtrlObject->Cp()->ActivePanel()->ChangeDisk();
+				m_parent->ActivePanel()->ChangeDisk();
 				return true;
 			}
 		}
@@ -2907,7 +2912,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 		Global->CtrlObject->CmdLine->Show();
 	}
 
-	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+	auto AnotherPanel = m_parent->GetAnotherPanel(this);
 
 	if (AnotherPanel->GetType()!=FILE_PANEL)
 	{
@@ -2916,7 +2921,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 	}
 
 	if (m_PanelMode==PLUGIN_PANEL)
-		Global->CtrlObject->Cp()->RedrawKeyBar();
+		m_parent->RedrawKeyBar();
 
 	return SetDirectorySuccess;
 }
@@ -3229,7 +3234,7 @@ void FileList::SetViewMode(int Mode)
 		{
 			if (m_Y2>0)
 			{
-				if (this==Global->CtrlObject->Cp()->LeftPanel)
+				if (this == m_parent->LeftPanel)
 					SetPosition(0,m_Y1,ScrX/2-Global->Opt->WidthDecrement,m_Y2);
 				else
 					SetPosition(ScrX/2+1-Global->Opt->WidthDecrement,m_Y1,ScrX,m_Y2);
@@ -3256,7 +3261,7 @@ void FileList::SetViewMode(int Mode)
 	{
 		SortFileList(TRUE);
 		ShowFileList(TRUE);
-		Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+		auto AnotherPanel = m_parent->GetAnotherPanel(this);
 
 		if (AnotherPanel->GetType()==TREE_PANEL)
 			AnotherPanel->Redraw();
@@ -4085,7 +4090,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 
 void FileList::UpdateViewPanel()
 {
-	auto ViewPanel = dynamic_cast<QuickView*>(Global->CtrlObject->Cp()->GetAnotherPanel(this));
+	auto ViewPanel = dynamic_cast<QuickView*>(m_parent->GetAnotherPanel(this));
 
 	if (ViewPanel && !m_ListData.empty() && ViewPanel->IsVisible() && SetCurPath())
 	{
@@ -4138,9 +4143,9 @@ void FileList::UpdateViewPanel()
 
 void FileList::CompareDir()
 {
-	FileList *Another=(FileList *)Global->CtrlObject->Cp()->GetAnotherPanel(this);
+	auto Another = dynamic_cast<FileList*>(m_parent->GetAnotherPanel(this));
 
-	if (Another->GetType()!=FILE_PANEL || !Another->IsVisible())
+	if (!Another || !Another->IsVisible())
 	{
 		Message(MSG_WARNING,1,MSG(MCompareTitle),MSG(MCompareFilePanelsRequired1),
 		        MSG(MCompareFilePanelsRequired2),MSG(MOk));
@@ -4378,7 +4383,7 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 					string strPrefix;
 
 					/* $ 19.11.2001 IS оптимизация по скорости :) */
-					if (!AddPluginPrefix(static_cast<FileList *>(Global->CtrlObject->Cp()->ActivePanel()), strPrefix).empty())
+					if (!AddPluginPrefix(this, strPrefix).empty())
 					{
 						strPrefix += strQuotedName;
 						strQuotedName = strPrefix;
@@ -4414,7 +4419,7 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 
 void FileList::SetTitle()
 {
-	if (GetFocus() || Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetType()!=FILE_PANEL)
+	if (GetFocus() || m_parent->GetAnotherPanel(this)->GetType()!=FILE_PANEL)
 	{
 		string strTitleDir(L"{");
 
@@ -4774,7 +4779,7 @@ void FileList::DescribeFiles()
 	ReadDiz();
 	SaveSelection();
 	GetSelName(nullptr,FileAttr);
-	Panel* AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+	auto AnotherPanel = m_parent->GetAnotherPanel(this);
 	int AnotherType=AnotherPanel->GetType();
 
 	while (GetSelName(&strSelName,FileAttr,&strSelShortName))
@@ -4822,7 +4827,7 @@ void FileList::DescribeFiles()
 	  FlushDiz();
 	  Update(UPDATE_KEEP_SELECTION);
 	  Redraw();
-	  Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+	  auto AnotherPanel = m_parent->GetAnotherPanel(this);
 	  AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 	  AnotherPanel->Redraw();
 	}*/
@@ -4894,7 +4899,7 @@ bool FileList::ApplyCommand()
 	Global->CtrlObject->CmdLine->Show();
 	if (Global->Opt->ShowKeyBar)
 	{
-		Global->CtrlObject->MainKeyBar->Show();
+		m_parent->GetKeybar().Show();
 	}
 	if (GetSelPosition >= static_cast<int>(m_ListData.size()))
 		ClearSelection();
@@ -4996,7 +5001,7 @@ void FileList::CountDirSize(UINT64 PluginFlags)
 
 	SortFileList(TRUE);
 	ShowFileList(TRUE);
-	Global->CtrlObject->Cp()->Redraw();
+	m_parent->Redraw();
 	InitFSWatcher(true);
 }
 
@@ -5063,7 +5068,7 @@ PluginHandle* FileList::OpenFilePlugin(const string* FileName, int PushPrev, OPE
 		m_CurFile=0;
 		Update(0);
 		Redraw();
-		Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+		auto AnotherPanel = m_parent->GetAnotherPanel(this);
 
 		if ((AnotherPanel->GetType()==INFO_PANEL) || WasFullscreen)
 			AnotherPanel->Redraw();
@@ -5081,7 +5086,7 @@ void FileList::ProcessCopyKeys(int Key)
 		int Ask=!Drag || Global->Opt->Confirm.Drag;
 		int Move=(Key==KEY_F6 || Key==KEY_DRAGMOVE);
 		int AnotherDir=FALSE;
-		Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+		auto AnotherPanel = m_parent->GetAnotherPanel(this);
 
 		if (AnotherPanel->GetType()==FILE_PANEL)
 		{
@@ -5178,9 +5183,9 @@ void FileList::ChangeSortOrder(bool Reverse)
 
 void FileList::UpdateKeyBar()
 {
-	KeyBar *KB=Global->CtrlObject->MainKeyBar;
-	KB->SetLabels(MF1);
-	KB->SetCustomLabels(KBA_SHELL);
+	auto& Keybar = m_parent->GetKeybar();
+	Keybar.SetLabels(MF1);
+	Keybar.SetCustomLabels(KBA_SHELL);
 
 	if (GetMode() == PLUGIN_PANEL)
 	{
@@ -5188,7 +5193,7 @@ void FileList::UpdateKeyBar()
 		GetOpenPanelInfo(&Info);
 
 		if (Info.KeyBar)
-			KB->Change(Info.KeyBar);
+			Keybar.Change(Info.KeyBar);
 	}
 
 }
@@ -5254,7 +5259,7 @@ void FileList::IfGoHome(wchar_t Drive)
 			Почему? - Просто - если активная широкая (или пассивная
 			широкая) - получаем багу с прорисовкой!
 		*/
-		Panel *Another=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+		auto Another = m_parent->GetAnotherPanel(this);
 
 		if (Another->GetMode() != PLUGIN_PANEL)
 		{
@@ -5387,7 +5392,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 	}
 
 	if (EnableRestoreViewMode)
-		Global->CtrlObject->Cp()->RedrawKeyBar();
+		m_parent->RedrawKeyBar();
 
 	return TRUE;
 }
@@ -5639,7 +5644,7 @@ PluginHandle* FileList::OpenPluginForFile(const string* FileName, DWORD FileAttr
 	{
 		SetCurPath();
 		_ALGO(SysLog(L"close AnotherPanel file"));
-		Global->CtrlObject->Cp()->GetAnotherPanel(this)->CloseFile();
+		m_parent->GetAnotherPanel(this)->CloseFile();
 		_ALGO(SysLog(L"call Plugins.OpenFilePlugin {"));
 		Result = Global->CtrlObject->Plugins->OpenFilePlugin(FileName, 0, Type);
 		_ALGO(SysLog(L"}"));
@@ -5675,6 +5680,7 @@ std::vector<PluginPanelItem> FileList::CreatePluginItemList(bool AddTwoDot)
 
 	if (AddTwoDot && ItemList.empty() && (FileAttr & FILE_ATTRIBUTE_DIRECTORY)) // это про ".."
 	{
+		ItemList.emplace_back(VALUE_TYPE(ItemList)());
 		FileListToPluginItem(m_ListData[0], &ItemList.front());
 		//ItemList->FindData.lpwszFileName = DuplicateString(ListData[0]->strName);
 		//ItemList->FindData.dwFileAttributes=ListData[0]->FileAttr;
@@ -5710,7 +5716,7 @@ void FileList::PluginDelete()
 		DeletePluginItemList(ItemList);
 		Update(UPDATE_KEEP_SELECTION);
 		Redraw();
-		Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+		auto AnotherPanel = m_parent->GetAnotherPanel(this);
 		AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 		AnotherPanel->Redraw();
 	}
@@ -5731,8 +5737,8 @@ void FileList::PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanel
 	        (!Info.HostFile || !*Info.HostFile || DestPanel->GetModalMode() ||
 	         api::GetFileAttributes(Info.HostFile)!=INVALID_FILE_ATTRIBUTES))
 	{
-		Global->CtrlObject->Cp()->LeftPanel->ReadDiz();
-		Global->CtrlObject->Cp()->RightPanel->ReadDiz();
+		m_parent->LeftPanel->ReadDiz();
+		m_parent->RightPanel->ReadDiz();
 
 		if (DestPanel->GetModalMode())
 			DestPanel->ReadDiz();
@@ -5814,8 +5820,8 @@ void FileList::PluginGetFiles(const wchar_t **DestPath,int Move)
 				{
 					if (!DizFound)
 					{
-						Global->CtrlObject->Cp()->LeftPanel->ReadDiz();
-						Global->CtrlObject->Cp()->RightPanel->ReadDiz();
+						m_parent->LeftPanel->ReadDiz();
+						m_parent->RightPanel->ReadDiz();
 						DestDiz.Read(*DestPath);
 						DizFound=TRUE;
 					}
@@ -5842,7 +5848,7 @@ void FileList::PluginGetFiles(const wchar_t **DestPath,int Move)
 		DeletePluginItemList(ItemList);
 		Update(UPDATE_KEEP_SELECTION);
 		Redraw();
-		Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+		auto AnotherPanel = m_parent->GetAnotherPanel(this);
 		AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 		AnotherPanel->Redraw();
 	}
@@ -5852,7 +5858,7 @@ void FileList::PluginGetFiles(const wchar_t **DestPath,int Move)
 void FileList::PluginToPluginFiles(int Move)
 {
 	_ALGO(CleverSysLog clv(L"FileList::PluginToPluginFiles()"));
-	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+	auto AnotherPanel = m_parent->GetAnotherPanel(this);
 	string strTempDir;
 
 	if (AnotherPanel->GetMode()!=PLUGIN_PANEL)
@@ -5916,7 +5922,7 @@ void FileList::PluginToPluginFiles(int Move)
 
 void FileList::PluginHostGetFiles()
 {
-	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+	auto AnotherPanel = m_parent->GetAnotherPanel(this);
 	string strDestPath;
 	string strSelName;
 	DWORD FileAttr;
@@ -5997,7 +6003,7 @@ void FileList::PluginPutFilesToNew()
 	if (hNewPlugin && hNewPlugin!=PANEL_STOP)
 	{
 		_ALGO(SysLog(L"Create: FileList TmpPanel, FileCount=%d",FileCount));
-		FileList *TmpPanel=new FileList;
+		FileList *TmpPanel=new FileList(nullptr);
 		TmpPanel->SetPluginMode(hNewPlugin,L"");  // SendOnFocus??? true???
 		TmpPanel->SetModalMode(TRUE);
 		auto PrevFileCount = m_ListData.size();
@@ -6095,7 +6101,7 @@ int FileList::PluginPutFilesToAnother(int Move,Panel *AnotherPanel)
 		Update(UPDATE_KEEP_SELECTION);
 		Redraw();
 
-		if (AnotherPanel==Global->CtrlObject->Cp()->GetAnotherPanel(this))
+		if (AnotherPanel == m_parent->GetAnotherPanel(this))
 		{
 			AnotherPanel->Update(UPDATE_KEEP_SELECTION);
 			AnotherPanel->Redraw();
@@ -6188,7 +6194,7 @@ void FileList::ProcessHostFile()
 		{
 			Update(UPDATE_KEEP_SELECTION);
 			Redraw();
-			Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+			auto AnotherPanel = m_parent->GetAnotherPanel(this);
 			AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 			AnotherPanel->Redraw();
 		}
@@ -6251,7 +6257,7 @@ void FileList::SetPluginMode(PluginHandle* hPlugin,const string& PluginFile,bool
 	if (Info.StartPanelMode)
 		SetViewMode(VIEW_0+Info.StartPanelMode-L'0');
 
-	Global->CtrlObject->Cp()->RedrawKeyBar();
+	m_parent->RedrawKeyBar();
 
 	if (Info.StartSortMode)
 	{
@@ -6259,7 +6265,7 @@ void FileList::SetPluginMode(PluginHandle* hPlugin,const string& PluginFile,bool
 		m_ReverseSortOrder = Info.StartSortOrder != 0;
 	}
 
-	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+	auto AnotherPanel = m_parent->GetAnotherPanel(this);
 
 	if (AnotherPanel->GetType()!=FILE_PANEL)
 	{
@@ -6480,9 +6486,7 @@ void FileList::Update(int Mode)
 
 				if (m_PanelMode!=PLUGIN_PANEL)
 					ReadFileNames(Mode & UPDATE_KEEP_SELECTION, Mode & UPDATE_IGNORE_VISIBLE,Mode & UPDATE_DRAW_MESSAGE);
-				else if ((Info.Flags & OPIF_REALNAMES) ||
-				         Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetMode()==PLUGIN_PANEL ||
-				         !(Mode & UPDATE_SECONDARY))
+				else if ((Info.Flags & OPIF_REALNAMES) || m_parent->GetAnotherPanel(this)->GetMode() == PLUGIN_PANEL || !(Mode & UPDATE_SECONDARY))
 					UpdatePlugin(Mode & UPDATE_KEEP_SELECTION, Mode & UPDATE_IGNORE_VISIBLE);
 			}
 			ProcessPluginCommand();
@@ -6552,7 +6556,8 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	string strCurName, strNextCurName;
 	StopFSWatcher();
 
-	if (this!=Global->CtrlObject->Cp()->LeftPanel && this!=Global->CtrlObject->Cp()->RightPanel)
+	// really?
+	if (this != m_parent->LeftPanel && this != m_parent->RightPanel)
 		return;
 
 	string strSaveDir;
@@ -6583,7 +6588,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		Global->CtrlObject->CmdLine->SetCurDir(m_CurDir);
 
 	LastCurFile=-1;
-	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+	auto AnotherPanel = m_parent->GetAnotherPanel(this);
 	AnotherPanel->QViewDelTempName();
 	size_t PrevSelFileCount=SelFileCount;
 	SelFileCount=0;
@@ -6898,7 +6903,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	/* $ 13.02.2002 DJ
 		SetTitle() - только если мы текущее окно!
 	*/
-	if (Global->CtrlObject->Cp() == Global->WindowManager->GetCurrentWindow())
+	if (m_parent == Global->WindowManager->GetCurrentWindow())
 		SetTitle();
 
 	FarChDir(strSaveDir); //???
@@ -6929,7 +6934,7 @@ int FileList::UpdateIfChanged(panel_update_mode UpdateMode)
 			    (m_PanelMode!=NORMAL_PANEL && UpdateMode==UIC_UPDATE_FORCE)
 			)
 			{
-				Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+				auto AnotherPanel = m_parent->GetAnotherPanel(this);
 
 				if (AnotherPanel->GetType()==INFO_PANEL)
 				{
@@ -7425,8 +7430,8 @@ void FileList::ShowFileList(int Fast)
 
 	if (CurFullScreen!=IsFullScreen())
 	{
-		Global->CtrlObject->Cp()->SetScreenPosition();
-		Global->CtrlObject->Cp()->GetAnotherPanel(this)->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+		m_parent->SetScreenPosition();
+		m_parent->GetAnotherPanel(this)->Update(UPDATE_KEEP_SELECTION | UPDATE_SECONDARY);
 	}
 
 	SetScreen(m_X1+1,m_Y1+1,m_X2-1,m_Y2-1,L' ',ColorIndexToColor(COL_PANELTEXT));
@@ -7749,7 +7754,7 @@ void FileList::ShowFileList(int Fast)
 	}
 
 	if (m_PanelMode==PLUGIN_PANEL)
-		Global->CtrlObject->Cp()->RedrawKeyBar();
+		m_parent->RedrawKeyBar();
 }
 
 

@@ -72,6 +72,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "language.hpp"
 #include "datetime.hpp"
+#include "keybar.hpp"
 
 enum SHOW_MODES
 {
@@ -1019,17 +1020,7 @@ void Viewer::DrawScrollbar()
 
 string Viewer::GetTitle() const
 {
-	string strName;
-	if (!strTitle.empty())
-	{
-		strName = strTitle;
-	}
-	else
-	{
-		strName = strFileName;
-	}
-
-	return strName;
+	return strTitle.empty()? strFullFileName : strTitle;
 }
 
 void Viewer::ShowStatus()

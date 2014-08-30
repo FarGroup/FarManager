@@ -53,12 +53,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "colormix.hpp"
 #include "language.hpp"
+#include "keybar.hpp"
 
 static bool LastMode = false;
 static bool LastWrapMode = false;
 static bool LastWrapType = false;
 
-QuickView::QuickView():
+QuickView::QuickView(FilePanels* Parent):
+	Panel(Parent),
 	QView(nullptr),
 	Directory(0),
 	Data(),
@@ -100,7 +102,7 @@ void QuickView::DisplayObject()
 	m_Flags.Set(FSCROBJ_ISREDRAWING);
 
 	if (!QView && !ProcessingPluginCommand)
-		Global->CtrlObject->Cp()->GetAnotherPanel(this)->UpdateViewPanel();
+		m_parent->GetAnotherPanel(this)->UpdateViewPanel();
 
 	if (this->Destroyed())
 		return;
@@ -339,7 +341,7 @@ int QuickView::ProcessKey(const Manager::Key& Key)
 
 	if (LocalKey==KEY_F3 || LocalKey==KEY_NUMPAD5 || LocalKey == KEY_SHIFTNUMPAD5)
 	{
-		Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+		auto AnotherPanel = m_parent->GetAnotherPanel(this);
 
 		if (AnotherPanel->GetType()==FILE_PANEL)
 			AnotherPanel->ProcessKey(Manager::Key(KEY_F3));
@@ -349,7 +351,7 @@ int QuickView::ProcessKey(const Manager::Key& Key)
 
 	if (LocalKey==KEY_ADD || LocalKey==KEY_SUBTRACT)
 	{
-		Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+		auto AnotherPanel = m_parent->GetAnotherPanel(this);
 
 		if (AnotherPanel->GetType()==FILE_PANEL)
 			AnotherPanel->ProcessKey(Manager::Key(LocalKey==KEY_ADD?KEY_DOWN:KEY_UP));
@@ -364,7 +366,7 @@ int QuickView::ProcessKey(const Manager::Key& Key)
 		if (LocalKey == KEY_F4 || LocalKey == KEY_F8 || LocalKey == KEY_F2 || LocalKey == KEY_SHIFTF2)
 		{
 			DynamicUpdateKeyBar();
-			Global->CtrlObject->MainKeyBar->Redraw();
+			m_parent->GetKeybar().Redraw();
 		}
 
 		if (LocalKey == KEY_F7 || LocalKey == KEY_SHIFTF7)
@@ -374,7 +376,7 @@ int QuickView::ProcessKey(const Manager::Key& Key)
 			//DWORD Flags;
 			//QView->GetSelectedParam(Pos,Length,Flags);
 			Redraw();
-			Global->CtrlObject->Cp()->GetAnotherPanel(this)->Redraw();
+			m_parent->GetAnotherPanel(this)->Redraw();
 			//QView->SelectText(Pos,Length,Flags|1);
 		}
 
@@ -409,7 +411,7 @@ void QuickView::Update(int Mode)
 		return;
 
 	if (strCurFileName.empty())
-		Global->CtrlObject->Cp()->GetAnotherPanel(this)->UpdateViewPanel();
+		m_parent->GetAnotherPanel(this)->UpdateViewPanel();
 
 	Redraw();
 }
@@ -494,10 +496,10 @@ void QuickView::ShowFile(const string& FileName, bool TempFile, PluginHandle* hD
 
 	Redraw();
 
-	if (Global->CtrlObject->Cp()->ActivePanel() == this)
+	if (m_parent->ActivePanel() == this)
 	{
 		DynamicUpdateKeyBar();
-		Global->CtrlObject->MainKeyBar->Redraw();
+		m_parent->GetKeybar().Redraw();
 	}
 }
 
@@ -607,50 +609,50 @@ int QuickView::GetCurName(string &strName, string &strShortName) const
 
 void QuickView::UpdateKeyBar()
 {
-	Global->CtrlObject->MainKeyBar->SetLabels(MQViewF1);
+	m_parent->GetKeybar().SetLabels(MQViewF1);
 	DynamicUpdateKeyBar();
 }
 
 void QuickView::DynamicUpdateKeyBar() const
 {
-	KeyBar *KB = Global->CtrlObject->MainKeyBar;
+	auto& Keybar = m_parent->GetKeybar();
 
 	if (Directory || !QView)
 	{
-		KB->Change(MSG(MF2), 2-1);
-		KB->Change(L"", 4-1);
-		KB->Change(L"", 8-1);
-		KB->Change(KBL_SHIFT, L"", 2-1);
-		KB->Change(KBL_SHIFT, L"", 8-1);
-		KB->Change(KBL_ALT, MSG(MAltF8), 8-1);  // стандартный для панели - "хистори"
+		Keybar.Change(MSG(MF2), 2-1);
+		Keybar.Change(L"", 4-1);
+		Keybar.Change(L"", 8-1);
+		Keybar.Change(KBL_SHIFT, L"", 2-1);
+		Keybar.Change(KBL_SHIFT, L"", 8-1);
+		Keybar.Change(KBL_ALT, MSG(MAltF8), 8-1);  // стандартный для панели - "хистори"
 	}
 	else
 	{
 		if (QView->GetHexMode())
-			KB->Change(MSG(MViewF4Text), 4-1);
+			Keybar.Change(MSG(MViewF4Text), 4-1);
 		else
-			KB->Change(MSG(MQViewF4), 4-1);
+			Keybar.Change(MSG(MQViewF4), 4-1);
 
 		if (QView->GetCodePage() != GetOEMCP())
-			KB->Change(MSG(MViewF8DOS), 8-1);
+			Keybar.Change(MSG(MViewF8DOS), 8-1);
 		else
-			KB->Change(MSG(MQViewF8), 8-1);
+			Keybar.Change(MSG(MQViewF8), 8-1);
 
 		if (!QView->GetWrapMode())
 		{
 			if (QView->GetWrapType())
-				KB->Change(MSG(MViewShiftF2), 2-1);
+				Keybar.Change(MSG(MViewShiftF2), 2-1);
 			else
-				KB->Change(MSG(MViewF2), 2-1);
+				Keybar.Change(MSG(MViewF2), 2-1);
 		}
 		else
-			KB->Change(MSG(MViewF2Unwrap), 2-1);
+			Keybar.Change(MSG(MViewF2Unwrap), 2-1);
 
 		if (QView->GetWrapType())
-			KB->Change(KBL_SHIFT, MSG(MViewF2), 2-1);
+			Keybar.Change(KBL_SHIFT, MSG(MViewF2), 2-1);
 		else
-			KB->Change(KBL_SHIFT, MSG(MViewShiftF2), 2-1);
+			Keybar.Change(KBL_SHIFT, MSG(MViewShiftF2), 2-1);
 	}
 
-	KB->SetCustomLabels(KBA_QUICKVIEW);
+	Keybar.SetCustomLabels(KBA_QUICKVIEW);
 }

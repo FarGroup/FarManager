@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "window.hpp"
-#include "keybar.hpp"
 #include "macro.hpp"
 #include "config.hpp"
 
@@ -68,8 +67,6 @@ private:
 
 	TreeList *Tree;
 	std::unique_ptr<EditControl> FindEdit;
-	// ךויבאנ
-	KeyBar TreeKeyBar;
 	int ModalMode;
 	bool IsFullScreen;
 	int IsStandalone;

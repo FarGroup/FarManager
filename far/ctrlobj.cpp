@@ -52,10 +52,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "poscache.hpp"
 #include "plugins.hpp"
 #include "desktop.hpp"
+#include "keybar.hpp"
 
 ControlObject::ControlObject():
 	CmdLine(nullptr),
-	MainKeyBar(nullptr),
 	TopMenuBar(nullptr),
 	FPanels(nullptr)
 {
@@ -90,7 +90,6 @@ void ControlObject::Init(int DirCount)
 	FPanels=new FilePanels();
 	CmdLine=new CommandLine();
 	Desktop->FillFromBuffer();
-	this->MainKeyBar=&(FPanels->MainKeyBar);
 	this->TopMenuBar=&(FPanels->TopMenuBar);
 	FPanels->Init(DirCount);
 	FPanels->SetScreenPosition();
@@ -102,7 +101,7 @@ void ControlObject::Init(int DirCount)
 	CmdLine->Show();
 
 	if (Global->Opt->ShowKeyBar)
-		this->MainKeyBar->Show();
+		FPanels->GetKeybar().Show();
 
 	// LoadPlugins() before panel updates
 	//

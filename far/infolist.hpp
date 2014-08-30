@@ -41,7 +41,7 @@ class DizViewer;
 class InfoList:public Panel
 {
 public:
-	InfoList();
+	InfoList(FilePanels* Parent);
 
 private:
 	virtual ~InfoList();

@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "RegExp.hpp"
 #include "language.hpp"
+#include "keybar.hpp"
 
 static const wchar_t FoundContents[]=L"__FoundContents__";
 static const wchar_t PluginContents[]=L"__PluginContents__";
@@ -194,6 +195,8 @@ Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
 	LastSearchWholeWords(Global->GlobalSearchWholeWords),
 	LastSearchRegexp(Global->Opt->HelpSearchRegexp)
 {
+	m_windowKeyBar = std::make_unique<KeyBar>();
+
 	m_CanLoseFocus=FALSE;
 	m_KeyBarVisible=TRUE;
 	/* $ OT По умолчанию все хелпы создаются статически*/
@@ -813,14 +816,14 @@ void Help::DisplayObject()
 
 	if (!Global->Opt->FullScreenHelp)
 	{
-		HelpKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
+		m_windowKeyBar->SetPosition(0, ScrY, ScrX, ScrY);
 
 		if (Global->Opt->ShowKeyBar)
-			HelpKeyBar.Show();
+			m_windowKeyBar->Show();
 	}
 	else
 	{
-		HelpKeyBar.Hide();
+		m_windowKeyBar->Hide();
 	}
 
 	Shadow();
@@ -1648,7 +1651,7 @@ int Help::JumpTopic()
 
 int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	if (HelpKeyBar.ProcessMouse(MouseEvent))
+	if (m_windowKeyBar->ProcessMouse(MouseEvent))
 		return TRUE;
 
 	if (MouseEvent->dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED && MouseEvent->dwEventFlags!=MOUSE_MOVED)
@@ -2112,7 +2115,7 @@ void Help::SetScreenPosition()
 {
 	if (Global->Opt->FullScreenHelp)
 	{
-		HelpKeyBar.Hide();
+		m_windowKeyBar->Hide();
 		SetPosition(0,0,ScrX,ScrY);
 	}
 	else
@@ -2125,9 +2128,8 @@ void Help::SetScreenPosition()
 
 void Help::InitKeyBar()
 {
-	HelpKeyBar.SetLabels(MHelpF1);
-	HelpKeyBar.SetCustomLabels(KBA_HELP);
-	SetKeyBar(&HelpKeyBar);
+	m_windowKeyBar->SetLabels(MHelpF1);
+	m_windowKeyBar->SetCustomLabels(KBA_HELP);
 }
 
 /* $ 25.08.2000 SVS
@@ -2244,7 +2246,7 @@ void Help::ResizeConsole()
 
 	if (Global->Opt->FullScreenHelp)
 	{
-		HelpKeyBar.Hide();
+		m_windowKeyBar->Hide();
 		SetPosition(0,0,ScrX,ScrY);
 	}
 	else

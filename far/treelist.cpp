@@ -83,6 +83,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "network.hpp"
 #endif
 #include "language.hpp"
+#include "keybar.hpp"
 
 static bool StaticSortNumeric;
 static bool StaticSortCaseSensitive;
@@ -486,7 +487,8 @@ enum TREELIST_FLAGS
 	FTREELIST_ISPANEL = 0x00040000,
 };
 
-TreeList::TreeList(bool IsPanel):
+TreeList::TreeList(FilePanels* Parent, bool IsPanel):
+	Panel(Parent),
 	m_WorkDir(0),
 	m_SavedWorkDir(0),
 	m_GetSelPosition(0),
@@ -570,7 +572,7 @@ void TreeList::DisplayTree(int Fast)
 	string strTitle;
 	std::unique_ptr<LockScreen> LckScreen;
 
-	if (Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetType() == QVIEW_PANEL)
+	if (!m_ModalMode && m_parent->GetAnotherPanel(this)->GetType() == QVIEW_PANEL)
 		LckScreen = std::make_unique<LockScreen>();
 
 	CorrectPosition();
@@ -726,7 +728,7 @@ void TreeList::Update(int Mode)
 
 		if (!m_Flags.Check(FTREELIST_ISPANEL))
 		{
-			Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+			auto AnotherPanel = m_parent->GetAnotherPanel(this);
 			AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 			AnotherPanel->Redraw();
 		}
@@ -963,9 +965,9 @@ int TreeList::ReadTree()
 		SaveTreeFile();
 
 	if (!FirstCall && !m_Flags.Check(FTREELIST_ISPANEL))
-	{ // ѕерерисуем другую панель - удалим следы сообщений :)
-		Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
-		AnotherPanel->Redraw();
+	{
+		// ѕерерисуем другую панель - удалим следы сообщений :)
+		m_parent->GetAnotherPanel(this)->Redraw();
 	}
 
 	return TRUE;
@@ -1004,22 +1006,22 @@ Panel* TreeList::GetRootPanel()
 {
 	Panel *RootPanel;
 
-	if (m_ModalMode)
+	if (m_ModalMode) // watch out, m_parent in nullptr
 	{
 		if (m_ModalMode==MODALTREE_ACTIVE)
-			RootPanel=Global->CtrlObject->Cp()->ActivePanel();
+			RootPanel = Global->CtrlObject->Cp()->ActivePanel();
 		else if (m_ModalMode==MODALTREE_FREE)
 			RootPanel=this;
 		else
 		{
-			RootPanel=Global->CtrlObject->Cp()->PassivePanel();
+			RootPanel = Global->CtrlObject->Cp()->PassivePanel();
 
 			if (!RootPanel->IsVisible())
-				RootPanel=Global->CtrlObject->Cp()->ActivePanel();
+				RootPanel = Global->CtrlObject->Cp()->ActivePanel();
 		}
 	}
 	else
-		RootPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+		RootPanel = m_parent->GetAnotherPanel(this);
 
 	return RootPanel;
 }
@@ -1242,7 +1244,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 		{
 			if (!m_ListData.empty() && SetCurPath())
 			{
-				Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+				auto AnotherPanel = m_parent->GetAnotherPanel(this);
 				int Ask=((LocalKey!=KEY_DRAGCOPY && LocalKey!=KEY_DRAGMOVE) || Global->Opt->Confirm.Drag);
 				int Move=(LocalKey==KEY_F6 || LocalKey==KEY_DRAGMOVE);
 				int ToPlugin=AnotherPanel->GetMode()==PLUGIN_PANEL &&
@@ -1317,7 +1319,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 
 				ShellDelete(this,LocalKey==KEY_ALTDEL||LocalKey==KEY_RALTDEL||LocalKey==KEY_ALTNUMDEL||LocalKey==KEY_RALTNUMDEL||LocalKey==KEY_ALTDECIMAL||LocalKey==KEY_RALTDECIMAL);
 				// Ќадобно не забыть обновить противоположную панель...
-				Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+				auto AnotherPanel = m_parent->GetAnotherPanel(this);
 				AnotherPanel->Update(UPDATE_KEEP_SELECTION);
 				AnotherPanel->Redraw();
 				Global->Opt->DeleteToRecycleBin=SaveOpt;
@@ -2127,8 +2129,9 @@ void TreeList::KillFocus()
 
 void TreeList::UpdateKeyBar()
 {
-	Global->CtrlObject->MainKeyBar->SetLabels(MKBTreeF1);
-	Global->CtrlObject->MainKeyBar->SetCustomLabels(KBA_TREE);
+	auto& Keybar = m_parent->GetKeybar();
+	Keybar.SetLabels(MKBTreeF1);
+	Keybar.SetCustomLabels(KBA_TREE);
 }
 
 void TreeList::SetTitle()

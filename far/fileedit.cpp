@@ -75,6 +75,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stddlg.hpp"
 #include "plugins.hpp"
 #include "language.hpp"
+#include "keybar.hpp"
 
 enum enumOpenEditor
 {
@@ -420,6 +421,8 @@ void FileEditor::Init(
     EDITOR_FLAGS OpenModeExstFile
 )
 {
+	m_windowKeyBar = std::make_unique<KeyBar>();
+
 	class SmartLock: ::NonCopyable
 	{
 	public:
@@ -677,12 +680,12 @@ void FileEditor::Init(
 		return;
 
 	ShowConsoleTitle();
-	EditKeyBar.SetOwner(this);
-	EditKeyBar.SetPosition(m_X1,m_Y2,m_X2,m_Y2);
 	InitKeyBar();
+	m_windowKeyBar->SetOwner(this);
+	m_windowKeyBar->SetPosition(m_X1, m_Y2, m_X2, m_Y2);
 
 	if (!Global->Opt->EdOpt.ShowKeyBar)
-		EditKeyBar.Hide();
+		m_windowKeyBar->Hide();
 
 	SetMacroMode(MACROAREA_EDITOR);
 
@@ -713,37 +716,36 @@ void FileEditor::ReadEvent(void)
 
 void FileEditor::InitKeyBar()
 {
-	EditKeyBar.SetLabels(Global->OnlyEditorViewerUsed? MSingleEditF1 : MEditF1);
+	m_windowKeyBar->SetLabels(Global->OnlyEditorViewerUsed ? MSingleEditF1 : MEditF1);
 
 	if (!GetCanLoseFocus())
-		EditKeyBar.Change(KBL_SHIFT,L"",4-1);
+		m_windowKeyBar->Change(KBL_SHIFT, L"", 4 - 1);
 
 	if (m_Flags.Check(FFILEEDIT_SAVETOSAVEAS))
-		EditKeyBar.Change(KBL_MAIN,MSG(MEditShiftF2),2-1);
+		m_windowKeyBar->Change(KBL_MAIN, MSG(MEditShiftF2), 2 - 1);
 
 	if (!m_Flags.Check(FFILEEDIT_ENABLEF6))
-		EditKeyBar.Change(KBL_MAIN,L"",6-1);
+		m_windowKeyBar->Change(KBL_MAIN, L"", 6 - 1);
 
 	if (!GetCanLoseFocus())
-		EditKeyBar.Change(KBL_MAIN,L"",12-1);
+		m_windowKeyBar->Change(KBL_MAIN, L"", 12 - 1);
 
 	if (!GetCanLoseFocus())
-		EditKeyBar.Change(KBL_ALT,L"",11-1);
+		m_windowKeyBar->Change(KBL_ALT, L"", 11 - 1);
 
 	if (m_codepage!=GetACP())
-		EditKeyBar.Change(KBL_MAIN, MSG(Global->OnlyEditorViewerUsed ? MSingleEditF8 : MEditF8), 7);
+		m_windowKeyBar->Change(KBL_MAIN, MSG(Global->OnlyEditorViewerUsed ? MSingleEditF8 : MEditF8), 7);
 	else
-		EditKeyBar.Change(KBL_MAIN, MSG(Global->OnlyEditorViewerUsed ? MSingleEditF8DOS : MEditF8DOS), 7);
+		m_windowKeyBar->Change(KBL_MAIN, MSG(Global->OnlyEditorViewerUsed ? MSingleEditF8DOS : MEditF8DOS), 7);
 
-	EditKeyBar.SetCustomLabels(KBA_EDITOR);
+	m_windowKeyBar->SetCustomLabels(KBA_EDITOR);
 
 	if (Global->Opt->EdOpt.ShowKeyBar)
-		EditKeyBar.Show();
+		m_windowKeyBar->Show();
 	else
-		EditKeyBar.Hide();
+		m_windowKeyBar->Hide();
 
 	//m_editor->SetPosition(X1,Y1+(Global->Opt->EdOpt.ShowTitleBar?1:0),X2,Y2-(Global->Opt->EdOpt.ShowKeyBar?1:0));
-	SetKeyBar(&EditKeyBar);
 }
 
 void FileEditor::SetNamesList(NamesList& Names)
@@ -757,8 +759,8 @@ void FileEditor::Show()
 	{
 		if (Global->Opt->EdOpt.ShowKeyBar)
 		{
-			EditKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
-			EditKeyBar.Redraw();
+			m_windowKeyBar->SetPosition(0,ScrY,ScrX,ScrY);
+			m_windowKeyBar->Redraw();
 		}
 
 		ScreenObjectWithShadow::SetPosition(0,0,ScrX,ScrY-(Global->Opt->EdOpt.ShowKeyBar?1:0));
@@ -823,13 +825,13 @@ __int64 FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				break;
 			case 1:
 				Global->Opt->EdOpt.ShowKeyBar=1;
-				EditKeyBar.Show();
+				m_windowKeyBar->Show();
 				Show();
 				m_KeyBarVisible = Global->Opt->EdOpt.ShowKeyBar;
 				break;
 			case 2:
 				Global->Opt->EdOpt.ShowKeyBar=0;
-				EditKeyBar.Hide();
+				m_windowKeyBar->Hide();
 				Show();
 				m_KeyBarVisible = Global->Opt->EdOpt.ShowKeyBar;
 				break;
@@ -1217,9 +1219,9 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 				Global->Opt->EdOpt.ShowKeyBar=!Global->Opt->EdOpt.ShowKeyBar;
 
 				if (Global->Opt->EdOpt.ShowKeyBar)
-					EditKeyBar.Show();
+					m_windowKeyBar->Show();
 				else
-					EditKeyBar.Hide();
+					m_windowKeyBar->Hide();
 
 				Show();
 				m_KeyBarVisible = Global->Opt->EdOpt.ShowKeyBar;
@@ -1376,11 +1378,11 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 				Options::EditorOptions EdOpt;
 				GetEditorOptions(EdOpt);
 				Global->Opt->LocalEditorConfig(EdOpt); // $ 27.11.2001 DJ - Local в EditorConfig
-				EditKeyBar.Show(); //???? Нужно ли????
+				m_windowKeyBar->Show(); //???? Нужно ли????
 				SetEditorOptions(EdOpt);
 
 				if (Global->Opt->EdOpt.ShowKeyBar)
-					EditKeyBar.Show();
+					m_windowKeyBar->Show();
 
 				m_editor->Show();
 				return TRUE;
@@ -1389,9 +1391,9 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			{
 				if (m_Flags.Check(FFILEEDIT_FULLSCREEN) && Global->CtrlObject->Macro.IsExecuting() == MACROSTATE_NOMACRO)
 					if (Global->Opt->EdOpt.ShowKeyBar)
-						EditKeyBar.Show();
+						m_windowKeyBar->Show();
 
-				if (!EditKeyBar.ProcessKey(Manager::Key(Key)))
+				if (!m_windowKeyBar->ProcessKey(Manager::Key(Key)))
 					return m_editor->ProcessKey(Manager::Key(Key));
 			}
 		}
@@ -2188,7 +2190,7 @@ end:
 int FileEditor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	F4KeyOnly = false;
-	if (!EditKeyBar.ProcessMouse(MouseEvent))
+	if (!m_windowKeyBar->ProcessMouse(MouseEvent))
 		if (!ProcessEditorInput(Global->WindowManager->GetLastInputRecord()))
 			if (!m_editor->ProcessMouse(MouseEvent))
 				return FALSE;
@@ -2343,12 +2345,13 @@ void FileEditor::SetTitle(const string* Title)
 
 void FileEditor::ChangeEditKeyBar()
 {
-	if (m_codepage!=GetACP())
-		EditKeyBar.Change(MSG(Global->OnlyEditorViewerUsed ? MSingleEditF8 : MEditF8), 7);
-	else
-		EditKeyBar.Change(MSG(Global->OnlyEditorViewerUsed ? MSingleEditF8DOS : MEditF8DOS), 7);
-
-	EditKeyBar.Redraw();
+	static const LNGID F8Labels[2][2] =
+	{
+		{MEditF8, MSingleEditAltF8},
+		{MEditF8DOS, MSingleEditF8DOS},
+	};
+	m_windowKeyBar->Change(MSG(F8Labels[m_codepage == GetACP()][Global->OnlyEditorViewerUsed]), 7);
+	m_windowKeyBar->Redraw();
 }
 
 string FileEditor::GetTitle() const
@@ -2684,13 +2687,13 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			{
 				if ((intptr_t)Param2 != (intptr_t)-1) // не только перерисовать?
 				{
-				    if(CheckStructSize(Kbt))
-						EditKeyBar.Change(Kbt->Titles);
+					if(CheckStructSize(Kbt))
+						m_windowKeyBar->Change(Kbt->Titles);
 					else
 						return FALSE;
 				}
 
-				EditKeyBar.Show();
+				m_windowKeyBar->Show();
 			}
 
 			return TRUE;

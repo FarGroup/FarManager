@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "language.hpp"
 #include "desktop.hpp"
+#include "keybar.hpp"
 
 long Manager::CurrentWindowType=-1;
 
@@ -473,16 +474,14 @@ void Manager::DeactivateWindow(window *Deactivated,int Direction)
 
 		m_windowPos += Direction;
 
-		if (m_windowPos < 0)
+		// For now we don't want to switch to the desktop window with Ctrl-[Shift-]Tab
+		// Replace with DesktopIndex if needed
+		static const auto StartingIndex = FilePanelsIndex;
+
+		if (m_windowPos < StartingIndex)
 			m_windowPos = static_cast<int>(m_windows.size() - 1);
 		else if (m_windowPos >= static_cast<int>(m_windows.size()))
-			m_windowPos = 0;
-
-		// for now we don't want to switch the desktop window with Ctrl-[Shift-]Tab
-		if (m_windowPos == DesktopIndex)
-		{
-			m_windowPos = FilePanelsIndex;
-		}
+			m_windowPos = StartingIndex;
 
 		ActivateWindow(m_windowPos);
 	}
@@ -768,7 +767,7 @@ int Manager::ProcessKey(Key key)
 								int LeftVisible=Global->CtrlObject->Cp()->LeftPanel->IsVisible();
 								int RightVisible=Global->CtrlObject->Cp()->RightPanel->IsVisible();
 								int CmdLineVisible=Global->CtrlObject->CmdLine->IsVisible();
-								int KeyBarVisible=Global->CtrlObject->Cp()->MainKeyBar.IsVisible();
+								int KeyBarVisible=Global->CtrlObject->Cp()->GetKeybar().IsVisible();
 								ShowBackground();
 								Global->CtrlObject->Cp()->LeftPanel->HideButKeepSaveScreen();
 								Global->CtrlObject->Cp()->RightPanel->HideButKeepSaveScreen();
@@ -779,11 +778,11 @@ int Manager::ProcessKey(Key key)
 										if (CmdLineVisible)
 											Global->CtrlObject->CmdLine->Show();
 										if (KeyBarVisible)
-											Global->CtrlObject->Cp()->MainKeyBar.Show();
+											Global->CtrlObject->Cp()->GetKeybar().Show();
 										break;
 									case 1:
 										if (KeyBarVisible)
-											Global->CtrlObject->Cp()->MainKeyBar.Show();
+											Global->CtrlObject->Cp()->GetKeybar().Show();
 										break;
 								}
 
@@ -795,7 +794,7 @@ int Manager::ProcessKey(Key key)
 
 								if (CmdLineVisible)   Global->CtrlObject->CmdLine->Show();
 
-								if (KeyBarVisible)    Global->CtrlObject->Cp()->MainKeyBar.Show();
+								if (KeyBarVisible)    Global->CtrlObject->Cp()->GetKeybar().Show();
 							}
 							else
 							{

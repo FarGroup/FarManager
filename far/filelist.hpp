@@ -252,7 +252,7 @@ ENUM(OPENFILEPLUGINTYPE);
 class FileList:public Panel
 {
 public:
-	FileList();
+	FileList(FilePanels* Parent);
 
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;

@@ -42,7 +42,7 @@ class Viewer;
 class QuickView:public Panel
 {
 public:
-	QuickView();
+	QuickView(FilePanels* Parent);
 
 	void ShowFile(const string& FileName, bool TempFile, PluginHandle* hDirPlugin);
 

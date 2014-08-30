@@ -81,6 +81,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "notification.hpp"
 #include "DlgGuid.hpp"
+#include "keybar.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;
@@ -135,8 +136,9 @@ private:
 
 STD_SWAP_SPEC(ChDiskPluginItem);
 
-Panel::Panel():
+Panel::Panel(FilePanels* Parent):
 	ProcessingPluginCommand(0),
+	m_parent(Parent),
 	m_Focus(false),
 	m_Type(0),
 	m_EnableUpdate(TRUE),
@@ -374,7 +376,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	class Guard_Macro_DskShowPosType  //фигня какая-то
 	{
 	public:
-		Guard_Macro_DskShowPosType(Panel *curPanel) {Global->Macro_DskShowPosType=(curPanel==Global->CtrlObject->Cp()->LeftPanel)?1:2;}
+		Guard_Macro_DskShowPosType(Panel *curPanel) { Global->Macro_DskShowPosType = (curPanel == curPanel->m_parent->LeftPanel) ? 1 : 2; }
 		~Guard_Macro_DskShowPosType() {Global->Macro_DskShowPosType=0;}
 	};
 	SCOPED_ACTION(Guard_Macro_DskShowPosType)(this);
@@ -604,7 +606,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		int X=m_X1+5;
 
-		if ((this == Global->CtrlObject->Cp()->RightPanel) && IsFullScreen() && (m_X2-m_X1 > 40))
+		if ((this == m_parent->RightPanel) && IsFullScreen() && (m_X2 - m_X1 > 40))
 			X = (m_X2-m_X1+1)/2+5;
 
 		ChDisk.SetPosition(X,-1,0,0);
@@ -730,7 +732,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					{
 						const wchar_t DeviceName[] = {item->cDrive, L':', L'\\', 0};
 						struct DiskMenuParam {const wchar_t* CmdLine; BOOL Apps;} p = {DeviceName, Key!=KEY_MSRCLICK};
-						Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, (Global->CtrlObject->Cp()->LeftPanel == this)?OPEN_LEFTDISKMENU:OPEN_RIGHTDISKMENU, &p); // EMenu Plugin :-)
+						Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, (m_parent->LeftPanel == this) ? OPEN_LEFTDISKMENU : OPEN_RIGHTDISKMENU, &p); // EMenu Plugin :-)
 					}
 					break;
 				}
@@ -969,22 +971,22 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		else
 		{
 			int Focus=GetFocus();
-			Panel *NewPanel=Global->CtrlObject->Cp()->ChangePanel(this, FILE_PANEL, TRUE, FALSE);
+			auto NewPanel = m_parent->ChangePanel(this, FILE_PANEL, TRUE, FALSE);
 			NewPanel->SetCurDir(strNewCurDir,true);
 			NewPanel->Show();
 
-			if (Focus || !Global->CtrlObject->Cp()->GetAnotherPanel(this)->IsVisible())
+			if (Focus || !m_parent->GetAnotherPanel(this)->IsVisible())
 				NewPanel->SetFocus();
 
-			if (!Focus && Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetType() == INFO_PANEL)
-				Global->CtrlObject->Cp()->GetAnotherPanel(this)->UpdateKeyBar();
+			if (!Focus && m_parent->GetAnotherPanel(this)->GetType() == INFO_PANEL)
+				m_parent->GetAnotherPanel(this)->UpdateKeyBar();
 		}
 	}
 	else //эта плагин, да
 	{
 		auto hPlugin = Global->CtrlObject->Plugins->Open(
 		                     mitem->pPlugin,
-		                     (Global->CtrlObject->Cp()->LeftPanel == this)?OPEN_LEFTDISKMENU:OPEN_RIGHTDISKMENU,
+		                     (m_parent->LeftPanel == this)?OPEN_LEFTDISKMENU:OPEN_RIGHTDISKMENU,
 		                     mitem->Guid,
 		                     0
 		                 );
@@ -992,13 +994,13 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		if (hPlugin)
 		{
 			int Focus=GetFocus();
-			Panel *NewPanel = Global->CtrlObject->Cp()->ChangePanel(this,FILE_PANEL,TRUE,TRUE);
-			NewPanel->SetPluginMode(hPlugin,L"",Focus || !Global->CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible());
+			auto NewPanel = m_parent->ChangePanel(this, FILE_PANEL, TRUE, TRUE);
+			NewPanel->SetPluginMode(hPlugin, L"", Focus || !m_parent->GetAnotherPanel(NewPanel)->IsVisible());
 			NewPanel->Update(0);
 			NewPanel->Show();
 
-			if (!Focus && Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetType() == INFO_PANEL)
-				Global->CtrlObject->Cp()->GetAnotherPanel(this)->UpdateKeyBar();
+			if (!Focus && m_parent->GetAnotherPanel(this)->GetType() == INFO_PANEL)
+				m_parent->GetAnotherPanel(this)->UpdateKeyBar();
 		}
 	}
 
@@ -1018,8 +1020,8 @@ int Panel::DisconnectDrive(const PanelMenuItem *item, VMenu2 &ChDisk)
 		{
 			// запоминаем состояние панелей
 			int CMode=GetMode();
-			int AMode=Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetMode();
-			string strTmpCDir(GetCurDir()), strTmpADir(Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir());
+			int AMode = m_parent->GetAnotherPanel(this)->GetMode();
+			string strTmpCDir(GetCurDir()), strTmpADir(m_parent->GetAnotherPanel(this)->GetCurDir());
 			// "цикл до умопомрачения"
 			int DoneEject=FALSE;
 
@@ -1035,7 +1037,7 @@ int Panel::DisconnectDrive(const PanelMenuItem *item, VMenu2 &ChDisk)
 				{
 					// восстановим пути - это избавит нас от левых данных в панели.
 					if (AMode != PLUGIN_PANEL)
-						Global->CtrlObject->Cp()->GetAnotherPanel(this)->SetCurDir(strTmpADir, false);
+						m_parent->GetAnotherPanel(this)->SetCurDir(strTmpADir, false);
 
 					if (CMode != PLUGIN_PANEL)
 						SetCurDir(strTmpCDir, false);
@@ -1066,8 +1068,8 @@ void Panel::RemoveHotplugDevice(const PanelMenuItem *item, VMenu2 &ChDisk)
 	{
 		// запоминаем состояние панелей
 		int CMode=GetMode();
-		int AMode=Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetMode();
-		string strTmpCDir(GetCurDir()), strTmpADir(Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir());
+		int AMode = m_parent->GetAnotherPanel(this)->GetMode();
+		string strTmpCDir(GetCurDir()), strTmpADir(m_parent->GetAnotherPanel(this)->GetCurDir());
 		// "цикл до умопомрачения"
 		int DoneEject=FALSE;
 
@@ -1083,7 +1085,7 @@ void Panel::RemoveHotplugDevice(const PanelMenuItem *item, VMenu2 &ChDisk)
 			{
 				// восстановим пути - это избавит нас от левых данных в панели.
 				if (AMode != PLUGIN_PANEL)
-					Global->CtrlObject->Cp()->GetAnotherPanel(this)->SetCurDir(strTmpADir, false);
+					m_parent->GetAnotherPanel(this)->SetCurDir(strTmpADir, false);
 
 				if (CMode != PLUGIN_PANEL)
 					SetCurDir(strTmpCDir, false);
@@ -1549,22 +1551,22 @@ void Panel::FastFind(int FirstKey)
 	}
 	Global->WaitInFastFind--;
 	Show();
-	Global->CtrlObject->MainKeyBar->Redraw();
+	m_parent->GetKeybar().Redraw();
 	Global->ScrBuf->Flush();
-	Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 
-	if ((KeyToProcess==KEY_ENTER||KeyToProcess==KEY_NUMENTER) && ActivePanel->GetType()==TREE_PANEL)
-		((TreeList *)ActivePanel)->ProcessEnter();
+	auto TreePanel = dynamic_cast<TreeList*>(m_parent->ActivePanel());
+	if (TreePanel && (KeyToProcess == KEY_ENTER || KeyToProcess == KEY_NUMENTER))
+		TreePanel->ProcessEnter();
 	else
-		Global->CtrlObject->Cp()->ProcessKey(Manager::Key(KeyToProcess));
+		m_parent->ProcessKey(Manager::Key(KeyToProcess));
 }
 
 void Panel::SetFocus()
 {
-	if (Global->CtrlObject->Cp()->ActivePanel() != this)
+	if (m_parent->ActivePanel() != this)
 	{
-		Global->CtrlObject->Cp()->ActivePanel()->KillFocus();
-		Global->CtrlObject->Cp()->SetActivePanel(this);
+		m_parent->ActivePanel()->KillFocus();
+		m_parent->SetActivePanel(this);
 	}
 
 	Global->WindowManager->UpdateMacroArea();
@@ -1572,7 +1574,7 @@ void Panel::SetFocus()
 
 	if (!GetFocus())
 	{
-		Global->CtrlObject->Cp()->RedrawKeyBar();
+		m_parent->RedrawKeyBar();
 		m_Focus = true;
 		Redraw();
 		FarChDir(m_CurDir);
@@ -1610,7 +1612,7 @@ int  Panel::PanelProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 				EndDrag();
 
 				if (!MouseEvent->dwMousePosition.X)
-					Global->CtrlObject->Cp()->ProcessKey(Manager::Key(KEY_CTRLO));
+					m_parent->ProcessKey(Manager::Key(KEY_CTRLO));
 				else
 					Global->Opt->ShellOptions(false,MouseEvent);
 
@@ -1644,7 +1646,7 @@ int  Panel::PanelProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 		}
 
 		if (MouseEvent->dwMousePosition.Y<=m_Y1 || MouseEvent->dwMousePosition.Y>=m_Y2 ||
-		        !Global->CtrlObject->Cp()->GetAnotherPanel(SrcDragPanel)->IsVisible())
+			!m_parent->GetAnotherPanel(SrcDragPanel)->IsVisible())
 		{
 			EndDrag();
 			return TRUE;
@@ -1816,7 +1818,7 @@ int Panel::SetCurPath()
 	if (GetMode()==PLUGIN_PANEL)
 		return TRUE;
 
-	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+	auto AnotherPanel = m_parent->GetAnotherPanel(this);
 
 	if (AnotherPanel->GetType()!=PLUGIN_PANEL)
 	{
@@ -1916,7 +1918,7 @@ int Panel::SetCurPath()
 void Panel::Hide()
 {
 	ScreenObject::Hide();
-	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+	auto AnotherPanel = m_parent->GetAnotherPanel(this);
 
 	if (AnotherPanel->IsVisible())
 	{
@@ -1939,28 +1941,30 @@ void Panel::Show()
 	if (Global->Opt->ShowMenuBar)
 		Global->CtrlObject->TopMenuBar->Show();
 
-	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
-
-	if (AnotherPanel->IsVisible() && !GetModalMode())
+	if (!GetModalMode())
 	{
-		if (SaveScr)
+		auto AnotherPanel = m_parent->GetAnotherPanel(this);
+		if (AnotherPanel->IsVisible())
 		{
-			SaveScr->AppendArea(AnotherPanel->SaveScr.get());
-		}
-
-		if (AnotherPanel->GetFocus())
-		{
-			if (AnotherPanel->IsFullScreen())
+			if (SaveScr)
 			{
-				SetVisible(true);
-				return;
+				SaveScr->AppendArea(AnotherPanel->SaveScr.get());
 			}
 
-			if (GetType()==FILE_PANEL && IsFullScreen())
+			if (AnotherPanel->GetFocus())
 			{
-				ScreenObject::Show();
-				AnotherPanel->Show();
-				return;
+				if (AnotherPanel->IsFullScreen())
+				{
+					SetVisible(true);
+					return;
+				}
+
+				if (GetType() == FILE_PANEL && IsFullScreen())
+				{
+					ScreenObject::Show();
+					AnotherPanel->Show();
+					return;
+				}
 			}
 		}
 	}
@@ -2063,12 +2067,11 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 	_ALGO(SysLog(L"(Command=%s, Param1=[%d/0x%08X], Param2=[%d/0x%08X])",_FCTL_ToName(Command),(int)Param1,Param1,(int)Param2,Param2));
 	int Result=FALSE;
 	ProcessingPluginCommand++;
-	FilePanels *FPanels=Global->CtrlObject->Cp();
 
 	switch (Command)
 	{
 		case FCTL_SETVIEWMODE:
-			Result=FPanels->ChangePanelViewMode(this,Param1,FPanels->IsTopWindow());
+			Result = m_parent->ChangePanelViewMode(this, Param1, m_parent->IsTopWindow());
 			break;
 
 		case FCTL_SETSORTMODE:
@@ -2167,7 +2170,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			Info->Flags |= (GetMode()==PLUGIN_PANEL)? PFLAGS_PLUGIN : 0;
 			Info->Flags |= IsVisible()? PFLAGS_VISIBLE : 0;
 			Info->Flags |= GetFocus()? PFLAGS_FOCUS : 0;
-                        Info->Flags |= this == Global->CtrlObject->Cp()->LeftPanel? PFLAGS_PANELLEFT : 0;
+			Info->Flags |= this == m_parent->LeftPanel ? PFLAGS_PANELLEFT : 0;
 
 			if (GetType()==FILE_PANEL)
 			{
@@ -2409,7 +2412,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			}
 
 			// $ 12.05.2001 DJ перерисовываемся только в том случае, если мы - текущее окно
-			if (FPanels->IsTopWindow())
+			if (m_parent->IsTopWindow())
 				Redraw();
 
 			Result=TRUE;
@@ -2424,7 +2427,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				string strName(NullToEmpty(dirInfo->Name)), strFile(NullToEmpty(dirInfo->File)), strParam(NullToEmpty(dirInfo->Param));
 				Result = ExecShortcutFolder(strName,dirInfo->PluginId,strFile,strParam,false);
 				// restore current directory to active panel path
-				Panel* ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
+				auto ActivePanel = m_parent->ActivePanel();
 				if (Result && this != ActivePanel)
 				{
 					ActivePanel->SetCurPath();
@@ -2606,7 +2609,7 @@ int Panel::ProcessShortcutFolder(int Key,BOOL ProcTreePanel)
 
 	if (GetShortcutFolder(Key-KEY_RCTRL0,&strShortcutFolder,&strPluginModule,&strPluginFile,&strPluginData))
 	{
-		Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+		auto AnotherPanel = m_parent->GetAnotherPanel(this);
 
 		if (ProcTreePanel)
 		{
@@ -2651,8 +2654,8 @@ bool Panel::ExecShortcutFolder(int Pos, bool raw)
 
 bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid, const string& strPluginFile, const string& strPluginData, bool CheckType)
 {
-	Panel *SrcPanel=this;
-	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+	auto SrcPanel=this;
+	auto AnotherPanel = m_parent->GetAnotherPanel(this);
 
 	if(CheckType)
 	{
@@ -2710,7 +2713,7 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid
 					sizeof(OpenShortcutInfo),
 					strPluginFile.empty()?nullptr:strPluginFile.data(),
 					strPluginData.empty()?nullptr:strPluginData.data(),
-					(SrcPanel == Global->CtrlObject->Cp()->ActivePanel()) ? FOSF_ACTIVE : FOSF_NONE
+					(SrcPanel == m_parent->ActivePanel()) ? FOSF_ACTIVE : FOSF_NONE
 				};
 				auto hNewPlugin=Global->CtrlObject->Plugins->Open(pPlugin,OPEN_SHORTCUT,FarGuid,(intptr_t)&info);
 
@@ -2718,8 +2721,8 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid
 				{
 					int CurFocus=SrcPanel->GetFocus();
 
-					Panel *NewPanel=Global->CtrlObject->Cp()->ChangePanel(SrcPanel,FILE_PANEL,TRUE,TRUE);
-					NewPanel->SetPluginMode(hNewPlugin,L"",CurFocus || !Global->CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible());
+					auto NewPanel = m_parent->ChangePanel(SrcPanel, FILE_PANEL, TRUE, TRUE);
+					NewPanel->SetPluginMode(hNewPlugin, L"", CurFocus || !m_parent->GetAnotherPanel(NewPanel)->IsVisible());
 
 					if (!strShortcutFolder.empty())
 					{
@@ -2747,14 +2750,14 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid
     /*
 	if (SrcPanel->GetType()!=FILE_PANEL)
 	{
-		SrcPanel=Global->CtrlObject->Cp()->ChangePanel(SrcPanel,FILE_PANEL,TRUE,TRUE);
+		SrcPanel = m_parent->ChangePanel(SrcPanel,FILE_PANEL,TRUE,TRUE);
 	}
     */
 
 	SrcPanel->SetCurDir(strShortcutFolder,true);
 
 	if (CheckFullScreen!=SrcPanel->IsFullScreen())
-		Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->Show();
+		m_parent->GetAnotherPanel(SrcPanel)->Show();
 
 	SrcPanel->Redraw();
 	return true;

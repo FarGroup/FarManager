@@ -146,9 +146,9 @@ static int MainProcess(
 		{
 			Global->OnlyEditorViewerUsed = true;
 
-			Panel* DummyPanel = new dummy_panel;
 			_tran(SysLog(L"create dummy panels"));
 			Global->CtrlObject->CreateDummyFilePanels();
+			auto DummyPanel = new dummy_panel(Global->CtrlObject->Cp());
 			Global->CtrlObject->Cp()->LeftPanel = Global->CtrlObject->Cp()->RightPanel = DummyPanel;
 			Global->CtrlObject->Cp()->SetActivePanel(DummyPanel);
 			Global->WindowManager->PluginCommit();

@@ -56,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "language.hpp"
 #include "exitcode.hpp"
+#include "keybar.hpp"
 
 FileViewer::FileViewer(const string& Name,int EnableSwitch,int DisableHistory, int DisableEdit,
                        __int64 ViewStartPos,const wchar_t *PluginData, NamesList *ViewNamesList,bool ToSaveAs,
@@ -123,9 +124,9 @@ void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 	__int64 ViewStartPos,const wchar_t *PluginData,
 	NamesList *ViewNamesList,bool ToSaveAs, window* Update)
 {
+	m_windowKeyBar = std::make_unique<KeyBar>();
+
 	RedrawTitle = FALSE;
-	ViewKeyBar.SetOwner(this);
-	ViewKeyBar.SetPosition(m_X1,m_Y2,m_X2,m_Y2);
 	m_KeyBarVisible = Global->Opt->ViOpt.ShowKeyBar;
 	m_TitleBarVisible = Global->Opt->ViOpt.ShowTitleBar;
 	SetMacroMode(MACROAREA_VIEWER);
@@ -136,6 +137,8 @@ void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 	SetCanLoseFocus(EnableSwitch);
 	SaveToSaveAs=ToSaveAs;
 	InitKeyBar();
+	m_windowKeyBar->SetOwner(this);
+	m_windowKeyBar->SetPosition(m_X1, m_Y2, m_X2, m_Y2);
 
 	if (ViewStartPos != -1)
 		m_View.SetFilePos(ViewStartPos);
@@ -152,10 +155,10 @@ void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 	}
 
 	m_ExitCode=TRUE;
-	ViewKeyBar.Show();
+	m_windowKeyBar->Show();
 
 	if (!Global->Opt->ViOpt.ShowKeyBar)
-		ViewKeyBar.Hide();
+		m_windowKeyBar->Hide();
 
 	ShowConsoleTitle();
 	F3KeyOnly=true;
@@ -176,21 +179,20 @@ void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 
 void FileViewer::InitKeyBar()
 {
-	ViewKeyBar.SetLabels(Global->OnlyEditorViewerUsed ? MSingleViewF1 : MViewF1);
+	m_windowKeyBar->SetLabels(Global->OnlyEditorViewerUsed ? MSingleViewF1 : MViewF1);
 
 	if (DisableEdit)
-		ViewKeyBar.Change(KBL_MAIN,L"",6-1);
+		m_windowKeyBar->Change(KBL_MAIN, L"", 6 - 1);
 
 	if (!GetCanLoseFocus())
-		ViewKeyBar.Change(KBL_MAIN,L"",12-1);
+		m_windowKeyBar->Change(KBL_MAIN, L"", 12 - 1);
 
 	if (!GetCanLoseFocus())
-		ViewKeyBar.Change(KBL_ALT,L"",11-1);
+		m_windowKeyBar->Change(KBL_ALT, L"", 11 - 1);
 
-	ViewKeyBar.SetCustomLabels(KBA_VIEWER);
-	SetKeyBar(&ViewKeyBar);
+	m_windowKeyBar->SetCustomLabels(KBA_VIEWER);
 	m_View.SetPosition(m_X1,m_Y1+(Global->Opt->ViOpt.ShowTitleBar?1:0),m_X2,m_Y2-(Global->Opt->ViOpt.ShowKeyBar?1:0));
-	m_View.SetViewKeyBar(&ViewKeyBar);
+	m_View.SetViewKeyBar(m_windowKeyBar.get());
 }
 
 void FileViewer::Show()
@@ -199,8 +201,8 @@ void FileViewer::Show()
 	{
 		if (Global->Opt->ViOpt.ShowKeyBar)
 		{
-			ViewKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
-			ViewKeyBar.Redraw();
+			m_windowKeyBar->SetPosition(0, ScrY, ScrX, ScrY);
+			m_windowKeyBar->Redraw();
 		}
 
 		SetPosition(0,0,ScrX,ScrY-(Global->Opt->ViOpt.ShowKeyBar?1:0));
@@ -228,13 +230,13 @@ __int64 FileViewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				break;
 			case 1:
 				Global->Opt->ViOpt.ShowKeyBar=1;
-				ViewKeyBar.Show();
+				m_windowKeyBar->Show();
 				Show();
 				m_KeyBarVisible = Global->Opt->ViOpt.ShowKeyBar;
 				break;
 			case 2:
 				Global->Opt->ViOpt.ShowKeyBar=0;
-				ViewKeyBar.Hide();
+				m_windowKeyBar->Hide();
 				Show();
 				m_KeyBarVisible = Global->Opt->ViOpt.ShowKeyBar;
 				break;
@@ -297,9 +299,9 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 			Global->Opt->ViOpt.ShowKeyBar=!Global->Opt->ViOpt.ShowKeyBar;
 
 			if (Global->Opt->ViOpt.ShowKeyBar)
-				ViewKeyBar.Show();
+				m_windowKeyBar->Show();
 			else
-				ViewKeyBar.Hide();
+				m_windowKeyBar->Hide();
 
 			Show();
 			m_KeyBarVisible = Global->Opt->ViOpt.ShowKeyBar;
@@ -383,7 +385,7 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 			Global->Opt->LocalViewerConfig(m_View.ViOpt);
 
 			if (Global->Opt->ViOpt.ShowKeyBar)
-				ViewKeyBar.Show();
+				m_windowKeyBar->Show();
 
 			m_View.Show();
 			return TRUE;
@@ -402,9 +404,9 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 			*/
 			if (!Global->CtrlObject->Macro.IsExecuting())
 				if (Global->Opt->ViOpt.ShowKeyBar)
-					ViewKeyBar.Show();
+					m_windowKeyBar->Show();
 
-			if (!ViewKeyBar.ProcessKey(Key))
+			if (!m_windowKeyBar->ProcessKey(Key))
 				return m_View.ProcessKey(Key);
 		}
 		return TRUE;
@@ -416,7 +418,7 @@ int FileViewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	F3KeyOnly = false;
 	if (!m_View.ProcessMouse(MouseEvent))
-		if (!ViewKeyBar.ProcessMouse(MouseEvent))
+		if (!m_windowKeyBar->ProcessMouse(MouseEvent))
 			return FALSE;
 
 	return TRUE;

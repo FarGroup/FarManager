@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "window.hpp"
-#include "keybar.hpp"
 #include "menubar.hpp"
 
 class Panel;
@@ -72,6 +71,8 @@ public:
 	// BUGBUG
 	void SetActivePanel(Panel* p) { m_ActivePanel = p; }
 
+	KeyBar& GetKeybar() { return *m_windowKeyBar; }
+
 private:
 	virtual void DisplayObject() override;
 	virtual string GetTitle() const override { return string(); }
@@ -89,7 +90,6 @@ public:
 	Panel *LeftPanel;
 	Panel *RightPanel;
 
-	KeyBar MainKeyBar;
 	MenuBar TopMenuBar;
 
 	int LastLeftType;

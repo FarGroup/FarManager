@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "exitcode.hpp"
 #include "language.hpp"
+#include "keybar.hpp"
 
 FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,bool IsFullScreen):
 	Tree(nullptr),
@@ -56,6 +57,8 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,b
 	IsFullScreen(IsFullScreen),
 	IsStandalone(IsStandalone)
 {
+	m_windowKeyBar = std::make_unique<KeyBar>();
+
 	SetDynamicallyBorn(false);
 	SetRestoreScreenMode(true);
 	if (ModalMode != MODALTREE_FREE)
@@ -64,7 +67,7 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,b
 	//TopScreen=new SaveScreen;
 	SetCoords();
 
-	Tree = new TreeList(false);
+	Tree = new TreeList(nullptr, false);
 
 		SetMacroMode(MACROAREA_FINDFOLDER);
 		strLastName.clear();
@@ -117,11 +120,11 @@ void FolderTree::DisplayObject()
 
 	if (!IsFullScreen)
 	{
-		TreeKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
-		TreeKeyBar.Show();
+		m_windowKeyBar->SetPosition(0,ScrY,ScrX,ScrY);
+		m_windowKeyBar->Show();
 	}
 	else
-		TreeKeyBar.Hide();
+		m_windowKeyBar->Hide();
 }
 
 
@@ -156,7 +159,7 @@ void FolderTree::ResizeConsole()
 void FolderTree::SetScreenPosition()
 {
 	if (IsFullScreen)
-		TreeKeyBar.Hide();
+		m_windowKeyBar->Hide();
 
 	SetCoords();
 	Show();
@@ -215,6 +218,7 @@ int FolderTree::ProcessKey(const Manager::Key& Key)
 		case KEY_F5:
 			IsFullScreen=!IsFullScreen;
 			ResizeConsole();
+			Show();
 			return TRUE;
 		case KEY_CTRLR:		case KEY_RCTRLR:
 		case KEY_F2:
@@ -297,7 +301,7 @@ int FolderTree::ProcessKey(const Manager::Key& Key)
 
 int FolderTree::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	if (TreeKeyBar.ProcessMouse(MouseEvent))
+	if (m_windowKeyBar->ProcessMouse(MouseEvent))
 		return TRUE;
 
 	if (MouseEvent->dwEventFlags==DOUBLE_CLICK)
@@ -354,7 +358,6 @@ void FolderTree::DrawEdit()
 
 void FolderTree::InitKeyBar()
 {
-	TreeKeyBar.SetLabels(MFolderTreeF1);
-	TreeKeyBar.SetCustomLabels(KBA_FOLDERTREE);
-	SetKeyBar(&TreeKeyBar);
+	m_windowKeyBar->SetLabels(MFolderTreeF1);
+	m_windowKeyBar->SetCustomLabels(KBA_FOLDERTREE);
 }

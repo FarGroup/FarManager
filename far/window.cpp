@@ -59,11 +59,6 @@ window::~window()
 	_OT(SysLog(L"[%p] window::~window()", this));
 }
 
-void window::SetKeyBar(KeyBar *WindowKeyBar)
-{
-	m_windowKeyBar=WindowKeyBar;
-}
-
 void window::UpdateKeyBar()
 {
 	if (m_windowKeyBar && m_KeyBarVisible)

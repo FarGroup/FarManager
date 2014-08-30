@@ -62,6 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "dizviewer.hpp"
 #include "locale.hpp"
+#include "keybar.hpp"
 
 static bool LastMode = false;
 static bool LastDizWrapMode = false;
@@ -87,7 +88,8 @@ struct InfoList::InfoListSectionState
 };
 
 
-InfoList::InfoList():
+InfoList::InfoList(FilePanels* Parent):
+	Panel(Parent),
 	DizView(nullptr),
 	OldWrapMode(nullptr),
 	OldWrapType(nullptr),
@@ -131,7 +133,7 @@ void InfoList::Update(int Mode)
 	if (!m_EnableUpdate)
 		return;
 
-	if (Global->CtrlObject->Cp() == Global->WindowManager->GetCurrentWindow())
+	if (m_parent == Global->WindowManager->GetCurrentWindow())
 		Redraw();
 }
 
@@ -165,7 +167,7 @@ void InfoList::DisplayObject()
 	m_Flags.Set(FSCROBJ_ISREDRAWING);
 
 	string strOutStr;
-	Panel *AnotherPanel = Global->CtrlObject->Cp()->GetAnotherPanel(this);
+	auto AnotherPanel = m_parent->GetAnotherPanel(this);
 	string strDriveRoot;
 	string strVolumeName, strFileSystemName;
 	DWORD MaxNameLength,FileSystemFlags,VolumeNumber;
@@ -708,12 +710,12 @@ int InfoList::ProcessKey(const Manager::Key& Key)
 
 			if (!strDizFileName.empty())
 			{
-				m_CurDir = Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir();
+				m_CurDir = m_parent->GetAnotherPanel(this)->GetCurDir();
 				FarChDir(m_CurDir);
 				new FileViewer(strDizFileName,TRUE);//OT
 			}
 
-			Global->CtrlObject->Cp()->Redraw();
+			m_parent->Redraw();
 			return TRUE;
 		case KEY_F4:
 			/* $ 30.04.2001 DJ
@@ -722,7 +724,7 @@ int InfoList::ProcessKey(const Manager::Key& Key)
 			убираем лишнюю перерисовку панелей
 			*/
 		{
-			Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+			auto AnotherPanel = m_parent->GetAnotherPanel(this);
 			m_CurDir = AnotherPanel->GetCurDir();
 			FarChDir(m_CurDir);
 
@@ -748,7 +750,7 @@ int InfoList::ProcessKey(const Manager::Key& Key)
 			AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 			//AnotherPanel->Redraw();
 			Update(0);
-			Global->CtrlObject->Cp()->Redraw();
+			m_parent->Redraw();
 			return TRUE;
 		}
 		case KEY_CTRLR:
@@ -771,7 +773,7 @@ int InfoList::ProcessKey(const Manager::Key& Key)
 			if (LocalKey == KEY_F8 || LocalKey == KEY_F2 || LocalKey == KEY_SHIFTF2)
 			{
 				DynamicUpdateKeyBar();
-				Global->CtrlObject->MainKeyBar->Redraw();
+				m_parent->GetKeybar().Redraw();
 			}
 
 			if (LocalKey == KEY_F7 || LocalKey == KEY_SHIFTF7)
@@ -782,7 +784,7 @@ int InfoList::ProcessKey(const Manager::Key& Key)
 				//ShellUpdatePanels(nullptr,FALSE);
 				DizView->InRecursion++;
 				Redraw();
-				Global->CtrlObject->Cp()->GetAnotherPanel(this)->Redraw();
+				m_parent->GetAnotherPanel(this)->Redraw();
 				DizView->SelectText(Pos,Length,Flags|1);
 				DizView->InRecursion--;
 			}
@@ -803,7 +805,7 @@ int InfoList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return RetCode;
 
 	bool NeedRedraw=false;
-	Panel *AnotherPanel = Global->CtrlObject->Cp()->GetAnotherPanel(this);
+	auto AnotherPanel = m_parent->GetAnotherPanel(this);
 	bool ProcessDescription = AnotherPanel->GetMode() == FILE_PANEL;
 	bool ProcessPluginDescription = AnotherPanel->GetMode() == PLUGIN_PANEL;
 	if ((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && !(MouseEvent->dwEventFlags & MOUSE_MOVED))
@@ -927,7 +929,7 @@ void InfoList::PrintInfo(LNGID MsgID) const
 
 bool InfoList::ShowDirDescription(int YPos)
 {
-	Panel *AnotherPanel = Global->CtrlObject->Cp()->GetAnotherPanel(this);
+	auto AnotherPanel = m_parent->GetAnotherPanel(this);
 
 	string strDizDir(AnotherPanel->GetCurDir());
 
@@ -959,7 +961,7 @@ bool InfoList::ShowDirDescription(int YPos)
 
 bool InfoList::ShowPluginDescription(int YPos)
 {
-	Panel *AnotherPanel = Global->CtrlObject->Cp()->GetAnotherPanel(this);
+	auto AnotherPanel = m_parent->GetAnotherPanel(this);
 
 	static wchar_t VertcalLine[2]={BoxSymbols[BS_V2],0};
 
@@ -1078,47 +1080,47 @@ int InfoList::GetCurName(string &strName, string &strShortName) const
 
 void InfoList::UpdateKeyBar()
 {
-	Global->CtrlObject->MainKeyBar->SetLabels(MInfoF1);
+	m_parent->GetKeybar().SetLabels(MInfoF1);
 	DynamicUpdateKeyBar();
 }
 
 void InfoList::DynamicUpdateKeyBar() const
 {
-	KeyBar *KB = Global->CtrlObject->MainKeyBar;
+	auto& Keybar = m_parent->GetKeybar();
 
 	if (DizView)
 	{
-		KB->Change(MSG(MInfoF3), 3-1);
+		Keybar.Change(MSG(MInfoF3), 3-1);
 
 		if (DizView->GetCodePage() != GetOEMCP())
-			KB->Change(MSG(MViewF8DOS), 7);
+			Keybar.Change(MSG(MViewF8DOS), 7);
 		else
-			KB->Change(MSG(MInfoF8), 7);
+			Keybar.Change(MSG(MInfoF8), 7);
 
 		if (!DizView->GetWrapMode())
 		{
 			if (DizView->GetWrapType())
-				KB->Change(MSG(MViewShiftF2), 2-1);
+				Keybar.Change(MSG(MViewShiftF2), 2-1);
 			else
-				KB->Change(MSG(MViewF2), 2-1);
+				Keybar.Change(MSG(MViewF2), 2-1);
 		}
 		else
-			KB->Change(MSG(MViewF2Unwrap), 2-1);
+			Keybar.Change(MSG(MViewF2Unwrap), 2-1);
 
 		if (DizView->GetWrapType())
-			KB->Change(KBL_SHIFT, MSG(MViewF2), 2-1);
+			Keybar.Change(KBL_SHIFT, MSG(MViewF2), 2-1);
 		else
-			KB->Change(KBL_SHIFT, MSG(MViewShiftF2), 2-1);
+			Keybar.Change(KBL_SHIFT, MSG(MViewShiftF2), 2-1);
 	}
 	else
 	{
-		KB->Change(MSG(MF2), 2-1);
-		KB->Change(KBL_SHIFT, L"", 2-1);
-		KB->Change(L"", 3-1);
-		KB->Change(L"", 8-1);
-		KB->Change(KBL_SHIFT, L"", 8-1);
-		KB->Change(KBL_ALT, MSG(MAltF8), 8-1);  // стандартный для панели - "хистори"
+		Keybar.Change(MSG(MF2), 2-1);
+		Keybar.Change(KBL_SHIFT, L"", 2-1);
+		Keybar.Change(L"", 3-1);
+		Keybar.Change(L"", 8-1);
+		Keybar.Change(KBL_SHIFT, L"", 8-1);
+		Keybar.Change(KBL_ALT, MSG(MAltF8), 8-1);  // стандартный для панели - "хистори"
 	}
 
-	KB->SetCustomLabels(KBA_INFO);
+	Keybar.SetCustomLabels(KBA_INFO);
 }

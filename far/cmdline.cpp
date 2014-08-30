@@ -69,6 +69,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "components.hpp"
 #include "desktop.hpp"
+#include "keybar.hpp"
 
 enum
 {
@@ -941,7 +942,7 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 		ShellUpdatePanels(Global->CtrlObject->Cp()->ActivePanel(), FALSE);
 		if (Global->Opt->ShowKeyBar)
 		{
-			Global->CtrlObject->MainKeyBar->Show();
+			Global->CtrlObject->Cp()->GetKeybar().Show();
 		}
 	}
 	if (Global->Opt->Clock)

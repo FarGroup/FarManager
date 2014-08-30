@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "window.hpp"
 #include "editor.hpp"
-#include "keybar.hpp"
 #include "plugin.hpp"
 #include "namelist.hpp"
 
@@ -148,7 +147,6 @@ private:
 	static uintptr_t GetDefaultCodePage();
 
 	std::unique_ptr<Editor> m_editor;
-	KeyBar EditKeyBar;
 	NamesList EditNamesList;
 	bool F4KeyOnly;
 	string strFileName;

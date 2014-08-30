@@ -78,7 +78,6 @@ public:
 
 	void SetCanLoseFocus(int Mode) { m_CanLoseFocus=Mode; }
 	int GetExitCode() const { return m_ExitCode; }
-	void SetKeyBar(KeyBar *WindowKeyBar);
 	void UpdateKeyBar();
 	int IsTitleBarVisible() const {return m_TitleBarVisible;}
 	int IsTopWindow() const;
@@ -99,7 +98,7 @@ protected:
 	int m_ExitCode;
 	int m_KeyBarVisible;
 	int m_TitleBarVisible;
-	KeyBar *m_windowKeyBar;
+	std::unique_ptr<KeyBar> m_windowKeyBar;
 
 private:
 	friend class Manager;
