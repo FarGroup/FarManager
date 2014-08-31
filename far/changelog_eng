@@ -3,6 +3,50 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 31.08.2014 17:22:50 +0200 - build 4073
+
+1. 0002785: Падение при попытке вызвать диалог создания архива (shift+F1)
+
+2. Refactoring.
+
+drkns 30.08.2014 20:27:40 +0200 - build 4072
+
+1. Refactoring.
+
+2. Forum: the filename in viewer caption line is displayed without the full path.
+
+3. Forum: cannot return to the end of the list with Ctrl-Shift-Tab.
+
+4. Folder tree processed F5 incorrectly.
+
+drkns 30.08.2014 14:02:22 +0200 - build 4071
+
+1. Continuing renamings: Frame is window now, because it actually is.
+
+2. Refactoring.
+
+3. 0002781: Exception under the VS2013 debugger
+
+drkns 27.08.2014 22:20:03 +0200 - build 4070
+
+1. Access rights getting/setting errors can now be skipped while copying.
+
+2. On transcoding errors the editor was trying to reload a yet inexisting file.
+
+3. Refactoring.
+
+shmuel 27.08.2014 21:21:19 +0200 - build 4069
+
+1. Continuation of 4068.
+
+shmuel 26.08.2014 21:08:48 +0200 - build 4068
+
+1. MCTL_LOADALL supports explicit definition of paths for macro files loading.
+
+drkns 25.08.2014 00:30:14 +0200 - build 4067
+
+1. Correction of 4064.
+
 drkns 24.08.2014 18:51:17 +0200 - build 4066
 
 1. Refactoring.
