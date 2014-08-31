@@ -112,7 +112,7 @@ public:
 	size_t GetModalWindowCount() const { return m_nodalWindows.size(); }
 	window* GetModalWindow(size_t index) const { return m_nodalWindows[index]; }
 
-	void AddGlobalKeyHandler(const std::function<int(Key)>& Handler);
+	void AddGlobalKeyHandler(const std::function<int(const Key&)>& Handler);
 
 	static long GetCurrentWindowType() { return CurrentWindowType; }
 	static bool ShowBackground();
@@ -169,6 +169,6 @@ private:
 	bool StartManager;
 	static long CurrentWindowType;
 	std::list<std::unique_ptr<MessageAbstract>> m_Queue;
-	std::vector<std::function<int(Key)>> m_GlobalKeyHandlers;
+	std::vector<std::function<int(const Key&)>> m_GlobalKeyHandlers;
 	std::map<window*,volatile bool*> m_Executed;
 };

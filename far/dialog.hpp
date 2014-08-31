@@ -269,7 +269,7 @@ public:
 		FARDIALOGITEMFLAGS Checked3Set=DIF_NONE,FARDIALOGITEMFLAGS Checked3Skip=DIF_NONE);
 
 	intptr_t DlgProc(intptr_t Msg,intptr_t Param1,void* Param2);
-	BOOL IsInited();
+	BOOL IsInited() const;
 	virtual bool ProcessEvents() override;
 	void SetId(const GUID& Id);
 	const GUID& GetId() const {return m_Id;}
@@ -296,7 +296,7 @@ private:
 	void Construct(const FarDialogItem** SrcItem, size_t SrcItemCount);
 	void Init();
 	void DeleteDialogObjects();
-	int LenStrItem(size_t ID, const string& lpwszStr);
+	int LenStrItem(size_t ID, const string& lpwszStr) const;
 	int LenStrItem(size_t ID);
 	void ShowDialog(size_t ID=(size_t)-1);  //    ID=-1 - отрисовать весь диалог
 	intptr_t CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITEMTYPES Type, bool Focus, bool Default,FARDIALOGITEMFLAGS Flags);
@@ -305,10 +305,10 @@ private:
 		    ¬ынесен отдельно дл€ того, чтобы обработать DMSG_KILLFOCUS & DMSG_SETFOCUS
 	*/
 	void ChangeFocus2(size_t SetFocusPos);
-	size_t ChangeFocus(size_t FocusPos,int Step,int SkipGroup);
+	size_t ChangeFocus(size_t FocusPos,int Step,int SkipGroup) const;
 	BOOL SelectFromEditHistory(const DialogItemEx *CurItem,DlgEdit *EditLine,const string& HistoryName,string &strStr);
 	int SelectFromComboBox(DialogItemEx *CurItem,DlgEdit*EditLine,VMenu *List);
-	int AddToEditHistory(const DialogItemEx* CurItem, const string& AddStr);
+	int AddToEditHistory(const DialogItemEx* CurItem, const string& AddStr) const;
 	void ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex);  // обработка DIF_USELASTHISTORY
 	int ProcessHighlighting(int Key,size_t FocusPos,int Translate);
 	int CheckHighlights(WORD Chr,int StartPos=0);
@@ -328,7 +328,7 @@ private:
 	int Do_ProcessFirstCtrl();
 	int Do_ProcessSpace();
 	void SetComboBoxPos(DialogItemEx* Item=nullptr);
-	void CalcComboBoxPos(DialogItemEx* CurItem, intptr_t ItemCount, int &X1, int &Y1, int &X2, int &Y2);
+	void CalcComboBoxPos(const DialogItemEx* CurItem, intptr_t ItemCount, int &X1, int &Y1, int &X2, int &Y2) const;
 	void ProcessKey(int Key, size_t ItemPos);
 
 	static bool ItemHasDropDownArrow(const DialogItemEx *Item);

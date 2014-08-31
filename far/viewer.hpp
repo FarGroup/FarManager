@@ -78,7 +78,7 @@ public:
 	int  ViewerControl(int Command, intptr_t Param1, void *Param2);
 	void SetHostFileViewer(FileViewer *Viewer) {HostFileViewer=Viewer;}
 	void GoTo(int ShowDlg=TRUE,__int64 NewPos=0,UINT64 Flags=0);
-	void GetSelectedParam(__int64 &Pos, __int64 &Length, DWORD &Flags);
+	void GetSelectedParam(__int64 &Pos, __int64 &Length, DWORD &Flags) const;
 	void SelectText(const __int64 &MatchPos,const __int64 &SearchLength, const DWORD Flags=0x1);
 	bool GetShowScrollbar() const { return ViOpt.ShowScrollbar; }
 	void SetShowScrollbar(bool newValue) { ViOpt.ShowScrollbar=newValue; }

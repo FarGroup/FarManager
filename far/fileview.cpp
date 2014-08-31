@@ -185,10 +185,10 @@ void FileViewer::InitKeyBar()
 		m_windowKeyBar->Change(KBL_MAIN, L"", 6 - 1);
 
 	if (!GetCanLoseFocus())
+	{
 		m_windowKeyBar->Change(KBL_MAIN, L"", 12 - 1);
-
-	if (!GetCanLoseFocus())
 		m_windowKeyBar->Change(KBL_ALT, L"", 11 - 1);
+	}
 
 	m_windowKeyBar->SetCustomLabels(KBA_VIEWER);
 	m_View.SetPosition(m_X1,m_Y1+(Global->Opt->ViOpt.ShowTitleBar?1:0),m_X2,m_Y2-(Global->Opt->ViOpt.ShowKeyBar?1:0));

@@ -1281,10 +1281,11 @@ public:
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual int GetType() const override { return windowtype_search; }
 	virtual int GetTypeAndName(string &, string &) override { return windowtype_search; }
-	int KeyToProcess(void) {return m_KeyToProcess;}
+	int KeyToProcess(void) const { return m_KeyToProcess; }
+
 private:
-    Panel* m_Owner;
-    int m_FirstKey;
+	Panel* m_Owner;
+	int m_FirstKey;
 	EditControl m_FindEdit;
 	int m_KeyToProcess;
 	Search();

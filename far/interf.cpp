@@ -193,7 +193,7 @@ BOOL WINAPI CtrlHandler(DWORD CtrlType)
 	return FALSE;
 }
 
-static int ConsoleScrollHook(Manager::Key key)
+static int ConsoleScrollHook(const Manager::Key& key)
 {
 	// Удалить после появления макрофункции Scroll
 	if (Global->Opt->WindowMode && Global->WindowManager->IsPanelsActive())

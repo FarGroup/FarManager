@@ -763,7 +763,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_C_BOF:
 			return !m_CurFile;
 		case MCODE_C_SELECTED:
-			return GetRealSelCount() > 1;
+			return GetRealSelCount() != 0;
 		case MCODE_V_ITEMCOUNT:
 			return m_ListData.size();
 		case MCODE_V_CURPOS:
@@ -6257,20 +6257,25 @@ void FileList::SetPluginMode(PluginHandle* hPlugin,const string& PluginFile,bool
 	if (Info.StartPanelMode)
 		SetViewMode(VIEW_0+Info.StartPanelMode-L'0');
 
-	m_parent->RedrawKeyBar();
-
 	if (Info.StartSortMode)
 	{
 		m_SortMode=Info.StartSortMode-(SM_UNSORTED-UNSORTED);
 		m_ReverseSortOrder = Info.StartSortOrder != 0;
 	}
 
-	auto AnotherPanel = m_parent->GetAnotherPanel(this);
-
-	if (AnotherPanel->GetType()!=FILE_PANEL)
+	if (m_parent)
 	{
-		AnotherPanel->Update(UPDATE_KEEP_SELECTION);
-		AnotherPanel->Redraw();
+		// BUGBUG, redraw logic shouldn't be here
+
+		m_parent->RedrawKeyBar();
+
+		auto AnotherPanel = m_parent->GetAnotherPanel(this);
+
+		if (AnotherPanel->GetType() != FILE_PANEL)
+		{
+			AnotherPanel->Update(UPDATE_KEEP_SELECTION);
+			AnotherPanel->Redraw();
+		}
 	}
 }
 

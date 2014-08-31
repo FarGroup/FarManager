@@ -61,7 +61,7 @@ public:
 	virtual int GetType() const override { return windowtype_hmenu; }
 	virtual int GetTypeAndName(string &, string &) override { return windowtype_hmenu; }
 
-	void GetExitCode(int &ExitCode, int &VExitCode);
+	void GetExitCode(int &ExitCode, int &VExitCode) const;
 
 private:
 	virtual void DisplayObject() override;

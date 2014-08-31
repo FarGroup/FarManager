@@ -396,7 +396,7 @@ int HMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 }
 
 
-void HMenu::GetExitCode(int &ExitCode,int &VExitCode)
+void HMenu::GetExitCode(int &ExitCode,int &VExitCode) const
 {
 	ExitCode = m_ExitCode;
 	VExitCode = m_VExitCode;

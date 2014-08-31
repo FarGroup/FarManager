@@ -699,7 +699,7 @@ static int GetNum(const wchar_t* src,int& i)
 	return res;
 }
 
-static int CalcPatternLength(RegExp::REOpCode* from, RegExp::REOpCode* to)
+static int CalcPatternLength(const RegExp::REOpCode* from, const RegExp::REOpCode* to)
 {
 	int len=0;
 	int altcnt=0;

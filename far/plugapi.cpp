@@ -2236,8 +2236,6 @@ intptr_t WINAPI apiFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COM
 			Filter = new FileFilter((Panel *)hHandle, (FAR_FILE_FILTER_TYPE)Param1);
 			*((HANDLE *)Param2) = (HANDLE)Filter;
 			return TRUE;
-
-			break;
 		}
 		case FFCTL_FREEFILEFILTER:
 		{

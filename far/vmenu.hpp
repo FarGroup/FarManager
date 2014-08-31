@@ -266,17 +266,17 @@ public:
 	size_t  SetUserData(LPCVOID Data, size_t Size = 0, int Position = -1);
 	int GetSelectPos() const { return SelectPos; }
 	int GetLastSelectPosResult() const { return SelectPosResult; }
-	int GetSelectPos(FarListPos *ListPos);
+	int GetSelectPos(FarListPos *ListPos) const;
 	int SetSelectPos(const FarListPos *ListPos, int Direct = 0);
 	int SetSelectPos(int Pos, int Direct, bool stop_on_edge = false);
 	int GetCheck(int Position = -1);
 	void SetCheck(int Check, int Position = -1);
-	bool UpdateRequired();
+	bool UpdateRequired() const;
 	void UpdateItemFlags(int Pos, UINT64 NewFlags);
 	struct MenuItemEx *GetItemPtr(int Position = -1);
 	void SortItems(bool Reverse = false, int Offset = 0);
 	bool Pack();
-	BOOL GetVMenuInfo(struct FarListInfo* Info);
+	BOOL GetVMenuInfo(struct FarListInfo* Info) const;
 	void SetMaxHeight(int NewMaxHeight);
 	size_t GetVDialogItemID() const { return DialogItemID; }
 	void SetVDialogItemID(size_t NewDialogItemID) { DialogItemID = NewDialogItemID; }
@@ -311,7 +311,7 @@ private:
 
 	void ShowMenu(bool IsParent=false);
 	void DrawTitles();
-	int GetItemPosition(int Position);
+	int GetItemPosition(int Position) const;
 	static size_t _SetUserData(MenuItemEx *PItem,const void *Data,size_t Size);
 	static void* _GetUserData(MenuItemEx *PItem,void *Data,size_t Size);
 	bool CheckKeyHiOrAcc(DWORD Key,int Type,int Translate,bool ChangePos,int& NewPos);

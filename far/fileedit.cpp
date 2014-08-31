@@ -719,19 +719,16 @@ void FileEditor::InitKeyBar()
 	m_windowKeyBar->SetLabels(Global->OnlyEditorViewerUsed ? MSingleEditF1 : MEditF1);
 
 	if (!GetCanLoseFocus())
+	{
+		m_windowKeyBar->Change(KBL_MAIN, L"", 12 - 1);
+		m_windowKeyBar->Change(KBL_ALT, L"", 11 - 1);
 		m_windowKeyBar->Change(KBL_SHIFT, L"", 4 - 1);
-
+	}
 	if (m_Flags.Check(FFILEEDIT_SAVETOSAVEAS))
 		m_windowKeyBar->Change(KBL_MAIN, MSG(MEditShiftF2), 2 - 1);
 
 	if (!m_Flags.Check(FFILEEDIT_ENABLEF6))
 		m_windowKeyBar->Change(KBL_MAIN, L"", 6 - 1);
-
-	if (!GetCanLoseFocus())
-		m_windowKeyBar->Change(KBL_MAIN, L"", 12 - 1);
-
-	if (!GetCanLoseFocus())
-		m_windowKeyBar->Change(KBL_ALT, L"", 11 - 1);
 
 	if (m_codepage!=GetACP())
 		m_windowKeyBar->Change(KBL_MAIN, MSG(Global->OnlyEditorViewerUsed ? MSingleEditF8 : MEditF8), 7);

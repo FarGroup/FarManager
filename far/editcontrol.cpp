@@ -738,7 +738,7 @@ void EditControl::SetObjectColor(const FarColor& Color,const FarColor& SelColor,
 	m_UnchangedColor=ColorUnChanged;
 }
 
-void EditControl::GetObjectColor(FarColor& Color, FarColor& SelColor, FarColor& ColorUnChanged)
+void EditControl::GetObjectColor(FarColor& Color, FarColor& SelColor, FarColor& ColorUnChanged) const
 {
 	Color = m_Color;
 	SelColor = m_SelectedColor;

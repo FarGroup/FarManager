@@ -363,7 +363,7 @@ template <typename T, size_t N>
 typename std::enable_if<std::is_array<T>::value, as_string_t<T>>::type as_string(T(&str)[N]) { return as_string_t<T>(str, N - 1); }
 
 template<class T>
-size_t as_index(T t) { return static_cast<typename std::make_unsigned<T>::type>(t); }
+typename std::make_unsigned<T>::type as_unsigned(T t) { return static_cast<typename std::make_unsigned<T>::type>(t); }
 
 template<class iterator_type>
 class range

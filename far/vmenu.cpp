@@ -154,7 +154,7 @@ bool VMenu::ItemIsVisible(UINT64 Flags) const
 	return !(Flags&(LIF_HIDDEN));
 }
 
-bool VMenu::UpdateRequired()
+bool VMenu::UpdateRequired() const
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
@@ -365,7 +365,7 @@ void VMenu::UpdateSelectPos()
 	}
 }
 
-int VMenu::GetItemPosition(int Position)
+int VMenu::GetItemPosition(int Position) const
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
@@ -378,7 +378,7 @@ int VMenu::GetItemPosition(int Position)
 }
 
 // получить позицию курсора и верхнюю позицию итема
-int VMenu::GetSelectPos(FarListPos *ListPos)
+int VMenu::GetSelectPos(FarListPos *ListPos) const
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
@@ -2818,7 +2818,7 @@ void VMenu::SetOneColor(int Index, PaletteColors Color)
 		Colors[Index] = ColorIndexToColor(Color);
 }
 
-BOOL VMenu::GetVMenuInfo(FarListInfo* Info)
+BOOL VMenu::GetVMenuInfo(FarListInfo* Info) const
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 

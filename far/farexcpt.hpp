@@ -42,7 +42,7 @@ bool ProcessSEHException(Plugin *Module, const wchar_t* function, EXCEPTION_POIN
 inline bool ProcessSEHException(const wchar_t* function, EXCEPTION_POINTERS *xp) { return ProcessSEHException(nullptr, function, xp); }
 
 // for plugins
-bool ProcessStdException(const std::exception& e, Plugin *Module, const wchar_t* function);
+bool ProcessStdException(const std::exception& e, const Plugin* Module, const wchar_t* function);
 
 // for Far
 inline bool ProcessStdException(const std::exception& e, const wchar_t* function) { return ProcessStdException(e, nullptr, function); }

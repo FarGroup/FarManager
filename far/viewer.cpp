@@ -4043,7 +4043,7 @@ void Viewer::SetFileSize()
 }
 
 
-void Viewer::GetSelectedParam(__int64 &Pos, __int64 &Length, DWORD &Flags)
+void Viewer::GetSelectedParam(__int64 &Pos, __int64 &Length, DWORD &Flags) const
 {
 	Pos=SelectPos;
 	Length=SelectSize;

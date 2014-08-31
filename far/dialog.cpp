@@ -2072,7 +2072,7 @@ int Dialog::LenStrItem(size_t ID)
 	return LenStrItem(ID, Items[ID].strData);
 }
 
-int Dialog::LenStrItem(size_t ID, const string& lpwszStr)
+int Dialog::LenStrItem(size_t ID, const string& lpwszStr) const
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
@@ -3679,7 +3679,10 @@ int Dialog::Do_ProcessSpace()
 		auto OldSelected=Items[m_FocusPos].Selected;
 
 		if (Items[m_FocusPos].Flags&DIF_3STATE)
-			(++Items[m_FocusPos].Selected)%=3;
+		{
+			++Items[m_FocusPos].Selected;
+			Items[m_FocusPos].Selected %= 3;
+		}
 		else
 			Items[m_FocusPos].Selected = !Items[m_FocusPos].Selected;
 
@@ -3723,7 +3726,7 @@ int Dialog::Do_ProcessSpace()
 /* $ 24.08.2000 SVS
    Добавка для DI_USERCONTROL
 */
-size_t Dialog::ChangeFocus(size_t CurFocusPos,int Step,int SkipGroup)
+size_t Dialog::ChangeFocus(size_t CurFocusPos,int Step,int SkipGroup) const
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 	size_t OrigFocusPos=CurFocusPos;
@@ -4104,7 +4107,7 @@ BOOL Dialog::SelectFromEditHistory(const DialogItemEx *CurItem,
 /* Private:
    Работа с историей - добавление и reorder списка
 */
-int Dialog::AddToEditHistory(const DialogItemEx* CurItem, const string& AddStr)
+int Dialog::AddToEditHistory(const DialogItemEx* CurItem, const string& AddStr) const
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
@@ -6213,13 +6216,13 @@ void Dialog::SetPosition(int X1,int Y1,int X2,int Y2)
 	ScreenObjectWithShadow::SetPosition(X1, Y1, X2, Y2);
 }
 //////////////////////////////////////////////////////////////////////////
-BOOL Dialog::IsInited()
+BOOL Dialog::IsInited() const
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 	return DialogMode.Check(DMODE_OBJECTS_INITED);
 }
 
-void Dialog::CalcComboBoxPos(DialogItemEx* CurItem, intptr_t ItemCount, int &X1, int &Y1, int &X2, int &Y2)
+void Dialog::CalcComboBoxPos(const DialogItemEx* CurItem, intptr_t ItemCount, int &X1, int &Y1, int &X2, int &Y2) const
 {
 	if(!CurItem)
 	{

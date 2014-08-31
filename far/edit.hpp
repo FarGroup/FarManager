@@ -146,7 +146,7 @@ public:
 	void SetHiString(const string& Str);
 	void SetString(const wchar_t *Str,int Length=-1);
 	void SetBinaryString(const wchar_t *Str,int Length);
-	void GetBinaryString(const wchar_t **Str, const wchar_t **EOL,intptr_t &Length);
+	void GetBinaryString(const wchar_t **Str, const wchar_t **EOL,intptr_t &Length) const;
 	void SetEOL(const wchar_t *EOL);
 	const wchar_t *GetEOL() const;
 	int GetSelString(wchar_t *Str,int MaxSize);

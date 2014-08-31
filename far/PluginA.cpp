@@ -279,7 +279,7 @@ static unsigned WINAPI LocalUpper(unsigned LowerChar)
 static void WINAPI LocalUpperBuf(char *Buf,int Length)
 {
 	auto str = as_string(Buf, Length);
-	std::for_each(RANGE(str, i) { i = LowerToUpper[as_index(i)]; });
+	std::for_each(RANGE(str, i) { i = LowerToUpper[as_unsigned(i)]; });
 }
 
 static unsigned WINAPI LocalLower(unsigned UpperChar)
@@ -290,19 +290,19 @@ static unsigned WINAPI LocalLower(unsigned UpperChar)
 static void WINAPI LocalLowerBuf(char *Buf,int Length)
 {
 	auto str = as_string(Buf, Length);
-	std::for_each(RANGE(str, i) { i = UpperToLower[as_index(i)]; });
+	std::for_each(RANGE(str, i) { i = UpperToLower[as_unsigned(i)]; });
 }
 
 static void WINAPI LocalStrupr(char *s1)
 {
 	auto str = as_string(s1);
-	std::for_each(RANGE(str, i) { i = LowerToUpper[as_index(i)]; });
+	std::for_each(RANGE(str, i) { i = LowerToUpper[as_unsigned(i)]; });
 }
 
 static void WINAPI LocalStrlwr(char *s1)
 {
 	auto str = as_string(s1);
-	std::for_each(RANGE(str, i) { i = UpperToLower[as_index(i)]; });
+	std::for_each(RANGE(str, i) { i = UpperToLower[as_unsigned(i)]; });
 }
 
 static int LocalStricmp(const char *s1,const char *s2)
@@ -496,7 +496,7 @@ static DWORD KeyToOldKey(DWORD dKey)
 			wchar_t WideChar=static_cast<wchar_t>(CleanKey);
 			char OemChar=0;
 			if (WideCharToMultiByte(CP_OEMCP,0,&WideChar,1,&OemChar,1,0,nullptr))
-				dKey=(dKey^CleanKey)|OemChar;
+				dKey = (dKey^CleanKey) | as_unsigned(OemChar);
 		}
 	}
 

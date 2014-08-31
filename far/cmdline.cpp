@@ -499,7 +499,7 @@ void CommandLine::SetCurDir(const string& CurDir)
 }
 
 
-int CommandLine::GetCurDir(string &CurDir)
+int CommandLine::GetCurDir(string &CurDir) const
 {
 	CurDir = m_CurDir;
 	return (int)CurDir.size();

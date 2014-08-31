@@ -633,7 +633,7 @@ void Manager::ExitMainLoop(int Ask)
 	}
 }
 
-void Manager::AddGlobalKeyHandler(const std::function<int(Key)>& Handler)
+void Manager::AddGlobalKeyHandler(const std::function<int(const Key&)>& Handler)
 {
 	m_GlobalKeyHandlers.emplace_back(Handler);
 }
@@ -806,8 +806,6 @@ int Manager::ProcessKey(Key key)
 						}
 
 						return TRUE;
-
-					break;
 				}
 				case KEY_CTRLTAB:
 				case KEY_RCTRLTAB:

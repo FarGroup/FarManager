@@ -1758,7 +1758,7 @@ void Edit::SetBinaryString(const wchar_t *Str,int Length)
 	Changed();
 }
 
-void Edit::GetBinaryString(const wchar_t **Str,const wchar_t **EOL,intptr_t &Length)
+void Edit::GetBinaryString(const wchar_t **Str,const wchar_t **EOL,intptr_t &Length) const
 {
 	*Str=m_Str;
 

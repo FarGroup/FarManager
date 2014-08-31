@@ -625,7 +625,7 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 			if(Result == 0)
 			{
 				HWND Wnd = nullptr;
-				if (SUCCEEDED(pfiu->GetSwitchToHWND(&Wnd)))
+				if (pfiu && SUCCEEDED(pfiu->GetSwitchToHWND(&Wnd)))
 				{
 					SetForegroundWindow(Wnd);
 					if (IsIconic(Wnd))

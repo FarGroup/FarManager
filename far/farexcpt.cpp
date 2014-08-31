@@ -431,7 +431,7 @@ void attach_debugger()
 	SetErrorMode(Global->ErrorMode);
 }
 
-bool ProcessStdException(const std::exception& e, Plugin *Module, const wchar_t* function)
+bool ProcessStdException(const std::exception& e, const Plugin* Module, const wchar_t* function)
 {
 	if (Global)
 		Global->ProcessException = TRUE;
