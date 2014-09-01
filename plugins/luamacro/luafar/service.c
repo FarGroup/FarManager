@@ -1673,6 +1673,8 @@ static int far_Menu(lua_State *L)
 
 		if(GetBoolFromTable(L, "hidden"))    pItem->Flags |= MIF_HIDDEN;
 
+		if(GetBoolFromTable(L, "selected"))  pItem->Flags |= MIF_SELECTED;
+
 		//-------------------------------------------------------------------------
 		lua_getfield(L, -1, "AccelKey");
 

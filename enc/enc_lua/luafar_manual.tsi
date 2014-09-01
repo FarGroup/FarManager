@@ -2471,7 +2471,7 @@ id=64
 lv=2
 dt=Text
 nm=far.Menu
-mtime=3602539031
+mtime=3618776374
 <article>
 #_Item, Position = far.Menu (Properties, Items [, BreakKeys])
 #_
@@ -2497,6 +2497,7 @@ mtime=3602539031
 #_        disable:      boolean
 #_        grayed:       boolean
 #_        hidden:       boolean
+#_        selected:     boolean
 #_        AccelKey:     table `tFarKey`
 #_
 #_  BreakKeys: table (array of break key items)

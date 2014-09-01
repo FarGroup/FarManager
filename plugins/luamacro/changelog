@@ -1,4 +1,8 @@
-﻿shmuel 28.08.2014 21:36:52 +0200 - build 423
+﻿shmuel 01.09.2014 23:48:28 +0200 - build 424
+
+1. M#2724: LuaFAR: MIF_SELECTED для far.Menu.
+
+shmuel 28.08.2014 21:36:52 +0200 - build 423
 
 1. 'MacroPath' в luamacro.ini должно быть внутри секции [General].
 
