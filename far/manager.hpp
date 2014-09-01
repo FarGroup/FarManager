@@ -170,5 +170,5 @@ private:
 	static long CurrentWindowType;
 	std::list<std::unique_ptr<MessageAbstract>> m_Queue;
 	std::vector<std::function<int(const Key&)>> m_GlobalKeyHandlers;
-	std::map<window*,volatile bool*> m_Executed;
+	std::map<window*,bool*> m_Executed;
 };

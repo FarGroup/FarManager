@@ -1806,8 +1806,6 @@ int FileList::ProcessKey(const Manager::Key& Key)
 											EditList.SetCurName(strFileName);
 											ShellEditor->SetNamesList(EditList);
 										}
-
-										Global->WindowManager->ExecuteModal(ShellEditor);
 									}
 							}
 						}

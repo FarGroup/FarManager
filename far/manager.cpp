@@ -280,7 +280,7 @@ void Manager::ExecuteModal(window *Executed)
 	_MANAGER(CleverSysLog clv(L"Manager::ExecuteModal (window *Executed)"));
 	_MANAGER(SysLog(L"Executed=%p",Executed));
 
-	volatile bool stop=false;
+	bool stop=false;
 	auto& stop_ref=m_Executed[Executed];
 	if (stop_ref) return;
 	stop_ref=&stop;
