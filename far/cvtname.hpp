@@ -45,6 +45,4 @@ void ConvertNameToUNC(string &strFileName);
 
 string& PrepareDiskPath(string &strPath, bool CheckFullPath=true);
 
-bool RemoveDots(const string &Src, string &strDest);
-
 size_t GetMountPointLen(const string& abs_path, const string& drive_root);

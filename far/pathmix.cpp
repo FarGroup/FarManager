@@ -78,8 +78,8 @@ PATH_TYPE ParsePath(const string& path, size_t* DirectoryOffset, bool* Root)
 	}
 	PathTypes[] =
 	{
-		// x:<whatever>
-		{PATH_DRIVELETTER, L"/(^.\\:)/"},
+		// x:<whatever> or x:\\<whatever>
+		{PATH_DRIVELETTER, L"/(^.\\:)(?:[\\\\\\/]|$)/"},
 		// \\?\x: or \\?\x:\ or \\?\x:\<whatever>
 		{PATH_DRIVELETTERUNC, L"/(^\\\\{2}[\\?\\.]\\\\.\\:)(?:[\\\\\\/]|$)/"},
 		// \\server\share or \\server\share\ or \\server\share<whatever>
@@ -102,20 +102,20 @@ PATH_TYPE ParsePath(const string& path, size_t* DirectoryOffset, bool* Root)
 		REInit = true;
 	}
 
-	RegExpMatch m[3];
+	RegExpMatch m;
 
 	std::any_of(RANGE(PathTypes, i) -> bool
 	{
-		intptr_t n = i.re.GetBracketsCount();
-		if(i.re.Search(path.data(), m, n))
+		intptr_t n = 1;
+		if(i.re.Search(path.data(), &m, n))
 		{
 			if(DirectoryOffset)
 			{
-				*DirectoryOffset = m[1].end;
+				*DirectoryOffset = m.end;
 			}
 			if(Root)
 			{
-				*Root = path.size() == static_cast<size_t>(m[1].end) || (path.size() == static_cast<size_t>(m[1].end + 1) && IsSlash(path[m[1].end]));
+				*Root = path.size() == static_cast<size_t>(m.end) || (path.size() == static_cast<size_t>(m.end + 1) && IsSlash(path[m.end]));
 			}
 			Result = i.Type;
 			return true;
@@ -522,7 +522,11 @@ string ExtractPathRoot(const string &Path)
 	size_t PathRootLen = GetPathRootLength(Path);
 
 	if (PathRootLen)
-		return string(Path.data(), PathRootLen).append(1, L'\\');
+	{
+		string result(Path.data(), PathRootLen);
+		AddEndSlash(result);
+		return result;
+	}
 	else
 		return string();
 }
@@ -538,7 +542,7 @@ string ExtractFileName(const string &Path)
 
 	size_t PathRootLen = GetPathRootLength(Path);
 
-	if (p <= PathRootLen && PathRootLen)
+	if (p < PathRootLen && PathRootLen)
 		return string();
 
 	return string(Path.data() + p, Path.size() - p);
@@ -554,7 +558,11 @@ string ExtractFilePath(const string &Path)
 	size_t PathRootLen = GetPathRootLength(Path);
 
 	if (p <= PathRootLen && PathRootLen)
-		return string(Path.data(), PathRootLen).append(1, L'\\');
+	{
+		string result(Path.data(), PathRootLen);
+		AddEndSlash(result);
+		return result;
+	}
 
 	return string(Path.data(), p);
 }

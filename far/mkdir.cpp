@@ -165,6 +165,8 @@ void ShellMakeDir(Panel *SrcPanel)
 			strDirName = i;
 			strOriginalDirName = strDirName;
 
+			ConvertNameToFull(strDirName, strDirName);
+
 			//Unquote(DirName);
 			if (Global->Opt->CreateUppercaseFolders && !IsCaseMixed(strDirName))
 				Upper(strDirName);
@@ -177,7 +179,7 @@ void ShellMakeDir(Panel *SrcPanel)
 			string Part;
 			Part.reserve(strDirName.size());
 
-			for (size_t j = DirOffset + (IsSlash(strDirName[DirOffset])? 1 : 0); j <= strDirName.size(); ++j)
+			for (size_t j = DirOffset; j <= strDirName.size(); ++j)
 			{
 				if (j == strDirName.size() || IsSlash(strDirName[j]))
 				{

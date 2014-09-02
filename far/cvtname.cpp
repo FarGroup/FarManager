@@ -51,12 +51,11 @@ inline bool IsSlashBackward(wchar_t c) { return c == L'\\';}
 inline bool IsSlashForward(wchar_t c)  { return c == L'/'; }
 inline bool IsQuestion(wchar_t c)      { return c == L'?'; }
 
-bool MixToFullPath(string& strPath)
+void MixToFullPath(string& strPath)
 {
 	//Skip all path to root (with slash if exists)
 	size_t DirOffset = 0;
 	ParsePath(strPath, &DirOffset);
-	bool ok = true;
 
 	//Process "." and ".." if exists
 	for (size_t Pos = DirOffset; Pos < strPath.size();)
@@ -92,9 +91,6 @@ bool MixToFullPath(string& strPath)
 				{
 					if (Pos + 2 == strPath.size() || IsSlash(strPath[Pos + 2]))
 					{
-						if (Pos == DirOffset) // ".." on the top level
-							ok = false;
-
 						//Calculate subdir name offset
 						size_t n = strPath.find_last_of(L"\\/", Pos-2);
 						n = (n == string::npos || n < DirOffset) ? DirOffset : n+1;
@@ -120,19 +116,6 @@ bool MixToFullPath(string& strPath)
 
 		++Pos;
 	}
-
-	return ok;
-}
-
-bool RemoveDots(const string &Src, string &strDest)
-{
-	string strSrc(Src);
-	string strRoot = ExtractPathRoot(Src);
-	if (!strRoot.empty())
-		strSrc = strSrc.substr(strRoot.size());
-	bool ok = MixToFullPath(strSrc);
-	strDest = strRoot + strSrc;
-	return ok;
 }
 
 bool MixToFullPath(const string& stPath, string& strDest, const string& stCurrentDir)
@@ -290,7 +273,7 @@ static string TryConvertVolumeGuidToDrivePath(const string& Path, const wchar_t 
 
 					if (IsRootPath(strPath))
 					{
-						Result.replace(0, DirectoryOffset + 1, strPath);
+						Result.replace(0, DirectoryOffset, strPath);
 						break;
 					}
 
@@ -313,7 +296,7 @@ static string TryConvertVolumeGuidToDrivePath(const string& Path, const wchar_t 
 			{
 				if (api::GetVolumeNameForVolumeMountPoint(i, strVolumeGuid) && Path.compare(0, DirectoryOffset, strVolumeGuid.data(), DirectoryOffset) == 0)
 				{
-					Result.replace(0, DirectoryOffset + 1, i);
+					Result.replace(0, DirectoryOffset, i);
 					return true;
 				}
 				return false;
@@ -571,7 +554,7 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 					DirOffset = 4;
 				}
 
-				size_t StartPos = DirOffset + (IsSlash(strPath.data()[DirOffset])? 1 : 0);
+				size_t StartPos = DirOffset;
 
 				if (StartPos < strPath.size())
 				{

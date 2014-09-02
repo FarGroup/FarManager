@@ -1544,14 +1544,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 				if ((strNameTmp.size() == 2) && IsAlpha(strNameTmp[0]) && (strNameTmp[1] == L':'))
 					PrepareDiskPath(strNameTmp);
 
-				if (strNameTmp == L".." && IsRootPath(strSrcDir))
-				{
-					if (!Message(MSG_WARNING,2,MSG(MError),MSG((!Move?MCannotCopyToTwoDot:MCannotMoveToTwoDot)),MSG(MCannotCopyMoveToTwoDot),MSG(MCopySkip),MSG(MCopyCancel)))
-						continue;
-
-					break;
-				}
-
 				if (CheckNulOrCon(strNameTmp.data()))
 				{
 					Flags|=FCOPY_COPYTONUL;
@@ -1821,25 +1813,6 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 				tpath = strSelName.substr(0, slash_pos+1);
 			}
 			strDest = tpath + strDest;
-		}
-
-		if (!simple_rename)
-		{
-			string tpath;
-			if (RemoveDots(strDest, tpath))
-				strDest = tpath;
-			else
-			{
-				int rc = Message(FMSG_WARNING, 3, MSG(MWarning),
-					MSG(move_rename?MCannotMoveToTwoDot:MCannotCopyToTwoDot),MSG(MCannotCopyMoveToTwoDot),strDest.data(),
-					MSG(MSkip), MSG(MCopySkipAll), MSG(MCancel));
-				if (rc == 1)
-					SkipMode = 2;
-				if (rc == 1 || !rc)
-					return COPY_NEXT;
-				else
-					return COPY_CANCEL; // 2, -1, -2
-			}
 		}
 
 		bool check_samedisk = false, dest_changed = false;

@@ -3893,40 +3893,6 @@ MCannotCopyFolderToItself2
 "sám do seba"
 "Dentro Se Stessa"
 
-MCannotCopyToTwoDot
-l:
-"Нельзя копировать файл или папку"
-"You may not copy files or folders"
-"Nelze kopírovat soubory nebo adresáře"
-"Kopieren von Dateien oder Ordnern ist maximal"
-"Nem másolhatja a fájlt vagy mappát"
-"Nie można skopiować plików"
-"Usted no puede copiar archivos o directorios"
-"Nemôžete kopírovať súbory alebo priečinky"
-"Non Puoi Copiare Files O Cartelle"
-
-MCannotMoveToTwoDot
-"Нельзя перемещать файл или папку"
-"You may not move files or folders"
-"Nelze přesunout soubory nebo adresáře"
-"Verschieben von Dateien oder Ordnern ist maximal"
-"Nem mozgathatja a fájlt vagy mappát"
-"Nie można przenieść plików"
-"Usted no puede mover archivos o directorios"
-"Nemôžete presunúť súbory alebo priečinky"
-"Non Puoi Muovere Files O Cartelle"
-
-MCannotCopyMoveToTwoDot
-"выше корневого каталога"
-"higher than the root folder"
-"na vyšší úroveň než kořenový adresář"
-"bis zum Wurzelverzeichnis möglich."
-"a gyökér fölé"
-"na poziom wyższy niż do korzenia"
-"más alto que el directorio raíz"
-"vyššie než do koreňového priečinka"
-"Prima Della Cartella Principale"
-
 MCopyCannotCreateFolder
 l:
 "Ошибка создания папки"

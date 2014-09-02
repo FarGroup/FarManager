@@ -250,13 +250,15 @@ int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 	return 1;
 }
 
-void CreatePath(const string &Path, bool Simple)
+void CreatePath(const string &InputPath, bool Simple)
 {
+	string Path(InputPath);
+	ConvertNameToFull(InputPath, Path);
 	size_t DirOffset = 0;
 	ParsePath(Path, &DirOffset);
 	string Part;
 	Part.reserve(Path.size());
-	for (size_t i = DirOffset + (IsSlash(Path[DirOffset])? 1 : 0); i <= Path.size(); ++i)
+	for (size_t i = DirOffset; i <= Path.size(); ++i)
 	{
 		if (i == Path.size() || IsSlash(Path[i]))
 		{
