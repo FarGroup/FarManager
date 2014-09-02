@@ -288,7 +288,7 @@ void FilePanels::SetScreenPosition()
 {
 	_OT(SysLog(L"[%p] FilePanels::SetScreenPosition() {%d, %d - %d, %d}", this,m_X1,m_Y1,m_X2,m_Y2));
 	Global->CtrlObject->CmdLine->SetPosition(0,ScrY-(Global->Opt->ShowKeyBar),ScrX-1,ScrY-(Global->Opt->ShowKeyBar));
-	m_windowKeyBar->SetPosition(0, 0, ScrX, 0);
+	TopMenuBar.SetPosition(0, 0, ScrX, 0);
 	m_windowKeyBar->SetPosition(0, ScrY, ScrX, ScrY);
 	SetPanelPositions(LeftPanel->IsFullScreen(),RightPanel->IsFullScreen());
 	SetPosition(0,0,ScrX,ScrY);
