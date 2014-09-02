@@ -2471,7 +2471,7 @@ id=64
 lv=2
 dt=Text
 nm=far.Menu
-mtime=3618776374
+mtime=3618833534
 <article>
 #_Item, Position = far.Menu (Properties, Items [, BreakKeys])
 #_
@@ -2515,13 +2515,16 @@ mtime=3618776374
 #_            nil     The menu was cancelled by the user.
 #_
 #_**NOTE 1**
+#_  Properties.SelectIndex=N is equivalent to Items[N].selected=true.
+#_
+#_**NOTE 2**
 #_  Example of constructing a BreakKey string:
 #_  **BreakKey="AS+DELETE"**, where:
 #_    *AS*     - stands for AltShift
 #_    *+*      - separates key modifiers from key
 #_    *DELETE* - `virtual key` *VK_DELETE* (prefix *VK_* is removed).
 #_
-#_**NOTE 2**
+#_**NOTE 3**
 #_  The first return value (*Item*) can be used by the program for performing
 #_  the item-specific action. To do so, the program can put some specific field(s)
 #_  into each element of *Items* and *BreakKeys* tables. For example, such fields
