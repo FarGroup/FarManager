@@ -188,6 +188,7 @@ void print_opcodes()
 	fprintf(fp, "MCODE_F_USERMENU=0x%X // ¬ывести меню пользовател€\n", MCODE_F_USERMENU);
 	fprintf(fp, "MCODE_F_SETCUSTOMSORTMODE=0x%X // ”становить пользовательский режим сортировки\n", MCODE_F_SETCUSTOMSORTMODE);
 	fprintf(fp, "MCODE_F_KEYMACRO=0x%X // Ќабор простых операций\n", MCODE_F_KEYMACRO);
+	fprintf(fp, "MCODE_F_FAR_GETCONFIG=0x%X // V=Far.GetConfig(Key,Name)\n", MCODE_F_FAR_GETCONFIG);
 	fprintf(fp, "MCODE_F_LAST=0x%X // marker\n", MCODE_F_LAST);
 	/* ************************************************************************* */
 	// булевые переменные - различные состо€ни€
@@ -1546,6 +1547,7 @@ static bool editorsettitleFunc(FarMacroCall*);
 static bool editorundoFunc(FarMacroCall*);
 static bool environFunc(FarMacroCall*);
 static bool farcfggetFunc(FarMacroCall*);
+static bool fargetconfigFunc(FarMacroCall*);
 static bool fattrFunc(FarMacroCall*);
 static bool fexistFunc(FarMacroCall*);
 static bool floatFunc(FarMacroCall*);
@@ -2342,6 +2344,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_F_EDITOR_UNDO:     return editorundoFunc(Data);
 		case MCODE_F_ENVIRON:         return environFunc(Data);
 		case MCODE_F_FAR_CFG_GET:     return farcfggetFunc(Data);
+		case MCODE_F_FAR_GETCONFIG:   return fargetconfigFunc(Data);
 		case MCODE_F_FATTR:           return fattrFunc(Data);
 		case MCODE_F_FEXIST:          return fexistFunc(Data);
 		case MCODE_F_FLOAT:           return floatFunc(Data);
@@ -3907,9 +3910,54 @@ static bool farcfggetFunc(FarMacroCall* Data)
 	TVar& Name(Params[1]);
 	TVar& Key(Params[0]);
 
-	string strValue;
-	bool result = Global->Opt->GetConfigValue(Key.asString().data(), Name.asString().data(), strValue);
-	result ? PassString(strValue,Data) : PassBoolean(0,Data);
+	Option *option;
+	bool result = Global->Opt->GetConfigValue(Key.asString().data(), Name.asString().data(), option);
+	result ? PassString(option->toString(),Data) : PassBoolean(0,Data);
+	return result;
+}
+
+// V=Far.GetConfig(Key,Name)
+static bool fargetconfigFunc(FarMacroCall* Data)
+{
+	auto Params = parseParams<2>(Data);
+	TVar& Name(Params[1]);
+	TVar& Key(Params[0]);
+
+	Option *option;
+	bool result = Global->Opt->GetConfigValue(Key.asString().data(), Name.asString().data(), option);
+	if (result)
+	{
+		BoolOption *bOpt;
+		Bool3Option *b3Opt;
+		IntOption *iOpt;
+		StringOption *sOpt;
+		if (bOpt=dynamic_cast<BoolOption*>(option))
+		{
+			PassString(L"bool",Data);
+			PassBoolean(bOpt->Get(),Data);
+		}
+		else if (b3Opt=dynamic_cast<Bool3Option*>(option))
+		{
+			PassString(L"bool3",Data);
+			PassNumber((double)b3Opt->Get(),Data);
+		}
+		else if (iOpt=dynamic_cast<IntOption*>(option))
+		{
+			double d;
+			PassString(L"int64",Data);
+      if (ToDouble(iOpt->Get(),&d))
+				PassNumber(d,Data);
+			else
+				PassInteger(iOpt->Get(),Data);
+		}
+		else if (sOpt=dynamic_cast<StringOption*>(option))
+		{
+			PassString(L"string",Data);
+			PassString(sOpt->data(),Data);
+		}
+	}
+	else
+		PassBoolean(0,Data);
 	return result;
 }
 

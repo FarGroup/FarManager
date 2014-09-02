@@ -2017,14 +2017,14 @@ void Options::InitLocalCFG()
 	Config.emplace_back(farconfig(_CFG, ARRAYSIZE(_CFG), Global->Db->LocalGeneralCfg()));
 }
 
-bool Options::GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &strValue)
+bool Options::GetConfigValue(const wchar_t *Key, const wchar_t *Name, Option*& Data)
 {
 	// TODO Use local too?
 	bool Result = false;
 	auto ItemIterator = std::find_if(CONST_RANGE(Config[cfg_roaming], i) { return !StrCmpI(i.KeyName, Key) && !StrCmpI(i.ValName, Name); });
 	if (ItemIterator != Config[cfg_roaming].cend())
 	{
-		strValue = ItemIterator->Value->toString();
+		Data = ItemIterator->Value;
 		Result = true;
 	}
 	return Result;

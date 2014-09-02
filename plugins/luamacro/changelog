@@ -1,4 +1,8 @@
-﻿shmuel 01.09.2014 23:48:28 +0200 - build 424
+﻿shmuel 03.09.2014 01:25:51 +0200 - build 425
+
+1. M#2705: Far.GetConfig (на замену Far.Cfg_Get).
+
+shmuel 01.09.2014 23:48:28 +0200 - build 424
 
 1. M#2724: LuaFAR: MIF_SELECTED для far.Menu.
 

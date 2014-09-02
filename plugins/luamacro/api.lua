@@ -4,6 +4,7 @@ local Shared = ...
 local checkarg, utils, yieldcall = Shared.checkarg, Shared.utils, Shared.yieldcall
 
 local MCODE_F_USERMENU = 0x80C66
+local MCODE_F_FAR_GETCONFIG = 0x80C69
 local F=far.Flags
 local band,bor = bit64.band,bit64.bor
 local MacroCallFar = far.MacroCallFar
@@ -291,6 +292,17 @@ Far = {
   KeyBar_Show    = function(...) return MacroCallFar(0x80C4B, ...) end,
   Window_Scroll  = function(...) return MacroCallFar(0x80C4A, ...) end,
 }
+
+function Far.GetConfig (key, name)
+  checkarg(key, 1, "string")
+  checkarg(name, 2, "string")
+  local tp,val = MacroCallFar(MCODE_F_FAR_GETCONFIG, key, name)
+  if not tp then return false end
+  if tp == "bool3" then
+    if val==0 or val==1 then val=(val==1) else val=nil end
+  end
+  return true,val,tp
+end
 
 SetProperties(Far, {
   FullScreen     = function() return MacroCallFar(0x80411) end,

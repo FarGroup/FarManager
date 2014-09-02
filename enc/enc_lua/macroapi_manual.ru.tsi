@@ -1181,7 +1181,7 @@ lv=2
 dt=Text
 nm=Far
 ctime=3553252749
-mtime=3607109851
+mtime=3618868474
 <article>
 #_**Far** - таблица со следующими полями:
 #_
@@ -1199,11 +1199,14 @@ mtime=3607109851
 #_
 #_  Cfg_Get
 #_  DisableHistory
+#_  `GetConfig`
 #_  KbdLayout
 #_  KeyBar_Show
 #_  Window_Scroll
 #_
 #_@@@
+#_[GetConfig]: 95.html
+#_
 #_{cfg_get}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.Cfg.Get
 #_{disablehistory}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#history.disable
 #_{fullscreen}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Fullscreen
@@ -1217,6 +1220,31 @@ mtime=3607109851
 #_{width}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.Width
 #_{window_scroll}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Window.Scroll
 #_
+#_
+</article>
+</node>
+<node>
+id=95
+lv=3
+dt=Text
+nm=GetConfig
+ctime=3618868388
+mtime=3618868759
+<article>
+#_ok, val, tp = Far.Config (key, name)
+#_
+#_**Параметры:**
+#_  key:    string
+#_  name:   string
+#_
+#_**Возвращает:**
+#_  ok:     boolean
+#_  val:    boolean, nil, string, number, or int64
+#_  tp:     string ("bool", "bool3", "string", "int64")
+#_
+#_**Описание:**
+#_
+#_@@@
 #_
 </article>
 </node>

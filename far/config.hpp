@@ -270,7 +270,7 @@ public:
 	void ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEvent);
 	void Load(const std::vector<std::pair<string, string>>& Overridden);
 	void Save(bool Manual);
-	bool GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &strValue);
+	bool GetConfigValue(const wchar_t *Key, const wchar_t *Name, Option*& Data);
 	bool GetConfigValue(size_t Root, const wchar_t* Name, Option*& Data);
 	bool AdvancedConfig(farconfig_mode Mode = cfg_roaming);
 	void LocalViewerConfig(Options::ViewerOptions &ViOptRef) {return ViewerConfig(ViOptRef, true);}
