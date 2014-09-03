@@ -78,6 +78,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "language.hpp"
 #include "filestr.hpp"
+#include "exitcode.hpp"
 
 const int CHAR_TABLE_SIZE=5;
 
@@ -1827,9 +1828,13 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 											ShellEditor.SetSaveToSaveAs(true);
 										}
 									}
-									Global->WindowManager->ExecuteModalEV(&ShellEditor);
-									// заставляем рефрешится экран
-									Global->WindowManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
+									auto editorExitCode=ShellEditor.GetExitCode();
+									if (editorExitCode != XC_OPEN_ERROR && editorExitCode != XC_LOADING_INTERRUPTED)
+									{
+										Global->WindowManager->ExecuteModalEV(&ShellEditor);
+										// заставляем рефрешится экран
+										Global->WindowManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
+									}
 								}
 							}
 							Dlg->SendMessage(DM_ENABLEREDRAW,TRUE,0);
