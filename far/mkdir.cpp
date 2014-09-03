@@ -242,18 +242,14 @@ void ShellMakeDir(Panel *SrcPanel)
 
 		SrcPanel->Update(UPDATE_KEEP_SELECTION);
 
-		if (!strDirName.empty())
+		if (!strOriginalDirName.empty())
 		{
 			size_t pos;
 
-			if (FindSlash(pos,strDirName))
-				strDirName.resize(pos);
+			if (FindSlash(pos, strOriginalDirName))
+				strOriginalDirName.resize(pos);
 
-			if (!SrcPanel->GoToFile(strDirName) && strDirName.back() == L'.')
-			{
-				strDirName.pop_back();
-				SrcPanel->GoToFile(strDirName);
-			}
+			SrcPanel->GoToFile(strOriginalDirName);
 		}
 
 		SrcPanel->Redraw();
