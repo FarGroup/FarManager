@@ -3910,10 +3910,9 @@ static bool farcfggetFunc(FarMacroCall* Data)
 	TVar& Name(Params[1]);
 	TVar& Key(Params[0]);
 
-	Option *option;
-	bool result = Global->Opt->GetConfigValue(Key.asString().data(), Name.asString().data(), option);
-	result ? PassString(option->toString(),Data) : PassBoolean(0,Data);
-	return result;
+	auto option = Global->Opt->GetConfigValue(Key.asString().data(), Name.asString().data());
+	option ? PassString(option->toString(), Data) : PassBoolean(0, Data);
+	return option != nullptr;
 }
 
 // V=Far.GetConfig(Key,Name)
@@ -3921,39 +3920,34 @@ static bool fargetconfigFunc(FarMacroCall* Data)
 {
 	if (Data->Count >= 2 && Data->Values[0].Type==FMVT_STRING && Data->Values[1].Type==FMVT_STRING)
 	{
-		Option *option;
-		if (Global->Opt->GetConfigValue(Data->Values[0].String, Data->Values[1].String, option))
+		if (auto option = Global->Opt->GetConfigValue(Data->Values[0].String, Data->Values[1].String))
 		{
-			BoolOption *bOpt;
-			Bool3Option *b3Opt;
-			IntOption *iOpt;
-			StringOption *sOpt;
-			if (bOpt=dynamic_cast<BoolOption*>(option))
+			if (auto Opt = dynamic_cast<const BoolOption*>(option))
 			{
 				PassNumber(1,Data);
-				PassBoolean(bOpt->Get(),Data);
+				PassBoolean(Opt->Get(), Data);
 				return true;
 			}
-			if (b3Opt=dynamic_cast<Bool3Option*>(option))
+			else if (auto Opt = dynamic_cast<const Bool3Option*>(option))
 			{
 				PassNumber(2,Data);
-				PassNumber((double)b3Opt->Get(),Data);
+				PassNumber((double)Opt->Get(), Data);
 				return true;
 			}
-			if (iOpt=dynamic_cast<IntOption*>(option))
+			else if (auto Opt = dynamic_cast<const IntOption*>(option))
 			{
 				double d;
 				PassNumber(3,Data);
-				if (ToDouble(iOpt->Get(),&d))
-					PassNumber(d,Data);
+				if (ToDouble(Opt->Get(),&d))
+					PassNumber(d, Data);
 				else
-					PassInteger(iOpt->Get(),Data);
+					PassInteger(Opt->Get(), Data);
 				return true;
 			}
-			if (sOpt=dynamic_cast<StringOption*>(option))
+			else if (auto Opt = dynamic_cast<const StringOption*>(option))
 			{
 				PassNumber(4,Data);
-				PassString(sOpt->data(),Data);
+				PassString(Opt->Get(), Data);
 				return true;
 			}
 		}

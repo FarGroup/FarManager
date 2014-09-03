@@ -418,8 +418,7 @@ int FarSettings::Set(const FarSettingsItem& Item)
 
 int FarSettings::Get(FarSettingsItem& Item)
 {
-	Option* Data;
-	if (Global->Opt->GetConfigValue(Item.Root,Item.Name,Data))
+	if (auto Data = Global->Opt->GetConfigValue(Item.Root, Item.Name))
 	{
 		Data->Export(Item);
 

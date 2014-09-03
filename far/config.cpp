@@ -1381,7 +1381,7 @@ bool BoolOption::Edit(DialogBuilder* Builder, int Width, int Param)
 	return true;
 }
 
-void BoolOption::Export(FarSettingsItem& To)
+void BoolOption::Export(FarSettingsItem& To) const
 {
 	To.Type = FST_QWORD;
 	To.Number = Get();
@@ -1431,7 +1431,7 @@ bool Bool3Option::Edit(DialogBuilder* Builder, int Width, int Param)
 	return true;
 }
 
-void Bool3Option::Export(FarSettingsItem& To)
+void Bool3Option::Export(FarSettingsItem& To) const
 {
 	To.Type = FST_QWORD;
 	To.Number = Get();
@@ -1484,7 +1484,7 @@ bool IntOption::Edit(DialogBuilder* Builder, int Width, int Param)
 	return false;
 }
 
-void IntOption::Export(FarSettingsItem& To)
+void IntOption::Export(FarSettingsItem& To) const
 {
 	To.Type = FST_QWORD;
 	To.Number = Get();
@@ -1532,7 +1532,7 @@ bool StringOption::Edit(DialogBuilder* Builder, int Width, int Param)
 	return false;
 }
 
-void StringOption::Export(FarSettingsItem& To)
+void StringOption::Export(FarSettingsItem& To) const
 {
 	To.Type = FST_STRING;
 	To.String = Get().data();
@@ -2017,33 +2017,26 @@ void Options::InitLocalCFG()
 	Config.emplace_back(farconfig(_CFG, ARRAYSIZE(_CFG), Global->Db->LocalGeneralCfg()));
 }
 
-bool Options::GetConfigValue(const wchar_t *Key, const wchar_t *Name, Option*& Data)
+template<class container, class pred>
+static const Option* GetConfigValuePtr(const container& Config, const pred& Pred)
 {
-	// TODO Use local too?
-	bool Result = false;
-	auto ItemIterator = std::find_if(CONST_RANGE(Config[cfg_roaming], i) { return !StrCmpI(i.KeyName, Key) && !StrCmpI(i.ValName, Name); });
-	if (ItemIterator != Config[cfg_roaming].cend())
-	{
-		Data = ItemIterator->Value;
-		Result = true;
-	}
-	return Result;
+	auto ItemIterator = std::find_if(ALL_CONST_RANGE(Config), Pred);
+	return ItemIterator == Config.cend()? nullptr : ItemIterator->Value;
 }
 
-bool Options::GetConfigValue(size_t Root, const wchar_t* Name, Option*& Data)
+const Option* Options::GetConfigValue(const wchar_t *Key, const wchar_t *Name) const
 {
 	// TODO Use local too?
-	bool Result = false;
-	if (Root != FSSF_PRIVATE)
-	{
-		auto ItemIterator = std::find_if(CONST_RANGE(Config[cfg_roaming], i) { return Root == i.ApiRoot && !StrCmpI(i.ValName, Name); });
-		if (ItemIterator != Config[cfg_roaming].cend())
-		{
-			Data = ItemIterator->Value;
-			Result = true;
-		}
-	}
-	return Result;
+	return GetConfigValuePtr(Config[cfg_roaming], [&](const FARConfigItem& i) { return !StrCmpI(i.KeyName, Key) && !StrCmpI(i.ValName, Name); });
+}
+
+const Option* Options::GetConfigValue(size_t Root, const wchar_t* Name) const
+{
+	if (Root == FSSF_PRIVATE)
+		return nullptr;
+
+	// TODO Use local too?
+	return GetConfigValuePtr(Config[cfg_roaming], [&](const FARConfigItem& i) { return Root == i.ApiRoot && !StrCmpI(i.ValName, Name); });
 }
 
 void Options::InitConfig()

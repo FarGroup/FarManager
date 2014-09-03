@@ -99,7 +99,7 @@ public:
 	virtual bool IsDefault(const struct FARConfigItem* Holder) const = 0;
 	virtual void SetDefault(const struct FARConfigItem* Holder) = 0;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) = 0;
-	virtual void Export(FarSettingsItem& To) = 0;
+	virtual void Export(FarSettingsItem& To) const = 0;
 
 	bool Changed() const { return ValueChanged; }
 
@@ -139,7 +139,7 @@ public:
 	virtual bool IsDefault(const struct FARConfigItem* Holder) const override;
 	virtual void SetDefault(const struct FARConfigItem* Holder) override;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
-	virtual void Export(FarSettingsItem& To) override;
+	virtual void Export(FarSettingsItem& To) const override;
 
 	BoolOption& operator=(bool Value){Set(Value); return *this;}
 	BoolOption& operator=(const BoolOption& Value){Set(Value); return *this;}
@@ -166,7 +166,7 @@ public:
 	virtual bool IsDefault(const struct FARConfigItem* Holder) const override;
 	virtual void SetDefault(const struct FARConfigItem* Holder) override;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
-	virtual void Export(FarSettingsItem& To) override;
+	virtual void Export(FarSettingsItem& To) const override;
 
 	Bool3Option& operator=(int Value){Set(Value % 3); return *this;}
 	Bool3Option& operator=(const Bool3Option& Value){Set(Value); return *this;}
@@ -197,7 +197,7 @@ public:
 	virtual bool IsDefault(const struct FARConfigItem* Holder) const override;
 	virtual void SetDefault(const struct FARConfigItem* Holder) override;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
-	virtual void Export(FarSettingsItem& To) override;
+	virtual void Export(FarSettingsItem& To) const override;
 
 	IntOption& operator=(long long Value){Set(Value); return *this;}
 	IntOption& operator=(const IntOption& Value){Set(Value); return *this;}
@@ -233,7 +233,7 @@ public:
 	virtual bool IsDefault(const struct FARConfigItem* Holder) const override;
 	virtual void SetDefault(const struct FARConfigItem* Holder) override;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
-	virtual void Export(FarSettingsItem& To) override;
+	virtual void Export(FarSettingsItem& To) const override;
 
 	StringOption& operator=(const wchar_t* Value) {Set(Value); return *this;}
 	StringOption& operator=(const string& Value) {Set(Value); return *this;}
@@ -270,8 +270,8 @@ public:
 	void ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEvent);
 	void Load(const std::vector<std::pair<string, string>>& Overridden);
 	void Save(bool Manual);
-	bool GetConfigValue(const wchar_t *Key, const wchar_t *Name, Option*& Data);
-	bool GetConfigValue(size_t Root, const wchar_t* Name, Option*& Data);
+	const Option* GetConfigValue(const wchar_t *Key, const wchar_t *Name) const;
+	const Option* GetConfigValue(size_t Root, const wchar_t* Name) const;
 	bool AdvancedConfig(farconfig_mode Mode = cfg_roaming);
 	void LocalViewerConfig(Options::ViewerOptions &ViOptRef) {return ViewerConfig(ViOptRef, true);}
 	void LocalEditorConfig(Options::EditorOptions &EdOptRef) {return EditorConfig(EdOptRef, true);}
