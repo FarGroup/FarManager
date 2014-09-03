@@ -553,7 +553,7 @@ local function test_CmdLine()
   Keys"Esc"
 end
 
-local function test_Far_Config()
+local function test_Far_GetConfig()
   local t = {
     "Cmdline.AutoComplete", "boolean",
     "Cmdline.EditBlock", "boolean",
@@ -875,7 +875,7 @@ local function test_Far()
   assert(type(Far.KeyBar_Show(0))=="number")
   assert(type(Far.Window_Scroll)=="function")
 
-  test_Far_Config()
+  test_Far_GetConfig()
 end
 
 local function test_CheckAndGetHotKey()
