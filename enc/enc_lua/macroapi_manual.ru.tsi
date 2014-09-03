@@ -1229,30 +1229,29 @@ lv=3
 dt=Text
 nm=GetConfig
 ctime=3618868388
-mtime=3618906987
+mtime=3618922284
 <article>
-#_ok, val, tp = Far.GetConfig (key, name)
+#_val, tp = Far.GetConfig (keyname)
 #_
 #_**ѕараметры:**
-#_  key:    string
-#_  name:   string
+#_  keyname: string
 #_
 #_**¬озвращает:**
-#_  ok:     boolean
-#_          Ёто успех или неуспех операции.
-#_          ¬ случае неуспеха, 2-е и 3-е возвращаемые значени€ не несут полезной информации.
+#_  val:     boolean, string, number, or int64
+#_             Ёто значение запрашиваемой величины.
+#_             ѕреобразование типов между Far Manager и Lua осуществл€ютс€ следующим образом:
+#_               boolean -> boolean
+#_               3-state -> 0,1,2 преобразуютс€ соответственно в false,true,"other"
+#_               string  -> string
+#_               integer -> number (если возможно преобразование без потери точности) или
+#_                          userdata (int64) - величина, создаваема€ библиотекой bit64.
 #_
-#_  val:    boolean, nil, string, number, or int64
-#_          Ёто собственно запрашиваема€ величина.
-#_          ѕреобразование типов между Far Manager и Lua осуществл€ютс€ следующим образом:
-#_            bool   -> boolean
-#_            bool3  -> 0,1,2 преобразуютс€ соответственно в false,true,nil
-#_            string -> string
-#_            int64  -> number (если возможно преобразование без потери точности), или
-#_                      userdata (int64) - величина, создаваема€ библиотекой bit64.
+#_  tp:      string ("boolean", "3-state", "string", "integer")
+#_             Ёто тип оригинальной величины в Far Manager.
 #_
-#_  tp:     string ("bool", "bool3", "string", "int64")
-#_          Ёто тип оригинальной величины в Far Manager.
+#_**ѕримечание:**
+#_  ¬ случае ошибки (некорректный аргумент, или Far Manager не нашЄл указанной опции)
+#_  данна€ функци€ прерывает исполнение (вызывает error()).
 #_
 #_@@@
 #_

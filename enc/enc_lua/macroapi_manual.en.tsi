@@ -1236,30 +1236,29 @@ lv=3
 dt=Text
 nm=GetConfig
 ctime=3618906297
-mtime=3618907131
+mtime=3618922303
 <article>
-#_ok, val, tp = Far.GetConfig (key, name)
+#_val, tp = Far.GetConfig (keyname)
 #_
 #_**Parameters:**
-#_  key:    string
-#_  name:   string
+#_  keyname: string
 #_
 #_**Returns:**
-#_  ok:     boolean
-#_          Success or failure of the operaion.
-#_          In the case of failure, the 2-nd and 3-rd return values have no useful meaning.
+#_  val:     boolean, string, number, or int64
+#_             This is the value of the queried configuration setting.
+#_             The type conversions between Far Manager and Lua are done in the following way:
+#_               boolean -> boolean
+#_               3-state -> 0,1,2 are converted respectively into false,true,"other"
+#_               string  -> string
+#_               integer -> number (if non-lossy conversion is possible), or
+#_                          userdata (int64) - a value created by the bit64 library.
 #_
-#_  val:    boolean, nil, string, number, or int64
-#_          This is the value of the queried configuration setting.
-#_          The type conversions between Far Manager and Lua are done in the following way:
-#_            bool   -> boolean
-#_            bool3  -> 0,1,2 are converted respectively into false,true,nil
-#_            string -> string
-#_            int64  -> number (if non-lossy conversion is possible), or
-#_                      userdata (int64) - a value created by the bit64 library.
+#_  tp:      string ("boolean", "3-state", "string", "integer")
+#_             The type of the original value in Far Manager.
 #_
-#_  tp:     string ("bool", "bool3", "string", "int64")
-#_          The type of the original value in Far Manager.
+#_**Note:**
+#_  In cases of failure (e.g an invalid argument, or Far Manager did not find
+#_  the specified option) this function raises an error.
 #_
 #_@@@
 #_

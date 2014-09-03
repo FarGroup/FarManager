@@ -3930,20 +3930,20 @@ static bool fargetconfigFunc(FarMacroCall* Data)
 			StringOption *sOpt;
 			if (bOpt=dynamic_cast<BoolOption*>(option))
 			{
-				PassString(L"bool",Data);
+				PassNumber(1,Data);
 				PassBoolean(bOpt->Get(),Data);
 				return true;
 			}
 			if (b3Opt=dynamic_cast<Bool3Option*>(option))
 			{
-				PassString(L"bool3",Data);
+				PassNumber(2,Data);
 				PassNumber((double)b3Opt->Get(),Data);
 				return true;
 			}
 			if (iOpt=dynamic_cast<IntOption*>(option))
 			{
 				double d;
-				PassString(L"int64",Data);
+				PassNumber(3,Data);
 				if (ToDouble(iOpt->Get(),&d))
 					PassNumber(d,Data);
 				else
@@ -3952,7 +3952,7 @@ static bool fargetconfigFunc(FarMacroCall* Data)
 			}
 			if (sOpt=dynamic_cast<StringOption*>(option))
 			{
-				PassString(L"string",Data);
+				PassNumber(4,Data);
 				PassString(sOpt->data(),Data);
 				return true;
 			}

@@ -293,15 +293,17 @@ Far = {
   Window_Scroll  = function(...) return MacroCallFar(0x80C4A, ...) end,
 }
 
-function Far.GetConfig (key, name)
-  checkarg(key, 1, "string")
-  checkarg(name, 2, "string")
+function Far.GetConfig (keyname)
+  checkarg(keyname, 1, "string")
+  local key, name = keyname:match("^(.+)%.([^.]+)$")
+  assert(key, "invalid argument #1")
   local tp,val = MacroCallFar(MCODE_F_FAR_GETCONFIG, key, name)
-  if not tp then return false end
-  if tp == "bool3" then
-    if val==0 or val==1 then val=(val==1) else val=nil end
+  if not tp then error("cannot get '"..keyname.."'") end
+  tp = ({"boolean","3-state","integer","string"})[tp]
+  if tp == "3-state" then
+    if val==0 or val==1 then val=(val==1) else val="other" end
   end
-  return true,val,tp
+  return val,tp
 end
 
 SetProperties(Far, {
