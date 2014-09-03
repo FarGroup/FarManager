@@ -1181,7 +1181,7 @@ lv=2
 dt=Text
 nm=Far
 ctime=3553252749
-mtime=3618868474
+mtime=3618906507
 <article>
 #_**Far** - таблица со следующими пол€ми:
 #_
@@ -1197,7 +1197,7 @@ mtime=3618868474
 #_
 #_**‘ункции:**
 #_
-#_  Cfg_Get
+#_  Cfg_Get (устаревша€, используйте `GetConfig`)
 #_  DisableHistory
 #_  `GetConfig`
 #_  KbdLayout
@@ -1229,9 +1229,9 @@ lv=3
 dt=Text
 nm=GetConfig
 ctime=3618868388
-mtime=3618868759
+mtime=3618906987
 <article>
-#_ok, val, tp = Far.Config (key, name)
+#_ok, val, tp = Far.GetConfig (key, name)
 #_
 #_**ѕараметры:**
 #_  key:    string
@@ -1239,10 +1239,20 @@ mtime=3618868759
 #_
 #_**¬озвращает:**
 #_  ok:     boolean
-#_  val:    boolean, nil, string, number, or int64
-#_  tp:     string ("bool", "bool3", "string", "int64")
+#_          Ёто успех или неуспех операции.
+#_          ¬ случае неуспеха, 2-е и 3-е возвращаемые значени€ не несут полезной информации.
 #_
-#_**ќписание:**
+#_  val:    boolean, nil, string, number, or int64
+#_          Ёто собственно запрашиваема€ величина.
+#_          ѕреобразование типов между Far Manager и Lua осуществл€ютс€ следующим образом:
+#_            bool   -> boolean
+#_            bool3  -> 0,1,2 преобразуютс€ соответственно в false,true,nil
+#_            string -> string
+#_            int64  -> number (если возможно преобразование без потери точности), или
+#_                      userdata (int64) - величина, создаваема€ библиотекой bit64.
+#_
+#_  tp:     string ("bool", "bool3", "string", "int64")
+#_          Ёто тип оригинальной величины в Far Manager.
 #_
 #_@@@
 #_

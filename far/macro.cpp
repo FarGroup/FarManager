@@ -3919,46 +3919,47 @@ static bool farcfggetFunc(FarMacroCall* Data)
 // V=Far.GetConfig(Key,Name)
 static bool fargetconfigFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<2>(Data);
-	TVar& Name(Params[1]);
-	TVar& Key(Params[0]);
-
-	Option *option;
-	bool result = Global->Opt->GetConfigValue(Key.asString().data(), Name.asString().data(), option);
-	if (result)
+	if (Data->Count >= 2 && Data->Values[0].Type==FMVT_STRING && Data->Values[1].Type==FMVT_STRING)
 	{
-		BoolOption *bOpt;
-		Bool3Option *b3Opt;
-		IntOption *iOpt;
-		StringOption *sOpt;
-		if (bOpt=dynamic_cast<BoolOption*>(option))
+		Option *option;
+		if (Global->Opt->GetConfigValue(Data->Values[0].String, Data->Values[1].String, option))
 		{
-			PassString(L"bool",Data);
-			PassBoolean(bOpt->Get(),Data);
-		}
-		else if (b3Opt=dynamic_cast<Bool3Option*>(option))
-		{
-			PassString(L"bool3",Data);
-			PassNumber((double)b3Opt->Get(),Data);
-		}
-		else if (iOpt=dynamic_cast<IntOption*>(option))
-		{
-			double d;
-			PassString(L"int64",Data);
-      if (ToDouble(iOpt->Get(),&d))
-				PassNumber(d,Data);
-			else
-				PassInteger(iOpt->Get(),Data);
-		}
-		else if (sOpt=dynamic_cast<StringOption*>(option))
-		{
-			PassString(L"string",Data);
-			PassString(sOpt->data(),Data);
+			BoolOption *bOpt;
+			Bool3Option *b3Opt;
+			IntOption *iOpt;
+			StringOption *sOpt;
+			if (bOpt=dynamic_cast<BoolOption*>(option))
+			{
+				PassString(L"bool",Data);
+				PassBoolean(bOpt->Get(),Data);
+				return true;
+			}
+			if (b3Opt=dynamic_cast<Bool3Option*>(option))
+			{
+				PassString(L"bool3",Data);
+				PassNumber((double)b3Opt->Get(),Data);
+				return true;
+			}
+			if (iOpt=dynamic_cast<IntOption*>(option))
+			{
+				double d;
+				PassString(L"int64",Data);
+				if (ToDouble(iOpt->Get(),&d))
+					PassNumber(d,Data);
+				else
+					PassInteger(iOpt->Get(),Data);
+				return true;
+			}
+			if (sOpt=dynamic_cast<StringOption*>(option))
+			{
+				PassString(L"string",Data);
+				PassString(sOpt->data(),Data);
+				return true;
+			}
 		}
 	}
-	else
-		PassBoolean(0,Data);
-	return result;
+	PassBoolean(0,Data);
+	return false;
 }
 
 // V=Dlg.GetValue([Pos[,InfoID]])
