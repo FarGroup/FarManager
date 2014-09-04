@@ -6,7 +6,7 @@ dialog.hpp
  ласс диалога Dialog.
 
 ѕредназначен дл€ отображени€ модальных диалогов.
-явл€етс€ производным от класса window.
+явл€етс€ производным от класса Modal.
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -199,7 +199,7 @@ class Plugin;
 class Dialog;
 
 
-class Dialog: public window
+class Dialog: public Modal
 {
 public:
 	typedef std::function<intptr_t(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)> dialog_handler;

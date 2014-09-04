@@ -42,7 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "keyboard.hpp"
 
-Modal::Modal():
+SimpleModal::SimpleModal():
 	m_EndLoop(false),
 	m_ReadKey(-1),
 	m_WriteKey(-1)
@@ -50,13 +50,13 @@ Modal::Modal():
 }
 
 
-void Modal::Process()
+void SimpleModal::Process()
 {
 	Global->WindowManager->ExecuteWindow(this);
 	Global->WindowManager->ExecuteModal(this);
 }
 
-int Modal::ReadInput(INPUT_RECORD *GetReadRec)
+int SimpleModal::ReadInput(INPUT_RECORD *GetReadRec)
 {
 	if (GetReadRec)
 		ClearStruct(*GetReadRec);
@@ -91,12 +91,12 @@ int Modal::ReadInput(INPUT_RECORD *GetReadRec)
 	return m_ReadKey;
 }
 
-void Modal::WriteInput(int Key)
+void SimpleModal::WriteInput(int Key)
 {
 	m_WriteKey=Key;
 }
 
-void Modal::ProcessInput()
+void SimpleModal::ProcessInput()
 {
 	if (m_ReadRec.EventType==MOUSE_EVENT && !(m_ReadKey==KEY_MSWHEEL_UP || m_ReadKey==KEY_MSWHEEL_DOWN || m_ReadKey==KEY_MSWHEEL_RIGHT || m_ReadKey==KEY_MSWHEEL_LEFT))
 		ProcessMouse(&m_ReadRec.Event.MouseEvent);
@@ -104,48 +104,48 @@ void Modal::ProcessInput()
 		ProcessKey(Manager::Key(m_ReadKey));
 }
 
-bool Modal::Done() const
+bool SimpleModal::Done() const
 {
 	return m_EndLoop;
 }
 
 
-void Modal::ClearDone()
+void SimpleModal::ClearDone()
 {
 	m_EndLoop=false;
 }
 
-void Modal::SetDone(void)
+void SimpleModal::SetDone(void)
 {
 	m_EndLoop=true;
 }
 
-int Modal::GetExitCode() const
+int SimpleModal::GetExitCode() const
 {
 	return m_ExitCode;
 }
 
 
-void Modal::SetExitCode(int Code)
+void SimpleModal::SetExitCode(int Code)
 {
 	m_ExitCode=Code;
 	SetDone();
 }
 
-void Modal::Close(int Code)
+void SimpleModal::Close(int Code)
 {
 	SetExitCode(Code);
 	Hide();
 	Global->WindowManager->DeleteWindow(this);
 }
 
-void Modal::SetHelp(const wchar_t *Topic)
+void SimpleModal::SetHelp(const wchar_t *Topic)
 {
 	m_HelpTopic = Topic;
 }
 
 
-void Modal::ShowHelp()
+void SimpleModal::ShowHelp()
 {
 	if (!m_HelpTopic.empty())
 		Help Hlp(m_HelpTopic);

@@ -1271,7 +1271,7 @@ static DWORD _CorrectFastFindKbdLayout(const INPUT_RECORD& rec,DWORD Key)
 	return Key;
 }
 
-class Search: public window
+class Search: public Modal
 {
 public:
 	Search(Panel* Owner, int FirstKey, int X, int Y);

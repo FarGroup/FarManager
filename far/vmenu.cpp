@@ -772,7 +772,7 @@ int VMenu::ReadInput(INPUT_RECORD *GetReadRec)
 
 	for (;;)
 	{
-		ReadKey = Modal::ReadInput(GetReadRec);
+		ReadKey = SimpleModal::ReadInput(GetReadRec);
 
 		//фильтр должен обрабатывать нажатия раньше "пользователя" меню
 		if (ShouldSendKeyToFilter(ReadKey))

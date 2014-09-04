@@ -204,7 +204,7 @@ struct SortItemParam
 class ConsoleTitle;
 class window;
 
-class VMenu: public Modal
+class VMenu: public SimpleModal
 {
 public:
 

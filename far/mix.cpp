@@ -151,7 +151,7 @@ WINDOWINFO_TYPE WindowTypeToPluginWindowType(const int fType)
 		{windowtype_viewer,     WTYPE_VIEWER},
 		{windowtype_editor,     WTYPE_EDITOR},
 		{windowtype_dialog,     WTYPE_DIALOG},
-		{windowtype_menu,      WTYPE_VMENU},
+		{windowtype_menu,       WTYPE_VMENU},
 		{windowtype_help,       WTYPE_HELP},
 		{windowtype_combobox,   WTYPE_COMBOBOX},
 		{windowtype_findfolder, WTYPE_FINDFOLDER},

@@ -480,7 +480,7 @@ void HMenu::ResizeConsole()
 	}
 
 	Hide();
-	window::ResizeConsole();
+	Modal::ResizeConsole();
 	SetPosition(0,0,::ScrX,0);
 }
 

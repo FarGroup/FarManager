@@ -39,9 +39,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class Modal: public window
 {
+};
+
+class SimpleModal: public Modal
+{
 public:
-	Modal();
-	virtual ~Modal() {}
+	SimpleModal();
+	virtual ~SimpleModal() {}
 
 	virtual int ReadInput(INPUT_RECORD *GetReadRec = nullptr);
 	virtual void SetExitCode(int Code) override;

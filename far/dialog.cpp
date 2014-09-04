@@ -4017,7 +4017,7 @@ int Dialog::SelectFromComboBox(
 		ComboBox->Hide();
 
 		if (GetDropDownOpened()) // Закрылся не программным путём?
-			Dest=ComboBox->Modal::GetExitCode();
+			Dest=ComboBox->SimpleModal::GetExitCode();
 		else
 			Dest=-1;
 
@@ -4378,7 +4378,7 @@ intptr_t Dialog::CloseDialog()
 
 /* $ 17.05.2001 DJ
    установка help topic'а и прочие радости, временно перетащенные сюда
-   из Modal
+   из SimpleModal
 */
 void Dialog::SetHelp(const string& Topic)
 {

@@ -112,8 +112,8 @@ public:
 	void ExecuteModalEV(window *Executed) { ++ModalEVCount; ExecuteModal(Executed); --ModalEVCount; }
 	bool InModalEV() const { return ModalEVCount != 0; }
 	void ResizeAllWindows();
-	size_t GetModalWindowCount() const { return m_nodalWindows.size(); }
-	window* GetModalWindow(size_t index) const { return m_nodalWindows[index]; }
+	size_t GetModalWindowCount() const { return m_modalWindows.size(); }
+	window* GetModalWindow(size_t index) const { return m_modalWindows[index]; }
 
 	void AddGlobalKeyHandler(const std::function<int(const Key&)>& Handler);
 
@@ -155,7 +155,7 @@ private:
 
 	INPUT_RECORD LastInputRecord;
 	window *m_currentWindow;     // текущее окно. Оно может находиться как в немодальном, так и в модальном контейнере, его можно получить с помощью WindowManager->GetCurrentWindow();
-	std::vector<window*> m_nodalWindows;
+	std::vector<window*> m_modalWindows;
 	std::vector<window*> m_windows;
 	// текущее немодальное окно можно получить с помощью WindowManager->GetBottomWindow();
 	/* $ 15.05.2002 SKV

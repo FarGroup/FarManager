@@ -33,7 +33,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "window.hpp"
+#include "modal.hpp"
 #include "macro.hpp"
 #include "config.hpp"
 
@@ -41,7 +41,7 @@ class TreeList;
 class EditControl;
 class SaveScreen;
 
-class FolderTree:public window
+class FolderTree:public Modal
 {
 public:
 	FolderTree(string &strResultFolder, int ModalMode, int IsStandalone = TRUE, bool IsFullScreen = true);

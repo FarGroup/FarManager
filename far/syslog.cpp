@@ -657,9 +657,9 @@ void ManagerClass_Dump(const wchar_t *Title,FILE *fp)
 				fwprintf(fp,L"\twindow nullptr\n");
 		});
 
-		fwprintf(fp,L"**** Stack modal windows ***\nModalStack.size()=%u\n",Man->m_nodalWindows.size());
+		fwprintf(fp,L"**** Stack modal windows ***\nModalStack.size()=%u\n",Man->m_modalWindows.size());
 
-		std::for_each(CONST_RANGE(Man->m_nodalWindows, i)
+		std::for_each(CONST_RANGE(Man->m_modalWindows, i)
 		{
 			if (i)
 			{

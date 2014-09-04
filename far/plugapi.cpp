@@ -579,10 +579,8 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			auto NextWindow=Global->WindowManager->GetSortedWindow(Param1);
 			if (!Global->WindowManager->InModalEV() && NextWindow)
 			{
-				int WindowType = Global->WindowManager->GetCurrentWindow()->GetType();
-
 				// Запретим переключение фрэймов, если находимся в хелпе или диалоге (тоже модальных)
-				if (WindowType != windowtype_help && WindowType != windowtype_dialog)
+				if (!dynamic_cast<Modal*>(Global->WindowManager->GetCurrentWindow()))
 				{
 					window* PrevWindow = Global->WindowManager->GetCurrentWindow();
 					Global->WindowManager->ActivateWindow(NextWindow);

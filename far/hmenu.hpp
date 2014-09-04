@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "modal.hpp"
-#include "window.hpp"
 #include "synchro.hpp"
 
 struct HMenuData
@@ -48,7 +47,7 @@ struct HMenuData
 
 class VMenu2;
 
-class HMenu: public Modal
+class HMenu: public SimpleModal
 {
 public:
 	HMenu(HMenuData* Item, int ItemCount);

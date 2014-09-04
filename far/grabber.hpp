@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "modal.hpp"
 #include "macro.hpp"
 
-class Grabber:Modal
+class Grabber:SimpleModal
 {
 public:
 	Grabber();

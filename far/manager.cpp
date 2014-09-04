@@ -119,7 +119,7 @@ Manager::Manager():
 	StartManager(false)
 {
 	m_windows.reserve(1024);
-	m_nodalWindows.reserve(1024);
+	m_modalWindows.reserve(1024);
 }
 
 Manager::~Manager()
@@ -136,18 +136,18 @@ BOOL Manager::ExitAll()
 	_MANAGER(CleverSysLog clv(L"Manager::ExitAll()"));
 
 	// BUGBUG don't use iterators here, may be invalidated by DeleteCommit()
-	for(size_t i = m_nodalWindows.size(); i; --i)
+	for(size_t i = m_modalWindows.size(); i; --i)
 	{
-		if (i - 1 >= m_nodalWindows.size())
+		if (i - 1 >= m_modalWindows.size())
 			continue;
-		auto CurrentWindow = m_nodalWindows[i - 1];
+		auto CurrentWindow = m_modalWindows[i - 1];
 		if (!CurrentWindow->GetCanLoseFocus(TRUE))
 		{
-			auto PrevWindowCount = m_nodalWindows.size();
+			auto PrevWindowCount = m_modalWindows.size();
 			CurrentWindow->ProcessKey(Manager::Key(KEY_ESC));
 			Commit();
 
-			if (PrevWindowCount == m_nodalWindows.size())
+			if (PrevWindowCount == m_modalWindows.size())
 			{
 				return FALSE;
 			}
@@ -181,9 +181,9 @@ BOOL Manager::ExitAll()
 void Manager::CloseAll()
 {
 	_MANAGER(CleverSysLog clv(L"Manager::CloseAll()"));
-	while(!m_nodalWindows.empty())
+	while(!m_modalWindows.empty())
 	{
-		DeleteWindow(m_nodalWindows.back());
+		DeleteWindow(m_modalWindows.back());
 		Commit();
 	}
 	while(!m_windows.empty())
@@ -715,9 +715,7 @@ int Manager::ProcessKey(Key key)
 				}
 				case KEY_F12:
 				{
-					int WindowType = Global->WindowManager->GetCurrentWindow()->GetType();
-
-					if (WindowType != windowtype_help && WindowType != windowtype_dialog && WindowType != windowtype_menu && WindowType != windowtype_grabber && WindowType != windowtype_hmenu)
+					if (!dynamic_cast<Modal*>(Global->WindowManager->GetCurrentWindow()))
 					{
 						DeactivateWindow(WindowMenu(),NoneWindow);
 						//_MANAGER(SysLog(-1));
@@ -903,8 +901,8 @@ window* Manager::GetSortedWindow(size_t Index) const
 
 int Manager::IndexOfStack(window *Window)
 {
-	auto ItemIterator = std::find(ALL_CONST_RANGE(m_nodalWindows), Window);
-	return ItemIterator != m_nodalWindows.cend()? ItemIterator - m_nodalWindows.cbegin() : -1;
+	auto ItemIterator = std::find(ALL_CONST_RANGE(m_modalWindows), Window);
+	return ItemIterator != m_modalWindows.cend()? ItemIterator - m_modalWindows.cbegin() : -1;
 }
 
 int Manager::IndexOf(window *Window)
@@ -963,13 +961,13 @@ void Manager::DeleteCommit(window* Param)
 	};
 	if (ModalIndex!=-1)
 	{
-		m_nodalWindows.erase(m_nodalWindows.begin() + ModalIndex);
+		m_modalWindows.erase(m_modalWindows.begin() + ModalIndex);
 
 		if (m_currentWindow==Param)
 		{
-			if (!m_nodalWindows.empty())
+			if (!m_modalWindows.empty())
 			{
-				ActivateCommit(m_nodalWindows.back());
+				ActivateCommit(m_modalWindows.back());
 			}
 			else if (!m_windows.empty())
 			{
@@ -1039,10 +1037,11 @@ void Manager::ActivateCommit(window* Param)
 	  то надо его вытащит на верх стэка модалов.
 	*/
 
-	auto ItemIterator = std::find(ALL_RANGE(m_nodalWindows), Param);
-	if (ItemIterator != m_nodalWindows.end())
+	auto ItemIterator = std::find(ALL_RANGE(m_modalWindows), Param);
+	if (ItemIterator != m_modalWindows.end())
 	{
-		std::swap(*ItemIterator, m_nodalWindows.back());
+		m_modalWindows.erase(ItemIterator);
+		m_modalWindows.push_back(Param);
 	}
 
 	m_currentWindow=Param;
@@ -1096,7 +1095,7 @@ void Manager::ExecuteCommit(window* Param)
 
 	if (Param)
 	{
-		m_nodalWindows.emplace_back(Param);
+		m_modalWindows.emplace_back(Param);
 		ActivateCommit(Param);
 	}
 }
@@ -1140,13 +1139,13 @@ void Manager::ImmediateHide()
 
 	// ќкна перерисовываютс€, значит дл€ нижних
 	// не выставл€ем заголовок консоли, чтобы не мелькал.
-	if (!m_nodalWindows.empty())
+	if (!m_modalWindows.empty())
 	{
 		/* $ 28.04.2002 KM
 		    ѕроверим, а не модальный ли редактор или вьювер на вершине
 		    модального стека? » если да, покажем User screen.
 		*/
-		if (m_nodalWindows.back()->GetType()==windowtype_editor || m_nodalWindows.back()->GetType()==windowtype_viewer)
+		if (m_modalWindows.back()->GetType()==windowtype_editor || m_modalWindows.back()->GetType()==windowtype_viewer)
 		{
 			ShowBackground();
 		}
@@ -1169,9 +1168,9 @@ void Manager::ImmediateHide()
 				m_windows.back()->Lock();
 			}
 
-			if (m_nodalWindows.size() > 1)
+			if (m_modalWindows.size() > 1)
 			{
-				FOR(const auto& i, make_range(m_nodalWindows.cbegin(), m_nodalWindows.cend() - 1))
+				FOR(const auto& i, make_range(m_modalWindows.cbegin(), m_modalWindows.cend() - 1))
 				{
 					RefreshWindow(i);
 					Commit();
@@ -1197,7 +1196,7 @@ void Manager::ResizeAllWindows()
 {
 	Global->ScrBuf->Lock();
 	std::for_each(ALL_CONST_RANGE(m_windows), std::mem_fn(&window::ResizeConsole));
-	std::for_each(ALL_CONST_RANGE(m_nodalWindows), std::mem_fn(&window::ResizeConsole));
+	std::for_each(ALL_CONST_RANGE(m_modalWindows), std::mem_fn(&window::ResizeConsole));
 
 	ImmediateHide();
 	RefreshWindow();

@@ -33,13 +33,13 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "window.hpp"
+#include "modal.hpp"
 #include "macro.hpp"
 #include "strmix.hpp"
 
 class HelpRecord;
 
-class Help:public window
+class Help:public Modal
 {
 public:
 	Help(const string& Topic,const wchar_t *Mask=nullptr,UINT64 Flags=0);
