@@ -54,16 +54,18 @@ public:
 	Manager();
 	~Manager();
 
+	enum DirectionType {
+		NoneWindow,
+		PreviousWindow,
+		NextWindow
+	};
 	// Эти функции можно безопасно вызывать практически из любого места кода
 	// они как бы накапливают информацию о том, что нужно будет сделать с окнами при следующем вызове Commit()
 	void InsertWindow(window *NewWindow);
 	void DeleteWindow(window *Deleted = nullptr);
-	void DeleteWindow(int Index);
-	void DeactivateWindow(window *Deactivated, int Direction);
+	void DeactivateWindow(window *Deactivated, DirectionType Direction);
 	void ActivateWindow(window *Activated);
-	void ActivateWindow(int Index);
 	void RefreshWindow(window *Refreshed = nullptr);
-	void RefreshWindow(int Index);
 	void UpdateWindow(window* Old,window* New);
 	void CallbackWindow(const std::function<void(void)>& Callback);
 	//! Функции для запуска модальных окон.
@@ -100,9 +102,10 @@ public:
 	void ResetLastInputRecord() { LastInputRecord.EventType = 0; }
 	window *GetCurrentWindow() { return m_currentWindow; }
 	window* GetWindow(size_t Index) const;
+	window* GetSortedWindow(size_t Index) const;
 	int IndexOf(window* Window);
 	int IndexOfStack(window* Window);
-	window *GetBottomWindow() { return GetWindow(m_windowPos); }
+	window *GetBottomWindow() { return m_windows.back(); }
 	bool ManagerIsDown() const { return EndLoop; }
 	bool ManagerStarted() const { return StartManager; }
 	void InitKeyBar();
@@ -118,6 +121,9 @@ public:
 	static bool ShowBackground();
 
 	void UpdateMacroArea(void);
+
+	typedef std::set<window*,std::function<bool(window*,window*)>> sorted_windows;
+	sorted_windows GetSortedWindows(void) const;
 private:
 #if defined(SYSLOG)
 	friend void ManagerClass_Dump(const wchar_t *Title, FILE *fp);
@@ -133,7 +139,6 @@ private:
 	void InsertCommit(window* Param);
 	void DeleteCommit(window* Param);
 	void ActivateCommit(window* Param);
-	void ActivateCommit(int Index);
 	void RefreshCommit(window* Param);
 	void DeactivateCommit(window* Param);
 	void ExecuteCommit(window* Param);
@@ -146,14 +151,12 @@ private:
 
 	void PushWindow(window* Param, window_callback Callback);
 	void CheckAndPushWindow(window* Param, window_callback Callback);
-	void ProcessWindowByPos(int Index, window_callback Callback);
 	void RedeleteWindow(window *Deleted);
 
 	INPUT_RECORD LastInputRecord;
 	window *m_currentWindow;     // текущее окно. Оно может находиться как в немодальном, так и в модальном контейнере, его можно получить с помощью WindowManager->GetCurrentWindow();
 	std::vector<window*> m_nodalWindows;
 	std::vector<window*> m_windows;
-	int  m_windowPos;           // Индекс текущего немодального окна. Оно не всегда совпадает с CurrentWindow
 	// текущее немодальное окно можно получить с помощью WindowManager->GetBottomWindow();
 	/* $ 15.05.2002 SKV
 		Так как есть полумодалы, что б не было путаницы,

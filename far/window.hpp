@@ -91,8 +91,10 @@ public:
 	void RemoveBlock(void);
 	bool IsBlocked(void) const;
 	void SetMacroMode(FARMACROAREA Area);
+	int ID(void) const {return m_ID;}
 
 protected:
+	int m_ID;
 	bool m_DynamicallyBorn;
 	int m_CanLoseFocus;
 	int m_ExitCode;
@@ -103,7 +105,6 @@ protected:
 private:
 	friend class Manager;
 
-	window *m_previousWindow;
 	bool m_Deleting;
 	long m_BlockCounter;
 	FARMACROAREA m_MacroMode;

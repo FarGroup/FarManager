@@ -644,7 +644,7 @@ void ManagerClass_Dump(const wchar_t *Title,FILE *fp)
 		const Manager *Man = Global->WindowManager;
 //StartSysLog
 		string Type,Name;
-		fwprintf(fp,L"**** Queue modal windows ***\nwindows count=%u, WindowPos=%d\n",Man->m_windows.size(),Man->m_windowPos);
+		fwprintf(fp,L"**** Queue modal windows ***\nwindows count=%u\n",Man->m_windows.size());
 
 		std::for_each(CONST_RANGE(Man->m_windows, i)
 		{

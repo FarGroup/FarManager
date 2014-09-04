@@ -39,14 +39,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "syslog.hpp"
 
+static int windowID=0;
+
 window::window():
+	m_ID(windowID++),
 	m_DynamicallyBorn(true),
 	m_CanLoseFocus(FALSE),
 	m_ExitCode(-1),
 	m_KeyBarVisible(0),
 	m_TitleBarVisible(0),
 	m_windowKeyBar(nullptr),
-	m_previousWindow(nullptr),
 	m_Deleting(false),
 	m_BlockCounter(0),
 	m_MacroMode(MACROAREA_OTHER)

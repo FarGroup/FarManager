@@ -505,7 +505,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 				{
 					if (wi->Pos >= 0 && wi->Pos < static_cast<intptr_t>(Global->WindowManager->GetWindowCount()))
 					{
-						f = Global->WindowManager->GetWindow(wi->Pos);
+						f = Global->WindowManager->GetSortedWindow(wi->Pos);
 					}
 					else if(wi->Pos >= static_cast<intptr_t>(Global->WindowManager->GetWindowCount()) && wi->Pos < static_cast<intptr_t>(Global->WindowManager->GetWindowCount() + Global->WindowManager->GetModalWindowCount()))
 					{
@@ -576,7 +576,8 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		case ACTL_SETCURRENTWINDOW:
 		{
 			// Запретим переключение фрэймов, если находимся в модальном редакторе/вьюере.
-			if (!Global->WindowManager->InModalEV() && Global->WindowManager->GetWindow(Param1))
+			auto NextWindow=Global->WindowManager->GetSortedWindow(Param1);
+			if (!Global->WindowManager->InModalEV() && NextWindow)
 			{
 				int WindowType = Global->WindowManager->GetCurrentWindow()->GetType();
 
@@ -584,8 +585,8 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 				if (WindowType != windowtype_help && WindowType != windowtype_dialog)
 				{
 					window* PrevWindow = Global->WindowManager->GetCurrentWindow();
-					Global->WindowManager->ActivateWindow(Param1);
-					Global->WindowManager->DeactivateWindow(PrevWindow, 0);
+					Global->WindowManager->ActivateWindow(NextWindow);
+					Global->WindowManager->DeactivateWindow(PrevWindow, Manager::NoneWindow);
 					return TRUE;
 				}
 			}
