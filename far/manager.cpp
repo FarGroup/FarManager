@@ -1107,6 +1107,7 @@ void Manager::UpdateCommit(window* Old,window* New)
 
 	if (-1 != WindowIndex)
 	{
+		New->SetID(Old->ID());
 		m_windows[WindowIndex] = New;
 		ActivateCommit(New);
 		DeleteWindow(Old);

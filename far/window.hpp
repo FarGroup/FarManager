@@ -101,6 +101,7 @@ protected:
 	int m_KeyBarVisible;
 	int m_TitleBarVisible;
 	std::unique_ptr<KeyBar> m_windowKeyBar;
+	void SetID(int Value) {m_ID=Value;}
 
 private:
 	friend class Manager;
