@@ -158,6 +158,7 @@ private:
 	void PushWindow(window* Param, window_callback Callback);
 	void CheckAndPushWindow(window* Param, window_callback Callback);
 	void RedeleteWindow(window *Deleted);
+	bool AddWindow(window *Param);
 
 	INPUT_RECORD LastInputRecord;
 	window *m_currentWindow;     // текущее окно. Оно может находиться как в немодальном, так и в модальном контейнере, его можно получить с помощью WindowManager->GetCurrentWindow();
@@ -181,5 +182,6 @@ private:
 	static long CurrentWindowType;
 	std::list<std::unique_ptr<MessageAbstract>> m_Queue;
 	std::vector<std::function<int(const Key&)>> m_GlobalKeyHandlers;
-	std::map<window*,bool*> m_Executed;
+	std::unordered_map<window*,bool*> m_Executed;
+	std::unordered_set<window*> m_Added;
 };

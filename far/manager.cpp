@@ -928,7 +928,7 @@ void Manager::InsertCommit(window* Param)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::InsertCommit()"));
 	_MANAGER(SysLog(L"InsertedWindow=%p",Param));
-	if (Param)
+	if (Param && AddWindow(Param))
 	{
 		m_windows.emplace_back(Param);
 		ActivateCommit(Param);
@@ -1012,6 +1012,9 @@ void Manager::DeleteCommit(window* Param)
 		*(stop->second)=true;
 		m_Executed.erase(stop);
 	}
+	auto size=m_Added.erase(Param);
+	(void)size;
+	assert(size==1);
 }
 
 void Manager::ActivateCommit(window* Param)
@@ -1094,7 +1097,7 @@ void Manager::ExecuteCommit(window* Param)
 	_MANAGER(CleverSysLog clv(L"Manager::ExecuteCommit()"));
 	_MANAGER(SysLog(L"ExecutedWindow=%p",Param));
 
-	if (Param)
+	if (Param && AddWindow(Param))
 	{
 		m_modalWindows.emplace_back(Param);
 		ActivateCommit(Param);
@@ -1107,15 +1110,29 @@ void Manager::UpdateCommit(window* Old,window* New)
 
 	if (-1 != WindowIndex)
 	{
-		New->SetID(Old->ID());
-		m_windows[WindowIndex] = New;
-		ActivateCommit(New);
-		DeleteWindow(Old);
+		if (AddWindow(New))
+		{
+			New->SetID(Old->ID());
+			m_windows[WindowIndex] = New;
+			ActivateCommit(New);
+			DeleteWindow(Old);
+		}
 	}
 	else
 	{
 		_MANAGER(SysLog(L"ERROR! DeletedWindow not found"));
 	}
+}
+
+bool Manager::AddWindow(window *Param)
+{
+	auto iterator=m_Added.find(Param);
+	if (iterator==m_Added.end())
+	{
+		m_Added.insert(Param);
+		return true;
+	}
+	return false;
 }
 
 /*$ 26.06.2001 SKV
