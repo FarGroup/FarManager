@@ -1730,7 +1730,7 @@ intptr_t apiTControl(intptr_t Id, command_type Command, intptr_t Param1, void* P
 
 	if (Id == -1)
 	{
-		auto CurrentObject = (Global->CtrlObject->Plugins->*Getter)();
+		auto CurrentObject = (Global->WindowManager->*Getter)();
 		return CurrentObject ? (CurrentObject->*CurrentControl)(Command, Param1, Param2) : 0;
 	}
 	else
@@ -1762,12 +1762,12 @@ intptr_t apiTControl(intptr_t Id, command_type Command, intptr_t Param1, void* P
 
 intptr_t WINAPI apiEditorControl(intptr_t EditorID, EDITOR_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2)
 {
-	return apiTControl(EditorID, Command, Param1, Param2, &PluginManager::GetCurEditor, &FileEditor::EditorControl, &FileEditor::EditorControl);
+	return apiTControl(EditorID, Command, Param1, Param2, &Manager::GetCurrentEditor, &FileEditor::EditorControl, &FileEditor::EditorControl);
 }
 
 intptr_t WINAPI apiViewerControl(intptr_t ViewerID, VIEWER_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2)
 {
-	return apiTControl(ViewerID, Command, Param1, Param2, &PluginManager::GetCurViewer, &Viewer::ViewerControl, &FileViewer::ViewerControl);
+	return apiTControl(ViewerID, Command, Param1, Param2, &Manager::GetCurrentViewer, &Viewer::ViewerControl, &FileViewer::ViewerControl);
 }
 
 void WINAPI apiUpperBuf(wchar_t *Buf, intptr_t Length)

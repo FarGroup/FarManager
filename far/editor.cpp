@@ -326,12 +326,6 @@ void Editor::ShowEditor()
 
 	int LeftPos,CurPos,Y;
 
-	/*$ 10.08.2000 skv
-	  To make sure that CurEditor is set to required value.
-	*/
-	if (!m_Flags.Check(FEDITOR_DIALOGMEMOEDIT))
-		Global->CtrlObject->Plugins->SetCurEditor(HostFileEditor); // this;
-
 	XX2=m_X2-(EdOpt.ShowScrollBar?1:0);
 	/* 17.04.2002 skv
 	  Что б курсор не бегал при Alt-F9 в конце длинного файла.
@@ -2800,7 +2794,6 @@ int Editor::ProcessKey(const Manager::Key& Key)
 
 					if (!m_Flags.Check(FEDITOR_DIALOGMEMOEDIT))
 					{
-						Global->CtrlObject->Plugins->SetCurEditor(HostFileEditor); // this;
 						//_D(SysLog(L"%08d EE_REDRAW",__LINE__));
 						_SYS_EE_REDRAW(SysLog(L"Editor::ProcessKey[%d](!EdOpt.CursorBeyondEOL): EE_REDRAW(EEREDRAW_ALL)",__LINE__));
 						SortColorLock();
@@ -3092,7 +3085,6 @@ int Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		{
 			if (!m_Flags.Check(FEDITOR_DIALOGMEMOEDIT))
 			{
-				Global->CtrlObject->Plugins->SetCurEditor(HostFileEditor); // this;
 				_SYS_EE_REDRAW(SysLog(L"Editor::ProcessMouse[%08d] ProcessEditorEvent(EE_REDRAW)",__LINE__));
 				SortColorLock();
 				Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,EditorID);

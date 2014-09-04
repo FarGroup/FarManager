@@ -36,9 +36,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "window.hpp"
 #include "viewer.hpp"
 
-class FileViewer:public window
+class FileViewer:public window,public ViewerContainer
 {
-	public:
+public:
 	FileViewer(const string& Name,int EnableSwitch=FALSE,int DisableHistory=FALSE,
 		int DisableEdit=FALSE,__int64 ViewStartPos=-1,const wchar_t *PluginData=nullptr,
 		NamesList *ViewNamesList=nullptr,bool ToSaveAs=false,uintptr_t aCodePage=CP_DEFAULT,
@@ -47,7 +47,7 @@ class FileViewer:public window
 		const wchar_t *Title,int X1,int Y1,int X2,int Y2,uintptr_t aCodePage=CP_DEFAULT);
 	virtual ~FileViewer();
 
-	public:
+public:
 	virtual void InitKeyBar() override;
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
@@ -61,6 +61,7 @@ class FileViewer:public window
 	/* $ ¬ведена дл€ нужд CtrlAltShift OT */
 	virtual bool CanFastHide() const override;
 	virtual string GetTitle() const override;
+	virtual Viewer* GetViewer(void) override;
 
 	void Init(const string& Name, int EnableSwitch, int DisableHistory, __int64 ViewStartPos, const wchar_t *PluginData, NamesList *ViewNamesList, bool ToSaveAs, window* Update=nullptr);
 	/* $ 14.06.2002 IS

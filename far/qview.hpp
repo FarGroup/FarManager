@@ -62,6 +62,7 @@ private:
 	virtual void UpdateKeyBar() override;
 	virtual int GetCurName(string &strName, string &strShortName) const override;
 	virtual void DisplayObject() override;
+	virtual Viewer* GetViewer(void) override {return QView.get();}
 
 	void PrintText(const string& Str);
 	void DynamicUpdateKeyBar() const;

@@ -125,8 +125,6 @@ PluginManager::PluginManager():
 #ifndef NO_WRAPPER
 	OemPluginsCount(),
 #endif // NO_WRAPPER
-	m_CurEditor(),
-	m_CurViewer(),
 	m_PluginsLoaded()
 {
 }
@@ -780,7 +778,7 @@ int PluginManager::ProcessEditorEvent(int Event,void *Param,int EditorID) const
 {
 	int nResult = 0;
 
-	if (Global->CtrlObject->Plugins->GetCurEditor())
+	if (Global->WindowManager->GetCurrentEditor())
 	{
 		ProcessEditorEventInfo Info = {sizeof(Info)};
 		Info.Event = Event;
@@ -802,7 +800,7 @@ int PluginManager::ProcessSubscribedEditorEvent(int Event,void *Param,int Editor
 {
 	int nResult = 0;
 
-	if (Global->CtrlObject->Plugins->GetCurEditor())
+	if (Global->WindowManager->GetCurrentEditor())
 	{
 		ProcessEditorEventInfo Info = {sizeof(Info)};
 		Info.Event = Event;
@@ -1559,9 +1557,9 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 	// restore title for old plugins only.
 #ifndef NO_WRAPPER
-	if (item.pPlugin->IsOemPlugin() && Editor && m_CurEditor)
+	if (item.pPlugin->IsOemPlugin() && Editor && Global->WindowManager->GetCurrentEditor())
 	{
-		m_CurEditor->SetPluginTitle(nullptr);
+		Global->WindowManager->GetCurrentEditor()->SetPluginTitle(nullptr);
 	}
 #endif // NO_WRAPPER
 	return TRUE;
@@ -2312,9 +2310,9 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
 
 			// restore title for old plugins only.
 			#ifndef NO_WRAPPER
-			if (Data->pPlugin->IsOemPlugin() && Editor && m_CurEditor)
+			if (Data->pPlugin->IsOemPlugin() && Editor && Global->WindowManager->GetCurrentEditor())
 			{
-				m_CurEditor->SetPluginTitle(nullptr);
+				Global->WindowManager->GetCurrentEditor()->SetPluginTitle(nullptr);
 			}
 			#endif // NO_WRAPPER
 		}

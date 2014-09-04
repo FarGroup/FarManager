@@ -1255,3 +1255,10 @@ FARMACROAREA FilePanels::GetMacroMode() const
 			return MACROAREA_SHELL;
 	}
 }
+
+Viewer* FilePanels::GetViewer(void)
+{
+    auto result=ActivePanel()->GetViewer();
+    if (!result) result=PassivePanel()->GetViewer();
+	return result;
+}

@@ -55,6 +55,7 @@ private:
 	virtual void UpdateKeyBar() override;
 	virtual void CloseFile() override;
 	virtual int GetCurName(string &strName, string &strShortName) const override;
+	virtual Viewer* GetViewer(void) override;
 
 	bool ShowDirDescription(int YPos);
 	bool ShowPluginDescription(int YPos);

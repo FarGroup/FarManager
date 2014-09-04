@@ -675,7 +675,6 @@ void FileEditor::Init(
 		break;
 	}
 
-	Global->CtrlObject->Plugins->SetCurEditor(this); //&FEdit;
 	if (GetExitCode() == XC_LOADING_INTERRUPTED || GetExitCode() == XC_OPEN_ERROR)
 		return;
 
@@ -775,7 +774,6 @@ void FileEditor::DisplayObject()
 		if (m_editor->m_Flags.Check(Editor::FEDITOR_ISRESIZEDCONSOLE))
 		{
 			m_editor->m_Flags.Clear(Editor::FEDITOR_ISRESIZEDCONSOLE);
-			Global->CtrlObject->Plugins->SetCurEditor(this);
 			Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,m_editor->EditorID);
 		}
 
@@ -1902,7 +1900,6 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		   Если было произведено сохранение с любым результатом, то не удалять файл
 		*/
 		m_Flags.Clear(FFILEEDIT_DELETEONCLOSE|FFILEEDIT_DELETEONLYFILEONCLOSE);
-		Global->CtrlObject->Plugins->SetCurEditor(this);
 //_D(SysLog(L"%08d EE_SAVE",__LINE__));
 
 		if (!IsUnicodeOrUtfCodePage(codepage))
@@ -2237,11 +2234,6 @@ void FileEditor::OnDestroy()
 	{
 		Global->CtrlObject->Plugins->ProcessEditorEvent(EE_CLOSE,nullptr,FEditEditorID);
 	}
-
-	if (Global->CtrlObject->Plugins->GetCurEditor() == this)//&this->FEdit)
-	{
-		Global->CtrlObject->Plugins->SetCurEditor(nullptr);
-	}
 }
 
 int FileEditor::GetCanLoseFocus(int DynamicMode) const
@@ -2287,7 +2279,6 @@ void FileEditor::ResizeConsole()
 int FileEditor::ProcessEditorInput(const INPUT_RECORD& Rec)
 {
 	int RetCode;
-	Global->CtrlObject->Plugins->SetCurEditor(this);
 	RetCode=Global->CtrlObject->Plugins->ProcessEditorInput(&Rec);
 	return RetCode;
 }
@@ -2548,7 +2539,6 @@ void FileEditor::SetEditorOptions(const Options::EditorOptions& EdOpt)
 void FileEditor::OnChangeFocus(int focus)
 {
 	window::OnChangeFocus(focus);
-	Global->CtrlObject->Plugins->SetCurEditor(this);
 	int FEditEditorID=m_editor->EditorID;
 	Global->CtrlObject->Plugins->ProcessEditorEvent(focus?EE_GOTFOCUS:EE_KILLFOCUS,nullptr,FEditEditorID);
 }

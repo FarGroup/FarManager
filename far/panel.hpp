@@ -157,6 +157,7 @@ enum panel_update_mode
 class VMenu2;
 class Edit;
 struct PanelMenuItem;
+class Viewer;
 
 class DelayedDestroy
 {
@@ -304,6 +305,7 @@ public:
 	virtual void Hide() override;
 	virtual void Show() override;
 	virtual void DisplayObject() override {}
+	virtual Viewer* GetViewer(void) {return nullptr;}
 
 	static void exclude_sets(string& mask);
 

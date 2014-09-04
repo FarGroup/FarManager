@@ -34,6 +34,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 class window;
+class Viewer;
+class FileEditor;
 
 class Manager: NonCopyable
 {
@@ -124,6 +126,10 @@ public:
 
 	typedef std::set<window*,std::function<bool(window*,window*)>> sorted_windows;
 	sorted_windows GetSortedWindows(void) const;
+
+	Viewer* GetCurrentViewer(void) const;
+	FileEditor* GetCurrentEditor(void) const;
+
 private:
 #if defined(SYSLOG)
 	friend void ManagerClass_Dump(const wchar_t *Title, FILE *fp);
@@ -155,8 +161,10 @@ private:
 
 	INPUT_RECORD LastInputRecord;
 	window *m_currentWindow;     // текущее окно. Оно может находиться как в немодальном, так и в модальном контейнере, его можно получить с помощью WindowManager->GetCurrentWindow();
-	std::vector<window*> m_modalWindows;
-	std::vector<window*> m_windows;
+	typedef std::vector<window*> windows;
+	void* GetCurrent(std::function<void*(windows::const_reverse_iterator)> Check) const;
+	windows m_modalWindows;
+	windows m_windows;
 	// текущее немодальное окно можно получить с помощью WindowManager->GetBottomWindow();
 	/* $ 15.05.2002 SKV
 		Так как есть полумодалы, что б не было путаницы,

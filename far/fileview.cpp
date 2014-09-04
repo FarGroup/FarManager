@@ -529,7 +529,6 @@ void FileViewer::ShowStatus()
 void FileViewer::OnChangeFocus(int focus)
 {
 	window::OnChangeFocus(focus);
-	Global->CtrlObject->Plugins->SetCurViewer(&m_View);
 	int FCurViewerID=m_View.ViewerID;
 	this->SetBlock();
 	Global->CtrlObject->Plugins->ProcessViewerEvent(focus?VE_GOTFOCUS:VE_KILLFOCUS,nullptr,FCurViewerID);
@@ -551,4 +550,9 @@ void FileViewer::ReadEvent(void)
 		this->RemoveBlock();
 	});
 
+}
+
+Viewer* FileViewer::GetViewer(void)
+{
+	return &m_View;
 }

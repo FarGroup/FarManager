@@ -35,11 +35,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "window.hpp"
 #include "menubar.hpp"
+#include "viewer.hpp"
 
 class Panel;
 class CommandLine;
 
-class FilePanels:public window
+class FilePanels:public window,public ViewerContainer
 {
 public:
 	FilePanels(bool CreatePanels = true);
@@ -59,6 +60,7 @@ public:
 	virtual bool CanFastHide() const override;
 	virtual void Refresh() override;
 	virtual FARMACROAREA GetMacroMode() const override;
+	virtual Viewer* GetViewer(void) override;
 
 	void Init(int DirCount);
 	Panel* GetAnotherPanel(const Panel *Current);

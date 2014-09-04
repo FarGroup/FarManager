@@ -262,3 +262,9 @@ private:
 
 	std::vector<wchar_t> ReadBuffer;
 };
+
+class ViewerContainer
+{
+public:
+	virtual Viewer* GetViewer(void)=0;
+};

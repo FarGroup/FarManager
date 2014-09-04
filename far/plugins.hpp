@@ -166,10 +166,6 @@ public:
 	Plugin *FindPlugin(const GUID& SysID) const;
 	void RefreshPluginsList();
 	void UndoRemove(Plugin* plugin);
-	FileEditor* GetCurEditor() const { return m_CurEditor; }
-	void SetCurEditor(FileEditor* Editor) { m_CurEditor = Editor; }
-	Viewer* GetCurViewer() const { return m_CurViewer; }
-	void SetCurViewer(Viewer* Viewer) { m_CurViewer = Viewer; }
 
 	static void ConfigureCurrent(Plugin *pPlugin, const GUID& Guid);
 	static int UseFarCommand(PluginHandle* hPlugin, int CommandType);
@@ -194,7 +190,5 @@ private:
 #ifndef NO_WRAPPER
 	size_t OemPluginsCount;
 #endif // NO_WRAPPER
-	FileEditor* m_CurEditor;
-	Viewer* m_CurViewer;
 	bool m_PluginsLoaded;
 };

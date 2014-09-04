@@ -172,8 +172,6 @@ Viewer::Viewer(bool bQuickView, uintptr_t aCodePage):
 	VM.Wrap=Global->Opt->ViOpt.ViewerIsWrap;
 	VM.WordWrap=Global->Opt->ViOpt.ViewerWrap;
 	VM.Hex = -1;
-
-	Global->CtrlObject->Plugins->SetCurViewer(this);
 }
 
 Viewer::~Viewer()
@@ -207,9 +205,6 @@ Viewer::~Viewer()
 	}
 
 	if (!HostFileViewer) CloseEvent();
-
-	if (this == Global->CtrlObject->Plugins->GetCurViewer())
-		Global->CtrlObject->Plugins->SetCurViewer(nullptr);
 }
 
 struct Viewer::ViewerUndoData
@@ -406,7 +401,6 @@ int Viewer::OpenFile(const string& Name,int warning)
 
 	ChangeViewKeyBar();
 	AdjustWidth();
-	Global->CtrlObject->Plugins->SetCurViewer(this); // HostFileViewer;
 	if (!HostFileViewer) ReadEvent();
 
 	last_update_check = GetTickCount();
@@ -498,15 +492,12 @@ void Viewer::ShowPage(int nMode)
 	switch (nMode)
 	{
 		case SHOW_HEX:
-			Global->CtrlObject->Plugins->SetCurViewer(this); //HostFileViewer;
 			ShowHex();
 			break;
 		case SHOW_DUMP:
-			Global->CtrlObject->Plugins->SetCurViewer(this); //HostFileViewer;
 			ShowDump();
 			break;
 		case SHOW_RELOAD:
-			Global->CtrlObject->Plugins->SetCurViewer(this); //HostFileViewer;
 			{
 				Strings.clear();
 
@@ -2336,8 +2327,6 @@ void Viewer::ChangeViewKeyBar()
 
 		m_ViewKeyBar->Redraw();
 	}
-
-	Global->CtrlObject->Plugins->SetCurViewer(this); //HostFileViewer;
 }
 
 enum SEARCHDLG

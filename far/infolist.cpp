@@ -1124,3 +1124,8 @@ void InfoList::DynamicUpdateKeyBar() const
 
 	Keybar.SetCustomLabels(KBA_INFO);
 }
+
+Viewer* InfoList::GetViewer(void)
+{
+	return DizView.get();
+}

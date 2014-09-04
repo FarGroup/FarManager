@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "desktop.hpp"
 #include "keybar.hpp"
+#include "fileedit.hpp"
 
 long Manager::CurrentWindowType=-1;
 
@@ -1216,4 +1217,40 @@ void Manager::UpdateMacroArea(void)
 Manager::sorted_windows Manager::GetSortedWindows(void) const
 {
 	return sorted_windows(ALL_CONST_RANGE(m_windows),[](window* lhs,window* rhs){return lhs->ID()<rhs->ID();});
+}
+
+void* Manager::GetCurrent(std::function<void*(windows::const_reverse_iterator)> Check) const
+{
+	auto process=[this,&Check](const windows& List,void*& Result) -> bool
+	{
+		auto iterator=std::find_if(CONST_REVERSE_RANGE(List, i) -> bool {if (dynamic_cast<Modal*>(i)) return false; else return true;});
+		if (iterator!=List.crend())
+		{
+			Result=Check(iterator);
+			return true;
+		}
+		return false;
+	};
+	void* result=nullptr;
+	if (!process(m_modalWindows,result)) process(m_windows,result);
+	return result;
+}
+
+Viewer* Manager::GetCurrentViewer(void) const
+{
+	return reinterpret_cast<Viewer*>(GetCurrent([](windows::const_reverse_iterator Iterator)->void*
+	{
+		auto result=dynamic_cast<ViewerContainer*>(*Iterator);
+		return result?result->GetViewer():nullptr;
+	}
+	));
+}
+
+FileEditor* Manager::GetCurrentEditor(void) const
+{
+	return reinterpret_cast<FileEditor*>(GetCurrent([](windows::const_reverse_iterator Iterator)->void*
+	{
+		return dynamic_cast<FileEditor*>(*Iterator);
+	}
+	));
 }
