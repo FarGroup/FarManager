@@ -106,6 +106,7 @@ public:
 	window* GetWindow(size_t Index) const;
 	window* GetSortedWindow(size_t Index) const;
 	int IndexOf(window* Window);
+	int SortedIndexOf(window* Window);
 	int IndexOfStack(window* Window);
 	window *GetBottomWindow() { return m_windows.back(); }
 	bool ManagerIsDown() const { return EndLoop; }

@@ -912,6 +912,13 @@ int Manager::IndexOf(window *Window)
 	return ItemIterator != m_windows.cend() ? ItemIterator - m_windows.cbegin() : -1;
 }
 
+int Manager::SortedIndexOf(window* Window)
+{
+	auto windows = GetSortedWindows();
+	auto ItemIterator = std::find(ALL_CONST_RANGE(windows), Window);
+	return ItemIterator != windows.cend() ? std::distance(windows.cbegin(), ItemIterator) : -1;
+}
+
 void Manager::Commit(void)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::Commit()"));

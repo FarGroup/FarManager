@@ -537,7 +537,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 					wi->NameSize=strName.size()+1;
 				}
 
-				if(-1==wi->Pos) wi->Pos = Global->WindowManager->IndexOf(f);
+				if(-1==wi->Pos) wi->Pos = Global->WindowManager->SortedIndexOf(f);
 				if(-1==wi->Pos) wi->Pos = Global->WindowManager->IndexOfStack(f) + Global->WindowManager->GetWindowCount();
 				wi->Type=WindowTypeToPluginWindowType(f->GetType());
 				wi->Flags=0;
