@@ -428,13 +428,9 @@ local function AddMenuItem (srctable)
         if w=="plugins" or w=="disks" or w=="config" then item.flags[w]=true end
       end
       if type(srctable.area)=="string" then
-        for w in srctable.area:lower():gmatch("%S+") do
-          if     w=="shell"  then item.flags[F.WTYPE_PANELS]=true
-          elseif w=="editor" then item.flags[F.WTYPE_EDITOR]=true
-          elseif w=="viewer" then item.flags[F.WTYPE_VIEWER]=true
-          elseif w=="dialog" then item.flags[F.WTYPE_DIALOG]=true
-          elseif w=="menu"   then item.flags[F.WTYPE_VMENU]=true
-          end
+        for w in srctable.area:gmatch("%S+") do
+          local code = GetAreaCode(w)
+          if code then item.flags[code]=true end
         end
       end
       item.text = srctable.text
