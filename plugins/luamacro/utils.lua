@@ -428,9 +428,13 @@ local function AddMenuItem (srctable)
         if w=="plugins" or w=="disks" or w=="config" then item.flags[w]=true end
       end
       if type(srctable.area)=="string" then
-        for w in srctable.area:gmatch("%S+") do
-          local code = GetAreaCode(w)
-          if code then item.flags[code]=true end
+        for w in srctable.area:lower():gmatch("%S+") do
+          if w == "common" then
+            item.flags[w]=true
+          else
+            local code = GetAreaCode(w)
+            if code then item.flags[code]=true end
+          end
         end
       end
       item.text = srctable.text

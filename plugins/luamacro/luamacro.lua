@@ -106,25 +106,37 @@ function export.GetPluginInfo()
   local area = utils.GetTrueAreaName(mode)
   for _,item in ipairs(utils.GetMenuItems()) do
     local flags = item.flags
-    if flags.config or flags.disks or flags.plugins and flags[mode] then
-      local ok, text = pcall(item.text, area)
+    if flags.config then
+      local ok, text = pcall(item.text, "Config", area)
       if ok then
         if type(text) == "string" then
-          if flags.config then
-            out.PluginConfigStrings = out.PluginConfigStrings or {}
-            table.insert(out.PluginConfigStrings, text)
-            out.PluginConfigGuids = out.PluginConfigGuids and out.PluginConfigGuids..item.guid or item.guid
-          end
-          if flags.disks then
-            out.DiskMenuStrings = out.DiskMenuStrings or {}
-            table.insert(out.DiskMenuStrings, text)
-            out.DiskMenuGuids = out.DiskMenuGuids and out.DiskMenuGuids..item.guid or item.guid
-          end
-          if flags.plugins and flags[mode] then
-            out.PluginMenuStrings = out.PluginMenuStrings or {}
-            table.insert(out.PluginMenuStrings, text)
-            out.PluginMenuGuids = out.PluginMenuGuids and out.PluginMenuGuids..item.guid or item.guid
-          end
+          out.PluginConfigStrings = out.PluginConfigStrings or {}
+          table.insert(out.PluginConfigStrings, text)
+          out.PluginConfigGuids = out.PluginConfigGuids and out.PluginConfigGuids..item.guid or item.guid
+        end
+      else
+        ErrMsg(text)
+      end
+    end
+    if flags.disks then
+      local ok, text = pcall(item.text, "Disks", area)
+      if ok then
+        if type(text) == "string" then
+          out.DiskMenuStrings = out.DiskMenuStrings or {}
+          table.insert(out.DiskMenuStrings, text)
+          out.DiskMenuGuids = out.DiskMenuGuids and out.DiskMenuGuids..item.guid or item.guid
+        end
+      else
+        ErrMsg(text)
+      end
+    end
+    if flags.plugins and (flags[mode] or flags.common) then
+      local ok, text = pcall(item.text, "Plugins", area)
+      if ok then
+        if type(text) == "string" then
+          out.PluginMenuStrings = out.PluginMenuStrings or {}
+          table.insert(out.PluginMenuStrings, text)
+          out.PluginMenuGuids = out.PluginMenuGuids and out.PluginMenuGuids..item.guid or item.guid
         end
       else
         ErrMsg(text)
