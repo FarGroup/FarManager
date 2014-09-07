@@ -104,6 +104,7 @@ function export.GetPluginInfo()
 
   local mode = far.MacroGetArea()
   local area = utils.GetTrueAreaName(mode)
+  local IsDiskMenuPossible = area=="Shell" or area=="Tree" or area=="QView" or area=="Info"
   for _,item in ipairs(utils.GetMenuItems()) do
     local flags = item.flags
     if flags.config then
@@ -118,7 +119,7 @@ function export.GetPluginInfo()
         ErrMsg(text)
       end
     end
-    if flags.disks then
+    if IsDiskMenuPossible and flags.disks then
       local ok, text = pcall(item.text, "Disks", area)
       if ok then
         if type(text) == "string" then
