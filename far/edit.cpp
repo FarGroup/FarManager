@@ -47,8 +47,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "panelmix.hpp"
 #include "manager.hpp"
-#include "fileedit.hpp"
-
+#include "editor.hpp"
+#include "window.hpp"
 
 const GUID& ColorItem::GetOwner() const
 {
@@ -2481,9 +2481,7 @@ void Edit::ApplyColor(const FarColor& SelColor)
 	int XPos = 0;
 	if(m_Flags.Check(FEDITLINE_EDITORMODE))
 	{
-		EditorInfo ei={sizeof(EditorInfo)};
-		Global->WindowManager->GetCurrentEditor()->EditorControl(ECTL_GETINFO, 0, &ei);
-		XPos = ei.CurTabPos - ei.LeftPos;
+		XPos = GetTabCurPos() - GetLeftPos();
 	}
 
 	// Обрабатываем элементы ракраски
