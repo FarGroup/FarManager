@@ -577,7 +577,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		{
 			// Запретим переключение фрэймов, если находимся в модальном редакторе/вьюере.
 			auto NextWindow=Global->WindowManager->GetSortedWindow(Param1);
-			if (!Global->WindowManager->InModalEV() && NextWindow)
+			if (!Global->WindowManager->InModal() && NextWindow)
 			{
 				// Запретим переключение фрэймов, если находимся в хелпе или диалоге (тоже модальных)
 				if (!dynamic_cast<Modal*>(Global->WindowManager->GetCurrentWindow()))
@@ -1487,7 +1487,7 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 	int DisableHistory = (Flags & VF_DISABLEHISTORY) != 0;
 
 	// $ 15.05.2002 SKV - Запретим вызов немодального редактора вьюера из модального.
-	if (Global->WindowManager->InModalEV())
+	if (Global->WindowManager->InModal())
 	{
 		Flags&=~VF_NONMODAL;
 	}
@@ -1533,7 +1533,7 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 
 		/* $ 28.05.2001 По умолчанию Вьюер, поэтому нужно здесь признак выставиль явно */
 		Viewer.SetDynamicallyBorn(false);
-		Global->WindowManager->ExecuteModalEV(&Viewer);
+		Global->WindowManager->ExecuteModal(&Viewer);
 
 		/* $ 14.06.2002 IS
 		   Обработка VF_DELETEONLYFILEONCLOSE - этот флаг имеет более низкий
@@ -1585,7 +1585,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 	  Запретим вызов немодального редактора, если находимся в модальном
 	  редакторе или вьюере.
 	*/
-	if (Global->WindowManager->InModalEV())
+	if (Global->WindowManager->InModal())
 	{
 		Flags&=~EF_NONMODAL;
 	}
@@ -1681,7 +1681,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 			/* $ 15.05.2002 SKV
 			  Зафиксируем вход и выход в/из модального редактора.
 			*/
-			Global->WindowManager->ExecuteModalEV(&Editor);
+			Global->WindowManager->ExecuteModal(&Editor);
 			editorExitCode = Editor.GetExitCode();
 
 			if (editorExitCode)

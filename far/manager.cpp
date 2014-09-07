@@ -114,7 +114,6 @@ public:
 
 Manager::Manager():
 	m_currentWindow(nullptr),
-	ModalEVCount(0),
 	EndLoop(false),
 	ModalExitCode(-1),
 	StartManager(false)

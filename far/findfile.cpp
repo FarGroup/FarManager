@@ -1754,7 +1754,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 										ShellViewer.SetSaveToSaveAs(true);
 									}
 								}
-								Global->WindowManager->ExecuteModalEV(&ShellViewer);
+								Global->WindowManager->ExecuteModal(&ShellViewer);
 								// заставляем рефрешится экран
 								Global->WindowManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
 							}
@@ -1831,7 +1831,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 									auto editorExitCode=ShellEditor.GetExitCode();
 									if (editorExitCode != XC_OPEN_ERROR && editorExitCode != XC_LOADING_INTERRUPTED)
 									{
-										Global->WindowManager->ExecuteModalEV(&ShellEditor);
+										Global->WindowManager->ExecuteModal(&ShellEditor);
 										// заставляем рефрешится экран
 										Global->WindowManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
 									}

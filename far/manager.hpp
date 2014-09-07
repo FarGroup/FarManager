@@ -112,8 +112,7 @@ public:
 	bool ManagerIsDown() const { return EndLoop; }
 	bool ManagerStarted() const { return StartManager; }
 	void InitKeyBar();
-	void ExecuteModalEV(window *Executed) { ++ModalEVCount; ExecuteModal(Executed); --ModalEVCount; }
-	bool InModalEV() const { return ModalEVCount != 0; }
+	bool InModal(void) const { return !m_modalWindows.empty(); }
 	void ResizeAllWindows();
 	size_t GetModalWindowCount() const { return m_modalWindows.size(); }
 	window* GetModalWindow(size_t index) const { return m_modalWindows[index]; }
@@ -176,7 +175,6 @@ private:
 		1) не только для настоящих модалов (как это не пародоксально),
 		2) не только для editor/viewer'ов.
 	*/
-	int ModalEVCount;
 	bool EndLoop;            // Признак выхода из цикла
 	int ModalExitCode;
 	bool StartManager;
