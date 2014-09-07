@@ -3,9 +3,88 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 07.09.2014 23:51:48 +0200 - build 4090
+
+1. FAR crash on ACTL_SETCURRENTWINDOW call from plugins menu without consequent ACTL_COMMIT.
+
+zg 07.09.2014 22:53:05 +0200 - build 4089
+
+1. forbiddance of starting a non-modal editor/viewer applies not only modal editor/viewer,
+   but also any modal window.
+
+zg 05.09.2014 12:17:12 +0200 - build 4088
+
+1. correction of 4083 for ACTL_GETWINDOWINFO.
+
+zg 05.09.2014 01:51:10 +0200 - build 4087
+
+1. check for repeated adding of a window to the window manager.
+
+zg 04.09.2014 23:56:47 +0200 - build 4086
+
+1. correction of 4083: incorrect handling of f6 in editor/viewer.
+
+zg 04.09.2014 23:49:46 +0200 - build 4085
+
+1. the current editor/viewer is now detected dynamically.
+
+zg 04.09.2014 12:52:38 +0200 - build 4084
+
+1. all pure modal windows must now be inherited from Modal class.
+
+2. correction of z-order for modal windows.
+
+3. a typo.
+
+zg 04.09.2014 04:07:18 +0200 - build 4083
+
+1. non-modal windows have z-order now.
+
+zg 03.09.2014 23:18:26 +0200 - build 4082
+
+1. correction of 4061.1.
+
+drkns 03.09.2014 21:57:15 +0200 - build 4081
+
+1. A couple of issues.
+
+shmuel 03.09.2014 16:14:57 +0200 - build 4080
+
+1. Continuation of 4077.
+
+shmuel 03.09.2014 12:14:17 +0200 - build 4079
+
+1. Refactoring of 4077.
+
+drkns 03.09.2014 09:45:11 +0200 - build 4078
+
+1. Correction of 4076.
+
+shmuel 03.09.2014 01:22:09 +0200 - build 4077
+
+1. M#2705: Far.GetConfig (replaces Far.Cfg_Get).
+
+drkns 03.09.2014 00:57:03 +0200 - build 4076
+
+1. Checks for copying upper than root are removed. Now this situation is treated as copying to the root. As a consequence:
+
+2. 0002784: Crash on manual input of network folder address for copying.
+
+3. Correction of path root extraction logic. It seems to be corrected everywhere, but there may be surprises.
+
+drkns 02.09.2014 09:20:13 +0200 - build 4075
+
+1. Correction of 4072.1.
+
+zg 01.09.2014 15:56:02 +0200 - build 4074
+
+1. 0002786: Freeze on Far Manager close if some edited files have left opened.
+
+2. unnecessary volatile is removed.
+
 drkns 31.08.2014 17:22:50 +0200 - build 4073
 
-1. 0002785: Падение при попытке вызвать диалог создания архива (shift+F1)
+1. 0002785: Crash on attempt to call the archive creation dialog (shift+F1)
 
 2. Refactoring.
 
