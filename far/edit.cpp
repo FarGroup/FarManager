@@ -2481,7 +2481,13 @@ void Edit::ApplyColor(const FarColor& SelColor)
 	int XPos = 0;
 	if(m_Flags.Check(FEDITLINE_EDITORMODE))
 	{
-		XPos = GetTabCurPos() - GetLeftPos();
+		auto editor=dynamic_cast<Editor*>(GetOwner());
+		if (editor)
+		{
+			EditorInfo ei={sizeof(EditorInfo)};
+			editor->EditorControl(ECTL_GETINFO, 0, &ei);
+			XPos = ei.CurTabPos - ei.LeftPos;
+		}
 	}
 
 	// Обрабатываем элементы ракраски
