@@ -6230,8 +6230,8 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				_ECTLLOG(SysLog(L"  Color       =%d/%d (0x%08X/0x%08X)",col->Color.ForegroundColor,col->Color.BackgroundColor,col->Color.ForegroundColor,col->Color.BackgroundColor));
 				_ECTLLOG(SysLog(L"}"));
 				ColorItem newcol;
-				newcol.StartPos=col->StartPos+(col->StartPos!=-1?m_X1:0);
-				newcol.EndPos=col->EndPos+m_X1;
+				newcol.StartPos=col->StartPos;
+				newcol.EndPos=col->EndPos;
 				newcol.SetColor(col->Color);
 				newcol.Flags=col->Flags;
 				newcol.SetOwner(col->Owner);

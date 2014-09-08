@@ -2499,8 +2499,9 @@ void Edit::ApplyColor(const FarColor& SelColor)
 		if (CurItem->StartPos > CurItem->EndPos)
 			continue;
 
+		int Width = ObjWidth();
 		// Отсекаем элементы заведомо не попадающие на экран
-		if (CurItem->StartPos-LeftPos > m_X2 && CurItem->EndPos-LeftPos < m_X1)
+		if (CurItem->StartPos-LeftPos >= Width && CurItem->EndPos-LeftPos < 0)
 			continue;
 
 		int Length = CurItem->EndPos-CurItem->StartPos+1;
@@ -2538,7 +2539,7 @@ void Edit::ApplyColor(const FarColor& SelColor)
 		TabEditorPos = Start;
 
 		// Пропускаем элементы раскраски у которых начальная позиция за экраном
-		if (Start > m_X2)
+		if (Start >= Width)
 			continue;
 
 		// Корректировка относительно табов (отключается, если присутвует флаг ECF_TABMARKFIRST)
@@ -2600,36 +2601,34 @@ void Edit::ApplyColor(const FarColor& SelColor)
 		TabPos = RealEnd;
 		TabEditorPos = End;
 
-		// Пропускаем элементы раскраски у которых конечная позиция меньше левой границы экрана
-		if (End < m_X1)
-			continue;
-
-		// Обрезаем раскраску элемента по экрану
-		if (Start < m_X1)
-			Start = m_X1;
-
-		if (End > m_X2)
-			End = m_X2;
-
 		if(TabMarkCurrent)
 		{
 			Start = XPos;
-			End = XPos+1;
+			End = XPos;
+		}
+		else
+		{
+			// Пропускаем элементы раскраски у которых конечная позиция меньше левой границы экрана
+			if (End < 0)
+				continue;
+
+			// Обрезаем раскраску элемента по экрану
+			if (Start < 0)
+				Start = 0;
+
+			if (End >= Width)
+				End = Width-1;
+			else
+				End -= CorrectPos;
 		}
 
-		// Устанавливаем длину раскрашиваемого элемента
-		Length = End-Start+1;
-
-		if (Length < m_X2)
-			Length -= CorrectPos;
-
 		// Раскрашиваем элемент, если есть что раскрашивать
-		if (Length > 0)
+		if (End >= Start)
 		{
 			Global->ScrBuf->ApplyColor(
-			    Start,
+			    m_X1+Start,
 			    m_Y1,
-			    Start+Length-1,
+			    m_X1+End,
 			    m_Y1,
 			    CurItem->GetColor(),
 			    // Не раскрашиваем выделение
