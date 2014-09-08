@@ -320,8 +320,6 @@ bool dlgSaveFileAs(string &strFileName, int &TextFormat, uintptr_t &codepage,boo
 }
 
 
-const FileEditor *FileEditor::CurrentEditor = nullptr;
-
 FileEditor::FileEditor(const string& Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* PluginData, EDITOR_FLAGS OpenModeExstFile):
 	BadConversion(false)
 {
@@ -404,8 +402,6 @@ FileEditor::~FileEditor()
 			}
 		}
 	}
-
-	CurrentEditor=nullptr;
 }
 
 void FileEditor::Init(
@@ -448,7 +444,6 @@ void FileEditor::Init(
 	m_editor->SetOwner(this);
 	m_editor->SetCodePage(m_codepage);
 	*AttrStr=0;
-	CurrentEditor=this;
 	m_FileAttributes=INVALID_FILE_ATTRIBUTES;
 	FileAttributesModified=false;
 	SetTitle(Title);
@@ -693,7 +688,7 @@ void FileEditor::Init(
 
 	if (m_Flags.Check(FFILEEDIT_ENABLEF6))
 	{
-		if (Update) Global->WindowManager->UpdateWindow(Update,this);
+		if (Update) Global->WindowManager->ReplaceWindow(Update,this);
 		else Global->WindowManager->InsertWindow(this);
 	}
 	else
@@ -1334,7 +1329,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					&& (BadConversion
 					|| IsUnicodeCodePage(m_codepage) || m_codepage == CP_UTF7
 					|| IsUnicodeCodePage(codepage));
-				
+
 
 				if (codepage != m_codepage && need_reload && IsFileModified())
 				{

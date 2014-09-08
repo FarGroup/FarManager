@@ -486,9 +486,9 @@ void Manager::ExecuteWindow(window *Executed)
 	CheckAndPushWindow(Executed,&Manager::ExecuteCommit);
 }
 
-void Manager::UpdateWindow(window* Old,window* New)
+void Manager::ReplaceWindow(window* Old,window* New)
 {
-	m_Queue.push_back(std::make_unique<MessageTwoWindows>(Old,New,[this](window* Param1,window* Param2){this->UpdateCommit(Param1,Param2);}));
+	m_Queue.push_back(std::make_unique<MessageTwoWindows>(Old,New,[this](window* Param1,window* Param2){this->ReplaceCommit(Param1,Param2);}));
 }
 
 void Manager::SwitchToPanels()
@@ -1080,6 +1080,13 @@ void Manager::RefreshCommit(window* Param)
 		std::for_each(std::next(List.begin(), Index), List.end(), LAMBDA_PREDICATE(List, i)
 		{
 			if (!i->Locked()) i->Refresh();
+			if
+			(
+				(Global->Opt->ViewerEditorClock && (i->GetType() == windowtype_editor || i->GetType() == windowtype_viewer))
+				||
+				(Global->WaitInMainLoop && Global->Opt->Clock)
+			)
+				ShowTime(1);
 		});
 	};
 
@@ -1099,14 +1106,6 @@ void Manager::RefreshCommit(window* Param)
 	{
 		if (!Global->IsRedrawWindowInProcess) m_currentWindow->ShowConsoleTitle();
 	}
-
-	if
-	(
-		(Global->Opt->ViewerEditorClock && (m_currentWindow->GetType() == windowtype_editor || m_currentWindow->GetType() == windowtype_viewer))
-		||
-		(Global->WaitInMainLoop && Global->Opt->Clock)
-	)
-		ShowTime(1);
 }
 
 void Manager::DeactivateCommit(window* Param)
@@ -1131,19 +1130,15 @@ void Manager::ExecuteCommit(window* Param)
 	}
 }
 
-void Manager::UpdateCommit(window* Old,window* New)
+void Manager::ReplaceCommit(window* Old,window* New)
 {
 	int WindowIndex = IndexOf(Old);
 
 	if (-1 != WindowIndex)
 	{
-		if (AddWindow(New))
-		{
-			New->SetID(Old->ID());
-			m_windows[WindowIndex] = New;
-			ActivateCommit(New);
-			DeleteWindow(Old);
-		}
+		New->SetID(Old->ID());
+		DeleteCommit(Old);
+		InsertCommit(New);
 	}
 	else
 	{

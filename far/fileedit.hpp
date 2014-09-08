@@ -97,8 +97,6 @@ public:
 	void SetPluginTitle(const string* PluginTitle);
 	int GetId() const { return m_editor->EditorID; }
 
-	static const FileEditor *CurrentEditor;
-
 private:
 	virtual void DisplayObject() override;
 	virtual void InitKeyBar() override;

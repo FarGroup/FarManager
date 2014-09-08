@@ -165,7 +165,7 @@ void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 
 	if (EnableSwitch)
 	{
-		if (Update) Global->WindowManager->UpdateWindow(Update,this);
+		if (Update) Global->WindowManager->ReplaceWindow(Update,this);
 		else Global->WindowManager->InsertWindow(this);
 	}
 	else

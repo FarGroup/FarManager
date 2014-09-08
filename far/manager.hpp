@@ -68,7 +68,7 @@ public:
 	void DeactivateWindow(window *Deactivated, DirectionType Direction);
 	void ActivateWindow(window *Activated);
 	void RefreshWindow(window *Refreshed = nullptr);
-	void UpdateWindow(window* Old,window* New);
+	void ReplaceWindow(window* Old,window* New);
 	void CallbackWindow(const std::function<void(void)>& Callback);
 	//! Функции для запуска модальных окон.
 	void ExecuteWindow(window *Executed);
@@ -148,7 +148,7 @@ private:
 	void RefreshCommit(window* Param);
 	void DeactivateCommit(window* Param);
 	void ExecuteCommit(window* Param);
-	void UpdateCommit(window* Old,window* New);
+	void ReplaceCommit(window* Old,window* New);
 	int GetModalExitCode() const;
 	// BUGBUG, do we need this?
 	void ImmediateHide();
