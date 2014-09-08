@@ -1000,7 +1000,6 @@ void Manager::DeleteCommit(window* Param)
 			if (!m_windows.empty())
 			{
 				RefreshWindow(m_windows.back());
-				RefreshWindow(m_currentWindow);
 			}
 		}
 	}
@@ -1068,20 +1067,42 @@ void Manager::RefreshCommit(window* Param)
 	if (!Param)
 		return;
 
-	if (IndexOf(Param)==-1 && IndexOfStack(Param)==-1)
+	auto WindowIndex=IndexOf(Param);
+	auto ModalIndex=IndexOfStack(Param);
+
+	if (-1==WindowIndex && -1==ModalIndex)
 		return;
 
-	if (!Param->Locked())
-	{
-		if (!Global->IsRedrawWindowInProcess)
-			Param->ShowConsoleTitle();
+	assert(!(-1!=WindowIndex && -1!=ModalIndex));
 
-		Param->Refresh();
+	auto process=[](const windows& List, int Index) -> void
+	{
+		std::for_each(std::next(List.begin(), Index), List.end(), LAMBDA_PREDICATE(List, i)
+		{
+			if (!i->Locked()) i->Refresh();
+		});
+	};
+
+	if (WindowIndex >= 0)
+	{
+		process(m_windows, WindowIndex);
+		ModalIndex = 0;
+	}
+
+	if (ModalIndex >= 0)
+	{
+		process(m_modalWindows, ModalIndex);
+	}
+
+	assert(m_currentWindow);
+	if (!m_currentWindow->Locked())
+	{
+		if (!Global->IsRedrawWindowInProcess) m_currentWindow->ShowConsoleTitle();
 	}
 
 	if
 	(
-		(Global->Opt->ViewerEditorClock && (Param->GetType() == windowtype_editor || Param->GetType() == windowtype_viewer))
+		(Global->Opt->ViewerEditorClock && (m_currentWindow->GetType() == windowtype_editor || m_currentWindow->GetType() == windowtype_viewer))
 		||
 		(Global->WaitInMainLoop && Global->Opt->Clock)
 	)
