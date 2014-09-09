@@ -975,11 +975,11 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			NewPanel->SetCurDir(strNewCurDir,true);
 			NewPanel->Show();
 
-			if (Focus || !NewPanel->m_parent->GetAnotherPanel(this)->IsVisible())
+			if (Focus || !NewPanel->m_parent->GetAnotherPanel(NewPanel)->IsVisible())
 				NewPanel->SetFocus();
 
-			if (!Focus && NewPanel->m_parent->GetAnotherPanel(this)->GetType() == INFO_PANEL)
-				NewPanel->m_parent->GetAnotherPanel(this)->UpdateKeyBar();
+			if (!Focus && NewPanel->m_parent->GetAnotherPanel(NewPanel)->GetType() == INFO_PANEL)
+				NewPanel->m_parent->GetAnotherPanel(NewPanel)->UpdateKeyBar();
 		}
 	}
 	else //эта плагин, да
