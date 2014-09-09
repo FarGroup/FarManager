@@ -975,11 +975,11 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			NewPanel->SetCurDir(strNewCurDir,true);
 			NewPanel->Show();
 
-			if (Focus || !m_parent->GetAnotherPanel(this)->IsVisible())
+			if (Focus || !NewPanel->m_parent->GetAnotherPanel(this)->IsVisible())
 				NewPanel->SetFocus();
 
-			if (!Focus && m_parent->GetAnotherPanel(this)->GetType() == INFO_PANEL)
-				m_parent->GetAnotherPanel(this)->UpdateKeyBar();
+			if (!Focus && NewPanel->m_parent->GetAnotherPanel(this)->GetType() == INFO_PANEL)
+				NewPanel->m_parent->GetAnotherPanel(this)->UpdateKeyBar();
 		}
 	}
 	else //эта плагин, да
@@ -995,12 +995,12 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		{
 			int Focus=GetFocus();
 			auto NewPanel = m_parent->ChangePanel(this, FILE_PANEL, TRUE, TRUE);
-			NewPanel->SetPluginMode(hPlugin, L"", Focus || !m_parent->GetAnotherPanel(NewPanel)->IsVisible());
+			NewPanel->SetPluginMode(hPlugin, L"", Focus || !NewPanel->m_parent->GetAnotherPanel(NewPanel)->IsVisible());
 			NewPanel->Update(0);
 			NewPanel->Show();
 
-			if (!Focus && m_parent->GetAnotherPanel(this)->GetType() == INFO_PANEL)
-				m_parent->GetAnotherPanel(this)->UpdateKeyBar();
+			if (!Focus && NewPanel->m_parent->GetAnotherPanel(NewPanel)->GetType() == INFO_PANEL)
+				NewPanel->m_parent->GetAnotherPanel(NewPanel)->UpdateKeyBar();
 		}
 	}
 
