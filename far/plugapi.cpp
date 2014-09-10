@@ -84,6 +84,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dirinfo.hpp"
 #include "language.hpp"
 #include "desktop.hpp"
+#include "viewer.hpp"
 
 static inline Plugin* GuidToPlugin(const GUID* Id) { return (Id && Global->CtrlObject) ? Global->CtrlObject->Plugins->FindPlugin(*Id) : nullptr; }
 
@@ -1289,14 +1290,14 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 			MsgItems[ItemsNumber++]=MSG(MYes);
 			MsgItems[ItemsNumber++]=MSG(MNo);
 			break;
-		
+
 		case FMSG_MB_YESNOCANCEL:
 			ButtonsNumber=3;
 			MsgItems[ItemsNumber++]=MSG(MYes);
 			MsgItems[ItemsNumber++]=MSG(MNo);
 			MsgItems[ItemsNumber++]=MSG(MCancel);
 			break;
-		
+
 		case FMSG_MB_RETRYCANCEL:
 			ButtonsNumber=2;
 			MsgItems[ItemsNumber++]=MSG(MRetry);
@@ -2016,8 +2017,8 @@ void WINAPI apiText(intptr_t X,intptr_t Y,const FarColor* Color,const wchar_t *S
 	}
 }
 
-template<typename command_type, typename getter_type, typename current_control_type, class window_type, typename window_control_type>
-static intptr_t apiTControl(intptr_t Id, command_type Command, intptr_t Param1, void* Param2, getter_type Getter, current_control_type CurrentControl, window_control_type window_type::*WindowControl)
+template<class window_type, typename command_type, typename getter_type, typename control_type>
+static intptr_t apiTControl(intptr_t Id, command_type Command, intptr_t Param1, void* Param2, getter_type Getter, control_type Control)
 {
 	if (Global->WindowManager->ManagerIsDown())
 		return 0;
@@ -2025,7 +2026,7 @@ static intptr_t apiTControl(intptr_t Id, command_type Command, intptr_t Param1, 
 	if (Id == -1)
 	{
 		auto CurrentObject = (Global->WindowManager->*Getter)();
-		return CurrentObject ? (CurrentObject->*CurrentControl)(Command, Param1, Param2) : 0;
+		return CurrentObject ? (CurrentObject->*Control)(Command, Param1, Param2) : 0;
 	}
 	else
 	{
@@ -2042,9 +2043,10 @@ static intptr_t apiTControl(intptr_t Id, command_type Command, intptr_t Param1, 
 			{
 				if (auto CurrentWindow = dynamic_cast<window_type*>((Global->WindowManager->*i.first)(j)))
 				{
-					if (CurrentWindow->GetId() == Id)
+					auto CurrentControlWindow=CurrentWindow->GetById(Id);
+					if (CurrentControlWindow)
 					{
-						return (CurrentWindow->*WindowControl)(Command, Param1, Param2);
+						return (CurrentControlWindow->*Control)(Command, Param1, Param2);
 					}
 				}
 			}
@@ -2058,7 +2060,7 @@ intptr_t WINAPI apiEditorControl(intptr_t EditorID, EDITOR_CONTROL_COMMANDS Comm
 {
 	try
 	{
-		return apiTControl(EditorID, Command, Param1, Param2, &Manager::GetCurrentEditor, &FileEditor::EditorControl, &FileEditor::EditorControl);
+		return apiTControl<FileEditor>(EditorID, Command, Param1, Param2, &Manager::GetCurrentEditor, &FileEditor::EditorControl);
 	}
 	catch (...)
 	{
@@ -2071,7 +2073,7 @@ intptr_t WINAPI apiViewerControl(intptr_t ViewerID, VIEWER_CONTROL_COMMANDS Comm
 {
 	try
 	{
-		return apiTControl(ViewerID, Command, Param1, Param2, &Manager::GetCurrentViewer, &Viewer::ViewerControl, &FileViewer::ViewerControl);
+		return apiTControl<ViewerContainer>(ViewerID, Command, Param1, Param2, &Manager::GetCurrentViewer, &Viewer::ViewerControl);
 	}
 	catch (...)
 	{

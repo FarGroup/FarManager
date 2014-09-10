@@ -4217,10 +4217,15 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 		// Param2=0
 		case VCTL_REDRAW:
 		{
-			ChangeViewKeyBar();
-			Show();
-			Global->ScrBuf->Flush();
-			return TRUE;
+			window* parent=HostFileViewer;
+			if (!parent) parent=Global->WindowManager->GetViewerById(GetId());
+			if (parent)
+			{
+				Global->WindowManager->RefreshWindow(parent);
+				Global->WindowManager->PluginCommit();
+				return TRUE;
+			}
+			return FALSE;
 		}
 		// Param2=0
 		case VCTL_QUIT:

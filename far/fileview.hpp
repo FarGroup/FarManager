@@ -62,6 +62,7 @@ public:
 	virtual bool CanFastHide() const override;
 	virtual string GetTitle() const override;
 	virtual Viewer* GetViewer(void) override;
+	virtual Viewer* GetById(int ID) override;
 
 	void Init(const string& Name, int EnableSwitch, int DisableHistory, __int64 ViewStartPos, const wchar_t *PluginData, NamesList *ViewNamesList, bool ToSaveAs, window* Update=nullptr);
 	/* $ 14.06.2002 IS

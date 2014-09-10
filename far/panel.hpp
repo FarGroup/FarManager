@@ -306,6 +306,7 @@ public:
 	virtual void Show() override;
 	virtual void DisplayObject() override {}
 	virtual Viewer* GetViewer(void) {return nullptr;}
+	virtual Viewer* GetById(int ID) {(void)ID; return nullptr;}
 
 	static void exclude_sets(string& mask);
 

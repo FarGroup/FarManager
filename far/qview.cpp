@@ -656,3 +656,8 @@ void QuickView::DynamicUpdateKeyBar() const
 
 	Keybar.SetCustomLabels(KBA_QUICKVIEW);
 }
+
+Viewer* QuickView::GetById(int ID)
+{
+	return ID==QView->GetId()?GetViewer():nullptr;
+}

@@ -90,6 +90,7 @@ public:
 	int ProcessWrapMode(int newMode, bool isRedraw = true);
 	int ProcessTypeWrapMode(int newMode, bool isRedraw = true);
 	void SearchTextTransform(string& to, const wchar_t *from, bool hex2text, intptr_t &pos);
+	int GetId(void) const { return ViewerID; }
 
 private:
 	struct ViewerString;
@@ -267,4 +268,5 @@ class ViewerContainer
 {
 public:
 	virtual Viewer* GetViewer(void)=0;
+	virtual Viewer* GetById(int ID)=0;
 };

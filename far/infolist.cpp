@@ -1129,3 +1129,8 @@ Viewer* InfoList::GetViewer(void)
 {
 	return DizView.get();
 }
+
+Viewer* InfoList::GetById(int ID)
+{
+	return ID==DizView->GetId()?GetViewer():nullptr;
+}

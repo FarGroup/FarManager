@@ -556,3 +556,8 @@ Viewer* FileViewer::GetViewer(void)
 {
 	return &m_View;
 }
+
+Viewer* FileViewer::GetById(int ID)
+{
+	return ID==GetId()?GetViewer():nullptr;
+}

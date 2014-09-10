@@ -129,6 +129,7 @@ public:
 
 	Viewer* GetCurrentViewer(void) const;
 	FileEditor* GetCurrentEditor(void) const;
+	window* GetViewerById(int ID) const;
 
 private:
 #if defined(SYSLOG)

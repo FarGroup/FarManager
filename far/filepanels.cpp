@@ -1258,7 +1258,14 @@ FARMACROAREA FilePanels::GetMacroMode() const
 
 Viewer* FilePanels::GetViewer(void)
 {
-    auto result=ActivePanel()->GetViewer();
-    if (!result) result=PassivePanel()->GetViewer();
+	auto result=ActivePanel()->GetViewer();
+	if (!result) result=PassivePanel()->GetViewer();
+	return result;
+}
+
+Viewer* FilePanels::GetById(int ID)
+{
+	auto result=LeftPanel->GetById(ID);
+	if (!result) result=RightPanel->GetById(ID);
 	return result;
 }

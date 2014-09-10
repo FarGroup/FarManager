@@ -1294,3 +1294,20 @@ FileEditor* Manager::GetCurrentEditor(void) const
 	}
 	));
 }
+
+window* Manager::GetViewerById(int ID) const
+{
+	auto process=[](const windows& List, int ID) -> window*
+	{
+		auto ItemIterator = std::find_if(CONST_RANGE(List, i) -> bool
+		{
+			auto window=dynamic_cast<ViewerContainer*>(i);
+			if (window && window->GetById(ID)) return true;
+			return false;
+		});
+		return ItemIterator == List.cend()? nullptr : *ItemIterator;
+	};
+	auto result=process(m_windows, ID);
+	if (!result) result=process(m_modalWindows, ID);
+	return result;
+}

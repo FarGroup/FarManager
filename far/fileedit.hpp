@@ -96,6 +96,7 @@ public:
 	void CodepageChangedByUser() { m_Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER); }
 	void SetPluginTitle(const string* PluginTitle);
 	int GetId() const { return m_editor->EditorID; }
+	FileEditor* GetById(int ID) { return GetId()==ID?this:nullptr; }
 
 private:
 	virtual void DisplayObject() override;

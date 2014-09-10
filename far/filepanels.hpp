@@ -61,6 +61,7 @@ public:
 	virtual void Refresh() override;
 	virtual FARMACROAREA GetMacroMode() const override;
 	virtual Viewer* GetViewer(void) override;
+	virtual Viewer* GetById(int ID) override;
 
 	void Init(int DirCount);
 	Panel* GetAnotherPanel(const Panel *Current);
