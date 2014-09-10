@@ -85,122 +85,265 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "desktop.hpp"
 
-namespace pluginapi
-{
-inline Plugin* GuidToPlugin(const GUID* Id) {return (Id && Global->CtrlObject)? Global->CtrlObject->Plugins->FindPlugin(*Id) : nullptr;}
-
-int WINAPIV apiSprintf(wchar_t* Dest, const wchar_t* Format, ...) //?deprecated
-{
-	va_list argptr;
-	va_start(argptr, Format);
-	int Result = _vsnwprintf(Dest, 32000, Format, argptr); //vswprintf(Det,L"%s",(const char *)str) -- MinGW gcc >= 4.6
-	va_end(argptr);
-	return Result;
-}
-
-int WINAPIV apiSnprintf(wchar_t* Dest, size_t Count, const wchar_t* Format, ...)
-{
-	va_list argptr;
-	va_start(argptr, Format);
-	int Result =  _vsnwprintf(Dest, Count, Format, argptr);
-	va_end(argptr);
-	return Result;
-}
-
-#ifndef _MSC_VER
-int WINAPIV apiSscanf(const wchar_t* Src, const wchar_t* Format, ...)
-{
-	va_list argptr;
-	va_start(argptr, Format);
-	int Result = vswscanf(Src, Format, argptr);
-	va_end(argptr);
-	return Result;
-}
-#endif
-
-wchar_t *WINAPI apiItoa(int value, wchar_t *string, int radix)
-{
-	if (string)
-		return _itow(value,string,radix);
-
-	return nullptr;
-}
-
-wchar_t *WINAPI apiItoa64(__int64 value, wchar_t *string, int radix)
-{
-	if (string)
-		return _i64tow(value, string, radix);
-
-	return nullptr;
-}
-
-int WINAPI apiAtoi(const wchar_t *s)
-{
-	if (s)
-		return _wtoi(s);
-
-	return 0;
-}
-__int64 WINAPI apiAtoi64(const wchar_t *s)
-{
-	return s?_wtoi64(s):0;
-}
+static inline Plugin* GuidToPlugin(const GUID* Id) { return (Id && Global->CtrlObject) ? Global->CtrlObject->Plugins->FindPlugin(*Id) : nullptr; }
 
 namespace cfunctions
 {
-	void qsortex(char *base, size_t nel, size_t width, int (WINAPI *comp_fp)(const void *, const void *,void*), void *user);
-	void* bsearchex(const void* key,const void* base,size_t nelem,size_t width,int (WINAPI *fcmp)(const void*, const void*,void*),void* userparam);
+	typedef int(WINAPI* comparer)(const void*, const void*, void*);
+
+	static thread_local comparer bsearch_comparer;
+	static thread_local void* bsearch_param;
+
+	static int bsearch_comparer_wrapper(const void* a, const void* b)
+	{
+		return bsearch_comparer(a, b, bsearch_param);
+	}
+
+	void* bsearchex(const void* key, const void* base, size_t nelem, size_t width, comparer user_comparer, void* user_param)
+	{
+		bsearch_comparer = user_comparer;
+		bsearch_param = user_param;
+		return std::bsearch(key, base, nelem, width, bsearch_comparer_wrapper);
+	}
+
+	static thread_local comparer qsort_comparer;
+	static thread_local void* qsort_param;
+
+	static int qsort_comparer_wrapper(const void* a, const void* b)
+	{
+		return qsort_comparer(a, b, qsort_param);
+	}
+
+	void qsortex(char *base, size_t nel, size_t width, comparer user_comparer, void *user_param)
+	{
+		qsort_comparer = user_comparer;
+		qsort_param = user_param;
+		return std::qsort(base, nel, width, qsort_comparer_wrapper);
+	}
 };
 
-void WINAPI apiQsort(void *base, size_t nelem, size_t width, int (WINAPI *fcmp)(const void *, const void *,void *),void *user)
+namespace pluginapi
 {
-	if (base && fcmp)
+int WINAPIV apiSprintf(wchar_t* Dest, const wchar_t* Format, ...) noexcept //?deprecated
+{
+	try
 	{
-		cfunctions::qsortex((char*)base,nelem,width,fcmp,user);
+		va_list argptr;
+		va_start(argptr, Format);
+		int Result = _vsnwprintf(Dest, 32000, Format, argptr); //vswprintf(Det,L"%s",(const char *)str) -- MinGW gcc >= 4.6
+		va_end(argptr);
+		return Result;
+	}
+	catch (...)
+	{
+		// TODO: log
+		return -1;
 	}
 }
 
-void *WINAPI apiBsearch(const void *key, const void *base, size_t nelem, size_t width, int (WINAPI *fcmp)(const void *, const void *, void *),void *user)
+int WINAPIV apiSnprintf(wchar_t* Dest, size_t Count, const wchar_t* Format, ...) noexcept
 {
-	if (key && fcmp && base)
-		return cfunctions::bsearchex(key,base,nelem,width,fcmp,user);
-
-	return nullptr;
+	try
+	{
+		va_list argptr;
+		va_start(argptr, Format);
+		int Result =  _vsnwprintf(Dest, Count, Format, argptr);
+		va_end(argptr);
+		return Result;
+	}
+	catch (...)
+	{
+		// TODO: log
+		return -1;
+	}
 }
 
-wchar_t* WINAPI apiQuoteSpace(wchar_t *Str)
+// vswscanf is available in GCC and VS 2013 and above
+#if !defined _MSC_VER || (defined _MSC_VER && _MSC_VER >= 1800)
+int WINAPIV apiSscanf(const wchar_t* Src, const wchar_t* Format, ...) noexcept
 {
-	return QuoteSpace(Str);
+	try
+	{
+		va_list argptr;
+		va_start(argptr, Format);
+		int Result = vswscanf(Src, Format, argptr);
+		va_end(argptr);
+		return Result;
+	}
+	catch (...)
+	{
+		// TODO: log
+		return -1;
+	}
+}
+#endif
+
+wchar_t *WINAPI apiItoa(int value, wchar_t *string, int radix) noexcept
+{
+	try
+	{
+		return _itow(value,string,radix);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return nullptr;
+	}
 }
 
-wchar_t* WINAPI apiInsertQuote(wchar_t *Str)
+wchar_t *WINAPI apiItoa64(__int64 value, wchar_t *string, int radix) noexcept
 {
-	return InsertQuote(Str);
+	try
+	{
+		return _i64tow(value, string, radix);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return nullptr;
+	}
 }
 
-void WINAPI apiUnquote(wchar_t *Str)
+int WINAPI apiAtoi(const wchar_t *s) noexcept
 {
-	return Unquote(Str);
+	try
+	{
+		return _wtoi(s);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return 0;
+	}
 }
 
-wchar_t* WINAPI apiRemoveLeadingSpaces(wchar_t *Str)
+__int64 WINAPI apiAtoi64(const wchar_t *s) noexcept
 {
-	return RemoveLeadingSpaces(Str);
+	try
+	{
+		return _wtoi64(s);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return 0;
+	}
 }
 
-wchar_t * WINAPI apiRemoveTrailingSpaces(wchar_t *Str)
+void WINAPI apiQsort(void *base, size_t nelem, size_t width, int (WINAPI *fcmp)(const void *, const void *, void *), void *user) noexcept
 {
-	return RemoveTrailingSpaces(Str);
+	try
+	{
+		return cfunctions::qsortex((char*)base,nelem,width,fcmp,user);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return;
+	}
 }
 
-wchar_t* WINAPI apiRemoveExternalSpaces(wchar_t *Str)
+void *WINAPI apiBsearch(const void *key, const void *base, size_t nelem, size_t width, int (WINAPI *fcmp)(const void *, const void *, void *), void *user) noexcept
 {
-	return RemoveExternalSpaces(Str);
+	try
+	{
+		return cfunctions::bsearchex(key, base, nelem, width, fcmp, user);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return nullptr;
+	}
 }
 
-wchar_t* WINAPI apiQuoteSpaceOnly(wchar_t *Str)
+wchar_t* WINAPI apiQuoteSpace(wchar_t *Str) noexcept
 {
-	return QuoteSpaceOnly(Str);
+	try
+	{
+		return QuoteSpace(Str);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return nullptr;
+	}
+}
+
+wchar_t* WINAPI apiInsertQuote(wchar_t *Str) noexcept
+{
+	try
+	{
+		return InsertQuote(Str);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return nullptr;
+	}
+}
+
+void WINAPI apiUnquote(wchar_t *Str) noexcept
+{	try
+	{
+		return Unquote(Str);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return;
+	}
+}
+
+wchar_t* WINAPI apiRemoveLeadingSpaces(wchar_t *Str) noexcept
+{
+	try
+	{
+		return RemoveLeadingSpaces(Str);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return nullptr;
+	}
+}
+
+wchar_t * WINAPI apiRemoveTrailingSpaces(wchar_t *Str) noexcept
+{
+	try
+	{
+		return RemoveTrailingSpaces(Str);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return nullptr;
+	}
+}
+
+wchar_t* WINAPI apiRemoveExternalSpaces(wchar_t *Str) noexcept
+{
+	try
+	{
+		return RemoveExternalSpaces(Str);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return nullptr;
+	}
+}
+
+wchar_t* WINAPI apiQuoteSpaceOnly(wchar_t *Str) noexcept
+{
+	try
+	{
+		return QuoteSpaceOnly(Str);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return nullptr;
+	}
 }
 
 intptr_t WINAPI apiInputBox(
@@ -214,142 +357,153 @@ intptr_t WINAPI apiInputBox(
     size_t DestSize,
     const wchar_t *HelpTopic,
     unsigned __int64 Flags
-)
+) noexcept
 {
-	if (Global->WindowManager->ManagerIsDown())
-		return FALSE;
+	try
+	{
+		if (Global->WindowManager->ManagerIsDown())
+			return FALSE;
 
-	string strDest;
-	int nResult = GetString(Title,Prompt,HistoryName,SrcText,strDest,HelpTopic,Flags&~FIB_CHECKBOX,nullptr,nullptr,GuidToPlugin(PluginId),Id);
-	xwcsncpy(DestText, strDest.data(), DestSize);
-	return nResult;
+		string strDest;
+		int nResult = GetString(Title, Prompt, HistoryName, SrcText, strDest, HelpTopic, Flags&~FIB_CHECKBOX, nullptr, nullptr, GuidToPlugin(PluginId), Id);
+		xwcsncpy(DestText, strDest.data(), DestSize);
+		return nResult;
+	}
+	catch (...)
+	{
+		// TODO: log
+		return FALSE;
+	}
 }
 
 /* Функция вывода помощи */
-BOOL WINAPI apiShowHelp(
-    const wchar_t *ModuleName,
-    const wchar_t *HelpTopic,
-    FARHELPFLAGS Flags
-)
+BOOL WINAPI apiShowHelp(const wchar_t *ModuleName, const wchar_t *HelpTopic, FARHELPFLAGS Flags) noexcept
 {
-	if (Global->WindowManager->ManagerIsDown())
-		return FALSE;
-
-	if (!HelpTopic)
-		HelpTopic=L"Contents";
-
-	UINT64 OFlags=Flags;
-	Flags&=~(FHELP_NOSHOWERROR|FHELP_USECONTENTS);
-	string strTopic;
-	string strMask;
-
-	// двоеточие в начале топика надо бы игнорировать и в том случае,
-	// если стоит FHELP_FARHELP...
-	if ((Flags&FHELP_FARHELP) || *HelpTopic==L':')
+	try
 	{
-		strTopic = HelpTopic+((*HelpTopic == L':')?1:0);
-	}
-	else if (ModuleName && (Flags&FHELP_GUID))
-	{
-		if (!*ModuleName || *reinterpret_cast<const GUID*>(ModuleName) == FarGuid)
+		if (Global->WindowManager->ManagerIsDown())
+			return FALSE;
+
+		if (!HelpTopic)
+			HelpTopic = L"Contents";
+
+		UINT64 OFlags = Flags;
+		Flags &= ~(FHELP_NOSHOWERROR | FHELP_USECONTENTS);
+		string strTopic;
+		string strMask;
+
+		// двоеточие в начале топика надо бы игнорировать и в том случае,
+		// если стоит FHELP_FARHELP...
+		if ((Flags&FHELP_FARHELP) || *HelpTopic == L':')
 		{
-			Flags|=FHELP_FARHELP;
-			strTopic = HelpTopic+((*HelpTopic == L':')?1:0);
+			strTopic = HelpTopic + ((*HelpTopic == L':') ? 1 : 0);
+		}
+		else if (ModuleName && (Flags&FHELP_GUID))
+		{
+			if (!*ModuleName || *reinterpret_cast<const GUID*>(ModuleName) == FarGuid)
+			{
+				Flags |= FHELP_FARHELP;
+				strTopic = HelpTopic + ((*HelpTopic == L':') ? 1 : 0);
+			}
+			else
+			{
+				if (auto plugin = Global->CtrlObject->Plugins->FindPlugin(*reinterpret_cast<const GUID*>(ModuleName)))
+				{
+					Flags |= FHELP_CUSTOMPATH;
+					strTopic = Help::MakeLink(ExtractFilePath(plugin->GetModuleName()), HelpTopic);
+				}
+			}
 		}
 		else
 		{
-			auto plugin = Global->CtrlObject->Plugins->FindPlugin(*reinterpret_cast<const GUID*>(ModuleName));
-			if (plugin)
+			if (ModuleName)
 			{
-				Flags|=FHELP_CUSTOMPATH;
-				strTopic = Help::MakeLink(ExtractFilePath(plugin->GetModuleName()), HelpTopic);
-			}
-		}
-	}
-	else
-	{
-		if (ModuleName)
-		{
-			// FHELP_SELFHELP=0 - трактовать первый пар-р как Info.ModuleName
-			//                   и показать топик из хелпа вызвавшего плагина
-			/* $ 17.11.2000 SVS
-			   А значение FHELP_SELFHELP равно чему? Правильно - 0
-			   И фигля здесь удивлятся тому, что функция не работает :-(
-			*/
-			string strPath;
-			if (Flags == FHELP_SELFHELP || (Flags&(FHELP_CUSTOMFILE|FHELP_CUSTOMPATH)))
-			{
-				strPath = ModuleName;
-
-				if (Flags == FHELP_SELFHELP || (Flags&(FHELP_CUSTOMFILE)))
+				// FHELP_SELFHELP=0 - трактовать первый пар-р как Info.ModuleName
+				//                   и показать топик из хелпа вызвавшего плагина
+				/* $ 17.11.2000 SVS
+				А значение FHELP_SELFHELP равно чему? Правильно - 0
+				И фигля здесь удивлятся тому, что функция не работает :-(
+				*/
+				string strPath;
+				if (Flags == FHELP_SELFHELP || (Flags&(FHELP_CUSTOMFILE | FHELP_CUSTOMPATH)))
 				{
-					if (Flags&FHELP_CUSTOMFILE)
-						strMask=PointToName(strPath);
-					else
-						strMask.clear();
+					strPath = ModuleName;
 
-					CutToSlash(strPath);
+					if (Flags == FHELP_SELFHELP || (Flags&(FHELP_CUSTOMFILE)))
+					{
+						if (Flags&FHELP_CUSTOMFILE)
+							strMask = PointToName(strPath);
+						else
+							strMask.clear();
+
+						CutToSlash(strPath);
+					}
 				}
+				else
+					return FALSE;
+
+				strTopic = Help::MakeLink(strPath, HelpTopic);
 			}
 			else
 				return FALSE;
-
-			strTopic = Help::MakeLink(strPath, HelpTopic);
 		}
-		else
-			return FALSE;
-	}
 
-	{
-		Help Hlp(strTopic,strMask.data(),OFlags);
+		Help Hlp(strTopic, strMask.data(), OFlags);
 
 		if (Hlp.GetError())
 			return FALSE;
-	}
 
-	return TRUE;
+		return TRUE;
+	}
+	catch (...)
+	{
+		// TODO: log
+		return FALSE;
+	}
 }
 
 /* $ 05.07.2000 IS
   Функция, которая будет действовать и в редакторе, и в панелях, и...
 */
-intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2)
+intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
 {
-	if (ACTL_SYNCHRO==Command) //must be first
+	try
 	{
-		PluginSynchroManager().Synchro(true, *PluginId, Param2);
-		return 0;
-	}
-	if (ACTL_GETWINDOWTYPE==Command)
-	{
-		WindowType* info=(WindowType*)Param2;
-		if (CheckStructSize(info))
+		if (ACTL_SYNCHRO==Command) //must be first
 		{
-			WINDOWINFO_TYPE type=WindowTypeToPluginWindowType(Manager::GetCurrentWindowType());
-			switch(type)
-			{
-			case WTYPE_DESKTOP:
-			case WTYPE_PANELS:
-			case WTYPE_VIEWER:
-			case WTYPE_EDITOR:
-			case WTYPE_DIALOG:
-			case WTYPE_VMENU:
-			case WTYPE_HELP:
-			//case WTYPE_COMBOBOX:
-			//case WTYPE_FINDFOLDER:
-			//case WTYPE_GRABBER:
-			//case WTYPE_HMENU:
-				info->Type=type;
-				return TRUE;
-			default:
-				break;
-			}
+			PluginSynchroManager().Synchro(true, *PluginId, Param2);
+			return 0;
 		}
-		return FALSE;
-	}
+		if (ACTL_GETWINDOWTYPE==Command)
+		{
+			WindowType* info=(WindowType*)Param2;
+			if (CheckStructSize(info))
+			{
+				WINDOWINFO_TYPE type=WindowTypeToPluginWindowType(Manager::GetCurrentWindowType());
+				switch(type)
+				{
+				case WTYPE_DESKTOP:
+				case WTYPE_PANELS:
+				case WTYPE_VIEWER:
+				case WTYPE_EDITOR:
+				case WTYPE_DIALOG:
+				case WTYPE_VMENU:
+				case WTYPE_HELP:
+				//case WTYPE_COMBOBOX:
+				//case WTYPE_FINDFOLDER:
+				//case WTYPE_GRABBER:
+				//case WTYPE_HMENU:
+					info->Type=type;
+					return TRUE;
+				default:
+					break;
+				}
+			}
+			return FALSE;
+		}
 
-	switch (Command)
-	{
+		switch (Command)
+		{
 		case ACTL_GETFARMANAGERVERSION:
 		case ACTL_GETCOLOR:
 		case ACTL_GETARRAYCOLOR:
@@ -361,67 +515,63 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		case ACTL_SETCURSORPOS:
 		case ACTL_PROGRESSNOTIFY:
 			break;
-		default:
 
+		default:
 			if (Global->WindowManager->ManagerIsDown())
 				return 0;
-	}
+		}
 
-	switch (Command)
-	{
-		case ACTL_GETFARMANAGERVERSION:
+		switch (Command)
 		{
+		case ACTL_GETFARMANAGERVERSION:
 			if (Param2)
 				*(VersionInfo*)Param2=FAR_VERSION;
 
 			return TRUE;
-		}
+
 		/* $ 24.08.2000 SVS
-		   ожидать определенную (или любую) клавишу
-		   (const INPUT_RECORD*)Param2 - код клавиши, которую ожидаем, или nullptr
-		   если все равно какую клавишу ждать.
-		   возвращает 0;
+			ожидать определенную (или любую) клавишу
+			(const INPUT_RECORD*)Param2 - код клавиши, которую ожидаем, или nullptr
+			если все равно какую клавишу ждать.
+			возвращает 0;
 		*/
 		case ACTL_WAITKEY:
-		{
 			return WaitKey(Param2?InputRecordToKey((const INPUT_RECORD*)Param2):-1,0,false);
-		}
+
 		/* $ 04.12.2000 SVS
-		  ACTL_GETCOLOR - получить определенный цвет по индексу, определенному
-		   в farcolor.hpp
-		  Param2 - [OUT] значение цвета
-		  Return - TRUE если OK или FALSE если индекс неверен.
+			ACTL_GETCOLOR - получить определенный цвет по индексу, определенному
+			в farcolor.hpp
+			Param2 - [OUT] значение цвета
+			Return - TRUE если OK или FALSE если индекс неверен.
 		*/
 		case ACTL_GETCOLOR:
-		{
 			if (static_cast<size_t>(Param1) < Global->Opt->Palette.size())
 			{
 				*static_cast<FarColor*>(Param2) = Global->Opt->Palette[static_cast<size_t>(Param1)];
 				return TRUE;
 			}
 			return FALSE;
-		}
+
 		/* $ 04.12.2000 SVS
-		  ACTL_GETARRAYCOLOR - получить весь массив цветов
-		  Param1 - размер буфера (в элементах FarColor)
-		  Param2 - указатель на буфер или nullptr, чтобы получить необходимый размер
-		  Return - размер массива.
+			ACTL_GETARRAYCOLOR - получить весь массив цветов
+			Param1 - размер буфера (в элементах FarColor)
+			Param2 - указатель на буфер или nullptr, чтобы получить необходимый размер
+			Return - размер массива.
 		*/
 		case ACTL_GETARRAYCOLOR:
-		{
 			if (Param1 && Param2)
 			{
 				Global->Opt->Palette.CopyTo(reinterpret_cast<FarColor*>(Param2), Param1);
 			}
 			return Global->Opt->Palette.size();
-		}
+
 		/*
-		  Param=FARColor{
-		    DWORD Flags;
-		    int StartIndex;
-		    int ColorItem;
-		    LPBYTE Colors;
-		  };
+			Param=FARColor{
+			DWORD Flags;
+			int StartIndex;
+			int ColorItem;
+			LPBYTE Colors;
+			};
 		*/
 		case ACTL_SETARRAYCOLOR:
 		{
@@ -443,48 +593,49 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 					return TRUE;
 				}
 			}
-
 			return FALSE;
 		}
+
 		/* $ 14.12.2000 SVS
-		  ACTL_EJECTMEDIA - извлечь диск из съемного накопителя
-		  Param - указатель на структуру ActlEjectMedia
-		  Return - TRUE - успешное извлечение, FALSE - ошибка.
+			ACTL_EJECTMEDIA - извлечь диск из съемного накопителя
+			Param - указатель на структуру ActlEjectMedia
+			Return - TRUE - успешное извлечение, FALSE - ошибка.
 		*/
 		case ACTL_EJECTMEDIA:
 		{
 			return CheckStructSize((ActlEjectMedia*)Param2)?EjectVolume((wchar_t)((ActlEjectMedia*)Param2)->Letter,
-			                         ((ActlEjectMedia*)Param2)->Flags):FALSE;
+										((ActlEjectMedia*)Param2)->Flags):FALSE;
 			/*
-			      if(Param)
-			      {
+					if(Param)
+					{
 							ActlEjectMedia *aem=(ActlEjectMedia *)Param;
-			        char DiskLetter[4]=" :\\";
-			        DiskLetter[0]=(char)aem->Letter;
-			        int DriveType = FAR_GetDriveType(DiskLetter,nullptr,FALSE); // здесь не определяем тип CD
+					char DiskLetter[4]=" :\\";
+					DiskLetter[0]=(char)aem->Letter;
+					int DriveType = FAR_GetDriveType(DiskLetter,nullptr,FALSE); // здесь не определяем тип CD
 
-			        if(DriveType == DRIVE_USBDRIVE && RemoveUSBDrive((char)aem->Letter,aem->Flags))
-			          return TRUE;
-			        if(DriveType == DRIVE_SUBSTITUTE && DelSubstDrive(DiskLetter))
-			          return TRUE;
-			        if(IsDriveTypeCDROM(DriveType) && EjectVolume((char)aem->Letter,aem->Flags))
-			          return TRUE;
+					if(DriveType == DRIVE_USBDRIVE && RemoveUSBDrive((char)aem->Letter,aem->Flags))
+						return TRUE;
+					if(DriveType == DRIVE_SUBSTITUTE && DelSubstDrive(DiskLetter))
+						return TRUE;
+					if(IsDriveTypeCDROM(DriveType) && EjectVolume((char)aem->Letter,aem->Flags))
+						return TRUE;
 
-			      }
-			      return FALSE;
+					}
+					return FALSE;
 			*/
 		}
 		/*
-		    case ACTL_GETMEDIATYPE:
-		    {
+			case ACTL_GETMEDIATYPE:
+			{
 					ActlMediaType *amt=(ActlMediaType *)Param;
-		      char DiskLetter[4]=" :\\";
-		      DiskLetter[0]=(amt)?(char)amt->Letter:0;
-		      return FAR_GetDriveType(DiskLetter,nullptr,(amt && !(amt->Flags&MEDIATYPE_NODETECTCDROM)));
-		    }
+				char DiskLetter[4]=" :\\";
+				DiskLetter[0]=(amt)?(char)amt->Letter:0;
+				return FAR_GetDriveType(DiskLetter,nullptr,(amt && !(amt->Flags&MEDIATYPE_NODETECTCDROM)));
+			}
 		*/
+
 		/* $ 05.06.2001 tran
-		   новые ACTL_ для работы с окнами */
+			новые ACTL_ для работы с окнами */
 		case ACTL_GETWINDOWINFO:
 		{
 			WindowInfo *wi=(WindowInfo*)Param2;
@@ -495,7 +646,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 				bool modal=false;
 
 				/* $ 22.12.2001 VVM
-				  + Если Pos == -1 то берем текущее окно */
+					+ Если Pos == -1 то берем текущее окно */
 				if (wi->Pos == -1)
 				{
 					f = Global->WindowManager->GetCurrentWindow();
@@ -569,10 +720,10 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 
 			return FALSE;
 		}
+
 		case ACTL_GETWINDOWCOUNT:
-		{
 			return Global->WindowManager->GetWindowCount() + Global->WindowManager->GetModalWindowCount();
-		}
+
 		case ACTL_SETCURRENTWINDOW:
 		{
 			// Запретим переключение фрэймов, если находимся в модальном редакторе/вьюере.
@@ -588,20 +739,16 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			return FALSE;
 		}
 		/*$ 26.06.2001 SKV
-		  Для полноценной работы с ACTL_SETCURRENTWINDOW
-		  (и может еще для чего в будущем)
+			Для полноценной работы с ACTL_SETCURRENTWINDOW
+			(и может еще для чего в будущем)
 		*/
 		case ACTL_COMMIT:
-		{
 			Global->WindowManager->PluginCommit();
 			return TRUE;
-		}
-		/* $ 15.09.2001 tran
-		   пригодится плагинам */
+
 		case ACTL_GETFARHWND:
-		{
 			return (intptr_t)Console().GetWindow();
-		}
+
 		case ACTL_REDRAWALL:
 		{
 			int Ret = Global->WindowManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
@@ -610,10 +757,8 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		}
 
 		case ACTL_SETPROGRESSSTATE:
-		{
 			Taskbar().SetProgressState(static_cast<TBPFLAG>(Param1));
 			return TRUE;
-		}
 
 		case ACTL_SETPROGRESSVALUE:
 		{
@@ -628,11 +773,9 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		}
 
 		case ACTL_QUIT:
-		{
 			Global->CloseFARMenu=TRUE;
 			Global->WindowManager->ExitMainLoop(FALSE);
 			return TRUE;
-		}
 
 		case ACTL_GETFARRECT:
 			{
@@ -693,18 +836,15 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 
 		default:
 			break;
+		}
 
+		return FALSE;
 	}
-
-	return FALSE;
-}
-
-static DWORD NormalizeControlKeys(DWORD Value)
-{
-	DWORD result=Value&(LEFT_CTRL_PRESSED|LEFT_ALT_PRESSED|SHIFT_PRESSED);
-	if(Value&RIGHT_CTRL_PRESSED) result|=LEFT_CTRL_PRESSED;
-	if(Value&RIGHT_ALT_PRESSED) result|=LEFT_ALT_PRESSED;
-	return result;
+	catch (...)
+	{
+		// TODO: log
+		return FALSE;
+	}
 }
 
 intptr_t WINAPI apiMenuFn(
@@ -721,439 +861,512 @@ intptr_t WINAPI apiMenuFn(
     intptr_t *BreakCode,
     const FarMenuItem *Item,
     size_t ItemsNumber
-)
+) noexcept
 {
-	if (Global->WindowManager->ManagerIsDown())
-		return -1;
-
-	if (Global->DisablePluginsOutput)
-		return -1;
-
-	int ExitCode;
+	try
 	{
-		VMenu2 FarMenu(NullToEmpty(Title),nullptr,0,MaxHeight);
-		FarMenu.SetPosition(X,Y,0,0);
-		if(Id)
+		if (Global->WindowManager->ManagerIsDown())
+			return -1;
+
+		if (Global->DisablePluginsOutput)
+			return -1;
+
+		int ExitCode;
 		{
-			FarMenu.SetId(*Id);
-		}
-
-		if (BreakCode)
-			*BreakCode=-1;
-
-		{
-			string strTopic;
-
-			if (Help::MkTopic(GuidToPlugin(PluginId), NullToEmpty(HelpTopic), strTopic))
-				FarMenu.SetHelp(strTopic);
-		}
-
-		if (Bottom)
-			FarMenu.SetBottomTitle(Bottom);
-
-		// общие флаги меню
-		DWORD MenuFlags=0;
-
-		if (Flags & FMENU_SHOWAMPERSAND)
-			MenuFlags|=VMENU_SHOWAMPERSAND;
-
-		if (Flags & FMENU_WRAPMODE)
-			MenuFlags|=VMENU_WRAPMODE;
-
-		if (Flags & FMENU_CHANGECONSOLETITLE)
-			MenuFlags|=VMENU_CHANGECONSOLETITLE;
-
-		FarMenu.SetFlags(MenuFlags);
-		size_t Selected=0;
-
-		for (size_t i=0; i < ItemsNumber; i++)
-		{
-			MenuItemEx CurItem;
-			CurItem.Flags=Item[i].Flags;
-			CurItem.strName.clear();
-			// исключаем MultiSelected, т.к. у нас сейчас движок к этому не приспособлен, оставляем только первый
-			DWORD SelCurItem=CurItem.Flags&LIF_SELECTED;
-			CurItem.Flags&=~LIF_SELECTED;
-
-			if (!Selected && !(CurItem.Flags&LIF_SEPARATOR) && SelCurItem)
+			VMenu2 FarMenu(NullToEmpty(Title),nullptr,0,MaxHeight);
+			FarMenu.SetPosition(X,Y,0,0);
+			if(Id)
 			{
-				CurItem.Flags|=SelCurItem;
-				Selected++;
+				FarMenu.SetId(*Id);
 			}
 
-			CurItem.strName=NullToEmpty(Item[i].Text);
-			if(CurItem.Flags&LIF_SEPARATOR)
+			if (BreakCode)
+				*BreakCode=-1;
+
 			{
-				CurItem.AccelKey=0;
+				string strTopic;
+
+				if (Help::MkTopic(GuidToPlugin(PluginId), NullToEmpty(HelpTopic), strTopic))
+					FarMenu.SetHelp(strTopic);
 			}
-			else
+
+			if (Bottom)
+				FarMenu.SetBottomTitle(Bottom);
+
+			// общие флаги меню
+			DWORD MenuFlags=0;
+
+			if (Flags & FMENU_SHOWAMPERSAND)
+				MenuFlags|=VMENU_SHOWAMPERSAND;
+
+			if (Flags & FMENU_WRAPMODE)
+				MenuFlags|=VMENU_WRAPMODE;
+
+			if (Flags & FMENU_CHANGECONSOLETITLE)
+				MenuFlags|=VMENU_CHANGECONSOLETITLE;
+
+			FarMenu.SetFlags(MenuFlags);
+			size_t Selected=0;
+
+			for (size_t i=0; i < ItemsNumber; i++)
 			{
-				INPUT_RECORD input = {};
-				FarKeyToInputRecord(Item[i].AccelKey,&input);
-				CurItem.AccelKey=InputRecordToKey(&input);
-			}
-			FarMenu.AddItem(CurItem);
-		}
+				MenuItemEx CurItem;
+				CurItem.Flags=Item[i].Flags;
+				CurItem.strName.clear();
+				// исключаем MultiSelected, т.к. у нас сейчас движок к этому не приспособлен, оставляем только первый
+				DWORD SelCurItem=CurItem.Flags&LIF_SELECTED;
+				CurItem.Flags&=~LIF_SELECTED;
 
-		if (!Selected)
-			FarMenu.SetSelectPos(0,1);
-
-		// флаги меню, с забитым контентом
-		if (Flags & FMENU_AUTOHIGHLIGHT)
-			FarMenu.AssignHighlights(FALSE);
-
-		if (Flags & FMENU_REVERSEAUTOHIGHLIGHT)
-			FarMenu.AssignHighlights(TRUE);
-
-		FarMenu.SetTitle(NullToEmpty(Title));
-
-		ExitCode=FarMenu.RunEx([&](int Msg, void *param)->int
-		{
-			if (Msg!=DN_INPUT || !BreakKeys)
-				return 0;
-
-			INPUT_RECORD *ReadRec=static_cast<INPUT_RECORD*>(param);
-			int ReadKey=InputRecordToKey(ReadRec);
-
-			if (ReadKey==KEY_NONE)
-				return 0;
-
-			for (int I=0; BreakKeys[I].VirtualKeyCode; I++)
-			{
-				if (Global->CtrlObject->Macro.IsExecuting())
+				if (!Selected && !(CurItem.Flags&LIF_SEPARATOR) && SelCurItem)
 				{
-					int VirtKey,ControlState;
-					TranslateKeyToVK(ReadKey,VirtKey,ControlState,ReadRec);
+					CurItem.Flags|=SelCurItem;
+					Selected++;
 				}
 
-				if (ReadRec->Event.KeyEvent.wVirtualKeyCode==BreakKeys[I].VirtualKeyCode)
+				CurItem.strName=NullToEmpty(Item[i].Text);
+				if(CurItem.Flags&LIF_SEPARATOR)
 				{
-					if (NormalizeControlKeys(ReadRec->Event.KeyEvent.dwControlKeyState) == NormalizeControlKeys(BreakKeys[I].ControlKeyState))
-					{
-						if (BreakCode)
-							*BreakCode=I;
+					CurItem.AccelKey=0;
+				}
+				else
+				{
+					INPUT_RECORD input = {};
+					FarKeyToInputRecord(Item[i].AccelKey,&input);
+					CurItem.AccelKey=InputRecordToKey(&input);
+				}
+				FarMenu.AddItem(CurItem);
+			}
 
-						FarMenu.Close(-2, true);
-						return 1;
+			if (!Selected)
+				FarMenu.SetSelectPos(0,1);
+
+			// флаги меню, с забитым контентом
+			if (Flags & FMENU_AUTOHIGHLIGHT)
+				FarMenu.AssignHighlights(FALSE);
+
+			if (Flags & FMENU_REVERSEAUTOHIGHLIGHT)
+				FarMenu.AssignHighlights(TRUE);
+
+			FarMenu.SetTitle(NullToEmpty(Title));
+
+			ExitCode=FarMenu.RunEx([&](int Msg, void *param)->int
+			{
+				if (Msg!=DN_INPUT || !BreakKeys)
+					return 0;
+
+				INPUT_RECORD *ReadRec=static_cast<INPUT_RECORD*>(param);
+				int ReadKey=InputRecordToKey(ReadRec);
+
+				if (ReadKey==KEY_NONE)
+					return 0;
+
+				for (int I=0; BreakKeys[I].VirtualKeyCode; I++)
+				{
+					if (Global->CtrlObject->Macro.IsExecuting())
+					{
+						int VirtKey,ControlState;
+						TranslateKeyToVK(ReadKey,VirtKey,ControlState,ReadRec);
+					}
+
+					if (ReadRec->Event.KeyEvent.wVirtualKeyCode==BreakKeys[I].VirtualKeyCode)
+					{
+
+						auto NormalizeControlKeys = [](DWORD Value) -> DWORD
+						{
+							DWORD result = Value&(LEFT_CTRL_PRESSED | LEFT_ALT_PRESSED | SHIFT_PRESSED);
+							if (Value&RIGHT_CTRL_PRESSED) result |= LEFT_CTRL_PRESSED;
+							if (Value&RIGHT_ALT_PRESSED) result |= LEFT_ALT_PRESSED;
+							return result;
+						};
+
+						if (NormalizeControlKeys(ReadRec->Event.KeyEvent.dwControlKeyState) == NormalizeControlKeys(BreakKeys[I].ControlKeyState))
+						{
+							if (BreakCode)
+								*BreakCode=I;
+
+							FarMenu.Close(-2, true);
+							return 1;
+						}
 					}
 				}
-			}
-			return 0;
-		});
+				return 0;
+			});
+		}
+	//  CheckScreenLock();
+		return ExitCode;
 	}
-//  CheckScreenLock();
-	return ExitCode;
+	catch (...)
+	{
+		// TODO: log
+		return -1;
+	}
 }
 
 // Функция FarDefDlgProc обработки диалога по умолчанию
-intptr_t WINAPI apiDefDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
+intptr_t WINAPI apiDefDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2) noexcept
 {
-	if (hDlg) // исключаем лишний вызов для hDlg=0
-		return static_cast<Dialog*>(hDlg)->DefProc(Msg,Param1,Param2);
-
-	return 0;
+	try
+	{
+		return static_cast<Dialog*>(hDlg)->DefProc(Msg, Param1, Param2);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return 0;
+	}
 }
 
 // Посылка сообщения диалогу
-intptr_t WINAPI apiSendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
+intptr_t WINAPI apiSendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2) noexcept
 {
-	if (hDlg) // исключаем лишний вызов для hDlg=0
+	auto ErrorResult = [Msg]() -> int
 	{
-		auto dialog = static_cast<Dialog*>(hDlg);
-		if (Dialog::IsValid(dialog)) return dialog->SendMessage(Msg,Param1,Param2);
-	}
-	switch (Msg)
-	{
+		switch (Msg)
+		{
 		case DM_GETFOCUS:
 		case DM_LISTADDSTR:
 			return -1;
-	}
-	return 0;
-}
 
-class PluginDialog: public Dialog
-{
-public:
-	template<class T>
-	PluginDialog(const T& Src, FARWINDOWPROC DlgProc, void* InitParam):
-		Dialog(Src, DlgProc ? this : nullptr, DlgProc ? &PluginDialog::Proc : nullptr, InitParam),
-		m_Proc(DlgProc)
-	{}
+		default:
+			return 0;
+		}
+	};
 
-	intptr_t Proc(Dialog* hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
+	try
 	{
-		return m_Proc(hDlg, Msg, Param1, Param2);
+		auto dialog = static_cast<Dialog*>(hDlg);
+		return Dialog::IsValid(dialog)? dialog->SendMessage(Msg, Param1, Param2) : ErrorResult();
 	}
-
-private:
-	FARWINDOWPROC m_Proc;
-};
+	catch (...)
+	{
+		// TODO: log
+		return ErrorResult();
+	}
+}
 
 HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, intptr_t Y1, intptr_t X2, intptr_t Y2,
                             const wchar_t *HelpTopic, const FarDialogItem *Item,
                             size_t ItemsNumber, intptr_t Reserved, unsigned __int64 Flags,
-                            FARWINDOWPROC DlgProc, void* Param)
+                            FARWINDOWPROC DlgProc, void* Param) noexcept
 {
-	HANDLE hDlg=INVALID_HANDLE_VALUE;
-
-	if (Global->WindowManager->ManagerIsDown())
-		return hDlg;
-
-	if (Global->DisablePluginsOutput || !ItemsNumber || !Item)
-		return hDlg;
-
-	// ФИЧА! нельзя указывать отрицательные X2 и Y2
-	if (X2 < 0 || Y2 < 0)
-		return hDlg;
-
+	try
 	{
-		Dialog *FarDialog = new PluginDialog(make_range(Item, Item + ItemsNumber), DlgProc, Param);
+		HANDLE hDlg=INVALID_HANDLE_VALUE;
 
-		if (FarDialog->InitOK())
+		if (Global->WindowManager->ManagerIsDown())
+			return hDlg;
+
+		if (Global->DisablePluginsOutput || !ItemsNumber || !Item)
+			return hDlg;
+
+		// ФИЧА! нельзя указывать отрицательные X2 и Y2
+		if (X2 < 0 || Y2 < 0)
+			return hDlg;
+
 		{
-			hDlg = FarDialog;
-			FarDialog->SetPosition(X1,Y1,X2,Y2);
+			class PluginDialog: public Dialog
+			{
+			public:
+				PluginDialog(const range<const FarDialogItem*>& Src, FARWINDOWPROC DlgProc, void* InitParam):
+					Dialog(Src, DlgProc ? this : nullptr, DlgProc ? &PluginDialog::Proc : nullptr, InitParam),
+					m_Proc(DlgProc)
+				{}
 
-			if (Flags & FDLG_WARNING)
-				FarDialog->SetDialogMode(DMODE_WARNINGSTYLE);
+				intptr_t Proc(Dialog* hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
+				{
+					return m_Proc(hDlg, Msg, Param1, Param2);
+				}
 
-			if (Flags & FDLG_SMALLDIALOG)
-				FarDialog->SetDialogMode(DMODE_SMALLDIALOG);
+			private:
+				FARWINDOWPROC m_Proc;
+			};
 
-			if (Flags & FDLG_NODRAWSHADOW)
-				FarDialog->SetDialogMode(DMODE_NODRAWSHADOW);
+			Dialog *FarDialog = new PluginDialog(make_range(Item, Item + ItemsNumber), DlgProc, Param);
 
-			if (Flags & FDLG_NODRAWPANEL)
-				FarDialog->SetDialogMode(DMODE_NODRAWPANEL);
+			if (FarDialog->InitOK())
+			{
+				hDlg = FarDialog;
+				FarDialog->SetPosition(X1,Y1,X2,Y2);
 
-			if (Flags & FDLG_KEEPCONSOLETITLE)
-				FarDialog->SetDialogMode(DMODE_KEEPCONSOLETITLE);
+				if (Flags & FDLG_WARNING)
+					FarDialog->SetDialogMode(DMODE_WARNINGSTYLE);
 
-			if (Flags & FDLG_NONMODAL)
-				FarDialog->SetCanLoseFocus(TRUE);
+				if (Flags & FDLG_SMALLDIALOG)
+					FarDialog->SetDialogMode(DMODE_SMALLDIALOG);
 
-			FarDialog->SetHelp(NullToEmpty(HelpTopic));
+				if (Flags & FDLG_NODRAWSHADOW)
+					FarDialog->SetDialogMode(DMODE_NODRAWSHADOW);
 
-			FarDialog->SetId(*Id);
-			/* $ 29.08.2000 SVS
-			   Запомним номер плагина - сейчас в основном для формирования HelpTopic
-			*/
-			FarDialog->SetPluginOwner(GuidToPlugin(PluginId));
+				if (Flags & FDLG_NODRAWPANEL)
+					FarDialog->SetDialogMode(DMODE_NODRAWPANEL);
+
+				if (Flags & FDLG_KEEPCONSOLETITLE)
+					FarDialog->SetDialogMode(DMODE_KEEPCONSOLETITLE);
+
+				if (Flags & FDLG_NONMODAL)
+					FarDialog->SetCanLoseFocus(TRUE);
+
+				FarDialog->SetHelp(NullToEmpty(HelpTopic));
+
+				FarDialog->SetId(*Id);
+				/* $ 29.08.2000 SVS
+				   Запомним номер плагина - сейчас в основном для формирования HelpTopic
+				*/
+				FarDialog->SetPluginOwner(GuidToPlugin(PluginId));
+			}
+			else
+			{
+				delete FarDialog;
+			}
 		}
-		else
+		return hDlg;
+	}
+	catch (...)
+	{
+		// TODO: log
+		return INVALID_HANDLE_VALUE;
+	}
+}
+
+intptr_t WINAPI apiDialogRun(HANDLE hDlg) noexcept
+{
+	try
+	{
+		if (Global->WindowManager->ManagerIsDown())
+			return -1;
+
+		auto FarDialog = static_cast<Dialog*>(hDlg);
+
+		FarDialog->Process();
+		int ExitCode = FarDialog->GetExitCode();
+
+		if (Global->IsMainThread()) // BUGBUG, findfile
+			Global->WindowManager->RefreshWindow(); //?? - //AY - это нужно чтоб обновлять панели после выхода из диалога
+
+		return ExitCode;
+	}
+	catch (...)
+	{
+		// TODO: log
+		return -1;
+	}
+}
+
+void WINAPI apiDialogFree(HANDLE hDlg) noexcept
+{
+	try
+	{
+		if (hDlg != INVALID_HANDLE_VALUE)
+			delete static_cast<Dialog*>(hDlg);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return;
+	}
+}
+
+const wchar_t* WINAPI apiGetMsgFn(const GUID* PluginId,intptr_t MsgId) noexcept
+{
+	try
+	{
+		if (Plugin *pPlugin = GuidToPlugin(PluginId))
 		{
-			delete FarDialog;
+			string strPath = pPlugin->GetModuleName();
+			CutToSlash(strPath);
+
+			if (pPlugin->InitLang(strPath))
+				return pPlugin->GetMsg(static_cast<LNGID>(MsgId));
 		}
+		return L"";
 	}
-	return hDlg;
-}
-
-intptr_t WINAPI apiDialogRun(HANDLE hDlg)
-{
-	if (Global->WindowManager->ManagerIsDown())
-		return -1;
-
-	if (hDlg==INVALID_HANDLE_VALUE)
-		return -1;
-
-	Dialog *FarDialog = (Dialog *)hDlg;
-
-	FarDialog->Process();
-	int ExitCode=FarDialog->GetExitCode();
-
-	if (Global->IsMainThread()) // BUGBUG, findfile
-		Global->WindowManager->RefreshWindow(); //?? - //AY - это нужно чтоб обновлять панели после выхода из диалога
-
-	return ExitCode;
-}
-
-void WINAPI apiDialogFree(HANDLE hDlg)
-{
-	if (hDlg != INVALID_HANDLE_VALUE)
+	catch (...)
 	{
-		delete static_cast<PluginDialog*>(hDlg);
+		// TODO: log
+		return L"";
 	}
-}
-
-const wchar_t* WINAPI apiGetMsgFn(const GUID* PluginId,intptr_t MsgId)
-{
-	Plugin *pPlugin = GuidToPlugin(PluginId);
-	if (pPlugin)
-	{
-		string strPath = pPlugin->GetModuleName();
-		CutToSlash(strPath);
-
-		if (pPlugin->InitLang(strPath))
-			return pPlugin->GetMsg(static_cast<LNGID>(MsgId));
-	}
-	return L"";
 }
 
 intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int64 Flags,const wchar_t *HelpTopic,
                         const wchar_t * const *Items,size_t ItemsNumber,
-                        intptr_t ButtonsNumber)
+                        intptr_t ButtonsNumber) noexcept
 {
-	if (Flags&FMSG_ERRORTYPE)
-		Global->CatchError();
-
-	if (Global->WindowManager->ManagerIsDown())
-		return -1;
-
-	if (Global->DisablePluginsOutput)
-		return -1;
-
-	if ((!(Flags&(FMSG_ALLINONE|FMSG_ERRORTYPE)) && ItemsNumber<2) || !Items)
-		return -1;
-
-	wchar_t_ptr SingleItems;
-
-	// анализ количества строк для FMSG_ALLINONE
-	if (Flags&FMSG_ALLINONE)
+	try
 	{
-		ItemsNumber=0;
+		if (Flags&FMSG_ERRORTYPE)
+			Global->CatchError();
 
-		SingleItems.reset(StrLength(reinterpret_cast<const wchar_t*>(Items)) + 2);
-		if (!SingleItems)
+		if (Global->WindowManager->ManagerIsDown())
 			return -1;
 
-		wchar_t *Msg=wcscpy(SingleItems.get(), (const wchar_t *)Items);
+		if (Global->DisablePluginsOutput)
+			return -1;
 
-		while ((Msg = wcschr(Msg, L'\n')) )
+		if ((!(Flags&(FMSG_ALLINONE|FMSG_ERRORTYPE)) && ItemsNumber<2) || !Items)
+			return -1;
+
+		wchar_t_ptr SingleItems;
+
+		// анализ количества строк для FMSG_ALLINONE
+		if (Flags&FMSG_ALLINONE)
 		{
-			if (*++Msg == L'\0')
-				break;
+			ItemsNumber=0;
 
-			++ItemsNumber;
+			SingleItems.reset(StrLength(reinterpret_cast<const wchar_t*>(Items)) + 2);
+			if (!SingleItems)
+				return -1;
+
+			wchar_t *Msg=wcscpy(SingleItems.get(), (const wchar_t *)Items);
+
+			while ((Msg = wcschr(Msg, L'\n')) )
+			{
+				if (*++Msg == L'\0')
+					break;
+
+				++ItemsNumber;
+			}
+
+			ItemsNumber++; //??
 		}
 
-		ItemsNumber++; //??
-	}
+		std::vector<const wchar_t*> MsgItems(ItemsNumber+ADDSPACEFORPSTRFORMESSAGE);
 
-	std::vector<const wchar_t*> MsgItems(ItemsNumber+ADDSPACEFORPSTRFORMESSAGE);
-
-	if (Flags&FMSG_ALLINONE)
-	{
-		int I=0;
-		wchar_t *Msg=SingleItems.get();
-		// анализ количества строк и разбивка на пункты
-		wchar_t *MsgTemp;
-
-		while ((MsgTemp = wcschr(Msg, L'\n')) )
+		if (Flags&FMSG_ALLINONE)
 		{
-			*MsgTemp=L'\0';
-			MsgItems[I]=Msg;
-			Msg=MsgTemp+1;
+			int I=0;
+			wchar_t *Msg=SingleItems.get();
+			// анализ количества строк и разбивка на пункты
+			wchar_t *MsgTemp;
 
-			if (*Msg == L'\0')
-				break;
+			while ((MsgTemp = wcschr(Msg, L'\n')) )
+			{
+				*MsgTemp=L'\0';
+				MsgItems[I]=Msg;
+				Msg=MsgTemp+1;
 
-			++I;
+				if (*Msg == L'\0')
+					break;
+
+				++I;
+			}
+
+			if (*Msg)
+			{
+				MsgItems[I]=Msg;
+			}
+		}
+		else
+		{
+			for (size_t i=0; i < ItemsNumber; i++)
+				MsgItems[i]=Items[i];
 		}
 
-		if (*Msg)
+		/* $ 22.03.2001 tran
+		   ItemsNumber++ -> ++ItemsNumber
+		   тереялся последний элемент */
+		switch (Flags&0x000F0000)
 		{
-			MsgItems[I]=Msg;
-		}
-	}
-	else
-	{
-		for (size_t i=0; i < ItemsNumber; i++)
-			MsgItems[i]=Items[i];
-	}
-
-	/* $ 22.03.2001 tran
-	   ItemsNumber++ -> ++ItemsNumber
-	   тереялся последний элемент */
-	switch (Flags&0x000F0000)
-	{
 		case FMSG_MB_OK:
 			ButtonsNumber=1;
 			MsgItems[ItemsNumber++]=MSG(MOk);
 			break;
+
 		case FMSG_MB_OKCANCEL:
 			ButtonsNumber=2;
 			MsgItems[ItemsNumber++]=MSG(MOk);
 			MsgItems[ItemsNumber++]=MSG(MCancel);
 			break;
+
 		case FMSG_MB_ABORTRETRYIGNORE:
 			ButtonsNumber=3;
 			MsgItems[ItemsNumber++]=MSG(MAbort);
 			MsgItems[ItemsNumber++]=MSG(MRetry);
 			MsgItems[ItemsNumber++]=MSG(MIgnore);
 			break;
+
 		case FMSG_MB_YESNO:
 			ButtonsNumber=2;
 			MsgItems[ItemsNumber++]=MSG(MYes);
 			MsgItems[ItemsNumber++]=MSG(MNo);
 			break;
+		
 		case FMSG_MB_YESNOCANCEL:
 			ButtonsNumber=3;
 			MsgItems[ItemsNumber++]=MSG(MYes);
 			MsgItems[ItemsNumber++]=MSG(MNo);
 			MsgItems[ItemsNumber++]=MSG(MCancel);
 			break;
+		
 		case FMSG_MB_RETRYCANCEL:
 			ButtonsNumber=2;
 			MsgItems[ItemsNumber++]=MSG(MRetry);
 			MsgItems[ItemsNumber++]=MSG(MCancel);
 			break;
-	}
+		}
 
-	// ограничение на строки
-	size_t MaxLinesNumber = static_cast<size_t>(ScrY-3-(ButtonsNumber?1:0));
-	size_t LinesNumber = ItemsNumber-ButtonsNumber-1;
-	if (LinesNumber > MaxLinesNumber)
+		// ограничение на строки
+		size_t MaxLinesNumber = static_cast<size_t>(ScrY-3-(ButtonsNumber?1:0));
+		size_t LinesNumber = ItemsNumber-ButtonsNumber-1;
+		if (LinesNumber > MaxLinesNumber)
+		{
+			ItemsNumber -= (LinesNumber-MaxLinesNumber);
+			for (int i=1; i <= ButtonsNumber; i++)
+				MsgItems[MaxLinesNumber+i]=MsgItems[LinesNumber+i];
+		}
+
+		Plugin* PluginNumber = GuidToPlugin(PluginId);
+		// запоминаем топик
+		string strTopic;
+		if (PluginNumber)
+		{
+			Help::MkTopic(PluginNumber,NullToEmpty(HelpTopic),strTopic);
+		}
+
+		// непосредственно... вывод
+		auto Window = Global->WindowManager->GetBottomWindow();
+
+		if (Window)
+			Window->Lock(); // отменим прорисовку окна
+
+		int MsgCode=Message(Flags&(FMSG_WARNING|FMSG_ERRORTYPE|FMSG_KEEPBACKGROUND|FMSG_LEFTALIGN), ButtonsNumber, MsgItems[0], &MsgItems[1], ItemsNumber-1, EmptyToNull(strTopic.data()), PluginNumber, Id);
+
+		/* $ 15.05.2002 SKV
+		  Однако разлочивать надо ровно то, что залочили.
+		*/
+		if (Window)
+			Window->Unlock(); // теперь можно :-)
+
+		//CheckScreenLock();
+
+		return MsgCode;
+	}
+	catch (...)
 	{
-		ItemsNumber -= (LinesNumber-MaxLinesNumber);
-		for (int i=1; i <= ButtonsNumber; i++)
-			MsgItems[MaxLinesNumber+i]=MsgItems[LinesNumber+i];
+		// TODO: log
+		return -1;
 	}
-
-	Plugin* PluginNumber = GuidToPlugin(PluginId);
-	// запоминаем топик
-	string strTopic;
-	if (PluginNumber)
-	{
-		Help::MkTopic(PluginNumber,NullToEmpty(HelpTopic),strTopic);
-	}
-
-	// непосредственно... вывод
-	auto Window = Global->WindowManager->GetBottomWindow();
-
-	if (Window)
-		Window->Lock(); // отменим прорисовку окна
-
-	int MsgCode=Message(Flags&(FMSG_WARNING|FMSG_ERRORTYPE|FMSG_KEEPBACKGROUND|FMSG_LEFTALIGN), ButtonsNumber, MsgItems[0], &MsgItems[1], ItemsNumber-1, EmptyToNull(strTopic.data()), PluginNumber, Id);
-
-	/* $ 15.05.2002 SKV
-	  Однако разлочивать надо ровно то, что залочили.
-	*/
-	if (Window)
-		Window->Unlock(); // теперь можно :-)
-
-	//CheckScreenLock();
-
-	return MsgCode;
 }
 
-intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,intptr_t Param1,void* Param2)
+intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,intptr_t Param1,void* Param2) noexcept
 {
-	_FCTLLOG(CleverSysLog CSL(L"Control"));
-	_FCTLLOG(SysLog(L"(hPlugin=0x%08X, Command=%s, Param1=[%d/0x%08X], Param2=[%d/0x%08X])",hPlugin,_FCTL_ToName(Command),(int)Param1,Param1,(int)Param2,Param2));
-	_ALGO(CleverSysLog clv(L"FarPanelControl"));
-	_ALGO(SysLog(L"(hPlugin=0x%08X, Command=%s, Param1=[%d/0x%08X], Param2=[%d/0x%08X])",hPlugin,_FCTL_ToName(Command),(int)Param1,Param1,(int)Param2,Param2));
-
-	if (Command == FCTL_CHECKPANELSEXIST)
-		return !Global->OnlyEditorViewerUsed;
-
-	if (Global->OnlyEditorViewerUsed || !Global->CtrlObject || Global->WindowManager->ManagerIsDown())
-		return 0;
-
-	FilePanels *FPanels=Global->CtrlObject->Cp();
-	CommandLine *CmdLine=Global->CtrlObject->CmdLine;
-
-	switch (Command)
+	try
 	{
+		_FCTLLOG(CleverSysLog CSL(L"Control"));
+		_FCTLLOG(SysLog(L"(hPlugin=0x%08X, Command=%s, Param1=[%d/0x%08X], Param2=[%d/0x%08X])",hPlugin,_FCTL_ToName(Command),(int)Param1,Param1,(int)Param2,Param2));
+		_ALGO(CleverSysLog clv(L"FarPanelControl"));
+		_ALGO(SysLog(L"(hPlugin=0x%08X, Command=%s, Param1=[%d/0x%08X], Param2=[%d/0x%08X])",hPlugin,_FCTL_ToName(Command),(int)Param1,Param1,(int)Param2,Param2));
+
+		if (Command == FCTL_CHECKPANELSEXIST)
+			return !Global->OnlyEditorViewerUsed;
+
+		if (Global->OnlyEditorViewerUsed || !Global->CtrlObject || Global->WindowManager->ManagerIsDown())
+			return 0;
+
+		FilePanels *FPanels=Global->CtrlObject->Cp();
+		CommandLine *CmdLine=Global->CtrlObject->CmdLine;
+
+		switch (Command)
+		{
 		case FCTL_CLOSEPANEL:
 		case FCTL_GETPANELINFO:
 		case FCTL_GETPANELITEM:
@@ -1235,6 +1448,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 
 			return Processed;
 		}
+
 		case FCTL_SETUSERSCREEN:
 		{
 			if (!FPanels || !FPanels->LeftPanel || !FPanels->RightPanel)
@@ -1254,6 +1468,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 
 			return TRUE;
 		}
+
 		case FCTL_GETUSERSCREEN:
 		{
 			Global->WindowManager->ShowBackground();
@@ -1265,6 +1480,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 			Global->ScrBuf->SetLockCount(Lock);
 			return TRUE;
 		}
+
 		case FCTL_GETCMDLINE:
 		{
 			string strParam;
@@ -1276,6 +1492,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 
 			return (int)strParam.size()+1;
 		}
+
 		case FCTL_SETCMDLINE:
 		case FCTL_INSERTCMDLINE:
 		{
@@ -1289,12 +1506,14 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 			CmdLine->Redraw();
 			return TRUE;
 		}
+
 		case FCTL_SETCMDLINEPOS:
 		{
 			CmdLine->SetCurPos(Param1);
 			CmdLine->Redraw();
 			return TRUE;
 		}
+
 		case FCTL_GETCMDLINEPOS:
 		{
 			if (Param2)
@@ -1305,6 +1524,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 
 			return FALSE;
 		}
+
 		case FCTL_GETCMDLINESELECTION:
 		{
 			CmdLineSelect *sel=(CmdLineSelect*)Param2;
@@ -1316,6 +1536,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 
 			return FALSE;
 		}
+
 		case FCTL_SETCMDLINESELECTION:
 		{
 			CmdLineSelect *sel=(CmdLineSelect*)Param2;
@@ -1328,6 +1549,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 
 			return FALSE;
 		}
+
 		case FCTL_ISACTIVEPANEL:
 		{
 			if (!hPlugin || hPlugin == PANEL_ACTIVE)
@@ -1348,378 +1570,454 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 
 			return FALSE;
 		}
+
 		default:
-			break;
+			return FALSE;
+		}
 	}
-
-	return FALSE;
+	catch (...)
+	{
+		// TODO: log
+		return FALSE;
+	}
 }
 
 
-HANDLE WINAPI apiSaveScreen(intptr_t X1,intptr_t Y1,intptr_t X2,intptr_t Y2)
+HANDLE WINAPI apiSaveScreen(intptr_t X1,intptr_t Y1,intptr_t X2,intptr_t Y2) noexcept
 {
-	if (Global->DisablePluginsOutput || Global->WindowManager->ManagerIsDown())
+	try
+	{
+		if (Global->DisablePluginsOutput || Global->WindowManager->ManagerIsDown())
+			return nullptr;
+
+		if (X2 == -1)
+			X2 = ScrX;
+
+		if (Y2 == -1)
+			Y2 = ScrY;
+
+		return new SaveScreen(X1, Y1, X2, Y2);
+	}
+	catch (...)
+	{
+		// TODO: log
 		return nullptr;
-
-	if (X2==-1)
-		X2=ScrX;
-
-	if (Y2==-1)
-		Y2=ScrY;
-
-	return new SaveScreen(X1,Y1,X2,Y2);
+	}
 }
 
-
-void WINAPI apiRestoreScreen(HANDLE hScreen)
+void WINAPI apiRestoreScreen(HANDLE hScreen) noexcept
 {
-	if (Global->DisablePluginsOutput || Global->WindowManager->ManagerIsDown())
+	try
+	{
+		if (Global->DisablePluginsOutput || Global->WindowManager->ManagerIsDown())
+			return;
+
+		if (!hScreen)
+			Global->ScrBuf->FillBuf();
+
+		if (hScreen)
+			delete(SaveScreen *)hScreen;
+	}
+	catch (...)
+	{
+		// TODO: log
 		return;
-
-	if (!hScreen)
-		Global->ScrBuf->FillBuf();
-
-	if (hScreen)
-		delete(SaveScreen *)hScreen;
+	}
 }
 
-void FreeDirList(std::vector<PluginPanelItem>* Items)
+static void FreeDirList(std::vector<PluginPanelItem>* Items)
 {
 	std::for_each(ALL_RANGE(*Items), FreePluginPanelItem);
 	delete Items;
 }
 
-intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,size_t *pItemsNumber)
+intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,size_t *pItemsNumber) noexcept
 {
-	if (Global->WindowManager->ManagerIsDown() || !Dir || !*Dir || !pItemsNumber || !pPanelItem)
-		return FALSE;
-
-	string strDirName;
-	ConvertNameToFull(Dir, strDirName);
+	try
 	{
-		auto PR_FarGetDirListMsg = [](){ Message(0,0,L"",MSG(MPreparingList)); };
+		if (Global->WindowManager->ManagerIsDown() || !Dir || !*Dir || !pItemsNumber || !pPanelItem)
+			return FALSE;
 
-		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<PreRedrawItem>(PR_FarGetDirListMsg));
-		SCOPED_ACTION(SaveScreen);
-		api::FAR_FIND_DATA FindData;
-		string strFullName;
-		ScanTree ScTree(false);
-		ScTree.SetFindPath(strDirName,L"*");
-		*pItemsNumber=0;
-		*pPanelItem=nullptr;
-
-		auto Items = new std::vector<PluginPanelItem>;
-
-		DWORD StartTime=GetTickCount();
-		bool MsgOut = false;
-		while (ScTree.GetNextName(&FindData,strFullName))
+		string strDirName;
+		ConvertNameToFull(Dir, strDirName);
 		{
-			DWORD CurTime=GetTickCount();
-			if (CurTime-StartTime>static_cast<DWORD>(Global->Opt->RedrawTimeout))
+			auto PR_FarGetDirListMsg = [](){ Message(0,0,L"",MSG(MPreparingList)); };
+
+			SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<PreRedrawItem>(PR_FarGetDirListMsg));
+			SCOPED_ACTION(SaveScreen);
+			api::FAR_FIND_DATA FindData;
+			string strFullName;
+			ScanTree ScTree(false);
+			ScTree.SetFindPath(strDirName,L"*");
+			*pItemsNumber=0;
+			*pPanelItem=nullptr;
+
+			auto Items = new std::vector<PluginPanelItem>;
+
+			DWORD StartTime=GetTickCount();
+			bool MsgOut = false;
+			while (ScTree.GetNextName(&FindData,strFullName))
 			{
-				if (CheckForEsc())
+				DWORD CurTime=GetTickCount();
+				if (CurTime-StartTime>static_cast<DWORD>(Global->Opt->RedrawTimeout))
 				{
-					FreeDirList(Items);
-					return FALSE;
+					if (CheckForEsc())
+					{
+						FreeDirList(Items);
+						return FALSE;
+					}
+
+					if (!MsgOut)
+					{
+						SetCursorType(false, 0);
+						PR_FarGetDirListMsg();
+						MsgOut = true;
+					}
 				}
 
-				if (!MsgOut)
+				if (Items->size() == Items->capacity())
 				{
-					SetCursorType(false, 0);
-					PR_FarGetDirListMsg();
-					MsgOut = true;
+					Items->reserve(Items->size() + 4096);
 				}
+
+				Items->emplace_back(VALUE_TYPE(*Items)());
+				auto& Item = Items->back();
+				ClearStruct(Item);
+				FindData.strFileName = strFullName;
+				FindDataExToPluginPanelItem(&FindData, &Item);
 			}
 
-			if (Items->size() == Items->capacity())
-			{
-				Items->reserve(Items->size() + 4096);
-			}
+			*pItemsNumber=Items->size();
 
+			// magic trick to store vector pointer for apiFreeDirList().
 			Items->emplace_back(VALUE_TYPE(*Items)());
-			auto& Item = Items->back();
-			ClearStruct(Item);
-			FindData.strFileName = strFullName;
-			FindDataExToPluginPanelItem(&FindData, &Item);
+			Items->back().Reserved[0] = reinterpret_cast<intptr_t>(Items);
+
+			*pPanelItem=Items->data();
 		}
-
-		*pItemsNumber=Items->size();
-
-		// magic trick to store vector pointer for apiFreeDirList().
-		Items->emplace_back(VALUE_TYPE(*Items)());
-		Items->back().Reserved[0] = reinterpret_cast<intptr_t>(Items);
-
-		*pPanelItem=Items->data();
+		return TRUE;
 	}
-	return TRUE;
-}
-
-intptr_t WINAPI apiGetPluginDirList(const GUID* PluginId, HANDLE hPlugin, const wchar_t *Dir, PluginPanelItem **pPanelItem, size_t *pItemsNumber)
-{
-	if (Global->WindowManager->ManagerIsDown() || !Dir || !*Dir || !pItemsNumber || !pPanelItem)
+	catch (...)
+	{
+		// TODO: log
 		return FALSE;
-	return GetPluginDirList(GuidToPlugin(PluginId), hPlugin, Dir, pPanelItem, pItemsNumber);
+	}
 }
 
-void WINAPI apiFreeDirList(PluginPanelItem *PanelItem, size_t nItemsNumber)
+intptr_t WINAPI apiGetPluginDirList(const GUID* PluginId, HANDLE hPlugin, const wchar_t *Dir, PluginPanelItem **pPanelItem, size_t *pItemsNumber) noexcept
 {
-	auto Items = reinterpret_cast<std::vector<PluginPanelItem>*>(PanelItem[nItemsNumber].Reserved[0]);
-	Items->pop_back(); // not needed anymore, see magic trick above
-	return FreeDirList(Items);
+	try
+	{
+		if (Global->WindowManager->ManagerIsDown())
+			return FALSE;
+		return GetPluginDirList(GuidToPlugin(PluginId), hPlugin, Dir, pPanelItem, pItemsNumber);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return FALSE;
+	}
 }
 
-void WINAPI apiFreePluginDirList(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber)
+void WINAPI apiFreeDirList(PluginPanelItem *PanelItem, size_t nItemsNumber) noexcept
 {
-	FreePluginDirList(hPlugin, PanelItem);
+	try
+	{
+		auto Items = reinterpret_cast<std::vector<PluginPanelItem>*>(PanelItem[nItemsNumber].Reserved[0]);
+		Items->pop_back(); // not needed anymore, see magic trick above
+		return FreeDirList(Items);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return;
+	}
+}
+
+void WINAPI apiFreePluginDirList(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber) noexcept
+{
+	try
+	{
+		FreePluginDirList(hPlugin, PanelItem);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return;
+	}
 }
 
 intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
-                     intptr_t X1,intptr_t Y1,intptr_t X2, intptr_t Y2,unsigned __int64 Flags, uintptr_t CodePage)
+                     intptr_t X1,intptr_t Y1,intptr_t X2, intptr_t Y2,unsigned __int64 Flags, uintptr_t CodePage) noexcept
 {
-	if (Global->WindowManager->ManagerIsDown())
-		return FALSE;
-
-	class ConsoleTitle ct;
-	int DisableHistory = (Flags & VF_DISABLEHISTORY) != 0;
-
-	// $ 15.05.2002 SKV - Запретим вызов немодального редактора вьюера из модального.
-	if (Global->WindowManager->InModal())
+	try
 	{
-		Flags&=~VF_NONMODAL;
-	}
-
-	if (Flags & VF_NONMODAL)
-	{
-		/* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-		FileViewer *Viewer=new FileViewer(FileName,TRUE,DisableHistory,Title,X1,Y1,X2,Y2,CodePage);
-
-		if (!Viewer)
+		if (Global->WindowManager->ManagerIsDown())
 			return FALSE;
 
-		/* $ 14.06.2002 IS
-		   Обработка VF_DELETEONLYFILEONCLOSE - этот флаг имеет более низкий
-		   приоритет по сравнению с VF_DELETEONCLOSE
-		*/
-		if (Flags & (VF_DELETEONCLOSE|VF_DELETEONLYFILEONCLOSE))
-			Viewer->SetTempViewName(FileName, (Flags&VF_DELETEONCLOSE) != 0);
+		class ConsoleTitle ct;
+		int DisableHistory = (Flags & VF_DISABLEHISTORY) != 0;
 
-		Viewer->SetEnableF6(Flags & VF_ENABLE_F6);
-
-		/* $ 21.05.2002 SKV
-		  Запускаем свой цикл только если не был указан флаг.
-		*/
-		if (!(Flags&VF_IMMEDIATERETURN))
+		// $ 15.05.2002 SKV - Запретим вызов немодального редактора вьюера из модального.
+	if (Global->WindowManager->InModal())
 		{
-			Global->WindowManager->ExecuteNonModal(Viewer);
+			Flags&=~VF_NONMODAL;
+		}
+
+		if (Flags & VF_NONMODAL)
+		{
+			/* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
+			FileViewer *Viewer=new FileViewer(FileName,TRUE,DisableHistory,Title,X1,Y1,X2,Y2,CodePage);
+
+			if (!Viewer)
+				return FALSE;
+
+			/* $ 14.06.2002 IS
+			   Обработка VF_DELETEONLYFILEONCLOSE - этот флаг имеет более низкий
+			   приоритет по сравнению с VF_DELETEONCLOSE
+			*/
+			if (Flags & (VF_DELETEONCLOSE|VF_DELETEONLYFILEONCLOSE))
+				Viewer->SetTempViewName(FileName, (Flags&VF_DELETEONCLOSE) != 0);
+
+			Viewer->SetEnableF6(Flags & VF_ENABLE_F6);
+
+			/* $ 21.05.2002 SKV
+			  Запускаем свой цикл только если не был указан флаг.
+			*/
+			if (!(Flags&VF_IMMEDIATERETURN))
+			{
+				Global->WindowManager->ExecuteNonModal(Viewer);
+			}
+			else
+			{
+				if (Global->GlobalSaveScrPtr)
+					Global->GlobalSaveScrPtr->Discard();
+
+				Global->WindowManager->PluginCommit();
+			}
 		}
 		else
 		{
-			if (Global->GlobalSaveScrPtr)
-				Global->GlobalSaveScrPtr->Discard();
+			/* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
+			FileViewer Viewer(FileName,FALSE,DisableHistory,Title,X1,Y1,X2,Y2,CodePage);
 
-			Global->WindowManager->PluginCommit();
-		}
-	}
-	else
-	{
-		/* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-		FileViewer Viewer(FileName,FALSE,DisableHistory,Title,X1,Y1,X2,Y2,CodePage);
+			Viewer.SetEnableF6(Flags & VF_ENABLE_F6);
 
-		Viewer.SetEnableF6(Flags & VF_ENABLE_F6);
-
-		/* $ 28.05.2001 По умолчанию Вьюер, поэтому нужно здесь признак выставиль явно */
-		Viewer.SetDynamicallyBorn(false);
+			/* $ 28.05.2001 По умолчанию Вьюер, поэтому нужно здесь признак выставиль явно */
+			Viewer.SetDynamicallyBorn(false);
 		Global->WindowManager->ExecuteModal(&Viewer);
 
-		/* $ 14.06.2002 IS
-		   Обработка VF_DELETEONLYFILEONCLOSE - этот флаг имеет более низкий
-		   приоритет по сравнению с VF_DELETEONCLOSE
-		*/
-		if (Flags & (VF_DELETEONCLOSE|VF_DELETEONLYFILEONCLOSE))
-			Viewer.SetTempViewName(FileName, (Flags&VF_DELETEONCLOSE) != 0);
+			/* $ 14.06.2002 IS
+			   Обработка VF_DELETEONLYFILEONCLOSE - этот флаг имеет более низкий
+			   приоритет по сравнению с VF_DELETEONCLOSE
+			*/
+			if (Flags & (VF_DELETEONCLOSE|VF_DELETEONLYFILEONCLOSE))
+				Viewer.SetTempViewName(FileName, (Flags&VF_DELETEONCLOSE) != 0);
 
-		if (!Viewer.GetExitCode())
-		{
-			return FALSE;
+			if (!Viewer.GetExitCode())
+			{
+				return FALSE;
+			}
 		}
-	}
 
-	return TRUE;
+		return TRUE;
+	}
+	catch (...)
+	{
+		// TODO: log
+		return FALSE;
+	}
 }
 
-intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_t X1, intptr_t Y1, intptr_t X2, intptr_t Y2, unsigned __int64 Flags, intptr_t StartLine, intptr_t StartChar, uintptr_t CodePage)
+intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_t X1, intptr_t Y1, intptr_t X2, intptr_t Y2, unsigned __int64 Flags, intptr_t StartLine, intptr_t StartChar, uintptr_t CodePage) noexcept
 {
-	if (Global->WindowManager->ManagerIsDown())
-		return EEC_OPEN_ERROR;
+	try
+	{
+		if (Global->WindowManager->ManagerIsDown())
+			return EEC_OPEN_ERROR;
 
-	ConsoleTitle ct;
-	/* $ 12.07.2000 IS
-	 Проверка флагов редактора (раньше они игнорировались) и открытие
-	 немодального редактора, если есть соответствующий флаг
-	*/
-	int CreateNew = (Flags & EF_CREATENEW) != 0;
-	int Locked=(Flags & EF_LOCKED) != 0;
-	int DisableHistory=(Flags & EF_DISABLEHISTORY) != 0;
-	int DisableSavePos=(Flags & EF_DISABLESAVEPOS) != 0;
-	/* $ 14.06.2002 IS
-	   Обработка EF_DELETEONLYFILEONCLOSE - этот флаг имеет более низкий
-	   приоритет по сравнению с EF_DELETEONCLOSE
-	*/
-	int DeleteOnClose = 0;
+		ConsoleTitle ct;
+		/* $ 12.07.2000 IS
+		 Проверка флагов редактора (раньше они игнорировались) и открытие
+		 немодального редактора, если есть соответствующий флаг
+		 */
+		int CreateNew = (Flags & EF_CREATENEW) != 0;
+		int Locked=(Flags & EF_LOCKED) != 0;
+		int DisableHistory=(Flags & EF_DISABLEHISTORY) != 0;
+		int DisableSavePos=(Flags & EF_DISABLESAVEPOS) != 0;
+		/* $ 14.06.2002 IS
+		   Обработка EF_DELETEONLYFILEONCLOSE - этот флаг имеет более низкий
+		   приоритет по сравнению с EF_DELETEONCLOSE
+		   */
+		int DeleteOnClose = 0;
 
-	if (Flags & EF_DELETEONCLOSE)
-		DeleteOnClose = 1;
-	else if (Flags & EF_DELETEONLYFILEONCLOSE)
-		DeleteOnClose = 2;
+		if (Flags & EF_DELETEONCLOSE)
+			DeleteOnClose = 1;
+		else if (Flags & EF_DELETEONLYFILEONCLOSE)
+			DeleteOnClose = 2;
 
-	int OpMode=EF_OPENMODE_QUERY;
+		int OpMode = EF_OPENMODE_QUERY;
 
-	if ( (Flags&EF_OPENMODE_MASK) )
-		OpMode=Flags&EF_OPENMODE_MASK;
+		if ((Flags&EF_OPENMODE_MASK))
+			OpMode = Flags&EF_OPENMODE_MASK;
 
-	/*$ 15.05.2002 SKV
-	  Запретим вызов немодального редактора, если находимся в модальном
-	  редакторе или вьюере.
-	*/
+		/*$ 15.05.2002 SKV
+		  Запретим вызов немодального редактора, если находимся в модальном
+		  редакторе или вьюере.
+		  */
 	if (Global->WindowManager->InModal())
-	{
-		Flags&=~EF_NONMODAL;
-	}
-
-	int editorExitCode;
-	int ExitCode=EEC_OPEN_ERROR;
-	string strTitle(NullToEmpty(Title));
-
-	if (Flags & EF_NONMODAL)
-	{
-		/* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-		FileEditor *Editor=new FileEditor(NullToEmpty(FileName), CodePage,
-		                                  (CreateNew?FFILEEDIT_CANNEWFILE:0)|FFILEEDIT_ENABLEF6|
-		                                   (DisableHistory?FFILEEDIT_DISABLEHISTORY:0)|
-		                                   (Locked?FFILEEDIT_LOCKED:0)|
-		                                   (DisableSavePos?FFILEEDIT_DISABLESAVEPOS:0),
-		                                  StartLine,StartChar,&strTitle,
-		                                  X1,Y1,X2,Y2,
-		                                  DeleteOnClose,nullptr,OpMode);
-
-		if (Editor)
 		{
-			editorExitCode=Editor->GetExitCode();
+			Flags&=~EF_NONMODAL;
+		}
 
-			// добавочка - проверка кода возврата (почему возникает XC_OPEN_ERROR - см. код FileEditor::Init())
-			if (editorExitCode == XC_OPEN_ERROR || editorExitCode == XC_LOADING_INTERRUPTED)
+		int editorExitCode;
+		int ExitCode = EEC_OPEN_ERROR;
+		string strTitle(NullToEmpty(Title));
+
+		if (Flags & EF_NONMODAL)
+		{
+			/* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
+			FileEditor *Editor = new FileEditor(NullToEmpty(FileName), CodePage,
+				(CreateNew ? FFILEEDIT_CANNEWFILE : 0) | FFILEEDIT_ENABLEF6 |
+				(DisableHistory ? FFILEEDIT_DISABLEHISTORY : 0) |
+				(Locked ? FFILEEDIT_LOCKED : 0) |
+				(DisableSavePos ? FFILEEDIT_DISABLESAVEPOS : 0),
+				StartLine, StartChar, &strTitle,
+				X1, Y1, X2, Y2,
+				DeleteOnClose, nullptr, OpMode);
+
+			if (Editor)
 			{
-				delete Editor;
-				Editor=nullptr;
-				return editorExitCode == XC_OPEN_ERROR ? EEC_OPEN_ERROR : EEC_LOADING_INTERRUPTED;
-			}
+				editorExitCode = Editor->GetExitCode();
 
-			if (editorExitCode == XC_EXISTS)
-			{
-				if (Global->GlobalSaveScrPtr)
-					Global->GlobalSaveScrPtr->Discard();
+				// добавочка - проверка кода возврата (почему возникает XC_OPEN_ERROR - см. код FileEditor::Init())
+				if (editorExitCode == XC_OPEN_ERROR || editorExitCode == XC_LOADING_INTERRUPTED)
+				{
+					delete Editor;
+					Editor = nullptr;
+					return editorExitCode == XC_OPEN_ERROR ? EEC_OPEN_ERROR : EEC_LOADING_INTERRUPTED;
+				}
 
-				Global->WindowManager->PluginCommit();
-				#if defined(MANTIS_0002562)
-				return EEC_OPENED_EXISTING;
-				#else
-				return EEC_MODIFIED;
-				#endif
-			}
+				if (editorExitCode == XC_EXISTS)
+				{
+					if (Global->GlobalSaveScrPtr)
+						Global->GlobalSaveScrPtr->Discard();
 
-			Editor->SetEnableF6((Flags & EF_ENABLE_F6) != 0);
-			Editor->SetPluginTitle(&strTitle);
+					Global->WindowManager->PluginCommit();
+#if defined(MANTIS_0002562)
+					return EEC_OPENED_EXISTING;
+#else
+					return EEC_MODIFIED;
+#endif
+				}
 
-			/* $ 21.05.2002 SKV - Запускаем свой цикл, только если не был указан флаг. */
-			if (!(Flags&EF_IMMEDIATERETURN))
-			{
-				Global->WindowManager->ExecuteNonModal(Editor);
-				if (Global->WindowManager->IndexOf(Editor) != -1)
-					ExitCode = Editor->IsFileChanged() ? EEC_MODIFIED : EEC_NOT_MODIFIED;
+				Editor->SetEnableF6((Flags & EF_ENABLE_F6) != 0);
+				Editor->SetPluginTitle(&strTitle);
+
+				/* $ 21.05.2002 SKV - Запускаем свой цикл, только если не был указан флаг. */
+				if (!(Flags&EF_IMMEDIATERETURN))
+				{
+					Global->WindowManager->ExecuteNonModal(Editor);
+					if (Global->WindowManager->IndexOf(Editor) != -1)
+						ExitCode = Editor->IsFileChanged() ? EEC_MODIFIED : EEC_NOT_MODIFIED;
+					else
+						ExitCode = EEC_NOT_MODIFIED;//??? editorExitCode
+				}
 				else
-					ExitCode = EEC_NOT_MODIFIED;//??? editorExitCode
-			}
-			else
-			{
-				if (Global->GlobalSaveScrPtr)
-					Global->GlobalSaveScrPtr->Discard();
+				{
+					if (Global->GlobalSaveScrPtr)
+						Global->GlobalSaveScrPtr->Discard();
 
-				Global->WindowManager->PluginCommit();
-				#if defined(MANTIS_0002562)
-				ExitCode = editorExitCode == XC_RELOAD ? EEC_RELOAD : Editor->IsFileChanged() ? EEC_MODIFIED : EEC_NOT_MODIFIED;
-				#else
-				ExitCode = EEC_MODIFIED;
-				#endif
+					Global->WindowManager->PluginCommit();
+#if defined(MANTIS_0002562)
+					ExitCode = editorExitCode == XC_RELOAD ? EEC_RELOAD : Editor->IsFileChanged() ? EEC_MODIFIED : EEC_NOT_MODIFIED;
+#else
+					ExitCode = EEC_MODIFIED;
+#endif
+				}
 			}
 		}
-	}
-	else
-	{
-		/* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-		FileEditor Editor(FileName,CodePage,
-		                  (CreateNew?FFILEEDIT_CANNEWFILE:0)|
-		                    (DisableHistory?FFILEEDIT_DISABLEHISTORY:0)|
-		                    (Locked?FFILEEDIT_LOCKED:0)|
-		                    (DisableSavePos?FFILEEDIT_DISABLESAVEPOS:0),
-		                  StartLine,StartChar,&strTitle,
-		                  X1,Y1,X2,Y2,
-		                  DeleteOnClose,nullptr,OpMode);
-		editorExitCode=Editor.GetExitCode();
-
-		// выполним предпроверку (ошибки разные могут быть)
-		if (editorExitCode == XC_OPEN_ERROR || editorExitCode == XC_LOADING_INTERRUPTED)
-			return editorExitCode == XC_OPEN_ERROR ? EEC_OPEN_ERROR : EEC_LOADING_INTERRUPTED;
 		else
 		{
-			Editor.SetDynamicallyBorn(false);
-			Editor.SetEnableF6((Flags & EF_ENABLE_F6)!=0);
-			Editor.SetPluginTitle(&strTitle);
-			/* $ 15.05.2002 SKV
-			  Зафиксируем вход и выход в/из модального редактора.
-			*/
-			Global->WindowManager->ExecuteModal(&Editor);
+			/* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
+			FileEditor Editor(FileName, CodePage,
+				(CreateNew ? FFILEEDIT_CANNEWFILE : 0) |
+				(DisableHistory ? FFILEEDIT_DISABLEHISTORY : 0) |
+				(Locked ? FFILEEDIT_LOCKED : 0) |
+				(DisableSavePos ? FFILEEDIT_DISABLESAVEPOS : 0),
+				StartLine, StartChar, &strTitle,
+				X1, Y1, X2, Y2,
+				DeleteOnClose, nullptr, OpMode);
 			editorExitCode = Editor.GetExitCode();
 
-			if (editorExitCode)
-			{
-#if 0
-
-				if (OpMode==EF_OPENMODE_BREAKIFOPEN && ExitCode==XC_QUIT)
-					ExitCode = XC_OPEN_ERROR;
-				else
-#endif
-					ExitCode = Editor.IsFileChanged() ? EEC_MODIFIED : EEC_NOT_MODIFIED;
-			}
+			// выполним предпроверку (ошибки разные могут быть)
+			if (editorExitCode == XC_OPEN_ERROR || editorExitCode == XC_LOADING_INTERRUPTED)
+				return editorExitCode == XC_OPEN_ERROR ? EEC_OPEN_ERROR : EEC_LOADING_INTERRUPTED;
 			else
 			{
-				ExitCode = EEC_OPEN_ERROR;
+				Editor.SetDynamicallyBorn(false);
+				Editor.SetEnableF6((Flags & EF_ENABLE_F6) != 0);
+				Editor.SetPluginTitle(&strTitle);
+				/* $ 15.05.2002 SKV
+				  Зафиксируем вход и выход в/из модального редактора.
+				  */
+			Global->WindowManager->ExecuteModal(&Editor);
+				editorExitCode = Editor.GetExitCode();
+
+				if (editorExitCode)
+				{
+#if 0
+
+					if (OpMode == EF_OPENMODE_BREAKIFOPEN && ExitCode == XC_QUIT)
+						ExitCode = XC_OPEN_ERROR;
+					else
+#endif
+						ExitCode = Editor.IsFileChanged() ? EEC_MODIFIED : EEC_NOT_MODIFIED;
+				}
+				else
+				{
+					ExitCode = EEC_OPEN_ERROR;
+				}
 			}
 		}
-	}
 
-	return ExitCode;
+		return ExitCode;
+	}
+	catch (...)
+	{
+		// TODO: log
+		return EEC_OPEN_ERROR;
+	}
 }
 
-void WINAPI apiText(intptr_t X,intptr_t Y,const FarColor* Color,const wchar_t *Str)
+void WINAPI apiText(intptr_t X,intptr_t Y,const FarColor* Color,const wchar_t *Str) noexcept
 {
-	if (Global->DisablePluginsOutput || Global->WindowManager->ManagerIsDown())
-		return;
+	try
+	{
+		if (Global->DisablePluginsOutput || Global->WindowManager->ManagerIsDown())
+			return;
 
-	if (!Str)
-	{
-		int PrevLockCount=Global->ScrBuf->GetLockCount();
-		Global->ScrBuf->SetLockCount(0);
-		Global->ScrBuf->Flush();
-		Global->ScrBuf->SetLockCount(PrevLockCount);
+		if (!Str)
+		{
+			int PrevLockCount = Global->ScrBuf->GetLockCount();
+			Global->ScrBuf->SetLockCount(0);
+			Global->ScrBuf->Flush();
+			Global->ScrBuf->SetLockCount(PrevLockCount);
+		}
+		else
+		{
+			Text(X, Y, *Color, Str);
+		}
 	}
-	else
+	catch (...)
 	{
-		Text(X,Y,*Color,Str);
+		// TODO: log
+		return;
 	}
 }
 
 template<typename command_type, typename getter_type, typename current_control_type, class window_type, typename window_control_type>
-intptr_t apiTControl(intptr_t Id, command_type Command, intptr_t Param1, void* Param2, getter_type Getter, current_control_type CurrentControl, window_control_type window_type::*WindowControl)
+static intptr_t apiTControl(intptr_t Id, command_type Command, intptr_t Param1, void* Param2, getter_type Getter, current_control_type CurrentControl, window_control_type window_type::*WindowControl)
 {
 	if (Global->WindowManager->ManagerIsDown())
 		return 0;
@@ -1756,130 +2054,293 @@ intptr_t apiTControl(intptr_t Id, command_type Command, intptr_t Param1, void* P
 }
 
 
-intptr_t WINAPI apiEditorControl(intptr_t EditorID, EDITOR_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2)
+intptr_t WINAPI apiEditorControl(intptr_t EditorID, EDITOR_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
 {
-	return apiTControl(EditorID, Command, Param1, Param2, &Manager::GetCurrentEditor, &FileEditor::EditorControl, &FileEditor::EditorControl);
+	try
+	{
+		return apiTControl(EditorID, Command, Param1, Param2, &Manager::GetCurrentEditor, &FileEditor::EditorControl, &FileEditor::EditorControl);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return 0;
+	}
 }
 
-intptr_t WINAPI apiViewerControl(intptr_t ViewerID, VIEWER_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2)
+intptr_t WINAPI apiViewerControl(intptr_t ViewerID, VIEWER_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
 {
-	return apiTControl(ViewerID, Command, Param1, Param2, &Manager::GetCurrentViewer, &Viewer::ViewerControl, &FileViewer::ViewerControl);
+	try
+	{
+		return apiTControl(ViewerID, Command, Param1, Param2, &Manager::GetCurrentViewer, &Viewer::ViewerControl, &FileViewer::ViewerControl);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return 0;
+	}
 }
 
-void WINAPI apiUpperBuf(wchar_t *Buf, intptr_t Length)
+void WINAPI apiUpperBuf(wchar_t *Buf, intptr_t Length) noexcept
 {
-	return UpperBuf(Buf, Length);
+	try
+	{
+		return UpperBuf(Buf, Length);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return;
+	}
 }
 
-void WINAPI apiLowerBuf(wchar_t *Buf, intptr_t Length)
+void WINAPI apiLowerBuf(wchar_t *Buf, intptr_t Length) noexcept
 {
-	return LowerBuf(Buf, Length);
+	try
+	{
+		return LowerBuf(Buf, Length);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return;
+	}
 }
 
-void WINAPI apiStrUpper(wchar_t *s1)
+void WINAPI apiStrUpper(wchar_t *s1) noexcept
 {
-	return StrUpper(s1);
+	try
+	{
+		return StrUpper(s1);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return;
+	}
 }
 
-void WINAPI apiStrLower(wchar_t *s1)
+void WINAPI apiStrLower(wchar_t *s1) noexcept
 {
-	return StrLower(s1);
+	try
+	{
+		return StrLower(s1);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return;
+	}
 }
 
-wchar_t WINAPI apiUpper(wchar_t Ch)
+wchar_t WINAPI apiUpper(wchar_t Ch) noexcept
 {
-	return Upper(Ch);
+	try
+	{
+		return Upper(Ch);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return Ch;
+	}
 }
 
-wchar_t WINAPI apiLower(wchar_t Ch)
+wchar_t WINAPI apiLower(wchar_t Ch) noexcept
 {
-	return Lower(Ch);
+	try
+	{
+		return Lower(Ch);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return Ch;
+	}
 }
 
-int WINAPI apiStrCmpNI(const wchar_t *s1, const wchar_t *s2, intptr_t n)
+int WINAPI apiStrCmpNI(const wchar_t *s1, const wchar_t *s2, intptr_t n) noexcept
 {
-	return StrCmpNI(s1, s2, n);
+	try
+	{
+		return StrCmpNI(s1, s2, n);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return -1;
+	}
 }
 
-int WINAPI apiStrCmpI(const wchar_t *s1, const wchar_t *s2)
+int WINAPI apiStrCmpI(const wchar_t *s1, const wchar_t *s2) noexcept
 {
-	return StrCmpI(s1, s2);
+	try
+	{
+		return StrCmpI(s1, s2);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return -1;
+	}
 }
 
-int WINAPI apiIsLower(wchar_t Ch)
+int WINAPI apiIsLower(wchar_t Ch) noexcept
 {
-	return IsLower(Ch);
+	try
+	{
+		return IsLower(Ch);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return FALSE;
+	}
 }
 
-int WINAPI apiIsUpper(wchar_t Ch)
+int WINAPI apiIsUpper(wchar_t Ch) noexcept
 {
-	return IsUpper(Ch);
+	try
+	{
+		return IsUpper(Ch);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return FALSE;
+	}
 }
 
-int WINAPI apiIsAlpha(wchar_t Ch)
+int WINAPI apiIsAlpha(wchar_t Ch) noexcept
 {
-	return IsAlpha(Ch);
+	try
+	{
+		return IsAlpha(Ch);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return FALSE;
+	}
+
 }
 
-int WINAPI apiIsAlphaNum(wchar_t Ch)
+int WINAPI apiIsAlphaNum(wchar_t Ch) noexcept
 {
-	return IsAlphaNum(Ch);
+	try
+	{
+		return IsAlphaNum(Ch);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return FALSE;
+	}
 }
 
-wchar_t* WINAPI apiTruncStr(wchar_t *Str,intptr_t MaxLength)
+wchar_t* WINAPI apiTruncStr(wchar_t *Str,intptr_t MaxLength) noexcept
 {
-	return TruncStr(Str, MaxLength);
+	try
+	{
+		return TruncStr(Str, MaxLength);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return Str;
+	}
 }
 
-wchar_t* WINAPI apiTruncStrFromCenter(wchar_t *Str, intptr_t MaxLength)
+wchar_t* WINAPI apiTruncStrFromCenter(wchar_t *Str, intptr_t MaxLength) noexcept
 {
-	return TruncStrFromCenter(Str, MaxLength);
+	try
+	{
+		return TruncStrFromCenter(Str, MaxLength);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return Str;
+	}
 }
 
-wchar_t* WINAPI apiTruncStrFromEnd(wchar_t *Str,intptr_t MaxLength)
+wchar_t* WINAPI apiTruncStrFromEnd(wchar_t *Str, intptr_t MaxLength) noexcept
 {
-	return TruncStrFromEnd(Str, MaxLength);
+	try
+	{
+		return TruncStrFromEnd(Str, MaxLength);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return Str;
+	}
 }
 
-wchar_t* WINAPI apiTruncPathStr(wchar_t *Str, intptr_t MaxLength)
+wchar_t* WINAPI apiTruncPathStr(wchar_t *Str, intptr_t MaxLength) noexcept
 {
-	return TruncPathStr(Str, MaxLength);
+	try
+	{
+		return TruncPathStr(Str, MaxLength);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return Str;
+	}
 }
 
-const wchar_t* WINAPI apiPointToName(const wchar_t *lpwszPath)
+const wchar_t* WINAPI apiPointToName(const wchar_t *lpwszPath) noexcept
 {
-	return PointToName(lpwszPath);
+	try
+	{
+		return PointToName(lpwszPath);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return lpwszPath;
+	}
 }
 
-size_t WINAPI apiGetFileOwner(const wchar_t *Computer,const wchar_t *Name, wchar_t *Owner,size_t Size)
+size_t WINAPI apiGetFileOwner(const wchar_t *Computer, const wchar_t *Name, wchar_t *Owner, size_t Size) noexcept
 {
-	string strOwner;
-	GetFileOwner(NullToEmpty(Computer), NullToEmpty(Name), strOwner);
+	try
+	{
+		string strOwner;
+		GetFileOwner(NullToEmpty(Computer), NullToEmpty(Name), strOwner);
 
-	if (Owner && Size)
-		xwcsncpy(Owner,strOwner.data(),Size);
+		if (Owner && Size)
+			xwcsncpy(Owner, strOwner.data(), Size);
 
-	return strOwner.size()+1;
+		return strOwner.size() + 1;
+	}
+	catch (...)
+	{
+		// TODO: log
+		return 0;
+	}
 }
 
-size_t WINAPI apiConvertPath(CONVERTPATHMODES Mode,const wchar_t *Src, wchar_t *Dest, size_t DestSize)
+size_t WINAPI apiConvertPath(CONVERTPATHMODES Mode, const wchar_t *Src, wchar_t *Dest, size_t DestSize) noexcept
 {
-	if (Src && *Src)
+	try
 	{
 		string strDest;
 
 		switch (Mode)
 		{
-			case CPM_NATIVE:
-				strDest=NTPath(Src);
-				break;
-			case CPM_REAL:
-				ConvertNameToReal(Src, strDest);
-				break;
-			case CPM_FULL:
-			default:
-				ConvertNameToFull(Src, strDest);
-				break;
+		case CPM_NATIVE:
+			strDest=NTPath(Src);
+			break;
+
+		case CPM_REAL:
+			ConvertNameToReal(Src, strDest);
+			break;
+
+		case CPM_FULL:
+		default:
+			ConvertNameToFull(Src, strDest);
+			break;
 		}
 
 		if (Dest && DestSize)
@@ -1887,18 +2348,16 @@ size_t WINAPI apiConvertPath(CONVERTPATHMODES Mode,const wchar_t *Src, wchar_t *
 
 		return strDest.size() + 1;
 	}
-	else
+	catch (...)
 	{
-		if (Dest && DestSize)
-			*Dest = 0;
-
-		return 1;
+		// TODO: log
+		return 0;
 	}
 }
 
-size_t WINAPI apiGetReparsePointInfo(const wchar_t *Src, wchar_t *Dest, size_t DestSize)
+size_t WINAPI apiGetReparsePointInfo(const wchar_t *Src, wchar_t *Dest, size_t DestSize) noexcept
 {
-	if (Src && *Src)
+	try
 	{
 		string strSrc(Src);
 		string strDest;
@@ -1910,22 +2369,29 @@ size_t WINAPI apiGetReparsePointInfo(const wchar_t *Src, wchar_t *Dest, size_t D
 
 		return strDest.size()+1;
 	}
-	else
+	catch (...)
 	{
-		if (DestSize && Dest)
-			*Dest = 0;
-		return 1;
+		// TODO: log
+		return 0;
 	}
 }
 
-size_t WINAPI apiGetNumberOfLinks(const wchar_t* Name)
+size_t WINAPI apiGetNumberOfLinks(const wchar_t* Name) noexcept
 {
-	return GetNumberOfLinks(Name);
+	try
+	{
+		return GetNumberOfLinks(Name);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return 0;
+	}
 }
 
-size_t WINAPI apiGetPathRoot(const wchar_t *Path, wchar_t *Root, size_t DestSize)
+size_t WINAPI apiGetPathRoot(const wchar_t *Path, wchar_t *Root, size_t DestSize) noexcept
 {
-	if (Path && *Path)
+	try
 	{
 		string strPath(Path), strRoot;
 		GetPathRoot(strPath,strRoot);
@@ -1935,27 +2401,34 @@ size_t WINAPI apiGetPathRoot(const wchar_t *Path, wchar_t *Root, size_t DestSize
 
 		return strRoot.size()+1;
 	}
-	else
+	catch (...)
 	{
-		if (DestSize && Root)
-			*Root = 0;
-
-		return 1;
+		// TODO: log
+		return 0;
 	}
 }
 
-BOOL WINAPI apiCopyToClipboard(enum FARCLIPBOARD_TYPE Type, const wchar_t *Data)
+BOOL WINAPI apiCopyToClipboard(enum FARCLIPBOARD_TYPE Type, const wchar_t *Data) noexcept
 {
-	switch(Type)
+	try
 	{
+		switch (Type)
+		{
 		case FCT_STREAM:
 			return SetClipboard(Data);
+
 		case FCT_COLUMN:
 			return SetClipboardFormat(FCF_VERTICALBLOCK_UNICODE, Data);
+
 		default:
-			break;
+			return FALSE;
+		}
 	}
-	return FALSE;
+	catch (...)
+	{
+		// TODO: log
+		return FALSE;
+	}
 }
 
 static size_t apiPasteFromClipboardEx(bool Type, wchar_t *Data, size_t Size)
@@ -1973,37 +2446,49 @@ static size_t apiPasteFromClipboardEx(bool Type, wchar_t *Data, size_t Size)
 	return 0;
 }
 
-size_t WINAPI apiPasteFromClipboard(enum FARCLIPBOARD_TYPE Type, wchar_t *Data, size_t Length)
+size_t WINAPI apiPasteFromClipboard(enum FARCLIPBOARD_TYPE Type, wchar_t *Data, size_t Length) noexcept
 {
-	size_t size=0;
-	switch(Type)
+	try
 	{
+		size_t size = 0;
+		switch (Type)
+		{
 		case FCT_STREAM:
+		{
+			string str;
+			if (GetClipboardFormat(FCF_VERTICALBLOCK_UNICODE, str))
 			{
-				string str;
-				if(GetClipboardFormat(FCF_VERTICALBLOCK_UNICODE, str))
-				{
-					break;
-				}
+				break;
 			}
+		}
+
 		case FCT_ANY:
-			size=apiPasteFromClipboardEx(false,Data,Length);
+			size = apiPasteFromClipboardEx(false, Data, Length);
 			break;
+
 		case FCT_COLUMN:
-			size=apiPasteFromClipboardEx(true,Data,Length);
+			size = apiPasteFromClipboardEx(true, Data, Length);
 			break;
+		}
+		return size;
 	}
-	return size;
+	catch (...)
+	{
+		// TODO: log
+		return 0;
+	}
 }
 
-intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2)
+intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
 {
-	if (Global->CtrlObject) // все зависит от этой бадяги.
+	try
 	{
-		KeyMacro& Macro=Global->CtrlObject->Macro; //??
-
-		switch (Command)
+		if (Global->CtrlObject) // все зависит от этой бадяги.
 		{
+			KeyMacro& Macro = Global->CtrlObject->Macro; //??
+
+			switch (Command)
+			{
 			// Param1=0, Param2 - FarMacroLoad*
 			case MCTL_LOADALL: // из реестра в память ФАР с затиранием предыдущего
 			{
@@ -2023,14 +2508,14 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 			// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*
 			case MCTL_SENDSTRING:
 			{
-				MacroSendMacroText *Data=(MacroSendMacroText*)Param2;
+				MacroSendMacroText *Data = (MacroSendMacroText*)Param2;
 				if (CheckStructSize(Data) && Data->SequenceText)
 				{
-					if (Param1==MSSC_POST)
+					if (Param1 == MSSC_POST)
 					{
 						return Macro.PostNewMacro(Data->SequenceText, Data->Flags, InputRecordToKey(&Data->AKey));
 					}
-					else if (Param1==MSSC_CHECK)
+					else if (Param1 == MSSC_CHECK)
 					{
 						return Macro.ParseMacroString(Data->SequenceText, Data->Flags, false);
 					}
@@ -2041,8 +2526,8 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 			// Param1=0, Param2 - MacroExecuteString*
 			case MCTL_EXECSTRING:
 			{
-				MacroExecuteString *Data=(MacroExecuteString*)Param2;
-				return CheckStructSize(Data) && Macro.ExecuteString(Data) ? 1:0;
+				MacroExecuteString *Data = (MacroExecuteString*)Param2;
+				return CheckStructSize(Data) && Macro.ExecuteString(Data) ? 1 : 0;
 			}
 
 			// Param1=0, Param2 - 0
@@ -2062,24 +2547,24 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 				MacroAddMacro *Data = (MacroAddMacro*)Param2;
 				if (CheckStructSize(Data) && Data->SequenceText && *Data->SequenceText)
 				{
-					return Macro.AddMacro(*PluginId,Data) ? 1:0;
+					return Macro.AddMacro(*PluginId, Data) ? 1 : 0;
 				}
 				break;
 			}
 
 			case MCTL_DELMACRO:
 			{
-				return Macro.DelMacro(*PluginId,Param2) ? 1:0;
+				return Macro.DelMacro(*PluginId, Param2) ? 1 : 0;
 			}
 
 			//Param1=size of buffer, Param2 - MacroParseResult*
 			case MCTL_GETLASTERROR:
 			{
-				DWORD ErrCode=MPEC_SUCCESS;
-				COORD ErrPos={};
+				DWORD ErrCode = MPEC_SUCCESS;
+				COORD ErrPos = {};
 				string ErrSrc;
 
-				Macro.GetMacroParseError(&ErrCode,&ErrPos,&ErrSrc);
+				Macro.GetMacroParseError(&ErrCode, &ErrPos, &ErrSrc);
 
 				int Size = ALIGN(sizeof(MacroParseResult));
 				size_t stringOffset = Size;
@@ -2092,8 +2577,8 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 					Result->StructSize = sizeof(MacroParseResult);
 					Result->ErrCode = ErrCode;
 					Result->ErrPos = ErrPos;
-					Result->ErrSrc = (const wchar_t *)((char*)Param2+stringOffset);
-					wmemcpy(const_cast<wchar_t*>(Result->ErrSrc), ErrSrc.data(), ErrSrc.size()+1);
+					Result->ErrSrc = (const wchar_t *)((char*)Param2 + stringOffset);
+					wmemcpy(const_cast<wchar_t*>(Result->ErrSrc), ErrSrc.data(), ErrSrc.size() + 1);
 				}
 
 				return Size;
@@ -2101,17 +2586,23 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 
 			default: //FIXME
 				break;
+			}
 		}
+		return 0;
 	}
-
-
-	return 0;
+	catch (...)
+	{
+		// TODO: log
+		return 0;
+	}
 }
 
-intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2)
+intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
 {
-	switch (Command)
+	try
 	{
+		switch (Command)
+		{
 		case PCTL_LOADPLUGIN:
 		case PCTL_FORCEDLOADPLUGIN:
 			if (Param1 == PLT_PATH)
@@ -2128,84 +2619,88 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 		case PCTL_FINDPLUGIN:
 		{
 			Plugin* plugin = nullptr;
-			switch(Param1)
+			switch (Param1)
 			{
-				case PFM_GUID:
-					plugin = Global->CtrlObject->Plugins->FindPlugin(*reinterpret_cast<GUID*>(Param2));
-					break;
+			case PFM_GUID:
+				plugin = Global->CtrlObject->Plugins->FindPlugin(*reinterpret_cast<GUID*>(Param2));
+				break;
 
-				case PFM_MODULENAME:
+			case PFM_MODULENAME:
+			{
+				string strPath;
+				ConvertNameToFull(reinterpret_cast<const wchar_t*>(Param2), strPath);
+				auto ItemIterator = std::find_if(CONST_RANGE(*Global->CtrlObject->Plugins, i)
 				{
-					string strPath;
-					ConvertNameToFull(reinterpret_cast<const wchar_t*>(Param2), strPath);
-					auto ItemIterator = std::find_if(CONST_RANGE(*Global->CtrlObject->Plugins, i)
-					{
-						return !StrCmpI(i->GetModuleName(), strPath);
-					});
-					if (ItemIterator != Global->CtrlObject->Plugins->cend())
-					{
-						plugin = *ItemIterator;
-					}
-					break;
+					return !StrCmpI(i->GetModuleName(), strPath);
+				});
+				if (ItemIterator != Global->CtrlObject->Plugins->cend())
+				{
+					plugin = *ItemIterator;
 				}
+				break;
 			}
-			if(plugin&&Global->CtrlObject->Plugins->IsPluginUnloaded(plugin)) plugin=nullptr;
+			}
+			if (plugin&&Global->CtrlObject->Plugins->IsPluginUnloaded(plugin)) plugin = nullptr;
 			return reinterpret_cast<intptr_t>(plugin);
 		}
 
 		case PCTL_UNLOADPLUGIN:
-			{
-				return Global->CtrlObject->Plugins->UnloadPluginExternal(static_cast<Plugin*>(Handle));
-			}
-			break;
+			return Global->CtrlObject->Plugins->UnloadPluginExternal(static_cast<Plugin*>(Handle));
 
 		case PCTL_GETPLUGININFORMATION:
+		{
+			auto Info = reinterpret_cast<FarGetPluginInformation*>(Param2);
+			if (Handle && (!Info || (CheckStructSize(Info) && static_cast<size_t>(Param1) > sizeof(FarGetPluginInformation))))
 			{
-				auto Info = reinterpret_cast<FarGetPluginInformation*>(Param2);
-				if (Handle && (!Info || (CheckStructSize(Info) && static_cast<size_t>(Param1) > sizeof(FarGetPluginInformation))))
-				{
-					return Global->CtrlObject->Plugins->GetPluginInformation(reinterpret_cast<Plugin*>(Handle), Info, Param1);
-				}
+				return Global->CtrlObject->Plugins->GetPluginInformation(reinterpret_cast<Plugin*>(Handle), Info, Param1);
 			}
+		}
 			break;
 
 		case PCTL_GETPLUGINS:
+		{
+			size_t PluginsCount = Global->CtrlObject->Plugins->GetPluginsCount();
+			if (Param1 && Param2)
 			{
-				size_t PluginsCount = Global->CtrlObject->Plugins->GetPluginsCount();
-				if(Param1 && Param2)
+				auto Plugins = static_cast<HANDLE*>(Param2);
+				size_t Count = std::min(static_cast<size_t>(Param1), PluginsCount);
+				size_t index = 0;
+				FOR(const auto& i, *Global->CtrlObject->Plugins)
 				{
-					auto Plugins = static_cast<HANDLE*>(Param2);
-					size_t Count = std::min(static_cast<size_t>(Param1), PluginsCount);
-					size_t index = 0;
-					FOR(const auto& i, *Global->CtrlObject->Plugins)
-					{
-						Plugins[index++] = i;
-						if(index == Count)
-							break;
-					}
+					Plugins[index++] = i;
+					if (index == Count)
+						break;
 				}
-				return PluginsCount;
 			}
+			return PluginsCount;
+		}
 			break;
+		}
+		return 0;
 	}
-
-	return 0;
+	catch (...)
+	{
+		// TODO: log
+		return 0;
+	}
 }
 
-intptr_t WINAPI apiFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2)
+intptr_t WINAPI apiFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
 {
-	FileFilter *Filter=nullptr;
-
-	if (Command != FFCTL_CREATEFILEFILTER)
+	try
 	{
-		if (!hHandle || hHandle == INVALID_HANDLE_VALUE)
-			return FALSE;
+		FileFilter *Filter = nullptr;
 
-		Filter = (FileFilter *)hHandle;
-	}
+		if (Command != FFCTL_CREATEFILEFILTER)
+		{
+			if (!hHandle || hHandle == INVALID_HANDLE_VALUE)
+				return FALSE;
 
-	switch (Command)
-	{
+			Filter = (FileFilter *)hHandle;
+		}
+
+		switch (Command)
+		{
 		case FFCTL_CREATEFILEFILTER:
 		{
 			if (!Param2)
@@ -2218,224 +2713,241 @@ intptr_t WINAPI apiFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COM
 
 			switch (Param1)
 			{
-				case FFT_PANEL:
-				case FFT_FINDFILE:
-				case FFT_COPY:
-				case FFT_SELECT:
-				case FFT_CUSTOM:
-					break;
-				default:
-					return FALSE;
+			case FFT_PANEL:
+			case FFT_FINDFILE:
+			case FFT_COPY:
+			case FFT_SELECT:
+			case FFT_CUSTOM:
+				break;
+
+			default:
+				return FALSE;
 			}
 
 			Filter = new FileFilter((Panel *)hHandle, (FAR_FILE_FILTER_TYPE)Param1);
 			*((HANDLE *)Param2) = (HANDLE)Filter;
 			return TRUE;
 		}
+
 		case FFCTL_FREEFILEFILTER:
-		{
 			delete Filter;
 			return TRUE;
-		}
+
 		case FFCTL_OPENFILTERSMENU:
-		{
 			return Filter->FilterEdit();
-		}
+
 		case FFCTL_STARTINGTOFILTER:
-		{
 			Filter->UpdateCurrentTime();
 			return TRUE;
-		}
+
 		case FFCTL_ISFILEINFILTER:
-		{
 			if (!Param2)
 				break;
 			return Filter->FileInFilter(*reinterpret_cast<const PluginPanelItem*>(Param2));
 		}
+		return FALSE;
 	}
-
-	return FALSE;
+	catch (...)
+	{
+		// TODO: log
+		return FALSE;
+	}
 }
 
-intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2)
+intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
 {
-	RegExp* re=nullptr;
-
-	if (Command != RECTL_CREATE)
+	try
 	{
-		if (!hHandle || hHandle == INVALID_HANDLE_VALUE)
-			return FALSE;
+		RegExp* re = nullptr;
 
-		re = (RegExp*)hHandle;
-	}
+		if (Command != RECTL_CREATE)
+		{
+			if (!hHandle || hHandle == INVALID_HANDLE_VALUE)
+				return FALSE;
 
-	switch (Command)
-	{
+			re = (RegExp*)hHandle;
+		}
+
+		switch (Command)
+		{
 		case RECTL_CREATE:
-
-			if (!Param2)
-				break;
-
 			*((HANDLE*)Param2) = INVALID_HANDLE_VALUE;
 			re = new RegExp;
 
 			*((HANDLE*)Param2) = (HANDLE)re;
 			return TRUE;
 
-			break;
 		case RECTL_FREE:
 			delete re;
 			return TRUE;
+
 		case RECTL_COMPILE:
-			return re->Compile((const wchar_t*)Param2,OP_PERLSTYLE);
+			return re->Compile((const wchar_t*)Param2, OP_PERLSTYLE);
+
 		case RECTL_OPTIMIZE:
 			return re->Optimize();
+
 		case RECTL_MATCHEX:
 		{
-			RegExpSearch* data=(RegExpSearch*)Param2;
-			return re->MatchEx(data->Text,data->Text+data->Position,data->Text+data->Length,data->Match,data->Count
-#ifdef NAMEDBRACKETS
-			                   ,data->Reserved
-#endif
-			                  );
+			RegExpSearch* data = (RegExpSearch*)Param2;
+			return re->MatchEx(data->Text, data->Text + data->Position, data->Text + data->Length, data->Match, data->Count);
 		}
+
 		case RECTL_SEARCHEX:
 		{
-			RegExpSearch* data=(RegExpSearch*)Param2;
-			return re->SearchEx(data->Text,data->Text+data->Position,data->Text+data->Length,data->Match,data->Count
-#ifdef NAMEDBRACKETS
-			                    ,data->Reserved
-#endif
-			                   );
+			RegExpSearch* data = (RegExpSearch*)Param2;
+			return re->SearchEx(data->Text, data->Text + data->Position, data->Text + data->Length, data->Match, data->Count);
 		}
+
 		case RECTL_BRACKETSCOUNT:
 			return re->GetBracketsCount();
+
+		default:
+			return FALSE;
+		}
+	}
+	catch (...)
+	{
+		// TODO: log
+		return FALSE;
 	}
 
-	return FALSE;
 }
 
-intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2)
+intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
 {
-
-	AbstractSettings* settings=nullptr;
-
-	if (Command != SCTL_CREATE)
+	try
 	{
-		if (!hHandle || hHandle == INVALID_HANDLE_VALUE)
-			return FALSE;
+		AbstractSettings* settings = nullptr;
 
-		settings = (AbstractSettings*)hHandle;
-	}
+		if (Command != SCTL_CREATE)
+		{
+			if (!hHandle || hHandle == INVALID_HANDLE_VALUE)
+				return FALSE;
 
-	switch (Command)
-	{
+			settings = (AbstractSettings*)hHandle;
+		}
+
+		switch (Command)
+		{
 		case SCTL_CREATE:
-
-			if (!Param2)
-				break;
-
+		{
+			FarSettingsCreate* data = (FarSettingsCreate*)Param2;
+			if (CheckStructSize(data))
 			{
-				FarSettingsCreate* data = (FarSettingsCreate*)Param2;
-				if (CheckStructSize(data))
+				if (data->Guid == FarGuid)
 				{
-					if (data->Guid == FarGuid)
-					{
-						settings = AbstractSettings::CreateFarSettings();
-					}
-					else
-					{
-						Plugin* plugin = Global->CtrlObject->Plugins->FindPlugin(data->Guid);
-						if (plugin)
-						{
-							settings = AbstractSettings::CreatePluginSettings(data->Guid, Param1 == PSL_LOCAL);
-						}
-					}
-					if (settings && settings->IsValid())
-					{
-						data->Handle=settings;
-						return TRUE;
-					}
-					delete settings;
+					settings = AbstractSettings::CreateFarSettings();
 				}
-			}
-			break;
-		case SCTL_FREE:
-			{
+				else
+				{
+					Plugin* plugin = Global->CtrlObject->Plugins->FindPlugin(data->Guid);
+					if (plugin)
+					{
+						settings = AbstractSettings::CreatePluginSettings(data->Guid, Param1 == PSL_LOCAL);
+					}
+				}
+				if (settings && settings->IsValid())
+				{
+					data->Handle = settings;
+					return TRUE;
+				}
 				delete settings;
 			}
+			break;
+		}
+
+		case SCTL_FREE:
+			delete settings;
 			return TRUE;
+
 		case SCTL_SET:
-			return CheckStructSize((const FarSettingsItem*)Param2)?settings->Set(*(const FarSettingsItem*)Param2):FALSE;
+			return CheckStructSize((const FarSettingsItem*)Param2) ? settings->Set(*(const FarSettingsItem*)Param2) : FALSE;
+
 		case SCTL_GET:
-			return CheckStructSize((const FarSettingsItem*)Param2)?settings->Get(*(FarSettingsItem*)Param2):FALSE;
+			return CheckStructSize((const FarSettingsItem*)Param2) ? settings->Get(*(FarSettingsItem*)Param2) : FALSE;
+
 		case SCTL_ENUM:
-			return CheckStructSize((FarSettingsEnum*)Param2)?settings->Enum(*(FarSettingsEnum*)Param2):FALSE;
+			return CheckStructSize((FarSettingsEnum*)Param2) ? settings->Enum(*(FarSettingsEnum*)Param2) : FALSE;
+
 		case SCTL_DELETE:
-			return CheckStructSize((const FarSettingsValue*)Param2)?settings->Delete(*(const FarSettingsValue*)Param2):FALSE;
+			return CheckStructSize((const FarSettingsValue*)Param2) ? settings->Delete(*(const FarSettingsValue*)Param2) : FALSE;
+
 		case SCTL_CREATESUBKEY:
 		case SCTL_OPENSUBKEY:
-			return CheckStructSize((const FarSettingsValue*)Param2)?settings->SubKey(*(const FarSettingsValue*)Param2, Command==SCTL_CREATESUBKEY):0;
+			return CheckStructSize((const FarSettingsValue*)Param2) ? settings->SubKey(*(const FarSettingsValue*)Param2, Command == SCTL_CREATESUBKEY) : 0;
+		}
+		return FALSE;
 	}
-
-	return FALSE;
+	catch (...)
+	{
+		// TODO: log
+		return FALSE;
+	}
 }
 
-size_t WINAPI apiGetCurrentDirectory(size_t Size,wchar_t* Buffer)
+size_t WINAPI apiGetCurrentDirectory(size_t Size, wchar_t* Buffer) noexcept
 {
-	string strCurDir;
-	api::GetCurrentDirectory(strCurDir);
-
-	if (Buffer && Size)
+	try
 	{
-		xwcsncpy(Buffer,strCurDir.data(),Size);
-	}
+		string strCurDir;
+		api::GetCurrentDirectory(strCurDir);
 
-	return strCurDir.size()+1;
+		if (Buffer && Size)
+		{
+			xwcsncpy(Buffer, strCurDir.data(), Size);
+		}
+
+		return strCurDir.size() + 1;
+	}
+	catch (...)
+	{
+		// TODO: log
+		return 0;
+	}
 }
 
-size_t WINAPI apiFormatFileSize(unsigned __int64 Size, intptr_t Width, FARFORMATFILESIZEFLAGS Flags, wchar_t *Dest, size_t DestSize)
+size_t WINAPI apiFormatFileSize(unsigned __int64 Size, intptr_t Width, FARFORMATFILESIZEFLAGS Flags, wchar_t *Dest, size_t DestSize) noexcept
 {
-	static const simple_pair<unsigned __int64, unsigned __int64> FlagsPair[] =
+	try
 	{
-		{FFFS_COMMAS,         COLUMN_COMMAS},         // Вставлять разделитель между тысячами
-		{FFFS_THOUSAND,       COLUMN_THOUSAND},       // Вместо делителя 1024 использовать делитель 1000
-		{FFFS_FLOATSIZE,      COLUMN_FLOATSIZE},      // Показывать размер файла в стиле Windows Explorer (т.е. 999 байт будут показаны как 999, а 1000 байт как 0.97 K)
-		{FFFS_ECONOMIC,       COLUMN_ECONOMIC},       // Экономичный режим, не показывать пробел перед суффиксом размера файла (т.е. 0.97K)
-		{FFFS_MINSIZEINDEX,   COLUMN_MINSIZEINDEX},   // Минимально допустимый индекс при форматировании
-		{FFFS_SHOWBYTESINDEX, COLUMN_SHOWBYTESINDEX}, // Показывать суффиксы B,K,M,G,T,P,E
-	};
+		static const simple_pair<unsigned __int64, unsigned __int64> FlagsPair[] =
+		{
+			{FFFS_COMMAS,         COLUMN_COMMAS},         // Вставлять разделитель между тысячами
+			{FFFS_THOUSAND,       COLUMN_THOUSAND},       // Вместо делителя 1024 использовать делитель 1000
+			{FFFS_FLOATSIZE,      COLUMN_FLOATSIZE},      // Показывать размер файла в стиле Windows Explorer (т.е. 999 байт будут показаны как 999, а 1000 байт как 0.97 K)
+			{FFFS_ECONOMIC,       COLUMN_ECONOMIC},       // Экономичный режим, не показывать пробел перед суффиксом размера файла (т.е. 0.97K)
+			{FFFS_MINSIZEINDEX,   COLUMN_MINSIZEINDEX},   // Минимально допустимый индекс при форматировании
+			{FFFS_SHOWBYTESINDEX, COLUMN_SHOWBYTESINDEX}, // Показывать суффиксы B,K,M,G,T,P,E
+		};
 
-	unsigned __int64 FinalFlags=Flags & COLUMN_MINSIZEINDEX_MASK;
-	std::for_each(CONST_RANGE(FlagsPair, i)
-	{
-		if (Flags & i.first)
-			FinalFlags |= i.second;
-	});
+		unsigned __int64 FinalFlags=Flags & COLUMN_MINSIZEINDEX_MASK;
+		std::for_each(CONST_RANGE(FlagsPair, i)
+		{
+			if (Flags & i.first)
+				FinalFlags |= i.second;
+		});
 
-	string strDestStr;
-	FileSizeToStr(strDestStr,Size,Width,FinalFlags);
+		string strDestStr;
+		FileSizeToStr(strDestStr,Size,Width,FinalFlags);
 
-	if (Dest && DestSize)
-	{
-		xwcsncpy(Dest,strDestStr.data(),DestSize);
+		if (Dest && DestSize)
+		{
+			xwcsncpy(Dest,strDestStr.data(),DestSize);
+		}
+
+		return strDestStr.size()+1;
 	}
-
-	return strDestStr.size()+1;
+	catch (...)
+	{
+		// TODO: log
+		return 0;
+	}
 }
 
-/* $ 30.07.2001 IS
-     1. Проверяем правильность параметров.
-     2. Теперь обработка каталогов не зависит от маски файлов
-     3. Маска может быть стандартного фаровского вида (со скобками,
-        перечислением и пр.). Может быть несколько масок файлов, разделенных
-        запятыми или точкой с запятой, можно указывать маски исключения,
-        можно заключать маски в кавычки. Короче, все как и должно быть :-)
-*/
-
-void WINAPI apiRecursiveSearch(const wchar_t *InitDir,const wchar_t *Mask,FRSUSERFUNC Func,unsigned __int64 Flags,void *Param)
+void WINAPI apiRecursiveSearch(const wchar_t *InitDir, const wchar_t *Mask, FRSUSERFUNC Func, unsigned __int64 Flags, void *Param) noexcept
 {
-	if (Func && InitDir && *InitDir && Mask && *Mask)
+	try
 	{
 		filemasks FMask;
 
@@ -2460,43 +2972,51 @@ void WINAPI apiRecursiveSearch(const wchar_t *InitDir,const wchar_t *Mask,FRSUSE
 			}
 		}
 	}
-}
-
-/* $ 14.09.2000 SVS
- + Функция FarMkTemp - получение имени временного файла с полным путем.
-    Dest - приемник результата
-    Template - шаблон по правилам функции mktemp, например "FarTmpXXXXXX"
-    Вернет требуемый размер приемника.
-*/
-size_t WINAPI apiMkTemp(wchar_t *Dest, size_t DestSize, const wchar_t *Prefix)
-{
-	string strDest;
-	if (FarMkTempEx(strDest, Prefix, TRUE) && Dest && DestSize)
+	catch (...)
 	{
-		xwcsncpy(Dest, strDest.data(), DestSize);
+		// TODO: log
+		return;
 	}
-	return strDest.size()+1;
+
 }
 
-size_t WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size, PROCESSNAME_FLAGS flags)
+size_t WINAPI apiMkTemp(wchar_t *Dest, size_t DestSize, const wchar_t *Prefix) noexcept
 {
-	//             0xFFFF - length
-	//           0xFF0000 - mode
-	// 0xFFFFFFFFFF000000 - flags
-
-	PROCESSNAME_FLAGS Flags = flags&0xFFFFFFFFFF000000;
-	PROCESSNAME_FLAGS Mode = flags&0xFF0000;
-	int Length = flags&0xFFFF;
-
-	switch(Mode)
+	try
 	{
-	case PN_CMPNAME:
+		string strDest;
+		if (FarMkTempEx(strDest, Prefix, TRUE) && Dest && DestSize)
 		{
-			return CmpName(param1, param2, (Flags&PN_SKIPPATH)!=0);
+			xwcsncpy(Dest, strDest.data(), DestSize);
 		}
+		return strDest.size() + 1;
+	}
+	catch (...)
+	{
+		// TODO: log
+		return 0;
+	}
+}
 
-	case PN_CMPNAMELIST:
-	case PN_CHECKMASK:
+size_t WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size, PROCESSNAME_FLAGS flags) noexcept
+{
+	try
+	{
+		//             0xFFFF - length
+		//           0xFF0000 - mode
+		// 0xFFFFFFFFFF000000 - flags
+
+		PROCESSNAME_FLAGS Flags = flags&0xFFFFFFFFFF000000;
+		PROCESSNAME_FLAGS Mode = flags&0xFF0000;
+		int Length = flags&0xFFFF;
+
+		switch(Mode)
+		{
+		case PN_CMPNAME:
+			return CmpName(param1, param2, (Flags&PN_SKIPPATH)!=0);
+
+		case PN_CMPNAMELIST:
+		case PN_CHECKMASK:
 		{
 			static filemasks Masks;
 			static string PrevMask;
@@ -2521,192 +3041,287 @@ size_t WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size
 			return Result;
 		}
 
-	case PN_GENERATENAME:
+		case PN_GENERATENAME:
 		{
 			string strResult = NullToEmpty(param2);
 			int nResult = ConvertWildcards(NullToEmpty(param1), strResult, Length);
 			xwcsncpy(param2, strResult.data(), size);
 			return nResult;
 		}
-	}
-	return FALSE;
-}
 
-BOOL WINAPI apiColorDialog(const GUID* PluginId, COLORDIALOGFLAGS Flags, struct FarColor *Color)
-{
-	BOOL Result = FALSE;
-	if (!Global->WindowManager->ManagerIsDown())
+		default:
+			return FALSE;
+		}
+	}
+	catch (...)
 	{
-		Result = Console().GetColorDialog(*Color, true, false);
-	}
-	return Result;
-}
-
-size_t WINAPI apiInputRecordToKeyName(const INPUT_RECORD* Key, wchar_t *KeyText, size_t Size)
-{
-	int iKey = InputRecordToKey(Key);
-	string strKT;
-	if (!KeyToText(iKey,strKT))
+		// TODO: log
 		return 0;
-	size_t len = strKT.size();
-	if (Size && KeyText)
-	{
-		if (Size <= len)
-			len = Size-1;
-		wmemcpy(KeyText, strKT.data(), len);
-		KeyText[len] = 0;
 	}
-	else if (KeyText)
-		*KeyText = 0;
-	return len+1;
 }
 
-BOOL WINAPI apiKeyNameToInputRecord(const wchar_t *Name,INPUT_RECORD* RecKey)
+BOOL WINAPI apiColorDialog(const GUID* PluginId, COLORDIALOGFLAGS Flags, struct FarColor *Color) noexcept
 {
-	int Key=KeyNameToKey(Name);
-	return Key > 0? KeyToInputRecord(Key,RecKey) != 0 : FALSE;
-}
-
-BOOL WINAPI apiMkLink(const wchar_t *Target,const wchar_t *LinkName, LINK_TYPE Type, MKLINK_FLAGS Flags)
-{
-	int Result=0;
-
-	if (Target && *Target && LinkName && *LinkName)
+	try
 	{
-		switch (Type)
+		BOOL Result = FALSE;
+		if (!Global->WindowManager->ManagerIsDown())
 		{
-		case LINK_HARDLINK:
-			Result=MkHardLink(Target, LinkName, (Flags&MLF_SHOWERRMSG) == 0);
-			break;
-		case LINK_JUNCTION:
-		case LINK_VOLMOUNT:
-		case LINK_SYMLINKFILE:
-		case LINK_SYMLINKDIR:
-		case LINK_SYMLINK:
+			Result = Console().GetColorDialog(*Color, true, false);
+		}
+		return Result;
+	}
+	catch (...)
+	{
+		// TODO: log
+		return FALSE;
+	}
+}
+
+size_t WINAPI apiInputRecordToKeyName(const INPUT_RECORD* Key, wchar_t *KeyText, size_t Size) noexcept
+{
+	try
+	{
+		int iKey = InputRecordToKey(Key);
+		string strKT;
+		if (!KeyToText(iKey, strKT))
+			return 0;
+		size_t len = strKT.size();
+		if (Size && KeyText)
+		{
+			if (Size <= len)
+				len = Size - 1;
+			wmemcpy(KeyText, strKT.data(), len);
+			KeyText[len] = 0;
+		}
+		else if (KeyText)
+			*KeyText = 0;
+		return len + 1;
+	}
+	catch (...)
+	{
+		// TODO: log
+		return 0;
+	}
+}
+
+BOOL WINAPI apiKeyNameToInputRecord(const wchar_t *Name, INPUT_RECORD* RecKey) noexcept
+{
+	try
+	{
+		int Key = KeyNameToKey(Name);
+		return Key > 0 ? KeyToInputRecord(Key, RecKey) != 0 : FALSE;
+	}
+	catch (...)
+	{
+		// TODO: log
+		return FALSE;
+	}
+}
+
+BOOL WINAPI apiMkLink(const wchar_t *Target, const wchar_t *LinkName, LINK_TYPE Type, MKLINK_FLAGS Flags) noexcept
+{
+	try
+	{
+		int Result = 0;
+
+		if (Target && *Target && LinkName && *LinkName)
+		{
+			switch (Type)
 			{
-				ReparsePointTypes LinkType=RP_JUNCTION;
+			case LINK_HARDLINK:
+				Result = MkHardLink(Target, LinkName, (Flags&MLF_SHOWERRMSG) == 0);
+				break;
+
+			case LINK_JUNCTION:
+			case LINK_VOLMOUNT:
+			case LINK_SYMLINKFILE:
+			case LINK_SYMLINKDIR:
+			case LINK_SYMLINK:
+			{
+				ReparsePointTypes LinkType = RP_JUNCTION;
 
 				switch (Type)
 				{
 				case LINK_VOLMOUNT:
-					LinkType=RP_VOLMOUNT;
+					LinkType = RP_VOLMOUNT;
 					break;
 				case LINK_SYMLINK:
-					LinkType=RP_SYMLINK;
+					LinkType = RP_SYMLINK;
 					break;
 				case LINK_SYMLINKFILE:
-					LinkType=RP_SYMLINKFILE;
+					LinkType = RP_SYMLINKFILE;
 					break;
 				case LINK_SYMLINKDIR:
-					LinkType=RP_SYMLINKDIR;
+					LinkType = RP_SYMLINKDIR;
 					break;
 				default:
 					break;
 				}
 
-				Result=MkSymLink(Target,LinkName, LinkType, (Flags&MLF_SHOWERRMSG) == 0, (Flags&MLF_HOLDTARGET) != 0);
+				Result = MkSymLink(Target, LinkName, LinkType, (Flags&MLF_SHOWERRMSG) == 0, (Flags&MLF_HOLDTARGET) != 0);
+				break;
 			}
-			break;
-		default:
-			break;
+
+			default:
+				break;
+			}
 		}
+
+		if (Result && !(Flags&MLF_DONOTUPDATEPANEL))
+			ShellUpdatePanels(nullptr, FALSE);
+
+		return Result;
 	}
-
-	if (Result && !(Flags&MLF_DONOTUPDATEPANEL))
-		ShellUpdatePanels(nullptr,FALSE);
-
-	return Result;
-}
-
-BOOL WINAPI apiAddEndSlash(wchar_t *Path)
-{
-	return AddEndSlash(Path) ? TRUE : FALSE;
-}
-
-wchar_t* WINAPI apiXlat(wchar_t *Line,intptr_t StartPos,intptr_t EndPos,XLAT_FLAGS Flags)
-{
-	return Xlat(Line, StartPos, EndPos, Flags);
-}
-
-HANDLE WINAPI apiCreateFile(const wchar_t *Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile)
-{
-	return api::CreateFile(Object,DesiredAccess,ShareMode,SecurityAttributes,CreationDistribution,FlagsAndAttributes,TemplateFile);
-}
-
-DWORD WINAPI apiGetFileAttributes(const wchar_t *FileName)
-{
-	return api::GetFileAttributes(FileName);
-}
-
-BOOL WINAPI apiSetFileAttributes(const wchar_t *FileName,DWORD dwFileAttributes)
-{
-	return api::SetFileAttributes(FileName,dwFileAttributes);
-}
-
-BOOL WINAPI apiMoveFileEx(const wchar_t *ExistingFileName,const wchar_t *NewFileName,DWORD dwFlags)
-{
-	return api::MoveFileEx(ExistingFileName,NewFileName,dwFlags);
-}
-
-BOOL WINAPI apiDeleteFile(const wchar_t *FileName)
-{
-	return api::DeleteFile(FileName);
-}
-
-BOOL WINAPI apiRemoveDirectory(const wchar_t *DirName)
-{
-	return api::RemoveDirectory(DirName);
-}
-
-BOOL WINAPI apiCreateDirectory(const wchar_t *PathName,LPSECURITY_ATTRIBUTES lpSecurityAttributes)
-{
-	return api::CreateDirectory(PathName,lpSecurityAttributes);
-}
-
-intptr_t WINAPI apiCallFar(intptr_t CheckCode, FarMacroCall* Data)
-{
-	return Global->CtrlObject? Global->CtrlObject->Macro.CallFar(CheckCode, Data) : 0;
-}
-
-void WINAPI apiCallPlugin(MacroPluginReturn* Data, FarMacroCall** Target, int *Boolean)
-{
-	if (Global->CtrlObject)
-		Global->CtrlObject->Macro.CallPluginSynchro(Data, Target, Boolean);
-}
-
-namespace cfunctions
-{
-	typedef int(WINAPI* comparer)(const void*, const void*, void*);
-
-	static thread_local comparer bsearch_comparer;
-	static thread_local void* bsearch_param;
-
-	static int bsearch_comparer_wrapper(const void* a, const void* b)
+	catch (...)
 	{
-		return bsearch_comparer(a, b, bsearch_param);
+		// TODO: log
+		return FALSE;
 	}
+}
 
-	void* bsearchex(const void* key, const void* base, size_t nelem, size_t width, comparer user_comparer, void* user_param)
+BOOL WINAPI apiAddEndSlash(wchar_t *Path) noexcept
+{
+	try
 	{
-		bsearch_comparer = user_comparer;
-		bsearch_param = user_param;
-		return std::bsearch(key, base, nelem, width, bsearch_comparer_wrapper);
+		return AddEndSlash(Path) ? TRUE : FALSE;
 	}
-
-	static thread_local comparer qsort_comparer;
-	static thread_local void* qsort_param;
-
-	static int qsort_comparer_wrapper(const void* a, const void* b)
+	catch (...)
 	{
-		return qsort_comparer(a, b, qsort_param);
+		// TODO: log
+		return FALSE;
 	}
+}
 
-	void qsortex(char *base, size_t nel, size_t width, comparer user_comparer, void *user_param)
+wchar_t* WINAPI apiXlat(wchar_t *Line, intptr_t StartPos, intptr_t EndPos, XLAT_FLAGS Flags) noexcept
+{
+	try
 	{
-		qsort_comparer = user_comparer;
-		qsort_param = user_param;
-		return std::qsort(base, nel, width, qsort_comparer_wrapper);
+		return Xlat(Line, StartPos, EndPos, Flags);
 	}
-};
+	catch (...)
+	{
+		// TODO: log
+		return Line;
+	}
+}
 
-};
+HANDLE WINAPI apiCreateFile(const wchar_t *Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile) noexcept
+{
+	try
+	{
+		return api::CreateFile(Object, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return INVALID_HANDLE_VALUE;
+	}
+}
+
+DWORD WINAPI apiGetFileAttributes(const wchar_t *FileName) noexcept
+{
+	try
+	{
+		return api::GetFileAttributes(FileName);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return INVALID_FILE_ATTRIBUTES;
+	}
+}
+
+BOOL WINAPI apiSetFileAttributes(const wchar_t *FileName, DWORD dwFileAttributes) noexcept
+{
+	try
+	{
+		return api::SetFileAttributes(FileName, dwFileAttributes);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return FALSE;
+	}
+}
+
+BOOL WINAPI apiMoveFileEx(const wchar_t *ExistingFileName, const wchar_t *NewFileName, DWORD dwFlags) noexcept
+{
+	try
+	{
+		return api::MoveFileEx(ExistingFileName, NewFileName, dwFlags);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return FALSE;
+	}
+}
+
+BOOL WINAPI apiDeleteFile(const wchar_t *FileName) noexcept
+{
+	try
+	{
+		return api::DeleteFile(FileName);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return FALSE;
+	}
+}
+
+BOOL WINAPI apiRemoveDirectory(const wchar_t *DirName) noexcept
+{
+	try
+	{
+		return api::RemoveDirectory(DirName);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return FALSE;
+	}
+}
+
+BOOL WINAPI apiCreateDirectory(const wchar_t *PathName, LPSECURITY_ATTRIBUTES lpSecurityAttributes) noexcept
+{
+	try
+	{
+		return api::CreateDirectory(PathName, lpSecurityAttributes);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return FALSE;
+	}
+}
+
+intptr_t WINAPI apiCallFar(intptr_t CheckCode, FarMacroCall* Data) noexcept
+{
+	try
+	{
+		return Global->CtrlObject ? Global->CtrlObject->Macro.CallFar(CheckCode, Data) : 0;
+	}
+	catch (...)
+	{
+		// TODO: log
+		return 0;
+	}
+}
+
+void WINAPI apiCallPlugin(MacroPluginReturn* Data, FarMacroCall** Target, int *Boolean) noexcept
+{
+	try
+	{
+		if (Global->CtrlObject)
+			Global->CtrlObject->Macro.CallPluginSynchro(Data, Target, Boolean);
+	}
+	catch (...)
+	{
+		// TODO: log
+		return;
+	}
+}
+
+}
