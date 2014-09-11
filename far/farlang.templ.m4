@@ -15751,6 +15751,28 @@ MSetAttrVirtual
 "Virtuálny"
 "&Virtuale"
 
+MSetAttrIntegrityStream
+"Поток целостности"
+"Integrity stream"
+upd:"Integrity stream"
+upd:"Integrity stream"
+upd:"Integrity stream"
+upd:"Integrity stream"
+upd:"Integrity stream"
+upd:"Integrity stream"
+upd:"Integrity stream"
+
+MSetAttrNoScrubData
+"Нет данных очистки"
+"No scrub data"
+upd:"No scrub data"
+upd:"No scrub data"
+upd:"No scrub data"
+upd:"No scrub data"
+upd:"No scrub data"
+upd:"No scrub data"
+upd:"No scrub data"
+
 MSetAttrSubfolders
 "Обрабатывать &вложенные папки"
 "Process sub&folders"
@@ -25602,6 +25624,29 @@ MFileFilterAttrVirtual
 "&Virtual"
 "Virtuálny"
 "&Virtuale"
+
+MFileFilterAttrIntegrityStream
+"Поток целостности"
+"Integrity stream"
+upd:"Integrity stream"
+upd:"Integrity stream"
+upd:"Integrity stream"
+upd:"Integrity stream"
+upd:"Integrity stream"
+upd:"Integrity stream"
+upd:"Integrity stream"
+
+MFileFilterAttrNoScrubData
+upd:"Нет данных очистки"
+"No scrub data"
+upd:"No scrub data"
+upd:"No scrub data"
+upd:"No scrub data"
+upd:"No scrub data"
+upd:"No scrub data"
+upd:"No scrub data"
+upd:"No scrub data"
+
 
 MFileFilterReset
 "Очистит&ь"

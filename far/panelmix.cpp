@@ -560,6 +560,8 @@ const string FormatStr_Attribute(DWORD FileAttributes,int Width)
 		FileAttributes&FILE_ATTRIBUTE_NOT_CONTENT_INDEXED?L'I':L' ',
 		FileAttributes&FILE_ATTRIBUTE_OFFLINE?L'O':L' ',
 		FileAttributes&FILE_ATTRIBUTE_VIRTUAL?L'V':L' ',
+		FileAttributes&FILE_ATTRIBUTE_INTEGRITY_STREAM ? L'G' : L' ',
+		FileAttributes&FILE_ATTRIBUTE_NO_SCRUB_DATA ? L'N' : L' ',
 		0
 	};
 

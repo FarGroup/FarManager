@@ -1,4 +1,8 @@
-﻿zg 11.09.2014 00:27:32 +0200 - build 4098
+﻿drkns 12.09.2014 00:57:26 +0200 - build 4099
+
+1. 1. Добавлена поддержка атрибутов FILE_ATTRIBUTE_INTEGRITY_STREAM и FILE_ATTRIBUTE_NO_SCRUB_DATA.
+
+zg 11.09.2014 00:27:32 +0200 - build 4098
 
 1. ViewerControl при указании реального ViewerID не работал для QuickView и Info панелей.
 

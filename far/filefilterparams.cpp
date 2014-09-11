@@ -366,11 +366,11 @@ string MenuString(FileFilterParams *FF, bool bHighlightType, int Hotkey, bool bP
 {
 	string strDest;
 
-	const wchar_t Format1a[] = L"%-21.21s %c %-26.26s %-3.3s %c %s";
-	const wchar_t Format1b[] = L"%-22.22s %c %-26.26s %-3.3s %c %s";
-	const wchar_t Format1c[] = L"&%c. %-18.18s %c %-26.26s %-3.3s %c %s";
-	const wchar_t Format1d[] = L"   %-18.18s %c %-26.26s %-3.3s %c %s";
-	const wchar_t Format2[]  = L"%-3.3s %c %-26.26s %-4.4s %c %s";
+	const wchar_t Format1a[] = L"%-21.21s %c %-30.30s %-3.3s %c %s";
+	const wchar_t Format1b[] = L"%-22.22s %c %-30.30s %-3.3s %c %s";
+	const wchar_t Format1c[] = L"&%c. %-18.18s %c %-30.30s %-3.3s %c %s";
+	const wchar_t Format1d[] = L"   %-18.18s %c %-30.30s %-3.3s %c %s";
+	const wchar_t Format2[]  = L"%-3.3s %c %-30.30s %-4.4s %c %s";
 	const wchar_t DownArrow=0x2193;
 	const wchar_t *Name, *Mask;
 	wchar_t MarkChar[]=L"\" \"";
@@ -419,6 +419,8 @@ string MenuString(FileFilterParams *FF, bool bHighlightType, int Hotkey, bool bP
 		{FILE_ATTRIBUTE_REPARSE_POINT, L'L'},
 		{FILE_ATTRIBUTE_OFFLINE, L'O'},
 		{FILE_ATTRIBUTE_VIRTUAL, L'V'},
+		{FILE_ATTRIBUTE_INTEGRITY_STREAM, L'G'},
+		{FILE_ATTRIBUTE_NO_SCRUB_DATA, L'N'},
 	};
 
 	string Attr;
@@ -542,6 +544,8 @@ enum enumFileFilterConfig
 	ID_FF_TEMP,
 	ID_FF_OFFLINE,
 	ID_FF_VIRTUAL,
+	ID_FF_INTEGRITY_STREAM,
+	ID_FF_NO_SCRUB_DATA,
 
 	ID_HER_SEPARATOR1,
 	ID_HER_MARK_TITLE,
@@ -904,17 +908,19 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		{DI_CHECKBOX, 7,12,0,12,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrA)},
 		{DI_CHECKBOX, 7,13,0,13,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrH)},
 		{DI_CHECKBOX, 7,14,0,14,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrS)},
+		{DI_CHECKBOX, 7,15,0,15,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrD)},
 
-		{DI_CHECKBOX,29,11,0,11,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrD)},
-		{DI_CHECKBOX,29,12,0,12,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrC)},
-		{DI_CHECKBOX,29,13,0,13,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrE)},
-		{DI_CHECKBOX,29,14,0,14,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrNI)},
-		{DI_CHECKBOX,29,15,0,15,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrReparse)},
+		{DI_CHECKBOX,29,11,0,11,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrC)},
+		{DI_CHECKBOX,29,12,0,12,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrE)},
+		{DI_CHECKBOX,29,13,0,13,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrNI)},
+		{DI_CHECKBOX,29,14,0,14,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrReparse)},
+		{DI_CHECKBOX,29,15,0,15,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrSparse)},
 
-		{DI_CHECKBOX,51,11,0,11,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrSparse)},
-		{DI_CHECKBOX,51,12,0,12,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrT)},
-		{DI_CHECKBOX,51,13,0,13,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrOffline)},
-		{DI_CHECKBOX,51,14,0,14,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrVirtual)},
+		{DI_CHECKBOX,51,11,0,11,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrT)},
+		{DI_CHECKBOX,51,12,0,12,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrOffline)},
+		{DI_CHECKBOX,51,13,0,13,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrVirtual)},
+		{DI_CHECKBOX,51,14,0,14,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrIntegrityStream)},
+		{DI_CHECKBOX,51,15,0,15,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrNoScrubData)},
 
 		{DI_TEXT,-1,14,0,14,0,nullptr,nullptr,DIF_SEPARATOR,MSG(MHighlightColors)},
 		{DI_TEXT,7,15,0,15,0,nullptr,nullptr,0,MSG(MHighlightMarkChar)},
@@ -1055,6 +1061,8 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	FilterDlg[ID_FF_REPARSEPOINT].Selected=(AttrSet & FILE_ATTRIBUTE_REPARSE_POINT?1:AttrClear & FILE_ATTRIBUTE_REPARSE_POINT?0:2);
 	FilterDlg[ID_FF_OFFLINE].Selected=(AttrSet & FILE_ATTRIBUTE_OFFLINE?1:AttrClear & FILE_ATTRIBUTE_OFFLINE?0:2);
 	FilterDlg[ID_FF_VIRTUAL].Selected=(AttrSet & FILE_ATTRIBUTE_VIRTUAL?1:AttrClear & FILE_ATTRIBUTE_VIRTUAL?0:2);
+	FilterDlg[ID_FF_INTEGRITY_STREAM].Selected=(AttrSet & FILE_ATTRIBUTE_INTEGRITY_STREAM?1:AttrClear & FILE_ATTRIBUTE_INTEGRITY_STREAM?0:2);
+	FilterDlg[ID_FF_NO_SCRUB_DATA].Selected=(AttrSet & FILE_ATTRIBUTE_NO_SCRUB_DATA?1:AttrClear & FILE_ATTRIBUTE_NO_SCRUB_DATA?0:2);
 
 	if (!FilterDlg[ID_FF_MATCHATTRIBUTES].Selected)
 	{
@@ -1095,6 +1103,8 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_OFFLINE,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 	Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_VIRTUAL,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 	Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_DIRECTORY,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
+	Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_INTEGRITY_STREAM,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
+	Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_NO_SCRUB_DATA,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 
 	for (;;)
 	{
@@ -1133,6 +1143,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 			            bRelative);
 			AttrSet=0;
 			AttrClear=0;
+
 			AttrSet|=(FilterDlg[ID_FF_READONLY].Selected==1?FILE_ATTRIBUTE_READONLY:0);
 			AttrSet|=(FilterDlg[ID_FF_ARCHIVE].Selected==1?FILE_ATTRIBUTE_ARCHIVE:0);
 			AttrSet|=(FilterDlg[ID_FF_HIDDEN].Selected==1?FILE_ATTRIBUTE_HIDDEN:0);
@@ -1146,6 +1157,9 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 			AttrSet|=(FilterDlg[ID_FF_REPARSEPOINT].Selected==1?FILE_ATTRIBUTE_REPARSE_POINT:0);
 			AttrSet|=(FilterDlg[ID_FF_OFFLINE].Selected==1?FILE_ATTRIBUTE_OFFLINE:0);
 			AttrSet|=(FilterDlg[ID_FF_VIRTUAL].Selected==1?FILE_ATTRIBUTE_VIRTUAL:0);
+			AttrSet|=(FilterDlg[ID_FF_INTEGRITY_STREAM].Selected==1?FILE_ATTRIBUTE_INTEGRITY_STREAM:0);
+			AttrSet|=(FilterDlg[ID_FF_NO_SCRUB_DATA].Selected==1?FILE_ATTRIBUTE_NO_SCRUB_DATA:0);
+
 			AttrClear|=(FilterDlg[ID_FF_READONLY].Selected==0?FILE_ATTRIBUTE_READONLY:0);
 			AttrClear|=(FilterDlg[ID_FF_ARCHIVE].Selected==0?FILE_ATTRIBUTE_ARCHIVE:0);
 			AttrClear|=(FilterDlg[ID_FF_HIDDEN].Selected==0?FILE_ATTRIBUTE_HIDDEN:0);
@@ -1159,6 +1173,9 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 			AttrClear|=(FilterDlg[ID_FF_REPARSEPOINT].Selected==0?FILE_ATTRIBUTE_REPARSE_POINT:0);
 			AttrClear|=(FilterDlg[ID_FF_OFFLINE].Selected==0?FILE_ATTRIBUTE_OFFLINE:0);
 			AttrClear|=(FilterDlg[ID_FF_VIRTUAL].Selected==0?FILE_ATTRIBUTE_VIRTUAL:0);
+			AttrClear|=(FilterDlg[ID_FF_INTEGRITY_STREAM].Selected==0?FILE_ATTRIBUTE_INTEGRITY_STREAM:0);
+			AttrClear|=(FilterDlg[ID_FF_NO_SCRUB_DATA].Selected==0?FILE_ATTRIBUTE_NO_SCRUB_DATA:0);
+
 			FF->SetAttr(FilterDlg[ID_FF_MATCHATTRIBUTES].Selected!=0,
 			            AttrSet,
 			            AttrClear);

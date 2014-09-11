@@ -1948,8 +1948,15 @@ void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &wfd,FILE *
 		if (wfd.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED)
 			fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_ENCRYPTED           (0x00004000)\n",12,L"",space);
 
+		if (wfd.dwFileAttributes&FILE_ATTRIBUTE_INTEGRITY_STREAM)
+			fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_INTEGRITY_STREAM    (0x00080000)\n",12,L"",space);
+
 		if (wfd.dwFileAttributes&FILE_ATTRIBUTE_VIRTUAL)
 			fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_VIRTUAL             (0x00010000)\n",12,L"",space);
+
+		if (wfd.dwFileAttributes&FILE_ATTRIBUTE_NO_SCRUB_DATA)
+			fwprintf(fp, L"%*s %s     FILE_ATTRIBUTE_NO_SCRUB_DATA      (0x00020000)\n",12,L"",space);
+		
 
 		string D, T;
 		ConvertDate(wfd.ftCreationTime,D,T,8,FALSE,FALSE,TRUE);

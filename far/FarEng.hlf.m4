@@ -1783,14 +1783,16 @@ Allowed column types are:
        #I#         - Неиндексируемый по содержимому
        #O#         - Автономный (offline)
        #V#         - Виртуальный
+       #G#         - Integrity stream
+       #N#         - No scrub data
 
-    Порядок отображения атрибутов - RSHALCTIOV. Символ атрибута
-"Разрежённый" применяется только для файлов и ставится вместо 'L'.
-Символ атрибута "Зашифрованный" ставится вместо 'C', т.к. файл/каталог не
-могут иметь одновременно оба атрибута ("Сжатый" и "Зашифрованный"). По
-умолчанию размер колонки атрибутов - 6 символов. Для отображения
-дополнительных атрибутов 'T', 'I', 'O' и 'V' необходимо явно указать
-размер колонки в 10 символов.
+    The attributes are displayed in the following order - RSHALCTIOVGN. The
+"Sparse" attribute applies only to files and is shown instead of 'L'. The
+"Encrypted" attribute is shown instead of 'C' as a file/folder can not
+have both attributes ("Compressed" and "Encrypted") set at the same time.
+By default the size of the attributes column is 6 characters. To display
+the additional attributes it is necessary to manually increase the size of
+the column.
 
     #Ширина колонок# - позволяет изменить ширину колонок результатов поиска.
 Если ширина равна 0, то используется значение по умолчанию.
@@ -1967,6 +1969,9 @@ rule sets.
                    are used only on disks with the NTFS file system.
                    #Virtual# attribute is not used in Windows
                    2000/XP/2003.
+                   The #Integrity stream# and #No scrub data# attributes
+                   only supported on ReFS voumes starting from
+                   Windows Server 2012.
 
    #Has more than one hardlink#
 
@@ -3530,7 +3535,10 @@ will not be analyzed, and only file attributes will be taken into account.
      - it has none of the excluded attributes.
 
     The Compressed, Encrypted, Not indexed, Sparse, Temporary attributes and
-Symbolic links are valid for NTFS drives only.
+Symbolic links are valid for NTFS drives only. The #Integrity stream# and
+#No scrub data# attributes only supported on ReFS voumes starting from
+Windows Server 2012.
+
 
 
 @ViewerSettings
@@ -3750,7 +3758,10 @@ corresponding checkboxes was changed from the initial state.
 #Offline#, #Reparse point# and #Virtual# attributes are available only on NTFS drives. The
 #Virtual# attribute is not used in Windows 2000/XP/2003. The #Compressed#
 and #Encrypted# attributes are mutually exclusive, that is, you can set only
-one of them. You cannot clear the #Sparse# attribute in Windows 2000/XP/2003.
+one of them. You cannot clear the #Sparse# attribute in Windows 2000/XP/2003. The
+#Integrity stream# and #No scrub data# attributes only supported on ReFS voumes starting from
+Windows Server 2012.
+
 
     For ~symbolic links~@HardSymLink@ the dialog will display the path where it refers to.
 If this information is not available, then the "#(data not available)#" message will be shown.
@@ -3983,14 +3994,16 @@ the file panel will be displayed in multicolumn form.
        #I#         - Not content indexed
        #O#         - Offline
        #V#         - Virtual
+       #G#         - Integrity stream
+       #N#         - No scrub data
 
-    The attributes are displayed in the following order - RSHALCTIOV. The
+    The attributes are displayed in the following order - RSHALCTIOVGN. The
 "Sparse" attribute applies only to files and is shown instead of 'L'. The
 "Encrypted" attribute is shown instead of 'C' as a file/folder can not
 have both attributes ("Compressed" and "Encrypted") set at the same time.
 By default the size of the attributes column is 6 characters. To display
-the additional 'T', 'I', 'O' and 'V' attributes it is necessary to manually
-set the size of the column to 10 characters.
+the additional attributes it is necessary to manually increase the size of
+the column.
 
   - #Column widths# - used to change width of panel columns.
 If the width is equal to 0, the default value will be used. If the width of
