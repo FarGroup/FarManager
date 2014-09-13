@@ -149,6 +149,10 @@ PluginManager::~PluginManager()
 	{
 		Luamacro->Unload(true);
 	}
+
+	// some plugins might still have dialogs (if DialogFree wasn't called)
+	// better to delete them explicitly while manager is still alive
+	Plugins.clear();
 }
 
 bool PluginManager::AddPlugin(Plugin *pPlugin)
@@ -1178,14 +1182,13 @@ struct PluginMenuItemData
 */
 void PluginManager::Configure(int StartPos)
 {
-	{
-		auto PluginList = VMenu2::create(MSG(MPluginConfigTitle), nullptr, 0, ScrY - 4);
-		PluginList->SetFlags(VMENU_WRAPMODE);
-		PluginList->SetHelp(L"PluginsConfig");
-		PluginList->SetId(PluginsConfigMenuId);
-
 		while (!Global->CloseFAR)
 		{
+			auto PluginList = VMenu2::create(MSG(MPluginConfigTitle), nullptr, 0, ScrY - 4);
+			PluginList->SetFlags(VMENU_WRAPMODE);
+			PluginList->SetHelp(L"PluginsConfig");
+			PluginList->SetId(PluginsConfigMenuId);
+
 			bool NeedUpdateItems = true;
 			bool HotKeysPresent = Global->Db->PlHotkeyCfg()->HotkeysPresent(PluginsHotkeysConfig::CONFIG_MENU);
 
@@ -1323,7 +1326,6 @@ void PluginManager::Configure(int StartPos)
 				ConfigureCurrent(item->pPlugin, item->Guid);
 			}
 		}
-	}
 }
 
 int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName)

@@ -809,6 +809,22 @@ void Plugin::ClearExports()
 	ClearArray(Exports);
 }
 
+void Plugin::AddDialog(window_ptr Dlg)
+{
+	m_dialogs.insert(Dlg);
+}
+
+bool Plugin::RemoveDialog(window_ptr Dlg)
+{
+	auto ItemIterator = m_dialogs.find(Dlg);
+	if (ItemIterator != m_dialogs.cend())
+	{
+		m_dialogs.erase(ItemIterator);
+		return true;
+	}
+	return false;
+}
+
 bool Plugin::IsPanelPlugin()
 {
 	static const int PanelExports[] =

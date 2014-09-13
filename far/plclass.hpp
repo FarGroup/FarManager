@@ -29,6 +29,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "bitflags.hpp"
+#include "windowsfwd.hpp"
 
 class PluginManager;
 class Plugin;
@@ -250,6 +251,8 @@ public:
 	bool SaveToCache();
 	bool IsPanelPlugin();
 	bool Active() const {return Activity != 0;}
+	void AddDialog(window_ptr Dlg);
+	bool RemoveDialog(window_ptr Dlg);
 
 protected:
 	struct ExecuteStruct
@@ -268,6 +271,7 @@ protected:
 
 	void* Exports[ExportsCount];
 
+	std::unordered_set<window_ptr> m_dialogs;
 	GenericPluginModel *m_model;
 	std::unique_ptr<Language> PluginLang;
 	size_t Activity;

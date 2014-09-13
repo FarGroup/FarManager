@@ -1059,6 +1059,8 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 		if (X2 < 0 || Y2 < 0)
 			return hDlg;
 
+		
+		if (auto Plugin = Global->CtrlObject->Plugins->FindPlugin(*PluginId))
 		{
 			class plugin_dialog: public Dialog
 			{
@@ -1086,7 +1088,9 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 
 			if (FarDialog->InitOK())
 			{
+				Plugin->AddDialog(FarDialog);
 				hDlg = FarDialog.get();
+
 				FarDialog->SetPosition(X1,Y1,X2,Y2);
 
 				if (Flags & FDLG_WARNING)
@@ -1154,7 +1158,11 @@ void WINAPI apiDialogFree(HANDLE hDlg) noexcept
 	try
 	{
 		if (hDlg != INVALID_HANDLE_VALUE)
-			delete static_cast<Dialog*>(hDlg);
+		{
+			auto Dlg = static_cast<Dialog*>(hDlg)->shared_from_this();
+			auto Plugins = Global->CtrlObject->Plugins;
+			std::any_of(RANGE(*Plugins, i) { return i->RemoveDialog(Dlg); });
+		}
 	}
 	catch (...)
 	{
