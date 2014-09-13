@@ -156,12 +156,12 @@ static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, LPVOID Adres
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MIgnore)},
 	};
 	auto EditDlg = MakeDialogItemsEx(EditDlgData);
-	Dialog Dlg(EditDlg, ExcDlgProc);
-	Dlg.SetDialogMode(DMODE_WARNINGSTYLE|DMODE_NOPLUGINS);
-	Dlg.SetPosition(-1,-1,76,10);
-	Dlg.Process();
+	auto Dlg = Dialog::create(EditDlg, ExcDlgProc);
+	Dlg->SetDialogMode(DMODE_WARNINGSTYLE|DMODE_NOPLUGINS);
+	Dlg->SetPosition(-1,-1,76,10);
+	Dlg->Process();
 
-	switch (Dlg.GetExitCode())
+	switch (Dlg->GetExitCode())
 	{
 	case 10:
 		return reply_handle;
@@ -594,16 +594,16 @@ static int ExceptionTestHook(Manager::Key key)
 			double  d;
 		} zero_const; //, refers;
 		zero_const.i = 0L;
-		VMenu2 ModalMenu(L"Test Exceptions", nullptr, 0, ScrY - 4);
-		ModalMenu.SetFlags(VMENU_WRAPMODE);
-		ModalMenu.SetPosition(-1, -1, 0, 0);
+		auto ModalMenu = VMenu2::create(L"Test Exceptions", nullptr, 0, ScrY - 4);
+		ModalMenu->SetFlags(VMENU_WRAPMODE);
+		ModalMenu->SetPosition(-1, -1, 0, 0);
 
 		std::for_each(CONST_RANGE(ECode, i)
 		{
-			ModalMenu.AddItem(i.Name);
+			ModalMenu->AddItem(i.Name);
 		});
 
-		int ExitCode = ModalMenu.Run();
+		int ExitCode = ModalMenu->Run();
 
 		switch (ExitCode)
 		{

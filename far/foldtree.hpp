@@ -44,7 +44,7 @@ class SaveScreen;
 class FolderTree:public Modal
 {
 public:
-	FolderTree(string &strResultFolder, int ModalMode, int IsStandalone = TRUE, bool IsFullScreen = true);
+	static foldertree_ptr create(string &strResultFolder, int ModalMode, int IsStandalone = TRUE, bool IsFullScreen = true);
 	virtual ~FolderTree();
 
 	virtual int ProcessKey(const Manager::Key& Key) override;
@@ -60,8 +60,12 @@ public:
 	virtual int GetType() const override { return windowtype_findfolder; }
 
 private:
+	FolderTree(int ModalMode, int IsStandalone, bool IsFullScreen);
+
 	virtual string GetTitle() const override { return string(); }
 	virtual void DisplayObject() override;
+
+	void init(string &strResultFolder);
 	void DrawEdit();
 	void SetCoords();
 

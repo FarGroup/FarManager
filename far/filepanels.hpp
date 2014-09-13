@@ -40,10 +40,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class Panel;
 class CommandLine;
 
+typedef std::shared_ptr<FilePanels> filepanels_ptr;
+
 class FilePanels:public window,public ViewerContainer
 {
 public:
-	FilePanels(bool CreatePanels = true);
+	static filepanels_ptr create(bool CreatePanels = true);
 	virtual ~FilePanels();
 
 	virtual int ProcessKey(const Manager::Key& Key) override;
@@ -77,6 +79,8 @@ public:
 	KeyBar& GetKeybar() { return *m_windowKeyBar; }
 
 private:
+	FilePanels();
+
 	virtual void DisplayObject() override;
 	virtual string GetTitle() const override { return string(); }
 

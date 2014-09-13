@@ -219,7 +219,7 @@ private:
 struct PluginHandle;
 class FilePanels;
 
-class Panel:public ScreenObject, public DelayedDestroy
+class Panel:public ScreenObject, public DelayedDestroy, public std::enable_shared_from_this<Panel>
 {
 public:
 	Panel(FilePanels* Parent);

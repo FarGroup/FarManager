@@ -1,13 +1,11 @@
 #pragma once
 
 /*
-ctrlobj.hpp
+windowsfwd.hpp
 
-”правление остальными объектами, раздача сообщений клавиатуры и мыши
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -33,41 +31,30 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "windowsfwd.hpp"
-#include "macro.hpp"
+class window;
+class desktop;
+class FilePanels;
+class FileViewer;
+class FileEditor;
+class Dialog;
+class VMenu;
+class VMenu2;
+class Help;
+class FolderTree;
+class Grabber;
+class HMenu;
+class Search;
 
-class CommandLine;
-class History;
-class KeyBar;
-class MenuBar;
-class HighlightFiles;
-class FilePositionCache;
-class Shortcuts;
-class WindowHandler;
-class PluginManager;
-class Manager;
-
-class ControlObject: NonCopyable
-{
-public:
-	ControlObject();
-	~ControlObject();
-
-	void Init(int DirCount);
-	FilePanels *Cp();
-	void CreateDummyFilePanels();
-	static void ShowCopyright(DWORD Flags=0);
-
-	desktop_ptr Desktop;
-	CommandLine *CmdLine;
-	History* CmdHistory;
-	History* FolderHistory;
-	History* ViewHistory;
-	MenuBar *TopMenuBar;
-	HighlightFiles *HiFiles;
-	KeyMacro Macro;
-	PluginManager* Plugins;
-
-private:
-	filepanels_ptr FPanels;
-};
+typedef std::shared_ptr<window> window_ptr;
+typedef std::shared_ptr<desktop> desktop_ptr;
+typedef std::shared_ptr<FilePanels> filepanels_ptr;
+typedef std::shared_ptr<FileViewer> fileviewer_ptr;
+typedef std::shared_ptr<FileEditor> fileeditor_ptr;
+typedef std::shared_ptr<Dialog> dialog_ptr;
+typedef std::shared_ptr<VMenu> vmenu_ptr;
+typedef std::shared_ptr<VMenu2> vmenu2_ptr;
+typedef std::shared_ptr<Help> help_ptr;
+typedef std::shared_ptr<FolderTree> foldertree_ptr;
+typedef std::shared_ptr<Grabber> grabber_ptr;
+typedef std::shared_ptr<HMenu> hmenu_ptr;
+typedef std::shared_ptr<Search> search_ptr;

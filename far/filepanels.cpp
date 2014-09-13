@@ -57,21 +57,33 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "desktop.hpp"
 #include "keybar.hpp"
 
-FilePanels::FilePanels(bool CreatePanels):
-	LastLeftFilePanel(nullptr),
-	LastRightFilePanel(nullptr),
-	LeftPanel(CreatePanels? CreatePanel(Global->Opt->LeftPanel.m_Type) : nullptr),
-	RightPanel(CreatePanels? CreatePanel(Global->Opt->RightPanel.m_Type) : nullptr),
-	LastLeftType(0),
-	LastRightType(0),
-	LeftStateBeforeHide(0),
-	RightStateBeforeHide(0),
+FilePanels::FilePanels():
+	LastLeftFilePanel(),
+	LastRightFilePanel(),
+	LeftPanel(),
+	RightPanel(),
+	LastLeftType(),
+	LastRightType(),
+	LeftStateBeforeHide(),
+	RightStateBeforeHide(),
 	m_ActivePanel()
 {
-	m_windowKeyBar = std::make_unique<KeyBar>();
-	_OT(SysLog(L"[%p] FilePanels::FilePanels()", this));
-	SetMacroMode(MACROAREA_SHELL);
-	m_KeyBarVisible = Global->Opt->ShowKeyBar;
+}
+
+filepanels_ptr FilePanels::create(bool CreatePanels)
+{
+	filepanels_ptr FilePanelsPtr(new FilePanels());
+	
+	if (CreatePanels)
+	{
+		FilePanelsPtr->LeftPanel = FilePanelsPtr->CreatePanel(Global->Opt->LeftPanel.m_Type);
+		FilePanelsPtr->RightPanel = FilePanelsPtr->CreatePanel(Global->Opt->RightPanel.m_Type);
+	}
+
+	FilePanelsPtr->m_windowKeyBar = std::make_unique<KeyBar>();
+	FilePanelsPtr->SetMacroMode(MACROAREA_SHELL);
+	FilePanelsPtr->m_KeyBarVisible = Global->Opt->ShowKeyBar;
+	return FilePanelsPtr;
 }
 
 static void PrepareOptFolder(string &strSrc, int IsLocalPath_FarPath)
@@ -388,17 +400,9 @@ int FilePanels::SwapPanels()
 
 		}
 
-		Panel *Swap;
-		int SwapType;
-		Swap=LeftPanel;
-		LeftPanel=RightPanel;
-		RightPanel=Swap;
-		Swap=LastLeftFilePanel;
-		LastLeftFilePanel=LastRightFilePanel;
-		LastRightFilePanel=Swap;
-		SwapType=LastLeftType;
-		LastLeftType=LastRightType;
-		LastRightType=SwapType;
+		std::swap(LeftPanel, RightPanel);
+		std::swap(LastLeftFilePanel, LastRightFilePanel);
+		std::swap(LastLeftType, LastRightType);
 		FileFilter::SwapFilter();
 		Ret=TRUE;
 	}
@@ -464,7 +468,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		{
 			if (!m_ActivePanel->ProcessKey(Manager::Key(KEY_F1)))
 			{
-				Help Hlp(L"Contents");
+				Help::create(L"Contents");
 			}
 
 			return TRUE;

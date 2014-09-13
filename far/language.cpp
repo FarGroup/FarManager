@@ -174,9 +174,9 @@ static bool SelectLanguage(bool HelpLanguage)
 		strDest=&Global->Opt->strLanguage;
 	}
 
-	VMenu2 LangMenu(Title,nullptr,0,ScrY-4);
-	LangMenu.SetFlags(VMENU_WRAPMODE);
-	LangMenu.SetPosition(ScrX/2-8+5*HelpLanguage,ScrY/2-4+2*HelpLanguage,0,0);
+	auto LangMenu = VMenu2::create(Title, nullptr, 0, ScrY - 4);
+	LangMenu->SetFlags(VMENU_WRAPMODE);
+	LangMenu->SetPosition(ScrX/2-8+5*HelpLanguage,ScrY/2-4+2*HelpLanguage,0,0);
 	string strFullName;
 	api::FAR_FIND_DATA FindData;
 	ScanTree ScTree(false, false);
@@ -206,22 +206,22 @@ static bool SelectLanguage(bool HelpLanguage)
 				   Если в каталог с ФАРом положить еще один HLF с одноименным
 				   языком, то... фигня получается при выборе языка.
 				*/
-				if (LangMenu.FindItem(0,LangMenuItem.strName,LIFIND_EXACTMATCH) == -1)
+				if (LangMenu->FindItem(0,LangMenuItem.strName,LIFIND_EXACTMATCH) == -1)
 				{
 					LangMenuItem.SetSelect(!StrCmpI(*strDest, strLangName));
-					LangMenu.SetUserData(strLangName.data(), (strLangName.size()+1)*sizeof(wchar_t), LangMenu.AddItem(LangMenuItem));
+					LangMenu->SetUserData(strLangName.data(), (strLangName.size()+1)*sizeof(wchar_t), LangMenu->AddItem(LangMenuItem));
 				}
 			}
 		}
 	}
 
-	LangMenu.AssignHighlights(FALSE);
-	LangMenu.Run();
+	LangMenu->AssignHighlights(FALSE);
+	LangMenu->Run();
 
-	if (LangMenu.GetExitCode()<0)
+	if (LangMenu->GetExitCode()<0)
 		return false;
 
-	*strDest = static_cast<const wchar_t*>(LangMenu.GetUserData(nullptr, 0));
+	*strDest = static_cast<const wchar_t*>(LangMenu->GetUserData(nullptr, 0));
 	return true;
 }
 

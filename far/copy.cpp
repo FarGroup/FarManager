@@ -856,7 +856,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 			{
 				{
 					string strNewFolder2;
-					FolderTree Tree(strNewFolder2,
+					FolderTree::create(strNewFolder2,
 					                (AltF10==1?MODALTREE_PASSIVE:
 					                 (AltF10==2?MODALTREE_FREE:
 					                  MODALTREE_ACTIVE)),
@@ -1321,20 +1321,20 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		}
 
 		CopyDlg[ID_SC_COMBO].ListItems=&ComboList;
-		Dialog Dlg(CopyDlg, this, &ShellCopy::CopyDlgProc);
-		Dlg.SetHelp(Link?L"HardSymLink":L"CopyFiles");
-		Dlg.SetId(Link?HardSymLinkId:(Move?MoveFilesId:CopyFilesId));
-		Dlg.SetPosition(-1,-1,DLG_WIDTH,DLG_HEIGHT);
-		Dlg.SetAutomation(ID_SC_USEFILTER,ID_SC_BTNFILTER,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
-//    Dlg.Show();
+		auto Dlg = Dialog::create(CopyDlg, this, &ShellCopy::CopyDlgProc);
+		Dlg->SetHelp(Link?L"HardSymLink":L"CopyFiles");
+		Dlg->SetId(Link?HardSymLinkId:(Move?MoveFilesId:CopyFilesId));
+		Dlg->SetPosition(-1,-1,DLG_WIDTH,DLG_HEIGHT);
+		Dlg->SetAutomation(ID_SC_USEFILTER,ID_SC_BTNFILTER,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
+//    Dlg->Show();
 		// $ 02.06.2001 IS + Проверим список целей и поднимем тревогу, если он содержит ошибки
 		int DlgExitCode;
 
 		for (;;)
 		{
-			Dlg.ClearDone();
-			Dlg.Process();
-			DlgExitCode=Dlg.GetExitCode();
+			Dlg->ClearDone();
+			Dlg->Process();
+			DlgExitCode=Dlg->GetExitCode();
 			//Рефреш текущему времени для фильтра сразу после выхода из диалога
 			Filter->UpdateCurrentTime();
 
@@ -3575,9 +3575,8 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 				List.AddName(*WFN[1]);
 				List.SetCurName(Param1 == WDLG_SRCFILEBTN? *WFN[0] : *WFN[1]);
 
-				FileViewer Viewer(ViewName, FALSE, FALSE, TRUE, -1, nullptr, &List, false);
-				Viewer.SetDynamicallyBorn(false);
-				Global->WindowManager->ExecuteModal(&Viewer);
+				auto Viewer = FileViewer::create(ViewName, FALSE, FALSE, TRUE, -1, nullptr, &List, false);
+				Global->WindowManager->ExecuteModal(Viewer);
 				Global->WindowManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
 			}
 		}
@@ -3762,14 +3761,14 @@ int ShellCopy::AskOverwrite(const api::FAR_FIND_DATA &SrcData,
 					string strFullSrcName;
 					ConvertNameToFull(SrcName, strFullSrcName);
 					string *WFN [] = { &strFullSrcName, &strDestName, &strRenamedFilesPath };
-					Dialog WarnDlg(WarnCopyDlg, &ShellCopy::WarnDlgProc, &WFN);
-					WarnDlg.SetDialogMode(DMODE_WARNINGSTYLE);
-					WarnDlg.SetPosition(-1, -1, WARN_DLG_WIDTH, WARN_DLG_HEIGHT);
-					WarnDlg.SetHelp(L"CopyAskOverwrite");
-					WarnDlg.SetId(CopyOverwriteId);
-					WarnDlg.Process();
+					auto WarnDlg = Dialog::create(WarnCopyDlg, &ShellCopy::WarnDlgProc, &WFN);
+					WarnDlg->SetDialogMode(DMODE_WARNINGSTYLE);
+					WarnDlg->SetPosition(-1, -1, WARN_DLG_WIDTH, WARN_DLG_HEIGHT);
+					WarnDlg->SetHelp(L"CopyAskOverwrite");
+					WarnDlg->SetId(CopyOverwriteId);
+					WarnDlg->Process();
 
-					switch (WarnDlg.GetExitCode())
+					switch (WarnDlg->GetExitCode())
 					{
 					case WDLG_OVERWRITE:
 						MsgCode = WarnCopyDlg[WDLG_CHECKBOX].Selected ? 1 : 0;
@@ -3868,14 +3867,14 @@ int ShellCopy::AskOverwrite(const api::FAR_FIND_DATA &SrcData,
 					string strSrcName;
 					ConvertNameToFull(SrcData.strFileName,strSrcName);
 					LPCWSTR WFN[2]={strSrcName.data(),DestName.data()};
-					Dialog WarnDlg(WarnCopyDlg, &ShellCopy::WarnDlgProc, &WFN);
-					WarnDlg.SetDialogMode(DMODE_WARNINGSTYLE);
-					WarnDlg.SetPosition(-1,-1,WARN_DLG_WIDTH,WARN_DLG_HEIGHT);
-					WarnDlg.SetHelp(L"CopyFiles");
-					WarnDlg.SetId(CopyReadOnlyId);
-					WarnDlg.Process();
+					auto WarnDlg = Dialog::create(WarnCopyDlg, &ShellCopy::WarnDlgProc, &WFN);
+					WarnDlg->SetDialogMode(DMODE_WARNINGSTYLE);
+					WarnDlg->SetPosition(-1,-1,WARN_DLG_WIDTH,WARN_DLG_HEIGHT);
+					WarnDlg->SetHelp(L"CopyFiles");
+					WarnDlg->SetId(CopyReadOnlyId);
+					WarnDlg->Process();
 
-					switch (WarnDlg.GetExitCode())
+					switch (WarnDlg->GetExitCode())
 					{
 						case WDLG_OVERWRITE:
 							MsgCode=WarnCopyDlg[WDLG_CHECKBOX].Selected?1:0;

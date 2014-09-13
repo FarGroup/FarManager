@@ -50,7 +50,7 @@ class VMenu2;
 class HMenu: public SimpleModal
 {
 public:
-	HMenu(HMenuData* Item, int ItemCount);
+	static hmenu_ptr create(HMenuData* Item, size_t ItemCount);
 	virtual ~HMenu();
 
 	virtual int ProcessKey(const Manager::Key& Key) override;
@@ -63,20 +63,23 @@ public:
 	void GetExitCode(int &ExitCode, int &VExitCode) const;
 
 private:
+	HMenu(HMenuData* Item, size_t ItemCount);
+	void init();
+
 	virtual void DisplayObject() override;
 	virtual string GetTitle() const override { return string(); }
 
 	void ShowMenu();
 	void ProcessSubMenu(const MenuDataEx *Data, int DataCount, const wchar_t *SubMenuHelp, int X, int Y, int &Position);
 	wchar_t GetHighlights(const struct HMenuData *_item);
-	int CheckHighlights(WORD CheckSymbol, int StartPos = 0);
+	size_t CheckHighlights(WORD CheckSymbol, int StartPos = 0);
 	bool TestMouse(const MOUSE_EVENT_RECORD *MouseEvent) const;
 
-	VMenu2* SubMenu;
 	HMenuData* Item;
-	int SelectPos;
-	int ItemCount;
+	size_t SelectPos;
+	size_t ItemCount;
 	int m_VExitCode;
 	int ItemX[16];
 	CriticalSection CS;
+	bool m_SubmenuOpened;
 };

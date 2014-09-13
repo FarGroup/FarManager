@@ -58,6 +58,31 @@ namespace std
 };
 #endif
 
+// already included in VC2012
+#if defined _MSC_VER && _MSC_VER < 1700
+// hash specializations for smart pointers are missed in VC++ 2010
+namespace std
+{
+	template<class T, class D>
+	struct hash<unique_ptr<T, D>>: public unary_function<unique_ptr<T, D>, size_t>
+	{
+		size_t operator()(const unique_ptr<T, D>& Value) const
+		{
+			return hash<unique_ptr<T, D>::pointer>()(Value.get());
+		}
+	};
+
+	template<class T>
+	struct hash<shared_ptr<T>>: public unary_function<shared_ptr<T>, size_t>
+	{
+		size_t operator()(const shared_ptr<T>& Value) const
+		{
+			return hash<T*>()(Value.get());
+		}
+	};
+}
+#endif
+
 // already included in VC2013
 #if !defined _MSC_VER || (defined _MSC_VER && _MSC_VER < 1800)
 // const, reverse and const-reverse versions of std::begin and std::end are missed in C++11,

@@ -207,8 +207,7 @@ class window;
 class VMenu: public SimpleModal
 {
 public:
-
-	VMenu(const string& Title, MenuDataEx *Data, int ItemCount, int MaxHeight = 0, DWORD Flags = 0, Dialog *ParentDialog = nullptr);
+	static vmenu_ptr create(const string& Title, MenuDataEx *Data, int ItemCount, int MaxHeight = 0, DWORD Flags = 0, Dialog *ParentDialog = nullptr);
 	virtual ~VMenu();
 
 	virtual void Show() override;
@@ -307,6 +306,10 @@ public:
 	static void AddHotkeys(std::vector<string>& Strings, MenuDataEx* Menu, size_t MenuSize);
 
 private:
+	VMenu(const string& Title, int MaxHeight, Dialog *ParentDialog);
+	void init(MenuDataEx *Data, int ItemsCount, DWORD Flags);
+
+
 	virtual void DisplayObject() override;
 
 	void ShowMenu(bool IsParent=false);
@@ -337,7 +340,7 @@ private:
 	bool WasAutoHeight;
 	int m_MaxLength;
 	int m_BoxType;
-	window *CurrentWindow;
+	window_ptr CurrentWindow;
 	bool PrevCursorVisible;
 	DWORD PrevCursorSize;
 	// переменная, отвечающая за отображение scrollbar в DI_LISTBOX & DI_COMBOBOX

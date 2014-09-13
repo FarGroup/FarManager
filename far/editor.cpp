@@ -3743,7 +3743,7 @@ BOOL Editor::Search(int Next)
 	if (!EdOpt.PersistentBlocks || (EdOpt.SearchSelFound && !ReplaceMode))
 		UnmarkBlock();
 
-	VMenu2 FindAllList(L"", nullptr, 0);
+	auto FindAllList = VMenu2::create(string(), nullptr, 0);
 	UINT AllRefLines = 0;
 	{
 		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<EditorPreRedrawItem>());
@@ -3866,7 +3866,7 @@ BOOL Editor::Search(int Next)
 					FindCoord coord = {(UINT)NewNumLine, (UINT)CurPos, (UINT)SearchLength};
 					Item.UserData = &coord;
 					Item.UserDataSize = sizeof(coord);
-					FindAllList.AddItem(Item);
+					FindAllList->AddItem(Item);
 					CurPos = NextPos;
 					if(NewNumLine != LastCheckedLine)
 					{
@@ -4114,25 +4114,25 @@ BOOL Editor::Search(int Next)
 
 	if(FindAllReferences && Match)
 	{
-		FindAllList.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
-		FindAllList.SetPosition(-1, -1, 0, 0);
-		FindAllList.SetTitle(LangString(MEditSearchStatistics) << FindAllList.GetItemCount() << AllRefLines);
-		FindAllList.SetBottomTitle(LangString(MEditFindAllMenuFooter));
-		FindAllList.SetHelp(L"FindAllMenu");
-		FindAllList.SetId(EditorFindAllListId);
+		FindAllList->SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
+		FindAllList->SetPosition(-1, -1, 0, 0);
+		FindAllList->SetTitle(LangString(MEditSearchStatistics) << FindAllList->GetItemCount() << AllRefLines);
+		FindAllList->SetBottomTitle(LangString(MEditFindAllMenuFooter));
+		FindAllList->SetHelp(L"FindAllMenu");
+		FindAllList->SetId(EditorFindAllListId);
 
 		bool MenuZoomed=true;
 
-		int ExitCode=FindAllList.Run([&](int Key)->int
+		int ExitCode=FindAllList->Run([&](int Key)->int
 		{
-			int SelectedPos=FindAllList.GetSelectPos();
+			int SelectedPos=FindAllList->GetSelectPos();
 			int KeyProcessed = 1;
 
 			switch (Key)
 			{
 				case KEY_CONSOLE_BUFFER_RESIZE:
 				{
-					FindAllList.SetPosition(-1,-1,0,0);
+					FindAllList->SetPosition(-1,-1,0,0);
 					break;
 				}
 				case KEY_ADD:
@@ -4141,7 +4141,7 @@ BOOL Editor::Search(int Next)
 				case KEY_CTRLENTER:
 				case KEY_RCTRLENTER:
 					{
-						auto coord = reinterpret_cast<FindCoord*>(FindAllList.GetUserData(nullptr, 0, SelectedPos));
+						auto coord = reinterpret_cast<FindCoord*>(FindAllList->GetUserData(nullptr, 0, SelectedPos));
 						GoToLine(coord->Line);
 						CurLine->SetCurPos(coord->Pos);
 						if (EdOpt.SearchSelFound)
@@ -4172,11 +4172,11 @@ BOOL Editor::Search(int Next)
 					MenuZoomed=!MenuZoomed;
 					if(MenuZoomed)
 					{
-						FindAllList.SetPosition(-1, -1, 0, 0);
+						FindAllList->SetPosition(-1, -1, 0, 0);
 					}
 					else
 					{
-						FindAllList.SetPosition(-1, ScrY-20, 0, ScrY-10);
+						FindAllList->SetPosition(-1, ScrY-20, 0, ScrY-10);
 					}
 					Show();
 					break;
@@ -4197,7 +4197,7 @@ BOOL Editor::Search(int Next)
 
 		if(ExitCode >= 0)
 		{
-			auto coord = reinterpret_cast<FindCoord*>(FindAllList.GetUserData(nullptr, 0, ExitCode));
+			auto coord = reinterpret_cast<FindCoord*>(FindAllList->GetUserData(nullptr, 0, ExitCode));
 			GoToLine(coord->Line);
 			CurLine->SetCurPos(coord->Pos);
 			if (EdOpt.SearchSelFound)

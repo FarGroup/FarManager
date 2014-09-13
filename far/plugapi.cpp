@@ -449,12 +449,7 @@ BOOL WINAPI apiShowHelp(const wchar_t *ModuleName, const wchar_t *HelpTopic, FAR
 				return FALSE;
 		}
 
-		Help Hlp(strTopic, strMask.data(), OFlags);
-
-		if (Hlp.GetError())
-			return FALSE;
-
-		return TRUE;
+		return !Help::create(strTopic, strMask.data(), OFlags)->GetError();
 	}
 	catch (...)
 	{
@@ -643,7 +638,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			if (CheckStructSize(wi))
 			{
 				string strType, strName;
-				window *f=nullptr;
+				window_ptr f = nullptr;
 				bool modal=false;
 
 				/* $ 22.12.2001 VVM
@@ -703,14 +698,14 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 				switch (wi->Type)
 				{
 					case WTYPE_VIEWER:
-						wi->Id=static_cast<FileViewer*>(f)->GetId();
+						wi->Id = std::static_pointer_cast<FileViewer>(f)->GetId();
 						break;
 					case WTYPE_EDITOR:
-						wi->Id=static_cast<FileEditor*>(f)->GetId();
+						wi->Id = std::static_pointer_cast<FileEditor>(f)->GetId();
 						break;
 					case WTYPE_VMENU:
 					case WTYPE_DIALOG:
-						wi->Id=(intptr_t)f;
+						wi->Id=(intptr_t)f.get(); // BUGBUG
 						break;
 					default:
 						wi->Id=0;
@@ -731,7 +726,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			auto NextWindow=Global->WindowManager->GetSortedWindow(Param1);
 			if (!Global->WindowManager->InModal() && NextWindow)
 			{
-				window* PrevWindow = Global->WindowManager->GetCurrentWindow();
+				auto PrevWindow = Global->WindowManager->GetCurrentWindow();
 				Global->WindowManager->ActivateWindow(NextWindow);
 				Global->WindowManager->DeactivateWindow(PrevWindow, Manager::NoneWindow);
 				return TRUE;
@@ -874,11 +869,11 @@ intptr_t WINAPI apiMenuFn(
 
 		int ExitCode;
 		{
-			VMenu2 FarMenu(NullToEmpty(Title),nullptr,0,MaxHeight);
-			FarMenu.SetPosition(X,Y,0,0);
+			auto FarMenu = VMenu2::create(NullToEmpty(Title), nullptr, 0, MaxHeight);
+			FarMenu->SetPosition(X,Y,0,0);
 			if(Id)
 			{
-				FarMenu.SetId(*Id);
+				FarMenu->SetId(*Id);
 			}
 
 			if (BreakCode)
@@ -888,11 +883,11 @@ intptr_t WINAPI apiMenuFn(
 				string strTopic;
 
 				if (Help::MkTopic(GuidToPlugin(PluginId), NullToEmpty(HelpTopic), strTopic))
-					FarMenu.SetHelp(strTopic);
+					FarMenu->SetHelp(strTopic);
 			}
 
 			if (Bottom)
-				FarMenu.SetBottomTitle(Bottom);
+				FarMenu->SetBottomTitle(Bottom);
 
 			// общие флаги меню
 			DWORD MenuFlags=0;
@@ -906,7 +901,7 @@ intptr_t WINAPI apiMenuFn(
 			if (Flags & FMENU_CHANGECONSOLETITLE)
 				MenuFlags|=VMENU_CHANGECONSOLETITLE;
 
-			FarMenu.SetFlags(MenuFlags);
+			FarMenu->SetFlags(MenuFlags);
 			size_t Selected=0;
 
 			for (size_t i=0; i < ItemsNumber; i++)
@@ -935,22 +930,22 @@ intptr_t WINAPI apiMenuFn(
 					FarKeyToInputRecord(Item[i].AccelKey,&input);
 					CurItem.AccelKey=InputRecordToKey(&input);
 				}
-				FarMenu.AddItem(CurItem);
+				FarMenu->AddItem(CurItem);
 			}
 
 			if (!Selected)
-				FarMenu.SetSelectPos(0,1);
+				FarMenu->SetSelectPos(0,1);
 
 			// флаги меню, с забитым контентом
 			if (Flags & FMENU_AUTOHIGHLIGHT)
-				FarMenu.AssignHighlights(FALSE);
+				FarMenu->AssignHighlights(FALSE);
 
 			if (Flags & FMENU_REVERSEAUTOHIGHLIGHT)
-				FarMenu.AssignHighlights(TRUE);
+				FarMenu->AssignHighlights(TRUE);
 
-			FarMenu.SetTitle(NullToEmpty(Title));
+			FarMenu->SetTitle(NullToEmpty(Title));
 
-			ExitCode=FarMenu.RunEx([&](int Msg, void *param)->int
+			ExitCode=FarMenu->RunEx([&](int Msg, void *param)->int
 			{
 				if (Msg!=DN_INPUT || !BreakKeys)
 					return 0;
@@ -985,7 +980,7 @@ intptr_t WINAPI apiMenuFn(
 							if (BreakCode)
 								*BreakCode=I;
 
-							FarMenu.Close(-2, true);
+							FarMenu->Close(-2, true);
 							return 1;
 						}
 					}
@@ -1065,13 +1060,13 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 			return hDlg;
 
 		{
-			class PluginDialog: public Dialog
+			class plugin_dialog: public Dialog
 			{
 			public:
-				PluginDialog(const range<const FarDialogItem*>& Src, FARWINDOWPROC DlgProc, void* InitParam):
-					Dialog(Src, DlgProc ? this : nullptr, DlgProc ? &PluginDialog::Proc : nullptr, InitParam),
-					m_Proc(DlgProc)
-				{}
+				static dialog_ptr create(const range<const FarDialogItem*>& Src, FARWINDOWPROC DlgProc, void* InitParam)
+				{
+					return dialog_ptr(new plugin_dialog(Src, DlgProc, InitParam));
+				}
 
 				intptr_t Proc(Dialog* hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
 				{
@@ -1079,14 +1074,19 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 				}
 
 			private:
+				plugin_dialog(const range<const FarDialogItem*>& Src, FARWINDOWPROC DlgProc, void* InitParam):
+					Dialog(Src, DlgProc ? this : nullptr, DlgProc ? &plugin_dialog::Proc : nullptr, InitParam),
+					m_Proc(DlgProc)
+				{}
+
 				FARWINDOWPROC m_Proc;
 			};
 
-			Dialog *FarDialog = new PluginDialog(make_range(Item, Item + ItemsNumber), DlgProc, Param);
+			auto FarDialog = plugin_dialog::create(make_range(Item, Item + ItemsNumber), DlgProc, Param);
 
 			if (FarDialog->InitOK())
 			{
-				hDlg = FarDialog;
+				hDlg = FarDialog.get();
 				FarDialog->SetPosition(X1,Y1,X2,Y2);
 
 				if (Flags & FDLG_WARNING)
@@ -1114,10 +1114,6 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 				   Запомним номер плагина - сейчас в основном для формирования HelpTopic
 				*/
 				FarDialog->SetPluginOwner(GuidToPlugin(PluginId));
-			}
-			else
-			{
-				delete FarDialog;
 			}
 		}
 		return hDlg;
@@ -1413,8 +1409,8 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 			}
 
 			HANDLE hInternal;
-			Panel *LeftPanel=FPanels->LeftPanel;
-			Panel *RightPanel=FPanels->RightPanel;
+			auto& LeftPanel = FPanels->LeftPanel;
+			auto& RightPanel = FPanels->RightPanel;
 			int Processed=FALSE;
 
 			if (LeftPanel && LeftPanel->GetMode()==PLUGIN_PANEL)
@@ -1768,7 +1764,7 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 		if (Flags & VF_NONMODAL)
 		{
 			/* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-			FileViewer *Viewer=new FileViewer(FileName,TRUE,DisableHistory,Title,X1,Y1,X2,Y2,CodePage);
+			auto Viewer = FileViewer::create(FileName, TRUE, DisableHistory, Title, X1, Y1, X2, Y2, CodePage);
 
 			if (!Viewer)
 				return FALSE;
@@ -1800,22 +1796,21 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 		else
 		{
 			/* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-			FileViewer Viewer(FileName,FALSE,DisableHistory,Title,X1,Y1,X2,Y2,CodePage);
+			auto Viewer = FileViewer::create(FileName, FALSE, DisableHistory, Title, X1, Y1, X2, Y2, CodePage);
 
-			Viewer.SetEnableF6(Flags & VF_ENABLE_F6);
+			Viewer->SetEnableF6(Flags & VF_ENABLE_F6);
 
 			/* $ 28.05.2001 По умолчанию Вьюер, поэтому нужно здесь признак выставиль явно */
-			Viewer.SetDynamicallyBorn(false);
-		Global->WindowManager->ExecuteModal(&Viewer);
+			Global->WindowManager->ExecuteModal(Viewer);
 
 			/* $ 14.06.2002 IS
 			   Обработка VF_DELETEONLYFILEONCLOSE - этот флаг имеет более низкий
 			   приоритет по сравнению с VF_DELETEONCLOSE
 			*/
 			if (Flags & (VF_DELETEONCLOSE|VF_DELETEONLYFILEONCLOSE))
-				Viewer.SetTempViewName(FileName, (Flags&VF_DELETEONCLOSE) != 0);
+				Viewer->SetTempViewName(FileName, (Flags&VF_DELETEONCLOSE) != 0);
 
-			if (!Viewer.GetExitCode())
+			if (!Viewer->GetExitCode())
 			{
 				return FALSE;
 			}
@@ -1878,24 +1873,20 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 		if (Flags & EF_NONMODAL)
 		{
 			/* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-			FileEditor *Editor = new FileEditor(NullToEmpty(FileName), CodePage,
+			if (auto Editor = FileEditor::create(NullToEmpty(FileName), CodePage,
 				(CreateNew ? FFILEEDIT_CANNEWFILE : 0) | FFILEEDIT_ENABLEF6 |
 				(DisableHistory ? FFILEEDIT_DISABLEHISTORY : 0) |
 				(Locked ? FFILEEDIT_LOCKED : 0) |
 				(DisableSavePos ? FFILEEDIT_DISABLESAVEPOS : 0),
 				StartLine, StartChar, &strTitle,
 				X1, Y1, X2, Y2,
-				DeleteOnClose, nullptr, OpMode);
-
-			if (Editor)
+				DeleteOnClose, nullptr, OpMode))
 			{
 				editorExitCode = Editor->GetExitCode();
 
 				// добавочка - проверка кода возврата (почему возникает XC_OPEN_ERROR - см. код FileEditor::Init())
 				if (editorExitCode == XC_OPEN_ERROR || editorExitCode == XC_LOADING_INTERRUPTED)
 				{
-					delete Editor;
-					Editor = nullptr;
 					return editorExitCode == XC_OPEN_ERROR ? EEC_OPEN_ERROR : EEC_LOADING_INTERRUPTED;
 				}
 
@@ -1941,7 +1932,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 		else
 		{
 			/* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-			FileEditor Editor(FileName, CodePage,
+			auto Editor = FileEditor::create(FileName, CodePage,
 				(CreateNew ? FFILEEDIT_CANNEWFILE : 0) |
 				(DisableHistory ? FFILEEDIT_DISABLEHISTORY : 0) |
 				(Locked ? FFILEEDIT_LOCKED : 0) |
@@ -1949,21 +1940,20 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 				StartLine, StartChar, &strTitle,
 				X1, Y1, X2, Y2,
 				DeleteOnClose, nullptr, OpMode);
-			editorExitCode = Editor.GetExitCode();
+			editorExitCode = Editor->GetExitCode();
 
 			// выполним предпроверку (ошибки разные могут быть)
 			if (editorExitCode == XC_OPEN_ERROR || editorExitCode == XC_LOADING_INTERRUPTED)
 				return editorExitCode == XC_OPEN_ERROR ? EEC_OPEN_ERROR : EEC_LOADING_INTERRUPTED;
 			else
 			{
-				Editor.SetDynamicallyBorn(false);
-				Editor.SetEnableF6((Flags & EF_ENABLE_F6) != 0);
-				Editor.SetPluginTitle(&strTitle);
+				Editor->SetEnableF6((Flags & EF_ENABLE_F6) != 0);
+				Editor->SetPluginTitle(&strTitle);
 				/* $ 15.05.2002 SKV
 				  Зафиксируем вход и выход в/из модального редактора.
 				  */
-			Global->WindowManager->ExecuteModal(&Editor);
-				editorExitCode = Editor.GetExitCode();
+				Global->WindowManager->ExecuteModal(Editor);
+				editorExitCode = Editor->GetExitCode();
 
 				if (editorExitCode)
 				{
@@ -1973,7 +1963,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 						ExitCode = XC_OPEN_ERROR;
 					else
 #endif
-						ExitCode = Editor.IsFileChanged() ? EEC_MODIFIED : EEC_NOT_MODIFIED;
+						ExitCode = Editor->IsFileChanged() ? EEC_MODIFIED : EEC_NOT_MODIFIED;
 				}
 				else
 				{
@@ -2041,7 +2031,7 @@ static intptr_t apiTControl(intptr_t Id, command_type Command, intptr_t Param1, 
 			const size_t count = (Global->WindowManager->*i.second)();
 			for (size_t j = 0; j < count; ++j)
 			{
-				if (auto CurrentWindow = dynamic_cast<window_type*>((Global->WindowManager->*i.first)(j)))
+				if (auto CurrentWindow = std::dynamic_pointer_cast<window_type>((Global->WindowManager->*i.first)(j)))
 				{
 					auto CurrentControlWindow=CurrentWindow->GetById(Id);
 					if (CurrentControlWindow)

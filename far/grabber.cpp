@@ -52,8 +52,18 @@ Grabber::Grabber():
 	ResetArea(true),
 	m_VerticalBlock(false)
 {
-	SetDynamicallyBorn(false);
-	window *CurrentWindow = Global->WindowManager->GetCurrentWindow();
+}
+
+grabber_ptr Grabber::create()
+{
+	grabber_ptr GrabberPtr(new Grabber);
+	GrabberPtr->init();
+	return GrabberPtr;
+}
+
+void Grabber::init()
+{
+	auto CurrentWindow = Global->WindowManager->GetCurrentWindow();
 	CurrentWindow->Lock();
 	SaveScr = std::make_unique<SaveScreen>();
 	bool Visible=false;
@@ -604,7 +614,7 @@ bool RunGraber()
 		InGrabber=true;
 		Global->WaitInMainLoop=FALSE;
 		FlushInputBuffer();
-		Grabber Grabber;
+		Grabber::create();
 		InGrabber=false;
 		return true;
 	}

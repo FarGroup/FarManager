@@ -33,9 +33,9 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class window;
 class Viewer;
-class FileEditor;
+
+#include "windowsfwd.hpp"
 
 class Manager: NonCopyable
 {
@@ -61,21 +61,22 @@ public:
 		PreviousWindow,
 		NextWindow
 	};
+
 	// Эти функции можно безопасно вызывать практически из любого места кода
 	// они как бы накапливают информацию о том, что нужно будет сделать с окнами при следующем вызове Commit()
-	void InsertWindow(window *NewWindow);
-	void DeleteWindow(window *Deleted = nullptr);
-	void DeactivateWindow(window *Deactivated, DirectionType Direction);
-	void ActivateWindow(window *Activated);
-	void RefreshWindow(window *Refreshed = nullptr);
-	void ReplaceWindow(window* Old,window* New);
+	void InsertWindow(window_ptr NewWindow);
+	void DeleteWindow(window_ptr Deleted = nullptr);
+	void DeactivateWindow(window_ptr Deactivated, DirectionType Direction);
+	void ActivateWindow(window_ptr Activated);
+	void RefreshWindow(window_ptr Refreshed = nullptr);
+	void ReplaceWindow(window_ptr Old, window_ptr New);
 	void CallbackWindow(const std::function<void(void)>& Callback);
 	//! Функции для запуска модальных окон.
-	void ExecuteWindow(window *Executed);
+	void ExecuteWindow(window_ptr Executed);
 	//! Входит в новый цикл обработки событий
-	void ExecuteModal(window *Executed);
+	void ExecuteModal(window_ptr Executed);
 	//! Запускает немодальное окно в модальном режиме
-	void ExecuteNonModal(const window *NonModal);
+	void ExecuteNonModal(window_ptr NonModal);
 	void CloseAll();
 	/* $ 29.12.2000 IS
 	Аналог CloseAll, но разрешает продолжение полноценной работы в фаре,
@@ -91,7 +92,7 @@ public:
 	void PluginCommit();
 	int CountWindowsWithName(const string& Name, BOOL IgnoreCase = TRUE);
 	bool IsPanelsActive(bool and_not_qview = false) const; // используется как признак Global->WaitInMainLoop
-	window* FindWindowByFile(int ModalType, const string& FileName, const wchar_t *Dir = nullptr);
+	window_ptr FindWindowByFile(int ModalType, const string& FileName, const wchar_t *Dir = nullptr);
 	void EnterMainLoop();
 	void ProcessMainLoop();
 	void ExitMainLoop(int Ask);
@@ -102,20 +103,20 @@ public:
 	const INPUT_RECORD& GetLastInputRecord() const { return LastInputRecord; }
 	void SetLastInputRecord(const INPUT_RECORD *Rec);
 	void ResetLastInputRecord() { LastInputRecord.EventType = 0; }
-	window *GetCurrentWindow() { return m_currentWindow; }
-	window* GetWindow(size_t Index) const;
-	window* GetSortedWindow(size_t Index) const;
-	int IndexOf(window* Window);
-	int SortedIndexOf(window* Window);
-	int IndexOfStack(window* Window);
-	window *GetBottomWindow() { return m_windows.back(); }
+	window_ptr GetCurrentWindow() { return m_currentWindow; }
+	window_ptr GetWindow(size_t Index) const;
+	window_ptr GetSortedWindow(size_t Index) const;
+	int IndexOf(window_ptr Window);
+	int SortedIndexOf(window_ptr Window);
+	int IndexOfStack(window_ptr Window);
+	window_ptr GetBottomWindow() { return m_windows.back(); }
 	bool ManagerIsDown() const { return EndLoop; }
 	bool ManagerStarted() const { return StartManager; }
 	void InitKeyBar();
 	bool InModal(void) const { return !m_modalWindows.empty(); }
 	void ResizeAllWindows();
 	size_t GetModalWindowCount() const { return m_modalWindows.size(); }
-	window* GetModalWindow(size_t index) const { return m_modalWindows[index]; }
+	window_ptr GetModalWindow(size_t index) const { return m_modalWindows[index]; }
 
 	void AddGlobalKeyHandler(const std::function<int(const Key&)>& Handler);
 
@@ -124,46 +125,46 @@ public:
 
 	void UpdateMacroArea(void);
 
-	typedef std::set<window*,std::function<bool(window*,window*)>> sorted_windows;
+	typedef std::set<window_ptr, std::function<bool(window_ptr, window_ptr)>> sorted_windows;
 	sorted_windows GetSortedWindows(void) const;
 
 	Viewer* GetCurrentViewer(void) const;
 	FileEditor* GetCurrentEditor(void) const;
-	window* GetViewerById(int ID) const;
+	window_ptr GetViewerContainerById(int ID) const;
 
 private:
 #if defined(SYSLOG)
 	friend void ManagerClass_Dump(const wchar_t *Title, FILE *fp);
 #endif
 
-	window *WindowMenu(); //    вместо void SelectWindow(); // show window menu (F12)
+	window_ptr WindowMenu(); //    вместо void SelectWindow(); // show window menu (F12)
 	bool HaveAnyWindow() const;
 	bool OnlyDesktop() const;
 	void Commit(void);         // завершает транзакцию по изменениям в контейнерах окон
 	// Она в цикле вызывает себя, пока хотябы один из указателей отличен от nullptr
 	// Функции, "подмастерья начальника" - Commit'a
 	// Иногда вызываются не только из него и из других мест
-	void InsertCommit(window* Param);
-	void DeleteCommit(window* Param);
-	void ActivateCommit(window* Param);
-	void RefreshCommit(window* Param);
-	void DeactivateCommit(window* Param);
-	void ExecuteCommit(window* Param);
-	void ReplaceCommit(window* Old,window* New);
+	void InsertCommit(window_ptr Param);
+	void DeleteCommit(window_ptr Param);
+	void ActivateCommit(window_ptr Param);
+	void RefreshCommit(window_ptr Param);
+	void DeactivateCommit(window_ptr Param);
+	void ExecuteCommit(window_ptr Param);
+	void ReplaceCommit(window_ptr Old, window_ptr New);
 	int GetModalExitCode() const;
 	// BUGBUG, do we need this?
 	void ImmediateHide();
 
-	typedef void(Manager::*window_callback)(window*);
+	typedef void(Manager::*window_callback)(window_ptr);
 
-	void PushWindow(window* Param, window_callback Callback);
-	void CheckAndPushWindow(window* Param, window_callback Callback);
-	void RedeleteWindow(window *Deleted);
-	bool AddWindow(window *Param);
+	void PushWindow(window_ptr Param, window_callback Callback);
+	void CheckAndPushWindow(window_ptr Param, window_callback Callback);
+	void RedeleteWindow(window_ptr Deleted);
+	bool AddWindow(window_ptr Param);
 
 	INPUT_RECORD LastInputRecord;
-	window *m_currentWindow;     // текущее окно. Оно может находиться как в немодальном, так и в модальном контейнере, его можно получить с помощью WindowManager->GetCurrentWindow();
-	typedef std::vector<window*> windows;
+	window_ptr m_currentWindow;     // текущее окно. Оно может находиться как в немодальном, так и в модальном контейнере, его можно получить с помощью WindowManager->GetCurrentWindow();
+	typedef std::vector<window_ptr> windows;
 	void* GetCurrent(std::function<void*(windows::const_reverse_iterator)> Check) const;
 	windows m_modalWindows;
 	windows m_windows;
@@ -182,6 +183,6 @@ private:
 	static long CurrentWindowType;
 	std::list<std::unique_ptr<MessageAbstract>> m_Queue;
 	std::vector<std::function<int(const Key&)>> m_GlobalKeyHandlers;
-	std::unordered_map<window*,bool*> m_Executed;
-	std::unordered_set<window*> m_Added;
+	std::unordered_map<window_ptr, bool*> m_Executed;
+	std::unordered_set<window_ptr> m_Added;
 };

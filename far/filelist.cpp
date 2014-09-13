@@ -1773,40 +1773,32 @@ int FileList::ProcessKey(const Manager::Key& Key)
 							else if (PluginMode)
 							{
 								RefreshedPanel = Global->WindowManager->GetCurrentWindow()->GetType() != windowtype_editor;
-								FileEditor ShellEditor(strFileName,codepage,(LocalKey==KEY_SHIFTF4?FFILEEDIT_CANNEWFILE:0)|FFILEEDIT_DISABLEHISTORY,-1,-1,&strPluginData);
-								ShellEditor.SetDynamicallyBorn(false);
-								Global->WindowManager->ExecuteModal(&ShellEditor);//OT
+								auto ShellEditor = FileEditor::create(strFileName, codepage, (LocalKey == KEY_SHIFTF4 ? FFILEEDIT_CANNEWFILE : 0) | FFILEEDIT_DISABLEHISTORY, -1, -1, &strPluginData);
+								Global->WindowManager->ExecuteModal(ShellEditor);//OT
 								/* $ 24.11.2001 IS
 								     Если мы создали новый файл, то не важно, изменялся он
 								     или нет, все равно добавим его на панель плагина.
 								*/
-								UploadFile=ShellEditor.IsFileChanged() || NewFile;
+								UploadFile=ShellEditor->IsFileChanged() || NewFile;
 								Modaling=TRUE;///
 							}
 							else
 							{
-									FileEditor *ShellEditor=new FileEditor(strFileName,codepage,(LocalKey==KEY_SHIFTF4?FFILEEDIT_CANNEWFILE:0)|FFILEEDIT_ENABLEF6);
+								auto ShellEditor = FileEditor::create(strFileName, codepage, (LocalKey == KEY_SHIFTF4 ? FFILEEDIT_CANNEWFILE : 0) | FFILEEDIT_ENABLEF6);
 
-									int editorExitCode=ShellEditor->GetExitCode();
-									if (editorExitCode == XC_LOADING_INTERRUPTED || editorExitCode == XC_OPEN_ERROR)
-									{
-										delete ShellEditor;
-									}
-									else
-									{
-										if (!PluginMode)
-										{
-											NamesList EditList;
+								int editorExitCode=ShellEditor->GetExitCode();
+								if (!(editorExitCode == XC_LOADING_INTERRUPTED || editorExitCode == XC_OPEN_ERROR) && !PluginMode)
+								{
+									NamesList EditList;
 
-											std::for_each(CONST_RANGE(m_ListData, i)
-											{
-												if (!(i.FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-													EditList.AddName(i.strName);
-											});
-											EditList.SetCurName(strFileName);
-											ShellEditor->SetNamesList(EditList);
-										}
-									}
+									std::for_each(CONST_RANGE(m_ListData, i)
+									{
+										if (!(i.FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+											EditList.AddName(i.strName);
+									});
+									EditList.SetCurName(strFileName);
+									ShellEditor->SetNamesList(EditList);
+								}
 							}
 						}
 
@@ -1876,20 +1868,16 @@ int FileList::ProcessKey(const Manager::Key& Key)
 									ViewList.SetCurName(strFileName);
 								}
 
-								FileViewer *ShellViewer=new FileViewer(strFileName, TRUE,PluginMode,PluginMode,-1,strPluginData.data(),&ViewList);
+								auto ShellViewer = FileViewer::create(strFileName, TRUE, PluginMode, PluginMode, -1, strPluginData.data(), &ViewList);
 
-									if (!ShellViewer->GetExitCode())
-									{
-										delete ShellViewer;
-									}
-									/* $ 08.04.2002 IS
-									Сбросим DeleteViewedFile, т.к. внутренний вьюер сам все удалит
-									*/
-									else if (PluginMode)
-									{
-										ShellViewer->SetTempViewName(strFileName);
-										DeleteViewedFile=false;
-									}
+								/* $ 08.04.2002 IS
+								Сбросим DeleteViewedFile, т.к. внутренний вьюер сам все удалит
+								*/
+								if (ShellViewer->GetExitCode() && PluginMode)
+								{
+									ShellViewer->SetTempViewName(strFileName);
+									DeleteViewedFile=false;
+								}
 
 								Modaling=FALSE;
 							}
@@ -3966,16 +3954,16 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 					SelectDlg[0].strData = MSG(MUnselectTitle);
 
 				{
-					Dialog Dlg(SelectDlg);
-					Dlg.SetHelp(L"SelectFiles");
-					Dlg.SetPosition(-1,-1,55,7);
+					auto Dlg = Dialog::create(SelectDlg);
+					Dlg->SetHelp(L"SelectFiles");
+					Dlg->SetPosition(-1,-1,55,7);
 
 					for (;;)
 					{
-						Dlg.ClearDone();
-						Dlg.Process();
+						Dlg->ClearDone();
+						Dlg->Process();
 
-						if (Dlg.GetExitCode()==4 && Filter.FilterEdit())
+						if (Dlg->GetExitCode()==4 && Filter.FilterEdit())
 						{
 							//Рефреш текущему времени для фильтра сразу после выхода из диалога
 							Filter.UpdateCurrentTime();
@@ -3983,7 +3971,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 							break;
 						}
 
-						if (Dlg.GetExitCode()!=3)
+						if (Dlg->GetExitCode()!=3)
 							return 0;
 
 						strMask = SelectDlg[1].strData;
@@ -4632,13 +4620,13 @@ void FileList::SelectSortMode()
 		std::vector<string> MenuStrings(SortMenu.size());
 		VMenu::AddHotkeys(MenuStrings, SortMenu.data(), SortMenu.size());
 
-		VMenu2 SortModeMenu(MSG(MMenuSortTitle), SortMenu.data(), SortMenu.size(), 0);
-		SortModeMenu.SetHelp(L"PanelCmdSort");
-		SortModeMenu.SetPosition(m_X1+4,-1,0,0);
-		SortModeMenu.SetFlags(VMENU_WRAPMODE);
-		SortModeMenu.SetId(SelectSortModeId);
+		auto SortModeMenu = VMenu2::create(MSG(MMenuSortTitle), SortMenu.data(), SortMenu.size(), 0);
+		SortModeMenu->SetHelp(L"PanelCmdSort");
+		SortModeMenu->SetPosition(m_X1+4,-1,0,0);
+		SortModeMenu->SetFlags(VMENU_WRAPMODE);
+		SortModeMenu->SetId(SelectSortModeId);
 
-		SortCode=SortModeMenu.Run([&](int Key)->int
+		SortCode=SortModeMenu->Run([&](int Key)->int
 		{
 			bool KeyProcessed = false;
 
@@ -4664,7 +4652,7 @@ void FileList::SelectSortMode()
 
 			if (KeyProcessed)
 			{
-				SortModeMenu.Close(SortModeMenu.GetSelectPos());
+				SortModeMenu->Close(SortModeMenu->GetSelectPos());
 			}
 			return KeyProcessed;
 		});
@@ -5198,7 +5186,7 @@ void FileList::UpdateKeyBar()
 
 int FileList::PluginPanelHelp(const PluginHandle* hPlugin) const
 {
-	string strPath, strFileName, strStartTopic;
+	string strPath, strFileName;
 	strPath = hPlugin->pPlugin->GetModuleName();
 	CutToSlash(strPath);
 	uintptr_t nCodePage = CP_OEMCP;
@@ -5206,8 +5194,7 @@ int FileList::PluginPanelHelp(const PluginHandle* hPlugin) const
 	if (!OpenLangFile(HelpFile, strPath,Global->HelpFileMask,Global->Opt->strHelpLanguage,strFileName, nCodePage))
 		return FALSE;
 
-	strStartTopic = Help::MakeLink(strPath, L"Contents");
-	Help PanelHelp(strStartTopic);
+	Help::create(Help::MakeLink(strPath, L"Contents"));
 	return TRUE;
 }
 
@@ -6906,7 +6893,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	/* $ 13.02.2002 DJ
 		SetTitle() - только если мы текущее окно!
 	*/
-	if (m_parent == Global->WindowManager->GetCurrentWindow())
+	if (m_parent == Global->WindowManager->GetCurrentWindow().get())
 		SetTitle();
 
 	FarChDir(strSaveDir); //???

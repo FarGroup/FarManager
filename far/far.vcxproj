@@ -698,6 +698,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="vmenu2.hpp" />
     <ClInclude Include="wakeful.hpp" />
     <ClInclude Include="window.hpp" />
+    <ClInclude Include="windowsfwd.hpp" />
     <ClInclude Include="wm_listener.hpp" />
     <ClInclude Include="xlat.hpp" />
     <ClInclude Include="sdk\sdk.common.h" />

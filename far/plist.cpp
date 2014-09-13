@@ -70,34 +70,34 @@ void ShowProcessList()
 		return;
 	Active = true;
 
-	VMenu2 ProcList(MSG(MProcessListTitle),nullptr,0,ScrY-4);
-	ProcList.SetFlags(VMENU_WRAPMODE);
-	ProcList.SetPosition(-1,-1,0,0);
+	auto ProcList = VMenu2::create(MSG(MProcessListTitle), nullptr, 0, ScrY - 4);
+	ProcList->SetFlags(VMENU_WRAPMODE);
+	ProcList->SetPosition(-1,-1,0,0);
 	static bool bShowImage = false;
 
-	struct ProcInfo pi={&ProcList,bShowImage};
+	struct ProcInfo pi = {ProcList.get(), bShowImage};
 
 	if (EnumWindows(EnumWindowsProc,(LPARAM)&pi))
 	{
-		ProcList.AssignHighlights(FALSE);
-		ProcList.SetBottomTitle(MSG(MProcessListBottom));
-		ProcList.SortItems(TaskSort);
+		ProcList->AssignHighlights(FALSE);
+		ProcList->SetBottomTitle(MSG(MProcessListBottom));
+		ProcList->SortItems(TaskSort);
 
-		ProcList.Run([&](int Key)->int
+		ProcList->Run([&](int Key)->int
 		{
 			int KeyProcessed = 1;
 			switch (Key)
 			{
 				case KEY_F1:
 				{
-					Help Hlp(L"TaskList");
+					Help::create(L"TaskList");
 					break;
 				}
 
 				case KEY_NUMDEL:
 				case KEY_DEL:
 				{
-					auto ProcWnd = *static_cast<HWND*>(ProcList.GetUserData(nullptr, 0));
+					auto ProcWnd = *static_cast<HWND*>(ProcList->GetUserData(nullptr, 0));
 
 					if (ProcWnd)
 					{
@@ -131,26 +131,26 @@ void ShowProcessList()
 				case KEY_CTRLR:
 				case KEY_RCTRLR:
 				{
-					ProcList.DeleteItems();
+					ProcList->DeleteItems();
 
 					if (!EnumWindows(EnumWindowsProc,(LPARAM)&pi))
-						ProcList.Close(-1);
+						ProcList->Close(-1);
 					else
-						ProcList.SortItems(TaskSort);
+						ProcList->SortItems(TaskSort);
 					break;
 				}
 				case KEY_F2:
 				{
 					pi.bShowImage=(bShowImage=!bShowImage);
-					int SelectPos=ProcList.GetSelectPos();
-					ProcList.DeleteItems();
+					int SelectPos=ProcList->GetSelectPos();
+					ProcList->DeleteItems();
 
 					if (!EnumWindows(EnumWindowsProc,(LPARAM)&pi))
-						ProcList.Close(-1);
+						ProcList->Close(-1);
 					else
 					{
-						ProcList.SortItems(TaskSort);
-						ProcList.SetSelectPos(SelectPos);
+						ProcList->SortItems(TaskSort);
+						ProcList->SetSelectPos(SelectPos);
 					}
 					break;
 				}
@@ -162,9 +162,9 @@ void ShowProcessList()
 			return KeyProcessed;
 		});
 
-		if (ProcList.GetExitCode()>=0)
+		if (ProcList->GetExitCode()>=0)
 		{
-			auto ProcWnd = *static_cast<HWND*>(ProcList.GetUserData(nullptr, 0));
+			auto ProcWnd = *static_cast<HWND*>(ProcList->GetUserData(nullptr, 0));
 
 			if (ProcWnd)
 			{

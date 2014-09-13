@@ -349,12 +349,12 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 		}
 		m_Flags.Clear(FEDITLINE_CMP_CHANGED);
 
-		VMenu2 ComplMenu(string(),nullptr,0,0);
-		ComplMenu.SetDialogMode(DMODE_NODRAWSHADOW);
-		ComplMenu.SetModeMoving(false);
+		auto ComplMenu = VMenu2::create(string(), nullptr, 0, 0);
+		ComplMenu->SetDialogMode(DMODE_NODRAWSHADOW);
+		ComplMenu->SetModeMoving(false);
 		string strTemp=m_Str;
 
-		ComplMenu.SetMacroMode(Area);
+		ComplMenu->SetMacroMode(Area);
 
 		auto CompletionEnabled = [&Manual](int State)
 		{
@@ -363,9 +363,9 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 
 		if(pHistory && ECFlags.Check(EC_COMPLETE_HISTORY) && CompletionEnabled(Global->Opt->AutoComplete.UseHistory))
 		{
-			if(pHistory->GetAllSimilar(ComplMenu,strTemp))
+			if(pHistory->GetAllSimilar(*ComplMenu,strTemp))
 			{
-				ComplMenu.SetTitle(MSG(MCompletionHistoryTitle));
+				ComplMenu->SetTitle(MSG(MCompletionHistoryTitle));
 			}
 		}
 		else if(pList)
@@ -374,27 +374,27 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 			{
 				if (!StrCmpNI(pList->Items[i].Text, strTemp.data(), strTemp.size()) && pList->Items[i].Text != strTemp.data())
 				{
-					ComplMenu.AddItem(pList->Items[i].Text);
+					ComplMenu->AddItem(pList->Items[i].Text);
 				}
 			}
 		}
 		if(ECFlags.Check(EC_COMPLETE_FILESYSTEM) && CompletionEnabled(Global->Opt->AutoComplete.UseFilesystem))
 		{
-			EnumFiles(ComplMenu,strTemp);
+			EnumFiles(*ComplMenu,strTemp);
 		}
 		if(ECFlags.Check(EC_COMPLETE_PATH) && CompletionEnabled(Global->Opt->AutoComplete.UsePath))
 		{
-			EnumModules(strTemp, &ComplMenu);
+			EnumModules(strTemp, ComplMenu.get());
 		}
-		if(ComplMenu.GetItemCount()>1 || (ComplMenu.GetItemCount()==1 && StrCmpI(strTemp, ComplMenu.GetItemPtr(0)->strName)))
+		if(ComplMenu->GetItemCount()>1 || (ComplMenu->GetItemCount()==1 && StrCmpI(strTemp, ComplMenu->GetItemPtr(0)->strName)))
 		{
-			ComplMenu.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
+			ComplMenu->SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
 			if(!DelBlock && Global->Opt->AutoComplete.AppendCompletion && (!m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS) || Global->Opt->AutoComplete.ShowList))
 			{
 				int SelStart=GetLength();
 
 				// magic
-				if(IsSlash(m_Str[SelStart-1]) && m_Str[SelStart-2] == L'"' && IsSlash(ComplMenu.GetItemPtr(0)->strName[SelStart-2]))
+				if(IsSlash(m_Str[SelStart-1]) && m_Str[SelStart-2] == L'"' && IsSlash(ComplMenu->GetItemPtr(0)->strName[SelStart-2]))
 				{
 					m_Str[SelStart-2] = m_Str[SelStart-1];
 					m_StrSize--;
@@ -404,17 +404,17 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 				int Offset = 0;
 				if(!CurrentLine.empty())
 				{
-					int Count = ComplMenu.GetItemCount();
-					while(Offset < Count && (StrCmpI(ComplMenu.GetItemPtr(Offset)->strName, CurrentLine) || ComplMenu.GetItemPtr(Offset)->Flags&LIF_SEPARATOR))
+					int Count = ComplMenu->GetItemCount();
+					while(Offset < Count && (StrCmpI(ComplMenu->GetItemPtr(Offset)->strName, CurrentLine) || ComplMenu->GetItemPtr(Offset)->Flags&LIF_SEPARATOR))
 						++Offset;
 					if(Offset < Count)
 						++Offset;
-					if(Offset < Count && (ComplMenu.GetItemPtr(Offset)->Flags&LIF_SEPARATOR))
+					if(Offset < Count && (ComplMenu->GetItemPtr(Offset)->Flags&LIF_SEPARATOR))
 						++Offset;
 					if(Offset >= Count)
 						Offset = 0;
 				}
-				AppendString(ComplMenu.GetItemPtr(Offset)->strName.data()+SelStart);
+				AppendString(ComplMenu->GetItemPtr(Offset)->strName.data()+SelStart);
 				Select(SelStart, GetLength());
 				m_Flags.Clear(FEDITLINE_CMP_CHANGED);
 				m_CurPos = GetLength();
@@ -422,34 +422,34 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 			}
 			if(Global->Opt->AutoComplete.ShowList)
 			{
-				ComplMenu.AddItem(MenuItemEx(), 0);
-				SetMenuPos(ComplMenu);
-				ComplMenu.SetSelectPos(0,0);
-				ComplMenu.SetBoxType(SHORT_SINGLE_BOX);
+				ComplMenu->AddItem(MenuItemEx(), 0);
+				SetMenuPos(*ComplMenu);
+				ComplMenu->SetSelectPos(0,0);
+				ComplMenu->SetBoxType(SHORT_SINGLE_BOX);
 				Show();
 				int PrevPos=0;
 
 				bool Visible;
 				DWORD Size;
 				::GetCursorType(Visible, Size);
-				ComplMenu.Key(KEY_NONE);
+				ComplMenu->Key(KEY_NONE);
 
-				int ExitCode=ComplMenu.Run([&](int MenuKey)->int
+				int ExitCode=ComplMenu->Run([&](int MenuKey)->int
 				{
 					::SetCursorType(Visible, Size);
 
 					if(!Global->Opt->AutoComplete.ModalList)
 					{
-						int CurPos=ComplMenu.GetSelectPos();
+						int CurPos=ComplMenu->GetSelectPos();
 						if(CurPos>=0 && PrevPos!=CurPos)
 						{
 							PrevPos=CurPos;
-							SetString(CurPos?ComplMenu.GetItemPtr(CurPos)->strName.data():strTemp.data());
+							SetString(CurPos?ComplMenu->GetItemPtr(CurPos)->strName.data():strTemp.data());
 							Show();
 						}
 					}
 					if(MenuKey==KEY_CONSOLE_BUFFER_RESIZE)
-						SetMenuPos(ComplMenu);
+						SetMenuPos(*ComplMenu);
 					else if(MenuKey!=KEY_NONE)
 					{
 						// ввод
@@ -462,15 +462,15 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 							GetString(strTemp);
 							if(strPrev != strTemp)
 							{
-								ComplMenu.DeleteItems();
+								ComplMenu->DeleteItems();
 								PrevPos=0;
 								if(!strTemp.empty())
 								{
 									if(pHistory && ECFlags.Check(EC_COMPLETE_HISTORY) && CompletionEnabled(Global->Opt->AutoComplete.UseHistory))
 									{
-										if(pHistory->GetAllSimilar(ComplMenu,strTemp))
+										if(pHistory->GetAllSimilar(*ComplMenu,strTemp))
 										{
-											ComplMenu.SetTitle(MSG(MCompletionHistoryTitle));
+											ComplMenu->SetTitle(MSG(MCompletionHistoryTitle));
 										}
 									}
 									else if(pList)
@@ -479,27 +479,27 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 										{
 											if (!StrCmpNI(pList->Items[i].Text, strTemp.data(), strTemp.size()) && pList->Items[i].Text != strTemp.data())
 											{
-												ComplMenu.AddItem(pList->Items[i].Text);
+												ComplMenu->AddItem(pList->Items[i].Text);
 											}
 										}
 									}
 								}
 								if(ECFlags.Check(EC_COMPLETE_FILESYSTEM) && CompletionEnabled(Global->Opt->AutoComplete.UseFilesystem))
 								{
-									EnumFiles(ComplMenu,strTemp);
+									EnumFiles(*ComplMenu, strTemp);
 								}
 								if(ECFlags.Check(EC_COMPLETE_PATH) && CompletionEnabled(Global->Opt->AutoComplete.UsePath))
 								{
-									EnumModules(strTemp, &ComplMenu);
+									EnumModules(strTemp, ComplMenu.get());
 								}
-								if(ComplMenu.GetItemCount()>1 || (ComplMenu.GetItemCount()==1 && StrCmpI(strTemp, ComplMenu.GetItemPtr(0)->strName)))
+								if(ComplMenu->GetItemCount()>1 || (ComplMenu->GetItemCount()==1 && StrCmpI(strTemp, ComplMenu->GetItemPtr(0)->strName)))
 								{
 									if(MenuKey!=KEY_BS && MenuKey!=KEY_DEL && MenuKey!=KEY_NUMDEL && Global->Opt->AutoComplete.AppendCompletion)
 									{
 										int SelStart=GetLength();
 
 										// magic
-										if(IsSlash(m_Str[SelStart-1]) && m_Str[SelStart-2] == L'"' && IsSlash(ComplMenu.GetItemPtr(0)->strName[SelStart-2]))
+										if(IsSlash(m_Str[SelStart-1]) && m_Str[SelStart-2] == L'"' && IsSlash(ComplMenu->GetItemPtr(0)->strName[SelStart-2]))
 										{
 											m_Str[SelStart-2] = m_Str[SelStart-1];
 											m_StrSize--;
@@ -508,19 +508,19 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 										}
 
 										DisableCallback();
-										AppendString(ComplMenu.GetItemPtr(0)->strName.data()+SelStart);
+										AppendString(ComplMenu->GetItemPtr(0)->strName.data()+SelStart);
 										if(m_X2-m_X1>GetLength())
 											SetLeftPos(0);
 										this->Select(SelStart, GetLength());
 										RevertCallback();
 									}
-									ComplMenu.AddItem(MenuItemEx(), 0);
-									SetMenuPos(ComplMenu);
-									ComplMenu.SetSelectPos(0,0);
+									ComplMenu->AddItem(MenuItemEx(), 0);
+									SetMenuPos(*ComplMenu);
+									ComplMenu->SetSelectPos(0,0);
 								}
 								else
 								{
-									ComplMenu.Close(-1);
+									ComplMenu->Close(-1);
 								}
 								Show();
 							}
@@ -537,27 +537,27 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 							case KEY_CTRLSPACE:
 							case KEY_RCTRLSPACE:
 								{
-									ComplMenu.Key(KEY_DOWN);
+									ComplMenu->Key(KEY_DOWN);
 									return 1;
 								}
 
 							case KEY_SHIFTDEL:
 							case KEY_SHIFTNUMDEL:
 								{
-									if(ComplMenu.GetItemCount()>1)
+									if(ComplMenu->GetItemCount()>1)
 									{
-										unsigned __int64* CurrentRecord = static_cast<unsigned __int64*>(ComplMenu.GetUserData(nullptr, 0));
+										unsigned __int64* CurrentRecord = static_cast<unsigned __int64*>(ComplMenu->GetUserData(nullptr, 0));
 										if(CurrentRecord && pHistory->DeleteIfUnlocked(*CurrentRecord))
 										{
-											ComplMenu.DeleteItem(ComplMenu.GetSelectPos());
-											if(ComplMenu.GetItemCount()>1)
+											ComplMenu->DeleteItem(ComplMenu->GetSelectPos());
+											if(ComplMenu->GetItemCount()>1)
 											{
-												SetMenuPos(ComplMenu);
+												SetMenuPos(*ComplMenu);
 												Show();
 											}
 											else
 											{
-												ComplMenu.Close(-1);
+												ComplMenu->Close(-1);
 											}
 										}
 									}
@@ -640,7 +640,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 							// всё остальное закрывает список и идёт владельцу
 							default:
 								{
-									ComplMenu.Close(-1);
+									ComplMenu->Close(-1);
 									BackKey=MenuKey;
 									Result=1;
 								}
@@ -654,7 +654,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 				{
 					if(Global->Opt->AutoComplete.ModalList)
 					{
-						SetString(ComplMenu.GetItemPtr(ExitCode)->strName.data());
+						SetString(ComplMenu->GetItemPtr(ExitCode)->strName.data());
 						Show();
 					}
 					else

@@ -644,11 +644,11 @@ void FindFiles::AdvancedDialog()
 		{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
 	};
 	auto AdvancedDlg = MakeDialogItemsEx(AdvancedDlgData);
-	Dialog Dlg(AdvancedDlg, &FindFiles::AdvancedDlgProc);
-	Dlg.SetHelp(L"FindFileAdvanced");
-	Dlg.SetPosition(-1,-1,52+4,13);
-	Dlg.Process();
-	int ExitCode=Dlg.GetExitCode();
+	auto Dlg = Dialog::create(AdvancedDlg, &FindFiles::AdvancedDlgProc);
+	Dlg->SetHelp(L"FindFileAdvanced");
+	Dlg->SetPosition(-1,-1,52+4,13);
+	Dlg->Process();
+	int ExitCode=Dlg->GetExitCode();
 
 	if (ExitCode==AD_BUTTON_OK)
 	{
@@ -1396,7 +1396,7 @@ bool FindFiles::IsFileIncluded(PluginPanelItem* FileItem, const string& FullName
 intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	SCOPED_ACTION(CriticalSectionLock)(PluginCS);
-	VMenu *ListBox=Dlg->GetAllItem()[FD_LISTBOX].ListPtr;
+	auto& ListBox = Dlg->GetAllItem()[FD_LISTBOX].ListPtr;
 
 	static bool Recurse=false;
 
@@ -1743,18 +1743,17 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 							Dlg->SendMessage(DM_SHOWDIALOG,FALSE,0);
 							Dlg->SendMessage(DM_ENABLEREDRAW,FALSE,0);
 							{
-								FileViewer ShellViewer(strSearchFileName,FALSE,FALSE,FALSE,-1,nullptr,(list_count > 1 ? &ViewList : nullptr));
-								ShellViewer.SetDynamicallyBorn(false);
-								ShellViewer.SetEnableF6(TRUE);
+								auto ShellViewer = FileViewer::create(strSearchFileName, FALSE, FALSE, FALSE, -1, nullptr, (list_count > 1 ? &ViewList : nullptr));
+								ShellViewer->SetEnableF6(TRUE);
 
 								if(FindItem->Arc)
 								{
 									if(!(FindItem->Arc->Flags & OPIF_REALNAMES))
 									{
-										ShellViewer.SetSaveToSaveAs(true);
+										ShellViewer->SetSaveToSaveAs(true);
 									}
 								}
-								Global->WindowManager->ExecuteModal(&ShellViewer);
+								Global->WindowManager->ExecuteModal(ShellViewer);
 								// заставляем рефрешится экран
 								Global->WindowManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
 							}
@@ -1817,21 +1816,20 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 															else
 								*/
 								{
-									FileEditor ShellEditor(strSearchFileName,CP_DEFAULT,0);
-									ShellEditor.SetDynamicallyBorn(false);
-									ShellEditor.SetEnableF6(true);
+									auto ShellEditor = FileEditor::create(strSearchFileName, CP_DEFAULT, 0);
+									ShellEditor->SetEnableF6(true);
 
 									if(FindItem->Arc)
 									{
 										if(!(FindItem->Arc->Flags & OPIF_REALNAMES))
 										{
-											ShellEditor.SetSaveToSaveAs(true);
+											ShellEditor->SetSaveToSaveAs(true);
 										}
 									}
-									auto editorExitCode=ShellEditor.GetExitCode();
+									auto editorExitCode=ShellEditor->GetExitCode();
 									if (editorExitCode != XC_OPEN_ERROR && editorExitCode != XC_LOADING_INTERRUPTED)
 									{
-										Global->WindowManager->ExecuteModal(&ShellEditor);
+										Global->WindowManager->ExecuteModal(ShellEditor);
 										// заставляем рефрешится экран
 										Global->WindowManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
 									}
@@ -2016,7 +2014,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const api::FAR
 	if (!Dlg)
 		return;
 
-	VMenu *ListBox=Dlg->GetAllItem()[FD_LISTBOX].ListPtr;
+	auto& ListBox = Dlg->GetAllItem()[FD_LISTBOX].ListPtr;
 
 	if(!ListBox->GetItemCount())
 	{
@@ -2791,32 +2789,32 @@ bool FindFiles::FindFilesProcess()
 		FindDlg[FD_BUTTON_PANEL].Flags|=DIF_DISABLE;
 	}
 
-	Dialog Dlg(FindDlg, this, &FindFiles::FindDlgProc);
+	auto Dlg = Dialog::create(FindDlg, this, &FindFiles::FindDlgProc);
 //  pDlg->SetDynamicallyBorn();
-	Dlg.SetHelp(L"FindFileResult");
-	Dlg.SetPosition(-1, -1, DlgWidth, DlgHeight);
-	Dlg.SetId(FindFileResultId);
+	Dlg->SetHelp(L"FindFileResult");
+	Dlg->SetPosition(-1, -1, DlgWidth, DlgHeight);
+	Dlg->SetId(FindFileResultId);
 	// Надо бы показать диалог, а то инициализация элементов запаздывает
 	// иногда при поиске и первые элементы не добавляются
-	Dlg.InitDialog();
-	Dlg.Show();
+	Dlg->InitDialog();
+	Dlg->Show();
 
 	strLastDirName.clear();
 
-	THREADPARAM Param={PluginMode, &Dlg};
+	THREADPARAM Param={PluginMode, Dlg.get()};
 	Thread FindThread;
 	if (FindThread.Start(&FindFiles::ThreadRoutine, this, &Param))
 	{
 		TB = std::make_unique<IndeterminateTaskBar>();
 		SCOPED_ACTION(wakeful);
-		Dlg.Process();
+		Dlg->Process();
 		FindThread.Wait();
 		FindThread.Close();
 
 		PauseEvent.Set();
 		StopEvent.Reset();
 
-		switch (Dlg.GetExitCode())
+		switch (Dlg->GetExitCode())
 		{
 			case FD_BUTTON_NEW:
 			{
@@ -3155,13 +3153,13 @@ FindFiles::FindFiles():
 		FindAskDlg[FAD_CHECKBOX_WHOLEWORDS].Selected=WholeWords;
 		FindAskDlg[FAD_CHECKBOX_HEX].Selected=SearchHex;
 		int ExitCode;
-		Dialog Dlg(FindAskDlg, this, &FindFiles::MainDlgProc);
-		Dlg.SetAutomation(FAD_CHECKBOX_FILTER,FAD_BUTTON_FILTER,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
-		Dlg.SetHelp(L"FindFile");
-		Dlg.SetId(FindFileId);
-		Dlg.SetPosition(-1,-1,80,21);
-		Dlg.Process();
-		ExitCode=Dlg.GetExitCode();
+		auto Dlg = Dialog::create(FindAskDlg, this, &FindFiles::MainDlgProc);
+		Dlg->SetAutomation(FAD_CHECKBOX_FILTER,FAD_BUTTON_FILTER,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
+		Dlg->SetHelp(L"FindFile");
+		Dlg->SetId(FindFileId);
+		Dlg->SetPosition(-1,-1,80,21);
+		Dlg->Process();
+		ExitCode=Dlg->GetExitCode();
 		//Рефреш текущему времени для фильтра сразу после выхода из диалога
 		Filter->UpdateCurrentTime();
 

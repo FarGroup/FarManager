@@ -58,35 +58,39 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exitcode.hpp"
 #include "keybar.hpp"
 
-FileViewer::FileViewer(const string& Name,int EnableSwitch,int DisableHistory, int DisableEdit,
-                       __int64 ViewStartPos,const wchar_t *PluginData, NamesList *ViewNamesList,bool ToSaveAs,
-                       uintptr_t aCodePage, const wchar_t *Title, int DeleteOnClose, window* Update):
-	m_View(false,aCodePage),
+FileViewer::FileViewer(int DisableEdit, uintptr_t aCodePage, const wchar_t *Title):
+	m_View(false, aCodePage),
 	FullScreen(true),
 	DisableEdit(DisableEdit),
-	delete_on_close(0),
+	delete_on_close(),
 	str_title(NullToEmpty(Title))
 {
-	_OT(SysLog(L"[%p] FileViewer::FileViewer(I variant...)", this));
 	if (!str_title.empty())
 		m_View.SetTitle(Title);
+}
+
+fileviewer_ptr FileViewer::create(const string& Name, int EnableSwitch, int DisableHistory, int DisableEdit,
+                                  __int64 ViewStartPos,const wchar_t *PluginData, NamesList *ViewNamesList,bool ToSaveAs,
+                                  uintptr_t aCodePage, const wchar_t *Title, int DeleteOnClose, window_ptr Update)
+{
+	fileviewer_ptr FileViewerPtr(new FileViewer(DisableEdit, aCodePage, Title));
+
 	if (DeleteOnClose)
 	{
-		delete_on_close = DeleteOnClose == 1 ? 1 : 2;
-		SetTempViewName(Name, DeleteOnClose == 1);
+		FileViewerPtr->delete_on_close = DeleteOnClose == 1 ? 1 : 2;
+		FileViewerPtr->SetTempViewName(Name, DeleteOnClose == 1);
 	}
-	SetPosition(0,0,ScrX,ScrY);
-	Init(Name,EnableSwitch,DisableHistory,ViewStartPos,PluginData,ViewNamesList,ToSaveAs,Update);
+	FileViewerPtr->SetPosition(0, 0, ScrX, ScrY);
+	FileViewerPtr->Init(Name, EnableSwitch, DisableHistory, ViewStartPos, PluginData, ViewNamesList, ToSaveAs, Update);
+	return FileViewerPtr;
 }
 
 
-FileViewer::FileViewer(const string& Name,int EnableSwitch,int DisableHistory,
-                       const wchar_t *Title, int X1,int Y1,int X2,int Y2,uintptr_t aCodePage):
-	m_View(false,aCodePage),
-	DisableEdit(TRUE),
-	delete_on_close(0),
-	str_title(NullToEmpty(Title))
+fileviewer_ptr FileViewer::create(const string& Name, int EnableSwitch, int DisableHistory,
+                                  const wchar_t *Title, int X1,int Y1,int X2,int Y2,uintptr_t aCodePage)
 {
+	fileviewer_ptr FileViewerPtr(new FileViewer(TRUE, aCodePage, Title));
+
 	_OT(SysLog(L"[%p] FileViewer::FileViewer(II variant...)", this));
 
 	if (X1 < 0)
@@ -113,16 +117,17 @@ FileViewer::FileViewer(const string& Name,int EnableSwitch,int DisableHistory,
 		Y2=ScrY;
 	}
 
-	SetPosition(X1,Y1,X2,Y2);
-	FullScreen=(!X1 && !Y1 && X2==ScrX && Y2==ScrY);
-	m_View.SetTitle(Title);
-	Init(Name, EnableSwitch, DisableHistory, -1, L"", nullptr, false);
+	FileViewerPtr->SetPosition(X1, Y1, X2, Y2);
+	FileViewerPtr->FullScreen = (!X1 && !Y1 && X2 == ScrX && Y2 == ScrY);
+	FileViewerPtr->m_View.SetTitle(Title);
+	FileViewerPtr->Init(Name, EnableSwitch, DisableHistory, -1, L"", nullptr, false);
+	return FileViewerPtr;
 }
 
 
 void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 	__int64 ViewStartPos,const wchar_t *PluginData,
-	NamesList *ViewNamesList,bool ToSaveAs, window* Update)
+	NamesList *ViewNamesList, bool ToSaveAs, window_ptr Update)
 {
 	m_windowKeyBar = std::make_unique<KeyBar>();
 
@@ -165,13 +170,13 @@ void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 
 	if (EnableSwitch)
 	{
-		if (Update) Global->WindowManager->ReplaceWindow(Update,this);
-		else Global->WindowManager->InsertWindow(this);
+		if (Update) Global->WindowManager->ReplaceWindow(Update, shared_from_this());
+		else Global->WindowManager->InsertWindow(shared_from_this());
 	}
 	else
 	{
 		if (Update) Global->WindowManager->DeleteWindow(Update);
-		Global->WindowManager->ExecuteWindow(this);
+		Global->WindowManager->ExecuteWindow(shared_from_this());
 	}
 	ReadEvent();
 }
@@ -353,18 +358,14 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 				Edit.Close();
 				__int64 FilePos=m_View.GetFilePos();
 				DWORD flags = (GetCanLoseFocus()?FFILEEDIT_ENABLEF6:0)|(SaveToSaveAs?FFILEEDIT_SAVETOSAVEAS:0)|(DisableHistory?FFILEEDIT_DISABLEHISTORY:0);
-				FileEditor *ShellEditor = new FileEditor(
+				auto ShellEditor = FileEditor::create(
 					strViewFileName, cp, flags, -2,
 					static_cast<int>(FilePos), // TODO: Editor StartChar should be __int64
 					str_title.empty() ? nullptr: &str_title,
-					-1,-1, -1, -1, delete_on_close, this );
+					-1,-1, -1, -1, delete_on_close, shared_from_this());
 
 				int load = ShellEditor->GetExitCode();
-				if (load == XC_LOADING_INTERRUPTED || load == XC_OPEN_ERROR)
-				{
-					delete ShellEditor;
-				}
-				else
+				if (!(load == XC_LOADING_INTERRUPTED || load == XC_OPEN_ERROR))
 				{
 					ShellEditor->SetEnableF6(true);
 					/* $ 07.05.2001 DJ сохраняем NamesList */

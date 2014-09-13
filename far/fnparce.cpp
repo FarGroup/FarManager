@@ -709,10 +709,10 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 
 	int ExitCode;
 	{
-		Dialog Dlg(DlgData);
-		Dlg.SetPosition(-1, -1, 76, static_cast<int>(DlgData.size() + 2));
-		Dlg.Process();
-		ExitCode=Dlg.GetExitCode();
+		auto Dlg = Dialog::create(DlgData);
+		Dlg->SetPosition(-1, -1, 76, static_cast<int>(DlgData.size() + 2));
+		Dlg->Process();
+		ExitCode=Dlg->GetExitCode();
 	}
 
 	if (ExitCode < 0 || ExitCode == static_cast<int>(DlgData.size() - 1))

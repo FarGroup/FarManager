@@ -327,7 +327,7 @@ const std::array<FarDialogItem, 1> VMenu2DialogItems =
 }};
 
 VMenu2::VMenu2(const string& Title, const MenuDataEx *Data, size_t ItemCount, int MaxHeight, DWORD Flags):
-	Dialog(VMenu2DialogItems, this, &VMenu2::VMenu2DlgProc),
+	Dialog(VMenu2DialogItems, this, &VMenu2::VMenu2DlgProc, nullptr),
 	MaxHeight(MaxHeight),
 	cancel(0),
 	m_X1(-1),
@@ -340,13 +340,19 @@ VMenu2::VMenu2(const string& Title, const MenuDataEx *Data, size_t ItemCount, in
 	closing(false),
 	ForceClosing(false)
 {
-	InitDialogObjects();
-	SetMacroMode(MACROAREA_MENU);
+}
 
-	SetDialogMode(DMODE_KEEPCONSOLETITLE|DMODE_ISMENU);
+vmenu2_ptr VMenu2::create(const string& Title, const MenuDataEx *Data, size_t ItemCount, int MaxHeight, DWORD Flags)
+{
+	vmenu2_ptr VMenu2Ptr(new VMenu2(Title, Data, ItemCount, MaxHeight, Flags));
 
-	SetTitle(Title);
-	SendMessage(DM_SETMOUSEEVENTNOTIFY, 1, nullptr);
+	VMenu2Ptr->InitDialogObjects();
+	VMenu2Ptr->SetMacroMode(MACROAREA_MENU);
+
+	VMenu2Ptr->SetDialogMode(DMODE_KEEPCONSOLETITLE | DMODE_ISMENU);
+
+	VMenu2Ptr->SetTitle(Title);
+	VMenu2Ptr->SendMessage(DM_SETMOUSEEVENTNOTIFY, 1, nullptr);
 
 	std::vector<FarListItem> fli(ItemCount);
 	std::transform(Data, Data + ItemCount, fli.begin(), [](const MenuDataEx& i)->FarListItem
@@ -357,14 +363,16 @@ VMenu2::VMenu2(const string& Title, const MenuDataEx *Data, size_t ItemCount, in
 
 	FarList fl={sizeof(FarList), ItemCount, fli.data()};
 
-	SendMessage(DM_LISTSET, 0, &fl);
+	VMenu2Ptr->SendMessage(DM_LISTSET, 0, &fl);
 
 	for(size_t i=0; i<ItemCount; ++i)
-		GetItemPtr(static_cast<int>(i))->AccelKey=Data[i].AccelKey;
+		VMenu2Ptr->GetItemPtr(static_cast<int>(i))->AccelKey = Data[i].AccelKey;
 
-	Dialog::SetPosition(-1, -1, 20, 20);
-	SetFlags(Flags|VMENU_MOUSEREACTION);
-	Resize();
+	// BUGBUG
+	VMenu2Ptr->Dialog::SetPosition(-1, -1, 20, 20);
+	VMenu2Ptr->SetFlags(Flags | VMENU_MOUSEREACTION);
+	VMenu2Ptr->Resize();
+	return VMenu2Ptr;
 }
 
 void VMenu2::SetTitle(const string& Title)

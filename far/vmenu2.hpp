@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VMenu2 : public Dialog
 {
 public:
-	VMenu2(const string& Title, const MenuDataEx *Data, size_t ItemCount, int MaxHeight=0, DWORD Flags=0);
+	static vmenu2_ptr create(const string& Title, const MenuDataEx *Data, size_t ItemCount, int MaxHeight=0, DWORD Flags=0);
 
 	virtual const wchar_t *GetTypeName() override { return L"[VMenu]"; }
 	virtual int GetTypeAndName(string &strType, string &strName) override;
@@ -85,6 +85,8 @@ public:
 	int GetShowItemCount() { return ListBox().GetShowItemCount(); }
 
 private:
+	VMenu2(const string& Title, const MenuDataEx *Data, size_t ItemCount, int MaxHeight, DWORD Flags);
+
 	intptr_t VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	int Call(int Msg, void *param);
 	LISTITEMFLAGS GetItemFlags(int Position = -1);

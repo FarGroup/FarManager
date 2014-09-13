@@ -819,6 +819,9 @@
     <ClInclude Include="window.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="windowsfwd.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="wm_listener.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

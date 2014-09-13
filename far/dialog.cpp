@@ -211,7 +211,8 @@ size_t ItemStringAndSize(const DialogItemEx *Data,string& ItemString)
 static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 {
 	size_t size=ALIGN(sizeof(FarDialogItem)),offsetList=size,offsetListItems=size;
-	VMenu *ListBox=nullptr; intptr_t ListBoxSize=0;
+	vmenu_ptr ListBox;
+	intptr_t ListBoxSize=0;
 	if (ItemEx->Type==DI_LISTBOX || ItemEx->Type==DI_COMBOBOX)
 	{
 		ListBox=ItemEx->ListPtr;
@@ -308,6 +309,12 @@ intptr_t DefProcFunction(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param
 	return Dlg->DefProc(Msg, Param1, Param2);
 }
 
+Dialog::Dialog():
+	bInitOK(),
+	DataDialog(),
+	m_handler()
+{}
+
 void Dialog::Construct(DialogItemEx** SrcItem, size_t SrcItemCount)
 {
 	_DIALOG(CleverSysLog CL(L"Dialog::Construct() 1"));
@@ -344,8 +351,8 @@ void Dialog::Construct(const FarDialogItem** SrcItem, size_t SrcItemCount)
 void Dialog::Init()
 {
 	_DIALOG(CleverSysLog CL(L"Dialog::Init()"));
+	AddToList();
 	SetMacroMode(MACROAREA_DIALOG);
-	SetDynamicallyBorn(false); // $OT: По умолчанию все диалоги создаются статически
 	m_CanLoseFocus = FALSE;
 	//Номер плагина, вызвавшего диалог (-1 = Main)
 	PluginOwner = nullptr;
@@ -716,11 +723,10 @@ size_t Dialog::InitDialogObjects(size_t ID)
 		{
 			if (!DialogMode.Check(DMODE_OBJECTS_CREATED))
 			{
-				Items[I].ListPtr=new VMenu(L"",nullptr,0,Items[I].Y2-Items[I].Y1+1,
-				                           VMENU_ALWAYSSCROLLBAR|VMENU_LISTBOX,this);
+				Items[I].ListPtr = VMenu::create(string(), nullptr, 0, Items[I].Y2 - Items[I].Y1 + 1, VMENU_ALWAYSSCROLLBAR | VMENU_LISTBOX, this);
 			}
 
-				VMenu *ListPtr=Items[I].ListPtr;
+				auto& ListPtr = Items[I].ListPtr;
 				ListPtr->SetVDialogItemID(I);
 				/* $ 13.09.2000 SVS
 				   + Флаг DIF_LISTNOAMPERSAND. По умолчанию для DI_LISTBOX &
@@ -771,7 +777,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 
 				if (Type == DI_COMBOBOX)
 				{
-					Items[I].ListPtr=new VMenu(L"",nullptr,0,Global->Opt->Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR,this);
+					Items[I].ListPtr = VMenu::create(string(), nullptr, 0, Global->Opt->Dialogs.CBoxMaxHeight, VMENU_ALWAYSSCROLLBAR, this);
 					Items[I].ListPtr->SetVDialogItemID(I);
 				}
 
@@ -789,7 +795,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 			{
 				if (Items[I].ListPtr)
 				{
-					VMenu *ListPtr=Items[I].ListPtr;
+					auto& ListPtr = Items[I].ListPtr;
 					ListPtr->SetBoxType(SHORT_SINGLE_BOX);
 					DialogEdit->SetDropDownBox((ItemFlags & DIF_DROPDOWNLIST)!=0);
 					ListPtr->ChangeFlags(VMENU_WRAPMODE, (ItemFlags&DIF_LISTWRAPMODE)!=0);
@@ -1220,7 +1226,7 @@ void Dialog::DeleteDialogObjects()
 			case DI_LISTBOX:
 
 				if ((i.Type == DI_COMBOBOX || i.Type == DI_LISTBOX))
-					delete i.ListPtr;
+					 i.ListPtr.reset();
 
 				break;
 			case DI_USERCONTROL:
@@ -2301,25 +2307,25 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 			return -1;
 		}
-		case MCODE_V_DLGITEMCOUNT: // Dlg.ItemCount
+		case MCODE_V_DLGITEMCOUNT: // Dlg->ItemCount
 		{
 			return Items.size();
 		}
-		case MCODE_V_DLGCURPOS:    // Dlg.CurPos
+		case MCODE_V_DLGCURPOS:    // Dlg->CurPos
 		{
 			return m_FocusPos+1;
 		}
-		case MCODE_V_DLGPREVPOS:    // Dlg.PrevPos
+		case MCODE_V_DLGPREVPOS:    // Dlg->PrevPos
 		{
 			return PrevFocusPos+1;
 		}
-		case MCODE_V_DLGINFOID:        // Dlg.Info.Id
+		case MCODE_V_DLGINFOID:        // Dlg->Info.Id
 		{
 			static string strId;
 			strId = GuidToStr(m_Id);
 			return reinterpret_cast<intptr_t>(UNSAFE_CSTR(strId));
 		}
-		case MCODE_V_DLGINFOOWNER:        // Dlg.Info.Owner
+		case MCODE_V_DLGINFOOWNER:        // Dlg->Info.Owner
 		{
 			static string strOwner;
 			GUID Owner = FarGuid;
@@ -2526,7 +2532,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 			case KEY_MSWHEEL_RIGHT:
 			case KEY_NUMENTER:
 			case KEY_ENTER:
-				VMenu *List=Items[m_FocusPos].ListPtr;
+				auto& List = Items[m_FocusPos].ListPtr;
 				int CurListPos=List->GetSelectPos();
 				List->ProcessKey(Key);
 				int NewListPos=List->GetSelectPos();
@@ -2553,7 +2559,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 			//   и если вернули что надо, то выводим подсказку
 			if (Help::MkTopic(PluginOwner, NullToEmpty((const wchar_t*)DlgProc(DN_HELP,m_FocusPos, const_cast<wchar_t*>(EmptyToNull(HelpTopic.data())))), strStr))
 			{
-				Help Hlp(strStr);
+				Help::create(strStr);
 			}
 
 			return TRUE;
@@ -2836,7 +2842,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 			//  return TRUE;
 			if (Items[m_FocusPos].Type == DI_LISTBOX)
 			{
-				VMenu *List=Items[m_FocusPos].ListPtr;
+				auto& List = Items[m_FocusPos].ListPtr;
 				int CurListPos=List->GetSelectPos();
 				List->ProcessKey(Key);
 				int NewListPos=List->GetSelectPos();
@@ -3124,7 +3130,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		        MsY >= m_Y1+Items[I].Y1 && MsY <= m_Y1+Items[I].Y2 &&
 		        MsX >= m_X1+Items[I].X1 && MsX <= m_X1+Items[I].X2)
 		{
-			VMenu *List=Items[I].ListPtr;
+			auto& List = Items[I].ListPtr;
 			if (!MouseRecord.dwEventFlags && !(MouseRecord.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (PrevMouseRecord.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED))
 			{
 				if (PrevMouseRecord.dwMousePosition.X==MsX && PrevMouseRecord.dwMousePosition.Y==MsY)
@@ -3518,7 +3524,7 @@ int Dialog::ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem, s
 	         !(CurItem->Flags & DIF_READONLY) &&
 	         CurItem->ListPtr->GetItemCount() > 0) //??
 	{
-		SelectFromComboBox(CurItem,CurEditLine,CurItem->ListPtr);
+		SelectFromComboBox(CurItem, CurEditLine, CurItem->ListPtr.get());
 	}
 
 	return TRUE;
@@ -4072,18 +4078,18 @@ BOOL Dialog::SelectFromEditHistory(const DialogItemEx *CurItem,
 	{
 		DlgHist->ResetPosition();
 		// создание пустого вертикального меню
-		VMenu2 HistoryMenu(L"",nullptr,0,Global->Opt->Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR|VMENU_COMBOBOX);
-		HistoryMenu.SetDialogMode(DMODE_NODRAWSHADOW);
-		HistoryMenu.SetModeMoving(false);
-		HistoryMenu.SetFlags(VMENU_SHOWAMPERSAND);
-		HistoryMenu.SetBoxType(SHORT_SINGLE_BOX);
-		HistoryMenu.SetId(SelectFromEditHistoryId);
+		auto HistoryMenu = VMenu2::create(string(),nullptr,0,Global->Opt->Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR|VMENU_COMBOBOX);
+		HistoryMenu->SetDialogMode(DMODE_NODRAWSHADOW);
+		HistoryMenu->SetModeMoving(false);
+		HistoryMenu->SetFlags(VMENU_SHOWAMPERSAND);
+		HistoryMenu->SetBoxType(SHORT_SINGLE_BOX);
+		HistoryMenu->SetId(SelectFromEditHistoryId);
 //		SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
 		// запомним (для прорисовки)
 //		CurItem->ListPtr=&HistoryMenu;
 		SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
 		DlgProc(DN_DROPDOWNOPENED, m_FocusPos, ToPtr(1));
-		ret = DlgHist->Select(HistoryMenu, Global->Opt->Dialogs.CBoxMaxHeight, this, strStr);
+		ret = DlgHist->Select(*HistoryMenu, Global->Opt->Dialogs.CBoxMaxHeight, this, strStr);
 		SetDropDownOpened(FALSE); // Установим флаг "открытия" комбобокса.
 		DlgProc(DN_DROPDOWNOPENED, m_FocusPos, (void*)0);
 		// забудим (не нужен)
@@ -4273,7 +4279,7 @@ void Dialog::AdjustEditPos(int dx, int dy)
 			ScreenObject *DialogScrObject;
 
 			if (Type == DI_LISTBOX)
-				DialogScrObject = i.ListPtr;
+				DialogScrObject = i.ListPtr.get();
 			else
 				DialogScrObject = static_cast<ScreenObject*>(i.ObjPtr);
 
@@ -4339,8 +4345,8 @@ void Dialog::Process()
 			WaitUserTime = -1;
 		}
 
-		Global->WindowManager->ExecuteWindow(this);
-		Global->WindowManager->ExecuteModal(this);
+		Global->WindowManager->ExecuteWindow(shared_from_this());
+		Global->WindowManager->ExecuteModal(shared_from_this());
 		save += (clock() - btm);
 
 		if (InterlockedDecrement(&in_dialog) == -1)
@@ -4366,7 +4372,7 @@ intptr_t Dialog::CloseDialog()
 		if (DialogMode.Check(DMODE_BEGINLOOP) && (DialogMode.Check(DMODE_MSGINTERNAL) || Global->WindowManager->ManagerStarted()))
 		{
 			DialogMode.Clear(DMODE_BEGINLOOP);
-			Global->WindowManager->DeleteWindow(this);
+			Global->WindowManager->DeleteWindow(shared_from_this());
 			Global->WindowManager->PluginCommit();
 		}
 
@@ -4393,7 +4399,7 @@ void Dialog::ShowHelp()
 
 	if (!HelpTopic.empty())
 	{
-		Help Hlp(HelpTopic);
+		Help::create(HelpTopic);
 	}
 }
 
@@ -5005,7 +5011,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		{
 			if (Type==DI_LISTBOX || Type==DI_COMBOBOX)
 			{
-				VMenu *ListBox=CurItem->ListPtr;
+				auto& ListBox = CurItem->ListPtr;
 
 				if (ListBox)
 				{
@@ -5877,7 +5883,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						break;
 					case DI_LISTBOX: // меняет только текущий итем
 					{
-						VMenu *ListBox=CurItem->ListPtr;
+						auto& ListBox = CurItem->ListPtr;
 
 						if (ListBox)
 						{

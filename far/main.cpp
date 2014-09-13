@@ -158,7 +158,7 @@ static int MainProcess(
 
 			if (!ename.empty())
 			{
-				FileEditor *ShellEditor=new FileEditor(ename,CP_DEFAULT,FFILEEDIT_CANNEWFILE|FFILEEDIT_ENABLEF6,StartLine,StartChar);
+				auto ShellEditor = FileEditor::create(ename, CP_DEFAULT, FFILEEDIT_CANNEWFILE | FFILEEDIT_ENABLEF6, StartLine, StartChar);
 				_tran(SysLog(L"make shelleditor %p",ShellEditor));
 
 				if (!ShellEditor->GetExitCode())  // ????????????
@@ -169,7 +169,7 @@ static int MainProcess(
 			// TODO: Этот else убрать только после разборок с возможностью задавать несколько /e и /v в ком.строке
 			else if (!vname.empty())
 			{
-				FileViewer *ShellViewer=new FileViewer(vname,TRUE);
+				auto ShellViewer = FileViewer::create(vname,TRUE);
 
 				if (!ShellViewer->GetExitCode())
 				{

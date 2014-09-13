@@ -157,18 +157,18 @@ void PrintFiles(FileList* SrcPanel)
 			strTitle << SelCount;
 		}
 
-		VMenu2 PrinterList(strTitle,nullptr,0,ScrY-4);
-		PrinterList.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
-		PrinterList.SetPosition(-1,-1,0,0);
-		AddToPrintersMenu(&PrinterList,pi.get(),Returned);
+		auto PrinterList = VMenu2::create(strTitle, nullptr, 0, ScrY - 4);
+		PrinterList->SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
+		PrinterList->SetPosition(-1,-1,0,0);
+		AddToPrintersMenu(PrinterList.get(), pi.get(), Returned);
 
-		if (PrinterList.Run()<0)
+		if (PrinterList->Run()<0)
 		{
 			_ALGO(SysLog(L"ESC"));
 			return;
 		}
 
-		strPrinterName = NullToEmpty(static_cast<const wchar_t*>(PrinterList.GetUserData(nullptr, 0)));
+		strPrinterName = NullToEmpty(static_cast<const wchar_t*>(PrinterList->GetUserData(nullptr, 0)));
 	}
 
 	HANDLE hPrinter;

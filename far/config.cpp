@@ -425,35 +425,35 @@ static void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 
 void Options::MaskGroupsSettings()
 {
-	VMenu2 MasksMenu(MSG(MMenuMaskGroups), nullptr, 0, 0, VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
-	MasksMenu.SetBottomTitle(MSG(MMaskGroupBottom));
-	MasksMenu.SetHelp(L"MaskGroupsSettings");
-	FillMasksMenu(MasksMenu);
-	MasksMenu.SetPosition(-1, -1, -1, -1);
+	auto MasksMenu = VMenu2::create(MSG(MMenuMaskGroups), nullptr, 0, 0, VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
+	MasksMenu->SetBottomTitle(MSG(MMaskGroupBottom));
+	MasksMenu->SetHelp(L"MaskGroupsSettings");
+	FillMasksMenu(*MasksMenu);
+	MasksMenu->SetPosition(-1, -1, -1, -1);
 
 	bool Changed = false;
 	bool Filter = false;
 	for(;;)
 	{
-		MasksMenu.Run([&](int Key)->int
+		MasksMenu->Run([&](int Key)->int
 		{
 			if(Filter)
 			{
 				if(Key == KEY_ESC || Key == KEY_F10 || Key == KEY_ENTER || Key == KEY_NUMENTER)
 				{
 					Filter = false;
-					for (int i = 0; i < MasksMenu.GetItemCount(); ++i)
+					for (int i = 0; i < MasksMenu->GetItemCount(); ++i)
 					{
-						MasksMenu.UpdateItemFlags(i, MasksMenu.GetItemPtr(i)->Flags&~MIF_HIDDEN);
+						MasksMenu->UpdateItemFlags(i, MasksMenu->GetItemPtr(i)->Flags&~MIF_HIDDEN);
 					}
-					MasksMenu.SetPosition(-1, -1, -1, -1);
-					MasksMenu.SetTitle(MSG(MMenuMaskGroups));
-					MasksMenu.SetBottomTitle(MSG(MMaskGroupBottom));
+					MasksMenu->SetPosition(-1, -1, -1, -1);
+					MasksMenu->SetTitle(MSG(MMenuMaskGroups));
+					MasksMenu->SetBottomTitle(MSG(MMaskGroupBottom));
 				}
 				return true;
 			}
-			int ItemPos = MasksMenu.GetSelectPos();
-			void* Data = MasksMenu.GetUserData(nullptr, 0, ItemPos);
+			int ItemPos = MasksMenu->GetSelectPos();
+			void* Data = MasksMenu->GetUserData(nullptr, 0, ItemPos);
 			auto Item = static_cast<const wchar_t*>(Data);
 			int KeyProcessed = 1;
 			switch (Key)
@@ -525,20 +525,20 @@ void Options::MaskGroupsSettings()
 					Builder.AddOKCancel();
 					if(Builder.ShowDialog())
 					{
-						for (int i=0; i < MasksMenu.GetItemCount(); ++i)
+						for (int i=0; i < MasksMenu->GetItemCount(); ++i)
 						{
 							string CurrentMasks;
-							Global->Db->GeneralCfg()->GetValue(L"Masks", static_cast<const wchar_t*>(MasksMenu.GetUserData(nullptr, 0, i)), CurrentMasks, L"");
+							Global->Db->GeneralCfg()->GetValue(L"Masks", static_cast<const wchar_t*>(MasksMenu->GetUserData(nullptr, 0, i)), CurrentMasks, L"");
 							filemasks Masks;
 							Masks.Set(CurrentMasks);
 							if(!Masks.Compare(Value))
 							{
-								MasksMenu.UpdateItemFlags(i, MasksMenu.GetItemPtr(i)->Flags|MIF_HIDDEN);
+								MasksMenu->UpdateItemFlags(i, MasksMenu->GetItemPtr(i)->Flags|MIF_HIDDEN);
 							}
 						}
-						MasksMenu.SetPosition(-1, -1, -1, -1);
-						MasksMenu.SetTitle(Value);
-						MasksMenu.SetBottomTitle(LangString(MMaskGroupTotal) << MasksMenu.GetShowItemCount());
+						MasksMenu->SetPosition(-1, -1, -1, -1);
+						MasksMenu->SetTitle(Value);
+						MasksMenu->SetBottomTitle(LangString(MMaskGroupTotal) << MasksMenu->GetShowItemCount());
 						Filter = true;
 					}
 				}
@@ -552,15 +552,15 @@ void Options::MaskGroupsSettings()
 			{
 				Changed = false;
 
-				FillMasksMenu(MasksMenu, MasksMenu.GetSelectPos());
-				MasksMenu.SetPosition(-1, -1, -1, -1);
+				FillMasksMenu(*MasksMenu, MasksMenu->GetSelectPos());
+				MasksMenu->SetPosition(-1, -1, -1, -1);
 				Global->CtrlObject->HiFiles->UpdateHighlighting(true);
 			}
 			return KeyProcessed;
 		});
-		if (MasksMenu.GetExitCode()!=-1)
+		if (MasksMenu->GetExitCode()!=-1)
 		{
-			MasksMenu.Key(KEY_F4);
+			MasksMenu->Key(KEY_F4);
 			continue;
 		}
 		break;
@@ -1044,12 +1044,12 @@ void Options::SetFilePanelModes()
 
 		ModeListMenu[CurMode].SetSelect(1);
 		{
-			VMenu2 ModeList(MSG(MEditPanelModes),ModeListMenu.data(), ModeListMenu.size(), ScrY-4);
-			ModeList.SetPosition(-1,-1,0,0);
-			ModeList.SetHelp(L"PanelViewModes");
-			ModeList.SetFlags(VMENU_WRAPMODE);
-			ModeList.SetId(PanelViewModesId);
-			ModeNumber=ModeList.Run([&](int Key)->int
+			auto ModeList = VMenu2::create(MSG(MEditPanelModes), ModeListMenu.data(), ModeListMenu.size(), ScrY - 4);
+			ModeList->SetPosition(-1,-1,0,0);
+			ModeList->SetHelp(L"PanelViewModes");
+			ModeList->SetFlags(VMENU_WRAPMODE);
+			ModeList->SetId(PanelViewModesId);
+			ModeNumber=ModeList->Run([&](int Key)->int
 			{
 				switch (Key)
 				{
@@ -1063,21 +1063,21 @@ void Options::SetFilePanelModes()
 						{
 							PanelPtr = Global->CtrlObject->Cp()->PassivePanel();
 						}
-						PanelPtr->SetViewMode(static_cast<int>(DisplayModeToReal(ModeList.GetSelectPos())));
+						PanelPtr->SetViewMode(static_cast<int>(DisplayModeToReal(ModeList->GetSelectPos())));
 						Global->CtrlObject->Cp()->Redraw();
 					}
 					return 1;
 
 				case KEY_INS:
 					AddNewMode = true;
-					ModeList.Close();
+					ModeList->Close();
 					break;
 
 				case KEY_DEL:
-					if (ModeList.GetSelectPos() >= (int)predefined_panel_modes_count)
+					if (ModeList->GetSelectPos() >= (int)predefined_panel_modes_count)
 					{
 						DeleteMode = true;
-						ModeList.Close();
+						ModeList->Close();
 					}
 					break;
 
@@ -1190,12 +1190,12 @@ void Options::SetFilePanelModes()
 		}
 
 		{
-			Dialog Dlg(ModeDlg);
-			Dlg.SetPosition(-1,-1,76,19);
-			Dlg.SetHelp(L"PanelViewModes");
-			Dlg.SetId(PanelViewModesEditId);
-			Dlg.Process();
-			ExitCode=Dlg.GetExitCode();
+			auto Dlg = Dialog::create(ModeDlg);
+			Dlg->SetPosition(-1,-1,76,19);
+			Dlg->SetHelp(L"PanelViewModes");
+			Dlg->SetId(PanelViewModesEditId);
+			Dlg->Process();
+			ExitCode=Dlg->GetExitCode();
 		}
 
 		if (ExitCode == MD_BUTTON_OK || ExitCode == MD_BUTTON_RESET)
@@ -2358,11 +2358,10 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 						Dlg->SendMessage(DM_LISTINFO, Param1, &ListInfo);
 
 						string HelpTopic = string(Config[CurrentConfig][ListInfo.SelectPos].KeyName) + L"." + Config[CurrentConfig][ListInfo.SelectPos].ValName;
-						Help hlp(HelpTopic, nullptr, FHELP_NOSHOWERROR);
-						if (hlp.GetError())
+						if (Help::create(HelpTopic, nullptr, FHELP_NOSHOWERROR)->GetError())
 						{
 							HelpTopic = string(Config[CurrentConfig][ListInfo.SelectPos].KeyName) + L"Settings";
-							Help hlp1(HelpTopic, nullptr, FHELP_NOSHOWERROR);
+							Help::create(HelpTopic, nullptr, FHELP_NOSHOWERROR);
 						}
 					}
 					break;
@@ -2463,11 +2462,11 @@ bool Options::AdvancedConfig(farconfig_mode Mode)
 
 	AdvancedConfigDlg[0].ListItems = &Items;
 
-	Dialog Dlg(AdvancedConfigDlg, this, &Options::AdvancedConfigDlgProc);
-	Dlg.SetHelp(L"FarConfig");
-	Dlg.SetPosition(-1, -1, DlgWidth, DlgHeight);
-	Dlg.SetId(AdvancedConfigId);
-	Dlg.Process();
+	auto Dlg = Dialog::create(AdvancedConfigDlg, this, &Options::AdvancedConfigDlgProc);
+	Dlg->SetHelp(L"FarConfig");
+	Dlg->SetPosition(-1, -1, DlgWidth, DlgHeight);
+	Dlg->SetId(AdvancedConfigId);
+	Dlg->Process();
 	return true;
 }
 
@@ -2917,10 +2916,10 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 	SetLeftRightMenuChecks(RightMenu, false);
 	// Навигация по меню
 	{
-		HMenu HOptMenu(MainMenu,ARRAYSIZE(MainMenu));
-		HOptMenu.SetHelp(L"Menus");
-		HOptMenu.SetPosition(0,0,ScrX,0);
-		Global->WindowManager->ExecuteWindow(&HOptMenu);
+		auto HOptMenu = HMenu::create(MainMenu,ARRAYSIZE(MainMenu));
+		HOptMenu->SetHelp(L"Menus");
+		HOptMenu->SetPosition(0,0,ScrX,0);
+		Global->WindowManager->ExecuteWindow(HOptMenu);
 
 		if (LastCommand)
 		{
@@ -2940,7 +2939,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 			MainMenu[HItemToShow].Selected = 1;
 			VMenuTable[HItemToShow][0].SetSelect(0);
 			VMenuTable[HItemToShow][LastVItem].SetSelect(1);
-			Global->WindowManager->CallbackWindow([&HOptMenu](){HOptMenu.ProcessKey(Manager::Key(KEY_DOWN));});
+			Global->WindowManager->CallbackWindow([&HOptMenu](){HOptMenu->ProcessKey(Manager::Key(KEY_DOWN));});
 		}
 		else
 		{
@@ -2954,11 +2953,11 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 
 		if (MouseEvent)
 		{
-			Global->WindowManager->CallbackWindow([&HOptMenu,MouseEvent](){HOptMenu.ProcessMouse(MouseEvent);});
+			Global->WindowManager->CallbackWindow([&HOptMenu,MouseEvent](){HOptMenu->ProcessMouse(MouseEvent);});
 		}
 
-		Global->WindowManager->ExecuteModal(&HOptMenu);
-		HOptMenu.GetExitCode(HItem,VItem);
+		Global->WindowManager->ExecuteModal(HOptMenu);
+		HOptMenu->GetExitCode(HItem,VItem);
 	}
 
 	// "Исполнятор команд меню"

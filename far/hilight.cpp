@@ -608,19 +608,19 @@ void HighlightFiles::UpdateHighlighting(bool RefreshMasks)
 
 void HighlightFiles::HiEdit(int MenuPos)
 {
-	VMenu2 HiMenu(MSG(MHighlightTitle),nullptr,0,ScrY-4);
-	HiMenu.SetHelp(HLS.HighlightList);
-	HiMenu.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
-	HiMenu.SetPosition(-1,-1,0,0);
-	HiMenu.SetBottomTitle(MSG(MHighlightBottom));
-	FillMenu(&HiMenu,MenuPos);
+	auto HiMenu = VMenu2::create(MSG(MHighlightTitle), nullptr, 0, ScrY - 4);
+	HiMenu->SetHelp(HLS.HighlightList);
+	HiMenu->SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
+	HiMenu->SetPosition(-1,-1,0,0);
+	HiMenu->SetBottomTitle(MSG(MHighlightBottom));
+	FillMenu(HiMenu.get(), MenuPos);
 	int NeedUpdate;
 
 	while (1)
 	{
-		HiMenu.Run([&](int Key)->int
+		HiMenu->Run([&](int Key)->int
 		{
-			int SelectPos=HiMenu.GetSelectPos();
+			int SelectPos=HiMenu->GetSelectPos();
 			NeedUpdate=FALSE;
 
 			int KeyProcessed = 1;
@@ -739,7 +739,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 						{
 							HiData[RealSelectPos].swap(HiData[RealSelectPos-1]);
 						}
-						HiMenu.SetCheck(--SelectPos);
+						HiMenu->SetCheck(--SelectPos);
 						NeedUpdate=TRUE;
 						break;
 					}
@@ -753,7 +753,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 					int *Count=nullptr;
 					int RealSelectPos=MenuPosToRealPos(SelectPos, Count);
 
-					if (Count && SelectPos < (int)HiMenu.GetItemCount()-2)
+					if (Count && SelectPos < (int)HiMenu->GetItemCount()-2)
 					{
 						if (FirstCount && RealSelectPos==FirstCount-1)
 						{
@@ -777,7 +777,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 						{
 							HiData[RealSelectPos].swap(HiData[RealSelectPos+1]);
 						}
-						HiMenu.SetCheck(++SelectPos);
+						HiMenu->SetCheck(++SelectPos);
 						NeedUpdate=TRUE;
 					}
 
@@ -794,7 +794,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 				Global->ScrBuf->Lock(); // отменяем всякую прорисовку
 				Changed = true;
 				UpdateHighlighting();
-				FillMenu(&HiMenu,MenuPos=SelectPos);
+				FillMenu(HiMenu.get(), MenuPos = SelectPos);
 
 				if (Global->Opt->AutoSaveSetup)
 					Save(false);
@@ -803,9 +803,9 @@ void HighlightFiles::HiEdit(int MenuPos)
 			return KeyProcessed;
 		});
 
-		if (HiMenu.GetExitCode()!=-1)
+		if (HiMenu->GetExitCode()!=-1)
 		{
-			HiMenu.Key(KEY_F4);
+			HiMenu->Key(KEY_F4);
 			continue;
 		}
 

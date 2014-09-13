@@ -50,16 +50,26 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "keybar.hpp"
 
-FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,bool IsFullScreen):
+FolderTree::FolderTree(int iModalMode, int IsStandalone, bool IsFullScreen):
 	Tree(nullptr),
 	FindEdit(nullptr),
 	ModalMode(iModalMode),
 	IsFullScreen(IsFullScreen),
 	IsStandalone(IsStandalone)
 {
+}
+
+foldertree_ptr FolderTree::create(string &strResultFolder, int iModalMode, int IsStandalone, bool IsFullScreen)
+{
+	foldertree_ptr FoldertreePtr(new FolderTree(iModalMode, IsStandalone, IsFullScreen));
+	FoldertreePtr->init(strResultFolder);
+	return FoldertreePtr;
+}
+
+void FolderTree::init(string &strResultFolder)
+{
 	m_windowKeyBar = std::make_unique<KeyBar>();
 
-	SetDynamicallyBorn(false);
 	SetRestoreScreenMode(true);
 	if (ModalMode != MODALTREE_FREE)
 		strResultFolder.clear();
@@ -87,8 +97,8 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,b
 			FindEdit->SetEditBeyondEnd(false);
 			FindEdit->SetPersistentBlocks(Global->Opt->Dialogs.EditBlock);
 			InitKeyBar();
-			Global->WindowManager->ExecuteWindow(this); //OT
-			Global->WindowManager->ExecuteModal(this); //OT
+			Global->WindowManager->ExecuteWindow(shared_from_this()); //OT
+			Global->WindowManager->ExecuteModal(shared_from_this()); //OT
 		}
 
 		strResultFolder = strNewFolder;
@@ -191,7 +201,7 @@ int FolderTree::ProcessKey(const Manager::Key& Key)
 	{
 		case KEY_F1:
 		{
-			Help Hlp(L"FindFolder");
+			Help::create(L"FindFolder");
 		}
 		break;
 		case KEY_ESC:

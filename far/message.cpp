@@ -505,32 +505,32 @@ void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar
 			}
 			// BUGBUG
 			MsgDlg.resize(ItemCount);
-			Dialog Dlg(MsgDlg, this, &Message::MsgDlgProc, &strClipText);
+			auto Dlg = Dialog::create(MsgDlg, this, &Message::MsgDlgProc, &strClipText);
 			if (X1 == -1) X1 = 0;
 			if (Y1 == -1) Y1 = 0;
-			Dlg.SetPosition(X1,Y1,X2,Y2);
-			if(Id) Dlg.SetId(*Id);
+			Dlg->SetPosition(X1,Y1,X2,Y2);
+			if(Id) Dlg->SetId(*Id);
 
 			if (HelpTopic)
-				Dlg.SetHelp(HelpTopic);
+				Dlg->SetHelp(HelpTopic);
 
-			Dlg.SetPluginOwner(PluginNumber); // Запомним номер плагина
+			Dlg->SetPluginOwner(PluginNumber); // Запомним номер плагина
 
 			if (IsWarningStyle)
 			{
-				Dlg.SetDialogMode(DMODE_WARNINGSTYLE);
+				Dlg->SetDialogMode(DMODE_WARNINGSTYLE);
 			}
 
-			Dlg.SetDialogMode(DMODE_MSGINTERNAL);
+			Dlg->SetDialogMode(DMODE_MSGINTERNAL);
 			if (Flags & MSG_NOPLUGINS)
-				Dlg.SetDialogMode(DMODE_NOPLUGINS);
+				Dlg->SetDialogMode(DMODE_NOPLUGINS);
 			FlushInputBuffer();
 
 			if (Flags & MSG_KILLSAVESCREEN)
-				Dlg.SendMessage(DM_KILLSAVESCREEN,0,0);
+				Dlg->SendMessage(DM_KILLSAVESCREEN,0,0);
 
-			Dlg.Process();
-			RetCode=Dlg.GetExitCode();
+			Dlg->Process();
+			RetCode=Dlg->GetExitCode();
 		}
 
 		m_ExitCode = RetCode<0?RetCode:RetCode-StrCount-1-(Separator?1:0);

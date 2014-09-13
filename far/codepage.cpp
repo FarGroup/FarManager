@@ -725,10 +725,10 @@ void codepages::EditCodePageName()
 		{DI_BUTTON,    0, 4,  0, 3, 0, nullptr, nullptr, DIF_CENTERGROUP, MSG(MGetCodePageResetCodePageName)}
 	};
 	auto EditDialog = MakeDialogItemsEx(EditDialogData);
-	Dialog Dlg(EditDialog, this, &codepages::EditDialogProc);
-	Dlg.SetPosition(-1, -1, 54, 7);
-	Dlg.SetHelp(L"EditCodePageNameDlg");
-	Dlg.Process();
+	auto Dlg = Dialog::create(EditDialog, this, &codepages::EditDialogProc);
+	Dlg->SetPosition(-1, -1, 54, 7);
+	Dlg->SetHelp(L"EditCodePageNameDlg");
+	Dlg->Process();
 }
 
 bool codepages::SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bViewOnly, bool bShowAutoDetect)
@@ -737,7 +737,7 @@ bool codepages::SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bVie
 	CallbackCallSource = CodePageSelect;
 	currentCodePage = CodePage;
 	// —оздаЄм меню
-	CodePagesMenu = std::make_unique<VMenu2>(L"", nullptr, 0, ScrY-4);
+	CodePagesMenu = VMenu2::create(L"", nullptr, 0, ScrY-4);
 	CodePagesMenu->SetBottomTitle(MSG(!Global->Opt->CPMenuMode?MGetCodePageBottomTitle:MGetCodePageBottomShortTitle));
 	CodePagesMenu->SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
 	CodePagesMenu->SetHelp(L"CodePagesMenu");

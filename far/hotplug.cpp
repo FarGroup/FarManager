@@ -464,12 +464,12 @@ int RemoveHotplugDisk(wchar_t Disk, DWORD Flags)
 
 void ShowHotplugDevices()
 {
-	VMenu2 HotPlugList(MSG(MHotPlugListTitle), nullptr, 0, 0);
+	auto HotPlugList = VMenu2::create(MSG(MHotPlugListTitle), nullptr, 0, 0);
 	std::vector<DeviceInfo> Info;
 
 	auto FillMenu = [&]()
 	{
-		HotPlugList.DeleteItems();
+		HotPlugList->DeleteItems();
 		Info = GetHotplugDevicesInfo();
 
 		if (!Info.empty())
@@ -505,16 +505,16 @@ void ShowHotplugDevices()
 				{
 					ListItem.strName = L"UNKNOWN";
 				}
-				HotPlugList.AddItem(ListItem);
+				HotPlugList->AddItem(ListItem);
 			});
 		}
 	};
 
 	FillMenu();
-	HotPlugList.SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
-	HotPlugList.SetPosition(-1,-1,0,0);
-	HotPlugList.AssignHighlights(TRUE);
-	HotPlugList.SetBottomTitle(MSG(MHotPlugListBottom));
+	HotPlugList->SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
+	HotPlugList->SetPosition(-1,-1,0,0);
+	HotPlugList->AssignHighlights(TRUE);
+	HotPlugList->SetBottomTitle(MSG(MHotPlugListBottom));
 
 	bool NeedRefresh = false;
 
@@ -523,7 +523,7 @@ void ShowHotplugDevices()
 		NeedRefresh = true;
 	});
 
-	HotPlugList.Run([&](int Key)->int
+	HotPlugList->Run([&](int Key)->int
 	{
 		if(Key==KEY_NONE && NeedRefresh)
 		{
@@ -537,7 +537,7 @@ void ShowHotplugDevices()
 		{
 			case KEY_F1:
 			{
-				Help Hlp(L"HotPlugList");
+				Help::create(L"HotPlugList");
 				break;
 			}
 			case KEY_CTRLR:
@@ -548,10 +548,10 @@ void ShowHotplugDevices()
 			case KEY_NUMDEL:
 			case KEY_DEL:
 			{
-				if (HotPlugList.GetItemCount() > 0)
+				if (HotPlugList->GetItemCount() > 0)
 				{
 					int bResult;
-					int I = HotPlugList.GetSelectPos();
+					int I = HotPlugList->GetSelectPos();
 
 					if ((bResult=RemoveHotplugDevice(Info[I], EJECT_NOTIFY_AFTERREMOVE)) == 1)
 					{
@@ -562,7 +562,7 @@ void ShowHotplugDevices()
 						SetLastError(ERROR_DRIVE_LOCKED); // ...þ "The disk is in use or locked by another process."
 						Global->CatchError();
 						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
-						        MSG(MChangeCouldNotEjectHotPlugMedia2),HotPlugList.GetItemPtr(I)->strName.data(),MSG(MOk));
+						        MSG(MChangeCouldNotEjectHotPlugMedia2),HotPlugList->GetItemPtr(I)->strName.data(),MSG(MOk));
 					}
 				}
 

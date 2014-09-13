@@ -36,10 +36,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "modal.hpp"
 #include "macro.hpp"
 
-class Grabber:SimpleModal
+class Grabber: public SimpleModal
 {
 public:
-	Grabber();
+	static grabber_ptr create();
 	virtual ~Grabber();
 
 	virtual int GetType() const override { return windowtype_grabber; }
@@ -47,6 +47,8 @@ public:
 	virtual void ResizeConsole(void) override;
 
 private:
+	Grabber();
+	void init();
 	virtual void DisplayObject() override;
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;

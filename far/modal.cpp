@@ -52,8 +52,8 @@ SimpleModal::SimpleModal():
 
 void SimpleModal::Process()
 {
-	Global->WindowManager->ExecuteWindow(this);
-	Global->WindowManager->ExecuteModal(this);
+	Global->WindowManager->ExecuteWindow(shared_from_this());
+	Global->WindowManager->ExecuteModal(shared_from_this());
 }
 
 int SimpleModal::ReadInput(INPUT_RECORD *GetReadRec)
@@ -136,7 +136,7 @@ void SimpleModal::Close(int Code)
 {
 	SetExitCode(Code);
 	Hide();
-	Global->WindowManager->DeleteWindow(this);
+	Global->WindowManager->DeleteWindow(shared_from_this());
 }
 
 void SimpleModal::SetHelp(const wchar_t *Topic)
@@ -148,5 +148,5 @@ void SimpleModal::SetHelp(const wchar_t *Topic)
 void SimpleModal::ShowHelp()
 {
 	if (!m_HelpTopic.empty())
-		Help Hlp(m_HelpTopic);
+		Help::create(m_HelpTopic);
 }

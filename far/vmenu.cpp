@@ -70,17 +70,12 @@ MenuItemEx FarList2MenuItem(const FarListItem& FItem)
 	return Result;
 }
 
-VMenu::VMenu(const string& Title,       // заголовок меню
-             MenuDataEx *Data, // пункты меню
-             int ItemsCount,     // количество пунктов меню
-             int MaxHeight,     // максимальная высота
-             DWORD Flags,       // нужен ScrollBar?
-             Dialog *ParentDialog
-            ):  // родитель для ListBox
+VMenu::VMenu(const string& Title, int MaxHeight, Dialog *ParentDialog) :
 	strTitle(Title),
 	SelectPos(-1),
 	SelectPosResult(-1),
 	TopPos(0),
+	MaxHeight(MaxHeight),
 	WasAutoHeight(false),
 	m_MaxLength(0),
 	m_BoxType(DOUBLE_BOX),
@@ -92,8 +87,18 @@ VMenu::VMenu(const string& Title,       // заголовок меню
 	ItemSubMenusCount(0),
 	MenuId(FarGuid)
 {
+}
+
+vmenu_ptr VMenu::create(const string& Title, MenuDataEx *Data, int ItemCount, int MaxHeight, DWORD Flags, Dialog *ParentDialog)
+{
+	vmenu_ptr VmenuPtr(new VMenu(Title, MaxHeight, ParentDialog));
+	VmenuPtr->init(Data, ItemCount, Flags);
+	return VmenuPtr;
+}
+
+void VMenu::init(MenuDataEx *Data, int ItemsCount, DWORD Flags)
+{
 	SaveScr=nullptr;
-	SetDynamicallyBorn(false);
 	SetFlags(Flags|VMENU_MOUSEREACTION|VMENU_UPDATEREQUIRED);
 	ClearFlags(VMENU_SHOWAMPERSAND|VMENU_MOUSEDOWN);
 	CurrentWindow = Global->WindowManager->GetCurrentWindow();

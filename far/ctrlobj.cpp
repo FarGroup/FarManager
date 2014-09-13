@@ -67,7 +67,7 @@ ControlObject::ControlObject():
 	GotoXY(0, ScrY - 2);
 	MoveCursor(0, ScrY - 1);
 
-	Desktop = new desktop;
+	Desktop = desktop::create();
 	Global->WindowManager->InsertWindow(Desktop);
 	Desktop->FillFromBuffer();
 
@@ -87,7 +87,7 @@ ControlObject::ControlObject():
 
 void ControlObject::Init(int DirCount)
 {
-	FPanels=new FilePanels();
+	FPanels = FilePanels::create();
 	CmdLine=new CommandLine();
 	Desktop->FillFromBuffer();
 	this->TopMenuBar=&(FPanels->TopMenuBar);
@@ -136,8 +136,7 @@ void ControlObject::Init(int DirCount)
 
 void ControlObject::CreateDummyFilePanels()
 {
-	DummyPanels = std::make_unique<FilePanels>(false);
-	FPanels = DummyPanels.get();
+	FPanels = FilePanels::create(false);
 }
 
 ControlObject::~ControlObject()
@@ -201,5 +200,5 @@ void ControlObject::ShowCopyright(DWORD Flags)
 
 FilePanels* ControlObject::Cp()
 {
-	return FPanels;
+	return FPanels.get();
 }

@@ -335,7 +335,7 @@ int QuickView::ProcessKey(const Manager::Key& Key)
 
 	if (LocalKey == KEY_F1)
 	{
-		Help Hlp(L"QViewPanel");
+		Help::create(L"QViewPanel");
 		return TRUE;
 	}
 

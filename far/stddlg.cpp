@@ -139,17 +139,17 @@ int GetSearchReplaceString(
 		if (!pPreserveStyle)
 			ReplaceDlg[10].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
 
-		Dialog Dlg(ReplaceDlg);
-		Dlg.SetPosition(-1,-1,76,14);
+		auto Dlg = Dialog::create(ReplaceDlg);
+		Dlg->SetPosition(-1,-1,76,14);
 
 		if (HelpTopic && *HelpTopic)
-			Dlg.SetHelp(HelpTopic);
+			Dlg->SetHelp(HelpTopic);
 
-		if(Id) Dlg.SetId(*Id);
+		if(Id) Dlg->SetId(*Id);
 
-		Dlg.Process();
+		Dlg->Process();
 
-		if(Dlg.GetExitCode() == 12)
+		if(Dlg->GetExitCode() == 12)
 		{
 			Result = 1;
 			SearchStr = ReplaceDlg[2].strData;
@@ -206,16 +206,16 @@ int GetSearchReplaceString(
 		if (HideAll)
 			SearchDlg[10].Flags |= DIF_HIDDEN;
 
-		Dialog Dlg(SearchDlg);
-		Dlg.SetPosition(-1,-1,76,11);
+		auto Dlg = Dialog::create(SearchDlg);
+		Dlg->SetPosition(-1,-1,76,11);
 
 		if (HelpTopic && *HelpTopic)
-			Dlg.SetHelp(HelpTopic);
+			Dlg->SetHelp(HelpTopic);
 
-		if(Id) Dlg.SetId(*Id);
+		if(Id) Dlg->SetId(*Id);
 
-		Dlg.Process();
-		int ExitCode = Dlg.GetExitCode();
+		Dlg->Process();
+		int ExitCode = Dlg->GetExitCode();
 
 		if (ExitCode == 9 || ExitCode == 10)
 		{
@@ -335,18 +335,18 @@ int GetString(
 		StrDlg[2].strData = SrcText;
 
 	{
-		Dialog Dlg(make_range(StrDlg.data(), StrDlg.data() + StrDlg.size() - Substract));
-		Dlg.SetPosition(-1,-1,76,offset+((Flags&FIB_BUTTONS)?8:6));
-		if(Id) Dlg.SetId(*Id);
+		auto Dlg = Dialog::create(make_range(StrDlg.data(), StrDlg.data() + StrDlg.size() - Substract));
+		Dlg->SetPosition(-1,-1,76,offset+((Flags&FIB_BUTTONS)?8:6));
+		if(Id) Dlg->SetId(*Id);
 
 		if (HelpTopic)
-			Dlg.SetHelp(HelpTopic);
+			Dlg->SetHelp(HelpTopic);
 
-		Dlg.SetPluginOwner(PluginNumber);
+		Dlg->SetPluginOwner(PluginNumber);
 
-		Dlg.Process();
+		Dlg->Process();
 
-		ExitCode=Dlg.GetExitCode();
+		ExitCode=Dlg->GetExitCode();
 
 		if (ExitCode == -2 && Global->CtrlObject->Macro.IsExecuting() != MACROSTATE_NOMACRO)
 			Global->CtrlObject->Macro.SendDropProcess();
@@ -410,15 +410,15 @@ int GetNameAndPassword(const string& Title, string &strUserName, string &strPass
 	auto PassDlg = MakeDialogItemsEx(PassDlgData);
 
 	{
-		Dialog Dlg(PassDlg);
-		Dlg.SetPosition(-1,-1,76,10);
-		Dlg.SetId(GetNameAndPasswordId);
+		auto Dlg = Dialog::create(PassDlg);
+		Dlg->SetPosition(-1,-1,76,10);
+		Dlg->SetId(GetNameAndPasswordId);
 
 		if (HelpTopic)
-			Dlg.SetHelp(HelpTopic);
+			Dlg->SetHelp(HelpTopic);
 
-		Dlg.Process();
-		ExitCode=Dlg.GetExitCode();
+		Dlg->Process();
+		ExitCode=Dlg->GetExitCode();
 	}
 
 	if (ExitCode!=6)

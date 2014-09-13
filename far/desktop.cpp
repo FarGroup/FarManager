@@ -50,6 +50,11 @@ desktop::desktop()
 	SetPosition(0, 0, ScrX, ScrY);
 }
 
+desktop_ptr desktop::create()
+{
+	return desktop_ptr(new desktop);
+}
+
 desktop::~desktop()
 {
 }
@@ -71,7 +76,7 @@ int desktop::ProcessKey(const Manager::Key& Key)
 	{
 	case KEY_F1:
 		{
-			Help hlp(L"Contents");
+			Help::create(L"Contents");
 		}
 		break;
 

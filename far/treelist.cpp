@@ -922,7 +922,7 @@ int TreeList::ReadTree()
 		if (CheckForEscSilent())
 		{
 			// BUGBUG, Dialog calls Commit, TreeList redraws and crashes.
-			window *f = Global->WindowManager->GetCurrentWindow();
+			auto f = Global->WindowManager->GetCurrentWindow();
 			if (f)
 				f->Lock();
 
@@ -1145,7 +1145,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 	{
 		case KEY_F1:
 		{
-			Help Hlp(L"TreePanel");
+			Help::create(L"TreePanel");
 			return TRUE;
 		}
 		case KEY_SHIFTNUMENTER:

@@ -34,10 +34,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "window.hpp"
 
+typedef std::shared_ptr<desktop> desktop_ptr;
+
 class desktop: public window
 {
 public:
-	desktop();
+	static desktop_ptr create();
 	virtual ~desktop();
 
 	virtual int GetType() const override { return windowtype_desktop; }
@@ -49,6 +51,7 @@ public:
 	void FillFromConsole();
 
 private:
+	desktop();
 	virtual string GetTitle() const override { return L"Desktop"; } // TODO: localization
 	virtual void DisplayObject() override;
 

@@ -90,7 +90,7 @@ void print_opcodes()
 	fprintf(fp, "MCODE_F_CLIP=0x%X // V=clip(N[,V])\n", MCODE_F_CLIP);
 	fprintf(fp, "MCODE_F_CHR=0x%X // S=chr(N)\n", MCODE_F_CHR);
 	fprintf(fp, "MCODE_F_DATE=0x%X // S=date([S])\n", MCODE_F_DATE);
-	fprintf(fp, "MCODE_F_DLG_GETVALUE=0x%X // V=Dlg.GetValue([Pos[,InfoID]])\n", MCODE_F_DLG_GETVALUE);
+	fprintf(fp, "MCODE_F_DLG_GETVALUE=0x%X // V=Dlg->GetValue([Pos[,InfoID]])\n", MCODE_F_DLG_GETVALUE);
 	fprintf(fp, "MCODE_F_EDITOR_SEL=0x%X // V=Editor.Sel(Action[,Opt])\n", MCODE_F_EDITOR_SEL);
 	fprintf(fp, "MCODE_F_EDITOR_SET=0x%X // N=Editor.Set(N,Var)\n", MCODE_F_EDITOR_SET);
 	fprintf(fp, "MCODE_F_EDITOR_UNDO=0x%X // V=Editor.Undo(N)\n", MCODE_F_EDITOR_UNDO);
@@ -169,7 +169,7 @@ void print_opcodes()
 	fprintf(fp, "MCODE_F_PLUGIN_EXIST=0x%X // N=Plugin.Exist(Guid)\n", MCODE_F_PLUGIN_EXIST);
 	fprintf(fp, "MCODE_F_MENU_FILTER=0x%X // N=Menu.Filter(Action[,Mode])\n", MCODE_F_MENU_FILTER);
 	fprintf(fp, "MCODE_F_MENU_FILTERSTR=0x%X // S=Menu.FilterStr([Action[,S]])\n", MCODE_F_MENU_FILTERSTR);
-	fprintf(fp, "MCODE_F_DLG_SETFOCUS=0x%X // N=Dlg.SetFocus([ID])\n", MCODE_F_DLG_SETFOCUS);
+	fprintf(fp, "MCODE_F_DLG_SETFOCUS=0x%X // N=Dlg->SetFocus([ID])\n", MCODE_F_DLG_SETFOCUS);
 	fprintf(fp, "MCODE_F_FAR_CFG_GET=0x%X // V=Far.Cfg.Get(Key,Name)\n", MCODE_F_FAR_CFG_GET);
 	fprintf(fp, "MCODE_F_SIZE2STR=0x%X // S=Size2Str(N,Flags[,Width])\n", MCODE_F_SIZE2STR);
 	fprintf(fp, "MCODE_F_STRWRAP=0x%X // S=StrWrap(Text,Width[,Break[,Flags]])\n", MCODE_F_STRWRAP);
@@ -312,12 +312,12 @@ void print_opcodes()
 	fprintf(fp, "MCODE_V_EDITORVALUE=0x%X // Editor.Value - содержимое текущей строки\n", MCODE_V_EDITORVALUE);
 	fprintf(fp, "MCODE_V_EDITORSELVALUE=0x%X // Editor.SelValue - содержит содержимое выделенного блока\n", MCODE_V_EDITORSELVALUE);
 
-	fprintf(fp, "MCODE_V_DLGITEMTYPE=0x%X // Dlg.ItemType\n", MCODE_V_DLGITEMTYPE);
-	fprintf(fp, "MCODE_V_DLGITEMCOUNT=0x%X // Dlg.ItemCount\n", MCODE_V_DLGITEMCOUNT);
-	fprintf(fp, "MCODE_V_DLGCURPOS=0x%X // Dlg.CurPos\n", MCODE_V_DLGCURPOS);
-	fprintf(fp, "MCODE_V_DLGPREVPOS=0x%X // Dlg.PrevPos\n", MCODE_V_DLGPREVPOS);
-	fprintf(fp, "MCODE_V_DLGINFOID=0x%X // Dlg.Info.Id\n", MCODE_V_DLGINFOID);
-	fprintf(fp, "MCODE_V_DLGINFOOWNER=0x%X // Dlg.Info.Owner\n", MCODE_V_DLGINFOOWNER);
+	fprintf(fp, "MCODE_V_DLGITEMTYPE=0x%X // Dlg->ItemType\n", MCODE_V_DLGITEMTYPE);
+	fprintf(fp, "MCODE_V_DLGITEMCOUNT=0x%X // Dlg->ItemCount\n", MCODE_V_DLGITEMCOUNT);
+	fprintf(fp, "MCODE_V_DLGCURPOS=0x%X // Dlg->CurPos\n", MCODE_V_DLGCURPOS);
+	fprintf(fp, "MCODE_V_DLGPREVPOS=0x%X // Dlg->PrevPos\n", MCODE_V_DLGPREVPOS);
+	fprintf(fp, "MCODE_V_DLGINFOID=0x%X // Dlg->Info.Id\n", MCODE_V_DLGINFOID);
+	fprintf(fp, "MCODE_V_DLGINFOOWNER=0x%X // Dlg->Info.Owner\n", MCODE_V_DLGINFOOWNER);
 
 	fprintf(fp, "MCODE_V_VIEWERFILENAME=0x%X // Viewer.FileName - имя просматриваемого файла\n", MCODE_V_VIEWERFILENAME);
 	fprintf(fp, "MCODE_V_VIEWERSTATE=0x%X // Viewer.State\n", MCODE_V_VIEWERSTATE);
@@ -1142,7 +1142,7 @@ static BOOL CheckEditSelected(FARMACROAREA Mode, UINT64 CurFlags)
 	if (Mode==MACROAREA_EDITOR || Mode==MACROAREA_DIALOG || Mode==MACROAREA_VIEWER || (Mode==MACROAREA_SHELL&&Global->CtrlObject->CmdLine->IsVisible()))
 	{
 		int NeedType = Mode == MACROAREA_EDITOR?windowtype_editor:(Mode == MACROAREA_VIEWER?windowtype_viewer:(Mode == MACROAREA_DIALOG?windowtype_dialog:windowtype_panels));
-		window* CurrentWindow = Global->WindowManager->GetCurrentWindow();
+		auto CurrentWindow = Global->WindowManager->GetCurrentWindow();
 
 		if (CurrentWindow && CurrentWindow->GetType()==NeedType)
 		{
@@ -1424,21 +1424,21 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 	MacroSettingsDlg[MS_EDIT_DESCR].strData=(Descr && *Descr)?Descr:m_RecDescription.data();
 
 	DlgParam Param={0, 0, MACROAREA_OTHER, 0, false};
-	Dialog Dlg(MacroSettingsDlg, this, &KeyMacro::ParamMacroDlgProc, &Param);
-	Dlg.SetPosition(-1,-1,73,21);
-	Dlg.SetHelp(L"KeyMacroSetting");
-	window* BottomWindow = Global->WindowManager->GetBottomWindow();
+	auto Dlg = Dialog::create(MacroSettingsDlg, this, &KeyMacro::ParamMacroDlgProc, &Param);
+	Dlg->SetPosition(-1,-1,73,21);
+	Dlg->SetHelp(L"KeyMacroSetting");
+	auto BottomWindow = Global->WindowManager->GetBottomWindow();
 	if(BottomWindow)
 	{
 		BottomWindow->Lock(); // отменим прорисовку окна
 	}
-	Dlg.Process();
+	Dlg->Process();
 	if(BottomWindow)
 	{
 		BottomWindow->Unlock(); // теперь можно :-)
 	}
 
-	if (Dlg.GetExitCode()!=MS_BUTTON_OK)
+	if (Dlg->GetExitCode()!=MS_BUTTON_OK)
 		return FALSE;
 
 	Flags=MacroSettingsDlg[MS_CHECKBOX_OUPUT].Selected?MFLAGS_ENABLEOUTPUT:0;
@@ -1716,7 +1716,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 	Panel *ActivePanel = Global->CtrlObject->Cp() ? Global->CtrlObject->Cp()->ActivePanel() : nullptr;
 	Panel *PassivePanel = Global->CtrlObject->Cp() ? Global->CtrlObject->Cp()->PassivePanel() : nullptr;
 
-	window* CurrentWindow = Global->WindowManager->GetCurrentWindow();
+	auto CurrentWindow = Global->WindowManager->GetCurrentWindow();
 
 	switch (CheckCode)
 	{
@@ -1814,7 +1814,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			}
 			else
 			{
-				window *f = Global->WindowManager->GetCurrentWindow();
+				auto f = Global->WindowManager->GetCurrentWindow();
 				if (f)
 				{
 					ret=f->VMProcess(CheckCode);
@@ -1839,7 +1839,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			else
 			{
 				{
-					window* f = Global->WindowManager->GetCurrentWindow();
+					auto f = Global->WindowManager->GetCurrentWindow();
 
 					if (f)
 					{
@@ -1851,12 +1851,12 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			return PassBoolean(ret, Data);
 		}
 
-		case MCODE_V_DLGITEMCOUNT: // Dlg.ItemCount
-		case MCODE_V_DLGCURPOS:    // Dlg.CurPos
-		case MCODE_V_DLGITEMTYPE:  // Dlg.ItemType
-		case MCODE_V_DLGPREVPOS:   // Dlg.PrevPos
-		case MCODE_V_DLGINFOID:        // Dlg.Info.Id
-		case MCODE_V_DLGINFOOWNER:     // Dlg.Info.Owner
+		case MCODE_V_DLGITEMCOUNT: // Dlg->ItemCount
+		case MCODE_V_DLGCURPOS:    // Dlg->CurPos
+		case MCODE_V_DLGITEMTYPE:  // Dlg->ItemType
+		case MCODE_V_DLGPREVPOS:   // Dlg->PrevPos
+		case MCODE_V_DLGINFOID:        // Dlg->Info.Id
+		case MCODE_V_DLGINFOOWNER:     // Dlg->Info.Owner
 		{
 			if (CurrentWindow && CurrentWindow->GetType()==windowtype_menu)
 			{
@@ -2156,37 +2156,32 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 		case MCODE_V_TITLE: // Title
 		{
-			window *f = Global->WindowManager->GetCurrentWindow();
+			auto f = Global->WindowManager->GetCurrentWindow();
 
-			if (f)
+			if (auto FilePanelsPtr = std::dynamic_pointer_cast<FilePanels>(f))
 			{
-				if (Global->CtrlObject->Cp() == f)
-				{
-					strFileName = ActivePanel->GetTitle();
-				}
-				else
-				{
-					string strType;
-
-					switch (f->GetTypeAndName(strType,strFileName))
-					{
-						case windowtype_editor:
-						case windowtype_viewer:
-							strFileName = f->GetTitle();
-							break;
-					}
-				}
-
-				RemoveExternalSpaces(strFileName);
+				strFileName = ActivePanel->GetTitle();
 			}
+			else if (f)
+			{
+				string strType;
 
+				switch (f->GetTypeAndName(strType,strFileName))
+				{
+					case windowtype_editor:
+					case windowtype_viewer:
+						strFileName = f->GetTitle();
+						break;
+				}
+			}
+			RemoveExternalSpaces(strFileName);
 			return PassString(strFileName, Data);
 		}
 
 		case MCODE_V_HEIGHT:  // Height - высота текущего объекта
 		case MCODE_V_WIDTH:   // Width - ширина текущего объекта
 		{
-			window *f = Global->WindowManager->GetCurrentWindow();
+			auto f = Global->WindowManager->GetCurrentWindow();
 
 			if (f)
 			{
@@ -2215,7 +2210,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			if (IsMenuArea(CurMMode) || CurMMode == MACROAREA_DIALOG)
 			{
-				window *f = Global->WindowManager->GetCurrentWindow();
+				auto f = Global->WindowManager->GetCurrentWindow();
 
 				if (f)
 				{
@@ -2244,7 +2239,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_ITEMCOUNT: // ItemCount - число элементов в текущем объекте
 		case MCODE_V_CURPOS: // CurPos - текущий индекс в текущем объекте
 		{
-			window *f = Global->WindowManager->GetCurrentWindow();
+			auto f = Global->WindowManager->GetCurrentWindow();
 
 			if (f)
 			{
@@ -2483,7 +2478,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			TVar& p2(Params[1]);
 
 			__int64 Result=0;
-			window *f = Global->WindowManager->GetCurrentWindow();
+			auto f = Global->WindowManager->GetCurrentWindow();
 
 			if (f)
 			{
@@ -2506,7 +2501,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			if (IsMenuArea(CurMMode) || CurMMode == MACROAREA_DIALOG)
 			{
-				window *f = Global->WindowManager->GetCurrentWindow();
+				auto f = Global->WindowManager->GetCurrentWindow();
 
 				if (f)
 				{
@@ -2575,7 +2570,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			if (IsMenuArea(CurMMode) || CurMMode == MACROAREA_DIALOG)
 			{
-				window *f = Global->WindowManager->GetCurrentWindow();
+				auto f = Global->WindowManager->GetCurrentWindow();
 
 				if (f)
 					Result=f->VMProcess(CheckCode, const_cast<wchar_t*>(Params[0].toString().data()), tmpMode);
@@ -2600,7 +2595,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			if (IsMenuArea(CurMMode) || CurMMode == MACROAREA_DIALOG)
 			{
-				window *f = Global->WindowManager->GetCurrentWindow();
+				auto f = Global->WindowManager->GetCurrentWindow();
 
 				if (f)
 				{
@@ -2995,7 +2990,7 @@ static bool keybarshowFunc(FarMacroCall* Data)
 		ret: prev mode or -1 - KeyBar not found
     */
 	auto Params = parseParams<1>(Data);
-	window *f = Global->WindowManager->GetCurrentWindow();
+	auto f = Global->WindowManager->GetCurrentWindow();
 
 	PassNumber(f?f->VMProcess(MCODE_F_KEYBAR_SHOW,nullptr,Params[0].asInteger())-1:-1, Data);
 	return f != nullptr;
@@ -3426,11 +3421,11 @@ static bool menushowFunc(FarMacroCall* Data)
 		strBottom=strTitle.substr(PosLF+1);
 		strTitle=strTitle.substr(0,PosLF);
 	}
-	VMenu2 Menu(strTitle,nullptr,0,ScrY-4);
-	Menu.SetBottomTitle(strBottom);
-	Menu.SetFlags(MenuFlags);
-	Menu.SetPosition(X,Y,0,0);
-	Menu.SetBoxType(BoxType);
+	auto Menu = VMenu2::create(strTitle, nullptr, 0, ScrY - 4);
+	Menu->SetBottomTitle(strBottom);
+	Menu->SetFlags(MenuFlags);
+	Menu->SetPosition(X,Y,0,0);
+	Menu->SetBoxType(BoxType);
 
 	PosLF = strItems.find(L"\n");
 	CRFound = PosLF != string::npos;
@@ -3489,7 +3484,7 @@ static bool menushowFunc(FarMacroCall* Data)
 			LineCount++;
 			NewItem.strName = str_printf(L"%*d - %s", nLeftShift-3, LineCount, NewItem.strName.data());
 		}
-		Menu.AddItem(NewItem);
+		Menu->AddItem(NewItem);
 		CurrentPos=PosLF+1;
 		PosLF = strItems.find(L"\n",CurrentPos);
 		CRFound = PosLF != string::npos;
@@ -3497,7 +3492,7 @@ static bool menushowFunc(FarMacroCall* Data)
 
 	if (bSorting)
 	{
-		Menu.SortItems([](const MenuItemEx& a, const MenuItemEx& b, const SortItemParam& Param) -> bool
+		Menu->SortItems([](const MenuItemEx& a, const MenuItemEx& b, const SortItemParam& Param) -> bool
 		{
 			if (a.Flags & LIF_SEPARATOR || b.Flags & LIF_SEPARATOR)
 				return false;
@@ -3513,13 +3508,13 @@ static bool menushowFunc(FarMacroCall* Data)
 	}
 
 	if (bPacking)
-		Menu.Pack();
+		Menu->Pack();
 
 	if ((bAutoNumbering) && (bSorting || bPacking))
 	{
-		for (int i = 0; i < Menu.GetShowItemCount(); i++)
+		for (int i = 0; i < Menu->GetShowItemCount(); i++)
 		{
-			MenuItemEx *Item=Menu.GetItemPtr(i);
+			MenuItemEx *Item = Menu->GetItemPtr(i);
 			if (!(Item->Flags & LIF_SEPARATOR))
 			{
 				LineCount++;
@@ -3533,35 +3528,35 @@ static bool menushowFunc(FarMacroCall* Data)
 		if (VFindOrFilter.isInteger() || VFindOrFilter.isDouble())
 		{
 			if (VFindOrFilter.toInteger()-1>=0)
-				Menu.SetSelectPos(VFindOrFilter.toInteger()-1,1);
+				Menu->SetSelectPos(VFindOrFilter.toInteger() - 1, 1);
 			else
-				Menu.SetSelectPos(Menu.GetItemCount()+VFindOrFilter.toInteger(),1);
+				Menu->SetSelectPos(Menu->GetItemCount() + VFindOrFilter.toInteger(), 1);
 		}
 		else
 			if (VFindOrFilter.isString())
-				Menu.SetSelectPos(std::max(0,Menu.FindItem(0, VFindOrFilter.toString())),1);
+				Menu->SetSelectPos(std::max(0, Menu->FindItem(0, VFindOrFilter.toString())), 1);
 	}
 
-	window *Window;
+	window_ptr Window;
 
 	if ((Window = Global->WindowManager->GetBottomWindow()) )
 		Window->Lock();
 
-	int PrevSelectedPos=Menu.GetSelectPos();
+	int PrevSelectedPos=Menu->GetSelectPos();
 	DWORD LastKey=0;
 	bool CheckFlag;
 
-	Menu.Key(KEY_NONE);
-	Menu.Run([&](int Key)->int
+	Menu->Key(KEY_NONE);
+	Menu->Run([&](int Key)->int
 	{
 		if (bSetMenuFilter && !VFindOrFilter.isUnknown())
 		{
 			string NewStr=VFindOrFilter.toString();
-			Menu.VMProcess(MCODE_F_MENU_FILTERSTR, (void*)&NewStr, 1);
+			Menu->VMProcess(MCODE_F_MENU_FILTERSTR, (void*)&NewStr, 1);
 			bSetMenuFilter=0;
 		}
 
-		SelectedPos=Menu.GetSelectPos();
+		SelectedPos=Menu->GetSelectPos();
 		LastKey=Key;
 		int KeyProcessed = 1;
 		switch (Key)
@@ -3569,7 +3564,7 @@ static bool menushowFunc(FarMacroCall* Data)
 			case KEY_NUMPAD0:
 			case KEY_INS:
 				if (bMultiSelect)
-					Menu.SetCheck(!Menu.GetCheck(SelectedPos));
+					Menu->SetCheck(!Menu->GetCheck(SelectedPos));
 				break;
 
 			case KEY_CTRLADD:
@@ -3580,20 +3575,20 @@ static bool menushowFunc(FarMacroCall* Data)
 			case KEY_RCTRLMULTIPLY:
 				if (bMultiSelect)
 				{
-					for(int i=0; i<Menu.GetItemCount(); i++)
+					for(int i=0; i<Menu->GetItemCount(); i++)
 					{
-						if (Menu.GetItemPtr(i)->Flags&MIF_HIDDEN)
+						if (Menu->GetItemPtr(i)->Flags&MIF_HIDDEN)
 							continue;
 
 						if (Key==KEY_CTRLMULTIPLY || Key==KEY_RCTRLMULTIPLY)
 						{
-							CheckFlag = !Menu.GetCheck(i);
+							CheckFlag = !Menu->GetCheck(i);
 						}
 						else
 						{
 							CheckFlag=(Key==KEY_CTRLADD || Key==KEY_RCTRLADD);
 						}
-						Menu.SetCheck(CheckFlag, i);
+						Menu->SetCheck(CheckFlag, i);
 					}
 				}
 				break;
@@ -3601,16 +3596,16 @@ static bool menushowFunc(FarMacroCall* Data)
 			case KEY_CTRLA:
 			case KEY_RCTRLA:
 			{
-				int ItemCount=Menu.GetShowItemCount();
+				int ItemCount=Menu->GetShowItemCount();
 				if(ItemCount>ScrY-4)
 					ItemCount=ScrY-4;
-				Menu.SetMaxHeight(ItemCount);
+				Menu->SetMaxHeight(ItemCount);
 				break;
 			}
 
 			case KEY_BREAK:
 				Global->CtrlObject->Macro.SendDropProcess();
-				Menu.Close(-1);
+				Menu->Close(-1);
 				break;
 
 			default:
@@ -3619,8 +3614,8 @@ static bool menushowFunc(FarMacroCall* Data)
 
 		if (bExitAfterNavigate && (PrevSelectedPos!=SelectedPos))
 		{
-			SelectedPos=Menu.GetSelectPos();
-			Menu.Close();
+			SelectedPos=Menu->GetSelectPos();
+			Menu->Close();
 			return KeyProcessed;
 		}
 
@@ -3630,15 +3625,15 @@ static bool menushowFunc(FarMacroCall* Data)
 
 	wchar_t temp[65];
 
-	if (Menu.GetExitCode() >= 0)
+	if (Menu->GetExitCode() >= 0)
 	{
-		SelectedPos=Menu.GetExitCode();
+		SelectedPos=Menu->GetExitCode();
 		if (bMultiSelect)
 		{
 			Result=L"";
-			for(int i=0; i<Menu.GetItemCount(); i++)
+			for(int i=0; i<Menu->GetItemCount(); i++)
 			{
-				if (Menu.GetCheck(i))
+				if (Menu->GetCheck(i))
 				{
 					if (bResultAsIndex)
 					{
@@ -3646,7 +3641,7 @@ static bool menushowFunc(FarMacroCall* Data)
 						Result+=temp;
 					}
 					else
-						Result+=(*Menu.GetItemPtr(i)).strName.data()+nLeftShift;
+						Result+=(*Menu->GetItemPtr(i)).strName.data()+nLeftShift;
 					Result+=L"\n";
 				}
 			}
@@ -3658,12 +3653,12 @@ static bool menushowFunc(FarMacroCall* Data)
 					Result=temp;
 				}
 				else
-					Result=(*Menu.GetItemPtr(SelectedPos)).strName.data()+nLeftShift;
+					Result=(*Menu->GetItemPtr(SelectedPos)).strName.data()+nLeftShift;
 			}
 		}
 		else
 			if(!bResultAsIndex)
-				Result=(*Menu.GetItemPtr(SelectedPos)).strName.data()+nLeftShift;
+				Result=(*Menu->GetItemPtr(SelectedPos)).strName.data()+nLeftShift;
 			else
 				Result=SelectedPos+1;
 	}
@@ -3881,24 +3876,25 @@ static bool flockFunc(FarMacroCall* Data)
 	return Ret != -1;
 }
 
-// N=Dlg.SetFocus([ID])
+// N=Dlg->SetFocus([ID])
 static bool dlgsetfocusFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<1>(Data);
 	TVar Ret(-1);
 	unsigned Index=(unsigned)Params[0].asInteger()-1;
-	window* CurrentWindow = Global->WindowManager->GetCurrentWindow();
 
-	if (Global->CtrlObject->Macro.GetMode()==MACROAREA_DIALOG && CurrentWindow && CurrentWindow->GetType()==windowtype_dialog)
+	if (Global->CtrlObject->Macro.GetMode() == MACROAREA_DIALOG)
 	{
-		Ret=CurrentWindow->VMProcess(MCODE_V_DLGCURPOS);
-		if ((int)Index >= 0)
+		if (auto Dlg = std::dynamic_pointer_cast<Dialog>(Global->WindowManager->GetCurrentWindow()))
 		{
-			if(!static_cast<Dialog*>(CurrentWindow)->SendMessage(DM_SETFOCUS,Index,0))
-				Ret=0;
+			Ret = Dlg->VMProcess(MCODE_V_DLGCURPOS);
+			if ((int)Index >= 0)
+			{
+				if (!Dlg->SendMessage(DM_SETFOCUS, Index, 0))
+					Ret = 0;
+			}
 		}
 	}
-
 	PassValue(&Ret, Data);
 	return Ret.asInteger() != -1; // ?? <= 0 ??
 }
@@ -3928,13 +3924,15 @@ static bool fargetconfigFunc(FarMacroCall* Data)
 				PassBoolean(Opt->Get(), Data);
 				return true;
 			}
-			else if (auto Opt = dynamic_cast<const Bool3Option*>(option))
+
+			if (auto Opt = dynamic_cast<const Bool3Option*>(option))
 			{
 				PassNumber(2,Data);
 				PassNumber((double)Opt->Get(), Data);
 				return true;
 			}
-			else if (auto Opt = dynamic_cast<const IntOption*>(option))
+
+			if (auto Opt = dynamic_cast<const IntOption*>(option))
 			{
 				double d;
 				PassNumber(3,Data);
@@ -3944,7 +3942,8 @@ static bool fargetconfigFunc(FarMacroCall* Data)
 					PassInteger(Opt->Get(), Data);
 				return true;
 			}
-			else if (auto Opt = dynamic_cast<const StringOption*>(option))
+
+			if (auto Opt = dynamic_cast<const StringOption*>(option))
 			{
 				PassNumber(4,Data);
 				PassString(Opt->Get(), Data);
@@ -3956,16 +3955,17 @@ static bool fargetconfigFunc(FarMacroCall* Data)
 	return false;
 }
 
-// V=Dlg.GetValue([Pos[,InfoID]])
+// V=Dlg->GetValue([Pos[,InfoID]])
 static bool dlggetvalueFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<2>(Data);
 	TVar Ret(-1);
-	window* CurrentWindow = Global->WindowManager->GetCurrentWindow();
 
-	if (Global->CtrlObject->Macro.GetMode()==MACROAREA_DIALOG && CurrentWindow && CurrentWindow->GetType()==windowtype_dialog)
+	if (Global->CtrlObject->Macro.GetMode()==MACROAREA_DIALOG)
 	{
-		auto Dlg = static_cast<Dialog*>(CurrentWindow);
+		// TODO: fix indentation
+		if (auto Dlg = std::dynamic_pointer_cast<Dialog>(Global->WindowManager->GetCurrentWindow()))
+		{
 		TVarType typeIndex=Params[0].type();
 		size_t Index=(unsigned)Params[0].asInteger()-1;
 		if (typeIndex == vtUnknown || ((typeIndex==vtInteger || typeIndex==vtDouble) && (int)Index < -1))
@@ -4134,6 +4134,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 						break;
 				}
 			}
+		}
 		}
 	}
 
@@ -4620,7 +4621,7 @@ static bool panelsetpathFunc(FarMacroCall* Data)
 		Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 		Panel *PassivePanel = Global->CtrlObject->Cp()->PassivePanel();
 
-		//window* CurrentWindow=WindowManager->GetCurrentWindow();
+		//auto CurrentWindow=WindowManager->GetCurrentWindow();
 		Panel *SelPanel = typePanel? (typePanel == 1?PassivePanel:nullptr):ActivePanel;
 
 		if (SelPanel)
@@ -4663,7 +4664,7 @@ static bool panelsetposFunc(FarMacroCall* Data)
 	int typePanel=(int)Params[0].asInteger();
 	const auto& fileName=Val.asString();
 
-	//window* CurrentWindow=WindowManager->GetCurrentWindow();
+	//auto CurrentWindow=WindowManager->GetCurrentWindow();
 	__int64 Ret=0;
 
 	auto SelPanel = TypeToPanel(typePanel);
@@ -4769,7 +4770,7 @@ static bool panelitemFunc(FarMacroCall* Data)
 	int typePanel=(int)Params[0].asInteger();
 	TVar Ret(0ll);
 
-	//window* CurrentWindow=WindowManager->GetCurrentWindow();
+	//auto CurrentWindow=WindowManager->GetCurrentWindow();
 
 	auto SelPanel = TypeToPanel(typePanel);
 	if (!SelPanel)
@@ -5142,7 +5143,7 @@ static bool editorselFunc(FarMacroCall* Data)
 
 	FARMACROAREA Mode=Global->CtrlObject->Macro.GetMode();
 	int NeedType = Mode == MACROAREA_EDITOR?windowtype_editor:(Mode == MACROAREA_VIEWER?windowtype_viewer:(Mode == MACROAREA_DIALOG?windowtype_dialog:windowtype_panels)); // MACROAREA_SHELL?
-	window* CurrentWindow = Global->WindowManager->GetCurrentWindow();
+	auto CurrentWindow = Global->WindowManager->GetCurrentWindow();
 
 	if (CurrentWindow && CurrentWindow->GetType()==NeedType)
 	{
@@ -5556,13 +5557,13 @@ int KeyMacro::AssignMacroKey(DWORD &MacroKey, UINT64 &Flags)
 	DlgParam Param={Flags, 0, m_StartMode, 0, false};
 	//_SVS(SysLog(L"StartMode=%d",m_StartMode));
 	Global->IsProcessAssignMacroKey++;
-	Dialog Dlg(MacroAssignDlg, this, &KeyMacro::AssignMacroDlgProc, &Param);
-	Dlg.SetPosition(-1,-1,34,6);
-	Dlg.SetHelp(L"KeyMacro");
-	Dlg.Process();
+	auto Dlg = Dialog::create(MacroAssignDlg, this, &KeyMacro::AssignMacroDlgProc, &Param);
+	Dlg->SetPosition(-1,-1,34,6);
+	Dlg->SetHelp(L"KeyMacro");
+	Dlg->Process();
 	Global->IsProcessAssignMacroKey--;
 
-	if (Dlg.GetExitCode() == -1)
+	if (Dlg->GetExitCode() == -1)
 		return 0;
 
 	MacroKey = Param.Key;

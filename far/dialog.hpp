@@ -98,7 +98,7 @@ struct DialogItemEx: NonCopyable, public FarDialogItem
 	BitFlags IFlags;
 	std::vector<DialogItemAutomation> Auto;
 	void *ObjPtr;
-	VMenu *ListPtr;
+	vmenu_ptr ListPtr;
 	class DlgUserControl *UCData;
 	intptr_t SelStart;
 	intptr_t SelEnd;
@@ -107,7 +107,6 @@ struct DialogItemEx: NonCopyable, public FarDialogItem
 		FarDialogItem(),
 		ListPos(),
 		ObjPtr(),
-		ListPtr(),
 		UCData(),
 		SelStart(),
 		SelEnd()
@@ -198,6 +197,7 @@ class ConsoleTitle;
 class Plugin;
 class Dialog;
 
+typedef std::shared_ptr<Dialog> dialog_ptr;
 
 class Dialog: public Modal
 {
@@ -205,25 +205,21 @@ public:
 	typedef std::function<intptr_t(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)> dialog_handler;
 
 	template<class T, class O>
-	Dialog(T&& Src, O* object, intptr_t(O::*function)(Dialog*, intptr_t, intptr_t, void*), void* InitParam = nullptr):
-		bInitOK(false),
-		DataDialog(InitParam),
-		m_handler((object && function)? [=](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2){ return (object->*function)(Dlg, Msg, Param1, Param2); } : dialog_handler())
+	static dialog_ptr create(T&& Src, O* object, intptr_t(O::*function)(Dialog*, intptr_t, intptr_t, void*), void* InitParam = nullptr)
 	{
-		AddToList();
-		auto Ptr = Src.data();
-		Construct(&Ptr, Src.size());
+		return dialog_ptr(new Dialog(Src, object, function, InitParam));
 	}
 
 	template<class T>
-	Dialog(T&& Src, dialog_handler handler = nullptr, void* InitParam = nullptr):
-		bInitOK(false),
-		DataDialog(InitParam),
-		m_handler(handler)
+	static dialog_ptr create(T&& Src, dialog_handler handler = nullptr, void* InitParam = nullptr)
 	{
-		AddToList();
+		dialog_ptr Dlg(new Dialog);
+		Dlg->DataDialog = InitParam;
+		Dlg->m_handler = handler;
+
 		auto Ptr = Src.data();
-		Construct(&Ptr, Src.size());
+		Dlg->Construct(&Ptr, Src.size());
+		return Dlg;
 	}
 
 	virtual ~Dialog();
@@ -278,11 +274,23 @@ public:
 	static bool IsValid(Dialog* Handle);
 
 protected:
-	size_t InitDialogObjects(size_t ID=(size_t)-1);
+	template<class T, class O>
+	Dialog(T&& Src, O* object, intptr_t(O::*function)(Dialog*, intptr_t, intptr_t, void*), void* InitParam):
+		bInitOK(),
+		DataDialog(InitParam),
+		m_handler((object && function) ? [=](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2){ return (object->*function)(Dlg, Msg, Param1, Param2); } : dialog_handler())
+	{
+		auto Ptr = Src.data();
+		Construct(&Ptr, Src.size());
+	}
+
+	size_t InitDialogObjects(size_t ID = (size_t)-1);
 
 private:
 	friend class History;
 	friend class DlgEdit;
+
+	Dialog();
 
 	virtual void DisplayObject() override;
 	virtual string GetTitle() const override;

@@ -54,10 +54,9 @@ enum window_type
 	windowtype_search,
 };
 
-class window: public ScreenObjectWithShadow
+class window: public ScreenObjectWithShadow, public std::enable_shared_from_this<window>
 {
 public:
-	window();
 	virtual ~window();
 
 	virtual int GetCanLoseFocus(int DynamicMode=FALSE) const { return m_CanLoseFocus; }
@@ -81,8 +80,6 @@ public:
 	void UpdateKeyBar();
 	int IsTitleBarVisible() const {return m_TitleBarVisible;}
 	int IsTopWindow() const;
-	void SetDynamicallyBorn(bool Born) {m_DynamicallyBorn=Born;}
-	bool GetDynamicallyBorn() const {return m_DynamicallyBorn;}
 	bool HasSaveScreen() const;
 	void SetFlags( DWORD flags ) { m_Flags.Set(flags); }
 	void SetDeleting(void);
@@ -94,8 +91,9 @@ public:
 	int ID(void) const {return m_ID;}
 
 protected:
+	window();
+
 	int m_ID;
-	bool m_DynamicallyBorn;
 	int m_CanLoseFocus;
 	int m_ExitCode;
 	int m_KeyBarVisible;

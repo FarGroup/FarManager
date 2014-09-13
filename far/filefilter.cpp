@@ -106,18 +106,18 @@ bool FileFilter::FilterEdit()
 	bMenuOpen = true;
 	int ExitCode;
 	bool bNeedUpdate=false;
-	VMenu2 FilterList(MSG(MFilterTitle),nullptr,0,ScrY-6);
-	FilterList.SetHelp(L"FiltersMenu");
-	FilterList.SetPosition(-1,-1,0,0);
-	FilterList.SetBottomTitle(MSG(MFilterBottom));
-	FilterList.SetFlags(/*VMENU_SHOWAMPERSAND|*/VMENU_WRAPMODE);
-	FilterList.SetId(FiltersMenuId);
+	auto FilterList = VMenu2::create(MSG(MFilterTitle), nullptr, 0, ScrY - 6);
+	FilterList->SetHelp(L"FiltersMenu");
+	FilterList->SetPosition(-1,-1,0,0);
+	FilterList->SetBottomTitle(MSG(MFilterBottom));
+	FilterList->SetFlags(/*VMENU_SHOWAMPERSAND|*/VMENU_WRAPMODE);
+	FilterList->SetId(FiltersMenuId);
 
 	std::for_each(RANGE(FilterData(), i)
 	{
 		MenuItemEx ListItem(MenuString(&i));
 		ListItem.SetCheck(GetCheck(i));
-		FilterList.AddItem(ListItem);
+		FilterList->AddItem(ListItem);
 	});
 
 	if (m_FilterType != FFT_CUSTOM)
@@ -148,7 +148,7 @@ bool FileFilter::FilterEdit()
 		{
 			MenuItemEx ListItem;
 			ListItem.Flags = LIF_SEPARATOR;
-			FilterList.AddItem(ListItem);
+			FilterList->AddItem(ListItem);
 		}
 
 		{
@@ -159,7 +159,7 @@ bool FileFilter::FilterEdit()
 			if (Check)
 				ListItem.SetCheck(Check);
 
-			FilterList.AddItem(ListItem);
+			FilterList->AddItem(ListItem);
 		}
 
 		if (GetHostPanel()->GetMode()==NORMAL_PANEL)
@@ -194,13 +194,13 @@ bool FileFilter::FilterEdit()
 			MenuItemEx ListItem(MenuString(nullptr, false, h, true, i.first.data(), MSG(MPanelFileType)));
 			size_t Length = i.first.size() + 1;
 			ListItem.SetCheck(i.second);
-			FilterList.SetUserData(i.first.data(), Length * sizeof(wchar_t), FilterList.AddItem(ListItem));
+			FilterList->SetUserData(i.first.data(), Length * sizeof(wchar_t), FilterList->AddItem(ListItem));
 
 			h == L'9' ? h = L'A' : (h == L'Z' || h ? h++ : h = 0);
 		}
 	}
 
-	ExitCode=FilterList.RunEx([&](int Msg, void *param)->int
+	ExitCode=FilterList->RunEx([&](int Msg, void *param)->int
 	{
 		if (Msg==DN_LISTHOTKEY)
 			return 1;
@@ -229,12 +229,12 @@ bool FileFilter::FilterEdit()
 			case KEY_SPACE:
 			case KEY_BS:
 			{
-				int SelPos=FilterList.GetSelectPos();
+				int SelPos=FilterList->GetSelectPos();
 
 				if (SelPos<0)
 					break;
 
-				int Check=FilterList.GetCheck(SelPos);
+				int Check=FilterList->GetCheck(SelPos);
 				int NewCheck;
 
 				if (Key==KEY_BS)
@@ -244,24 +244,24 @@ bool FileFilter::FilterEdit()
 				else
 					NewCheck = (Check == Key) ? 0 : Key;
 
-				FilterList.SetCheck(NewCheck,SelPos);
-				FilterList.SetSelectPos(SelPos,1);
-				FilterList.Key(KEY_DOWN);
+				FilterList->SetCheck(NewCheck,SelPos);
+				FilterList->SetSelectPos(SelPos,1);
+				FilterList->Key(KEY_DOWN);
 				bNeedUpdate=true;
 				return 1;
 			}
 			case KEY_SHIFTBS:
 			{
-				for (int I=0; I < FilterList.GetItemCount(); I++)
+				for (int I=0; I < FilterList->GetItemCount(); I++)
 				{
-					FilterList.SetCheck(FALSE, I);
+					FilterList->SetCheck(FALSE, I);
 				}
 
 				break;
 			}
 			case KEY_F4:
 			{
-				int SelPos=FilterList.GetSelectPos();
+				int SelPos=FilterList->GetSelectPos();
 				if (SelPos<0)
 					break;
 
@@ -275,9 +275,9 @@ bool FileFilter::FilterEdit()
 						if (Check)
 							ListItem.SetCheck(Check);
 
-						FilterList.DeleteItem(SelPos);
-						FilterList.AddItem(ListItem,SelPos);
-						FilterList.SetSelectPos(SelPos,1);
+						FilterList->DeleteItem(SelPos);
+						FilterList->AddItem(ListItem,SelPos);
+						FilterList->SetSelectPos(SelPos,1);
 						bNeedUpdate=true;
 					}
 				}
@@ -292,7 +292,7 @@ bool FileFilter::FilterEdit()
 			case KEY_INS:
 			case KEY_F5:
 			{
-				int pos=FilterList.GetSelectPos();
+				int pos=FilterList->GetSelectPos();
 				if (pos<0)
 				{
 					if (Key==KEY_F5)
@@ -322,7 +322,7 @@ bool FileFilter::FilterEdit()
 					}
 					else if (SelPos2 > FilterData().size() + 2)
 					{
-						NewFilter.SetMask(1,static_cast<const wchar_t*>(FilterList.GetUserData(nullptr, 0, SelPos2-1)));
+						NewFilter.SetMask(1,static_cast<const wchar_t*>(FilterList->GetUserData(nullptr, 0, SelPos2-1)));
 						//Авто фильтры они только для файлов, папки не должны к ним подходить
 						NewFilter.SetAttr(1,0,FILE_ATTRIBUTE_DIRECTORY);
 					}
@@ -341,8 +341,8 @@ bool FileFilter::FilterEdit()
 				if (FileFilterConfig(&NewFilter))
 				{
 					MenuItemEx ListItem(MenuString(&NewFilter));
-					FilterList.AddItem(ListItem,static_cast<int>(SelPos));
-					FilterList.SetSelectPos(static_cast<int>(SelPos),1);
+					FilterList->AddItem(ListItem,static_cast<int>(SelPos));
+					FilterList->SetSelectPos(static_cast<int>(SelPos),1);
 					bNeedUpdate=true;
 				}
 				else
@@ -354,7 +354,7 @@ bool FileFilter::FilterEdit()
 			case KEY_NUMDEL:
 			case KEY_DEL:
 			{
-				int SelPos=FilterList.GetSelectPos();
+				int SelPos=FilterList->GetSelectPos();
 				if (SelPos<0)
 					break;
 
@@ -367,8 +367,8 @@ bool FileFilter::FilterEdit()
 					            strQuotedTitle.data(),MSG(MDelete),MSG(MCancel)))
 					{
 						FilterData().erase(FilterData().begin() + SelPos);
-						FilterList.DeleteItem(SelPos);
-						FilterList.SetSelectPos(SelPos,1);
+						FilterList->DeleteItem(SelPos);
+						FilterList->SetSelectPos(SelPos,1);
 						bNeedUpdate=true;
 					}
 				}
@@ -384,7 +384,7 @@ bool FileFilter::FilterEdit()
 			case KEY_CTRLDOWN:
 			case KEY_RCTRLDOWN:
 			{
-				int SelPos=FilterList.GetSelectPos();
+				int SelPos=FilterList->GetSelectPos();
 				if (SelPos<0)
 					break;
 
@@ -392,9 +392,9 @@ bool FileFilter::FilterEdit()
 					!((Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN) && SelPos == (int)(FilterData().size() - 1)))
 				{
 					int NewPos = SelPos + ((Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN) ? 1 : -1);
-					FilterList.GetItemPtr(SelPos)->swap(*FilterList.GetItemPtr(NewPos));
+					FilterList->GetItemPtr(SelPos)->swap(*FilterList->GetItemPtr(NewPos));
 					FilterData()[NewPos].swap(FilterData()[SelPos]);
-					FilterList.SetSelectPos(NewPos,1);
+					FilterList->SetSelectPos(NewPos,1);
 					bNeedUpdate=true;
 				}
 
@@ -409,7 +409,7 @@ bool FileFilter::FilterEdit()
 
 
 	if (ExitCode!=-1)
-		ProcessSelection(&FilterList);
+		ProcessSelection(FilterList.get());
 
 	if (Global->Opt->AutoSaveSetup)
 		Save(false);

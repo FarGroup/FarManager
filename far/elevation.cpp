@@ -408,18 +408,18 @@ void ElevationApproveDlgSync(LPVOID Param)
 		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MSkip)},
 	};
 	auto ElevationApproveDlg = MakeDialogItemsEx(ElevationApproveDlgData);
-	Dialog Dlg(ElevationApproveDlg, ElevationApproveDlgProc);
-	Dlg.SetHelp(L"ElevationDlg");
-	Dlg.SetPosition(-1,-1,DlgX,DlgY);
-	Dlg.SetDialogMode(DMODE_FULLSHADOW|DMODE_NOPLUGINS);
-	window* Current = Global->WindowManager->GetCurrentWindow();
+	auto Dlg = Dialog::create(ElevationApproveDlg, ElevationApproveDlgProc);
+	Dlg->SetHelp(L"ElevationDlg");
+	Dlg->SetPosition(-1, -1, DlgX, DlgY);
+	Dlg->SetDialogMode(DMODE_FULLSHADOW | DMODE_NOPLUGINS);
+	auto Current = Global->WindowManager->GetCurrentWindow();
 	if(Current)
 	{
 		Current->Lock();
 	}
 	auto Lock = Global->ScrBuf->GetLockCount();
 	Global->ScrBuf->SetLockCount(0);
-	Dlg.Process();
+	Dlg->Process();
 	Global->ScrBuf->SetLockCount(Lock);
 	if(Current)
 	{
@@ -427,7 +427,7 @@ void ElevationApproveDlgSync(LPVOID Param)
 	}
 
 	Data->AskApprove=!ElevationApproveDlg[AAD_CHECKBOX_DOFORALL].Selected;
-	Data->IsApproved = Dlg.GetExitCode() == AAD_BUTTON_OK;
+	Data->IsApproved = Dlg->GetExitCode() == AAD_BUTTON_OK;
 	Data->DontAskAgain=ElevationApproveDlg[AAD_CHECKBOX_DONTASKAGAIN].Selected!=FALSE;
 	if(Data->pEvent)
 	{

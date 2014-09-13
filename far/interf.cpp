@@ -570,7 +570,7 @@ void ShowTime(int ShowAlways)
 	string strClockText = str_printf(L"%02d:%02d",tm.wHour,tm.wMinute);
 	GotoXY(ScrX-4,0);
 
-	window *CurrentWindow = Global->WindowManager->GetCurrentWindow();
+	auto CurrentWindow = Global->WindowManager->GetCurrentWindow();
 	if (CurrentWindow)
 	{
 		int ModType=CurrentWindow->GetType();

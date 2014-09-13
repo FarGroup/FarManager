@@ -129,13 +129,13 @@ bool dlgOpenEditor(string &strFileName, uintptr_t &codepage)
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
 	};
 	auto EditDlg = MakeDialogItemsEx(EditDlgData);
-	Dialog Dlg(EditDlg, hndOpenEditor, &codepage);
-	Dlg.SetPosition(-1,-1,76,10);
-	Dlg.SetHelp(L"FileOpenCreate");
-	Dlg.SetId(FileOpenCreateId);
-	Dlg.Process();
+	auto Dlg = Dialog::create(EditDlg, hndOpenEditor, &codepage);
+	Dlg->SetPosition(-1,-1,76,10);
+	Dlg->SetHelp(L"FileOpenCreate");
+	Dlg->SetId(FileOpenCreateId);
+	Dlg->Process();
 
-	if (Dlg.GetExitCode() == ID_OE_OK)
+	if (Dlg->GetExitCode() == ID_OE_OK)
 	{
 		strFileName = EditDlg[ID_OE_FILENAME].strData;
 		return true;
@@ -293,13 +293,13 @@ bool dlgSaveFileAs(string &strFileName, int &TextFormat, uintptr_t &codepage,boo
 			EditDlg[ID_SF_FILENAME].strData.resize(pos);
 	}
 	EditDlg[ID_SF_DONOTCHANGE+TextFormat].Selected = TRUE;
-	Dialog Dlg(EditDlg, hndSaveFileAs, &codepage);
-	Dlg.SetPosition(-1,-1,76,17);
-	Dlg.SetHelp(L"FileSaveAs");
-	Dlg.SetId(FileSaveAsId);
-	Dlg.Process();
+	auto Dlg = Dialog::create(EditDlg, hndSaveFileAs, &codepage);
+	Dlg->SetPosition(-1,-1,76,17);
+	Dlg->SetHelp(L"FileSaveAs");
+	Dlg->SetId(FileSaveAsId);
+	Dlg->Process();
 
-	if ((Dlg.GetExitCode() == ID_SF_OK) && !EditDlg[ID_SF_FILENAME].strData.empty())
+	if ((Dlg->GetExitCode() == ID_SF_OK) && !EditDlg[ID_SF_FILENAME].strData.empty())
 	{
 		strFileName = EditDlg[ID_SF_FILENAME].strData;
 		AddSignature=EditDlg[ID_SF_SIGNATURE].Selected!=0;
@@ -319,21 +319,25 @@ bool dlgSaveFileAs(string &strFileName, int &TextFormat, uintptr_t &codepage,boo
 	return false;
 }
 
-
-FileEditor::FileEditor(const string& Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* PluginData, EDITOR_FLAGS OpenModeExstFile):
+FileEditor::FileEditor():
 	BadConversion(false)
 {
-	ScreenObjectWithShadow::SetPosition(0,0,ScrX,ScrY);
-	m_Flags.Set(InitFlags);
-	m_Flags.Set(FFILEEDIT_FULLSCREEN);
-	Init(Name,codepage, nullptr, InitFlags, StartLine, StartChar, PluginData, FALSE, nullptr, OpenModeExstFile);
 }
 
-
-FileEditor::FileEditor(const string& Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose, window* Update, EDITOR_FLAGS OpenModeExstFile):
-	BadConversion(false)
+fileeditor_ptr FileEditor::create(const string& Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* PluginData, EDITOR_FLAGS OpenModeExstFile)
 {
-	m_Flags.Set(InitFlags);
+	fileeditor_ptr FileEditorPtr(new FileEditor);
+	FileEditorPtr->ScreenObjectWithShadow::SetPosition(0, 0, ScrX, ScrY);
+	FileEditorPtr->m_Flags.Set(InitFlags);
+	FileEditorPtr->m_Flags.Set(FFILEEDIT_FULLSCREEN);
+	FileEditorPtr->Init(Name, codepage, nullptr, InitFlags, StartLine, StartChar, PluginData, FALSE, nullptr, OpenModeExstFile);
+	return FileEditorPtr;
+}
+
+fileeditor_ptr FileEditor::create(const string& Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose, window_ptr Update, EDITOR_FLAGS OpenModeExstFile)
+{
+	fileeditor_ptr FileEditorPtr(new FileEditor);
+	FileEditorPtr->m_Flags.Set(InitFlags);
 
 	if (X1 < 0)
 		X1=0;
@@ -359,10 +363,11 @@ FileEditor::FileEditor(const string& Name, uintptr_t codepage, DWORD InitFlags, 
 		Y2=ScrY;
 	}
 
-	ScreenObjectWithShadow::SetPosition(X1,Y1,X2,Y2);
-	m_Flags.Change(FFILEEDIT_FULLSCREEN,(!X1 && !Y1 && X2==ScrX && Y2==ScrY));
+	FileEditorPtr->SetPosition(X1, Y1, X2, Y2);
+	FileEditorPtr->m_Flags.Change(FFILEEDIT_FULLSCREEN, (!X1 && !Y1 && X2 == ScrX && Y2 == ScrY));
 	string EmptyTitle;
-	Init(Name,codepage, Title, InitFlags, StartLine, StartChar, &EmptyTitle, DeleteOnClose, Update, OpenModeExstFile);
+	FileEditorPtr->Init(Name, codepage, Title, InitFlags, StartLine, StartChar, &EmptyTitle, DeleteOnClose, Update, OpenModeExstFile);
+	return FileEditorPtr;
 }
 
 /* $ 07.05.2001 DJ
@@ -413,7 +418,7 @@ void FileEditor::Init(
     int StartChar,
     const string* PluginData,
     int DeleteOnClose,
-    window* Update,
+	window_ptr Update,
     EDITOR_FLAGS OpenModeExstFile
 )
 {
@@ -511,7 +516,7 @@ void FileEditor::Init(
 				{
 					case 0:         // Current
 						SwitchTo=TRUE;
-						Global->WindowManager->DeleteWindow(this); //???
+						Global->WindowManager->DeleteWindow(shared_from_this()); //???
 						SetExitCode(XC_EXISTS); // ???
 						break;
 					case 1:         // NewOpen
@@ -538,7 +543,7 @@ void FileEditor::Init(
 						SetExitCode(XC_EXISTS);
 						return;
 					default:
-						Global->WindowManager->DeleteWindow(this);  //???
+						Global->WindowManager->DeleteWindow(shared_from_this());  //???
 						SetExitCode(XC_QUIT);
 						return;
 				}
@@ -688,13 +693,13 @@ void FileEditor::Init(
 
 	if (m_Flags.Check(FFILEEDIT_ENABLEF6))
 	{
-		if (Update) Global->WindowManager->ReplaceWindow(Update,this);
-		else Global->WindowManager->InsertWindow(this);
+		if (Update) Global->WindowManager->ReplaceWindow(Update, shared_from_this());
+		else Global->WindowManager->InsertWindow(shared_from_this());
 	}
 	else
 	{
 		if (Update) Global->WindowManager->DeleteWindow(Update);
-		Global->WindowManager->ExecuteWindow(this);
+		Global->WindowManager->ExecuteWindow(shared_from_this());
 	}
 	Global->WindowManager->CallbackWindow([this](){this->ReadEvent();});
 }
@@ -911,12 +916,12 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 							delete_on_close = 2;
 						SetDeleteOnClose(0);
 
-						new	FileViewer(
+						auto FView = FileViewer::create(
 							strFullFileName,
 							GetCanLoseFocus(), m_Flags.Check(FFILEEDIT_DISABLEHISTORY), FALSE,
 							FilePos, nullptr, &EditNamesList, m_Flags.Check(FFILEEDIT_SAVETOSAVEAS), cp,
 							strTitle.empty() ? nullptr : strTitle.data(),
-							delete_on_close, this);
+							delete_on_close, shared_from_this());
 					}
 
 					ShowTime(2);
@@ -969,7 +974,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 		{
 			case KEY_F1:
 			{
-				Help Hlp(L"Editor");
+				Help::create(L"Editor");
 				return TRUE;
 			}
 			/* $ 25.04.2001 IS
@@ -2167,9 +2172,6 @@ end:
 		m_editor->m_Flags.Set(Editor::FEDITOR_NEWUNDO);
 	}
 
-	if (GetDynamicallyBorn()) // принудительно сбросим Title // Flags.Check(FFILEEDIT_SAVETOSAVEAS) ????????
-		strTitle.clear();
-
 	Show();
 	// ************************************
 	m_Flags.Clear(FFILEEDIT_NEW);
@@ -2263,7 +2265,7 @@ bool FileEditor::CanFastHide() const
 
 bool FileEditor::isTemporary() const
 {
-	return !GetDynamicallyBorn();
+	return !m_Flags.Check(FFILEEDIT_ENABLEF6);
 }
 
 void FileEditor::ResizeConsole()
@@ -2649,7 +2651,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		}
 		case ECTL_REDRAW:
 		{
-			Global->WindowManager->RefreshWindow(this);
+			Global->WindowManager->RefreshWindow(shared_from_this());
 			Global->WindowManager->PluginCommit();
 			return TRUE;
 		}
@@ -2739,7 +2741,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			}
 			else
 			{
-				Global->WindowManager->DeleteWindow(this);
+				Global->WindowManager->DeleteWindow(shared_from_this());
 				SetExitCode(XC_OPEN_ERROR); // что-то меня терзают смутные сомнения ...??? SAVEFILE_ERROR ???
 			}
 			return TRUE;

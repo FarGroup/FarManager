@@ -1237,19 +1237,19 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		DlgParam.strSelName=strSelName;
 		DlgParam.OSubfoldersState=static_cast<FARCHECKEDSTATE>(AttrDlg[SA_CHECKBOX_SUBFOLDERS].Selected);
 
-		Dialog Dlg(AttrDlg, SetAttrDlgProc, &DlgParam);
-		Dlg.SetHelp(L"FileAttrDlg");                 //  ^ - это одиночный диалог!
-		Dlg.SetId(FileAttrDlgId);
+		auto Dlg = Dialog::create(AttrDlg, SetAttrDlgProc, &DlgParam);
+		Dlg->SetHelp(L"FileAttrDlg");                 //  ^ - это одиночный диалог!
+		Dlg->SetId(FileAttrDlgId);
 
 		if (LinkPresent)
 		{
 			DlgY++;
 		}
 
-		Dlg.SetPosition(-1,-1,DlgX,DlgY);
-		Dlg.Process();
+		Dlg->SetPosition(-1,-1,DlgX,DlgY);
+		Dlg->Process();
 
-		switch(Dlg.GetExitCode())
+		switch(Dlg->GetExitCode())
 		{
 		case SA_BUTTON_SET:
 			{

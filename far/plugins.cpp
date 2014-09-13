@@ -274,8 +274,8 @@ int PluginManager::UnloadPlugin(Plugin *pPlugin, int From)
 	{
 		for(int i = static_cast<int>(Global->WindowManager->GetModalWindowCount()-1); i >= 0; --i)
 		{
-			window* Window = Global->WindowManager->GetModalWindow(i);
-			if((Window->GetType()==windowtype_dialog && static_cast<Dialog*>(Window)->GetPluginOwner() == pPlugin) || Window->GetType()==windowtype_help)
+			auto Window = Global->WindowManager->GetModalWindow(i);
+			if((Window->GetType()==windowtype_dialog && std::static_pointer_cast<Dialog>(Window)->GetPluginOwner() == pPlugin) || Window->GetType()==windowtype_help)
 			{
 				Window->Lock();
 				if(i)
@@ -565,25 +565,25 @@ PluginHandle* PluginManager::OpenFilePlugin(
 
 		if(!OnlyOne && ShowMenu)
 		{
-			VMenu2 menu(MSG(MPluginConfirmationTitle), nullptr, 0, ScrY-4);
-			menu.SetPosition(-1, -1, 0, 0);
-			menu.SetHelp(L"ChoosePluginMenu");
-			menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
+			auto menu = VMenu2::create(MSG(MPluginConfirmationTitle), nullptr, 0, ScrY - 4);
+			menu->SetPosition(-1, -1, 0, 0);
+			menu->SetHelp(L"ChoosePluginMenu");
+			menu->SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
 
 			std::for_each(CONST_RANGE(items, i)
 			{
-				menu.AddItem(i.Handle.pPlugin->GetTitle());
+				menu->AddItem(i.Handle.pPlugin->GetTitle());
 			});
 
 			if (Global->Opt->PluginConfirm.StandardAssociation && Type == OFP_NORMAL)
 			{
 				MenuItemEx mitem;
 				mitem.Flags |= MIF_SEPARATOR;
-				menu.AddItem(mitem);
-				menu.AddItem(MSG(MMenuPluginStdAssociation));
+				menu->AddItem(mitem);
+				menu->AddItem(MSG(MMenuPluginStdAssociation));
 			}
 
-			int ExitCode = menu.Run();
+			int ExitCode = menu->Run();
 			if (ExitCode == -1)
 				hResult = static_cast<PluginHandle*>(PANEL_STOP);
 			else
@@ -694,17 +694,17 @@ PluginHandle* PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem
 	{
 		if (items.size()>1)
 		{
-			VMenu2 menu(MSG(MPluginConfirmationTitle), nullptr, 0, ScrY-4);
-			menu.SetPosition(-1, -1, 0, 0);
-			menu.SetHelp(L"ChoosePluginMenu");
-			menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
+			auto menu = VMenu2::create(MSG(MPluginConfirmationTitle), nullptr, 0, ScrY - 4);
+			menu->SetPosition(-1, -1, 0, 0);
+			menu->SetHelp(L"ChoosePluginMenu");
+			menu->SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
 
 			std::for_each(CONST_RANGE(items, i)
 			{
-				menu.AddItem(i.pPlugin->GetTitle());
+				menu->AddItem(i.pPlugin->GetTitle());
 			});
 
-			int ExitCode=menu.Run();
+			int ExitCode=menu->Run();
 
 			if (ExitCode>=0)
 			{
@@ -1179,10 +1179,10 @@ struct PluginMenuItemData
 void PluginManager::Configure(int StartPos)
 {
 	{
-		VMenu2 PluginList(MSG(MPluginConfigTitle),nullptr,0,ScrY-4);
-		PluginList.SetFlags(VMENU_WRAPMODE);
-		PluginList.SetHelp(L"PluginsConfig");
-		PluginList.SetId(PluginsConfigMenuId);
+		auto PluginList = VMenu2::create(MSG(MPluginConfigTitle), nullptr, 0, ScrY - 4);
+		PluginList->SetFlags(VMENU_WRAPMODE);
+		PluginList->SetHelp(L"PluginsConfig");
+		PluginList->SetId(PluginsConfigMenuId);
 
 		while (!Global->CloseFAR)
 		{
@@ -1191,7 +1191,7 @@ void PluginManager::Configure(int StartPos)
 
 			if (NeedUpdateItems)
 			{
-				PluginList.DeleteItems();
+				PluginList->DeleteItems();
 				LoadIfCacheAbsent();
 				string strHotKey, strName;
 				GUID guid;
@@ -1248,23 +1248,23 @@ void PluginManager::Configure(int StartPos)
 						PluginMenuItemData item;
 						item.pPlugin = i;
 						item.Guid = guid;
-						PluginList.SetUserData(&item, sizeof(PluginMenuItemData),PluginList.AddItem(ListItem));
+						PluginList->SetUserData(&item, sizeof(PluginMenuItemData),PluginList->AddItem(ListItem));
 					}
 				}
 
-				PluginList.AssignHighlights(FALSE);
-				PluginList.SetBottomTitle(MSG(MPluginHotKeyBottom));
-				PluginList.SortItems(false, HotKeysPresent? 3 : 0);
-				PluginList.SetSelectPos(StartPos,1);
+				PluginList->AssignHighlights(FALSE);
+				PluginList->SetBottomTitle(MSG(MPluginHotKeyBottom));
+				PluginList->SortItems(false, HotKeysPresent? 3 : 0);
+				PluginList->SetSelectPos(StartPos,1);
 				NeedUpdateItems = false;
 			}
 
 			string strPluginModuleName;
 
-			PluginList.Run([&](int Key)->int
+			PluginList->Run([&](int Key)->int
 			{
-				int SelPos=PluginList.GetSelectPos();
-				PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(nullptr,0,SelPos);
+				int SelPos=PluginList->GetSelectPos();
+				PluginMenuItemData *item = (PluginMenuItemData*)PluginList->GetUserData(nullptr,0,SelPos);
 				int KeyProcessed = 1;
 
 				switch (Key)
@@ -1293,14 +1293,14 @@ void PluginManager::Configure(int StartPos)
 						{
 							string strTitle;
 							int nOffset = HotKeysPresent?3:0;
-							strTitle = PluginList.GetItemPtr()->strName.substr(nOffset);
+							strTitle = PluginList->GetItemPtr()->strName.substr(nOffset);
 							RemoveExternalSpaces(strTitle);
 
 							if (SetHotKeyDialog(item->pPlugin, item->Guid, PluginsHotkeysConfig::CONFIG_MENU, strTitle))
 							{
 								NeedUpdateItems = true;
 								StartPos = SelPos;
-								PluginList.Close(SelPos);
+								PluginList->Close(SelPos);
 								break;
 							}
 						}
@@ -1314,12 +1314,12 @@ void PluginManager::Configure(int StartPos)
 
 			if (!NeedUpdateItems)
 			{
-				StartPos=PluginList.GetExitCode();
+				StartPos=PluginList->GetExitCode();
 
 				if (StartPos<0)
 					break;
 
-				PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(nullptr,0,StartPos);
+				PluginMenuItemData *item = (PluginMenuItemData*)PluginList->GetUserData(nullptr,0,StartPos);
 				ConfigureCurrent(item->pPlugin, item->Guid);
 			}
 		}
@@ -1330,7 +1330,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 {
 	if (ModalType == windowtype_dialog || ModalType == windowtype_menu)
 	{
-		auto dlg = static_cast<Dialog*>(Global->WindowManager->GetCurrentWindow());
+		auto dlg = std::static_pointer_cast<Dialog>(Global->WindowManager->GetCurrentWindow());
 		if (dlg->CheckDialogMode(DMODE_NOPLUGINS) || dlg->GetId()==PluginsMenuId)
 		{
 			return 0;
@@ -1344,10 +1344,10 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 	PluginMenuItemData item;
 
 	{
-		VMenu2 PluginList(MSG(MPluginCommandsMenuTitle),nullptr,0,ScrY-4);
-		PluginList.SetFlags(VMENU_WRAPMODE);
-		PluginList.SetHelp(L"PluginCommands");
-		PluginList.SetId(PluginsMenuId);
+		auto PluginList = VMenu2::create(MSG(MPluginCommandsMenuTitle), nullptr, 0, ScrY - 4);
+		PluginList->SetFlags(VMENU_WRAPMODE);
+		PluginList->SetHelp(L"PluginCommands");
+		PluginList->SetId(PluginsMenuId);
 		bool NeedUpdateItems = true;
 
 		while (NeedUpdateItems)
@@ -1356,7 +1356,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 			if (NeedUpdateItems)
 			{
-				PluginList.DeleteItems();
+				PluginList->DeleteItems();
 				LoadIfCacheAbsent();
 				string strHotKey, strName;
 				GUID guid;
@@ -1423,21 +1423,21 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 						PluginMenuItemData itemdata;
 						itemdata.pPlugin = i;
 						itemdata.Guid = guid;
-						PluginList.SetUserData(&itemdata, sizeof(PluginMenuItemData),PluginList.AddItem(ListItem));
+						PluginList->SetUserData(&itemdata, sizeof(PluginMenuItemData),PluginList->AddItem(ListItem));
 					}
 				}
 
-				PluginList.AssignHighlights(FALSE);
-				PluginList.SetBottomTitle(MSG(MPluginHotKeyBottom));
-				PluginList.SortItems(false, HotKeysPresent? 3 : 0);
-				PluginList.SetSelectPos(StartPos,1);
+				PluginList->AssignHighlights(FALSE);
+				PluginList->SetBottomTitle(MSG(MPluginHotKeyBottom));
+				PluginList->SortItems(false, HotKeysPresent? 3 : 0);
+				PluginList->SetSelectPos(StartPos,1);
 				NeedUpdateItems = false;
 			}
 
-			PluginList.Run([&](int Key)->int
+			PluginList->Run([&](int Key)->int
 			{
-				int SelPos=PluginList.GetSelectPos();
-				PluginMenuItemData *ItemPtr = (PluginMenuItemData*)PluginList.GetUserData(nullptr,0,SelPos);
+				int SelPos=PluginList->GetSelectPos();
+				PluginMenuItemData *ItemPtr = (PluginMenuItemData*)PluginList->GetUserData(nullptr,0,SelPos);
 				int KeyProcessed = 1;
 
 				switch (Key)
@@ -1460,14 +1460,14 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 						{
 							string strTitle;
 							int nOffset = HotKeysPresent?3:0;
-							strTitle = PluginList.GetItemPtr()->strName.substr(nOffset);
+							strTitle = PluginList->GetItemPtr()->strName.substr(nOffset);
 							RemoveExternalSpaces(strTitle);
 
 							if (SetHotKeyDialog(ItemPtr->pPlugin, ItemPtr->Guid, PluginsHotkeysConfig::PLUGINS_MENU, strTitle))
 							{
 								NeedUpdateItems = true;
 								StartPos = SelPos;
-								PluginList.Close(SelPos);
+								PluginList->Close(SelPos);
 							}
 						}
 						break;
@@ -1480,7 +1480,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 							NeedUpdateItems = true;
 							StartPos = SelPos;
 							Configure();
-							PluginList.Close(SelPos);
+							PluginList->Close(SelPos);
 						}
 						break;
 					}
@@ -1495,7 +1495,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 							if (ItemPtr->pPlugin->HasConfigure())
 								ConfigureCurrent(ItemPtr->pPlugin, ItemPtr->Guid);
 
-							PluginList.Close(SelPos);
+							PluginList->Close(SelPos);
 						}
 
 						break;
@@ -1508,7 +1508,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 			});
 		}
 
-		int ExitCode=PluginList.GetExitCode();
+		int ExitCode=PluginList->GetExitCode();
 
 		if (ExitCode<0)
 		{
@@ -1516,7 +1516,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 		}
 
 		Global->ScrBuf->Flush();
-		item = *(PluginMenuItemData*)PluginList.GetUserData(nullptr,0,ExitCode);
+		item = *(PluginMenuItemData*)PluginList->GetUserData(nullptr,0,ExitCode);
 	}
 
 	Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
@@ -1535,7 +1535,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 	else if (Dialog)
 	{
 		OpenCode=OPEN_DIALOG;
-		pd.hDlg=(HANDLE)Global->WindowManager->GetCurrentWindow();
+		pd.hDlg=(HANDLE)Global->WindowManager->GetCurrentWindow().get();
 		Item=(intptr_t)&pd;
 	}
 
@@ -1991,19 +1991,19 @@ int PluginManager::ProcessCommandLine(const string& CommandParam,Panel *Target)
 
 	if (items.size()>1)
 	{
-		VMenu2 menu(MSG(MPluginConfirmationTitle), nullptr, 0, ScrY-4);
-		menu.SetPosition(-1, -1, 0, 0);
-		menu.SetHelp(L"ChoosePluginMenu");
-		menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
+		auto menu = VMenu2::create(MSG(MPluginConfirmationTitle), nullptr, 0, ScrY - 4);
+		menu->SetPosition(-1, -1, 0, 0);
+		menu->SetHelp(L"ChoosePluginMenu");
+		menu->SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
 
 		std::for_each(CONST_RANGE(items, i)
 		{
 			MenuItemEx mitem;
 			mitem.strName=PointToName(i.pPlugin->GetModuleName());
-			menu.AddItem(mitem);
+			menu->AddItem(mitem);
 		});
 
-		int ExitCode=menu.Run();
+		int ExitCode=menu->Run();
 
 		if (ExitCode>=0)
 		{
@@ -2035,9 +2035,9 @@ int PluginManager::ProcessCommandLine(const string& CommandParam,Panel *Target)
 */
 int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void **Ret)
 {
-	if (Global->WindowManager->GetCurrentWindow() && Global->WindowManager->GetCurrentWindow()->GetType() == windowtype_dialog)
+	if (auto Dlg = std::dynamic_pointer_cast<Dialog>(Global->WindowManager->GetCurrentWindow()))
 	{
-		if (static_cast<Dialog*>(Global->WindowManager->GetCurrentWindow())->CheckDialogMode(DMODE_NOPLUGINS))
+		if (Dlg->CheckDialogMode(DMODE_NOPLUGINS))
 		{
 			return FALSE;
 		}
@@ -2123,7 +2123,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
 
 		if (curType==windowtype_dialog)
 		{
-			if (static_cast<Dialog*>(Global->WindowManager->GetCurrentWindow())->CheckDialogMode(DMODE_NOPLUGINS))
+			if (std::static_pointer_cast<Dialog>(Global->WindowManager->GetCurrentWindow())->CheckDialogMode(DMODE_NOPLUGINS))
 			{
 				return FALSE;
 			}
@@ -2262,7 +2262,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
 					else if (Dialog)
 					{
 						OpenCode=OPEN_DIALOG;
-						pd.hDlg=(HANDLE)Global->WindowManager->GetCurrentWindow();
+						pd.hDlg=(HANDLE)Global->WindowManager->GetCurrentWindow().get();
 						Item=(intptr_t)&pd;
 					}
 

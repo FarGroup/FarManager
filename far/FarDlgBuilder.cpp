@@ -587,15 +587,15 @@ void DialogBuilder::LinkFlagsByID(DialogItemEx *Parent, DialogItemEx* Target, FA
 
 intptr_t DialogBuilder::DoShowDialog()
 {
-	Dialog Dlg(make_range(m_DialogItems, m_DialogItems + m_DialogItemsCount), m_handler, nullptr);
-	Dlg.SetHelp(m_HelpTopic);
-	Dlg.SetPosition(-1, -1, m_DialogItems [0].X2+4, m_DialogItems [0].Y2+2);
+	auto Dlg = Dialog::create(make_range(m_DialogItems, m_DialogItems + m_DialogItemsCount), m_handler, nullptr);
+	Dlg->SetHelp(m_HelpTopic);
+	Dlg->SetPosition(-1, -1, m_DialogItems [0].X2+4, m_DialogItems [0].Y2+2);
 	if (m_Mode)
-		Dlg.SetDialogMode(m_Mode);
+		Dlg->SetDialogMode(m_Mode);
 	if (m_IdExist)
-		Dlg.SetId(m_Id);
-	Dlg.Process();
-	return Dlg.GetExitCode();
+		Dlg->SetId(m_Id);
+	Dlg->Process();
+	return Dlg->GetExitCode();
 }
 
 void DialogBuilder::SetDialogMode(DWORD Flags)

@@ -1063,7 +1063,7 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(F_CLIP),                     // V=clip(N[,V])
 		DEF_MCODE_(F_CHR),                      // S=chr(N)
 		DEF_MCODE_(F_DATE),                     // S=date([S])
-		DEF_MCODE_(F_DLG_GETVALUE),             // V=Dlg.GetValue([Pos[,InfoID]])
+		DEF_MCODE_(F_DLG_GETVALUE),             // V=Dlg->GetValue([Pos[,InfoID]])
 		DEF_MCODE_(F_EDITOR_SEL),               // V=Editor.Sel(Action[,Opt])
 		DEF_MCODE_(F_EDITOR_SET),               // N=Editor.Set(N,Var)
 		DEF_MCODE_(F_EDITOR_UNDO),              // V=Editor.Undo(N)
@@ -1143,7 +1143,7 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(F_PLUGIN_EXIST),             // N=Plugin.Exist(Guid)
 		DEF_MCODE_(F_MENU_FILTER),              // N=Menu.Filter(Action[,Mode])
 		DEF_MCODE_(F_MENU_FILTERSTR),           // S=Menu.FilterStr([Action[,S]])
-		DEF_MCODE_(F_DLG_SETFOCUS),             // N=Dlg.SetFocus([ID])
+		DEF_MCODE_(F_DLG_SETFOCUS),             // N=Dlg->SetFocus([ID])
 		DEF_MCODE_(F_FAR_CFG_GET),              // V=Far.Cfg.Get(Key,Name)
 		DEF_MCODE_(F_SIZE2STR),                 // S=Size2Str(N,Flags[,Width])
 		DEF_MCODE_(F_STRWRAP),                  // S=StrWrap(Text,Width[,Break[,Flags]])
@@ -1270,12 +1270,12 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(V_EDITORSTATE),              // Editor.State
 		DEF_MCODE_(V_EDITORVALUE),              // Editor.Value - содержимое текущей строки
 		DEF_MCODE_(V_EDITORSELVALUE),           // Editor.SelValue - содержит содержимое выделенного блока
-		DEF_MCODE_(V_DLGITEMTYPE),              // Dlg.ItemType
-		DEF_MCODE_(V_DLGITEMCOUNT),             // Dlg.ItemCount
-		DEF_MCODE_(V_DLGCURPOS),                // Dlg.CurPos
-		DEF_MCODE_(V_DLGPREVPOS),               // Dlg.PrevPos
-		DEF_MCODE_(V_DLGINFOID),                // Dlg.Info.Id
-		DEF_MCODE_(V_DLGINFOOWNER),             // Dlg.Info.Owner
+		DEF_MCODE_(V_DLGITEMTYPE),              // Dlg->ItemType
+		DEF_MCODE_(V_DLGITEMCOUNT),             // Dlg->ItemCount
+		DEF_MCODE_(V_DLGCURPOS),                // Dlg->CurPos
+		DEF_MCODE_(V_DLGPREVPOS),               // Dlg->PrevPos
+		DEF_MCODE_(V_DLGINFOID),                // Dlg->Info.Id
+		DEF_MCODE_(V_DLGINFOOWNER),             // Dlg->Info.Owner
 		DEF_MCODE_(V_VIEWERFILENAME),           // Viewer.FileName - имя просматриваемого файла
 		DEF_MCODE_(V_VIEWERSTATE),              // Viewer.State
 		DEF_MCODE_(V_CMDLINE_ITEMCOUNT),        // CmdLine.ItemCount

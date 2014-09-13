@@ -138,10 +138,10 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 {
 	string strCommand, strDescription, strMask;
 	{
-		VMenu2 TypesMenu(MSG(MSelectAssocTitle),nullptr,0,ScrY-4);
-		TypesMenu.SetHelp(L"FileAssoc");
-		TypesMenu.SetFlags(VMENU_WRAPMODE);
-		TypesMenu.SetId(SelectAssocMenuId);
+		auto TypesMenu = VMenu2::create(MSG(MSelectAssocTitle), nullptr, 0, ScrY - 4);
+		TypesMenu->SetHelp(L"FileAssoc");
+		TypesMenu->SetFlags(VMENU_WRAPMODE);
+		TypesMenu->SetId(SelectAssocMenuId);
 
 		int ActualCmdCount=0; // отображаемых ассоциаций в меню
 		filemasks FMask; // для работы с масками файлов
@@ -188,7 +188,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 
 			MenuItemEx TypesMenuItem(strDescription);
 			TypesMenuItem.SetSelect(Index==1);
-			TypesMenu.SetUserData(strCommand.data(), (strCommand.size()+1)*sizeof(wchar_t), TypesMenu.AddItem(TypesMenuItem));
+			TypesMenu->SetUserData(strCommand.data(), (strCommand.size()+1)*sizeof(wchar_t), TypesMenu->AddItem(TypesMenuItem));
 		}
 
 		if (!CommandCount)
@@ -201,13 +201,13 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 
 		if (ActualCmdCount>1)
 		{
-			ExitCode=TypesMenu.Run();
+			ExitCode=TypesMenu->Run();
 
 			if (ExitCode<0)
 				return true;
 		}
 
-		strCommand = static_cast<const wchar_t*>(TypesMenu.GetUserData(nullptr, 0, ExitCode));
+		strCommand = static_cast<const wchar_t*>(TypesMenu->GetUserData(nullptr, 0, ExitCode));
 	}
 
 	string strListName, strAnotherListName, strShortListName, strAnotherShortListName;
@@ -455,13 +455,13 @@ bool EditTypeRecord(unsigned __int64 EditPos,bool NewRec)
 		}
 	}
 
-	Dialog Dlg(EditDlg, EditTypeRecordDlgProc);
-	Dlg.SetHelp(L"FileAssocModify");
-	Dlg.SetId(FileAssocModifyId);
-	Dlg.SetPosition(-1,-1,DlgX,DlgY);
-	Dlg.Process();
+	auto Dlg = Dialog::create(EditDlg, EditTypeRecordDlgProc);
+	Dlg->SetHelp(L"FileAssocModify");
+	Dlg->SetId(FileAssocModifyId);
+	Dlg->SetPosition(-1,-1,DlgX,DlgY);
+	Dlg->Process();
 
-	if (Dlg.GetExitCode()==ETR_BUTTON_OK)
+	if (Dlg->GetExitCode()==ETR_BUTTON_OK)
 	{
 		if (NewRec)
 		{
@@ -504,18 +504,18 @@ void EditFileTypes()
 
 	int MenuPos=0;
 	unsigned __int64 id;
-	VMenu2 TypesMenu(MSG(MAssocTitle),nullptr,0,ScrY-4);
-	TypesMenu.SetHelp(L"FileAssoc");
-	TypesMenu.SetFlags(VMENU_WRAPMODE);
-	TypesMenu.SetBottomTitle(MSG(MAssocBottom));
-	TypesMenu.SetId(FileAssocMenuId);
+	auto TypesMenu = VMenu2::create(MSG(MAssocTitle),nullptr,0,ScrY-4);
+	TypesMenu->SetHelp(L"FileAssoc");
+	TypesMenu->SetFlags(VMENU_WRAPMODE);
+	TypesMenu->SetBottomTitle(MSG(MAssocBottom));
+	TypesMenu->SetId(FileAssocMenuId);
 
 	for (;;)
 	{
-		int NumLine=FillFileTypesMenu(&TypesMenu,MenuPos);
-		int ExitCode=TypesMenu.Run([&](int Key)->int
+		int NumLine = FillFileTypesMenu(TypesMenu.get(), MenuPos);
+		int ExitCode=TypesMenu->Run([&](int Key)->int
 		{
-			MenuPos=TypesMenu.GetSelectPos();
+			MenuPos=TypesMenu->GetSelectPos();
 
 			int KeyProcessed = 1;
 
@@ -526,19 +526,19 @@ void EditFileTypes()
 
 					if (MenuPos<NumLine)
 					{
-						if (TypesMenu.GetUserData(&id,sizeof(id),MenuPos))
+						if (TypesMenu->GetUserData(&id,sizeof(id),MenuPos))
 							DeleteTypeRecord(id);
-						NumLine=FillFileTypesMenu(&TypesMenu,MenuPos);
+						NumLine = FillFileTypesMenu(TypesMenu.get(), MenuPos);
 					}
 
 					break;
 				case KEY_NUMPAD0:
 				case KEY_INS:
-					if (MenuPos-1 >= 0 && TypesMenu.GetUserData(&id,sizeof(id),MenuPos-1))
+					if (MenuPos-1 >= 0 && TypesMenu->GetUserData(&id,sizeof(id),MenuPos-1))
 						EditTypeRecord(id,true);
 					else
 						EditTypeRecord(0,true);
-					NumLine=FillFileTypesMenu(&TypesMenu,MenuPos);
+					NumLine = FillFileTypesMenu(TypesMenu.get(), MenuPos);
 					break;
 				case KEY_NUMENTER:
 				case KEY_ENTER:
@@ -546,9 +546,9 @@ void EditFileTypes()
 
 					if (MenuPos<NumLine)
 					{
-						if (TypesMenu.GetUserData(&id,sizeof(id),MenuPos))
+						if (TypesMenu->GetUserData(&id,sizeof(id),MenuPos))
 							EditTypeRecord(id,false);
-						NumLine=FillFileTypesMenu(&TypesMenu,MenuPos);
+						NumLine = FillFileTypesMenu(TypesMenu.get(), MenuPos);
 					}
 					return 1;
 
@@ -558,15 +558,15 @@ void EditFileTypes()
 				case KEY_RCTRLDOWN:
 				{
 					if (!((Key==KEY_CTRLUP || Key==KEY_RCTRLUP) && !MenuPos) &&
-						!((Key==KEY_CTRLDOWN || Key==KEY_RCTRLDOWN) && MenuPos==TypesMenu.GetItemCount()-1))
+						!((Key==KEY_CTRLDOWN || Key==KEY_RCTRLDOWN) && MenuPos==TypesMenu->GetItemCount()-1))
 					{
 						int NewMenuPos=MenuPos+((Key==KEY_CTRLUP || Key==KEY_RCTRLUP)?-1:+1);
 						unsigned __int64 id2=0;
-						if (TypesMenu.GetUserData(&id,sizeof(id),MenuPos))
-							if (TypesMenu.GetUserData(&id2,sizeof(id2),NewMenuPos))
+						if (TypesMenu->GetUserData(&id,sizeof(id),MenuPos))
+							if (TypesMenu->GetUserData(&id2,sizeof(id2),NewMenuPos))
 								if (Global->Db->AssocConfig()->SwapPositions(id,id2))
 									MenuPos=NewMenuPos;
-						NumLine=FillFileTypesMenu(&TypesMenu,MenuPos);
+						NumLine = FillFileTypesMenu(TypesMenu.get(), MenuPos);
 					}
 				}
 				break;
@@ -580,7 +580,7 @@ void EditFileTypes()
 		if (ExitCode!=-1)
 		{
 			MenuPos=ExitCode;
-			TypesMenu.Key(KEY_F4);
+			TypesMenu->Key(KEY_F4);
 			continue;
 		}
 

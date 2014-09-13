@@ -372,32 +372,32 @@ void SetColors()
 			{ MSetColorHelp, HelpItems, HelpPaletteItems, ARRAYSIZE(HelpItems) },
 		};
 
-		VMenu2 GroupsMenu(MSG(MSetColorGroupsTitle), nullptr, 0);
+		auto GroupsMenu = VMenu2::create(MSG(MSetColorGroupsTitle), nullptr, 0);
 
 		FOR(const auto& i, Groups)
 		{
-			GroupsMenu.AddItem(MSG(i.MenuId));
+			GroupsMenu->AddItem(MSG(i.MenuId));
 		}
 
 		{
 			MenuItemEx tmp;
 			tmp.Flags = LIF_SEPARATOR;
-			GroupsMenu.AddItem(tmp);
+			GroupsMenu->AddItem(tmp);
 		}
 
-		const int DefaultId = GroupsMenu.GetItemCount();
-		GroupsMenu.AddItem(MSG(MSetDefaultColors));
-		const int BlackWhiteId = GroupsMenu.GetItemCount();
-		GroupsMenu.AddItem(MSG(MSetBW));
+		const int DefaultId = GroupsMenu->GetItemCount();
+		GroupsMenu->AddItem(MSG(MSetDefaultColors));
+		const int BlackWhiteId = GroupsMenu->GetItemCount();
+		GroupsMenu->AddItem(MSG(MSetBW));
 
-		GroupsMenu.SetPosition(2,1,0,0);
-		GroupsMenu.SetFlags(VMENU_WRAPMODE);
-		int GroupsCode=GroupsMenu.RunEx([&](int Msg, void *param)->int
+		GroupsMenu->SetPosition(2,1,0,0);
+		GroupsMenu->SetFlags(VMENU_WRAPMODE);
+		int GroupsCode=GroupsMenu->RunEx([&](int Msg, void *param)->int
 		{
 			intptr_t ItemsCode=(intptr_t)param;
 			if (Msg != DN_CLOSE || ItemsCode < 0 || static_cast<size_t>(ItemsCode) >= ARRAYSIZE(Groups))
 				return 0;
-			GroupsMenu.SendMessage(DM_ENABLEREDRAW, 1, nullptr);
+			GroupsMenu->SendMessage(DM_ENABLEREDRAW, 1, nullptr);
 			SetItemColors(Groups[ItemsCode].SubiemIds, Groups[ItemsCode].SubitemPalette, Groups[ItemsCode].SubItemsSize, Groups[ItemsCode].TypeSub);
 			return 1;
 		});
@@ -421,16 +421,16 @@ void SetColors()
 
 static void SetItemColors(const LNGID* ItemIds, const int* PaletteItems, size_t Size, int TypeSub)
 {
-	VMenu2 ItemsMenu(MSG(MSetColorItemsTitle), nullptr, 0);
+	auto ItemsMenu = VMenu2::create(MSG(MSetColorItemsTitle), nullptr, 0);
 
 	FOR(const auto& i, make_range(ItemIds, ItemIds + Size))
 	{
-		ItemsMenu.AddItem(MSG(i));
+		ItemsMenu->AddItem(MSG(i));
 	}
 
-	ItemsMenu.SetPosition(17-(TypeSub == 2?7:0),5+(TypeSub == 2?2:0),0,0);
-	ItemsMenu.SetFlags(VMENU_WRAPMODE);
-	ItemsMenu.RunEx([&](int Msg, void *param)->int
+	ItemsMenu->SetPosition(17-(TypeSub == 2?7:0),5+(TypeSub == 2?2:0),0,0);
+	ItemsMenu->SetFlags(VMENU_WRAPMODE);
+	ItemsMenu->RunEx([&](int Msg, void *param)->int
 	{
 		intptr_t ItemsCode=(intptr_t)param;
 		if (Msg!=DN_CLOSE || ItemsCode<0)
@@ -535,7 +535,7 @@ static void SetItemColors(const LNGID* ItemIds, const int* PaletteItems, size_t 
 		};
 		static_assert(ARRAYSIZE(ListPaletteItems) == list_modes_count, "wrong array size");
 
-		ItemsMenu.SendMessage(DM_ENABLEREDRAW, 1, nullptr);
+		ItemsMenu->SendMessage(DM_ENABLEREDRAW, 1, nullptr);
 		if (TypeSub == 1 && PaletteItems[ItemsCode] < list_modes_count)
 		{
 			SetItemColors(ListItems,ListPaletteItems[PaletteItems[ItemsCode]],ARRAYSIZE(ListItems),2);
@@ -755,15 +755,15 @@ bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
 	}
 
 	{
-		Dialog Dlg(ColorDlg, GetColorDlgProc, &CurColor);
+		auto Dlg = Dialog::create(ColorDlg, GetColorDlgProc, &CurColor);
 
 		if (bCentered)
-			Dlg.SetPosition(-1,-1,39+(bAddTransparent?4:0),15+(bAddTransparent?3:0));
+			Dlg->SetPosition(-1,-1,39+(bAddTransparent?4:0),15+(bAddTransparent?3:0));
 		else
-			Dlg.SetPosition(37,2,75+(bAddTransparent?4:0),16+(bAddTransparent?3:0));
+			Dlg->SetPosition(37,2,75+(bAddTransparent?4:0),16+(bAddTransparent?3:0));
 
-		Dlg.Process();
-		ExitCode=Dlg.GetExitCode();
+		Dlg->Process();
+		ExitCode=Dlg->GetExitCode();
 	}
 
 	if (ExitCode==41)

@@ -54,7 +54,7 @@ enum MACRO_OP_CODE
 	MCODE_F_CLIP,                     // V=clip(N[,V])
 	MCODE_F_CHR,                      // S=chr(N)
 	MCODE_F_DATE,                     // S=date([S])
-	MCODE_F_DLG_GETVALUE,             // V=Dlg.GetValue([Pos[,InfoID]])
+	MCODE_F_DLG_GETVALUE,             // V=Dlg->GetValue([Pos[,InfoID]])
 	MCODE_F_EDITOR_SEL,               // V=Editor.Sel(Action[,Opt])
 	MCODE_F_EDITOR_SET,               // N=Editor.Set(N,Var)
 	MCODE_F_EDITOR_UNDO,              // V=Editor.Undo(N)
@@ -133,7 +133,7 @@ enum MACRO_OP_CODE
 	MCODE_F_PLUGIN_EXIST,             // N=Plugin.Exist(Guid)
 	MCODE_F_MENU_FILTER,              // N=Menu.Filter(Action[,Mode])
 	MCODE_F_MENU_FILTERSTR,           // S=Menu.FilterStr([Action[,S]])
-	MCODE_F_DLG_SETFOCUS,             // N=Dlg.SetFocus([ID])
+	MCODE_F_DLG_SETFOCUS,             // N=Dlg->SetFocus([ID])
 	MCODE_F_FAR_CFG_GET,              // V=Far.Cfg.Get(Key,Name)
 	MCODE_F_SIZE2STR,                 // S=Size2Str(N,Flags[,Width])
 	MCODE_F_STRWRAP,                  // S=StrWrap(Text,Width[,Break[,Flags]])
@@ -279,12 +279,12 @@ enum MACRO_OP_CODE
 	MCODE_V_EDITORVALUE,              // Editor.Value - содержимое текущей строки
 	MCODE_V_EDITORSELVALUE,           // Editor.SelValue - содержит содержимое выделенного блока
 
-	MCODE_V_DLGITEMTYPE,              // Dlg.ItemType
-	MCODE_V_DLGITEMCOUNT,             // Dlg.ItemCount
-	MCODE_V_DLGCURPOS,                // Dlg.CurPos
-	MCODE_V_DLGPREVPOS,               // Dlg.PrevPos
-	MCODE_V_DLGINFOID,                // Dlg.Info.Id
-	MCODE_V_DLGINFOOWNER,             // Dlg.Info.Owner
+	MCODE_V_DLGITEMTYPE,              // Dlg->ItemType
+	MCODE_V_DLGITEMCOUNT,             // Dlg->ItemCount
+	MCODE_V_DLGCURPOS,                // Dlg->CurPos
+	MCODE_V_DLGPREVPOS,               // Dlg->PrevPos
+	MCODE_V_DLGINFOID,                // Dlg->Info.Id
+	MCODE_V_DLGINFOOWNER,             // Dlg->Info.Owner
 
 	MCODE_V_VIEWERFILENAME,           // Viewer.FileName - имя просматриваемого файла
 	MCODE_V_VIEWERSTATE,              // Viewer.State

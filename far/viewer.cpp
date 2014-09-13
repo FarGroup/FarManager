@@ -1380,7 +1380,7 @@ int Viewer::ProcessKey(const Manager::Key& Key)
 	{
 		case KEY_F1:
 		{
-			Help Hlp(L"Viewer");
+			Help::create(L"Viewer");
 			return TRUE;
 		}
 		case KEY_CTRLU:
@@ -1549,10 +1549,10 @@ int Viewer::ProcessKey(const Manager::Key& Key)
 			};
 			int mode;
 			{
-				VMenu2 vModes(MSG(MViewMode),ModeListMenu,ARRAYSIZE(ModeListMenu),ScrY-4);
-				vModes.SetFlags(VMENU_WRAPMODE | VMENU_AUTOHIGHLIGHT);
-				vModes.SetSelectPos(VM.Hex, +1);
-				mode = vModes.Run();
+				auto vModes = VMenu2::create(MSG(MViewMode), ModeListMenu, ARRAYSIZE(ModeListMenu), ScrY - 4);
+				vModes->SetFlags(VMENU_WRAPMODE | VMENU_AUTOHIGHLIGHT);
+				vModes->SetSelectPos(VM.Hex, +1);
+				mode = vModes->Run();
 			}
 			if ( mode >= 0 && mode != VM.Hex )
 			{
@@ -3268,20 +3268,20 @@ void Viewer::Search(int Next,int FirstChar)
 		//
 		SearchDlg[SD_EDIT_TEXT].UserData = (intptr_t)&my;
 
-		Dialog Dlg(SearchDlg, this, &Viewer::ViewerSearchDlgProc);
-		Dlg.SetPosition(-1,-1,76,13);
-		Dlg.SetHelp(L"ViewerSearch");
+		auto Dlg = Dialog::create(SearchDlg, this, &Viewer::ViewerSearchDlgProc);
+		Dlg->SetPosition(-1,-1,76,13);
+		Dlg->SetHelp(L"ViewerSearch");
 
 		if (FirstChar)
 		{
-			Dlg.InitDialog();
-			Dlg.Show();
-			Dlg.ProcessKey(Manager::Key(FirstChar));
+			Dlg->InitDialog();
+			Dlg->Show();
+			Dlg->ProcessKey(Manager::Key(FirstChar));
 		}
 
-		Dlg.Process();
+		Dlg->Process();
 
-		if (Dlg.GetExitCode()!=SD_BUTTON_OK)
+		if (Dlg->GetExitCode()!=SD_BUTTON_OK)
 			return;
 
 		SearchHex=SearchDlg[SD_RADIO_HEX].Selected == BSTATE_CHECKED;
@@ -3883,12 +3883,12 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 		__int64 Relative=0;
 		if (ShowDlg)
 		{
-			Dialog Dlg(GoToDlg);
-			Dlg.SetHelp(L"ViewerGotoPos");
-			Dlg.SetPosition(-1,-1,35,9);
-			Dlg.Process();
+			auto Dlg = Dialog::create(GoToDlg);
+			Dlg->SetHelp(L"ViewerGotoPos");
+			Dlg->SetPosition(-1,-1,35,9);
+			Dlg->Process();
 
-			if (Dlg.GetExitCode()<=0)
+			if (Dlg->GetExitCode()<=0)
 				return;
 
 			if (GoToDlg[1].strData.front()==L'+' || GoToDlg[1].strData.front()==L'-')       // юзер хочет относительности
@@ -4217,8 +4217,8 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 		// Param2=0
 		case VCTL_REDRAW:
 		{
-			window* parent=HostFileViewer;
-			if (!parent) parent=Global->WindowManager->GetViewerById(GetId());
+			window_ptr parent=HostFileViewer->shared_from_this();
+			if (!parent) parent = Global->WindowManager->GetViewerContainerById(GetId());
 			if (parent)
 			{
 				Global->WindowManager->RefreshWindow(parent);
@@ -4240,7 +4240,7 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 				/* $ 29.09.2002 IS
 				   без этого не закрывался вьюер, а просили именно это
 				*/
-				Global->WindowManager->DeleteWindow(HostFileViewer);
+				Global->WindowManager->DeleteWindow(HostFileViewer->shared_from_this());
 
 				if (HostFileViewer)
 					HostFileViewer->SetExitCode(0);

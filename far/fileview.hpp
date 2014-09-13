@@ -36,18 +36,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "window.hpp"
 #include "viewer.hpp"
 
+typedef std::shared_ptr<FileViewer> fileviewer_ptr;
+
 class FileViewer:public window,public ViewerContainer
 {
 public:
-	FileViewer(const string& Name,int EnableSwitch=FALSE,int DisableHistory=FALSE,
+	static fileviewer_ptr create(const string& Name, int EnableSwitch = FALSE, int DisableHistory = FALSE,
 		int DisableEdit=FALSE,__int64 ViewStartPos=-1,const wchar_t *PluginData=nullptr,
 		NamesList *ViewNamesList=nullptr,bool ToSaveAs=false,uintptr_t aCodePage=CP_DEFAULT,
-		const wchar_t *Title=nullptr, int DeleteOnClose=0, window* Update=nullptr);
-	FileViewer(const string& Name,int EnableSwitch,int DisableHistory,
+		const wchar_t *Title=nullptr, int DeleteOnClose=0, window_ptr Update=nullptr);
+	static fileviewer_ptr create(const string& Name, int EnableSwitch, int DisableHistory,
 		const wchar_t *Title,int X1,int Y1,int X2,int Y2,uintptr_t aCodePage=CP_DEFAULT);
 	virtual ~FileViewer();
 
-public:
 	virtual void InitKeyBar() override;
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
@@ -64,7 +65,6 @@ public:
 	virtual Viewer* GetViewer(void) override;
 	virtual Viewer* GetById(int ID) override;
 
-	void Init(const string& Name, int EnableSwitch, int DisableHistory, __int64 ViewStartPos, const wchar_t *PluginData, NamesList *ViewNamesList, bool ToSaveAs, window* Update=nullptr);
 	/* $ 14.06.2002 IS
 	   Параметр DeleteFolder - удалить не только файл, но и каталог, его
 	   содержащий (если каталог пуст). По умолчанию - TRUE (получаем
@@ -88,8 +88,12 @@ public:
 
 
 private:
+	FileViewer(int DisableEdit, uintptr_t aCodePage, const wchar_t *Title);
+
 	virtual void Show() override;
 	virtual void DisplayObject() override;
+
+	void Init(const string& Name, int EnableSwitch, int DisableHistory, __int64 ViewStartPos, const wchar_t *PluginData, NamesList *ViewNamesList, bool ToSaveAs, window_ptr Update = nullptr);
 
 	Viewer m_View;
 	int RedrawTitle;

@@ -39,14 +39,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class Modal: public window
 {
+protected:
+	Modal(){}
+	~Modal(){}
 };
 
 class SimpleModal: public Modal
 {
 public:
-	SimpleModal();
-	virtual ~SimpleModal() {}
-
 	virtual int ReadInput(INPUT_RECORD *GetReadRec = nullptr);
 	virtual void SetExitCode(int Code) override;
 
@@ -60,6 +60,9 @@ public:
 	void ShowHelp();
 
 protected:
+	SimpleModal();
+	virtual ~SimpleModal() {}
+
 	void SetDone(void);
 	void Close(int Code);
 

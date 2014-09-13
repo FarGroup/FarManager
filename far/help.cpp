@@ -173,7 +173,7 @@ string Help::MakeLink(const string& path, const string& topic)
 	return string(L"<") + path + L"\\>" + topic;
 }
 
-Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
+Help::Help():
 	StackData(std::make_unique<StackHelpData>()),
 	FixCount(0),
 	FixSize(0),
@@ -195,12 +195,21 @@ Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
 	LastSearchWholeWords(Global->GlobalSearchWholeWords),
 	LastSearchRegexp(Global->Opt->HelpSearchRegexp)
 {
+}
+
+help_ptr Help::create(const string& Topic, const wchar_t *Mask, UINT64 Flags)
+{
+	help_ptr HelpPtr(new Help);
+	HelpPtr->init(Topic, Mask, Flags);
+	return HelpPtr;
+}
+
+void Help::init(const string& Topic, const wchar_t *Mask, UINT64 Flags)
+{
 	m_windowKeyBar = std::make_unique<KeyBar>();
 
 	m_CanLoseFocus=FALSE;
 	m_KeyBarVisible=TRUE;
-	/* $ OT По умолчанию все хелпы создаются статически*/
-	SetDynamicallyBorn(false);
 	SetRestoreScreenMode(true);
 
 	StackData->Flags=Flags;
@@ -236,8 +245,8 @@ Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
 		InitKeyBar();
 		SetMacroMode(MACROAREA_HELP);
 		MoveToReference(1,1);
-		Global->WindowManager->ExecuteWindow(this); //OT
-		Global->WindowManager->ExecuteModal(this); //OT
+		Global->WindowManager->ExecuteWindow(shared_from_this()); //OT
+		Global->WindowManager->ExecuteModal(shared_from_this()); //OT
 	}
 	else
 	{
@@ -1218,7 +1227,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 		case KEY_F10:
 		{
 			Hide();
-			Global->WindowManager->DeleteWindow(this);
+			Global->WindowManager->DeleteWindow(shared_from_this());
 			SetExitCode(XC_QUIT);
 			return TRUE;
 		}

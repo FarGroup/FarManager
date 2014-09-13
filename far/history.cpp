@@ -147,18 +147,18 @@ bool History::ReadLastItem(const string& HistoryName, string &strStr) const
 history_return_type History::Select(const wchar_t *Title, const wchar_t *HelpTopic, string &strStr, history_record_type &Type, GUID* Guid, string *File, string *Data)
 {
 	int Height=ScrY-8;
-	VMenu2 HistoryMenu(Title,nullptr,0,Height);
-	HistoryMenu.SetFlags(VMENU_WRAPMODE);
+	auto HistoryMenu = VMenu2::create(Title, nullptr, 0, Height);
+	HistoryMenu->SetFlags(VMENU_WRAPMODE);
 
 	if (HelpTopic)
-		HistoryMenu.SetHelp(HelpTopic);
+		HistoryMenu->SetHelp(HelpTopic);
 
-	HistoryMenu.SetPosition(-1,-1,0,0);
+	HistoryMenu->SetPosition(-1,-1,0,0);
 
 	if (m_TypeHistory == HISTORYTYPE_CMD || m_TypeHistory == HISTORYTYPE_FOLDER || m_TypeHistory == HISTORYTYPE_VIEW)
-		HistoryMenu.SetId(m_TypeHistory == HISTORYTYPE_CMD?HistoryCmdId:(m_TypeHistory == HISTORYTYPE_FOLDER?HistoryFolderId:HistoryEditViewId));
+		HistoryMenu->SetId(m_TypeHistory == HISTORYTYPE_CMD?HistoryCmdId:(m_TypeHistory == HISTORYTYPE_FOLDER?HistoryFolderId:HistoryEditViewId));
 
-	auto ret = ProcessMenu(strStr, Guid, File, Data, Title, HistoryMenu, Height, Type, nullptr);
+	auto ret = ProcessMenu(strStr, Guid, File, Data, Title, *HistoryMenu, Height, Type, nullptr);
 	Global->ScrBuf->Flush();
 	return ret;
 }

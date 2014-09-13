@@ -133,7 +133,7 @@ void InfoList::Update(int Mode)
 	if (!m_EnableUpdate)
 		return;
 
-	if (m_parent == Global->WindowManager->GetCurrentWindow())
+	if (m_parent == Global->WindowManager->GetCurrentWindow().get())
 		Redraw();
 }
 
@@ -620,12 +620,12 @@ void InfoList::SelectShowMode()
 		//DEFINE_GUID(InfoListSelectShowModeId,0xbfc64a26, 0xf433, 0x4cf3, 0xa1, 0xde, 0x83, 0x61, 0xcf, 0x76, 0x2f, 0x68);
 		// ?????
 
-		VMenu2 ShowModeMenu(MSG(MMenuInfoShowModeTitle),ShowModeMenuItem,ARRAYSIZE(ShowModeMenuItem),0);
-		ShowModeMenu.SetHelp(L"InfoPanelShowMode");
-		ShowModeMenu.SetPosition(m_X1+4,-1,0,0);
-		ShowModeMenu.SetFlags(VMENU_WRAPMODE);
+		auto ShowModeMenu = VMenu2::create(MSG(MMenuInfoShowModeTitle), ShowModeMenuItem, ARRAYSIZE(ShowModeMenuItem), 0);
+		ShowModeMenu->SetHelp(L"InfoPanelShowMode");
+		ShowModeMenu->SetPosition(m_X1+4,-1,0,0);
+		ShowModeMenu->SetFlags(VMENU_WRAPMODE);
 
-		ShowCode=ShowModeMenu.Run([&](int Key)->int
+		ShowCode=ShowModeMenu->Run([&](int Key)->int
 		{
 			int KeyProcessed = 1;
 			switch (Key)
@@ -633,19 +633,19 @@ void InfoList::SelectShowMode()
 				case KEY_MULTIPLY:
 				case L'*':
 					ShowMode=2;
-					ShowModeMenu.Close();
+					ShowModeMenu->Close();
 					break;
 
 				case KEY_ADD:
 				case L'+':
 					ShowMode=1;
-					ShowModeMenu.Close();
+					ShowModeMenu->Close();
 					break;
 
 				case KEY_SUBTRACT:
 				case L'-':
 					ShowMode=0;
-					ShowModeMenu.Close();
+					ShowModeMenu->Close();
 					break;
 
 				default:
@@ -698,7 +698,7 @@ int InfoList::ProcessKey(const Manager::Key& Key)
 	{
 		case KEY_F1:
 		{
-			Help Hlp(L"InfoPanel");
+			Help::create(L"InfoPanel");
 			return TRUE;
 		}
 		case KEY_CTRLF12:
@@ -712,7 +712,7 @@ int InfoList::ProcessKey(const Manager::Key& Key)
 			{
 				m_CurDir = m_parent->GetAnotherPanel(this)->GetCurDir();
 				FarChDir(m_CurDir);
-				new FileViewer(strDizFileName,TRUE);//OT
+				FileViewer::create(strDizFileName, TRUE);//OT
 			}
 
 			m_parent->Redraw();
@@ -730,7 +730,7 @@ int InfoList::ProcessKey(const Manager::Key& Key)
 
 			if (!strDizFileName.empty())
 			{
-				new FileEditor(strDizFileName,CP_DEFAULT,FFILEEDIT_ENABLEF6);
+				FileEditor::create(strDizFileName,CP_DEFAULT,FFILEEDIT_ENABLEF6);
 			}
 			else if (!Global->Opt->InfoPanel.strFolderInfoFiles.empty())
 			{
@@ -741,7 +741,7 @@ int InfoList::ProcessKey(const Manager::Key& Key)
 				{
 					if (strArgName.find_first_of(L"*?") == string::npos)
 					{
-						new FileEditor(strArgName,CP_DEFAULT,FFILEEDIT_CANNEWFILE|FFILEEDIT_ENABLEF6);
+						FileEditor::create(strArgName, CP_DEFAULT, FFILEEDIT_CANNEWFILE | FFILEEDIT_ENABLEF6);
 						break;
 					}
 				}

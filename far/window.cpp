@@ -43,7 +43,6 @@ static int windowID=0;
 
 window::window():
 	m_ID(windowID++),
-	m_DynamicallyBorn(true),
 	m_CanLoseFocus(FALSE),
 	m_ExitCode(-1),
 	m_KeyBarVisible(0),
@@ -69,7 +68,7 @@ void window::UpdateKeyBar()
 
 int window::IsTopWindow() const
 {
-	return Global->WindowManager->GetCurrentWindow() == this;
+	return Global->WindowManager->GetCurrentWindow().get() == this;
 }
 
 void window::OnChangeFocus(int focus)

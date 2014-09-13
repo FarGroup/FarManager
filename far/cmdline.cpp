@@ -289,7 +289,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 			Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 			{
 				// TODO: здесь можно добавить проверку, что мы в корне диска и отсутствие файла Tree.Far...
-				FolderTree Tree(strStr, MODALTREE_ACTIVE, TRUE, false);
+				FolderTree::create(strStr, MODALTREE_ACTIVE, TRUE, false);
 			}
 			Global->CtrlObject->Cp()->RedrawKeyBar();
 
@@ -780,7 +780,7 @@ void CommandLine::ShowViewEditHistory()
 			{
 				case HR_VIEWER:
 				{
-					new FileViewer(strStr,TRUE);
+					auto FView = FileViewer::create(strStr, TRUE);
 					break;
 				}
 
@@ -788,7 +788,7 @@ void CommandLine::ShowViewEditHistory()
 				case HR_EDITOR_RO:
 				{
 					// пусть файл создается
-					FileEditor *FEdit=new FileEditor(strStr,CP_DEFAULT,FFILEEDIT_CANNEWFILE|FFILEEDIT_ENABLEF6);
+					auto FEdit = FileEditor::create(strStr, CP_DEFAULT, FFILEEDIT_CANNEWFILE | FFILEEDIT_ENABLEF6);
 
 					if (Type == HR_EDITOR_RO)
 						FEdit->SetLockEditor(TRUE);

@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "configdb.hpp"
+#include "windowsfwd.hpp"
 
 // Тип выбранной таблицы символов
 enum CPSelectType
@@ -96,7 +97,7 @@ private:
 	Dialog* dialog;
 	UINT control;
 	std::vector<DialogBuilderListItem2> *DialogBuilderList;
-	std::unique_ptr<VMenu2> CodePagesMenu;
+	vmenu2_ptr CodePagesMenu;
 	uintptr_t currentCodePage;
 	int favoriteCodePages, normalCodePages;
 	bool selectedCodePages;

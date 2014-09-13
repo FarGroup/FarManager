@@ -387,12 +387,11 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 	PanelMenuItem Item, *mitem=0;
 	{ // эта скобка надо, см. M#605
-		VMenu2 ChDisk(MSG(MChangeDriveTitle),nullptr,0,ScrY-m_Y1-3);
-		ChDisk.SetBottomTitle(MSG(MChangeDriveMenuFooter));
-
-		ChDisk.SetHelp(L"DriveDlg");
-		ChDisk.SetFlags(VMENU_WRAPMODE);
-		ChDisk.SetId(ChangeDiskMenuId);
+		auto ChDisk = VMenu2::create(MSG(MChangeDriveTitle), nullptr, 0, ScrY - m_Y1 - 3);
+		ChDisk->SetBottomTitle(MSG(MChangeDriveMenuFooter));
+		ChDisk->SetHelp(L"DriveDlg");
+		ChDisk->SetFlags(VMENU_WRAPMODE);
+		ChDisk->SetId(ChangeDiskMenuId);
 
 		struct DiskMenuItem
 		{
@@ -591,7 +590,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			item.bIsPlugin = false;
 			item.cDrive = L'A' + DiskNumber;
 			item.nDriveType = i.DriveType;
-			ChDisk.SetUserData(&item, sizeof(item), ChDisk.AddItem(ChDiskItem));
+			ChDisk->SetUserData(&item, sizeof(item), ChDisk->AddItem(ChDiskItem));
 			MenuLine++;
 		});
 
@@ -599,7 +598,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_PLUGINS)
 		{
-			PluginMenuItemsCount = AddPluginItems(ChDisk, Pos, static_cast<int>(DiskCount), SetSelected);
+			PluginMenuItemsCount = AddPluginItems(*ChDisk, Pos, static_cast<int>(DiskCount), SetSelected);
 		}
 
 		DE.reset();
@@ -609,13 +608,13 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		if ((this == m_parent->RightPanel) && IsFullScreen() && (m_X2 - m_X1 > 40))
 			X = (m_X2-m_X1+1)/2+5;
 
-		ChDisk.SetPosition(X,-1,0,0);
+		ChDisk->SetPosition(X,-1,0,0);
 
 		int Y = (ScrY+1-static_cast<int>((DiskCount+PluginMenuItemsCount)+5))/2;
 		if (Y < 3)
-			ChDisk.SetBoxType(SHORT_DOUBLE_BOX);
+			ChDisk->SetBoxType(SHORT_DOUBLE_BOX);
 
-		ChDisk.SetMacroMode(MACROAREA_DISKS);
+		ChDisk->SetMacroMode(MACROAREA_DISKS);
 		int RetCode=-1;
 
 		bool NeedRefresh = false;
@@ -625,7 +624,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			NeedRefresh = true;
 		});
 
-		ChDisk.Run([&](int Key)->int
+		ChDisk->Run([&](int Key)->int
 		{
 			if(Key==KEY_NONE && NeedRefresh)
 			{
@@ -633,8 +632,8 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				NeedRefresh = false;
 			}
 
-			int SelPos=ChDisk.GetSelectPos();
-			PanelMenuItem *item = (PanelMenuItem*)ChDisk.GetUserData(nullptr,0);
+			int SelPos=ChDisk->GetSelectPos();
+			PanelMenuItem *item = (PanelMenuItem*)ChDisk->GetUserData(nullptr,0);
 
 			int KeyProcessed = 1;
 
@@ -658,7 +657,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				case KEY_RCTRLNUMPAD9:
 				{
 					if (Global->Opt->PgUpChangeDisk != 0)
-						ChDisk.Close(-1);
+						ChDisk->Close(-1);
 				}
 				break;
 				// Т.к. нет способа получить состояние "открытости" устройства,
@@ -682,7 +681,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				{
 					if (item && !item->bIsPlugin)
 					{
-						int Code = DisconnectDrive(item, ChDisk);
+						int Code = DisconnectDrive(item, *ChDisk);
 						if (Code != DRIVE_DEL_FAIL && Code != DRIVE_DEL_NONE)
 						{
 							Global->ScrBuf->Lock(); // отменяем всякую прорисовку
@@ -714,7 +713,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 						}
 						else
 						{
-							string strName = ChDisk.GetItemPtr(SelPos)->strName.data() + 3;
+							string strName = ChDisk->GetItemPtr(SelPos)->strName.data() + 3;
 							RemoveExternalSpaces(strName);
 							if(Global->CtrlObject->Plugins->SetHotKeyDialog(item->pPlugin, item->Guid, PluginsHotkeysConfig::DRIVE_MENU, strName))
 							RetCode=SelPos;
@@ -743,7 +742,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				{
 					if (item && !item->bIsPlugin)
 					{
-						RemoveHotplugDevice(item, ChDisk);
+						RemoveHotplugDevice(item, *ChDisk);
 						RetCode=SelPos;
 					}
 				}
@@ -850,7 +849,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			}
 
 			if (RetCode>=0)
-				ChDisk.Close(-1);
+				ChDisk->Close(-1);
 
 			return KeyProcessed;
 		});
@@ -858,20 +857,20 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		if (RetCode>=0)
 			return RetCode;
 
-		if (ChDisk.GetExitCode()<0 &&
+		if (ChDisk->GetExitCode()<0 &&
 			        !m_CurDir.empty() &&
 			        (StrCmpN(m_CurDir.data(),L"\\\\",2) ))
 			{
 				const wchar_t RootDir[4] = {m_CurDir[0],L':',L'\\',L'\0'};
 
 				if (FAR_GetDriveType(RootDir) == DRIVE_NO_ROOT_DIR)
-				return ChDisk.GetSelectPos();
+				return ChDisk->GetSelectPos();
 			}
 
-		if (ChDisk.GetExitCode()<0)
+		if (ChDisk->GetExitCode()<0)
 			return -1;
 
-		mitem=(PanelMenuItem*)ChDisk.GetUserData(nullptr,0);
+		mitem=(PanelMenuItem*)ChDisk->GetUserData(nullptr,0);
 
 		if (mitem)
 		{
@@ -1274,8 +1273,9 @@ static DWORD _CorrectFastFindKbdLayout(const INPUT_RECORD& rec,DWORD Key)
 class Search: public Modal
 {
 public:
-	Search(Panel* Owner, int FirstKey, int X, int Y);
+	static search_ptr create(Panel* Owner, int FirstKey, int X, int Y);
 	virtual ~Search() {}
+
 	void Process(void);
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
@@ -1284,6 +1284,9 @@ public:
 	int KeyToProcess(void) const { return m_KeyToProcess; }
 
 private:
+	Search(Panel* Owner, int FirstKey);
+	void init(int X, int Y);
+
 	Panel* m_Owner;
 	int m_FirstKey;
 	EditControl m_FindEdit;
@@ -1296,10 +1299,24 @@ private:
 	void Close(void);
 };
 
-Search::Search(Panel* Owner, int FirstKey, int X, int Y): m_Owner(Owner), m_FirstKey(FirstKey), m_FindEdit(this), m_KeyToProcess(0)
+Search::Search(Panel* Owner, int FirstKey):
+	m_Owner(Owner),
+	m_FirstKey(FirstKey),
+	m_FindEdit(this),
+	m_KeyToProcess(0)
+{
+}
+
+search_ptr Search::create(Panel* Owner, int FirstKey, int X, int Y)
+{
+	search_ptr SearchPtr(new Search(Owner, FirstKey));
+	SearchPtr->init(X, Y);
+	return SearchPtr;
+}
+
+void Search::init(int X, int Y)
 {
 	SetMacroMode(MACROAREA_SEARCH);
-	SetDynamicallyBorn(false);
 	SetRestoreScreenMode(true);
 	SetPosition(X,Y,X+21,Y+2);
 
@@ -1310,9 +1327,9 @@ Search::Search(Panel* Owner, int FirstKey, int X, int Y): m_Owner(Owner), m_Firs
 
 void Search::Process(void)
 {
-	Global->WindowManager->ExecuteWindow(this);
+	Global->WindowManager->ExecuteWindow(shared_from_this());
 	if(m_FirstKey) Global->WindowManager->CallbackWindow([this](){this->ProcessKey(Manager::Key(m_FirstKey));});
-	Global->WindowManager->ExecuteModal(this);
+	Global->WindowManager->ExecuteModal(shared_from_this());
 }
 
 int Search::ProcessKey(const Manager::Key& Key)
@@ -1386,7 +1403,7 @@ int Search::ProcessKey(const Manager::Key& Key)
 		{
 			Hide();
 			{
-				Help Hlp(L"FastFind");
+				Help::create(L"FastFind");
 			}
 			Show();
 			break;
@@ -1535,7 +1552,7 @@ void Search::ProcessName(const string& Src,string &strLastName,string &strName)
 void Search::Close(void)
 {
 	Hide();
-	Global->WindowManager->DeleteWindow(this);
+	Global->WindowManager->DeleteWindow(shared_from_this());
 }
 
 void Panel::FastFind(int FirstKey)
@@ -1546,9 +1563,9 @@ void Panel::FastFind(int FirstKey)
 	{
 		int FindX=std::min(m_X1+9,ScrX-22);
 		int FindY=std::min(m_Y2,static_cast<SHORT>(ScrY-2));
-		Search search(this,FirstKey,FindX,FindY);
-		search.Process();
-		KeyToProcess=search.KeyToProcess();
+		auto search = Search::create(this, FirstKey, FindX, FindY);
+		search->Process();
+		KeyToProcess=search->KeyToProcess();
 	}
 	Global->WaitInFastFind--;
 	Show();
@@ -2540,13 +2557,13 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 
 	if (Global->Opt->Confirm.RemoveConnection)
 	{
-		Dialog Dlg(DCDlg);
-		Dlg.SetPosition(-1,-1,DCDlg[0].X2+4,11);
-		Dlg.SetHelp(L"DisconnectDrive");
-		Dlg.SetId(DisconnectDriveId);
-		Dlg.SetDialogMode(DMODE_WARNINGSTYLE);
-		Dlg.Process();
-		ExitCode=Dlg.GetExitCode();
+		auto Dlg = Dialog::create(DCDlg);
+		Dlg->SetPosition(-1,-1,DCDlg[0].X2+4,11);
+		Dlg->SetHelp(L"DisconnectDrive");
+		Dlg->SetId(DisconnectDriveId);
+		Dlg->SetDialogMode(DMODE_WARNINGSTYLE);
+		Dlg->Process();
+		ExitCode=Dlg->GetExitCode();
 	}
 
 	UpdateProfile=DCDlg[5].Selected?0:CONNECT_UPDATE_PROFILE;
