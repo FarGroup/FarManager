@@ -1182,13 +1182,13 @@ struct PluginMenuItemData
 */
 void PluginManager::Configure(int StartPos)
 {
+		auto PluginList = VMenu2::create(MSG(MPluginConfigTitle), nullptr, 0, ScrY - 4);
+		PluginList->SetFlags(VMENU_WRAPMODE);
+		PluginList->SetHelp(L"PluginsConfig");
+		PluginList->SetId(PluginsConfigMenuId);
+
 		while (!Global->CloseFAR)
 		{
-			auto PluginList = VMenu2::create(MSG(MPluginConfigTitle), nullptr, 0, ScrY - 4);
-			PluginList->SetFlags(VMENU_WRAPMODE);
-			PluginList->SetHelp(L"PluginsConfig");
-			PluginList->SetId(PluginsConfigMenuId);
-
 			bool NeedUpdateItems = true;
 			bool HotKeysPresent = Global->Db->PlHotkeyCfg()->HotkeysPresent(PluginsHotkeysConfig::CONFIG_MENU);
 
