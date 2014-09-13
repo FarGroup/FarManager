@@ -6297,3 +6297,7 @@ bool Dialog::IsValid(Dialog* Handle)
 {
 	return DialogsList().find(Handle) != DialogsList().cend();
 }
+
+void Dialog::SetDeleting(void)
+{
+}

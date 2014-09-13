@@ -82,7 +82,7 @@ public:
 	int IsTopWindow() const;
 	bool HasSaveScreen() const;
 	void SetFlags( DWORD flags ) { m_Flags.Set(flags); }
-	void SetDeleting(void);
+	virtual void SetDeleting(void);
 	bool IsDeleting(void) const;
 	void SetBlock(void);
 	void RemoveBlock(void);

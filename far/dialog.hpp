@@ -237,6 +237,7 @@ public:
 	virtual void ResizeConsole() override;
 	virtual void SetPosition(int X1,int Y1,int X2,int Y2) override;
 	virtual void FastShow() {ShowDialog();}
+	virtual void SetDeleting(void) override;
 
 	bool InitOK() const {return bInitOK;}
 	void GetDialogObjectsData();

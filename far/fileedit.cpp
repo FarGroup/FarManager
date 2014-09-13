@@ -516,7 +516,6 @@ void FileEditor::Init(
 				{
 					case 0:         // Current
 						SwitchTo=TRUE;
-						Global->WindowManager->DeleteWindow(shared_from_this()); //???
 						SetExitCode(XC_EXISTS); // ???
 						break;
 					case 1:         // NewOpen
@@ -539,11 +538,9 @@ void FileEditor::Init(
 						SetExitCode(XC_LOADING_INTERRUPTED);
 						return;
 					case -100:
-						//WindowManager->DeleteWindow(this);  //???
 						SetExitCode(XC_EXISTS);
 						return;
 					default:
-						Global->WindowManager->DeleteWindow(shared_from_this());  //???
 						SetExitCode(XC_QUIT);
 						return;
 				}
