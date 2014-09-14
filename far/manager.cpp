@@ -368,10 +368,10 @@ window_ptr Manager::WindowMenu()
 		{
 			if (ExitCode>=0)
 			{
-				window_ptr ActivatedWindow;
+				window* ActivatedWindow;
 				ModalMenu->GetUserData(&ActivatedWindow,sizeof(ActivatedWindow),ExitCode);
-				ActivateWindow(ActivatedWindow);
-				return (ActivatedWindow == m_currentWindow || !m_currentWindow->GetCanLoseFocus())? nullptr : m_currentWindow;
+				ActivateWindow(ActivatedWindow->shared_from_this());
+				return (ActivatedWindow == m_currentWindow.get() || !m_currentWindow->GetCanLoseFocus())? nullptr : m_currentWindow;
 			}
 		}
 	}
