@@ -110,7 +110,33 @@ class Thread: public HandleWrapper
 public:
 	Thread(): m_ThreadId() {}
 	Thread(Thread&& rhs): m_ThreadId() { *this = std::move(rhs); }
-	virtual ~Thread() {}
+
+#if defined _MSC_VER && _MSC_VER < 1800
+	template<typename T>
+	Thread(T&& Function) { Starter(std::bind(Function)); }
+
+	template<typename T, typename A1>
+	Thread(T&& Function, A1&& Arg1) { Starter(std::bind(Function, Arg1)); }
+
+	template<typename T, typename A1, typename A2>
+	Thread(T&& Function, A1&& Arg1, A2&& Arg2) { Starter(std::bind(Function, Arg1, Arg2)); }
+
+	template<typename T, typename A1, typename A2, typename A3>
+	Thread(T&& Function, A1&& Arg1, A2&& Arg2, A3&& Arg3) { Starter(std::bind(Function, Arg1, Arg2, Arg3)); }
+
+	template<typename T, typename A1, typename A2, typename A3, typename A4>
+	Thread(T&& Function, A1&& Arg1, A2&& Arg2, A3&& Arg3, A4&& Arg4) { Starter(std::bind(Function, Arg1, Arg2, Arg3, Arg4)); }
+
+	// and so on...
+#else
+	template<class T, class... A>
+	Thread(T&& Function, A&&... Args)
+	{
+		Starter(std::bind(Function, Args...));
+	}
+#endif
+
+	virtual ~Thread() { if (joinable()) std::terminate(); }
 
 	virtual const wchar_t *GetNamespace() const override { return L""; }
 
@@ -122,46 +148,41 @@ public:
 		std::swap(m_ThreadId, rhs.m_ThreadId);
 	}
 
-#if defined _MSC_VER && _MSC_VER < 1800
-	template<typename T>
-	bool Start(T&& Function) { return Starter(std::bind(Function)); }
+	unsigned int get_id() const { return m_ThreadId; }
 
-	template<typename T, typename A1>
-	bool Start(T&& Function, A1&& Arg1) { return Starter(std::bind(Function, Arg1)); }
+	bool joinable() const { return m_ThreadId != 0; }
 
-	template<typename T, typename A1, typename A2>
-	bool Start(T&& Function, A1&& Arg1, A2&& Arg2) { return Starter(std::bind(Function, Arg1, Arg2)); }
-
-	template<typename T, typename A1, typename A2, typename A3>
-	bool Start(T&& Function, A1&& Arg1, A2&& Arg2, A3&& Arg3) { return Starter(std::bind(Function, Arg1, Arg2, Arg3)); }
-
-	template<typename T, typename A1, typename A2, typename A3, typename A4>
-	bool Start(T&& Function, A1&& Arg1, A2&& Arg2, A3&& Arg3, A4&& Arg4) { return Starter(std::bind(Function, Arg1, Arg2, Arg3, Arg4)); }
-
-	// and so on...
-#else
-	template<class T, class... A>
-	bool Start(T&& Function, A&&... Args)
+	void detach()
 	{
-		return Starter(std::bind(Function, Args...));
+		check_joinable();
+		Close();
+		m_ThreadId = 0;
 	}
-#endif
 
-	unsigned int GetId() const { return m_ThreadId; }
+	void join()
+	{
+		check_joinable();
+		Wait();
+		Close();
+		m_ThreadId = 0;
+	}
 
 private:
-	template<class T>
-	bool Starter(T&& f)
+	void check_joinable()
 	{
-		assert(!m_Handle);
+		if (!joinable())
+			throw std::runtime_error("Thread is not joinable"); // TODO: std::system_error
+	}
 
+	template<class T>
+	void Starter(T&& f)
+	{
 		auto Param = new T(std::move(f));
 		if (!(m_Handle = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, Wrapper<T>, Param, 0, &m_ThreadId))))
 		{
 			delete Param;
-			return false;
+			throw std::runtime_error("Can't create thread"); // TODO: std::system_error
 		}
-		return true;
 	}
 
 	template<class T>
@@ -310,7 +331,6 @@ public:
 	};
 	MultiWaiter() { Objects.reserve(10); }
 	~MultiWaiter() {}
-	void AddThread(Thread&& Object) { assert(Objects.size() < MAXIMUM_WAIT_OBJECTS); Objects.emplace_back(Object.GetHandle()); Threads.emplace_back(std::move(Object)); }
 	void Add(const HandleWrapper& Object) { assert(Objects.size() < MAXIMUM_WAIT_OBJECTS); Objects.emplace_back(Object.GetHandle()); }
 	void Add(HANDLE handle) { assert(Objects.size() < MAXIMUM_WAIT_OBJECTS); Objects.emplace_back(handle); }
 	DWORD Wait(wait_mode Mode = wait_all, DWORD Milliseconds = INFINITE) const { return WaitForMultipleObjects(static_cast<DWORD>(Objects.size()), Objects.data(), Mode == wait_all, Milliseconds); }
@@ -318,5 +338,4 @@ public:
 
 private:
 	std::vector<HANDLE> Objects;
-	std::vector<Thread> Threads;
 };

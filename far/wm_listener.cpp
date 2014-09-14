@@ -138,18 +138,22 @@ wm_listener::~wm_listener()
 	{
 		SendMessage(m_Hwnd,WM_CLOSE, 0, 0);
 	}
-	if(m_Thread.Opened())
+	if(m_Thread.joinable())
 	{
-		m_Thread.Wait();
+		m_Thread.join();
 	}
 }
 
 void wm_listener::Check()
 {
-	if (!m_Thread.Opened() || m_Thread.Signaled())
+	const auto joinable = m_Thread.joinable();
+	if (!joinable || m_Thread.Signaled())
 	{
-		m_Thread.Close();
-		m_Thread.Start(&wm_listener::WindowThreadRoutine, this);
+		if (joinable)
+		{
+			m_Thread.detach();
+		}
+		m_Thread = Thread(&wm_listener::WindowThreadRoutine, this);
 	}
 }
 

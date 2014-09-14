@@ -2802,14 +2802,13 @@ bool FindFiles::FindFilesProcess()
 	strLastDirName.clear();
 
 	THREADPARAM Param={PluginMode, Dlg.get()};
-	Thread FindThread;
-	if (FindThread.Start(&FindFiles::ThreadRoutine, this, &Param))
-	{
+
 		TB = std::make_unique<IndeterminateTaskBar>();
 		SCOPED_ACTION(wakeful);
+
+		Thread FindThread(&FindFiles::ThreadRoutine, this, &Param);
 		Dlg->Process();
-		FindThread.Wait();
-		FindThread.Close();
+		FindThread.join();
 
 		PauseEvent.Set();
 		StopEvent.Reset();
@@ -2989,7 +2988,6 @@ bool FindFiles::FindFilesProcess()
 				break;
 			}
 		}
-	}
 	return false;
 }
 

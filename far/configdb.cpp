@@ -544,15 +544,7 @@ public:
 	void AsyncFinish()
 	{
 		AsyncDone.Reset();
-		Thread FinishThread;
-		if (FinishThread.Start(&HierarchicalConfigDb::AsyncDelete, this))
-		{
-			Global->Db->AddThread(std::move(FinishThread));
-		}
-		else
-		{
-			AsyncDelete();
-		}
+		Global->Db->AddThread(Thread(&HierarchicalConfigDb::AsyncDelete, this));
 	}
 
 	bool BeginTransaction() { return SQLiteDb::BeginTransaction(); }
@@ -2036,14 +2028,17 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb {
 		AllWaiter.Add(AsyncDeleteAddDone);
 		AllWaiter.Add(AsyncCommitDone);
 		AsyncWork.Open();
-		WorkThread.Start(&HistoryConfigCustom::ThreadProc, this);
+		WorkThread = Thread(&HistoryConfigCustom::ThreadProc, this);
 	}
 
-	void StopThread() const
+	void StopThread()
 	{
 		WaitAllAsync();
 		StopEvent.Set();
-		WorkThread.Wait();
+		if (WorkThread.joinable())
+		{
+			WorkThread.join();
+		}
 	}
 
 	void ThreadProc()
@@ -2736,7 +2731,10 @@ Database::Database(mode Mode):
 
 Database::~Database()
 {
-	Global->Db->WaitForThreads();
+	MultiWaiter ThreadWaiter;
+	FOR(const auto& i, m_Threads) { ThreadWaiter.Add(i); }
+	ThreadWaiter.Wait();
+	FOR(auto& i, m_Threads) { i.detach(); }
 }
 
 RegExp& GetRE()

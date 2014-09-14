@@ -298,8 +298,7 @@ public:
 	bool Export(const string& File);
 	int ShowProblems();
 
-	void AddThread(Thread&& thread) {ThreadWaiter.AddThread(std::move(thread));}
-	void WaitForThreads() const {ThreadWaiter.Wait();}
+	void AddThread(Thread&& thread) { m_Threads.emplace_back(std::move(thread)); }
 
 	static void ClearPluginsCache();
 
@@ -325,12 +324,12 @@ private:
 	void TryImportDatabase(XmlConfig *p, const char *son = nullptr, bool plugin=false);
 	void CheckDatabase(SQLiteDb *pDb);
 
+	std::vector<Thread> m_Threads;
 	std::list<string> m_Problems;
 	std::unique_ptr<tinyxml::TiXmlDocument> m_TemplateDoc;
 	tinyxml::TiXmlElement *m_TemplateRoot;
 	int m_TemplateLoadState;
 	mode m_Mode;
-	MultiWaiter ThreadWaiter;
 
 	std::unique_ptr<GeneralConfig> m_GeneralCfg;
 	std::unique_ptr<GeneralConfig> m_LocalGeneralCfg;
