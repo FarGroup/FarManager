@@ -2877,3 +2877,9 @@ int Database::ShowProblems()
 	}
 	return rc;
 }
+
+void Database::AddThread(Thread&& thread)
+{
+	m_Threads.emplace_back(std::move(thread));
+	m_Threads.erase(std::remove_if(RANGE(m_Threads, i) { return i.Signaled() ? i.detach(), true : false; }), m_Threads.end());
+}

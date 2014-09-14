@@ -298,7 +298,7 @@ public:
 	bool Export(const string& File);
 	int ShowProblems();
 
-	void AddThread(Thread&& thread) { m_Threads.emplace_back(std::move(thread)); }
+	void AddThread(Thread&& thread);
 
 	static void ClearPluginsCache();
 
