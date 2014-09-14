@@ -3,6 +3,88 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 14.09.2014 18:38:33 +0200 - build 4106
+
+1. Asynchronous DB service thread handles were not closed in time and could accumulate endlessly.
+
+drkns 14.09.2014 14:42:05 +0200 - build 4105
+
+1. Refactoring.
+
+drkns 14.09.2014 10:47:27 +0200 - build 4104
+
+1. Correction of 4100.
+
+drkns 14.09.2014 02:11:01 +0200 - build 4103
+
+1. Correction of 4101.
+
+zg 14.09.2014 01:46:47 +0200 - build 4102
+
+1. correction of 4100: double DialogRun call.
+
+2. on file reopen in editor, a window was deleted from the window manager which had not been added there previously.
+
+drkns 14.09.2014 00:44:51 +0200 - build 4101
+
+1. Correction of 4100.
+
+drkns 13.09.2014 22:50:49 +0200 - build 4100
+
+1. Memory was not freed after unsuccessful switching from editor to viewer.
+   There is no sense in adding another hack, so the window owner logic is redone.
+   Now there is no windows on stack, no windows deleted by the manager, no manual setting of deletion method,
+   no manual checking for creation success, no manual deletion on failures etc.
+   Each window is a smart pointer and lives as long as needed.
+   Bizarre bugs are possible as usual.
+
+drkns 12.09.2014 00:57:26 +0200 - build 4099
+
+1. Support for FILE_ATTRIBUTE_INTEGRITY_STREAM and FILE_ATTRIBUTE_NO_SCRUB_DATA attributes.
+
+zg 11.09.2014 00:27:32 +0200 - build 4098
+
+1. ViewerControl did not work for QuickView and Info panels if the real ViewerID was given.
+
+2. correction of processing of VCTL_REDRAW and ECTL_REDRAW.
+
+drkns 11.09.2014 00:07:10 +0200 - build 4097
+
+1. All functions provided to plugins are marked as noexcept and wrapped into try/catch,
+   because throwing exceptions outside does not lead to anything good.
+
+2. A couple of issues.
+
+drkns 09.09.2014 21:16:03 +0200 - build 4096
+
+1. Correction of 4096.
+
+drkns 09.09.2014 18:04:46 +0200 - build 4095
+
+1. Correction of 4072.1.
+
+zg 09.09.2014 00:56:39 +0200 - build 4094
+
+1. fix for editor coloring problems when the left coordinate is not zero.
+
+zg 08.09.2014 19:55:01 +0200 - build 4093
+
+1. correction of 4090.
+
+2. double check of modality is removed.
+
+zg 08.09.2014 15:12:38 +0200 - build 4092
+
+1. forum: EE_CLOSE is not generated on F6 in the editor.
+
+2. correction of 4091 for the clock.
+
+3. refactoring.
+
+zg 08.09.2014 13:10:44 +0200 - build 4091
+
+1. when a window is redrawn, all windows above are also redrawn.
+
 zg 07.09.2014 23:51:48 +0200 - build 4090
 
 1. FAR crash on ACTL_SETCURRENTWINDOW call from plugins menu without consequent ACTL_COMMIT.
