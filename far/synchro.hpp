@@ -64,10 +64,7 @@ typedef lock_guard<CriticalSection> CriticalSectionLock;
 class HandleWrapper: NonCopyable
 {
 public:
-	HandleWrapper(): m_Handle() {}
-	virtual ~HandleWrapper() { Close(); }
-
-	virtual const wchar_t *GetNamespace() const = 0;
+	virtual const wchar_t *GetNamespace() const { return L""; }
 
 	void SetName(const string& HashPart, const string& TextPart)
 	{
@@ -90,6 +87,9 @@ public:
 	bool Signaled() const { return Wait(0); }
 
 protected:
+	HandleWrapper(): m_Handle() {}
+	virtual ~HandleWrapper() { Close(); }
+
 	void swap(HandleWrapper& rhs)
 	{
 		std::swap(m_Handle, rhs.m_Handle);
@@ -108,43 +108,50 @@ private:
 class Thread: public HandleWrapper
 {
 public:
-	Thread(): m_ThreadId() {}
-	Thread(Thread&& rhs): m_ThreadId() { *this = std::move(rhs); }
+	typedef void (Thread::*mode)();
+
+	Thread(): m_Mode(), m_ThreadId() {}
+	Thread(Thread&& rhs): m_Mode(), m_ThreadId() { *this = std::move(rhs); }
 
 #if defined _MSC_VER && _MSC_VER < 1800
 	template<typename T>
-	Thread(T&& Function) { Starter(std::bind(Function)); }
+	Thread(mode Mode, T&& Function): m_Mode(Mode) { Starter(std::bind(Function)); }
 
 	template<typename T, typename A1>
-	Thread(T&& Function, A1&& Arg1) { Starter(std::bind(Function, Arg1)); }
+	Thread(mode Mode, T&& Function, A1&& Arg1): m_Mode(Mode) { Starter(std::bind(Function, Arg1)); }
 
 	template<typename T, typename A1, typename A2>
-	Thread(T&& Function, A1&& Arg1, A2&& Arg2) { Starter(std::bind(Function, Arg1, Arg2)); }
+	Thread(mode Mode, T&& Function, A1&& Arg1, A2&& Arg2): m_Mode(Mode) { Starter(std::bind(Function, Arg1, Arg2)); }
 
 	template<typename T, typename A1, typename A2, typename A3>
-	Thread(T&& Function, A1&& Arg1, A2&& Arg2, A3&& Arg3) { Starter(std::bind(Function, Arg1, Arg2, Arg3)); }
+	Thread(mode Mode, T&& Function, A1&& Arg1, A2&& Arg2, A3&& Arg3): m_Mode(Mode) { Starter(std::bind(Function, Arg1, Arg2, Arg3)); }
 
 	template<typename T, typename A1, typename A2, typename A3, typename A4>
-	Thread(T&& Function, A1&& Arg1, A2&& Arg2, A3&& Arg3, A4&& Arg4) { Starter(std::bind(Function, Arg1, Arg2, Arg3, Arg4)); }
+	Thread(mode Mode, T&& Function, A1&& Arg1, A2&& Arg2, A3&& Arg3, A4&& Arg4): m_Mode(Mode) { Starter(std::bind(Function, Arg1, Arg2, Arg3, Arg4)); }
 
 	// and so on...
 #else
 	template<class T, class... A>
-	Thread(T&& Function, A&&... Args)
+	Thread(mode Mode, T&& Function, A&&... Args): m_Mode(Mode)
 	{
 		Starter(std::bind(Function, Args...));
 	}
 #endif
 
-	virtual ~Thread() { if (joinable()) std::terminate(); }
-
-	virtual const wchar_t *GetNamespace() const override { return L""; }
+	virtual ~Thread()
+	{
+		if (joinable())
+		{
+			(this->*m_Mode)();
+		}
+	}
 
 	MOVE_OPERATOR_BY_SWAP(Thread);
 
 	void swap(Thread& rhs)
 	{
 		HandleWrapper::swap(rhs);
+		std::swap(m_Mode, rhs.m_Mode);
 		std::swap(m_ThreadId, rhs.m_ThreadId);
 	}
 
@@ -197,6 +204,7 @@ private:
 		return 0;
 	}
 
+	mode m_Mode;
 	unsigned int m_ThreadId;
 };
 

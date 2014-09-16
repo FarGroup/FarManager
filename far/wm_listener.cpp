@@ -138,22 +138,13 @@ wm_listener::~wm_listener()
 	{
 		SendMessage(m_Hwnd,WM_CLOSE, 0, 0);
 	}
-	if(m_Thread.joinable())
-	{
-		m_Thread.join();
-	}
 }
 
 void wm_listener::Check()
 {
-	const auto joinable = m_Thread.joinable();
-	if (!joinable || m_Thread.Signaled())
+	if (!m_Thread.joinable() || m_Thread.Signaled())
 	{
-		if (joinable)
-		{
-			m_Thread.detach();
-		}
-		m_Thread = Thread(&wm_listener::WindowThreadRoutine, this);
+		m_Thread = Thread(&Thread::join, &wm_listener::WindowThreadRoutine, this);
 	}
 }
 

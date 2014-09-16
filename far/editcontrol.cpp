@@ -52,7 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "ctrlobj.hpp"
 
-EditControl::EditControl(ScreenObject *pOwner,Callback* aCallback,bool bAllocateData,History* iHistory,FarList* iList,DWORD iFlags):
+EditControl::EditControl(SimpleScreenObject *pOwner, Callback* aCallback, bool bAllocateData, History* iHistory, FarList* iList, DWORD iFlags):
 	Edit(pOwner,bAllocateData),
 	pHistory(iHistory),
 	pList(iList),

@@ -167,7 +167,7 @@ BOOL WINAPI CtrlHandler(DWORD CtrlType)
 		if(!CancelIoInProgress().Signaled())
 		{
 			CancelIoInProgress().Set();
-			Thread(&CancelSynchronousIoWrapper, Global->MainThreadHandle()).detach();
+			Thread(&Thread::detach, &CancelSynchronousIoWrapper, Global->MainThreadHandle());
 		}
 		WriteInput(KEY_BREAK);
 

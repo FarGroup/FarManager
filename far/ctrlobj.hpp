@@ -58,15 +58,16 @@ public:
 	void CreateDummyFilePanels();
 	static void ShowCopyright(DWORD Flags=0);
 
-	desktop_ptr Desktop;
-	CommandLine *CmdLine;
-	History* CmdHistory;
-	History* FolderHistory;
-	History* ViewHistory;
-	MenuBar *TopMenuBar;
-	HighlightFiles *HiFiles;
 	KeyMacro Macro;
-	PluginManager* Plugins;
+	desktop_ptr Desktop;
+	std::unique_ptr<HighlightFiles> HiFiles;
+	std::unique_ptr<PluginManager> Plugins;
+
+	std::unique_ptr<History> CmdHistory;
+	std::unique_ptr<History> FolderHistory;
+	std::unique_ptr<History> ViewHistory;
+	std::unique_ptr<CommandLine> CmdLine;
+	std::unique_ptr<MenuBar> TopMenuBar;
 
 private:
 	filepanels_ptr FPanels;

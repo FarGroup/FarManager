@@ -43,7 +43,7 @@ class EditControl:public Edit
 {
 	struct Callback;
 public:
-	EditControl(ScreenObject *pOwner, Callback* aCallback=nullptr,bool bAllocateData=true,History* iHistory=0,FarList* iList=0,DWORD iFlags=0);
+	EditControl(SimpleScreenObject *pOwner, Callback* aCallback=nullptr,bool bAllocateData=true,History* iHistory=0,FarList* iList=0,DWORD iFlags=0);
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual void Show() override;
 	virtual void Changed(bool DelBlock=false) override;

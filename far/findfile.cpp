@@ -2806,9 +2806,10 @@ bool FindFiles::FindFilesProcess()
 		TB = std::make_unique<IndeterminateTaskBar>();
 		SCOPED_ACTION(wakeful);
 
-		Thread FindThread(&FindFiles::ThreadRoutine, this, &Param);
-		Dlg->Process();
-		FindThread.join();
+		{
+			Thread FindThread(&Thread::join, &FindFiles::ThreadRoutine, this, &Param);
+			Dlg->Process();
+		}
 
 		PauseEvent.Set();
 		StopEvent.Reset();

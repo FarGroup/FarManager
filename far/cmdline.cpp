@@ -79,7 +79,7 @@ enum
 
 CommandLine::CommandLine():
 	PromptSize(DEFAULT_CMDLINE_WIDTH),
-	CmdStr(Global->CtrlObject->Cp(),0,true,Global->CtrlObject->CmdHistory,0,(Global->Opt->CmdLine.AutoComplete?EditControl::EC_ENABLEAUTOCOMPLETE:0)|EditControl::EC_COMPLETE_HISTORY|EditControl::EC_COMPLETE_FILESYSTEM|EditControl::EC_COMPLETE_PATH),
+	CmdStr(this,0,true,Global->CtrlObject->CmdHistory.get(),0,(Global->Opt->CmdLine.AutoComplete?EditControl::EC_ENABLEAUTOCOMPLETE:0)|EditControl::EC_COMPLETE_HISTORY|EditControl::EC_COMPLETE_FILESYSTEM|EditControl::EC_COMPLETE_PATH),
 	LastCmdPartLength(-1)
 {
 	CmdStr.SetEditBeyondEnd(false);

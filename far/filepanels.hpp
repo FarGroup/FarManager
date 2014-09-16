@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "window.hpp"
-#include "menubar.hpp"
 #include "viewer.hpp"
 
 class Panel;
@@ -45,7 +44,7 @@ typedef std::shared_ptr<FilePanels> filepanels_ptr;
 class FilePanels:public window,public ViewerContainer
 {
 public:
-	static filepanels_ptr create(bool CreatePanels = true);
+	static filepanels_ptr create(bool CreatePanels, int DirCount);
 	virtual ~FilePanels();
 
 	virtual int ProcessKey(const Manager::Key& Key) override;
@@ -65,7 +64,6 @@ public:
 	virtual Viewer* GetViewer(void) override;
 	virtual Viewer* GetById(int ID) override;
 
-	void Init(int DirCount);
 	Panel* GetAnotherPanel(const Panel *Current);
 	Panel* ChangePanelToFilled(Panel *Current, int NewType);
 	Panel* ChangePanel(Panel *Current, int NewType, int CreateNew, int Force);
@@ -80,7 +78,7 @@ public:
 
 private:
 	FilePanels();
-
+	void Init(int DirCount);
 	virtual void DisplayObject() override;
 	virtual string GetTitle() const override { return string(); }
 
@@ -96,8 +94,6 @@ public:
 	Panel *LastRightFilePanel;
 	Panel *LeftPanel;
 	Panel *RightPanel;
-
-	MenuBar TopMenuBar;
 
 	int LastLeftType;
 	int LastRightType;

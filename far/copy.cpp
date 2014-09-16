@@ -4145,7 +4145,6 @@ bool ShellCopy::CalcTotalSize()
 				if (__Ret <= 0)
 				{
 					ShowTotalCopySize=false;
-					PreRedrawStack().pop();
 					return false;
 				}
 

@@ -82,6 +82,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "notification.hpp"
 #include "DlgGuid.hpp"
 #include "keybar.hpp"
+#include "menubar.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;
@@ -1866,7 +1867,7 @@ int Panel::SetCurPath()
 
 				if (Result == TSTFLD_NOTFOUND)
 				{
-					if (CheckShortcutFolder(&m_CurDir, FALSE, TRUE) && FarChDir(m_CurDir))
+					if (CheckShortcutFolder(m_CurDir, FALSE, TRUE) && FarChDir(m_CurDir))
 					{
 						SetCurDir(m_CurDir,true);
 						return TRUE;
@@ -2698,12 +2699,9 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid
 
 	if (PluginGuid != FarGuid)
 	{
-		switch (CheckShortcutFolder(nullptr,TRUE))
+		if (ProcessPluginEvent(FE_CLOSE, nullptr))
 		{
-			case 0:
-				//              return FALSE;
-			case -1:
-				return true;
+			return true;
 		}
 
 		Plugin *pPlugin = Global->CtrlObject->Plugins->FindPlugin(PluginGuid);
@@ -2757,12 +2755,9 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid
 		return true;
 	}
 
-	switch (CheckShortcutFolder(&strShortcutFolder,FALSE))
+	if (!CheckShortcutFolder(strShortcutFolder, FALSE) || ProcessPluginEvent(FE_CLOSE, nullptr))
 	{
-		case 0:
-			//          return FALSE;
-		case -1:
-			return true;
+		return true;
 	}
 
     /*

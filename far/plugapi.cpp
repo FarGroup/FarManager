@@ -1160,7 +1160,7 @@ void WINAPI apiDialogFree(HANDLE hDlg) noexcept
 		if (hDlg != INVALID_HANDLE_VALUE)
 		{
 			auto Dlg = static_cast<Dialog*>(hDlg)->shared_from_this();
-			auto Plugins = Global->CtrlObject->Plugins;
+			const auto& Plugins = Global->CtrlObject->Plugins;
 			std::any_of(RANGE(*Plugins, i) { return i->RemoveDialog(Dlg); });
 		}
 	}
@@ -1367,8 +1367,8 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 		if (Global->OnlyEditorViewerUsed || !Global->CtrlObject || Global->WindowManager->ManagerIsDown())
 			return 0;
 
-		FilePanels *FPanels=Global->CtrlObject->Cp();
-		CommandLine *CmdLine=Global->CtrlObject->CmdLine;
+		auto FPanels = Global->CtrlObject->Cp();
+		auto& CmdLine=Global->CtrlObject->CmdLine;
 
 		switch (Command)
 		{
@@ -1502,7 +1502,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 		case FCTL_INSERTCMDLINE:
 		{
 			{
-				SCOPED_ACTION(SetAutocomplete)(CmdLine);
+				SCOPED_ACTION(SetAutocomplete)(CmdLine.get());
 				if (Command==FCTL_SETCMDLINE)
 					CmdLine->SetString((const wchar_t*)Param2);
 				else

@@ -56,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "desktop.hpp"
 #include "keybar.hpp"
+#include "menubar.hpp"
 
 FilePanels::FilePanels():
 	LastLeftFilePanel(),
@@ -70,19 +71,20 @@ FilePanels::FilePanels():
 {
 }
 
-filepanels_ptr FilePanels::create(bool CreatePanels)
+filepanels_ptr FilePanels::create(bool CreatePanels, int DirCount)
 {
 	filepanels_ptr FilePanelsPtr(new FilePanels());
 	
+	FilePanelsPtr->m_windowKeyBar = std::make_unique<KeyBar>();
+	FilePanelsPtr->SetMacroMode(MACROAREA_SHELL);
+	FilePanelsPtr->m_KeyBarVisible = Global->Opt->ShowKeyBar;
+
 	if (CreatePanels)
 	{
 		FilePanelsPtr->LeftPanel = FilePanelsPtr->CreatePanel(Global->Opt->LeftPanel.m_Type);
 		FilePanelsPtr->RightPanel = FilePanelsPtr->CreatePanel(Global->Opt->RightPanel.m_Type);
+		FilePanelsPtr->Init(DirCount);
 	}
-
-	FilePanelsPtr->m_windowKeyBar = std::make_unique<KeyBar>();
-	FilePanelsPtr->SetMacroMode(MACROAREA_SHELL);
-	FilePanelsPtr->m_KeyBarVisible = Global->Opt->ShowKeyBar;
 	return FilePanelsPtr;
 }
 
@@ -110,7 +112,7 @@ static void PrepareOptFolder(string &strSrc, int IsLocalPath_FarPath)
 	}
 	else
 	{
-		CheckShortcutFolder(&strSrc,FALSE,TRUE);
+		CheckShortcutFolder(strSrc,FALSE,TRUE);
 	}
 
 	//ConvertNameToFull(strSrc,strSrc);
@@ -246,6 +248,7 @@ void FilePanels::Init(int DirCount)
 	}
 
 	m_windowKeyBar->SetOwner(this);
+	SetScreenPosition();
 }
 
 FilePanels::~FilePanels()
@@ -300,7 +303,7 @@ void FilePanels::SetScreenPosition()
 {
 	_OT(SysLog(L"[%p] FilePanels::SetScreenPosition() {%d, %d - %d, %d}", this,m_X1,m_Y1,m_X2,m_Y2));
 	Global->CtrlObject->CmdLine->SetPosition(0,ScrY-(Global->Opt->ShowKeyBar),ScrX-1,ScrY-(Global->Opt->ShowKeyBar));
-	TopMenuBar.SetPosition(0, 0, ScrX, 0);
+	Global->CtrlObject->TopMenuBar->SetPosition(0, 0, ScrX, 0);
 	m_windowKeyBar->SetPosition(0, ScrY, ScrX, ScrY);
 	SetPanelPositions(LeftPanel->IsFullScreen(),RightPanel->IsFullScreen());
 	SetPosition(0,0,ScrX,ScrY);
@@ -1177,7 +1180,7 @@ void FilePanels::ResizeConsole()
 	window::ResizeConsole();
 	Global->CtrlObject->CmdLine->ResizeConsole();
 	m_windowKeyBar->ResizeConsole();
-	TopMenuBar.ResizeConsole();
+	Global->CtrlObject->TopMenuBar->ResizeConsole();
 	SetScreenPosition();
 	_OT(SysLog(L"[%p] FilePanels::ResizeConsole() {%d, %d - %d, %d}", this,m_X1,m_Y1,m_X2,m_Y2));
 }

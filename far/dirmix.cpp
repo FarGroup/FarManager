@@ -158,7 +158,7 @@ int TestFolder(const string& Path)
 
 	strFindPath = Path;
 
-	if (CheckShortcutFolder(&strFindPath,FALSE,TRUE))
+	if (CheckShortcutFolder(strFindPath,FALSE,TRUE))
 	{
 		if (strFindPath != Path)
 			return TSTFLD_NOTFOUND;
@@ -180,19 +180,13 @@ int TestFolder(const string& Path)
    Если идет проверка пути (IsHostFile=FALSE), то будет
    предпринята попытка найти ближайший путь. Результат попытки
    возвращается в переданном TestPath.
-
-   Return: 0 - бЯда.
-           1 - ОБИ!,
-          -1 - Почти что ОБИ, но ProcessPluginEvent вернул TRUE
-   TestPath может быть пустым, тогда просто исполним ProcessPluginEvent()
-
 */
-int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
+bool CheckShortcutFolder(string& pTestPath,int IsHostFile, BOOL Silent)
 {
-	if (pTestPath && !pTestPath->empty() && api::GetFileAttributes(*pTestPath) == INVALID_FILE_ATTRIBUTES)
+	if (api::GetFileAttributes(pTestPath) == INVALID_FILE_ATTRIBUTES)
 	{
 		int FoundPath=0;
-		string strTarget = *pTestPath;
+		string strTarget = pTestPath;
 		TruncPathStr(strTarget, ScrX-16);
 
 		if (IsHostFile)
@@ -210,7 +204,7 @@ int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 
 			if (Silent || !Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), strTarget.data(), MSG(MNeedNearPath), MSG(MHYes),MSG(MHNo)))
 			{
-				string strTestPathTemp = *pTestPath;
+				string strTestPathTemp = pTestPath;
 
 				for (;;)
 				{
@@ -223,12 +217,12 @@ int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 
 						if (ChkFld == TSTFLD_EMPTY || ChkFld == TSTFLD_NOTEMPTY || ChkFld == TSTFLD_NOTACCESS)
 						{
-							if (!(pTestPath->size() > 1 && pTestPath->at(0) == L'\\' && pTestPath->at(1) == L'\\' && strTestPathTemp.size() == 1))
+							if (!(pTestPath.size() > 1 && pTestPath[0] == L'\\' && pTestPath[1] == L'\\' && strTestPathTemp.size() == 1))
 							{
-								*pTestPath = strTestPathTemp;
+								pTestPath = strTestPathTemp;
 
-								if (pTestPath->size() == 2) // для случая "C:", иначе попадем в текущий каталог диска C:
-									AddEndSlash(*pTestPath);
+								if (pTestPath.size() == 2) // для случая "C:", иначе попадем в текущий каталог диска C:
+									AddEndSlash(pTestPath);
 
 								FoundPath=1;
 							}
@@ -241,13 +235,10 @@ int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 		}
 
 		if (!FoundPath)
-			return 0;
+			return false;
 	}
 
-	if (Global->CtrlObject->Cp()->ActivePanel()->ProcessPluginEvent(FE_CLOSE,nullptr))
-		return -1;
-
-	return 1;
+	return true;
 }
 
 void CreatePath(const string &InputPath, bool Simple)

@@ -53,10 +53,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "desktop.hpp"
 #include "keybar.hpp"
+#include "menubar.hpp"
 
 ControlObject::ControlObject():
 	CmdLine(nullptr),
-	TopMenuBar(nullptr),
 	FPanels(nullptr)
 {
 	_OT(SysLog(L"[%p] ControlObject::ControlObject()", this));
@@ -71,14 +71,16 @@ ControlObject::ControlObject():
 	Global->WindowManager->InsertWindow(Desktop);
 	Desktop->FillFromBuffer();
 
-	HiFiles = new HighlightFiles;
-	Plugins = new PluginManager;
+	HiFiles = std::make_unique<HighlightFiles>();
+	Plugins = std::make_unique<PluginManager>();
 
-	CmdHistory=new History(HISTORYTYPE_CMD, string(), Global->Opt->SaveHistory);
+	CmdHistory = std::make_unique<History>(HISTORYTYPE_CMD, string(), Global->Opt->SaveHistory);
 	CmdHistory->SetAddMode(true, 2, false); // case insensitive
-	FolderHistory=new History(HISTORYTYPE_FOLDER, string(), Global->Opt->SaveFoldersHistory);
-	ViewHistory=new History(HISTORYTYPE_VIEW, string(), Global->Opt->SaveViewHistory);
-	FolderHistory->SetAddMode(true,2,true);
+
+	FolderHistory = std::make_unique<History>(HISTORYTYPE_FOLDER, string(), Global->Opt->SaveFoldersHistory);
+	FolderHistory->SetAddMode(true, 2, true);
+
+	ViewHistory = std::make_unique<History>(HISTORYTYPE_VIEW, string(), Global->Opt->SaveViewHistory);
 	ViewHistory->SetAddMode(true,Global->Opt->FlagPosixSemantics?1:2,true);
 
 	FileFilter::InitFilter();
@@ -87,32 +89,17 @@ ControlObject::ControlObject():
 
 void ControlObject::Init(int DirCount)
 {
-	FPanels = FilePanels::create();
-	CmdLine=new CommandLine();
-	Desktop->FillFromBuffer();
-	this->TopMenuBar=&(FPanels->TopMenuBar);
-	FPanels->Init(DirCount);
-	FPanels->SetScreenPosition();
+	CmdLine = std::make_unique<CommandLine>();
+	TopMenuBar = std::make_unique<MenuBar>();
+	FPanels = FilePanels::create(true, DirCount);
 
-	if (Global->Opt->ShowMenuBar)
-		this->TopMenuBar->Show();
-
-//  FPanels->Redraw();
-	CmdLine->Show();
-
-	if (Global->Opt->ShowKeyBar)
-		FPanels->GetKeybar().Show();
-
-	// LoadPlugins() before panel updates
-	//
 	Global->WindowManager->InsertWindow(FPanels); // before PluginCommit()
-	{
-		string strOldTitle;
-		Console().GetTitle(strOldTitle);
-		Global->WindowManager->PluginCommit();
-		Plugins->LoadPlugins();
-		Console().SetTitle(strOldTitle);
-	}
+
+	string strOldTitle;
+	Console().GetTitle(strOldTitle);
+	Global->WindowManager->PluginCommit();
+	Plugins->LoadPlugins();
+	Console().SetTitle(strOldTitle);
 
 	Cp()->LeftPanel->Update(0);
 	Cp()->RightPanel->Update(0);
@@ -136,7 +123,7 @@ void ControlObject::Init(int DirCount)
 
 void ControlObject::CreateDummyFilePanels()
 {
-	FPanels = FilePanels::create(false);
+	FPanels = FilePanels::create(false, 0);
 }
 
 ControlObject::~ControlObject()
@@ -162,13 +149,6 @@ ControlObject::~ControlObject()
 	FileFilter::CloseFilter();
 	History::CompactHistory();
 	FilePositionCache::CompactHistory();
-
-	delete CmdLine;
-	delete ViewHistory;
-	delete FolderHistory;
-	delete CmdHistory;
-	delete Plugins;
-	delete HiFiles;
 }
 
 

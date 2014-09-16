@@ -544,7 +544,7 @@ public:
 	void AsyncFinish()
 	{
 		AsyncDone.Reset();
-		Global->Db->AddThread(Thread(&HierarchicalConfigDb::AsyncDelete, this));
+		Global->Db->AddThread(Thread(&Thread::detach, &HierarchicalConfigDb::AsyncDelete, this));
 	}
 
 	bool BeginTransaction() { return SQLiteDb::BeginTransaction(); }
@@ -2028,17 +2028,7 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb {
 		AllWaiter.Add(AsyncDeleteAddDone);
 		AllWaiter.Add(AsyncCommitDone);
 		AsyncWork.Open();
-		WorkThread = Thread(&HistoryConfigCustom::ThreadProc, this);
-	}
-
-	void StopThread()
-	{
-		WaitAllAsync();
-		StopEvent.Set();
-		if (WorkThread.joinable())
-		{
-			WorkThread.join();
-		}
+		WorkThread = Thread(&Thread::join, &HistoryConfigCustom::ThreadProc, this);
 	}
 
 	void ThreadProc()
@@ -2244,7 +2234,11 @@ public:
 		return false;
 	}
 
-	virtual ~HistoryConfigCustom() { StopThread(); }
+	virtual ~HistoryConfigCustom()
+	{
+		WaitAllAsync();
+		StopEvent.Set();
+	}
 
 	bool Delete(unsigned __int64 id)
 	{
@@ -2734,7 +2728,6 @@ Database::~Database()
 	MultiWaiter ThreadWaiter;
 	FOR(const auto& i, m_Threads) { ThreadWaiter.Add(i); }
 	ThreadWaiter.Wait();
-	FOR(auto& i, m_Threads) { i.detach(); }
 }
 
 RegExp& GetRE()
@@ -2881,5 +2874,5 @@ int Database::ShowProblems()
 void Database::AddThread(Thread&& thread)
 {
 	m_Threads.emplace_back(std::move(thread));
-	m_Threads.erase(std::remove_if(RANGE(m_Threads, i) { return i.Signaled() ? i.detach(), true : false; }), m_Threads.end());
+	m_Threads.erase(std::remove_if(ALL_RANGE(m_Threads), std::mem_fn(&Thread::Signaled)), m_Threads.end());
 }
