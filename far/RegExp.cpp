@@ -705,7 +705,7 @@ static int CalcPatternLength(const RegExp::REOpCode* from, const RegExp::REOpCod
 	int altcnt=0;
 	int altlen=-1;
 
-	for (; from != to; ++from)
+	for (; from <= to; ++from)
 	{
 		switch (from->op)
 		{
