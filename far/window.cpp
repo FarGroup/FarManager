@@ -108,18 +108,18 @@ bool window::IsDeleting(void) const
 	return m_Deleting;
 }
 
-void window::SetBlock(void)
+void window::Pin(void)
 {
 	++m_BlockCounter;
 }
 
-void window::RemoveBlock(void)
+void window::UnPin(void)
 {
 	assert(m_BlockCounter>0);
 	--m_BlockCounter;
 }
 
-bool window::IsBlocked(void) const
+bool window::IsPinned(void) const
 {
 	return m_BlockCounter>0;
 }

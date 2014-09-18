@@ -463,7 +463,7 @@ void FileViewer::OnDestroy()
 		m_View.GetFileName(strFullFileName);
 		Global->CtrlObject->ViewHistory->AddToHistory(strFullFileName, HR_VIEWER);
 	}
-	m_View.CloseEvent();
+	m_View.OnDestroy();
 }
 
 bool FileViewer::CanFastHide() const
@@ -531,9 +531,7 @@ void FileViewer::OnChangeFocus(int focus)
 {
 	window::OnChangeFocus(focus);
 	int FCurViewerID=m_View.ViewerID;
-	this->SetBlock();
 	Global->CtrlObject->Plugins->ProcessViewerEvent(focus?VE_GOTFOCUS:VE_KILLFOCUS,nullptr,FCurViewerID);
-	this->RemoveBlock();
 }
 
 void FileViewer::OnReload(void)
@@ -543,14 +541,10 @@ void FileViewer::OnReload(void)
 
 void FileViewer::ReadEvent(void)
 {
-
 	Global->WindowManager->CallbackWindow([this]()
 	{
-		this->SetBlock();
 		this->m_View.ReadEvent();
-		this->RemoveBlock();
 	});
-
 }
 
 Viewer* FileViewer::GetViewer(void)

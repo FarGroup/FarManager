@@ -165,6 +165,18 @@ public:
 	T& operator*() const {return *get();}
 };
 
+template <typename T> class unique_ptr_with_ondestroy
+{
+private:
+	typedef std::unique_ptr<T> ptr_type;
+	ptr_type ptr;
+	void OnDestroy(void) {if(ptr)ptr->OnDestroy();}
+public:
+	~unique_ptr_with_ondestroy() {OnDestroy();}
+	const ptr_type& operator()(void) const {return ptr;}
+	unique_ptr_with_ondestroy& operator=(ptr_type&& value) noexcept {OnDestroy();ptr=std::move(value);return *this;}
+};
+
 // for_each with embedded counter
 template<class I, class F>
 inline F for_each_cnt(I First, I Last, F Func)

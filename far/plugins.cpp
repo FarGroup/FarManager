@@ -782,18 +782,21 @@ int PluginManager::ProcessEditorEvent(int Event,void *Param,int EditorID) const
 {
 	int nResult = 0;
 
-	if (Global->WindowManager->GetCurrentEditor())
+	auto editor=Global->WindowManager->GetEditorContainerById(EditorID);
+	if (editor)
 	{
 		ProcessEditorEventInfo Info = {sizeof(Info)};
 		Info.Event = Event;
 		Info.Param = Param;
 		Info.EditorID = EditorID;
 
+		editor->Pin();
 		std::for_each(CONST_RANGE(SortedPlugins, i)
 		{
 			if (i->HasProcessEditorEvent())
 				nResult = i->ProcessEditorEvent(&Info);
 		});
+		editor->UnPin();
 	}
 
 	return nResult;
@@ -804,19 +807,22 @@ int PluginManager::ProcessSubscribedEditorEvent(int Event,void *Param,int Editor
 {
 	int nResult = 0;
 
-	if (Global->WindowManager->GetCurrentEditor())
+	auto editor=Global->WindowManager->GetEditorContainerById(EditorID);
+	if (editor)
 	{
 		ProcessEditorEventInfo Info = {sizeof(Info)};
 		Info.Event = Event;
 		Info.Param = Param;
 		Info.EditorID = EditorID;
 
+		editor->Pin();
 		std::for_each(CONST_RANGE(PluginIds, i)
 		{
 			auto Plugin = FindPlugin(i);
 			if (Plugin && Plugin->HasProcessEditorEvent())
 				nResult = Plugin->ProcessEditorEvent(&Info);
 		});
+		editor->UnPin();
 	}
 
 	return nResult;
@@ -827,16 +833,22 @@ int PluginManager::ProcessViewerEvent(int Event, void *Param,int ViewerID) const
 {
 	int nResult = 0;
 
-	ProcessViewerEventInfo Info = {sizeof(Info)};
-	Info.Event = Event;
-	Info.Param = Param;
-	Info.ViewerID = ViewerID;
-
-	std::for_each(CONST_RANGE(SortedPlugins, i)
+	window_ptr viewer=Global->WindowManager->GetViewerContainerById(ViewerID);
+	if (viewer)
 	{
-		if (i->HasProcessViewerEvent())
-			nResult = i->ProcessViewerEvent(&Info);
-	});
+		ProcessViewerEventInfo Info = {sizeof(Info)};
+		Info.Event = Event;
+		Info.Param = Param;
+		Info.ViewerID = ViewerID;
+
+		viewer->Pin();
+		std::for_each(CONST_RANGE(SortedPlugins, i)
+		{
+			if (i->HasProcessViewerEvent())
+				nResult = i->ProcessViewerEvent(&Info);
+		});
+		viewer->UnPin();
+	}
 	return nResult;
 }
 

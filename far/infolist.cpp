@@ -90,7 +90,6 @@ struct InfoList::InfoListSectionState
 
 InfoList::InfoList(FilePanels* Parent):
 	Panel(Parent),
-	DizView(nullptr),
 	OldWrapMode(nullptr),
 	OldWrapType(nullptr),
 	SectionState(ILSS_SIZE),
@@ -547,7 +546,7 @@ void InfoList::DisplayObject()
 		{
 			if (CurY < m_Y2 && ShowDirDescription(CurY))
 			{
-				DizView->SetPosition(m_X1+1,CurY,m_X2-1,m_Y2-1);
+				DizView()->SetPosition(m_X1+1,CurY,m_X2-1,m_Y2-1);
 				CurY=m_Y2-1;
 			}
 			else
@@ -577,8 +576,8 @@ void InfoList::DisplayObject()
 
 __int64 InfoList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
-	if (DizView)
-		return DizView->VMProcess(OpCode,vParam,iParam);
+	if (DizView())
+		return DizView()->VMProcess(OpCode,vParam,iParam);
 
 	switch (OpCode)
 	{
@@ -761,14 +760,14 @@ int InfoList::ProcessKey(const Manager::Key& Key)
 		}
 	}
 
-	if (DizView && LocalKey >= 256)
+	if (DizView() && LocalKey >= 256)
 	{
 		int DVX1,DVX2,DVY1,DVY2;
-		DizView->GetPosition(DVX1,DVY1,DVX2,DVY2);
+		DizView()->GetPosition(DVX1,DVY1,DVX2,DVY2);
 
 		if (DVY1 < m_Y2)
 		{
-			int ret = DizView->ProcessKey(Key);
+			int ret = DizView()->ProcessKey(Key);
 
 			if (LocalKey == KEY_F8 || LocalKey == KEY_F2 || LocalKey == KEY_SHIFTF2)
 			{
@@ -780,13 +779,13 @@ int InfoList::ProcessKey(const Manager::Key& Key)
 			{
 				__int64 Pos, Length;
 				DWORD Flags;
-				DizView->GetSelectedParam(Pos,Length,Flags);
+				DizView()->GetSelectedParam(Pos,Length,Flags);
 				//ShellUpdatePanels(nullptr,FALSE);
-				DizView->InRecursion++;
+				DizView()->InRecursion++;
 				Redraw();
 				m_parent->GetAnotherPanel(this)->Redraw();
-				DizView->SelectText(Pos,Length,Flags|1);
-				DizView->InRecursion--;
+				DizView()->SelectText(Pos,Length,Flags|1);
+				DizView()->InRecursion--;
 			}
 
 			return ret;
@@ -838,17 +837,17 @@ int InfoList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	}
 
 	int DVY1=-1;
-	if (DizView)
+	if (DizView())
 	{
 		int DVX1,DVX2,DVY2;
-		DizView->GetPosition(DVX1,DVY1,DVX2,DVY2);
+		DizView()->GetPosition(DVX1,DVY1,DVX2,DVY2);
 		if (DVY1 < m_Y2)
 		{
 			if (SectionState[ILSS_DIRDESCRIPTION].Show && MouseEvent->dwMousePosition.Y > SectionState[ILSS_DIRDESCRIPTION].Y)
 			{
 				if ((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) &&
 				        MouseEvent->dwMousePosition.X > DVX1+1 &&
-				        MouseEvent->dwMousePosition.X < DVX2 - DizView->GetShowScrollbar() - 1 &&
+				        MouseEvent->dwMousePosition.X < DVX2 - DizView()->GetShowScrollbar() - 1 &&
 				        MouseEvent->dwMousePosition.Y > DVY1+1 &&
 				        MouseEvent->dwMousePosition.Y < DVY2-1
 				   )
@@ -871,10 +870,10 @@ int InfoList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	SetFocus();
 
-	if (DizView)
+	if (DizView())
 	{
 		if (DVY1 < m_Y2)
-			return DizView->ProcessMouse(MouseEvent);
+			return DizView()->ProcessMouse(MouseEvent);
 	}
 	return TRUE;
 }
@@ -1009,17 +1008,17 @@ bool InfoList::ShowPluginDescription(int YPos)
 
 void InfoList::CloseFile()
 {
-	if (DizView)
+	if (DizView())
 	{
-		if (DizView->InRecursion)
+		if (DizView()->InRecursion)
 			return;
 
-		LastDizWrapMode=DizView->GetWrapMode();
-		LastDizWrapType=DizView->GetWrapType();
-		LastDizShowScrollbar=DizView->GetShowScrollbar();
-		DizView->SetWrapMode(OldWrapMode);
-		DizView->SetWrapType(OldWrapType);
-		DizView.reset();
+		LastDizWrapMode=DizView()->GetWrapMode();
+		LastDizWrapType=DizView()->GetWrapType();
+		LastDizShowScrollbar=DizView()->GetShowScrollbar();
+		DizView()->SetWrapMode(OldWrapMode);
+		DizView()->SetWrapType(OldWrapType);
+		DizView=nullptr;
 	}
 
 	strDizFileName.clear();
@@ -1030,39 +1029,39 @@ int InfoList::OpenDizFile(const string& DizFile,int YPos)
 	bool bOK=true;
 	_tran(SysLog(L"InfoList::OpenDizFile([%s]",DizFile));
 
-	if (!DizView)
+	if (!DizView())
 	{
 		DizView = std::make_unique<DizViewer>();
 
-		_tran(SysLog(L"InfoList::OpenDizFile() create new Viewer = %p",DizView));
-		DizView->SetRestoreScreenMode(false);
-		DizView->SetPosition(m_X1+1,YPos,m_X2-1,m_Y2-1);
-		DizView->SetStatusMode(0);
-		DizView->EnableHideCursor(0);
-		OldWrapMode = DizView->GetWrapMode();
-		OldWrapType = DizView->GetWrapType();
-		DizView->SetWrapMode(LastDizWrapMode);
-		DizView->SetWrapType(LastDizWrapType);
-		DizView->SetShowScrollbar(LastDizShowScrollbar);
+		_tran(SysLog(L"InfoList::OpenDizFile() create new Viewer = %p",DizView()));
+		DizView()->SetRestoreScreenMode(false);
+		DizView()->SetPosition(m_X1+1,YPos,m_X2-1,m_Y2-1);
+		DizView()->SetStatusMode(0);
+		DizView()->EnableHideCursor(0);
+		OldWrapMode = DizView()->GetWrapMode();
+		OldWrapType = DizView()->GetWrapType();
+		DizView()->SetWrapMode(LastDizWrapMode);
+		DizView()->SetWrapType(LastDizWrapType);
+		DizView()->SetShowScrollbar(LastDizShowScrollbar);
 	}
 	else
 	{
 		//не будем менять внутренности если мы посреди операции со вьювером.
-		bOK = !DizView->InRecursion;
+		bOK = !DizView()->InRecursion;
 	}
 
 	if (bOK)
 	{
-		if (!DizView->OpenFile(DizFile,FALSE))
+		if (!DizView()->OpenFile(DizFile,FALSE))
 		{
-			DizView.reset();
+			DizView=nullptr;
 			return FALSE;
 		}
 
 		strDizFileName = DizFile;
 	}
 
-	DizView->Show();
+	DizView()->Show();
 
 	string strTitle;
 	strTitle.append(L" ").append(PointToName(strDizFileName)).append(L" ");
@@ -1088,18 +1087,18 @@ void InfoList::DynamicUpdateKeyBar() const
 {
 	auto& Keybar = m_parent->GetKeybar();
 
-	if (DizView)
+	if (DizView())
 	{
 		Keybar.Change(MSG(MInfoF3), 3-1);
 
-		if (DizView->GetCodePage() != GetOEMCP())
+		if (DizView()->GetCodePage() != GetOEMCP())
 			Keybar.Change(MSG(MViewF8DOS), 7);
 		else
 			Keybar.Change(MSG(MInfoF8), 7);
 
-		if (!DizView->GetWrapMode())
+		if (!DizView()->GetWrapMode())
 		{
-			if (DizView->GetWrapType())
+			if (DizView()->GetWrapType())
 				Keybar.Change(MSG(MViewShiftF2), 2-1);
 			else
 				Keybar.Change(MSG(MViewF2), 2-1);
@@ -1107,7 +1106,7 @@ void InfoList::DynamicUpdateKeyBar() const
 		else
 			Keybar.Change(MSG(MViewF2Unwrap), 2-1);
 
-		if (DizView->GetWrapType())
+		if (DizView()->GetWrapType())
 			Keybar.Change(KBL_SHIFT, MSG(MViewF2), 2-1);
 		else
 			Keybar.Change(KBL_SHIFT, MSG(MViewShiftF2), 2-1);
@@ -1127,10 +1126,10 @@ void InfoList::DynamicUpdateKeyBar() const
 
 Viewer* InfoList::GetViewer(void)
 {
-	return DizView.get();
+	return DizView().get();
 }
 
 Viewer* InfoList::GetById(int ID)
 {
-	return ID==DizView->GetId()?GetViewer():nullptr;
+	return ID==DizView()->GetId()?GetViewer():nullptr;
 }

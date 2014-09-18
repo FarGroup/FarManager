@@ -703,9 +703,7 @@ void FileEditor::Init(
 
 void FileEditor::ReadEvent(void)
 {
-	SetBlock();
 	Global->CtrlObject->Plugins->ProcessEditorEvent(EE_READ,nullptr,m_editor->EditorID);
-	RemoveBlock();
 	bEE_READ_Sent = true;
 	Show(); //в EE_READ поменялась позиция курсора или размер табуляции.
 }

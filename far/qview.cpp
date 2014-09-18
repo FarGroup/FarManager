@@ -61,7 +61,6 @@ static bool LastWrapType = false;
 
 QuickView::QuickView(FilePanels* Parent):
 	Panel(Parent),
-	QView(nullptr),
 	Directory(0),
 	Data(),
 	OldWrapMode(0),
@@ -101,14 +100,14 @@ void QuickView::DisplayObject()
 
 	m_Flags.Set(FSCROBJ_ISREDRAWING);
 
-	if (!QView && !ProcessingPluginCommand)
+	if (!QView() && !ProcessingPluginCommand)
 		m_parent->GetAnotherPanel(this)->UpdateViewPanel();
 
 	if (this->Destroyed())
 		return;
 
-	if (QView)
-		QView->SetPosition(m_X1+1,m_Y1+1,m_X2-1,m_Y2-3);
+	if (QView())
+		QView()->SetPosition(m_X1+1,m_Y1+1,m_X2-1,m_Y2-3);
 
 	Box(m_X1,m_Y1,m_X2,m_Y2,ColorIndexToColor(COL_PANELBOX),DOUBLE_BOX);
 	SetScreen(m_X1+1,m_Y1+1,m_X2-1,m_Y2-1,L' ',ColorIndexToColor(COL_PANELTEXT));
@@ -300,8 +299,8 @@ void QuickView::DisplayObject()
 			}
 		}
 	}
-	else if (QView)
-		QView->Show();
+	else if (QView())
+		QView()->Show();
 
 	m_Flags.Clear(FSCROBJ_ISREDRAWING);
 }
@@ -309,8 +308,8 @@ void QuickView::DisplayObject()
 
 __int64 QuickView::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
-	if (!Directory && QView)
-		return QView->VMProcess(OpCode,vParam,iParam);
+	if (!Directory && QView())
+		return QView()->VMProcess(OpCode,vParam,iParam);
 
 	switch (OpCode)
 	{
@@ -359,9 +358,9 @@ int QuickView::ProcessKey(const Manager::Key& Key)
 		return TRUE;
 	}
 
-	if (QView && !Directory && LocalKey>=256)
+	if (QView() && !Directory && LocalKey>=256)
 	{
-		int ret = QView->ProcessKey(Manager::Key(LocalKey));
+		int ret = QView()->ProcessKey(Manager::Key(LocalKey));
 
 		if (LocalKey == KEY_F4 || LocalKey == KEY_F8 || LocalKey == KEY_F2 || LocalKey == KEY_SHIFTF2)
 		{
@@ -374,10 +373,10 @@ int QuickView::ProcessKey(const Manager::Key& Key)
 			//__int64 Pos;
 			//int Length;
 			//DWORD Flags;
-			//QView->GetSelectedParam(Pos,Length,Flags);
+			//QView()->GetSelectedParam(Pos,Length,Flags);
 			Redraw();
 			m_parent->GetAnotherPanel(this)->Redraw();
-			//QView->SelectText(Pos,Length,Flags|1);
+			//QView()->SelectText(Pos,Length,Flags|1);
 		}
 
 		return ret;
@@ -399,8 +398,8 @@ int QuickView::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	SetFocus();
 
-	if (QView && !Directory)
-		return QView->ProcessMouse(MouseEvent);
+	if (QView() && !Directory)
+		return QView()->ProcessMouse(MouseEvent);
 
 	return FALSE;
 }
@@ -420,7 +419,6 @@ void QuickView::ShowFile(const string& FileName, bool TempFile, PluginHandle* hD
 {
 	DWORD FileAttr=0;
 	CloseFile();
-	QView=nullptr;
 
 	if (!IsVisible())
 		return;
@@ -478,15 +476,15 @@ void QuickView::ShowFile(const string& FileName, bool TempFile, PluginHandle* hD
 		if (!strCurFileName.empty())
 		{
 			QView = std::make_unique<Viewer>(true);
-			QView->SetRestoreScreenMode(false);
-			QView->SetPosition(m_X1+1,m_Y1+1,m_X2-1,m_Y2-3);
-			QView->SetStatusMode(0);
-			QView->EnableHideCursor(0);
-			OldWrapMode = QView->GetWrapMode();
-			OldWrapType = QView->GetWrapType();
-			QView->SetWrapMode(LastWrapMode);
-			QView->SetWrapType(LastWrapType);
-			QView->OpenFile(strCurFileName,FALSE);
+			QView()->SetRestoreScreenMode(false);
+			QView()->SetPosition(m_X1+1,m_Y1+1,m_X2-1,m_Y2-3);
+			QView()->SetStatusMode(0);
+			QView()->EnableHideCursor(0);
+			OldWrapMode = QView()->GetWrapMode();
+			OldWrapType = QView()->GetWrapType();
+			QView()->SetWrapMode(LastWrapMode);
+			QView()->SetWrapType(LastWrapType);
+			QView()->OpenFile(strCurFileName,FALSE);
 		}
 	}
 	if (this->Destroyed())
@@ -506,13 +504,13 @@ void QuickView::ShowFile(const string& FileName, bool TempFile, PluginHandle* hD
 
 void QuickView::CloseFile()
 {
-	if (QView)
+	if (QView())
 	{
-		LastWrapMode=QView->GetWrapMode();
-		LastWrapType=QView->GetWrapType();
-		QView->SetWrapMode(OldWrapMode);
-		QView->SetWrapType(OldWrapType);
-		QView.reset();
+		LastWrapMode=QView()->GetWrapMode();
+		LastWrapType=QView()->GetWrapType();
+		QView()->SetWrapMode(OldWrapMode);
+		QView()->SetWrapType(OldWrapType);
+		QView=nullptr;
 	}
 
 	strCurFileType.clear();
@@ -525,13 +523,13 @@ void QuickView::QViewDelTempName()
 {
 	if (m_TemporaryFile)
 	{
-		if (QView)
+		if (QView())
 		{
-			LastWrapMode=QView->GetWrapMode();
-			LastWrapType=QView->GetWrapType();
-			QView->SetWrapMode(OldWrapMode);
-			QView->SetWrapType(OldWrapType);
-			QView.reset();
+			LastWrapMode=QView()->GetWrapMode();
+			LastWrapType=QView()->GetWrapType();
+			QView()->SetWrapMode(OldWrapMode);
+			QView()->SetWrapType(OldWrapType);
+			QView=nullptr;
 		}
 
 		api::SetFileAttributes(strCurFileName, FILE_ATTRIBUTE_ARCHIVE);
@@ -617,7 +615,7 @@ void QuickView::DynamicUpdateKeyBar() const
 {
 	auto& Keybar = m_parent->GetKeybar();
 
-	if (Directory || !QView)
+	if (Directory || !QView())
 	{
 		Keybar.Change(MSG(MF2), 2-1);
 		Keybar.Change(L"", 4-1);
@@ -628,19 +626,19 @@ void QuickView::DynamicUpdateKeyBar() const
 	}
 	else
 	{
-		if (QView->GetHexMode())
+		if (QView()->GetHexMode())
 			Keybar.Change(MSG(MViewF4Text), 4-1);
 		else
 			Keybar.Change(MSG(MQViewF4), 4-1);
 
-		if (QView->GetCodePage() != GetOEMCP())
+		if (QView()->GetCodePage() != GetOEMCP())
 			Keybar.Change(MSG(MViewF8DOS), 8-1);
 		else
 			Keybar.Change(MSG(MQViewF8), 8-1);
 
-		if (!QView->GetWrapMode())
+		if (!QView()->GetWrapMode())
 		{
-			if (QView->GetWrapType())
+			if (QView()->GetWrapType())
 				Keybar.Change(MSG(MViewShiftF2), 2-1);
 			else
 				Keybar.Change(MSG(MViewF2), 2-1);
@@ -648,7 +646,7 @@ void QuickView::DynamicUpdateKeyBar() const
 		else
 			Keybar.Change(MSG(MViewF2Unwrap), 2-1);
 
-		if (QView->GetWrapType())
+		if (QView()->GetWrapType())
 			Keybar.Change(KBL_SHIFT, MSG(MViewF2), 2-1);
 		else
 			Keybar.Change(KBL_SHIFT, MSG(MViewShiftF2), 2-1);
@@ -659,5 +657,5 @@ void QuickView::DynamicUpdateKeyBar() const
 
 Viewer* QuickView::GetById(int ID)
 {
-	return ID==QView->GetId()?GetViewer():nullptr;
+	return ID==QView()->GetId()?GetViewer():nullptr;
 }

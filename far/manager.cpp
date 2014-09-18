@@ -949,7 +949,7 @@ void Manager::DeleteCommit(window_ptr Param)
 	if (!Param)
 		return;
 
-	if (Param->IsBlocked())
+	if (Param->IsPinned())
 	{
 		RedeleteWindow(Param);
 		return;
@@ -1284,19 +1284,33 @@ FileEditor* Manager::GetCurrentEditor(void) const
 	));
 }
 
-window_ptr Manager::GetViewerContainerById(int ID) const
+template<typename window_type, typename windows_type>
+static window_ptr GetContainerById(const windows_type& NonModal, const windows_type& Modal, int ID)
 {
-	auto process=[](const windows& List, int ID) -> window_ptr
+	const windows_type* Lists[] =
 	{
-		auto ItemIterator = std::find_if(CONST_RANGE(List, i) -> bool
+		&NonModal,
+		&Modal
+	};
+	FOR(const auto& List, Lists)
+	{
+		auto ItemIterator = std::find_if(CONST_RANGE(*List, i) -> bool
 		{
-			auto window = std::dynamic_pointer_cast<ViewerContainer>(i);
+			auto window = std::dynamic_pointer_cast<window_type>(i);
 			if (window && window->GetById(ID)) return true;
 			return false;
 		});
-		return ItemIterator == List.cend()? nullptr : *ItemIterator;
-	};
-	auto result=process(m_windows, ID);
-	if (!result) result=process(m_modalWindows, ID);
-	return result;
+		if (ItemIterator != List->cend()) return *ItemIterator;
+	}
+	return nullptr;
+}
+
+window_ptr Manager::GetViewerContainerById(int ID) const
+{
+	return GetContainerById<ViewerContainer>(m_windows, m_modalWindows, ID);
+}
+
+window_ptr Manager::GetEditorContainerById(int ID) const
+{
+	return GetContainerById<FileEditor>(m_windows, m_modalWindows, ID);
 }

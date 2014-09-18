@@ -203,8 +203,6 @@ Viewer::~Viewer()
 			api::DeleteFile(strTempViewName); //BUGBUG
 		}
 	}
-
-	if (!HostFileViewer) CloseEvent();
 }
 
 struct Viewer::ViewerUndoData
@@ -4383,4 +4381,9 @@ void Viewer::CloseEvent(void)
 		bVE_READ_Sent=false;
 		Global->CtrlObject->Plugins->ProcessViewerEvent(VE_CLOSE,nullptr,ViewerID);;
 	}
+}
+
+void Viewer::OnDestroy(void)
+{
+	CloseEvent();
 }

@@ -84,9 +84,9 @@ public:
 	void SetFlags( DWORD flags ) { m_Flags.Set(flags); }
 	virtual void SetDeleting(void);
 	bool IsDeleting(void) const;
-	void SetBlock(void);
-	void RemoveBlock(void);
-	bool IsBlocked(void) const;
+	void Pin(void);
+	void UnPin(void);
+	bool IsPinned(void) const;
 	void SetMacroMode(FARMACROAREA Area);
 	int ID(void) const {return m_ID;}
 
