@@ -1,13 +1,7 @@
 #pragma once
 
 /*
-exception.cpp
-
-Все про исключения
-*/
-/*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -33,46 +27,18 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class FarException : public std::runtime_error
-{
-public:
-	FarException(const char* Message) : std::runtime_error(Message) {}
-};
-
-class FarRecoverableException : public FarException
-{
-public:
-	FarRecoverableException(const char* Message) : FarException(Message) {}
-};
-
-class Plugin;
-
-// for plugins
-bool ProcessSEHException(Plugin *Module, const wchar_t* function, EXCEPTION_POINTERS *xp);
-
-// for Far
-inline bool ProcessSEHException(const wchar_t* function, EXCEPTION_POINTERS *xp) { return ProcessSEHException(nullptr, function, xp); }
-
-// for plugins
-bool ProcessStdException(const std::exception& e, const Plugin* Module, const wchar_t* function);
-
-// for Far
-inline bool ProcessStdException(const std::exception& e, const wchar_t* function) { return ProcessStdException(e, nullptr, function); }
-
-class SException: public std::exception
-{
-public:
-	SException(int Code, EXCEPTION_POINTERS* Info):m_Code(Code), m_Info(Info) {}
-	int GetCode() const { return m_Code; }
-	EXCEPTION_POINTERS* GetInfo() const { return m_Info; }
-
-private:
-	int m_Code;
-	EXCEPTION_POINTERS* m_Info;
-};
-
-void EnableSeTranslation();
-void EnableVectoredExceptionHandling();
-void attach_debugger();
-
-void RegisterTestExceptionsHook();
+template <class F> struct return_type;
+#define DEFINE_R_TYPE { typedef typename std::remove_const<typename std::remove_reference<R>::type>::type type; };
+#if defined _MSC_VER && _MSC_VER < 1800
+template <class R> struct return_type<R(*)()> DEFINE_R_TYPE
+template <class R, class A0> struct return_type<R(*)(A0)> DEFINE_R_TYPE
+template <class R, class A0, class A1> struct return_type<R(*)(A0, A1)> DEFINE_R_TYPE
+template <class R, class A0, class A1, class A2> struct return_type<R(*)(A0, A1, A2)> DEFINE_R_TYPE
+template <class R, class A0, class A1, class A2, class A3> struct return_type<R(*)(A0, A1, A2, A3)> DEFINE_R_TYPE
+template <class R, class A0, class A1, class A2, class A3, class A4> struct return_type<R(*)(A0, A1, A2, A3, A4)> DEFINE_R_TYPE
+template <class R, class A0, class A1, class A2, class A3, class A4, class A5> struct return_type<R(*)(A0, A1, A2, A3, A4, A5)> DEFINE_R_TYPE
+#else
+template <class R, class... A> struct return_type<R(*)(A...)> DEFINE_R_TYPE
+#endif
+#undef DEFINE_R_TYPE
+#define FN_RETURN_TYPE(function_name) return_type<decltype(&function_name)>::type

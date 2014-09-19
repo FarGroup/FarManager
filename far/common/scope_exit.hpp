@@ -1,13 +1,7 @@
 #pragma once
 
 /*
-exception.cpp
-
-Все про исключения
-*/
-/*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -33,46 +27,27 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class FarException : public std::runtime_error
+namespace scope_exit
 {
-public:
-	FarException(const char* Message) : std::runtime_error(Message) {}
+	template<typename F>
+	class guard
+	{
+	public:
+		guard(const F& f) : m_f(f) {}
+		~guard() { m_f(); }
+
+	private:
+		const F m_f;
+	};
+
+	class make_guard
+	{
+	public:
+		template<typename F>
+		guard<F> operator << (const F &f) { return guard<F>(f); }
+	};
+
 };
 
-class FarRecoverableException : public FarException
-{
-public:
-	FarRecoverableException(const char* Message) : FarException(Message) {}
-};
-
-class Plugin;
-
-// for plugins
-bool ProcessSEHException(Plugin *Module, const wchar_t* function, EXCEPTION_POINTERS *xp);
-
-// for Far
-inline bool ProcessSEHException(const wchar_t* function, EXCEPTION_POINTERS *xp) { return ProcessSEHException(nullptr, function, xp); }
-
-// for plugins
-bool ProcessStdException(const std::exception& e, const Plugin* Module, const wchar_t* function);
-
-// for Far
-inline bool ProcessStdException(const std::exception& e, const wchar_t* function) { return ProcessStdException(e, nullptr, function); }
-
-class SException: public std::exception
-{
-public:
-	SException(int Code, EXCEPTION_POINTERS* Info):m_Code(Code), m_Info(Info) {}
-	int GetCode() const { return m_Code; }
-	EXCEPTION_POINTERS* GetInfo() const { return m_Info; }
-
-private:
-	int m_Code;
-	EXCEPTION_POINTERS* m_Info;
-};
-
-void EnableSeTranslation();
-void EnableVectoredExceptionHandling();
-void attach_debugger();
-
-void RegisterTestExceptionsHook();
+#define SCOPE_EXIT \
+const auto ADD_SUFFIX(scope_exit_guard_, __LINE__) = scope_exit::make_guard() << [&]() /* lambda body here */

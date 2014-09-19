@@ -1,13 +1,7 @@
 #pragma once
 
 /*
-exception.cpp
-
-Все про исключения
-*/
-/*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -33,46 +27,25 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class FarException : public std::runtime_error
-{
-public:
-	FarException(const char* Message) : std::runtime_error(Message) {}
-};
-
-class FarRecoverableException : public FarException
-{
-public:
-	FarRecoverableException(const char* Message) : FarException(Message) {}
-};
-
-class Plugin;
-
-// for plugins
-bool ProcessSEHException(Plugin *Module, const wchar_t* function, EXCEPTION_POINTERS *xp);
-
-// for Far
-inline bool ProcessSEHException(const wchar_t* function, EXCEPTION_POINTERS *xp) { return ProcessSEHException(nullptr, function, xp); }
-
-// for plugins
-bool ProcessStdException(const std::exception& e, const Plugin* Module, const wchar_t* function);
-
-// for Far
-inline bool ProcessStdException(const std::exception& e, const wchar_t* function) { return ProcessStdException(e, nullptr, function); }
-
-class SException: public std::exception
-{
-public:
-	SException(int Code, EXCEPTION_POINTERS* Info):m_Code(Code), m_Info(Info) {}
-	int GetCode() const { return m_Code; }
-	EXCEPTION_POINTERS* GetInfo() const { return m_Info; }
-
-private:
-	int m_Code;
-	EXCEPTION_POINTERS* m_Info;
-};
-
-void EnableSeTranslation();
-void EnableVectoredExceptionHandling();
-void attach_debugger();
-
-void RegisterTestExceptionsHook();
+// C++11-like range-based for
+#if defined _MSC_VER && _MSC_VER < 1700
+#define DECORATED(name) _RANGE_FOR_EMULATION_ ## name ## _
+#define f_container DECORATED(container)
+#define f_stop DECORATED(stop)
+#define f_it DECORATED(it)
+#define f_stop_it DECORATED(stop_it)
+#define FOR(i, c) \
+	if (bool f_stop = false); \
+	else for (auto&& f_container = c; !f_stop; f_stop = true) \
+	for (auto f_it = std::begin(f_container), e = false? f_it : std::end(f_container); f_it != e && !f_stop; ++f_it) \
+	if (bool f_stop_it = !(f_stop = true)); \
+			else for (i = *f_it; !f_stop_it; f_stop_it = true, f_stop = false)
+// { body }
+#undef f_stop_it
+#undef f_it
+#undef f_stop
+#undef f_container
+#undef DECORATED
+#else
+#define FOR(i, c) for(i: c)
+#endif

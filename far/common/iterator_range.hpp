@@ -1,13 +1,7 @@
 #pragma once
 
 /*
-exception.cpp
-
-Все про исключения
-*/
-/*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -33,46 +27,45 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class FarException : public std::runtime_error
+template<class iterator_type>
+class range
 {
 public:
-	FarException(const char* Message) : std::runtime_error(Message) {}
-};
+	typedef iterator_type iterator;
+	typedef std::reverse_iterator<iterator> reverse_iterator;
+	typedef typename std::iterator_traits<iterator>::reference reference;
+	typedef typename std::iterator_traits<iterator>::pointer pointer;
+	typedef typename std::iterator_traits<iterator>::value_type value_type;
 
-class FarRecoverableException : public FarException
-{
-public:
-	FarRecoverableException(const char* Message) : FarException(Message) {}
-};
+	range(iterator i_begin, iterator i_end):
+		m_begin(i_begin),
+		m_end(i_end)
+	{}
 
-class Plugin;
+	iterator begin() const { return m_begin; }
+	iterator end() const { return m_end; }
+	reverse_iterator rbegin() const { return reverse_iterator(m_end); }
+	reverse_iterator rend() const { return reverse_iterator(m_begin); }
 
-// for plugins
-bool ProcessSEHException(Plugin *Module, const wchar_t* function, EXCEPTION_POINTERS *xp);
+	reference operator[](size_t n) { return *(m_begin + n); }
+	const reference operator[](size_t n) const { return *(m_begin + n); }
 
-// for Far
-inline bool ProcessSEHException(const wchar_t* function, EXCEPTION_POINTERS *xp) { return ProcessSEHException(nullptr, function, xp); }
+	reference front() { return *m_begin; }
+	reference back() { return *std::prev(m_end); }
 
-// for plugins
-bool ProcessStdException(const std::exception& e, const Plugin* Module, const wchar_t* function);
+	pointer data() { return &*m_begin; }
+	pointer data() const { return &*m_begin; }
 
-// for Far
-inline bool ProcessStdException(const std::exception& e, const wchar_t* function) { return ProcessStdException(e, nullptr, function); }
-
-class SException: public std::exception
-{
-public:
-	SException(int Code, EXCEPTION_POINTERS* Info):m_Code(Code), m_Info(Info) {}
-	int GetCode() const { return m_Code; }
-	EXCEPTION_POINTERS* GetInfo() const { return m_Info; }
+	bool empty() const { return m_begin == m_end; }
+	size_t size() const { return m_end - m_begin; }
 
 private:
-	int m_Code;
-	EXCEPTION_POINTERS* m_Info;
+	iterator m_begin;
+	iterator m_end;
 };
 
-void EnableSeTranslation();
-void EnableVectoredExceptionHandling();
-void attach_debugger();
-
-void RegisterTestExceptionsHook();
+template<class iterator_type>
+inline range<iterator_type> make_range(iterator_type i_begin, iterator_type i_end)
+{
+	return range<iterator_type>(i_begin, i_end);
+}

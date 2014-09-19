@@ -1032,7 +1032,7 @@ void Manager::ActivateCommit(window_ptr Param)
 
 	if (-1!=WindowIndex)
 	{
-		m_windows.erase(m_windows.cbegin()+WindowIndex);
+		m_windows.erase(m_windows.begin() + WindowIndex);
 		m_windows.push_back(Param);
 	}
 

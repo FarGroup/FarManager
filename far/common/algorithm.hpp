@@ -1,13 +1,7 @@
 #pragma once
 
 /*
-exception.cpp
-
-Все про исключения
-*/
-/*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -33,46 +27,33 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class FarException : public std::runtime_error
+// for_each with embedded counter
+template<class I, class F>
+inline F for_each_cnt(I First, I Last, F Func)
 {
-public:
-	FarException(const char* Message) : std::runtime_error(Message) {}
-};
+	for (size_t Cnt = 0; First != Last; ++First, ++Cnt)
+	{
+		Func(*First, Cnt);
+	}
+	return Func;
+}
 
-class FarRecoverableException : public FarException
+// for_each for 2 containers
+template<class A, class B, class F>
+inline F for_each_2(A FirstA, A LastA, B FirstB, F Func)
 {
-public:
-	FarRecoverableException(const char* Message) : FarException(Message) {}
-};
+	for (; FirstA != LastA; ++FirstA, ++FirstB)
+	{
+		Func(*FirstA, *FirstB);
+	}
+	return Func;
+}
 
-class Plugin;
-
-// for plugins
-bool ProcessSEHException(Plugin *Module, const wchar_t* function, EXCEPTION_POINTERS *xp);
-
-// for Far
-inline bool ProcessSEHException(const wchar_t* function, EXCEPTION_POINTERS *xp) { return ProcessSEHException(nullptr, function, xp); }
-
-// for plugins
-bool ProcessStdException(const std::exception& e, const Plugin* Module, const wchar_t* function);
-
-// for Far
-inline bool ProcessStdException(const std::exception& e, const wchar_t* function) { return ProcessStdException(e, nullptr, function); }
-
-class SException: public std::exception
+template<class T>
+inline void repeat(size_t count, const T& f)
 {
-public:
-	SException(int Code, EXCEPTION_POINTERS* Info):m_Code(Code), m_Info(Info) {}
-	int GetCode() const { return m_Code; }
-	EXCEPTION_POINTERS* GetInfo() const { return m_Info; }
-
-private:
-	int m_Code;
-	EXCEPTION_POINTERS* m_Info;
-};
-
-void EnableSeTranslation();
-void EnableVectoredExceptionHandling();
-void attach_debugger();
-
-void RegisterTestExceptionsHook();
+	for(size_t i = 0; i != count; ++i)
+	{
+		f();
+	}
+}

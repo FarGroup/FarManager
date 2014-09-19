@@ -1,13 +1,7 @@
 #pragma once
 
 /*
-exception.cpp
-
-Все про исключения
-*/
-/*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -33,46 +27,43 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class FarException : public std::runtime_error
+// begin() / end() interface for null-terminated strings
+
+#include "enumerator.hpp"
+
+template<class T>
+class as_string_t: public enumerator<T>
 {
 public:
-	FarException(const char* Message) : std::runtime_error(Message) {}
-};
-
-class FarRecoverableException : public FarException
-{
-public:
-	FarRecoverableException(const char* Message) : FarException(Message) {}
-};
-
-class Plugin;
-
-// for plugins
-bool ProcessSEHException(Plugin *Module, const wchar_t* function, EXCEPTION_POINTERS *xp);
-
-// for Far
-inline bool ProcessSEHException(const wchar_t* function, EXCEPTION_POINTERS *xp) { return ProcessSEHException(nullptr, function, xp); }
-
-// for plugins
-bool ProcessStdException(const std::exception& e, const Plugin* Module, const wchar_t* function);
-
-// for Far
-inline bool ProcessStdException(const std::exception& e, const wchar_t* function) { return ProcessStdException(e, nullptr, function); }
-
-class SException: public std::exception
-{
-public:
-	SException(int Code, EXCEPTION_POINTERS* Info):m_Code(Code), m_Info(Info) {}
-	int GetCode() const { return m_Code; }
-	EXCEPTION_POINTERS* GetInfo() const { return m_Info; }
+	as_string_t(const T* str, size_t size): m_str(str), m_size(size) {}
+	virtual bool get(size_t index, T& value) override
+	{
+		if (m_size == size_t(-1))
+		{
+			return (value = m_str[index]) != 0;
+		}
+		else
+		{
+			if (index == m_size)
+			{
+				return false;
+			}
+			else
+			{
+				value = m_str[index];
+				return true;
+			}
+		}
+	}
 
 private:
-	int m_Code;
-	EXCEPTION_POINTERS* m_Info;
+	const T* m_str;
+	size_t m_size;
 };
 
-void EnableSeTranslation();
-void EnableVectoredExceptionHandling();
-void attach_debugger();
+template<class T>
+typename std::enable_if<!std::is_array<T>::value, as_string_t<T>>::type as_string(const T* str, size_t size = size_t(-1)) { return as_string_t<T>(str, size); }
 
-void RegisterTestExceptionsHook();
+// to avoid processing null character in cases like char c[] = "foo".
+template <typename T, size_t N>
+typename std::enable_if<std::is_array<T>::value, as_string_t<T>>::type as_string(T(&str)[N]) { return as_string_t<T>(str, N - 1); }

@@ -502,6 +502,18 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="xlat.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="common\algorithm.hpp" />
+    <ClInclude Include="common\as_string.hpp" />
+    <ClInclude Include="common\enum.hpp" />
+    <ClInclude Include="common\enumerator.hpp" />
+    <ClInclude Include="common\function_traits.hpp" />
+    <ClInclude Include="common\iterator_range.hpp" />
+    <ClInclude Include="common\make_vector.hpp" />
+    <ClInclude Include="common\noncopyable.hpp" />
+    <ClInclude Include="common\preprocessor.hpp" />
+    <ClInclude Include="common\range_for.hpp" />
+    <ClInclude Include="common\scope_exit.hpp" />
+    <ClInclude Include="common\smart_ptr.hpp" />
     <ClInclude Include="configdb.hpp" />
     <ClInclude Include="elevation.hpp" />
     <ClInclude Include="bitflags.hpp" />

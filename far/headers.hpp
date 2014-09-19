@@ -182,7 +182,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "common.hpp"
 
-#include "noncopyable.hpp"
 #include "farrtl.hpp"
 #include "format.hpp"
 #include "local.hpp"

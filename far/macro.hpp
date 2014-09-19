@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "tvar.hpp"
-#include "noncopyable.hpp"
 
 // Macro Const
 enum {
