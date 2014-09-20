@@ -702,7 +702,7 @@ void ReCompileErrorMessage(const RegExp& re, const string& str)
 		GetReErrorString(re.LastError()),
 		str,
 		string(re.ErrorPosition(), L' ') + L'^',
-		MSG(MOk)
+		string(MSG(MOk))
 		);
 
 	Message(MSG_WARNING | MSG_LEFTALIGN, 1, MSG(MError), Strings);
@@ -714,7 +714,7 @@ void ReMatchErrorMessage(const RegExp& re)
 	{
 		std::vector<string> Strings = make_vector(
 			GetReErrorString(re.LastError()),
-			MSG(MOk)
+			string(MSG(MOk))
 			);
 
 		Message(MSG_WARNING | MSG_LEFTALIGN, 1, MSG(MError), Strings);
