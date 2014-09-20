@@ -292,6 +292,25 @@ local function test_msave()
   assert(t.a==5 and t[1].b==6 and t.c.d==7)
   mf.mdelete("macrotest", "*")
   assert(mf.mload("macrotest", "testkey")==nil)
+
+  local t1, t2, t3 = {5}, {6}, {}
+  t1[2], t1[3], t1[4], t1[5] = t1, t2, t3, t3
+  t2[2], t2[3] = t1, t2
+  t1[t1], t1[t2] = 66, 77
+  t2[t1], t2[t2] = 88, 99
+  mf.msave("macrotest", "testkey", t1)
+  local T1 = mf.mload("macrotest", "testkey")
+  assert(type(T1)=="table")
+  local T2 = T1[3]
+  assert(type(T2)=="table")
+  local T3 = T1[4]
+  assert(type(T3)=="table" and T3==T1[5])
+  assert(T1[1]==5 and T1[2]==T1 and T1[3]==T2)
+  assert(T2[1]==6 and T2[2]==T1 and T2[3]==T2)
+  assert(T1[T1]==66 and T1[T2]==77)
+  assert(T2[T1]==88 and T2[T2]==99)
+  mf.mdelete("macrotest", "*")
+  assert(mf.mload("macrotest", "testkey")==nil)
 end
 
 local function test_mod()

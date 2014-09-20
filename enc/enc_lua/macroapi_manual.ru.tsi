@@ -535,7 +535,7 @@ lv=3
 dt=Text
 nm=mload
 ctime=3551993209
-mtime=3607090772
+mtime=3620402562
 <article>
 #_ret = mf.mload (key, name)
 #_
@@ -544,7 +544,7 @@ mtime=3607090772
 #_  name:  string
 #_
 #_**Возвращает:**
-#_  ret:   number, string, boolean, table или nil.
+#_  ret:   number, string, boolean, table, int64 или nil.
 #_
 #_**Описание:**
 #_  Функция *mload* читает значение из базы данных.
@@ -558,7 +558,7 @@ lv=3
 dt=Text
 nm=msave
 ctime=3551993205
-mtime=3607090809
+mtime=3620403053
 <article>
 #_mf.msave (key, name, value)
 #_
@@ -572,10 +572,14 @@ mtime=3607090809
 #_
 #_**Описание:**
 #_  Функция *msave* сохраняет переданное значение в базу данных.
+#_
 #_  При сохранении таблиц будут сохраняться только:
-#_     ключи типов:    number, string, boolean.
-#_     значения типов: number, string, boolean, table.
-#_  Сохраняются и вложенные таблицы, при этом рекурсивные вложения пропускаются.
+#_     ключи типов:     number, string, boolean, table
+#_     значения типов:  number, string, boolean, table, int64
+#_
+#_  Сохраняются и вложенные таблицы, при этом рекурсивные вложения корректно обрабатываются.
+#_
+#_  Связь таблицы с её метатаблицей не сохраняется.
 #_
 #_
 </article>

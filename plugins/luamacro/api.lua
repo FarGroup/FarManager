@@ -453,27 +453,53 @@ local function int64Serialize (o)
   end
 end
 
-local function tableSerialize (o, processed)
-  if type(o) == "table" and not processed[o] then
-    processed[o]=true
-    local t = { "{" }
-    for k,v in pairs(o) do
-      local k2 = basicSerialize(k)
-      if k2 then
-        local v2 = basicSerialize(v) or int64Serialize(v) or tableSerialize(v,processed)
-        if v2 then
-          t[#t+1] = string.format("  [%s] = %s,", k2, v2)
-        end
+local function AddToIndex (idx, t)
+  local n = idx[t]
+  if not n then
+    n = #idx + 1
+    idx[n], idx[t] = t, n
+    for k,v in pairs(t) do
+      if type(k)=="table" then
+        AddToIndex(idx, k)
+        -- if type(getmetatable(k))=="table" then AddToIndex(idx,getmetatable(k)) end
+      end
+      if type(v)=="table" then
+        AddToIndex(idx, v)
+        -- if type(getmetatable(v))=="table" then AddToIndex(idx,getmetatable(v)) end
       end
     end
-    t[#t+1] = "}\n"
-    return table.concat(t, "\n")
   end
 end
 
+local function tableSerialize (tbl)
+  if type(tbl) == "table" then
+    local idx = {}
+    AddToIndex(idx, tbl)
+    local lines = { "local idx={}; for i=1,"..#idx.." do idx[i]={} end" }
+    for i,t in ipairs(idx) do
+      local found
+      lines[#lines+1] = "do local t=idx["..i.."]"
+      for k,v in pairs(t) do
+        local k2 = basicSerialize(k) or type(k)=="table" and "idx["..idx[k].."]"
+        if k2 then
+          local v2 = basicSerialize(v) or int64Serialize(v) or type(v)=="table" and "idx["..idx[v].."]"
+          if v2 then
+            found = true
+            lines[#lines+1] = "  t["..k2.."] = "..v2
+          end
+        end
+      end
+      if found then lines[#lines+1]="end" else lines[#lines]=nil end
+    end
+    lines[#lines+1] = "return idx[1]\n"
+    return table.concat(lines, "\n")
+  end
+  return nil
+end
+
 local function serialize (o)
-  local s = basicSerialize(o) or int64Serialize(o) or tableSerialize(o,{})
-  if s then return "return "..s end
+  local s = basicSerialize(o) or int64Serialize(o)
+  return s and "return "..s or tableSerialize(o)
 end
 
 function mf.mdelete (key, name)

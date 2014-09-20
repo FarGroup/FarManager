@@ -545,7 +545,7 @@ lv=3
 dt=Text
 nm=mload
 ctime=3551993209
-mtime=3607090762
+mtime=3620402647
 <article>
 #_ret = mf.mload (key, name)
 #_
@@ -554,7 +554,7 @@ mtime=3607090762
 #_  name:  string
 #_
 #_**Returns:**
-#_  ret:   number, string, boolean, table or nil.
+#_  ret:   number, string, boolean, table, int64 or nil.
 #_
 #_**Description:**
 #_  Function *mload* reads a value from the database.
@@ -568,7 +568,7 @@ lv=3
 dt=Text
 nm=msave
 ctime=3551993205
-mtime=3607090798
+mtime=3620403010
 <article>
 #_mf.msave (key, name, value)
 #_
@@ -582,11 +582,14 @@ mtime=3607090798
 #_
 #_**Description:**
 #_  Function *msave* saves the specified value into the database.
-#_  When you save the table the following will be saved:
-#_     keys of types:    number, string, boolean.
-#_     values of types:  number, string, boolean, table.
-#_  Nested tables are also saved but recursive references are skipped.
 #_
+#_  When you save the table the following will be preserved:
+#_     keys of types:    number, string, boolean, table.
+#_     values of types:  number, string, boolean, table, int64.
+#_
+#_  Nested tables and recursive references are correctly processed.
+#_
+#_  The link between a table and its metatable is not preserved.
 #_
 </article>
 </node>
