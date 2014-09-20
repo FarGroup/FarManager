@@ -685,7 +685,7 @@ int RegExp::Compile(const wchar_t* src,int options)
 
 		if (!src[srclength])
 		{
-			return SetError(errSyntax,srclength-1);
+			return SetError(errSyntax, srclength);
 		}
 
 		int i=srclength+1;

@@ -93,7 +93,7 @@ public:
 		std::swap(bRE, rhs.bRE);
 	}
 
-	bool Set(const string& Masks);
+	bool Set(const string& Masks, DWORD Flags);
 	bool operator ==(const string& Name) const;
 	void Free();
 	bool empty() const;
@@ -173,7 +173,7 @@ bool filemasks::Set(const string& masks, DWORD Flags)
 				if (nextpos != ptr)
 				{
 					filemasks::masks m;
-					Result = m.Set(string(ptr, nextpos-ptr));
+					Result = m.Set(string(ptr, nextpos - ptr), Flags);
 					if (Result)
 					{
 						DestContainer->emplace_back(std::move(m));
@@ -210,7 +210,7 @@ bool filemasks::Set(const string& masks, DWORD Flags)
 			if (Result && !SimpleMasksInclude.empty())
 			{
 				filemasks::masks m;
-				Result = m.Set(SimpleMasksInclude);
+				Result = m.Set(SimpleMasksInclude, Flags);
 				if (Result)
 					Include.emplace_back(std::move(m));
 			}
@@ -218,7 +218,7 @@ bool filemasks::Set(const string& masks, DWORD Flags)
 			if (Result && !SimpleMasksExclude.empty())
 			{
 				filemasks::masks m;
-				Result = m.Set(SimpleMasksExclude);
+				Result = m.Set(SimpleMasksExclude, Flags);
 				if (Result)
 					Exclude.emplace_back(std::move(m));
 			}
@@ -226,7 +226,7 @@ bool filemasks::Set(const string& masks, DWORD Flags)
 			if (Result && Include.empty() && !Exclude.empty())
 			{
 				Include.emplace_back(VALUE_TYPE(Include)());
-				Result = Include.back().Set(L"*");
+				Result = Include.back().Set(L"*", Flags);
 			}
 
 			Result = !empty();
@@ -271,7 +271,7 @@ void filemasks::ErrorMessage()
 	Message(MSG_WARNING, 1, MSG(MWarning), MSG(MIncorrectMask), MSG(MOk));
 }
 
-bool filemasks::masks::Set(const string& masks)
+bool filemasks::masks::Set(const string& masks, DWORD Flags)
 {
 	Free();
 
@@ -303,7 +303,7 @@ bool filemasks::masks::Set(const string& masks)
 	{
 		re = std::make_unique<RegExp>();
 
-		if (!re->Compile(expmasks.data(), OP_PERLSTYLE | OP_OPTIMIZE))
+		if (!re->Compile(expmasks.data(), OP_PERLSTYLE | OP_OPTIMIZE) && !(Flags & FMF_SILENT))
 		{
 			ReCompileErrorMessage(*re, expmasks);
 			return false;

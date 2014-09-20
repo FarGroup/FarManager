@@ -668,7 +668,7 @@ static string GetReErrorString(int code)
 	case errNotCompiled:
 		return L"RegExp wasn't even tried to compile";
 	case errSyntax:
-		return L"Expression contain syntax error";
+		return L"Expression contains a syntax error";
 	case errBrackets:
 		return L"Unbalanced brackets";
 	case errMaxDepth:
