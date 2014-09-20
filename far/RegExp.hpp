@@ -89,6 +89,9 @@ enum
 	OP_CPPMODE      =0x0080,
 };
 
+//! Hash table with match info
+typedef std::unordered_map<const wchar_t*, RegExpMatch> MatchHash;
+
 /*! Regular expressions support class.
 
 Expressions must be Compile'ed first,
@@ -125,7 +128,7 @@ public:
 
 		int bracketscount;
 		int maxbackref;
-
+		int havenamedbrackets;
 #ifdef RE_DEBUG
 		string resrc;
 #endif
@@ -133,7 +136,7 @@ public:
 		int CalcLength(const wchar_t* src,int srclength);
 		int InnerCompile(const wchar_t* src,int srclength,int options);
 
-		int InnerMatch(const wchar_t* const start, const wchar_t* str, const wchar_t* end, RegExpMatch* match, intptr_t& matchcount) const;
+		int InnerMatch(const wchar_t* const start, const wchar_t* str, const wchar_t* end, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch) const;
 
 		void TrimTail(const wchar_t* const start, const wchar_t*& end) const;
 
@@ -177,31 +180,32 @@ public:
 		    \param match - array of SMatch structures that receive brackets positions.
 		    \param matchcount - in/out parameter that indicate number of items in
 		    match array on input, and number of brackets on output.
+		    \param hmatch - storage of named brackets.
 		    \return 1 on success, 0 if match failed.
 		    \sa SMatch
 		*/
-		int Match(const wchar_t* textstart,const wchar_t* textend,RegExpMatch* match,intptr_t& matchcount) const;
+		int Match(const wchar_t* textstart, const wchar_t* textend, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch = nullptr) const;
 		/*! Same as Match(const char* textstart,const char* textend,...), but for ASCIIZ string.
 		    textend calculated automatically.
 		*/
-		int Match(const wchar_t* textstart, RegExpMatch* match, intptr_t& matchcount) const;
+		int Match(const wchar_t* textstart, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch = nullptr) const;
 		/*! Advanced version of match. Can be used for multiple matches
 		    on one string (to imitate /g modifier of perl regexp
 		*/
-		int MatchEx(const wchar_t* datastart, const wchar_t* textstart, const wchar_t* textend, RegExpMatch* match, intptr_t& matchcount) const;
+		int MatchEx(const wchar_t* datastart, const wchar_t* textstart, const wchar_t* textend, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch = nullptr) const;
 		/*! Try to find substring that will match regexp.
 		    Parameters and return value are the same as for Match.
 		    It is highly recommended to call Optimize before Search.
 		*/
-		int Search(const wchar_t* textstart, const wchar_t* textend, RegExpMatch* match, intptr_t& matchcount) const;
+		int Search(const wchar_t* textstart, const wchar_t* textend, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch = nullptr) const;
 		/*! Same as Search with specified textend, but for ASCIIZ strings only.
 		    textend calculated automatically.
 		*/
-		int Search(const wchar_t* textstart, RegExpMatch* match, intptr_t& matchcount) const;
+		int Search(const wchar_t* textstart, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch = nullptr) const;
 		/*! Advanced version of search. Can be used for multiple searches
 		    on one string (to imitate /g modifier of perl regexp
 		*/
-		int SearchEx(const wchar_t* datastart,const wchar_t* textstart,const wchar_t* textend,RegExpMatch* match,intptr_t& matchcount) const;
+		int SearchEx(const wchar_t* datastart, const wchar_t* textstart, const wchar_t* textend, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch = nullptr) const;
 
 		/*! Get last error
 		    \return code of the last error
