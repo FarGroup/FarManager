@@ -33,6 +33,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+class RegExp;
+
 /*
   Функция GetSearchReplaceString выводит диалог поиска или замены, принимает
   от пользователя данные и в случае успешного выполнения диалога возвращает
@@ -136,3 +138,6 @@ enum FlagsNameAndPassword
 int GetNameAndPassword(const string& Title,string &strUserName, string &strPassword, const wchar_t *HelpTopic,DWORD Flags);
 
 int OperationFailed(const string& Object, LNGID Title, const string& Description, bool AllowSkip = true);
+
+void ReCompileErrorMessage(const RegExp& re, const string& str);
+void ReMatchErrorMessage(const RegExp& re);

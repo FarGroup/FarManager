@@ -73,6 +73,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "datetime.hpp"
 #include "keybar.hpp"
+#include "stddlg.hpp"
 
 enum SHOW_MODES
 {
@@ -2348,7 +2349,6 @@ enum SEARCHDLG
 enum
 {
 	DM_SDSETVISIBILITY = DM_USER + 1,
-	DM_SDREXVISIBILITY = DM_USER + 2
 };
 
 struct MyDialogData
@@ -2379,35 +2379,6 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 			int ww = !Param1 && !re;
 			Dlg->SendMessage(DM_ENABLE,SD_CHECKBOX_WORDS,ToPtr(ww));
 			Dlg->SendMessage(DM_ENABLE,SD_CHECKBOX_REGEXP,ToPtr(!Param1));
-			Dlg->SendMessage( DM_SDREXVISIBILITY, re && !Param1, 0);
-			return TRUE;
-		}
-		case DM_SDREXVISIBILITY:
-		{
-			int show = 1;
-			if ( Param1 )
-			{
-				int tlen = (int)Dlg->SendMessage( DM_GETTEXT, SD_EDIT_TEXT, 0);
-				show = 0;
-				if ( tlen > 0 )
-				{
-					RegExp re;
-					wchar_t t[128], *tmp = t;
-					wchar_t_ptr Buffer;
-					if (tlen > (int)(ARRAYSIZE(t)-1))
-					{
-						Buffer.reset(tlen+1);
-						tmp = Buffer.get();
-					}
-					FarDialogItemData item = {sizeof(FarDialogItemData), static_cast<size_t>(tlen), tmp};
-					Dlg->SendMessage( DM_GETTEXT, SD_EDIT_TEXT, &item);
-					string sre = tmp;
-					InsertRegexpQuote(sre);
-					show = re.Compile(sre.data(), OP_PERLSTYLE);
-				}
-			}
-			Dlg->SendMessage( DM_ENABLE, SD_TEXT_SEARCH, ToPtr(show));
-			Dlg->SendMessage( DM_ENABLE, SD_BUTTON_OK,   ToPtr(show));
 			return TRUE;
 		}
 		case DN_KILLFOCUS:
@@ -2492,12 +2463,6 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 				return TRUE;
 			else
 				break;
-		}
-		case DN_EDITCHANGE:
-		{
-			if ( Param1 == SD_EDIT_TEXT && Dlg->SendMessage(DM_GETCHECK,SD_CHECKBOX_REGEXP,0) == BSTATE_CHECKED )
-				Dlg->SendMessage( DM_SDREXVISIBILITY, 1, 0);
-			break;
 		}
 		case DN_HOTKEY:
 		{
@@ -2613,7 +2578,7 @@ static int hex2ss(const wchar_t *from, char *c1, int mb, intptr_t *pos = 0)
 		{
 			if ( p0 >= 0 && ps > p0 && p1 < 0 )
 				p1 = nb;
-			c1[nb++] = (char)v;
+			c1[nb++] = (char)(v&0xff);
 			i = 0;
 			if (nb >= mb)
 				break;
@@ -3102,8 +3067,11 @@ Viewer::SEARCHER_RESULT Viewer::search_regex_forward(search_data* sd)
 
 		intptr_t n = sd->RexMatchCount;
 		RegExpMatch *m = sd->RexMatch.data();
-		if ( !sd->pRex->SearchEx(line, line+off, line+nw, m, n) )  // doesn't match
+		if (!sd->pRex->SearchEx(line, line + off, line + nw, m, n))  // doesn't match
+		{
+			ReMatchErrorMessage(*sd->pRex);
 			break;
+		}
 
 		INT64 fpos = bpos + GetStrBytesNum(t_line, m[0].start);
 		if ( fpos < cpos )
@@ -3158,8 +3126,11 @@ Viewer::SEARCHER_RESULT Viewer::search_regex_backward(search_data* sd)
 
 		intptr_t n = sd->RexMatchCount;
 		RegExpMatch *m = sd->RexMatch.data();
-		if ( !sd->pRex->SearchEx(line, line+off, line+nw, m, n) )
+		if (!sd->pRex->SearchEx(line, line + off, line + nw, m, n))
+		{
+			ReMatchErrorMessage(*sd->pRex);
 			break;
+		}
 
 		INT64 fpos = bpos + GetStrBytesNum(t_line, m[0].start);
 		int flen = GetStrBytesNum(t_line + m[0].start, m[0].end - m[0].start);
@@ -3334,7 +3305,10 @@ void Viewer::Search(int Next,int FirstChar)
 			string strSlash = strSearchStr;
 			InsertRegexpQuote(strSlash);
 			if (!sd.InitRegEx(strSlash, OP_PERLSTYLE | OP_OPTIMIZE | (Case ? 0 : OP_IGNORECASE)))
+			{
+				ReCompileErrorMessage(*sd.pRex, strSlash);
 				return; // wrong regular expression...
+			}
 			sd.RexMatchCount = sd.pRex->GetBracketsCount();
 			sd.RexMatch.resize(sd.RexMatchCount);
 		}

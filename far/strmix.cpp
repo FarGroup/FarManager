@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "preservestyle.hpp"
 #include "locale.hpp"
+#include "stddlg.hpp"
 
 namespace strmix
 {
@@ -1322,7 +1323,13 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 			if (!Reverse)
 			{
 				if (re.SearchEx(Source, Source + Position, Source + StrSize, pm, n))
+				{
 					found = true;
+				}
+				else
+				{
+					ReMatchErrorMessage(re);
+				}
 			}
 			else
 			{
@@ -1330,7 +1337,10 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 				for (;;)
 				{
 					if (!re.SearchEx(Source, Source + pos, Source + StrSize, pm+half, n))
+					{
+						ReMatchErrorMessage(re);
 						break;
+					}
 					pos = static_cast<int>(pm[half].start);
 					if (pos > Position)
 						break;

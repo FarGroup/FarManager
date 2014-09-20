@@ -1928,7 +1928,10 @@ void Help::Search(api::File& HelpFile,uintptr_t nCodePage)
 	{
 		// Q: что важнее: опция диалога или опция RegExp`а?
 		if (!re.Compile(strSlash.data(), OP_PERLSTYLE|OP_OPTIMIZE|(!LastSearchCase?OP_IGNORECASE:0)))
+		{
+			ReCompileErrorMessage(re, strSlash);
 			return; //BUGBUG
+		}
 
 		m.resize(re.GetBracketsCount() * 2);
 	}

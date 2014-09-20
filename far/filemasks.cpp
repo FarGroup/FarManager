@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "processname.hpp"
 #include "configdb.hpp"
 #include "RegExp.hpp"
+#include "stddlg.hpp"
 
 const wchar_t ExcludeMaskSeparator = L'|';
 const wchar_t RE_start = L'/', RE_end = L'/';
@@ -302,13 +303,13 @@ bool filemasks::masks::Set(const string& masks)
 	{
 		re = std::make_unique<RegExp>();
 
-		if (re->Compile(expmasks.data(), OP_PERLSTYLE|OP_OPTIMIZE))
+		if (!re->Compile(expmasks.data(), OP_PERLSTYLE | OP_OPTIMIZE))
 		{
-			m.resize(re->GetBracketsCount());
-			return true;
+			ReCompileErrorMessage(*re, expmasks);
+			return false;
 		}
-
-		return false;
+		m.resize(re->GetBracketsCount());
+		return true;
 	}
 	else
 	{

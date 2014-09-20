@@ -657,3 +657,66 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 
 	return Result;
 }
+
+static string GetReErrorString(int code)
+{
+	// TODO: localization
+	switch (code)
+	{
+	case errNone:
+		return L"No errors";
+	case errNotCompiled:
+		return L"RegExp wasn't even tried to compile";
+	case errSyntax:
+		return L"Expression contain syntax error";
+	case errBrackets:
+		return L"Unbalanced brackets";
+	case errMaxDepth:
+		return L"Max recursive brackets level reached";
+	case errOptions:
+		return L"Invalid options combination";
+	case errInvalidBackRef:
+		return L"Reference to nonexistent bracket";
+	case errInvalidEscape:
+		return L"Invalid escape char";
+	case errInvalidRange:
+		return L"Invalid range value";
+	case errInvalidQuantifiersCombination:
+		return L"Quantifier applied to invalid object. f.e. lookahead assertion";
+	case errNotEnoughMatches:
+		return L"Size of match array isn't large enough";
+	case errNoStorageForNB:
+		return L"Attempt to match RegExp with Named Brackets but no storage class provided";
+	case errReferenceToUndefinedNamedBracket:
+		return L"Reference to undefined named bracket";
+	case errVariableLengthLookBehind:
+		return L"Only fixed length look behind assertions are supported";
+	default:
+		return L"Unknown error";
+	}
+};
+
+void ReCompileErrorMessage(const RegExp& re, const string& str)
+{
+	std::vector<string> Strings = make_vector(
+		GetReErrorString(re.LastError()),
+		str,
+		string(re.ErrorPosition(), L' ') + L'^',
+		MSG(MOk)
+		);
+
+	Message(MSG_WARNING | MSG_LEFTALIGN, 1, MSG(MError), Strings);
+}
+
+void ReMatchErrorMessage(const RegExp& re)
+{
+	if (re.LastError() != errNone)
+	{
+		std::vector<string> Strings = make_vector(
+			GetReErrorString(re.LastError()),
+			MSG(MOk)
+			);
+
+		Message(MSG_WARNING | MSG_LEFTALIGN, 1, MSG(MError), Strings);
+	}
+}

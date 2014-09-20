@@ -721,7 +721,7 @@ int RegExp::Compile(const wchar_t* src,int options)
 
 	code.resize(relength);
 
-	int result=InnerCompile(src+srcstart,srclength,options);
+	int result = InnerCompile(src, src + srcstart, srclength, options);
 
 	if (!result)
 	{
@@ -864,7 +864,7 @@ static int CalcPatternLength(const RegExp::REOpCode* from, const RegExp::REOpCod
 	return altlen==-1?len:altlen;
 }
 
-int RegExp::InnerCompile(const wchar_t* src,int srclength,int options)
+int RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int srclength, int options)
 {
 	REOpCode* brackets[MAXDEPTH];
 	// current brackets depth
@@ -964,7 +964,7 @@ int RegExp::InnerCompile(const wchar_t* src,int srclength,int options)
 					op->op = opNamedBackRef;
 					i++;
 
-					if (src[i] != L'{')return SetError(errSyntax, i);
+					if (src[i] != L'{')return SetError(errSyntax, i + (src - start));
 
 					int len = 0; i++;
 
@@ -977,7 +977,8 @@ int RegExp::InnerCompile(const wchar_t* src,int srclength,int options)
 						Name[len] = 0;
 						if (!h.count(Name))
 						{
-							return SetError(errReferenceToUndefinedNamedBracket, i);
+							delete[] Name;
+							return SetError(errReferenceToUndefinedNamedBracket, i + (src - start));
 						}
 						op->refname = Name;
 
@@ -985,7 +986,7 @@ int RegExp::InnerCompile(const wchar_t* src,int srclength,int options)
 					}
 					else
 					{
-						return SetError(errSyntax, i);
+						return SetError(errSyntax, i + (src - start));
 					}
 				} continue;
 
@@ -993,7 +994,7 @@ int RegExp::InnerCompile(const wchar_t* src,int srclength,int options)
 				{
 					i++;
 
-					if (i>=srclength)return SetError(errSyntax,i-1);
+					if (i >= srclength)return SetError(errSyntax, i + (src - start) - 1);
 
 					if(isxdigit(src[i]))
 					{
@@ -1027,7 +1028,7 @@ int RegExp::InnerCompile(const wchar_t* src,int srclength,int options)
 							}
 						}
 					}
-					else return SetError(errSyntax,i);
+					else return SetError(errSyntax, i + (src - start));
 
 					continue;
 				}
@@ -1041,7 +1042,7 @@ int RegExp::InnerCompile(const wchar_t* src,int srclength,int options)
 
 						if (op->refindex<=0 || op->refindex>brcount || !closedbrackets[op->refindex])
 						{
-							return SetError(errInvalidBackRef,save-1);
+							return SetError(errInvalidBackRef, save + (src - start) - 1);
 						}
 
 						if (op->refindex>maxbackref)maxbackref=op->refindex;
@@ -1050,7 +1051,7 @@ int RegExp::InnerCompile(const wchar_t* src,int srclength,int options)
 					{
 						if (options&OP_STRICT && ISALPHA(src[i]))
 						{
-							return SetError(errInvalidEscape,i-1);
+							return SetError(errInvalidEscape, i + (src - start) - 1);
 						}
 
 						op->op=ignorecase?opSymbolIgnoreCase:opSymbol;
@@ -1126,7 +1127,7 @@ int RegExp::InnerCompile(const wchar_t* src,int srclength,int options)
 					}
 				}
 
-				if (brdepth==MAXDEPTH)return SetError(errMaxDepth,i);
+				if (brdepth == MAXDEPTH)return SetError(errMaxDepth, i + (src - start));
 
 				brackets[brdepth++]=op;
 				op->op=opAlternative;
@@ -1157,7 +1158,7 @@ int RegExp::InnerCompile(const wchar_t* src,int srclength,int options)
 							{
 								op->op=opNotLookBehind;
 							}
-							else return SetError(errSyntax,i);
+							else return SetError(errSyntax, i + (src - start));
 
 							lookbehind++;
 						} break;
@@ -1187,7 +1188,7 @@ int RegExp::InnerCompile(const wchar_t* src,int srclength,int options)
 						} break;
 						default:
 						{
-							return SetError(errSyntax,i);
+							return SetError(errSyntax, i + (src - start));
 						}
 					}
 				}
@@ -1242,7 +1243,7 @@ int RegExp::InnerCompile(const wchar_t* src,int srclength,int options)
 						lookbehind--;
 						int l=CalcPatternLength(brackets[brdepth] + 1, op - 1);
 
-						if (l==-1)return SetError(errVariableLengthLookBehind,i);
+						if (l == -1)return SetError(errVariableLengthLookBehind, i + (src - start));
 
 						brackets[brdepth]->assert.length=l;
 					}// there is no break and this is correct!
@@ -1307,7 +1308,7 @@ int RegExp::InnerCompile(const wchar_t* src,int srclength,int options)
 							{
 								i++;
 
-								if (i>=srclength)return SetError(errSyntax,i-1);
+								if (i >= srclength)return SetError(errSyntax, i + (src - start) - 1);
 
 								if (isxdigit(src[i]))
 								{
@@ -1336,7 +1337,7 @@ int RegExp::InnerCompile(const wchar_t* src,int srclength,int options)
 									}
 									dpf((L"Last char=%c(%02x)\n",lastchar,lastchar));
 								}
-								else return SetError(errSyntax,i);
+								else return SetError(errSyntax, i + (src - start));
 
 								break;
 							}
@@ -1344,7 +1345,7 @@ int RegExp::InnerCompile(const wchar_t* src,int srclength,int options)
 							{
 								if (options&OP_STRICT && ISALPHA(src[i]))
 								{
-									return SetError(errInvalidEscape,i-1);
+									return SetError(errInvalidEscape, i + (src - start) - 1);
 								}
 
 								lastchar=src[i];
@@ -1440,7 +1441,7 @@ int RegExp::InnerCompile(const wchar_t* src,int srclength,int options)
 											}
 										}
 									}
-									else return SetError(errSyntax,i);
+									else return SetError(errSyntax, i + (src - start));
 								}
 								else
 								{
@@ -1538,7 +1539,7 @@ int RegExp::InnerCompile(const wchar_t* src,int srclength,int options)
 						min=GetNum(src,i);
 						max=min;
 
-						if (min<0)return SetError(errInvalidRange,save);
+						if (min<0)return SetError(errInvalidRange, save + (src - start));
 
 //            i++;
 						if (src[i]==',')
@@ -1554,11 +1555,11 @@ int RegExp::InnerCompile(const wchar_t* src,int srclength,int options)
 								max=GetNum(src,i);
 
 //                i++;
-								if (max<min)return SetError(errInvalidRange,save);
+								if (max<min)return SetError(errInvalidRange, save + (src - start));
 							}
 						}
 
-						if (src[i]!='}')return SetError(errInvalidRange,save);
+						if (src[i] != '}')return SetError(errInvalidRange, save + (src - start));
 					}
 				}
 
@@ -1579,7 +1580,7 @@ int RegExp::InnerCompile(const wchar_t* src,int srclength,int options)
 					case opWordBound:
 					case opNotWordBound:
 					{
-						return SetError(errInvalidQuantifiersCombination,i);
+						return SetError(errInvalidQuantifiersCombination, i + (src - start));
 //            op->range.op=op->op;
 //            op->op=opRange;
 //            continue;
@@ -1632,7 +1633,7 @@ int RegExp::InnerCompile(const wchar_t* src,int srclength,int options)
 					{
 						op=op->bracket.pairindex;
 
-						if (op->op!=opOpenBracket)return SetError(errInvalidQuantifiersCombination,i);
+						if (op->op != opOpenBracket)return SetError(errInvalidQuantifiersCombination, i + (src - start));
 
 						op->range.min=min;
 						op->range.max=max;
@@ -1642,7 +1643,7 @@ int RegExp::InnerCompile(const wchar_t* src,int srclength,int options)
 					default:
 					{
 						dpf((L"op->=%d\n",op->op));
-						return SetError(errInvalidQuantifiersCombination,i);
+						return SetError(errInvalidQuantifiersCombination, i + (src - start));
 					}
 				}//switch(code.op)
 

@@ -90,7 +90,7 @@ enum
 };
 
 //! Hash table with match info
-typedef std::unordered_map<const wchar_t*, RegExpMatch> MatchHash;
+typedef std::unordered_map<std::wstring, RegExpMatch> MatchHash;
 
 /*! Regular expressions support class.
 
@@ -130,11 +130,11 @@ public:
 		int maxbackref;
 		int havenamedbrackets;
 #ifdef RE_DEBUG
-		string resrc;
+		std::wstring resrc;
 #endif
 
 		int CalcLength(const wchar_t* src,int srclength);
-		int InnerCompile(const wchar_t* src,int srclength,int options);
+		int InnerCompile(const wchar_t* const start, const wchar_t* src, int srclength, int options);
 
 		int InnerMatch(const wchar_t* const start, const wchar_t* str, const wchar_t* end, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch) const;
 

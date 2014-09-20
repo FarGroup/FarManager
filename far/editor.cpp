@@ -3800,8 +3800,10 @@ BOOL Editor::Search(int Next)
 		{
 			// Q: что важнее: опция диалога или опция RegExp`а?
 			if (!re.Compile(strSlash.data(), OP_PERLSTYLE|OP_OPTIMIZE|(!Case?OP_IGNORECASE:0)))
+			{
+				ReCompileErrorMessage(re, strSlash);
 				return FALSE; //BUGBUG
-
+			}
 			m.resize(re.GetBracketsCount() * 2);
 		}
 
