@@ -27,19 +27,12 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<class T, class Y>
-void emplace_back(T&& container, Y&& value)
-{
-	container.emplace_back(std::forward<Y>(value));
-}
-
 #if defined _MSC_VER && _MSC_VER < 1800
-
 template<class T1>
 std::vector<typename std::decay<T1>::type> make_vector(T1&& a1)
 {
 	std::vector<typename std::decay<T1>::type> v;
-	emplace_back(v, std::forward<T1>(a1));
+	v.emplace_back(std::forward<T1>(a1));
 	return v;
 }
 
@@ -48,7 +41,7 @@ template<TYPENAME_LIST, VTE_TYPENAME(last)> \
 std::vector<typename std::decay<VTE_TYPE(a1)>::type> make_vector(REF_ARG_LIST, VTE_REF_ARG(last)) \
 { \
 	auto v = make_vector(FWD_ARG_LIST); \
-	emplace_back(v, VTE_FWD_ARG(last)); \
+	v.emplace_back(VTE_FWD_ARG(last)); \
 	return v; \
 }
 
@@ -59,17 +52,8 @@ VTE_GENERATE(MAKE_VECTOR_VTE)
 #undef MAKE_VECTOR_VTE
 
 #else
-template<class T, class Y, class... Args>
-void emplace_back(T&& container, Y&& value, Args&&... args)
-{
-	container.emplace_back(std::forward<Y>(value));
-	emplace_back(std::forward<T>(container), std::forward<Args>(args)...);
-}
-
 template<class T, class... Args> std::vector<typename std::decay<T>::type> make_vector(T&& value, Args&&... args)
 {
-	std::vector<typename std::decay<T>::type> v;
-	emplace_back(v, std::forward<T>(value), std::forward<Args>(args)...);
-	return v;
+	return std::vector<typename std::decay<T>::type>{std::forward<T>(value), std::forward<Args>(args)...};
 }
 #endif
