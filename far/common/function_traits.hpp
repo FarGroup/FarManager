@@ -30,13 +30,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 template <class F> struct return_type;
 #define DEFINE_R_TYPE { typedef typename std::remove_const<typename std::remove_reference<R>::type>::type type; };
 #if defined _MSC_VER && _MSC_VER < 1800
+
 template <class R> struct return_type<R(*)()> DEFINE_R_TYPE
-template <class R, class A0> struct return_type<R(*)(A0)> DEFINE_R_TYPE
-template <class R, class A0, class A1> struct return_type<R(*)(A0, A1)> DEFINE_R_TYPE
-template <class R, class A0, class A1, class A2> struct return_type<R(*)(A0, A1, A2)> DEFINE_R_TYPE
-template <class R, class A0, class A1, class A2, class A3> struct return_type<R(*)(A0, A1, A2, A3)> DEFINE_R_TYPE
-template <class R, class A0, class A1, class A2, class A3, class A4> struct return_type<R(*)(A0, A1, A2, A3, A4)> DEFINE_R_TYPE
-template <class R, class A0, class A1, class A2, class A3, class A4, class A5> struct return_type<R(*)(A0, A1, A2, A3, A4, A5)> DEFINE_R_TYPE
+
+#define RETURN_TYPE_VTE(TYPENAME_LIST, ARG_LIST, REF_ARG_LIST, FWD_ARG_LIST) \
+template<typename R, TYPENAME_LIST> \
+struct return_type<R(*)(ARG_LIST)> DEFINE_R_TYPE
+
+#include "common/variadic_emulation_helpers_begin.hpp"
+VTE_GENERATE(RETURN_TYPE_VTE)
+#include "common/variadic_emulation_helpers_end.hpp"
+
+#undef RETURN_TYPE_VTE
+
 #else
 template <class R, class... A> struct return_type<R(*)(A...)> DEFINE_R_TYPE
 #endif

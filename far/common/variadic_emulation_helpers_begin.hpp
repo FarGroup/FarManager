@@ -1,5 +1,3 @@
-#pragma once
-
 /*
 Copyright © 2014 Far Group
 All rights reserved.
@@ -27,49 +25,37 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<class T, class Y>
-void emplace_back(T&& container, Y&& value)
-{
-	container.emplace_back(std::forward<Y>(value));
-}
+#define VTE_TYPE(name)         name##_type
+#define VTE_TYPENAME(name)     typename VTE_TYPE(name)
+#define VTE_ARG(name)          VTE_TYPE(name) name
+#define VTE_REF_ARG(name)      VTE_TYPE(name)&& name
+#define VTE_FWD_ARG(name)      std::forward<VTE_TYPE(name)>(name)
 
-#if defined _MSC_VER && _MSC_VER < 1800
+#define VTE_GENERATE_N(TEMPLATE, n)\
+	TEMPLATE(VTE_LIST##n(VTE_TYPENAME),\
+	         VTE_LIST##n(VTE_ARG),\
+	         VTE_LIST##n(VTE_REF_ARG),\
+	         VTE_LIST##n(VTE_FWD_ARG))
 
-template<class T1>
-std::vector<typename std::decay<T1>::type> make_vector(T1&& a1)
-{
-	std::vector<typename std::decay<T1>::type> v;
-	emplace_back(v, std::forward<T1>(a1));
-	return v;
-}
+#define VTE_LIST1(MODE)                    MODE(a1)
+#define VTE_LIST2(MODE)  VTE_LIST1(MODE),  MODE(a2)
+#define VTE_LIST3(MODE)  VTE_LIST2(MODE),  MODE(a3)
+#define VTE_LIST4(MODE)  VTE_LIST3(MODE),  MODE(a4)
+#define VTE_LIST5(MODE)  VTE_LIST4(MODE),  MODE(a5)
+#define VTE_LIST6(MODE)  VTE_LIST5(MODE),  MODE(a6)
+#define VTE_LIST7(MODE)  VTE_LIST6(MODE),  MODE(a7)
+#define VTE_LIST8(MODE)  VTE_LIST7(MODE),  MODE(a8)
+#define VTE_LIST9(MODE)  VTE_LIST8(MODE),  MODE(a9)
 
-#define MAKE_VECTOR_VTE(TYPENAME_LIST, ARG_LIST, REF_ARG_LIST, FWD_ARG_LIST) \
-template<TYPENAME_LIST, VTE_TYPENAME(last)> \
-std::vector<typename std::decay<VTE_TYPE(a1)>::type> make_vector(REF_ARG_LIST, VTE_REF_ARG(last)) \
-{ \
-	auto v = make_vector(FWD_ARG_LIST); \
-	emplace_back(v, VTE_FWD_ARG(last)); \
-	return v; \
-}
+// extend here [^] and here [v] if necessary
 
-#include "variadic_emulation_helpers_begin.hpp"
-VTE_GENERATE(MAKE_VECTOR_VTE)
-#include "variadic_emulation_helpers_end.hpp"
-
-#undef MAKE_VECTOR_VTE
-
-#else
-template<class T, class Y, class... Args>
-void emplace_back(T&& container, Y&& value, Args&&... args)
-{
-	container.emplace_back(std::forward<Y>(value));
-	emplace_back(std::forward<T>(container), std::forward<Args>(args)...);
-}
-
-template<class T, class... Args> std::vector<typename std::decay<T>::type> make_vector(T&& value, Args&&... args)
-{
-	std::vector<typename std::decay<T>::type> v;
-	emplace_back(v, std::forward<T>(value), std::forward<Args>(args)...);
-	return v;
-}
-#endif
+#define VTE_GENERATE(TEMPLATE)\
+	VTE_GENERATE_N(TEMPLATE, 9)\
+	VTE_GENERATE_N(TEMPLATE, 8)\
+	VTE_GENERATE_N(TEMPLATE, 7)\
+	VTE_GENERATE_N(TEMPLATE, 6)\
+	VTE_GENERATE_N(TEMPLATE, 5)\
+	VTE_GENERATE_N(TEMPLATE, 4)\
+	VTE_GENERATE_N(TEMPLATE, 3)\
+	VTE_GENERATE_N(TEMPLATE, 2)\
+	VTE_GENERATE_N(TEMPLATE, 1)

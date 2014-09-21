@@ -1,5 +1,3 @@
-#pragma once
-
 /*
 Copyright © 2014 Far Group
 All rights reserved.
@@ -27,49 +25,23 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<class T, class Y>
-void emplace_back(T&& container, Y&& value)
-{
-	container.emplace_back(std::forward<Y>(value));
-}
+#undef VTE_GENERATE
 
-#if defined _MSC_VER && _MSC_VER < 1800
+// extend here [v] if necessary
+#undef VTE_LIST9
+#undef VTE_LIST8
+#undef VTE_LIST7
+#undef VTE_LIST6
+#undef VTE_LIST5
+#undef VTE_LIST4
+#undef VTE_LIST3
+#undef VTE_LIST2
+#undef VTE_LIST1
 
-template<class T1>
-std::vector<typename std::decay<T1>::type> make_vector(T1&& a1)
-{
-	std::vector<typename std::decay<T1>::type> v;
-	emplace_back(v, std::forward<T1>(a1));
-	return v;
-}
+#undef VTE_GENERATE_N
 
-#define MAKE_VECTOR_VTE(TYPENAME_LIST, ARG_LIST, REF_ARG_LIST, FWD_ARG_LIST) \
-template<TYPENAME_LIST, VTE_TYPENAME(last)> \
-std::vector<typename std::decay<VTE_TYPE(a1)>::type> make_vector(REF_ARG_LIST, VTE_REF_ARG(last)) \
-{ \
-	auto v = make_vector(FWD_ARG_LIST); \
-	emplace_back(v, VTE_FWD_ARG(last)); \
-	return v; \
-}
-
-#include "variadic_emulation_helpers_begin.hpp"
-VTE_GENERATE(MAKE_VECTOR_VTE)
-#include "variadic_emulation_helpers_end.hpp"
-
-#undef MAKE_VECTOR_VTE
-
-#else
-template<class T, class Y, class... Args>
-void emplace_back(T&& container, Y&& value, Args&&... args)
-{
-	container.emplace_back(std::forward<Y>(value));
-	emplace_back(std::forward<T>(container), std::forward<Args>(args)...);
-}
-
-template<class T, class... Args> std::vector<typename std::decay<T>::type> make_vector(T&& value, Args&&... args)
-{
-	std::vector<typename std::decay<T>::type> v;
-	emplace_back(v, std::forward<T>(value), std::forward<Args>(args)...);
-	return v;
-}
-#endif
+#undef VTE_FWD_ARG
+#undef VTE_REF_ARG
+#undef VTE_ARG
+#undef VTE_TYPENAME
+#undef VTE_TYPE

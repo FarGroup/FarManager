@@ -514,6 +514,8 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\range_for.hpp" />
     <ClInclude Include="common\scope_exit.hpp" />
     <ClInclude Include="common\smart_ptr.hpp" />
+    <ClInclude Include="common\variadic_emulation_helpers_begin.hpp" />
+    <ClInclude Include="common\variadic_emulation_helpers_end.hpp" />
     <ClInclude Include="configdb.hpp" />
     <ClInclude Include="elevation.hpp" />
     <ClInclude Include="bitflags.hpp" />

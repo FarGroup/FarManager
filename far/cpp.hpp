@@ -123,45 +123,18 @@ namespace std
 		return unique_ptr<T>(new T());
 	}
 
-	#define TYPE(name) name##_type
-	#define TYPENAME(name) typename TYPE(name)
-	#define ARG(name) TYPE(name)&& name
-	#define FARG(name) std::forward<TYPE(name)>(name)
-
-	#define MAKE_UNIQUE_BODY(TYPENAME_LIST, ARG_LIST, FARG_LIST) \
+	#define MAKE_UNIQUE_VTE(TYPENAME_LIST, ARG_LIST, REF_ARG_LIST, FWD_ARG_LIST) \
 	template<typename T, TYPENAME_LIST> \
-	inline typename enable_if<!is_array<T>::value, unique_ptr<T>>::type make_unique(ARG_LIST) \
+	inline typename enable_if<!is_array<T>::value, unique_ptr<T>>::type make_unique(REF_ARG_LIST) \
 	{ \
-		return unique_ptr<T>(new T(FARG_LIST)); \
+		return unique_ptr<T>(new T(FWD_ARG_LIST)); \
 	}
 
-	#define MAKE_UNIQUE(LISTN, ...) MAKE_UNIQUE_BODY(LISTN(TYPENAME, __VA_ARGS__), LISTN(ARG, __VA_ARGS__), LISTN(FARG, __VA_ARGS__))
+	#include "common/variadic_emulation_helpers_begin.hpp"
+	VTE_GENERATE(MAKE_UNIQUE_VTE)
+	#include "common/variadic_emulation_helpers_end.hpp"
 
-	#define LIST1(MODE, n1) MODE(n1)
-	#define LIST2(MODE, n1, n2) LIST1(MODE, n1), MODE(n2)
-	#define LIST3(MODE, n1, n2, n3) LIST2(MODE, n1, n2), MODE(n3)
-	#define LIST4(MODE, n1, n2, n3, n4) LIST3(MODE, n1, n2, n3), MODE(n4)
-	#define LIST5(MODE, n1, n2, n3, n4, n5) LIST4(MODE, n1, n2, n3, n4), MODE(n5)
-	#define LIST6(MODE, n1, n2, n3, n4, n5, n6) LIST5(MODE, n1, n2, n3, n4, n5), MODE(n6)
-
-	MAKE_UNIQUE(LIST1, a1)
-	MAKE_UNIQUE(LIST2, a1, a2)
-	MAKE_UNIQUE(LIST3, a1, a2, a3)
-	MAKE_UNIQUE(LIST4, a1, a2, a3, a4)
-	MAKE_UNIQUE(LIST5, a1, a2, a3, a4, a5)
-	MAKE_UNIQUE(LIST6, a1, a2, a3, a4, a5, a6)
-
-	#undef LIST6
-	#undef LIST5
-	#undef LIST4
-	#undef LIST3
-	#undef LIST2
-	#undef LIST1
-	#undef MAKE_UNIQUE
-	#undef MAKE_UNIQUE_BODY
-	#undef FARG
-	#undef ARG
-	#undef TYPE
+	#undef MAKE_UNIQUE_VTE
 };
 #endif
 

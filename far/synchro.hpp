@@ -114,27 +114,24 @@ public:
 	Thread(Thread&& rhs): m_Mode(), m_ThreadId() { *this = std::move(rhs); }
 
 #if defined _MSC_VER && _MSC_VER < 1800
-	template<typename T>
-	Thread(mode Mode, T&& Function): m_Mode(Mode) { Starter(std::bind(Function)); }
 
-	template<typename T, typename A1>
-	Thread(mode Mode, T&& Function, A1&& Arg1): m_Mode(Mode) { Starter(std::bind(Function, Arg1)); }
+	template<typename T> \
+	Thread(mode Mode, T&& Function): m_Mode(Mode) { Starter(std::bind(std::forward<T>(Function))); }
 
-	template<typename T, typename A1, typename A2>
-	Thread(mode Mode, T&& Function, A1&& Arg1, A2&& Arg2): m_Mode(Mode) { Starter(std::bind(Function, Arg1, Arg2)); }
+	#define THREAD_VTE(TYPENAME_LIST, ARG_LIST, REF_ARG_LIST, FWD_ARG_LIST) \
+	template<typename T, TYPENAME_LIST> \
+	Thread(mode Mode, T&& Function, REF_ARG_LIST): m_Mode(Mode) { Starter(std::bind(std::forward<T>(Function), FWD_ARG_LIST)); }
 
-	template<typename T, typename A1, typename A2, typename A3>
-	Thread(mode Mode, T&& Function, A1&& Arg1, A2&& Arg2, A3&& Arg3): m_Mode(Mode) { Starter(std::bind(Function, Arg1, Arg2, Arg3)); }
+	#include "common/variadic_emulation_helpers_begin.hpp"
+	VTE_GENERATE(THREAD_VTE)
+	#include "common/variadic_emulation_helpers_end.hpp"
 
-	template<typename T, typename A1, typename A2, typename A3, typename A4>
-	Thread(mode Mode, T&& Function, A1&& Arg1, A2&& Arg2, A3&& Arg3, A4&& Arg4): m_Mode(Mode) { Starter(std::bind(Function, Arg1, Arg2, Arg3, Arg4)); }
-
-	// and so on...
+	#undef THREAD_VTE
 #else
-	template<class T, class... A>
-	Thread(mode Mode, T&& Function, A&&... Args): m_Mode(Mode)
+	template<class T, class... Args>
+	Thread(mode Mode, T&& Function, Args&&... args): m_Mode(Mode)
 	{
-		Starter(std::bind(Function, Args...));
+		Starter(std::bind(std::forward<T>(Function), std::forward<Args>(args)...));
 	}
 #endif
 

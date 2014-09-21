@@ -1004,5 +1004,11 @@
     <ClInclude Include="common\smart_ptr.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
+    <ClInclude Include="common\variadic_emulation_helpers_begin.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\variadic_emulation_helpers_end.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
