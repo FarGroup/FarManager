@@ -568,14 +568,14 @@ lv=3
 dt=Text
 nm=msave
 ctime=3551993205
-mtime=3620403010
+mtime=3620460304
 <article>
 #_mf.msave (key, name, value)
 #_
 #_**Parameters:**
 #_  key:    string
 #_  name:   string
-#_  value:  number, string, boolean or table
+#_  value:  nil, boolean, number, string, table, int64
 #_
 #_**Returns:**
 #_  nothing
@@ -589,7 +589,10 @@ mtime=3620403010
 #_
 #_  Nested tables and recursive references are correctly processed.
 #_
-#_  The link between a table and its metatable is not preserved.
+#_  The link between a table and its metatable is preserved.
+#_
+#_**Note:**
+#_  int64 - a distinguished type of userdata, created by the bit64 library.
 #_
 </article>
 </node>

@@ -1,3 +1,4 @@
+-- encoding: utf-8
 -- Started: 2012-08-20.
 
 local luamacroId="4ebbefc8-2084-4b7f-94c0-692ce136894d" -- LuaMacro plugin GUID
@@ -282,24 +283,42 @@ local function test_min()
 end
 
 local function test_msave()
-  mf.msave("macrotest", "testkey", "foo")
-  assert(mf.mload("macrotest", "testkey")=="foo")
-  mf.mdelete("macrotest", "*")
-  assert(mf.mload("macrotest", "testkey")==nil)
+  local Key = "macrotest"
 
-  mf.msave("macrotest", "testkey", { a=5, {b=6}, c={d=7} })
-  local t=mf.mload("macrotest", "testkey")
-  assert(t.a==5 and t[1].b==6 and t.c.d==7)
-  mf.mdelete("macrotest", "*")
-  assert(mf.mload("macrotest", "testkey")==nil)
+  -- test supported types, except tables
+  local v1, v2, v3, v4, v5, v6 = nil, false, true, -5.67, "foo", bit64.new("-123")
+  mf.msave(Key, "name1", v1)
+  mf.msave(Key, "name2", v2)
+  mf.msave(Key, "name3", v3)
+  mf.msave(Key, "name4", v4)
+  mf.msave(Key, "name5", v5)
+  mf.msave(Key, "name6", v6)
+  assert(mf.mload(Key, "name1") == v1)
+  assert(mf.mload(Key, "name2") == v2)
+  assert(mf.mload(Key, "name3") == v3)
+  assert(mf.mload(Key, "name4") == v4)
+  assert(mf.mload(Key, "name5") == v5)
+  assert(mf.mload(Key, "name6") == v6)
+  mf.mdelete(Key, "*")
+  assert(mf.mload(Key, "name3")==nil)
 
+  -- test tables
+  mf.msave(Key, "name1", { a=5, {b="foo"}, c={d=false} })
+  local t=mf.mload(Key, "name1")
+  assert(t.a==5 and t[1].b=="foo" and t.c.d==false)
+  mf.mdelete(Key, "name1")
+  assert(mf.mload(Key, "name1")==nil)
+
+  -- test tables more
   local t1, t2, t3 = {5}, {6}, {}
   t1[2], t1[3], t1[4], t1[5] = t1, t2, t3, t3
   t2[2], t2[3] = t1, t2
   t1[t1], t1[t2] = 66, 77
   t2[t1], t2[t2] = 88, 99
-  mf.msave("macrotest", "testkey", t1)
-  local T1 = mf.mload("macrotest", "testkey")
+  setmetatable(t3, { __index=t1 })
+  mf.msave(Key, "name1", t1)
+
+  local T1 = mf.mload(Key, "name1")
   assert(type(T1)=="table")
   local T2 = T1[3]
   assert(type(T2)=="table")
@@ -309,8 +328,9 @@ local function test_msave()
   assert(T2[1]==6 and T2[2]==T1 and T2[3]==T2)
   assert(T1[T1]==66 and T1[T2]==77)
   assert(T2[T1]==88 and T2[T2]==99)
-  mf.mdelete("macrotest", "*")
-  assert(mf.mload("macrotest", "testkey")==nil)
+  assert(getmetatable(T3).__index==T1 and T3[1]==5 and rawget(T3,1)==nil)
+  mf.mdelete(Key, "*")
+  assert(mf.mload(Key, "name1")==nil)
 end
 
 local function test_mod()
@@ -419,7 +439,7 @@ end
 
 local function test_xlat()
   assert(type(mf.xlat("abc"))=="string")
-  -- закомментировано, т.к. эти тесты будут работать не на любой конфигурации.
+  -- commented out, as these tests won't work with any Windows configuration:
   --assert(mf.xlat("ghzybr")=="пряник")
   --assert(mf.xlat("сщьзгеук")=="computer")
 end

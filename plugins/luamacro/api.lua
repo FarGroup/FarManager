@@ -437,7 +437,7 @@ end
 
 local function basicSerialize (o)
   local tp = type(o)
-  if tp == "boolean" then
+  if tp == "nil" or tp == "boolean" then
     return tostring(o)
   elseif tp == "number" then
     if o == math.modf(o) then return tostring(o) end
@@ -461,11 +461,11 @@ local function AddToIndex (idx, t)
     for k,v in pairs(t) do
       if type(k)=="table" then
         AddToIndex(idx, k)
-        -- if type(getmetatable(k))=="table" then AddToIndex(idx,getmetatable(k)) end
+        if debug.getmetatable(k) then AddToIndex(idx,debug.getmetatable(k)) end
       end
       if type(v)=="table" then
         AddToIndex(idx, v)
-        -- if type(getmetatable(v))=="table" then AddToIndex(idx,getmetatable(v)) end
+        if debug.getmetatable(v) then AddToIndex(idx,debug.getmetatable(v)) end
       end
     end
   end
@@ -490,6 +490,12 @@ local function tableSerialize (tbl)
         end
       end
       if found then lines[#lines+1]="end" else lines[#lines]=nil end
+    end
+    for i,t in ipairs(idx) do
+      local mt = debug.getmetatable(t)
+      if mt then
+        lines[#lines+1] = "setmetatable(idx["..i.."], idx["..idx[mt].."])"
+      end
     end
     lines[#lines+1] = "return idx[1]\n"
     return table.concat(lines, "\n")
