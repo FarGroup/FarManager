@@ -1131,5 +1131,5 @@ Viewer* InfoList::GetViewer(void)
 
 Viewer* InfoList::GetById(int ID)
 {
-	return ID==DizView()->GetId()?GetViewer():nullptr;
+	return DizView()&&ID==DizView()->GetId()?GetViewer():nullptr;
 }

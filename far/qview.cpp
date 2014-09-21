@@ -657,5 +657,5 @@ void QuickView::DynamicUpdateKeyBar() const
 
 Viewer* QuickView::GetById(int ID)
 {
-	return ID==QView()->GetId()?GetViewer():nullptr;
+	return QView()&&ID==QView()->GetId()?GetViewer():nullptr;
 }
