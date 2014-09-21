@@ -3,6 +3,61 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 21.09.2014 15:58:34 +0200 - build 4117
+
+1. Optimization of make_vector.
+
+zg 21.09.2014 13:35:14 +0200 - build 4116
+
+1. correction of 4109.2: crash on viewer open if there was info panel opened in panels on a folder
+   with no description, or a quick view for a folder.
+
+drkns 21.09.2014 11:46:25 +0200 - build 4115
+
+1. Macros for emulation of variadic templates are placed separately, improved and used instead of manual copy-pasting everywhere it is needed.
+
+drkns 20.09.2014 21:26:14 +0200 - build 4114
+
+1. Continuation of 4112.
+
+drkns 20.09.2014 17:53:05 +0200 - build 4113
+
+1. VC10 fix.
+
+drkns 20.09.2014 17:14:32 +0200 - build 4112
+
+1. Correction of 4111.
+
+2. Incorrect error position on regexp compilation.
+
+3. Show text and position of regexp compilation error.
+
+drkns 20.09.2014 17:00:20 +0200 - build 4111
+
+1. Named groups in regular expressions. Library level yet.
+
+drkns 19.09.2014 23:47:55 +0200 - build 4110
+
+1. Split common.hpp to components.
+
+2. Build failure in gcc 4.8.1.
+
+zg 19.09.2014 02:15:54 +0200 - build 4109
+
+1. VE_CLOSE is sent to quick view and info panel before the viewer is deleted.
+
+2. viewer and editor are not deleted during processing of all events.
+
+3. events from inactive editors and viewers could be lost before been received by plugins.
+
+drkns 19.09.2014 01:29:27 +0200 - build 4108
+
+1. Somewhere between 4008 and 4012 the regular expressions were slightly broken.
+
+drkns 16.09.2014 23:49:54 +0200 - build 4107
+
+1. Refactoring.
+
 drkns 14.09.2014 18:38:33 +0200 - build 4106
 
 1. Asynchronous DB service thread handles were not closed in time and could accumulate endlessly.
