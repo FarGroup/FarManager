@@ -52,10 +52,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "ctrlobj.hpp"
 
-EditControl::EditControl(SimpleScreenObject *pOwner, Callback* aCallback, bool bAllocateData, History* iHistory, FarList* iList, DWORD iFlags):
+EditControl::EditControl(SimpleScreenObject *pOwner, parent_processkey_t&& ParentProcessKey, Callback* aCallback, bool bAllocateData, History* iHistory, FarList* iList, DWORD iFlags):
 	Edit(pOwner,bAllocateData),
 	pHistory(iHistory),
 	pList(iList),
+	m_ParentProcessKey(ParentProcessKey? std::move(ParentProcessKey) : [this](const Manager::Key& Key) {return this->pOwner->ProcessKey(Key); }),
 	MaxLength(-1),
 	CursorSize(-1),
 	CursorPos(0),
@@ -583,7 +584,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 									{
 										MenuKey = KEY_CTRLD;
 									}
-									pOwner->ProcessKey(Manager::Key(MenuKey));
+									m_ParentProcessKey(Manager::Key(MenuKey));
 									Show();
 									return 1;
 								}
@@ -681,7 +682,7 @@ void EditControl::AutoComplete(bool Manual,bool DelBlock)
 		Global->WaitInMainLoop=1;
 		struct FAR_INPUT_RECORD irec={(DWORD)Key, Global->WindowManager->GetLastInputRecord()};
 		if(!Global->CtrlObject->Macro.ProcessEvent(&irec))
-			pOwner->ProcessKey(Manager::Key(Key));
+			m_ParentProcessKey(Manager::Key(Key));
 		Global->WaitInMainLoop=Wait;
 		int CurWindowType = Global->WindowManager->GetCurrentWindow()->GetType();
 		if (CurWindowType == windowtype_dialog || CurWindowType == windowtype_panels)

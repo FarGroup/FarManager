@@ -93,7 +93,7 @@ DlgEdit::DlgEdit(Dialog* pOwner,size_t Index,DLGEDITTYPE Type):
 					iFlags|=EditControl::EC_COMPLETE_PATH;
 				}
 			}
-			lineEdit = std::make_unique<EditControl>(pOwner,&callback,true,iHistory.get(),iList,iFlags);
+			lineEdit = std::make_unique<EditControl>(pOwner, nullptr, &callback, true, iHistory.get(), iList, iFlags);
 		}
 		break;
 	}

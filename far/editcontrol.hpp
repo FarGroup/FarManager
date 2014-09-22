@@ -42,8 +42,9 @@ class VMenu2;
 class EditControl:public Edit
 {
 	struct Callback;
+	typedef std::function<int(const Manager::Key& Key)> parent_processkey_t;
 public:
-	EditControl(SimpleScreenObject *pOwner, Callback* aCallback=nullptr,bool bAllocateData=true,History* iHistory=0,FarList* iList=0,DWORD iFlags=0);
+	EditControl(SimpleScreenObject *pOwner, parent_processkey_t&& ParentProcessKey = nullptr, Callback* aCallback = nullptr, bool bAllocateData = true, History* iHistory = 0, FarList* iList = 0, DWORD iFlags = 0);
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual void Show() override;
 	virtual void Changed(bool DelBlock=false) override;
@@ -118,6 +119,7 @@ private:
 	FarColor m_Color;
 	FarColor m_SelectedColor;
 	FarColor m_UnchangedColor;
+	parent_processkey_t m_ParentProcessKey;
 
 	int MaxLength;
 	int CursorSize;
