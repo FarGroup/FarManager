@@ -303,9 +303,12 @@ bool filemasks::masks::Set(const string& masks, DWORD Flags)
 	{
 		re = std::make_unique<RegExp>();
 
-		if (!re->Compile(expmasks.data(), OP_PERLSTYLE | OP_OPTIMIZE) && !(Flags & FMF_SILENT))
+		if (!re->Compile(expmasks.data(), OP_PERLSTYLE | OP_OPTIMIZE))
 		{
-			ReCompileErrorMessage(*re, expmasks);
+			if (!(Flags & FMF_SILENT))
+			{
+				ReCompileErrorMessage(*re, expmasks);
+			}
 			return false;
 		}
 		m.resize(re->GetBracketsCount());
