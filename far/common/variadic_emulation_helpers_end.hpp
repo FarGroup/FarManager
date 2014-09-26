@@ -28,6 +28,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #undef VTE_GENERATE
 
 // extend here [v] if necessary
+#undef VTE_LIST15
+#undef VTE_LIST14
+#undef VTE_LIST13
+#undef VTE_LIST12
+#undef VTE_LIST11
+#undef VTE_LIST10
 #undef VTE_LIST9
 #undef VTE_LIST8
 #undef VTE_LIST7

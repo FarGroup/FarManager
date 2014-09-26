@@ -486,7 +486,7 @@ IFileIsInUse* CreateIFileIsInUse(const string& File)
 
 int OperationFailed(const string& Object, LNGID Title, const string& Description, bool AllowSkip)
 {
-	std::list<string> Msg;
+	std::vector<string> Msg;
 	IFileIsInUse *pfiu = nullptr;
 	LNGID Reason = MObjectLockedReasonOpened;
 	bool SwitchBtn = false, CloseBtn = false;
@@ -583,42 +583,32 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 			}
 		}
 	}
-	int ButtonCount = (AllowSkip? 4 : 2) + (SwitchBtn? 1 : 0);
-	size_t LineCount = 1 + 1 + (Msg.empty()? 0 : Msg.size() + 1) + ButtonCount;
-	std::vector<string> Msgs;
-	Msgs.resize(LineCount);
-	Msgs[0] = Description;
-	string qObj(Object);
-	QuoteLeadingSpace(qObj);
-	Msgs[1] = qObj;
-	LangString strReason(MObjectLockedReason);
-	strReason << MSG(Reason);
+
+	auto Msgs = make_vector(Description, QuoteLeadingSpace(string(Object)));
 	if(!Msg.empty())
 	{
-		auto s = Msg.begin();
-		Msgs[2] = strReason;
-		for (size_t i = 3; i < LineCount - ButtonCount; ++i)
-		{
-			Msgs[i] = *s;
-			++s;
-		}
+		Msgs.emplace_back(LangString(MObjectLockedReason) << MSG(Reason));
+		Msgs.insert(Msgs.end(), ALL_CONST_RANGE(Msg));
 	}
+
+	std::vector<string> Buttons;
+	Buttons.reserve(4);
 	if(SwitchBtn)
 	{
-		Msgs[LineCount - ButtonCount] = MSG(MObjectLockedSwitchTo);
+		Buttons.emplace_back(MSG(MObjectLockedSwitchTo));
 	}
-	Msgs[LineCount - (AllowSkip? 4 : 2)] = CloseBtn? MSG(MObjectLockedClose) : MSG(MDeleteRetry);
+	Buttons.emplace_back(MSG(CloseBtn? MObjectLockedClose : MDeleteRetry));
 	if(AllowSkip)
 	{
-		Msgs[LineCount-3] = MSG(MDeleteSkip);
-		Msgs[LineCount-2] = MSG(MDeleteFileSkipAll);
+		Buttons.emplace_back(MSG(MDeleteSkip));
+		Buttons.emplace_back(MSG(MDeleteFileSkipAll));
 	}
-	Msgs[LineCount-1] = MSG(MDeleteCancel);
+	Buttons.emplace_back(MSG(MDeleteCancel));
 
 	int Result = -1;
 	for(;;)
 	{
-		Result = Message(MSG_WARNING|MSG_ERRORTYPE, ButtonCount, MSG(Title), Msgs);
+		Result = Message(MSG_WARNING|MSG_ERRORTYPE, MSG(Title), Msgs, Buttons);
 
 		if(SwitchBtn)
 		{
@@ -698,25 +688,18 @@ static string GetReErrorString(int code)
 
 void ReCompileErrorMessage(const RegExp& re, const string& str)
 {
-	std::vector<string> Strings = make_vector(
-		GetReErrorString(re.LastError()),
-		str,
-		string(re.ErrorPosition(), L' ') + L'^',
-		string(MSG(MOk))
-		);
-
-	Message(MSG_WARNING | MSG_LEFTALIGN, 1, MSG(MError), Strings);
+	Message(MSG_WARNING | MSG_LEFTALIGN, MSG(MError),
+		make_vector(GetReErrorString(re.LastError()), str, string(re.ErrorPosition(), L' ') + L'^'),
+		make_vector<string>(MSG(MOk)));
 }
 
 void ReMatchErrorMessage(const RegExp& re)
 {
 	if (re.LastError() != errNone)
 	{
-		std::vector<string> Strings = make_vector(
-			GetReErrorString(re.LastError()),
-			string(MSG(MOk))
-			);
 
-		Message(MSG_WARNING | MSG_LEFTALIGN, 1, MSG(MError), Strings);
+		Message(MSG_WARNING | MSG_LEFTALIGN, MSG(MError),
+			make_vector(GetReErrorString(re.LastError())),
+			make_vector<string>(MSG(MOk)));
 	}
 }

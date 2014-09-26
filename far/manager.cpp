@@ -588,9 +588,10 @@ void Manager::ExitMainLoop(int Ask)
 		Global->CloseFARMenu=TRUE;
 	};
 
-	const wchar_t* const Items[] = {MSG(MAskQuit),MSG(MYes),MSG(MNo)};
-
-	if (!Ask || !Global->Opt->Confirm.Exit || !Message(0,2,MSG(MQuit),Items, ARRAYSIZE(Items), nullptr, nullptr, &FarAskQuitId))
+	if (!Ask || !Global->Opt->Confirm.Exit || !Message(0, MSG(MQuit),
+		make_vector<string>(MSG(MAskQuit)),
+		make_vector<string>(MSG(MYes), MSG(MNo)),
+		nullptr, nullptr, &FarAskQuitId))
 	{
 		/* $ 29.12.2000 IS
 		   + Проверяем, сохранены ли все измененные файлы. Если нет, то не выходим

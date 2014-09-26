@@ -410,10 +410,7 @@ static int RemoveHotplugDevice(const DeviceInfo& Info, DWORD Flags)
 		if (!DisksStr.empty())
 			MessageItems.emplace_back(LangString(MHotPlugDisks) << DisksStr);
 
-		MessageItems.emplace_back(MSG(MHRemove));
-		MessageItems.emplace_back(MSG(MHCancel));
-
-		MessageResult = Message(MSG_WARNING, 2, MSG(MChangeHotPlugDisconnectDriveTitle), MessageItems);
+		MessageResult = Message(MSG_WARNING, MSG(MChangeHotPlugDisconnectDriveTitle), MessageItems, make_vector<string>(MSG(MHRemove), MSG(MHCancel)));
 	}
 
 	int bResult = -1;

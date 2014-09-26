@@ -488,13 +488,17 @@ void FileEditor::Init(
 				{
 					if (m_Flags.Check(FFILEEDIT_ENABLEF6))
 					{
-						const wchar_t* const Items[] = {strFullFileName.data(), MSG(MAskReload), MSG(MCurrent), MSG(MNewOpen), MSG(MReload)};
-						MsgCode=Message(0, 3, MSG(MEditTitle),Items, ARRAYSIZE(Items), L"EditorReload", nullptr, &EditorReloadId);
+						MsgCode=Message(0, MSG(MEditTitle),
+							make_vector(strFullFileName, MSG(MAskReload)),
+							make_vector<string>(MSG(MCurrent), MSG(MNewOpen), MSG(MReload)),
+							L"EditorReload", nullptr, &EditorReloadId);
 					}
 					else
 					{
-						const wchar_t* const Items[] = {strFullFileName.data(), MSG(MAskReload), MSG(MNewOpen), MSG(MCancel)};
-						MsgCode=Message(0, 2, MSG(MEditTitle),Items, ARRAYSIZE(Items), L"EditorReload", nullptr, &EditorReloadModalId);
+						MsgCode=Message(0, MSG(MEditTitle),
+							make_vector(strFullFileName),
+							make_vector<string>(MSG(MAskReload), MSG(MNewOpen), MSG(MCancel)),
+							L"EditorReload", nullptr, &EditorReloadModalId);
 						if (MsgCode == 0)
 							MsgCode=1;
 						else
@@ -581,8 +585,10 @@ void FileEditor::Init(
 	*/
 	if (FAttr!=INVALID_FILE_ATTRIBUTES && FAttr&FILE_ATTRIBUTE_DIRECTORY)
 	{
-		const wchar_t* const Items[] = {MSG(MEditCanNotEditDirectory),MSG(MOk)};
-		Message(MSG_WARNING,1,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditorCanNotEditDirectoryId);
+		Message(MSG_WARNING, MSG(MEditTitle),
+			make_vector<string>(MSG(MEditCanNotEditDirectory)),
+			make_vector<string>(MSG(MOk)),
+			nullptr, nullptr, &EditorCanNotEditDirectoryId);
 		SetExitCode(XC_OPEN_ERROR);
 		return;
 	}
@@ -600,8 +606,10 @@ void FileEditor::Init(
 	        )
 	   )
 	{
-		const wchar_t* const Items[] = {Name.data(),MSG(MEditRSH),MSG(MEditROOpen),MSG(MYes),MSG(MNo)};
-		if (Message(MSG_WARNING,2,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditorOpenRSHId))
+		if (Message(MSG_WARNING, MSG(MEditTitle),
+			make_vector(Name, MSG(MEditRSH), MSG(MEditROOpen)),
+			make_vector<string>(MSG(MYes), MSG(MNo)),
+			nullptr, nullptr, &EditorOpenRSHId))
 		{
 			SetExitCode(XC_OPEN_ERROR);
 			return;
@@ -878,8 +886,10 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 				if (m_editor->IsFileChanged() && // в текущем сеансе были изменения?
 				        api::GetFileAttributes(strFullFileName) == INVALID_FILE_ATTRIBUTES) // а файл еще существует?
 				{
-					const wchar_t* const Items[] = {MSG(MEditSavedChangedNonFile),MSG(MEditSavedChangedNonFile2),MSG(MHYes),MSG(MHNo)};
-					switch (Message(MSG_WARNING,2,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditorSaveF6DeletedId))
+					switch (Message(MSG_WARNING, MSG(MEditTitle),
+						make_vector<string>(MSG(MEditSavedChangedNonFile), MSG(MEditSavedChangedNonFile2)),
+						make_vector<string>(MSG(MHYes), MSG(MHNo)),
+						nullptr, nullptr, &EditorSaveF6DeletedId))
 					{
 						case 0:
 
@@ -1255,8 +1265,11 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 						if (MsgLine1 != MNewFileName)
 						{
-							const wchar_t* const Items[] = {MSG(MsgLine1),MSG(MEditSavedChangedNonFile2),MSG(MHYes),MSG(MHNo),MSG(MHCancel)};
-							Res=Message(MSG_WARNING,3,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditorSaveExitDeletedId);
+							Res = Message(MSG_WARNING,
+								MSG(MEditTitle),
+								make_vector<string>(MSG(MsgLine1), MSG(MEditSavedChangedNonFile2)),
+								make_vector<string>(MSG(MHYes), MSG(MHNo), MSG(MHCancel)), 
+								nullptr, nullptr, &EditorSaveExitDeletedId);
 						}
 
 						switch (Res)
@@ -1499,12 +1512,15 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 				FileSizeToStr(strTempStr1, FileSize, 8);
 				FileSizeToStr(strTempStr2, Global->Opt->EdOpt.FileSizeLimit, 8);
 
-				const wchar_t* const Items[] = {Name.data(),
-					(LangString(MEditFileLong) << RemoveExternalSpaces(strTempStr1)).data(),
-					(LangString(MEditFileLong2) << RemoveExternalSpaces(strTempStr2)).data(),
-					MSG(MEditROOpen), MSG(MYes),MSG(MNo)};
 
-				if (Message(MSG_WARNING,2,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditorFileLongId))
+				if (Message(MSG_WARNING, MSG(MEditTitle),
+					make_vector(
+						Name,
+						LangString(MEditFileLong) << RemoveExternalSpaces(strTempStr1),
+						LangString(MEditFileLong2) << RemoveExternalSpaces(strTempStr2),
+						MSG(MEditROOpen)),
+					make_vector<string>(MSG(MYes), MSG(MNo)),
+					nullptr, nullptr, &EditorFileLongId))
 				{
 					EditFile.Close();
 					SetLastError(ERROR_OPEN_FAILED); //????
@@ -1516,8 +1532,10 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		}
 		else
 		{
-			const wchar_t* const Items[] = {Name.data(),MSG(MEditFileGetSizeError),MSG(MEditROOpen),MSG(MYes),MSG(MNo)};
-			if (Message(MSG_WARNING,2,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditorFileGetSizeErrorId))
+			if (Message(MSG_WARNING, MSG(MEditTitle),
+				make_vector(Name, MSG(MEditFileGetSizeError), MSG(MEditROOpen)),
+				make_vector<string>(MSG(MYes), MSG(MNo)),
+				nullptr, nullptr, &EditorFileGetSizeErrorId))
 			{
 				EditFile.Close();
 				SetLastError(SysErrorCode=ERROR_OPEN_FAILED); //????
@@ -1750,9 +1768,14 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 
 		if (Ask)
 		{
-			const wchar_t* const Items[] = {MSG(MEditAskSave),MSG(MHYes),MSG(MHNo),MSG(MHCancel)};
-			int skip = Global->AllowCancelExit ? 0 : 1;
-			int Code = Message(MSG_WARNING,3-skip,MSG(MEditTitle),Items, ARRAYSIZE(Items)-skip, nullptr, nullptr, &EditAskSaveId);
+			
+			auto Buttons = make_vector<string>(MSG(MHYes), MSG(MHNo));
+			if (Global->AllowCancelExit)
+				Buttons.emplace_back(MSG(MHCancel));
+			int Code = Message(MSG_WARNING, MSG(MEditTitle),
+				make_vector<string>(MSG(MEditAskSave)),
+				Buttons,
+				nullptr, nullptr, &EditAskSaveId);
 			if(Code < 0 && !Global->AllowCancelExit)
 			{
 				Code = 1; // close == not save
@@ -1786,8 +1809,10 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			{
 				if (FileInfo.ftLastWriteTime != FInfo.ftLastWriteTime || FInfo.nFileSize != FileInfo.nFileSize)
 				{
-					const wchar_t* const Items[] = {MSG(MEditAskSaveExt), MSG(MHYes), MSG(MEditBtnSaveAs), MSG(MHCancel)};
-					switch (Message(MSG_WARNING, 3, MSG(MEditTitle), Items, ARRAYSIZE(Items), L"WarnEditorSavedEx", nullptr, &EditAskSaveExtId))
+					switch (Message(MSG_WARNING, MSG(MEditTitle),
+						make_vector<string>(MSG(MEditAskSaveExt)),
+						make_vector<string>(MSG(MHYes), MSG(MEditBtnSaveAs), MSG(MHCancel)),
+						L"WarnEditorSavedEx", nullptr, &EditAskSaveExtId))
 					{
 						case -1:
 						case -2:
@@ -1813,8 +1838,10 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		if (m_FileAttributes & FILE_ATTRIBUTE_READONLY)
 		{
 			//BUGBUG
-			const wchar_t* const Items[] = {Name.data(),MSG(MEditRO),MSG(MEditOvr),MSG(MYes),MSG(MNo)};
-			int AskOverwrite=Message(MSG_WARNING,2,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditorSavedROId);
+			int AskOverwrite=Message(MSG_WARNING, MSG(MEditTitle),
+				make_vector(Name, MSG(MEditRO), MSG(MEditOvr)),
+				make_vector<string>(MSG(MYes), MSG(MNo)),
+				nullptr, nullptr, &EditorSavedROId);
 
 			if (AskOverwrite)
 				return SAVEFILE_CANCEL;
@@ -2919,8 +2946,10 @@ bool FileEditor::AskOverwrite(const string& FileName)
 
 	if (FNAttr!=INVALID_FILE_ATTRIBUTES)
 	{
-		const wchar_t* const Items[] = {FileName.data(),MSG(MEditExists),MSG(MEditOvr),MSG(MYes),MSG(MNo)};
-		if (Message(MSG_WARNING,2,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditorAskOverwriteId))
+		if (Message(MSG_WARNING, MSG(MEditTitle),
+			make_vector(FileName, MSG(MEditExists), MSG(MEditOvr)),
+			make_vector<string>(MSG(MYes), MSG(MNo)),
+			nullptr, nullptr, &EditorAskOverwriteId))
 		{
 			result=false;
 		}

@@ -35,30 +35,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 enum
 {
-	ADDSPACEFORPSTRFORMESSAGE = 16,
-};
-
-enum
-{
 	MSG_WARNING        =0x00000001,
 	MSG_ERRORTYPE      =0x00000002,
 	MSG_KEEPBACKGROUND =0x00000004,
 	MSG_LEFTALIGN      =0x00000008,
-	MSG_INSERT_STR1    =0x00000100,
-	MSG_INSERT_STR2    =0x00000200,
-	MSG_INSERT_STR3    =0x00000400,
-	MSG_INSERT_STR4    =0x00000800,
-	MSG_INSERT_STR5    =0x00001000,
-	MSG_INSERT_STR6    =0x00002000,
-	MSG_INSERT_STR7    =0x00004000,
-	MSG_INSERT_STR8    =0x00008000,
-	MSG_INSERT_STR9    =0x00010000,
-	MSG_INSERT_STR10   =0x00020000,
-	MSG_INSERT_STR11   =0x00040000,
-	MSG_INSERT_STR12   =0x00080000,
-	MSG_INSERT_STR13   =0x00100000,
-	MSG_INSERT_STR14   =0x00200000,
-	MSG_INSERT_STRINGS =0x003fff00,
 	MSG_KILLSAVESCREEN =0x10000000,
 	MSG_NOPLUGINS      =0x20000000,
 };
@@ -69,8 +49,17 @@ class Dialog;
 class Message: NonCopyable
 {
 public:
-	Message(DWORD Flags, size_t Buttons, const string& Title, const wchar_t * const *Items, size_t ItemsNumber, const wchar_t* HelpTopic = nullptr, Plugin* PluginNumber = nullptr, const GUID* Id = nullptr);
-	Message(DWORD Flags, size_t Buttons, const string& Title, const std::vector<string>& Items, const wchar_t* HelpTopic = nullptr, Plugin* PluginNumber = nullptr, const GUID* Id = nullptr);
+	Message(
+		DWORD Flags,
+		const string& Title,
+		const std::vector<string>& Strings,
+		const std::vector<string>& Buttons,
+		const wchar_t* HelpTopic = nullptr,
+		Plugin* PluginNumber = nullptr,
+		const GUID* Id = nullptr,
+		const std::vector<string>& Inserts = std::vector<string>()
+	);
+
 	Message(DWORD Flags,size_t Buttons,const string& Title, const wchar_t *Str1,
 		const wchar_t *Str2=nullptr, const wchar_t *Str3=nullptr, const wchar_t *Str4=nullptr, const wchar_t *Str5=nullptr,
 		const wchar_t *Str6=nullptr, const wchar_t *Str7=nullptr, const wchar_t *Str8=nullptr, const wchar_t *Str9=nullptr,
@@ -81,7 +70,16 @@ public:
 	operator int() const { return GetExitCode(); }
 
 private:
-	void Init(DWORD Flags, size_t Buttons, const string& Title, const wchar_t * const *Items, size_t ItemsNumber, const wchar_t* HelpTopic = nullptr, Plugin* PluginNumber = nullptr, const GUID* Id = nullptr);
+	void Init(
+		DWORD Flags,
+		const string& Title,
+		const std::vector<string>& Strings,
+		const std::vector<string>& Buttons,
+		const std::vector<string>& Inserts,
+		const wchar_t* HelpTopic,
+		Plugin* PluginNumber,
+		const GUID* Id
+	);
 	intptr_t MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 
 	int m_ExitCode;

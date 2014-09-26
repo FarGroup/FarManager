@@ -630,8 +630,10 @@ bool Plugin::LoadData()
 
 		if (!Global->Opt->LoadPlug.SilentLoadPlugin) //убрать в PluginSet
 		{
-			const wchar_t* const Items[] = {MSG(MPlgLoadPluginError), m_strModuleName.data(), MSG(MOk)};
-			Message(MSG_WARNING|MSG_ERRORTYPE|MSG_NOPLUGINS, 1, MSG(MError), Items, ARRAYSIZE(Items), L"ErrLoadPlugin");
+			Message(MSG_WARNING|MSG_ERRORTYPE|MSG_NOPLUGINS, MSG(MError),
+				make_vector<string>(MSG(MPlgLoadPluginError), m_strModuleName),
+				make_vector<string>(MSG(MOk)),
+				L"ErrLoadPlugin");
 		}
 
 		return false;

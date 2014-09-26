@@ -2863,10 +2863,10 @@ int Database::ShowProblems()
 	int rc = 0;
 	if (!m_Problems.empty())
 	{
-		std::vector<string> msgs(m_Problems.cbegin(), m_Problems.cend());
-		msgs.emplace_back(MSG(MShowConfigFolders));
-		msgs.emplace_back(MSG(MIgnore));
-		rc = Message(MSG_WARNING, 2, MSG(MProblemDb), msgs) == 0 ? +1 : -1;
+		rc = Message(MSG_WARNING, MSG(MProblemDb),
+			m_Problems,
+			make_vector<string>(MSG(MShowConfigFolders), MSG(MIgnore))
+			) == 0 ? +1 : -1;
 	}
 	return rc;
 }

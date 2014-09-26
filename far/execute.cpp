@@ -1126,25 +1126,10 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 				ShowTime(1);
 		}
 
-		const wchar_t* Items[4];
-		size_t ItemsSize;
-
-		if(DirectRun)
-		{
-			Items[0] = MSG(MCannotExecute);
-			Items[1] = strNewCmdStr.data();
-			Items[2] = MSG(MOk);
-			ItemsSize = 3;
-		}
-		else
-		{
-			Items[0] = MSG(MCannotInvokeComspec);
-			Items[1] = strComspec.data();
-			Items[2] = MSG(MCheckComspecVar);
-			Items[3] = MSG(MOk);
-			ItemsSize = 4;
-		}
-		Message(MSG_WARNING|MSG_ERRORTYPE|MSG_INSERT_STR2, 1, MSG(MError), Items, ItemsSize, L"ErrCannotExecute");
+		const auto Strings = DirectRun?
+			make_vector<string>(MSG(MCannotExecute), strNewCmdStr) :
+			make_vector<string>(MSG(MCannotInvokeComspec), strComspec, MSG(MCheckComspecVar));
+		Message(MSG_WARNING | MSG_ERRORTYPE, MSG(MError), Strings, make_vector<string>(MSG(MOk)), L"ErrCannotExecute", nullptr, nullptr, make_vector(DirectRun ? strNewCmdStr : strComspec));
 	}
 
 	return nResult;

@@ -84,6 +84,7 @@ string& RemoveExternalSpaces(string &strStr);
 string& RemoveUnprintableCharacters(string &strStr);
 string& QuoteSpaceOnly(string &strStr);
 string& QuoteLeadingSpace(string &strStr);
+inline string QuoteLeadingSpace(string&& strStr) { QuoteLeadingSpace(strStr); return strStr; }
 
 string &RemoveChar(string &strStr,wchar_t Target,bool Dup=true);
 int ReplaceStrings(string &strStr, const string& FindStr, const string& ReplStr, bool IgnoreCase = false, int Count = -1);

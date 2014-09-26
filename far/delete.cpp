@@ -1088,12 +1088,10 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 		string qName(strFullName);
 		QuoteLeadingSpace(qName);
 
-		const wchar_t *Msgs[2+4] = {
-			MSG(dir ? MCannotRecycleFolder : MCannotRecycleFile), qName.data(),
-			MSG(MDeleteFileDelete), MSG(MDeleteSkip), MSG(MDeleteSkipAll), MSG(MDeleteCancel)
-		};
+		int MsgCode = Message(MSG_WARNING|MSG_ERRORTYPE, MSG(MError),
+			make_vector<string>(MSG(dir ? MCannotRecycleFolder : MCannotRecycleFile), qName),
+			make_vector<string>(MSG(MDeleteFileDelete), MSG(MDeleteSkip), MSG(MDeleteSkipAll), MSG(MDeleteCancel)));
 
-		int MsgCode = Message(MSG_WARNING|MSG_ERRORTYPE, 4, MSG(MError), Msgs, 2+4);
 		switch (MsgCode) {
 		case 3: case -1: case -2:       // [Cancel]
 			ret = DELETE_CANCEL;

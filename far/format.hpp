@@ -142,11 +142,14 @@ private:
 
 ENUM(LNGID);
 
+// TODO: rename
 class LangString:public BaseFormat, public string
 {
 public:
 	LangString():Iteration(0) {};
 	LangString(LNGID MessageId);
+	LangString(const string& str);
+	LangString(string&& str);
 	template<class T>
 	LangString& operator<<(const T& param) {return static_cast<LangString&>(BaseFormat::operator<<(param));}
 

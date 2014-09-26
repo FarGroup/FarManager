@@ -1234,89 +1234,51 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 			ItemsNumber++; //??
 		}
 
-		std::vector<const wchar_t*> MsgItems(ItemsNumber+ADDSPACEFORPSTRFORMESSAGE);
+		string Title;
+		std::vector<string> MsgItems;
 
-		if (Flags&FMSG_ALLINONE)
+		if (Flags & FMSG_ALLINONE)
 		{
-			int I=0;
-			wchar_t *Msg=SingleItems.get();
-			// анализ количества строк и разбивка на пункты
-			wchar_t *MsgTemp;
-
-			while ((MsgTemp = wcschr(Msg, L'\n')) )
+			auto Strings = split_to_vector::get(SingleItems.get(), 0, L"\n");
+			if (!Strings.empty())
 			{
-				*MsgTemp=L'\0';
-				MsgItems[I]=Msg;
-				Msg=MsgTemp+1;
-
-				if (*Msg == L'\0')
-					break;
-
-				++I;
-			}
-
-			if (*Msg)
-			{
-				MsgItems[I]=Msg;
+				Title = Strings[0];
+				MsgItems.assign(Strings.cbegin() + 1, Strings.cend());
 			}
 		}
 		else
 		{
-			for (size_t i=0; i < ItemsNumber; i++)
-				MsgItems[i]=Items[i];
+			Title = Items[0];
+			MsgItems = std::vector<string>(Items + 1, Items + ItemsNumber);
 		}
 
-		/* $ 22.03.2001 tran
-		   ItemsNumber++ -> ++ItemsNumber
-		   тереялся последний элемент */
+		std::vector<string> Buttons;
+
 		switch (Flags&0x000F0000)
 		{
 		case FMSG_MB_OK:
-			ButtonsNumber=1;
-			MsgItems[ItemsNumber++]=MSG(MOk);
+			Buttons = make_vector<string>(MSG(MOk));
 			break;
 
 		case FMSG_MB_OKCANCEL:
-			ButtonsNumber=2;
-			MsgItems[ItemsNumber++]=MSG(MOk);
-			MsgItems[ItemsNumber++]=MSG(MCancel);
+			Buttons = make_vector<string>(MSG(MOk), MSG(MCancel));
 			break;
 
 		case FMSG_MB_ABORTRETRYIGNORE:
-			ButtonsNumber=3;
-			MsgItems[ItemsNumber++]=MSG(MAbort);
-			MsgItems[ItemsNumber++]=MSG(MRetry);
-			MsgItems[ItemsNumber++]=MSG(MIgnore);
+			Buttons = make_vector<string>(MSG(MAbort), MSG(MRetry), MSG(MIgnore));
 			break;
 
 		case FMSG_MB_YESNO:
-			ButtonsNumber=2;
-			MsgItems[ItemsNumber++]=MSG(MYes);
-			MsgItems[ItemsNumber++]=MSG(MNo);
+			Buttons = make_vector<string>(MSG(MYes), MSG(MNo));
 			break;
 
 		case FMSG_MB_YESNOCANCEL:
-			ButtonsNumber=3;
-			MsgItems[ItemsNumber++]=MSG(MYes);
-			MsgItems[ItemsNumber++]=MSG(MNo);
-			MsgItems[ItemsNumber++]=MSG(MCancel);
+			Buttons = make_vector<string>(MSG(MYes), MSG(MNo), MSG(MCancel));
 			break;
 
 		case FMSG_MB_RETRYCANCEL:
-			ButtonsNumber=2;
-			MsgItems[ItemsNumber++]=MSG(MRetry);
-			MsgItems[ItemsNumber++]=MSG(MCancel);
+			Buttons = make_vector<string>(MSG(MRetry), MSG(MCancel));
 			break;
-		}
-
-		// ограничение на строки
-		size_t MaxLinesNumber = static_cast<size_t>(ScrY-3-(ButtonsNumber?1:0));
-		size_t LinesNumber = ItemsNumber-ButtonsNumber-1;
-		if (LinesNumber > MaxLinesNumber)
-		{
-			ItemsNumber -= (LinesNumber-MaxLinesNumber);
-			for (int i=1; i <= ButtonsNumber; i++)
-				MsgItems[MaxLinesNumber+i]=MsgItems[LinesNumber+i];
 		}
 
 		Plugin* PluginNumber = GuidToPlugin(PluginId);
@@ -1333,7 +1295,11 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 		if (Window)
 			Window->Lock(); // отменим прорисовку окна
 
-		int MsgCode=Message(Flags&(FMSG_WARNING|FMSG_ERRORTYPE|FMSG_KEEPBACKGROUND|FMSG_LEFTALIGN), ButtonsNumber, MsgItems[0], &MsgItems[1], ItemsNumber-1, EmptyToNull(strTopic.data()), PluginNumber, Id);
+		int MsgCode=Message(Flags&(FMSG_WARNING|FMSG_ERRORTYPE|FMSG_KEEPBACKGROUND|FMSG_LEFTALIGN),
+			Title,
+			MsgItems,
+			Buttons,
+			EmptyToNull(strTopic.data()), PluginNumber, Id);
 
 		/* $ 15.05.2002 SKV
 		  Однако разлочивать надо ровно то, что залочили.

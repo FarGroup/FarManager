@@ -1121,8 +1121,10 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 			{
 				LangString Question(MChangeSUBSTDisconnectDriveQuestion);
 				Question << DiskLetter;
-				const wchar_t* const Items[] = { Question.data(), MSG(MYes), MSG(MNo) };
-				if (Message(MSG_WARNING, 2, MSG(MChangeSUBSTDisconnectDriveTitle), Items, ARRAYSIZE(Items), nullptr, nullptr, &SUBSTDisconnectDriveId))
+				if (Message(MSG_WARNING, MSG(MChangeSUBSTDisconnectDriveTitle),
+					make_vector<string>(Question.data()),
+					make_vector<string>(MSG(MYes), MSG(MNo)),
+					nullptr, nullptr, &SUBSTDisconnectDriveId))
 				{
 					return DRIVE_DEL_FAIL;
 				}
@@ -1224,8 +1226,10 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 			{
 				LangString Question(MChangeVHDDisconnectDriveQuestion);
 				Question << DiskLetter;
-				const wchar_t* const Items[] = { Question.data(), MSG(MYes), MSG(MNo) };
-				if (Message(MSG_WARNING, 2, MSG(MChangeVHDDisconnectDriveTitle), Items, ARRAYSIZE(Items), nullptr, nullptr, &VHDDisconnectDriveId))
+				if (Message(MSG_WARNING, MSG(MChangeVHDDisconnectDriveTitle),
+					make_vector<string>(Question.data()),
+					make_vector<string>(MSG(MYes), MSG(MNo)),
+					nullptr, nullptr, &VHDDisconnectDriveId))
 				{
 					return DRIVE_DEL_FAIL;
 				}

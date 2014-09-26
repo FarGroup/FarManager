@@ -243,7 +243,19 @@ void FormatScreen::Commit(const string& Data)
 LangString::LangString(enum LNGID MessageId):
 	Iteration(0)
 {
-	append(MSG(MessageId));
+	assign(MSG(MessageId));
+}
+
+LangString::LangString(const string& str):
+	Iteration(0)
+{
+	assign(str);
+}
+
+LangString::LangString(string&& str):
+Iteration(0)
+{
+	assign(std::move(str));
 }
 
 void LangString::Commit(const string& Data)
