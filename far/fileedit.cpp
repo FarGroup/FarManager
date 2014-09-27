@@ -171,7 +171,7 @@ bool dlgBadEditorCodepage(uintptr_t &codepage)
 
 	IntOption cp_val;
 	std::vector<DialogBuilderListItem2> items;
-	id_cp = ++id; Builder.AddComboBox(cp_val, 46, items, DIF_LISTWRAPMODE);
+	id_cp = ++id; Builder.AddComboBox(cp_val, nullptr, 46, items, DIF_LISTWRAPMODE);
 	id_ok = id+2; Builder.AddOKCancel();
 
    Builder.SetDialogMode(DMODE_WARNINGSTYLE);

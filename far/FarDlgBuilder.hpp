@@ -50,6 +50,41 @@ struct DialogBuilderListItem2
 	int ItemValue;
 };
 
+template<class T>
+struct ListControlBinding: public DialogItemBinding<T>
+{
+	int *Value;
+	string *Text;
+	FarList *List;
+
+	ListControlBinding(int *aValue, string *aText, FarList *aList)
+		: Value(aValue), List(aList), Text(aText)
+	{
+	}
+
+	virtual ~ListControlBinding()
+	{
+		if (List)
+		{
+			delete [] List->Items;
+		}
+		delete List;
+	}
+
+	virtual void SaveValue(T *Item, int RadioGroupIndex)
+	{
+		if (Value && List)
+		{
+			FarListItem &ListItem = List->Items[Item->ListPos];
+			*Value = ListItem.Reserved[0];
+		}
+		if (Text)
+		{
+			*Text = Item->strData;
+		}
+	}
+};
+
 /*
 Класс для динамического построения диалогов, используемый внутри кода FAR.
 Использует FAR'овский класс string для работы с текстовыми полями.
@@ -84,6 +119,11 @@ class DialogBuilder: NonCopyable, public DialogBuilderBase<DialogItemEx>
 		virtual DialogItemBinding<DialogItemEx> *CreateRadioButtonBinding(int *Value) override;
 		DialogItemBinding<DialogItemEx> *CreateRadioButtonBinding(IntOption& Value);
 
+		DialogItemEx *AddListControl(FARDIALOGITEMTYPES Type, int *Value, string *Text, int Width, int Height, const DialogBuilderListItem *Items, size_t ItemCount, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+		DialogItemEx *AddListControl(FARDIALOGITEMTYPES Type, IntOption& Value, string *Text, int Width, int Height, const DialogBuilderListItem *Items, size_t ItemCount, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+		DialogItemEx *AddListControl(FARDIALOGITEMTYPES Type, int *Value, string *Text, int Width, int Height, const std::vector<DialogBuilderListItem2> &Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+		DialogItemEx *AddListControl(FARDIALOGITEMTYPES Type, IntOption& Value, string *Text, int Width, int Height, const std::vector<DialogBuilderListItem2> &Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+
 	public:
 		DialogBuilder(LNGID TitleMessageId, const wchar_t *HelpTopic = nullptr, Dialog::dialog_handler handler = nullptr);
 		DialogBuilder();
@@ -106,10 +146,15 @@ class DialogBuilder: NonCopyable, public DialogBuilderBase<DialogItemEx>
 		virtual DialogItemEx *AddHexEditField(IntOption& Value, int Width);
 
 		// Добавляет выпадающий список с указанными значениями.
-		DialogItemEx *AddComboBox(int *Value, int Width, const DialogBuilderListItem *Items, size_t ItemCount, FARDIALOGITEMFLAGS Flags = DIF_NONE);
-		DialogItemEx *AddComboBox(IntOption& Value, int Width, const DialogBuilderListItem *Items, size_t ItemCount, FARDIALOGITEMFLAGS Flags = DIF_NONE);
-		DialogItemEx *AddComboBox(int *Value, int Width, const std::vector<DialogBuilderListItem2> &Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
-		DialogItemEx *AddComboBox(IntOption& Value, int Width, const std::vector<DialogBuilderListItem2> &Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+		DialogItemEx *AddComboBox(int *Value, string *Text, int Width, const DialogBuilderListItem *Items, size_t ItemCount, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+		DialogItemEx *AddComboBox(IntOption& Value, string *Text, int Width, const DialogBuilderListItem *Items, size_t ItemCount, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+		DialogItemEx *AddComboBox(int *Value, string *Text, int Width, const std::vector<DialogBuilderListItem2> &Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+		DialogItemEx *AddComboBox(IntOption& Value, string *Text, int Width, const std::vector<DialogBuilderListItem2> &Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+
+		DialogItemEx *AddListBox(int *Value, int Width, int Height, const DialogBuilderListItem *Items, size_t ItemCount, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+		DialogItemEx *AddListBox(IntOption& Value, int Width, int Height, const DialogBuilderListItem *Items, size_t ItemCount, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+		DialogItemEx *AddListBox(int *Value, int Width, int Height, const std::vector<DialogBuilderListItem2> &Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+		DialogItemEx *AddListBox(IntOption& Value, int Width, int Height, const std::vector<DialogBuilderListItem2> &Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
 
 		DialogItemEx *AddCheckbox(int TextMessageId, BOOL *Value, int Mask=0, bool ThreeState=false)
 		{

@@ -362,9 +362,9 @@ void Options::InfoPanelSettings()
 	Builder.AddCheckbox(MConfigInfoPanelShowPowerStatus, InfoPanel.ShowPowerStatus);
 	Builder.AddCheckbox(MConfigInfoPanelShowCDInfo, InfoPanel.ShowCDInfo);
 	Builder.AddText(MConfigInfoPanelCNTitle);
-	Builder.AddComboBox(InfoPanel.ComputerNameFormat, 50, CNListItems, ARRAYSIZE(CNListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	Builder.AddComboBox(InfoPanel.ComputerNameFormat, nullptr, 50, CNListItems, ARRAYSIZE(CNListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
 	Builder.AddText(MConfigInfoPanelUNTitle);
-	Builder.AddComboBox(InfoPanel.UserNameFormat, 50, UNListItems, ARRAYSIZE(UNListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	Builder.AddComboBox(InfoPanel.UserNameFormat, nullptr, 50, UNListItems, ARRAYSIZE(UNListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
 	Builder.AddOKCancel();
 
 	if (Builder.ShowDialog())
@@ -608,7 +608,7 @@ void Options::VMenuSettings()
 	std::for_each(CONST_RANGE(DialogItems, i)
 	{
 		Builder.AddText(i.first);
-		Builder.AddComboBox(*i.second, 40, CAListItems, ARRAYSIZE(CAListItems), DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
+		Builder.AddComboBox(*i.second, nullptr, 40, CAListItems, ARRAYSIZE(CAListItems), DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
 	});
 
 	Builder.AddOKCancel();
@@ -778,7 +778,7 @@ void Options::ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local)
 		Builder.EndColumns();
 		Builder.AddText(MViewConfigDefaultCodePage);
 		Codepages().FillCodePagesList(Items, false, false, false, true);
-		Builder.AddComboBox(ViOpt.DefaultCodePage, 64, Items, DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT);
+		Builder.AddComboBox(ViOpt.DefaultCodePage, nullptr, 64, Items, DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT);
 	}
 
 	Builder.AddOKCancel();
@@ -819,7 +819,7 @@ void Options::EditorConfig(Options::EditorOptions &EdOptRef, bool Local)
 		{ MEditConfigExpandTabs, EXPAND_NEWTABS },
 		{ MEditConfigConvertAllTabsToSpaces, EXPAND_ALLTABS }
 	};
-	Builder.AddComboBox(EdOptRef.ExpandTabs, 64, ExpandTabsItems, ARRAYSIZE(ExpandTabsItems), DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
+	Builder.AddComboBox(EdOptRef.ExpandTabs, nullptr, 64, ExpandTabsItems, ARRAYSIZE(ExpandTabsItems), DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
 
 	Builder.StartColumns();
 	Builder.AddCheckbox(MEditConfigPersistentBlocks, EdOptRef.PersistentBlocks);
@@ -847,7 +847,7 @@ void Options::EditorConfig(Options::EditorOptions &EdOptRef, bool Local)
 		Builder.AddCheckbox(MEditAutoDetectCodePage, EdOpt.AutoDetectCodePage);
 		Builder.AddText(MEditConfigDefaultCodePage);
 		Codepages().FillCodePagesList(Items, false, false, false, false);
-		Builder.AddComboBox(EdOpt.DefaultCodePage, 64, Items, DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT);
+		Builder.AddComboBox(EdOpt.DefaultCodePage, nullptr, 64, Items, DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT);
 	}
 
 	Builder.AddOKCancel();
