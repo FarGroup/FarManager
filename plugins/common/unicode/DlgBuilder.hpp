@@ -9,7 +9,7 @@
 /*
   DlgBuilder.hpp
 
-  Dynamic construction of dialogs for FAR Manager 3.0 build 4069
+  Dynamic construction of dialogs for FAR Manager 3.0 build 4122
 */
 
 /*
@@ -111,30 +111,6 @@ struct RadioButtonBinding: public DialogItemBinding<T>
 		}
 };
 
-template<class T>
-struct ComboBoxBinding: public DialogItemBinding<T>
-{
-	int *Value;
-	FarList *List;
-
-	ComboBoxBinding(int *aValue, FarList *aList)
-		: Value(aValue), List(aList)
-	{
-	}
-
-	virtual ~ComboBoxBinding()
-	{
-		delete [] List->Items;
-		delete List;
-	}
-
-	virtual void SaveValue(T *Item, int RadioGroupIndex)
-	{
-		FarListItem &ListItem = List->Items[Item->ListPos];
-		*Value = ListItem.Reserved[0];
-	}
-};
-
 /*
 Класс для динамического построения диалогов. Автоматически вычисляет положение и размер
 для добавляемых контролов, а также размер самого диалога. Автоматически записывает выбранные
@@ -173,7 +149,8 @@ class DialogBuilderBase
 		int m_NextY;
 		int m_Indent;
 		int m_SingleBoxIndex;
-		int m_OKButtonID;
+		int m_FirstButtonID;
+		int m_CancelButtonID;
 		int m_ColumnStartIndex;
 		int m_ColumnBreakIndex;
 		int m_ColumnStartY;
@@ -356,6 +333,16 @@ class DialogBuilderBase
 			return nullptr;
 		}
 
+		int FindFocusedItem()
+		{
+			for (int i = 0; i < m_DialogItemsCount; i++)
+			{
+				if (m_DialogItems[i].Flags & DIF_FOCUS)
+					return i;
+			}
+			return -1;
+		}
+
 		void SaveValues()
 		{
 			int RadioGroupIndex = 0;
@@ -393,7 +380,7 @@ class DialogBuilderBase
 
 		DialogBuilderBase()
 			: m_DialogItems(nullptr), m_Bindings(nullptr), m_DialogItemsCount(0), m_DialogItemsAllocated(0), m_NextY(2), m_Indent(0), m_SingleBoxIndex(-1),
-			  m_OKButtonID(-1),
+			  m_FirstButtonID(-1), m_CancelButtonID(-1),
 			  m_ColumnStartIndex(-1), m_ColumnBreakIndex(-1), m_ColumnStartY(-1), m_ColumnEndY(-1), m_ColumnMinWidth(0)
 		{
 		}
@@ -612,23 +599,44 @@ class DialogBuilderBase
 			if (Separator)
 				AddSeparator();
 
-			T *OKButton = AddDialogItem(DI_BUTTON, GetLangString(OKMessageId));
-			OKButton->Flags = DIF_CENTERGROUP|DIF_DEFAULTBUTTON;
-			OKButton->Y1 = OKButton->Y2 = m_NextY++;
-			m_OKButtonID = m_DialogItemsCount-1;
+			int MsgIDs[] = { OKMessageId, CancelMessageId, ExtraMessageId };
+			int NumButtons = (ExtraMessageId != -1) ? 3 : 2;
 
-			if(CancelMessageId != -1)
-			{
-				T *CancelButton = AddDialogItem(DI_BUTTON, GetLangString(CancelMessageId));
-				CancelButton->Flags = DIF_CENTERGROUP;
-				CancelButton->Y1 = CancelButton->Y2 = OKButton->Y1;
-			}
+			AddButtons(NumButtons, MsgIDs, 0, 1);
+		}
 
-			if(ExtraMessageId != -1)
+		// Добавляет линейку кнопок.
+		void AddButtons(int ButtonCount, const int* MessageIDs, int defaultButtonIndex = 0, int cancelButtonIndex = -1)
+		{
+			int LineY = m_NextY++;
+			T *PrevButton = nullptr;
+
+			for (int i = 0; i < ButtonCount; i++)
 			{
-				T *ExtraButton = AddDialogItem(DI_BUTTON, GetLangString(ExtraMessageId));
-				ExtraButton->Flags = DIF_CENTERGROUP;
-				ExtraButton->Y1 = ExtraButton->Y2 = OKButton->Y1;
+				T *NewButton = AddDialogItem(DI_BUTTON, GetLangString(MessageIDs[i]));
+				NewButton->Flags = DIF_CENTERGROUP;
+				NewButton->Y1 = NewButton->Y2 = LineY;
+				if (PrevButton)
+				{
+					NewButton->X1 = PrevButton->X2 + 1;
+				}
+				else
+				{
+					NewButton->X1 = 2 + m_Indent;
+					m_FirstButtonID = m_DialogItemsCount - 1;
+				}
+				NewButton->X2 = NewButton->X1 + ItemWidth(*NewButton);
+
+				if (defaultButtonIndex == i)
+				{
+					NewButton->Flags |= DIF_DEFAULTBUTTON;
+					if (FindFocusedItem() == -1)
+						NewButton->Flags |= DIF_FOCUS;
+				}
+				if (cancelButtonIndex == i)
+					m_CancelButtonID = m_DialogItemsCount - 1;
+
+				PrevButton = NewButton;
 			}
 		}
 
@@ -637,14 +645,14 @@ class DialogBuilderBase
 			UpdateBorderSize();
 			UpdateSecondColumnPosition();
 			intptr_t Result = DoShowDialog();
-			if (Result == m_OKButtonID)
+			if (Result != m_CancelButtonID)
 			{
 				SaveValues();
 			}
 
-			if(Result >= m_OKButtonID)
+			if (m_FirstButtonID >= 0 && Result >= m_FirstButtonID)
 			{
-				Result -= m_OKButtonID;
+				Result -= m_FirstButtonID;
 			}
 			return Result;
 		}
