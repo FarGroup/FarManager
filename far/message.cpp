@@ -220,9 +220,6 @@ void Message::Init(
 		}
 	}
 
-	std::vector<string> MessageStrings;
-	MessageStrings.reserve(Strings.size() + (strErrStr.empty()? 0 : 16)); // 16 for possibly wrapped error string
-
 	size_t MaxLength = 0;
 	FOR(const auto& i, Strings)
 	{
@@ -253,18 +250,12 @@ void Message::Init(
 
 	MaxLength = std::min(MaxLength, MAX_MESSAGE_WIDTH);
 
-	// теперь обработаем MSG_ERRORTYPE
-	size_t CountErrorLine = 0;
-
-	std::vector<string> ErrorStrings;
+	auto MessageStrings = Strings;
 
 	if (!strErrStr.empty())
 	{
 		strClipText += strErrStr + L"\r\n";
 
-		// подсчет количества строк во врапенном сообщениеи
-		++CountErrorLine;
-		//InsertQuote(ErrStr); // оквочим
 		// вычисление "красивого" размера
 		auto LenErrStr = strErrStr.size();
 
@@ -287,11 +278,9 @@ void Message::Init(
 
 		// а теперь проврапим
 		FarFormatText(strErrStr, static_cast<int>(LenErrStr), strErrStr, L"\n", 0); //?? MaxLength ??
-		ErrorStrings = split_to_vector::get(strErrStr, 0, L"\n");
+		auto ErrorStrings = split_to_vector::get(strErrStr, 0, L"\n");
+		MessageStrings.insert(MessageStrings.end(), ALL_CONST_RANGE(ErrorStrings));
 	}
-
-	MessageStrings.insert(MessageStrings.end(), ALL_CONST_RANGE(ErrorStrings));
-	MessageStrings.insert(MessageStrings.end(), ALL_CONST_RANGE(Strings));
 
 	if (MessageStrings.empty())
 	{
@@ -330,7 +319,12 @@ void Message::Init(
 	MessageX1 = X1;
 	MessageX2 = X2; 
 
-	int MessageHeight = static_cast<int>(MessageStrings.size() + 2 + 2 + 1 + 1); // 2 for frame, 2 for border, 1 for separator, 1 for buttons line
+	int MessageHeight = static_cast<int>(MessageStrings.size() + 2 + 2); // 2 for frame, 2 for border
+	if (!Buttons.empty())
+	{
+		MessageHeight += 2; // 1 for separator, 1 for buttons line
+	}
+
 	if (MessageHeight < ScrY)
 	{
 		Y1 = (ScrY - MessageHeight) / 2;

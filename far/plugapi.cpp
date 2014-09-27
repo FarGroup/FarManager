@@ -1243,13 +1243,13 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 			if (!Strings.empty())
 			{
 				Title = Strings[0];
-				MsgItems.assign(Strings.cbegin() + 1, Strings.cend());
+				MsgItems.assign(Strings.cbegin() + 1, Strings.cend() - ButtonsNumber);
 			}
 		}
 		else
 		{
 			Title = Items[0];
-			MsgItems = std::vector<string>(Items + 1, Items + ItemsNumber);
+			MsgItems = std::vector<string>(Items + 1, Items + ItemsNumber - ButtonsNumber);
 		}
 
 		std::vector<string> Buttons;
@@ -1278,6 +1278,10 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 
 		case FMSG_MB_RETRYCANCEL:
 			Buttons = make_vector<string>(MSG(MRetry), MSG(MCancel));
+			break;
+
+		case 0: // Buttons are defined manually
+			Buttons = std::vector<string>(Items + ItemsNumber - ButtonsNumber, Items + ItemsNumber);
 			break;
 		}
 
