@@ -3,6 +3,28 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 27.09.2014 15:33:27 +0200 - build 4122
+
+1. Support for additional buttons is added to external DialogBuilder.
+
+2. Support for lists is added to internal DialogBuilder.
+
+drkns 27.09.2014 14:25:43 +0200 - build 4121
+
+1. Continuation of 4120.
+
+drkns 26.09.2014 19:23:14 +0200 - build 4120
+
+1. Refactoring of Message: separate lines from buttons.
+
+drkns 22.09.2014 19:59:11 +0200 - build 4119
+
+1. Forum: Broken addition of a file from a panel to the command line if autocompletion is active in the command line.
+
+drkns 22.09.2014 19:21:31 +0200 - build 4118
+
+1. #0002804: PN_CHECKMASK does not recognize incorrect regular expressions in 3.0.4117
+
 drkns 21.09.2014 15:58:34 +0200 - build 4117
 
 1. Optimization of make_vector.
