@@ -856,7 +856,7 @@ public:
 	{
 		if (SelectedIndex)
 		{
-			*SelectedIndex = Info.SendDlgMessage(*DialogHandle, DM_LISTGETCURPOS, ID, 0);
+			*SelectedIndex = static_cast<int>(Info.SendDlgMessage(*DialogHandle, DM_LISTGETCURPOS, ID, 0));
 		}
 		if (TextBuf)
 		{
@@ -879,6 +879,7 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 		GUID Id;
 		FARWINDOWPROC DlgProc;
 		void* UserParam;
+		FARDIALOGFLAGS Flags;
 
 		virtual void InitDialogItem(FarDialogItem *Item, const wchar_t *Text)
 		{
@@ -900,7 +901,7 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 		{
 			intptr_t Width = m_DialogItems[0].X2+4;
 			intptr_t Height = m_DialogItems[0].Y2+2;
-			DialogHandle = Info.DialogInit(&PluginId, &Id, -1, -1, Width, Height, HelpTopic, m_DialogItems, m_DialogItemsCount, 0, 0, DlgProc, UserParam);
+			DialogHandle = Info.DialogInit(&PluginId, &Id, -1, -1, Width, Height, HelpTopic, m_DialogItems, m_DialogItemsCount, 0, Flags, DlgProc, UserParam);
 			return Info.DialogRun(DialogHandle);
 		}
 
@@ -964,14 +965,14 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 		}
 
 public:
-		PluginDialogBuilder(const PluginStartupInfo &aInfo, const GUID &aPluginId, const GUID &aId, int TitleMessageID, const wchar_t *aHelpTopic, FARWINDOWPROC aDlgProc=nullptr, void* aUserParam=nullptr)
-			: Info(aInfo), DialogHandle(0), HelpTopic(aHelpTopic), PluginId(aPluginId), Id(aId), DlgProc(aDlgProc), UserParam(aUserParam)
+		PluginDialogBuilder(const PluginStartupInfo &aInfo, const GUID &aPluginId, const GUID &aId, int TitleMessageID, const wchar_t *aHelpTopic, FARWINDOWPROC aDlgProc=nullptr, void* aUserParam=nullptr, FARDIALOGFLAGS aFlags = FDLG_NONE)
+			: Info(aInfo), DialogHandle(0), HelpTopic(aHelpTopic), PluginId(aPluginId), Id(aId), DlgProc(aDlgProc), UserParam(aUserParam), Flags(aFlags)
 		{
 			AddBorder(GetLangString(TitleMessageID));
 		}
 
-		PluginDialogBuilder(const PluginStartupInfo &aInfo, const GUID &aPluginId, const GUID &aId, const wchar_t *TitleMessage, const wchar_t *aHelpTopic, FARWINDOWPROC aDlgProc=nullptr, void* aUserParam=nullptr)
-			: Info(aInfo), DialogHandle(0), HelpTopic(aHelpTopic), PluginId(aPluginId), Id(aId), DlgProc(aDlgProc), UserParam(aUserParam)
+		PluginDialogBuilder(const PluginStartupInfo &aInfo, const GUID &aPluginId, const GUID &aId, const wchar_t *TitleMessage, const wchar_t *aHelpTopic, FARWINDOWPROC aDlgProc=nullptr, void* aUserParam=nullptr, FARDIALOGFLAGS aFlags = FDLG_NONE)
+			: Info(aInfo), DialogHandle(0), HelpTopic(aHelpTopic), PluginId(aPluginId), Id(aId), DlgProc(aDlgProc), UserParam(aUserParam), Flags(aFlags)
 		{
 			AddBorder(TitleMessage);
 		}
