@@ -9,7 +9,7 @@
 /*
   DlgBuilder.hpp
 
-  Dynamic construction of dialogs for FAR Manager 3.0 build 4123
+  Dynamic construction of dialogs for FAR Manager 3.0 build 4124
 */
 
 /*
@@ -600,7 +600,7 @@ class DialogBuilderBase
 				AddSeparator();
 
 			int MsgIDs[] = { OKMessageId, CancelMessageId, ExtraMessageId };
-			int NumButtons = (ExtraMessageId != -1) ? 3 : 2;
+			int NumButtons = (ExtraMessageId != -1) ? 3 : (CancelMessageId != -1? 2 : 1);
 
 			AddButtons(NumButtons, MsgIDs, 0, 1);
 		}
