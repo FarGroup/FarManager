@@ -1236,6 +1236,7 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 
 		string Title;
 		std::vector<string> MsgItems;
+		std::vector<string> Buttons;
 
 		if (Flags & FMSG_ALLINONE)
 		{
@@ -1244,15 +1245,15 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 			{
 				Title = Strings[0];
 				MsgItems.assign(Strings.cbegin() + 1, Strings.cend() - ButtonsNumber);
+				Buttons.assign(Strings.cend() - ButtonsNumber, Strings.cend());
 			}
 		}
 		else
 		{
 			Title = Items[0];
-			MsgItems = std::vector<string>(Items + 1, Items + ItemsNumber - ButtonsNumber);
+			MsgItems.assign(Items + 1, Items + ItemsNumber - ButtonsNumber);
+			Buttons.assign(Items + ItemsNumber - ButtonsNumber, Items + ItemsNumber);
 		}
-
-		std::vector<string> Buttons;
 
 		switch (Flags&0x000F0000)
 		{
@@ -1278,10 +1279,6 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 
 		case FMSG_MB_RETRYCANCEL:
 			Buttons = make_vector<string>(MSG(MRetry), MSG(MCancel));
-			break;
-
-		case 0: // Buttons are defined manually
-			Buttons = std::vector<string>(Items + ItemsNumber - ButtonsNumber, Items + ItemsNumber);
 			break;
 		}
 
