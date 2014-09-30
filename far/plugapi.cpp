@@ -1210,37 +1210,13 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 		if ((!(Flags&(FMSG_ALLINONE|FMSG_ERRORTYPE)) && ItemsNumber<2) || !Items)
 			return -1;
 
-		wchar_t_ptr SingleItems;
-
-		// анализ количества строк для FMSG_ALLINONE
-		if (Flags&FMSG_ALLINONE)
-		{
-			ItemsNumber=0;
-
-			SingleItems.reset(StrLength(reinterpret_cast<const wchar_t*>(Items)) + 2);
-			if (!SingleItems)
-				return -1;
-
-			wchar_t *Msg=wcscpy(SingleItems.get(), (const wchar_t *)Items);
-
-			while ((Msg = wcschr(Msg, L'\n')) )
-			{
-				if (*++Msg == L'\0')
-					break;
-
-				++ItemsNumber;
-			}
-
-			ItemsNumber++; //??
-		}
-
 		string Title;
 		std::vector<string> MsgItems;
 		std::vector<string> Buttons;
 
 		if (Flags & FMSG_ALLINONE)
 		{
-			auto Strings = split_to_vector::get(SingleItems.get(), 0, L"\n");
+			auto Strings = split_to_vector::get(reinterpret_cast<const wchar_t*>(Items), 0, L"\n");
 			if (!Strings.empty())
 			{
 				Title = Strings[0];
