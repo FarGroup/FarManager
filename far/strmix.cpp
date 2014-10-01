@@ -1486,58 +1486,57 @@ string str_printf(const wchar_t * format, ...)
 			static const wchar_t Brackets[] = L"[]";
 
 			if (!List.empty() &&
-				(Flags.Check(STLF_NOUNQUOTE) || strSeparators.find(L'\"') == string::npos) &&
+				strSeparators.find(L'\"') == string::npos &&
 				(!Flags.Check(STLF_PROCESSBRACKETS) || std::find_first_of(ALL_CONST_RANGE(strSeparators), ALL_CONST_RANGE(Brackets)) == strSeparators.cend()))
 			{
 				value_type item;
 				item.second = ItemsList.size();
 
-				bool Error = false;
-				const wchar_t *CurList = List.data();
-				int Length, RealLength;
-				while (!Error && CurList && *CurList)
+				auto Iterator = List.cbegin();
+				string Token;
+				while (GetToken(List, Iterator, strSeparators, Flags, Token))
 				{
-					CurList = Skip(CurList, strSeparators, Flags, Length, RealLength, Error);
-					if (Length > 0)
+					if (Flags.Check(STLF_PACKASTERISKS) && Token.size() == 3 && Token == L"*.*")
 					{
-						if (Flags.Check(STLF_PACKASTERISKS) && 3 == Length && !wcsncmp(CurList, L"*.*", 3))
-						{
-							item.first = L"*";
-							ItemsList.emplace_back(item);
-						}
-						else
-						{
-							item.first.assign(CurList, Length);
-
-							if (Flags.Check(STLF_PACKASTERISKS))
-							{
-								int i = 0;
-								bool lastAsterisk = false;
-
-								while (i < Length)
-								{
-									if (item.first[i] == L'*')
-									{
-										if (!lastAsterisk)
-											lastAsterisk = true;
-										else
-										{
-											item.first.erase(i, 1);
-											--i;
-										}
-									}
-									else
-										lastAsterisk = false;
-
-									++i;
-								}
-							}
-							ItemsList.emplace_back(item);
-						}
-
-						CurList += RealLength;
-						++item.second;
+						item.first = L"*";
+						ItemsList.emplace_back(item);
 					}
+					else
+					{
+						if (Token.empty() && !Flags.Check(STLF_ALLOWEMPTY))
+						{
+							continue;
+						}
+
+						item.first = Token;
+
+						if (Flags.Check(STLF_PACKASTERISKS))
+						{
+							size_t i = 0;
+							bool lastAsterisk = false;
+
+							while (i < Token.size())
+							{
+								if (item.first[i] == L'*')
+								{
+									if (!lastAsterisk)
+										lastAsterisk = true;
+									else
+									{
+										item.first.erase(i, 1);
+										--i;
+									}
+								}
+								else
+									lastAsterisk = false;
+
+								++i;
+							}
+						}
+						ItemsList.emplace_back(item);
+					}
+
+					++item.second;
 				}
 				if (Flags.Check(STLF_UNIQUE | STLF_SORT))
 				{
@@ -1559,96 +1558,53 @@ string str_printf(const wchar_t * format, ...)
 			}
 		}
 
-		static const wchar_t *Skip(const wchar_t *Str, const string& strSeparators, const BitFlags& Flags, int &Length, int &RealLength, bool &Error)
+		static bool GetToken(const string& List, string::const_iterator& Iterator, const string& strSeparators, const BitFlags& Flags, string& Token)
 		{
-			Length = RealLength = 0;
-			Error = false;
+			if (Iterator == List.cend())
+				return false;
+
+			if (strSeparators.find(*Iterator) != string::npos)
+			{
+				Token.clear();
+				++Iterator;
+				return true;
+			}
+
+			auto cur = Iterator;
+			bool InBrackets = false;
+			bool InQuotes = false;
+
+			while (cur != List.cend()) // важно! проверка *cur должна стоять первой
+			{
+				if (Flags.Check(STLF_PROCESSBRACKETS)) // чтобы не сортировать уже отсортированное
+				{
+					if (*cur == L']')
+						InBrackets = false;
+					else if (*cur == L'[' && std::find(cur + 1, List.cend(), L']') != List.cend())
+						InBrackets = true;
+				}
+
+				if (*cur == L'\"')
+				{
+					InQuotes = InQuotes? false : std::find(cur + 1, List.cend(), L'\"') != List.cend();
+				}
+
+				if (!InBrackets && !InQuotes && strSeparators.find(*cur) != string::npos)
+					break;
+
+				++cur;
+			}
+
+			Token.assign(Iterator, cur);
+			Iterator = cur == List.cend() ? cur : cur + 1;
 
 			if (!Flags.Check(STLF_NOTRIM))
-			while (IsSpace(*Str)) ++Str;
+				RemoveExternalSpaces(Token);
 
-			if (strSeparators.find(*Str) != string::npos)
-				++Str;
+			if (!Flags.Check(STLF_NOUNQUOTE))
+				Unquote(Token);
 
-			if (!Flags.Check(STLF_NOTRIM))
-			while (IsSpace(*Str)) ++Str;
-
-			if (!*Str) return nullptr;
-
-			const wchar_t *cur = Str;
-			bool InQoutes = (*cur == L'\"');
-
-			if (!InQoutes) // если мы в кавычках, то обработка будет позже и чуть сложнее
-			{
-				bool InBrackets = false;
-				while (*cur) // важно! проверка *cur должна стоять первой
-				{
-					if (Flags.Check(STLF_PROCESSBRACKETS)) // чтобы не сортировать уже отсортированное
-					{
-						if (*cur == L']')
-							InBrackets = false;
-
-						if (*cur == L'[' && nullptr != wcschr(cur + 1, L']'))
-							InBrackets = true;
-					}
-
-					if (!InBrackets && strSeparators.find(*cur) != string::npos)
-						break;
-
-					++cur;
-				}
-			}
-
-			if (!InQoutes || !*cur)
-			{
-				RealLength = Length = (int)(cur - Str);
-				--cur;
-
-				if (!Flags.Check(STLF_NOTRIM))
-				while (IsSpace(*cur))
-				{
-					--Length;
-					--cur;
-				}
-
-				return Str;
-			}
-
-			// мы в кавычках - захватим все отсюда и до следующих кавычек
-			++cur;
-			const wchar_t *QuoteEnd = wcschr(cur, L'\"');
-
-			if (!QuoteEnd)
-			{
-				Error = true;
-				return nullptr;
-			}
-
-			const wchar_t *End = QuoteEnd + 1;
-
-			if (!Flags.Check(STLF_NOTRIM))
-			{
-				while (IsSpace(*End)) ++End;
-			}
-
-			if (!*End || strSeparators.find(*End) != string::npos)
-			{
-				if (!Flags.Check(STLF_NOUNQUOTE))
-				{
-					Length = (int)(QuoteEnd - cur);
-					RealLength = (int)(End - cur);
-				}
-				else
-				{
-					Length = (int)(End - cur) + 1;
-					RealLength = Length;
-					--cur;
-				}
-				return cur;
-			}
-
-			Error = true;
-			return nullptr;
+			return true;
 		}
 
 		std::list<value_type> ItemsList;

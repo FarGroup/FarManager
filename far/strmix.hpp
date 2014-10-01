@@ -152,6 +152,8 @@ enum STL_FLAGS
 	STLF_PACKASTERISKS  =0x00000002,
 	// учитывать квадратные скобки при анализе строки инициализации
 	STLF_PROCESSBRACKETS=0x00000004,
+	// allow empty items
+	STLF_ALLOWEMPTY    = 0x00000008,
 	// убирать дублирующиеся элементы
 	STLF_UNIQUE         =0x00000010,
 	// отсортировать (с учетом регистра)

@@ -307,7 +307,7 @@ void Message::Init(
 	int MessageWidth = static_cast<int>(MaxLength + 6 + 2 + 2); // 6 for frame, 2 for border, 2 for inner margin
 	if (MessageWidth < ScrX)
 	{
-		X1 = (ScrX - MessageWidth) / 2;
+		X1 = (ScrX - MessageWidth) / 2 + 1;
 	}
 	else
 	{
@@ -327,7 +327,10 @@ void Message::Init(
 
 	if (MessageHeight < ScrY)
 	{
-		Y1 = (ScrY - MessageHeight) / 2;
+		// Should be +1 here to center the message properly,
+		// but it was shifted up one position for years
+		// and some buggy plugins depends on it
+		Y1 = (ScrY - MessageHeight) / 2; // + 1;
 	}
 	else
 	{
@@ -374,7 +377,7 @@ void Message::Init(
 			if (!MessageStrings[i].empty() && (MessageStrings[i].front() == L'\1' || MessageStrings[i].front() == L'\2'))
 			{
 				Item.Flags |= (MessageStrings[i].front() == L'\2' ? DIF_SEPARATOR2 : DIF_SEPARATOR);
-				if(i == MessageStrings.size())
+				if(i == MessageStrings.size() - 1)
 				{
 					StrSeparator=true;
 				}
@@ -407,6 +410,14 @@ void Message::Init(
 			Item.Y1 = Item.Y2 = MessageStrings.size() + 2;
 
 			MsgDlg.emplace_back(std::move(Item));
+		}
+		else
+		{
+			// BUGBUG
+			--MessageHeight;
+			--Y2;
+			--MessageY2;
+			--MsgDlg[0].Y2;
 		}
 
 		FirstButtonIndex = static_cast<int>(MsgDlg.size());
