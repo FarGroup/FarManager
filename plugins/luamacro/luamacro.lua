@@ -39,12 +39,12 @@ function coroutine.resume(co, ...)
   return unpack(t, 1, t.n)
 end
 
-local ErrMsg = function(msg,title)
+local ErrMsg = function(msg, title, buttons, flags)
   if type(msg)=="string" and not msg:utf8valid() then
     local wstr = win.MultiByteToWideChar(msg, win.GetACP(), "e")
     msg = wstr and win.Utf16ToUtf8(wstr) or msg
   end
-  far.Message(msg,title or "LuaMacro",nil,"wl")
+  return far.Message(msg, title or "LuaMacro", buttons, flags or "wl")
 end
 
 local function checkarg (arg, argnum, reftype)

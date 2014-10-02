@@ -515,12 +515,12 @@ local function ErrMsgLoad (msg, filename, isMoonScript, mode)
       end
     end
     if found then
-      if 2 == far.Message(msg, title, "OK;Edit", "wl") then
+      if 2 == ErrMsg(msg, title, "OK;Edit", "wl") then
         if isMoonScript then line = GetMoonscriptLineNumber(fname,line) end
         editor.Editor(fname,nil,nil,nil,nil,nil,nil,line or 1,nil,65001)
       end
     else
-      far.Message(msg, title, "OK", "wl")
+      ErrMsg(msg, title, "OK", "wl")
     end
   else
     if 2 == far.Message(msg, title, "OK;Edit", "wl") then
