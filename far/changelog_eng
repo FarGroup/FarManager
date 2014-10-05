@@ -3,6 +3,30 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 01.10.2014 20:07:16 +0200 - build 4127
+
+1. Another couple of corrections in Message.
+
+2. Refactoring.
+
+drkns 30.09.2014 23:55:34 +0200 - build 4126
+
+1. Continuation of 4125.
+
+2. Correction of 4122.1.
+
+drkns 30.09.2014 21:08:57 +0200 - build 4125
+
+1. 0002811: Broken Message with FMSG_ALLINONE flag
+
+drkns 29.09.2014 21:27:31 +0200 - build 4124
+
+1. Correction of 4122.1
+
+drkns 29.09.2014 14:09:13 +0200 - build 4123
+
+1. Flags support is added to external DialogBuilder.
+
 drkns 27.09.2014 15:33:27 +0200 - build 4122
 
 1. Support for additional buttons is added to external DialogBuilder.
