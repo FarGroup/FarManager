@@ -62,7 +62,6 @@ public:
 	virtual int GetCanLoseFocus(int DynamicMode=FALSE) const { return m_CanLoseFocus; }
 	virtual void SetExitCode(int Code) { m_ExitCode=Code; }
 	virtual BOOL IsFileModified() const { return FALSE; }
-	virtual const wchar_t *GetTypeName() {return L"[FarModal]";}
 	virtual int GetTypeAndName(string &strType, string &strName) = 0;
 	virtual int GetType() const = 0;
 	virtual void OnDestroy() {}  // вызывается перед уничтожением окна

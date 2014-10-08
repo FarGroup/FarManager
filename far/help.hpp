@@ -51,7 +51,6 @@ public:
 	virtual void SetScreenPosition() override;
 	virtual void ResizeConsole() override;
 	virtual bool CanFastHide() const override; // ¬ведена дл€ нужд CtrlAltShift
-	virtual const wchar_t *GetTypeName() override {return L"[Help]";}
 	virtual int GetTypeAndName(string &strType, string &strName) override;
 	virtual int GetType() const override { return windowtype_help; }
 	virtual __int64 VMProcess(int OpCode,void *vParam,__int64 iParam) override;

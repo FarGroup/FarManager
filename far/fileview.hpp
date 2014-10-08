@@ -57,7 +57,6 @@ public:
 	virtual void OnDestroy() override;
 	virtual void OnChangeFocus(int focus) override;
 	virtual int GetTypeAndName(string &strType, string &strName) override;
-	virtual const wchar_t *GetTypeName() override { return L"[FileView]"; }
 	virtual int GetType() const override { return windowtype_viewer; }
 	/* $ ¬ведена дл€ нужд CtrlAltShift OT */
 	virtual bool CanFastHide() const override;

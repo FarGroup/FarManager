@@ -53,7 +53,6 @@ public:
 	virtual void SetScreenPosition() override;
 	virtual int GetTypeAndName(string &strType, string &strName) override;
 	virtual int GetType() const override { return windowtype_panels; }
-	virtual const wchar_t *GetTypeName() override { return L"[FilePanels]"; }
 	virtual void OnChangeFocus(int focus) override;
 	virtual void RedrawKeyBar() override;
 	virtual void ShowConsoleTitle() override;

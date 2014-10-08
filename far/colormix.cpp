@@ -58,15 +58,15 @@ WORD Colors::FarColorToConsoleColor(const FarColor& Color)
 		const struct color_data
 		{
 			COLORREF Color;
-			abgr Abgr;
+			rgba RGBA;
 			FARCOLORFLAGS Flags;
 			COLORREF* LastColor;
 			BYTE* IndexColor;
 		}
 		data[2] =
 		{
-			{Color.BackgroundColor, Color.BackgroundABGR, FCF_BG_4BIT, &LastTrueColors[0], &IndexColors[0]},
-			{Color.ForegroundColor, Color.ForegroundABGR, FCF_FG_4BIT, &LastTrueColors[1], &IndexColors[1]}
+			{Color.BackgroundColor, Color.BackgroundRGBA, FCF_BG_4BIT, &LastTrueColors[0], &IndexColors[0]},
+			{Color.ForegroundColor, Color.ForegroundRGBA, FCF_FG_4BIT, &LastTrueColors[1], &IndexColors[1]}
 		};
 
 		enum console_mask
@@ -88,9 +88,9 @@ WORD Colors::FarColorToConsoleColor(const FarColor& Color)
 				}
 				else
 				{
-					int R = i.Abgr.r;
-					int G = i.Abgr.g;
-					int B = i.Abgr.b;
+					int R = i.RGBA.r;
+					int G = i.RGBA.g;
+					int B = i.RGBA.b;
 
 					// special case, silver color:
 					if (InRange(160, R, 223) && InRange(160, G, 223) && InRange(160, B, 223))

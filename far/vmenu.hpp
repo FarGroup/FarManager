@@ -213,7 +213,6 @@ public:
 	virtual void Show() override;
 	virtual void Hide() override;
 	virtual string GetTitle() const override;
-	virtual const wchar_t *GetTypeName() override { return L"[VMenu]"; }
 	virtual int GetTypeAndName(string &strType, string &strName) override;
 	virtual int GetType() const override { return CheckFlags(VMENU_COMBOBOX) ? windowtype_combobox : windowtype_menu; }
 	virtual int ProcessKey(const Manager::Key& Key) override;

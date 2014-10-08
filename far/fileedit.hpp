@@ -109,7 +109,6 @@ private:
 	virtual void ShowConsoleTitle() override;
 	virtual void OnChangeFocus(int focus) override;
 	virtual void SetScreenPosition() override;
-	virtual const wchar_t *GetTypeName() override { return L"[FileEdit]"; }
 	virtual int GetType() const override { return windowtype_editor; }
 	virtual void OnDestroy() override;
 	virtual int GetCanLoseFocus(int DynamicMode = FALSE) const override;

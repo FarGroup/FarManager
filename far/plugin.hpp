@@ -94,7 +94,7 @@ static const FARCOLORFLAGS
 
 	FCF_NONE          = 0;
 
-struct abgr { unsigned char a, b, g, r; };
+struct rgba { unsigned char r, g, b, a; };
 
 struct FarColor
 {
@@ -102,7 +102,7 @@ struct FarColor
 	union
 	{
 		COLORREF ForegroundColor;
-		struct abgr ForegroundABGR;
+		struct rgba ForegroundRGBA;
 	}
 #ifndef __cplusplus
 	Foreground
@@ -111,7 +111,7 @@ struct FarColor
 	union
 	{
 		COLORREF BackgroundColor;
-		struct abgr BackgroundABGR;
+		struct rgba BackgroundRGBA;
 	}
 #ifndef __cplusplus
 	Background

@@ -232,7 +232,6 @@ public:
 	virtual void SetExitCode(int Code) override;
 	virtual int GetTypeAndName(string &strType, string &strName) override;
 	virtual int GetType() const override { return windowtype_dialog; }
-	virtual const wchar_t *GetTypeName() override {return L"[Dialog]";}
 	virtual bool CanFastHide() const override;
 	virtual void ResizeConsole() override;
 	virtual void SetPosition(int X1,int Y1,int X2,int Y2) override;

@@ -39,7 +39,6 @@ class VMenu2 : public Dialog
 public:
 	static vmenu2_ptr create(const string& Title, const MenuDataEx *Data, size_t ItemCount, int MaxHeight=0, DWORD Flags=0);
 
-	virtual const wchar_t *GetTypeName() override { return L"[VMenu]"; }
 	virtual int GetTypeAndName(string &strType, string &strName) override;
 	virtual int GetType() const override { return windowtype_menu; }
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
