@@ -1325,8 +1325,8 @@ int GetFarColor(lua_State *L, int pos, struct FarColor* Color)
 	{
 		lua_pushvalue(L, pos);
 		Color->Flags = CheckFlagsFromTable(L, -1, "Flags");
-		Color->ForegroundColor = CAST(COLORREF, GetOptNumFromTable(L, "ForegroundColor", 0));
-		Color->BackgroundColor = CAST(COLORREF, GetOptNumFromTable(L, "BackgroundColor", 0));
+		Color->Foreground.ForegroundColor = CAST(COLORREF, GetOptNumFromTable(L, "ForegroundColor", 0));
+		Color->Background.BackgroundColor = CAST(COLORREF, GetOptNumFromTable(L, "BackgroundColor", 0));
 		lua_pop(L, 1);
 		return 1;
 	}
@@ -1334,8 +1334,8 @@ int GetFarColor(lua_State *L, int pos, struct FarColor* Color)
 	{
 		intptr_t num = lua_tointeger(L, pos);
 		Color->Flags = FCF_4BITMASK;
-		Color->ForegroundColor = num & 0x0F;
-		Color->BackgroundColor = (num>>4) & 0x0F;
+		Color->Foreground.ForegroundColor = num & 0x0F;
+		Color->Background.BackgroundColor = (num>>4) & 0x0F;
 		return 1;
 	}
 	return 0;
@@ -1345,8 +1345,8 @@ void PushFarColor(lua_State *L, const struct FarColor* Color)
 {
 	lua_createtable(L, 0, 3);
 	PutFlagsToTable(L, "Flags", Color->Flags);
-	PutNumToTable(L, "ForegroundColor", Color->ForegroundColor);
-	PutNumToTable(L, "BackgroundColor", Color->BackgroundColor);
+	PutNumToTable(L, "ForegroundColor", Color->Foreground.ForegroundColor);
+	PutNumToTable(L, "BackgroundColor", Color->Background.BackgroundColor);
 }
 
 static void GetOptGuid(lua_State *L, int pos, GUID* target, const GUID* source)
@@ -5729,8 +5729,8 @@ static int far_ColorDialog(lua_State *L)
 
 	if(!GetFarColor(L, 1, &Color))
 	{
-		Color.ForegroundColor = 0x0F;
-		Color.BackgroundColor = 0x00;
+		Color.Foreground.ForegroundColor = 0x0F;
+		Color.Background.BackgroundColor = 0x00;
 		Color.Flags = FCF_4BITMASK;
 	}
 
@@ -5739,7 +5739,7 @@ static int far_ColorDialog(lua_State *L)
 	if(pd->Info->ColorDialog(pd->PluginId, Flags, &Color))
 	{
 		if(istable) PushFarColor(L, &Color);
-		else lua_pushnumber(L, Color.ForegroundColor | (Color.BackgroundColor << 4));
+		else lua_pushnumber(L, Color.Foreground.ForegroundColor | (Color.Background.BackgroundColor << 4));
 	}
 	else
 		lua_pushnil(L);
