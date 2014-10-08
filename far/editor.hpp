@@ -228,6 +228,7 @@ private:
 	// Get all session bookmarks into the Param array
 	size_t GetSessionBookmarks(EditorBookmarks *Param);
 	size_t GetSessionBookmarksForPlugin(EditorBookmarks *Param);
+	void UpdateCurrentSessionBookmark();
 	int BlockStart2NumLine(int *Pos);
 	int BlockEnd2NumLine(int *Pos);
 	bool CheckLine(iterator line);

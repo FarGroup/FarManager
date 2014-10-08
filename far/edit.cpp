@@ -50,20 +50,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "editor.hpp"
 #include "window.hpp"
 
-const GUID& ColorItem::GetOwner() const
-{
-	return *reinterpret_cast<const GUID*>(Owner);
-}
-
 void ColorItem::SetOwner(const GUID& Value)
 {
 	static std::unordered_set<GUID, uuid_hash, uuid_equal> GuidSet;
 	Owner = &*GuidSet.emplace(Value).first;
-}
-
-const FarColor& ColorItem::GetColor() const
-{
-	return *reinterpret_cast<const FarColor*>(Color);
 }
 
 void ColorItem::SetColor(const FarColor& Value)

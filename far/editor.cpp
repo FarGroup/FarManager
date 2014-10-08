@@ -6547,6 +6547,26 @@ void Editor::ClearSessionBookmarks()
 	SessionPos = SessionBookmarks.end();
 }
 
+void Editor::UpdateCurrentSessionBookmark()
+{
+	const auto next = std::next(SessionPos);
+	if (next != SessionBookmarks.end())
+	{
+		SessionPos = next;
+	}
+	else
+	{
+		if (SessionPos == SessionBookmarks.begin())
+		{
+			SessionPos = SessionBookmarks.end();
+		}
+		else
+		{
+			--SessionPos;
+		}
+	}
+}
+
 bool Editor::DeleteSessionBookmark(bookmark_list::iterator sb_delete)
 {
 	if (sb_delete == SessionBookmarks.end())
@@ -6556,12 +6576,9 @@ bool Editor::DeleteSessionBookmark(bookmark_list::iterator sb_delete)
 
 	if (SessionPos == sb_delete)
 	{
-		const auto next = std::next(SessionPos);
-		if (next != SessionBookmarks.end())
-			SessionPos = next;
-		else
-			--SessionPos;
+		UpdateCurrentSessionBookmark();
 	}
+
 	SessionBookmarks.erase(sb_delete);
 	return true;
 }
@@ -6575,11 +6592,7 @@ bool Editor::MoveSessionBookmarkToUndoList(bookmark_list::iterator sb_move)
 
 	if (SessionPos == sb_move)
 	{
-		const auto next = std::next(SessionPos);
-		if (next != SessionBookmarks.end())
-			SessionPos = next;
-		else
-			--SessionPos;
+		UpdateCurrentSessionBookmark();
 	}
 
 	sb_move->hash = sb_move == SessionBookmarks.begin() ? 0 : UndoPos->HashBM(std::prev(sb_move));
