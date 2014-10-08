@@ -1,4 +1,8 @@
-﻿drkns 08.10.2014 09:50:10 +0200 - build 4128
+﻿drkns 08.10.2014 19:55:41 +0200 - build 4129
+
+1. #0002781: Exception при работе под отладчиком VS2013
+
+drkns 08.10.2014 09:50:10 +0200 - build 4128
 
 1. #0002824: Assertion: list iterator not decrementable
 

@@ -58,7 +58,7 @@ struct ListControlBinding: public DialogItemBinding<T>
 	FarList *List;
 
 	ListControlBinding(int *aValue, string *aText, FarList *aList)
-		: Value(aValue), List(aList), Text(aText)
+		: Value(aValue), Text(aText), List(aList)
 	{
 	}
 

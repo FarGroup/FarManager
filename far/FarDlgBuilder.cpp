@@ -181,7 +181,7 @@ private:
 
 public:
 	FarListControlBinding(T& aValue, string *aText, FarList *aList)
-		: Value(aValue), List(aList), Text(aText)
+		: Value(aValue), Text(aText), List(aList)
 	{
 	}
 
