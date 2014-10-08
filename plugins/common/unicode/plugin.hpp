@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 4129
+  Plugin API for Far Manager 3.0 build 4130
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 4129
+#define FARMANAGERVERSION_BUILD 4130
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -78,7 +78,7 @@ static const FARCOLORFLAGS
 
 	FCF_NONE          = 0;
 
-struct abgr { unsigned char a, b, g, r; };
+struct rgba { unsigned char r, g, b, a; };
 
 struct FarColor
 {
@@ -86,7 +86,7 @@ struct FarColor
 	union
 	{
 		COLORREF ForegroundColor;
-		struct abgr ForegroundABGR;
+		struct rgba ForegroundRGBA;
 	}
 #ifndef __cplusplus
 	Foreground
@@ -95,7 +95,7 @@ struct FarColor
 	union
 	{
 		COLORREF BackgroundColor;
-		struct abgr BackgroundABGR;
+		struct rgba BackgroundRGBA;
 	}
 #ifndef __cplusplus
 	Background
