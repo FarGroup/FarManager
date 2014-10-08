@@ -9,7 +9,7 @@
 /*
   DlgBuilder.hpp
 
-  Dynamic construction of dialogs for FAR Manager 3.0 build 4124
+  Dynamic construction of dialogs for FAR Manager 3.0 build 4129
 */
 
 /*
@@ -333,16 +333,6 @@ class DialogBuilderBase
 			return nullptr;
 		}
 
-		int FindFocusedItem()
-		{
-			for (int i = 0; i < m_DialogItemsCount; i++)
-			{
-				if (m_DialogItems[i].Flags & DIF_FOCUS)
-					return i;
-			}
-			return -1;
-		}
-
 		void SaveValues()
 		{
 			int RadioGroupIndex = 0;
@@ -630,8 +620,6 @@ class DialogBuilderBase
 				if (defaultButtonIndex == i)
 				{
 					NewButton->Flags |= DIF_DEFAULTBUTTON;
-					if (FindFocusedItem() == -1)
-						NewButton->Flags |= DIF_FOCUS;
 				}
 				if (cancelButtonIndex == i)
 					m_CancelButtonID = m_DialogItemsCount - 1;
