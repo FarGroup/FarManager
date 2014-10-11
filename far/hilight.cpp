@@ -878,7 +878,7 @@ void HighlightFiles::Save(bool always)
 	if (root)
 		cfg->DeleteKeyTree(root);
 
-	static const struct
+	const struct
 	{
 		bool IsSort;
 		const wchar_t* KeyName;

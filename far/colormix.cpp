@@ -166,3 +166,9 @@ const FarColor ColorIndexToColor(PaletteColors ColorIndex)
 	return ColorIndex < COL_FIRSTPALETTECOLOR? Colors::ConsoleColorToFarColor(ColorIndex) :
 		Global->Opt->Palette[ColorIndex - COL_FIRSTPALETTECOLOR];
 }
+
+const FarColor* StoreColor(const FarColor& Value)
+{
+	static std::unordered_set<FarColor> ColorSet;
+	return &*ColorSet.emplace(Value).first;
+}

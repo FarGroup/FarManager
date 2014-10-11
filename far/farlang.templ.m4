@@ -15687,7 +15687,7 @@ MSetAttrEncrypted
 
 MSetAttrNotIndexed
 "Неиндексируемый"
-"Not Indexed"
+"Not &indexed"
 "Neinde&xovaný"
 "Nicht &indiziert"
 "Nem inde&xelt"
@@ -25561,7 +25561,7 @@ MFileFilterAttrD
 
 MFileFilterAttrNI
 "&Неиндексируемый"
-"Not inde&xed"
+"Not &indexed"
 "Neinde&xovaný"
 "Nicht in&diziert"
 "Nem inde&xelt"

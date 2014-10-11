@@ -1770,29 +1770,23 @@ Allowed column types are:
     F          - number of streams
 
 
-    Атрибуты файла имеют следующие обозначения:
+    File attributes are denoted as follows:
 
-       #R#         - Только для чтения
-       #S#         - Системный
-       #H#         - Скрытый
-       #A#         - Архивный
-       #L#         - Связь или символическая ссылка
-       #C# или #E#   - Сжатый или Зашифрованный
-       #$#         - Разрежённый (sparse)
-       #T#         - Временный
-       #I#         - Неиндексируемый по содержимому
-       #O#         - Автономный (offline)
-       #V#         - Виртуальный
+       #R#         - Read only
+       #A#         - Archive
+       #H#         - Hidden
+       #S#         - System
+       #C#         - Compressed
+       #E#         - Encrypted
+       #I#         - Not content indexed
+       #D#         - Directory
+       #$#         - Sparse
+       #T#         - Temporary
+       #O#         - Offline
+       #L#         - Reparse point
+       #V#         - Virtual
        #G#         - Integrity stream
        #N#         - No scrub data
-
-    The attributes are displayed in the following order - RSHALCTIOVGN. The
-"Sparse" attribute applies only to files and is shown instead of 'L'. The
-"Encrypted" attribute is shown instead of 'C' as a file/folder can not
-have both attributes ("Compressed" and "Encrypted") set at the same time.
-By default the size of the attributes column is 6 characters. To display
-the additional attributes it is necessary to manually increase the size of
-the column.
 
     #Ширина колонок# - позволяет изменить ширину колонок результатов поиска.
 Если ширина равна 0, то используется значение по умолчанию.
@@ -3981,27 +3975,25 @@ characters, delimited with commas. Allowed column types are:
     If the column types description contains more than one file name column,
 the file panel will be displayed in multicolumn form.
 
-    File attributes have the following indications:
+    File attributes are denoted as follows:
 
        #R#         - Read only
-       #S#         - System
-       #H#         - Hidden
        #A#         - Archive
-       #L#         - Junction or symbolic link
-       #C# or #E#    - Compressed or Encrypted
+       #H#         - Hidden
+       #S#         - System
+       #C#         - Compressed
+       #E#         - Encrypted
+       #I#         - Not content indexed
+       #D#         - Directory
        #$#         - Sparse
        #T#         - Temporary
-       #I#         - Not content indexed
        #O#         - Offline
+       #L#         - Reparse point
        #V#         - Virtual
        #G#         - Integrity stream
        #N#         - No scrub data
 
-    The attributes are displayed in the following order - RSHALCTIOVGN. The
-"Sparse" attribute applies only to files and is shown instead of 'L'. The
-"Encrypted" attribute is shown instead of 'C' as a file/folder can not
-have both attributes ("Compressed" and "Encrypted") set at the same time.
-By default the size of the attributes column is 6 characters. To display
+    By default the size of the attributes column is 6 characters. To display
 the additional attributes it is necessary to manually increase the size of
 the column.
 

@@ -8066,21 +8066,10 @@ int FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen,
 			continue;
 		}
 
-		int ColumnType = i.type & 0xff;
-
 		if (!i.width)
 		{
 			i.width_type = COUNT_WIDTH; //manage all zero-width columns in same way
-			i.width = ColumnTypeWidth[ColumnType];
-
-			if (ColumnType==WDATE_COLUMN || ColumnType==CDATE_COLUMN || ColumnType==ADATE_COLUMN || ColumnType==CHDATE_COLUMN)
-			{
-				if (i.type & COLUMN_BRIEF)
-					i.width -= 3;
-
-				if (i.type & COLUMN_MONTH)
-					++i.width;
-			}
+			i.width = GetDefaultWidth(i.type);
 		}
 
 		if (!i.width)

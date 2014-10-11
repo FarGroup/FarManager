@@ -387,3 +387,27 @@ int EDeleteReparsePoint(const string& Name, DWORD FileAttr, int SkipMode)
 	}
 	return Ret;
 }
+
+void enum_attributes(const std::function<bool(DWORD, wchar_t)>& Pred)
+{
+	static const simple_pair<DWORD, wchar_t> AttrMap[] =
+	{
+		{FILE_ATTRIBUTE_READONLY, L'R'},
+		{FILE_ATTRIBUTE_ARCHIVE, L'A'},
+		{FILE_ATTRIBUTE_HIDDEN, L'H'},
+		{FILE_ATTRIBUTE_SYSTEM, L'S'},
+		{FILE_ATTRIBUTE_COMPRESSED, L'C'},
+		{FILE_ATTRIBUTE_ENCRYPTED, L'E'},
+		{FILE_ATTRIBUTE_NOT_CONTENT_INDEXED, L'I'},
+		{FILE_ATTRIBUTE_DIRECTORY, L'D'},
+		{FILE_ATTRIBUTE_SPARSE_FILE, L'$'},
+		{FILE_ATTRIBUTE_TEMPORARY, L'T'},
+		{FILE_ATTRIBUTE_OFFLINE, L'O'},
+		{FILE_ATTRIBUTE_REPARSE_POINT, L'L'},
+		{FILE_ATTRIBUTE_VIRTUAL, L'V'},
+		{FILE_ATTRIBUTE_INTEGRITY_STREAM, L'G'},
+		{FILE_ATTRIBUTE_NO_SCRUB_DATA, L'N'},
+	};
+
+	std::all_of(CONST_RANGE(AttrMap, i) { return Pred(i.first, i.second); });
+}

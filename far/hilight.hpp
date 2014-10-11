@@ -33,7 +33,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "mix.hpp"
+#include "colormix.hpp"
 
 class VMenu2;
 class FileFilterParams;
@@ -105,9 +105,9 @@ private:
 			size_t result = 0;
 			std::for_each(CONST_RANGE(item.Color, i)
 			{
-				result ^= color_hash()(i.FileColor) ^ color_hash()(i.MarkColor);
+				result ^= make_hash(i.FileColor) ^ make_hash(i.MarkColor);
 			});
-			result ^= std::hash<wchar_t>()(item.Mark.Char) ^ std::hash<bool>()(item.Mark.Transparent);
+			result ^= make_hash(item.Mark.Char) ^ make_hash(item.Mark.Transparent);
 			return result;
 		}
 	};

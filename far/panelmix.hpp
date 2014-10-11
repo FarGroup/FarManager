@@ -41,10 +41,11 @@ int  CheckUpdateAnotherPanel(Panel *SrcPanel,const string& SelName);
 
 int _MakePath1(DWORD Key,string &strPathName, const wchar_t *Param2,int ShortNameAsIs=TRUE);
 
-const string FormatStr_Attribute(DWORD FileAttributes,int Width=-1);
+const string FormatStr_Attribute(DWORD FileAttributes, size_t Width);
 const string FormatStr_DateTime(const FILETIME *FileTime,int ColumnType,unsigned __int64 Flags,int Width);
 const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 StreamsSize, const string& strName,
 						DWORD FileAttributes,DWORD ShowFolderSize,DWORD ReparseTag,int ColumnType,
 						unsigned __int64 Flags,int Width,const wchar_t *CurDir=nullptr);
 void TextToViewSettings(const string& ColumnTitles, const string& ColumnWidths, std::vector<column>& Destination);
 void ViewSettingsToText(const std::vector<column>& Source, string& strColumnTitles, string& strColumnWidths);
+int GetDefaultWidth(uint64_t Type);

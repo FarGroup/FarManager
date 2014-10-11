@@ -52,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "flink.hpp"
 #include "language.hpp"
 #include "locale.hpp"
+#include "fileattr.hpp"
 
 FileFilterParams::FileFilterParams():
 	FDate(),
@@ -404,38 +405,18 @@ string MenuString(FileFilterParams *FF, bool bHighlightType, int Hotkey, bool bP
 		UseHardLinks=FF->GetHardLinks(nullptr,nullptr);
 	}
 
-	static const simple_pair<DWORD, wchar_t> AttrArray[] =
-	{
-		{FILE_ATTRIBUTE_READONLY, L'R'},
-		{FILE_ATTRIBUTE_ARCHIVE, L'A'},
-		{FILE_ATTRIBUTE_HIDDEN, L'H'},
-		{FILE_ATTRIBUTE_SYSTEM, L'S'},
-		{FILE_ATTRIBUTE_DIRECTORY, L'D'},
-		{FILE_ATTRIBUTE_COMPRESSED, L'C'},
-		{FILE_ATTRIBUTE_ENCRYPTED, L'E'},
-		{FILE_ATTRIBUTE_NOT_CONTENT_INDEXED, L'I'},
-		{FILE_ATTRIBUTE_SPARSE_FILE, L'$'},
-		{FILE_ATTRIBUTE_TEMPORARY, L'T'},
-		{FILE_ATTRIBUTE_REPARSE_POINT, L'L'},
-		{FILE_ATTRIBUTE_OFFLINE, L'O'},
-		{FILE_ATTRIBUTE_VIRTUAL, L'V'},
-		{FILE_ATTRIBUTE_INTEGRITY_STREAM, L'G'},
-		{FILE_ATTRIBUTE_NO_SCRUB_DATA, L'N'},
-	};
-
 	string Attr;
-	Attr.reserve(ARRAYSIZE(AttrArray) * 2);
 
-	std::for_each(CONST_RANGE(AttrArray, i)
+	enum_attributes([&](DWORD Attribute, wchar_t Character)
 	{
-		if (IncludeAttr & i.first)
+		if (IncludeAttr & Attribute)
 		{
-			Attr.push_back(i.second);
+			Attr.push_back(Character);
 			Attr.push_back(L'+');
 		}
-		else if (ExcludeAttr & i.first)
+		else if (ExcludeAttr & Attribute)
 		{
-			Attr.push_back(i.second);
+			Attr.push_back(Character);
 			Attr.push_back(L'-');
 		}
 		else
@@ -443,6 +424,7 @@ string MenuString(FileFilterParams *FF, bool bHighlightType, int Hotkey, bool bP
 			Attr.push_back(L'.');
 			Attr.push_back(L'.');
 		}
+		return true;
 	});
 
 	wchar_t SizeDate[] = L"....";
@@ -539,10 +521,10 @@ enum enumFileFilterConfig
 	ID_FF_COMPRESSED,
 	ID_FF_ENCRYPTED,
 	ID_FF_NOTINDEXED,
-	ID_FF_REPARSEPOINT,
 	ID_FF_SPARSE,
 	ID_FF_TEMP,
 	ID_FF_OFFLINE,
+	ID_FF_REPARSEPOINT,
 	ID_FF_VIRTUAL,
 	ID_FF_INTEGRITY_STREAM,
 	ID_FF_NO_SCRUB_DATA,
@@ -708,7 +690,7 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_SIZEFROMEDIT,nullptr);
 				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_SIZETOEDIT,nullptr);
 
-				for (int I=ID_FF_READONLY; I <= ID_FF_VIRTUAL; ++I)
+				for (int I=ID_FF_READONLY; I < ID_HER_SEPARATOR1 ; ++I)
 				{
 					Dlg->SendMessage(DM_SETCHECK,I,ToPtr(BSTATE_3STATE));
 				}
@@ -868,7 +850,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	const wchar_t VerticalLine[] = {BoxSymbols[BS_T_H1V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_B_H1V1],0};
 	FarDialogItem FilterDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,76,20,0,nullptr,nullptr,DIF_SHOWAMPERSAND,MSG(MFileFilterTitle)},
+		{DI_DOUBLEBOX,3,1,76,23,0,nullptr,nullptr,DIF_SHOWAMPERSAND,MSG(MFileFilterTitle)},
 
 		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,DIF_FOCUS,MSG(MFileFilterName)},
 		{DI_EDIT,5,2,74,2,0,FilterNameHistoryName,nullptr,DIF_HISTORY,L""},
@@ -908,46 +890,45 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		{DI_CHECKBOX, 7,12,0,12,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrA)},
 		{DI_CHECKBOX, 7,13,0,13,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrH)},
 		{DI_CHECKBOX, 7,14,0,14,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrS)},
-		{DI_CHECKBOX, 7,15,0,15,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrD)},
+		{DI_CHECKBOX, 7,15,0,15,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrC)},
+		{DI_CHECKBOX, 7,16,0,16,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrE)},
+		{DI_CHECKBOX, 7,17,0,17,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrNI)},
+		{DI_CHECKBOX, 7,18,0,18,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrD)},
 
-		{DI_CHECKBOX,29,11,0,11,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrC)},
-		{DI_CHECKBOX,29,12,0,12,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrE)},
-		{DI_CHECKBOX,29,13,0,13,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrNI)},
-		{DI_CHECKBOX,29,14,0,14,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrReparse)},
-		{DI_CHECKBOX,29,15,0,15,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrSparse)},
+		{DI_CHECKBOX,42,11,0,11,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrSparse)},
+		{DI_CHECKBOX,42,12,0,12,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrT)},
+		{DI_CHECKBOX,42,13,0,13,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrOffline)},
+		{DI_CHECKBOX,42,14,0,14,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrReparse)},
+		{DI_CHECKBOX,42,15,0,15,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrVirtual)},
+		{DI_CHECKBOX,42,16,0,16,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrIntegrityStream)},
+		{DI_CHECKBOX,42,17,0,17,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrNoScrubData)},
 
-		{DI_CHECKBOX,51,11,0,11,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrT)},
-		{DI_CHECKBOX,51,12,0,12,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrOffline)},
-		{DI_CHECKBOX,51,13,0,13,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrVirtual)},
-		{DI_CHECKBOX,51,14,0,14,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrIntegrityStream)},
-		{DI_CHECKBOX,51,15,0,15,0,nullptr,nullptr,DIF_3STATE,MSG(MFileFilterAttrNoScrubData)},
+		{DI_TEXT,-1,17,0,17,0,nullptr,nullptr,DIF_SEPARATOR,MSG(MHighlightColors)},
+		{DI_TEXT,7,18,0,18,0,nullptr,nullptr,0,MSG(MHighlightMarkChar)},
+		{DI_FIXEDIT,5,18,5,18,0,nullptr,nullptr,0,L""},
+		{DI_CHECKBOX,0,18,0,18,0,nullptr,nullptr,0,MSG(MHighlightTransparentMarkChar)},
 
-		{DI_TEXT,-1,14,0,14,0,nullptr,nullptr,DIF_SEPARATOR,MSG(MHighlightColors)},
-		{DI_TEXT,7,15,0,15,0,nullptr,nullptr,0,MSG(MHighlightMarkChar)},
-		{DI_FIXEDIT,5,15,5,15,0,nullptr,nullptr,0,L""},
-		{DI_CHECKBOX,0,15,0,15,0,nullptr,nullptr,0,MSG(MHighlightTransparentMarkChar)},
+		{DI_BUTTON,5,19,0,19,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,MSG(MHighlightFileName1)},
+		{DI_BUTTON,0,19,0,19,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,MSG(MHighlightMarking1)},
+		{DI_BUTTON,5,20,0,20,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,MSG(MHighlightFileName2)},
+		{DI_BUTTON,0,20,0,20,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,MSG(MHighlightMarking2)},
+		{DI_BUTTON,5,21,0,21,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,MSG(MHighlightFileName3)},
+		{DI_BUTTON,0,21,0,21,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,MSG(MHighlightMarking3)},
+		{DI_BUTTON,5,22,0,22,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,MSG(MHighlightFileName4)},
+		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,MSG(MHighlightMarking4)},
 
-		{DI_BUTTON,5,16,0,16,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,MSG(MHighlightFileName1)},
-		{DI_BUTTON,0,16,0,16,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,MSG(MHighlightMarking1)},
-		{DI_BUTTON,5,17,0,17,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,MSG(MHighlightFileName2)},
-		{DI_BUTTON,0,17,0,17,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,MSG(MHighlightMarking2)},
-		{DI_BUTTON,5,18,0,18,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,MSG(MHighlightFileName3)},
-		{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,MSG(MHighlightMarking3)},
-		{DI_BUTTON,5,19,0,19,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,MSG(MHighlightFileName4)},
-		{DI_BUTTON,0,19,0,19,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,MSG(MHighlightMarking4)},
+		{DI_USERCONTROL,73-15-1,19,73-2,22,0,nullptr,nullptr,DIF_NOFOCUS,L""},
+		{DI_CHECKBOX,5,23,0,23,0,nullptr,nullptr,0,MSG(MHighlightContinueProcessing)},
 
-		{DI_USERCONTROL,73-15-1,16,73-2,19,0,nullptr,nullptr,DIF_NOFOCUS,L""},
-		{DI_CHECKBOX,5,20,0,20,0,nullptr,nullptr,0,MSG(MHighlightContinueProcessing)},
+		{DI_TEXT,-1,19,0,19,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 
-		{DI_TEXT,-1,16,0,16,0,nullptr,nullptr,DIF_SEPARATOR,L""},
+		{DI_CHECKBOX,5,20,0,20,0,nullptr,nullptr,0,MSG(MFileHardLinksCount)},//добавляем новый чекбокс в панель
+		{DI_TEXT,-1,21,0,21,0,nullptr,nullptr,DIF_SEPARATOR,L""},// и разделитель
 
-		{DI_CHECKBOX,5,17,0,17,0,nullptr,nullptr,0,MSG(MFileHardLinksCount)},//добавляем новый чекбокс в панель
-		{DI_TEXT,-1,18,0,18,0,nullptr,nullptr,DIF_SEPARATOR,L""},// и разделитель
-
-		{DI_BUTTON,0,19,0,19,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
-		{DI_BUTTON,0,19,0,19,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,MSG(MFileFilterReset)},
-		{DI_BUTTON,0,19,0,19,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MFileFilterCancel)},
-		{DI_BUTTON,0,19,0,19,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,MSG(MFileFilterMakeTransparent)},
+		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
+		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,MSG(MFileFilterReset)},
+		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MFileFilterCancel)},
+		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,MSG(MFileFilterMakeTransparent)},
 	};
 	FilterDlgData[0].Data=MSG(ColorConfig?MFileHilightTitle:MFileFilterTitle);
 	auto FilterDlg = MakeDialogItemsEx(FilterDlgData);
@@ -959,7 +940,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		for (int i=ID_FF_NAME; i<=ID_FF_SEPARATOR1; i++)
 			FilterDlg[i].Flags|=DIF_HIDDEN;
 
-		for (int i=ID_FF_MATCHMASK; i<=ID_FF_VIRTUAL; i++)
+		for (int i=ID_FF_MATCHMASK; i < ID_HER_SEPARATOR1; i++)
 		{
 			FilterDlg[i].Y1-=2;
 			FilterDlg[i].Y2-=2;
@@ -1054,19 +1035,19 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	FilterDlg[ID_FF_SYSTEM].Selected=(AttrSet & FILE_ATTRIBUTE_SYSTEM?1:AttrClear & FILE_ATTRIBUTE_SYSTEM?0:2);
 	FilterDlg[ID_FF_COMPRESSED].Selected=(AttrSet & FILE_ATTRIBUTE_COMPRESSED?1:AttrClear & FILE_ATTRIBUTE_COMPRESSED?0:2);
 	FilterDlg[ID_FF_ENCRYPTED].Selected=(AttrSet & FILE_ATTRIBUTE_ENCRYPTED?1:AttrClear & FILE_ATTRIBUTE_ENCRYPTED?0:2);
-	FilterDlg[ID_FF_DIRECTORY].Selected=(AttrSet & FILE_ATTRIBUTE_DIRECTORY?1:AttrClear & FILE_ATTRIBUTE_DIRECTORY?0:2);
 	FilterDlg[ID_FF_NOTINDEXED].Selected=(AttrSet & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED?1:AttrClear & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED?0:2);
+	FilterDlg[ID_FF_DIRECTORY].Selected=(AttrSet & FILE_ATTRIBUTE_DIRECTORY?1:AttrClear & FILE_ATTRIBUTE_DIRECTORY?0:2);
 	FilterDlg[ID_FF_SPARSE].Selected=(AttrSet & FILE_ATTRIBUTE_SPARSE_FILE?1:AttrClear & FILE_ATTRIBUTE_SPARSE_FILE?0:2);
 	FilterDlg[ID_FF_TEMP].Selected=(AttrSet & FILE_ATTRIBUTE_TEMPORARY?1:AttrClear & FILE_ATTRIBUTE_TEMPORARY?0:2);
-	FilterDlg[ID_FF_REPARSEPOINT].Selected=(AttrSet & FILE_ATTRIBUTE_REPARSE_POINT?1:AttrClear & FILE_ATTRIBUTE_REPARSE_POINT?0:2);
 	FilterDlg[ID_FF_OFFLINE].Selected=(AttrSet & FILE_ATTRIBUTE_OFFLINE?1:AttrClear & FILE_ATTRIBUTE_OFFLINE?0:2);
+	FilterDlg[ID_FF_REPARSEPOINT].Selected=(AttrSet & FILE_ATTRIBUTE_REPARSE_POINT?1:AttrClear & FILE_ATTRIBUTE_REPARSE_POINT?0:2);
 	FilterDlg[ID_FF_VIRTUAL].Selected=(AttrSet & FILE_ATTRIBUTE_VIRTUAL?1:AttrClear & FILE_ATTRIBUTE_VIRTUAL?0:2);
 	FilterDlg[ID_FF_INTEGRITY_STREAM].Selected=(AttrSet & FILE_ATTRIBUTE_INTEGRITY_STREAM?1:AttrClear & FILE_ATTRIBUTE_INTEGRITY_STREAM?0:2);
 	FilterDlg[ID_FF_NO_SCRUB_DATA].Selected=(AttrSet & FILE_ATTRIBUTE_NO_SCRUB_DATA?1:AttrClear & FILE_ATTRIBUTE_NO_SCRUB_DATA?0:2);
 
 	if (!FilterDlg[ID_FF_MATCHATTRIBUTES].Selected)
 	{
-		for (int i=ID_FF_READONLY; i <= ID_FF_VIRTUAL; i++)
+		for (int i=ID_FF_READONLY; i < ID_HER_SEPARATOR1; i++)
 			FilterDlg[i].Flags|=DIF_DISABLE;
 	}
 
@@ -1097,12 +1078,12 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	Dlg->SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_COMPRESSED,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 	Dlg->SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_ENCRYPTED,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 	Dlg->SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_NOTINDEXED,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
+	Dlg->SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_DIRECTORY,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 	Dlg->SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_SPARSE,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 	Dlg->SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_TEMP,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
-	Dlg->SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_REPARSEPOINT,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 	Dlg->SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_OFFLINE,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
+	Dlg->SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_REPARSEPOINT,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 	Dlg->SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_VIRTUAL,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
-	Dlg->SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_DIRECTORY,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 	Dlg->SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_INTEGRITY_STREAM,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 	Dlg->SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_NO_SCRUB_DATA,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 
@@ -1150,12 +1131,12 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 			AttrSet|=(FilterDlg[ID_FF_SYSTEM].Selected==1?FILE_ATTRIBUTE_SYSTEM:0);
 			AttrSet|=(FilterDlg[ID_FF_COMPRESSED].Selected==1?FILE_ATTRIBUTE_COMPRESSED:0);
 			AttrSet|=(FilterDlg[ID_FF_ENCRYPTED].Selected==1?FILE_ATTRIBUTE_ENCRYPTED:0);
-			AttrSet|=(FilterDlg[ID_FF_DIRECTORY].Selected==1?FILE_ATTRIBUTE_DIRECTORY:0);
 			AttrSet|=(FilterDlg[ID_FF_NOTINDEXED].Selected==1?FILE_ATTRIBUTE_NOT_CONTENT_INDEXED:0);
+			AttrSet|=(FilterDlg[ID_FF_DIRECTORY].Selected==1?FILE_ATTRIBUTE_DIRECTORY:0);
 			AttrSet|=(FilterDlg[ID_FF_SPARSE].Selected==1?FILE_ATTRIBUTE_SPARSE_FILE:0);
 			AttrSet|=(FilterDlg[ID_FF_TEMP].Selected==1?FILE_ATTRIBUTE_TEMPORARY:0);
-			AttrSet|=(FilterDlg[ID_FF_REPARSEPOINT].Selected==1?FILE_ATTRIBUTE_REPARSE_POINT:0);
 			AttrSet|=(FilterDlg[ID_FF_OFFLINE].Selected==1?FILE_ATTRIBUTE_OFFLINE:0);
+			AttrSet|=(FilterDlg[ID_FF_REPARSEPOINT].Selected==1?FILE_ATTRIBUTE_REPARSE_POINT:0);
 			AttrSet|=(FilterDlg[ID_FF_VIRTUAL].Selected==1?FILE_ATTRIBUTE_VIRTUAL:0);
 			AttrSet|=(FilterDlg[ID_FF_INTEGRITY_STREAM].Selected==1?FILE_ATTRIBUTE_INTEGRITY_STREAM:0);
 			AttrSet|=(FilterDlg[ID_FF_NO_SCRUB_DATA].Selected==1?FILE_ATTRIBUTE_NO_SCRUB_DATA:0);
@@ -1166,12 +1147,12 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 			AttrClear|=(FilterDlg[ID_FF_SYSTEM].Selected==0?FILE_ATTRIBUTE_SYSTEM:0);
 			AttrClear|=(FilterDlg[ID_FF_COMPRESSED].Selected==0?FILE_ATTRIBUTE_COMPRESSED:0);
 			AttrClear|=(FilterDlg[ID_FF_ENCRYPTED].Selected==0?FILE_ATTRIBUTE_ENCRYPTED:0);
-			AttrClear|=(FilterDlg[ID_FF_DIRECTORY].Selected==0?FILE_ATTRIBUTE_DIRECTORY:0);
 			AttrClear|=(FilterDlg[ID_FF_NOTINDEXED].Selected==0?FILE_ATTRIBUTE_NOT_CONTENT_INDEXED:0);
+			AttrClear|=(FilterDlg[ID_FF_DIRECTORY].Selected==0?FILE_ATTRIBUTE_DIRECTORY:0);
 			AttrClear|=(FilterDlg[ID_FF_SPARSE].Selected==0?FILE_ATTRIBUTE_SPARSE_FILE:0);
 			AttrClear|=(FilterDlg[ID_FF_TEMP].Selected==0?FILE_ATTRIBUTE_TEMPORARY:0);
-			AttrClear|=(FilterDlg[ID_FF_REPARSEPOINT].Selected==0?FILE_ATTRIBUTE_REPARSE_POINT:0);
 			AttrClear|=(FilterDlg[ID_FF_OFFLINE].Selected==0?FILE_ATTRIBUTE_OFFLINE:0);
+			AttrClear|=(FilterDlg[ID_FF_REPARSEPOINT].Selected==0?FILE_ATTRIBUTE_REPARSE_POINT:0);
 			AttrClear|=(FilterDlg[ID_FF_VIRTUAL].Selected==0?FILE_ATTRIBUTE_VIRTUAL:0);
 			AttrClear|=(FilterDlg[ID_FF_INTEGRITY_STREAM].Selected==0?FILE_ATTRIBUTE_INTEGRITY_STREAM:0);
 			AttrClear|=(FilterDlg[ID_FF_NO_SCRUB_DATA].Selected==0?FILE_ATTRIBUTE_NO_SCRUB_DATA:0);

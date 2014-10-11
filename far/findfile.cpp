@@ -655,18 +655,7 @@ void FindFiles::AdvancedDialog()
 		Global->Opt->FindOpt.strSearchInFirstSize = AdvancedDlg[AD_EDIT_SEARCHFIRST].strData;
 		SearchInFirst=ConvertFileSizeString(Global->Opt->FindOpt.strSearchInFirstSize);
 
-		Global->Opt->FindOpt.strSearchOutFormat = AdvancedDlg[AD_EDIT_COLUMNSFORMAT].strData;
-		Global->Opt->FindOpt.strSearchOutFormatWidth = AdvancedDlg[AD_EDIT_COLUMNSWIDTH].strData;
-
-		Global->Opt->FindOpt.OutColumns.clear();
-
-		if (!Global->Opt->FindOpt.strSearchOutFormat.empty())
-		{
-			if (Global->Opt->FindOpt.strSearchOutFormatWidth.empty())
-				Global->Opt->FindOpt.strSearchOutFormatWidth=L"0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0";
-
-			TextToViewSettings(Global->Opt->FindOpt.strSearchOutFormat, Global->Opt->FindOpt.strSearchOutFormatWidth, Global->Opt->FindOpt.OutColumns);
-        }
+		Global->Opt->SetSearchColumns(AdvancedDlg[AD_EDIT_COLUMNSFORMAT].strData, AdvancedDlg[AD_EDIT_COLUMNSWIDTH].strData);
 	}
 }
 
@@ -2036,6 +2025,13 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const api::FAR
 	FOR(auto& i, Global->Opt->FindOpt.OutColumns)
 	{
 		int CurColumnType = static_cast<int>(i.type & 0xFF);
+		int Width = i.width;
+		int WidthType = i.width_type;
+		if (!Width)
+		{
+			WidthType = COUNT_WIDTH;
+			Width = GetDefaultWidth(i.type);
+		}
 
 		switch (CurColumnType)
 		{
@@ -2053,7 +2049,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const api::FAR
 
 			case ATTR_COLUMN:
 			{
-				MenuText << FormatStr_Attribute(FindData.dwFileAttributes) << BoxSymbols[BS_V1];
+				MenuText << FormatStr_Attribute(FindData.dwFileAttributes, Width) << BoxSymbols[BS_V1];
 				break;
 			}
 			case NUMSTREAMS_COLUMN:
@@ -2083,7 +2079,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const api::FAR
 								FindData.dwReserved0,
 								(CurColumnType == NUMSTREAMS_COLUMN || CurColumnType == NUMLINK_COLUMN)?STREAMSSIZE_COLUMN:CurColumnType,
 								i.type,
-								i.width);
+								Width);
 
 				MenuText << BoxSymbols[BS_V1];
 				break;
@@ -2116,7 +2112,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const api::FAR
 						break;
 				}
 
-				MenuText << FormatStr_DateTime(FileTime, CurColumnType, i.type, i.width) << BoxSymbols[BS_V1];
+				MenuText << FormatStr_DateTime(FileTime, CurColumnType, i.type, Width) << BoxSymbols[BS_V1];
 				break;
 			}
 		}

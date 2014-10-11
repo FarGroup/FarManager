@@ -93,17 +93,6 @@ struct uuid_equal
 	}
 };
 
-struct color_hash
-{
-	size_t operator ()(const FarColor& Key) const
-	{
-		return std::hash<long long>()(Key.Flags)
-			^ std::hash<int>()(Key.BackgroundColor)
-			^ std::hash<int>()(Key.ForegroundColor)
-			^ std::hash<void*>()(Key.Reserved);
-	}
-};
-
 void ReloadEnvironment();
 
 unsigned int CRC32(unsigned int crc, const void* buffer, size_t size);

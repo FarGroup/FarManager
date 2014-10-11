@@ -48,3 +48,6 @@ int ESetFileSparse(const string& Name,bool State,DWORD FileAttr,int SkipMode=-1)
 int ESetFileTime(const string& Name, const FILETIME *LastWriteTime, const FILETIME *CreationTime, const FILETIME *LastAccessTime, const FILETIME *ChangeTime, DWORD FileAttr, int SkipMode=-1);
 int ESetFileOwner(const string& Name, const string& Owner,int SkipMode=-1);
 int EDeleteReparsePoint(const string& Name, DWORD FileAttr, int SkipMode=-1);
+
+void enum_attributes(const std::function<bool(DWORD, wchar_t)>& Pred);
+

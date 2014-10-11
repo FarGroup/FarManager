@@ -774,7 +774,7 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 // Return - количество замен
 int ReplaceStrings(string &strStr, const string& FindStr, const string& ReplStr, bool IgnoreCase, int Count)
 {
-	const int LenFindStr = static_cast<int>(FindStr.size());
+	const size_t LenFindStr = FindStr.size();
 	if ( !LenFindStr || !Count )
 		return 0;
 

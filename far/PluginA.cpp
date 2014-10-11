@@ -5231,7 +5231,7 @@ private:
 };
 
 
-static int SendKeyToPluginHook(Manager::Key key)
+static int SendKeyToPluginHook(const Manager::Key& key)
 {
 	DWORD KeyM = (key.FarKey&(~KEY_CTRLMASK));
 

@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "flink.hpp"
 #include "plugins.hpp"
 #include "language.hpp"
+#include "fileattr.hpp"
 
 int ColumnTypeWidth[]={0, 6, 6, 8, 5, 14, 14, 14, 14, 6, 0, 0, 3, 3, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 static_assert(ARRAYSIZE(ColumnTypeWidth) == COLUMN_TYPES_COUNT, "wrong size of ColumnTypeWidth array");
@@ -543,45 +544,20 @@ void ViewSettingsToText(const std::vector<column>& Columns, string &strColumnTit
 		strColumnWidths.pop_back();
 }
 
-const string FormatStr_Attribute(DWORD FileAttributes,int Width)
+const string FormatStr_Attribute(DWORD FileAttributes, size_t Width)
 {
-	FormatString strResult;
+	string OutStr;
 
-	wchar_t OutStr[]=
+	enum_attributes([&](DWORD Attribute, wchar_t Character)
 	{
-		FileAttributes&FILE_ATTRIBUTE_READONLY?L'R':L' ',
-		FileAttributes&FILE_ATTRIBUTE_SYSTEM?L'S':L' ',
-		FileAttributes&FILE_ATTRIBUTE_HIDDEN?L'H':L' ',
-		FileAttributes&FILE_ATTRIBUTE_ARCHIVE?L'A':L' ',
-		FileAttributes&FILE_ATTRIBUTE_SPARSE_FILE?L'P':L' ',
-		FileAttributes&FILE_ATTRIBUTE_REPARSE_POINT?L'L':L' ',
-		FileAttributes&FILE_ATTRIBUTE_COMPRESSED?L'C':FileAttributes&FILE_ATTRIBUTE_ENCRYPTED?L'E':L' ',
-		FileAttributes&FILE_ATTRIBUTE_TEMPORARY?L'T':L' ',
-		FileAttributes&FILE_ATTRIBUTE_NOT_CONTENT_INDEXED?L'I':L' ',
-		FileAttributes&FILE_ATTRIBUTE_OFFLINE?L'O':L' ',
-		FileAttributes&FILE_ATTRIBUTE_VIRTUAL?L'V':L' ',
-		FileAttributes&FILE_ATTRIBUTE_INTEGRITY_STREAM ? L'G' : L' ',
-		FileAttributes&FILE_ATTRIBUTE_NO_SCRUB_DATA ? L'N' : L' ',
-		0
-	};
-
-	if (Width > 0)
-	{
-		strResult<<fmt::ExactWidth(Width);
-
-		int n = static_cast<int>(ARRAYSIZE(OutStr)) - 1;
-		while (n > Width && OutStr[n-1] == L' ')
-			OutStr[--n] = L'\0';
-
-		wchar_t *ps;
-		while (n > Width && nullptr != (ps = wcsrchr(OutStr, L' ')))
+		if (FileAttributes & Attribute)
 		{
-			wcscpy(ps, ps+1);
-			--n;
+			OutStr.push_back(Character);
 		}
-	}
-	strResult<<OutStr;
-	return strResult;
+		return OutStr.size() < Width;
+	});
+
+	return FormatString() << fmt::LeftAlign() << fmt::ExactWidth(Width) << OutStr;
 }
 
 const string FormatStr_DateTime(const FILETIME *FileTime,int ColumnType,unsigned __int64 Flags,int Width)
@@ -784,4 +760,20 @@ const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 St
 	}
 
 	return strResult;
+}
+
+int GetDefaultWidth(uint64_t Type)
+{
+	int ColumnType = Type & 0xff;
+	int Width = ColumnTypeWidth[ColumnType];
+
+	if (ColumnType == WDATE_COLUMN || ColumnType == CDATE_COLUMN || ColumnType == ADATE_COLUMN || ColumnType == CHDATE_COLUMN)
+	{
+		if (Type & COLUMN_BRIEF)
+			Width -= 3;
+
+		if (Type & COLUMN_MONTH)
+			++Width;
+	}
+	return Width;
 }

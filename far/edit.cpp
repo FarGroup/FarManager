@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "editor.hpp"
 #include "window.hpp"
+#include "colormix.hpp"
 
 void ColorItem::SetOwner(const GUID& Value)
 {
@@ -58,8 +59,7 @@ void ColorItem::SetOwner(const GUID& Value)
 
 void ColorItem::SetColor(const FarColor& Value)
 {
-	static std::unordered_set<FarColor, color_hash> ColorSet;
-	Color = &*ColorSet.emplace(Value).first;
+	Color = StoreColor(Value);
 }
 
 static int Recurse=0;

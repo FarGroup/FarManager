@@ -1921,7 +1921,7 @@ void Options::InitRoamingCFG()
 		{FSSF_PRIVATE,       NKeySystem,L"ScanSymlinks",  &LoadPlug.ScanSymlinks, true},
 		{FSSF_PRIVATE,       NKeySystem,L"SearchInFirstSize", &FindOpt.strSearchInFirstSize, L""},
 		{FSSF_PRIVATE,       NKeySystem,L"SearchOutFormat", &FindOpt.strSearchOutFormat, L"D,S,A"},
-		{FSSF_PRIVATE,       NKeySystem,L"SearchOutFormatWidth", &FindOpt.strSearchOutFormatWidth, L"14,13,0"},
+		{FSSF_PRIVATE,       NKeySystem,L"SearchOutFormatWidth", &FindOpt.strSearchOutFormatWidth, L"0,0,0"},
 		{FSSF_PRIVATE,       NKeySystem,L"SetAttrFolderRules", &SetAttrFolderRules, true},
 		{FSSF_PRIVATE,       NKeySystem,L"ShowCheckingFile", &ShowCheckingFile, false},
 		{FSSF_PRIVATE,       NKeySystem,L"ShowStatusInfo", &InfoPanel.strShowStatusInfo, L""},
@@ -2045,6 +2045,18 @@ void Options::InitConfig()
 	{
 		InitRoamingCFG();
 		InitLocalCFG();
+	}
+}
+
+void Options::SetSearchColumns(const string& Columns, const string& Widths)
+{
+	if (!Columns.empty())
+	{
+		TextToViewSettings(Columns, Widths, Global->Opt->FindOpt.OutColumns);
+		string NewColumns, NewWidths;
+		ViewSettingsToText(Global->Opt->FindOpt.OutColumns, NewColumns, NewWidths);
+		Global->Opt->FindOpt.strSearchOutFormat = NewColumns;
+		Global->Opt->FindOpt.strSearchOutFormatWidth = NewWidths;
 	}
 }
 
@@ -2232,12 +2244,7 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 
 	FindOpt.OutColumns.clear();
 
-	if (!FindOpt.strSearchOutFormat.empty())
-	{
-		if (FindOpt.strSearchOutFormatWidth.empty())
-			FindOpt.strSearchOutFormatWidth=L"0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0";
-		TextToViewSettings(FindOpt.strSearchOutFormat, FindOpt.strSearchOutFormatWidth, FindOpt.OutColumns);
-	}
+	SetSearchColumns(FindOpt.strSearchOutFormat, FindOpt.strSearchOutFormatWidth);
 
 	string tmp[2];
 	if (!Global->Db->GeneralCfg()->EnumValues(L"Masks", 0, tmp[0], tmp[1]))

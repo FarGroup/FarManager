@@ -163,8 +163,8 @@ public:
 	TiXmlElementWrapper& operator=(const tinyxml::TiXmlElement* rhs) { m_data = rhs; return *this; }
 
 	operator bool() const { return m_data != nullptr; }
-	operator const tinyxml::TiXmlElement&() const { return *m_data; }
-	const tinyxml::TiXmlElement& get() const { return *m_data; }
+	const tinyxml::TiXmlElement* operator->() const { return m_data; }
+	const tinyxml::TiXmlElement& operator*() const { return *m_data; }
 
 private:
 	const tinyxml::TiXmlElement* m_data;
@@ -186,7 +186,7 @@ public:
 	virtual bool get(size_t index, TiXmlElementWrapper& value) override
 	{
 		return index ?
-			value = value.get().NextSiblingElement(m_name.data()) :
+			value = value->NextSiblingElement(m_name.data()) :
 			value = m_base? m_base->FirstChildElement(m_name.data()) : nullptr;
 	}
 
@@ -442,12 +442,12 @@ public:
 	virtual void Import(const tinyxml::TiXmlHandle &root) override
 	{
 		SCOPED_ACTION(auto)(ScopedTransaction());
-		FOR(const tinyxml::TiXmlElement& e, xml_enum(root.FirstChild(GetKeyName()), "setting"))
+		FOR(const auto& e, xml_enum(root.FirstChild(GetKeyName()), "setting"))
 		{
-			const char *key = e.Attribute("key");
-			const char *name = e.Attribute("name");
-			const char *type = e.Attribute("type");
-			const char *value = e.Attribute("value");
+			const char *key = e->Attribute("key");
+			const char *name = e->Attribute("name");
+			const char *type = e->Attribute("type");
+			const char *value = e->Attribute("value");
 
 			if (!key || !name || !type || !value)
 				continue;
@@ -811,11 +811,11 @@ public:
 				return;
 		}
 
-		FOR(const tinyxml::TiXmlElement& e, xml_enum(key, "value"))
+		FOR(const auto& e, xml_enum(key, "value"))
 		{
-			const char *name = e.Attribute("name");
-			const char *type = e.Attribute("type");
-			const char *value = e.Attribute("value");
+			const char *name = e->Attribute("name");
+			const char *type = e->Attribute("type");
+			const char *value = e->Attribute("value");
 
 			if (!name || !type)
 				continue;
@@ -844,7 +844,7 @@ public:
 			{
 				// custom types, value is optional
 				char_ptr Blob;
-				int Size = DeserializeBlob(name, type, value, e, Blob);
+				int Size = DeserializeBlob(name, type, value, *e, Blob);
 				if (Blob)
 				{
 					SetValue(id, Name, Blob.get(), Size);
@@ -854,7 +854,7 @@ public:
 
 		FOR(const auto& e, xml_enum(key, "key"))
 		{
-			Import(id, e);
+			Import(id, *e);
 		}
 
 	}
@@ -864,7 +864,7 @@ public:
 		SCOPED_ACTION(auto)(ScopedTransaction());
 		FOR(const auto& e, xml_enum(root.FirstChild("hierarchicalconfig"), "key"))
 		{
-			Import(0, e);
+			Import(0, *e);
 		}
 	}
 };
@@ -1037,12 +1037,12 @@ public:
 	virtual void Import(const tinyxml::TiXmlHandle &root) override
 	{
 		SCOPED_ACTION(auto)(ScopedTransaction());
-		FOR(const tinyxml::TiXmlElement& e, xml_enum(root.FirstChild("colors"), "object"))
+		FOR(const auto& e, xml_enum(root.FirstChild("colors"), "object"))
 		{
-			const char *name = e.Attribute("name");
-			const char *background = e.Attribute("background");
-			const char *foreground = e.Attribute("foreground");
-			const char *flags = e.Attribute("flags");
+			const char *name = e->Attribute("name");
+			const char *background = e->Attribute("background");
+			const char *foreground = e->Attribute("foreground");
+			const char *flags = e->Attribute("flags");
 
 			if (!name)
 				continue;
@@ -1302,10 +1302,10 @@ public:
 		SCOPED_ACTION(auto)(ScopedTransaction());
 		Exec("DELETE FROM filetypes;"); //delete all before importing
 		unsigned __int64 id = 0;
-		FOR(const tinyxml::TiXmlElement& e, xml_enum(base, "filetype"))
+		FOR(const auto& e, xml_enum(base, "filetype"))
 		{
-			const char *mask = e.Attribute("mask");
-			const char *description = e.Attribute("description");
+			const char *mask = e->Attribute("mask");
+			const char *description = e->Attribute("description");
 
 			if (!mask)
 				continue;
@@ -1317,13 +1317,13 @@ public:
 			if (!id)
 				continue;
 
-			FOR(const tinyxml::TiXmlElement& se, xml_enum(e, "command"))
+			FOR(const auto& se, xml_enum(*e, "command"))
 			{
-				const char *command = se.Attribute("command");
+				const char *command = se->Attribute("command");
 				int type=0;
-				const char *stype = se.Attribute("type", &type);
+				const char *stype = se->Attribute("type", &type);
 				int enabled=0;
-				const char *senabled = se.Attribute("enabled", &enabled);
+				const char *senabled = se->Attribute("enabled", &enabled);
 
 				if (!command || !stype || !senabled)
 					continue;
@@ -1921,20 +1921,20 @@ public:
 	virtual void Import(const tinyxml::TiXmlHandle &root) override
 	{
 		SCOPED_ACTION(auto)(ScopedTransaction());
-		FOR(const tinyxml::TiXmlElement& e, xml_enum(root.FirstChild("pluginhotkeys"), "plugin"))
+		FOR(const auto& e, xml_enum(root.FirstChild("pluginhotkeys"), "plugin"))
 		{
-			const char *key = e.Attribute("key");
+			const char *key = e->Attribute("key");
 
 			if (!key)
 				continue;
 
 			string Key = wide(key, CP_UTF8);
 
-			FOR(const tinyxml::TiXmlElement& se, xml_enum(e, "hotkey"))
+			FOR(const auto& se, xml_enum(*e, "hotkey"))
 			{
-				const char *stype = se.Attribute("menu");
-				const char *guid = se.Attribute("guid");
-				const char *hotkey = se.Attribute("hotkey");
+				const char *stype = se->Attribute("menu");
+				const char *guid = se->Attribute("guid");
+				const char *hotkey = se->Attribute("hotkey");
 
 				if (!guid || !stype)
 					continue;
@@ -2631,12 +2631,12 @@ void Database::TryImportDatabase(XmlConfig *p, const char *son, bool plugin)
 				p->Import(root.FirstChildElement(son));
 			else
 			{
-				FOR(const tinyxml::TiXmlElement& i, xml_enum(root.FirstChild("pluginsconfig"), "plugin"))
+				FOR(const auto& i, xml_enum(root.FirstChild("pluginsconfig"), "plugin"))
 				{
-					const char *guid = i.Attribute("guid");
+					const char *guid = i->Attribute("guid");
 					if (guid && 0 == strcmp(guid, son))
 					{
-						p->Import(tinyxml::TiXmlHandle(&const_cast<tinyxml::TiXmlElement&>(i)));
+						p->Import(tinyxml::TiXmlHandle(&const_cast<tinyxml::TiXmlElement&>(*i)));
 						break;
 					}
 				}
@@ -2828,9 +2828,9 @@ bool Database::Import(const string& File)
 			//TODO: import for local plugin settings
 			RegExpMatch m[2];
 
-			FOR(const tinyxml::TiXmlElement& plugin, xml_enum(root.FirstChild("pluginsconfig"), "plugin"))
+			FOR(const auto& plugin, xml_enum(root.FirstChild("pluginsconfig"), "plugin"))
 			{
-				auto guid = plugin.Attribute("guid");
+				auto guid = plugin->Attribute("guid");
 				if (!guid)
 					continue;
 				string Guid = wide(guid, CP_UTF8);
@@ -2839,7 +2839,7 @@ bool Database::Import(const string& File)
 				intptr_t mc = ARRAYSIZE(m);
 				if (GetRE().Match(Guid.data(), Guid.data() + Guid.size(), m, mc))
 				{
-					CreatePluginsConfig(Guid)->Import(tinyxml::TiXmlHandle(&const_cast<tinyxml::TiXmlElement&>(plugin)));
+					CreatePluginsConfig(Guid)->Import(tinyxml::TiXmlHandle(&const_cast<tinyxml::TiXmlElement&>(*plugin)));
 				}
 			}
 

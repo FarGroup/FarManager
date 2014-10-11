@@ -275,6 +275,7 @@ public:
 	bool AdvancedConfig(farconfig_mode Mode = cfg_roaming);
 	void LocalViewerConfig(Options::ViewerOptions &ViOptRef) {return ViewerConfig(ViOptRef, true);}
 	void LocalEditorConfig(Options::EditorOptions &EdOptRef) {return EditorConfig(EdOptRef, true);}
+	void SetSearchColumns(const string& Columns, const string& Widths);
 
 	struct PanelOptions
 	{
