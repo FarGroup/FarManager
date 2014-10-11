@@ -25593,15 +25593,15 @@ MFileFilterAttrT
 "&Temporaneo"
 
 MFileFilterAttrReparse
-"Симво&л. ссылка"
-"Symbolic lin&k"
-"Symbolický li&nk"
-"Symbolischer Lin&k"
-"S&zimbolikus link"
-"Link &symboliczny"
-"&Enlace simbólico"
-"Sybolické prepoje&nie"
-"Lin&k Simbolico"
+"Точка повторной обработки"
+"Reparse point"
+"Reparse point"
+upd:"Reparse point"
+upd:"Reparse point"
+upd:"Reparse point"
+"Punto de análisis"
+"Reparse point"
+"P&unto Di Reparse"
 
 MFileFilterAttrOffline
 "Автономны&й"
