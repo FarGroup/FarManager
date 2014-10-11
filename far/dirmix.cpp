@@ -126,8 +126,7 @@ int TestFolder(const string& Path)
 
 	// первая проверка - че-нить считать можем?
 	api::enum_file Find(strFindPath);
-	auto ItemIterator = Find.begin();
-	if (ItemIterator != Find.end())
+	if (Find.begin() != Find.end())
 	{
 		return TSTFLD_NOTEMPTY;
 	}

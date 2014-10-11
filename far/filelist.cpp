@@ -7357,8 +7357,6 @@ void FileList::AddParentPoint(FileListItem *CurPtr, size_t CurFilePos, const FIL
 // flshow.cpp
 // Файловая панель - вывод на экран
 
-extern int ColumnTypeWidth[];
-
 static wchar_t OutCharacter[8]={};
 
 static LNGID __FormatEndSelectedPhrase(size_t Count)

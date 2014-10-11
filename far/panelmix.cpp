@@ -51,11 +51,43 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "fileattr.hpp"
 
-int ColumnTypeWidth[]={0, 6, 6, 8, 5, 14, 14, 14, 14, 6, 0, 0, 3, 3, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-static_assert(ARRAYSIZE(ColumnTypeWidth) == COLUMN_TYPES_COUNT, "wrong size of ColumnTypeWidth array");
+static const struct column_info
+{
+	PANEL_COLUMN_TYPE Type;
+	int DefaultWidth;
+	const wchar_t* Symbol;
+}
+ColumnInfo[] =
+{
+	{ NAME_COLUMN, 0, L"N" },
+	{ SIZE_COLUMN, 6, L"S" },
+	{ PACKED_COLUMN, 6, L"P" },
+	{ DATE_COLUMN, 8, L"D" },
+	{ TIME_COLUMN, 5, L"T" },
+	{ WDATE_COLUMN, 14, L"DM" },
+	{ CDATE_COLUMN, 14, L"DC" },
+	{ ADATE_COLUMN, 14, L"DA" },
+	{ CHDATE_COLUMN, 14, L"DE" },
+	{ ATTR_COLUMN, 6, L"A" },
+	{ DIZ_COLUMN, 0, L"Z" },
+	{ OWNER_COLUMN, 0, L"O" },
+	{ NUMLINK_COLUMN, 3, L"LN" },
+	{ NUMSTREAMS_COLUMN, 3, L"F" },
+	{ STREAMSSIZE_COLUMN, 6, L"G" },
+	{ EXTENSION_COLUMN, 0, L"X", },
+	{ CUSTOM_COLUMN0, 0, L"C0" },
+	{ CUSTOM_COLUMN1, 0, L"C1" },
+	{ CUSTOM_COLUMN2, 0, L"C2" },
+	{ CUSTOM_COLUMN3, 0, L"C3" },
+	{ CUSTOM_COLUMN4, 0, L"C4" },
+	{ CUSTOM_COLUMN5, 0, L"C5" },
+	{ CUSTOM_COLUMN6, 0, L"C6" },
+	{ CUSTOM_COLUMN7, 0, L"C7" },
+	{ CUSTOM_COLUMN8, 0, L"C8" },
+	{ CUSTOM_COLUMN9, 0, L"C9" },
+};
 
-static const wchar_t *ColumnSymbol[]={L"N",L"S",L"P",L"D",L"T",L"DM",L"DC",L"DA",L"DE",L"A",L"Z",L"O",L"LN",L"F",L"G",L"X",L"C0",L"C1",L"C2",L"C3",L"C4",L"C5",L"C6",L"C7",L"C8",L"C9"};
-static_assert(ARRAYSIZE(ColumnSymbol) == COLUMN_TYPES_COUNT, "wrong size of ColumnSymbol array");
+static_assert(ARRAYSIZE(ColumnInfo) == COLUMN_TYPES_COUNT, "wrong size of ColumnInfo array");
 
 void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
 {
@@ -284,135 +316,121 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 
 		Upper(strArgName);
 
-		if (strArgName.front()==L'N')
+		if (strArgName.front() == L'N')
 		{
 			unsigned __int64 &ColumnType = Columns.back().type;
-			ColumnType=NAME_COLUMN;
-			const wchar_t *Ptr = strArgName.data()+1;
+			ColumnType = NAME_COLUMN;
+			const wchar_t *Ptr = strArgName.data() + 1;
 
 			while (*Ptr)
 			{
 				switch (*Ptr)
 				{
-					case L'M':
-						ColumnType|=COLUMN_MARK;
-						break;
-					case L'O':
-						ColumnType|=COLUMN_NAMEONLY;
-						break;
-					case L'R':
-						ColumnType|=COLUMN_RIGHTALIGN;
-						break;
-					case L'F':
-						ColumnType|=COLUMN_RIGHTALIGNFORCE;
-						break;
-					case L'N':
-						ColumnType|=COLUMN_NOEXTENSION;
-						break;
+				case L'M':
+					ColumnType |= COLUMN_MARK;
+					break;
+				case L'O':
+					ColumnType |= COLUMN_NAMEONLY;
+					break;
+				case L'R':
+					ColumnType |= COLUMN_RIGHTALIGN;
+					break;
+				case L'F':
+					ColumnType |= COLUMN_RIGHTALIGNFORCE;
+					break;
+				case L'N':
+					ColumnType |= COLUMN_NOEXTENSION;
+					break;
 				}
 
 				Ptr++;
 			}
 		}
+		else if (strArgName.front() == L'S' || strArgName.front() == L'P' || strArgName.front() == L'G')
+		{
+			unsigned __int64 &ColumnType = Columns.back().type;
+			ColumnType = (strArgName.front() == L'S') ? SIZE_COLUMN : (strArgName.front() == L'P') ? PACKED_COLUMN : STREAMSSIZE_COLUMN;
+			const wchar_t *Ptr = strArgName.data() + 1;
+
+			while (*Ptr)
+			{
+				switch (*Ptr)
+				{
+				case L'C':
+					ColumnType |= COLUMN_COMMAS;
+					break;
+				case L'E':
+					ColumnType |= COLUMN_ECONOMIC;
+					break;
+				case L'F':
+					ColumnType |= COLUMN_FLOATSIZE;
+					break;
+				case L'T':
+					ColumnType |= COLUMN_THOUSAND;
+					break;
+				}
+
+				Ptr++;
+			}
+		}
+		else if (!StrCmpN(strArgName.data(), L"DM", 2) || !StrCmpN(strArgName.data(), L"DC", 2) || !StrCmpN(strArgName.data(), L"DA", 2) || !StrCmpN(strArgName.data(), L"DE", 2))
+		{
+			unsigned __int64 &ColumnType = Columns.back().type;
+
+			switch (strArgName[1])
+			{
+			case L'M':
+				ColumnType = WDATE_COLUMN;
+				break;
+			case L'C':
+				ColumnType = CDATE_COLUMN;
+				break;
+			case L'A':
+				ColumnType = ADATE_COLUMN;
+				break;
+			case L'E':
+				ColumnType = CHDATE_COLUMN;
+				break;
+			}
+
+			const wchar_t *Ptr = strArgName.data() + 2;
+
+			while (*Ptr)
+			{
+				switch (*Ptr)
+				{
+				case L'B':
+					ColumnType |= COLUMN_BRIEF;
+					break;
+				case L'M':
+					ColumnType |= COLUMN_MONTH;
+					break;
+				}
+
+				Ptr++;
+			}
+		}
+		else if (strArgName.front() == L'O')
+		{
+			unsigned __int64 &ColumnType = Columns.back().type;
+			ColumnType = OWNER_COLUMN;
+
+			if (strArgName.size() > 1 && strArgName[1] == L'L')
+				ColumnType |= COLUMN_FULLOWNER;
+		}
+		else if (strArgName.front() == L'X')
+		{
+			unsigned __int64 &ColumnType = Columns.back().type;
+			ColumnType = EXTENSION_COLUMN;
+
+			if (strArgName.size() > 1 && strArgName[1] == L'R')
+				ColumnType |= COLUMN_RIGHTALIGN;
+		}
 		else
 		{
-			if (strArgName.front()==L'S' || strArgName.front()==L'P' || strArgName.front()==L'G')
-			{
-				unsigned __int64 &ColumnType = Columns.back().type;
-				ColumnType=(strArgName.front()==L'S') ? SIZE_COLUMN:(strArgName.front()==L'P')?PACKED_COLUMN:STREAMSSIZE_COLUMN;
-				const wchar_t *Ptr = strArgName.data()+1;
-
-				while (*Ptr)
-				{
-					switch (*Ptr)
-					{
-						case L'C':
-							ColumnType|=COLUMN_COMMAS;
-							break;
-						case L'E':
-							ColumnType|=COLUMN_ECONOMIC;
-							break;
-						case L'F':
-							ColumnType|=COLUMN_FLOATSIZE;
-							break;
-						case L'T':
-							ColumnType|=COLUMN_THOUSAND;
-							break;
-					}
-
-					Ptr++;
-				}
-			}
-			else
-			{
-				if (!StrCmpN(strArgName.data(),L"DM",2) || !StrCmpN(strArgName.data(),L"DC",2) || !StrCmpN(strArgName.data(),L"DA",2) || !StrCmpN(strArgName.data(),L"DE",2))
-				{
-					unsigned __int64 &ColumnType = Columns.back().type;
-
-					switch (strArgName[1])
-					{
-						case L'M':
-							ColumnType=WDATE_COLUMN;
-							break;
-						case L'C':
-							ColumnType=CDATE_COLUMN;
-							break;
-						case L'A':
-							ColumnType=ADATE_COLUMN;
-							break;
-						case L'E':
-							ColumnType=CHDATE_COLUMN;
-							break;
-					}
-
-					const wchar_t *Ptr = strArgName.data()+2;
-
-					while (*Ptr)
-					{
-						switch (*Ptr)
-						{
-							case L'B':
-								ColumnType|=COLUMN_BRIEF;
-								break;
-							case L'M':
-								ColumnType|=COLUMN_MONTH;
-								break;
-						}
-
-						Ptr++;
-					}
-				}
-				else
-				{
-					if (strArgName.front()==L'O')
-					{
-						unsigned __int64 &ColumnType = Columns.back().type;
-						ColumnType=OWNER_COLUMN;
-
-						if (strArgName.size() > 1 && strArgName[1]==L'L')
-							ColumnType|=COLUMN_FULLOWNER;
-					}
-					else if (strArgName.front()==L'X')
-					{
-						unsigned __int64 &ColumnType = Columns.back().type;
-						ColumnType=EXTENSION_COLUMN;
-
-						if (strArgName.size() > 1 && strArgName[1]==L'R')
-							ColumnType|=COLUMN_RIGHTALIGN;
-					}
-					else
-					{
-						for (unsigned I=0; I<ARRAYSIZE(ColumnSymbol); I++)
-						{
-							if (strArgName == ColumnSymbol[I])
-							{
-								Columns.back().type = I;
-								break;
-							}
-						}
-					}
-				}
-			}
+			auto ItemIterator = std::find_if(CONST_RANGE(ColumnInfo, i) { return strArgName == i.Symbol; });
+			if (ItemIterator != std::cend(ColumnInfo))
+				Columns.back().type = ItemIterator->Type;
 		}
 	}
 
@@ -466,7 +484,7 @@ void ViewSettingsToText(const std::vector<column>& Columns, string &strColumnTit
 		string strType;
 		int ColumnType=static_cast<int>(i.type & 0xff);
 		// If ColumnType >= ARRAYSIZE(ColumnSymbol) ==> BUGBUG!!!
-		strType = ColumnSymbol[ColumnType];
+		strType = ColumnInfo[ColumnType].Symbol;
 
 		if (ColumnType==NAME_COLUMN)
 		{
@@ -548,7 +566,7 @@ const string FormatStr_Attribute(DWORD FileAttributes, size_t Width)
 {
 	string OutStr;
 
-	enum_attributes([&](DWORD Attribute, wchar_t Character)
+	enum_attributes([&](DWORD Attribute, wchar_t Character) -> bool
 	{
 		if (FileAttributes & Attribute)
 		{
@@ -765,7 +783,7 @@ const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 St
 int GetDefaultWidth(uint64_t Type)
 {
 	int ColumnType = Type & 0xff;
-	int Width = ColumnTypeWidth[ColumnType];
+	int Width = ColumnInfo[ColumnType].DefaultWidth;
 
 	if (ColumnType == WDATE_COLUMN || ColumnType == CDATE_COLUMN || ColumnType == ADATE_COLUMN || ColumnType == CHDATE_COLUMN)
 	{

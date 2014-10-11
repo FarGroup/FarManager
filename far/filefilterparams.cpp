@@ -407,7 +407,7 @@ string MenuString(FileFilterParams *FF, bool bHighlightType, int Hotkey, bool bP
 
 	string Attr;
 
-	enum_attributes([&](DWORD Attribute, wchar_t Character)
+	enum_attributes([&](DWORD Attribute, wchar_t Character) -> bool
 	{
 		if (IncludeAttr & Attribute)
 		{
