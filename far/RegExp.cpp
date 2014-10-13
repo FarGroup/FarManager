@@ -1764,7 +1764,7 @@ inline int RegExp::StrCmp(const wchar_t*& str, const wchar_t* _st, const wchar_t
 	return 1;
 }
 
-int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wchar_t* strend, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch) const
+int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wchar_t* strend, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch, std::vector<StateStackItem>& stack) const
 {
 	int i,j;
 	int minimizing;
@@ -1779,7 +1779,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 
 	if (havenamedbrackets && !hmatch)return SetError(errNoStorageForNB, 0);
 
-	std::vector<StateStackItem> stack;
+	stack.clear();
 
 	errorcode=errNone;
 
@@ -3380,7 +3380,9 @@ int RegExp::Match(const wchar_t* textstart, const wchar_t* textend, RegExpMatch*
 
 	if (minlength && tempend-start<minlength)return 0;
 
-	int res=InnerMatch(start, start, tempend, match, matchcount, hmatch);
+	std::vector<StateStackItem> stack;
+
+	int res=InnerMatch(start, start, tempend, match, matchcount, hmatch, stack);
 
 	if (res==1)
 	{
@@ -3409,7 +3411,9 @@ int RegExp::MatchEx(const wchar_t* datastart, const wchar_t* textstart, const wc
 
 	if (minlength && tempend-start<minlength)return 0;
 
-	int res=InnerMatch(start, textstart, tempend, match, matchcount, hmatch);
+	std::vector<StateStackItem> stack;
+
+	int res = InnerMatch(start, textstart, tempend, match, matchcount, hmatch, stack);
 
 	if (res==1)
 	{
@@ -3708,9 +3712,11 @@ int RegExp::Search(const wchar_t* textstart, const wchar_t* textend, RegExpMatch
 
 	int res=0;
 
+	std::vector<StateStackItem> stack;
+
 	if (!code[0].bracket.nextalt && code[1].op == opDataStart)
 	{
-		res = InnerMatch(start, start, tempend, match, matchcount, hmatch);
+		res = InnerMatch(start, start, tempend, match, matchcount, hmatch, stack);
 	}
 	else
 	{
@@ -3728,7 +3734,7 @@ int RegExp::Search(const wchar_t* textstart, const wchar_t* textend, RegExpMatch
 			{
 				while (!first[*str] && str<tempend)str++;
 
-				if (0 != (res = InnerMatch(start, str, tempend, match, matchcount, hmatch)))
+				if (0 != (res = InnerMatch(start, str, tempend, match, matchcount, hmatch, stack)))
 				{
 					break;
 				}
@@ -3737,7 +3743,7 @@ int RegExp::Search(const wchar_t* textstart, const wchar_t* textend, RegExpMatch
 			}
 			while (str<tempend);
 
-			if (!res && InnerMatch(start, str, tempend, match, matchcount, hmatch))
+			if (!res && InnerMatch(start, str, tempend, match, matchcount, hmatch, stack))
 			{
 				res=1;
 			}
@@ -3746,7 +3752,7 @@ int RegExp::Search(const wchar_t* textstart, const wchar_t* textend, RegExpMatch
 		{
 			do
 			{
-				if (0 != (res = InnerMatch(start, str, tempend, match, matchcount, hmatch)))
+				if (0 != (res = InnerMatch(start, str, tempend, match, matchcount, hmatch, stack)))
 				{
 					break;
 				}
@@ -3784,9 +3790,11 @@ int RegExp::SearchEx(const wchar_t* datastart, const wchar_t* textstart, const w
 
 	int res=0;
 
+	std::vector<StateStackItem> stack;
+
 	if (!code[0].bracket.nextalt && code[1].op == opDataStart)
 	{
-		res = InnerMatch(start, str, tempend, match, matchcount, hmatch);
+		res = InnerMatch(start, str, tempend, match, matchcount, hmatch, stack);
 	}
 	else
 	{
@@ -3804,7 +3812,7 @@ int RegExp::SearchEx(const wchar_t* datastart, const wchar_t* textstart, const w
 			{
 				while (!first[*str] && str<tempend)str++;
 
-				if (0 != (res = InnerMatch(start, str, tempend, match, matchcount, hmatch)))
+				if (0 != (res = InnerMatch(start, str, tempend, match, matchcount, hmatch, stack)))
 				{
 					break;
 				}
@@ -3813,7 +3821,7 @@ int RegExp::SearchEx(const wchar_t* datastart, const wchar_t* textstart, const w
 			}
 			while (str<tempend);
 
-			if (!res && InnerMatch(start, str, tempend, match, matchcount, hmatch))
+			if (!res && InnerMatch(start, str, tempend, match, matchcount, hmatch, stack))
 			{
 				res=1;
 			}
@@ -3822,7 +3830,7 @@ int RegExp::SearchEx(const wchar_t* datastart, const wchar_t* textstart, const w
 		{
 			do
 			{
-				if (0 != (res = InnerMatch(start, str, tempend, match, matchcount, hmatch)))
+				if (0 != (res = InnerMatch(start, str, tempend, match, matchcount, hmatch, stack)))
 				{
 					break;
 				}
