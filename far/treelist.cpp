@@ -872,6 +872,10 @@ static inline void WriteTree(string_type& Name, const container_type& Container,
 		TreeFile.SetEnd();
 		TreeFile.Close();
 	}
+	else
+	{
+		Global->CatchError();
+	}
 
 	if (Result)
 	{
