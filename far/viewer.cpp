@@ -1892,19 +1892,21 @@ int Viewer::ProcessKey(const Manager::Key& Key)
 				}
 				else
 				{
-					wchar_t LastSym = L'\0';
-
 					vseek(0, SEEK_END);
-					FilePos = vtell() - 1;
-					FilePos -= FilePos % ch_size;
-					vseek(FilePos, SEEK_SET);
-					if (vgetc(&LastSym) && LastSym != L'\n' && LastSym != L'\r')
-						++max_counter;
+					FilePos = vtell();
+					if (FilePos > 0)
+					{
+						--FilePos;
+						FilePos -= FilePos % ch_size;
+						vseek(FilePos, SEEK_SET);
+						wchar_t LastSym = L'\0';
+						if (vgetc(&LastSym) && LastSym != L'\n' && LastSym != L'\r')
+							++max_counter;
 
-					FilePos=vtell();
+						FilePos = vtell();
+					}
 					Up(max_counter, false);
 				}
-
 				Show();
 			}
 
