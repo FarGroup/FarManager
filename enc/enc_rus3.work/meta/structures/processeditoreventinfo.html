@@ -43,6 +43,7 @@ struct ProcessEditorEventInfo
     ѕлагин может использовать это сообщение дл€ освобождени€ внутренних структур данных. «аметьте, что несколько окон редактора могут работать одновременно.<br>
     EditorID может быть получен ранее с использованием <a href="../service_functions/editorcontrol.html#ECTL_GETINFO">ECTL_GETINFO</a> команды <a href="../service_functions/editorcontrol.html">EditorControl</a>.
     Ќо плагин не должен вызывать <code>EditorControl</code> при обработке этого сообщени€ потому что редактор уже закрыт.<br>
+    <code>Param = NULL</code>.<br>
     ‘ункци€ <a href="../exported_functions/processeditoreventw.html">ProcessEditorEventW</a> должна вернуть <code>0</code>.
     <p class=note><img src="../../images/note.gif" alt="«амечание дл€ EE_CLOSE" width="10" height="10"> «амечание.</p>
     <UL class=note><LI>¬ <code>EE_CLOSE</code> допускаетс€ использовать только <a href="../service_functions/editorcontrol.html#ECTL_GETINFO">ECTL_GETINFO</a> и <a href="../service_functions/editorcontrol.html#ECTL_GETBOOKMARKS">ECTL_GETBOOKMARKS</a>.</LI></UL>
