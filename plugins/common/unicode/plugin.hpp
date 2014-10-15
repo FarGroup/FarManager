@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 4130
+  Plugin API for Far Manager 3.0 build 4134
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 4130
+#define FARMANAGERVERSION_BUILD 4134
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1645,7 +1645,8 @@ struct EditorConvertPos
 typedef unsigned __int64 EDITORCOLORFLAGS;
 static const EDITORCOLORFLAGS
 	ECF_TABMARKFIRST   = 0x0000000000000001ULL,
-	ECF_TABMARKCURRENT = 0x0000000000000002ULL;
+	ECF_TABMARKCURRENT = 0x0000000000000002ULL,
+	ECF_AUTODELETE     = 0x0000000000000004ULL;
 
 struct EditorColor
 {
