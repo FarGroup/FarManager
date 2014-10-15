@@ -41,7 +41,7 @@ struct ProcessEditorEventInfo
     <tr class="cont"><td class="cont" width="40%"><a name="EE_CLOSE">EE_CLOSE</a></td>
     <td class="cont" width="60%">ќдно из окон редактора закрываетс€.<br>
     ѕлагин может использовать это сообщение дл€ освобождени€ внутренних структур данных. «аметьте, что несколько окон редактора могут работать одновременно.<br>
-    ѕараметр <code>Param</code> указывает на переменную, содержащую значение EditorID закрываемого редактора. EditorID может быть получен ранее с использованием <a href="../service_functions/editorcontrol.html#ECTL_GETINFO">ECTL_GETINFO</a> команды <a href="../service_functions/editorcontrol.html">EditorControl</a>.
+    EditorID может быть получен ранее с использованием <a href="../service_functions/editorcontrol.html#ECTL_GETINFO">ECTL_GETINFO</a> команды <a href="../service_functions/editorcontrol.html">EditorControl</a>.
     Ќо плагин не должен вызывать <code>EditorControl</code> при обработке этого сообщени€ потому что редактор уже закрыт.<br>
     ‘ункци€ <a href="../exported_functions/processeditoreventw.html">ProcessEditorEventW</a> должна вернуть <code>0</code>.
     <p class=note><img src="../../images/note.gif" alt="«амечание дл€ EE_CLOSE" width="10" height="10"> «амечание.</p>

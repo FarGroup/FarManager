@@ -2304,7 +2304,7 @@ lv=2
 dt=Text
 nm=Running script from within the editor
 ctime=3578455778
-mtime=3607111812
+mtime=3622534003
 <article>
 #_<markdown>
 #_```
@@ -2317,7 +2317,9 @@ mtime=3607111812
 #_    for k=1,2 do
 #_      local info=editor.GetInfo()
 #_      if bit64.band(info.CurState, far.Flags.ECSTATE_SAVED)~=0 then
-#_        far.MacroPost('@"' .. info.FileName .. '"')
+#_        local Flags = info.FileName:sub(-5):lower()==".moon"
+#_          and "KMFLAGS_MOONSCRIPT" or "KMFLAGS_LUA"
+#_        far.MacroPost('@"' .. info.FileName .. '"', Flags)
 #_        break
 #_      end
 #_      if k==1 then editor.SaveFile(); end
