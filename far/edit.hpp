@@ -184,7 +184,7 @@ public:
 	void InsertTab();
 	void AddColor(ColorItem *col,bool skipsort=false);
 	void SortColorUnlocked();
-	int DeleteColor(int ColorPos,const GUID& Owner,bool skipfree=false);
+	int DeleteColor(int ColorPos,const GUID* Owner,bool skipfree=false,bool autodelete=false);
 	int GetColor(ColorItem *col,int Item) const;
 	void Xlat(bool All=false);
 	void SetDialogParent(DWORD Sets);

@@ -785,6 +785,12 @@ int PluginManager::ProcessEditorEvent(int Event,void *Param,int EditorID) const
 	auto editor=Global->WindowManager->GetEditorContainerById(EditorID);
 	if (editor)
 	{
+		if (Event == EE_REDRAW)
+		{
+			FileEditor *FED = std::dynamic_pointer_cast<FileEditor>(editor).get();
+			FED->AutoDeleteColors();
+		}
+
 		ProcessEditorEventInfo Info = {sizeof(Info)};
 		Info.Event = Event;
 		Info.Param = Param;

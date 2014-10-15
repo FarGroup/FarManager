@@ -6307,7 +6307,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				}
 
 				SortColorUpdate=true;
-				return CurPtr->DeleteColor(col->StartPos,col->Owner,SortColorLocked());
+				return CurPtr->DeleteColor(col->StartPos,&col->Owner,SortColorLocked());
 			}
 
 			break;
@@ -7735,4 +7735,16 @@ void Editor::TurnOffMarkingBlock()
 bool Editor::IsLastLine(const Edit* line) const
 {
 	return LastLine != Lines.end() && line == &*LastLine;
+}
+
+void Editor::AutoDeleteColors() const
+{
+	auto CurPtr = TopScreen;
+	for (int Y=m_Y1; Y<=m_Y2; Y++,CurPtr++)
+	{
+		if (CurPtr != Lines.end())
+			CurPtr->DeleteColor(0, nullptr, SortColorLocked(), true);
+		else
+			break;
+	}
 }

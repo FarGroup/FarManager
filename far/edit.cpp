@@ -2398,7 +2398,7 @@ void Edit::SortColorUnlocked()
 	}
 }
 
-int Edit::DeleteColor(int ColorPos,const GUID& Owner,bool skipfree)
+int Edit::DeleteColor(int ColorPos,const GUID* Owner,bool skipfree,bool autodelete)
 {
 	int Src;
 
@@ -2407,11 +2407,24 @@ int Edit::DeleteColor(int ColorPos,const GUID& Owner,bool skipfree)
 
 	int Dest=0;
 
-	if (ColorPos!=-1)
+	if (autodelete)
 	{
 		for (Src=0; Src<ColorCount; Src++)
 		{
-			if ((ColorList[Src].StartPos!=ColorPos) || (Owner != ColorList[Src].GetOwner()))
+			if (!(ColorList[Src].Flags & ECF_AUTODELETE))
+			{
+				if (Dest!=Src)
+					ColorList[Dest]=ColorList[Src];
+
+				Dest++;
+			}
+		}
+	}
+	else if (ColorPos!=-1)
+	{
+		for (Src=0; Src<ColorCount; Src++)
+		{
+			if ((ColorList[Src].StartPos!=ColorPos) || (*Owner != ColorList[Src].GetOwner()))
 			{
 				if (Dest!=Src)
 					ColorList[Dest]=ColorList[Src];
@@ -2424,7 +2437,7 @@ int Edit::DeleteColor(int ColorPos,const GUID& Owner,bool skipfree)
 	{
 		for (Src=0; Src<ColorCount; Src++)
 		{
-			if (Owner != ColorList[Src].GetOwner())
+			if (*Owner != ColorList[Src].GetOwner())
 			{
 				if (Dest!=Src)
 					ColorList[Dest]=ColorList[Src];

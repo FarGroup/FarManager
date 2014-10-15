@@ -138,6 +138,7 @@ public:
 	int GetLineCursorPos() const { return CursorPos; }
 	void SetLineCursorPos(int Value) { CursorPos = Value; }
 	bool IsLastLine(const Edit* line) const;
+	void AutoDeleteColors() const;
 
 	static void PR_EditorShowMsg();
 	static void SetReplaceMode(bool Mode);

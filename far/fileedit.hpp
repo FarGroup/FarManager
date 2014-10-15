@@ -98,6 +98,7 @@ public:
 	void SetPluginTitle(const string* PluginTitle);
 	int GetId() const { return m_editor->EditorID; }
 	FileEditor* GetById(int ID) { return GetId()==ID?this:nullptr; }
+	void AutoDeleteColors() const { m_editor->AutoDeleteColors(); }
 
 private:
 	FileEditor();
