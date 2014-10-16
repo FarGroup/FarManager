@@ -2026,10 +2026,8 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const api::FAR
 	{
 		int CurColumnType = static_cast<int>(i.type & 0xFF);
 		int Width = i.width;
-		int WidthType = i.width_type;
 		if (!Width)
 		{
-			WidthType = COUNT_WIDTH;
 			Width = GetDefaultWidth(i.type);
 		}
 

@@ -496,8 +496,8 @@ void FileEditor::Init(
 					else
 					{
 						MsgCode=Message(0, MSG(MEditTitle),
-							make_vector(strFullFileName),
-							make_vector<string>(MSG(MAskReload), MSG(MNewOpen), MSG(MCancel)),
+							make_vector(strFullFileName, MSG(MAskReload)),
+							make_vector<string>(MSG(MNewOpen), MSG(MCancel)),
 							L"EditorReload", nullptr, &EditorReloadModalId);
 						if (MsgCode == 0)
 							MsgCode=1;
@@ -1268,7 +1268,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 							Res = Message(MSG_WARNING,
 								MSG(MEditTitle),
 								make_vector<string>(MSG(MsgLine1), MSG(MEditSavedChangedNonFile2)),
-								make_vector<string>(MSG(MHYes), MSG(MHNo), MSG(MHCancel)), 
+								make_vector<string>(MSG(MHYes), MSG(MHNo), MSG(MHCancel)),
 								nullptr, nullptr, &EditorSaveExitDeletedId);
 						}
 
@@ -1768,7 +1768,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 
 		if (Ask)
 		{
-			
+
 			auto Buttons = make_vector<string>(MSG(MHYes), MSG(MHNo));
 			if (Global->AllowCancelExit)
 				Buttons.emplace_back(MSG(MHCancel));
