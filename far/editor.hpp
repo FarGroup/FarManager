@@ -138,7 +138,7 @@ public:
 	int GetLineCursorPos() const { return CursorPos; }
 	void SetLineCursorPos(int Value) { CursorPos = Value; }
 	bool IsLastLine(const Edit* line) const;
-	void AutoDeleteColors() const;
+	void AutoDeleteColors();
 
 	static void PR_EditorShowMsg();
 	static void SetReplaceMode(bool Mode);
@@ -323,6 +323,7 @@ private:
 	FarColor SelColor;
 	int MacroSelectionStart;
 	int CursorPos;
+	std::unordered_set<Edit*> m_AutoDeletedColors;
 
 	bool fake_editor;
 

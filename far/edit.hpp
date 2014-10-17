@@ -108,6 +108,8 @@ class Edit:public SimpleScreenObject
 		ECLF_NEEDFREE = 0x2,
 	};
 public:
+	typedef std::function<bool(const ColorItem&)> delete_color_condition;
+
 	Edit(SimpleScreenObject *pOwner = nullptr, bool bAllocateData = true);
 	Edit(Edit&& rhs);
 	virtual ~Edit();
@@ -184,7 +186,7 @@ public:
 	void InsertTab();
 	void AddColor(ColorItem *col,bool skipsort=false);
 	void SortColorUnlocked();
-	int DeleteColor(int ColorPos,const GUID* Owner,bool skipfree=false,bool autodelete=false);
+	int DeleteColor(const delete_color_condition& Condition,bool skipfree);
 	int GetColor(ColorItem *col,int Item) const;
 	void Xlat(bool All=false);
 	void SetDialogParent(DWORD Sets);

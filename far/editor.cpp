@@ -6247,6 +6247,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				}
 
 				CurPtr->AddColor(&newcol,SortColorLocked());
+				if (col->Flags&ECF_AUTODELETE) m_AutoDeletedColors.insert(&*CurPtr);
 				SortColorUpdate=true;
 				return TRUE;
 			}
@@ -6307,7 +6308,12 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				}
 
 				SortColorUpdate=true;
-				return CurPtr->DeleteColor(col->StartPos,&col->Owner,SortColorLocked());
+				return CurPtr->DeleteColor([](int ColorPos, const GUID& Owner)->Edit::delete_color_condition
+				{
+					if (-1==ColorPos)
+						return [&](const ColorItem& Item)->bool{return !(Owner == Item.GetOwner());};
+					return [&](const ColorItem& Item)->bool{return (Item.StartPos!=ColorPos) || (Owner != Item.GetOwner());};
+				}(col->StartPos,col->Owner),SortColorLocked());
 			}
 
 			break;
@@ -7737,14 +7743,11 @@ bool Editor::IsLastLine(const Edit* line) const
 	return LastLine != Lines.end() && line == &*LastLine;
 }
 
-void Editor::AutoDeleteColors() const
+void Editor::AutoDeleteColors()
 {
-	auto CurPtr = TopScreen;
-	for (int Y=m_Y1; Y<=m_Y2; Y++,CurPtr++)
+	std::for_each(CONST_RANGE(m_AutoDeletedColors, i)
 	{
-		if (CurPtr != Lines.end())
-			CurPtr->DeleteColor(0, nullptr, SortColorLocked(), true);
-		else
-			break;
-	}
+		i->DeleteColor([](const ColorItem& Item)->bool{return !(Item.Flags & ECF_AUTODELETE);}, SortColorLocked());
+	});
+	m_AutoDeletedColors.clear();
 }
