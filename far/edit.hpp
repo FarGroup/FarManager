@@ -225,7 +225,7 @@ private:
 
 	int InsertKey(int Key);
 	int RecurseProcessKey(int Key);
-	void ApplyColor(const FarColor& SelColor);
+	void ApplyColor(const FarColor& SelColor, int XPos);
 	int GetNextCursorPos(int Position,int Where) const;
 	int KeyMatchedMask(int Key, const string& Mask) const;
 	int ProcessCtrlQ();

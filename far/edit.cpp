@@ -249,10 +249,22 @@ void Edit::FastShow()
 	  ! Для комбобокса сделаем отображение строки
 	    с первой позиции.
 	*/
-	int UnfixedLeftPos = LeftPos;
 	if (!m_Flags.Check(FEDITLINE_DROPDOWNBOX))
 	{
 		FixLeftPos(TabCurPos);
+	}
+
+	int FocusedLeftPos = LeftPos, XPos = 0;
+	if(m_Flags.Check(FEDITLINE_EDITORMODE))
+	{
+		auto editor=dynamic_cast<Editor*>(GetOwner());
+		if (editor)
+		{
+			EditorInfo ei={sizeof(EditorInfo)};
+			editor->EditorControl(ECTL_GETINFO, 0, &ei);
+			FocusedLeftPos = ei.LeftPos;
+			XPos = ei.CurTabPos - ei.LeftPos;
+		}
 	}
 
 	GotoXY(m_X1,m_Y1);
@@ -296,7 +308,7 @@ void Edit::FastShow()
 
 			if (*i == L'\t')
 			{
-				int S=GetTabSize()-((UnfixedLeftPos+OutStr.size()) % GetTabSize());
+				int S=GetTabSize()-((FocusedLeftPos+OutStr.size()) % GetTabSize());
 				OutStr.push_back((((m_Flags.Check(FEDITLINE_SHOWWHITESPACE) && m_Flags.Check(FEDITLINE_EDITORMODE)) || i >= TrailingSpaces) && (!OutStr.empty() || S==GetTabSize()))?L'\x2192':L' ');
 				for (int j=1; j<S && OutStr.size() < EditLength; ++j)
 				{
@@ -432,7 +444,7 @@ void Edit::FastShow()
 	/* $ 26.07.2000 tran
 	   при дроп-даун цвета нам не нужны */
 	if (!m_Flags.Check(FEDITLINE_DROPDOWNBOX))
-		ApplyColor(GetSelectedColor());
+		ApplyColor(GetSelectedColor(), XPos);
 }
 
 int Edit::RecurseProcessKey(int Key)
@@ -2445,22 +2457,10 @@ int Edit::GetColor(ColorItem *col,int Item) const
 	return TRUE;
 }
 
-void Edit::ApplyColor(const FarColor& SelColor)
+void Edit::ApplyColor(const FarColor& SelColor, int XPos)
 {
 	// Для оптимизации сохраняем вычисленные позиции между итерациями цикла
 	int Pos = INT_MIN, TabPos = INT_MIN, TabEditorPos = INT_MIN;
-
-	int XPos = 0;
-	if(m_Flags.Check(FEDITLINE_EDITORMODE))
-	{
-		auto editor=dynamic_cast<Editor*>(GetOwner());
-		if (editor)
-		{
-			EditorInfo ei={sizeof(EditorInfo)};
-			editor->EditorControl(ECTL_GETINFO, 0, &ei);
-			XPos = ei.CurTabPos - ei.LeftPos;
-		}
-	}
 
 	// Обрабатываем элементы ракраски
 	for (int Col = 0; Col < ColorCount; Col++)

@@ -397,6 +397,7 @@ void Editor::ShowEditor()
 
 	DrawScrollbar();
 
+	CurLine->FixLeftPos();
 	LeftPos=CurLine->GetLeftPos();
 #if 0
 
