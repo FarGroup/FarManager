@@ -3294,6 +3294,7 @@ void Editor::DeleteString(iterator DelPtr, int LineNumber, int DeleteLast,int Un
 		}
 	}
 
+	m_AutoDeletedColors.erase(&*DelPtr);
 	Lines.erase(DelPtr);
 
 	Change(ECTYPE_DELETED,UndoLine);
