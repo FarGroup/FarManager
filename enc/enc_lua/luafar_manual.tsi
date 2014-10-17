@@ -4303,7 +4303,7 @@ id=21
 lv=2
 dt=Text
 nm=editor.Editor
-mtime=3602603270
+mtime=3622738681
 <article>
 #_result = editor.Editor (FileName, Title, X1, Y1, X2, Y2,
 #_                        Flags, StartLine, StartChar, CodePage)
@@ -4316,8 +4316,8 @@ mtime=3602603270
 #_  X2:        integer, or nil (default = -1)
 #_  Y2:        integer, or nil (default = -1)
 #_  Flags:     flags,   or nil (default = 0)
-#_  StartLine: integer, or nil (1-based; default = 0)
-#_  StartChar: integer, or nil (1-based; default = 0)
+#_  StartLine: integer, or nil (1-based; default = -1)
+#_  StartChar: integer, or nil (1-based; default = -1)
 #_  CodePage:  integer, or nil (default = CP_AUTODETECT)
 #_
 #_**Returns:**
