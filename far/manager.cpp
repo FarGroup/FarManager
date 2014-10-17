@@ -887,19 +887,6 @@ window_ptr Manager::GetWindow(size_t Index) const
 	return m_windows[Index];
 }
 
-window_ptr Manager::GetSortedWindow(size_t Index) const
-{
-	if (Index >= m_windows.size() || m_windows.empty())
-	{
-		return nullptr;
-	}
-
-	auto windows = GetSortedWindows();
-	auto pos = windows.begin();
-	std::advance(pos,Index);
-	return *pos;
-}
-
 int Manager::IndexOfStack(window_ptr Window)
 {
 	auto ItemIterator = std::find(ALL_CONST_RANGE(m_modalWindows), Window);
@@ -910,13 +897,6 @@ int Manager::IndexOf(window_ptr Window)
 {
 	auto ItemIterator = std::find(ALL_CONST_RANGE(m_windows), Window);
 	return ItemIterator != m_windows.cend() ? ItemIterator - m_windows.cbegin() : -1;
-}
-
-int Manager::SortedIndexOf(window_ptr Window)
-{
-	auto windows = GetSortedWindows();
-	auto ItemIterator = std::find(ALL_CONST_RANGE(windows), Window);
-	return ItemIterator != windows.cend() ? std::distance(windows.cbegin(), ItemIterator) : -1;
 }
 
 void Manager::Commit(void)

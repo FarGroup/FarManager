@@ -105,9 +105,7 @@ public:
 	void ResetLastInputRecord() { LastInputRecord.EventType = 0; }
 	window_ptr GetCurrentWindow() { return m_currentWindow; }
 	window_ptr GetWindow(size_t Index) const;
-	window_ptr GetSortedWindow(size_t Index) const;
 	int IndexOf(window_ptr Window);
-	int SortedIndexOf(window_ptr Window);
 	int IndexOfStack(window_ptr Window);
 	window_ptr GetBottomWindow() { return m_windows.back(); }
 	bool ManagerIsDown() const { return EndLoop; }

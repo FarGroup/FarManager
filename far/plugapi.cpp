@@ -652,7 +652,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 				{
 					if (wi->Pos >= 0 && wi->Pos < static_cast<intptr_t>(Global->WindowManager->GetWindowCount()))
 					{
-						f = Global->WindowManager->GetSortedWindow(wi->Pos);
+						f = Global->WindowManager->GetWindow(wi->Pos);
 					}
 					else if(wi->Pos >= static_cast<intptr_t>(Global->WindowManager->GetWindowCount()) && wi->Pos < static_cast<intptr_t>(Global->WindowManager->GetWindowCount() + Global->WindowManager->GetModalWindowCount()))
 					{
@@ -684,7 +684,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 					wi->NameSize=strName.size()+1;
 				}
 
-				if(-1==wi->Pos) wi->Pos = Global->WindowManager->SortedIndexOf(f);
+				if(-1==wi->Pos) wi->Pos = Global->WindowManager->IndexOf(f);
 				if(-1==wi->Pos) wi->Pos = Global->WindowManager->IndexOfStack(f) + Global->WindowManager->GetWindowCount();
 				wi->Type=WindowTypeToPluginWindowType(f->GetType());
 				wi->Flags=0;
@@ -723,7 +723,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		case ACTL_SETCURRENTWINDOW:
 		{
 			// Запретим переключение фрэймов, если находимся в модальном редакторе/вьюере.
-			auto NextWindow=Global->WindowManager->GetSortedWindow(Param1);
+			auto NextWindow=Global->WindowManager->GetWindow(Param1);
 			if (!Global->WindowManager->InModal() && NextWindow)
 			{
 				auto PrevWindow = Global->WindowManager->GetCurrentWindow();
@@ -1059,7 +1059,7 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 		if (X2 < 0 || Y2 < 0)
 			return hDlg;
 
-		
+
 		if (auto Plugin = Global->CtrlObject->Plugins->FindPlugin(*PluginId))
 		{
 			class plugin_dialog: public Dialog
