@@ -374,6 +374,12 @@ void Editor::ShowEditor()
 		}
 	}
 
+	//---
+	//для корректной отрисовки текста с табами у CurLine должна быть корректная LeftPos до начала отрисовки
+	//так же это позволяет возвращать корректную EditorInfo.LeftPos в EE_REDRAW
+	CurLine->SetHorizontalPosition(m_X1, XX2);
+	CurLine->FixLeftPos();
+	//---
 	if (!Pasting)
 	{
 		/*$ 10.08.2000 skv
@@ -397,7 +403,6 @@ void Editor::ShowEditor()
 
 	DrawScrollbar();
 
-	CurLine->FixLeftPos();
 	LeftPos=CurLine->GetLeftPos();
 #if 0
 

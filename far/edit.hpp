@@ -194,6 +194,7 @@ public:
 	void GetCursorType(bool& Visible, DWORD& Size) const;
 	bool GetReadOnly() const {return m_Flags.Check(FEDITLINE_READONLY);}
 	void SetReadOnly(bool NewReadOnly) {m_Flags.Change(FEDITLINE_READONLY,NewReadOnly);}
+	void SetHorizontalPosition(int X1, int X2) {SetPosition(X1, m_Y2, X2, m_Y2);}
 
 protected:
 	virtual void DisableCallback() {}
