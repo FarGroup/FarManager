@@ -444,7 +444,7 @@ void Edit::FastShow()
 	/* $ 26.07.2000 tran
 	   при дроп-даун цвета нам не нужны */
 	if (!m_Flags.Check(FEDITLINE_DROPDOWNBOX))
-		ApplyColor(GetSelectedColor(), XPos);
+		ApplyColor(GetSelectedColor(), XPos, FocusedLeftPos);
 }
 
 int Edit::RecurseProcessKey(int Key)
@@ -2444,7 +2444,7 @@ int Edit::GetColor(ColorItem *col,int Item) const
 	return TRUE;
 }
 
-void Edit::ApplyColor(const FarColor& SelColor, int XPos)
+void Edit::ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos)
 {
 	// Для оптимизации сохраняем вычисленные позиции между итерациями цикла
 	int Pos = INT_MIN, TabPos = INT_MIN, TabEditorPos = INT_MIN;
@@ -2483,13 +2483,13 @@ void Edit::ApplyColor(const FarColor& SelColor, int XPos)
 		else if (Pos == INT_MIN || CurItem->StartPos < Pos)
 		{
 			RealStart = RealPosToTab(CurItem->StartPos);
-			Start = RealStart-LeftPos;
+			Start = RealStart-FocusedLeftPos;
 		}
 		// Для отптимизации делаем вычисление относительно предыдущей позиции
 		else
 		{
 			RealStart = RealPosToTab(TabPos, Pos, CurItem->StartPos, nullptr);
-			Start = RealStart-LeftPos;
+			Start = RealStart-FocusedLeftPos;
 		}
 
 		// Запоминаем вычисленные значения для их дальнейшего повторного использования
@@ -2520,7 +2520,7 @@ void Edit::ApplyColor(const FarColor& SelColor, int XPos)
 			if (CorrectPos && EndPos < m_StrSize && m_Str[EndPos] == L'\t')
 			{
 				RealEnd = RealPosToTab(TabPos, Pos, ++EndPos, nullptr);
-				End = RealEnd-LeftPos;
+				End = RealEnd-FocusedLeftPos;
 				TabMarkCurrent = (CurItem->Flags & ECF_TABMARKCURRENT) && XPos>=Start && XPos<End;
 			}
 			else
@@ -2537,7 +2537,7 @@ void Edit::ApplyColor(const FarColor& SelColor, int XPos)
 			// TODO: возможно так же нужна коррекция с учетом табов (на предмет Mantis#0001718)
 			RealEnd = RealPosToTab(0, 0, EndPos, &CorrectPos);
 			EndPos += CorrectPos;
-			End = RealEnd-LeftPos;
+			End = RealEnd-FocusedLeftPos;
 		}
 		// Для отптимизации делаем вычисление относительно предыдущей позиции (с учётом
 		// корректировки относительно табов)
@@ -2552,7 +2552,7 @@ void Edit::ApplyColor(const FarColor& SelColor, int XPos)
 				RealEnd = RealPosToTab(TabPos, Pos, EndPos, &CorrectPos);
 				EndPos += CorrectPos;
 			}
-			End = RealEnd-LeftPos;
+			End = RealEnd-FocusedLeftPos;
 		}
 
 		// Запоминаем вычисленные значения для их дальнейшего повторного использования
