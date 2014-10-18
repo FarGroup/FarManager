@@ -383,22 +383,18 @@ int codepages::GetItemsCount()
 // Получаем позицию для вставки таблицы с учётом сортировки по номеру кодовой страницы
 int codepages::GetCodePageInsertPosition(uintptr_t codePage, int start, int length)
 {
-	for (int position=start; position < start+length; position++)
+	auto GetCodePage = [this](int position) -> uintptr_t
 	{
-		uintptr_t itemCodePage;
+		switch (CallbackCallSource)
+		{
+		case CodePageSelect: return GetMenuItemCodePage(position);
+		case CodePagesFill2: return (*DialogBuilderList)[position].ItemValue;
+		default: return GetListItemCodePage(position);
+		}
+	};
 
-		if (CallbackCallSource == CodePageSelect)
-			itemCodePage = GetMenuItemCodePage(position);
-		else if (CallbackCallSource == CodePagesFill2)
-			itemCodePage = (*DialogBuilderList)[position].ItemValue;
-		else
-			itemCodePage = GetListItemCodePage(position);
-
-		if (itemCodePage >= codePage)
-			return position;
-	}
-
-	return start+length;
+	auto iRange = make_irange(start, start + length);
+	return *std::find_if(CONST_RANGE(iRange, i) { return GetCodePage(i) >= codePage; });
 }
 
 // Добавляем все необходимые таблицы символов

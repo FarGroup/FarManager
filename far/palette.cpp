@@ -227,7 +227,7 @@ void palette::ResetToBlack()
 
 void palette::Set(size_t StartOffset, FarColor* Value, size_t Count)
 {
-	std::copy(Value, Value + Count, CurrentPalette.begin() + StartOffset);
+	std::copy_n(Value, Count, CurrentPalette.begin() + StartOffset);
 	PaletteChanged = true;
 }
 

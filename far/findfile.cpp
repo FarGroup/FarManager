@@ -452,9 +452,8 @@ void FindFiles::InitInFileSearch()
 				bool flag = false;
 				hexFindString = new unsigned char[(findStringCount - findStringCount/3+1)/2];
 
-				for (size_t index = 0; index < strFindStr.size(); index++)
+				FOR(auto symbol, strFindStr)
 				{
-					wchar_t symbol = strFindStr[index];
 					byte offset = 0;
 
 					if (symbol >= L'a' && symbol <= L'f')

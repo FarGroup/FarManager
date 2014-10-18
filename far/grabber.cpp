@@ -118,16 +118,12 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 	{
 		Line.clear();
 
-		if (I>0)
-		{
-			CopyBuf.append(L"\r\n");
-		}
+		CopyBuf.append(L"\r\n");
 
-		for (size_t J = 0; J != CharBuf.width(); ++J)
+		FOR(const auto& Cell, CharBuf[I])
 		{
-			WORD Chr2 = CharBuf[I][J].Char;
-			wchar_t Chr = CharBuf[I][J].Char;
-
+			WORD Chr2 = Cell.Char;
+			wchar_t Chr = Cell.Char;
 			if (Global->Opt->CleanAscii)
 			{
 				switch (Chr2)
@@ -231,9 +227,9 @@ void Grabber::DisplayObject()
 			matrix<FAR_CHAR_INFO> CharBuf(Y2 - Y1 + 1, X2 - X1 + 1);
 			GetText(X1, Y1, X2, Y2, CharBuf);
 
-			for (int X=X1; X<=X2; X++)
+			for (int Y = Y1; Y <= Y2; Y++)
 			{
-				for (int Y=Y1; Y<=Y2; Y++)
+				for (int X = X1; X <= X2; X++)
 				{
 					const FarColor& CurColor = SaveScr->ScreenBuf[Y][X].Attributes;
 					CharBuf[Y - Y1][X - X1].Attributes.BackgroundColor = (CurColor.Flags&FCF_BG_4BIT? ~INDEXVALUE(CurColor.BackgroundColor) : ~COLORVALUE(CurColor.BackgroundColor)) | ALPHAVALUE(CurColor.BackgroundColor);

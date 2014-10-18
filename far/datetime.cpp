@@ -509,7 +509,7 @@ size_t MkStrFTime(string &strDest, const wchar_t *Fmt)
 
 void GetFileDateAndTime(const string& Src, LPWORD Dst, size_t Count, int Separator)
 {
-	std::fill(Dst, Dst + Count, -1);
+	std::fill_n(Dst, Count, -1);
 
 	string strDigit;
 	const wchar_t *Ptr=Src.data();

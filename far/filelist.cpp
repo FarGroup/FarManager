@@ -196,8 +196,7 @@ FileListItem::~FileListItem()
 {
 	if (CustomColumnNumber && CustomColumnData)
 	{
-		for (size_t i = 0; i < CustomColumnNumber; ++i)
-			delete[] CustomColumnData[i];
+		std::for_each(CustomColumnData, CustomColumnData + CustomColumnNumber, [](wchar_t* i) { delete[] i; } );
 		delete[] CustomColumnData;
 	}
 
@@ -5491,10 +5490,7 @@ size_t FileList::FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *g
 	size+=fi->CustomColumnNumber*sizeof(wchar_t*);
 	size+=sizeof(wchar_t)*(fi->strName.size()+1);
 	size+=sizeof(wchar_t)*(fi->strShortName.size()+1);
-	for (size_t ii=0; ii<fi->CustomColumnNumber; ii++)
-	{
-		size+=fi->CustomColumnData[ii]?sizeof(wchar_t)*(wcslen(fi->CustomColumnData[ii])+1):0;
-	}
+	size+=std::accumulate(fi->CustomColumnData, fi->CustomColumnData + fi->CustomColumnNumber, size_t(0), [](size_t size, const wchar_t* i) { return size + i? (wcslen(i) + 1) * sizeof(wchar_t) : 0; });
 	size+=fi->DizText?sizeof(wchar_t)*(wcslen(fi->DizText)+1):0;
 	size+=fi->strOwner.empty()?0:sizeof(wchar_t)*(fi->strOwner.size()+1);
 
@@ -6603,13 +6599,10 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 		if (m_ListData[m_CurFile].Selected && !ReturnCurrentFile)
 		{
-			for (size_t i=m_CurFile+1; i < m_ListData.size(); i++)
+			auto NotSelectedIterator = std::find_if(m_ListData.begin() + m_CurFile + 1, m_ListData.end(), [](const VALUE_TYPE(m_ListData)& i) { return !i.Selected; });
+			if (NotSelectedIterator != m_ListData.cend())
 			{
-				if (!m_ListData[i].Selected)
-				{
-					strNextCurName = m_ListData[i].strName;
-					break;
-				}
+				strNextCurName = NotSelectedIterator->strName;
 			}
 		}
 	}
@@ -7885,20 +7878,17 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 	Length=(int)strTotalStr.size();
 	GotoXY(m_X1+(m_X2-m_X1+1-Length)/2,m_Y2);
 	size_t BoxPos = strTotalStr.find(BoxSymbols[BS_H2]);
-	int BoxLength=0;
-	if (BoxPos != string::npos)
-		for (int I=0; strTotalStr[BoxPos+I] == BoxSymbols[BS_H2]; I++)
-			BoxLength++;
-
-	if (BoxPos == string::npos || !BoxLength)
-		Text(strTotalStr);
+	if (int BoxLength = BoxPos == string::npos? 0 : std::count(strTotalStr.begin() + BoxPos, strTotalStr.end(), BoxSymbols[BS_H2]))
+	{
+		Global->FS << fmt::MaxWidth(BoxPos) << strTotalStr;
+		SetColor(COL_PANELBOX);
+		Global->FS << fmt::MaxWidth(BoxLength) << strTotalStr.data() + BoxPos;
+		SetColor(COL_PANELTOTALINFO);
+		Text(strTotalStr.data() + BoxPos + BoxLength);
+	}
 	else
 	{
-		Global->FS << fmt::MaxWidth(BoxPos)<<strTotalStr;
-		SetColor(COL_PANELBOX);
-		Global->FS << fmt::MaxWidth(BoxLength)<<strTotalStr.data()+BoxPos;
-		SetColor(COL_PANELTOTALINFO);
-		Text(strTotalStr.data()+BoxPos+BoxLength);
+		Text(strTotalStr);
 	}
 }
 

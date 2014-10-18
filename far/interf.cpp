@@ -54,6 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "res.hpp"
 #include "plugins.hpp"
 #include "language.hpp"
+#include "TaskBar.hpp"
 
 consoleicons& ConsoleIcons()
 {
@@ -658,7 +659,7 @@ void InitRecodeOutTable()
 
 	if (Global->Opt->CleanAscii)
 	{
-		std::fill(std::begin(Oem2Unicode), std::begin(Oem2Unicode) + L' ', L'.');
+		std::fill_n(Oem2Unicode, size_t(L' '), L'.');
 
 		Oem2Unicode[0x07]=L'*';
 		Oem2Unicode[0x10]=L'>';
@@ -1137,6 +1138,28 @@ string MakeSeparator(int Length, int Type, const wchar_t* UserSep)
 	}
 
 	return Result;
+}
+
+string make_progressbar(size_t Size, int Percent, bool ShowPercent, bool PropagateToTasbkar)
+{
+	if (ShowPercent)
+	{
+		Size = std::max<size_t>(0, Size - 5); // where 5 is len(" 100%")
+	}
+	string Str(Size, BoxSymbols[BS_X_B0]);
+	const auto Pos = std::min(Percent, 100) * Size / 100;
+	std::fill_n(Str.begin(), Pos, BoxSymbols[BS_X_DB]);
+	if (ShowPercent)
+	{
+		std::wostringstream oss;
+		oss << std::setw(3) << Percent;
+		Str += L' ' + oss.str() + L'%';
+	}
+	if (PropagateToTasbkar)
+	{
+		Taskbar().SetProgressValue(Percent, 100);
+	}
+	return Str;
 }
 
 string& HiText2Str(string& strDest, const string& Str)

@@ -105,33 +105,17 @@ struct DelPreRedrawItem : public PreRedrawItem
 
 static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, int Percent, int WipePercent, ConsoleTitle* DeleteTitle)
 {
-	FormatString strProgress, strWipeProgress;
+	string strProgress, strWipeProgress;
 	size_t Width=ScrX/2;
-	size_t Length=Width-5; // -5 под проценты
 	if(Mode==DEL_WIPEPROCESS || Mode==DEL_WIPE)
 	{
-		strWipeProgress.resize(Length);
-		size_t CurPos=std::min(WipePercent,100)*Length/100;
-		std::fill(strWipeProgress.begin(), strWipeProgress.begin() + CurPos, BoxSymbols[BS_X_DB]);
-		std::fill(strWipeProgress.begin() + CurPos, strWipeProgress.end(), BoxSymbols[BS_X_B0]);
-		strWipeProgress<<L" "<<fmt::MinWidth(3)<<WipePercent<<L"%";
-
-		if(Percent==-1)
-		{
-			Taskbar().SetProgressValue(WipePercent, 100);
-		}
+		strWipeProgress = make_progressbar(Width, WipePercent, true, Percent == -1);
 	}
 
 	if (Mode!=DEL_SCAN && Percent!=-1)
 	{
-		strProgress.resize(Length);
-		size_t CurPos=std::min(Percent,100)*Length/100;
-		std::fill(strProgress.begin(), strProgress.begin() + CurPos, BoxSymbols[BS_X_DB]);
-		std::fill(strProgress.begin() + CurPos, strProgress.end(), BoxSymbols[BS_X_B0]);
-		strProgress<<L" "<<fmt::MinWidth(3)<<Percent<<L"%";
+		strProgress = make_progressbar(Width, Percent, true, true);
 		*DeleteTitle << L"{" << Percent << L"%} " << MSG((Mode==DEL_WIPE || Mode==DEL_WIPEPROCESS)?MDeleteWipeTitle:MDeleteTitle) << fmt::Flush();
-
-		Taskbar().SetProgressValue(Percent,100);
 	}
 
 	string strOutFileName(Name);

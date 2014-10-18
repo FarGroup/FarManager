@@ -2667,7 +2667,7 @@ void VMenu::SetColors(const FarDialogItemColors *ColorsIn)
 
 	if (ColorsIn)
 	{
-		std::copy(ColorsIn->Colors, ColorsIn->Colors + std::min(ARRAYSIZE(Colors), ColorsIn->ColorsCount), Colors);
+		std::copy_n(ColorsIn->Colors, std::min(ARRAYSIZE(Colors), ColorsIn->ColorsCount), Colors);
 	}
 	else
 	{
@@ -2676,10 +2676,7 @@ void VMenu::SetColors(const FarDialogItemColors *ColorsIn)
 
 		if (CheckFlags(VMENU_DISABLED))
 		{
-			Colors[0] = ColorIndexToColor(StyleMenu?COL_WARNDIALOGDISABLED:COL_DIALOGDISABLED);
-
-			for (int I=1; I < VMENU_COLOR_COUNT; ++I)
-				Colors[I] = Colors[0];
+			std::fill_n(Colors, size_t(VMENU_COLOR_COUNT), ColorIndexToColor(StyleMenu? COL_WARNDIALOGDISABLED : COL_DIALOGDISABLED));
 		}
 		else
 		{
@@ -2802,8 +2799,7 @@ void VMenu::SetColors(const FarDialogItemColors *ColorsIn)
 				}
 			};
 
-			for (int I=0; I < VMENU_COLOR_COUNT; ++I)
-				Colors[I] = ColorIndexToColor(StdColor[StyleMenu][TypeMenu][I]);
+			std::transform(StdColor[StyleMenu][TypeMenu], StdColor[StyleMenu][TypeMenu] + VMENU_COLOR_COUNT, Colors, ColorIndexToColor);
 		}
 	}
 }
@@ -2812,7 +2808,7 @@ void VMenu::GetColors(FarDialogItemColors *ColorsOut)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
-	std::copy(Colors, Colors + std::min(ARRAYSIZE(Colors), ColorsOut->ColorsCount), ColorsOut->Colors);
+	std::copy_n(Colors, std::min(ARRAYSIZE(Colors), ColorsOut->ColorsCount), ColorsOut->Colors);
 }
 
 void VMenu::SetOneColor(int Index, PaletteColors Color)

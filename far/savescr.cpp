@@ -187,7 +187,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 			}
 		}
 
-		CharCopy(NewBuf.data() + ToIndex, ScreenBuf.data() + FromIndex, NewWidth);
+		std::copy_n(ScreenBuf.data() + FromIndex, NewWidth, NewBuf.data() + ToIndex);
 	}
 
 	// achtung, experimental
@@ -203,7 +203,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 				Console().ReadOutput(Tmp, ReadRegion);
 				for(size_t i = 0; i != Tmp.height(); ++i)
 				{
-					CharCopy(NewBuf[i].data(), Tmp[i].data(), Tmp.width());
+					std::copy_n(Tmp[i].data(), Tmp.width(), NewBuf[i].data());
 				}
 			}
 			else
@@ -211,7 +211,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 				SMALL_RECT WriteRegion={0, static_cast<SHORT>(NewY-OHe), static_cast<SHORT>(NewX-1), -1};
 				for(size_t i = 0; i != Tmp.height(); ++i)
 				{
-					CharCopy(Tmp[i].data(), ScreenBuf[i].data(), Tmp.width());
+					std::copy_n(ScreenBuf[i].data(), Tmp.width(), Tmp[i].data());
 				}
 				Console().WriteOutput(Tmp, WriteRegion);
 				Console().Commit();
@@ -227,7 +227,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 				Console().ReadOutput(Tmp, ReadRegion);
 				for(size_t i = 0; i != NewBuf.height(); ++i)
 				{
-					CharCopy(&NewBuf[i][OWi], Tmp[i].data(), Tmp.width());
+					std::copy_n(Tmp[i].data(), Tmp.width(), &NewBuf[i][OWi]);
 				}
 			}
 			else
@@ -236,7 +236,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 				for(size_t i = 0; i != Tmp.height(); ++i)
 				{
 					if (static_cast<int>(i) < OHe)
-						CharCopy(Tmp[i].data(), &ScreenBuf[i][NewX], Tmp.width());
+						std::copy_n(&ScreenBuf[i][NewX], Tmp.width(), Tmp[i].data());
 					else
 						CleanupBuffer(Tmp[i].data(), Tmp.width());
 				}
@@ -250,15 +250,10 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 	m_X1 = NX1; m_Y1 = NY1; m_X2 = NX2; m_Y2 = NY2;
 }
 
-void SaveScreen::CharCopy(FAR_CHAR_INFO* ToBuffer, const FAR_CHAR_INFO* FromBuffer, size_t Count)
-{
-	std::copy(FromBuffer, FromBuffer + Count, ToBuffer);
-}
-
 void SaveScreen::CleanupBuffer(FAR_CHAR_INFO* Buffer, size_t BufSize)
 {
 	const FAR_CHAR_INFO Value = { L' ', ColorIndexToColor(COL_COMMANDLINEUSERSCREEN) };
-	std::fill(Buffer, Buffer + BufSize, Value);
+	std::fill_n(Buffer, BufSize, Value);
 }
 
 void SaveScreen::DumpBuffer(const wchar_t *Title)

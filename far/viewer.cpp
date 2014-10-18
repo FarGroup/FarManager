@@ -2513,16 +2513,8 @@ void ViewerSearchMsg(const string& MsgStr, int Percent, int SearchHex)
 	strMsg.append(L" ").append(MsgStr);
 	if (Percent>=0)
 	{
-		static const size_t maxPercentLength = 3;
-		size_t Length=std::max(std::min(ScrX-1-10,static_cast<int>(strMsg.size())),40)-maxPercentLength-2;
-		strProgress.resize(Length);
-		size_t CurPos=std::min(Percent,100)*Length/100;
-		std::fill(strProgress.begin(), strProgress.begin() + CurPos, BoxSymbols[BS_X_DB]);
-		std::fill(strProgress.begin() + CurPos, strProgress.end(), BoxSymbols[BS_X_B0]);
-		std::wostringstream oss;
-		oss << std::setw(3) << Percent;
-		strProgress += L' ' + oss.str() + L'%';
-		Taskbar().SetProgressValue(Percent,100);
+		const size_t Length = std::max(std::min(ScrX - 1 - 10, static_cast<int>(strMsg.size())), 40);
+		strProgress = make_progressbar(Length, Percent, true, true);
 	}
 
 	Message(MSG_LEFTALIGN,0,MSG(MViewSearchTitle),strMsg.data(),strProgress.empty()?nullptr:strProgress.data());

@@ -404,12 +404,12 @@ size_t KeyBar::Change(const KeyBarTitles *Kbt)
 	size_t Result = 0;
 	if (Kbt)
 	{
-		for (size_t I = 0; I < Kbt->CountLabels; ++I)
+		FOR(const auto& i, make_range(Kbt->Labels, Kbt->Labels + Kbt->CountLabels))
 		{
-			DWORD Pos = Kbt->Labels[I].Key.VirtualKeyCode - VK_F1;
+			DWORD Pos = i.Key.VirtualKeyCode - VK_F1;
 			if (Pos < KEY_COUNT)
 			{
-				DWORD Shift = 0, Flags = Kbt->Labels[I].Key.ControlKeyState;
+				DWORD Shift = 0, Flags = i.Key.ControlKeyState;
 				if (Flags & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)) Shift |= KEY_CTRL;
 				if (Flags & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)) Shift |= KEY_ALT;
 				if (Flags & SHIFT_PRESSED) Shift |= KEY_SHIFT;
@@ -417,7 +417,7 @@ size_t KeyBar::Change(const KeyBarTitles *Kbt)
 				int group = FnGroup(Shift);
 				if (group >= 0)
 				{
-					Change(group, Kbt->Labels[I].Text, static_cast<int>(Pos));
+					Change(group, i.Text, static_cast<int>(Pos));
 					++Result;
 				}
 			}

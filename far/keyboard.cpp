@@ -1623,20 +1623,20 @@ int KeyNameToKey(const string& Name)
 		return -1;
 	}
 
-	int I, Pos;
+	int Pos = 0;
 	static string strTmpName;
 	strTmpName = Name;
 	Upper(strTmpName);
 	int Len=(int)strTmpName.size();
 
 	// пройдемся по всем модификаторам
-	for (Pos=I=0; I < int(ARRAYSIZE(ModifKeyName)); ++I)
+	FOR(const auto& i, ModifKeyName)
 	{
-		if (strTmpName.find(ModifKeyName[I].UName) != string::npos && !(Key&ModifKeyName[I].Key))
+		if (!(Key & i.Key) && strTmpName.find(i.UName) != string::npos)
 		{
-			int CntReplace = ReplaceStrings(strTmpName, ModifKeyName[I].UName, L"", true);
-			Key|=ModifKeyName[I].Key;
-			Pos+=ModifKeyName[I].Len*CntReplace;
+			int CntReplace = ReplaceStrings(strTmpName, i.UName, L"", true);
+			Key |= i.Key;
+			Pos += i.Len * CntReplace;
 		}
 	}
     // _SVS(SysLog(L"[%d] Name=%s",__LINE__,Name));
@@ -1650,17 +1650,17 @@ int KeyNameToKey(const string& Name)
 		const wchar_t* Ptr=Name.data()+Pos;
 		int PtrLen = Len-Pos;
 
-		for (I=(int)ARRAYSIZE(FKeys1)-1; I>=0; I--)
+		auto ItemIterator = std::find_if(CONST_REVERSE_RANGE(FKeys1, i)
 		{
-			if (PtrLen == FKeys1[I].Len && !StrCmpI(Ptr,FKeys1[I].Name))
-			{
-				Key|=FKeys1[I].Key;
-				Pos+=FKeys1[I].Len;
-				break;
-			}
-		}
+			return PtrLen == i.Len && !StrCmpI(Ptr, i.Name);
+		});
 
-		if (I == -1) // F-клавиш нет?
+		if (ItemIterator != std::crend(FKeys1))
+		{
+			Key |= ItemIterator->Key;
+			Pos += ItemIterator->Len;
+		}
+		else // F-клавиш нет?
 		{
 			/*
 				здесь только 5 оставшихся вариантов:

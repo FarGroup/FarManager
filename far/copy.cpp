@@ -211,7 +211,7 @@ class CopyProgress
 		IndeterminateTaskBar TB;
 		wakeful W;
 		SMALL_RECT Rect;
-		wchar_t Bar[100];
+		string Bar;
 		size_t BarSize;
 		bool Move,Total,m_Time;
 		bool BgInit,ScanBgInit;
@@ -287,7 +287,6 @@ void CopyProgress::Flush()
 
 CopyProgress::CopyProgress(bool Move,bool Total,bool Time):
 	Rect(),
-	Bar(),
 	BarSize(52),
 	Move(Move),
 	Total(Total),
@@ -315,12 +314,7 @@ void CopyProgress::SetScanName(const string& Name)
 
 void CopyProgress::CreateScanBackground()
 {
-	for (size_t i=0; i<BarSize; i++)
-	{
-		Bar[i]=L' ';
-	}
-
-	Bar[BarSize]=0;
+	Bar = make_progressbar(BarSize, 0, false, false);
 	Message m(MSG_LEFTALIGN, MSG(Move? MMoveDlgTitle : MCopyDlgTitle), make_vector<string>(MSG(MCopyScanning), Bar), std::vector<string>());
 	int MX1,MY1,MX2,MY2;
 	m.GetMessagePosition(MX1,MY1,MX2,MY2);
@@ -333,12 +327,7 @@ void CopyProgress::CreateScanBackground()
 
 void CopyProgress::CreateBackground()
 {
-	for (size_t i=0; i<BarSize; i++)
-	{
-		Bar[i]=L' ';
-	}
-
-	Bar[BarSize]=0;
+	Bar = make_progressbar(BarSize, 0, false, false);
 
 	std::vector<string> Items;
 	const wchar_t* Title;
@@ -476,38 +465,17 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 		CreateBackground();
 	}
 
-	if (Total==TotalProgress)
-	{
-		Taskbar().SetProgressValue(CompletedSize,TotalSize);
-	}
-
 	UINT64 OldCompletedSize = CompletedSize;
 	UINT64 OldTotalSize = TotalSize;
 	CompletedSize>>=8;
 	TotalSize>>=8;
 	CompletedSize=std::min(CompletedSize,TotalSize);
 	COORD BarCoord={static_cast<SHORT>(Rect.Left+5),static_cast<SHORT>(Rect.Top+(TotalProgress?8:6))};
-	size_t BarLength=Rect.Right-Rect.Left-9-5; //-5 для процентов
-	size_t Length=TotalSize?static_cast<size_t>((TotalSize<1000000?CompletedSize:CompletedSize/100)*BarLength/(TotalSize<1000000?TotalSize:TotalSize/100)):BarLength;
+	size_t BarLength = Rect.Right - Rect.Left - 9;
 
-	for (size_t i=0; i<BarLength; i++)
-	{
-		Bar[i]=BoxSymbols[BS_X_B0];
-	}
+	Bar = make_progressbar(BarLength, ToPercent(CompletedSize, TotalSize), true, Total == TotalProgress);
 
-	if (TotalSize)
-	{
-		for (size_t i=0; i<Length; i++)
-		{
-			Bar[i]=BoxSymbols[BS_X_DB];
-		}
-	}
-
-	Bar[BarLength]=0;
-	Percents=ToPercent(CompletedSize,TotalSize);
-	FormatString strPercents;
 	Text(BarCoord.X,BarCoord.Y,Color,Bar);
-	Text(static_cast<int>(BarCoord.X+BarLength),BarCoord.Y,Color,FormatString()<<fmt::MinWidth(4)<<Percents<<L"%");
 
 	if (m_Time&&(!Total||TotalProgress))
 	{

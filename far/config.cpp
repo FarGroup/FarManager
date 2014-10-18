@@ -136,6 +136,16 @@ static const wchar_t* NKeyViewEditHistory=L"History.ViewEditHistory";
 static const wchar_t* NKeyFolderHistory=L"History.FolderHistory";
 static const wchar_t* NKeyDialogHistory=L"History.DialogHistory";
 
+static inline size_t DisplayModeToReal(size_t Mode)
+{
+	return Mode < predefined_panel_modes_count? (Mode == 9? 0 : Mode + 1) : Mode - 1;
+};
+
+static inline size_t RealModeToDisplay(size_t Mode)
+{
+	return Mode < predefined_panel_modes_count? (Mode == 0? 9 : Mode - 1) : Mode + 1;
+};
+
 void Options::SystemSettings()
 {
 	DialogBuilder Builder(MConfigSystemTitle, L"SystemSettings");
@@ -946,9 +956,9 @@ static void ResetViewModes(PanelViewSettings* Modes, int Index = -1)
 	auto InitMode = [](const panelmode_init& src, PanelViewSettings& dst)
 	{
 		dst.PanelColumns.resize(src.Columns.count);
-		std::copy(src.Columns.init, src.Columns.init + src.Columns.count, dst.PanelColumns.begin());
+		std::copy_n(src.Columns.init, src.Columns.count, dst.PanelColumns.begin());
 		dst.StatusColumns.resize(src.StatusColumns.count);
-		std::copy(src.StatusColumns.init, src.StatusColumns.init + src.StatusColumns.count, dst.StatusColumns.begin());
+		std::copy_n(src.StatusColumns.init, src.StatusColumns.count, dst.StatusColumns.begin());
 		dst.Flags = src.Flags;
 		dst.Name.clear();
 	};
@@ -965,32 +975,6 @@ static void ResetViewModes(PanelViewSettings* Modes, int Index = -1)
 
 void Options::SetFilePanelModes()
 {
-	auto DisplayModeToReal = [](size_t Mode)->size_t
-	{
-		if (Mode < predefined_panel_modes_count)
-		{
-			Mode = (Mode == 9)? 0 : (Mode + 1);
-		}
-		else
-		{
-			--Mode;
-		}
-		return Mode;
-	};
-
-	auto RealModeToDisplay = [](size_t Mode)->size_t
-	{
-		if (Mode < predefined_panel_modes_count)
-		{
-			Mode = (Mode == 0)? 9 : (Mode - 1);
-		}
-		else
-		{
-			++Mode;
-		}
-		return Mode;
-	};
-
 	size_t CurMode=0;
 
 	if (Global->CtrlObject->Cp()->ActivePanel()->GetType()==FILE_PANEL)
@@ -2760,10 +2744,10 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 {
 	auto ApplyViewModesNames = [this](MenuDataEx* Menu)
 	{
-		for (size_t i = 0; i < 10; ++i)
+		for (size_t i = 0; i < predefined_panel_modes_count; ++i)
 		{
 			if (!ViewSettings[i].Name.empty())
-				Menu[i? i - 1 : 9].Name = ViewSettings[i].Name.data();
+				Menu[RealModeToDisplay(i)].Name = ViewSettings[i].Name.data();
 		}
 	};
 

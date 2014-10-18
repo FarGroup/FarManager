@@ -2415,21 +2415,8 @@ int Edit::DeleteColor(const delete_color_condition& Condition, bool skipfree)
 	if (!ColorCount)
 		return FALSE;
 
-	int Dest=0;
-
-	for (int Src=0; Src<ColorCount; Src++)
-	{
-		if (Condition(ColorList[Src]))
-		{
-			if (Dest!=Src)
-				ColorList[Dest]=ColorList[Src];
-
-			Dest++;
-		}
-	}
-
-	int DelCount=ColorCount-Dest;
-	ColorCount=Dest;
+	const auto OldCount = ColorCount;
+	ColorCount = std::remove_if(ColorList, ColorList + ColorCount, Condition) - ColorList;
 
 	if (!ColorCount)
 	{
@@ -2445,7 +2432,7 @@ int Edit::DeleteColor(const delete_color_condition& Condition, bool skipfree)
 		}
 	}
 
-	return DelCount;
+	return ColorCount != OldCount;
 }
 
 int Edit::GetColor(ColorItem *col,int Item) const

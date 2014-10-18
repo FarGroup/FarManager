@@ -3582,9 +3582,7 @@ void Editor::Down()
 	if (CurLine == LastLine)
 		return;
 
-	Y = 0;
-	for (auto CurPtr = TopScreen; CurPtr != Lines.end() && CurPtr != CurLine; ++CurPtr)
-		Y++;
+	Y = std::distance(TopScreen, CurLine);
 
 	if (Y>=m_Y2-m_Y1)
 		++TopScreen;
@@ -6303,7 +6301,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		}
 		case ECTL_DELCOLOR:
 		{
-			EditorDeleteColor *col=(EditorDeleteColor *)Param2;
+			auto col = reinterpret_cast<const EditorDeleteColor*>(Param2);
 			if (CheckStructSize(col))
 			{
 				auto CurPtr = GetStringByNumber(col->StringNumber);
@@ -6315,12 +6313,10 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				}
 
 				SortColorUpdate=true;
-				return CurPtr->DeleteColor([](int ColorPos, const GUID& Owner)->Edit::delete_color_condition
-				{
-					if (-1==ColorPos)
-						return [&](const ColorItem& Item)->bool{return !(Owner == Item.GetOwner());};
-					return [&](const ColorItem& Item)->bool{return (Item.StartPos!=ColorPos) || (Owner != Item.GetOwner());};
-				}(col->StartPos,col->Owner),SortColorLocked());
+
+				return CurPtr->DeleteColor(
+					[&](const ColorItem& Item) { return (col->StartPos == -1 || col->StartPos == Item.StartPos) && col->Owner == Item.GetOwner(); },
+					SortColorLocked());
 			}
 
 			break;
@@ -7270,19 +7266,8 @@ void Editor::EditorShowMsg(const string& Title,const string& Msg, const string& 
 	strMsg.append(L" ").append(Name);
 	if (Percent!=-1)
 	{
-		FormatString strPercent;
-		strPercent<<Percent;
-
-		size_t PercentLength=std::max(strPercent.size(),(size_t)3);
-		size_t Length=std::max(std::min(ScrX-1-10,static_cast<int>(strMsg.size())),40)-PercentLength-2;
-
-		strProgress.resize(Length);
-		size_t CurPos=std::min(Percent,100)*Length/100;
-		std::fill(strProgress.begin(), strProgress.begin() + CurPos, BoxSymbols[BS_X_DB]);
-		std::fill(strProgress.begin() + CurPos, strProgress.end(), BoxSymbols[BS_X_B0]);
-		strProgress+=FormatString()<<L" "<<fmt::MinWidth(PercentLength)<<strPercent<<L"%";
-
-		Taskbar().SetProgressValue(Percent,100);
+		const size_t Length = std::max(std::min(ScrX - 1 - 10, static_cast<int>(strMsg.size())), 40);
+		strProgress = make_progressbar(Length, Percent, true, true);
 	}
 
 	Message(MSG_LEFTALIGN,0,Title,strMsg.data(),strProgress.empty()?nullptr:strProgress.data());
@@ -7754,7 +7739,7 @@ void Editor::AutoDeleteColors()
 {
 	std::for_each(CONST_RANGE(m_AutoDeletedColors, i)
 	{
-		i->DeleteColor([](const ColorItem& Item)->bool{return !(Item.Flags & ECF_AUTODELETE);}, SortColorLocked());
+		i->DeleteColor([](const ColorItem& Item){ return (Item.Flags & ECF_AUTODELETE) != 0; }, SortColorLocked());
 	});
 	m_AutoDeletedColors.clear();
 }

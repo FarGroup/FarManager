@@ -616,7 +616,7 @@ void Dialog::ProcessCenterGroup()
 size_t Dialog::InitDialogObjects(size_t ID)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
-	size_t I, J;
+	size_t I;
 	FARDIALOGITEMTYPES Type;
 	size_t InitItemCount;
 	unsigned __int64 ItemFlags;
@@ -908,17 +908,13 @@ size_t Dialog::InitDialogObjects(size_t ID)
 				size_t Length=Items[I].ListItems->ItemsNumber;
 				//Items[I].ListPtr->AddItem(Items[I].ListItems);
 
-				for (J=0; J < Length; J++)
+				auto ItemIterator = std::find_if(ListItems, ListItems + Length, [](FarListItem& i) { return (i.Flags & LIF_SELECTED) != 0; });
+				if (ItemIterator != ListItems + Length)
 				{
-					if (ListItems[J].Flags & LIF_SELECTED)
-					{
-						if (ItemFlags & (DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND))
-							HiText2Str(Items[I].strData, ListItems[J].Text);
-						else
-							Items[I].strData = ListItems[J].Text;
-
-						break;
-					}
+					if (ItemFlags & (DIF_DROPDOWNLIST | DIF_LISTNOAMPERSAND))
+						HiText2Str(Items[I].strData, ItemIterator->Text);
+					else
+						Items[I].strData = ItemIterator->Text;
 				}
 			}
 
@@ -2959,8 +2955,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 									auto edt_1 = static_cast<DlgEdit*>(Items[m_FocusPos+1].ObjPtr);
 									if (CurPos > Length)
 									{
-										strStr.resize(CurPos);
-										std::fill(strStr.begin() + Length, strStr.end(), L' ');
+										strStr.resize(CurPos, L' ');
 									}
 									string strAdd;
 									edt_1->GetString(strAdd);

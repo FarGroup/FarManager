@@ -69,3 +69,46 @@ inline range<iterator_type> make_range(iterator_type i_begin, iterator_type i_en
 {
 	return range<iterator_type>(i_begin, i_end);
 }
+
+template<class T>
+class i_iterator: public std::iterator < std::random_access_iterator_tag, T>
+{
+public:
+	typedef const T value_type;
+
+	i_iterator(const T& value): m_value(value) {}
+	i_iterator(const i_iterator& rhs): m_value(rhs.m_value) {}
+	i_iterator& operator=(const i_iterator& rhs) { m_value = rhs.m_value; return *this; }
+	const value_type* operator->() const { return &m_value; }
+	const value_type& operator*() const { return m_value; }
+	i_iterator& operator++() { ++m_value; return *this; }
+	i_iterator& operator--() { --m_value; return *this; }
+	i_iterator& operator+=(size_t n) { m_value += n; return *this; }
+	i_iterator& operator-=(size_t n) { m_value -= n; return *this; }
+	i_iterator operator++(int) { return m_value++; }
+	i_iterator operator--(int) { return m_value--; }
+	i_iterator operator+(size_t n) const { return m_value + n; }
+	i_iterator operator-(size_t n) const { return m_value - n; }
+	ptrdiff_t operator-(const i_iterator& rhs) const { return m_value - rhs.m_value; }
+	bool operator==(const i_iterator& rhs) const { return m_value == rhs.m_value; }
+	bool operator<(const i_iterator& rhs) const { return m_value < rhs.m_value; }
+	bool operator<=(const i_iterator& rhs) const { return m_value <= rhs.m_value; }
+	bool operator!=(const i_iterator& rhs) const { return !(*this == rhs); }
+	bool operator>=(const i_iterator& rhs) const { return !(*this < rhs); }
+	bool operator>(const i_iterator& rhs) const { return !(*this <= rhs); }
+
+private:
+	T m_value;
+};
+
+template<class T>
+inline range<i_iterator<T>> make_irange(T i_begin, T i_end)
+{
+	return range<i_iterator<T>>(i_begin, i_end);
+}
+
+template<class T>
+inline range<i_iterator<T>> make_irange(T i_end)
+{
+	return range<i_iterator<T>>(0, i_end);
+}
