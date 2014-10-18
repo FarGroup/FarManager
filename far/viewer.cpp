@@ -322,7 +322,7 @@ int Viewer::OpenFile(const string& Name,int warning)
 		bool found = FilePositionCache::GetPosition(strCacheName,poscache);
 		if (Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveShortPos)
 		{
-			__int64 NewFilePos=poscache.cur.FilePos;
+			__int64 NewFilePos=std::max(poscache.cur.FilePos, 0LL);
 			__int64 NewLeftPos=poscache.cur.LeftPos;
 			if ( found && VM.Hex == -1 ) // keep VM.Hex if file listed (Grey+ / Gray-)
 			{
@@ -2087,7 +2087,7 @@ void Viewer::CacheLine( __int64 start, int length, bool have_eol )
 				reset = (llabs(lcache_lines[j]) != start+length);
 			}
 		}
-#if defined(_DEBUG) && 1 // it is legal case if file changed...
+#if defined(_DEBUG) && 0 // it is legal case if file changed...
 		assert( !reset );
 #endif
 		if ( reset )
