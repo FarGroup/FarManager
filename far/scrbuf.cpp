@@ -621,7 +621,7 @@ void ScreenBuf::RestoreMacroChar()
 {
 	if(MacroCharUsed)
 	{
-		Write(0,0,&MacroChar,1);
+		SBFlags.Clear(SBFLAGS_FLUSHED);
 		MacroCharUsed=false;
 	}
 }
