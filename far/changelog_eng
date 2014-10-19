@@ -3,6 +3,80 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 19.10.2014 08:47:14 +0200 - build 4148
+
+1. Correction of 4145.
+
+zg 19.10.2014 03:03:18 +0200 - build 4147
+
+1. some useless code is removed.
+
+zg 19.10.2014 02:28:21 +0200 - build 4146
+
+1. again, tabulation and coloring problems in editor.
+
+drkns 19.10.2014 00:25:12 +0200 - build 4145
+
+1. Refactoring.
+
+zg 19.10.2014 00:10:02 +0200 - build 4144
+
+1. correction of 4141.
+
+2. an old bug, ECTL_GETINFO called from EE_REDRAW returned incorrect LeftPos.
+
+svs 18.10.2014 11:00:19 +0400 - build 4143
+
+1. SQLite 3.8.7
+
+w17 18.10.2014 06:15:54 +0300 - build 4142
+
+1. correction of 4135
+
+zg 18.10.2014 02:39:46 +0200 - build 4141
+
+1. 0002835: Glitches if the content is shifted to the left.
+
+drkns 17.10.2014 23:22:14 +0200 - build 4140
+
+1. #0002839: Incorrectly associated names of attributes
+
+zg 17.10.2014 14:01:23 +0200 - build 4139
+
+1. correction of 4137.
+
+zg 17.10.2014 04:06:40 +0200 - build 4138
+
+1. ACTL_GETWINDOWINFO returns all windows in current z-order.
+
+zg 17.10.2014 03:27:45 +0200 - build 4137
+
+1. correction of 4134: copy-paste is removed, all highlighting areas are actually deleted.
+
+zg 17.10.2014 01:30:31 +0200 - build 4136
+
+1. if an already opened file was being opened in editor from search then the qeuery was displayed incorrectly.
+
+2. gcc warning.
+
+w17 16.10.2014 02:20:55 +0300 - build 4135
+
+1. M#2829: Empty screen in viewer wnhen the file is rewritten
+
+shmuel 16.10.2014 00:05:23 +0200 - build 4134
+
+1. ECF_AUTODELETE flag is added. If EditorControl(ECTL_ADDCOLOR) function has set the flag,
+   then the added highlighting region will be deleted by FAR automatically right before next
+   EE_REDRAW event sent to plugins.
+
+drkns 14.10.2014 22:24:10 +0200 - build 4133
+
+1. Incorrect error code displayed on tree3.far writing failure.
+
+drkns 13.10.2014 19:25:09 +0200 - build 4132
+
+1. Forum: "Starting from 4062, the performance of regular expressions execution has decreased significantly."
+
 drkns 11.10.2014 19:53:46 +0200 - build 4131
 
 1. #0002827: The size of groups list does not decrease after deletion of file highlighting groups
