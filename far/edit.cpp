@@ -2459,9 +2459,6 @@ void Edit::ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos)
 			continue;
 
 		int Width = ObjWidth();
-		// Отсекаем элементы заведомо не попадающие на экран
-		if (CurItem->StartPos-LeftPos >= Width && CurItem->EndPos-LeftPos < 0)
-			continue;
 
 		int Length = CurItem->EndPos-CurItem->StartPos+1;
 
