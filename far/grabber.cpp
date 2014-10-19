@@ -118,7 +118,10 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 	{
 		Line.clear();
 
-		CopyBuf.append(L"\r\n");
+		if (I)
+		{
+			CopyBuf.append(L"\r\n");
+		}
 
 		FOR(const auto& Cell, CharBuf[I])
 		{
