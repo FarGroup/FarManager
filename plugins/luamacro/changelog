@@ -1,4 +1,8 @@
-﻿w17 09.10.2014 02:53:15 +0200 - build 434
+﻿shmuel 20.10.2014 21:01:14 +0200 - build 435
+
+1. M#2840: mload/msave: работать с локальным профилем.
+
+w17 09.10.2014 02:53:15 +0200 - build 434
 
 1. LuaFAR: build recovered after plugin.hpp changes
 

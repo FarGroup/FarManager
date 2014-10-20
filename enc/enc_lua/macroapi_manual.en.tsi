@@ -521,13 +521,14 @@ lv=3
 dt=Text
 nm=mdelete
 ctime=3552066075
-mtime=3607090721
+mtime=3622999561
 <article>
-#_mf.mdelete (key, name)
+#_mf.mdelete (key, name [, location])
 #_
 #_**Parameters:**
-#_  key:   string
-#_  name:  string
+#_  key:       string
+#_  name:      string
+#_  location:  string ("roaming" or "local"; default: "roaming")
 #_
 #_**Returns:**
 #_  nothing
@@ -545,16 +546,17 @@ lv=3
 dt=Text
 nm=mload
 ctime=3551993209
-mtime=3620402647
+mtime=3622999587
 <article>
-#_ret = mf.mload (key, name)
+#_ret = mf.mload (key, name [, location])
 #_
 #_**Parameters:**
-#_  key:   string
-#_  name:  string
+#_  key:       string
+#_  name:      string
+#_  location:  string ("roaming" or "local"; default: "roaming")
 #_
 #_**Returns:**
-#_  ret:   number, string, boolean, table, int64 or nil.
+#_  ret:      number, string, boolean, table, int64 or nil.
 #_
 #_**Description:**
 #_  Function *mload* reads a value from the database.
@@ -568,14 +570,15 @@ lv=3
 dt=Text
 nm=msave
 ctime=3551993205
-mtime=3620460304
+mtime=3622999613
 <article>
-#_mf.msave (key, name, value)
+#_mf.msave (key, name, value [, location])
 #_
 #_**Parameters:**
-#_  key:    string
-#_  name:   string
-#_  value:  nil, boolean, number, string, table, int64
+#_  key:       string
+#_  name:      string
+#_  value:     nil, boolean, number, string, table, int64
+#_  location:  string ("roaming" or "local"; default: "roaming")
 #_
 #_**Returns:**
 #_  nothing

@@ -511,13 +511,14 @@ lv=3
 dt=Text
 nm=mdelete
 ctime=3552066075
-mtime=3607090733
+mtime=3622998191
 <article>
-#_mf.mdelete (key, name)
+#_mf.mdelete (key, name [, profile])
 #_
 #_**Параметры:**
-#_  key:  string
-#_  name: string
+#_  key:      string
+#_  name:     string
+#_  profile:  string ("roaming" или "local"; по умолчанию: "roaming")
 #_
 #_**Возвращает:**
 #_  ничего
@@ -535,16 +536,17 @@ lv=3
 dt=Text
 nm=mload
 ctime=3551993209
-mtime=3620402562
+mtime=3622998396
 <article>
-#_ret = mf.mload (key, name)
+#_ret = mf.mload (key, name [, profile])
 #_
 #_**Параметры:**
-#_  key:   string
-#_  name:  string
+#_  key:      string
+#_  name:     string
+#_  profile:  string ("roaming" или "local"; по умолчанию: "roaming")
 #_
 #_**Возвращает:**
-#_  ret:   number, string, boolean, table, int64 или nil.
+#_  ret:      number, string, boolean, table, int64 или nil.
 #_
 #_**Описание:**
 #_  Функция *mload* читает значение из базы данных.
@@ -558,14 +560,15 @@ lv=3
 dt=Text
 nm=msave
 ctime=3551993205
-mtime=3620460211
+mtime=3622998297
 <article>
-#_mf.msave (key, name, value)
+#_mf.msave (key, name, value [, profile])
 #_
 #_**Параметры:**
-#_  key:         string
-#_  name:        string
-#_  value:       nil, boolean, number, string, table, int64
+#_  key:      string
+#_  name:     string
+#_  value:    nil, boolean, number, string, table, int64
+#_  profile:  string ("roaming" или "local"; по умолчанию: "roaming")
 #_
 #_**Возвращает:**
 #_  ничего

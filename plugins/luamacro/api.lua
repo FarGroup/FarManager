@@ -508,10 +508,10 @@ local function serialize (o)
   return s and "return "..s or tableSerialize(o)
 end
 
-function mf.mdelete (key, name)
+function mf.mdelete (key, name, location)
   checkarg(key, 1, "string")
   checkarg(name, 2, "string")
-  local obj = far.CreateSettings()
+  local obj = far.CreateSettings(nil, location=="local" and "PSL_LOCAL" or "PSL_ROAMING")
   local subkey = obj:OpenSubkey(0, key)
   if subkey then
     obj:Delete(subkey, name~="*" and name or nil)
@@ -519,22 +519,22 @@ function mf.mdelete (key, name)
   obj:Free()
 end
 
-function mf.msave (key, name, value)
+function mf.msave (key, name, value, location)
   checkarg(key, 1, "string")
   checkarg(name, 2, "string")
   local str = serialize(value)
   if str then
-    local obj = far.CreateSettings()
+    local obj = far.CreateSettings(nil, location=="local" and "PSL_LOCAL" or "PSL_ROAMING")
     local subkey = obj:CreateSubkey(0, key)
     obj:Set(subkey, name, F.FST_DATA, str)
     obj:Free()
   end
 end
 
-function mf.mload (key, name)
+function mf.mload (key, name, location)
   checkarg(key, 1, "string")
   checkarg(name, 2, "string")
-  local obj = far.CreateSettings()
+  local obj = far.CreateSettings(nil, location=="local" and "PSL_LOCAL" or "PSL_ROAMING")
   local subkey = obj:OpenSubkey(0, key)
   local chunk = subkey and obj:Get(subkey, name, F.FST_DATA)
   obj:Free()
