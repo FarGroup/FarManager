@@ -5490,7 +5490,7 @@ size_t FileList::FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *g
 	size+=fi->CustomColumnNumber*sizeof(wchar_t*);
 	size+=sizeof(wchar_t)*(fi->strName.size()+1);
 	size+=sizeof(wchar_t)*(fi->strShortName.size()+1);
-	size+=std::accumulate(fi->CustomColumnData, fi->CustomColumnData + fi->CustomColumnNumber, size_t(0), [](size_t size, const wchar_t* i) { return size + i? (wcslen(i) + 1) * sizeof(wchar_t) : 0; });
+	size+=std::accumulate(fi->CustomColumnData, fi->CustomColumnData + fi->CustomColumnNumber, size_t(0), [](size_t size, const wchar_t* i) { return size + (i? (wcslen(i) + 1) * sizeof(wchar_t) : 0); });
 	size+=fi->DizText?sizeof(wchar_t)*(wcslen(fi->DizText)+1):0;
 	size+=fi->strOwner.empty()?0:sizeof(wchar_t)*(fi->strOwner.size()+1);
 
