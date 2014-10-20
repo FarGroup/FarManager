@@ -63,4 +63,5 @@ private:
 	bool bCrCr;
 };
 
-bool GetFileFormat(api::File& file, uintptr_t& nCodePage, bool* pSignatureFound = nullptr, bool bUseHeuristics = true);
+bool GetFileFormat(api::File& file, uintptr_t& nCodePage,
+	bool* pSignatureFound = nullptr, bool bUseHeuristics = true, bool* pPureAscii = nullptr);

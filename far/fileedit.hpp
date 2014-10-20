@@ -91,6 +91,7 @@ public:
 	void SetSaveToSaveAs(bool ToSaveAs) { m_Flags.Change(FFILEEDIT_SAVETOSAVEAS, ToSaveAs); InitKeyBar(); }
 	intptr_t EditorControl(int Command, intptr_t Param1, void *Param2);
 	bool SetCodePage(uintptr_t codepage);  //BUGBUG
+	int  SetCodePage(uintptr_t cp, bool redetect_default, bool ascii2def);
 	BOOL IsFileChanged() const { return m_editor->IsFileChanged(); }
 	void GetEditorOptions(Options::EditorOptions& EdOpt) const;
 	void SetEditorOptions(const Options::EditorOptions& EdOpt);

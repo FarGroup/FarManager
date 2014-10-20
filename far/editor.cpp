@@ -6368,33 +6368,19 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 						_ECTLLOG(SysLog(L"  iParam      =%s",(!espar->iParam?L"0 (Oct)":(espar->iParam==1?L"1 (Dec)":(espar->iParam==2?L"2 (Hex)":L"?????")))));
 						SetCharCodeBase(espar->iParam);
 						break;
-						/* $ 07.08.2001 IS сменить кодировку из плагина */
 					case ESPT_CODEPAGE:
 					{
-						if (!Codepages().IsCodePageSupported(espar->iParam))
-						{
-							rc = FALSE;
+						uintptr_t cp = espar->iParam;
+						if (HostFileEditor) {
+							rc = HostFileEditor->SetCodePage(cp, false, true);
+							//rc = rc > 0 ? TRUE : FALSE;
 						}
-						else if (static_cast<uintptr_t>(espar->iParam) == CP_DEFAULT) //BUGBUG
-						{
-							rc=FALSE;
+						else {
+							rc = cp != CP_DEFAULT && Codepages().IsCodePageSupported(cp) && SetCodePage(cp) ? TRUE : FALSE;
 						}
-						else
-						{
-							if (HostFileEditor)
-							{
-								HostFileEditor->SetCodePage(espar->iParam);
-								HostFileEditor->CodepageChangedByUser();
-							}
-							else
-							{
-								SetCodePage(espar->iParam);
-							}
-
+						if (rc > 0)
 							Show();
-						}
-					}
-					break;
+					}break;
 					/* $ 29.10.2001 IS изменение настройки "Сохранять позицию файла" */
 					case ESPT_SAVEFILEPOSITION:
 						_ECTLLOG(SysLog(L"  iParam      =%s",espar->iParam?L"On":L"Off"));

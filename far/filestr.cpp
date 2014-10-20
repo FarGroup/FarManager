@@ -59,7 +59,7 @@ enum EolType
 	FEOL_NOTEPAD
 };
 
-bool IsTextUTF8(const char* Buffer,size_t Length)
+bool IsTextUTF8(const char* Buffer, size_t Length, bool& PureAscii)
 {
 	bool Ascii=true;
 	size_t Octets=0;
@@ -100,6 +100,7 @@ bool IsTextUTF8(const char* Buffer,size_t Length)
 		}
 	}
 
+	PureAscii = Ascii;
 	return (!Octets || Length - LastOctetsPos < MaxCharSize) && !Ascii;
 }
 
@@ -383,11 +384,13 @@ bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, bool bB
 	return ExitCode;
 }
 
-bool GetFileFormat(api::File& file, uintptr_t& nCodePage, bool* pSignatureFound, bool bUseHeuristics)
+bool GetFileFormat(
+	api::File& file, uintptr_t& nCodePage, bool* pSignatureFound, bool bUseHeuristics, bool* pPureAscii)
 {
-	DWORD dwTemp=0;
+	DWORD dwTemp = 0;
 	bool bSignatureFound = false;
-	bool bDetect=false;
+	bool bDetect = false;
+	bool bPureAscii = false;
 
 	DWORD Readed = 0;
 	if (file.Read(&dwTemp, sizeof(dwTemp), Readed) && Readed > 1 ) // minimum signature size is 2 bytes
@@ -429,6 +432,8 @@ bool GetFileFormat(api::File& file, uintptr_t& nCodePage, bool* pSignatureFound,
 		bool ReadResult = file.Read(Buffer.get(), Size, ReadSize);
 		file.SetPointer(0, nullptr, FILE_BEGIN);
 
+		bPureAscii = ReadResult && !ReadSize; // empty file == pure ascii
+
 		if (ReadResult && ReadSize)
 		{
 			// BUGBUG MSDN documents IS_TEXT_UNICODE_BUFFER_TOO_SMALL but there is no such thing
@@ -452,14 +457,14 @@ bool GetFileFormat(api::File& file, uintptr_t& nCodePage, bool* pSignatureFound,
 					}
 				}
 
-				if (!bDetect && IsTextUTF8(Buffer.get(), ReadSize))
+				if (!bDetect && IsTextUTF8(Buffer.get(), ReadSize, bPureAscii))
 				{
 					nCodePage = CP_UTF8;
 					bDetect = true;
 				}
 			}
 
-			if (!bDetect)
+			if (!bDetect && !bPureAscii)
 			{
 				int cp = GetCpUsingUniversalDetector(Buffer.get(), ReadSize);
 				if ( cp >= 0 )
@@ -497,8 +502,10 @@ bool GetFileFormat(api::File& file, uintptr_t& nCodePage, bool* pSignatureFound,
 	}
 
 	if (pSignatureFound)
-	{
 		*pSignatureFound = bSignatureFound;
-	}
+
+	if (pPureAscii)
+		*pPureAscii = bPureAscii;
+
 	return bDetect;
 }

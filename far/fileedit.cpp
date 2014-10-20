@@ -1304,76 +1304,20 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			}
 
 			case KEY_F8:
+			{
+				this->SetCodePage(m_codepage==GetACP() ? GetOEMCP() : GetACP(), false,true);
+				return TRUE;
+			}
 			case KEY_SHIFTF8:
 			{
 				uintptr_t codepage = m_codepage;
-				if (Key == KEY_F8)
-					codepage = m_codepage == GetACP() ? GetOEMCP() : GetACP();
-				else
+				if (Codepages().SelectCodePage(codepage, true, false, true))
 				{
-					if (Codepages().SelectCodePage(codepage, true, false, true))
-					{
-						if (codepage == CP_DEFAULT)
-						{
-							api::File edit_file;
-							bool detect = false, sig_found = false;
-
-							if (edit_file.Open(strFileName, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
-							{
-								detect = GetFileFormat(edit_file,codepage,&sig_found,true);
-								edit_file.Close();
-							}
-							if (!detect)
-							{
-								Message(MSG_WARNING,1,MSG(MEditTitle),MSG(MEditorCPNotDetected),MSG(MOk));
-							}
-							else if (!Codepages().IsCodePageSupported(codepage))
-							{
-								detect = false;
-								Message(MSG_WARNING, 1, MSG(MEditTitle), (LangString(MEditorCPNotSupported) << codepage).data(), MSG(MOk));
-							}
-							if ( !detect )
-								codepage = m_codepage;
-						}
-					}
+					this->SetCodePage(codepage, true,true);
 				}
-
-				bool need_reload = !m_Flags.Check(FFILEEDIT_NEW) // we can't reload non-existing file
-					&& (BadConversion
-					|| IsUnicodeCodePage(m_codepage) || m_codepage == CP_UTF7
-					|| IsUnicodeCodePage(codepage));
-
-
-				if (codepage != m_codepage && need_reload && IsFileModified())
-				{
-					int res = Message(
-						MSG_WARNING, 2, MSG(MEditTitle),
-						MSG(MEditorReloadCPWarnLost1), MSG(MEditorReloadCPWarnLost2),
-						MSG(MOk), MSG(MCancel)
-					);
-					if (res != 0)
-						codepage = m_codepage;
-				}
-
-				if (codepage != m_codepage)
-				{
-					uintptr_t cp0 = m_codepage;
-					if (need_reload)
-					{
-						ReloadFile(codepage);
-					}
-					else
-						SetCodePage(codepage);
-
-					if (m_codepage != cp0)
-					{
-						InitKeyBar();
-						m_Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
-					}
-				}
-
 				return TRUE;
 			}
+
 			case KEY_ALTSHIFTF9:
 			case KEY_RALTSHIFTF9:
 			{
@@ -1404,6 +1348,97 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 	return TRUE;
 }
 
+static const int
+	EE_CP_RELOAD             = +2,
+	EE_CP_SET                = +1,
+	EE_CP_NOT_CHANGED        =  0,
+	EE_CP_NOT_CACHED         = -1,
+	EE_CP_NOT_DETECTED       = -2,
+	EE_CP_NOT_SUPPORTED      = -3,
+	EE_CP_NOTRELOAD_MODIFIED = -4,
+	EE_CP_CANNOT_RELOAD      = -5,
+   EE_CP_CANNOT_SET         = -6;
+
+int FileEditor::SetCodePage(uintptr_t cp,	bool redetect_default, bool ascii2def)
+{
+	if (redetect_default && cp == CP_DEFAULT)
+		cp = CP_REDETECT;
+
+	if (cp == CP_DEFAULT) {
+		EditorPosCache epc;
+		if (!LoadFromCache(epc) || !epc.CodePage)
+			return EE_CP_NOT_CACHED;
+	}
+	else if (cp == CP_REDETECT) {
+		api::File edit_file;
+		bool detect = false, sig_found = false, ascii_or_empty = false;
+
+		if (edit_file.Open(strFileName, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
+		{
+			detect = GetFileFormat(edit_file, cp, &sig_found, true, &ascii_or_empty);
+			if (!detect && ascii_or_empty && ascii2def) {
+				cp = this->GetDefaultCodePage();
+				if (IsUnicodeCodePage(cp)) {
+					UINT64 file_size = 0;
+					edit_file.GetSize(file_size);
+					if (file_size > 0)
+						cp = GetACP();
+				}
+				detect = true;
+			}
+			edit_file.Close();
+		}
+		if (!detect)
+		{
+			Message(MSG_WARNING,1,MSG(MEditTitle),MSG(MEditorCPNotDetected),MSG(MOk));
+			return EE_CP_NOT_DETECTED;
+		}
+	}
+
+	if (cp == CP_DEFAULT || !Codepages().IsCodePageSupported(cp))
+	{
+		Message(MSG_WARNING, 1, MSG(MEditTitle), (LangString(MEditorCPNotSupported) << cp).data(), MSG(MOk));
+		return EE_CP_NOT_SUPPORTED;
+	}
+
+	if (cp == m_codepage)
+		return EE_CP_NOT_CHANGED;
+
+	uintptr_t cp0 = m_codepage;
+
+	bool need_reload = !m_Flags.Check(FFILEEDIT_NEW) // we can't reload non-existing file
+		&& (BadConversion
+		|| IsUnicodeCodePage(m_codepage) || m_codepage == CP_UTF7
+		|| IsUnicodeCodePage(cp));
+
+	if (need_reload)
+	{
+		if (IsFileModified())
+		{
+			int res = Message(
+				MSG_WARNING, 2, MSG(MEditTitle),
+				MSG(MEditorReloadCPWarnLost1), MSG(MEditorReloadCPWarnLost2),
+				MSG(MOk), MSG(MCancel));
+
+			if (res != 0)
+				return EE_CP_NOTRELOAD_MODIFIED;
+		}
+		ReloadFile(cp);
+	}
+	else
+	{
+		SetCodePage(cp);
+	}
+
+	if (m_codepage != cp0)
+	{
+		InitKeyBar();
+		m_Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
+		return need_reload ? EE_CP_RELOAD : EE_CP_SET;
+	}
+	else
+		return need_reload ? EE_CP_CANNOT_RELOAD : EE_CP_CANNOT_SET;
+}
 
 int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion,bool DeleteWindow)
 {
@@ -1562,39 +1597,28 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 			pc.CodePage = 0;
 
 		m_editor->GlobalEOL.clear(); //BUGBUG???
-		uintptr_t dwCP=0;
-		bool Detect=false;
+		uintptr_t dwCP = 0;
+		bool Detect = false;
 
 		bool redetect = (m_codepage == CP_REDETECT);
 		if (redetect)
 			m_codepage = CP_DEFAULT;
 
-		if (m_codepage == CP_DEFAULT || IsUnicodeOrUtfCodePage(m_codepage))
-		{
-			Detect=GetFileFormat(EditFile,dwCP,&m_bAddSignature,redetect || Global->Opt->EdOpt.AutoDetectCodePage!=0);
-
-			// Проверяем поддерживается или нет задетектировання кодовая страница
-			if (Detect)
-				Detect = Codepages().IsCodePageSupported(dwCP);
-		}
-
 		if (m_codepage == CP_DEFAULT)
 		{
+			Detect = GetFileFormat(EditFile,dwCP,&m_bAddSignature,redetect || Global->Opt->EdOpt.AutoDetectCodePage!=0)
+					&& Codepages().IsCodePageSupported(dwCP);
+
 			if (Detect)
+				m_codepage = dwCP;
+
+			else if (!redetect && bCached && pc.CodePage)
 			{
-				m_codepage=dwCP;
+				m_codepage = pc.CodePage;
+				m_Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
 			}
 
-			if (!redetect && bCached)
-			{
-				if (pc.CodePage)
-				{
-					m_codepage = pc.CodePage;
-					m_Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
-				}
-			}
-
-			if (m_codepage==CP_DEFAULT)
+			if (m_codepage == CP_DEFAULT)
 				m_codepage = GetDefaultCodePage();
 		}
 		else
@@ -1605,9 +1629,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		m_editor->SetCodePage(m_codepage);  //BUGBUG
 
 		if (!IsUnicodeOrUtfCodePage(m_codepage))
-		{
 			EditFile.SetPointer(0, nullptr, FILE_BEGIN);
-		}
 
 		UINT64 FileSize=0;
 		EditFile.GetSize(FileSize);
@@ -2934,6 +2956,7 @@ bool FileEditor::SetCodePage(uintptr_t codepage)
 			return false;
 		}
 	}
+
 	m_codepage = codepage;
 	BadConversion = !m_editor->SetCodePage(m_codepage, &m_bAddSignature);
 	return true;
