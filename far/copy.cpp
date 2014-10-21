@@ -473,7 +473,8 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 	COORD BarCoord={static_cast<SHORT>(Rect.Left+5),static_cast<SHORT>(Rect.Top+(TotalProgress?8:6))};
 	size_t BarLength = Rect.Right - Rect.Left - 9;
 
-	Bar = make_progressbar(BarLength, ToPercent(CompletedSize, TotalSize), true, Total == TotalProgress);
+	Percents = ToPercent(CompletedSize, TotalSize);
+	Bar = make_progressbar(BarLength, Percents, true, Total == TotalProgress);
 
 	Text(BarCoord.X,BarCoord.Y,Color,Bar);
 
