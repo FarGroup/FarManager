@@ -331,6 +331,27 @@ local function test_msave()
   assert(getmetatable(T3).__index==T1 and T3[1]==5 and rawget(T3,1)==nil)
   mf.mdelete(Key, "*")
   assert(mf.mload(Key, "name1")==nil)
+
+  -- test locations (profiles)
+  if win.GetEnv("FARPROFILE") ~= win.GetEnv("FARLOCALPROFILE") then
+    mf.msave("key1", "name1", 100)
+    mf.msave("key2", "name2", 200, "roaming")
+    mf.msave("key1", "name1", 300, "local")
+    for k=1,2 do
+      assert(mf.mload("key1", "name1") == 100)
+      assert(mf.mload("key1", "name1", "roaming") == 100)
+      assert(mf.mload("key2", "name2") == 200)
+      assert(mf.mload("key2", "name2", "roaming") == 200)
+      assert(mf.mload("key1", "name1", "local") == 300)
+    end
+    mf.mdelete("key1", "name1")
+    mf.mdelete("key2", "name2", "roaming")
+    assert(mf.mload("key1", "name1") == nil)
+    assert(mf.mload("key2", "name2") == nil)
+    assert(mf.mload("key1", "name1", "local") == 300)
+    mf.mdelete("key1", "name1", "local")
+    assert(mf.mload("key1", "name1", "local") == nil)
+  end
 end
 
 local function test_mod()

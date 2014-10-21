@@ -511,14 +511,14 @@ lv=3
 dt=Text
 nm=mdelete
 ctime=3552066075
-mtime=3622998191
+mtime=3623048003
 <article>
-#_mf.mdelete (key, name [, profile])
+#_mf.mdelete (key, name [, location])
 #_
 #_**Параметры:**
-#_  key:      string
-#_  name:     string
-#_  profile:  string ("roaming" или "local"; по умолчанию: "roaming")
+#_  key:       string
+#_  name:      string
+#_  location:  string ("roaming" или "local"; по умолчанию: "roaming")
 #_
 #_**Возвращает:**
 #_  ничего
@@ -536,14 +536,14 @@ lv=3
 dt=Text
 nm=mload
 ctime=3551993209
-mtime=3622998396
+mtime=3623048023
 <article>
-#_ret = mf.mload (key, name [, profile])
+#_ret = mf.mload (key, name [, location])
 #_
 #_**Параметры:**
-#_  key:      string
-#_  name:     string
-#_  profile:  string ("roaming" или "local"; по умолчанию: "roaming")
+#_  key:       string
+#_  name:      string
+#_  location:  string ("roaming" или "local"; по умолчанию: "roaming")
 #_
 #_**Возвращает:**
 #_  ret:      number, string, boolean, table, int64 или nil.
@@ -560,15 +560,15 @@ lv=3
 dt=Text
 nm=msave
 ctime=3551993205
-mtime=3622998297
+mtime=3623048048
 <article>
-#_mf.msave (key, name, value [, profile])
+#_mf.msave (key, name, value [, location])
 #_
 #_**Параметры:**
-#_  key:      string
-#_  name:     string
-#_  value:    nil, boolean, number, string, table, int64
-#_  profile:  string ("roaming" или "local"; по умолчанию: "roaming")
+#_  key:       string
+#_  name:      string
+#_  value:     nil, boolean, number, string, table, int64
+#_  location:  string ("roaming" или "local"; по умолчанию: "roaming")
 #_
 #_**Возвращает:**
 #_  ничего
