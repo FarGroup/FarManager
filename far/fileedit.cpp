@@ -1610,7 +1610,12 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 					&& Codepages().IsCodePageSupported(dwCP);
 
 			if (Detect)
-				m_codepage = dwCP;
+			{
+				if (m_codepage == CP_DEFAULT)
+					m_codepage = dwCP;
+				else if (m_codepage != dwCP)
+					m_bAddSignature = false;
+			}
 
 			else if (!redetect && bCached && pc.CodePage)
 			{
