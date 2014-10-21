@@ -1604,7 +1604,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		if (redetect)
 			m_codepage = CP_DEFAULT;
 
-		if (m_codepage == CP_DEFAULT)
+		if (m_codepage == CP_DEFAULT || IsUnicodeOrUtfCodePage(m_codepage))
 		{
 			Detect = GetFileFormat(EditFile,dwCP,&m_bAddSignature,redetect || Global->Opt->EdOpt.AutoDetectCodePage!=0)
 					&& Codepages().IsCodePageSupported(dwCP);
