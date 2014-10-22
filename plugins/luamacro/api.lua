@@ -459,15 +459,10 @@ local function AddToIndex (idx, t)
     n = #idx + 1
     idx[n], idx[t] = t, n
     for k,v in pairs(t) do
-      if type(k)=="table" then
-        AddToIndex(idx, k)
-        if debug.getmetatable(k) then AddToIndex(idx,debug.getmetatable(k)) end
-      end
-      if type(v)=="table" then
-        AddToIndex(idx, v)
-        if debug.getmetatable(v) then AddToIndex(idx,debug.getmetatable(v)) end
-      end
+      if type(k)=="table" then AddToIndex(idx, k) end
+      if type(v)=="table" then AddToIndex(idx, v) end
     end
+    if debug.getmetatable(t) then AddToIndex(idx,debug.getmetatable(t)) end
   end
 end
 
