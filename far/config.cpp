@@ -1680,6 +1680,7 @@ void Options::InitRoamingCFG()
 		{FSSF_PRIVATE,       NKeyEditor,L"BSLikeDel", &EdOpt.BSLikeDel, true},
 		{FSSF_PRIVATE,       NKeyEditor,L"CharCodeBase", &EdOpt.CharCodeBase, 1},
 		{FSSF_PRIVATE,       NKeyEditor,L"DefaultCodePage", &EdOpt.DefaultCodePage, GetACP()},
+		{FSSF_PRIVATE,       NKeyEditor,L"F8CPs", &EdOpt.strF8CPs, L""},
 		{FSSF_PRIVATE,       NKeyEditor,L"DelRemovesBlocks", &EdOpt.DelRemovesBlocks, true},
 		{FSSF_PRIVATE,       NKeyEditor,L"EditOpenedForWrite", &EdOpt.EditOpenedForWrite, true},
 		{FSSF_PRIVATE,       NKeyEditor,L"EditorCursorBeyondEOL", &EdOpt.CursorBeyondEOL, true},
@@ -1944,6 +1945,7 @@ void Options::InitRoamingCFG()
 
 		{FSSF_PRIVATE,       NKeyViewer,L"AutoDetectCodePage", &ViOpt.AutoDetectCodePage, true},
 		{FSSF_PRIVATE,       NKeyViewer,L"DefaultCodePage", &ViOpt.DefaultCodePage, GetACP()},
+		{FSSF_PRIVATE,       NKeyViewer,L"F8CPs", &ViOpt.strF8CPs, L""},
 		{FSSF_PRIVATE,       NKeyViewer,L"ExternalViewerName", &strExternalViewer, L""},
 		{FSSF_PRIVATE,       NKeyViewer,L"IsWrap", &ViOpt.ViewerIsWrap, true},
 		{FSSF_PRIVATE,       NKeyViewer,L"MaxLineSize", &ViOpt.MaxLineSize, ViewerOptions::eDefLineSize},

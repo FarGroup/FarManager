@@ -1413,4 +1413,86 @@ int Utf8::ToWideChar(const char *src, int length, wchar_t* out, int wlen, Utf::E
 }
 
 //################################################################################################
+
+F8CP::~F8CP()
+{}
+
+F8CP::F8CP(bool viewer) : utf_name(L"UTF-8")
+{
+	LNGID acpm = Global->OnlyEditorViewerUsed ? (viewer ? MSingleViewF8:MSingleEditF8) : (viewer ? MViewF8:MEditF8);
+	acp_name.assign(MSG(acpm));
+	LNGID oemm = Global->OnlyEditorViewerUsed ? (viewer ? MSingleViewF8DOS:MSingleEditF8DOS) : (viewer ? MViewF8DOS:MEditF8DOS);
+	oem_name.assign(MSG(oemm));
+
+	UINT defcp = viewer ? Global->Opt->ViOpt.DefaultCodePage : Global->Opt->EdOpt.DefaultCodePage;
+
+	string cps(viewer ? Global->Opt->ViOpt.strF8CPs : Global->Opt->EdOpt.strF8CPs);
+	if (cps != L"-1")
+	{
+		std::set<UINT> used_cps;
+		const auto f8list = split_to_vector::get(cps, 0);
+		std::for_each(RANGE(f8list, str_cp)
+		{
+			string s(str_cp);
+			strmix::Upper(s);
+			UINT cp = 0;
+			if (s == L"ANSI" || s == L"ACP")
+				cp = GetACP();
+			else if (s == L"OEM" || s == L"OEMCP" || s == L"DOS")
+				cp = GetOEMCP();
+			else if (s == L"UTF8" || s == L"UTF-8")
+				cp = CP_UTF8;
+			else if (s == L"DEFAULT")
+				cp = defcp;
+			else {
+				try { cp = static_cast<UINT>(std::stoi(s)); }
+				catch (std::exception&) { cp = 0; }
+			}
+			if (cp && Codepages().IsCodePageSupported(cp, viewer ? 2:20) && used_cps.find(cp)==used_cps.end())
+			{
+				f8cp_order.push_back(cp);
+				used_cps.insert(cp);
+			}
+		});
+	}
+	if (f8cp_order.empty())
+	{
+		UINT acp = GetACP(), oemcp = GetOEMCP();
+		if (cps != L"-1")
+			defcp = acp;
+		f8cp_order.push_back(defcp);
+		if (acp != defcp)
+			f8cp_order.push_back(acp);
+		if (oemcp != defcp && oemcp != acp)
+			f8cp_order.push_back(oemcp);
+	}
+}
+
+uintptr_t F8CP::NextCP(uintptr_t cp)
+{
+	UINT next_cp = f8cp_order[0];
+	if (cp == (cp & 0x7fffffff)) {
+		auto curr = std::find(ALL_CONST_RANGE(f8cp_order), static_cast<UINT>(cp));
+		if (curr != f8cp_order.cend() && ++curr != f8cp_order.cend())
+			next_cp = *curr;
+	}
+	return static_cast<uintptr_t>(next_cp);
+}
+
+const wchar_t* F8CP::NextCPname(uintptr_t cp)
+{
+	UINT next_cp = static_cast<UINT>(NextCP(cp));
+	if (next_cp == GetACP())
+		return acp_name.data();
+	else if (next_cp == GetOEMCP())
+		return oem_name.data();
+	else if (next_cp == CP_UTF8)
+		return utf_name.data();
+	else {
+		number.assign(std::to_wstring(next_cp));
+		return number.data();
+	}
+}
+
+//################################################################################################
 //################################################################################################

@@ -170,3 +170,19 @@ namespace Utf8 {
 }
 
 //#############################################################################
+
+class F8CP
+{
+public:
+	F8CP(bool viewer=false);
+	~F8CP();
+
+	uintptr_t NextCP(uintptr_t cp);
+	const wchar_t* NextCPname(uintptr_t cp);
+
+private:
+	string acp_name, oem_name, utf_name, number;
+	std::vector<UINT> f8cp_order;
+};
+
+//#############################################################################

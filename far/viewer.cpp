@@ -162,7 +162,8 @@ Viewer::Viewer(bool bQuickView, uintptr_t aCodePage):
 	vgetc_ib(),
 	vgetc_composite(L'\0'),
 	dump_text_mode(-1),
-	ReadBuffer(MAX_VIEWLINEB)
+	ReadBuffer(MAX_VIEWLINEB),
+	f8cps(true)
 {
 	_OT(SysLog(L"[%p] Viewer::Viewer()", this));
 
@@ -358,11 +359,8 @@ int Viewer::OpenFile(const string& Name,int warning)
 
 		if (VM.CodePage == CP_DEFAULT || IsUnicodeOrUtfCodePage(VM.CodePage))
 		{
-			Detect=GetFileFormat(ViewFile,CodePage,&Signature,Global->Opt->ViOpt.AutoDetectCodePage!=0);
-
-			// Проверяем поддерживается ли детектированная кодовая страница
-			if (Detect)
-				Detect = IsCodePageSupported(CodePage);
+			Detect = GetFileFormat(ViewFile, CodePage, &Signature, Global->Opt->ViOpt.AutoDetectCodePage!=0)
+			      && IsCodePageSupported(CodePage);
 		}
 
 		if (VM.CodePage==CP_DEFAULT)
@@ -1580,7 +1578,7 @@ int Viewer::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_F8:
 		{
-			VM.CodePage = VM.CodePage == GetACP() ? GetOEMCP() : GetACP();
+			VM.CodePage = f8cps.NextCP(VM.CodePage);
 			MB.SetCP(static_cast<UINT>(VM.CodePage));
 			lcache_ready = false;
 			AdjustFilePos();
@@ -2324,7 +2322,7 @@ void Viewer::ChangeViewKeyBar()
 		m_ViewKeyBar->Change(f2_label, 2-1);
 		m_ViewKeyBar->Change(KBL_SHIFT, shiftf2_label, 2-1);
 		m_ViewKeyBar->Change(MSG(VM.Hex != 1 ? MViewF4 : (dump_text_mode ? MViewF4Dump : MViewF4Text)), 4-1);
-		m_ViewKeyBar->Change(MSG(VM.CodePage == GetACP() ? MViewF8DOS : MViewF8),8-1);
+		m_ViewKeyBar->Change(f8cps.NextCPname(VM.CodePage), 8-1);
 
 		m_ViewKeyBar->Redraw();
 	}

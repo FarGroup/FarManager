@@ -263,6 +263,7 @@ private:
 	int dump_text_mode;
 
 	std::vector<wchar_t> ReadBuffer;
+	F8CP f8cps;
 };
 
 class ViewerContainer

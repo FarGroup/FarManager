@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "editor.hpp"
 #include "plugin.hpp"
 #include "namelist.hpp"
+#include "codepage.hpp"
 
 // коды возврата Editor::SaveFile()
 enum
@@ -169,6 +170,8 @@ private:
 	bool m_bAddSignature;
 	bool BadConversion;
 	uintptr_t m_codepage; //BUGBUG
+
+	F8CP f8cps;
 };
 
 bool dlgOpenEditor(string &strFileName, uintptr_t &codepage);

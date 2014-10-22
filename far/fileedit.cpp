@@ -320,7 +320,7 @@ bool dlgSaveFileAs(string &strFileName, int &TextFormat, uintptr_t &codepage,boo
 }
 
 FileEditor::FileEditor():
-	BadConversion(false)
+	BadConversion(false), f8cps(false)
 {
 }
 
@@ -732,10 +732,7 @@ void FileEditor::InitKeyBar()
 	if (!m_Flags.Check(FFILEEDIT_ENABLEF6))
 		m_windowKeyBar->Change(KBL_MAIN, L"", 6 - 1);
 
-	if (m_codepage!=GetACP())
-		m_windowKeyBar->Change(KBL_MAIN, MSG(Global->OnlyEditorViewerUsed ? MSingleEditF8 : MEditF8), 7);
-	else
-		m_windowKeyBar->Change(KBL_MAIN, MSG(Global->OnlyEditorViewerUsed ? MSingleEditF8DOS : MEditF8DOS), 7);
+	m_windowKeyBar->Change(KBL_MAIN, f8cps.NextCPname(m_codepage), 7);
 
 	m_windowKeyBar->SetCustomLabels(KBA_EDITOR);
 
@@ -1305,16 +1302,15 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 			case KEY_F8:
 			{
-				this->SetCodePage(m_codepage==GetACP() ? GetOEMCP() : GetACP(), false,true);
+				this->SetCodePage(f8cps.NextCP(m_codepage), false,true);
 				return TRUE;
 			}
 			case KEY_SHIFTF8:
 			{
 				uintptr_t codepage = m_codepage;
 				if (Codepages().SelectCodePage(codepage, true, false, true))
-				{
 					this->SetCodePage(codepage, true,true);
-				}
+
 				return TRUE;
 			}
 
@@ -1349,15 +1345,15 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 }
 
 static const int
-	EE_CP_RELOAD             = +2,
-	EE_CP_SET                = +1,
-	EE_CP_NOT_CHANGED        =  0,
-	EE_CP_NOT_CACHED         = -1,
-	EE_CP_NOT_DETECTED       = -2,
-	EE_CP_NOT_SUPPORTED      = -3,
-	EE_CP_NOTRELOAD_MODIFIED = -4,
-	EE_CP_CANNOT_RELOAD      = -5,
-   EE_CP_CANNOT_SET         = -6;
+	EC_CP_RELOAD             = +2,
+	EC_CP_SET                = +1,
+	EC_CP_NOT_CHANGED        =  0,
+	EC_CP_NOT_CACHED         = -1,
+	EC_CP_NOT_DETECTED       = -2,
+	EC_CP_NOT_SUPPORTED      = -3,
+	EC_CP_NOTRELOAD_MODIFIED = -4,
+	EC_CP_CANNOT_RELOAD      = -5,
+   EC_CP_CANNOT_SET         = -6;
 
 int FileEditor::SetCodePage(uintptr_t cp,	bool redetect_default, bool ascii2def)
 {
@@ -1367,7 +1363,7 @@ int FileEditor::SetCodePage(uintptr_t cp,	bool redetect_default, bool ascii2def)
 	if (cp == CP_DEFAULT) {
 		EditorPosCache epc;
 		if (!LoadFromCache(epc) || !epc.CodePage)
-			return EE_CP_NOT_CACHED;
+			return EC_CP_NOT_CACHED;
 	}
 	else if (cp == CP_REDETECT) {
 		api::File edit_file;
@@ -1391,18 +1387,18 @@ int FileEditor::SetCodePage(uintptr_t cp,	bool redetect_default, bool ascii2def)
 		if (!detect)
 		{
 			Message(MSG_WARNING,1,MSG(MEditTitle),MSG(MEditorCPNotDetected),MSG(MOk));
-			return EE_CP_NOT_DETECTED;
+			return EC_CP_NOT_DETECTED;
 		}
 	}
 
 	if (cp == CP_DEFAULT || !Codepages().IsCodePageSupported(cp))
 	{
 		Message(MSG_WARNING, 1, MSG(MEditTitle), (LangString(MEditorCPNotSupported) << cp).data(), MSG(MOk));
-		return EE_CP_NOT_SUPPORTED;
+		return EC_CP_NOT_SUPPORTED;
 	}
 
 	if (cp == m_codepage)
-		return EE_CP_NOT_CHANGED;
+		return EC_CP_NOT_CHANGED;
 
 	uintptr_t cp0 = m_codepage;
 
@@ -1421,7 +1417,7 @@ int FileEditor::SetCodePage(uintptr_t cp,	bool redetect_default, bool ascii2def)
 				MSG(MOk), MSG(MCancel));
 
 			if (res != 0)
-				return EE_CP_NOTRELOAD_MODIFIED;
+				return EC_CP_NOTRELOAD_MODIFIED;
 		}
 		ReloadFile(cp);
 	}
@@ -1434,10 +1430,10 @@ int FileEditor::SetCodePage(uintptr_t cp,	bool redetect_default, bool ascii2def)
 	{
 		InitKeyBar();
 		m_Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
-		return need_reload ? EE_CP_RELOAD : EE_CP_SET;
+		return need_reload ? EC_CP_RELOAD : EC_CP_SET;
 	}
 	else
-		return need_reload ? EE_CP_CANNOT_RELOAD : EE_CP_CANNOT_SET;
+		return need_reload ? EC_CP_CANNOT_RELOAD : EC_CP_CANNOT_SET;
 }
 
 int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion,bool DeleteWindow)
@@ -1502,7 +1498,6 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion,bool DeleteWindow
 }
 
 
-// сюды плавно переносить код из Editor::ReadFile()
 int FileEditor::LoadFile(const string& Name,int &UserBreak)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
@@ -1525,15 +1520,6 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 
 		return FALSE;
 	}
-
-	/*if (GetFileType(hEdit) != FILE_TYPE_DISK)
-	{
-		fclose(EditFile);
-		SetLastError(ERROR_INVALID_NAME);
-		UserBreak=-1;
-		Flags.Set(FFILEEDIT_OPENFAILED);
-		return FALSE;
-	}*/
 
 	if (Global->Opt->EdOpt.FileSizeLimit)
 	{
@@ -1592,30 +1578,24 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 			m_editor->m_Flags.Swap(Editor::FEDITOR_LOCKMODE);
 		}
 
-		// Проверяем поддерживается или нет загруженная кодовая страница
 		if (bCached && pc.CodePage && !Codepages().IsCodePageSupported(pc.CodePage))
 			pc.CodePage = 0;
 
 		m_editor->GlobalEOL.clear(); //BUGBUG???
 		uintptr_t dwCP = 0;
-		bool Detect = false;
+		bool Detect = false, testBOM = false;
 
 		bool redetect = (m_codepage == CP_REDETECT);
 		if (redetect)
 			m_codepage = CP_DEFAULT;
 
-		if (m_codepage == CP_DEFAULT || IsUnicodeOrUtfCodePage(m_codepage))
+		if (m_codepage == CP_DEFAULT)
 		{
 			Detect = GetFileFormat(EditFile,dwCP,&m_bAddSignature,redetect || Global->Opt->EdOpt.AutoDetectCodePage!=0)
 					&& Codepages().IsCodePageSupported(dwCP);
 
 			if (Detect)
-			{
-				if (m_codepage == CP_DEFAULT)
-					m_codepage = dwCP;
-				else if (m_codepage != dwCP)
-					m_bAddSignature = false;
-			}
+				m_codepage = dwCP;
 
 			else if (!redetect && bCached && pc.CodePage)
 			{
@@ -1625,27 +1605,33 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 
 			if (m_codepage == CP_DEFAULT)
 				m_codepage = GetDefaultCodePage();
+
+			if (!IsUnicodeOrUtfCodePage(m_codepage))
+				EditFile.SetPointer(0, nullptr, FILE_BEGIN);
 		}
 		else
 		{
+			testBOM = IsUnicodeOrUtfCodePage(m_codepage);
 			m_Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
 		}
-
 		m_editor->SetCodePage(m_codepage);  //BUGBUG
-
-		if (!IsUnicodeOrUtfCodePage(m_codepage))
-			EditFile.SetPointer(0, nullptr, FILE_BEGIN);
 
 		UINT64 FileSize=0;
 		EditFile.GetSize(FileSize);
 		DWORD StartTime=GetTickCount();
 
 		GetFileString GetStr(EditFile, m_codepage);
-
 		wchar_t *Str;
 		size_t StrLength;
+
 		while (GetStr.GetString(&Str, StrLength))
 		{
+			if (testBOM)
+			{
+				testBOM = false;
+				if (StrLength > 0 && Str[0] == SIGN_UNICODE)
+					++Str, --StrLength, m_bAddSignature = true;
+			}
 			LastLineCR=0;
 			DWORD CurTime=GetTickCount();
 
@@ -1665,29 +1651,22 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 
 				SetCursorType(false, 0);
 				INT64 CurPos = EditFile.GetPointer();
-				int Percent=static_cast<int>(CurPos*100/FileSize);
+				int Percent = static_cast<int>(CurPos*100/FileSize);
 				// В случае если во время загрузки файл увеличивается размере, то количество
 				// процентов может быть больше 100. Обрабатываем эту ситуацию.
-				if (Percent>100)
+				if (Percent > 100)
 				{
 					EditFile.GetSize(FileSize);
-					Percent=static_cast<int>(CurPos*100/FileSize);
-					if (Percent>100)
-					{
-						Percent=100;
-					}
+					Percent = std::min(static_cast<int>(CurPos*100/FileSize), 100);
 				}
 				Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditReading),Name,Percent);
 			}
 
-			const wchar_t *CurEOL;
-
 			size_t Offset = StrLength > 3 ? StrLength - 3 : 0;
-
-			if ((CurEOL = wmemchr(Str+Offset,L'\r',StrLength-Offset))  ||
-				(CurEOL = wmemchr(Str+Offset,L'\n',StrLength-Offset)))
+			const wchar_t *eol;
+			if ((eol=wmemchr(Str+Offset,L'\r',StrLength-Offset)) || (eol=wmemchr(Str+Offset,L'\n',StrLength-Offset)))
 			{
-				m_editor->GlobalEOL = CurEOL;
+				m_editor->GlobalEOL = eol;
 				LastLineCR=1;
 			}
 
@@ -1721,7 +1700,6 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		m_editor->InsertString(L"", 0, m_editor->LastLine);
 
 	EditFile.Close();
-	//if ( bCached )
 	m_editor->SetCacheParams(pc, m_bAddSignature);
 	SysErrorCode=GetLastError();
 	api::GetFindDataEx(Name, FileInfo);

@@ -369,6 +369,7 @@ public:
 		BoolOption AutoIndent;
 		BoolOption AutoDetectCodePage;
 		IntOption DefaultCodePage;
+		StringOption strF8CPs;
 		BoolOption CursorBeyondEOL;
 		BoolOption BSLikeDel;
 		IntOption CharCodeBase;
@@ -406,6 +407,7 @@ public:
 
 		BoolOption AutoDetectCodePage;
 		IntOption   DefaultCodePage;
+		StringOption strF8CPs;
 		IntOption   MaxLineSize; // 1000..100000, default=10000
 		BoolOption PersistentBlocks;
 		BoolOption  SaveCodepage;
