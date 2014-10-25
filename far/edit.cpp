@@ -224,7 +224,7 @@ int Edit::GetNextCursorPos(int Position,int Where) const
 	return Result;
 }
 
-void Edit::FastShow()
+void Edit::FastShow(Edit::ShowInfo* Info)
 {
 	const size_t EditLength=ObjWidth();
 
@@ -254,17 +254,11 @@ void Edit::FastShow()
 		FixLeftPos(TabCurPos);
 	}
 
-	int FocusedLeftPos = LeftPos, XPos = 0;
-	if(m_Flags.Check(FEDITLINE_EDITORMODE))
+	int FocusedLeftPos = LeftPos, XPos = TabCurPos - LeftPos;
+	if(Info)
 	{
-		auto editor=dynamic_cast<Editor*>(GetOwner());
-		if (editor)
-		{
-			EditorInfo ei={sizeof(EditorInfo)};
-			editor->EditorControl(ECTL_GETINFO, 0, &ei);
-			FocusedLeftPos = ei.LeftPos;
-			XPos = ei.CurTabPos - ei.LeftPos;
-		}
+		FocusedLeftPos = Info->LeftPos;
+		XPos = Info->CurTabPos - Info->LeftPos;
 	}
 
 	GotoXY(m_X1,m_Y1);

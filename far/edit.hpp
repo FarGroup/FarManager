@@ -107,6 +107,11 @@ class Edit:public SimpleScreenObject
 		ECLF_NEEDSORT = 0x1,
 		ECLF_NEEDFREE = 0x2,
 	};
+	struct ShowInfo
+	{
+		int LeftPos;
+		int CurTabPos;
+	};
 public:
 	typedef std::function<bool(const ColorItem&)> delete_color_condition;
 
@@ -132,7 +137,7 @@ public:
 		std::swap(EndType, rhs.EndType);
 	}
 
-	virtual void FastShow();
+	void FastShow(ShowInfo* Info=nullptr);
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;

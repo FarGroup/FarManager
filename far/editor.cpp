@@ -416,6 +416,7 @@ void Editor::ShowEditor()
 		LeftPos=0;
 
 #endif
+	Edit::ShowInfo info={LeftPos,CurPos};
 	Y = m_Y1;
 	for (auto CurPtr=TopScreen; Y<=m_Y2; Y++)
 	{
@@ -427,8 +428,14 @@ void Editor::ShowEditor()
 			//_D(SysLog(L"Setleftpos 3 to %i",LeftPos));
 			CurPtr->SetLeftPos(LeftPos);
 			CurPtr->SetTabCurPos(CurPos);
-			CurPtr->FastShow();
 			CurPtr->SetEditBeyondEnd(EdOpt.CursorBeyondEOL);
+			if(CurPtr==CurLine)
+			{
+				CurPtr->SetOvertypeMode(m_Flags.Check(FEDITOR_OVERTYPE));
+				CurPtr->Show();
+			}
+			else
+				CurPtr->FastShow(&info);
 			++CurPtr;
 		}
 		else
@@ -436,8 +443,6 @@ void Editor::ShowEditor()
 			SetScreen(m_X1,Y,XX2,Y,L' ',ColorIndexToColor(COL_EDITORTEXT)); //Пустые строки после конца текста
 		}
 	}
-	CurLine->SetOvertypeMode(m_Flags.Check(FEDITOR_OVERTYPE));
-	CurLine->Show();
 
 	if (VBlockStart != Lines.end() && VBlockSizeX > 0 && VBlockSizeY > 0)
 	{
