@@ -1362,8 +1362,10 @@ int FileEditor::SetCodePage(uintptr_t cp,	bool redetect_default, bool ascii2def)
 
 	if (cp == CP_DEFAULT) {
 		EditorPosCache epc;
-		if (!LoadFromCache(epc) || !epc.CodePage)
+		if (!LoadFromCache(epc) || epc.CodePage <= 0 || epc.CodePage > 0xffff)
 			return EC_CP_NOT_CACHED;
+		else
+			cp = epc.CodePage;
 	}
 	else if (cp == CP_REDETECT) {
 		api::File edit_file;
