@@ -15,6 +15,12 @@
 
 typedef struct
 {
+	lua_State *L;
+	int ref;
+} FarPanelItemUserData;
+
+typedef struct
+{
 	GUID* PluginGuid;
 	struct PluginStartupInfo *Info;
 	int interval, interval_changed;
