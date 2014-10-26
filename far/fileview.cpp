@@ -527,7 +527,7 @@ void FileViewer::ShowStatus()
 		ShowTime(FALSE);
 }
 
-void FileViewer::OnChangeFocus(int focus)
+void FileViewer::OnChangeFocus(bool focus)
 {
 	window::OnChangeFocus(focus);
 	int FCurViewerID=m_View.ViewerID;

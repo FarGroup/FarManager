@@ -728,7 +728,6 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			{
 				auto PrevWindow = Global->WindowManager->GetCurrentWindow();
 				Global->WindowManager->ActivateWindow(NextWindow);
-				Global->WindowManager->DeactivateWindow(PrevWindow, Manager::NoneWindow);
 				return TRUE;
 			}
 

@@ -110,7 +110,7 @@ private:
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual void ShowConsoleTitle() override;
-	virtual void OnChangeFocus(int focus) override;
+	virtual void OnChangeFocus(bool focus) override;
 	virtual void SetScreenPosition() override;
 	virtual int GetType() const override { return windowtype_editor; }
 	virtual void OnDestroy() override;

@@ -50,7 +50,6 @@ public:
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual void InitKeyBar() override;
-	virtual void OnChangeFocus(int focus) override; // вызываетс€ при смене фокуса
 	virtual void SetScreenPosition() override;
 	virtual void ResizeConsole() override;
 	/* $ ¬ведена дл€ нужд CtrlAltShift OT */

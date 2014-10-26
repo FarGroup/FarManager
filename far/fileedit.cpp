@@ -2562,7 +2562,7 @@ void FileEditor::SetEditorOptions(const Options::EditorOptions& EdOpt)
 	m_editor->SetOptions(EdOpt);
 }
 
-void FileEditor::OnChangeFocus(int focus)
+void FileEditor::OnChangeFocus(bool focus)
 {
 	window::OnChangeFocus(focus);
 	int FEditEditorID=m_editor->EditorID;

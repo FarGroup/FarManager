@@ -65,8 +65,8 @@ public:
 	virtual int GetTypeAndName(string &strType, string &strName) = 0;
 	virtual int GetType() const = 0;
 	virtual void OnDestroy() {}  // вызывается перед уничтожением окна
-	virtual void OnChangeFocus(int focus); // вызывается при смене фокуса
-	virtual void Refresh() {OnChangeFocus(1);}  // Просто перерисоваться :)
+	virtual void OnChangeFocus(bool focus); // вызывается при смене фокуса
+	virtual void Refresh();
 	virtual void InitKeyBar() {}
 	virtual void RedrawKeyBar() { UpdateKeyBar(); }
 	virtual FARMACROAREA GetMacroMode() const { return m_MacroMode; }

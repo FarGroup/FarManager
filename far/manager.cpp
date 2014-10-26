@@ -439,36 +439,28 @@ void Manager::ActivateWindow(window_ptr Activated)
 	if (Activated) CheckAndPushWindow(Activated,&Manager::ActivateCommit);
 }
 
-void Manager::DeactivateWindow(window_ptr Deactivated, DirectionType Direction)
+void Manager::SwitchWindow(DirectionType Direction)
 {
-	_MANAGER(CleverSysLog clv(L"Manager::DeactivateWindow(window *Deactivated,int Direction)"));
-	_MANAGER(SysLog(L"Deactivated=%p, Direction=%d",Deactivated,Direction));
-
-	if (Direction==NextWindow || Direction == PreviousWindow)
+	auto windows = GetSortedWindows();
+	auto pos = windows.find(m_windows.back());
+	auto process = [&,this]()
 	{
-		auto windows = GetSortedWindows();
-		auto pos = windows.find(m_windows.back());
-		auto process = [&,this]()
+		if (Direction==Manager::NextWindow)
 		{
-			if (Direction==Manager::NextWindow)
-			{
-				std::advance(pos,1);
-				if (pos==windows.end()) pos = windows.begin();
-			}
-			else if (Direction==Manager::PreviousWindow)
-			{
-				if (pos==windows.begin()) pos=windows.end();
-				std::advance(pos,-1);
-			}
-		};
+			std::advance(pos,1);
+			if (pos==windows.end()) pos = windows.begin();
+		}
+		else if (Direction==Manager::PreviousWindow)
+		{
+			if (pos==windows.begin()) pos=windows.end();
+			std::advance(pos,-1);
+		}
+	};
+	process();
+	// For now we don't want to switch to the desktop window with Ctrl-[Shift-]Tab
+	if (std::dynamic_pointer_cast<desktop>(*pos))
 		process();
-		// For now we don't want to switch to the desktop window with Ctrl-[Shift-]Tab
-		if (std::dynamic_pointer_cast<desktop>(*pos))
-			process();
-		ActivateWindow(*pos);
-	}
-
-	CheckAndPushWindow(Deactivated,&Manager::DeactivateCommit);
+	ActivateWindow(*pos);
 }
 
 void Manager::RefreshWindow(window_ptr Refreshed)
@@ -718,7 +710,7 @@ int Manager::ProcessKey(Key key)
 				{
 					if (!std::dynamic_pointer_cast<Modal>(Global->WindowManager->GetCurrentWindow()))
 					{
-						DeactivateWindow(WindowMenu(),NoneWindow);
+						WindowMenu();
 						//_MANAGER(SysLog(-1));
 						return TRUE;
 					}
@@ -791,7 +783,7 @@ int Manager::ProcessKey(Key key)
 
 					if (m_currentWindow->GetCanLoseFocus())
 					{
-						DeactivateWindow(m_currentWindow,(key.FarKey==KEY_CTRLTAB||key.FarKey==KEY_RCTRLTAB)?NextWindow:PreviousWindow);
+						SwitchWindow((key.FarKey==KEY_CTRLTAB||key.FarKey==KEY_RCTRLTAB)?NextWindow:PreviousWindow);
 					}
 					else
 						break;
@@ -936,6 +928,7 @@ void Manager::DeleteCommit(window_ptr Param)
 		return;
 	}
 
+	if (m_currentWindow==Param) DeactivateCommit(Param);
 	Param->OnDestroy();
 
 	int ModalIndex=IndexOfStack(Param);
@@ -1029,10 +1022,12 @@ void Manager::ActivateCommit(window_ptr Param)
 		m_modalWindows.push_back(Param);
 	}
 
+	DeactivateCommit(m_currentWindow);
 	m_currentWindow=Param;
 	InterlockedExchange(&CurrentWindowType,m_currentWindow->GetType());
 	UpdateMacroArea();
 	RefreshCommit(Param);
+	Param->OnChangeFocus(true);
 }
 
 void Manager::RefreshCommit(window_ptr Param)
@@ -1090,7 +1085,7 @@ void Manager::DeactivateCommit(window_ptr Param)
 	_MANAGER(SysLog(L"DeactivatedWindow=%p",Param));
 	if (Param)
 	{
-		Param->OnChangeFocus(0);
+		Param->OnChangeFocus(false);
 	}
 }
 

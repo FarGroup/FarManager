@@ -55,7 +55,7 @@ public:
 	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
 	virtual void ShowConsoleTitle() override;
 	virtual void OnDestroy() override;
-	virtual void OnChangeFocus(int focus) override;
+	virtual void OnChangeFocus(bool focus) override;
 	virtual int GetTypeAndName(string &strType, string &strName) override;
 	virtual int GetType() const override { return windowtype_viewer; }
 	/* $ ¬ведена дл€ нужд CtrlAltShift OT */

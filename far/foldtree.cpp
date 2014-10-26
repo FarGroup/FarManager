@@ -153,12 +153,6 @@ void FolderTree::SetCoords()
 	}
 }
 
-void FolderTree::OnChangeFocus(int focus)
-{
-	if (focus)
-		Show();
-}
-
 void FolderTree::ResizeConsole()
 {
 	Hide();

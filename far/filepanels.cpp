@@ -74,7 +74,7 @@ FilePanels::FilePanels():
 filepanels_ptr FilePanels::create(bool CreatePanels, int DirCount)
 {
 	filepanels_ptr FilePanelsPtr(new FilePanels());
-	
+
 	FilePanelsPtr->m_windowKeyBar = std::make_unique<KeyBar>();
 	FilePanelsPtr->SetMacroMode(MACROAREA_SHELL);
 	FilePanelsPtr->m_KeyBarVisible = Global->Opt->ShowKeyBar;
@@ -1063,30 +1063,6 @@ int  FilePanels::GetTypeAndName(string &strType, string &strName)
 	return windowtype_panels;
 }
 
-void FilePanels::OnChangeFocus(int f)
-{
-	_OT(SysLog(L"FilePanels::OnChangeFocus(%i)",f));
-
-	/* $ 20.06.2001 tran
-	   баг с отрисовкой при копировании и удалении
-	   не учитывалс€ LockRefreshCount */
-	if (f)
-	{
-		/*$ 22.06.2001 SKV
-		  + update панелей при получении фокуса
-		*/
-		PassivePanel()->UpdateIfChanged(UIC_UPDATE_FORCE_NOTIFICATION);
-		m_ActivePanel->UpdateIfChanged(UIC_UPDATE_FORCE_NOTIFICATION);
-		/* $ 13.04.2002 KM
-		  ! ??? я не пон€л зачем здесь Redraw, если
-		    Redraw вызываетс€ следом во window::OnChangeFocus.
-		*/
-//    Redraw();
-		m_ActivePanel->SetCurPath();
-		window::OnChangeFocus(1);
-	}
-}
-
 void FilePanels::DisplayObject()
 {
 //  if ( !Focus )
@@ -1192,12 +1168,10 @@ bool FilePanels::CanFastHide() const
 
 void FilePanels::Refresh()
 {
-	/*$ 31.07.2001 SKV
-	  ¬ызовем так, а не window::OnChangeFocus,
-	  который из этого и позовЄтс€.
-	*/
-	//window::OnChangeFocus(1);
-	OnChangeFocus(1);
+	window::Refresh();
+	PassivePanel()->UpdateIfChanged(UIC_UPDATE_FORCE_NOTIFICATION);
+	m_ActivePanel->UpdateIfChanged(UIC_UPDATE_FORCE_NOTIFICATION);
+	m_ActivePanel->SetCurPath();
 }
 
 void FilePanels::GoToFile(const string& FileName)

@@ -71,16 +71,13 @@ int window::IsTopWindow() const
 	return Global->WindowManager->GetCurrentWindow().get() == this;
 }
 
-void window::OnChangeFocus(int focus)
+void window::OnChangeFocus(bool focus)
 {
-	if (focus)
-	{
-		Show();
-	}
-	else
-	{
-		Hide();
-	}
+}
+
+void window::Refresh()
+{
+	Show();
 }
 
 bool window::CanFastHide() const

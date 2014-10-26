@@ -57,7 +57,6 @@ public:
 	~Manager();
 
 	enum DirectionType {
-		NoneWindow,
 		PreviousWindow,
 		NextWindow
 	};
@@ -66,7 +65,6 @@ public:
 	// они как бы накапливают информацию о том, что нужно будет сделать с окнами при следующем вызове Commit()
 	void InsertWindow(window_ptr NewWindow);
 	void DeleteWindow(window_ptr Deleted = nullptr);
-	void DeactivateWindow(window_ptr Deactivated, DirectionType Direction);
 	void ActivateWindow(window_ptr Activated);
 	void RefreshWindow(window_ptr Refreshed = nullptr);
 	void ReplaceWindow(window_ptr Old, window_ptr New);
@@ -160,6 +158,7 @@ private:
 	void CheckAndPushWindow(window_ptr Param, window_callback Callback);
 	void RedeleteWindow(window_ptr Deleted);
 	bool AddWindow(window_ptr Param);
+	void SwitchWindow(DirectionType Direction);
 
 	INPUT_RECORD LastInputRecord;
 	window_ptr m_currentWindow;     // текущее окно. Оно может находиться как в немодальном, так и в модальном контейнере, его можно получить с помощью WindowManager->GetCurrentWindow();
