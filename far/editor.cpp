@@ -6378,7 +6378,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 						uintptr_t cp = espar->iParam;
 						if (HostFileEditor) {
 							rc = HostFileEditor->SetCodePage(cp, false, true);
-							rc = rc > 0 ? TRUE : FALSE;
+							rc = rc >= 0 ? TRUE : FALSE;
 						}
 						else {
 							rc = cp != CP_DEFAULT && Codepages().IsCodePageSupported(cp) && SetCodePage(cp) ? TRUE : FALSE;
