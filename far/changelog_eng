@@ -3,6 +3,59 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 26.10.2014 16:39:00 +0200 - build 4159
+
+1. removed original method of redrawing a window by sending it 'gotfocus'.
+
+zg 25.10.2014 21:39:01 +0200 - build 4158
+
+1. editor drawing optimization.
+
+w17 25.10.2014 21:18:26 +0400 - build 4157
+
+1. Again 4150.
+
+zg 25.10.2014 18:45:48 +0200 - build 4156
+
+1. excessive redrawing of edit controls is removed.
+
+w17 22.10.2014 17:54:51 +0400 - build 4155
+
+1. Another correction of 4150.
+
+2. Capability of setting hte list of codepages when switching with F8 in editor/viewer.
+   far:config Editor.F8CPs
+   far:config Viewer.F8CPs
+   The default empty line leaves the old ANSI/OEM behavior.
+
+drkns 22.10.2014 00:04:44 +0200 - build 4154
+
+1. Correction of 4145.
+
+w17 21.10.2014 15:02:24 +0400 - build 4153
+
+1. Correction of correction of 4150.
+
+w17 21.10.2014 14:25:48 +0400 - build 4152
+
+1. Correction of 4150.
+
+drkns 20.10.2014 21:17:09 +0200 - build 4151
+
+1. #0002841: FAR freeze
+
+w17 20.10.2014 14:12:09 +0400 - build 4150
+
+1. File encoding change with reread in editor has to work via API.
+
+2. On automatic recognition of file encoding in editor (ShiftF8)
+   if the file contains only ASCII codes then the default codepage is substituted
+   (or ACP if the default one is Unicode).
+
+shmuel 20.10.2014 00:54:08 +0200 - build 4149
+
+1. M#2838: Glitches on display after macro completion.
+
 drkns 19.10.2014 08:47:14 +0200 - build 4148
 
 1. Correction of 4145.
