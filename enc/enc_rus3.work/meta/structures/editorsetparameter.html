@@ -61,7 +61,7 @@ struct EditorSetParameter
     </td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="ESPT_CODEPAGE">ESPT_CODEPAGE</a></td>
     <td class="cont" width="60%">»зменить текущую кодировку в редакторе.<br>
-    <code>iParam</code> - номер устанавливаемой кодовой страницы. ¬ случае неудачи <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">EditorControl</a> возвращает <code>FALSE</code>, кодировка не измен€етс€.</td></tr>
+    <code>iParam</code> - номер устанавливаемой кодовой страницы. ¬ случае неудачи <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">EditorControl</a> возвращает <code>FALSE</code>, кодировка не измен€етс€. ћожно использовать значени€ CP_REDETECT и CP_DEFAULT, дл€ автоматического определени€ кодировки и установки последней сохранЄнной кодировки из истории.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="ESPT_CURSORBEYONDEOL">ESPT_CURSORBEYONDEOL</a></td>
     <td class="cont" width="60%">¬ключение/выключение режима " урсор за пределами строки".<br>
     <code>iParam</code> соответственно должен быть равен <code>TRUE</code> или <code>FALSE</code>.</td></tr>
