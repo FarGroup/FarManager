@@ -26,14 +26,14 @@ extern int FUNC_OPENLIBS(lua_State*);
 typedef struct
 {
 	lua_State* LS;
-  struct PluginStartupInfo Info;
-  struct FarStandardFunctions FSF;
-  GUID PluginId;
-  TPluginData PluginData;
-  wchar_t PluginName[512];
-  wchar_t PluginDir[512];
-  int Init1_Done; // Ensure initializations are done only once
-  int Init2_Done; // *
+	struct PluginStartupInfo Info;
+	struct FarStandardFunctions FSF;
+	GUID PluginId;
+	TPluginData PluginData;
+	wchar_t PluginName[512];
+	wchar_t PluginDir[512];
+	int Init1_Done; // Ensure initializations are done only once
+	int Init2_Done; // *
 	int Depth;
 	CRITICAL_SECTION FindFileSection; // http://forum.farmanager.com/viewtopic.php?f=9&p=107075#p107075
 } Global;
