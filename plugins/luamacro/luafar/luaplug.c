@@ -23,22 +23,26 @@ extern int FUNC_OPENLIBS(lua_State*);
 # endif
 #endif
 
-lua_State* LS;
-CRITICAL_SECTION FindFileSection; // http://forum.farmanager.com/viewtopic.php?f=9&p=107075#p107075
-
-intptr_t WINAPI DlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *Param2)
+typedef struct
 {
-	return LF_DlgProc(LS, hDlg, Msg, Param1, Param2);
-}
+	lua_State* LS;
+  struct PluginStartupInfo Info;
+  struct FarStandardFunctions FSF;
+  GUID PluginId;
+  TPluginData PluginData;
+  wchar_t PluginName[512];
+  wchar_t PluginDir[512];
+  int Init1_Done; // Ensure initializations are done only once
+  int Init2_Done; // *
+	int Depth;
+	CRITICAL_SECTION FindFileSection; // http://forum.farmanager.com/viewtopic.php?f=9&p=107075#p107075
+} Global;
+
+#define IsPluginReady(g) (g.LS && g.Init2_Done)
+
+static Global G;
 
 static void InitLuaState2(lua_State *L, TPluginData* PluginData);  /* forward declaration */
-static void laction(int i);  /* forward declaration */
-struct PluginStartupInfo Info;
-struct FarStandardFunctions FSF;
-GUID PluginId;
-TPluginData PluginData = { &Info, &FSF, &PluginId, DlgProc, 0, NULL, NULL, NULL, laction, SIG_DFL };
-wchar_t PluginName[512], PluginDir[512];
-int Init1_Done = 0, Init2_Done = 0; // Ensure initializations are done only once
 
 static void lstop(lua_State *L, lua_Debug *ar)
 {
@@ -49,34 +53,49 @@ static void lstop(lua_State *L, lua_Debug *ar)
 
 static void laction(int i)
 {
-	signal(i, PluginData.old_action);
-	lua_sethook(LS, lstop, LUA_MASKCALL | LUA_MASKRET | LUA_MASKCOUNT, 1);
+	signal(i, G.PluginData.old_action);
+	lua_sethook(G.LS, lstop, LUA_MASKCALL | LUA_MASKRET | LUA_MASKCOUNT, 1);
 }
-//---------------------------------------------------------------------------
+
+static intptr_t WINAPI DlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *Param2)
+{
+	return LF_DlgProc(G.LS, hDlg, Msg, Param1, Param2);
+}
+
+static void InitGlobal (Global *g, HINSTANCE hDll)
+{
+	TPluginData PD = { &g->Info,&g->FSF,&g->PluginId,DlgProc,0,NULL,NULL,NULL,laction,SIG_DFL };
+	g->PluginData = PD;
+	g->Init1_Done = 0;
+	g->Init2_Done = 0;
+	g->Depth = 0;
+	if ((g->LS = luaL_newstate()) != NULL)
+	{
+		GetModuleFileNameW(hDll, g->PluginName, sizeof(g->PluginName)/sizeof(g->PluginName[0]));
+		wcscpy(g->PluginDir, g->PluginName);
+		wcsrchr(g->PluginDir, L'\\')[1] = 0;
+	}
+	InitializeCriticalSection(&g->FindFileSection);
+}
+
+static void DestroyGlobal (Global *g)
+{
+	if (g->LS)
+	{
+		lua_close(g->LS);
+		g->LS = NULL;
+	}
+	DeleteCriticalSection(&g->FindFileSection);
+}
 
 BOOL WINAPI DllMain(HANDLE hDll, DWORD dwReason, LPVOID lpReserved)
 {
 	(void) lpReserved;
 
-	if(DLL_PROCESS_ATTACH == dwReason && hDll)
-	{
-		InitializeCriticalSection(&FindFileSection);
-		if((LS = luaL_newstate()) != NULL)
-		{
-			GetModuleFileNameW((HINSTANCE)hDll, PluginName, sizeof(PluginName)/sizeof(PluginName[0]));
-			wcscpy(PluginDir, PluginName);
-			wcsrchr(PluginDir, L'\\')[1] = 0;
-		}
-	}
-	else if(DLL_PROCESS_DETACH == dwReason)
-	{
-		if(LS)
-		{
-			lua_close(LS);
-			LS = NULL;
-		}
-		DeleteCriticalSection(&FindFileSection);
-	}
+	if (DLL_PROCESS_ATTACH == dwReason && hDll)
+		InitGlobal(&G, (HINSTANCE)hDll);
+	else if (DLL_PROCESS_DETACH == dwReason)
+		DestroyGlobal(&G);
 
 	return TRUE;
 }
@@ -85,7 +104,7 @@ BOOL WINAPI DllMain(HANDLE hDll, DWORD dwReason, LPVOID lpReserved)
 __declspec(dllexport) int luaopen_luaplug(lua_State *L)
 {
 	TPluginData *pd = (TPluginData*)lua_newuserdata(L, sizeof(TPluginData));
-	memcpy(pd, &PluginData, sizeof(TPluginData));
+	memcpy(pd, &G.PluginData, sizeof(TPluginData));
 	LF_InitLuaState1(L, FUNC_OPENLIBS);
 	InitLuaState2(L, pd);
 	luaL_ref(L, LUA_REGISTRYINDEX);
@@ -95,7 +114,7 @@ __declspec(dllexport) int luaopen_luaplug(lua_State *L)
 static void InitLuaState2(lua_State *L, TPluginData* PluginData)
 {
 	LF_InitLuaState2(L, PluginData);
-	LF_ProcessEnvVars(L, ENV_PREFIX, PluginDir);
+	LF_ProcessEnvVars(L, ENV_PREFIX, G.PluginDir);
 	lua_pushcfunction(L, luaopen_luaplug);
 	lua_setglobal(L, "_luaplug");
 }
@@ -104,26 +123,26 @@ static void InitLuaState2(lua_State *L, TPluginData* PluginData)
 
 __declspec(dllexport) lua_State* GetLuaState()
 {
-	return LS;
+	return IsPluginReady(G) ? G.LS : NULL;
 }
 //---------------------------------------------------------------------------
 
 void LUAPLUG GetGlobalInfoW(struct GlobalInfo *globalInfo)
 {
-	if(LS)
+	if (G.LS)
 	{
-		if(!Init1_Done)
+		if (!G.Init1_Done)
 		{
-			LF_InitLuaState1(LS, FUNC_OPENLIBS);
-			Init1_Done = 1;
+			LF_InitLuaState1(G.LS, FUNC_OPENLIBS);
+			G.Init1_Done = 1;
 		}
 
-		if(LF_GetGlobalInfo(LS, globalInfo, PluginDir))
-			PluginId = globalInfo->Guid;
+		if (LF_GetGlobalInfo(G.LS, globalInfo, G.PluginDir))
+			G.PluginId = globalInfo->Guid;
 		else
 		{
-			lua_close(LS);
-			LS = NULL;
+			lua_close(G.LS);
+			G.LS = NULL;
 		}
 	}
 }
@@ -131,19 +150,19 @@ void LUAPLUG GetGlobalInfoW(struct GlobalInfo *globalInfo)
 
 void LUAPLUG SetStartupInfoW(const struct PluginStartupInfo *aInfo)
 {
-	if(LS && !Init2_Done)
+	if (G.LS && !G.Init2_Done)
 	{
-		Info = *aInfo;
-		FSF = *aInfo->FSF;
-		Info.FSF = &FSF;
-		InitLuaState2(LS, &PluginData);
+		G.Info = *aInfo;
+		G.FSF = *aInfo->FSF;
+		G.Info.FSF = &G.FSF;
+		InitLuaState2(G.LS, &G.PluginData);
 
-		if(LF_RunDefaultScript(LS))
-			Init2_Done = 1;
+		if (LF_RunDefaultScript(G.LS))
+			G.Init2_Done = 1;
 		else
 		{
-			lua_close(LS);
-			LS = NULL;
+			lua_close(G.LS);
+			G.LS = NULL;
 		}
 	}
 }
@@ -151,13 +170,13 @@ void LUAPLUG SetStartupInfoW(const struct PluginStartupInfo *aInfo)
 
 void LUAPLUG GetPluginInfoW(struct PluginInfo *Info)
 {
-	if(LS) LF_GetPluginInfo(LS, Info);
+	if (G.LS) LF_GetPluginInfo(G.LS, Info);
 }
 //---------------------------------------------------------------------------
 
 intptr_t LUAPLUG ProcessSynchroEventW(const struct ProcessSynchroEventInfo *Info)
 {
-	if(LS && Init2_Done) return LF_ProcessSynchroEvent(LS, Info);
+	if (IsPluginReady(G)) return LF_ProcessSynchroEvent(G.LS, Info);
 
 	return 0;
 }
@@ -172,14 +191,14 @@ int LUAPLUG GetMinFarVersionW()
 //---------------------------------------------------------------------------
 
 #ifdef EXPORT_OPEN
-static int RecreateLuaState()
+static int RecreateLuaState (Global *g)
 {
-	lua_getglobal(LS, "RecreateLuaState");
-	if (lua_toboolean(LS,-1))
+	lua_getglobal(g->LS, "RecreateLuaState");
+	if (lua_toboolean(g->LS, -1))
 	{
 		struct ExitInfo Info = { sizeof(struct ExitInfo) };
-		lua_State *newLS = LS;
-		LS = NULL;
+		lua_State *newLS = g->LS;
+		g->LS = NULL;
 		LF_ExitFAR(newLS, &Info);
 		lua_close(newLS);
 		if ((newLS = luaL_newstate()) != NULL)
@@ -187,37 +206,36 @@ static int RecreateLuaState()
 			int OK = 0;
 			struct GlobalInfo GInfo;
 			LF_InitLuaState1(newLS, FUNC_OPENLIBS);
-			if (LF_GetGlobalInfo(newLS, &GInfo, PluginDir))
+			if (LF_GetGlobalInfo(newLS, &GInfo, g->PluginDir))
 			{
-				InitLuaState2(newLS, &PluginData);
+				InitLuaState2(newLS, &g->PluginData);
 				lua_pushboolean(newLS,1);
 				lua_setglobal(newLS, "IsLuaStateRecreated");
 				OK = LF_RunDefaultScript(newLS);
 			}
-			if (OK) LS = newLS;
+			if (OK) g->LS = newLS;
 			else lua_close(newLS);
 		}
 		return 1;
 	}
-	lua_pop(LS,1);
+	lua_pop(g->LS,1);
 	return 0;
 }
 
 HANDLE LUAPLUG OpenW(const struct OpenInfo *Info)
 {
-	if(LS && Init2_Done)
+	if (IsPluginReady(G))
 	{
-		static int Depth = 0; // prevents crashes (this function can be called recursively)
 		HANDLE h;
-		++Depth;
+		++G.Depth; // prevents crashes (this function can be called recursively)
 #ifdef EXPORT_PROCESSDIALOGEVENT
-		EnterCriticalSection(&FindFileSection);
-		h = LF_Open(LS, Info);
-		LeaveCriticalSection(&FindFileSection);
+		EnterCriticalSection(&G.FindFileSection);
+		h = LF_Open(G.LS, Info);
+		LeaveCriticalSection(&G.FindFileSection);
 #else
-		h = LF_Open(LS, Info);
+		h = LF_Open(G.LS, Info);
 #endif
-		return --Depth==0 && RecreateLuaState() ? NULL : LS ? h : NULL;
+		return --G.Depth==0 && RecreateLuaState(&G) ? NULL : G.LS ? h : NULL;
 	}
 	return NULL;
 }
@@ -227,14 +245,14 @@ HANDLE LUAPLUG OpenW(const struct OpenInfo *Info)
 #ifdef EXPORT_GETFINDDATA
 intptr_t LUAPLUG GetFindDataW(struct GetFindDataInfo *Info)
 {
-	if(LS && Init2_Done) return LF_GetFindData(LS, Info);
+	if (IsPluginReady(G)) return LF_GetFindData(G.LS, Info);
 
 	return FALSE;
 }
 
 void LUAPLUG FreeFindDataW(const struct FreeFindDataInfo *Info)
 {
-	if(LS && Init2_Done) LF_FreeFindData(LS, Info);
+	if (IsPluginReady(G)) LF_FreeFindData(G.LS, Info);
 }
 #endif
 //---------------------------------------------------------------------------
@@ -242,7 +260,7 @@ void LUAPLUG FreeFindDataW(const struct FreeFindDataInfo *Info)
 #ifdef EXPORT_CLOSEPANEL
 void LUAPLUG ClosePanelW(const struct ClosePanelInfo *Info)
 {
-	if(LS && Init2_Done) LF_ClosePanel(LS, Info);
+	if (IsPluginReady(G)) LF_ClosePanel(G.LS, Info);
 }
 #endif
 //---------------------------------------------------------------------------
@@ -250,8 +268,8 @@ void LUAPLUG ClosePanelW(const struct ClosePanelInfo *Info)
 #ifdef EXPORT_GETFILES
 intptr_t LUAPLUG GetFilesW(struct GetFilesInfo *Info)
 {
-	if(LS && Init2_Done)
-		return LF_GetFiles(LS, Info);
+	if (IsPluginReady(G))
+		return LF_GetFiles(G.LS, Info);
 
 	return 0;
 }
@@ -261,7 +279,7 @@ intptr_t LUAPLUG GetFilesW(struct GetFilesInfo *Info)
 #ifdef EXPORT_GETOPENPANELINFO
 void LUAPLUG GetOpenPanelInfoW(struct OpenPanelInfo *Info)
 {
-	if(LS && Init2_Done) LF_GetOpenPanelInfo(LS, Info);
+	if (IsPluginReady(G)) LF_GetOpenPanelInfo(G.LS, Info);
 }
 #endif
 //---------------------------------------------------------------------------
@@ -269,10 +287,10 @@ void LUAPLUG GetOpenPanelInfoW(struct OpenPanelInfo *Info)
 #ifdef EXPORT_EXITFAR
 void LUAPLUG ExitFARW(const struct ExitInfo *Info)
 {
-	if(LS && Init2_Done)
+	if (IsPluginReady(G))
 	{
-		lua_State* oldState = LS;
-		LS = NULL;
+		lua_State* oldState = G.LS;
+		G.LS = NULL;
 		LF_ExitFAR(oldState, Info);
 		lua_close(oldState);
 	}
@@ -283,7 +301,7 @@ void LUAPLUG ExitFARW(const struct ExitInfo *Info)
 #ifdef EXPORT_COMPARE
 intptr_t LUAPLUG CompareW(const struct CompareInfo *Info)
 {
-	if(LS && Init2_Done) return LF_Compare(LS, Info);
+	if (IsPluginReady(G)) return LF_Compare(G.LS, Info);
 
 	return 0;
 }
@@ -293,7 +311,7 @@ intptr_t LUAPLUG CompareW(const struct CompareInfo *Info)
 #ifdef EXPORT_CONFIGURE
 intptr_t LUAPLUG ConfigureW(const struct ConfigureInfo *Info)
 {
-	if(LS && Init2_Done) return LF_Configure(LS, Info);
+	if (IsPluginReady(G)) return LF_Configure(G.LS, Info);
 
 	return FALSE;
 }
@@ -303,7 +321,7 @@ intptr_t LUAPLUG ConfigureW(const struct ConfigureInfo *Info)
 #ifdef EXPORT_DELETEFILES
 intptr_t LUAPLUG DeleteFilesW(const struct DeleteFilesInfo *Info)
 {
-	if(LS && Init2_Done) return LF_DeleteFiles(LS, Info);
+	if (IsPluginReady(G)) return LF_DeleteFiles(G.LS, Info);
 
 	return FALSE;
 }
@@ -313,7 +331,7 @@ intptr_t LUAPLUG DeleteFilesW(const struct DeleteFilesInfo *Info)
 #ifdef EXPORT_MAKEDIRECTORY
 intptr_t LUAPLUG MakeDirectoryW(struct MakeDirectoryInfo *Info)
 {
-	if(LS && Init2_Done) return LF_MakeDirectory(LS, Info);
+	if (IsPluginReady(G)) return LF_MakeDirectory(G.LS, Info);
 
 	return 0;
 }
@@ -323,7 +341,7 @@ intptr_t LUAPLUG MakeDirectoryW(struct MakeDirectoryInfo *Info)
 #ifdef EXPORT_PROCESSPANELEVENT
 intptr_t LUAPLUG ProcessPanelEventW(const struct ProcessPanelEventInfo *Info)
 {
-	if(LS && Init2_Done) return LF_ProcessPanelEvent(LS, Info);
+	if (IsPluginReady(G)) return LF_ProcessPanelEvent(G.LS, Info);
 
 	return FALSE;
 }
@@ -333,7 +351,7 @@ intptr_t LUAPLUG ProcessPanelEventW(const struct ProcessPanelEventInfo *Info)
 #ifdef EXPORT_PROCESSHOSTFILE
 intptr_t LUAPLUG ProcessHostFileW(const struct ProcessHostFileInfo *Info)
 {
-	if(LS && Init2_Done) return LF_ProcessHostFile(LS, Info);
+	if (IsPluginReady(G)) return LF_ProcessHostFile(G.LS, Info);
 
 	return FALSE;
 }
@@ -343,7 +361,7 @@ intptr_t LUAPLUG ProcessHostFileW(const struct ProcessHostFileInfo *Info)
 #ifdef EXPORT_PROCESSPANELINPUT
 intptr_t LUAPLUG ProcessPanelInputW(const struct ProcessPanelInputInfo *Info)
 {
-	if(LS && Init2_Done) return LF_ProcessPanelInput(LS, Info);
+	if (IsPluginReady(G)) return LF_ProcessPanelInput(G.LS, Info);
 
 	return FALSE;
 }
@@ -353,7 +371,7 @@ intptr_t LUAPLUG ProcessPanelInputW(const struct ProcessPanelInputInfo *Info)
 #ifdef EXPORT_PUTFILES
 intptr_t LUAPLUG PutFilesW(const struct PutFilesInfo *Info)
 {
-	if(LS && Init2_Done) return LF_PutFiles(LS, Info);
+	if (IsPluginReady(G)) return LF_PutFiles(G.LS, Info);
 
 	return 0;
 }
@@ -363,7 +381,7 @@ intptr_t LUAPLUG PutFilesW(const struct PutFilesInfo *Info)
 #ifdef EXPORT_SETDIRECTORY
 intptr_t LUAPLUG SetDirectoryW(const struct SetDirectoryInfo *Info)
 {
-	if(LS && Init2_Done) return LF_SetDirectory(LS, Info);
+	if (IsPluginReady(G)) return LF_SetDirectory(G.LS, Info);
 
 	return FALSE;
 }
@@ -373,7 +391,7 @@ intptr_t LUAPLUG SetDirectoryW(const struct SetDirectoryInfo *Info)
 #ifdef EXPORT_SETFINDLIST
 intptr_t LUAPLUG SetFindListW(const struct SetFindListInfo *Info)
 {
-	if(LS && Init2_Done) return LF_SetFindList(LS, Info);
+	if (IsPluginReady(G)) return LF_SetFindList(G.LS, Info);
 
 	return FALSE;
 }
@@ -383,7 +401,7 @@ intptr_t LUAPLUG SetFindListW(const struct SetFindListInfo *Info)
 #ifdef EXPORT_PROCESSEDITORINPUT
 intptr_t LUAPLUG ProcessEditorInputW(const struct ProcessEditorInputInfo *Info)
 {
-	if(LS && Init2_Done) return LF_ProcessEditorInput(LS, Info);
+	if (IsPluginReady(G)) return LF_ProcessEditorInput(G.LS, Info);
 
 	return 0;
 }
@@ -393,7 +411,7 @@ intptr_t LUAPLUG ProcessEditorInputW(const struct ProcessEditorInputInfo *Info)
 #ifdef EXPORT_PROCESSEDITOREVENT
 intptr_t LUAPLUG ProcessEditorEventW(const struct ProcessEditorEventInfo *Info)
 {
-	if(LS && Init2_Done) return LF_ProcessEditorEvent(LS, Info);
+	if (IsPluginReady(G)) return LF_ProcessEditorEvent(G.LS, Info);
 
 	return 0;
 }
@@ -403,7 +421,7 @@ intptr_t LUAPLUG ProcessEditorEventW(const struct ProcessEditorEventInfo *Info)
 #ifdef EXPORT_PROCESSVIEWEREVENT
 intptr_t LUAPLUG ProcessViewerEventW(const struct ProcessViewerEventInfo *Info)
 {
-	if(LS && Init2_Done) return LF_ProcessViewerEvent(LS, Info);
+	if (IsPluginReady(G)) return LF_ProcessViewerEvent(G.LS, Info);
 
 	return 0;
 }
@@ -413,16 +431,16 @@ intptr_t LUAPLUG ProcessViewerEventW(const struct ProcessViewerEventInfo *Info)
 #ifdef EXPORT_PROCESSDIALOGEVENT
 intptr_t LUAPLUG ProcessDialogEventW(const struct ProcessDialogEventInfo *Info)
 {
-	if(LS && Init2_Done)
+	if (IsPluginReady(G))
 	{
 #ifdef EXPORT_OPEN
 		intptr_t r;
-		EnterCriticalSection(&FindFileSection);
-		r = LF_ProcessDialogEvent(LS, Info);
-		LeaveCriticalSection(&FindFileSection);
+		EnterCriticalSection(&G.FindFileSection);
+		r = LF_ProcessDialogEvent(G.LS, Info);
+		LeaveCriticalSection(&G.FindFileSection);
 		return r;
 #else
-		return LF_ProcessDialogEvent(LS, Info);
+		return LF_ProcessDialogEvent(G.LS, Info);
 #endif
 	}
 	return 0;
@@ -433,14 +451,14 @@ intptr_t LUAPLUG ProcessDialogEventW(const struct ProcessDialogEventInfo *Info)
 #ifdef EXPORT_GETCUSTOMDATA
 intptr_t LUAPLUG GetCustomDataW(const wchar_t *FilePath, wchar_t **CustomData)
 {
-	if(LS && Init2_Done) return LF_GetCustomData(LS, FilePath, CustomData);
+	if (IsPluginReady(G)) return LF_GetCustomData(G.LS, FilePath, CustomData);
 
 	return 0;
 }
 
 void LUAPLUG FreeCustomDataW(wchar_t *CustomData)
 {
-	if(LS && Init2_Done) LF_FreeCustomData(LS, CustomData);
+	if (IsPluginReady(G)) LF_FreeCustomData(G.LS, CustomData);
 }
 #endif
 //---------------------------------------------------------------------------
@@ -448,7 +466,7 @@ void LUAPLUG FreeCustomDataW(wchar_t *CustomData)
 #ifdef EXPORT_ANALYSE
 HANDLE LUAPLUG AnalyseW(const struct AnalyseInfo *Info)
 {
-	if(LS && Init2_Done) return LF_Analyse(LS, Info);
+	if (IsPluginReady(G)) return LF_Analyse(G.LS, Info);
 
 	return 0;
 }
@@ -458,7 +476,7 @@ HANDLE LUAPLUG AnalyseW(const struct AnalyseInfo *Info)
 #ifdef EXPORT_CLOSEANALYSE
 void LUAPLUG CloseAnalyseW(const struct CloseAnalyseInfo *Info)
 {
-	if(LS && Init2_Done) LF_CloseAnalyse(LS, Info);
+	if (IsPluginReady(G)) LF_CloseAnalyse(G.LS, Info);
 }
 #endif
 //---------------------------------------------------------------------------
@@ -466,7 +484,7 @@ void LUAPLUG CloseAnalyseW(const struct CloseAnalyseInfo *Info)
 #ifdef EXPORT_PROCESSCONSOLEINPUT
 intptr_t LUAPLUG ProcessConsoleInputW(struct ProcessConsoleInputInfo *Info)
 {
-	if(LS && Init2_Done) return LF_ProcessConsoleInput(LS, Info);
+	if (IsPluginReady(G)) return LF_ProcessConsoleInput(G.LS, Info);
 
 	return 0;
 }
