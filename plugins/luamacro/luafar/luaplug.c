@@ -176,9 +176,7 @@ void LUAPLUG GetPluginInfoW(struct PluginInfo *Info)
 
 intptr_t LUAPLUG ProcessSynchroEventW(const struct ProcessSynchroEventInfo *Info)
 {
-	if (IsPluginReady(G)) return LF_ProcessSynchroEvent(G.LS, Info);
-
-	return 0;
+	return IsPluginReady(G) ? LF_ProcessSynchroEvent(G.LS, Info) : 0;
 }
 //---------------------------------------------------------------------------
 
@@ -245,9 +243,7 @@ HANDLE LUAPLUG OpenW(const struct OpenInfo *Info)
 #ifdef EXPORT_GETFINDDATA
 intptr_t LUAPLUG GetFindDataW(struct GetFindDataInfo *Info)
 {
-	if (IsPluginReady(G)) return LF_GetFindData(G.LS, Info);
-
-	return FALSE;
+	return IsPluginReady(G) ? LF_GetFindData(G.LS, Info) : 0;
 }
 
 void LUAPLUG FreeFindDataW(const struct FreeFindDataInfo *Info)
@@ -268,10 +264,7 @@ void LUAPLUG ClosePanelW(const struct ClosePanelInfo *Info)
 #ifdef EXPORT_GETFILES
 intptr_t LUAPLUG GetFilesW(struct GetFilesInfo *Info)
 {
-	if (IsPluginReady(G))
-		return LF_GetFiles(G.LS, Info);
-
-	return 0;
+	return IsPluginReady(G) ? LF_GetFiles(G.LS, Info) : 0;
 }
 #endif
 //---------------------------------------------------------------------------
@@ -301,9 +294,7 @@ void LUAPLUG ExitFARW(const struct ExitInfo *Info)
 #ifdef EXPORT_COMPARE
 intptr_t LUAPLUG CompareW(const struct CompareInfo *Info)
 {
-	if (IsPluginReady(G)) return LF_Compare(G.LS, Info);
-
-	return 0;
+	return IsPluginReady(G) ? LF_Compare(G.LS, Info) : 0;
 }
 #endif
 //---------------------------------------------------------------------------
@@ -311,9 +302,7 @@ intptr_t LUAPLUG CompareW(const struct CompareInfo *Info)
 #ifdef EXPORT_CONFIGURE
 intptr_t LUAPLUG ConfigureW(const struct ConfigureInfo *Info)
 {
-	if (IsPluginReady(G)) return LF_Configure(G.LS, Info);
-
-	return FALSE;
+	return IsPluginReady(G) ? LF_Configure(G.LS, Info) : 0;
 }
 #endif
 //---------------------------------------------------------------------------
@@ -321,9 +310,7 @@ intptr_t LUAPLUG ConfigureW(const struct ConfigureInfo *Info)
 #ifdef EXPORT_DELETEFILES
 intptr_t LUAPLUG DeleteFilesW(const struct DeleteFilesInfo *Info)
 {
-	if (IsPluginReady(G)) return LF_DeleteFiles(G.LS, Info);
-
-	return FALSE;
+	return IsPluginReady(G) ? LF_DeleteFiles(G.LS, Info) : 0;
 }
 #endif
 //---------------------------------------------------------------------------
@@ -331,9 +318,7 @@ intptr_t LUAPLUG DeleteFilesW(const struct DeleteFilesInfo *Info)
 #ifdef EXPORT_MAKEDIRECTORY
 intptr_t LUAPLUG MakeDirectoryW(struct MakeDirectoryInfo *Info)
 {
-	if (IsPluginReady(G)) return LF_MakeDirectory(G.LS, Info);
-
-	return 0;
+	return IsPluginReady(G) ? LF_MakeDirectory(G.LS, Info) : 0;
 }
 #endif
 //---------------------------------------------------------------------------
@@ -341,9 +326,7 @@ intptr_t LUAPLUG MakeDirectoryW(struct MakeDirectoryInfo *Info)
 #ifdef EXPORT_PROCESSPANELEVENT
 intptr_t LUAPLUG ProcessPanelEventW(const struct ProcessPanelEventInfo *Info)
 {
-	if (IsPluginReady(G)) return LF_ProcessPanelEvent(G.LS, Info);
-
-	return FALSE;
+	return IsPluginReady(G) ? LF_ProcessPanelEvent(G.LS, Info) : 0;
 }
 #endif
 //---------------------------------------------------------------------------
@@ -351,9 +334,7 @@ intptr_t LUAPLUG ProcessPanelEventW(const struct ProcessPanelEventInfo *Info)
 #ifdef EXPORT_PROCESSHOSTFILE
 intptr_t LUAPLUG ProcessHostFileW(const struct ProcessHostFileInfo *Info)
 {
-	if (IsPluginReady(G)) return LF_ProcessHostFile(G.LS, Info);
-
-	return FALSE;
+	return IsPluginReady(G) ? LF_ProcessHostFile(G.LS, Info) : 0;
 }
 #endif
 //---------------------------------------------------------------------------
@@ -361,9 +342,7 @@ intptr_t LUAPLUG ProcessHostFileW(const struct ProcessHostFileInfo *Info)
 #ifdef EXPORT_PROCESSPANELINPUT
 intptr_t LUAPLUG ProcessPanelInputW(const struct ProcessPanelInputInfo *Info)
 {
-	if (IsPluginReady(G)) return LF_ProcessPanelInput(G.LS, Info);
-
-	return FALSE;
+	return IsPluginReady(G) ? LF_ProcessPanelInput(G.LS, Info) : 0;
 }
 #endif
 //---------------------------------------------------------------------------
@@ -371,9 +350,7 @@ intptr_t LUAPLUG ProcessPanelInputW(const struct ProcessPanelInputInfo *Info)
 #ifdef EXPORT_PUTFILES
 intptr_t LUAPLUG PutFilesW(const struct PutFilesInfo *Info)
 {
-	if (IsPluginReady(G)) return LF_PutFiles(G.LS, Info);
-
-	return 0;
+	return IsPluginReady(G) ? LF_PutFiles(G.LS, Info) : 0;
 }
 #endif
 //---------------------------------------------------------------------------
@@ -381,9 +358,7 @@ intptr_t LUAPLUG PutFilesW(const struct PutFilesInfo *Info)
 #ifdef EXPORT_SETDIRECTORY
 intptr_t LUAPLUG SetDirectoryW(const struct SetDirectoryInfo *Info)
 {
-	if (IsPluginReady(G)) return LF_SetDirectory(G.LS, Info);
-
-	return FALSE;
+	return IsPluginReady(G) ? LF_SetDirectory(G.LS, Info) : 0;
 }
 #endif
 //---------------------------------------------------------------------------
@@ -391,9 +366,7 @@ intptr_t LUAPLUG SetDirectoryW(const struct SetDirectoryInfo *Info)
 #ifdef EXPORT_SETFINDLIST
 intptr_t LUAPLUG SetFindListW(const struct SetFindListInfo *Info)
 {
-	if (IsPluginReady(G)) return LF_SetFindList(G.LS, Info);
-
-	return FALSE;
+	return IsPluginReady(G) ? LF_SetFindList(G.LS, Info) : 0;
 }
 #endif
 //---------------------------------------------------------------------------
@@ -401,9 +374,7 @@ intptr_t LUAPLUG SetFindListW(const struct SetFindListInfo *Info)
 #ifdef EXPORT_PROCESSEDITORINPUT
 intptr_t LUAPLUG ProcessEditorInputW(const struct ProcessEditorInputInfo *Info)
 {
-	if (IsPluginReady(G)) return LF_ProcessEditorInput(G.LS, Info);
-
-	return 0;
+	return IsPluginReady(G) ? LF_ProcessEditorInput(G.LS, Info) : 0;
 }
 #endif
 //---------------------------------------------------------------------------
@@ -411,9 +382,7 @@ intptr_t LUAPLUG ProcessEditorInputW(const struct ProcessEditorInputInfo *Info)
 #ifdef EXPORT_PROCESSEDITOREVENT
 intptr_t LUAPLUG ProcessEditorEventW(const struct ProcessEditorEventInfo *Info)
 {
-	if (IsPluginReady(G)) return LF_ProcessEditorEvent(G.LS, Info);
-
-	return 0;
+	return IsPluginReady(G) ? LF_ProcessEditorEvent(G.LS, Info) : 0;
 }
 #endif
 //---------------------------------------------------------------------------
@@ -421,9 +390,7 @@ intptr_t LUAPLUG ProcessEditorEventW(const struct ProcessEditorEventInfo *Info)
 #ifdef EXPORT_PROCESSVIEWEREVENT
 intptr_t LUAPLUG ProcessViewerEventW(const struct ProcessViewerEventInfo *Info)
 {
-	if (IsPluginReady(G)) return LF_ProcessViewerEvent(G.LS, Info);
-
-	return 0;
+	return IsPluginReady(G) ? LF_ProcessViewerEvent(G.LS, Info) : 0;
 }
 #endif
 //---------------------------------------------------------------------------
@@ -451,9 +418,7 @@ intptr_t LUAPLUG ProcessDialogEventW(const struct ProcessDialogEventInfo *Info)
 #ifdef EXPORT_GETCUSTOMDATA
 intptr_t LUAPLUG GetCustomDataW(const wchar_t *FilePath, wchar_t **CustomData)
 {
-	if (IsPluginReady(G)) return LF_GetCustomData(G.LS, FilePath, CustomData);
-
-	return 0;
+	return IsPluginReady(G) ? LF_GetCustomData(G.LS, FilePath, CustomData) : 0;
 }
 
 void LUAPLUG FreeCustomDataW(wchar_t *CustomData)
@@ -466,9 +431,7 @@ void LUAPLUG FreeCustomDataW(wchar_t *CustomData)
 #ifdef EXPORT_ANALYSE
 HANDLE LUAPLUG AnalyseW(const struct AnalyseInfo *Info)
 {
-	if (IsPluginReady(G)) return LF_Analyse(G.LS, Info);
-
-	return 0;
+	return IsPluginReady(G) ? LF_Analyse(G.LS, Info) : 0;
 }
 #endif
 //---------------------------------------------------------------------------
@@ -484,9 +447,7 @@ void LUAPLUG CloseAnalyseW(const struct CloseAnalyseInfo *Info)
 #ifdef EXPORT_PROCESSCONSOLEINPUT
 intptr_t LUAPLUG ProcessConsoleInputW(struct ProcessConsoleInputInfo *Info)
 {
-	if (IsPluginReady(G)) return LF_ProcessConsoleInput(G.LS, Info);
-
-	return 0;
+	return IsPluginReady(G) ? LF_ProcessConsoleInput(G.LS, Info) : 0;
 }
 #endif
 //---------------------------------------------------------------------------
