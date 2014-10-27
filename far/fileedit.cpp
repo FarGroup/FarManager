@@ -1584,8 +1584,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 			pc.CodePage = 0;
 
 		m_editor->GlobalEOL.clear(); //BUGBUG???
-		uintptr_t dwCP = 0;
-		bool Detect = false, testBOM = false;
+		bool testBOM = false;
 
 		bool redetect = (m_codepage == CP_REDETECT);
 		if (redetect)
@@ -1593,30 +1592,35 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 
 		if (m_codepage == CP_DEFAULT)
 		{
-			Detect = GetFileFormat(EditFile,dwCP,&m_bAddSignature,redetect || Global->Opt->EdOpt.AutoDetectCodePage!=0)
-					&& Codepages().IsCodePageSupported(dwCP);
-
-			if (Detect)
-				m_codepage = dwCP;
-
-			else if (!redetect && bCached && pc.CodePage)
+			if (!redetect && bCached && pc.CodePage)
 			{
 				m_codepage = pc.CodePage;
-				m_Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
+			}
+			else
+			{
+				uintptr_t dwCP = 0;
+				bool Detect = GetFileFormat(EditFile,dwCP,&m_bAddSignature,redetect || Global->Opt->EdOpt.AutoDetectCodePage!=0)
+					&& Codepages().IsCodePageSupported(dwCP);
+
+				if (Detect)
+					m_codepage = dwCP;
+
+				if (!IsUnicodeOrUtfCodePage(m_codepage))
+					EditFile.SetPointer(0, nullptr, FILE_BEGIN);
 			}
 
 			if (m_codepage == CP_DEFAULT)
 				m_codepage = GetDefaultCodePage();
-
-			if (!IsUnicodeOrUtfCodePage(m_codepage))
-				EditFile.SetPointer(0, nullptr, FILE_BEGIN);
 		}
 		else
 		{
 			testBOM = IsUnicodeOrUtfCodePage(m_codepage);
 			m_Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
 		}
+
 		m_editor->SetCodePage(m_codepage);  //BUGBUG
+		if (m_codepage != pc.CodePage)
+			m_Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
 
 		UINT64 FileSize=0;
 		EditFile.GetSize(FileSize);
