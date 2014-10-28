@@ -491,6 +491,7 @@ local function Init()
     Panel.CustomSortMenu = panelsort.CustomSortMenu
   end
 
+  utils.FixInitialModules()
   utils.InitMacroSystem()
   AddCfindFunction()
   local modules = win.GetEnv("farprofile").."\\Macros\\modules\\"

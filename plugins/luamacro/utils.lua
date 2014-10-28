@@ -47,7 +47,10 @@ local AddMacro_filename
 
 package.nounload = {lpeg=true}
 local initial_modules = {}
-for k in pairs(package.loaded) do initial_modules[k]=true end
+
+local function FixInitialModules()
+  for k in pairs(package.loaded) do initial_modules[k]=true end
+end
 
 local function CheckFileName (mask, name)
   return far.ProcessName("PN_CMPNAMELIST", mask, name, "PN_SKIPPATH")
@@ -998,4 +1001,5 @@ return {
   GetMoonscriptLineNumber = GetMoonscriptLineNumber,
   GetMenuItems = function() return AddedMenuItems end,
   LoadingInProgress = function() return LoadingInProgress end,
+  FixInitialModules = FixInitialModules,
 }
