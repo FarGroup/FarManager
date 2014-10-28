@@ -126,7 +126,7 @@ Viewer::Viewer(bool bQuickView, uintptr_t aCodePage):
 	SelectFlags(),
 	ShowStatusLine(true),
 	m_HideCursor(true),
-	CodePageChangedByUser(),
+	//CodePageChangedByUser(),
 	ReadStdin(),
 	InternalKey(),
 	LastKeyUndo(),
@@ -227,7 +227,7 @@ void Viewer::SavePosition()
 		poscache.cur.FilePos = FilePos;
 		poscache.cur.LeftPos = LeftPos;
 		poscache.Hex_Wrap = (VM.Hex & 0x03) | 0x10 | (VM.Wrap ? 0x20 : 0x00) | (VM.WordWrap ? 0x40 : 0x00);
-		poscache.CodePage = CodePageChangedByUser ? VM.CodePage : 0;
+		poscache.CodePage = VM.CodePage; //CodePageChangedByUser ? VM.CodePage : 0;
 		poscache.bm = BMSavePos;
 
 		string strCacheName = strPluginData.empty() ? strFullFileName : strPluginData+PointToName(strFileName);
@@ -309,7 +309,7 @@ int Viewer::OpenFile(const string& Name,int warning)
 	}
 	Reader.AdjustAlignment();
 
-	CodePageChangedByUser=FALSE;
+	//CodePageChangedByUser=FALSE;
 
 	ConvertNameToFull(strFileName,strFullFileName);
 	api::GetFindDataEx(strFileName, ViewFindData);
@@ -371,7 +371,7 @@ int Viewer::OpenFile(const string& Name,int warning)
 			if (CachedCodePage)
 			{
 				VM.CodePage=CachedCodePage;
-				CodePageChangedByUser=TRUE;
+				//CodePageChangedByUser=TRUE;
 			}
 
 			if (VM.CodePage==CP_DEFAULT)
@@ -379,8 +379,8 @@ int Viewer::OpenFile(const string& Name,int warning)
 
 			MB.SetCP(static_cast<UINT>(VM.CodePage));
 		}
-		else
-			CodePageChangedByUser=TRUE;
+		//else
+		//	CodePageChangedByUser=TRUE;
 
 		ViewFile.SetPointer(0, nullptr, FILE_BEGIN);
 	}
@@ -1584,7 +1584,7 @@ int Viewer::ProcessKey(const Manager::Key& Key)
 			AdjustFilePos();
 			ChangeViewKeyBar();
 			Show();
-			CodePageChangedByUser=TRUE;
+			//CodePageChangedByUser=TRUE;
 			return TRUE;
 		}
 		case KEY_SHIFTF8:
@@ -1600,7 +1600,7 @@ int Viewer::ProcessKey(const Manager::Key& Key)
 					if (!detect)
 						nCodePage = GetDefaultCodePage();
 				}
-				CodePageChangedByUser=TRUE;
+				//CodePageChangedByUser=TRUE;
 				VM.CodePage = nCodePage;
 				MB.SetCP(static_cast<UINT>(VM.CodePage));
 				lcache_ready = false;

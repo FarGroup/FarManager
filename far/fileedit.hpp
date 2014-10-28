@@ -65,7 +65,7 @@ enum FFILEEDIT_FLAGS
 	FFILEEDIT_DISABLESAVEPOS        = 0x08000000,  // не сохранять позицию для файла
 	FFILEEDIT_CANNEWFILE            = 0x10000000,  // допускается новый файл?
 	FFILEEDIT_SERVICEREGION         = 0x20000000,  // используется сервисная область
-	FFILEEDIT_CODEPAGECHANGEDBYUSER = 0x40000000,
+	//FFILEEDIT_CODEPAGECHANGEDBYUSER = 0x40000000,
 };
 
 typedef std::shared_ptr<FileEditor> fileeditor_ptr;
@@ -96,7 +96,7 @@ public:
 	BOOL IsFileChanged() const { return m_editor->IsFileChanged(); }
 	void GetEditorOptions(Options::EditorOptions& EdOpt) const;
 	void SetEditorOptions(const Options::EditorOptions& EdOpt);
-	void CodepageChangedByUser() { m_Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER); }
+	//void CodepageChangedByUser() { m_Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER); }
 	void SetPluginTitle(const string* PluginTitle);
 	int GetId() const { return m_editor->EditorID; }
 	FileEditor* GetById(int ID) { return GetId()==ID?this:nullptr; }

@@ -676,7 +676,7 @@ void FileEditor::Init(
 			m_codepage = GetDefaultCodePage();
 
 		m_editor->SetCodePage(m_codepage);
-		m_Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
+		//m_Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
 		break;
 	}
 
@@ -1431,7 +1431,7 @@ int FileEditor::SetCodePage(uintptr_t cp,	bool redetect_default, bool ascii2def)
 	if (m_codepage != cp0)
 	{
 		InitKeyBar();
-		m_Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
+		//m_Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
 		return need_reload ? EC_CP_RELOAD : EC_CP_SET;
 	}
 	else
@@ -1614,8 +1614,8 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		}
 
 		m_editor->SetCodePage(m_codepage);  //BUGBUG
-		if (m_codepage != pc.CodePage)
-			m_Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
+		//if (m_codepage != pc.CodePage)
+		//	m_Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
 
 		UINT64 FileSize=0;
 		EditFile.GetSize(FileSize);
@@ -2911,8 +2911,7 @@ void FileEditor::SaveToCache()
 
 	if (!m_Flags.Check(FFILEEDIT_OPENFAILED))   //????
 	{
-		pc.CodePage = (m_Flags.Check(FFILEEDIT_CODEPAGECHANGEDBYUSER) && !BadConversion)?m_codepage:0;
-
+		pc.CodePage = (/*m_Flags.Check(FFILEEDIT_CODEPAGECHANGEDBYUSER) &&*/ !BadConversion)?m_codepage:0;
 		FilePositionCache::AddPosition(strCacheName, pc);
 	}
 }
