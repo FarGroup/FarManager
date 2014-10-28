@@ -1629,10 +1629,10 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		{
 			if (testBOM && IsUnicodeOrUtfCodePage(m_codepage))
 			{
-				testBOM = false;
 				if (StrLength > 0 && Str[0] == SIGN_UNICODE)
 					++Str, --StrLength, m_bAddSignature = true;
 			}
+			testBOM = false;
 			LastLineCR=0;
 			DWORD CurTime=GetTickCount();
 
