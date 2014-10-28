@@ -1584,7 +1584,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 			pc.CodePage = 0;
 
 		m_editor->GlobalEOL.clear(); //BUGBUG???
-		bool testBOM = false;
+		bool testBOM = true;
 
 		bool redetect = (m_codepage == CP_REDETECT);
 		if (redetect)
@@ -1593,12 +1593,12 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		if (m_codepage == CP_DEFAULT)
 		{
 			if (!redetect && bCached && pc.CodePage)
-			{
 				m_codepage = pc.CodePage;
-			}
+
 			else
 			{
 				uintptr_t dwCP = 0;
+				testBOM = false;
 				bool Detect = GetFileFormat(EditFile,dwCP,&m_bAddSignature,redetect || Global->Opt->EdOpt.AutoDetectCodePage!=0)
 					&& Codepages().IsCodePageSupported(dwCP);
 
@@ -1611,11 +1611,6 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 
 			if (m_codepage == CP_DEFAULT)
 				m_codepage = GetDefaultCodePage();
-		}
-		else
-		{
-			testBOM = IsUnicodeOrUtfCodePage(m_codepage);
-			m_Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
 		}
 
 		m_editor->SetCodePage(m_codepage);  //BUGBUG
@@ -1632,7 +1627,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 
 		while (GetStr.GetString(&Str, StrLength))
 		{
-			if (testBOM)
+			if (testBOM && IsUnicodeOrUtfCodePage(m_codepage))
 			{
 				testBOM = false;
 				if (StrLength > 0 && Str[0] == SIGN_UNICODE)
