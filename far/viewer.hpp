@@ -201,7 +201,6 @@ private:
 	string strTitle;
 
 	string strPluginData;
-	//int CodePageChangedByUser;
 	int ReadStdin;
 	int InternalKey;
 

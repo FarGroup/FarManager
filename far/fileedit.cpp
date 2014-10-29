@@ -676,7 +676,6 @@ void FileEditor::Init(
 			m_codepage = GetDefaultCodePage();
 
 		m_editor->SetCodePage(m_codepage);
-		//m_Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
 		break;
 	}
 
@@ -1431,7 +1430,6 @@ int FileEditor::SetCodePage(uintptr_t cp,	bool redetect_default, bool ascii2def)
 	if (m_codepage != cp0)
 	{
 		InitKeyBar();
-		//m_Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
 		return need_reload ? EC_CP_RELOAD : EC_CP_SET;
 	}
 	else
@@ -1612,10 +1610,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 			if (m_codepage == CP_DEFAULT)
 				m_codepage = GetDefaultCodePage();
 		}
-
 		m_editor->SetCodePage(m_codepage);  //BUGBUG
-		//if (m_codepage != pc.CodePage)
-		//	m_Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
 
 		UINT64 FileSize=0;
 		EditFile.GetSize(FileSize);
@@ -2911,7 +2906,7 @@ void FileEditor::SaveToCache()
 
 	if (!m_Flags.Check(FFILEEDIT_OPENFAILED))   //????
 	{
-		pc.CodePage = (/*m_Flags.Check(FFILEEDIT_CODEPAGECHANGEDBYUSER) &&*/ !BadConversion)?m_codepage:0;
+		pc.CodePage = BadConversion ? 0 : m_codepage;
 		FilePositionCache::AddPosition(strCacheName, pc);
 	}
 }
@@ -2925,7 +2920,9 @@ bool FileEditor::SetCodePage(uintptr_t codepage)
 	if (!m_editor->TryCodePage(codepage, x, y))
 	{
 		int ret = Message(MSG_WARNING, 3, MSG(MWarning),
-			MSG(MEditorSwitchCPWarn1), MSG(MEditorSwitchCPWarn2), MSG(MEditorSwitchCPConfirm),
+			MSG(MEditorSwitchCPWarn1),
+			(LangString(MEditorSwitchCPWarn2) << codepage).data(),
+			MSG(MEditorSwitchCPConfirm),
 			MSG(MCancel), MSG(MEditorSaveCPWarnShow), MSG(MOk));
 
 		if (ret < 2) // not confirmed
