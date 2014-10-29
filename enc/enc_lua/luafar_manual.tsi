@@ -11649,6 +11649,28 @@ mtime=3601970286
 </article>
 </node>
 <node>
+id=499
+lv=2
+dt=Text
+nm=LF_GetLuafarAPI
+ctime=3623763390
+mtime=3623764911
+<article>
+#_<markdown>
+#_    void LF_GetLuafarAPI (LuafarAPI *target);
+#_
+#_#### Parameters:
+#_      target:  pointer to a LuafarAPI struct.
+#_               The field 'StructSize' must be initialized by the caller.
+#_               On function return, this field is set by the function.
+#_
+#_#### Description:
+#_
+#_`LF_GetLuafarAPI` allows to get many service and convenience functions
+#_of LuaFAR for use in the C-part of the plugin.
+</article>
+</node>
+<node>
 id=194
 lv=0
 dt=Text

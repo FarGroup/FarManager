@@ -7,6 +7,18 @@
 #include <lauxlib.h>
 #include <lualib.h>
 
+#ifdef __GNUC__ //FIXME: #include <float.h> works with MinGW64 but does not with MinGW.
+/* Control word masks for unMask */
+#define	_MCW_EM		0x0008001F	/* Error masks */
+_CRTIMP unsigned int __cdecl __MINGW_NOTHROW _control87 (unsigned int unNew, unsigned int unMask);
+#else
+#include <float.h>
+#endif //__GNUC__
+
+// Prevent crashes on divide by 0, etc., due to plugins activating FPU exceptions.
+// (it takes approximately 20 nanosec.)
+#define FP_PROTECT() _control87(_MCW_EM,_MCW_EM)
+
 /* convert a stack index to positive */
 #define abs_index(L,i) ((i)>0 || (i)<=LUA_REGISTRYINDEX ? (i):lua_gettop(L)+(i)+1)
 

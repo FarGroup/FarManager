@@ -17,10 +17,6 @@
 # endif
 #endif
 
-// Prevent crashes on divide by 0, etc., due to plugins activating FPU exceptions.
-// (it takes approximately 20 nanosec.)
-#define FP_PROTECT() _control87(_MCW_EM,_MCW_EM)
-
 typedef struct PluginStartupInfo PSInfo;
 
 extern int bit64_push(lua_State *L, INT64 v);
@@ -47,6 +43,7 @@ extern int far_MacroCallPlugin(lua_State *L);
 extern int far_FarMacroCallToLua(lua_State *L);
 extern void PackMacroValues(lua_State* L, size_t Count, const struct FarMacroValue* Values);
 extern void PushFarMacroValue(lua_State* L, const struct FarMacroValue* val);
+extern int GetExportFunction(lua_State* L, const char* FuncName);
 
 const char FarFileFilterType[] = "FarFileFilter";
 const char FarTimerType[]      = "FarTimer";
@@ -6304,4 +6301,43 @@ int LF_DoFile(lua_State *L, const wchar_t *fname, int argc, wchar_t* argv[])
 	}
 
 	return status;
+}
+
+const LuafarAPI api_functions = {
+	0,
+
+	check_utf8_string,
+	opt_utf8_string,
+	push_utf8_string,
+	check_utf16_string,
+	opt_utf16_string,
+	push_utf16_string,
+	utf8_to_utf16,
+
+	GetBoolFromTable,
+	GetOptBoolFromTable,
+	GetOptIntFromArray,
+	GetOptIntFromTable,
+	GetOptNumFromTable,
+	PutBoolToTable,
+	PutIntToArray,
+	PutIntToTable,
+	PutLStrToTable,
+	PutNumToTable,
+	PutStrToArray,
+	PutStrToTable,
+	PutWStrToArray,
+	PutWStrToTable,
+
+	GetExportFunction,
+	pcall_msg,
+};
+
+void LF_GetLuafarAPI (LuafarAPI* target)
+{
+	size_t size = target->StructSize;
+	if (size > sizeof(LuafarAPI))
+		size = sizeof(LuafarAPI);
+	memcpy(target, &api_functions, size);
+	target->StructSize = size;
 }

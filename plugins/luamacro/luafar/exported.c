@@ -9,10 +9,6 @@
 #define TRANSFORM_REF(L,h)   ((char*)(L)+(h))
 #define UNTRANSFORM_REF(L,h) (int)((char*)(h)-(char*)(L))
 
-// Prevent crashes on divide by 0, etc., due to plugins activating FPU exceptions.
-// (it takes approximately 20 nanosec.)
-#define FP_PROTECT() _control87(_MCW_EM,_MCW_EM)
-
 extern int bit64_push(lua_State *L, INT64 v);
 extern int bit64_pushuserdata(lua_State *L, INT64 v);
 extern int bit64_getvalue(lua_State *L, int pos, INT64 *target);

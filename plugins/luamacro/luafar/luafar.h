@@ -9,15 +9,6 @@ extern "C" {
 
 #include <lua.h>
 #include <lauxlib.h>
-#include <lualib.h>
-
-#ifdef __GNUC__ //FIXME: #include <float.h> works with MinGW64 but does not with MinGW.
-/* Control word masks for unMask */
-#define	_MCW_EM		0x0008001F	/* Error masks */
-_CRTIMP unsigned int __cdecl __MINGW_NOTHROW _control87 (unsigned int unNew, unsigned int unMask);
-#else
-#include <float.h>
-#endif //__GNUC__
 
 #if defined BUILD_DLL
 #  define DLLFUNC __declspec(dllexport)
@@ -42,6 +33,71 @@ typedef struct
 } TPluginData;
 TPluginData* GetPluginData(lua_State* L);
 
+/*---------------------------------*/
+/* DO NOT CHANGE THESE SIGNATURES. */
+/*---------------------------------*/
+typedef wchar_t*       (*LUAFARAPI_CHECKUTF8STRING)    (lua_State *L, int Pos, size_t *TrgSize);
+typedef const wchar_t* (*LUAFARAPI_OPTUTF8STRING)      (lua_State *L, int Pos, const wchar_t *Dflt);
+typedef char*          (*LUAFARAPI_PUSHUTF8STRING)     (lua_State *L, const wchar_t *Str, intptr_t NumChars);
+typedef const wchar_t* (*LUAFARAPI_CHECK_UTF16_STRING) (lua_State *L, int pos, size_t *len);
+typedef const wchar_t* (*LUAFARAPI_OPT_UTF16_STRING)   (lua_State *L, int pos, const wchar_t *dflt);
+typedef void           (*LUAFARAPI_PUSH_UTF16_STRING)  (lua_State* L, const wchar_t* str, intptr_t numchars);
+typedef wchar_t*       (*LUAFARAPI_UTF8_TO_UTF16)      (lua_State *L, int pos, size_t* pTrgSize);
+
+typedef BOOL           (*LUAFARAPI_GETBOOLFROMTABLE)   (lua_State *L, const char* key);
+typedef BOOL           (*LUAFARAPI_GETOPTBOOLFROMTABLE)(lua_State *L, const char* key, BOOL dflt);
+typedef int            (*LUAFARAPI_GETOPTINTFROMARRAY) (lua_State *L, int key, int dflt);
+typedef int            (*LUAFARAPI_GETOPTINTFROMTABLE) (lua_State *L, const char* key, int dflt);
+typedef double         (*LUAFARAPI_GETOPTNUMFROMTABLE) (lua_State *L, const char* key, double dflt);
+typedef void           (*LUAFARAPI_PUTBOOLTOTABLE)     (lua_State *L, const char* key, int num);
+typedef void           (*LUAFARAPI_PUTINTTOARRAY)      (lua_State *L, int key, intptr_t val);
+typedef void           (*LUAFARAPI_PUTINTTOTABLE)      (lua_State *L, const char *key, intptr_t val);
+typedef void           (*LUAFARAPI_PUTLSTRTOTABLE)     (lua_State *L, const char* key, const void* str, size_t len);
+typedef void           (*LUAFARAPI_PUTNUMTOTABLE)      (lua_State *L, const char* key, double num);
+typedef void           (*LUAFARAPI_PUTSTRTOARRAY)      (lua_State *L, int key, const char* str);
+typedef void           (*LUAFARAPI_PUTSTRTOTABLE)      (lua_State *L, const char* key, const char* str);
+typedef void           (*LUAFARAPI_PUTWSTRTOARRAY)     (lua_State *L, int key, const wchar_t* str, intptr_t numchars);
+typedef void           (*LUAFARAPI_PUTWSTRTOTABLE)     (lua_State *L, const char* key, const wchar_t* str, intptr_t numchars);
+
+typedef int            (*LUAFARAPI_GETEXPORTFUNCTION)  (lua_State* L, const char* FuncName);
+typedef int            (*LUAFARAPI_PCALLMSG)           (lua_State* L, int narg, int nret);
+
+
+/*---------------------------------------------------------------------------*/
+/* DO NOT CHANGE THE ORDER OR THE CONTENTS. ADD NEW MEMBERS AT THE END ONLY. */
+/*---------------------------------------------------------------------------*/
+typedef struct
+{
+	size_t StructSize;
+
+	LUAFARAPI_CHECKUTF8STRING      check_utf8_string;
+	LUAFARAPI_OPTUTF8STRING        opt_utf8_string;
+	LUAFARAPI_PUSHUTF8STRING       push_utf8_string;
+	LUAFARAPI_CHECK_UTF16_STRING   check_utf16_string;
+	LUAFARAPI_OPT_UTF16_STRING     opt_utf16_string;
+	LUAFARAPI_PUSH_UTF16_STRING    push_utf16_string;
+	LUAFARAPI_UTF8_TO_UTF16        utf8_to_utf16;
+
+	LUAFARAPI_GETBOOLFROMTABLE     GetBoolFromTable;
+	LUAFARAPI_GETOPTBOOLFROMTABLE  GetOptBoolFromTable;
+	LUAFARAPI_GETOPTINTFROMARRAY   GetOptIntFromArray;
+	LUAFARAPI_GETOPTINTFROMTABLE   GetOptIntFromTable;
+	LUAFARAPI_GETOPTNUMFROMTABLE   GetOptNumFromTable;
+	LUAFARAPI_PUTBOOLTOTABLE       PutBoolToTable;
+	LUAFARAPI_PUTINTTOARRAY        PutIntToArray;
+	LUAFARAPI_PUTINTTOTABLE        PutIntToTable;
+	LUAFARAPI_PUTLSTRTOTABLE       PutLStrToTable;
+	LUAFARAPI_PUTNUMTOTABLE        PutNumToTable;
+	LUAFARAPI_PUTSTRTOARRAY        PutStrToArray;
+	LUAFARAPI_PUTSTRTOTABLE        PutStrToTable;
+	LUAFARAPI_PUTWSTRTOARRAY       PutWStrToArray;
+	LUAFARAPI_PUTWSTRTOTABLE       PutWStrToTable;
+
+	LUAFARAPI_GETEXPORTFUNCTION    GetExportFunction;
+	LUAFARAPI_PCALLMSG             pcall_msg;
+} LuafarAPI;
+
+DLLFUNC void     LF_GetLuafarAPI (LuafarAPI *target);
 DLLFUNC intptr_t LF_DlgProc(lua_State *L, HANDLE hDlg, intptr_t  Msg, intptr_t  Param1, void *Param2);
 DLLFUNC intptr_t LF_MacroCallback(lua_State* L, void* Id, FARADDKEYMACROFLAGS Flags);
 DLLFUNC const wchar_t *LF_Gsub(lua_State *L, const wchar_t *s, const wchar_t *p, const wchar_t *r);

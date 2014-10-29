@@ -346,12 +346,9 @@ local function ProcessCommandLine (CmdLine)
       far.MacroLoadAll(paths)
     elseif cmd == "save" then utils.WriteMacros()
     elseif cmd == "unload" then utils.UnloadMacros()
-    elseif cmd == "post" then -- DEPRECATED, to be removed on 2014-Oct-29.
-      prefix, text = "lua", text:match("%S+%s*(.*)")
     elseif cmd == "about" then About()
     elseif cmd ~= "" then ErrMsg(Msg.CL_UnsupportedCommand .. cmd) end
-  end
-  if prefix == "lua" or prefix == "moon" then
+  elseif prefix == "lua" or prefix == "moon" then
     if text~="" then
       if text:find("^=") then
         text = "far.Show(" .. text:sub(2) .. ")"
