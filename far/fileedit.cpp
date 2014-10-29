@@ -382,11 +382,11 @@ fileeditor_ptr FileEditor::create(const string& Name, uintptr_t codepage, DWORD 
 */
 FileEditor::~FileEditor()
 {
-	if (!m_Flags.Check(FFILEEDIT_DISABLESAVEPOS) && (m_editor->EdOpt.SavePos || m_editor->EdOpt.SaveShortPos) && Global->CtrlObject)
-		SaveToCache();
-
 	if (!m_Flags.Check(FFILEEDIT_OPENFAILED))
 	{
+		if (!m_Flags.Check(FFILEEDIT_DISABLESAVEPOS) && (m_editor->EdOpt.SavePos || m_editor->EdOpt.SaveShortPos) && Global->CtrlObject)
+			SaveToCache();
+
 		/* $ 11.10.2001 IS
 		   Удалим файл вместе с каталогом, если это просится и файла с таким же
 		   именем не открыто в других окнах.
@@ -434,7 +434,6 @@ void FileEditor::Init(
 		Editor *m_editor;
 	};
 
-	SysErrorCode=0;
 	int BlankFileName = Name == MSG(MNewFileName) || Name.empty();
 	//AY: флаг оповещающий закрытие редактора.
 	m_bClosing = false;
@@ -649,8 +648,6 @@ void FileEditor::Init(
 		{
 			if (UserBreak!=1)
 			{
-				SetLastError(SysErrorCode);
-				Global->CatchError();
 				if(!OperationFailed(strFullFileName, MEditTitle, MSG(MEditCannotOpen), false))
 					continue;
 				else
@@ -1115,8 +1112,6 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 					if (SaveResult==SAVEFILE_ERROR)
 					{
-						SetLastError(SysErrorCode);
-						Global->CatchError();
 						if (OperationFailed(strFullFileName, MEditTitle, MSG(MEditCannotSave), false))
 						{
 							Done=TRUE;
@@ -1485,8 +1480,6 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion,bool DeleteWindow
 				break;
 		}
 
-		SetLastError(SysErrorCode);
-		Global->CatchError();
 		if (OperationFailed(strFullFileName, MEditTitle, MSG(MEditCannotSave), false))
 			break;
 
@@ -1500,6 +1493,9 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion,bool DeleteWindow
 
 int FileEditor::LoadFile(const string& Name,int &UserBreak)
 {
+	try
+	{
+	// TODO: indentation
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<Editor::EditorPreRedrawItem>());
 	SCOPED_ACTION(IndeterminateTaskBar);
@@ -1510,9 +1506,8 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 	api::File EditFile;
 	if(!EditFile.Open(Name, FILE_READ_DATA, FILE_SHARE_READ|(Global->Opt->EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 	{
-		SysErrorCode=GetLastError();
-
-		if ((SysErrorCode != ERROR_FILE_NOT_FOUND) && (SysErrorCode != ERROR_PATH_NOT_FOUND))
+		Global->CatchError();
+		if ((Global->CaughtError() != ERROR_FILE_NOT_FOUND) && (Global->CaughtError() != ERROR_PATH_NOT_FOUND))
 		{
 			UserBreak = -1;
 			m_Flags.Set(FFILEEDIT_OPENFAILED);
@@ -1545,6 +1540,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 				{
 					EditFile.Close();
 					SetLastError(ERROR_OPEN_FAILED); //????
+					Global->CatchError();
 					UserBreak=1;
 					m_Flags.Set(FFILEEDIT_OPENFAILED);
 					return FALSE;
@@ -1559,7 +1555,8 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 				nullptr, nullptr, &EditorFileGetSizeErrorId))
 			{
 				EditFile.Close();
-				SetLastError(SysErrorCode=ERROR_OPEN_FAILED); //????
+				SetLastError(ERROR_OPEN_FAILED); //????
+				Global->CatchError();
 				UserBreak=1;
 				m_Flags.Set(FFILEEDIT_OPENFAILED);
 				return FALSE;
@@ -1676,7 +1673,8 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 			if (!dlgBadEditorCodepage(cp)) // cancel
 			{
 				EditFile.Close();
-				SetLastError(SysErrorCode=ERROR_OPEN_FAILED);
+				SetLastError(ERROR_OPEN_FAILED); //????
+				Global->CatchError();
 				UserBreak=1;
 				m_Flags.Set(FFILEEDIT_OPENFAILED);
 				return FALSE;
@@ -1697,10 +1695,21 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 
 	EditFile.Close();
 	m_editor->SetCacheParams(pc, m_bAddSignature);
-	SysErrorCode=GetLastError();
+	Global->CatchError();
 	api::GetFindDataEx(Name, FileInfo);
 	EditorGetFileAttributes(Name);
 	return TRUE;
+
+	}
+	catch (const std::bad_alloc&)
+	{
+		// TODO: better diagnostics
+		m_editor->FreeAllocatedData();
+		m_Flags.Set(FFILEEDIT_OPENFAILED);
+		SetLastError(ERROR_NOT_ENOUGH_MEMORY);
+		Global->CatchError();
+		return FALSE;
+	}
 }
 
 bool FileEditor::ReloadFile(uintptr_t codepage)
@@ -1731,8 +1740,6 @@ bool FileEditor::ReloadFile(uintptr_t codepage)
 
 		if (user_break != 1)
 		{
-			SetLastError(SysErrorCode);
-			Global->CatchError();
 			OperationFailed(strFullFileName, MEditTitle, MSG(MEditCannotOpen), false);
 		}
 	}
@@ -1994,7 +2001,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		{
 			//_SVS(SysLogLastError();SysLog(L"Name='%s',FileAttributes=%d",Name,FileAttributes));
 			RetCode=SAVEFILE_ERROR;
-			SysErrorCode=GetLastError();
+			Global->CatchError();
 			goto end;
 		}
 
@@ -2085,7 +2092,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 				    (EndLength && !Cache.Write(EndSeq,EndLength*sizeof(wchar_t)))
 						)
 				{
-					SysErrorCode=GetLastError();
+					Global->CatchError();
 					bError = true;
 				}
 			}
@@ -2111,7 +2118,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 						if (!Cache.Write(SaveStrCopy.get(),length))
 						{
 							bError = true;
-							SysErrorCode=GetLastError();
+							Global->CatchError();
 						}
 					}
 					else
@@ -2135,7 +2142,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 							if (!Cache.Write(EndSeqCopy.get(),endlength))
 							{
 								bError = true;
-								SysErrorCode=GetLastError();
+								Global->CatchError();
 							}
 						}
 						else
@@ -2160,7 +2167,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		}
 		else
 		{
-			SysErrorCode=GetLastError();
+			Global->CatchError();
 			EditFile.Close();
 			api::DeleteFile(Name);
 			RetCode=SAVEFILE_ERROR;

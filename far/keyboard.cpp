@@ -623,11 +623,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 
 DWORD GetInputRecordNoMacroArea(INPUT_RECORD *rec,bool AllowSynchro)
 {
-	FARMACROAREA MMode=Global->CtrlObject->Macro.GetMode();
-	Global->CtrlObject->Macro.SetMode(MACROAREA_LAST); // чтобы не срабатывали макросы :-)
-	DWORD Key=GetInputRecord(rec,false,false,AllowSynchro);
-	Global->CtrlObject->Macro.SetMode(MMode);
-	return Key;
+	return GetInputRecord(rec, true, false, AllowSynchro);
 }
 
 

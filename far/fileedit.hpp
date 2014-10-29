@@ -161,7 +161,6 @@ private:
 	wchar_t AttrStr[4];            // 13.02.2001 IS - Сюда запомним буквы атрибутов, чтобы не вычислять их много раз
 	DWORD m_FileAttributes;          // 12.02.2001 IS - сюда запомним атрибуты файла при открытии, пригодятся где-нибудь...
 	BOOL  FileAttributesModified;  // 04.11.2003 SKV - надо ли восстанавливать аттрибуты при save
-	DWORD SysErrorCode;
 	bool m_bClosing;               // 28.04.2005 AY: true когда редактор закрываеться (т.е. в деструкторе)
 	bool bEE_READ_Sent;
 	bool bLoaded;

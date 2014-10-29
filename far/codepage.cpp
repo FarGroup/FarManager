@@ -880,7 +880,7 @@ GeneralConfig::values_enumerator<DWORD> codepages::GetFavoritesEnumerator()
 }
 
 
-inline bool IsValid(UINT cp)
+inline static bool IsValid(UINT cp)
 {
 	if (cp==CP_ACP || cp==CP_OEMCP || cp==CP_MACCP || cp==CP_THREAD_ACP || cp==CP_SYMBOL)
 		return false;
@@ -900,20 +900,9 @@ bool MultibyteCodepageDecoder::SetCP(UINT cp)
 	if (!IsValid(cp))
 		return false;
 
-	if (len_mask.empty())
-		len_mask.resize(256);
-	else
-		std::fill(ALL_RANGE(len_mask), 0);
-
-	if (m1.empty())
-		m1.resize(256);
-	else
-		std::fill(ALL_RANGE(m1), 0);
-
-	if (m2.empty())
-		m2.resize(256*256);
-	else
-		std::fill(ALL_RANGE(m2), 0);
+	len_mask.assign(256, 0);
+	m1.assign(256, 0);
+	m2.assign(256*256, 0);
 
 	BOOL DefUsed, *pDefUsed = (cp==CP_UTF8 || cp==CP_UTF7) ? nullptr : &DefUsed;
 	DWORD flags = WC_NO_BEST_FIT_CHARS;

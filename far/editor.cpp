@@ -176,7 +176,7 @@ void Editor::FreeAllocatedData(bool FreeUndo)
 	UndoSavePos = UndoPos = UndoData.end();
 	UndoSkipLevel=0;
 	ClearSessionBookmarks();
-	BlockStart = VBlockStart = LastGetLine = FirstLine = LastLine = CurLine = Lines.end();
+	BlockStart = VBlockStart = LastGetLine = FirstLine = LastLine = CurLine = TopScreen = Lines.end();
 	NumLastLine = 0;
 }
 
