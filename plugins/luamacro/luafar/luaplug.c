@@ -119,13 +119,16 @@ static void InitLuaState2(lua_State *L, TPluginData* PluginData)
 	lua_setglobal(L, "_luaplug");
 }
 
-//---------------------------------------------------------------------------
-
 __declspec(dllexport) lua_State* GetLuaState()
 {
 	return IsPluginReady(G) ? G.LS : NULL;
 }
-//---------------------------------------------------------------------------
+
+/* for other C-files of the plugin */
+struct PluginStartupInfo *GetPluginStartupInfo()
+{
+	return &G.Info;
+}
 
 void LUAPLUG GetGlobalInfoW(struct GlobalInfo *globalInfo)
 {
