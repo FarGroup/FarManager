@@ -1299,7 +1299,7 @@ private:
 	Search();
 	virtual void DisplayObject(void) override;
 	virtual string GetTitle() const override { return string(); }
-	void ProcessName(const string& Src,string &strLastName,string &strName);
+	void ProcessName(const string& Src, string &strName);
 	void ShowBorder(void);
 	void Close(void);
 };
@@ -1341,7 +1341,7 @@ int Search::ProcessKey(const Manager::Key& Key)
 {
 	int LocalKey=Key.FarKey;
 	INPUT_RECORD rec=Global->WindowManager->GetLastInputRecord(); //BUGBUG: в будущем использовать Key.Event
-	string strLastName, strName;
+	string strName;
 
 	// для вставки воспользуемся макродвижком...
 	if (LocalKey==KEY_CTRLV || LocalKey==KEY_RCTRLV || LocalKey==KEY_SHIFTINS || LocalKey==KEY_SHIFTNUMPAD0)
@@ -1351,7 +1351,7 @@ int Search::ProcessKey(const Manager::Key& Key)
 		{
 			if (!ClipText.empty())
 			{
-				ProcessName(ClipText,strLastName,strName);
+				ProcessName(ClipText, strName);
 				ShowBorder();
 			}
 		}
@@ -1364,7 +1364,7 @@ int Search::ProcessKey(const Manager::Key& Key)
 		m_FindEdit.Xlat();
 		m_FindEdit.GetString(strTempName);
 		m_FindEdit.SetString(L"");
-		ProcessName(strTempName,strLastName,strName);
+		ProcessName(strTempName, strName);
 		ShowBorder();
 		return TRUE;
 	}
@@ -1374,7 +1374,7 @@ int Search::ProcessKey(const Manager::Key& Key)
 		m_FindEdit.ProcessKey(Manager::Key(LocalKey));
 		m_FindEdit.GetString(strTempName);
 		m_FindEdit.SetString(L"");
-		ProcessName(strTempName,strLastName,strName);
+		ProcessName(strTempName, strName);
 		ShowBorder();
 		return TRUE;
 	}
@@ -1443,6 +1443,7 @@ int Search::ProcessKey(const Manager::Key& Key)
 				return TRUE;
 			}
 
+			string strLastName;
 			m_FindEdit.GetString(strLastName);
 			if (m_FindEdit.ProcessKey(Manager::Key(LocalKey)))
 			{
@@ -1520,37 +1521,17 @@ void Search::DisplayObject(void)
 	m_FindEdit.Show();
 }
 
-void Search::ProcessName(const string& Src,string &strLastName,string &strName)
+void Search::ProcessName(const string& Src, string &strName)
 {
-	wchar_t_ptr Buffer(Src.size() + wcslen(m_FindEdit.GetStringAddr()) + 1);
+	string Buffer = Unquote(m_FindEdit.GetStringAddr() + Src);
 
-	if (Buffer)
+	for (; !Buffer.empty() && !m_Owner->FindPartName(Buffer, FALSE, 1); Buffer.pop_back());
+
+	if (!Buffer.empty())
 	{
-		auto Ptr = Buffer.get();
-		wcscpy(Ptr,m_FindEdit.GetStringAddr());
-		wchar_t *EndPtr = Ptr + wcslen(Ptr);
-		wcscat(Ptr,Src.data());
-		Unquote(EndPtr);
-		EndPtr = Ptr + wcslen(Ptr);
-		for (;;)
-		{
-			if (EndPtr == Ptr)
-			{
-				break;
-			}
-
-			if (m_Owner->FindPartName(Ptr, FALSE, 1))
-			{
-				*EndPtr=0;
-				m_FindEdit.SetString(Ptr);
-				strLastName = Ptr;
-				strName = Ptr;
-				m_FindEdit.Show();
-				break;
-			}
-
-			*--EndPtr=0;
-		}
+		m_FindEdit.SetString(Buffer.data());
+		m_FindEdit.Show();
+		strName = Buffer;
 	}
 }
 

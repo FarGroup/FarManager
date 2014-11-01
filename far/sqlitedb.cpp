@@ -57,104 +57,90 @@ static void GetDatabasePath(const string& FileName, string &strOut, bool Local)
 	}
 }
 
-SQLiteDb::SQLiteStmt::SQLiteStmt():
-	param(1),
-	pStmt(nullptr)
+void SQLiteDb::SQLiteStmt::stmt_deleter::operator()(sqlite::sqlite3_stmt* object) const
 {
-}
-
-SQLiteDb::SQLiteStmt::~SQLiteStmt()
-{
-	Finalize();
-}
-
-bool SQLiteDb::SQLiteStmt::Finalize()
-{
-	if (pStmt)
-		return sqlite::sqlite3_finalize(pStmt) == SQLITE_OK;
-	else
-		return true;
+	sqlite::sqlite3_finalize(object);
 }
 
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::Reset()
 {
-	param=1;
-	sqlite::sqlite3_clear_bindings(pStmt);
-	sqlite::sqlite3_reset(pStmt);
+	m_Param = 1;
+	sqlite::sqlite3_clear_bindings(m_Stmt.get());
+	sqlite::sqlite3_reset(m_Stmt.get());
 	return *this;
 }
 
-bool SQLiteDb::SQLiteStmt::Step()
+bool SQLiteDb::SQLiteStmt::Step() const
 {
-	return sqlite::sqlite3_step(pStmt) == SQLITE_ROW;
+	return sqlite::sqlite3_step(m_Stmt.get()) == SQLITE_ROW;
 }
 
 bool SQLiteDb::SQLiteStmt::StepAndReset()
 {
-	bool b = sqlite::sqlite3_step(pStmt) == SQLITE_DONE;
+	bool b = sqlite::sqlite3_step(m_Stmt.get()) == SQLITE_DONE;
 	Reset();
 	return b;
 }
 
-SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::Bind(int Value)
+SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(int Value)
 {
-	sqlite::sqlite3_bind_int(pStmt,param++,Value);
+	sqlite::sqlite3_bind_int(m_Stmt.get(), m_Param++, Value);
 	return *this;
 }
 
-SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::Bind(__int64 Value)
+SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(__int64 Value)
 {
-	sqlite::sqlite3_bind_int64(pStmt,param++,Value);
+	sqlite::sqlite3_bind_int64(m_Stmt.get(), m_Param++, Value);
 	return *this;
 }
 
-SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::Bind(const string& Value, bool bStatic)
+SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const string& Value, bool bStatic)
 {
 	using sqlite::sqlite3_destructor_type; // for SQLITE_* macros
-	sqlite::sqlite3_bind_text16(pStmt,param++,Value.data(),-1,bStatic? SQLITE_STATIC : SQLITE_TRANSIENT);
+	sqlite::sqlite3_bind_text16(m_Stmt.get(), m_Param++, Value.data(), -1, bStatic ? SQLITE_STATIC : SQLITE_TRANSIENT);
 	return *this;
 }
 
-SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::Bind(const void *Value, size_t Size, bool bStatic)
+SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const blob& Value, bool bStatic)
 {
 	using sqlite::sqlite3_destructor_type; // for SQLITE_* macros
-	sqlite::sqlite3_bind_blob(pStmt, param++, Value, static_cast<int>(Size), bStatic ? SQLITE_STATIC : SQLITE_TRANSIENT);
+	sqlite::sqlite3_bind_blob(m_Stmt.get(), m_Param++, Value.m_Data, static_cast<int>(Value.m_Size), bStatic ? SQLITE_STATIC : SQLITE_TRANSIENT);
 	return *this;
 }
 
-const wchar_t* SQLiteDb::SQLiteStmt::GetColText(int Col)
+const wchar_t* SQLiteDb::SQLiteStmt::GetColText(int Col) const
 {
-	return (const wchar_t *)sqlite::sqlite3_column_text16(pStmt,Col);
+	return (const wchar_t *)sqlite::sqlite3_column_text16(m_Stmt.get(), Col);
 }
 
-const char* SQLiteDb::SQLiteStmt::GetColTextUTF8(int Col)
+const char* SQLiteDb::SQLiteStmt::GetColTextUTF8(int Col) const
 {
-	return (const char *)sqlite::sqlite3_column_text(pStmt,Col);
+	return (const char *)sqlite::sqlite3_column_text(m_Stmt.get(), Col);
 }
 
-int SQLiteDb::SQLiteStmt::GetColBytes(int Col)
+int SQLiteDb::SQLiteStmt::GetColBytes(int Col) const
 {
-	return sqlite::sqlite3_column_bytes(pStmt,Col);
+	return sqlite::sqlite3_column_bytes(m_Stmt.get(), Col);
 }
 
-int SQLiteDb::SQLiteStmt::GetColInt(int Col)
+int SQLiteDb::SQLiteStmt::GetColInt(int Col) const
 {
-	return sqlite::sqlite3_column_int(pStmt,Col);
+	return sqlite::sqlite3_column_int(m_Stmt.get(), Col);
 }
 
-unsigned __int64 SQLiteDb::SQLiteStmt::GetColInt64(int Col)
+unsigned __int64 SQLiteDb::SQLiteStmt::GetColInt64(int Col) const
 {
-	return sqlite::sqlite3_column_int64(pStmt,Col);
+	return sqlite::sqlite3_column_int64(m_Stmt.get(), Col);
 }
 
-const char* SQLiteDb::SQLiteStmt::GetColBlob(int Col)
+const char* SQLiteDb::SQLiteStmt::GetColBlob(int Col) const
 {
-	return (const char *)sqlite::sqlite3_column_blob(pStmt,Col);
+	return (const char *)sqlite::sqlite3_column_blob(m_Stmt.get(), Col);
 }
 
-SQLiteDb::ColumnType SQLiteDb::SQLiteStmt::GetColType(int Col)
+SQLiteDb::ColumnType SQLiteDb::SQLiteStmt::GetColType(int Col) const
 {
-	switch (sqlite::sqlite3_column_type(pStmt,Col))
+	switch (sqlite::sqlite3_column_type(m_Stmt.get(), Col))
 	{
 	case SQLITE_INTEGER:
 		return TYPE_INTEGER;
@@ -169,7 +155,8 @@ SQLiteDb::ColumnType SQLiteDb::SQLiteStmt::GetColType(int Col)
 
 
 SQLiteDb::SQLiteDb():
-	pDb(nullptr), init_status(-1), db_exists(-1)
+	init_status(-1),
+	db_exists(-1)
 {
 }
 
@@ -183,8 +170,33 @@ static bool can_create_file(const string& fname)
 	return api::File().Open(fname, GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS, FILE_FLAG_DELETE_ON_CLOSE);
 }
 
+
+void SQLiteDb::db_closer::operator()(sqlite::sqlite3* Object) const
+{
+	sqlite::sqlite3_close(Object);
+}
+
 bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 {
+	auto v1_opener = [](const string& Name, sqlite::sqlite3*& pDb) -> int
+	{
+		return sqlite::sqlite3_open16(Name.data(), &pDb);
+	};
+
+	auto v2_opener = [&WAL](const string& Name, sqlite::sqlite3*& pDb) -> int
+	{
+		const int flags = WAL? SQLITE_OPEN_READWRITE : SQLITE_OPEN_READONLY;
+		return sqlite::sqlite3_open_v2(Utf8String(Name).data(), &pDb, flags, nullptr);
+	};
+
+	auto OpenDatabase = [](database_ptr& Db, const string& Name, const std::function<int(const string&, sqlite::sqlite3*&)>& opener) -> bool
+	{
+		sqlite::sqlite3* pDb;
+		auto Result = opener(Name, pDb);
+		Db.reset(pDb);
+		return Result == SQLITE_OK;
+	};
+
 	GetDatabasePath(DbFile, strPath, Local);
 	bool mem_db = DbFile == L":memory:";
 
@@ -194,23 +206,24 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 			DWORD attrs = api::GetFileAttributes(strPath);
 			db_exists = (0 == (attrs & FILE_ATTRIBUTE_DIRECTORY)) ? +1 : 0;
 		}
-		bool ret = (SQLITE_OK == sqlite::sqlite3_open16(strPath.data(), &pDb));
+		bool ret = OpenDatabase(m_Db, strPath, v1_opener);
 		if (ret)
-			sqlite::sqlite3_busy_timeout(pDb, 1000);
+			sqlite::sqlite3_busy_timeout(m_Db.get(), 1000);
 		return ret;
 	}
 
 	// copy db to memory
 	//
-	if (SQLITE_OK != sqlite::sqlite3_open16(L":memory:", &pDb))
+	if (OpenDatabase(m_Db, L":memory:", v1_opener))
 		return false;
 
 	bool ok = true, copied = false;
-	sqlite::sqlite3 *db_source = nullptr;
 
 	DWORD attrs = api::GetFileAttributes(strPath);
 	if (0 == (attrs & FILE_ATTRIBUTE_DIRECTORY)) // source exists and not directory
 	{
+		database_ptr db_source;
+
 		if (db_exists < 0)
 			db_exists = +1;
 		UUID Id;
@@ -224,31 +237,27 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 			api::SetFileAttributes(strTmp, attrs & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM));
 			if (ok)
 				strPath = strTmp;
-			ok = ok && (SQLITE_OK == sqlite::sqlite3_open16(strPath.data(), &db_source));
+			ok = ok && OpenDatabase(db_source, strPath, v1_opener);
 		}
 		else
 		{
-			Utf8String name8(strPath);
-			int flags = (WAL ? SQLITE_OPEN_READWRITE : SQLITE_OPEN_READONLY);
-			ok = (SQLITE_OK == sqlite::sqlite3_open_v2(name8.data(), &db_source, flags, nullptr));
+			ok = OpenDatabase(db_source, strPath, v2_opener);
 		}
 		if (ok)
 		{
-			sqlite::sqlite3_busy_timeout(db_source, 1000);
-			sqlite::sqlite3_backup *db_backup = sqlite::sqlite3_backup_init(pDb, "main", db_source, "main");
+			sqlite::sqlite3_busy_timeout(db_source.get(), 1000);
+			auto db_backup = sqlite::sqlite3_backup_init(m_Db.get(), "main", db_source.get(), "main");
 			ok = (nullptr != db_backup);
 			if (ok)
 			{
 				sqlite::sqlite3_backup_step(db_backup, -1);
 				sqlite::sqlite3_backup_finish(db_backup);
-				int rc = sqlite::sqlite3_errcode(pDb);
+				int rc = sqlite::sqlite3_errcode(m_Db.get());
 				ok = (SQLITE_OK == rc);
 			}
 		}
 	}
 
-	if (db_source)
-		sqlite::sqlite3_close(db_source);
 	if (copied)
 		api::DeleteFile(strPath);
 
@@ -291,54 +300,67 @@ int SQLiteDb::InitStatus(string& name, bool full_name)
 	return init_status;
 }
 
-bool SQLiteDb::Exec(const char *Command)
+bool SQLiteDb::Exec(const char *Command) const
 {
-	return sqlite::sqlite3_exec(pDb, Command, nullptr, nullptr, nullptr) == SQLITE_OK;
+	return sqlite::sqlite3_exec(m_Db.get(), Command, nullptr, nullptr, nullptr) == SQLITE_OK;
 }
 
-bool SQLiteDb::BeginTransaction()
+bool SQLiteDb::BeginTransaction() const
 {
 	return Exec("BEGIN TRANSACTION;");
 }
 
-bool SQLiteDb::EndTransaction()
+bool SQLiteDb::EndTransaction() const
 {
 	return Exec("END TRANSACTION;");
 }
 
-bool SQLiteDb::RollbackTransaction()
+bool SQLiteDb::RollbackTransaction() const
 {
 	return Exec("ROLLBACK TRANSACTION;");
 }
 
-bool SQLiteDb::InitStmt(SQLiteStmt &stmtStmt, const wchar_t *Stmt)
+bool SQLiteDb::InitStmt(SQLiteStmt &stmtStmt, const wchar_t *Stmt) const
 {
-	return sqlite::sqlite3_prepare16_v2(pDb, Stmt, -1, &stmtStmt.pStmt, nullptr) == SQLITE_OK;
+	sqlite::sqlite3_stmt* pStmt;
+	if (sqlite::sqlite3_prepare16_v2(m_Db.get(), Stmt, -1, &pStmt, nullptr) == SQLITE_OK)
+	{
+		stmtStmt = SQLiteStmt(pStmt);
+		return true;
+	}
+	return false;
 }
 
-int SQLiteDb::Changes()
+bool SQLiteDb::PrepareStatements(const simple_pair<int, const wchar_t*>* Init, size_t Size)
 {
-	return sqlite::sqlite3_changes(pDb);
+	m_Statements.resize(Size);
+	return std::all_of(Init, Init + Size, [this](const simple_pair<int, const wchar_t*>& i)
+	{
+		return InitStmt(m_Statements[i.first], i.second);
+	});
 }
 
-unsigned __int64 SQLiteDb::LastInsertRowID()
+int SQLiteDb::Changes() const
 {
-	return sqlite::sqlite3_last_insert_rowid(pDb);
+	return sqlite::sqlite3_changes(m_Db.get());
 }
 
-bool SQLiteDb::Close()
+unsigned __int64 SQLiteDb::LastInsertRowID() const
 {
-	bool Result = sqlite::sqlite3_close(pDb) == SQLITE_OK;
-	pDb = nullptr;
-	return Result;
+	return sqlite::sqlite3_last_insert_rowid(m_Db.get());
 }
 
-bool SQLiteDb::SetWALJournalingMode()
+void SQLiteDb::Close()
+{
+	m_Db.reset();
+}
+
+bool SQLiteDb::SetWALJournalingMode() const
 {
 	return Exec("PRAGMA journal_mode = WAL;");
 }
 
-bool SQLiteDb::EnableForeignKeysConstraints()
+bool SQLiteDb::EnableForeignKeysConstraints() const
 {
 	return Exec("PRAGMA foreign_keys = ON;");
 }

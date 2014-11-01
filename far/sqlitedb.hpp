@@ -59,55 +59,119 @@ protected:
 	class SQLiteStmt: NonCopyable
 	{
 	public:
+		SQLiteStmt(){};
+		SQLiteStmt(sqlite::sqlite3_stmt* Stmt): m_Stmt(Stmt), m_Param(1) {}
+		SQLiteStmt(SQLiteStmt&& rhs) { *this = std::move(rhs); };
 
-		SQLiteStmt();
-		~SQLiteStmt();
+		MOVE_OPERATOR_BY_SWAP(SQLiteStmt);
 
-		bool Finalize();
+		void swap(SQLiteStmt& rhs) noexcept
+		{
+			std::swap(m_Param, rhs.m_Param);
+			std::swap(m_Stmt, rhs.m_Stmt);
+		}
+
+		struct blob
+		{
+			blob(const void* Data, size_t Size): m_Data(Data), m_Size(Size) {}
+			const void* const m_Data;
+			const size_t m_Size;
+		};
+
+		template<class T>
+		struct transient_t
+		{
+			transient_t(const T& Value): m_Value(Value) {}
+			const T& m_Value;
+		};
+
+		bool Finalize() const;
 		SQLiteStmt& Reset();
-		bool Step();
+		bool Step() const;
 		bool StepAndReset();
-		SQLiteStmt& Bind(int Value);
-		SQLiteStmt& Bind(unsigned int Value) { return Bind(static_cast<int>(Value)); }
-		SQLiteStmt& Bind(__int64 Value);
-		SQLiteStmt& Bind(unsigned __int64 Value) { return Bind(static_cast<__int64>(Value)); }
-		SQLiteStmt& Bind(const string& Value, bool bStatic = true);
-		SQLiteStmt& Bind(const void *Value, size_t Size, bool bStatic = true);
-		const wchar_t *GetColText(int Col);
-		const char *GetColTextUTF8(int Col);
-		int GetColBytes(int Col);
-		int GetColInt(int Col);
-		unsigned __int64 GetColInt64(int Col);
-		const char *GetColBlob(int Col);
-		ColumnType GetColType(int Col);
+
+		template<typename T>
+		SQLiteStmt& Bind(T&& Arg) { return BindImpl(std::forward<T>(Arg)); }
+
+#if defined _MSC_VER && _MSC_VER < 1800
+		#define BIND_VTE(TYPENAME_LIST, ARG_LIST, REF_ARG_LIST, FWD_ARG_LIST) \
+		template<VTE_TYPENAME(first), TYPENAME_LIST> \
+		SQLiteStmt& Bind(VTE_REF_ARG(first), REF_ARG_LIST) \
+		{ \
+			return Bind(VTE_FWD_ARG(first)), Bind(FWD_ARG_LIST); \
+		}
+
+		#include "common/variadic_emulation_helpers_begin.hpp"
+		VTE_GENERATE(BIND_VTE)
+		#include "common/variadic_emulation_helpers_end.hpp"
+
+		#undef BIND_VTE
+#else
+		template<typename T, class... Args>
+		SQLiteStmt& Bind(T&& arg, Args&&... args)
+		{
+			return Bind(std::forward<T>(arg)), Bind(std::forward<Args>(args)...);
+		}
+#endif
+
+		const wchar_t *GetColText(int Col) const;
+		const char *GetColTextUTF8(int Col) const;
+		int GetColBytes(int Col) const;
+		int GetColInt(int Col) const;
+		unsigned __int64 GetColInt64(int Col) const;
+		const char *GetColBlob(int Col) const;
+		ColumnType GetColType(int Col) const;
 
 	private:
-		friend class SQLiteDb;
+		//friend class SQLiteDb;
 
-		int param;
-		sqlite::sqlite3_stmt* pStmt;
+		SQLiteStmt& BindImpl(int Value);
+		SQLiteStmt& BindImpl(__int64 Value);
+		SQLiteStmt& BindImpl(const string& Value, bool bStatic = true);
+		SQLiteStmt& BindImpl(const blob& Value, bool bStatic = true);
+		SQLiteStmt& BindImpl(unsigned int Value) { return BindImpl(static_cast<int>(Value)); }
+		SQLiteStmt& BindImpl(unsigned __int64 Value) { return BindImpl(static_cast<__int64>(Value)); }
+		template<class T>
+		SQLiteStmt& BindImpl(const transient_t<T>& Value) { return BindImpl(Value.m_Value, false); }
+
+		struct stmt_deleter { void operator()(sqlite::sqlite3_stmt*) const; };
+		std::unique_ptr<sqlite::sqlite3_stmt, stmt_deleter> m_Stmt;
+		int m_Param;
 	};
 
+	typedef SQLiteStmt::blob blob;
+	template<class T>
+	static SQLiteStmt::transient_t<T> transient(const T& Value) { return SQLiteStmt::transient_t<T>(Value); }
+
 	bool Open(const string& DbName, bool Local, bool WAL=false);
-	bool Close();
+	void Close();
 	void Initialize(const string& DbName, bool Local = false);
-	bool InitStmt(SQLiteStmt &stmtStmt, const wchar_t *Stmt);
-	bool Exec(const char *Command);
-	bool BeginTransaction();
-	bool EndTransaction();
-	bool RollbackTransaction();
-	bool SetWALJournalingMode();
-	bool EnableForeignKeysConstraints();
-	int Changes();
-	unsigned __int64 LastInsertRowID();
+	bool InitStmt(SQLiteStmt &stmtStmt, const wchar_t *Stmt) const;
+	template<size_t N>
+	bool PrepareStatements(const simple_pair<int, const wchar_t*>(&Init)[N]) { return PrepareStatements(Init, N); }
+	bool Exec(const char *Command) const;
+	bool SetWALJournalingMode() const;
+	bool EnableForeignKeysConstraints() const;
+	int Changes() const;
+	unsigned __int64 LastInsertRowID() const;
+
+	bool BeginTransaction() const;
+	bool EndTransaction() const;
+	bool RollbackTransaction() const;
 
 	string strPath;
 	string m_Name;
 
+	std::vector<SQLiteStmt> m_Statements;
+
 private:
 	virtual bool InitializeImpl(const string& DbName, bool Local) = 0;
+	bool PrepareStatements(const simple_pair<int, const wchar_t*>* Init, size_t Size);
 
-	sqlite::sqlite3 *pDb;
+	struct db_closer { void operator()(sqlite::sqlite3*) const; };
+	typedef std::unique_ptr<sqlite::sqlite3, db_closer> database_ptr;
+
+	database_ptr m_Db;
 	int init_status;
 	int db_exists;
 };

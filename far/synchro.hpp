@@ -90,7 +90,7 @@ protected:
 	HandleWrapper(): m_Handle() {}
 	virtual ~HandleWrapper() { Close(); }
 
-	void swap(HandleWrapper& rhs)
+	void swap(HandleWrapper& rhs) noexcept
 	{
 		std::swap(m_Handle, rhs.m_Handle);
 		m_Name.swap(rhs.m_Name);
@@ -145,7 +145,7 @@ public:
 
 	MOVE_OPERATOR_BY_SWAP(Thread);
 
-	void swap(Thread& rhs)
+	void swap(Thread& rhs) noexcept
 	{
 		HandleWrapper::swap(rhs);
 		std::swap(m_Mode, rhs.m_Mode);
@@ -225,7 +225,7 @@ public:
 
 	MOVE_OPERATOR_BY_SWAP(Mutex);
 
-	void swap(Mutex& rhs)
+	void swap(Mutex& rhs) noexcept
 	{
 		HandleWrapper::swap(rhs);
 	}
@@ -257,7 +257,7 @@ public:
 
 	MOVE_OPERATOR_BY_SWAP(Event);
 
-	void swap(Event& rhs)
+	void swap(Event& rhs) noexcept
 	{
 		HandleWrapper::swap(rhs);
 	}

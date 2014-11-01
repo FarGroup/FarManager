@@ -76,3 +76,14 @@ public:
 	const ptr_type& operator()(void) const {return ptr;}
 	unique_ptr_with_ondestroy& operator=(ptr_type&& value) noexcept {OnDestroy();ptr=std::move(value);return *this;}
 };
+
+
+struct file_closer
+{
+	void operator()(FILE* Object) const
+	{
+		fclose(Object);
+	}
+};
+
+typedef std::unique_ptr<FILE, file_closer> file_ptr;

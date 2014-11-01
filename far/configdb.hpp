@@ -257,21 +257,21 @@ public:
 	virtual ~HistoryConfig() {}
 
 	//command,view,edit,folder,dialog history
-	virtual bool Enum(DWORD index, DWORD TypeHistory, const string& HistoryName, unsigned __int64 *id, string &strName, history_record_type* Type, bool *Lock, unsigned __int64 *Time, string &strGuid, string &strFile, string &strData, bool Reverse=false) = 0;
+	virtual bool Enum(DWORD index, unsigned int TypeHistory, const string& HistoryName, unsigned __int64 *id, string &strName, history_record_type* Type, bool *Lock, unsigned __int64 *Time, string &strGuid, string &strFile, string &strData, bool Reverse=false) = 0;
 	virtual bool Delete(unsigned __int64 id) = 0;
-	virtual bool DeleteAndAddAsync(unsigned __int64 DeleteId, DWORD TypeHistory, const string& HistoryName, string strName, int Type, bool Lock, string &strGuid, string &strFile, string &strData) = 0;
-	virtual bool DeleteOldUnlocked(DWORD TypeHistory, const string& HistoryName, int DaysToKeep, int MinimumEntries) = 0;
-	virtual bool EnumLargeHistories(DWORD index, int MinimumEntries, DWORD TypeHistory, string &strHistoryName) = 0;
-	virtual bool GetNewest(DWORD TypeHistory, const string& HistoryName, string &strName) = 0;
+	virtual bool DeleteAndAddAsync(unsigned __int64 DeleteId, unsigned int TypeHistory, const string& HistoryName, string strName, int Type, bool Lock, string &strGuid, string &strFile, string &strData) = 0;
+	virtual bool DeleteOldUnlocked(unsigned int TypeHistory, const string& HistoryName, int DaysToKeep, int MinimumEntries) = 0;
+	virtual bool EnumLargeHistories(DWORD index, int MinimumEntries, unsigned int TypeHistory, string &strHistoryName) = 0;
+	virtual bool GetNewest(unsigned int TypeHistory, const string& HistoryName, string &strName) = 0;
 	virtual bool Get(unsigned __int64 id, string &strName) = 0;
 	virtual bool Get(unsigned __int64 id, string &strName, history_record_type* Type, string &strGuid, string &strFile, string &strData) = 0;
-	virtual DWORD Count(DWORD TypeHistory, const string& HistoryName) = 0;
+	virtual DWORD Count(unsigned int TypeHistory, const string& HistoryName) = 0;
 	virtual bool FlipLock(unsigned __int64 id) = 0;
 	virtual bool IsLocked(unsigned __int64 id) = 0;
-	virtual bool DeleteAllUnlocked(DWORD TypeHistory, const string& HistoryName) = 0;
-	virtual unsigned __int64 GetNext(DWORD TypeHistory, const string& HistoryName, unsigned __int64 id, string &strName) = 0;
-	virtual unsigned __int64 GetPrev(DWORD TypeHistory, const string& HistoryName, unsigned __int64 id, string &strName) = 0;
-	virtual unsigned __int64 CyclicGetPrev(DWORD TypeHistory, const string& HistoryName, unsigned __int64 id, string &strName) = 0;
+	virtual bool DeleteAllUnlocked(unsigned int TypeHistory, const string& HistoryName) = 0;
+	virtual unsigned __int64 GetNext(unsigned int TypeHistory, const string& HistoryName, unsigned __int64 id, string &strName) = 0;
+	virtual unsigned __int64 GetPrev(unsigned int TypeHistory, const string& HistoryName, unsigned __int64 id, string &strName) = 0;
+	virtual unsigned __int64 CyclicGetPrev(unsigned int TypeHistory, const string& HistoryName, unsigned __int64 id, string &strName) = 0;
 
 	//view,edit file positions and bookmarks history
 	virtual unsigned __int64 SetEditorPos(const string& Name, int Line, int LinePos, int ScreenLine, int LeftPos, uintptr_t CodePage) = 0;

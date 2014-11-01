@@ -594,8 +594,7 @@ void Unquote(wchar_t *Str)
 
 string& Unquote(string &strStr)
 {
-	auto new_end = std::remove(ALL_RANGE(strStr), L'"');
-	strStr.resize(new_end - strStr.begin());
+	strStr.resize(std::remove(ALL_RANGE(strStr), L'"') - strStr.begin());
 	return strStr;
 }
 
