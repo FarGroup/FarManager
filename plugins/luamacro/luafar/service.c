@@ -228,8 +228,6 @@ static UINT64 get_env_flag(lua_State *L, int pos, int *success)
 			if(success)
 				*success = FALSE;
 		}
-		else if(success)
-			*success = FALSE;
 
 		lua_pop(L, 2);
 		//-------------------------------------------------------------------------
@@ -239,8 +237,6 @@ static UINT64 get_env_flag(lua_State *L, int pos, int *success)
 		if(success)
 			*success = FALSE;
 	}
-	else if(success)
-		*success = FALSE;
 
 	return ret;
 }

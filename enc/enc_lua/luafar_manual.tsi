@@ -234,13 +234,13 @@ lv=3
 dt=Text
 nm=GetLuaState
 ctime=3624032286
-mtime=3624032685
+mtime=3624038104
 <article>
 #_<markdown>
 #_
 #_`lua_State* GetLuaState()`
 #_
-#_Returns the currently active `lua_State` of the plugin.
+#_Returns the current main `lua_State` of the plugin.
 #_
 #_Do not store the returned value for further use, as it may be invalidated by [recreation][1]. Instead, call this function again whenever needed.
 #_
