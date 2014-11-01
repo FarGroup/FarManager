@@ -141,7 +141,7 @@ id=214
 lv=1
 dt=Text
 nm=Generic LuaFAR plugin
-mtime=3612529667
+mtime=3624032846
 <article>
 #_<markdown>
 #_
@@ -149,7 +149,8 @@ mtime=3612529667
 #_
 #_- [Customizing the generic plugin](494.html)
 #_- [Recreation of the Lua virtual machine](495.html)
-#_- [Extra exported function: `luaopen_luaplug`](496.html)
+#_- [Extra exported functions](500.html)
+#_- [Other functions](502.html)
 #_
 </article>
 </node>
@@ -218,10 +219,40 @@ mtime=3612529005
 </article>
 </node>
 <node>
-id=496
+id=500
 lv=2
 dt=Text
-nm=Extra exported function: luaopen_luaplug
+nm=Extra exported functions
+ctime=3624032175
+mtime=3624032175
+<article>
+</article>
+</node>
+<node>
+id=501
+lv=3
+dt=Text
+nm=GetLuaState
+ctime=3624032286
+mtime=3624032685
+<article>
+#_<markdown>
+#_
+#_`lua_State* GetLuaState()`
+#_
+#_Returns the currently active `lua_State` of the plugin.
+#_
+#_Do not store the returned value for further use, as it may be invalidated by [recreation][1]. Instead, call this function again whenever needed.
+#_
+#_[1]: 495.html
+#_
+</article>
+</node>
+<node>
+id=496
+lv=3
+dt=Text
+nm=luaopen_luaplug
 ctime=3612528187
 mtime=3612535539
 <article>
@@ -246,6 +277,34 @@ mtime=3612535539
 #_
 #_**Note:**<br>
 #_After replacing the standard Lua 5.1 DLL with one from LuaJIT 2.0, this example has stopped working. The issue is investigated.
+#_
+</article>
+</node>
+<node>
+id=502
+lv=2
+dt=Text
+nm=Other functions
+ctime=3624032810
+mtime=3624032810
+<article>
+</article>
+</node>
+<node>
+id=503
+lv=3
+dt=Text
+nm=GetPluginStartupInfo
+ctime=3624032892
+mtime=3624033776
+<article>
+#_<markdown>
+#_
+#_`struct PluginStartupInfo* GetPluginStartupInfo()`
+#_
+#_This helper function is needed when the plugin consists of more than one C-file. It gives access to Far API functions to files other than `luaplug.c`.
+#_
+#_(The same could be achieved by making the struct accessible, but it is not.)
 #_
 </article>
 </node>

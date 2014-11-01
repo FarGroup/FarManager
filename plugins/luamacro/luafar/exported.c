@@ -1465,11 +1465,13 @@ int LF_GetGlobalInfo(lua_State* L, struct GlobalInfo *Info, const wchar_t *Plugi
 	}
 	else
 	{
-		wchar_t buf[512];
+		int ret;
+		wchar_t *buf = (wchar_t*) malloc((wcslen(PluginDir)+64) * sizeof(wchar_t));
 		wcscpy(buf, PluginDir);
 		wcscat(buf, L"_globalinfo.lua");
-
-		if(LF_LoadFile(L, buf))
+		ret = LF_LoadFile(L, buf);
+		free(buf);
+		if (ret)
 		{
 			lua_settop(L, cpos);
 			return FALSE;

@@ -30,7 +30,6 @@ typedef struct
 	struct FarStandardFunctions FSF;
 	GUID PluginId;
 	TPluginData PluginData;
-	wchar_t PluginName[512];
 	wchar_t PluginDir[512];
 	int Init1_Done; // Ensure initializations are done only once
 	int Init2_Done; // *
@@ -64,16 +63,18 @@ static intptr_t WINAPI DlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void 
 
 static void InitGlobal (Global *g, HINSTANCE hDll)
 {
+	size_t PluginDirSize = sizeof(g->PluginDir) / sizeof(g->PluginDir[0]);
+	size_t RetSize = GetModuleFileNameW(hDll, g->PluginDir, PluginDirSize);
 	TPluginData PD = { &g->Info,&g->FSF,&g->PluginId,DlgProc,0,NULL,NULL,NULL,laction,SIG_DFL };
 	g->PluginData = PD;
 	g->Init1_Done = 0;
 	g->Init2_Done = 0;
 	g->Depth = 0;
-	if ((g->LS = luaL_newstate()) != NULL)
+	g->LS = NULL;
+	if (RetSize && RetSize < PluginDirSize)
 	{
-		GetModuleFileNameW(hDll, g->PluginName, sizeof(g->PluginName)/sizeof(g->PluginName[0]));
-		wcscpy(g->PluginDir, g->PluginName);
 		wcsrchr(g->PluginDir, L'\\')[1] = 0;
+		g->LS = luaL_newstate();
 	}
 	InitializeCriticalSection(&g->FindFileSection);
 }
