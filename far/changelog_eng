@@ -3,6 +3,48 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 02.11.2014 13:15:16 +0200 - build 4169
+
+1. More corrections of 4167.
+
+drkns 02.11.2014 11:38:28 +0200 - build 4168
+
+1. Correction of 4167.
+
+drkns 02.11.2014 00:53:53 +0200 - build 4167
+
+1. Refactoring.
+
+drkns 02.11.2014 00:38:57 +0200 - build 4166
+
+1. Correction of 4164.2.
+
+svs 30.10.2014 09:39:35 +0300 - build 4165
+
+1. SQLite 3.8.7.1
+
+drkns 29.10.2014 21:40:58 +0200 - build 4164
+
+1. Do not crash if there is not enough memory to open a file in editor.
+
+2. A couple of minor issues.
+
+w17 29.10.2014 18:50:54 +0300 - build 4163
+
+1. Show the number of the codepage in editor transcoding problems warning.
+
+w17 28.10.2014 16:39:44 +0300 - build 4162
+
+1. FFILEEDIT_CODEPAGECHANGEDBYUSER/editor, CodePageChangedByUser/viewer are commented out.
+
+w17 28.10.2014 10:06:51 +0300 - build 4161
+
+1. Continuing 4150.
+
+w17 27.10.2014 12:45:51 +0300 - build 4160
+
+1. Continuing 4150.
+
 zg 26.10.2014 16:39:00 +0200 - build 4159
 
 1. removed original method of redrawing a window by sending it 'gotfocus'.
