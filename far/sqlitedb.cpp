@@ -178,15 +178,14 @@ void SQLiteDb::db_closer::operator()(sqlite::sqlite3* Object) const
 
 bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 {
-	auto v1_opener = [](const string& Name, sqlite::sqlite3*& pDb) -> int
+	auto v1_opener = [](const string& Name, sqlite::sqlite3*& pDb)
 	{
 		return sqlite::sqlite3_open16(Name.data(), &pDb);
 	};
 
-	auto v2_opener = [&WAL](const string& Name, sqlite::sqlite3*& pDb) -> int
+	auto v2_opener = [&WAL](const string& Name, sqlite::sqlite3*& pDb)
 	{
-		const int flags = WAL? SQLITE_OPEN_READWRITE : SQLITE_OPEN_READONLY;
-		return sqlite::sqlite3_open_v2(Utf8String(Name).data(), &pDb, flags, nullptr);
+		return sqlite::sqlite3_open_v2(Utf8String(Name).data(), &pDb, WAL? SQLITE_OPEN_READWRITE : SQLITE_OPEN_READONLY, nullptr);
 	};
 
 	auto OpenDatabase = [](database_ptr& Db, const string& Name, const std::function<int(const string&, sqlite::sqlite3*&)>& opener) -> bool
@@ -352,6 +351,9 @@ unsigned __int64 SQLiteDb::LastInsertRowID() const
 
 void SQLiteDb::Close()
 {
+	// sqlite3_close() returns SQLITE_BUSY and leaves the connection option
+	// if there are unfinalized prepared statements or unfinished sqlite3_backups
+	m_Statements.clear();
 	m_Db.reset();
 }
 

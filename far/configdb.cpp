@@ -2348,16 +2348,15 @@ void Database::TryImportDatabase(XmlConfig *p, const char *son, bool plugin)
 		{
 			m_TemplateLoadState = 0;
 			string def_config = Global->Opt->TemplateProfilePath;
-			FILE* XmlFile = _wfopen(NTPath(def_config).data(), L"rb");
+			file_ptr XmlFile(_wfopen(NTPath(def_config).data(), L"rb"));
 			if (XmlFile)
 			{
 				m_TemplateDoc = std::make_unique<tinyxml::TiXmlDocument>();
-				if (m_TemplateDoc->LoadFile(XmlFile))
+				if (m_TemplateDoc->LoadFile(XmlFile.get()))
 				{
 					if (nullptr != (m_TemplateRoot = m_TemplateDoc->FirstChildElement("farconfig")))
 						m_TemplateLoadState = +1;
 				}
-				fclose(XmlFile);
 			}
 		}
 
