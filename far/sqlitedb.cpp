@@ -214,7 +214,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 
 	// copy db to memory
 	//
-	if (OpenDatabase(m_Db, L":memory:", v1_opener))
+	if (!OpenDatabase(m_Db, L":memory:", v1_opener))
 		return false;
 
 	bool ok = true, copied = false;
