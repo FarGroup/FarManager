@@ -223,7 +223,7 @@ static UINT64 get_env_flag(lua_State *L, int pos, int *success)
 
 		if(type == LUA_TNUMBER)
 			ret = (__int64)lua_tonumber(L, -1); // IMPORTANT: cast to signed integer.
-		else if(!bit64_getvalue(L, pos, &ret))
+		else if(!bit64_getvalue(L, -1, &ret))
 		{
 			if(success)
 				*success = FALSE;
