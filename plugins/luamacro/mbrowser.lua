@@ -26,6 +26,11 @@ local areaArr = {
 -- O S V E D S D M M H I Q T F U S D C
 --   1     2 1 2 3 3             1 2
 
+local function norm_utf8 (s)
+  local valid, len = s:utf8valid()
+  return valid and s or s:sub(1,len)
+end
+
 local function GetItems (fcomp, sortmark, onlyactive)
   local currArea = areaArr[1+far.MacroGetArea()]
   local events,macros,items={},{},{}
@@ -48,7 +53,8 @@ local function GetItems (fcomp, sortmark, onlyactive)
             s=s..(ars[v] and areaCodes[v] or ".")
           end
           m.codedArea=s
-          m.description=m.description or "id="..m.id
+          m.description=m.description and norm_utf8(m.description) or "id="..m.id
+          m.key=norm_utf8(m.key)
           macros[#macros+1]=m
           local keylen = m.key:len()
           m.codedKey = keylen<=maxKeyW and m.key or m.key:sub(1,maxKeyW-3).."..."
