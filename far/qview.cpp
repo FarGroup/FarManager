@@ -432,7 +432,7 @@ void QuickView::ShowFile(const string& FileName, bool TempFile, PluginHandle* hD
 	}
 
 	string FileFullName = FileName;
-	ConvertNameToFull(FileFullName, FileFullName);
+	if (!hDirPlugin) ConvertNameToFull(FileFullName, FileFullName);
 
 	bool SameFile = strCurFileName == FileFullName;
 	strCurFileName = FileFullName;
