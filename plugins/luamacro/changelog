@@ -1,4 +1,8 @@
-﻿shmuel 04.11.2014 23:09:39 +0200 - build 446
+﻿shmuel 05.11.2014 12:25:16 +0200 - build 447
+
+1. Ещё раз M#2726.
+
+shmuel 04.11.2014 23:09:39 +0200 - build 446
 
 1. M#2726: mbrowser.lua:73: bad argument #3 to 'format' (invalid multibyte string).
 

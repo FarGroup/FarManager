@@ -28,7 +28,7 @@ local areaArr = {
 
 local function norm_utf8 (s)
   local valid, len = s:utf8valid()
-  return valid and s or s:sub(1,len)
+  return valid and s or "<Invalid UTF-8>"..s:sub(1,len)
 end
 
 local function GetItems (fcomp, sortmark, onlyactive)
@@ -62,7 +62,7 @@ local function GetItems (fcomp, sortmark, onlyactive)
         end
       end
     else
-      m.description=m.description or "id="..m.id
+      m.description=m.description and norm_utf8(m.description) or "id="..m.id
       events[#events+1]=m
     end
   end
