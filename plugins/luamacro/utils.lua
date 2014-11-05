@@ -613,7 +613,7 @@ local function LoadMacros (unload, paths)
       AddMacro_filename = FullPath
       local ok, msg = pcall(f, FullPath)
       if ok then
-        env.Macro,env.Event,env.NoMacro,env.NoEvent = nil,nil,nil,nil
+        env.Macro, env.Event, env.NoMacro, env.NoEvent, env.MenuItem, env.NoMenuItem = nil
       else
         numerrors=numerrors+1
         ErrMsgLoad(msg,FullPath,isMoonScript,"run")
