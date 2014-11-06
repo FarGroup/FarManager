@@ -3520,13 +3520,21 @@ enum
  DM_OPENVIEWER = DM_USER+33,
 };
 
+
+struct file_names_for_overwrite_dialog
+{
+	const string* Src;
+	string* Dest;
+	string* DestPath;
+};
+
 intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	switch (Msg)
 	{
 		case DM_OPENVIEWER:
 		{
-			string** WFN=reinterpret_cast<string**>(Dlg->SendMessage(DM_GETDLGDATA,0,0));
+			auto WFN = reinterpret_cast<file_names_for_overwrite_dialog*>(Dlg->SendMessage(DM_GETDLGDATA, 0, 0));
 
 			if (WFN)
 			{
@@ -3534,17 +3542,17 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 				switch (Param1)
 				{
 					case WDLG_SRCFILEBTN:
-						ViewName=WFN[0]->data();
+						ViewName=WFN->Src->data();
 						break;
 					case WDLG_DSTFILEBTN:
-						ViewName=WFN[1]->data();
+						ViewName=WFN->Dest->data();
 						break;
 				}
 
 				NamesList List;
-				List.AddName(*WFN[0]);
-				List.AddName(*WFN[1]);
-				List.SetCurName(Param1 == WDLG_SRCFILEBTN? *WFN[0] : *WFN[1]);
+				List.AddName(*WFN->Src);
+				List.AddName(*WFN->Dest);
+				List.SetCurName(*(Param1 == WDLG_SRCFILEBTN? WFN->Src : WFN->Dest));
 
 				auto Viewer = FileViewer::create(ViewName, FALSE, FALSE, TRUE, -1, nullptr, &List, false);
 				Global->WindowManager->ExecuteModal(Viewer);
@@ -3573,20 +3581,20 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 					break;
 				case WDLG_RENAME:
 				{
-					string** WFN=reinterpret_cast<string**>(Dlg->SendMessage(DM_GETDLGDATA,0,0));
-					string strDestName=*WFN[1];
-					GenerateName(strDestName,WFN[2]->data());
+					auto WFN = reinterpret_cast<file_names_for_overwrite_dialog*>(Dlg->SendMessage(DM_GETDLGDATA, 0, 0));
+					string strDestName = *WFN->Dest;
+					GenerateName(strDestName, WFN->DestPath->data());
 
 					if (Dlg->SendMessage(DM_GETCHECK,WDLG_CHECKBOX,0)==BSTATE_UNCHECKED)
 					{
 						int All=BSTATE_UNCHECKED;
 
-						if (GetString(MSG(MCopyRenameTitle),MSG(MCopyRenameText),nullptr,strDestName.data(),*WFN[1],L"CopyAskOverwrite",FIB_BUTTONS|FIB_NOAMPERSAND|FIB_EXPANDENV|FIB_CHECKBOX,&All,MSG(MCopyRememberChoice)))
+						if (GetString(MSG(MCopyRenameTitle),MSG(MCopyRenameText),nullptr,strDestName.data(), *WFN->Dest,L"CopyAskOverwrite",FIB_BUTTONS|FIB_NOAMPERSAND|FIB_EXPANDENV|FIB_CHECKBOX,&All,MSG(MCopyRememberChoice)))
 						{
 							if (All!=BSTATE_UNCHECKED)
 							{
-								*WFN[2]=*WFN[1];
-								CutToSlash(*WFN[2]);
+								*WFN->DestPath = *WFN->Dest;
+								CutToSlash(*WFN->DestPath);
 							}
 
 							Dlg->SendMessage(DM_SETCHECK,WDLG_CHECKBOX,ToPtr(All));
@@ -3598,7 +3606,7 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 					}
 					else
 					{
-						*WFN[1]=strDestName;
+						*WFN->Dest=strDestName;
 					}
 				}
 				break;
@@ -3674,9 +3682,10 @@ int ShellCopy::AskOverwrite(const api::FAR_FIND_DATA &SrcData,
 	if (DestAttr & FILE_ATTRIBUTE_DIRECTORY)
 		return TRUE;
 
+	string strDestName = DestName;
+
 	{
 		int MsgCode = OvrMode;
-		string strDestName = DestName;
 
 		if (OvrMode == -1)
 		{
@@ -3731,7 +3740,7 @@ int ShellCopy::AskOverwrite(const api::FAR_FIND_DATA &SrcData,
 					auto WarnCopyDlg = MakeDialogItemsEx(WarnCopyDlgData);
 					string strFullSrcName;
 					ConvertNameToFull(SrcName, strFullSrcName);
-					string *WFN [] = { &strFullSrcName, &strDestName, &strRenamedFilesPath };
+					file_names_for_overwrite_dialog WFN = { &strFullSrcName, &strDestName, &strRenamedFilesPath };
 					auto WarnDlg = Dialog::create(WarnCopyDlg, &ShellCopy::WarnDlgProc, &WFN);
 					WarnDlg->SetDialogMode(DMODE_WARNINGSTYLE);
 					WarnDlg->SetPosition(-1, -1, WARN_DLG_WIDTH, WARN_DLG_HEIGHT);
@@ -3837,7 +3846,7 @@ int ShellCopy::AskOverwrite(const api::FAR_FIND_DATA &SrcData,
 					auto WarnCopyDlg = MakeDialogItemsEx(WarnCopyDlgData);
 					string strSrcName;
 					ConvertNameToFull(SrcData.strFileName,strSrcName);
-					LPCWSTR WFN[2]={strSrcName.data(),DestName.data()};
+					file_names_for_overwrite_dialog WFN[] = { &strSrcName, &strDestName };
 					auto WarnDlg = Dialog::create(WarnCopyDlg, &ShellCopy::WarnDlgProc, &WFN);
 					WarnDlg->SetDialogMode(DMODE_WARNINGSTYLE);
 					WarnDlg->SetPosition(-1,-1,WARN_DLG_WIDTH,WARN_DLG_HEIGHT);
