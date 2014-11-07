@@ -664,7 +664,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 				Items[I].strData=Brackets[Start]+Items[I].strData+Brackets[Start+1];
 			}
 		}
-		// предварительный поик фокуса
+		// предварительный поиск фокуса
 		if (m_FocusPos == (size_t)-1 &&
 		        CanGetFocus(Type) &&
 		        (Items[I].Flags&DIF_FOCUS) &&
@@ -706,7 +706,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 
 	if (m_FocusPos == (size_t)-1) // ну ни хрена себе - нет ни одного
 	{                  //   элемента с возможностью фокуса
-		m_FocusPos=0;     // убится, блин
+		m_FocusPos=0;     // убиться, блин
 	}
 
 	// ну вот и добрались до!
@@ -753,7 +753,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 					ListPtr->SetTitle(Items[I].strData);
 				}
 
-				// удалим все итемы
+				// удалим все элементы
 				//ListBox->DeleteItems(); //???? А НАДО ЛИ ????
 				if (Items[I].ListItems && !DialogMode.Check(DMODE_OBJECTS_CREATED))
 				{
@@ -833,7 +833,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 			if (Items[I].Type==DI_PSWEDIT)
 			{
 				DialogEdit->SetPasswordMode(true);
-				// ...Что бы небыло повадно... и для повыщения защиты, т.с.
+				// ...Что бы не было повадно... и для повыщения защиты, т.с.
 				ItemFlags&=~DIF_HISTORY;
 			}
 
@@ -844,7 +844,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 					ItemFlags&=~DIF_MASKEDIT;
 
 				// если DI_FIXEDIT, то курсор сразу ставится на замену...
-				//   ай-ай - было недокументированно :-)
+				//   ай-ай - было недокументировано :-)
 				DialogEdit->SetMaxLength(Items[I].X2-Items[I].X1+1);
 				DialogEdit->SetOvertypeMode(true);
 				/* $ 12.08.2000 KM
@@ -886,7 +886,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 
 			/* $ 01.08.2000 SVS
 			   Еже ли стоит флаг DIF_USELASTHISTORY и непустая строка ввода,
-			   то подстанавливаем первое значение из History
+			   то подставляем первое значение из History
 			*/
 			if (Items[I].Type==DI_EDIT &&
 			        (ItemFlags&(DIF_HISTORY|DIF_USELASTHISTORY)) == (DIF_HISTORY|DIF_USELASTHISTORY))
@@ -1021,7 +1021,7 @@ void Dialog::ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex)
 }
 
 
-//   Изменение координат и/или размеров итема диалога.
+//   Изменение координат и/или размеров элемента диалога.
 bool Dialog::SetItemRect(size_t ID, const SMALL_RECT& Rect)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
@@ -2023,7 +2023,7 @@ void Dialog::ShowDialog(size_t ID)
 					}
 				}
 
-				break; //уже наприсовали :-)))
+				break; //уже нарисовали :-)))
 				/* ***************************************************************** */
 				//.........
 		} // end switch(...
@@ -2055,7 +2055,7 @@ void Dialog::ShowDialog(size_t ID)
 		{
 			/*
 			- BugZ#813 - DM_RESIZEDIALOG в DN_DRAWDIALOG -> проблема: Ctrl-F5 - отрисовка только полозьев.
-			Убираем вызов плагиновго обработчика.
+			Убираем вызов плагинового обработчика.
 			*/
 			//DlgProc(this,DN_DRAWDIALOGDONE,1,0);
 			DefProc(DN_DRAWDIALOGDONE, 1, 0);
@@ -2092,7 +2092,7 @@ int Dialog::ProcessMoveDialog(DWORD Key)
 		//       Т.е., если нажали End, то при следующем End ненужно ничего делать! - сравнить координаты !!!
 		int rr=1;
 
-		//   При перемещении диалога повторяем поведение "бормандовых" сред.
+		//   При перемещении диалога повторяем поведение "борландовых" сред.
 		switch (Key)
 		{
 			case KEY_CTRLLEFT:  case KEY_CTRLNUMPAD4:
@@ -4087,7 +4087,7 @@ BOOL Dialog::SelectFromEditHistory(const DialogItemEx *CurItem,
 		ret = DlgHist->Select(*HistoryMenu, Global->Opt->Dialogs.CBoxMaxHeight, this, strStr);
 		SetDropDownOpened(FALSE); // Установим флаг "открытия" комбобокса.
 		DlgProc(DN_DROPDOWNOPENED, m_FocusPos, (void*)0);
-		// забудим (не нужен)
+		// забудем (не нужен)
 //		CurItem->ListPtr=nullptr;
 //		SetDropDownOpened(FALSE); // Установим флаг "закрытия" комбобокса.
 	}
@@ -4217,7 +4217,7 @@ int Dialog::ProcessHighlighting(int Key,size_t FocusPos,int Translate)
 					}
 				}
 
-				// Сообщим о случивщемся факте процедуре обработки диалога
+				// Сообщим о случившемся факте процедуре обработки диалога
 				if (!DlgProc(DN_HOTKEY,I,&rec))
 					break; // сказали не продолжать обработку...
 
@@ -4303,7 +4303,7 @@ void Dialog::SetDialogData(void* NewDataDialog)
 
 //////////////////////////////////////////////////////////////////////////
 /* $ 29.06.2007 yjh\
-   При рассчётах времён копирования проще/надёжнее учитывать время ожидания
+   При расчётах времён копирования проще/надёжнее учитывать время ожидания
    пользовательских ответов в одном месте (здесь).
    Сброс этой переменной должен осуществляться перед общим началом операции
 */
@@ -5813,7 +5813,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 					case DI_RADIOBUTTON:
 					case DI_PSWEDIT:
 					case DI_FIXEDIT:
-					case DI_LISTBOX: // меняет только текущий итем
+					case DI_LISTBOX: // меняет только текущий элемент
 						CurItem->strData = did->PtrData;
 						Len = CurItem->strData.size();
 						break;
@@ -5868,7 +5868,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 							}
 							EditLine->SetReadOnly(ReadOnly);
 
-							if (DialogMode.Check(DMODE_OBJECTS_INITED)) // не меняем клеар-флаг, пока не проиницализировались
+							if (DialogMode.Check(DMODE_OBJECTS_INITED)) // не меняем clear-флаг, пока не проиницализировались
 								EditLine->SetClearFlag(0);
 
 							EditLine->Select(-1,0); // снимаем выделение
@@ -5876,7 +5876,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						}
 
 						break;
-					case DI_LISTBOX: // меняет только текущий итем
+					case DI_LISTBOX: // меняет только текущий элемент
 					{
 						auto& ListBox = CurItem->ListPtr;
 

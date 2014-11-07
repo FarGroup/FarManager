@@ -342,7 +342,7 @@ bool FileFilterParams::FileInFilter(const api::FAR_FIND_DATA& fde, unsigned __in
 	if (FMask.Used)
 	{
 		// ЭТО ЕСТЬ УЗКОЕ МЕСТО ДЛЯ СКОРОСТНЫХ ХАРАКТЕРИСТИК Far Manager
-		// при считывании дирректории
+		// при считывании директории
 
 		// Файл не попадает под маску введённую в фильтре?
 		if (!FMask.FilterMask.Compare(fde.strFileName))
@@ -988,7 +988,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	FilterDlg[ID_FF_MATCHSIZE].Selected = FF->IsSizeUsed();
 	FilterDlg[ID_FF_SIZEFROMEDIT].strData = FF->GetSizeAbove();
 	FilterDlg[ID_FF_SIZETOEDIT].strData = FF->GetSizeBelow();
-	FilterDlg[ID_FF_HARDLINKS].Selected=FF->GetHardLinks(nullptr,nullptr)?1:0; //пока что мы проверям только флаг использования данного условия
+	FilterDlg[ID_FF_HARDLINKS].Selected=FF->GetHardLinks(nullptr,nullptr)?1:0; //пока что мы проверяем только флаг использования данного условия
 
 	if (!FilterDlg[ID_FF_MATCHSIZE].Selected)
 		for (int i=ID_FF_SIZEFROMSIGN; i <= ID_FF_SIZETOEDIT; i++)

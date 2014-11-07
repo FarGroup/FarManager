@@ -498,7 +498,7 @@ void codepages::SetFavorite(bool State)
 		// Получаем текущее состояние флага в реестре
 		long long selectType = GetFavorite(codePage);
 
-		// Удаляем/добавляем в ресестре информацию о выбранной кодовой странице
+		// Удаляем/добавляем в реестре информацию о выбранной кодовой странице
 		if (State)
 			SetFavorite(codePage, CPST_FAVORITE | (selectType & CPST_FIND ? CPST_FIND : 0));
 		else if (selectType & CPST_FIND)
@@ -532,7 +532,7 @@ void codepages::SetFavorite(bool State)
 			// Добавляем кодовою страницу в выбранные
 			CodePagesMenu->AddItem(newItem, newPosition);
 
-			// Удаляем разделитель, если нет обыкновынных кодовых страниц
+			// Удаляем разделитель, если нет обыкновенных кодовых страниц
 			if (normalCodePages==1)
 				CodePagesMenu->DeleteItem(CodePagesMenu->GetItemCount()-1);
 
@@ -543,7 +543,7 @@ void codepages::SetFavorite(bool State)
 		}
 		else
 		{
-			// Удаляем разделитеь, если после удаления не останнется ни одной
+			// Удаляем разделитель, если после удаления не останется ни одной
 			// выбранной таблицы символов
 			if (favoriteCodePages==1 && normalCodePages>0)
 				CodePagesMenu->DeleteItem(CodePagesMenu->GetItemCount()-normalCodePages-2);
@@ -608,7 +608,7 @@ void codepages::FillCodePagesVMenu(bool bShowUnicode, bool bViewOnly, bool bShow
 		| (bViewOnly ? ::VOnly : 0)
 		| (bShowAutoDetect ? ::AutoCP : 0)
 	);
-	// Восстанавливаем оригинальню таблицу символов
+	// Восстанавливаем оригинальную таблицу символов
 	currentCodePage = codePage;
 	// Позиционируем меню
 	CodePagesMenu->SetPosition(-1, -1, 0, 0);
@@ -793,7 +793,7 @@ void codepages::FillCodePagesList(std::vector<DialogBuilderListItem2> &List, boo
 	DialogBuilderList = &List;
 	favoriteCodePages = normalCodePages = 0;
 	selectedCodePages = !allowAuto && allowAll;
-	// Добавляем стндартные элементы в список
+	// Добавляем стандартные элементы в список
 	AddCodePages
 	( (allowDefault ? ::DefaultCP : 0)
 	| (allowAuto ? ::AutoCP : 0)
@@ -815,7 +815,7 @@ UINT codepages::FillCodePagesList(Dialog* Dlg, UINT controlId, uintptr_t codePag
 	currentCodePage = codePage;
 	favoriteCodePages = normalCodePages = 0;
 	selectedCodePages = !allowAuto && allowAll;
-	// Добавляем стндартные элементы в список
+	// Добавляем стандартные элементы в список
 	AddCodePages
 		( (allowDefault ? ::DefaultCP : 0)
 		| (allowAuto ? ::AutoCP : 0)

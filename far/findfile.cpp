@@ -390,7 +390,7 @@ void FindFiles::InitInFileSearch()
 			else
 				findString = strFindStr.data();
 
-			// Инизиализируем данные для алгоритма поиска
+			// Инициализируем данные для алгоритма поиска
 			skipCharsTable.assign(std::numeric_limits<wchar_t>::max() + 1, findStringCount);
 
 			for (size_t index = 0; index < findStringCount-1; index++)
@@ -474,7 +474,7 @@ void FindFiles::InitInFileSearch()
 				}
 			}
 
-			// Инизиализируем данные для аглоритма поиска
+			// Инициализируем данные для аглоритма поиска
 			skipCharsTable.assign(std::numeric_limits<unsigned char>::max() + 1, hexFindStringSize);
 
 			for (size_t index = 0; index < hexFindStringSize-1; index++)
@@ -696,7 +696,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			favoriteCodePages = Codepages().FillCodePagesList(Dlg, FAD_COMBOBOX_CP, CodePage, true, true, false, false);
 			SetAllCpTitle();
 
-			// Текущее значение в в списке выбора кодовых страниц в общем случае модет не совпадать с CodePage,
+			// Текущее значение в в списке выбора кодовых страниц в общем случае может не совпадать с CodePage,
 			// так что получаем CodePage из списка выбора
 			FarListPos Position={sizeof(FarListPos)};
 			Dlg->SendMessage( DM_LISTGETCURPOS, FAD_COMBOBOX_CP, &Position);
@@ -827,7 +827,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 							// Получаем текущую позицию в выпадающем списке таблиц символов
 							FarListPos Position={sizeof(FarListPos)};
 							Dlg->SendMessage( DM_LISTGETCURPOS, FAD_COMBOBOX_CP, &Position);
-							// Получаем номер выбранной таблицы симолов
+							// Получаем номер выбранной таблицы символов
 							FarListGetItem Item = { sizeof(FarListGetItem), Position.SelectPos };
 							Dlg->SendMessage( DM_LISTGETITEM, FAD_COMBOBOX_CP, &Item);
 							uintptr_t SelectedCodePage = *(uintptr_t*)Dlg->SendMessage( DM_LISTGETDATA, FAD_COMBOBOX_CP, ToPtr(Position.SelectPos));
@@ -842,7 +842,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 								// Отмечаем/разотмечаем таблицу символов
 								if (Item.Item.Flags & LIF_CHECKED)
 								{
-									// Для стандартных таблиц символов просто удаляем значение из рееста, для
+									// Для стандартных таблиц символов просто удаляем значение из реестра, для
 									// избранных же оставляем в реестре флаг, что таблица символов избранная
 									if (SelectType & CPST_FAVORITE)
 										Codepages().SetFavorite(SelectedCodePage, CPST_FAVORITE);
@@ -866,7 +866,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 								Dlg->SendMessage( DM_LISTSETCURPOS, FAD_COMBOBOX_CP,&Pos);
 
 								// Обрабатываем случай, когда таблица символов может присутствовать, как в стандартных, так и в избранных,
-								// т.е. выбор/снятие флага автоматичекски происходуит у обоих элементов
+								// т.е. выбор/снятие флага автоматически происходит у обоих элементов
 								bool bStandardCodePage = Position.SelectPos < FavoritesIndex;
 
 								for (int Index = bStandardCodePage ? FavoritesIndex : 0; Index < (bStandardCodePage ? FavoritesIndex + favoriteCodePages : FavoritesIndex); Index++)
@@ -875,7 +875,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 									FarListGetItem CheckItem = { sizeof(FarListGetItem), Index };
 									Dlg->SendMessage( DM_LISTGETITEM, FAD_COMBOBOX_CP, &CheckItem);
 
-									// Обрабатываем только таблицы симовлов
+									// Обрабатываем только таблицы символов
 									if (!(CheckItem.Item.Flags&LIF_SEPARATOR))
 									{
 										if (SelectedCodePage == *(UINT*)Dlg->SendMessage( DM_LISTGETDATA, FAD_COMBOBOX_CP, ToPtr(Index)))
@@ -1078,7 +1078,7 @@ bool FindFiles::LookForString(const string& Name)
 			LastPercents=Percents;
 		}
 
-		// Увеличиваем счётчик прочитыннх байт
+		// Увеличиваем счётчик прочитаннх байт
 		alreadyRead += readBlockSize;
 
 		// Для hex и обыкновенного поиска разные ветки
@@ -1145,7 +1145,7 @@ bool FindFiles::LookForString(const string& Name)
 					// Вычисляем размер буфера в UTF-16
 					bufferCount = readBlockSize/sizeof(wchar_t);
 
-					// Выходим, если размер буфера меньше длины строки посика
+					// Выходим, если размер буфера меньше длины строки поиска
 					if (bufferCount < findStringCount)
 					{
 						ErrorState = true;
@@ -1170,7 +1170,7 @@ bool FindFiles::LookForString(const string& Name)
 							ErrorState = true;
 							continue;
 						}
-						// Устанавливаем буфер стравнения
+						// Устанавливаем буфер сравнения
 						buffer = readBuffer;
 					}
 					else
@@ -1214,7 +1214,7 @@ bool FindFiles::LookForString(const string& Name)
 						}
 					}
 
-					// Устанавливаем буфер стравнения
+					// Устанавливаем буфер сравнения
 					buffer = readBuffer;
 				}
 
@@ -1229,13 +1229,13 @@ bool FindFiles::LookForString(const string& Name)
 					if (foundIndex == -1)
 						break;
 
-					// Если посдстрока найдена и отключен поиск по словам, то считаем что всё хорошо
+					// Если подстрока найдена и отключен поиск по словам, то считаем что всё хорошо
 					if (!WholeWords)
 						return true;
 					// Устанавливаем позицию в исходном буфере
 					index += foundIndex;
 
-					// Если идёт поиск по словам, то делаем соответвующие проверки
+					// Если идёт поиск по словам, то делаем соответствующие проверки
 					bool firstWordDiv = false;
 
 					// Если мы находимся вначале блока
@@ -1249,7 +1249,7 @@ bool FindFiles::LookForString(const string& Name)
 					}
 					else
 					{
-						// Проверяем является или нет предыдущий найденому символ блока разделителем
+						// Проверяем является или нет предыдущий найденному символ блока разделителем
 						i.LastSymbol = buffer[index-1];
 
 						if (IsWordDiv(i.LastSymbol))
@@ -1262,7 +1262,7 @@ bool FindFiles::LookForString(const string& Name)
 						// Если блок выбран не до конца
 						if (index+findStringCount!=bufferCount)
 						{
-							// Проверяем является или нет последующий за найденым символ блока разделителем
+							// Проверяем является или нет последующий за найденным символ блока разделителем
 							i.LastSymbol = buffer[index+findStringCount];
 
 							if (IsWordDiv(i.LastSymbol))
@@ -2168,9 +2168,9 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const api::FAR
 		FindItem.FindData.Clear();
 		// Используем LastDirName, т.к. PathName уже может быть искажена
 		FindItem.FindData.strFileName = strLastDirName;
-		// Used=0 - Имя не попададёт во временную панель.
+		// Used=0 - Имя не попадёт во временную панель.
 		FindItem.Used=0;
-		// Поставим атрибут у каталога, что-бы он не был файлом :)
+		// Поставим атрибут у каталога, чтобы он не был файлом :)
 		FindItem.FindData.dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY;
 		FindItem.Arc = itd->GetFindFileArcItem();;
 

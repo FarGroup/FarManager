@@ -423,7 +423,7 @@ BOOL WINAPI apiShowHelp(const wchar_t *ModuleName, const wchar_t *HelpTopic, FAR
 				//                   и показать топик из хелпа вызвавшего плагина
 				/* $ 17.11.2000 SVS
 				А значение FHELP_SELFHELP равно чему? Правильно - 0
-				И фигля здесь удивлятся тому, что функция не работает :-(
+				И фигля здесь удивляться тому, что функция не работает :-(
 				*/
 				string strPath;
 				if (Flags == FHELP_SELFHELP || (Flags&(FHELP_CUSTOMFILE | FHELP_CUSTOMPATH)))
@@ -1705,7 +1705,7 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 		class ConsoleTitle ct;
 		int DisableHistory = (Flags & VF_DISABLEHISTORY) != 0;
 
-		// $ 15.05.2002 SKV - Запретим вызов немодального редактора вьюера из модального.
+		// $ 15.05.2002 SKV - Запретим вызов немодального редактора viewer-а из модального.
 	if (Global->WindowManager->InModal())
 		{
 			Flags&=~VF_NONMODAL;
@@ -1750,7 +1750,7 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 
 			Viewer->SetEnableF6(Flags & VF_ENABLE_F6);
 
-			/* $ 28.05.2001 По умолчанию Вьюер, поэтому нужно здесь признак выставиль явно */
+			/* $ 28.05.2001 По умолчанию viewer, поэтому нужно здесь признак выставить явно */
 			Global->WindowManager->ExecuteModal(Viewer);
 
 			/* $ 14.06.2002 IS
@@ -1809,7 +1809,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 
 		/*$ 15.05.2002 SKV
 		  Запретим вызов немодального редактора, если находимся в модальном
-		  редакторе или вьюере.
+		  редакторе или viewer-е.
 		  */
 	if (Global->WindowManager->InModal())
 		{

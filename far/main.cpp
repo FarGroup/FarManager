@@ -198,7 +198,7 @@ static int MainProcess(
 				++DirCount;
 				strPath = active? apanel : ppanel;
 				CutToNameUNC(strPath);
-				DeleteEndSlash(strPath); //BUGBUG!! если конечный слешь не убрать - получаем забавный эффект - отсутствует ".."
+				DeleteEndSlash(strPath); //BUGBUG!! если конечный слеш не убрать - получаем забавный эффект - отсутствует ".."
 
 				bool Root = false;
 				PATH_TYPE Type = ParsePath(strPath, nullptr, &Root);
@@ -227,7 +227,7 @@ static int MainProcess(
 			Global->CtrlObject->Init(DirCount);
 
 			// а теперь "провалимся" в каталог или хост-файл (если получится ;-)
-			if (!apanel.empty())  // актиная панель
+			if (!apanel.empty())  // активная панель
 			{
 				Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 				Panel *AnotherPanel = Global->CtrlObject->Cp()->PassivePanel();

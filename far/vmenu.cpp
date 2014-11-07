@@ -105,7 +105,7 @@ void VMenu::init(MenuDataEx *Data, int ItemsCount, DWORD Flags)
 	GetCursorType(PrevCursorVisible,PrevCursorSize);
 	bRightBtnPressed = false;
 
-	// инициализируем перед тем, как добавл€ть айтема
+	// инициализируем перед добавлением элемента
 	UpdateMaxLengthFromTitles();
 
 	FOR(const auto& i, make_range(Data, Data + ItemsCount))
@@ -296,7 +296,7 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 	return Pos;
 }
 
-// установить курсор и верхний итем
+// установить курсор и верхний элемент
 int VMenu::SetSelectPos(const FarListPos *ListPos, int Direct)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
@@ -382,7 +382,7 @@ int VMenu::GetItemPosition(int Position) const
 	return DataPos;
 }
 
-// получить позицию курсора и верхнюю позицию итема
+// получить позицию курсора и верхнюю позицию элемента
 int VMenu::GetSelectPos(FarListPos *ListPos) const
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
@@ -2900,10 +2900,10 @@ size_t VMenu::_SetUserData(MenuItemEx *PItem,
 	return PItem->UserDataSize;
 }
 
-// ѕрисовокупить к итему данные.
+// ѕрисовокупить к элементу данные.
 size_t VMenu::SetUserData(LPCVOID Data,   // ƒанные
                        size_t Size,     // –азмер, если =0 то предполагаетс€, что в Data-строка
-                       int Position) // номер итема
+                       int Position) // номер элемента
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 

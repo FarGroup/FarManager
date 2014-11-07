@@ -671,7 +671,7 @@ int Viewer::txt_dump(const unsigned char *line, DWORD nr, int width, wchar_t *ou
 			if (first && w1[iw] == Utf::REPLACE_CHAR && w2[iw] == L'?')
 			{
 				outstr[ib++] = Utf::CONTINUE_CHAR; // это может быть не совсем корректно для 'плохих' utf-8
-			}                                     // но усложнять из-за этого код на мой взгяд не стоит...
+			}                                     // но усложнять из-за этого код на мой взгляд не стоит...
 			else
 			{
 				first = false;
@@ -4183,14 +4183,14 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 		case VCTL_QUIT:
 		{
 			/* $ 28.12.2002 IS
-			   Разрешаем выполнение VCTL_QUIT только для вьюера, который
+			   Разрешаем выполнение VCTL_QUIT только для viewer-а, который
 			   не является панелью информации и быстрого просмотра (т.е.
 			   фактически панелей на экране не видно)
 			*/
 			if (!Global->WindowManager->IsPanelsActive())
 			{
 				/* $ 29.09.2002 IS
-				   без этого не закрывался вьюер, а просили именно это
+				   без этого не закрывался viewer, а просили именно это
 				*/
 				Global->WindowManager->DeleteWindow(HostFileViewer->shared_from_this());
 

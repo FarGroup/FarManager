@@ -5453,7 +5453,7 @@ bool PluginA::SetStartupInfo(PluginStartupInfo* Info)
 		oldfar::PluginStartupInfo _info;
 		oldfar::FarStandardFunctions _fsf;
 		CreatePluginStartupInfoA(this, &_info, &_fsf);
-		// скорректирем адреса и плагино-зависимые поля
+		// скорректируем адреса и плагино-зависимые поля
 
 		_info.RootKey = static_cast<OEMPluginModel*>(m_model)->getUserName().data();
 

@@ -3,7 +3,7 @@
 /*
 RefreshWindowManager.hpp
 
-Класс для решрешки
+Класс для рефрешки
 */
 /*
 Copyright © 1996 Eugene Roshal

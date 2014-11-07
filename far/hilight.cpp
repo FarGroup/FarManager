@@ -457,8 +457,8 @@ static void ApplyFinalColors(HighlightFiles::highlight_item& Colors)
 	if (Colors.Mark.Transparent)
 		Colors.Mark.Char = 0;
 
-	//ѕарано€ но случитс€ может:
-	//ќбработаем black on black снова чтоб обработались унаследованые цвета.
+	//ѕараной€ но случитс€ может:
+	//ќбработаем black on black снова чтоб обработались унаследованные цвета.
 	ApplyBlackOnBlackColors(Colors);
 }
 

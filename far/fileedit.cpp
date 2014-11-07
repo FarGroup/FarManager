@@ -656,9 +656,9 @@ void FileEditor::Init(
 
 			// Ахтунг. Ниже комментарии оставлены в назидании потомкам (до тех пор, пока не измениться манагер)
 			//WindowManager->DeleteWindow(this); // BugZ#546 - Editor валит фар!
-			//Global->CtrlObject->Cp()->Redraw(); //AY: вроде как не надо, делает проблемы с проресовкой если в редакторе из истории попытаться выбрать несуществующий файл
+			//Global->CtrlObject->Cp()->Redraw(); //AY: вроде как не надо, делает проблемы с прорисовкой если в редакторе из истории попытаться выбрать несуществующий файл
 
-			// если прервали загрузку, то фремы нужно проапдейтить, чтобы предыдущие месаги не оставались на экране
+			// если прервали загрузку, то фреймы нужно проапдейтить, чтобы предыдущие месаги не оставались на экране
 			if (!Global->Opt->Confirm.Esc && UserBreak && GetExitCode() == XC_LOADING_INTERRUPTED)
 				Global->WindowManager->RefreshWindow();
 
@@ -848,7 +848,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 	if (m_Flags.Check(FFILEEDIT_REDRAWTITLE) && (((unsigned int)Key & 0x00ffffff) < KEY_END_FKEY || IsInternalKeyReal((unsigned int)Key & 0x00ffffff)))
 		ShowConsoleTitle();
 
-	// Все сотальные необработанные клавиши пустим далее
+	// Все остальные необработанные клавиши пустим далее
 	/* $ 28.04.2001 DJ
 	   не передаем KEY_MACRO* плагину - поскольку ReadRec в этом случае
 	   никак не соответствует обрабатываемой клавише, возникают разномастные
@@ -870,7 +870,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 				// проверка на "а может это говно удалили уже?"
 				// возможно здесь она и не нужна!
-				// хотя, раз уж были изменени, то
+				// хотя, раз уж были изменения, то
 				if (m_editor->IsFileChanged() && // в текущем сеансе были изменения?
 				        api::GetFileAttributes(strFullFileName) == INVALID_FILE_ATTRIBUTES) // а файл еще существует?
 				{
@@ -897,7 +897,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					__int64 FilePos=m_editor->GetCurPos(true, m_bAddSignature); // TODO: GetCurPos should return __int64
 
 					/* $ 01.02.2001 IS
-					   ! Открываем вьюер с указанием длинного имени файла, а не короткого
+					   ! Открываем viewer с указанием длинного имени файла, а не короткого
 					*/
 					int NeedQuestion = 1;
 					if (ProcessQuitKey(FirstSave,NeedQuestion,false))
@@ -2337,7 +2337,7 @@ BOOL FileEditor::SetFileName(const string& NewFileName)
 			}
 		}
 
-		//Дабы избежать бардака, развернём слэшики...
+		//Дабы избежать бардака, развернём слешики...
 		ReplaceSlashToBSlash(strFullFileName);
 	}
 	else
@@ -2509,7 +2509,7 @@ DWORD FileEditor::EditorGetFileAttributes(const string& Name)
 	return m_FileAttributes;
 }
 
-/* true - панель обовили
+/* true - панель обновили
 */
 bool FileEditor::UpdateFileList()
 {

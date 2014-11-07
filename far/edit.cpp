@@ -1504,7 +1504,7 @@ int Edit::InsertKey(int Key)
 			}
 			else
 			{
-				// Здесь вариант для "ввели символ из маски", например для SetAttr - ввесли '.'
+				// Здесь вариант для "ввели символ из маски", например для SetAttr - ввели '.'
 				;// char *Ptr=strchr(Mask+CurPos,Key);
 			}
 		}
@@ -1948,7 +1948,7 @@ int Edit::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	        MouseEvent->dwMousePosition.Y!=m_Y1)
 		return FALSE;
 
-	//SetClearFlag(0); // пусть едитор сам заботится о снятии клеар-текста?
+	//SetClearFlag(0); // пусть едитор сам заботится о снятии clear-текста?
 	SetTabCurPos(MouseEvent->dwMousePosition.X - m_X1 + LeftPos);
 
 	if (!m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
@@ -2132,8 +2132,8 @@ int Edit::RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos) co
 			// Обрабатываем табы
 			if (m_Str[Index] == L'\t')
 			{
-				// Если есть необходимость делать корректировку табов и эта коректировка
-				// ещё не проводилась, то увеличиваем длину обрабатываемой строки на еденицу
+				// Если есть необходимость делать корректировку табов и эта корректировка
+				// ещё не проводилась, то увеличиваем длину обрабатываемой строки на единицу
 				if (bCorrectPos)
 				{
 					++Pos;
@@ -2141,10 +2141,10 @@ int Edit::RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos) co
 					bCorrectPos = false;
 				}
 
-				// Расчитываем длину таба с учётом настроек и текущей позиции в строке
+				// Рассчитываем длину таба с учётом настроек и текущей позиции в строке
 				TabPos += GetTabSize()-(TabPos%GetTabSize());
 			}
-		// Обрабатываем все отсальные симовлы
+		// Обрабатываем все остальные символы
 			else
 				TabPos++;
 
@@ -2322,7 +2322,7 @@ void Edit::DeleteBlock()
 	m_SelEnd=0;
 	m_Flags.Clear(FEDITLINE_MARKINGBLOCK);
 
-	// OT: Проверка на корректность поведени строки при удалении и вставки
+	// OT: Проверка на корректность поведения строки при удалении и вставке
 	if (m_Flags.Check((FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE)))
 	{
 		if (LeftPos>m_CurPos)
@@ -2442,7 +2442,7 @@ void Edit::ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos)
 	// Для оптимизации сохраняем вычисленные позиции между итерациями цикла
 	int Pos = INT_MIN, TabPos = INT_MIN, TabEditorPos = INT_MIN;
 
-	// Обрабатываем элементы ракраски
+	// Обрабатываем элементы раскраски
 	for (int Col = 0; Col < ColorCount; Col++)
 	{
 		ColorItem *CurItem = ColorList+Col;
@@ -2475,7 +2475,7 @@ void Edit::ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos)
 			RealStart = RealPosToTab(CurItem->StartPos);
 			Start = RealStart-FocusedLeftPos;
 		}
-		// Для отптимизации делаем вычисление относительно предыдущей позиции
+		// Для оптимизации делаем вычисление относительно предыдущей позиции
 		else
 		{
 			RealStart = RealPosToTab(TabPos, Pos, CurItem->StartPos, nullptr);
@@ -2491,7 +2491,7 @@ void Edit::ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos)
 		if (Start >= Width)
 			continue;
 
-		// Корректировка относительно табов (отключается, если присутвует флаг ECF_TABMARKFIRST)
+		// Корректировка относительно табов (отключается, если присутствует флаг ECF_TABMARKFIRST)
 		int CorrectPos = CurItem->Flags & ECF_TABMARKFIRST ? 0 : 1;
 
 		// Получаем конечную позицию
@@ -2501,12 +2501,12 @@ void Edit::ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos)
 		bool TabMarkCurrent=false;
 
 		// Обрабатываем случай, когда предыдущая позиция равна текущей, то есть
-		// длина раскрашиваемой строкии равна 1
+		// длина раскрашиваемой строки равна 1
 		if (Pos == EndPos)
 		{
-			// Если необходимо делать корректироку относительно табов и единственный
-			// символ строки -- это таб, то делаем расчёт с учтом корректировки,
-			// иначе ничего не вычисялем и берём старые значения
+			// Если необходимо делать корректировку относительно табов и единственный
+			// символ строки -- это таб, то делаем расчёт с учётом корректировки,
+			// иначе ничего не вычисляем и берём старые значения
 			if (CorrectPos && EndPos < m_StrSize && m_Str[EndPos] == L'\t')
 			{
 				RealEnd = RealPosToTab(TabPos, Pos, ++EndPos, nullptr);
@@ -2529,7 +2529,7 @@ void Edit::ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos)
 			EndPos += CorrectPos;
 			End = RealEnd-FocusedLeftPos;
 		}
-		// Для отптимизации делаем вычисление относительно предыдущей позиции (с учётом
+		// Для оптимизации делаем вычисление относительно предыдущей позиции (с учётом
 		// корректировки относительно табов)
 		else
 		{

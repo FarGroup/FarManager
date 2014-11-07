@@ -327,7 +327,7 @@ private:
 	void UpdateMaxLength(int Length);
 	void UpdateInternalCounters(UINT64 OldFlags, UINT64 NewFlags);
 	bool ShouldSendKeyToFilter(int Key) const;
-	//коректировка текущей позиции и флагов SELECTED
+	//корректировка текущей позиции и флагов SELECTED
 	void UpdateSelectPos();
 
 	string strTitle;

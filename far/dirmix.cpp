@@ -112,7 +112,7 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
     TSTFLD_EMPTY      (1) - пусто
     TSTFLD_NOTFOUND   (0) - нет такого
     TSTFLD_NOTACCESS (-1) - нет доступа
-    TSTFLD_ERROR     (-2) - ошибка (кривые параметры или нехватило памяти для выделения промежуточных буферов)
+    TSTFLD_ERROR     (-2) - ошибка (кривые параметры или не хватило памяти для выделения промежуточных буферов)
 */
 int TestFolder(const string& Path)
 {

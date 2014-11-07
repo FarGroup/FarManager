@@ -1,7 +1,7 @@
 /*
 keyboard.cpp
 
-Функции, имеющие отношение к клавитуре
+Функции, имеющие отношение к клавиатуре
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -374,7 +374,7 @@ void InitKeysArray()
 	if (!Layout().empty())
 	{
 		BYTE KeyState[0x100]={};
-		//KeyToVKey - используется чтоб проверить если два символа это одна и таже кнопка на клаве
+		//KeyToVKey - используется чтоб проверить если два символа это одна и та же кнопка на клаве
 		//*********
 		//Так как сделать полноценное мапирование между всеми раскладками не реально,
 		//по причине того что во время проигрывания макросов нет такого понятия раскладка
@@ -1403,7 +1403,7 @@ DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 }
 
 /* $ 24.08.2000 SVS
- + Пераметр у фунции WaitKey - возможность ожидать конкретную клавишу
+ + Параметр у функции WaitKey - возможность ожидать конкретную клавишу
      Если KeyWait = -1 - как и раньше
 */
 DWORD WaitKey(DWORD KeyWait,DWORD delayMS,bool ExcludeMacro)
@@ -1675,7 +1675,7 @@ int KeyNameToKey(const string& Name)
 			{
 				int Chr=Name[Pos];
 
-				// если были модификаторы Alt/Ctrl, то преобразуем в "физичекую клавишу" (независимо от языка)
+				// если были модификаторы Alt/Ctrl, то преобразуем в "физическую клавишу" (независимо от языка)
 				if (Key&(KEY_ALT|KEY_RCTRL|KEY_CTRL|KEY_RALT))
 				{
 					if (Chr > 0x7F)
@@ -2371,7 +2371,7 @@ DWORD CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros, bool Pro
 			return Char;
 		else if (RealKey && ScanCode && !Char && (KeyCode && KeyCode != VK_MENU))
 			//Это шаманство для ввода всяческих букв с тильдами, акцентами и прочим.
-			//Напимер на Шведской раскладке, "AltGr+VK_OEM_1" вообще не должно обрабатываться фаром, т.к. это DeadKey
+			//Например на Шведской раскладке, "AltGr+VK_OEM_1" вообще не должно обрабатываться фаром, т.к. это DeadKey
 			//Dn, 1, Vk="VK_CONTROL" [17/0x0011], Scan=0x001D uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x00000008 (Casac - ecns)
 			//Dn, 1, Vk="VK_MENU" [18/0x0012], Scan=0x0038 uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x00000109 (CasAc - Ecns)
 			//Dn, 1, Vk="VK_OEM_1" [186/0x00BA], Scan=0x001B uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x00000009 (CasAc - ecns)

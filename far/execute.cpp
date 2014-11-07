@@ -151,7 +151,7 @@ static bool GetImageSubsystem(const string& FileName,DWORD& ImageSubsystem)
 				/*else
 				{
 					// видимо улетели куда нить в трубу, т.к. dos_head.e_lfanew указал
-					// слишком в неправдоподное место (например это чистой воды DOS-файл)
+					// слишком в неправдоподобное место (например это чистой воды DOS-файл)
 				}*/
 			}
 
@@ -201,14 +201,14 @@ static bool SearchExtHandlerFromList(HKEY hExtKey, string &strType)
 }
 
 /*
-Фунция FindModule пытается найти исполняемый модуль (в т.ч. и по
+Функция FindModule пытается найти исполняемый модуль (в т.ч. и по
 %PATHEXT%). В случае успеха заменяет в Module порцию, ответственную за
-исполянемый модуль на найденное значение, копирует результат в strDest и
+исполняемый модуль на найденное значение, копирует результат в strDest и
 пытается проверить заголовок PE на ГУЕВОСТЬ (чтобы запустить процесс
 в отдельном окне и не ждать завершения).
 В случае неудачи strDest не заполняется!
 Return: true/false - нашли/не нашли
-Команда в функцию передается уже разкавыченная. Ничего не меняем.
+Команда в функцию передается уже без кавычек. Ничего не меняем.
 И подменять ничего не надо, т.к. все параметры мы отсекли раньше
 */
 static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsystem,bool &Internal)
@@ -1164,7 +1164,7 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 	const wchar_t *PtrCmd=CmdLine.data(), *CmdStart;
 	int Not=FALSE;
 	int Exist=0; // признак наличия конструкции "IF [NOT] EXIST filename command"
-	// > 0 - эсть такая конструкция
+	// > 0 - есть такая конструкция
 
 	/* $ 25.04.2001 DJ
 	   обработка @ в IF EXIST

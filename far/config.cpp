@@ -2223,7 +2223,7 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 					break;
 			}
 
-			if (I <= 1) // если указано меньше двух - "откключаем" эту
+			if (I <= 1) // если указано меньше двух - "отключаем" эту
 				XLat.Layouts[0]=0;
 		}
 	}

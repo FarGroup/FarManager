@@ -2525,7 +2525,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	Len1 = std::max(Len1,std::max(Len2,std::max(Len3,Len4)));
 	DriveLocalToRemoteName(DRIVE_REMOTE,Letter,strMsgText);
 	DCDlg[3].strData = TruncPathStr(strMsgText, static_cast<int>(Len1));
-	// проверяем - это было постоянное соедение или нет?
+	// проверяем - это было постоянное соединение или нет?
 	// Если ветка в реестре HKCU\Network\БукваДиска есть - это
 	//   есть постоянное подключение.
 

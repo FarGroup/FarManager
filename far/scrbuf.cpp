@@ -274,7 +274,7 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color, bo
 #endif
 }
 
-/* Непосредственное изменение цветовых атрибутов с заданым цетом исключением
+/* Непосредственное изменение цветовых атрибутов с заданным цветом исключением
 */
 // used in stream selection
 void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color,const FarColor& ExceptColor, bool ForceExFlags)
@@ -635,7 +635,7 @@ void ScreenBuf::RestoreElevationChar()
 	}
 }
 
-//  проскроллировать буффер на одну строку вверх.
+//  проскроллировать буфер на одну строку вверх.
 void ScreenBuf::Scroll(int Num)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);

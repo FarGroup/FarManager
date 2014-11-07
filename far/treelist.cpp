@@ -651,7 +651,7 @@ void TreeList::DisplayTree(int Fast)
 	}
 
 	UpdateViewPanel();
-	SetTitle(); // не забудим прорисовать заголовок
+	SetTitle(); // не забудем прорисовать заголовок
 }
 
 void TreeList::DisplayTreeName(const wchar_t *Name, size_t Pos)

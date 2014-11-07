@@ -699,7 +699,7 @@ bool FileFilter::FileInFilter(const api::FAR_FIND_DATA& fde,enumFileInFilterType
 	}
 
 	//Если папка и она не попала ни под какой exclude фильтр то самое логичное
-	//будет сделать ей include если небыло дугих include фильтров на папки.
+	//будет сделать ей include если не было дугих include фильтров на папки.
 	//А вот Select логичней всего работать чисто по заданному фильтру.
 	if (!bFound && bFolder && !bAnyFolderIncludeFound && m_FilterType!=FFT_SELECT)
 	{

@@ -139,7 +139,7 @@ string& InsertQuote(string &strStr)
 
 string& InsertRegexpQuote(string &strStr)
 {
-	//выражение вида /regexp/i не дополняем слэшами
+	//выражение вида /regexp/i не дополняем слешами
 	if (strStr.empty() || strStr[0] != L'/')
 	{
 		strStr.insert(0, 1, L'/');
@@ -1454,7 +1454,7 @@ string str_vprintf(const wchar_t * format, va_list argptr)
 	{
 		buffer.reset(size *= 2);
 
-		//_vsnwprintf не всегда ставит '\0' вконце.
+		//_vsnwprintf не всегда ставит '\0' в конце.
 		//Поэтому надо обнулить и передать в _vsnwprintf размер-1.
 		buffer[size - 1] = 0;
 		length = _vsnwprintf(buffer.get(), size - 1, format, argptr);

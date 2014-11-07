@@ -244,7 +244,7 @@ void FilePanels::Init(int DirCount)
 
 #endif
 
-	// при понашенных панелях не забыть бы выставить корректно каталог в CmdLine
+	// при погашенных панелях не забыть бы выставить корректно каталог в CmdLine
 	if (!Global->Opt->RightPanel.Visible && !Global->Opt->LeftPanel.Visible)
 	{
 		CmdLine->SetCurDir(PassiveIsLeftFlag?Global->Opt->RightPanel.Folder:Global->Opt->LeftPanel.Folder);

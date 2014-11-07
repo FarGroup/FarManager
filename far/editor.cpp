@@ -345,7 +345,7 @@ void Editor::ShowEditor()
 	}
 
 	/*
-	  если курсор удруг оказался "за экраном",
+	  если курсор вдруг оказался "за экраном",
 	  подвинем экран под курсор, а не
 	  курсор загоним в экран.
 	*/
@@ -406,7 +406,7 @@ void Editor::ShowEditor()
 	LeftPos=CurLine->GetLeftPos();
 #if 0
 
-	// крайне эксперементальный кусок!
+	// крайне экспериментальный кусок!
 	if (CurPos+LeftPos < XX2)
 		LeftPos=0;
 	else if (CurLine->X2 < XX2)
@@ -1648,7 +1648,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 				ProcessKey(Manager::Key((LocalKey==KEY_CTRLP || LocalKey==KEY_RCTRLP) ? KEY_CTRLINS:KEY_SHIFTDEL));
 
 				/* $ 10.04.2001 SVS
-				  ^P/^M - некорректно работали: уловие для CurPos должно быть ">=",
+				  ^P/^M - некорректно работали: условие для CurPos должно быть ">=",
 				   а не "меньше".
 				*/
 				if ((LocalKey == KEY_CTRLM || LocalKey == KEY_RCTRLM) && CurSelStart != -1 && CurSelEnd != -1)
@@ -2752,7 +2752,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 						DeleteBlock();
 						/* $ 19.09.2002 SKV
 						  Однако надо.
-						  Иначе есди при надичии выделения набирать
+						  Иначе если при наличии выделения набирать
 						  текст с шифтом флаги не сбросятся и следующий
 						  выделенный блок будет глючный.
 						*/
@@ -5515,7 +5515,7 @@ void Editor::VCopy(int Append)
 
 string Editor::VBlock2Text(const wchar_t* InitData, size_t size)
 {
-	//RealPos всегда <= TabPos, поэтому берём максимальный размер буффера
+	//RealPos всегда <= TabPos, поэтому берём максимальный размер буфера
 	size_t TotalChars = size + (VBlockSizeX + 2)*VBlockSizeY;
 
 	string CopyData;
@@ -6047,7 +6047,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				/* $ 30.08.2001 IS
 				   Изменение режима нужно выставлять сразу, в противном случае приходят
 				   глюки, т.к. плагинописатель думает, что режим изменен, и ведет себя
-				   соответствующе, в результате чего получает неопределенное поведение.
+				   соответственно, в результате чего получает неопределенное поведение.
 				*/
 				if (Pos->Overtype >= 0)
 				{
@@ -6228,7 +6228,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 			return TRUE;
 		}
-		// TODO: Если DI_MEMOEDIT не будет юзать раскаску, то должно выполняется в FileEditor::EditorControl(), в диалоге - нафиг ненать
+		// TODO: Если DI_MEMOEDIT не будет юзать раскраску, то должно выполняется в FileEditor::EditorControl(), в диалоге - нафиг ненать
 		case ECTL_ADDCOLOR:
 		{
 			EditorColor *col=(EditorColor *)Param2;
@@ -6264,7 +6264,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 			break;
 		}
-		// TODO: Если DI_MEMOEDIT не будет юзать раскаску, то должно выполняется в FileEditor::EditorControl(), в диалоге - нафиг ненать
+		// TODO: Если DI_MEMOEDIT не будет юзать раскраску, то должно выполняется в FileEditor::EditorControl(), в диалоге - нафиг ненать
 		case ECTL_GETCOLOR:
 		{
 			EditorColor *col=(EditorColor *)Param2;

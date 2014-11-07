@@ -643,7 +643,7 @@ void FileList::SortFileList(int KeepPosition)
 		hSortPlugin=(m_PanelMode==PLUGIN_PANEL && m_hPlugin && m_hPlugin->pPlugin->HasCompare()) ? m_hPlugin:nullptr;
 
 		// ЭТО ЕСТЬ УЗКОЕ МЕСТО ДЛЯ СКОРОСТНЫХ ХАРАКТЕРИСТИК Far Manager
-		// при считывании дирректории
+		// при считывании директории
 
 		if (m_SortMode < SORTMODE_COUNT)
 		{
@@ -1746,8 +1746,8 @@ int FileList::ProcessKey(const Manager::Key& Key)
 
 				/* $ 08.04.2002 IS
 				   Флаг, говорящий о том, что нужно удалить файл, который открывали во
-				   вьюере. Если файл открыли во внутреннем вьюере, то DeleteViewedFile
-				   должно быт равно false, т.к. внутренний вьюер сам все удалит.
+				   viewer-е. Если файл открыли во внутреннем viewer-е, то DeleteViewedFile
+				   должно быт равно false, т.к. внутренний viewer сам все удалит.
 				*/
 				bool DeleteViewedFile=PluginMode && !Edit;
 
@@ -1874,7 +1874,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 								auto ShellViewer = FileViewer::create(strFileName, TRUE, PluginMode, PluginMode, -1, strPluginData.data(), &ViewList);
 
 								/* $ 08.04.2002 IS
-								Сбросим DeleteViewedFile, т.к. внутренний вьюер сам все удалит
+								Сбросим DeleteViewedFile, т.к. внутренний viewer сам все удалит
 								*/
 								if (ShellViewer->GetExitCode() && PluginMode)
 								{
@@ -1889,8 +1889,8 @@ int FileList::ProcessKey(const Manager::Key& Key)
 				}
 
 				/* $ 08.04.2002 IS
-				     для файла, который открывался во внутреннем вьюере, ничего не
-				     предпринимаем, т.к. вьюер об этом позаботится сам
+				     для файла, который открывался во внутреннем viewer-е, ничего не
+				     предпринимаем, т.к. viewer об этом позаботится сам
 				*/
 				if (PluginMode)
 				{
@@ -1898,8 +1898,8 @@ int FileList::ProcessKey(const Manager::Key& Key)
 						Message(MSG_WARNING,1,MSG(MError),MSG(MCannotSaveFile),
 						        MSG(MTextSavedToTemp),strFileName.data(),MSG(MOk));
 					else if (Edit || DeleteViewedFile)
-						// удаляем файл только для случая окрытия его в редакторе или во
-						// внешнем вьюере, т.к. внутренний вьюер удаляет файл сам
+						// удаляем файл только для случая открытия его в редакторе или во
+						// внешнем viewer-е, т.к. внутренний viewer удаляет файл сам
 						DeleteFileWithFolder(strFileName);
 				}
 
@@ -2419,7 +2419,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			   )
 			{
 				//_SVS(SysLog(L">FastFind: Key=%s",_FARKEY_ToName(Key)));
-				// Скорректирем уже здесь нужные клавиши, т.к. WaitInFastFind
+				// Скорректируем уже здесь нужные клавиши, т.к. WaitInFastFind
 				// в это время еще равно нулю.
 				static const char Code[]=")!@#$%^&*(";
 
@@ -3022,9 +3022,9 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			}
 
 			/*$ 21.02.2001 SKV
-			  Если пришел DOUBLE_CLICK без предшевствующего ему
+			  Если пришел DOUBLE_CLICK без предшествующего ему
 			  простого клика, то курсор не перерисовывается.
-			  Перересуем его.
+			  Перерисуем его.
 			  По идее при нормальном DOUBLE_CLICK, будет
 			  двойная перерисовка...
 			  Но мы же вызываем Fast=TRUE...
@@ -5387,7 +5387,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 
 /*
 	DefaultName - имя элемента на которое позиционируемся.
-	Closed - панель закрывается, если в PrevDataList что-то есть - восстанавливаемчся оттуда.
+	Closed - панель закрывается, если в PrevDataList что-то есть - восстанавливаемся оттуда.
 	UsePrev - если востанавливаемся из PrevDataList, элемент для позиционирования брать оттуда же.
 	Position - надо ли вообще устанавливать текущий элемент.
 */
@@ -5427,11 +5427,8 @@ void FileList::PopPrevData(const string& DefaultName,bool Closed,bool UsePrev,bo
 		UpperFolderTopFile=0;
 		CorrectPosition();
 	}
-	/* $ 26.04.2001 DJ
-	   доделка про несброс выделения при неудаче SetDirectory
-	*/
 	else if (SetDirectorySuccess)
-		m_CurFile=m_CurTopFile=0;
+		m_CurFile = m_CurTopFile = 0;
 }
 
 int FileList::FileNameToPluginItem(const string& Name,PluginPanelItem *pi)
@@ -6044,7 +6041,7 @@ void FileList::PluginPutFilesToNew()
 /* $ 12.04.2002 IS
      PluginPutFilesToAnother теперь int - возвращает то, что возвращает
      PutFiles:
-     -1 - прервано пользовтелем
+     -1 - прервано пользователем
       0 - неудача
       1 - удача
       2 - удача, курсор принудительно установлен на файл и заново его
@@ -6160,7 +6157,7 @@ void FileList::ProcessHostFile()
 							Select(i, FALSE);
 						else if (Done == -1)
 							continue;
-						else       // Если ЭТО убрать, то... будем жать ESC до потере пулься
+						else       // Если ЭТО убрать, то... будем жать ESC до потери пульса
 							break;   //
 					}
 				}
@@ -6557,7 +6554,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 		if (!SetCurPath())
 		{
-			FlushInputBuffer(); // Очистим буффер ввода, т.к. мы уже можем быть в другом месте...
+			FlushInputBuffer(); // Очистим буфер ввода, т.к. мы уже можем быть в другом месте...
 
 			if (m_CurDir == strOldCurDir) //?? i??
 			{

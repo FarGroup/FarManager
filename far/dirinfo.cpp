@@ -221,7 +221,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, c
 		else
 		{
 			/* $ 17.04.2005 KM
-			   Проверка попадания файла в условия фильра
+			   Проверка попадания файла в условия фильтра
 			*/
 			if ((Flags&GETDIRINFO_USEFILTER))
 			{

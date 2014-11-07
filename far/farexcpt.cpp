@@ -232,7 +232,7 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 				DWORD Reserved1[4];
 				// DWORD SysID; GUID
 				const wchar_t *ModuleName;
-				DWORD Reserved2[2];    // разерв :-)
+				DWORD Reserved2[2];    // резерв :-)
 				DWORD SizeModuleName;
 			};
 

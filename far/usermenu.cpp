@@ -64,7 +64,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #if defined(PROJECT_DI_MEMOEDIT)
 /*
   Идея в следующем.
-  1. Строки в реестре храняться как и раньше, т.к. CommandXXX
+  1. Строки в реестре хранятся как и раньше, т.к. CommandXXX
   2. Для DI_MEMOEDIT мы из только преобразовываем в один массив
 */
 #endif
@@ -735,7 +735,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			if (pos != string::npos)
 				strSubMenuLabel.erase(pos, 1);
 
-			/* $ 14.07.2000 VVM ! Если закрыли подменю, то остаться. Инече передать управление выше */
+			/* $ 14.07.2000 VVM ! Если закрыли подменю, то остаться. Иначе передать управление выше */
 			MenuPos = ProcessSingleMenu((*CurrentMenuItem)->Menu, 0, MenuRoot, MenuFileName, Title + L" \xbb " + strSubMenuLabel);
 
 			if (MenuPos!=EC_CLOSE_LEVEL)
@@ -1055,7 +1055,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 #if defined(PROJECT_DI_MEMOEDIT)
 				/*
 				...
-				здесь преобразование содержимого итема EMR_MEMOEDIT в "Command%d"
+				здесь преобразование содержимого элемента EMR_MEMOEDIT в "Command%d"
 				...
 				*/
 #else

@@ -613,7 +613,7 @@ int Manager::ProcessKey(Key key)
 {
 	if (m_currentWindow)
 	{
-		/*** БЛОК ПРИВЕЛЕГИРОВАННЫХ КЛАВИШ ! ***/
+		/*** БЛОК ПРИВИЛЕГИРОВАННЫХ КЛАВИШ ! ***/
 		/***   КОТОРЫЕ НЕЛЬЗЯ НАМАКРОСИТЬ    ***/
 
 		switch (key.FarKey)
@@ -822,9 +822,9 @@ void Manager::PluginsMenu() const
 	if (curType == windowtype_panels || curType == windowtype_editor || curType == windowtype_viewer || curType == windowtype_dialog || curType == windowtype_menu)
 	{
 		/* 02.01.2002 IS
-		   ! Вывод правильной помощи по Shift-F1 в меню плагинов в редакторе/вьюере/диалоге
+		   ! Вывод правильной помощи по Shift-F1 в меню плагинов в редакторе/viewer-е/диалоге
 		   ! Если на панели QVIEW или INFO открыт файл, то считаем, что это
-		     полноценный вьюер и запускаем с соответствующим параметром плагины
+		     полноценный viewer и запускаем с соответствующим параметром плагины
 		*/
 		if (curType==windowtype_panels)
 		{
@@ -846,7 +846,7 @@ void Manager::PluginsMenu() const
 			}
 		}
 
-		// в редакторе, вьюере или диалоге покажем свою помощь по Shift-F1
+		// в редакторе, viewer-е или диалоге покажем свою помощь по Shift-F1
 		const wchar_t *Topic=curType==windowtype_editor?L"Editor":
 		                     curType==windowtype_viewer?L"Viewer":
 		                     curType==windowtype_dialog?L"Dialog":nullptr;
@@ -1146,7 +1146,7 @@ void Manager::ImmediateHide()
 	if (m_windows.empty())
 		return;
 
-	// Сначала проверяем, есть ли у прятываемого окна SaveScreen
+	// Сначала проверяем, есть ли у скрываемого окна SaveScreen
 	if (m_currentWindow->HasSaveScreen())
 	{
 		m_currentWindow->Hide();

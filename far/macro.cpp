@@ -1759,7 +1759,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			return Global->Opt->ChangeDriveMode;
 
 		case MCODE_C_CMDLINE_BOF:              // CmdLine.Bof - курсор в начале cmd-строки редактирования?
-		case MCODE_C_CMDLINE_EOF:              // CmdLine.Eof - курсор в конеце cmd-строки редактирования?
+		case MCODE_C_CMDLINE_EOF:              // CmdLine.Eof - курсор в конце cmd-строки редактирования?
 		case MCODE_C_CMDLINE_EMPTY:            // CmdLine.Empty
 		case MCODE_C_CMDLINE_SELECTED:         // CmdLine.Selected
 		{
@@ -4713,7 +4713,7 @@ static bool replaceFunc(FarMacroCall* Data)
 	TVar& Find(Params[1]);
 	TVar& Src(Params[0]);
 	__int64 Ret=1;
-	// TODO: Здесь нужно проверить в соответствии с УНИХОДОМ!
+	// TODO: Здесь нужно проверить в соответствии с УНИКОДОМ!
 	string strStr;
 	//int lenS=(int)StrLength(Src.s());
 	size_t lenF = Find.asString().size();
@@ -5316,7 +5316,7 @@ TSTFLD_NOTFOUND   (2) - нет такого
 TSTFLD_NOTEMPTY   (1) - не пусто
 TSTFLD_EMPTY      (0) - пусто
 TSTFLD_NOTACCESS (-1) - нет доступа
-TSTFLD_ERROR     (-2) - ошибка (кривые параметры или нехватило памяти для выделения промежуточных буферов)
+TSTFLD_ERROR     (-2) - ошибка (кривые параметры или не хватило памяти для выделения промежуточных буферов)
 */
 static bool testfolderFunc(FarMacroCall* Data)
 {
@@ -5359,7 +5359,7 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 	{
 		KMParam=reinterpret_cast<DlgParam*>(Param2);
 		LastKey=0;
-		// <Клавиши, которые не введешь в диалоге назначения>
+		// <Клавиши, которые нельзя ввести в диалоге назначения>
 		static const DWORD PreDefKeyMain[]=
 		{
 			//KEY_CTRLDOWN,KEY_RCTRLDOWN,KEY_ENTER,KEY_NUMENTER,KEY_ESC,KEY_F1,KEY_CTRLF5,KEY_RCTRLF5,
@@ -5398,7 +5398,7 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 		});
 
 		Dlg->SendMessage(DM_SETTEXTPTR,2,nullptr);
-		// </Клавиши, которые не введешь в диалоге назначения>
+		// </Клавиши, которые нельзя ввести в диалоге назначения>
 	}
 	else if (Param1 == 2 && Msg == DN_EDITCHANGE)
 	{
