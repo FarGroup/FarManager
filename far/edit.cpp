@@ -74,7 +74,8 @@ static const wchar_t EDMASK_DIGITS = L'N'; // позволяет вводить в строку ввода т
 static const wchar_t EDMASK_ALPHA  = L'A'; // позволяет вводить в строку ввода только буквы.
 static const wchar_t EDMASK_HEX    = L'H'; // позволяет вводить в строку ввода шестнадцатиричные символы.
 
-Edit::Edit(SimpleScreenObject *pOwner, bool bAllocateData):
+Edit::Edit(window_ptr Owner, bool bAllocateData):
+	SimpleScreenObject(Owner),
 	m_Str(bAllocateData ? static_cast<wchar_t*>(xf_malloc(sizeof(wchar_t))) : nullptr),
 	m_StrSize(0),
 	m_CurPos(0),
@@ -86,8 +87,6 @@ Edit::Edit(SimpleScreenObject *pOwner, bool bAllocateData):
 	LeftPos(0),
 	EndType(EOL_NONE)
 {
-	SetOwner(pOwner);
-
 	if (bAllocateData)
 		*m_Str=0;
 
@@ -99,6 +98,7 @@ Edit::Edit(SimpleScreenObject *pOwner, bool bAllocateData):
 }
 
 Edit::Edit(Edit&& rhs):
+	SimpleScreenObject(rhs.GetOwner()),
 	m_Str(),
 	m_StrSize(),
 	m_CurPos(),
@@ -352,7 +352,7 @@ void Edit::FastShow(Edit::ShowInfo* Info)
 			}
 		}
 
-		if (m_Flags.Check(FEDITLINE_SHOWWHITESPACE) && m_Flags.Check(FEDITLINE_EDITORMODE) && (m_StrSize >= RealLeftPos) && (OutStr.size() < EditLength) && static_cast<Editor*>(GetOwner())->IsLastLine(this))
+		if (m_Flags.Check(FEDITLINE_SHOWWHITESPACE) && m_Flags.Check(FEDITLINE_EDITORMODE) && (m_StrSize >= RealLeftPos) && (OutStr.size() < EditLength) && GetEditor()->IsLastLine(this))
 		{
 			OutStr.push_back(L'\x25a1');
 		}
@@ -2707,12 +2707,12 @@ void Edit::FixLeftPos(int TabCurPos)
 
 const FarColor& Edit::GetNormalColor() const
 {
-	return static_cast<Editor*>(GetOwner())->GetNormalColor();
+	return GetEditor()->GetNormalColor();
 }
 
 const FarColor& Edit::GetSelectedColor() const
 {
-	return static_cast<Editor*>(GetOwner())->GetSelectedColor();
+	return GetEditor()->GetSelectedColor();
 }
 
 const FarColor& Edit::GetUnchangedColor() const
@@ -2722,17 +2722,17 @@ const FarColor& Edit::GetUnchangedColor() const
 
 const int Edit::GetTabSize() const
 {
-	return static_cast<Editor*>(GetOwner())->GetTabSize();
+	return GetEditor()->GetTabSize();
 }
 
 const EXPAND_TABS Edit::GetTabExpandMode() const
 {
-	return static_cast<Editor*>(GetOwner())->GetConvertTabs();
+	return GetEditor()->GetConvertTabs();
 }
 
 const string& Edit::WordDiv() const
 {
-	return static_cast<Editor*>(GetOwner())->GetWordDiv();
+	return GetEditor()->GetWordDiv();
 }
 
 int Edit::GetCursorSize() const
@@ -2742,20 +2742,27 @@ int Edit::GetCursorSize() const
 
 int Edit::GetMacroSelectionStart() const
 {
-	return static_cast<Editor*>(GetOwner())->GetMacroSelectionStart();
+	return GetEditor()->GetMacroSelectionStart();
 }
 
 void Edit::SetMacroSelectionStart(int Value)
 {
-	static_cast<Editor*>(GetOwner())->SetMacroSelectionStart(Value);
+	GetEditor()->SetMacroSelectionStart(Value);
 }
 
 int Edit::GetLineCursorPos() const
 {
-	return static_cast<Editor*>(GetOwner())->GetLineCursorPos();
+	return GetEditor()->GetLineCursorPos();
 }
 
 void Edit::SetLineCursorPos(int Value)
 {
-	return static_cast<Editor*>(GetOwner())->SetLineCursorPos(Value);
+	return GetEditor()->SetLineCursorPos(Value);
+}
+
+Editor* Edit::GetEditor(void)const
+{
+	auto owner=dynamic_cast<EditorContainer*>(GetOwner().get());
+	if (owner) return owner->GetEditor();
+	return nullptr;
 }

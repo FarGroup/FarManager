@@ -80,7 +80,7 @@ public:
 	};
 
 public:
-	TreeList(FilePanels* Parent, bool IsPanel = true);
+	TreeList(window_ptr Owner, bool IsPanel = true);
 
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;

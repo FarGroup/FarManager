@@ -68,7 +68,7 @@ enum KEYBARAREA
 class KeyBar: public SimpleScreenObject
 {
 public:
-	KeyBar();
+	KeyBar(window_ptr Owner);
 	virtual ~KeyBar(){}
 
 	virtual int ProcessKey(const Manager::Key& Key) override;

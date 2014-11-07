@@ -814,10 +814,10 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	if(!Silent)
 	{
 		int X1, X2, Y1, Y2;
-		Global->CtrlObject->CmdLine->GetPosition(X1, Y1, X2, Y2);
+		Global->CtrlObject->CmdLine()->GetPosition(X1, Y1, X2, Y2);
 		Global->ProcessShowClock += (add_show_clock = 1);
 		Global->WindowManager->ShowBackground();
-		Global->CtrlObject->CmdLine->Redraw();
+		Global->CtrlObject->CmdLine()->Redraw();
 		GotoXY(X2+1,Y1);
 		Text(L' ');
 		MoveCursor(X1,Y1);
@@ -825,7 +825,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		SetInitialCursorType();
 	}
 
-	Global->CtrlObject->CmdLine->SetString(L"", Silent);
+	Global->CtrlObject->CmdLine()->SetString(L"", Silent);
 
 	if(!Silent)
 	{
@@ -1241,7 +1241,7 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 				if (!(strCmd[1] == L':' || (strCmd[0] == L'\\' && strCmd[1]==L'\\') || strExpandedStr[1] == L':' || (strExpandedStr[0] == L'\\' && strExpandedStr[1]==L'\\')))
 				{
 					if (Global->CtrlObject)
-						Global->CtrlObject->CmdLine->GetCurDir(strFullPath);
+						Global->CtrlObject->CmdLine()->GetCurDir(strFullPath);
 					else
 						api::GetCurrentDirectory(strFullPath);
 

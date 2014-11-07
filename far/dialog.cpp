@@ -773,7 +773,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 
 			if (!DialogMode.Check(DMODE_OBJECTS_CREATED))
 			{
-				Items[I].ObjPtr=new DlgEdit(this,I,Type == DI_MEMOEDIT?DLGEDIT_MULTILINE:DLGEDIT_SINGLELINE);
+				Items[I].ObjPtr=new DlgEdit(shared_from_this(),I,Type == DI_MEMOEDIT?DLGEDIT_MULTILINE:DLGEDIT_SINGLELINE);
 
 				if (Type == DI_COMBOBOX)
 				{

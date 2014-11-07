@@ -40,7 +40,7 @@ class DizViewer: public Viewer
 		int InRecursion;
 
 	public:
-		DizViewer():InRecursion(0) {}
+		DizViewer(window_ptr Owner):Viewer(Owner), InRecursion(0) {}
 		virtual ~DizViewer() {}
 
 	public:

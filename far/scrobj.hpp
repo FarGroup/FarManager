@@ -50,7 +50,7 @@ enum
 class SimpleScreenObject: NonCopyable
 {
 public:
-	SimpleScreenObject();
+	SimpleScreenObject(window_ptr Owner);
 	virtual ~SimpleScreenObject();
 
 	int ObjWidth() const {return m_X2 - m_X1 + 1;}
@@ -75,16 +75,16 @@ public:
 	bool IsVisible() const {return m_Flags.Check(FSCROBJ_VISIBLE);}
 	void SetVisible(bool Visible) {m_Flags.Change(FSCROBJ_VISIBLE,Visible);}
 	void SetRestoreScreenMode(bool Mode) {m_Flags.Change(FSCROBJ_ENABLERESTORESCREEN,Mode);}
-	void SetOwner(SimpleScreenObject *pOwner) {this->pOwner = pOwner;}
-	SimpleScreenObject* GetOwner() const {return pOwner;}
+	window_ptr GetOwner() const {return m_Owner.lock();}
 
 private:
+	SimpleScreenObject();
 	virtual void DisplayObject() = 0;
 
 protected:
 	void swap(SimpleScreenObject& rhs) noexcept
 	{
-		std::swap(pOwner, rhs.pOwner);
+		std::swap(m_Owner, rhs.m_Owner);
 		std::swap(m_Flags, rhs.m_Flags);
 		std::swap(nLockCount, rhs.nLockCount);
 		std::swap(m_X1, rhs.m_X1);
@@ -94,7 +94,7 @@ protected:
 	}
 
 	// KEEP ALIGNED!
-	SimpleScreenObject *pOwner;
+	std::weak_ptr<window> m_Owner;
 	BitFlags m_Flags;
 	int nLockCount;
 	SHORT m_X1, m_Y1, m_X2, m_Y2;
@@ -110,7 +110,7 @@ public:
 	void HideButKeepSaveScreen();
 
 protected:
-	ScreenObject();
+	ScreenObject(window_ptr Owner);
 	virtual ~ScreenObject();
 
 	void swap(ScreenObject& rhs) noexcept
@@ -130,7 +130,7 @@ public:
 	virtual void Hide() override;
 
 protected:
-	ScreenObjectWithShadow();
+	ScreenObjectWithShadow(window_ptr Owner);
 	virtual ~ScreenObjectWithShadow();
 
 	void Shadow(bool Full=false);

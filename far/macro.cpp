@@ -1139,7 +1139,7 @@ bool KeyMacro::PostNewMacro(const wchar_t* Sequence,FARKEYMACROFLAGS InputFlags,
 
 static BOOL CheckEditSelected(FARMACROAREA Mode, UINT64 CurFlags)
 {
-	if (Mode==MACROAREA_EDITOR || Mode==MACROAREA_DIALOG || Mode==MACROAREA_VIEWER || (Mode==MACROAREA_SHELL&&Global->CtrlObject->CmdLine->IsVisible()))
+	if (Mode==MACROAREA_EDITOR || Mode==MACROAREA_DIALOG || Mode==MACROAREA_VIEWER || (Mode==MACROAREA_SHELL&&Global->CtrlObject->CmdLine()->IsVisible()))
 	{
 		int NeedType = Mode == MACROAREA_EDITOR?windowtype_editor:(Mode == MACROAREA_VIEWER?windowtype_viewer:(Mode == MACROAREA_DIALOG?windowtype_dialog:windowtype_panels));
 		auto CurrentWindow = Global->WindowManager->GetCurrentWindow();
@@ -1148,8 +1148,8 @@ static BOOL CheckEditSelected(FARMACROAREA Mode, UINT64 CurFlags)
 		{
 			int CurSelected;
 
-			if (Mode==MACROAREA_SHELL && Global->CtrlObject->CmdLine->IsVisible())
-				CurSelected=(int)Global->CtrlObject->CmdLine->VMProcess(MCODE_C_SELECTED);
+			if (Mode==MACROAREA_SHELL && Global->CtrlObject->CmdLine()->IsVisible())
+				CurSelected=(int)Global->CtrlObject->CmdLine()->VMProcess(MCODE_C_SELECTED);
 			else
 				CurSelected=(int)CurrentWindow->VMProcess(MCODE_C_SELECTED);
 
@@ -1217,7 +1217,7 @@ static BOOL CheckAll (FARMACROAREA Mode, UINT64 CurFlags)
 
 	// проверка на пусто/не пусто в ком.строке (а в редакторе? :-)
 	if (CurFlags&(MFLAGS_EMPTYCOMMANDLINE|MFLAGS_NOTEMPTYCOMMANDLINE))
-		if (Global->CtrlObject->CmdLine && !CheckCmdLine(Global->CtrlObject->CmdLine->GetLength(),CurFlags))
+		if (Global->CtrlObject->CmdLine() && !CheckCmdLine(Global->CtrlObject->CmdLine()->GetLength(),CurFlags))
 			return FALSE;
 
 	FilePanels *Cp=Global->CtrlObject->Cp();
@@ -1763,19 +1763,19 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_C_CMDLINE_EMPTY:            // CmdLine.Empty
 		case MCODE_C_CMDLINE_SELECTED:         // CmdLine.Selected
 		{
-			return PassBoolean(Global->CtrlObject->CmdLine && Global->CtrlObject->CmdLine->VMProcess(CheckCode), Data);
+			return PassBoolean(Global->CtrlObject->CmdLine() && Global->CtrlObject->CmdLine()->VMProcess(CheckCode), Data);
 		}
 
 		case MCODE_V_CMDLINE_ITEMCOUNT:        // CmdLine.ItemCount
 		case MCODE_V_CMDLINE_CURPOS:           // CmdLine.CurPos
 		{
-			return Global->CtrlObject->CmdLine?Global->CtrlObject->CmdLine->VMProcess(CheckCode):-1;
+			return Global->CtrlObject->CmdLine()?Global->CtrlObject->CmdLine()->VMProcess(CheckCode):-1;
 		}
 
 		case MCODE_V_CMDLINE_VALUE:            // CmdLine.Value
 		{
-			if (Global->CtrlObject->CmdLine)
-				Global->CtrlObject->CmdLine->GetString(strFileName);
+			if (Global->CtrlObject->CmdLine())
+				Global->CtrlObject->CmdLine()->GetString(strFileName);
 			return PassString(strFileName, Data);
 		}
 
@@ -1805,8 +1805,8 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			{
 				int CurSelected;
 
-				if (m_Mode==MACROAREA_SHELL && Global->CtrlObject->CmdLine->IsVisible())
-					CurSelected=(int)Global->CtrlObject->CmdLine->VMProcess(CheckCode);
+				if (m_Mode==MACROAREA_SHELL && Global->CtrlObject->CmdLine()->IsVisible())
+					CurSelected=(int)Global->CtrlObject->CmdLine()->VMProcess(CheckCode);
 				else
 					CurSelected=(int)CurrentWindow->VMProcess(CheckCode);
 
@@ -1832,9 +1832,9 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			if (!(m_Mode == MACROAREA_USERMENU || m_Mode == MACROAREA_MAINMENU || m_Mode == MACROAREA_MENU) && CurrentWindow && CurrentWindow->GetType() == windowtype_panels && !(CurMMode == MACROAREA_INFOPANEL || CurMMode == MACROAREA_QVIEWPANEL || CurMMode == MACROAREA_TREEPANEL))
 			{
 				if (CheckCode == MCODE_C_EMPTY)
-					ret=Global->CtrlObject->CmdLine->GetLength()?0:1;
+					ret=Global->CtrlObject->CmdLine()->GetLength()?0:1;
 				else
-					ret=Global->CtrlObject->CmdLine->VMProcess(CheckCode);
+					ret=Global->CtrlObject->CmdLine()->VMProcess(CheckCode);
 			}
 			else
 			{
@@ -5147,8 +5147,8 @@ static bool editorselFunc(FarMacroCall* Data)
 
 	if (CurrentWindow && CurrentWindow->GetType()==NeedType)
 	{
-		if (Mode==MACROAREA_SHELL && Global->CtrlObject->CmdLine->IsVisible())
-			Ret=Global->CtrlObject->CmdLine->VMProcess(MCODE_F_EDITOR_SEL,ToPtr(Action.toInteger()),Opts.asInteger());
+		if (Mode==MACROAREA_SHELL && Global->CtrlObject->CmdLine()->IsVisible())
+			Ret=Global->CtrlObject->CmdLine()->VMProcess(MCODE_F_EDITOR_SEL,ToPtr(Action.toInteger()),Opts.asInteger());
 		else
 			Ret=CurrentWindow->VMProcess(MCODE_F_EDITOR_SEL,ToPtr(Action.toInteger()),Opts.asInteger());
 	}

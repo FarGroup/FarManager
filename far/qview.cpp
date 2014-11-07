@@ -59,8 +59,8 @@ static bool LastMode = false;
 static bool LastWrapMode = false;
 static bool LastWrapType = false;
 
-QuickView::QuickView(FilePanels* Parent):
-	Panel(Parent),
+QuickView::QuickView(window_ptr Owner):
+	Panel(Owner),
 	Directory(0),
 	Data(),
 	OldWrapMode(0),
@@ -101,7 +101,7 @@ void QuickView::DisplayObject()
 	m_Flags.Set(FSCROBJ_ISREDRAWING);
 
 	if (!QView() && !ProcessingPluginCommand)
-		m_parent->GetAnotherPanel(this)->UpdateViewPanel();
+		Parent()->GetAnotherPanel(this)->UpdateViewPanel();
 
 	if (this->Destroyed())
 		return;
@@ -340,7 +340,7 @@ int QuickView::ProcessKey(const Manager::Key& Key)
 
 	if (LocalKey==KEY_F3 || LocalKey==KEY_NUMPAD5 || LocalKey == KEY_SHIFTNUMPAD5)
 	{
-		auto AnotherPanel = m_parent->GetAnotherPanel(this);
+		auto AnotherPanel = Parent()->GetAnotherPanel(this);
 
 		if (AnotherPanel->GetType()==FILE_PANEL)
 			AnotherPanel->ProcessKey(Manager::Key(KEY_F3));
@@ -350,7 +350,7 @@ int QuickView::ProcessKey(const Manager::Key& Key)
 
 	if (LocalKey==KEY_ADD || LocalKey==KEY_SUBTRACT)
 	{
-		auto AnotherPanel = m_parent->GetAnotherPanel(this);
+		auto AnotherPanel = Parent()->GetAnotherPanel(this);
 
 		if (AnotherPanel->GetType()==FILE_PANEL)
 			AnotherPanel->ProcessKey(Manager::Key(LocalKey==KEY_ADD?KEY_DOWN:KEY_UP));
@@ -365,7 +365,7 @@ int QuickView::ProcessKey(const Manager::Key& Key)
 		if (LocalKey == KEY_F4 || LocalKey == KEY_F8 || LocalKey == KEY_F2 || LocalKey == KEY_SHIFTF2)
 		{
 			DynamicUpdateKeyBar();
-			m_parent->GetKeybar().Redraw();
+			Parent()->GetKeybar().Redraw();
 		}
 
 		if (LocalKey == KEY_F7 || LocalKey == KEY_SHIFTF7)
@@ -375,7 +375,7 @@ int QuickView::ProcessKey(const Manager::Key& Key)
 			//DWORD Flags;
 			//QView()->GetSelectedParam(Pos,Length,Flags);
 			Redraw();
-			m_parent->GetAnotherPanel(this)->Redraw();
+			Parent()->GetAnotherPanel(this)->Redraw();
 			//QView()->SelectText(Pos,Length,Flags|1);
 		}
 
@@ -410,7 +410,7 @@ void QuickView::Update(int Mode)
 		return;
 
 	if (strCurFileName.empty())
-		m_parent->GetAnotherPanel(this)->UpdateViewPanel();
+		Parent()->GetAnotherPanel(this)->UpdateViewPanel();
 
 	Redraw();
 }
@@ -475,7 +475,7 @@ void QuickView::ShowFile(const string& FileName, bool TempFile, PluginHandle* hD
 	{
 		if (!strCurFileName.empty())
 		{
-			QView = std::make_unique<Viewer>(true);
+			QView = std::make_unique<Viewer>(GetOwner(), true);
 			QView()->SetRestoreScreenMode(false);
 			QView()->SetPosition(m_X1+1,m_Y1+1,m_X2-1,m_Y2-3);
 			QView()->SetStatusMode(0);
@@ -494,10 +494,10 @@ void QuickView::ShowFile(const string& FileName, bool TempFile, PluginHandle* hD
 
 	Redraw();
 
-	if (m_parent->ActivePanel() == this)
+	if (Parent()->ActivePanel() == this)
 	{
 		DynamicUpdateKeyBar();
-		m_parent->GetKeybar().Redraw();
+		Parent()->GetKeybar().Redraw();
 	}
 }
 
@@ -577,7 +577,7 @@ void QuickView::SetTitle()
 		else
 		{
 			string strCmdText;
-			Global->CtrlObject->CmdLine->GetString(strCmdText);
+			Parent()->GetCmdLine()->GetString(strCmdText);
 			strTitleDir += strCmdText;
 		}
 
@@ -607,13 +607,13 @@ int QuickView::GetCurName(string &strName, string &strShortName) const
 
 void QuickView::UpdateKeyBar()
 {
-	m_parent->GetKeybar().SetLabels(MQViewF1);
+	Parent()->GetKeybar().SetLabels(MQViewF1);
 	DynamicUpdateKeyBar();
 }
 
 void QuickView::DynamicUpdateKeyBar() const
 {
-	auto& Keybar = m_parent->GetKeybar();
+	auto& Keybar = Parent()->GetKeybar();
 
 	if (Directory || !QView())
 	{

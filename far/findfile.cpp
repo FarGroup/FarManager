@@ -509,7 +509,7 @@ void FindFiles::ReleaseInFileSearch()
 string& FindFiles::PrepareDriveNameStr(string &strSearchFromRoot)
 {
 	string strCurDir;
-	Global->CtrlObject->CmdLine->GetCurDir(strCurDir);
+	Global->CtrlObject->CmdLine()->GetCurDir(strCurDir);
 	GetPathRoot(strCurDir,strCurDir);
 	DeleteEndSlash(strCurDir);
 
@@ -2554,7 +2554,7 @@ void FindFiles::ScanPluginTree(Dialog* Dlg, PluginHandle* hPlugin, UINT64 Flags,
 void FindFiles::DoPrepareFileList(Dialog* Dlg)
 {
 	string strRoot;
-	Global->CtrlObject->CmdLine->GetCurDir(strRoot);
+	Global->CtrlObject->CmdLine()->GetCurDir(strRoot);
 	if (strRoot.find_first_of(L";,") != string::npos)
 		InsertQuote(strRoot);
 

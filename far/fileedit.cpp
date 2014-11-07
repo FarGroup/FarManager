@@ -384,9 +384,6 @@ FileEditor::~FileEditor()
 {
 	if (!m_Flags.Check(FFILEEDIT_OPENFAILED))
 	{
-		if (!m_Flags.Check(FFILEEDIT_DISABLESAVEPOS) && (m_editor->EdOpt.SavePos || m_editor->EdOpt.SaveShortPos) && Global->CtrlObject)
-			SaveToCache();
-
 		/* $ 11.10.2001 IS
 		   Удалим файл вместе с каталогом, если это просится и файла с таким же
 		   именем не открыто в других окнах.
@@ -422,7 +419,7 @@ void FileEditor::Init(
     EDITOR_FLAGS OpenModeExstFile
 )
 {
-	m_windowKeyBar = std::make_unique<KeyBar>();
+	m_windowKeyBar = std::make_unique<KeyBar>(shared_from_this());
 
 	class SmartLock: ::NonCopyable
 	{
@@ -440,12 +437,11 @@ void FileEditor::Init(
 	bEE_READ_Sent = false;
 	bLoaded = false;
 	m_bAddSignature = false;
-	m_editor = std::make_unique<Editor>();
+	m_editor = std::make_unique<Editor>(shared_from_this());
 
 	SCOPED_ACTION(SmartLock)(m_editor.get());
 
 	m_codepage = codepage;
-	m_editor->SetOwner(this);
 	m_editor->SetCodePage(m_codepage);
 	*AttrStr=0;
 	m_FileAttributes=INVALID_FILE_ATTRIBUTES;
@@ -681,7 +677,6 @@ void FileEditor::Init(
 
 	ShowConsoleTitle();
 	InitKeyBar();
-	m_windowKeyBar->SetOwner(this);
 	m_windowKeyBar->SetPosition(m_X1, m_Y2, m_X2, m_Y2);
 
 	if (!Global->Opt->EdOpt.ShowKeyBar)
@@ -938,7 +933,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 		{
 			if (GetCanLoseFocus())
 			{
-				Global->CtrlObject->CmdLine->ShowViewEditHistory();
+				Global->CtrlObject->CmdLine()->ShowViewEditHistory();
 				return TRUE;
 			}
 
@@ -1721,7 +1716,7 @@ bool FileEditor::ReloadFile(uintptr_t codepage)
 	auto save_BadConversiom(BadConversion);
 	auto save_Flags(m_Flags), save_Flags1(m_editor->m_Flags);
 
-	Editor saved;
+	Editor saved(shared_from_this());
 	saved.fake_editor = true;
 	m_editor->SwapState(saved);
 
@@ -2261,6 +2256,8 @@ void FileEditor::OnDestroy()
 	{
 		Global->CtrlObject->Plugins->ProcessEditorEvent(EE_CLOSE,nullptr,FEditEditorID);
 	}
+	if (!m_Flags.Check(FFILEEDIT_OPENFAILED) && !m_Flags.Check(FFILEEDIT_DISABLESAVEPOS) && (m_editor->EdOpt.SavePos || m_editor->EdOpt.SaveShortPos) && Global->CtrlObject)
+		SaveToCache();
 }
 
 int FileEditor::GetCanLoseFocus(int DynamicMode) const
@@ -2978,4 +2975,9 @@ uintptr_t FileEditor::GetDefaultCodePage()
 	if (cp < 0 || !Codepages().IsCodePageSupported(cp))
 		cp = GetACP();
 	return cp;
+}
+
+Editor* FileEditor::GetEditor(void)
+{
+	return m_editor.get();
 }

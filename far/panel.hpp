@@ -222,7 +222,7 @@ class FilePanels;
 class Panel:public ScreenObject, public DelayedDestroy, public std::enable_shared_from_this<Panel>
 {
 public:
-	Panel(FilePanels* Parent);
+	Panel(window_ptr Owner);
 
 	// TODO: make empty methods pure virtual, move empty implementations to dummy_panel class
 	virtual void CloseFile() {}
@@ -360,6 +360,7 @@ protected:
 	void ShowScreensCount();
 
 	static bool IsDragging();
+	FilePanels* Parent(void)const;
 
 private:
 	struct ShortcutInfo
@@ -378,7 +379,6 @@ private:
 	static void DragMessage(int X,int Y,int Move);
 
 protected:
-	FilePanels* m_parent;
 	PanelViewSettings m_ViewSettings;
 	string m_CurDir;
 	bool m_Focus;
@@ -407,7 +407,7 @@ private:
 class dummy_panel : public Panel
 {
 public:
-	dummy_panel(FilePanels* Parent): Panel(Parent){}
+	dummy_panel(window_ptr Owner): Panel(Owner){}
 private:
 	virtual void Update(int Mode) override {};
 	virtual void UpdateKeyBar() override {}

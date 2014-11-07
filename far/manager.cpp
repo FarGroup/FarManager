@@ -735,7 +735,7 @@ int Manager::ProcessKey(Key key)
 							{
 								int LeftVisible=Global->CtrlObject->Cp()->LeftPanel->IsVisible();
 								int RightVisible=Global->CtrlObject->Cp()->RightPanel->IsVisible();
-								int CmdLineVisible=Global->CtrlObject->CmdLine->IsVisible();
+								int CmdLineVisible=Global->CtrlObject->CmdLine()->IsVisible();
 								int KeyBarVisible=Global->CtrlObject->Cp()->GetKeybar().IsVisible();
 								ShowBackground();
 								Global->CtrlObject->Cp()->LeftPanel->HideButKeepSaveScreen();
@@ -745,7 +745,7 @@ int Manager::ProcessKey(Key key)
 								{
 									case 0:
 										if (CmdLineVisible)
-											Global->CtrlObject->CmdLine->Show();
+											Global->CtrlObject->CmdLine()->Show();
 										if (KeyBarVisible)
 											Global->CtrlObject->Cp()->GetKeybar().Show();
 										break;
@@ -761,7 +761,7 @@ int Manager::ProcessKey(Key key)
 
 								if (RightVisible)     Global->CtrlObject->Cp()->RightPanel->Show();
 
-								if (CmdLineVisible)   Global->CtrlObject->CmdLine->Show();
+								if (CmdLineVisible)   Global->CtrlObject->CmdLine()->Show();
 
 								if (KeyBarVisible)    Global->CtrlObject->Cp()->GetKeybar().Show();
 							}

@@ -48,7 +48,7 @@ class Dialog;
 class Viewer:public SimpleScreenObject
 {
 public:
-	Viewer(bool bQuickView = false, uintptr_t aCodePage = CP_DEFAULT);
+	Viewer(window_ptr Owner, bool bQuickView = false, uintptr_t aCodePage = CP_DEFAULT);
 	virtual ~Viewer();
 
 	virtual int ProcessKey(const Manager::Key& Key) override;
@@ -67,7 +67,7 @@ public:
 	void KeepInitParameters() const;
 	void GetFileName(string &strName) const;
 	void SetTempViewName(const string& Name, BOOL DeleteFolder);
-	void SetTitle(const wchar_t *Title);
+	void SetTitle(const string& Title);
 	string GetTitle() const;
 	void SetFilePos(__int64 Pos);
 	__int64 GetFilePos() const { return FilePos; }

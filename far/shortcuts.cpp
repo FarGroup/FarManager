@@ -368,7 +368,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 						{
 							shortcut NewItem;
 							Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
-							Global->CtrlObject->CmdLine->GetCurDir(NewItem.strFolder);
+							Global->CtrlObject->CmdLine()->GetCurDir(NewItem.strFolder);
 							if (ActivePanel->GetMode() == PLUGIN_PANEL)
 							{
 								OpenPanelInfo Info;
@@ -610,7 +610,7 @@ void Shortcuts::Configure()
 						--ItemIterator;
 					}
 					Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
-					Global->CtrlObject->CmdLine->GetCurDir(ItemIterator->strFolder);
+					Global->CtrlObject->CmdLine()->GetCurDir(ItemIterator->strFolder);
 					if (ActivePanel->GetMode() == PLUGIN_PANEL)
 					{
 						OpenPanelInfo Info;

@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class MenuBar:public SimpleScreenObject
 {
 public:
-	MenuBar() {}
+	MenuBar(window_ptr Owner): SimpleScreenObject(Owner) {}
 	virtual ~MenuBar() {}
 
 private:

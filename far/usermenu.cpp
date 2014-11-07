@@ -310,7 +310,7 @@ void UserMenu::ProcessUserMenu(bool MenuType, const string& MenuFileName)
 {
 	// Путь к текущему каталогу с файлом LocalMenuFileName
 	string strMenuFilePath;
-	Global->CtrlObject->CmdLine->GetCurDir(strMenuFilePath);
+	Global->CtrlObject->CmdLine()->GetCurDir(strMenuFilePath);
 	// по умолчанию меню - это FarMenu.ini
 	m_MenuMode = MM_LOCAL;
 	m_MenuModified = false;
@@ -446,7 +446,7 @@ void UserMenu::ProcessUserMenu(bool MenuType, const string& MenuFileName)
 						break;
 
 					default: // MM_USER
-						Global->CtrlObject->CmdLine->GetCurDir(strMenuFilePath);
+						Global->CtrlObject->CmdLine()->GetCurDir(strMenuFilePath);
 						m_MenuMode=MM_LOCAL;
 				}
 
@@ -748,8 +748,8 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		/* $ 01.05.2001 IS Отключим до лучших времен */
 		//int LeftVisible,RightVisible,PanelsHidden=0;
 		string strCmdLineDir;
-		Global->CtrlObject->CmdLine->GetCurDir(strCmdLineDir);
-		Global->CtrlObject->CmdLine->LockUpdatePanel(true);
+		Global->CtrlObject->CmdLine()->GetCurDir(strCmdLineDir);
+		Global->CtrlObject->CmdLine()->LockUpdatePanel(true);
 
 		// Цикл исполнения команд меню (CommandX)
 		std::for_each(CONST_RANGE((*CurrentMenuItem)->Commands, str)
@@ -800,7 +800,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 
 						if (!strCommand.empty())
 						{
-							Global->CtrlObject->CmdLine->ExecString(strCommand, false, 0, 0, ListFileUsed, false, true);
+							Global->CtrlObject->CmdLine()->ExecString(strCommand, false, 0, 0, ListFileUsed, false, true);
 						}
 					}
 				}
@@ -815,7 +815,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			}
 		});
 
-		Global->CtrlObject->CmdLine->LockUpdatePanel(false);
+		Global->CtrlObject->CmdLine()->LockUpdatePanel(false);
 
 		/* $ 01.05.2001 IS Отключим до лучших времен */
 		/*

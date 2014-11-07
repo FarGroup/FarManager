@@ -206,7 +206,7 @@ help_ptr Help::create(const string& Topic, const wchar_t *Mask, UINT64 Flags)
 
 void Help::init(const string& Topic, const wchar_t *Mask, UINT64 Flags)
 {
-	m_windowKeyBar = std::make_unique<KeyBar>();
+	m_windowKeyBar = std::make_unique<KeyBar>(shared_from_this());
 
 	m_CanLoseFocus=FALSE;
 	m_KeyBarVisible=TRUE;

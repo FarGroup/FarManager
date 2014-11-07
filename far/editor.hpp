@@ -46,7 +46,7 @@ class Edit;
 class Editor: public SimpleScreenObject
 {
 public:
-	Editor(SimpleScreenObject *pOwner = nullptr, bool DialogUsed = false);
+	Editor(window_ptr Owner, bool DialogUsed = false);
 	virtual ~Editor();
 
 	virtual int ProcessKey(const Manager::Key& Key) override;
@@ -339,4 +339,10 @@ private:
 		string Name;
 		int Percent;
 	};
+};
+
+class EditorContainer
+{
+public:
+	virtual Editor* GetEditor(void)=0;
 };

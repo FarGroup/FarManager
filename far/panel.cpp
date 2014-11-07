@@ -137,9 +137,9 @@ private:
 
 STD_SWAP_SPEC(ChDiskPluginItem);
 
-Panel::Panel(FilePanels* Parent):
+Panel::Panel(window_ptr Owner):
+	ScreenObject(Owner),
 	ProcessingPluginCommand(0),
-	m_parent(Parent),
 	m_Focus(false),
 	m_Type(0),
 	m_EnableUpdate(TRUE),
@@ -377,7 +377,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	class Guard_Macro_DskShowPosType  //фигня какая-то
 	{
 	public:
-		Guard_Macro_DskShowPosType(Panel *curPanel) { Global->Macro_DskShowPosType = (curPanel == curPanel->m_parent->LeftPanel) ? 1 : 2; }
+		Guard_Macro_DskShowPosType(Panel *curPanel) { Global->Macro_DskShowPosType = (curPanel == curPanel->Parent()->LeftPanel) ? 1 : 2; }
 		~Guard_Macro_DskShowPosType() {Global->Macro_DskShowPosType=0;}
 	};
 	SCOPED_ACTION(Guard_Macro_DskShowPosType)(this);
@@ -606,7 +606,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		int X=m_X1+5;
 
-		if ((this == m_parent->RightPanel) && IsFullScreen() && (m_X2 - m_X1 > 40))
+		if ((this == Parent()->RightPanel) && IsFullScreen() && (m_X2 - m_X1 > 40))
 			X = (m_X2-m_X1+1)/2+5;
 
 		ChDisk->SetPosition(X,-1,0,0);
@@ -732,7 +732,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					{
 						const wchar_t DeviceName[] = {item->cDrive, L':', L'\\', 0};
 						struct DiskMenuParam {const wchar_t* CmdLine; BOOL Apps;} p = {DeviceName, Key!=KEY_MSRCLICK};
-						Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, (m_parent->LeftPanel == this) ? OPEN_LEFTDISKMENU : OPEN_RIGHTDISKMENU, &p); // EMenu Plugin :-)
+						Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, (Parent()->LeftPanel == this) ? OPEN_LEFTDISKMENU : OPEN_RIGHTDISKMENU, &p); // EMenu Plugin :-)
 					}
 					break;
 				}
@@ -971,22 +971,22 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		else
 		{
 			int Focus=GetFocus();
-			auto NewPanel = m_parent->ChangePanel(this, FILE_PANEL, TRUE, FALSE);
+			auto NewPanel = Parent()->ChangePanel(this, FILE_PANEL, TRUE, FALSE);
 			NewPanel->SetCurDir(strNewCurDir,true);
 			NewPanel->Show();
 
-			if (Focus || !NewPanel->m_parent->GetAnotherPanel(NewPanel)->IsVisible())
+			if (Focus || !NewPanel->Parent()->GetAnotherPanel(NewPanel)->IsVisible())
 				NewPanel->SetFocus();
 
-			if (!Focus && NewPanel->m_parent->GetAnotherPanel(NewPanel)->GetType() == INFO_PANEL)
-				NewPanel->m_parent->GetAnotherPanel(NewPanel)->UpdateKeyBar();
+			if (!Focus && NewPanel->Parent()->GetAnotherPanel(NewPanel)->GetType() == INFO_PANEL)
+				NewPanel->Parent()->GetAnotherPanel(NewPanel)->UpdateKeyBar();
 		}
 	}
 	else //эта плагин, да
 	{
 		auto hPlugin = Global->CtrlObject->Plugins->Open(
 		                     mitem->pPlugin,
-		                     (m_parent->LeftPanel == this)?OPEN_LEFTDISKMENU:OPEN_RIGHTDISKMENU,
+		                     (Parent()->LeftPanel == this)?OPEN_LEFTDISKMENU:OPEN_RIGHTDISKMENU,
 		                     mitem->Guid,
 		                     0
 		                 );
@@ -994,13 +994,13 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		if (hPlugin)
 		{
 			int Focus=GetFocus();
-			auto NewPanel = m_parent->ChangePanel(this, FILE_PANEL, TRUE, TRUE);
-			NewPanel->SetPluginMode(hPlugin, L"", Focus || !NewPanel->m_parent->GetAnotherPanel(NewPanel)->IsVisible());
+			auto NewPanel = Parent()->ChangePanel(this, FILE_PANEL, TRUE, TRUE);
+			NewPanel->SetPluginMode(hPlugin, L"", Focus || !NewPanel->Parent()->GetAnotherPanel(NewPanel)->IsVisible());
 			NewPanel->Update(0);
 			NewPanel->Show();
 
-			if (!Focus && NewPanel->m_parent->GetAnotherPanel(NewPanel)->GetType() == INFO_PANEL)
-				NewPanel->m_parent->GetAnotherPanel(NewPanel)->UpdateKeyBar();
+			if (!Focus && NewPanel->Parent()->GetAnotherPanel(NewPanel)->GetType() == INFO_PANEL)
+				NewPanel->Parent()->GetAnotherPanel(NewPanel)->UpdateKeyBar();
 		}
 	}
 
@@ -1020,8 +1020,8 @@ int Panel::DisconnectDrive(const PanelMenuItem *item, VMenu2 &ChDisk)
 		{
 			// запоминаем состояние панелей
 			int CMode=GetMode();
-			int AMode = m_parent->GetAnotherPanel(this)->GetMode();
-			string strTmpCDir(GetCurDir()), strTmpADir(m_parent->GetAnotherPanel(this)->GetCurDir());
+			int AMode = Parent()->GetAnotherPanel(this)->GetMode();
+			string strTmpCDir(GetCurDir()), strTmpADir(Parent()->GetAnotherPanel(this)->GetCurDir());
 			// "цикл до умопомрачения"
 			int DoneEject=FALSE;
 
@@ -1037,7 +1037,7 @@ int Panel::DisconnectDrive(const PanelMenuItem *item, VMenu2 &ChDisk)
 				{
 					// восстановим пути - это избавит нас от левых данных в панели.
 					if (AMode != PLUGIN_PANEL)
-						m_parent->GetAnotherPanel(this)->SetCurDir(strTmpADir, false);
+						Parent()->GetAnotherPanel(this)->SetCurDir(strTmpADir, false);
 
 					if (CMode != PLUGIN_PANEL)
 						SetCurDir(strTmpCDir, false);
@@ -1068,8 +1068,8 @@ void Panel::RemoveHotplugDevice(const PanelMenuItem *item, VMenu2 &ChDisk)
 	{
 		// запоминаем состояние панелей
 		int CMode=GetMode();
-		int AMode = m_parent->GetAnotherPanel(this)->GetMode();
-		string strTmpCDir(GetCurDir()), strTmpADir(m_parent->GetAnotherPanel(this)->GetCurDir());
+		int AMode = Parent()->GetAnotherPanel(this)->GetMode();
+		string strTmpCDir(GetCurDir()), strTmpADir(Parent()->GetAnotherPanel(this)->GetCurDir());
 		// "цикл до умопомрачения"
 		int DoneEject=FALSE;
 
@@ -1085,7 +1085,7 @@ void Panel::RemoveHotplugDevice(const PanelMenuItem *item, VMenu2 &ChDisk)
 			{
 				// восстановим пути - это избавит нас от левых данных в панели.
 				if (AMode != PLUGIN_PANEL)
-					m_parent->GetAnotherPanel(this)->SetCurDir(strTmpADir, false);
+					Parent()->GetAnotherPanel(this)->SetCurDir(strTmpADir, false);
 
 				if (CMode != PLUGIN_PANEL)
 					SetCurDir(strTmpCDir, false);
@@ -1279,7 +1279,7 @@ class Search: public Modal
 {
 public:
 	static search_ptr create(Panel* Owner, int FirstKey, int X, int Y);
-	virtual ~Search() {}
+	virtual ~Search();
 
 	void Process(void);
 	virtual int ProcessKey(const Manager::Key& Key) override;
@@ -1294,7 +1294,7 @@ private:
 
 	Panel* m_Owner;
 	int m_FirstKey;
-	EditControl m_FindEdit;
+	EditControl* m_FindEdit;
 	int m_KeyToProcess;
 	Search();
 	virtual void DisplayObject(void) override;
@@ -1307,7 +1307,7 @@ private:
 Search::Search(Panel* Owner, int FirstKey):
 	m_Owner(Owner),
 	m_FirstKey(FirstKey),
-	m_FindEdit(this),
+	m_FindEdit(),
 	m_KeyToProcess(0)
 {
 }
@@ -1319,15 +1319,21 @@ search_ptr Search::create(Panel* Owner, int FirstKey, int X, int Y)
 	return SearchPtr;
 }
 
+Search::~Search()
+{
+	delete m_FindEdit;
+}
+
 void Search::init(int X, int Y)
 {
 	SetMacroMode(MACROAREA_SEARCH);
 	SetRestoreScreenMode(true);
 	SetPosition(X,Y,X+21,Y+2);
 
-	m_FindEdit.SetPosition(X+2,Y+1,X+19,Y+1);
-	m_FindEdit.SetEditBeyondEnd(false);
-	m_FindEdit.SetObjectColor(COL_DIALOGEDIT);
+	m_FindEdit = new EditControl(shared_from_this(), this);
+	m_FindEdit->SetPosition(X+2,Y+1,X+19,Y+1);
+	m_FindEdit->SetEditBeyondEnd(false);
+	m_FindEdit->SetObjectColor(COL_DIALOGEDIT);
 }
 
 void Search::Process(void)
@@ -1361,9 +1367,9 @@ int Search::ProcessKey(const Manager::Key& Key)
 	else if (LocalKey == KEY_OP_XLAT)
 	{
 		string strTempName;
-		m_FindEdit.Xlat();
-		m_FindEdit.GetString(strTempName);
-		m_FindEdit.SetString(L"");
+		m_FindEdit->Xlat();
+		m_FindEdit->GetString(strTempName);
+		m_FindEdit->SetString(L"");
 		ProcessName(strTempName, strName);
 		ShowBorder();
 		return TRUE;
@@ -1371,9 +1377,9 @@ int Search::ProcessKey(const Manager::Key& Key)
 	else if (LocalKey == KEY_OP_PLAINTEXT)
 	{
 		string strTempName;
-		m_FindEdit.ProcessKey(Manager::Key(LocalKey));
-		m_FindEdit.GetString(strTempName);
-		m_FindEdit.SetString(L"");
+		m_FindEdit->ProcessKey(Manager::Key(LocalKey));
+		m_FindEdit->GetString(strTempName);
+		m_FindEdit->SetString(L"");
 		ProcessName(strTempName, strName);
 		ShowBorder();
 		return TRUE;
@@ -1415,16 +1421,16 @@ int Search::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_CTRLNUMENTER:   case KEY_RCTRLNUMENTER:
 		case KEY_CTRLENTER:      case KEY_RCTRLENTER:
-			m_FindEdit.GetString(strName);
+			m_FindEdit->GetString(strName);
 			m_Owner->FindPartName(strName, TRUE, 1);
-			m_FindEdit.Show();
+			m_FindEdit->Show();
 			ShowBorder();
 			break;
 		case KEY_CTRLSHIFTNUMENTER:  case KEY_RCTRLSHIFTNUMENTER:
 		case KEY_CTRLSHIFTENTER:     case KEY_RCTRLSHIFTENTER:
-			m_FindEdit.GetString(strName);
+			m_FindEdit->GetString(strName);
 			m_Owner->FindPartName(strName, TRUE, -1);
-			m_FindEdit.Show();
+			m_FindEdit->Show();
 			ShowBorder();
 			break;
 		case KEY_NONE:
@@ -1444,10 +1450,10 @@ int Search::ProcessKey(const Manager::Key& Key)
 			}
 
 			string strLastName;
-			m_FindEdit.GetString(strLastName);
-			if (m_FindEdit.ProcessKey(Manager::Key(LocalKey)))
+			m_FindEdit->GetString(strLastName);
+			if (m_FindEdit->ProcessKey(Manager::Key(LocalKey)))
 			{
-				m_FindEdit.GetString(strName);
+				m_FindEdit->GetString(strName);
 
 				// уберем двойные '**'
 				if (strName.size() > 1
@@ -1455,7 +1461,7 @@ int Search::ProcessKey(const Manager::Key& Key)
 				        && strName[strName.size()-2] == L'*')
 				{
 					strName.pop_back();
-					m_FindEdit.SetString(strName.data());
+					m_FindEdit->SetString(strName.data());
 				}
 
 				/* $ 09.04.2001 SVS
@@ -1465,7 +1471,7 @@ int Search::ProcessKey(const Manager::Key& Key)
 				if (!strName.empty() && strName.front() == L'"')
 				{
 					strName.erase(0, 1);
-					m_FindEdit.SetString(strName.data());
+					m_FindEdit->SetString(strName.data());
 				}
 
 				if (m_Owner->FindPartName(strName, FALSE, 1))
@@ -1481,10 +1487,10 @@ int Search::ProcessKey(const Manager::Key& Key)
 						;
 					}
 
-					m_FindEdit.SetString(strLastName.data());
+					m_FindEdit->SetString(strLastName.data());
 				}
 
-				m_FindEdit.Show();
+				m_FindEdit->Show();
 				ShowBorder();
 			}
 
@@ -1518,19 +1524,19 @@ void Search::ShowBorder(void)
 void Search::DisplayObject(void)
 {
 	ShowBorder();
-	m_FindEdit.Show();
+	m_FindEdit->Show();
 }
 
 void Search::ProcessName(const string& Src, string &strName)
 {
-	string Buffer = Unquote(m_FindEdit.GetStringAddr() + Src);
+	string Buffer = Unquote(m_FindEdit->GetStringAddr() + Src);
 
 	for (; !Buffer.empty() && !m_Owner->FindPartName(Buffer, FALSE, 1); Buffer.pop_back());
 
 	if (!Buffer.empty())
 	{
-		m_FindEdit.SetString(Buffer.data());
-		m_FindEdit.Show();
+		m_FindEdit->SetString(Buffer.data());
+		m_FindEdit->Show();
 		strName = Buffer;
 	}
 }
@@ -1555,22 +1561,22 @@ void Panel::FastFind(int FirstKey)
 	}
 	Global->WaitInFastFind--;
 	Show();
-	m_parent->GetKeybar().Redraw();
+	Parent()->GetKeybar().Redraw();
 	Global->ScrBuf->Flush();
 
-	auto TreePanel = dynamic_cast<TreeList*>(m_parent->ActivePanel());
+	auto TreePanel = dynamic_cast<TreeList*>(Parent()->ActivePanel());
 	if (TreePanel && (KeyToProcess == KEY_ENTER || KeyToProcess == KEY_NUMENTER))
 		TreePanel->ProcessEnter();
 	else
-		m_parent->ProcessKey(Manager::Key(KeyToProcess));
+		Parent()->ProcessKey(Manager::Key(KeyToProcess));
 }
 
 void Panel::SetFocus()
 {
-	if (m_parent->ActivePanel() != this)
+	if (Parent()->ActivePanel() != this)
 	{
-		m_parent->ActivePanel()->KillFocus();
-		m_parent->SetActivePanel(this);
+		Parent()->ActivePanel()->KillFocus();
+		Parent()->SetActivePanel(this);
 	}
 
 	Global->WindowManager->UpdateMacroArea();
@@ -1578,7 +1584,7 @@ void Panel::SetFocus()
 
 	if (!GetFocus())
 	{
-		m_parent->RedrawKeyBar();
+		Parent()->RedrawKeyBar();
 		m_Focus = true;
 		Redraw();
 		FarChDir(m_CurDir);
@@ -1616,7 +1622,7 @@ int  Panel::PanelProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 				EndDrag();
 
 				if (!MouseEvent->dwMousePosition.X)
-					m_parent->ProcessKey(Manager::Key(KEY_CTRLO));
+					Parent()->ProcessKey(Manager::Key(KEY_CTRLO));
 				else
 					Global->Opt->ShellOptions(false,MouseEvent);
 
@@ -1650,7 +1656,7 @@ int  Panel::PanelProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 		}
 
 		if (MouseEvent->dwMousePosition.Y<=m_Y1 || MouseEvent->dwMousePosition.Y>=m_Y2 ||
-			!m_parent->GetAnotherPanel(SrcDragPanel)->IsVisible())
+			!Parent()->GetAnotherPanel(SrcDragPanel)->IsVisible())
 		{
 			EndDrag();
 			return TRUE;
@@ -1822,7 +1828,7 @@ int Panel::SetCurPath()
 	if (GetMode()==PLUGIN_PANEL)
 		return TRUE;
 
-	auto AnotherPanel = m_parent->GetAnotherPanel(this);
+	auto AnotherPanel = Parent()->GetAnotherPanel(this);
 
 	if (AnotherPanel->GetType()!=PLUGIN_PANEL)
 	{
@@ -1922,7 +1928,7 @@ int Panel::SetCurPath()
 void Panel::Hide()
 {
 	ScreenObject::Hide();
-	auto AnotherPanel = m_parent->GetAnotherPanel(this);
+	auto AnotherPanel = Parent()->GetAnotherPanel(this);
 
 	if (AnotherPanel->IsVisible())
 	{
@@ -1943,11 +1949,11 @@ void Panel::Show()
 
 	/* $ 03.10.2001 IS перерисуем строчку меню */
 	if (Global->Opt->ShowMenuBar)
-		Global->CtrlObject->TopMenuBar->Show();
+		Parent()->GetTopMenuBar()->Show();
 
 	if (!GetModalMode())
 	{
-		auto AnotherPanel = m_parent->GetAnotherPanel(this);
+		auto AnotherPanel = Parent()->GetAnotherPanel(this);
 		if (AnotherPanel->IsVisible())
 		{
 			if (SaveScr)
@@ -2033,7 +2039,7 @@ void Panel::SetTitle()
 		else
 		{
 			string strCmdText;
-			Global->CtrlObject->CmdLine->GetCurDir(strCmdText);
+			Parent()->GetCmdLine()->GetCurDir(strCmdText);
 			strTitleDir += strCmdText;
 		}
 
@@ -2075,7 +2081,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 	switch (Command)
 	{
 		case FCTL_SETVIEWMODE:
-			Result = m_parent->ChangePanelViewMode(this, Param1, m_parent->IsTopWindow());
+			Result = Parent()->ChangePanelViewMode(this, Param1, Parent()->IsTopWindow());
 			break;
 
 		case FCTL_SETSORTMODE:
@@ -2174,7 +2180,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			Info->Flags |= (GetMode()==PLUGIN_PANEL)? PFLAGS_PLUGIN : 0;
 			Info->Flags |= IsVisible()? PFLAGS_VISIBLE : 0;
 			Info->Flags |= GetFocus()? PFLAGS_FOCUS : 0;
-			Info->Flags |= this == m_parent->LeftPanel ? PFLAGS_PANELLEFT : 0;
+			Info->Flags |= this == Parent()->LeftPanel ? PFLAGS_PANELLEFT : 0;
 
 			if (GetType()==FILE_PANEL)
 			{
@@ -2416,7 +2422,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			}
 
 			// $ 12.05.2001 DJ перерисовываемся только в том случае, если мы - текущее окно
-			if (m_parent->IsTopWindow())
+			if (Parent()->IsTopWindow())
 				Redraw();
 
 			Result=TRUE;
@@ -2431,7 +2437,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				string strName(NullToEmpty(dirInfo->Name)), strFile(NullToEmpty(dirInfo->File)), strParam(NullToEmpty(dirInfo->Param));
 				Result = ExecShortcutFolder(strName,dirInfo->PluginId,strFile,strParam,false);
 				// restore current directory to active panel path
-				auto ActivePanel = m_parent->ActivePanel();
+				auto ActivePanel = Parent()->ActivePanel();
 				if (Result && this != ActivePanel)
 				{
 					ActivePanel->SetCurPath();
@@ -2613,7 +2619,7 @@ int Panel::ProcessShortcutFolder(int Key,BOOL ProcTreePanel)
 
 	if (GetShortcutFolder(Key-KEY_RCTRL0,&strShortcutFolder,&strPluginModule,&strPluginFile,&strPluginData))
 	{
-		auto AnotherPanel = m_parent->GetAnotherPanel(this);
+		auto AnotherPanel = Parent()->GetAnotherPanel(this);
 
 		if (ProcTreePanel)
 		{
@@ -2659,7 +2665,7 @@ bool Panel::ExecShortcutFolder(int Pos, bool raw)
 bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid, const string& strPluginFile, const string& strPluginData, bool CheckType)
 {
 	auto SrcPanel=this;
-	auto AnotherPanel = m_parent->GetAnotherPanel(this);
+	auto AnotherPanel = Parent()->GetAnotherPanel(this);
 
 	if(CheckType)
 	{
@@ -2714,7 +2720,7 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid
 					sizeof(OpenShortcutInfo),
 					strPluginFile.empty()?nullptr:strPluginFile.data(),
 					strPluginData.empty()?nullptr:strPluginData.data(),
-					(SrcPanel == m_parent->ActivePanel()) ? FOSF_ACTIVE : FOSF_NONE
+					(SrcPanel == Parent()->ActivePanel()) ? FOSF_ACTIVE : FOSF_NONE
 				};
 				auto hNewPlugin=Global->CtrlObject->Plugins->Open(pPlugin,OPEN_SHORTCUT,FarGuid,(intptr_t)&info);
 
@@ -2722,8 +2728,8 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid
 				{
 					int CurFocus=SrcPanel->GetFocus();
 
-					auto NewPanel = m_parent->ChangePanel(SrcPanel, FILE_PANEL, TRUE, TRUE);
-					NewPanel->SetPluginMode(hNewPlugin, L"", CurFocus || !m_parent->GetAnotherPanel(NewPanel)->IsVisible());
+					auto NewPanel = Parent()->ChangePanel(SrcPanel, FILE_PANEL, TRUE, TRUE);
+					NewPanel->SetPluginMode(hNewPlugin, L"", CurFocus || !Parent()->GetAnotherPanel(NewPanel)->IsVisible());
 
 					if (!strShortcutFolder.empty())
 					{
@@ -2748,14 +2754,14 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid
     /*
 	if (SrcPanel->GetType()!=FILE_PANEL)
 	{
-		SrcPanel = m_parent->ChangePanel(SrcPanel,FILE_PANEL,TRUE,TRUE);
+		SrcPanel = Parent()->ChangePanel(SrcPanel,FILE_PANEL,TRUE,TRUE);
 	}
     */
 
 	SrcPanel->SetCurDir(strShortcutFolder,true);
 
 	if (CheckFullScreen!=SrcPanel->IsFullScreen())
-		m_parent->GetAnotherPanel(SrcPanel)->Show();
+		Parent()->GetAnotherPanel(SrcPanel)->Show();
 
 	SrcPanel->Redraw();
 	return true;
@@ -2844,4 +2850,9 @@ void Panel::exclude_sets(string& mask)
 	ReplaceStrings(mask, L"[", L"<[%>", true);
 	ReplaceStrings(mask, L"]", L"[]]", true);
 	ReplaceStrings(mask, L"<[%>", L"[[]", true);
+}
+
+FilePanels* Panel::Parent(void)const
+{
+	return dynamic_cast<FilePanels*>(GetOwner().get());
 }

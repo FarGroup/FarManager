@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static int windowID=0;
 
 window::window():
+	ScreenObjectWithShadow(nullptr),
 	m_ID(windowID++),
 	m_CanLoseFocus(FALSE),
 	m_ExitCode(-1),

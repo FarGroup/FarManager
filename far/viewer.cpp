@@ -99,7 +99,8 @@ static bool IsCodePageSupported(uintptr_t cp)
 }
 
 // seems like this initialization list is toooooo long
-Viewer::Viewer(bool bQuickView, uintptr_t aCodePage):
+Viewer::Viewer(window_ptr Owner, bool bQuickView, uintptr_t aCodePage):
+	SimpleScreenObject(Owner),
 	ViOpt(Global->Opt->ViOpt),
 	Signature(),
 	m_ViewKeyBar(),
@@ -3504,12 +3505,9 @@ void Viewer::SetTempViewName(const string& Name, BOOL DeleteFolder)
 	m_DeleteFolder=DeleteFolder;
 }
 
-void Viewer::SetTitle(const wchar_t *Title)
+void Viewer::SetTitle(const string& Title)
 {
-	if (!Title)
-		strTitle.clear();
-	else
-		strTitle = Title;
+	strTitle = Title;
 }
 
 void Viewer::SetFilePos(__int64 Pos)

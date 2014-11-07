@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class Panel;
 class CommandLine;
+class MenuBar;
 
 typedef std::shared_ptr<FilePanels> filepanels_ptr;
 
@@ -73,6 +74,8 @@ public:
 	void SetActivePanel(Panel* p) { m_ActivePanel = p; }
 
 	KeyBar& GetKeybar() { return *m_windowKeyBar; }
+	CommandLine* GetCmdLine(void);
+	MenuBar* GetTopMenuBar(void);
 
 private:
 	FilePanels();
@@ -86,6 +89,9 @@ private:
 	int SetAnhoterPanelFocus();
 	int SwapPanels();
 	void Update();
+
+	std::unique_ptr<CommandLine> CmdLine;
+	std::unique_ptr<MenuBar> TopMenuBar;
 
 public:
 	Panel *LastLeftFilePanel;

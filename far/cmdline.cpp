@@ -77,9 +77,11 @@ enum
 	DEFAULT_CMDLINE_WIDTH = 50,
 };
 
-CommandLine::CommandLine():
+CommandLine::CommandLine(window_ptr Owner):
+	SimpleScreenObject(Owner),
 	PromptSize(DEFAULT_CMDLINE_WIDTH),
 	CmdStr(
+		Owner,
 		this,
 		[this](const Manager::Key& Key){ return Global->CtrlObject->Cp()->ProcessKey(Key); },
 		0,
@@ -520,6 +522,7 @@ void CommandLine::SetString(const string& Str, bool Redraw)
 	CmdStr.SetString(Str.data());
 	CmdStr.SetLeftPos(0);
 
+	//FIXME
 	if (Redraw)
 		CmdStr.Show();
 }
@@ -840,10 +843,10 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 		{
 			if(Preserve)
 			{
-				OldCmdLineCurPos = Global->CtrlObject->CmdLine->GetCurPos();
-				OldCmdLineLeftPos = Global->CtrlObject->CmdLine->GetLeftPos();
-				Global->CtrlObject->CmdLine->GetString(strOldCmdLine);
-				Global->CtrlObject->CmdLine->GetSelection(OldCmdLineSelStart,OldCmdLineSelEnd);
+				OldCmdLineCurPos = Global->CtrlObject->CmdLine()->GetCurPos();
+				OldCmdLineLeftPos = Global->CtrlObject->CmdLine()->GetLeftPos();
+				Global->CtrlObject->CmdLine()->GetString(strOldCmdLine);
+				Global->CtrlObject->CmdLine()->GetSelection(OldCmdLineSelStart,OldCmdLineSelEnd);
 			}
 		}
 		~preservecmdline()
@@ -851,9 +854,9 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 			if(Preserve)
 			{
 				bool redraw = Global->WindowManager->IsPanelsActive();
-				Global->CtrlObject->CmdLine->SetString(strOldCmdLine, redraw);
-				Global->CtrlObject->CmdLine->SetCurPos(OldCmdLineCurPos, OldCmdLineLeftPos, redraw);
-				Global->CtrlObject->CmdLine->Select(OldCmdLineSelStart, OldCmdLineSelEnd);
+				Global->CtrlObject->CmdLine()->SetString(strOldCmdLine, redraw);
+				Global->CtrlObject->CmdLine()->SetCurPos(OldCmdLineCurPos, OldCmdLineLeftPos, redraw);
+				Global->CtrlObject->CmdLine()->Select(OldCmdLineSelStart, OldCmdLineSelEnd);
 			}
 		}
 	private:

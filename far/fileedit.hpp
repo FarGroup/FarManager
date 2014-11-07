@@ -69,7 +69,7 @@ enum FFILEEDIT_FLAGS
 
 typedef std::shared_ptr<FileEditor> fileeditor_ptr;
 
-class FileEditor: public window
+class FileEditor: public window,public EditorContainer
 {
 public:
 	static fileeditor_ptr create(const string&  Name, uintptr_t codepage, DWORD InitFlags, int StartLine = -1, int StartChar = -1, const string* PluginData = nullptr, EDITOR_FLAGS OpenModeExstFile = EF_OPENMODE_QUERY);
@@ -99,6 +99,7 @@ public:
 	int GetId() const { return m_editor->EditorID; }
 	FileEditor* GetById(int ID) { return GetId()==ID?this:nullptr; }
 	void AutoDeleteColors() const { m_editor->AutoDeleteColors(); }
+	Editor* GetEditor(void) override;
 
 private:
 	FileEditor();

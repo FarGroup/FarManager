@@ -646,9 +646,9 @@ void Options::CmdlineSettings()
 
 	if (Builder.ShowDialog())
 	{
-		Global->CtrlObject->CmdLine->SetPersistentBlocks(CmdLine.EditBlock);
-		Global->CtrlObject->CmdLine->SetDelRemovesBlocks(CmdLine.DelRemovesBlocks);
-		Global->CtrlObject->CmdLine->SetAutoComplete(CmdLine.AutoComplete);
+		Global->CtrlObject->CmdLine()->SetPersistentBlocks(CmdLine.EditBlock);
+		Global->CtrlObject->CmdLine()->SetDelRemovesBlocks(CmdLine.DelRemovesBlocks);
+		Global->CtrlObject->CmdLine()->SetAutoComplete(CmdLine.AutoComplete);
 	}
 }
 
@@ -3235,7 +3235,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 	//      или то, что, скажем редактор/вьювер может быть не полноэкранным
 
 	if (!(CurrentWindowType == windowtype_viewer || CurrentWindowType == windowtype_editor))
-		Global->CtrlObject->CmdLine->Show();
+		Global->CtrlObject->CmdLine()->Show();
 
 	if (HItem != -1 && VItem != -1)
 	{

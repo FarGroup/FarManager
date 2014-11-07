@@ -81,20 +81,21 @@ public:
 	__int64 GetViewFileSize() const;
 	__int64 GetViewFilePos() const;
 	void ShowStatus();
-	int GetId() const { return m_View.ViewerID; }
+	int GetId() const { return GetView().ViewerID; }
 	void OnReload(void);
 	void ReadEvent(void);
 
 
 private:
-	FileViewer(int DisableEdit, uintptr_t aCodePage, const wchar_t *Title);
+	FileViewer(int DisableEdit, const wchar_t *Title);
 
 	virtual void Show() override;
 	virtual void DisplayObject() override;
 
-	void Init(const string& Name, int EnableSwitch, int DisableHistory, __int64 ViewStartPos, const wchar_t *PluginData, NamesList *ViewNamesList, bool ToSaveAs, window_ptr Update = nullptr);
+	void Init(const string& Name, int EnableSwitch, int DisableHistory, __int64 ViewStartPos, const wchar_t *PluginData, NamesList *ViewNamesList, bool ToSaveAs, uintptr_t aCodePage, window_ptr Update = nullptr);
+	Viewer& GetView(void)const {return *m_View;}
 
-	Viewer m_View;
+	Viewer* m_View;
 	int RedrawTitle;
 	bool F3KeyOnly;
 	bool FullScreen;

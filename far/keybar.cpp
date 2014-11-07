@@ -50,7 +50,8 @@ enum
 	KEY_COUNT = 12
 };
 
-KeyBar::KeyBar():
+KeyBar::KeyBar(window_ptr Owner):
+	SimpleScreenObject(Owner),
 	Items(KBL_GROUP_COUNT),
 	CustomArea(),
 	AltState(0),

@@ -100,7 +100,8 @@ private:
 	bool needCheckUnmark;
 };
 
-Editor::Editor(SimpleScreenObject *pOwner, bool DialogUsed):
+Editor::Editor(window_ptr Owner, bool DialogUsed):
+	SimpleScreenObject(Owner),
 	FirstLine(Lines.end()),
 	LastLine(Lines.end()),
 	TopScreen(Lines.end()),
@@ -143,7 +144,6 @@ Editor::Editor(SimpleScreenObject *pOwner, bool DialogUsed):
 	_KEYMACRO(SysLog(L"Editor::Editor()"));
 	_KEYMACRO(SysLog(1));
 
-	SetOwner(pOwner);
 	if (DialogUsed)
 		m_Flags.Set(FEDITOR_DIALOGMEMOEDIT);
 
@@ -7285,7 +7285,7 @@ Editor::iterator Editor::InsertString(const wchar_t *lpwszStr, int nLength, iter
 {
 	bool Empty = Lines.empty();
 
-	auto NewLine = Lines.emplace(Empty ? Lines.begin() : std::next(pAfter), Edit(this, !lpwszStr));
+	auto NewLine = Lines.emplace(Empty ? Lines.begin() : std::next(pAfter), Edit(GetOwner(), !lpwszStr));
 
 	NewLine->SetPersistentBlocks(EdOpt.PersistentBlocks);
 

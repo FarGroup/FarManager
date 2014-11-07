@@ -430,7 +430,7 @@ int SubstFileName(const wchar_t *DlgTitle,
 	if (CmdLineDir)
 		PSubstData->strCmdDir = CmdLineDir;
 	else // ...спросим у ком.строки
-		Global->CtrlObject->CmdLine->GetCurDir(PSubstData->strCmdDir);
+		Global->CtrlObject->CmdLine()->GetCurDir(PSubstData->strCmdDir);
 
 	// Предварительно получим некоторые "константы" :-)
 	PSubstData->strNameOnly = Name;

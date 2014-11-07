@@ -100,6 +100,8 @@ enum SetCPFlags
 	SETCP_OTHERERROR = 0x10000000,
 };
 
+class Editor;
+
 class Edit:public SimpleScreenObject
 {
 	enum EDITCOLORLISTFLAGS
@@ -115,7 +117,7 @@ class Edit:public SimpleScreenObject
 public:
 	typedef std::function<bool(const ColorItem&)> delete_color_condition;
 
-	Edit(SimpleScreenObject *pOwner = nullptr, bool bAllocateData = true);
+	Edit(window_ptr Owner, bool bAllocateData = true);
 	Edit(Edit&& rhs);
 	virtual ~Edit();
 
@@ -241,6 +243,7 @@ private:
 	int RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos) const;
 	void FixLeftPos(int TabCurPos=-1);
 	void SetRightCoord(int Value) {SetPosition(m_X1, m_Y2, Value, m_Y2);}
+	Editor* GetEditor(void)const;
 
 protected:
 	// KEEP ALIGNED!

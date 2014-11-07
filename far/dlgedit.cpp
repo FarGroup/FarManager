@@ -41,9 +41,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "history.hpp"
 #include "syslog.hpp"
 
-DlgEdit::DlgEdit(Dialog* pOwner,size_t Index,DLGEDITTYPE Type):
+DlgEdit::DlgEdit(window_ptr Owner,size_t Index,DLGEDITTYPE Type):
+	SimpleScreenObject(Owner),
 	LastPartLength(-1),
-	m_Dialog(pOwner),
 	m_Index(Index),
 	Type(Type),
 	iHistory(nullptr),
@@ -65,35 +65,32 @@ DlgEdit::DlgEdit(Dialog* pOwner,size_t Index,DLGEDITTYPE Type):
 
 			FarList* iList=0;
 			DWORD iFlags=0;
-			if(pOwner)
+			auto& CurItem=GetDialog()->Items[Index];
+			if(Global->Opt->Dialogs.AutoComplete && CurItem.Flags&(DIF_HISTORY|DIF_EDITPATH|DIF_EDITPATHEXEC) && !(CurItem.Flags&DIF_DROPDOWNLIST) && !(CurItem.Flags&DIF_NOAUTOCOMPLETE))
 			{
-				auto& CurItem=pOwner->Items[Index];
-				if(Global->Opt->Dialogs.AutoComplete && CurItem.Flags&(DIF_HISTORY|DIF_EDITPATH|DIF_EDITPATHEXEC) && !(CurItem.Flags&DIF_DROPDOWNLIST) && !(CurItem.Flags&DIF_NOAUTOCOMPLETE))
-				{
-					iFlags=EditControl::EC_ENABLEAUTOCOMPLETE;
-				}
-				if(CurItem.Flags&DIF_HISTORY && !CurItem.strHistory.empty())
-				{
-					SetHistory(CurItem.strHistory);
-				}
-				if(CurItem.Type == DI_COMBOBOX)
-				{
-					iList=CurItem.ListItems;
-				}
-				if(CurItem.Flags&DIF_HISTORY)
-				{
-					iFlags|=EditControl::EC_COMPLETE_HISTORY;
-				}
-				if(CurItem.Flags&DIF_EDITPATH)
-				{
-					iFlags|=EditControl::EC_COMPLETE_FILESYSTEM;
-				}
-				if(CurItem.Flags&DIF_EDITPATHEXEC)
-				{
-					iFlags|=EditControl::EC_COMPLETE_PATH;
-				}
+				iFlags=EditControl::EC_ENABLEAUTOCOMPLETE;
 			}
-			lineEdit = std::make_unique<EditControl>(pOwner, nullptr, &callback, true, iHistory.get(), iList, iFlags);
+			if(CurItem.Flags&DIF_HISTORY && !CurItem.strHistory.empty())
+			{
+				SetHistory(CurItem.strHistory);
+			}
+			if(CurItem.Type == DI_COMBOBOX)
+			{
+				iList=CurItem.ListItems;
+			}
+			if(CurItem.Flags&DIF_HISTORY)
+			{
+				iFlags|=EditControl::EC_COMPLETE_HISTORY;
+			}
+			if(CurItem.Flags&DIF_EDITPATH)
+			{
+				iFlags|=EditControl::EC_COMPLETE_FILESYSTEM;
+			}
+			if(CurItem.Flags&DIF_EDITPATHEXEC)
+			{
+				iFlags|=EditControl::EC_COMPLETE_PATH;
+			}
+			lineEdit = std::make_unique<EditControl>(GetOwner(), GetOwner().get(), nullptr, &callback, true, iHistory.get(), iList, iFlags);
 		}
 		break;
 	}
@@ -738,15 +735,21 @@ void DlgEdit::EditChange(void* aParam)
 
 void DlgEdit::DoEditChange()
 {
+	auto dialog=GetDialog();
 	_DIALOG(CleverSysLog CL(L"DlgEdit::DoEditChange()"));
-	_DIALOG(SysLog(L"m_Dialog=%p, m_Dialog->IsInited()=%d, m_Index=%d",m_Dialog,m_Dialog->IsInited(),m_Index));
-	if (m_Dialog->IsInited())
+	_DIALOG(SysLog(L"m_Owner=%p, m_Owner->IsInited()=%d, m_Index=%d",dialog,dialog->IsInited(),m_Index));
+	if (dialog->IsInited())
 	{
-		m_Dialog->SendMessage(DN_EDITCHANGE,m_Index,0);
+		dialog->SendMessage(DN_EDITCHANGE,m_Index,0);
 	}
 }
 
 bool DlgEdit::HistoryGetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 {
 	return iHistory?iHistory->GetSimilar(strStr, LastCmdPartLength, bAppend):false;
+}
+
+Dialog* DlgEdit::GetDialog(void)const
+{
+	return dynamic_cast<Dialog*>(GetOwner().get());
 }

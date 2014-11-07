@@ -148,7 +148,7 @@ static int MainProcess(
 
 			_tran(SysLog(L"create dummy panels"));
 			Global->CtrlObject->CreateDummyFilePanels();
-			auto DummyPanel = new dummy_panel(Global->CtrlObject->Cp());
+			auto DummyPanel = new dummy_panel(Global->CtrlObject->Panels());
 			Global->CtrlObject->Cp()->LeftPanel = Global->CtrlObject->Cp()->RightPanel = DummyPanel;
 			Global->CtrlObject->Cp()->SetActivePanel(DummyPanel);
 			Global->WindowManager->PluginCommit();
@@ -239,7 +239,7 @@ static int MainProcess(
 					if (IsPluginPrefixPath(ppanel))
 					{
 						AnotherPanel->SetFocus();
-						Global->CtrlObject->CmdLine->ExecString(ppanel,0);
+						Global->CtrlObject->CmdLine()->ExecString(ppanel,0);
 						ActivePanel->SetFocus();
 					}
 					else
@@ -258,7 +258,7 @@ static int MainProcess(
 
 				if (IsPluginPrefixPath(apanel))
 				{
-					Global->CtrlObject->CmdLine->ExecString(apanel,0);
+					Global->CtrlObject->CmdLine()->ExecString(apanel,0);
 				}
 				else
 				{

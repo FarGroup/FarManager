@@ -75,7 +75,7 @@ filepanels_ptr FilePanels::create(bool CreatePanels, int DirCount)
 {
 	filepanels_ptr FilePanelsPtr(new FilePanels());
 
-	FilePanelsPtr->m_windowKeyBar = std::make_unique<KeyBar>();
+	FilePanelsPtr->m_windowKeyBar = std::make_unique<KeyBar>(FilePanelsPtr);
 	FilePanelsPtr->SetMacroMode(MACROAREA_SHELL);
 	FilePanelsPtr->m_KeyBarVisible = Global->Opt->ShowKeyBar;
 
@@ -211,6 +211,9 @@ void FilePanels::Init(int DirCount)
 		}
 	}
 
+	CmdLine = std::make_unique<CommandLine>(shared_from_this());
+	TopMenuBar = std::make_unique<MenuBar>(shared_from_this());
+
 #if 1
 
 	//! Вначале "показываем" пассивную панель
@@ -244,10 +247,9 @@ void FilePanels::Init(int DirCount)
 	// при понашенных панелях не забыть бы выставить корректно каталог в CmdLine
 	if (!Global->Opt->RightPanel.Visible && !Global->Opt->LeftPanel.Visible)
 	{
-		Global->CtrlObject->CmdLine->SetCurDir(PassiveIsLeftFlag?Global->Opt->RightPanel.Folder:Global->Opt->LeftPanel.Folder);
+		CmdLine->SetCurDir(PassiveIsLeftFlag?Global->Opt->RightPanel.Folder:Global->Opt->LeftPanel.Folder);
 	}
 
-	m_windowKeyBar->SetOwner(this);
 	SetScreenPosition();
 }
 
@@ -302,8 +304,8 @@ void FilePanels::SetPanelPositions(bool LeftFullScreen, bool RightFullScreen)
 void FilePanels::SetScreenPosition()
 {
 	_OT(SysLog(L"[%p] FilePanels::SetScreenPosition() {%d, %d - %d, %d}", this,m_X1,m_Y1,m_X2,m_Y2));
-	Global->CtrlObject->CmdLine->SetPosition(0,ScrY-(Global->Opt->ShowKeyBar),ScrX-1,ScrY-(Global->Opt->ShowKeyBar));
-	Global->CtrlObject->TopMenuBar->SetPosition(0, 0, ScrX, 0);
+	CmdLine->SetPosition(0,ScrY-(Global->Opt->ShowKeyBar),ScrX-1,ScrY-(Global->Opt->ShowKeyBar));
+	TopMenuBar->SetPosition(0, 0, ScrX, 0);
 	m_windowKeyBar->SetPosition(0, ScrY, ScrX, ScrY);
 	SetPanelPositions(LeftPanel->IsFullScreen(),RightPanel->IsFullScreen());
 	SetPosition(0,0,ScrX,ScrY);
@@ -323,21 +325,18 @@ Panel* FilePanels::CreatePanel(int Type)
 	switch (Type)
 	{
 		case FILE_PANEL:
-			pResult = new FileList(this);
+			pResult = new FileList(shared_from_this());
 			break;
 		case TREE_PANEL:
-			pResult = new TreeList(this);
+			pResult = new TreeList(shared_from_this());
 			break;
 		case QVIEW_PANEL:
-			pResult = new QuickView(this);
+			pResult = new QuickView(shared_from_this());
 			break;
 		case INFO_PANEL:
-			pResult = new InfoList(this);
+			pResult = new InfoList(shared_from_this());
 			break;
 	}
-
-	if (pResult)
-		pResult->SetOwner(this);
 
 	return pResult;
 }
@@ -458,10 +457,10 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 	if ((LocalKey==KEY_CTRLLEFT || LocalKey==KEY_CTRLRIGHT || LocalKey==KEY_CTRLNUMPAD4 || LocalKey==KEY_CTRLNUMPAD6
 		|| LocalKey==KEY_RCTRLLEFT || LocalKey==KEY_RCTRLRIGHT || LocalKey==KEY_RCTRLNUMPAD4 || LocalKey==KEY_RCTRLNUMPAD6
 	        /* || LocalKey==KEY_CTRLUP   || LocalKey==KEY_CTRLDOWN || LocalKey==KEY_CTRLNUMPAD8 || LocalKey==KEY_CTRLNUMPAD2 */) &&
-	        (Global->CtrlObject->CmdLine->GetLength()>0 ||
+	        (CmdLine->GetLength()>0 ||
 	         (!LeftPanel->IsVisible() && !RightPanel->IsVisible())))
 	{
-		Global->CtrlObject->CmdLine->ProcessKey(Key);
+		CmdLine->ProcessKey(Key);
 		return TRUE;
 	}
 
@@ -634,7 +633,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 				else
 					AnotherPanel->Show();
 
-				Global->CtrlObject->CmdLine->Redraw();
+				CmdLine->Redraw();
 			}
 
 			Global->WindowManager->RefreshWindow();
@@ -650,7 +649,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_RCTRLU:
 		{
 			if (!LeftPanel->IsVisible() && !RightPanel->IsVisible())
-				Global->CtrlObject->CmdLine->ProcessKey(Key);
+				CmdLine->ProcessKey(Key);
 			else
 				SwapPanels();
 
@@ -836,7 +835,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 			if (LocalKey >= KEY_CTRL0 && LocalKey <= KEY_CTRL9)
 				ChangePanelViewMode(m_ActivePanel, LocalKey - KEY_CTRL0, TRUE);
 			if (!m_ActivePanel->ProcessKey(Key))
-				Global->CtrlObject->CmdLine->ProcessKey(Key);
+				CmdLine->ProcessKey(Key);
 
 			break;
 		}
@@ -1071,9 +1070,9 @@ void FilePanels::DisplayObject()
 	Global->WindowManager->ShowBackground();
 
 	if (Global->Opt->ShowMenuBar)
-		Global->CtrlObject->TopMenuBar->Show();
+		TopMenuBar->Show();
 
-	Global->CtrlObject->CmdLine->Show();
+	CmdLine->Show();
 
 	if (Global->Opt->ShowKeyBar)
 		m_windowKeyBar->Show();
@@ -1140,7 +1139,7 @@ int  FilePanels::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (!m_ActivePanel->ProcessMouse(MouseEvent))
 		if (!PassivePanel()->ProcessMouse(MouseEvent))
 			if (!m_windowKeyBar->ProcessMouse(MouseEvent))
-				Global->CtrlObject->CmdLine->ProcessMouse(MouseEvent);
+				CmdLine->ProcessMouse(MouseEvent);
 
 	return TRUE;
 }
@@ -1154,9 +1153,9 @@ void FilePanels::ShowConsoleTitle()
 void FilePanels::ResizeConsole()
 {
 	window::ResizeConsole();
-	Global->CtrlObject->CmdLine->ResizeConsole();
+	CmdLine->ResizeConsole();
 	m_windowKeyBar->ResizeConsole();
-	Global->CtrlObject->TopMenuBar->ResizeConsole();
+	TopMenuBar->ResizeConsole();
 	SetScreenPosition();
 	_OT(SysLog(L"[%p] FilePanels::ResizeConsole() {%d, %d - %d, %d}", this,m_X1,m_Y1,m_X2,m_Y2));
 }
@@ -1249,4 +1248,14 @@ Viewer* FilePanels::GetById(int ID)
 	auto result=LeftPanel->GetById(ID);
 	if (!result) result=RightPanel->GetById(ID);
 	return result;
+}
+
+CommandLine* FilePanels::GetCmdLine(void)
+{
+	return CmdLine.get();
+}
+
+MenuBar* FilePanels::GetTopMenuBar(void)
+{
+	return TopMenuBar.get();
 }

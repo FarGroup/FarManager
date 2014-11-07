@@ -62,7 +62,7 @@ public:
 
 	BitFlags& Flags();
 
-	DlgEdit(Dialog* pOwner,size_t Index,DLGEDITTYPE Type);
+	DlgEdit(window_ptr Owner,size_t Index,DLGEDITTYPE Type);
 	virtual ~DlgEdit();
 
 	virtual int  ProcessKey(const Manager::Key& Key) override;
@@ -150,7 +150,6 @@ public:
 private:
 	friend class SetAutocomplete;
 
-	Dialog* m_Dialog;
 	size_t m_Index;
 	DLGEDITTYPE Type;
 	std::unique_ptr<History> iHistory;
@@ -162,4 +161,5 @@ private:
 	virtual void DisplayObject() override;
 	static void EditChange(void* aParam);
 	void DoEditChange();
+	Dialog* GetDialog(void)const;
 };

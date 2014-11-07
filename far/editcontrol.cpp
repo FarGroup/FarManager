@@ -52,11 +52,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "ctrlobj.hpp"
 
-EditControl::EditControl(SimpleScreenObject *pOwner, parent_processkey_t&& ParentProcessKey, Callback* aCallback, bool bAllocateData, History* iHistory, FarList* iList, DWORD iFlags):
-	Edit(pOwner,bAllocateData),
+EditControl::EditControl(window_ptr Owner, SimpleScreenObject* Parent, parent_processkey_t&& ParentProcessKey, Callback* aCallback, bool bAllocateData, History* iHistory, FarList* iList, DWORD iFlags):
+	Edit(Owner,bAllocateData),
 	pHistory(iHistory),
 	pList(iList),
-	m_ParentProcessKey(ParentProcessKey? std::move(ParentProcessKey) : [this](const Manager::Key& Key) {return this->pOwner->ProcessKey(Key); }),
+	m_ParentProcessKey(ParentProcessKey? std::move(ParentProcessKey) : [Parent](const Manager::Key& Key) {return Parent->ProcessKey(Key); }),
 	MaxLength(-1),
 	CursorSize(-1),
 	CursorPos(0),
@@ -90,7 +90,7 @@ void EditControl::Show()
 	{
 		SetLeftPos(0);
 	}
-	if (pOwner->IsVisible())
+	if (GetOwner()->IsVisible())
 	{
 		Edit::Show();
 	}

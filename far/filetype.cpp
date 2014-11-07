@@ -231,12 +231,12 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 
 		if (!strCommand.empty())
 		{
-			Global->CtrlObject->CmdLine->ExecString(strCommand,AlwaysWaitFinish, false, false, ListFileUsed, false,
+			Global->CtrlObject->CmdLine()->ExecString(strCommand,AlwaysWaitFinish, false, false, ListFileUsed, false,
 				Mode == FILETYPE_VIEW || Mode == FILETYPE_ALTVIEW || Mode == FILETYPE_EDIT || Mode == FILETYPE_ALTEDIT);
 			if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTFARASS) && !AlwaysWaitFinish) //AN
 			{
 				string curDir;
-				Global->CtrlObject->CmdLine->GetCurDir(curDir);
+				Global->CtrlObject->CmdLine()->GetCurDir(curDir);
 				Global->CtrlObject->CmdHistory->AddToHistory(strCommand, HR_DEFAULT, nullptr, nullptr, curDir.data());
 			}
 		}
@@ -256,12 +256,12 @@ void ProcessGlobalFileTypes(const string& Name, bool AlwaysWaitFinish, bool RunA
 {
 	string strName(Name);
 	QuoteSpace(strName);
-	Global->CtrlObject->CmdLine->ExecString(strName, AlwaysWaitFinish, true, true, false, RunAs, false, FromPanel);
+	Global->CtrlObject->CmdLine()->ExecString(strName, AlwaysWaitFinish, true, true, false, RunAs, false, FromPanel);
 
 	if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTWINASS) && !AlwaysWaitFinish)
 	{
 		string curDir;
-		Global->CtrlObject->CmdLine->GetCurDir(curDir);
+		Global->CtrlObject->CmdLine()->GetCurDir(curDir);
 		Global->CtrlObject->CmdHistory->AddToHistory(strName, HR_DEFAULT, nullptr, nullptr, curDir.data());
 	}
 }
@@ -305,7 +305,7 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 
 		Global->CtrlObject->ViewHistory->AddToHistory(strFullExecStr, AlwaysWaitFinish? HR_EXTERNAL_WAIT : HR_EXTERNAL);
 
-		Global->CtrlObject->CmdLine->ExecString(strExecStr,AlwaysWaitFinish, 0, 0, ListFileUsed, false, true);
+		Global->CtrlObject->CmdLine()->ExecString(strExecStr,AlwaysWaitFinish, 0, 0, ListFileUsed, false, true);
 	}
 
 	std::for_each(CONST_RANGE(ListNames, i)

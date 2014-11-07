@@ -39,7 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class CommandLine:public SimpleScreenObject
 {
 public:
-	CommandLine();
+	CommandLine(window_ptr Owner);
 	virtual ~CommandLine() {};
 
 	virtual int ProcessKey(const Manager::Key& Key) override;

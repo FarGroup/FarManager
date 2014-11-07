@@ -56,7 +56,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "menubar.hpp"
 
 ControlObject::ControlObject():
-	CmdLine(nullptr),
 	FPanels(nullptr)
 {
 	_OT(SysLog(L"[%p] ControlObject::ControlObject()", this));
@@ -89,8 +88,6 @@ ControlObject::ControlObject():
 
 void ControlObject::Init(int DirCount)
 {
-	CmdLine = std::make_unique<CommandLine>();
-	TopMenuBar = std::make_unique<MenuBar>();
 	FPanels = FilePanels::create(true, DirCount);
 
 	Global->WindowManager->InsertWindow(FPanels); // before PluginCommit()
@@ -181,4 +178,19 @@ void ControlObject::ShowCopyright(DWORD Flags)
 FilePanels* ControlObject::Cp()
 {
 	return FPanels.get();
+}
+
+window_ptr ControlObject::Panels(void)
+{
+	return FPanels;
+}
+
+CommandLine* ControlObject::CmdLine(void)
+{
+	return FPanels->GetCmdLine();
+}
+
+MenuBar* ControlObject::TopMenuBar(void)
+{
+	return FPanels->GetTopMenuBar();
 }

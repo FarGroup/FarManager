@@ -68,7 +68,7 @@ foldertree_ptr FolderTree::create(string &strResultFolder, int iModalMode, int I
 
 void FolderTree::init(string &strResultFolder)
 {
-	m_windowKeyBar = std::make_unique<KeyBar>();
+	m_windowKeyBar = std::make_unique<KeyBar>(shared_from_this());
 
 	SetRestoreScreenMode(true);
 	if (ModalMode != MODALTREE_FREE)
@@ -93,7 +93,7 @@ void FolderTree::init(string &strResultFolder)
 		// если было прерывание в процессе сканирования и это было дерево копира...
 		if (Tree->GetExitCode())
 		{
-			FindEdit = std::make_unique<EditControl>(this);
+			FindEdit = std::make_unique<EditControl>(shared_from_this(),shared_from_this().get());
 			FindEdit->SetEditBeyondEnd(false);
 			FindEdit->SetPersistentBlocks(Global->Opt->Dialogs.EditBlock);
 			InitKeyBar();

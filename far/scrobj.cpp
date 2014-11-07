@@ -37,15 +37,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrobj.hpp"
 #include "savescr.hpp"
 #include "interf.hpp"
+#include "window.hpp"
 
-SimpleScreenObject::SimpleScreenObject():
-	pOwner(),
+SimpleScreenObject::SimpleScreenObject(window_ptr Owner):
+	m_Owner(Owner),
 	nLockCount(),
 	m_X1(),
 	m_Y1(),
 	m_X2(),
 	m_Y2()
 {
+	//assert(m_Owner!=nullptr);
 }
 
 SimpleScreenObject::~SimpleScreenObject()
@@ -67,7 +69,7 @@ void SimpleScreenObject::Unlock()
 
 bool SimpleScreenObject::Locked()
 {
-	return (nLockCount > 0) || (pOwner?pOwner->Locked():false);
+	return (nLockCount > 0) || (GetOwner()?GetOwner()->Locked():false);
 }
 
 void SimpleScreenObject::SetPosition(int X1,int Y1,int X2,int Y2)
@@ -117,7 +119,7 @@ void SimpleScreenObject::Redraw()
 		Show();
 }
 
-ScreenObject::ScreenObject()
+ScreenObject::ScreenObject(window_ptr Owner): SimpleScreenObject(Owner)
 {
 }
 
@@ -171,7 +173,7 @@ void ScreenObject::SetPosition(int X1, int Y1, int X2, int Y2)
 }
 
 
-ScreenObjectWithShadow::ScreenObjectWithShadow()
+ScreenObjectWithShadow::ScreenObjectWithShadow(window_ptr Owner): ScreenObject(Owner)
 {
 }
 
