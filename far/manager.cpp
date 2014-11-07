@@ -1048,17 +1048,27 @@ void Manager::RefreshCommit(window_ptr Param)
 
 	auto process=[](const windows& List, int Index) -> void
 	{
-		std::for_each(std::next(List.begin(), Index), List.end(), LAMBDA_PREDICATE(List, i)
+		auto first = std::next(List.begin(), Index);
+		auto ItemIterator = std::find_if(first, List.end(), LAMBDA_PREDICATE(List, i)
 		{
-			if (!i->Locked()) i->Refresh();
-			if
-			(
-				(Global->Opt->ViewerEditorClock && (i->GetType() == windowtype_editor || i->GetType() == windowtype_viewer))
-				||
-				(Global->WaitInMainLoop && Global->Opt->Clock)
-			)
-				ShowTime(1);
+			return i->Locked();
 		});
+
+		//если одно из окон заблокировано, большого смысла в перерисовке пока нет
+		if (ItemIterator == List.end())
+		{
+			std::for_each(first, List.end(), LAMBDA_PREDICATE(List, i)
+			{
+				i->Refresh();
+				if
+				(
+					(Global->Opt->ViewerEditorClock && (i->GetType() == windowtype_editor || i->GetType() == windowtype_viewer))
+					||
+					(Global->WaitInMainLoop && Global->Opt->Clock)
+				)
+					ShowTime(1);
+			});
+		}
 	};
 
 	if (WindowIndex >= 0)

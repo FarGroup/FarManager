@@ -398,7 +398,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 		{
 			Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 			CmdStr.Select(-1,0);
-			CmdStr.Show();
+			Refresh();
 			CmdStr.GetString(strStr);
 
 			if (strStr.empty())
@@ -419,7 +419,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLU:
 		case KEY_RCTRLU:
 			CmdStr.Select(-1,0);
-			CmdStr.Show();
+			Refresh();
 			return TRUE;
 		case KEY_OP_XLAT:
 		{
@@ -522,16 +522,15 @@ void CommandLine::SetString(const string& Str, bool Redraw)
 	CmdStr.SetString(Str.data());
 	CmdStr.SetLeftPos(0);
 
-	//FIXME
 	if (Redraw)
-		CmdStr.Show();
+		Refresh();
 }
 
 void CommandLine::InsertString(const string& Str)
 {
 	LastCmdPartLength=-1;
 	CmdStr.InsertString(Str);
-	CmdStr.Show();
+	Refresh();
 }
 
 

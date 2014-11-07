@@ -66,7 +66,7 @@ public:
 	virtual int GetType() const = 0;
 	virtual void OnDestroy() {}  // вызывается перед уничтожением окна
 	virtual void OnChangeFocus(bool focus); // вызывается при смене фокуса
-	virtual void Refresh();
+	void Refresh(void) override;
 	virtual void InitKeyBar() {}
 	virtual void RedrawKeyBar() { UpdateKeyBar(); }
 	virtual FARMACROAREA GetMacroMode() const { return m_MacroMode; }

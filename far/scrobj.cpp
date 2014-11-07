@@ -119,6 +119,12 @@ void SimpleScreenObject::Redraw()
 		Show();
 }
 
+void SimpleScreenObject::Refresh(void)
+{
+	auto owner=GetOwner();
+	if (owner) Global->WindowManager->RefreshWindow(owner);
+}
+
 ScreenObject::ScreenObject(window_ptr Owner): SimpleScreenObject(Owner)
 {
 }

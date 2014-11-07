@@ -67,6 +67,7 @@ public:
 	virtual void SetScreenPosition();
 	virtual void ResizeConsole() {};
 	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) {return 0;}
+	virtual void Refresh(void);
 
 	void Lock();
 	void Unlock();
