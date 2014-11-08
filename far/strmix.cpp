@@ -1281,7 +1281,7 @@ string GuidToStr(const GUID& Guid)
 		SCOPE_EXIT{ RpcStringFree(&str); };
 		result = reinterpret_cast<const wchar_t*>(str);
 	}
-	return result;
+	return Upper(result);
 }
 
 bool StrToGuid(const wchar_t* Value,GUID& Guid)
