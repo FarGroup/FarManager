@@ -285,16 +285,6 @@ void KeyBar::SetCustomLabels(KEYBARAREA Area)
 	});
 }
 
-// Изменение любого Label
-void KeyBar::Change(int Group,const wchar_t *NewStr,int Pos)
-{
-	if (NewStr)
-	{
-		Items[Group][Pos].first = NewStr;
-	}
-}
-
-
 int KeyBar::ProcessKey(const Manager::Key& Key)
 {
 	int LocalKey=Key.FarKey;
@@ -359,8 +349,8 @@ int KeyBar::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (Key!=NewKey)
 		return FALSE;
 
-	if (Key>11)
-		Key=11;
+	if (Key > F12)
+		Key = F12;
 
 	if (MouseEvent->dwControlKeyState & (RIGHT_ALT_PRESSED|LEFT_ALT_PRESSED) ||
 	        (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED))
@@ -418,7 +408,7 @@ size_t KeyBar::Change(const KeyBarTitles *Kbt)
 				int group = FnGroup(Shift);
 				if (group >= 0)
 				{
-					Change(group, i.Text, static_cast<int>(Pos));
+					Items[group][Pos].first = i.Text;
 					++Result;
 				}
 			}

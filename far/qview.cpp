@@ -207,7 +207,10 @@ void QuickView::DisplayObject()
 				case IO_REPARSE_TAG_NFS:
 					PtrName = MSG(MQuickViewNFS);
 					break;
-				// 0x????????L = anything else
+				case IO_REPARSE_TAG_FILE_PLACEHOLDER:
+					PtrName = MSG(MQuickViewPlaceholder);
+					break;
+					// 0x????????L = anything else
 				default:
 					if (Global->Opt->ShowUnknownReparsePoint)
 					{
@@ -617,39 +620,19 @@ void QuickView::DynamicUpdateKeyBar() const
 
 	if (Directory || !QView())
 	{
-		Keybar.Change(MSG(MF2), 2-1);
-		Keybar.Change(L"", 4-1);
-		Keybar.Change(L"", 8-1);
-		Keybar.Change(KBL_SHIFT, L"", 2-1);
-		Keybar.Change(KBL_SHIFT, L"", 8-1);
-		Keybar.Change(KBL_ALT, MSG(MAltF8), 8-1);  // стандартный для панели - "хистори"
+		Keybar[KBL_MAIN][F2] = MSG(MF2);
+		Keybar[KBL_MAIN][F4].clear();
+		Keybar[KBL_MAIN][F8].clear();
+		Keybar[KBL_SHIFT][F2].clear();
+		Keybar[KBL_SHIFT][F8].clear();
+		Keybar[KBL_ALT][F8] = MSG(MAltF8);  // стандартный для панели - "хистори"
 	}
 	else
 	{
-		if (QView()->GetHexMode())
-			Keybar.Change(MSG(MViewF4Text), 4-1);
-		else
-			Keybar.Change(MSG(MQViewF4), 4-1);
-
-		if (QView()->GetCodePage() != GetOEMCP())
-			Keybar.Change(MSG(MViewF8DOS), 8-1);
-		else
-			Keybar.Change(MSG(MQViewF8), 8-1);
-
-		if (!QView()->GetWrapMode())
-		{
-			if (QView()->GetWrapType())
-				Keybar.Change(MSG(MViewShiftF2), 2-1);
-			else
-				Keybar.Change(MSG(MViewF2), 2-1);
-		}
-		else
-			Keybar.Change(MSG(MViewF2Unwrap), 2-1);
-
-		if (QView()->GetWrapType())
-			Keybar.Change(KBL_SHIFT, MSG(MViewF2), 2-1);
-		else
-			Keybar.Change(KBL_SHIFT, MSG(MViewShiftF2), 2-1);
+		Keybar[KBL_MAIN][F2] = MSG(QView()->GetWrapMode()? MViewF2Unwrap : (QView()->GetWrapType()? MViewShiftF2 : MViewF2));
+		Keybar[KBL_MAIN][F4] = MSG(QView()->GetHexMode()? MViewF4Text : MQViewF4);
+		Keybar[KBL_MAIN][F8] = MSG(QView()->GetCodePage() == GetOEMCP()? MQViewF8 : MViewF8DOS);
+		Keybar[KBL_SHIFT][F2] = MSG(QView()->GetWrapType()? MViewF2 : MViewShiftF2);
 	}
 
 	Keybar.SetCustomLabels(KBA_QUICKVIEW);

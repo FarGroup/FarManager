@@ -102,10 +102,9 @@ private:
 	{
 		size_t operator()(const highlight_item& item) const
 		{
-			size_t result = 0;
-			std::for_each(CONST_RANGE(item.Color, i)
+			size_t result = std::accumulate(ALL_CONST_RANGE(item.Color), size_t(0), [](size_t Value, const VALUE_TYPE(item.Color)& i)
 			{
-				result ^= make_hash(i.FileColor) ^ make_hash(i.MarkColor);
+				return Value ^ make_hash(i.FileColor) ^ make_hash(i.MarkColor);
 			});
 			result ^= make_hash(item.Mark.Char) ^ make_hash(item.Mark.Transparent);
 			return result;

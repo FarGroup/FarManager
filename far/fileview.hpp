@@ -36,8 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "window.hpp"
 #include "viewer.hpp"
 
-typedef std::shared_ptr<FileViewer> fileviewer_ptr;
-
 class FileViewer:public window,public ViewerContainer
 {
 public:
@@ -95,7 +93,7 @@ private:
 	void Init(const string& Name, int EnableSwitch, int DisableHistory, __int64 ViewStartPos, const wchar_t *PluginData, NamesList *ViewNamesList, bool ToSaveAs, uintptr_t aCodePage, window_ptr Update = nullptr);
 	Viewer& GetView(void)const {return *m_View;}
 
-	Viewer* m_View;
+	std::unique_ptr<Viewer> m_View;
 	int RedrawTitle;
 	bool F3KeyOnly;
 	bool FullScreen;

@@ -48,9 +48,8 @@ class TPreRedrawFunc: NonCopyable
 {
 public:
 	void push(std::unique_ptr<PreRedrawItem>&& Source){return Items.emplace(std::move(Source));}
-	void pop() { Items.pop(); }
-	PreRedrawItem* top() {return Items.top().get();}
-	std::unique_ptr<PreRedrawItem> take() { auto Top = std::move(Items.top()); Items.pop(); return Top; }
+	std::unique_ptr<PreRedrawItem> pop() { auto Top = std::move(Items.top()); Items.pop(); return Top; }
+	PreRedrawItem* top() { return Items.top().get(); }
 	bool empty() const {return Items.empty();}
 
 private:

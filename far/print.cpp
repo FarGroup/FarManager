@@ -74,12 +74,11 @@ static void AddToPrintersMenu(VMenu2 *PrinterList, PRINTER_INFO *pi, int Printer
 	bool bDefaultPrinterFound = false;
 
 	// Заполняем список принтеров
-	for (int i=0; i<PrinterNumber; i++)
+	FOR(const auto& printer, make_range(pi, pi + PrinterNumber))
 	{
-		PRINTER_INFO *printer = &pi[i];
-		MenuItemEx Item(printer->pPrinterName);
+		MenuItemEx Item(printer.pPrinterName);
 
-		if (strDefaultPrinter == printer->pPrinterName)
+		if (strDefaultPrinter == printer.pPrinterName)
 		{
 			bDefaultPrinterFound = true;
 			Item.SetCheck(TRUE);

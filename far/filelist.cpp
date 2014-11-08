@@ -196,7 +196,7 @@ FileListItem::~FileListItem()
 {
 	if (CustomColumnNumber && CustomColumnData)
 	{
-		std::for_each(CustomColumnData, CustomColumnData + CustomColumnNumber, [](wchar_t* i) { delete[] i; } );
+		std::for_each(CustomColumnData, CustomColumnData + CustomColumnNumber, std::default_delete<wchar_t[]>());
 		delete[] CustomColumnData;
 	}
 

@@ -34,8 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "window.hpp"
 
-typedef std::shared_ptr<desktop> desktop_ptr;
-
 class desktop: public window
 {
 public:

@@ -3037,8 +3037,10 @@ const GUID& VMenu::Id() const
 
 void VMenu::AddHotkeys(std::vector<string>& Strings, MenuDataEx* Menu, size_t MenuSize)
 {
-	size_t MaxLength = 0;
-	std::for_each(Menu, Menu + MenuSize, [&](const MenuDataEx& i) { MaxLength = std::max(MaxLength, wcslen(i.Name)); });
+	const size_t MaxLength = std::accumulate(Menu, Menu + MenuSize, size_t(0), [](size_t Value, const MenuDataEx& i)
+	{
+		return std::max(Value, wcslen(i.Name));
+	});
 	for (size_t i = 0; i < MenuSize; ++i)
 	{
 		if (!(Menu[i].Flags & LIF_SEPARATOR) && Menu[i].AccelKey)

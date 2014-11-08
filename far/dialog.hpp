@@ -197,8 +197,6 @@ class ConsoleTitle;
 class Plugin;
 class Dialog;
 
-typedef std::shared_ptr<Dialog> dialog_ptr;
-
 class Dialog: public Modal
 {
 public:

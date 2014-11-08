@@ -1274,21 +1274,19 @@ string ReplaceBrackets(const wchar_t *SearchStr,const string& ReplaceStr, const 
 
 string GuidToStr(const GUID& Guid)
 {
-/*
 	string result;
-	unsigned short* str;
-	if(UuidToString((UUID*)&Guid,&str)==RPC_S_OK)
+	RPC_WSTR str;
+	if(UuidToString(&Guid, &str) == RPC_S_OK)
 	{
-		result=(wchar_t*)str;
-		RpcStringFree(&str);
+		SCOPE_EXIT{ RpcStringFree(&str); };
+		result = reinterpret_cast<const wchar_t*>(str);
 	}
-*/
-	return str_printf(L"%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X",Guid.Data1,Guid.Data2,Guid.Data3,Guid.Data4[0],Guid.Data4[1],Guid.Data4[2],Guid.Data4[3],Guid.Data4[4],Guid.Data4[5],Guid.Data4[6],Guid.Data4[7]);
+	return result;
 }
 
-bool StrToGuid(const string& Value,GUID& Guid)
+bool StrToGuid(const wchar_t* Value,GUID& Guid)
 {
-	return UuidFromString(reinterpret_cast<unsigned short*>(UNSAFE_CSTR(Value)), &Guid) == RPC_S_OK;
+	return UuidFromString(reinterpret_cast<RPC_WSTR>(const_cast<wchar_t*>(Value)), &Guid) == RPC_S_OK;
 }
 
 bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const string &UpperStr, const string &LowerStr, RegExp &re, RegExpMatch *pm, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength,const wchar_t* WordDiv)

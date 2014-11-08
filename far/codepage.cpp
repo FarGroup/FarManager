@@ -1420,7 +1420,7 @@ F8CP::F8CP(bool viewer) : utf_name(L"UTF-8")
 	{
 		std::set<UINT> used_cps;
 		const auto f8list = split_to_vector::get(cps, 0);
-		std::for_each(RANGE(f8list, str_cp)
+		std::for_each(CONST_RANGE(f8list, str_cp)
 		{
 			string s(str_cp);
 			strmix::Upper(s);

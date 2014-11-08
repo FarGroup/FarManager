@@ -40,8 +40,6 @@ class Panel;
 class CommandLine;
 class MenuBar;
 
-typedef std::shared_ptr<FilePanels> filepanels_ptr;
-
 class FilePanels:public window,public ViewerContainer
 {
 public:

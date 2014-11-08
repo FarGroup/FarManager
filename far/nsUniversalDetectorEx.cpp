@@ -129,7 +129,7 @@ static const std::unordered_map<std::string, uintptr_t>& CpMap()
 
 		std::for_each(CONST_RANGE(CodepagesInit, i)
 		{
-			sCpMap.insert(decltype(sCpMap)::value_type(i.first, i.second));
+			sCpMap[i.first] = i.second;
 		});
 	}
 	return sCpMap;

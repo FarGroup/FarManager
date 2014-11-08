@@ -95,8 +95,6 @@ static CDROM_DeviceCapabilities getCapsUsingProductId(const char* prodID)
 			productID.push_back(toupper(i));
 	});
 
-	int caps = CAPABILITIES_NONE;
-
 	static const simple_pair<const char*, int> Capabilities[] =
 	{
 		{"CD", CAPABILITIES_GENERIC_CDROM},
@@ -108,13 +106,10 @@ static CDROM_DeviceCapabilities getCapsUsingProductId(const char* prodID)
 		{"HDDVD", CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_DVDROM|CAPABILITIES_GENERIC_HDDVD},
 	};
 
-	std::for_each(CONST_RANGE(Capabilities, i)
+	return std::accumulate(ALL_CONST_RANGE(Capabilities), CAPABILITIES_NONE, [&productID](int Value, const VALUE_TYPE(Capabilities)& i)
 	{
-		if (productID.find(i.first) != std::string::npos)
-			caps |= i.second;
+		return static_cast<CDROM_DeviceCapabilities>(Value | (productID.find(i.first) == std::string::npos ? 0 : i.second));
 	});
-
-	return (CDROM_DeviceCapabilities)caps;
 }
 
 static void InitSCSIPassThrough(SCSI_PASS_THROUGH_WITH_BUFFERS* pSptwb)

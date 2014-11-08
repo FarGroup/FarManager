@@ -1279,7 +1279,6 @@ class Search: public Modal
 {
 public:
 	static search_ptr create(Panel* Owner, int FirstKey, int X, int Y);
-	virtual ~Search();
 
 	void Process(void);
 	virtual int ProcessKey(const Manager::Key& Key) override;
@@ -1294,7 +1293,7 @@ private:
 
 	Panel* m_Owner;
 	int m_FirstKey;
-	EditControl* m_FindEdit;
+	std::unique_ptr<EditControl> m_FindEdit;
 	int m_KeyToProcess;
 	Search();
 	virtual void DisplayObject(void) override;
@@ -1319,18 +1318,13 @@ search_ptr Search::create(Panel* Owner, int FirstKey, int X, int Y)
 	return SearchPtr;
 }
 
-Search::~Search()
-{
-	delete m_FindEdit;
-}
-
 void Search::init(int X, int Y)
 {
 	SetMacroMode(MACROAREA_SEARCH);
 	SetRestoreScreenMode(true);
 	SetPosition(X,Y,X+21,Y+2);
 
-	m_FindEdit = new EditControl(shared_from_this(), this);
+	m_FindEdit = std::make_unique<EditControl>(shared_from_this(), this);
 	m_FindEdit->SetPosition(X+2,Y+1,X+19,Y+1);
 	m_FindEdit->SetEditBeyondEnd(false);
 	m_FindEdit->SetObjectColor(COL_DIALOGEDIT);

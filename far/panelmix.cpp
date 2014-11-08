@@ -663,8 +663,7 @@ const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 St
 
 	bool dir = (0 != (FileAttributes & FILE_ATTRIBUTE_DIRECTORY));
 	bool rpt = (0 != (FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT));
-	bool spf = (0 != (FileAttributes &  FILE_ATTRIBUTE_SPARSE_FILE));
-	bool dir_link = dir || (rpt && !spf);
+	bool dir_link = dir || rpt;
 
 	if (!Streams && !Packed && dir_link && !ShowFolderSize)
 	{
@@ -742,7 +741,10 @@ const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 St
 				case IO_REPARSE_TAG_NFS:
 					PtrName = MSG(MListNFS);
 					break;
-				// 0x????????L = anything else
+				case IO_REPARSE_TAG_FILE_PLACEHOLDER:
+					PtrName = MSG(MListPlaceholder);
+					break;
+					// 0x????????L = anything else
 				default:
 					if (Global->Opt->ShowUnknownReparsePoint)
 					{

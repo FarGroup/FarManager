@@ -1824,10 +1824,9 @@ int Viewer::ProcessKey(const Manager::Key& Key)
 			// Перейти на конец строк
 			if (ViewFile.Opened())
 			{
-				size_t MaxLen = 0;
-				std::for_each(RANGE(Strings, i)
+				const size_t MaxLen = std::accumulate(ALL_CONST_RANGE(Strings), size_t(0), [](size_t Value, const ViewerString& i)
 				{
-					MaxLen = std::max(MaxLen, i.Data.size());
+					return std::max(Value, i.Data.size());
 				});
 				LeftPos = (MaxLen > static_cast<size_t>(Width))? MaxLen - Width : 0;
 				Show();
@@ -2310,10 +2309,10 @@ void Viewer::ChangeViewKeyBar()
 			f2_label = MSG((!VM.Wrap)?((!VM.WordWrap)?MViewF2:MViewShiftF2):MViewF2Unwrap);
 			shiftf2_label = MSG((VM.WordWrap) ? MViewF2 : MViewShiftF2);
 		}
-		m_ViewKeyBar->Change(f2_label, 2-1);
-		m_ViewKeyBar->Change(KBL_SHIFT, shiftf2_label, 2-1);
-		m_ViewKeyBar->Change(MSG(VM.Hex != 1 ? MViewF4 : (dump_text_mode ? MViewF4Dump : MViewF4Text)), 4-1);
-		m_ViewKeyBar->Change(f8cps.NextCPname(VM.CodePage), 8-1);
+		(*m_ViewKeyBar)[KBL_MAIN][F2] = f2_label;
+		(*m_ViewKeyBar)[KBL_SHIFT][F2] = shiftf2_label;
+		(*m_ViewKeyBar)[KBL_MAIN][F4] = MSG(VM.Hex != 1 ? MViewF4 : (dump_text_mode ? MViewF4Dump : MViewF4Text));
+		(*m_ViewKeyBar)[KBL_MAIN][F8] = f8cps.NextCPname(VM.CodePage);
 
 		m_ViewKeyBar->Redraw();
 	}

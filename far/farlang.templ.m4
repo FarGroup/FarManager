@@ -8754,6 +8754,17 @@ upd:"NFS"
 upd:"NFS"
 "NFS"
 
+MListPlaceholder
+upd:"Placeholder"
+"Placeholder"
+upd:"Placeholder"
+upd:"Placeholder"
+upd:"Placeholder"
+upd:"Placeholder"
+upd:"Placeholder"
+upd:"Placeholder"
+upd:"Placeholder"
+
 MListUnknownReparsePoint
 "?Ссылка?"
 "?Symlink?"
@@ -15408,6 +15419,17 @@ upd:"NFS"
 upd:"NFS"
 upd:"NFS"
 "NFS"
+
+MQuickViewPlaceholder
+upd:"Placeholder"
+"Placeholder"
+upd:"Placeholder"
+upd:"Placeholder"
+upd:"Placeholder"
+upd:"Placeholder"
+upd:"Placeholder"
+upd:"Placeholder"
+upd:"Placeholder"
 
 MQuickViewUnknownReparsePoint
 upd:"Unknown reparse point"

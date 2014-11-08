@@ -1245,25 +1245,26 @@ private:
 	};
 };
 
+#if 1
+#if   defined(_M_IA64) || defined(__ia64)|| defined(__ia64__)
+#define PLATFORM_SUFFIX L"IA64"
+#elif defined(_M_AMD64)|| defined(_M_X64)|| defined(__amd64)|| defined(__amd64__)|| defined(__x86_64)|| defined(__x86_64__)
+#define PLATFORM_SUFFIX L"64"
+#elif defined(_M_ARM)  || defined(__arm) || defined(__arm__)|| defined(_ARM_)
+#define PLATFORM_SUFFIX L"ARM"
+#elif defined(_M_IX86) || defined(__i386)|| defined(__i386__)
+#define PLATFORM_SUFFIX L"32"
+#endif
+#else
+#define PLATFORM_SUFFIX L""
+#endif
+
 class PluginsCacheConfigDb: public PluginsCacheConfig, public SQLiteDb
 {
 public:
 	PluginsCacheConfigDb()
 	{
-		string namedb(L"plugincache"
-#if 1
-#if   defined(_M_IA64) || defined(__ia64)|| defined(__ia64__)
-			L"IA64"
-#elif defined(_M_AMD64)|| defined(_M_X64)|| defined(__amd64)|| defined(__amd64__)|| defined(__x86_64)|| defined(__x86_64__)
-			L"64"
-#elif defined(_M_ARM)  || defined(__arm) || defined(__arm__)|| defined(_ARM_)
-			L"ARM"
-#elif defined(_M_IX86) || defined(__i386)|| defined(__i386__)
-			L"32"
-#endif
-#endif
-			L".db");
-		Initialize(namedb, true);
+		Initialize(L"plugincache" PLATFORM_SUFFIX L".db", true);
 	}
 
 	virtual ~PluginsCacheConfigDb() {}

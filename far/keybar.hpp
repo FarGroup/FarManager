@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrobj.hpp"
 
 //   Группы меток
-enum
+enum keybar_group
 {
 	// порядок соответствует .lng файлу
 	KBL_MAIN,
@@ -49,6 +49,11 @@ enum
 	KBL_CTRLALTSHIFT,
 
 	KBL_GROUP_COUNT
+};
+
+enum fkeys
+{
+	F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12
 };
 
 enum KEYBARAREA
@@ -76,8 +81,18 @@ public:
 
 	void SetLabels(LNGID StartIndex);
 	void SetCustomLabels(KEYBARAREA Area);
-	void Change(int Group,const wchar_t *NewStr,int Pos);
-	void Change(const wchar_t *NewStr,int Pos) {Change(KBL_MAIN, NewStr, Pos);}
+
+	class keybar_area
+	{
+	public:
+		keybar_area(std::vector<std::pair<string, string>>* Items): m_Items(Items) {}
+		string& operator[](fkeys Key) { return (*m_Items)[Key].first; }
+
+	private:
+		std::vector<std::pair<string, string>> *m_Items;
+	};
+
+	keybar_area operator[](keybar_group Group) { return keybar_area(&Items[Group]); }
 	size_t Change(const KeyBarTitles* Kbt);
 
 	void RedrawIfChanged();

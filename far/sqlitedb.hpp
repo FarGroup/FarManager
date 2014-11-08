@@ -123,8 +123,6 @@ protected:
 		ColumnType GetColType(int Col) const;
 
 	private:
-		//friend class SQLiteDb;
-
 		SQLiteStmt& BindImpl(int Value);
 		SQLiteStmt& BindImpl(__int64 Value);
 		SQLiteStmt& BindImpl(const string& Value, bool bStatic = true);

@@ -67,8 +67,6 @@ enum FFILEEDIT_FLAGS
 	FFILEEDIT_SERVICEREGION         = 0x20000000,  // используется сервисная область
 };
 
-typedef std::shared_ptr<FileEditor> fileeditor_ptr;
-
 class FileEditor: public window,public EditorContainer
 {
 public:
@@ -80,6 +78,7 @@ public:
 	virtual int GetTypeAndName(string &strType, string &strName) override;
 	virtual __int64 VMProcess(int OpCode, void *vParam = nullptr, __int64 iParam = 0) override;
 	virtual void Show() override;
+	virtual Editor* GetEditor(void) override;
 
 	void ShowStatus();
 	void SetLockEditor(BOOL LockMode);
@@ -99,7 +98,6 @@ public:
 	int GetId() const { return m_editor->EditorID; }
 	FileEditor* GetById(int ID) { return GetId()==ID?this:nullptr; }
 	void AutoDeleteColors() const { m_editor->AutoDeleteColors(); }
-	Editor* GetEditor(void) override;
 
 private:
 	FileEditor();

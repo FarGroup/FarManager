@@ -841,20 +841,12 @@ static size_t GetAnsiVBufSize(const oldfar::FarDialogItem &diA)
 
 static PCHAR_INFO GetAnsiVBufPtr(FAR_CHAR_INFO* VBuf, size_t Size)
 {
-	PCHAR_INFO VBufA = nullptr;
-	if (VBuf)
-	{
-		VBufA = *reinterpret_cast<PCHAR_INFO*>(&VBuf[Size]);
-	}
-	return VBufA;
+	return VBuf? *reinterpret_cast<PCHAR_INFO*>(&VBuf[Size]) : nullptr;
 }
 
 static void SetAnsiVBufPtr(FAR_CHAR_INFO* VBuf, PCHAR_INFO VBufA, size_t Size)
 {
-	if (VBuf)
-	{
-		*reinterpret_cast<PCHAR_INFO*>(&VBuf[Size]) = VBufA;
-	}
+	*reinterpret_cast<PCHAR_INFO*>(&VBuf[Size]) = VBufA;
 }
 
 static void AnsiVBufToUnicode(PCHAR_INFO VBufA, FAR_CHAR_INFO* VBuf, size_t Size, bool NoCvt)

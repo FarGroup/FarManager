@@ -127,7 +127,8 @@ void Transform(string &strBuffer,const wchar_t *ConvStr,wchar_t TransformType);
 string ReplaceBrackets(const wchar_t *SearchStr, const string& ReplaceStr, const RegExpMatch* Match, int Count);
 
 string GuidToStr(const GUID& Guid);
-bool StrToGuid(const string& Value,GUID& Guid);
+bool StrToGuid(const wchar_t* Value,GUID& Guid);
+inline bool StrToGuid(const string& Value, GUID& Guid) { return StrToGuid(Value.data(), Guid); }
 
 bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const string &UpperStr, const string &LowerStr, class RegExp &re, struct RegExpMatch *pm, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength,const wchar_t* WordDiv=nullptr);
 

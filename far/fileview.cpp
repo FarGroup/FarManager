@@ -59,7 +59,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keybar.hpp"
 
 FileViewer::FileViewer(int DisableEdit, const wchar_t *Title):
-	m_View(),
 	FullScreen(true),
 	DisableEdit(DisableEdit),
 	delete_on_close(),
@@ -126,7 +125,7 @@ void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 	__int64 ViewStartPos,const wchar_t *PluginData,
 	NamesList *ViewNamesList, bool ToSaveAs, uintptr_t aCodePage, window_ptr Update)
 {
-	m_View=new Viewer(shared_from_this(), false, aCodePage);
+	m_View = std::make_unique<Viewer>(shared_from_this(), false, aCodePage);
 	GetView().SetTitle(str_title);
 	m_windowKeyBar = std::make_unique<KeyBar>(shared_from_this());
 
@@ -158,10 +157,15 @@ void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 	}
 
 	m_ExitCode=TRUE;
-	m_windowKeyBar->Show();
 
-	if (!Global->Opt->ViOpt.ShowKeyBar)
+	if (Global->Opt->ViOpt.ShowKeyBar)
+	{
+		m_windowKeyBar->Show();
+	}
+	else
+	{
 		m_windowKeyBar->Hide();
+	}
 
 	ShowConsoleTitle();
 	F3KeyOnly=true;
@@ -185,12 +189,12 @@ void FileViewer::InitKeyBar()
 	m_windowKeyBar->SetLabels(Global->OnlyEditorViewerUsed ? MSingleViewF1 : MViewF1);
 
 	if (DisableEdit)
-		m_windowKeyBar->Change(KBL_MAIN, L"", 6 - 1);
+		(*m_windowKeyBar)[KBL_MAIN][F6].clear();
 
 	if (!GetCanLoseFocus())
 	{
-		m_windowKeyBar->Change(KBL_MAIN, L"", 12 - 1);
-		m_windowKeyBar->Change(KBL_ALT, L"", 11 - 1);
+		(*m_windowKeyBar)[KBL_MAIN][F12].clear();
+		(*m_windowKeyBar)[KBL_ALT][F11].clear();
 	}
 
 	m_windowKeyBar->SetCustomLabels(KBA_VIEWER);
@@ -449,7 +453,6 @@ void FileViewer::SetTempViewName(const string& Name, BOOL DeleteFolder)
 FileViewer::~FileViewer()
 {
 	_OT(SysLog(L"[%p] ~FileViewer::FileViewer()",this));
-	delete m_View;
 }
 
 void FileViewer::OnDestroy()

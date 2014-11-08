@@ -291,21 +291,17 @@ int Manager::GetModalExitCode() const
 */
 int Manager::CountWindowsWithName(const string& Name, BOOL IgnoreCase)
 {
-	int Counter=0;
 	typedef int (*CompareFunction)(const string&, const string&);
 	CompareFunction CaseSenitive = StrCmp, CaseInsensitive = StrCmpI;
 	CompareFunction CmpFunction = IgnoreCase? CaseInsensitive : CaseSenitive;
 
 	string strType, strCurName;
 
-	std::for_each(CONST_RANGE(m_windows, i)
+	return std::count_if(CONST_RANGE(m_windows, i) -> bool
 	{
 		i->GetTypeAndName(strType, strCurName);
-		if (!CmpFunction(Name, strCurName))
-			++Counter;
+		return !CmpFunction(Name, strCurName);
 	});
-
-	return Counter;
 }
 
 /*!
@@ -382,15 +378,10 @@ window_ptr Manager::WindowMenu()
 
 int Manager::GetWindowCountByType(int Type)
 {
-	int ret=0;
-
-	std::for_each(CONST_RANGE(m_windows, i)
+	return std::count_if(CONST_RANGE(m_windows, i)
 	{
-		if (!i->IsDeleting() && i->GetExitCode() != XC_QUIT && i->GetType() == Type)
-			ret++;
+		return !i->IsDeleting() && i->GetExitCode() != XC_QUIT && i->GetType() == Type;
 	});
-
-	return ret;
 }
 
 /*$ 11.05.2001 OT Теперь можно искать файл не только по полному имени, но и отдельно - путь, отдельно имя */
@@ -635,12 +626,9 @@ int Manager::ProcessKey(Key key)
 		/*** А вот здесь - все остальное! ***/
 		if (!Global->IsProcessAssignMacroKey)
 		{
-			FOR(const auto& i, m_GlobalKeyHandlers)
+			if (std::any_of(CONST_RANGE(m_GlobalKeyHandlers, i) { return i(key); }))
 			{
-				if (i(key))
-				{
-					return TRUE;
-				}
+				return TRUE;
 			}
 
 			switch (key.FarKey)
@@ -1283,8 +1271,7 @@ static window_ptr GetContainerById(const windows_type& NonModal, const windows_t
 		auto ItemIterator = std::find_if(CONST_RANGE(*List, i) -> bool
 		{
 			auto window = std::dynamic_pointer_cast<window_type>(i);
-			if (window && window->GetById(ID)) return true;
-			return false;
+			return window && window->GetById(ID);
 		});
 		if (ItemIterator != List->cend()) return *ItemIterator;
 	}

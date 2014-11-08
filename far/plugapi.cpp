@@ -2604,15 +2604,7 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 			size_t PluginsCount = Global->CtrlObject->Plugins->GetPluginsCount();
 			if (Param1 && Param2)
 			{
-				auto Plugins = static_cast<HANDLE*>(Param2);
-				size_t Count = std::min(static_cast<size_t>(Param1), PluginsCount);
-				size_t index = 0;
-				FOR(const auto& i, *Global->CtrlObject->Plugins)
-				{
-					Plugins[index++] = i;
-					if (index == Count)
-						break;
-				}
+				std::copy_n(Global->CtrlObject->Plugins->begin(), std::min(static_cast<size_t>(Param1), PluginsCount), static_cast<HANDLE*>(Param2));
 			}
 			return PluginsCount;
 		}

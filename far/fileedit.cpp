@@ -679,8 +679,14 @@ void FileEditor::Init(
 	InitKeyBar();
 	m_windowKeyBar->SetPosition(m_X1, m_Y2, m_X2, m_Y2);
 
-	if (!Global->Opt->EdOpt.ShowKeyBar)
+	if (Global->Opt->EdOpt.ShowKeyBar)
+	{
+		m_windowKeyBar->Show();
+	}
+	else
+	{
 		m_windowKeyBar->Hide();
+	}
 
 	SetMacroMode(MACROAREA_EDITOR);
 
@@ -713,24 +719,19 @@ void FileEditor::InitKeyBar()
 
 	if (!GetCanLoseFocus())
 	{
-		m_windowKeyBar->Change(KBL_MAIN, L"", 12 - 1);
-		m_windowKeyBar->Change(KBL_ALT, L"", 11 - 1);
-		m_windowKeyBar->Change(KBL_SHIFT, L"", 4 - 1);
+		(*m_windowKeyBar)[KBL_MAIN][F12].clear();
+		(*m_windowKeyBar)[KBL_ALT][F11].clear();
+		(*m_windowKeyBar)[KBL_SHIFT][F4].clear();
 	}
 	if (m_Flags.Check(FFILEEDIT_SAVETOSAVEAS))
-		m_windowKeyBar->Change(KBL_MAIN, MSG(MEditShiftF2), 2 - 1);
+		(*m_windowKeyBar)[KBL_MAIN][F2] = MSG(MEditShiftF2);
 
 	if (!m_Flags.Check(FFILEEDIT_ENABLEF6))
-		m_windowKeyBar->Change(KBL_MAIN, L"", 6 - 1);
+		(*m_windowKeyBar)[KBL_MAIN][F6].clear();
 
-	m_windowKeyBar->Change(KBL_MAIN, f8cps.NextCPname(m_codepage), 7);
+	(*m_windowKeyBar)[KBL_MAIN][F8] = f8cps.NextCPname(m_codepage);
 
 	m_windowKeyBar->SetCustomLabels(KBA_EDITOR);
-
-	if (Global->Opt->EdOpt.ShowKeyBar)
-		m_windowKeyBar->Show();
-	else
-		m_windowKeyBar->Hide();
 
 	//m_editor->SetPosition(X1,Y1+(Global->Opt->EdOpt.ShowTitleBar?1:0),X2,Y2-(Global->Opt->EdOpt.ShowKeyBar?1:0));
 }
@@ -2362,7 +2363,7 @@ void FileEditor::ChangeEditKeyBar()
 		{MEditF8, MSingleEditAltF8},
 		{MEditF8DOS, MSingleEditF8DOS},
 	};
-	m_windowKeyBar->Change(MSG(F8Labels[m_codepage == GetACP()][Global->OnlyEditorViewerUsed]), 7);
+	(*m_windowKeyBar)[KBL_MAIN][F8] = F8Labels[m_codepage == GetACP()][Global->OnlyEditorViewerUsed];
 	m_windowKeyBar->Redraw();
 }
 

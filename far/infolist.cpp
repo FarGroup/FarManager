@@ -1089,36 +1089,19 @@ void InfoList::DynamicUpdateKeyBar() const
 
 	if (DizView())
 	{
-		Keybar.Change(MSG(MInfoF3), 3-1);
-
-		if (DizView()->GetCodePage() != GetOEMCP())
-			Keybar.Change(MSG(MViewF8DOS), 7);
-		else
-			Keybar.Change(MSG(MInfoF8), 7);
-
-		if (!DizView()->GetWrapMode())
-		{
-			if (DizView()->GetWrapType())
-				Keybar.Change(MSG(MViewShiftF2), 2-1);
-			else
-				Keybar.Change(MSG(MViewF2), 2-1);
-		}
-		else
-			Keybar.Change(MSG(MViewF2Unwrap), 2-1);
-
-		if (DizView()->GetWrapType())
-			Keybar.Change(KBL_SHIFT, MSG(MViewF2), 2-1);
-		else
-			Keybar.Change(KBL_SHIFT, MSG(MViewShiftF2), 2-1);
+		Keybar[KBL_MAIN][F2] = MSG(DizView()->GetWrapMode() ? MViewF2Unwrap : (DizView()->GetWrapType() ? MViewShiftF2 : MViewF2));
+		Keybar[KBL_MAIN][F3] = MSG(MInfoF3);
+		Keybar[KBL_MAIN][F8] = MSG(DizView()->GetCodePage() == GetOEMCP() ? MViewF8 : MViewF8DOS);
+		Keybar[KBL_SHIFT][F2] = MSG(DizView()->GetWrapType()? MViewF2 : MViewShiftF2);
 	}
 	else
 	{
-		Keybar.Change(MSG(MF2), 2-1);
-		Keybar.Change(KBL_SHIFT, L"", 2-1);
-		Keybar.Change(L"", 3-1);
-		Keybar.Change(L"", 8-1);
-		Keybar.Change(KBL_SHIFT, L"", 8-1);
-		Keybar.Change(KBL_ALT, MSG(MAltF8), 8-1);  // стандартный для панели - "хистори"
+		Keybar[KBL_MAIN][F2] = MSG(MF2);
+		Keybar[KBL_SHIFT][F2].clear();
+		Keybar[KBL_MAIN][F3].clear();
+		Keybar[KBL_MAIN][F8].clear();
+		Keybar[KBL_SHIFT][F8].clear();
+		Keybar[KBL_ALT][F8] = MSG(MAltF8);  // стандартный для панели - "хистори"
 	}
 
 	Keybar.SetCustomLabels(KBA_INFO);

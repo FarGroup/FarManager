@@ -3948,11 +3948,8 @@ BOOL Editor::Search(int Next)
 							strQReplaceStr.insert(0, 1, L'"');
 							strQReplaceStr.push_back(L'"');
 
-							std::unique_ptr<PreRedrawItem> pitem;
-							if (!PreRedrawStack().empty())
-							{
-								pitem = PreRedrawStack().take();
-							}
+							std::unique_ptr<PreRedrawItem> pitem(PreRedrawStack().empty()? nullptr : PreRedrawStack().pop());
+
 							MsgCode=Message(0,4,MSG(MEditReplaceTitle),MSG(MEditAskReplace),
 											strQSearchStr.data(),MSG(MEditAskReplaceWith),strQReplaceStr.data(),
 											MSG(MEditReplace),MSG(MEditReplaceAll),MSG(MEditSkip),MSG(MEditCancel));
@@ -7692,10 +7689,7 @@ void Editor::SortColorUnlock()
 
 	if (SortColorLockCount == 0 && SortColorUpdate)
 	{
-		std::for_each(RANGE(Lines, i)
-		{
-			i.SortColorUnlocked();
-		});
+		std::for_each(ALL_RANGE(Lines), std::mem_fn(&Edit::SortColorUnlocked));
 	}
 }
 
