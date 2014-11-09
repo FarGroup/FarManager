@@ -1276,7 +1276,8 @@ string GuidToStr(const GUID& Guid)
 {
 	string result;
 	RPC_WSTR str;
-	if(UuidToString(&Guid, &str) == RPC_S_OK)
+	// declared as non-const in GCC headers :(
+	if(UuidToString(const_cast<GUID*>(&Guid), &str) == RPC_S_OK)
 	{
 		SCOPE_EXIT{ RpcStringFree(&str); };
 		result = reinterpret_cast<const wchar_t*>(str);
