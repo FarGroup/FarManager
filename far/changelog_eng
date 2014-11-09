@@ -3,6 +3,46 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 09.11.2014 02:12:34 +0200 - build 4176
+
+1. GCC.
+
+drkns 09.11.2014 00:34:51 +0200 - build 4175
+
+1. Correction of 4174.
+
+drkns 08.11.2014 23:16:10 +0200 - build 4174
+
+1. Refactoring.
+
+2. In some cases the key bar was not updated on editor open.
+
+3. Add information on IO_REPARSE_TAG_FILE_PLACEHOLDER (Windows 8.1 OneDrive).
+
+zg 07.11.2014 12:33:42 +0200 - build 4173
+
+1. forum:
+   The following command called from editor's user menu
+   lua: far.Message("from lua")
+   when a dialog is shown, makes the last editor line be highlighted with black.
+
+zg 07.11.2014 03:22:43 +0200 - build 4172
+
+1. each screen object has now its parent window.
+
+drkns 06.11.2014 15:56:10 +0200 - build 4171
+
+1. Forum: Excepton occured: bad allocation
+
+zg 05.11.2014 16:44:44 +0200 - build 4170
+
+1. correction of 4047 for plugin panels:
+   Open .7z file containing folders on a panel, set the cursor on it and press CtrlQ, the following is shown:
+   Folders          0
+   Files            0
+   Files size       0
+   Allocated size   0 (0%)
+
 drkns 02.11.2014 13:15:16 +0200 - build 4169
 
 1. More corrections of 4167.
