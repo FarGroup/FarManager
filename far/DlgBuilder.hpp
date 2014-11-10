@@ -656,7 +656,7 @@ class DialogBuilderBase
 
 		bool ShowDialog()
 		{
-			auto Result = ShowDialogEx();
+			intptr_t Result = ShowDialogEx();
 			return Result >= 0 && (m_CancelButtonID < 0 || Result + m_FirstButtonID != m_CancelButtonID);
 		}
 
