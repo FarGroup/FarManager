@@ -158,7 +158,6 @@ void Options::SystemSettings()
 	Builder.AddCheckbox(MConfigSystemCopy, CMOpt.UseSystemCopy);
 	Builder.AddCheckbox(MConfigCopySharing, CMOpt.CopyOpened);
 	Builder.AddCheckbox(MConfigScanJunction, ScanJunction);
-	Builder.AddCheckbox(MConfigCreateUppercaseFolders, CreateUppercaseFolders);
 	Builder.AddCheckbox(MConfigSmartFolderMonitor, SmartFolderMonitor);
 
 	Builder.AddCheckbox(MConfigSaveHistory, SaveHistory);
@@ -1869,7 +1868,6 @@ void Options::InitRoamingCFG()
 		{FSSF_SYSTEM,        NKeySystem,L"CopyOpened", &CMOpt.CopyOpened, true},
 		{FSSF_PRIVATE,       NKeySystem,L"CopyTimeRule",  &CMOpt.CopyTimeRule, 3},
 		{FSSF_PRIVATE,       NKeySystem,L"CopySecurityOptions", &CMOpt.CopySecurityOptions, 0},
-		{FSSF_PRIVATE,       NKeySystem,L"CreateUppercaseFolders", &CreateUppercaseFolders, false},
 		{FSSF_SYSTEM,        NKeySystem,L"DeleteToRecycleBin", &DeleteToRecycleBin, true},
 		{FSSF_PRIVATE,       NKeySystem,L"DeleteToRecycleBinKillLink", &DeleteToRecycleBinKillLink, true},
 		{FSSF_PRIVATE,       NKeySystem,L"DelThreadPriority", &DelThreadPriority, THREAD_PRIORITY_NORMAL},

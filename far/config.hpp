@@ -628,7 +628,6 @@ public:
 
 	BoolOption MultiMakeDir; // Опция создания нескольких каталогов за один сеанс
 
-	BoolOption CreateUppercaseFolders;
 	BoolOption UseRegisteredTypes;
 
 	BoolOption ViewerEditorClock;

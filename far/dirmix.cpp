@@ -255,9 +255,6 @@ void CreatePath(const string &InputPath, bool Simple)
 			Part = Path.substr(0, i);
 			if (api::GetFileAttributes(Part) == INVALID_FILE_ATTRIBUTES)
 			{
-				if (!Simple && Global->Opt->CreateUppercaseFolders && !IsCaseMixed(Part)) //BUGBUG
-					Upper(Part);
-
 				if(api::CreateDirectory(Part, nullptr) && !Simple)
 					TreeList::AddTreeName(Part);
 			}

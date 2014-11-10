@@ -167,10 +167,6 @@ void ShellMakeDir(Panel *SrcPanel)
 
 			ConvertNameToFull(strDirName, strDirName);
 
-			//Unquote(DirName);
-			if (Global->Opt->CreateUppercaseFolders && !IsCaseMixed(strOriginalDirName))
-				Upper(strDirName);
-
 			DeleteEndSlash(strDirName);
 			bool bSuccess = false;
 

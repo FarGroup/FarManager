@@ -2400,10 +2400,6 @@ is being modified at the same time as copying.
   Scan ~symbolic links~@HardSymLink@ along with normal sub-folders when building the folder tree,
 determining the total file size in the sub-folders.
 
-
-  #Create folders in uppercase#
-  If the name of a new folder contains only lowercase letters and this option is on, the folder will be created in uppercase.
-
   #Smart folder panel monitor#
   Если эта опция выставлена, то мониторинг файловых панелей фар будет выполняться только тогда когда фар активен,
 т.е. обновления панелей не будет до тех пор, пока фар не получит фокус ввода. Это позволяет не блокировать каталоги текущих панелей.

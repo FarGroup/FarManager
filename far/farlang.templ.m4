@@ -1593,17 +1593,6 @@ MConfigScanJunction
 "Prehľadávať s&ymbolické odkazy"
 "Controlla Lin&ks Simbolici"
 
-MConfigCreateUppercaseFolders
-"Создавать &папки заглавными буквами"
-"Create folders in &uppercase"
-"Vytvářet adresáře s &velkými písmeny"
-"Ordner in Großschreib&ung erstellen"
-"Mappák létrehozása &NAGYBETŰKKEL"
-"Nazwy katalogów &WIELKIMI LITERAMI"
-"Crear directorios en ma&yúsculas"
-"Vytvárať priečinky s &veľkými písmenami"
-"Crea Cartella In &MAIUSCOLO"
-
 MConfigSmartFolderMonitor
 "Обновление панелей только если Far активен"
 upd:"Update panels only when Far is active"

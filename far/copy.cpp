@@ -1845,9 +1845,6 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		{
 			string strNewPath = strDest.substr(0, pos);
 
-			if (Global->Opt->CreateUppercaseFolders && !IsCaseMixed(strNewPath))
-				Upper(strNewPath);
-
 			DWORD Attr=api::GetFileAttributes(strNewPath);
 			if (Attr == INVALID_FILE_ATTRIBUTES)
 			{
