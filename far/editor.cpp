@@ -4778,99 +4778,86 @@ void Editor::GoToPosition()
 	string strData;
 	Builder.AddEditField(&strData,28,L"LineNumber",DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY|DIF_NOAUTOCOMPLETE);
 	Builder.AddOKCancel();
-	if(Builder.ShowDialog() && !strData.empty())
+	Builder.ShowDialog();
+	if(!strData.empty())
 	{
-		int LeftPos=CurLine->GetTabCurPos()+1;
-		int CurPos=CurLine->GetCurPos();
-
+		int LeftPos=CurLine->GetLeftPos();
 		int NewLine=0, NewCol=0;
-		GetRowCol(strData, NewLine, NewCol);
-		GoToLine(NewLine);
-
-		if (NewCol == -1)
+		try
 		{
-			CurLine->SetTabCurPos(CurPos);
+			GetRowCol(strData, NewLine, NewCol);
+			GoToLine(NewLine);
 			CurLine->SetLeftPos(LeftPos);
-		}
-		else
-		{
 			CurLine->SetCurPos(NewCol);
+		}
+		catch(const std::exception&)
+		{
+			// TODO maybe we need to display message in case of incorrect input
 		}
 		Show();
 	}
 }
 
-void Editor::GetRowCol(const string& _argv, int& row, int& col) const
+void Editor::GetRowCol(const string& _argv, int& row, int& col)
 {
-	int x=0xffff,y;
-
-	int LeftPos=CurLine->GetTabCurPos() + 1;
-	string strArg = _argv;
-	string argvx;
-	// что бы не оставить "врагу" выбора - только то, что мы хотим ;-)
-	// "прибьем" все внешние пробелы.
-	RemoveExternalSpaces(strArg);
-
-	size_t separator_pos = strArg.find_first_of(L",:;. ");
-	if (separator_pos != string::npos) // Варианты: "row,col" или ",col"?
+	RegExp re;
+	auto compiled=re.Compile(L"/^[ \\t]*((([0-9]+)%)|(([+-]?)[0-9]+))?([ \\t]*[.,;: ][ \\t]*(([+-]?)[0-9]+))?[ \\t]*$/", OP_PERLSTYLE|OP_OPTIMIZE);
+	(void)compiled;
+	assert(compiled);
+	RegExpMatch match[9];
+	intptr_t matchcount = ARRAYSIZE(match);
+	auto get_match=[&](intptr_t index)->string
 	{
-		argvx = strArg.substr(separator_pos + 1);
-		try
+		assert(index<matchcount);
+		assert(match[index].end>=0);
+		return string(_argv.data()+match[index].start,match[index].end-match[index].start);
+	};
+	auto is_match_empty=[&](intptr_t index)->bool
+	{
+		assert(index<matchcount);
+		assert(match[index].end>=0);
+		return match[index].end==match[index].start;
+	};
+	if (re.Match(_argv.data(), _argv.data() + _argv.size(), match, matchcount))
+	{
+	    assert(matchcount == ARRAYSIZE(match));
+		enum
 		{
-			x = std::stoi(argvx);
-		}
-		catch(const std::exception&)
+			b_row=1,
+			b_row_percent,
+			b_row_percent_value,
+			b_row_absolute,
+			b_row_absolute_sign,
+			b_col,
+			b_col_absolute,
+			b_col_sign
+		};
+		row = NumLine;
+		if (match[b_row].end>=0)
 		{
-			// TODO maybe we need to display message in case of incorrect input
-			x = 0;
+			if (match[b_row_percent].end>=0)
+			{
+				row = std::stoi(get_match(b_row_percent_value));
+				row = NumLastLine * row / 100;
+			}
+			else if (match[b_row_absolute].end>=0)
+			{
+				int y = std::stoi(get_match(b_row_absolute));
+				row = is_match_empty(b_row_absolute_sign)?y-1:row+y;
+			}
 		}
-		strArg.resize(separator_pos);
-	}
-
-	try
-	{
-		y = std::stoi(strArg);
-	}
-	catch(const std::exception&)
-	{
-		// TODO maybe we need to display message in case of incorrect input
-		y = 0;
-	}
-
-
-	// + переход на проценты
-	if (strArg.find(L'%') != string::npos)
-		y=NumLastLine * y / 100;
-
-	//   вычисляем относительность
-	if (strArg[0]==L'-' || strArg[0]==L'+')
-		y=NumLine+y+1;
-
-	if (!argvx.empty())
-	{
-		if (argvx[0]==L'-' || argvx[0]==L'+')
+		if (row >= NumLastLine) row = NumLastLine - 1;
+		auto CurPtr=GetStringByNumber(row);
+		col=CurPtr->TabPosToReal(CurLine->GetTabCurPos());
+		if (match[b_col].end>=0)
 		{
-			x=LeftPos+x;
+			int x = std::stoi(get_match(b_col_absolute));
+			col = is_match_empty(b_col_sign)?x-1:col+x;
 		}
+
 	}
+	else throw std::invalid_argument("invalid syntax");
 
-	// теперь загоним результат назад
-	row=y;
-
-	if (x!=0xffff)
-		col=x;
-	else
-		col=LeftPos;
-
-	--row;
-
-	if (row < 0)   // если ввели ",Col"
-		row=NumLine;  //   то переходим на текущую строку и колонку
-
-	--col;
-
-	if (col < -1)
-		col = -1;
 }
 
 struct Editor::EditorUndoData : ::NonCopyable

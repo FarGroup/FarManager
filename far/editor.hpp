@@ -106,7 +106,7 @@ public:
 	// передавайте в качестве значения параметра "-1" для параметра,
 	// который не нужно менять
 	void SetSavePosMode(int SavePos, int SaveShortPos);
-	void GetRowCol(const string& argv, int& row, int& col) const;
+	void GetRowCol(const string& argv, int& row, int& col);
 	int GetLineCurPos() const;
 	void BeginVBlockMarking();
 	void ProcessVBlockMarking();
