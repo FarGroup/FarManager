@@ -9,7 +9,7 @@
 /*
   DlgBuilder.hpp
 
-  Dynamic construction of dialogs for FAR Manager 3.0 build 4134
+  Dynamic construction of dialogs for FAR Manager 3.0 build 4179
 */
 
 /*
@@ -250,8 +250,8 @@ class DialogBuilderBase
 		{
 			T *Title = &m_DialogItems[0];
 			intptr_t MaxWidth = MaxTextWidth();
+			intptr_t MaxHeight = 0;
 			Title->X2 = Title->X1 + MaxWidth + 3;
-			Title->Y2 = m_DialogItems [m_DialogItemsCount-1].Y2 + 1;
 
 			for (int i=1; i<m_DialogItemsCount; i++)
 			{
@@ -264,9 +264,15 @@ class DialogBuilderBase
 				{//BUGBUG: two columns items are not supported
 					m_DialogItems[i].X2 = m_DialogItems[i].X1 + MaxWidth - 1;
 				}
+				
+				if (m_DialogItems[i].Y2 > MaxHeight)
+				{
+					MaxHeight = m_DialogItems[i].Y2;
+				}
 			}
 
 			Title->X2 += m_Indent;
+			Title->Y2 = MaxHeight + 1;
 			m_Indent = 0;
 		}
 
@@ -633,7 +639,7 @@ class DialogBuilderBase
 			UpdateBorderSize();
 			UpdateSecondColumnPosition();
 			intptr_t Result = DoShowDialog();
-			if (Result != m_CancelButtonID)
+			if (Result >= 0 && Result != m_CancelButtonID)
 			{
 				SaveValues();
 			}
@@ -647,7 +653,8 @@ class DialogBuilderBase
 
 		bool ShowDialog()
 		{
-			return ShowDialogEx() == 0;
+			intptr_t Result = ShowDialogEx();
+			return Result >= 0 && (m_CancelButtonID < 0 || Result + m_FirstButtonID != m_CancelButtonID);
 		}
 
 };
@@ -900,13 +907,13 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 			return new PluginRadioButtonBinding(Info, &DialogHandle, m_DialogItemsCount-1, Value);
 		}
 
-		FarDialogItem *AddListControl(FARDIALOGITEMTYPES Type, int *SelectedItem, wchar_t *Text, int Width, int Height, const wchar_t* ItemsText[], size_t ItemCount, FARDIALOGITEMFLAGS Flags)
+		FarDialogItem *AddListControl(FARDIALOGITEMTYPES Type, int *SelectedItem, wchar_t *Text, int Width, int Height, const wchar_t* ItemsText [], size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
 		{
 			FarDialogItem *Item = AddDialogItem(Type, Text ? Text : L"");
 			SetNextY(Item);
 			Item->X2 = Item->X1 + Width;
 			Item->Y2 = Item->Y2 + Height;
-			Item->Flags |= Flags;
+			Item->Flags |= ItemFlags;
 
 			m_NextY += Height;
 
@@ -930,7 +937,7 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 			return Item;
 		}
 
-		FarDialogItem *AddListControl(FARDIALOGITEMTYPES Type, int *SelectedItem, wchar_t *Text,  int Width, int Height, const int MessageIDs[], size_t ItemCount, FARDIALOGITEMFLAGS Flags)
+		FarDialogItem *AddListControl(FARDIALOGITEMTYPES Type, int *SelectedItem, wchar_t *Text, int Width, int Height, const int MessageIDs [], size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
 		{
 			const wchar_t** ItemsText = nullptr;
 			if (MessageIDs)
@@ -942,7 +949,7 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 				}
 			}
 
-			FarDialogItem* result = AddListControl(Type, SelectedItem, Text, Width, Height, ItemsText, ItemCount, Flags);
+			FarDialogItem* result = AddListControl(Type, SelectedItem, Text, Width, Height, ItemsText, ItemCount, ItemFlags);
 
 			delete [] ItemsText;
 
@@ -1037,24 +1044,24 @@ public:
 			return Item;
 		}
 
-		FarDialogItem *AddComboBox(int *SelectedItem, wchar_t *Text, int Width, const wchar_t* ItemsText[], size_t ItemCount, FARDIALOGITEMFLAGS Flags)
+		FarDialogItem *AddComboBox(int *SelectedItem, wchar_t *Text, int Width, const wchar_t* ItemsText[], size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
 		{
-			return AddListControl(DI_COMBOBOX, SelectedItem, Text, Width, 0, ItemsText, ItemCount, Flags);
+			return AddListControl(DI_COMBOBOX, SelectedItem, Text, Width, 0, ItemsText, ItemCount, ItemFlags);
 		}
 
-		FarDialogItem *AddComboBox(int *SelectedItem, wchar_t *Text,  int Width, const int MessageIDs[], size_t ItemCount, FARDIALOGITEMFLAGS Flags)
+		FarDialogItem *AddComboBox(int *SelectedItem, wchar_t *Text,  int Width, const int MessageIDs[], size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
 		{
-			return AddListControl(DI_COMBOBOX, SelectedItem, Text, Width, 0, MessageIDs, ItemCount, Flags);
+			return AddListControl(DI_COMBOBOX, SelectedItem, Text, Width, 0, MessageIDs, ItemCount, ItemFlags);
 		}
 
-		FarDialogItem *AddListBox(int *SelectedItem, int Width, int Height, const wchar_t* ItemsText[], size_t ItemCount, FARDIALOGITEMFLAGS Flags)
+		FarDialogItem *AddListBox(int *SelectedItem, int Width, int Height, const wchar_t* ItemsText[], size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
 		{
-			return AddListControl(DI_LISTBOX, SelectedItem, nullptr, Width, Height, ItemsText, ItemCount, Flags);
+			return AddListControl(DI_LISTBOX, SelectedItem, nullptr, Width, Height, ItemsText, ItemCount, ItemFlags);
 		}
 
-		FarDialogItem *AddListBox(int *SelectedItem, int Width, int Height, const int MessageIDs[], size_t ItemCount, FARDIALOGITEMFLAGS Flags)
+		FarDialogItem *AddListBox(int *SelectedItem, int Width, int Height, const int MessageIDs[], size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
 		{
-			return AddListControl(DI_LISTBOX, SelectedItem, nullptr, Width, Height, MessageIDs, ItemCount, Flags);
+			return AddListControl(DI_LISTBOX, SelectedItem, nullptr, Width, Height, MessageIDs, ItemCount, ItemFlags);
 		}
 };
 #endif /* __DLGBUILDER_HPP__ */
