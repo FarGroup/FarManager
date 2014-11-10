@@ -1751,7 +1751,7 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 			Viewer->SetEnableF6(Flags & VF_ENABLE_F6);
 
 			/* $ 28.05.2001 По умолчанию viewer, поэтому нужно здесь признак выставить явно */
-			Global->WindowManager->ExecuteModal(Viewer);
+			if(Viewer->GetExitCode()) Global->WindowManager->ExecuteModal(Viewer);
 
 			/* $ 14.06.2002 IS
 			   Обработка VF_DELETEONLYFILEONCLOSE - этот флаг имеет более низкий
