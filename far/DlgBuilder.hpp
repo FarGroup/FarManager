@@ -642,7 +642,7 @@ class DialogBuilderBase
 			UpdateBorderSize();
 			UpdateSecondColumnPosition();
 			intptr_t Result = DoShowDialog();
-			if (Result != m_CancelButtonID)
+			if (Result >= 0 && Result != m_CancelButtonID)
 			{
 				SaveValues();
 			}
