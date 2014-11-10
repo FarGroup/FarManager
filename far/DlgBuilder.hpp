@@ -656,7 +656,8 @@ class DialogBuilderBase
 
 		bool ShowDialog()
 		{
-			return ShowDialogEx() == 0;
+			auto Result = ShowDialogEx();
+			return Result >= 0 && (m_CancelButtonID < 0 || Result + m_FirstButtonID != m_CancelButtonID);
 		}
 
 };
