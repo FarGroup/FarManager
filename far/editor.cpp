@@ -4778,8 +4778,7 @@ void Editor::GoToPosition()
 	string strData;
 	Builder.AddEditField(&strData,28,L"LineNumber",DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY|DIF_NOAUTOCOMPLETE);
 	Builder.AddOKCancel();
-	Builder.ShowDialog();
-	if(!strData.empty())
+	if(Builder.ShowDialog() && !strData.empty())
 	{
 		int LeftPos=CurLine->GetTabCurPos()+1;
 		int CurPos=CurLine->GetCurPos();
