@@ -1974,9 +1974,6 @@ $ #Beállítások: rendszer beállítások#
 közbeiktatja a Lomtárat. A "Törlés a Lomtárba" művelet csak helyi
 merevlemezeken működik.
 
-  #Szimbolikus linkek#      Megkeresi és törli a mappák szimbolikus
-  #törlése#                 linkjeit, mielőtt a Lomtárba dobná őket.
-
   #Másoláshoz a rendszer-#  A FAR beépített másolórutinja helyett az
   #rutin használata#        operációs rendszer rutinját használja.
                           ^<wrap>Alkalmazása NTFS fájlrendszerben hasznos
@@ -1996,10 +1993,6 @@ ideje alatt módosul.
                           ^<wrap>során a normál mappák mérete, valamint a
 ~szimbolikus linkjeik~@HardSymLink@ mérete együttesen fogják meghatározni a
 mappákban található fájlok méretének összegét.
-
-  #Mappák létrehozása#      Ha az új mappa nevét csupa kisbetűvel
-  #NAGYBETŰKKEL#            írjuk be és ez az opció be van kapcsolva,
-                          a mappa neve nagybetűs lesz.
 
   #A FAR kilép x perc#      A FAR futása abbamarad, ha a megadott
   #tétlenség után#          időtartam alatt nem történik billentyű-

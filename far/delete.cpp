@@ -1030,24 +1030,45 @@ DEL_RESULT ShellDelete::ERemoveDirectory(const string& Name,DIRDELTYPE Type)
 
 	return DELETE_SUCCESS;
 }
-
+#include "fileattr.hpp"
 bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& ret)
 {
 	string strFullName;
 	ConvertNameToFull(Name, strFullName);
 
 	// При удалении в корзину папки с симлинками получим траблу, если предварительно линки не убрать.
-	if (!IsWindowsVistaOrGreater() && Global->Opt->DeleteToRecycleBinKillLink && api::GetFileAttributes(Name) == FILE_ATTRIBUTE_DIRECTORY)
+	if (!IsWindowsVistaOrGreater() && api::GetFileAttributes(Name) == FILE_ATTRIBUTE_DIRECTORY)
 	{
 		string strFullName2;
 		api::FAR_FIND_DATA FindData;
 		ScanTree ScTree(true, true, FALSE);
 		ScTree.SetFindPath(Name,L"*", 0);
 
+		bool MessageShown = false;
+		int SkipMode = -1;
+
 		while (ScTree.GetNextName(&FindData,strFullName2))
 		{
 			if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY && FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
-				ERemoveDirectory(strFullName2, D_DEL);
+			{
+				if (!MessageShown)
+				{
+					MessageShown = true;
+					if (Message(MSG_WARNING, MSG(MWarning),
+					    make_vector<string>(
+					        MSG(MRecycleFolderConfirmDeleteLink1),
+					        MSG(MRecycleFolderConfirmDeleteLink2),
+					        MSG(MRecycleFolderConfirmDeleteLink3),
+					        MSG(MRecycleFolderConfirmDeleteLink4)
+					    ),
+					    make_vector<string>(MSG(MYes), MSG(MCancel))) != 0)
+					{
+						ret = DELETE_CANCEL;
+						return false;
+					}
+				}
+				EDeleteReparsePoint(strFullName2, FindData.dwFileAttributes, SkipMode);
+			}
 		}
 	}
 

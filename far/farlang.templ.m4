@@ -1549,17 +1549,6 @@ MConfigRecycleBin
 "&Mazať do Koša"
 "Elimina Attributo &Sola Lettura Da CD/DVD"
 
-MConfigRecycleBinLink
-"У&далять символические ссылки"
-"Delete symbolic &links"
-"Mazat symbolické &linky"
-"Symbolische L&inks löschen"
-"Szimbolikus l&inkek törlése"
-"Usuń &linki symboliczne"
-"Borrar en&laces simbólicos"
-"Mazať symbo&lické odkazy"
-"Elimina Link &Simbolici"
-
 MConfigSystemCopy
 "Использовать систе&мную функцию копирования"
 "Use sys&tem copy routine"
@@ -4852,6 +4841,50 @@ upd:"The following folder will be moved to the Recycle Bin:"
 "El siguiente directorio será movido a la Papelera de Reciclaje:"
 upd:"The following folder will be moved to the Recycle Bin:"
 "Le Cartelle Seguenti Verranno Spostate Nel Cestino:"
+
+MRecycleFolderConfirmDeleteLink1
+"Папка содержит символические ссылки."
+"Folder contains symbolic links."
+upd:"Folder contains symbolic links."
+upd:"Folder contains symbolic links."
+upd:"Folder contains symbolic links."
+upd:"Folder contains symbolic links."
+upd:"Folder contains symbolic links."
+upd:"Folder contains symbolic links."
+upd:"Folder contains symbolic links."
+
+MRecycleFolderConfirmDeleteLink2
+"Для предотвращения потери их содержимого при очистке корзины"
+"To prevent the loss of their content when clearing Recyle Bin"
+upd:"To prevent the loss of their content when clearing Recyle Bin"
+upd:"To prevent the loss of their content when clearing Recyle Bin"
+upd:"To prevent the loss of their content when clearing Recyle Bin"
+upd:"To prevent the loss of their content when clearing Recyle Bin"
+upd:"To prevent the loss of their content when clearing Recyle Bin"
+upd:"To prevent the loss of their content when clearing Recyle Bin"
+upd:"To prevent the loss of their content when clearing Recyle Bin"
+
+MRecycleFolderConfirmDeleteLink3
+"эти ссылки сейчас будут разорваны."
+"those links will be broken now."
+upd:"those links will be broken now."
+upd:"those links will be broken now."
+upd:"those links will be broken now."
+upd:"those links will be broken now."
+upd:"those links will be broken now."
+upd:"those links will be broken now."
+upd:"those links will be broken now."
+
+MRecycleFolderConfirmDeleteLink4
+"Впоследствии восстановить их будет невозможно."
+"It would be impossible to restore them later."
+upd:"It would be impossible to restore them later."
+upd:"It would be impossible to restore them later."
+upd:"It would be impossible to restore them later."
+upd:"It would be impossible to restore them later."
+upd:"It would be impossible to restore them later."
+upd:"It would be impossible to restore them later."
+upd:"It would be impossible to restore them later."
 
 MDeleteWipe
 "Уничтожить"

@@ -2380,11 +2380,6 @@ $ #Settings dialog: system#
   Enables file deletion via the Recycle Bin.The operation of deleting to the Recycle
 Bin can be performed only for local hard disks.
 
-  #Delete symbolic links#
-  Scan for and delete symbolic links to subfolders before deleting to Recycle Bin.
-  В OS ниже Windows Vista при очистке Корзины, содержащей символические ссылки, удаляются не ссылки, а источники, на которые эти ссылки указывают.
-  В Windows Vista и выше эта опция не используется. Система сама корректно чистит Корзину.
-
   #Use system copy routine#
   Use the file copy functions provided by the operating system instead of internal
 file copy implementation. It may be useful on NTFS, because the system function

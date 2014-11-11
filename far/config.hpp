@@ -619,7 +619,6 @@ public:
 	BoolOption ReverseSort;
 	BoolOption SortFolderExt;
 	BoolOption DeleteToRecycleBin;
-	BoolOption DeleteToRecycleBinKillLink; // перед удалением папки в корзину кильнем вложенные симлинки.
 	IntOption WipeSymbol; // символ заполнитель для "ZAP-операции"
 
 	CopyMoveOptions CMOpt;

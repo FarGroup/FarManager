@@ -150,11 +150,7 @@ void Options::SystemSettings()
 {
 	DialogBuilder Builder(MConfigSystemTitle, L"SystemSettings");
 
-	DialogItemEx *DeleteToRecycleBinItem = Builder.AddCheckbox(MConfigRecycleBin, DeleteToRecycleBin);
-	DialogItemEx *DeleteLinks = Builder.AddCheckbox(MConfigRecycleBinLink, DeleteToRecycleBinKillLink);
-	DeleteLinks->Indent(4);
-	Builder.LinkFlags(DeleteToRecycleBinItem, DeleteLinks, DIF_DISABLE);
-
+	Builder.AddCheckbox(MConfigRecycleBin, DeleteToRecycleBin);
 	Builder.AddCheckbox(MConfigSystemCopy, CMOpt.UseSystemCopy);
 	Builder.AddCheckbox(MConfigCopySharing, CMOpt.CopyOpened);
 	Builder.AddCheckbox(MConfigScanJunction, ScanJunction);
@@ -1869,7 +1865,6 @@ void Options::InitRoamingCFG()
 		{FSSF_PRIVATE,       NKeySystem,L"CopyTimeRule",  &CMOpt.CopyTimeRule, 3},
 		{FSSF_PRIVATE,       NKeySystem,L"CopySecurityOptions", &CMOpt.CopySecurityOptions, 0},
 		{FSSF_SYSTEM,        NKeySystem,L"DeleteToRecycleBin", &DeleteToRecycleBin, true},
-		{FSSF_PRIVATE,       NKeySystem,L"DeleteToRecycleBinKillLink", &DeleteToRecycleBinKillLink, true},
 		{FSSF_PRIVATE,       NKeySystem,L"DelThreadPriority", &DelThreadPriority, THREAD_PRIORITY_NORMAL},
 		{FSSF_PRIVATE,       NKeySystem,L"DriveDisconnectMode", &ChangeDriveDisconnectMode, true},
 		{FSSF_PRIVATE,       NKeySystem,L"DriveMenuMode", &ChangeDriveMode, DRIVE_SHOW_TYPE|DRIVE_SHOW_PLUGINS|DRIVE_SHOW_SIZE_FLOAT|DRIVE_SHOW_CDROM},
