@@ -135,7 +135,6 @@ private:
 	void SetTitle(const string* Title);
 	BOOL SetFileName(const string& NewFileName);
 	int ProcessEditorInput(const INPUT_RECORD& Rec);
-	void ChangeEditKeyBar();
 	DWORD EditorGetFileAttributes(const string& Name);
 	void SetPluginData(const string* PluginData);
 	const wchar_t *GetPluginData() { return strPluginData.data(); }

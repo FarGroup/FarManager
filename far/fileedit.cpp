@@ -2356,17 +2356,6 @@ void FileEditor::SetTitle(const string* Title)
 	strTitle = Title? *Title : L"";
 }
 
-void FileEditor::ChangeEditKeyBar()
-{
-	static const LNGID F8Labels[2][2] =
-	{
-		{MEditF8, MSingleEditAltF8},
-		{MEditF8DOS, MSingleEditF8DOS},
-	};
-	(*m_windowKeyBar)[KBL_MAIN][F8] = F8Labels[m_codepage == GetACP()][Global->OnlyEditorViewerUsed];
-	m_windowKeyBar->Redraw();
-}
-
 string FileEditor::GetTitle() const
 {
 	string strLocalTitle;

@@ -769,7 +769,9 @@ int InfoList::ProcessKey(const Manager::Key& Key)
 		{
 			int ret = DizView()->ProcessKey(Key);
 
-			if (LocalKey == KEY_F8 || LocalKey == KEY_F2 || LocalKey == KEY_SHIFTF2)
+			if (LocalKey == KEY_F2 || LocalKey == KEY_SHIFTF2
+			 || LocalKey == KEY_F4 || LocalKey == KEY_SHIFTF4
+			 || LocalKey == KEY_F8 || LocalKey == KEY_SHIFTF8)
 			{
 				DynamicUpdateKeyBar();
 				Parent()->GetKeybar().Redraw();
@@ -1091,7 +1093,7 @@ void InfoList::DynamicUpdateKeyBar() const
 	{
 		Keybar[KBL_MAIN][F2] = MSG(DizView()->GetWrapMode() ? MViewF2Unwrap : (DizView()->GetWrapType() ? MViewShiftF2 : MViewF2));
 		Keybar[KBL_MAIN][F3] = MSG(MInfoF3);
-		Keybar[KBL_MAIN][F8] = MSG(DizView()->GetCodePage() == GetOEMCP() ? MViewF8 : MViewF8DOS);
+		Keybar[KBL_MAIN][F8] = DizView()->GetNextCPname();
 		Keybar[KBL_SHIFT][F2] = MSG(DizView()->GetWrapType()? MViewF2 : MViewShiftF2);
 	}
 	else

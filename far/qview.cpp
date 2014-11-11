@@ -365,7 +365,9 @@ int QuickView::ProcessKey(const Manager::Key& Key)
 	{
 		int ret = QView()->ProcessKey(Manager::Key(LocalKey));
 
-		if (LocalKey == KEY_F4 || LocalKey == KEY_F8 || LocalKey == KEY_F2 || LocalKey == KEY_SHIFTF2)
+		if (LocalKey == KEY_F2 || LocalKey == KEY_SHIFTF2
+		 || LocalKey == KEY_F4 || LocalKey == KEY_SHIFTF4
+		 || LocalKey == KEY_F8 || LocalKey == KEY_SHIFTF8)
 		{
 			DynamicUpdateKeyBar();
 			Parent()->GetKeybar().Redraw();
@@ -631,7 +633,7 @@ void QuickView::DynamicUpdateKeyBar() const
 	{
 		Keybar[KBL_MAIN][F2] = MSG(QView()->GetWrapMode()? MViewF2Unwrap : (QView()->GetWrapType()? MViewShiftF2 : MViewF2));
 		Keybar[KBL_MAIN][F4] = MSG(QView()->GetHexMode()? MViewF4Text : MQViewF4);
-		Keybar[KBL_MAIN][F8] = MSG(QView()->GetCodePage() == GetOEMCP()? MQViewF8 : MViewF8DOS);
+		Keybar[KBL_MAIN][F8] = QView()->GetNextCPname();
 		Keybar[KBL_SHIFT][F2] = MSG(QView()->GetWrapType()? MViewF2 : MViewShiftF2);
 	}
 

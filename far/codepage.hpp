@@ -177,11 +177,12 @@ public:
 	F8CP(bool viewer=false);
 	~F8CP();
 
-	uintptr_t NextCP(uintptr_t cp);
-	const wchar_t* NextCPname(uintptr_t cp);
+	uintptr_t NextCP(uintptr_t cp) const;
+	const wchar_t* NextCPname(uintptr_t cp) const;
 
 private:
-	string acp_name, oem_name, utf_name, number;
+	string acp_name, oem_name, utf_name;
+	mutable string number;
 	std::vector<UINT> f8cp_order;
 };
 

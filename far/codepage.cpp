@@ -1457,7 +1457,7 @@ F8CP::F8CP(bool viewer) : utf_name(L"UTF-8")
 	}
 }
 
-uintptr_t F8CP::NextCP(uintptr_t cp)
+uintptr_t F8CP::NextCP(uintptr_t cp) const
 {
 	UINT next_cp = f8cp_order[0];
 	if (cp == (cp & 0x7fffffff)) {
@@ -1468,7 +1468,7 @@ uintptr_t F8CP::NextCP(uintptr_t cp)
 	return static_cast<uintptr_t>(next_cp);
 }
 
-const wchar_t* F8CP::NextCPname(uintptr_t cp)
+const wchar_t* F8CP::NextCPname(uintptr_t cp) const
 {
 	UINT next_cp = static_cast<UINT>(NextCP(cp));
 	if (next_cp == GetACP())

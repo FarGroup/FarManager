@@ -84,6 +84,7 @@ public:
 	void SetShowScrollbar(bool newValue) { ViOpt.ShowScrollbar=newValue; }
 	int GetHexMode() const { return VM.Hex; }
 	uintptr_t GetCodePage() const { return VM.CodePage; }
+	const wchar_t *GetNextCPname() const { return f8cps.NextCPname(VM.CodePage); }
 	NamesList& GetNamesList() { return ViewNamesList; }
 	bool isTemporary() const;
 	int ProcessHexMode(int newMode, bool isRedraw = true);
