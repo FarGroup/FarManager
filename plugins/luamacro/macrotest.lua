@@ -813,7 +813,6 @@ local function test_Far_GetConfig()
     "System.CopyOpened", "boolean",
     "System.CopyTimeRule", "integer",
     "System.CopySecurityOptions", "integer",
-    "System.CreateUppercaseFolders", "boolean",
     "System.DeleteToRecycleBin", "boolean",
     "System.DeleteToRecycleBinKillLink", "boolean",
     "System.DelThreadPriority", "integer",
