@@ -1091,10 +1091,7 @@ void InfoList::DynamicUpdateKeyBar() const
 
 	if (DizView())
 	{
-		Keybar[KBL_MAIN][F2] = MSG(DizView()->GetWrapMode() ? MViewF2Unwrap : (DizView()->GetWrapType() ? MViewShiftF2 : MViewF2));
-		Keybar[KBL_MAIN][F3] = MSG(MInfoF3);
-		Keybar[KBL_MAIN][F8] = DizView()->GetNextCPname();
-		Keybar[KBL_SHIFT][F2] = MSG(DizView()->GetWrapType()? MViewF2 : MViewShiftF2);
+		DizView()->UpdateViewKeyBar(Keybar);
 	}
 	else
 	{

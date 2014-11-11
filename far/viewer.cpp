@@ -2295,25 +2295,29 @@ int Viewer::GetStrBytesNum( const wchar_t *Str, int Length )
 
 void Viewer::SetViewKeyBar(KeyBar *ViewKeyBar)
 {
-	m_ViewKeyBar=ViewKeyBar;
+	m_ViewKeyBar = ViewKeyBar;
 	ChangeViewKeyBar();
+}
+
+void Viewer::UpdateViewKeyBar(KeyBar& keybar)
+{
+	const wchar_t *f2_label = L"", *shiftf2_label = L"";
+	if (!VM.Hex)
+	{
+		f2_label = MSG((!VM.Wrap)?((!VM.WordWrap)?MViewF2:MViewShiftF2):MViewF2Unwrap);
+		shiftf2_label = MSG((VM.WordWrap) ? MViewF2 : MViewShiftF2);
+	}
+	keybar[KBL_MAIN][F2] = f2_label;
+	keybar[KBL_SHIFT][F2] = shiftf2_label;
+	keybar[KBL_MAIN][F4] = MSG(VM.Hex != 1 ? MViewF4 : (dump_text_mode ? MViewF4Dump : MViewF4Text));
+	keybar[KBL_MAIN][F8] = f8cps.NextCPname(VM.CodePage);
 }
 
 void Viewer::ChangeViewKeyBar()
 {
 	if (m_ViewKeyBar)
 	{
-		const wchar_t *f2_label = L"", *shiftf2_label = L"";
-		if (!VM.Hex)
-		{
-			f2_label = MSG((!VM.Wrap)?((!VM.WordWrap)?MViewF2:MViewShiftF2):MViewF2Unwrap);
-			shiftf2_label = MSG((VM.WordWrap) ? MViewF2 : MViewShiftF2);
-		}
-		(*m_ViewKeyBar)[KBL_MAIN][F2] = f2_label;
-		(*m_ViewKeyBar)[KBL_SHIFT][F2] = shiftf2_label;
-		(*m_ViewKeyBar)[KBL_MAIN][F4] = MSG(VM.Hex != 1 ? MViewF4 : (dump_text_mode ? MViewF4Dump : MViewF4Text));
-		(*m_ViewKeyBar)[KBL_MAIN][F8] = f8cps.NextCPname(VM.CodePage);
-
+		UpdateViewKeyBar(*m_ViewKeyBar);
 		m_ViewKeyBar->Redraw();
 	}
 }

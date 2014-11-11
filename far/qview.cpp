@@ -631,10 +631,7 @@ void QuickView::DynamicUpdateKeyBar() const
 	}
 	else
 	{
-		Keybar[KBL_MAIN][F2] = MSG(QView()->GetWrapMode()? MViewF2Unwrap : (QView()->GetWrapType()? MViewShiftF2 : MViewF2));
-		Keybar[KBL_MAIN][F4] = MSG(QView()->GetHexMode()? MViewF4Text : MQViewF4);
-		Keybar[KBL_MAIN][F8] = QView()->GetNextCPname();
-		Keybar[KBL_SHIFT][F2] = MSG(QView()->GetWrapType()? MViewF2 : MViewShiftF2);
+		QView()->UpdateViewKeyBar(Keybar);
 	}
 
 	Keybar.SetCustomLabels(KBA_QUICKVIEW);
