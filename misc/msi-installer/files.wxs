@@ -293,6 +293,12 @@
           <Component Id="ShiftTab.lua" Guid="$(var.Guid.ShiftTab.lua)" Win64="$(var.Win64)">
             <File Id="ShiftTab.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftTab.lua" />
           </Component>
+          <Component Id="Symlink.lua" Guid="$(var.Guid.Symlink.lua)" Win64="$(var.Win64)">
+            <File Id="Symlink.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Symlink.lua" />
+          </Component>
+          <Component Id="UppercaseFolders.lua" Guid="$(var.Guid.UppercaseFolders.lua)" Win64="$(var.Win64)">
+            <File Id="UppercaseFolders.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\UppercaseFolders.lua" />
+          </Component>
           <Component Id="View.CtrlUpDown.lua" Guid="$(var.Guid.View.CtrlUpDown.lua)" Win64="$(var.Win64)">
             <File Id="View.CtrlUpDown.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.CtrlUpDown.lua" />
           </Component>

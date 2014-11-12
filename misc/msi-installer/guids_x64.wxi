@@ -103,6 +103,8 @@
 <?define Guid.ShiftBS.lua = "D9C2AB23-6DC2-408E-9192-87C2F113188C" ?>
 <?define Guid.ShiftF1.lua = "7BDD2DF9-7779-4B73-85B5-066EC0DDEA16" ?>
 <?define Guid.ShiftTab.lua = "D0CE372A-263F-4DEE-B4DD-C2A2B53FD9E6" ?>
+<?define Guid.Symlink.lua = "4702F78F-07E1-4C55-A464-FA6598C3F649" ?>
+<?define Guid.UppercaseFolders.lua = "AA9B1595-E162-4B64-957B-20D9C23620B1" ?>
 <?define Guid.View.CtrlUpDown.lua = "20944403-38BD-481D-A82F-9359415B1394" ?>
 <?define Guid.View.NextPrevFile.lua = "E56176C7-393B-44FF-BADE-09828F2246D1" ?>
 <?define Guid.View.PgDn.lua = "4E1B24FE-F049-461E-9004-98EB61E07CD9" ?>

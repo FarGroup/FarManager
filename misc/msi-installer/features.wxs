@@ -84,6 +84,8 @@
           <ComponentRef Id="ShiftBS.lua" />
           <ComponentRef Id="ShiftF1.lua" />
           <ComponentRef Id="ShiftTab.lua" />
+          <ComponentRef Id="Symlink.lua" />
+          <ComponentRef Id="UppercaseFolders.lua" />
           <ComponentRef Id="View.CtrlUpDown.lua" />
           <ComponentRef Id="View.NextPrevFile.lua" />
           <ComponentRef Id="View.PgDn.lua" />

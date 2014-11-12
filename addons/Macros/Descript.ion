@@ -37,6 +37,7 @@ ShiftBS.lua Converts the word before cursor using XLat function.
 ShiftF1.lua Select archive format
 ShiftTab.lua Shift-Tab = Ctrl-Shift-Tab
 Symlink.lua Alternative way to create symbolic links
+UppercaseFolders.lua Restore the option "Create folders in uppercase" that was removed in Far 3.0.4184
 View.CtrlUpDown.lua Viewer: Scroll Up/Down text in internal viewer
 View.NextPrevFile.lua Viewer: update panel position when navigating through files
 View.PgDn.lua Viewer: PgDn at the end of file works as in Far Manager 1.70 beta 4 and earlier
