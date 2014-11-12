@@ -661,11 +661,7 @@ const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 St
 		strResult<<L"~";
 	}
 
-	bool dir = (0 != (FileAttributes & FILE_ATTRIBUTE_DIRECTORY));
-	bool rpt = (0 != (FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT));
-	bool dir_link = dir || (rpt && ReparseTag != IO_REPARSE_TAG_DEDUP);
-
-	if (!Streams && !Packed && dir_link && !ShowFolderSize)
+	if (!Streams && !Packed && FileAttributes & FILE_ATTRIBUTE_DIRECTORY && !ShowFolderSize)
 	{
 		string strMsg;
 		const wchar_t *PtrName=MSG(MListFolder);
@@ -676,7 +672,7 @@ const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 St
 		}
 		else
 		{
-			if (rpt)
+			if (FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
 			{
 				switch(ReparseTag)
 				{
