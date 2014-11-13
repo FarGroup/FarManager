@@ -4866,7 +4866,8 @@ static int far_Show(lua_State *L)
 	const char* f =
 	    "local items,n=...\n"
 	    "local bottom=n==0 and 'No arguments' or n==1 and '1 argument' or n..' arguments'\n"
-	    "return far.Menu({Title='',Bottom=bottom,Flags='FMENU_SHOWAMPERSAND'},items)";
+	    "return far.Menu({Title='',Bottom=bottom,Flags='FMENU_SHOWAMPERSAND'},items,"
+	    "{{BreakKey='SPACE'}})";
 	int argn = lua_gettop(L);
 	far_MakeMenuItems(L);
 
