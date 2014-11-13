@@ -814,7 +814,6 @@ local function test_Far_GetConfig()
     "System.CopyTimeRule", "integer",
     "System.CopySecurityOptions", "integer",
     "System.DeleteToRecycleBin", "boolean",
-    "System.DeleteToRecycleBinKillLink", "boolean",
     "System.DelThreadPriority", "integer",
     "System.DriveDisconnectMode", "boolean",
     "System.DriveMenuMode", "integer",
