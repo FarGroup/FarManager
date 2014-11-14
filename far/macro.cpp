@@ -738,7 +738,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 			}
 			else
 			{
-				if (!IsExecuting()||(IsMacroQueueEmpty()&&!m_WaitKey))
+				if (!m_WaitKey && (!IsExecuting() || IsMacroQueueEmpty()))
 				{
 					DWORD key = Rec->IntKey;
 					if ((key&0x00FFFFFF) > 0x7F && (key&0x00FFFFFF) < 0xFFFF)
