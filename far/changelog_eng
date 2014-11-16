@@ -3,6 +3,76 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 16.11.2014 17:10:47 +0200 - build 4192
+
+1. DWORD -> size_t mix.
+
+drkns 16.11.2014 15:04:03 +0200 - build 4191
+
+1. Forum: msgbox('""','""') does not output quotes
+
+2. Refactoring.
+
+shmuel 14.11.2014 14:32:36 +0200 - build 4190
+
+1. mf.waitkey worked incorrectly when called not from a macro.
+
+drkns 12.11.2014 23:34:04 +0200 - build 4189
+
+1. Do not hide sizes for any types of reparse points.
+
+w17 12.11.2014 17:19:14 +0300 - build 4188
+
+1. Correction of 4174.3
+
+drkns 11.11.2014 23:09:00 +0200 - build 4187
+
+1. "Delete symbolic links" option is transformed to a warning in the process of deletion.
+
+w17 11.11.2014 16:30:33 +0300 - build 4186
+
+1. Correction of 4185
+
+w17 11.11.2014 15:50:30 +0300 - build 4185
+
+1. Quick/Diz Viewer Keybar corrections
+
+drkns 10.11.2014 20:11:52 +0200 - build 4184
+
+1. "Create folders in uppercase" option is removed.
+
+drkns 10.11.2014 19:31:00 +0200 - build 4183
+
+1. 4180 once more.
+
+zg 10.11.2014 19:23:23 +0200 - build 4182
+
+1. correction of 4061.1.
+
+zg 10.11.2014 19:00:49 +0200 - build 4181
+
+1. rollback of 4177.
+
+2. parser for editor's altf8 input line is rewritten.
+
+3. correction of positioning with altf8 in lines containing tabulation characters.
+
+drkns 10.11.2014 18:50:48 +0200 - build 4180
+
+1. "System settings/Create folders in uppercase" option did not work.
+
+w17 10.11.2014 18:14:28 +0300 - build 4179
+
+1. Correction of 4122.1
+
+w17 10.11.2014 17:24:43 +0300 - build 4178
+
+1. Correction of 4122.1
+
+zg 10.11.2014 16:08:11 +0200 - build 4177
+
+1. altf8 in editor moved to the given line even if it was cancelled.
+
 drkns 09.11.2014 02:12:34 +0200 - build 4176
 
 1. GCC.
