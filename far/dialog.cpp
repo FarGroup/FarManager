@@ -372,7 +372,7 @@ void Dialog::Init()
 
 	//_SVS(SysLog(L"Dialog =%d",Global->CtrlObject->Macro.GetMode()));
 	// запоминаем предыдущий заголовок консоли
-	OldTitle=new ConsoleTitle;
+	OldTitle = std::make_unique<ConsoleTitle>();
 	IdExist=false;
 	ClearStruct(m_Id);
 	bInitOK = true;
@@ -397,7 +397,6 @@ Dialog::~Dialog()
 
 //	INPUT_RECORD rec;
 //	PeekInputRecord(&rec);
-	delete OldTitle;
 	RemoveFromList();
 	_DIALOG(SysLog(L"Destroy Dialog"));
 }

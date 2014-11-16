@@ -260,6 +260,8 @@ public:
 		m_What.swap(rhs.m_What);
 	}
 
+	FREE_SWAP(far_bad_alloc);
+
 private:
 	std::string m_What;
 };
@@ -394,8 +396,6 @@ void PrintMemory()
 }
 
 };
-
-STD_SWAP_SPEC(memcheck::far_bad_alloc);
 
 void* xf_malloc(size_t size, const char* Function, const char* File, int Line)
 {

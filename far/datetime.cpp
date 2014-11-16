@@ -714,7 +714,8 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 				default:
 					p1=Year;
 					w1=FullYear==2?5:2;
-					std::swap(f1, f3);
+					using std::swap;
+					swap(f1, f3);
 					p2=st.wMonth;
 					p3=st.wDay;
 					break;

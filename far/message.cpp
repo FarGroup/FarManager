@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarDlgBuilder.hpp"
 #include "clipboard.hpp"
 #include "language.hpp"
+#include "constitle.hpp"
 
 static string FormatErrorString(bool Nt, DWORD Code)
 {

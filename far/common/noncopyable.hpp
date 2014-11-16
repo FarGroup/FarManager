@@ -41,12 +41,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class NonCopyable
 {
-	private:
-		NonCopyable(const NonCopyable&);
-		NonCopyable& operator=(const NonCopyable&);
+#if defined _MSC_VER && _MSC_VER < 1800
+protected:
+	NonCopyable() {};
 
-	protected:
-		NonCopyable() {};
-		~NonCopyable() {};
+private:
+	NonCopyable(const NonCopyable&);
+	NonCopyable& operator=(const NonCopyable&);
+#else
+protected:
+	NonCopyable() = default;
 
+public:
+	NonCopyable(const NonCopyable&) = delete;
+	NonCopyable& operator=(const NonCopyable&) = delete;
+#endif
 };

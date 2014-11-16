@@ -454,7 +454,7 @@ bool Clipboard::GetFormat(FAR_CLIPBOARD_FORMAT Format, string& data)
 	UINT FormatType=RegisterFormat(Format);
 
 	if (!FormatType)
-		return nullptr;
+		return false;
 
 	if (Format == FCF_VERTICALBLOCK_UNICODE && !IsFormatAvailable(FormatType))
 	{

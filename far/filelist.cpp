@@ -180,17 +180,18 @@ struct FileList::PrevDataItem
 
 	void swap(PrevDataItem& rhs) noexcept
 	{
+		using std::swap;
 		strPrevName.swap(rhs.strPrevName);
 		PrevListData.swap(rhs.PrevListData);
-		std::swap(PrevTopFile, rhs.PrevTopFile);
+		swap(PrevTopFile, rhs.PrevTopFile);
 	}
+
+	FREE_SWAP(PrevDataItem);
 
 	string strPrevName;
 	std::vector<FileListItem> PrevListData;
 	int PrevTopFile;
 };
-
-STD_SWAP_SPEC(FileList::PrevDataItem);
 
 FileListItem::~FileListItem()
 {
@@ -5985,7 +5986,7 @@ void FileList::PluginPutFilesToNew()
 	if (hNewPlugin && hNewPlugin!=PANEL_STOP)
 	{
 		_ALGO(SysLog(L"Create: FileList TmpPanel, FileCount=%d",FileCount));
-		FileList *TmpPanel=new FileList(nullptr);
+		std::unique_ptr<FileList, delayed_destroyer> TmpPanel(new FileList(nullptr));
 		TmpPanel->SetPluginMode(hNewPlugin,L"");  // SendOnFocus??? true???
 		TmpPanel->SetModalMode(TRUE);
 		auto PrevFileCount = m_ListData.size();
@@ -5993,7 +5994,7 @@ void FileList::PluginPutFilesToNew()
 		   ≈сли PluginPutFilesToAnother вернула число, отличное от 2, то нужно
 		   попробовать установить курсор на созданный файл.
 		*/
-		int rc=PluginPutFilesToAnother(FALSE,TmpPanel);
+		int rc=PluginPutFilesToAnother(FALSE,TmpPanel.get());
 
 		if (rc != 2 && m_ListData.size() == PrevFileCount+1)
 		{
@@ -6033,7 +6034,6 @@ void FileList::PluginPutFilesToNew()
 				Redraw();
 			}
 		}
-		TmpPanel->Destroy();
 	}
 }
 

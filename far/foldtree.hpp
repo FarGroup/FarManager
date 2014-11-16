@@ -45,7 +45,6 @@ class FolderTree:public Modal
 {
 public:
 	static foldertree_ptr create(string &strResultFolder, int ModalMode, int IsStandalone = TRUE, bool IsFullScreen = true);
-	virtual ~FolderTree();
 
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
@@ -67,7 +66,7 @@ private:
 	void DrawEdit();
 	void SetCoords();
 
-	TreeList *Tree;
+	std::unique_ptr<TreeList, delayed_destroyer> Tree;
 	std::unique_ptr<EditControl> FindEdit;
 	int ModalMode;
 	bool IsFullScreen;

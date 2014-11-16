@@ -85,13 +85,14 @@ private:
 protected:
 	void swap(SimpleScreenObject& rhs) noexcept
 	{
-		std::swap(m_Owner, rhs.m_Owner);
-		std::swap(m_Flags, rhs.m_Flags);
-		std::swap(nLockCount, rhs.nLockCount);
-		std::swap(m_X1, rhs.m_X1);
-		std::swap(m_Y1, rhs.m_Y1);
-		std::swap(m_X2, rhs.m_X2);
-		std::swap(m_Y2, rhs.m_Y2);
+		using std::swap;
+		swap(m_Owner, rhs.m_Owner);
+		swap(m_Flags, rhs.m_Flags);
+		swap(nLockCount, rhs.nLockCount);
+		swap(m_X1, rhs.m_X1);
+		swap(m_Y1, rhs.m_Y1);
+		swap(m_X2, rhs.m_X2);
+		swap(m_Y2, rhs.m_Y2);
 	}
 
 	// KEEP ALIGNED!

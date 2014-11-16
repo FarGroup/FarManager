@@ -2317,7 +2317,8 @@ void VMenu::ShowMenu(bool IsParent)
 						int StartOffset = 1; // 1 is '<<' placeholder size
 						size_t Pos = 0;
 						FarColor InvColor = CurColor;
-						std::swap(InvColor.ForegroundColor, InvColor.BackgroundColor);
+						using std::swap;
+						swap(InvColor.ForegroundColor, InvColor.BackgroundColor);
 						std::for_each(CONST_RANGE(Items[I].Annotations, i)
 						{
 							size_t pre_len = i.first - Items[I].ShowPos + StartOffset - Pos + 1;

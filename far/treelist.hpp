@@ -71,10 +71,13 @@ public:
 
 		void swap(TreeItem& rhs) noexcept
 		{
+			using std::swap;
 			strName.swap(rhs.strName);
 			Last.swap(rhs.Last);
-			std::swap(Depth, rhs.Depth);
+			swap(Depth, rhs.Depth);
 		}
+
+		FREE_SWAP(TreeItem);
 
 		operator string() const { return strName; }
 	};
@@ -155,5 +158,3 @@ private:
 	long m_GetSelPosition;
 	int m_ExitCode; // актуально только для дерева, вызванного из копира!
 };
-
-STD_SWAP_SPEC(TreeList::TreeItem);

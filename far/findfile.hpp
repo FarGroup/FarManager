@@ -107,11 +107,10 @@ private:
 	bool PluginMode;
 	FINDAREA SearchMode;
 	int favoriteCodePages;
-	char *readBufferA;
-	wchar_t *readBuffer;
+	std::vector<char> readBufferA;
+	std::vector<wchar_t> readBuffer;
 	const wchar_t *findString;
-	unsigned char *hexFindString;
-	size_t hexFindStringSize;
+	std::vector<unsigned char> hexFindString;
 	uintptr_t CodePage;
 	std::vector<size_t> skipCharsTable;
 	UINT64 SearchInFirst;

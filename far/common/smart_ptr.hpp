@@ -37,7 +37,8 @@ public:
 	MOVE_OPERATOR_BY_SWAP(array_ptr);
 	void reset(size_t size, bool init = false) { m_array.reset(init? new T[size]() : new T[size]); m_size = size;}
 	void reset() { m_array.reset(); m_size = 0; }
-	void swap(array_ptr& other) noexcept { m_array.swap(other.m_array); std::swap(m_size, other.m_size); }
+	void swap(array_ptr& other) noexcept{ using std::swap; m_array.swap(other.m_array); swap(m_size, other.m_size); }
+	FREE_SWAP(array_ptr);
 	size_t size() const {return m_size;}
 	operator bool() const { return get() != nullptr; }
 	T* get() const {return m_array.get();}

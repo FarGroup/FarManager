@@ -111,9 +111,12 @@ public:
 
 	void swap(ChDiskPluginItem& rhs) noexcept
 	{
+		using std::swap;
 		Item.swap(rhs.Item);
-		std::swap(HotKey, rhs.HotKey);
+		swap(HotKey, rhs.HotKey);
 	}
+
+	FREE_SWAP(ChDiskPluginItem);
 
 	bool operator ==(const ChDiskPluginItem& rhs) const
 	{
@@ -134,8 +137,6 @@ private:
 	MenuItemEx Item;
 	WCHAR HotKey;
 };
-
-STD_SWAP_SPEC(ChDiskPluginItem);
 
 Panel::Panel(window_ptr Owner):
 	ScreenObject(Owner),
@@ -2689,9 +2690,7 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid
 			return true;
 		}
 
-		Plugin *pPlugin = Global->CtrlObject->Plugins->FindPlugin(PluginGuid);
-
-		if (pPlugin)
+		if (auto pPlugin = Global->CtrlObject->Plugins->FindPlugin(PluginGuid))
 		{
 			if (pPlugin->HasOpen())
 			{
@@ -2716,9 +2715,8 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid
 					strPluginData.empty()?nullptr:strPluginData.data(),
 					(SrcPanel == Parent()->ActivePanel()) ? FOSF_ACTIVE : FOSF_NONE
 				};
-				auto hNewPlugin=Global->CtrlObject->Plugins->Open(pPlugin,OPEN_SHORTCUT,FarGuid,(intptr_t)&info);
 
-				if (hNewPlugin)
+				if (auto hNewPlugin = Global->CtrlObject->Plugins->Open(pPlugin, OPEN_SHORTCUT, FarGuid, (intptr_t)&info))
 				{
 					int CurFocus=SrcPanel->GetFocus();
 

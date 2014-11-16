@@ -76,6 +76,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "language.hpp"
 #include "locale.hpp"
+#include "constitle.hpp"
 
 static const size_t predefined_panel_modes_count = 10;
 
@@ -1562,10 +1563,13 @@ public:
 
 	void swap(farconfig& rhs) noexcept
 	{
-		std::swap(m_items, rhs.m_items);
-		std::swap(m_size, rhs.m_size);
-		std::swap(m_cfg, rhs.m_cfg);
+		using std::swap;
+		swap(m_items, rhs.m_items);
+		swap(m_size, rhs.m_size);
+		swap(m_cfg, rhs.m_cfg);
 	}
+
+	FREE_SWAP(farconfig);
 
 	iterator begin() const { return m_items; }
 	iterator end() const { return m_items + m_size; }
@@ -1581,9 +1585,6 @@ private:
 	size_t m_size;
 	GeneralConfig* m_cfg;
 };
-
-STD_SWAP_SPEC(Options::farconfig);
-
 
 Options::Options():
 	KnownIDs(),

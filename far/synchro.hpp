@@ -92,9 +92,12 @@ protected:
 
 	void swap(HandleWrapper& rhs) noexcept
 	{
-		std::swap(m_Handle, rhs.m_Handle);
+		using std::swap;
+		swap(m_Handle, rhs.m_Handle);
 		m_Name.swap(rhs.m_Name);
 	}
+
+	FREE_SWAP(HandleWrapper);
 
 	HANDLE m_Handle;
 	string m_Name;
@@ -147,10 +150,13 @@ public:
 
 	void swap(Thread& rhs) noexcept
 	{
+		using std::swap;
 		HandleWrapper::swap(rhs);
-		std::swap(m_Mode, rhs.m_Mode);
-		std::swap(m_ThreadId, rhs.m_ThreadId);
+		swap(m_Mode, rhs.m_Mode);
+		swap(m_ThreadId, rhs.m_ThreadId);
 	}
+
+	FREE_SWAP(Thread);
 
 	unsigned int get_id() const { return m_ThreadId; }
 
@@ -205,8 +211,6 @@ private:
 	unsigned int m_ThreadId;
 };
 
-STD_SWAP_SPEC(Thread);
-
 class Mutex: public HandleWrapper
 {
 public:
@@ -230,6 +234,8 @@ public:
 		HandleWrapper::swap(rhs);
 	}
 
+	FREE_SWAP(Mutex);
+
 	bool Open()
 	{
 		assert(!m_Handle);
@@ -242,8 +248,6 @@ public:
 
 	bool unlock() const { return ReleaseMutex(m_Handle) != FALSE; }
 };
-
-STD_SWAP_SPEC(Mutex);
 
 class Event: public HandleWrapper
 {
@@ -262,6 +266,8 @@ public:
 		HandleWrapper::swap(rhs);
 	}
 
+	FREE_SWAP(Event);
+
 	bool Open(bool ManualReset=false, bool InitialState=false)
 	{
 		assert(!m_Handle);
@@ -276,8 +282,6 @@ public:
 
 	void Associate(OVERLAPPED& o) const { o.hEvent = m_Handle; }
 };
-
-STD_SWAP_SPEC(Event);
 
 template<class T> class SyncedQueue: NonCopyable {
 	std::queue<T> Queue;

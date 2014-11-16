@@ -149,20 +149,14 @@ inline wchar_t* UNSAFE_CSTR(const string& s) {return const_cast<wchar_t*>(s.data
 
 enum STL_FLAGS
 {
-	// вместо "*.*" в список помещать просто "*", вместо "***" в список помещать просто "*"
-	STLF_PACKASTERISKS  =0x00000002,
-	// учитывать квадратные скобки при анализе строки инициализации
-	STLF_PROCESSBRACKETS=0x00000004,
-	// allow empty items
-	STLF_ALLOWEMPTY    = 0x00000008,
-	// убирать дублирующиеся элементы
-	STLF_UNIQUE         =0x00000010,
-	// отсортировать (с учетом регистра)
-	STLF_SORT           =0x00000020,
-	// не удалять пробелы
-	STLF_NOTRIM         =0x00000040,
-	// не раскавычивать
-	STLF_NOUNQUOTE      =0x00000080,
+	STLF_PACKASTERISKS   = BIT(0), // вместо "*.*" в список помещать просто "*", вместо "***" в список помещать просто "*"
+	STLF_PROCESSBRACKETS = BIT(1), // учитывать квадратные скобки при анализе строки инициализации
+	STLF_ALLOWEMPTY      = BIT(2), // allow empty items
+	STLF_UNIQUE          = BIT(3), // убирать дублирующиеся элементы
+	STLF_SORT            = BIT(4), // отсортировать (с учетом регистра)
+	STLF_NOTRIM          = BIT(5), // не удалять пробелы
+	STLF_NOUNQUOTE       = BIT(6), // не раскавычивать
+	STLF_NOQUOTING       = BIT(7), // do not give special meaning for quotes
 };
 
 void split_string(const string& InitString, DWORD Flags, const wchar_t* Separators, const std::function<void(string&)>& inserter); // don't use string&& here - VC2010 bug

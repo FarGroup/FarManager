@@ -107,10 +107,13 @@ public:
 
 	void swap(matrix& rhs) noexcept
 	{
+		using std::swap;
 		m_buffer.swap(rhs.m_buffer);
-		std::swap(m_rows, rhs.m_rows);
-		std::swap(m_cols, rhs.m_cols);
+		swap(m_rows, rhs.m_rows);
+		swap(m_cols, rhs.m_cols);
 	}
+
+	FREE_SWAP(matrix);
 
 private:
 	std::vector<T> m_buffer;

@@ -125,19 +125,22 @@ public:
 
 	void swap(Edit& rhs) noexcept
 	{
+		using std::swap;
 		SimpleScreenObject::swap(rhs);
-		std::swap(m_Str, rhs.m_Str);
-		std::swap(m_StrSize, rhs.m_StrSize);
-		std::swap(m_CurPos, rhs.m_CurPos);
-		std::swap(ColorList, rhs.ColorList);
-		std::swap(ColorCount, rhs.ColorCount);
-		std::swap(MaxColorCount, rhs.MaxColorCount);
-		std::swap(m_SelStart, rhs.m_SelStart);
-		std::swap(m_SelEnd, rhs.m_SelEnd);
-		std::swap(LeftPos, rhs.LeftPos);
-		std::swap(ColorListFlags, rhs.ColorListFlags);
-		std::swap(EndType, rhs.EndType);
+		swap(m_Str, rhs.m_Str);
+		swap(m_StrSize, rhs.m_StrSize);
+		swap(m_CurPos, rhs.m_CurPos);
+		swap(ColorList, rhs.ColorList);
+		swap(ColorCount, rhs.ColorCount);
+		swap(MaxColorCount, rhs.MaxColorCount);
+		swap(m_SelStart, rhs.m_SelStart);
+		swap(m_SelEnd, rhs.m_SelEnd);
+		swap(LeftPos, rhs.LeftPos);
+		swap(ColorListFlags, rhs.ColorListFlags);
+		swap(EndType, rhs.EndType);
 	}
+
+	FREE_SWAP(Edit);
 
 	void FastShow(ShowInfo* Info=nullptr);
 	virtual int ProcessKey(const Manager::Key& Key) override;

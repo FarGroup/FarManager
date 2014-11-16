@@ -498,6 +498,8 @@ public:
 		Initialize(DbName, Local);
 	}
 
+	virtual ~HierarchicalConfigDb() { EndTransaction(); AsyncDone.Set(); }
+
 	void AsyncFinish()
 	{
 		AsyncDone.Reset();
@@ -795,11 +797,6 @@ public:
 		}
 	}
 
-protected:
-	HierarchicalConfigDb() {}
-
-	virtual ~HierarchicalConfigDb() { EndTransaction(); AsyncDone.Set(); }
-
 private:
 	void AsyncDelete()
 	{
@@ -835,11 +832,9 @@ class HighlightHierarchicalConfigDb: public HierarchicalConfigDb
 {
 public:
 	explicit HighlightHierarchicalConfigDb(const string& DbName, bool Local = false):HierarchicalConfigDb(DbName, Local) {}
-
-private:
-	HighlightHierarchicalConfigDb();
 	virtual ~HighlightHierarchicalConfigDb() {}
 
+private:
 	virtual void SerializeBlob(const char* Name, const char* Blob, int Size, tinyxml::TiXmlElement& e) override
 	{
 		static const char* ColorKeys[] =
@@ -2399,17 +2394,17 @@ std::unique_ptr<T> Database::CreateDatabase(const char *son)
 template<class T>
 HierarchicalConfigUniquePtr Database::CreateHierarchicalConfig(dbcheck DbId, const string& dbn, const char *xmln, bool Local, bool plugin)
 {
-	T *cfg = new T(dbn, Local);
-	bool first = !CheckedDb.Check(DbId);
-
-	if (first)
-		CheckDatabase(cfg);
-
-	if (m_Mode != import_mode && cfg->IsNew() && first)
-		TryImportDatabase(cfg, xmln, plugin);
-
-	CheckedDb.Set(DbId);
-	return HierarchicalConfigUniquePtr(cfg);
+	auto cfg = std::make_unique<T>(dbn, Local);
+	if (!CheckedDb.Check(DbId))
+	{
+		CheckDatabase(cfg.get());
+		if (m_Mode != import_mode && cfg->IsNew())
+		{
+			TryImportDatabase(cfg.get(), xmln, plugin);
+		}
+		CheckedDb.Set(DbId);
+	}
+	return HierarchicalConfigUniquePtr(cfg.release());
 }
 
 ENUM(Database::dbcheck)
@@ -2447,7 +2442,6 @@ HierarchicalConfigUniquePtr Database::CreatePanelModeConfig()
 }
 
 Database::Database(mode Mode):
-	m_TemplateDoc(nullptr),
 	m_TemplateRoot(nullptr),
 	m_TemplateLoadState(-1),
 	m_Mode(Mode),

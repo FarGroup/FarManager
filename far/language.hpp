@@ -52,6 +52,8 @@ public:
 		m_FileName.swap(rhs.m_FileName);
 	}
 
+	FREE_SWAP(Language);
+
 protected:
 	Language() {}
 

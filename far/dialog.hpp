@@ -144,19 +144,22 @@ struct DialogItemEx: NonCopyable, public FarDialogItem
 
 	void swap(DialogItemEx& rhs) noexcept
 	{
-		std::swap(*static_cast<FarDialogItem*>(this), static_cast<FarDialogItem&>(rhs));
-		std::swap(ListPos, rhs.ListPos);
+		using std::swap;
+		swap(*static_cast<FarDialogItem*>(this), static_cast<FarDialogItem&>(rhs));
+		swap(ListPos, rhs.ListPos);
 		strHistory.swap(rhs.strHistory);
 		strMask.swap(rhs.strMask);
 		strData.swap(rhs.strData);
-		std::swap(IFlags, rhs.IFlags);
+		swap(IFlags, rhs.IFlags);
 		Auto.swap(rhs.Auto);
-		std::swap(ObjPtr, rhs.ObjPtr);
-		std::swap(ListPtr, rhs.ListPtr);
-		std::swap(UCData, rhs.UCData);
-		std::swap(SelStart, rhs.SelStart);
-		std::swap(SelEnd, rhs.SelEnd);
+		swap(ObjPtr, rhs.ObjPtr);
+		swap(ListPtr, rhs.ListPtr);
+		swap(UCData, rhs.UCData);
+		swap(SelStart, rhs.SelStart);
+		swap(SelEnd, rhs.SelEnd);
 	}
+
+	FREE_SWAP(DialogItemEx);
 
 	void Indent(int Delta)
 	{
@@ -181,8 +184,6 @@ struct DialogItemEx: NonCopyable, public FarDialogItem
 		return true;
 	}
 };
-
-STD_SWAP_SPEC(DialogItemEx);
 
 template<size_t N>
 std::vector<DialogItemEx> MakeDialogItemsEx(const FarDialogItem (&InitData)[N])
@@ -349,7 +350,7 @@ private:
 	void* DataDialog;        // Данные, специфические для конкретного экземпляра диалога (первоначально здесь параметр, переданный в конструктор)
 	std::vector<DialogItemEx> Items; // массив элементов диалога
 	DialogItemEx* SavedItems; // пользовательский массив элементов диалога
-	ConsoleTitle *OldTitle;     // предыдущий заголовок
+	std::unique_ptr<ConsoleTitle> OldTitle;     // предыдущий заголовок
 
 	dialog_handler m_handler;
 

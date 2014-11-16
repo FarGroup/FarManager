@@ -50,6 +50,7 @@ public:
 	MOVE_OPERATOR_BY_SWAP(filemasks);
 
 	void swap(filemasks& rhs) noexcept;
+	FREE_SWAP(filemasks);
 	bool Set(const string& Masks, DWORD Flags = 0);
 	bool Compare(const string& Name) const;
 	bool empty() const;
@@ -63,5 +64,3 @@ private:
 
 	std::list<masks> Include, Exclude;
 };
-
-STD_SWAP_SPEC(filemasks);

@@ -93,6 +93,8 @@ public:
 		HelpStr.swap(rhs.HelpStr);
 	}
 
+	FREE_SWAP(HelpRecord);
+
 	bool operator ==(const HelpRecord& rhs) const
 	{
 		return !StrCmpI(HelpStr, rhs.HelpStr);
@@ -103,8 +105,6 @@ public:
 		return StrCmpI(HelpStr, rhs.HelpStr) < 0;
 	}
 };
-
-STD_SWAP_SPEC(HelpRecord);
 
 static int RunURL(const string& Protocol, const string& URLPath);
 
@@ -146,15 +146,18 @@ struct Help::StackHelpData: ::NonCopyable
 
 	void swap(StackHelpData& rhs) noexcept
 	{
+		using std::swap;
 		strHelpMask.swap(rhs.strHelpMask);
 		strHelpPath.swap(rhs.strHelpPath);
 		strHelpTopic.swap(rhs.strHelpTopic);
 		strSelTopic.swap(rhs.strSelTopic);
-		std::swap(Flags, rhs.Flags);
-		std::swap(TopStr, rhs.TopStr);
-		std::swap(CurX, rhs.CurX);
-		std::swap(CurY, rhs.CurY);
+		swap(Flags, rhs.Flags);
+		swap(TopStr, rhs.TopStr);
+		swap(CurX, rhs.CurX);
+		swap(CurY, rhs.CurY);
 	}
+
+	FREE_SWAP(StackHelpData);
 
 	string strHelpMask;           // значение маски
 	string strHelpPath;           // путь к хелпам
@@ -165,8 +168,6 @@ struct Help::StackHelpData: ::NonCopyable
 	int   TopStr;                 // номер верхней видимой строки темы
 	int   CurX, CurY;             // координаты (???)
 };
-
-STD_SWAP_SPEC(Help::StackHelpData);
 
 string Help::MakeLink(const string& path, const string& topic)
 {

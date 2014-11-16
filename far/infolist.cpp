@@ -90,8 +90,8 @@ struct InfoList::InfoListSectionState
 
 InfoList::InfoList(window_ptr Owner):
 	Panel(Owner),
-	OldWrapMode(nullptr),
-	OldWrapType(nullptr),
+	OldWrapMode(),
+	OldWrapType(),
 	SectionState(ILSS_SIZE),
 	PowerListener(L"power", [&]() { if (Global->Opt->InfoPanel.ShowPowerStatus && IsVisible() && SectionState[ILSS_POWERSTATUS].Show) { Redraw(); }})
 {

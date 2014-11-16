@@ -65,11 +65,14 @@ public:
 
 	void swap(TVar& rhs) noexcept
 	{
-		std::swap(vType, rhs.vType);
-		std::swap(inum, rhs.inum);
-		std::swap(dnum, rhs.dnum);
-		std::swap(str, rhs.str);
+		using std::swap;
+		swap(vType, rhs.vType);
+		swap(inum, rhs.inum);
+		swap(dnum, rhs.dnum);
+		swap(str, rhs.str);
 	}
+
+	FREE_SWAP(TVar);
 
 	COPY_OPERATOR_BY_SWAP(TVar);
 	MOVE_OPERATOR_BY_SWAP(TVar);
@@ -113,5 +116,3 @@ private:
 	mutable string str;
 	TVarType vType;
 };
-
-STD_SWAP_SPEC(TVar);

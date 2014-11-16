@@ -124,17 +124,20 @@ struct MenuItemEx: NonCopyable
 
 	void swap(MenuItemEx& rhs) noexcept
 	{
+		using std::swap;
 		strName.swap(rhs.strName);
-		std::swap(Flags, rhs.Flags);
-		std::swap(UserData, rhs.UserData);
-		std::swap(UserDataSize, rhs.UserDataSize);
-		std::swap(ShowPos, rhs.ShowPos);
-		std::swap(AccelKey, rhs.AccelKey);
-		std::swap(AmpPos, rhs.AmpPos);
-		std::swap(Len, rhs.Len);
-		std::swap(Idx2, rhs.Idx2);
+		swap(Flags, rhs.Flags);
+		swap(UserData, rhs.UserData);
+		swap(UserDataSize, rhs.UserDataSize);
+		swap(ShowPos, rhs.ShowPos);
+		swap(AccelKey, rhs.AccelKey);
+		swap(AmpPos, rhs.AmpPos);
+		swap(Len, rhs.Len);
+		swap(Idx2, rhs.Idx2);
 		Annotations.swap(rhs.Annotations);
 	}
+
+	FREE_SWAP(MenuItemEx);
 
 	string strName;
 	UINT64  Flags;                  // Флаги пункта
@@ -168,7 +171,6 @@ struct MenuItemEx: NonCopyable
 	UINT64 SetDisable(int Value) { if (Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
 };
 
-STD_SWAP_SPEC(MenuItemEx);
 
 struct MenuDataEx
 {

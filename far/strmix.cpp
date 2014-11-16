@@ -1582,7 +1582,7 @@ string str_printf(const wchar_t * format, ...)
 						InBrackets = true;
 				}
 
-				if (*cur == L'\"')
+				if (!Flags.Check(STLF_NOQUOTING) && *cur == L'\"')
 				{
 					InQuotes = InQuotes? false : std::find(cur + 1, List.cend(), L'\"') != List.cend();
 				}

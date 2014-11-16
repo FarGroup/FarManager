@@ -182,25 +182,27 @@ void Editor::FreeAllocatedData(bool FreeUndo)
 
 void Editor::SwapState(Editor& swap_state)
 {
-	std::swap(Lines, swap_state.Lines);
-	std::swap(BlockStart, swap_state.BlockStart);
-	std::swap(VBlockStart, swap_state.VBlockStart);
-	std::swap(LastGetLine, swap_state.LastGetLine);
-	std::swap(LastGetLineNumber, swap_state.LastGetLineNumber);
-	std::swap(TopScreen, swap_state.TopScreen);
-	std::swap(FirstLine, swap_state.FirstLine);
-	std::swap(LastLine, swap_state.LastLine);
-	std::swap(CurLine, swap_state.CurLine);
-	std::swap(NumLine, swap_state.NumLine);
-	std::swap(NumLastLine, swap_state.NumLastLine);
-	std::swap(UndoData, swap_state.UndoData);
-	std::swap(UndoPos, swap_state.UndoPos);
-	std::swap(UndoSavePos, swap_state.UndoSavePos);
-	std::swap(UndoSkipLevel, swap_state.UndoSkipLevel);
-	std::swap(SessionBookmarks, swap_state.SessionBookmarks);
-	std::swap(m_SavePos, swap_state.m_SavePos);
-	std::swap(NewSessionPos, swap_state.NewSessionPos);
-	std::swap(GlobalEOL, swap_state.GlobalEOL);
+	// BUGBUGBUG not all fields swapped
+	using std::swap;
+	Lines.swap(swap_state.Lines);
+	swap(BlockStart, swap_state.BlockStart);
+	swap(VBlockStart, swap_state.VBlockStart);
+	swap(LastGetLine, swap_state.LastGetLine);
+	swap(LastGetLineNumber, swap_state.LastGetLineNumber);
+	swap(TopScreen, swap_state.TopScreen);
+	swap(FirstLine, swap_state.FirstLine);
+	swap(LastLine, swap_state.LastLine);
+	swap(CurLine, swap_state.CurLine);
+	swap(NumLine, swap_state.NumLine);
+	swap(NumLastLine, swap_state.NumLastLine);
+	UndoData.swap(swap_state.UndoData);
+	swap(UndoPos, swap_state.UndoPos);
+	swap(UndoSavePos, swap_state.UndoSavePos);
+	swap(UndoSkipLevel, swap_state.UndoSkipLevel);
+	SessionBookmarks.swap(swap_state.SessionBookmarks);
+	m_SavePos.swap(swap_state.m_SavePos);
+	swap(NewSessionPos, swap_state.NewSessionPos);
+	GlobalEOL.swap(swap_state.GlobalEOL);
 }
 
 void Editor::KeepInitParameters()
@@ -4907,14 +4909,17 @@ public:
 
 	void swap(EditorUndoData& rhs) noexcept
 	{
-		std::swap(m_Type, rhs.m_Type);
-		std::swap(m_StrPos, rhs.m_StrPos);
-		std::swap(m_StrNum, rhs.m_StrNum);
-		std::swap(m_Length, rhs.m_Length);
+		using std::swap;
+		swap(m_Type, rhs.m_Type);
+		swap(m_StrPos, rhs.m_StrPos);
+		swap(m_StrNum, rhs.m_StrNum);
+		swap(m_Length, rhs.m_Length);
 		m_Str.swap(rhs.m_Str);
-		std::swap(m_EOL, rhs.m_EOL);
-		std::swap(m_BM, rhs.m_BM);
+		swap(m_EOL, rhs.m_EOL);
+		swap(m_BM, rhs.m_BM);
 	}
+
+	FREE_SWAP(EditorUndoData);
 
 	void SetData(int Type, const wchar_t *Str, const wchar_t *Eol, int StrNum, int StrPos, size_t Length)
 	{
@@ -4945,8 +4950,6 @@ public:
 		return x;
 	}
 };
-
-STD_SWAP_SPEC(Editor::EditorUndoData);
 
 size_t Editor::EditorUndoData::UndoDataSize = 0;
 

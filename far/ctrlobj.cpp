@@ -55,8 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keybar.hpp"
 #include "menubar.hpp"
 
-ControlObject::ControlObject():
-	FPanels(nullptr)
+ControlObject::ControlObject()
 {
 	_OT(SysLog(L"[%p] ControlObject::ControlObject()", this));
 

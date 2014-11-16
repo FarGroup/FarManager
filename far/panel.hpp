@@ -53,11 +53,14 @@ struct PanelViewSettings: NonCopyable
 
 	void swap(PanelViewSettings& rhs) noexcept
 	{
+		using std::swap;
 		PanelColumns.swap(rhs.PanelColumns);
 		StatusColumns.swap(rhs.StatusColumns);
 		Name.swap(rhs.Name);
-		std::swap(Flags, rhs.Flags);
+		swap(Flags, rhs.Flags);
 	}
+
+	FREE_SWAP(PanelViewSettings);
 
 	PanelViewSettings clone() const
 	{
@@ -82,8 +85,6 @@ struct PanelViewSettings: NonCopyable
 	string Name;
 	unsigned __int64 Flags;
 };
-
-STD_SWAP_SPEC(PanelViewSettings);
 
 enum
 {
@@ -216,14 +217,17 @@ private:
 	DelayedDestroy *m_host;
 };
 
+struct delayed_destroyer
+{
+	void operator()(DelayedDestroy* Object) { Object->Destroy(); }
+};
+
 struct PluginHandle;
 class FilePanels;
 
 class Panel:public ScreenObject, public DelayedDestroy, public std::enable_shared_from_this<Panel>
 {
 public:
-	Panel(window_ptr Owner);
-
 	// TODO: make empty methods pure virtual, move empty implementations to dummy_panel class
 	virtual void CloseFile() {}
 	virtual void UpdateViewPanel() {}
@@ -352,6 +356,7 @@ public:
 	int ProcessingPluginCommand;
 
 protected:
+	Panel(window_ptr Owner);
 	virtual ~Panel();
 	virtual void ClearAllItem(){}
 

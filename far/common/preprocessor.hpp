@@ -74,18 +74,8 @@ Type& operator=(const Type& rhs) { Type t(rhs); swap(t); return *this; }
 #define MOVE_OPERATOR_BY_SWAP(Type) \
 Type& operator=(Type&& rhs) noexcept { swap(rhs); return *this; }
 
-#define STD_SWAP_SPEC(Type) \
-namespace std \
-{ \
-	template<> \
-	inline void swap(Type& a, Type& b) \
-	{ \
-		a.swap(b); \
-	} \
-}
-
-#define ALLOW_SWAP_ACCESS(Type) \
-friend void std::swap<Type>(Type&, Type&);
+#define FREE_SWAP(Type) \
+friend inline void swap(Type& a, Type& b) noexcept { a.swap(b); }
 
 #define SCOPED_ACTION(RAII_type) \
 RAII_type ADD_SUFFIX(scoped_object_, __LINE__)

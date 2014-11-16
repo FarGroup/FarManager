@@ -396,10 +396,12 @@ public:
 		m_Names.swap(rhs.m_Names);
 	}
 
-		void clear()
+	FREE_SWAP(TreeListCache);
+
+	void clear()
 	{
-			m_Names.clear();
-			m_TreeName.clear();
+		m_Names.clear();
+		m_TreeName.clear();
 	}
 
 	bool empty() const { return m_Names.empty(); }
@@ -464,9 +466,6 @@ private:
 	cache_set m_Names;
 	string m_TreeName;
 };
-
-STD_SWAP_SPEC(TreeListCache);
-
 
 TreeListCache& TreeCache()
 {

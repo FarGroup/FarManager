@@ -77,7 +77,7 @@ void FolderTree::init(string &strResultFolder)
 	//TopScreen=new SaveScreen;
 	SetCoords();
 
-	Tree = new TreeList(nullptr, false);
+	Tree.reset(new TreeList(nullptr, false));
 
 		SetMacroMode(MACROAREA_FINDFOLDER);
 		strLastName.clear();
@@ -103,15 +103,6 @@ void FolderTree::init(string &strResultFolder)
 
 		strResultFolder = strNewFolder;
 }
-
-FolderTree::~FolderTree()
-{
-	// delete TopScreen;
-
-	if (Tree)
-		Tree->Destroy();
-}
-
 
 void FolderTree::DisplayObject()
 {

@@ -51,20 +51,20 @@ public:
 
 	void swap(scantree_item& rhs) noexcept
 	{
-		std::swap(Flags, rhs.Flags);
+		using std::swap;
+		swap(Flags, rhs.Flags);
 		Find.swap(rhs.Find);
-		std::swap(Iterator, rhs.Iterator);
+		swap(Iterator, rhs.Iterator);
 		RealPath.swap(rhs.RealPath);
 	}
+
+	FREE_SWAP(scantree_item);
 
 	BitFlags Flags;
 	std::unique_ptr<api::enum_file> Find;
 	api::enum_file::iterator Iterator;
 	string RealPath;
 };
-
-STD_SWAP_SPEC(ScanTree::scantree_item);
-
 
 ScanTree::ScanTree(bool RetUpDir, bool Recurse, int ScanJunction)
 {

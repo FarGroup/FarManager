@@ -106,16 +106,19 @@ struct Shortcuts::shortcut: NonCopyable
 
 	void swap(shortcut& rhs) noexcept
 	{
+		using std::swap;
 		strName.swap(rhs.strName);
 		strFolder.swap(rhs.strFolder);
 		strPluginFile.swap(rhs.strPluginFile);
 		strPluginData.swap(rhs.strPluginData);
-		std::swap(PluginGuid, rhs.PluginGuid);
+		swap(PluginGuid, rhs.PluginGuid);
 	}
 
-		shortcut clone()
+	FREE_SWAP(shortcut);
+
+	shortcut clone()
 	{
-			return shortcut(strName, strFolder, strPluginFile, strPluginData, PluginGuid);
+		return shortcut(strName, strFolder, strPluginFile, strPluginData, PluginGuid);
 	}
 
 	string strName;
@@ -124,9 +127,6 @@ struct Shortcuts::shortcut: NonCopyable
 	string strPluginData;
 	GUID PluginGuid;
 };
-
-STD_SWAP_SPEC(Shortcuts::shortcut);
-
 
 Shortcuts::Shortcuts()
 {

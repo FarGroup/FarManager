@@ -42,9 +42,12 @@ public:
 
 	void swap(NamesList& rhs) noexcept
 	{
+		using std::swap;
 		Names.swap(rhs.Names);
-		std::swap(CurPos, rhs.CurPos);
+		swap(CurPos, rhs.CurPos);
 	}
+
+	FREE_SWAP(NamesList);
 
 	void AddName(const string& Name);
 	bool GetNextName(string& strName);
@@ -56,5 +59,3 @@ private:
 	names_list Names;
 	names_list::const_iterator CurPos;
 };
-
-STD_SWAP_SPEC(NamesList);

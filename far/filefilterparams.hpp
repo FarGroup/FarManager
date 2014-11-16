@@ -85,15 +85,18 @@ public:
 
 	void swap(FileFilterParams& rhs) noexcept
 	{
+		using std::swap;
 		m_strTitle.swap(rhs.m_strTitle);
 		FMask.swap(rhs.FMask);
-		std::swap(FDate, rhs.FDate);
-		std::swap(FSize, rhs.FSize);
-		std::swap(FHardLinks, rhs.FHardLinks);
-		std::swap(FAttr, rhs.FAttr);
-		std::swap(FHighlight, rhs.FHighlight);
+		swap(FDate, rhs.FDate);
+		swap(FSize, rhs.FSize);
+		swap(FHardLinks, rhs.FHardLinks);
+		swap(FAttr, rhs.FAttr);
+		swap(FHighlight, rhs.FHighlight);
 		FFlags.swap(rhs.FFlags);
 	}
+
+	FREE_SWAP(FileFilterParams);
 
 	FileFilterParams Clone() const;
 
@@ -150,14 +153,15 @@ private:
 
 		void swap(fmask& rhs) noexcept
 		{
-			std::swap(Used, rhs.Used);
+			using std::swap;
+			swap(Used, rhs.Used);
 			strMask.swap(rhs.strMask);
 			FilterMask.swap(rhs.FilterMask);
 		}
 
-	} FMask;
+		FREE_SWAP(fmask);
 
-	ALLOW_SWAP_ACCESS(fmask);
+	} FMask;
 
 	struct
 	{
@@ -207,9 +211,6 @@ private:
 
 	std::array<DWORD, FFFT_COUNT> FFlags;
 };
-
-STD_SWAP_SPEC(FileFilterParams);
-STD_SWAP_SPEC(FileFilterParams::fmask);
 
 bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig=false);
 

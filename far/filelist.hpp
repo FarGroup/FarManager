@@ -148,40 +148,41 @@ struct FileListItem: NonCopyable
 
 	void swap(FileListItem& rhs) noexcept
 	{
+		using std::swap;
 		strName.swap(rhs.strName);
-		std::swap(Selected, rhs.Selected);
-		std::swap(PrevSelected, rhs.PrevSelected);
-		std::swap(ShowFolderSize, rhs.ShowFolderSize);
-		std::swap(ShortNamePresent, rhs.ShortNamePresent);
-		std::swap(Colors, rhs.Colors);
-		std::swap(NumberOfLinks, rhs.NumberOfLinks);
-		std::swap(NumberOfStreams, rhs.NumberOfStreams);
-		std::swap(UserFlags, rhs.UserFlags);
-		std::swap(UserData, rhs.UserData);
-		std::swap(Callback, rhs.Callback);
-		std::swap(Position, rhs.Position);
-		std::swap(SortGroup, rhs.SortGroup);
-		std::swap(DizText, rhs.DizText);
-		std::swap(DeleteDiz, rhs.DeleteDiz);
+		swap(Selected, rhs.Selected);
+		swap(PrevSelected, rhs.PrevSelected);
+		swap(ShowFolderSize, rhs.ShowFolderSize);
+		swap(ShortNamePresent, rhs.ShortNamePresent);
+		swap(Colors, rhs.Colors);
+		swap(NumberOfLinks, rhs.NumberOfLinks);
+		swap(NumberOfStreams, rhs.NumberOfStreams);
+		swap(UserFlags, rhs.UserFlags);
+		swap(UserData, rhs.UserData);
+		swap(Callback, rhs.Callback);
+		swap(Position, rhs.Position);
+		swap(SortGroup, rhs.SortGroup);
+		swap(DizText, rhs.DizText);
+		swap(DeleteDiz, rhs.DeleteDiz);
 		strOwner.swap(rhs.strOwner);
-		std::swap(CustomColumnData, rhs.CustomColumnData);
-		std::swap(CustomColumnNumber, rhs.CustomColumnNumber);
-		std::swap(CRC32, rhs.CRC32);
-		std::swap(FileAttr, rhs.FileAttr);
-		std::swap(CreationTime, rhs.CreationTime);
-		std::swap(AccessTime, rhs.AccessTime);
-		std::swap(WriteTime, rhs.WriteTime);
-		std::swap(ChangeTime, rhs.ChangeTime);
-		std::swap(FileSize, rhs.FileSize);
-		std::swap(AllocationSize, rhs.AllocationSize);
-		std::swap(StreamsSize, rhs.StreamsSize);
+		swap(CustomColumnData, rhs.CustomColumnData);
+		swap(CustomColumnNumber, rhs.CustomColumnNumber);
+		swap(CRC32, rhs.CRC32);
+		swap(FileAttr, rhs.FileAttr);
+		swap(CreationTime, rhs.CreationTime);
+		swap(AccessTime, rhs.AccessTime);
+		swap(WriteTime, rhs.WriteTime);
+		swap(ChangeTime, rhs.ChangeTime);
+		swap(FileSize, rhs.FileSize);
+		swap(AllocationSize, rhs.AllocationSize);
+		swap(StreamsSize, rhs.StreamsSize);
 		strShortName.swap(rhs.strShortName);
-		std::swap(ReparseTag, rhs.ReparseTag);
+		swap(ReparseTag, rhs.ReparseTag);
 		strCustomData.swap(rhs.strCustomData);
 	}
-};
 
-STD_SWAP_SPEC(FileListItem);
+	FREE_SWAP(FileListItem);
+};
 
 struct PluginsListItem: NonCopyable
 {
@@ -219,18 +220,21 @@ struct PluginsListItem: NonCopyable
 
 	void swap(PluginsListItem& rhs) noexcept
 	{
-		std::swap(m_Plugin, rhs.m_Plugin);
+		using std::swap;
+		swap(m_Plugin, rhs.m_Plugin);
 		m_HostFile.swap(rhs.m_HostFile);
 		m_PrevOriginalCurDir.swap(rhs.m_PrevOriginalCurDir);
-		std::swap(m_Modified, rhs.m_Modified);
-		std::swap(m_PrevViewMode, rhs.m_PrevViewMode);
-		std::swap(m_PrevSortMode, rhs.m_PrevSortMode);
-		std::swap(m_PrevSortOrder, rhs.m_PrevSortOrder);
-		std::swap(m_PrevNumericSort, rhs.m_PrevNumericSort);
-		std::swap(m_PrevCaseSensitiveSort, rhs.m_PrevCaseSensitiveSort);
-		std::swap(m_PrevDirectoriesFirst, rhs.m_PrevDirectoriesFirst);
+		swap(m_Modified, rhs.m_Modified);
+		swap(m_PrevViewMode, rhs.m_PrevViewMode);
+		swap(m_PrevSortMode, rhs.m_PrevSortMode);
+		swap(m_PrevSortOrder, rhs.m_PrevSortOrder);
+		swap(m_PrevNumericSort, rhs.m_PrevNumericSort);
+		swap(m_PrevCaseSensitiveSort, rhs.m_PrevCaseSensitiveSort);
+		swap(m_PrevDirectoriesFirst, rhs.m_PrevDirectoriesFirst);
 		m_PrevViewSettings.swap(rhs.m_PrevViewSettings);
 	}
+
+	FREE_SWAP(PluginsListItem);
 
 	PluginHandle* m_Plugin;
 	string m_HostFile;
@@ -244,8 +248,6 @@ struct PluginsListItem: NonCopyable
 	bool m_PrevDirectoriesFirst;
 	PanelViewSettings m_PrevViewSettings;
 };
-
-STD_SWAP_SPEC(PluginsListItem);
 
 ENUM(OPENFILEPLUGINTYPE);
 

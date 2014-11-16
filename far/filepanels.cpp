@@ -402,9 +402,10 @@ int FilePanels::SwapPanels()
 
 		}
 
-		std::swap(LeftPanel, RightPanel);
-		std::swap(LastLeftFilePanel, LastRightFilePanel);
-		std::swap(LastLeftType, LastRightType);
+		using std::swap;
+		swap(LeftPanel, RightPanel);
+		swap(LastLeftFilePanel, LastRightFilePanel);
+		swap(LastLeftType, LastRightType);
 		FileFilter::SwapFilter();
 		Ret=TRUE;
 	}

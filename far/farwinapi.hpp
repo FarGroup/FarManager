@@ -109,12 +109,15 @@ namespace api
 
 		void swap(File& rhs) noexcept
 		{
-			std::swap(Handle, rhs.Handle);
-			std::swap(Pointer, rhs.Pointer);
-			std::swap(NeedSyncPointer, rhs.NeedSyncPointer);
+			using std::swap;
+			swap(Handle, rhs.Handle);
+			swap(Pointer, rhs.Pointer);
+			swap(NeedSyncPointer, rhs.NeedSyncPointer);
 			name.swap(rhs.name);
-			std::swap(share_mode, rhs.share_mode);
+			swap(share_mode, rhs.share_mode);
 		}
+
+		FREE_SWAP(File);
 
 		bool Open(const string& Object, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDistribution, DWORD dwFlagsAndAttributes=0, File* TemplateFile=nullptr, bool ForceElevation=false);
 		bool Read(LPVOID Buffer, DWORD NumberOfBytesToRead, DWORD& NumberOfBytesRead, LPOVERLAPPED Overlapped = nullptr);
@@ -374,5 +377,3 @@ namespace api
 		inline string expand_strings(const string& str) { return expand_strings(str.data()); }
 	}
 }
-
-STD_SWAP_SPEC(api::File);

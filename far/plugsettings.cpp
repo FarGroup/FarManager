@@ -229,6 +229,8 @@ public:
 		Items.swap(rhs.Items);
 	}
 
+	FREE_SWAP(FarSettingsNameItems);
+
 	void add(FarSettingsName& Item, const string& String);
 
 	void get(FarSettingsEnum& e) const
@@ -240,8 +242,6 @@ public:
 private:
 	std::vector<FarSettingsName> Items;
 };
-
-STD_SWAP_SPEC(PluginSettings::FarSettingsNameItems);
 
 void PluginSettings::FarSettingsNameItems::add(FarSettingsName& Item, const string& String)
 {
@@ -298,6 +298,8 @@ public:
 		Items.swap(rhs.Items);
 	}
 
+	FREE_SWAP(FarSettingsHistoryItems);
+
 	void add(FarSettingsHistory& Item, const string& Name, const string& Param, const GUID& Guid, const string& File);
 
 	void get(FarSettingsEnum& e) const
@@ -309,8 +311,6 @@ public:
 private:
 	std::vector<FarSettingsHistory> Items;
 };
-
-STD_SWAP_SPEC(FarSettings::FarSettingsHistoryItems);
 
 void FarSettings::FarSettingsHistoryItems::add(FarSettingsHistory& Item, const string& Name, const string& Param, const GUID& Guid, const string& File)
 {

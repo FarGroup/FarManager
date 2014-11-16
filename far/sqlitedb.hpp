@@ -67,9 +67,12 @@ protected:
 
 		void swap(SQLiteStmt& rhs) noexcept
 		{
-			std::swap(m_Param, rhs.m_Param);
-			std::swap(m_Stmt, rhs.m_Stmt);
+			using std::swap;
+			swap(m_Param, rhs.m_Param);
+			swap(m_Stmt, rhs.m_Stmt);
 		}
+
+		FREE_SWAP(SQLiteStmt);
 
 		struct blob
 		{

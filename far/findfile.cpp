@@ -82,8 +82,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 const int CHAR_TABLE_SIZE=5;
 
-const size_t readBufferSize = 32768;
-
 // Список архивов. Если файл найден в архиве, то FindList->ArcIndex указывает сюда.
 struct ArcListItem
 {
@@ -373,8 +371,10 @@ void FindFiles::InitInFileSearch()
 	{
 		size_t findStringCount = strFindStr.size();
 		// Инициализируем буферы чтения из файла
-		readBufferA = new char[readBufferSize];
-		readBuffer = new wchar_t[readBufferSize];
+		const size_t readBufferSize = 32768;
+
+		readBufferA.resize(readBufferSize);
+		readBuffer.resize(readBufferSize);
 
 		if (!SearchHex)
 		{
@@ -445,12 +445,10 @@ void FindFiles::InitInFileSearch()
 		else
 		{
 			// Формируем hex-строку для поиска
-			hexFindStringSize = 0;
-
 			if (SearchHex)
 			{
 				bool flag = false;
-				hexFindString = new unsigned char[(findStringCount - findStringCount/3+1)/2];
+				hexFindString.reserve((findStringCount - findStringCount/3+1)/2);
 
 				FOR(auto symbol, strFindStr)
 				{
@@ -466,19 +464,19 @@ void FindFiles::InitInFileSearch()
 						continue;
 
 					if (!flag)
-						hexFindString[hexFindStringSize++] = ((byte)symbol-offset)<<4;
+						hexFindString.emplace_back(((unsigned char)symbol-offset)<<4);
 					else
-						hexFindString[hexFindStringSize-1] |= ((byte)symbol-offset);
+						hexFindString.back() |= ((byte)symbol-offset);
 
 					flag = !flag;
 				}
 			}
 
 			// Инициализируем данные для аглоритма поиска
-			skipCharsTable.assign(std::numeric_limits<unsigned char>::max() + 1, hexFindStringSize);
+			skipCharsTable.assign(std::numeric_limits<unsigned char>::max() + 1, hexFindString.size());
 
-			for (size_t index = 0; index < hexFindStringSize-1; index++)
-				skipCharsTable[hexFindString[index]] = hexFindStringSize-1-index;
+			for (size_t index = 0; index < hexFindString.size() - 1; index++)
+				skipCharsTable[hexFindString[index]] = hexFindString.size() - 1 - index;
 		}
 
 		InFileSearchInited=true;
@@ -489,19 +487,11 @@ void FindFiles::ReleaseInFileSearch()
 {
 	if (InFileSearchInited && !strFindStr.empty())
 	{
-		delete[] readBufferA;
-		readBufferA = nullptr;
-
-		delete[] readBuffer;
-		readBuffer = nullptr;
-
+		clear_and_shrink(readBufferA);
+		clear_and_shrink(readBuffer);
 		clear_and_shrink(skipCharsTable);
-
+		clear_and_shrink(hexFindString);
 		m_CodePages.clear();
-
-		delete[] hexFindString;
-		hexFindString=nullptr;
-
 		InFileSearchInited=false;
 	}
 }
@@ -1014,7 +1004,7 @@ int FindFiles::FindStringBMH(const wchar_t* searchBuffer, size_t searchBufferCou
 
 int FindFiles::FindStringBMH(const unsigned char* searchBuffer, size_t searchBufferCount) const
 {
-	return FindStringBMH(searchBuffer, searchBufferCount, hexFindStringSize, [&](const unsigned char* Buffer, size_t index)
+	return FindStringBMH(searchBuffer, searchBufferCount, hexFindString.size(), [&](const unsigned char* Buffer, size_t index)
 	{
 		return Buffer[index] == hexFindString[index];
 	});
@@ -1048,14 +1038,14 @@ bool FindFiles::LookForString(const string& Name)
 	}
 
 	// Количество считанных из файла байт
-	DWORD readBlockSize = 0;
+	size_t readBlockSize = 0;
 	// Количество прочитанных из файла байт
 	unsigned __int64 alreadyRead = 0;
 	// Смещение на которое мы отступили при переходе между блоками
-	int offset=0;
+	size_t offset = 0;
 
 	if (SearchHex)
-		offset = (int)hexFindStringSize-1;
+		offset = hexFindString.size() - 1;
 
 	UINT64 FileSize=0;
 	file.GetSize(FileSize);
@@ -1068,7 +1058,7 @@ bool FindFiles::LookForString(const string& Name)
 	UINT LastPercents=0;
 
 	// Основной цикл чтения из файла
-	while (!StopEvent.Signaled() && file.Read(readBufferA, (!SearchInFirst || alreadyRead + readBufferSize <= SearchInFirst)? readBufferSize : static_cast<DWORD>(SearchInFirst - alreadyRead), readBlockSize))
+	while (!StopEvent.Signaled() && file.Read(readBufferA.data(), (!SearchInFirst || alreadyRead + readBufferA.size() <= SearchInFirst)? readBufferA.size() : SearchInFirst - alreadyRead, readBlockSize))
 	{
 		UINT Percents=static_cast<UINT>(FileSize?alreadyRead*100/FileSize:0);
 
@@ -1085,11 +1075,11 @@ bool FindFiles::LookForString(const string& Name)
 		if (SearchHex)
 		{
 			// Выходим, если ничего не прочитали или прочитали мало
-			if (!readBlockSize || readBlockSize<hexFindStringSize)
+			if (!readBlockSize || readBlockSize < hexFindString.size())
 				return false;
 
 			// Ищем
-			if (FindStringBMH((unsigned char *)readBufferA, readBlockSize)!=-1)
+			if (FindStringBMH((unsigned char *)readBufferA.data(), readBlockSize)!=-1)
 				return true;
 		}
 		else
@@ -1159,10 +1149,10 @@ bool FindFiles::LookForString(const string& Name)
 						bufferCount = LCMapStringW(
 							                LOCALE_NEUTRAL,//LOCALE_INVARIANT,
 							                LCMAP_BYTEREV,
-							                (wchar_t *)readBufferA,
+							                (wchar_t *)readBufferA.data(),
 							                (int)bufferCount,
-							                readBuffer,
-							                readBufferSize * sizeof(wchar_t)
+							                readBuffer.data(),
+							                static_cast<int>(readBuffer.size() * sizeof(VALUE_TYPE(readBuffer)))
 							            );
 
 						if (!bufferCount)
@@ -1171,18 +1161,18 @@ bool FindFiles::LookForString(const string& Name)
 							continue;
 						}
 						// Устанавливаем буфер сравнения
-						buffer = readBuffer;
+						buffer = readBuffer.data();
 					}
 					else
 					{
 						// Если поиск в UTF-16 (little endian), то используем исходный буфер
-						buffer = (wchar_t *)readBufferA;
+						buffer = (wchar_t *)readBufferA.data();
 					}
 				}
 				else
 				{
 					// Конвертируем буфер чтения из кодировки поиска в UTF-16
-					bufferCount = MultiByteToWideChar(i.CodePage, 0, readBufferA, readBlockSize, readBuffer, readBufferSize * sizeof(wchar_t));
+					bufferCount = MultiByteToWideChar(i.CodePage, 0, readBufferA.data(), static_cast<int>(readBlockSize), readBuffer.data(), static_cast<int>(readBuffer.size() * sizeof(VALUE_TYPE(readBuffer))));
 
 					// Выходим, если нам не удалось сконвертировать строку
 					if (!bufferCount)
@@ -1215,7 +1205,7 @@ bool FindFiles::LookForString(const string& Name)
 					}
 
 					// Устанавливаем буфер сравнения
-					buffer = readBuffer;
+					buffer = readBuffer.data();
 				}
 
 				unsigned int index = 0;
@@ -1292,7 +1282,7 @@ bool FindFiles::LookForString(const string& Name)
 		}
 
 		// Если мы потенциально прочитали не весь файл
-		if (readBlockSize==readBufferSize)
+		if (readBlockSize == readBuffer.size())
 		{
 			// Отступаем назад на длину слова поиска минус 1
 			if (!file.SetPointer(-1*offset, nullptr, FILE_CURRENT))
@@ -3005,8 +2995,6 @@ FindFiles::FindFiles():
 	readBufferA(),
 	readBuffer(),
 	findString(),
-	hexFindString(),
-	hexFindStringSize(),
 	CodePage(CP_DEFAULT),
 	skipCharsTable(),
 	SearchInFirst(),

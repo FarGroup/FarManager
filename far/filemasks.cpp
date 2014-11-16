@@ -87,11 +87,14 @@ public:
 
 	void swap(masks& rhs) noexcept
 	{
+		using std::swap;
 		Masks.swap(rhs.Masks);
 		re.swap(rhs.re);
 		m.swap(rhs.m);
-		std::swap(bRE, rhs.bRE);
+		swap(bRE, rhs.bRE);
 	}
+
+	FREE_SWAP(masks);
 
 	bool Set(const string& Masks, DWORD Flags);
 	bool operator ==(const string& Name) const;
@@ -104,8 +107,6 @@ private:
 	std::vector<RegExpMatch> m;
 	bool bRE;
 };
-
-STD_SWAP_SPEC(filemasks::masks);
 
 filemasks::filemasks()
 {
