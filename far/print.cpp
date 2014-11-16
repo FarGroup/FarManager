@@ -235,17 +235,19 @@ void PrintFiles(FileList* SrcPanel)
 				if (StartDocPrinter(hPrinter,1,(LPBYTE)&di1))
 				{
 					char Buffer[8192];
-					DWORD Read,Written;
+					size_t Read;
+					DWORD Written;
 					Success=TRUE;
 
 					while (SrcFile.Read(Buffer, sizeof(Buffer), Read) && Read > 0)
-						if (!WritePrinter(hPrinter,Buffer,Read,&Written))
+					{
+						if (!WritePrinter(hPrinter, Buffer, static_cast<DWORD>(Read), &Written))
 						{
 							Global->CatchError();
-							Success=FALSE;
+							Success = FALSE;
 							break;
 						}
-
+					}
 					EndDocPrinter(hPrinter);
 				}
 				SrcFile.Close();

@@ -503,8 +503,8 @@ PluginHandle* PluginManager::OpenFilePlugin(
 		{
 			if (file.Open(*Name, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 			{
-				DWORD DataSize = 0;
-				if (file.Read(Buffer.data(), static_cast<DWORD>(Buffer.size()), DataSize))
+				size_t DataSize = 0;
+				if (file.Read(Buffer.data(), Buffer.size(), DataSize))
 				{
 					Info.Buffer = Buffer.data();
 					Info.BufferSize = DataSize;

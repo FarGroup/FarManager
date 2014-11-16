@@ -785,7 +785,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 
 					if (Signature && SignatureSize)
 					{
-						DWORD NumberOfBytesWritten;
+						size_t NumberOfBytesWritten;
 						ListFile.Write(&Signature,SignatureSize, NumberOfBytesWritten);
 					}
 				}
@@ -825,7 +825,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 
 				LPCVOID Ptr=nullptr;
 				char_ptr Buffer;
-				DWORD NumberOfBytesToWrite=0,NumberOfBytesWritten=0;
+				size_t NumberOfBytesToWrite = 0, NumberOfBytesWritten = 0;
 
 				if (CodePage==CP_UNICODE)
 				{

@@ -38,16 +38,16 @@ public:
 	CachedRead(api::File& file, DWORD buffer_size=0);
 	~CachedRead();
 	void AdjustAlignment(); // file have to be opened already
-	bool Read(LPVOID Data, DWORD DataSize, LPDWORD BytesRead);
+	bool Read(LPVOID Data, size_t DataSize, size_t* BytesRead);
 	bool FillBuffer();
-	bool Unread(DWORD BytesUnread);
+	bool Unread(size_t BytesUnread);
 	void Clear();
 
 private:
 	api::File& file;
 	static const DWORD DefaultBufferSize = 0x10000;
-	DWORD ReadSize;
-	DWORD BytesLeft;
+	size_t ReadSize;
+	size_t BytesLeft;
 	INT64 LastPtr;
 	int Alignment;
 	std::vector<BYTE> Buffer; // = 2*k*Alignment (k >= 2)

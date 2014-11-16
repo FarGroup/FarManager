@@ -3211,7 +3211,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const api::FAR_FIND_DATA &Src
 				return COPY_CANCEL;
 			}
 
-			DWORD BytesRead,BytesWritten;
+			size_t BytesRead, BytesWritten;
 			while (!SrcFile.Read(CopyBuffer.get(), SrcFile.GetChunkSize(), BytesRead))
 			{
 				Global->CatchError();

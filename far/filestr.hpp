@@ -48,7 +48,7 @@ private:
 
 	api::File& SrcFile;
 	uintptr_t m_CodePage;
-	DWORD ReadPos, ReadSize;
+	size_t ReadPos, ReadSize;
 
 	bool Peek;
 	size_t LastLength;

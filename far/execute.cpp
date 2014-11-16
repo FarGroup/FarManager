@@ -82,7 +82,7 @@ static bool GetImageSubsystem(const string& FileName,DWORD& ImageSubsystem)
 	if(ModuleFile.Open(FileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
 	{
 		IMAGE_DOS_HEADER DOSHeader;
-		DWORD ReadSize;
+		size_t ReadSize;
 
 		if (ModuleFile.Read(&DOSHeader, sizeof(DOSHeader), ReadSize) && ReadSize==sizeof(DOSHeader))
 		{

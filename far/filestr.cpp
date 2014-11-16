@@ -311,7 +311,7 @@ bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, bool bB
 
 				if (bBigEndian && sizeof(T) != 1)
 				{
-					_swab(reinterpret_cast<char*>(From.data()), reinterpret_cast<char*>(From.data()), ReadSize);
+					_swab(reinterpret_cast<char*>(From.data()), reinterpret_cast<char*>(From.data()), static_cast<int>(ReadSize));
 				}
 
 				ReadPos = 0;
@@ -392,7 +392,7 @@ bool GetFileFormat(
 	bool bDetect = false;
 	bool bPureAscii = false;
 
-	DWORD Readed = 0;
+	size_t Readed = 0;
 	if (file.Read(&dwTemp, sizeof(dwTemp), Readed) && Readed > 1 ) // minimum signature size is 2 bytes
 	{
 		if (LOWORD(dwTemp) == SIGN_UNICODE)
@@ -426,9 +426,9 @@ bool GetFileFormat(
 	else if (bUseHeuristics)
 	{
 		file.SetPointer(0, nullptr, FILE_BEGIN);
-		DWORD Size = 0x8000; // BUGBUG. TODO: configurable
+		size_t Size = 0x8000; // BUGBUG. TODO: configurable
 		char_ptr Buffer(Size);
-		DWORD ReadSize = 0;
+		size_t ReadSize = 0;
 		bool ReadResult = file.Read(Buffer.get(), Size, ReadSize);
 		file.SetPointer(0, nullptr, FILE_BEGIN);
 
@@ -441,7 +441,7 @@ bool GetFileFormat(
 			{
 				int test = IS_TEXT_UNICODE_UNICODE_MASK | IS_TEXT_UNICODE_REVERSE_MASK | IS_TEXT_UNICODE_NOT_UNICODE_MASK | IS_TEXT_UNICODE_NOT_ASCII_MASK;
 
-				IsTextUnicode(Buffer.get(), ReadSize, &test); // return value is ignored, it's ok.
+				IsTextUnicode(Buffer.get(), static_cast<int>(ReadSize), &test); // return value is ignored, it's ok.
 
 				if (!(test & IS_TEXT_UNICODE_NOT_UNICODE_MASK) && (test & IS_TEXT_UNICODE_NOT_ASCII_MASK))
 				{

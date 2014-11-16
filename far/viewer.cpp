@@ -276,7 +276,8 @@ int Viewer::OpenFile(const string& Name,int warning)
 			return FALSE;
 		}
 
-		DWORD ReadSize = 0, WrittenSize;
+		DWORD ReadSize = 0;
+		size_t WrittenSize;
 
 		while (ReadFile(Console().GetOriginalInputHandle(),vread_buffer.data(),(DWORD)vread_buffer.size(),&ReadSize,nullptr) && ReadSize)
 		{
@@ -414,7 +415,7 @@ int Viewer::OpenFile(const string& Name,int warning)
 bool Viewer::isBinaryFile(uintptr_t cp) // very approximate: looks for 0x00,0x00 in first 2048 bytes
 {
 	unsigned char bf[2048+1]; // not fit to any device sector size
-	DWORD nb = static_cast<DWORD>(sizeof(bf)), nr = 0;
+	size_t nb = sizeof(bf), nr = 0;
 
 	__int64 fpos = vtell();
 	vseek(0, FILE_BEGIN);
@@ -638,7 +639,7 @@ static inline int getChSize( UINT cp )
 		return +1;
 }
 
-int Viewer::txt_dump(const unsigned char *line, DWORD nr, int width, wchar_t *outstr, wchar_t zch, int tail) const
+int Viewer::txt_dump(const unsigned char *line, size_t nr, int width, wchar_t *outstr, wchar_t zch, int tail) const
 {
 	int ib, iw;
 	std::vector<wchar_t> w1(width);
@@ -712,7 +713,7 @@ int Viewer::txt_dump(const unsigned char *line, DWORD nr, int width, wchar_t *ou
 	}
 	else
 	{
-		ib = MultiByteToWideChar(cp,0, (const char *)line,nr, outstr,width);
+		ib = MultiByteToWideChar(cp, 0, (const char *)line, static_cast<int>(nr), outstr, width);
 		if ( ib < 0)
 			ib = 0;
 	}
@@ -736,7 +737,8 @@ void Viewer::ShowDump()
 
 	std::vector<unsigned char> line(Width * 2);
 	std::vector<wchar_t> OutStr(Width + 1);
-	DWORD nr, nb = (DWORD)Width*ch_size + xl, mb = (DWORD)Width*ch_size;
+	size_t nr, nb = Width*ch_size + xl;
+	DWORD mb = Width*ch_size;
 	__int64 bpos;
 
 	FilePos -= FilePos % ch_size;
@@ -819,8 +821,8 @@ void Viewer::ShowHex()
 			bSelStartFound = bSelEndFound = false;
 
 		unsigned char line[16+3];
-		DWORD nr = 0;
-		DWORD nb = CP_UTF8 == VM.CodePage ? 16+4-1 : (VM.CodePage==MB.current_cp ? 16+MB.current_mb-1 : 16);
+		size_t nr = 0;
+		size_t nb = CP_UTF8 == VM.CodePage ? 16 + 4 - 1 : (VM.CodePage == MB.current_cp ? 16 + MB.current_mb - 1 : 16);
 		Reader.Read(line, nb, &nr);
 		if (nr > 16)
 			Reader.Unread(nr-16);
@@ -2184,8 +2186,8 @@ void Viewer::Up( int nlines, bool adjust )
 
 			if ( ch_size <= 1 )
 			{
-				DWORD nread = 0;
-				Reader.Read(buff.c1, static_cast<DWORD>(buff_size), &nread);
+				size_t nread = 0;
+				Reader.Read(buff.c1, buff_size, &nread);
 				if ((nr = (int)nread) != buff_size)
 				{
 					return; //??? error handling
@@ -2723,8 +2725,8 @@ Viewer::SEARCHER_RESULT Viewer::search_hex_forward(search_data* sd)
 
 	int nb = (to - cpos < bsize ? static_cast<int>(to - cpos) : bsize);
 	vseek(cpos, SEEK_SET);
-	DWORD nr = 0;
-	Reader.Read(buff, static_cast<DWORD>(nb), &nr);
+	size_t nr = 0;
+	Reader.Read(buff, nb, &nr);
 	to = cpos + nr;
 	int n1 = static_cast<int>(nr);
 	if ( n1 != nb )
@@ -2788,7 +2790,7 @@ Viewer::SEARCHER_RESULT Viewer::search_hex_backward(search_data* sd)
 
 	int nb = (cpos - to < bsize ? static_cast<int>(cpos - to) : bsize);
 	vseek(to = cpos-nb, SEEK_SET);
-	DWORD nr = 0;
+	size_t nr = 0;
 	Reader.Read(buff, static_cast<DWORD>(nb), &nr);
 	int n1 = static_cast<int>(nr);
 	if ( n1 != nb )
@@ -3534,7 +3536,7 @@ int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 	if (Count <= 0)
 		return 0;
 
-	DWORD ReadSize = 0;
+	size_t ReadSize = 0;
 
 	if (IsUnicodeCodePage(VM.CodePage))
 	{
@@ -3663,8 +3665,8 @@ bool Viewer::vgetc(wchar_t *pCh)
 			memmove(vgetc_buffer, vgetc_buffer+vgetc_ib, vgetc_cb);
 		vgetc_ib = 0;
 
-		DWORD nr = 0;
-		Reader.Read(vgetc_buffer + vgetc_cb, (DWORD)(ARRAYSIZE(vgetc_buffer)-vgetc_cb), &nr);
+		size_t nr = 0;
+		Reader.Read(vgetc_buffer + vgetc_cb, ARRAYSIZE(vgetc_buffer) - vgetc_cb, &nr);
 		vgetc_cb += (int)nr;
 	}
 
@@ -3758,10 +3760,10 @@ wchar_t Viewer::vgetc_prev()
 			nb = static_cast<int>(pos);
 	}
 
-	DWORD nr = 0;
+	size_t nr = 0;
 	char ss[4] = {};
 	if ( vseek(-nb, SEEK_CUR) )
-		 Reader.Read(ss, static_cast<DWORD>(nb), &nr);
+		Reader.Read(ss, nb, &nr);
 
 	vseek(pos, SEEK_SET);
 

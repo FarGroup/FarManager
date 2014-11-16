@@ -239,7 +239,7 @@ static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel, Console
 			DWORD StartTime=GetTickCount();
 			do
 			{
-				DWORD Written;
+				size_t Written;
 				WipeFile.Write(Buf.data(), WipeFile.GetChunkSize(), Written);
 				DWORD CurTime=GetTickCount();
 				if (CurTime-StartTime>(DWORD)Global->Opt->RedrawTimeout)

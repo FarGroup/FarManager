@@ -83,7 +83,7 @@ void CachedRead::Clear()
 	LastPtr=0;
 }
 
-bool CachedRead::Read(LPVOID Data, DWORD DataSize, LPDWORD BytesRead)
+bool CachedRead::Read(LPVOID Data, size_t DataSize, size_t* BytesRead)
 {
 	INT64 Ptr = file.GetPointer();
 
@@ -116,7 +116,7 @@ bool CachedRead::Read(LPVOID Data, DWORD DataSize, LPDWORD BytesRead)
 
 			Result=true;
 
-			DWORD Actual=std::min(BytesLeft, DataSize);
+			size_t Actual = std::min(BytesLeft, DataSize);
 			memcpy(Data, &Buffer[ReadSize-BytesLeft], Actual);
 			Data=((LPBYTE)Data)+Actual;
 			BytesLeft-=Actual;
@@ -132,7 +132,7 @@ bool CachedRead::Read(LPVOID Data, DWORD DataSize, LPDWORD BytesRead)
 	return Result;
 }
 
-bool CachedRead::Unread(DWORD BytesUnread)
+bool CachedRead::Unread(size_t BytesUnread)
 {
 	if (BytesUnread + BytesLeft <= ReadSize)
 	{
@@ -237,7 +237,7 @@ bool CachedWrite::Flush()
 {
 	if (!Flushed)
 	{
-		DWORD WrittenSize=0;
+		size_t WrittenSize = 0;
 
 		if (file.Write(Buffer.data(), static_cast<DWORD>(Buffer.size() - FreeSize), WrittenSize, nullptr) && Buffer.size() - FreeSize == WrittenSize)
 		{

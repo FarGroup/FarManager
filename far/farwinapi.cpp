@@ -384,10 +384,14 @@ inline void File::SyncPointer()
 }
 
 
-bool File::Read(LPVOID Buffer, DWORD NumberOfBytesToRead, DWORD& NumberOfBytesRead, LPOVERLAPPED Overlapped)
+bool File::Read(LPVOID Buffer, size_t NumberOfBytesToRead, size_t& NumberOfBytesRead, LPOVERLAPPED Overlapped)
 {
+	assert(NumberOfBytesToRead <= std::numeric_limits<DWORD>::max());
+
 	SyncPointer();
-	bool Result = ReadFile(Handle, Buffer, NumberOfBytesToRead, &NumberOfBytesRead, Overlapped) != FALSE;
+	DWORD BytesRead = 0;
+	bool Result = ReadFile(Handle, Buffer, static_cast<DWORD>(NumberOfBytesToRead), &BytesRead, Overlapped) != FALSE;
+	NumberOfBytesRead = BytesRead;
 	if(Result)
 	{
 		Pointer += NumberOfBytesRead;
@@ -395,51 +399,20 @@ bool File::Read(LPVOID Buffer, DWORD NumberOfBytesToRead, DWORD& NumberOfBytesRe
 	return Result;
 }
 
-bool File::Write(LPCVOID Buffer, DWORD NumberOfBytesToWrite, DWORD& NumberOfBytesWritten, LPOVERLAPPED Overlapped)
+bool File::Write(LPCVOID Buffer, size_t NumberOfBytesToWrite, size_t& NumberOfBytesWritten, LPOVERLAPPED Overlapped)
 {
+	assert(NumberOfBytesToWrite <= std::numeric_limits<DWORD>::max());
+
 	SyncPointer();
-	bool Result = WriteFile(Handle, Buffer, NumberOfBytesToWrite, &NumberOfBytesWritten, Overlapped) != FALSE;
+	DWORD BytesWritten = 0;
+	bool Result = WriteFile(Handle, Buffer, static_cast<DWORD>(NumberOfBytesToWrite), &BytesWritten, Overlapped) != FALSE;
+	NumberOfBytesWritten = BytesWritten;
 	if(Result)
 	{
 		Pointer += NumberOfBytesWritten;
 	}
 	return Result;
 }
-
-bool File::Read(LPVOID Buffer, size_t Nr, size_t& NumberOfBytesRead)
-{
-	bool Result = false;
-	NumberOfBytesRead = 0;
-	while (Nr)
-	{
-		DWORD nread = 0, nr = (Nr >= 2*1024*1024*1024U ? 1024*1024*1024 : static_cast<DWORD>(Nr));
-		Result = Read(Buffer, nr, nread);
-		NumberOfBytesRead += nread;
-		if (!Result)
-			break;
-		Buffer = static_cast<LPVOID>(static_cast<char *>(Buffer) + nread);
-		Nr -= nread;
-	}
-	return Result;
-}
-
-bool File::Write(LPCVOID Buffer, size_t Nw, size_t& NumberOfBytesWritten)
-{
-	bool Result = false;
-	NumberOfBytesWritten = 0;
-	while (Nw)
-	{
-		DWORD written = 0, nw = (Nw >= 2*1024*1024*1024U ? 1024*1024*1024 : static_cast<DWORD>(Nw));
-		Result = Write(Buffer, nw, written);
-		NumberOfBytesWritten += written;
-		if (!Result)
-			break;
-		Buffer = static_cast<LPCVOID>(static_cast<const char *>(Buffer) + written);
-		Nw -= written;
-	}
-	return Result;
-}
-
 
 bool File::SetPointer(INT64 DistanceToMove, PINT64 NewFilePointer, DWORD MoveMethod)
 {
