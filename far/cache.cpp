@@ -163,7 +163,7 @@ bool CachedRead::FillBuffer()
 		if (file.GetSize(FileSize) && Pointer - shift + Buffer.size() > FileSize)
 			read_size = FileSize - Pointer + shift;
 
-		Result = file.Read(Buffer.data(), static_cast<DWORD>(read_size), ReadSize);
+		Result = file.Read(Buffer.data(), read_size, ReadSize);
 		if (Result)
 		{
 			if (ReadSize > (DWORD)shift)
@@ -239,7 +239,7 @@ bool CachedWrite::Flush()
 	{
 		size_t WrittenSize = 0;
 
-		if (file.Write(Buffer.data(), static_cast<DWORD>(Buffer.size() - FreeSize), WrittenSize, nullptr) && Buffer.size() - FreeSize == WrittenSize)
+		if (file.Write(Buffer.data(), Buffer.size() - FreeSize, WrittenSize, nullptr) && Buffer.size() - FreeSize == WrittenSize)
 		{
 			Flushed=true;
 			FreeSize = Buffer.size();

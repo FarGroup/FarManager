@@ -4197,10 +4197,11 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 				/* $ 29.09.2002 IS
 				   без этого не закрывался viewer, а просили именно это
 				*/
-				Global->WindowManager->DeleteWindow(HostFileViewer->shared_from_this());
-
 				if (HostFileViewer)
+				{
+					Global->WindowManager->DeleteWindow(HostFileViewer->shared_from_this());
 					HostFileViewer->SetExitCode(0);
+				}
 
 				return TRUE;
 			}

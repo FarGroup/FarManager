@@ -830,7 +830,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 				if (CodePage==CP_UNICODE)
 				{
 					Ptr=strFileName.data();
-					NumberOfBytesToWrite=static_cast<DWORD>(strFileName.size()*sizeof(WCHAR));
+					NumberOfBytesToWrite = strFileName.size()*sizeof(WCHAR);
 				}
 				else
 				{

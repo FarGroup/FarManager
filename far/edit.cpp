@@ -224,7 +224,7 @@ int Edit::GetNextCursorPos(int Position,int Where) const
 	return Result;
 }
 
-void Edit::FastShow(Edit::ShowInfo* Info)
+void Edit::FastShow(const Edit::ShowInfo* Info)
 {
 	const size_t EditLength=ObjWidth();
 

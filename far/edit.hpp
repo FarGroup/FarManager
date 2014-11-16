@@ -142,7 +142,7 @@ public:
 
 	FREE_SWAP(Edit);
 
-	void FastShow(ShowInfo* Info=nullptr);
+	void FastShow(const ShowInfo* Info=nullptr);
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;

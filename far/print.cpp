@@ -55,7 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define PRINTER_INFO_X(level) GENERATE_PRINTER_INFO(PRINTER_INFO_, level)
 #define PRINTER_INFO PRINTER_INFO_X(PRINTER_INFO_LEVEL)
 
-static void AddToPrintersMenu(VMenu2 *PrinterList, PRINTER_INFO *pi, int PrinterNumber)
+static void AddToPrintersMenu(VMenu2 *PrinterList, const PRINTER_INFO *pi, int PrinterNumber)
 {
 	// Получаем принтер по умолчанию
 	string strDefaultPrinter;
