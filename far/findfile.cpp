@@ -1279,14 +1279,14 @@ bool FindFiles::LookForString(const string& Name)
 				return false;
 
 			// ѕолучаем смещение на которое мы отступили при переходе между блоками
-			offset = (int)((CodePage == CP_SET? sizeof(wchar_t) : m_CodePages.begin()->MaxCharSize) * (findStringCount - 1));
+			offset = (CodePage == CP_SET? sizeof(wchar_t) : m_CodePages.begin()->MaxCharSize) * (findStringCount - 1);
 		}
 
 		// ≈сли мы потенциально прочитали не весь файл
 		if (readBlockSize == readBuffer.size())
 		{
 			// ќтступаем назад на длину слова поиска минус 1
-			if (!file.SetPointer(-1*offset, nullptr, FILE_CURRENT))
+			if (!file.SetPointer(-1ll*offset, nullptr, FILE_CURRENT))
 				return false;
 			alreadyRead -= offset;
 		}
