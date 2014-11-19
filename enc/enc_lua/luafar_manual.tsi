@@ -2606,15 +2606,15 @@ id=69
 lv=2
 dt=Text
 nm=far.RestoreScreen
-mtime=3602343103
+mtime=3625564744
 <article>
-#_result = far.RestoreScreen (handle)
+#_far.RestoreScreen (handle)
 #_
 #_**Parameters:**
-#_  handle: light userdata
+#_  handle: userdata, or nil. (When it is nil, NULL is passed to Far Manager)
 #_
 #_**Returns:**
-#_  result: boolean
+#_  nothing
 #_
 #_**Far API used:**
 #_  RestoreScreen
@@ -2629,6 +2629,7 @@ id=70
 lv=2
 dt=Text
 nm=far.SaveScreen
+mtime=3625554428
 <article>
 #_handle = far.SaveScreen (X1, Y1, X2, Y2)
 #_
@@ -2639,7 +2640,7 @@ nm=far.SaveScreen
 #_  Y2: integer, or nil
 #_
 #_**Returns:**
-#_  handle: light userdata
+#_  handle: userdata
 #_
 #_**Far API used:**
 #_  SaveScreen

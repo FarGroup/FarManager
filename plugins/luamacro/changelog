@@ -1,4 +1,8 @@
-﻿shmuel 13.11.2014 13:42:23 +0200 - build 449
+﻿shmuel 19.11.2014 13:16:10 +0200 - build 450
+
+1. M#2609: LuaFAR: защита от ошибок в far.SaveScreen/RestoreScreen.
+
+shmuel 13.11.2014 13:42:23 +0200 - build 449
 
 1. LuaFAR: меню, выводимое функцией far.Show, может быть закрыто и нажатием клавиши Space.
 

@@ -52,6 +52,7 @@ const char SettingsType[]      = "FarSettings";
 const char SettingsHandles[]   = "FarSettingsHandles";
 const char PluginHandleType[]  = "FarPluginHandle";
 const char AddMacroDataType[]  = "FarAddMacroData";
+const char SavedScreenType[]   = "FarSavedScreen";
 
 const char FAR_VIRTUALKEYS[]   = "far.virtualkeys";
 const char FAR_FLAGSTABLE[]    = "far.Flags";
@@ -2525,25 +2526,32 @@ static int far_GetPluginDirList(lua_State *L)
 //   handle:    handle of saved screen.
 static int far_RestoreScreen(lua_State *L)
 {
-	int res = (lua_type(L,1) == LUA_TLIGHTUSERDATA);
-	if (res)
+	if (lua_isnoneornil(L, 1))
+		GetPluginData(L)->Info->RestoreScreen(NULL);
+	else
 	{
-		PSInfo *Info = GetPluginData(L)->Info;
-		Info->RestoreScreen((HANDLE)lua_touserdata(L, 1));
+		void **pp = (void**)luaL_checkudata(L, 1, SavedScreenType);
+		if (*pp)
+		{
+			GetPluginData(L)->Info->RestoreScreen(*pp);
+			*pp = NULL;
+		}
 	}
-	return lua_pushboolean(L, res), 1;
+	return 0;
 }
 
 // handle = SaveScreen (X1,Y1,X2,Y2)
 //   handle:    handle of saved screen, [lightuserdata]
 static int far_SaveScreen(lua_State *L)
 {
-	PSInfo *Info = GetPluginData(L)->Info;
 	intptr_t X1 = luaL_optinteger(L,1,0);
 	intptr_t Y1 = luaL_optinteger(L,2,0);
 	intptr_t X2 = luaL_optinteger(L,3,-1);
 	intptr_t Y2 = luaL_optinteger(L,4,-1);
-	lua_pushlightuserdata(L, Info->SaveScreen(X1,Y1,X2,Y2));
+
+	*(void**)lua_newuserdata(L, sizeof(void*)) = GetPluginData(L)->Info->SaveScreen(X1,Y1,X2,Y2);
+	luaL_getmetatable(L, SavedScreenType);
+	lua_setmetatable(L, -2);
 	return 1;
 }
 
@@ -6005,16 +6013,21 @@ static int luaopen_far(lua_State *L)
 	lua_pushvalue(L, -1);
 	lua_setfield(L, -3, "Flags");
 	lua_setfield(L, LUA_REGISTRYINDEX, FAR_FLAGSTABLE);
+
 	SetFarColors(L);
+
 	luaL_register(L, "editor", editor_funcs);
 	luaL_register(L, "viewer", viewer_funcs);
 	luaL_register(L, "panel",  panel_funcs);
+
 	luaL_newmetatable(L, FarFileFilterType);
 	lua_pushvalue(L,-1);
 	lua_setfield(L, -2, "__index");
 	luaL_register(L, NULL, filefilter_methods);
+
 	luaL_newmetatable(L, FarTimerType);
 	luaL_register(L, NULL, timer_methods);
+
 	luaL_newmetatable(L, FarDialogType);
 	lua_pushvalue(L,-1);
 	lua_setfield(L, -2, "__index");
@@ -6026,7 +6039,6 @@ static int luaopen_far(lua_State *L)
 	lua_pushvalue(L,-1);
 	lua_setfield(L, -2, "__index");
 	luaL_register(L, NULL, Settings_methods);
-
 	lua_newtable(L);
 	lua_newtable(L);
 	lua_pushliteral(L, "k");
@@ -6040,6 +6052,8 @@ static int luaopen_far(lua_State *L)
 	luaL_newmetatable(L, AddMacroDataType);
 	lua_pushcfunction(L, AddMacroData_gc);
 	lua_setfield(L, -2, "__gc");
+
+	luaL_newmetatable(L, SavedScreenType);
 
 	return 0;
 }
