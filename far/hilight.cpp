@@ -356,7 +356,7 @@ static void ApplyDefaultStartingColors(HighlightFiles::highlight_item& Colors)
 	Colors.Mark.Char = 0;
 }
 
-static void ApplyBlackOnBlackColors(HighlightFiles::highlight_item& Colors)
+static void ApplyBlackOnBlackColor(HighlightFiles::highlight_item::colors_array::value_type& Color, DWORD PaletteColor)
 {
 	auto InheritColor = [](FarColor& Color, const FarColor& Base)
 	{
@@ -370,23 +370,25 @@ static void ApplyBlackOnBlackColors(HighlightFiles::highlight_item& Colors)
 		}
 	};
 
-	for_each_2(ALL_RANGE(Colors.Color), PalColor, [&](VALUE_TYPE(Colors.Color)& i, DWORD pal)
-	{
-		//Применим black on black.
-		//Для файлов возьмем цвета панели не изменяя прозрачность.
-		InheritColor(i.FileColor, Global->Opt->Palette[pal - COL_FIRSTPALETTECOLOR]);
-		//Для пометки возьмем цвета файла включая прозрачность.
-		InheritColor(i.MarkColor, i.FileColor);
-	});
+	//Применим black on black.
+	//Для файлов возьмем цвета панели не изменяя прозрачность.
+	InheritColor(Color.FileColor, Global->Opt->Palette[PaletteColor - COL_FIRSTPALETTECOLOR]);
+	//Для пометки возьмем цвета файла включая прозрачность.
+	InheritColor(Color.MarkColor, Color.FileColor);
+}
+
+static void ApplyBlackOnBlackColors(HighlightFiles::highlight_item::colors_array& Colors)
+{
+	for_each_2(ALL_RANGE(Colors), PalColor, ApplyBlackOnBlackColor);
 }
 
 static void ApplyColors(HighlightFiles::highlight_item& DestColors, const HighlightFiles::highlight_item& Src)
 {
 	//Обработаем black on black чтоб наследовать правильные цвета
 	//и чтоб после наследования были правильные цвета.
-	ApplyBlackOnBlackColors(DestColors);
+	ApplyBlackOnBlackColors(DestColors.Color);
 	auto SrcColors = Src;
-	ApplyBlackOnBlackColors(SrcColors);
+	ApplyBlackOnBlackColors(SrcColors.Color);
 
 	auto ApplyColor = [](FarColor& Dst, const FarColor& Src)
 	{
@@ -422,44 +424,36 @@ static void ApplyColors(HighlightFiles::highlight_item& DestColors, const Highli
 	}
 }
 
-static void ApplyFinalColors(HighlightFiles::highlight_item& Colors)
+void HighlightFiles::ApplyFinalColor(highlight_item::colors_array::value_type& Colors, size_t PaletteIndex)
 {
+	const auto PaletteColor = PalColor[PaletteIndex];
+
 	//Обработаем black on black чтоб после наследования были правильные цвета.
-	ApplyBlackOnBlackColors(Colors);
+	ApplyBlackOnBlackColor(Colors, PaletteColor);
 
-	auto ApplyFinalColor = [](FarColor& i, DWORD pal)
+	const auto& PanelColor = Global->Opt->Palette[PaletteColor - COL_FIRSTPALETTECOLOR];
+
+	//Если какой то из текущих цветов (fore или back) прозрачный
+	//то унаследуем соответствующий цвет с панелей.
+	auto ApplyColorPart = [&](FarColor& i, COLORREF FarColor::*Color, const FARCOLORFLAGS Flag)
 	{
-		//Если какой то из текущих цветов (fore или back) прозрачный
-		//то унаследуем соответствующий цвет с панелей.
-
-		const auto& PanelColor = Global->Opt->Palette[pal - COL_FIRSTPALETTECOLOR];
-
-		auto ApplyColorPart = [&](COLORREF FarColor::*Color, const FARCOLORFLAGS Flag)
+		if(IS_TRANSPARENT(i.*Color))
 		{
-			if(IS_TRANSPARENT(i.*Color))
-			{
-				i.*Color = PanelColor.*Color;
-				(PanelColor.Flags & Flag)? (i.Flags |= Flag) : (i.Flags &= ~Flag);
-			}
-		};
-
-		ApplyColorPart(&FarColor::BackgroundColor, FCF_BG_4BIT);
-		ApplyColorPart(&FarColor::ForegroundColor, FCF_FG_4BIT);
+			i.*Color = PanelColor.*Color;
+			MAKE_TRANSPARENT(i.*Color);
+			(PanelColor.Flags & Flag)? (i.Flags |= Flag) : (i.Flags &= ~Flag);
+		}
 	};
 
-	for_each_2(ALL_RANGE(Colors.Color), std::begin(PalColor), [&](VALUE_TYPE(Colors.Color)& i, DWORD pal)
-	{
-		ApplyFinalColor(i.FileColor, pal);
-		ApplyFinalColor(i.MarkColor, pal);
-	});
+	ApplyColorPart(Colors.FileColor, &FarColor::BackgroundColor, FCF_BG_4BIT);
+	ApplyColorPart(Colors.FileColor, &FarColor::ForegroundColor, FCF_FG_4BIT);
 
-	//Если символ пометки прозрачный то его как бы и нет вообще.
-	if (Colors.Mark.Transparent)
-		Colors.Mark.Char = 0;
+	ApplyColorPart(Colors.MarkColor, &FarColor::BackgroundColor, FCF_BG_4BIT);
+	ApplyColorPart(Colors.MarkColor, &FarColor::ForegroundColor, FCF_FG_4BIT);
 
 	//Паранойя но случится может:
 	//Обработаем black on black снова чтоб обработались унаследованные цвета.
-	ApplyBlackOnBlackColors(Colors);
+	ApplyBlackOnBlackColor(Colors, PaletteColor);
 }
 
 void HighlightFiles::UpdateCurrentTime()
@@ -486,7 +480,13 @@ void HighlightFiles::GetHiColor(FileListItem* To, bool UseAttrHighlighting)
 		}
 		return false;
 	});
-	ApplyFinalColors(item);
+
+	// Called from FileList::GetShowColor dynamically instead
+	//for_each_2(ALL_RANGE(item.Color), PalColor, ApplyFinalColor);
+
+	//Если символ пометки прозрачный то его как бы и нет вообще.
+	if (item.Mark.Transparent)
+		item.Mark.Char = 0;
 
 	To->Colors = &*Colors.emplace(item).first;
 }

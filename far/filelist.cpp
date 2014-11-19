@@ -7758,7 +7758,11 @@ const FarColor FileList::GetShowColor(int Position, bool FileColor) const
 		if (Global->Opt->Highlight)
 		{
 			if (m_ListData[Position].Colors)
-				ColorAttr = FileColor ? m_ListData[Position].Colors->Color[Pos].FileColor : m_ListData[Position].Colors->Color[Pos].MarkColor;
+			{
+				auto Colors = m_ListData[Position].Colors->Color[Pos];
+				HighlightFiles::ApplyFinalColor(Colors, Pos);
+				ColorAttr = FileColor ? Colors.FileColor : Colors.MarkColor;
+			}
 			else
 				ColorAttr.ForegroundColor = ColorAttr.BackgroundColor = 0; // black on black, default
 		}

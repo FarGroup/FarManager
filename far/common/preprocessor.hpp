@@ -63,7 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CONST_REVERSE_RANGE(T, i, ...) ALL_CONST_REVERSE_RANGE(T), CONST_LAMBDA_PREDICATE(T, i, ##__VA_ARGS__)
 
 #define FOR_RANGE(T, i) for(auto i = std::begin(T), ADD_SUFFIX(end, __LINE__) = std::end(T); i != ADD_SUFFIX(end, __LINE__); ++i)
-#define FOR_REVERSE_RANGE(T, i) for(auto i = std::rbegin(T), ADD_SUFFIX(rend, __LINE__) = std::rand(T); i != ADD_SUFFIX(rend, __LINE__); ++i)
+#define FOR_REVERSE_RANGE(T, i) for(auto i = std::rbegin(T), ADD_SUFFIX(rend, __LINE__) = std::rend(T); i != ADD_SUFFIX(rend, __LINE__); ++i)
 #define FOR_CONST_RANGE(T, i) for(auto i = std::cbegin(T), ADD_SUFFIX(cend, __LINE__) = std::cend(T); i != ADD_SUFFIX(cend, __LINE__); ++i)
 #define FOR_CONST_REVERSE_RANGE(T, i) for(auto i = std::crbegin(T), ADD_SUFFIX(crend, __LINE__) = std::crend(T); i != ADD_SUFFIX(crend, __LINE__); ++i)
 

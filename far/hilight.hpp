@@ -73,7 +73,8 @@ public:
 		};
 
 	public:
-		std::array<color, HIGHLIGHT_COUNT> Color;
+		typedef std::array<color, HIGHLIGHT_COUNT> colors_array;
+		colors_array Color;
 		mark Mark;
 
 		bool operator ==(const highlight_item& rhs) const
@@ -90,6 +91,8 @@ public:
 	void HiEdit(int MenuPos);
 	void UpdateHighlighting(bool RefreshMasks = false);
 	void Save(bool always);
+
+	static void ApplyFinalColor(highlight_item::colors_array::value_type& Colors, size_t PaletteIndex);
 
 private:
 	void InitHighlightFiles(class HierarchicalConfig* cfg);
