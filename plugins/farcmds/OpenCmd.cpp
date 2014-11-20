@@ -422,7 +422,7 @@ static const wchar_t* MakeExecuteString(const wchar_t *Cmd)
 		// 1.1 если команда не содержит полный путь...
 		if (!wcschr(NewCmdStr,L'\\'))
 		{
-			wchar_t *fpath=__proc_WhereIs(false,NewCmdStr);
+			wchar_t *fpath=__proc_WhereIs(false,NewCmdStr,false);
 			if (fpath)
 			{
 				delete[] NewCmdStr;
@@ -767,7 +767,7 @@ wchar_t* __proc_Goto(int outputtofile,wchar_t *pCmd)
 whereis:path
 whereis:<path
 */
-wchar_t* __proc_WhereIs(int outputtofile,wchar_t *pCmd)
+wchar_t* __proc_WhereIs(int outputtofile,wchar_t *pCmd,bool Dir)
 {
 	wchar_t *DestPath=nullptr;
 	wchar_t *Ptr=__getContent(outputtofile,pCmd);
@@ -846,7 +846,19 @@ wchar_t* __proc_WhereIs(int outputtofile,wchar_t *pCmd)
 
 						if (*DestPath)
 						{
-							break;
+							DWORD FTAttr=GetFileAttributes(DestPath);
+							if (FTAttr != 0xFFFFFFFF)
+							{
+								if ((FTAttr&FILE_ATTRIBUTE_DIRECTORY))
+								{
+									if (Dir)
+										break;
+								}
+								else
+								{
+									break;
+								}
+							}
 						}
 					}
 
@@ -1434,6 +1446,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 												}
 											}
 											delete[] pTempFileNameErrExp;
+
 										}
 									}
 								}
@@ -1453,7 +1466,6 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 									allOK = FALSE;
 
 									wchar_t *cmd=temp;
-
 									const wchar_t* fullcmd=MakeExecuteString(cmd);
 
 									if (catchStdOutput && catchStdError)

@@ -1,3 +1,14 @@
+svs 20.11.2014 12:12:14 +0300 - build 126
+
+1. run:filename<help -- 'C:\windows\help' is not recognized as an internal or external command, operable program or batch file.
+
+   Поиск ведётся по каталогам, как указано в Хелпе.
+   Под команду "help" (без расширения) обычно попадает каталог "C:\windows\help" - это про него ошибка.
+
+   При поиске исполняемого модуля для "run:" применяются те же функции, что и для команды "whereis:".
+   Добавил проверку для "run:" на предмет FILE_ATTRIBUTE_DIRECTORY (исключим каталоги)
+    
+
 svs 30.07.2014 17:00:37 +0400 - build 
 
 1. Уточнение hlf по поводу "[stream[mode]] --> [stream][mode]"

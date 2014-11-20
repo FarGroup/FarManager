@@ -129,7 +129,7 @@ wchar_t *ExpandEnv(const wchar_t* Src, DWORD* Length);
 wchar_t* __proc_Load(int outputtofile,wchar_t *pCmd);
 wchar_t* __proc_Unload(int outputtofile,wchar_t *pCmd);
 wchar_t* __proc_Goto(int outputtofile,wchar_t *pCmd);
-wchar_t* __proc_WhereIs(int outputtofile,wchar_t *pCmd);
+wchar_t* __proc_WhereIs(int outputtofile,wchar_t *pCmd,bool Dir=true);
 
 bool __proc_Link(int outputtofile,wchar_t *pCmd);
 
