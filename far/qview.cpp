@@ -556,7 +556,7 @@ void QuickView::PrintText(const string& Str)
 }
 
 
-bool QuickView::UpdateIfChanged(void)
+bool QuickView::UpdateIfChanged(bool Idle)
 {
 	if (IsVisible() && !strCurFileName.empty() && Directory==2)
 	{

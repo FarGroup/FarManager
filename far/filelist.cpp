@@ -6896,7 +6896,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 /*$ 22.06.2001 SKV
   Добавлен параметр для вызова после исполнения команды.
 */
-bool FileList::UpdateIfChanged(void)
+bool FileList::UpdateIfChanged(bool Idle)
 {
 	//_SVS(SysLog(L"CurDir='%s' Global->Opt->AutoUpdateLimit=%d <= FileCount=%d",CurDir,Global->Opt->AutoUpdateLimit,FileCount));
 	if (!Global->Opt->AutoUpdateLimit || m_ListData.size() <= static_cast<size_t>(Global->Opt->AutoUpdateLimit))
@@ -6905,7 +6905,7 @@ bool FileList::UpdateIfChanged(void)
 		  ! Сменим приоритеты. При Force обновление всегда! */
 		if (IsVisible() && (clock()-LastUpdateTime>2000))
 		{
-			ProcessPluginEvent(FE_IDLE,nullptr);
+			if (Idle) ProcessPluginEvent(FE_IDLE,nullptr);
 
 			/* $ 24.12.2002 VVM
 			  ! Поменяем логику обновления панелей. */

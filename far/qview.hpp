@@ -55,7 +55,7 @@ private:
 	virtual void Update(int Mode) override;
 	virtual void CloseFile() override;
 	virtual void QViewDelTempName() override;
-	virtual bool UpdateIfChanged(void) override;
+	virtual bool UpdateIfChanged(bool Idle) override;
 	virtual void SetTitle() override;
 	virtual string GetTitle() const override;
 	virtual void SetFocus() override;

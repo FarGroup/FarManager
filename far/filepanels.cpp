@@ -1169,17 +1169,8 @@ bool FilePanels::CanFastHide() const
 void FilePanels::Refresh()
 {
 	window::Refresh();
-	Panel* passivePanel=PassivePanel();
-	if (passivePanel->IsVisible() && NORMAL_PANEL==passivePanel->GetMode())
-	{
-		passivePanel->Update(UPDATE_KEEP_SELECTION);
-		passivePanel->Show();
-	}
-	if (m_ActivePanel->IsVisible() && NORMAL_PANEL==m_ActivePanel->GetMode())
-	{
-		m_ActivePanel->Update(UPDATE_KEEP_SELECTION);
-		m_ActivePanel->Show();
-	}
+	PassivePanel()->UpdateIfChanged(false);
+	m_ActivePanel->UpdateIfChanged(false);
 	m_ActivePanel->SetCurPath();
 }
 

@@ -262,7 +262,7 @@ public:
 	virtual void MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual void SetFocus() override;
 	virtual void Update(int Mode) override;
-	virtual bool UpdateIfChanged(void) override;
+	virtual bool UpdateIfChanged(bool Idle) override;
 	virtual void UpdateIfRequired() override;
 	virtual int SendKeyToPlugin(DWORD Key,bool Pred=false) override;
 	virtual void StartFSWatcher(bool got_focus=false, bool check_time=true) override;

@@ -268,7 +268,7 @@ public:
 	virtual void SetFocus();
 	virtual void KillFocus();
 	virtual void Update(int Mode) = 0;
-	virtual bool UpdateIfChanged(void) {return false;}
+	virtual bool UpdateIfChanged(bool Idle) {return false;}
 	virtual void UpdateIfRequired() {}
 	virtual void StartFSWatcher(bool got_focus=false, bool check_time=true) {}
 	virtual void StopFSWatcher() {}
