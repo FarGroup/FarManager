@@ -1,3 +1,12 @@
+svs 20.11.2014 16:02:37 +0300 - build 127
+
+1. ...поломались алиасы:
+
+     doskey xxx=yyy
+     edit:<xxx
+
+   В результате фар вешается.
+
 svs 20.11.2014 12:12:14 +0300 - build 126
 
 1. run:filename<help -- 'C:\windows\help' is not recognized as an internal or external command, operable program or batch file.

@@ -308,6 +308,8 @@ wchar_t* ProcessOSAliases(const wchar_t *Str)
 			countP++;
 			ptrCmdStr=p+2;
 		}
+		else
+			break;
 	}
 
 	// alloc memory
