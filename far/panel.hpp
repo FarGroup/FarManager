@@ -148,13 +148,6 @@ enum {UPDATE_KEEP_SELECTION=1,UPDATE_SECONDARY=2,UPDATE_IGNORE_VISIBLE=4,UPDATE_
 
 enum {NORMAL_PANEL,PLUGIN_PANEL};
 
-enum panel_update_mode
-{
-	UIC_UPDATE_NORMAL,
-	UIC_UPDATE_FORCE,
-	UIC_UPDATE_FORCE_NOTIFICATION
-};
-
 class VMenu2;
 class Edit;
 struct PanelMenuItem;
@@ -275,7 +268,7 @@ public:
 	virtual void SetFocus();
 	virtual void KillFocus();
 	virtual void Update(int Mode) = 0;
-	virtual int UpdateIfChanged(panel_update_mode UpdateMode) {return 0;}
+	virtual bool UpdateIfChanged(void) {return false;}
 	virtual void UpdateIfRequired() {}
 	virtual void StartFSWatcher(bool got_focus=false, bool check_time=true) {}
 	virtual void StopFSWatcher() {}

@@ -4643,7 +4643,7 @@ static bool panelsetpathFunc(FarMacroCall* Data)
 					//SelPanel->Show();
 					// <Mantis#0000289> - грозно, но со вкусом :-)
 					//ShellUpdatePanels(SelPanel);
-					SelPanel->UpdateIfChanged(UIC_UPDATE_NORMAL);
+					SelPanel->UpdateIfChanged();
 				}
 				Global->WindowManager->RefreshWindow(Global->WindowManager->GetCurrentWindow());
 				// </Mantis#0000289>
@@ -4680,7 +4680,7 @@ static bool panelsetposFunc(FarMacroCall* Data)
 				//SelPanel->Show();
 				// <Mantis#0000289> - грозно, но со вкусом :-)
 				//ShellUpdatePanels(SelPanel);
-				SelPanel->UpdateIfChanged(UIC_UPDATE_NORMAL);
+				SelPanel->UpdateIfChanged();
 				Global->WindowManager->RefreshWindow(Global->WindowManager->GetCurrentWindow());
 				// </Mantis#0000289>
 				Ret=(__int64)(SelPanel->GetCurrentPos()+1);

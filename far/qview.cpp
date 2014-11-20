@@ -556,16 +556,16 @@ void QuickView::PrintText(const string& Str)
 }
 
 
-int QuickView::UpdateIfChanged(panel_update_mode UpdateMode)
+bool QuickView::UpdateIfChanged(void)
 {
 	if (IsVisible() && !strCurFileName.empty() && Directory==2)
 	{
 		string strViewName = strCurFileName;
 		ShowFile(strViewName, m_TemporaryFile, nullptr);
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 void QuickView::SetTitle()

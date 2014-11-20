@@ -4806,7 +4806,7 @@ void FileList::DescribeFiles()
 
 		// BugZ#863 - При редактировании группы дескрипшенов они не обновляются на ходу
 		//if (AnotherType==QVIEW_PANEL) continue; //TODO ???
-		if (AnotherType==INFO_PANEL) AnotherPanel->Update(UIC_UPDATE_NORMAL);
+		if (AnotherType==INFO_PANEL) AnotherPanel->Update(0);
 
 		Update(UPDATE_KEEP_SELECTION);
 		Redraw();
@@ -6896,49 +6896,37 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 /*$ 22.06.2001 SKV
   Добавлен параметр для вызова после исполнения команды.
 */
-int FileList::UpdateIfChanged(panel_update_mode UpdateMode)
+bool FileList::UpdateIfChanged(void)
 {
 	//_SVS(SysLog(L"CurDir='%s' Global->Opt->AutoUpdateLimit=%d <= FileCount=%d",CurDir,Global->Opt->AutoUpdateLimit,FileCount));
 	if (!Global->Opt->AutoUpdateLimit || m_ListData.size() <= static_cast<size_t>(Global->Opt->AutoUpdateLimit))
 	{
 		/* $ 19.12.2001 VVM
 		  ! Сменим приоритеты. При Force обновление всегда! */
-		if ((IsVisible() && (clock()-LastUpdateTime>2000)) || (UpdateMode != UIC_UPDATE_NORMAL))
+		if (IsVisible() && (clock()-LastUpdateTime>2000))
 		{
-			if (UpdateMode == UIC_UPDATE_NORMAL)
-				ProcessPluginEvent(FE_IDLE,nullptr);
+			ProcessPluginEvent(FE_IDLE,nullptr);
 
 			/* $ 24.12.2002 VVM
 			  ! Поменяем логику обновления панелей. */
-			if (// Нормальная панель, на ней установлено уведомление и есть сигнал
-			    (m_PanelMode==NORMAL_PANEL && FSWatcher.Signaled()) ||
-			    // Или Нормальная панель, но нет уведомления и мы попросили обновить через UPDATE_FORCE
-			    (m_PanelMode==NORMAL_PANEL && UpdateMode==UIC_UPDATE_FORCE) ||
-			    // Или плагинная панель и обновляем через UPDATE_FORCE
-			    (m_PanelMode!=NORMAL_PANEL && UpdateMode==UIC_UPDATE_FORCE)
-			)
+			if (m_PanelMode==NORMAL_PANEL && FSWatcher.Signaled())
 			{
 				auto AnotherPanel = Parent()->GetAnotherPanel(this);
 
 				if (AnotherPanel->GetType()==INFO_PANEL)
 				{
 					AnotherPanel->Update(UPDATE_KEEP_SELECTION);
-
-					if (UpdateMode==UIC_UPDATE_NORMAL)
-						AnotherPanel->Redraw();
+					AnotherPanel->Redraw();
 				}
 
 				Update(UPDATE_KEEP_SELECTION);
-
-				if (UpdateMode==UIC_UPDATE_NORMAL)
-					Show();
-
-				return TRUE;
+				Redraw();
+				return true;
 			}
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 void FileList::InitFSWatcher(bool CheckTree)

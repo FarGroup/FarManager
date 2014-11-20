@@ -123,7 +123,7 @@ void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
 				if (AnotherType==FILE_PANEL)
 					((FileList *)AnotherPanel)->ResetLastUpdateTime();
 
-				AnotherPanel->UpdateIfChanged(UIC_UPDATE_NORMAL);
+				AnotherPanel->UpdateIfChanged();
 			}
 		}
 	}

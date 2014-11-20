@@ -1169,8 +1169,10 @@ bool FilePanels::CanFastHide() const
 void FilePanels::Refresh()
 {
 	window::Refresh();
-	PassivePanel()->UpdateIfChanged(UIC_UPDATE_FORCE_NOTIFICATION);
-	m_ActivePanel->UpdateIfChanged(UIC_UPDATE_FORCE_NOTIFICATION);
+	PassivePanel()->Update(UPDATE_KEEP_SELECTION);
+	PassivePanel()->Show();
+	m_ActivePanel->Update(UPDATE_KEEP_SELECTION);
+	m_ActivePanel->Show();
 	m_ActivePanel->SetCurPath();
 }
 
