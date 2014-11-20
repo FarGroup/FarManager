@@ -408,7 +408,7 @@ size_t KeyBar::Change(const KeyBarTitles *Kbt)
 				int group = FnGroup(Shift);
 				if (group >= 0)
 				{
-					Items[group][Pos].first = i.Text;
+					Items[group][Pos].first = NullToEmpty(i.Text);
 					++Result;
 				}
 			}
