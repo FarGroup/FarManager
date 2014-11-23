@@ -3,6 +3,42 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 20.11.2014 16:25:43 +0200 - build 4201
+
+1. FAR crashed when a plugin returned nullptr in KeyBarLabel.Text.
+
+zg 20.11.2014 13:22:03 +0200 - build 4200
+
+1. correction of 4197.
+
+zg 20.11.2014 04:03:52 +0200 - build 4199
+
+1. correction of 4197: do not update plugin panels.
+
+zg 20.11.2014 03:14:13 +0200 - build 4198
+
+1. correction of 4197.
+
+zg 20.11.2014 03:03:40 +0200 - build 4197
+
+1. sometimes the panels could be reread but not redrawn.
+
+drkns 20.11.2014 01:07:04 +0200 - build 4196
+
+1. Change of text color calculation in panels, see http://forum.farmanager.com/viewtopic.php?p=125730.
+
+zg 20.11.2014 00:43:18 +0200 - build 4195
+
+1. content search in files worked only for the first 32 kilobytes.
+
+svs 19.11.2014 14:51:39 +0300 - build 4194
+
+1. SQLite 3.8.7.2
+
+drkns 16.11.2014 23:30:38 +0200 - build 4193
+
+1. A couple of issues.
+
 drkns 16.11.2014 17:10:47 +0200 - build 4192
 
 1. DWORD -> size_t mix.
