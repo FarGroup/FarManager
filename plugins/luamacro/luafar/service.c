@@ -3780,7 +3780,7 @@ static int editor_Editor(lua_State *L)
 {
 	PSInfo *Info = GetPluginData(L)->Info;
 	const wchar_t* FileName = check_utf8_string(L, 1, NULL);
-	const wchar_t* Title    = opt_utf8_string(L, 2, FileName);
+	const wchar_t* Title    = opt_utf8_string(L, 2, NULL);
 	intptr_t X1 = luaL_optinteger(L, 3, 0);
 	intptr_t Y1 = luaL_optinteger(L, 4, 0);
 	intptr_t X2 = luaL_optinteger(L, 5, -1);
@@ -3799,7 +3799,7 @@ static int viewer_Viewer(lua_State *L)
 {
 	PSInfo *Info = GetPluginData(L)->Info;
 	const wchar_t* FileName = check_utf8_string(L, 1, NULL);
-	const wchar_t* Title    = opt_utf8_string(L, 2, FileName);
+	const wchar_t* Title    = opt_utf8_string(L, 2, NULL);
 	intptr_t X1 = luaL_optinteger(L, 3, 0);
 	intptr_t Y1 = luaL_optinteger(L, 4, 0);
 	intptr_t X2 = luaL_optinteger(L, 5, -1);

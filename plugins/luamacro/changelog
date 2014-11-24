@@ -1,4 +1,9 @@
-﻿shmuel 19.11.2014 13:16:10 +0200 - build 450
+﻿shmuel 24.11.2014 02:05:58 +0200 - build 451
+
+1. LuaFAR: в функциях editor.Editor и viewer.Viewer значение по умолчанию параметра Title,
+   передаваемое в Фар - NULL, а не FileName, как было до сих пор. См. M#2867.
+
+shmuel 19.11.2014 13:16:10 +0200 - build 450
 
 1. M#2609: LuaFAR: защита от ошибок в far.SaveScreen/RestoreScreen.
 
