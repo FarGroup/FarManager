@@ -4363,14 +4363,14 @@ id=21
 lv=2
 dt=Text
 nm=editor.Editor
-mtime=3622738681
+mtime=3625957315
 <article>
 #_result = editor.Editor (FileName, Title, X1, Y1, X2, Y2,
 #_                        Flags, StartLine, StartChar, CodePage)
 #_
 #_**Parameters:**
 #_  FileName:  string
-#_  Title:     string,  or nil (default = FileName)
+#_  Title:     string,  or nil (default = NULL)
 #_  X1:        integer, or nil (default = 0)
 #_  Y1:        integer, or nil (default = 0)
 #_  X2:        integer, or nil (default = -1)
@@ -6453,13 +6453,13 @@ id=77
 lv=2
 dt=Text
 nm=viewer.Viewer
-mtime=3523944710
+mtime=3625957353
 <article>
 #_result = viewer.Viewer (FileName, Title, X1, Y1, X2, Y2, Flags, CodePage)
 #_
 #_**Parameters:**
 #_  FileName: string
-#_  Title:    string  (defaults to FileName)
+#_  Title:    string  (defaults to NULL)
 #_  X1:       integer (defaults to 0)
 #_  Y1:       integer (defaults to 0)
 #_  X2:       integer (defaults to -1)
