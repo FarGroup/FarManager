@@ -353,20 +353,17 @@ local CharNames = { ["."]="Dot", ["<"]="Less", [">"]="More", ["|"]="Pipe", ["/"]
                     [":"]="Colon", ["?"]="Question", ["*"]="Asterisk", ['"']="Quote" }
 
 local function AddRecordedMacro (srctable, filename)
-  local area = type(srctable)=="table" and type(srctable.area)=="string" and srctable.area:lower()
+  local area = srctable.area:lower()
   if not (area and Areas[area]) then return end
   local arTable = Areas[area]
 
   local key = srctable.key
-  if type(key) ~= "string" or
-        -- check correspondence between (a) filename and (b) area_key
-        ("%s_%s"):format(area, (key:gsub(".",CharNames))):lower() ~=
-        filename:gsub("^.*\\",""):sub(1,-5):lower() then
-    return
+  -- check correspondence between (a) filename and (b) area_key
+  if ("%s_%s"):format(area, (key:gsub(".",CharNames))):lower() ~=
+     filename:gsub("^.*\\",""):sub(1,-5):lower() then return
   end
 
-  if type(srctable.code) ~= "string" then return end
-  if srctable.code:sub(1,1) ~= "@" then
+  if srctable.code and srctable.code:sub(1,1) ~= "@" then
     local f, msg = loadstring(srctable.code)
     if not f then ErrMsg(msg) return end
   end
@@ -379,7 +376,7 @@ local function AddRecordedMacro (srctable, filename)
     arTable[normkey].recorded = macro
   end
 
-  for _,v in ipairs{"area","key","code","description"} do macro[v]=srctable[v] end
+  for _,v in ipairs{"area","key","action","code","description"} do macro[v]=srctable[v] end
 
   macro.flags = StringToFlags(srctable.flags)
   if type(macro.description)~="string" then macro.description=nil end
@@ -620,17 +617,34 @@ local function LoadMacros (unload, paths)
       end
     end
 
+    local tempRecordedMacro
+    local function ReadRecordedMacro (m)
+      if tempRecordedMacro == nil then
+        if type(m) == "table" then
+          local t_action, t_code = type(m.action), type(m.code)
+          tempRecordedMacro = type(m.area)=="string" and type(m.key)=="string" and
+            (t_action=="function" and t_code=="nil" or t_action=="nil" and t_code=="string") and m
+        else
+          tempRecordedMacro = false
+        end
+      end
+    end
+
     local function LoadRecordedFile (FindData, FullPath)
       if FindData.FileAttributes:find("d") then return end
       local f, msg = loadfile(FullPath)
       if not f then
         numerrors=numerrors+1; ErrMsg(msg); return
       end
-      local env = {}
+      local env = setmetatable({ Macro=ReadRecordedMacro }, gmeta)
       setfenv(f, env)
+      tempRecordedMacro = nil
       local ok, msg = pcall(f)
       if ok then
-        AddRecordedMacro(env, FullPath)
+        if tempRecordedMacro then
+          env.Macro = nil
+          AddRecordedMacro(tempRecordedMacro, FullPath)
+        end
       else
         numerrors=numerrors+1; ErrMsg(msg)
       end
@@ -694,8 +708,16 @@ local function WriteOneMacro (dir, macro, keyname, delete)
   -- operation "write"
   local fp, msg = io.open(fname, "w")
   if fp then
-    fp:write(("area=%q\nkey=%q\nflags=%q\ndescription=%q\ncode=%q\n"):
-      format(macro.area, macro.key, FlagsToString(macro.flags), macro.description, macro.code))
+    fp:write(([[
+Macro {
+  description=%q;
+  area=%q; key=%q;
+  flags=%q;
+  action=function()
+    %s
+  end;
+}
+]]):format(macro.description, macro.area, macro.key, FlagsToString(macro.flags), macro.code))
     fp:close()
     macro.FileName = fname
   end
