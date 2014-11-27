@@ -713,9 +713,7 @@ Macro {
   description=%q;
   area=%q; key=%q;
   flags=%q;
-  action=function()
-    %s
-  end;
+  code=%q;
 }
 ]]):format(macro.description, macro.area, macro.key, FlagsToString(macro.flags), macro.code))
     fp:close()
