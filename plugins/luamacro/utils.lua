@@ -641,10 +641,11 @@ local function LoadMacros (unload, paths)
       tempRecordedMacro = nil
       local ok, msg = pcall(f)
       if ok then
-        if tempRecordedMacro then
-          env.Macro = nil
-          AddRecordedMacro(tempRecordedMacro, FullPath)
+        env.Macro = nil
+        if tempRecordedMacro==nil then -- support old format (support till 2015-05-28)
+          ReadRecordedMacro(env)
         end
+        if tempRecordedMacro then AddRecordedMacro(tempRecordedMacro, FullPath) end
       else
         numerrors=numerrors+1; ErrMsg(msg)
       end
