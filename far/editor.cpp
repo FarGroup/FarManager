@@ -171,6 +171,7 @@ Editor::~Editor()
 
 void Editor::FreeAllocatedData(bool FreeUndo)
 {
+	m_AutoDeletedColors.clear();
 	Lines.clear();
 	UndoData.clear();
 	UndoSavePos = UndoPos = UndoData.end();
