@@ -5548,6 +5548,7 @@ to_lua = function(text, options)
     local t = type(text)
     return nil, "expecting string (got " .. t .. ")"
   end
+  if string.sub(text,1,3)=="\239\187\191" then text=string.sub(text,4) end
   local tree, err = parse.string(text)
   if not tree then
     return nil, err
@@ -5602,7 +5603,6 @@ loadfile = function(fname, ...)
     return nil, err
   end
   local text = assert(file:read("*a"))
-  if string.sub(text,1,3)=="\239\187\191" then text=string.sub(text,4) end
   file:close()
   return loadstring(text, "@" .. tostring(fname), ...)
 end
