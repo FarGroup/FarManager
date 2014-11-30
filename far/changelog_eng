@@ -3,6 +3,16 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 30.11.2014 11:55:22 +0200 - build 4203
+
+1. after switching from a mode with no custom column to a mode with the custom column it displayed nothing.
+
+2. experimental. post-processing of data returned by plugins for custom column with the help of LuaMacro plugin.
+
+zg 29.11.2014 02:37:27 +0200 - build 4202
+
+1. correction of 4137.
+
 zg 20.11.2014 16:25:43 +0200 - build 4201
 
 1. FAR crashed when a plugin returned nullptr in KeyBarLabel.Text.
