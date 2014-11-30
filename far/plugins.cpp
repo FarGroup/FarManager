@@ -2370,6 +2370,7 @@ string PluginManager::GetCustomData(const string& Name) const
 {
 	const NTPath FilePath(Name);
 
+	std::list<std::pair<GUID,string>> allCustomData;
 	string strCustomData;
 
 	std::for_each(CONST_RANGE(SortedPlugins, i)
@@ -2378,14 +2379,39 @@ string PluginManager::GetCustomData(const string& Name) const
 
 		if (i->HasGetCustomData() && i->GetCustomData(FilePath.data(), &CustomData))
 		{
-			if (!strCustomData.empty())
-				strCustomData += L" ";
-			strCustomData += CustomData;
+			allCustomData.emplace_back(VALUE_TYPE(allCustomData)(i->GetGUID(), CustomData));
 
 			if (i->HasFreeCustomData())
 				i->FreeCustomData(CustomData);
 		}
 	});
+	if (!allCustomData.empty())
+	{
+		std::vector<FarMacroValue> values;
+		values.reserve(allCustomData.size()*2+1);
+		std::for_each(CONST_RANGE(allCustomData, i)
+		{
+			values.emplace_back(i.first);
+			values.emplace_back(i.second);
+		});
+		values.emplace_back(FilePath);
+		FarMacroCall fmc={sizeof(FarMacroCall),values.size(),&values[0],nullptr,nullptr};
+		OpenMacroPluginInfo info={MCT_CUSTOMDATA,&fmc};
+		void *ptr;
+		if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Luamacro.Id, OPEN_LUAMACRO, &info, &ptr) && ptr)
+		{
+			strCustomData = info.Ret.Values[0].String;
+		}
+		else
+		{
+			std::for_each(CONST_RANGE(allCustomData, i)
+			{
+				if (!strCustomData.empty())
+					strCustomData += L" ";
+				strCustomData += i.second;
+			});
+		}
+	}
 	return strCustomData;
 }
 

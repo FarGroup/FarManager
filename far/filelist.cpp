@@ -3182,6 +3182,7 @@ void FileList::SetViewMode(int Mode)
 	bool OldNumLink=IsColumnDisplayed(NUMLINK_COLUMN);
 	bool OldNumStreams=IsColumnDisplayed(NUMSTREAMS_COLUMN);
 	bool OldStreamsSize=IsColumnDisplayed(STREAMSSIZE_COLUMN);
+	bool OldCustomData=IsColumnDisplayed(CUSTOM_COLUMN0);
 	bool OldDiz=IsColumnDisplayed(DIZ_COLUMN);
 	PrepareViewSettings(Mode,nullptr);
 	bool NewOwner=IsColumnDisplayed(OWNER_COLUMN);
@@ -3189,6 +3190,7 @@ void FileList::SetViewMode(int Mode)
 	bool NewNumLink=IsColumnDisplayed(NUMLINK_COLUMN);
 	bool NewNumStreams=IsColumnDisplayed(NUMSTREAMS_COLUMN);
 	bool NewStreamsSize=IsColumnDisplayed(STREAMSSIZE_COLUMN);
+	bool NewCustomData=IsColumnDisplayed(CUSTOM_COLUMN0);
 	bool NewDiz=IsColumnDisplayed(DIZ_COLUMN);
 	bool NewAccessTime=IsColumnDisplayed(ADATE_COLUMN);
 	int ResortRequired=FALSE;
@@ -3205,6 +3207,7 @@ void FileList::SetViewMode(int Mode)
 	         (!OldNumLink && NewNumLink) ||
 	         (!OldNumStreams && NewNumStreams) ||
 	         (!OldStreamsSize && NewStreamsSize) ||
+	         (!OldCustomData && NewCustomData) ||
 	         (AccessTimeUpdateRequired && NewAccessTime)))
 		Update(UPDATE_KEEP_SELECTION);
 
