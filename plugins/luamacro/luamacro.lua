@@ -387,7 +387,7 @@ local function ProcessCustomData(data)
       end
       if "table"==type(columns) then
         for i=0,9 do
-          result[i]=(columns[i] or result[i])
+          result[i]=result[i]..(columns[i] or "")
         end
       end
     end
