@@ -2993,6 +2993,13 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return TRUE;
 	}
 
+	static bool delayedShowEMenu = false;
+	if (delayedShowEMenu && MouseEvent->dwButtonState == 0)
+	{
+		delayedShowEMenu = false;
+		Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, OPEN_FILEPANEL, nullptr);
+	}
+
 	if (Panel::PanelProcessMouse(MouseEvent,RetCode))
 		return RetCode;
 
@@ -3043,14 +3050,21 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			*/
 			if ((MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) && !empty)
 			{
-				DWORD control=MouseEvent->dwControlKeyState&(SHIFT_PRESSED|LEFT_ALT_PRESSED|LEFT_CTRL_PRESSED|RIGHT_ALT_PRESSED|RIGHT_CTRL_PRESSED);
+				DWORD control = MouseEvent->dwControlKeyState&(SHIFT_PRESSED|LEFT_ALT_PRESSED|LEFT_CTRL_PRESSED|RIGHT_ALT_PRESSED|RIGHT_CTRL_PRESSED);
 
 				//вызовем EMenu если он есть
-				if (!Global->Opt->RightClickSelect && MouseEvent->dwButtonState == RIGHTMOST_BUTTON_PRESSED && (control == 0 || control == SHIFT_PRESSED) && Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu.Id))
+				if (!Global->Opt->RightClickSelect && MouseEvent->dwButtonState == RIGHTMOST_BUTTON_PRESSED)
 				{
-					ShowFileList(TRUE);
-					Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, OPEN_FILEPANEL, nullptr); // EMenu Plugin :-)
-					return TRUE;
+					if ((!control || control==SHIFT_PRESSED) && Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu.Id))
+					{
+						ShowFileList(TRUE);
+
+						delayedShowEMenu = GetAsyncKeyState(VK_RBUTTON)<0 || GetAsyncKeyState(VK_LBUTTON)<0 || GetAsyncKeyState(VK_MBUTTON)<0;
+						if (!delayedShowEMenu) // show immediately if all mouse buttons released
+							Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, OPEN_FILEPANEL, nullptr);
+
+						return TRUE;
+					}
 				}
 
 				if (!MouseEvent->dwEventFlags || MouseEvent->dwEventFlags==DOUBLE_CLICK)
