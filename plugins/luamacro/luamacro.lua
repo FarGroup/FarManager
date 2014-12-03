@@ -376,7 +376,7 @@ local function ProcessCustomData(data)
     code=true
     local len,outdata=#data,{}
     for i=1,len-1,2 do
-      table.insert(outdata,{Id=data[i][1],Text=data[i+1]})
+      outdata[data[i][1]]=data[i+1]
     end
     outdata.FileName=data[len]
     for _,callback in ipairs(customdata) do
