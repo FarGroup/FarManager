@@ -371,7 +371,7 @@ local function ProcessCommandLine (CmdLine)
 end
 
 local function ProcessCustomData(data)
-  local code,result=false,""
+  local code,result=false,{[0]="","","","","","","","","",""}
   if customdata then
     code=true
     local len,outdata=#data,{}
@@ -380,18 +380,19 @@ local function ProcessCustomData(data)
     end
     outdata.FileName=data[len]
     for _,callback in ipairs(customdata) do
-      if not callback(outdata) then
+      local columns=callback(outdata)
+      if not columns then
         code=false
         break
       end
-    end
-    if code then
-      for _,item in ipairs(outdata) do
-        result=result..item.Text
+      if "table"==type(columns) then
+        for i=0,9 do
+          result[i]=(columns[i] or result[i])
+        end
       end
     end
   end
-  return code,{result}
+  return code,{result[0],unpack(result)}
 end
 
 function export.Open (OpenFrom, arg1, ...)

@@ -555,20 +555,20 @@ static struct list_less
 				break;
 
 			case BY_CUSTOMDATA:
-				if (a.strCustomData.empty())
+				if (a.CustomData[0].empty())
 				{
-					if (b.strCustomData.empty())
+					if (b.CustomData[0].empty())
 						break;
 					else
 						return less_opt(false);
 				}
 
-				if (b.strCustomData.empty())
+				if (b.CustomData[0].empty())
 					return less_opt(true);
 
 				{
 					auto Comparer = ListNumericSort? (ListCaseSensitiveSort? NumStrCmpC : NumStrCmpI) : (ListCaseSensitiveSort? StrCmpC : ::StrCmpI);
-					RetCode = Comparer(a.strCustomData.data(), b.strCustomData.data());
+					RetCode = Comparer(a.CustomData[0].data(), b.CustomData[0].data());
 				}
 				if (RetCode)
 					return less_opt(RetCode < 0);
@@ -3182,7 +3182,7 @@ void FileList::SetViewMode(int Mode)
 	bool OldNumLink=IsColumnDisplayed(NUMLINK_COLUMN);
 	bool OldNumStreams=IsColumnDisplayed(NUMSTREAMS_COLUMN);
 	bool OldStreamsSize=IsColumnDisplayed(STREAMSSIZE_COLUMN);
-	bool OldCustomData=IsColumnDisplayed(CUSTOM_COLUMN0);
+	bool OldCustomData=IsColumnDisplayed(CUSTOM_COLUMN0, CUSTOM_COLUMN9);
 	bool OldDiz=IsColumnDisplayed(DIZ_COLUMN);
 	PrepareViewSettings(Mode,nullptr);
 	bool NewOwner=IsColumnDisplayed(OWNER_COLUMN);
@@ -3190,7 +3190,7 @@ void FileList::SetViewMode(int Mode)
 	bool NewNumLink=IsColumnDisplayed(NUMLINK_COLUMN);
 	bool NewNumStreams=IsColumnDisplayed(NUMSTREAMS_COLUMN);
 	bool NewStreamsSize=IsColumnDisplayed(STREAMSSIZE_COLUMN);
-	bool NewCustomData=IsColumnDisplayed(CUSTOM_COLUMN0);
+	bool NewCustomData=IsColumnDisplayed(CUSTOM_COLUMN0, CUSTOM_COLUMN9);
 	bool NewDiz=IsColumnDisplayed(DIZ_COLUMN);
 	bool NewAccessTime=IsColumnDisplayed(ADATE_COLUMN);
 	int ResortRequired=FALSE;
@@ -3557,7 +3557,7 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 
 				if (!ColumnData)
 				{
-					ColumnData=m_ListData[ListPos].strCustomData;//L"";
+					ColumnData=m_ListData[ListPos].CustomData[ColumnNumber];//L"";
 				}
 				Dest.append(ColumnData);
 			}
@@ -6668,7 +6668,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	api::enum_file Find(strFind, true);
 	DWORD FindErrorCode = ERROR_SUCCESS;
 	bool UseFilter=m_Filter->IsEnabledOnPanel();
-	bool ReadCustomData=IsColumnDisplayed(CUSTOM_COLUMN0)!=0;
+	bool ReadCustomData=IsColumnDisplayed(CUSTOM_COLUMN0, CUSTOM_COLUMN9);
 
 	DWORD StartTime = GetTickCount();
 
@@ -6731,7 +6731,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 			}
 
 			if (ReadCustomData)
-				NewItem.strCustomData = Global->CtrlObject->Plugins->GetCustomData(NewItem.strName);
+				NewItem.CustomData = Global->CtrlObject->Plugins->GetCustomData(NewItem.strName);
 
 			if (!(fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 				TotalFileCount++;
@@ -8283,7 +8283,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 					if (!ColumnData)
 					{
-						ColumnData=m_ListData[ListPos].strCustomData.data();//L"";
+						ColumnData=m_ListData[ListPos].CustomData[ColumnNumber].data();//L"";
 					}
 
 					int CurLeftPos=0;
@@ -8694,11 +8694,18 @@ bool FileList::IsDizDisplayed()
 	return IsColumnDisplayed(DIZ_COLUMN);
 }
 
+bool FileList::IsColumnDisplayed(std::function<bool(const column&)> Compare)
+{
+	return std::any_of(ALL_CONST_RANGE(m_ViewSettings.PanelColumns), Compare) ||
+		std::any_of(ALL_CONST_RANGE(m_ViewSettings.StatusColumns), Compare);
+}
 
 bool FileList::IsColumnDisplayed(int Type)
 {
-	auto is_same_type = [&Type](const column& i) {return static_cast<int>(i.type & 0xff) == Type;};
+	return IsColumnDisplayed([&Type](const column& i) {return static_cast<int>(i.type & 0xff) == Type;});
+}
 
-	return std::any_of(ALL_CONST_RANGE(m_ViewSettings.PanelColumns), is_same_type) ||
-		std::any_of(ALL_CONST_RANGE(m_ViewSettings.StatusColumns), is_same_type);
+bool FileList::IsColumnDisplayed(int From, int To)
+{
+	return IsColumnDisplayed([&From,&To](const column& i)->bool {int type=static_cast<int>(i.type & 0xff); return type >= From && type <= To;});
 }

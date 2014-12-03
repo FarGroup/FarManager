@@ -2366,12 +2366,12 @@ PluginHandle* PluginManager::Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,
 	return nullptr;
 }
 
-string PluginManager::GetCustomData(const string& Name) const
+std::array<string,10> PluginManager::GetCustomData(const string& Name) const
 {
 	const NTPath FilePath(Name);
 
 	std::list<std::pair<GUID,string>> allCustomData;
-	string strCustomData;
+	std::array<string,10> CustomData;
 
 	std::for_each(CONST_RANGE(SortedPlugins, i)
 	{
@@ -2400,19 +2400,23 @@ string PluginManager::GetCustomData(const string& Name) const
 		void *ptr;
 		if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Luamacro.Id, OPEN_LUAMACRO, &info, &ptr) && ptr)
 		{
-			strCustomData = info.Ret.Values[0].String;
+			size_t count=std::min(info.Ret.Count,static_cast<size_t>(10));
+			for(size_t ii=0;ii<count;++ii)
+			{
+				if (FMVT_STRING==info.Ret.Values[ii].Type) CustomData[ii] = info.Ret.Values[ii].String;
+			}
 		}
 		else
 		{
 			std::for_each(CONST_RANGE(allCustomData, i)
 			{
-				if (!strCustomData.empty())
-					strCustomData += L" ";
-				strCustomData += i.second;
+				if (!CustomData[0].empty())
+					CustomData[0] += L" ";
+				CustomData[0] += i.second;
 			});
 		}
 	}
-	return strCustomData;
+	return CustomData;
 }
 
 const GUID& PluginManager::GetGUID(const PluginHandle* hPlugin)

@@ -116,7 +116,7 @@ public:
 	int ProcessViewerEvent(int Event,void *Param,int ViewerID) const;
 	int ProcessDialogEvent(int Event,FarDialogEvent *Param) const;
 	int ProcessConsoleInput(ProcessConsoleInputInfo *Info) const;
-	string GetCustomData(const string& Name) const;
+	std::array<string,10> GetCustomData(const string& Name) const;
 
 	int UnloadPlugin(Plugin *pPlugin, int From);
 	Plugin* LoadPluginExternal(const string& lpwszModuleName, bool LoadToMem);
