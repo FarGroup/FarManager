@@ -1,4 +1,8 @@
-﻿w17 03.12.2014 14:41:20 +0300 - build 4205
+﻿shmuel 04.12.2014 20:53:25 +0200 - build 4206
+
+1. Уточнение 3680.
+
+w17 03.12.2014 14:41:20 +0300 - build 4205
 
 1. M#2211: GUI context menu cannot be closed by pressing Esc button
    EMenu вызывается при отпускании кнопки
