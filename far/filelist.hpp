@@ -79,7 +79,7 @@ struct FileListItem: NonCopyable
 
 	DWORD ReparseTag;
 
-	std::array<string,10> CustomData;
+	string strCustomData;
 
 	FileListItem():
 		Selected(),
@@ -178,7 +178,7 @@ struct FileListItem: NonCopyable
 		swap(StreamsSize, rhs.StreamsSize);
 		strShortName.swap(rhs.strShortName);
 		swap(ReparseTag, rhs.ReparseTag);
-		CustomData.swap(rhs.CustomData);
+		strCustomData.swap(rhs.strCustomData);
 	}
 
 	FREE_SWAP(FileListItem);
@@ -418,7 +418,6 @@ private:
 	void HighlightBorder(int Level, int ListPos) const;
 	void InitFSWatcher(bool CheckTree);
 	bool IsColumnDisplayed(std::function<bool(const column&)> Compare);
-	bool IsColumnDisplayed(int From, int To);
 
 	static void AddParentPoint(FileListItem *CurPtr, size_t CurFilePos, const FILETIME* Times=nullptr, const string& Owner = string());
 
