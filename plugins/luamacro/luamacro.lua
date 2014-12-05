@@ -21,7 +21,7 @@ local gmeta = { __index=_G }
 local LastMessage = {}
 local TablePanelSort -- must be separate from LastMessage, otherwise Far crashes after a macro is called from CtrlF12.
 local TableExecString -- must be separate from LastMessage, otherwise Far crashes
-local utils, macrobrowser, panelsort, keymacro, customdata
+local utils, macrobrowser, panelsort, keymacro
 
 local function ExpandEnv(str) return (str:gsub("%%(.-)%%", win.GetEnv)) end
 
@@ -370,31 +370,6 @@ local function ProcessCommandLine (CmdLine)
   end
 end
 
-local function ProcessCustomData(data)
-  local code,result=false,{[0]="","","","","","","","","",""}
-  if customdata then
-    code=true
-    local len,outdata=#data,{}
-    for i=1,len-1,2 do
-      outdata[data[i][1]]=data[i+1]
-    end
-    outdata.FileName=data[len]
-    for _,callback in ipairs(customdata) do
-      local columns=callback(outdata)
-      if not columns then
-        code=false
-        break
-      end
-      if "table"==type(columns) then
-        for i=0,9 do
-          result[i]=result[i]..(columns[i] or "")
-        end
-      end
-    end
-  end
-  return code,{result[0],unpack(result)}
-end
-
 function export.Open (OpenFrom, arg1, ...)
   if OpenFrom == F.OPEN_LUAMACRO then
     local calltype = arg1
@@ -422,8 +397,6 @@ function export.Open (OpenFrom, arg1, ...)
         TablePanelSort = panelsort.GetSortModes()
         return F.MPRT_NORMALFINISH, TablePanelSort
       end
-    elseif calltype==F.MCT_CUSTOMDATA then
-      return ProcessCustomData({...})
     end
 
   elseif OpenFrom == F.OPEN_COMMANDLINE then
@@ -452,13 +425,6 @@ end
 function export.Configure (guid)
   local items = utils.GetMenuItems()
   if items[guid] then items[guid].action() end
-end
-
-local function AddCustomDataCallback(callback)
-  if "function"==type(callback) then
-    if not customdata then customdata={} end
-    table.insert(customdata,callback)
-  end
 end
 
 -- Add function unicode.utf8.cfind:
@@ -521,8 +487,6 @@ local function Init()
     Panel.SetCustomSortMode = panelsort.SetCustomSortMode
     Panel.CustomSortMenu = panelsort.CustomSortMenu
   end
-
-  Panel.AddCustomDataCallback=AddCustomDataCallback
 
   utils.FixInitialModules()
   utils.InitMacroSystem()
