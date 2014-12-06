@@ -260,23 +260,6 @@ bool GetFileString::GetString(LPWSTR* DestStr, size_t& Length)
 }
 
 template<class T>
-struct eol;
-
-template<>
-struct eol<char>
-{
-	static const char cr = '\r';
-	static const char lf = '\n';
-};
-
-template<>
-struct eol<wchar_t>
-{
-	static const wchar_t cr = L'\r';
-	static const wchar_t lf = L'\n';
-};
-
-template<class T>
 bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, bool bBigEndian)
 {
 	typedef eol<T> eol;
@@ -483,7 +466,8 @@ bool GetFileFormat(
 					}
 					else
 					{
-						const auto BannedCpList = split_to_vector::get(Global->Opt->strNoAutoDetectCP, STLF_UNIQUE);
+						std::vector<string> BannedCpList;
+						split(BannedCpList, Global->Opt->strNoAutoDetectCP, STLF_UNIQUE);
 
 						if (std::find(ALL_CONST_RANGE(BannedCpList), std::to_wstring(cp)) != BannedCpList.cend())
 						{

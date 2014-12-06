@@ -594,7 +594,7 @@ void Unquote(wchar_t *Str)
 
 string& Unquote(string &strStr)
 {
-	strStr.resize(std::remove(ALL_RANGE(strStr), L'"') - strStr.begin());
+	strStr.erase(std::remove(ALL_RANGE(strStr), L'"'), strStr.end());
 	return strStr;
 }
 
@@ -1177,50 +1177,6 @@ unsigned __int64 ConvertFileSizeString(const string& FileSizeStr)
 	return n;
 }
 
-/* $ 21.09.2003 KM
-   Трансформация строки по заданному типу.
-*/
-void Transform(string &strBuffer,const wchar_t *ConvStr,wchar_t TransformType)
-{
-	string strTemp;
-
-	switch (TransformType)
-	{
-		case L'X': // Convert common string to hexadecimal string representation
-		{
-			while (*ConvStr)
-			{
-				strTemp += str_printf(L"%02X",*ConvStr);
-				ConvStr++;
-			}
-
-			break;
-		}
-		case L'S': // Convert hexadecimal string representation to common string
-		{
-			const wchar_t *ptrConvStr=ConvStr;
-
-			while (*ptrConvStr)
-			{
-				if (*ptrConvStr != L' ')
-				{
-					WCHAR Hex[]={ptrConvStr[0],ptrConvStr[1],0};
-					strTemp += (wchar_t)wcstoul(Hex, nullptr, 16) & 0xFFFF;
-					ptrConvStr++;
-				}
-
-				ptrConvStr++;
-			}
-
-			break;
-		}
-		default:
-			break;
-	}
-
-	strBuffer=strTemp;
-}
-
 string ReplaceBrackets(const wchar_t *SearchStr,const string& ReplaceStr, const RegExpMatch* Match,int Count)
 {
 	string result;
@@ -1429,19 +1385,34 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 	return false;
 }
 
-string wide(const char *str, uintptr_t codepage)
+string wide_n(const char *str, size_t size, uintptr_t codepage)
 {
 	if (str && *str)
 	{
-		size_t Size = MultiByteToWideChar(codepage, 0, str, -1, nullptr, 0);
+		size_t Size = MultiByteToWideChar(codepage, 0, str, static_cast<int>(size), nullptr, 0);
 		if (Size)
 		{
 			std::vector<wchar_t> Buffer(Size);
-			MultiByteToWideChar(codepage, 0, str, -1, Buffer.data(), static_cast<int>(Buffer.size()));
-			return string(Buffer.data(), Buffer.size() - 1);
+			MultiByteToWideChar(codepage, 0, str, static_cast<int>(size), Buffer.data(), static_cast<int>(Buffer.size()));
+			return string(Buffer.data(), Buffer.size());
 		}
 	}
 	return string();
+}
+
+std::string narrow_n(const wchar_t* str, size_t size, uintptr_t codepage)
+{
+	if (str && *str)
+	{
+		size_t Size = WideCharToMultiByte(codepage, 0, str, static_cast<int>(size), nullptr, 0, nullptr, nullptr);
+		if (Size)
+		{
+			std::vector<char> Buffer(Size);
+			WideCharToMultiByte(codepage, 0, str, static_cast<int>(size), Buffer.data(), static_cast<int>(Buffer.size()), nullptr, nullptr);
+			return std::string(Buffer.data(), Buffer.size());
+		}
+	}
+	return std::string();
 }
 
 string str_vprintf(const wchar_t * format, va_list argptr)
@@ -1608,11 +1579,99 @@ string str_printf(const wchar_t * format, ...)
 		std::list<value_type> ItemsList;
 	};
 
-	void split_string(const string& InitString, DWORD Flags, const wchar_t* Separators, const std::function<void(string&)>& inserter)
+	void split(const string& InitString, DWORD Flags, const wchar_t* Separators, const std::function<void(string&)>& inserter)
 	{
 		FOR(auto& i, UserDefinedList(InitString, Flags, Separators).ItemsList)
 		{
 			inserter(i.first);
 		}
 	}
+
+int IntToHex(int h)
+{
+	if (h >= 10)
+		return 'A' + h - 10;
+	return '0' + h;
+}
+
+int HexToInt(int h)
+{
+	if (h >= 'a' && h <= 'f')
+		return h - 'a' + 10;
+
+	if (h >= 'A' && h <= 'F')
+		return h - 'A' + 10;
+
+	if (h >= '0' && h <= '9')
+		return h - '0';
+
+	return 0;
+}
+
+template<class S, class C>
+S BlobToHexStringT(const void* Blob, size_t Size, C Separator)
+{
+	S Hex;
+
+	Hex.reserve(Size * (Separator? 3 : 2));
+
+	const auto CharBlob = reinterpret_cast<const char*>(Blob);
+	std::for_each(CharBlob, CharBlob + Size, [&](char i)
+	{
+		Hex.push_back(IntToHex((i & 0xF0) >> 4));
+		Hex.push_back(IntToHex(i & 0x0F));
+		if (Separator)
+		{
+			Hex.push_back(Separator);
+		}
+	});
+	if (Separator && !Hex.empty())
+	{
+		Hex.pop_back();
+	}
+	return Hex;
+}
+
+template<class C>
+std::vector<char> HexStringToBlobT(const C* Hex, size_t Size, C Separator)
+{
+	std::vector<char> Blob;
+	Blob.reserve((Size + 1) / 3);
+	while (*Hex && *(Hex+1))
+	{
+		Blob.push_back((HexToInt(*Hex)<<4) | HexToInt(*(Hex+1)));
+		Hex += 2;
+		if (!*Hex)
+		{
+			break;
+		}
+		if (Separator)
+		{
+			++Hex;
+		}
+	}
+	return Blob;
+}
+
+std::string BlobToHexString(const void* Blob, size_t Size, char Separator)
+{
+	return BlobToHexStringT<std::string>(Blob, Size, Separator);
+}
+
+std::vector<char> HexStringToBlob(const char* Hex, char Separator)
+{
+	return HexStringToBlobT(Hex, strlen(Hex), Separator);
+}
+
+string BlobToHexWString(const void* Blob, size_t Size, wchar_t Separator)
+{
+	return BlobToHexStringT<string>(Blob, Size, Separator);
+}
+
+std::vector<char> HexStringToBlob(const wchar_t* Hex, wchar_t Separator)
+{
+	return HexStringToBlobT(Hex, wcslen(Hex), Separator);
+}
+
+
 }

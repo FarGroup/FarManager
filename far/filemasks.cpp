@@ -284,7 +284,8 @@ bool filemasks::masks::Set(const string& masks, DWORD Flags)
 		string strSysPathExt;
 		if (api::env::get_variable(L"PATHEXT", strSysPathExt))
 		{
-			auto MaskList(split_to_vector::get(strSysPathExt, STLF_UNIQUE));
+			std::vector<string> MaskList;
+			split(MaskList, strSysPathExt, STLF_UNIQUE);
 			if (!MaskList.empty())
 			{
 				string strFarPathExt;
@@ -317,7 +318,7 @@ bool filemasks::masks::Set(const string& masks, DWORD Flags)
 	}
 	else
 	{
-		Masks = split_to_vector::get(expmasks, STLF_PACKASTERISKS | STLF_PROCESSBRACKETS | STLF_SORT | STLF_UNIQUE);
+		split(Masks, expmasks, STLF_PACKASTERISKS | STLF_PROCESSBRACKETS | STLF_SORT | STLF_UNIQUE);
 		return !Masks.empty();
 	}
 }

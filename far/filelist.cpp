@@ -819,7 +819,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			{
 				if (mps->Mode == 2)
 				{
-					itemsList = split_to_vector::get(mps->Item->asString(), STLF_UNIQUE, L"\r\n");
+					split(itemsList, mps->Item->asString(), STLF_UNIQUE, L"\r\n");
 					if (itemsList.empty())
 						return Result;
 				}

@@ -122,8 +122,6 @@ bool IsCaseLower(const string &strStr);
 string& CenterStr(const string& Src, string &strDest,int Length);
 string& RightStr(const string& Src, string &strDest, int Length);
 
-void Transform(string &strBuffer,const wchar_t *ConvStr,wchar_t TransformType);
-
 string ReplaceBrackets(const wchar_t *SearchStr, const string& ReplaceStr, const RegExpMatch* Match, int Count);
 
 string GuidToStr(const GUID& Guid);
@@ -135,7 +133,13 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 inline int StrCmp(const string& a, const string& b) { return ::StrCmp(a.data(), b.data()); }
 inline int StrCmpI(const string& a, const string& b) { return ::StrCmpI(a.data(), b.data()); }
 
-string wide(const char *str, uintptr_t codepage = CP_OEMCP);
+string wide_n(const char *str, size_t size, uintptr_t codepage = CP_OEMCP);
+inline string wide(const char *str, uintptr_t codepage = CP_OEMCP) { return wide_n(str, strlen(str), codepage); }
+inline string wide(const std::string& str, uintptr_t codepage = CP_OEMCP) { return wide_n(str.data(), str.size(), codepage); }
+
+std::string narrow_n(const wchar_t *str, size_t size, uintptr_t codepage = CP_OEMCP);
+inline std::string narrow(const wchar_t *str, uintptr_t codepage = CP_OEMCP) { return narrow_n(str, wcslen(str), codepage); }
+inline std::string narrow(const string& str, uintptr_t codepage = CP_OEMCP) { return narrow_n(str.data(), str.size(), codepage); }
 
 string str_printf(const wchar_t * format, ...);
 string str_vprintf(const wchar_t * format, va_list argptr);
@@ -159,22 +163,14 @@ enum STL_FLAGS
 	STLF_NOQUOTING       = BIT(7), // do not give special meaning for quotes
 };
 
-void split_string(const string& InitString, DWORD Flags, const wchar_t* Separators, const std::function<void(string&)>& inserter); // don't use string&& here - VC2010 bug
+void split(const string& InitString, DWORD Flags, const wchar_t* Separators, const std::function<void(string&)>& inserter); // don't use string&& here - VC2010 bug
 
 template <class Container>
-struct split:NonCopyable
+void split(Container& C, const string& InitString, DWORD Flags = 0, const wchar_t* Separators = L";,")
 {
-	static Container get(const string& InitString, DWORD Flags = 0, const wchar_t* Separators = L";,")
-	{
-		Container Result;
-		split_string(InitString, Flags, Separators, [&](string& str) { Result.insert(Result.end(), std::move(str)); });
-		return Result;
-	}
-};
-
-typedef split<std::vector<string>> split_to_vector;
-typedef split<std::list<string>> split_to_list;
-typedef split<std::set<string>> split_to_set;
+	C.clear();
+	split(InitString, Flags, Separators, [&](string& str) { C.insert(C.end(), std::move(str)); });
+}
 
 class Utf8String: NonCopyable
 {
@@ -232,7 +228,9 @@ unsigned long long StringToFlags(const string& strFlags, const container& From, 
 	auto Flags = decltype(std::begin(From)->first)();
 	if (!strFlags.empty())
 	{
-		FOR(const auto& i, split_to_vector::get(strFlags, STLF_UNIQUE, Separators))
+		std::vector<string> Strings;
+		split(Strings, strFlags, STLF_UNIQUE, Separators);
+		FOR(const auto& i, Strings)
 		{
 			auto ItemIterator = std::find_if(CONST_RANGE(From, j)
 			{
@@ -245,6 +243,49 @@ unsigned long long StringToFlags(const string& strFlags, const container& From, 
 	return Flags;
 }
 
+template<class T>
+struct eol;
+
+template<>
+struct eol<char>
+{
+	static const char cr = '\r';
+	static const char lf = '\n';
+};
+
+template<>
+struct eol<wchar_t>
+{
+	static const wchar_t cr = L'\r';
+	static const wchar_t lf = L'\n';
+};
+
+int IntToHex(int h);
+int HexToInt(int h);
+
+std::string BlobToHexString(const void* Blob, size_t Size, char Separator = ',');
+std::vector<char> HexStringToBlob(const char* Hex, char Separator = ',');
+
+string BlobToHexWString(const void* Blob, size_t Size, wchar_t Separator = L',');
+std::vector<char> HexStringToBlob(const wchar_t* Hex, wchar_t Separator = L',');
+
+
+template<class S, class T>
+S to_hex_string_t(T Value)
+{
+	static_assert(std::is_integral<T>::value, "Integral value required");
+	S Result;
+	Result.resize(sizeof(T) * 2, '0');
+	for (int i = sizeof(T) * 2 - 1; i >= 0; i--, Value >>= 4)
+		Result[i] = IntToHex(Value & 0xF);
+	return Result;
+}
+
+template<class T>
+std::string to_hex_string(T Value) { return to_hex_string_t<std::string>(Value); }
+
+template<class T>
+string to_hex_wstring(T Value) { return to_hex_string_t<string>(Value); }
 
 };
 

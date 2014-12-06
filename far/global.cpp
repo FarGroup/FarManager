@@ -52,6 +52,7 @@ thread_local NTSTATUS global::m_LastStatus = STATUS_SUCCESS;
 global::global():
 	OnlyEditorViewerUsed(),
 	m_MainThreadId(GetCurrentThreadId()),
+	m_SearchHex(),
 	ScrBuf(nullptr),
 	Opt(nullptr),
 	Lang(nullptr),
@@ -79,7 +80,6 @@ global::global():
 	StartIdleTime=0;
 	GlobalSearchCase=false;
 	GlobalSearchWholeWords=false; // значение "Whole words" для поиска
-	GlobalSearchHex=false;     // значение "Search for hex" для поиска
 	GlobalSearchReverse=false;
 	ScreenSaverActive=FALSE;
 	CloseFAR=FALSE;
@@ -184,5 +184,16 @@ void global::CatchError()
 	m_LastError = GetLastError();
 	m_LastStatus = Imports().RtlGetLastNtStatus();
 }
+
+void global::StoreSearchString(const string& Str, bool Hex)
+{
+	m_SearchHex = Hex;
+	m_SearchString = Str;
+	if (m_SearchHex)
+	{
+		m_SearchString.erase(std::remove(ALL_RANGE(m_SearchString), L' '), m_SearchString.end());
+	}
+}
+
 
 #include "bootstrap/copyright.inc"

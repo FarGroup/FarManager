@@ -50,98 +50,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "synchro.hpp"
 
-static int IntToHex(int h)
-{
-	if (h >= 10)
-		return 'A' + h - 10;
-	return '0' + h;
-}
-
-static int HexToInt(int h)
-{
-	if (h >= 'a' && h <= 'f')
-		return h - 'a' + 10;
-
-	if (h >= 'A' && h <= 'F')
-		return h - 'A' + 10;
-
-	if (h >= '0' && h <= '9')
-		return h - '0';
-
-	return 0;
-}
-
-static char_ptr BlobToHexString(const char *Blob, int Size)
-{
-	char_ptr Hex(Size*2 + Size + 1);
-	for (int i=0, j=0; i<Size; i++, j+=3)
-	{
-		Hex[j] = IntToHex((Blob[i]&0xF0) >> 4);
-		Hex[j+1] = IntToHex(Blob[i]&0x0F);
-		Hex[j+2] = ',';
-	}
-	Hex[Size ? Size*2+Size-1 : 0] = 0;
-	return Hex;
-}
-
-static char_ptr HexStringToBlob(const char *Hex, int *Size)
-{
-	*Size=0;
-	char_ptr Blob(strlen(Hex)/2 + 1);
-	if (Blob)
-	{
-		while (*Hex && *(Hex+1))
-		{
-			Blob[(*Size)++] = (HexToInt(*Hex)<<4) | HexToInt(*(Hex+1));
-			Hex+=2;
-			if (!*Hex)
-				break;
-			Hex++;
-		}
-	}
-	return Blob;
-}
-
-static const char *Int64ToHexString(unsigned __int64 X)
-{
-	static char Bin[16+1];
-	for (int i=15; i>=0; i--, X>>=4)
-		Bin[i] = IntToHex(X&0xFull);
-	return Bin;
-}
-
-static const char *IntToHexString(unsigned int X)
-{
-	static char Bin[8+1];
-	for (int i=7; i>=0; i--, X>>=4)
-		Bin[i] = IntToHex(X&0xFull);
-	return Bin;
-}
-
-static unsigned __int64 HexStringToInt64(const char *Hex)
-{
-	unsigned __int64 x = 0;
-	while (*Hex)
-	{
-		x <<= 4;
-		x += HexToInt(*Hex);
-		Hex++;
-	}
-	return x;
-}
-
-static unsigned int HexStringToInt(const char *Hex)
-{
-	unsigned int x = 0;
-	while (*Hex)
-	{
-		x <<= 4;
-		x += HexToInt(*Hex);
-		Hex++;
-	}
-	return x;
-}
-
 static inline void PrintError(const wchar_t *Title, const string& Error, int Row, int Col)
 {
 	string strResult(Title);
@@ -391,7 +299,7 @@ public:
 			{
 				case TYPE_INTEGER:
 					e.SetAttribute("type", "qword");
-					e.SetAttribute("value", Int64ToHexString(stmtEnumAllValues.GetColInt64(2)));
+					e.SetAttribute("value", to_hex_string(stmtEnumAllValues.GetColInt64(2)));
 					break;
 				case TYPE_STRING:
 					e.SetAttribute("type", "text");
@@ -401,7 +309,7 @@ public:
 				{
 					auto hex = BlobToHexString(stmtEnumAllValues.GetColBlob(2),stmtEnumAllValues.GetColBytes(2));
 					e.SetAttribute("type", "hex");
-					e.SetAttribute("value", hex.get());
+					e.SetAttribute("value", hex);
 				}
 			}
 		}
@@ -427,7 +335,7 @@ public:
 
 			if (!strcmp(type,"qword"))
 			{
-				SetValue(Key, Name, HexStringToInt64(value));
+				SetValue(Key, Name, strtoull(value, 0, 16));
 			}
 			else if (!strcmp(type,"text"))
 			{
@@ -436,12 +344,8 @@ public:
 			}
 			else if (!strcmp(type,"hex"))
 			{
-				int Size = 0;
-				auto Blob = HexStringToBlob(value, &Size);
-				if (Blob)
-				{
-					SetValue(Key, Name, Blob.get(), Size);
-				}
+				auto Blob = HexStringToBlob(value);
+				SetValue(Key, Name, Blob.data(), Blob.size());
 			}
 			else
 			{
@@ -500,7 +404,7 @@ public:
 
 	virtual ~HierarchicalConfigDb() { EndTransaction(); AsyncDone.Set(); }
 
-	void AsyncFinish()
+	virtual void AsyncFinish() override
 	{
 		AsyncDone.Reset();
 		Global->Db->AddThread(Thread(&Thread::detach, &HierarchicalConfigDb::AsyncDelete, this));
@@ -661,11 +565,11 @@ public:
 
 	}
 
-	virtual void SerializeBlob(const char* Name, const char* Blob, int Size, tinyxml::TiXmlElement& e)
+	virtual void SerializeBlob(const char* Name, const void* Blob, int Size, tinyxml::TiXmlElement& e)
 	{
 			auto hex = BlobToHexString(Blob, Size);
 			e.SetAttribute("type", "hex");
-			e.SetAttribute("value", hex.get());
+			e.SetAttribute("value", hex);
 	}
 
 	virtual void Export(unsigned __int64 id, tinyxml::TiXmlElement& key)
@@ -682,7 +586,7 @@ public:
 			{
 				case TYPE_INTEGER:
 					e.SetAttribute("type", "qword");
-					e.SetAttribute("value", Int64ToHexString(m_Statements[stmtEnumValues].GetColInt64(1)));
+					e.SetAttribute("value", to_hex_string(m_Statements[stmtEnumValues].GetColInt64(1)));
 					break;
 				case TYPE_STRING:
 					e.SetAttribute("type", "text");
@@ -717,11 +621,9 @@ public:
 		Export(0, CreateChild(Parent, "hierarchicalconfig"));
 	}
 
-	virtual int DeserializeBlob(const char* Name, const char* Type, const char* Value, const tinyxml::TiXmlElement& e, char_ptr& Blob)
+	virtual std::vector<char> DeserializeBlob(const char* Name, const char* Type, const char* Value, const tinyxml::TiXmlElement& e)
 	{
-		int Size = 0;
-		Blob = HexStringToBlob(Value, &Size);
-		return Size;
+		return HexStringToBlob(Value);
 	}
 
 	virtual void Import(unsigned __int64 root, const tinyxml::TiXmlElement& key)
@@ -753,7 +655,7 @@ public:
 
 			if (value && !strcmp(type,"qword"))
 			{
-				SetValue(id, Name, HexStringToInt64(value));
+				SetValue(id, Name, strtoull(value, 0, 16));
 			}
 			else if (value && !strcmp(type,"text"))
 			{
@@ -762,22 +664,14 @@ public:
 			}
 			else if (value && !strcmp(type,"hex"))
 			{
-				int Size = 0;
-				auto Blob = HexStringToBlob(value, &Size);
-				if (Blob)
-				{
-					SetValue(id, Name, Blob.get(), Size);
-				}
+				auto Blob = HexStringToBlob(value);
+				SetValue(id, Name, Blob.data(), Blob.size());
 			}
 			else
 			{
 				// custom types, value is optional
-				char_ptr Blob;
-				int Size = DeserializeBlob(name, type, value, *e, Blob);
-				if (Blob)
-				{
-					SetValue(id, Name, Blob.get(), Size);
-				}
+				auto Blob = DeserializeBlob(name, type, value, *e);
+				SetValue(id, Name, Blob.data(), Blob.size());
 			}
 		}
 
@@ -835,7 +729,7 @@ public:
 	virtual ~HighlightHierarchicalConfigDb() {}
 
 private:
-	virtual void SerializeBlob(const char* Name, const char* Blob, int Size, tinyxml::TiXmlElement& e) override
+	virtual void SerializeBlob(const char* Name, const void* Blob, int Size, tinyxml::TiXmlElement& e) override
 	{
 		static const char* ColorKeys[] =
 		{
@@ -849,8 +743,8 @@ private:
 		{
 			auto Color = reinterpret_cast<const FarColor*>(Blob);
 			e.SetAttribute("type", "color");
-			e.SetAttribute("background", IntToHexString(Color->BackgroundColor));
-			e.SetAttribute("foreground", IntToHexString(Color->ForegroundColor));
+			e.SetAttribute("background", to_hex_string(Color->BackgroundColor));
+			e.SetAttribute("foreground", to_hex_string(Color->ForegroundColor));
 			e.SetAttribute("flags", Utf8String(FlagsToString(Color->Flags, ColorFlagNames)).data());
 		}
 		else
@@ -859,30 +753,29 @@ private:
 		}
 	}
 
-	virtual int DeserializeBlob(const char* Name, const char* Type, const char* Value, const tinyxml::TiXmlElement& e, char_ptr& Blob) override
+	virtual std::vector<char> DeserializeBlob(const char* Name, const char* Type, const char* Value, const tinyxml::TiXmlElement& e) override
 	{
-		int Result = 0;
 		if(!strcmp(Type, "color"))
 		{
-			const char *background = e.Attribute("background");
-			const char *foreground = e.Attribute("foreground");
-			const char *flags = e.Attribute("flags");
+			auto background = e.Attribute("background");
+			auto foreground = e.Attribute("foreground");
+			auto flags = e.Attribute("flags");
 
+			std::vector<char> Blob;
 			if(background && foreground && flags)
 			{
-				Result = sizeof(FarColor);
-				Blob.reset(Result, true);
-				auto Color = reinterpret_cast<FarColor*>(Blob.get());
-				Color->BackgroundColor = HexStringToInt(background);
-				Color->ForegroundColor = HexStringToInt(foreground);
+				Blob.resize(sizeof(FarColor));
+				auto Color = reinterpret_cast<FarColor*>(Blob.data());
+				Color->BackgroundColor = std::stoul(background, 0, 16);
+				Color->ForegroundColor = std::stoul(foreground, 0, 16);
 				Color->Flags = StringToFlags(wide(flags, CP_UTF8), ColorFlagNames);
 			}
+			return Blob;
 		}
 		else
 		{
-			Result = HierarchicalConfigDb::DeserializeBlob(Name, Type, Value, e, Blob);
+			return HierarchicalConfigDb::DeserializeBlob(Name, Type, Value, e);
 		}
-		return Result;
 	}
 };
 
@@ -953,8 +846,8 @@ public:
 
 			e.SetAttribute("name", stmtEnumAllValues.GetColTextUTF8(0));
 			auto Color = reinterpret_cast<const FarColor*>(stmtEnumAllValues.GetColBlob(1));
-			e.SetAttribute("background", IntToHexString(Color->BackgroundColor));
-			e.SetAttribute("foreground", IntToHexString(Color->ForegroundColor));
+			e.SetAttribute("background", to_hex_string(Color->BackgroundColor));
+			e.SetAttribute("foreground", to_hex_string(Color->ForegroundColor));
 			e.SetAttribute("flags", Utf8String(FlagsToString(Color->Flags, ColorFlagNames)).data());
 		}
 
@@ -979,8 +872,8 @@ public:
 			if(background && foreground && flags)
 			{
 				FarColor Color = {};
-				Color.BackgroundColor = HexStringToInt(background);
-				Color.ForegroundColor = HexStringToInt(foreground);
+				Color.BackgroundColor = std::stoul(background, 0, 16);
+				Color.ForegroundColor = std::stoul(foreground, 0, 16);
 				Color.Flags = StringToFlags(wide(flags, CP_UTF8), ColorFlagNames);
 				SetValue(Name, Color);
 			}

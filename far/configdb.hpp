@@ -143,15 +143,12 @@ protected:
 	virtual ~HierarchicalConfig() {}
 };
 
-class HierarchicalConfigDeletor
+struct HierarchicalConfigDeleter
 {
-public:
-	HierarchicalConfigDeletor() {}
-	HierarchicalConfigDeletor(const HierarchicalConfigDeletor &d) {}
 	void operator()(HierarchicalConfig *ptr) const { ptr->AsyncFinish(); }
 };
 
-typedef std::unique_ptr<HierarchicalConfig,HierarchicalConfigDeletor> HierarchicalConfigUniquePtr;
+typedef std::unique_ptr<HierarchicalConfig, HierarchicalConfigDeleter> HierarchicalConfigUniquePtr;
 
 class ColorsConfig: public XmlConfig, public Transactional {
 

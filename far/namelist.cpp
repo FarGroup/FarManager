@@ -61,7 +61,7 @@ bool NamesList::GetPrevName(string &strName)
 	if (CurPos == Names.begin())
 		return false;
 
-	std::advance(CurPos, -1);
+	--CurPos;
 	strName = *CurPos;
 	return true;
 }

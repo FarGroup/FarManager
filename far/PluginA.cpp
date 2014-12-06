@@ -92,13 +92,6 @@ inline int OEMToUnicode(const char* src, wchar_t* dst, size_t lendst)
 	return MultiByteToWideChar(CP_OEMCP, 0, src, -1, dst, (int) lendst);
 }
 
-inline std::string ansi(const string& str)
-{
-	std::vector<char> Buffer(str.size() + 1);
-	UnicodeToOEM(str.data(), Buffer.data(), Buffer.size());
-	return std::string(Buffer.data(), str.size());
-}
-
 OEMPluginModel::OEMPluginModel(PluginManager* owner):
 	NativePluginModel(owner)
 {
@@ -152,7 +145,7 @@ Plugin* OEMPluginModel::CreatePlugin(const string& filename)
 const std::string& OEMPluginModel::getUserName()
 {
 	if (m_userName.empty())
-		m_userName = "Software\\Far Manager" + (Global->strRegUser.empty() ? "" : "\\Users\\" + ansi(Global->strRegUser)) + "\\Plugins";
+		m_userName = "Software\\Far Manager" + (Global->strRegUser.empty() ? "" : "\\Users\\" + narrow(Global->strRegUser)) + "\\Plugins";
 	return m_userName;
 }
 
@@ -450,7 +443,9 @@ static void ConvertPanelModesA(const oldfar::PanelMode *pnmA, PanelMode **ppnmW,
 
 		for (size_t i = 0; i<iCount; i++)
 		{
-			size_t iColumnCount = pnmA[i].ColumnTypes ? split_to_vector::get(wide(pnmA[i].ColumnTypes), 0, L",").size() : 0;
+			std::vector<string> Strings;
+			split(Strings, wide(pnmA[i].ColumnTypes), 0, L",");
+			size_t iColumnCount = pnmA[i].ColumnTypes? Strings.size() : 0;
 
 			pnmW[i].ColumnTypes = (pnmA[i].ColumnTypes) ? AnsiToUnicode(pnmA[i].ColumnTypes) : nullptr;
 			pnmW[i].ColumnWidths = (pnmA[i].ColumnWidths) ? AnsiToUnicode(pnmA[i].ColumnWidths) : nullptr;
@@ -2870,19 +2865,13 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 				{
 					auto lc = static_cast<FarDialogItemColors*>(Param2);
 					std::vector<BYTE> AnsiColors(lc->ColorsCount);
-					std::transform(lc->Colors, lc->Colors + lc->ColorsCount, AnsiColors.begin(), [](const FarColor& i)
-					{
-						return static_cast<BYTE>(Colors::FarColorToConsoleColor(i));
-					});
+					std::transform(lc->Colors, lc->Colors + lc->ColorsCount, AnsiColors.begin(), Colors::FarColorToConsoleColor);
 					oldfar::FarListColors lcA={0, 0, static_cast<int>(AnsiColors.size()), AnsiColors.data()};
 					intptr_t Result = CurrentDlgProc(hDlg, oldfar::DN_CTLCOLORDLGLIST, Param1, &lcA);
 					if(Result)
 					{
 						lc->ColorsCount = lcA.ColorCount;
-						std::transform(lcA.Colors, lcA.Colors + lcA.ColorCount, lc->Colors, [](BYTE i)
-						{
-							return Colors::ConsoleColorToFarColor(i);
-						});
+						std::transform(lcA.Colors, lcA.Colors + lcA.ColorCount, lc->Colors, Colors::ConsoleColorToFarColor);
 					}
 					return Result != 0;
 				}
@@ -4136,10 +4125,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 						std::vector<FarColor> Color(PaletteSize);
 						NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETARRAYCOLOR, 0, Color.data());
 						auto OldColors = static_cast<LPBYTE>(Param);
-						std::transform(ALL_CONST_RANGE(Color), OldColors, [](const FarColor& i)
-						{
-							return static_cast<BYTE>(Colors::FarColorToConsoleColor(i));
-						});
+						std::transform(ALL_CONST_RANGE(Color), OldColors, Colors::FarColorToConsoleColor);
 					}
 					return PaletteSize;
 				}
@@ -4382,10 +4368,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 
 				auto scA = static_cast<const oldfar::FarSetColors*>(Param);
 				std::vector<FarColor> Colors(scA->ColorCount);
-				std::transform(scA->Colors, scA->Colors + scA->ColorCount, Colors.begin(), [](BYTE i)
-				{
-					return Colors::ConsoleColorToFarColor(i);
-				});
+				std::transform(scA->Colors, scA->Colors + scA->ColorCount, Colors.begin(), Colors::ConsoleColorToFarColor);
 				FarSetColors sc = {sizeof(FarSetColors), 0, (size_t)scA->StartIndex, Colors.size(), Colors.data()};
 				if (scA->Flags&oldfar::FCLR_REDRAW)
 					sc.Flags|=FSETCLR_REDRAW;
@@ -6198,7 +6181,7 @@ public:
 private:
 	virtual size_t size() const override { return m_AnsiMessages.size(); }
 	virtual void reserve(size_t size) override { m_AnsiMessages.reserve(size); }
-	virtual void add(string&& str) override { m_AnsiMessages.emplace_back(ansi(str)); }
+	virtual void add(string&& str) override { m_AnsiMessages.emplace_back(narrow(str)); }
 
 	std::vector<std::string> m_AnsiMessages;
 };

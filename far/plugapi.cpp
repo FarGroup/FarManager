@@ -1215,7 +1215,8 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 
 		if (Flags & FMSG_ALLINONE)
 		{
-			auto Strings = split_to_vector::get(reinterpret_cast<const wchar_t*>(Items), STLF_NOTRIM | STLF_ALLOWEMPTY | STLF_NOUNQUOTE | STLF_NOQUOTING, L"\n");
+			std::vector<string> Strings;
+			split(Strings, reinterpret_cast<const wchar_t*>(Items), STLF_NOTRIM | STLF_ALLOWEMPTY | STLF_NOUNQUOTE | STLF_NOQUOTING, L"\n");
 			if (!Strings.empty())
 			{
 				Title = Strings[0];

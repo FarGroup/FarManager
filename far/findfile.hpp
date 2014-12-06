@@ -110,7 +110,7 @@ private:
 	std::vector<char> readBufferA;
 	std::vector<wchar_t> readBuffer;
 	const wchar_t *findString;
-	std::vector<unsigned char> hexFindString;
+	std::string hexFindString;
 	uintptr_t CodePage;
 	std::vector<size_t> skipCharsTable;
 	UINT64 SearchInFirst;

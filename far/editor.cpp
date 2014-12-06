@@ -147,11 +147,15 @@ Editor::Editor(window_ptr Owner, bool DialogUsed):
 	if (DialogUsed)
 		m_Flags.Set(FEDITOR_DIALOGMEMOEDIT);
 
-	if (Global->GlobalSearchHex)
-		Transform(strLastSearchStr,Global->strGlobalSearchString.data(),L'S');
+	if (Global->GetSearchHex())
+	{
+		auto Blob = HexStringToBlob(Global->GetSearchString().data(), 0);
+		strLastSearchStr.assign(ALL_CONST_RANGE(Blob));
+	}
 	else
-		strLastSearchStr = Global->strGlobalSearchString;
-
+	{
+		strLastSearchStr = Global->GetSearchString();
+	}
 	UnmarkMacroBlock();
 
 	GlobalEOL = DOS_EOL_fmt;
@@ -209,11 +213,16 @@ void Editor::SwapState(Editor& swap_state)
 void Editor::KeepInitParameters()
 {
 	// Установлен глобальный режим поиска 16-ричных данных?
-	if (Global->GlobalSearchHex)
-		Transform(Global->strGlobalSearchString,strLastSearchStr.data(),L'X');
+	if (Global->GetSearchHex())
+	{
+		// BUGBUG, it's unclear how to represent unicode in hex
+		const auto AnsiStr = narrow(strLastSearchStr);
+		Global->StoreSearchString(BlobToHexWString(AnsiStr.data(), AnsiStr.size(), 0), true);
+	}
 	else
-		Global->strGlobalSearchString = strLastSearchStr;
-
+	{
+		Global->StoreSearchString(strLastSearchStr, false);
+	}
 	Global->GlobalSearchCase=LastSearchCase;
 	Global->GlobalSearchWholeWords=LastSearchWholeWords;
 	Global->GlobalSearchReverse=LastSearchReverse;

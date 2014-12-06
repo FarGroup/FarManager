@@ -279,29 +279,29 @@ void ItemToItemEx(const FarDialogItem* Item, DialogItemEx *ItemEx, size_t Count,
 	if (!Item || !ItemEx)
 		return;
 
-	for (size_t i = 0; i < Count; ++i, ++Item, ++ItemEx)
+	for_each_2(Item, Item + Count, ItemEx, [Short](const FarDialogItem& Item, DialogItemEx& ItemEx)
 	{
-		*static_cast<FarDialogItem*>(ItemEx) = *Item;
+		static_cast<FarDialogItem&>(ItemEx) = Item;
 
 		if(!Short)
 		{
-			ItemEx->strHistory = NullToEmpty(Item->History);
-			ItemEx->strMask = NullToEmpty(Item->Mask);
-			if(Item->Data)
+			ItemEx.strHistory = NullToEmpty(Item.History);
+			ItemEx.strMask = NullToEmpty(Item.Mask);
+			if(Item.Data)
 			{
-				ItemEx->strData.assign(Item->Data, Item->MaxLength?Item->MaxLength:StrLength(Item->Data));
+				ItemEx.strData.assign(Item.Data, Item.MaxLength? Item.MaxLength : StrLength(Item.Data));
 			}
 		}
-		ItemEx->SelStart=-1;
+		ItemEx.SelStart=-1;
 
-		ItemEx->X2 = std::max(ItemEx->X1, ItemEx->X2);
-		ItemEx->Y2 = std::max(ItemEx->Y1, ItemEx->Y2);
+		ItemEx.X2 = std::max(ItemEx.X1, ItemEx.X2);
+		ItemEx.Y2 = std::max(ItemEx.Y1, ItemEx.Y2);
 
-		if ((ItemEx->Type == DI_COMBOBOX || ItemEx->Type == DI_LISTBOX) && !global::IsPtr(Item->ListItems))
+		if ((ItemEx.Type == DI_COMBOBOX || ItemEx.Type == DI_LISTBOX) && !global::IsPtr(Item.ListItems))
 		{
-			ItemEx->ListItems=nullptr;
+			ItemEx.ListItems=nullptr;
 		}
-	}
+	});
 }
 
 intptr_t DefProcFunction(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
@@ -4348,7 +4348,7 @@ void Dialog::Process()
 	}
 
 	if (SavedItems)
-		std::transform(ALL_CONST_RANGE(Items), SavedItems, [](const VALUE_TYPE(Items)& i) { return i; });
+		std::copy(ALL_CONST_RANGE(Items), SavedItems);
 }
 
 intptr_t Dialog::CloseDialog()

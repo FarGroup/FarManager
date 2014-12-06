@@ -447,29 +447,7 @@ void FindFiles::InitInFileSearch()
 			// Формируем hex-строку для поиска
 			if (SearchHex)
 			{
-				bool flag = false;
-				hexFindString.reserve((findStringCount - findStringCount/3+1)/2);
-
-				FOR(auto symbol, strFindStr)
-				{
-					byte offset = 0;
-
-					if (symbol >= L'a' && symbol <= L'f')
-						offset = 87;
-					else if (symbol >= L'A' && symbol <= L'F')
-						offset = 55;
-					else if (symbol >= L'0' && symbol <= L'9')
-						offset = 48;
-					else
-						continue;
-
-					if (!flag)
-						hexFindString.emplace_back(((unsigned char)symbol-offset)<<4);
-					else
-						hexFindString.back() |= ((byte)symbol-offset);
-
-					flag = !flag;
-				}
+				hexFindString = BlobToHexString(strFindStr.data(), strFindStr.size(), 0);
 			}
 
 			// Инициализируем данные для аглоритма поиска
@@ -490,7 +468,7 @@ void FindFiles::ReleaseInFileSearch()
 		clear_and_shrink(readBufferA);
 		clear_and_shrink(readBuffer);
 		clear_and_shrink(skipCharsTable);
-		clear_and_shrink(hexFindString);
+		hexFindString.clear();
 		m_CodePages.clear();
 		InFileSearchInited=false;
 	}
@@ -772,8 +750,22 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				case FAD_CHECKBOX_HEX:
 				{
 					Dlg->SendMessage(DM_ENABLEREDRAW,FALSE,0);
+					auto Src = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, Param2? FAD_EDIT_TEXT : FAD_EDIT_HEX, 0));
 					string strDataStr;
-					Transform(strDataStr,(LPCWSTR)Dlg->SendMessage(DM_GETCONSTTEXTPTR,Param2?FAD_EDIT_TEXT:FAD_EDIT_HEX,0),Param2?L'X':L'S');
+					if (Param2)
+					{
+						// BUGBUG, it's unclear how to represent unicode in hex
+						const auto AnsiStr = narrow(Src);
+						strDataStr = BlobToHexWString(AnsiStr.data(), AnsiStr.size(), 0);
+					}
+					else
+					{
+						string strSrc(Src);
+						RemoveTrailingSpaces(strSrc); // BUGBUG: trailing spaces in DI_FIXEDIT. TODO: Fix in Dialog class.
+						auto Blob = HexStringToBlob(strSrc.data(), L' ');
+						strDataStr.assign(ALL_CONST_RANGE(Blob));
+					}
+
 					Dlg->SendMessage(DM_SETTEXTPTR,Param2?FAD_EDIT_HEX:FAD_EDIT_TEXT, UNSAFE_CSTR(strDataStr));
 					intptr_t iParam = reinterpret_cast<intptr_t>(Param2);
 					Dlg->SendMessage(DM_SHOWITEM,FAD_EDIT_TEXT,ToPtr(!iParam));
@@ -2610,7 +2602,9 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 		InitString = strRoot;
 	}
 
-	FOR(const auto& i, split_to_vector::get(InitString, STLF_UNIQUE))
+	std::vector<string> Strings;
+	split(Strings, InitString, STLF_UNIQUE);
+	FOR(const auto& i, Strings)
 	{
 		DoScanTree(Dlg, i);
 	}
@@ -3181,10 +3175,9 @@ FindFiles::FindFiles():
 
 		if (!strFindStr.empty())
 		{
-			Global->strGlobalSearchString = strFindStr;
+			Global->StoreSearchString(strFindStr, SearchHex);
 			Global->GlobalSearchCase=CmpCase;
 			Global->GlobalSearchWholeWords=WholeWords;
-			Global->GlobalSearchHex=SearchHex;
 		}
 
 		switch (FindAskDlg[FAD_COMBOBOX_WHERE].ListPos)

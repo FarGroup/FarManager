@@ -30,42 +30,58 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define _ADD_SUFFIX(s, suffix) s ## suffix
 #define ADD_SUFFIX(s, suffix) _ADD_SUFFIX(s, suffix)
 
-#define PTRTYPE(T) std::remove_pointer<decltype(T)>::type
+#define _STD_DEFAULT_MUTATOR(Function) std::Function
+#define _STD_CONST_MUTATOR(Function) std::c##Function
+#define _STD_REVERSE_MUTATOR(Function) std::r##Function
+#define _STD_CONST_REVERSE_MUTATOR(Function) std::cr##Function
 
-#define VALUE_TYPE(T) std::remove_reference<decltype(*std::begin(T))>::type
-#define CONST_VALUE_TYPE(T) std::remove_reference<decltype(*std::cbegin(T))>::type
 
-#define DECLTYPEOF(T, subtype) std::remove_reference<typename std::remove_pointer<decltype(T)>::type>::type::subtype
-#define ITERATOR(T) DECLTYPEOF(T, iterator)
-#define CONST_ITERATOR(T) DECLTYPEOF(T, const_iterator)
-#define REVERSE_ITERATOR(T) DECLTYPEOF(T, reverse_iterator)
-#define CONST_REVERSE_ITERATOR(T) DECLTYPEOF(T, const_reverse_iterator)
+#define _REFERENCE_IMPL(Object, MUTATOR_PARAM) decltype(*MUTATOR_PARAM(begin)(Object))
 
-#ifdef __GNUC__
-#define T_VALUE_TYPE(T) typename VALUE_TYPE(T)
-#define T_CONST_VALUE_TYPE(T) typename CONST_VALUE_TYPE(T)
-#else
-#define T_VALUE_TYPE(T) VALUE_TYPE(T)
-#define T_CONST_VALUE_TYPE(T) CONST_VALUE_TYPE(T)
-#endif
+#define REFERENCE(Object) _REFERENCE_IMPL(Object, _STD_DEFAULT_MUTATOR)
+#define CONST_REFERENCE(Object) _REFERENCE_IMPL(Object, _STD_CONST_MUTATOR)
 
-#define LAMBDA_PREDICATE(T, i, ...) [&](T_VALUE_TYPE(T)& i, ##__VA_ARGS__)
-#define CONST_LAMBDA_PREDICATE(T, i, ...) [&](T_CONST_VALUE_TYPE(T)& i, ##__VA_ARGS__)
 
-#define ALL_RANGE(T) std::begin(T), std::end(T)
-#define ALL_REVERSE_RANGE(T) std::rbegin(T), std::rend(T)
-#define ALL_CONST_RANGE(T) std::cbegin(T), std::cend(T)
-#define ALL_CONST_REVERSE_RANGE(T) std::crbegin(T), std::crend(T)
+#define _VALUE_TYPE_IMPL(Object, REFERENCE_PARAM) std::remove_reference<REFERENCE_PARAM(Object)>::type
 
-#define RANGE(T, i, ...) ALL_RANGE(T), LAMBDA_PREDICATE(T, i, ##__VA_ARGS__)
-#define REVERSE_RANGE(T, i, ...) ALL_REVERSE_RANGE(T), LAMBDA_PREDICATE(T, i, ##__VA_ARGS__)
-#define CONST_RANGE(T, i, ...) ALL_CONST_RANGE(T), CONST_LAMBDA_PREDICATE(T, i, ##__VA_ARGS__)
-#define CONST_REVERSE_RANGE(T, i, ...) ALL_CONST_REVERSE_RANGE(T), CONST_LAMBDA_PREDICATE(T, i, ##__VA_ARGS__)
+#define VALUE_TYPE(Object) _VALUE_TYPE_IMPL(Object, REFERENCE)
+#define CONST_VALUE_TYPE(Object) _VALUE_TYPE_IMPL(Object, CONST_REFERENCE)
 
-#define FOR_RANGE(T, i) for(auto i = std::begin(T), ADD_SUFFIX(end, __LINE__) = std::end(T); i != ADD_SUFFIX(end, __LINE__); ++i)
-#define FOR_REVERSE_RANGE(T, i) for(auto i = std::rbegin(T), ADD_SUFFIX(rend, __LINE__) = std::rend(T); i != ADD_SUFFIX(rend, __LINE__); ++i)
-#define FOR_CONST_RANGE(T, i) for(auto i = std::cbegin(T), ADD_SUFFIX(cend, __LINE__) = std::cend(T); i != ADD_SUFFIX(cend, __LINE__); ++i)
-#define FOR_CONST_REVERSE_RANGE(T, i) for(auto i = std::crbegin(T), ADD_SUFFIX(crend, __LINE__) = std::crend(T); i != ADD_SUFFIX(crend, __LINE__); ++i)
+
+#define _ITERATOR_IMPL(Object, MUTATOR_PARAM) decltype(MUTATOR_PARAM(begin)(Object))
+
+#define ITERATOR(Object) _ITERATOR_IMPL(Object, _STD_DEFAULT_MUTATOR)
+#define CONST_ITERATOR(Object) _ITERATOR_IMPL(Object, _STD_CONST_MUTATOR)
+#define REVERSE_ITERATOR(Object) _ITERATOR_IMPL(Object, _STD_REVERSE_MUTATOR)
+#define CONST_REVERSE_ITERATOR(Object) _ITERATOR_IMPL(Object, _STD_CONST_REVERSE_MUTATOR)
+
+
+#define _LAMBDA_PREDICATE_IMPL(Object, i, REFERENCE_PARAM, ...) [&](REFERENCE_PARAM(Object) i, ##__VA_ARGS__)
+
+#define LAMBDA_PREDICATE(Object, i, ...) _LAMBDA_PREDICATE_IMPL(Object, i, REFERENCE, ##__VA_ARGS__)
+#define CONST_LAMBDA_PREDICATE(Object, i, ...) _LAMBDA_PREDICATE_IMPL(Object, i, CONST_REFERENCE, ##__VA_ARGS__)
+
+
+#define _ALL_RANGE_IMPL(Object, MUTATOR_PARAM) MUTATOR_PARAM(begin)(Object), MUTATOR_PARAM(end)(Object)
+
+#define ALL_RANGE(Object) _ALL_RANGE_IMPL(Object, _STD_DEFAULT_MUTATOR)
+#define ALL_CONST_RANGE(Object) _ALL_RANGE_IMPL(Object, _STD_CONST_MUTATOR)
+#define ALL_REVERSE_RANGE(Object) _ALL_RANGE_IMPL(Object, _STD_REVERSE_MUTATOR)
+#define ALL_CONST_REVERSE_RANGE(Object) _ALL_RANGE_IMPL(Object, _STD_CONST_REVERSE_MUTATOR)
+
+
+#define RANGE(Object, i, ...) ALL_RANGE(Object), LAMBDA_PREDICATE(Object, i, ##__VA_ARGS__)
+#define CONST_RANGE(Object, i, ...) ALL_CONST_RANGE(Object), CONST_LAMBDA_PREDICATE(Object, i, ##__VA_ARGS__)
+#define REVERSE_RANGE(Object, i, ...) ALL_REVERSE_RANGE(Object), LAMBDA_PREDICATE(Object, i, ##__VA_ARGS__)
+#define CONST_REVERSE_RANGE(Object, i, ...) ALL_CONST_REVERSE_RANGE(Object), CONST_LAMBDA_PREDICATE(Object, i, ##__VA_ARGS__)
+
+
+#define _FOR_RANGE_IMPL(Object, i, MUTATOR_PARAM) for(auto i = MUTATOR_PARAM(begin)(Object), ADD_SUFFIX(end, __LINE__) = MUTATOR_PARAM(end)(Object); i != ADD_SUFFIX(end, __LINE__); ++i)
+
+#define FOR_RANGE(Object, i) _FOR_RANGE_IMPL(Object, i, _STD_DEFAULT_MUTATOR)
+#define FOR_CONST_RANGE(Object, i) _FOR_RANGE_IMPL(Object, i, _STD_CONST_MUTATOR)
+#define FOR_REVERSE_RANGE(Object, i) _FOR_RANGE_IMPL(Object, i, _STD_REVERSE_MUTATOR)
+#define FOR_CONST_REVERSE_RANGE(Object, i) _FOR_RANGE_IMPL(Object, i, _STD_CONST_REVERSE_MUTATOR)
 
 
 #define COPY_OPERATOR_BY_SWAP(Type) \

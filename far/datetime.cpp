@@ -291,6 +291,8 @@ size_t StrFTime(string &strDest, const wchar_t *Format,const tm *t)
 	CurLang=0;
 	size_t Len;
 
+	strDest.clear();
+
 	for (Len=1; *Format; Format++)
 	{
 		if (*Format!=L'%')

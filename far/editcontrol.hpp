@@ -71,7 +71,7 @@ public:
 	};
 
 protected:
-	virtual void RefreshStrByMask(int InitMode=FALSE);
+	virtual void RefreshStrByMask(int InitMode=FALSE) override;
 
 private:
 	friend class DlgEdit;

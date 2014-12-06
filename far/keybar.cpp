@@ -146,7 +146,8 @@ void KeyBar::DisplayObject()
 
 		if (Label.find(L'|') != string::npos)
 		{
-			auto LabelList(split_to_list::get(Label, STLF_NOTRIM | STLF_NOUNQUOTE, L"|"));
+			std::list<string> LabelList;
+			split(LabelList, Label, STLF_NOTRIM | STLF_NOUNQUOTE, L"|");
 			if(!LabelList.empty())
 			{
 				string strLabelTest, strLabel2;
@@ -185,11 +186,12 @@ void KeyBar::DisplayObject()
 
 void KeyBar::ClearKeyTitles(bool Custom)
 {
+	const auto ItemPtr = Custom? &keybar_item::second : &keybar_item::first;
 	std::for_each(RANGE(Items, i)
 	{
 		std::for_each(RANGE(i, j)
 		{
-			(Custom? j.second : j.first).clear();
+			(j.*ItemPtr).clear();
 		});
 	});
 }

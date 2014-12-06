@@ -35,22 +35,22 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class CachedRead: NonCopyable
 {
 public:
-	CachedRead(api::File& file, DWORD buffer_size=0);
+	CachedRead(api::File& file, size_t buffer_size = 0);
 	~CachedRead();
 	void AdjustAlignment(); // file have to be opened already
-	bool Read(LPVOID Data, size_t DataSize, size_t* BytesRead);
+	bool Read(void* Data, size_t DataSize, size_t* BytesRead);
 	bool FillBuffer();
 	bool Unread(size_t BytesUnread);
 	void Clear();
 
 private:
+	enum { DefaultBufferSize = 0x10000 };
 	api::File& file;
-	static const DWORD DefaultBufferSize = 0x10000;
 	size_t ReadSize;
 	size_t BytesLeft;
 	INT64 LastPtr;
 	int Alignment;
-	std::vector<BYTE> Buffer; // = 2*k*Alignment (k >= 2)
+	std::vector<char> Buffer; // = 2*k*Alignment (k >= 2)
 };
 
 
@@ -59,12 +59,12 @@ class CachedWrite: NonCopyable
 public:
 	CachedWrite(api::File& file);
 	~CachedWrite();
-	bool Write(LPCVOID Data, size_t DataSize);
+	bool Write(const void* Data, size_t DataSize);
 	bool Flush();
 
 private:
 	api::File& file;
-	std::vector<BYTE> Buffer;
+	std::vector<char> Buffer;
 	size_t FreeSize;
 	bool Flushed;
 };

@@ -106,11 +106,11 @@ Viewer::Viewer(window_ptr Owner, bool bQuickView, uintptr_t aCodePage):
 	m_ViewKeyBar(),
 	Reader(ViewFile, (Global->Opt->ViOpt.MaxLineSize*2*64 > 64*1024 ? Global->Opt->ViOpt.MaxLineSize*2*64 : 64*1024)),
 	m_DeleteFolder(true),
-	strLastSearchStr(Global->strGlobalSearchString),
+	strLastSearchStr(Global->GetSearchString()),
 	LastSearchCase(Global->GlobalSearchCase),
 	LastSearchWholeWords(Global->GlobalSearchWholeWords),
 	LastSearchReverse(Global->GlobalSearchReverse),
-	LastSearchHex(Global->GlobalSearchHex),
+	LastSearchHex(Global->GetSearchHex()),
 	LastSearchRegexp(Global->Opt->ViOpt.SearchRegexp),
 	LastSearchDirection(Global->GlobalSearchReverse? -1 : +1),
 	StartSearchPos(),
@@ -237,11 +237,10 @@ void Viewer::SavePosition()
 
 void Viewer::KeepInitParameters() const
 {
-	Global->strGlobalSearchString = strLastSearchStr;
+	Global->StoreSearchString(strLastSearchStr, LastSearchHex);
 	Global->GlobalSearchCase=LastSearchCase;
 	Global->GlobalSearchWholeWords=LastSearchWholeWords;
 	Global->GlobalSearchReverse=LastSearchReverse;
-	Global->GlobalSearchHex=LastSearchHex;
 	Global->Opt->ViOpt.ViewerIsWrap=VM.Wrap != 0;
 	Global->Opt->ViOpt.ViewerWrap=VM.WordWrap != 0;
 	Global->Opt->ViOpt.SearchRegexp=LastSearchRegexp;
@@ -414,31 +413,26 @@ int Viewer::OpenFile(const string& Name,int warning)
 
 bool Viewer::isBinaryFile(uintptr_t cp) // very approximate: looks for 0x00,0x00 in first 2048 bytes
 {
-	unsigned char bf[2048+1]; // not fit to any device sector size
-	size_t nb = sizeof(bf), nr = 0;
-
-	__int64 fpos = vtell();
+	char Buffer[2048];
+	auto CurrentPos = vtell();
 	vseek(0, FILE_BEGIN);
-	bool ok_read = ViewFile.Read(bf, nb, nr, nullptr);
-	vseek(fpos, FILE_BEGIN);
+	size_t BytesRead = 0;
+	bool Result = ViewFile.Read(Buffer, sizeof(Buffer), BytesRead, nullptr);
+	vseek(CurrentPos, FILE_BEGIN);
 
-	if ( !ok_read )
+	if (!Result)
 		return true; // special files like '\\?\C:' are binary
 
-	if ( nr < 2 )
-		return nr > 0 && !bf[0];
-
-	bool ucs2 = IsUnicodeCodePage(cp)
-	 || ( bf[0] == (unsigned char)0xFE && bf[1] == (unsigned char)0xFF )
-	 || ( bf[0] == (unsigned char)0xFF && bf[1] == (unsigned char)0xFE )
-	;
-
-	for (nb = 0; nb+1 < nr; ++nb)
-		if ( !bf[nb] && !bf[nb+1] )
-			if ( !ucs2 || 0 == (nb & 1) )
-				return true;
-
-	return false;
+	if (IsUnicodeCodePage(cp))
+	{
+		const auto Begin = reinterpret_cast<wchar_t*>(Buffer);
+		const auto End = Begin + (BytesRead & ~1);
+		return std::find(Begin, End, L'\0') != End;
+	}
+	else
+	{
+		return std::find(Buffer, Buffer + BytesRead, '\0') != Buffer + BytesRead;
+	}
 }
 
 void Viewer::AdjustWidth()
@@ -2117,6 +2111,49 @@ int Viewer::CacheFindUp( __int64 start )
 	}
 }
 
+static const int portion_size = 250;
+
+template<typename T, typename F>
+static int process_back(int BufferSize, int pos, int64_t& fpos, const F& Reader)
+{
+	T Buffer[portion_size/sizeof(T)];
+	int nr = Reader(Buffer, BufferSize);
+
+	if (nr != static_cast<int>(BufferSize / sizeof(T)))
+	{
+		throw std::runtime_error("wrong size");
+	}
+
+	typedef eol<T> eol;
+	if (!pos)
+	{
+		auto PopEol = [&](T Char) { return nr && Buffer[nr - 1] == Char && --nr; };
+
+		if (PopEol(eol::lf))
+		{
+			if (PopEol(eol::cr))
+			{
+				PopEol(eol::cr);
+			}
+		}
+		else
+		{
+			PopEol(eol::cr);
+		}
+	}
+
+	static const T crlf[] = { eol::cr, eol::lf };
+	const auto REnd = std::reverse_iterator<T*>(Buffer);
+	const auto RBegin = REnd - nr;
+	auto Iterator = std::find_first_of(RBegin, REnd, ALL_CONST_RANGE(crlf));
+	if (Iterator != REnd)
+	{
+		fpos += sizeof(T) * (REnd - Iterator);
+		return true;
+	}
+	return false;
+}
+
 void Viewer::Up( int nlines, bool adjust )
 {
 	assert( nlines > 0 );
@@ -2136,9 +2173,9 @@ void Viewer::Up( int nlines, bool adjust )
 		return;
 	}
 
-	__int64 fpos;
+	__int64 fpos = FilePos;
 
-	int i = CacheFindUp(fpos = FilePos);
+	int i = CacheFindUp(fpos);
 	if ( i >= 0 )
 	{
 		for (;;)
@@ -2155,14 +2192,7 @@ void Viewer::Up( int nlines, bool adjust )
 		}
 	}
 
-	const int portion_size = 250;
-
-	union {
-		char c1[portion_size];
-		wchar_t c2[portion_size/(int)sizeof(wchar_t)];
-	} buff;
-
-	int j, buff_size, nr, ch_size = getCharSize();
+	int buff_size, ch_size = getCharSize();
 
 	while ( nlines > 0 )
 	{
@@ -2176,7 +2206,7 @@ void Viewer::Up( int nlines, bool adjust )
 
 		// backward CR-LF search
 		//
-		for ( j = 0; j < max_backward_size/portion_size; ++j )
+		for (int j = 0; j < max_backward_size/portion_size; ++j )
 		{
 			buff_size = (fpos > (__int64)portion_size ? portion_size : (int)fpos);
 			if ( buff_size <= 0 )
@@ -2186,65 +2216,36 @@ void Viewer::Up( int nlines, bool adjust )
 
 			if ( ch_size <= 1 )
 			{
-				size_t nread = 0;
-				Reader.Read(buff.c1, buff_size, &nread);
-				if ((nr = (int)nread) != buff_size)
+				auto BufferReader = [&](char* Buffer, size_t Size) -> int
 				{
-					return; //??? error handling
-				}
-				if ( 0 == j )
+					size_t nread = 0;
+					Reader.Read(Buffer, buff_size, &nread);
+					return static_cast<int>(nread);
+				};
+				try
 				{
-					if ( nr > 0 && '\n' == buff.c1[nr-1] )          // LF
-					{
-						if ( --nr > 0 && '\r' == buff.c1[nr-1] )     // CRLF
-							if ( --nr > 0 && '\r' == buff.c1[nr-1] )  // CRCRLF
-								--nr;
-		 			}
-					else if ( nr > 0 && '\r' == buff.c1[nr-1] )     // CR
-					{
-						--nr;
-					}
-				}
-				for ( i = nr-1; i >= 0; --i )
-				{
-					if ( '\n' == buff.c1[i] || '\r' == buff.c1[i] )
+					if (process_back<char>(buff_size, j, fpos, BufferReader))
 						break;
 				}
-				if ( i >= 0 )
+				catch (std::runtime_error&)
 				{
-					fpos += i + 1;
-					break;
+					return; //??? error handling
 				}
 			}
 			else
 			{
-				nr = vread(buff.c2, buff_size);
-				if ( nr != buff_size / ch_size )
+				auto BufferReader = [&](wchar_t* Buffer, size_t Size)
 				{
-					return; //??? error handling
-				}
-				if ( 0 == j )
+					return vread(Buffer, static_cast<int>(Size));
+				};
+				try
 				{
-					if ( nr > 0 && L'\n' == buff.c2[nr-1] )         // LF
-					{
-						if ( --nr > 0 && L'\r' == buff.c2[nr-1] )    // CRLF
-							if ( --nr > 0 && L'\r' == buff.c2[nr-1] )	// CRCRLF
-								--nr;
-					}
-					else if ( nr > 0 && L'\r' == buff.c2[nr-1] )    // CR
-					{
-						--nr;
-					}
-				}
-				for ( i = nr-1; i >= 0; --i )
-				{
-					if ( L'\n' == buff.c2[i] || L'\r' == buff.c2[i] )
+					if (process_back<wchar_t>(buff_size, j, fpos, BufferReader))
 						break;
 				}
-				if ( i >= 0 )
+				catch (std::runtime_error&)
 				{
-					fpos += ch_size * (i + 1);
-					break;
+					return; //??? error handling
 				}
 			}
 		}
@@ -2521,86 +2522,32 @@ void ViewerSearchMsg(const string& MsgStr, int Percent, int SearchHex)
 	}
 }
 
-static void ss2hex(string& to, const char *c1, int len, wchar_t sep = L' ')
+static std::vector<char> hex2ss(const wchar_t *from, intptr_t *pos = 0)
 {
-	wchar_t ss[4];
-
-	for (int i = 0; i < len; ++i)
-	{
-		if (sep && i > 0)
-			to += sep;
-		_snwprintf(ss, ARRAYSIZE(ss), L"%02X", (unsigned char)c1[i]);
-		to += ss;
-	}
-}
-
-static int hex2ss(const wchar_t *from, char *c1, int mb, intptr_t *pos = 0)
-{
-	int nb, i, v, sub = 0, ps = 0, p0 = (pos ? *pos : -1), p1 = -1;
-
-	nb = i = v = 0;
-	for (;;)
-	{
-		wchar_t ch = *from++;
-		++ps;
-
-		if      (ch >= L'0' && ch <= L'9') sub = L'0';
-		else if (ch >= L'A' && ch <= L'F') sub = L'A' - 10;
-		else if (ch >= L'a' && ch <= L'f') sub = L'a' - 10;
-		else
-		{
-			if (i > 0)
-			{
-				if ( p0 >= 0 && ps > p0 && p1 < 0 )
-					p1 = nb;
-				c1[nb++] = (char)v;
-				i = 0;
-			}
-			if (!ch || nb >= mb)
-				break;
-			else
-				continue;
-		}
-		v = v*16 + ((int)ch - sub);
-		if (++i >= 2)
-		{
-			if ( p0 >= 0 && ps > p0 && p1 < 0 )
-				p1 = nb;
-			c1[nb++] = (char)(v&0xff);
-			i = 0;
-			if (nb >= mb)
-				break;
-		}
-	}
-#ifdef _DEBUG
-	if (nb < mb) c1[nb] = '\0';
-#endif
-	if ( p1 >= 0 && pos )
-		*pos = p1;
-	return nb;
+	string strFrom(from);
+	RemoveTrailingSpaces(strFrom);
+	auto blob = HexStringToBlob(strFrom.data(), L' ');
+	if (pos)
+		*pos /= 3;
+	return blob;
 }
 
 void Viewer::SearchTextTransform(string &to, const wchar_t *from, bool hex2text, intptr_t &pos)
 {
-	int nb;
-	char c1[128];
-	wchar_t ch, ss[ARRAYSIZE(c1)+1];
-
 	if (hex2text)
 	{
-		nb = hex2ss(from, c1, ARRAYSIZE(c1), &pos);
-
+		auto Bytes = hex2ss(from, &pos);
 		if (IsUnicodeCodePage(VM.CodePage))
 		{
 			int v = CP_REVERSEBOM == VM.CodePage ? 1 : 0;
-			if (nb & 1)
-				c1[nb++] = '\0';
+			if (Bytes.size() & 1)
+				Bytes.push_back('\0');
 
-			for (int i = 0; i < nb; i += 2)
+			for (size_t i = 0; i < Bytes.size(); i += 2)
 			{
-				ch = MAKEWORD(c1[i+v], c1[i+1-v]);
+				wchar_t ch = MAKEWORD(Bytes[i+v], Bytes[i+1-v]);
 				if (!ch)
-					ch = 0xffff; // encode L'\0'
+					ch = L'\xffff'; // encode L'\0'
 				to += ch;
 			}
 			if ( pos >= 0 )
@@ -2608,45 +2555,44 @@ void Viewer::SearchTextTransform(string &to, const wchar_t *from, bool hex2text,
 		}
 		else
 		{
-			int nw = MultiByteToWideChar(VM.CodePage,0, c1,nb, ss,ARRAYSIZE(ss));
+			to = wide_n(Bytes.data(), Bytes.size());
 			if ( pos >= 0 )
 			{
-				pos = MultiByteToWideChar(VM.CodePage,0, c1,pos, nullptr,0);
+				pos = MultiByteToWideChar(VM.CodePage, 0, Bytes.data(), pos, nullptr, 0);
 			}
-			for (int i=0; i < nw; ++i)
-				if (!ss[i])
-					ss[i] = 0xffff;
-			ss[nw] = L'\0';
-			to = ss;
+
+			std::replace(ALL_RANGE(to), L'\0', L'\xffff');
 		}
 	}
 	else // text2hex
 	{
+		char Buffer[128];
+		int Size;
 		int ps = 0, pd = 0, p0 = pos, p1 = -1;
 		while (*from)
 		{
 			if ( ps == p0 )
 				p1 = pd;
 			++ps;
-			ch = *from++;
+			wchar_t ch = *from++;
 			if (0xffff == ch)	// 0xffff - invalid unicode char
 				ch = 0x0000;   // it used to transfer '\0' in zero terminated string
 
 			switch (VM.CodePage)
 			{
 				case CP_UNICODE:
-					nb = 2; c1[0] = (char)LOBYTE(ch); c1[1] = (char)HIBYTE(ch);
+					Size = 2; Buffer[0] = (char)LOBYTE(ch); Buffer[1] = (char)HIBYTE(ch);
 				break;
 				case CP_REVERSEBOM:
-					nb = 2; c1[0] = (char)HIBYTE(ch); c1[1] = (char)LOBYTE(ch);
+					Size = 2; Buffer[0] = (char)HIBYTE(ch); Buffer[1] = (char)LOBYTE(ch);
 				break;
 				default:
-					nb = WideCharToMultiByte(VM.CodePage,0, &ch,1, c1,4, nullptr,nullptr);
+					Size = WideCharToMultiByte(VM.CodePage, 0, &ch, 1, Buffer, 4, nullptr, nullptr);
 				break;
 			}
 
-			ss2hex(to, c1, nb, L'\0');
-			pd += nb * 3;
+			to += BlobToHexWString(Buffer, Size, 0);
+			pd += Size * 3;
 		}
 		pos = p1;
 	}
@@ -3163,7 +3109,7 @@ void Viewer::Search(int Next,int FirstChar)
 		return;
 
 	string strSearchStr, strMsgStr;
-	char search_bytes[128];
+	std::vector<char> search_bytes;
 	bool Case,WholeWords,ReverseSearch,SearchRegexp,SearchHex;
 
 	SearchHex = LastSearchHex;
@@ -3205,16 +3151,7 @@ void Viewer::Search(int Next,int FirstChar)
 		SearchDlg[SD_CHECKBOX_WORDS].Selected=LastSearchWholeWords;
 		SearchDlg[SD_CHECKBOX_REVERSE].Selected=LastSearchReverse;
 		SearchDlg[SD_CHECKBOX_REGEXP].Selected=LastSearchRegexp;
-
-		if (SearchDlg[SD_RADIO_HEX].Selected)
-		{
-			int nb = hex2ss(strSearchStr.data(), search_bytes, ARRAYSIZE(search_bytes));
-			strSearchStr.clear();
-			ss2hex(strSearchStr, search_bytes, nb, L'\0');
-			SearchDlg[SD_EDIT_HEX].strData = strSearchStr;
-		}
-		else
-			SearchDlg[SD_EDIT_TEXT].strData = strSearchStr;
+		SearchDlg[SearchDlg[SD_RADIO_HEX].Selected? SD_EDIT_HEX : SD_EDIT_TEXT].strData = strSearchStr;
 
 		MyDialogData my;
 		//
@@ -3250,9 +3187,7 @@ void Viewer::Search(int Next,int FirstChar)
 		if (SearchHex)
 		{
 			strSearchStr = SearchDlg[SD_EDIT_HEX].strData;
-			int len = hex2ss(strSearchStr.data(), search_bytes, ARRAYSIZE(search_bytes));
-			strSearchStr.clear();
-			ss2hex(strSearchStr, search_bytes, len, L' ');
+			RemoveTrailingSpaces(strSearchStr); // BUGBUG: trailing spaces in DI_FIXEDIT. TODO: Fix in Dialog class.
 		}
 		else
 		{
@@ -3273,8 +3208,9 @@ void Viewer::Search(int Next,int FirstChar)
 	sd.search_len = (int)strSearchStr.size();
 	if (true == (LastSearchHex = SearchHex))
 	{
-		sd.search_len = hex2ss(strSearchStr.data(), search_bytes, ARRAYSIZE(search_bytes));
-		sd.search_bytes = search_bytes;
+		search_bytes = hex2ss(strSearchStr.data());
+		sd.search_len = (int)search_bytes.size();
+		sd.search_bytes = search_bytes.data();
 		sd.ch_size = 1;
 		Case = true;
 		WholeWords = SearchRegexp = false;

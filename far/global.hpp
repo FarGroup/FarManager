@@ -52,6 +52,10 @@ public:
 	static DWORD CaughtError() {return m_LastError;}
 	static NTSTATUS CaughtStatus() {return m_LastStatus;}
 
+	const string& GetSearchString() const { return m_SearchString; }
+	bool GetSearchHex() const { return m_SearchHex; }
+	void StoreSearchString(const string& Str, bool Hex);
+
 	// BUGBUG
 
 	clock_t StartIdleTime;
@@ -60,11 +64,9 @@ public:
 	string g_strFarModuleName;
 	string g_strFarINI;
 	string g_strFarPath;
-	string strGlobalSearchString;
 	string strInitTitle;
 	bool GlobalSearchCase;
 	bool GlobalSearchWholeWords; // значение "Whole words" для поиска
-	bool GlobalSearchHex; // значение "Search for hex" для поиска
 	bool GlobalSearchReverse;
 	int ScreenSaverActive;
 	int CloseFAR, CloseFARMenu, AllowCancelExit;
@@ -97,6 +99,9 @@ private:
 	DWORD m_MainThreadId;
 	LARGE_INTEGER m_FarUpTime;
 	HANDLE m_MainThreadHandle;
+
+	string m_SearchString;
+	bool m_SearchHex;
 
 	static thread_local DWORD m_LastError;
 	static thread_local NTSTATUS m_LastStatus;

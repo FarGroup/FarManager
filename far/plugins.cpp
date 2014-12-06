@@ -407,7 +407,9 @@ void PluginManager::LoadPlugins()
 		}
 
 		// теперь пройдемся по всему ранее собранному списку
-		FOR(const auto& i, split_to_vector::get(strPluginsDir, STLF_UNIQUE))
+		std::vector<string> Strings;
+		split(Strings, strPluginsDir, STLF_UNIQUE);
+		FOR(const auto& i, Strings)
 		{
 			// расширяем значение пути
 			strFullName = Unquote(api::env::expand_strings(i)); //??? здесь ХЗ

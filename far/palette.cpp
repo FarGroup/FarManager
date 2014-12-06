@@ -200,15 +200,16 @@ Init[]=
 palette::palette():
 	CurrentPalette(ARRAYSIZE(Init))
 {
-	ResetToDefault();	
+	ResetToDefault();
 	PaletteChanged = false;
 }
 
 void palette::Reset(bool Black)
 {
-	std::transform(ALL_CONST_RANGE(Init), CurrentPalette.begin(), [&Black](const ColorsInit& i) -> FarColor
+	const auto IndexPtr = Black? &ColorsInit::MonoIndex : &ColorsInit::DefaultIndex;
+	std::transform(ALL_CONST_RANGE(Init), CurrentPalette.begin(), [&IndexPtr](const ColorsInit& i)
 	{
-		return Colors::ConsoleColorToFarColor(Black? i.MonoIndex : i.DefaultIndex);
+		return Colors::ConsoleColorToFarColor(i.*IndexPtr);
 	});
 	MAKE_TRANSPARENT(CurrentPalette[COL_PANELTEXT-COL_FIRSTPALETTECOLOR].BackgroundColor);
 	MAKE_TRANSPARENT(CurrentPalette[COL_PANELSELECTEDTEXT-COL_FIRSTPALETTECOLOR].BackgroundColor);

@@ -102,7 +102,7 @@ intptr_t MkDirDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 				}
 
 				auto pDirList=reinterpret_cast<std::vector<string>*>(Dlg->SendMessage(DM_GETDLGDATA,0,0));
-				*pDirList = split_to_vector::get(strDirName, STLF_UNIQUE);
+				split(*pDirList, strDirName, STLF_UNIQUE);
 				if (pDirList->empty())
 				{
 					Message(MSG_WARNING,1,MSG(MWarning),MSG(MIncorrectDirList),MSG(MOk));

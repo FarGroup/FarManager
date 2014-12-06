@@ -152,7 +152,10 @@ namespace std
 
 // already included in VC2013
 #if defined _MSC_VER && _MSC_VER < 1800
+# define strtoll _strtoi64
+# define strtoull _strtoui64
 # define wcstoll _wcstoi64
+# define wcstoull _wcstoui64
 #endif
 
 // already fixed in VC2013

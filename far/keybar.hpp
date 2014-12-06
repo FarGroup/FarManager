@@ -82,14 +82,16 @@ public:
 	void SetLabels(LNGID StartIndex);
 	void SetCustomLabels(KEYBARAREA Area);
 
+	typedef std::pair<string, string> keybar_item;
+
 	class keybar_area
 	{
 	public:
-		keybar_area(std::vector<std::pair<string, string>>* Items): m_Items(Items) {}
+		keybar_area(std::vector<keybar_item>* Items): m_Items(Items) {}
 		string& operator[](fkeys Key) { return (*m_Items)[Key].first; }
 
 	private:
-		std::vector<std::pair<string, string>> *m_Items;
+		std::vector<keybar_item>* m_Items;
 	};
 
 	keybar_area operator[](keybar_group Group) { return keybar_area(&Items[Group]); }
@@ -102,7 +104,7 @@ private:
 	void ClearKeyTitles(bool Custom);
 
 	// title, custom title
-	std::vector<std::vector<std::pair<string, string>>> Items;
+	std::vector<std::vector<keybar_item>> Items;
 	string strLanguage;
 	KEYBARAREA CustomArea;
 	int AltState,CtrlState,ShiftState;

@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "cache.hpp"
 
-CachedRead::CachedRead(api::File& file, DWORD buffer_size):
+CachedRead::CachedRead(api::File& file, size_t buffer_size):
 	file(file),
 	ReadSize(0),
 	BytesLeft(0),
@@ -83,7 +83,7 @@ void CachedRead::Clear()
 	LastPtr=0;
 }
 
-bool CachedRead::Read(LPVOID Data, size_t DataSize, size_t* BytesRead)
+bool CachedRead::Read(void* Data, size_t DataSize, size_t* BytesRead)
 {
 	INT64 Ptr = file.GetPointer();
 
@@ -201,7 +201,7 @@ CachedWrite::~CachedWrite()
 	Flush();
 }
 
-bool CachedWrite::Write(LPCVOID Data, size_t DataSize)
+bool CachedWrite::Write(const void* Data, size_t DataSize)
 {
 	bool Result=false;
 
