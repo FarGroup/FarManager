@@ -25,25 +25,28 @@ UInt32 WINAPI GetHandlerProperty(PROPID prop_id, PROPVARIANT* value) {
   COM_ERROR_HANDLER_BEGIN
   PropVariant prop;
   switch (prop_id) {
-  case NArchive::kName: // simple format name
+  case NArchive::NHandlerPropID::kName: // simple format name
     prop = c_name;
     break;
-  case NArchive::kClassID: // unique format id
+  case NArchive::NHandlerPropID::kClassID: // unique format id
     prop.set_binary(&c_format_id, sizeof(c_format_id));
     break;
-  case NArchive::kExtension: // list of extensions
+  case NArchive::NHandlerPropID::kExtension: // list of extensions
     prop = c_ext;
     break;
-  case NArchive::kUpdate: // are modifications supported?
+  case NArchive::NHandlerPropID::kUpdate: // are modifications supported?
     prop = true;
     break;
-  case NArchive::kStartSignature: // signature to help identify format
+  case NArchive::NHandlerPropID::kSignature: // signature to help identify format
     prop.set_binary(c_sig, c_sig_size);
     break;
-  case NArchive::kAddExtension:
-  case NArchive::kKeepName:
-  case NArchive::kFinishSignature:
-  case NArchive::kAssociate:
+  case NArchive::NHandlerPropID::kAddExtension:
+  case NArchive::NHandlerPropID::kKeepName:
+  case NArchive::NHandlerPropID::kMultiSignature:
+  case NArchive::NHandlerPropID::kSignatureOffset:
+  case NArchive::NHandlerPropID::kAltStreams:
+  case NArchive::NHandlerPropID::kNtSecure:
+  case NArchive::NHandlerPropID::kFlags:
     break;
   }
   prop.detach(value);
@@ -144,7 +147,7 @@ public:
       UInt64 file_pos;
       if (in_stream->Seek(file_info.size, STREAM_SEEK_CUR, &file_pos) != S_OK)
         return S_FALSE;
-      
+
       file_list.push_back(file_info);
 
       file_count++;
@@ -367,7 +370,7 @@ public:
         if (!file_stream) // client may choose to skip file
           continue;
       }
-       
+
       UInt32 path_size = static_cast<UInt32>(file_info.path.size());
       write_stream(out_stream, &path_size, sizeof(path_size));
       write_stream(out_stream, file_info.path.data(), static_cast<UInt32>(file_info.path.size() * sizeof(wchar_t)));
@@ -422,7 +425,7 @@ public:
   // *** ISetProperties ***
 
   // set compression properties
-  STDMETHODIMP SetProperties(const wchar_t** names, const PROPVARIANT* values, Int32 num_properties) {
+  STDMETHODIMP SetProperties(const wchar_t** names, const PROPVARIANT* values, UInt32 num_properties) {
     COM_ERROR_HANDLER_BEGIN
     for (Int32 i = 0; i < num_properties; i++) {
       PropVariant prop = values[i];

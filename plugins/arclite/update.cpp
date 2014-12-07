@@ -749,10 +749,12 @@ public:
     COM_ERROR_HANDLER_BEGIN
     if (operationResult == NArchive::NUpdate::NOperationResult::kOK)
       return S_OK;
-    if (operationResult == NArchive::NUpdate::NOperationResult::kError)
+/*
+	if (operationResult == NArchive::NUpdate::NOperationResult::kError)
       FAIL_MSG(Far::get_msg(MSG_ERROR_UPDATE_ERROR));
     else
-      FAIL_MSG(Far::get_msg(MSG_ERROR_UPDATE_UNKNOWN));
+*/
+    FAIL_MSG(Far::get_msg(MSG_ERROR_UPDATE_UNKNOWN));
     COM_ERROR_HANDLER_END
   }
 
@@ -917,7 +919,7 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
       name_ptrs.push_back(names[i].c_str());
     }
 
-    CHECK_COM(set_props->SetProperties(name_ptrs.data(), values.data(), static_cast<Int32>(values.size())));
+    CHECK_COM(set_props->SetProperties(name_ptrs.data(), values.data(), static_cast<UInt32>(values.size())));
   }
 }
 

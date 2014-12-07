@@ -288,16 +288,16 @@ void ArcAPI::load() {
       ArcFormat arc_format;
       arc_format.lib_index = i;
       ArcType type;
-      if (arc_lib.get_bytes_prop(idx, NArchive::kClassID, type) != S_OK) continue;
-      arc_lib.get_string_prop(idx, NArchive::kName, arc_format.name);
-      if (arc_lib.get_bool_prop(idx, NArchive::kUpdate, arc_format.updatable) != S_OK)
+      if (arc_lib.get_bytes_prop(idx, NArchive::NHandlerPropID::kClassID, type) != S_OK) continue;
+      arc_lib.get_string_prop(idx, NArchive::NHandlerPropID::kName, arc_format.name);
+      if (arc_lib.get_bool_prop(idx, NArchive::NHandlerPropID::kUpdate, arc_format.updatable) != S_OK)
         arc_format.updatable = false;
-      arc_lib.get_bytes_prop(idx, NArchive::kStartSignature, arc_format.start_signature);
+      arc_lib.get_bytes_prop(idx, NArchive::NHandlerPropID::kSignature, arc_format.start_signature);
       wstring extension_list_str;
-      arc_lib.get_string_prop(idx, NArchive::kExtension, extension_list_str);
+      arc_lib.get_string_prop(idx, NArchive::NHandlerPropID::kExtension, extension_list_str);
       arc_format.extension_list = split(extension_list_str, L' ');
       wstring add_extension_list_str;
-      arc_lib.get_string_prop(idx, NArchive::kAddExtension, add_extension_list_str);
+      arc_lib.get_string_prop(idx, NArchive::NHandlerPropID::kAddExtension, add_extension_list_str);
       std::list<wstring> add_extension_list = split(add_extension_list_str, L' ');
       auto add_ext_iter = add_extension_list.cbegin();
       for (auto ext_iter = arc_format.extension_list.begin(); ext_iter != arc_format.extension_list.end(); ++ext_iter) {

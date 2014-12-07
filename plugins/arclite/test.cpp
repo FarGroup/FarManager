@@ -86,7 +86,7 @@ public:
     bool encrypted = !archive->password.empty();
     Error error;
     error.code = E_MESSAGE;
-    if (resultEOperationResult == NArchive::NExtract::NOperationResult::kUnSupportedMethod)
+    if (resultEOperationResult == NArchive::NExtract::NOperationResult::kUnsupportedMethod)
       error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_UNSUPPORTED_METHOD));
     else if (resultEOperationResult == NArchive::NExtract::NOperationResult::kDataError)
       error.messages.push_back(Far::get_msg(encrypted ? MSG_ERROR_EXTRACT_DATA_ERROR_ENCRYPTED : MSG_ERROR_EXTRACT_DATA_ERROR));

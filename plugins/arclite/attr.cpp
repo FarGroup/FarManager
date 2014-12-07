@@ -183,7 +183,7 @@ static PropInfo c_prop_info[] =
   { kpidCreatorApp, MSG_KPID_CREATORAPP, nullptr },
   { kpidSectorSize, MSG_KPID_SECTORSIZE, format_size_prop },
   { kpidPosixAttrib, MSG_KPID_POSIXATTRIB, format_posix_attrib_prop },
-  { kpidLink, MSG_KPID_LINK, nullptr },
+  { kpidSymLink, MSG_KPID_LINK, nullptr },
   { kpidTotalSize, MSG_KPID_TOTALSIZE, format_size_prop },
   { kpidFreeSpace, MSG_KPID_FREESPACE, format_size_prop },
   { kpidClusterSize, MSG_KPID_CLUSTERSIZE, format_size_prop },
