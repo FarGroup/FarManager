@@ -3,6 +3,35 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 07.12.2014 17:27:25 +0200 - build 4210
+
+1. correction of 4208: crash of some panel ansi plugins.
+
+zg 07.12.2014 15:51:43 +0200 - build 4209
+
+1. correction of 4208: files in encoding 1200 and 1201 were opened in viewer in dump mode.
+
+drkns 06.12.2014 19:29:13 +0200 - build 4208
+
+1. Refactoring.
+
+zg 06.12.2014 01:05:54 +0200 - build 4207
+
+1. rollback of 4203.2, 4204.
+
+shmuel 04.12.2014 20:53:25 +0200 - build 4206
+
+1. Correction of 3680.
+
+w17 03.12.2014 14:41:20 +0300 - build 4205
+
+1. M#2211: GUI context menu cannot be closed by pressing Esc button
+   EMenu is called on button release
+
+zg 03.12.2014 03:56:49 +0200 - build 4204
+
+1. experimental. continuation of 4203. support for C1-C9 columns.
+
 zg 30.11.2014 11:55:22 +0200 - build 4203
 
 1. after switching from a mode with no custom column to a mode with the custom column it displayed nothing.
