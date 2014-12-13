@@ -1108,7 +1108,7 @@ bool KeyMacro::AddMacro(const GUID& PluginId, const MacroAddMacro* Data)
 		Flags,
 		Data->Description,
 		PluginId,
-		Data->Callback,
+		(void*)Data->Callback,
 		Data->Id
 	};
 	FarMacroCall fmc = {sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
