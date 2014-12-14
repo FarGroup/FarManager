@@ -247,15 +247,11 @@ static DWORD GetRelationDrivesMask(DEVINST hDevInst)
 			wchar_t_ptr DeviceIdList(dwSize);
 			if (CM_Get_Device_ID_List(szDeviceID, DeviceIdList.get(), dwSize, CM_GETIDLIST_FILTER_REMOVALRELATIONS) == CR_SUCCESS)
 			{
-				wchar_t *p = DeviceIdList.get();
-
-				while (*p)
+				for (auto p = DeviceIdList.get(); *p; p += wcslen(p) + 1)
 				{
 					DEVINST hRelationDevInst;
 					if (CM_Locate_DevNode(&hRelationDevInst, p, 0) == CR_SUCCESS)
 						dwMask |= GetDriveMaskFromMountPoints(hRelationDevInst);
-
-					p += wcslen(p)+1;
 				}
 			}
 		}
@@ -454,7 +450,7 @@ int RemoveHotplugDisk(wchar_t Disk, DWORD Flags)
 
 	SCOPED_ACTION(GuardLastError);
 	const auto Info = GetHotplugDevicesInfo();
-	const size_t DiskNumber = Upper(Disk) - L'A';
+	const size_t DiskNumber = ToUpper(Disk) - L'A';
 	const auto ItemIterator = std::find_if(CONST_RANGE(Info, i) {return i.Disks[DiskNumber];});
 	return ItemIterator != Info.cend()? RemoveHotplugDevice(*ItemIterator, Flags) : -1;
 }

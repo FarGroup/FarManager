@@ -86,8 +86,17 @@ string& QuoteSpaceOnly(string &strStr);
 string& QuoteLeadingSpace(string &strStr);
 inline string QuoteLeadingSpace(string&& strStr) { QuoteLeadingSpace(strStr); return strStr; }
 
-string &RemoveChar(string &strStr,wchar_t Target,bool Dup=true);
-int ReplaceStrings(string &strStr, const string& FindStr, const string& ReplStr, bool IgnoreCase = false, int Count = -1);
+size_t ReplaceStrings(string &strStr, const wchar_t* FindStr, size_t FindStrSize, const wchar_t* ReplStr, size_t ReplStrSize, bool IgnoreCase = false, size_t Count = string::npos);
+
+inline size_t ReplaceStrings(string &strStr, const string& FindStr, const string& ReplStr, bool IgnoreCase = false, size_t Count = string::npos)
+{
+	return ReplaceStrings(strStr, FindStr.data(), FindStr.size(), ReplStr.data(), ReplStr.size(), IgnoreCase, Count);
+}
+
+inline size_t ReplaceStrings(string &strStr, const wchar_t* FindStr, const wchar_t* ReplStr, bool IgnoreCase = false, size_t Count = string::npos)
+{
+	return ReplaceStrings(strStr, FindStr, wcslen(FindStr), ReplStr, wcslen(ReplStr), IgnoreCase, Count);
+}
 
 const wchar_t *GetCommaWord(const wchar_t *Src,string &strWord,wchar_t Separator=L',');
 
@@ -117,7 +126,6 @@ string& TruncStrFromCenter(string &strStr, int MaxLength);
 string& TruncPathStr(string &strStr, int MaxLength);
 
 bool IsCaseMixed(const string &strStr);
-bool IsCaseLower(const string &strStr);
 
 string& CenterStr(const string& Src, string &strDest,int Length);
 string& RightStr(const string& Src, string &strDest, int Length);
@@ -144,10 +152,10 @@ inline std::string narrow(const string& str, uintptr_t codepage = CP_OEMCP) { re
 string str_printf(const wchar_t * format, ...);
 string str_vprintf(const wchar_t * format, va_list argptr);
 
-inline string& Upper(string& str, size_t pos = 0, size_t n = string::npos) {std::transform(str.begin() + pos, n == string::npos? str.end() : str.begin() + pos + n, str.begin() + pos, towupper); return str;}
-inline string& Lower(string& str, size_t pos = 0, size_t n = string::npos) {std::transform(str.begin() + pos, n == string::npos? str.end() : str.begin() + pos + n, str.begin() + pos, towlower); return str;}
-inline string Upper(string&& str, size_t pos = 0, size_t n = string::npos) { Upper(str); return str; }
-inline string Lower(string&& str, size_t pos = 0, size_t n = string::npos) { Lower(str); return str; }
+inline string& ToUpper(string& str, size_t pos = 0, size_t n = string::npos) {std::transform(str.begin() + pos, n == string::npos? str.end() : str.begin() + pos + n, str.begin() + pos, ::ToUpper); return str;}
+inline string& ToLower(string& str, size_t pos = 0, size_t n = string::npos) {std::transform(str.begin() + pos, n == string::npos? str.end() : str.begin() + pos + n, str.begin() + pos, ::ToLower); return str;}
+inline string ToUpper(string&& str, size_t pos = 0, size_t n = string::npos) { ToUpper(str); return str; }
+inline string ToLower(string&& str, size_t pos = 0, size_t n = string::npos) { ToLower(str); return str; }
 
 inline wchar_t* UNSAFE_CSTR(const string& s) {return const_cast<wchar_t*>(s.data());}
 

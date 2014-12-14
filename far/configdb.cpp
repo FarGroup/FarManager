@@ -2393,7 +2393,7 @@ bool Database::Export(const string& File)
 		std::for_each(RANGE(ff, i)
 		{
 			i.strFileName.resize(i.strFileName.size()-3);
-			Upper(i.strFileName);
+			ToUpper(i.strFileName);
 			RegExpMatch m[2];
 			intptr_t mc = ARRAYSIZE(m);
 			if (GetRE().Match(i.strFileName.data(), i.strFileName.data() + i.strFileName.size(), m, mc))
@@ -2453,7 +2453,7 @@ bool Database::Import(const string& File)
 				if (!guid)
 					continue;
 				string Guid = wide(guid, CP_UTF8);
-				Upper(Guid);
+				ToUpper(Guid);
 
 				intptr_t mc = ARRAYSIZE(m);
 				if (GetRE().Match(Guid.data(), Guid.data() + Guid.size(), m, mc))

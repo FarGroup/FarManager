@@ -1606,8 +1606,7 @@ void  Edit::SetHiString(const string& Str)
 	if (m_Flags.Check(FEDITLINE_READONLY))
 		return;
 
-	string NewStr;
-	HiText2Str(NewStr, Str);
+	auto NewStr = HiText2Str(Str);
 	Select(-1,0);
 	SetBinaryString(NewStr.data(), static_cast<int>(NewStr.size()));
 }
@@ -2667,7 +2666,7 @@ int Edit::KeyMatchedMask(int Key, const string& Mask) const
 		Inserted=TRUE;
 	else if (Mask[m_CurPos]==EDMASK_ALPHA && IsAlpha(Key))
 		Inserted=TRUE;
-	else if (Mask[m_CurPos]==EDMASK_HEX && (iswdigit(Key) || (Upper(Key)>=L'A' && Upper(Key)<=L'F') || (Upper(Key)>=L'a' && Upper(Key)<=L'f')))
+	else if (Mask[m_CurPos]==EDMASK_HEX && (iswdigit(Key) || (ToUpper(Key)>=L'A' && ToUpper(Key)<=L'F') || (ToUpper(Key)>=L'a' && ToUpper(Key)<=L'f')))
 		Inserted=TRUE;
 
 	return Inserted;

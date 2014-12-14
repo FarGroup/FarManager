@@ -37,7 +37,7 @@ DWORD ConvertYearToFull(DWORD ShortYear);
 
 void OnIntlSettingsChange();
 
-void GetFileDateAndTime(const string& Src,LPWORD Dst,size_t Count,int Separator);
+void GetFileDateAndTime(const string& Src, LPWORD Dst, size_t Count, wchar_t Separator);
 void StrToDateTime(const string& CDate, const string& CTime, FILETIME &ft, int DateFormat, wchar_t DateSeparator, wchar_t TimeSeparator, bool bRelative=false);
 void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int TimeLength, int Brief=FALSE,int TextMonth=FALSE,int FullYear=0);
 void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeText);

@@ -170,13 +170,13 @@ static void ToPreserveStyleType(string& strStr, PreserveStyleType type)
 	switch (type)
 	{
 	case UPPERCASE_ALL:
-		Handler = [&strStr](size_t I) { strStr[I] = Upper(strStr[I]); };
+		Handler = [&strStr](size_t I) { strStr[I] = ToUpper(strStr[I]); };
 		break;
 	case LOWERCASE_ALL:
-		Handler = [&strStr](size_t I) { strStr[I] = Lower(strStr[I]); };
+		Handler = [&strStr](size_t I) { strStr[I] = ToLower(strStr[I]); };
 		break;
 	case UPPERCASE_FIRST:
-		Handler = [&strStr](size_t I) { strStr[I] = I? Lower(strStr[I]) : Upper(strStr[I]); };
+		Handler = [&strStr](size_t I) { strStr[I] = I? ToLower(strStr[I]) : ToUpper(strStr[I]); };
 		break;
 	case UNKNOWN:
 		break;
@@ -348,7 +348,7 @@ bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const str
 				break;
 			}
 
-			if (!Case && Upper(Source[Idx]) != Upper(j->Token[T]))
+			if (!Case && ToUpper(Source[Idx]) != ToUpper(j->Token[T]))
 			{
 				Matched = false;
 				break;
@@ -368,7 +368,7 @@ bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const str
 			bool Same = SourceTokens.size() == StrTokens.size();
 			if(Same)
 			{
-				Same = std::equal(ALL_CONST_RANGE(SourceTokens), StrTokens.cbegin(), [](const VALUE_TYPE(SourceTokens)& a, const VALUE_TYPE(StrTokens)& b)
+				Same = std::equal(ALL_CONST_RANGE(SourceTokens), StrTokens.cbegin(), [](CONST_REFERENCE(SourceTokens) a, CONST_REFERENCE(StrTokens) b)
 				{
 					return a.Token.size() == b.Token.size();
 				});

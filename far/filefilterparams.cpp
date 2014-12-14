@@ -565,7 +565,7 @@ void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const Highli
 	const PaletteColors PalColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
 	int VBufRow = 0;
 
-	for_each_2(ALL_RANGE(Colors.Color), PalColor, [&](VALUE_TYPE(Colors.Color)& i, PaletteColors pal)
+	for_each_2(ALL_CONST_RANGE(Colors.Color), PalColor, [&](CONST_REFERENCE(Colors.Color) i, PaletteColors pal)
 	{
 		Color = i.FileColor;
 

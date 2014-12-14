@@ -60,7 +60,7 @@ void NTPath::Transform()
 		{
 			// "\\?\C:" -> "\\?\c:"
 			// Some file operations fails on Win2k if a drive letter is in upper case
-			Lower(Data, 4, 1);
+			ToLower(Data, 4, 1);
 		}
 	}
 }
@@ -202,14 +202,7 @@ const wchar_t* PointToName(const wchar_t *lpwszPath,const wchar_t *lpwszEndPtr)
 
 	if (*lpwszPath && *(lpwszPath+1)==L':') lpwszPath+=2;
 
-	const wchar_t *lpwszNamePtr = lpwszEndPtr;
-
-	if (!lpwszNamePtr)
-	{
-		lpwszNamePtr=lpwszPath;
-
-		while (*lpwszNamePtr) lpwszNamePtr++;
-	}
+	auto lpwszNamePtr = lpwszEndPtr? lpwszEndPtr : lpwszPath + wcslen(lpwszPath);
 
 	while (lpwszNamePtr != lpwszPath)
 	{
@@ -252,14 +245,7 @@ const wchar_t* PointToFolderNameIfFolder(const wchar_t *Path)
 
 const wchar_t* PointToExt(const wchar_t *lpwszPath)
 {
-	if (!lpwszPath)
-		return nullptr;
-
-	const wchar_t *lpwszEndPtr = lpwszPath;
-
-	while (*lpwszEndPtr) lpwszEndPtr++;
-
-	return PointToExt(lpwszPath,lpwszEndPtr);
+	return lpwszPath? PointToExt(lpwszPath, lpwszPath + wcslen(lpwszPath)) : nullptr;
 }
 
 const wchar_t* PointToExt(const wchar_t *lpwszPath,const wchar_t *lpwszEndPtr)
@@ -358,23 +344,15 @@ void AddEndSlash(string &strPath)
 	AddEndSlash(strPath, L'\0');
 }
 
-
 void DeleteEndSlash(wchar_t *Path)
 {
-	size_t len = wcslen(Path);
-
-	while (len && IsSlash(Path[--len]))
-	{
-		Path[len] = L'\0';
-	}
+	const auto REnd = std::reverse_iterator<wchar_t*>(Path);
+	Path[REnd - std::find_if_not(REnd - wcslen(Path), REnd, IsSlash)] = 0;
 }
 
 void DeleteEndSlash(string &Path)
 {
-	while (!Path.empty() && IsSlash(Path.back()))
-	{
-		Path.pop_back();
-	}
+	Path.resize(Path.rend() - std::find_if_not(Path.rbegin(), Path.rend(), IsSlash));
 }
 
 bool CutToSlash(string &strStr, bool bInclude)
@@ -472,9 +450,7 @@ const wchar_t *FirstSlash(const wchar_t *String)
 const wchar_t *LastSlash(const wchar_t *String)
 {
 	const wchar_t *Start = String;
-
-	while (*String++)
-		;
+	String += wcslen(String);
 
 	while (--String!=Start && !IsSlash(*String))
 		;
@@ -606,6 +582,8 @@ int MatchNtPathRoot(const string &NtPath, const string& DeviceName)
 
 		if (Res == STATUS_SUCCESS)
 		{
+			SCOPE_EXIT{ Imports().NtClose(hSymLink); };
+
 			ULONG BufSize = 32767;
 			wchar_t_ptr Buffer(BufSize);
 			UNICODE_STRING LinkTarget;
@@ -617,8 +595,6 @@ int MatchNtPathRoot(const string &NtPath, const string& DeviceName)
 			{
 				TargetPath.assign(LinkTarget.Buffer, LinkTarget.Length / sizeof(wchar_t));
 			}
-
-			Imports().NtClose(hSymLink);
 
 			if (PathStartsWith(NtPath, TargetPath))
 				return static_cast<int>(TargetPath.size());

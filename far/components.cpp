@@ -92,7 +92,7 @@ namespace components
 		if (sList.empty())
 		{
 			auto& ComponentsList = GetComponentsList();
-			std::transform(ALL_RANGE(ComponentsList), std::inserter(sList, sList.end()), [](CONST_VALUE_TYPE(ComponentsList)& i)
+			std::transform(ALL_RANGE(ComponentsList), std::inserter(sList, sList.end()), [](CONST_REFERENCE(ComponentsList) i)
 			{
 				return i();
 			});

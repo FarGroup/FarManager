@@ -1170,7 +1170,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 					CopyDlg[ID_SC_TARGETEDIT].strData += L":";
 
 				strPluginFormat = CopyDlg[ID_SC_TARGETEDIT].strData;
-				Upper(strPluginFormat);
+				ToUpper(strPluginFormat);
 				break;
 			}
 		}

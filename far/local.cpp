@@ -52,7 +52,7 @@ const wchar_t * StrStrI(const wchar_t *str1, const wchar_t *str2)
 		const wchar_t *s1 = cp;
 		const wchar_t *s2 = str2;
 
-		while (*s1 && *s2 && !(Lower(*s1)-Lower(*s2)))
+		while (*s1 && *s2 && !(ToLower(*s1)-ToLower(*s2)))
 		{
 			s1++;
 			s2++;
@@ -111,7 +111,7 @@ const wchar_t * RevStrStrI(const wchar_t *str1, const wchar_t *str2)
 		const wchar_t* s1 = cp;
 		const wchar_t* s2 = str2;
 
-		while (*s1 && *s2 && !(Lower(*s1)-Lower(*s2)))
+		while (*s1 && *s2 && !(ToLower(*s1)-ToLower(*s2)))
 		{
 			s1++;
 			s2++;

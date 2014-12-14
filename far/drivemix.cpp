@@ -105,7 +105,7 @@ int CheckDisksProps(const string& SrcPath,const string& DestPath,int CheckedType
 		if (SrcPath.empty() || DestPath.empty() || (SrcPath[1]!=L':' && DestPath[1]!=L':'))  //????
 			return TRUE;
 
-		if (Upper(strDestRoot[0])==Upper(strSrcRoot[0]))
+		if (ToUpper(strDestRoot[0])==ToUpper(strSrcRoot[0]))
 			return TRUE;
 
 		unsigned __int64 SrcTotalSize, DestTotalSize;

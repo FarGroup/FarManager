@@ -131,7 +131,7 @@ struct TFKey
 {
 	DWORD Key;
 	LNGID LocalizedNameId;
-	int   Len;
+	size_t Len;
 	const wchar_t *Name;
 	const wchar_t *UName;
 
@@ -349,7 +349,7 @@ void InitKeysArray()
 			if (i.Type() == REG_SZ && std::isdigit(i.Name().front()))
 			{
 				string Value = i.GetString();
-				if (!Value.empty() && (std::isdigit(Value.front()) || InRange(L'A', Upper(Value.front()), L'Z')))
+				if (!Value.empty() && (std::isdigit(Value.front()) || InRange(L'A', ToUpper(Value.front()), L'Z')))
 				{
 					try
 					{
@@ -410,7 +410,7 @@ void InitKeysArray()
 			x = KeyToVKey[i];
 
 			if (x && !VKeyToASCII[x])
-				VKeyToASCII[x]=Upper(i);
+				VKeyToASCII[x]=ToUpper(i);
 		}
 	}
 }
@@ -1623,20 +1623,19 @@ int KeyNameToKey(const string& Name)
 		return -1;
 	}
 
-	int Pos = 0;
+	size_t Pos = 0;
 	static string strTmpName;
 	strTmpName = Name;
-	Upper(strTmpName);
-	int Len=(int)strTmpName.size();
+	ToUpper(strTmpName);
+	const auto Len = strTmpName.size();
 
 	// пройдемся по всем модификаторам
 	FOR(const auto& i, ModifKeyName)
 	{
 		if (!(Key & i.Key) && strTmpName.find(i.UName) != string::npos)
 		{
-			int CntReplace = ReplaceStrings(strTmpName, i.UName, L"", true);
 			Key |= i.Key;
-			Pos += i.Len * CntReplace;
+			Pos += i.Len * ReplaceStrings(strTmpName, i.UName, L"", true);
 		}
 	}
     // _SVS(SysLog(L"[%d] Name=%s",__LINE__,Name));
@@ -1648,7 +1647,7 @@ int KeyNameToKey(const string& Name)
 	{
 		// сначала - FKeys1 - Вариант (1)
 		const wchar_t* Ptr=Name.data()+Pos;
-		int PtrLen = Len-Pos;
+		const auto PtrLen = Len-Pos;
 
 		auto ItemIterator = std::find_if(CONST_REVERSE_RANGE(FKeys1, i)
 		{
@@ -1681,7 +1680,7 @@ int KeyNameToKey(const string& Name)
 					if (Chr > 0x7F)
 						Chr=KeyToKeyLayout(Chr);
 
-					Chr=Upper(Chr);
+					Chr=ToUpper(Chr);
 				}
 
 				Key|=Chr;
@@ -1759,7 +1758,7 @@ bool KeyToTextImpl(int Key0, string& strKeyText, tfkey_to_text ToText, add_separ
 			else
 #endif
 			{
-				FKey=Upper((wchar_t)(Key&0xFFFF));
+				FKey=ToUpper((wchar_t)(Key&0xFFFF));
 
 				wchar_t KeyText[2]={};
 
@@ -3186,7 +3185,7 @@ DWORD CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros, bool Pro
 		if (Char)
 		{
 			if (!Global->Opt->ShiftsKeyRules || Global->WaitInFastFind > 0)
-				return ModifAlt|Upper(Char);
+				return ModifAlt|ToUpper(Char);
 			else if (Global->WaitInMainLoop)
 				return ModifAlt|Char;
 		}

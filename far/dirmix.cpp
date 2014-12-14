@@ -61,7 +61,7 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 	// если указана только буква диска, то путь возьмем из переменной
 	if (NewDir.size() == 2 && NewDir[1]==L':')
 	{
-		Drive[1] = Upper(NewDir[0]);
+		Drive[1] = ToUpper(NewDir[0]);
 
 		if (!api::env::get_variable(Drive, strCurDir))
 		{
@@ -70,7 +70,6 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 			ReplaceSlashToBSlash(strCurDir);
 		}
 
-		//*CurDir=toupper(*CurDir); бред!
 		if (ChangeDir)
 		{
 			rc=api::SetCurrentDirectory(strCurDir);
@@ -97,7 +96,7 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 		if ((!ChangeDir || api::GetCurrentDirectory(strCurDir)) &&
 		        strCurDir.size() > 1 && strCurDir[1]==L':')
 		{
-			Drive[1] = Upper(strCurDir[0]);
+			Drive[1] = ToUpper(strCurDir[0]);
 			api::env::set_variable(Drive, strCurDir);
 		}
 	}

@@ -410,7 +410,7 @@ static void ApplyColors(HighlightFiles::highlight_item& DestColors, const Highli
 		Dst.Flags |= Src.Flags&FCF_EXTENDEDFLAGS;
 	};
 
-	for_each_2(ALL_RANGE(DestColors.Color), std::begin(SrcColors.Color), [&](VALUE_TYPE(DestColors.Color)& Dst, const VALUE_TYPE(SrcColors.Color)& Src)
+	for_each_2(ALL_RANGE(DestColors.Color), std::cbegin(SrcColors.Color), [&](REFERENCE(DestColors.Color) Dst, CONST_REFERENCE(SrcColors.Color) Src)
 	{
 		ApplyColor(Dst.FileColor, Src.FileColor);
 		ApplyColor(Dst.MarkColor, Src.MarkColor);

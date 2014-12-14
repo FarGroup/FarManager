@@ -1941,8 +1941,8 @@ void Help::Search(api::File& HelpFile,uintptr_t nCodePage)
 	string strSearchStrLower = strLastSearchStr;
 	if (!LastSearchCase)
 	{
-		Upper(strSearchStrUpper);
-		Lower(strSearchStrLower);
+		ToUpper(strSearchStrUpper);
+		ToLower(strSearchStrLower);
 	}
 
 	for (;;)
@@ -1969,7 +1969,7 @@ void Help::Search(api::File& HelpFile,uintptr_t nCodePage)
 		{
 			strEntryName=strReadStr.substr(1);
 			RemoveExternalSpaces(strEntryName);
-			RemoveChar(strEntryName,L'#',false);
+			strEntryName.erase(std::remove(ALL_RANGE(strEntryName), L'#'), strEntryName.end());
 		}
 
 		if (TopicFound && !strEntryName.empty())

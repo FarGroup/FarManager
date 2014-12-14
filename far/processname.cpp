@@ -141,8 +141,8 @@ static int CmpName_Body(const wchar_t *pattern,const wchar_t *str, bool CmpNameS
 		/* $ 01.05.2001 DJ
 		   используем инлайновые версии
 		*/
-		wchar_t stringc=Upper(*str);
-		wchar_t patternc=Upper(*pattern++);
+		wchar_t stringc=ToUpper(*str);
+		wchar_t patternc=ToUpper(*pattern++);
 
 		switch (patternc)
 		{
@@ -214,7 +214,7 @@ static int CmpName_Body(const wchar_t *pattern,const wchar_t *str, bool CmpNameS
 
 				int match = 0;
 				wchar_t rangec;
-				while ((rangec = Upper(*pattern++)))
+				while ((rangec = ToUpper(*pattern++)))
 				{
 					if (rangec == L']')
 					{
@@ -229,8 +229,8 @@ static int CmpName_Body(const wchar_t *pattern,const wchar_t *str, bool CmpNameS
 
 					if (rangec == L'-' && *(pattern - 2) != L'[' && *pattern != L']')
 					{
-						match = (stringc <= Upper(*pattern) &&
-						         Upper(*(pattern - 2)) <= stringc);
+						match = (stringc <= ToUpper(*pattern) &&
+						         ToUpper(*(pattern - 2)) <= stringc);
 						pattern++;
 					}
 					else

@@ -117,7 +117,7 @@ static int st_time(string &strDest,const tm *tmPtr,const wchar_t chr)
 			GetNames()[CurLang].AMonth[std::max(0,std::min(tmPtr->tm_mon, 11))].data(),
 			tmPtr->tm_year+1900);
 
-		Upper(strDest, 3, 3);
+		ToUpper(strDest, 3, 3);
 	}
 	else
 		switch (locale::GetDateFormat())
@@ -509,36 +509,13 @@ size_t MkStrFTime(string &strDest, const wchar_t *Fmt)
 	return StrFTime(strDest,Fmt,time_now);
 }
 
-void GetFileDateAndTime(const string& Src, LPWORD Dst, size_t Count, int Separator)
+void GetFileDateAndTime(const string& Src, LPWORD Dst, size_t Count, wchar_t Separator)
 {
-	std::fill_n(Dst, Count, -1);
-
-	string strDigit;
-	const wchar_t *Ptr=Src.data();
-
-	FOR(auto& i, make_range(Dst, Dst + Count))
-	{
-		Ptr=GetCommaWord(Ptr,strDigit,Separator);
-
-		if (Ptr)
-		{
-			const wchar_t *PtrDigit=strDigit.data();
-
-			while (*PtrDigit&&!iswdigit(*PtrDigit))
-			{
-				PtrDigit++;
-			}
-
-			if (*PtrDigit)
-			{
-				i = static_cast<WORD>(_wtoi(PtrDigit));
-			}
-		}
-		else
-		{
-			break;
-		}
-	}
+	const wchar_t Separators[] = { Separator, 0 };
+	std::vector<string> Components;
+	split(Components, Src, STLF_ALLOWEMPTY, Separators);
+	assert(Components.size() == Count);
+	std::transform(ALL_CONST_RANGE(Components), Dst, [](CONST_REFERENCE(Components) i) { return i.empty() ? -1 : std::stoul(i); });
 }
 
 void StrToDateTime(const string& CDate, const string& CTime, FILETIME &ft, int DateFormat, wchar_t DateSeparator, wchar_t TimeSeparator, bool bRelative)

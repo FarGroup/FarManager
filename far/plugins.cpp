@@ -2400,7 +2400,7 @@ void PluginManager::RefreshPluginsList()
 {
 	if(!UnloadedPlugins.empty())
 	{
-		UnloadedPlugins.remove_if([&](CONST_VALUE_TYPE(UnloadedPlugins)& i) -> bool
+		UnloadedPlugins.remove_if([&](CONST_REFERENCE(UnloadedPlugins) i) -> bool
 		{
 			if (!i->Active())
 			{

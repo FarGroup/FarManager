@@ -462,7 +462,7 @@ int VMenu::AddItem(MenuItemEx& NewItem,int PosAdd)
 		SelectPos++;
 
 	if (CheckFlags(VMENU_SHOWAMPERSAND))
-		UpdateMaxLength((int)NewMenuItem.strName.size());
+		UpdateMaxLength(NewMenuItem.strName.size());
 	else
 		UpdateMaxLength(HiStrlen(NewMenuItem.strName));
 
@@ -669,7 +669,7 @@ void VMenu::FilterStringUpdated()
 		else
 		{
 			RemoveExternalSpaces(strName);
-			RemoveChar(strName,L'&',true);
+			RemoveHighlights(strName);
 			if(!StrStrI(strName.data(), strFilter.data()))
 			{
 				CurItem.Flags |= LIF_HIDDEN;
@@ -860,7 +860,8 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 						continue;
 
 					Res = 0;
-					RemoveExternalSpaces(HiText2Str(strTemp,_item->strName));
+					strTemp = HiText2Str(_item->strName);
+					RemoveExternalSpaces(strTemp);
 					const wchar_t *p;
 
 					switch (iParam)
@@ -1298,17 +1299,12 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 			}
 			else
 			{
-				int _len;
 
 				std::for_each(RANGE(Items, i)
 				{
-					if (CheckFlags(VMENU_SHOWAMPERSAND))
-						_len=static_cast<int>(i.strName.size());
-					else
-						_len=HiStrlen(i.strName);
-
-					if (_len >= MaxLineWidth)
-						i.ShowPos = _len - MaxLineWidth;
+					const auto Len = CheckFlags(VMENU_SHOWAMPERSAND)? i.strName.size() : HiStrlen(i.strName);
+					if (Len >= MaxLineWidth)
+						i.ShowPos = static_cast<int>(Len - MaxLineWidth);
 				});
 			}
 
@@ -1764,15 +1760,11 @@ int VMenu::VisualPosToReal(int VPos)
 
 bool VMenu::ShiftItemShowPos(int Pos, int Direct)
 {
-	int _len;
 	int ItemShowPos = Items[Pos].ShowPos;
 
-	if (VMFlags.Check(VMENU_SHOWAMPERSAND))
-		_len = (int)Items[Pos].strName.size();
-	else
-		_len = HiStrlen(Items[Pos].strName);
+	const auto Len = VMFlags.Check(VMENU_SHOWAMPERSAND)? Items[Pos].strName.size() : HiStrlen(Items[Pos].strName);
 
-	if (_len < MaxLineWidth || (Direct < 0 && !ItemShowPos) || (Direct > 0 && ItemShowPos > _len))
+	if (Len < MaxLineWidth || (Direct < 0 && !ItemShowPos) || (Direct > 0 && ItemShowPos > static_cast<int>(Len)))
 		return false;
 
 	if (VMFlags.Check(VMENU_SHOWAMPERSAND))
@@ -1790,8 +1782,8 @@ bool VMenu::ShiftItemShowPos(int Pos, int Direct)
 	if (ItemShowPos < 0)
 		ItemShowPos = 0;
 
-	if (ItemShowPos + MaxLineWidth > _len)
-		ItemShowPos = _len - MaxLineWidth;
+	if (ItemShowPos + MaxLineWidth > Len)
+		ItemShowPos = static_cast<int>(Len - MaxLineWidth);
 
 	if (ItemShowPos != Items[Pos].ShowPos)
 	{
@@ -1830,7 +1822,7 @@ void VMenu::Show()
 
 			if (m_X1 == -1)
 			{
-				m_X1 = (ScrX - m_MaxLength - 4 - (HasSubMenus ? 2 : 0)) / 2;
+				m_X1 = static_cast<SHORT>(ScrX - m_MaxLength - 4 - (HasSubMenus ? 2 : 0)) / 2;
 				AutoCenter = true;
 			}
 
@@ -1838,7 +1830,7 @@ void VMenu::Show()
 				m_X1 = 2;
 
 			if (m_X2 <= 0)
-				m_X2 = m_X1 + m_MaxLength + 4 + (HasSubMenus ? 2 : 0);
+				m_X2 = static_cast<SHORT>(m_X1 + m_MaxLength + 4 + (HasSubMenus ? 2 : 0));
 
 			if (!AutoCenter && m_X2 > ScrX-4+2*(m_BoxType==SHORT_DOUBLE_BOX || m_BoxType==SHORT_SINGLE_BOX))
 			{
@@ -2036,22 +2028,14 @@ void VMenu::ShowMenu(bool IsParent)
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
-	int MaxItemLength = 0;
+	size_t MaxItemLength = 0;
 	bool HasRightScroll = false;
 	bool HasSubMenus = ItemSubMenusCount > 0;
 
 	//BUGBUG, this must be optimized
 	std::for_each(CONST_RANGE(Items, i)
 	{
-		int ItemLen;
-
-		if (CheckFlags(VMENU_SHOWAMPERSAND))
-			ItemLen = static_cast<int>(i.strName.size());
-		else
-			ItemLen = HiStrlen(i.strName);
-
-		if (ItemLen > MaxItemLength)
-			MaxItemLength = ItemLen;
+		MaxItemLength = std::max(MaxItemLength, CheckFlags(VMENU_SHOWAMPERSAND)? i.strName.size() : HiStrlen(i.strName));
 	});
 
 	MaxLineWidth = m_X2 - m_X1 + 1;
@@ -2073,7 +2057,7 @@ void VMenu::ShowMenu(bool IsParent)
 		MaxLineWidth -= 1; // right horz. scroll
 	}
 
-	MaxLineWidth = std::max(MaxLineWidth, 0);
+	MaxLineWidth = std::max(MaxLineWidth, size_t(0));
 
 	if (m_X2<=m_X1 || m_Y2<=m_Y1)
 	{
@@ -2263,16 +2247,11 @@ void VMenu::ShowMenu(bool IsParent)
 				strMenuLine.push_back(L' '); // left scroller (<<) placeholder
 				int ShowPos = HiFindRealPos(Items[I].strName, Items[I].ShowPos, CheckFlags(VMENU_SHOWAMPERSAND));
 				string strMItemPtr(Items[I].strName.data() + ShowPos);
-				int strMItemPtrLen;
-
-				if (CheckFlags(VMENU_SHOWAMPERSAND))
-					strMItemPtrLen = static_cast<int>(strMItemPtr.size());
-				else
-					strMItemPtrLen = HiStrlen(strMItemPtr);
+				const auto strMItemPtrLen = CheckFlags(VMENU_SHOWAMPERSAND)? strMItemPtr.size() : HiStrlen(strMItemPtr);
 
 				// fit menu string into available space
 				if (strMItemPtrLen > MaxLineWidth)
-					strMItemPtr.resize(HiFindRealPos(strMItemPtr, MaxLineWidth, CheckFlags(VMENU_SHOWAMPERSAND)));
+					strMItemPtr.resize(HiFindRealPos(strMItemPtr, static_cast<int>(MaxLineWidth), CheckFlags(VMENU_SHOWAMPERSAND)));
 
 				// set highlight
 				if (!VMFlags.Check(VMENU_SHOWAMPERSAND))
@@ -2350,7 +2329,7 @@ void VMenu::ShowMenu(bool IsParent)
 
 				if (Items[I].Flags & MIF_SUBMENU)
 				{
-					GotoXY(m_X1+(m_BoxType!=NO_BOX?1:0)+2+MaxLineWidth+(HasRightScroll?1:0)+1,Y);
+					GotoXY(static_cast<int>(m_X1 + (m_BoxType != NO_BOX? 1 : 0) + 2 + MaxLineWidth + (HasRightScroll ? 1 : 0) + 1), Y);
 					BoxText(L'\x25BA'); // sub menu arrow
 				}
 
@@ -2364,7 +2343,7 @@ void VMenu::ShowMenu(bool IsParent)
 
 				if (strMItemPtrLen > MaxLineWidth)
 				{
-					GotoXY(m_X1+(m_BoxType!=NO_BOX?1:0)+2+MaxLineWidth,Y);
+					GotoXY(static_cast<int>(m_X1 + (m_BoxType != NO_BOX ? 1 : 0) + 2 + MaxLineWidth), Y);
 					BoxText(L'\xbb'); // '>>'
 				}
 			}
@@ -2406,7 +2385,7 @@ int VMenu::CheckHighlights(wchar_t CheckSymbol, int StartPos)
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
 	if (CheckSymbol)
-		CheckSymbol=Upper(CheckSymbol);
+		CheckSymbol=ToUpper(CheckSymbol);
 
 	for (size_t I=StartPos; I < Items.size(); I++)
 	{
@@ -2417,7 +2396,7 @@ int VMenu::CheckHighlights(wchar_t CheckSymbol, int StartPos)
 
 		if (Ch)
 		{
-			if (CheckSymbol == Upper(Ch) || CheckSymbol == Upper(KeyToKeyLayout(Ch)))
+			if (CheckSymbol == ToUpper(Ch) || CheckSymbol == ToUpper(KeyToKeyLayout(Ch)))
 				return static_cast<int>(I);
 		}
 		else if (!CheckSymbol)
@@ -2488,13 +2467,13 @@ void VMenu::AssignHighlights(int Reverse)
 				Ch = Items[I].strName[AmpPos + 1];
 		}
 
-		if (Ch && !Used[Upper(Ch)] && !Used[Lower(Ch)])
+		if (Ch && !Used[ToUpper(Ch)] && !Used[ToLower(Ch)])
 		{
 			wchar_t ChKey=KeyToKeyLayout(Ch);
-			Used[Upper(ChKey)] = true;
-			Used[Lower(ChKey)] = true;
-			Used[Upper(Ch)] = true;
-			Used[Lower(Ch)] = true;
+			Used[ToUpper(ChKey)] = true;
+			Used[ToLower(ChKey)] = true;
+			Used[ToUpper(Ch)] = true;
+			Used[ToLower(Ch)] = true;
 			Items[I].AmpPos = static_cast<short>(AmpPos + 1 + ShowPos);
 		}
 	}
@@ -2513,13 +2492,13 @@ void VMenu::AssignHighlights(int Reverse)
 			{
 				wchar_t Ch = Name[J];
 
-				if ((Ch == L'&' || IsAlpha(Ch) || (Ch >= L'0' && Ch <=L'9')) && !Used[Upper(Ch)] && !Used[Lower(Ch)])
+				if ((Ch == L'&' || IsAlpha(Ch) || (Ch >= L'0' && Ch <=L'9')) && !Used[ToUpper(Ch)] && !Used[ToLower(Ch)])
 				{
 					wchar_t ChKey=KeyToKeyLayout(Ch);
-					Used[Upper(ChKey)] = true;
-					Used[Lower(ChKey)] = true;
-					Used[Upper(Ch)] = true;
-					Used[Lower(Ch)] = true;
+					Used[ToUpper(ChKey)] = true;
+					Used[ToLower(ChKey)] = true;
+					Used[ToUpper(Ch)] = true;
+					Used[ToLower(Ch)] = true;
 					Items[I].AmpPos = J + ShowPos;
 					break;
 				}
@@ -2566,16 +2545,16 @@ bool VMenu::CheckKeyHiOrAcc(DWORD Key, int Type, int Translate,bool ChangePos, i
 void VMenu::UpdateMaxLengthFromTitles()
 {
 	//тайтл + 2 пробела вокруг
-	UpdateMaxLength((int)std::max(strTitle.size(),strBottomTitle.size())+2);
+	UpdateMaxLength(std::max(strTitle.size(), strBottomTitle.size()) + 2);
 }
 
-void VMenu::UpdateMaxLength(int Length)
+void VMenu::UpdateMaxLength(size_t Length)
 {
 	if (Length > m_MaxLength)
 		m_MaxLength = Length;
 
-	if (m_MaxLength > ScrX-8)
-		m_MaxLength = ScrX-8;
+	if (m_MaxLength + 8 > static_cast<size_t>(ScrX))
+		m_MaxLength = std::max(0, ScrX - 8);
 }
 
 void VMenu::SetMaxHeight(int NewMaxHeight)
@@ -2614,7 +2593,7 @@ void VMenu::SetBottomTitle(const wchar_t *BottomTitle)
 	else
 		strBottomTitle.clear();
 
-	UpdateMaxLength((int)strBottomTitle.size() + 2);
+	UpdateMaxLength(strBottomTitle.size() + 2);
 }
 
 void VMenu::SetTitle(const string& Title)
@@ -2625,7 +2604,7 @@ void VMenu::SetTitle(const string& Title)
 
 	strTitle = Title;
 
-	UpdateMaxLength((int)strTitle.size() + 2);
+	UpdateMaxLength(strTitle.size() + 2);
 
 	if (CheckFlags(VMENU_CHANGECONSOLETITLE))
 	{
@@ -2968,7 +2947,7 @@ int VMenu::FindItem(int StartIndex,const string& Pattern,UINT64 Flags)
 		{
 			string strTmpBuf(Items[I].strName);
 			size_t LenNamePtr = strTmpBuf.size();
-			RemoveChar(strTmpBuf, L'&');
+			RemoveHighlights(strTmpBuf);
 
 			if (Flags&LIFIND_EXACTMATCH)
 			{
@@ -2994,8 +2973,8 @@ void VMenu::SortItems(bool Reverse, int Offset)
 	{
 		string strName1(a.strName);
 		string strName2(b.strName);
-		RemoveChar(strName1, L'&', true);
-		RemoveChar(strName2, L'&', true);
+		RemoveHighlights(strName1);
+		RemoveHighlights(strName2);
 		bool Less = StrCmpI(strName1.data()+Param.Offset, strName2.data() + Param.Offset) < 0;
 		return Param.Reverse? !Less : Less;
 	}, Reverse, Offset);
@@ -3047,7 +3026,7 @@ void VMenu::AddHotkeys(std::vector<string>& Strings, MenuDataEx* Menu, size_t Me
 		{
 			string Key;
 			KeyToLocalizedText(Menu[i].AccelKey, Key);
-			bool Hl = HiStrlen(Menu[i].Name) != static_cast<int>(wcslen(Menu[i].Name));
+			bool Hl = HiStrlen(Menu[i].Name) != wcslen(Menu[i].Name);
 			Strings[i] = FormatString() << fmt::ExactWidth(MaxLength + (Hl? 2 : 1)) << fmt::LeftAlign() << Menu[i].Name << Key;
 			Menu[i].Name = Strings[i].data();
 		}

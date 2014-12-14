@@ -3833,8 +3833,8 @@ BOOL Editor::Search(int Next)
 		string strSearchStrLower = strSearchStr;
 		if (!Case)
 		{
-			Upper(strSearchStrUpper);
-			Lower(strSearchStrLower);
+			ToUpper(strSearchStrUpper);
+			ToLower(strSearchStrLower);
 		}
 
 		DWORD StartTime=GetTickCount();

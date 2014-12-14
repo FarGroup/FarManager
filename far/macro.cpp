@@ -745,7 +745,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 						key=KeyToKeyLayout(key&0x0000FFFF)|(key&~0x0000FFFF);
 
 					if (key<0xFFFF)
-						key=Upper(static_cast<wchar_t>(key));
+						key=ToUpper(static_cast<wchar_t>(key));
 
 					if (key != Rec->IntKey)
 						KeyToText(key,textKey);
@@ -2221,7 +2221,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 						case MCODE_V_MENU_VALUE:
 							if (f->VMProcess(CheckCode,&NewStr))
 							{
-								HiText2Str(strFileName, NewStr);
+								strFileName = HiText2Str(NewStr);
 								RemoveExternalSpaces(strFileName);
 								ptr=strFileName.data();
 							}
@@ -2523,7 +2523,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 						string NewStr;
 						if (f->VMProcess(CheckCode,&NewStr,MenuItemPos))
 						{
-							HiText2Str(NewStr, NewStr);
+							NewStr = HiText2Str(NewStr);
 							RemoveExternalSpaces(NewStr);
 							tmpVar=NewStr;
 						}
@@ -3499,8 +3499,8 @@ static bool menushowFunc(FarMacroCall* Data)
 
 			string strName1(a.strName);
 			string strName2(b.strName);
-			RemoveChar(strName1, L'&', true);
-			RemoveChar(strName2, L'&', true);
+			RemoveHighlights(strName1);
+			RemoveHighlights(strName2);
 			bool Less = NumStrCmpI(strName1.data() + Param.Offset, strName2.data() + Param.Offset) < 0;
 
 			return Param.Reverse ? !Less : Less;
@@ -4919,7 +4919,7 @@ static bool ucaseFunc(FarMacroCall* Data)
 	auto Params = parseParams<1>(Data);
 	TVar& Val(Params[0]);
 	string Copy = Val.toString();
-	Val = Upper(Copy);
+	Val = ToUpper(Copy);
 	PassValue(&Val, Data);
 	return true;
 }
@@ -4929,7 +4929,7 @@ static bool lcaseFunc(FarMacroCall* Data)
 	auto Params = parseParams<1>(Data);
 	TVar& Val(Params[0]);
 	string Copy = Val.toString();
-	Val = Lower(Copy);
+	Val = ToLower(Copy);
 	PassValue(&Val, Data);
 	return true;
 }
@@ -5451,7 +5451,7 @@ M1:
 
 		if (key<0xFFFF)
 		{
-			key=Upper(static_cast<wchar_t>(key));
+			key=ToUpper(static_cast<wchar_t>(key));
 		}
 
 		_SVS(SysLog(L"[%d] Assign ==> Param2='%s',LastKey='%s'",__LINE__,_FARKEY_ToName((DWORD)key),LastKey?_FARKEY_ToName(LastKey):L""));

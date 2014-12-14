@@ -2079,7 +2079,7 @@ wchar_t WINAPI apiUpper(wchar_t Ch) noexcept
 {
 	try
 	{
-		return Upper(Ch);
+		return ToUpper(Ch);
 	}
 	catch (...)
 	{
@@ -2092,7 +2092,7 @@ wchar_t WINAPI apiLower(wchar_t Ch) noexcept
 {
 	try
 	{
-		return Lower(Ch);
+		return ToLower(Ch);
 	}
 	catch (...)
 	{

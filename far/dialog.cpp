@@ -149,11 +149,11 @@ bool IsKeyHighlighted(const string& str,int Key,int Translate,int AmpPos)
 			AmpPos++;
 	}
 
-	int UpperStrKey=Upper((int)Str[AmpPos]);
+	int UpperStrKey=ToUpper((int)Str[AmpPos]);
 
 	if (Key < 0xFFFF)
 	{
-		return UpperStrKey == (int)Upper(Key) || (Translate && KeyToKeyLayoutCompare(Key,UpperStrKey));
+		return UpperStrKey == (int)ToUpper(Key) || (Translate && KeyToKeyLayoutCompare(Key,UpperStrKey));
 	}
 
 	if (Key&(KEY_ALT|KEY_RALT))
@@ -170,7 +170,7 @@ bool IsKeyHighlighted(const string& str,int Key,int Translate,int AmpPos)
 				//          AltKey=='\\' || AltKey=='=' || AltKey=='['  || AltKey==']' ||
 				//          AltKey==':'  || AltKey=='"' || AltKey=='~'))
 			{
-				return UpperStrKey==(int)Upper(AltKey) || (Translate && KeyToKeyLayoutCompare(AltKey,UpperStrKey));
+				return UpperStrKey==(int)ToUpper(AltKey) || (Translate && KeyToKeyLayoutCompare(AltKey,UpperStrKey));
 			}
 		}
 	}
@@ -911,7 +911,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 				if (ItemIterator != ListItems + Length)
 				{
 					if (ItemFlags & (DIF_DROPDOWNLIST | DIF_LISTNOAMPERSAND))
-						HiText2Str(Items[I].strData, ItemIterator->Text);
+						Items[I].strData = HiText2Str(ItemIterator->Text);
 					else
 						Items[I].strData = ItemIterator->Text;
 				}
@@ -1107,7 +1107,7 @@ BOOL Dialog::GetItemRect(size_t I,SMALL_RECT& Rect)
 		case DI_MEMOEDIT:
 			break;
 		default:
-			Len=((ItemFlags & DIF_SHOWAMPERSAND)?(int)Items[I].strData.size():HiStrlen(Items[I].strData));
+			Len = static_cast<int>((ItemFlags & DIF_SHOWAMPERSAND)? Items[I].strData.size() : HiStrlen(Items[I].strData));
 			break;
 	}
 
@@ -2076,8 +2076,7 @@ int Dialog::LenStrItem(size_t ID)
 int Dialog::LenStrItem(size_t ID, const string& lpwszStr) const
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
-
-	return (Items[ID].Flags & DIF_SHOWAMPERSAND)? static_cast<int>(lpwszStr.size()):HiStrlen(lpwszStr);
+	return static_cast<int>((Items[ID].Flags & DIF_SHOWAMPERSAND)? lpwszStr.size() : HiStrlen(lpwszStr));
 }
 
 
@@ -3355,7 +3354,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 					/* ********************************************************** */
 					if (Type==DI_BUTTON &&
 					        MsY==m_Y1+Items[I].Y1 &&
-					        MsX < m_X1+Items[I].X1+HiStrlen(Items[I].strData))
+					        MsX < m_X1+Items[I].X1 + static_cast<int>(HiStrlen(Items[I].strData)))
 					{
 						ChangeFocus2(I);
 						ShowDialog();
@@ -3363,7 +3362,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 						while (IsMouseButtonPressed());
 
 						if (IntKeyState.MouseX <  m_X1 ||
-						        IntKeyState.MouseX >  m_X1+Items[I].X1+HiStrlen(Items[I].strData)+4 ||
+						        IntKeyState.MouseX >  m_X1 + Items[I].X1 + static_cast<int>(HiStrlen(Items[I].strData)) + 4 ||
 						        IntKeyState.MouseY != m_Y1+Items[I].Y1)
 						{
 							ChangeFocus2(I);
@@ -3380,7 +3379,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 					if ((Type == DI_CHECKBOX ||
 					        Type == DI_RADIOBUTTON) &&
 					        MsY==m_Y1+Items[I].Y1 &&
-					        MsX < (m_X1+Items[I].X1+HiStrlen(Items[I].strData)+4-((Items[I].Flags & DIF_MOVESELECT)!=0)))
+					        MsX < (m_X1 + Items[I].X1 + static_cast<int>(HiStrlen(Items[I].strData)) + 4 - ((Items[I].Flags & DIF_MOVESELECT) != 0)))
 					{
 						ChangeFocus2(I);
 						ProcessKey(KEY_SPACE, I);
@@ -3945,7 +3944,7 @@ int Dialog::SelectFromComboBox(
 		EditLine->GetString(strStr);
 
 		if (CurItem->Flags & (DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND))
-			HiText2Str(strStr, strStr);
+			strStr = HiText2Str(strStr);
 
 		ComboBox->SetSelectPos(ComboBox->FindItem(0,strStr,LIFIND_EXACTMATCH),1);
 		ComboBox->Show();
@@ -4038,7 +4037,7 @@ int Dialog::SelectFromComboBox(
 
 		if (CurItem->Flags & (DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND))
 		{
-			HiText2Str(strStr, ItemPtr->strName);
+			strStr = HiText2Str(ItemPtr->strName);
 			EditLine->SetString(strStr);
 		}
 		else
@@ -4144,7 +4143,7 @@ int Dialog::CheckHighlights(WORD CheckSymbol,int StartPos)
 			{
 				WORD Ch = Items[I].strData[ChPos + 1];
 
-				if (Ch && Upper(CheckSymbol) == Upper(Ch))
+				if (Ch && ToUpper(CheckSymbol) == ToUpper(Ch))
 					return static_cast<int>(I);
 			}
 			else if (!CheckSymbol)

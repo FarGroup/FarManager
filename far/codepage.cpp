@@ -1425,7 +1425,7 @@ F8CP::F8CP(bool viewer) : utf_name(L"UTF-8")
 		std::for_each(CONST_RANGE(f8list, str_cp)
 		{
 			string s(str_cp);
-			strmix::Upper(s);
+			ToUpper(s);
 			UINT cp = 0;
 			if (s == L"ANSI" || s == L"ACP")
 				cp = GetACP();

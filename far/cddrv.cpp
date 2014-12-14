@@ -91,8 +91,8 @@ static CDROM_DeviceCapabilities getCapsUsingProductId(const char* prodID)
 
 	std::for_each(CONST_RANGE(strID, i)
 	{
-		if (isalpha(i))
-			productID.push_back(toupper(i));
+		if (IsAlpha(i))
+			productID.push_back(ToUpper(i));
 	});
 
 	static const simple_pair<const char*, int> Capabilities[] =
@@ -106,7 +106,7 @@ static CDROM_DeviceCapabilities getCapsUsingProductId(const char* prodID)
 		{"HDDVD", CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_DVDROM|CAPABILITIES_GENERIC_HDDVD},
 	};
 
-	return std::accumulate(ALL_CONST_RANGE(Capabilities), CAPABILITIES_NONE, [&productID](int Value, const VALUE_TYPE(Capabilities)& i)
+	return std::accumulate(ALL_CONST_RANGE(Capabilities), CAPABILITIES_NONE, [&productID](int Value, CONST_REFERENCE(Capabilities) i)
 	{
 		return static_cast<CDROM_DeviceCapabilities>(Value | (productID.find(i.first) == std::string::npos ? 0 : i.second));
 	});

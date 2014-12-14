@@ -425,7 +425,7 @@ bool Viewer::isBinaryFile(uintptr_t cp) // very approximate: looks for 0x00,0x00
 
 	if (IsUnicodeCodePage(cp))
 	{
-		const auto Begin = reinterpret_cast<wchar_t*>(Buffer);
+		const auto Begin = reinterpret_cast<const wchar_t*>(Buffer);
 		const auto End = Begin + (BytesRead & ~1) / sizeof(wchar_t);
 		return std::find(Begin, End, L'\0') != End;
 	}
@@ -3245,7 +3245,7 @@ void Viewer::Search(int Next,int FirstChar)
 
 	if (!Case && !SearchRegexp)
 	{
-		Upper(strSearchStr);
+		ToUpper(strSearchStr);
 		sd.search_text = strSearchStr.data();
 	}
 

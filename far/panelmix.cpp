@@ -314,7 +314,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 
 		Columns.emplace_back(VALUE_TYPE(Columns)());
 
-		Upper(strArgName);
+		ToUpper(strArgName);
 
 		if (strArgName.front() == L'N')
 		{

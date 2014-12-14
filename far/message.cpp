@@ -235,7 +235,7 @@ void Message::Init(
 		strClipText.append(Title).append(L"\r\n\r\n");
 	}
 
-	size_t BtnLength = std::accumulate(Buttons.cbegin(), Buttons.cend(), 0, [](int Result, const VALUE_TYPE(Buttons)& i)
+	size_t BtnLength = std::accumulate(Buttons.cbegin(), Buttons.cend(), size_t(0), [](size_t Result, CONST_REFERENCE(Buttons) i)
 	{
 		return Result + HiStrlen(i.data()) + 2 + 2 + 1; // "[ ", " ]", " "
 	});

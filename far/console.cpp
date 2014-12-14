@@ -332,10 +332,9 @@ virtual bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_
 	}
 
 	auto& ConsoleBufferVector = ConsoleBuffer.vector();
-	std::transform(ConsoleBufferVector.cbegin(), ConsoleBufferVector.cend(), Buffer.data() + Offset, [](const VALUE_TYPE(ConsoleBufferVector)& i) -> FAR_CHAR_INFO
+	std::transform(ConsoleBufferVector.cbegin(), ConsoleBufferVector.cend(), Buffer.data() + Offset, [](CONST_REFERENCE(ConsoleBufferVector) i)
 	{
-		FAR_CHAR_INFO FCI = {i.Char.UnicodeChar, Colors::ConsoleColorToFarColor(i.Attributes)};
-		return FCI;
+		return FAR_CHAR_INFO::make(i.Char.UnicodeChar, Colors::ConsoleColorToFarColor(i.Attributes));
 	});
 
 	if(Global->Opt->WindowMode)

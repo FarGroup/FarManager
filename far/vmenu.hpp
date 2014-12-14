@@ -326,7 +326,7 @@ private:
 	bool ItemCanBeEntered(UINT64 Flags) const;
 	bool ItemIsVisible(UINT64 Flags) const;
 	void UpdateMaxLengthFromTitles();
-	void UpdateMaxLength(int Length);
+	void UpdateMaxLength(size_t Length);
 	void UpdateInternalCounters(UINT64 OldFlags, UINT64 NewFlags);
 	bool ShouldSendKeyToFilter(int Key) const;
 	//корректировка текущей позиции и флагов SELECTED
@@ -339,7 +339,7 @@ private:
 	int TopPos;
 	int MaxHeight;
 	bool WasAutoHeight;
-	int m_MaxLength;
+	size_t m_MaxLength;
 	int m_BoxType;
 	window_ptr CurrentWindow;
 	bool PrevCursorVisible;
@@ -359,7 +359,7 @@ private:
 	intptr_t ItemHiddenCount;
 	intptr_t ItemSubMenusCount;
 	FarColor Colors[VMENU_COLOR_COUNT];
-	int MaxLineWidth;
+	size_t MaxLineWidth;
 	bool bRightBtnPressed;
 	GUID MenuId;
 };

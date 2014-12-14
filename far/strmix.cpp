@@ -445,32 +445,6 @@ string& RemoveUnprintableCharacters(string &strStr)
 	return RemoveExternalSpaces(strStr);
 }
 
-
-// Удалить символ Target из строки Str (везде!)
-string &RemoveChar(string &strStr, wchar_t Target, bool Dup)
-{
-	size_t pos = strStr.find(Target);
-	if (pos != string::npos)
-	{
-		size_t pos1 = pos;
-		size_t len = strStr.size();
-		while (pos < len)
-		{
-			++pos;
-			if (Dup && pos < len && strStr[pos] == Target)
-			{
-				strStr[pos1++] = Target;
-				++pos;
-			}
-			while (pos < len && strStr[pos] != Target)
-				strStr[pos1++] = strStr[pos++];
-		}
-		strStr.resize(pos1);
-	}
-	return strStr;
-}
-
-
 string& CenterStr(const string& Src, string &strDest, int Length)
 {
 	int SrcLength=static_cast<int>(Src.size());
@@ -542,36 +516,15 @@ const wchar_t *GetCommaWord(const wchar_t *Src, string &strWord,wchar_t Separato
 	return Src;
 }
 
-
 bool IsCaseMixed(const string &strSrc)
 {
-	const wchar_t *lpwszSrc = strSrc.data();
-
-	while (*lpwszSrc && !IsAlpha(*lpwszSrc))
-		lpwszSrc++;
-
-	int Case = IsLower(*lpwszSrc);
-
-	while (*(lpwszSrc++))
-		if (IsAlpha(*lpwszSrc) && (IsLower(*lpwszSrc) != Case))
-			return true;
-
-	return false;
-}
-
-bool IsCaseLower(const string &strSrc)
-{
-	const wchar_t *lpwszSrc = strSrc.data();
-
-	while (*lpwszSrc)
+	const auto AlphaBegin = std::find_if(ALL_CONST_RANGE(strSrc), IsAlpha);
+	if (AlphaBegin != strSrc.cend())
 	{
-		if (!IsLower(*lpwszSrc))
-			return false;
-
-		lpwszSrc++;
+		const auto Case = IsLower(*AlphaBegin);
+		return std::any_of(AlphaBegin, strSrc.cend(), [&Case](wchar_t c){ return IsAlpha(c) && IsLower(c) != Case; });
 	}
-
-	return true;
+	return false;
 }
 
 void Unquote(wchar_t *Str)
@@ -628,8 +581,8 @@ void PrepareUnitStr()
 	for (int i=0; i<UNIT_COUNT; i++)
 	{
 		UnitStr(i, 0) = UnitStr(i, 1) = MSG(MListBytes + i);
-		Lower(UnitStr(i, 0));
-		Upper(UnitStr(i, 1));
+		ToLower(UnitStr(i, 0));
+		ToUpper(UnitStr(i, 1));
 	}
 }
 
@@ -769,28 +722,23 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 
 
 // Заменить в строке Str Count вхождений подстроки FindStr на подстроку ReplStr
-// Если Count < 0 - заменять "до полной победы"
+// Если Count == npos - заменять "до полной победы"
 // Return - количество замен
-int ReplaceStrings(string &strStr, const string& FindStr, const string& ReplStr, bool IgnoreCase, int Count)
+size_t ReplaceStrings(string &strStr, const wchar_t* FindStr, size_t FindStrSize, const wchar_t* ReplStr, size_t ReplStrSize, bool IgnoreCase, size_t Count)
 {
-	const size_t LenFindStr = FindStr.size();
-	if ( !LenFindStr || !Count )
+	if ( !FindStrSize || !Count )
 		return 0;
 
-	const int LenReplStr = static_cast<int>(ReplStr.size());
-	int replaced = 0;
+	const auto Comparer = IgnoreCase? StrCmpNI : StrCmpN;
 
-	for (size_t I=0, L=strStr.size(); I+LenFindStr <= L; ++I)
+	size_t replaced = 0;
+	for (size_t I=0, L=strStr.size(); I+FindStrSize <= L; ++I)
 	{
-		int equal_substr = IgnoreCase
-			? StrCmpNI(strStr.data() + I, FindStr.data(), LenFindStr)
-			: StrCmpN(strStr.data() + I, FindStr.data(), LenFindStr);
-
-		if (0 == equal_substr)
+		if (!Comparer(strStr.data() + I, FindStr, FindStrSize))
 		{
-			strStr.replace(I, LenFindStr, ReplStr);
-			L += LenReplStr - LenFindStr;
-			I += LenReplStr - 1;
+			strStr.replace(I, FindStrSize, ReplStr);
+			L += ReplStrSize - FindStrSize;
+			I += ReplStrSize - 1;
 			++replaced;
 
 			if (!--Count)
@@ -1147,7 +1095,7 @@ unsigned __int64 ConvertFileSizeString(const string& FileSizeStr)
 		return 0;
 
 	unsigned __int64 n = std::stoull(FileSizeStr);
-	wchar_t c = ::Upper(FileSizeStr.back());
+	wchar_t c = ::ToUpper(FileSizeStr.back());
 
 	// http://en.wikipedia.org/wiki/SI_prefix
 	switch (c)
@@ -1193,7 +1141,7 @@ string ReplaceBrackets(const wchar_t *SearchStr,const string& ReplaceStr, const 
 			if (pos>=length)
 				break;
 
-			wchar_t symbol = ::Upper(ReplaceStr[pos]);
+			wchar_t symbol = ::ToUpper(ReplaceStr[pos]);
 			int index=-1;
 
 			if (symbol>='0'&&symbol<='9')
@@ -1238,7 +1186,7 @@ string GuidToStr(const GUID& Guid)
 		SCOPE_EXIT{ RpcStringFree(&str); };
 		result = reinterpret_cast<const wchar_t*>(str);
 	}
-	return Upper(result);
+	return ToUpper(result);
 }
 
 bool StrToGuid(const wchar_t* Value,GUID& Guid)
@@ -1333,9 +1281,9 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 					if (PreserveStyle && !ReplaceStr.empty() && IsAlpha(ReplaceStr.front()) && IsAlpha(Source[I]))
 					{
 						if (IsUpper(Source[I]))
-							ReplaceStr.front() = ::Upper(ReplaceStr.front());
+							ReplaceStr.front() = ::ToUpper(ReplaceStr.front());
 						if (IsLower(Source[I]))
-							ReplaceStr.front() = ::Lower(ReplaceStr.front());
+							ReplaceStr.front() = ::ToLower(ReplaceStr.front());
 					}
 
 					return true;
@@ -1387,30 +1335,22 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 
 string wide_n(const char *str, size_t size, uintptr_t codepage)
 {
-	if (str && *str)
+	if (size_t Size = MultiByteToWideChar(codepage, 0, str, static_cast<int>(size), nullptr, 0))
 	{
-		size_t Size = MultiByteToWideChar(codepage, 0, str, static_cast<int>(size), nullptr, 0);
-		if (Size)
-		{
-			std::vector<wchar_t> Buffer(Size);
-			MultiByteToWideChar(codepage, 0, str, static_cast<int>(size), Buffer.data(), static_cast<int>(Buffer.size()));
-			return string(Buffer.data(), Buffer.size());
-		}
+		std::vector<wchar_t> Buffer(Size);
+		MultiByteToWideChar(codepage, 0, str, static_cast<int>(size), Buffer.data(), static_cast<int>(Buffer.size()));
+		return string(Buffer.data(), Buffer.size());
 	}
 	return string();
 }
 
 std::string narrow_n(const wchar_t* str, size_t size, uintptr_t codepage)
 {
-	if (str && *str)
+	if (size_t Size = WideCharToMultiByte(codepage, 0, str, static_cast<int>(size), nullptr, 0, nullptr, nullptr))
 	{
-		size_t Size = WideCharToMultiByte(codepage, 0, str, static_cast<int>(size), nullptr, 0, nullptr, nullptr);
-		if (Size)
-		{
-			std::vector<char> Buffer(Size);
-			WideCharToMultiByte(codepage, 0, str, static_cast<int>(size), Buffer.data(), static_cast<int>(Buffer.size()), nullptr, nullptr);
-			return std::string(Buffer.data(), Buffer.size());
-		}
+		std::vector<char> Buffer(Size);
+		WideCharToMultiByte(codepage, 0, str, static_cast<int>(size), Buffer.data(), static_cast<int>(Buffer.size()), nullptr, nullptr);
+		return std::string(Buffer.data(), Buffer.size());
 	}
 	return std::string();
 }

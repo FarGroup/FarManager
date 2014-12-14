@@ -346,7 +346,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 				{
 					auto start = i.second.cbegin();
 					++start;
-					std::for_each(start, i.second.cend(), [&](const VALUE_TYPE(i.second)& j)
+					std::for_each(start, i.second.cend(), [&](CONST_REFERENCE(i.second) j)
 					{
 						dump.append(L"\r\n ").append(j);
 					});

@@ -533,6 +533,12 @@ struct FAR_CHAR_INFO
 	struct FarColor Attributes;
 
 #ifdef __cplusplus
+	static FAR_CHAR_INFO make(wchar_t Char, const FarColor& Attributes)
+	{
+		FAR_CHAR_INFO info = { Char, Attributes };
+		return info;
+	}
+
 	bool operator ==(const FAR_CHAR_INFO& rhs) const
 	{
 		return Char == rhs.Char && Attributes == rhs.Attributes;

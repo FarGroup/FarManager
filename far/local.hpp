@@ -46,9 +46,9 @@ inline int IsEol(wchar_t x) { return x==L'\r' || x==L'\n'; }
 
 inline int IsSpaceOrEos(wchar_t x) { return !x || x==L' ' || x==L'\t'; }
 
-inline wchar_t Upper(wchar_t Ch) { CharUpperBuff(&Ch, 1); return Ch; }
+inline wchar_t ToUpper(wchar_t Ch) { CharUpperBuff(&Ch, 1); return Ch; }
 
-inline wchar_t Lower(wchar_t Ch) { CharLowerBuff(&Ch, 1); return Ch; }
+inline wchar_t ToLower(wchar_t Ch) { CharLowerBuff(&Ch, 1); return Ch; }
 
 inline int IsUpper(wchar_t Ch) { return IsCharUpper(Ch); }
 

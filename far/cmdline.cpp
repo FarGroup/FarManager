@@ -552,7 +552,7 @@ inline void AssignColor(const string& Color, COLORREF& Target, FARCOLORFLAGS& Ta
 {
 	if (!Color.empty())
 	{
-		if (Upper(Color[0]) == L'T')
+		if (ToUpper(Color[0]) == L'T')
 		{
 			TargetFlags &= ~SetFlag;
 			Target = ARGB2ABGR(wcstoul(Color.data() + 1, nullptr, 16));
@@ -636,7 +636,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 			{
 				if (*it == L'$' && it + 1 != strExpandedDestStr.cend())
 				{
-					wchar_t Chr = Upper(*++it);
+					wchar_t Chr = ToUpper(*++it);
 
 					auto ItemIterator = std::find_if(CONST_RANGE(ChrFmt, i)
 					{
@@ -708,9 +708,9 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 							{
 								PATH_TYPE Type = ParsePath(m_CurDir);
 								if(Type == PATH_DRIVELETTER)
-									strDestStr += Upper(m_CurDir[0]);
+									strDestStr += ToUpper(m_CurDir[0]);
 								else if(Type == PATH_DRIVELETTERUNC)
-									strDestStr += Upper(m_CurDir[4]);
+									strDestStr += ToUpper(m_CurDir[4]);
 								else
 									strDestStr += L'?';
 								break;
@@ -994,7 +994,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	{
 		if(!FarChDir(strCmdLine))
 		{
-			wchar_t NewDir[]={Upper(strCmdLine[0]),L':',L'\\',0};
+			wchar_t NewDir[]={ToUpper(strCmdLine[0]),L':',L'\\',0};
 			FarChDir(NewDir);
 		}
 		SetPanel->ChangeDirToCurrent();

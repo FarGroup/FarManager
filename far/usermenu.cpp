@@ -897,7 +897,7 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 					{
 						FocusPos=EM_HOTKEY_EDIT;
 
-						if (Upper(*HotKey)==L'F')
+						if (ToUpper(*HotKey)==L'F')
 						{
 							int FuncNum=_wtoi(HotKey+1);
 

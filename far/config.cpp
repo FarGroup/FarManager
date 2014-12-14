@@ -2049,7 +2049,7 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 	KnownModulesIDs::GuidOption* GuidOptions[] = { &KnownIDs.Network, &KnownIDs.Emenu, &KnownIDs.Arclite, &KnownIDs.Luamacro, &KnownIDs.Netbox };
 	static_assert(ARRAYSIZE(GuidOptions) == ARRAYSIZE(DefaultKnownGuids), "incomplete GuidOptions array");
 
-	for_each_2(ALL_RANGE(DefaultKnownGuids), GuidOptions, [](VALUE_TYPE(DefaultKnownGuids)& a, VALUE_TYPE(GuidOptions)& b)
+	for_each_2(ALL_RANGE(DefaultKnownGuids), GuidOptions, [](REFERENCE(DefaultKnownGuids) a, REFERENCE(GuidOptions) b)
 	{
 		a.second = GuidToStr(a.first);
 		b->Default = a.second.data();
@@ -2495,7 +2495,7 @@ void Options::ReadPanelModes()
 
 	unsigned __int64 root = 0;
 
-	auto ReadMode = [&](VALUE_TYPE(m_ViewSettings)& i, size_t Index) -> bool
+	auto ReadMode = [&](REFERENCE(m_ViewSettings) i, size_t Index) -> bool
 	{
 		unsigned __int64 id = cfg->GetKeyID(root, std::to_wstring(Index));
 
@@ -2555,7 +2555,7 @@ void Options::SavePanelModes(bool always)
 	auto cfg = Global->Db->CreatePanelModeConfig();
 	unsigned __int64 root = 0;
 
-	auto SaveMode = [&](const VALUE_TYPE(ViewSettings)& i, size_t Index)
+	auto SaveMode = [&](CONST_REFERENCE(ViewSettings) i, size_t Index)
 	{
 		string strColumnTitles, strColumnWidths;
 		string strStatusColumnTitles, strStatusColumnWidths;

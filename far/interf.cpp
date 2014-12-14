@@ -141,9 +141,6 @@ DWORD InitialConsoleMode=0;
 SMALL_RECT InitWindowRect;
 COORD InitialSize;
 
-//stack buffer size + stack vars size must be less than 16384
-const size_t StackBufferSize=0x3FC0;
-
 static Event& CancelIoInProgress()
 {
 	static Event s_CancelIoInProgress;
@@ -710,24 +707,12 @@ void Text(const wchar_t* Str, size_t Size)
 	if (!Size)
 		return;
 
-	FAR_CHAR_INFO StackBuffer[StackBufferSize/sizeof(FAR_CHAR_INFO)];
-	std::vector<FAR_CHAR_INFO> HeapBuffer;
-	FAR_CHAR_INFO* BufPtr=StackBuffer;
+	std::vector<FAR_CHAR_INFO> Buffer;
+	Buffer.reserve(Size);
+	std::transform(Str, Str + Size, std::back_inserter(Buffer), [](wchar_t c) { return FAR_CHAR_INFO::make(c, CurColor); });
 
-	if (Size >= StackBufferSize / sizeof(FAR_CHAR_INFO))
-	{
-		HeapBuffer.resize(Size + 1);
-		BufPtr=HeapBuffer.data();
-	}
-
-	for (size_t i = 0; i < Size; i++)
-	{
-		BufPtr[i].Char=Str[i];
-		BufPtr[i].Attributes=CurColor;
-	}
-
-	Global->ScrBuf->Write(CurX, CurY, BufPtr, Size);
-	CurX += static_cast<int>(Size);
+	Global->ScrBuf->Write(CurX, CurY, Buffer.data(), Buffer.size());
+	CurX += static_cast<int>(Buffer.size());
 }
 
 
@@ -754,77 +739,94 @@ void VText(const wchar_t* Str, size_t Size)
 	}
 }
 
-void HiText(const string& Str,const FarColor& HiColor,int isVertText)
+static void HiTextBase(const string& Str, const std::function<void(const string&)>& TextHandler, const std::function<void(wchar_t)>& HilightHandler)
 {
-	string strTextStr;
-	FarColor SaveColor;
-	strTextStr = Str;
-	size_t pos = strTextStr.find(L'&');
-
-	if (pos == string::npos)
-	{
-		if (isVertText)
-			VText(strTextStr);
-		else
-			Text(strTextStr);
-	}
-	else
+	const auto AmpBegin = Str.find(L'&');
+	if (AmpBegin != string::npos)
 	{
 		/*
-		   &&      = '&'
-		   &&&     = '&'
-		              ^H
-		   &&&&    = '&&'
-		   &&&&&   = '&&'
-		              ^H
-		   &&&&&&  = '&&&'
+		&&      = '&'
+		&&&     = '&'
+		^H
+		&&&&    = '&&'
+		&&&&&   = '&&'
+		^H
+		&&&&&&  = '&&&'
 		*/
-		const wchar_t *ChPtr = strTextStr.data() + pos;
-		int I=0;
-		const wchar_t *ChPtr2=ChPtr;
 
-		while (*ChPtr2++ == L'&')
-			++I;
+		auto AmpEnd = Str.find_first_not_of(L'&', AmpBegin);
+		if (AmpEnd == string::npos)
+			AmpEnd = Str.size();
 
-		if (I&1) // нечет?
+		if ((AmpEnd - AmpBegin) & 1) // нечет?
 		{
-			string LeftPart(strTextStr.data(), pos);
+			TextHandler(Str.substr(0, AmpBegin));
 
-			if (isVertText)
-				VText(LeftPart);
-			else
-				Text(LeftPart); //BUGBUG BAD!!!
-
-			if (ChPtr[1])
+			if (AmpBegin + 1 != Str.size())
 			{
-				wchar_t Chr[]={ChPtr[1],0};
-				SaveColor=CurColor;
-				SetColor(HiColor);
+				HilightHandler(Str[AmpBegin + 1]);
 
-				if (isVertText)
-					VText(Chr);
-				else
-					Text(Chr);
-
-				SetColor(SaveColor);
-				string strText = (ChPtr+1);
-				ReplaceStrings(strText, L"&&", L"&");
-
-				if (isVertText)
-					VText(strText.data()+1);
-				else
-					Text(strText.data()+1);
+				string RightPart = Str.substr(AmpBegin + 1);
+				ReplaceStrings(RightPart, L"&&", L"&");
+				TextHandler(RightPart.substr(1));
 			}
 		}
 		else
 		{
-			ReplaceStrings(strTextStr, L"&&", L"&");
-
-			if (isVertText)
-				VText(strTextStr);
-			else
-				Text(strTextStr); //BUGBUG BAD!!!
+			string StrCopy(Str);
+			ReplaceStrings(StrCopy, L"&&", L"&");
+			TextHandler(StrCopy);
 		}
+	}
+	else
+	{
+		TextHandler(Str);
+	}
+}
+
+void HiText(const string& Str,const FarColor& HiColor,int isVertText)
+{
+	typedef void(*text_func)(const string&);
+	text_func fText = Text, fVText = VText; //BUGBUG
+	const auto TextFunc  = isVertText ? fVText : fText;
+
+	HiTextBase(Str, [&TextFunc](const string& s){ TextFunc(s); }, [&TextFunc, &HiColor](wchar_t c)
+	{
+		auto SaveColor = CurColor;
+		SetColor(HiColor);
+		TextFunc(string(1, c));
+		SetColor(SaveColor);
+	});
+}
+
+string HiText2Str(const string& Str)
+{
+	string Result;
+	HiTextBase(Str, [&Result](const string& s){ Result += s; }, [&Result](wchar_t c) { Result += c; });
+	return Result;
+}
+
+// removes single '&', turns '&&' into '&'
+void RemoveHighlights(string &strStr)
+{
+	const auto Target = L'&';
+	size_t pos = strStr.find(Target);
+	if (pos != string::npos)
+	{
+		size_t pos1 = pos;
+		size_t len = strStr.size();
+		while (pos < len)
+		{
+			++pos;
+			if (pos < len && strStr[pos] == Target)
+			{
+				strStr[pos1++] = Target;
+				++pos;
+			}
+			while (pos < len && strStr[pos] != Target)
+				strStr[pos1++] = strStr[pos++];
+		}
+		strStr.resize(pos1);
 	}
 }
 
@@ -917,151 +919,96 @@ void Box(int x1,int y1,int x2,int y2,const FarColor& Color,int Type)
 	if (x1>=x2 || y1>=y2)
 		return;
 
+	enum line { LineV, LineH, LineLT, LineRT, LineLB, LineRB, LineCount };
+
+	static const BOX_DEF_SYMBOLS BoxInit[2][LineCount] =
+	{
+		{ BS_V1, BS_H1, BS_LT_H1V1, BS_RT_H1V1, BS_LB_H1V1, BS_RB_H1V1, },
+		{ BS_V2, BS_H2, BS_LT_H2V2, BS_RT_H2V2, BS_LB_H2V2, BS_RB_H2V2, },
+	};
+
+	const auto Box = BoxInit[(Type == DOUBLE_BOX || Type == SHORT_DOUBLE_BOX)];
+	auto Symbol = [Box](line Line) { return BoxSymbols[Box[Line]]; };
+
 	SetColor(Color);
-	Type=(Type==DOUBLE_BOX || Type==SHORT_DOUBLE_BOX);
 
-	WCHAR StackBuffer[StackBufferSize/sizeof(WCHAR)];
-	wchar_t_ptr HeapBuffer;
-	LPWSTR BufPtr=StackBuffer;
+	std::vector<wchar_t> Buffer;
 
-	const size_t height=y2-y1;
-	if(height>StackBufferSize/sizeof(WCHAR))
-	{
-		HeapBuffer.reset(height);
-		BufPtr=HeapBuffer.get();
-	}
-	wmemset(BufPtr, BoxSymbols[Type?BS_V2:BS_V1], height-1);
-	BufPtr[height-1]=0;
+	Buffer.assign(y2 - y1 - 1, Symbol(LineV));
+
 	GotoXY(x1,y1+1);
-	VText(BufPtr, height - 1);
+	VText(Buffer.data(), Buffer.size());
+
 	GotoXY(x2,y1+1);
-	VText(BufPtr, height - 1);
-	const size_t width=x2-x1+2;
-	if(width>StackBufferSize/sizeof(WCHAR))
-	{
-		if(width>height)
-		{
-			HeapBuffer.reset(width);
-			BufPtr=HeapBuffer.get();
-		}
-	}
-	BufPtr[0]=BoxSymbols[Type?BS_LT_H2V2:BS_LT_H1V1];
-	wmemset(BufPtr+1, BoxSymbols[Type?BS_H2:BS_H1], width-3);
-	BufPtr[width-2]=BoxSymbols[Type?BS_RT_H2V2:BS_RT_H1V1];
-	BufPtr[width-1]=0;
+	VText(Buffer.data(), Buffer.size());
+
+	Buffer.assign(x2 - x1 + 1, Symbol(LineH));
+
+	Buffer.front() = Symbol(LineLT);
+	Buffer.back() = Symbol(LineRT);
 	GotoXY(x1,y1);
-	Text(BufPtr, width - 1);
-	BufPtr[0]=BoxSymbols[Type?BS_LB_H2V2:BS_LB_H1V1];
-	BufPtr[width-2]=BoxSymbols[Type?BS_RB_H2V2:BS_RB_H1V1];
+	Text(Buffer.data(), Buffer.size());
+
+	Buffer.front() = Symbol(LineLB);
+	Buffer.back() = Symbol(LineRB);
 	GotoXY(x1,y2);
-	Text(BufPtr, width - 1);
+	Text(Buffer.data(), Buffer.size());
 }
 
 bool ScrollBarRequired(UINT Length, UINT64 ItemsCount)
 {
-	return Length>2 && ItemsCount && Length<ItemsCount;
+	return Length >= 2 && ItemsCount && Length<ItemsCount;
 }
 
-bool ScrollBarEx(UINT X1,UINT Y1,UINT Length,UINT64 TopItem,UINT64 ItemsCount)
+bool ScrollBarEx(UINT X1, UINT Y1, UINT Length, UINT64 TopItem, UINT64 ItemsCount)
 {
-	if ( !ScrollBarRequired(Length, ItemsCount) )
-		return false;
-	return
-		ScrollBarEx3(X1, Y1, Length, TopItem,TopItem+Length,ItemsCount);
+	return ScrollBarRequired(Length, ItemsCount) && ScrollBarEx3(X1, Y1, Length, TopItem,TopItem+Length,ItemsCount);
 }
 
-bool ScrollBarEx3(UINT X1,UINT Y1,UINT Length, UINT64 Start,UINT64 End,UINT64 Size)
+bool ScrollBarEx3(UINT X1, UINT Y1, UINT Length, UINT64 Start, UINT64 End, UINT64 Size)
 {
-	WCHAR StackBuffer[4000/sizeof(WCHAR)], *Buffer = StackBuffer;
-	wchar_t_ptr HeapBuffer;
-	if ( Length <= 2 || End < Start )
+	if ( Length < 2)
 		return false;
-	if ( Length >= ARRAYSIZE(StackBuffer) )
-	{
-		HeapBuffer.reset(Length + 1);
-		Buffer = HeapBuffer.get();
-	}
-	Buffer[0] = Oem2Unicode[0x1E];
-	Buffer[Length--] = L'\0';
-	Buffer[Length--] = Oem2Unicode[0x1F];
-	WCHAR b0 = BoxSymbols[BS_X_B0], b2 = BoxSymbols[BS_X_B2];
-	UINT i, i1, i2;
 
-	if ( End > Size )
-		End = Size;
+	std::vector<wchar_t> Buffer(Length, BoxSymbols[BS_X_B0]);
+	Buffer.front() = Oem2Unicode[0x1E];
+	Buffer.back() = Oem2Unicode[0x1F];
 
-	if ( !Size || Start >= End )
-	{
-		i1 = Length+1;
-		i2 = 0;
-	}
-	else
-	{
-		UINT thickness = static_cast<UINT>(((End - Start) * Length) / Size);
-		if ( !thickness )
-			++thickness;
+	const auto FieldBegin = Buffer.begin() + 1;
+	const auto FieldEnd = Buffer.end() - 1;
+	const size_t FieldSize = FieldEnd - FieldBegin;
 
-		if ( thickness >= Length )
-			i2 = (i1 = 1) + Length;
-		else if ( End >= Size )
-			i1 = (i2 = 1 + Length) - thickness;
+	End = std::min(End, Size);
+
+	auto SliderBegin = FieldBegin, SliderEnd = SliderBegin;
+
+	if (Size && Start < End)
+	{
+		auto SliderSize = std::max(1u, static_cast<UINT>(((End - Start) * FieldSize) / Size));
+
+		if (SliderSize >= FieldSize)
+		{
+			SliderBegin = FieldBegin;
+			SliderEnd = FieldEnd;
+		}
+		else if (End >= Size)
+		{
+			SliderBegin = FieldEnd - SliderSize;
+			SliderEnd = FieldEnd;
+		}
 		else
 		{
-			i1 = 1 + static_cast<UINT>((Start*Length)/ Size);
-			if (i1 > Length)
-				i1 = Length;
-
-			i2 = i1 + thickness;
-			if ( i2 >= Length+1 )
-			{
-				i2 = Length + 1;
-			   if ( i1 < i2-1 )
-					--i2;
-			}
+			SliderBegin = std::min(FieldBegin + static_cast<UINT>((Start*FieldSize) / Size), FieldEnd);
+			SliderEnd = std::min(SliderBegin + SliderSize, FieldEnd);
 		}
 	}
 
-	for (i = 1; i <= Length; i++)
-		Buffer[i] = (i >= i1 && i < i2 ? b2 : b0);
+	std::fill(SliderBegin, SliderEnd, BoxSymbols[BS_X_B2]);
 
 	GotoXY(X1, Y1);
-	VText(Buffer);
+	VText(Buffer.data(), Buffer.size());
 
 	return true;
-}
-
-void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total)
-{
-	int ThumbPos;
-
-	if ((Length-=2)<1)
-		return;
-
-	if (Total>0)
-		ThumbPos=Length*Current/Total;
-	else
-		ThumbPos=0;
-
-	if (ThumbPos>=Length)
-		ThumbPos=Length-1;
-
-	GotoXY(X1,Y1);
-	{
-		WCHAR StackBuffer[StackBufferSize/sizeof(WCHAR)];
-		wchar_t_ptr HeapBuffer;
-		LPWSTR BufPtr=StackBuffer;
-		if(static_cast<size_t>(Length+3)>=StackBufferSize/sizeof(WCHAR))
-		{
-			HeapBuffer.reset(Length + 3);
-			BufPtr=HeapBuffer.get();
-		}
-		wmemset(BufPtr+1,BoxSymbols[BS_X_B0],Length);
-		BufPtr[ThumbPos+1]=BoxSymbols[BS_X_B2];
-		BufPtr[0]=Oem2Unicode[0x1E];
-		BufPtr[Length+1]=Oem2Unicode[0x1F];
-		BufPtr[Length+2]=0;
-		VText(BufPtr);
-	}
 }
 
 void DrawLine(int Length,int Type, const wchar_t* UserSep)
@@ -1079,7 +1026,7 @@ void DrawLine(int Length,int Type, const wchar_t* UserSep)
 string MakeSeparator(int Length, int Type, const wchar_t* UserSep)
 {
 	// left-center-right/top-center-bottom
-	wchar_t BoxType[12][3]=
+	const wchar_t BoxType[12][3]=
 	{
 		// h-horiz, s-space, v-vert, b-border, 1-one line, 2-two line
 		/* 00 */{L' ',                 BoxSymbols[BS_H1],                 L' '}, //  -     h1s
@@ -1131,8 +1078,7 @@ string MakeSeparator(int Length, int Type, const wchar_t* UserSep)
 			c[2]=BoxType[Type][2];
 		}
 
-		Result.resize(Length);
-		std::fill(Result.begin() + 1, Result.end() - 1, c[1]);
+		Result.assign(Length, c[1]);
 		Result.front() = c[0];
 		Result.back() = c[2];
 	}
@@ -1162,53 +1108,7 @@ string make_progressbar(size_t Size, int Percent, bool ShowPercent, bool Propaga
 	return Str;
 }
 
-string& HiText2Str(string& strDest, const string& Str)
-{
-	const wchar_t *ChPtr;
-	string strDestTemp = Str;
-
-	if ((ChPtr=wcschr(Str.data(),L'&')) )
-	{
-		/*
-		   &&      = '&'
-		   &&&     = '&'
-		              ^H
-		   &&&&    = '&&'
-		   &&&&&   = '&&'
-		              ^H
-		   &&&&&&  = '&&&'
-		*/
-		int I=0;
-		const wchar_t *ChPtr2=ChPtr;
-
-		while (*ChPtr2++ == L'&')
-			++I;
-
-		if (I&1) // нечет?
-		{
-			strDestTemp.resize(ChPtr-Str.data());
-
-			if (ChPtr[1])
-			{
-				wchar_t Chr[]={ChPtr[1],0};
-				strDestTemp+=Chr;
-				string strText = (ChPtr+1);
-				ReplaceStrings(strText, L"&&", L"&");
-				strDestTemp+=strText.data()+1;
-			}
-		}
-		else
-		{
-			ReplaceStrings(strDestTemp, L"&&", L"&");
-		}
-	}
-
-	strDest = strDestTemp;
-
-	return strDest;
-}
-
-int HiStrlen(const string& str)
+size_t HiStrlen(const string& str)
 {
 	/*
 			&&      = '&'
@@ -1220,36 +1120,32 @@ int HiStrlen(const string& str)
 			&&&&&&  = '&&&'
 	*/
 
-	int Length=0;
-	bool Hi=false;
+	size_t Length = 0;
+	bool Hi = false;
 
-	const wchar_t* Str = str.data();
-	while (*Str)
+	for (size_t i = 0, size = str.size(); i != size; ++i)
 	{
-		if (*Str == L'&')
+		if (str[i] == L'&')
 		{
-			int Count=0;
+			auto AmpEnd = str.find_first_not_of(L'&', i);
+			if (AmpEnd == string::npos)
+				AmpEnd = str.size();
+			const auto Count = AmpEnd - i;
+			i = AmpEnd - 1;
 
-			while (*Str == L'&')
-			{
-				Str++;
-				Count++;
-			}
-
-			if (Count&1) //нечёт?
+			if (Count & 1) //нечёт?
 			{
 				if (Hi)
-					Length++;
+					++Length;
 				else
-					Hi=true;
+					Hi = true;
 			}
 
 			Length+=Count/2;
 		}
 		else
 		{
-			Str++;
-			Length++;
+			++Length;
 		}
 	}
 

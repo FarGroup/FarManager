@@ -382,8 +382,8 @@ void FindFiles::InitInFileSearch()
 			if (!CmpCase)
 			{
 				string UpperVersion(strFindStr), LowerVersion(strFindStr);
-				Upper(UpperVersion);
-				Lower(LowerVersion);
+				ToUpper(UpperVersion);
+				ToLower(LowerVersion);
 				findStringBuffer = UpperVersion + LowerVersion;
 				findString = findStringBuffer.data();
 			}

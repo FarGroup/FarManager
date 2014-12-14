@@ -1318,7 +1318,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 							string strFullName = NullToEmpty(Info.CurDir);
 
 							if (Global->Opt->PanelCtrlFRule && (m_ViewSettings.Flags&PVS_FOLDERUPPERCASE))
-								Upper(strFullName);
+								ToUpper(strFullName);
 
 							if (!strFullName.empty())
 								AddEndSlash(strFullName,0);
@@ -1328,11 +1328,11 @@ int FileList::ProcessKey(const Manager::Key& Key)
 								/* $ 13.10.2000 tran
 								  по Ctrl-f им€ должно отвечать услови€м на панели */
 								if ((m_ViewSettings.Flags&PVS_FILELOWERCASE) && !(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-									Lower(strFileName);
+									ToLower(strFileName);
 
 								if ((m_ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE))
 									if (!(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(strFileName))
-										Lower(strFileName);
+										ToLower(strFileName);
 							}
 
 							strFullName += strFileName;
@@ -2866,20 +2866,6 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 		SetDirectorySuccess=false;
 	}
 
-	/* $ 28.04.2001 IS
-	     «акомментарим "до лучших времен".
-	     я не знаю, почему глюк про€вл€лс€ только у мен€, но зато знаю, почему он
-	     был просто-таки об€зан про€витс€. ∆елающие могут немного RTFM. “ема дл€
-	     изучени€: chdir, setdisk, SetCurrentDirectory и переменные окружени€
-
-	*/
-	/*else {
-	  if (isalpha(SetDir[0]) && SetDir[1]==':')
-	  {
-	    int CurDisk=toupper(SetDir[0])-'A';
-	    setdisk(CurDisk);
-	  }
-	}*/
 	api::GetCurrentDirectory(m_CurDir);
 	if (!IsUpdated)
 		return SetDirectorySuccess;
@@ -3493,7 +3479,7 @@ int FileList::FindPartName(const string& Name,int Next,int Direct)
 	string Dest;
 	int DirFind = 0;
 	string strMask = Name;
-	Upper(strMask);
+	ToUpper(strMask);
 
 	if (!Name.empty() && IsSlash(Name.back()))
 	{
@@ -3509,7 +3495,7 @@ int FileList::FindPartName(const string& Name,int Next,int Direct)
 
 	for (int I=m_CurFile+(Next?Direct:0); I >= 0 && I < m_ListData.size(); I+=Direct)
 	{
-		if (GetPlainString(Dest,I) && Upper(Dest).find(strMask) != string::npos)
+		if (GetPlainString(Dest,I) && ToUpper(Dest).find(strMask) != string::npos)
 		//if (CmpName(strMask,ListData[I].strName,true,I==CurFile))
 		{
 			if (!TestParentFolderName(m_ListData[I].strName))
@@ -3527,7 +3513,7 @@ int FileList::FindPartName(const string& Name,int Next,int Direct)
 
 	for (int I=(Direct > 0)?0:m_ListData.size()-1; (Direct > 0) ? I < m_CurFile:I > m_CurFile; I+=Direct)
 	{
-		if (GetPlainString(Dest,I) && Upper(Dest).find(strMask) != string::npos)
+		if (GetPlainString(Dest,I) && ToUpper(Dest).find(strMask) != string::npos)
 		{
 			if (!TestParentFolderName(m_ListData[I].strName))
 			{
@@ -4365,7 +4351,7 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 				string strFullName = NullToEmpty(Info.CurDir);
 
 				if (Global->Opt->PanelCtrlFRule && (m_ViewSettings.Flags&PVS_FOLDERUPPERCASE))
-					Upper(strFullName);
+					ToUpper(strFullName);
 
 				if (!strFullName.empty())
 					AddEndSlash(strFullName);
@@ -4374,11 +4360,11 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 				{
 					// им€ должно отвечать услови€м на панели
 					if ((m_ViewSettings.Flags&PVS_FILELOWERCASE) && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-						Lower(strQuotedName);
+						ToLower(strQuotedName);
 
 					if (m_ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE)
 						if (!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(strQuotedName))
-							Lower(strQuotedName);
+							ToLower(strQuotedName);
 				}
 
 				strFullName += strQuotedName;
@@ -6613,7 +6599,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 		if (m_ListData[m_CurFile].Selected && !ReturnCurrentFile)
 		{
-			auto NotSelectedIterator = std::find_if(m_ListData.begin() + m_CurFile + 1, m_ListData.end(), [](const VALUE_TYPE(m_ListData)& i) { return !i.Selected; });
+			auto NotSelectedIterator = std::find_if(m_ListData.begin() + m_CurFile + 1, m_ListData.end(), [](CONST_REFERENCE(m_ListData) i) { return !i.Selected; });
 			if (NotSelectedIterator != m_ListData.cend())
 			{
 				strNextCurName = NotSelectedIterator->strName;
@@ -7076,7 +7062,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 
 		if (m_ListData[m_CurFile].Selected)
 		{
-			auto ItemIterator = std::find_if(m_ListData.cbegin() + m_CurFile + 1, m_ListData.cend(), [](CONST_VALUE_TYPE(m_ListData)& i) { return !i.Selected; });
+			auto ItemIterator = std::find_if(m_ListData.cbegin() + m_CurFile + 1, m_ListData.cend(), [](CONST_REFERENCE(m_ListData) i) { return !i.Selected; });
 			if (ItemIterator != m_ListData.cend())
 			{
 				strNextCurName = ItemIterator->strName;
@@ -7585,7 +7571,7 @@ void FileList::ShowFileList(int Fast)
 
 			SetColor(COL_PANELCOLUMNTITLE);
 			if (Ch)
-				OutCharacter[0] = m_ReverseSortOrder? Upper(Ch[1]) : Lower(Ch[1]);
+				OutCharacter[0] = m_ReverseSortOrder? ToUpper(Ch[1]) : ToLower(Ch[1]);
 			else
 				OutCharacter[0] = m_ReverseSortOrder? CustomSortIndicator[1] : CustomSortIndicator[0];
 
@@ -7659,17 +7645,21 @@ void FileList::ShowFileList(int Fast)
 			++XShift;
 	}
 	MaxSize -= XShift;
-	TruncPathStr(strTitle, MaxSize - 2);
+	if (MaxSize >= 2)
+	{
+		TruncPathStr(strTitle, MaxSize - 2);
+	}
 	strTitle.insert(0, 1, L' ');
 	strTitle.push_back(L' ');
 
-	size_t TitleX=m_X1+1+XShift+(TitleX2-m_X1-XShift-strTitle.size())/2;
+	const int TitleSize = static_cast<int>(strTitle.size());
+	int TitleX = m_X1 + 1 + XShift + (TitleX2 - m_X1 - XShift - TitleSize) / 2;
 
-	if (Global->Opt->Clock && !Global->Opt->ShowMenuBar && TitleX + strTitle.size() > static_cast<size_t>(ScrX-5))
-		TitleX = ScrX - 5 - strTitle.size();
+	if (Global->Opt->Clock && !Global->Opt->ShowMenuBar && TitleX + TitleSize > ScrX - 5)
+		TitleX = ScrX - 5 - TitleSize;
 
 	SetColor(m_Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
-	GotoXY(static_cast<int>(TitleX),m_Y1);
+	GotoXY(TitleX, m_Y1);
 	Text(strTitle);
 
 	if (m_ListData.empty())
@@ -8425,13 +8415,13 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							{
 								if (m_ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE)
 									if (!(m_ListData[ListPos].FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(NameCopy))
-										Lower(strName);
+										ToLower(strName);
 
 								if ((m_ViewSettings.Flags&PVS_FOLDERUPPERCASE) && (m_ListData[ListPos].FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-									Upper(strName);
+									ToUpper(strName);
 
 								if ((m_ViewSettings.Flags&PVS_FILELOWERCASE) && !(m_ListData[ListPos].FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-									Lower(strName);
+									ToLower(strName);
 							}
 
 							Text(strName);

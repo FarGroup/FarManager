@@ -90,6 +90,6 @@ string locale::GetValue(LCID lcid, size_t id)
 
 	// ???
 	if (!Result.empty())
-		Result[0] = Upper(Result[0]);
+		Result[0] = ToUpper(Result[0]);
 	return Result;
 }

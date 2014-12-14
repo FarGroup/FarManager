@@ -377,7 +377,7 @@ static struct list_less
 {
 	bool operator()(const TreeList::TreeItem& a, const TreeList::TreeItem& b) const
 	{
-		auto comparer = StaticSortNumeric? (StaticSortCaseSensitive ? NumStrCmpN : NumStrCmpNI) : (StaticSortCaseSensitive ? StrCmpNN : StrCmpNNI);
+		const auto comparer = StaticSortNumeric? (StaticSortCaseSensitive ? NumStrCmpN : NumStrCmpNI) : (StaticSortCaseSensitive ? StrCmpNN : StrCmpNNI);
 
 		return TreeLess(a.strName, b.strName, comparer);
 	}

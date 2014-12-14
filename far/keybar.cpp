@@ -255,21 +255,17 @@ void KeyBar::SetCustomLabels(KEYBARAREA Area)
 	{
 		strLanguage = Global->Opt->strLanguage.Get();
 		CustomArea = Area;
-		string strRegName = L"KeyBarLabels." + strLanguage + L"." + Names[Area];
-
 		ClearKeyTitles(true);
 
-		DWORD Index=0;
-		string strValue, strValueName;
-		while (Global->Db->GeneralCfg()->EnumValues(strRegName,Index++,strValueName,strValue))
+		FOR(auto& i, Global->Db->GeneralCfg()->GetStringValuesEnumerator(L"KeyBarLabels." + strLanguage + L"." + Names[Area]))
 		{
-			DWORD Key = KeyNameToKey(strValueName);
+			DWORD Key = KeyNameToKey(i.first);
 			DWORD fnum = (Key & ~KEY_CTRLMASK) - KEY_F1;
 			if (fnum < KEY_COUNT)
 			{
 				int fgroup = FnGroup(Key & KEY_CTRLMASK);
 				if (fgroup >= 0)
-					Items[fgroup][fnum].second = strValue;
+					Items[fgroup][fnum].second = i.second;
 			}
 		}
 		CustomLabelsReaded = true;

@@ -95,9 +95,9 @@ bool ExtractIfExistCommand(string &strCommandText)
 	return Result;
 }
 
-int GetDescriptionWidth()
+size_t GetDescriptionWidth()
 {
-	int Width=0;
+	size_t Width = 0;
 	DWORD Index=0;
 	unsigned __int64 id;
 	string strMask;
@@ -110,11 +110,7 @@ int GetDescriptionWidth()
 			continue;
 
 		Global->Db->AssocConfig()->GetDescription(id,strDescription);
-
-		int CurWidth = HiStrlen(strDescription);
-
-		if (CurWidth>Width)
-			Width=CurWidth;
+		Width = std::max(Width, HiStrlen(strDescription));
 	}
 
 	return Width;
@@ -317,7 +313,7 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 
 static int FillFileTypesMenu(VMenu2 *TypesMenu,int MenuPos)
 {
-	int DizWidth=GetDescriptionWidth();
+	const auto DizWidth=GetDescriptionWidth();
 	TypesMenu->DeleteItems();
 	DWORD Index=0;
 	string strMask;
