@@ -3,6 +3,18 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 14.12.2014 21:32:16 +0200 - build 4213
+
+1. Refactoring.
+
+shmuel 13.12.2014 17:58:08 +0200 - build 4212
+
+1. MacroControl(MCTL_ADDMACRO) with given Callback function did not work in GCC build of FAR.
+
+svs 09.12.2014 21:54:12 +0300 - build 4211
+
+1. SQLite 3.8.7.4
+
 zg 07.12.2014 17:27:25 +0200 - build 4210
 
 1. correction of 4208: crash of some panel ansi plugins.
