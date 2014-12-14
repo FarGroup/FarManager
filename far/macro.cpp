@@ -4891,8 +4891,9 @@ static bool panelitemFunc(FarMacroCall* Data)
 			case 21:  // ChangeTime (FILETIME)
 				PassInteger(FileTimeToUI64(filelistItem->ChangeTime), Data);
 				return false;
-			case 22:  // CustomData
-				Ret=TVar(filelistItem->strCustomData);
+			case 22:  // ContentData (was: CustomData)
+				//Ret=TVar(filelistItem->ContentData.size() ? filelistItem->ContentData[0] : L"");
+				Ret=TVar(L"");
 				break;
 			case 23:  // ReparseTag
 			{

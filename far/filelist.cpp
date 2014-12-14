@@ -555,6 +555,7 @@ static struct list_less
 				break;
 
 			case BY_CUSTOMDATA:
+#if 0
 				if (a.strCustomData.empty())
 				{
 					if (b.strCustomData.empty())
@@ -572,6 +573,7 @@ static struct list_less
 				}
 				if (RetCode)
 					return less_opt(RetCode < 0);
+#endif
 				break;
 			}
 
@@ -6668,7 +6670,31 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	api::enum_file Find(strFind, true);
 	DWORD FindErrorCode = ERROR_SUCCESS;
 	bool UseFilter=m_Filter->IsEnabledOnPanel();
-	bool ReadCustomData=IsColumnDisplayed(CUSTOM_COLUMN0);
+
+	std::vector<const wchar_t*> ContentNames, ContentValues;
+	std::vector<Plugin*> ContentPlugins;
+	{
+		std::unordered_map<string,bool> Map;
+
+		for (int k=0; k<2; k++)
+		{
+			auto& Columns = k==0 ? m_ViewSettings.PanelColumns : m_ViewSettings.StatusColumns;
+			std::for_each(RANGE(Columns, i)
+			{
+				if ((i.type&0xff) == CUSTOM_COLUMN0)
+				{
+					auto Ret = Map.emplace(std::make_pair(i.title,true));
+					if (Ret.second)
+						ContentNames.emplace_back(i.title);
+				}
+			});
+		}
+
+		if (!ContentNames.empty())
+			Global->CtrlObject->Plugins->GetContentPlugins(ContentNames, ContentPlugins);
+
+		ContentValues.resize(ContentNames.size());
+	}
 
 	DWORD StartTime = GetTickCount();
 
@@ -6730,8 +6756,8 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 				EnumStreams(TestParentFolderName(fdata.strFileName)? m_CurDir : fdata.strFileName, NewItem.StreamsSize, NewItem.NumberOfStreams);
 			}
 
-			if (ReadCustomData)
-				NewItem.strCustomData = Global->CtrlObject->Plugins->GetCustomData(NewItem.strName);
+			if (!ContentPlugins.empty())
+				Global->CtrlObject->Plugins->GetContentData(ContentPlugins, NewItem.strName, ContentNames, ContentValues, NewItem.ContentData);
 
 			if (!(fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 				TotalFileCount++;
@@ -7479,7 +7505,7 @@ void FileList::ShowFileList(int Fast)
 					break;
 			}
 
-			strTitle=MSG(IDMessage);
+			strTitle = IDMessage==MColumnUnknown && *m_ViewSettings.PanelColumns[I].title ? m_ViewSettings.PanelColumns[I].title : MSG(IDMessage);
 
 			if (m_PanelMode==PLUGIN_PANEL && Info.PanelModesArray &&
 			        m_ViewMode<static_cast<int>(Info.PanelModesNumber) &&
@@ -8287,7 +8313,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 					if (!ColumnData)
 					{
-						ColumnData=m_ListData[ListPos].strCustomData.data();//L"";
+						ColumnData = m_ListData[ListPos].ContentData[Columns[K].title].data();
 					}
 
 					int CurLeftPos=0;

@@ -136,8 +136,9 @@ DLLFUNC intptr_t LF_ProcessViewerEvent(lua_State* L, const struct ProcessViewerE
 DLLFUNC intptr_t LF_PutFiles(lua_State* L, const struct PutFilesInfo *Info);
 DLLFUNC intptr_t LF_SetDirectory(lua_State* L, const struct SetDirectoryInfo *Info);
 DLLFUNC intptr_t LF_SetFindList(lua_State* L, const struct SetFindListInfo *Info);
-DLLFUNC intptr_t LF_GetCustomData(lua_State* L, const wchar_t *FilePath, wchar_t **CustomData);
-DLLFUNC void     LF_FreeCustomData(lua_State* L, wchar_t *CustomData);
+DLLFUNC intptr_t LF_GetContentFields(lua_State* L, const struct GetContentFieldsInfo *Info);
+DLLFUNC intptr_t LF_GetContentData(lua_State* L, struct GetContentDataInfo *Info);
+DLLFUNC void     LF_FreeContentData(lua_State* L, const struct GetContentDataInfo *Info);
 
 #ifdef __cplusplus
 }

@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 4207
+  Plugin API for Far Manager 3.0 build 4214
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 4207
+#define FARMANAGERVERSION_BUILD 4214
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -504,6 +504,12 @@ struct FAR_CHAR_INFO
 	struct FarColor Attributes;
 
 #ifdef __cplusplus
+	static FAR_CHAR_INFO make(wchar_t Char, const FarColor& Attributes)
+	{
+		FAR_CHAR_INFO info = { Char, Attributes };
+		return info;
+	}
+
 	bool operator ==(const FAR_CHAR_INFO& rhs) const
 	{
 		return Char == rhs.Char && Attributes == rhs.Attributes;
@@ -2772,6 +2778,24 @@ struct ConfigureInfo
 	void* Instance;
 };
 
+struct GetContentFieldsInfo
+{
+	size_t StructSize;
+	size_t Count;
+	const wchar_t* const *Names;
+	void* Instance;
+};
+
+struct GetContentDataInfo
+{
+	size_t StructSize;
+	const wchar_t *FilePath;
+	size_t Count;
+	const wchar_t* const *Names;
+	const wchar_t **Values;
+	void* Instance;
+};
+
 static const GUID FarGuid =
 {0x00000000, 0x0000, 0x0000, {0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00}};
 
@@ -2809,6 +2833,9 @@ extern "C"
 	intptr_t WINAPI SetDirectoryW(const struct SetDirectoryInfo *Info);
 	intptr_t WINAPI SetFindListW(const struct SetFindListInfo *Info);
 	void     WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info);
+	intptr_t WINAPI GetContentFieldsW(const struct GetContentFieldsInfo *Info);
+	intptr_t WINAPI GetContentDataW(struct GetContentDataInfo *Info);
+	void     WINAPI FreeContentDataW(const struct GetContentDataInfo *Info);
 
 #ifdef __cplusplus
 };

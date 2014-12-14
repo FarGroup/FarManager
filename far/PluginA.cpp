@@ -127,8 +127,9 @@ OEMPluginModel::OEMPluginModel(PluginManager* owner):
 		WA(""), // ProcessConsoleEvent not used
 		WA(""), // Analyze not used
 		WA(""), // CloseAnalyze not used
-		WA(""), // GetCustomData not used
-		WA(""), // FreeCustomData not used
+		WA(""), // GetContentFields not used
+		WA(""), // GetContentData not used
+		WA(""), // FreeContentData not used
 
 		WA("OpenFilePlugin"),
 		WA("GetMinFarVersion"),

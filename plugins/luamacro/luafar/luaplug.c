@@ -419,15 +419,20 @@ intptr_t LUAPLUG ProcessDialogEventW(const struct ProcessDialogEventInfo *Info)
 #endif
 //---------------------------------------------------------------------------
 
-#ifdef EXPORT_GETCUSTOMDATA
-intptr_t LUAPLUG GetCustomDataW(const wchar_t *FilePath, wchar_t **CustomData)
+#ifdef EXPORT_GETCONTENTDATA
+intptr_t LUAPLUG GetContentFieldsW(const struct GetContentFieldsInfo *Info)
 {
-	return IsPluginReady(G) ? LF_GetCustomData(G.LS, FilePath, CustomData) : 0;
+	return IsPluginReady(G) ? LF_GetContentFields(G.LS, Info) : 0;
 }
 
-void LUAPLUG FreeCustomDataW(wchar_t *CustomData)
+intptr_t LUAPLUG GetContentDataW(struct GetContentDataInfo *Info)
 {
-	if (IsPluginReady(G)) LF_FreeCustomData(G.LS, CustomData);
+	return IsPluginReady(G) ? LF_GetContentData(G.LS, Info) : 0;
+}
+
+void LUAPLUG FreeContentDataW(const struct GetContentDataInfo *Info)
+{
+	if (IsPluginReady(G)) LF_FreeContentData(G.LS, Info);
 }
 #endif
 //---------------------------------------------------------------------------

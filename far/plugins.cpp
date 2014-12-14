@@ -2368,27 +2368,50 @@ PluginHandle* PluginManager::Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,
 	return nullptr;
 }
 
-string PluginManager::GetCustomData(const string& Name) const
+void PluginManager::GetContentPlugins(const std::vector<const wchar_t*>& ColNames, std::vector<Plugin*>& Plugins) const
 {
-	const NTPath FilePath(Name);
-
-	string strCustomData;
-
+	size_t Count = ColNames.size();
 	std::for_each(CONST_RANGE(SortedPlugins, i)
 	{
-		wchar_t *CustomData = nullptr;
-
-		if (i->HasGetCustomData() && i->GetCustomData(FilePath.data(), &CustomData))
+		if (i->HasGetContentData() && i->HasGetContentFields())
 		{
-			if (!strCustomData.empty())
-				strCustomData += L" ";
-			strCustomData += CustomData;
-
-			if (i->HasFreeCustomData())
-				i->FreeCustomData(CustomData);
+			GetContentFieldsInfo Info = { sizeof(GetContentFieldsInfo),Count,ColNames.data(),nullptr };
+			if (i->GetContentFields(&Info))
+				Plugins.emplace_back(i);
 		}
 	});
-	return strCustomData;
+}
+
+void PluginManager::GetContentData(
+	const std::vector<Plugin*>& Plugins,
+	const string& Name,
+	const std::vector<const wchar_t*>& ColNames,
+	std::vector<const wchar_t*>& ColValues,
+	std::unordered_map<string,string>& ContentData
+) const
+{
+	const NTPath FilePath(Name);
+	size_t Count = ColNames.size();
+
+	std::for_each(CONST_RANGE(Plugins, i)
+	{
+		GetContentDataInfo GetInfo = { sizeof(GetContentDataInfo),FilePath.data(),Count,ColNames.data(),ColValues.data(),nullptr };
+		memset(ColValues.data(), 0, ColValues.size()*sizeof(wchar_t*));
+
+		if (i->GetContentData(&GetInfo) && GetInfo.Values)
+		{
+			for (size_t k=0; k<Count; k++)
+			{
+				if (GetInfo.Values[k])
+					ContentData.emplace(std::make_pair(ColNames[k],GetInfo.Values[k]));
+			}
+
+			if (i->HasFreeContentData())
+			{
+				i->FreeContentData(&GetInfo);
+			}
+		}
+	});
 }
 
 const GUID& PluginManager::GetGUID(const PluginHandle* hPlugin)

@@ -3,11 +3,14 @@
 ifndef FARDIR
   FARDIR = ..\..\..\unicode_far
 endif
+ifndef PATH_LIBS
+  PATH_LIBS = $(FARDIR)\Release.$(DIRBIT).vc
+endif
 ifndef TARGET
   TARGET = luaplug.dll
 endif
 ifdef FAR_EXPORTS
-  EXPORTS = $(addprefix -DEXPORT_,$(FAR_EXPORTS)) 
+  EXPORTS = $(addprefix -DEXPORT_,$(FAR_EXPORTS))
 endif
 
 PATH_LUAFAR = $(FARDIR)\..\plugins\luamacro\luafar
@@ -31,8 +34,7 @@ OBJ = luaplug.o $(MYOBJ)
 
 CFLAGS = -O2 -Wall -I$(INC_FAR) -I$(INC_LUA) $(EXPORTS) $(ARCH) $(MYCFLAGS)
 
-LDFLAGS = -Wl,--kill-at -shared -s $(ARCH) $(MYLDFLAGS) \
-  -L$(FARDIR)\Release.$(DIRBIT).gcc
+LDFLAGS = -Wl,--kill-at -shared -s $(ARCH) $(MYLDFLAGS) -L$(PATH_LIBS)
 
 vpath %.c $(PATH_LUAFAR)
 vpath %.h $(PATH_LUAFAR)

@@ -314,6 +314,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 
 		Columns.emplace_back(VALUE_TYPE(Columns)());
 
+		string strArgOrig = strArgName;
 		ToUpper(strArgName);
 
 		if (strArgName.front() == L'N')
@@ -425,6 +426,12 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 
 			if (strArgName.size() > 1 && strArgName[1] == L'R')
 				ColumnType |= COLUMN_RIGHTALIGN;
+		}
+		else if (strArgOrig.size() > 2 && strArgOrig.size()-2 < ARRAYSIZE(Columns.back().title) && strArgOrig.front() == L'<' && strArgOrig.back() == L'>')
+		{
+			wcsncpy(Columns.back().title, strArgOrig.data()+1, strArgOrig.size()-2);
+			Columns.back().title[strArgOrig.size()-2] = 0;
+			Columns.back().type = CUSTOM_COLUMN0;
 		}
 		else
 		{
@@ -539,6 +546,11 @@ void ViewSettingsToText(const std::vector<column>& Columns, string &strColumnTit
 		{
 			if (i.type & COLUMN_RIGHTALIGN)
 				strType += L"R";
+		}
+
+		if (ColumnType==CUSTOM_COLUMN0 && *i.title)
+		{
+			strType = string(L"<") + i.title + L">";
 		}
 
 		strColumnTitles += strType;

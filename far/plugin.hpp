@@ -2950,6 +2950,24 @@ struct ConfigureInfo
 	void* Instance;
 };
 
+struct GetContentFieldsInfo
+{
+	size_t StructSize;
+	size_t Count;
+	const wchar_t* const *Names;
+	void* Instance;
+};
+
+struct GetContentDataInfo
+{
+	size_t StructSize;
+	const wchar_t *FilePath;
+	size_t Count;
+	const wchar_t* const *Names;
+	const wchar_t **Values;
+	void* Instance;
+};
+
 #ifdef FAR_USE_INTERNALS
 #else // ELSE FAR_USE_INTERNALS
 static const GUID FarGuid =
@@ -2996,6 +3014,9 @@ extern "C"
 	intptr_t WINAPI SetDirectoryW(const struct SetDirectoryInfo *Info);
 	intptr_t WINAPI SetFindListW(const struct SetFindListInfo *Info);
 	void     WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info);
+	intptr_t WINAPI GetContentFieldsW(const struct GetContentFieldsInfo *Info);
+	intptr_t WINAPI GetContentDataW(struct GetContentDataInfo *Info);
+	void     WINAPI FreeContentDataW(const struct GetContentDataInfo *Info);
 
 #ifdef __cplusplus
 };

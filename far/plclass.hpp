@@ -67,8 +67,9 @@ enum EXPORTS_ENUM
 	iProcessConsoleInput,
 	iAnalyse,
 	iCloseAnalyse,
-	iGetCustomData,
-	iFreeCustomData,
+	iGetContentFields,
+	iGetContentData,
+	iFreeContentData,
 
 	iOpenFilePlugin,
 	iGetMinFarVersion,
@@ -174,8 +175,9 @@ public:
 	virtual void* Analyse(AnalyseInfo *Info);
 	virtual void CloseAnalyse(CloseAnalyseInfo* Info);
 
-	virtual int GetCustomData(const wchar_t *FilePath, wchar_t **CustomData);
-	virtual void FreeCustomData(wchar_t *CustomData);
+	virtual int GetContentFields(GetContentFieldsInfo *Info);
+	virtual int GetContentData(GetContentDataInfo *Info);
+	virtual void FreeContentData(GetContentDataInfo *Info);
 
 	virtual void* OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode);
 	virtual bool CheckMinFarVersion();
@@ -222,8 +224,9 @@ public:
 	HAS_FUNCTION(ProcessConsoleInput)
 	HAS_FUNCTION(Analyse)
 	HAS_FUNCTION(CloseAnalyse)
-	HAS_FUNCTION(GetCustomData)
-	HAS_FUNCTION(FreeCustomData)
+	HAS_FUNCTION(GetContentFields)
+	HAS_FUNCTION(GetContentData)
+	HAS_FUNCTION(FreeContentData)
 
 	HAS_FUNCTION(OpenFilePlugin)
 	HAS_FUNCTION(GetMinFarVersion)

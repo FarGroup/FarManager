@@ -2273,6 +2273,70 @@ mtime=3615807656
 </article>
 </node>
 <node>
+id=504
+lv=1
+dt=Text
+nm=Content functions
+ctime=3627747437
+mtime=3627747437
+<article>
+</article>
+</node>
+<node>
+id=505
+lv=2
+dt=Text
+nm=export.GetContentFields
+ctime=3627747455
+mtime=3627747904
+<article>
+#_Ret = export.GetContentFields (Names)
+#_
+#_**Parameters:**
+#_  Names:  table (an array containing names of column content types)
+#_
+#_**Returns:**
+#_  Ret:    boolean
+#_
+#_**Description:**
+#_  Return true if the plugin supports at least one of the content types.
+#_
+#_**Far API used:**
+#_  GetContentFieldsW
+#_
+#_@@@
+#_
+</article>
+</node>
+<node>
+id=506
+lv=2
+dt=Text
+nm=export.GetContentData
+ctime=3627747467
+mtime=3627748322
+<article>
+#_Ret = export.GetContentFields (FilePath, Names)
+#_
+#_**Parameters:**
+#_  FilePath: full name of the file
+#_  Names:    table (an array containing names of column content types)
+#_
+#_**Returns:**
+#_  Ret:      table, or nil
+#_
+#_**Description:**
+#_  The returned table should contain string values at the indexes corresponding
+#_  to indexes of supported content types in the *Names* array.
+#_
+#_**Far API used:**
+#_  GetContentDataW
+#_
+#_@@@
+#_
+</article>
+</node>
+<node>
 id=151
 lv=1
 dt=Text

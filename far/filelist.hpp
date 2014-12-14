@@ -79,7 +79,7 @@ struct FileListItem: NonCopyable
 
 	DWORD ReparseTag;
 
-	string strCustomData;
+	std::unordered_map<string,string> ContentData;
 
 	FileListItem():
 		Selected(),
@@ -107,7 +107,8 @@ struct FileListItem: NonCopyable
 		FileSize(),
 		AllocationSize(),
 		StreamsSize(),
-		ReparseTag()
+		ReparseTag(),
+		ContentData()
 	{
 	}
 
@@ -178,7 +179,7 @@ struct FileListItem: NonCopyable
 		swap(StreamsSize, rhs.StreamsSize);
 		strShortName.swap(rhs.strShortName);
 		swap(ReparseTag, rhs.ReparseTag);
-		strCustomData.swap(rhs.strCustomData);
+		ContentData.swap(rhs.ContentData);
 	}
 
 	FREE_SWAP(FileListItem);

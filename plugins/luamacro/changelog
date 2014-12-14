@@ -1,4 +1,8 @@
-﻿zg 06.12.2014 00:17:49 +0200 - build 460
+﻿shmuel 15.12.2014 00:46:09 +0200 - build 461
+
+1. LuaFAR: добавлена обработка функций export.GetContentFields и export.GetContentData.
+
+zg 06.12.2014 00:17:49 +0200 - build 460
 
 1. Panel.AddCustomDataCallback удалена.
 

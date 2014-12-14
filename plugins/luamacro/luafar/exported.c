@@ -1399,26 +1399,53 @@ intptr_t LF_ProcessSynchroEvent(lua_State* L, const struct ProcessSynchroEventIn
 	return ret;
 }
 
-intptr_t LF_GetCustomData(lua_State* L, const wchar_t *FilePath, wchar_t **CustomData)
+intptr_t LF_GetContentFields(lua_State* L, const struct GetContentFieldsInfo *Info)
 {
-	if(GetExportFunction(L, "GetCustomData"))     //+1: Func
+	if(GetExportFunction(L, "GetContentFields"))     //+1: Func
 	{
-		push_utf8_string(L, FilePath, -1);  //+2
+		size_t i;
+		lua_createtable(L, Info->Count, 0); //+2
+		for (i=0; i<Info->Count; i++)
+			PutWStrToArray(L, i+1, Info->Names[i], -1);
 
 		if(pcall_msg(L, 1, 1) == 0)     //+1
 		{
-			if(lua_isstring(L, -1))
+			int ret = lua_toboolean(L, -1);
+			lua_pop(L, 1);
+			return ret != 0;
+		}
+	}
+	return FALSE;
+}
+
+intptr_t LF_GetContentData(lua_State* L, struct GetContentDataInfo *Info)
+{
+	if(GetExportFunction(L, "GetContentData"))     //+1: Func
+	{
+		size_t i;
+		push_utf8_string(L, Info->FilePath, -1);  //+2
+		lua_createtable(L, Info->Count, 0); //+3
+		for (i=0; i<Info->Count; i++)
+			PutWStrToArray(L, i+1, Info->Names[i], -1);
+
+		if(pcall_msg(L, 2, 1) == 0)     //+1
+		{
+			if(lua_istable(L, -1))
 			{
-				const wchar_t* p = utf8_to_utf16(L, -1, NULL);
-
-				if(p)
+				for (i=0; i<Info->Count; i++)
 				{
-					*CustomData = _wcsdup(p);
+					lua_rawgeti(L, -1, i+1);
+					if (lua_type(L, -1) == LUA_TSTRING)
+					{
+						const wchar_t *p = utf8_to_utf16(L, -1, NULL);
+						if (p)
+							Info->Values[i] = _wcsdup(p);
+					}
 					lua_pop(L, 1);
-					return TRUE;
 				}
+				lua_pop(L, 1);
+				return TRUE;
 			}
-
 			lua_pop(L, 1);
 		}
 	}
@@ -1426,11 +1453,14 @@ intptr_t LF_GetCustomData(lua_State* L, const wchar_t *FilePath, wchar_t **Custo
 	return FALSE;
 }
 
-void LF_FreeCustomData(lua_State* L, wchar_t *CustomData)
+void LF_FreeContentData(lua_State* L, const struct GetContentDataInfo *Info)
 {
+	size_t i;
 	(void) L;
-
-	if(CustomData) free(CustomData);
+	for (i=0; i<Info->Count; i++)
+	{
+		if (Info->Values[i]) free((void*)Info->Values[i]);
+	}
 }
 
 int LF_GetGlobalInfo(lua_State* L, struct GlobalInfo *Info, const wchar_t *PluginDir)

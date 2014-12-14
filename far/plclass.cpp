@@ -85,8 +85,9 @@ typedef intptr_t (WINAPI *iProcessSynchroEventPrototype) (const ProcessSynchroEv
 typedef intptr_t (WINAPI *iProcessConsoleInputPrototype) (const ProcessConsoleInputInfo *Info);
 typedef HANDLE   (WINAPI *iAnalysePrototype)             (const AnalyseInfo *Info);
 typedef void     (WINAPI *iCloseAnalysePrototype)        (const CloseAnalyseInfo *Info);
-typedef intptr_t (WINAPI *iGetCustomDataPrototype)       (const wchar_t *FilePath, wchar_t **CustomData);
-typedef void     (WINAPI *iFreeCustomDataPrototype)      (wchar_t *CustomData);
+typedef intptr_t (WINAPI *iGetContentFieldsPrototype)    (const GetContentFieldsInfo *Info);
+typedef intptr_t (WINAPI *iGetContentDataPrototype)      (GetContentDataInfo *Info);
+typedef void     (WINAPI *iFreeContentDataPrototype)     (const GetContentDataInfo *Info);
 
 Plugin* GenericPluginModel::CreatePlugin(const string& filename)
 {
@@ -149,8 +150,9 @@ GenericPluginModel::GenericPluginModel(PluginManager* owner):
 		WA("ProcessConsoleInputW"),
 		WA("AnalyseW"),
 		WA("CloseAnalyseW"),
-		WA("GetCustomDataW"),
-		WA("FreeCustomDataW"),
+		WA("GetContentFieldsW"),
+		WA("GetContentDataW"),
+		WA("FreeContentDataW"),
 
 		WA(""), // OpenFilePlugin not used
 		WA(""), // GetMinFarVersion not used
@@ -1226,24 +1228,35 @@ bool Plugin::GetPluginInfo(PluginInfo* Info)
 	return false;
 }
 
-int Plugin::GetCustomData(const wchar_t *FilePath, wchar_t **CustomData)
+int Plugin::GetContentFields(GetContentFieldsInfo *Info)
 {
-	ExecuteStruct es = {iGetCustomData};
+	ExecuteStruct es = {iGetContentFields};
 	if (Load() && Exports[es.id] && !Global->ProcessException)
 	{
-		//Info->Instance = m_Instance;
-		EXECUTE_FUNCTION(es = FUNCTION(iGetCustomData)(FilePath, CustomData));
+		Info->Instance = m_Instance;
+		EXECUTE_FUNCTION(es = FUNCTION(iGetContentFields)(Info));
 	}
 	return es;
 }
 
-void Plugin::FreeCustomData(wchar_t *CustomData)
+int Plugin::GetContentData(GetContentDataInfo *Info)
 {
-	ExecuteStruct es = {iFreeCustomData};
+	ExecuteStruct es = {iGetContentData};
 	if (Load() && Exports[es.id] && !Global->ProcessException)
 	{
-		//Info->Instance = m_Instance;
-		EXECUTE_FUNCTION(FUNCTION(iFreeCustomData)(CustomData));
+		Info->Instance = m_Instance;
+		EXECUTE_FUNCTION(es = FUNCTION(iGetContentData)(Info));
+	}
+	return es;
+}
+
+void Plugin::FreeContentData(GetContentDataInfo *Info)
+{
+	ExecuteStruct es = {iFreeContentData};
+	if (Load() && Exports[es.id] && !Global->ProcessException)
+	{
+		Info->Instance = m_Instance;
+		EXECUTE_FUNCTION(FUNCTION(iFreeContentData)(Info));
 	}
 }
 

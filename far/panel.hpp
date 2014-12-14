@@ -43,6 +43,7 @@ struct column
 	unsigned __int64 type;
 	int width;
 	int width_type;
+	wchar_t title[64];
 };
 
 struct PanelViewSettings: NonCopyable
