@@ -3,6 +3,11 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 15.12.2014 00:18:36 +0200 - build 4214
+
+1. Experimental: C0 column is removed, now there is arbitrary quantity of plugin content columns.
+   Types (or names) of columns are set in panel modes in angle brackets, for example: <Foo>,<Bar>.
+
 drkns 14.12.2014 21:32:16 +0200 - build 4213
 
 1. Refactoring.
