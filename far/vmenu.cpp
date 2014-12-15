@@ -809,7 +809,7 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_F_MENU_CHECKHOTKEY:
 		{
 			const wchar_t *str = (const wchar_t *)vParam;
-			return GetVisualPos(CheckHighlights(*str,(int)iParam))+1;
+			return GetVisualPos(CheckHighlights(*str, VisualPosToReal((int)iParam))) + 1;
 		}
 		case MCODE_F_MENU_SELECT:
 		{
