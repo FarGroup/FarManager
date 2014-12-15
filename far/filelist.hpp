@@ -107,8 +107,7 @@ struct FileListItem: NonCopyable
 		FileSize(),
 		AllocationSize(),
 		StreamsSize(),
-		ReparseTag(),
-		ContentData()
+		ReparseTag()
 	{
 	}
 

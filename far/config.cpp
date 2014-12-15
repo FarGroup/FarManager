@@ -889,7 +889,7 @@ static void ResetViewModes(PanelViewSettings* Modes, int Index = -1)
 		struct columns_init
 		{
 			size_t count;
-			column init[10]; // good enough
+			column_base init[10]; // good enough
 		}
 		Columns, StatusColumns;
 		unsigned __int64 Flags;

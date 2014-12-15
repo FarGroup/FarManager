@@ -2375,7 +2375,7 @@ void PluginManager::GetContentPlugins(const std::vector<const wchar_t*>& ColName
 	{
 		if (i->HasGetContentData() && i->HasGetContentFields())
 		{
-			GetContentFieldsInfo Info = { sizeof(GetContentFieldsInfo),Count,ColNames.data(),nullptr };
+			GetContentFieldsInfo Info = { sizeof(GetContentFieldsInfo),Count,ColNames.data() };
 			if (i->GetContentFields(&Info))
 				Plugins.emplace_back(i);
 		}
@@ -2395,8 +2395,7 @@ void PluginManager::GetContentData(
 
 	std::for_each(CONST_RANGE(Plugins, i)
 	{
-		GetContentDataInfo GetInfo = { sizeof(GetContentDataInfo),FilePath.data(),Count,ColNames.data(),ColValues.data(),nullptr };
-		memset(ColValues.data(), 0, ColValues.size()*sizeof(wchar_t*));
+		GetContentDataInfo GetInfo = { sizeof(GetContentDataInfo), FilePath.data(), Count, ColNames.data(), ColValues.data() };
 
 		if (i->GetContentData(&GetInfo) && GetInfo.Values)
 		{

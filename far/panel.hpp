@@ -38,12 +38,25 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class DizList;
 
-struct column
+struct column_base
 {
 	unsigned __int64 type;
 	int width;
 	int width_type;
-	wchar_t title[64];
+};
+
+struct column: public column_base
+{
+	column():
+		column_base()
+	{}
+
+	column(const column_base& rhs)
+	{
+		static_cast<column_base&>(*this) = rhs;
+	}
+
+	string title;
 };
 
 struct PanelViewSettings: NonCopyable
