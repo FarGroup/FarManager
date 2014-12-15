@@ -2392,10 +2392,10 @@ void PluginManager::GetContentData(
 {
 	const NTPath FilePath(Name);
 	size_t Count = ColNames.size();
-
 	std::for_each(CONST_RANGE(Plugins, i)
 	{
 		GetContentDataInfo GetInfo = { sizeof(GetContentDataInfo), FilePath.data(), Count, ColNames.data(), ColValues.data() };
+		ColValues.assign(ColValues.size(), nullptr);
 
 		if (i->GetContentData(&GetInfo) && GetInfo.Values)
 		{
