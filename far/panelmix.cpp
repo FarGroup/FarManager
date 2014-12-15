@@ -75,7 +75,16 @@ ColumnInfo[] =
 	{ NUMSTREAMS_COLUMN, 3, L"F" },
 	{ STREAMSSIZE_COLUMN, 6, L"G" },
 	{ EXTENSION_COLUMN, 0, L"X", },
-	{ CUSTOM_COLUMN, 0, L"" },
+	{ CUSTOM_COLUMN0, 0, L"C0" },
+	{ CUSTOM_COLUMN1, 0, L"C1" },
+	{ CUSTOM_COLUMN2, 0, L"C2" },
+	{ CUSTOM_COLUMN3, 0, L"C3" },
+	{ CUSTOM_COLUMN4, 0, L"C4" },
+	{ CUSTOM_COLUMN5, 0, L"C5" },
+	{ CUSTOM_COLUMN6, 0, L"C6" },
+	{ CUSTOM_COLUMN7, 0, L"C7" },
+	{ CUSTOM_COLUMN8, 0, L"C8" },
+	{ CUSTOM_COLUMN9, 0, L"C9" },
 };
 
 static_assert(ARRAYSIZE(ColumnInfo) == COLUMN_TYPES_COUNT, "wrong size of ColumnInfo array");
@@ -421,7 +430,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 		else if (strArgOrig.size() > 2 && strArgOrig.front() == L'<' && strArgOrig.back() == L'>')
 		{
 			Columns.back().title = strArgOrig.substr(1, strArgOrig.size() - 2);
-			Columns.back().type = CUSTOM_COLUMN;
+			Columns.back().type = CUSTOM_COLUMN0;
 		}
 		else
 		{
@@ -538,7 +547,7 @@ void ViewSettingsToText(const std::vector<column>& Columns, string &strColumnTit
 				strType += L"R";
 		}
 
-		if (ColumnType==CUSTOM_COLUMN && !i.title.empty())
+		if (ColumnType==CUSTOM_COLUMN0 && !i.title.empty())
 		{
 			strType = L"<" + i.title + L">";
 		}

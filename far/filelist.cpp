@@ -3184,7 +3184,7 @@ void FileList::SetViewMode(int Mode)
 	bool OldNumLink=IsColumnDisplayed(NUMLINK_COLUMN);
 	bool OldNumStreams=IsColumnDisplayed(NUMSTREAMS_COLUMN);
 	bool OldStreamsSize=IsColumnDisplayed(STREAMSSIZE_COLUMN);
-	bool OldCustomData=IsColumnDisplayed(CUSTOM_COLUMN);
+	bool OldCustomData=IsColumnDisplayed(CUSTOM_COLUMN0);
 	bool OldDiz=IsColumnDisplayed(DIZ_COLUMN);
 	PrepareViewSettings(Mode,nullptr);
 	bool NewOwner=IsColumnDisplayed(OWNER_COLUMN);
@@ -3192,7 +3192,7 @@ void FileList::SetViewMode(int Mode)
 	bool NewNumLink=IsColumnDisplayed(NUMLINK_COLUMN);
 	bool NewNumStreams=IsColumnDisplayed(NUMSTREAMS_COLUMN);
 	bool NewStreamsSize=IsColumnDisplayed(STREAMSSIZE_COLUMN);
-	bool NewCustomData=IsColumnDisplayed(CUSTOM_COLUMN);
+	bool NewCustomData=IsColumnDisplayed(CUSTOM_COLUMN0);
 	bool NewDiz=IsColumnDisplayed(DIZ_COLUMN);
 	bool NewAccessTime=IsColumnDisplayed(ADATE_COLUMN);
 	int ResortRequired=FALSE;
@@ -6681,7 +6681,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		{
 			FOR(const auto& Column, *Columns)
 			{
-				if ((Column.type & 0xff) == CUSTOM_COLUMN)
+				if ((Column.type & 0xff) == CUSTOM_COLUMN0)
 				{
 					if (ColumnsSet.emplace(Column.title).second)
 						ContentNames.emplace_back(Column.title.data());
@@ -8302,9 +8302,18 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 				if (!ShowStatus)
 					SetShowColor(ListPos);
 
-				if (ColumnType == CUSTOM_COLUMN)
+				if (ColumnType >= CUSTOM_COLUMN0 && ColumnType <= CUSTOM_COLUMN9)
 				{
-					auto ColumnData = m_ListData[ListPos].ContentData[Columns[K].title].data();
+					size_t ColumnNumber = ColumnType - CUSTOM_COLUMN0;
+					const wchar_t *ColumnData = nullptr;
+
+					if (ColumnNumber<m_ListData[ListPos].CustomColumnNumber)
+						ColumnData = m_ListData[ListPos].CustomColumnData[ColumnNumber];
+
+					if (!ColumnData)
+					{
+						ColumnData = m_ListData[ListPos].ContentData[Columns[K].title].data();
+					}
 
 					int CurLeftPos=0;
 
