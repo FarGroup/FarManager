@@ -2288,7 +2288,7 @@ lv=2
 dt=Text
 nm=export.GetContentFields
 ctime=3627747455
-mtime=3627747904
+mtime=3627829849
 <article>
 #_Ret = export.GetContentFields (Names)
 #_
@@ -2302,9 +2302,11 @@ mtime=3627747904
 #_  Return true if the plugin supports at least one of the content types.
 #_
 #_**Far API used:**
-#_  GetContentFieldsW
+#_  GetContentFieldsW, GetContentFieldsInfo
 #_
 #_@@@
+#_{getcontentfieldsw}: http://api.farmanager.com/ru/exported_functions/getcontentfieldsw.html
+#_{getcontentfieldsinfo}: http://api.farmanager.com/ru/structures/getcontentfieldsinfo.html
 #_
 </article>
 </node>
@@ -2314,7 +2316,7 @@ lv=2
 dt=Text
 nm=export.GetContentData
 ctime=3627747467
-mtime=3627748322
+mtime=3627830213
 <article>
 #_Ret = export.GetContentFields (FilePath, Names)
 #_
@@ -2330,9 +2332,11 @@ mtime=3627748322
 #_  to indexes of supported content types in the *Names* array.
 #_
 #_**Far API used:**
-#_  GetContentDataW
+#_  GetContentDataW, GetContentDataInfo
 #_
 #_@@@
+#_{getcontentdataw}: http://api.farmanager.com/ru/exported_functions/getcontentdataw.html
+#_{getcontentdatainfo}: http://api.farmanager.com/ru/structures/getcontentdatainfo.html
 #_
 </article>
 </node>
