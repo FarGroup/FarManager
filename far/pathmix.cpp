@@ -450,7 +450,7 @@ const wchar_t *FirstSlash(const wchar_t *String)
 const wchar_t *LastSlash(const wchar_t *String)
 {
 	const wchar_t *Start = String;
-	String += wcslen(String);
+	String += wcslen(String) + 1;
 
 	while (--String!=Start && !IsSlash(*String))
 		;
