@@ -239,6 +239,18 @@ int StrCmpNNC(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2)
 	return 0;
 }
 
+bool StrEqualN(const wchar_t *s1, const wchar_t *s2, size_t n)
+{
+	size_t l = 0;
+
+	while (l < n && *s1 && *s2)
+	{
+	    if (*s1 != *s2) return false;
+		++s1; ++s2; ++l;
+	}
+	return l == n || (!*s1 && !*s2);
+}
+
 static int NumStrCmp_base(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2, int(*comparer)(const wchar_t*, const wchar_t*, size_t))
 {
 	size_t l1 = 0;
@@ -354,4 +366,15 @@ SELF_TEST(
 
 	assert(NumStrCmp(L"A1", -1, L"a2", -1, false) > 0);
 	assert(NumStrCmp(L"A1", -1, L"a2", -1, true) < 0);
+
+	assert(StrEqualNI(L"\\", L"\\", 1));
+	assert(StrEqualNI(L"A", L"a1", 1));
+	//BUGBUG
+	//assert(!StrEqualNI(L"\\\\", L"\\\x309d", 2));
+	assert(StrEqualN(L"\\", L"\\", 1));
+	assert(!StrEqualN(L"A", L"a", 1));
+	assert(StrEqualN(L"A", L"A1", 1));
+	assert(!StrEqualN(L"\\\\", L"\\\x309d", 2));
+	assert(StrEqualN(L"A", L"A", 10));
+	assert(!StrEqualN(L"A", L"A1", 10));
 )

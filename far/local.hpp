@@ -85,6 +85,9 @@ inline int StrCmpC(const wchar_t *s1, const wchar_t *s2) { return StrCmpNNC(s1, 
 
 inline int StrCmp(const wchar_t *s1, const wchar_t *s2) { return CompareString(0, SORT_STRINGSORT, s1, -1, s2, -1) - 2; }
 
+inline bool StrEqualNI(const wchar_t *s1, const wchar_t *s2, size_t n) {return 0 == StrCmpNI(s1, s2, n);}
+bool StrEqualN(const wchar_t *s1, const wchar_t *s2, size_t n);
+
 int NumStrCmpN(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2);
 int NumStrCmpNI(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2);
 int NumStrCmpNC(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2);

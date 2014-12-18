@@ -729,12 +729,12 @@ size_t ReplaceStrings(string &strStr, const wchar_t* FindStr, size_t FindStrSize
 	if ( !FindStrSize || !Count )
 		return 0;
 
-	const auto Comparer = IgnoreCase? StrCmpNI : StrCmpN;
+	const auto Comparer = IgnoreCase? StrEqualNI : StrEqualN;
 
 	size_t replaced = 0;
 	for (size_t I=0, L=strStr.size(); I+FindStrSize <= L; ++I)
 	{
-		if (!Comparer(strStr.data() + I, FindStr, FindStrSize))
+		if (Comparer(strStr.data() + I, FindStr, FindStrSize))
 		{
 			strStr.replace(I, FindStrSize, ReplStr);
 			L += ReplStrSize - FindStrSize;
