@@ -1785,7 +1785,8 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 
 	if (bracketscount<matchcount)matchcount=bracketscount;
 
-	memset(match,-1,sizeof(*match)*matchcount);
+	RegExpMatch def_match = { -1, -1 };
+	std::fill_n(match, matchcount, def_match);
 
 	for(const auto* op = code.data(), *end = op + code.size(); op != end; ++op)
 	{

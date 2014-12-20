@@ -203,9 +203,9 @@ int PluginSettings::Get(FarSettingsItem& Item)
 
 static wchar_t* AddString(const string& String)
 {
-	size_t size=String.size()+1;
-	wchar_t* result=new wchar_t[size];
-	wmemcpy(result,String.data(),size);
+	auto result = new wchar_t[String.size() + 1];
+	std::copy(ALL_CONST_RANGE(String), result);
+	result[String.size()] = 0;
 	return result;
 }
 

@@ -126,7 +126,7 @@ void CommandLine::DisplayObject()
 		SetColor(i.second);
 		string str(i.first);
 		if(CurLength + str.size() > MaxLength)
-		TruncPathStr(str, std::max(0, static_cast<int>(MaxLength - CurLength)));
+			TruncPathStr(str, std::max(0, static_cast<int>(MaxLength - CurLength)));
 		Text(str);
 		CurLength += str.size();
 	});

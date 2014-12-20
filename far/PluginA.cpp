@@ -266,7 +266,8 @@ static void AnsiToUnicodeBin(const char *lpszAnsiString, wchar_t *lpwszUnicodeSt
 {
 	if (lpszAnsiString && lpwszUnicodeString && nLength)
 	{
-		wmemset(lpwszUnicodeString, 0, nLength);
+		// BUGBUG, error checking
+		*lpwszUnicodeString = 0;
 		MultiByteToWideChar(CodePage, 0, lpszAnsiString, nLength, lpwszUnicodeString, nLength);
 	}
 }
@@ -300,6 +301,8 @@ static char *UnicodeToAnsiBin(const wchar_t *lpwszUnicodeString, int nLength, ui
 
 	if (nLength)
 	{
+		Result[0];
+		Result[nLength] = 0;
 		WideCharToMultiByte(
 			CodePage,
 			0,

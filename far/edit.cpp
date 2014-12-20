@@ -1525,7 +1525,7 @@ int Edit::InsertKey(int Key)
 					return FALSE;
 
 				m_Str=NewStr;
-				wmemset(m_Str + m_StrSize, L' ', m_CurPos - m_StrSize);
+				std::fill_n(m_Str + m_StrSize, m_CurPos - m_StrSize, L' ');
 				m_Str[m_CurPos] = 0;
 				m_StrSize=m_CurPos;
 			}
@@ -1902,7 +1902,7 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
 					return;
 
 				m_Str=NewStr;
-				wmemset(m_Str + m_StrSize, L' ', m_CurPos - m_StrSize);
+				std::fill_n(m_Str + m_StrSize, m_CurPos - m_StrSize, L' ');
 				m_Str[m_CurPos] = 0;
 				m_StrSize=m_CurPos;
 			}
@@ -2023,8 +2023,8 @@ void Edit::InsertTab()
 	m_CurPos+=S;
 	m_Str=(wchar_t *)xf_realloc(m_Str,(m_StrSize+1)*sizeof(wchar_t));
 	TabPtr=m_Str+Pos;
-	wmemmove(TabPtr+S,TabPtr,PrevStrSize-Pos);
-	wmemset(TabPtr,L' ',S);
+	std::copy_n(TabPtr, PrevStrSize - Pos, TabPtr + S);
+	std::fill_n(TabPtr, S, L' ');
 	m_Str[m_StrSize]=0;
 	Changed();
 }
@@ -2066,8 +2066,8 @@ bool Edit::ReplaceTabs()
 
 		m_Str=(wchar_t *)xf_realloc(m_Str,(m_StrSize+1)*sizeof(wchar_t));
 		TabPtr=m_Str+Pos;
-		wmemmove(TabPtr+S,TabPtr+1,PrevStrSize-Pos);
-		wmemset(TabPtr,L' ',S);
+		std::copy_n(TabPtr + 1, PrevStrSize - Pos, TabPtr + S);
+		std::fill_n(TabPtr, S, L' ');
 		m_Str[m_StrSize]=0;
 	}
 

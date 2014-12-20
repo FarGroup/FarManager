@@ -886,7 +886,8 @@ static inline void WriteTree(string_type& Name, const container_type& Container,
 	else
 	{
 		api::DeleteFile(TreeCache().GetTreeName());
-		Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), MSG(MCannotSaveTree), Name.data(), MSG(MOk));
+		if (!Global->WindowManager->ManagerIsDown())
+			Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), MSG(MCannotSaveTree), Name.data(), MSG(MOk));
 	}
 }
 

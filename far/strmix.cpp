@@ -211,7 +211,7 @@ wchar_t* TruncStrFromEnd(wchar_t *Str, int MaxLength)
 		if (Length > MaxLength)
 		{
 			if (MaxLength > DotsLen)
-				wmemset(Str+MaxLength-DotsLen, L'.', DotsLen);
+				std::fill_n(Str + MaxLength - DotsLen, DotsLen, L'.');
 
 			Str[MaxLength] = '\0';
 		}
@@ -230,9 +230,9 @@ wchar_t* TruncStr(wchar_t *Str, int MaxLength)
 
 		if (Length > MaxLength)
 		{
-			wmemmove(Str, Str+Length-MaxLength, MaxLength+1);
+			std::copy_n(Str + Length - MaxLength, MaxLength + 1, Str);
 			if (MaxLength > DotsLen)
-				wmemset(Str, L'.', DotsLen);
+				std::fill_n(Str, DotsLen, L'.');
 		}
 	}
 	return Str;
@@ -332,7 +332,7 @@ wchar_t* TruncPathStr(wchar_t *Str, int MaxLength)
 			if (!start || start+2+DotsLen > MaxLength)
 				return TruncStr(Str, MaxLength);
 
-			wmemset(Str+start, L'.', DotsLen);
+			std::fill_n(Str + start, DotsLen, L'.');
 			wcscpy(Str+start+DotsLen, Str+start+DotsLen+nLength-MaxLength);
 		}
 	}

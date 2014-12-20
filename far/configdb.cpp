@@ -457,7 +457,7 @@ public:
 			return LastInsertRowID();
 		unsigned __int64 id = GetKeyID(Root,Name);
 		if (id && Description)
-			SetKeyDescription(id,Description? *Description : string());
+			SetKeyDescription(id, *Description);
 		return id;
 	}
 
@@ -636,8 +636,12 @@ public:
 				return;
 
 			string Name = wide(name, CP_UTF8);
-			string Description = wide(description, CP_UTF8);
-			id = CreateKey(root, Name, &Description);
+			string Description;
+			if (description)
+			{
+				Description = wide(description, CP_UTF8);
+			}
+			id = CreateKey(root, Name, description ? &Description : nullptr);
 			if (!id)
 				return;
 		}

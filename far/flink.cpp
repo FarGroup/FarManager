@@ -51,18 +51,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 bool CreateVolumeMountPoint(const string& TargetVolume, const string& Object)
 {
-	bool Result=false;
 	string strBuf;
-
-	if (api::GetVolumeNameForVolumeMountPoint(TargetVolume,strBuf))
-	{
-		if (SetVolumeMountPoint(Object.data(),strBuf.data()))
-		{
-			Result=true;
-		}
-	}
-
-	return Result;
+	return api::GetVolumeNameForVolumeMountPoint(TargetVolume, strBuf) && SetVolumeMountPoint(Object.data(), strBuf.data());
 }
 
 bool FillREPARSE_DATA_BUFFER(PREPARSE_DATA_BUFFER rdb, const string& PrintName, const string& SubstituteName)
@@ -73,35 +63,41 @@ bool FillREPARSE_DATA_BUFFER(PREPARSE_DATA_BUFFER rdb, const string& PrintName, 
 	switch (rdb->ReparseTag)
 	{
 		case IO_REPARSE_TAG_MOUNT_POINT:
-			rdb->MountPointReparseBuffer.SubstituteNameOffset=0;
-			rdb->MountPointReparseBuffer.SubstituteNameLength=static_cast<WORD>(SubstituteName.size()*sizeof(wchar_t));
-			rdb->MountPointReparseBuffer.PrintNameOffset=rdb->MountPointReparseBuffer.SubstituteNameLength+2;
-			rdb->MountPointReparseBuffer.PrintNameLength=static_cast<WORD>(PrintName.size()*sizeof(wchar_t));
-			rdb->ReparseDataLength=FIELD_OFFSET(REPARSE_DATA_BUFFER,MountPointReparseBuffer.PathBuffer)+rdb->MountPointReparseBuffer.PrintNameOffset+rdb->MountPointReparseBuffer.PrintNameLength+1*sizeof(wchar_t)-REPARSE_DATA_BUFFER_HEADER_SIZE;
-
-			if (rdb->ReparseDataLength+REPARSE_DATA_BUFFER_HEADER_SIZE<=static_cast<USHORT>(MAXIMUM_REPARSE_DATA_BUFFER_SIZE/sizeof(wchar_t)))
 			{
-				wmemcpy(&rdb->MountPointReparseBuffer.PathBuffer[rdb->MountPointReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)],SubstituteName.data(),SubstituteName.size()+1);
-				wmemcpy(&rdb->MountPointReparseBuffer.PathBuffer[rdb->MountPointReparseBuffer.PrintNameOffset/sizeof(wchar_t)],PrintName.data(),PrintName.size()+1);
-				Result=true;
-			}
-			break;
+				auto& Buffer = rdb->MountPointReparseBuffer;
+				Buffer.SubstituteNameOffset = 0;
+				Buffer.SubstituteNameLength = static_cast<WORD>(SubstituteName.size() * sizeof(wchar_t));
+				Buffer.PrintNameOffset = rdb->MountPointReparseBuffer.SubstituteNameLength + 1 * sizeof(wchar_t);
+				Buffer.PrintNameLength = static_cast<WORD>(PrintName.size() * sizeof(wchar_t));
+				rdb->ReparseDataLength = FIELD_OFFSET(REPARSE_DATA_BUFFER, MountPointReparseBuffer.PathBuffer) + Buffer.PrintNameOffset + Buffer.PrintNameLength + 1 * sizeof(wchar_t) - REPARSE_DATA_BUFFER_HEADER_SIZE;
 
+				if (rdb->ReparseDataLength + REPARSE_DATA_BUFFER_HEADER_SIZE <= static_cast<USHORT>(MAXIMUM_REPARSE_DATA_BUFFER_SIZE / sizeof(wchar_t)))
+				{
+					std::copy(ALL_CONST_RANGE(SubstituteName), Buffer.PathBuffer + Buffer.SubstituteNameOffset / sizeof(wchar_t));
+					Buffer.PathBuffer[(Buffer.SubstituteNameOffset + Buffer.SubstituteNameLength) / sizeof(wchar_t)] = 0;
+					std::copy(ALL_CONST_RANGE(PrintName), Buffer.PathBuffer + Buffer.PrintNameOffset / sizeof(wchar_t));
+					Buffer.PathBuffer[(Buffer.PrintNameOffset + Buffer.PrintNameLength) / sizeof(wchar_t)] = 0;
+					Result = true;
+				}
+				break;
+			}
 		case IO_REPARSE_TAG_SYMLINK:
-			rdb->SymbolicLinkReparseBuffer.PrintNameOffset=0;
-			rdb->SymbolicLinkReparseBuffer.PrintNameLength=static_cast<WORD>(PrintName.size()*sizeof(wchar_t));
-			rdb->SymbolicLinkReparseBuffer.SubstituteNameOffset=rdb->MountPointReparseBuffer.PrintNameLength;
-			rdb->SymbolicLinkReparseBuffer.SubstituteNameLength=static_cast<WORD>(SubstituteName.size()*sizeof(wchar_t));
-			rdb->ReparseDataLength=FIELD_OFFSET(REPARSE_DATA_BUFFER,SymbolicLinkReparseBuffer.PathBuffer)+rdb->SymbolicLinkReparseBuffer.SubstituteNameOffset+rdb->SymbolicLinkReparseBuffer.SubstituteNameLength-REPARSE_DATA_BUFFER_HEADER_SIZE;
-
-			if (rdb->ReparseDataLength+REPARSE_DATA_BUFFER_HEADER_SIZE<=static_cast<USHORT>(MAXIMUM_REPARSE_DATA_BUFFER_SIZE/sizeof(wchar_t)))
 			{
-				wmemcpy(&rdb->SymbolicLinkReparseBuffer.PathBuffer[rdb->SymbolicLinkReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)],SubstituteName.data(),SubstituteName.size());
-				wmemcpy(&rdb->SymbolicLinkReparseBuffer.PathBuffer[rdb->SymbolicLinkReparseBuffer.PrintNameOffset/sizeof(wchar_t)],PrintName.data(),PrintName.size());
-				Result=true;
-			}
-			break;
+				auto& Buffer = rdb->SymbolicLinkReparseBuffer;
+				Buffer.PrintNameOffset = 0;
+				Buffer.PrintNameLength = static_cast<WORD>(PrintName.size() * sizeof(wchar_t));
+				Buffer.SubstituteNameOffset = rdb->MountPointReparseBuffer.PrintNameLength;
+				Buffer.SubstituteNameLength = static_cast<WORD>(SubstituteName.size() * sizeof(wchar_t));
+				rdb->ReparseDataLength = FIELD_OFFSET(REPARSE_DATA_BUFFER, SymbolicLinkReparseBuffer.PathBuffer) + Buffer.SubstituteNameOffset + Buffer.SubstituteNameLength - REPARSE_DATA_BUFFER_HEADER_SIZE;
 
+				if (rdb->ReparseDataLength + REPARSE_DATA_BUFFER_HEADER_SIZE <= static_cast<USHORT>(MAXIMUM_REPARSE_DATA_BUFFER_SIZE / sizeof(wchar_t)))
+				{
+					std::copy(ALL_CONST_RANGE(SubstituteName), Buffer.PathBuffer + Buffer.SubstituteNameOffset / sizeof(wchar_t));
+					std::copy(ALL_CONST_RANGE(PrintName), Buffer.PathBuffer + Buffer.PrintNameOffset / sizeof(wchar_t));
+					Result=true;
+				}
+				break;
+			}
 		default:
 			break;
 	}
@@ -567,16 +563,8 @@ bool ModifyReparsePoint(const string& Object,const string& NewData)
 
 bool DuplicateReparsePoint(const string& Src,const string& Dst)
 {
-	bool Result=false;
 	block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
-	if(rdb)
-	{
-		if (GetREPARSE_DATA_BUFFER(Src,rdb.get()) && SetREPARSE_DATA_BUFFER(Dst,rdb.get()))
-		{
-			Result=true;
-		}
-	}
-	return Result;
+	return GetREPARSE_DATA_BUFFER(Src, rdb.get()) && SetREPARSE_DATA_BUFFER(Dst, rdb.get());
 }
 
 void NormalizeSymlinkName(string &strLinkName)
@@ -584,8 +572,7 @@ void NormalizeSymlinkName(string &strLinkName)
 	if (!strLinkName.compare(0, 4, L"\\??\\"))
 	{
 		strLinkName[1] = L'\\';
-		PATH_TYPE Type = ParsePath(strLinkName);
-		if(Type == PATH_DRIVELETTERUNC)
+		if (ParsePath(strLinkName) == PATH_DRIVELETTERUNC)
 		{
 			strLinkName.erase(0, 4);
 		}
