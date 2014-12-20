@@ -301,7 +301,8 @@ static char *UnicodeToAnsiBin(const wchar_t *lpwszUnicodeString, int nLength, ui
 
 	if (nLength)
 	{
-		Result[0];
+		// BUGBUG, error checking
+		Result[0] = 0;
 		Result[nLength] = 0;
 		WideCharToMultiByte(
 			CodePage,
