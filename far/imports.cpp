@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "imports.hpp"
-#include "farexcpt.hpp"
 
 const ImportedFunctions& Imports()
 {

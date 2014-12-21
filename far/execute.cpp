@@ -907,11 +907,13 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		seInfo.lpVerb = L"runas";
 	}
 
-	seInfo.fMask = SEE_MASK_FLAG_NO_UI|SEE_MASK_NOASYNC|SEE_MASK_NOCLOSEPROCESS|(SeparateWindow?0:SEE_MASK_NO_CONSOLE);
+	seInfo.fMask = SEE_MASK_NOASYNC|SEE_MASK_NOCLOSEPROCESS|(SeparateWindow?0:SEE_MASK_NO_CONSOLE);
+#if 0
+	seInfo.fMask |= SEE_MASK_FLAG_NO_UI;
 	if (dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN)  // для .exe НЕ включать - бывают проблемы с запуском
 		if (IsWindowsVistaOrGreater()) // ShellExecuteEx error, see
 			seInfo.fMask |= SEE_MASK_INVOKEIDLIST; // http://us.generation-nt.com/answer/shellexecuteex-does-not-allow-openas-verb-windows-7-help-31497352.html
-
+#endif
 	if(!Silent)
 	{
 		Console().ScrollScreenBuffer(((DirectRun && dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI) || SeparateWindow)?2:1);
