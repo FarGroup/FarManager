@@ -3,6 +3,46 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 21.12.2014 15:02:37 +0200 - build 4223
+
+1. Experimental: alternative solution for a problem of "open with" in launcher.
+
+drkns 20.12.2014 14:21:00 +0200 - build 4222
+
+1. Correction of 4221.
+
+drkns 20.12.2014 14:12:21 +0200 - build 4221
+
+1. Settings import error.
+
+2. Writing failure of tree3.far on exit could freeze the app.
+
+3. Refactoring.
+
+zg 18.12.2014 17:04:23 +0200 - build 4220
+
+1. Issues with filenames starting with ゝ character.
+
+drkns 16.12.2014 09:27:11 +0200 - build 4219
+
+1. 0002887: Far Manager v3.0 build 4218 x64 (2014-12-16) crash after Ctrl-F in panels (get a full path)
+
+drkns 16.12.2014 00:02:43 +0200 - build 4218
+
+1. And one more time.
+
+drkns 15.12.2014 21:16:06 +0200 - build 4217
+
+1. Correction of 4216.
+
+drkns 15.12.2014 19:31:52 +0200 - build 4216
+
+1. A couple if issues in 4214.
+
+svs 15.12.2014 13:05:37 +0300 - build 4215
+
+1. Mantis#0002878: Object.CheckHotkey
+
 shmuel 15.12.2014 00:18:36 +0200 - build 4214
 
 1. Experimental: C0 column is removed, now there is arbitrary quantity of plugin content columns.
