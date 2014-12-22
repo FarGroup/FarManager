@@ -158,7 +158,7 @@ string& CreateTreeFileName(const string& Path, string &strDest)
 	strDest = L"";
 
 	std::vector<string> Strings;
-	split(Global->Opt->Tree.strExceptPath, STLF_UNIQUE);
+	split(Strings, Global->Opt->Tree.strExceptPath, STLF_UNIQUE, L";");
 	FOR(const auto& i, Strings)
 	{
 		if (strRootDir == i)
@@ -199,6 +199,7 @@ string& CreateTreeFileName(const string& Path, string &strDest)
 			if (Global->Opt->Tree.RemovableDisk)
 			{
 				ConvertTemplateTreeName(strTreeFileName, Global->Opt->Tree.strRemovableDisk, strRootDir.data(), VolumeNumber, strVolumeName.data(), nullptr, nullptr);
+				// TODO: Global->Opt->ProfilePath / Global->Opt->LocalProfilePath
 				strPath = Global->Opt->Tree.strSaveLocalPath;
 			}
 			break;
@@ -206,6 +207,7 @@ string& CreateTreeFileName(const string& Path, string &strDest)
 			if (Global->Opt->Tree.LocalDisk)
 			{
 				ConvertTemplateTreeName(strTreeFileName, Global->Opt->Tree.strLocalDisk, strRootDir.data(), VolumeNumber, strVolumeName.data(), nullptr, nullptr);
+				// TODO: Global->Opt->ProfilePath / Global->Opt->LocalProfilePath
 				strPath = Global->Opt->Tree.strSaveLocalPath;
 			}
 			break;
@@ -220,6 +222,7 @@ string& CreateTreeFileName(const string& Path, string &strDest)
 				}
 
 				ConvertTemplateTreeName(strTreeFileName, PathType == PATH_DRIVELETTER ? Global->Opt->Tree.strNetDisk : Global->Opt->Tree.strNetPath, strRootDir.data(), VolumeNumber, strVolumeName.data(), strServer.data(), strShare.data());
+				// TODO: Global->Opt->ProfilePath / Global->Opt->LocalProfilePath
 				strPath = Global->Opt->Tree.strSaveNetPath;
 			}
 			break;
@@ -236,6 +239,7 @@ string& CreateTreeFileName(const string& Path, string &strDest)
 			if (Global->Opt->Tree.CDDisk)
 			{
 				ConvertTemplateTreeName(strTreeFileName, Global->Opt->Tree.strCDDisk, strRootDir.data(), VolumeNumber, strVolumeName.data(), nullptr, nullptr);
+				// TODO: Global->Opt->ProfilePath / Global->Opt->LocalProfilePath
 				strPath = Global->Opt->Tree.strSaveLocalPath;
 			}
 			break;
@@ -247,7 +251,14 @@ string& CreateTreeFileName(const string& Path, string &strDest)
 			break;
 
 		}
-		strDest = api::ExpandEnvironmentStrings(strPath);
+		if ( !strPath.empty() )
+		{
+			strDest = api::env::expand_strings(strPath);
+		}
+		else
+		{
+			strDest = Path;
+		}
 		AddEndSlash(strDest);
 		strDest += strTreeFileName;
 	}
