@@ -140,7 +140,7 @@ void FolderTree::SetCoords()
 		if (IsStandalone)
 			SetPosition(4,2,ScrX-4,ScrY-4);
 		else
-			SetPosition(ScrX/3,2,ScrX-7,ScrY-5);
+			SetPosition(ScrX/3,2,ScrX-7,ScrY-4);
 	}
 }
 

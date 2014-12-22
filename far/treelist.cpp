@@ -596,7 +596,7 @@ void TreeList::DisplayTree(int Fast)
 	if (!Fast)
 	{
 		Box(m_X1,m_Y1,m_X2,m_Y2,ColorIndexToColor(COL_PANELBOX),DOUBLE_BOX);
-		DrawSeparator(m_Y2-2-(m_ModalMode));
+		DrawSeparator(m_Y2-2-(m_ModalMode!=0));
 		strTitle = GetTitle();
 
 		if (!strTitle.empty())
@@ -607,7 +607,7 @@ void TreeList::DisplayTree(int Fast)
 		}
 	}
 
-	for (size_t I=m_Y1+1,J=m_CurTopFile; I<static_cast<size_t>(m_Y2-2-m_ModalMode); I++,J++)
+	for (size_t I=m_Y1+1,J=m_CurTopFile; I<static_cast<size_t>(m_Y2-2-(m_ModalMode!=0)); I++,J++)
 	{
 		GotoXY(m_X1+1, static_cast<int>(I));
 		SetColor(COL_PANELTEXT);
@@ -1443,8 +1443,8 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_PGUP:        case KEY_NUMPAD9:
 		{
-			m_CurTopFile-=m_Y2-m_Y1-3-m_ModalMode;
-			m_CurFile-=m_Y2-m_Y1-3-m_ModalMode;
+			m_CurTopFile-=m_Y2-m_Y1-3-(m_ModalMode!=0);
+			m_CurFile-=m_Y2-m_Y1-3-(m_ModalMode!=0);
 			DisplayTree(TRUE);
 
 			if (Global->Opt->Tree.AutoChangeFolder && !m_ModalMode)
@@ -1454,8 +1454,8 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_PGDN:        case KEY_NUMPAD3:
 		{
-			m_CurTopFile+=m_Y2-m_Y1-3-m_ModalMode;
-			m_CurFile+=m_Y2-m_Y1-3-m_ModalMode;
+			m_CurTopFile+=m_Y2-m_Y1-3-(m_ModalMode!=0);
+			m_CurFile+=m_Y2-m_Y1-3-(m_ModalMode!=0);
 			DisplayTree(TRUE);
 
 			if (Global->Opt->Tree.AutoChangeFolder && !m_ModalMode)
@@ -1558,7 +1558,7 @@ void TreeList::CorrectPosition()
 		return;
 	}
 
-	int Height=m_Y2-m_Y1-3-(m_ModalMode);
+	int Height=m_Y2-m_Y1-3-(m_ModalMode!=0);
 
 	if (m_CurTopFile+Height > static_cast<int>(m_ListData.size()))
 		m_CurTopFile = static_cast<int>(m_ListData.size() - Height);

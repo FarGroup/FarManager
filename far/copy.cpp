@@ -821,7 +821,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 			if (AltF10 != -1)
 			{
 				{
-					string strNewFolder2;
+					string strNewFolder2 = strNewFolder;
 					FolderTree::create(strNewFolder2,
 					                (AltF10==1?MODALTREE_PASSIVE:
 					                 (AltF10==2?MODALTREE_FREE:
