@@ -458,7 +458,7 @@ bool GetSubstName(int DriveType,const string& DeviceName, string &strTargetPath)
 	return Ret;
 }
 
-bool GetVHDName(const string& DeviceName, string &strVolumePath)
+bool GetVHDName(const string& DeviceName, string &strVolumePath, VIRTUAL_STORAGE_TYPE* StorageType)
 {
 	bool Result=false;
 	api::File Device;
@@ -484,6 +484,8 @@ bool GetVHDName(const string& DeviceName, string &strVolumePath)
 			{
 				if(StorageDependencyInfo->NumberEntries)
 				{
+					if(StorageType)
+						*StorageType = StorageDependencyInfo->Version2Entries[0].VirtualStorageType;
 					strVolumePath = StorageDependencyInfo->Version2Entries[0].HostVolumeName;
 					strVolumePath += StorageDependencyInfo->Version2Entries[0].DependentVolumeRelativePath;
 					// trick: ConvertNameToReal also converts \\?\{GUID} to drive letter, if possible.

@@ -822,18 +822,23 @@ bool elevation::fSetFileEncryption(const string& Object, bool Encrypt)
 	return Result;
 }
 
-bool elevation::fOpenVirtualDisk(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS& Parameters, HANDLE& Handle)
+bool elevation::fOpenVirtualDisk(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS* Parameters, HANDLE& Handle)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 	bool Result=false;
 	if(ElevationApproveDlg(MElevationRequiredCreate, Object))
 	{
+		OPEN_VIRTUAL_DISK_PARAMETERS ParametersCopy = {};
+		if (Parameters)
+		{
+			ParametersCopy = *Parameters;
+		}
 		if(Global->IsUserAdmin())
 		{
 			SCOPED_ACTION(Privilege)(make_vector(SE_BACKUP_NAME, SE_RESTORE_NAME));
 			Result = api::OpenVirtualDiskInternal(VirtualStorageType, Object, VirtualDiskAccessMask, Flags, Parameters, Handle);
 		}
-		else if(Initialize() && SendCommand(C_FUNCTION_OPENVIRTUALDISK) && Write(VirtualStorageType) && Write(Object) && Write(VirtualDiskAccessMask) && Write(Flags) && Write(Parameters))
+		else if(Initialize() && SendCommand(C_FUNCTION_OPENVIRTUALDISK) && Write(VirtualStorageType) && Write(Object) && Write(VirtualDiskAccessMask) && Write(Flags) && Write(Parameters != 0) && Write(ParametersCopy))
 		{
 			bool OpResult = false;
 			if(Read(OpResult) && ReceiveLastError())
@@ -1213,10 +1218,11 @@ private:
 		VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask;
 		OPEN_VIRTUAL_DISK_FLAG Flags;
 		OPEN_VIRTUAL_DISK_PARAMETERS Parameters;
-		if(Read(VirtualStorageType) && Read(Object) && Read(VirtualDiskAccessMask) && Read(Flags) &&Read(Parameters))
+		bool ParametersPassed;
+		if(Read(VirtualStorageType) && Read(Object) && Read(VirtualDiskAccessMask) && Read(Flags) && Read(ParametersPassed) && Read(Parameters))
 		{
 			HANDLE Handle;
-			bool Result = api::OpenVirtualDiskInternal(VirtualStorageType, Object, VirtualDiskAccessMask, Flags, Parameters, Handle);
+			bool Result = api::OpenVirtualDiskInternal(VirtualStorageType, Object, VirtualDiskAccessMask, Flags, ParametersPassed? &Parameters : nullptr, Handle);
 			if(Result)
 			{
 				HANDLE ParentProcess = OpenProcess(PROCESS_DUP_HANDLE, FALSE, ParentPID);

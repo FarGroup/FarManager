@@ -1236,18 +1236,38 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 				}
 			}
 			string strVhdPath;
-			if(GetVHDName(DiskLetter, strVhdPath) && !strVhdPath.empty())
+			VIRTUAL_STORAGE_TYPE StorageType;
+			int Result = DRIVE_DEL_FAIL;
+			if (GetVHDName(DiskLetter, strVhdPath, &StorageType) && !strVhdPath.empty())
 			{
-				VIRTUAL_STORAGE_TYPE vst = {VIRTUAL_STORAGE_TYPE_DEVICE_VHD, VIRTUAL_STORAGE_TYPE_VENDOR_MICROSOFT};
-				OPEN_VIRTUAL_DISK_PARAMETERS ovdp = {OPEN_VIRTUAL_DISK_VERSION_1, 0};
 				HANDLE Handle;
-				if(api::OpenVirtualDisk(vst, strVhdPath, VIRTUAL_DISK_ACCESS_DETACH, OPEN_VIRTUAL_DISK_FLAG_NONE, ovdp, Handle))
+				if (api::OpenVirtualDisk(StorageType, strVhdPath, VIRTUAL_DISK_ACCESS_DETACH, OPEN_VIRTUAL_DISK_FLAG_NONE, nullptr, Handle))
 				{
-					int Result = Imports().DetachVirtualDisk(Handle, DETACH_VIRTUAL_DISK_FLAG_NONE, 0) == ERROR_SUCCESS? DRIVE_DEL_SUCCESS : DRIVE_DEL_FAIL;
+					if (Imports().DetachVirtualDisk(Handle, DETACH_VIRTUAL_DISK_FLAG_NONE, 0) == ERROR_SUCCESS)
+					{
+						Result = DRIVE_DEL_SUCCESS;
+					}
+					else
+					{
+						Global->CatchError();
+					}
 					CloseHandle(Handle);
-					return Result;
+				}
+				else
+				{
+					Global->CatchError();
 				}
 			}
+			else
+			{
+				Global->CatchError();
+			}
+
+			if (Result != DRIVE_DEL_SUCCESS)
+			{
+				Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), (LangString(MChangeDriveCannotDetach) << DiskLetter).data(), MSG(MOk));
+			}
+			return Result;
 		}
 		break;
 

@@ -56,7 +56,7 @@ bool ModifyReparsePoint(const string& Object,const string& NewData);
 bool GetReparsePointInfo(const string& Object, string &szDestBuff,LPDWORD lpReparseTag=nullptr);
 
 bool GetSubstName(int DriveType,const string& DeviceName,string &strTargetPath);
-bool GetVHDName(const string& DeviceName, string &strVolumePath);
+bool GetVHDName(const string& DeviceName, string &strVolumePath, VIRTUAL_STORAGE_TYPE* StorageType = nullptr);
 
 bool DelSubstDrive(const string& DeviceName);
 void GetPathRoot(const string& Path, string &strRoot);

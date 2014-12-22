@@ -1,4 +1,4 @@
-﻿m4_include(`farversion.m4')m4_dnl
+m4_include(`farversion.m4')m4_dnl
 #hpp file name
 bootstrap\lang.inc
 
@@ -14740,6 +14740,18 @@ MChangeDriveCannotDelSubst
 "No se puede borrar una unidad sustituida %1"
 "Nemôžem zmazať substnutú jednotku %1"
 "Non Posso Eliminare Un Drive SUBST %1"
+
+MChangeDriveCannotDetach
+"Не удаётся отсоединить виртуальный диск %1"
+"Cannot detach a virtual disk %1"
+upd:"Cannot detach virtual disk %1"
+upd:"Cannot detach virtual disk %1"
+upd:"Cannot detach virtual disk %1"
+upd:"Cannot detach virtual disk %1"
+upd:"Cannot detach virtual disk %1"
+upd:"Cannot detach virtual disk %1"
+upd:"Cannot detach virtual disk %1"
+
 
 MChangeDriveOpenFiles
 "Если вы не закроете открытые файлы, данные могут быть утеряны"
