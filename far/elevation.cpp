@@ -71,7 +71,7 @@ ENUM(ELEVATION_COMMAND)
 	C_FUNCTION_SETOWNER,
 	C_FUNCTION_CREATEFILE,
 	C_FUNCTION_SETENCRYPTION,
-	C_FUNCTION_OPENVIRTUALDISK,
+	C_FUNCTION_DETACHVIRTUALDISK,
 	C_FUNCTION_GETDISKFREESPACEEX,
 
 	C_COMMANDS_COUNT
@@ -822,34 +822,23 @@ bool elevation::fSetFileEncryption(const string& Object, bool Encrypt)
 	return Result;
 }
 
-bool elevation::fOpenVirtualDisk(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS* Parameters, HANDLE& Handle)
+bool elevation::fDetachVirtualDisk(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 	bool Result=false;
 	if(ElevationApproveDlg(MElevationRequiredCreate, Object))
 	{
-		OPEN_VIRTUAL_DISK_PARAMETERS ParametersCopy = {};
-		if (Parameters)
-		{
-			ParametersCopy = *Parameters;
-		}
 		if(Global->IsUserAdmin())
 		{
 			SCOPED_ACTION(Privilege)(make_vector(SE_BACKUP_NAME, SE_RESTORE_NAME));
-			Result = api::OpenVirtualDiskInternal(VirtualStorageType, Object, VirtualDiskAccessMask, Flags, Parameters, Handle);
+			Result = api::DetachVirtualDiskInternal(Object, VirtualStorageType);
 		}
-		else if(Initialize() && SendCommand(C_FUNCTION_OPENVIRTUALDISK) && Write(VirtualStorageType) && Write(Object) && Write(VirtualDiskAccessMask) && Write(Flags) && Write(Parameters != 0) && Write(ParametersCopy))
+		else if (Initialize() && SendCommand(C_FUNCTION_DETACHVIRTUALDISK) && Write(Object) && Write(VirtualStorageType))
 		{
 			bool OpResult = false;
 			if(Read(OpResult) && ReceiveLastError())
 			{
 				Result = OpResult;
-			}
-			if(Result)
-			{
-				intptr_t iHandle;
-				Read(iHandle);
-				Handle = ToPtr(iHandle);
 			}
 		}
 	}
@@ -1211,37 +1200,17 @@ private:
 		}
 	}
 
-	void OpenVirtualDiskHandler() const
+	void DetachVirtualDiskHandler() const
 	{
-		VIRTUAL_STORAGE_TYPE VirtualStorageType;
 		string Object;
-		VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask;
-		OPEN_VIRTUAL_DISK_FLAG Flags;
-		OPEN_VIRTUAL_DISK_PARAMETERS Parameters;
-		bool ParametersPassed;
-		if(Read(VirtualStorageType) && Read(Object) && Read(VirtualDiskAccessMask) && Read(Flags) && Read(ParametersPassed) && Read(Parameters))
+		VIRTUAL_STORAGE_TYPE VirtualStorateType;
+		if (Read(Object) && Read(VirtualStorateType))
 		{
-			HANDLE Handle;
-			bool Result = api::OpenVirtualDiskInternal(VirtualStorageType, Object, VirtualDiskAccessMask, Flags, ParametersPassed? &Parameters : nullptr, Handle);
-			if(Result)
-			{
-				HANDLE ParentProcess = OpenProcess(PROCESS_DUP_HANDLE, FALSE, ParentPID);
-				if(ParentProcess)
-				{
-					if(!DuplicateHandle(GetCurrentProcess(), Handle, ParentProcess, &Handle, 0, FALSE, DUPLICATE_CLOSE_SOURCE|DUPLICATE_SAME_ACCESS))
-					{
-						CloseHandle(Handle);
-					}
-					CloseHandle(ParentProcess);
-				}
-			}
+			bool Result = api::DetachVirtualDiskInternal(Object, VirtualStorateType);
 			ERRORCODES ErrorCodes;
-			if (Write(Result) && Write(ErrorCodes.Codes))
+			if (Write(Result))
 			{
-				if(Result)
-				{
-					Write(reinterpret_cast<intptr_t>(Handle));
-				}
+				Write(ErrorCodes.Codes);
 			}
 		}
 	}
@@ -1314,7 +1283,7 @@ private:
 			&elevated::SetOwnerHandler,
 			&elevated::CreateFileHandler,
 			&elevated::SetEncryptionHandler,
-			&elevated::OpenVirtualDiskHandler,
+			&elevated::DetachVirtualDiskHandler,
 			&elevated::GetDiskFreeSpaceExHandler,
 		};
 

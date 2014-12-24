@@ -440,7 +440,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				{
 					NewItem.DriveType=DRIVE_SUBSTITUTE;
 				}
-				else if(DriveCanBeVirtual(NewItem.DriveType) && GetVHDName(LocalName, NewItem.Path))
+				else if(DriveCanBeVirtual(NewItem.DriveType) && GetVHDInfo(LocalName, NewItem.Path))
 				{
 					NewItem.DriveType=DRIVE_VIRTUAL;
 				}
@@ -1236,22 +1236,13 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 				}
 			}
 			string strVhdPath;
-			VIRTUAL_STORAGE_TYPE StorageType;
+			VIRTUAL_STORAGE_TYPE VirtualStorageType;
 			int Result = DRIVE_DEL_FAIL;
-			if (GetVHDName(DiskLetter, strVhdPath, &StorageType) && !strVhdPath.empty())
+			if (GetVHDInfo(DiskLetter, strVhdPath, &VirtualStorageType) && !strVhdPath.empty())
 			{
-				HANDLE Handle;
-				if (api::OpenVirtualDisk(StorageType, strVhdPath, VIRTUAL_DISK_ACCESS_DETACH, OPEN_VIRTUAL_DISK_FLAG_NONE, nullptr, Handle))
+				if (api::DetachVirtualDisk(strVhdPath, VirtualStorageType))
 				{
-					if (Imports().DetachVirtualDisk(Handle, DETACH_VIRTUAL_DISK_FLAG_NONE, 0) == ERROR_SUCCESS)
-					{
-						Result = DRIVE_DEL_SUCCESS;
-					}
-					else
-					{
-						Global->CatchError();
-					}
-					CloseHandle(Handle);
+					Result = DRIVE_DEL_SUCCESS;
 				}
 				else
 				{

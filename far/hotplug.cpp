@@ -440,7 +440,7 @@ int RemoveHotplugDisk(wchar_t Disk, DWORD Flags)
 {
 	string DevName(L"?:");
 	DevName[0] = Disk;
-	if (GetVHDName(DevName, DevName))
+	if (GetVHDInfo(DevName, DevName))
 	{
 		// Removing VHD disk as hotplug is very bad idea.
 		// Currently OS removes the device but doesn't closes the file handle, rendering the file completely unavailable until reboot.

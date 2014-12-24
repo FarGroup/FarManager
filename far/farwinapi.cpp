@@ -1673,19 +1673,32 @@ bool SetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInforma
 	return ::SetFileSecurity(NTPath(Object).data(), RequestedInformation, SecurityDescriptor.get()) != FALSE;
 }
 
-bool OpenVirtualDiskInternal(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS* Parameters, HANDLE& Handle)
+bool DetachVirtualDiskInternal(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType)
 {
-	DWORD Result = Imports().OpenVirtualDisk(&VirtualStorageType, Object.data(), VirtualDiskAccessMask, Flags, Parameters, &Handle);
-	::SetLastError(Result);
+	HANDLE Handle;
+	DWORD Result = Imports().OpenVirtualDisk(&VirtualStorageType, Object.data(), VIRTUAL_DISK_ACCESS_DETACH, OPEN_VIRTUAL_DISK_FLAG_NONE, nullptr, &Handle);
+	if (Result == ERROR_SUCCESS)
+	{
+		Result = Imports().DetachVirtualDisk(Handle, DETACH_VIRTUAL_DISK_FLAG_NONE, 0);
+		if (Result != ERROR_SUCCESS)
+		{
+			SetLastError(Result);
+		}
+	}
+	else
+	{
+		SetLastError(Result);
+	}
 	return Result == ERROR_SUCCESS;
 }
-bool OpenVirtualDisk(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS* Parameters, HANDLE& Handle)
+
+bool DetachVirtualDisk(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType)
 {
 	NTPath NtObject(Object);
-	bool Result = OpenVirtualDiskInternal(VirtualStorageType, NtObject, VirtualDiskAccessMask, Flags, Parameters, Handle);
-	if(!Result && ElevationRequired(ELEVATION_READ_REQUEST))
+	bool Result = DetachVirtualDiskInternal(NtObject, VirtualStorageType);
+	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
-		Result = Global->Elevation->fOpenVirtualDisk(VirtualStorageType, NtObject, VirtualDiskAccessMask, Flags, Parameters, Handle);
+		Result = Global->Elevation->fDetachVirtualDisk(NtObject, VirtualStorageType);
 	}
 	return Result;
 }

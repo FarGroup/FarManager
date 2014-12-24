@@ -458,7 +458,7 @@ bool GetSubstName(int DriveType,const string& DeviceName, string &strTargetPath)
 	return Ret;
 }
 
-bool GetVHDName(const string& DeviceName, string &strVolumePath, VIRTUAL_STORAGE_TYPE* StorageType)
+bool GetVHDInfo(const string& DeviceName, string &strVolumePath, VIRTUAL_STORAGE_TYPE* StorageType)
 {
 	bool Result=false;
 	api::File Device;
