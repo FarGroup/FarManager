@@ -11537,7 +11537,7 @@ lv=2
 dt=Text
 nm=LF_DoFile
 ctime=3542468968
-mtime=3601970266
+mtime=3628517896
 <article>
 #_<markdown>
 #_    int LF_DoFile (lua_State *L, const wchar_t *filename, int argc, wchar_t *argv[])
@@ -11558,10 +11558,10 @@ mtime=3601970266
 #_        {
 #_          int status = 0;
 #_          if (argc >= 2) {
-#_            lua_State *L = LF_LuaOpen();
+#_            lua_State *L = lua_open();
 #_            LF_InitLuaState1(L, NULL);
 #_            status = LF_DoFile(L, argv[1], argc-2, argv+2);
-#_            LF_LuaClose(L);
+#_            lua_close(L);
 #_          }
 #_          return status;
 #_        }
