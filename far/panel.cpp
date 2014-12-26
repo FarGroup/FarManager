@@ -1377,7 +1377,7 @@ int Search::ProcessKey(const Manager::Key& Key)
 		m_FindEdit->GetString(strTempName);
 		m_FindEdit->SetString(L"");
 		ProcessName(strTempName, strName);
-		ShowBorder();
+		Redraw();
 		return TRUE;
 	}
 	else if (LocalKey == KEY_OP_PLAINTEXT)
@@ -1387,7 +1387,7 @@ int Search::ProcessKey(const Manager::Key& Key)
 		m_FindEdit->GetString(strTempName);
 		m_FindEdit->SetString(L"");
 		ProcessName(strTempName, strName);
-		ShowBorder();
+		Redraw();
 		return TRUE;
 	}
 	else
@@ -1429,15 +1429,13 @@ int Search::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLENTER:      case KEY_RCTRLENTER:
 			m_FindEdit->GetString(strName);
 			m_Owner->FindPartName(strName, TRUE, 1);
-			m_FindEdit->Show();
-			ShowBorder();
+			Redraw();
 			break;
 		case KEY_CTRLSHIFTNUMENTER:  case KEY_RCTRLSHIFTNUMENTER:
 		case KEY_CTRLSHIFTENTER:     case KEY_RCTRLSHIFTENTER:
 			m_FindEdit->GetString(strName);
 			m_Owner->FindPartName(strName, TRUE, -1);
-			m_FindEdit->Show();
-			ShowBorder();
+			Redraw();
 			break;
 		case KEY_NONE:
 		case KEY_IDLE:
@@ -1496,8 +1494,7 @@ int Search::ProcessKey(const Manager::Key& Key)
 					m_FindEdit->SetString(strLastName.data());
 				}
 
-				m_FindEdit->Show();
-				ShowBorder();
+				Redraw();
 			}
 
 			break;
