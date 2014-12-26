@@ -147,20 +147,21 @@ function export.GetPluginInfo()
   return out
 end
 
-local PatSplitMacroString = regex.new([[
-^ \s* @ \s*
-(?:
-    (  " ( [^"]+ ) "  |  [^"\s]+  )
-    (?:  \s+ (\S.*)   |  \s*      )
-  |
-    (.*)
-)$
-]], "sx")
-
 local function SplitMacroString (Text)
-  local c1,c2,c3,c4 = PatSplitMacroString:match(Text)
-  if c1 then return c2 or c1, c3; end
-  assert(not c4, "Invalid macrosequence specification")
+  local from,to = Text:find("^%s*@%s*")
+  if from then
+    local from2,to2,fname = Text:find("^\"([^\"]+)\"", to+1) -- test for quoted file name
+    if not from2 then
+      from2,to2,fname = Text:find("^([^%s\"]+)", to+1) -- test for unquoted file name
+    end
+    if from2 then
+      local space,params = Text:match("^(%s*)(.*)", to2+1)
+      if space~="" or params=="" then
+        return fname, params
+      end
+    end
+    error("Invalid macrosequence specification")
+  end
 end
 
 local function loadmacro (Lang, Text, Env)

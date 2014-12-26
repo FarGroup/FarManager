@@ -3,6 +3,7 @@ local Msg, ErrMsg, pack, ExpandEnv = Shared.Msg, Shared.ErrMsg, Shared.pack, Sha
 
 local F = far.Flags
 local type = type
+local string_find, string_sub = string.find, string.sub
 local band, bor = bit64.band, bit64.bor
 local MacroCallFar = far.MacroCallFar
 local gmeta = { __index=_G }
@@ -113,12 +114,6 @@ local function ReadIniFile (filename)
   local fp = io.open(filename)
   if not fp then return nil end
 
-  local pat = regex.new([[
-    ^ \s* \[ (\w+) \] \s*       $ |
-    ^ \s*(\w+)\s* = \s*(.*?)\s* $ |
-    ^ \s* (?: ; .*)?            $ |
-    ^ (.*?)
-  ]], "x")
   local currsect = 1
   local t = { [currsect]={} }
   local numline = 0
@@ -126,15 +121,17 @@ local function ReadIniFile (filename)
   if fp:read(3) ~= "\239\187\191" then fp:seek("set",0) end -- skip UTF-8 BOM
   for line in fp:lines() do
     numline = numline + 1
-    local sect,id,val,bad = pat:match(line)
+    local sect = line:match("^%s*%[([^%]]+)%]%s*$")
     if sect then
       t[sect] = t[sect] or {}
       currsect = sect
-    elseif id then
-      t[currsect][id] = val
-    elseif bad then
-      fp:close()
-      return nil, (("%s:%d: invalid line in ini-file"):format(filename,numline))
+    else
+      local id,val = line:match("^%s*(%w+)%s*=%s*(.-)%s*$")
+      if id then
+        t[currsect][id] = val
+      elseif not (line:match("^%s*;") or line:match("^%s*$")) then
+        return nil, (("%s:%d: invalid line in ini-file"):format(filename,numline))
+      end
     end
   end
   fp:close()
@@ -223,16 +220,30 @@ local function export_ProcessEditorInput (Rec)
   return EV_Handler(Events.editorinput, editor.GetFileName(nil), Rec)
 end
 
-local ExpandKey do -- измеренное время исполнения на ключе "CtrlAltShiftF12" = 5.7uS (Lua); 3.5uS (LuaJIT);
-  local p = "(?:([lr]?ctrl)|([lr]?alt)|(shift))?"
-  local PatExpandKey = regex.new("^"..p..p..p.."(.*)")
+local ExpandKey do -- измеренное время исполнения на ключе "CtrlAltShiftF12" = ??? (Lua); 2.3uS (LuaJIT);
   local t={}
 
   ExpandKey = function (key)
-    local c1,c2,c3,c4,c5,c6,c7,c8,c9,c10 = PatExpandKey:match(key:lower())
-    local ctrl = c1 or c4 or c7 or ""
-    local alt = c2 or c5 or c8 or ""
-    local rest = (c3 or c6 or c9 or "") .. c10
+    local ctrl,alt,rest
+    key = key:lower()
+    local start = 1
+    for k=1,3 do
+      local from,to,word = string_find(key, "^([lr]?ctrl)", start)
+      if from then ctrl = ctrl or word
+      else
+        from,to,word = string_find(key, "^([lr]?alt)", start)
+        if from then alt = alt or word
+        else
+          from,to,word = string_find(key, "^(shift)", start)
+          if from then rest = rest or word
+          else break
+          end
+        end
+      end
+      start = to+1
+    end
+    rest = (rest or "")..string_sub(key, start)
+    ctrl, alt = ctrl or "", alt or ""
 
     if ctrl=="ctrl" then
       if alt=="alt" then
@@ -267,11 +278,10 @@ local function AddRegularMacro (srctable)
     return
   end
 
-  local keyregex = macro.key:match("^/(.+)/$")
+  local keyregex, ok = macro.key:match("^/(.+)/$"), nil
   if keyregex then
-    if pcall(regex.new, keyregex) then
-      macro.keyregex = regex.new("^("..keyregex..")$", "i")
-    else
+    ok, macro.keyregex = pcall(regex.new, "^("..keyregex..")$", "i")
+    if not ok then
       ErrMsg("Invalid regex: "..macro.key)
       return
     end
@@ -487,7 +497,6 @@ end
 
 local function ErrMsgLoad (msg, filename, isMoonScript, mode)
   local title = isMoonScript and mode=="compile" and "MoonScript" or "LuaMacro"
-  local string_sub = string.sub
 
   if mode=="run" then
     local found = false
@@ -505,7 +514,7 @@ local function ErrMsgLoad (msg, filename, isMoonScript, mode)
         fname = fname:gsub("/", "\\")
         local middle = fname:match([=[^[^\\]*\[^\\]+\]=])
         if middle then
-          local from = string.find(filename:lower(), middle:lower(), 1, true)
+          local from = string_find(filename:lower(), middle:lower(), 1, true)
           if from then
             fname = string_sub(filename,1,from-1) .. fname
             local attr = win.GetFileAttr(fname)
@@ -596,7 +605,7 @@ local function LoadMacros (unload, paths)
       if macroinit and #FullPath==#macroinit and far.LStricmp(FullPath,macroinit)==0 then
         return
       end
-      local isMoonScript = string.find(FullPath, "[nN]", -1)
+      local isMoonScript = string_find(FullPath, "[nN]", -1)
       local f, msg = (isMoonScript and moonscript.loadfile or loadfile)(FullPath)
       if not f then
         numerrors=numerrors+1
@@ -771,18 +780,24 @@ local function GetFromMenu (macrolist)
   end
 end
 
-local GetMacro_keypat = regex.new("^(r?ctrl)?(r?alt)?(.*)")
-
 local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
   if LoadingInProgress then return end
 
   local area = GetAreaName(argMode)
   if not area then return end -- трюк используется в CheckForEscSilent() в Фаре
 
-  local key = GetMacro_keypat:gsub(argKey:lower(),
-    function(a,b,c)
-      return (a=="ctrl" and "lctrl" or a or "")..(b=="alt" and "lalt" or b or "")..c
-    end)
+  local key = argKey:lower()
+  do
+    local alt
+    local from,to,ctrl = string_find(key, "^(r?ctrl)")
+    if ctrl=="ctrl" then ctrl="lctrl" end
+    local start = to and to+1 or 1
+    from,to,alt = string_find(key, "^(r?alt)", start)
+    if alt=="alt" then alt="lalt" end
+    start = to and to+1 or start
+    key = (ctrl or "") .. (alt or "") .. string_sub(key, start)
+  end
+
   local Names = { area, argUseCommon and area~="common" and "common" or nil }
 
   -- First, check "keyboard-recorded" macros, they have the highest priority.
