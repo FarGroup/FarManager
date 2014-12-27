@@ -399,17 +399,12 @@ int SubstFileName(const wchar_t *DlgTitle,
                   int   IgnoreInput,    // TRUE - не исполнять "!?<title>?<init>!"
                   const wchar_t *CmdLineDir)     // Каталог исполнения
 {
-	if (pListName)
-		pListName->clear();
-
-	if (pAnotherListName)
-		pAnotherListName->clear();
-
-	if (pShortListName)
-		pShortListName->clear();
-
-	if (pAnotherShortListName)
-		pAnotherShortListName->clear();
+	string* Lists[] = { pListName, pAnotherListName, pShortListName, pAnotherShortListName };
+	FOR(auto& i, Lists)
+	{
+		if (i)
+			i->clear();
+	}
 
 	/* $ 19.06.2001 SVS
 	  ВНИМАНИЕ! Для альтернативных метасимволов, не основанных на "!",
@@ -459,16 +454,8 @@ int SubstFileName(const wchar_t *DlgTitle,
 
 	PSubstData->PreserveLFN=FALSE;
 	PSubstData->PassivePanel=FALSE; // первоначально речь идет про активную панель!
-	string strTmp = strStr;
 
-	if (!IgnoreInput)
-	{
-		string title = NullToEmpty(DlgTitle);
-		SubstFileName(nullptr,title,Name,ShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
-		ReplaceVariables(api::env::expand_strings(title).data(), strTmp, PSubstData);
-	}
-
-	const wchar_t *CurStr = strTmp.data();
+	const wchar_t *CurStr = strStr.data();
 	string strOut;
 
 	while (*CurStr)
@@ -483,8 +470,15 @@ int SubstFileName(const wchar_t *DlgTitle,
 			CurStr++;
 		}
 	}
-
 	strStr = strOut;
+
+
+	if (!IgnoreInput)
+	{
+		string title = NullToEmpty(DlgTitle);
+		ReplaceVariables(api::env::expand_strings(title).data(), strStr, PSubstData);
+	}
+
 	return PSubstData->PreserveLFN;
 }
 
