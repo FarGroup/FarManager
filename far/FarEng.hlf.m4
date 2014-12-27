@@ -2369,10 +2369,10 @@ of these prefixes continues up to the next similar prefix. For example:
    regardless of the name of the current file on the passive panel"
 
     5. ^<wrap>If it is needed to pass to a program a name with an ending
-backslash, use the following meta-symbol - #!.\#. For example, to
-extract a rar archive to a folder with the same name
+backslash, use quotes, e. g. #"!"\#.
+    For example, to extract a rar archive to a folder with the same name:
 
-    winrar x "!.!" "!.\"
+    winrar x "!.!" "!"\
 
 @SystemSettings
 $ #Settings dialog: system#
