@@ -3,6 +3,32 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 27.12.2014 15:13:59 +0200 - build 4229
+
+1. 0002845: Wrong Handling of "exclamation marks" in Menu item "!?<title>?<init>!"
+
+zg 26.12.2014 18:50:17 +0200 - build 4228
+
+1. sometimes fast search in panels was not redrawn correctly.
+
+drkns 24.12.2014 22:53:03 +0200 - build 4227
+
+1. Continuation of #0002893 - privilege escalation is added.
+
+drkns 22.12.2014 22:53:05 +0200 - build 4226
+
+1. 0002893: Cannot unmount iso, vhd, vhdx
+
+svs 22.12.2014 15:31:42 +0300 - build 4225
+
+1. Tree. Shift-F10 and Alt-F10 did not work in copy/move dialogs
+
+2. Tree. Video artifacts (m_ModalMode has changed from "yes/no" to "0..2" for some time now).
+
+svs 22.12.2014 13:24:20 +0300 - build 4224
+
+1. Corrections on TREEFILE_PROJECT (Mantis#0000186)
+
 drkns 21.12.2014 15:02:37 +0200 - build 4223
 
 1. Experimental: alternative solution for a problem of "open with" in launcher.
