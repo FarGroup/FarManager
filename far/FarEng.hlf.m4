@@ -2250,7 +2250,8 @@ as a ~mask~@FileMasks@:
 field.
 
     If you do not wish to switch panels off before executing the associated
-program, start its command line with '#@@#' character.
+program, start its command line with '#@@#' character (note that it only makes
+sense for programs that do not produce any text output).
 
     The following ~special symbols~@MetaSymbols@ may be used in the associated
 command.
@@ -2312,6 +2313,8 @@ $ #Special symbols#
              for example:
 
              grep !?#$GrepHist$#Search for:?! !?In:?*.*!|Far.exe -v -
+
+             Leave the name empty to disable history.
 
              In <title> and <init> the usage of other meta-symbols is
              allowed by enclosing them in brackets.
