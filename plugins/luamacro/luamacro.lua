@@ -219,35 +219,33 @@ local function MacroInit (Id, Lang, Text)
     end
   end
   if chunk then
-    local macro = { coro=coroutine.create(chunk), params=params, store={} }
-    return macro
+    return { coro=coroutine.create(chunk), params=params, store={} }
   else
     ErrMsg(params)
   end
 end
 
 local function MacroStep (handle, ...)
-  local macro = handle
-  if macro then
-    local status = co_status(macro.coro)
+  if handle then
+    local status = co_status(handle.coro)
     if status == "suspended" then
       local ok, ret1, ret_type, ret_values
-      if macro.params then
-        local params = macro.params
-        macro.params = nil
-        ok, ret1, ret_type, ret_values = co_resume(macro.coro, params())
+      if handle.params then
+        local params = handle.params
+        handle.params = nil
+        ok, ret1, ret_type, ret_values = co_resume(handle.coro, params())
       else
-        ok, ret1, ret_type, ret_values = co_resume(macro.coro, ...)
+        ok, ret1, ret_type, ret_values = co_resume(handle.coro, ...)
       end
       if ok then
-        status = co_status(macro.coro)
+        status = co_status(handle.coro)
         if status == "suspended" and ret1 == PROPAGATE and ret_type ~= "exit" then
-          macro.store[1] = ret_values
+          handle.store[1] = ret_values
           if ret_type==F.MPRT_PLUGINCALL or ret_type==F.MPRT_PLUGINMENU or ret_type==F.MPRT_PLUGINCONFIG or
              ret_type==F.MPRT_PLUGINCOMMAND or ret_type==F.MPRT_USERMENU or ret_type=="acall" then
             return ret_type, ret_values
           else
-            return ret_type, macro.store
+            return ret_type, handle.store
           end
         else
           LastMessage[1] = ""
@@ -255,7 +253,7 @@ local function MacroStep (handle, ...)
         end
       else
         ret1 = type(ret1)=="string" and ret1 or "(error object is not a string)"
-        ret1 = debug.traceback(macro.coro, ret1):gsub("\n\t","\n   ")
+        ret1 = debug.traceback(handle.coro, ret1):gsub("\n\t","\n   ")
         ErrMsg(ret1)
         LastMessage[1] = ret1
         return F.MPRT_ERRORFINISH, LastMessage
@@ -291,7 +289,7 @@ local function MacroParse (Lang, Text, onlyCheck, skipFile)
 
   if not ok then
     if not onlyCheck then
-      far.Message(msg, Msg.MMacroPErrorTitle, Msg.MOk, "lw")
+      far.Message(msg, Msg.MMacroParseErrorTitle, Msg.MOk, "lw")
     end
     LastMessage = pack(
       msg, -- keep alive from gc
