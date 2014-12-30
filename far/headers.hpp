@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <map>
 #include <memory>
 #include <numeric>
+#include <regex>
 #include <set>
 #include <sstream>
 #include <stack>
@@ -85,8 +86,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # define GCC_VER_(gcc_major,gcc_minor,gcc_patch) (100*(gcc_major) + 10*(gcc_minor) + (gcc_patch))
 # define _GCC_VER GCC_VER_(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
 
-# if _GCC_VER < GCC_VER_(4,7,1)
-#  error gcc 4.7.1 (or higher) required
+# if _GCC_VER < GCC_VER_(4,9,0)
+#  error gcc 4.9.0 (or higher) required
 # endif
 
 # include <w32api.h>

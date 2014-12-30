@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "imports.hpp"
-#include "RegExp.hpp"
 
 void NTPath::Transform()
 {
@@ -73,55 +72,51 @@ PATH_TYPE ParsePath(const string& path, size_t* DirectoryOffset, bool* Root)
 	{
 		PATH_TYPE Type;
 		const wchar_t* REStr;
-		RegExp re;
-		bool Compiled;
+		std::wregex re;
 	}
 	PathTypes[] =
 	{
 		// x:<whatever> or x:\\<whatever>
-		{PATH_DRIVELETTER, L"/(^.\\:)(?:[\\\\\\/]|$)/"},
+		{PATH_DRIVELETTER, L"(^.\\:)(?:[\\\\\\/]|$)"},
 		// \\?\x: or \\?\x:\ or \\?\x:\<whatever>
-		{PATH_DRIVELETTERUNC, L"/(^\\\\{2}[\\?\\.]\\\\.\\:)(?:[\\\\\\/]|$)/"},
+		{PATH_DRIVELETTERUNC, L"(^\\\\{2}[\\?\\.]\\\\.\\:)(?:[\\\\\\/]|$)"},
 		// \\server\share or \\server\share\ or \\server\share<whatever>
-		{PATH_REMOTE, L"/(^\\\\{2}[^ \\\\\\/\\?\\.][^ \\\\\\/\\?]+?\\\\[^\\\\\\/]+?)(?:[\\\\\\/]|$)/"},
+		{PATH_REMOTE, L"(^\\\\{2}[^ \\\\\\/\\?\\.][^ \\\\\\/\\?]+?\\\\[^\\\\\\/]+?)(?:[\\\\\\/]|$)"},
 		// \\?\unc\server\share or \\?\unc\server\share\ or \\?\unc\server\share<whatever>
-		{PATH_REMOTEUNC, L"/(^\\\\{2}[\\?\\.]\\\\unc\\\\[^ \\\\\\/]+?\\\\[^\\\\\\/]+?)(?:[\\\\\\/]|$)/"},
+		{PATH_REMOTEUNC, L"(^\\\\{2}[\\?\\.]\\\\unc\\\\[^ \\\\\\/]+?\\\\[^\\\\\\/]+?)(?:[\\\\\\/]|$)"},
 		// \\?\Volume{GUID} or \\?\Volume{GUID}\ or \\?\Volume{GUID}<whatever>
-		{PATH_VOLUMEGUID, L"/(^\\\\{2}[\\?\\.]\\\\volume\\{[0-9A-Fa-f]{8}-(?:[0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}\\})(?:[\\\\\\/]|$)/"},
+		{PATH_VOLUMEGUID, L"(^\\\\{2}[\\?\\.]\\\\volume\\{[0-9A-Fa-f]{8}-(?:[0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}\\})(?:[\\\\\\/]|$)"},
 		// \\?\pipe\ or \\?\pipe
-		{PATH_PIPE, L"/(^\\\\{2}[\\?\\.]\\\\pipe)(?:[\\\\\\/]|$)/"},
+		{PATH_PIPE, L"(^\\\\{2}[\\?\\.]\\\\pipe)(?:[\\\\\\/]|$)"},
 	};
 	static bool REInit = false;
 	if(!REInit)
 	{
 		std::for_each(RANGE(PathTypes, i)
 		{
-			i.Compiled = i.re.Compile(i.REStr, OP_PERLSTYLE|OP_OPTIMIZE|OP_IGNORECASE) != 0;
-			assert(i.Compiled);
+			i.re.assign(i.REStr, std::regex::icase | std::regex::optimize);
 		});
 		REInit = true;
 	}
 
-	RegExpMatch m;
+	std::wsmatch SMatch;
 
-	std::any_of(RANGE(PathTypes, i) -> bool
+	const auto& ItemIterator = std::find_if(CONST_RANGE(PathTypes, i) { return std::regex_search(path, SMatch, i.re); });
+
+	if (ItemIterator != std::cend(PathTypes))
 	{
-		intptr_t n = 1;
-		if(i.re.Search(path.data(), &m, n))
+		const size_t MatchLength = SMatch[0].length();
+		if (DirectoryOffset)
 		{
-			if(DirectoryOffset)
-			{
-				*DirectoryOffset = m.end;
-			}
-			if(Root)
-			{
-				*Root = path.size() == static_cast<size_t>(m.end) || (path.size() == static_cast<size_t>(m.end + 1) && IsSlash(path[m.end]));
-			}
-			Result = i.Type;
-			return true;
+			*DirectoryOffset = MatchLength;
 		}
-		return false;
-	});
+		if (Root)
+		{
+			*Root = path.size() == MatchLength || (path.size() == (MatchLength + 1) && IsSlash(path[MatchLength]));
+		}
+		Result = ItemIterator->Type;
+
+	}
 
 	return Result;
 }
