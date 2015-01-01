@@ -196,12 +196,12 @@ end
 
 local function postmacro (f, ...)
   if type(f) == "function" then
-    return keymacro.PostNewMacro(pack(f, ...), "", 0, nil, true)
+    return keymacro.PostNewMacro(pack(f, ...), 0, nil, true)
   end
   return false
 end
 
-local function MacroInit (Id, Lang, Text)
+local function MacroInit (Id)
   local chunk, params
   if type(Id) == "table" then
     if Id.HasFunction then
@@ -214,7 +214,7 @@ local function MacroInit (Id, Lang, Text)
     if mtable then
       chunk = mtable.action
       if not chunk then
-        chunk, params = loadmacro(mtable.language or Lang, mtable.code)
+        chunk, params = loadmacro(mtable.language, mtable.code)
       end
     end
   end
@@ -362,7 +362,7 @@ local function ProcessCommandLine (CmdLine)
         end
       end
       local f1,f2 = loadmacro(prefix=="lua" and "lua" or "moonscript", text)
-      if f1 then keymacro.PostNewMacro({ f1,f2,HasFunction=true }, "", 0, nil, true)
+      if f1 then keymacro.PostNewMacro({ f1,f2,HasFunction=true }, 0, nil, true)
       else ErrMsg(f2)
       end
     end

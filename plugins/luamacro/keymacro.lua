@@ -45,13 +45,11 @@ local Import = {
 
 local NewMacroRecord do
   local MacroRecord = {
-    m_id     = 0,     -- идентификатор загруженного макроса в плагине LuaMacro; 0 для макроса, запускаемого посредством MSSC_POST.
-    m_lang   = "lua", -- язык макропоследовательности
-    m_code   = "",    -- оригинальный код макроса
-    m_flags  = 0,     -- флаги макропоследовательности
-    m_key    = -1,    -- назначенная клавиша
-    m_value  = nil,   -- значение, хранимое исполняющимся макросом
-    m_handle = nil    -- хэндл исполняющегося макроса
+    m_id     = 0,   -- идентификатор загруженного макроса в плагине LuaMacro; 0 для макроса, запускаемого посредством MSSC_POST.
+    m_flags  = 0,   -- флаги макропоследовательности
+    m_key    = -1,  -- назначенная клавиша
+    m_value  = nil, -- значение, хранимое исполняющимся макросом
+    m_handle = nil  -- хэндл исполняющегося макроса
   }
   local meta = { __index=MacroRecord }
 
@@ -62,11 +60,8 @@ local NewMacroRecord do
   function MacroRecord:GetValue() return self.m_value end
   function MacroRecord:SetValue(val) self.m_value=val end
 
-  NewMacroRecord = function (MacroId, Lang, Code, Flags, Key)
-    local mr = {
-      m_id=MacroId, m_lang=Lang, m_code=Code, m_flags=Flags, m_key=Key,
-    }
-    return setmetatable(mr, meta)
+  NewMacroRecord = function (MacroId, Flags, Key)
+    return setmetatable({m_id=MacroId, m_flags=Flags, m_key=Key}, meta)
   end
 end
 --------------------------------------------------------------------------------
@@ -214,7 +209,7 @@ local function CheckCurMacro()
   if macro then
     if not macro:GetHandle() then
       PushState(false)
-      macro:SetHandle(MacroInit(macro.m_id, macro.m_lang, macro.m_code))
+      macro:SetHandle(MacroInit(macro.m_id))
       PopState(false)
     end
     if macro:GetHandle() then
@@ -307,7 +302,7 @@ local function GetInputFromMacro()
   return r1,r2
 end
 
-function KeyMacro.PostNewMacro (macroId, code, flags, key, postFromPlugin)
+function KeyMacro.PostNewMacro (macroId, flags, key, postFromPlugin)
   flags = flags or 0
   flags = postFromPlugin and bor(flags,MFLAGS_POSTFROMPLUGIN) or flags
   local AKey = 0
@@ -317,7 +312,7 @@ function KeyMacro.PostNewMacro (macroId, code, flags, key, postFromPlugin)
       AKey = dKey
     end
   end
-  CurState.MacroQueue:add(NewMacroRecord(macroId,"lua",code,flags,AKey))
+  CurState.MacroQueue:add(NewMacroRecord(macroId,flags,AKey))
   return true
 end
 
@@ -325,7 +320,7 @@ local function TryToPostMacro (Mode, TextKey, IntKey)
   local m = utils.GetMacro(Mode, TextKey, true, false)
   if m then
     if m.id then
-      KeyMacro.PostNewMacro(m.id, m.code, m.flags, TextKey, false)
+      KeyMacro.PostNewMacro(m.id, m.flags, TextKey, false)
       CurState.HistoryDisableMask = 0
       CurState.IntKey = IntKey
     end
@@ -393,7 +388,7 @@ function KeyMacro.Dispatch (opcode, ...)
     local Lang,Code,Flags,AKey = ...
     local f1,f2 = loadmacro(Lang,Code)
     if f1 then
-      CurState.MacroQueue:add(NewMacroRecord({ f1,f2,HasFunction=true },Lang,Code,Flags,AKey))
+      CurState.MacroQueue:add(NewMacroRecord({ f1,f2,HasFunction=true },Flags,AKey))
       return true
     else
       ErrMsg(f2, Msg.MMacroParseErrorTitle)
