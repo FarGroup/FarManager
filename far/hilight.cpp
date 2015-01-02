@@ -53,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filefilterparams.hpp"
 #include "language.hpp"
 #include "datetime.hpp"
+#include "DlgGuid.hpp"
 
 static const struct
 {
@@ -613,6 +614,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 	HiMenu->SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
 	HiMenu->SetPosition(-1,-1,0,0);
 	HiMenu->SetBottomTitle(MSG(MHighlightBottom));
+	HiMenu->SetId(HighlightMenuId);
 	FillMenu(HiMenu.get(), MenuPos);
 	int NeedUpdate;
 
