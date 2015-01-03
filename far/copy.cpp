@@ -607,12 +607,11 @@ static void GenerateName(string &strName,const wchar_t *Path=nullptr)
 	string strExt=PointToExt(strName);
 	size_t NameLength=strName.size()-strExt.size();
 
-	for (int i=1; api::GetFileAttributes(strName)!=INVALID_FILE_ATTRIBUTES; i++)
+	// file (2).ext, file (3).ext and so on
+	for (int i = 2; api::fs::exists(strName); ++i)
 	{
-		WCHAR Suffix[20]=L"_";
-		_itow(i,Suffix+1,10);
 		strName.resize(NameLength);
-		strName+=Suffix;
+		strName += L" (" + std::to_wstring(i) + L")";
 		strName+=strExt;
 	}
 }
@@ -1803,7 +1802,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		if (first && !copy_to_null && (dst_abspath || !src_abspath) && !UseWildCards
 		 && SrcPanel->GetSelCount() > 1
 		 && !IsSlash(strDest.back())
-		 && api::GetFileAttributes(strDest) == INVALID_FILE_ATTRIBUTES)
+		 && !api::fs::exists(strDest))
 		{
 			switch (Message(FMSG_WARNING,3,MSG(MWarning),strDest.data(),MSG(MCopyDirectoryOrFile),MSG(MCopyDirectoryOrFileDirectory),MSG(MCopyDirectoryOrFileFile),MSG(MCancel)))
 			{
@@ -1818,9 +1817,9 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 			DestAttr = api::GetFileAttributes(strDest);
 			if (INVALID_FILE_ATTRIBUTES == DestAttr)
 			{
-				DWORD rattr1 = api::GetFileAttributes(strDestDriveRoot);
-				DWORD rattr2 = rattr1;
-				while ( INVALID_FILE_ATTRIBUTES == rattr2 && SkipMode != 2)
+				auto Exists_1 = api::fs::exists(strDestDriveRoot);
+				auto Exists_2 = Exists_1;
+				while ( !Exists_2 && SkipMode != 2)
 				{
 					Global->CatchError();
 					int ret = OperationFailed(strDestDriveRoot, MError, L"");
@@ -1834,9 +1833,9 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 						return COPY_NEXT;
 					}
 
-					rattr2 = api::GetFileAttributes(strDestDriveRoot);
+					Exists_2 = api::fs::exists(strDestDriveRoot);
 				}
-				if (INVALID_FILE_ATTRIBUTES == rattr1 && INVALID_FILE_ATTRIBUTES != rattr2)
+				if (!Exists_1 && Exists_2)
 					DestAttr = api::GetFileAttributes(strDest);
 			}
 		}
@@ -1845,9 +1844,8 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		if (!copy_to_null && FindLastSlash(pos,strDest) && (!DestMountLen || pos > DestMountLen))
 		{
 			string strNewPath = strDest.substr(0, pos);
-
-			DWORD Attr=api::GetFileAttributes(strNewPath);
-			if (Attr == INVALID_FILE_ATTRIBUTES)
+			api::fs::file_status NewPathStatus(strNewPath);
+			if (!api::fs::exists(NewPathStatus))
 			{
 				if (api::CreateDirectory(strNewPath,nullptr))
 					TreeList::AddTreeName(strNewPath);
@@ -1856,7 +1854,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 
 				DestAttr = api::GetFileAttributes(strDest);
 			}
-			else if (!(Attr & FILE_ATTRIBUTE_DIRECTORY))
+			else if (api::fs::is_file(NewPathStatus))
 			{
 				Message(MSG_WARNING,1,MSG(MError),MSG(MCopyCannotCreateFolder),strNewPath.data(),MSG(MOk));
 				return COPY_FAILURE;
@@ -2333,7 +2331,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 					if (CmpFullPath(Src,strDest)) // в пределах одного каталога ничего не меняем
 						IsSetSecuty=FALSE;
-					else if (api::GetFileAttributes(strDest) == INVALID_FILE_ATTRIBUTES) // если каталога нет...
+					else if (!api::fs::exists(strDest)) // если каталога нет...
 					{
 						// ...получаем секьюрити родителя
 						if (GetSecurity(GetParentFolder(strDest,strDestFullName), sd))
@@ -2430,7 +2428,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					// не будем выставлять компрессию, если мылимся в каталог
 					// с выставленным FILE_ATTRIBUTE_ENCRYPTED (а он уже будет выставлен после CreateDirectory)
 					// т.с. пропускаем лишний ход.
-					if (api::GetFileAttributes(strDestPath)&FILE_ATTRIBUTE_ENCRYPTED)
+					if (api::fs::file_status(strDestPath).check(FILE_ATTRIBUTE_ENCRYPTED))
 						SetAttr&=~FILE_ATTRIBUTE_COMPRESSED;
 
 					if (SetAttr&FILE_ATTRIBUTE_COMPRESSED)
@@ -2569,7 +2567,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			{
 				strDest=strNewName;
 
-				if (CutToSlash(strNewName) && api::GetFileAttributes(strNewName)==INVALID_FILE_ATTRIBUTES)
+				if (CutToSlash(strNewName) && !api::fs::exists(strNewName))
 				{
 					CreatePath(strNewName);
 				}
@@ -2619,7 +2617,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					{
 						if (CmpFullPath(Src,strDest)) // в пределах одного каталога ничего не меняем
 							IsSetSecuty=FALSE;
-						else if (api::GetFileAttributes(strDest) == INVALID_FILE_ATTRIBUTES) // если каталога нет...
+						else if (!api::fs::exists(strDest)) // если каталога нет...
 						{
 							string strDestFullName;
 
@@ -2856,7 +2854,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			{
 				strDest=strNewName;
 
-				if (CutToSlash(strNewName) && api::GetFileAttributes(strNewName)==INVALID_FILE_ATTRIBUTES)
+				if (CutToSlash(strNewName) && !api::fs::exists(strNewName))
 				{
 					CreatePath(strNewName);
 				}
@@ -3050,7 +3048,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const api::FAR_FIND_DATA &Src
 		{
 			if (!Global->Opt->CMOpt.CopyOpened)
 			{
-				api::File SrcFile;
+				api::fs::file SrcFile;
 				if (!SrcFile.Open(SrcName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 				{
 					_LOGCOPYR(SysLog(L"return COPY_FAILURE -> %d if (SrcHandle==INVALID_HANDLE_VALUE)",__LINE__));
@@ -3074,7 +3072,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const api::FAR_FIND_DATA &Src
 	if (Global->Opt->CMOpt.CopyOpened)
 		OpenMode|=FILE_SHARE_WRITE;
 
-	api::FileWalker SrcFile;
+	api::fs::file_walker SrcFile;
 	bool Opened = SrcFile.Open(SrcName, GENERIC_READ, OpenMode, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
 
 	if (!Opened && Global->Opt->CMOpt.CopyOpened)
@@ -3090,7 +3088,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const api::FAR_FIND_DATA &Src
 		return COPY_FAILURE;
 	}
 
-	api::File DestFile;
+	api::fs::file DestFile;
 	__int64 AppendPos=0;
 	DWORD flags_attrs=0;
 
@@ -3353,7 +3351,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const api::FAR_FIND_DATA &Src
 						{
 							strDestName=strNewName;
 
-							if (CutToSlash(strNewName) && api::GetFileAttributes(strNewName)==INVALID_FILE_ATTRIBUTES)
+							if (CutToSlash(strNewName) && !api::fs::exists(strNewName))
 							{
 								CreatePath(strNewName);
 							}
@@ -3999,7 +3997,7 @@ int ShellCopy::SetRecursiveSecurity(const string& FileName,const api::FAR_SECURI
 {
 	if (SetSecurity(FileName, sd))
 	{
-		if (api::GetFileAttributes(FileName) & FILE_ATTRIBUTE_DIRECTORY)
+		if (api::fs::is_directory(FileName))
 		{
 			ScanTree ScTree(true, true, Flags & FCOPY_COPYSYMLINKCONTENTS);
 			ScTree.SetFindPath(FileName,L"*",FSCANTREE_FILESFIRST);
@@ -4169,13 +4167,13 @@ bool ShellCopy::ShellSetAttr(const string& Dest, DWORD Attr)
 	ConvertNameToFull(Dest,strRoot);
 	GetPathRoot(strRoot,strRoot);
 
-	if (api::GetFileAttributes(strRoot)==INVALID_FILE_ATTRIBUTES) // Неудача, когда сетевой путь, да еще и симлинк
+	if (!api::fs::exists(strRoot)) // Неудача, когда сетевой путь, да еще и симлинк
 	{
 		// ... в этом случае проверим AS IS
 		ConvertNameToFull(Dest,strRoot);
 		GetPathRoot(strRoot,strRoot);
 
-		if (api::GetFileAttributes(strRoot)==INVALID_FILE_ATTRIBUTES)
+		if (!api::fs::exists(strRoot))
 		{
 			return false;
 		}

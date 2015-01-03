@@ -30,6 +30,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "bitflags.hpp"
 #include "windowsfwd.hpp"
+#include "imports.hpp"
 
 class PluginManager;
 class Plugin;
@@ -89,10 +90,11 @@ enum PLUGINWORKFLAGS
 extern PluginStartupInfo NativeInfo;
 extern FarStandardFunctions NativeFSF;
 
-class GenericPluginModel: NonCopyable
+class GenericPluginModel: noncopyable
 {
 public:
 	typedef void* plugin_instance;
+	typedef std::array<void*, ExportsCount> exports_array;
 
 	GenericPluginModel(PluginManager* owner);
 	virtual ~GenericPluginModel() {};
@@ -102,10 +104,10 @@ public:
 	virtual bool IsPlugin(const string& filename) = 0;
 	virtual plugin_instance Create(const string& filename) = 0;
 	virtual bool Destroy(plugin_instance module) = 0;
-	virtual void InitExports(plugin_instance instance, void** exports) = 0;
+	virtual void InitExports(plugin_instance instance, exports_array& exports) = 0;
 
-	void SaveExportsToCache(class PluginsCacheConfig* cache, unsigned long long id, void* const * exports);
-	void LoadExportsFromCache(class PluginsCacheConfig* cache, unsigned long long id, void** exports);
+	void SaveExportsToCache(class PluginsCacheConfig* cache, unsigned long long id, const exports_array& exports);
+	void LoadExportsFromCache(class PluginsCacheConfig* cache, unsigned long long id, exports_array& exports);
 
 	template<int> struct ExportType;
 
@@ -130,7 +132,7 @@ public:
 	virtual bool IsPlugin(const string& filename) override;
 	virtual plugin_instance Create(const string& filename) override;
 	virtual bool Destroy(plugin_instance module) override;
-	virtual void InitExports(plugin_instance instance, void** exports) override;
+	virtual void InitExports(plugin_instance instance, exports_array& exports) override;
 
 private:
 	// the rest shouldn't be here, just an optimization for OEM plugins
@@ -138,7 +140,7 @@ private:
 	virtual bool FindExport(const char* ExportName);
 };
 
-class Plugin: NonCopyable
+class Plugin: noncopyable
 {
 public:
 	Plugin(GenericPluginModel* model, const string& ModuleName);
@@ -272,7 +274,7 @@ protected:
 
 	void ExecuteFunction(ExecuteStruct& es, const std::function<void()>& f);
 
-	void* Exports[ExportsCount];
+	GenericPluginModel::exports_array Exports;
 
 	std::unordered_set<window_ptr> m_dialogs;
 	GenericPluginModel *m_model;
@@ -324,26 +326,22 @@ public:
 	virtual bool IsPlugin(const string& filename) override;
 	virtual plugin_instance Create(const string& filename) override;
 	virtual bool Destroy(plugin_instance module) override;
-	virtual void InitExports(plugin_instance instance, void** exports) override;
+	virtual void InitExports(plugin_instance instance, exports_array& exports) override;
 
 private:
-	template<typename T>
-	inline bool InitImport(T& Address, const char* ProcName)
+	ImportedFunctions::module m_Module;
+	struct ModuleImports
 	{
-		return (Address = reinterpret_cast<T>(GetProcAddress(m_Module, ProcName))) != nullptr;
-	}
+		ImportedFunctions::function_pointer<BOOL(WINAPI*)(GlobalInfo* info)> pInitialize;
+		ImportedFunctions::function_pointer<BOOL(WINAPI*)(const wchar_t* filename)> pIsPlugin;
+		ImportedFunctions::function_pointer<HANDLE(WINAPI*)(const wchar_t* filename)> pCreateInstance;
+		ImportedFunctions::function_pointer<FARPROC(WINAPI*)(HANDLE Instance, const wchar_t* functionname)> pGetFunctionAddress;
+		ImportedFunctions::function_pointer<BOOL(WINAPI*)(HANDLE Instance)> pDestroyInstance;
+		ImportedFunctions::function_pointer<void (WINAPI*)(const ExitInfo* info)> pFree;
 
-	struct
-	{
-		BOOL (WINAPI *pInitialize)(GlobalInfo* info);
-		BOOL (WINAPI *pIsPlugin)(const wchar_t* filename);
-		HANDLE (WINAPI *pCreateInstance)(const wchar_t* filename);
-		FARPROC (WINAPI *pGetFunctionAddress)(HANDLE Instance, const wchar_t* functionname);
-		BOOL (WINAPI *pDestroyInstance)(HANDLE Instance);
-		void (WINAPI *pFree)(const ExitInfo* info);
+		ModuleImports(const ImportedFunctions::module& Module);
 	}
 	m_Imports;
-	HMODULE m_Module;
 	bool m_Success;
 };
 

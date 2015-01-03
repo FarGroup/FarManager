@@ -209,7 +209,7 @@ static wchar_t* AddString(const string& String)
 	return result;
 }
 
-class PluginSettings::FarSettingsNameItems: ::NonCopyable
+class PluginSettings::FarSettingsNameItems: ::noncopyable
 {
 public:
 	FarSettingsNameItems() {}
@@ -276,7 +276,7 @@ AbstractSettings* AbstractSettings::CreateFarSettings()
 }
 
 
-class FarSettings::FarSettingsHistoryItems: ::NonCopyable
+class FarSettings::FarSettingsHistoryItems: ::noncopyable
 {
 public:
 	FarSettingsHistoryItems() {}
@@ -432,7 +432,7 @@ int FarSettings::Get(FarSettingsItem& Item)
 
 int FarSettings::Enum(FarSettingsEnum& Enum)
 {
-	auto FilterNone = [](history_record_type) { return true; };
+	const auto FilterNone = [](history_record_type) { return true; };
 
 	switch(Enum.Root)
 	{

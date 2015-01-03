@@ -359,7 +359,7 @@ static void ApplyDefaultStartingColors(HighlightFiles::highlight_item& Colors)
 
 static void ApplyBlackOnBlackColor(HighlightFiles::highlight_item::colors_array::value_type& Color, DWORD PaletteColor)
 {
-	auto InheritColor = [](FarColor& Color, const FarColor& Base)
+	const auto InheritColor = [](FarColor& Color, const FarColor& Base)
 	{
 		if (!COLORVALUE(Color.ForegroundColor) && !COLORVALUE(Color.BackgroundColor))
 		{
@@ -391,12 +391,12 @@ static void ApplyColors(HighlightFiles::highlight_item& DestColors, const Highli
 	auto SrcColors = Src;
 	ApplyBlackOnBlackColors(SrcColors.Color);
 
-	auto ApplyColor = [](FarColor& Dst, const FarColor& Src)
+	const auto ApplyColor = [](FarColor& Dst, const FarColor& Src)
 	{
 		//Если текущие цвета в Src (fore и/или back) не прозрачные
 		//то унаследуем их в Dest.
 
-		auto ApplyColorPart = [&](COLORREF FarColor::*Color, const FARCOLORFLAGS Flag)
+		const auto ApplyColorPart = [&](COLORREF FarColor::*Color, const FARCOLORFLAGS Flag)
 		{
 			if(IS_OPAQUE(Src.*Color))
 			{
@@ -436,7 +436,7 @@ void HighlightFiles::ApplyFinalColor(highlight_item::colors_array::value_type& C
 
 	//Если какой то из текущих цветов (fore или back) прозрачный
 	//то унаследуем соответствующий цвет с панелей.
-	auto ApplyColorPart = [&](FarColor& i, COLORREF FarColor::*Color, const FARCOLORFLAGS Flag)
+	const auto ApplyColorPart = [&](FarColor& i, COLORREF FarColor::*Color, const FARCOLORFLAGS Flag)
 	{
 		if(IS_TRANSPARENT(i.*Color))
 		{

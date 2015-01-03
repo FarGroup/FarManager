@@ -673,7 +673,7 @@ void InitRecodeOutTable()
 		Oem2Unicode[0xFF]=L' ';
 	}
 
-	auto ApplyNoGraphics = [](wchar_t* Buffer)
+	const auto ApplyNoGraphics = [](wchar_t* Buffer)
 	{
 		std::fill(Buffer + BS_V1, Buffer + BS_LT_H1V1 + 1, L'+');
 
@@ -928,7 +928,7 @@ void Box(int x1,int y1,int x2,int y2,const FarColor& Color,int Type)
 	};
 
 	const auto Box = BoxInit[(Type == DOUBLE_BOX || Type == SHORT_DOUBLE_BOX)];
-	auto Symbol = [Box](line Line) { return BoxSymbols[Box[Line]]; };
+	const auto Symbol = [Box](line Line) { return BoxSymbols[Box[Line]]; };
 
 	SetColor(Color);
 

@@ -37,7 +37,7 @@ class Viewer;
 
 #include "windowsfwd.hpp"
 
-class Manager: NonCopyable
+class Manager: noncopyable
 {
 public:
 	struct Key

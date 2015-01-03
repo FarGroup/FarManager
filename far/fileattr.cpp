@@ -77,7 +77,7 @@ int ESetFileAttributes(const string& Name,DWORD Attr,int SkipMode)
 
 static int SetFileCompression(const string& Name,int State)
 {
-	api::File file;
+	api::fs::file file;
 
 	if (!file.Open(Name, FILE_READ_DATA|FILE_WRITE_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 		return FALSE;
@@ -209,7 +209,7 @@ int ESetFileTime(const string& Name, const FILETIME *LastWriteTime, const FILETI
 
 		bool SetTime=false;
 		DWORD LastError=ERROR_SUCCESS;
-		api::File file;
+		api::fs::file file;
 		if (!file.Open(Name,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,
 		                           nullptr,OPEN_EXISTING,
 		                           FILE_FLAG_OPEN_REPARSE_POINT))
@@ -268,7 +268,7 @@ int ESetFileTime(const string& Name, const FILETIME *LastWriteTime, const FILETI
 static bool SetFileSparse(const string& Name,bool State)
 {
 	bool Ret=false;
-	api::File file;
+	api::fs::file file;
 	if (file.Open(Name,FILE_WRITE_DATA,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING))
 	{
 		DWORD BytesReturned;

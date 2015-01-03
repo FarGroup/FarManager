@@ -138,7 +138,7 @@ static void ShowSaver(int Step)
 	auto NotStar = std::find_if(RANGE(Star, i) {return i.Type == STAR_NONE;});
 	if (NotStar != Star.end())
 	{
-		auto random = [](int x)
+		const auto random = [](int x)
 		{
 			return x * rand() / (RAND_MAX + 1);
 		};

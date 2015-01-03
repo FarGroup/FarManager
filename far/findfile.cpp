@@ -628,7 +628,7 @@ void FindFiles::AdvancedDialog()
 
 intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
-	auto SetAllCpTitle = [&]()
+	const auto SetAllCpTitle = [&]()
 	{
 		const int TitlePosition = 1;
 		const auto CpEnum = Codepages().GetFavoritesEnumerator();
@@ -1012,7 +1012,7 @@ bool FindFiles::LookForString(const string& Name)
 	if (!(findStringCount = strFindStr.size()))
 		return true;
 
-	api::File file;
+	api::fs::file file;
 	// Открываем файл
 	if(!file.Open(Name, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 	{
@@ -1671,13 +1671,11 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					if (real_name)
 					{
 						strSearchFileName = FindItem->FindData.strFileName;
-						if (api::GetFileAttributes(strSearchFileName) == INVALID_FILE_ATTRIBUTES && api::GetFileAttributes(FindItem->FindData.strAlternateFileName) != INVALID_FILE_ATTRIBUTES)
+						if (!api::fs::exists(strSearchFileName) && api::fs::exists(FindItem->FindData.strAlternateFileName))
 							strSearchFileName = FindItem->FindData.strAlternateFileName;
 					}
 
-					DWORD FileAttr=api::GetFileAttributes(strSearchFileName);
-
-					if (FileAttr!=INVALID_FILE_ATTRIBUTES)
+					if (api::fs::exists(strSearchFileName))
 					{
 						string strOldTitle;
 						Console().GetTitle(strOldTitle);
@@ -2912,7 +2910,7 @@ bool FindFiles::FindFilesProcess()
 					if (Length>1 && IsSlash(strFileName[Length-1]) && strFileName[Length-2] != L':')
 						strFileName.pop_back();
 
-					if ((api::GetFileAttributes(strFileName)==INVALID_FILE_ATTRIBUTES) && (GetLastError() != ERROR_ACCESS_DENIED))
+					if (!api::fs::exists(strFileName) && (GetLastError() != ERROR_ACCESS_DENIED))
 						break;
 
 					const wchar_t *NamePtr = PointToName(strFileName);

@@ -47,7 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 const wchar_t LangFileMask[] = L"*.lng";
 
-bool OpenLangFile(api::File& LangFile, const string& Path,const string& Mask,const string& Language, string &strFileName, uintptr_t &nCodePage, bool StrongLang,string *pstrLangName)
+bool OpenLangFile(api::fs::file& LangFile, const string& Path,const string& Mask,const string& Language, string &strFileName, uintptr_t &nCodePage, bool StrongLang,string *pstrLangName)
 {
 	strFileName.clear();
 	string strFullName, strEngFileName;
@@ -103,7 +103,7 @@ bool OpenLangFile(api::File& LangFile, const string& Path,const string& Mask,con
 }
 
 
-int GetLangParam(api::File& LangFile,const string& ParamName,string *strParam1, string *strParam2, UINT nCodePage)
+int GetLangParam(api::fs::file& LangFile,const string& ParamName,string *strParam1, string *strParam2, UINT nCodePage)
 {
 	string strFullParamName = L".";
 	strFullParamName += ParamName;
@@ -184,7 +184,7 @@ static bool SelectLanguage(bool HelpLanguage)
 
 	while (ScTree.GetNextName(&FindData,strFullName))
 	{
-		api::File LangFile;
+		api::fs::file LangFile;
 		if (!LangFile.Open(strFullName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
 			continue;
 
@@ -233,7 +233,7 @@ bool SelectHelpLanguage() {return SelectLanguage(true);}
   + Ќовый метод, дл€ получени€ параметров дл€ .Options
    .Options <KeyName>=<Value>
 */
-int GetOptionsParam(api::File& SrcFile,const wchar_t *KeyName,string &strValue, UINT nCodePage)
+int GetOptionsParam(api::fs::file& SrcFile,const wchar_t *KeyName,string &strValue, UINT nCodePage)
 {
 	int Length=StrLength(L".Options");
 	auto CurFilePos = SrcFile.GetPointer();
@@ -328,7 +328,7 @@ void Language::init(const string& Path, int CountNeed)
 
 	uintptr_t nCodePage = CP_OEMCP;
 	string strLangName = Global->Opt->strLanguage.Get();
-	api::File LangFile;
+	api::fs::file LangFile;
 
 	if (!OpenLangFile(LangFile, Path, LangFileMask, Global->Opt->strLanguage, m_FileName, nCodePage, false, &strLangName))
 	{

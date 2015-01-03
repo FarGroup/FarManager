@@ -69,7 +69,7 @@ ENUM(history_return_type)
 	HRT_CTRLALTENTER,
 };
 
-class History: NonCopyable
+class History: noncopyable
 {
 public:
 	History(history_type TypeHistory, const string& HistoryName, const BoolOption& EnableSave);

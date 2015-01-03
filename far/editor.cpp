@@ -78,7 +78,7 @@ enum {UNDO_EDIT=1,UNDO_INSSTR,UNDO_DELSTR,UNDO_BEGIN,UNDO_END};
 на любом выходе если была нажата кнопка выделения,
 и она его "сняла" (сделала 0-й ширины), то его надо убрать.
 */
-class EditorBlockGuard: NonCopyable
+class EditorBlockGuard: noncopyable
 {
 public:
 	EditorBlockGuard(Editor& ed, void (Editor::*method)()):
@@ -4872,7 +4872,7 @@ void Editor::GetRowCol(const string& _argv, int& row, int& col)
 
 }
 
-struct Editor::EditorUndoData : ::NonCopyable
+struct Editor::EditorUndoData : ::noncopyable
 {
 	int m_Type;
 	int m_StrPos;

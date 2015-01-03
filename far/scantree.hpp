@@ -55,7 +55,7 @@ enum
 	FSCANTREE_FILESFIRST       = 0x00010000, // Сканирование каталога за два прохода. Сначала файлы, затем каталоги
 };
 
-class ScanTree: NonCopyable
+class ScanTree: noncopyable
 {
 public:
 	ScanTree(bool RetUpDir, bool Recurse=true, int ScanJunction=-1);

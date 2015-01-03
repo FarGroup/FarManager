@@ -82,7 +82,7 @@ struct PluginHandle
 	Plugin *pPlugin;
 };
 
-class PluginManager: NonCopyable
+class PluginManager: noncopyable
 {
 	struct plugin_less { bool operator ()(const Plugin* a, const Plugin *b) const; };
 

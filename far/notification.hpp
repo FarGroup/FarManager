@@ -41,7 +41,7 @@ public:
 
 class notification;
 
-class listener: NonCopyable
+class listener: noncopyable
 {
 public:
 	listener(const string& id, const std::function<void()>& function);
@@ -56,7 +56,7 @@ private:
 	std::function<void(const payload&)> m_ex_function;
 };
 
-class notification: NonCopyable
+class notification: noncopyable
 {
 public:
 	notification(const string& name): m_name(name) {}
@@ -76,7 +76,7 @@ private:
 
 class wm_listener;
 
-class notifier: NonCopyable
+class notifier: noncopyable
 {
 public:
 	notification& at(const string& key) { return *m_notifications.at(key).get(); }

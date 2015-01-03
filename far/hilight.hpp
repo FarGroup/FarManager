@@ -40,7 +40,7 @@ class FileFilterParams;
 class FileList;
 struct FileListItem;
 
-class HighlightFiles: NonCopyable
+class HighlightFiles: noncopyable
 {
 public:
 	enum highlight_color

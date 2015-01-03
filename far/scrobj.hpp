@@ -47,7 +47,7 @@ enum
 	FSCROBJ_ISREDRAWING          = 0x00000008,   // идет процесс Show?
 };
 
-class SimpleScreenObject: NonCopyable
+class SimpleScreenObject: noncopyable
 {
 public:
 	SimpleScreenObject(window_ptr Owner);

@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "synchro.hpp"
 
-class FileSystemWatcher: NonCopyable
+class FileSystemWatcher: noncopyable
 {
 public:
 	FileSystemWatcher();

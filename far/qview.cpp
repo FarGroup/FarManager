@@ -422,7 +422,6 @@ void QuickView::Update(int Mode)
 
 void QuickView::ShowFile(const string& FileName, bool TempFile, PluginHandle* hDirPlugin)
 {
-	DWORD FileAttr=0;
 	CloseFile();
 
 	if (!IsVisible())
@@ -453,7 +452,7 @@ void QuickView::ShowFile(const string& FileName, bool TempFile, PluginHandle* hD
 		}
 	}
 
-	if (hDirPlugin || ((FileAttr=api::GetFileAttributes(strCurFileName))!=INVALID_FILE_ATTRIBUTES && (FileAttr & FILE_ATTRIBUTE_DIRECTORY)))
+	if (hDirPlugin || api::fs::is_directory(strCurFileName))
 	{
 		// Не показывать тип файла для каталогов в "Быстром просмотре"
 		strCurFileType.clear();

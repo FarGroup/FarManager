@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class notifier;
 
-class wm_listener: NonCopyable
+class wm_listener: noncopyable
 {
 public:
 	wm_listener(notifier* owner);

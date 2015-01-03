@@ -76,7 +76,7 @@ static const wchar_t* FolderShortcutsKey = L"Shortcuts";
 static const wchar_t* HelpFolderShortcuts = L"FolderShortcuts";
 
 
-struct Shortcuts::shortcut: NonCopyable
+struct Shortcuts::shortcut: noncopyable
 {
 	shortcut(): PluginGuid(FarGuid) {}
 
@@ -536,7 +536,7 @@ void Shortcuts::EditItem(VMenu2& Menu, shortcut& Item, bool Root, bool raw)
 		if (Item.PluginGuid == FarGuid)
 		{
 			bool PathRoot = false;
-			PATH_TYPE Type = ParsePath(Unquote(NewItem.strFolder), nullptr, &PathRoot);
+			const auto Type = ParsePath(Unquote(NewItem.strFolder), nullptr, &PathRoot);
 			if(!(PathRoot && (Type == PATH_DRIVELETTER || Type == PATH_DRIVELETTERUNC || Type == PATH_VOLUMEGUID)))
 			{
 				DeleteEndSlash(NewItem.strFolder);
@@ -544,7 +544,7 @@ void Shortcuts::EditItem(VMenu2& Menu, shortcut& Item, bool Root, bool raw)
 
 			string strTemp = api::env::expand_strings(NewItem.strFolder);
 
-			if ((!raw || !strTemp.empty()) && api::GetFileAttributes(strTemp) == INVALID_FILE_ATTRIBUTES)
+			if ((!raw || !strTemp.empty()) && !api::fs::exists(strTemp))
 			{
 				Global->CatchError();
 				Save=!Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), NewItem.strFolder.data(), MSG(MSaveThisShortcut), MSG(MYes), MSG(MNo));

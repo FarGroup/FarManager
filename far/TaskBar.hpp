@@ -32,7 +32,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class taskbar: NonCopyable
+class taskbar: noncopyable
 {
 public:
 	~taskbar();
@@ -53,7 +53,7 @@ private:
 
 taskbar& Taskbar();
 
-class IndeterminateTaskBar: NonCopyable
+class IndeterminateTaskBar: noncopyable
 {
 public:
 	IndeterminateTaskBar(bool EndFlash = true);
@@ -64,7 +64,7 @@ private:
 };
 
 template<TBPFLAG T>
-class TaskBarState: NonCopyable
+class TaskBarState: noncopyable
 {
 public:
 	TaskBarState():PrevState(Taskbar().GetProgressState())

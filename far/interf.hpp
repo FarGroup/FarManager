@@ -197,7 +197,7 @@ void RemoveHighlights(string& Str);
 
 bool IsConsoleFullscreen();
 
-class consoleicons:NonCopyable
+class consoleicons:noncopyable
 {
 public:
 	void setFarIcons();

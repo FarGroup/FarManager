@@ -77,106 +77,7 @@ namespace api
 		}
 	};
 
-	class enum_file: NonCopyable, public enumerator<FAR_FIND_DATA>
-	{
-	public:
-		enum_file(const string& Object, bool ScanSymLink = true);
-		~enum_file();
-
-	private:
-		virtual bool get(size_t index, FAR_FIND_DATA& value) override;
-
-		string m_Object;
-		HANDLE m_Handle;
-		bool m_ScanSymLink;
-	};
-
-	class File: NonCopyable
-	{
-	public:
-		File();
-		~File();
-		File(File&& rhs):
-			Handle(INVALID_HANDLE_VALUE),
-			Pointer(),
-			NeedSyncPointer(),
-			share_mode()
-		{
-			*this = std::move(rhs);
-		}
-
-		MOVE_OPERATOR_BY_SWAP(File);
-
-		void swap(File& rhs) noexcept
-		{
-			using std::swap;
-			swap(Handle, rhs.Handle);
-			swap(Pointer, rhs.Pointer);
-			swap(NeedSyncPointer, rhs.NeedSyncPointer);
-			name.swap(rhs.name);
-			swap(share_mode, rhs.share_mode);
-		}
-
-		FREE_SWAP(File);
-
-		bool Open(const string& Object, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDistribution, DWORD dwFlagsAndAttributes=0, File* TemplateFile=nullptr, bool ForceElevation=false);
-		bool Read(LPVOID Buffer, size_t NumberOfBytesToRead, size_t& NumberOfBytesRead, LPOVERLAPPED Overlapped = nullptr);
-		bool Write(LPCVOID Buffer, size_t NumberOfBytesToWrite, size_t& NumberOfBytesWritten, LPOVERLAPPED Overlapped = nullptr);
-		bool SetPointer(INT64 DistanceToMove, PINT64 NewFilePointer, DWORD MoveMethod);
-		INT64 GetPointer(){return Pointer;}
-		bool SetEnd();
-		bool GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime);
-		bool SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime);
-		bool GetSize(UINT64& Size);
-		bool FlushBuffers();
-		bool GetInformation(BY_HANDLE_FILE_INFORMATION& info);
-		bool IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped = nullptr);
-		bool GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed);
-		bool NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, bool ReturnSingleEntry, LPCWSTR FileName, bool RestartScan, NTSTATUS* Status = nullptr);
-		bool NtQueryInformationFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status = nullptr);
-		bool Close();
-		bool Eof();
-		bool Opened() const {return Handle != INVALID_HANDLE_VALUE;}
-		const string& GetName() const { return name; }
-		HANDLE GetHandle() const { return Handle; }
-
-	private:
-		HANDLE Handle;
-		INT64 Pointer;
-		bool NeedSyncPointer;
-		string name;
-		DWORD share_mode;
-
-		inline void SyncPointer();
-	};
-
-	class FileWalker: public File
-	{
-	public:
-		FileWalker();
-		bool InitWalk(size_t BlockSize);
-		bool Step();
-		UINT64 GetChunkOffset() const;
-		DWORD GetChunkSize() const;
-		int GetPercent() const;
-
-	private:
-		struct Chunk
-		{
-			UINT64 Offset;
-			DWORD Size;
-			Chunk(UINT64 Offset, DWORD Size):Offset(Offset), Size(Size) {}
-		};
-		std::list<Chunk> ChunkList;
-		UINT64 FileSize;
-		UINT64 AllocSize;
-		UINT64 ProcessedSize;
-		std::list<Chunk>::iterator CurrentChunk;
-		DWORD ChunkSize;
-		bool Sparse;
-	};
-
-	class sid_object: NonCopyable
+	class sid_object: noncopyable
 	{
 	public:
 		sid_object(PSID_IDENTIFIER_AUTHORITY IdentifierAuthority, BYTE SubAuthorityCount, DWORD SubAuthority0 = 0, DWORD SubAuthority1 = 0, DWORD SubAuthority2 = 0, DWORD SubAuthority3 = 0, DWORD SubAuthority4 = 0, DWORD SubAuthority5 = 0, DWORD SubAuthority6 = 0, DWORD SubAuthority7 = 0)
@@ -250,6 +151,125 @@ namespace api
 	bool SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime);
 	bool DetachVirtualDiskInternal(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType);
 
+	namespace fs
+	{
+		class enum_file: noncopyable, public enumerator < FAR_FIND_DATA >
+		{
+		public:
+			enum_file(const string& Object, bool ScanSymLink = true);
+			~enum_file();
+
+		private:
+			virtual bool get(size_t index, FAR_FIND_DATA& value) override;
+
+			string m_Object;
+			HANDLE m_Handle;
+			bool m_ScanSymLink;
+		};
+
+		class file: noncopyable
+		{
+		public:
+			file();
+			~file();
+			file(file&& rhs):
+				Handle(INVALID_HANDLE_VALUE),
+				Pointer(),
+				NeedSyncPointer(),
+				share_mode()
+			{
+				*this = std::move(rhs);
+			}
+
+			MOVE_OPERATOR_BY_SWAP(file);
+
+			void swap(file& rhs) noexcept
+			{
+				using std::swap;
+				swap(Handle, rhs.Handle);
+				swap(Pointer, rhs.Pointer);
+				swap(NeedSyncPointer, rhs.NeedSyncPointer);
+				name.swap(rhs.name);
+				swap(share_mode, rhs.share_mode);
+			}
+
+			FREE_SWAP(file);
+
+			bool Open(const string& Object, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDistribution, DWORD dwFlagsAndAttributes = 0, file* TemplateFile = nullptr, bool ForceElevation = false);
+			bool Read(LPVOID Buffer, size_t NumberOfBytesToRead, size_t& NumberOfBytesRead, LPOVERLAPPED Overlapped = nullptr);
+			bool Write(LPCVOID Buffer, size_t NumberOfBytesToWrite, size_t& NumberOfBytesWritten, LPOVERLAPPED Overlapped = nullptr);
+			bool SetPointer(INT64 DistanceToMove, PINT64 NewFilePointer, DWORD MoveMethod);
+			INT64 GetPointer(){ return Pointer; }
+			bool SetEnd();
+			bool GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime);
+			bool SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime);
+			bool GetSize(UINT64& Size);
+			bool FlushBuffers();
+			bool GetInformation(BY_HANDLE_FILE_INFORMATION& info);
+			bool IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped = nullptr);
+			bool GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed);
+			bool NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, bool ReturnSingleEntry, LPCWSTR FileName, bool RestartScan, NTSTATUS* Status = nullptr);
+			bool NtQueryInformationFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status = nullptr);
+			bool Close();
+			bool Eof();
+			bool Opened() const { return Handle != INVALID_HANDLE_VALUE; }
+			const string& GetName() const { return name; }
+			HANDLE GetHandle() const { return Handle; }
+
+		private:
+			HANDLE Handle;
+			INT64 Pointer;
+			bool NeedSyncPointer;
+			string name;
+			DWORD share_mode;
+
+			inline void SyncPointer();
+		};
+
+		class file_walker: public file
+		{
+		public:
+			file_walker();
+			bool InitWalk(size_t BlockSize);
+			bool Step();
+			UINT64 GetChunkOffset() const;
+			DWORD GetChunkSize() const;
+			int GetPercent() const;
+
+		private:
+			struct Chunk
+			{
+				UINT64 Offset;
+				DWORD Size;
+				Chunk(UINT64 Offset, DWORD Size):Offset(Offset), Size(Size) {}
+			};
+			std::list<Chunk> ChunkList;
+			UINT64 FileSize;
+			UINT64 AllocSize;
+			UINT64 ProcessedSize;
+			std::list<Chunk>::iterator CurrentChunk;
+			DWORD ChunkSize;
+			bool Sparse;
+		};
+
+		class file_status
+		{
+		public:
+			file_status();
+			file_status(const string& Object);
+			file_status(const wchar_t* Object);
+
+			bool check(DWORD Data);
+
+		private:
+			DWORD m_Data;
+		};
+
+		bool exists(file_status Status);
+		bool is_file(file_status Status);
+		bool is_directory(file_status Status);
+	}
+
 	namespace reg
 	{
 		inline bool IsStringType(DWORD Type)
@@ -257,7 +277,7 @@ namespace api
 			return Type == REG_SZ || Type == REG_EXPAND_SZ || Type == REG_MULTI_SZ;
 		}
 
-		class key:NonCopyable
+		class key:noncopyable
 		{
 		public:
 			key(HKEY Key): m_Key(Key), m_Opened() {}
@@ -323,7 +343,7 @@ namespace api
 #undef CHECK_TYPE
 #undef IS_SAME
 
-		class enum_key: NonCopyable, public enumerator<string>
+		class enum_key: noncopyable, public enumerator<string>
 		{
 		public:
 			enum_key(HKEY Key): m_Key(Key) {}
@@ -334,7 +354,7 @@ namespace api
 			key m_Key;
 		};
 
-		class enum_value: NonCopyable, public enumerator<value>
+		class enum_value: noncopyable, public enumerator<value>
 		{
 		public:
 			enum_value(HKEY Key): m_Key(Key) {}
@@ -348,7 +368,7 @@ namespace api
 
 	namespace env
 	{
-		class enum_strings: NonCopyable, public enumerator<const wchar_t*>
+		class enum_strings: noncopyable, public enumerator<const wchar_t*>
 		{
 		public:
 			enum_strings();

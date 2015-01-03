@@ -54,7 +54,7 @@ class InterThreadData;
 class filemasks;
 class FileFilter;
 
-class FindFiles: NonCopyable
+class FindFiles: noncopyable
 {
 public:
 	FindFiles();

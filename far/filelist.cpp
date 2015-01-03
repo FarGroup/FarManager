@@ -363,7 +363,7 @@ static struct list_less
 {
 	bool operator()(const FileListItem& a, const FileListItem& b) const
 	{
-		auto less_opt = [](bool less)
+		const auto less_opt = [](bool less)
 		{
 			return RevertSorting ? !less : less;
 		};
@@ -416,7 +416,7 @@ static struct list_less
 
 		__int64 RetCode64;
 
-		auto CompareTime = [&a, &b](const FILETIME FileListItem::*time)
+		const auto CompareTime = [&a, &b](const FILETIME FileListItem::*time)
 		{
 			return CompareFileTime(a.*time, b.*time);
 		};
@@ -431,7 +431,7 @@ static struct list_less
 				UseReverseNameSort = true;
 
 				{
-					auto GetExt = [](const FileListItem& i)
+					const auto GetExt = [](const FileListItem& i)
 					{
 						return !Global->Opt->SortFolderExt && (i.FileAttr & FILE_ATTRIBUTE_DIRECTORY) ? i.strName.data() + i.strName.size() : PointToExt(i.strName);
 					};
@@ -1655,10 +1655,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 							{
 								if (!(HasPathPrefix(strFileName) && pos==3))
 								{
-									string Path = strFileName.substr(0, pos);
-									DWORD CheckFAttr=api::GetFileAttributes(Path);
-
-									if (CheckFAttr == INVALID_FILE_ATTRIBUTES)
+									if (!api::fs::exists(strFileName.substr(0, pos)))
 									{
 										if (Message(MSG_WARNING, MSG(MWarning),
 											make_vector<string>(MSG(MEditNewPath1), MSG(MEditNewPath2), MSG(MEditNewPath3)),
@@ -1814,14 +1811,14 @@ int FileList::ProcessKey(const Manager::Key& Key)
 							string strSaveDir;
 							api::GetCurrentDirectory(strSaveDir);
 
-							if (api::GetFileAttributes(strTempName)==INVALID_FILE_ATTRIBUTES)
+							if (!api::fs::exists(strTempName))
 							{
 								string strFindName;
 								string strPath;
 								strPath = strTempName;
 								CutToSlash(strPath, false);
 								strFindName = strPath+L"*";
-								api::enum_file Find(strFindName);
+								api::fs::enum_file Find(strFindName);
 								auto ItemIterator = std::find_if(CONST_RANGE(Find, i) { return !(i.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY); });
 								if (ItemIterator != Find.cend())
 									strTempName = strPath + ItemIterator->strFileName;
@@ -2703,7 +2700,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 		if (dot2Present)
 		{
 			strSetDir = m_CurDir;
-			PATH_TYPE Type = ParsePath(m_CurDir, nullptr, &RootPath);
+			const auto Type = ParsePath(m_CurDir, nullptr, &RootPath);
 			if(Type == PATH_REMOTE || Type == PATH_REMOTEUNC)
 			{
 				NetPath = true;
@@ -4705,7 +4702,7 @@ void FileList::SelectSortMode()
 	// sort options
 	else
 	{
-		auto Switch = [&](bool CurrentState)
+		const auto Switch = [&](bool CurrentState)
 		{
 			return PlusPressed? true : InvertPressed? !CurrentState : false;
 		};
@@ -5199,7 +5196,7 @@ int FileList::PluginPanelHelp(const PluginHandle* hPlugin) const
 	strPath = hPlugin->pPlugin->GetModuleName();
 	CutToSlash(strPath);
 	uintptr_t nCodePage = CP_OEMCP;
-	api::File HelpFile;
+	api::fs::file HelpFile;
 	if (!OpenLangFile(HelpFile, strPath,Global->HelpFileMask,Global->Opt->strHelpLanguage,strFileName, nCodePage))
 		return FALSE;
 
@@ -5723,7 +5720,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanel
 	if (((Global->Opt->Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && IsDizDisplayed()) ||
 	        Global->Opt->Diz.UpdateMode==DIZ_UPDATE_ALWAYS) && !DestPanel->strPluginDizName.empty() &&
 	        (!Info.HostFile || !*Info.HostFile || DestPanel->GetModalMode() ||
-	         api::GetFileAttributes(Info.HostFile)!=INVALID_FILE_ATTRIBUTES))
+             api::fs::exists(Info.HostFile)))
 	{
 		Parent()->LeftPanel->ReadDiz();
 		Parent()->RightPanel->ReadDiz();
@@ -6660,14 +6657,13 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	m_Filter->UpdateCurrentTime();
 	Global->CtrlObject->HiFiles->UpdateCurrentTime();
 	bool bCurDirRoot = false;
-	ParsePath(m_CurDir, nullptr, &bCurDirRoot);
-	PATH_TYPE Type = ParsePath(m_CurDir, nullptr, &bCurDirRoot);
+	const auto Type = ParsePath(m_CurDir, nullptr, &bCurDirRoot);
 	bool NetRoot = bCurDirRoot && (Type == PATH_REMOTE || Type == PATH_REMOTEUNC);
 
 	string strFind(m_CurDir);
 	AddEndSlash(strFind);
 	strFind+=L'*';
-	api::enum_file Find(strFind, true);
+	api::fs::enum_file Find(strFind, true);
 	DWORD FindErrorCode = ERROR_SUCCESS;
 	bool UseFilter=m_Filter->IsEnabledOnPanel();
 
@@ -6961,7 +6957,7 @@ void FileList::InitFSWatcher(bool CheckTree)
 {
 	DWORD DriveType=DRIVE_REMOTE;
 	StopFSWatcher();
-	PATH_TYPE Type = ParsePath(m_CurDir);
+	const auto Type = ParsePath(m_CurDir);
 
 	if (Type == PATH_DRIVELETTER || Type == PATH_DRIVELETTERUNC)
 	{

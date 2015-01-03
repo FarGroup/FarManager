@@ -966,7 +966,7 @@ intptr_t WINAPI apiMenuFn(
 					if (ReadRec->Event.KeyEvent.wVirtualKeyCode==BreakKeys[I].VirtualKeyCode)
 					{
 
-						auto NormalizeControlKeys = [](DWORD Value) -> DWORD
+						const auto NormalizeControlKeys = [](DWORD Value) -> DWORD
 						{
 							DWORD result = Value&(LEFT_CTRL_PRESSED | LEFT_ALT_PRESSED | SHIFT_PRESSED);
 							if (Value&RIGHT_CTRL_PRESSED) result |= LEFT_CTRL_PRESSED;
@@ -1014,7 +1014,7 @@ intptr_t WINAPI apiDefDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Par
 // Посылка сообщения диалогу
 intptr_t WINAPI apiSendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2) noexcept
 {
-	auto ErrorResult = [Msg]() -> int
+	const auto ErrorResult = [Msg]() -> int
 	{
 		switch (Msg)
 		{
@@ -1589,7 +1589,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 		string strDirName;
 		ConvertNameToFull(Dir, strDirName);
 		{
-			auto PR_FarGetDirListMsg = [](){ Message(0,0,L"",MSG(MPreparingList)); };
+			const auto PR_FarGetDirListMsg = [](){ Message(0, 0, L"", MSG(MPreparingList)); };
 
 			SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<PreRedrawItem>(PR_FarGetDirListMsg));
 			SCOPED_ACTION(SaveScreen);

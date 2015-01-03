@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "colors.hpp"
 
-class Colors: NonCopyable
+class Colors: noncopyable
 {
 public:
 	static WORD FarColorToConsoleColor(const FarColor& Color);

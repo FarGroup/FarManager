@@ -38,7 +38,7 @@ namespace sqlite
 	struct sqlite3_stmt;
 }
 
-class SQLiteDb: NonCopyable
+class SQLiteDb: noncopyable
 {
 public:
 	SQLiteDb();
@@ -56,7 +56,7 @@ public:
 	int InitStatus(string& name, bool full_name);
 
 protected:
-	class SQLiteStmt: NonCopyable
+	class SQLiteStmt: noncopyable
 	{
 	public:
 		SQLiteStmt(){};

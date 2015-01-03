@@ -40,7 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "pathmix.hpp"
 
-struct ScanTree::scantree_item: NonCopyable
+struct ScanTree::scantree_item: noncopyable
 {
 public:
 	scantree_item() {}
@@ -61,8 +61,8 @@ public:
 	FREE_SWAP(scantree_item);
 
 	BitFlags Flags;
-	std::unique_ptr<api::enum_file> Find;
-	api::enum_file::iterator Iterator;
+	std::unique_ptr<api::fs::enum_file> Find;
+	api::fs::enum_file::iterator Iterator;
 	string RealPath;
 };
 
@@ -108,7 +108,7 @@ bool ScanTree::GetNextName(api::FAR_FIND_DATA *fdata,string &strFullName)
 		{
 			if (!LastItem.Find)
 			{
-				LastItem.Find = std::make_unique<api::enum_file>(strFindPath);
+				LastItem.Find = std::make_unique<api::fs::enum_file>(strFindPath);
 				LastItem.Iterator = LastItem.Find->end();
 			}
 

@@ -33,10 +33,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class ImportedFunctions: NonCopyable
+class ImportedFunctions: noncopyable
 {
-private:
-	class module: NonCopyable
+public:
+	class module: noncopyable
 	{
 	public:
 		module(const wchar_t* name): m_name(name), m_module(), m_loaded() {}
@@ -53,11 +53,27 @@ private:
 		mutable bool m_loaded;
 	};
 
-	template<typename T, class Y, T stub>
-	class function_pointer: NonCopyable
+	template<typename T>
+	class function_pointer: noncopyable
 	{
 	public:
-		function_pointer(const module& Module): m_module(Module) {}
+		function_pointer(const module& Module, const char* Name):
+			m_module(Module),
+			m_pointer(reinterpret_cast<T>(m_module.GetProcAddress(Name))) {}
+		operator T() const { return m_pointer; }
+		bool exists() const { return m_pointer != nullptr; }
+
+	private:
+		const module& m_module;
+		mutable T m_pointer;
+	};
+
+private:
+	template<typename T, class Y, T stub>
+	class unique_function_pointer: noncopyable
+	{
+	public:
+		unique_function_pointer(const module& Module): m_module(Module) {}
 		operator T() const { return get_pointer(); }
 		bool exists() const { return get_pointer() != stub; }
 
@@ -84,7 +100,7 @@ private:
 #define DECLARE_IMPORT_FUNCTION(RETTYPE, CALLTYPE, NAME, ...)\
 private: static RETTYPE CALLTYPE stub_##NAME(__VA_ARGS__);\
 private: struct name_##NAME { static const char* get() { return #NAME; } };\
-public: const function_pointer<decltype(&ImportedFunctions::stub_##NAME), name_##NAME, ImportedFunctions::stub_##NAME> NAME;
+public: const unique_function_pointer<decltype(&ImportedFunctions::stub_##NAME), name_##NAME, ImportedFunctions::stub_##NAME> NAME;
 
 	// ntdll
 	DECLARE_IMPORT_FUNCTION(NTSTATUS, NTAPI, NtQueryDirectoryFile, HANDLE FileHandle, HANDLE Event, PVOID ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, BOOLEAN ReturnSingleEntry, PUNICODE_STRING FileName, BOOLEAN RestartScan);
@@ -104,7 +120,7 @@ public: const function_pointer<decltype(&ImportedFunctions::stub_##NAME), name_#
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, FindNextFileNameW, HANDLE FindStream, LPDWORD StringLength, PWCHAR LinkName);
 	DECLARE_IMPORT_FUNCTION(HANDLE, WINAPI, FindFirstStreamW, LPCWSTR FileName, STREAM_INFO_LEVELS InfoLevel, LPVOID FindStreamData, DWORD Flags);
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, FindNextStreamW, HANDLE FindStream, LPVOID FindStreamData);
-	DECLARE_IMPORT_FUNCTION(DWORD, WINAPI, GetFinalPathNameByHandleW, HANDLE File, LPWSTR FilePath, DWORD FilePathSize, DWORD Flags);
+	DECLARE_IMPORT_FUNCTION(DWORD, WINAPI, GetFinalPathNameByHandleW, HANDLE file, LPWSTR FilePath, DWORD FilePathSize, DWORD Flags);
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, GetVolumePathNamesForVolumeNameW, LPCWSTR VolumeName, LPWSTR VolumePathNames, DWORD BufferLength, PDWORD ReturnLength);
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, GetPhysicallyInstalledSystemMemory, PULONGLONG TotalMemoryInKilobytes);
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, HeapSetInformation, HANDLE HeapHandle, HEAP_INFORMATION_CLASS HeapInformationClass, PVOID HeapInformation, SIZE_T HeapInformationLength);

@@ -348,7 +348,7 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 				UINT cp=GetView().VM.CodePage;
 				string strViewFileName;
 				GetView().GetFileName(strViewFileName);
-				api::File Edit;
+				api::fs::file Edit;
 				while(!Edit.Open(strViewFileName, FILE_READ_DATA, FILE_SHARE_READ|(Global->Opt->EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 				{
 					Global->CatchError();

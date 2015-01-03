@@ -74,7 +74,7 @@ enum enumFDateType
 	FDATE_COUNT, // всегда последний !!!
 };
 
-class FileFilterParams: NonCopyable
+class FileFilterParams: noncopyable
 {
 public:
 
@@ -141,7 +141,7 @@ private:
 
 	string m_strTitle;
 
-	struct fmask:NonCopyable
+	struct fmask:noncopyable
 	{
 		bool Used;
 		string strMask;

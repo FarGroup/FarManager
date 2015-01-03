@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "imports.hpp"
 
-class GuardLastError: NonCopyable
+class GuardLastError: noncopyable
 {
 public:
 	GuardLastError():

@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "synchro.hpp"
 #include "matrix.hpp"
 
-class ScreenBuf: NonCopyable
+class ScreenBuf: noncopyable
 {
 public:
 	ScreenBuf();

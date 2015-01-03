@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exitcode.hpp"
 #include "language.hpp"
 #include "keybar.hpp"
+#include "pathmix.hpp"
 
 FolderTree::FolderTree(int iModalMode, int IsStandalone, bool IsFullScreen):
 	Tree(nullptr),
@@ -198,7 +199,7 @@ int FolderTree::ProcessKey(const Manager::Key& Key)
 		case KEY_ENTER:
 			strNewFolder = Tree->GetCurDir();
 
-			if (api::GetFileAttributes(strNewFolder)!=INVALID_FILE_ATTRIBUTES)
+			if (api::fs::exists(strNewFolder))
 			{
 				Global->WindowManager->DeleteWindow();
 				SetExitCode(XC_MODIFIED);

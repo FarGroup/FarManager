@@ -40,7 +40,7 @@ enum FM_FLAGS
 
 class RegExp;
 
-class filemasks: NonCopyable
+class filemasks: noncopyable
 {
 public:
 	filemasks();

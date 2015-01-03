@@ -168,7 +168,7 @@ string& CreateTreeFileName(const string& Path, string &strDest)
 	}
 
 	UINT DriveType = FAR_GetDriveType(strRootDir, 0);
-	PATH_TYPE PathType = ParsePath(strRootDir);
+	const auto PathType = ParsePath(strRootDir);
 	/*
 	PATH_UNKNOWN,
 	PATH_DRIVELETTER,
@@ -395,7 +395,7 @@ static struct list_less
 }
 ListLess;
 
-class TreeListCache: NonCopyable
+class TreeListCache: noncopyable
 {
 public:
 	TreeListCache() {}
@@ -727,7 +727,7 @@ void TreeList::Update(int Mode)
 		SyncDir();
 		auto& CurPtr=m_ListData[m_CurFile];
 
-		if (api::GetFileAttributes(CurPtr.strName)==INVALID_FILE_ATTRIBUTES)
+		if (!api::fs::exists(CurPtr.strName))
 		{
 			DelTreeName(CurPtr.strName);
 			Update(UPDATE_KEEP_SELECTION);
@@ -795,9 +795,9 @@ static void PR_MsgReadTree()
 	}
 }
 
-static api::File OpenTreeFile(const string& Name, bool Writable)
+static api::fs::file OpenTreeFile(const string& Name, bool Writable)
 {
-	api::File Result;
+	api::fs::file Result;
 	Result.Open(Name, Writable? FILE_WRITE_DATA : FILE_READ_DATA, FILE_SHARE_READ, nullptr, Writable? OPEN_ALWAYS : OPEN_EXISTING);
 	return std::move(Result);
 }
@@ -820,9 +820,9 @@ static bool MustBeCached(const string& Root)
 	return false;
 }
 
-static api::File OpenCacheableTreeFile(const string& Root, string& Name, bool Writable)
+static api::fs::file OpenCacheableTreeFile(const string& Root, string& Name, bool Writable)
 {
-	api::File Result;
+	api::fs::file Result;
 	if (!MustBeCached(Root))
 		Result = OpenTreeFile(Name, Writable);
 
@@ -836,7 +836,7 @@ static api::File OpenCacheableTreeFile(const string& Root, string& Name, bool Wr
 	return std::move(Result);
 }
 
-static void ReadLines(api::File& TreeFile, const std::function<void(string&)>& Inserter)
+static void ReadLines(api::fs::file& TreeFile, const std::function<void(string&)>& Inserter)
 {
 	GetFileString GetStr(TreeFile, CP_UNICODE);
 	string Record;
@@ -863,7 +863,7 @@ static inline void WriteTree(string_type& Name, const container_type& Container,
 	if (SavedAttributes != INVALID_FILE_ATTRIBUTES)
 		api::SetFileAttributes(Name, FILE_ATTRIBUTE_NORMAL);
 
-	api::File TreeFile = Opener(Name);
+	api::fs::file TreeFile = Opener(Name);
 
 	bool Result = false;
 
@@ -871,7 +871,7 @@ static inline void WriteTree(string_type& Name, const container_type& Container,
 	{
 		CachedWrite Cache(TreeFile);
 
-		auto WriteLine = [&](const string& str)
+		const auto WriteLine = [&](const string& str)
 		{
 			return Cache.Write(str.data() + offset, (str.size() - offset) * sizeof(wchar_t)) && Cache.Write(L"\n", 1 * sizeof(wchar_t));
 		};
@@ -1004,7 +1004,7 @@ void TreeList::SaveTreeFile()
 		return;
 #endif
 
-	auto Opener = [&](string& Name) { return OpenCacheableTreeFile(m_Root, Name, true); };
+	const auto Opener = [&](string& Name) { return OpenCacheableTreeFile(m_Root, Name, true); };
 
 	WriteTree(strName, m_ListData, Opener, RootLength);
 
@@ -1066,7 +1066,7 @@ void TreeList::SyncDir()
 
 bool TreeList::FillLastData()
 {
-	auto CountSlash = [](const wchar_t *Str) -> size_t
+	const auto CountSlash = [](const wchar_t *Str) -> size_t
 	{
 		auto str = as_string(Str);
 		return std::count_if(ALL_CONST_RANGE(str), IsSlash);
@@ -1758,10 +1758,8 @@ void TreeList::MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 void TreeList::ProcessEnter()
 {
-	DWORD Attr;
 	auto& CurPtr=m_ListData[m_CurFile];
-
-	if ((Attr=api::GetFileAttributes(CurPtr.strName))!=INVALID_FILE_ATTRIBUTES && (Attr & FILE_ATTRIBUTE_DIRECTORY))
+	if (api::fs::is_directory(CurPtr.strName))
 	{
 		if (!m_ModalMode && FarChDir(CurPtr.strName))
 		{
@@ -1801,7 +1799,7 @@ int TreeList::ReadTreeFile()
 
 	m_ListData.clear();
 
-	auto ListIserter = [&](string& Name)
+	const auto ListIserter = [&](string& Name)
 	{
 		if (m_ListData.size() == m_ListData.capacity())
 		{
@@ -1978,9 +1976,8 @@ void TreeList::ReadSubTree(const string& Path)
 	string strDirName;
 	string strFullName;
 	int Count=0;
-	DWORD FileAttr;
 
-	if ((FileAttr=api::GetFileAttributes(Path))==INVALID_FILE_ATTRIBUTES || !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+	if (!api::fs::is_directory(Path))
 		return;
 
 	ConvertNameToFull(Path, strDirName);
@@ -2041,7 +2038,7 @@ void TreeList::FlushCache()
 {
 	if (!TreeCache().GetTreeName().empty())
 	{
-		auto Opener = [&](const string& Name) { return OpenTreeFile(Name, true); };
+		const auto Opener = [&](const string& Name) { return OpenTreeFile(Name, true); };
 
 		WriteTree(TreeCache().GetTreeName(), TreeCache(), Opener, 0);
 	}
@@ -2134,7 +2131,7 @@ void TreeList::KillFocus()
 {
 	if (static_cast<size_t>(m_CurFile) < m_ListData.size())
 	{
-		if (api::GetFileAttributes(m_ListData[m_CurFile].strName)==INVALID_FILE_ATTRIBUTES)
+		if (!api::fs::exists(m_ListData[m_CurFile].strName))
 		{
 			DelTreeName(m_ListData[m_CurFile].strName);
 			Update(UPDATE_KEEP_SELECTION);

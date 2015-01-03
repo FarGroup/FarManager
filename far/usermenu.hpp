@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ENUM(MENUMODE);
 
-class UserMenu: NonCopyable
+class UserMenu: noncopyable
 {
 	struct UserMenuItem;
 

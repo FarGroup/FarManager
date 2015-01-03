@@ -167,7 +167,7 @@ SQLiteDb::~SQLiteDb()
 
 static bool can_create_file(const string& fname)
 {
-	return api::File().Open(fname, GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS, FILE_FLAG_DELETE_ON_CLOSE);
+	return api::fs::file().Open(fname, GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS, FILE_FLAG_DELETE_ON_CLOSE);
 }
 
 
@@ -178,17 +178,17 @@ void SQLiteDb::db_closer::operator()(sqlite::sqlite3* Object) const
 
 bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 {
-	auto v1_opener = [](const string& Name, sqlite::sqlite3*& pDb)
+	const auto v1_opener = [](const string& Name, sqlite::sqlite3*& pDb)
 	{
 		return sqlite::sqlite3_open16(Name.data(), &pDb);
 	};
 
-	auto v2_opener = [&WAL](const string& Name, sqlite::sqlite3*& pDb)
+	const auto v2_opener = [&WAL](const string& Name, sqlite::sqlite3*& pDb)
 	{
 		return sqlite::sqlite3_open_v2(Utf8String(Name).data(), &pDb, WAL? SQLITE_OPEN_READWRITE : SQLITE_OPEN_READONLY, nullptr);
 	};
 
-	auto OpenDatabase = [](database_ptr& Db, const string& Name, const std::function<int(const string&, sqlite::sqlite3*&)>& opener) -> bool
+	const auto OpenDatabase = [](database_ptr& Db, const string& Name, const std::function<int(const string&, sqlite::sqlite3*&)>& opener) -> bool
 	{
 		sqlite::sqlite3* pDb;
 		auto Result = opener(Name, pDb);
@@ -202,8 +202,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 	if (!Global->Opt->ReadOnlyConfig || mem_db)
 	{
 		if (!mem_db && db_exists < 0) {
-			DWORD attrs = api::GetFileAttributes(strPath);
-			db_exists = (0 == (attrs & FILE_ATTRIBUTE_DIRECTORY)) ? +1 : 0;
+			db_exists = api::fs::is_file(strPath)? +1 : 0;
 		}
 		bool ret = OpenDatabase(m_Db, strPath, v1_opener);
 		if (ret)
@@ -218,8 +217,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 
 	bool ok = true, copied = false;
 
-	DWORD attrs = api::GetFileAttributes(strPath);
-	if (0 == (attrs & FILE_ATTRIBUTE_DIRECTORY)) // source exists and not directory
+	if (api::fs::is_file(strPath))
 	{
 		database_ptr db_source;
 
@@ -233,7 +231,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 			api::GetTempPath(strTmp);
 			strTmp << GetCurrentProcessId() << L'-' << DbFile;
 			ok = copied = FALSE != api::CopyFileEx(strPath, strTmp, nullptr, nullptr, nullptr, 0);
-			api::SetFileAttributes(strTmp, attrs & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM));
+			api::SetFileAttributes(strTmp, FILE_ATTRIBUTE_NORMAL);
 			if (ok)
 				strPath = strTmp;
 			ok = ok && OpenDatabase(db_source, strPath, v1_opener);

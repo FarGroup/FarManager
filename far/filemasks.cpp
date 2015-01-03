@@ -77,7 +77,7 @@ static inline const wchar_t* SkipRE(const wchar_t* masks)
 	return masks;
 }
 
-class filemasks::masks: NonCopyable
+class filemasks::masks: noncopyable
 {
 public:
 	masks(): bRE(false) {}

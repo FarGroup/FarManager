@@ -78,7 +78,7 @@ private:
 	const tinyxml::TiXmlElement* m_data;
 };
 
-class xml_enum: NonCopyable, public enumerator<TiXmlElementWrapper>
+class xml_enum: noncopyable, public enumerator<TiXmlElementWrapper>
 {
 public:
 	xml_enum(const tinyxml::TiXmlHandle& base, const std::string& name):
@@ -1982,7 +1982,7 @@ public:
 		bool l = false;
 		if (m_Statements[stmtGetLock].Bind(id).Step())
 		{
-			 l = m_Statements[stmtGetLock].GetColInt(0) != 0;
+			l = m_Statements[stmtGetLock].GetColInt(0) != 0;
 		}
 		m_Statements[stmtGetLock].Reset();
 		return l;
@@ -2393,7 +2393,7 @@ bool Database::Export(const string& File)
 
 	{ //TODO: export for local plugin settings
 		auto& e = CreateChild(root, "pluginsconfig");
-		api::enum_file ff(Global->Opt->ProfilePath + L"\\PluginsData\\*.db");
+		api::fs::enum_file ff(Global->Opt->ProfilePath + L"\\PluginsData\\*.db");
 		std::for_each(RANGE(ff, i)
 		{
 			i.strFileName.resize(i.strFileName.size()-3);

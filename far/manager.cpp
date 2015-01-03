@@ -432,9 +432,9 @@ void Manager::ActivateWindow(window_ptr Activated)
 
 void Manager::SwitchWindow(DirectionType Direction)
 {
-	auto windows = GetSortedWindows();
+	const auto windows = GetSortedWindows();
 	auto pos = windows.find(m_windows.back());
-	auto process = [&,this]()
+	const auto process = [&, this]()
 	{
 		if (Direction==Manager::NextWindow)
 		{
@@ -825,10 +825,8 @@ void Manager::PluginsMenu() const
 
 				if (!strCurFileName.empty())
 				{
-					DWORD Attr=api::GetFileAttributes(strCurFileName);
-
 					// интересуют только обычные файлы
-					if (Attr!=INVALID_FILE_ATTRIBUTES && !(Attr&FILE_ATTRIBUTE_DIRECTORY))
+					if (api::fs::is_file(strCurFileName))
 						curType=windowtype_viewer;
 				}
 			}

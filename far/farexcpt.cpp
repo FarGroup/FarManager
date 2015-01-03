@@ -221,7 +221,7 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 
 	if (Global && Global->Opt->ExceptUsed && !Global->Opt->strExceptEventSvc.empty())
 	{
-		HMODULE m = LoadLibrary(Global->Opt->strExceptEventSvc.data());
+		ImportedFunctions::module m(Global->Opt->strExceptEventSvc.data());
 
 		if (m)
 		{
@@ -236,11 +236,7 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 				DWORD SizeModuleName;
 			};
 
-			typedef BOOL (WINAPI *ExceptionProc_t)(EXCEPTION_POINTERS *xp,
-				                                    const PLUGINRECORD *Module,
-				                                    const PluginStartupInfo *LocalStartupInfo,
-				                                    LPDWORD Result);
-			ExceptionProc_t p = (ExceptionProc_t)GetProcAddress(m,"ExceptionProc");
+			ImportedFunctions::function_pointer<BOOL(WINAPI*)(EXCEPTION_POINTERS* xp, const PLUGINRECORD* Module, const PluginStartupInfo* LocalStartupInfo, LPDWORD Result)> p(m, "ExceptionProc");
 
 			if (p)
 			{
@@ -263,8 +259,6 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 				DWORD dummy;
 				Res=p(xp,(Module?&PlugRec:nullptr),&LocalStartupInfo,&dummy);
 			}
-
-			FreeLibrary(m);
 		}
 	}
 

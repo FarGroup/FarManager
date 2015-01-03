@@ -35,14 +35,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class SaveScreen;
 
-class UndoGlobalSaveScrPtr: NonCopyable
+class UndoGlobalSaveScrPtr: noncopyable
 {
 public:
 	UndoGlobalSaveScrPtr(SaveScreen *SaveScr);
 	~UndoGlobalSaveScrPtr();
 };
 
-class RefreshWindowManager: NonCopyable
+class RefreshWindowManager: noncopyable
 {
 public:
 	RefreshWindowManager(int OScrX,int OScrY, int MsgWaitTime, BOOL DontRedrawWindow=FALSE);

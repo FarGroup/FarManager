@@ -33,10 +33,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class GetFileString: NonCopyable
+class GetFileString: noncopyable
 {
 public:
-	GetFileString(api::File& SrcFile, uintptr_t CodePage);
+	GetFileString(api::fs::file& SrcFile, uintptr_t CodePage);
 	bool PeekString(LPWSTR* DestStr, size_t& Length);
 	bool GetString(LPWSTR* DestStr, size_t& Length);
 	bool GetString(string& str);
@@ -46,7 +46,7 @@ private:
 	template<class T>
 	bool GetTString(std::vector<T>& From, std::vector<T>& To, bool bBigEndian = false);
 
-	api::File& SrcFile;
+	api::fs::file& SrcFile;
 	uintptr_t m_CodePage;
 	size_t ReadPos, ReadSize;
 
@@ -63,5 +63,5 @@ private:
 	bool bCrCr;
 };
 
-bool GetFileFormat(api::File& file, uintptr_t& nCodePage,
+bool GetFileFormat(api::fs::file& file, uintptr_t& nCodePage,
 	bool* pSignatureFound = nullptr, bool bUseHeuristics = true, bool* pPureAscii = nullptr);

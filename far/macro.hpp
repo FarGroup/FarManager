@@ -63,7 +63,7 @@ struct MacroPanelSelect
 
 class Dialog;
 
-class KeyMacro: NonCopyable
+class KeyMacro: noncopyable
 {
 public:
 	KeyMacro();

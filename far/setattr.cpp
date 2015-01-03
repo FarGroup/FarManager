@@ -867,7 +867,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			bool IsMountPoint = false;
 			{
 				bool IsRoot = false;
-				auto PathType = ParsePath(strSelName, nullptr, &IsRoot);
+				const auto PathType = ParsePath(strSelName, nullptr, &IsRoot);
 				IsMountPoint = IsRoot && ((PathType == PATH_DRIVELETTER || PathType == PATH_DRIVELETTERUNC));
 			}
 

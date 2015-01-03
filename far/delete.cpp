@@ -221,7 +221,7 @@ static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel, Console
 
 	api::SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
 
-	api::FileWalker WipeFile;
+	api::fs::file_walker WipeFile;
 
 	if(WipeFile.Open(Name, FILE_READ_DATA|FILE_WRITE_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT|FILE_FLAG_WRITE_THROUGH|FILE_FLAG_SEQUENTIAL_SCAN))
 	{
@@ -392,12 +392,11 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		{
 			NormalizeSymlinkName(strJuncName);
 			string strAskDeleteLink=MSG(MAskDeleteLink);
-			DWORD dwAttr=api::GetFileAttributes(strJuncName);
-
-			if (dwAttr!=INVALID_FILE_ATTRIBUTES)
+			api::fs::file_status Status(strJuncName);
+			if (api::fs::exists(Status))
 			{
 				strAskDeleteLink+=L" ";
-				strAskDeleteLink+=dwAttr&FILE_ATTRIBUTE_DIRECTORY?MSG(MAskDeleteLinkFolder):MSG(MAskDeleteLinkFile);
+				strAskDeleteLink += MSG(is_directory(Status)? MAskDeleteLinkFolder : MAskDeleteLinkFile);
 			}
 
 			Ret=Message(0,2,MSG(MDeleteLinkTitle),
@@ -522,7 +521,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		SrcPanel->ReadDiz();
 
 	SrcPanel->GetDizName(strDizName);
-	DizPresent=(!strDizName.empty() && api::GetFileAttributes(strDizName)!=INVALID_FILE_ATTRIBUTES);
+	DizPresent=(!strDizName.empty() && api::fs::exists(strDizName));
 
 	if ((NeedSetUpADir=CheckUpdateAnotherPanel(SrcPanel,strSelName)) == -1)
 		return;
@@ -831,7 +830,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 	}
 
 	if (UpdateDiz)
-		if (DizPresent==(!strDizName.empty() && api::GetFileAttributes(strDizName)!=INVALID_FILE_ATTRIBUTES))
+		if (DizPresent==(!strDizName.empty() && api::fs::exists(strDizName)))
 			SrcPanel->FlushDiz();
 }
 
@@ -1037,7 +1036,7 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 	ConvertNameToFull(Name, strFullName);
 
 	// При удалении в корзину папки с симлинками получим траблу, если предварительно линки не убрать.
-	if (!IsWindowsVistaOrGreater() && api::GetFileAttributes(Name) == FILE_ATTRIBUTE_DIRECTORY)
+	if (!IsWindowsVistaOrGreater() && api::fs::is_directory(Name))
 	{
 		string strFullName2;
 		api::FAR_FIND_DATA FindData;

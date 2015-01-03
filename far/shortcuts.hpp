@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VMenu2;
 struct MenuItemEx;
 
-class Shortcuts: NonCopyable
+class Shortcuts: noncopyable
 {
 public:
 	Shortcuts();

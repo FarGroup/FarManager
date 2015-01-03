@@ -104,7 +104,7 @@ void DizList::Read(const string& Path, const string* DizName)
 			strDizFileName += strArgName;
 		}
 
-		api::File DizFile;
+		api::fs::file DizFile;
 		if (DizFile.Open(strDizFileName,GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
 		{
 			clock_t StartTime=clock();
@@ -314,7 +314,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		}
 	}
 
-	api::File DizFile;
+	api::fs::file DizFile;
 
 	bool AnyError=false;
 

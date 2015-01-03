@@ -384,7 +384,7 @@ int codepages::GetItemsCount()
 // ѕолучаем позицию дл€ вставки таблицы с учЄтом сортировки по номеру кодовой страницы
 int codepages::GetCodePageInsertPosition(uintptr_t codePage, int start, int length)
 {
-	auto GetCodePage = [this](int position) -> uintptr_t
+	const auto GetCodePage = [this](int position) -> uintptr_t
 	{
 		switch (CallbackCallSource)
 		{

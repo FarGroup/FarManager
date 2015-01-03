@@ -95,7 +95,7 @@ struct ListControlBinding: public DialogItemBinding<T>
 Поддерживает automation (изменение флагов одного элемента в зависимости от состояния
 другого). Реализуется при помощи метода LinkFlags().
 */
-class DialogBuilder: NonCopyable, public DialogBuilderBase<DialogItemEx>
+class DialogBuilder: noncopyable, public DialogBuilderBase<DialogItemEx>
 {
 	private:
 		const wchar_t *m_HelpTopic;

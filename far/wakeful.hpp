@@ -32,7 +32,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class wakeful: NonCopyable
+class wakeful: noncopyable
 {
 public:
 	wakeful():PreviousState(SetThreadExecutionState(ES_SYSTEM_REQUIRED|ES_CONTINUOUS))

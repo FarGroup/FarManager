@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "farexcpt.hpp"
 
-class CriticalSection: NonCopyable
+class CriticalSection: noncopyable
 {
 
 public:
@@ -49,7 +49,7 @@ private:
 	CRITICAL_SECTION m_object;
 };
 
-template<class T> class lock_guard: NonCopyable
+template<class T> class lock_guard: noncopyable
 {
 public:
 	explicit lock_guard(T& object): m_object(object) { m_object.lock(); }
@@ -61,7 +61,7 @@ private:
 
 typedef lock_guard<CriticalSection> CriticalSectionLock;
 
-class HandleWrapper: NonCopyable
+class HandleWrapper: noncopyable
 {
 public:
 	virtual const wchar_t *GetNamespace() const { return L""; }
@@ -283,7 +283,7 @@ public:
 	void Associate(OVERLAPPED& o) const { o.hEvent = m_Handle; }
 };
 
-template<class T> class SyncedQueue: NonCopyable {
+template<class T> class SyncedQueue: noncopyable {
 	std::queue<T> Queue;
 	CriticalSection csQueueAccess;
 
@@ -330,7 +330,7 @@ public:
 	}
 };
 
-class MultiWaiter: NonCopyable
+class MultiWaiter: noncopyable
 {
 public:
 	enum wait_mode

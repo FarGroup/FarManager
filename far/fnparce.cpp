@@ -741,7 +741,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 
 	if (FarMkTempEx(strListFileName))
 	{
-		api::File ListFile;
+		api::fs::file ListFile;
 		if (ListFile.Open(strListFileName,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,CREATE_ALWAYS))
 		{
 			uintptr_t CodePage=CP_OEMCP;

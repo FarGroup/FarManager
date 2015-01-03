@@ -40,7 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class FileFilter;
 
-struct FileListItem: NonCopyable
+struct FileListItem: noncopyable
 {
 	string strName;
 	char Selected;
@@ -184,7 +184,7 @@ struct FileListItem: NonCopyable
 	FREE_SWAP(FileListItem);
 };
 
-struct PluginsListItem: NonCopyable
+struct PluginsListItem: noncopyable
 {
 	PluginsListItem(PluginHandle* hPlugin, const string& HostFile, const string& PrevOriginalCurDir, int Modified, int PrevViewMode, int PrevSortMode, bool PrevSortOrder, bool PrevNumericSort, bool PrevCaseSensitiveSort, bool PrevDirectoriesFirst, const PanelViewSettings& PrevViewSettings):
 		m_Plugin(hPlugin),

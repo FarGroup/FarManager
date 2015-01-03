@@ -33,7 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "synchro.hpp"
 
-class PluginSynchro: NonCopyable
+class PluginSynchro: noncopyable
 {
 public:
 	~PluginSynchro();

@@ -97,7 +97,7 @@ typedef std::unordered_map<std::wstring, RegExpMatch> MatchHash;
 Expressions must be Compile'ed first,
 and than Match string or Search for matching fragment.
 */
-class RegExp:NonCopyable
+class RegExp:noncopyable
 {
 public:
 	struct REOpCode;

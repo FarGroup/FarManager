@@ -79,7 +79,7 @@ private:
 	bool GetTopic(int realX, int realY, string& strTopic);
 	void MoveToReference(int Forward,int CurScreen);
 	void ReadDocumentsHelp(int TypeIndex);
-	void Search(api::File& HelpFile,uintptr_t nCodePage);
+	void Search(api::fs::file& HelpFile,uintptr_t nCodePage);
 	int JumpTopic(const string& JumpTopic);
 	int JumpTopic();
 

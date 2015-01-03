@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lang.hpp"
 
-class Language: NonCopyable
+class Language: noncopyable
 {
 public:
 	Language(const string& Path, int CountNeed = -1) { init(Path, CountNeed); }
@@ -69,9 +69,9 @@ private:
 	string m_FileName;
 };
 
-bool OpenLangFile(api::File& LangFile, const string& Path, const string& Mask, const string& Language, string &strFileName, uintptr_t &nCodePage, bool StrongLang = false, string *pstrLangName = nullptr);
-int GetLangParam(api::File& LangFile, const string& ParamName,string *strParam1, string *strParam2, UINT nCodePage);
-int GetOptionsParam(api::File& LangFile, const wchar_t *KeyName,string &strValue, UINT nCodePage);
+bool OpenLangFile(api::fs::file& LangFile, const string& Path, const string& Mask, const string& Language, string &strFileName, uintptr_t &nCodePage, bool StrongLang = false, string *pstrLangName = nullptr);
+int GetLangParam(api::fs::file& LangFile, const string& ParamName,string *strParam1, string *strParam2, UINT nCodePage);
+int GetOptionsParam(api::fs::file& LangFile, const wchar_t *KeyName,string &strValue, UINT nCodePage);
 bool SelectInterfaceLanguage();
 bool SelectHelpLanguage();
 

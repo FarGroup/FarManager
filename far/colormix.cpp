@@ -129,7 +129,7 @@ WORD Colors::FarColorToConsoleColor(const FarColor& Color)
 							});
 						}
 
-						auto ToMask = [](size_t component, console_mask mask) -> BYTE { return component ? mask : 0; };
+						const auto ToMask = [](size_t component, console_mask mask) -> BYTE { return component ? mask : 0; };
 						*i.IndexColor = ToMask(R, RedMask) | ToMask(G, GreenMask) | ToMask(B, BlueMask) | ToMask(IntenseCount, IntensityMask);
 					}
 				}

@@ -49,7 +49,7 @@ bool GetClipboard(string& data);
 bool GetClipboardEx(int max, string& data);
 bool ClearInternalClipboard();
 
-class Clipboard: NonCopyable
+class Clipboard: noncopyable
 {
 public:
 	~Clipboard() { Close(); }

@@ -57,7 +57,7 @@ struct pseudo_handle
 	{
 	}
 
-	File Object;
+	fs::file Object;
 	block_ptr<BYTE> BufferBase;
 	block_ptr<BYTE> Buffer2;
 	ULONG NextOffset;
@@ -257,13 +257,52 @@ static bool FindCloseInternal(HANDLE Find)
 }
 
 //-------------------------------------------------------------------------
+namespace fs
+{
+	file_status::file_status():
+		m_Data(INVALID_FILE_ATTRIBUTES)
+	{
+	}
+
+	file_status::file_status(const string& Object) :
+		m_Data(api::GetFileAttributes(Object))
+	{
+
+	}
+
+	file_status::file_status(const wchar_t* Object):
+		m_Data(api::GetFileAttributes(Object))
+	{
+
+	}
+
+	bool file_status::check(DWORD Data)
+	{
+		return m_Data != INVALID_FILE_ATTRIBUTES && m_Data & Data;
+	}
+
+	bool exists(file_status Status)
+	{
+		return Status.check(~0);
+	}
+
+	bool is_file(file_status Status)
+	{
+		return exists(Status) && !is_directory(Status);
+	}
+
+	bool is_directory(file_status Status)
+	{
+		return Status.check(FILE_ATTRIBUTE_DIRECTORY);
+	}
+
 enum_file::enum_file(const string& Object, bool ScanSymLink):
 	m_Object(NTPath(Object)),
 	m_Handle(INVALID_HANDLE_VALUE),
 	m_ScanSymLink(ScanSymLink)
 {
 	bool Root = false;
-	PATH_TYPE Type = ParsePath(m_Object, nullptr, &Root);
+	const auto Type = ParsePath(m_Object, nullptr, &Root);
 	if(Root && (Type == PATH_DRIVELETTER || Type == PATH_DRIVELETTERUNC || Type == PATH_VOLUMEGUID))
 	{
 		AddEndSlash(m_Object);
@@ -342,7 +381,7 @@ bool enum_file::get(size_t index, FAR_FIND_DATA& FindData)
 
 
 //-------------------------------------------------------------------------
-File::File():
+file::file():
 	Handle(INVALID_HANDLE_VALUE),
 	Pointer(0),
 	NeedSyncPointer(false),
@@ -350,12 +389,12 @@ File::File():
 {
 }
 
-File::~File()
+file::~file()
 {
 	Close();
 }
 
-bool File::Open(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, File* TemplateFile, bool ForceElevation)
+bool file::Open(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, file* TemplateFile, bool ForceElevation)
 {
 	assert(Handle == INVALID_HANDLE_VALUE);
 	HANDLE TemplateFileHandle = TemplateFile? TemplateFile->Handle : nullptr;
@@ -374,7 +413,7 @@ bool File::Open(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSE
 	return ok;
 }
 
-inline void File::SyncPointer()
+inline void file::SyncPointer()
 {
 	if(NeedSyncPointer)
 	{
@@ -384,7 +423,7 @@ inline void File::SyncPointer()
 }
 
 
-bool File::Read(LPVOID Buffer, size_t NumberOfBytesToRead, size_t& NumberOfBytesRead, LPOVERLAPPED Overlapped)
+bool file::Read(LPVOID Buffer, size_t NumberOfBytesToRead, size_t& NumberOfBytesRead, LPOVERLAPPED Overlapped)
 {
 	assert(NumberOfBytesToRead <= std::numeric_limits<DWORD>::max());
 
@@ -399,7 +438,7 @@ bool File::Read(LPVOID Buffer, size_t NumberOfBytesToRead, size_t& NumberOfBytes
 	return Result;
 }
 
-bool File::Write(LPCVOID Buffer, size_t NumberOfBytesToWrite, size_t& NumberOfBytesWritten, LPOVERLAPPED Overlapped)
+bool file::Write(LPCVOID Buffer, size_t NumberOfBytesToWrite, size_t& NumberOfBytesWritten, LPOVERLAPPED Overlapped)
 {
 	assert(NumberOfBytesToWrite <= std::numeric_limits<DWORD>::max());
 
@@ -414,7 +453,7 @@ bool File::Write(LPCVOID Buffer, size_t NumberOfBytesToWrite, size_t& NumberOfBy
 	return Result;
 }
 
-bool File::SetPointer(INT64 DistanceToMove, PINT64 NewFilePointer, DWORD MoveMethod)
+bool file::SetPointer(INT64 DistanceToMove, PINT64 NewFilePointer, DWORD MoveMethod)
 {
 	INT64 OldPointer = Pointer;
 	switch (MoveMethod)
@@ -444,7 +483,7 @@ bool File::SetPointer(INT64 DistanceToMove, PINT64 NewFilePointer, DWORD MoveMet
 	return true;
 }
 
-bool File::SetEnd()
+bool file::SetEnd()
 {
 	SyncPointer();
 	bool ok = SetEndOfFile(Handle) != FALSE;
@@ -462,44 +501,44 @@ bool File::SetEnd()
 	return ok;
 }
 
-bool File::GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime)
+bool file::GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime)
 {
 	return GetFileTimeEx(Handle, CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
 }
 
-bool File::SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime)
+bool file::SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime)
 {
 	return SetFileTimeEx(Handle, CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
 }
 
-bool File::GetSize(UINT64& Size)
+bool file::GetSize(UINT64& Size)
 {
 	return GetFileSizeEx(Handle, Size);
 }
 
-bool File::FlushBuffers()
+bool file::FlushBuffers()
 {
 	return FlushFileBuffers(Handle) != FALSE;
 }
 
-bool File::GetInformation(BY_HANDLE_FILE_INFORMATION& info)
+bool file::GetInformation(BY_HANDLE_FILE_INFORMATION& info)
 {
 	return GetFileInformationByHandle(Handle, &info) != FALSE;
 }
 
-bool File::IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped)
+bool file::IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped)
 {
 	return ::DeviceIoControl(Handle, IoControlCode, InBuffer, InBufferSize, OutBuffer, OutBufferSize, BytesReturned, Overlapped) != FALSE;
 }
 
-bool File::GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed)
+bool file::GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed)
 {
 	DWORD Result = Imports().GetStorageDependencyInformation(Handle, Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed);
 	SetLastError(Result);
 	return Result == ERROR_SUCCESS;
 }
 
-bool File::NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, bool ReturnSingleEntry, LPCWSTR FileName, bool RestartScan, NTSTATUS* Status)
+bool file::NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, bool ReturnSingleEntry, LPCWSTR FileName, bool RestartScan, NTSTATUS* Status)
 {
 	IO_STATUS_BLOCK IoStatusBlock;
 	PUNICODE_STRING pNameString = nullptr;
@@ -524,7 +563,7 @@ bool File::NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORM
 	return (Result == STATUS_SUCCESS) && (di->NextEntryOffset != 0xffffffffUL);
 }
 
-bool File::NtQueryInformationFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status)
+bool file::NtQueryInformationFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status)
 {
 	IO_STATUS_BLOCK IoStatusBlock;
 	NTSTATUS Result = Imports().NtQueryInformationFile(Handle, &IoStatusBlock, FileInformation, Length, FileInformationClass);
@@ -536,7 +575,7 @@ bool File::NtQueryInformationFile(PVOID FileInformation, ULONG Length, FILE_INFO
 	return Result == STATUS_SUCCESS;
 }
 
-bool File::Close()
+bool file::Close()
 {
 	bool Result=true;
 	if(Handle!=INVALID_HANDLE_VALUE)
@@ -549,7 +588,7 @@ bool File::Close()
 	return Result;
 }
 
-bool File::Eof()
+bool file::Eof()
 {
 	INT64 Ptr = GetPointer();
 	UINT64 Size=0;
@@ -557,7 +596,7 @@ bool File::Eof()
 	return static_cast<UINT64>(Ptr) >= Size;
 }
 //-------------------------------------------------------------------------
-FileWalker::FileWalker():
+file_walker::file_walker():
 	FileSize(0),
 	AllocSize(0),
 	ProcessedSize(0),
@@ -567,7 +606,7 @@ FileWalker::FileWalker():
 {
 }
 
-bool FileWalker::InitWalk(size_t BlockSize)
+bool file_walker::InitWalk(size_t BlockSize)
 {
 	bool Result = false;
 	ChunkSize = static_cast<DWORD>(BlockSize);
@@ -618,7 +657,7 @@ bool FileWalker::InitWalk(size_t BlockSize)
 }
 
 
-bool FileWalker::Step()
+bool file_walker::Step()
 {
 	bool Result = false;
 	if(Sparse)
@@ -646,21 +685,22 @@ bool FileWalker::Step()
 	return Result;
 }
 
-UINT64 FileWalker::GetChunkOffset() const
+UINT64 file_walker::GetChunkOffset() const
 {
 	return CurrentChunk->Offset;
 }
 
-DWORD FileWalker::GetChunkSize() const
+DWORD file_walker::GetChunkSize() const
 {
 	return CurrentChunk->Size;
 }
 
-int FileWalker::GetPercent() const
+int file_walker::GetPercent() const
 {
 	return AllocSize? (ProcessedSize) * 100 / AllocSize : 0;
 }
 
+} // fs
 //-------------------------------------------------------------------------
 
 NTSTATUS GetLastNtStatus()
@@ -677,7 +717,7 @@ BOOL DeleteFile(const string& FileName)
 		Result = Global->Elevation->fDeleteFile(strNtName);
 	}
 
-	if (!Result && api::GetFileAttributes(strNtName) == INVALID_FILE_ATTRIBUTES)
+	if (!Result && !api::fs::exists(strNtName))
 	{
 		// Someone deleted it already,
 		// but job is done, no need to report error.
@@ -696,7 +736,7 @@ BOOL RemoveDirectory(const string& DirName)
 		Result = Global->Elevation->fRemoveDirectory(strNtName);
 	}
 
-	if (!Result && api::GetFileAttributes(strNtName) == INVALID_FILE_ATTRIBUTES)
+	if (!Result && !api::fs::exists(strNtName))
 	{
 		// Someone deleted it already,
 		// but job is done, no need to report error.
@@ -862,7 +902,7 @@ BOOL SetCurrentDirectory(const string& PathName, bool Validate)
 	string strDir=PathName;
 	ReplaceSlashToBSlash(strDir);
 	bool Root = false;
-	PATH_TYPE Type = ParsePath(strDir, nullptr, &Root);
+	const auto Type = ParsePath(strDir, nullptr, &Root);
 	if(Root && (Type == PATH_DRIVELETTER || Type == PATH_DRIVELETTERUNC || Type == PATH_VOLUMEGUID))
 	{
 		AddEndSlash(strDir);
@@ -1015,7 +1055,7 @@ BOOL GetVolumeInformation(
 
 bool GetFindDataEx(const string& FileName, FAR_FIND_DATA& FindData,bool ScanSymLink)
 {
-	enum_file Find(FileName, ScanSymLink);
+	fs::enum_file Find(FileName, ScanSymLink);
 	auto ItemIterator = Find.begin();
 	if(ItemIterator != Find.end())
 	{
@@ -1035,7 +1075,7 @@ bool GetFindDataEx(const string& FileName, FAR_FIND_DATA& FindData,bool ScanSymL
 				// Ага, значит файл таки есть. Заполним структуру ручками.
 				FindData.Clear();
 				FindData.dwFileAttributes=dwAttr;
-				File file;
+				fs::file file;
 				if(file.Open(FileName, FILE_READ_ATTRIBUTES, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
 				{
 					file.GetTime(&FindData.ftCreationTime,&FindData.ftLastAccessTime,&FindData.ftLastWriteTime,&FindData.ftChangeTime);
@@ -1585,7 +1625,7 @@ void EnableLowFragmentationHeap()
 
 bool GetFileTimeSimple(const string &FileName, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime)
 {
-	File dir;
+	fs::file dir;
 	if (dir.Open(FileName,FILE_READ_ATTRIBUTES,FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_EXISTING))
 	{
 		return dir.GetTime(CreationTime,LastAccessTime,LastWriteTime,ChangeTime);

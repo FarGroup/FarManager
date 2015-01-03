@@ -2127,7 +2127,7 @@ static int process_back(int BufferSize, int pos, int64_t& fpos, const F& Reader)
 	typedef eol<T> eol;
 	if (!pos)
 	{
-		auto PopEol = [&](T Char) { return nr && Buffer[nr - 1] == Char && --nr; };
+		const auto PopEol = [&](T Char) { return nr && Buffer[nr - 1] == Char && --nr; };
 
 		if (PopEol(eol::lf))
 		{
@@ -2216,7 +2216,7 @@ void Viewer::Up( int nlines, bool adjust )
 
 			if ( ch_size <= 1 )
 			{
-				auto BufferReader = [&](char* Buffer, size_t Size) -> int
+				const auto BufferReader = [&](char* Buffer, size_t Size) -> int
 				{
 					size_t nread = 0;
 					Reader.Read(Buffer, buff_size, &nread);
@@ -2234,7 +2234,7 @@ void Viewer::Up( int nlines, bool adjust )
 			}
 			else
 			{
-				auto BufferReader = [&](wchar_t* Buffer, size_t Size)
+				const auto BufferReader = [&](wchar_t* Buffer, size_t Size)
 				{
 					return vread(Buffer, static_cast<int>(Size));
 				};

@@ -43,7 +43,7 @@ enum ELEVATION_MODE
 
 ENUM(ELEVATION_COMMAND);
 
-class elevation: NonCopyable
+class elevation: noncopyable
 {
 public:
 	elevation();
@@ -68,7 +68,7 @@ public:
 	bool fDetachVirtualDisk(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType);
 	bool fGetDiskFreeSpaceEx(const string& Object, ULARGE_INTEGER* FreeBytesAvailableToCaller, ULARGE_INTEGER* TotalNumberOfBytes, ULARGE_INTEGER* TotalNumberOfFreeBytes);
 
-	class suppress: NonCopyable
+	class suppress: noncopyable
 	{
 	public:
 		suppress(): m_owner(Global? Global->Elevation : nullptr) { if (m_owner) InterlockedIncrement(&m_owner->m_suppressions); }

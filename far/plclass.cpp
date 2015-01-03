@@ -94,21 +94,18 @@ Plugin* GenericPluginModel::CreatePlugin(const string& filename)
 	return IsPlugin(filename)? new Plugin(this, filename) : nullptr;
 }
 
-void GenericPluginModel::SaveExportsToCache(PluginsCacheConfig* cache, unsigned long long id, void* const * exports)
+void GenericPluginModel::SaveExportsToCache(PluginsCacheConfig* cache, unsigned long long id, const exports_array& exports)
 {
-	auto ExportPtr = exports;
-
-	std::for_each(m_ExportsNames, m_ExportsNames + ExportsCount, [&](const export_name& i)
+	for_each_2(m_ExportsNames, m_ExportsNames + ExportsCount, exports.cbegin(), [&](const export_name& i, const void* Export)
 	{
 		if (*i.UName)
-			cache->SetExport(id, i.UName, *ExportPtr != nullptr);
-		++ExportPtr;
+			cache->SetExport(id, i.UName, Export != nullptr);
 	});
 }
 
-void GenericPluginModel::LoadExportsFromCache(PluginsCacheConfig* cache, unsigned long long id, void** exports)
+void GenericPluginModel::LoadExportsFromCache(PluginsCacheConfig* cache, unsigned long long id, exports_array& exports)
 {
-	std::transform(m_ExportsNames, m_ExportsNames + ExportsCount, exports, [&](const export_name& i)
+	std::transform(m_ExportsNames, m_ExportsNames + ExportsCount, exports.begin(), [&](const export_name& i)
 	{
 		return *i.UName? cache->GetExport(id, i.UName) : nullptr;
 	});
@@ -191,23 +188,21 @@ bool NativePluginModel::IsPlugin(const string& filename)
 
 GenericPluginModel::plugin_instance NativePluginModel::Create(const string& filename)
 {
-	plugin_instance module = LoadLibraryEx(filename.data(), nullptr, 0);
-	if(!module)
-		module = LoadLibraryEx(filename.data(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
-	Global->CatchError();
-	return module;
+	return new ImportedFunctions::module(filename.data());
 }
 
 bool NativePluginModel::Destroy(GenericPluginModel::plugin_instance instance)
 {
-	return FreeLibrary(static_cast<HMODULE>(instance)) != FALSE;
+	delete reinterpret_cast<ImportedFunctions::module*>(instance);
+	return true;
 }
 
-void NativePluginModel::InitExports(GenericPluginModel::plugin_instance instance, void** exports)
+void NativePluginModel::InitExports(GenericPluginModel::plugin_instance instance, exports_array& exports)
 {
-	std::transform(m_ExportsNames, m_ExportsNames + ExportsCount, exports, [&](const export_name& i)
+	auto Module = reinterpret_cast<ImportedFunctions::module*>(instance);
+	std::transform(m_ExportsNames, m_ExportsNames + ExportsCount, exports.begin(), [&](const export_name& i)
 	{
-		return *i.AName? reinterpret_cast<void*>(GetProcAddress(static_cast<HMODULE>(instance), i.AName)) : nullptr;
+		return *i.AName? reinterpret_cast<void*>(Module->GetProcAddress(i.AName)) : nullptr;
 	});
 }
 
@@ -810,7 +805,7 @@ int Plugin::Unload(bool bExitFAR)
 
 void Plugin::ClearExports()
 {
-	ClearArray(Exports);
+	Exports.fill(nullptr);
 }
 
 void Plugin::AddDialog(window_ptr Dlg)
@@ -1270,39 +1265,38 @@ void Plugin::ExitFAR(ExitInfo *Info)
 	}
 }
 
+CustomPluginModel::ModuleImports::ModuleImports(const ImportedFunctions::module& Module):
+#define INIT_IMPORT(name) p ## name(Module, #name)
+	INIT_IMPORT(Initialize),
+	INIT_IMPORT(IsPlugin),
+	INIT_IMPORT(CreateInstance),
+	INIT_IMPORT(GetFunctionAddress),
+	INIT_IMPORT(DestroyInstance),
+	INIT_IMPORT(Free)
+#undef INIT_IMPORT
+{
+}
 
 CustomPluginModel::CustomPluginModel(PluginManager* owner, const string& filename):
 	GenericPluginModel(owner),
+	m_Module(filename.data()),
+	m_Imports(m_Module),
 	m_Success(false)
 {
 	try
 	{
-		m_Module = LoadLibraryEx(filename.data(), nullptr, 0);
+		GlobalInfo Info={sizeof(Info)};
 
-#define InitImport(Name) InitImport(m_Imports.p##Name, #Name)
-
-		if (InitImport(Initialize) &&
-			InitImport(IsPlugin) &&
-			InitImport(CreateInstance) &&
-			InitImport(GetFunctionAddress) &&
-			InitImport(DestroyInstance) &&
-			InitImport(Free))
-
+		if (m_Imports.pInitialize(&Info) &&
+			Info.StructSize &&
+			Info.Title && *Info.Title &&
+			Info.Description && *Info.Description &&
+			Info.Author && *Info.Author)
 		{
-			GlobalInfo Info={sizeof(Info)};
+			m_Success = CheckVersion(&FAR_VERSION, &Info.MinFarVersion) != FALSE;
 
-			if (m_Imports.pInitialize(&Info) &&
-				Info.StructSize &&
-				Info.Title && *Info.Title &&
-				Info.Description && *Info.Description &&
-				Info.Author && *Info.Author)
-			{
-				m_Success = CheckVersion(&FAR_VERSION, &Info.MinFarVersion) != FALSE;
-
-				// TODO: store info, show message if version is bad
-			}
+			// TODO: store info, show message if version is bad
 		}
-#undef InitImport
 	}
 	catch(const SException&)
 	{
@@ -1320,7 +1314,6 @@ CustomPluginModel::~CustomPluginModel()
 			ExitInfo Info = {sizeof(Info)};
 			m_Imports.pFree(&Info);
 		}
-		FreeLibrary(m_Module);
 	}
 	catch(const SException&)
 	{
@@ -1356,11 +1349,11 @@ GenericPluginModel::plugin_instance CustomPluginModel::Create(const string& file
 	}
 }
 
-void CustomPluginModel::InitExports(GenericPluginModel::plugin_instance instance, void** exports)
+void CustomPluginModel::InitExports(GenericPluginModel::plugin_instance instance, exports_array& Exports)
 {
 	try
 	{
-		std::transform(m_ExportsNames, m_ExportsNames + ExportsCount, exports, [&](const export_name& i)
+		std::transform(m_ExportsNames, m_ExportsNames + ExportsCount, Exports.begin(), [&](const export_name& i)
 		{
 			return *i.UName ? reinterpret_cast<void*>(m_Imports.pGetFunctionAddress(static_cast<HANDLE>(instance), i.UName)) : nullptr;
 		});

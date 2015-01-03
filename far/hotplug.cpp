@@ -56,7 +56,7 @@ A device is considered a HotPlug device if the following are TRUE:
 - does NOT have Capability CM_DEVCAP_DOCKDEVICE
 */
 
-class dev_info:NonCopyable
+class dev_info:noncopyable
 {
 public:
 	dev_info():
@@ -460,7 +460,7 @@ void ShowHotplugDevices()
 	auto HotPlugList = VMenu2::create(MSG(MHotPlugListTitle), nullptr, 0, 0);
 	std::vector<DeviceInfo> Info;
 
-	auto FillMenu = [&]()
+	const auto FillMenu = [&]()
 	{
 		HotPlugList->DeleteItems();
 		Info = GetHotplugDevicesInfo();

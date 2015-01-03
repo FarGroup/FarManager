@@ -67,7 +67,7 @@ struct editor_bookmark
 	{}
 };
 
-struct EditorPosCache: NonCopyable
+struct EditorPosCache: noncopyable
 {
 	Bookmarks<editor_bookmark> bm;
 	editor_bookmark cur;
@@ -86,7 +86,7 @@ struct viewer_bookmark
 	{}
 };
 
-struct ViewerPosCache: NonCopyable
+struct ViewerPosCache: noncopyable
 {
 	Bookmarks<viewer_bookmark> bm;
 	viewer_bookmark cur;
@@ -96,7 +96,7 @@ struct ViewerPosCache: NonCopyable
 	void Clear() { bm.Clear(); cur.FilePos = cur.LeftPos=0; Hex_Wrap=0; CodePage=0; }
 };
 
-class FilePositionCache: NonCopyable
+class FilePositionCache: noncopyable
 {
 public:
 	static bool AddPosition(const string& Name, const EditorPosCache& poscache);

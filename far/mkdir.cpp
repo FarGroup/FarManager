@@ -180,7 +180,7 @@ void ShellMakeDir(Panel *SrcPanel)
 				if (j == strDirName.size() || IsSlash(strDirName[j]))
 				{
 					Part = strDirName.substr(0, j);
-					if (api::GetFileAttributes(Part) == INVALID_FILE_ATTRIBUTES || j == strDirName.size()) // skip all intermediate dirs, but not last.
+					if (!api::fs::exists(Part) || j == strDirName.size()) // skip all intermediate dirs, but not last.
 					{
 						while(!(bSuccess=(api::CreateDirectory(Part, nullptr)!=FALSE)) && !SkipAll)
 						{

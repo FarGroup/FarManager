@@ -171,7 +171,7 @@ void EnumFiles(VMenu2& Menu, const string& Str)
 		if(!strStr.empty())
 		{
 			string strExp = api::env::expand_strings(strStr);
-			api::enum_file Find(strExp+L"*");
+			api::fs::enum_file Find(strExp+L"*");
 			bool Separator=false;
 			std::for_each(CONST_RANGE(Find, i)
 			{
@@ -247,7 +247,7 @@ bool EnumModules(const string& Module, VMenu2* DestMenu)
 				string str(i);
 				AddEndSlash(str);
 				str.append(strName).append(L"*");
-				api::enum_file Find(str);
+				api::fs::enum_file Find(str);
 				std::for_each(CONST_RANGE(Find, i)
 				{
 					std::for_each(CONST_RANGE(PathExtList, Ext)
@@ -361,7 +361,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 
 		ComplMenu->SetMacroMode(Area);
 
-		auto CompletionEnabled = [&Manual](int State)
+		const auto CompletionEnabled = [&Manual](int State)
 		{
 			return (Manual && State) || (!Manual && State == 1);
 		};

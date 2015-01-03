@@ -193,7 +193,7 @@ static int MainProcess(
 			// воспользуемся тем, что ControlObject::Init() создает панели
 			// юзая Global->Opt->*
 
-			auto SetupPanel = [&](bool active)
+			const auto SetupPanel = [&](bool active)
 			{
 				++DirCount;
 				strPath = active? apanel : ppanel;
@@ -201,7 +201,7 @@ static int MainProcess(
 				DeleteEndSlash(strPath); //BUGBUG!! если конечный слеш не убрать - получаем забавный эффект - отсутствует ".."
 
 				bool Root = false;
-				PATH_TYPE Type = ParsePath(strPath, nullptr, &Root);
+				const auto Type = ParsePath(strPath, nullptr, &Root);
 				if(Root && (Type == PATH_DRIVELETTER || Type == PATH_DRIVELETTERUNC || Type == PATH_VOLUMEGUID))
 				{
 					AddEndSlash(strPath);
@@ -312,8 +312,7 @@ static void InitTemplateProfile(string &strTemplatePath)
 		ConvertNameToFull(Unquote(api::env::expand_strings(strTemplatePath)), strTemplatePath);
 		DeleteEndSlash(strTemplatePath);
 
-		DWORD attr = api::GetFileAttributes(strTemplatePath);
-		if (INVALID_FILE_ATTRIBUTES != attr && 0 != (attr & FILE_ATTRIBUTE_DIRECTORY))
+		if (api::fs::is_directory(strTemplatePath))
 			strTemplatePath += L"\\Default.farconfig";
 
 		Global->Opt->TemplateProfilePath = strTemplatePath;
@@ -398,7 +397,7 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 
 static bool ProcessServiceModes(const range<wchar_t**>& Args, int& ServiceResult)
 {
-	auto isArg = [](const wchar_t* Arg, const wchar_t* Name)
+	const auto isArg = [](const wchar_t* Arg, const wchar_t* Name)
 	{
 		return (*Arg == L'/' || *Arg == L'-') && !StrCmpI(Arg + 1, Name);
 	};
@@ -702,7 +701,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 					string ArgvI = Unquote(api::env::expand_strings(Arg));
 					ConvertNameToFull(ArgvI, ArgvI);
 
-					if (api::GetFileAttributes(ArgvI) != INVALID_FILE_ATTRIBUTES)
+					if (api::fs::exists(ArgvI))
 					{
 						DestNames[CntDestName++] = ArgvI;
 					}

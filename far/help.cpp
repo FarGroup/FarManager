@@ -79,7 +79,7 @@ enum
 	FHELPOBJ_ERRCANNOTOPENHELP  = 0x80000000,
 };
 
-class HelpRecord: NonCopyable
+class HelpRecord: noncopyable
 {
 public:
 	string HelpStr;
@@ -112,7 +112,7 @@ static const wchar_t* HelpFormatLink = L"<%s\\>%s";
 static const wchar_t* HelpFormatLinkModule = L"<%s>%s";
 
 
-struct Help::StackHelpData: ::NonCopyable
+struct Help::StackHelpData: ::noncopyable
 {
 	StackHelpData():
 		Flags(),
@@ -307,7 +307,7 @@ int Help::ReadHelp(const string& Mask)
 	}
 
 	uintptr_t nCodePage = CP_OEMCP;
-	api::File HelpFile;
+	api::fs::file HelpFile;
 
 	if (!OpenLangFile(HelpFile, strPath,(Mask.empty()?Global->HelpFileMask:Mask),Global->Opt->strHelpLanguage,strFullHelpPathName, nCodePage))
 	{
@@ -1904,7 +1904,7 @@ void Help::MoveToReference(int Forward,int CurScreen)
 	FastShow();
 }
 
-void Help::Search(api::File& HelpFile,uintptr_t nCodePage)
+void Help::Search(api::fs::file& HelpFile,uintptr_t nCodePage)
 {
 	FixCount=1;
 	FixSize=2;
@@ -2030,7 +2030,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 				strPath = i->GetModuleName();
 				CutToSlash(strPath);
 				uintptr_t nCodePage = CP_OEMCP;
-				api::File HelpFile;
+				api::fs::file HelpFile;
 				if (OpenLangFile(HelpFile,strPath,Global->HelpFileMask,Global->Opt->strHelpLanguage,strFullFileName, nCodePage))
 				{
 					string strEntryName, strSecondParam;

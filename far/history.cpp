@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "scrbuf.hpp"
 #include "plugins.hpp"
+#include "pathmix.hpp"
 
 History::History(history_type TypeHistory, const string& HistoryName, const BoolOption& EnableSave):
 	m_TypeHistory(TypeHistory),
@@ -199,7 +200,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 			GetLocalTime(&st);
 			int LastDay=0, LastMonth = 0, LastYear = 0;
 
-			auto GetTitle = [](history_record_type Type) -> const wchar_t*
+			const auto GetTitle = [](history_record_type Type) -> const wchar_t*
 			{
 				switch (Type)
 				{
@@ -354,11 +355,13 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 							GUID HGuid;
 							if(StrToGuid(strHGuid,HGuid) && HGuid != FarGuid)
 							{
-								Plugin *pPlugin = Global->CtrlObject->Plugins->FindPlugin(HGuid);
-								if(!pPlugin) kill=true;
-								else if (!strHFile.empty()&&api::GetFileAttributes(strHFile) == INVALID_FILE_ATTRIBUTES) kill=true;
+								if (!Global->CtrlObject->Plugins->FindPlugin(HGuid))
+									kill=true;
+								else if (!strHFile.empty() && !api::fs::exists(strHFile))
+									kill=true;
 							}
-							else if (api::GetFileAttributes(strHName) == INVALID_FILE_ATTRIBUTES) kill=true;
+							else if (!api::fs::exists(strHName))
+								kill=true;
 
 							if(kill)
 							{
@@ -509,7 +512,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 				return HRT_CANCEL;
 
 			if (SelectedRecordType != HR_EXTERNAL && SelectedRecordType != HR_EXTERNAL_WAIT
-				&& RetCode != HRT_CTRLENTER && ((m_TypeHistory == HISTORYTYPE_FOLDER && strSelectedRecordGuid.empty()) || m_TypeHistory == HISTORYTYPE_VIEW) && api::GetFileAttributes(strSelectedRecordName) == INVALID_FILE_ATTRIBUTES)
+				&& RetCode != HRT_CTRLENTER && ((m_TypeHistory == HISTORYTYPE_FOLDER && strSelectedRecordGuid.empty()) || m_TypeHistory == HISTORYTYPE_VIEW) && !api::fs::exists(strSelectedRecordName))
 			{
 				SetLastError(ERROR_FILE_NOT_FOUND);
 				Global->CatchError();

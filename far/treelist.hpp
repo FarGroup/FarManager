@@ -46,7 +46,7 @@ enum
 class TreeList: public Panel
 {
 public:
-	struct TreeItem: ::NonCopyable
+	struct TreeItem: ::noncopyable
 	{
 		string strName;
 		std::vector<int> Last;

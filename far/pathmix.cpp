@@ -101,7 +101,7 @@ PATH_TYPE ParsePath(const string& path, size_t* DirectoryOffset, bool* Root)
 
 	std::wsmatch SMatch;
 
-	const auto& ItemIterator = std::find_if(CONST_RANGE(PathTypes, i) { return std::regex_search(path, SMatch, i.re); });
+	const auto ItemIterator = std::find_if(CONST_RANGE(PathTypes, i) { return std::regex_search(path, SMatch, i.re); });
 
 	if (ItemIterator != std::cend(PathTypes))
 	{
@@ -123,7 +123,7 @@ PATH_TYPE ParsePath(const string& path, size_t* DirectoryOffset, bool* Root)
 
 bool IsAbsolutePath(const string& Path)
 {
-	PATH_TYPE Type = ParsePath(Path);
+	const auto Type = ParsePath(Path);
 	return Type == PATH_DRIVELETTERUNC || Type == PATH_REMOTE || Type == PATH_REMOTEUNC || Type == PATH_VOLUMEGUID || (Type == PATH_DRIVELETTER && (Path.size() > 2 && IsSlash(Path[2])));
 }
 
@@ -250,7 +250,7 @@ const wchar_t* PointToExt(const wchar_t *lpwszPath,const wchar_t *lpwszEndPtr)
 
 	const wchar_t *lpwszExtPtr = lpwszEndPtr;
 
-	auto IsPath = [&lpwszPath](const wchar_t* Ptr)
+	const auto IsPath = [&lpwszPath](const wchar_t* Ptr)
 	{
 		return IsSlash(*Ptr) || (*Ptr == L':' && Ptr - lpwszPath == 1); // ':' only in c:
 	};

@@ -46,7 +46,7 @@ enum
 class Plugin;
 class Dialog;
 
-class Message: NonCopyable
+class Message: noncopyable
 {
 public:
 	Message(

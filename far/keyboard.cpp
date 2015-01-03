@@ -68,8 +68,8 @@ FarKeyboardState IntKeyState={};
 
 /* end Глобальные переменные */
 
-static SHORT KeyToVKey[WCHAR_MAX + 1];
-static WCHAR VKeyToASCII[0x200];
+static std::array<short, WCHAR_MAX + 1> KeyToVKey;
+static std::array<wchar_t, 512> VKeyToASCII;
 
 static unsigned int AltValue=0;
 static int KeyCodeForALT_LastPressed=0;
@@ -368,8 +368,8 @@ void InitKeysArray()
 		}
 	}
 
-	ClearArray(KeyToVKey);
-	ClearArray(VKeyToASCII);
+	KeyToVKey.fill(0);
+	VKeyToASCII.fill(0);
 
 	if (!Layout().empty())
 	{
@@ -1554,7 +1554,7 @@ typedef std::function<void(string&)> add_separator;
 
 static void GetShiftKeyName(string& strName, DWORD Key, tfkey_to_text ToText, add_separator AddSeparator)
 {
-	auto AddText = [&](modifs ModId)
+	const auto AddText = [&](modifs ModId)
 	{
 		AddSeparator(strName);
 		strName += ToText(ModifKeyName + ModId);

@@ -134,18 +134,18 @@ global::~global()
 
 uint64_t global::FarUpTime() const
 {
-	LARGE_INTEGER Frequency, Counter;
-	QueryPerformanceFrequency(&Frequency);
+	const auto GetFrequency = []() -> LARGE_INTEGER { LARGE_INTEGER Frequency; QueryPerformanceFrequency(&Frequency); return Frequency; };
+	static const auto Frequency = GetFrequency();
+
+	LARGE_INTEGER Counter;
 	QueryPerformanceCounter(&Counter);
+
 	return (Counter.QuadPart - m_FarUpTime.QuadPart) * 1000 / Frequency.QuadPart;
 }
 
 bool global::IsUserAdmin()
 {
-	static bool Checked = false;
-	static bool Result = false;
-
-	if(!Checked)
+	const auto GetResult = []() -> bool
 	{
 		SID_IDENTIFIER_AUTHORITY NtAuthority=SECURITY_NT_AUTHORITY;
 		try
@@ -154,29 +154,26 @@ bool global::IsUserAdmin()
 			BOOL IsMember = FALSE;
 			if(CheckTokenMembership(nullptr, AdministratorsGroup.get(), &IsMember) && IsMember)
 			{
-				Result = true;
+				return true;
 			}
 		}
 		catch(const FarRecoverableException&)
 		{
 			// TODO: Log
 		}
-		Checked = true;
-	}
+		return false;
+	};
+
+	static const auto Result = GetResult();
 	return Result;
 }
 
 bool global::IsPtr(const void* Address)
 {
-	static SYSTEM_INFO info;
-	static bool Checked = false;
-	if(!Checked)
-	{
-		GetSystemInfo(&info);
-		Checked = true;
-	}
-	return reinterpret_cast<uintptr_t>(Address) >= reinterpret_cast<uintptr_t>(info.lpMinimumApplicationAddress) &&
-		reinterpret_cast<uintptr_t>(Address) <= reinterpret_cast<uintptr_t>(info.lpMaximumApplicationAddress);
+	const auto GetInfo = []() -> SYSTEM_INFO { SYSTEM_INFO Info; GetSystemInfo(&Info); return Info; };
+	static const auto info = GetInfo();
+
+	return InRange<const void*>(info.lpMinimumApplicationAddress, Address, info.lpMaximumApplicationAddress);
 }
 
 void global::CatchError()

@@ -91,7 +91,7 @@ class Dialog;
 class SaveScreen;
 
 
-struct MenuItemEx: NonCopyable
+struct MenuItemEx: noncopyable
 {
 	MenuItemEx(const string& Text = L""):
 		strName(Text),

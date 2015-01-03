@@ -89,7 +89,7 @@ struct DialogItemAutomation
 Описывает один элемент диалога - внутренне представление.
 Для плагинов это FarDialogItem
 */
-struct DialogItemEx: NonCopyable, public FarDialogItem
+struct DialogItemEx: noncopyable, public FarDialogItem
 {
 	int ListPos;
 	string strHistory;

@@ -82,7 +82,7 @@ bool FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithTempPath, cons
 
 		if (GetTempFileName(strPath.data(), Prefix, uniq, Buffer.get()))
 		{
-			api::enum_file f(Buffer.get(), false);
+			api::fs::enum_file f(Buffer.get(), false);
 			if (f.begin() == f.end())
 				break;
 		}

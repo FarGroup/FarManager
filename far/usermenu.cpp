@@ -255,7 +255,7 @@ void UserMenu::SaveMenu(const string& MenuFileName)
 		}
 
 		// Don't use CreationDisposition=CREATE_ALWAYS here - it kills alternate streams
-		api::File MenuFile;
+		api::fs::file MenuFile;
 		if (MenuFile.Open(MenuFileName,GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr==INVALID_FILE_ATTRIBUTES?CREATE_NEW:TRUNCATE_EXISTING))
 		{
 			CachedWrite CW(MenuFile);
@@ -350,7 +350,7 @@ void UserMenu::ProcessUserMenu(bool MenuType, const string& MenuFileName)
 		m_Menu.clear();
 
 		// ѕытаемс€ открыть файл на локальном диске
-		api::File MenuFile;
+		api::fs::file MenuFile;
 		bool FileOpened = PathCanHoldRegularFile(strMenuFilePath) ? MenuFile.Open(strMenuFileFullPath,GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING) : false;
 		if (FileOpened)
 		{
@@ -643,7 +643,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				case KEY_ALTF4:       // редактировать все меню
 				case KEY_RALTF4:
 				{
-					api::File MenuFile;
+					api::fs::file MenuFile;
 					Global->CtrlObject->Cp()->Unlock();
 					{
 						auto OldTitle = std::make_unique<ConsoleTitle>();

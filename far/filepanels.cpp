@@ -171,41 +171,35 @@ void FilePanels::Init(int DirCount)
 	Global->Opt->LeftPanel.Folder = strLeft;
 	Global->Opt->RightPanel.Folder = strRight;
 
+	const auto InitCurDir_checked = [&](const std::pair<Panel*, const Options::PanelOptions&>& Params)
+	{
+		Params.first->InitCurDir(api::fs::exists(Params.second.Folder.Get()) ? Params.second.Folder.Get() : Global->g_strFarPath);
+	};
+
+	const auto LeftSet = std::make_pair(LeftPanel, Global->Opt->LeftPanel);
+	const auto RightSet = std::make_pair(RightPanel, Global->Opt->RightPanel);
+
 	if (Global->Opt->AutoSaveSetup || !DirCount)
 	{
-		LeftPanel->InitCurDir(api::GetFileAttributes(Global->Opt->LeftPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->LeftPanel.Folder.Get() : Global->g_strFarPath);
-		RightPanel->InitCurDir(api::GetFileAttributes(Global->Opt->RightPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->RightPanel.Folder.Get() : Global->g_strFarPath);
+		InitCurDir_checked(LeftSet);
+		InitCurDir_checked(RightSet);
 	}
 
 	if (!Global->Opt->AutoSaveSetup)
 	{
 		if (DirCount >= 1)
 		{
-			if (m_ActivePanel == RightPanel)
-			{
-				RightPanel->InitCurDir(api::GetFileAttributes(Global->Opt->RightPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->RightPanel.Folder.Get() : Global->g_strFarPath);
-			}
-			else
-			{
-				LeftPanel->InitCurDir(api::GetFileAttributes(Global->Opt->LeftPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->LeftPanel.Folder.Get() : Global->g_strFarPath);
-			}
+			InitCurDir_checked(m_ActivePanel == RightPanel? RightSet : LeftSet);
 
 			if (DirCount == 2)
 			{
-				if (m_ActivePanel == LeftPanel)
-				{
-					RightPanel->InitCurDir(api::GetFileAttributes(Global->Opt->RightPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->RightPanel.Folder.Get() : Global->g_strFarPath);
-				}
-				else
-				{
-					LeftPanel->InitCurDir(api::GetFileAttributes(Global->Opt->LeftPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->LeftPanel.Folder.Get() : Global->g_strFarPath);
-				}
+				InitCurDir_checked(m_ActivePanel == LeftPanel? RightSet : LeftSet);
 			}
 		}
 
 		const string& PassiveFolder=PassiveIsLeftFlag?Global->Opt->LeftPanel.Folder:Global->Opt->RightPanel.Folder;
 
-		if (DirCount < 2 && !PassiveFolder.empty() && (api::GetFileAttributes(PassiveFolder)!=INVALID_FILE_ATTRIBUTES))
+		if (DirCount < 2 && !PassiveFolder.empty() && api::fs::exists(PassiveFolder))
 		{
 			PassivePanel->InitCurDir(PassiveFolder);
 		}

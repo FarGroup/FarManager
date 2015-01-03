@@ -185,7 +185,7 @@ void PrintFiles(FileList* SrcPanel)
 		_ALGO(CleverSysLog clv3(L"Print selected Files"));
 		SCOPED_ACTION(SaveScreen);
 
-		auto PR_PrintMsg = [](){ Message(0, 0, MSG(MPrintTitle), MSG(MPreparingForPrinting)); };
+		const auto PR_PrintMsg = [](){ Message(0, 0, MSG(MPrintTitle), MSG(MPreparingForPrinting)); };
 
 		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<PreRedrawItem>(PR_PrintMsg));
 		SetCursorType(false, 0);
@@ -227,7 +227,7 @@ void PrintFiles(FileList* SrcPanel)
 			else
 				FileName = strSelName;
 
-			api::File SrcFile;
+			api::fs::file SrcFile;
 			if(SrcFile.Open(FileName, GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 			{
 				DOC_INFO_1 di1 = {UNSAFE_CSTR(FileName)};

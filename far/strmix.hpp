@@ -149,6 +149,9 @@ std::string narrow_n(const wchar_t *str, size_t size, uintptr_t codepage = CP_OE
 inline std::string narrow(const wchar_t *str, uintptr_t codepage = CP_OEMCP) { return narrow_n(str, wcslen(str), codepage); }
 inline std::string narrow(const string& str, uintptr_t codepage = CP_OEMCP) { return narrow_n(str.data(), str.size(), codepage); }
 
+template<class T>
+inline std::string Utf8String(const T& Str) { return narrow(Str, CP_UTF8); }
+
 string str_printf(const wchar_t * format, ...);
 string str_vprintf(const wchar_t * format, va_list argptr);
 
@@ -179,36 +182,6 @@ void split(Container& C, const string& InitString, DWORD Flags = 0, const wchar_
 	C.clear();
 	split(InitString, Flags, Separators, [&](string& str) { C.insert(C.end(), std::move(str)); });
 }
-
-class Utf8String: NonCopyable
-{
-public:
-	Utf8String(const wchar_t* Str)
-	{
-		Init(Str, StrLength(Str));
-	}
-
-	Utf8String(const string& Str)
-	{
-		Init(Str.data(), Str.size());
-	}
-
-	const char* data() const { return Data.get(); }
-	size_t size() const { return Size; }
-
-
-private:
-	void Init(const wchar_t* Str, size_t Length)
-	{
-		Size = WideCharToMultiByte(CP_UTF8, 0, Str, static_cast<int>(Length), nullptr, 0, nullptr, nullptr) + 1;
-		Data.reset(Size);
-		WideCharToMultiByte(CP_UTF8, 0, Str, static_cast<int>(Length), Data.get(), static_cast<int>(Size - 1), nullptr, nullptr);
-		Data[Size - 1] = 0;
-	}
-
-	char_ptr Data;
-	size_t Size;
-};
 
 template<class container>
 const string FlagsToString(unsigned long long Flags, const container& From, wchar_t Separator = L' ')

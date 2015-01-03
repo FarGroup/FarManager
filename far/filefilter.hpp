@@ -47,7 +47,7 @@ enum enumFileInFilterType
 };
 
 
-class FileFilter: NonCopyable
+class FileFilter: noncopyable
 {
 public:
 	FileFilter(Panel *HostPanel, FAR_FILE_FILTER_TYPE FilterType);

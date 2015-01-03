@@ -124,7 +124,7 @@ int TestFolder(const string& Path)
 	strFindPath += L"*";
 
 	// первая проверка - че-нить считать можем?
-	api::enum_file Find(strFindPath);
+	api::fs::enum_file Find(strFindPath);
 	if (Find.begin() != Find.end())
 	{
 		return TSTFLD_NOTEMPTY;
@@ -145,7 +145,7 @@ int TestFolder(const string& Path)
 	if (strFindPath == Path)
 	{
 		// проверка атрибутов гарантировано скажет - это бага BugZ#743 или пустой корень диска.
-		if (api::GetFileAttributes(strFindPath)!=INVALID_FILE_ATTRIBUTES)
+		if (api::fs::exists(strFindPath))
 		{
 			if (LastError == ERROR_ACCESS_DENIED)
 				return TSTFLD_NOTACCESS;
@@ -164,10 +164,7 @@ int TestFolder(const string& Path)
 
 	{
 		SCOPED_ACTION(elevation::suppress);
-
-		DWORD Attr=api::GetFileAttributes(strFindPath);
-
-		if (Attr!=INVALID_FILE_ATTRIBUTES && !(Attr&FILE_ATTRIBUTE_DIRECTORY))
+		if (api::fs::is_file(strFindPath))
 			return TSTFLD_ERROR;
 	}
 	return TSTFLD_NOTACCESS;
@@ -181,7 +178,7 @@ int TestFolder(const string& Path)
 */
 bool CheckShortcutFolder(string& pTestPath,int IsHostFile, BOOL Silent)
 {
-	if (api::GetFileAttributes(pTestPath) == INVALID_FILE_ATTRIBUTES)
+	if (!api::fs::exists(pTestPath))
 	{
 		int FoundPath=0;
 		string strTarget = pTestPath;
@@ -209,7 +206,7 @@ bool CheckShortcutFolder(string& pTestPath,int IsHostFile, BOOL Silent)
 					if (!CutToSlash(strTestPathTemp,true))
 						break;
 
-					if (api::GetFileAttributes(strTestPathTemp) != INVALID_FILE_ATTRIBUTES)
+					if (api::fs::exists(strTestPathTemp))
 					{
 						int ChkFld=TestFolder(strTestPathTemp);
 
@@ -252,7 +249,7 @@ void CreatePath(const string &InputPath, bool Simple)
 		if (i == Path.size() || IsSlash(Path[i]))
 		{
 			Part = Path.substr(0, i);
-			if (api::GetFileAttributes(Part) == INVALID_FILE_ATTRIBUTES)
+			if (!api::fs::exists(Part))
 			{
 				if(api::CreateDirectory(Part, nullptr) && !Simple)
 					TreeList::AddTreeName(Part);

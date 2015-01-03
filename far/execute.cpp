@@ -78,7 +78,7 @@ static bool GetImageSubsystem(const string& FileName,DWORD& ImageSubsystem)
 {
 	bool Result=false;
 	ImageSubsystem=IMAGE_SUBSYSTEM_UNKNOWN;
-	api::File ModuleFile;
+	api::fs::file ModuleFile;
 	if(ModuleFile.Open(FileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
 	{
 		IMAGE_DOS_HEADER DOSHeader;
@@ -250,9 +250,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 					strTmpName += i;
 				}
 
-				DWORD Attr=api::GetFileAttributes(strTmpName);
-
-				if ((Attr!=INVALID_FILE_ATTRIBUTES) && !(Attr&FILE_ATTRIBUTE_DIRECTORY))
+				if (api::fs::is_file(strTmpName))
 				{
 					ConvertNameToFull(strTmpName,strFullName);
 					Result=true;
@@ -281,9 +279,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 
 							if (api::SearchPath(Path.data(), strFullName, Ext.data(), Dest))
 							{
-								DWORD Attr=api::GetFileAttributes(Dest);
-
-								if ((Attr!=INVALID_FILE_ATTRIBUTES) && !(Attr&FILE_ATTRIBUTE_DIRECTORY))
+								if (api::fs::is_file(Dest))
 								{
 									strFullName=Dest;
 									Result=true;
@@ -304,9 +300,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 
 						if (api::SearchPath(nullptr, strFullName, Ext.data(), Dest))
 						{
-							DWORD Attr=api::GetFileAttributes(Dest);
-
-							if ((Attr!=INVALID_FILE_ATTRIBUTES) && !(Attr&FILE_ATTRIBUTE_DIRECTORY))
+							if (api::fs::is_file(Dest))
 							{
 								strFullName=Dest;
 								Result=true;
@@ -700,7 +694,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 
 	int PipeOrEscaped = PartCmdLine(CmdStr, strNewCmdStr, strNewCmdPar);
 
-	DWORD dwAttr = api::GetFileAttributes(strNewCmdStr);
+	const bool IsDirectory = api::fs::is_directory(strNewCmdStr);
 
 	if(RunAs)
 	{
@@ -718,7 +712,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		{
 			Silent = true;
 		}
-		if (strNewCmdPar.empty() && dwAttr != INVALID_FILE_ATTRIBUTES && (dwAttr & FILE_ATTRIBUTE_DIRECTORY))
+		if (strNewCmdPar.empty() && IsDirectory)
 		{
 			ConvertNameToFull(strNewCmdStr, strNewCmdStr);
 			DirectRun = true;
@@ -872,7 +866,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		//Maximus: рушилась dwSubSystem
 		DWORD dwSubSystem2 = IMAGE_SUBSYSTEM_UNKNOWN;
 		DWORD dwError = 0;
-		seInfo.lpVerb = dwAttr != INVALID_FILE_ATTRIBUTES && (dwAttr&FILE_ATTRIBUTE_DIRECTORY)?nullptr:lpVerb?lpVerb:GetShellAction(strNewCmdStr, dwSubSystem2, dwError);
+		seInfo.lpVerb = IsDirectory? nullptr : lpVerb? lpVerb : GetShellAction(strNewCmdStr, dwSubSystem2, dwError);
 		if (dwSubSystem2!=IMAGE_SUBSYSTEM_UNKNOWN && dwSubSystem==IMAGE_SUBSYSTEM_UNKNOWN)
 			dwSubSystem=dwSubSystem2;
 	}
@@ -921,7 +915,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 
 	// ShellExecuteEx fails if IE10 is installed and if current directory is symlink/junction
 	wchar_t CurDir[MAX_PATH];
-	bool NeedFixCurDir = (api::GetFileAttributes(strCurDir) & FILE_ATTRIBUTE_REPARSE_POINT) != 0;
+	bool NeedFixCurDir = api::fs::file_status(strCurDir).check(FILE_ATTRIBUTE_REPARSE_POINT);
 	if (NeedFixCurDir)
 	{
 		if (!GetCurrentDirectory(ARRAYSIZE(CurDir), CurDir))
@@ -1255,25 +1249,23 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 				}
 
 				strFullPath += strExpandedStr;
-				DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
+				bool FileExists = false;
 
 				size_t DirOffset = 0;
 				ParsePath(strExpandedStr, &DirOffset);
 				if (strExpandedStr.find_first_of(L"*?", DirOffset) != string::npos) // это маска?
 				{
 					api::FAR_FIND_DATA wfd;
-
-					if (api::GetFindDataEx(strFullPath, wfd))
-						FileAttr=wfd.dwFileAttributes;
+					FileExists = api::GetFindDataEx(strFullPath, wfd);
 				}
 				else
 				{
 					ConvertNameToFull(strFullPath, strFullPath);
-					FileAttr=api::GetFileAttributes(strFullPath);
+					FileExists = api::fs::exists(strFullPath);
 				}
 
 //_SVS(SysLog(L"%08X FullPath=%s",FileAttr,FullPath));
-				if ((FileAttr != INVALID_FILE_ATTRIBUTES && !Not) || (FileAttr == INVALID_FILE_ATTRIBUTES && Not))
+				if ((FileExists && !Not) || (!FileExists && Not))
 				{
 					while (*PtrCmd && IsSpace(*PtrCmd))
 						++PtrCmd;

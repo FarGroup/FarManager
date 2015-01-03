@@ -85,7 +85,7 @@ enum DIZUPDATETYPE
 struct default_value;
 struct column;
 
-class Option: NonCopyable
+class Option: noncopyable
 {
 public:
 	explicit Option(const string& Value):m_sValue(new string(Value)), ValueChanged(false){}
@@ -253,7 +253,7 @@ private:
 	bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const wchar_t* Default);
 };
 
-class Options: NonCopyable
+class Options: noncopyable
 {
 	enum farconfig_mode
 	{

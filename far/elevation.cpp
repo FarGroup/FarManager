@@ -379,7 +379,7 @@ intptr_t ElevationApproveDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, voi
 	return Dlg->DefProc(Msg, Param1, Param2);
 }
 
-struct EAData: NonCopyable
+struct EAData: noncopyable
 {
 	std::unique_ptr<Event> pEvent;
 	const string& Object;
@@ -902,7 +902,7 @@ bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus)
 	return Result;
 }
 
-class elevated:NonCopyable
+class elevated:noncopyable
 {
 public:
 	elevated():

@@ -7,7 +7,7 @@ noncopyable.hpp
 Пример использования:
 
 #include "noncopyable.hpp"
-class YourClass:NonCopyable
+class YourClass:noncopyable
 {
 };
 
@@ -39,21 +39,21 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class NonCopyable
+class noncopyable
 {
 #if defined _MSC_VER && _MSC_VER < 1800
 protected:
-	NonCopyable() {};
+	noncopyable() {};
 
 private:
-	NonCopyable(const NonCopyable&);
-	NonCopyable& operator=(const NonCopyable&);
+	noncopyable(const noncopyable&);
+	noncopyable& operator=(const noncopyable&);
 #else
 protected:
-	NonCopyable() = default;
+	noncopyable() = default;
 
 public:
-	NonCopyable(const NonCopyable&) = delete;
-	NonCopyable& operator=(const NonCopyable&) = delete;
+	noncopyable(const noncopyable&) = delete;
+	noncopyable& operator=(const noncopyable&) = delete;
 #endif
 };

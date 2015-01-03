@@ -169,10 +169,9 @@ static unsigned char LowerToUpper[256];
 static unsigned char UpperToLower[256];
 static unsigned char IsUpperOrLower[256];
 
-static void LocalUpperInit()
+static bool LocalUpperInit()
 {
-	static bool Inited = false;
-	if (!Inited)
+	const auto Init = []() -> bool
 	{
 		for (size_t I=0; I<ARRAYSIZE(LowerToUpper); I++)
 		{
@@ -195,8 +194,10 @@ static void LocalUpperInit()
 				UpperToLower[I]=CvtStr[0];
 			}
 		}
-		Inited = true;
-	}
+		return true;
+	};
+	static const auto InitOnce = Init();
+	return InitOnce;
 }
 
 typedef int(*comparer)(const void*, const void*);

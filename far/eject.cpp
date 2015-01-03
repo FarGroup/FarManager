@@ -86,7 +86,7 @@ bool EjectVolume(wchar_t Letter,UINT64 Flags)
 			return false;
 	}
 
-	api::File Disk;
+	api::fs::file Disk;
 	bool Opened = Disk.Open(RootName, dwAccessFlags, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
 	if(!Opened && GetLastError()==ERROR_ACCESS_DENIED)
 	{
@@ -185,7 +185,7 @@ bool IsEjectableMedia(wchar_t Letter)
 	bool Result = false;
 	string name(L"\\\\.\\?:");
 	name[4] = Letter;
-	api::File file;
+	api::fs::file file;
 	if(file.Open(name, 0, FILE_SHARE_WRITE, 0, OPEN_EXISTING))
 	{
 		DISK_GEOMETRY dg;

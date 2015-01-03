@@ -46,7 +46,7 @@ namespace tinyxml
 	class TiXmlDocument;
 }
 
-class XmlConfig: NonCopyable
+class XmlConfig: noncopyable
 {
 public:
 
@@ -64,7 +64,7 @@ public:
 	virtual bool EndTransaction() = 0;
 	virtual bool RollbackTransaction() = 0;
 
-	class scoped_transaction: NonCopyable
+	class scoped_transaction: noncopyable
 	{
 	public:
 		scoped_transaction(Transactional* parent):m_parent(parent) { m_parent->BeginTransaction(); }
@@ -286,7 +286,7 @@ protected:
 	HistoryConfig() {}
 };
 
-class Database: NonCopyable
+class Database: noncopyable
 {
 public:
 	enum mode { default_mode, import_mode, export_mode };

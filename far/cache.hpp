@@ -32,10 +32,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class CachedRead: NonCopyable
+class CachedRead: noncopyable
 {
 public:
-	CachedRead(api::File& file, size_t buffer_size = 0);
+	CachedRead(api::fs::file& file, size_t buffer_size = 0);
 	~CachedRead();
 	void AdjustAlignment(); // file have to be opened already
 	bool Read(void* Data, size_t DataSize, size_t* BytesRead);
@@ -45,7 +45,7 @@ public:
 
 private:
 	enum { DefaultBufferSize = 0x10000 };
-	api::File& file;
+	api::fs::file& file;
 	size_t ReadSize;
 	size_t BytesLeft;
 	INT64 LastPtr;
@@ -54,16 +54,16 @@ private:
 };
 
 
-class CachedWrite: NonCopyable
+class CachedWrite: noncopyable
 {
 public:
-	CachedWrite(api::File& file);
+	CachedWrite(api::fs::file& file);
 	~CachedWrite();
 	bool Write(const void* Data, size_t DataSize);
 	bool Flush();
 
 private:
-	api::File& file;
+	api::fs::file& file;
 	std::vector<char> Buffer;
 	size_t FreeSize;
 	bool Flushed;

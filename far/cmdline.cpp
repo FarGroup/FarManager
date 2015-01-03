@@ -706,7 +706,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 							}
 							case L'N': // $N - Current drive
 							{
-								PATH_TYPE Type = ParsePath(m_CurDir);
+								const auto Type = ParsePath(m_CurDir);
 								if(Type == PATH_DRIVELETTER)
 									strDestStr += ToUpper(m_CurDir[0]);
 								else if(Type == PATH_DRIVELETTERUNC)
@@ -983,7 +983,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		strCmdLine.erase(0, 1);
 	}
 
-	auto IsCommand = [&strCmdLine](const string& cmd, bool bslash)->bool
+	const auto IsCommand = [&strCmdLine](const string& cmd, bool bslash)->bool
 	{
 		size_t n = cmd.size();
 		return (!StrCmpNI(strCmdLine.data(), cmd.data(), n)
@@ -1294,7 +1294,7 @@ bool CommandLine::CheckCmdLineForHelp(const wchar_t *CmdLine)
 		while (IsSpace(*CmdLine))
 			CmdLine++;
 
-		if (*CmdLine && (CmdLine[0] == L'/' || CmdLine[0] == L'-') && CmdLine[1] == L'?')
+		if ((CmdLine[0] == L'/' || CmdLine[0] == L'-') && CmdLine[1] == L'?')
 			return true;
 	}
 
@@ -1318,7 +1318,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 
 	string strExpandedDir = Unquote(api::env::expand_strings(CmdLine));
 
-	if (SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir[0] == L'~' && ((strExpandedDir.size() == 1 && api::GetFileAttributes(strExpandedDir) == INVALID_FILE_ATTRIBUTES) || IsSlash(strExpandedDir[1])))
+	if (SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir[0] == L'~' && ((strExpandedDir.size() == 1 && !api::fs::exists(strExpandedDir)) || IsSlash(strExpandedDir[1])))
 	{
 		if (Global->Opt->Exec.UseHomeDir && !Global->Opt->Exec.strHomeDir.empty())
 		{
@@ -1358,9 +1358,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 		Сначала проверяем есть ли такая "обычная" директория.
 		если уж нет, то тогда начинаем думать, что это директория плагинная
 	*/
-	DWORD DirAtt=api::GetFileAttributes(strExpandedDir);
-
-	if (DirAtt!=INVALID_FILE_ATTRIBUTES && (DirAtt & FILE_ATTRIBUTE_DIRECTORY) && IsAbsolutePath(strExpandedDir))
+	if (api::fs::is_directory(strExpandedDir) && IsAbsolutePath(strExpandedDir))
 	{
 		ReplaceSlashToBSlash(strExpandedDir);
 		SetPanel->SetCurDir(strExpandedDir,true);

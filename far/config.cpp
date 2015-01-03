@@ -949,7 +949,7 @@ static void ResetViewModes(PanelViewSettings* Modes, int Index = -1)
 	};
 	static_assert(ARRAYSIZE(Init) == predefined_panel_modes_count, "not all initial modes defined");
 
-	auto InitMode = [](const panelmode_init& src, PanelViewSettings& dst)
+	const auto InitMode = [](const panelmode_init& src, PanelViewSettings& dst)
 	{
 		dst.PanelColumns.resize(src.Columns.count);
 		std::copy_n(src.Columns.init, src.Columns.count, dst.PanelColumns.begin());
@@ -1077,7 +1077,7 @@ void Options::SetFilePanelModes()
 
 		if (DeleteMode)
 		{
-			auto SwitchToAnotherMode = [&](Panel* p)
+			const auto SwitchToAnotherMode = [&](Panel* p)
 			{
 				auto RealMode = static_cast<int>(DisplayModeToReal(CurMode));
 				if (p->GetViewMode() == RealMode)
@@ -1281,7 +1281,7 @@ struct FARConfigItem
 		int Result = 0;
 		if (!Value->Edit(&Builder, 40, Hex))
 		{
-			static_cast<DialogBuilderBase<DialogItemEx>*>(&Builder)->AddOKCancel(MOk, MReset, MCancel);
+			static_cast<DialogBuilderBase<DialogItemEx>&>(Builder).AddOKCancel(MOk, MReset, MCancel);
 			Result = Builder.ShowDialogEx();
 		}
 		if(Result == 0 || Result == 1)
@@ -1537,7 +1537,7 @@ bool StringOption::StoreValue(GeneralConfig* Storage, const string& KeyName, con
 }
 
 
-class Options::farconfig:NonCopyable
+class Options::farconfig:noncopyable
 {
 public:
 	typedef FARConfigItem* iterator;
@@ -1573,8 +1573,8 @@ public:
 
 	iterator begin() const { return m_items; }
 	iterator end() const { return m_items + m_size; }
-	const_iterator cbegin() const { return m_items; }
-	const_iterator cend() const { return m_items + m_size; }
+	const_iterator cbegin() const { return begin(); }
+	const_iterator cend() const { return end(); }
 	size_t size() const { return m_size; }
 	value_type& operator[](size_t i) const { return m_items[i]; }
 
@@ -2193,7 +2193,7 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 						L"^::\x0416\x0416^$;;\x0436\x0436$@\"\"\x042d\x042d@&??,,\x0431\x0431&/..\x044e\x044e/",
 					};
 
-					auto SetIfEmpty = [](StringOption& opt, const wchar_t* table) { if (opt.empty()) opt = table; };
+					const auto SetIfEmpty = [](StringOption& opt, const wchar_t* table) { if (opt.empty()) opt = table; };
 
 					for_each_2(ALL_RANGE(XLat.Table), Tables, SetIfEmpty);
 					for_each_2(ALL_RANGE(XLat.Rules), Rules, SetIfEmpty);
@@ -2272,7 +2272,7 @@ void Options::Save(bool Manual)
 
 	/* <опеопнжеяяш> *************************************************** */
 
-	auto StorePanelOptions = [](Panel* PanelPtr, PanelOptions& Panel)
+	const auto StorePanelOptions = [](Panel* PanelPtr, PanelOptions& Panel)
 	{
 		if (PanelPtr->GetMode()==NORMAL_PANEL)
 		{
@@ -2495,7 +2495,7 @@ void Options::ReadPanelModes()
 
 	unsigned __int64 root = 0;
 
-	auto ReadMode = [&](REFERENCE(m_ViewSettings) i, size_t Index) -> bool
+	const auto ReadMode = [&](REFERENCE(m_ViewSettings) i, size_t Index) -> bool
 	{
 		unsigned __int64 id = cfg->GetKeyID(root, std::to_wstring(Index));
 
@@ -2555,7 +2555,7 @@ void Options::SavePanelModes(bool always)
 	auto cfg = Global->Db->CreatePanelModeConfig();
 	unsigned __int64 root = 0;
 
-	auto SaveMode = [&](CONST_REFERENCE(ViewSettings) i, size_t Index)
+	const auto SaveMode = [&](CONST_REFERENCE(ViewSettings) i, size_t Index)
 	{
 		string strColumnTitles, strColumnWidths;
 		string strStatusColumnTitles, strStatusColumnWidths;
@@ -2740,7 +2740,7 @@ void SetLeftRightMenuChecks(MenuDataEx *pMenu, bool bLeft)
 
 void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	auto ApplyViewModesNames = [this](MenuDataEx* Menu)
+	const auto ApplyViewModesNames = [this](MenuDataEx* Menu)
 	{
 		for (size_t i = 0; i < predefined_panel_modes_count; ++i)
 		{

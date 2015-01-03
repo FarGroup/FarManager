@@ -708,14 +708,6 @@ private:
 class extendedconsole:public basicconsole
 {
 public:
-	virtual ~extendedconsole()
-	{
-		if(Module)
-		{
-			FreeLibrary(Module);
-		}
-	}
-
 	virtual bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& ReadRegion) const override
 	{
 		bool Result = false;
@@ -820,56 +812,37 @@ private:
 	friend console& Console();
 
 	extendedconsole():
-		Imports(),
-		Module(LoadLibrary(L"extendedconsole.dll")),
-		ImportsPresent(false)
+		Module(L"extendedconsole.dll"),
+		Imports(Module)
 	{
-		if (Module)
-		{
-			#define InitImport(Name) InitImport(Imports.p##Name, #Name)
-
-			InitImport(ReadOutput);
-			InitImport(WriteOutput);
-			InitImport(Commit);
-			InitImport(GetTextAttributes);
-			InitImport(SetTextAttributes);
-			InitImport(ClearExtraRegions);
-			InitImport(GetColorDialog);
-
-			#undef InitImport
-
-			if (!ImportsPresent)
-			{
-				FreeLibrary(Module);
-				Module = nullptr;
-			}
-		}
 	}
+
+	ImportedFunctions::module Module;
 
 	struct ModuleImports
 	{
-		BOOL (WINAPI *pReadOutput)(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT* ReadRegion);
-		BOOL (WINAPI *pWriteOutput)(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT* WriteRegion);
-		BOOL (WINAPI *pCommit)();
-		BOOL (WINAPI *pGetTextAttributes)(FarColor* Attributes);
-		BOOL (WINAPI *pSetTextAttributes)(const FarColor* Attributes);
-		BOOL (WINAPI *pClearExtraRegions)(const FarColor* Color, int Mode);
-		BOOL (WINAPI *pGetColorDialog)(FarColor* Color, BOOL Centered, BOOL AddTransparent);
-	}
-	Imports;
+		ImportedFunctions::function_pointer<BOOL(WINAPI*)(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT* ReadRegion)> pReadOutput;
+		ImportedFunctions::function_pointer<BOOL(WINAPI*)(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT* WriteRegion)> pWriteOutput;
+		ImportedFunctions::function_pointer<BOOL(WINAPI*)()> pCommit;
+		ImportedFunctions::function_pointer<BOOL(WINAPI*)(FarColor* Attributes) > pGetTextAttributes;
+		ImportedFunctions::function_pointer<BOOL(WINAPI*)(const FarColor* Attributes)> pSetTextAttributes;
+		ImportedFunctions::function_pointer<BOOL(WINAPI*)(const FarColor* Color, int Mode)> pClearExtraRegions;
+		ImportedFunctions::function_pointer<BOOL(WINAPI*)(FarColor* Color, BOOL Centered, BOOL AddTransparent)> pGetColorDialog;
 
-	template<typename T>
-	inline void InitImport(T& Address, const char * ProcName)
-	{
-		Address = reinterpret_cast<T>(GetProcAddress(Module, ProcName));
-		if (!ImportsPresent)
+		ModuleImports(const ImportedFunctions::module& Module):
+#define INIT_IMPORT(name) p ## name(Module, #name)
+			INIT_IMPORT(ReadOutput),
+			INIT_IMPORT(WriteOutput),
+			INIT_IMPORT(Commit),
+			INIT_IMPORT(GetTextAttributes),
+			INIT_IMPORT(SetTextAttributes),
+			INIT_IMPORT(ClearExtraRegions),
+			INIT_IMPORT(GetColorDialog)
+#undef INIT_IMPORT
 		{
-			ImportsPresent = Address != nullptr;
 		}
 	}
-
-	HMODULE Module;
-	bool ImportsPresent;
+	Imports;
 };
 
 console& Console()

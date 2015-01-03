@@ -53,7 +53,7 @@ class Dialog;
 struct DialogBuilderListItem2;
 class VMenu2;
 
-class codepages: NonCopyable
+class codepages: noncopyable
 {
 public:
 	~codepages();

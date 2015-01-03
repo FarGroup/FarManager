@@ -59,7 +59,7 @@ struct column: public column_base
 	string title;
 };
 
-struct PanelViewSettings: NonCopyable
+struct PanelViewSettings: noncopyable
 {
 	PanelViewSettings(): Flags() {}
 	PanelViewSettings(PanelViewSettings&& rhs): Flags() { *this = std::move(rhs); }
@@ -215,7 +215,7 @@ private:
 
 };
 
-class DelayDestroy: NonCopyable
+class DelayDestroy: noncopyable
 {
 public:
 	DelayDestroy(DelayedDestroy *host):m_host(host) { m_host->AddRef(); }

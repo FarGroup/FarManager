@@ -128,7 +128,7 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 		LPCWSTR pstPath = stPath.data(), pstCurrentDir = nullptr;
 		bool blIgnore = false;
 		size_t PathDirOffset = 0;
-		PATH_TYPE PathType = ParsePath(stPath, &PathDirOffset);
+		const auto PathType = ParsePath(stPath, &PathDirOffset);
 		pstPath += PathDirOffset;
 		switch (PathType)
 		{
@@ -395,7 +395,7 @@ void ConvertNameToReal(const string& Src, string &strDest)
 void ConvertNameToShort(const string& Src, string &strDest)
 {
 
-	auto GetShortName = [&strDest](const string& str) ->bool
+	const auto GetShortName = [&strDest](const string& str) -> bool
 	{
 		WCHAR Buffer[MAX_PATH];
 		DWORD Size = GetShortPathName(str.data(), Buffer, ARRAYSIZE(Buffer));
@@ -548,7 +548,7 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 				ConvertNameToFull(strPath, strPath);
 
 				size_t DirOffset = 0;
-				PATH_TYPE Type = ParsePath(strPath, &DirOffset);
+				const auto Type = ParsePath(strPath, &DirOffset);
 				if (Type == PATH_UNKNOWN && HasPathPrefix(strPath))
 				{
 					DirOffset = 4;

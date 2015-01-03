@@ -41,7 +41,7 @@ enum CLEAR_REGION
 	CR_BOTH=CR_TOP|CR_RIGHT,
 };
 
-class console: NonCopyable
+class console: noncopyable
 {
 public:
 	virtual ~console(){};

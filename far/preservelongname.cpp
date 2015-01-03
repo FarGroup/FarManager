@@ -56,7 +56,7 @@ PreserveLongName::PreserveLongName(const string& ShortName,int Preserve):
 
 PreserveLongName::~PreserveLongName()
 {
-	if (Preserve && api::GetFileAttributes(strSaveShortName)!=INVALID_FILE_ATTRIBUTES)
+	if (Preserve && api::fs::exists(strSaveShortName))
 	{
 		api::FAR_FIND_DATA FindData;
 

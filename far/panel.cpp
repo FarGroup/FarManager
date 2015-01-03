@@ -94,7 +94,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile);
    Класс для хранения пункта плагина в меню выбора дисков
 */
 
-class ChDiskPluginItem:NonCopyable
+class ChDiskPluginItem:noncopyable
 {
 public:
 	ChDiskPluginItem():

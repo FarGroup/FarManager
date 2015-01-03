@@ -162,7 +162,7 @@ private:
 	string strFileName;
 	string strFullFileName;
 
-	api::File ViewFile;
+	api::fs::file ViewFile;
 	CachedRead Reader;
 
 	api::FAR_FIND_DATA ViewFindData;
@@ -176,7 +176,7 @@ private:
 	int LastSearchDirection;
 	__int64 StartSearchPos;
 
-	struct ViewerModeInternal: ::NonCopyable
+	struct ViewerModeInternal: ::noncopyable
 	{
 		uintptr_t CodePage;
 		int Wrap;

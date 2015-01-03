@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-struct PreRedrawItem: NonCopyable
+struct PreRedrawItem: noncopyable
 {
 	typedef std::function<void()> handler_type;
 
@@ -44,7 +44,7 @@ struct PreRedrawItem: NonCopyable
 	handler_type m_PreRedrawFunc;
 };
 
-class TPreRedrawFunc: NonCopyable
+class TPreRedrawFunc: noncopyable
 {
 public:
 	void push(std::unique_ptr<PreRedrawItem>&& Source){return Items.emplace(std::move(Source));}
@@ -65,7 +65,7 @@ inline TPreRedrawFunc& PreRedrawStack()
 	return pr;
 }
 
-class TPreRedrawFuncGuard: NonCopyable
+class TPreRedrawFuncGuard: noncopyable
 {
 public:
 	TPreRedrawFuncGuard(std::unique_ptr<PreRedrawItem>&& Item)
