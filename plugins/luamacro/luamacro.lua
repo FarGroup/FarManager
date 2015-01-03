@@ -242,7 +242,8 @@ local function MacroStep (handle, ...)
         if status == "suspended" and ret1 == PROPAGATE and ret_type ~= "exit" then
           handle.store[1] = ret_values
           if ret_type==F.MPRT_PLUGINCALL or ret_type==F.MPRT_PLUGINMENU or ret_type==F.MPRT_PLUGINCONFIG or
-             ret_type==F.MPRT_PLUGINCOMMAND or ret_type==F.MPRT_USERMENU or ret_type=="acall" then
+             ret_type==F.MPRT_PLUGINCOMMAND or ret_type==F.MPRT_USERMENU or ret_type=="acall" or
+             ret_type=="eval" then
             return ret_type, ret_values
           else
             return ret_type, handle.store

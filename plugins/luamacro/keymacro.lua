@@ -204,23 +204,6 @@ function KeyMacro.mmode (Action, Value)     -- N=MMode(Action[,Value])
   return result
 end
 
-local function CheckCurMacro()
-  local macro = GetCurMacro()
-  if macro then
-    if not macro:GetHandle() then
-      PushState(false)
-      macro:SetHandle(MacroInit(macro.m_id))
-      PopState(false)
-    end
-    if macro:GetHandle() then
-      return macro
-    else
-      RemoveCurMacro()
-      Import.RestoreMacroChar()
-    end
-  end
-end
-
 local function ACall (macro, param)
   local EntryStackSize = #StateStack
   macro:SetValue(true)
@@ -239,15 +222,40 @@ local function ACall (macro, param)
   end
 end
 
-local function CallStep()
+local function GetInputFromMacro()
+  if utils.LoadingInProgress() then
+    return false
+  end
+
+  local r1,r2
   while true do
-    local macro = CheckCurMacro()
-    if not macro then return end
+    r1,r2 = nil,nil
+    while MacroIsRunning==0 and not GetCurMacro() do
+      if StateStack[1] then
+        PopState(true)
+      else
+        return MPRT_HASNOMACRO
+      end
+    end
+
+    local macro = GetCurMacro()
+    if not macro then break end
+
+    if not macro:GetHandle() then
+      PushState(false)
+      macro:SetHandle(MacroInit(macro.m_id))
+      PopState(false)
+      if not macro:GetHandle() then
+        RemoveCurMacro()
+        Import.RestoreMacroChar()
+        break
+      end
+    end
 
     Import.ScrBufResetLockCount()
 
+    MacroIsRunning = MacroIsRunning + 1
     PushState(false)
-    local r1,r2
     local value, handle = macro:GetValue(), macro:GetHandle()
     if type(value) == "userdata" then
       r1,r2 = MacroStep(handle, far_FarMacroCallToLua(value))
@@ -260,6 +268,7 @@ local function CallStep()
     end
     PopState(false)
     macro:SetValue(nil)
+    MacroIsRunning = MacroIsRunning - 1
 
     if r1 == MPRT_NORMALFINISH or r1 == MPRT_ERRORFINISH then
       if band(macro:GetFlags(),MFLAGS_ENABLEOUTPUT) == 0 then
@@ -273,29 +282,17 @@ local function CallStep()
       if band(macro:GetFlags(),MFLAGS_ENABLEOUTPUT) == 0 then
         Import.ScrBufLock()
       end
-      return r1, r2
+      break
     end
   end
-end
-
-local function GetInputFromMacro()
-  if utils.LoadingInProgress() then
-    return false
-  end
-  if MacroIsRunning==0 and not GetCurMacro() then
-    if StateStack[1] then
-      PopState(true)
-      return false
-    else
-      return MPRT_HASNOMACRO
-    end
-  end
-  MacroIsRunning = MacroIsRunning + 1
-  local r1,r2 = CallStep()
-  MacroIsRunning = MacroIsRunning - 1
 
   if r1 == "acall" then
     ACall(GetCurMacro(), r2)
+    return GetInputFromMacro() -- tail recursion
+  elseif r1 == "eval" then
+    local m = r2[1]
+    PushState(true)
+    KeyMacro.PostNewMacro(m.id, m.flags, m.key, true)
     return GetInputFromMacro() -- tail recursion
   end
 

@@ -409,14 +409,8 @@ function mf.eval (str, mode, lang)
     if not macro then return -2 end
     if not macro.id then return -3 end
 
-    if macro.action then
-      -- setfenv(macro.action, getfenv(2))
-      macro.action()
-      return 0
-    else
-      lang = macro.language or lang
-      str = macro.code
-    end
+    yieldcall("eval", macro)
+    return 0
   end
 
   local chunk, params = Shared.loadmacro(lang, str, getfenv(2))
@@ -429,7 +423,7 @@ function mf.eval (str, mode, lang)
     return 0
   else
     local msg = params
-    if mode==0 or mode==2 then Shared.ErrMsg(msg) end
+    if mode==0 then Shared.ErrMsg(msg) end
     return mode==3 and msg or 11
   end
 end
