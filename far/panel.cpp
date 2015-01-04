@@ -2305,9 +2305,9 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 					dirInfo->Name=(wchar_t*)((char*)Param2+folderOffset);
 					dirInfo->Param=(wchar_t*)((char*)Param2+pluginDataOffset);
 					dirInfo->File=(wchar_t*)((char*)Param2+pluginFileOffset);
-					wmemcpy(const_cast<wchar_t*>(dirInfo->Name),Info.ShortcutFolder.data(), Info.ShortcutFolder.size()+1);
-					wmemcpy(const_cast<wchar_t*>(dirInfo->Param), Info.PluginData.data(), Info.PluginData.size()+1);
-					wmemcpy(const_cast<wchar_t*>(dirInfo->File), Info.PluginFile.data(), Info.PluginFile.size()+1);
+					std::copy_n(Info.ShortcutFolder.data(), Info.ShortcutFolder.size() + 1, const_cast<wchar_t*>(dirInfo->Name));
+					std::copy_n(Info.PluginData.data(), Info.PluginData.size() + 1, const_cast<wchar_t*>(dirInfo->Param));
+					std::copy_n(Info.PluginFile.data(), Info.PluginFile.size() + 1, const_cast<wchar_t*>(dirInfo->File));
 				}
 				Reenter--;
 			}

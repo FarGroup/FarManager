@@ -95,3 +95,12 @@ friend inline void swap(Type& a, Type& b) noexcept { a.swap(b); }
 
 #define SCOPED_ACTION(RAII_type) \
 RAII_type ADD_SUFFIX(scoped_object_, __LINE__)
+
+#ifdef __GNUC__
+#define DO_PRAGMA(x) _Pragma(#x)
+#define PACK_PUSH(n) DO_PRAGMA(pack(n))
+#define PACK_POP() DO_PRAGMA(pack())
+#else
+#define PACK_PUSH(n) __pragma(pack(push, n))
+#define PACK_POP() __pragma(pack(pop))
+#endif

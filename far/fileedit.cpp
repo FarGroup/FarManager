@@ -1647,8 +1647,8 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 			}
 
 			size_t Offset = StrLength > 3 ? StrLength - 3 : 0;
-			const wchar_t *eol;
-			if ((eol=wmemchr(Str+Offset,L'\r',StrLength-Offset)) || (eol=wmemchr(Str+Offset,L'\n',StrLength-Offset)))
+			const auto eol = std::find_if(Str + Offset, Str + StrLength, IsEol);
+			if (eol != Str + StrLength)
 			{
 				m_editor->GlobalEOL = eol;
 				LastLineCR=1;

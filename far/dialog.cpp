@@ -251,7 +251,7 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 					MenuItemEx* item=ListBox->GetItemPtr(ii);
 					listItems[ii].Flags=item->Flags;
 					listItems[ii].Text=text;
-					wmemcpy(text, item->strName.data(), item->strName.size()+1);
+					std::copy_n(item->strName.data(), item->strName.size() + 1, text);
 					text+=item->strName.size()+1;
 					listItems[ii].Reserved[0]=listItems[ii].Reserved[1]=0;
 				}
@@ -262,13 +262,13 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 			}
 			wchar_t* p=(wchar_t*)((char*)(Item->Item)+offsetStrings);
 			Item->Item->Data = p;
-			wmemcpy(p, str.data(), sz+1);
+			std::copy_n(str.data(), sz + 1, p);
 			p+=sz+1;
 			Item->Item->History = p;
-			wmemcpy(p, ItemEx->strHistory.data(), ItemEx->strHistory.size()+1);
+			std::copy_n(ItemEx->strHistory.data(), ItemEx->strHistory.size() + 1, p);
 			p+=ItemEx->strHistory.size()+1;
 			Item->Item->Mask = p;
-			wmemcpy(p, ItemEx->strMask.data(), ItemEx->strMask.size()+1);
+			std::copy_n(ItemEx->strMask.data(), ItemEx->strMask.size() + 1, p);
 		}
 	}
 	return size;
@@ -4934,7 +4934,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 				if (did->PtrData)
 				{
-					wmemmove(did->PtrData,Ptr,Len);
+					std::copy_n(Ptr, Len, did->PtrData);
 					did->PtrData[Len]=L'\0';
 				}
 			};
@@ -5661,7 +5661,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 				if (did->PtrData)
 				{
-					wmemmove(did->PtrData,Ptr,Len);
+					std::copy_n(Ptr, Len, did->PtrData);
 					did->PtrData[Len]=L'\0';
 				}
 			};

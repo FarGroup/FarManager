@@ -75,43 +75,45 @@ static bool SidToNameCached(PSID Sid, string& Name, const string& Computer)
 {
 	bool Result = false;
 
-	class sid_cache
+	class sid: noncopyable
 	{
 	public:
-		typedef block_ptr<SID> sid;
+		sid(PSID rhs)
+		{
+			DWORD Size = GetLengthSid(rhs);
+			m_Data.reset(Size);
+			CopySid(Size, m_Data.get(), rhs);
+		}
+
+		sid(sid&& rhs) { *this = std::move(rhs); }
+
+		MOVE_OPERATOR_BY_SWAP(sid);
+
+		void swap(sid& rhs)
+		{
+			using std::swap;
+			swap(m_Data, rhs.m_Data);
+		}
+
+		bool operator==(const sid& rhs) const
+		{
+			return EqualSid(m_Data.get(), rhs.m_Data.get()) != FALSE;
+		}
+
+		size_t get_hash() const
+		{
+			return CRC32(0, m_Data.get(), GetLengthSid(m_Data.get()));
+		}
 
 	private:
-		struct hash
-		{
-			size_t operator ()(const sid& Sid) const
-			{
-				return CRC32(0, Sid.get(), GetLengthSid(Sid.get()));
-			}
-		};
-
-		struct equal
-		{
-			bool operator ()(const sid& Sid1, const sid& Sid2) const
-			{
-				return EqualSid(Sid1.get(), Sid2.get()) != FALSE;
-			}
-		};
-
-	public:
-		typedef std::unordered_map<sid, string, hash, equal> map;
-
-		static sid make_sid(PSID Sid)
-		{
-			DWORD Size = GetLengthSid(Sid);
-			sid Copy(Size);
-			CopySid(Size, Copy.get(), Sid);
-			return Copy;
-		};
+		block_ptr<SID> m_Data;
 	};
 
-	static sid_cache::map SIDCache;
+	struct sid_hash { size_t operator()(const sid& Sid) const { return Sid.get_hash(); } };
 
-	auto SidCopy = sid_cache::make_sid(Sid);
+	static std::unordered_map<sid, string, sid_hash> SIDCache;
+
+	sid SidCopy(Sid);
 	auto ItemIterator = SIDCache.find(SidCopy);
 
 	if (ItemIterator != SIDCache.cend())

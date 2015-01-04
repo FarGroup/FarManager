@@ -2382,7 +2382,7 @@ static size_t apiPasteFromClipboardEx(bool Type, wchar_t *Data, size_t Size)
 		if(Data && Size)
 		{
 			Size = std::min(Size, str.size() + 1);
-			wmemcpy(Data, str.data(), Size);
+			std::copy_n(str.data(), Size, Data);
 		}
 		return str.size() + 1;
 	}
@@ -2521,7 +2521,7 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 					Result->ErrCode = ErrCode;
 					Result->ErrPos = ErrPos;
 					Result->ErrSrc = (const wchar_t *)((char*)Param2 + stringOffset);
-					wmemcpy(const_cast<wchar_t*>(Result->ErrSrc), ErrSrc.data(), ErrSrc.size() + 1);
+					std::copy_n(ErrSrc.data(), ErrSrc.size() + 1, const_cast<wchar_t*>(Result->ErrSrc));
 				}
 
 				return Size;
@@ -3026,7 +3026,7 @@ size_t WINAPI apiInputRecordToKeyName(const INPUT_RECORD* Key, wchar_t *KeyText,
 		{
 			if (Size <= len)
 				len = Size - 1;
-			wmemcpy(KeyText, strKT.data(), len);
+			std::copy_n(strKT.data(), len, KeyText);
 			KeyText[len] = 0;
 		}
 		else if (KeyText)

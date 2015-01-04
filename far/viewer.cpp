@@ -2681,11 +2681,12 @@ Viewer::SEARCHER_RESULT Viewer::search_hex_forward(search_data* sd)
 	char *ps = buff;
 	while (n1 >= slen)
 	{
-		ps = static_cast<char *>(memchr(ps, search_str[0], n1-slen+1));
-		if (!ps)
+		const auto ps_end = ps + n1 - slen + 1;
+		ps = std::find(ps, ps_end, search_str[0]);
+		if (ps == ps_end)
 			break;
 
-		if ( slen <= 1 || 0 == memcmp(ps+1, search_str+1, slen-1) )
+		if (slen <= 1 || std::equal(ps + 1, ps + slen, search_str + 1))
 		{
 			sd->MatchPos = cpos + static_cast<INT64>(ps - buff);
 			return Search_Found;
@@ -2750,7 +2751,7 @@ Viewer::SEARCHER_RESULT Viewer::search_hex_backward(search_data* sd)
 	{
 		if (*ps == last_char)
 		{
-			if (slen <= 1 || 0 == memcmp(ps-slen+1, search_str, slen-1))
+			if (slen <= 1 || std::equal(ps - slen + 1, ps, search_str))
 			{
 				sd->MatchPos = cpos - nr + n1 - slen;
 				return Search_Found;
@@ -2832,7 +2833,7 @@ Viewer::SEARCHER_RESULT Viewer::search_text_forward(search_data* sd)
 		}
 		if ( buff[i] != search_str[0]
 		 || (slen > 1 && buff[i+1] != search_str[1])
-		 || (slen > 2 && 0 != wmemcmp(buff+i+2, search_str+2, slen-2))
+		 || (slen > 2 && !std::equal(buff + i + 2, buff + i + slen, search_str + 2))
 		) continue;
 
 		sd->MatchPos = cpos + GetStrBytesNum(t_buff, i);
@@ -2915,7 +2916,7 @@ Viewer::SEARCHER_RESULT Viewer::search_text_backward(search_data* sd)
 		}
 		if ( buff[i] != search_str[0]
 		|| (slen > 1 && buff[i+1] != search_str[1])
-		|| (slen > 2 && 0 != wmemcmp(buff+i+2, search_str+2, slen-2))
+		|| (slen > 2 && !std::equal(buff + i + 2, buff + i + slen, search_str + 2))
 		) continue;
 
 		sd->MatchPos = cpos + GetStrBytesNum(t_buff, i);
@@ -3598,7 +3599,7 @@ bool Viewer::vgetc(wchar_t *pCh)
 	{
 		vgetc_cb -= vgetc_ib;
 		if (vgetc_cb && vgetc_ib)
-			memmove(vgetc_buffer, vgetc_buffer+vgetc_ib, vgetc_cb);
+			std::copy_n(vgetc_buffer + vgetc_ib, vgetc_cb, vgetc_buffer);
 		vgetc_ib = 0;
 
 		size_t nr = 0;

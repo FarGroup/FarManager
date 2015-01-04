@@ -152,7 +152,7 @@ BaseFormat& BaseFormat::operator<<(wchar_t Value)
 BaseFormat& BaseFormat::operator<<(LPCWSTR Data)
 {
 	Data = NullToEmpty(Data);
-	return Put(Data, StrLength(Data));
+	return Put(Data, wcslen(Data));
 }
 
 BaseFormat& BaseFormat::operator<<(const string& String)
@@ -224,7 +224,7 @@ BaseFormat& BaseFormat::ToString(T Value)
 	{
 		UpperBuf(Buffer, ARRAYSIZE(Buffer));
 	}
-	return Put(Buffer, StrLength(Buffer));
+	return Put(Buffer, wcslen(Buffer));
 }
 
 

@@ -610,7 +610,7 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 				strFullLink += PtrSelName;
 			else
 			{
-				strFullLink += L"Disk_" + Target[0];
+				strFullLink.append(L"Disk_").append(Target, 0, 1);
 			}
 		}
 

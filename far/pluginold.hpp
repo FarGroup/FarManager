@@ -7,11 +7,7 @@ namespace oldfar
 #pragma warning(disable:6244)
 
 #ifndef _WIN64
-#ifdef __GNUC__
-#pragma pack(2)
-#else
-#pragma pack(push,2)
-#endif
+PACK_PUSH(2)
 #endif
 
 	const int NM=260;
@@ -1761,11 +1757,8 @@ namespace oldfar
 	};
 
 #ifndef _WIN64
-#ifdef __GNUC__
-#pragma pack()
-#else
-#pragma pack(pop)
+PACK_POP()
 #endif
-#endif
+
 #pragma warning(pop)
 }

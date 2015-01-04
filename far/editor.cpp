@@ -285,19 +285,19 @@ int Editor::GetRawData(wchar_t **DestBuf,int& SizeDestBuf,int TextFormat)
 		while (CurPtr)
 		{
 			CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
-			wmemcpy(PDest,SaveStr,Length);
+			std::copy_n(SaveStr, Length, PDest);
 			PDest+=Length;
 
 			size_t LenEndSeq;
 			if (!TextFormat)
 			{
 				LenEndSeq=StrLength(EndSeq);
-				wmemcpy(PDest,EndSeq,LenEndSeq);
+				std::copy_n(EndSeq, LenEndSeq, PDest);
 			}
 			else
 			{
 				LenEndSeq=StrLength(GlobalEOL);
-				wmemcpy(PDest,GlobalEOL,LenEndSeq);
+				std::copy_n(GlobalEOL, LenEndSeq, PDest);
 			}
 
 			PDest+=LenEndSeq;
@@ -4946,7 +4946,7 @@ public:
 			this->m_Str.reset(Length + 1);
 
 			if (this->m_Str)
-				wmemmove(this->m_Str.get(), Str, Length);
+				std::copy_n(Str, Length, this->m_Str.get());
 		}
 		else
 			this->m_Str.reset();
@@ -7596,7 +7596,7 @@ bool Editor::SetCodePage(uintptr_t codepage, bool *BOM)
 			auto first = Lines.begin();
 			if (first->m_StrSize > 0 && first->m_Str[0] == Utf::BOM_CHAR)
 			{
-				wmemmove(first->m_Str, first->m_Str+1, first->m_StrSize); // with trailing L'\0'
+				std::copy_n(first->m_Str + 1, first->m_StrSize, first->m_Str); // with trailing L'\0'
 				--first->m_StrSize;
 				*BOM = true;
 			}

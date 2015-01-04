@@ -731,8 +731,8 @@ int elevation::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 			if(Initialize())
 			{
 				if(SendCommand(C_FUNCTION_MOVETORECYCLEBIN) && Write(FileOpStruct)
-					&& Write(FileOpStruct.pFrom,FileOpStruct.pFrom?(StrLength(FileOpStruct.pFrom)+1+1)*sizeof(WCHAR):0) // achtung! +1
-					&& Write(FileOpStruct.pTo,FileOpStruct.pTo?(StrLength(FileOpStruct.pTo)+1+1)*sizeof(WCHAR):0)) // achtung! +1
+					&& Write(FileOpStruct.pFrom, FileOpStruct.pFrom? (wcslen(FileOpStruct.pFrom) + 1 + 1) * sizeof(wchar_t) : 0) // achtung! +1
+					&& Write(FileOpStruct.pTo, FileOpStruct.pTo? (wcslen(FileOpStruct.pTo) + 1 + 1) * sizeof(wchar_t) : 0)) // achtung! +1
 				{
 					int OpResult = 0;
 					if(Read(OpResult) && Read(FileOpStruct.fAnyOperationsAborted))

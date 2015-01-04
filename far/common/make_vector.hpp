@@ -52,7 +52,8 @@ VTE_GENERATE(MAKE_VECTOR_VTE)
 #undef MAKE_VECTOR_VTE
 
 #else
-template<class T, class... Args> std::vector<typename std::remove_const<typename std::decay<T>::type>::type> make_vector(T&& value, Args&&... args)
+template<class T, class... Args>
+std::vector<typename std::remove_const<typename std::decay<T>::type>::type> make_vector(T&& value, Args&&... args)
 {
 	return std::vector<typename std::remove_const<typename std::decay<T>::type>::type>{std::forward<T>(value), std::forward<Args>(args)...};
 }

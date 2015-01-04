@@ -87,7 +87,7 @@ static wchar_t * InsertCustomQuote(wchar_t *Str,wchar_t QuoteChar)
 
 	if (*Str != QuoteChar)
 	{
-		wmemmove(Str+1,Str,++l);
+		std::copy_n(Str, ++l, Str + 1);
 		*Str=QuoteChar;
 	}
 
@@ -268,8 +268,8 @@ wchar_t* TruncStrFromCenter(wchar_t *Str, int MaxLength)
 			{
 				int Len1 = (MaxLength - DotsLen) / 2;
 				int Len2 = MaxLength - DotsLen - Len1;
-				wmemcpy(Str + Len1, L"...", DotsLen);
-				wmemmove(Str + Len1 + DotsLen, Str + Length - Len2, Len2);
+				std::copy_n(L"...", DotsLen, Str + Len1);
+				std::copy_n(Str + Length - Len2, Len2, Str + Len1 + DotsLen);
 			}
 
 			Str[MaxLength] = 0;
@@ -369,7 +369,7 @@ wchar_t* RemoveLeadingSpaces(wchar_t *Str)
 		;
 
 	if (ChPtr!=Str)
-		wmemmove(Str, ChPtr, wcslen(ChPtr) + 1);
+		std::copy_n(ChPtr, wcslen(ChPtr) + 1, Str);
 
 	return Str;
 }

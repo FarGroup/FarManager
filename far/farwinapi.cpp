@@ -1352,8 +1352,8 @@ HANDLE FindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,LPVOI
 						Handle->NextOffset = StreamInfo->NextEntryOffset;
 						if (StreamInfo->StreamNameLength)
 						{
-							memcpy(pFsd->cStreamName,StreamInfo->StreamName,StreamInfo->StreamNameLength);
-							pFsd->cStreamName[StreamInfo->StreamNameLength/sizeof(WCHAR)]=L'\0';
+							std::copy_n(StreamInfo->StreamName, StreamInfo->StreamNameLength/sizeof(wchar_t), pFsd->cStreamName);
+							pFsd->cStreamName[StreamInfo->StreamNameLength / sizeof(wchar_t)] = L'\0';
 							pFsd->StreamSize=StreamInfo->StreamSize;
 							Ret=Handle;
 						}
@@ -1389,8 +1389,8 @@ BOOL FindNextStream(HANDLE hFindStream,LPVOID lpFindStreamData)
 			Handle->NextOffset = pStreamInfo->NextEntryOffset?Handle->NextOffset+pStreamInfo->NextEntryOffset:0;
 			if (pStreamInfo->StreamNameLength && pStreamInfo->StreamNameLength < sizeof(pFsd->cStreamName))
 			{
-				memcpy(pFsd->cStreamName,pStreamInfo->StreamName,pStreamInfo->StreamNameLength);
-				pFsd->cStreamName[pStreamInfo->StreamNameLength/sizeof(WCHAR)]=L'\0';
+				std::copy_n(pStreamInfo->StreamName, pStreamInfo->StreamNameLength / sizeof(wchar_t), pFsd->cStreamName);
+				pFsd->cStreamName[pStreamInfo->StreamNameLength / sizeof(wchar_t)] = L'\0';
 				pFsd->StreamSize=pStreamInfo->StreamSize;
 				Ret=TRUE;
 			}

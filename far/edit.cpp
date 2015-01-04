@@ -1196,7 +1196,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 			}
 			else
 			{
-				wmemmove(m_Str+m_CurPos,m_Str+m_CurPos+1,m_StrSize-m_CurPos);
+				std::copy_n(m_Str + m_CurPos + 1, m_StrSize - m_CurPos, m_Str + m_CurPos);
 				m_StrSize--;
 				m_Str=(wchar_t *)xf_realloc(m_Str,(m_StrSize+1)*sizeof(wchar_t));
 			}
@@ -1547,7 +1547,7 @@ int Edit::InsertKey(int Key)
 
 			if (!m_Flags.Check(FEDITLINE_OVERTYPE))
 			{
-				wmemmove(m_Str+m_CurPos+1,m_Str+m_CurPos,m_StrSize-m_CurPos);
+				std::copy_n(m_Str + m_CurPos, m_StrSize - m_CurPos, m_Str + m_CurPos + 1);
 
 				if (m_SelStart!=-1)
 				{
@@ -1586,8 +1586,9 @@ int Edit::InsertKey(int Key)
 void Edit::GetString(wchar_t *Str,int MaxSize) const
 {
 	//xwcsncpy(Str, this->Str,MaxSize);
-	wmemmove(Str,m_Str,std::min(m_StrSize,MaxSize-1));
-	Str[std::min(m_StrSize,MaxSize-1)]=0;
+	const auto Size = std::min(m_StrSize, MaxSize - 1);
+	std::copy_n(m_Str, Size, Str);
+	Str[Size] = 0;
 	Str[MaxSize-1]=0;
 }
 
@@ -1739,7 +1740,7 @@ void Edit::SetBinaryString(const wchar_t *Str,int Length)
 
 		m_Str=NewStr;
 		m_StrSize=Length;
-		wmemcpy(m_Str,Str,Length);
+		std::copy_n(Str, Length, m_Str);
 		m_Str[Length]=0;
 
 		if (GetTabExpandMode() == EXPAND_ALLTABS)
@@ -1917,10 +1918,10 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
 			}
 
 			m_Str=NewStr;
-			wmemcpy(m_Str + m_CurPos, Str, Length);
+			std::copy_n(Str, Length, m_Str + m_CurPos);
 			SetPrevCurPos(m_CurPos);
 			m_CurPos+=Length;
-			wmemcpy(m_Str + m_CurPos, TmpStr.data(), TmpStr.size());
+			std::copy_n(TmpStr.data(), TmpStr.size(), m_Str + m_CurPos);
 			m_Str[m_StrSize]=0;
 
 			if (GetTabExpandMode() == EXPAND_ALLTABS)
@@ -2031,15 +2032,14 @@ void Edit::InsertTab()
 
 bool Edit::ReplaceTabs()
 {
-	wchar_t *TabPtr;
-	int Pos=0;
-
 	if (m_Flags.Check(FEDITLINE_READONLY))
 		return false;
 
-	bool changed=false;
+	wchar_t *TabPtr;
+	int Pos = 0;
+	bool changed = false;
 
-	while ((TabPtr = wmemchr(m_Str+Pos, L'\t', m_StrSize-Pos)))
+	while ((TabPtr = std::find(m_Str + Pos, m_Str + m_StrSize, L'\t')) != m_Str + m_StrSize)
 	{
 		changed=true;
 		Pos=(int)(TabPtr-m_Str);
@@ -2303,7 +2303,7 @@ void Edit::DeleteBlock()
 
 		if (To>m_StrSize)To=m_StrSize;
 
-		wmemmove(m_Str+From,m_Str+To,m_StrSize-To+1);
+		std::copy_n(m_Str + To, m_StrSize - To + 1, m_Str + From);
 		m_StrSize-=To-From;
 
 		if (m_CurPos>From)

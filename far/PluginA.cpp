@@ -748,7 +748,7 @@ static char *InsertQuoteA(char *Str)
 
 	if (*Str != '"')
 	{
-		memmove(Str + 1, Str, ++l);
+		std::copy_n(Str, ++l, Str + 1);
 		*Str = '"';
 	}
 
@@ -1962,7 +1962,7 @@ static char* WINAPI RemoveLeadingSpacesA(char *Str) noexcept
 			;
 
 		if (ChPtr != Str)
-			memmove(Str, ChPtr, strlen(ChPtr) + 1);
+			std::copy_n(ChPtr, strlen(ChPtr) + 1, Str);
 
 		return Str;
 	}
@@ -1999,9 +1999,9 @@ static char* WINAPI TruncStrA(char *Str, int MaxLength) noexcept
 		{
 			if (MaxLength > 3)
 			{
-				char *MovePos = Str + Length - MaxLength + 3;
-				memmove(Str + 3, MovePos, strlen(MovePos) + 1);
-				memcpy(Str, "...", 3);
+				const auto MovePos = Str + Length - MaxLength + 3;
+				std::copy_n(MovePos, strlen(MovePos) + 1, Str + 3);
+				std::copy_n("...", 3, Str);
 			}
 
 			Str[MaxLength] = 0;
@@ -2041,9 +2041,9 @@ static char* WINAPI TruncPathStrA(char *Str, int MaxLength) noexcept
 			if (!lpStart || (lpStart - Str > MaxLength - 5))
 				return TruncStrA(Str, MaxLength);
 
-			char *lpInPos = lpStart + 3 + (nLength - MaxLength);
-			memmove(lpStart + 3, lpInPos, strlen(lpInPos) + 1);
-			memcpy(lpStart, "...", 3);
+			const auto lpInPos = lpStart + 3 + (nLength - MaxLength);
+			std::copy_n(lpInPos, strlen(lpInPos) + 1, lpStart + 3);
+			std::copy_n("...", 3, lpStart);
 		}
 		return Str;
 	}
