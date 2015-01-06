@@ -254,6 +254,7 @@ local function GetInputFromMacro()
 
     Import.ScrBufResetLockCount()
 
+    local OldCurState = CurState
     MacroIsRunning = MacroIsRunning + 1
     PushState(false)
     local value, handle = macro:GetValue(), macro:GetHandle()
@@ -274,7 +275,7 @@ local function GetInputFromMacro()
       if band(macro:GetFlags(),MFLAGS_ENABLEOUTPUT) == 0 then
         Import.ScrBufUnlock()
       end
-      RemoveCurMacro()
+      OldCurState:RemoveCurMacro()
       if not GetCurMacro() then
         Import.RestoreMacroChar()
       end
