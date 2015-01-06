@@ -293,7 +293,7 @@ local function GetInputFromMacro()
   elseif r1 == "eval" then
     local m = r2[1]
     PushState(true)
-    KeyMacro.PostNewMacro(m.id, m.flags, m.key, true)
+    KeyMacro.PostNewMacro(m.id, m.flags, r2[2], true)
     return GetInputFromMacro() -- tail recursion
   end
 

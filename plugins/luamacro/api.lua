@@ -409,7 +409,7 @@ function mf.eval (str, mode, lang)
     if not macro then return -2 end
     if not macro.id then return -3 end
 
-    yieldcall("eval", macro)
+    yieldcall("eval", macro, key)
     return 0
   end
 
