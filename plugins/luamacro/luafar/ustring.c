@@ -711,7 +711,7 @@ static int ustring_OutputDebugString(lua_State *L)
 {
 	if (lua_isstring(L, 1))
 		OutputDebugStringW(check_utf8_string(L, 1, NULL));
-  else
+	else
 	{
 		lua_settop(L, 1);
 		lua_getglobal(L, "tostring");
