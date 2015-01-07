@@ -10192,6 +10192,29 @@ nm=win.OemToUtf8
 </article>
 </node>
 <node>
+id=507
+lv=2
+dt=Text
+nm=win.OutputDebugString
+ctime=3629787299
+mtime=3629787570
+<article>
+#_win.OutputDebugString (param)
+#_
+#_**Parameters:**
+#_  param   : string in UTF-8 encoding, or any other type.
+#_            For non-string types, the global function **tostring**
+#_            will be called internally.
+#_
+#_**Returns:**
+#_  nothing
+#_
+#_**Windows API used:**
+#_  OutputDebugStringW
+#_
+</article>
+</node>
+<node>
 id=373
 lv=2
 dt=Text

@@ -707,6 +707,24 @@ const wchar_t* opt_utf16_string(lua_State *L, int pos, const wchar_t *dflt)
 	return s;
 }
 
+static int ustring_OutputDebugString(lua_State *L)
+{
+	if (lua_isstring(L, 1))
+		OutputDebugStringW(check_utf8_string(L, 1, NULL));
+  else
+	{
+		lua_settop(L, 1);
+		lua_getglobal(L, "tostring");
+		if (lua_isfunction(L, -1))
+		{
+			lua_pushvalue(L,  1);
+			if (0==lua_pcall(L, 1, 1, 0) && lua_isstring(L, -1))
+				OutputDebugStringW(check_utf8_string(L, -1, NULL));
+		}
+	}
+	return 0;
+}
+
 const luaL_Reg ustring_funcs[] =
 {
 	{"EnumSystemCodePages", ustring_EnumSystemCodePages},
@@ -719,6 +737,7 @@ const luaL_Reg ustring_funcs[] =
 	{"GlobalMemoryStatus",  ustring_GlobalMemoryStatus},
 	{"MultiByteToWideChar", ustring_MultiByteToWideChar },
 	{"OemToUtf8",           ustring_OemToUtf8},
+	{"OutputDebugString",   ustring_OutputDebugString},
 	{"SHGetFolderPath",     ustring_SHGetFolderPath},
 	{"SearchPath",          ustring_SearchPath},
 	{"SetFileAttr",         ustring_SetFileAttr},
