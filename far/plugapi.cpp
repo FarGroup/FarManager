@@ -747,9 +747,9 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 
 		case ACTL_REDRAWALL:
 		{
-			int Ret = Global->WindowManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
+			Global->WindowManager->RefreshAll();
 			Global->WindowManager->PluginCommit();
-			return Ret;
+			return TRUE;
 		}
 
 		case ACTL_SETPROGRESSSTATE:

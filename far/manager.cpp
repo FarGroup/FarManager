@@ -178,6 +178,14 @@ BOOL Manager::ExitAll()
 	return TRUE;
 }
 
+void Manager::RefreshAll(void)
+{
+	if (!m_windows.empty())
+	{
+		RefreshWindow(m_windows.front());
+	}
+}
+
 void Manager::CloseAll()
 {
 	_MANAGER(CleverSysLog clv(L"Manager::CloseAll()"));
