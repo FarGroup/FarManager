@@ -419,7 +419,7 @@ bool FileFilter::FilterEdit()
 		if (m_FilterType == FFT_PANEL)
 		{
 			GetHostPanel()->Update(UPDATE_KEEP_SELECTION);
-			GetHostPanel()->Redraw();
+			GetHostPanel()->Refresh();
 		}
 	}
 
@@ -737,7 +737,7 @@ bool FileFilter::IsEnabledOnPanel()
 
 	if (std::any_of(CONST_RANGE(FilterData(), i) { return i.GetFlags(FFFT); }))
 		return true;
-	
+
 	if (FoldersFilter->GetFlags(FFFT))
 		return true;
 
