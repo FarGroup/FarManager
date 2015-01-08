@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stddlg.hpp"
 #include "language.hpp"
 #include "FarDlgBuilder.hpp"
+#include "datetime.hpp"
 
 enum DEL_MODE
 {
@@ -236,16 +237,13 @@ static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel, Console
 				BufInit = true;
 			}
 
-			DWORD StartTime=GetTickCount();
+			time_check TimeCheck(time_check::delayed, GetRedrawTimeout());
 			do
 			{
 				size_t Written;
 				WipeFile.Write(Buf.data(), WipeFile.GetChunkSize(), Written);
-				DWORD CurTime=GetTickCount();
-				if (CurTime-StartTime>(DWORD)Global->Opt->RedrawTimeout)
+				if (TimeCheck)
 				{
-					StartTime=CurTime;
-
 					if (CheckForEscSilent() && ConfirmAbortOp())
 					{
 						Cancel=true;
@@ -291,7 +289,7 @@ static int WipeDirectory(const string& Name)
 
 ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 	ReadOnlyDeleteMode(-1),
-	SkipMode(-1),
+	m_SkipMode(-1),
 	SkipWipeMode(-1),
 	SkipFoldersMode(-1),
 	ProcessedItems(0)
@@ -536,7 +534,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		bool Cancel=false;
 		SetCursorType(false, 0);
 		ReadOnlyDeleteMode=-1;
-		SkipMode=-1;
+		m_SkipMode=-1;
 		SkipWipeMode=-1;
 		SkipFoldersMode=-1;
 		ULONG ItemsCount=0;
@@ -545,7 +543,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		if (Global->Opt->DelOpt.ShowTotal)
 		{
 			SrcPanel->GetSelName(nullptr,FileAttr);
-			bool FirstTime=true;
+			auto MessageDelay = getdirinfo_default_delay;
 
 			while (SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName) && !Cancel)
 			{
@@ -555,7 +553,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 					{
 						DirInfoData Data = {};
 
-						if (GetDirInfo(MSG(MDeletingTitle), strSelName, Data, FirstTime? 500 : 0, nullptr, GETDIRINFO_NOREDRAW) > 0)
+						if (GetDirInfo(MSG(MDeletingTitle), strSelName, Data, MessageDelay, nullptr, GETDIRINFO_NOREDRAW) > 0)
 						{
 							ItemsCount+=Data.FileCount+Data.DirCount+1;
 						}
@@ -563,7 +561,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 						{
 							Cancel=true;
 						}
-						FirstTime = false;
+						MessageDelay = getdirinfo_no_delay;
 					}
 					else
 					{
@@ -574,8 +572,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		}
 
 		SrcPanel->GetSelName(nullptr,FileAttr);
-		DWORD StartTime=GetTickCount();
-		bool FirstTime=true;
+		time_check TimeCheck(time_check::delayed, GetRedrawTimeout());
 		bool cannot_recycle_try_delete_folder = false;
 
 		while (!Cancel && (cannot_recycle_try_delete_folder || SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName)))
@@ -583,13 +580,9 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 			if (strSelName.empty() || (strSelName == L"\\") || IsRootPath(strSelName))
 				continue;
 
-			DWORD CurTime=GetTickCount();
 			int TotalPercent = (Global->Opt->DelOpt.ShowTotal && ItemsCount >1)?(ProcessedItems*100/ItemsCount):-1;
-			if (CurTime-StartTime>(DWORD)Global->Opt->RedrawTimeout || FirstTime)
+			if (TimeCheck)
 			{
-				StartTime=CurTime;
-				FirstTime=false;
-
 				if (CheckForEscSilent() && ConfirmAbortOp())
 				{
 					Cancel=true;
@@ -655,16 +648,13 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 					}
 
 					ScTree.SetFindPath(strSelFullName,L"*", 0);
-					DWORD TreeStartTime=GetTickCount();
+					time_check TreeTimeCheck(time_check::delayed, GetRedrawTimeout());
 
 					while (ScTree.GetNextName(&FindData,strFullName))
 					{
-						DWORD TreeCurTime=GetTickCount();
 						int TreeTotalPercent = (Global->Opt->DelOpt.ShowTotal && ItemsCount >1)?(ProcessedItems*100/ItemsCount):-1;
-						if (TreeCurTime - TreeStartTime > (DWORD)Global->Opt->RedrawTimeout)
+						if (TreeTimeCheck)
 						{
-							TreeStartTime = TreeCurTime;
-
 							if (CheckForEscSilent())
 							{
 								int AbortOp = ConfirmAbortOp();
@@ -936,10 +926,10 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int Total
 			if (RemoveToRecycleBin(strFullName, false, ret))
 				break;
 
-			if (SkipMode == -1 && (ret == DELETE_SKIP || ret == DELETE_CANCEL))
+			if (m_SkipMode == -1 && (ret == DELETE_SKIP || ret == DELETE_CANCEL))
 				return ret;
 
-			if (SkipMode == -1 && ret == DELETE_YES)
+			if (m_SkipMode == -1 && ret == DELETE_YES)
 			{
 				recycle_bin = false;
 				if (api::DeleteFile(strFullName))
@@ -947,8 +937,8 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int Total
 			}
 		}
 
-		if (SkipMode != -1)
-			MsgCode = SkipMode;
+		if (m_SkipMode != -1)
+			MsgCode = m_SkipMode;
 		else
 		{
 			Global->CatchError();
@@ -960,7 +950,7 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int Total
 		case 3: case -1: case -2: // [Cancel]
 			return DELETE_CANCEL;
 		case 2:                   // [Skip All]
-			SkipMode = 2;          // fallthrough down
+			m_SkipMode = 2;          // fallthrough down
 		case 1:                   // [Skip]
 			return DELETE_SKIP;
 		} // case 0:              // {Retry}
@@ -1078,7 +1068,7 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 		ret = DELETE_SUCCESS;
 		return true;
 	}
-	if ((dir && SkipFoldersMode != -1) || (!dir && SkipMode != -1))
+	if ((dir && SkipFoldersMode != -1) || (!dir && m_SkipMode != -1))
 	{
 		ret = DELETE_SKIP;
 		return false;
@@ -1104,7 +1094,7 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 			if (dir)
 				SkipFoldersMode = 2;
 			else
-				SkipMode = 2;             // fallthrough down
+				m_SkipMode = 2;             // fallthrough down
 		case 1:                         // [Skip]
 			ret =  DELETE_SKIP;          
 			break;

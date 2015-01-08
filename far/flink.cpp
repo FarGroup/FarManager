@@ -69,7 +69,7 @@ bool FillREPARSE_DATA_BUFFER(PREPARSE_DATA_BUFFER rdb, const string& PrintName, 
 				Buffer.SubstituteNameLength = static_cast<WORD>(SubstituteName.size() * sizeof(wchar_t));
 				Buffer.PrintNameOffset = rdb->MountPointReparseBuffer.SubstituteNameLength + 1 * sizeof(wchar_t);
 				Buffer.PrintNameLength = static_cast<WORD>(PrintName.size() * sizeof(wchar_t));
-				rdb->ReparseDataLength = FIELD_OFFSET(REPARSE_DATA_BUFFER, MountPointReparseBuffer.PathBuffer) + Buffer.PrintNameOffset + Buffer.PrintNameLength + 1 * sizeof(wchar_t) - REPARSE_DATA_BUFFER_HEADER_SIZE;
+				rdb->ReparseDataLength = offsetof(REPARSE_DATA_BUFFER, MountPointReparseBuffer.PathBuffer) + Buffer.PrintNameOffset + Buffer.PrintNameLength + 1 * sizeof(wchar_t) - REPARSE_DATA_BUFFER_HEADER_SIZE;
 
 				if (rdb->ReparseDataLength + REPARSE_DATA_BUFFER_HEADER_SIZE <= static_cast<USHORT>(MAXIMUM_REPARSE_DATA_BUFFER_SIZE / sizeof(wchar_t)))
 				{
@@ -88,7 +88,7 @@ bool FillREPARSE_DATA_BUFFER(PREPARSE_DATA_BUFFER rdb, const string& PrintName, 
 				Buffer.PrintNameLength = static_cast<WORD>(PrintName.size() * sizeof(wchar_t));
 				Buffer.SubstituteNameOffset = rdb->MountPointReparseBuffer.PrintNameLength;
 				Buffer.SubstituteNameLength = static_cast<WORD>(SubstituteName.size() * sizeof(wchar_t));
-				rdb->ReparseDataLength = FIELD_OFFSET(REPARSE_DATA_BUFFER, SymbolicLinkReparseBuffer.PathBuffer) + Buffer.SubstituteNameOffset + Buffer.SubstituteNameLength - REPARSE_DATA_BUFFER_HEADER_SIZE;
+				rdb->ReparseDataLength = offsetof(REPARSE_DATA_BUFFER, SymbolicLinkReparseBuffer.PathBuffer) + Buffer.SubstituteNameOffset + Buffer.SubstituteNameLength - REPARSE_DATA_BUFFER_HEADER_SIZE;
 
 				if (rdb->ReparseDataLength + REPARSE_DATA_BUFFER_HEADER_SIZE <= static_cast<USHORT>(MAXIMUM_REPARSE_DATA_BUFFER_SIZE / sizeof(wchar_t)))
 				{

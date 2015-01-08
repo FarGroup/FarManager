@@ -276,7 +276,7 @@ public:
 	struct MenuItemEx *GetItemPtr(int Position = -1);
 	void SortItems(bool Reverse = false, int Offset = 0);
 	bool Pack();
-	BOOL GetVMenuInfo(struct FarListInfo* Info) const;
+	BOOL GetVMenuInfo(FarListInfo* Info) const;
 	void SetMaxHeight(int NewMaxHeight);
 	size_t GetVDialogItemID() const { return DialogItemID; }
 	void SetVDialogItemID(size_t NewDialogItemID) { DialogItemID = NewDialogItemID; }
@@ -320,7 +320,7 @@ private:
 	static void* _GetUserData(MenuItemEx *PItem,void *Data,size_t Size);
 	bool CheckKeyHiOrAcc(DWORD Key,int Type,int Translate,bool ChangePos,int& NewPos);
 	int CheckHighlights(wchar_t Chr,int StartPos=0);
-	wchar_t GetHighlights(const struct MenuItemEx *_item);
+	wchar_t GetHighlights(const MenuItemEx *_item);
 	bool ShiftItemShowPos(int Pos,int Direct);
 	bool ItemCanHaveFocus(UINT64 Flags) const;
 	bool ItemCanBeEntered(UINT64 Flags) const;

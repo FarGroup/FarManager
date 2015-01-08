@@ -2425,8 +2425,7 @@ bool Database::Import(const string& File)
 
 	if (doc.LoadFile(XmlFile.get()))
 	{
-		auto farconfig = doc.FirstChildElement("farconfig");
-		if (farconfig)
+		if (auto farconfig = doc.FirstChildElement("farconfig"))
 		{
 			const tinyxml::TiXmlHandle root(farconfig);
 

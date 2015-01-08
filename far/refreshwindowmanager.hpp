@@ -45,11 +45,10 @@ public:
 class RefreshWindowManager: noncopyable
 {
 public:
-	RefreshWindowManager(int OScrX,int OScrY, int MsgWaitTime, BOOL DontRedrawWindow=FALSE);
+	RefreshWindowManager(int OScrX,int OScrY, bool Force = false);
 	~RefreshWindowManager();
 
 private:
 	int OScrX,OScrY;
-	long MsgWaitTime;
-	BOOL m_DontRedrawWindow;
+	bool m_Force;
 };

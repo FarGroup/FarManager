@@ -55,7 +55,14 @@ struct DirInfoData
 	DWORD FileCount;
 };
 
-int GetDirInfo(const wchar_t *Title,const string& DirName, DirInfoData& Data, clock_t MsgWaitTime, FileFilter *Filter, DWORD Flags=GETDIRINFO_SCANSYMLINKDEF);
+enum getdirinfo_message_delay
+{
+	getdirinfo_infinite_delay = -1,
+	getdirinfo_no_delay = 0,
+	getdirinfo_default_delay = 500,
+};
+
+int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, getdirinfo_message_delay MessageDelay, FileFilter *Filter, DWORD Flags = GETDIRINFO_SCANSYMLINKDEF);
 
 struct PluginHandle;
 
@@ -63,5 +70,5 @@ int GetPluginDirInfo(PluginHandle* hPlugin,const string& DirName,unsigned long &
                      unsigned long &FileCount,unsigned __int64 &FileSize,
                      unsigned __int64 &CompressedFileSize);
 
-int GetPluginDirList(class Plugin* PluginNumber,HANDLE hPlugin,const string& Dir,struct PluginPanelItem **pPanelItem,size_t *pItemsNumber);
+int GetPluginDirList(class Plugin* PluginNumber,HANDLE hPlugin,const string& Dir, PluginPanelItem **pPanelItem,size_t *pItemsNumber);
 void FreePluginDirList(HANDLE hPlugin, const PluginPanelItem *pPanelItem);

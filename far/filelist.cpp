@@ -4952,6 +4952,7 @@ void FileList::CountDirSize(UINT64 PluginFlags)
 	//Рефреш текущему времени для фильтра перед началом операции
 	m_Filter->UpdateCurrentTime();
 
+	auto MessageDealy = getdirinfo_default_delay;
 	FOR(auto& i, m_ListData)
 	{
 		if (i.Selected && (i.FileAttr & FILE_ATTRIBUTE_DIRECTORY))
@@ -4961,13 +4962,14 @@ void FileList::CountDirSize(UINT64 PluginFlags)
 			        GetPluginDirInfo(m_hPlugin, i.strName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize))
 			        ||
 			        ((m_PanelMode!=PLUGIN_PANEL || (PluginFlags & OPIF_REALNAMES)) &&
-			         GetDirInfo(MSG(MDirInfoViewTitle), i.strName, Data, 0, m_Filter.get(), GETDIRINFO_NOREDRAW|GETDIRINFO_SCANSYMLINKDEF)==1))
+			         GetDirInfo(MSG(MDirInfoViewTitle), i.strName, Data, MessageDealy, m_Filter.get(), GETDIRINFO_NOREDRAW|GETDIRINFO_SCANSYMLINKDEF)==1))
 			{
 				SelFileSize -= i.FileSize;
 				SelFileSize += Data.FileSize;
 				i.FileSize = Data.FileSize;
 				i.AllocationSize = Data.AllocationSize;
 				i.ShowFolderSize=1;
+				MessageDealy = getdirinfo_no_delay;
 			}
 			else
 				break;
@@ -4983,7 +4985,7 @@ void FileList::CountDirSize(UINT64 PluginFlags)
 		        ((m_PanelMode!=PLUGIN_PANEL || (PluginFlags & OPIF_REALNAMES)) &&
 		         GetDirInfo(MSG(MDirInfoViewTitle),
 		                    TestParentFolderName(m_ListData[m_CurFile].strName) ? L".":m_ListData[m_CurFile].strName,
-		                    Data, 0, m_Filter.get(), GETDIRINFO_NOREDRAW|GETDIRINFO_SCANSYMLINKDEF)==1))
+		                    Data, getdirinfo_default_delay, m_Filter.get(), GETDIRINFO_NOREDRAW|GETDIRINFO_SCANSYMLINKDEF)==1))
 		{
 			m_ListData[m_CurFile].FileSize = Data.FileSize;
 			m_ListData[m_CurFile].AllocationSize = Data.AllocationSize;
@@ -6691,7 +6693,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		ContentValues.resize(ContentNames.size());
 	}
 
-	DWORD StartTime = GetTickCount();
+	time_check TimeCheck(time_check::delayed, GetRedrawTimeout());
 
 	std::all_of(CONST_RANGE(Find, fdata) -> bool
 	{
@@ -6757,10 +6759,8 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 			if (!(fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 				TotalFileCount++;
 
-			DWORD CurTime = GetTickCount();
-			if (CurTime - StartTime > (DWORD)Global->Opt->RedrawTimeout)
+			if (TimeCheck)
 			{
-				StartTime = CurTime;
 				if (IsVisible())
 				{
 					if (!IsShowTitle)
@@ -6927,7 +6927,7 @@ bool FileList::UpdateIfChanged(bool Idle)
 	{
 		/* $ 19.12.2001 VVM
 		  ! Сменим приоритеты. При Force обновление всегда! */
-		if (IsVisible() && (clock()-LastUpdateTime>2000))
+		if (IsVisible() && (clock() - LastUpdateTime > 2 * CLOCKS_PER_SEC))
 		{
 			if (Idle) ProcessPluginEvent(FE_IDLE,nullptr);
 

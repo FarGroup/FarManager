@@ -97,7 +97,7 @@ static void PR_DrawGetDirInfoMsg()
 	}
 }
 
-int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, clock_t MsgWaitTime, FileFilter *Filter, DWORD Flags)
+int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, getdirinfo_message_delay MessageDelay, FileFilter *Filter, DWORD Flags)
 {
 	string strFullDirName, strDriveRoot;
 	string strFullName, strCurDirName, strLastDirName;
@@ -105,7 +105,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, c
 	SaveScreen SaveScr;
 	SCOPED_ACTION(UndoGlobalSaveScrPtr)(&SaveScr);
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<DirInfoPreRedrawItem>());
-	SCOPED_ACTION(IndeterminateTaskBar)(MsgWaitTime != -1);
+	SCOPED_ACTION(IndeterminateTaskBar)(MessageDelay != getdirinfo_infinite_delay);
 	SCOPED_ACTION(wakeful);
 	ScanTree ScTree(false, true, (Flags & GETDIRINFO_SCANSYMLINKDEF? (DWORD)-1 : (Flags & GETDIRINFO_SCANSYMLINK)));
 	api::FAR_FIND_DATA FindData;
@@ -126,7 +126,11 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, c
 	}
 
 	ConsoleTitle OldTitle;
-	RefreshWindowManager frref(ScrX,ScrY,MsgWaitTime,Flags&GETDIRINFO_NOREDRAW);
+
+	std::unique_ptr<RefreshWindowManager> frref;
+	if (!(Flags & GETDIRINFO_NOREDRAW))
+		frref = std::make_unique<RefreshWindowManager>(ScrX, ScrY, MessageDelay != getdirinfo_infinite_delay);
+
 	DWORD SectorsPerCluster=0,BytesPerSector=0,FreeClusters=0,Clusters=0;
 
 	if (GetDiskFreeSpace(strDriveRoot.data(),&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters))
@@ -194,10 +198,10 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, c
 
 		clock_t CurTime=clock();
 
-		if (MsgWaitTime!=-1 && CurTime-StartTime > MsgWaitTime)
+		if (MessageDelay != getdirinfo_infinite_delay && CurTime - StartTime > MessageDelay)
 		{
 			StartTime=CurTime;
-			MsgWaitTime=500;
+			MessageDelay = getdirinfo_default_delay;
 			OldTitle << MSG(MScanningFolder) << L" " << ShowDirName << fmt::Flush(); // покажем заголовок консоли
 			SetCursorType(false, 0);
 			DrawGetDirInfoMsg(Title,ShowDirName, Data.FileSize);

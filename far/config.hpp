@@ -84,6 +84,7 @@ enum DIZUPDATETYPE
 
 struct default_value;
 struct column;
+struct FARConfigItem;
 
 class Option: noncopyable
 {
@@ -96,8 +97,8 @@ public:
 	virtual void fromString(const string& value) = 0;
 	virtual const string ExInfo() const = 0;
 	virtual const string typeToString() const = 0;
-	virtual bool IsDefault(const struct FARConfigItem* Holder) const = 0;
-	virtual void SetDefault(const struct FARConfigItem* Holder) = 0;
+	virtual bool IsDefault(const FARConfigItem* Holder) const = 0;
+	virtual void SetDefault(const FARConfigItem* Holder) = 0;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) = 0;
 	virtual void Export(FarSettingsItem& To) const = 0;
 
@@ -136,8 +137,8 @@ public:
 	virtual void fromString(const string& value) override;
 	virtual const string ExInfo() const override { return string(); }
 	virtual const string typeToString() const override { return L"boolean"; }
-	virtual bool IsDefault(const struct FARConfigItem* Holder) const override;
-	virtual void SetDefault(const struct FARConfigItem* Holder) override;
+	virtual bool IsDefault(const FARConfigItem* Holder) const override;
+	virtual void SetDefault(const FARConfigItem* Holder) override;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;
 
@@ -163,8 +164,8 @@ public:
 	virtual void fromString(const string& value) override;
 	virtual const string ExInfo() const override { return string(); }
 	virtual const string typeToString() const override { return L"3-state"; }
-	virtual bool IsDefault(const struct FARConfigItem* Holder) const override;
-	virtual void SetDefault(const struct FARConfigItem* Holder) override;
+	virtual bool IsDefault(const FARConfigItem* Holder) const override;
+	virtual void SetDefault(const FARConfigItem* Holder) override;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;
 
@@ -194,8 +195,8 @@ public:
 	virtual void fromString(const string& value) override;
 	virtual const string ExInfo() const override;
 	virtual const string typeToString() const override { return L"integer"; }
-	virtual bool IsDefault(const struct FARConfigItem* Holder) const override;
-	virtual void SetDefault(const struct FARConfigItem* Holder) override;
+	virtual bool IsDefault(const FARConfigItem* Holder) const override;
+	virtual void SetDefault(const FARConfigItem* Holder) override;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;
 
@@ -230,8 +231,8 @@ public:
 	virtual void fromString(const string& value) override { Set(value); }
 	virtual const string ExInfo() const override { return string(); }
 	virtual const string typeToString() const override { return L"string"; }
-	virtual bool IsDefault(const struct FARConfigItem* Holder) const override;
-	virtual void SetDefault(const struct FARConfigItem* Holder) override;
+	virtual bool IsDefault(const FARConfigItem* Holder) const override;
+	virtual void SetDefault(const FARConfigItem* Holder) override;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;
 
@@ -843,7 +844,7 @@ public:
 	int ElevationMode;
 	int WindowMode;
 
-	const std::vector<struct PanelViewSettings>& ViewSettings;
+	const std::vector<PanelViewSettings>& ViewSettings;
 
 	class farconfig;
 
@@ -877,9 +878,11 @@ private:
 
 	std::vector<farconfig> Config;
 	farconfig_mode CurrentConfig;
-	std::vector<struct PanelViewSettings> m_ViewSettings;
+	std::vector<PanelViewSettings> m_ViewSettings;
 	bool m_ViewSettingsChanged;
 };
 
 string GetFarIniString(const string& AppName, const string& KeyName, const string& Default);
 int GetFarIniInt(const string& AppName, const string& KeyName, int Default);
+
+clock_t GetRedrawTimeout();

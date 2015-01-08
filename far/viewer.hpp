@@ -43,7 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class FileViewer;
 class KeyBar;
 class Dialog;
-
+class time_check;
 
 class Viewer:public SimpleScreenObject
 {
@@ -222,8 +222,7 @@ private:
 
 	uintptr_t DefCodePage;
 
-	int update_check_period;
-	DWORD last_update_check;
+	std::unique_ptr<time_check> m_TimeCheck;
 
 	std::vector<char> vread_buffer;
 

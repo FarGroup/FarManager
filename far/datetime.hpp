@@ -94,3 +94,27 @@ bool Utc2Local(const FILETIME &ft, SYSTEMTIME &lst);
 bool Local2Utc(const FILETIME &lft, SYSTEMTIME &st);
 bool Utc2Local(const SYSTEMTIME &st, FILETIME &lft);
 bool Local2Utc(const SYSTEMTIME &lst, FILETIME &ft);
+
+class time_check: noncopyable
+{
+public:
+	enum time_check_mode { delayed, immediate };
+	time_check(time_check_mode Mode, clock_t Interval): m_Begin(Mode == delayed ? clock() : 0), m_Interval(Interval) {}
+
+	void reset(clock_t Value = clock()) { m_Begin = Value; }
+
+	operator bool()
+	{
+		const auto Current = clock();
+		if (m_Interval > 0 && Current - m_Begin > m_Interval)
+		{
+			reset(Current);
+			return true;
+		}
+		return false;
+	}
+
+private:
+	clock_t m_Begin;
+	clock_t m_Interval;
+};

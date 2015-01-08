@@ -1602,7 +1602,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 
 		UINT64 FileSize=0;
 		EditFile.GetSize(FileSize);
-		DWORD StartTime=GetTickCount();
+		time_check TimeCheck(time_check::delayed, GetRedrawTimeout());
 
 		GetFileString GetStr(EditFile, m_codepage);
 		wchar_t *Str;
@@ -1617,12 +1617,9 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 			}
 			testBOM = false;
 			LastLineCR=0;
-			DWORD CurTime=GetTickCount();
 
-			if (CurTime-StartTime>(DWORD)Global->Opt->RedrawTimeout)
+			if (TimeCheck)
 			{
-				StartTime=CurTime;
-
 				if (CheckForEscSilent())
 				{
 					if (ConfirmAbortOp())
@@ -2039,18 +2036,16 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			}
 		}
 
-		DWORD StartTime=GetTickCount();
+		time_check TimeCheck(time_check::delayed, GetRedrawTimeout());
 		size_t LineNumber = -1;
 		CachedWrite Cache(EditFile);
 
 		FOR_RANGE(m_editor->Lines, CurPtr)
 		{
 			++LineNumber;
-			DWORD CurTime=GetTickCount();
 
-			if (CurTime-StartTime>(DWORD)Global->Opt->RedrawTimeout)
+			if (TimeCheck)
 			{
-				StartTime=CurTime;
 				Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditSaving),Name,(int)(LineNumber*100/m_editor->NumLastLine));
 			}
 

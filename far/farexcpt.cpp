@@ -60,7 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 static const wchar_t* From=0;
-static Plugin *Module=nullptr;     // модуль, приведший к исключению.
+static Plugin *PluginModule = nullptr;     // модуль, приведший к исключению.
 
 extern void CreatePluginStartupInfo(const Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
@@ -151,7 +151,7 @@ static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, LPVOID Adres
 		{DI_TEXT,     5,5, 17,5,0,nullptr,nullptr,0,MSG(MExcModule)},
 		{DI_EDIT,    18,5, 70,5,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,ModuleName.data()},
 		{DI_TEXT,    -1,6, 0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_CENTERGROUP,MSG(Module? MExcUnload : MExcTerminate)},
+		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_CENTERGROUP, MSG(PluginModule? MExcUnload : MExcTerminate)},
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MExcDebugger)},
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MIgnore)},
 	};
@@ -248,23 +248,23 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 				LocalStartupInfo.ModuleName = Global->Opt->strExceptEventSvc.data();
 				static PLUGINRECORD PlugRec;
 
-				if (Module)
+				if (PluginModule)
 				{
 					ClearStruct(PlugRec);
 					PlugRec.TypeRec=RTYPE_PLUGIN;
 					PlugRec.SizeRec=sizeof(PLUGINRECORD);
-					PlugRec.ModuleName=Module->GetModuleName().data();
+					PlugRec.ModuleName = PluginModule->GetModuleName().data();
 				}
 
 				DWORD dummy;
-				Res=p(xp,(Module?&PlugRec:nullptr),&LocalStartupInfo,&dummy);
+				Res = p(xp, (PluginModule? &PlugRec : nullptr), &LocalStartupInfo, &dummy);
 			}
 		}
 	}
 
 	if (Res)
 	{
-		if (!Module)
+		if (!PluginModule)
 		{
 			if (Global)
 				Global->CriticalInternalError=TRUE;
@@ -306,7 +306,7 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 	// получим запись исключения
 	EXCEPTION_RECORD *xr = xp->ExceptionRecord;
 
-	if (!Module)
+	if (!PluginModule)
 	{
 		if (Global)
 		{
@@ -319,7 +319,7 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 	}
 	else
 	{
-		strFileName = Module->GetModuleName();
+		strFileName = PluginModule->GetModuleName();
 	}
 
 	LPCWSTR Exception=nullptr;
@@ -389,7 +389,7 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 		ExcDump(strFileName, Exception, xr->ExceptionAddress);
 	}
 
-	if (ShowMessages && !Module)
+	if (ShowMessages && !PluginModule)
 	{
 		Global->CriticalInternalError=TRUE;
 	}
@@ -413,7 +413,7 @@ bool ProcessSEHException(Plugin *Module, const wchar_t* From, EXCEPTION_POINTERS
 {
 	// dummy parametrs setting
 	::From=From;
-	::Module=Module;
+	::PluginModule = Module;
 
 	return ProcessSEHExceptionImpl(xp);
 }

@@ -3057,10 +3057,12 @@ int Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	if (MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED)
 	{
-		static int EditorPrevDoubleClick=0;
+		static clock_t EditorPrevDoubleClick=0;
 		static COORD EditorPrevPosition={};
 
-		if (GetTickCount()-EditorPrevDoubleClick<=GetDoubleClickTime() && MouseEvent->dwEventFlags!=MOUSE_MOVED &&
+		const auto CurrentTime = clock();
+
+		if (static_cast<unsigned long>((CurrentTime - EditorPrevDoubleClick) / CLOCKS_PER_SEC * 1000) <= GetDoubleClickTime() && MouseEvent->dwEventFlags != MOUSE_MOVED &&
 		        EditorPrevPosition.X == MouseEvent->dwMousePosition.X && EditorPrevPosition.Y == MouseEvent->dwMousePosition.Y)
 		{
 			CurLine->Select(0, CurLine->m_StrSize);
@@ -3085,7 +3087,7 @@ int Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				UnmarkBlock();
 
 			ProcessKey(Manager::Key(KEY_OP_SELWORD));
-			EditorPrevDoubleClick=GetTickCount();
+			EditorPrevDoubleClick = CurrentTime;
 			EditorPrevPosition=MouseEvent->dwMousePosition;
 		}
 		else
@@ -3837,7 +3839,7 @@ BOOL Editor::Search(int Next)
 			ToLower(strSearchStrLower);
 		}
 
-		DWORD StartTime=GetTickCount();
+		time_check TimeCheck(time_check::delayed, GetRedrawTimeout());
 		int StartLine=NumLine;
 		SCOPED_ACTION(IndeterminateTaskBar);
 		SCOPED_ACTION(wakeful);
@@ -3845,12 +3847,8 @@ BOOL Editor::Search(int Next)
 
 		while (CurPtr != Lines.end())
 		{
-			DWORD CurTime=GetTickCount();
-
-			if (CurTime-StartTime>(DWORD)Global->Opt->RedrawTimeout)
+			if (TimeCheck)
 			{
-				StartTime=CurTime;
-
 				if (CheckForEscSilent())
 				{
 					if (ConfirmAbortOp())

@@ -139,8 +139,6 @@ Viewer::Viewer(window_ptr Owner, bool bQuickView, uintptr_t aCodePage):
 	AdjustSelPosition(),
 	m_bQuickView(bQuickView),
 	DefCodePage(aCodePage),
-	update_check_period(),
-	last_update_check(),
 	vread_buffer(std::max(MAX_VIEWLINEB, 8192ll)),
 	lcache_first(-1),
 	lcache_last(-1),
@@ -393,10 +391,10 @@ int Viewer::OpenFile(const string& Name,int warning)
 	AdjustWidth();
 	if (!HostFileViewer) ReadEvent();
 
-	last_update_check = GetTickCount();
 	string strRoot;
 	GetPathRoot(strFullFileName, strRoot);
 	int DriveType = FAR_GetDriveType(strRoot, 2); // media inserted here
+	int update_check_period = -1;
 	switch (DriveType) //??? make it configurable
 	{
 		case DRIVE_REMOVABLE: update_check_period = -1;  break; // floppy: never
@@ -407,6 +405,8 @@ int Viewer::OpenFile(const string& Name,int warning)
 		case DRIVE_RAMDISK:   update_check_period = +1;  break; // ram-drive: 1 msec
 		default:              update_check_period = -1;  break; // unknown: never
 	}
+
+	m_TimeCheck = std::make_unique<time_check>(time_check::delayed, update_check_period);
 
 	return TRUE;
 }
@@ -1410,12 +1410,10 @@ int Viewer::ProcessKey(const Manager::Key& Key)
 			if (Global->Opt->ViewerEditorClock && HostFileViewer && HostFileViewer->IsFullScreen() && Global->Opt->ViOpt.ShowTitleBar)
 				ShowTime(FALSE);
 
-			if (ViewFile.Opened() && update_check_period >= 0)
+			if (ViewFile.Opened())
 			{
-				DWORD now_ticks = GetTickCount();
-				if ((int)(now_ticks - last_update_check) < update_check_period)
+				if (!*m_TimeCheck)
 					return TRUE;
-				last_update_check = now_ticks;
 
 				api::FAR_FIND_DATA NewViewFindData;
 				if (!api::GetFindDataEx(strFullFileName, NewViewFindData))
@@ -3300,7 +3298,7 @@ void Viewer::Search(int Next,int FirstChar)
 		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<ViewerPreRedrawItem>());
 		SetCursorType(false, 0);
 
-		DWORD start_time = GetTickCount();
+		time_check TimeCheck(time_check::delayed, GetRedrawTimeout());
 		for (;;)
 		{
 			SEARCHER_RESULT found = (this->*searcher)(&sd);
@@ -3336,11 +3334,8 @@ void Viewer::Search(int Next,int FirstChar)
 					return;
 			}
 
-			DWORD cur_time = GetTickCount();
-			if ( cur_time - start_time > (DWORD)Global->Opt->RedrawTimeout )
+			if (TimeCheck)
 			{
-				start_time = cur_time;
-
 				if (CheckForEscSilent())
 				{
 					if (ConfirmAbortOp())

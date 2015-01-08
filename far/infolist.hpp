@@ -74,6 +74,6 @@ private:
 	bool OldWrapType;
 	string strDizFileName;
 	struct InfoListSectionState;
-	std::vector<struct InfoListSectionState> SectionState;
+	std::vector<InfoListSectionState> SectionState;
 	listener PowerListener;
 };

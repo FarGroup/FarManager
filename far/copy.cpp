@@ -218,11 +218,10 @@ class CopyProgress
 		bool IsCancelled;
 		FarColor Color;
 		int Percents;
-		DWORD LastWriteTime;
+		time_check TimeCheck;
 		FormatString strSrc,strDst;
 		string strTime;
 		LangString strFiles;
-		bool Timer();
 		void Flush();
 		void DrawNames();
 		void CreateScanBackground();
@@ -238,6 +237,7 @@ class CopyProgress
 
 		// BUGBUG
 		string strTotalCopySizeText;
+		time_check SecurityTimeCheck;
 };
 
 static void GetTimeText(DWORD Time,string &strTimeText)
@@ -250,23 +250,9 @@ static void GetTimeText(DWORD Time,string &strTimeText)
 	strTimeText = FormatString() << fmt::ExactWidth(2) << fmt::FillChar(L'0') << Hour << L":" << fmt::ExactWidth(2) << fmt::FillChar(L'0') << Min << L":" << fmt::ExactWidth(2) << fmt::FillChar(L'0') << Sec;
 }
 
-bool CopyProgress::Timer()
-{
-	bool Result=false;
-	DWORD Time=GetTickCount();
-
-	if (!LastWriteTime||(Time-LastWriteTime>=(DWORD)Global->Opt->RedrawTimeout))
-	{
-		LastWriteTime=Time;
-		Result=true;
-	}
-
-	return Result;
-}
-
 void CopyProgress::Flush()
 {
-	if (Timer())
+	if (TimeCheck)
 	{
 		if (!IsCancelled)
 		{
@@ -296,7 +282,8 @@ CopyProgress::CopyProgress(bool Move,bool Total,bool Time):
 	IsCancelled(false),
 	Color(ColorIndexToColor(COL_DIALOGTEXT)),
 	Percents(0),
-	LastWriteTime(0)
+	TimeCheck(time_check::immediate, GetRedrawTimeout()),
+	SecurityTimeCheck(time_check::immediate, GetRedrawTimeout())
 {
 }
 
@@ -480,7 +467,7 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 
 	if (m_Time&&(!Total||TotalProgress))
 	{
-		DWORD WorkTime=clock()-CopyStartTime;
+		auto WorkTime = clock() - CopyStartTime;
 		UINT64 SizeLeft=(OldTotalSize>OldCompletedSize)?(OldTotalSize-OldCompletedSize):0;
 		long CalcTime=OldCalcTime;
 
@@ -489,8 +476,8 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 			OldCalcTime=CalcTime=WorkTime-WaitUserTime;
 		}
 
-		WorkTime/=1000;
-		CalcTime/=1000;
+		WorkTime /= CLOCKS_PER_SEC;
+		CalcTime /= CLOCKS_PER_SEC;
 
 		if (!WorkTime)
 		{
@@ -3950,18 +3937,14 @@ bool ShellCopy::SetSecurity(const string& FileName, const api::FAR_SECURITY_DESC
 	return true;
 }
 
-BOOL ShellCopySecuryMsg(const CopyProgress* CP, const string& Name)
+BOOL ShellCopySecuryMsg(CopyProgress* CP, const string& Name)
 {
-	static DWORD PrepareSecuryStartTime=0;
-
-	DWORD CurTime=GetTickCount();
-	if (Name.empty() || ((CurTime - PrepareSecuryStartTime) > (DWORD)Global->Opt->RedrawTimeout))
+	if (Name.empty() || CP->SecurityTimeCheck)
 	{
 		static int Width=30;
 		int WidthTemp;
 		if (!Name.empty())
 		{
-			PrepareSecuryStartTime = CurTime;     // Первый файл рисуется всегда
 			WidthTemp=std::max(static_cast<int>(Name.size()),30);
 		}
 		else
@@ -4116,7 +4099,7 @@ bool ShellCopy::CalcTotalSize()
 			{
 				DirInfoData Data = {};
 				CP->SetScanName(strSelName);
-				int __Ret=GetDirInfo(L"",strSelName, Data, -1, Filter, (Flags&FCOPY_COPYSYMLINKCONTENTS?GETDIRINFO_SCANSYMLINK:0)|(UseFilter?GETDIRINFO_USEFILTER:0));
+				int __Ret = GetDirInfo(L"", strSelName, Data, getdirinfo_infinite_delay, Filter, (Flags&FCOPY_COPYSYMLINKCONTENTS? GETDIRINFO_SCANSYMLINK : 0) | (UseFilter? GETDIRINFO_USEFILTER : 0));
 				FileSize = Data.FileSize;
 				if (__Ret <= 0)
 				{

@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "notification.hpp"
 #include "language.hpp"
+#include "datetime.hpp"
 
 /* start Глобальные переменные */
 
@@ -2288,11 +2289,11 @@ DWORD CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros, bool Pro
 		return KEY_IDLE;
 	}
 
-	static DWORD Time=0;
+	static time_check TimeCheck(time_check::delayed, 50);
 
 	if (!AltValue)
 	{
-		Time=GetTickCount();
+		TimeCheck.reset();
 	}
 
 	if (!rec->Event.KeyEvent.bKeyDown)
@@ -2333,7 +2334,7 @@ DWORD CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros, bool Pro
 				// BUGBUG: в Windows 7 Event.KeyEvent.uChar.UnicodeChar _всегда_ заполнен, но далеко не всегда тем, чем надо.
 				// условно считаем, что если интервал между нажатиями не превышает 50 мс, то это сгенерированная при D&D или вставке комбинация,
 				// иначе - ручной ввод.
-				if (GetTickCount()-Time<50)
+				if (!TimeCheck)
 				{
 					AltValue=rec->Event.KeyEvent.uChar.UnicodeChar;
 				}

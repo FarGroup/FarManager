@@ -184,7 +184,7 @@ private:
 	void LoadPluginsFromCache();
 
 	std::vector<std::unique_ptr<GenericPluginModel>> PluginModels;
-	std::unordered_map<GUID, std::unique_ptr<Plugin>, uuid_hash, uuid_equal> Plugins;
+	std::unordered_map<GUID, std::unique_ptr<Plugin>, uuid_hash, uuid_equal> m_Plugins;
 	plugins_set SortedPlugins;
 	std::list<Plugin*> UnloadedPlugins;
 #ifndef NO_WRAPPER

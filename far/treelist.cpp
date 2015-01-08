@@ -771,7 +771,7 @@ static int MsgReadTree(size_t TreeCount, int FirstCall)
 		LastScrY = ScrY;
 	}
 
-	if (IsChangeConsole || (clock() - TreeStartTime) > 1000)
+	if (IsChangeConsole || (clock() - TreeStartTime) > CLOCKS_PER_SEC)
 	{
 		Message((FirstCall? 0 : MSG_KEEPBACKGROUND), 0, MSG(MTreeTitle), MSG(MReadingTree), std::to_wstring(TreeCount).data());
 		if (!PreRedrawStack().empty())
@@ -926,7 +926,7 @@ int TreeList::ReadTree()
 	//Redraw();
 	int FirstCall=TRUE, AscAbort=FALSE;
 	TreeStartTime = clock();
-	RefreshWindowManager frref(ScrX,ScrY,TreeStartTime,FALSE);
+	RefreshWindowManager frref(ScrX,ScrY);
 	ScTree.SetFindPath(m_Root, L"*", 0);
 	LastScrX = ScrX;
 	LastScrY = ScrY;

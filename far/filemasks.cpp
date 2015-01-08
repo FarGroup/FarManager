@@ -257,8 +257,8 @@ void filemasks::clear()
 
 bool filemasks::Compare(const string& FileName) const
 {
-	return std::find(Include.cbegin(), Include.cend(), FileName) != Include.cend() &&
-	       std::find(Exclude.cbegin(), Exclude.cend(), FileName) == Exclude.cend();
+	return std::find(ALL_CONST_RANGE(Include), FileName) != Include.cend() &&
+	       std::find(ALL_CONST_RANGE(Exclude), FileName) == Exclude.cend();
 }
 
 bool filemasks::empty() const

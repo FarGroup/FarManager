@@ -75,7 +75,7 @@ void ShowProcessList()
 	ProcList->SetPosition(-1,-1,0,0);
 	static bool bShowImage = false;
 
-	struct ProcInfo pi = {ProcList.get(), bShowImage};
+	ProcInfo pi = {ProcList.get(), bShowImage};
 
 	if (EnumWindows(EnumWindowsProc,(LPARAM)&pi))
 	{
@@ -218,8 +218,8 @@ BOOL KillProcess(DWORD dwPID)
 
 BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 {
-	struct ProcInfo *pi=(struct ProcInfo *)lParam;
-	VMenu2 *ProcList=pi->procList;
+	auto pi = reinterpret_cast<ProcInfo*>(lParam);
+	auto ProcList=pi->procList;
 
 	if (IsWindowVisible(hwnd) || (IsIconic(hwnd) && !(GetWindowLongPtr(hwnd,GWL_STYLE) & WS_DISABLED)))
 	{

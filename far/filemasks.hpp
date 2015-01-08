@@ -38,8 +38,6 @@ enum FM_FLAGS
 	FMF_SILENT = 1,
 };
 
-class RegExp;
-
 class filemasks: noncopyable
 {
 public:
@@ -57,9 +55,9 @@ public:
 
 	static void ErrorMessage();
 
+private:
 	class masks;
 
-private:
 	void clear();
 
 	std::list<masks> Include, Exclude;

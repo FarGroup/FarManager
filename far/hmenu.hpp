@@ -71,7 +71,7 @@ private:
 
 	void ShowMenu();
 	void ProcessSubMenu(const MenuDataEx *Data, int DataCount, const wchar_t *SubMenuHelp, int X, int Y, int &Position);
-	wchar_t GetHighlights(const struct HMenuData *_item);
+	wchar_t GetHighlights(const HMenuData *_item);
 	size_t CheckHighlights(WORD CheckSymbol, int StartPos = 0);
 	bool TestMouse(const MOUSE_EVENT_RECORD *MouseEvent) const;
 

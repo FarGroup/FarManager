@@ -38,6 +38,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define _HAS_EXCEPTIONS 0
 #endif
 
+// BUGBUG, temporary
+#if defined _MSC_VER && _MSC_VER >= 1900
+#pragma warning(push)
+#pragma warning(disable: 4091 4265) // warnings in std headers, so awesome
+#endif
+
 #include <array>
 #include <algorithm>
 #include <bitset>
@@ -112,10 +118,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define NOMINMAX
 #endif
 
-#if defined(_MSC_VER) && _MSC_VER >= 1900
-#pragma warning( disable: 5024 5025 5026 5027)
-#endif
-
 #ifdef __clang__
 // test only
 #define try if(true)
@@ -168,6 +170,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #  include <ntdef.h>
 # endif
 #endif // __GNUC__
+
+// BUGBUG, temporary
+#if defined _MSC_VER && _MSC_VER >= 1900
+#pragma warning(pop)
+#pragma warning(disable: 4201 5024 5025 5026 5027)
+#endif
 
 #include "SDK/sdk.common.h"
 

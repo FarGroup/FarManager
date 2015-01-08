@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "synchro.hpp"
+#include "datetime.hpp"
 
 enum FINDAREA
 {
@@ -129,4 +130,5 @@ private:
 	CriticalSection PluginCS;
 	Event PauseEvent;
 	Event StopEvent;
+	time_check m_TimeCheck;
 };

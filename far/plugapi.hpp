@@ -83,9 +83,9 @@ namespace pluginapi
 	size_t   WINAPI apiGetPathRoot(const wchar_t *Path, wchar_t *Root, size_t DestSize) noexcept;
 	BOOL     WINAPI apiCopyToClipboard(enum FARCLIPBOARD_TYPE Type, const wchar_t *Data) noexcept;
 	size_t   WINAPI apiPasteFromClipboard(enum FARCLIPBOARD_TYPE Type, wchar_t *Data, size_t Length) noexcept;
-	intptr_t WINAPI apiGetPluginDirList(const GUID* PluginId, HANDLE hPlugin, const wchar_t *Dir, struct PluginPanelItem **pPanelItem, size_t *pItemsNumber) noexcept;
+	intptr_t WINAPI apiGetPluginDirList(const GUID* PluginId, HANDLE hPlugin, const wchar_t *Dir, PluginPanelItem **pPanelItem, size_t *pItemsNumber) noexcept;
 	void     WINAPI apiFreePluginDirList(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber) noexcept;
-	intptr_t WINAPI apiMenuFn(const GUID* PluginId, const GUID* Id, intptr_t X, intptr_t Y, intptr_t MaxHeight, unsigned __int64 Flags, const wchar_t *Title, const wchar_t *Bottom, const wchar_t *HelpTopic, const FarKey *BreakKeys, intptr_t *BreakCode, const struct FarMenuItem *Item, size_t ItemsNumber) noexcept;
+	intptr_t WINAPI apiMenuFn(const GUID* PluginId, const GUID* Id, intptr_t X, intptr_t Y, intptr_t MaxHeight, unsigned __int64 Flags, const wchar_t *Title, const wchar_t *Bottom, const wchar_t *HelpTopic, const FarKey *BreakKeys, intptr_t *BreakCode, const FarMenuItem *Item, size_t ItemsNumber) noexcept;
 	LPCWSTR  WINAPI apiGetMsgFn(const GUID* PluginId, intptr_t MsgId) noexcept;
 	intptr_t WINAPI apiMessageFn(const GUID* PluginId, const GUID* Id, unsigned __int64 Flags, const wchar_t *HelpTopic, const wchar_t * const *Items, size_t ItemsNumber, intptr_t ButtonsNumber) noexcept;
 	intptr_t WINAPI apiPanelControl(HANDLE hPlugin, FILE_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept;
@@ -101,7 +101,7 @@ namespace pluginapi
 	BOOL     WINAPI apiShowHelp(const wchar_t *ModuleName, const wchar_t *HelpTopic, FARHELPFLAGS Flags) noexcept;
 	intptr_t WINAPI apiInputBox(const GUID* PluginId, const GUID* Id, const wchar_t *Title, const wchar_t *Prompt, const wchar_t *HistoryName, const wchar_t *SrcText, wchar_t *DestText, size_t DestSize, const wchar_t *HelpTopic, unsigned __int64 Flags) noexcept;
 	intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept;
-	HANDLE   WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, intptr_t Y1, intptr_t X2, intptr_t Y2, const wchar_t *HelpTopic, const struct FarDialogItem *Item, size_t ItemsNumber, intptr_t Reserved, unsigned __int64 Flags, FARWINDOWPROC Proc, void* Param) noexcept;
+	HANDLE   WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, intptr_t Y1, intptr_t X2, intptr_t Y2, const wchar_t *HelpTopic, const FarDialogItem *Item, size_t ItemsNumber, intptr_t Reserved, unsigned __int64 Flags, FARWINDOWPROC Proc, void* Param) noexcept;
 	intptr_t WINAPI apiDialogRun(HANDLE hDlg) noexcept;
 	void     WINAPI apiDialogFree(HANDLE hDlg) noexcept;
 	intptr_t WINAPI apiDefDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2) noexcept;
@@ -116,7 +116,7 @@ namespace pluginapi
 	void     WINAPI apiRecursiveSearch(const wchar_t *initdir, const wchar_t *mask, FRSUSERFUNC func, unsigned __int64 flags, void *param) noexcept;
 	size_t   WINAPI apiMkTemp(wchar_t *Dest, size_t size, const wchar_t *Prefix) noexcept;
 	size_t   WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size, PROCESSNAME_FLAGS flags) noexcept;
-	BOOL     WINAPI apiColorDialog(const GUID* PluginId, COLORDIALOGFLAGS Flags, struct FarColor *Color) noexcept;
+	BOOL     WINAPI apiColorDialog(const GUID* PluginId, COLORDIALOGFLAGS Flags, FarColor *Color) noexcept;
 	size_t   WINAPI apiInputRecordToKeyName(const INPUT_RECORD* Key, wchar_t *KeyText, size_t Size) noexcept;
 	BOOL     WINAPI apiKeyNameToInputRecord(const wchar_t *Name, INPUT_RECORD* RecKey) noexcept;
 	BOOL     WINAPI apiMkLink(const wchar_t *Target, const wchar_t *LinkName, LINK_TYPE Type, MKLINK_FLAGS Flags) noexcept;

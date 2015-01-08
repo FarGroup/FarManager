@@ -909,7 +909,7 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 	bool OldDirectoriesFirst=Current->GetPrevDirectoriesFirst();
 	bool LeftPosition=(Current==LeftPanel);
 
-	Panel *(&LastFilePanel)=LeftPosition ? LastLeftFilePanel:LastRightFilePanel;
+	auto& LastFilePanel = LeftPosition? LastLeftFilePanel : LastRightFilePanel;
 	Current->GetPosition(X1,Y1,X2,Y2);
 	int ChangePosition=((OldType==FILE_PANEL && NewType!=FILE_PANEL &&
 	                    OldFullScreen) || (NewType==FILE_PANEL &&

@@ -52,19 +52,16 @@ UndoGlobalSaveScrPtr::~UndoGlobalSaveScrPtr()
 }
 
 
-RefreshWindowManager::RefreshWindowManager(int OScrX,int OScrY, int MsgWaitTime, BOOL DontRedrawWindow):
+RefreshWindowManager::RefreshWindowManager(int OScrX, int OScrY, bool Force):
 	OScrX(OScrX),
 	OScrY(OScrY),
-	MsgWaitTime(MsgWaitTime),
-	m_DontRedrawWindow(DontRedrawWindow)
+	m_Force(Force)
 {
 }
 
 RefreshWindowManager::~RefreshWindowManager()
 {
-	if (m_DontRedrawWindow || !Global->WindowManager->ManagerStarted())
-		return;
-	else if (OScrX != ScrX || OScrY != ScrY || MsgWaitTime!=-1)
+	if ((OScrX != ScrX || OScrY != ScrY || m_Force) && Global->WindowManager->ManagerStarted())
 	{
 		LockScreen LckScr;
 		Global->WindowManager->ResizeAllWindows();

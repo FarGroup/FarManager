@@ -247,7 +247,7 @@ public:
 	virtual void EditFilter() {}
 	virtual bool FileInFilter(size_t idxItem) {return true;}
 	virtual bool FilterIsEnabled() {return false;}
-	virtual void ReadDiz(struct PluginPanelItem *ItemList=nullptr,int ItemLength=0, DWORD dwFlags=0) {}
+	virtual void ReadDiz(PluginPanelItem *ItemList=nullptr,int ItemLength=0, DWORD dwFlags=0) {}
 	virtual void DeleteDiz(const string& Name,const string& ShortName) {}
 	virtual void GetDizName(string &strDizName) const {}
 	virtual void FlushDiz() {}
@@ -257,7 +257,7 @@ public:
 	virtual int GetColumnsCount() const { return 1;}
 	virtual void SetReturnCurrentFile(int Mode) {}
 	virtual void QViewDelTempName() {}
-	virtual void GetOpenPanelInfo(struct OpenPanelInfo *Info) const {}
+	virtual void GetOpenPanelInfo(OpenPanelInfo *Info) const {}
 	virtual void SetPluginMode(PluginHandle* hPlugin,const string& PluginFile,bool SendOnFocus=false) {}
 	virtual void SetPluginModified() {}
 	virtual int ProcessPluginEvent(int Event,void *Param) {return FALSE;}

@@ -506,7 +506,7 @@ bool FindFiles::IsWordDiv(const wchar_t symbol)
 }
 
 #if defined(MANTIS_0002207)
-static intptr_t GetUserDataFromPluginItem(const wchar_t *Name, const struct PluginPanelItem * const* PanelData,size_t ItemCount)
+static intptr_t GetUserDataFromPluginItem(const wchar_t *Name, const PluginPanelItem * const* PanelData,size_t ItemCount)
 {
 	intptr_t UserData=0;
 
@@ -1373,12 +1373,9 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 	if(!Finalized && !Recurse)
 	{
-		static DWORD ShowTime=0;
 		Recurse=true;
-		DWORD Time=GetTickCount();
-		if(Time-ShowTime>(DWORD)Global->Opt->RedrawTimeout)
+		if (m_TimeCheck)
 		{
-			ShowTime=Time;
 			if (!StopEvent.Signaled())
 			{
 				LangString strDataStr(MFindFound);
@@ -2994,7 +2991,8 @@ FindFiles::FindFiles():
 	FindExitItem(),
 	FileMaskForFindFile(std::make_unique<filemasks>()),
 	Filter(std::make_unique<FileFilter>(Global->CtrlObject->Cp()->ActivePanel(), FFT_FINDFILE)),
-	itd(std::make_unique<InterThreadData>())
+	itd(std::make_unique<InterThreadData>()),
+	m_TimeCheck(time_check::immediate, GetRedrawTimeout())
 {
 
 	PauseEvent.Open(true, true);

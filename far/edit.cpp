@@ -1956,10 +1956,12 @@ int Edit::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	if (MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED)
 	{
-		static int PrevDoubleClick=0;
+		static clock_t PrevDoubleClick = 0;
 		static COORD PrevPosition={};
 
-		if (GetTickCount()-PrevDoubleClick<=GetDoubleClickTime() && MouseEvent->dwEventFlags!=MOUSE_MOVED &&
+		const auto CurrentTime = clock();
+
+		if (static_cast<unsigned long>((CurrentTime - PrevDoubleClick) / CLOCKS_PER_SEC * 1000) <= GetDoubleClickTime() && MouseEvent->dwEventFlags != MOUSE_MOVED &&
 		        PrevPosition.X == MouseEvent->dwMousePosition.X && PrevPosition.Y == MouseEvent->dwMousePosition.Y)
 		{
 			Select(0,m_StrSize);
@@ -1971,7 +1973,7 @@ int Edit::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		if (MouseEvent->dwEventFlags==DOUBLE_CLICK)
 		{
 			ProcessKey(Manager::Key(KEY_OP_SELWORD));
-			PrevDoubleClick=GetTickCount();
+			PrevDoubleClick = CurrentTime;
 			PrevPosition=MouseEvent->dwMousePosition;
 		}
 		else

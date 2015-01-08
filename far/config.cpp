@@ -3249,3 +3249,8 @@ int GetFarIniInt(const string& AppName, const string& KeyName, int Default)
 {
 	return GetPrivateProfileInt(AppName.data(), KeyName.data(), Default, Global->g_strFarINI.data());
 }
+
+clock_t GetRedrawTimeout()
+{
+	return Global->Opt->RedrawTimeout * CLOCKS_PER_SEC / 1000;
+}

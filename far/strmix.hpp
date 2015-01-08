@@ -136,7 +136,7 @@ string GuidToStr(const GUID& Guid);
 bool StrToGuid(const wchar_t* Value,GUID& Guid);
 inline bool StrToGuid(const string& Value, GUID& Guid) { return StrToGuid(Value.data(), Guid); }
 
-bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const string &UpperStr, const string &LowerStr, class RegExp &re, struct RegExpMatch *pm, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength,const wchar_t* WordDiv=nullptr);
+bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const string &UpperStr, const string &LowerStr, class RegExp &re, RegExpMatch *pm, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength,const wchar_t* WordDiv=nullptr);
 
 inline int StrCmp(const string& a, const string& b) { return ::StrCmp(a.data(), b.data()); }
 inline int StrCmpI(const string& a, const string& b) { return ::StrCmpI(a.data(), b.data()); }

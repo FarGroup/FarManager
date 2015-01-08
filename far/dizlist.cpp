@@ -120,7 +120,7 @@ void DizList::Read(const string& Path, const string* DizName)
 			string DizText;
 			while (GetStr.GetString(DizText))
 			{
-				if (!(DizData.size() & 127) && clock()-StartTime>1000)
+				if (!(DizData.size() & 127) && clock() - StartTime > CLOCKS_PER_SEC)
 				{
 					SetCursorType(false, 0);
 					PR_ReadingMsg();

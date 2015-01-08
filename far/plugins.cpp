@@ -152,12 +152,12 @@ PluginManager::~PluginManager()
 
 	// some plugins might still have dialogs (if DialogFree wasn't called)
 	// better to delete them explicitly while manager is still alive
-	Plugins.clear();
+	m_Plugins.clear();
 }
 
 bool PluginManager::AddPlugin(Plugin *pPlugin)
 {
-	auto Result = Plugins.emplace(VALUE_TYPE(Plugins)(pPlugin->GetGUID(), VALUE_TYPE(Plugins)::second_type()));
+	auto Result = m_Plugins.emplace(VALUE_TYPE(m_Plugins)(pPlugin->GetGUID(), VALUE_TYPE(m_Plugins)::second_type()));
 	if (!Result.second)
 	{
 		return false;
@@ -176,12 +176,12 @@ bool PluginManager::AddPlugin(Plugin *pPlugin)
 
 bool PluginManager::UpdateId(Plugin *pPlugin, const GUID& Id)
 {
-	auto Iterator = Plugins.find(pPlugin->GetGUID());
+	auto Iterator = m_Plugins.find(pPlugin->GetGUID());
 	// important, do not delete Plugin instance
 	Iterator->second.release();
-	Plugins.erase(Iterator);
+	m_Plugins.erase(Iterator);
 	pPlugin->SetGuid(Id);
-	auto Result = Plugins.emplace(VALUE_TYPE(Plugins)(pPlugin->GetGUID(), VALUE_TYPE(Plugins)::second_type()));
+	auto Result = m_Plugins.emplace(VALUE_TYPE(m_Plugins)(pPlugin->GetGUID(), VALUE_TYPE(m_Plugins)::second_type()));
 	if (!Result.second)
 	{
 		return false;
@@ -199,7 +199,7 @@ bool PluginManager::RemovePlugin(Plugin *pPlugin)
 	}
 #endif // NO_WRAPPER
 	SortedPlugins.erase(std::find(SortedPlugins.begin(), SortedPlugins.end(), pPlugin));
-	Plugins.erase(pPlugin->GetGUID());
+	m_Plugins.erase(pPlugin->GetGUID());
 	return true;
 }
 
@@ -2345,8 +2345,8 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
 
 Plugin *PluginManager::FindPlugin(const GUID& SysID) const
 {
-	auto Iterator = Plugins.find(SysID);
-	return Iterator == Plugins.cend()? nullptr : Iterator->second.get();
+	auto Iterator = m_Plugins.find(SysID);
+	return Iterator == m_Plugins.cend()? nullptr : Iterator->second.get();
 }
 
 PluginHandle* PluginManager::Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,intptr_t Item)

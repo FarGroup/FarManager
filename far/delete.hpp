@@ -48,7 +48,7 @@ private:
 	bool RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& ret);
 
 	int ReadOnlyDeleteMode;
-	int SkipMode;
+	int m_SkipMode;
 	int SkipWipeMode;
 	int SkipFoldersMode;
 	unsigned ProcessedItems;

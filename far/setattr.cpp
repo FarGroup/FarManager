@@ -1416,8 +1416,8 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					SCOPED_ACTION(IndeterminateTaskBar);
 					SCOPED_ACTION(wakeful);
 					bool Cancel=false;
-					DWORD LastTime=0;
 
+					time_check TimeCheck(time_check::immediate, GetRedrawTimeout());
 					bool SingleFileDone=false;
 					while ((SrcPanel?SrcPanel->GetSelName(&strSelName,FileAttr,nullptr,&FindData):!SingleFileDone) && !Cancel)
 					{
@@ -1427,11 +1427,9 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						}
 		//_SVS(SysLog(L"SelName='%s'\n\tFileAttr =0x%08X\n\tSetAttr  =0x%08X\n\tClearAttr=0x%08X\n\tResult   =0x%08X",
 		//    SelName,FileAttr,SetAttr,ClearAttr,((FileAttr|SetAttr)&(~ClearAttr))));
-						DWORD CurTime=GetTickCount();
 
-						if (CurTime-LastTime>(DWORD)Global->Opt->RedrawTimeout)
+						if (TimeCheck)
 						{
-							LastTime=CurTime;
 							ShellSetFileAttributesMsg(strSelName);
 
 							if (CheckForEsc())
@@ -1560,16 +1558,13 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 							{
 								ScanTree ScTree(false);
 								ScTree.SetFindPath(strSelName,L"*");
-								DWORD LastTime2=GetTickCount();
+								time_check TreeTimeCheck(time_check::delayed, GetRedrawTimeout());
 								string strFullName;
 
 								while (ScTree.GetNextName(&FindData,strFullName))
 								{
-									CurTime=GetTickCount();
-
-									if (CurTime-LastTime2>(DWORD)Global->Opt->RedrawTimeout)
+									if (TreeTimeCheck)
 									{
-										LastTime2=CurTime;
 										ShellSetFileAttributesMsg(strFullName);
 
 										if (CheckForEsc())

@@ -162,7 +162,7 @@ int ScreenSaver(int EnableExit)
 
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_IDLE);
 
-	for (WaitTime=clock(); clock()-WaitTime<500;)
+	for (WaitTime = clock(); clock() - WaitTime < CLOCKS_PER_SEC / 2;)
 	{
 		if (PeekInputRecord(&rec))
 			return 1;

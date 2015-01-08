@@ -85,6 +85,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "desktop.hpp"
 #include "viewer.hpp"
+#include "datetime.hpp"
 
 static inline Plugin* GuidToPlugin(const GUID* Id) { return (Id && Global->CtrlObject) ? Global->CtrlObject->Plugins->FindPlugin(*Id) : nullptr; }
 
@@ -1602,12 +1603,11 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 
 			auto Items = new std::vector<PluginPanelItem>;
 
-			DWORD StartTime=GetTickCount();
+			time_check TimeCheck(time_check::delayed, GetRedrawTimeout());
 			bool MsgOut = false;
 			while (ScTree.GetNextName(&FindData,strFullName))
 			{
-				DWORD CurTime=GetTickCount();
-				if (CurTime-StartTime>static_cast<DWORD>(Global->Opt->RedrawTimeout))
+				if (TimeCheck)
 				{
 					if (CheckForEsc())
 					{
@@ -2995,7 +2995,7 @@ size_t WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size
 	}
 }
 
-BOOL WINAPI apiColorDialog(const GUID* PluginId, COLORDIALOGFLAGS Flags, struct FarColor *Color) noexcept
+BOOL WINAPI apiColorDialog(const GUID* PluginId, COLORDIALOGFLAGS Flags, FarColor *Color) noexcept
 {
 	try
 	{
