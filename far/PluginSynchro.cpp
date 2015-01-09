@@ -52,7 +52,8 @@ struct PluginSynchro::SynchroData
 	void* Param;
 };
 
-PluginSynchro::PluginSynchro()
+PluginSynchro::PluginSynchro():
+	m_suppressions()
 {
 }
 
@@ -77,7 +78,7 @@ bool PluginSynchro::Process()
 	{
 		SCOPED_ACTION(CriticalSectionLock)(CS);
 
-		if (!Data.empty())
+		if (!m_suppressions && !Data.empty())
 		{
 			auto ItemIterator = Data.begin();
 			process=true;
@@ -113,4 +114,15 @@ bool PluginSynchro::Process()
 
 
 	return res;
+}
+
+PluginSynchro::suppress::suppress():
+	m_owner(PluginSynchroManager())
+{
+	InterlockedIncrement(&m_owner.m_suppressions);
+}
+
+PluginSynchro::suppress::~suppress()
+{
+	InterlockedDecrement(&m_owner.m_suppressions);
 }

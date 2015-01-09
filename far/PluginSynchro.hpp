@@ -40,6 +40,16 @@ public:
 	void Synchro(bool Plugin, const GUID& PluginId, void* Param);
 	bool Process();
 
+	class suppress: noncopyable
+	{
+	public:
+		suppress();
+		~suppress();
+
+	private:
+		PluginSynchro& m_owner;
+	};
+
 private:
 	friend PluginSynchro& PluginSynchroManager();
 
@@ -48,6 +58,7 @@ private:
 	CriticalSection CS;
 	struct SynchroData;
 	std::list<SynchroData> Data;
+	volatile long m_suppressions;
 };
 
 PluginSynchro& PluginSynchroManager();
