@@ -65,7 +65,7 @@ lv=2
 dt=Text
 nm=API changes in comparison to the macro language
 ctime=3553185939
-mtime=3616840098
+mtime=3629991950
 <article>
 #_<markdown>
 #_
@@ -117,6 +117,7 @@ mtime=3616840098
 #_1. Macro specification: flags `Selection` and `NoSelection` are no more applicable for
 #_   editor/viewer/dialog areas. For these areas one should use respectively `EVSelection` and
 #_   `NoEVSelection` flags.
+#_1. Macro specification: flag `RunAfterFARStart` is in effect also when Far Manager is run with `/e` or `/v` command line switch. In those cases only macros whose `area` field contains respectively `Editor` or `Viewer` are run.
 #_
 #_[exit]: 61.html
 #_[mload]: 13.html
@@ -1633,7 +1634,7 @@ lv=2
 dt=Text
 nm=Regular macros
 ctime=3580139016
-mtime=3619165723
+mtime=3629992131
 <article>
 #_<markdown>
 #_
@@ -1665,6 +1666,9 @@ mtime=3619165723
 #_   * Also in this case it is necessary to maintain the order in the sequence
 #_     `Ctrl`,`Alt`,`Shift`,<br>e.g. `/[LR]Alt[LR]CtrlF1/` would never work.<br><br>
 #_
+#_1. Optional field `flags` may contain a set of [flags][flags] separated with spaces.
+#_   Some changes in names or interpretation of flags are described [here][api changes].
+#_
 #_1. Optional field `priority` - a number in the range 0 to 100.<br>
 #_   The default value = 50 (for `Common` area = 40).<br>
 #_   Macros added via `MCTL_ADDMACRO` have priority = 50.
@@ -1688,6 +1692,9 @@ mtime=3619165723
 #_
 #_1. More than one macro for (`key`,`area`) combination is allowed. In this case a macro with highest priority is executed. If there are multiple macros having the same priority then the macro selection menu is displayed.<br>
 #_   The auto-starting macros are executed all, one by one, independently from priorities. The order of their execution is not defined.
+#_
+#_[flags]: http://api.farmanager.com/ru/macro/techinfo.html#register
+#_[api changes]: 38.html
 #_
 #_@@@
 #_{far.height}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.Height
