@@ -3,6 +3,28 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 11.01.2015 20:00:05 +0200 - build 4238
+
+1. Refactoring.
+
+drkns 09.01.2015 19:25:37 +0200 - build 4237
+
+1. 0002849: ProcessSynchroEventW is called for DMODE_NOPLUGINS.
+
+zg 09.01.2015 01:10:36 +0200 - build 4236
+
+1. incorrect redrawing of panels after filter menu close.
+
+zg 09.01.2015 00:44:51 +0200 - build 4235
+
+1. ACTL_REDRAWALL now redraws everything.
+
+drkns 08.01.2015 22:22:57 +0200 - build 4234
+
+1. Refactoring.
+
+2. VS2015 warnings.
+
 drkns 04.01.2015 19:27:27 +0200 - build 4233
 
 1. Refactoring.
