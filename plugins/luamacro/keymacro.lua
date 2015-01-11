@@ -20,6 +20,8 @@ local MACROSTATE_NOMACRO, MACROSTATE_EXECUTING, MACROSTATE_EXECUTING_COMMON =
 local MFLAGS_ENABLEOUTPUT, MFLAGS_NOSENDKEYSTOPLUGINS, MFLAGS_POSTFROMPLUGIN =
       0x1, 0x2, 0x10000000
 
+local KEY_NONE = 0x30001
+
 local type, setmetatable = type, setmetatable
 local bit = bit or bit64
 local band, bor, bxor, lshift = bit.band, bit.bor, bit.bxor, bit.lshift
@@ -40,6 +42,7 @@ local Import = {
   GetUseInternalClipboard = function()  return far_MacroCallFar(MCODE_F_KEYMACRO, 7) end,
   SetUseInternalClipboard = function(v) return far_MacroCallFar(MCODE_F_KEYMACRO, 8, v) end,
   KeyNameToKey            = function(v) return far_MacroCallFar(MCODE_F_KEYMACRO, 9, v) end,
+  KeyToText               = function(v) return far_MacroCallFar(MCODE_F_KEYMACRO, 10, v) end,
 }
 --------------------------------------------------------------------------------
 
@@ -334,22 +337,55 @@ function KeyMacro.DisableHistory (Mask)
   return oldHistoryDisable
 end
 
+function KeyMacro.akey (Mode, Type)
+  local TopMacro = GetTopMacro()
+  if TopMacro then
+    Mode = tonumber(Mode) or 0
+    Type = tonumber(Type) or 0
+
+    local aKey = TopMacro.m_key
+    if Type == 0 then
+      if 0 == band(TopMacro:GetFlags(),MFLAGS_POSTFROMPLUGIN) then
+        aKey = StateStack:top().IntKey
+      elseif aKey == 0 then
+        aKey = KEY_NONE
+      end
+    end
+
+    return Mode == 0 and aKey or Import.KeyToText(aKey)
+  end
+  return false
+end
+
+function KeyMacro.TransformKey (key)
+  local lkey = key:lower()
+  if lkey == "selword" then
+    return 1
+  elseif lkey == "xlat" then
+    return 2
+  elseif lkey == "akey" then
+    local macro = GetCurMacro()
+    if not macro then return nil end
+    return 3, (0==band(macro:GetFlags(),MFLAGS_POSTFROMPLUGIN)) and CurState.IntKey or macro.m_key
+  else
+    local iKey = Import.KeyNameToKey(key)
+    return 3, iKey==-1 and KEY_NONE or iKey
+  end
+end
+
 local OP_PUSHSTATE          =  1
 local OP_POPSTATE           =  2
 local OP_ISEXECUTING        =  3
 local OP_ISDISABLEOUTPUT    =  4
 local OP_HISTORYDISABLEMASK =  5
 local OP_ISHISTORYDISABLE   =  6
-local OP_GETCURMACRO        =  7
-local OP_GETTOPMACRO        =  8
-local OP_ISMACROQUEUEEMPTY  =  9
-local OP_GETSTATESTACKSIZE  = 10
-local OP_GETINTKEY          = 11
-local OP_POSTNEWMACRO       = 12
-local OP_GETTOPINTKEY       = 13
-local OP_SETMACROVALUE      = 14
-local OP_GETINPUTFROMMACRO  = 15
-local OP_TRYTOPOSTMACRO     = 16
+local OP_ISTOPMACROOUTPUTDISABLED = 7
+local OP_ISMACROQUEUEEMPTY  =  8
+local OP_GETSTATESTACKSIZE  =  9
+local OP_POSTNEWMACRO       = 10
+local OP_SETMACROVALUE      = 11
+local OP_GETINPUTFROMMACRO  = 12
+local OP_TRYTOPOSTMACRO     = 13
 
 function KeyMacro.Dispatch (opcode, ...)
   local p1 = (...)
@@ -369,19 +405,13 @@ function KeyMacro.Dispatch (opcode, ...)
     return OldMask
   elseif opcode == OP_ISHISTORYDISABLE then
     return IsHistoryDisable(p1)
-  elseif opcode == OP_GETCURMACRO or opcode==OP_GETTOPMACRO then
-    local mr
-    if opcode==OP_GETCURMACRO then mr=GetCurMacro() else mr=GetTopMacro() end
-    if mr then
-      LastMessage = pack(mr:GetFlags(), mr.m_key)
-      return MPRT_NORMALFINISH, LastMessage
-    end
+  elseif opcode==OP_ISTOPMACROOUTPUTDISABLED then
+    local mr = GetTopMacro()
+    return mr and 0==band(mr:GetFlags(),MFLAGS_ENABLEOUTPUT) and 1 or 0
   elseif opcode == OP_ISMACROQUEUEEMPTY then
     return GetCurMacro() and 0 or 1
   elseif opcode == OP_GETSTATESTACKSIZE then
     return #StateStack
-  elseif opcode == OP_GETINTKEY then
-    return CurState.IntKey
   elseif opcode == OP_POSTNEWMACRO then
     local Lang,Code,Flags,AKey = ...
     local f1,f2 = loadmacro(Lang,Code)
@@ -391,9 +421,6 @@ function KeyMacro.Dispatch (opcode, ...)
     else
       ErrMsg(f2, Msg.MMacroParseErrorTitle)
     end
-  elseif opcode == OP_GETTOPINTKEY then
-    local t=StateStack:top()
-    return t and t.IntKey or 0
   elseif opcode == OP_SETMACROVALUE then
     local m = GetCurMacro()
     if m then m:SetValue(p1) end

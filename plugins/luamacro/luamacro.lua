@@ -62,7 +62,7 @@ function _G.Keys (...)
     local str=select(n,...)
     if type(str)=="string" then
       for key in str:gmatch("%S+") do
-        co_yield(PROPAGATE, F.MPRT_KEYS, key)
+        co_yield(PROPAGATE, F.MPRT_KEYS, pack(keymacro.TransformKey(key)))
       end
     end
   end
@@ -71,7 +71,7 @@ end
 function _G.print (...)
   local param = ""
   if select("#", ...)>0 then param = (...) end
-  co_yield(PROPAGATE, F.MPRT_PRINT, tostring(param))
+  co_yield(PROPAGATE, F.MPRT_PRINT, pack(tostring(param)))
 end
 
 function _G.printf (fmt, ...)
@@ -219,7 +219,7 @@ local function MacroInit (Id)
     end
   end
   if chunk then
-    return { coro=coroutine.create(chunk), params=params, store={} }
+    return { coro=coroutine.create(chunk), params=params, _store=nil }
   else
     ErrMsg(params)
   end
@@ -240,14 +240,8 @@ local function MacroStep (handle, ...)
       if ok then
         status = co_status(handle.coro)
         if status == "suspended" and ret1 == PROPAGATE and ret_type ~= "exit" then
-          handle.store[1] = ret_values
-          if ret_type==F.MPRT_PLUGINCALL or ret_type==F.MPRT_PLUGINMENU or ret_type==F.MPRT_PLUGINCONFIG or
-             ret_type==F.MPRT_PLUGINCOMMAND or ret_type==F.MPRT_USERMENU or ret_type=="acall" or
-             ret_type=="eval" then
-            return ret_type, ret_values
-          else
-            return ret_type, handle.store
-          end
+          handle._store = ret_values
+          return ret_type, ret_values
         else
           LastMessage[1] = ""
           return F.MPRT_NORMALFINISH
@@ -467,6 +461,7 @@ local function Init()
   keymacro = RunPluginFile("keymacro.lua", Shared)
   Shared.keymacro = keymacro
   mf.mmode, _G.mmode = keymacro.mmode, keymacro.mmode
+  mf.akey, _G.akey = keymacro.akey, keymacro.akey
 
   macrobrowser = RunPluginFile("mbrowser.lua", Shared)
 

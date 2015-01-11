@@ -1,4 +1,8 @@
-﻿shmuel 07.01.2015 10:26:06 +0200 - build 468
+﻿shmuel 11.01.2015 19:58:26 +0200 - build 469
+
+1. Рефакторинг.
+
+shmuel 07.01.2015 10:26:06 +0200 - build 468
 
 1. LuaFAR: добавлена функция win.OutputDebugString.
 

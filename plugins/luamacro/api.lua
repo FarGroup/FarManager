@@ -25,7 +25,7 @@ end
 -- "mf" ("macrofunctions") namespace
 mf = {
   abs             = function(...) return MacroCallFar(0x80C01, ...) end,
-  akey            = function(...) return MacroCallFar(0x80C02, ...) end,
+--akey            = function(...) return MacroCallFar(0x80C02, ...) end,
   asc             = function(...) return MacroCallFar(0x80C03, ...) end,
   atoi            = function(...) return MacroCallFar(0x80C04, ...) end,
   beep            = function(...) return MacroCallFar(0x80C48, ...) end,
@@ -537,7 +537,7 @@ end
 _G.band, _G.bnot, _G.bor, _G.bxor, _G.lshift, _G.rshift =
   bit64.band, bit64.bnot, bit64.bor, bit64.bxor, bit64.lshift, bit64.rshift
 
-_G.akey, _G.eval, _G.msgbox, _G.prompt = mf.akey, mf.eval, mf.msgbox, mf.prompt
+_G.eval, _G.msgbox, _G.prompt = mf.eval, mf.msgbox, mf.prompt
 
 mf.Keys, mf.exit, mf.print, mf.printf = _G.Keys, _G.exit, _G.print, _G.printf
 --------------------------------------------------------------------------------
