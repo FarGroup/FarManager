@@ -196,7 +196,8 @@ end
 
 local function postmacro (f, ...)
   if type(f) == "function" then
-    return keymacro.PostNewMacro(pack(f, ...), 0, nil, true)
+    keymacro.PostNewMacro(pack(f, ...), 0, nil, true)
+    return true
   end
   return false
 end

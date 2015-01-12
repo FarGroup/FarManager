@@ -51,6 +51,7 @@ local NewMacroRecord do
     m_id     = 0,   -- идентификатор загруженного макроса в плагине LuaMacro; 0 для макроса, запускаемого посредством MSSC_POST.
     m_flags  = 0,   -- флаги макропоследовательности
     m_key    = -1,  -- назначенная клавиша
+    m_textkey= nil, -- текстовое представление назначенной клавиши
     m_value  = nil, -- значение, хранимое исполняющимся макросом
     m_handle = nil  -- хэндл исполняющегося макроса
   }
@@ -63,8 +64,8 @@ local NewMacroRecord do
   function MacroRecord:GetValue() return self.m_value end
   function MacroRecord:SetValue(val) self.m_value=val end
 
-  NewMacroRecord = function (MacroId, Flags, Key)
-    return setmetatable({m_id=MacroId, m_flags=Flags, m_key=Key}, meta)
+  NewMacroRecord = function (MacroId, Flags, Key, TextKey)
+    return setmetatable({m_id=MacroId, m_flags=Flags, m_key=Key, m_textkey=TextKey }, meta)
   end
 end
 --------------------------------------------------------------------------------
@@ -303,18 +304,15 @@ local function GetInputFromMacro()
   return r1,r2
 end
 
-function KeyMacro.PostNewMacro (macroId, flags, key, postFromPlugin)
+-- (1) mf.eval        (2) keypress macro   (3) mf.postmacro
+-- (4) command line   (5) macro browser    (6) autostarting macros
+function KeyMacro.PostNewMacro (macroId, flags, textKey, postFromPlugin)
   flags = flags or 0
-  flags = postFromPlugin and bor(flags,MFLAGS_POSTFROMPLUGIN) or flags
-  local AKey = 0
-  if key then
-    local dKey = Import.KeyNameToKey(key)
-    if dKey ~= -1 then
-      AKey = dKey
-    end
+  if postFromPlugin then
+    flags = bor(flags, MFLAGS_POSTFROMPLUGIN)
   end
-  CurState.MacroQueue:add(NewMacroRecord(macroId,flags,AKey))
-  return true
+  local aKey = textKey and Import.KeyNameToKey(textKey) or 0
+  CurState.MacroQueue:add(NewMacroRecord(macroId, flags, aKey, textKey))
 end
 
 local function TryToPostMacro (Mode, TextKey, IntKey)
@@ -337,22 +335,17 @@ function KeyMacro.DisableHistory (Mask)
   return oldHistoryDisable
 end
 
+--Mode = 0 - возвращается код клавиши, Mode = 1 - возвращается наименование клавиши.
+--Type = 0 - возвращает реально нажатое сочетание, которым вызывался макрос,
+--  Type = 1 - возвращает клавишу, на которую назначен макрос.
 function KeyMacro.akey (Mode, Type)
   local TopMacro = GetTopMacro()
   if TopMacro then
-    Mode = tonumber(Mode) or 0
-    Type = tonumber(Type) or 0
-
-    local aKey = TopMacro.m_key
-    if Type == 0 then
-      if 0 == band(TopMacro:GetFlags(),MFLAGS_POSTFROMPLUGIN) then
-        aKey = StateStack:top().IntKey
-      elseif aKey == 0 then
-        aKey = KEY_NONE
-      end
-    end
-
-    return Mode == 0 and aKey or Import.KeyToText(aKey)
+    local IsCodeOutput = (tonumber(Mode) or 0) == 0
+    local IsPressedKey = (tonumber(Type) or 0) == 0
+    local key = IsPressedKey and 0==band(TopMacro:GetFlags(),MFLAGS_POSTFROMPLUGIN) and
+                StateStack:top().IntKey or TopMacro.m_key
+    return IsCodeOutput and key or TopMacro.m_textkey or Import.KeyToText(key)
   end
   return false
 end
@@ -364,9 +357,9 @@ function KeyMacro.TransformKey (key)
   elseif lkey == "xlat" then
     return 2
   elseif lkey == "akey" then
-    local macro = GetCurMacro()
+    local macro = GetTopMacro()
     if not macro then return nil end
-    return 3, (0==band(macro:GetFlags(),MFLAGS_POSTFROMPLUGIN)) and CurState.IntKey or macro.m_key
+    return 3, (0==band(macro:GetFlags(),MFLAGS_POSTFROMPLUGIN)) and StateStack:top().IntKey or macro.m_key
   else
     local iKey = Import.KeyNameToKey(key)
     return 3, iKey==-1 and KEY_NONE or iKey
@@ -412,7 +405,7 @@ function KeyMacro.Dispatch (opcode, ...)
     return GetCurMacro() and 0 or 1
   elseif opcode == OP_GETSTATESTACKSIZE then
     return #StateStack
-  elseif opcode == OP_POSTNEWMACRO then
+  elseif opcode == OP_POSTNEWMACRO then -- from API MacroControl(MSSC_POST)
     local Lang,Code,Flags,AKey = ...
     local f1,f2 = loadmacro(Lang,Code)
     if f1 then
