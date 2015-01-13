@@ -113,7 +113,6 @@ local NewMacroState do
     IntKey = 0, -- "описание реально нажатой клавиши"
     HistoryDisableMask = 0,
     UseInternalClipboard = false,
-    Executing = MACROSTATE_NOMACRO,
     MacroQueue = nil
   }
   local meta = { __index=MacroState }
@@ -185,7 +184,6 @@ end
 function KeyMacro.InitInternalVars (InitedRAM)
   if InitedRAM then
     CurState.MacroQueue = NewQueue()
-    CurState.Executing = MACROSTATE_NOMACRO
   end
   CurState.HistoryDisableMask = 0
 end
@@ -238,6 +236,7 @@ local function GetInputFromMacro()
       if StateStack[1] then
         PopState(true)
       else
+        CurState = NewMacroState()
         return MPRT_HASNOMACRO
       end
     end
@@ -297,7 +296,7 @@ local function GetInputFromMacro()
   elseif r1 == "eval" then
     local m = r2[1]
     PushState(true)
-    KeyMacro.PostNewMacro(m.id, m.flags, r2[2], true)
+    KeyMacro.PostNewMacro(m.id, m.flags, r2[2], false)
     return GetInputFromMacro() -- tail recursion
   end
 
@@ -335,6 +334,16 @@ function KeyMacro.DisableHistory (Mask)
   return oldHistoryDisable
 end
 
+local function GetLastPressedKey()
+  for level=#StateStack,1,-1 do
+    local state = StateStack[level]
+    local m = state:GetCurMacro()
+    if m and 0~=band(m:GetFlags(),MFLAGS_POSTFROMPLUGIN) then return m.m_key end
+    if state.IntKey > 0 then return state.IntKey end
+  end
+  return 0
+end
+
 --Mode = 0 - возвращается код клавиши, Mode = 1 - возвращается наименование клавиши.
 --Type = 0 - возвращает реально нажатое сочетание, которым вызывался макрос,
 --  Type = 1 - возвращает клавишу, на которую назначен макрос.
@@ -343,9 +352,12 @@ function KeyMacro.akey (Mode, Type)
   if TopMacro then
     local IsCodeOutput = (tonumber(Mode) or 0) == 0
     local IsPressedKey = (tonumber(Type) or 0) == 0
-    local key = IsPressedKey and 0==band(TopMacro:GetFlags(),MFLAGS_POSTFROMPLUGIN) and
-                StateStack:top().IntKey or TopMacro.m_key
-    return IsCodeOutput and key or TopMacro.m_textkey or Import.KeyToText(key)
+    if IsPressedKey then
+      local key = GetLastPressedKey()
+      return IsCodeOutput and key or (key>0 and Import.KeyToText(key)) or ""
+    else
+      return IsCodeOutput and TopMacro.m_key or TopMacro.m_textkey or Import.KeyToText(TopMacro.m_key)
+    end
   end
   return false
 end
@@ -357,9 +369,9 @@ function KeyMacro.TransformKey (key)
   elseif lkey == "xlat" then
     return 2
   elseif lkey == "akey" then
-    local macro = GetTopMacro()
-    if not macro then return nil end
-    return 3, (0==band(macro:GetFlags(),MFLAGS_POSTFROMPLUGIN)) and StateStack:top().IntKey or macro.m_key
+    if StateStack:empty() then return nil end
+    local k = GetLastPressedKey()
+    return 3, k > 0 and k or 0
   else
     local iKey = Import.KeyNameToKey(key)
     return 3, iKey==-1 and KEY_NONE or iKey
