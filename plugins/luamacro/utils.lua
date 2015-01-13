@@ -986,7 +986,7 @@ local function RunStartMacro()
     if m and not m.disabled and m.flags and band(m.flags,0x8)~=0 and not m.autostartdone then
       m.autostartdone=true
       if MacroCallFar(MCODE_F_CHECKALL, mode, m.flags) then
-        Shared.keymacro.PostNewMacro(m.id, m.flags, nil, true)
+        Shared.keymacro.PostNewMacro(m, m.flags, nil, true)
       end
     end
     for _,m in ipairs(macros) do
@@ -994,17 +994,13 @@ local function RunStartMacro()
         m.autostartdone=true
         if MacroCallFar(MCODE_F_CHECKALL, mode, m.flags) then
           if not m.condition or m.condition() then
-            Shared.keymacro.PostNewMacro(m.id, m.flags, nil, true)
+            Shared.keymacro.PostNewMacro(m, m.flags, nil, true)
           end
         end
       end
     end
   end
   return true
-end
-
-local function GetMacroById (id)
-  return LoadedMacros[id]
 end
 
 local function GetMacroCopy (id)
@@ -1021,7 +1017,6 @@ return {
   EnumMacros = EnumMacros,
   GetAreaCode = GetAreaCode,
   GetMacro = GetMacro,
-  GetMacroById = GetMacroById,
   GetMacroWrapper = GetMacroWrapper,
   GetTrueAreaName = GetTrueAreaName,
   LoadMacros = LoadMacros,

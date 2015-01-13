@@ -48,7 +48,7 @@ local Import = {
 
 local NewMacroRecord do
   local MacroRecord = {
-    m_id     = 0,   -- идентификатор загруженного макроса в плагине LuaMacro; 0 для макроса, запускаемого посредством MSSC_POST.
+    m_id     = 0,   -- идентификатор загруженного макроса в плагине LuaMacro
     m_flags  = 0,   -- флаги макропоследовательности
     m_key    = -1,  -- назначенная клавиша
     m_textkey= nil, -- текстовое представление назначенной клавиши
@@ -296,7 +296,7 @@ local function GetInputFromMacro()
   elseif r1 == "eval" then
     local m = r2[1]
     PushState(true)
-    KeyMacro.PostNewMacro(m.id, m.flags, r2[2], false)
+    KeyMacro.PostNewMacro(m, m.flags, r2[2], false)
     return GetInputFromMacro() -- tail recursion
   end
 
@@ -318,7 +318,7 @@ local function TryToPostMacro (Mode, TextKey, IntKey)
   local m = utils.GetMacro(Mode, TextKey, true, false)
   if m then
     if m.id then
-      KeyMacro.PostNewMacro(m.id, m.flags, TextKey, false)
+      KeyMacro.PostNewMacro(m, m.flags, TextKey, false)
       CurState.HistoryDisableMask = 0
       CurState.IntKey = IntKey
     end

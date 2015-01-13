@@ -204,20 +204,14 @@ end
 
 local function MacroInit (Id)
   local chunk, params
-  if type(Id) == "table" then
-    if Id.HasFunction then
-      chunk, params = Id[1], Id[2] -- макросы, запускаемые посредством MSSC_POST или с командной строки
-    else
-      chunk, params = Id[1], function() return unpack(Id,2,Id.n) end -- макросы, запускаемые через mf.postmacro
-    end
-  else -- загруженные или "добавленные" макросы
-    local mtable = utils.GetMacroById(Id)
-    if mtable then
-      chunk = mtable.action
-      if not chunk then
-        chunk, params = loadmacro(mtable.language, mtable.code)
-      end
-    end
+  if Id.action then
+    chunk = Id.action
+  elseif Id.code then
+    chunk, params = loadmacro(Id.language, Id.code)
+  elseif Id.HasFunction then
+    chunk, params = Id[1], Id[2] -- макросы, запускаемые посредством MSSC_POST или с командной строки
+  else
+    chunk, params = Id[1], function() return unpack(Id,2,Id.n) end -- макросы, запускаемые через mf.postmacro
   end
   if chunk then
     return { coro=coroutine.create(chunk), params=params, _store=nil }

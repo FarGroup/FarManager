@@ -225,7 +225,7 @@ local function MenuLoop()
               if not m.keyregex then
                 local key1 = m.key:match("%S+")
                 if (not m.condition or m.condition(key1)) then
-                  Shared.keymacro.PostNewMacro(m.id, m.flags, key1, true)
+                  Shared.keymacro.PostNewMacro(m, m.flags, key1, true)
                   break
                 else Message("condition() check failed")
                 end
