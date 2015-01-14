@@ -1,4 +1,4 @@
--- encoding: utf-8
+﻿-- encoding: utf-8
 -- Started: 2012-08-20.
 
 local luamacroId="4ebbefc8-2084-4b7f-94c0-692ce136894d" -- LuaMacro plugin GUID
@@ -65,7 +65,7 @@ local function test_akey()
   local k0,k1 = akey(0),akey(1)
   assert(k0==0x0501007B and k1=="CtrlShiftF12" or
          k0==0x1401007B and k1=="RCtrlShiftF12")
-  --todo: test 2nd parameter
+  -- (the 2nd parameter is tested in function test_eval).
 end
 
 local function test_bit64()
@@ -103,6 +103,21 @@ local function test_eval()
   assert(eval("5+7",1,"lua")==11)
   assert(eval("5+7",1,"moonscript")==0)
   assert(eval("5+7",1,"unknown")==-1)
+
+  -- test with Mode==2
+  local Id = assert(far.MacroAdd(nil,nil,"CtrlA",[[
+    local key = akey(1,0)
+    assert(key=="CtrlShiftF12" or key=="RCtrlShiftF12")
+    assert(akey(1,1)=="CtrlA")
+    _G.abcd=_G.abcd+1
+  ]]))
+  _G.abcd=0
+  for k=1,3 do
+    assert(eval("CtrlA",2)==0)
+    assert(_G.abcd==k)
+  end
+  _G.abcd=nil
+  assert(far.MacroDelete(Id))
 end
 
 local function test_abs()
@@ -480,6 +495,11 @@ end
 local function test_Keys()
   assert(Keys == mf.Keys)
   assert(type(Keys) == "function")
+
+  Keys("Esc F a r Space M a n a g e r Space Ф А Р")
+  assert(panel.GetCmdLine() == "Far Manager ФАР")
+  Keys("Esc")
+  assert(panel.GetCmdLine() == "")
 end
 
 local function test_exit()
