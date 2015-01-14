@@ -486,7 +486,7 @@ fast find dialog will continue as long as there is a match found.
 
     It is possible to use the transliteration function while entering text in
 the search field. If used the entered text will be transliterated and a new
-match corresponding to the new text will be searched. See TechInfo##10 on how
+match corresponding to the new text will be searched. See ~XLat.Flags~@XLat.Flags@ on how
 to set the hotkey for the transliteration.
 
    See also the list of ~macro keys~@KeyMacroSearchList@, available in fast find.
@@ -767,6 +767,8 @@ selected text to the clipboard, #Ctrl-<Gray +># appends it to the clipboard
 contents, #Esc# leaves the grabbing mode.
   #Ctrl-A# - select whole screen.
   #Ctrl-U# - deselect block.
+  #Ctrl-Shift-Left# и #Ctrl-Shift-Right# - перемещение с выделением на 10 позиций по горизонтали,
+  #Ctrl-Shift-Up# и #Ctrl-Shift-Down# - перемещение с выделением на 5 позиций по вертикали.
 
  #Keyboard macros#
 

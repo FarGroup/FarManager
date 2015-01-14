@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "clipboard.hpp"
 #include "config.hpp"
+#include "help.hpp"
 
 Grabber::Grabber():
 	PrevArea(),
@@ -280,12 +281,18 @@ int Grabber::ProcessKey(const Manager::Key& Key)
 	{
 		if ((IntKeyState.ShiftPressed || LocalKey!=KEY_SHIFT) && (LocalKey&KEY_SHIFT) && LocalKey!=KEY_NONE && LocalKey!=KEY_CTRLA && LocalKey!=KEY_RCTRLA && !IntKeyState.AltPressed && ResetArea)
 			Reset();
-		else if (LocalKey!=KEY_IDLE && LocalKey!=KEY_NONE && LocalKey!=KEY_SHIFT && LocalKey!=KEY_CTRLA && LocalKey!=KEY_RCTRLA && !IntKeyState.ShiftPressed && !IntKeyState.AltPressed && !(LocalKey&KEY_SHIFT))
+		else if (LocalKey!=KEY_IDLE && LocalKey!=KEY_NONE && LocalKey!=KEY_SHIFT && LocalKey!=KEY_CTRLA && LocalKey!=KEY_RCTRLA && !IntKeyState.ShiftPressed && !IntKeyState.AltPressed && !(LocalKey&KEY_SHIFT) && LocalKey != KEY_F1)
 			ResetArea = true;
 	}
 
 	switch (LocalKey)
 	{
+		case KEY_F1:
+		{
+			Help::create(L"MiscCmd");
+			break;
+		}
+
 		case KEY_CTRLU:
 		case KEY_RCTRLU:
 			Reset();
