@@ -80,6 +80,21 @@ local function test_bit64()
   assert(bor(1,2,4) == 7)
   assert(bnot(5) == -6)
   assert(bxor(0x01,0xF0,0xAA) == 0x5B)
+  assert(lshift(0xF731,4) == 0xF7310)
+  assert(rshift(0xF7310,4) == 0xF731)
+
+  local v = bit64.new(5)
+  assert(v+2==7  and 2+v==7)
+  assert(v-2==3  and 2-v==-3)
+  assert(v*2==10 and 2*v==10)
+  assert(v/2==2  and 2/v==0)
+  assert(v%2==1  and 2%v==2)
+  assert(v+v==10 and v-v==0 and v*v==25 and v/v==1 and v%v==0)
+
+  local w = lshift(1,63)
+  assert(w == bit64.new("0x8000".."0000".."0000".."0000"))
+  assert(rshift(w,63)==1)
+  assert(rshift(w,64)==0)
 end
 
 local function test_eval()
@@ -523,11 +538,24 @@ end
 local function test_print()
   assert(print == mf.print)
   assert(type(print) == "function")
+
+  local str = "abc ABC абв АБВ"
+  Keys("Esc")
+  print(str)
+  assert(panel.GetCmdLine() == str)
+  Keys("Esc")
+  assert(panel.GetCmdLine() == "")
 end
 
 local function test_printf()
   assert(printf == mf.printf)
-  assert(type(print) == "function")
+  assert(type(printf) == "function")
+
+  Keys("Esc")
+  printf("%d + %d = %d", 5, 6, 5+6)
+  assert(panel.GetCmdLine() == "5 + 6 = 11")
+  Keys("Esc")
+  assert(panel.GetCmdLine() == "")
 end
 
 local function test_postmacro()
