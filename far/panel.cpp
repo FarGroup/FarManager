@@ -1290,18 +1290,20 @@ static DWORD _CorrectFastFindKbdLayout(const INPUT_RECORD& rec,DWORD Key)
 class Search: public Modal
 {
 public:
-	static search_ptr create(Panel* Owner, int FirstKey, int X, int Y);
+	static search_ptr create(Panel* Owner, int FirstKey);
 
 	void Process(void);
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual int GetType() const override { return windowtype_search; }
 	virtual int GetTypeAndName(string &, string &) override { return windowtype_search; }
+	virtual void ResizeConsole(void) override;
 	int KeyToProcess(void) const { return m_KeyToProcess; }
 
 private:
 	Search(Panel* Owner, int FirstKey);
-	void init(int X, int Y);
+	void InitPositionAndSize(void);
+	void init(void);
 
 	Panel* m_Owner;
 	int m_FirstKey;
@@ -1323,23 +1325,33 @@ Search::Search(Panel* Owner, int FirstKey):
 {
 }
 
-search_ptr Search::create(Panel* Owner, int FirstKey, int X, int Y)
+void Search::InitPositionAndSize(void)
+{
+	int X1, Y1, X2, Y2;
+	m_Owner->GetPosition(X1, Y1, X2, Y2);
+	int FindX=std::min(X1+9,ScrX-22);
+	int FindY=std::min(Y2,ScrY-2);
+	SetPosition(FindX,FindY,FindX+21,FindY+2);
+	m_FindEdit->SetPosition(FindX+2,FindY+1,FindX+19,FindY+1);
+}
+
+search_ptr Search::create(Panel* Owner, int FirstKey)
 {
 	search_ptr SearchPtr(new Search(Owner, FirstKey));
-	SearchPtr->init(X, Y);
+	SearchPtr->init();
 	return SearchPtr;
 }
 
-void Search::init(int X, int Y)
+void Search::init(void)
 {
 	SetMacroMode(MACROAREA_SEARCH);
 	SetRestoreScreenMode(true);
-	SetPosition(X,Y,X+21,Y+2);
 
 	m_FindEdit = std::make_unique<EditControl>(shared_from_this(), this);
-	m_FindEdit->SetPosition(X+2,Y+1,X+19,Y+1);
 	m_FindEdit->SetEditBeyondEnd(false);
 	m_FindEdit->SetObjectColor(COL_DIALOGEDIT);
+
+	InitPositionAndSize();
 }
 
 void Search::Process(void)
@@ -1544,6 +1556,11 @@ void Search::ProcessName(const string& Src, string &strName)
 	}
 }
 
+void Search::ResizeConsole(void)
+{
+	InitPositionAndSize();
+}
+
 void Search::Close(void)
 {
 	Hide();
@@ -1556,9 +1573,7 @@ void Panel::FastFind(int FirstKey)
 	int KeyToProcess=0;
 	Global->WaitInFastFind++;
 	{
-		int FindX=std::min(m_X1+9,ScrX-22);
-		int FindY=std::min(m_Y2,static_cast<SHORT>(ScrY-2));
-		auto search = Search::create(this, FirstKey, FindX, FindY);
+		auto search = Search::create(this, FirstKey);
 		search->Process();
 		KeyToProcess=search->KeyToProcess();
 	}
