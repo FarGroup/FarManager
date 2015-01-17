@@ -64,7 +64,7 @@ std::bitset<32> AddSavedNetworkDisks(std::bitset<32>& Mask)
 
 		if (netResource)
 		{
-			while (1)
+			for (;;)
 			{
 				DWORD size=1;
 				bufsz = 16*1024;
@@ -115,7 +115,7 @@ void ConnectToNetworkDrive(const string& NewDir)
 
 	if (res)
 	{
-		while (1)
+		for (;;)
 		{
 			if (!GetNameAndPassword(strRemoteName, strUserName, strPassword, nullptr, GNP_USELAST))
 				break;

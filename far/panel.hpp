@@ -86,14 +86,6 @@ struct PanelViewSettings: noncopyable
 		return result;
 	}
 
-	void clear()
-	{
-		PanelColumns.clear();
-		StatusColumns.clear();
-		Name.clear();
-		Flags = 0;
-	}
-
 	std::vector<column> PanelColumns;
 	std::vector<column> StatusColumns;
 	string Name;

@@ -2080,7 +2080,7 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void **
 				{
 					if (global::IsPtr(hNewPlugin->hPlugin) && hNewPlugin->hPlugin != INVALID_HANDLE_VALUE)
 					{
-						FarMacroCall *fmc = reinterpret_cast<FarMacroCall*>(hNewPlugin->hPlugin);
+						auto fmc = reinterpret_cast<FarMacroCall*>(hNewPlugin->hPlugin);
 						if (fmc->Count > 0 && fmc->Values[0].Type == FMVT_PANEL)
 						{
 							process = true;

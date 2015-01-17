@@ -36,8 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 #include "synchro.hpp"
 #include "dirinfo.hpp"
-
-class Viewer;
+#include "viewer.hpp"
 
 class QuickView:public Panel
 {
@@ -62,13 +61,13 @@ private:
 	virtual void UpdateKeyBar() override;
 	virtual int GetCurName(string &strName, string &strShortName) const override;
 	virtual void DisplayObject() override;
-	virtual Viewer* GetViewer(void) override {return QView().get();}
+	virtual Viewer* GetViewer(void) override {return QView.get();}
 	virtual Viewer* GetById(int ID) override;
 
 	void PrintText(const string& Str);
 	void DynamicUpdateKeyBar() const;
 
-	unique_ptr_with_ondestroy<Viewer> QView;
+	std::unique_ptr<Viewer, viewer_deleter> QView;
 
 	string strCurFileName;
 	string strCurFileType;

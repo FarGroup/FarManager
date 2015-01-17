@@ -159,7 +159,6 @@ Panel::Panel(window_ptr Owner):
 	m_ModalMode(0),
 	m_PluginCommand(0)
 {
-	m_ViewSettings.clear();
 	_OT(SysLog(L"[%p] Panel::Panel()", this));
 	SrcDragPanel=nullptr;
 	DragX=DragY=-1;

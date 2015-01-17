@@ -387,8 +387,8 @@ bool Clipboard::Get(string& data)
 			auto Files = static_cast<LPDROPFILES>(GlobalLock(hClipData));
 			if (Files)
 			{
-				LPCSTR StartA=reinterpret_cast<LPCSTR>(Files)+Files->pFiles;
-				LPCWSTR Start=reinterpret_cast<LPCWSTR>(StartA);
+				auto StartA=reinterpret_cast<const char*>(Files)+Files->pFiles;
+				auto Start = reinterpret_cast<const wchar_t*>(StartA);
 				if(Files->fWide)
 				{
 					while(*Start)

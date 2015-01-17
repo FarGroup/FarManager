@@ -188,18 +188,24 @@ bool NativePluginModel::IsPlugin(const string& filename)
 
 GenericPluginModel::plugin_instance NativePluginModel::Create(const string& filename)
 {
-	return new ImportedFunctions::module(filename.data());
+	auto Module = std::make_unique<ImportedFunctions::module>(filename.data());
+	if (!*Module)
+	{
+		Global->CatchError();
+		Module.reset();
+	}
+	return Module.release();
 }
 
 bool NativePluginModel::Destroy(GenericPluginModel::plugin_instance instance)
 {
-	delete reinterpret_cast<ImportedFunctions::module*>(instance);
+	delete static_cast<ImportedFunctions::module*>(instance);
 	return true;
 }
 
 void NativePluginModel::InitExports(GenericPluginModel::plugin_instance instance, exports_array& exports)
 {
-	auto Module = reinterpret_cast<ImportedFunctions::module*>(instance);
+	auto Module = static_cast<ImportedFunctions::module*>(instance);
 	std::transform(m_ExportsNames, m_ExportsNames + ExportsCount, exports.begin(), [&](const export_name& i)
 	{
 		return *i.AName? reinterpret_cast<void*>(Module->GetProcAddress(i.AName)) : nullptr;
@@ -293,7 +299,7 @@ FarStandardFunctions NativeFSF =
 	pluginapi::apiItoa,
 	pluginapi::apiItoa64,
 	pluginapi::apiSprintf,
-#ifndef _MSC_VER
+#if !defined _MSC_VER || (defined _MSC_VER && _MSC_VER >= 1800)
 	pluginapi::apiSscanf,
 #else
 	swscanf,

@@ -285,9 +285,8 @@ bool elevation::Initialize()
 				{
 					AssignProcessToJobObject(m_job, m_process);
 				}
+				Event AEvent(Event::automatic, Event::nonsignaled);
 				OVERLAPPED Overlapped;
-				Event AEvent;
-				AEvent.Open();
 				AEvent.Associate(Overlapped);
 				ConnectNamedPipe(m_pipe, &Overlapped);
 				MultiWaiter Waiter;
@@ -462,8 +461,7 @@ bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
 		EAData Data(Object, Why, AskApprove, IsApproved, DontAskAgain);
 		if(!Global->IsMainThread())
 		{
-			Data.pEvent = std::make_unique<Event>();
-			Data.pEvent->Open();
+			Data.pEvent = std::make_unique<Event>(Event::automatic, Event::nonsignaled);
 			PluginSynchroManager().Synchro(false, FarGuid, &Data);
 			Data.pEvent->Wait();
 		}

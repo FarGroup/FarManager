@@ -675,9 +675,6 @@
     <ClInclude Include="network.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="noncopyable.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="notification.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1009,6 +1006,9 @@
     </ClInclude>
     <ClInclude Include="common\variadic_emulation_helpers_end.hpp">
       <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="transactional.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

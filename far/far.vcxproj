@@ -127,7 +127,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <StringPooling>true</StringPooling>
-      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4345;4350;4351;4355;4365;4371;4396;4480;4481;4512;4514;4571;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4250;4255;4345;4350;4351;4355;4365;4371;4396;4435;4480;4481;4512;4514;4571;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Cpp0xSupport>true</Cpp0xSupport>
       <DisableSpecificDiagnostics>869,3280</DisableSpecificDiagnostics>
@@ -176,7 +176,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4345;4350;4351;4355;4365;4371;4396;4480;4481;4512;4514;4571;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4250;4255;4345;4350;4351;4355;4365;4371;4396;4435;4480;4481;4512;4514;4571;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Cpp0xSupport>true</Cpp0xSupport>
       <DisableSpecificDiagnostics>869,3280</DisableSpecificDiagnostics>
@@ -224,7 +224,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <StringPooling>true</StringPooling>
-      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4345;4350;4351;4355;4365;4371;4396;4480;4481;4512;4514;4571;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4250;4255;4345;4350;4351;4355;4365;4371;4396;4435;4480;4481;4512;4514;4571;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Cpp0xSupport>true</Cpp0xSupport>
       <DisableSpecificDiagnostics>869,3280</DisableSpecificDiagnostics>
@@ -273,7 +273,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4345;4350;4351;4355;4365;4371;4396;4480;4481;4512;4514;4571;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4250;4255;4345;4350;4351;4355;4365;4371;4396;4435;4480;4481;4512;4514;4571;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Cpp0xSupport>true</Cpp0xSupport>
       <DisableSpecificDiagnostics>869,3280</DisableSpecificDiagnostics>
@@ -645,7 +645,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="modal.hpp" />
     <ClInclude Include="namelist.hpp" />
     <ClInclude Include="network.hpp" />
-    <ClInclude Include="noncopyable.hpp" />
     <ClInclude Include="notification.hpp" />
     <ClInclude Include="palette.hpp" />
     <ClInclude Include="panel.hpp" />
@@ -704,6 +703,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="TaskBar.hpp" />
     <ClInclude Include="tinyxml.hpp" />
     <ClInclude Include="TPreRedrawFunc.hpp" />
+    <ClInclude Include="transactional.hpp" />
     <ClInclude Include="treelist.hpp" />
     <ClInclude Include="tvar.hpp" />
     <ClInclude Include="usermenu.hpp" />

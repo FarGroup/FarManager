@@ -132,9 +132,8 @@ int WINAPIV apiSprintf(wchar_t* Dest, const wchar_t* Format, ...) noexcept //?de
 	{
 		va_list argptr;
 		va_start(argptr, Format);
-		int Result = _vsnwprintf(Dest, 32000, Format, argptr); //vswprintf(Det,L"%s",(const char *)str) -- MinGW gcc >= 4.6
-		va_end(argptr);
-		return Result;
+		SCOPE_EXIT{ va_end(argptr); };
+		return vswprintf(Dest, Format, argptr);
 	}
 	catch (...)
 	{
@@ -149,9 +148,8 @@ int WINAPIV apiSnprintf(wchar_t* Dest, size_t Count, const wchar_t* Format, ...)
 	{
 		va_list argptr;
 		va_start(argptr, Format);
-		int Result =  _vsnwprintf(Dest, Count, Format, argptr);
-		va_end(argptr);
-		return Result;
+		SCOPE_EXIT{ va_end(argptr); };
+		return vswprintf(Dest, Count, Format, argptr);
 	}
 	catch (...)
 	{
@@ -168,9 +166,8 @@ int WINAPIV apiSscanf(const wchar_t* Src, const wchar_t* Format, ...) noexcept
 	{
 		va_list argptr;
 		va_start(argptr, Format);
-		int Result = vswscanf(Src, Format, argptr);
-		va_end(argptr);
-		return Result;
+		SCOPE_EXIT{ va_end(argptr); };
+		return vswscanf(Src, Format, argptr);
 	}
 	catch (...)
 	{

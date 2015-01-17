@@ -222,7 +222,7 @@ static int WINAPI comparer_ex_wrapper(const void *one, const void *two, void *us
 
 static int LocalStricmp(const char *s1, const char *s2)
 {
-	while (1)
+	for (;;)
 	{
 		if (UpperToLower[(unsigned)*s1] != UpperToLower[(unsigned)*s2])
 			return (UpperToLower[(unsigned)*s1] < UpperToLower[(unsigned)*s2]) ? -1 : 1;
@@ -3447,12 +3447,11 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 			}
 			case oldfar::DM_LISTSETMOUSEREACTION:
 			{
-				oldfar::FARLISTMOUSEREACTIONTYPE OldType = static_cast<oldfar::FARLISTMOUSEREACTIONTYPE>(reinterpret_cast<intptr_t>(Param2));
 				FarDialogItem DlgItem = {};
 				NativeInfo.SendDlgMessage(hDlg, DM_GETDLGITEMSHORT, Param1, &DlgItem);
 				FARDIALOGITEMFLAGS OldFlags = DlgItem.Flags;
 				DlgItem.Flags&=~(DIF_LISTTRACKMOUSE|DIF_LISTTRACKMOUSEINFOCUS);
-				switch (OldType)
+				switch (static_cast<oldfar::FARLISTMOUSEREACTIONTYPE>(reinterpret_cast<intptr_t>(Param2)))
 				{
 				case oldfar::LMRT_ONLYFOCUS:
 					DlgItem.Flags|=DIF_LISTTRACKMOUSEINFOCUS;

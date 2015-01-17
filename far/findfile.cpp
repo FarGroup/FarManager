@@ -577,7 +577,7 @@ intptr_t FindFiles::AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, 
 
 			if (Param1==AD_BUTTON_OK)
 			{
-				LPCWSTR Data=reinterpret_cast<LPCWSTR>(Dlg->SendMessage(DM_GETCONSTTEXTPTR,AD_EDIT_SEARCHFIRST,0));
+				auto Data = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, AD_EDIT_SEARCHFIRST, 0));
 
 				if (Data && *Data && !CheckFileSizeStringFormat(Data))
 				{
@@ -767,7 +767,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					}
 
 					Dlg->SendMessage(DM_SETTEXTPTR,Param2?FAD_EDIT_HEX:FAD_EDIT_TEXT, UNSAFE_CSTR(strDataStr));
-					intptr_t iParam = reinterpret_cast<intptr_t>(Param2);
+					auto iParam = reinterpret_cast<intptr_t>(Param2);
 					Dlg->SendMessage(DM_SHOWITEM,FAD_EDIT_TEXT,ToPtr(!iParam));
 					Dlg->SendMessage(DM_SHOWITEM,FAD_EDIT_HEX,ToPtr(iParam));
 					Dlg->SendMessage(DM_ENABLE,FAD_TEXT_CP,ToPtr(!iParam));
@@ -2992,12 +2992,10 @@ FindFiles::FindFiles():
 	FileMaskForFindFile(std::make_unique<filemasks>()),
 	Filter(std::make_unique<FileFilter>(Global->CtrlObject->Cp()->ActivePanel(), FFT_FINDFILE)),
 	itd(std::make_unique<InterThreadData>()),
+	PauseEvent(Event::manual, Event::signaled),
+	StopEvent(Event::manual, Event::nonsignaled),
 	m_TimeCheck(time_check::immediate, GetRedrawTimeout())
 {
-
-	PauseEvent.Open(true, true);
-	StopEvent.Open(true, false);
-
 	_ALGO(CleverSysLog clv(L"FindFiles::FindFiles()"));
 
 	static string strLastFindMask=L"*.*", strLastFindStr;

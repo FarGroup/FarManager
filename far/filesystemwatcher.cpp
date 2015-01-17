@@ -42,12 +42,12 @@ FileSystemWatcher::FileSystemWatcher():
 	m_PreviousLastWriteTime(),
 	m_CurrentLastWriteTime(),
 	m_bOpen(false),
-	m_WatchSubtree(false)
+	m_WatchSubtree(false),
+	m_WatchRegistered(Event::manual, Event::signaled),
+	m_Done(Event::manual, Event::nonsignaled),
+	m_DoneDone(Event::manual, Event::nonsignaled),
+	m_Changed(Event::manual, Event::nonsignaled)
 {
-	m_WatchRegistered.Open(true, true);
-	m_Changed.Open(true, false);
-	m_Done.Open(true, false);
-	m_DoneDone.Open(true, false);
 }
 
 

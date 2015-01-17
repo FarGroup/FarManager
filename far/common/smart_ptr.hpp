@@ -66,19 +66,6 @@ public:
 	T& operator*() const {return *get();}
 };
 
-template <typename T> class unique_ptr_with_ondestroy
-{
-private:
-	typedef std::unique_ptr<T> ptr_type;
-	ptr_type ptr;
-	void OnDestroy(void) {if(ptr)ptr->OnDestroy();}
-public:
-	~unique_ptr_with_ondestroy() {OnDestroy();}
-	const ptr_type& operator()(void) const {return ptr;}
-	unique_ptr_with_ondestroy& operator=(ptr_type&& value) noexcept {OnDestroy();ptr=std::move(value);return *this;}
-};
-
-
 struct file_closer
 {
 	void operator()(FILE* Object) const

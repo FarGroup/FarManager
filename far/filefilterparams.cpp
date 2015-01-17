@@ -89,9 +89,7 @@ FileFilterParams FileFilterParams::Clone() const
 {
 	FileFilterParams Result;
 	Result.m_strTitle = m_strTitle;
-	const wchar_t *Mask;
-	GetMask(&Mask);
-	Result.SetMask(GetMask(nullptr), Mask);
+	Result.SetMask(IsMaskUsed(), GetMask());
 	Result.FSize = FSize;
 	Result.FDate = FDate;
 	Result.FAttr = FAttr;
@@ -162,14 +160,6 @@ void FileFilterParams::SetColors(const HighlightFiles::highlight_item& Colors)
 const string& FileFilterParams::GetTitle() const
 {
 	return m_strTitle;
-}
-
-bool FileFilterParams::GetMask(const wchar_t **Mask) const
-{
-	if (Mask)
-		*Mask=FMask.strMask.data();
-
-	return FMask.Used;
 }
 
 bool FileFilterParams::GetDate(DWORD *DateType, FILETIME *DateAfter, FILETIME *DateBefore, bool *bRelative) const
@@ -396,7 +386,8 @@ string MenuString(FileFilterParams *FF, bool bHighlightType, int Hotkey, bool bP
 			*MarkChar=0;
 
 		Name=FF->GetTitle().data();
-		UseMask=FF->GetMask(&Mask);
+		Mask = FF->GetMask().data();
+		UseMask=FF->IsMaskUsed();
 
 		if (!FF->GetAttr(&IncludeAttr,&ExcludeAttr))
 			IncludeAttr=ExcludeAttr=0;
@@ -979,9 +970,8 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	FilterDlg[ID_HER_MARKTRANSPARENT].Selected = Colors.Mark.Transparent;
 	FilterDlg[ID_HER_CONTINUEPROCESSING].Selected=(FF->GetContinueProcessing()?1:0);
 	FilterDlg[ID_FF_NAMEEDIT].strData = FF->GetTitle();
-	const wchar_t *FMask;
-	FilterDlg[ID_FF_MATCHMASK].Selected=FF->GetMask(&FMask)?1:0;
-	FilterDlg[ID_FF_MASKEDIT].strData=FMask;
+	FilterDlg[ID_FF_MATCHMASK].Selected = FF->IsMaskUsed();
+	FilterDlg[ID_FF_MASKEDIT].strData = FF->GetMask();
 
 	if (!FilterDlg[ID_FF_MATCHMASK].Selected)
 		FilterDlg[ID_FF_MASKEDIT].Flags|=DIF_DISABLE;

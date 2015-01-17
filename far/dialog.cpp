@@ -3482,7 +3482,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 						break;
 					}
-				}// while (1)
+				}
 			}
 		}
 	}
@@ -4562,7 +4562,7 @@ intptr_t Dialog::DefProc(intptr_t Msg, intptr_t Param1, void* Param2)
 			{
 				if (IdExist)
 				{
-					DialogInfo *di=reinterpret_cast<DialogInfo*>(Param2);
+					auto di=reinterpret_cast<DialogInfo*>(Param2);
 
 					if (CheckStructSize(di))
 					{
@@ -5505,7 +5505,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 			if (Ret && (CurItem->Flags&DIF_AUTOMATION) && !CurItem->Auto.empty())
 			{
-				intptr_t iParam = reinterpret_cast<intptr_t>(Param2);
+				auto iParam = reinterpret_cast<intptr_t>(Param2);
 				iParam%=3;
 
 				std::for_each(RANGE(CurItem->Auto, i)
@@ -5550,7 +5550,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			if (Type == DI_CHECKBOX)
 			{
 				int Selected=CurItem->Selected;
-				intptr_t State = reinterpret_cast<intptr_t>(Param2);
+				auto State = reinterpret_cast<intptr_t>(Param2);
 				if (State == BSTATE_TOGGLE)
 					State=++Selected;
 

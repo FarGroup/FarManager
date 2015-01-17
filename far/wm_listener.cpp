@@ -119,14 +119,13 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 
 wm_listener::wm_listener(notifier* owner):
 	m_Owner(owner),
-	m_Hwnd(nullptr)
+	m_Hwnd(nullptr),
+	m_exitEvent(Event::automatic, Event::nonsignaled)
 {
 	m_Owner->add(std::make_unique<notification>(devices_notify));
 	m_Owner->add(std::make_unique<notification>(power_notify));
 	m_Owner->add(std::make_unique<notification>(environment_notify));
 	m_Owner->add(std::make_unique<notification>(intl_notify));
-
-	m_exitEvent.Open();
 
 	Check();
 }
@@ -144,11 +143,13 @@ void wm_listener::Check()
 {
 	if (!m_Thread.joinable() || m_Thread.Signaled())
 	{
-		m_Thread = Thread(&Thread::join, &wm_listener::WindowThreadRoutine, this);
+		Event ReadyEvent(Event::automatic, Event::nonsignaled);
+		m_Thread = Thread(&Thread::join, &wm_listener::WindowThreadRoutine, this, &ReadyEvent);
+		ReadyEvent.Wait();
 	}
 }
 
-void wm_listener::WindowThreadRoutine()
+void wm_listener::WindowThreadRoutine(const Event* ReadyEvent)
 {
 	WNDCLASSEX wc={sizeof(wc)};
 	wc.lpfnWndProc = WndProc;
@@ -157,6 +158,7 @@ void wm_listener::WindowThreadRoutine()
 	if(RegisterClassEx(&wc))
 	{
 		m_Hwnd = CreateWindowEx(0, wc.lpszClassName, nullptr, 0, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, nullptr, nullptr, nullptr, nullptr);
+		ReadyEvent->Set();
 		if(m_Hwnd)
 		{
 			// for PBT_POWERSETTINGCHANGE

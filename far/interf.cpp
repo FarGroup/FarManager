@@ -284,7 +284,7 @@ void InitConsole(int FirstInit)
 
 	if (FirstInit)
 	{
-		CancelIoInProgress().Open(true);
+		CancelIoInProgress() = Event(Event::manual, Event::nonsignaled);
 
 		DWORD Mode;
 		if(!Console().GetMode(Console().GetInputHandle(), Mode))

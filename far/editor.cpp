@@ -4953,7 +4953,7 @@ public:
 
 	static size_t HashBM(bookmark_list::iterator BM)
 	{
-		size_t x = reinterpret_cast<size_t>(&*BM);
+		auto x = reinterpret_cast<size_t>(&*BM);
 		x = x ^ (BM->Line << 16) ^ (BM->Cursor);
 		return x;
 	}

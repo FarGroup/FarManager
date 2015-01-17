@@ -1378,9 +1378,8 @@ string str_printf(const wchar_t * format, ...)
 {
 	va_list argptr;
 	va_start(argptr, format);
-	string result = str_vprintf(format, argptr);
-	va_end(argptr);
-	return result;
+	SCOPE_EXIT{ va_end(argptr); };
+	return str_vprintf(format, argptr);
 }
 
 	class UserDefinedList

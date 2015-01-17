@@ -32,13 +32,15 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "transactional.hpp"
+
 namespace sqlite
 {
 	struct sqlite3;
 	struct sqlite3_stmt;
 }
 
-class SQLiteDb: noncopyable
+class SQLiteDb: noncopyable, virtual transactional
 {
 public:
 	SQLiteDb();
@@ -128,6 +130,7 @@ protected:
 	private:
 		SQLiteStmt& BindImpl(int Value);
 		SQLiteStmt& BindImpl(__int64 Value);
+		SQLiteStmt& BindImpl(const wchar_t* Value, bool bStatic = true);
 		SQLiteStmt& BindImpl(const string& Value, bool bStatic = true);
 		SQLiteStmt& BindImpl(const blob& Value, bool bStatic = true);
 		SQLiteStmt& BindImpl(unsigned int Value) { return BindImpl(static_cast<int>(Value)); }
@@ -156,9 +159,9 @@ protected:
 	int Changes() const;
 	unsigned __int64 LastInsertRowID() const;
 
-	bool BeginTransaction() const;
-	bool EndTransaction() const;
-	bool RollbackTransaction() const;
+	virtual bool BeginTransaction() override;
+	virtual bool EndTransaction() override;
+	virtual bool RollbackTransaction() override;
 
 	string strPath;
 	string m_Name;

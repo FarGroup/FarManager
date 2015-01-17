@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "panel.hpp"
 #include "notification.hpp"
+#include "viewer.hpp"
 
 class DizViewer;
 
@@ -69,7 +70,7 @@ private:
 	int  OpenDizFile(const string& DizFile, int YPos);
 	void DynamicUpdateKeyBar() const;
 
-	unique_ptr_with_ondestroy<DizViewer> DizView;
+	std::unique_ptr<DizViewer, viewer_deleter> DizView;
 	bool OldWrapMode;
 	bool OldWrapType;
 	string strDizFileName;

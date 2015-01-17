@@ -1,11 +1,10 @@
 #pragma once
-/*
-wm_listener.hpp
 
-Обработка оконных сообщений
+/*
+transactional.hpp
 */
 /*
-Copyright © 2010 Far Group
+Copyright © 2015 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -31,23 +30,29 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "synchro.hpp"
-
-class notifier;
-
-class wm_listener: noncopyable
+class transactional
 {
 public:
-	wm_listener(notifier* owner);
-	~wm_listener();
-	void Check();
 
-private:
-	void WindowThreadRoutine(const Event* ReadyEvent);
+	virtual ~transactional() {}
+	virtual bool BeginTransaction() = 0;
+	virtual bool EndTransaction() = 0;
+	virtual bool RollbackTransaction() = 0;
 
-	notifier* m_Owner;
-	Thread m_Thread;
-	HWND m_Hwnd;
+	class scoped_transaction: noncopyable
+	{
+	public:
+		scoped_transaction(transactional* parent):m_parent(parent) { m_parent->BeginTransaction(); }
+		~scoped_transaction() { if (m_parent) m_parent->EndTransaction(); }
+		scoped_transaction(scoped_transaction&& rhs) :m_parent(nullptr) { *this = std::move(rhs); }
+		MOVE_OPERATOR_BY_SWAP(scoped_transaction);
+		void swap(scoped_transaction& rhs) noexcept { using std::swap; swap(m_parent, rhs.m_parent); }
+		FREE_SWAP(scoped_transaction);
 
-	Event m_exitEvent;
+	private:
+		transactional* m_parent;
+	};
+
+	scoped_transaction ScopedTransaction() {return scoped_transaction(this); }
 };
+

@@ -113,7 +113,8 @@ public:
 	void ClearAllFlags() { FFlags.fill(0); }
 
 	const string& GetTitle() const;
-	bool  GetMask(const wchar_t **Mask) const;
+	const string& GetMask() const { return FMask.strMask; }
+	bool IsMaskUsed() const { return FMask.Used; }
 	bool  GetDate(DWORD *DateType, FILETIME *DateAfter, FILETIME *DateBefore, bool *bRelative) const;
 	bool IsSizeUsed() const {return FSize.Used;}
 	const string& GetSizeAbove() const {return FSize.SizeAbove;}

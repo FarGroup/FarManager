@@ -33,8 +33,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class Plugin;
-
 //----------- PLUGIN API/FSF ---------------------------------------------------
 //все эти функции, за исключение sprintf/sscanf имеют тип вызова __stdcall
 
@@ -42,7 +40,7 @@ namespace pluginapi
 {
 	int      WINAPIV apiSprintf(wchar_t* Dest, const wchar_t* Format, ...) noexcept;
 	int      WINAPIV apiSnprintf(wchar_t* Dest, size_t Count, const wchar_t* Format, ...) noexcept;
-#ifndef _MSC_VER
+#if !defined _MSC_VER || (defined _MSC_VER && _MSC_VER >= 1800)
 	int      WINAPIV apiSscanf(const wchar_t* Src, const wchar_t* Format, ...) noexcept;
 #endif
 	wchar_t* WINAPI apiItoa(int value, wchar_t *Str, int radix) noexcept;
@@ -132,5 +130,5 @@ namespace pluginapi
 	BOOL     WINAPI apiCreateDirectory(const wchar_t *PathName, LPSECURITY_ATTRIBUTES lpSecurityAttributes) noexcept;
 	//luamacro
 	intptr_t WINAPI apiCallFar(intptr_t CheckCode, FarMacroCall* Data) noexcept;
-	void WINAPI apiCallPlugin(MacroPluginReturn* Data, FarMacroCall** Target, int* Boolean) noexcept;
+	void     WINAPI apiCallPlugin(MacroPluginReturn* Data, FarMacroCall** Target, int* Boolean) noexcept;
 };

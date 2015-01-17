@@ -854,7 +854,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		}
 
 		LoopCount++;
-	} // while (1)
+	}
 
 
 	clock_t CurClock=clock();

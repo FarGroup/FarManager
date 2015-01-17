@@ -94,6 +94,13 @@ SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(__int64 Value)
 	return *this;
 }
 
+SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const wchar_t* Value, bool bStatic)
+{
+	using sqlite::sqlite3_destructor_type; // for SQLITE_* macros
+	sqlite::sqlite3_bind_text16(m_Stmt.get(), m_Param++, Value, -1, bStatic ? SQLITE_STATIC : SQLITE_TRANSIENT);
+	return *this;
+}
+
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const string& Value, bool bStatic)
 {
 	using sqlite::sqlite3_destructor_type; // for SQLITE_* macros
@@ -268,7 +275,7 @@ void SQLiteDb::Initialize(const string& DbName, bool Local)
 {
 	string &path = Local ? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath;
 
-	Mutex m(path.data(), DbName.data());
+	Mutex m(make_name<Mutex>(path, DbName).data());
 	SCOPED_ACTION(lock_guard<Mutex>)(m);
 
 	m_Name = DbName;
@@ -302,17 +309,17 @@ bool SQLiteDb::Exec(const char *Command) const
 	return sqlite::sqlite3_exec(m_Db.get(), Command, nullptr, nullptr, nullptr) == SQLITE_OK;
 }
 
-bool SQLiteDb::BeginTransaction() const
+bool SQLiteDb::BeginTransaction()
 {
 	return Exec("BEGIN TRANSACTION;");
 }
 
-bool SQLiteDb::EndTransaction() const
+bool SQLiteDb::EndTransaction()
 {
 	return Exec("END TRANSACTION;");
 }
 
-bool SQLiteDb::RollbackTransaction() const
+bool SQLiteDb::RollbackTransaction()
 {
 	return Exec("ROLLBACK TRANSACTION;");
 }

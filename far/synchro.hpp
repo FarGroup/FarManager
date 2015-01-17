@@ -61,16 +61,15 @@ private:
 
 typedef lock_guard<CriticalSection> CriticalSectionLock;
 
+template<class T, class S>
+inline string make_name(const S& HashPart, const S& TextPart)
+{
+	return T::GetNamespace() + std::to_wstring(make_hash(HashPart)) + L"_" + TextPart;
+}
+
 class HandleWrapper: noncopyable
 {
 public:
-	virtual const wchar_t *GetNamespace() const { return L""; }
-
-	void SetName(const string& HashPart, const string& TextPart)
-	{
-		m_Name = GetNamespace() + std::to_wstring(make_hash(HashPart)) + L"_" + TextPart;
-	}
-
 	bool Opened() const { return m_Handle != nullptr; }
 
 	bool Close()
@@ -88,19 +87,18 @@ public:
 
 protected:
 	HandleWrapper(): m_Handle() {}
+	HandleWrapper(HANDLE Handle): m_Handle(Handle) {}
 	virtual ~HandleWrapper() { Close(); }
 
 	void swap(HandleWrapper& rhs) noexcept
 	{
 		using std::swap;
 		swap(m_Handle, rhs.m_Handle);
-		m_Name.swap(rhs.m_Name);
 	}
 
 	FREE_SWAP(HandleWrapper);
 
 	HANDLE m_Handle;
-	string m_Name;
 
 private:
 	friend class MultiWaiter;
@@ -214,18 +212,12 @@ private:
 class Mutex: public HandleWrapper
 {
 public:
-
-	Mutex() {}
-	Mutex(const wchar_t *HashPart, const wchar_t *TextPart)
-	{
-		SetName(HashPart, TextPart);
-		Open();
-	}
+	Mutex(const wchar_t* Name = nullptr): HandleWrapper(CreateMutex(nullptr, false, EmptyToNull(Name))) {}
 	Mutex(Mutex& rhs) { *this = std::move(rhs); }
 
 	virtual ~Mutex() {}
 
-	virtual const wchar_t *GetNamespace() const override { return L"Far_Manager_Mutex_"; }
+	static const wchar_t *GetNamespace() { return L"Far_Manager_Mutex_"; }
 
 	MOVE_OPERATOR_BY_SWAP(Mutex);
 
@@ -236,14 +228,6 @@ public:
 
 	FREE_SWAP(Mutex);
 
-	bool Open()
-	{
-		assert(!m_Handle);
-
-		m_Handle = CreateMutex(nullptr, FALSE, EmptyToNull(m_Name.data()));
-		return m_Handle != nullptr;
-	}
-
 	bool lock() const { return Wait(); }
 
 	bool unlock() const { return ReleaseMutex(m_Handle) != FALSE; }
@@ -252,12 +236,15 @@ public:
 class Event: public HandleWrapper
 {
 public:
+	enum event_type { automatic, manual };
+	enum event_state { nonsignaled, signaled };
+
 	Event() {}
-	Event(bool ManualReset, bool InitialState) { Open(ManualReset, InitialState); }
+	Event(event_type Type, event_state InitialState, const wchar_t* Name = nullptr): HandleWrapper(CreateEvent(nullptr, Type == manual, InitialState == signaled, EmptyToNull(Name))) {}
 	Event(Event& rhs) { *this = std::move(rhs); }
 	virtual ~Event() {}
 
-	virtual const wchar_t *GetNamespace() const override { return L"Far_Manager_Event_"; }
+	static const wchar_t *GetNamespace() { return L"Far_Manager_Event_"; }
 
 	MOVE_OPERATOR_BY_SWAP(Event);
 
@@ -268,19 +255,20 @@ public:
 
 	FREE_SWAP(Event);
 
-	bool Open(bool ManualReset=false, bool InitialState=false)
+	bool Set() const { check_valid(); return SetEvent(m_Handle) != FALSE; }
+
+	bool Reset() const { check_valid(); return ResetEvent(m_Handle) != FALSE; }
+
+	void Associate(OVERLAPPED& o) const { check_valid(); o.hEvent = m_Handle; }
+
+private:
+	void check_valid() const
 	{
-		assert(!m_Handle);
-
-		m_Handle = CreateEvent(nullptr, ManualReset, InitialState, EmptyToNull(m_Name.data()));
-		return m_Handle != nullptr;
+		if (!m_Handle)
+		{
+			throw std::runtime_error("not initialized properly");
+		}
 	}
-
-	bool Set() const { return SetEvent(m_Handle) != FALSE; }
-
-	bool Reset() const { return ResetEvent(m_Handle) != FALSE; }
-
-	void Associate(OVERLAPPED& o) const { o.hEvent = m_Handle; }
 };
 
 template<class T> class SyncedQueue: noncopyable {

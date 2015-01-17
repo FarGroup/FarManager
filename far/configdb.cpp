@@ -116,10 +116,6 @@ class iGeneralConfigDb: public GeneralConfig, public SQLiteDb
 public:
 	virtual ~iGeneralConfigDb() {};
 
-	virtual bool BeginTransaction() override { return SQLiteDb::BeginTransaction(); }
-	virtual bool EndTransaction() override { return SQLiteDb::EndTransaction(); }
-	virtual bool RollbackTransaction() override { return SQLiteDb::RollbackTransaction(); }
-
 	virtual bool InitializeImpl(const string& DbName, bool Local) override
 	{
 		static const auto Schema =
@@ -142,6 +138,14 @@ public:
 	}
 
 	virtual bool SetValue(const string& Key, const string& Name, const string& Value) override
+	{
+		bool b = m_Statements[stmtUpdateValue].Bind(Value, Key, Name).StepAndReset();
+		if (!b || Changes() == 0)
+			b = m_Statements[stmtInsertValue].Bind(Key, Name, Value).StepAndReset();
+		return b;
+	}
+
+	virtual bool SetValue(const string& Key, const string& Name, const wchar_t* Value) override
 	{
 		bool b = m_Statements[stmtUpdateValue].Bind(Value, Key, Name).StepAndReset();
 		if (!b || Changes() == 0)
@@ -394,11 +398,12 @@ private:
 class HierarchicalConfigDb: public HierarchicalConfig, public SQLiteDb
 {
 public:
-	explicit HierarchicalConfigDb(const string& DbName, bool Local = false)
+	explicit HierarchicalConfigDb(const string& DbName, bool Local = false):
+		// If a thread with same event name is running, we will open that event here
+		AsyncDone(Event::manual, Event::signaled, make_name<Event>(strPath, m_Name).data())
 	{
-		AsyncDone.SetName(strPath, m_Name);
-		AsyncDone.Open(true,true); // If a thread with same event name is running, we will open that event here
-		AsyncDone.Wait();          // and wait for the signal
+		// and wait for the signal
+		AsyncDone.Wait();
 		Initialize(DbName, Local);
 	}
 
@@ -409,10 +414,6 @@ public:
 		AsyncDone.Reset();
 		Global->Db->AddThread(Thread(&Thread::detach, &HierarchicalConfigDb::AsyncDelete, this));
 	}
-
-	virtual bool BeginTransaction() override { return SQLiteDb::BeginTransaction(); }
-	virtual bool EndTransaction() override { return SQLiteDb::EndTransaction(); }
-	virtual bool RollbackTransaction() override { return SQLiteDb::RollbackTransaction(); }
 
 	virtual bool InitializeImpl(const string& DbName, bool Local) override
 	{
@@ -476,6 +477,11 @@ public:
 	}
 
 	virtual bool SetValue(unsigned __int64 Root, const string& Name, const string& Value) override
+	{
+		return m_Statements[stmtSetValue].Bind(Root, Name, Value).StepAndReset();
+	}
+
+	virtual bool SetValue(unsigned __int64 Root, const string& Name, const wchar_t* Value) override
 	{
 		return m_Statements[stmtSetValue].Bind(Root, Name, Value).StepAndReset();
 	}
@@ -793,10 +799,6 @@ public:
 
 	virtual ~ColorsConfigDb() { }
 
-	virtual bool BeginTransaction() override { return SQLiteDb::BeginTransaction(); }
-	virtual bool EndTransaction() override { return SQLiteDb::EndTransaction(); }
-	virtual bool RollbackTransaction() override { return SQLiteDb::RollbackTransaction(); }
-
 	virtual bool InitializeImpl(const string& DbName, bool Local) override
 	{
 		static const auto Schema =
@@ -907,10 +909,6 @@ public:
 	}
 
 	virtual ~AssociationsConfigDb() {}
-
-	virtual bool BeginTransaction() override { return SQLiteDb::BeginTransaction(); }
-	virtual bool EndTransaction() override { return SQLiteDb::EndTransaction(); }
-	virtual bool RollbackTransaction() override { return SQLiteDb::RollbackTransaction(); }
 
 	virtual bool InitializeImpl(const string& DbName, bool Local) override
 	{
@@ -1160,10 +1158,6 @@ public:
 	}
 
 	virtual ~PluginsCacheConfigDb() {}
-
-	virtual bool BeginTransaction() override { return SQLiteDb::BeginTransaction(); }
-	virtual bool EndTransaction() override { return SQLiteDb::EndTransaction(); }
-	virtual bool RollbackTransaction() override { return SQLiteDb::RollbackTransaction(); }
 
 	virtual bool InitializeImpl(const string& DbName, bool Local) override
 	{
@@ -1526,10 +1520,6 @@ public:
 		Initialize(L"pluginhotkeys.db");
 	}
 
-	virtual bool BeginTransaction() override { return SQLiteDb::BeginTransaction(); }
-	virtual bool EndTransaction() override { return SQLiteDb::EndTransaction(); }
-	virtual bool RollbackTransaction() override { return SQLiteDb::RollbackTransaction(); }
-
 	virtual bool InitializeImpl(const string& DbName, bool Local) override
 	{
 		static const auto Schema =
@@ -1698,17 +1688,17 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb
 
 	bool StartThread()
 	{
-		StopEvent.Open();
+		StopEvent = Event(Event::automatic, Event::nonsignaled);
+		string EventName;
 		if (strPath != L":memory:")
 		{
-			AsyncDeleteAddDone.SetName(strPath, m_Name);
-			AsyncCommitDone.SetName(strPath, m_Name);
+			EventName = make_name<Event>(strPath, m_Name);
 		}
-		AsyncDeleteAddDone.Open(true,true);
-		AsyncCommitDone.Open(true,true);
+		AsyncDeleteAddDone = Event(Event::manual, Event::signaled, EventName.data());
+		AsyncCommitDone = Event(Event::manual, Event::signaled, EventName.data());
 		AllWaiter.Add(AsyncDeleteAddDone);
 		AllWaiter.Add(AsyncCommitDone);
-		AsyncWork.Open();
+		AsyncWork = Event(Event::automatic, Event::nonsignaled);
 		WorkThread = Thread(&Thread::join, &HistoryConfigCustom::ThreadProc, this);
 		return true;
 	}
@@ -1719,7 +1709,7 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb
 		Waiter.Add(AsyncWork);
 		Waiter.Add(StopEvent);
 
-		while (true)
+		for (;;)
 		{
 			DWORD wait = Waiter.Wait(MultiWaiter::wait_any);
 

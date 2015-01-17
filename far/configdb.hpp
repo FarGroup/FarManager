@@ -32,12 +32,12 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "transactional.hpp"
 #include "bitflags.hpp"
 #include "strmix.hpp"
 #include "synchro.hpp"
 
 struct VersionInfo;
-class SQLiteDb;
 
 namespace tinyxml
 {
@@ -49,45 +49,25 @@ namespace tinyxml
 class XmlConfig: noncopyable
 {
 public:
-
 	virtual ~XmlConfig() {}
 	virtual void Export(tinyxml::TiXmlElement& Parent) = 0;
 	virtual void Import(const tinyxml::TiXmlHandle& root) = 0;
 };
 
-class Transactional
+class GeneralConfig: public XmlConfig, virtual public transactional
 {
-public:
-
-	virtual ~Transactional() {}
-	virtual bool BeginTransaction() = 0;
-	virtual bool EndTransaction() = 0;
-	virtual bool RollbackTransaction() = 0;
-
-	class scoped_transaction: noncopyable
-	{
-	public:
-		scoped_transaction(Transactional* parent):m_parent(parent) { m_parent->BeginTransaction(); }
-		~scoped_transaction() { if (m_parent) m_parent->EndTransaction(); }
-		scoped_transaction(scoped_transaction&& rhs) :m_parent(nullptr) { *this = std::move(rhs); }
-		MOVE_OPERATOR_BY_SWAP(scoped_transaction);
-		void swap(scoped_transaction& rhs) noexcept { using std::swap; swap(m_parent, rhs.m_parent); }
-		FREE_SWAP(scoped_transaction);
-
-	private:
-		Transactional* m_parent;
-	};
-
-	scoped_transaction ScopedTransaction() {return scoped_transaction(this); }
-};
-
-class GeneralConfig: public XmlConfig, public Transactional {
-
 public:
 	virtual ~GeneralConfig() {}
 	virtual bool SetValue(const string& Key, const string& Name, const string& Value) = 0;
+	virtual bool SetValue(const string& Key, const string& Name, const wchar_t* Value) = 0;
 	virtual bool SetValue(const string& Key, const string& Name, unsigned __int64 Value) = 0;
 	virtual bool SetValue(const string& Key, const string& Name, const void *Value, size_t Size) = 0;
+	template<class T>
+	typename std::enable_if<!std::is_pointer<T>::value && !std::is_integral<T>::value, bool>::type
+	SetValue(const string& Key, const string& Name, const T& Value)
+	{
+		return SetValue(Key, Name, &Value, sizeof(Value));
+	}
 
 	virtual bool GetValue(const string& Key, const string& Name, long long *Value, long long Default) = 0;
 	virtual bool GetValue(const string& Key, const string& Name, string &strValue, const wchar_t *Default) = 0;
@@ -119,16 +99,23 @@ protected:
 	GeneralConfig() {}
 };
 
-class HierarchicalConfig: public XmlConfig, public Transactional {
-
+class HierarchicalConfig: public XmlConfig, virtual public transactional
+{
 public:
 	virtual void AsyncFinish() = 0;
 	virtual unsigned __int64 CreateKey(unsigned __int64 Root, const string& Name, const string* Description=nullptr) = 0;
 	virtual unsigned __int64 GetKeyID(unsigned __int64 Root, const string& Name) = 0;
 	virtual bool SetKeyDescription(unsigned __int64 Root, const string& Description) = 0;
 	virtual bool SetValue(unsigned __int64 Root, const string& Name, const string& Value) = 0;
+	virtual bool SetValue(unsigned __int64 Root, const string& Name, const wchar_t* Value) = 0;
 	virtual bool SetValue(unsigned __int64 Root, const string& Name, unsigned __int64 Value) = 0;
 	virtual bool SetValue(unsigned __int64 Root, const string& Name, const void *Value, size_t Size) = 0;
+	template<class T>
+	typename std::enable_if<!std::is_pointer<T>::value && !std::is_integral<T>::value, bool>::type
+	SetValue(unsigned __int64 Root, const string& Name, const T& Value)
+	{
+		return SetValue(Root, Name, &Value, sizeof(Value));
+	}
 	virtual bool GetValue(unsigned __int64 Root, const string& Name, unsigned __int64 *Value) = 0;
 	virtual bool GetValue(unsigned __int64 Root, const string& Name, string &strValue) = 0;
 	virtual int GetValue(unsigned __int64 Root, const string& Name, void *Value, size_t Size) = 0;
@@ -150,10 +137,9 @@ struct HierarchicalConfigDeleter
 
 typedef std::unique_ptr<HierarchicalConfig, HierarchicalConfigDeleter> HierarchicalConfigUniquePtr;
 
-class ColorsConfig: public XmlConfig, public Transactional {
-
+class ColorsConfig: public XmlConfig, virtual public transactional
+{
 public:
-
 	virtual ~ColorsConfig() {}
 	virtual bool SetValue(const string& Name, const FarColor& Value) = 0;
 	virtual bool GetValue(const string& Name, FarColor& Value) = 0;
@@ -162,7 +148,7 @@ protected:
 	ColorsConfig() {}
 };
 
-class AssociationsConfig: public XmlConfig, public Transactional {
+class AssociationsConfig: public XmlConfig, virtual public transactional {
 
 public:
 
@@ -182,10 +168,9 @@ protected:
 	AssociationsConfig() {}
 };
 
-class PluginsCacheConfig: public XmlConfig, public Transactional {
-
+class PluginsCacheConfig: public XmlConfig, virtual public transactional
+{
 public:
-
 	virtual ~PluginsCacheConfig() {}
 	virtual unsigned __int64 CreateCache(const string& CacheName) = 0;
 	virtual unsigned __int64 GetCacheID(const string& CacheName) = 0;
@@ -226,11 +211,11 @@ protected:
 	PluginsCacheConfig() {}
 };
 
-class PluginsHotkeysConfig: public XmlConfig, public Transactional {
-
+class PluginsHotkeysConfig: public XmlConfig, virtual public transactional
+{
 public:
-
-	enum HotKeyTypeEnum {
+	enum HotKeyTypeEnum
+	{
 		DRIVE_MENU,
 		PLUGINS_MENU,
 		CONFIG_MENU,
@@ -248,10 +233,9 @@ protected:
 
 ENUM(history_record_type);
 
-class HistoryConfig: public XmlConfig, public Transactional {
-
+class HistoryConfig: public XmlConfig, virtual public transactional
+{
 public:
-
 	virtual ~HistoryConfig() {}
 
 	//command,view,edit,folder,dialog history
@@ -320,7 +304,7 @@ private:
 	template<class T> HierarchicalConfigUniquePtr CreateHierarchicalConfig(dbcheck DbId, const string& dbn, const char *xmln, bool Local = false, bool plugin = false);
 	template<class T> std::unique_ptr<T> CreateDatabase(const char *son = nullptr);
 	void TryImportDatabase(XmlConfig *p, const char *son = nullptr, bool plugin=false);
-	void CheckDatabase(SQLiteDb *pDb);
+	void CheckDatabase(class SQLiteDb *pDb);
 
 	std::vector<Thread> m_Threads;
 	std::vector<string> m_Problems;

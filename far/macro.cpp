@@ -411,7 +411,7 @@ static bool CallMacroPluginSimple(OpenMacroPluginInfo* Info)
 	Plugin *pPlugin = Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Luamacro.Id);
 	if (pPlugin && pPlugin->Load() && pPlugin->HasOpen() && !Global->ProcessException)
 	{
-		FuncOpen Open = reinterpret_cast<FuncOpen>(pPlugin->GetOpen());
+		auto Open = reinterpret_cast<FuncOpen>(pPlugin->GetOpen());
 		OpenInfo oInfo = {sizeof(OpenInfo), OPEN_LUAMACRO, &FarGuid, (intptr_t)Info, nullptr};
 		return Open(&oInfo) != nullptr;
 	}

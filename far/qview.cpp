@@ -100,14 +100,14 @@ void QuickView::DisplayObject()
 
 	m_Flags.Set(FSCROBJ_ISREDRAWING);
 
-	if (!QView() && !ProcessingPluginCommand)
+	if (!QView && !ProcessingPluginCommand)
 		Parent()->GetAnotherPanel(this)->UpdateViewPanel();
 
 	if (this->Destroyed())
 		return;
 
-	if (QView())
-		QView()->SetPosition(m_X1+1,m_Y1+1,m_X2-1,m_Y2-3);
+	if (QView)
+		QView->SetPosition(m_X1+1,m_Y1+1,m_X2-1,m_Y2-3);
 
 	Box(m_X1,m_Y1,m_X2,m_Y2,ColorIndexToColor(COL_PANELBOX),DOUBLE_BOX);
 	SetScreen(m_X1+1,m_Y1+1,m_X2-1,m_Y2-1,L' ',ColorIndexToColor(COL_PANELTEXT));
@@ -302,8 +302,8 @@ void QuickView::DisplayObject()
 			}
 		}
 	}
-	else if (QView())
-		QView()->Show();
+	else if (QView)
+		QView->Show();
 
 	m_Flags.Clear(FSCROBJ_ISREDRAWING);
 }
@@ -311,8 +311,8 @@ void QuickView::DisplayObject()
 
 __int64 QuickView::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
-	if (!Directory && QView())
-		return QView()->VMProcess(OpCode,vParam,iParam);
+	if (!Directory && QView)
+		return QView->VMProcess(OpCode,vParam,iParam);
 
 	switch (OpCode)
 	{
@@ -361,9 +361,9 @@ int QuickView::ProcessKey(const Manager::Key& Key)
 		return TRUE;
 	}
 
-	if (QView() && !Directory && LocalKey>=256)
+	if (QView && !Directory && LocalKey>=256)
 	{
-		int ret = QView()->ProcessKey(Manager::Key(LocalKey));
+		int ret = QView->ProcessKey(Manager::Key(LocalKey));
 
 		if (LocalKey == KEY_F2 || LocalKey == KEY_SHIFTF2
 		 || LocalKey == KEY_F4 || LocalKey == KEY_SHIFTF4
@@ -378,10 +378,10 @@ int QuickView::ProcessKey(const Manager::Key& Key)
 			//__int64 Pos;
 			//int Length;
 			//DWORD Flags;
-			//QView()->GetSelectedParam(Pos,Length,Flags);
+			//QView->GetSelectedParam(Pos,Length,Flags);
 			Redraw();
 			Parent()->GetAnotherPanel(this)->Redraw();
-			//QView()->SelectText(Pos,Length,Flags|1);
+			//QView->SelectText(Pos,Length,Flags|1);
 		}
 
 		return ret;
@@ -403,8 +403,8 @@ int QuickView::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	SetFocus();
 
-	if (QView() && !Directory)
-		return QView()->ProcessMouse(MouseEvent);
+	if (QView && !Directory)
+		return QView->ProcessMouse(MouseEvent);
 
 	return FALSE;
 }
@@ -479,16 +479,16 @@ void QuickView::ShowFile(const string& FileName, bool TempFile, PluginHandle* hD
 	{
 		if (!strCurFileName.empty())
 		{
-			QView = std::make_unique<Viewer>(GetOwner(), true);
-			QView()->SetRestoreScreenMode(false);
-			QView()->SetPosition(m_X1+1,m_Y1+1,m_X2-1,m_Y2-3);
-			QView()->SetStatusMode(0);
-			QView()->EnableHideCursor(0);
-			OldWrapMode = QView()->GetWrapMode();
-			OldWrapType = QView()->GetWrapType();
-			QView()->SetWrapMode(LastWrapMode);
-			QView()->SetWrapType(LastWrapType);
-			QView()->OpenFile(strCurFileName,FALSE);
+			QView.reset(new Viewer(GetOwner(), true));
+			QView->SetRestoreScreenMode(false);
+			QView->SetPosition(m_X1+1,m_Y1+1,m_X2-1,m_Y2-3);
+			QView->SetStatusMode(0);
+			QView->EnableHideCursor(0);
+			OldWrapMode = QView->GetWrapMode();
+			OldWrapType = QView->GetWrapType();
+			QView->SetWrapMode(LastWrapMode);
+			QView->SetWrapType(LastWrapType);
+			QView->OpenFile(strCurFileName,FALSE);
 		}
 	}
 	if (this->Destroyed())
@@ -508,12 +508,12 @@ void QuickView::ShowFile(const string& FileName, bool TempFile, PluginHandle* hD
 
 void QuickView::CloseFile()
 {
-	if (QView())
+	if (QView)
 	{
-		LastWrapMode=QView()->GetWrapMode();
-		LastWrapType=QView()->GetWrapType();
-		QView()->SetWrapMode(OldWrapMode);
-		QView()->SetWrapType(OldWrapType);
+		LastWrapMode=QView->GetWrapMode();
+		LastWrapType=QView->GetWrapType();
+		QView->SetWrapMode(OldWrapMode);
+		QView->SetWrapType(OldWrapType);
 		QView=nullptr;
 	}
 
@@ -527,12 +527,12 @@ void QuickView::QViewDelTempName()
 {
 	if (m_TemporaryFile)
 	{
-		if (QView())
+		if (QView)
 		{
-			LastWrapMode=QView()->GetWrapMode();
-			LastWrapType=QView()->GetWrapType();
-			QView()->SetWrapMode(OldWrapMode);
-			QView()->SetWrapType(OldWrapType);
+			LastWrapMode=QView->GetWrapMode();
+			LastWrapType=QView->GetWrapType();
+			QView->SetWrapMode(OldWrapMode);
+			QView->SetWrapType(OldWrapType);
 			QView=nullptr;
 		}
 
@@ -619,7 +619,7 @@ void QuickView::DynamicUpdateKeyBar() const
 {
 	auto& Keybar = Parent()->GetKeybar();
 
-	if (Directory || !QView())
+	if (Directory || !QView)
 	{
 		Keybar[KBL_MAIN][F2] = MSG(MF2);
 		Keybar[KBL_MAIN][F4].clear();
@@ -630,7 +630,7 @@ void QuickView::DynamicUpdateKeyBar() const
 	}
 	else
 	{
-		QView()->UpdateViewKeyBar(Keybar);
+		QView->UpdateViewKeyBar(Keybar);
 	}
 
 	Keybar.SetCustomLabels(KBA_QUICKVIEW);
@@ -638,5 +638,5 @@ void QuickView::DynamicUpdateKeyBar() const
 
 Viewer* QuickView::GetById(int ID)
 {
-	return QView()&&ID==QView()->GetId()?GetViewer():nullptr;
+	return QView && ID==QView->GetId()?GetViewer():nullptr;
 }

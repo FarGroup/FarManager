@@ -134,9 +134,7 @@ bool FileFilter::FilterEdit()
 				//(дл€ которых нету файлов на панели) которые выбраны в области данного меню
 				if (i.GetFlags(FFFT))
 				{
-					const wchar_t *FMask;
-					i.GetMask(&FMask);
-					string strMask = FMask;
+					auto strMask = i.GetMask();
 					Unquote(strMask);
 
 					if (!ParseAndAddMasks(Extensions, strMask, 0, GetCheck(i)))
@@ -496,7 +494,6 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList)
 		}
 		else if (i >(int)(FilterData().size() + 1))
 		{
-			const wchar_t *FMask=nullptr;
 			string Mask(static_cast<const wchar_t*>(FilterList->GetUserData(nullptr, 0, i)));
 			string strMask1(Mask);
 			//AY: “ак как в меню мы показываем только те выбранные авто фильтры
@@ -510,9 +507,7 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList)
 			while (j < static_cast<int>(TempFilterData().size()))
 			{
 				CurFilterData = &TempFilterData()[j];
-				string strMask2;
-				CurFilterData->GetMask(&FMask);
-				strMask2 = FMask;
+				auto strMask2 = CurFilterData->GetMask();
 				Unquote(strMask2);
 
 				if (StrCmpI(strMask1, strMask2) < 1)
@@ -523,7 +518,7 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList)
 
 			if (CurFilterData)
 			{
-				if (!StrCmpI(Mask.data(),FMask))
+				if (!StrCmpI(Mask.data(), CurFilterData->GetMask()))
 				{
 					if (!Check)
 					{
@@ -891,16 +886,15 @@ void FileFilter::Save(bool always)
 		const auto& CurFilterData = FilterData()[i];
 
 		cfg->SetValue(key,L"Title",CurFilterData.GetTitle());
-		const wchar_t *Mask;
-		cfg->SetValue(key,L"UseMask",CurFilterData.GetMask(&Mask)?1:0);
-		cfg->SetValue(key,L"Mask",Mask);
+		cfg->SetValue(key,L"UseMask", CurFilterData.IsMaskUsed());
+		cfg->SetValue(key,L"Mask", CurFilterData.GetMask());
 		DWORD DateType;
 		FILETIME DateAfter, DateBefore;
 		bool bRelative;
 		cfg->SetValue(key,L"UseDate",CurFilterData.GetDate(&DateType, &DateAfter, &DateBefore, &bRelative)?1:0);
 		cfg->SetValue(key,L"DateType",DateType);
-		cfg->SetValue(key,L"DateAfter", &DateAfter, sizeof(DateAfter));
-		cfg->SetValue(key,L"DateBefore", &DateBefore, sizeof(DateBefore));
+		cfg->SetValue(key,L"DateAfter", DateAfter);
+		cfg->SetValue(key,L"DateBefore", DateBefore);
 		cfg->SetValue(key,L"RelativeDate",bRelative?1:0);
 		cfg->SetValue(key, L"UseSize", CurFilterData.IsSizeUsed());
 		cfg->SetValue(key, L"SizeAboveS", CurFilterData.GetSizeAbove());
@@ -918,7 +912,7 @@ void FileFilter::Save(bool always)
 		for (DWORD j=FFFT_FIRST; j < FFFT_COUNT; j++)
 			Flags[j] = CurFilterData.GetFlags((enumFileFilterFlagsType)j);
 
-		cfg->SetValue(key,L"FFlags", Flags, sizeof(Flags));
+		cfg->SetValue(key,L"FFlags", Flags);
 	}
 
 	for (size_t i=0; i<TempFilterData().size(); ++i)
@@ -928,15 +922,13 @@ void FileFilter::Save(bool always)
 			break;
 		const auto& CurFilterData = TempFilterData()[i];
 
-		const wchar_t *Mask;
-		CurFilterData.GetMask(&Mask);
-		cfg->SetValue(key,L"Mask",Mask);
+		cfg->SetValue(key, L"Mask", CurFilterData.GetMask());
 		DWORD Flags[FFFT_COUNT];
 
 		for (DWORD j=FFFT_FIRST; j < FFFT_COUNT; j++)
 			Flags[j] = CurFilterData.GetFlags((enumFileFilterFlagsType)j);
 
-		cfg->SetValue(key,L"FFlags", Flags, sizeof(Flags));
+		cfg->SetValue(key,L"FFlags", Flags);
 	}
 
 	{
@@ -945,7 +937,7 @@ void FileFilter::Save(bool always)
 		for (DWORD i=FFFT_FIRST; i < FFFT_COUNT; i++)
 			Flags[i] = FoldersFilter->GetFlags((enumFileFilterFlagsType)i);
 
-		cfg->SetValue(root,L"FoldersFilterFFlags", Flags, sizeof(Flags));
+		cfg->SetValue(root,L"FoldersFilterFFlags", Flags);
 	}
 }
 
