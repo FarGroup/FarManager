@@ -2294,7 +2294,7 @@ HierarchicalConfigUniquePtr Database::CreateHierarchicalConfig(dbcheck DbId, con
 	return HierarchicalConfigUniquePtr(cfg.release());
 }
 
-ENUM(Database::dbcheck)
+ENUM(dbcheck)
 {
 	CHECK_NONE = 0,
 	CHECK_FILTERS = BIT(0),

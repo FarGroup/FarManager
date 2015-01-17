@@ -651,7 +651,7 @@ void ManagerClass_Dump(const wchar_t *Title,FILE *fp)
 			if (i)
 			{
 				i->GetTypeAndName(Type,Name);
-				fwprintf(fp,L"\twindow: %p  Type='%s' Name='%s'\n", i, Type.data(), Name.data());
+				fwprintf(fp,L"\twindow: %p  Type='%s' Name='%s'\n", i.get(), Type.data(), Name.data());
 			}
 			else
 				fwprintf(fp,L"\twindow nullptr\n");
@@ -664,7 +664,7 @@ void ManagerClass_Dump(const wchar_t *Title,FILE *fp)
 			if (i)
 			{
 				i->GetTypeAndName(Type,Name);
-				fwprintf(fp,L"\tModalStack Item %p  Type='%s' Name='%s'\n", i, Type.data(), Name.data());
+				fwprintf(fp,L"\tModalStack Item %p  Type='%s' Name='%s'\n", i.get(), Type.data(), Name.data());
 			}
 			else
 				fwprintf(fp,L"\tModalStack Item nullptr\n");
@@ -677,7 +677,7 @@ void ManagerClass_Dump(const wchar_t *Title,FILE *fp)
 		else
 			Man->m_currentWindow->GetTypeAndName(Type,Name);
 
-		fwprintf(fp,L"\tCurrentWindow=%p (Type='%s' Name='%s')\n", Man->m_currentWindow,Type.data(), Name.data());
+		fwprintf(fp,L"\tCurrentWindow=%p (Type='%s' Name='%s')\n", Man->m_currentWindow.get(), Type.data(), Name.data());
 		fwprintf(fp,L"\n");
 		fflush(fp);
 	}

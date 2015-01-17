@@ -58,6 +58,7 @@ class GeneralConfig: public XmlConfig, virtual public transactional
 {
 public:
 	virtual ~GeneralConfig() {}
+
 	virtual bool SetValue(const string& Key, const string& Name, const string& Value) = 0;
 	virtual bool SetValue(const string& Key, const string& Name, const wchar_t* Value) = 0;
 	virtual bool SetValue(const string& Key, const string& Name, unsigned __int64 Value) = 0;
@@ -66,12 +67,20 @@ public:
 	typename std::enable_if<!std::is_pointer<T>::value && !std::is_integral<T>::value, bool>::type
 	SetValue(const string& Key, const string& Name, const T& Value)
 	{
+		static_assert(std::is_pod<T>::value, "This template requires a POD type");
 		return SetValue(Key, Name, &Value, sizeof(Value));
 	}
 
 	virtual bool GetValue(const string& Key, const string& Name, long long *Value, long long Default) = 0;
 	virtual bool GetValue(const string& Key, const string& Name, string &strValue, const wchar_t *Default) = 0;
 	virtual int GetValue(const string& Key, const string& Name, void *Value, size_t Size, const void *Default) = 0;
+	template<class T>
+	typename std::enable_if<!std::is_pointer<T>::value && !std::is_integral<T>::value, bool>::type
+	GetValue(const string& Key, const string& Name, T& Value)
+	{
+		static_assert(std::is_pod<T>::value, "This template requires a POD type");
+		return GetValue(Key, Name, &Value, sizeof(Value)) != 0;
+	}
 
 	virtual bool DeleteValue(const string& Key, const string& Name) = 0;
 	virtual bool EnumValues(const string& Key, DWORD Index, string &strName, string &strValue) = 0;
@@ -106,6 +115,7 @@ public:
 	virtual unsigned __int64 CreateKey(unsigned __int64 Root, const string& Name, const string* Description=nullptr) = 0;
 	virtual unsigned __int64 GetKeyID(unsigned __int64 Root, const string& Name) = 0;
 	virtual bool SetKeyDescription(unsigned __int64 Root, const string& Description) = 0;
+
 	virtual bool SetValue(unsigned __int64 Root, const string& Name, const string& Value) = 0;
 	virtual bool SetValue(unsigned __int64 Root, const string& Name, const wchar_t* Value) = 0;
 	virtual bool SetValue(unsigned __int64 Root, const string& Name, unsigned __int64 Value) = 0;
@@ -114,11 +124,21 @@ public:
 	typename std::enable_if<!std::is_pointer<T>::value && !std::is_integral<T>::value, bool>::type
 	SetValue(unsigned __int64 Root, const string& Name, const T& Value)
 	{
+		static_assert(std::is_pod<T>::value, "This template requires a POD type");
 		return SetValue(Root, Name, &Value, sizeof(Value));
 	}
+
 	virtual bool GetValue(unsigned __int64 Root, const string& Name, unsigned __int64 *Value) = 0;
 	virtual bool GetValue(unsigned __int64 Root, const string& Name, string &strValue) = 0;
 	virtual int GetValue(unsigned __int64 Root, const string& Name, void *Value, size_t Size) = 0;
+	template<class T>
+	typename std::enable_if<!std::is_pointer<T>::value && !std::is_integral<T>::value, bool>::type
+	GetValue(unsigned __int64 Root, const string& Name, T& Value)
+	{
+		static_assert(std::is_pod<T>::value, "This template requires a POD type");
+		return GetValue(Root, Name, &Value, sizeof(Value)) != 0;
+	}
+
 	virtual bool DeleteKeyTree(unsigned __int64 KeyID) = 0;
 	virtual bool DeleteValue(unsigned __int64 Root, const string& Name) = 0;
 	virtual bool EnumKeys(unsigned __int64 Root, DWORD Index, string &strName) = 0;
@@ -270,6 +290,8 @@ protected:
 	HistoryConfig() {}
 };
 
+ENUM(dbcheck);
+
 class Database: noncopyable
 {
 public:
@@ -300,7 +322,6 @@ public:
 	HierarchicalConfigUniquePtr CreatePanelModeConfig();
 
 private:
-	ENUM(dbcheck);
 	template<class T> HierarchicalConfigUniquePtr CreateHierarchicalConfig(dbcheck DbId, const string& dbn, const char *xmln, bool Local = false, bool plugin = false);
 	template<class T> std::unique_ptr<T> CreateDatabase(const char *son = nullptr);
 	void TryImportDatabase(XmlConfig *p, const char *son = nullptr, bool plugin=false);

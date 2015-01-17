@@ -52,6 +52,7 @@ inline bool IsUnicodeOrUtfCodePage(uintptr_t cp) { return IsUnicodeCodePage(cp) 
 class Dialog;
 struct DialogBuilderListItem2;
 class VMenu2;
+ENUM(CodePagesCallbackCallSource);
 
 class codepages: noncopyable
 {
@@ -101,7 +102,6 @@ private:
 	uintptr_t currentCodePage;
 	int favoriteCodePages, normalCodePages;
 	bool selectedCodePages;
-	ENUM(CodePagesCallbackCallSource);
 	CodePagesCallbackCallSource CallbackCallSource;
 
 	class codepages_data

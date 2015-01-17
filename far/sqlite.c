@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma warning(push, 1)
 #pragma warning(disable:4701)
-#pragma runtime_checks("c", off)
 #ifdef __GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #pragma GCC diagnostic ignored "-Wstrict-overflow"

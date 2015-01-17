@@ -2628,7 +2628,7 @@ struct Viewer::search_data
 	}
 };
 
-ENUM(Viewer::SEARCHER_RESULT)
+ENUM(SEARCHER_RESULT)
 {
 	Search_NotFound  = 0,
 	Search_Continue  = 1,
@@ -2645,7 +2645,7 @@ ENUM(SEARCH_WRAP_MODE)
 	SearchWrap_CYCLE = 2,
 };
 
-Viewer::SEARCHER_RESULT Viewer::search_hex_forward(search_data* sd)
+SEARCHER_RESULT Viewer::search_hex_forward(search_data* sd)
 {
 	char *buff = (char *)Search_buffer.data();
 	const char *search_str = sd->search_bytes;
@@ -2713,7 +2713,7 @@ Viewer::SEARCHER_RESULT Viewer::search_hex_forward(search_data* sd)
 		return Search_Continue;
 }
 
-Viewer::SEARCHER_RESULT Viewer::search_hex_backward(search_data* sd)
+SEARCHER_RESULT Viewer::search_hex_backward(search_data* sd)
 {
 	char *buff = (char *)Search_buffer.data();
 	const char *search_str = sd->search_bytes;
@@ -2779,7 +2779,7 @@ Viewer::SEARCHER_RESULT Viewer::search_hex_backward(search_data* sd)
 		return Search_Continue;
 }
 
-Viewer::SEARCHER_RESULT Viewer::search_text_forward(search_data* sd)
+SEARCHER_RESULT Viewer::search_text_forward(search_data* sd)
 {
 	int bsize = 8192, slen = sd->search_len, ww = (LastSearchWholeWords ? 1 : 0);
 	wchar_t prev_char = L'\0', *buff = Search_buffer.data(), *t_buff = (sd->ch_size < 0 ? buff + bsize : nullptr);
@@ -2862,7 +2862,7 @@ Viewer::SEARCHER_RESULT Viewer::search_text_forward(search_data* sd)
 	return Search_Continue;
 }
 
-Viewer::SEARCHER_RESULT Viewer::search_text_backward(search_data* sd)
+SEARCHER_RESULT Viewer::search_text_backward(search_data* sd)
 {
 	int bsize = 8192, slen = sd->search_len, ww = (LastSearchWholeWords ? 1 : 0);
 	wchar_t *buff = Search_buffer.data(), *t_buff = (sd->ch_size < 0 ? buff + bsize : nullptr);
@@ -2973,7 +2973,7 @@ int Viewer::read_line(wchar_t *buf, wchar_t *tbuf, INT64 cpos, int adjust, INT64
 	return llen;
 }
 
-Viewer::SEARCHER_RESULT Viewer::search_regex_forward(search_data* sd)
+SEARCHER_RESULT Viewer::search_regex_forward(search_data* sd)
 {
 	assert(sd->pRex);
 	assert(Search_buffer.size() >= static_cast<size_t>(2*MAX_VIEWLINEB));
@@ -3040,7 +3040,7 @@ Viewer::SEARCHER_RESULT Viewer::search_regex_forward(search_data* sd)
 	}
 }
 
-Viewer::SEARCHER_RESULT Viewer::search_regex_backward(search_data* sd)
+SEARCHER_RESULT Viewer::search_regex_backward(search_data* sd)
 {
 	assert(sd->pRex);
 	assert(Search_buffer.size() >= static_cast<size_t>(2*MAX_VIEWLINEB));

@@ -57,7 +57,7 @@ const wchar_t *NamesOfCodePagesKey = L"CodePages.Names";
 const wchar_t *FavoriteCodePagesKey = L"CodePages.Favorites";
 
 // Источник вызова каллбака прохода по кодовым страницам
-ENUM(codepages::CodePagesCallbackCallSource)
+ENUM(CodePagesCallbackCallSource)
 {
 	CodePageSelect,
 	CodePagesFill,
@@ -84,7 +84,7 @@ enum StandardCodePagesMenuItems
 class system_codepages_enumerator
 {
 public:
-	const static codepages::codepages_data* context;
+	static const codepages::codepages_data* context;
 
 	static BOOL CALLBACK enum_cp(wchar_t *cpNum)
 	{

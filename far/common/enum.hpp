@@ -27,14 +27,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef __GNUC__
-# define ENUM(ENUM_NAME) enum ENUM_NAME:int
-#endif
-
-#ifdef _MSC_VER
-# if _MSC_VER>1600
-#  define ENUM(ENUM_NAME) enum ENUM_NAME:int
-# else
-#  define ENUM(ENUM_NAME) enum ENUM_NAME
-# endif
+#if defined _MSC_VER && _MSC_VER < 1700
+#define ENUM(ENUM_NAME) enum ENUM_NAME
+#else
+#define ENUM(ENUM_NAME) enum ENUM_NAME:int
 #endif

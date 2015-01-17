@@ -219,9 +219,9 @@ static void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilter
 	}
 
 	FILETIME DateAfter = {};
-	cfg->GetValue(key,HLS.DateAfter, &DateAfter, sizeof(DateAfter));
+	cfg->GetValue(key,HLS.DateAfter, DateAfter);
 	FILETIME DateBefore = {};
-	cfg->GetValue(key,HLS.DateBefore, &DateBefore, sizeof(DateBefore));
+	cfg->GetValue(key,HLS.DateBefore, DateBefore);
 	unsigned __int64 UseDate = 0;
 	cfg->GetValue(key,HLS.UseDate,&UseDate);
 	unsigned __int64 DateType = 0;
@@ -270,14 +270,14 @@ static void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilter
 	HData.SetSortGroup(SortGroup);
 
 	HighlightFiles::highlight_item Colors = {};
-	cfg->GetValue(key,HLS.NormalColor, &Colors.Color[HighlightFiles::NORMAL_COLOR].FileColor, sizeof(FarColor));
-	cfg->GetValue(key,HLS.SelectedColor, &Colors.Color[HighlightFiles::SELECTED_COLOR].FileColor, sizeof(FarColor));
-	cfg->GetValue(key,HLS.CursorColor, &Colors.Color[HighlightFiles::UNDERCURSOR_COLOR].FileColor, sizeof(FarColor));
-	cfg->GetValue(key,HLS.SelectedCursorColor, &Colors.Color[HighlightFiles::SELECTEDUNDERCURSOR_COLOR].FileColor, sizeof(FarColor));
-	cfg->GetValue(key,HLS.MarkCharNormalColor, &Colors.Color[HighlightFiles::NORMAL_COLOR].MarkColor, sizeof(FarColor));
-	cfg->GetValue(key,HLS.MarkCharSelectedColor, &Colors.Color[HighlightFiles::SELECTED_COLOR].MarkColor, sizeof(FarColor));
-	cfg->GetValue(key,HLS.MarkCharCursorColor, &Colors.Color[HighlightFiles::UNDERCURSOR_COLOR].MarkColor, sizeof(FarColor));
-	cfg->GetValue(key,HLS.MarkCharSelectedCursorColor, &Colors.Color[HighlightFiles::SELECTEDUNDERCURSOR_COLOR].MarkColor, sizeof(FarColor));
+	cfg->GetValue(key,HLS.NormalColor, Colors.Color[HighlightFiles::NORMAL_COLOR].FileColor);
+	cfg->GetValue(key,HLS.SelectedColor, Colors.Color[HighlightFiles::SELECTED_COLOR].FileColor);
+	cfg->GetValue(key,HLS.CursorColor, Colors.Color[HighlightFiles::UNDERCURSOR_COLOR].FileColor);
+	cfg->GetValue(key,HLS.SelectedCursorColor, Colors.Color[HighlightFiles::SELECTEDUNDERCURSOR_COLOR].FileColor);
+	cfg->GetValue(key,HLS.MarkCharNormalColor, Colors.Color[HighlightFiles::NORMAL_COLOR].MarkColor);
+	cfg->GetValue(key,HLS.MarkCharSelectedColor, Colors.Color[HighlightFiles::SELECTED_COLOR].MarkColor);
+	cfg->GetValue(key,HLS.MarkCharCursorColor, Colors.Color[HighlightFiles::UNDERCURSOR_COLOR].MarkColor);
+	cfg->GetValue(key,HLS.MarkCharSelectedCursorColor, Colors.Color[HighlightFiles::SELECTEDUNDERCURSOR_COLOR].MarkColor);
 
 	unsigned __int64 MarkChar;
 	if (cfg->GetValue(key,HLS.MarkChar,&MarkChar))

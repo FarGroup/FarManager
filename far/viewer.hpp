@@ -44,6 +44,7 @@ class FileViewer;
 class KeyBar;
 class Dialog;
 class time_check;
+ENUM(SEARCHER_RESULT);
 
 class Viewer:public SimpleScreenObject
 {
@@ -96,7 +97,6 @@ public:
 
 private:
 	struct ViewerString;
-	ENUM(SEARCHER_RESULT);
 
 	virtual void DisplayObject() override;
 	void ShowPage(int nMode);

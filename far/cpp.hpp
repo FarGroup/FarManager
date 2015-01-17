@@ -145,7 +145,7 @@ namespace std
 
 // already included in VC2014
 #if defined _MSC_VER && _MSC_VER < 1900
-#ifndef __clang__
+#if !defined __clang__ && !defined __INTEL_COMPILER
 #define noexcept throw()
 #endif
 #endif
@@ -159,7 +159,7 @@ namespace std
 #endif
 
 // already fixed in VC2013
-#if defined _MSC_VER && _MSC_VER < 1800
+#if defined _MSC_VER && _MSC_VER < 1800 || defined __INTEL_COMPILER
 // operator :: doesn't work with decltype(T) in VC prior to 2013, this trick fixes it:
 #define decltype(T) std::enable_if<true, decltype(T)>::type
 #endif
