@@ -171,29 +171,22 @@ DizList::desc_map::iterator DizList::AddRecord(const string& Name, const string&
 
 DizList::desc_map::iterator DizList::AddRecord(const string& DizText)
 {
-	size_t NameStart = 0, NameLength = 0;
-	const wchar_t* DizTextPtr = DizText.data();
-	if (*DizTextPtr == L'\"')
-	{
-		DizTextPtr++;
-		NameStart++;
+	string::const_iterator NameBegin, NameEnd, DescBegin;
 
-		while (*DizTextPtr && *DizTextPtr!=L'\"')
-		{
-			DizTextPtr++;
-			NameLength++;
-		}
+	if (DizText.front() == L'"')
+	{
+		NameBegin = DizText.cbegin() + 1;
+		NameEnd = std::find(NameBegin, DizText.cend(), L'"');
+		DescBegin = NameEnd == DizText.cend()? NameEnd : NameEnd + 1;
 	}
 	else
 	{
-		while (!IsSpaceOrEos(*DizTextPtr))
-		{
-			DizTextPtr++;
-			NameLength++;
-		}
+		NameBegin = DizText.cbegin();
+		NameEnd = std::find_if(ALL_CONST_RANGE(DizText), IsSpace);
+		DescBegin = NameEnd;
 	}
 
-	return AddRecord(DizText.substr(NameStart, NameLength), DizText.substr(NameLength + (NameStart? 2: 0)));
+	return AddRecord(string(NameBegin, NameEnd), string(DescBegin, DizText.end()));
 }
 
 const wchar_t* DizList::GetDizTextAddr(const string& Name, const string& ShortName, const __int64 FileSize)
