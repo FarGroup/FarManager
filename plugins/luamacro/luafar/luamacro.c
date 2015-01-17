@@ -185,18 +185,19 @@ int far_MacroCallFar(lua_State *L)
 	TPluginData *pd = GetPluginData(L);
 	struct MacroPrivateInfo *privateInfo = (struct MacroPrivateInfo*)pd->Info->Private;
 	int opcode = (int)luaL_checkinteger(L, 1);
-	fmc.Values = args;
 	fmc.Count = lua_gettop(L) - 1;
+	fmc.Values = fmc.Count<=MAXARG ? args:(struct FarMacroValue*)malloc(fmc.Count*sizeof(struct FarMacroValue));
 	fmc.Callback = MacroCallFarCallback;
 	fmc.CallbackData = &cbdata;
-	luaL_argcheck(L, fmc.Count<=MAXARG, MAXARG+2, "too many arguments");
 
 	for(idx=0; idx<(int)fmc.Count; idx++)
 	{
-		ConvertLuaValue(L, idx+2, args+idx);
-		if (args[idx].Type == FMVT_UNKNOWN)
+		ConvertLuaValue(L, idx+2, fmc.Values+idx);
+		if (fmc.Values[idx].Type == FMVT_UNKNOWN)
 		{
 			lua_Debug ar;
+			if (fmc.Values != args)
+				free(fmc.Values);
 			if (lua_getstack(L,1,&ar) && lua_getinfo(L,"n",&ar) && ar.name)
 				luaL_error(L, "invalid argument #%d to '%s'", idx+1, ar.name);
 			else
@@ -207,31 +208,9 @@ int far_MacroCallFar(lua_State *L)
 	lua_checkstack(L, MAXRET);
 	ret = (int) privateInfo->CallFar(opcode, &fmc);
 	pushed = MAXRET - cbdata.ret_avail;
+	if (fmc.Values != args)
+		free(fmc.Values);
 	return pushed ? pushed : (lua_pushnumber(L, ret), 1);
-}
-
-int far_MacroCallPlugin(lua_State *L)
-{
-	struct MacroPrivateInfo *privateInfo = (struct MacroPrivateInfo*)GetPluginData(L)->Info->Private;
-	struct MacroPluginReturn Params = {0,0,NULL};
-	struct FarMacroCall *Ret;
-	int boolean, idx, nargs = lua_gettop(L);
-
-	lua_createtable(L,0,1);
-	InitMPR(L, &Params, nargs, 0);
-	for(idx=0; idx<nargs; idx++)
-	{
-		ConvertLuaValue(L, idx+1, idx+Params.Values);
-	}
-	privateInfo->CallPlugin(&Params, &Ret, &boolean);
-	lua_settop(L, lua_gettop(L) - nargs - 1); // free stack for return values
-	if (Ret == NULL)
-		return lua_pushboolean(L, boolean), 1;
-	else
-	{
-		size_t count = Ret->Count; // copy it, since after FL_PushParams() Ret can point to freed memory
-		return FL_PushParams(L, Ret) ? (int)count : luaL_error(L, "too many values to place onto Lua stack");
-	}
 }
 
 int far_FarMacroCallToLua(lua_State *L)

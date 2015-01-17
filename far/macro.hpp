@@ -83,7 +83,6 @@ public:
 	static bool PostNewMacro(const wchar_t* Sequence, FARKEYMACROFLAGS Flags, DWORD AKey = 0);
 
 	intptr_t CallFar(intptr_t OpCode, FarMacroCall* Data);
-	void CallPluginSynchro(MacroPluginReturn *Params, FarMacroCall **Target, int *Boolean);
 	bool CheckWaitKeyFunc() const;
 	int  GetCurRecord() const;
 	int  GetKey();
@@ -101,7 +100,7 @@ public:
 private:
 	intptr_t AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 	int  AssignMacroKey(DWORD& MacroKey,UINT64& Flags);
-	void CallPlugin(MacroPluginReturn *mpr, FarMacroValue *fmv, bool CallPluginRules);
+	void CallPlugin(MacroPluginReturn *Params, FarMacroValue *Result, bool CallPluginRules);
 	int  GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src=nullptr,const wchar_t *Descr=nullptr);
 	intptr_t ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 	void RestoreMacroChar() const;

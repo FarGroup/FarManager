@@ -126,7 +126,7 @@ enum MACRO_OP_CODE
 	MCODE_F_FMATCH,                   // N=FMatch(S,Mask)
 	MCODE_F_PLUGIN_MENU,              // N=Plugin.Menu(Guid[,MenuGuid])
 	MCODE_F_PLUGIN_CONFIG,            // N=Plugin.Config(Guid[,MenuGuid])
-	MCODE_F_PLUGIN_CALL,              // N=Plugin.Call(Guid[,Item])
+	MCODE_F_PLUGIN_SYNCCALL,          // N=Plugin.SyncCall(Guid[,Item])
 	MCODE_F_PLUGIN_LOAD,              // N=Plugin.Load(DllPath[,ForceLoad])
 	MCODE_F_PLUGIN_COMMAND,           // N=Plugin.Command(Guid[,Command])
 	MCODE_F_PLUGIN_UNLOAD,            // N=Plugin.UnLoad(DllPath)

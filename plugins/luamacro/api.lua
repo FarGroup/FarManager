@@ -346,12 +346,14 @@ Plugin = {
   Load    = function(...) return MacroCallFar(0x80C51, ...) end,
   Unload  = function(...) return MacroCallFar(0x80C53, ...) end,
 
---Call     = function(...) return MacroCallFar(0x80C50, ...) end,
+  SyncCall = function(...)
+    local v = MacroCallFar(0x80C50, ...)
+    if type(v)=="userdata" then return far.FarMacroCallToLua(v) else return v end
+  end,
 --Command  = function(...) return MacroCallFar(0x80C52, ...) end,
 --Config   = function(...) return MacroCallFar(0x80C4F, ...) end,
 --Menu     = function(...) return MacroCallFar(0x80C4E, ...) end,
 }
-Plugin.SyncCall, far.MacroCallPlugin = far.MacroCallPlugin, nil
 --------------------------------------------------------------------------------
 
 Panel = {

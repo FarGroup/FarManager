@@ -26,9 +26,7 @@ local type, setmetatable = type, setmetatable
 local bit = bit or bit64
 local band, bor, bxor, lshift = bit.band, bit.bor, bit.bxor, bit.lshift
 local far_MacroCallFar = far.MacroCallFar
-
 local far_FarMacroCallToLua = far.FarMacroCallToLua
-far.FarMacroCallToLua = nil
 --------------------------------------------------------------------------------
 
 local MCODE_F_KEYMACRO = 0x80C68

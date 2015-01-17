@@ -162,7 +162,7 @@ void print_opcodes()
 	fprintf(fp, "MCODE_F_FMATCH=0x%X // N=FMatch(S,Mask)\n", MCODE_F_FMATCH);
 	fprintf(fp, "MCODE_F_PLUGIN_MENU=0x%X // N=Plugin.Menu(Guid[,MenuGuid])\n", MCODE_F_PLUGIN_MENU);
 	fprintf(fp, "MCODE_F_PLUGIN_CONFIG=0x%X // N=Plugin.Config(Guid[,MenuGuid])\n", MCODE_F_PLUGIN_CONFIG);
-	fprintf(fp, "MCODE_F_PLUGIN_CALL=0x%X // N=Plugin.Call(Guid[,Item])\n", MCODE_F_PLUGIN_CALL);
+	fprintf(fp, "MCODE_F_PLUGIN_SYNCCALL=0x%X // N=Plugin.Call(Guid[,Item])\n", MCODE_F_PLUGIN_SYNCCALL);
 	fprintf(fp, "MCODE_F_PLUGIN_LOAD=0x%X // N=Plugin.Load(DllPath[,ForceLoad])\n", MCODE_F_PLUGIN_LOAD);
 	fprintf(fp, "MCODE_F_PLUGIN_COMMAND=0x%X // N=Plugin.Command(Guid[,Command])\n", MCODE_F_PLUGIN_COMMAND);
 	fprintf(fp, "MCODE_F_PLUGIN_UNLOAD=0x%X // N=Plugin.UnLoad(DllPath)\n", MCODE_F_PLUGIN_UNLOAD);
@@ -796,24 +796,23 @@ static void ShowUserMenu(size_t Count, const FarMacroValue *Values)
 		UserMenu uMenu(string(Values[0].String));
 }
 
-void KeyMacro::CallPlugin(MacroPluginReturn *mpr, FarMacroValue *fmvalue, bool CallPluginRules)
+void KeyMacro::CallPlugin(MacroPluginReturn *Params, FarMacroValue *Result, bool CallPluginRules)
 {
-	size_t count = mpr->Count;
-	*fmvalue = false;
-	if(count>0 && mpr->Values[0].Type==FMVT_STRING)
+	*Result = false;
+	if(Params->Count>0 && Params->Values[0].Type==FMVT_STRING)
 	{
-		const wchar_t* SysID = mpr->Values[0].String;
+		const wchar_t* SysID = Params->Values[0].String;
 		GUID guid;
 
 		if (StrToGuid(SysID,guid) && Global->CtrlObject->Plugins->FindPlugin(guid))
 		{
-			FarMacroValue *vParams = count>1 ? mpr->Values+1:nullptr;
-			OpenMacroInfo info={sizeof(OpenMacroInfo),count-1,vParams};
+			FarMacroValue *Values = Params->Count>1 ? Params->Values+1:nullptr;
+			OpenMacroInfo info={sizeof(OpenMacroInfo),Params->Count-1,Values};
 			size_t EntryStackSize = GetStateStackSize();
 
 			if (CallPluginRules)
 			{
-				*fmvalue = true;
+				*Result = true;
 				SetMacroValue(true);
 				PushState(true);
 			}
@@ -844,24 +843,11 @@ void KeyMacro::CallPlugin(MacroPluginReturn *mpr, FarMacroValue *fmvalue, bool C
 			{
 				//в windows гарантируется, что не бывает указателей меньше 0x10000
 				if (reinterpret_cast<uintptr_t>(ResultCallPlugin) >= 0x10000 && ResultCallPlugin != INVALID_HANDLE_VALUE)
-					*fmvalue = ResultCallPlugin;
+					*Result = ResultCallPlugin;
 				else
-					*fmvalue = (ResultCallPlugin != nullptr);
+					*Result = (ResultCallPlugin != nullptr);
 			}
 		}
-	}
-}
-
-void KeyMacro::CallPluginSynchro(MacroPluginReturn *Params, FarMacroCall **Target, int *Boolean)
-{
-	FarMacroValue fmvalue;
-	CallPlugin(Params, &fmvalue, false);
-	if (fmvalue.Type == FMVT_POINTER)
-		*Target = (FarMacroCall*)fmvalue.Pointer;
-	else
-	{
-		*Target = nullptr;
-		*Boolean = (int)fmvalue.Boolean;
 	}
 }
 
@@ -2334,6 +2320,18 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			--m_WaitKey;
 
 			return result;
+		}
+		case MCODE_F_PLUGIN_SYNCCALL:
+		{
+			MacroPluginReturn mpr = {0,Data->Count,Data->Values};
+			FarMacroValue Result;
+			CallPlugin(&mpr, &Result, false);
+			if (Result.Type == FMVT_POINTER)
+				Data->Callback(Data->CallbackData, &Result, 1);
+			else
+				PassBoolean(Result.Boolean, Data);
+
+			return 0;
 		}
 		case MCODE_F_WINDOW_SCROLL:   return windowscrollFunc(Data);
 		case MCODE_F_XLAT:            return xlatFunc(Data);

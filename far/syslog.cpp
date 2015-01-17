@@ -1136,7 +1136,7 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(F_FMATCH),                   // N=FMatch(S,Mask)
 		DEF_MCODE_(F_PLUGIN_MENU),              // N=Plugin.Menu(Guid[,MenuGuid])
 		DEF_MCODE_(F_PLUGIN_CONFIG),            // N=Plugin.Config(Guid[,MenuGuid])
-		DEF_MCODE_(F_PLUGIN_CALL),              // N=Plugin.Call(Guid[,Item])
+		DEF_MCODE_(F_PLUGIN_SYNCCALL),          // N=Plugin.SyncCall(Guid[,Item])
 		DEF_MCODE_(F_PLUGIN_LOAD),              // N=Plugin.Load(DllPath[,ForceLoad])
 		DEF_MCODE_(F_PLUGIN_COMMAND),           // N=Plugin.Command(Guid[,Command])
 		DEF_MCODE_(F_PLUGIN_UNLOAD),            // N=Plugin.UnLoad(DllPath)
@@ -1956,7 +1956,7 @@ void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &wfd,FILE *
 
 		if (wfd.dwFileAttributes&FILE_ATTRIBUTE_NO_SCRUB_DATA)
 			fwprintf(fp, L"%*s %s     FILE_ATTRIBUTE_NO_SCRUB_DATA      (0x00020000)\n",12,L"",space);
-		
+
 
 		string D, T;
 		ConvertDate(wfd.ftCreationTime,D,T,8,FALSE,FALSE,TRUE);

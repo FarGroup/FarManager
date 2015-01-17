@@ -3242,18 +3242,4 @@ intptr_t WINAPI apiCallFar(intptr_t CheckCode, FarMacroCall* Data) noexcept
 	}
 }
 
-void WINAPI apiCallPlugin(MacroPluginReturn* Data, FarMacroCall** Target, int *Boolean) noexcept
-{
-	try
-	{
-		if (Global->CtrlObject)
-			Global->CtrlObject->Macro.CallPluginSynchro(Data, Target, Boolean);
-	}
-	catch (...)
-	{
-		// TODO: log
-		return;
-	}
-}
-
 }
