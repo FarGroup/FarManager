@@ -2402,7 +2402,7 @@ void PluginManager::GetContentData(
 			for (size_t k=0; k<Count; k++)
 			{
 				if (GetInfo.Values[k])
-					ContentData.emplace(std::make_pair(ColNames[k],GetInfo.Values[k]));
+					ContentData[ColNames[k]] += GetInfo.Values[k];
 			}
 
 			if (i->HasFreeContentData())
