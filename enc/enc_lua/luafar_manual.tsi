@@ -8721,7 +8721,7 @@ lv=2
 dt=Text
 nm=far.Timer
 ctime=3482124061
-mtime=3609249361
+mtime=3630782697
 <article>
 #_timer = far.Timer (interval, handler [, ...])
 #_
@@ -8736,7 +8736,7 @@ mtime=3609249361
 #_**Description:**
 #_  The function creates a periodic timer. Every time the next
 #_  *interval* milliseconds are elapsed, the *handler* is called
-#_  with the timer object as its first argument following by all
+#_  with the timer object as its first argument followed by all
 #_  the additional arguments (if any) passed to far.Timer.
 #_
 #_  The returned "timer object" can be used to query or modify
@@ -8885,7 +8885,7 @@ lv=4
 dt=Text
 nm=OnTimer
 ctime=3482328777
-mtime=3609322312
+mtime=3630782715
 <article>
 #_handler = timer.OnTimer
 #_    or
@@ -8894,7 +8894,7 @@ mtime=3609322312
 #_**Description:**
 #_  Query or set the timer handler function.
 #_  The handler function is called with the timer object as its first argument
-#_  following by all the additional arguments (if any) passed to `far.Timer`.
+#_  followed by all the additional arguments (if any) passed to `far.Timer`.
 #_
 #_@@@
 #_[far.Timer]: 346.html
