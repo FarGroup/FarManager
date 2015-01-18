@@ -3,6 +3,41 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 18.01.2015 20:58:13 +0200 - build 4245
+
+1. Data for content columns of the same name but different plugins are concatenated.
+
+shmuel 17.01.2015 23:30:07 +0200 - build 4244
+
+1. Refactoring.
+
+drkns 17.01.2015 23:10:50 +0200 - build 4243
+
+1. 0002908: Exception after attempt of displaying a description for incorrect Descript.ion
+
+drkns 17.01.2015 16:00:16 +0200 - build 4242
+
+1. Continuation of 4241.
+
+1. Support for compilation with Intel C++ 14.
+
+drkns 17.01.2015 09:38:11 +0200 - build 4241
+
+1. Race condition in far /?
+
+2. Уточнение 4232.
+
+3. Refactoring.
+
+zg 16.01.2015 00:46:37 +0200 - build 4240
+
+1. correction for altf9 in quick search.
+
+svs 14.01.2015 12:54:28 +0300 - build 4239
+
+1. F1 shows "MiscCmd" help screen in grabber (Alt-Ins).
+   Selection of an area is not cancelled on help window close.
+
 shmuel 11.01.2015 20:00:05 +0200 - build 4238
 
 1. Refactoring.
