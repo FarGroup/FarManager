@@ -237,7 +237,7 @@ static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel, Console
 				BufInit = true;
 			}
 
-			time_check TimeCheck(time_check::delayed, GetRedrawTimeout());
+			time_check TimeCheck(time_check::immediate, GetRedrawTimeout());
 			do
 			{
 				size_t Written;
@@ -572,7 +572,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		}
 
 		SrcPanel->GetSelName(nullptr,FileAttr);
-		time_check TimeCheck(time_check::delayed, GetRedrawTimeout());
+		time_check TimeCheck(time_check::immediate, GetRedrawTimeout());
 		bool cannot_recycle_try_delete_folder = false;
 
 		while (!Cancel && (cannot_recycle_try_delete_folder || SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName)))
@@ -648,7 +648,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 					}
 
 					ScTree.SetFindPath(strSelFullName,L"*", 0);
-					time_check TreeTimeCheck(time_check::delayed, GetRedrawTimeout());
+					time_check TreeTimeCheck(time_check::immediate, GetRedrawTimeout());
 
 					while (ScTree.GetNextName(&FindData,strFullName))
 					{
