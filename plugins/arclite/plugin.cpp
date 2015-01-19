@@ -650,8 +650,9 @@ public:
 
     // relative paths
     if (!src_path.empty()) {
+      size_t size = src_path.size() + (src_path.back() == L'\\' ? 0 : 1);
       for_each(files.begin(), files.end(), [&] (wstring& file) {
-        file.erase(0, src_path.size() + 1);
+        file.erase(0, size);
       });
     }
 
