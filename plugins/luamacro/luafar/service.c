@@ -3076,10 +3076,12 @@ static int far_SendDlgMessage(lua_State *L)
 		case DM_GETDIALOGTITLE:
 		{
 			struct FarDialogItemData fdid;
+			size_t size;
 			fdid.StructSize = sizeof(fdid);
 			fdid.PtrLength = (size_t) Info->SendDlgMessage(hDlg, Msg, Param1, NULL);
 			fdid.PtrData = (wchar_t*) malloc((fdid.PtrLength+1) * sizeof(wchar_t));
-			push_utf8_string(L, Info->SendDlgMessage(hDlg, Msg, Param1, &fdid)?fdid.PtrData:L"", -1);
+			size = Info->SendDlgMessage(hDlg, Msg, Param1, &fdid);
+			push_utf8_string(L, size?fdid.PtrData:L"", size);
 			free(fdid.PtrData);
 			return 1;
 		}
@@ -3093,8 +3095,8 @@ static int far_SendDlgMessage(lua_State *L)
 		{
 			struct FarDialogItemData fdid;
 			fdid.StructSize = sizeof(fdid);
-			fdid.PtrData = (wchar_t*)check_utf8_string(L, 4, NULL);
-			fdid.PtrLength = 0; // wcslen(fdid.PtrData);
+			fdid.PtrLength = 0;
+			fdid.PtrData = (wchar_t*)check_utf8_string(L, 4, &fdid.PtrLength);
 			lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, Param1, &fdid));
 			return 1;
 		}

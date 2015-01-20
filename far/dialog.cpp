@@ -5655,7 +5655,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			auto InitItemData=[did,&Ptr,&Len]
 			{
 				if (!did->PtrLength)
-					did->PtrLength=Len;
+					did->PtrLength=Len; //BUGBUG: PtrLength размер переданного нам буфера, зачем мы его меняем?
 				else if (Len > did->PtrLength)
 					Len=did->PtrLength;
 
@@ -5677,11 +5677,16 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 					case DI_EDIT:
 					case DI_PSWEDIT:
 					case DI_FIXEDIT:
-
-						if (!CurItem->ObjPtr)
-							break;
-
-						Ptr = static_cast<DlgEdit*>(CurItem->ObjPtr)->GetStringAddr();
+					{
+						auto edit=static_cast<DlgEdit*>(CurItem->ObjPtr);
+						if (edit)
+						{
+							Ptr = edit->GetStringAddr();
+							Len = edit->GetLength();
+							InitItemData();
+						}
+						break;
+					}
 					case DI_TEXT:
 					case DI_VTEXT:
 					case DI_SINGLEBOX:
@@ -5722,7 +5727,6 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						break;
 					}
 					default:  // подразумеваем, что остались
-						did->PtrLength=0;
 						break;
 				}
 
@@ -5812,7 +5816,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 					case DI_PSWEDIT:
 					case DI_FIXEDIT:
 					case DI_LISTBOX: // меняет только текущий элемент
-						CurItem->strData = did->PtrData;
+						CurItem->strData = string(did->PtrData, did->PtrLength);
 						Len = CurItem->strData.size();
 						break;
 					default:
