@@ -5694,7 +5694,8 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 					case DI_CHECKBOX:
 					case DI_RADIOBUTTON:
 					case DI_BUTTON:
-						Len = wcslen(Ptr);
+						Ptr = CurItem->strData.data();
+						Len = CurItem->strData.size();
 
 						if (Type == DI_BUTTON)
 						{
@@ -5720,8 +5721,8 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 						if ((ListMenuItem=CurItem->ListPtr->GetItemPtr(-1)) )
 						{
-							Len=(int)ListMenuItem->strName.size()+1;
-							Ptr=ListMenuItem->strName.c_str();
+							Ptr=ListMenuItem->strName.data();
+							Len=ListMenuItem->strName.size();
 						}
 						InitItemData();
 						break;
@@ -5737,7 +5738,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			switch (Type)
 			{
 				case DI_BUTTON:
-					Len = wcslen(Ptr) + 1;
+					Len = CurItem->strData.size();
 
 					if (!(CurItem->Flags & DIF_NOBRACKETS))
 						Len-=4;
@@ -5752,7 +5753,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				case DI_DOUBLEBOX:
 				case DI_CHECKBOX:
 				case DI_RADIOBUTTON:
-					Len = wcslen(Ptr) + 1;
+					Len = CurItem->strData.size();
 					break;
 				case DI_COMBOBOX:
 				case DI_EDIT:
@@ -5762,7 +5763,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 					if (CurItem->ObjPtr)
 					{
-						Len = static_cast<DlgEdit*>(CurItem->ObjPtr)->GetLength()+1;
+						Len = static_cast<DlgEdit*>(CurItem->ObjPtr)->GetLength();
 						break;
 					}
 
@@ -5773,7 +5774,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 					if ((ListMenuItem=CurItem->ListPtr->GetItemPtr(-1)) )
 					{
-						Len=(int)ListMenuItem->strName.size()+1;
+						Len=(int)ListMenuItem->strName.size();
 					}
 
 					break;
@@ -5783,7 +5784,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 					break;
 			}
 
-			return Len-(!Len?0:1);
+			return Len;
 		}
 		/*****************************************************************/
 		case DM_SETTEXTPTR:
