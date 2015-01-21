@@ -467,10 +467,10 @@ static bool IsTopMacroOutputDisabled()
 	return MacroPluginOp(5.0,false,&Ret) ? !!Ret.ReturnType : false;
 }
 
-static inline bool IsMacroQueueEmpty()
+static inline bool IsPostMacroEnabled()
 {
 	MacroPluginReturn Ret;
-	return !MacroPluginOp(6.0,false,&Ret) || Ret.ReturnType==1;
+	return MacroPluginOp(6.0,false,&Ret) && Ret.ReturnType==1;
 }
 
 static void SetMacroValue(const FarMacroValue& Value)
@@ -682,7 +682,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 			}
 			else
 			{
-				if (!m_WaitKey && (!IsExecuting() || IsMacroQueueEmpty()))
+				if (!m_WaitKey && IsPostMacroEnabled())
 				{
 					DWORD key = Rec->IntKey;
 					if ((key&0x00FFFFFF) > 0x7F && (key&0x00FFFFFF) < 0xFFFF)

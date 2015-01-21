@@ -419,7 +419,7 @@ local OP_ISDISABLEOUTPUT    =  2
 local OP_HISTORYDISABLEMASK =  3
 local OP_ISHISTORYDISABLE   =  4
 local OP_ISTOPMACROOUTPUTDISABLED = 5
-local OP_ISMACROQUEUEEMPTY  =  6
+local OP_ISPOSTMACROENABLED =  6
 local OP_POSTNEWMACRO       =  7
 local OP_SETMACROVALUE      =  8
 local OP_GETINPUTFROMMACRO  =  9
@@ -442,8 +442,8 @@ function KeyMacro.Dispatch (opcode, ...)
   elseif opcode==OP_ISTOPMACROOUTPUTDISABLED then
     local mr = GetTopMacro()
     return mr and 0==band(mr:GetFlags(),MFLAGS_ENABLEOUTPUT) and 1 or 0
-  elseif opcode == OP_ISMACROQUEUEEMPTY then
-    return GetCurMacro() and 0 or 1
+  elseif opcode == OP_ISPOSTMACROENABLED then
+    return not (IsExecuting() and GetCurMacro()) and 1 or 0
   elseif opcode == OP_POSTNEWMACRO then -- from API MacroControl(MSSC_POST)
     local Lang,Code,Flags,AKey = ...
     local f1,f2 = loadmacro(Lang,Code)
