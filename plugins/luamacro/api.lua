@@ -347,12 +347,9 @@ Plugin = {
   Unload  = function(...) return MacroCallFar(0x80C53, ...) end,
 
   SyncCall = function(...)
-    local v = MacroCallFar(0x80C50, ...)
+    local v = Shared.keymacro.CallPlugin(Shared.pack(...), false)
     if type(v)=="userdata" then return far.FarMacroCallToLua(v) else return v end
-  end,
---Command  = function(...) return MacroCallFar(0x80C52, ...) end,
---Config   = function(...) return MacroCallFar(0x80C4F, ...) end,
---Menu     = function(...) return MacroCallFar(0x80C4E, ...) end,
+  end
 }
 --------------------------------------------------------------------------------
 

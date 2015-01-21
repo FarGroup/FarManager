@@ -161,7 +161,7 @@ void print_opcodes()
 	fprintf(fp, "MCODE_F_HISTORY_DISABLE=0x%X // N=History.Disable([State])\n", MCODE_F_HISTORY_DISABLE);
 	fprintf(fp, "MCODE_F_FMATCH=0x%X // N=FMatch(S,Mask)\n", MCODE_F_FMATCH);
 	fprintf(fp, "MCODE_F_PLUGIN_MENU=0x%X // N=Plugin.Menu(Guid[,MenuGuid])\n", MCODE_F_PLUGIN_MENU);
-	fprintf(fp, "MCODE_F_PLUGIN_CONFIG=0x%X // N=Plugin.Config(Guid[,MenuGuid])\n", MCODE_F_PLUGIN_CONFIG);
+	fprintf(fp, "MCODE_F_PLUGIN_CALL=0x%X // N=Plugin.Config(Guid[,MenuGuid])\n", MCODE_F_PLUGIN_CALL);
 	fprintf(fp, "MCODE_F_PLUGIN_SYNCCALL=0x%X // N=Plugin.Call(Guid[,Item])\n", MCODE_F_PLUGIN_SYNCCALL);
 	fprintf(fp, "MCODE_F_PLUGIN_LOAD=0x%X // N=Plugin.Load(DllPath[,ForceLoad])\n", MCODE_F_PLUGIN_LOAD);
 	fprintf(fp, "MCODE_F_PLUGIN_COMMAND=0x%X // N=Plugin.Command(Guid[,Command])\n", MCODE_F_PLUGIN_COMMAND);
@@ -380,7 +380,7 @@ struct DlgParam
 
 static bool ToDouble(__int64 v, double *d)
 {
-	if ((v >= 0 && v <= 0x1FFFFFFFFFFFFFLL) || (v < 0 && -v <= 0x1FFFFFFFFFFFFFLL))
+	if ((v >= 0 && v <= 0x1FFFFFFFFFFFFFLL) || (v < 0 && v >= -0x1FFFFFFFFFFFFFLL))
 	{
 		*d = (double)v;
 		return true;
@@ -431,67 +431,51 @@ template<class T> bool MacroPluginOp(double OpCode, T Param, MacroPluginReturn* 
 	return false;
 }
 
-static inline void PushState(bool withClip)
-{
-	MacroPluginOp(1.0, withClip);
-}
-
-static inline void PopState(bool withClip)
-{
-	MacroPluginOp(2.0, withClip);
-}
-
 int KeyMacro::IsExecuting()
 {
 	MacroPluginReturn Ret;
-	return MacroPluginOp(3.0,false,&Ret) ? Ret.ReturnType : MACROSTATE_NOMACRO;
+	return MacroPluginOp(1.0,false,&Ret) ? Ret.ReturnType : MACROSTATE_NOMACRO;
 }
 
 int KeyMacro::IsDisableOutput()
 {
 	MacroPluginReturn Ret;
-	return MacroPluginOp(4.0,false,&Ret) ? Ret.ReturnType : 0;
+	return MacroPluginOp(2.0,false,&Ret) ? Ret.ReturnType : 0;
 }
 
 static inline DWORD SetHistoryDisableMask(DWORD Mask)
 {
 	MacroPluginReturn Ret;
-	return MacroPluginOp(5.0,(double)Mask,&Ret) ? Ret.ReturnType : 0;
+	return MacroPluginOp(3.0,(double)Mask,&Ret) ? Ret.ReturnType : 0;
 }
 
 static inline DWORD GetHistoryDisableMask()
 {
 	MacroPluginReturn Ret;
-	return MacroPluginOp(5.0,false,&Ret) ? Ret.ReturnType : 0;
+	return MacroPluginOp(3.0,false,&Ret) ? Ret.ReturnType : 0;
 }
 
 bool KeyMacro::IsHistoryDisable(int TypeHistory)
 {
 	MacroPluginReturn Ret;
-	return MacroPluginOp(6.0,(double)TypeHistory,&Ret) ? !!Ret.ReturnType : false;
+	return MacroPluginOp(4.0,(double)TypeHistory,&Ret) ? !!Ret.ReturnType : false;
 }
 
 static bool IsTopMacroOutputDisabled()
 {
 	MacroPluginReturn Ret;
-	return MacroPluginOp(7.0,false,&Ret) ? !!Ret.ReturnType : false;
+	return MacroPluginOp(5.0,false,&Ret) ? !!Ret.ReturnType : false;
 }
 
 static inline bool IsMacroQueueEmpty()
 {
 	MacroPluginReturn Ret;
-	return !MacroPluginOp(8.0,false,&Ret) || Ret.ReturnType==1;
-}
-
-static inline size_t GetStateStackSize()
-{
-	MacroPluginReturn Ret;
-	return MacroPluginOp(9.0,false,&Ret) ? Ret.ReturnType : 0;
+	return !MacroPluginOp(6.0,false,&Ret) || Ret.ReturnType==1;
 }
 
 static void SetMacroValue(const FarMacroValue& Value)
 {
-	FarMacroValue values[2]={11.0,Value};
+	FarMacroValue values[2]={8.0,Value};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_KEYMACRO,&fmc};
 	CallMacroPluginSimple(&info);
@@ -499,7 +483,7 @@ static void SetMacroValue(const FarMacroValue& Value)
 
 static bool TryToPostMacro(FARMACROAREA Mode,const string& TextKey,DWORD IntKey)
 {
-	FarMacroValue values[] = {13.0,(double)Mode,TextKey.data(),(double)IntKey};
+	FarMacroValue values[] = {10.0,(double)Mode,TextKey.data(),(double)IntKey};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_KEYMACRO,&fmc};
 	return CallMacroPluginSimple(&info);
@@ -569,7 +553,7 @@ int KeyMacro::GetCurRecord() const
 
 static bool GetInputFromMacro(MacroPluginReturn *mpr)
 {
-	FarMacroValue values[]={12.0};
+	FarMacroValue values[]={9.0};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_KEYMACRO,&fmc};
 
@@ -758,7 +742,6 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 					LM_ProcessRecordedMacro(m_StartMode,strKey,m_RecCode,Flags,m_RecDescription);
 				}
 
-				//{FILE* log=fopen("c:\\plugins.log","at"); if(log) {fprintf(log,"%ls\n",m_RecCode.data()); fclose(log);}}
 				m_Recording=MACROSTATE_NOMACRO;
 				m_RecCode.clear();
 				m_RecDescription.clear();
@@ -772,7 +755,6 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 			}
 			else
 			{
-				//{FILE* log=fopen("c:\\plugins.log","at"); if(log) {fprintf(log,"key: %08x\n",Rec->IntKey); fclose(log);}}
 				if (!Global->IsProcessAssignMacroKey)
 				{
 					if (!m_RecCode.empty()) m_RecCode+=L" ";
@@ -794,61 +776,6 @@ static void ShowUserMenu(size_t Count, const FarMacroValue *Values)
 		UserMenu uMenu(Values[0].Boolean != 0);
 	else if (Values[0].Type==FMVT_STRING)
 		UserMenu uMenu(string(Values[0].String));
-}
-
-void KeyMacro::CallPlugin(MacroPluginReturn *Params, FarMacroValue *Result, bool CallPluginRules)
-{
-	*Result = false;
-	if(Params->Count>0 && Params->Values[0].Type==FMVT_STRING)
-	{
-		const wchar_t* SysID = Params->Values[0].String;
-		GUID guid;
-
-		if (StrToGuid(SysID,guid) && Global->CtrlObject->Plugins->FindPlugin(guid))
-		{
-			FarMacroValue *Values = Params->Count>1 ? Params->Values+1:nullptr;
-			OpenMacroInfo info={sizeof(OpenMacroInfo),Params->Count-1,Values};
-			size_t EntryStackSize = GetStateStackSize();
-
-			if (CallPluginRules)
-			{
-				*Result = true;
-				SetMacroValue(true);
-				PushState(true);
-			}
-			else
-				m_InternalInput++;
-
-			int lockCount = Global->ScrBuf->GetLockCount();
-			Global->ScrBuf->SetLockCount(0);
-
-			void* ResultCallPlugin = nullptr;
-			if (!Global->CtrlObject->Plugins->CallPlugin(guid,OPEN_FROMMACRO,&info,&ResultCallPlugin))
-				ResultCallPlugin = nullptr;
-
-			Global->ScrBuf->SetLockCount(lockCount);
-
-			bool isSynchroCall=true;
-			if (CallPluginRules)
-			{
-				if (GetStateStackSize() > EntryStackSize) // эта проверка нужна, т.к. PopState() мог уже быть вызван.
-					PopState(true);
-				else
-					isSynchroCall=false;
-			}
-			else
-				m_InternalInput--;
-
-			if (isSynchroCall)
-			{
-				//в windows гарантируется, что не бывает указателей меньше 0x10000
-				if (reinterpret_cast<uintptr_t>(ResultCallPlugin) >= 0x10000 && ResultCallPlugin != INVALID_HANDLE_VALUE)
-					*Result = ResultCallPlugin;
-				else
-					*Result = (ResultCallPlugin != nullptr);
-			}
-		}
-	}
 }
 
 int KeyMacro::GetKey()
@@ -899,14 +826,6 @@ int KeyMacro::GetKey()
 			{
 				m_StringToPrint = mpr.Values[0].String;
 				return KEY_OP_PLAINTEXT;
-			}
-
-			case MPRT_PLUGINCALL: // V=Plugin.Call(Guid[,param])
-			{
-				FarMacroValue fmvalue;
-				CallPlugin(&mpr, &fmvalue, true);
-				SetMacroValue(fmvalue);
-				break;
 			}
 
 			case MPRT_PLUGINMENU:   // N=Plugin.Menu(Guid[,MenuGuid])
@@ -1063,7 +982,7 @@ bool KeyMacro::PostNewMacro(const wchar_t* Sequence,FARKEYMACROFLAGS InputFlags,
 	if (InputFlags & KMFLAGS_ENABLEOUTPUT)        Flags |= MFLAGS_ENABLEOUTPUT;
 	if (InputFlags & KMFLAGS_NOSENDKEYSTOPLUGINS) Flags |= MFLAGS_NOSENDKEYSTOPLUGINS;
 
-	FarMacroValue values[]={10.0,Lang,Sequence,(double)Flags,(double)AKey};
+	FarMacroValue values[]={7.0,Lang,Sequence,(double)Flags,(double)AKey};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_KEYMACRO,&fmc};
 	return CallMacroPluginSimple(&info);
@@ -2321,18 +2240,41 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			return result;
 		}
-		case MCODE_F_PLUGIN_SYNCCALL:
-		{
-			MacroPluginReturn mpr = {0,Data->Count,Data->Values};
-			FarMacroValue Result;
-			CallPlugin(&mpr, &Result, false);
-			if (Result.Type == FMVT_POINTER)
-				Data->Callback(Data->CallbackData, &Result, 1);
-			else
-				PassBoolean(Result.Boolean, Data);
+		case MCODE_F_PLUGIN_CALL:
+			if(Data->Count>=2 && Data->Values[0].Type==FMVT_BOOLEAN && Data->Values[1].Type==FMVT_STRING)
+			{
+				bool SyncCall = (Data->Values[0].Boolean == 0);
+				const wchar_t* SysID = Data->Values[1].String;
+				GUID guid;
 
+				if (StrToGuid(SysID,guid) && Global->CtrlObject->Plugins->FindPlugin(guid))
+				{
+					FarMacroValue *Values = Data->Count>2 ? Data->Values+2:nullptr;
+					OpenMacroInfo info={sizeof(OpenMacroInfo),Data->Count-2,Values};
+					void *ResultCallPlugin = nullptr;
+
+					if (SyncCall) m_InternalInput++;
+
+					if (!Global->CtrlObject->Plugins->CallPlugin(guid,OPEN_FROMMACRO,&info,&ResultCallPlugin))
+						ResultCallPlugin = nullptr;
+
+					if (SyncCall) m_InternalInput--;
+
+					//в windows гарантируется, что не бывает указателей меньше 0x10000
+					if (reinterpret_cast<uintptr_t>(ResultCallPlugin) >= 0x10000 && ResultCallPlugin != INVALID_HANDLE_VALUE)
+					{
+						FarMacroValue Result(ResultCallPlugin);
+						Data->Callback(Data->CallbackData, &Result, 1);
+					}
+					else
+						PassBoolean(ResultCallPlugin != nullptr, Data);
+
+					return 0;
+				}
+			}
+			PassBoolean(false, Data);
 			return 0;
-		}
+
 		case MCODE_F_WINDOW_SCROLL:   return windowscrollFunc(Data);
 		case MCODE_F_XLAT:            return xlatFunc(Data);
 		case MCODE_F_PROMPT:          return promptFunc(Data);

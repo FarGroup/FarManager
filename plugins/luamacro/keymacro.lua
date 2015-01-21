@@ -9,8 +9,8 @@ Shared = nil
 local F = far.Flags
 
 -- enum MACROPLUGINRETURNTYPE
-local MPRT_NORMALFINISH, MPRT_ERRORFINISH, MPRT_HASNOMACRO =
-      F.MPRT_NORMALFINISH, F.MPRT_ERRORFINISH, F.MPRT_HASNOMACRO
+local MPRT_NORMALFINISH, MPRT_ERRORFINISH, MPRT_HASNOMACRO, MPRT_PLUGINCALL =
+      F.MPRT_NORMALFINISH, F.MPRT_ERRORFINISH, F.MPRT_HASNOMACRO, F.MPRT_PLUGINCALL
 
 -- enum FARMACROSTATE
 local MACROSTATE_NOMACRO, MACROSTATE_EXECUTING, MACROSTATE_EXECUTING_COMMON =
@@ -21,6 +21,7 @@ local MFLAGS_ENABLEOUTPUT, MFLAGS_NOSENDKEYSTOPLUGINS, MFLAGS_POSTFROMPLUGIN =
       0x1, 0x2, 0x10000000
 
 local KEY_NONE = 0x30001
+local MCODE_F_PLUGIN_CALL = 0x80C4F
 
 local type, setmetatable = type, setmetatable
 local bit = bit or bit64
@@ -280,6 +281,8 @@ local function GetInputFromMacro()
       if not GetCurMacro() then
         Import.RestoreMacroChar()
       end
+    elseif r1 == MPRT_PLUGINCALL then
+      KeyMacro.CallPlugin(r2, true)
     else
       if band(macro:GetFlags(),MFLAGS_ENABLEOUTPUT) == 0 then
         Import.ScrBufLock()
@@ -376,19 +379,51 @@ function KeyMacro.TransformKey (key)
   end
 end
 
-local OP_PUSHSTATE          =  1
-local OP_POPSTATE           =  2
-local OP_ISEXECUTING        =  3
-local OP_ISDISABLEOUTPUT    =  4
-local OP_HISTORYDISABLEMASK =  5
-local OP_ISHISTORYDISABLE   =  6
-local OP_ISTOPMACROOUTPUTDISABLED = 7
-local OP_ISMACROQUEUEEMPTY  =  8
-local OP_GETSTATESTACKSIZE  =  9
-local OP_POSTNEWMACRO       = 10
-local OP_SETMACROVALUE      = 11
-local OP_GETINPUTFROMMACRO  = 12
-local OP_TRYTOPOSTMACRO     = 13
+function KeyMacro.CallPlugin (Params, AsyncCall)
+  local Result = false
+  if type(Params[1]) == "string" then
+    local EntryStackSize = #StateStack
+
+    if AsyncCall then
+      Result = true
+      GetCurMacro():SetValue(true)
+      PushState(true)
+    end
+
+    local lockCount = Import.ScrBufGetLockCount()
+    Import.ScrBufSetLockCount(0)
+    local ResultCallPlugin = far_MacroCallFar(MCODE_F_PLUGIN_CALL, AsyncCall, unpack(Params,1,Params.n))
+    Import.ScrBufSetLockCount(lockCount)
+
+    local isSynchroCall = true
+    if AsyncCall then
+      if #StateStack > EntryStackSize then -- эта проверка нужна, т.к. PopState() мог уже быть вызван.
+        PopState(true)
+      else
+        isSynchroCall = false
+      end
+    end
+
+    if isSynchroCall then
+      Result = ResultCallPlugin
+      if AsyncCall then
+        GetCurMacro():SetValue(Result)
+      end
+    end
+  end
+  return Result
+end
+
+local OP_ISEXECUTING        =  1
+local OP_ISDISABLEOUTPUT    =  2
+local OP_HISTORYDISABLEMASK =  3
+local OP_ISHISTORYDISABLE   =  4
+local OP_ISTOPMACROOUTPUTDISABLED = 5
+local OP_ISMACROQUEUEEMPTY  =  6
+local OP_POSTNEWMACRO       =  7
+local OP_SETMACROVALUE      =  8
+local OP_GETINPUTFROMMACRO  =  9
+local OP_TRYTOPOSTMACRO     = 10
 
 function KeyMacro.Dispatch (opcode, ...)
   local p1 = (...)
@@ -396,10 +431,6 @@ function KeyMacro.Dispatch (opcode, ...)
     return IsExecuting()
   elseif opcode == OP_GETINPUTFROMMACRO then
     return GetInputFromMacro()
-  elseif opcode == OP_PUSHSTATE then
-    PushState(p1)
-  elseif opcode == OP_POPSTATE then
-    PopState(p1)
   elseif opcode == OP_ISDISABLEOUTPUT then
     return IsDisableOutput()
   elseif opcode == OP_HISTORYDISABLEMASK then
@@ -413,8 +444,6 @@ function KeyMacro.Dispatch (opcode, ...)
     return mr and 0==band(mr:GetFlags(),MFLAGS_ENABLEOUTPUT) and 1 or 0
   elseif opcode == OP_ISMACROQUEUEEMPTY then
     return GetCurMacro() and 0 or 1
-  elseif opcode == OP_GETSTATESTACKSIZE then
-    return #StateStack
   elseif opcode == OP_POSTNEWMACRO then -- from API MacroControl(MSSC_POST)
     local Lang,Code,Flags,AKey = ...
     local f1,f2 = loadmacro(Lang,Code)
