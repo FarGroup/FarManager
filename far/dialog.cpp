@@ -370,7 +370,7 @@ void Dialog::Init()
 		DialogMode.Set(DMODE_OLDSTYLE);
 	}
 
-	//_SVS(SysLog(L"Dialog =%d",Global->CtrlObject->Macro.GetMode()));
+	//_SVS(SysLog(L"Dialog =%d",Global->CtrlObject->Macro.GetArea()));
 	// запоминаем предыдущий заголовок консоли
 	OldTitle = std::make_unique<ConsoleTitle>();
 	IdExist=false;

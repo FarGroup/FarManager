@@ -57,7 +57,7 @@ public:
 	virtual void ResizeConsole() override;
 	virtual bool CanFastHide() const override;
 	virtual void Refresh() override;
-	virtual FARMACROAREA GetMacroMode() const override;
+	virtual FARMACROAREA GetMacroArea() const override;
 	virtual Viewer* GetViewer(void) override;
 	virtual Viewer* GetById(int ID) override;
 

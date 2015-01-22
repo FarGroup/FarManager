@@ -2473,13 +2473,13 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 			// Param1=0, Param2 - 0
 			case MCTL_GETSTATE:
 			{
-				return Macro.GetCurRecord();
+				return Macro.GetState();
 			}
 
 			// Param1=0, Param2 - 0
 			case MCTL_GETAREA:
 			{
-				return Macro.GetMode();
+				return Macro.GetArea();
 			}
 
 			case MCTL_ADDMACRO:

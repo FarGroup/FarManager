@@ -68,7 +68,7 @@ public:
 	virtual void OnChangeFocus(bool focus); // вызывается при смене фокуса
 	virtual void InitKeyBar() {}
 	virtual void RedrawKeyBar() { UpdateKeyBar(); }
-	virtual FARMACROAREA GetMacroMode() const { return m_MacroMode; }
+	virtual FARMACROAREA GetMacroArea() const { return m_MacroArea; }
 	virtual bool CanFastHide() const;
 	virtual string GetTitle() const = 0;
 	virtual bool ProcessEvents() {return true;}
@@ -106,5 +106,5 @@ private:
 
 	bool m_Deleting;
 	long m_BlockCounter;
-	FARMACROAREA m_MacroMode;
+	FARMACROAREA m_MacroArea;
 };

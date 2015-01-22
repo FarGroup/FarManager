@@ -51,7 +51,7 @@ window::window():
 	m_windowKeyBar(nullptr),
 	m_Deleting(false),
 	m_BlockCounter(0),
-	m_MacroMode(MACROAREA_OTHER)
+	m_MacroArea(MACROAREA_OTHER)
 {
 	_OT(SysLog(L"[%p] window::window()", this));
 }
@@ -124,5 +124,5 @@ bool window::IsPinned(void) const
 
 void window::SetMacroMode(FARMACROAREA Area)
 {
-	m_MacroMode=Area;
+	m_MacroArea=Area;
 }

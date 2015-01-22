@@ -1216,7 +1216,7 @@ void FilePanels::GoToFile(const string& FileName)
 }
 
 
-FARMACROAREA FilePanels::GetMacroMode() const
+FARMACROAREA FilePanels::GetMacroArea() const
 {
 	switch (m_ActivePanel->GetType())
 	{

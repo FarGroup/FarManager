@@ -948,11 +948,11 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 	_SVS(if (Key=='n' || Key=='m'))
 		_SVS(SysLog(L"%d Key='%c'",__LINE__,Key));
 
-	if (!CalledFromControl && (Global->CtrlObject->Macro.IsRecording() == MACROSTATE_RECORDING_COMMON || Global->CtrlObject->Macro.IsExecuting() == MACROSTATE_EXECUTING_COMMON || Global->CtrlObject->Macro.GetCurRecord() == MACROSTATE_NOMACRO))
+	if (!CalledFromControl && (Global->CtrlObject->Macro.IsRecording() == MACROSTATE_RECORDING_COMMON || Global->CtrlObject->Macro.IsExecuting() == MACROSTATE_EXECUTING_COMMON || Global->CtrlObject->Macro.GetState() == MACROSTATE_NOMACRO))
 	{
 
 		_SVS(if (Global->CtrlObject->Macro.IsRecording() == MACROSTATE_RECORDING_COMMON || Global->CtrlObject->Macro.IsExecuting() == MACROSTATE_EXECUTING_COMMON))
-			_SVS(SysLog(L"%d !!!! Global->CtrlObject->Macro.GetCurRecord() != MACROSTATE_NOMACRO !!!!",__LINE__));
+			_SVS(SysLog(L"%d !!!! Global->CtrlObject->Macro.GetState() != MACROSTATE_NOMACRO !!!!",__LINE__));
 
 		ProcessedNext=!ProcessEditorInput(Global->WindowManager->GetLastInputRecord());
 	}

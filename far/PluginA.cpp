@@ -5551,7 +5551,7 @@ void* PluginA::Open(OpenInfo* Info)
 			break;
 
 		case OPEN_FROMMACRO:
-			OpenFromA = oldfar::OPEN_FROMMACRO|Global->CtrlObject->Macro.GetMode();
+			OpenFromA = oldfar::OPEN_FROMMACRO|Global->CtrlObject->Macro.GetArea();
 			Buffer.reset(UnicodeToAnsi(reinterpret_cast<OpenMacroInfo*>(Info->Data)->Count ? reinterpret_cast<OpenMacroInfo*>(Info->Data)->Values[0].String : L""));
 			Ptr = reinterpret_cast<intptr_t>(Buffer.get());
 			break;

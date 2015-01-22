@@ -624,10 +624,10 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 
 DWORD GetInputRecordNoMacroArea(INPUT_RECORD *rec,bool AllowSynchro)
 {
-	FARMACROAREA MMode = Global->CtrlObject->Macro.GetMode();
-	Global->CtrlObject->Macro.SetMode(MACROAREA_LAST); // чтобы не срабатывали макросы :-)
+	FARMACROAREA MArea = Global->CtrlObject->Macro.GetArea();
+	Global->CtrlObject->Macro.SetArea(MACROAREA_LAST); // чтобы не срабатывали макросы :-)
 	DWORD Key = GetInputRecord(rec, false, false, AllowSynchro);
-	Global->CtrlObject->Macro.SetMode(MMode);
+	Global->CtrlObject->Macro.SetArea(MArea);
 	return Key;
 }
 
@@ -733,7 +733,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 	}
 
 	int EnableShowTime=Global->Opt->Clock && (Global->WaitInMainLoop || (Global->CtrlObject &&
-	                                 Global->CtrlObject->Macro.GetMode()==MACROAREA_SEARCH));
+	                                 Global->CtrlObject->Macro.GetArea()==MACROAREA_SEARCH));
 
 	if (EnableShowTime)
 		ShowTime(1);
@@ -2893,7 +2893,7 @@ DWORD CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros, bool Pro
 		if (KeyCode>='0' && KeyCode<='9')
 		{
 			if (Global->WaitInFastFind > 0 &&
-			        Global->CtrlObject->Macro.GetCurRecord() < MACROSTATE_RECORDING &&
+			        Global->CtrlObject->Macro.GetState() < MACROSTATE_RECORDING &&
 			        !Global->CtrlObject->Macro.MacroExists(KEY_ALTSHIFT0+KeyCode-'0',MACROAREA_SEARCH,true))
 			{
 				return Modif|Char;

@@ -1220,7 +1220,7 @@ void Manager::InitKeyBar()
 
 void Manager::UpdateMacroArea(void)
 {
-	if (m_currentWindow) Global->CtrlObject->Macro.SetMode(m_currentWindow->GetMacroMode());
+	if (m_currentWindow) Global->CtrlObject->Macro.SetArea(m_currentWindow->GetMacroArea());
 }
 
 Manager::sorted_windows Manager::GetSortedWindows(void) const

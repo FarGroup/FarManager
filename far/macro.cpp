@@ -373,7 +373,7 @@ struct DlgParam
 {
 	UINT64 Flags;
 	DWORD Key;
-	FARMACROAREA Mode;
+	FARMACROAREA Area;
 	int Recurse;
 	bool Changed;
 };
@@ -481,9 +481,9 @@ static void SetMacroValue(const FarMacroValue& Value)
 	CallMacroPluginSimple(&info);
 }
 
-static bool TryToPostMacro(FARMACROAREA Mode,const string& TextKey,DWORD IntKey)
+static bool TryToPostMacro(FARMACROAREA Area,const string& TextKey,DWORD IntKey)
 {
-	FarMacroValue values[] = {10.0,(double)Mode,TextKey.data(),(double)IntKey};
+	FarMacroValue values[] = {10.0,(double)Area,TextKey.data(),(double)IntKey};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_KEYMACRO,&fmc};
 	return CallMacroPluginSimple(&info);
@@ -497,7 +497,7 @@ static inline Panel* TypeToPanel(int Type)
 }
 
 KeyMacro::KeyMacro():
-	m_Mode(MACROAREA_SHELL),
+	m_Area(MACROAREA_SHELL),
 	m_RecMode(MACROAREA_OTHER),
 	m_StartMode(MACROAREA_OTHER),
 	m_Recording(MACROSTATE_NOMACRO),
@@ -546,7 +546,7 @@ void KeyMacro::SetMacroConst(int ConstIndex, __int64 Value)
 	msValues[ConstIndex] = Value;
 }
 
-int KeyMacro::GetCurRecord() const
+int KeyMacro::GetState() const
 {
 	return (m_Recording != MACROSTATE_NOMACRO) ? m_Recording : IsExecuting();
 }
@@ -578,7 +578,7 @@ void KeyMacro::RestoreMacroChar() const
 		This duplication take place since ShowEditor method
 		will NOT send this event while screen is locked.
 	*/
-	if (m_Mode==MACROAREA_EDITOR &&
+	if (m_Area==MACROAREA_EDITOR &&
 					Global->WindowManager->GetCurrentEditor() &&
 					Global->WindowManager->GetCurrentEditor()->IsVisible()
 					/* && LockScr*/) // Mantis#0001595
@@ -586,7 +586,7 @@ void KeyMacro::RestoreMacroChar() const
 		Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,Global->WindowManager->GetCurrentEditor()->GetId());
 		Global->WindowManager->GetCurrentEditor()->Show();
 	}
-	else if (m_Mode==MACROAREA_VIEWER &&
+	else if (m_Area==MACROAREA_VIEWER &&
 					Global->WindowManager->GetCurrentViewer() &&
 					Global->WindowManager->GetCurrentViewer()->IsVisible())
 	{
@@ -603,9 +603,9 @@ struct GetMacroData
 	MACROFLAGS_MFLAGS Flags;
 };
 
-static bool LM_GetMacro(GetMacroData* Data, FARMACROAREA Mode, const string& TextKey, bool UseCommon)
+static bool LM_GetMacro(GetMacroData* Data, FARMACROAREA Area, const string& TextKey, bool UseCommon)
 {
-	FarMacroValue InValues[]={(double)Mode,TextKey,UseCommon};
+	FarMacroValue InValues[]={(double)Area,TextKey,UseCommon};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(InValues),InValues,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_GETMACRO,&fmc};
 
@@ -625,17 +625,17 @@ static bool LM_GetMacro(GetMacroData* Data, FARMACROAREA Mode, const string& Tex
 	return false;
 }
 
-bool KeyMacro::MacroExists(int Key, FARMACROAREA CheckMode, bool UseCommon)
+bool KeyMacro::MacroExists(int Key, FARMACROAREA Area, bool UseCommon)
 {
 	GetMacroData dummy;
 	string strKey;
-	return KeyToText(Key,strKey) && LM_GetMacro(&dummy,CheckMode,strKey,UseCommon);
+	return KeyToText(Key,strKey) && LM_GetMacro(&dummy,Area,strKey,UseCommon);
 }
 
-static void LM_ProcessRecordedMacro(FARMACROAREA Mode, const string& TextKey, const string& Code,
+static void LM_ProcessRecordedMacro(FARMACROAREA Area, const string& TextKey, const string& Code,
 	MACROFLAGS_MFLAGS Flags, const string& Description)
 {
-	FarMacroValue values[]={(double)Mode,TextKey,Code,Flags,Description};
+	FarMacroValue values[]={(double)Area,TextKey,Code,Flags,Description};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_RECORDEDMACRO,&fmc};
 	CallMacroPlugin(&info);
@@ -667,7 +667,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 				}
 
 				// Где мы?
-				m_RecMode=(m_Mode==MACROAREA_SHELL&&!Global->WaitInMainLoop)?MACROAREA_OTHER:m_Mode;
+				m_RecMode=(m_Area==MACROAREA_SHELL&&!Global->WaitInMainLoop)?MACROAREA_OTHER:m_Area;
 				m_StartMode=m_RecMode;
 				// В зависимости от того, КАК НАЧАЛИ писать макрос, различаем общий режим (Ctrl-.
 				// с передачей плагину кеев) или специальный (Ctrl-Shift-. - без передачи клавиш плагину)
@@ -696,7 +696,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 
 					INPUT_RECORD RecCopy = Rec->Rec;
 
-					if (TryToPostMacro(m_Mode, textKey, Rec->IntKey))
+					if (TryToPostMacro(m_Area, textKey, Rec->IntKey))
 						return true;
 
 					// Mantis 0002307: При вызове msgbox из condition(), ключ закрытия msgbox передаётся дальше (не съедается)
@@ -792,7 +792,7 @@ int KeyMacro::GetKey()
 				return 0;
 
 			case MPRT_HASNOMACRO:
-				if (m_Mode==MACROAREA_EDITOR &&
+				if (m_Area==MACROAREA_EDITOR &&
 								Global->WindowManager->GetCurrentEditor() &&
 								Global->WindowManager->GetCurrentEditor()->IsVisible() &&
 								Global->ScrBuf->GetLockCount())
@@ -893,9 +893,9 @@ int KeyMacro::PeekKey() const
 	return !m_InternalInput && IsExecuting();
 }
 
-bool KeyMacro::GetMacroKeyInfo(const string& strMode, int Pos, string &strKeyName, string &strDescription)
+bool KeyMacro::GetMacroKeyInfo(const string& StrArea, int Pos, string &strKeyName, string &strDescription)
 {
-	FarMacroValue values[]={strMode,!Pos};
+	FarMacroValue values[]={StrArea,!Pos};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_ENUMMACROS,&fmc};
 
@@ -988,18 +988,18 @@ bool KeyMacro::PostNewMacro(const wchar_t* Sequence,FARKEYMACROFLAGS InputFlags,
 	return CallMacroPluginSimple(&info);
 }
 
-static BOOL CheckEditSelected(FARMACROAREA Mode, UINT64 CurFlags)
+static BOOL CheckEditSelected(FARMACROAREA Area, UINT64 CurFlags)
 {
-	if (Mode==MACROAREA_EDITOR || Mode==MACROAREA_DIALOG || Mode==MACROAREA_VIEWER || (Mode==MACROAREA_SHELL&&Global->CtrlObject->CmdLine()->IsVisible()))
+	if (Area==MACROAREA_EDITOR || Area==MACROAREA_DIALOG || Area==MACROAREA_VIEWER || (Area==MACROAREA_SHELL&&Global->CtrlObject->CmdLine()->IsVisible()))
 	{
-		int NeedType = Mode == MACROAREA_EDITOR?windowtype_editor:(Mode == MACROAREA_VIEWER?windowtype_viewer:(Mode == MACROAREA_DIALOG?windowtype_dialog:windowtype_panels));
+		int NeedType = Area == MACROAREA_EDITOR?windowtype_editor:(Area == MACROAREA_VIEWER?windowtype_viewer:(Area == MACROAREA_DIALOG?windowtype_dialog:windowtype_panels));
 		auto CurrentWindow = Global->WindowManager->GetCurrentWindow();
 
 		if (CurrentWindow && CurrentWindow->GetType()==NeedType)
 		{
 			int CurSelected;
 
-			if (Mode==MACROAREA_SHELL && Global->CtrlObject->CmdLine()->IsVisible())
+			if (Area==MACROAREA_SHELL && Global->CtrlObject->CmdLine()->IsVisible())
 				CurSelected=(int)Global->CtrlObject->CmdLine()->VMProcess(MCODE_C_SELECTED);
 			else
 				CurSelected=(int)CurrentWindow->VMProcess(MCODE_C_SELECTED);
@@ -1059,7 +1059,7 @@ static BOOL CheckFileFolder(Panel *CheckPanel,UINT64 CurFlags, BOOL IsPassivePan
 	return TRUE;
 }
 
-static BOOL CheckAll (FARMACROAREA Mode, UINT64 CurFlags)
+static BOOL CheckAll (FARMACROAREA Area, UINT64 CurFlags)
 {
 	/* $TODO:
 		Здесь вместо Check*() попробовать заюзать IfCondition()
@@ -1099,7 +1099,7 @@ static BOOL CheckAll (FARMACROAREA Mode, UINT64 CurFlags)
 				return FALSE;
 
 		if (CurFlags&(MFLAGS_SELECTION|MFLAGS_NOSELECTION|MFLAGS_PSELECTION|MFLAGS_PNOSELECTION))
-			if (Mode!=MACROAREA_EDITOR && Mode != MACROAREA_DIALOG && Mode!=MACROAREA_VIEWER)
+			if (Area!=MACROAREA_EDITOR && Area!=MACROAREA_DIALOG && Area!=MACROAREA_VIEWER)
 			{
 				size_t SelCount=ActivePanel->GetRealSelCount();
 
@@ -1113,7 +1113,7 @@ static BOOL CheckAll (FARMACROAREA Mode, UINT64 CurFlags)
 			}
 	}
 
-	if (!CheckEditSelected(Mode, CurFlags))
+	if (!CheckEditSelected(Area, CurFlags))
 		return FALSE;
 
 	return TRUE;
@@ -1561,7 +1561,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 	if (CheckCode == 0)
 	{
 		return PassNumber (Global->WaitInMainLoop ?
-			Global->WindowManager->GetCurrentWindow()->GetMacroMode() : GetMode(), Data);
+			Global->WindowManager->GetCurrentWindow()->GetMacroArea() : GetArea(), Data);
 	}
 
 	Panel *ActivePanel = Global->CtrlObject->Cp() ? Global->CtrlObject->Cp()->ActivePanel() : nullptr;
@@ -1595,7 +1595,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			return PassNumber(Global->FarUpTime(), Data);
 
 		case MCODE_V_MACRO_AREA:
-			return PassNumber(GetMode(), Data);
+			return PassNumber(GetArea(), Data);
 
 		case MCODE_C_FULLSCREENMODE: // Fullscreen?
 			return PassBoolean(IsConsoleFullscreen(), Data);
@@ -1650,13 +1650,13 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 		case MCODE_C_SELECTED:    // Selected?
 		{
-			int NeedType = m_Mode == MACROAREA_EDITOR? windowtype_editor : (m_Mode == MACROAREA_VIEWER? windowtype_viewer : (m_Mode == MACROAREA_DIALOG? windowtype_dialog : windowtype_panels));
+			int NeedType = m_Area == MACROAREA_EDITOR? windowtype_editor : (m_Area == MACROAREA_VIEWER? windowtype_viewer : (m_Area == MACROAREA_DIALOG? windowtype_dialog : windowtype_panels));
 
-			if (!(m_Mode == MACROAREA_USERMENU || m_Mode == MACROAREA_MAINMENU || m_Mode == MACROAREA_MENU) && CurrentWindow && CurrentWindow->GetType()==NeedType)
+			if (!(m_Area == MACROAREA_USERMENU || m_Area == MACROAREA_MAINMENU || m_Area == MACROAREA_MENU) && CurrentWindow && CurrentWindow->GetType()==NeedType)
 			{
 				int CurSelected;
 
-				if (m_Mode==MACROAREA_SHELL && Global->CtrlObject->CmdLine()->IsVisible())
+				if (m_Area==MACROAREA_SHELL && Global->CtrlObject->CmdLine()->IsVisible())
 					CurSelected=(int)Global->CtrlObject->CmdLine()->VMProcess(CheckCode);
 				else
 					CurSelected=(int)CurrentWindow->VMProcess(CheckCode);
@@ -1678,9 +1678,9 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_C_BOF:
 		case MCODE_C_EOF:
 		{
-			int CurMMode=GetMode();
+			int CurArea=GetArea();
 
-			if (!(m_Mode == MACROAREA_USERMENU || m_Mode == MACROAREA_MAINMENU || m_Mode == MACROAREA_MENU) && CurrentWindow && CurrentWindow->GetType() == windowtype_panels && !(CurMMode == MACROAREA_INFOPANEL || CurMMode == MACROAREA_QVIEWPANEL || CurMMode == MACROAREA_TREEPANEL))
+			if (!(m_Area == MACROAREA_USERMENU || m_Area == MACROAREA_MAINMENU || m_Area == MACROAREA_MENU) && CurrentWindow && CurrentWindow->GetType() == windowtype_panels && !(CurArea == MACROAREA_INFOPANEL || CurArea == MACROAREA_QVIEWPANEL || CurArea == MACROAREA_TREEPANEL))
 			{
 				if (CheckCode == MCODE_C_EMPTY)
 					ret=Global->CtrlObject->CmdLine()->GetLength()?0:1;
@@ -2051,7 +2051,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_MENU_VALUE: // Menu.Value
 		case MCODE_V_MENUINFOID: // Menu.Info.Id
 		{
-			int CurMMode=GetMode();
+			int CurArea=GetArea();
 			const wchar_t* ptr = L"";
 
 			if (CheckCode==MCODE_V_MENUINFOID && CurrentWindow && CurrentWindow->GetType()==windowtype_menu)
@@ -2059,7 +2059,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				return PassString(reinterpret_cast<LPCWSTR>(static_cast<intptr_t>(CurrentWindow->VMProcess(MCODE_V_DLGINFOID))), Data);
 			}
 
-			if (IsMenuArea(CurMMode) || CurMMode == MACROAREA_DIALOG)
+			if (IsMenuArea(CurArea) || CurArea == MACROAREA_DIALOG)
 			{
 				auto f = Global->WindowManager->GetCurrentWindow();
 
@@ -2111,7 +2111,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			if (CheckCode == MCODE_V_EDITORSELVALUE)
 				ptr=L"";
 
-			if (GetMode()==MACROAREA_EDITOR && Global->WindowManager->GetCurrentEditor() && Global->WindowManager->GetCurrentEditor()->IsVisible())
+			if (GetArea()==MACROAREA_EDITOR && Global->WindowManager->GetCurrentEditor() && Global->WindowManager->GetCurrentEditor()->IsVisible())
 			{
 				if (CheckCode == MCODE_V_EDITORFILENAME)
 				{
@@ -2136,7 +2136,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_HELPSELTOPIC:  // Help.SelTopic
 		{
 			const wchar_t* ptr=L"";
-			if (GetMode() == MACROAREA_HELP)
+			if (GetArea() == MACROAREA_HELP)
 			{
 				CurrentWindow->VMProcess(CheckCode,&strFileName,0);
 				ptr=strFileName.data();
@@ -2147,7 +2147,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_VIEWERFILENAME: // Viewer.FileName
 		case MCODE_V_VIEWERSTATE: // Viewer.State
 		{
-			if ((GetMode()==MACROAREA_VIEWER || GetMode()==MACROAREA_QVIEWPANEL) &&
+			if ((GetArea()==MACROAREA_VIEWER || GetArea()==MACROAREA_QVIEWPANEL) &&
 							Global->WindowManager->GetCurrentViewer() && Global->WindowManager->GetCurrentViewer()->IsVisible())
 			{
 				if (CheckCode == MCODE_V_VIEWERFILENAME)
@@ -2389,9 +2389,9 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			tmpVar.toInteger();
 
-			int CurMMode=GetMode();
+			int CurArea=GetArea();
 
-			if (IsMenuArea(CurMMode) || CurMMode == MACROAREA_DIALOG)
+			if (IsMenuArea(CurArea) || CurArea == MACROAREA_DIALOG)
 			{
 				auto f = Global->WindowManager->GetCurrentWindow();
 
@@ -2458,9 +2458,9 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					tmpMode--;
 			}
 
-			int CurMMode=GetMode();
+			int CurArea=GetArea();
 
-			if (IsMenuArea(CurMMode) || CurMMode == MACROAREA_DIALOG)
+			if (IsMenuArea(CurArea) || CurArea == MACROAREA_DIALOG)
 			{
 				auto f = Global->WindowManager->GetCurrentWindow();
 
@@ -2483,9 +2483,9 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			if (tmpAction.isUnknown())
 				tmpAction=CheckCode == MCODE_F_MENU_FILTER ? 4 : 0;
 
-			int CurMMode=GetMode();
+			int CurArea=GetArea();
 
-			if (IsMenuArea(CurMMode) || CurMMode == MACROAREA_DIALOG)
+			if (IsMenuArea(CurArea) || CurArea == MACROAREA_DIALOG)
 			{
 				auto f = Global->WindowManager->GetCurrentWindow();
 
@@ -3741,7 +3741,7 @@ static bool dlgsetfocusFunc(FarMacroCall* Data)
 	TVar Ret(-1);
 	unsigned Index=(unsigned)Params[0].asInteger()-1;
 
-	if (Global->CtrlObject->Macro.GetMode() == MACROAREA_DIALOG)
+	if (Global->CtrlObject->Macro.GetArea() == MACROAREA_DIALOG)
 	{
 		if (auto Dlg = std::dynamic_pointer_cast<Dialog>(Global->WindowManager->GetCurrentWindow()))
 		{
@@ -3819,7 +3819,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 	auto Params = parseParams<2>(Data);
 	TVar Ret(-1);
 
-	if (Global->CtrlObject->Macro.GetMode()==MACROAREA_DIALOG)
+	if (Global->CtrlObject->Macro.GetArea()==MACROAREA_DIALOG)
 	{
 		// TODO: fix indentation
 		if (auto Dlg = std::dynamic_pointer_cast<Dialog>(Global->WindowManager->GetCurrentWindow()))
@@ -4010,7 +4010,7 @@ static bool editorposFunc(FarMacroCall* Data)
 	int What  = (int)Params[1].asInteger();
 	int Op    = (int)Params[0].asInteger();
 
-	if (Global->CtrlObject->Macro.GetMode()==MACROAREA_EDITOR && Global->WindowManager->GetCurrentEditor() && Global->WindowManager->GetCurrentEditor()->IsVisible())
+	if (Global->CtrlObject->Macro.GetArea()==MACROAREA_EDITOR && Global->WindowManager->GetCurrentEditor() && Global->WindowManager->GetCurrentEditor()->IsVisible())
 	{
 		EditorInfo ei={sizeof(EditorInfo)};
 		Global->WindowManager->GetCurrentEditor()->EditorControl(ECTL_GETINFO,0,&ei);
@@ -4122,7 +4122,7 @@ static bool editorsetFunc(FarMacroCall* Data)
 	TVar& Value(Params[1]);
 	int Index=(int)Params[0].asInteger();
 
-	if (Global->CtrlObject->Macro.GetMode()==MACROAREA_EDITOR && Global->WindowManager->GetCurrentEditor() && Global->WindowManager->GetCurrentEditor()->IsVisible())
+	if (Global->CtrlObject->Macro.GetArea()==MACROAREA_EDITOR && Global->WindowManager->GetCurrentEditor() && Global->WindowManager->GetCurrentEditor()->IsVisible())
 	{
 		long longState=-1L;
 
@@ -5000,13 +5000,13 @@ static bool editorselFunc(FarMacroCall* Data)
 	TVar& Opts(Params[1]);
 	TVar& Action(Params[0]);
 
-	FARMACROAREA Mode=Global->CtrlObject->Macro.GetMode();
-	int NeedType = Mode == MACROAREA_EDITOR?windowtype_editor:(Mode == MACROAREA_VIEWER?windowtype_viewer:(Mode == MACROAREA_DIALOG?windowtype_dialog:windowtype_panels)); // MACROAREA_SHELL?
+	FARMACROAREA Area=Global->CtrlObject->Macro.GetArea();
+	int NeedType = Area == MACROAREA_EDITOR?windowtype_editor:(Area == MACROAREA_VIEWER?windowtype_viewer:(Area == MACROAREA_DIALOG?windowtype_dialog:windowtype_panels)); // MACROAREA_SHELL?
 	auto CurrentWindow = Global->WindowManager->GetCurrentWindow();
 
 	if (CurrentWindow && CurrentWindow->GetType()==NeedType)
 	{
-		if (Mode==MACROAREA_SHELL && Global->CtrlObject->CmdLine()->IsVisible())
+		if (Area==MACROAREA_SHELL && Global->CtrlObject->CmdLine()->IsVisible())
 			Ret=Global->CtrlObject->CmdLine()->VMProcess(MCODE_F_EDITOR_SEL,ToPtr(Action.toInteger()),Opts.asInteger());
 		else
 			Ret=CurrentWindow->VMProcess(MCODE_F_EDITOR_SEL,ToPtr(Action.toInteger()),Opts.asInteger());
@@ -5023,7 +5023,7 @@ static bool editorundoFunc(FarMacroCall* Data)
 	TVar Ret(0ll);
 	TVar& Action(Params[0]);
 
-	if (Global->CtrlObject->Macro.GetMode()==MACROAREA_EDITOR && Global->WindowManager->GetCurrentEditor() && Global->WindowManager->GetCurrentEditor()->IsVisible())
+	if (Global->CtrlObject->Macro.GetArea()==MACROAREA_EDITOR && Global->WindowManager->GetCurrentEditor() && Global->WindowManager->GetCurrentEditor()->IsVisible())
 	{
 		EditorUndoRedo eur={sizeof(EditorUndoRedo)};
 		eur.Command=static_cast<EDITOR_UNDOREDO_COMMANDS>(Action.toInteger());
@@ -5041,7 +5041,7 @@ static bool editorsettitleFunc(FarMacroCall* Data)
 	TVar Ret(0ll);
 	TVar& Title(Params[0]);
 
-	if (Global->CtrlObject->Macro.GetMode()==MACROAREA_EDITOR && Global->WindowManager->GetCurrentEditor() && Global->WindowManager->GetCurrentEditor()->IsVisible())
+	if (Global->CtrlObject->Macro.GetArea()==MACROAREA_EDITOR && Global->WindowManager->GetCurrentEditor() && Global->WindowManager->GetCurrentEditor()->IsVisible())
 	{
 		if (Title.isInteger() && !Title.asInteger())
 		{
@@ -5062,7 +5062,7 @@ static bool editordellineFunc(FarMacroCall* Data)
 	TVar Ret(0ll);
 	TVar& Line(Params[0]);
 
-	if (Global->CtrlObject->Macro.GetMode()==MACROAREA_EDITOR && Global->WindowManager->GetCurrentEditor() && Global->WindowManager->GetCurrentEditor()->IsVisible())
+	if (Global->CtrlObject->Macro.GetArea()==MACROAREA_EDITOR && Global->WindowManager->GetCurrentEditor() && Global->WindowManager->GetCurrentEditor()->IsVisible())
 	{
 		if (Line.isNumber())
 		{
@@ -5082,7 +5082,7 @@ static bool editorinsstrFunc(FarMacroCall* Data)
 	TVar& S(Params[0]);
 	TVar& Line(Params[1]);
 
-	if (Global->CtrlObject->Macro.GetMode()==MACROAREA_EDITOR && Global->WindowManager->GetCurrentEditor() && Global->WindowManager->GetCurrentEditor()->IsVisible())
+	if (Global->CtrlObject->Macro.GetArea()==MACROAREA_EDITOR && Global->WindowManager->GetCurrentEditor() && Global->WindowManager->GetCurrentEditor()->IsVisible())
 	{
 		if (Line.isNumber())
 		{
@@ -5108,7 +5108,7 @@ static bool editorsetstrFunc(FarMacroCall* Data)
 	TVar& S(Params[0]);
 	TVar& Line(Params[1]);
 
-	if (Global->CtrlObject->Macro.GetMode()==MACROAREA_EDITOR && Global->WindowManager->GetCurrentEditor() && Global->WindowManager->GetCurrentEditor()->IsVisible())
+	if (Global->CtrlObject->Macro.GetArea()==MACROAREA_EDITOR && Global->WindowManager->GetCurrentEditor() && Global->WindowManager->GetCurrentEditor()->IsVisible())
 	{
 		if (Line.isNumber())
 		{
@@ -5319,7 +5319,7 @@ M1:
 
 		// если УЖЕ есть такой макрос...
 		GetMacroData Data;
-		if (LM_GetMacro(&Data,KMParam->Mode,strKeyText,true) && Data.MacroId)
+		if (LM_GetMacro(&Data,KMParam->Area,strKeyText,true) && Data.MacroId)
 		{
 			// общие макросы учитываем только при удалении.
 			if (m_RecCode.empty() || Data.Area!=MACROAREA_COMMON_INTERNAL)

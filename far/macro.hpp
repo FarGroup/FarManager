@@ -71,11 +71,11 @@ public:
 	static bool AddMacro(const GUID& PluginId,const MacroAddMacro* Data);
 	static bool DelMacro(const GUID& PluginId,void* Id);
 	static bool ExecuteString(MacroExecuteString *Data);
-	static bool GetMacroKeyInfo(const string& strMode,int Pos,string &strKeyName,string &strDescription);
+	static bool GetMacroKeyInfo(const string& strArea,int Pos,string &strKeyName,string &strDescription);
 	static int  IsDisableOutput();
 	static int  IsExecuting();
 	static bool IsHistoryDisable(int TypeHistory);
-	static bool MacroExists(int Key, FARMACROAREA CheckMode, bool UseCommon);
+	static bool MacroExists(int Key, FARMACROAREA Area, bool UseCommon);
 	static void RunStartMacro();
 	static bool SaveMacros(bool always);
 	static void SendDropProcess();
@@ -84,17 +84,17 @@ public:
 
 	intptr_t CallFar(intptr_t OpCode, FarMacroCall* Data);
 	bool CheckWaitKeyFunc() const;
-	int  GetCurRecord() const;
+	int  GetState() const;
 	int  GetKey();
 	void GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc) const;
-	FARMACROAREA GetMode() const { return m_Mode; }
+	FARMACROAREA GetArea() const { return m_Area; }
 	const wchar_t* GetStringToPrint() const { return m_StringToPrint; }
 	int  IsRecording() const { return m_Recording; }
 	bool LoadMacros(bool FromFar, bool InitedRAM=true, const FarMacroLoad *Data=nullptr);
 	bool ParseMacroString(const wchar_t* Sequence,FARKEYMACROFLAGS Flags,bool skipFile);
 	int  PeekKey() const;
 	int  ProcessEvent(const FAR_INPUT_RECORD *Rec);
-	void SetMode(FARMACROAREA Mode) { m_Mode=Mode; }
+	void SetArea(FARMACROAREA Area) { m_Area=Area; }
 	void SuspendMacros(bool Suspend) { Suspend ? ++m_InternalInput : --m_InternalInput; }
 
 private:
@@ -104,7 +104,7 @@ private:
 	intptr_t ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 	void RestoreMacroChar() const;
 
-	FARMACROAREA m_Mode;
+	FARMACROAREA m_Area;
 	FARMACROAREA m_RecMode;
 	FARMACROAREA m_StartMode;
 	FARMACROSTATE m_Recording;
