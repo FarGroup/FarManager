@@ -477,17 +477,25 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 			if (Global->Opt->ChangeDriveMode & (DRIVE_SHOW_LABEL|DRIVE_SHOW_FILESYSTEM))
 			{
-				if (ShowDisk && !api::GetVolumeInformation(
-				            strRootDir,
-				            &NewItem.Label,
-				            nullptr,
-				            nullptr,
-				            nullptr,
-				            &NewItem.Fs
-				        ))
+				bool Absent = false;
+				if (ShowDisk && !api::GetVolumeInformation(strRootDir, &NewItem.Label, nullptr, nullptr, nullptr, &NewItem.Fs))
+				{
+					Absent = true;
+					ShowDisk = FALSE;
+				}
+
+				if (NewItem.Label.empty())
+				{
+					static const HKEY Roots[] = { HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE };
+					std::any_of(CONST_RANGE(Roots, i)
+					{
+						return api::reg::GetValue(i, string(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\DriveIcons\\") + NewItem.Letter[1] + L"\\DefaultLabel", L"", NewItem.Label);
+					});
+				}
+
+				if (Absent && NewItem.Label.empty())
 				{
 					NewItem.Label = MSG(MChangeDriveLabelAbsent);
-					ShowDisk = FALSE;
 				}
 			}
 
@@ -1457,7 +1465,9 @@ int Search::ProcessKey(const Manager::Key& Key)
 			        LocalKey!=KEY_CTRLBS && LocalKey!=KEY_RCTRLBS && LocalKey!=KEY_ALT && LocalKey!=KEY_SHIFT &&
 			        LocalKey!=KEY_CTRL && LocalKey!=KEY_RALT && LocalKey!=KEY_RCTRL &&
 			        !(LocalKey==KEY_CTRLINS||LocalKey==KEY_CTRLNUMPAD0) && // KEY_RCTRLINS/NUMPAD0 passed to panels
-					!(LocalKey==KEY_SHIFTINS||LocalKey==KEY_SHIFTNUMPAD0))
+			        !(LocalKey==KEY_SHIFTINS||LocalKey==KEY_SHIFTNUMPAD0) &&
+			        !((LocalKey == KEY_KILLFOCUS || LocalKey == KEY_GOTFOCUS) && IsWindowsVistaOrGreater()) // Mantis #2903
+			        )
 			{
 				m_KeyToProcess=LocalKey;
 				Close();

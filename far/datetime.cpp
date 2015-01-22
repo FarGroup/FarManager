@@ -751,7 +751,7 @@ bool Utc2Local(SYSTEMTIME &st, FILETIME &lft)
 
 static inline bool local_to_utc(const SYSTEMTIME &lst, SYSTEMTIME &ust)
 {
-	if (Imports().TzSpecificLocalTimeToSystemTime.exists())
+	if (Imports().TzSpecificLocalTimeToSystemTime)
 	{
 		return Imports().TzSpecificLocalTimeToSystemTime(nullptr, &lst, &ust) != FALSE;
 	}

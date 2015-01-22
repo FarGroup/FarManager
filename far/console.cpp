@@ -817,19 +817,19 @@ private:
 	{
 	}
 
-	ImportedFunctions::module Module;
+	api::rtdl::module Module;
 
 	struct ModuleImports
 	{
-		ImportedFunctions::function_pointer<BOOL(WINAPI*)(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT* ReadRegion)> pReadOutput;
-		ImportedFunctions::function_pointer<BOOL(WINAPI*)(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT* WriteRegion)> pWriteOutput;
-		ImportedFunctions::function_pointer<BOOL(WINAPI*)()> pCommit;
-		ImportedFunctions::function_pointer<BOOL(WINAPI*)(FarColor* Attributes) > pGetTextAttributes;
-		ImportedFunctions::function_pointer<BOOL(WINAPI*)(const FarColor* Attributes)> pSetTextAttributes;
-		ImportedFunctions::function_pointer<BOOL(WINAPI*)(const FarColor* Color, int Mode)> pClearExtraRegions;
-		ImportedFunctions::function_pointer<BOOL(WINAPI*)(FarColor* Color, BOOL Centered, BOOL AddTransparent)> pGetColorDialog;
+		api::rtdl::function_pointer<BOOL(WINAPI*)(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT* ReadRegion)> pReadOutput;
+		api::rtdl::function_pointer<BOOL(WINAPI*)(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT* WriteRegion)> pWriteOutput;
+		api::rtdl::function_pointer<BOOL(WINAPI*)()> pCommit;
+		api::rtdl::function_pointer<BOOL(WINAPI*)(FarColor* Attributes) > pGetTextAttributes;
+		api::rtdl::function_pointer<BOOL(WINAPI*)(const FarColor* Attributes)> pSetTextAttributes;
+		api::rtdl::function_pointer<BOOL(WINAPI*)(const FarColor* Color, int Mode)> pClearExtraRegions;
+		api::rtdl::function_pointer<BOOL(WINAPI*)(FarColor* Color, BOOL Centered, BOOL AddTransparent)> pGetColorDialog;
 
-		ModuleImports(const ImportedFunctions::module& Module):
+		ModuleImports(const api::rtdl::module& Module):
 #define INIT_IMPORT(name) p ## name(Module, #name)
 			INIT_IMPORT(ReadOutput),
 			INIT_IMPORT(WriteOutput),

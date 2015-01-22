@@ -232,7 +232,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 		{
 			if (pi->bShowImage)
 			{
-				HANDLE hProc = OpenProcess(Imports().QueryFullProcessImageNameW.exists()? PROCESS_QUERY_LIMITED_INFORMATION : PROCESS_QUERY_INFORMATION|PROCESS_VM_READ, false, ProcID);
+				HANDLE hProc = OpenProcess(Imports().QueryFullProcessImageNameW? PROCESS_QUERY_LIMITED_INFORMATION : PROCESS_QUERY_INFORMATION|PROCESS_VM_READ, false, ProcID);
 				if (hProc)
 				{
 					api::GetModuleFileNameEx(hProc, nullptr, strTitle);

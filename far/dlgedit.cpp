@@ -332,7 +332,7 @@ void DlgEdit::SetString(const string& Str, bool disable_autocomplete, int pos)
 		if (disable_autocomplete && (acompl = lineEdit->GetAutocomplete()))
 			lineEdit->SetAutocomplete(false);
 
-		lineEdit->SetString(Str.data(),Str.size());
+		lineEdit->SetString(Str.data(), static_cast<int>(Str.size()));
 		if (pos >= 0)
 			lineEdit->SetCurPos(pos);
 

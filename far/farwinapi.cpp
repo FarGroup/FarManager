@@ -705,7 +705,7 @@ int file_walker::GetPercent() const
 
 NTSTATUS GetLastNtStatus()
 {
-	return Imports().RtlGetLastNtStatus.exists()? Imports().RtlGetLastNtStatus() : STATUS_SUCCESS;
+	return Imports().RtlGetLastNtStatus? Imports().RtlGetLastNtStatus() : STATUS_SUCCESS;
 }
 
 BOOL DeleteFile(const string& FileName)
@@ -979,7 +979,7 @@ DWORD GetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFileName)
 		FileName.reset(BufferSize);
 		if (hProcess)
 		{
-			if (Imports().QueryFullProcessImageNameW.exists() && !hModule)
+			if (Imports().QueryFullProcessImageNameW && !hModule)
 			{
 				DWORD sz = BufferSize;
 				Size = 0;
@@ -1259,7 +1259,7 @@ BOOL SetFileAttributes(const string& FileName,DWORD dwFileAttributes)
 
 bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD dwFlags)
 {
-	return Imports().CreateSymbolicLinkW.exists()?
+	return Imports().CreateSymbolicLinkW?
 		(Imports().CreateSymbolicLink(Object.data(), Target.data(), dwFlags) != FALSE) :
 		CreateReparsePoint(Target, Object, dwFlags&SYMBOLIC_LINK_FLAG_DIRECTORY?RP_SYMLINKDIR:RP_SYMLINKFILE);
 }
@@ -1315,7 +1315,7 @@ BOOL CreateHardLink(const string& FileName, const string& ExistingFileName, LPSE
 HANDLE FindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,LPVOID lpFindStreamData,DWORD dwFlags)
 {
 	HANDLE Ret=INVALID_HANDLE_VALUE;
-	if(Imports().FindFirstStreamW.exists())
+	if(Imports().FindFirstStreamW)
 	{
 		Ret=Imports().FindFirstStreamW(NTPath(FileName).data(),InfoLevel,lpFindStreamData,dwFlags);
 	}
@@ -1374,7 +1374,7 @@ HANDLE FindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,LPVOI
 BOOL FindNextStream(HANDLE hFindStream,LPVOID lpFindStreamData)
 {
 	BOOL Ret=FALSE;
-	if(Imports().FindFirstStreamW.exists())
+	if(Imports().FindFirstStreamW)
 	{
 		Ret=Imports().FindNextStreamW(hFindStream,lpFindStreamData);
 	}
@@ -1404,7 +1404,7 @@ BOOL FindStreamClose(HANDLE hFindStream)
 {
 	BOOL Ret=FALSE;
 
-	if(Imports().FindFirstStreamW.exists())
+	if(Imports().FindFirstStreamW)
 	{
 		Ret=::FindClose(hFindStream);
 	}
@@ -1530,7 +1530,7 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 
 bool GetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 {
-	if (Imports().GetFinalPathNameByHandleW.exists())
+	if (Imports().GetFinalPathNameByHandleW)
 	{
 		wchar_t Buffer[MAX_PATH];
 		size_t Size = Imports().GetFinalPathNameByHandle(hFile, Buffer, ARRAYSIZE(Buffer), VOLUME_NAME_GUID);
@@ -1605,7 +1605,7 @@ bool GetVolumeNameForVolumeMountPoint(const string& VolumeMountPoint,string& Vol
 
 void EnableLowFragmentationHeap()
 {
-	if (Imports().HeapSetInformation.exists())
+	if (Imports().HeapSetInformation)
 	{
 		std::vector<HANDLE> Heaps(10);
 		DWORD ActualNumHeaps = ::GetProcessHeaps(static_cast<DWORD>(Heaps.size()), Heaps.data());
@@ -1981,6 +1981,37 @@ DWORD GetAppPathsRedirectionFlag()
 				}
 			}
 			return str;
+		}
+	}
+
+	namespace rtdl
+	{
+		module::~module()
+		{
+			if (m_loaded)
+			{
+				FreeLibrary(m_module);
+			}
+		}
+
+		HMODULE module::get_module() const
+		{
+			if (!m_module)
+			{
+				m_module = GetModuleHandle(m_name);
+				if (!m_module)
+				{
+					m_module = LoadLibrary(m_name);
+
+					if (!m_module && m_AlternativeLoad && IsAbsolutePath(m_name))
+					{
+						m_module = LoadLibraryEx(m_name, nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
+					}
+					// TODO: log if nullptr
+					m_loaded = m_module != nullptr;
+				}
+			}
+			return m_module;
 		}
 	}
 }

@@ -35,47 +35,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class ImportedFunctions: noncopyable
 {
-public:
-	class module: noncopyable
-	{
-	public:
-		module(const wchar_t* name): m_name(name), m_module(), m_loaded() {}
-		~module();
-
-		FARPROC GetProcAddress(const char* name) const { return ::GetProcAddress(get_module(), name); }
-		operator bool() const { return get_module() != nullptr; }
-
-	private:
-		HMODULE get_module() const;
-
-		const wchar_t* m_name;
-		mutable HMODULE m_module;
-		mutable bool m_loaded;
-	};
-
-	template<typename T>
-	class function_pointer: noncopyable
-	{
-	public:
-		function_pointer(const module& Module, const char* Name):
-			m_module(Module),
-			m_pointer(reinterpret_cast<T>(m_module.GetProcAddress(Name))) {}
-		operator T() const { return m_pointer; }
-		bool exists() const { return m_pointer != nullptr; }
-
-	private:
-		const module& m_module;
-		mutable T m_pointer;
-	};
-
 private:
 	template<typename T, class Y, T stub>
 	class unique_function_pointer: noncopyable
 	{
 	public:
-		unique_function_pointer(const module& Module): m_module(Module) {}
+		unique_function_pointer(const api::rtdl::module& Module): m_module(Module) {}
 		operator T() const { return get_pointer(); }
-		bool exists() const { return get_pointer() != stub; }
+		operator bool() const { return get_pointer() != stub; }
 
 	private:
 		T get_pointer() const
@@ -86,16 +53,16 @@ private:
 			return pointer;
 		}
 
-		const module& m_module;
+		const api::rtdl::module& m_module;
 	};
 
-	const module m_ntdll;
-	const module m_kernel32;
-	const module m_shell32;
-	const module m_user32;
-	const module m_virtdisk;
-	const module m_rstrtmgr;
-	const module m_netapi32;
+	const api::rtdl::module m_ntdll;
+	const api::rtdl::module m_kernel32;
+	const api::rtdl::module m_shell32;
+	const api::rtdl::module m_user32;
+	const api::rtdl::module m_virtdisk;
+	const api::rtdl::module m_rstrtmgr;
+	const api::rtdl::module m_netapi32;
 
 #define DECLARE_IMPORT_FUNCTION(RETTYPE, CALLTYPE, NAME, ...)\
 private: static RETTYPE CALLTYPE stub_##NAME(__VA_ARGS__);\

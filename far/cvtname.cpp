@@ -248,7 +248,7 @@ static string TryConvertVolumeGuidToDrivePath(const string& Path, const wchar_t 
 	size_t DirectoryOffset;
 	if (ParsePath(Path, &DirectoryOffset) == PATH_VOLUMEGUID)
 	{
-		if (Imports().GetVolumePathNamesForVolumeNameW.exists())
+		if (Imports().GetVolumePathNamesForVolumeNameW)
 		{
 			wchar_t_ptr Buffer(api::NT_MAX_PATH);
 			DWORD RetSize;

@@ -61,8 +61,8 @@ DWORD FarGetLogicalDrives()
 
 	if (!Global->Opt->Policies.ShowHiddenDrives)
 	{
-		const HKEY Roots[] = {HKEY_LOCAL_MACHINE, HKEY_CURRENT_USER};
-		std::any_of(CONST_RANGE(Roots, i) -> bool
+		static const HKEY Roots[] = {HKEY_LOCAL_MACHINE, HKEY_CURRENT_USER};
+		std::any_of(CONST_RANGE(Roots, i)
 		{
 			return api::reg::GetValue(i, L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer", L"NoDrives", NoDrives);
 		});

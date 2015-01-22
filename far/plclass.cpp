@@ -188,7 +188,7 @@ bool NativePluginModel::IsPlugin(const string& filename)
 
 GenericPluginModel::plugin_instance NativePluginModel::Create(const string& filename)
 {
-	auto Module = std::make_unique<ImportedFunctions::module>(filename.data());
+	auto Module = std::make_unique<api::rtdl::module>(filename.data());
 	if (!*Module)
 	{
 		Global->CatchError();
@@ -199,13 +199,13 @@ GenericPluginModel::plugin_instance NativePluginModel::Create(const string& file
 
 bool NativePluginModel::Destroy(GenericPluginModel::plugin_instance instance)
 {
-	delete static_cast<ImportedFunctions::module*>(instance);
+	delete static_cast<api::rtdl::module*>(instance);
 	return true;
 }
 
 void NativePluginModel::InitExports(GenericPluginModel::plugin_instance instance, exports_array& exports)
 {
-	auto Module = static_cast<ImportedFunctions::module*>(instance);
+	auto Module = static_cast<api::rtdl::module*>(instance);
 	std::transform(m_ExportsNames, m_ExportsNames + ExportsCount, exports.begin(), [&](const export_name& i)
 	{
 		return *i.AName? reinterpret_cast<void*>(Module->GetProcAddress(i.AName)) : nullptr;
@@ -1270,7 +1270,7 @@ void Plugin::ExitFAR(ExitInfo *Info)
 	}
 }
 
-CustomPluginModel::ModuleImports::ModuleImports(const ImportedFunctions::module& Module):
+CustomPluginModel::ModuleImports::ModuleImports(const api::rtdl::module& Module):
 #define INIT_IMPORT(name) p ## name(Module, #name)
 	INIT_IMPORT(Initialize),
 	INIT_IMPORT(IsPlugin),

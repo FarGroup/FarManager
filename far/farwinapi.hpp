@@ -394,4 +394,47 @@ namespace api
 		string expand_strings(const wchar_t* str);
 		inline string expand_strings(const string& str) { return expand_strings(str.data()); }
 	}
+
+	// Run-Time Dynamic Linking
+	namespace rtdl
+	{
+		class module: noncopyable
+		{
+		public:
+			module(const wchar_t* name, bool AlternativeLoad = false):
+				m_name(name),
+				m_module(),
+				m_loaded(),
+				m_AlternativeLoad(AlternativeLoad)
+			{}
+			~module();
+
+			FARPROC GetProcAddress(const char* name) const { return ::GetProcAddress(get_module(), name); }
+			operator bool() const { return get_module() != nullptr; }
+
+		private:
+			HMODULE get_module() const;
+
+			const wchar_t* m_name;
+			mutable HMODULE m_module;
+			mutable bool m_loaded;
+			const bool m_AlternativeLoad;
+		};
+
+		template<typename T>
+		class function_pointer: noncopyable
+		{
+		public:
+			function_pointer(const module& Module, const char* Name):
+				m_module(Module),
+				m_pointer(reinterpret_cast<T>(m_module.GetProcAddress(Name)))
+			{}
+			operator T() const { return m_pointer; }
+			operator bool() const { return m_pointer != nullptr; }
+
+		private:
+			const module& m_module;
+			mutable T m_pointer;
+		};
+	}
 }

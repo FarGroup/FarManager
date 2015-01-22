@@ -42,29 +42,6 @@ const ImportedFunctions& Imports()
 	return ifn;
 }
 
-ImportedFunctions::module::~module()
-{
-	if (m_loaded)
-	{
-		FreeLibrary(m_module);
-	}
-}
-
-HMODULE ImportedFunctions::module::get_module() const
-{
-	if (!m_module)
-	{
-		m_module = GetModuleHandle(m_name);
-		if (!m_module)
-		{
-			m_module = LoadLibrary(m_name);
-			// TODO: log if nullptr
-			m_loaded = m_module != nullptr;
-		}
-	}
-	return m_module;
-}
-
 
 ImportedFunctions::ImportedFunctions():
 	m_ntdll(L"ntdll"),

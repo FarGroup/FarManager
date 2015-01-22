@@ -329,17 +329,17 @@ public:
 	virtual void InitExports(plugin_instance instance, exports_array& exports) override;
 
 private:
-	ImportedFunctions::module m_Module;
+	api::rtdl::module m_Module;
 	struct ModuleImports
 	{
-		ImportedFunctions::function_pointer<BOOL(WINAPI*)(GlobalInfo* info)> pInitialize;
-		ImportedFunctions::function_pointer<BOOL(WINAPI*)(const wchar_t* filename)> pIsPlugin;
-		ImportedFunctions::function_pointer<HANDLE(WINAPI*)(const wchar_t* filename)> pCreateInstance;
-		ImportedFunctions::function_pointer<FARPROC(WINAPI*)(HANDLE Instance, const wchar_t* functionname)> pGetFunctionAddress;
-		ImportedFunctions::function_pointer<BOOL(WINAPI*)(HANDLE Instance)> pDestroyInstance;
-		ImportedFunctions::function_pointer<void (WINAPI*)(const ExitInfo* info)> pFree;
+		api::rtdl::function_pointer<BOOL(WINAPI*)(GlobalInfo* info)> pInitialize;
+		api::rtdl::function_pointer<BOOL(WINAPI*)(const wchar_t* filename)> pIsPlugin;
+		api::rtdl::function_pointer<HANDLE(WINAPI*)(const wchar_t* filename)> pCreateInstance;
+		api::rtdl::function_pointer<FARPROC(WINAPI*)(HANDLE Instance, const wchar_t* functionname)> pGetFunctionAddress;
+		api::rtdl::function_pointer<BOOL(WINAPI*)(HANDLE Instance)> pDestroyInstance;
+		api::rtdl::function_pointer<void (WINAPI*)(const ExitInfo* info)> pFree;
 
-		ModuleImports(const ImportedFunctions::module& Module);
+		ModuleImports(const api::rtdl::module& Module);
 	}
 	m_Imports;
 	bool m_Success;
