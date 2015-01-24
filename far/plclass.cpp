@@ -188,7 +188,7 @@ bool NativePluginModel::IsPlugin(const string& filename)
 
 GenericPluginModel::plugin_instance NativePluginModel::Create(const string& filename)
 {
-	auto Module = std::make_unique<api::rtdl::module>(filename.data());
+	auto Module = std::make_unique<api::rtdl::module>(filename.data(), true);
 	if (!*Module)
 	{
 		Global->CatchError();
