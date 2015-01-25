@@ -3,6 +3,52 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 24.01.2015 09:09:05 +0200 - build 4255
+
+1. Correction of 4254.2.
+
+drkns 22.01.2015 23:13:47 +0200 - build 4254
+
+1. Show volume labels from registry if the physical ones do not exist.
+
+2. "Fix" loading of plugins with non-standard placement of dependent dll.
+
+3. Do not close quick search on focus lose for OS newer than XP/2k3.
+
+4. Refactoring.
+
+shmuel 22.01.2015 13:21:30 +0200 - build 4253
+
+1. Refactoring.
+
+shmuel 21.01.2015 23:58:16 +0200 - build 4252
+
+1. Refactoring.
+
+shmuel 21.01.2015 16:51:57 +0200 - build 4251
+
+1. Refactoring.
+
+zg 20.01.2015 23:11:38 +0200 - build 4250
+
+1. correction of 4248 for non-editable controls.
+
+svs 20.01.2015 23:19:32 +0300 - build 4249
+
+1. SQLite 3.8.8.1
+
+zg 20.01.2015 03:18:09 +0200 - build 4248
+
+1. 0002912: DM_SETTEXT, DM_GETTEXT in dialogs do not allow handle strings containing '\0'.
+
+svs 19.01.2015 23:46:37 +0300 - build 4247
+
+1. SQLite 3.8.8
+
+drkns 19.01.2015 20:24:15 +0200 - build 4246
+
+1. Correction of displaying of file deletion progress bar.
+
 shmuel 18.01.2015 20:58:13 +0200 - build 4245
 
 1. Data for content columns of the same name but different plugins are concatenated.
