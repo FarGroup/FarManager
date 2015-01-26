@@ -794,7 +794,7 @@ void TmpPanel::ProcessSaveListKey()
 
 	// default path: opposite panel directory\panel<index>.<mask extension>
 	string ListPath;
-	size_t Size = Info.PanelControl(this, FCTL_GETPANELDIRECTORY, 0, nullptr);
+	size_t Size = Info.PanelControl(PANEL_PASSIVE, FCTL_GETPANELDIRECTORY, 0, nullptr);
 	FarPanelDirectory* dir = static_cast<FarPanelDirectory*>(malloc(Size));
 	dir->StructSize = sizeof(FarPanelDirectory);
 	Info.PanelControl(PANEL_PASSIVE, FCTL_GETPANELDIRECTORY, Size, dir);
