@@ -1307,6 +1307,9 @@ string __MCODE_ToName(DWORD OpCode)
 string __FARKEY_ToName(int Key)
 {
 #if defined(SYSLOG)
+	if (!IsLogON())
+		return L"";
+
 	string Name;
 	if (!(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE) && KeyToText(Key,Name))
 	{
@@ -1523,6 +1526,9 @@ string __DLGMSG_ToName(DWORD Msg)
 string __VK_KEY_ToName(int VkKey)
 {
 #if defined(SYSLOG)
+	if (!IsLogON())
+		return L"";
+
 #define DEF_VK(k) { VK_##k , L#k }
 	__XXX_Name VK[]=
 	{
@@ -1617,6 +1623,9 @@ string __VK_KEY_ToName(int VkKey)
 string __MOUSE_EVENT_RECORD_Dump(const MOUSE_EVENT_RECORD *rec)
 {
 #if defined(SYSLOG)
+	if (!IsLogON())
+		return L"";
+
 	string Records = str_printf(
 	    L"MOUSE_EVENT_RECORD: [%d,%d], Btn=0x%08X (%c%c%c%c%c), Ctrl=0x%08X (%c%c%c%c%c - %c%c%c%c), Flgs=0x%08X (%s)",
 	    rec->dwMousePosition.X,
@@ -1659,6 +1668,9 @@ string __MOUSE_EVENT_RECORD_Dump(const MOUSE_EVENT_RECORD *rec)
 string __INPUT_RECORD_Dump(const INPUT_RECORD *rec)
 {
 #if defined(SYSLOG)
+	if (!IsLogON())
+		return L"";
+
 	string Records;
 
 	if (!rec)

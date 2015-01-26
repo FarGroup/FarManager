@@ -1721,6 +1721,9 @@ bool KeyToTextImpl(int Key0, string& strKeyText, tfkey_to_text ToText, add_separ
 {
 	strKeyText.clear();
 
+	if (Key0 == -1)
+		return false;
+
 	DWORD Key=(DWORD)Key0, FKey=(DWORD)Key0&0xFFFFFF;
 
 	GetShiftKeyName(strKeyText, Key, ToText, AddSeparator);
