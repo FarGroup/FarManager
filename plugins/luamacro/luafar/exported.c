@@ -1403,9 +1403,9 @@ intptr_t LF_GetContentFields(lua_State* L, const struct GetContentFieldsInfo *In
 {
 	if(GetExportFunction(L, "GetContentFields"))     //+1: Func
 	{
-		size_t i;
-		lua_createtable(L, Info->Count, 0); //+2
-		for (i=0; i<Info->Count; i++)
+		int i;
+		lua_createtable(L, (int)Info->Count, 0); //+2
+		for (i=0; i<(int)Info->Count; i++)
 			PutWStrToArray(L, i+1, Info->Names[i], -1);
 
 		if(pcall_msg(L, 1, 1) == 0)     //+1
@@ -1422,17 +1422,17 @@ intptr_t LF_GetContentData(lua_State* L, struct GetContentDataInfo *Info)
 {
 	if(GetExportFunction(L, "GetContentData"))     //+1: Func
 	{
-		size_t i;
+		int i;
 		push_utf8_string(L, Info->FilePath, -1);  //+2
-		lua_createtable(L, Info->Count, 0); //+3
-		for (i=0; i<Info->Count; i++)
+		lua_createtable(L, (int)Info->Count, 0); //+3
+		for (i=0; i<(int)Info->Count; i++)
 			PutWStrToArray(L, i+1, Info->Names[i], -1);
 
 		if(pcall_msg(L, 2, 1) == 0)     //+1
 		{
 			if(lua_istable(L, -1))
 			{
-				for (i=0; i<Info->Count; i++)
+				for (i=0; i<(int)Info->Count; i++)
 				{
 					lua_rawgeti(L, -1, i+1);
 					if (lua_type(L, -1) == LUA_TSTRING)

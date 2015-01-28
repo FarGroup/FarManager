@@ -119,21 +119,21 @@ static int bnot(lua_State *L)
 static int lshift(lua_State *L)
 {
 	UINT64 v = check64(L, 1, NULL);
-	unsigned int n = luaL_checkinteger(L, 2);
+	unsigned int n = luaL_checkint(L, 2);
 	return bit64_push(L, v << n);
 }
 
 static int rshift(lua_State *L)
 {
 	UINT64 v = check64(L, 1, NULL);
-	unsigned int n = luaL_checkinteger(L, 2);
+	unsigned int n = luaL_checkint(L, 2);
 	return bit64_push(L, v >> n);
 }
 
 static int arshift(lua_State *L)
 {
 	INT64 v = check64(L, 1, NULL);
-	unsigned int n = luaL_checkinteger(L, 2);
+	unsigned int n = luaL_checkint(L, 2);
 	return bit64_push(L, v >> n);
 }
 
