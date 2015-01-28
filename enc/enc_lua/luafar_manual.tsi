@@ -10442,7 +10442,7 @@ lv=2
 dt=Text
 nm=win.system
 ctime=3631633791
-mtime=3631636857
+mtime=3631652700
 <article>
 #_result = win.system ([command])
 #_
@@ -10457,7 +10457,7 @@ mtime=3631636857
 #_**Description:**
 #_  Executes a command.
 #_
-#_**Windows API used:**
+#_**API used:**
 #_  _wsystem
 #_
 </article>
