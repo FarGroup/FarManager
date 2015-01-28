@@ -725,6 +725,13 @@ static int ustring_OutputDebugString(lua_State *L)
 	return 0;
 }
 
+static int ustring_system(lua_State *L)
+{
+	const wchar_t *str = opt_utf8_string(L, 1, NULL);
+	lua_pushinteger(L, _wsystem(str));
+	return 1;
+}
+
 const luaL_Reg ustring_funcs[] =
 {
 	{"EnumSystemCodePages", ustring_EnumSystemCodePages},
@@ -748,6 +755,7 @@ const luaL_Reg ustring_funcs[] =
 	{"Uuid",                ustring_Uuid},
 	{"WideCharToMultiByte", ustring_WideCharToMultiByte},
 	{"subW",                ustring_sub},
+	{"system",              ustring_system},
 	{"lenW",                ustring_len},
 
 	{NULL, NULL}

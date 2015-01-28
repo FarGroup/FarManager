@@ -86,7 +86,7 @@ lv=1
 dt=Text
 nm=Unicode support
 ctime=3480525243
-mtime=3568137943
+mtime=3631634304
 <article>
 #_<markdown>
 #_
@@ -133,6 +133,7 @@ mtime=3568137943
 #_* [`win.SetFileAttr`](434.html)
 #_* [`win.ShellExecute`](428.html)
 #_* [`win.SHGetFolderPath`](440.html)
+#_* [`win.system`](508.html)
 #_
 </article>
 </node>
@@ -10432,6 +10433,30 @@ mtime=3602449058
 #_**Description:**
 #_  This function is similar to *string.sub* except that it works on UTF-16LE strings
 #_  and considers arguments *from* and *to* expressed in characters rather than bytes.
+#_
+</article>
+</node>
+<node>
+id=508
+lv=2
+dt=Text
+nm=win.system
+ctime=3631633791
+mtime=3631634238
+<article>
+#_result = win.system ([command])
+#_
+#_**Parameters:**
+#_  command:  string
+#_
+#_**Returns:**
+#_  result:   integer
+#_
+#_**Description:**
+#_  Executes a command.
+#_
+#_**Windows API used:**
+#_  _wsystem
 #_
 </article>
 </node>
