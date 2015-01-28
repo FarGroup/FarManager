@@ -64,7 +64,7 @@ static intptr_t WINAPI DlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void 
 static void InitGlobal (Global *g, HINSTANCE hDll)
 {
 	size_t PluginDirSize = sizeof(g->PluginDir) / sizeof(g->PluginDir[0]);
-	size_t RetSize = GetModuleFileNameW(hDll, g->PluginDir, PluginDirSize);
+	size_t RetSize = GetModuleFileNameW(hDll, g->PluginDir, (DWORD)PluginDirSize);
 	TPluginData PD = { &g->Info,&g->FSF,&g->PluginId,DlgProc,0,NULL,NULL,NULL,laction,SIG_DFL };
 	g->PluginData = PD;
 	g->Init1_Done = 0;
