@@ -10442,12 +10442,14 @@ lv=2
 dt=Text
 nm=win.system
 ctime=3631633791
-mtime=3631634238
+mtime=3631636857
 <article>
 #_result = win.system ([command])
 #_
 #_**Parameters:**
-#_  command:  string
+#_  command:  string, or nil
+#_            (when command==nil or no arguments are passed, the underlying
+#_            function *_wsystem* is called with a NULL argument)
 #_
 #_**Returns:**
 #_  result:   integer
