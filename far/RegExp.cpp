@@ -3988,14 +3988,17 @@ void RegExp::TrimTail(const wchar_t* const start, const wchar_t*& strend) const
 void Test()
 {
 	RegExp re;
-	if (re.Compile(L"/a*?ca/"))
-	{
-		RegExpMatch m = { -1, -1 };
-		intptr_t n = 1;
+	auto Result = re.Compile(L"/a*?ca/");
 
-		int r = re.Search(L"abca", &m, n);
-		assert(r && n == 1 && m.start == 2 && m.end == 4);
-	}
+	assert(Result);
+
+	RegExpMatch m = { -1, -1 };
+	intptr_t n = 1;
+	Result = re.Search(L"abca", &m, n);
+
+	assert(Result);
+	assert(n == 1);
+	assert(m.start == 2 && m.end == 4);
 }
 
 SELF_TEST(Test());
