@@ -1797,96 +1797,102 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 
 		if (str<=strend)
 		{
-         #define MINSKIP(cmp)\
-			{\
-				int jj;\
-				switch (std::next(op)->op)\
-				{\
-				case opSymbol:\
-					jj = std::next(op)->symbol;\
-					if(*str!=jj)\
-					{\
-						while(str<strend && cmp && st.max--)\
-						{\
-							str++;\
-							if(str[0]==jj)\
-								break;\
-						}\
-					}\
-					break;\
-				case opNotSymbol:\
-					jj = std::next(op)->symbol;\
-					if(*str==jj)\
-					{\
-						while(str<strend && cmp && st.max--)\
-						{\
-							str++;\
-							if(str[0]!=jj)\
-								break;\
-						}\
-					}\
-					break;\
-				case opSymbolIgnoreCase:\
-					jj = std::next(op)->symbol;\
-					if(TOLOWER(*str)!=jj)\
-					{\
-						while(str<strend && cmp && st.max--)\
-						{\
-							str++;\
-							if(TOLOWER(str[0])==jj)\
-								break;\
-						}\
-					}\
-					break;\
-				case opNotSymbolIgnoreCase:\
-					jj = std::next(op)->symbol;\
-					if(TOLOWER(*str)==jj)\
-					{\
-						while(str<strend && cmp && st.max--)\
-						{\
-							str++;\
-							if(TOLOWER(str[0])!=jj)\
-								break;\
-						}\
-					}\
-					break;\
-				case opType:\
-					jj = std::next(op)->type;\
-					if(!isType(*str,jj))\
-					{\
-						while(str<strend && cmp && st.max--)\
-						{\
-							str++;\
-							if(isType(str[0],jj))\
-								break;\
-						}\
-					}\
-					break;\
-				case opNotType:\
-					jj = std::next(op)->type;\
-					if(isType(*str,jj))\
-					{\
-						while(str<strend && cmp && st.max--)\
-						{\
-							str++;\
-							if(!isType(str[0],jj))\
-								break;\
-						}\
-					}\
-					break;\
-				case opSymbolClass:\
-					cl = std::next(op)->symbolclass;\
-					if(!cl->GetBit(*str))\
-					{\
-						while(str<strend && cmp && st.max--)\
-						{\
-							str++;\
-							if(cl->GetBit(str[0]))\
-								break;\
-						}\
-					}\
-					break;\
-				}\
+			const auto MinSkip = [&](StateStackItem& st, const std::function<bool(const wchar_t* str)>& cmp)
+			{
+				int jj;
+				switch (std::next(op)->op)
+				{
+				case opSymbol:
+					jj = std::next(op)->symbol;
+					if(*str!=jj)
+					{
+						while(str<strend && cmp(str) && st.max--)
+						{
+							str++;
+							if(str[0]==jj)
+								break;
+						}
+					}
+					break;
+
+				case opNotSymbol:
+					jj = std::next(op)->symbol;
+					if(*str==jj)
+					{
+						while(str<strend && cmp(str) && st.max--)
+						{
+							str++;
+							if(str[0]!=jj)
+								break;
+						}
+					}
+					break;
+
+				case opSymbolIgnoreCase:
+					jj = std::next(op)->symbol;
+					if(TOLOWER(*str)!=jj)
+					{
+						while(str<strend && cmp(str) && st.max--)
+						{
+							str++;
+							if(TOLOWER(str[0])==jj)
+								break;
+						}
+					}
+					break;
+
+				case opNotSymbolIgnoreCase:
+					jj = std::next(op)->symbol;
+					if(TOLOWER(*str)==jj)
+					{
+						while(str<strend && cmp(str) && st.max--)
+						{
+							str++;
+							if(TOLOWER(str[0])!=jj)
+								break;
+						}
+					}
+					break;
+
+				case opType:
+					jj = std::next(op)->type;
+					if(!isType(*str,jj))
+					{
+						while(str<strend && cmp(str) && st.max--)
+						{
+							str++;
+							if(isType(str[0],jj))
+								break;
+						}
+					}
+					break;
+
+				case opNotType:
+					jj = std::next(op)->type;
+					if(isType(*str,jj))
+					{
+						while(str<strend && cmp(str) && st.max--)
+						{
+							str++;
+							if(!isType(str[0],jj))
+								break;
+						}
+					}
+					break;
+
+				case opSymbolClass:
+					cl = std::next(op)->symbolclass;
+					if(!cl->GetBit(*str))
+					{
+						while(str<strend && cmp(str) && st.max--)
+						{
+							str++;
+							if(cl->GetBit(str[0]))
+								break;
+						}
+					}
+					break;
+				}
 			};
 
 			switch (op->op)
@@ -2478,7 +2484,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 						}
 						else
 						{
-							MINSKIP(*str != L'\r' && *str != L'\n');
+							MinSkip(st, [](const wchar_t* str) { return *str != L'\r' && *str != L'\n'; });
 
 							if (st.max==-1)break;
 						}
@@ -2514,7 +2520,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 						}
 						else
 						{
-							MINSKIP(true);
+							MinSkip(st, [](const wchar_t* str) { return true; });
 
 							if (st.max==-1)break;
 						}
@@ -2553,7 +2559,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 						}
 						else
 						{
-							MINSKIP(TOLOWER(*str) == op->range.symbol);
+							MinSkip(st, [op](const wchar_t* str) { return TOLOWER(*str) == op->range.symbol; });
 
 							if (st.max==-1)break;
 						}
@@ -2575,7 +2581,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 						}
 						else
 						{
-							MINSKIP(*str == op->range.symbol);
+							MinSkip(st, [op](const wchar_t* str) { return *str == op->range.symbol; });
 
 							if (st.max==-1)break;
 						}
@@ -2614,7 +2620,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 						}
 						else
 						{
-							MINSKIP(TOLOWER(*str) != op->range.symbol);
+							MinSkip(st, [op](const wchar_t* str) { return TOLOWER(*str) != op->range.symbol; });
 
 							if (st.max==-1)break;
 						}
@@ -2636,7 +2642,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 						}
 						else
 						{
-							MINSKIP(*str != op->range.symbol);
+							MinSkip(st, [op](const wchar_t* str) { return *str != op->range.symbol; });
 
 							if (st.max==-1)break;
 						}
@@ -2673,7 +2679,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 					}
 					else
 					{
-						MINSKIP(op->range.symbolclass->GetBit(*str));
+						MinSkip(st, [op](const wchar_t* str) { return op->range.symbolclass->GetBit(*str); });
 
 						if (st.max==-1)break;
 					}
@@ -2709,7 +2715,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 					}
 					else
 					{
-						MINSKIP(isType(*str, op->range.type));
+						MinSkip(st, [op](const wchar_t* str) { return isType(*str, op->range.type); });
 
 						if (st.max==-1)break;
 					}
@@ -2745,7 +2751,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 					}
 					else
 					{
-						MINSKIP(!isType(*str, op->range.type));
+						MinSkip(st, [op](const wchar_t* str) { return !isType(*str, op->range.type); });
 
 						if (st.max==-1)break;
 					}
@@ -2799,7 +2805,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 					}
 					else
 					{
-						MINSKIP(this->StrCmp(str, start + m->start, start + m->end) != 0);
+						MinSkip(st, [&](const wchar_t* str) { return this->StrCmp(str, start + m->start, start + m->end) != 0; });
 
 						if (st.max==-1)break;
 					}
@@ -3978,23 +3984,19 @@ void RegExp::TrimTail(const wchar_t* const start, const wchar_t*& strend) const
 	strend++;
 }
 
-//#define DO_SELF_TEST
-#ifdef DO_SELF_TEST
-struct do_self_test
+#ifdef _DEBUG
+void Test()
 {
-	do_self_test()
+	RegExp re;
+	if (re.Compile(L"/a*?ca/"))
 	{
-		RegExp re;
-		if (re.Compile(L"/a*?ca/"))
-		{
-			RegExpMatch m = {-1, -1};
-			intptr_t n = 1;
+		RegExpMatch m = { -1, -1 };
+		intptr_t n = 1;
 
-			int r = re.Search(L"abca", &m, n);
-			if (n > 0)
-				r = r;
-		}
+		int r = re.Search(L"abca", &m, n);
+		assert(r && n == 1 && m.start == 2 && m.end == 4);
 	}
-};
-static do_self_test self_test;
+}
+
+SELF_TEST(Test());
 #endif
