@@ -3,6 +3,25 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 01.02.2015 17:25:54 +0200 - build 4259
+
+1. Replacement with regular expressions can use named groups now.
+
+drkns 30.01.2015 19:26:48 +0200 - build 4258
+
+1. 0002708: Regexp "^(.*?\-\-)" != "^(.*?\-{2})"
+   Rollback 4257 and fix 3295.
+
+w17 30.01.2015 19:39:58 +0300 - build 4257
+
+1. M#0002708: Regexp "^(.*?\-\-)" != "^(.*?\-{2})"
+   Return #define MINSTEP(cmp) - /a*?ca/ "abca" which works
+
+svs 26.01.2015 15:43:08 +0300 - build 4256
+
+1. Crash in debug FAR build on "__FARKEY_ToName(-1)" call.
+   In KeyToTextImpl() the expression "KeyText[0]=(wchar_t)(Key&0xFFFF);" caused an invalid character...
+
 drkns 24.01.2015 09:09:05 +0200 - build 4255
 
 1. Correction of 4254.2.
