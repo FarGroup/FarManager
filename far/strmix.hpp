@@ -130,13 +130,13 @@ bool IsCaseMixed(const string &strStr);
 string& CenterStr(const string& Src, string &strDest,int Length);
 string& RightStr(const string& Src, string &strDest, int Length);
 
-string ReplaceBrackets(const wchar_t *SearchStr, const string& ReplaceStr, const RegExpMatch* Match, int Count);
+string ReplaceBrackets(const wchar_t *SearchStr, const string& ReplaceStr, const RegExpMatch* Match, size_t Count, const MatchHash* HMatch);
 
 string GuidToStr(const GUID& Guid);
 bool StrToGuid(const wchar_t* Value,GUID& Guid);
 inline bool StrToGuid(const string& Value, GUID& Guid) { return StrToGuid(Value.data(), Guid); }
 
-bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const string &UpperStr, const string &LowerStr, class RegExp &re, RegExpMatch *pm, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength,const wchar_t* WordDiv=nullptr);
+bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const string &UpperStr, const string &LowerStr, class RegExp &re, RegExpMatch *pm, MatchHash* hm, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength,const wchar_t* WordDiv=nullptr);
 
 inline int StrCmp(const string& a, const string& b) { return ::StrCmp(a.data(), b.data()); }
 inline int StrCmpI(const string& a, const string& b) { return ::StrCmpI(a.data(), b.data()); }

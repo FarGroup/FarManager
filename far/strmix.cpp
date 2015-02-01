@@ -1125,52 +1125,78 @@ unsigned __int64 ConvertFileSizeString(const string& FileSizeStr)
 	return n;
 }
 
-string ReplaceBrackets(const wchar_t *SearchStr,const string& ReplaceStr, const RegExpMatch* Match,int Count)
+string ReplaceBrackets(const wchar_t *SearchStr, const string& ReplaceStr, const RegExpMatch* Match, size_t Count, const MatchHash* HMatch)
 {
 	string result;
-	size_t pos=0,length=ReplaceStr.size();
-
-	while (pos<length)
+	for (size_t i = 0, length = ReplaceStr.size(); i < length; ++i)
 	{
-		bool common=true;
+		const auto CurrentChar = ReplaceStr[i];
+		bool common = true;
 
-		if (ReplaceStr[pos]=='$')
+		if (CurrentChar == L'$')
 		{
-			++pos;
+			const auto TokenStart = i + 1;
 
-			if (pos>=length)
-				break;
-
-			wchar_t symbol = ::ToUpper(ReplaceStr[pos]);
-			int index=-1;
-
-			if (symbol>='0'&&symbol<='9')
+			if (TokenStart < length)
 			{
-				index=symbol-'0';
-			}
-			else if (symbol>='A'&&symbol<='Z')
-			{
-				index=symbol-'A'+10;
-			}
+				intptr_t start = 0, end = 0;
+				size_t ShiftLength = 0;
+				bool Success = false;
 
-			if (index>=0)
-			{
-				if (index<Count&&Match[index].end>=0)
+				if (std::isdigit(ReplaceStr[TokenStart]))
 				{
-					string bracket(SearchStr+Match[index].start,Match[index].end-Match[index].start);
-					result+=bracket;
+					try
+					{
+						const auto index = std::stoul(ReplaceStr.substr(TokenStart), &ShiftLength);
+						if (index < Count)
+						{
+							Success = true;
+							start = Match[index].start;
+							end = Match[index].end;
+						}
+					}
+					catch (const std::exception&)
+					{
+						// TODO: incorrect input diagnostic
+					}
+				}
+				else
+				{
+					static const std::wregex re(L"^\\{([\\w\\s]*?)\\}", std::regex::optimize);
+					std::wcmatch CMatch;
+					if (std::regex_search(ReplaceStr.data() + TokenStart, CMatch, re))
+					{
+						ShiftLength = CMatch[0].length();
+						if (HMatch)
+						{
+							const auto Iterator = HMatch->find(string(CMatch[1].first, CMatch[1].second));
+							if (Iterator != HMatch->cend())
+							{
+								Success = true;
+								start = Iterator->second.start;
+								end = Iterator->second.end;
+							}
+						}
+					}
 				}
 
-				common=false;
+				if (ShiftLength)
+				{
+					i += ShiftLength;
+					common = false;
+
+					if (Success)
+					{
+						result += string(SearchStr + start, end - start);
+					}
+				}
 			}
 		}
 
 		if (common)
 		{
-			result+=ReplaceStr[pos];
+			result += CurrentChar;
 		}
-
-		++pos;
 	}
 
 	return result;
@@ -1194,7 +1220,7 @@ bool StrToGuid(const wchar_t* Value,GUID& Guid)
 	return UuidFromString(reinterpret_cast<RPC_WSTR>(const_cast<wchar_t*>(Value)), &Guid) == RPC_S_OK;
 }
 
-bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const string &UpperStr, const string &LowerStr, RegExp &re, RegExpMatch *pm, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength,const wchar_t* WordDiv)
+bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const string &UpperStr, const string &LowerStr, RegExp &re, RegExpMatch *pm, MatchHash* hm, string& ReplaceStr, int& CurPos, int Position, int Case, int WholeWords, int Reverse, int Regexp, int PreserveStyle, int *SearchLength, const wchar_t* WordDiv)
 {
 	*SearchLength = 0;
 
@@ -1224,7 +1250,7 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 			int half = 0;
 			if (!Reverse)
 			{
-				if (re.SearchEx(Source, Source + Position, Source + StrSize, pm, n))
+				if (re.SearchEx(Source, Source + Position, Source + StrSize, pm, n, hm))
 				{
 					found = true;
 				}
@@ -1238,7 +1264,7 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 				int pos = 0;
 				for (;;)
 				{
-					if (!re.SearchEx(Source, Source + pos, Source + StrSize, pm+half, n))
+					if (!re.SearchEx(Source, Source + pos, Source + StrSize, pm + half, n, hm))
 					{
 						ReMatchErrorMessage(re);
 						break;
@@ -1257,7 +1283,7 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 			{
 				*SearchLength = pm[half].end - pm[half].start;
 				CurPos = pm[half].start;
-				ReplaceStr=ReplaceBrackets(Source,ReplaceStr,pm+half,n);
+				ReplaceStr = ReplaceBrackets(Source, ReplaceStr, pm + half, n, hm);
 			}
 
 			return found;

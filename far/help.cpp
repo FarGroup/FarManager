@@ -1923,6 +1923,7 @@ void Help::Search(api::fs::file& HelpFile,uintptr_t nCodePage)
 	string strSlash(strLastSearchStr);
 	InsertRegexpQuote(strSlash);
 	std::vector<RegExpMatch> m;
+	MatchHash hm;
 	RegExp re;
 
 	if (LastSearchRegexp)
@@ -1978,7 +1979,7 @@ void Help::Search(api::fs::file& HelpFile,uintptr_t nCodePage)
 			string ReplaceStr;
 			int CurPos=0;
 			int SearchLength;
-			bool Result=SearchString(strReadStr.data(),(int)strReadStr.size(),strLastSearchStr,strSearchStrUpper,strSearchStrLower,re,m.data(),ReplaceStr,CurPos,0,LastSearchCase,LastSearchWholeWords,false,false,LastSearchRegexp,&SearchLength);
+			bool Result = SearchString(strReadStr.data(), (int)strReadStr.size(), strLastSearchStr, strSearchStrUpper, strSearchStrLower, re, m.data(), &hm, ReplaceStr, CurPos, 0, LastSearchCase, LastSearchWholeWords, false, false, LastSearchRegexp, &SearchLength);
 
 			if (Result)
 			{

@@ -3818,6 +3818,7 @@ BOOL Editor::Search(int Next)
 		string strSlash(strSearchStr);
 		InsertRegexpQuote(strSlash);
 		std::vector<RegExpMatch> m;
+		MatchHash hm;
 		RegExp re;
 
 		if (Regexp)
@@ -3870,7 +3871,7 @@ BOOL Editor::Search(int Next)
 			string strReplaceStrCurrent(ReplaceMode ? strReplaceStr : L"");
 
 			int SearchLength;
-			if (CurPtr->Search(strSearchStr,strSearchStrUpper,strSearchStrLower,re,m.data(),strReplaceStrCurrent,CurPos,Case,WholeWords,ReverseSearch,Regexp,PreserveStyle,&SearchLength))
+			if (CurPtr->Search(strSearchStr, strSearchStrUpper, strSearchStrLower, re, m.data(), &hm, strReplaceStrCurrent, CurPos, Case, WholeWords, ReverseSearch, Regexp, PreserveStyle, &SearchLength))
 			{
 				LastFoundLength = SearchLength;
 				Match = true;

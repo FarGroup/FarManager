@@ -4616,6 +4616,11 @@ zero-size expression.
     #(?<=pattern)# - ^<wrap>the backward lookup. Unfortunately, the pattern must have fixed length.
     #(?<!pattern)# - ^<wrap>the negation of backward lookup. The same restriction.
 
+    Also you can create brackets with name: (?{name}pattern)
+    Name can be empty (in such case you cannot refer to this brackets) or must
+contain word symbols (\w) and spaces (\s).
+
+
     #Quantifiers#
 
     Any character, group or class can be followed by a quantifier:
@@ -4691,12 +4696,14 @@ big amounts of data are processed.
          /.*?name\O=(['"])(.*?)\1\O.*?value\O=(['"])(.*?)\3/
          ^<wrap>Strings containing "name=", but not containing "value=", are processed (in fact, skipped) faster.
 
-    #\NN#  - ^<wrap>reference to earlier matched parentheses . NN is an integer from 0 to 15.
-Each parentheses except (?:pattern), (?=pattern), (?!pattern), (?<=pattern) and (?<!pattern)
+    #\NN#  - ^<wrap>reference to earlier matched parentheses . NN is a positive integer.
+Each parentheses except (?:pattern), (?=pattern), (?!pattern), (?<=pattern), (?<!pattern) and (?{name}pattern)
 have a number (in the order of appearance).
 
          Example:
          "(['"])hello\1" matches to "hello" or 'hello'.
+
+    #\p{name}# - ^<wrap>inner regexp reference to it's parsed bracket with specified #name#.
 
 
     #Examples:#
@@ -4721,12 +4728,13 @@ $ #Regular expressions in replace#
     In "Replace with" line one can use special replace string regular
 expressions:
 
-    #$0#..#$9#, #$A#..#$Z#
+    #$0#..#$N#
 
     The found group numbers, they are replaced with appropriate groups.
 The numbers are assigned to the groups in order of opening parentheses
 sequence in regular expression. #$0# means the whole found sequence.
-#$*# is replaced with '*' character.
+
+    $#{#name#}#     Found pattern with specified #name#.
 
 
 @ElevationDlg
