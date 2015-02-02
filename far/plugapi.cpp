@@ -2419,6 +2419,19 @@ size_t WINAPI apiPasteFromClipboard(enum FARCLIPBOARD_TYPE Type, wchar_t *Data, 
 	}
 }
 
+unsigned __int64 WINAPI apiFarClock() noexcept
+{
+	try
+	{
+		return Global->FarUpTime();
+	}
+	catch (...)
+	{
+		// TODO: log
+		return 0;
+	}
+}
+
 intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
 {
 	try

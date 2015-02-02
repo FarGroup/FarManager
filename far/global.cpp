@@ -140,7 +140,7 @@ uint64_t global::FarUpTime() const
 	LARGE_INTEGER Counter;
 	QueryPerformanceCounter(&Counter);
 
-	return (Counter.QuadPart - m_FarUpTime.QuadPart) * 1000 / Frequency.QuadPart;
+	return (Counter.QuadPart - m_FarUpTime.QuadPart) * 1000000 / Frequency.QuadPart;
 }
 
 bool global::IsUserAdmin()

@@ -1,4 +1,8 @@
-﻿shmuel 28.01.2015 22:30:52 +0200 - build 479
+﻿shmuel 03.02.2015 01:48:32 +0200 - build 480
+
+1. LuaFAR: добавлена функция far.FarClock. Документация следует.
+
+shmuel 28.01.2015 22:30:52 +0200 - build 479
 
 1. LuaFAR: x64 warnings.
 

@@ -344,6 +344,7 @@ FarStandardFunctions NativeFSF =
 	pluginapi::apiGetReparsePointInfo,
 	pluginapi::apiGetCurrentDirectory,
 	pluginapi::apiFormatFileSize,
+	pluginapi::apiFarClock,
 };
 
 PluginStartupInfo NativeInfo =

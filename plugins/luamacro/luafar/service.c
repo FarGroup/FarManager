@@ -5229,6 +5229,13 @@ static int far_FormatFileSize(lua_State *L)
 	return 1;
 }
 
+static int far_FarClock(lua_State *L)
+{
+	UINT64 c = GetPluginData(L)->FSF->FarClock();
+	lua_pushnumber(L, (double)c);
+	return 1;
+}
+
 DWORD WINAPI TimerThreadFunc(LPVOID data)
 {
 	FILETIME tCurrent;
@@ -5960,6 +5967,7 @@ const luaL_Reg far_funcs[] =
 	{"ConvertPath",         far_ConvertPath},
 	{"XLat",                far_XLat},
 	{"FormatFileSize",      far_FormatFileSize},
+	{"FarClock",            far_FarClock},
 
 	{"CPluginStartupInfo",  far_CPluginStartupInfo},
 	{"GetCurrentDirectory", far_GetCurrentDirectory},

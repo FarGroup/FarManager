@@ -120,6 +120,7 @@ namespace pluginapi
 	BOOL     WINAPI apiMkLink(const wchar_t *Target, const wchar_t *LinkName, LINK_TYPE Type, MKLINK_FLAGS Flags) noexcept;
 	BOOL     WINAPI apiAddEndSlash(wchar_t *Path) noexcept;
 	wchar_t* WINAPI apiXlat(wchar_t *Line, intptr_t StartPos, intptr_t EndPos, XLAT_FLAGS Flags) noexcept;
+	unsigned __int64  WINAPI apiFarClock() noexcept;
 	//arclite
 	HANDLE   WINAPI apiCreateFile(const wchar_t *Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile) noexcept;
 	DWORD    WINAPI apiGetFileAttributes(const wchar_t *FileName) noexcept;
