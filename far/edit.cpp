@@ -199,7 +199,7 @@ int Edit::GetNextCursorPos(int Position,int Where) const
 		{
 			for (int i=Position; i>=0; i--)
 			{
-				if (CheckCharMask(Mask[i]))
+				if (CheckCharMask(Mask.data()[i]))
 				{
 					Result=i;
 					PosChanged=TRUE;

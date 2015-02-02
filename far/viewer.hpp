@@ -91,7 +91,7 @@ public:
 	int ProcessHexMode(int newMode, bool isRedraw = true);
 	int ProcessWrapMode(int newMode, bool isRedraw = true);
 	int ProcessTypeWrapMode(int newMode, bool isRedraw = true);
-	void SearchTextTransform(string& to, const wchar_t *from, bool hex2text, intptr_t &pos);
+	void SearchTextTransform(string& to, const wchar_t *from, size_t from_len, bool hex2text, intptr_t &pos);
 	int GetId(void) const { return ViewerID; }
 	void OnDestroy(void);
 
@@ -115,8 +115,9 @@ private:
 	void AdjustWidth();
 	void AdjustFilePos();
 	void ReadString(ViewerString *pString, int MaxSize, bool update_cache=true);
-	__int64 EndOfScreen( int line );
+	__int64 EndOfScreen(int line);
 	__int64 BegOfScreen();
+	__int64 XYfilepos(int col, int row);
 	void ChangeViewKeyBar();
 	void Search(int Next,int FirstChar);
 	struct search_data;
@@ -194,7 +195,7 @@ private:
 
 	__int64 LeftPos;
 	__int64 LastPage;
-	__int64 SelectPos,SelectSize;
+	__int64 SelectPos,SelectSize, ManualSelectPos;
 	DWORD SelectFlags;
 	int ShowStatusLine;
 	int m_HideCursor;
