@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 4244
+  Plugin API for Far Manager 3.0 build 4261
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 4244
+#define FARMANAGERVERSION_BUILD 4261
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -2029,6 +2029,7 @@ typedef void (WINAPI *FARSTDLOCALSTRUPR)(wchar_t *s1);
 typedef void (WINAPI *FARSTDLOCALSTRLWR)(wchar_t *s1);
 typedef int (WINAPI *FARSTDLOCALSTRICMP)(const wchar_t *s1,const wchar_t *s2);
 typedef int (WINAPI *FARSTDLOCALSTRNICMP)(const wchar_t *s1,const wchar_t *s2,intptr_t n);
+typedef unsigned __int64 (WINAPI *FARSTDFARCLOCK)();
 
 typedef unsigned __int64 PROCESSNAME_FLAGS;
 static const PROCESSNAME_FLAGS
@@ -2176,6 +2177,7 @@ typedef struct FarStandardFunctions
 	FARGETREPARSEPOINTINFO     GetReparsePointInfo;
 	FARGETCURRENTDIRECTORY     GetCurrentDirectory;
 	FARFORMATFILESIZE          FormatFileSize;
+	FARSTDFARCLOCK             FarClock;
 } FARSTANDARDFUNCTIONS;
 
 struct PluginStartupInfo
