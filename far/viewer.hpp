@@ -114,6 +114,7 @@ private:
 	void DrawScrollbar();
 	void AdjustWidth();
 	void AdjustFilePos();
+   bool CheckChanged();
 	void ReadString(ViewerString *pString, int MaxSize, bool update_cache=true);
 	__int64 EndOfScreen(int line);
 	__int64 BegOfScreen();

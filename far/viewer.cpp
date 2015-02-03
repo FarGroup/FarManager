@@ -448,6 +448,35 @@ void Viewer::AdjustWidth()
 	}
 }
 
+bool Viewer::CheckChanged()
+{
+	api::FAR_FIND_DATA NewViewFindData;
+	if (!api::GetFindDataEx(strFullFileName, NewViewFindData))
+		return TRUE;
+
+	// Smart file change check -- thanks Dzirt2005
+	//
+	bool changed = ViewFindData.ftLastWriteTime != NewViewFindData.ftLastWriteTime || ViewFindData.nFileSize != NewViewFindData.nFileSize;
+	if ( changed )
+		ViewFindData = NewViewFindData;
+	else {
+		if ( !ViewFile.GetSize(NewViewFindData.nFileSize) || FileSize == static_cast<__int64>(NewViewFindData.nFileSize) )
+			return TRUE;
+		changed = FileSize > static_cast<__int64>(NewViewFindData.nFileSize); // true if file shrank
+	}
+
+	SetFileSize();
+	if ( changed ) // do not reset caches if file just enlarged [make sense on Win7, doesn't matter on XP]
+	{
+		Reader.Clear(); // иначе зачем вся эта возня?
+		ViewFile.FlushBuffers();
+		vseek(0, FILE_CURRENT); // reset vgetc state
+		lcache_ready = false; // reset start-lines cache
+	}
+
+	return changed;
+}
+
 void Viewer::ShowPage(int nMode)
 {
 	AdjustWidth();
@@ -485,6 +514,9 @@ void Viewer::ShowPage(int nMode)
 			break;
 		case SHOW_RELOAD:
 			{
+				m_TimeCheck->reset();
+				CheckChanged();
+
 				Strings.clear();
 
 				for (int Y = m_Y1; Y<=m_Y2; ++Y)
@@ -1501,29 +1533,7 @@ int Viewer::ProcessKey(const Manager::Key& Key)
 				if (!*m_TimeCheck)
 					return TRUE;
 
-				api::FAR_FIND_DATA NewViewFindData;
-				if (!api::GetFindDataEx(strFullFileName, NewViewFindData))
-					return TRUE;
-
-				// Smart file change check -- thanks Dzirt2005
-				//
-				bool changed = ViewFindData.ftLastWriteTime != NewViewFindData.ftLastWriteTime || ViewFindData.nFileSize != NewViewFindData.nFileSize;
-				if ( changed )
-					ViewFindData = NewViewFindData;
-				else {
-					if ( !ViewFile.GetSize(NewViewFindData.nFileSize) || FileSize == static_cast<__int64>(NewViewFindData.nFileSize) )
-						return TRUE;
-					changed = FileSize > static_cast<__int64>(NewViewFindData.nFileSize); // true if file shrank
-				}
-
-				SetFileSize();
-				if ( changed ) // do not reset caches if file just enlarged [make sense on Win7, doesn't matter on XP]
-				{
-					Reader.Clear(); // иначе зачем вся эта возня?
-					ViewFile.FlushBuffers();
-					vseek(0, FILE_CURRENT); // reset vgetc state
-					lcache_ready = false; // reset start-lines cache
-				}
+				CheckChanged();
 
 				if (FilePos > FileSize)
 				{
