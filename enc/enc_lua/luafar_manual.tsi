@@ -7628,6 +7628,27 @@ mtime=3602447964
 </article>
 </node>
 <node>
+id=509
+lv=2
+dt=Text
+nm=far.FarClock
+ctime=3632083312
+mtime=3632117357
+<article>
+#_result = far.FarClock ()
+#_
+#_**Parameters:**
+#_  none
+#_
+#_**Returns:**
+#_  result:  number
+#_
+#_**Far API used:**
+#_  FarClock
+#_
+</article>
+</node>
+<node>
 id=472
 lv=2
 dt=Text
