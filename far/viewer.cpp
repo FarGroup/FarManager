@@ -173,6 +173,8 @@ Viewer::Viewer(window_ptr Owner, bool bQuickView, uintptr_t aCodePage):
 	VM.Wrap=Global->Opt->ViOpt.ViewerIsWrap;
 	VM.WordWrap=Global->Opt->ViOpt.ViewerWrap;
 	VM.Hex = -1;
+
+	m_IdleCheck = std::make_unique<time_check>(time_check::delayed, 500);
 }
 
 Viewer::~Viewer()
@@ -1434,7 +1436,17 @@ __int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 int Viewer::ProcessKey(const Manager::Key& Key)
 {
-	int LocalKey=Key.FarKey;
+	int LocalKey = Key.FarKey;
+
+	if (LocalKey != KEY_NONE)
+		m_IdleCheck->reset();
+	else {
+		if (*m_IdleCheck)
+			LocalKey = KEY_IDLE;
+		else
+			Sleep(10);
+	}
+
 	if ( !ViOpt.PersistentBlocks &&
 			LocalKey!=KEY_IDLE && LocalKey!=KEY_NONE && !(LocalKey==KEY_CTRLINS||LocalKey==KEY_RCTRLINS||LocalKey==KEY_CTRLNUMPAD0||LocalKey==KEY_RCTRLNUMPAD0) &&
 			LocalKey!=KEY_CTRLC && LocalKey!=KEY_RCTRLC &&

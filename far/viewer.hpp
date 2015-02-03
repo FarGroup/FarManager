@@ -225,6 +225,7 @@ private:
 	uintptr_t DefCodePage;
 
 	std::unique_ptr<time_check> m_TimeCheck;
+	std::unique_ptr<time_check> m_IdleCheck;
 
 	std::vector<char> vread_buffer;
 
