@@ -98,6 +98,7 @@ public:
 private:
 	struct ViewerString;
 
+	int process_key(const Manager::Key& Key);
 	virtual void DisplayObject() override;
 	void ShowPage(int nMode);
 	void Up(int n, bool adjust);
@@ -219,6 +220,7 @@ private:
 	bool bVE_READ_Sent;
 	FileViewer *HostFileViewer;
 	bool AdjustSelPosition;
+	bool redraw_selectiont;
 
 	bool m_bQuickView;
 

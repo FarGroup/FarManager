@@ -138,6 +138,7 @@ Viewer::Viewer(window_ptr Owner, bool bQuickView, uintptr_t aCodePage):
 	bVE_READ_Sent(),
 	HostFileViewer(),
 	AdjustSelPosition(),
+	redraw_selectiont(),
 	m_bQuickView(bQuickView),
 	DefCodePage(aCodePage),
 	vread_buffer(std::max(MAX_VIEWLINEB, 8192ll)),
@@ -481,6 +482,8 @@ bool Viewer::CheckChanged()
 
 void Viewer::ShowPage(int nMode)
 {
+	redraw_selectiont = false;
+
 	AdjustWidth();
 
 	if (!ViewFile.Opened())
@@ -1436,6 +1439,14 @@ __int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 int Viewer::ProcessKey(const Manager::Key& Key)
 {
+	auto ret = process_key(Key);
+	if (redraw_selectiont)
+		Show();
+	return ret;
+}
+
+int Viewer::process_key(const Manager::Key& Key)
+{
 	int LocalKey = Key.FarKey;
 
 	if ((LocalKey & ~KEY_SHIFT) == 0)
@@ -1454,7 +1465,10 @@ int Viewer::ProcessKey(const Manager::Key& Key)
 			LocalKey!=KEY_IDLE && LocalKey!=KEY_NONE && !(LocalKey==KEY_CTRLINS||LocalKey==KEY_RCTRLINS||LocalKey==KEY_CTRLNUMPAD0||LocalKey==KEY_RCTRLNUMPAD0) &&
 			LocalKey!=KEY_CTRLC && LocalKey!=KEY_RCTRLC &&
 			LocalKey != KEY_SHIFTF7 && LocalKey != KEY_SPACE && LocalKey != KEY_ALTF7 && LocalKey != KEY_RALTF7 )
+	{
+		redraw_selectiont = SelectSize >= 0;
 		SelectSize = -1;
+	}
 
 	if (!InternalKey && !LastKeyUndo && (UndoData.empty() || FilePos!=UndoData.back().UndoAddr || LeftPos!=UndoData.back().UndoLeft))
 	{
