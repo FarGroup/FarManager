@@ -1438,6 +1438,9 @@ int Viewer::ProcessKey(const Manager::Key& Key)
 {
 	int LocalKey = Key.FarKey;
 
+	if ((LocalKey & ~KEY_SHIFT) == 0)
+		LocalKey = KEY_NONE;
+
 	if (LocalKey != KEY_NONE)
 		m_IdleCheck->reset();
 	else {
