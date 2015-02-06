@@ -228,9 +228,7 @@ local function GetInputFromMacro()
     return false
   end
 
-  local r1,r2
   while true do
-    r1,r2 = nil,nil
     while MacroIsRunning==0 and not GetCurMacro() do
       if StateStack[1] then
         PopState(true)
@@ -260,6 +258,7 @@ local function GetInputFromMacro()
     MacroIsRunning = MacroIsRunning + 1
     PushState(false)
     local value, handle = macro:GetValue(), macro:GetHandle()
+    local r1,r2
     if type(value) == "userdata" then
       r1,r2 = MacroStep(handle, far_FarMacroCallToLua(value))
     elseif type(value) == "table" then
@@ -273,6 +272,10 @@ local function GetInputFromMacro()
     macro:SetValue(nil)
     MacroIsRunning = MacroIsRunning - 1
 
+    if band(macro:GetFlags(),MFLAGS_ENABLEOUTPUT) == 0 then
+      Import.ScrBufLock()
+    end
+
     if r1 == MPRT_NORMALFINISH or r1 == MPRT_ERRORFINISH then
       if band(macro:GetFlags(),MFLAGS_ENABLEOUTPUT) == 0 then
         Import.ScrBufUnlock()
@@ -283,25 +286,18 @@ local function GetInputFromMacro()
       end
     elseif r1 == MPRT_PLUGINCALL then
       KeyMacro.CallPlugin(r2, true)
+    elseif r1 == "acall" then
+      ACall(GetCurMacro(), r2)
+      return GetInputFromMacro() -- tail recursion
+    elseif r1 == "eval" then
+      local m = r2[1]
+      PushState(true)
+      KeyMacro.PostNewMacro(m, m.flags, r2[2], false)
+      return GetInputFromMacro() -- tail recursion
     else
-      if band(macro:GetFlags(),MFLAGS_ENABLEOUTPUT) == 0 then
-        Import.ScrBufLock()
-      end
-      break
+      return r1,r2
     end
   end
-
-  if r1 == "acall" then
-    ACall(GetCurMacro(), r2)
-    return GetInputFromMacro() -- tail recursion
-  elseif r1 == "eval" then
-    local m = r2[1]
-    PushState(true)
-    KeyMacro.PostNewMacro(m, m.flags, r2[2], false)
-    return GetInputFromMacro() -- tail recursion
-  end
-
-  return r1,r2
 end
 
 -- (1) mf.eval        (2) keypress macro   (3) mf.postmacro

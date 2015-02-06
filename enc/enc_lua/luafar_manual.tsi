@@ -1730,18 +1730,6 @@ mtime=3602340590
 </article>
 </node>
 <node>
-id=365
-lv=2
-dt=Text
-nm=export.FreeCustomData
-ctime=3485765946
-mtime=3602340689
-<article>
-#_**This function is not called by LuaFAR**
-#_
-</article>
-</node>
-<node>
 id=99
 lv=2
 dt=Text
@@ -1754,28 +1742,6 @@ mtime=3602340713
 #_
 #_@@@
 #_{freefinddataw}: http://api.farmanager.com/ru/exported_functions/freefinddataw.html
-#_
-</article>
-</node>
-<node>
-id=364
-lv=2
-dt=Text
-nm=export.GetCustomData
-ctime=3485765841
-mtime=3509018899
-<article>
-#_Data = export.GetCustomData (FilePath)
-#_
-#_**Parameters:**
-#_  FilePath:   string
-#_
-#_**Returns:**
-#_  Data:       string, or nil
-#_
-#_**WARNING:**
-#_  As of time of this writing, this function exploits an experimental
-#_  feature of Far, introduced in Far 2.0 build 1588.
 #_
 </article>
 </node>
