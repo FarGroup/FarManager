@@ -243,7 +243,7 @@ lv=3
 dt=Text
 nm=Keys
 ctime=3551902602
-mtime=3607090399
+mtime=3632495627
 <article>
 #_Keys (...)
 #_
@@ -261,7 +261,7 @@ mtime=3607090399
 #_**Notes:**
 #_
 #_  1. Special keys:
-#_     *"AKey"*    - send Far Manager a key that started this macro.
+#_     *"AKey"*    - send Far Manager the key that started this macro.
 #_     *"SelWord"* - select the word under cursor.
 #_     *"XLat"*    - convert the word under cursor.
 #_
