@@ -3,6 +3,41 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+w17 08.02.2015 16:36:15 +0300 - build 4266
+
+1. M#2935: <Symlink> to files not showing
+
+2. M#2934: Errors in HEX mode in search dialogs
+
+w17 04.02.2015 15:35:47 +0300 - build 4265
+
+1. Correction of 4262
+
+w17 04.02.2015 14:10:08 +0300 - build 4264
+
+1. Correction of 4263
+
+w17 03.02.2015 20:32:45 +0300 - build 4263
+
+1. Viewer autoupdate if ACTL_SYNCHRO or far.Timer() are present (M#2532)
+
+w17 03.02.2015 17:43:09 +0300 - build 4262
+
+1. Incorrect display of the text of a modified file after switching to viewer.
+
+shmuel 03.02.2015 01:42:54 +0200 - build 4261
+
+1. Plugins API: FSF.FarClock standard function is added - same as Far.UpTime in macros,
+   but in microseconds and with microsecond resolution. The documentation to be done.
+
+w17 02.02.2015 13:38:18 +0300 - build 4260
+
+1. Fixes in viewer:
+   -a couple of minor bugs/typos
+   -0x0 <=> 0xffff hack and consequences of its refactoring
+   Experimental - Shift+MouseClick selects arbitrary text, the beginning/end
+   Continuing M#2540 - regular expression search is not fixed yet
+
 drkns 01.02.2015 17:25:54 +0200 - build 4259
 
 1. Replacement with regular expressions can use named groups now.
