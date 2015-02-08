@@ -869,7 +869,10 @@ int Edit::ProcessKey(const Manager::Key& Key)
 				return FALSE;
 
 			SetPrevCurPos(m_CurPos);
-			m_CurPos--;
+			do {
+				--m_CurPos;
+			}
+			while (!Mask.empty() && m_CurPos > 0 && !CheckCharMask(Mask[m_CurPos]));
 
 			if (m_CurPos<=LeftPos)
 			{
