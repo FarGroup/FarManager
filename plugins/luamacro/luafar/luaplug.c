@@ -25,19 +25,17 @@ extern int FUNC_OPENLIBS(lua_State*);
 
 typedef struct
 {
-	lua_State* LS;
-	struct PluginStartupInfo Info;
-	struct FarStandardFunctions FSF;
+	lua_State *LS;
+	struct PluginStartupInfo *StartupInfo;
 	GUID PluginId;
 	TPluginData PluginData;
 	wchar_t PluginDir[512];
-	int Init1_Done; // Ensure initializations are done only once
-	int Init2_Done; // *
+	int InitStage;
 	int Depth;
 	CRITICAL_SECTION FindFileSection; // http://forum.farmanager.com/viewtopic.php?f=9&p=107075#p107075
 } Global;
 
-#define IsPluginReady(g) (g.LS && g.Init2_Done)
+#define IsPluginReady(g) (g.LS && g.InitStage==2)
 
 static Global G;
 
@@ -65,10 +63,9 @@ static void InitGlobal (Global *g, HINSTANCE hDll)
 {
 	size_t PluginDirSize = sizeof(g->PluginDir) / sizeof(g->PluginDir[0]);
 	size_t RetSize = GetModuleFileNameW(hDll, g->PluginDir, (DWORD)PluginDirSize);
-	TPluginData PD = { &g->Info,&g->FSF,&g->PluginId,DlgProc,0,NULL,NULL,NULL,laction,SIG_DFL };
+	TPluginData PD = { NULL,NULL,&g->PluginId,DlgProc,0,NULL,NULL,NULL,laction,SIG_DFL };
 	g->PluginData = PD;
-	g->Init1_Done = 0;
-	g->Init2_Done = 0;
+	g->InitStage = 0;
 	g->Depth = 0;
 	g->LS = NULL;
 	if (RetSize && RetSize < PluginDirSize)
@@ -81,11 +78,10 @@ static void InitGlobal (Global *g, HINSTANCE hDll)
 
 static void DestroyGlobal (Global *g)
 {
-	if (g->LS)
-	{
-		lua_close(g->LS);
-		g->LS = NULL;
-	}
+	if (g->StartupInfo) free(g->StartupInfo);
+
+	if (g->LS) lua_close(g->LS);
+
 	DeleteCriticalSection(&g->FindFileSection);
 }
 
@@ -128,17 +124,17 @@ __declspec(dllexport) lua_State* GetLuaState()
 /* for other C-files of the plugin */
 struct PluginStartupInfo *GetPluginStartupInfo()
 {
-	return &G.Info;
+	return G.StartupInfo;
 }
 
 void LUAPLUG GetGlobalInfoW(struct GlobalInfo *globalInfo)
 {
 	if (G.LS)
 	{
-		if (!G.Init1_Done)
+		if (G.InitStage == 0)
 		{
 			LF_InitLuaState1(G.LS, FUNC_OPENLIBS);
-			G.Init1_Done = 1;
+			G.InitStage++;
 		}
 
 		if (LF_GetGlobalInfo(G.LS, globalInfo, G.PluginDir))
@@ -154,17 +150,26 @@ void LUAPLUG GetGlobalInfoW(struct GlobalInfo *globalInfo)
 
 void LUAPLUG SetStartupInfoW(const struct PluginStartupInfo *aInfo)
 {
-	if (G.LS && !G.Init2_Done)
+	if (G.LS && G.InitStage==1)
 	{
-		G.Info = *aInfo;
-		G.FSF = *aInfo->FSF;
-		G.Info.FSF = &G.FSF;
-		InitLuaState2(G.LS, &G.PluginData);
-
-		if (LF_RunDefaultScript(G.LS))
-			G.Init2_Done = 1;
-		else
+		G.StartupInfo = (struct PluginStartupInfo *) malloc(aInfo->StructSize + aInfo->FSF->StructSize);
+		if (G.StartupInfo)
 		{
+			memcpy(G.StartupInfo, aInfo, aInfo->StructSize);
+			memcpy(G.StartupInfo+1, aInfo->FSF, aInfo->FSF->StructSize);
+			G.StartupInfo->FSF = (struct FarStandardFunctions *) (G.StartupInfo+1);
+			G.PluginData.Info = G.StartupInfo;
+			G.PluginData.FSF = G.StartupInfo->FSF;
+
+			InitLuaState2(G.LS, &G.PluginData);
+			if (LF_RunDefaultScript(G.LS))
+				G.InitStage++;
+		}
+
+		if (G.InitStage != 2)
+		{
+			if (G.StartupInfo) { free(G.StartupInfo); G.StartupInfo=NULL; }
+
 			lua_close(G.LS);
 			G.LS = NULL;
 		}
