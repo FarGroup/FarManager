@@ -530,7 +530,8 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			возвращает 0;
 		*/
 		case ACTL_WAITKEY:
-			return WaitKey(Param2?InputRecordToKey((const INPUT_RECORD*)Param2):-1,0,false);
+			WaitKey(Param2?InputRecordToKey((const INPUT_RECORD*)Param2):-1,0,false);
+			return 0;
 
 		/* $ 04.12.2000 SVS
 			ACTL_GETCOLOR - получить определенный цвет по индексу, определенному
