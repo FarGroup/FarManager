@@ -1348,31 +1348,6 @@ nm=Common functions
 </article>
 </node>
 <node>
-id=94
-lv=2
-dt=Text
-nm=export.ClosePanel
-mtime=3602280385
-<article>
-#_export.ClosePanel (object, handle)
-#_
-#_**Parameters:**
-#_  object: plugin object
-#_  handle: panel handle
-#_
-#_**Returns:**
-#_  nothing
-#_
-#_**Far API used:**
-#_  ClosePanelW, ClosePanelInfo
-#_
-#_@@@
-#_{closepanelinfo}: http://api.farmanager.com/ru/structures/closepanelinfo.html
-#_{closepanelw}: http://api.farmanager.com/ru/exported_functions/closepanelw.html
-#_
-</article>
-</node>
-<node>
 id=96
 lv=2
 dt=Text
@@ -1453,52 +1428,6 @@ mtime=3602446008
 </article>
 </node>
 <node>
-id=104
-lv=2
-dt=Text
-nm=export.GetOpenPanelInfo
-mtime=3602579547
-<article>
-#_OPInfo = export.GetOpenPanelInfo (object, handle)
-#_
-#_**Parameters:**
-#_  object: plugin object
-#_  handle: panel handle
-#_
-#_**Returns:**
-#_  OPInfo: table, or string "reuse" (if no changes occured)
-#_    fields of OPInfo:
-#_      Flags:            flags
-#_      HostFile:         string
-#_      CurDir:           string
-#_      Format:           string
-#_      PanelTitle:       string
-#_      InfoLines:        table (array of `tInfoLine` tables)
-#_      InfoLinesNumber:  integer
-#_      DescrFiles:       table (array of strings)
-#_      PanelModesArray:  table (array of `tPanelMode` tables)
-#_      PanelModesNumber: integer
-#_      StartPanelMode:   integer
-#_      StartSortMode:    integer
-#_      StartSortOrder:   integer
-#_      KeyBar:           table (array of `tKeyBarLabel` tables)
-#_      ShortcutData:     string
-#_      FreeSize:         number
-#_
-#_**Far API used:**
-#_  GetOpenPanelInfoW, OpenPanelInfo
-#_
-#_@@@
-#_[tKeyBarLabel]: 406.html
-#_[tInfoLine]: 120.html
-#_[tPanelMode]: 121.html
-#_
-#_{getopenpanelinfow}: http://api.farmanager.com/ru/exported_functions/getopenpanelinfow.html
-#_{openpanelinfo}: http://api.farmanager.com/ru/structures/openpanelinfo.html
-#_
-</article>
-</node>
-<node>
 id=105
 lv=2
 dt=Text
@@ -1532,6 +1461,86 @@ mtime=3602279498
 #_@@@
 #_{getplugininfow}: http://api.farmanager.com/ru/exported_functions/getplugininfow.html
 #_{plugininfo}: http://api.farmanager.com/ru/structures/plugininfo.html
+#_
+</article>
+</node>
+<node>
+id=109
+lv=2
+dt=Text
+nm=export.Open
+mtime=3610442975
+<article>
+#_ret = export.Open (OpenFrom, Guid, Item)
+#_
+#_**Definitions:**
+#_  **"int64"**
+#_    Type of userdata, produced by `bit64` library.
+#_  **"binary"**
+#_    By convention, it is a string enclosed in a table as its first element.
+#_    The string is intended to be passed to and from without conversions UTF-8 <-> UTF-16LE.
+#_  **"panel"**
+#_    By convention, it is a panel handle (any non-false Lua value) enclosed in a table
+#_    as its first element. The table must contain the field ["type"]="panel".
+#_
+#_**Parameters:**
+#_  OpenFrom: integer
+#_  Guid:     string
+#_  Item:
+#_    if OpenFrom == OPEN_FROMMACRO:
+#_      table (array of arguments):
+#_      - each argument can be either of:
+#_        string, nil, boolean, number, "int64", or "binary"
+#_      - field *n* of the table holds the length of the array
+#_    if OpenFrom == OPEN_COMMANDLINE:
+#_      string
+#_    if OpenFrom == OPEN_SHORTCUT:
+#_      table:
+#_        *HostFile*:     string
+#_        *ShortcutData*: string
+#_        *Flags*:        flags
+#_    if OpenFrom == OPEN_DIALOG:
+#_      table:
+#_        *hDlg*: userdata
+#_    if OpenFrom == OPEN_ANALYSE:
+#_      table `tAnalyseInfo`
+#_    if OpenFrom == something else:
+#_      integer
+#_
+#_**Returns:**
+#_  if OpenFrom == OPEN_FROMMACRO:
+#_    0 or more Lua values.
+#_    Currently, values of the following types are supported:
+#_        string, nil, boolean, number, "int64", "binary", or "panel".
+#_    To open a panel, return a "panel" value as the first return value.
+#_  if OpenFrom == something else:
+#_    ret: any Lua value; it is processed by LuaFAR as follows:
+#_    - Nil and false: NULL is returned to Far.
+#_    - Number -1: PANEL_STOP is returned to Far.
+#_    - Otherwise: *ret* is considered a panel object, stored in the Lua
+#_      registry, its registry reference is returned to Far.
+#_      The object is passed to other exported functions when they are
+#_      called by Far.
+#_
+#_**Note:**
+#_  Return value of -1 can be used with *OpenFrom* == OPEN_ANALYSE,
+#_  when the plugin does actions other than opening a panel, to tell
+#_  Far that the file has already been processed.
+#_
+#_**Far API used:**
+#_  OpenW, OpenInfo
+#_
+#_@@@
+#_[bit64]: 405.html
+#_[tAnalyseInfo]: 461.html
+#_
+#_{open_analyse}: http://api.farmanager.com/ru/structures/openinfo.html#OPEN_ANALYSE
+#_{open_commandline}: http://api.farmanager.com/ru/structures/openinfo.html#OPEN_COMMANDLINE
+#_{open_dialog}: http://api.farmanager.com/ru/structures/openinfo.html#OPEN_DIALOG
+#_{open_frommacro}: http://api.farmanager.com/ru/structures/openinfo.html#OPEN_FROMMACRO
+#_{open_shortcut}: http://api.farmanager.com/ru/structures/openinfo.html#OPEN_SHORTCUT
+#_{openinfo}: http://api.farmanager.com/ru/structures/openinfo.html
+#_{openw}: http://api.farmanager.com/ru/exported_functions/openw.html
 #_
 </article>
 </node>
@@ -1667,6 +1676,31 @@ mtime=3602340467
 #_
 #_@@@
 #_{closeanalysew}: http://api.farmanager.com/ru/exported_functions/closeanalysew.html
+#_
+</article>
+</node>
+<node>
+id=94
+lv=2
+dt=Text
+nm=export.ClosePanel
+mtime=3602280385
+<article>
+#_export.ClosePanel (object, handle)
+#_
+#_**Parameters:**
+#_  object: plugin object
+#_  handle: panel handle
+#_
+#_**Returns:**
+#_  nothing
+#_
+#_**Far API used:**
+#_  ClosePanelW, ClosePanelInfo
+#_
+#_@@@
+#_{closepanelinfo}: http://api.farmanager.com/ru/structures/closepanelinfo.html
+#_{closepanelw}: http://api.farmanager.com/ru/exported_functions/closepanelw.html
 #_
 </article>
 </node>
@@ -1807,6 +1841,52 @@ mtime=3602340944
 </article>
 </node>
 <node>
+id=104
+lv=2
+dt=Text
+nm=export.GetOpenPanelInfo
+mtime=3602579547
+<article>
+#_OPInfo = export.GetOpenPanelInfo (object, handle)
+#_
+#_**Parameters:**
+#_  object: plugin object
+#_  handle: panel handle
+#_
+#_**Returns:**
+#_  OPInfo: table, or string "reuse" (if no changes occured)
+#_    fields of OPInfo:
+#_      Flags:            flags
+#_      HostFile:         string
+#_      CurDir:           string
+#_      Format:           string
+#_      PanelTitle:       string
+#_      InfoLines:        table (array of `tInfoLine` tables)
+#_      InfoLinesNumber:  integer
+#_      DescrFiles:       table (array of strings)
+#_      PanelModesArray:  table (array of `tPanelMode` tables)
+#_      PanelModesNumber: integer
+#_      StartPanelMode:   integer
+#_      StartSortMode:    integer
+#_      StartSortOrder:   integer
+#_      KeyBar:           table (array of `tKeyBarLabel` tables)
+#_      ShortcutData:     string
+#_      FreeSize:         number
+#_
+#_**Far API used:**
+#_  GetOpenPanelInfoW, OpenPanelInfo
+#_
+#_@@@
+#_[tKeyBarLabel]: 406.html
+#_[tInfoLine]: 120.html
+#_[tPanelMode]: 121.html
+#_
+#_{getopenpanelinfow}: http://api.farmanager.com/ru/exported_functions/getopenpanelinfow.html
+#_{openpanelinfo}: http://api.farmanager.com/ru/structures/openpanelinfo.html
+#_
+</article>
+</node>
+<node>
 id=107
 lv=2
 dt=Text
@@ -1831,86 +1911,6 @@ mtime=3602340977
 #_@@@
 #_{makedirectoryinfo}: http://api.farmanager.com/ru/structures/makedirectoryinfo.html
 #_{makedirectoryw}: http://api.farmanager.com/ru/exported_functions/makedirectoryw.html
-#_
-</article>
-</node>
-<node>
-id=109
-lv=2
-dt=Text
-nm=export.Open
-mtime=3610442975
-<article>
-#_ret = export.Open (OpenFrom, Guid, Item)
-#_
-#_**Definitions:**
-#_  **"int64"**
-#_    Type of userdata, produced by `bit64` library.
-#_  **"binary"**
-#_    By convention, it is a string enclosed in a table as its first element.
-#_    The string is intended to be passed to and from without conversions UTF-8 <-> UTF-16LE.
-#_  **"panel"**
-#_    By convention, it is a panel handle (any non-false Lua value) enclosed in a table
-#_    as its first element. The table must contain the field ["type"]="panel".
-#_
-#_**Parameters:**
-#_  OpenFrom: integer
-#_  Guid:     string
-#_  Item:
-#_    if OpenFrom == OPEN_FROMMACRO:
-#_      table (array of arguments):
-#_      - each argument can be either of:
-#_        string, nil, boolean, number, "int64", or "binary"
-#_      - field *n* of the table holds the length of the array
-#_    if OpenFrom == OPEN_COMMANDLINE:
-#_      string
-#_    if OpenFrom == OPEN_SHORTCUT:
-#_      table:
-#_        *HostFile*:     string
-#_        *ShortcutData*: string
-#_        *Flags*:        flags
-#_    if OpenFrom == OPEN_DIALOG:
-#_      table:
-#_        *hDlg*: userdata
-#_    if OpenFrom == OPEN_ANALYSE:
-#_      table `tAnalyseInfo`
-#_    if OpenFrom == something else:
-#_      integer
-#_
-#_**Returns:**
-#_  if OpenFrom == OPEN_FROMMACRO:
-#_    0 or more Lua values.
-#_    Currently, values of the following types are supported:
-#_        string, nil, boolean, number, "int64", "binary", or "panel".
-#_    To open a panel, return a "panel" value as the first return value.
-#_  if OpenFrom == something else:
-#_    ret: any Lua value; it is processed by LuaFAR as follows:
-#_    - Nil and false: NULL is returned to Far.
-#_    - Number -1: PANEL_STOP is returned to Far.
-#_    - Otherwise: *ret* is considered a panel object, stored in the Lua
-#_      registry, its registry reference is returned to Far.
-#_      The object is passed to other exported functions when they are
-#_      called by Far.
-#_
-#_**Note:**
-#_  Return value of -1 can be used with *OpenFrom* == OPEN_ANALYSE,
-#_  when the plugin does actions other than opening a panel, to tell
-#_  Far that the file has already been processed.
-#_
-#_**Far API used:**
-#_  OpenW, OpenInfo
-#_
-#_@@@
-#_[bit64]: 405.html
-#_[tAnalyseInfo]: 461.html
-#_
-#_{open_analyse}: http://api.farmanager.com/ru/structures/openinfo.html#OPEN_ANALYSE
-#_{open_commandline}: http://api.farmanager.com/ru/structures/openinfo.html#OPEN_COMMANDLINE
-#_{open_dialog}: http://api.farmanager.com/ru/structures/openinfo.html#OPEN_DIALOG
-#_{open_frommacro}: http://api.farmanager.com/ru/structures/openinfo.html#OPEN_FROMMACRO
-#_{open_shortcut}: http://api.farmanager.com/ru/structures/openinfo.html#OPEN_SHORTCUT
-#_{openinfo}: http://api.farmanager.com/ru/structures/openinfo.html
-#_{openw}: http://api.farmanager.com/ru/exported_functions/openw.html
 #_
 </article>
 </node>
