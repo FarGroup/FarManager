@@ -1,6 +1,22 @@
 ﻿-- encoding: utf-8
 -- Started: 2012-08-20.
 
+--[[
+-- The following macro can be used to run all the tests.
+
+Macro {
+  description="Macro-engine test";
+  area="Shell"; key="CtrlShiftF12";
+  action = function()
+    local f = assert(loadfile(far.PluginStartupInfo().ModuleDir.."macrotest.lua"))
+    setfenv(f, getfenv())().test_all()
+    far.Message("All tests OK", "LuaMacro")
+  end;
+}
+--]]
+
+local MT = {} -- "macrotest", this module
+local F = far.Flags
 local luamacroId="4ebbefc8-2084-4b7f-94c0-692ce136894d" -- LuaMacro plugin GUID
 
 local function IsNumOrInt(v)
@@ -23,7 +39,7 @@ local function TestArea (area, msg)
   assert(Area[area]==true and Area.Current==area, msg or "assertion failed")
 end
 
-local function test_areas()
+function MT.test_areas()
   Keys "AltIns"              TestArea "Other"      Keys "Esc"
   Keys "ShiftF4 CtrlY Enter" TestArea "Editor"     Keys "Esc"
   Keys "F7"                  TestArea "Dialog"     Keys "Esc"
@@ -570,7 +586,7 @@ local function test_usermenu()
   assert(type(mf.usermenu) == "function")
 end
 
-local function test_mf()
+function MT.test_mf()
   test_abs()
   test_acall()
   test_akey()
@@ -624,7 +640,7 @@ local function test_mf()
   test_xlat()
 end
 
-local function test_CmdLine()
+function MT.test_CmdLine()
   Keys"Esc f o o Space Б а р"
   assert(CmdLine.Bof==false)
   assert(CmdLine.Eof==true)
@@ -971,7 +987,7 @@ local function test_Far_GetConfig()
   end
 end
 
-local function test_Far()
+function MT.test_Far()
   local temp = Far.UpTime
   mf.sleep(50)
   temp = Far.UpTime - temp
@@ -1011,7 +1027,7 @@ local function test_CheckAndGetHotKey()
   Keys("Esc")
 end
 
-local function test_Object()
+function MT.test_Object()
   assert(type(Object.Bof)         == "boolean")
   assert(type(Object.CurPos)      == "number")
   assert(type(Object.Empty)       == "boolean")
@@ -1025,7 +1041,7 @@ local function test_Object()
   test_CheckAndGetHotKey()
 end
 
-local function test_Drv()
+function MT.test_Drv()
   Keys"AltF1"
   assert(type(Drv.ShowMode) == "number")
   assert(Drv.ShowPos == 1)
@@ -1035,7 +1051,7 @@ local function test_Drv()
   Keys"Esc"
 end
 
-local function test_Help()
+function MT.test_Help()
   Keys"F1"
   assert(type(Help.FileName)=="string")
   assert(type(Help.SelTopic)=="string")
@@ -1043,7 +1059,7 @@ local function test_Help()
   Keys"Esc"
 end
 
-local function test_Mouse()
+function MT.test_Mouse()
   assert(type(Mouse.X) == "number")
   assert(type(Mouse.Y) == "number")
   assert(type(Mouse.Button) == "number")
@@ -1052,7 +1068,7 @@ local function test_Mouse()
   assert(type(Mouse.LastCtrlState) == "number")
 end
 
-local function test_XPanel(pan) -- (@pan: either APanel or PPanel)
+function MT.test_XPanel(pan) -- (@pan: either APanel or PPanel)
   assert(type(pan.Bof)         == "boolean")
   assert(type(pan.ColumnCount) == "number")
   assert(type(pan.CurPos)      == "number")
@@ -1117,7 +1133,7 @@ local function test_Panel_Item()
   end
 end
 
-local function test_Panel()
+function MT.test_Panel()
   test_Panel_Item()
 
   assert(Panel.FAttr(0,":")==-1)
@@ -1132,7 +1148,7 @@ local function test_Panel()
   assert(type(Panel.SetPosIdx) == "function")
 end
 
-local function test_Dlg()
+function MT.test_Dlg()
   Keys"F7 a b c"
   assert(Area.Dialog)
   assert(Dlg.Id == "FAD00DBE-3FFF-4095-9232-E1CC70C67737")
@@ -1153,7 +1169,7 @@ local function test_Dlg()
   Keys"Esc"
 end
 
-local function test_Plugin()
+function MT.test_Plugin()
   assert(Plugin.Menu()==false)
   assert(Plugin.Config()==false)
   assert(Plugin.Command()==false)
@@ -1173,7 +1189,7 @@ local function test_Plugin()
   test(Plugin.SyncCall, 8000-8)
 end
 
-local function test_far_MacroExecute()
+function MT.test_far_MacroExecute()
   local function test(code, flags)
     local t = far.MacroExecute(code, flags,
       "foo",
@@ -1196,7 +1212,7 @@ local function test_far_MacroExecute()
   test("...", "KMFLAGS_MOONSCRIPT")
 end
 
-local function test_far_MacroAdd()
+function MT.test_far_MacroAdd()
   local area, key, descr = "MACROAREA_SHELL", "CtrlA", "Test MacroAdd"
 
   local Id = far.MacroAdd(area, nil, key, [[A = { b=5 }]], descr)
@@ -1241,7 +1257,7 @@ local function test_far_MacroAdd()
 
 end
 
-local function test_far_MacroCheck()
+function MT.test_far_MacroCheck()
   assert(far.MacroCheck([[A = { b=5 }]]))
   assert(far.MacroCheck([[A = { b=5 }]], "KMFLAGS_LUA"))
 
@@ -1265,27 +1281,55 @@ local function test_far_MacroCheck()
   assert(not far.MacroCheck([[@//////]], "KMFLAGS_SILENTCHECK"))
 end
 
-do
+--[[------------------------------------------------------------------------------------------------
+0001722: DN_EDITCHANGE приходит лишний раз и с ложной информацией
+
+Description:
+  [ Far 2.0.1807, Far 3.0.1897 ]
+  Допустим диалог состоит из единственного элемента DI_EDIT, больше элементов нет. При появлении
+  диалога сразу нажмём на клавишу, допустим, W. Приходят два события DN_EDITCHANGE вместо одного,
+  причём в первом из них PtrData указывает на пустую строку.
+
+  Последующие нажатия на клавиши, вызывающие изменения текста, отрабатываются правильно, лишние
+  ложные события не приходят.
+--]]------------------------------------------------------------------------------------------------
+function MT.test_mantis_1722()
+  local check = 0
+  local function DlgProc (hDlg, msg, p1, p2)
+    if msg == F.DN_EDITCHANGE then
+      check = check + 1
+      assert(p1 == 1)
+    end
+  end
+  local Dlg = { {"DI_EDIT", 3,1,56,10, 0,0,0,0, "a"}, }
+  mf.acall(far.Dialog, "",-1,-1,60,3,"Contents",Dlg, 0, DlgProc)
+  assert(Area.Dialog)
+  Keys("W 1 2 3 4 BS Esc")
+  assert(check == 6)
+  assert(Dlg[1][10] == "W123")
+end
+
+function MT.test_all()
   TestArea("Shell", "Run these tests from the Shell area.")
   assert(not APanel.Plugin and not PPanel.Plugin, "Run these tests when neither of panels is a plugin panel.")
 
-  test_areas()
-  test_mf()
-  test_CmdLine()
-  test_Help()
-  test_Dlg()
-  test_Drv()
-  test_Far()
-  test_Mouse()
-  test_Object()
-  test_Panel()
-  test_Plugin()
-  test_XPanel(APanel)
-  test_XPanel(PPanel)
-  test_far_MacroExecute()
-  test_far_MacroAdd()
-  test_far_MacroCheck()
-
-  --far.Message("All tests OK", "LuaMacro")
-  far.MacroPost([[far.Message "All tests OK", "LuaMacro"]], "KMFLAGS_MOONSCRIPT")
+  MT.test_areas()
+  MT.test_mf()
+  MT.test_CmdLine()
+  MT.test_Help()
+  MT.test_Dlg()
+  MT.test_Drv()
+  MT.test_Far()
+  MT.test_Mouse()
+  MT.test_Object()
+  MT.test_Panel()
+  MT.test_Plugin()
+  MT.test_XPanel(APanel)
+  MT.test_XPanel(PPanel)
+  MT.test_far_MacroExecute()
+  MT.test_far_MacroAdd()
+  MT.test_far_MacroCheck()
+  MT.test_mantis_1722()
 end
+
+return MT
