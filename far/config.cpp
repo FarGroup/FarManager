@@ -1943,7 +1943,7 @@ void Options::InitRoamingCFG()
 		{FSSF_PRIVATE,       NKeyViewer,L"ExternalViewerName", &strExternalViewer, L""},
 		{FSSF_PRIVATE,       NKeyViewer,L"IsWrap", &ViOpt.ViewerIsWrap, true},
 		{FSSF_PRIVATE,       NKeyViewer,L"MaxLineSize", &ViOpt.MaxLineSize, ViewerOptions::eDefLineSize},
-		{FSSF_PRIVATE,       NKeyViewer,L"PersistentBlocks", &ViOpt.PersistentBlocks, false},
+		{FSSF_PRIVATE,       NKeyViewer,L"PersistentBlocks", &ViOpt.PersistentBlocks, true},
 		{FSSF_PRIVATE,       NKeyViewer,L"SaveViewerCodepage", &ViOpt.SaveCodepage, true},
 		{FSSF_PRIVATE,       NKeyViewer,L"SaveViewerPos", &ViOpt.SavePos, true},
 		{FSSF_PRIVATE,       NKeyViewer,L"SaveViewerShortPos", &ViOpt.SaveShortPos, true},

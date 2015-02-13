@@ -89,8 +89,8 @@ static void ViewerSearchMsg(const string& name, int percent, int search_hex);
 
 static int ViewerID=0;
 
-#define MAX_VIEWLINE  (ViOpt.MaxLineSize+ 0) // 0x800 // 0x400
-#define MAX_VIEWLINEB (ViOpt.MaxLineSize+15) // 0x80f // 0x40f
+#define MAX_VIEWLINE  (ViOpt.MaxLineSize+ 0)
+#define MAX_VIEWLINEB (ViOpt.MaxLineSize+15)
 #define ZERO_CHAR     (ViOpt.Visible0x00 && ViOpt.ZeroChar > 0 ? (wchar_t)(ViOpt.ZeroChar) : L' ')
 
 static bool IsCodePageSupported(uintptr_t cp)
@@ -138,7 +138,7 @@ Viewer::Viewer(window_ptr Owner, bool bQuickView, uintptr_t aCodePage):
 	bVE_READ_Sent(),
 	HostFileViewer(),
 	AdjustSelPosition(),
-	redraw_selectiont(),
+	redraw_selection(),
 	m_bQuickView(bQuickView),
 	DefCodePage(aCodePage),
 	vread_buffer(std::max(MAX_VIEWLINEB, 8192ll)),
@@ -165,8 +165,6 @@ Viewer::Viewer(window_ptr Owner, bool bQuickView, uintptr_t aCodePage):
 	ReadBuffer(MAX_VIEWLINEB),
 	f8cps(true)
 {
-	_OT(SysLog(L"[%p] Viewer::Viewer()", this));
-
 	if (DefCodePage != CP_DEFAULT)
 		MB.SetCP(DefCodePage);
 
@@ -482,7 +480,7 @@ bool Viewer::CheckChanged()
 
 void Viewer::ShowPage(int nMode)
 {
-	redraw_selectiont = false;
+	redraw_selection = false;
 
 	AdjustWidth();
 
@@ -1440,7 +1438,7 @@ __int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 int Viewer::ProcessKey(const Manager::Key& Key)
 {
 	auto ret = process_key(Key);
-	if (redraw_selectiont)
+	if (redraw_selection)
 		Show();
 	return ret;
 }
@@ -1461,12 +1459,12 @@ int Viewer::process_key(const Manager::Key& Key)
 			Sleep(10);
 	}
 
-	if ( !ViOpt.PersistentBlocks &&
-			LocalKey!=KEY_IDLE && LocalKey!=KEY_NONE && !(LocalKey==KEY_CTRLINS||LocalKey==KEY_RCTRLINS||LocalKey==KEY_CTRLNUMPAD0||LocalKey==KEY_RCTRLNUMPAD0) &&
-			LocalKey!=KEY_CTRLC && LocalKey!=KEY_RCTRLC &&
-			LocalKey != KEY_SHIFTF7 && LocalKey != KEY_SPACE && LocalKey != KEY_ALTF7 && LocalKey != KEY_RALTF7 )
+	if (!ViOpt.PersistentBlocks &&
+		LocalKey!=KEY_IDLE && LocalKey!=KEY_NONE && !(LocalKey==KEY_CTRLINS||LocalKey==KEY_RCTRLINS||LocalKey==KEY_CTRLNUMPAD0||LocalKey==KEY_RCTRLNUMPAD0) &&
+		LocalKey!=KEY_CTRLC && LocalKey!=KEY_RCTRLC &&
+		LocalKey!=KEY_SHIFTF7 && LocalKey!=KEY_SPACE && LocalKey!=KEY_ALTF7 && LocalKey!=KEY_RALTF7 )
 	{
-		redraw_selectiont = SelectSize >= 0;
+		redraw_selection = SelectSize >= 0;
 		SelectSize = -1;
 	}
 
@@ -3141,7 +3139,7 @@ SEARCHER_RESULT Viewer::search_regex_forward(search_data* sd)
 		if (!tail_part || StartSearchPos <= 0)
 			return Search_NotFound;
 		else
-			return swrap == SearchWrap_CYCLE ? Search_Continue : Search_Eof;
+			return swrap == SearchWrap_END ? Search_Eof : Search_Continue;
 	}
 
 	int off = 0;
@@ -3164,7 +3162,7 @@ SEARCHER_RESULT Viewer::search_regex_forward(search_data* sd)
 			off = m[0].start + 1; // skip
 			continue;
 		}
-		else if (!tail_part && fpos >= StartSearchPos)
+		else if (swrap == SearchWrap_CYCLE && !tail_part && fpos >= StartSearchPos)
 		{
 			break; // done - not found
 		}
@@ -3176,24 +3174,26 @@ SEARCHER_RESULT Viewer::search_regex_forward(search_data* sd)
 		}
 	}
 
-	bool eof = veof();
-	auto pos = vtell();
-	sd->CurPos = eof ? 0 : pos;
-	if (swrap == SearchWrap_CYCLE)
+	if (veof())
 	{
-		if (tail_part)
-			return (eof && StartSearchPos <= 0 ? Search_NotFound : Search_Continue);
-		else if (pos < StartSearchPos)
-			return Search_Continue;
-		else
-			return (pos >= StartSearchPos ? Search_NotFound : Search_Continue);
-	}
-	else if (eof)
-	{
-		if (LastSelectPos <= 0)
+		sd->CurPos = 0;
+
+		if (LastSelectPos <= 0 || cpos < LastSelectPos)
 			return Search_NotFound;
+		else if (swrap == SearchWrap_CYCLE && StartSearchPos == 0)
+			return Search_Cycle;
 		else if (swrap == SearchWrap_END)
 			return Search_Eof;
+	}
+	else
+	{
+		auto pos = vtell();
+		sd->CurPos = pos;
+
+		if (LastSelectPos > 0 && cpos < LastSelectPos && pos >= LastSelectPos)
+			return Search_NotFound;
+		else if (swrap == SearchWrap_CYCLE && !tail_part && pos >= StartSearchPos)
+			return Search_Cycle;
 	}
 	return Search_Continue;
 }
@@ -3207,12 +3207,13 @@ SEARCHER_RESULT Viewer::search_regex_backward(search_data* sd)
 	INT64 cpos = sd->CurPos, bpos = 0, prev_pos = -1;
 
 	bool tail_part = cpos > StartSearchPos;
+	int swrap = ViOpt.SearchWrapStop;
 
 	int off=0, lsize=0, nw, prev_len = -1;
 	nw = read_line(line, t_line, cpos, -1, bpos, lsize);
 	for (;;)
 	{
-		if ( lsize <= 0 || off > nw )
+		if (lsize <= 0 || off > nw)
 			break;
 
 		intptr_t n = sd->RexMatchCount;
@@ -3225,10 +3226,10 @@ SEARCHER_RESULT Viewer::search_regex_backward(search_data* sd)
 
 		INT64 fpos = bpos + GetStrBytesNum(t_line, m[0].start);
 		int flen = GetStrBytesNum(t_line + m[0].start, m[0].end - m[0].start);
-		if ( fpos+flen > cpos )
+		if (fpos+flen > cpos)
 			break;
 
-		if ( !(tail_part && fpos+flen <= StartSearchPos) )
+		if (!(tail_part && fpos+flen <= StartSearchPos))
 		{
 			prev_pos = fpos;
 			prev_len = flen;
@@ -3238,20 +3239,35 @@ SEARCHER_RESULT Viewer::search_regex_backward(search_data* sd)
 		continue;
 	}
 
-	if ( prev_len >= 0 )
+	if (prev_len >= 0)
 	{
 		sd->MatchPos = prev_pos;
 		sd->search_len = prev_len;
 		return Search_Found;
 	}
 
-	if ( (sd->CurPos = bpos) <= 0 )
+	if (bpos <= 0) // bof()
 	{
 		SetFileSize();
 		sd->CurPos = FileSize;
-		return (StartSearchPos >= FileSize ? Search_NotFound : Search_Continue);
+
+		if (LastSelectPos > FileSize || tail_part)
+			return Search_NotFound;
+		else if (swrap == SearchWrap_CYCLE && StartSearchPos >= FileSize)
+			return Search_Cycle;
+		else if (swrap == SearchWrap_END)
+			return Search_Bof;
 	}
-	return (tail_part && bpos <= StartSearchPos ? Search_NotFound : Search_Continue);
+	else
+	{
+		sd->CurPos = bpos;
+
+		if (cpos > LastSelectPos && bpos <= LastSelectPos)
+			return Search_NotFound;
+		else if (swrap == SearchWrap_CYCLE && tail_part && bpos <= StartSearchPos)
+			return Search_Cycle;
+	}
+	return Search_Continue;
 }
 
 /*
@@ -3407,7 +3423,6 @@ void Viewer::Search(int Next,int FirstChar)
 	}
 
 	int search_direction = ReverseSearch ? -1 : +1;
-	__int64 prevSelectPos = -1,prevSelectSize = -1;
 	switch (Next)
 	{
 		case +1: case -1:
@@ -3460,16 +3475,11 @@ void Viewer::Search(int Next,int FirstChar)
 		time_check TimeCheck(time_check::delayed, GetRedrawTimeout());
 		for (;;)
 		{
-			SEARCHER_RESULT found = (this->*searcher)(&sd); //TP: S={StartSearchPos} L={LastSelectPos} P={sd.CurPos} W={ViOpt.SearchWrapStop.m_iValue}
-			if (found == Search_Found)								//TP: {found} P={sd.CurPos} M={sd.MatchPos}
-			{
-				if (ViOpt.SearchWrapStop==SearchWrap_CYCLE && prevSelectPos==sd.MatchPos && prevSelectSize==static_cast<__int64>(sd.search_len))
-					found = Search_Cycle;
-				else
-					break;
-			}
+			SEARCHER_RESULT found = (this->*searcher)(&sd);
+			if (found == Search_Found)
+				break;
 
-			if (found == Search_Continue)
+			else if (found == Search_Continue)
 				;
 
 			else if (found == Search_NotFound)

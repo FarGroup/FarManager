@@ -220,7 +220,7 @@ private:
 	bool bVE_READ_Sent;
 	FileViewer *HostFileViewer;
 	bool AdjustSelPosition;
-	bool redraw_selectiont;
+	bool redraw_selection;
 
 	bool m_bQuickView;
 
