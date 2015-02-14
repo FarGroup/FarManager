@@ -1,4 +1,8 @@
-﻿shmuel 08.02.2015 17:47:16 +0200 - build 482
+﻿shmuel 14.02.2015 16:35:24 +0200 - build 483
+
+1. LuaFAR: неправильная передача обработчику диалога параметра Param2 при событии DN_HOTKEY.
+
+shmuel 08.02.2015 17:47:16 +0200 - build 482
 
 1. LuaFAR (generic plugin):
    Размер структур PluginStartupInfo и FarStandardFunctions определяется теперь не при компиляции,

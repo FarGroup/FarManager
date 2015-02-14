@@ -700,8 +700,6 @@ static int _EditorGetString(lua_State *L, int is_wide)
 	struct EditorGetString egs;
 	egs.StructSize = sizeof(egs);
 
-	if (line_num < -1) line_num = -1;
-
 	if(mode == 0 || mode == 3)
 	{
 		egs.StringNumber = line_num;
@@ -3445,6 +3443,7 @@ int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2)
 	{
 		case DN_CONTROLINPUT:   // TODO
 		case DN_INPUT:          // TODO was: (Msg == DN_MOUSEEVENT)
+		case DN_HOTKEY:
 			pushInputRecord(L, (const INPUT_RECORD*)Param2);
 			break;
 

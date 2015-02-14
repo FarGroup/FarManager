@@ -3986,13 +3986,13 @@ lv=2
 dt=Text
 nm=DN_HOTKEY
 ctime=3477111575
-mtime=3602352595
+mtime=3633093110
 <article>
 #_**Param1**
 #_    integer; according to Far API 
 #_
 #_**Param2**
-#_    integer; according to Far API 
+#_    `tInputRecord`
 #_
 #_**Return**
 #_    default processing of the return value, see `description`.
@@ -4002,6 +4002,7 @@ mtime=3602352595
 #_
 #_@@@
 #_[description]: 285.html
+#_[tInputRecord]: 187.html
 #_
 #_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
 #_{dn_hotkey}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_hotkey.html
