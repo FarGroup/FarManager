@@ -6,7 +6,7 @@ w17 13.02.2015 16:24:23 +0300 - build 4268
 
 1. M#2540: Viewer Search always starts from the beginning of the file 
 
-2. Default: Viewer.PersistentBlock = true
+2. Default Viewer.PersistentBlocks = true
 
 zg 09.02.2015 02:06:46 +0200 - build 4267
 
