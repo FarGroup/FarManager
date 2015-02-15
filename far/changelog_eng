@@ -3,6 +3,20 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 14.02.2015 10:29:41 +0300 - build 4269
+
+1. SQLite 3.8.8.2
+
+w17 13.02.2015 16:24:23 +0300 - build 4268
+
+1. M#2540: Viewer Search always starts from the beginning of the file 
+
+2. Default Viewer.PersistentBlocks = true
+
+zg 09.02.2015 02:06:46 +0200 - build 4267
+
+1. ACTL_WAITKEY returns 0 in accordance with the documentation.
+
 w17 08.02.2015 16:36:15 +0300 - build 4266
 
 1. M#2935: <Symlink> to files not showing
