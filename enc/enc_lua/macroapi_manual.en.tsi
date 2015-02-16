@@ -443,7 +443,7 @@ lv=3
 dt=Text
 nm=eval
 ctime=3581755102
-mtime=3617291826
+mtime=3633294473
 <article>
 #_<markdown>
 #_`ret = eval(S[,Mode[,Lang]])`
@@ -474,10 +474,12 @@ mtime=3617291826
 #_    eval("@%MyFarScripts%\\calc.moon 'factorial', 3+5", 0, "moonscript")
 #_```
 #_
-#_### 3. Behavior with macro selection menu.
+#_### 3. New return codes of `eval(S, 2)`
 #_
-#_`eval(S, 2)` returns `-3` if the macro selection menu was displayed
-#_and cancelled by the user.
+#_* `0` (normal return) : is followed by any additional values that might be returned
+#_   by the "evaluated" macro.
+#_* `-3` : if the macro selection menu was displayed and cancelled by the user.
+#_* `-4` : if the "evaluated" macro was interrupted by a run-time error.
 #_
 #_[1]: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#eval
 #_

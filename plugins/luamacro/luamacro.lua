@@ -18,7 +18,7 @@ local co_yield, co_resume, co_status, co_wrap =
 
 local PROPAGATE={} -- a unique value, inaccessible to scripts.
 local gmeta = { __index=_G }
-local LastMessage = {}
+local LastMessage
 local TablePanelSort -- must be separate from LastMessage, otherwise Far crashes after a macro is called from CtrlF12.
 local TableExecString -- must be separate from LastMessage, otherwise Far crashes
 local utils, macrobrowser, panelsort, keymacro
@@ -27,6 +27,10 @@ local function ExpandEnv(str) return (str:gsub("%%(.-)%%", win.GetEnv)) end
 
 local function pack (...)
   return { n=select("#",...), ... }
+end
+
+local function pack3 (v1, v2, v3, ...)
+  return v1, v2, v3, { n=select("#",...), ... }
 end
 
 -- Override coroutine.resume for scripts, making it possible to call Keys(),
@@ -62,7 +66,7 @@ function _G.Keys (...)
     local str=select(n,...)
     if type(str)=="string" then
       for key in str:gmatch("%S+") do
-        co_yield(PROPAGATE, F.MPRT_KEYS, pack(keymacro.TransformKey(key)))
+        co_yield(PROPAGATE, F.MPRT_KEYS, keymacro.TransformKey(key))
       end
     end
   end
@@ -71,7 +75,7 @@ end
 function _G.print (...)
   local param = ""
   if select("#", ...)>0 then param = (...) end
-  co_yield(PROPAGATE, F.MPRT_PRINT, pack(tostring(param)))
+  co_yield(PROPAGATE, F.MPRT_PRINT, tostring(param))
 end
 
 function _G.printf (fmt, ...)
@@ -83,8 +87,8 @@ function _G.exit ()
   co_yield(PROPAGATE, "exit")
 end
 
-local function yieldcall (ret_code, ...)
-  return co_yield(PROPAGATE, ret_code, pack(...))
+local function yieldcall (...)
+  return co_yield(PROPAGATE, ...)
 end
 
 -------------------------------------------------------------------------------
@@ -220,6 +224,24 @@ local function MacroInit (Id)
   end
 end
 
+local function FixReturn (handle, ok, ...)
+  local ret1, ret_type = ...
+  if ok then
+    status = co_status(handle.coro)
+    if status == "suspended" and ret1 == PROPAGATE and ret_type ~= "exit" then
+      handle._store = pack(select(3, ...))
+      return ret_type, handle._store
+    else
+      return F.MPRT_NORMALFINISH, pack(true, ...)
+    end
+  else
+    ret1 = type(ret1)=="string" and ret1 or "(error object is not a string)"
+    ret1 = debug.traceback(handle.coro, ret1):gsub("\n\t","\n   ")
+    ErrMsg(ret1)
+    return F.MPRT_ERRORFINISH
+  end
+end
+
 local function MacroStep (handle, ...)
   if handle then
     local status = co_status(handle.coro)
@@ -228,32 +250,15 @@ local function MacroStep (handle, ...)
       if handle.params then
         local params = handle.params
         handle.params = nil
-        ok, ret1, ret_type, ret_values = co_resume(handle.coro, params())
+        return FixReturn(handle, co_resume(handle.coro, params()))
       else
-        ok, ret1, ret_type, ret_values = co_resume(handle.coro, ...)
-      end
-      if ok then
-        status = co_status(handle.coro)
-        if status == "suspended" and ret1 == PROPAGATE and ret_type ~= "exit" then
-          handle._store = ret_values
-          return ret_type, ret_values
-        else
-          LastMessage[1] = ""
-          return F.MPRT_NORMALFINISH
-        end
-      else
-        ret1 = type(ret1)=="string" and ret1 or "(error object is not a string)"
-        ret1 = debug.traceback(handle.coro, ret1):gsub("\n\t","\n   ")
-        ErrMsg(ret1)
-        LastMessage[1] = ret1
-        return F.MPRT_ERRORFINISH, LastMessage
+        return FixReturn(handle, co_resume(handle.coro, ...))
       end
     else
-      ErrMsg("Step: called on macro in "..status.." status")
+      ErrMsg("Step: called on macro in "..status.." status") -- debug only: should not be here
     end
   else
-    -- Far debug only: should not be here
-    ErrMsg(("Step: handle %d does not exist"):format(handle))
+    ErrMsg(("Step: handle %d does not exist"):format(handle)) -- debug only: should not be here
   end
 end
 

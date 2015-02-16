@@ -374,7 +374,7 @@ Mouse   = SetProperties({}, prop_Mouse)
 Viewer  = SetProperties({}, prop_Viewer)
 --------------------------------------------------------------------------------
 
-local function GetEvalData (str) -- Получение данных макроса для Eval(S,2).
+local function Eval_GetData (str) -- Получение данных макроса для Eval(S,2).
   local Mode=far.MacroGetArea()
   local UseCommon=false
   str = str:match("^%s*(.-)%s*$")
@@ -393,6 +393,10 @@ local function GetEvalData (str) -- Получение данных макроса для Eval(S,2).
   return Mode, strKey, UseCommon
 end
 
+local function Eval_FixReturn (ok, ...)
+  return ok and 0 or -4, ...
+end
+
 function mf.eval (str, mode, lang)
   if type(str) ~= "string" then return -1 end
   mode = mode or 0
@@ -401,15 +405,14 @@ function mf.eval (str, mode, lang)
   if not (lang=="lua" or lang=="moonscript") then return -1 end
 
   if mode == 2 then
-    local area,key,usecommon = GetEvalData(str)
+    local area,key,usecommon = Eval_GetData(str)
     if not area then return -2 end
 
     local macro = utils.GetMacro(area,key,usecommon,false)
     if not macro then return -2 end
     if not macro.id then return -3 end
 
-    yieldcall("eval", macro, key)
-    return 0
+    return Eval_FixReturn(yieldcall("eval", macro, key))
   end
 
   local chunk, params = Shared.loadmacro(lang, str, getfenv(2))

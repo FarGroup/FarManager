@@ -140,14 +140,13 @@ local function test_eval()
     local key = akey(1,0)
     assert(key=="CtrlShiftF12" or key=="RCtrlShiftF12")
     assert(akey(1,1)=="CtrlA")
-    _G.abcd=_G.abcd+1
+    foobar = (foobar or 0) + 1
+    return foobar,false,5,nil,"foo"
   ]]))
-  _G.abcd=0
   for k=1,3 do
-    assert(eval("CtrlA",2)==0)
-    assert(_G.abcd==k)
+    local ret1,a,b,c,d,e = eval("CtrlA",2)
+    assert(ret1==0 and a==k and b==false and c==5 and d==nil and e=="foo")
   end
-  _G.abcd=nil
   assert(far.MacroDelete(Id))
 end
 
