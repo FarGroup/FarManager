@@ -111,7 +111,7 @@ private:
 	std::vector<char> readBufferA;
 	std::vector<wchar_t> readBuffer;
 	const wchar_t *findString;
-	std::string hexFindString;
+	std::vector<char> hexFindString;
 	uintptr_t CodePage;
 	std::vector<size_t> skipCharsTable;
 	UINT64 SearchInFirst;

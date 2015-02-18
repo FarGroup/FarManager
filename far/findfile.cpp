@@ -447,7 +447,7 @@ void FindFiles::InitInFileSearch()
 			// Формируем hex-строку для поиска
 			if (SearchHex)
 			{
-				hexFindString = BlobToHexString(strFindStr.data(), strFindStr.size(), 0);
+				hexFindString = HexStringToBlob(strFindStr.data());
 			}
 
 			// Инициализируем данные для аглоритма поиска
