@@ -382,7 +382,7 @@ Info.PanelControl(INVALID_HANDLE_VALUE,FCTL_SETUSERSCREEN,NULL);
       то можно - в функции-обработчике диалога послать ядру DialogAPI сообщение <a href="../dialogapi/dmsg/dm_settext.html">DM_SETTEXT</a>.<br><br>
   <li><span class=faqq>Q:</span> <a name="dialog4"><span class=faqqb>Ну ладно, воспользовался этим самым DialogAPI, но мне не хватает того набора управляющих элементов, которые обрабатывает FAR. Ась?</span></a>
   <br><span class=faqa>A:</span> Воспользуйся элементом <a href="../dialogapi/controls/di_usercontrol.html">DI_USERCONTROL</a> - отрисовка элемента и управление им - всё во власти плагина!<br><br>
-  <li><span class=faqq>Q:</span> <a name="dialog5"><span class=faqqb>А что это ListBox и ComboBox полуфабрикатные какие-то? Нормально работать с ними ну ни как нельзя - для добавления/удаления приходится изголяться.</span></a>
+  <li><span class=faqq>Q:</span> <a name="dialog5"><span class=faqqb>А что это ListBox и ComboBox полуфабрикатные какие-то? Нормально работать с ними ну никак нельзя - для добавления/удаления приходится изголяться.</span></a>
   <br><span class=faqa>A:</span> А что ты хотел от первой версии DialogAPI?<br><br>
   <li><span class=faqq>Q:</span> <a name="dialog6"><span class=faqqb>Почему в диалоге не срабатывают кнопки на закрытие окна</span></a>
   <br><span class=faqa>A:</span> Ты сам должен рулить моментом закрытия диалога, исключения: Ctrl-Break - закрывается всегда, Ctrl-Enter - если есть хотя бы одна кнопка с полем DefaultButton=1, то <a href="../dialogapi/dmsg/dm_close.html">запрос на закрытие</a> с Param1 = номеру текущего элемента, Esc и F10   - здесь можно рулить из обработчика - закрывать или нет.<br><br>
