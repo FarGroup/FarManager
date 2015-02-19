@@ -3030,7 +3030,7 @@ size_t WINAPI apiInputRecordToKeyName(const INPUT_RECORD* Key, wchar_t *KeyText,
 	{
 		int iKey = InputRecordToKey(Key);
 		string strKT;
-		if (!KeyToText(iKey, strKT))
+		if (iKey == KEY_NONE || !KeyToText(iKey, strKT))
 			return 0;
 		size_t len = strKT.size();
 		if (Size && KeyText)
