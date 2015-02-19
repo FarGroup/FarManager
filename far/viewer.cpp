@@ -391,7 +391,6 @@ int Viewer::OpenFile(const string& Name,int warning)
 
 	ChangeViewKeyBar();
 	AdjustWidth();
-	if (!HostFileViewer) ReadEvent();
 
 	string strRoot;
 	GetPathRoot(strFullFileName, strRoot);
@@ -407,8 +406,9 @@ int Viewer::OpenFile(const string& Name,int warning)
 		case DRIVE_RAMDISK:   update_check_period = +1;  break; // ram-drive: 1 msec
 		default:              update_check_period = -1;  break; // unknown: never
 	}
-
 	m_TimeCheck = std::make_unique<time_check>(time_check::delayed, update_check_period);
+
+	if (!HostFileViewer) ReadEvent();
 
 	return TRUE;
 }
