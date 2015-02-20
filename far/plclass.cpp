@@ -282,15 +282,6 @@ static BOOL PrepareModulePath(const string& ModuleName)
 	return FarChDir(strModulePath);
 }
 
-static void CheckScreenLock()
-{
-	if (Global->ScrBuf->GetLockCount() > 0 && !Global->CtrlObject->Macro.PeekKey())
-	{
-//		Global->ScrBuf->SetLockCount(0);
-		Global->ScrBuf->Flush();
-	}
-}
-
 FarStandardFunctions NativeFSF =
 {
 	sizeof(NativeFSF),
@@ -952,7 +943,6 @@ void Plugin::CloseAnalyse(CloseAnalyseInfo* Info)
 void* Plugin::Open(OpenInfo* Info)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-	CheckScreenLock(); //??
 	ExecuteStruct es = {iOpen};
 	if (Load() && Exports[es.id] && !Global->ProcessException)
 	{

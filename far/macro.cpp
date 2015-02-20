@@ -405,25 +405,12 @@ static bool CallMacroPlugin(OpenMacroPluginInfo* Info)
 	return result && ptr;
 }
 
-static bool CallMacroPluginSimple(OpenMacroPluginInfo* Info)
-{
-	typedef HANDLE (WINAPI *FuncOpen)(const OpenInfo*);
-	Plugin *pPlugin = Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Luamacro.Id);
-	if (pPlugin && pPlugin->Load() && pPlugin->HasOpen() && !Global->ProcessException)
-	{
-		auto Open = reinterpret_cast<FuncOpen>(pPlugin->GetOpen());
-		OpenInfo oInfo = {sizeof(OpenInfo), OPEN_LUAMACRO, &FarGuid, (intptr_t)Info, nullptr};
-		return Open(&oInfo) != nullptr;
-	}
-	return false;
-}
-
 template<class T> bool MacroPluginOp(double OpCode, T Param, MacroPluginReturn* Ret=nullptr)
 {
 	FarMacroValue values[]={OpCode,Param};
 	FarMacroCall fmc={sizeof(FarMacroCall),2,values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_KEYMACRO,&fmc};
-	if (CallMacroPluginSimple(&info))
+	if (CallMacroPlugin(&info))
 	{
 		if (Ret) *Ret=info.Ret;
 		return true;
@@ -478,7 +465,7 @@ static void SetMacroValue(const FarMacroValue& Value)
 	FarMacroValue values[2]={8.0,Value};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_KEYMACRO,&fmc};
-	CallMacroPluginSimple(&info);
+	CallMacroPlugin(&info);
 }
 
 static bool TryToPostMacro(FARMACROAREA Area,const string& TextKey,DWORD IntKey)
@@ -486,7 +473,7 @@ static bool TryToPostMacro(FARMACROAREA Area,const string& TextKey,DWORD IntKey)
 	FarMacroValue values[] = {10.0,(double)Area,TextKey.data(),(double)IntKey};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_KEYMACRO,&fmc};
-	return CallMacroPluginSimple(&info);
+	return CallMacroPlugin(&info);
 }
 
 static inline Panel* TypeToPanel(int Type)
@@ -985,7 +972,7 @@ bool KeyMacro::PostNewMacro(const wchar_t* Sequence,FARKEYMACROFLAGS InputFlags,
 	FarMacroValue values[]={7.0,Lang,Sequence,(double)Flags,(double)AKey};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_KEYMACRO,&fmc};
-	return CallMacroPluginSimple(&info);
+	return CallMacroPlugin(&info);
 }
 
 static BOOL CheckEditSelected(FARMACROAREA Area, UINT64 CurFlags)
