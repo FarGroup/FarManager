@@ -1425,7 +1425,7 @@ static int editor_SaveFile(lua_State *L)
 	return 1;
 }
 
-void pushInputRecord(lua_State *L, const INPUT_RECORD* ir)
+void PushInputRecord(lua_State *L, const INPUT_RECORD* ir)
 {
 	lua_newtable(L);
 	PutIntToTable(L, "EventType", ir->EventType);
@@ -1466,7 +1466,7 @@ static int editor_ReadInput(lua_State *L)
 	INPUT_RECORD ir;
 
 	if(Info->EditorControl(EditorId, ECTL_READINPUT, 0, &ir))
-		pushInputRecord(L, &ir);
+		PushInputRecord(L, &ir);
 	else
 		lua_pushnil(L);
 
@@ -3444,7 +3444,7 @@ int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2)
 		case DN_CONTROLINPUT:   // TODO
 		case DN_INPUT:          // TODO was: (Msg == DN_MOUSEEVENT)
 		case DN_HOTKEY:
-			pushInputRecord(L, (const INPUT_RECORD*)Param2);
+			PushInputRecord(L, (const INPUT_RECORD*)Param2);
 			break;
 
 		case DN_CTLCOLORDIALOG:
@@ -4097,7 +4097,7 @@ static int far_NameToInputRecord(lua_State *L)
 	const wchar_t* str = check_utf8_string(L, 1, NULL);
 
 	if(GetPluginData(L)->FSF->FarNameToInputRecord(str, &ir))
-		pushInputRecord(L, &ir);
+		PushInputRecord(L, &ir);
 	else
 		lua_pushnil(L);
 

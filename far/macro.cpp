@@ -460,12 +460,9 @@ static inline bool IsPostMacroEnabled()
 	return MacroPluginOp(6.0,false,&Ret) && Ret.ReturnType==1;
 }
 
-static void SetMacroValue(const FarMacroValue& Value)
+static void SetMacroValue(bool Value)
 {
-	FarMacroValue values[2]={8.0,Value};
-	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
-	OpenMacroPluginInfo info={MCT_KEYMACRO,&fmc};
-	CallMacroPlugin(&info);
+	MacroPluginOp(8.0, Value);
 }
 
 static bool TryToPostMacro(FARMACROAREA Area,const string& TextKey,DWORD IntKey)
@@ -485,7 +482,6 @@ static inline Panel* TypeToPanel(int Type)
 
 KeyMacro::KeyMacro():
 	m_Area(MACROAREA_SHELL),
-	m_RecMode(MACROAREA_OTHER),
 	m_StartMode(MACROAREA_OTHER),
 	m_Recording(MACROSTATE_NOMACRO),
 	m_LastErrorLine(0),
@@ -540,16 +536,7 @@ int KeyMacro::GetState() const
 
 static bool GetInputFromMacro(MacroPluginReturn *mpr)
 {
-	FarMacroValue values[]={9.0};
-	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
-	OpenMacroPluginInfo info={MCT_KEYMACRO,&fmc};
-
-	if (CallMacroPlugin(&info))
-	{
-		*mpr = info.Ret;
-		return true;
-	}
-	return false;
+	return MacroPluginOp(9.0,false,mpr);
 }
 
 void KeyMacro::RestoreMacroChar() const
@@ -583,7 +570,6 @@ void KeyMacro::RestoreMacroChar() const
 
 struct GetMacroData
 {
-	int MacroId;
 	FARMACROAREA Area;
 	const wchar_t *Code;
 	const wchar_t *Description;
@@ -596,17 +582,13 @@ static bool LM_GetMacro(GetMacroData* Data, FARMACROAREA Area, const string& Tex
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(InValues),InValues,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_GETMACRO,&fmc};
 
-	if (CallMacroPlugin(&info) && info.Ret.Count>=5)
+	if (CallMacroPlugin(&info) && info.Ret.Count>=4)
 	{
 		const FarMacroValue* Values = info.Ret.Values;
-		Data->MacroId = (int)Values[0].Double;
-		if (Data->MacroId != 0)
-		{
-			Data->Area        = (FARMACROAREA)(int)Values[1].Double;
-			Data->Code        = Values[2].Type==FMVT_STRING ? Values[2].String : L"";
-			Data->Description = Values[3].Type==FMVT_STRING ? Values[3].String : L"";
-			Data->Flags       = (MACROFLAGS_MFLAGS)Values[4].Double;
-		}
+		Data->Area        = (FARMACROAREA)(int)Values[0].Double;
+		Data->Code        = Values[1].Type==FMVT_STRING ? Values[1].String : L"";
+		Data->Description = Values[2].Type==FMVT_STRING ? Values[2].String : L"";
+		Data->Flags       = (MACROFLAGS_MFLAGS)Values[3].Double;
 		return true;
 	}
 	return false;
@@ -654,8 +636,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 				}
 
 				// Где мы?
-				m_RecMode=(m_Area==MACROAREA_SHELL&&!Global->WaitInMainLoop)?MACROAREA_OTHER:m_Area;
-				m_StartMode=m_RecMode;
+				m_StartMode=(m_Area==MACROAREA_SHELL&&!Global->WaitInMainLoop)?MACROAREA_OTHER:m_Area;
 				// В зависимости от того, КАК НАЧАЛИ писать макрос, различаем общий режим (Ctrl-.
 				// с передачей плагину кеев) или специальный (Ctrl-Shift-. - без передачи клавиш плагину)
 				m_Recording=ctrldot?MACROSTATE_RECORDING_COMMON:MACROSTATE_RECORDING;
@@ -5306,7 +5287,7 @@ M1:
 
 		// если УЖЕ есть такой макрос...
 		GetMacroData Data;
-		if (LM_GetMacro(&Data,KMParam->Area,strKeyText,true) && Data.MacroId)
+		if (LM_GetMacro(&Data,KMParam->Area,strKeyText,true))
 		{
 			// общие макросы учитываем только при удалении.
 			if (m_RecCode.empty() || Data.Area!=MACROAREA_COMMON_INTERNAL)

@@ -18,7 +18,7 @@ extern UINT64 GetFlagsFromTable(lua_State *L, int pos, const char* key);
 
 extern const char* VirtualKeyStrings[256];
 extern void LF_Error(lua_State *L, const wchar_t* aMsg);
-extern void pushInputRecord(lua_State *L, const INPUT_RECORD* ir);
+extern void PushInputRecord(lua_State *L, const INPUT_RECORD* ir);
 extern void FillInputRecord(lua_State *L, int pos, INPUT_RECORD *ir);
 extern int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2);
 extern int PushDMParams (lua_State *L, intptr_t Msg, intptr_t Param1);
@@ -1070,7 +1070,7 @@ intptr_t LF_ProcessPanelInput(lua_State* L, const struct ProcessPanelInputInfo *
 	if(GetExportFunction(L, "ProcessPanelInput"))      //+1: Func
 	{
 		PushPluginPair(L, Info->hPanel);                 //+3: Func,Pair
-		pushInputRecord(L, &Info->Rec);                  //+4
+		PushInputRecord(L, &Info->Rec);                  //+4
 
 		if(pcall_msg(L, 3, 1) == 0)                      //+1: Res
 		{
@@ -1213,7 +1213,7 @@ intptr_t LF_ProcessEditorInput(lua_State* L, const struct ProcessEditorInputInfo
 	if(!GetExportFunction(L, "ProcessEditorInput"))    //+1: Func
 		return 0;
 
-	pushInputRecord(L, &Info->Rec);
+	PushInputRecord(L, &Info->Rec);
 
 	if(pcall_msg(L, 1, 1) == 0)        //+1: Res
 	{
@@ -1568,7 +1568,7 @@ intptr_t LF_ProcessConsoleInput(lua_State* L, struct ProcessConsoleInputInfo *In
 
 	if(GetExportFunction(L, "ProcessConsoleInput"))    //+1: Func
 	{
-		pushInputRecord(L, &Info->Rec);                  //+2
+		PushInputRecord(L, &Info->Rec);                  //+2
 		bit64_push(L, Info->Flags);                      //+3
 
 		if(pcall_msg(L, 2, 1) == 0)                      //+1: Res

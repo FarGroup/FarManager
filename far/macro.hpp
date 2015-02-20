@@ -105,7 +105,6 @@ private:
 	void RestoreMacroChar() const;
 
 	FARMACROAREA m_Area;
-	FARMACROAREA m_RecMode;
 	FARMACROAREA m_StartMode;
 	FARMACROSTATE m_Recording;
 	string m_RecCode;
