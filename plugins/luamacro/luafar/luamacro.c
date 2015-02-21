@@ -68,7 +68,12 @@ HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 		}
 		ReturnType = lua_type(L,-2)==LUA_TNUMBER ? lua_tointeger(L,-2) : 1;
 
-		if(lua_type(L,-1) != LUA_TTABLE)
+		if (lua_istable(L,-2))
+		{
+			lua_pop(L,1);
+			lua_pushvalue(L,-1);
+		}
+		if (!lua_istable(L,-1))
 		{
 			InitMPR(L, &om_info->Ret, 0, ReturnType);
 			lua_pop(L,2);

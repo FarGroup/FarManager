@@ -29,10 +29,6 @@ local function pack (...)
   return { n=select("#",...), ... }
 end
 
-local function pack3 (v1, v2, v3, ...)
-  return v1, v2, v3, { n=select("#",...), ... }
-end
-
 -- Override coroutine.resume for scripts, making it possible to call Keys(),
 -- print(), Plugin.Call(), exit(), etc. from nested coroutines.
 function coroutine.resume(co, ...)
@@ -384,12 +380,12 @@ function export.Open (OpenFrom, arg1, ...)
     elseif calltype==F.MCT_PANELSORT      then
       if panelsort then
         TablePanelSort = { panelsort.SortPanelItems(...) }
-        if TablePanelSort[1] then return F.MPRT_NORMALFINISH, TablePanelSort end
+        if TablePanelSort[1] then return TablePanelSort end
       end
     elseif calltype==F.MCT_GETCUSTOMSORTMODES then
       if panelsort then
         TablePanelSort = panelsort.GetSortModes()
-        return F.MPRT_NORMALFINISH, TablePanelSort
+        return TablePanelSort
       end
     end
 

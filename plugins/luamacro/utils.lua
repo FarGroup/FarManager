@@ -470,9 +470,9 @@ local function EnumMacros (strArea, resetEnum)
       EnumState.index = EnumState.index + 1
       local macro = LoadedMacros[EnumState.index]
       if macro then
-        if macro.area and macro.area:lower():find(area) then
+        if not macro.disabled and macro.area and macro.area:lower():find(area) then
           LastMessage = pack(macro.key, macro.description or "")
-          return F.MPRT_NORMALFINISH, LastMessage
+          return LastMessage
         end
       else
         EnumState.index = 0
@@ -906,7 +906,7 @@ local function GetMacroWrapper (argMode, argKey, argUseCommon)
   local macro,area = GetMacro(argMode, argKey, argUseCommon, true)
   if macro then
     LastMessage = pack(GetAreaCode(area), macro.code or "", macro.description or "", macro.flags)
-    return F.MPRT_NORMALFINISH, LastMessage
+    return LastMessage
   end
 end
 
