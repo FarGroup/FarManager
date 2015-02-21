@@ -31,20 +31,35 @@ template <class F> struct return_type;
 #define DEFINE_R_TYPE { typedef typename std::remove_const<typename std::remove_reference<R>::type>::type type; };
 #if defined _MSC_VER && _MSC_VER < 1800
 
-template <class R> struct return_type<R(*)()> DEFINE_R_TYPE
+template <class R>
+struct return_type<R(*)()> DEFINE_R_TYPE
 
-#define RETURN_TYPE_VTE(TYPENAME_LIST, ARG_LIST, REF_ARG_LIST, FWD_ARG_LIST) \
+template <class R, class C>
+struct return_type<R(C::*)()> DEFINE_R_TYPE
+
+#define RETURN_TYPE_FREE_VTE(TYPENAME_LIST, ARG_LIST, REF_ARG_LIST, FWD_ARG_LIST) \
 template<typename R, TYPENAME_LIST> \
 struct return_type<R(*)(ARG_LIST)> DEFINE_R_TYPE
 
+#define RETURN_TYPE_MF_VTE(TYPENAME_LIST, ARG_LIST, REF_ARG_LIST, FWD_ARG_LIST) \
+template<typename R, class C, TYPENAME_LIST> \
+struct return_type<R(C::*)(ARG_LIST)> DEFINE_R_TYPE
+
 #include "common/variadic_emulation_helpers_begin.hpp"
-VTE_GENERATE(RETURN_TYPE_VTE)
+VTE_GENERATE(RETURN_TYPE_FREE_VTE)
+VTE_GENERATE(RETURN_TYPE_MF_VTE)
 #include "common/variadic_emulation_helpers_end.hpp"
 
-#undef RETURN_TYPE_VTE
+#undef RETURN_TYPE_MF_VTE
+#undef RETURN_TYPE_FREE_VTE
 
 #else
-template <class R, class... A> struct return_type<R(*)(A...)> DEFINE_R_TYPE
+template <class R, class... A>
+struct return_type<R(*)(A...)> DEFINE_R_TYPE
+
+template <class R, class C, class... A>
+struct return_type<R(C::*)(A...)> DEFINE_R_TYPE
+
 #endif
 #undef DEFINE_R_TYPE
 #define FN_RETURN_TYPE(function_name) return_type<decltype(&function_name)>::type

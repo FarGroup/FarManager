@@ -54,7 +54,7 @@ void GetStoredUserName(wchar_t cDrive, string &strUserName)
 
 std::bitset<32> AddSavedNetworkDisks(std::bitset<32>& Mask)
 {
-	std::bitset<32> Result;
+	FN_RETURN_TYPE(AddSavedNetworkDisks) Result;
 	HANDLE hEnum;
 
 	if (!WNetOpenEnum(RESOURCE_REMEMBERED, RESOURCETYPE_DISK, 0, 0, &hEnum))

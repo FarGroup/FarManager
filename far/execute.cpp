@@ -1111,7 +1111,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		Console().SetOutputCodepage(ConsoleOutputCP);
 	}
 
-	Console().SetTextAttributes(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
+	Console().SetTextAttributes(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 
 	if(dwError)
 	{

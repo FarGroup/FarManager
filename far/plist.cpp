@@ -182,9 +182,7 @@ void ShowProcessList()
 				if (bSPI) // Restore old value
 					SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, ToPtr(dwMs), 0);
 
-				WINDOWPLACEMENT wp;
-				wp.length=sizeof(wp);
-
+				WINDOWPLACEMENT wp = { sizeof(wp) };
 				if (!GetWindowPlacement(ProcWnd,&wp) || wp.showCmd!=SW_SHOWMAXIMIZED)
 					ShowWindowAsync(ProcWnd,SW_RESTORE);
 			}

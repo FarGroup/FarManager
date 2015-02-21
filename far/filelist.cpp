@@ -6767,7 +6767,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 					{
 						if (!DrawMessage)
 						{
-							Text(m_X1+1,m_Y1,ColorIndexToColor(COL_PANELBOX),Title);
+							Text(m_X1+1,m_Y1,colors::PaletteColorToFarColor(COL_PANELBOX),Title);
 							IsShowTitle=TRUE;
 							SetColor(m_Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
 						}
@@ -7428,8 +7428,8 @@ void FileList::ShowFileList(int Fast)
 		Parent()->GetAnotherPanel(this)->Update(UPDATE_KEEP_SELECTION | UPDATE_SECONDARY);
 	}
 
-	SetScreen(m_X1+1,m_Y1+1,m_X2-1,m_Y2-1,L' ',ColorIndexToColor(COL_PANELTEXT));
-	Box(m_X1,m_Y1,m_X2,m_Y2,ColorIndexToColor(COL_PANELBOX),DOUBLE_BOX);
+	SetScreen(m_X1+1,m_Y1+1,m_X2-1,m_Y2-1,L' ',colors::PaletteColorToFarColor(COL_PANELTEXT));
+	Box(m_X1,m_Y1,m_X2,m_Y2,colors::PaletteColorToFarColor(COL_PANELBOX),DOUBLE_BOX);
 
 	if (Global->Opt->ShowColumnTitles)
 	{
@@ -7535,8 +7535,8 @@ void FileList::ShowFileList(int Fast)
 
 		if (Global->Opt->ShowColumnTitles)
 		{
-			FarColor c = ColorIndexToColor(COL_PANELBOX);
-			c.BackgroundColor = ColorIndexToColor(COL_PANELCOLUMNTITLE).BackgroundColor;
+			FarColor c = colors::PaletteColorToFarColor(COL_PANELBOX);
+			c.BackgroundColor = colors::PaletteColorToFarColor(COL_PANELCOLUMNTITLE).BackgroundColor;
 			SetColor(c);
 
 			GotoXY(static_cast<int>(ColumnPos),m_Y1+1);
@@ -7685,7 +7685,7 @@ void FileList::ShowFileList(int Fast)
 
 	if (m_ListData.empty())
 	{
-		SetScreen(m_X1+1,m_Y2-1,m_X2-1,m_Y2-1,L' ',ColorIndexToColor(COL_PANELTEXT));
+		SetScreen(m_X1+1,m_Y2-1,m_X2-1,m_Y2-1,L' ',colors::PaletteColorToFarColor(COL_PANELTEXT));
 		SetColor(COL_PANELTEXT); //???
 		//GotoXY(X1+1,Y2-1);
 		//Global->FS << fmt::Width(X2-X1-1)<<L"";
@@ -7758,7 +7758,7 @@ void FileList::ShowFileList(int Fast)
 
 const FarColor FileList::GetShowColor(int Position, bool FileColor) const
 {
-	FarColor ColorAttr=ColorIndexToColor(COL_PANELTEXT);
+	FarColor ColorAttr=colors::PaletteColorToFarColor(COL_PANELTEXT);
 
 	if (static_cast<size_t>(Position) < m_ListData.size())
 	{
@@ -7786,7 +7786,7 @@ const FarColor FileList::GetShowColor(int Position, bool FileColor) const
 		if (!Global->Opt->Highlight || (!ColorAttr.ForegroundColor && !ColorAttr.BackgroundColor)) // black on black, default
 		{
 			static const PaletteColors PalColor[] = {COL_PANELTEXT, COL_PANELSELECTEDTEXT, COL_PANELCURSOR, COL_PANELSELECTEDCURSOR};
-			ColorAttr=ColorIndexToColor(PalColor[Pos]);
+			ColorAttr=colors::PaletteColorToFarColor(PalColor[Pos]);
 		}
 	}
 
@@ -8219,7 +8219,7 @@ void FileList::HighlightBorder(int Level, int ListPos) const
 		}
 		else
 		{
-			FarColor Color = ColorIndexToColor(COL_PANELBOX);
+			FarColor Color = colors::PaletteColorToFarColor(COL_PANELBOX);
 			Color.BackgroundColor = FileColor.BackgroundColor;
 			FileColor.Flags&FCF_BG_4BIT? Color.Flags|=FCF_BG_4BIT : Color.Flags&=~FCF_BG_4BIT;
 			SetColor(Color);
@@ -8692,7 +8692,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 	if (!ShowStatus && !StatusShown && Global->Opt->ShowPanelStatus)
 	{
-		SetScreen(m_X1+1,m_Y2-1,m_X2-1,m_Y2-1,L' ',ColorIndexToColor(COL_PANELTEXT));
+		SetScreen(m_X1+1,m_Y2-1,m_X2-1,m_Y2-1,L' ',colors::PaletteColorToFarColor(COL_PANELTEXT));
 		SetColor(COL_PANELTEXT); //???
 		//GotoXY(X1+1,Y2-1);
 		//Global->FS << fmt::Width(X2-X1-1)<<L"";

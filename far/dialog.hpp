@@ -73,24 +73,15 @@ enum DIALOG_MODES
 	DMODE_OLDSTYLE              =0x80000000, // Диалог в старом (до 1.70) стиле
 };
 
-struct DialogItemEx;
-
-// Структура, описывающая автоматизацию для DIF_AUTOMATION
-// на первом этапе - примитивная - выставление флагов у элементов для CheckBox
-struct DialogItemAutomation
-{
-	DialogItemEx* Owner;                    // Для этого элемента...
-	FARDIALOGITEMFLAGS Flags[3][2];          // ...выставить вот эти флаги
-	// [0] - Unchecked, [1] - Checked, [2] - 3Checked
-	// [][0] - Set, [][1] - Skip
-};
-
 /*
 Описывает один элемент диалога - внутренне представление.
 Для плагинов это FarDialogItem
 */
 struct DialogItemEx: noncopyable, public FarDialogItem
 {
+	// Структура, описывающая автоматизацию для DIF_AUTOMATION
+	struct DialogItemAutomation;
+
 	int ListPos;
 	string strHistory;
 	string strMask;
@@ -103,61 +94,15 @@ struct DialogItemEx: noncopyable, public FarDialogItem
 	intptr_t SelStart;
 	intptr_t SelEnd;
 
-	DialogItemEx():
-		FarDialogItem(),
-		ListPos(),
-		ObjPtr(),
-		UCData(),
-		SelStart(),
-		SelEnd()
-	{}
-
-	DialogItemEx(const DialogItemEx& rhs):
-		FarDialogItem(rhs),
-		ListPos(rhs.ListPos),
-		strHistory(rhs.strHistory),
-		strMask(rhs.strMask),
-		strData(rhs.strData),
-		IFlags(rhs.IFlags),
-		Auto(rhs.Auto),
-		ObjPtr(rhs.ObjPtr),
-		ListPtr(rhs.ListPtr),
-		UCData(rhs.UCData),
-		SelStart(rhs.SelStart),
-		SelEnd(rhs.SelEnd)
-	{}
-
-	DialogItemEx(DialogItemEx&& rhs):
-		FarDialogItem(),
-		ListPos(),
-		ObjPtr(),
-		ListPtr(),
-		UCData(),
-		SelStart(),
-		SelEnd()
-	{
-		*this = std::move(rhs);
-	}
+	DialogItemEx();
+	DialogItemEx(const DialogItemEx& rhs);
+	DialogItemEx(DialogItemEx&& rhs);
+	~DialogItemEx();
 
 	COPY_OPERATOR_BY_SWAP(DialogItemEx);
 	MOVE_OPERATOR_BY_SWAP(DialogItemEx);
 
-	void swap(DialogItemEx& rhs) noexcept
-	{
-		using std::swap;
-		swap(*static_cast<FarDialogItem*>(this), static_cast<FarDialogItem&>(rhs));
-		swap(ListPos, rhs.ListPos);
-		strHistory.swap(rhs.strHistory);
-		strMask.swap(rhs.strMask);
-		strData.swap(rhs.strData);
-		swap(IFlags, rhs.IFlags);
-		Auto.swap(rhs.Auto);
-		swap(ObjPtr, rhs.ObjPtr);
-		swap(ListPtr, rhs.ListPtr);
-		swap(UCData, rhs.UCData);
-		swap(SelStart, rhs.SelStart);
-		swap(SelEnd, rhs.SelEnd);
-	}
+	void swap(DialogItemEx& rhs) noexcept;
 
 	FREE_SWAP(DialogItemEx);
 
@@ -168,21 +113,9 @@ struct DialogItemEx: noncopyable, public FarDialogItem
 	}
 
 	bool AddAutomation(DialogItemEx* DlgItem,
-		FARDIALOGITEMFLAGS UncheckedSet,FARDIALOGITEMFLAGS UncheckedSkip,
-		FARDIALOGITEMFLAGS CheckedSet,FARDIALOGITEMFLAGS CheckedSkip,
-		FARDIALOGITEMFLAGS Checked3Set,FARDIALOGITEMFLAGS Checked3Skip)
-	{
-		DialogItemAutomation Item;
-		Item.Owner = DlgItem;
-		Item.Flags[0][0]=UncheckedSet;
-		Item.Flags[0][1]=UncheckedSkip;
-		Item.Flags[1][0]=CheckedSet;
-		Item.Flags[1][1]=CheckedSkip;
-		Item.Flags[2][0]=Checked3Set;
-		Item.Flags[2][1]=Checked3Skip;
-		Auto.emplace_back(Item);
-		return true;
-	}
+		FARDIALOGITEMFLAGS UncheckedSet, FARDIALOGITEMFLAGS UncheckedSkip,
+		FARDIALOGITEMFLAGS CheckedSet, FARDIALOGITEMFLAGS CheckedSkip,
+		FARDIALOGITEMFLAGS Checked3Set, FARDIALOGITEMFLAGS Checked3Skip);
 };
 
 template<size_t N>
@@ -204,7 +137,7 @@ public:
 	typedef std::function<intptr_t(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)> dialog_handler;
 
 	template<class T, class O>
-	static dialog_ptr create(T&& Src, O* object, intptr_t(O::*function)(Dialog*, intptr_t, intptr_t, void*), void* InitParam = nullptr)
+	static dialog_ptr create(T&& Src, intptr_t(O::*function)(Dialog*, intptr_t, intptr_t, void*), O* object, void* InitParam = nullptr)
 	{
 		return dialog_ptr(new Dialog(Src, object, function, InitParam));
 	}

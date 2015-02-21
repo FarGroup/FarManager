@@ -109,8 +109,8 @@ void QuickView::DisplayObject()
 	if (QView)
 		QView->SetPosition(m_X1+1,m_Y1+1,m_X2-1,m_Y2-3);
 
-	Box(m_X1,m_Y1,m_X2,m_Y2,ColorIndexToColor(COL_PANELBOX),DOUBLE_BOX);
-	SetScreen(m_X1+1,m_Y1+1,m_X2-1,m_Y2-1,L' ',ColorIndexToColor(COL_PANELTEXT));
+	Box(m_X1,m_Y1,m_X2,m_Y2,colors::PaletteColorToFarColor(COL_PANELBOX),DOUBLE_BOX);
+	SetScreen(m_X1+1,m_Y1+1,m_X2-1,m_Y2-1,L' ',colors::PaletteColorToFarColor(COL_PANELTEXT));
 	SetColor(m_Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
 
 	string strTitle = GetTitle();
@@ -239,7 +239,7 @@ void QuickView::DisplayObject()
 
 		if (Directory==1 || Directory==4)
 		{
-			int iColor = uncomplete_dirscan ? COL_PANELHIGHLIGHTTEXT : COL_PANELINFOTEXT;
+			const auto iColor = uncomplete_dirscan? COL_PANELHIGHLIGHTTEXT : COL_PANELINFOTEXT;
 			const wchar_t *prefix = uncomplete_dirscan ? L"~" : L"";
 			GotoXY(m_X1+2,m_Y1+4);
 			PrintText(MSG(MQuickViewContains));

@@ -776,8 +776,8 @@ private:
 			{
 				Blob.resize(sizeof(FarColor));
 				auto Color = reinterpret_cast<FarColor*>(Blob.data());
-				Color->BackgroundColor = std::stoul(background, 0, 16);
-				Color->ForegroundColor = std::stoul(foreground, 0, 16);
+				Color->BackgroundColor = std::strtoul(background, nullptr, 16);
+				Color->ForegroundColor = std::strtoul(foreground, nullptr, 16);
 				Color->Flags = StringToFlags(wide(flags, CP_UTF8), ColorFlagNames);
 			}
 			return Blob;
@@ -878,8 +878,8 @@ public:
 			if(background && foreground && flags)
 			{
 				FarColor Color = {};
-				Color.BackgroundColor = std::stoul(background, 0, 16);
-				Color.ForegroundColor = std::stoul(foreground, 0, 16);
+				Color.BackgroundColor = std::strtoul(background, 0, 16);
+				Color.ForegroundColor = std::strtoul(foreground, 0, 16);
 				Color.Flags = StringToFlags(wide(flags, CP_UTF8), ColorFlagNames);
 				SetValue(Name, Color);
 			}
@@ -1261,7 +1261,7 @@ public:
 	{
 		void *enabled = nullptr;
 		if (m_Statements[stmtGetExportState].Bind(id, ExportName).Step())
-			if (m_Statements[stmtGetExportState].GetColInt(0) > 0)
+			if (m_Statements[stmtGetExportState].GetColInt(0))
 				enabled = ToPtr(1);
 		m_Statements[stmtGetExportState].Reset();
 		return enabled;

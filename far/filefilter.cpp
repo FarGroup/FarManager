@@ -427,30 +427,17 @@ bool FileFilter::FilterEdit()
 
 const enumFileFilterFlagsType FileFilter::GetFFFT()
 {
-	if (m_FilterType == FFT_PANEL)
+	switch (m_FilterType)
 	{
-		if (GetHostPanel() == Global->CtrlObject->Cp()->RightPanel)
-		{
-			return FFFT_RIGHTPANEL;
-		}
-		else
-		{
-			return FFFT_LEFTPANEL;
-		}
+	case FFT_PANEL: return GetHostPanel() == Global->CtrlObject->Cp()->RightPanel ? FFFT_RIGHTPANEL : FFFT_LEFTPANEL;
+	case FFT_COPY: return FFFT_COPY;
+	case FFT_FINDFILE: return FFFT_FINDFILE;
+	case FFT_SELECT: return FFFT_SELECT;
+	case FFT_CUSTOM: return FFFT_CUSTOM;
+	default:
+		assert(false);
+		return FFFT_CUSTOM;
 	}
-	else if (m_FilterType == FFT_COPY)
-	{
-		return FFFT_COPY;
-	}
-	else if (m_FilterType == FFT_FINDFILE)
-	{
-		return FFFT_FINDFILE;
-	}
-	else if (m_FilterType == FFT_SELECT)
-	{
-		return FFFT_SELECT;
-	}
-	return FFFT_CUSTOM;
 }
 
 int FileFilter::GetCheck(const FileFilterParams& FFP)
@@ -479,10 +466,10 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList)
 {
 	auto FFFT = GetFFFT();
 
-	for (int i=0,j=0; i < FilterList->GetItemCount(); i++)
+	for (int i = 0, j = 0; i < FilterList->GetItemCount(); i++)
 	{
-		int Check=FilterList->GetCheck(i);
-		FileFilterParams* CurFilterData=nullptr;
+		int Check = FilterList->GetCheck(i);
+		FileFilterParams* CurFilterData = nullptr;
 
 		if (i < (int)FilterData().size())
 		{
@@ -492,7 +479,7 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList)
 		{
 			CurFilterData = FoldersFilter;
 		}
-		else if (i >(int)(FilterData().size() + 1))
+		else if (i > (int)(FilterData().size() + 1))
 		{
 			string Mask(static_cast<const wchar_t*>(FilterList->GetUserData(nullptr, 0, i)));
 			string strMask1(Mask);
@@ -524,7 +511,7 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList)
 					{
 						bool bCheckedNowhere = true;
 
-						for (int n=FFFT_FIRST; n < FFFT_COUNT; n++)
+						for (int n = FFFT_FIRST; n < FFFT_COUNT; n++)
 						{
 							if (n != FFFT && CurFilterData->GetFlags((enumFileFilterFlagsType)n))
 							{
@@ -545,15 +532,15 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList)
 					}
 				}
 				else
-					CurFilterData=nullptr;
+					CurFilterData = nullptr;
 			}
 
 			if (Check && !CurFilterData)
 			{
 				auto& NewFilter = *TempFilterData().emplace(TempFilterData().begin() + j, FileFilterParams());
-				NewFilter.SetMask(1,Mask);
+				NewFilter.SetMask(1, Mask);
 				//Авто фильтры они только для файлов, папки не должны к ним подходить
-				NewFilter.SetAttr(1,0,FILE_ATTRIBUTE_DIRECTORY);
+				NewFilter.SetAttr(1, 0, FILE_ATTRIBUTE_DIRECTORY);
 				j++;
 				CurFilterData = &NewFilter;
 			}
@@ -562,16 +549,21 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList)
 		if (!CurFilterData)
 			continue;
 
-		CurFilterData->SetFlags(FFFT, FFF_NONE);
+		const auto KeyToFlags = [](int Key) -> DWORD
+		{
+			switch (Key)
+			{
+			case L'+': return FFF_INCLUDE;
+			case L'-': return FFF_EXCLUDE;
+			case L'I': return FFF_INCLUDE | FFF_STRONG;
+			case L'X': return FFF_EXCLUDE | FFF_STRONG;
+			default:
+				assert(false);
+				return 0;
+			}
+		};
 
-		if (Check==L'+')
-			CurFilterData->SetFlags(FFFT, FFF_INCLUDE);
-		else if (Check==L'-')
-			CurFilterData->SetFlags(FFFT, FFF_EXCLUDE);
-		else if (Check==L'I')
-			CurFilterData->SetFlags(FFFT, FFF_INCLUDE|FFF_STRONG);
-		else if (Check==L'X')
-			CurFilterData->SetFlags(FFFT, FFF_EXCLUDE|FFF_STRONG);
+		CurFilterData->SetFlags(FFFT, KeyToFlags(Check));
 	}
 }
 

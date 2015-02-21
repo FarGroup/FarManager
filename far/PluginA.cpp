@@ -52,6 +52,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "filepanels.hpp"
 
+#define OLDFAR_TO_FAR_MAP(x) { oldfar::x, x }
+
 namespace wrapper
 {
 typedef void   (WINAPI *iClosePanelPrototype)          (HANDLE hPlugin);
@@ -153,7 +155,7 @@ const std::string& OEMPluginModel::getUserName()
 bool OEMPluginModel::FindExport(const char* ExportName)
 {
 	// module with ANY known export can be OEM plugin
-	auto ExportsBegin = m_ExportsNames, ExportsEnd = ExportsBegin + ExportsCount;
+	const auto ExportsBegin = m_ExportsNames, ExportsEnd = ExportsBegin + ExportsCount;
 	return std::find_if(ExportsBegin, ExportsEnd, [&](const export_name& i)
 	{
 		return !strcmp(ExportName, i.AName);
@@ -216,7 +218,7 @@ static int WINAPI comparer_wrapper(const void *one, const void *two, void *user)
 
 static int WINAPI comparer_ex_wrapper(const void *one, const void *two, void *user)
 {
-	auto helper = static_cast<comparer_helper*>(user);
+	const auto helper = static_cast<const comparer_helper*>(user);
 	return helper->cmp(one,two,helper->user);
 }
 
@@ -275,7 +277,7 @@ static void AnsiToUnicodeBin(const char *lpszAnsiString, wchar_t *lpwszUnicodeSt
 
 static wchar_t *AnsiToUnicodeBin(const char *lpszAnsiString, int nLength, uintptr_t CodePage = CP_OEMCP)
 {
-	auto Result = new wchar_t[nLength];
+	const auto Result = new wchar_t[nLength];
 	AnsiToUnicodeBin(lpszAnsiString, Result, nLength, CodePage);
 	return Result;
 }
@@ -298,7 +300,7 @@ static char *UnicodeToAnsiBin(const wchar_t *lpwszUnicodeString, int nLength, ui
 	if (!lpwszUnicodeString || (nLength < 0))
 		return nullptr;
 
-	auto Result = new char[nLength + 1]();
+	const auto Result = new char[nLength + 1]();
 
 	if (nLength)
 	{
@@ -411,11 +413,35 @@ static DWORD KeyToOldKey(DWORD dKey)
 	return dKey;
 }
 
+template<class F1, class F2, class M>
+static void FirstFlagsToSecond(const F1& FirstFlags, F2& SecondFlags, M& Map)
+{
+	FOR(const auto& i, Map)
+	{
+		if (FirstFlags & i.first)
+		{
+			SecondFlags |= i.second;
+		}
+	}
+}
+
+template<class F1, class F2, class M>
+static void SecondFlagsToFirst(const F2& SecondFlags, F1& FirstFlags, M& Map)
+{
+	FOR(const auto& i, Map)
+	{
+		if (SecondFlags & i.second)
+		{
+			FirstFlags |= i.first;
+		}
+	}
+}
+
 static void ConvertInfoPanelLinesA(const oldfar::InfoPanelLine *iplA, InfoPanelLine **piplW, size_t iCount)
 {
 	if (iplA && piplW && (iCount>0))
 	{
-		auto iplW = new InfoPanelLine[iCount];
+		const auto iplW = new InfoPanelLine[iCount];
 
 		for (size_t i = 0; i<iCount; i++)
 		{
@@ -581,8 +607,7 @@ static void WINAPI FreeUserData(void* UserData, const FarPanelItemFreeInfo* Info
 
 static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(const oldfar::PluginPanelItem *PanelItemA, size_t ItemsNumber)
 {
-	PluginPanelItem *Result = new PluginPanelItem[ItemsNumber]();
-
+	const auto Result = new PluginPanelItem[ItemsNumber]();
 	auto AIter = PanelItemA;
 	auto WIter = Result;
 
@@ -732,7 +757,7 @@ static void FreePanelItemA(const oldfar::PluginPanelItem *PanelItem, size_t Item
 			delete[] PanelItem[i].CustomColumnData;
 		}
 
-		if (PanelItem[i].UserData&&PanelItem[i].Flags&oldfar::PPIF_USERDATA)
+		if (PanelItem[i].Flags & oldfar::PPIF_USERDATA)
 		{
 			xf_free((PVOID)PanelItem[i].UserData);
 		}
@@ -782,7 +807,7 @@ oldfar::FarDialogItem* OneDialogItem = nullptr;
 
 static DialogData* FindDialogData(HANDLE hDlg)
 {
-	auto ItemIterator = std::find_if(RANGE(DialogList(), i)
+	const auto ItemIterator = std::find_if(RANGE(DialogList(), i)
 	{
 		return i.hDlg == hDlg;
 	});
@@ -799,7 +824,7 @@ static DialogData* FindDialogData(HANDLE hDlg)
 // can be nullptr in case of the ansi dialog plugin
 static oldfar::FarDialogItem* CurrentDialogItemA(HANDLE hDlg, int ItemNumber)
 {
-	auto current = FindDialogData(hDlg);
+	const auto current = FindDialogData(hDlg);
 	return current ? &current->diA[ItemNumber] : nullptr;
 }
 
@@ -817,26 +842,6 @@ static std::stack<FarDialogEvent>& OriginalEvents()
 {
 	static FN_RETURN_TYPE(OriginalEvents) sOriginalEvents;
 	return sOriginalEvents;
-}
-
-static void UnicodeListItemToAnsi(const FarListItem* li, oldfar::FarListItem* liA)
-{
-	UnicodeToOEM(li->Text, liA->Text, sizeof(liA->Text) - 1);
-	liA->Flags = 0;
-
-	if (li->Flags&LIF_SELECTED)       liA->Flags |= oldfar::LIF_SELECTED;
-
-	if (li->Flags&LIF_CHECKED)        liA->Flags |= oldfar::LIF_CHECKED;
-
-	if (li->Flags&LIF_SEPARATOR)      liA->Flags |= oldfar::LIF_SEPARATOR;
-
-	if (li->Flags&LIF_DISABLE)        liA->Flags |= oldfar::LIF_DISABLE;
-
-	if (li->Flags&LIF_GRAYED)         liA->Flags |= oldfar::LIF_GRAYED;
-
-	if (li->Flags&LIF_HIDDEN)         liA->Flags |= oldfar::LIF_HIDDEN;
-
-	if (li->Flags&LIF_DELETEUSERDATA) liA->Flags |= oldfar::LIF_DELETEUSERDATA;
 }
 
 static size_t GetAnsiVBufSize(const oldfar::FarDialogItem &diA)
@@ -868,12 +873,12 @@ static void AnsiVBufToUnicode(PCHAR_INFO VBufA, FAR_CHAR_INFO* VBuf, size_t Size
 			{
 				AnsiToUnicodeBin(&VBufA[i].Char.AsciiChar, &VBuf[i].Char, 1);
 			}
-			VBuf[i].Attributes = Colors::ConsoleColorToFarColor(VBufA[i].Attributes);
+			VBuf[i].Attributes = colors::ConsoleColorToFarColor(VBufA[i].Attributes);
 		}
 	}
 }
 
-static FAR_CHAR_INFO* AnsiVBufToUnicode(oldfar::FarDialogItem &diA)
+static FAR_CHAR_INFO* AnsiVBufToUnicode(const oldfar::FarDialogItem &diA)
 {
 	FAR_CHAR_INFO* VBuf = nullptr;
 
@@ -890,25 +895,71 @@ static FAR_CHAR_INFO* AnsiVBufToUnicode(oldfar::FarDialogItem &diA)
 	return VBuf;
 }
 
+static const simple_pair<oldfar::LISTITEMFLAGS, LISTITEMFLAGS> ListFlagsMap[] =
+{
+	OLDFAR_TO_FAR_MAP(LIF_SELECTED),
+	OLDFAR_TO_FAR_MAP(LIF_CHECKED),
+	OLDFAR_TO_FAR_MAP(LIF_SEPARATOR),
+	OLDFAR_TO_FAR_MAP(LIF_DISABLE),
+	OLDFAR_TO_FAR_MAP(LIF_GRAYED),
+	OLDFAR_TO_FAR_MAP(LIF_HIDDEN),
+	OLDFAR_TO_FAR_MAP(LIF_DELETEUSERDATA),
+};
+
+static void UnicodeListItemToAnsi(const FarListItem* li, oldfar::FarListItem* liA)
+{
+	UnicodeToOEM(li->Text, liA->Text, sizeof(liA->Text) - 1);
+	liA->Flags = 0;
+	if (li->Flags)
+	{
+		SecondFlagsToFirst(li->Flags, liA->Flags, ListFlagsMap);
+	}
+}
+
 static void AnsiListItemToUnicode(const oldfar::FarListItem* liA, FarListItem* li)
 {
 	li->Text = AnsiToUnicode(liA->Text);
 	li->Flags = 0;
-
-	if (liA->Flags&oldfar::LIF_SELECTED)       li->Flags |= LIF_SELECTED;
-
-	if (liA->Flags&oldfar::LIF_CHECKED)        li->Flags |= LIF_CHECKED;
-
-	if (liA->Flags&oldfar::LIF_SEPARATOR)      li->Flags |= LIF_SEPARATOR;
-
-	if (liA->Flags&oldfar::LIF_DISABLE)        li->Flags |= LIF_DISABLE;
-
-	if (liA->Flags&oldfar::LIF_GRAYED)         li->Flags |= LIF_GRAYED;
-
-	if (liA->Flags&oldfar::LIF_HIDDEN)         li->Flags |= LIF_HIDDEN;
-
-	if (liA->Flags&oldfar::LIF_DELETEUSERDATA) li->Flags |= LIF_DELETEUSERDATA;
+	if (liA->Flags)
+	{
+		FirstFlagsToSecond(liA->Flags, li->Flags, ListFlagsMap);
+	}
 }
+
+static const simple_pair<oldfar::FarDialogItemFlags, FARDIALOGFLAGS> DialogItemFlagsMap[] =
+{
+	OLDFAR_TO_FAR_MAP(DIF_BOXCOLOR),
+	OLDFAR_TO_FAR_MAP(DIF_GROUP),
+	OLDFAR_TO_FAR_MAP(DIF_LEFTTEXT),
+	OLDFAR_TO_FAR_MAP(DIF_MOVESELECT),
+	OLDFAR_TO_FAR_MAP(DIF_SHOWAMPERSAND),
+	OLDFAR_TO_FAR_MAP(DIF_CENTERGROUP),
+	OLDFAR_TO_FAR_MAP(DIF_NOBRACKETS),
+	OLDFAR_TO_FAR_MAP(DIF_MANUALADDHISTORY),
+	OLDFAR_TO_FAR_MAP(DIF_SEPARATOR),
+	OLDFAR_TO_FAR_MAP(DIF_SEPARATOR2),
+	OLDFAR_TO_FAR_MAP(DIF_EDITOR),
+	OLDFAR_TO_FAR_MAP(DIF_LISTNOAMPERSAND),
+	OLDFAR_TO_FAR_MAP(DIF_LISTNOBOX),
+	OLDFAR_TO_FAR_MAP(DIF_HISTORY),
+	OLDFAR_TO_FAR_MAP(DIF_BTNNOCLOSE),
+	OLDFAR_TO_FAR_MAP(DIF_CENTERTEXT),
+	OLDFAR_TO_FAR_MAP(DIF_SEPARATORUSER),
+	OLDFAR_TO_FAR_MAP(DIF_EDITEXPAND),
+	OLDFAR_TO_FAR_MAP(DIF_DROPDOWNLIST),
+	OLDFAR_TO_FAR_MAP(DIF_USELASTHISTORY),
+	OLDFAR_TO_FAR_MAP(DIF_MASKEDIT),
+	OLDFAR_TO_FAR_MAP(DIF_SELECTONENTRY),
+	OLDFAR_TO_FAR_MAP(DIF_3STATE),
+	OLDFAR_TO_FAR_MAP(DIF_EDITPATH),
+	OLDFAR_TO_FAR_MAP(DIF_LISTWRAPMODE),
+	OLDFAR_TO_FAR_MAP(DIF_LISTAUTOHIGHLIGHT),
+	OLDFAR_TO_FAR_MAP(DIF_AUTOMATION),
+	OLDFAR_TO_FAR_MAP(DIF_HIDDEN),
+	OLDFAR_TO_FAR_MAP(DIF_READONLY),
+	OLDFAR_TO_FAR_MAP(DIF_NOFOCUS),
+	OLDFAR_TO_FAR_MAP(DIF_DISABLE),
+};
 
 static void AnsiDialogItemToUnicodeSafe(const oldfar::FarDialogItem &diA, FarDialogItem &di)
 {
@@ -980,104 +1031,13 @@ static void AnsiDialogItemToUnicodeSafe(const oldfar::FarDialogItem &diA, FarDia
 
 	if (diA.Flags)
 	{
-		if (diA.Flags&oldfar::DIF_BOXCOLOR)
-			di.Flags |= DIF_BOXCOLOR;
-
-		if (diA.Flags&oldfar::DIF_GROUP)
-			di.Flags |= DIF_GROUP;
-
-		if (diA.Flags&oldfar::DIF_LEFTTEXT)
-			di.Flags |= DIF_LEFTTEXT;
-
-		if (diA.Flags&oldfar::DIF_MOVESELECT)
-			di.Flags |= DIF_MOVESELECT;
-
-		if (diA.Flags&oldfar::DIF_SHOWAMPERSAND)
-			di.Flags |= DIF_SHOWAMPERSAND;
-
-		if (diA.Flags&oldfar::DIF_CENTERGROUP)
-			di.Flags |= DIF_CENTERGROUP;
-
-		if (diA.Flags&oldfar::DIF_NOBRACKETS)
-			di.Flags |= DIF_NOBRACKETS;
-
-		if (diA.Flags&oldfar::DIF_MANUALADDHISTORY)
-			di.Flags |= DIF_MANUALADDHISTORY;
-
-		if (diA.Flags&oldfar::DIF_SEPARATOR)
-			di.Flags |= DIF_SEPARATOR;
-
-		if (diA.Flags&oldfar::DIF_SEPARATOR2)
-			di.Flags |= DIF_SEPARATOR2;
-
-		if (diA.Flags&oldfar::DIF_EDITOR)
-			di.Flags |= DIF_EDITOR;
-
-		if (diA.Flags&oldfar::DIF_LISTNOAMPERSAND)
-			di.Flags |= DIF_LISTNOAMPERSAND;
-
-		if (diA.Flags&oldfar::DIF_LISTNOBOX)
-			di.Flags |= DIF_LISTNOBOX;
-
-		if (diA.Flags&oldfar::DIF_HISTORY)
-			di.Flags |= DIF_HISTORY;
-
-		if (diA.Flags&oldfar::DIF_BTNNOCLOSE)
-			di.Flags |= DIF_BTNNOCLOSE;
-
-		if (diA.Flags&oldfar::DIF_CENTERTEXT)
-			di.Flags |= DIF_CENTERTEXT;
-
-		if (diA.Flags&oldfar::DIF_SEPARATORUSER)
-			di.Flags |= DIF_SEPARATORUSER;
-
-		if (diA.Flags&oldfar::DIF_EDITEXPAND)
-			di.Flags |= DIF_EDITEXPAND;
-
-		if (diA.Flags&oldfar::DIF_DROPDOWNLIST)
-			di.Flags |= DIF_DROPDOWNLIST;
-
-		if (diA.Flags&oldfar::DIF_USELASTHISTORY)
-			di.Flags |= DIF_USELASTHISTORY;
-
-		if (diA.Flags&oldfar::DIF_MASKEDIT)
-			di.Flags |= DIF_MASKEDIT;
-
-		if (diA.Flags&oldfar::DIF_SELECTONENTRY)
-			di.Flags |= DIF_SELECTONENTRY;
-
-		if (diA.Flags&oldfar::DIF_3STATE)
-			di.Flags |= DIF_3STATE;
-
-		if (diA.Flags&oldfar::DIF_EDITPATH)
-			di.Flags |= DIF_EDITPATH;
-
-		if (diA.Flags&oldfar::DIF_LISTWRAPMODE)
-			di.Flags |= DIF_LISTWRAPMODE;
-
-		if (diA.Flags&oldfar::DIF_LISTAUTOHIGHLIGHT)
-			di.Flags |= DIF_LISTAUTOHIGHLIGHT;
-
-		if (diA.Flags&oldfar::DIF_AUTOMATION)
-			di.Flags |= DIF_AUTOMATION;
-
-		if (diA.Flags&oldfar::DIF_HIDDEN)
-			di.Flags |= DIF_HIDDEN;
-
-		if (diA.Flags&oldfar::DIF_READONLY)
-			di.Flags |= DIF_READONLY;
-
-		if (diA.Flags&oldfar::DIF_NOFOCUS)
-			di.Flags |= DIF_NOFOCUS;
-
-		if (diA.Flags&oldfar::DIF_DISABLE)
-			di.Flags |= DIF_DISABLE;
+		FirstFlagsToSecond(diA.Flags, di.Flags, DialogItemFlagsMap);
 	}
 
 	if (diA.DefaultButton) di.Flags |= DIF_DEFAULTBUTTON;
 }
 
-static void AnsiDialogItemToUnicode(oldfar::FarDialogItem &diA, FarDialogItem &di, FarList &l)
+static void AnsiDialogItemToUnicode(const oldfar::FarDialogItem &diA, FarDialogItem &di, FarList &l)
 {
 	ClearStruct(di);
 	AnsiDialogItemToUnicodeSafe(diA, di);
@@ -1139,9 +1099,9 @@ static void FreeUnicodeDialogItem(FarDialogItem &di)
 	case DI_EDIT:
 	case DI_FIXEDIT:
 
-		if ((di.Flags&DIF_HISTORY) && di.History)
+		if (di.Flags&DIF_HISTORY)
 			delete[] di.History;
-		else if ((di.Flags&DIF_MASKEDIT) && di.Mask)
+		else if (di.Flags&DIF_MASKEDIT)
 			delete[] di.Mask;
 		break;
 
@@ -1175,13 +1135,13 @@ static void FreeUnicodeDialogItem(FarDialogItem &di)
 
 static void FreeAnsiDialogItem(oldfar::FarDialogItem &diA)
 {
-	if ((diA.Type == oldfar::DI_EDIT || diA.Type == oldfar::DI_FIXEDIT) && (diA.Flags&oldfar::DIF_HISTORY || diA.Flags&oldfar::DIF_MASKEDIT) && diA.History)
+	if ((diA.Type == oldfar::DI_EDIT || diA.Type == oldfar::DI_FIXEDIT) && (diA.Flags&oldfar::DIF_HISTORY || diA.Flags&oldfar::DIF_MASKEDIT))
 	{
 		delete[] diA.History;
 		diA.History = nullptr;
 	}
 
-	if ((diA.Type == oldfar::DI_EDIT || diA.Type == oldfar::DI_COMBOBOX) && diA.Flags&oldfar::DIF_VAREDIT && diA.Ptr.PtrData)
+	if ((diA.Type == oldfar::DI_EDIT || diA.Type == oldfar::DI_COMBOBOX) && diA.Flags&oldfar::DIF_VAREDIT)
 	{
 		delete[] diA.Ptr.PtrData;
 		diA.Ptr.PtrData = nullptr;
@@ -1244,110 +1204,16 @@ static void UnicodeDialogItemToAnsiSafe(const FarDialogItem &di, oldfar::FarDial
 	diA.X2 = di.X2;
 	diA.Y2 = di.Y2;
 	diA.Focus = (di.Flags&DIF_FOCUS) != 0;
+	diA.Flags = 0;
 
 	if (diA.Flags&oldfar::DIF_SETCOLOR)
 	{
-		diA.Flags = oldfar::DIF_SETCOLOR | (diA.Flags&oldfar::DIF_COLORMASK);
-	}
-	else
-	{
-		diA.Flags = 0;
+		diA.Flags |= oldfar::DIF_SETCOLOR | (diA.Flags&oldfar::DIF_COLORMASK);
 	}
 
 	if (di.Flags)
 	{
-		if (di.Flags&DIF_BOXCOLOR)
-			diA.Flags |= oldfar::DIF_BOXCOLOR;
-
-		if (di.Flags&DIF_GROUP)
-			diA.Flags |= oldfar::DIF_GROUP;
-
-		if (di.Flags&DIF_LEFTTEXT)
-			diA.Flags |= oldfar::DIF_LEFTTEXT;
-
-		if (di.Flags&DIF_MOVESELECT)
-			diA.Flags |= oldfar::DIF_MOVESELECT;
-
-		if (di.Flags&DIF_SHOWAMPERSAND)
-			diA.Flags |= oldfar::DIF_SHOWAMPERSAND;
-
-		if (di.Flags&DIF_CENTERGROUP)
-			diA.Flags |= oldfar::DIF_CENTERGROUP;
-
-		if (di.Flags&DIF_NOBRACKETS)
-			diA.Flags |= oldfar::DIF_NOBRACKETS;
-
-		if (di.Flags&DIF_MANUALADDHISTORY)
-			diA.Flags |= oldfar::DIF_MANUALADDHISTORY;
-
-		if (di.Flags&DIF_SEPARATOR)
-			diA.Flags |= oldfar::DIF_SEPARATOR;
-
-		if (di.Flags&DIF_SEPARATOR2)
-			diA.Flags |= oldfar::DIF_SEPARATOR2;
-
-		if (di.Flags&DIF_EDITOR)
-			diA.Flags |= oldfar::DIF_EDITOR;
-
-		if (di.Flags&DIF_LISTNOAMPERSAND)
-			diA.Flags |= oldfar::DIF_LISTNOAMPERSAND;
-
-		if (di.Flags&DIF_LISTNOBOX)
-			diA.Flags |= oldfar::DIF_LISTNOBOX;
-
-		if (di.Flags&DIF_HISTORY)
-			diA.Flags |= oldfar::DIF_HISTORY;
-
-		if (di.Flags&DIF_BTNNOCLOSE)
-			diA.Flags |= oldfar::DIF_BTNNOCLOSE;
-
-		if (di.Flags&DIF_CENTERTEXT)
-			diA.Flags |= oldfar::DIF_CENTERTEXT;
-
-		if (di.Flags&DIF_SEPARATORUSER)
-			diA.Flags |= oldfar::DIF_SEPARATORUSER;
-
-		if (di.Flags&DIF_EDITEXPAND)
-			diA.Flags |= oldfar::DIF_EDITEXPAND;
-
-		if (di.Flags&DIF_DROPDOWNLIST)
-			diA.Flags |= oldfar::DIF_DROPDOWNLIST;
-
-		if (di.Flags&DIF_USELASTHISTORY)
-			diA.Flags |= oldfar::DIF_USELASTHISTORY;
-
-		if (di.Flags&DIF_MASKEDIT)
-			diA.Flags |= oldfar::DIF_MASKEDIT;
-
-		if (di.Flags&DIF_SELECTONENTRY)
-			diA.Flags |= oldfar::DIF_SELECTONENTRY;
-
-		if (di.Flags&DIF_3STATE)
-			diA.Flags |= oldfar::DIF_3STATE;
-
-		if (di.Flags&DIF_EDITPATH)
-			diA.Flags |= oldfar::DIF_EDITPATH;
-
-		if (di.Flags&DIF_LISTWRAPMODE)
-			diA.Flags |= oldfar::DIF_LISTWRAPMODE;
-
-		if (di.Flags&DIF_LISTAUTOHIGHLIGHT)
-			diA.Flags |= oldfar::DIF_LISTAUTOHIGHLIGHT;
-
-		if (di.Flags&DIF_AUTOMATION)
-			diA.Flags |= oldfar::DIF_AUTOMATION;
-
-		if (di.Flags&DIF_HIDDEN)
-			diA.Flags |= oldfar::DIF_HIDDEN;
-
-		if (di.Flags&DIF_READONLY)
-			diA.Flags |= oldfar::DIF_READONLY;
-
-		if (di.Flags&DIF_NOFOCUS)
-			diA.Flags |= oldfar::DIF_NOFOCUS;
-
-		if (di.Flags&DIF_DISABLE)
-			diA.Flags |= oldfar::DIF_DISABLE;
+		SecondFlagsToFirst(di.Flags, diA.Flags, DialogItemFlagsMap);
 	}
 
 	diA.DefaultButton = (di.Flags&DIF_DEFAULTBUTTON) != 0;
@@ -1453,22 +1319,19 @@ static void ConvertUnicodePanelInfoToAnsi(const PanelInfo* PIW, oldfar::PanelInf
 
 	PIA->Flags = 0;
 
-	if (PIW->Flags&PFLAGS_SHOWHIDDEN)       PIA->Flags |= oldfar::PFLAGS_SHOWHIDDEN;
+	static const simple_pair<oldfar::PANELINFOFLAGS, PANELINFOFLAGS> FlagsMap[] =
+	{
+		OLDFAR_TO_FAR_MAP(PFLAGS_SHOWHIDDEN),
+		OLDFAR_TO_FAR_MAP(PFLAGS_HIGHLIGHT),
+		OLDFAR_TO_FAR_MAP(PFLAGS_REVERSESORTORDER),
+		OLDFAR_TO_FAR_MAP(PFLAGS_USESORTGROUPS),
+		OLDFAR_TO_FAR_MAP(PFLAGS_SELECTEDFIRST),
+		OLDFAR_TO_FAR_MAP(PFLAGS_REALNAMES),
+		OLDFAR_TO_FAR_MAP(PFLAGS_NUMERICSORT),
+		OLDFAR_TO_FAR_MAP(PFLAGS_PANELLEFT),
+	};
 
-	if (PIW->Flags&PFLAGS_HIGHLIGHT)        PIA->Flags |= oldfar::PFLAGS_HIGHLIGHT;
-
-	if (PIW->Flags&PFLAGS_REVERSESORTORDER) PIA->Flags |= oldfar::PFLAGS_REVERSESORTORDER;
-
-	if (PIW->Flags&PFLAGS_USESORTGROUPS)    PIA->Flags |= oldfar::PFLAGS_USESORTGROUPS;
-
-	if (PIW->Flags&PFLAGS_SELECTEDFIRST)    PIA->Flags |= oldfar::PFLAGS_SELECTEDFIRST;
-
-	if (PIW->Flags&PFLAGS_REALNAMES)        PIA->Flags |= oldfar::PFLAGS_REALNAMES;
-
-	if (PIW->Flags&PFLAGS_NUMERICSORT)      PIA->Flags |= oldfar::PFLAGS_NUMERICSORT;
-
-	if (PIW->Flags&PFLAGS_PANELLEFT)        PIA->Flags |= oldfar::PFLAGS_PANELLEFT;
-
+	SecondFlagsToFirst(PIW->Flags, PIA->Flags, FlagsMap);
 }
 
 static void FreeAnsiPanelInfo(oldfar::PanelInfo* PIA)
@@ -2387,7 +2250,7 @@ static int WINAPI FarRecursiveSearchA_Callback(const PluginPanelItem *FData, con
 {
 	try
 	{
-		auto pCallbackParam = static_cast<FAR_SEARCH_A_CALLBACK_PARAM*>(param);
+		const auto pCallbackParam = static_cast<const FAR_SEARCH_A_CALLBACK_PARAM*>(param);
 		WIN32_FIND_DATAA FindData = {};
 		FindData.dwFileAttributes = FData->FileAttributes;
 		FindData.ftCreationTime = FData->CreationTime;
@@ -2494,7 +2357,7 @@ static void WINAPI FarTextA(int X, int Y, int ConColor, const char *Str) noexcep
 {
 	try
 	{
-		FarColor Color = Colors::ConsoleColorToFarColor(ConColor);
+		FarColor Color = colors::ConsoleColorToFarColor(ConColor);
 		return NativeInfo.Text(X, Y, &Color, Str ? wide(Str).data() : nullptr);
 	}
 	catch (...)
@@ -2521,20 +2384,18 @@ static int WINAPI FarInputBoxA(const char *Title, const char *Prompt, const char
 {
 	try
 	{
-		DWORD NewFlags = 0;
+		static const simple_pair<oldfar::INPUTBOXFLAGS, INPUTBOXFLAGS> FlagsMap[] =
+		{
+			OLDFAR_TO_FAR_MAP(FIB_ENABLEEMPTY),
+			OLDFAR_TO_FAR_MAP(FIB_PASSWORD),
+			OLDFAR_TO_FAR_MAP(FIB_EXPANDENV),
+			OLDFAR_TO_FAR_MAP(FIB_NOUSELASTHISTORY),
+			OLDFAR_TO_FAR_MAP(FIB_BUTTONS),
+			OLDFAR_TO_FAR_MAP(FIB_NOAMPERSAND),
+		};
 
-		if (Flags&oldfar::FIB_ENABLEEMPTY)
-			NewFlags |= FIB_ENABLEEMPTY;
-		if (Flags&oldfar::FIB_PASSWORD)
-			NewFlags |= FIB_PASSWORD;
-		if (Flags&oldfar::FIB_EXPANDENV)
-			NewFlags |= FIB_EXPANDENV;
-		if (Flags&oldfar::FIB_NOUSELASTHISTORY)
-			NewFlags |= FIB_NOUSELASTHISTORY;
-		if (Flags&oldfar::FIB_BUTTONS)
-			NewFlags |= FIB_BUTTONS;
-		if (Flags&oldfar::FIB_NOAMPERSAND)
-			NewFlags |= FIB_NOAMPERSAND;
+		DWORD NewFlags = 0;
+		FirstFlagsToSecond(Flags, NewFlags, FlagsMap);
 
 		wchar_t_ptr Buffer(DestLength);
 
@@ -2631,7 +2492,7 @@ static const char * WINAPI FarGetMsgFnA(intptr_t PluginHandle, int MsgId) noexce
 	try
 	{
 		//BUGBUG, надо проверять, что PluginHandle - плагин
-		auto pPlugin = reinterpret_cast<PluginA*>(PluginHandle);
+		const auto pPlugin = reinterpret_cast<PluginA*>(PluginHandle);
 		string strPath = pPlugin->GetModuleName();
 		CutToSlash(strPath);
 
@@ -2652,18 +2513,17 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 {
 	try
 	{
-		DWORD NewFlags = 0;
+		static const simple_pair<oldfar::FARMENUFLAGS, FARMENUFLAGS> FlagsMap[] =
+		{
+			OLDFAR_TO_FAR_MAP(FMENU_SHOWAMPERSAND),
+			OLDFAR_TO_FAR_MAP(FMENU_WRAPMODE),
+			OLDFAR_TO_FAR_MAP(FMENU_AUTOHIGHLIGHT),
+			OLDFAR_TO_FAR_MAP(FMENU_REVERSEAUTOHIGHLIGHT),
+			OLDFAR_TO_FAR_MAP(FMENU_CHANGECONSOLETITLE),
+		};
 
-		if (Flags&oldfar::FMENU_SHOWAMPERSAND)
-			NewFlags |= FMENU_SHOWAMPERSAND;
-		if (Flags&oldfar::FMENU_WRAPMODE)
-			NewFlags |= FMENU_WRAPMODE;
-		if (Flags&oldfar::FMENU_AUTOHIGHLIGHT)
-			NewFlags |= FMENU_AUTOHIGHLIGHT;
-		if (Flags&oldfar::FMENU_REVERSEAUTOHIGHLIGHT)
-			NewFlags |= FMENU_REVERSEAUTOHIGHLIGHT;
-		if (Flags&oldfar::FMENU_CHANGECONSOLETITLE)
-			NewFlags |= FMENU_CHANGECONSOLETITLE;
+		DWORD NewFlags = 0;
+		FirstFlagsToSecond(Flags, NewFlags, FlagsMap);
 
 		if (!Item) ItemsNumber = 0;
 
@@ -2671,23 +2531,22 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 
 		if (Flags&oldfar::FMENU_USEEXT)
 		{
-			const oldfar::FarMenuItemEx *p = (const oldfar::FarMenuItemEx *)Item;
+			const auto p = reinterpret_cast<const oldfar::FarMenuItemEx*>(Item);
+
+			static const simple_pair<oldfar::MENUITEMFLAGS, MENUITEMFLAGS> ItemFlagsMap[] =
+			{
+				OLDFAR_TO_FAR_MAP(MIF_SELECTED),
+				OLDFAR_TO_FAR_MAP(MIF_CHECKED),
+				OLDFAR_TO_FAR_MAP(MIF_SEPARATOR),
+				OLDFAR_TO_FAR_MAP(MIF_DISABLE),
+				OLDFAR_TO_FAR_MAP(MIF_GRAYED),
+				OLDFAR_TO_FAR_MAP(MIF_HIDDEN),
+			};
 
 			for (int i = 0; i < ItemsNumber; i++)
 			{
 				mi[i].Flags = 0;
-				if (p[i].Flags&oldfar::MIF_SELECTED)
-					mi[i].Flags |= MIF_SELECTED;
-				if (p[i].Flags&oldfar::MIF_CHECKED)
-					mi[i].Flags |= MIF_CHECKED;
-				if (p[i].Flags&oldfar::MIF_SEPARATOR)
-					mi[i].Flags |= MIF_SEPARATOR;
-				if (p[i].Flags&oldfar::MIF_DISABLE)
-					mi[i].Flags |= MIF_DISABLE;
-				if (p[i].Flags&oldfar::MIF_GRAYED)
-					mi[i].Flags |= MIF_GRAYED;
-				if (p[i].Flags&oldfar::MIF_HIDDEN)
-					mi[i].Flags |= MIF_HIDDEN;
+				FirstFlagsToSecond(p[i].Flags, mi[i].Flags, ItemFlagsMap);
 				mi[i].Text = AnsiToUnicode(p[i].Flags&oldfar::MIF_USETEXTPTR ? p[i].TextPtr : p[i].Text);
 				INPUT_RECORD input = {};
 				KeyToInputRecord(OldKeyToKey(p[i].AccelKey), &input);
@@ -2803,7 +2662,7 @@ static intptr_t WINAPI CurrentDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1
 {
 	try
 	{
-		auto Data = FindDialogData(hDlg);
+		const auto Data = FindDialogData(hDlg);
 		return (Data->DlgProc ? Data->DlgProc : FarDefDlgProcA)(hDlg, Msg, Param1, Param2);
 	}
 	catch (...)
@@ -2835,9 +2694,9 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 
 			case DN_CTLCOLORDIALOG:
 				{
-					auto Color = static_cast<FarColor*>(Param2);
-					*Color = Colors::ConsoleColorToFarColor(static_cast<int>(CurrentDlgProc(hDlg, oldfar::DN_CTLCOLORDIALOG, Param1,
-					ToPtr(Colors::FarColorToConsoleColor(*Color)))));
+					auto& Color = *static_cast<FarColor*>(Param2);
+					Color = colors::ConsoleColorToFarColor(static_cast<int>(CurrentDlgProc(hDlg, oldfar::DN_CTLCOLORDIALOG, Param1,
+					ToPtr(colors::FarColorToConsoleColor(Color)))));
 				}
 				break;
 
@@ -2847,41 +2706,40 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 
 			case DN_CTLCOLORDLGITEM:
 				{
-					auto lc = static_cast<FarDialogItemColors*>(Param2);
-
-					auto diA = CurrentDialogItemA(hDlg, Param1);
+					const auto lc = static_cast<const FarDialogItemColors*>(Param2);
+					const auto diA = CurrentDialogItemA(hDlg, Param1);
 
 					// first, emulate DIF_SETCOLOR
 					if(diA->Flags&oldfar::DIF_SETCOLOR)
 					{
-						lc->Colors[0] = Colors::ConsoleColorToFarColor(diA->Flags&oldfar::DIF_COLORMASK);
+						lc->Colors[0] = colors::ConsoleColorToFarColor(diA->Flags&oldfar::DIF_COLORMASK);
 					}
 
 					DWORD Result = static_cast<DWORD>(CurrentDlgProc(hDlg, oldfar::DN_CTLCOLORDLGITEM, Param1, ToPtr(MAKELONG(
-						MAKEWORD(Colors::FarColorToConsoleColor(lc->Colors[0]), Colors::FarColorToConsoleColor(lc->Colors[1])),
-						MAKEWORD(Colors::FarColorToConsoleColor(lc->Colors[2]), Colors::FarColorToConsoleColor(lc->Colors[3]))))));
+						MAKEWORD(colors::FarColorToConsoleColor(lc->Colors[0]), colors::FarColorToConsoleColor(lc->Colors[1])),
+						MAKEWORD(colors::FarColorToConsoleColor(lc->Colors[2]), colors::FarColorToConsoleColor(lc->Colors[3]))))));
 					if(lc->ColorsCount > 0)
-						lc->Colors[0] = Colors::ConsoleColorToFarColor(LOBYTE(LOWORD(Result)));
+						lc->Colors[0] = colors::ConsoleColorToFarColor(LOBYTE(LOWORD(Result)));
 					if(lc->ColorsCount > 1)
-						lc->Colors[1] = Colors::ConsoleColorToFarColor(HIBYTE(LOWORD(Result)));
+						lc->Colors[1] = colors::ConsoleColorToFarColor(HIBYTE(LOWORD(Result)));
 					if(lc->ColorsCount > 2)
-						lc->Colors[2] = Colors::ConsoleColorToFarColor(LOBYTE(HIWORD(Result)));
+						lc->Colors[2] = colors::ConsoleColorToFarColor(LOBYTE(HIWORD(Result)));
 					if(lc->ColorsCount > 3)
-						lc->Colors[3] = Colors::ConsoleColorToFarColor(HIBYTE(HIWORD(Result)));
+						lc->Colors[3] = colors::ConsoleColorToFarColor(HIBYTE(HIWORD(Result)));
 				}
 				break;
 
 			case DN_CTLCOLORDLGLIST:
 				{
-					auto lc = static_cast<FarDialogItemColors*>(Param2);
+					const auto lc = static_cast<FarDialogItemColors*>(Param2);
 					std::vector<BYTE> AnsiColors(lc->ColorsCount);
-					std::transform(lc->Colors, lc->Colors + lc->ColorsCount, AnsiColors.begin(), Colors::FarColorToConsoleColor);
+					std::transform(lc->Colors, lc->Colors + lc->ColorsCount, AnsiColors.begin(), colors::FarColorToConsoleColor);
 					oldfar::FarListColors lcA={0, 0, static_cast<int>(AnsiColors.size()), AnsiColors.data()};
 					intptr_t Result = CurrentDlgProc(hDlg, oldfar::DN_CTLCOLORDLGLIST, Param1, &lcA);
 					if(Result)
 					{
 						lc->ColorsCount = lcA.ColorCount;
-						std::transform(lcA.Colors, lcA.Colors + lcA.ColorCount, lc->Colors, Colors::ConsoleColorToFarColor);
+						std::transform(lcA.Colors, lcA.Colors + lcA.ColorCount, lc->Colors, colors::ConsoleColorToFarColor);
 					}
 					return Result != 0;
 				}
@@ -2890,8 +2748,8 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 			case DN_DRAWDLGITEM:
 			{
 				Msg=oldfar::DN_DRAWDLGITEM;
-				auto di = static_cast<FarDialogItem*>(Param2);
-				auto FarDiA=UnicodeDialogItemToAnsi(*di,hDlg,Param1);
+				const auto di = static_cast<FarDialogItem*>(Param2);
+				const auto FarDiA = UnicodeDialogItemToAnsi(*di, hDlg, Param1);
 				intptr_t ret = CurrentDlgProc(hDlg, Msg, Param1, FarDiA);
 				if (ret && (di->Type==DI_USERCONTROL) && (di->VBuf))
 				{
@@ -2937,7 +2795,7 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 			case DM_ALLKEYMODE:     Msg=oldfar::DM_ALLKEYMODE; break;
 			case DN_INPUT:
 				{
-					INPUT_RECORD* record=(INPUT_RECORD *)Param2;
+					const auto record = static_cast<INPUT_RECORD*>(Param2);
 					if (record->EventType==MOUSE_EVENT)
 					{
 						Msg=oldfar::DN_MOUSEEVENT;
@@ -2956,7 +2814,7 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 				return NativeInfo.DefDlgProc(hDlg, NewMsg, Param1, Param2);
 			case DN_CONTROLINPUT:
 				{
-					INPUT_RECORD* record=(INPUT_RECORD *)Param2;
+					const auto record = static_cast<INPUT_RECORD*>(Param2);
 					if (record->EventType==MOUSE_EVENT)
 					{
 						Msg=oldfar::DN_MOUSECLICK;
@@ -2966,7 +2824,7 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 					else if (record->EventType==KEY_EVENT)
 					{
 						Msg=oldfar::DN_KEY;
-						Param2=ToPtr(KeyToOldKey((DWORD)InputRecordToKey((const INPUT_RECORD *)Param2)));
+						Param2=ToPtr(KeyToOldKey((DWORD)InputRecordToKey(record)));
 						break;
 					}
 				}
@@ -3012,8 +2870,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 					if (gdi.Item)
 					{
 						NativeInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, Param1, &gdi);
-						auto FarDiA=UnicodeDialogItemToAnsi(*gdi.Item,hDlg,Param1);
-						*static_cast<oldfar::FarDialogItem*>(Param2) = *FarDiA;
+						*static_cast<oldfar::FarDialogItem*>(Param2) = *UnicodeDialogItemToAnsi(*gdi.Item, hDlg, Param1);
 						return TRUE;
 					}
 				}
@@ -3026,7 +2883,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 				if (!Param2)
 					return NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, 0);
 
-				oldfar::FarDialogItemData* didA = (oldfar::FarDialogItemData*)Param2;
+				const auto didA = static_cast<oldfar::FarDialogItemData*>(Param2);
 				if (!didA->PtrLength) //вот такой хреновый API!!!
 					didA->PtrLength = static_cast<int>(NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, 0));
 				std::vector<wchar_t> text(didA->PtrLength + 1);
@@ -3044,7 +2901,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 				if (!Param1 || !Param2) return FALSE;
 
 				int Count = Param1;
-				DWORD* KeysA = (DWORD*)Param2;
+				const auto KeysA = static_cast<const DWORD*>(Param2);
 				std::vector<INPUT_RECORD> KeysW(Count);
 
 				for (int i=0; i<Count; i++)
@@ -3066,7 +2923,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 					di.ListItems = &CurrentList(hDlg,Param1);
 
 				FreeUnicodeDialogItem(di);
-				oldfar::FarDialogItem *diA = (oldfar::FarDialogItem *)Param2;
+				const auto diA = static_cast<const oldfar::FarDialogItem*>(Param2);
 				AnsiDialogItemToUnicode(*diA, di, *di.ListItems);
 
 				// save color info
@@ -3084,7 +2941,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 			{
 				if (!Param2)return 0;
 
-				oldfar::FarDialogItemData* didA = (oldfar::FarDialogItemData*)Param2;
+				const auto didA = static_cast<const oldfar::FarDialogItemData*>(Param2);
 
 				if (!didA->PtrData) return 0;
 
@@ -3133,7 +2990,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 			case oldfar::DM_SETCHECK:
 			{
 				FARCHECKEDSTATE State = BSTATE_UNCHECKED;
-				switch(static_cast<oldfar::FARCHECKEDSTATE>(reinterpret_cast<intptr_t>(Param2)))
+				switch (static_cast<const oldfar::FARCHECKEDSTATE>(reinterpret_cast<intptr_t>(Param2)))
 				{
 				case oldfar::BSTATE_UNCHECKED:
 					State=BSTATE_UNCHECKED;
@@ -3158,7 +3015,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 			{
 				if (!Param2) return FALSE;
 
-				oldfar::FarListGetItem* lgiA = (oldfar::FarListGetItem*)Param2;
+				const auto lgiA = static_cast<oldfar::FarListGetItem*>(Param2);
 				FarListGetItem lgi = {sizeof(FarListGetItem),lgiA->ItemIndex};
 				intptr_t ret = NativeInfo.SendDlgMessage(hDlg, DM_LISTGETITEM, Param1, &lgi);
 				UnicodeListItemToAnsi(&lgi.Item, &lgiA->Item);
@@ -3170,7 +3027,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 				{
 					FarListPos lp={sizeof(FarListPos)};
 					intptr_t ret=NativeInfo.SendDlgMessage(hDlg, DM_LISTGETCURPOS, Param1, &lp);
-					oldfar::FarListPos *lpA = (oldfar::FarListPos *)Param2;
+					const auto lpA = static_cast<oldfar::FarListPos*>(Param2);
 					lpA->SelectPos=lp.SelectPos;
 					lpA->TopPos=lp.TopPos;
 					return ret;
@@ -3181,13 +3038,13 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 			{
 				if (!Param2) return FALSE;
 
-				oldfar::FarListPos *lpA = (oldfar::FarListPos *)Param2;
+				const auto lpA = static_cast<const oldfar::FarListPos*>(Param2);
 				FarListPos lp = {sizeof(FarListPos),lpA->SelectPos,lpA->TopPos};
 				return NativeInfo.SendDlgMessage(hDlg, DM_LISTSETCURPOS, Param1, &lp);
 			}
 			case oldfar::DM_LISTDELETE:
 			{
-				oldfar::FarListDelete *ldA = (oldfar::FarListDelete *)Param2;
+				const auto ldA = static_cast<const oldfar::FarListDelete*>(Param2);
 				FarListDelete ld={sizeof(FarListDelete)};
 
 				if (Param2)
@@ -3205,7 +3062,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 
 				if (Param2)
 				{
-					oldfar::FarList *oldlist = (oldfar::FarList*) Param2;
+					const auto oldlist = static_cast<const oldfar::FarList*>(Param2);
 					newlist.ItemsNumber = oldlist->ItemsNumber;
 
 					if (newlist.ItemsNumber)
@@ -3248,7 +3105,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 
 				if (Param2)
 				{
-					oldfar::FarListUpdate *oldui = (oldfar::FarListUpdate*) Param2;
+					const auto oldui = static_cast<const oldfar::FarListUpdate*>(Param2);
 					newui.Index=oldui->Index;
 					AnsiListItemToUnicode(&oldui->Item, &newui.Item);
 				}
@@ -3265,7 +3122,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 
 				if (Param2)
 				{
-					oldfar::FarListInsert *oldli = (oldfar::FarListInsert*) Param2;
+					const auto oldli = static_cast<const oldfar::FarListInsert*>(Param2);
 					newli.Index=oldli->Index;
 					AnsiListItemToUnicode(&oldli->Item, &newli.Item);
 				}
@@ -3282,7 +3139,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 
 				if (Param2)
 				{
-					oldfar::FarListFind *oldlf = (oldfar::FarListFind*) Param2;
+					const auto oldlf = static_cast<const oldfar::FarListFind*>(Param2);
 					newlf.StartIndex=oldlf->StartIndex;
 					newlf.Pattern = (oldlf->Pattern)?AnsiToUnicode(oldlf->Pattern):nullptr;
 
@@ -3303,7 +3160,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 				intptr_t Result=NativeInfo.SendDlgMessage(hDlg, DM_LISTINFO, Param1, &li);
 				if (Result)
 				{
-					oldfar::FarListInfo *liA = (oldfar::FarListInfo *)Param2;
+					const auto liA = static_cast<oldfar::FarListInfo*>(Param2);
 					liA->Flags=0;
 					if (li.Flags&LINFO_SHOWNOBOX) liA->Flags|=LINFO_SHOWNOBOX;
 					if (li.Flags&LINFO_AUTOHIGHLIGHT) liA->Flags|=LINFO_AUTOHIGHLIGHT;
@@ -3331,7 +3188,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 
 				if (Param2)
 				{
-					oldfar::FarListItemData *oldlid = (oldfar::FarListItemData*) Param2;
+					const auto oldlid = static_cast<oldfar::FarListItemData*>(Param2);
 					newlid.Index=oldlid->Index;
 					newlid.DataSize=oldlid->DataSize;
 					newlid.Data=oldlid->Data;
@@ -3352,7 +3209,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 			{
 				if (!Param2) return FALSE;
 
-				oldfar::FarListTitles *ltA = (oldfar::FarListTitles *)Param2;
+				const auto ltA = static_cast<const oldfar::FarListTitles*>(Param2);
 				FarListTitles lt = {sizeof(FarListTitles),0,ltA->Title?AnsiToUnicode(ltA->Title):nullptr,0,ltA->Bottom?AnsiToUnicode(ltA->Bottom):nullptr};
 				intptr_t ret = NativeInfo.SendDlgMessage(hDlg, DM_LISTSETTITLES, Param1, &lt);
 
@@ -3365,7 +3222,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 			{
 				if (Param2)
 				{
-					oldfar::FarListTitles *OldListTitle=(oldfar::FarListTitles *)Param2;
+					const auto OldListTitle = static_cast<const oldfar::FarListTitles*>(Param2);
 					FarListTitles ListTitle={sizeof(FarListTitles)};
 
 					if (OldListTitle->Title)
@@ -3423,7 +3280,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 
 				if (Param2)
 				{
-					oldfar::FarList *oldlist = (oldfar::FarList*) Param2;
+					const auto oldlist = static_cast<const oldfar::FarList*>(Param2);
 					newlist.ItemsNumber = oldlist->ItemsNumber;
 
 					if (newlist.ItemsNumber)
@@ -3451,7 +3308,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 				NativeInfo.SendDlgMessage(hDlg, DM_GETDLGITEMSHORT, Param1, &DlgItem);
 				FARDIALOGITEMFLAGS OldFlags = DlgItem.Flags;
 				DlgItem.Flags&=~(DIF_LISTTRACKMOUSE|DIF_LISTTRACKMOUSEINFOCUS);
-				switch (static_cast<oldfar::FARLISTMOUSEREACTIONTYPE>(reinterpret_cast<intptr_t>(Param2)))
+				switch (static_cast<const oldfar::FARLISTMOUSEREACTIONTYPE>(reinterpret_cast<intptr_t>(Param2)))
 				{
 				case oldfar::LMRT_ONLYFOCUS:
 					DlgItem.Flags|=DIF_LISTTRACKMOUSEINFOCUS;
@@ -3482,7 +3339,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 
 				EditorSelect es={sizeof(EditorSelect)};
 				intptr_t ret=NativeInfo.SendDlgMessage(hDlg, DM_GETSELECTION, Param1, &es);
-				oldfar::EditorSelect *esA = (oldfar::EditorSelect *)Param2;
+				const auto esA = static_cast<oldfar::EditorSelect*>(Param2);
 				esA->BlockType      = es.BlockType;
 				esA->BlockStartLine = es.BlockStartLine;
 				esA->BlockStartPos  = es.BlockStartPos;
@@ -3494,7 +3351,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 			{
 				if (!Param2) return FALSE;
 
-				oldfar::EditorSelect *esA = (oldfar::EditorSelect *)Param2;
+				const auto esA = static_cast<const oldfar::EditorSelect*>(Param2);
 				EditorSelect es={sizeof(EditorSelect)};
 				es.BlockType      = esA->BlockType;
 				es.BlockStartLine = esA->BlockStartLine;
@@ -3689,7 +3546,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 				{
 					//Попытка борьбы с рекурсией (вызов GET*PANELINFO из GetOpenPanelInfo).
 					//Так как у нас всё статик то должно сработать нормально в 99% случаев
-					*(oldfar::PanelInfo*)Param = Passive? AnotherPanelInfoA.Info : PanelInfoA.Info;
+					*static_cast<oldfar::PanelInfo*>(Param) = Passive? AnotherPanelInfoA.Info : PanelInfoA.Info;
 					return TRUE;
 				}
 
@@ -3698,7 +3555,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 				if (Passive)
 					hPlugin=PANEL_PASSIVE;
 
-				oldfar::PanelInfo* OldPI = Passive? &AnotherPanelInfoA.Info : &PanelInfoA.Info;
+				const auto OldPI = Passive ? &AnotherPanelInfoA.Info : &PanelInfoA.Info;
 				PanelInfo PI = {sizeof(PanelInfo)};
 				int ret = static_cast<int>(NativeInfo.PanelControl(hPlugin,FCTL_GETPANELINFO,0,&PI));
 				FreeAnsiPanelInfo(OldPI);
@@ -3769,11 +3626,11 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 					wchar_t ColumnWidths[sizeof(OldPI->ColumnWidths)];
 					NativeInfo.PanelControl(hPlugin,FCTL_GETCOLUMNWIDTHS,sizeof(OldPI->ColumnWidths),ColumnWidths);
 					UnicodeToOEM(ColumnWidths,OldPI->ColumnWidths,sizeof(OldPI->ColumnWidths));
-					*(oldfar::PanelInfo*)Param=*OldPI;
+					*static_cast<oldfar::PanelInfo*>(Param) = *OldPI;
 				}
 				else
 				{
-					ClearStruct(*(oldfar::PanelInfo*)Param);
+					ClearStruct(*static_cast<oldfar::PanelInfo*>(Param));
 				}
 
 				Reenter--;
@@ -3785,7 +3642,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 				if (!Param)
 					return FALSE;
 
-				oldfar::PanelInfo *OldPI=(oldfar::PanelInfo*)Param;
+				const auto OldPI = static_cast<oldfar::PanelInfo*>(Param);
 				ClearStruct(*OldPI);
 
 				if (Command==oldfar::FCTL_GETANOTHERPANELSHORTINFO)
@@ -3822,7 +3679,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 				if (!Param)
 					return FALSE;
 
-				oldfar::PanelInfo *OldPI=(oldfar::PanelInfo*)Param;
+				const auto OldPI = static_cast<const oldfar::PanelInfo*>(Param);
 				NativeInfo.PanelControl(hPlugin,FCTL_BEGINSELECTION,0,0);
 
 				for (int i=0; i<OldPI->ItemsNumber; i++)
@@ -3840,7 +3697,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 				if (!Param)
 					return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_REDRAWPANEL,0,0));
 
-				oldfar::PanelRedrawInfo* priA = (oldfar::PanelRedrawInfo*)Param;
+				const auto priA = static_cast<const oldfar::PanelRedrawInfo*>(Param);
 				PanelRedrawInfo pri = {sizeof(PanelRedrawInfo), (size_t)priA->CurrentItem,(size_t)priA->TopPanelItem};
 				return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_REDRAWPANEL,0,&pri));
 			}
@@ -3920,7 +3777,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 
 				if (ret)
 				{
-					oldfar::CmdLineSelect* clsA = (oldfar::CmdLineSelect*)Param;
+					const auto clsA = static_cast<oldfar::CmdLineSelect*>(Param);
 					clsA->SelStart = cls.SelStart;
 					clsA->SelEnd = cls.SelEnd;
 				}
@@ -3942,7 +3799,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 				if (!Param)
 					return FALSE;
 
-				oldfar::CmdLineSelect* clsA = (oldfar::CmdLineSelect*)Param;
+				const auto clsA = static_cast<const oldfar::CmdLineSelect*>(Param);
 				CmdLineSelect cls = {sizeof(CmdLineSelect),clsA->SelStart,clsA->SelEnd};
 				return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETCMDLINESELECTION,0,&cls));
 			}
@@ -4118,11 +3975,11 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 					int ColorIndex = static_cast<int>(reinterpret_cast<intptr_t>(Param));
 
 					// there was a reserved position after COL_VIEWERARROWS in Far 1.x.
-					if(ColorIndex > COL_VIEWERARROWS-COL_FIRSTPALETTECOLOR)
+					if(ColorIndex > COL_VIEWERARROWS)
 					{
 						ColorIndex--;
 					}
-					return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETCOLOR, ColorIndex, &Color)? Colors::FarColorToConsoleColor(Color) :-1;
+					return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETCOLOR, ColorIndex, &Color)? colors::FarColorToConsoleColor(Color) :-1;
 				}
 				break;
 
@@ -4133,8 +3990,8 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 					{
 						std::vector<FarColor> Color(PaletteSize);
 						NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETARRAYCOLOR, 0, Color.data());
-						auto OldColors = static_cast<LPBYTE>(Param);
-						std::transform(ALL_CONST_RANGE(Color), OldColors, Colors::FarColorToConsoleColor);
+						const auto OldColors = static_cast<const LPBYTE>(Param);
+						std::transform(ALL_CONST_RANGE(Color), OldColors, colors::FarColorToConsoleColor);
 					}
 					return PaletteSize;
 				}
@@ -4145,7 +4002,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 				ActlEjectMedia eject={sizeof(ActlEjectMedia)};
 				if(Param)
 				{
-					oldfar::ActlEjectMedia* ejectA=(oldfar::ActlEjectMedia*)Param;
+					const auto ejectA = static_cast<const oldfar::ActlEjectMedia*>(Param);
 					eject.Letter=ejectA->Letter;
 					eject.Flags=ejectA->Flags;
 				}
@@ -4155,7 +4012,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 			{
 				if (!Param) return FALSE;
 
-				oldfar::ActlKeyMacro *kmA=(oldfar::ActlKeyMacro *)Param;
+				const auto kmA = static_cast<oldfar::ActlKeyMacro*>(Param);
 				FAR_MACRO_CONTROL_COMMANDS MacroCommand = MCTL_LOADALL;
 				int Param1=0;
 				bool Process=true;
@@ -4227,7 +4084,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 				if (!Param)
 					return FALSE;
 
-				oldfar::KeySequence *ksA = (oldfar::KeySequence*)Param;
+				const auto ksA = static_cast<const oldfar::KeySequence*>(Param);
 
 				if (!ksA->Count || !ksA->Sequence)
 					return FALSE;
@@ -4261,7 +4118,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 				if (!Param)
 					return FALSE;
 
-				oldfar::WindowInfo *wiA = (oldfar::WindowInfo *)Param;
+				const auto wiA = static_cast<oldfar::WindowInfo*>(Param);
 				WindowInfo wi={sizeof(wi)};
 				wi.Pos = wiA->Pos;
 				intptr_t ret = NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETWINDOWINFO, 0, &wi);
@@ -4375,9 +4232,9 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 				if (!Param)
 					return FALSE;
 
-				auto scA = static_cast<const oldfar::FarSetColors*>(Param);
+				const auto scA = static_cast<const oldfar::FarSetColors*>(Param);
 				std::vector<FarColor> Colors(scA->ColorCount);
-				std::transform(scA->Colors, scA->Colors + scA->ColorCount, Colors.begin(), Colors::ConsoleColorToFarColor);
+				std::transform(scA->Colors, scA->Colors + scA->ColorCount, Colors.begin(), colors::ConsoleColorToFarColor);
 				FarSetColors sc = {sizeof(FarSetColors), 0, (size_t)scA->StartIndex, Colors.size(), Colors.data()};
 				if (scA->Flags&oldfar::FCLR_REDRAW)
 					sc.Flags|=FSETCLR_REDRAW;
@@ -4425,12 +4282,12 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 			case oldfar::ECTL_ADDCOLOR:
 				if(Param)
 				{
-					auto ecA = static_cast<oldfar::EditorColor*>(Param);
+					const auto ecA = static_cast<const oldfar::EditorColor*>(Param);
 					EditorColor ec={sizeof(ec)};
 					ec.StringNumber = ecA->StringNumber;
 					ec.StartPos = ecA->StartPos;
 					ec.EndPos = ecA->EndPos;
-					ec.Color = Colors::ConsoleColorToFarColor(ecA->Color);
+					ec.Color = colors::ConsoleColorToFarColor(ecA->Color);
 					if(ecA->Color&oldfar::ECF_TAB1) ec.Color.Flags|=ECF_TABMARKFIRST;
 					ec.Priority=EDITOR_COLOR_NORMAL_PRIORITY;
 					ec.Owner=FarGuid;
@@ -4453,7 +4310,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 					{
 						ecA->StartPos = ec.StartPos;
 						ecA->EndPos = ec.EndPos;
-						ecA->Color = Colors::FarColorToConsoleColor(ec.Color);
+						ecA->Color = colors::FarColorToConsoleColor(ec.Color);
 						if(ec.Color.Flags&ECF_TABMARKFIRST) ecA->Color|=oldfar::ECF_TAB1;
 					}
 					return Result;
@@ -4463,7 +4320,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 			case oldfar::ECTL_GETSTRING:
 			{
 				EditorGetString egs={sizeof(EditorGetString)};
-				oldfar::EditorGetString *oegs=(oldfar::EditorGetString *)Param;
+				const auto oegs = static_cast<oldfar::EditorGetString*>(Param);
 
 				if (!oegs) return FALSE;
 
@@ -4497,7 +4354,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 			case oldfar::ECTL_GETINFO:
 			{
 				EditorInfo ei={sizeof(EditorInfo)};
-				oldfar::EditorInfo *oei=(oldfar::EditorInfo *)Param;
+				const auto oei = static_cast<oldfar::EditorInfo*>(Param);
 
 				if (!oei)
 					return FALSE;
@@ -4547,7 +4404,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 				if (!Param)
 					return FALSE;
 
-				oldfar::EditorConvertText *ect=(oldfar::EditorConvertText*) Param;
+				const auto ect = static_cast<const oldfar::EditorConvertText*>(Param);
 				uintptr_t CodePage=GetEditorCodePageA();
 				MultiByteRecode(OldCommand==oldfar::ECTL_OEMTOEDITOR ? CP_OEMCP : CodePage, OldCommand==oldfar::ECTL_OEMTOEDITOR ?  CodePage : CP_OEMCP, ect->Text, ect->TextLength);
 				return TRUE;
@@ -4558,7 +4415,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 				string FileName, EOL;
 				if (Param)
 				{
-					oldfar::EditorSaveFile *oldsf = (oldfar::EditorSaveFile*) Param;
+					const auto oldsf = static_cast<const oldfar::EditorSaveFile*>(Param);
 					if (*oldsf->FileName)
 					{
 						FileName = wide(oldsf->FileName);
@@ -4578,7 +4435,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 			{
 				if (Param)
 				{
-					INPUT_RECORD *pIR = (INPUT_RECORD*) Param;
+					const auto pIR = static_cast<INPUT_RECORD*>(Param);
 
 					switch (pIR->EventType)
 					{
@@ -4615,7 +4472,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 
 				if (Param)
 				{
-					INPUT_RECORD *pIR = (INPUT_RECORD*) Param;
+					const auto pIR = static_cast<INPUT_RECORD*>(Param);
 
 					switch (pIR->EventType)
 					{
@@ -4648,7 +4505,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 					case -1:
 						return static_cast<int>(NativeInfo.EditorControl(-1,ECTL_SETKEYBAR, 0, Param));
 					default:
-						oldfar::KeyBarTitles* oldkbt = (oldfar::KeyBarTitles*)Param;
+						const auto oldkbt = static_cast<const oldfar::KeyBarTitles*>(Param);
 						KeyBarTitles newkbt;
 						FarSetKeyBarTitles newfskbt={sizeof(FarSetKeyBarTitles),&newkbt};
 						ConvertKeyBarTitlesA(oldkbt, &newkbt);
@@ -4663,7 +4520,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 
 				if (Param)
 				{
-					oldfar::EditorSetParameter *oldsp= (oldfar::EditorSetParameter*) Param;
+					const auto oldsp = static_cast<const oldfar::EditorSetParameter*>(Param);
 					newsp.iParam = oldsp->iParam;
 
 					switch (oldsp->Type)
@@ -4773,7 +4630,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 
 				if (Param)
 				{
-					oldfar::EditorSetString *oldss = (oldfar::EditorSetString*) Param;
+					const auto oldss = static_cast<const oldfar::EditorSetString*>(Param);
 					newss.StringNumber=oldss->StringNumber;
 					uintptr_t CodePage=GetEditorCodePageA();
 					newss.StringText=(oldss->StringText)?AnsiToUnicodeBin(oldss->StringText, oldss->StringLength,CodePage):nullptr;
@@ -4807,7 +4664,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 				Command = ECTL_EXPANDTABS;
 				if (Param)
 				{
-					et = *((int *)Param);
+					et = *static_cast<int*>(Param);
 					Param = &et;
 				}
 				break;
@@ -4833,7 +4690,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 				{
 					return FALSE;
 				}
-				oldfar::EditorBookMarks *oldbm = (oldfar::EditorBookMarks *)Param;
+				const auto oldbm = static_cast<const oldfar::EditorBookMarks*>(Param);
 				for (size_t i=0; i<newbm->Count; i++)
 				{
 					if (oldbm->Line)
@@ -4857,7 +4714,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 			{
 				if(!Param)
 					return FALSE;
-				oldfar::EditorConvertPos *oldecp = (oldfar::EditorConvertPos*) Param;
+				const auto oldecp = static_cast<oldfar::EditorConvertPos*>(Param);
 				EditorConvertPos newecp={sizeof(EditorConvertPos),oldecp->StringNumber,oldecp->SrcPos,oldecp->DestPos};
 				int ret=static_cast<int>(NativeInfo.EditorControl(-1, OldCommand == oldfar::ECTL_REALTOTAB ? ECTL_REALTOTAB : ECTL_TABTOREAL, 0, &newecp));
 				oldecp->DestPos=newecp.DestPos;
@@ -4865,14 +4722,14 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 			}
 			case oldfar::ECTL_SELECT:
 			{
-				oldfar::EditorSelect *oldes = (oldfar::EditorSelect*) Param;
+				const auto oldes = static_cast<const oldfar::EditorSelect*>(Param);
 				EditorSelect newes={sizeof(EditorSelect),oldes->BlockType,oldes->BlockStartLine,oldes->BlockStartPos,oldes->BlockWidth,oldes->BlockHeight};
 				return static_cast<int>(NativeInfo.EditorControl(-1, ECTL_SELECT, 0, &newes));
 			}
 			case oldfar::ECTL_REDRAW:				Command = ECTL_REDRAW; break;
 			case oldfar::ECTL_SETPOSITION:
 			{
-				oldfar::EditorSetPosition *oldsp = (oldfar::EditorSetPosition*) Param;
+				const auto oldsp = static_cast<const oldfar::EditorSetPosition*>(Param);
 				EditorSetPosition newsp={sizeof(EditorSetPosition),oldsp->CurLine,oldsp->CurPos,oldsp->CurTabPos,oldsp->TopScreenLine,oldsp->LeftPos,oldsp->Overtype};
 				return static_cast<int>(NativeInfo.EditorControl(-1, ECTL_SETPOSITION, 0, &newsp));
 			}
@@ -4905,7 +4762,7 @@ static int WINAPI FarViewerControlA(int Command, void* Param) noexcept
 			{
 				if (!Param) return FALSE;
 
-				oldfar::ViewerInfo* viA = (oldfar::ViewerInfo*)Param;
+				const auto viA = static_cast<oldfar::ViewerInfo*>(Param);
 
 				if (!viA->StructSize) return FALSE;
 
@@ -4960,7 +4817,7 @@ static int WINAPI FarViewerControlA(int Command, void* Param) noexcept
 					case -1:
 						return static_cast<int>(NativeInfo.ViewerControl(-1,VCTL_SETKEYBAR,0, Param));
 					default:
-						oldfar::KeyBarTitles* kbtA = (oldfar::KeyBarTitles*)Param;
+						const auto kbtA = static_cast<const oldfar::KeyBarTitles*>(Param);
 						KeyBarTitles kbt;
 						FarSetKeyBarTitles newfskbt={sizeof(FarSetKeyBarTitles),&kbt};
 						ConvertKeyBarTitlesA(kbtA, &kbt);
@@ -4973,7 +4830,7 @@ static int WINAPI FarViewerControlA(int Command, void* Param) noexcept
 			{
 				if (!Param) return FALSE;
 
-				oldfar::ViewerSetPosition* vspA = (oldfar::ViewerSetPosition*)Param;
+				const auto vspA = static_cast<oldfar::ViewerSetPosition*>(Param);
 				ViewerSetPosition vsp={sizeof(ViewerSetPosition)};
 				vsp.Flags = 0;
 
@@ -4995,7 +4852,7 @@ static int WINAPI FarViewerControlA(int Command, void* Param) noexcept
 			{
 				if (!Param) return static_cast<int>(NativeInfo.ViewerControl(-1,VCTL_SELECT,0, 0));
 
-				oldfar::ViewerSelect* vsA = (oldfar::ViewerSelect*)Param;
+				const auto vsA = static_cast<const oldfar::ViewerSelect*>(Param);
 				ViewerSelect vs = {sizeof(ViewerSelect),vsA->BlockStartPos,vsA->BlockLen};
 				return static_cast<int>(NativeInfo.ViewerControl(-1,VCTL_SELECT,0, &vs));
 			}
@@ -5003,7 +4860,7 @@ static int WINAPI FarViewerControlA(int Command, void* Param) noexcept
 			{
 				if (!Param) return FALSE;
 
-				oldfar::ViewerSetMode* vsmA = (oldfar::ViewerSetMode*)Param;
+				const auto vsmA = static_cast<const oldfar::ViewerSetMode*>(Param);
 				ViewerSetMode vsm={sizeof(ViewerSetMode)};
 
 				switch (vsmA->Type)
@@ -5038,7 +4895,7 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize) noexc
 			if (BufferSize != (int) sizeof(oldfar::CharTableSet))
 				return -1;
 
-			oldfar::CharTableSet *TableSet=(oldfar::CharTableSet*)Buffer;
+			const auto TableSet = reinterpret_cast<oldfar::CharTableSet*>(Buffer);
 			//Preset. Also if Command != FCT_DETECT and failed, buffer must be filled by OEM data.
 			strcpy(TableSet->TableName,"<failed>");
 
@@ -5049,7 +4906,7 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize) noexc
 				TableSet->LowerTable[i] = LocalLower(i);
 			}
 
-			auto nCP = ConvertCharTableToCodePage(Command);
+			const auto nCP = ConvertCharTableToCodePage(Command);
 
 			if (nCP==CP_DEFAULT) return -1;
 
@@ -5225,7 +5082,7 @@ static int SendKeyToPluginHook(const Manager::Key& key)
 		{
 			if (Global->CtrlObject->Cp()->ActivePanel()->GetMode() == PLUGIN_PANEL)
 			{
-				auto ph = Global->CtrlObject->Cp()->ActivePanel()->GetPluginHandle();
+				const auto ph = Global->CtrlObject->Cp()->ActivePanel()->GetPluginHandle();
 				if (ph && ph->pPlugin->IsOemPlugin() && Global->CtrlObject->Cp()->ActivePanel()->SendKeyToPlugin(key.FarKey, true))
 					return TRUE;
 			}
@@ -5400,7 +5257,7 @@ bool PluginA::GetGlobalInfo(GlobalInfo* Info)
 				GuidFound = true;
 		}
 
-		auto FileInfo = FileVersion->GetFixedInfo();
+		const auto FileInfo = FileVersion->GetFixedInfo();
 		if (FileInfo)
 		{
 			Info->Version.Major = HIWORD(FileInfo->dwFileVersionMS);
@@ -5474,7 +5331,7 @@ static void* TranslateResult(void* hResult)
 {
 	if(INVALID_HANDLE_VALUE==hResult)
 		return nullptr;
-	if (hResult == reinterpret_cast<void*>(-2))
+	if (hResult == ToPtr(-2))
 		return static_cast<void*>(PANEL_STOP);
 	return hResult;
 }
@@ -5502,7 +5359,7 @@ void* PluginA::Open(OpenInfo* Info)
 			OpenFromA = oldfar::OPEN_COMMANDLINE;
 			if (Info->Data)
 			{
-				Buffer.reset(UnicodeToAnsi(reinterpret_cast<OpenCommandLineInfo*>(Info->Data)->CommandLine));
+				Buffer.reset(UnicodeToAnsi(reinterpret_cast<const OpenCommandLineInfo*>(Info->Data)->CommandLine));
 				Ptr = reinterpret_cast<intptr_t>(Buffer.get());
 			}
 			break;
@@ -5511,10 +5368,8 @@ void* PluginA::Open(OpenInfo* Info)
 			OpenFromA = oldfar::OPEN_SHORTCUT;
 			if (Info->Data)
 			{
-				auto shortcutdata = reinterpret_cast<OpenShortcutInfo*>(Info->Data)->ShortcutData;
-				if (!shortcutdata)
-					shortcutdata = reinterpret_cast<OpenShortcutInfo*>(Info->Data)->HostFile;
-
+				const auto SInfo = reinterpret_cast<const OpenShortcutInfo*>(Info->Data);
+				const auto shortcutdata = SInfo->ShortcutData? SInfo->ShortcutData : SInfo->HostFile;
 				Buffer.reset(UnicodeToAnsi(shortcutdata));
 				Ptr = reinterpret_cast<intptr_t>(Buffer.get());
 			}
@@ -6099,8 +5954,8 @@ void PluginA::ConvertPluginInfo(const oldfar::PluginInfo &Src, PluginInfo *Dest)
 
 	if (Src.DiskMenuStringsNumber)
 	{
-		auto p = new wchar_t*[Src.DiskMenuStringsNumber];
-		auto guid = new GUID[Src.DiskMenuStringsNumber]();
+		const auto p = new wchar_t*[Src.DiskMenuStringsNumber];
+		const auto guid = new GUID[Src.DiskMenuStringsNumber]();
 
 		for (int i=0; i<Src.DiskMenuStringsNumber; i++)
 		{
@@ -6115,8 +5970,8 @@ void PluginA::ConvertPluginInfo(const oldfar::PluginInfo &Src, PluginInfo *Dest)
 
 	if (Src.PluginMenuStringsNumber)
 	{
-		auto p = new wchar_t*[Src.PluginMenuStringsNumber];
-		auto guid = new GUID[Src.PluginMenuStringsNumber]();
+		const auto p = new wchar_t*[Src.PluginMenuStringsNumber];
+		const auto guid = new GUID[Src.PluginMenuStringsNumber]();
 
 		for (int i=0; i<Src.PluginMenuStringsNumber; i++)
 		{
@@ -6131,8 +5986,8 @@ void PluginA::ConvertPluginInfo(const oldfar::PluginInfo &Src, PluginInfo *Dest)
 
 	if (Src.PluginConfigStringsNumber)
 	{
-		auto p = new wchar_t*[Src.PluginConfigStringsNumber];
-		auto guid = new GUID[Src.PluginConfigStringsNumber]();
+		const auto p = new wchar_t*[Src.PluginConfigStringsNumber];
+		const auto guid = new GUID[Src.PluginConfigStringsNumber]();
 
 		for (int i=0; i<Src.PluginConfigStringsNumber; i++)
 		{

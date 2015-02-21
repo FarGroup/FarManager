@@ -1030,7 +1030,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 #endif
 		}
 
-		auto Dlg = Dialog::create(EditDlg, this, &UserMenu::EditMenuDlgProc);
+		auto Dlg = Dialog::create(EditDlg, &UserMenu::EditMenuDlgProc, this);
 		Dlg->SetHelp(L"UserMenu");
 		Dlg->SetPosition(-1,-1,DLG_X,DLG_Y);
 		Dlg->Process();

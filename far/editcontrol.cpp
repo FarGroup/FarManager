@@ -731,9 +731,9 @@ int EditControl::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 void EditControl::SetObjectColor(PaletteColors Color,PaletteColors SelColor,PaletteColors ColorUnChanged)
 {
-	m_Color=ColorIndexToColor(Color);
-	m_SelectedColor=ColorIndexToColor(SelColor);
-	m_UnchangedColor=ColorIndexToColor(ColorUnChanged);
+	m_Color=colors::PaletteColorToFarColor(Color);
+	m_SelectedColor=colors::PaletteColorToFarColor(SelColor);
+	m_UnchangedColor=colors::PaletteColorToFarColor(ColorUnChanged);
 }
 
 void EditControl::SetObjectColor(const FarColor& Color,const FarColor& SelColor, const FarColor& ColorUnChanged)

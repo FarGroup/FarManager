@@ -488,7 +488,7 @@ void Viewer::ShowPage(int nMode)
 	{
 		if (!strFileName.empty() && ((nMode == SHOW_RELOAD) || (nMode == SHOW_HEX)|| (nMode == SHOW_DUMP)))
 		{
-			SetScreen(m_X1,m_Y1,m_X2,m_Y2,L' ',ColorIndexToColor(COL_VIEWERTEXT));
+			SetScreen(m_X1,m_Y1,m_X2,m_Y2,L' ',colors::PaletteColorToFarColor(COL_VIEWERTEXT));
 			GotoXY(m_X1,m_Y1);
 			SetColor(COL_WARNDIALOGTEXT);
 			Global->FS << fmt::MaxWidth(XX2-m_X1+1)<<MSG(MViewerCannotOpenFile);
@@ -3335,7 +3335,7 @@ void Viewer::Search(int Next,int FirstChar)
 		//
 		SearchDlg[SD_EDIT_TEXT].UserData = (intptr_t)&my;
 
-		auto Dlg = Dialog::create(SearchDlg, this, &Viewer::ViewerSearchDlgProc);
+		auto Dlg = Dialog::create(SearchDlg, &Viewer::ViewerSearchDlgProc, this);
 		Dlg->SetPosition(-1,-1,76,13);
 		Dlg->SetHelp(L"ViewerSearch");
 

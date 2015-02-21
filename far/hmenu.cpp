@@ -80,7 +80,7 @@ HMenu::~HMenu()
 
 void HMenu::DisplayObject()
 {
-	SetScreen(m_X1,m_Y1,m_X2,m_Y2,L' ',ColorIndexToColor(COL_HMENUTEXT));
+	SetScreen(m_X1,m_Y1,m_X2,m_Y2,L' ',colors::PaletteColorToFarColor(COL_HMENUTEXT));
 	SetCursorType(0,10);
 	ShowMenu();
 }
@@ -103,7 +103,7 @@ void HMenu::ShowMenu()
 		strTmpStr=L"  ";
 		strTmpStr+=Item[i].Name;
 		strTmpStr+=L"  ";
-		HiText(strTmpStr,ColorIndexToColor(Item[i].Selected ? COL_HMENUSELECTEDHIGHLIGHT:COL_HMENUHIGHLIGHT));
+		HiText(strTmpStr,colors::PaletteColorToFarColor(Item[i].Selected ? COL_HMENUSELECTEDHIGHLIGHT:COL_HMENUHIGHLIGHT));
 	}
 
 	ItemX[ItemCount]=WhereX();

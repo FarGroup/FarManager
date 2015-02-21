@@ -34,14 +34,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "colors.hpp"
 
-class Colors: noncopyable
+namespace colors
 {
-public:
-	static WORD FarColorToConsoleColor(const FarColor& Color);
-	static FarColor ConsoleColorToFarColor(WORD Color);
+	WORD FarColorToConsoleColor(const FarColor& Color);
+	FarColor ConsoleColorToFarColor(WORD Color);
+	const FarColor& PaletteColorToFarColor(PaletteColors ColorIndex);
+	const FarColor* StoreColor(const FarColor& Value);
 };
-
-const FarColor ColorIndexToColor(PaletteColors ColorIndex);
 
 namespace std
 {
@@ -57,5 +56,3 @@ namespace std
 		}
 	};
 }
-
-const FarColor* StoreColor(const FarColor& Value);

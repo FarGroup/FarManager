@@ -595,7 +595,7 @@ void TreeList::DisplayTree(int Fast)
 //    xstrncpy(CurDir,ListData[CurFile].Name,sizeof(CurDir));
 	if (!Fast)
 	{
-		Box(m_X1,m_Y1,m_X2,m_Y2,ColorIndexToColor(COL_PANELBOX),DOUBLE_BOX);
+		Box(m_X1,m_Y1,m_X2,m_Y2,colors::PaletteColorToFarColor(COL_PANELBOX),DOUBLE_BOX);
 		DrawSeparator(m_Y2-2-(m_ModalMode!=0));
 		strTitle = GetTitle();
 
@@ -654,7 +654,7 @@ void TreeList::DisplayTree(int Fast)
 	}
 
 	SetColor(COL_PANELTEXT);
-	SetScreen(m_X1+1,m_Y2-(m_ModalMode?2:1),m_X2-1,m_Y2-1,L' ',ColorIndexToColor(COL_PANELTEXT));
+	SetScreen(m_X1+1,m_Y2-(m_ModalMode?2:1),m_X2-1,m_Y2-1,L' ',colors::PaletteColorToFarColor(COL_PANELTEXT));
 
 	if (!m_ListData.empty())
 	{

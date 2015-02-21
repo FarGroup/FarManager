@@ -113,7 +113,7 @@ void SaveScreen::AppendArea(const SaveScreen *NewArea)
 		if (X >= NewArea->m_X1 && X <= NewArea->m_X2)
 			for (int Y = m_Y1; Y <= m_Y2; Y++)
 				if (Y >= NewArea->m_Y1 && Y <= NewArea->m_Y2)
-					ScreenBuf.data()[X - m_X1 + (m_X2 - m_X1 + 1)*(Y - m_Y1)] = (NewArea->ScreenBuf.data())[X - NewArea->m_X1 + (NewArea->m_X2 - NewArea->m_X1 + 1)*(Y - NewArea->m_Y1)];
+					ScreenBuf.vector()[X - m_X1 + (m_X2 - m_X1 + 1)*(Y - m_Y1)] = (NewArea->ScreenBuf.vector())[X - NewArea->m_X1 + (NewArea->m_X2 - NewArea->m_X1 + 1)*(Y - NewArea->m_Y1)];
 }
 
 void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
@@ -252,7 +252,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 
 void SaveScreen::CleanupBuffer(FAR_CHAR_INFO* Buffer, size_t BufSize)
 {
-	const FAR_CHAR_INFO Value = { L' ', ColorIndexToColor(COL_COMMANDLINEUSERSCREEN) };
+	const FAR_CHAR_INFO Value = { L' ', colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN) };
 	std::fill_n(Buffer, BufSize, Value);
 }
 

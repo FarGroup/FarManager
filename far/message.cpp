@@ -105,7 +105,7 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 
 			if (di.Type==DI_EDIT)
 			{
-				auto Color = ColorIndexToColor(IsWarningStyle ? COL_WARNDIALOGTEXT : COL_DIALOGTEXT);
+				auto Color = colors::PaletteColorToFarColor(IsWarningStyle ? COL_WARNDIALOGTEXT : COL_DIALOGTEXT);
 				auto Colors = static_cast<FarDialogItemColors*>(Param2);
 				Colors->Colors[0] = Color;
 				Colors->Colors[2] = Color;
@@ -442,7 +442,7 @@ void Message::Init(
 			MsgDlg.emplace_back(std::move(Item));
 		}
 
-		auto Dlg = Dialog::create(MsgDlg, this, &Message::MsgDlgProc, &strClipText);
+		auto Dlg = Dialog::create(MsgDlg, &Message::MsgDlgProc, this, &strClipText);
 		if (X1 == -1) X1 = 0;
 		if (Y1 == -1) Y1 = 0;
 		Dlg->SetPosition(X1,Y1,X2,Y2);
@@ -480,10 +480,10 @@ void Message::Init(
 
 	if (!(Flags & MSG_KEEPBACKGROUND))
 	{
-		SetScreen(X1,Y1,X2,Y2,L' ',ColorIndexToColor((Flags & MSG_WARNING)?COL_WARNDIALOGTEXT:COL_DIALOGTEXT));
+		SetScreen(X1,Y1,X2,Y2,L' ',colors::PaletteColorToFarColor((Flags & MSG_WARNING)?COL_WARNDIALOGTEXT:COL_DIALOGTEXT));
 		MakeShadow(X1+2,Y2+1,X2+2,Y2+1);
 		MakeShadow(X2+1,Y1+1,X2+2,Y2+1);
-		Box(X1+3,Y1+1,X2-3,Y2-1,ColorIndexToColor((Flags & MSG_WARNING)?COL_WARNDIALOGBOX:COL_DIALOGBOX),DOUBLE_BOX);
+		Box(X1+3,Y1+1,X2-3,Y2-1,colors::PaletteColorToFarColor((Flags & MSG_WARNING)?COL_WARNDIALOGBOX:COL_DIALOGBOX),DOUBLE_BOX);
 	}
 
 	SetColor((Flags & MSG_WARNING)?COL_WARNDIALOGTEXT:COL_DIALOGTEXT);

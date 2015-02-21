@@ -78,7 +78,7 @@ static HANDLE FindFirstFileInternal(const string& Name, FAR_FIND_DATA& FindData)
 			if(Handle->Object.Open(strDirectory, FILE_LIST_DIRECTORY, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 			{
 
-				// for network paths buffer size must be <= 65k
+				// for network paths buffer size must be <= 64k
 				Handle->BufferSize = 0x10000;
 				Handle->BufferBase.reset(Handle->BufferSize);
 				if (Handle->BufferBase)
@@ -1190,7 +1190,7 @@ HANDLE FindFirstFileName(const string& FileName, DWORD dwFlags, string& LinkName
 	{
 		wchar_t_ptr Buffer(StringLength);
 		hRet=Imports().FindFirstFileNameW(NtFileName.data(), 0, &StringLength, Buffer.get());
-		LinkName.assign(Buffer.get());
+		LinkName = Buffer.get();
 	}
 	return hRet;
 }
@@ -1203,7 +1203,7 @@ BOOL FindNextFileName(HANDLE hFindStream, string& LinkName)
 	{
 		wchar_t_ptr Buffer(StringLength);
 		Ret = Imports().FindNextFileNameW(hFindStream, &StringLength, Buffer.get());
-		LinkName.assign(Buffer.get());
+		LinkName = Buffer.get();
 	}
 	return Ret;
 }
@@ -1327,7 +1327,7 @@ HANDLE FindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,LPVOI
 
 				if (Handle->Object.Open(FileName, 0, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING))
 				{
-					// for network paths buffer size must be <= 65k
+					// for network paths buffer size must be <= 64k
 					// we double it in a first loop, so starting value is 32k
 					Handle->BufferSize = 0x8000;
 					NTSTATUS Result = STATUS_SEVERITY_ERROR;
@@ -1419,7 +1419,7 @@ BOOL FindStreamClose(HANDLE hFindStream)
 
 std::vector<string> GetLogicalDriveStrings()
 {
-	std::vector<string> Result;
+	FN_RETURN_TYPE(GetLogicalDriveStrings) Result;
 	wchar_t Buffer[MAX_PATH];
 	DWORD Size = ::GetLogicalDriveStrings(ARRAYSIZE(Buffer), Buffer);
 
@@ -1573,7 +1573,7 @@ bool QueryDosDevice(const string& DeviceName, string &Path)
 	DWORD Size = ::QueryDosDevice(DeviceName.data(), Buffer, ARRAYSIZE(Buffer));
 	if (Size)
 	{
-		Path.assign(Buffer);	// don't copy trailing '\0'
+		Path = Buffer; // don't copy trailing '\0'
 	}
 	else if (::GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 	{
@@ -1582,7 +1582,7 @@ bool QueryDosDevice(const string& DeviceName, string &Path)
 		Size = ::QueryDosDevice(DeviceName.data(), vBuffer.get(), static_cast<DWORD>(vBuffer.size()));
 		if (Size)
 		{
-			Path.assign(vBuffer.get());
+			Path = vBuffer.get();
 		}
 	}
 	

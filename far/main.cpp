@@ -130,7 +130,7 @@ static int MainProcess(
 		SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 		FarColor InitAttributes={};
 		Console().GetTextAttributes(InitAttributes);
-		SetRealColor(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
+		SetRealColor(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 
 		string ename(lpwszEditName),vname(lpwszViewName), apanel(lpwszDestName1),ppanel(lpwszDestName2);
 		if (Global->Db->ShowProblems() > 0)
@@ -283,7 +283,7 @@ static int MainProcess(
 		TreeList::FlushCache();
 
 		// очистим за собой!
-		SetScreen(0,0,ScrX,ScrY,L' ',ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
+		SetScreen(0,0,ScrX,ScrY,L' ',colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 		Console().SetTextAttributes(InitAttributes);
 		Global->ScrBuf->ResetShadow();
 		Global->ScrBuf->ResetLockCount();
@@ -404,7 +404,7 @@ static bool ProcessServiceModes(const range<wchar_t**>& Args, int& ServiceResult
 
 	if (Args.size() == 4 && IsElevationArgument(Args[0])) // /service:elevation {GUID} PID UsePrivileges
 	{
-		ServiceResult = ElevationMain(Args[1], _wtoi(Args[2]), *Args[3] == L'1');
+		ServiceResult = ElevationMain(Args[1], wcstoul(Args[2], nullptr, 10), *Args[3] == L'1');
 		return true;
 	}
 	else if (InRange(size_t(2), Args.size(), size_t(5)) && (isArg(Args[0], L"export") || isArg(Args[0], L"import")))
@@ -796,7 +796,7 @@ int wmain(int Argc, wchar_t *Argv[])
 #if defined(SYSLOG)
 		atexit(PrintSysLogStat);
 #endif
-		_wsetlocale(LC_ALL, L"");
+		setlocale(LC_ALL, "");
 		EnableSeTranslation();
 		EnableVectoredExceptionHandling();
 #ifndef _MSC_VER
@@ -831,7 +831,7 @@ int wmain(int Argc, wchar_t *Argv[])
 int main()
 {
 	int nArgs;
-	LPWSTR* wstrCmdLineArgs = CommandLineToArgvW(GetCommandLineW(), &nArgs);
+	auto wstrCmdLineArgs = CommandLineToArgvW(GetCommandLineW(), &nArgs);
 	int Result=wmain(nArgs, wstrCmdLineArgs);
 	LocalFree(wstrCmdLineArgs);
 	return Result;

@@ -85,24 +85,24 @@ private:
 class MessageOneWindow: public Manager::MessageAbstract
 {
 public:
-	MessageOneWindow(window_ptr Param, const std::function<void(window_ptr)>& Callback): m_Param(Param), m_Callback(Callback) {}
+	MessageOneWindow(window_ptr_ref Param, const std::function<void(window_ptr_ref)>& Callback): m_Param(Param), m_Callback(Callback) {}
 	virtual bool Process(void) override { m_Callback(m_Param); return true; }
 
 private:
 	window_ptr m_Param;
-	std::function<void(window_ptr)> m_Callback;
+	std::function<void(window_ptr_ref)> m_Callback;
 };
 
 class MessageTwoWindows: public Manager::MessageAbstract
 {
 public:
-	MessageTwoWindows(window_ptr Param1, window_ptr Param2, const std::function<void(window_ptr, window_ptr)>& Callback): m_Param1(Param1), m_Param2(Param2), m_Callback(Callback) {}
+	MessageTwoWindows(window_ptr_ref Param1, window_ptr_ref Param2, const std::function<void(window_ptr_ref, window_ptr_ref)>& Callback): m_Param1(Param1), m_Param2(Param2), m_Callback(Callback) {}
 	virtual bool Process(void) override { m_Callback(m_Param1, m_Param2); return true; }
 
 private:
 	window_ptr m_Param1;
 	window_ptr m_Param2;
-	std::function<void(window_ptr, window_ptr)> m_Callback;
+	std::function<void(window_ptr_ref, window_ptr_ref)> m_Callback;
 };
 
 class MessageStop: public Manager::MessageAbstract
@@ -202,12 +202,12 @@ void Manager::CloseAll()
 	m_windows.clear();
 }
 
-void Manager::PushWindow(window_ptr Param, window_callback Callback)
+void Manager::PushWindow(window_ptr_ref Param, window_callback Callback)
 {
-	m_Queue.push_back(std::make_unique<MessageOneWindow>(Param,[this,Callback](window_ptr Param){(this->*Callback)(Param);}));
+	m_Queue.push_back(std::make_unique<MessageOneWindow>(Param, [this, Callback](window_ptr_ref Param){(this->*Callback)(Param); }));
 }
 
-void Manager::CheckAndPushWindow(window_ptr Param, window_callback Callback)
+void Manager::CheckAndPushWindow(window_ptr_ref Param, window_callback Callback)
 {
 	//assert(Param);
 	if (Param&&!Param->IsDeleting()) PushWindow(Param,Callback);
@@ -218,7 +218,7 @@ void Manager::CallbackWindow(const std::function<void(void)>& Callback)
 	m_Queue.push_back(std::make_unique<MessageCallback>(Callback));
 }
 
-void Manager::InsertWindow(window_ptr Inserted)
+void Manager::InsertWindow(window_ptr_ref Inserted)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::InsertWindow(window *Inserted, int Index)"));
 	_MANAGER(SysLog(L"Inserted=%p, Index=%i",Inserted, Index));
@@ -226,24 +226,24 @@ void Manager::InsertWindow(window_ptr Inserted)
 	CheckAndPushWindow(Inserted,&Manager::InsertCommit);
 }
 
-void Manager::DeleteWindow(window_ptr Deleted)
+void Manager::DeleteWindow(window_ptr_ref Deleted)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::DeleteWindow(window *Deleted)"));
 	_MANAGER(SysLog(L"Deleted=%p",Deleted));
 
-	window_ptr Window=Deleted?Deleted:m_currentWindow;
+	const auto& Window=Deleted?Deleted:m_currentWindow;
 	assert(Window);
 	CheckAndPushWindow(Window,&Manager::DeleteCommit);
 	Window->SetDeleting();
 }
 
-void Manager::RedeleteWindow(window_ptr Deleted)
+void Manager::RedeleteWindow(window_ptr_ref Deleted)
 {
 	m_Queue.push_back(std::make_unique<MessageStop>());
 	PushWindow(Deleted,&Manager::DeleteCommit);
 }
 
-void Manager::ExecuteNonModal(window_ptr NonModal)
+void Manager::ExecuteNonModal(window_ptr_ref NonModal)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::ExecuteNonModal ()"));
 	if (!NonModal) return;
@@ -260,7 +260,7 @@ void Manager::ExecuteNonModal(window_ptr NonModal)
 	}
 }
 
-void Manager::ExecuteModal(window_ptr Executed)
+void Manager::ExecuteModal(window_ptr_ref Executed)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::ExecuteModal (window *Executed)"));
 	_MANAGER(SysLog(L"Executed=%p",Executed));
@@ -430,7 +430,7 @@ bool Manager::ShowBackground()
 	return true;
 }
 
-void Manager::ActivateWindow(window_ptr Activated)
+void Manager::ActivateWindow(window_ptr_ref Activated)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::ActivateWindow(window *Activated)"));
 	_MANAGER(SysLog(L"Activated=%i",Activated));
@@ -462,7 +462,7 @@ void Manager::SwitchWindow(DirectionType Direction)
 	ActivateWindow(*pos);
 }
 
-void Manager::RefreshWindow(window_ptr Refreshed)
+void Manager::RefreshWindow(window_ptr_ref Refreshed)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::RefreshWindow(window *Refreshed)"));
 	_MANAGER(SysLog(L"Refreshed=%p",Refreshed));
@@ -470,16 +470,16 @@ void Manager::RefreshWindow(window_ptr Refreshed)
 	CheckAndPushWindow(Refreshed?Refreshed:m_currentWindow,&Manager::RefreshCommit);
 }
 
-void Manager::ExecuteWindow(window_ptr Executed)
+void Manager::ExecuteWindow(window_ptr_ref Executed)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::ExecuteWindow(window *Executed)"));
 	_MANAGER(SysLog(L"Executed=%p",Executed));
 	CheckAndPushWindow(Executed,&Manager::ExecuteCommit);
 }
 
-void Manager::ReplaceWindow(window_ptr Old, window_ptr New)
+void Manager::ReplaceWindow(window_ptr_ref Old, window_ptr_ref New)
 {
-	m_Queue.push_back(std::make_unique<MessageTwoWindows>(Old,New,[this](window_ptr Param1,window_ptr Param2){this->ReplaceCommit(Param1,Param2);}));
+	m_Queue.push_back(std::make_unique<MessageTwoWindows>(Old, New, [this](window_ptr_ref Param1, window_ptr_ref Param2){this->ReplaceCommit(Param1, Param2); }));
 }
 
 void Manager::SwitchToPanels()
@@ -873,13 +873,13 @@ window_ptr Manager::GetWindow(size_t Index) const
 	return m_windows[Index];
 }
 
-int Manager::IndexOfStack(window_ptr Window)
+int Manager::IndexOfStack(window_ptr_ref Window)
 {
 	auto ItemIterator = std::find(ALL_CONST_RANGE(m_modalWindows), Window);
 	return ItemIterator != m_modalWindows.cend()? ItemIterator - m_modalWindows.cbegin() : -1;
 }
 
-int Manager::IndexOf(window_ptr Window)
+int Manager::IndexOf(window_ptr_ref Window)
 {
 	auto ItemIterator = std::find(ALL_CONST_RANGE(m_windows), Window);
 	return ItemIterator != m_windows.cend() ? ItemIterator - m_windows.cbegin() : -1;
@@ -897,7 +897,7 @@ void Manager::Commit(void)
 	}
 }
 
-void Manager::InsertCommit(window_ptr Param)
+void Manager::InsertCommit(window_ptr_ref Param)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::InsertCommit()"));
 	_MANAGER(SysLog(L"InsertedWindow=%p",Param));
@@ -908,7 +908,7 @@ void Manager::InsertCommit(window_ptr Param)
 	}
 }
 
-void Manager::DeleteCommit(window_ptr Param)
+void Manager::DeleteCommit(window_ptr_ref Param)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::DeleteCommit()"));
 	_MANAGER(SysLog(L"DeletedWindow=%p",Param));
@@ -942,11 +942,13 @@ void Manager::DeleteCommit(window_ptr Param)
 		{
 			if (!m_modalWindows.empty())
 			{
-				ActivateCommit(m_modalWindows.back());
+				const auto PtrCopy = m_modalWindows.back();
+				ActivateCommit(PtrCopy);
 			}
 			else if (!m_windows.empty())
 			{
-				ActivateCommit(m_windows.back());
+				const auto PtrCopy = m_windows.back();
+				ActivateCommit(PtrCopy);
 			}
 			else ClearCurrentWindow();
 		}
@@ -959,7 +961,8 @@ void Manager::DeleteCommit(window_ptr Param)
 		{
 			if (!m_windows.empty())
 			{
-				ActivateCommit(m_windows.back());
+				const auto PtrCopy = m_windows.back();
+				ActivateCommit(PtrCopy);
 			}
 			else ClearCurrentWindow();
 		}
@@ -967,7 +970,8 @@ void Manager::DeleteCommit(window_ptr Param)
 		{
 			if (!m_windows.empty())
 			{
-				RefreshWindow(m_windows.back());
+				const auto PtrCopy = m_windows.back();
+				RefreshWindow(PtrCopy);
 			}
 		}
 	}
@@ -985,7 +989,7 @@ void Manager::DeleteCommit(window_ptr Param)
 	assert(size==1);
 }
 
-void Manager::ActivateCommit(window_ptr Param)
+void Manager::ActivateCommit(window_ptr_ref Param)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::ActivateCommit()"));
 	_MANAGER(SysLog(L"ActivatedWindow=%p",Param));
@@ -1024,7 +1028,7 @@ void Manager::ActivateCommit(window_ptr Param)
 	Param->OnChangeFocus(true);
 }
 
-void Manager::RefreshCommit(window_ptr Param)
+void Manager::RefreshCommit(window_ptr_ref Param)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::RefreshCommit()"));
 	_MANAGER(SysLog(L"RefreshedWindow=%p",Param));
@@ -1083,7 +1087,7 @@ void Manager::RefreshCommit(window_ptr Param)
 	}
 }
 
-void Manager::DeactivateCommit(window_ptr Param)
+void Manager::DeactivateCommit(window_ptr_ref Param)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::DeactivateCommit()"));
 	_MANAGER(SysLog(L"DeactivatedWindow=%p",Param));
@@ -1093,7 +1097,7 @@ void Manager::DeactivateCommit(window_ptr Param)
 	}
 }
 
-void Manager::ExecuteCommit(window_ptr Param)
+void Manager::ExecuteCommit(window_ptr_ref Param)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::ExecuteCommit()"));
 	_MANAGER(SysLog(L"ExecutedWindow=%p",Param));
@@ -1105,7 +1109,7 @@ void Manager::ExecuteCommit(window_ptr Param)
 	}
 }
 
-void Manager::ReplaceCommit(window_ptr Old,window_ptr New)
+void Manager::ReplaceCommit(window_ptr_ref Old, window_ptr_ref New)
 {
 	int WindowIndex = IndexOf(Old);
 
@@ -1121,7 +1125,7 @@ void Manager::ReplaceCommit(window_ptr Old,window_ptr New)
 	}
 }
 
-bool Manager::AddWindow(window_ptr Param)
+bool Manager::AddWindow(window_ptr_ref Param)
 {
 	return m_Added.insert(Param).second;
 }
@@ -1225,7 +1229,7 @@ void Manager::UpdateMacroArea(void)
 
 Manager::sorted_windows Manager::GetSortedWindows(void) const
 {
-	return sorted_windows(ALL_CONST_RANGE(m_windows),[](window_ptr lhs,window_ptr rhs){return lhs->ID()<rhs->ID();});
+	return sorted_windows(ALL_CONST_RANGE(m_windows), [](window_ptr_ref lhs, window_ptr_ref rhs){return lhs->ID()<rhs->ID(); });
 }
 
 void* Manager::GetCurrent(std::function<void*(windows::const_reverse_iterator)> Check) const

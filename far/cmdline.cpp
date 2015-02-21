@@ -567,10 +567,10 @@ inline void AssignColor(const string& Color, COLORREF& Target, FARCOLORFLAGS& Ta
 
 std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 {
-	std::list<std::pair<string, FarColor>> Result;
+	FN_RETURN_TYPE(CommandLine::GetPrompt) Result;
 	int NewPromptSize = DEFAULT_CMDLINE_WIDTH;
 
-	FarColor PrefixColor(ColorIndexToColor(COL_COMMANDLINEPREFIX));
+	FarColor PrefixColor(colors::PaletteColorToFarColor(COL_COMMANDLINEPREFIX));
 
 	if (Global->Opt->CmdLine.UsePromptFormat)
 	{
@@ -1024,7 +1024,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			GotoXY(m_X2+1,m_Y1);
 			Text(L' ');
 			Global->ScrBuf->Flush();
-			Console().SetTextAttributes(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
+			Console().SetTextAttributes(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 			string strOut(L"\n");
 			FOR(const auto& i, api::env::enum_strings())
 			{
@@ -1074,7 +1074,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		if (CheckCmdLineForHelp(strCmdLine.data()+3))
 			return FALSE; // מעהאהטלסÿ COMSPEC`ף
 
-		ClearScreen(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
+		ClearScreen(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 		Global->CtrlObject->Desktop->FillFromBuffer();
 		PrintCommand=false;
 		return TRUE;
@@ -1248,7 +1248,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		GotoXY(m_X2 + 1, m_Y1);
 		Text(L' ');
 		Global->ScrBuf->Flush();
-		Console().SetTextAttributes(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
+		Console().SetTextAttributes(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 		string strOut(L"\n\n");
 
 		strOut.append(Global->Version()).append(1, L'\n');

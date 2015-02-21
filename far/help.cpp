@@ -184,7 +184,7 @@ Help::Help():
 	BeforeMouseDownY(0),
 	MsX(-1),
 	MsY(-1),
-	CurColor(COL_HELPTEXT),
+	CurColor(colors::PaletteColorToFarColor(COL_HELPTEXT)),
 	CtrlTabSize(0),
 	LastStartPos(0),
 	StartPos(0),
@@ -419,7 +419,7 @@ int Help::ReadHelp(const string& Mask)
 				continue;
 			}
 
-			if (strKeyName.data()[0] == L'~')
+			if (!strKeyName.empty() && strKeyName[0] == L'~')
 			{
 				MI++;
 				continue;
@@ -853,7 +853,7 @@ void Help::FastShow()
 	   Установим по умолчанию текущий цвет отрисовки...
 	   чтобы новая тема начиналась с нормальными атрибутами
 	*/
-	CurColor=COL_HELPTEXT;
+	CurColor = colors::PaletteColorToFarColor(COL_HELPTEXT);
 
 	for (int i=0; i<m_Y2-m_Y1-1; i++)
 	{
@@ -909,8 +909,8 @@ void Help::FastShow()
 
 void Help::DrawWindowWindow()
 {
-	SetScreen(m_X1,m_Y1,m_X2,m_Y2,L' ',ColorIndexToColor(COL_HELPTEXT));
-	Box(m_X1,m_Y1,m_X2,m_Y2,ColorIndexToColor(COL_HELPBOX),DOUBLE_BOX);
+	SetScreen(m_X1,m_Y1,m_X2,m_Y2,L' ',colors::PaletteColorToFarColor(COL_HELPTEXT));
+	Box(m_X1,m_Y1,m_X2,m_Y2,colors::PaletteColorToFarColor(COL_HELPBOX),DOUBLE_BOX);
 	SetColor(COL_HELPBOXTITLE);
 	string strHelpTitleBuf;
 	strHelpTitleBuf = MSG(MHelpTitle);
@@ -947,7 +947,7 @@ static const wchar_t *SkipLink( const wchar_t *Str, string *Name )
 	return Str;
 }
 
-static bool GetHelpColor(const wchar_t* &Str, wchar_t cColor, int &color)
+static bool GetHelpColor(const wchar_t* &Str, wchar_t cColor, FarColor &color)
 {
 	if (!cColor || Str[0] != cColor)
 		return false;
@@ -955,7 +955,7 @@ static bool GetHelpColor(const wchar_t* &Str, wchar_t cColor, int &color)
 	wchar_t wc1 = Str[1];
 	if (wc1 == L'-')     // '\-' set default color
 	{
-		color = COL_HELPTEXT;
+		color = colors::PaletteColorToFarColor(COL_HELPTEXT);
 		Str += 2;
 		return true;
 	}
@@ -971,9 +971,11 @@ static bool GetHelpColor(const wchar_t* &Str, wchar_t cColor, int &color)
 	if (wc2 > L'9')
 		wc2 -= L'A' - 10;
 
-	color = ((wc1 & 0x0f) << 4) | (wc2 & 0x0f);
+	color = colors::ConsoleColorToFarColor(((wc1 & 0x0f) << 4) | (wc2 & 0x0f));
 	Str += 3;
 	return true;
+
+	// TODO: TrueColor support
 }
 
 static bool FastParseLine(const wchar_t *Str, int *pLen, int x0, int realX, string *pTopic, wchar_t cColor)
@@ -1062,13 +1064,13 @@ bool Help::GetTopic(int realX, int realY, string& strTopic)
 		x = m_X1 + 1 + std::max(0, (m_X2 - m_X1 - 1 - w)/2);
 	}
 
-	return FastParseLine(Str, nullptr, x, realX, &strTopic, strCtrlColorChar.data()[0]);
+	return FastParseLine(Str, nullptr, x, realX, &strTopic, strCtrlColorChar.empty()? 0 : strCtrlColorChar[0]);
 }
 
 int Help::StringLen(const string& Str)
 {
 	int len = 0;
-	FastParseLine(Str.data(), &len, 0, -1, nullptr, strCtrlColorChar.data()[0]);
+	FastParseLine(Str.data(), &len, 0, -1, nullptr, strCtrlColorChar.empty()? 0 : strCtrlColorChar[0]);
 	return len;
 }
 
@@ -1077,7 +1079,7 @@ void Help::OutString(const wchar_t *Str)
 	wchar_t OutStr[512]; //BUGBUG
 	const wchar_t *StartTopic=nullptr;
 	int OutPos=0,Highlight=0,Topic=0;
-	wchar_t cColor = strCtrlColorChar.data()[0];
+	wchar_t cColor = strCtrlColorChar.empty()? 0 : strCtrlColorChar[0];
 
 	while (OutPos<(int)(ARRAYSIZE(OutStr)-10))
 	{
@@ -1112,7 +1114,7 @@ void Help::OutString(const wchar_t *Str)
 			}
 			else
 			{
-				SetColor(Highlight ? COL_HELPHIGHLIGHTTEXT : CurColor);
+				SetColor(Highlight ? colors::PaletteColorToFarColor(COL_HELPHIGHLIGHTTEXT) : CurColor);
 			}
 
 			/* $ 24.09.2001 VVM
@@ -1955,7 +1957,9 @@ void Help::Search(api::fs::file& HelpFile,uintptr_t nCodePage)
 
 		RemoveTrailingSpaces(strReadStr);
 
-		if (strReadStr.data()[0]==L'@' && !(strReadStr.data()[1]==L'+' || strReadStr[1]==L'-') && strReadStr.find(L'=') == string::npos)// && !TopicFound)
+		if ((!strReadStr.empty() && strReadStr[0] == L'@') &&
+		    !(strReadStr.size() > 1 && (strReadStr[1] == L'+' || strReadStr[1] == L'-')) &&
+		    strReadStr.find(L'=') == string::npos)// && !TopicFound)
 		{
 			strEntryName.clear();
 			strCurTopic.clear();
@@ -1966,7 +1970,7 @@ void Help::Search(api::fs::file& HelpFile,uintptr_t nCodePage)
 				TopicFound=true;
 			}
 		}
-		else if (TopicFound && strReadStr.data()[0]==L'$' && strReadStr.data()[1] && !strCurTopic.empty())
+		else if (TopicFound && strReadStr.size() > 1 && strReadStr[0] == L'$' && !strCurTopic.empty())
 		{
 			strEntryName=strReadStr.substr(1);
 			RemoveExternalSpaces(strEntryName);

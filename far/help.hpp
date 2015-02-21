@@ -99,7 +99,7 @@ private:
 	int MsX, MsY;
 
 	// символа - дл€ атрибутов
-	int CurColor;             // CurColor - текущий цвет отрисовки
+	FarColor CurColor;             // CurColor - текущий цвет отрисовки
 	int CtrlTabSize;          // CtrlTabSize - опци€! размер табул€ции
 
 	DWORD LastStartPos;

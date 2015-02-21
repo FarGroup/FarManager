@@ -56,11 +56,11 @@ static void SetItemColors(const LNGID* ItemIds, const int* PaletteItems, size_t 
 
 void GetColor(int PaletteIndex)
 {
-	FarColor NewColor = Global->Opt->Palette[PaletteIndex-COL_FIRSTPALETTECOLOR];
+	FarColor NewColor = Global->Opt->Palette[PaletteIndex];
 
 	if (Console().GetColorDialog(NewColor))
 	{
-		Global->Opt->Palette.Set(PaletteIndex-COL_FIRSTPALETTECOLOR, &NewColor, 1);
+		Global->Opt->Palette.Set(PaletteIndex, &NewColor, 1);
 		Global->ScrBuf->Lock(); // отменяем всякую прорисовку
 		Global->CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
 		Global->CtrlObject->Cp()->LeftPanel->Redraw();
@@ -574,13 +574,13 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			if (Param1 >= 2 && Param1 <= 17) // Fore
 			{
 				auto Colors = static_cast<FarDialogItemColors*>(Param2);
-				Colors->Colors[0] = Colors::ConsoleColorToFarColor(ColorIndex[Param1-2]);
+				Colors->Colors[0] = colors::ConsoleColorToFarColor(ColorIndex[Param1-2]);
 			}
 
 			if (Param1 >= 19 && Param1 <= 34) // Back
 			{
 				auto Colors = static_cast<FarDialogItemColors*>(Param2);
-				Colors->Colors[0] = Colors::ConsoleColorToFarColor(ColorIndex[Param1-19]);
+				Colors->Colors[0] = colors::ConsoleColorToFarColor(ColorIndex[Param1-19]);
 			}
 
 			if (Param1 >= 37 && Param1 <= 39)
@@ -604,7 +604,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				if (Param1 >= 2 && Param1 <= 17) // Fore
 				{
 					UINT B = NewColor.BackgroundColor;
-					NewColor = Colors::ConsoleColorToFarColor(ColorIndex[Param1-2]);
+					NewColor = colors::ConsoleColorToFarColor(ColorIndex[Param1-2]);
 					NewColor.ForegroundColor = NewColor.BackgroundColor;
 					NewColor.BackgroundColor = B;
 				}
@@ -612,7 +612,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				if (Param1 >= 19 && Param1 <= 34) // Back
 				{
 					UINT F = NewColor.ForegroundColor;
-					NewColor = Colors::ConsoleColorToFarColor(ColorIndex[Param1-19]);
+					NewColor = colors::ConsoleColorToFarColor(ColorIndex[Param1-19]);
 					//NewColor.BackgroundColor = NewColor.ForegroundColor;
 					NewColor.ForegroundColor = F;
 				}
@@ -686,7 +686,7 @@ bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
 	auto ColorDlg = MakeDialogItemsEx(ColorDlgData);
 	int ExitCode;
 	FarColor CurColor=Color;
-	int ConsoleColor = Colors::FarColorToConsoleColor(Color);
+	int ConsoleColor = colors::FarColorToConsoleColor(Color);
 	for (size_t i=2; i<18; i++)
 	{
 		if (((ColorIndex[i-2]&B_MASK)>>4) == (ConsoleColor&F_MASK))

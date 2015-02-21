@@ -101,9 +101,9 @@ public:
 	enum time_check_mode { delayed, immediate };
 	time_check(time_check_mode Mode, clock_t Interval): m_Begin(Mode == delayed ? clock() : 0), m_Interval(Interval) {}
 
-	void reset(clock_t Value = clock()) { m_Begin = Value; }
+	void reset(clock_t Value = clock()) const { m_Begin = Value; }
 
-	operator bool()
+	operator bool() const
 	{
 		const auto Current = clock();
 		if (m_Interval > 0 && Current - m_Begin > m_Interval)
@@ -115,6 +115,6 @@ public:
 	}
 
 private:
-	clock_t m_Begin;
-	clock_t m_Interval;
+	mutable clock_t m_Begin;
+	const clock_t m_Interval;
 };

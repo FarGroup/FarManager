@@ -135,8 +135,8 @@ Editor::Editor(window_ptr Owner, bool DialogUsed):
 	SortColorLockCount(0),
 	SortColorUpdate(false),
 	EditorControlLock(0),
-	Color(ColorIndexToColor(COL_EDITORTEXT)),
-	SelColor(ColorIndexToColor(COL_EDITORSELECTEDTEXT)),
+	Color(colors::PaletteColorToFarColor(COL_EDITORTEXT)),
+	SelColor(colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT)),
 	MacroSelectionStart(-1),
 	CursorPos(0),
 	fake_editor(false)
@@ -333,8 +333,8 @@ void Editor::ShowEditor()
 	if (Locked() || Lines.empty())
 		return;
 
-	Color = ColorIndexToColor(COL_EDITORTEXT);
-	SelColor = ColorIndexToColor(COL_EDITORSELECTEDTEXT);
+	Color = colors::PaletteColorToFarColor(COL_EDITORTEXT);
+	SelColor = colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT);
 
 	int LeftPos,CurPos,Y;
 
@@ -452,7 +452,7 @@ void Editor::ShowEditor()
 		}
 		else
 		{
-			SetScreen(m_X1,Y,XX2,Y,L' ',ColorIndexToColor(COL_EDITORTEXT)); //Пустые строки после конца текста
+			SetScreen(m_X1,Y,XX2,Y,L' ',colors::PaletteColorToFarColor(COL_EDITORTEXT)); //Пустые строки после конца текста
 		}
 	}
 
@@ -478,7 +478,7 @@ void Editor::ShowEditor()
 						BlockX2=XX2;
 
 					if (BlockX1<=XX2 && BlockX2>=m_X1)
-						ChangeBlockColor(BlockX1,Y,BlockX2,Y,ColorIndexToColor(COL_EDITORSELECTEDTEXT));
+						ChangeBlockColor(BlockX1,Y,BlockX2,Y,colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT));
 				}
 
 				++CurPtr;
@@ -3950,7 +3950,7 @@ BOOL Editor::Search(int Next)
 							GetCursorPos(CurX,CurY);
 							int lpos = CurPtr->LeftPos;
 							int endX = CurPtr->RealPosToTab(CurPtr->TabPosToReal(lpos + CurX) + SearchLength - 1) - lpos;
-							ChangeBlockColor(CurX,CurY, endX,CurY, ColorIndexToColor(COL_EDITORSELECTEDTEXT));
+							ChangeBlockColor(CurX,CurY, endX,CurY, colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT));
 							string strQSearchStr(CurPtr->GetStringAddr()+CurPtr->GetCurPos(),SearchLength), strQReplaceStr=strReplaceStrCurrent;
 
 							// do not use InsertQuote, AI is not suitable here

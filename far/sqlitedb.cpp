@@ -117,12 +117,12 @@ SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const blob& Value, bool bSt
 
 const wchar_t* SQLiteDb::SQLiteStmt::GetColText(int Col) const
 {
-	return (const wchar_t *)sqlite::sqlite3_column_text16(m_Stmt.get(), Col);
+	return static_cast<const wchar_t*>(sqlite::sqlite3_column_text16(m_Stmt.get(), Col));
 }
 
 const char* SQLiteDb::SQLiteStmt::GetColTextUTF8(int Col) const
 {
-	return (const char *)sqlite::sqlite3_column_text(m_Stmt.get(), Col);
+	return reinterpret_cast<const char*>(sqlite::sqlite3_column_text(m_Stmt.get(), Col));
 }
 
 int SQLiteDb::SQLiteStmt::GetColBytes(int Col) const
@@ -142,7 +142,7 @@ unsigned __int64 SQLiteDb::SQLiteStmt::GetColInt64(int Col) const
 
 const char* SQLiteDb::SQLiteStmt::GetColBlob(int Col) const
 {
-	return (const char *)sqlite::sqlite3_column_blob(m_Stmt.get(), Col);
+	return static_cast<const char*>(sqlite::sqlite3_column_blob(m_Stmt.get(), Col));
 }
 
 SQLiteDb::ColumnType SQLiteDb::SQLiteStmt::GetColType(int Col) const
@@ -190,7 +190,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 		return sqlite::sqlite3_open16(Name.data(), &pDb);
 	};
 
-	const auto v2_opener = [&WAL](const string& Name, sqlite::sqlite3*& pDb)
+	const auto v2_opener = [WAL](const string& Name, sqlite::sqlite3*& pDb)
 	{
 		return sqlite::sqlite3_open_v2(Utf8String(Name).data(), &pDb, WAL? SQLITE_OPEN_READWRITE : SQLITE_OPEN_READONLY, nullptr);
 	};

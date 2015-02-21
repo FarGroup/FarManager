@@ -43,7 +43,10 @@ enum CPSelectType
 	CPST_FIND     = 2  // Таблица символов участвующая в поиске по всем таблицам символов
 };
 
-const int StandardCPCount = 2 /* OEM, ANSI */ + 2 /* UTF-16 LE, UTF-16 BE */ + 1 /* UTF-8 */;
+enum
+{
+	StandardCPCount = 2 /* OEM, ANSI */ + 2 /* UTF-16 LE, UTF-16 BE */ + 1 /* UTF-8 */
+};
 
 inline bool IsUnicodeCodePage(uintptr_t cp) { return cp == CP_UNICODE || cp == CP_REVERSEBOM; }
 inline bool IsStandardCodePage(uintptr_t cp) { return IsUnicodeCodePage(cp) || cp == CP_UTF8 || cp == GetOEMCP() || cp == GetACP(); }
@@ -175,15 +178,14 @@ class F8CP
 {
 public:
 	F8CP(bool viewer=false);
-	~F8CP();
 
 	uintptr_t NextCP(uintptr_t cp) const;
-	const wchar_t* NextCPname(uintptr_t cp) const;
+	const string& NextCPname(uintptr_t cp) const;
 
 private:
-	string acp_name, oem_name, utf_name;
-	mutable string number;
-	std::vector<UINT> f8cp_order;
+	string m_AcpName, m_OemName, m_UtfName;
+	mutable string m_Number;
+	std::vector<UINT> m_F8CpOrder;
 };
 
 //#############################################################################

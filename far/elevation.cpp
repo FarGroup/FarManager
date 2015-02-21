@@ -143,7 +143,6 @@ bool elevation::SendCommand(ELEVATION_COMMAND Command) const
 	return pipe::Write(m_pipe, Command);
 }
 
-// workaround for VC2010 is_standard_layout bug
 struct ERRORCODES
 {
 	struct
@@ -153,23 +152,16 @@ struct ERRORCODES
 	}
 	Codes;
 
-	DWORD& Win32Error;
-	NTSTATUS& NtError;
-
-	ERRORCODES():
-		Win32Error(Codes.Win32Error),
-		NtError(Codes.NtError)
+	ERRORCODES()
 	{
-		Win32Error = GetLastError();
-		NtError = Imports().RtlGetLastNtStatus();
+		Codes.Win32Error = GetLastError();
+		Codes.NtError = Imports().RtlGetLastNtStatus();
 	}
 	
-	ERRORCODES(DWORD InitWin32Error, NTSTATUS InitNtError):
-		Win32Error(Codes.Win32Error),
-		NtError(Codes.NtError)
+	ERRORCODES(DWORD InitWin32Error, NTSTATUS InitNtError)
 	{
-		Win32Error = InitWin32Error;
-		NtError = InitNtError;
+		Codes.Win32Error = InitWin32Error;
+		Codes.NtError = InitNtError;
 	}
 };
 
@@ -177,8 +169,8 @@ bool elevation::ReceiveLastError() const
 {
 	ERRORCODES ErrorCodes(ERROR_SUCCESS, STATUS_SUCCESS);
 	bool Result = Read(ErrorCodes.Codes);
-	SetLastError(ErrorCodes.Win32Error);
-	Imports().RtlNtStatusToDosError(ErrorCodes.NtError);
+	SetLastError(ErrorCodes.Codes.Win32Error);
+	Imports().RtlNtStatusToDosError(ErrorCodes.Codes.NtError);
 	return Result;
 }
 
@@ -365,7 +357,7 @@ intptr_t ElevationApproveDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, voi
 		{
 			if(Param1==AAD_EDIT_OBJECT)
 			{
-				FarColor Color=ColorIndexToColor(COL_DIALOGTEXT);
+				FarColor Color=colors::PaletteColorToFarColor(COL_DIALOGTEXT);
 				FarDialogItemColors* Colors = static_cast<FarDialogItemColors*>(Param2);
 				Colors->Colors[0] = Color;
 				Colors->Colors[2] = Color;

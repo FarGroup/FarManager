@@ -45,7 +45,9 @@ enum
 	ConsoleExtraMask = 0xff00
 };
 
-WORD Colors::FarColorToConsoleColor(const FarColor& Color)
+namespace colors
+{
+WORD FarColorToConsoleColor(const FarColor& Color)
 {
 	static COLORREF LastTrueColors[2] = {};
 	static FARCOLORFLAGS LastFlags = 0;
@@ -55,7 +57,7 @@ WORD Colors::FarColorToConsoleColor(const FarColor& Color)
 		LastFlags = Color.Flags;
 
 		static BYTE IndexColors[2] = {};
-		const struct color_data
+		const struct
 		{
 			COLORREF Color;
 			rgba RGBA;
@@ -147,7 +149,7 @@ WORD Colors::FarColorToConsoleColor(const FarColor& Color)
 	return (WORD)(Result | ((WORD)(Color.Flags & ConsoleExtraMask)));
 }
 
-FarColor Colors::ConsoleColorToFarColor(WORD Color)
+FarColor ConsoleColorToFarColor(WORD Color)
 {
 	FarColor NewColor;
 	static_assert(FCF_RAWATTR_MASK == ConsoleExtraMask, "Wrong FCF_RAWATTR_MASK");
@@ -161,14 +163,14 @@ FarColor Colors::ConsoleColorToFarColor(WORD Color)
 }
 
 
-const FarColor ColorIndexToColor(PaletteColors ColorIndex)
+const FarColor& PaletteColorToFarColor(PaletteColors ColorIndex)
 {
-	return ColorIndex < COL_FIRSTPALETTECOLOR? Colors::ConsoleColorToFarColor(ColorIndex) :
-		Global->Opt->Palette[ColorIndex - COL_FIRSTPALETTECOLOR];
+	return Global->Opt->Palette[ColorIndex];
 }
 
 const FarColor* StoreColor(const FarColor& Value)
 {
 	static std::unordered_set<FarColor> ColorSet;
 	return &*ColorSet.emplace(Value).first;
+}
 }

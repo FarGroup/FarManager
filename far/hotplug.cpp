@@ -312,7 +312,7 @@ static bool GetDeviceProperty(DEVINST hDevInst, DWORD Property, string& strValue
 				{
 					Result = true;
 				}
-				strValue.assign(Buffer.get());
+				strValue = Buffer.get();
 			}
 			else
 			{

@@ -104,6 +104,7 @@ public:
 	// TODO: iterator interface
 
 	std::vector<T>& vector() { return m_buffer; }
+	const std::vector<T>& vector() const { return m_buffer; }
 
 	void swap(matrix& rhs) noexcept
 	{

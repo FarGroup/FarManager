@@ -209,10 +209,10 @@ void palette::Reset(bool Black)
 	const auto IndexPtr = Black? &ColorsInit::MonoIndex : &ColorsInit::DefaultIndex;
 	std::transform(ALL_CONST_RANGE(Init), CurrentPalette.begin(), [&IndexPtr](const ColorsInit& i)
 	{
-		return Colors::ConsoleColorToFarColor(i.*IndexPtr);
+		return colors::ConsoleColorToFarColor(i.*IndexPtr);
 	});
-	MAKE_TRANSPARENT(CurrentPalette[COL_PANELTEXT-COL_FIRSTPALETTECOLOR].BackgroundColor);
-	MAKE_TRANSPARENT(CurrentPalette[COL_PANELSELECTEDTEXT-COL_FIRSTPALETTECOLOR].BackgroundColor);
+	MAKE_TRANSPARENT(CurrentPalette[COL_PANELTEXT].BackgroundColor);
+	MAKE_TRANSPARENT(CurrentPalette[COL_PANELSELECTEDTEXT].BackgroundColor);
 	PaletteChanged = true;
 }
 

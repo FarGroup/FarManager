@@ -58,3 +58,5 @@ typedef std::shared_ptr<FolderTree> foldertree_ptr;
 typedef std::shared_ptr<Grabber> grabber_ptr;
 typedef std::shared_ptr<HMenu> hmenu_ptr;
 typedef std::shared_ptr<Search> search_ptr;
+
+typedef const window_ptr& window_ptr_ref;

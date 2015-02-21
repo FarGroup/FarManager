@@ -334,7 +334,7 @@ virtual bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_
 	auto& ConsoleBufferVector = ConsoleBuffer.vector();
 	std::transform(ConsoleBufferVector.cbegin(), ConsoleBufferVector.cend(), Buffer.data() + Offset, [](CONST_REFERENCE(ConsoleBufferVector) i)
 	{
-		return FAR_CHAR_INFO::make(i.Char.UnicodeChar, Colors::ConsoleColorToFarColor(i.Attributes));
+		return FAR_CHAR_INFO::make(i.Char.UnicodeChar, colors::ConsoleColorToFarColor(i.Attributes));
 	});
 
 	if(Global->Opt->WindowMode)
@@ -362,7 +362,7 @@ virtual bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord,
 	matrix<CHAR_INFO> ConsoleBuffer(BufferSize.Y - BufferCoord.Y, BufferSize.X);
 	std::transform(Buffer.data() + Offset, Buffer.data() + Offset + Size, ConsoleBuffer.data(), [](const FAR_CHAR_INFO& i) -> CHAR_INFO
 	{
-		CHAR_INFO CI = {i.Char, Colors::FarColorToConsoleColor(i.Attributes)};
+		CHAR_INFO CI = {i.Char, colors::FarColorToConsoleColor(i.Attributes)};
 		return CI;
 	});
 
@@ -437,7 +437,7 @@ virtual bool GetTextAttributes(FarColor& Attributes) const override
 	CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
 	if(GetConsoleScreenBufferInfo(GetOutputHandle(), &ConsoleScreenBufferInfo))
 	{
-		Attributes = Colors::ConsoleColorToFarColor(ConsoleScreenBufferInfo.wAttributes);
+		Attributes = colors::ConsoleColorToFarColor(ConsoleScreenBufferInfo.wAttributes);
 		Result=true;
 	}
 	return Result;
@@ -445,7 +445,7 @@ virtual bool GetTextAttributes(FarColor& Attributes) const override
 
 virtual bool SetTextAttributes(const FarColor& Attributes) const override
 {
-	return SetConsoleTextAttribute(GetOutputHandle(), Colors::FarColorToConsoleColor(Attributes))!=FALSE;
+	return SetConsoleTextAttribute(GetOutputHandle(), colors::FarColorToConsoleColor(Attributes))!=FALSE;
 }
 
 virtual bool GetCursorInfo(CONSOLE_CURSOR_INFO& ConsoleCursorInfo) const override
@@ -540,7 +540,7 @@ virtual bool ClearExtraRegions(const FarColor& Color, int Mode) const override
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
 	DWORD CharsWritten;
-	WORD ConColor = Colors::FarColorToConsoleColor(Color);
+	WORD ConColor = colors::FarColorToConsoleColor(Color);
 
 	if(Mode&CR_TOP)
 	{
@@ -654,7 +654,7 @@ virtual bool ScrollScreenBuffer(int Lines) const override
 	GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
 	SMALL_RECT ScrollRectangle={0, 0, static_cast<SHORT>(csbi.dwSize.X-1), static_cast<SHORT>(csbi.dwSize.Y-1)};
 	COORD DestinationOrigin={0,static_cast<SHORT>(-Lines)};
-	CHAR_INFO Fill={L' ', Colors::FarColorToConsoleColor(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN))};
+	CHAR_INFO Fill={L' ', colors::FarColorToConsoleColor(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN))};
 	return ScrollConsoleScreenBuffer(GetOutputHandle(), &ScrollRectangle, nullptr, DestinationOrigin, &Fill)!=FALSE;
 }
 

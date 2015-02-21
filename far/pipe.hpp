@@ -41,7 +41,7 @@ namespace pipe
 	bool Read(HANDLE Pipe, T& Data)
 	{
 		static_assert(!std::is_pointer<T>::value, "This template requires a reference to an object");
-		static_assert(std::is_standard_layout<T>::value, "This template requires a type with standard layout"); // TODO: replace with is_trivially_copyable
+		static_assert(std::is_pod<T>::value, "This template requires a POD type"); // TODO: replace with is_trivially_copyable
 
 		return Read(Pipe, &Data, sizeof(Data));
 	}
@@ -55,7 +55,7 @@ namespace pipe
 	bool Write(HANDLE Pipe, const T& Data)
 	{
 		static_assert(!std::is_pointer<T>::value, "This template requires a reference to an object");
-		static_assert(std::is_standard_layout<T>::value, "This template requires a type with standard layout"); // TODO: replace with is_trivially_copyable
+		static_assert(std::is_pod<T>::value, "This template requires a POD type"); // TODO: replace with is_trivially_copyable
 
 		return Write(Pipe, &Data, sizeof(Data));
 	}

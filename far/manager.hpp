@@ -63,18 +63,18 @@ public:
 
 	// Эти функции можно безопасно вызывать практически из любого места кода
 	// они как бы накапливают информацию о том, что нужно будет сделать с окнами при следующем вызове Commit()
-	void InsertWindow(window_ptr NewWindow);
-	void DeleteWindow(window_ptr Deleted = nullptr);
-	void ActivateWindow(window_ptr Activated);
-	void RefreshWindow(window_ptr Refreshed = nullptr);
-	void ReplaceWindow(window_ptr Old, window_ptr New);
+	void InsertWindow(window_ptr_ref NewWindow);
+	void DeleteWindow(window_ptr_ref Deleted = nullptr);
+	void ActivateWindow(window_ptr_ref Activated);
+	void RefreshWindow(window_ptr_ref Refreshed = nullptr);
+	void ReplaceWindow(window_ptr_ref Old, window_ptr_ref New);
 	void CallbackWindow(const std::function<void(void)>& Callback);
 	//! Функции для запуска модальных окон.
-	void ExecuteWindow(window_ptr Executed);
+	void ExecuteWindow(window_ptr_ref Executed);
 	//! Входит в новый цикл обработки событий
-	void ExecuteModal(window_ptr Executed);
+	void ExecuteModal(window_ptr_ref Executed);
 	//! Запускает немодальное окно в модальном режиме
-	void ExecuteNonModal(window_ptr NonModal);
+	void ExecuteNonModal(window_ptr_ref NonModal);
 	void RefreshAll(void);
 	void CloseAll();
 	/* $ 29.12.2000 IS
@@ -104,8 +104,8 @@ public:
 	void ResetLastInputRecord() { LastInputRecord.EventType = 0; }
 	window_ptr GetCurrentWindow() { return m_currentWindow; }
 	window_ptr GetWindow(size_t Index) const;
-	int IndexOf(window_ptr Window);
-	int IndexOfStack(window_ptr Window);
+	int IndexOf(window_ptr_ref Window);
+	int IndexOfStack(window_ptr_ref Window);
 	window_ptr GetBottomWindow() { return m_windows.back(); }
 	bool ManagerIsDown() const { return EndLoop; }
 	bool ManagerStarted() const { return StartManager; }
@@ -122,7 +122,7 @@ public:
 
 	void UpdateMacroArea(void);
 
-	typedef std::set<window_ptr, std::function<bool(window_ptr, window_ptr)>> sorted_windows;
+	typedef std::set<window_ptr, std::function<bool(window_ptr_ref, window_ptr_ref)>> sorted_windows;
 	sorted_windows GetSortedWindows(void) const;
 
 	Viewer* GetCurrentViewer(void) const;
@@ -142,23 +142,23 @@ private:
 	// Она в цикле вызывает себя, пока хотябы один из указателей отличен от nullptr
 	// Функции, "подмастерья начальника" - Commit'a
 	// Иногда вызываются не только из него и из других мест
-	void InsertCommit(window_ptr Param);
-	void DeleteCommit(window_ptr Param);
-	void ActivateCommit(window_ptr Param);
-	void RefreshCommit(window_ptr Param);
-	void DeactivateCommit(window_ptr Param);
-	void ExecuteCommit(window_ptr Param);
-	void ReplaceCommit(window_ptr Old, window_ptr New);
+	void InsertCommit(window_ptr_ref Param);
+	void DeleteCommit(window_ptr_ref Param);
+	void ActivateCommit(window_ptr_ref Param);
+	void RefreshCommit(window_ptr_ref Param);
+	void DeactivateCommit(window_ptr_ref Param);
+	void ExecuteCommit(window_ptr_ref Param);
+	void ReplaceCommit(window_ptr_ref Old, window_ptr_ref New);
 	int GetModalExitCode() const;
 	// BUGBUG, do we need this?
 	void ImmediateHide();
 
-	typedef void(Manager::*window_callback)(window_ptr);
+	typedef void(Manager::*window_callback)(window_ptr_ref);
 
-	void PushWindow(window_ptr Param, window_callback Callback);
-	void CheckAndPushWindow(window_ptr Param, window_callback Callback);
-	void RedeleteWindow(window_ptr Deleted);
-	bool AddWindow(window_ptr Param);
+	void PushWindow(window_ptr_ref Param, window_callback Callback);
+	void CheckAndPushWindow(window_ptr_ref Param, window_callback Callback);
+	void RedeleteWindow(window_ptr_ref Deleted);
+	bool AddWindow(window_ptr_ref Param);
 	void SwitchWindow(DirectionType Direction);
 
 	INPUT_RECORD LastInputRecord;

@@ -59,7 +59,7 @@ void ColorItem::SetOwner(const GUID& Value)
 
 void ColorItem::SetColor(const FarColor& Value)
 {
-	Color = StoreColor(Value);
+	Color = colors::StoreColor(Value);
 }
 
 static int Recurse=0;
@@ -197,9 +197,9 @@ int Edit::GetNextCursorPos(int Position,int Where) const
 
 		if (!PosChanged)
 		{
-			for (int i=Position; i>=0; i--)
+			for (int i=std::min(Position, static_cast<int>(Mask.size())); i>=0; i--)
 			{
-				if (CheckCharMask(Mask.data()[i]))
+				if (CheckCharMask(Mask[i]))
 				{
 					Result=i;
 					PosChanged=TRUE;

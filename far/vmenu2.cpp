@@ -54,7 +54,7 @@ intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void*
 	case DN_CTLCOLORDIALOG:
 		{
 			FarColor *color=(FarColor*)Param2;
-			*color=ColorIndexToColor(COL_MENUBOX);
+			*color=colors::PaletteColorToFarColor(COL_MENUBOX);
 			return true;
 		}
 
@@ -81,7 +81,7 @@ intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void*
 				COL_MENUSELECTEDGRAYTEXT,                  // выбранный "серый"
 			};
 			for(size_t i=0; i<colors->ColorsCount && i<ARRAYSIZE(MenuColors); ++i)
-				colors->Colors[i]=ColorIndexToColor(MenuColors[i]);
+				colors->Colors[i]=colors::PaletteColorToFarColor(MenuColors[i]);
 
 			return true;
 		}

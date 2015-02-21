@@ -256,8 +256,8 @@ public:
 	bool SaveToCache();
 	bool IsPanelPlugin();
 	bool Active() const {return Activity != 0;}
-	void AddDialog(window_ptr Dlg);
-	bool RemoveDialog(window_ptr Dlg);
+	void AddDialog(window_ptr_ref Dlg);
+	bool RemoveDialog(window_ptr_ref Dlg);
 
 protected:
 	struct ExecuteStruct

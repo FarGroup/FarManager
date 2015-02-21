@@ -2451,7 +2451,7 @@ bool Options::AdvancedConfig(farconfig_mode Mode)
 
 	AdvancedConfigDlg[0].ListItems = &Items;
 
-	auto Dlg = Dialog::create(AdvancedConfigDlg, this, &Options::AdvancedConfigDlgProc);
+	auto Dlg = Dialog::create(AdvancedConfigDlg, &Options::AdvancedConfigDlgProc, this);
 	Dlg->SetHelp(L"FarConfig");
 	Dlg->SetPosition(-1, -1, DlgWidth, DlgHeight);
 	Dlg->SetId(AdvancedConfigId);

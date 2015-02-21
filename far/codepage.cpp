@@ -722,7 +722,7 @@ void codepages::EditCodePageName()
 		{DI_BUTTON,    0, 4,  0, 3, 0, nullptr, nullptr, DIF_CENTERGROUP, MSG(MGetCodePageResetCodePageName)}
 	};
 	auto EditDialog = MakeDialogItemsEx(EditDialogData);
-	auto Dlg = Dialog::create(EditDialog, this, &codepages::EditDialogProc);
+	auto Dlg = Dialog::create(EditDialog, &codepages::EditDialogProc, this);
 	Dlg->SetPosition(-1, -1, 54, 7);
 	Dlg->SetHelp(L"EditCodePageNameDlg");
 	Dlg->Process();
@@ -1404,22 +1404,18 @@ int Utf8::ToWideChar(const char *src, int length, wchar_t* out, int wlen, Utf::E
 
 //################################################################################################
 
-F8CP::~F8CP()
-{}
-
-F8CP::F8CP(bool viewer) : utf_name(L"UTF-8")
+F8CP::F8CP(bool viewer):
+	m_AcpName(MSG(Global->OnlyEditorViewerUsed? (viewer? MSingleViewF8 : MSingleEditF8) : (viewer? MViewF8 : MEditF8))),
+	m_OemName(MSG(Global->OnlyEditorViewerUsed? (viewer? MSingleViewF8DOS : MSingleEditF8DOS) : (viewer? MViewF8DOS : MEditF8DOS))),
+	m_UtfName(L"UTF-8")
 {
-	LNGID acpm = Global->OnlyEditorViewerUsed ? (viewer ? MSingleViewF8:MSingleEditF8) : (viewer ? MViewF8:MEditF8);
-	acp_name.assign(MSG(acpm));
-	LNGID oemm = Global->OnlyEditorViewerUsed ? (viewer ? MSingleViewF8DOS:MSingleEditF8DOS) : (viewer ? MViewF8DOS:MEditF8DOS);
-	oem_name.assign(MSG(oemm));
 
 	UINT defcp = viewer ? Global->Opt->ViOpt.DefaultCodePage : Global->Opt->EdOpt.DefaultCodePage;
 
 	string cps(viewer ? Global->Opt->ViOpt.strF8CPs : Global->Opt->EdOpt.strF8CPs);
-	if (cps != L"-1")
+	if (!cps.empty())
 	{
-		std::set<UINT> used_cps;
+		std::unordered_set<UINT> used_cps;
 		std::vector<string> f8list;
 		split(f8list , cps, 0);
 		std::for_each(CONST_RANGE(f8list, str_cp)
@@ -1436,53 +1432,52 @@ F8CP::F8CP(bool viewer) : utf_name(L"UTF-8")
 			else if (s == L"DEFAULT")
 				cp = defcp;
 			else {
-				try { cp = static_cast<UINT>(std::stoi(s)); }
+				try { cp = std::stoul(s); }
 				catch (std::exception&) { cp = 0; }
 			}
 			if (cp && Codepages().IsCodePageSupported(cp, viewer ? 2:20) && used_cps.find(cp)==used_cps.end())
 			{
-				f8cp_order.push_back(cp);
+				m_F8CpOrder.push_back(cp);
 				used_cps.insert(cp);
 			}
 		});
 	}
-	if (f8cp_order.empty())
+	if (m_F8CpOrder.empty())
 	{
 		UINT acp = GetACP(), oemcp = GetOEMCP();
-		if (cps != L"-1")
+		if (!cps.empty())
 			defcp = acp;
-		f8cp_order.push_back(defcp);
+		m_F8CpOrder.push_back(defcp);
 		if (acp != defcp)
-			f8cp_order.push_back(acp);
+			m_F8CpOrder.push_back(acp);
 		if (oemcp != defcp && oemcp != acp)
-			f8cp_order.push_back(oemcp);
+			m_F8CpOrder.push_back(oemcp);
 	}
 }
 
 uintptr_t F8CP::NextCP(uintptr_t cp) const
 {
-	UINT next_cp = f8cp_order[0];
-	if (cp == (cp & 0x7fffffff)) {
-		auto curr = std::find(ALL_CONST_RANGE(f8cp_order), static_cast<UINT>(cp));
-		if (curr != f8cp_order.cend() && ++curr != f8cp_order.cend())
+	UINT next_cp = m_F8CpOrder[0];
+	if (cp <= std::numeric_limits<UINT>::max())
+	{
+		auto curr = std::find(ALL_CONST_RANGE(m_F8CpOrder), static_cast<UINT>(cp));
+		if (curr != m_F8CpOrder.cend() && ++curr != m_F8CpOrder.cend())
 			next_cp = *curr;
 	}
-	return static_cast<uintptr_t>(next_cp);
+	return next_cp;
 }
 
-const wchar_t* F8CP::NextCPname(uintptr_t cp) const
+const string& F8CP::NextCPname(uintptr_t cp) const
 {
 	UINT next_cp = static_cast<UINT>(NextCP(cp));
 	if (next_cp == GetACP())
-		return acp_name.data();
+		return m_AcpName;
 	else if (next_cp == GetOEMCP())
-		return oem_name.data();
+		return m_OemName;
 	else if (next_cp == CP_UTF8)
-		return utf_name.data();
-	else {
-		number.assign(std::to_wstring(next_cp));
-		return number.data();
-	}
+		return m_UtfName;
+	else
+		return m_Number = std::to_wstring(next_cp);
 }
 
 //################################################################################################

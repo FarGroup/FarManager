@@ -173,8 +173,8 @@ void InfoList::DisplayObject()
 	FormatString strDiskNumber;
 	CloseFile();
 
-	Box(m_X1,m_Y1,m_X2,m_Y2,ColorIndexToColor(COL_PANELBOX),DOUBLE_BOX);
-	SetScreen(m_X1+1,m_Y1+1,m_X2-1,m_Y2-1,L' ',ColorIndexToColor(COL_PANELTEXT));
+	Box(m_X1,m_Y1,m_X2,m_Y2,colors::PaletteColorToFarColor(COL_PANELBOX),DOUBLE_BOX);
+	SetScreen(m_X1+1,m_Y1+1,m_X2-1,m_Y2-1,L' ',colors::PaletteColorToFarColor(COL_PANELTEXT));
 	SetColor(m_Focus? COL_PANELSELECTEDTITLE : COL_PANELTITLE);
 
 	string strTitle = GetTitle();
@@ -198,7 +198,7 @@ void InfoList::DisplayObject()
 			dwSize = MAX_COMPUTERNAME_LENGTH+1;
 			GetComputerName(ComputerName.get(), &dwSize);  // retrieves only the NetBIOS name of the local computer
 		}
-		strComputerName.assign(ComputerName.get());
+		strComputerName = ComputerName.get();
 
 		GotoXY(m_X1+2,CurY++);
 		PrintText(MInfoCompName);
@@ -224,7 +224,7 @@ void InfoList::DisplayObject()
 			dwSize = UNLEN+1;
 			GetUserName(UserName.get(), &dwSize);
 		}
-		strUserName.assign(UserName.get());
+		strUserName = UserName.get();
 
 		GotoXY(m_X1+2,CurY++);
 		PrintText(MInfoUserName);

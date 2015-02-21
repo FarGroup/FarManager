@@ -1243,7 +1243,7 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 	MacroSettingsDlg[MS_EDIT_DESCR].strData=(Descr && *Descr)?Descr:m_RecDescription.data();
 
 	DlgParam Param={0, 0, MACROAREA_OTHER, 0, false};
-	auto Dlg = Dialog::create(MacroSettingsDlg, this, &KeyMacro::ParamMacroDlgProc, &Param);
+	auto Dlg = Dialog::create(MacroSettingsDlg, &KeyMacro::ParamMacroDlgProc, this, &Param);
 	Dlg->SetPosition(-1,-1,73,21);
 	Dlg->SetHelp(L"KeyMacroSetting");
 	auto BottomWindow = Global->WindowManager->GetBottomWindow();
@@ -5384,7 +5384,7 @@ int KeyMacro::AssignMacroKey(DWORD &MacroKey, UINT64 &Flags)
 	DlgParam Param={Flags, 0, m_StartMode, 0, false};
 	//_SVS(SysLog(L"StartMode=%d",m_StartMode));
 	Global->IsProcessAssignMacroKey++;
-	auto Dlg = Dialog::create(MacroAssignDlg, this, &KeyMacro::AssignMacroDlgProc, &Param);
+	auto Dlg = Dialog::create(MacroAssignDlg, &KeyMacro::AssignMacroDlgProc, this, &Param);
 	Dlg->SetPosition(-1,-1,34,6);
 	Dlg->SetHelp(L"KeyMacro");
 	Dlg->Process();

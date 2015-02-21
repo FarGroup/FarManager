@@ -309,6 +309,91 @@ intptr_t DefProcFunction(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param
 	return Dlg->DefProc(Msg, Param1, Param2);
 }
 
+// Структура, описывающая автоматизацию для DIF_AUTOMATION
+// на первом этапе - примитивная - выставление флагов у элементов для CheckBox
+struct DialogItemEx::DialogItemAutomation
+{
+	DialogItemEx* Owner;                    // Для этого элемента...
+	FARDIALOGITEMFLAGS Flags[3][2];          // ...выставить вот эти флаги
+	// [0] - Unchecked, [1] - Checked, [2] - 3Checked
+	// [][0] - Set, [][1] - Skip
+};
+
+DialogItemEx::DialogItemEx():
+	FarDialogItem(),
+	ListPos(),
+	ObjPtr(),
+	UCData(),
+	SelStart(),
+	SelEnd()
+{}
+
+DialogItemEx::DialogItemEx(const DialogItemEx& rhs):
+	FarDialogItem(rhs),
+	ListPos(rhs.ListPos),
+	strHistory(rhs.strHistory),
+	strMask(rhs.strMask),
+	strData(rhs.strData),
+	IFlags(rhs.IFlags),
+	Auto(rhs.Auto),
+	ObjPtr(rhs.ObjPtr),
+	ListPtr(rhs.ListPtr),
+	UCData(rhs.UCData),
+	SelStart(rhs.SelStart),
+	SelEnd(rhs.SelEnd)
+{}
+
+DialogItemEx::DialogItemEx(DialogItemEx&& rhs):
+	FarDialogItem(),
+	ListPos(),
+	ObjPtr(),
+	ListPtr(),
+	UCData(),
+	SelStart(),
+	SelEnd()
+{
+	*this = std::move(rhs);
+}
+
+DialogItemEx::~DialogItemEx()
+{
+}
+
+void DialogItemEx::swap(DialogItemEx& rhs) noexcept
+{
+	using std::swap;
+	swap(*static_cast<FarDialogItem*>(this), static_cast<FarDialogItem&>(rhs));
+	swap(ListPos, rhs.ListPos);
+	strHistory.swap(rhs.strHistory);
+	strMask.swap(rhs.strMask);
+	strData.swap(rhs.strData);
+	swap(IFlags, rhs.IFlags);
+	Auto.swap(rhs.Auto);
+	swap(ObjPtr, rhs.ObjPtr);
+	swap(ListPtr, rhs.ListPtr);
+	swap(UCData, rhs.UCData);
+	swap(SelStart, rhs.SelStart);
+	swap(SelEnd, rhs.SelEnd);
+}
+
+bool DialogItemEx::AddAutomation(DialogItemEx* DlgItem,
+	FARDIALOGITEMFLAGS UncheckedSet, FARDIALOGITEMFLAGS UncheckedSkip,
+	FARDIALOGITEMFLAGS CheckedSet, FARDIALOGITEMFLAGS CheckedSkip,
+	FARDIALOGITEMFLAGS Checked3Set, FARDIALOGITEMFLAGS Checked3Skip)
+{
+	DialogItemAutomation Item;
+	Item.Owner = DlgItem;
+	Item.Flags[0][0] = UncheckedSet;
+	Item.Flags[0][1] = UncheckedSkip;
+	Item.Flags[1][0] = CheckedSet;
+	Item.Flags[1][1] = CheckedSkip;
+	Item.Flags[2][0] = Checked3Set;
+	Item.Flags[2][1] = Checked3Skip;
+	Auto.emplace_back(Item);
+	return true;
+}
+
+
 Dialog::Dialog():
 	bInitOK(),
 	DataDialog(),
@@ -327,7 +412,7 @@ void Dialog::Construct(DialogItemEx** SrcItem, size_t SrcItemCount)
 	// Items[i].Auto.Owner points to SrcItems, we need to update:
 	for_each_2(ALL_RANGE(Items), Src, [&](DialogItemEx& item, const DialogItemEx& initItem)
 	{
-		for_each_2(ALL_RANGE(item.Auto), initItem.Auto.begin(), [&](DialogItemAutomation& itemAuto, const DialogItemAutomation& initAuto)
+		for_each_2(ALL_RANGE(item.Auto), initItem.Auto.begin(), [&](DialogItemEx::DialogItemAutomation& itemAuto, const DialogItemEx::DialogItemAutomation& initAuto)
 		{
 			auto ItemNumber = std::find_if(Src, Src + SrcItemCount, [&](const DialogItemEx& i) { return &i == initAuto.Owner; }) - Src;
 			itemAuto.Owner = &Items[ItemNumber];
@@ -1360,24 +1445,24 @@ intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITE
 		case DI_DOUBLEBOX:
 		{
 			// Title
-			Color[0] = ColorIndexToColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOXTITLE) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGBOXTITLE));
+			Color[0] = colors::PaletteColorToFarColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOXTITLE) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGBOXTITLE));
 			// HiText
-			Color[1] = ColorIndexToColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTBOXTITLE) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTBOXTITLE));
+			Color[1] = colors::PaletteColorToFarColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTBOXTITLE) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTBOXTITLE));
 			// Box
-			Color[2] = ColorIndexToColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGBOX));
+			Color[2] = colors::PaletteColorToFarColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGBOX));
 			break;
 		}
 
 		case DI_VTEXT:
 		case DI_TEXT:
 		{
-			Color[0] = ColorIndexToColor((Flags & DIF_BOXCOLOR)? (DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGBOX)) : (DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGTEXT)));
+			Color[0] = colors::PaletteColorToFarColor((Flags & DIF_BOXCOLOR)? (DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGBOX)) : (DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGTEXT)));
 			// HiText
-			Color[1] = ColorIndexToColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTTEXT) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTTEXT));
+			Color[1] = colors::PaletteColorToFarColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTTEXT) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTTEXT));
 			if (Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2))
 			{
 				// Box
-				Color[2] = ColorIndexToColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGBOX));
+				Color[2] = colors::PaletteColorToFarColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGBOX));
 			}
 			break;
 		}
@@ -1385,9 +1470,9 @@ intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITE
 		case DI_CHECKBOX:
 		case DI_RADIOBUTTON:
 		{
-			Color[0] = ColorIndexToColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGTEXT));
+			Color[0] = colors::PaletteColorToFarColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGTEXT));
 			// HiText
-			Color[1] = ColorIndexToColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTTEXT) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTTEXT));
+			Color[1] = colors::PaletteColorToFarColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTTEXT) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTTEXT));
 			break;
 		}
 
@@ -1397,18 +1482,18 @@ intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITE
 			{
 				SetCursorType(0,10);
 				// TEXT
-				Color[0] = ColorIndexToColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:(Default?COL_WARNDIALOGSELECTEDDEFAULTBUTTON:COL_WARNDIALOGSELECTEDBUTTON)) : (DisabledItem?COL_DIALOGDISABLED:(Default?COL_DIALOGSELECTEDDEFAULTBUTTON:COL_DIALOGSELECTEDBUTTON)));
+				Color[0] = colors::PaletteColorToFarColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:(Default?COL_WARNDIALOGSELECTEDDEFAULTBUTTON:COL_WARNDIALOGSELECTEDBUTTON)) : (DisabledItem?COL_DIALOGDISABLED:(Default?COL_DIALOGSELECTEDDEFAULTBUTTON:COL_DIALOGSELECTEDBUTTON)));
 				// HiText
-				Color[1] = ColorIndexToColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:(Default?COL_WARNDIALOGHIGHLIGHTSELECTEDDEFAULTBUTTON:COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON)) : (DisabledItem?COL_DIALOGDISABLED:(Default?COL_DIALOGHIGHLIGHTSELECTEDDEFAULTBUTTON:COL_DIALOGHIGHLIGHTSELECTEDBUTTON)));
+				Color[1] = colors::PaletteColorToFarColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:(Default?COL_WARNDIALOGHIGHLIGHTSELECTEDDEFAULTBUTTON:COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON)) : (DisabledItem?COL_DIALOGDISABLED:(Default?COL_DIALOGHIGHLIGHTSELECTEDDEFAULTBUTTON:COL_DIALOGHIGHLIGHTSELECTEDBUTTON)));
 			}
 			else
 			{
 				// TEXT
-				Color[0] = ColorIndexToColor(DialogMode.Check(DMODE_WARNINGSTYLE)?
+				Color[0] = colors::PaletteColorToFarColor(DialogMode.Check(DMODE_WARNINGSTYLE)?
 						(DisabledItem?COL_WARNDIALOGDISABLED:(Default?COL_WARNDIALOGDEFAULTBUTTON:COL_WARNDIALOGBUTTON)):
 						(DisabledItem?COL_DIALOGDISABLED:(Default?COL_DIALOGDEFAULTBUTTON:COL_DIALOGBUTTON)));
 				// HiText
-				Color[1] = ColorIndexToColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:(Default?COL_WARNDIALOGHIGHLIGHTDEFAULTBUTTON:COL_WARNDIALOGHIGHLIGHTBUTTON)) : (DisabledItem?COL_DIALOGDISABLED:(Default?COL_DIALOGHIGHLIGHTDEFAULTBUTTON:COL_DIALOGHIGHLIGHTBUTTON)));
+				Color[1] = colors::PaletteColorToFarColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:(Default?COL_WARNDIALOGHIGHLIGHTDEFAULTBUTTON:COL_WARNDIALOGHIGHLIGHTBUTTON)) : (DisabledItem?COL_DIALOGDISABLED:(Default?COL_DIALOGHIGHLIGHTDEFAULTBUTTON:COL_DIALOGHIGHLIGHTBUTTON)));
 			}
 			break;
 		}
@@ -1424,24 +1509,24 @@ intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITE
 				if (DialogMode.Check(DMODE_WARNINGSTYLE))
 				{
 					// Text
-					Color[0] = ColorIndexToColor(DisabledItem?COL_WARNDIALOGEDITDISABLED:COL_WARNDIALOGEDIT);
+					Color[0] = colors::PaletteColorToFarColor(DisabledItem?COL_WARNDIALOGEDITDISABLED:COL_WARNDIALOGEDIT);
 					// Select
-					Color[1] = ColorIndexToColor(DisabledItem?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED);
+					Color[1] = colors::PaletteColorToFarColor(DisabledItem?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED);
 					// Unchanged
-					Color[2] = ColorIndexToColor(DisabledItem?COL_WARNDIALOGEDITDISABLED:COL_DIALOGEDITUNCHANGED); //???
+					Color[2] = colors::PaletteColorToFarColor(DisabledItem?COL_WARNDIALOGEDITDISABLED:COL_DIALOGEDITUNCHANGED); //???
 					// History
-					Color[3] = ColorIndexToColor(DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT);
+					Color[3] = colors::PaletteColorToFarColor(DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT);
 				}
 				else
 				{
 					// Text
-					Color[0] = ColorIndexToColor(DisabledItem?COL_DIALOGEDITDISABLED:(!Focus?COL_DIALOGEDIT:COL_DIALOGEDITSELECTED));
+					Color[0] = colors::PaletteColorToFarColor(DisabledItem?COL_DIALOGEDITDISABLED:(!Focus?COL_DIALOGEDIT:COL_DIALOGEDITSELECTED));
 					// Select
-					Color[1] = ColorIndexToColor(DisabledItem?COL_DIALOGEDITDISABLED:(!Focus?COL_DIALOGEDIT:COL_DIALOGEDITSELECTED));
+					Color[1] = colors::PaletteColorToFarColor(DisabledItem?COL_DIALOGEDITDISABLED:(!Focus?COL_DIALOGEDIT:COL_DIALOGEDITSELECTED));
 					// Unchanged
-					Color[2] = ColorIndexToColor(DisabledItem?COL_DIALOGEDITDISABLED:COL_DIALOGEDITUNCHANGED); //???
+					Color[2] = colors::PaletteColorToFarColor(DisabledItem?COL_DIALOGEDITDISABLED:COL_DIALOGEDITUNCHANGED); //???
 					// History
-					Color[3] = ColorIndexToColor(DisabledItem?COL_DIALOGDISABLED:COL_DIALOGTEXT);
+					Color[3] = colors::PaletteColorToFarColor(DisabledItem?COL_DIALOGDISABLED:COL_DIALOGTEXT);
 				}
 			}
 			else
@@ -1449,24 +1534,24 @@ intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITE
 				if (DialogMode.Check(DMODE_WARNINGSTYLE))
 				{
 					// Text
-					Color[0] = ColorIndexToColor(DisabledItem?COL_WARNDIALOGEDITDISABLED:(Flags&DIF_NOFOCUS?COL_DIALOGEDITUNCHANGED:COL_WARNDIALOGEDIT));
+					Color[0] = colors::PaletteColorToFarColor(DisabledItem?COL_WARNDIALOGEDITDISABLED:(Flags&DIF_NOFOCUS?COL_DIALOGEDITUNCHANGED:COL_WARNDIALOGEDIT));
 					// Select
-					Color[1] = ColorIndexToColor(DisabledItem?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED);
+					Color[1] = colors::PaletteColorToFarColor(DisabledItem?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED);
 					// Unchanged
-					Color[2] = ColorIndexToColor(DisabledItem?COL_WARNDIALOGEDITDISABLED:COL_DIALOGEDITUNCHANGED);
+					Color[2] = colors::PaletteColorToFarColor(DisabledItem?COL_WARNDIALOGEDITDISABLED:COL_DIALOGEDITUNCHANGED);
 					// History
-					Color[3] = ColorIndexToColor(DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT);
+					Color[3] = colors::PaletteColorToFarColor(DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT);
 				}
 				else
 				{
 					// Text
-					Color[0] = ColorIndexToColor(DisabledItem?COL_DIALOGEDITDISABLED:(Flags&DIF_NOFOCUS?COL_DIALOGEDITUNCHANGED:COL_DIALOGEDIT));
+					Color[0] = colors::PaletteColorToFarColor(DisabledItem?COL_DIALOGEDITDISABLED:(Flags&DIF_NOFOCUS?COL_DIALOGEDITUNCHANGED:COL_DIALOGEDIT));
 					// Select
-					Color[1] = ColorIndexToColor(DisabledItem?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED);
+					Color[1] = colors::PaletteColorToFarColor(DisabledItem?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED);
 					// Unchanged
-					Color[2] = ColorIndexToColor(DisabledItem?COL_DIALOGEDITDISABLED:COL_DIALOGEDITUNCHANGED), //???;
+					Color[2] = colors::PaletteColorToFarColor(DisabledItem?COL_DIALOGEDITDISABLED:COL_DIALOGEDITUNCHANGED), //???;
 					// History
-					Color[3] = ColorIndexToColor(DisabledItem?COL_DIALOGDISABLED:COL_DIALOGTEXT);
+					Color[3] = colors::PaletteColorToFarColor(DisabledItem?COL_DIALOGDISABLED:COL_DIALOGTEXT);
 				}
 			}
 			break;
@@ -1543,7 +1628,7 @@ void Dialog::ShowDialog(size_t ID)
 
 		if (!DialogMode.Check(DMODE_NODRAWPANEL))
 		{
-			FarColor Color = ColorIndexToColor(DialogMode.Check(DMODE_WARNINGSTYLE) ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
+			FarColor Color = colors::PaletteColorToFarColor(DialogMode.Check(DMODE_WARNINGSTYLE) ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
 			DlgProc(DN_CTLCOLORDIALOG, 0, &Color);
 			SetScreen(m_X1, m_Y1, m_X2, m_Y2, L' ', Color);
 		}
@@ -1920,7 +2005,7 @@ void Dialog::ShowDialog(size_t ID)
 				if(Items[I].Flags & DIF_SETSHIELD)
 				{
 					int startx=m_X1+CX1+(Items[I].Flags&DIF_NOBRACKETS?0:2);
-					Global->ScrBuf->ApplyColor(startx, m_Y1 + CY1, startx + 1, m_Y1 + CY1, Colors::ConsoleColorToFarColor(B_YELLOW|F_LIGHTBLUE));
+					Global->ScrBuf->ApplyColor(startx, m_Y1 + CY1, startx + 1, m_Y1 + CY1, colors::ConsoleColorToFarColor(B_YELLOW|F_LIGHTBLUE));
 				}
 				break;
 			}
@@ -4533,7 +4618,7 @@ intptr_t Dialog::DefProc(intptr_t Msg, intptr_t Param1, void* Param2)
 				   1) когда диалог перемещается в угол
 				   2) когда диалог перемещается из угла
 				   сделал вывод красных палочек по углам */
-				FarColor Color = Colors::ConsoleColorToFarColor(0xCE);
+				FarColor Color = colors::ConsoleColorToFarColor(0xCE);
 				Text(m_X1, m_Y1, Color, L"\\");
 				Text(m_X1, m_Y2, Color, L"/");
 				Text(m_X2, m_Y1, Color, L"/");
@@ -4921,31 +5006,23 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		// Param1=0, Param2=FarDialogItemData, Ret=size (without '\0')
 		case DM_GETDIALOGTITLE:
 		{
-			const wchar_t *Ptr = nullptr;
-			size_t Len=0;
-
-			FarDialogItemData *did=(FarDialogItemData*)Param2;
-			auto InitItemData=[did,&Ptr,&Len]
+			const auto did = static_cast<FarDialogItemData*>(Param2);
+			const auto strTitleDialog = GetTitle();
+			auto Len = strTitleDialog.size();
+			if (CheckStructSize(did)) // если здесь nullptr, то это еще один способ получить размер
 			{
+				const auto Ptr = strTitleDialog.data();
+				//Len=StrLength(Ptr);
 				if (!did->PtrLength)
-					did->PtrLength=Len;
+					did->PtrLength = Len;
 				else if (Len > did->PtrLength)
-					Len=did->PtrLength;
+					Len = did->PtrLength;
 
 				if (did->PtrData)
 				{
 					std::copy_n(Ptr, Len, did->PtrData);
-					did->PtrData[Len]=L'\0';
+					did->PtrData[Len] = L'\0';
 				}
-			};
-
-			string strTitleDialog = GetTitle();
-			Len = strTitleDialog.size();
-			if (CheckStructSize(did)) // если здесь nullptr, то это еще один способ получить размер
-			{
-				Ptr=strTitleDialog.c_str();
-				//Len=StrLength(Ptr);
-				InitItemData();
 			}
 
 			return Len;
@@ -5774,7 +5851,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 					if ((ListMenuItem=CurItem->ListPtr->GetItemPtr(-1)) )
 					{
-						Len=(int)ListMenuItem->strName.size();
+						Len = ListMenuItem->strName.size();
 					}
 
 					break;

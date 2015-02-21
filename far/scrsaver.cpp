@@ -177,7 +177,7 @@ int ScreenSaver(int EnableExit)
 		SaveScreen SaveScr;
 		SetCursorType(0,10);
 		srand(67898);
-		FarColor Color = Colors::ConsoleColorToFarColor(F_LIGHTGRAY|B_BLACK);
+		FarColor Color = colors::ConsoleColorToFarColor(F_LIGHTGRAY|B_BLACK);
 		SetScreen(0,0,ScrX,ScrY,L' ', Color);
 
 		std::for_each(RANGE(Star, i)

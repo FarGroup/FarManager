@@ -280,7 +280,7 @@ CopyProgress::CopyProgress(bool Move,bool Total,bool Time):
 	BgInit(false),
 	ScanBgInit(false),
 	IsCancelled(false),
-	Color(ColorIndexToColor(COL_DIALOGTEXT)),
+	Color(colors::PaletteColorToFarColor(COL_DIALOGTEXT)),
 	Percents(0),
 	TimeCheck(time_check::immediate, GetRedrawTimeout()),
 	SecurityTimeCheck(time_check::immediate, GetRedrawTimeout())
@@ -1273,7 +1273,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		}
 
 		CopyDlg[ID_SC_COMBO].ListItems=&ComboList;
-		auto Dlg = Dialog::create(CopyDlg, this, &ShellCopy::CopyDlgProc);
+		auto Dlg = Dialog::create(CopyDlg, &ShellCopy::CopyDlgProc, this);
 		Dlg->SetHelp(Link?L"HardSymLink":L"CopyFiles");
 		Dlg->SetId(Link?HardSymLinkId:(Move?MoveFilesId:CopyFilesId));
 		Dlg->SetPosition(-1,-1,DLG_WIDTH,DLG_HEIGHT);
@@ -3547,7 +3547,7 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 		{
 			if (Param1==WDLG_FILENAME)
 			{
-				FarColor Color=ColorIndexToColor(COL_WARNDIALOGTEXT);
+				FarColor Color=colors::PaletteColorToFarColor(COL_WARNDIALOGTEXT);
 				FarDialogItemColors* Colors = static_cast<FarDialogItemColors*>(Param2);
 				Colors->Colors[0] = Color;
 				Colors->Colors[2] = Color;
@@ -3937,7 +3937,7 @@ bool ShellCopy::SetSecurity(const string& FileName, const api::FAR_SECURITY_DESC
 	return true;
 }
 
-BOOL ShellCopySecuryMsg(CopyProgress* CP, const string& Name)
+static BOOL ShellCopySecuryMsg(const CopyProgress* CP, const string& Name)
 {
 	if (Name.empty() || CP->SecurityTimeCheck)
 	{

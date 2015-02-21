@@ -805,12 +805,12 @@ void Plugin::ClearExports()
 	Exports.fill(nullptr);
 }
 
-void Plugin::AddDialog(window_ptr Dlg)
+void Plugin::AddDialog(window_ptr_ref Dlg)
 {
 	m_dialogs.insert(Dlg);
 }
 
-bool Plugin::RemoveDialog(window_ptr Dlg)
+bool Plugin::RemoveDialog(window_ptr_ref Dlg)
 {
 	auto ItemIterator = m_dialogs.find(Dlg);
 	if (ItemIterator != m_dialogs.cend())

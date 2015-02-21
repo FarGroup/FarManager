@@ -2771,7 +2771,7 @@ bool FindFiles::FindFilesProcess()
 		FindDlg[FD_BUTTON_PANEL].Flags|=DIF_DISABLE;
 	}
 
-	auto Dlg = Dialog::create(FindDlg, this, &FindFiles::FindDlgProc);
+	auto Dlg = Dialog::create(FindDlg, &FindFiles::FindDlgProc, this);
 //  pDlg->SetDynamicallyBorn();
 	Dlg->SetHelp(L"FindFileResult");
 	Dlg->SetPosition(-1, -1, DlgWidth, DlgHeight);
@@ -3131,7 +3131,7 @@ FindFiles::FindFiles():
 		FindAskDlg[FAD_CHECKBOX_WHOLEWORDS].Selected=WholeWords;
 		FindAskDlg[FAD_CHECKBOX_HEX].Selected=SearchHex;
 		int ExitCode;
-		auto Dlg = Dialog::create(FindAskDlg, this, &FindFiles::MainDlgProc);
+		auto Dlg = Dialog::create(FindAskDlg, &FindFiles::MainDlgProc, this);
 		Dlg->SetAutomation(FAD_CHECKBOX_FILTER,FAD_BUTTON_FILTER,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 		Dlg->SetHelp(L"FindFile");
 		Dlg->SetId(FindFileId);

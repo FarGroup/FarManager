@@ -564,7 +564,7 @@ void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const Highli
 		if (!COLORVALUE(Color.BackgroundColor) && !COLORVALUE(Color.ForegroundColor))
 		{
 			FARCOLORFLAGS ExFlags = Color.Flags&FCF_EXTENDEDFLAGS;
-			Color=ColorIndexToColor(pal);
+			Color=colors::PaletteColorToFarColor(pal);
 			Color.Flags|=ExFlags;
 
 		}
@@ -593,7 +593,7 @@ void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const Highli
 			}
 		}
 
-		VBufColorExample[15 * VBufRow].Attributes = VBufColorExample[15 * VBufRow + 14].Attributes = ColorIndexToColor(COL_PANELBOX);
+		VBufColorExample[15 * VBufRow].Attributes = VBufColorExample[15 * VBufRow + 14].Attributes = colors::PaletteColorToFarColor(COL_PANELBOX);
 		++VBufRow;
 	});
 }

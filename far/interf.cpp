@@ -787,12 +787,12 @@ static void HiTextBase(const string& Str, const std::function<void(const string&
 void HiText(const string& Str,const FarColor& HiColor,int isVertText)
 {
 	typedef void(*text_func)(const string&);
-	text_func fText = Text, fVText = VText; //BUGBUG
+	const text_func fText = Text, fVText = VText; //BUGBUG
 	const auto TextFunc  = isVertText ? fVText : fText;
 
 	HiTextBase(Str, [&TextFunc](const string& s){ TextFunc(s); }, [&TextFunc, &HiColor](wchar_t c)
 	{
-		auto SaveColor = CurColor;
+		const auto SaveColor = CurColor;
 		SetColor(HiColor);
 		TextFunc(string(1, c));
 		SetColor(SaveColor);
@@ -847,12 +847,12 @@ void ChangeBlockColor(int X1,int Y1,int X2,int Y2,const FarColor& Color)
 
 void SetColor(int Color)
 {
-	CurColor=ColorIndexToColor((PaletteColors)Color);
+	CurColor = colors::ConsoleColorToFarColor(Color);
 }
 
 void SetColor(PaletteColors Color)
 {
-	CurColor=ColorIndexToColor(Color);
+	CurColor=colors::PaletteColorToFarColor(Color);
 }
 
 void SetColor(const FarColor& Color)
@@ -886,7 +886,7 @@ const FarColor& GetColor()
 void ScrollScreen(int Count)
 {
 	Global->ScrBuf->Scroll(Count);
-	Global->ScrBuf->FillRect(0,ScrY+1-Count,ScrX,ScrY,L' ',ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
+	Global->ScrBuf->FillRect(0,ScrY+1-Count,ScrX,ScrY,L' ',colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 }
 
 

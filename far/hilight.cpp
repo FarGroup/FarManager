@@ -157,9 +157,9 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 			size_t Index = 0;
 			FOR(auto& i, StdHighlightData)
 			{
-				i.NormalColor = Colors::ConsoleColorToFarColor(i.InitNC);
+				i.NormalColor = colors::ConsoleColorToFarColor(i.InitNC);
 				MAKE_TRANSPARENT(i.NormalColor.BackgroundColor);
-				i.CursorColor = Colors::ConsoleColorToFarColor(i.InitCC);
+				i.CursorColor = colors::ConsoleColorToFarColor(i.InitCC);
 				MAKE_TRANSPARENT(i.CursorColor.BackgroundColor);
 
 				unsigned __int64 key = cfg->CreateKey(root, L"Group" + std::to_wstring(Index++));
@@ -294,7 +294,7 @@ static void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilter
 
 void HighlightFiles::InitHighlightFiles(HierarchicalConfig* cfg)
 {
-	static const struct group_item
+	static const struct
 	{
 		int Delta;
 		const wchar_t* KeyName;
@@ -373,7 +373,7 @@ static void ApplyBlackOnBlackColor(HighlightFiles::highlight_item::colors_array:
 
 	//Применим black on black.
 	//Для файлов возьмем цвета панели не изменяя прозрачность.
-	InheritColor(Color.FileColor, Global->Opt->Palette[PaletteColor - COL_FIRSTPALETTECOLOR]);
+	InheritColor(Color.FileColor, Global->Opt->Palette[PaletteColor]);
 	//Для пометки возьмем цвета файла включая прозрачность.
 	InheritColor(Color.MarkColor, Color.FileColor);
 }
@@ -432,7 +432,7 @@ void HighlightFiles::ApplyFinalColor(highlight_item::colors_array::value_type& C
 	//Обработаем black on black чтоб после наследования были правильные цвета.
 	ApplyBlackOnBlackColor(Colors, PaletteColor);
 
-	const auto& PanelColor = Global->Opt->Palette[PaletteColor - COL_FIRSTPALETTECOLOR];
+	const auto& PanelColor = Global->Opt->Palette[PaletteColor];
 
 	//Если какой то из текущих цветов (fore или back) прозрачный
 	//то унаследуем соответствующий цвет с панелей.
