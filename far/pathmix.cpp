@@ -76,8 +76,10 @@ PATH_TYPE ParsePath(const string& path, size_t* DirectoryOffset, bool* Root)
 	}
 	PathTypes[] =
 	{
+		// TODO: tests for all these types
+
 		// x:<whatever> or x:\\<whatever>
-		{PATH_DRIVELETTER, L"(^.\\:)(?:[\\\\\\/]|$)"},
+		{PATH_DRIVELETTER, L"(^.\\:)(?:[\\\\\\/]?)"},
 		// \\?\x: or \\?\x:\ or \\?\x:\<whatever>
 		{PATH_DRIVELETTERUNC, L"(^\\\\{2}[\\?\\.]\\\\.\\:)(?:[\\\\\\/]|$)"},
 		// \\server\share or \\server\share\ or \\server\share<whatever>
