@@ -3,6 +3,34 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 21.02.2015 11:14:06 +0200 - build 4276
+
+1. Incorrect expansion of paths C:path.
+
+drkns 21.02.2015 09:54:33 +0200 - build 4275
+
+1. Refactoring.
+
+shmuel 21.02.2015 00:52:00 +0200 - build 4274
+
+1. Refactoring.
+
+shmuel 20.02.2015 17:58:57 +0200 - build 4273
+
+1. Refactoring.
+
+zg 20.02.2015 01:01:34 +0200 - build 4272
+
+1. correction of 4262: when something caused quickview redraw in VE_READ, FAR crashed.
+
+shmuel 19.02.2015 16:30:33 +0200 - build 4271
+
+1. M#2950: InputRecordToName returns a character of code 1: ☺
+
+w17 18.02.2015 23:36:18 +0300 - build 4270
+
+1. M#2949: HEX search problem -- fix 4208
+
 svs 14.02.2015 10:29:41 +0300 - build 4269
 
 1. SQLite 3.8.8.2
