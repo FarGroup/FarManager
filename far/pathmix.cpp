@@ -515,8 +515,7 @@ string ExtractFileName(const string &Path)
 
 	size_t PathRootLen = GetPathRootLength(Path);
 
-	if (p < PathRootLen && PathRootLen)
-		return string();
+	p = std::max(p, PathRootLen);
 
 	return string(Path.data() + p, Path.size() - p);
 }

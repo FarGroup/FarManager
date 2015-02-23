@@ -405,6 +405,7 @@ namespace api
 				m_name(name),
 				m_module(),
 				m_loaded(),
+				m_tried(),
 				m_AlternativeLoad(AlternativeLoad)
 			{}
 			~module();
@@ -418,6 +419,7 @@ namespace api
 			const wchar_t* m_name;
 			mutable HMODULE m_module;
 			mutable bool m_loaded;
+			mutable bool m_tried;
 			const bool m_AlternativeLoad;
 		};
 

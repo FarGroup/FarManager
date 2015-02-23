@@ -1996,8 +1996,9 @@ DWORD GetAppPathsRedirectionFlag()
 
 		HMODULE module::get_module() const
 		{
-			if (!m_module)
+			if (!m_tried && !m_module)
 			{
+				m_tried = true;
 				m_module = GetModuleHandle(m_name);
 				if (!m_module)
 				{

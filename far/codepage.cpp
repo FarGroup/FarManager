@@ -1413,7 +1413,7 @@ F8CP::F8CP(bool viewer):
 	UINT defcp = viewer ? Global->Opt->ViOpt.DefaultCodePage : Global->Opt->EdOpt.DefaultCodePage;
 
 	string cps(viewer ? Global->Opt->ViOpt.strF8CPs : Global->Opt->EdOpt.strF8CPs);
-	if (!cps.empty())
+	if (cps != L"-1")
 	{
 		std::unordered_set<UINT> used_cps;
 		std::vector<string> f8list;
@@ -1445,7 +1445,7 @@ F8CP::F8CP(bool viewer):
 	if (m_F8CpOrder.empty())
 	{
 		UINT acp = GetACP(), oemcp = GetOEMCP();
-		if (!cps.empty())
+		if (cps != L"-1")
 			defcp = acp;
 		m_F8CpOrder.push_back(defcp);
 		if (acp != defcp)
