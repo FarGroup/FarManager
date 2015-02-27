@@ -1,4 +1,8 @@
-﻿svs 25.02.2015 19:08:58 +0300 - build 4278
+﻿w17 27.02.2015 14:35:20 +0300 - build 4279
+
+1. M#2954: Switch to Viewer (F6) loses current position when "Save file position" is OFF
+
+svs 25.02.2015 19:08:58 +0300 - build 4278
 
 1. SQLite 3.8.8.3
 

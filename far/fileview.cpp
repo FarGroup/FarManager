@@ -142,9 +142,6 @@ void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 	InitKeyBar();
 	m_windowKeyBar->SetPosition(m_X1, m_Y2, m_X2, m_Y2);
 
-	if (ViewStartPos != -1)
-		GetView().SetFilePos(ViewStartPos);
-
 	if (ViewNamesList)
 		GetView().SetNamesList(*ViewNamesList);
 
@@ -155,6 +152,9 @@ void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 		m_ExitCode=FALSE;
 		return;
 	}
+
+	if (ViewStartPos != -1)
+		GetView().SetFilePos(ViewStartPos);
 
 	m_ExitCode=TRUE;
 
