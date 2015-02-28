@@ -1188,7 +1188,7 @@ function MT.test_Plugin()
   test(Plugin.SyncCall, 8000-8)
 end
 
-function MT.test_far_MacroExecute()
+local function test_far_MacroExecute()
   local function test(code, flags)
     local t = far.MacroExecute(code, flags,
       "foo",
@@ -1211,7 +1211,7 @@ function MT.test_far_MacroExecute()
   test("...", "KMFLAGS_MOONSCRIPT")
 end
 
-function MT.test_far_MacroAdd()
+local function test_far_MacroAdd()
   local area, key, descr = "MACROAREA_SHELL", "CtrlA", "Test MacroAdd"
 
   local Id = far.MacroAdd(area, nil, key, [[A = { b=5 }]], descr)
@@ -1256,7 +1256,7 @@ function MT.test_far_MacroAdd()
 
 end
 
-function MT.test_far_MacroCheck()
+local function test_far_MacroCheck()
   assert(far.MacroCheck([[A = { b=5 }]]))
   assert(far.MacroCheck([[A = { b=5 }]], "KMFLAGS_LUA"))
 
@@ -1278,6 +1278,72 @@ function MT.test_far_MacroCheck()
   DeleteTmpFile()
 
   assert(not far.MacroCheck([[@//////]], "KMFLAGS_SILENTCHECK"))
+end
+
+local function test_far_MacroGetArea()
+  assert(far.MacroGetArea()==F.MACROAREA_SHELL)
+end
+
+local function test_far_MacroGetLastError()
+  assert(far.MacroCheck("a=1"))
+  assert(far.MacroGetLastError().ErrSrc=="")
+  assert(not far.MacroCheck("a=", "KMFLAGS_SILENTCHECK"))
+  assert(far.MacroGetLastError().ErrSrc:len() > 0)
+end
+
+local function test_far_MacroGetState()
+  local st = far.MacroGetState()
+  assert(st==F.MACROSTATE_EXECUTING or st==F.MACROSTATE_EXECUTING_COMMON)
+end
+
+local function test_MacroControl()
+  test_far_MacroAdd()
+  test_far_MacroCheck()
+  test_far_MacroExecute()
+  test_far_MacroGetArea()
+  test_far_MacroGetLastError()
+  test_far_MacroGetState()
+end
+
+local function test_RegexControl()
+  local L = win.Utf8ToUtf16
+  local pat = "([bc]+)"
+  local rep = "%1%1"
+  local R = regex.new(pat)
+
+  assert(R:bracketscount()==2)
+
+  local fr,to,cap = regex.find("abc", pat)
+  assert(fr==2 and to==3 and cap=="bc")
+  fr,to,cap = regex.findW(L"abc", pat)
+  assert(fr==2 and to==3 and cap==L"bc")
+
+  fr,to,cap = R:find("abc")
+  assert(fr==2 and to==3 and cap=="bc")
+  fr,to,cap = R:findW(L"abc")
+  assert(fr==2 and to==3 and cap==L"bc")
+
+  assert(regex.match("abc", pat)=="bc")
+  assert(regex.matchW(L"abc", pat)==L"bc")
+
+  assert(R:match("abc")=="bc")
+  assert(R:matchW(L"abc")==L"bc")
+
+  local s, nf, nr = regex.gsub("abc", pat, rep)
+  assert(s=="abcbc" and nf==1 and nr==1)
+  s, nf, nr = regex.gsubW(L"abc", pat, rep)
+  assert(s==L"abcbc" and nf==1 and nr==1)
+
+  local s, nf, nr = R:gsub("abc", rep)
+  assert(s=="abcbc" and nf==1 and nr==1)
+  s, nf, nr = R:gsubW(L"abc", rep)
+  assert(s==L"abcbc" and nf==1 and nr==1)
+
+  local t = {}
+  for cap in regex.gmatch("abc", ".") do t[#t+1]=cap end
+  assert(#t==3 and t[1]=="a" and t[2]=="b" and t[3]=="c")
+  for cap in regex.gmatchW(L"abc", ".") do t[#t+1]=cap end
+  assert(#t==6 and t[4]==L"a" and t[5]==L"b" and t[6]==L"c")
 end
 
 --[[------------------------------------------------------------------------------------------------
@@ -1308,6 +1374,43 @@ function MT.test_mantis_1722()
   assert(Dlg[1][10] == "W123")
 end
 
+local function test_far_AdvControl()
+  assert(type(far.AdvControl("ACTL_GETWINDOWCOUNT"))=="number")
+  assert(type(far.AdvControl("ACTL_GETFARHWND"))=="userdata")
+  assert(type(far.AdvControl("ACTL_GETCOLOR",0))=="table")
+  assert(type(far.AdvControl("ACTL_GETARRAYCOLOR"))=="table")
+  assert(far.AdvControl("ACTL_GETFARMANAGERVERSION"):sub(1,1)=="3")
+  assert(far.AdvControl("ACTL_GETFARMANAGERVERSION",true)==3)
+  assert(type(far.AdvControl("ACTL_GETWINDOWINFO"))=="table")
+  assert(type(far.AdvControl("ACTL_GETFARRECT"))=="table")
+  assert(type(far.AdvControl("ACTL_GETCURSORPOS"))=="table")
+  assert(type(far.AdvControl("ACTL_GETWINDOWTYPE"))=="table")
+end
+
+local function test_far_GetMsg()
+  assert(type(far.GetMsg(0))=="string")
+end
+
+local function test_clipboard()
+  local orig = far.PasteFromClipboard()
+  local values = { nil, "foo", "", n=3 }
+  for k=1,values.n do
+    local v = values[k]
+    far.CopyToClipboard(v)
+    assert(far.PasteFromClipboard() == v)
+  end
+  far.CopyToClipboard(orig)
+  assert(far.PasteFromClipboard() == orig)
+end
+
+function MT.test_luafar()
+  test_far_AdvControl()
+  test_far_GetMsg()
+  test_MacroControl()
+  test_RegexControl()
+  test_clipboard()
+end
+
 function MT.test_all()
   TestArea("Shell", "Run these tests from the Shell area.")
   assert(not APanel.Plugin and not PPanel.Plugin, "Run these tests when neither of panels is a plugin panel.")
@@ -1325,10 +1428,8 @@ function MT.test_all()
   MT.test_Plugin()
   MT.test_XPanel(APanel)
   MT.test_XPanel(PPanel)
-  MT.test_far_MacroExecute()
-  MT.test_far_MacroAdd()
-  MT.test_far_MacroCheck()
   MT.test_mantis_1722()
+  MT.test_luafar()
 end
 
 return MT
