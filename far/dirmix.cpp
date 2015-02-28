@@ -177,8 +177,9 @@ int TestFolder(const string& Path)
 */
 bool CheckShortcutFolder(string& pTestPath, bool TryClosest, bool Silent)
 {
-	bool Result = false;
-	if (!api::fs::exists(pTestPath))
+	bool Result = api::fs::exists(pTestPath);
+
+	if (!Result)
 	{
 		SetLastError(ERROR_PATH_NOT_FOUND);
 		Global->CatchError();
