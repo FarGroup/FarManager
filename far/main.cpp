@@ -802,7 +802,7 @@ int wmain(int Argc, wchar_t *Argv[])
 #ifndef _MSC_VER
 		SetUnhandledExceptionFilter(FarUnhandledExceptionFilter);
 #endif
-
+		api::co_initialize();
 		return mainImpl(make_range(Argv + 1, Argv + Argc));
 	}
 	catch (const SException& e)

@@ -102,7 +102,6 @@ public:
 	void  SetString(const string& Str, bool disable_autocomplete = false, int pos = -1);
 	void  InsertString(const string& Str);
 	void  SetHiString(const string& Str);
-	void  GetString(wchar_t *Str, int MaxSize, int Row = -1) const; // Row==-1 - current line
 	void  GetString(string &strStr, int Row = -1) const;            // Row==-1 - current line
 	const wchar_t* GetStringAddr() const;
 

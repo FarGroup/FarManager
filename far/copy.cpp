@@ -1591,9 +1591,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
 				// ѕозаботимс€ о дизах.
 				if (!(Flags&FCOPY_COPYTONUL) && !strDestDizPath.empty())
 				{
-					string strDestDizName;
-					DestDiz.GetDizName(strDestDizName);
-					DWORD Attr=api::GetFileAttributes(strDestDizName);
+					const auto Attr = api::GetFileAttributes(DestDiz.GetDizName());
 					int DestReadOnly=(Attr!=INVALID_FILE_ATTRIBUTES && (Attr & FILE_ATTRIBUTE_READONLY));
 
 					if (LastIteration) // —кидываем только во врем€ последней Op.
@@ -1615,9 +1613,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
 	{                 // равно нужно апдейтить дизы!
 		if (!(Flags&FCOPY_COPYTONUL) && !strDestDizPath.empty())
 		{
-			string strDestDizName;
-			DestDiz.GetDizName(strDestDizName);
-			DWORD Attr=api::GetFileAttributes(strDestDizName);
+			const auto Attr = api::GetFileAttributes(DestDiz.GetDizName());
 			int DestReadOnly=(Attr!=INVALID_FILE_ATTRIBUTES && (Attr & FILE_ATTRIBUTE_READONLY));
 
 			if (Move && !DestReadOnly)

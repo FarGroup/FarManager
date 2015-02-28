@@ -1,4 +1,10 @@
-﻿w17 27.02.2015 14:35:20 +0300 - build 4279
+﻿drkns 28.02.2015 23:56:47 +0200 - build 4280
+
+1. FCTL_SETPANELDIRECTORY теперь возвращает 0 при неудаче и не порождает диалогов в процессе.
+
+2. Рефакторинг. Возможны разнообразные чудеса в редакторе.
+
+w17 27.02.2015 14:35:20 +0300 - build 4279
 
 1. M#2954: Switch to Viewer (F6) loses current position when "Save file position" is OFF
 

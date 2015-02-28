@@ -957,11 +957,6 @@ int TreeList::ReadTree()
 		if (!(fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 			continue;
 
-		if (m_ListData.size() == m_ListData.capacity())
-		{
-			m_ListData.reserve(m_ListData.size() + 4096);
-		}
-
 		m_ListData.emplace_back(strFullName);
 	}
 
@@ -1799,16 +1794,7 @@ int TreeList::ReadTreeFile()
 
 	m_ListData.clear();
 
-	const auto ListIserter = [&](string& Name)
-	{
-		if (m_ListData.size() == m_ListData.capacity())
-		{
-			m_ListData.reserve(m_ListData.size() + 4096);
-		}
-		m_ListData.emplace_back(string(m_Root.data(), RootLength) + Name);
-	};
-
-	ReadLines(TreeFile, ListIserter);
+	ReadLines(TreeFile, [&](string& Name) { m_ListData.emplace_back(string(m_Root.data(), RootLength) + Name); });
 
 	TreeFile.Close();
 

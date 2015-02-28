@@ -356,9 +356,6 @@ bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, bool bB
 
 			ReadPos += sizeof(T);
 
-			if (To.size() == To.capacity())
-				To.reserve(To.size() * 2);
-
 			To.emplace_back(*ReadBufPtr);
 			ReadBufPtr++;
 		}

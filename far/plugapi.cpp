@@ -1621,11 +1621,6 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 					}
 				}
 
-				if (Items->size() == Items->capacity())
-				{
-					Items->reserve(Items->size() + 4096);
-				}
-
 				Items->emplace_back(VALUE_TYPE(*Items)());
 				auto& Item = Items->back();
 				ClearStruct(Item);

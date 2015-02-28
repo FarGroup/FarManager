@@ -1423,7 +1423,7 @@ F8CP::F8CP(bool viewer):
 			string s(str_cp);
 			ToUpper(s);
 			UINT cp = 0;
-			if (s == L"ANSI" || s == L"ACP")
+			if (s == L"ANSI" || s == L"ACP" || s == L"WIN")
 				cp = GetACP();
 			else if (s == L"OEM" || s == L"OEMCP" || s == L"DOS")
 				cp = GetOEMCP();

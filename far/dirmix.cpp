@@ -156,10 +156,9 @@ int TestFolder(const string& Path)
 
 	strFindPath = Path;
 
-	if (CheckShortcutFolder(strFindPath,FALSE,TRUE))
+	if (!api::fs::exists(strFindPath))
 	{
-		if (strFindPath != Path)
-			return TSTFLD_NOTFOUND;
+		return TSTFLD_NOTFOUND;
 	}
 
 	{
@@ -172,68 +171,51 @@ int TestFolder(const string& Path)
 
 /*
    Проверка пути или хост-файла на существование
-   Если идет проверка пути (IsHostFile=FALSE), то будет
+   Если идет проверка пути (TryClosest=true), то будет
    предпринята попытка найти ближайший путь. Результат попытки
    возвращается в переданном TestPath.
 */
-bool CheckShortcutFolder(string& pTestPath,int IsHostFile, BOOL Silent)
+bool CheckShortcutFolder(string& pTestPath, bool TryClosest, bool Silent)
 {
+	bool Result = false;
 	if (!api::fs::exists(pTestPath))
 	{
-		int FoundPath=0;
+		SetLastError(ERROR_PATH_NOT_FOUND);
+		Global->CatchError();
+
 		string strTarget = pTestPath;
 		TruncPathStr(strTarget, ScrX-16);
 
-		if (IsHostFile)
+		if (!TryClosest)
 		{
-			SetLastError(ERROR_FILE_NOT_FOUND);
-			Global->CatchError();
-
 			if (!Silent)
 				Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), strTarget.data(), MSG(MOk));
 		}
 		else // попытка найти!
 		{
-			SetLastError(ERROR_PATH_NOT_FOUND);
-			Global->CatchError();
-
 			if (Silent || !Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), strTarget.data(), MSG(MNeedNearPath), MSG(MHYes),MSG(MHNo)))
 			{
-				string strTestPathTemp = pTestPath;
+				size_t RootLength = 0;
+				ParsePath(pTestPath, &RootLength);
 
+				string strTestPathTemp = pTestPath;
 				for (;;)
 				{
-					if (!CutToSlash(strTestPathTemp,true))
+					if (!CutToSlash(strTestPathTemp) || strTestPathTemp.size() < RootLength)
 						break;
 
 					if (api::fs::exists(strTestPathTemp))
 					{
-						int ChkFld=TestFolder(strTestPathTemp);
-
-						if (ChkFld == TSTFLD_EMPTY || ChkFld == TSTFLD_NOTEMPTY || ChkFld == TSTFLD_NOTACCESS)
-						{
-							if (!(pTestPath.size() > 1 && pTestPath[0] == L'\\' && pTestPath[1] == L'\\' && strTestPathTemp.size() == 1))
-							{
-								pTestPath = strTestPathTemp;
-
-								if (pTestPath.size() == 2) // для случая "C:", иначе попадем в текущий каталог диска C:
-									AddEndSlash(pTestPath);
-
-								FoundPath=1;
-							}
-
-							break;
-						}
+						pTestPath = strTestPathTemp;
+						Result = true;
+						break;
 					}
 				}
 			}
 		}
-
-		if (!FoundPath)
-			return false;
 	}
 
-	return true;
+	return Result;
 }
 
 void CreatePath(const string &InputPath, bool Simple)

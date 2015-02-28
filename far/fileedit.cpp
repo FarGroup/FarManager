@@ -1173,7 +1173,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 				if (!api::fs::exists(strFullFileName)) // а сам файл то еще на месте?
 				{
-					if (!CheckShortcutFolder(strFullFileNameTemp,FALSE))
+					if (!CheckShortcutFolder(strFullFileNameTemp, true, false))
 						return FALSE;
 
 					strFullFileNameTemp += L"\\."; // для вваливания внутрь :-)

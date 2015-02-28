@@ -112,7 +112,7 @@ static void PrepareOptFolder(string &strSrc, int IsLocalPath_FarPath)
 	}
 	else
 	{
-		CheckShortcutFolder(strSrc,FALSE,TRUE);
+		CheckShortcutFolder(strSrc, true, true);
 	}
 
 	//ConvertNameToFull(strSrc,strSrc);

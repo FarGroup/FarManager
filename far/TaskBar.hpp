@@ -46,7 +46,6 @@ private:
 
 	taskbar();
 
-	bool CoInited;
 	TBPFLAG State;
 	ITaskbarList3* pTaskbarList;
 };

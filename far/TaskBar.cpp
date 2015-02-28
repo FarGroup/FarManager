@@ -44,26 +44,12 @@ taskbar& Taskbar()
 
 taskbar::taskbar():
 	State(TBPF_NOPROGRESS),
-	pTaskbarList(nullptr)
+	pTaskbarList()
 {
-	HRESULT hRes=CoInitializeEx(nullptr,COINIT_APARTMENTTHREADED);
-
-	switch (hRes)
-	{
-		case S_OK:
-		case S_FALSE:
-			CoInited=true;
-		case RPC_E_CHANGED_MODE:
 #ifdef _MSC_VER
-			assert(__uuidof(*pTaskbarList) == IID_ITaskbarList3);
+	assert(__uuidof(*pTaskbarList) == IID_ITaskbarList3);
 #endif
-			if (CoCreateInstance(CLSID_TaskbarList, nullptr, CLSCTX_INPROC_SERVER, IID_ITaskbarList3, IID_PPV_ARGS_Helper(&pTaskbarList)) != S_OK)
-				pTaskbarList = nullptr;
-			break;
-		default:
-			CoInited=false;
-			break;
-	}
+	CoCreateInstance(CLSID_TaskbarList, nullptr, CLSCTX_INPROC_SERVER, IID_ITaskbarList3, IID_PPV_ARGS_Helper(&pTaskbarList));
 }
 
 taskbar::~taskbar()
@@ -71,11 +57,6 @@ taskbar::~taskbar()
 	if (pTaskbarList)
 	{
 		pTaskbarList->Release();
-	}
-
-	if (CoInited)
-	{
-		CoUninitialize();
 	}
 }
 

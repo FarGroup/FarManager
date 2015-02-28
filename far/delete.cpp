@@ -599,7 +599,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 					string strFullName;
 					ConvertNameToFull(strSelName, strFullName);
 
-					if (TestFolder(strFullName) == TSTFLD_NOTEMPTY)
+					if (api::fs::is_not_empty_directory(strFullName))
 					{
 						int MsgCode = 0; // для symlink не нужно подтверждение
 						if (!(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT)) {
@@ -697,7 +697,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 								continue;
 							}
 
-							if (!DeleteAllFolders && !ScTree.IsDirSearchDone() && TestFolder(strFullName) == TSTFLD_NOTEMPTY)
+							if (!DeleteAllFolders && !ScTree.IsDirSearchDone() && api::fs::is_not_empty_directory(strFullName))
 							{
 								int MsgCode=Message(MSG_WARNING,4,MSG(Wipe?MWipeFolderTitle:MDeleteFolderTitle),
 								                    MSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),strFullName.data(),

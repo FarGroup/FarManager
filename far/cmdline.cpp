@@ -84,10 +84,9 @@ CommandLine::CommandLine(window_ptr Owner):
 		Owner,
 		this,
 		[this](const Manager::Key& Key){ return Global->CtrlObject->Cp()->ProcessKey(Key); },
-		0,
-		true,
+		nullptr,
 		Global->CtrlObject->CmdHistory.get(),
-		0,
+		nullptr,
 		(Global->Opt->CmdLine.AutoComplete ? EditControl::EC_ENABLEAUTOCOMPLETE : 0) | EditControl::EC_COMPLETE_HISTORY | EditControl::EC_COMPLETE_FILESYSTEM | EditControl::EC_COMPLETE_PATH
 	),
 	LastCmdPartLength(-1)
@@ -179,7 +178,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 	if ((LocalKey==KEY_CTRLEND || LocalKey==KEY_RCTRLEND || LocalKey==KEY_CTRLNUMPAD1 || LocalKey==KEY_RCTRLNUMPAD1) && (CmdStr.GetCurPos()==CmdStr.GetLength()))
 	{
 		if (LastCmdPartLength==-1)
-			strLastCmdStr = CmdStr.GetStringAddr();
+			CmdStr.GetString(strLastCmdStr);
 
 		strStr = strLastCmdStr;
 		int CurCmdPartLength=(int)strStr.size();
@@ -187,7 +186,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 
 		if (LastCmdPartLength==-1)
 		{
-			strLastCmdStr = CmdStr.GetStringAddr();
+			CmdStr.GetString(strLastCmdStr);
 			LastCmdPartLength=CurCmdPartLength;
 		}
 
@@ -427,7 +426,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 			CmdStr.Xlat((Global->Opt->XLat.Flags&XLAT_CONVERTALLCMDLINE) != 0);
 
 			// иначе неправильно работает ctrl-end
-			strLastCmdStr = CmdStr.GetStringAddr();
+			CmdStr.GetString(strLastCmdStr);
 			LastCmdPartLength=(int)strLastCmdStr.size();
 
 			return TRUE;

@@ -117,9 +117,9 @@ class Edit:public SimpleScreenObject
 public:
 	typedef std::function<bool(const ColorItem&)> delete_color_condition;
 
-	Edit(window_ptr Owner, bool bAllocateData = true);
+	Edit(window_ptr Owner);
 	Edit(Edit&& rhs);
-	virtual ~Edit();
+	virtual ~Edit() {}
 
 	MOVE_OPERATOR_BY_SWAP(Edit);
 
@@ -127,12 +127,9 @@ public:
 	{
 		using std::swap;
 		SimpleScreenObject::swap(rhs);
-		swap(m_Str, rhs.m_Str);
-		swap(m_StrSize, rhs.m_StrSize);
+		m_Str.swap(rhs.m_Str);
 		swap(m_CurPos, rhs.m_CurPos);
-		swap(ColorList, rhs.ColorList);
-		swap(ColorCount, rhs.ColorCount);
-		swap(MaxColorCount, rhs.MaxColorCount);
+		ColorList.swap(rhs.ColorList);
 		swap(m_SelStart, rhs.m_SelStart);
 		swap(m_SelEnd, rhs.m_SelEnd);
 		swap(LeftPos, rhs.LeftPos);
@@ -152,7 +149,6 @@ public:
 	void SetPersistentBlocks(bool Mode) {m_Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Mode);}
 	int GetPersistentBlocks() const {return m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS); }
 	void SetShowWhiteSpace(int Mode) {m_Flags.Change(FEDITLINE_SHOWWHITESPACE, Mode!=0); m_Flags.Change(FEDITLINE_SHOWLINEBREAK, Mode == 1);}
-	void GetString(wchar_t *Str, int MaxSize) const;
 	void GetString(string &strStr) const;
 	const wchar_t* GetStringAddr() const;
 	void SetHiString(const string& Str);
@@ -194,10 +190,10 @@ public:
 	void SetEditorMode(bool Mode) {m_Flags.Change(FEDITLINE_EDITORMODE, Mode);}
 	bool ReplaceTabs();
 	void InsertTab();
-	void AddColor(ColorItem *col,bool skipsort=false);
+	void AddColor(const ColorItem& col, bool skipsort);
 	void SortColorUnlocked();
-	int DeleteColor(const delete_color_condition& Condition,bool skipfree);
-	int GetColor(ColorItem *col,int Item) const;
+	void DeleteColor(const delete_color_condition& Condition,bool skipfree);
+	bool GetColor(ColorItem& col, size_t Item) const;
 	void Xlat(bool All=false);
 	void SetDialogParent(DWORD Sets);
 	void SetCursorType(bool Visible, DWORD Size);
@@ -249,9 +245,104 @@ private:
 	Editor* GetEditor(void)const;
 
 protected:
+	// compact STL-like string to reduce memory consumption
+	// TODO: replace with std::wstring someday
+	class tiny_string
+	{
+		typedef std::vector<wchar_t> impl_type;
+
+	public:
+		typedef impl_type::iterator iterator;
+		typedef impl_type::const_iterator const_iterator;
+
+		tiny_string() { clear(); }
+		tiny_string(const wchar_t* Data, size_t Size)
+		{
+			m_Data.reserve(Size + 1);
+			m_Data.assign(Data, Data + Size);
+			AddNullTerminator();
+		}
+		wchar_t* data() { return m_Data.data(); }
+		const wchar_t* data() const { return m_Data.data(); }
+		// to avoid zillions of casts in existing code
+		int size() const { return static_cast<int>(string_size()); }
+		iterator begin() { return m_Data.begin(); }
+		iterator end() { return m_Data.end() - 1; }
+		const_iterator begin() const { return m_Data.begin(); }
+		const_iterator end() const { return m_Data.end() - 1; }
+		const_iterator cbegin() const { return begin(); }
+		const_iterator cend() const { return end(); }
+		wchar_t& operator[](size_t index) { assert(index < string_size()); return m_Data[index]; }
+		const wchar_t& operator[](size_t index) const { assert(index < string_size()); return m_Data[index]; }
+		bool empty() const { return m_Data.size() == 1; }
+		void swap(tiny_string& rhs)
+		{
+			m_Data.swap(rhs.m_Data);
+		}
+
+		void resize(size_t Size, wchar_t Value = wchar_t())
+		{
+			m_Data.reserve(Size + 1);
+			m_Data.resize(Size, Value);
+			AddNullTerminator();
+		}
+
+		void clear() { resize(0); }
+
+		tiny_string& assign(const wchar_t* Data, size_t Size)
+		{
+			m_Data.reserve(Size + 1);
+			m_Data.assign(Data, Data + Size);
+			AddNullTerminator();
+			return *this;
+		}
+
+		iterator erase(const_iterator First, const_iterator Last)
+		{
+			assert(Last < m_Data.end());
+			return m_Data.erase(First, Last);
+		}
+
+		iterator erase(const_iterator Where)
+		{
+			return erase(Where, Where + 1);
+		}
+
+		void insert(const_iterator Where, const_iterator First, const_iterator Last)
+		{
+			assert(Where < m_Data.end());
+			m_Data.insert(Where, First, Last);
+		}
+
+		void insert(const_iterator Where, size_t Count, wchar_t Value)
+		{
+			assert(Where < m_Data.end());
+			m_Data.insert(Where, Count, Value);
+		}
+
+		tiny_string& insert(size_t Pos, const wchar_t* Data, size_t Size)
+		{
+			assert(Pos < m_Data.size());
+			m_Data.insert(begin() + Pos, Data, Data + Size);
+			return *this;
+		}
+
+		tiny_string& append(const_iterator First, const_iterator Last) 
+		{
+			m_Data.insert(end(), First, Last);
+			return *this;
+		}
+
+	private:
+		size_t string_size() const { return m_Data.size() - 1; }
+		void AddNullTerminator() { m_Data.push_back(L'\0'); }
+
+		std::vector<wchar_t> m_Data;
+	};
+
+	tiny_string m_Str;
+
 	// KEEP ALIGNED!
-	wchar_t *m_Str;
-	int m_StrSize;
 	int m_CurPos;
 private:
 	friend class DlgEdit;
@@ -259,9 +350,7 @@ private:
 	friend class FileEditor;
 
 	// KEEP ALIGNED!
-	ColorItem *ColorList;
-	int ColorCount;
-	int MaxColorCount;
+	std::vector<ColorItem> ColorList;
 	int m_SelStart;
 	int m_SelEnd;
 	int LeftPos;

@@ -602,7 +602,7 @@ static void FreeUnicodeKeyBarTitles(KeyBarTitles *kbtW)
 
 static void WINAPI FreeUserData(void* UserData, const FarPanelItemFreeInfo* Info)
 {
-	xf_free(UserData);
+	delete[] static_cast<char*>(UserData);
 }
 
 static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(const oldfar::PluginPanelItem *PanelItemA, size_t ItemsNumber)
@@ -637,7 +637,7 @@ static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(const oldfar::PluginPanel
 		{
 			void* UserData = (void*)AIter->UserData;
 			DWORD Size = *(DWORD *)UserData;
-			WIter->UserData.Data = xf_malloc(Size);
+			WIter->UserData.Data = new char[Size];
 			memcpy(WIter->UserData.Data, UserData, Size);
 			WIter->UserData.FreeData = FreeUserData;
 		}
@@ -692,7 +692,7 @@ static void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::Plu
 	if (PanelItem.UserData.Data&&PanelItem.UserData.FreeData == FreeUserData)
 	{
 		DWORD Size = *(DWORD *)PanelItem.UserData.Data;
-		PanelItemA.UserData = (intptr_t)xf_malloc(Size);
+		PanelItemA.UserData = reinterpret_cast<intptr_t>(new char[Size]);
 		memcpy((void *)PanelItemA.UserData, PanelItem.UserData.Data, Size);
 	}
 	else
@@ -759,7 +759,7 @@ static void FreePanelItemA(const oldfar::PluginPanelItem *PanelItem, size_t Item
 
 		if (PanelItem[i].Flags & oldfar::PPIF_USERDATA)
 		{
-			xf_free((PVOID)PanelItem[i].UserData);
+			delete[] reinterpret_cast<char*>(PanelItem[i].UserData);
 		}
 	}
 

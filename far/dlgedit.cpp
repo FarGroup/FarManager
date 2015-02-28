@@ -90,7 +90,7 @@ DlgEdit::DlgEdit(window_ptr Owner,size_t Index,DLGEDITTYPE Type):
 			{
 				iFlags|=EditControl::EC_COMPLETE_PATH;
 			}
-			lineEdit = std::make_unique<EditControl>(GetOwner(), GetOwner().get(), nullptr, &callback, true, iHistory.get(), iList, iFlags);
+			lineEdit = std::make_unique<EditControl>(GetOwner(), GetOwner().get(), nullptr, &callback, iHistory.get(), iList, iFlags);
 		}
 		break;
 	}
@@ -353,19 +353,6 @@ void DlgEdit::InsertString(const string& Str)
 		lineEdit->InsertString(Str);
 }
 
-void DlgEdit::GetString(wchar_t *Str,int MaxSize,int Row) const
-{
-#if defined(PROJECT_DI_MEMOEDIT)
-
-	if (Type == DLGEDIT_MULTILINE)
-	{
-		; //multiEdit;
-	}
-	else
-#endif
-		lineEdit->GetString(Str,MaxSize);
-}
-
 void DlgEdit::GetString(string &strStr,int Row) const
 {
 #if defined(PROJECT_DI_MEMOEDIT)
@@ -613,7 +600,7 @@ int  DlgEdit::GetStrSize(int Row) const
 		return 0;//multiEdit->
 	else
 #endif
-		return lineEdit->m_StrSize;
+		return lineEdit->m_Str.size();
 }
 
 void DlgEdit::SetCursorType(bool Visible, DWORD Size)

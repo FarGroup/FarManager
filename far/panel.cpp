@@ -1553,7 +1553,9 @@ void Search::DisplayObject(void)
 
 void Search::ProcessName(const string& Src, string &strName)
 {
-	string Buffer = Unquote(m_FindEdit->GetStringAddr() + Src);
+	string Buffer;
+	m_FindEdit->GetString(Buffer);
+	Buffer = Unquote(Buffer + Src);
 
 	for (; !Buffer.empty() && !m_Owner->FindPartName(Buffer, FALSE, 1); Buffer.pop_back());
 
@@ -1871,9 +1873,6 @@ int Panel::SetCurPath()
 
 	if (!FarChDir(m_CurDir))
 	{
-		// здесь на выбор :-)
-#if 1
-
 		while (!FarChDir(m_CurDir))
 		{
 			string strRoot;
@@ -1881,11 +1880,9 @@ int Panel::SetCurPath()
 
 			if (FAR_GetDriveType(strRoot) != DRIVE_REMOVABLE || api::IsDiskInDrive(strRoot))
 			{
-				int Result=TestFolder(m_CurDir);
-
-				if (Result == TSTFLD_NOTFOUND)
+				if (!api::fs::is_directory(m_CurDir))
 				{
-					if (CheckShortcutFolder(m_CurDir, FALSE, TRUE) && FarChDir(m_CurDir))
+					if (CheckShortcutFolder(m_CurDir, true, true) && FarChDir(m_CurDir))
 					{
 						SetCurDir(m_CurDir,true);
 						return TRUE;
@@ -1920,31 +1917,6 @@ int Panel::SetCurPath()
 				}
 			}
 		}
-
-#else
-
-		do
-		{
-			BOOL IsChangeDisk=FALSE;
-			char Root[1024];
-			GetPathRoot(CurDir,Root);
-
-			if (FAR_GetDriveType(Root) == DRIVE_REMOVABLE && !apiIsDiskInDrive(Root))
-				IsChangeDisk=TRUE;
-			else if (TestFolder(CurDir) == TSTFLD_NOTACCESS)
-			{
-				if (FarChDir(Root))
-					SetCurDir(Root,true);
-				else
-					IsChangeDisk=TRUE;
-			}
-
-			if (IsChangeDisk)
-				ChangeDisk();
-		}
-		while (!FarChDir(CurDir));
-
-#endif
 		return FALSE;
 	}
 
@@ -2462,12 +2434,15 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			if (CheckStructSize(dirInfo))
 			{
 				string strName(NullToEmpty(dirInfo->Name)), strFile(NullToEmpty(dirInfo->File)), strParam(NullToEmpty(dirInfo->Param));
-				Result = ExecShortcutFolder(strName,dirInfo->PluginId,strFile,strParam,false);
+				Result = ExecShortcutFolder(strName, dirInfo->PluginId, strFile, strParam, false, false, true);
 				// restore current directory to active panel path
-				auto ActivePanel = Parent()->ActivePanel();
-				if (Result && this != ActivePanel)
+				if (Result)
 				{
-					ActivePanel->SetCurPath();
+					auto ActivePanel = Parent()->ActivePanel();
+					if (this != ActivePanel)
+					{
+						ActivePanel->SetCurPath();
+					}
 				}
 			}
 			break;
@@ -2689,7 +2664,7 @@ bool Panel::ExecShortcutFolder(int Pos, bool raw)
 	return false;
 }
 
-bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid, const string& strPluginFile, const string& strPluginData, bool CheckType)
+bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid, const string& strPluginFile, const string& strPluginData, bool CheckType, bool TryClosest, bool Silent)
 {
 	auto SrcPanel=this;
 	auto AnotherPanel = Parent()->GetAnotherPanel(this);
@@ -2770,9 +2745,9 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid
 		return true;
 	}
 
-	if (!CheckShortcutFolder(strShortcutFolder, FALSE) || ProcessPluginEvent(FE_CLOSE, nullptr))
+	if (!CheckShortcutFolder(strShortcutFolder, TryClosest, Silent) || ProcessPluginEvent(FE_CLOSE, nullptr))
 	{
-		return true;
+		return false;
 	}
 
     /*

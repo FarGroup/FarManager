@@ -296,6 +296,12 @@ namespace fs
 		return Status.check(FILE_ATTRIBUTE_DIRECTORY);
 	}
 
+	bool is_not_empty_directory(const string& Object)
+	{
+		api::fs::enum_file Find(Object + L"\\*");
+		return Find.begin() != Find.end();
+	}
+
 enum_file::enum_file(const string& Object, bool ScanSymLink):
 	m_Object(NTPath(Object)),
 	m_Handle(INVALID_HANDLE_VALUE),

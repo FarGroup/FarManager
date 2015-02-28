@@ -52,8 +52,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "ctrlobj.hpp"
 
-EditControl::EditControl(window_ptr Owner, SimpleScreenObject* Parent, parent_processkey_t&& ParentProcessKey, Callback* aCallback, bool bAllocateData, History* iHistory, FarList* iList, DWORD iFlags):
-	Edit(Owner,bAllocateData),
+EditControl::EditControl(window_ptr Owner, SimpleScreenObject* Parent, parent_processkey_t&& ParentProcessKey, Callback* aCallback, History* iHistory, FarList* iList, DWORD iFlags):
+	Edit(Owner),
 	pHistory(iHistory),
 	pList(iList),
 	m_ParentProcessKey(ParentProcessKey? std::move(ParentProcessKey) : [Parent](const Manager::Key& Key) {return Parent->ProcessKey(Key); }),
@@ -86,7 +86,7 @@ EditControl::EditControl(window_ptr Owner, SimpleScreenObject* Parent, parent_pr
 
 void EditControl::Show()
 {
-	if(m_X2-m_X1+1>m_StrSize)
+	if (m_X2 - m_X1 + 1 > m_Str.size())
 	{
 		SetLeftPos(0);
 	}
@@ -343,13 +343,13 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 	string CurrentLine;
 	size_t EventsCount = 0;
 	Console().GetNumberOfInputEvents(EventsCount);
-	if(ECFlags.Check(EC_ENABLEAUTOCOMPLETE) && *m_Str && !Reenter && !EventsCount && (Global->CtrlObject->Macro.GetState() == MACROSTATE_NOMACRO || Manual))
+	if(ECFlags.Check(EC_ENABLEAUTOCOMPLETE) && !m_Str.empty() && !Reenter && !EventsCount && (Global->CtrlObject->Macro.GetState() == MACROSTATE_NOMACRO || Manual))
 	{
 		Reenter++;
 
 		if(Global->Opt->AutoComplete.AppendCompletion && !m_Flags.Check(FEDITLINE_CMP_CHANGED))
 		{
-			CurrentLine = m_Str;
+			CurrentLine.assign(ALL_CONST_RANGE(m_Str));
 			DeleteBlock();
 		}
 		m_Flags.Clear(FEDITLINE_CMP_CHANGED);
@@ -357,7 +357,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 		auto ComplMenu = VMenu2::create(string(), nullptr, 0, 0);
 		ComplMenu->SetDialogMode(DMODE_NODRAWSHADOW);
 		ComplMenu->SetModeMoving(false);
-		string strTemp=m_Str;
+		string strTemp(ALL_CONST_RANGE(m_Str));
 
 		ComplMenu->SetMacroMode(Area);
 
@@ -401,8 +401,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 				// magic
 				if(IsSlash(m_Str[SelStart-1]) && m_Str[SelStart-2] == L'"' && IsSlash(ComplMenu->GetItemPtr(0)->strName[SelStart-2]))
 				{
-					m_Str[SelStart-2] = m_Str[SelStart-1];
-					m_StrSize--;
+					m_Str.erase(m_Str.begin() + SelStart - 2);
 					SelStart--;
 					m_CurPos--;
 				}
@@ -506,8 +505,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 										// magic
 										if(IsSlash(m_Str[SelStart-1]) && m_Str[SelStart-2] == L'"' && IsSlash(ComplMenu->GetItemPtr(0)->strName[SelStart-2]))
 										{
-											m_Str[SelStart-2] = m_Str[SelStart-1];
-											m_StrSize--;
+											m_Str.erase(m_Str.begin() + SelStart - 2);
 											SelStart--;
 											m_CurPos--;
 										}
@@ -718,7 +716,7 @@ int EditControl::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 					{
 						SelectionStart=m_CurPos;
 					}
-					Select(std::min(SelectionStart,m_CurPos),std::min(m_StrSize,std::max(SelectionStart,m_CurPos)));
+					Select(std::min(SelectionStart, m_CurPos), std::min(m_Str.size(), std::max(SelectionStart, m_CurPos)));
 					Show();
 				}
 			}
@@ -792,20 +790,9 @@ void EditControl::RefreshStrByMask(int InitMode)
 	{
 		int MaskLen = static_cast<int>(Mask.size());
 
-		if (m_StrSize!=MaskLen)
+		if (m_Str.size() != MaskLen)
 		{
-			wchar_t *NewStr=(wchar_t *)xf_realloc(m_Str,(MaskLen+1)*sizeof(wchar_t));
-
-			if (!NewStr)
-				return;
-
-			m_Str=NewStr;
-
-			for (int i=m_StrSize; i<MaskLen; i++)
-				m_Str[i]=L' ';
-
-			m_StrSize=MaxLength=MaskLen;
-			m_Str[m_StrSize]=0;
+			m_Str.resize(MaskLen, L' ');
 		}
 
 		for (int i=0; i<MaskLen; i++)

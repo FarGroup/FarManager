@@ -484,7 +484,7 @@ int VMenu::UpdateItem(const FarListUpdate *NewItem)
 		// Освободим память... от ранее занятого ;-)
 		if (NewItem->Item.Flags&LIF_DELETEUSERDATA)
 		{
-			xf_free(Items[NewItem->Index].UserData);
+			delete[] static_cast<char*>(Items[NewItem->Index].UserData);
 			Items[NewItem->Index].UserData = nullptr;
 			Items[NewItem->Index].UserDataSize = 0;
 		}
@@ -526,7 +526,7 @@ int VMenu::DeleteItem(int ID, int Count)
 	// Надобно удалить данные, чтоб потери по памяти не были
 	for (int I=0; I < Count; ++I)
 	{
-		xf_free(Items[ID+I].UserData);
+		delete[] static_cast<char*>(Items[ID + I].UserData);
 		UpdateInternalCounters(Items[ID+I].Flags,0);
 	}
 
@@ -564,7 +564,7 @@ void VMenu::DeleteItems()
 
 	std::for_each(CONST_RANGE(Items, i)
 	{
-		xf_free(i.UserData);
+		delete[] static_cast<char*>(i.UserData);
 	});
 	Items.clear();
 	ItemHiddenCount=0;
@@ -2858,7 +2858,7 @@ size_t VMenu::_SetUserData(MenuItemEx *PItem,
                         const void *Data,   // Данные
                         size_t Size)           // Размер, если =0 то предполагается, что в Data-строка
 {
-	xf_free(PItem->UserData);
+	delete[] static_cast<char*>(PItem->UserData);
 	PItem->UserDataSize=0;
 	PItem->UserData=nullptr;
 
@@ -2872,7 +2872,7 @@ size_t VMenu::_SetUserData(MenuItemEx *PItem,
 			PItem->UserDataSize = (wcslen(static_cast<const wchar_t *>(Data)) + 1)*sizeof(wchar_t);
 		}
 
-		PItem->UserData = xf_malloc(PItem->UserDataSize);
+		PItem->UserData = new char[PItem->UserDataSize];
 		memcpy(PItem->UserData, Data, PItem->UserDataSize);
 	}
 

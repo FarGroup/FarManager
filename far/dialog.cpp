@@ -3074,7 +3074,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 					edt->Xlat();
 
 					// иначе неправильно работает ctrl-end
-					edt->strLastStr = edt->GetStringAddr();
+					edt->GetString(edt->strLastStr);
 					edt->LastPartLength=static_cast<int>(edt->strLastStr.size());
 
 					Redraw(); // Перерисовка должна идти после DN_EDITCHANGE (imho)
@@ -3107,7 +3107,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 						if ((LocalKey==KEY_CTRLEND || LocalKey==KEY_RCTRLEND || LocalKey==KEY_CTRLNUMPAD1 || LocalKey==KEY_RCTRLNUMPAD1) && edt->GetCurPos()==edt->GetLength())
 						{
 							if (edt->LastPartLength ==-1)
-								edt->strLastStr = edt->GetStringAddr();
+								edt->GetString(edt->strLastStr);
 
 							strStr = edt->strLastStr;
 							int CurCmdPartLength=static_cast<int>(strStr.size());
@@ -3115,7 +3115,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 
 							if (edt->LastPartLength == -1)
 							{
-								edt->strLastStr = edt->GetStringAddr();
+								edt->GetString(edt->strLastStr);
 								edt->LastPartLength = CurCmdPartLength;
 							}
 							{

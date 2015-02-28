@@ -46,7 +46,7 @@ public:
 	bool Flush(const string& Path, const string *DizName=nullptr);
 	void AddDizText(const string& Name, const string& ShortName, const string& DizText);
 	bool CopyDiz(const string& Name, const string& ShortName, const string& DestName, const string& DestShortName,DizList *DestDiz);
-	void GetDizName(string &strDizName) const;
+	const string& GetDizName() const { return strDizFileName; }
 
 private:
 	struct diz_less

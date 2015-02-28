@@ -428,11 +428,6 @@ bool DizList::CopyDiz(const string& Name, const string& ShortName, const string&
 	return true;
 }
 
-void DizList::GetDizName(string &strDizName) const
-{
-	strDizName = strDizFileName;
-}
-
 bool DizList::diz_less::operator()(const string& a, const string& b) const
 {
 	return StrCmpI(a, b) < 0;

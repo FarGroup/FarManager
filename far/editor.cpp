@@ -229,104 +229,10 @@ void Editor::KeepInitParameters()
 	Global->Opt->EdOpt.SearchRegexp=LastSearchRegexp;
 }
 
-/*
-	преобразование из буфера в список
-*/
-int Editor::SetRawData(const wchar_t *SrcBuf,int SizeSrcBuf,int TextFormat)
-{
-#if defined(PROJECT_DI_MEMOEDIT)
-	//InsertString(const wchar_t *lpwszStr, int nLength, Edit *pAfter)
-	TextChanged(1);
-
-#endif
-	return TRUE;
-}
-
-/*
-  Editor::Edit2Str - преобразование из списка в буфер с учетом EOL
-
-    DestBuf     - куда сохраняем (выделяется динамически!)
-    SizeDestBuf - размер сохранения
-    TextFormat  - тип концовки строк
-*/
-int Editor::GetRawData(wchar_t **DestBuf,int& SizeDestBuf,int TextFormat)
-{
-#if defined(PROJECT_DI_MEMOEDIT)
-	wchar_t* PDest=nullptr;
-	SizeDestBuf=0; // общий размер = 0
-
-	const wchar_t *SaveStr, *EndSeq;
-
-	int Length;
-
-	// посчитаем количество строк и общий размер памяти (чтобы не дергать realloc)
-	Edit *CurPtr=TopList;
-
-	DWORD AllLength=0;
-
-	while (CurPtr)
-	{
-		CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
-		AllLength+=Length+StrLength(!TextFormat?EndSeq:GlobalEOL)+1;
-	}
-
-	wchar_t * MemEditStr=static_cast<wchar_t*>(xf_malloc((AllLength+8)*sizeof(wchar_t)));
-
-	if (MemEditStr)
-	{
-		*MemEditStr=0;
-		PDest=MemEditStr;
-
-		// прйдемся по списку строк
-		CurPtr=TopList;
-
-		AllLength=0;
-
-		while (CurPtr)
-		{
-			CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
-			std::copy_n(SaveStr, Length, PDest);
-			PDest+=Length;
-
-			size_t LenEndSeq;
-			if (!TextFormat)
-			{
-				LenEndSeq=StrLength(EndSeq);
-				std::copy_n(EndSeq, LenEndSeq, PDest);
-			}
-			else
-			{
-				LenEndSeq=StrLength(GlobalEOL);
-				std::copy_n(GlobalEOL, LenEndSeq, PDest);
-			}
-
-			PDest+=LenEndSeq;
-
-			AllLength+=LenEndSeq+Length;
-
-			CurPtr=CurPtr->m_next;
-		}
-
-		*PDest=0;
-
-		SizeDestBuf=AllLength;
-		*DestBuf=&MemEditStr;
-		return TRUE;
-	}
-	else
-		return FALSE;
-
-#else
-	return TRUE;
-#endif
-}
-
-
 void Editor::DisplayObject()
 {
 	ShowEditor();
 }
-
 
 void Editor::ShowEditor()
 {
@@ -2694,7 +2600,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 			// CurLine->TableSet ??? => UseDecodeTable?CurLine->TableSet:nullptr !!!
 			if (CalcWordFromString(CurLine->GetStringAddr(),CurPos,&SStart,&SEnd,EdOpt.strWordDiv))
 			{
-				CurLine->Select(SStart, SEnd + (SEnd < CurLine->m_StrSize? 1 : 0));
+				CurLine->Select(SStart, SEnd + (SEnd < CurLine->m_Str.size()? 1 : 0));
 
 				if (CurLine->IsSelection())
 				{
@@ -3065,7 +2971,7 @@ int Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		if (static_cast<unsigned long>((CurrentTime - EditorPrevDoubleClick) / CLOCKS_PER_SEC * 1000) <= GetDoubleClickTime() && MouseEvent->dwEventFlags != MOUSE_MOVED &&
 		        EditorPrevPosition.X == MouseEvent->dwMousePosition.X && EditorPrevPosition.Y == MouseEvent->dwMousePosition.Y)
 		{
-			CurLine->Select(0, CurLine->m_StrSize);
+			CurLine->Select(0, CurLine->m_Str.size());
 
 			if (CurLine->IsSelection())
 			{
@@ -4426,7 +4332,7 @@ string Editor::Block2Text(const wchar_t* InitData, size_t size)
 		{
 			// BUGBUG, don't use i.GetLength() here: Ptr->Str may contain \0
 			//TotalChars += i.GetLength() - StartSel;
-			TotalChars += wcslen(i.m_Str + StartSel);
+			TotalChars += wcslen(i.m_Str.data() + StartSel);
 			TotalChars += wcslen(i.GetEOL()); // CRLF/CRCRLF/...
 
 		}
@@ -4453,7 +4359,7 @@ string Editor::Block2Text(const wchar_t* InitData, size_t size)
 		if (EndSel == -1)
 			// BUGBUG, don't use i.GetLength() here: i.Str may contain \0
 			//Length = i.GetLength() - StartSel;
-			Length = StrLength(i.m_Str + StartSel);
+			Length = StrLength(i.m_Str.data() + StartSel);
 		else
 			Length = EndSel - StartSel;
 
@@ -4877,8 +4783,7 @@ struct Editor::EditorUndoData : ::noncopyable
 	int m_StrPos;
 	int m_StrNum;
 	wchar_t m_EOL[10];
-	size_t m_Length;
-	wchar_t_ptr m_Str;
+	std::vector<wchar_t> m_Str;
 	std::list<InternalEditorSessionBookMark> m_BM; //treat as uni-directional linked list
 
 private:
@@ -4892,7 +4797,6 @@ public:
 		m_StrPos(),
 		m_StrNum(),
 		m_EOL(),
-		m_Length(),
 		m_BM()
 	{
 		SetData(Type, Str, Eol, StrNum, StrPos, Length);
@@ -4900,7 +4804,7 @@ public:
 
 	~EditorUndoData()
 	{
-		UndoDataSize -= m_Length;
+		UndoDataSize -= m_Str.size();
 	}
 
 	EditorUndoData(EditorUndoData&& rhs) :
@@ -4908,7 +4812,6 @@ public:
 		m_StrPos(),
 		m_StrNum(),
 		m_EOL(),
-		m_Length(),
 		m_BM()
 	{
 		*this = std::move(rhs);
@@ -4922,7 +4825,6 @@ public:
 		swap(m_Type, rhs.m_Type);
 		swap(m_StrPos, rhs.m_StrPos);
 		swap(m_StrNum, rhs.m_StrNum);
-		swap(m_Length, rhs.m_Length);
 		m_Str.swap(rhs.m_Str);
 		swap(m_EOL, rhs.m_EOL);
 		swap(m_BM, rhs.m_BM);
@@ -4932,23 +4834,13 @@ public:
 
 	void SetData(int Type, const wchar_t *Str, const wchar_t *Eol, int StrNum, int StrPos, size_t Length)
 	{
-		this->m_Type = Type;
-		this->m_StrPos = StrPos;
-		this->m_StrNum = StrNum;
-		UndoDataSize -= this->m_Length;
+		m_Type = Type;
+		m_StrPos = StrPos;
+		m_StrNum = StrNum;
+		UndoDataSize -= m_Str.size();
 		UndoDataSize += Length;
-		this->m_Length = Length;
 		xwcsncpy(m_EOL, Eol ? Eol : L"", ARRAYSIZE(m_EOL) - 1);
-
-		if (Str)
-		{
-			this->m_Str.reset(Length + 1);
-
-			if (this->m_Str)
-				std::copy_n(Str, Length, this->m_Str.get());
-		}
-		else
-			this->m_Str.reset();
+		m_Str.assign(Str, Str + Length);
 		m_BM.clear();
 	}
 
@@ -5147,9 +5039,9 @@ void Editor::Undo(int redo)
 					MoveSavedSessionBookmarksBack(ud->m_BM);
 				}
 
-				if (ud->m_Str)
+				if (!ud->m_Str.empty())
 				{
-					CurLine->SetString(ud->m_Str.get(), static_cast<int>(ud->m_Length));
+					CurLine->SetString(ud->m_Str.data(), static_cast<int>(ud->m_Str.size()));
 					CurLine->SetEOL(ud->m_EOL); // необходимо дополнительно выставлять, т.к. SetString вызывает Edit::SetBinaryString и... дальше по тексту
 					Change(ECTYPE_CHANGED,NumLine);
 				}
@@ -5159,15 +5051,15 @@ void Editor::Undo(int redo)
 			{
 				EditorUndoData tmp(UNDO_EDIT,CurLine->GetStringAddr(),CurLine->GetEOL(),ud->m_StrNum,ud->m_StrPos,CurLine->GetLength());
 
-				if (ud->m_Str)
+				if (!ud->m_Str.empty())
 				{
-					CurLine->SetString(ud->m_Str.get(), static_cast<int>(ud->m_Length));
+					CurLine->SetString(ud->m_Str.data(), static_cast<int>(ud->m_Str.size()));
 					CurLine->SetEOL(ud->m_EOL); // необходимо дополнительно выставлять, т.к. SetString вызывает Edit::SetBinaryString и... дальше по тексту
 					Change(ECTYPE_CHANGED,NumLine);
 				}
 
 				CurLine->SetCurPos(ud->m_StrPos);
-				ud->SetData(tmp.m_Type, tmp.m_Str.get(), tmp.m_EOL, tmp.m_StrNum, tmp.m_StrPos, tmp.m_Length);
+				ud->SetData(tmp.m_Type, tmp.m_Str.data(), tmp.m_EOL, tmp.m_StrNum, tmp.m_StrPos, tmp.m_Str.size());
 				break;
 			}
 		}
@@ -6251,7 +6143,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					return FALSE;
 				}
 
-				CurPtr->AddColor(&newcol,SortColorLocked());
+				CurPtr->AddColor(newcol, SortColorLocked());
 				if (col->Flags&ECF_AUTODELETE) m_AutoDeletedColors.insert(&*CurPtr);
 				SortColorUpdate=true;
 				return TRUE;
@@ -6275,9 +6167,9 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 				ColorItem curcol;
 
-				if (!CurPtr->GetColor(&curcol,col->ColorItem))
+				if (!CurPtr->GetColor(curcol,col->ColorItem))
 				{
-					_ECTLLOG(SysLog(L"GetColor() return nullptr"));
+					_ECTLLOG(SysLog(L"GetColor() return false"));
 					return FALSE;
 				}
 
@@ -6314,9 +6206,10 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 				SortColorUpdate=true;
 
-				return CurPtr->DeleteColor(
+				CurPtr->DeleteColor(
 					[&](const ColorItem& Item) { return (col->StartPos == -1 || col->StartPos == Item.StartPos) && col->Owner == Item.GetOwner(); },
 					SortColorLocked());
+				return TRUE;
 			}
 
 			break;
@@ -7039,7 +6932,7 @@ void Editor::Xlat()
 				CopySize=TBlockSizeX;
 
 			AddUndoData(UNDO_EDIT,CurPtr->GetStringAddr(),CurPtr->GetEOL(),BlockStartLine+Line,CurLine->GetCurPos(),CurPtr->GetLength());
-			::Xlat(CurPtr->m_Str, TBlockX, TBlockX + CopySize, Global->Opt->XLat.Flags);
+			::Xlat(CurPtr->m_Str.data(), TBlockX, TBlockX + CopySize, Global->Opt->XLat.Flags);
 			Change(ECTYPE_CHANGED,BlockStartLine+Line);
 		}
 
@@ -7067,7 +6960,7 @@ void Editor::Xlat()
 					EndSel=CurPtr->GetLength();//StrLength(CurPtr->Str);
 
 				AddUndoData(UNDO_EDIT,CurPtr->GetStringAddr(),CurPtr->GetEOL(),BlockStartLine+Line,CurLine->GetCurPos(),CurPtr->GetLength());
-				::Xlat(CurPtr->m_Str, StartSel, EndSel, Global->Opt->XLat.Flags);
+				::Xlat(CurPtr->m_Str.data(), StartSel, EndSel, Global->Opt->XLat.Flags);
 				Change(ECTYPE_CHANGED,BlockStartLine+Line);
 				++Line;
 				++CurPtr;
@@ -7077,7 +6970,7 @@ void Editor::Xlat()
 		}
 		else
 		{
-			wchar_t *Str = CurLine->m_Str;
+			wchar_t *Str = CurLine->m_Str.data();
 			int start=CurLine->GetCurPos(), StrSize=CurLine->GetLength();//StrLength(Str);
 			// $ 10.12.2000 IS
 			//   Обрабатываем только то слово, на котором стоит курсор, или то слово,
@@ -7280,7 +7173,7 @@ Editor::iterator Editor::InsertString(const wchar_t *lpwszStr, int nLength, iter
 {
 	bool Empty = Lines.empty();
 
-	auto NewLine = Lines.emplace(Empty ? Lines.begin() : std::next(pAfter), Edit(GetOwner(), !lpwszStr));
+	auto NewLine = Lines.emplace(Empty ? Lines.begin() : std::next(pAfter), Edit(GetOwner()));
 
 	NewLine->SetPersistentBlocks(EdOpt.PersistentBlocks);
 
@@ -7428,12 +7321,12 @@ DWORD Editor::EditSetCodePage(iterator edit, uintptr_t codepage, bool check_only
 	assert(m_codepage != CP_UTF7); // BUGBUG: CP_SYMBOL, 50xxx, 57xxx
 	LPBOOL lpUsedDefaultChar = m_codepage == CP_UTF8 ? nullptr : &UsedDefaultChar;
 
-	if (edit->m_Str && edit->m_StrSize)
+	if (!edit->m_Str.empty())
 	{
-		if (3 * static_cast<size_t>(edit->m_StrSize) + 1 > decoded.size())
-			decoded.resize(256 + 4 * edit->m_StrSize);
+		if (3 * static_cast<size_t>(edit->m_Str.size()) + 1 > decoded.size())
+			decoded.resize(256 + 4 * edit->m_Str.size());
 
-		int length = WideCharToMultiByte(m_codepage, 0, edit->m_Str, edit->m_StrSize, decoded.data(), static_cast<int>(decoded.size()), nullptr, lpUsedDefaultChar);
+		int length = WideCharToMultiByte(m_codepage, 0, edit->m_Str.data(), edit->m_Str.size(), decoded.data(), static_cast<int>(decoded.size()), nullptr, lpUsedDefaultChar);
 		if (!length || UsedDefaultChar)
 		{
 			Ret |= SETCP_WC2MBERROR;
@@ -7463,21 +7356,15 @@ DWORD Editor::EditSetCodePage(iterator edit, uintptr_t codepage, bool check_only
 		if (check_only)
 			return Ret;
 
-		if (edit->m_StrSize < length2)
+		if (edit->m_Str.size() < length2)
 		{
-			wchar_t *encoded = (wchar_t*)xf_malloc((length2+1)*sizeof(wchar_t));
-			if (!encoded)
-				return Ret | SETCP_OTHERERROR;
-			xf_free(edit->m_Str);
-			edit->m_Str = encoded;
+			edit->m_Str.resize(length2);
 		}
 
 		if (codepage == CP_UTF8 || codepage == CP_UTF7)
-			length2 = Utf::ToWideChar(codepage, decoded.data(), length, edit->m_Str, length2, nullptr);
+			length2 = Utf::ToWideChar(codepage, decoded.data(), length, edit->m_Str.data(), edit->m_Str.size(), nullptr);
 		else
-			length2 = MultiByteToWideChar(codepage, 0, decoded.data(), length, edit->m_Str, length2);
-
-		edit->m_Str[edit->m_StrSize = length2] = L'\0';
+			length2 = MultiByteToWideChar(codepage, 0, decoded.data(), length, edit->m_Str.data(), edit->m_Str.size());
 	}
 
 	if (!check_only)
@@ -7503,20 +7390,20 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 			Y = line;
 			X = 0;
 
-			if (3*static_cast<size_t>(i->m_StrSize)+1 > decoded.size())
-				decoded.resize(256 + 4*i->m_StrSize);
+			if (3 * static_cast<size_t>(i->m_Str.size()) + 1 > decoded.size())
+				decoded.resize(256 + 4 * i->m_Str.size());
 
 			std::vector<int> wchar_offsets;
-			wchar_offsets.reserve(i->m_StrSize + 1);
+			wchar_offsets.reserve(i->m_Str.size() + 1);
 			int total_len = 0;
 
 			BOOL def = FALSE, *p_def = m_codepage == CP_UTF8 ? nullptr : &def;
-			for (int j=0; j < i->m_StrSize; ++j)
+			for (int j = 0; j < i->m_Str.size(); ++j)
 			{
 				wchar_offsets.push_back(total_len);
 				char *s = decoded.data() + total_len;
 
-				int len = WideCharToMultiByte(m_codepage, 0, i->m_Str+j, 1, s, 3, nullptr, p_def);
+				int len = WideCharToMultiByte(m_codepage, 0, i->m_Str.data() + j, 1, s, 3, nullptr, p_def);
 				if (len <= 0 || def)
 				{
 					X = j;
@@ -7592,11 +7479,10 @@ bool Editor::SetCodePage(uintptr_t codepage, bool *BOM)
 		*BOM = false;
 		if (codepage == CP_UTF8 && !Lines.empty())
 		{
-			auto first = Lines.begin();
-			if (first->m_StrSize > 0 && first->m_Str[0] == Utf::BOM_CHAR)
+			auto& first = *Lines.begin();
+			if (!first.m_Str.empty() && first.m_Str[0] == Utf::BOM_CHAR)
 			{
-				std::copy_n(first->m_Str + 1, first->m_StrSize, first->m_Str); // with trailing L'\0'
-				--first->m_StrSize;
+				first.m_Str.erase(first.m_Str.begin());
 				*BOM = true;
 			}
 		}

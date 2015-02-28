@@ -4752,7 +4752,7 @@ void FileList::FlushDiz()
 void FileList::GetDizName(string &strDizName) const
 {
 	if (m_PanelMode==NORMAL_PANEL)
-		Diz.GetDizName(strDizName);
+		strDizName = Diz.GetDizName();
 }
 
 
@@ -5352,9 +5352,8 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 			}
 			else
 			{
-				PanelItem.FileName = DuplicateString(PointToName(CurPlugin.m_HostFile));
+				PanelItem.FileName = PointToName(CurPlugin.m_HostFile);
 				Global->CtrlObject->Plugins->DeleteFiles(m_hPlugin,&PanelItem,1,0);
-				delete[] PanelItem.FileName;
 			}
 
 			FarChDir(strSaveDir);
@@ -5669,8 +5668,6 @@ std::vector<PluginPanelItem> FileList::CreatePluginItemList(bool AddTwoDot)
 	{
 		ItemList.emplace_back(VALUE_TYPE(ItemList)());
 		FileListToPluginItem(m_ListData[0], &ItemList.front());
-		//ItemList->FindData.lpwszFileName = DuplicateString(ListData[0]->strName);
-		//ItemList->FindData.dwFileAttributes=ListData[0]->FileAttr;
 	}
 
 	LastSelPosition=OldLastSelPosition;
@@ -6702,9 +6699,6 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 		if ((Global->Opt->ShowHidden || !(fdata.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))) && (!UseFilter || m_Filter->FileInFilter(fdata, nullptr, &fdata.strFileName)))
 		{
-			if (m_ListData.size() == m_ListData.capacity())
-				m_ListData.reserve(m_ListData.size() + 4096);
-
 			m_ListData.emplace_back(VALUE_TYPE(m_ListData)());
 			auto& NewItem = m_ListData.back();
 

@@ -109,8 +109,6 @@ public:
 	void SaveExportsToCache(class PluginsCacheConfig* cache, unsigned long long id, const exports_array& exports);
 	void LoadExportsFromCache(class PluginsCacheConfig* cache, unsigned long long id, exports_array& exports);
 
-	template<int> struct ExportType;
-
 	PluginManager* GetOwner() const { return m_owner; }
 	const wchar_t* GetExportName(size_t index) const { return m_ExportsNames[index].UName; }
 

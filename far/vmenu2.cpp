@@ -150,7 +150,7 @@ intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void*
 
 	default:
 		if(Global->CloseFARMenu)
-			Dlg->SendMessage( DM_CLOSE, -1, nullptr);
+			ProcessKey(Manager::Key(KEY_ESC));
 		break;
 	}
 	return Dlg->DefProc(Msg, Param1, Param2);

@@ -268,6 +268,8 @@ namespace api
 		bool exists(file_status Status);
 		bool is_file(file_status Status);
 		bool is_directory(file_status Status);
+
+		bool is_not_empty_directory(const string& Object);
 	}
 
 	namespace reg
@@ -439,4 +441,15 @@ namespace api
 			mutable T m_pointer;
 		};
 	}
+
+	class co_initialize: noncopyable
+	{
+	public:
+		co_initialize(): m_hr(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED)) {}
+		~co_initialize() { if (SUCCEEDED(m_hr)) CoUninitialize(); }
+		operator HRESULT() const { return m_hr; }
+
+	private:
+		const HRESULT m_hr;
+	};
 }
