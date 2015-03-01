@@ -120,6 +120,9 @@ static void PrepareOptFolder(string &strSrc, int IsLocalPath_FarPath)
 
 void FilePanels::Init(int DirCount)
 {
+	CmdLine = std::make_unique<CommandLine>(shared_from_this());
+	TopMenuBar = std::make_unique<MenuBar>(shared_from_this());
+
 	SetPanelPositions(FileList::IsModeFullScreen(Global->Opt->LeftPanel.ViewMode),
 	                  FileList::IsModeFullScreen(Global->Opt->RightPanel.ViewMode));
 	LeftPanel->SetViewMode(Global->Opt->LeftPanel.ViewMode);
@@ -204,9 +207,6 @@ void FilePanels::Init(int DirCount)
 			PassivePanel->InitCurDir(PassiveFolder);
 		}
 	}
-
-	CmdLine = std::make_unique<CommandLine>(shared_from_this());
-	TopMenuBar = std::make_unique<MenuBar>(shared_from_this());
 
 #if 1
 
