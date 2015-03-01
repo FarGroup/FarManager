@@ -3,6 +3,42 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 01.03.2015 16:17:34 +0200 - build 4284
+
+1. Strange things could happen after some manipulations with QuickView.
+
+zg 01.03.2015 13:12:22 +0200 - build 4283
+
+1. 0002956: FAR crash on start after exit with quick view panel visible.
+
+drkns 01.03.2015 02:12:37 +0200 - build 4282
+
+1. Correction of 4280.2.
+
+drkns 01.03.2015 00:58:19 +0200 - build 4281
+
+1. Correction of 4280.1.
+
+drkns 28.02.2015 23:56:47 +0200 - build 4280
+
+1. FCTL_SETPANELDIRECTORY now returns 0 on failure and does not show dialogs.
+
+2. Refactoring. Expect some bugs in editor.
+
+w17 27.02.2015 14:35:20 +0300 - build 4279
+
+1. M#2954: Switch to Viewer (F6) loses current position when "Save file position" is OFF
+
+svs 25.02.2015 19:08:58 +0300 - build 4278
+
+1. SQLite 3.8.8.3
+
+drkns 23.02.2015 19:43:02 +0200 - build 4277
+
+1. Correction of 4275.
+
+2. Continuation of 4276.
+
 drkns 21.02.2015 11:14:06 +0200 - build 4276
 
 1. Incorrect expansion of paths C:path.
