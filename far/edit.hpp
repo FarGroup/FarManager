@@ -255,7 +255,7 @@ protected:
 		typedef impl_type::iterator iterator;
 		typedef impl_type::const_iterator const_iterator;
 
-		tiny_string() { clear(); }
+		tiny_string() { AddNullTerminator(); }
 		tiny_string(const wchar_t* Data, size_t Size)
 		{
 			m_Data.reserve(Size + 1);
@@ -282,6 +282,8 @@ protected:
 
 		void resize(size_t Size, wchar_t Value = wchar_t())
 		{
+			// remove existing null terminator
+			m_Data.pop_back();
 			m_Data.reserve(Size + 1);
 			m_Data.resize(Size, Value);
 			AddNullTerminator();

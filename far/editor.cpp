@@ -5035,28 +5035,20 @@ void Editor::Undo(int redo)
 
 				Pasting--;
 
-				{
-					MoveSavedSessionBookmarksBack(ud->m_BM);
-				}
+				MoveSavedSessionBookmarksBack(ud->m_BM);
 
-				if (!ud->m_Str.empty())
-				{
-					CurLine->SetString(ud->m_Str.data(), static_cast<int>(ud->m_Str.size()));
-					CurLine->SetEOL(ud->m_EOL); // необходимо дополнительно выставлять, т.к. SetString вызывает Edit::SetBinaryString и... дальше по тексту
-					Change(ECTYPE_CHANGED,NumLine);
-				}
+				CurLine->SetString(ud->m_Str.data(), static_cast<int>(ud->m_Str.size()));
+				CurLine->SetEOL(ud->m_EOL); // необходимо дополнительно выставлять, т.к. SetString вызывает Edit::SetBinaryString и... дальше по тексту
+				Change(ECTYPE_CHANGED,NumLine);
 
 				break;
 			case UNDO_EDIT:
 			{
 				EditorUndoData tmp(UNDO_EDIT,CurLine->GetStringAddr(),CurLine->GetEOL(),ud->m_StrNum,ud->m_StrPos,CurLine->GetLength());
 
-				if (!ud->m_Str.empty())
-				{
-					CurLine->SetString(ud->m_Str.data(), static_cast<int>(ud->m_Str.size()));
-					CurLine->SetEOL(ud->m_EOL); // необходимо дополнительно выставлять, т.к. SetString вызывает Edit::SetBinaryString и... дальше по тексту
-					Change(ECTYPE_CHANGED,NumLine);
-				}
+				CurLine->SetString(ud->m_Str.data(), static_cast<int>(ud->m_Str.size()));
+				CurLine->SetEOL(ud->m_EOL); // необходимо дополнительно выставлять, т.к. SetString вызывает Edit::SetBinaryString и... дальше по тексту
+				Change(ECTYPE_CHANGED,NumLine);
 
 				CurLine->SetCurPos(ud->m_StrPos);
 				ud->SetData(tmp.m_Type, tmp.m_Str.data(), tmp.m_EOL, tmp.m_StrNum, tmp.m_StrPos, tmp.m_Str.size());
