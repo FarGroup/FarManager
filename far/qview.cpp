@@ -435,6 +435,8 @@ void QuickView::ShowFile(const string& FileName, bool TempFile, PluginHandle* hD
 		return;
 	}
 
+	m_CurDir = Parent()->GetAnotherPanel(this)->GetCurDir();
+
 	string FileFullName = FileName;
 	if (!hDirPlugin) ConvertNameToFull(FileFullName, FileFullName);
 
