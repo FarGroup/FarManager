@@ -420,20 +420,6 @@ static int far_GetNumberOfLinks(lua_State *L)
 	return lua_pushinteger(L, num), 1;
 }
 
-static int far_LuafarVersion(lua_State *L)
-{
-	if(lua_toboolean(L, 1))
-	{
-		lua_pushinteger(L, PLUGIN_MAJOR_VER);
-		lua_pushinteger(L, PLUGIN_MINOR_VER);
-		lua_pushinteger(L, PLUGIN_BUILD);
-		return 3;
-	}
-
-	lua_pushliteral(L, FARPRODUCTVERSION);
-	return 1;
-}
-
 static void GetMouseEvent(lua_State *L, MOUSE_EVENT_RECORD* rec)
 {
 	rec->dwMousePosition.X = GetOptIntFromTable(L, "MousePositionX", 0);
@@ -5972,7 +5958,6 @@ const luaL_Reg far_funcs[] =
 	{"GetCurrentDirectory", far_GetCurrentDirectory},
 	{"GetFileOwner",        far_GetFileOwner},
 	{"GetNumberOfLinks",    far_GetNumberOfLinks},
-	{"LuafarVersion",       far_LuafarVersion},
 	{"MakeMenuItems",       far_MakeMenuItems},
 	{"Show",                far_Show},
 	{"Timer",               far_Timer},

@@ -1374,17 +1374,42 @@ function MT.test_mantis_1722()
   assert(Dlg[1][10] == "W123")
 end
 
-local function test_far_AdvControl()
-  assert(type(far.AdvControl("ACTL_GETWINDOWCOUNT"))=="number")
+local function test_AdvControl()
+  local num, t
+
+  num = far.AdvControl("ACTL_GETWINDOWCOUNT")
+  mf.acall(far.Show); mf.acall(far.Show)
+  assert(num+2 == far.AdvControl("ACTL_GETWINDOWCOUNT"))
+  Keys("Esc Esc")
+  assert(num == far.AdvControl("ACTL_GETWINDOWCOUNT"))
+
   assert(type(far.AdvControl("ACTL_GETFARHWND"))=="userdata")
-  assert(type(far.AdvControl("ACTL_GETCOLOR",0))=="table")
-  assert(type(far.AdvControl("ACTL_GETARRAYCOLOR"))=="table")
+
+  t = far.AdvControl("ACTL_GETCOLOR",0)
+  assert(t.Flags and t.ForegroundColor and t.BackgroundColor)
+
+  t = far.AdvControl("ACTL_GETARRAYCOLOR")[1]
+  assert(t.Flags and t.ForegroundColor and t.BackgroundColor)
+
   assert(far.AdvControl("ACTL_GETFARMANAGERVERSION"):sub(1,1)=="3")
   assert(far.AdvControl("ACTL_GETFARMANAGERVERSION",true)==3)
-  assert(type(far.AdvControl("ACTL_GETWINDOWINFO"))=="table")
-  assert(type(far.AdvControl("ACTL_GETFARRECT"))=="table")
-  assert(type(far.AdvControl("ACTL_GETCURSORPOS"))=="table")
-  assert(type(far.AdvControl("ACTL_GETWINDOWTYPE"))=="table")
+
+  t = far.AdvControl("ACTL_GETWINDOWINFO")
+  assert(t.Type and t.Id and t.Pos and t.Flags and t.TypeName and t.Name)
+
+  t = far.AdvControl("ACTL_GETFARRECT")
+  assert(t.Left and t.Top and t.Right and t.Bottom)
+
+  t = far.AdvControl("ACTL_GETCURSORPOS")
+  assert(t.X and t.Y)
+
+  t = far.AdvControl("ACTL_GETWINDOWTYPE")
+  assert(t.Type)
+
+  mf.acall(far.AdvControl, "ACTL_WAITKEY", nil, "F1")
+  Keys("F1")
+  mf.acall(far.AdvControl, "ACTL_WAITKEY")
+  Keys("F2")
 end
 
 local function test_far_GetMsg()
@@ -1403,12 +1428,25 @@ local function test_clipboard()
   assert(far.PasteFromClipboard() == orig)
 end
 
+local function test_far_FarClock()
+  local temp = far.FarClock()
+  mf.sleep(50)
+  temp = far.FarClock() - temp
+  assert(temp > 40000 and temp < 70000)
+end
+
+local function test_FarStandardFunctions()
+  test_clipboard()
+  test_far_FarClock()
+end
+
 function MT.test_luafar()
-  test_far_AdvControl()
   test_far_GetMsg()
+
+  test_AdvControl()
   test_MacroControl()
   test_RegexControl()
-  test_clipboard()
+  test_FarStandardFunctions()
 end
 
 function MT.test_all()

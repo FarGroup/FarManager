@@ -8580,41 +8580,6 @@ mtime=3526661259
 </article>
 </node>
 <node>
-id=191
-lv=2
-dt=Text
-nm=far.LuafarVersion
-mtime=3558792319
-<article>
-#_**-------------------------------------------**
-#_**   THE INFORMATION BELOW IS OUTDATED.      **
-#_**DO NOT USE THIS FUNCTION UNTIL IT IS FIXED.**
-#_**-------------------------------------------**
-#_
-#_version = far.LuafarVersion ([mode])
-#_
-#_**Parameters:**
-#_  mode   : boolean
-#_
-#_**Returns:**
-#_  version: string, if mode==false;
-#_           3 numbers (MAJOR,MINOR,MICRO), if mode==true;
-#_
-#_**Description:**
-#_  Returns version of the LuaFAR library, e.g.:
-#_    "1.2.3" - string representation, or
-#_    1, 2, 3 - three number representation.
-#_
-#_**Note:**
-#_  The version of Far SDK used *in building LuaFAR* can be
-#_  determined as follows:
-#_    local F = far.Flags
-#_    far.Show(F.FARMANAGERVERSION_MAJOR, F.FARMANAGERVERSION_MINOR,
-#_             F.FARMANAGERVERSION_BUILD)
-#_
-</article>
-</node>
-<node>
 id=280
 lv=2
 dt=Text
