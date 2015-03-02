@@ -61,8 +61,8 @@ bool HasPathPrefix(const string &Path);
 bool PathStartsWith(const string &Path, const string &Start);
 bool PathCanHoldRegularFile(const string& Path);
 bool IsPluginPrefixPath(const string &Path);
-
-bool CutToSlash(string &strStr, bool bInclude = false);
+bool CutToSlash(string &strStr, bool bInclude = false); // BUGBUG, deprecated. Use CutToParent.
+bool CutToParent(string &strStr);
 string &CutToNameUNC(string &strPath);
 string &CutToFolderNameIfFolder(string &strPath);
 const wchar_t* PointToName(const wchar_t *lpwszPath);
@@ -85,8 +85,8 @@ string &ReplaceSlashToBSlash(string &strStr);
 
 const wchar_t *FirstSlash(const wchar_t *String);
 const wchar_t *LastSlash(const wchar_t *String);
-bool FindSlash(size_t &Pos, const string &Str, size_t StartPos = 0);
-bool FindLastSlash(size_t &Pos, const string &Str);
+bool FindSlash(size_t &Pos, const string &Str, size_t StartPos = 0, size_t EndPos = string::npos);
+bool FindLastSlash(size_t &Pos, const string &Str, size_t StartPos = 0, size_t EndPos = string::npos);
 
 bool TestParentFolderName(const string& Name);
 bool TestCurrentDirectory(const string& TestDir);

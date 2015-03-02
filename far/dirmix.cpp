@@ -196,13 +196,10 @@ bool CheckShortcutFolder(string& pTestPath, bool TryClosest, bool Silent)
 		{
 			if (Silent || !Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), strTarget.data(), MSG(MNeedNearPath), MSG(MHYes),MSG(MHNo)))
 			{
-				size_t RootLength = 0;
-				ParsePath(pTestPath, &RootLength);
-
 				string strTestPathTemp = pTestPath;
 				for (;;)
 				{
-					if (!CutToSlash(strTestPathTemp) || strTestPathTemp.size() < RootLength)
+					if (!CutToParent(strTestPathTemp))
 						break;
 
 					if (api::fs::exists(strTestPathTemp))

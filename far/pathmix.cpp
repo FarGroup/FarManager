@@ -372,6 +372,27 @@ bool CutToSlash(string &strStr, bool bInclude)
 	return false;
 }
 
+bool CutToParent(string &strStr)
+{
+	bool Result = false;
+	size_t RootLength = 0;
+	ParsePath(strStr, &RootLength);
+	const auto RootOnly = RootLength == strStr.size();
+	const auto EndPos = !strStr.empty() && IsSlash(strStr.back()) && !RootOnly? strStr.size() - 1 : strStr.size();
+	size_t pos;
+	if (FindLastSlash(pos, strStr, RootLength, EndPos))
+	{
+		strStr.resize(pos);
+		Result = true;
+	}
+	else if (RootLength && !RootOnly)
+	{
+		strStr.resize(RootLength);
+		Result = true;
+	}
+	return Result;
+}
+
 string &CutToNameUNC(string &strPath)
 {
 	const wchar_t *lpwszPath = strPath.data();
@@ -455,9 +476,10 @@ const wchar_t *LastSlash(const wchar_t *String)
 	return IsSlash(*String)?String:nullptr;
 }
 
-bool FindSlash(size_t &Pos, const string &Str, size_t StartPos)
+bool FindSlash(size_t &Pos, const string &Str, size_t StartPos, size_t EndPos)
 {
-	for (size_t p = StartPos; p < Str.size(); p++)
+	EndPos = std::min(EndPos, Str.size());
+	for (size_t p = StartPos; p != EndPos; ++p)
 	{
 		if (IsSlash(Str[p]))
 		{
@@ -469,9 +491,10 @@ bool FindSlash(size_t &Pos, const string &Str, size_t StartPos)
 	return false;
 }
 
-bool FindLastSlash(size_t &Pos, const string &Str)
+bool FindLastSlash(size_t &Pos, const string &Str, size_t StartPos, size_t EndPos)
 {
-	for (size_t p = Str.size(); p > 0; p--)
+	EndPos = std::min(EndPos, Str.size());
+	for (size_t p = EndPos; p != StartPos; --p)
 	{
 		if (IsSlash(Str[p - 1]))
 		{
@@ -676,5 +699,61 @@ void TestPathParser()
     assert(!PathStartsWith(L"C:\\path\\file", L"C:\\pat"));
     assert(PathStartsWith(L"\\", L""));
     assert(!PathStartsWith(L"C:\\path\\file", L""));
+
+	const wchar_t* TestRoots[] =
+	{
+		L"",
+		L"C:",
+		L"C:\\",
+		L"\\\\server\\share\\",
+		L"\\\\?\\C:\\",
+		L"\\\\?\\UNC\\server\\share\\",
+		L"\\\\?\\Volume{f26b206c-f912-11e1-b516-806e6f6e6963}\\",
+		L"\\\\?\\pipe\\",
+	};
+
+	const struct
+	{
+		const wchar_t* InputPath;
+		const wchar_t* ExpectedPath;
+		bool RootMustExist;
+		bool ExpectedReult;
+	}
+	TestCases[] =
+	{
+		// root directory, shall fail
+		{ L"[root]", L"[root]", false, false},
+
+		// one level, shall return root directory
+		{ L"[root]dir1", L"[root]", true, true },
+
+		// one level without root, shall fail
+		{ L"dir1", L"dir1", false, false },
+
+		// two levels, shall return first level
+		{ L"[root]dir1\\dir2", L"[root]dir1", false, true },
+
+		// two levels with trailing slash, shall return first level
+		{ L"[root]dir1\\dir2\\", L"[root]dir1", false, true },
+	};
+
+	string Path, Baseline;
+	FOR(const auto& Root, TestRoots)
+	{
+		FOR(const auto& Test, TestCases)
+		{
+			if (!*Root && Test.RootMustExist)
+				continue;
+
+			Path = Test.InputPath;
+			ReplaceStrings(Path, L"[root]", Root);
+			Baseline = Test.ExpectedPath;
+			ReplaceStrings(Baseline, L"[root]", Root);
+
+			const auto Result = CutToParent(Path);
+			assert(Result == Test.ExpectedReult);
+			assert(Path == Baseline);
+		}
+	}
 #endif
 }
