@@ -3168,7 +3168,10 @@ void Editor::DeleteString(iterator DelPtr, int LineNumber, int DeleteLast,int Un
 	if (DelPtr != FirstLine)
 	{
 		if (DelPtr == LastLine)
+		{
 			--LastLine;
+			LastLine->SetEOL(L"");
+		}
 	}
 	else
 	{
@@ -3226,6 +3229,7 @@ void Editor::DeleteString(iterator DelPtr, int LineNumber, int DeleteLast,int Un
 	}
 
 	m_AutoDeletedColors.erase(&*DelPtr);
+
 	Lines.erase(DelPtr);
 
 	Change(ECTYPE_DELETED,UndoLine);

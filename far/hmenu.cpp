@@ -228,6 +228,7 @@ int HMenu::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_NUMENTER:
 		case KEY_ENTER:
+		case KEY_UP:      case KEY_NUMPAD8:
 		case KEY_DOWN:    case KEY_NUMPAD2:
 		{
 			if (Item[SelectPos].SubMenu)
