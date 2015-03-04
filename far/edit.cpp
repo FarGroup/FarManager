@@ -1504,7 +1504,7 @@ int Edit::InsertKey(int Key)
 
 			SetPrevCurPos(m_CurPos);
 
-			if (!m_Flags.Check(FEDITLINE_OVERTYPE))
+			if (!m_Flags.Check(FEDITLINE_OVERTYPE) || m_CurPos >= m_Str.size())
 			{
 				m_Str.insert(m_Str.begin() + m_CurPos, 1, Key);
 
