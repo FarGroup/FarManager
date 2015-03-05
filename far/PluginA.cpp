@@ -2947,7 +2947,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 
 				//BUGBUG - PtrLength ни на что не влияет.
 				string text(wide(didA->PtrData));
-				FarDialogItemData di = {sizeof(FarDialogItemData),(size_t)didA->PtrLength, UNSAFE_CSTR(text)};
+				FarDialogItemData di = {sizeof(FarDialogItemData), text.size(), UNSAFE_CSTR(text)};
 				return NativeInfo.SendDlgMessage(hDlg, DM_SETTEXT, Param1, &di);
 			}
 			case oldfar::DM_SETMAXTEXTLENGTH: Msg = DM_SETMAXTEXTLENGTH; break;
