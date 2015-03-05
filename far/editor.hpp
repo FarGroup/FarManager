@@ -63,7 +63,7 @@ public:
 	bool IsFileModified() const;
 	bool IsFileChanged() const;
 	void SetTitle(const wchar_t *Title);
-	long GetCurPos(bool file_pos = false, bool add_bom = false) const;
+	uint64_t GetCurPos(bool file_pos = false, bool add_bom = false) const;
 	int EditorControl(int Command, intptr_t Param1, void *Param2);
 	void SetHostFileEditor(FileEditor *Editor) { HostFileEditor = Editor; }
 	void PrepareResizedConsole() { m_Flags.Set(FEDITOR_ISRESIZEDCONSOLE); }
@@ -176,7 +176,7 @@ private:
 	void UnmarkEmptyBlock();
 	void UnmarkMacroBlock();
 	void AddUndoData(int Type) { return AddUndoData(Type, nullptr, nullptr, 0, 0, 0); }
-	void AddUndoData(int Type,const wchar_t *Str, const wchar_t *Eol, int StrNum, int StrPos, int Length);
+	void AddUndoData(int Type,const wchar_t *Str, const wchar_t *Eol, int StrNum, int StrPos, size_t Length);
 	void AddBookmarkUndo(bookmark_list::iterator BM);
 	void Undo(int redo);
 	void SelectAll();
@@ -265,7 +265,6 @@ private:
 	};
 
 	editor_container Lines;
-	iterator FirstLine;
 	iterator LastLine;
 	iterator TopScreen;
 	iterator CurLine;

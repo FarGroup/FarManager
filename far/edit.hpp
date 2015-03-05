@@ -153,8 +153,8 @@ public:
 	const wchar_t* GetStringAddr() const;
 	void SetHiString(const string& Str);
 	void SetString(const wchar_t *Str,int Length=-1);
-	void SetBinaryString(const wchar_t *Str,int Length);
-	void GetBinaryString(const wchar_t **Str, const wchar_t **EOL,intptr_t &Length) const;
+	void SetBinaryString(const wchar_t *Str, size_t Length);
+	void GetBinaryString(const wchar_t **Str, const wchar_t **EOL, size_t& Length) const;
 	void SetEOL(const wchar_t *EOL);
 	const wchar_t *GetEOL() const;
 	int GetSelString(wchar_t *Str,int MaxSize);
@@ -162,7 +162,7 @@ public:
 	int GetLength() const;
 	void AppendString(const wchar_t *Str);
 	void InsertString(const string& Str);
-	void InsertBinaryString(const wchar_t *Str,int Length);
+	void InsertBinaryString(const wchar_t *Str, size_t Length);
 	int Search(const string& Str,const string &UpperStr, const string &LowerStr, RegExp &re, RegExpMatch *pm, MatchHash* hm, string& ReplaceStr,int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength);
 	void SetClearFlag(bool Flag) {m_Flags.Change(FEDITLINE_CLEARFLAG,Flag);}
 	int GetClearFlag() const {return m_Flags.Check(FEDITLINE_CLEARFLAG);}

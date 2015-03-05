@@ -1525,7 +1525,7 @@ int Edit::InsertKey(int Key)
 			++m_CurPos;
 			changed=true;
 		}
-		else if (m_Flags.Check(FEDITLINE_OVERTYPE))
+		else
 		{
 			if (m_CurPos < m_Str.size())
 			{
@@ -1534,8 +1534,6 @@ int Edit::InsertKey(int Key)
 				changed=true;
 			}
 		}
-		else
-			MessageBeep(MB_ICONHAND);
 	}
 
 	if (changed)
@@ -1554,14 +1552,14 @@ const wchar_t* Edit::GetStringAddr() const
 	return m_Str.data();
 }
 
-void  Edit::SetHiString(const string& Str)
+void Edit::SetHiString(const string& Str)
 {
 	if (m_Flags.Check(FEDITLINE_READONLY))
 		return;
 
 	auto NewStr = HiText2Str(Str);
 	Select(-1,0);
-	SetBinaryString(NewStr.data(), static_cast<int>(NewStr.size()));
+	SetBinaryString(NewStr.data(), NewStr.size());
 }
 
 void Edit::SetString(const wchar_t *Str, int Length)
@@ -1601,18 +1599,18 @@ const wchar_t *Edit::GetEOL() const
    в этом методе DropDownBox не обрабатывается
    ибо он вызывается только из SetString и из класса Editor
    в Dialog он нигде не вызывается */
-void Edit::SetBinaryString(const wchar_t *Str,int Length)
+void Edit::SetBinaryString(const wchar_t *Str, size_t Length)
 {
 	if (m_Flags.Check(FEDITLINE_READONLY))
 		return;
 
 	// коррекция вставляемого размера, если определен GetMaxLength()
-	if (GetMaxLength() != -1 && Length > GetMaxLength())
+	if (GetMaxLength() != -1 && Length > static_cast<size_t>(GetMaxLength()))
 	{
 		Length=GetMaxLength(); // ??
 	}
 
-	if (Length>0 && !m_Flags.Check(FEDITLINE_PARENT_SINGLELINE))
+	if (Length && !m_Flags.Check(FEDITLINE_PARENT_SINGLELINE))
 	{
 		if (Str[Length-1]==L'\r')
 		{
@@ -1625,11 +1623,11 @@ void Edit::SetBinaryString(const wchar_t *Str,int Length)
 			{
 				Length--;
 
-				if (Length > 0 && Str[Length-1]==L'\r')
+				if (Length && Str[Length-1]==L'\r')
 				{
 					Length--;
 
-					if (Length > 0 && Str[Length-1]==L'\r')
+					if (Length && Str[Length-1]==L'\r')
 					{
 						Length--;
 						EndType=EOL_CRCRLF;
@@ -1651,9 +1649,7 @@ void Edit::SetBinaryString(const wchar_t *Str,int Length)
 	if (!Mask.empty())
 	{
 		RefreshStrByMask(TRUE);
-		int maskLen = static_cast<int>(Mask.size());
-
-		for (int i=0,j=0; i < maskLen && j<maskLen && j<Length;)
+		for (size_t i = 0, j = 0, maskLen = Mask.size(); i < maskLen && j < maskLen && j < Length;)
 		{
 			if (CheckCharMask(Mask[i]))
 			{
@@ -1697,7 +1693,7 @@ void Edit::SetBinaryString(const wchar_t *Str,int Length)
 	Changed();
 }
 
-void Edit::GetBinaryString(const wchar_t **Str,const wchar_t **EOL,intptr_t &Length) const
+void Edit::GetBinaryString(const wchar_t **Str,const wchar_t **EOL, size_t& Length) const
 {
 	*Str = m_Str.data();
 
@@ -1765,10 +1761,10 @@ void Edit::InsertString(const string& Str)
 	if (!m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
 		DeleteBlock();
 
-	InsertBinaryString(Str.data(), static_cast<int>(Str.size()));
+	InsertBinaryString(Str.data(), Str.size());
 }
 
-void Edit::InsertBinaryString(const wchar_t *Str,int Length)
+void Edit::InsertBinaryString(const wchar_t *Str, size_t Length)
 {
 	if (m_Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
 		return;
@@ -1778,19 +1774,19 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
 	auto Mask = GetInputMask();
 	if (!Mask.empty())
 	{
-		int Pos=m_CurPos;
-		int MaskLen = static_cast<int>(Mask.size());
+		const size_t Pos = m_CurPos;
+		const size_t MaskLen = Mask.size();
 
 		if (Pos<MaskLen)
 		{
 			//_SVS(SysLog(L"InsertBinaryString ==> Str='%s' (Length=%d) Mask='%s'",Str,Length,Mask+Pos));
-			int StrLen=(MaskLen-Pos>Length)?Length:MaskLen-Pos;
+			const size_t StrLen = (MaskLen - Pos > Length) ? Length : MaskLen - Pos;
 
 			/* $ 15.11.2000 KM
 			   Внесены исправления для правильной работы PasteFromClipboard
 			   в строке с маской
 			*/
-			for (int i=Pos,j=0; j<StrLen+Pos;)
+			for (size_t i = Pos, j = 0; j < StrLen + Pos;)
 			{
 				if (CheckCharMask(Mask[i]))
 				{
@@ -1827,7 +1823,7 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
 	}
 	else
 	{
-		if (GetMaxLength() != -1 && m_Str.size() + Length > GetMaxLength())
+		if (GetMaxLength() != -1 && m_Str.size() + Length > static_cast<size_t>(GetMaxLength()))
 		{
 			// коррекция вставляемого размера, если определен GetMaxLength()
 			if (m_Str.size() < GetMaxLength())
@@ -1836,7 +1832,7 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
 			}
 		}
 
-		if (GetMaxLength() == -1 || m_Str.size() + Length <= GetMaxLength())
+		if (GetMaxLength() == -1 || m_Str.size() + Length <= static_cast<size_t>(GetMaxLength()))
 		{
 			if (m_CurPos > m_Str.size())
 			{
@@ -1846,15 +1842,13 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
 			m_Str.insert(m_CurPos, Str, Length);
 
 			SetPrevCurPos(m_CurPos);
-			m_CurPos += Length;
+			m_CurPos += static_cast<int>(Length);
 
 			if (GetTabExpandMode() == EXPAND_ALLTABS)
 				ReplaceTabs();
 
 			Changed();
 		}
-		else
-			MessageBeep(MB_ICONHAND);
 	}
 }
 

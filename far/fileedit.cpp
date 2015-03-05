@@ -895,7 +895,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 				if (!FirstSave || m_editor->IsFileChanged() || api::fs::exists(strFullFileName))
 				{
-					__int64 FilePos=m_editor->GetCurPos(true, m_bAddSignature); // TODO: GetCurPos should return __int64
+					const auto FilePos = m_editor->GetCurPos(true, m_bAddSignature);
 
 					/* $ 01.02.2001 IS
 					   ! Открываем viewer с указанием длинного имени файла, а не короткого
@@ -1924,10 +1924,10 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			{
 				++LineNumber;
 				const wchar_t *SaveStr, *EndSeq;
-				intptr_t Length;
+				size_t Length;
 				CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
 				BOOL UsedDefaultCharStr=FALSE,UsedDefaultCharEOL=FALSE;
-				WideCharToMultiByte(codepage,WC_NO_BEST_FIT_CHARS,SaveStr,Length,nullptr,0,nullptr,&UsedDefaultCharStr);
+				WideCharToMultiByte(codepage, WC_NO_BEST_FIT_CHARS, SaveStr, static_cast<int>(Length), nullptr, 0, nullptr, &UsedDefaultCharStr);
 
 				if (!*EndSeq && CurPtr != m_editor->LastLine)
 					EndSeq = m_editor->GlobalEOL.empty() ? DOS_EOL_fmt : m_editor->GlobalEOL.data();
@@ -1953,13 +1953,13 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 							m_editor->GoToLine(LineNumber);
 							if(UsedDefaultCharStr)
 							{
-								for(int Pos=0;Pos<Length;Pos++)
+								for (size_t Pos = 0; Pos < Length; ++Pos)
 								{
 									BOOL UseDefChar=0;
 									WideCharToMultiByte(codepage,WC_NO_BEST_FIT_CHARS,SaveStr+Pos,1,nullptr,0,nullptr,&UseDefChar);
 									if(UseDefChar)
 									{
-										CurPtr->SetCurPos(Pos);
+										CurPtr->SetCurPos(static_cast<int>(Pos));
 										break;
 									}
 								}
@@ -2051,7 +2051,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 
 			const wchar_t *SaveStr, *EndSeq;
 
-			intptr_t Length;
+			size_t Length;
 
 			CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
 
@@ -2087,7 +2087,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 
 				if (Length)
 				{
-					DWORD length = (codepage == CP_REVERSEBOM?static_cast<DWORD>(Length*sizeof(wchar_t)):WideCharToMultiByte(codepage, 0, SaveStr, Length, nullptr, 0, nullptr, nullptr));
+					size_t length = codepage == CP_REVERSEBOM? Length * sizeof(wchar_t) : WideCharToMultiByte(codepage, 0, SaveStr, static_cast<int>(Length), nullptr, 0, nullptr, nullptr);
 					char_ptr SaveStrCopy(length);
 
 					if (SaveStrCopy)
@@ -2095,7 +2095,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 						if (codepage == CP_REVERSEBOM)
 							SwapBytes(SaveStr, SaveStrCopy.get(), length);
 						else
-							WideCharToMultiByte(codepage, 0, SaveStr, Length, SaveStrCopy.get(), length, nullptr, nullptr);
+							WideCharToMultiByte(codepage, 0, SaveStr, static_cast<int>(Length), SaveStrCopy.get(), static_cast<int>(length), nullptr, nullptr);
 
 						if (!Cache.Write(SaveStrCopy.get(),length))
 						{
@@ -2408,9 +2408,9 @@ void FileEditor::ShowStatus()
 	Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(StatusWidth)<<FString;
 	{
 		const wchar_t *Str;
-		intptr_t Length;
+		size_t Length;
 		m_editor->CurLine->GetBinaryString(&Str,nullptr,Length);
-		int CurPos=m_editor->CurLine->GetCurPos();
+		size_t CurPos = m_editor->CurLine->GetCurPos();
 
 		if (CurPos<Length)
 		{

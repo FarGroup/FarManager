@@ -67,6 +67,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "language.hpp"
 #include "desktop.hpp"
+#include "PluginA.hpp"
 
 static const wchar_t *PluginsFolderName=L"Plugins";
 

@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "bitflags.hpp"
 #include "plclass.hpp"
-#include "PluginA.hpp"
 #include "configdb.hpp"
 #include "mix.hpp"
 
