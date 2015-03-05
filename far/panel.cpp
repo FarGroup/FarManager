@@ -2762,7 +2762,7 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid
 	if (CheckFullScreen!=SrcPanel->IsFullScreen())
 		Parent()->GetAnotherPanel(SrcPanel)->Show();
 
-	SrcPanel->Redraw();
+	SrcPanel->Refresh();
 	return true;
 }
 

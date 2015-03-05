@@ -2884,7 +2884,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 	if (GetFocus())
 	{
 		Parent()->GetCmdLine()->SetCurDir(m_CurDir);
-		Parent()->GetCmdLine()->Show();
+		Parent()->GetCmdLine()->Refresh();
 	}
 
 	auto AnotherPanel = Parent()->GetAnotherPanel(this);
