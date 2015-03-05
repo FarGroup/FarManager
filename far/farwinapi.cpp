@@ -1591,7 +1591,7 @@ bool QueryDosDevice(const string& DeviceName, string &Path)
 			Path = vBuffer.get();
 		}
 	}
-	
+
 	return Size && ::GetLastError() == NO_ERROR;
 }
 
@@ -2005,18 +2005,14 @@ DWORD GetAppPathsRedirectionFlag()
 			if (!m_tried && !m_module)
 			{
 				m_tried = true;
-				m_module = GetModuleHandle(m_name);
-				if (!m_module)
-				{
-					m_module = LoadLibrary(m_name);
+				m_module = LoadLibrary(m_name);
 
-					if (!m_module && m_AlternativeLoad && IsAbsolutePath(m_name))
-					{
-						m_module = LoadLibraryEx(m_name, nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
-					}
-					// TODO: log if nullptr
-					m_loaded = m_module != nullptr;
+				if (!m_module && m_AlternativeLoad && IsAbsolutePath(m_name))
+				{
+					m_module = LoadLibraryEx(m_name, nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
 				}
+				// TODO: log if nullptr
+				m_loaded = m_module != nullptr;
 			}
 			return m_module;
 		}
