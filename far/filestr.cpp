@@ -222,7 +222,7 @@ bool GetFileString::GetString(LPWSTR* DestStr, size_t& Length)
 					if (!nResultLength)
 					{
 						Result = GetLastError();
-						if (Result == ERROR_NO_UNICODE_TRANSLATION)
+						if (Result == ERROR_NO_UNICODE_TRANSLATION || (Result == ERROR_INVALID_FLAGS && IsNoFlagsCodepage(m_CodePage)))
 						{
 							SomeDataLost = true;
 							bGet = true;
@@ -252,6 +252,7 @@ bool GetFileString::GetString(LPWSTR* DestStr, size_t& Length)
 
 				*DestStr = m_wStr.data();
 				Length = m_wStr.size() - 1;
+				ExitCode = !m_wStr.empty();
 			}
 
 			return ExitCode;

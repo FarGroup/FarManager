@@ -110,7 +110,7 @@ public:
 			if (pos != string::npos)
 			{
 				cp_data = cp_data.substr(pos + 1);
-				pos = cp_data.find(L")");
+				pos = cp_data.rfind(L")");
 				if (pos != string::npos)
 					cp_data = cp_data.substr(0, pos);
 			}
@@ -907,9 +907,8 @@ bool MultibyteCodepageDecoder::SetCP(UINT cp)
 
 	BOOL DefUsed, *pDefUsed = (cp==CP_UTF8 || cp==CP_UTF7) ? nullptr : &DefUsed;
 	DWORD flags = WC_NO_BEST_FIT_CHARS;
-	if (cp==CP_UTF8 || cp==CP_UTF7 || cp==54936 || cp==CP_SYMBOL
-	 || (cp>=50220 && cp<=50222) || cp==50225 || cp==50227 || cp==50229 || (cp>=57002 && cp<=57011)
-	) flags = 0;
+	if (cp == CP_UTF8 || cp == 54936 || IsNoFlagsCodepage(cp))
+		flags = 0;
 
 	union {
 		BYTE bf[2];

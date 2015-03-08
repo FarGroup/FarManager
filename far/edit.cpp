@@ -1305,7 +1305,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 			{
 				if (IsEol(ClipText[i]))
 				{
-					if (IsEol(i + i < ClipText.size() && ClipText[i+1]))
+					if (i + 1 < ClipText.size() && IsEol(ClipText[i + 1]))
 						ClipText.erase(i, 1);
 
 					if (i+1 == ClipText.size())

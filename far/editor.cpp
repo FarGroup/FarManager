@@ -7315,6 +7315,8 @@ DWORD Editor::EditSetCodePage(iterator edit, uintptr_t codepage, bool check_only
 			length2 = Utf::ToWideChar(codepage, decoded.data(), length, edit->m_Str.data(), edit->m_Str.size(), nullptr);
 		else
 			length2 = MultiByteToWideChar(codepage, 0, decoded.data(), length, edit->m_Str.data(), edit->m_Str.size());
+
+		edit->m_Str.resize(length2);
 	}
 
 	if (!check_only)

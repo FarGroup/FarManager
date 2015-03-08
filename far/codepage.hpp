@@ -52,6 +52,9 @@ inline bool IsUnicodeCodePage(uintptr_t cp) { return cp == CP_UNICODE || cp == C
 inline bool IsStandardCodePage(uintptr_t cp) { return IsUnicodeCodePage(cp) || cp == CP_UTF8 || cp == GetOEMCP() || cp == GetACP(); }
 inline bool IsUnicodeOrUtfCodePage(uintptr_t cp) { return IsUnicodeCodePage(cp) || cp==CP_UTF8 || cp==CP_UTF7; }
 
+// See https://msdn.microsoft.com/en-us/library/windows/desktop/dd319072.aspx
+inline bool IsNoFlagsCodepage(uintptr_t cp) { return (cp >= 50220 && cp <= 50222) || cp == 50225 || cp == 50227 || cp == 50229 || (cp >= 57002 && cp <= 57011) || cp == CP_UTF7 || cp == CP_SYMBOL; }
+
 class Dialog;
 struct DialogBuilderListItem2;
 class VMenu2;
