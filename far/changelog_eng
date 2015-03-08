@@ -3,6 +3,54 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 08.03.2015 19:08:46 +0200 - build 4294
+
+1. Refactoring.
+
+drkns 08.03.2015 10:38:08 +0200 - build 4293
+
+1. 0002963: FAR crash while opening a file in incorrect encoding
+
+2. A couple of "corrections".
+
+drkns 08.03.2015 03:59:24 +0200 - build 4292
+
+1. fsf.sprintf/fsf.snprintf worked incorrectly (in fact, too correctly) in GCC.
+
+2. CoUninitialize was called earlier than expected.
+
+drkns 05.03.2015 23:52:10 +0200 - build 4291
+
+1. Refactoring.
+
+2. CoInitializeEx was broken in one of previous builds.
+
+zg 05.03.2015 12:02:34 +0200 - build 4290
+
+1. always load plugins with LoadLibrary* in order to increase DLL ref counter.
+
+zg 05.03.2015 05:31:29 +0200 - build 4289
+
+1. correction of 4248: leave old DM_SETTEXT behavior in wrapper.
+
+zg 05.03.2015 03:31:02 +0200 - build 4288
+
+1. 0002959: FCTL_SETPANELDIRECTORY redraws screen at wrong moments.
+
+drkns 04.03.2015 02:57:17 +0200 - build 4287
+
+1. Correction of 4280.2.
+
+drkns 03.03.2015 22:47:29 +0200 - build 4286
+
+1. 0002957: Undo cancels added line but it remains after file save
+
+2. Expand main menu with Up key.
+
+drkns 02.03.2015 22:15:32 +0200 - build 4285
+
+1. Correction of 4280.1.
+
 drkns 01.03.2015 16:17:34 +0200 - build 4284
 
 1. Strange things could happen after some manipulations with QuickView.
