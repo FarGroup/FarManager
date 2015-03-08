@@ -802,7 +802,8 @@ int wmain(int Argc, wchar_t *Argv[])
 #ifndef _MSC_VER
 		SetUnhandledExceptionFilter(FarUnhandledExceptionFilter);
 #endif
-		SCOPED_ACTION(api::co_initialize);
+		// Must be static - dependent static objects exist
+		static SCOPED_ACTION(api::co_initialize);
 		return mainImpl(make_range(Argv + 1, Argv + Argc));
 	}
 	catch (const SException& e)

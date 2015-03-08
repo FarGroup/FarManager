@@ -133,7 +133,8 @@ int WINAPIV apiSprintf(wchar_t* Dest, const wchar_t* Format, ...) noexcept //?de
 		va_list argptr;
 		va_start(argptr, Format);
 		SCOPE_EXIT{ va_end(argptr); };
-		return vswprintf(Dest, Format, argptr);
+		// BUGBUG, do not use vswprintf here, %s treated as char* in GCC
+		return _vsnwprintf(Dest, 32000, Format, argptr);
 	}
 	catch (...)
 	{
@@ -149,7 +150,8 @@ int WINAPIV apiSnprintf(wchar_t* Dest, size_t Count, const wchar_t* Format, ...)
 		va_list argptr;
 		va_start(argptr, Format);
 		SCOPE_EXIT{ va_end(argptr); };
-		return vswprintf(Dest, Count, Format, argptr);
+		// BUGBUG, do not use vswprintf here, %s treated as char* in GCC
+		return _vsnwprintf(Dest, Count, Format, argptr);
 	}
 	catch (...)
 	{
