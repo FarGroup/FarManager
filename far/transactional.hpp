@@ -39,20 +39,7 @@ public:
 	virtual bool EndTransaction() = 0;
 	virtual bool RollbackTransaction() = 0;
 
-	class scoped_transaction: noncopyable
-	{
-	public:
-		scoped_transaction(transactional* parent):m_parent(parent) { m_parent->BeginTransaction(); }
-		~scoped_transaction() { if (m_parent) m_parent->EndTransaction(); }
-		scoped_transaction(scoped_transaction&& rhs) :m_parent(nullptr) { *this = std::move(rhs); }
-		MOVE_OPERATOR_BY_SWAP(scoped_transaction);
-		void swap(scoped_transaction& rhs) noexcept { using std::swap; swap(m_parent, rhs.m_parent); }
-		FREE_SWAP(scoped_transaction);
-
-	private:
-		transactional* m_parent;
-	};
-
-	scoped_transaction ScopedTransaction() {return scoped_transaction(this); }
+	typedef raii_wrapper<transactional*, bool (transactional::*)(), bool (transactional::*)()> scoped_transaction;
+	scoped_transaction ScopedTransaction() { return scoped_transaction(this, &transactional::BeginTransaction, &transactional::EndTransaction); }
 };
 

@@ -265,39 +265,40 @@ static const char *FirstSlashA(const char *String)
 	return nullptr;
 }
 
-static void AnsiToUnicodeBin(const char *lpszAnsiString, wchar_t *lpwszUnicodeString, int nLength, uintptr_t CodePage = CP_OEMCP)
+static void AnsiToUnicodeBin(const char *lpszAnsiString, wchar_t *lpwszUnicodeString, size_t nLength, uintptr_t CodePage = CP_OEMCP)
 {
 	if (lpszAnsiString && lpwszUnicodeString && nLength)
 	{
 		// BUGBUG, error checking
 		*lpwszUnicodeString = 0;
-		MultiByteToWideChar(CodePage, 0, lpszAnsiString, nLength, lpwszUnicodeString, nLength);
+		MultiByteToWideChar(CodePage, 0, lpszAnsiString, static_cast<int>(nLength), lpwszUnicodeString, static_cast<int>(nLength));
 	}
 }
 
-static wchar_t *AnsiToUnicodeBin(const char *lpszAnsiString, int nLength, uintptr_t CodePage = CP_OEMCP)
+static wchar_t *AnsiToUnicodeBin(const char *lpszAnsiString, size_t nLength, uintptr_t CodePage = CP_OEMCP)
 {
-	const auto Result = new wchar_t[nLength];
+	const auto Result = new wchar_t[nLength + 1];
 	AnsiToUnicodeBin(lpszAnsiString, Result, nLength, CodePage);
+	Result[nLength] = 0;
 	return Result;
 }
 
-static wchar_t *AnsiToUnicode(const char *lpszAnsiString, uintptr_t CodePage = CP_OEMCP)
+static wchar_t *AnsiToUnicode(const char *lpszAnsiString)
 {
 	if (!lpszAnsiString)
 		return nullptr;
 
-	return AnsiToUnicodeBin(lpszAnsiString, (int)strlen(lpszAnsiString) + 1, CodePage);
+	return AnsiToUnicodeBin(lpszAnsiString, strlen(lpszAnsiString) + 1, CP_OEMCP);
 }
 
-static char *UnicodeToAnsiBin(const wchar_t *lpwszUnicodeString, int nLength, uintptr_t CodePage = CP_OEMCP)
+static char *UnicodeToAnsiBin(const wchar_t *lpwszUnicodeString, size_t nLength, uintptr_t CodePage = CP_OEMCP)
 {
 	/* $ 06.01.2008 TS
 	! Увеличил размер выделяемой под строку памяти на 1 байт для нормальной
 	работы старых плагинов, которые не знали, что надо смотреть на длину,
 	а не на завершающий ноль (например в EditorGetString.StringText).
 	*/
-	if (!lpwszUnicodeString || (nLength < 0))
+	if (!lpwszUnicodeString)
 		return nullptr;
 
 	const auto Result = new char[nLength + 1]();
@@ -311,9 +312,9 @@ static char *UnicodeToAnsiBin(const wchar_t *lpwszUnicodeString, int nLength, ui
 			CodePage,
 			0,
 			lpwszUnicodeString,
-			nLength,
+			static_cast<int>(nLength),
 			Result,
-			nLength,
+			static_cast<int>(nLength),
 			nullptr,
 			nullptr
 			);
@@ -322,12 +323,12 @@ static char *UnicodeToAnsiBin(const wchar_t *lpwszUnicodeString, int nLength, ui
 	return Result;
 }
 
-static char *UnicodeToAnsi(const wchar_t *lpwszUnicodeString, uintptr_t CodePage = CP_OEMCP)
+static char *UnicodeToAnsi(const wchar_t *lpwszUnicodeString)
 {
 	if (!lpwszUnicodeString)
 		return nullptr;
 
-	return UnicodeToAnsiBin(lpwszUnicodeString, StrLength(lpwszUnicodeString) + 1, CodePage);
+	return UnicodeToAnsiBin(lpwszUnicodeString, wcslen(lpwszUnicodeString), CP_OEMCP);
 }
 
 static wchar_t **ArrayAnsiToUnicode(const char* const * const lpaszAnsiString, size_t iCount)
@@ -443,14 +444,11 @@ static void ConvertInfoPanelLinesA(const oldfar::InfoPanelLine *iplA, InfoPanelL
 	{
 		const auto iplW = new InfoPanelLine[iCount];
 
-		for (size_t i = 0; i<iCount; i++)
+		std::transform(iplA, iplA + iCount, iplW, [](const oldfar::InfoPanelLine& Item) -> InfoPanelLine
 		{
-			iplW[i].Text = AnsiToUnicodeBin(iplA[i].Text, 80); //BUGBUG
-			iplW[i].Data = AnsiToUnicodeBin(iplA[i].Data, 80); //BUGBUG
-			iplW[i].Flags = 0;
-			if (iplA[i].Separator)
-				iplW[i].Flags |= IPLFLAGS_SEPARATOR;
-		}
+			InfoPanelLine NewItem = { AnsiToUnicode(Item.Text), AnsiToUnicode(Item.Data), Item.Separator? IPLFLAGS_SEPARATOR : 0 };
+			return NewItem;
+		});
 
 		*piplW = iplW;
 	}
@@ -458,42 +456,41 @@ static void ConvertInfoPanelLinesA(const oldfar::InfoPanelLine *iplA, InfoPanelL
 
 static void FreeUnicodeInfoPanelLines(const InfoPanelLine *iplW, size_t InfoLinesNumber)
 {
-	for (size_t i = 0; i<InfoLinesNumber; i++)
+	std::for_each(iplW, iplW + InfoLinesNumber, [](const InfoPanelLine& Item)
 	{
-		delete[] iplW[i].Text;
-		delete[] iplW[i].Data;
-	}
+		delete[] Item.Text;
+		delete[] Item.Data;
+	});
 
 	delete[] iplW;
 }
 
 static void ConvertPanelModesA(const oldfar::PanelMode *pnmA, PanelMode **ppnmW, size_t iCount)
 {
-	if (pnmA && ppnmW && (iCount>0))
+	if (pnmA && ppnmW && iCount)
 	{
-		PanelMode *pnmW = new PanelMode[iCount]();
-
-		for (size_t i = 0; i<iCount; i++)
+		const auto pnmW = new PanelMode[iCount]();
+		std::vector<string> Strings;
+		for_each_2(pnmA, pnmA + iCount, pnmW, [&Strings](const oldfar::PanelMode& Src, PanelMode& Dest)
 		{
-			std::vector<string> Strings;
 			size_t iColumnCount = 0;
-			if (pnmA[i].ColumnTypes)
+			if (Src.ColumnTypes)
 			{
-				split(Strings, wide(pnmA[i].ColumnTypes), 0, L",");
+				split(Strings, wide(Src.ColumnTypes), 0, L",");
 				iColumnCount = Strings.size();
 			}
 
-			pnmW[i].ColumnTypes = (pnmA[i].ColumnTypes) ? AnsiToUnicode(pnmA[i].ColumnTypes) : nullptr;
-			pnmW[i].ColumnWidths = (pnmA[i].ColumnWidths) ? AnsiToUnicode(pnmA[i].ColumnWidths) : nullptr;
-			pnmW[i].ColumnTitles = (pnmA[i].ColumnTitles && (iColumnCount>0)) ? ArrayAnsiToUnicode(pnmA[i].ColumnTitles, iColumnCount) : nullptr;
-			pnmW[i].StatusColumnTypes = (pnmA[i].StatusColumnTypes) ? AnsiToUnicode(pnmA[i].StatusColumnTypes) : nullptr;
-			pnmW[i].StatusColumnWidths = (pnmA[i].StatusColumnWidths) ? AnsiToUnicode(pnmA[i].StatusColumnWidths) : nullptr;
-			pnmW[i].Flags = 0;
-			if (pnmA[i].FullScreen) pnmW[i].Flags |= PMFLAGS_FULLSCREEN;
-			if (pnmA[i].DetailedStatus) pnmW[i].Flags |= PMFLAGS_DETAILEDSTATUS;
-			if (pnmA[i].AlignExtensions) pnmW[i].Flags |= PMFLAGS_ALIGNEXTENSIONS;
-			if (pnmA[i].CaseConversion) pnmW[i].Flags |= PMFLAGS_CASECONVERSION;
-		}
+			Dest.ColumnTypes = (Src.ColumnTypes)? AnsiToUnicode(Src.ColumnTypes) : nullptr;
+			Dest.ColumnWidths = (Src.ColumnWidths)? AnsiToUnicode(Src.ColumnWidths) : nullptr;
+			Dest.ColumnTitles = (Src.ColumnTitles && (iColumnCount>0))? ArrayAnsiToUnicode(Src.ColumnTitles, iColumnCount) : nullptr;
+			Dest.StatusColumnTypes = (Src.StatusColumnTypes)? AnsiToUnicode(Src.StatusColumnTypes) : nullptr;
+			Dest.StatusColumnWidths = (Src.StatusColumnWidths)? AnsiToUnicode(Src.StatusColumnWidths) : nullptr;
+			Dest.Flags = 0;
+			if (Src.FullScreen) Dest.Flags |= PMFLAGS_FULLSCREEN;
+			if (Src.DetailedStatus) Dest.Flags |= PMFLAGS_DETAILEDSTATUS;
+			if (Src.AlignExtensions) Dest.Flags |= PMFLAGS_ALIGNEXTENSIONS;
+			if (Src.CaseConversion) Dest.Flags |= PMFLAGS_CASECONVERSION;
+		});
 
 		*ppnmW = pnmW;
 	}
@@ -503,14 +500,14 @@ static void FreeUnicodePanelModes(const PanelMode *pnmW, size_t iCount)
 {
 	if (pnmW)
 	{
-		for (size_t i = 0; i<iCount; i++)
+		std::for_each(pnmW, pnmW + iCount, [](const PanelMode& Item)
 		{
-			delete[] pnmW[i].ColumnTypes;
-			delete[] pnmW[i].ColumnWidths;
-			FreeArrayUnicode(pnmW[i].ColumnTitles);
-			delete[] pnmW[i].StatusColumnTypes;
-			delete[] pnmW[i].StatusColumnWidths;
-		}
+			delete[] Item.ColumnTypes;
+			delete[] Item.ColumnWidths;
+			FreeArrayUnicode(Item.ColumnTitles);
+			delete[] Item.StatusColumnTypes;
+			delete[] Item.StatusColumnWidths;
+		});
 		delete[] pnmW;
 	}
 }
@@ -590,10 +587,10 @@ static void FreeUnicodeKeyBarTitles(KeyBarTitles *kbtW)
 {
 	if (kbtW && kbtW->CountLabels && kbtW->Labels)
 	{
-		for (size_t i = 0; i < kbtW->CountLabels; i++)
+		std::for_each(kbtW->Labels, kbtW->Labels + kbtW->CountLabels, [](const KeyBarLabel& Item)
 		{
-			delete[] kbtW->Labels[i].Text;
-		}
+			delete[] Item.Text;
+		});
 		delete[] kbtW->Labels;
 		kbtW->Labels = nullptr;
 		kbtW->CountLabels = 0;
@@ -608,54 +605,51 @@ static void WINAPI FreeUserData(void* UserData, const FarPanelItemFreeInfo* Info
 static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(const oldfar::PluginPanelItem *PanelItemA, size_t ItemsNumber)
 {
 	const auto Result = new PluginPanelItem[ItemsNumber]();
-	auto AIter = PanelItemA;
-	auto WIter = Result;
-
-	for (; AIter != PanelItemA + ItemsNumber; ++AIter, ++WIter)
+	for_each_2(PanelItemA, PanelItemA + ItemsNumber, Result, [](const oldfar::PluginPanelItem& Src, PluginPanelItem& Dst)
 	{
-		WIter->Flags = 0;
-		if (AIter->Flags&oldfar::PPIF_PROCESSDESCR)
-			WIter->Flags |= PPIF_PROCESSDESCR;
-		if (AIter->Flags&oldfar::PPIF_SELECTED)
-			WIter->Flags |= PPIF_SELECTED;
+		Dst.Flags = 0;
+		if (Src.Flags&oldfar::PPIF_PROCESSDESCR)
+			Dst.Flags |= PPIF_PROCESSDESCR;
+		if (Src.Flags&oldfar::PPIF_SELECTED)
+			Dst.Flags |= PPIF_SELECTED;
 
-		WIter->NumberOfLinks = AIter->NumberOfLinks;
+		Dst.NumberOfLinks = Src.NumberOfLinks;
 
-		if (AIter->Description)
-			WIter->Description = AnsiToUnicode(AIter->Description);
+		if (Src.Description)
+			Dst.Description = AnsiToUnicode(Src.Description);
 
-		if (AIter->Owner)
-			WIter->Owner = AnsiToUnicode(AIter->Owner);
+		if (Src.Owner)
+			Dst.Owner = AnsiToUnicode(Src.Owner);
 
-		if (AIter->CustomColumnNumber)
+		if (Src.CustomColumnNumber)
 		{
-			WIter->CustomColumnNumber = AIter->CustomColumnNumber;
-			WIter->CustomColumnData = ArrayAnsiToUnicode(AIter->CustomColumnData, AIter->CustomColumnNumber);
+			Dst.CustomColumnNumber = Src.CustomColumnNumber;
+			Dst.CustomColumnData = ArrayAnsiToUnicode(Src.CustomColumnData, Src.CustomColumnNumber);
 		}
 
-		if (AIter->Flags&oldfar::PPIF_USERDATA)
+		if (Src.Flags&oldfar::PPIF_USERDATA)
 		{
-			void* UserData = (void*)AIter->UserData;
+			void* UserData = (void*)Src.UserData;
 			DWORD Size = *(DWORD *)UserData;
-			WIter->UserData.Data = new char[Size];
-			memcpy(WIter->UserData.Data, UserData, Size);
-			WIter->UserData.FreeData = FreeUserData;
+			Dst.UserData.Data = new char[Size];
+			memcpy(Dst.UserData.Data, UserData, Size);
+			Dst.UserData.FreeData = FreeUserData;
 		}
 		else
 		{
-			WIter->UserData.Data = (void*)AIter->UserData;
-			WIter->UserData.FreeData = nullptr;
+			Dst.UserData.Data = (void*)Src.UserData;
+			Dst.UserData.FreeData = nullptr;
 		}
-		WIter->CRC32 = AIter->CRC32;
-		WIter->FileAttributes = AIter->FindData.dwFileAttributes;
-		WIter->CreationTime = AIter->FindData.ftCreationTime;
-		WIter->LastAccessTime = AIter->FindData.ftLastAccessTime;
-		WIter->LastWriteTime = AIter->FindData.ftLastWriteTime;
-		WIter->FileSize = (unsigned __int64)AIter->FindData.nFileSizeLow + (((unsigned __int64)AIter->FindData.nFileSizeHigh) << 32);
-		WIter->AllocationSize = (unsigned __int64)AIter->PackSize + (((unsigned __int64)AIter->PackSizeHigh) << 32);
-		WIter->FileName = AnsiToUnicode(AIter->FindData.cFileName);
-		WIter->AlternateFileName = AnsiToUnicode(AIter->FindData.cAlternateFileName);
-	}
+		Dst.CRC32 = Src.CRC32;
+		Dst.FileAttributes = Src.FindData.dwFileAttributes;
+		Dst.CreationTime = Src.FindData.ftCreationTime;
+		Dst.LastAccessTime = Src.FindData.ftLastAccessTime;
+		Dst.LastWriteTime = Src.FindData.ftLastWriteTime;
+		Dst.FileSize = (unsigned __int64)Src.FindData.nFileSizeLow + (((unsigned __int64)Src.FindData.nFileSizeHigh) << 32);
+		Dst.AllocationSize = (unsigned __int64)Src.PackSize + (((unsigned __int64)Src.PackSizeHigh) << 32);
+		Dst.FileName = AnsiToUnicode(Src.FindData.cFileName);
+		Dst.AlternateFileName = AnsiToUnicode(Src.FindData.cAlternateFileName);
+	});
 	return Result;
 }
 
@@ -684,9 +678,7 @@ static void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::Plu
 	{
 		PanelItemA.CustomColumnNumber = static_cast<int>(PanelItem.CustomColumnNumber);
 		PanelItemA.CustomColumnData = new char*[PanelItem.CustomColumnNumber];
-
-		for (size_t j = 0; j<PanelItem.CustomColumnNumber; j++)
-			PanelItemA.CustomColumnData[j] = UnicodeToAnsi(PanelItem.CustomColumnData[j]);
+		std::transform(PanelItem.CustomColumnData, PanelItem.CustomColumnData + PanelItem.CustomColumnNumber, PanelItemA.CustomColumnData, UnicodeToAnsi);
 	}
 
 	if (PanelItem.UserData.Data&&PanelItem.UserData.FreeData == FreeUserData)
@@ -1078,7 +1070,7 @@ static void AnsiDialogItemToUnicode(const oldfar::FarDialogItem &diA, FarDialogI
 
 	if (diA.Type == oldfar::DI_USERCONTROL)
 	{
-		wchar_t* Buffer = new wchar_t[ARRAYSIZE(diA.Data)];
+		const auto Buffer = new wchar_t[ARRAYSIZE(diA.Data)];
 		memcpy(Buffer, diA.Data, sizeof(diA.Data));
 		di.Data = Buffer;
 		di.MaxLength = 0;
@@ -4339,7 +4331,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 
 					uintptr_t CodePage=GetEditorCodePageA();
 					gt = UnicodeToAnsiBin(egs.StringText,egs.StringLength,CodePage);
-					geol = UnicodeToAnsi(egs.StringEOL,CodePage);
+					geol = UnicodeToAnsiBin(egs.StringEOL, wcslen(egs.StringEOL), CodePage);
 					oegs->StringText=gt;
 					oegs->StringEOL=geol;
 					return TRUE;
@@ -4634,7 +4626,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 					newss.StringNumber=oldss->StringNumber;
 					uintptr_t CodePage=GetEditorCodePageA();
 					newss.StringText=(oldss->StringText)?AnsiToUnicodeBin(oldss->StringText, oldss->StringLength,CodePage):nullptr;
-					newss.StringEOL=(oldss->StringEOL && *oldss->StringEOL)?AnsiToUnicode(oldss->StringEOL,CodePage):nullptr;
+					newss.StringEOL=(oldss->StringEOL && *oldss->StringEOL)?AnsiToUnicodeBin(oldss->StringEOL,strlen(oldss->StringEOL),CodePage):nullptr;
 					newss.StringLength=oldss->StringLength;
 				}
 

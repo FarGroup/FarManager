@@ -74,7 +74,7 @@ FileFilterParams::FileFilterParams():
 	FHighlight.SortGroup=DEFAULT_SORT_GROUP;
 }
 
-FileFilterParams::FileFilterParams(FileFilterParams&& rhs):
+FileFilterParams::FileFilterParams(FileFilterParams&& rhs) noexcept:
 	FDate(),
 	FSize(),
 	FHardLinks(),
@@ -354,7 +354,7 @@ bool FileFilterParams::FileInFilter(const PluginPanelItem& fd, unsigned __int64 
 }
 
 //Централизованная функция для создания строк меню различных фильтров.
-string MenuString(FileFilterParams *FF, bool bHighlightType, int Hotkey, bool bPanelType, const wchar_t *FMask, const wchar_t *Title)
+string MenuString(const FileFilterParams *FF, bool bHighlightType, int Hotkey, bool bPanelType, const wchar_t *FMask, const wchar_t *Title)
 {
 	string strDest;
 

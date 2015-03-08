@@ -1177,10 +1177,10 @@ void Manager::ImmediateHide()
 			RefreshWindow(m_windows.back());
 			Commit();
 
-			for (int i=0; i<UnlockCount; i++)
+			repeat(UnlockCount, [this]()
 			{
 				m_windows.back()->Lock();
-			}
+			});
 
 			if (m_modalWindows.size() > 1)
 			{

@@ -37,7 +37,7 @@ class NamesList: noncopyable
 {
 public:
 	NamesList(): CurPos(Names.end()) {};
-	NamesList(NamesList&& rhs): CurPos(Names.end()) { *this = std::move(rhs); }
+	NamesList(NamesList&& rhs) noexcept: CurPos(Names.end()) { *this = std::move(rhs); }
 	MOVE_OPERATOR_BY_SWAP(NamesList);
 
 	void swap(NamesList& rhs) noexcept

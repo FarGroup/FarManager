@@ -45,12 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "elevation.hpp"
 
-inline bool IsColon(wchar_t c)         { return c == L':'; }
-inline bool IsDot(wchar_t c)           { return c == L'.'; }
-inline bool IsSlashBackward(wchar_t c) { return c == L'\\';}
-inline bool IsSlashForward(wchar_t c)  { return c == L'/'; }
-inline bool IsQuestion(wchar_t c)      { return c == L'?'; }
-
 void MixToFullPath(string& strPath)
 {
 	//Skip all path to root (with slash if exists)
@@ -61,7 +55,7 @@ void MixToFullPath(string& strPath)
 	for (size_t Pos = DirOffset; Pos < strPath.size();)
 	{
 		//fragment "."
-		if (IsDot(strPath[Pos]) && (!Pos || IsSlash(strPath[Pos - 1])))
+		if (strPath[Pos] == L'.' && (!Pos || IsSlash(strPath[Pos - 1])))
 		{
 			//fragment "." at the end
 			if(strPath.size() == Pos + 1)

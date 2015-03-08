@@ -106,7 +106,7 @@ struct MenuItemEx: noncopyable
 	{
 	}
 
-	MenuItemEx(MenuItemEx&& rhs):
+	MenuItemEx(MenuItemEx&& rhs) noexcept:
 		strName(),
 		Flags(),
 		UserData(),

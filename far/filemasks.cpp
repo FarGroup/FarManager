@@ -81,7 +81,7 @@ class filemasks::masks: noncopyable
 {
 public:
 	masks(): bRE(false) {}
-	masks(masks&& rhs): bRE(false) { *this = std::move(rhs); }
+	masks(masks&& rhs) noexcept: bRE(false) { *this = std::move(rhs); }
 	~masks() {};
 	MOVE_OPERATOR_BY_SWAP(masks);
 
@@ -116,7 +116,7 @@ filemasks::~filemasks()
 {
 }
 
-filemasks::filemasks(filemasks&& rhs)
+filemasks::filemasks(filemasks&& rhs) noexcept
 {
 	*this = std::move(rhs);
 }

@@ -1040,7 +1040,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 			Pasting++;
 			Lock();
 
-			for (int I=m_Y1; I<m_Y2; I++)
+			repeat(m_Y2 - m_Y1, [this]
 			{
 				ProcessKey(Manager::Key(KEY_SHIFTUP));
 
@@ -1051,7 +1051,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 						CurLine->SetCurPos(CurLine->GetLength());
 					}
 				}
-			}
+			});
 
 			Pasting--;
 			Unlock();
@@ -1063,7 +1063,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 			Pasting++;
 			Lock();
 
-			for (int I=m_Y1; I<m_Y2; I++)
+			repeat(m_Y2 - m_Y1, [this]
 			{
 				ProcessKey(Manager::Key(KEY_SHIFTDOWN));
 
@@ -1074,7 +1074,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 						CurLine->SetCurPos(CurLine->GetLength());
 					}
 				}
-			}
+			});
 
 			Pasting--;
 			Unlock();
@@ -4194,7 +4194,7 @@ void Editor::Paste(const wchar_t *Src)
 
 		for (int I=0; Src[I];)
 		{
-			if (Src[I]==L'\n' || Src[I]==L'\r')
+			if (IsEol(Src[I]))
 			{
 				CurLine->Select(StartPos,-1);
 				StartPos=0;
@@ -4664,7 +4664,7 @@ void Editor::GoToPosition()
 {
 	DialogBuilder Builder(MEditGoToLine, L"EditorGotoPos");
 	string strData;
-	Builder.AddEditField(&strData,28,L"LineNumber",DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY|DIF_NOAUTOCOMPLETE);
+	Builder.AddEditField(strData,28,L"LineNumber",DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY|DIF_NOAUTOCOMPLETE);
 	Builder.AddOKCancel();
 	Builder.ShowDialog();
 	if(!strData.empty())
@@ -4778,7 +4778,7 @@ public:
 		UndoDataSize -= m_Str.size();
 	}
 
-	EditorUndoData(EditorUndoData&& rhs) :
+	EditorUndoData(EditorUndoData&& rhs) noexcept:
 		m_Type(),
 		m_StrPos(),
 		m_StrNum(),
@@ -6303,35 +6303,11 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			{
 				if (Command == ECTL_UNSUBSCRIBECHANGEEVENT)
 				{
-					ChangeEventSubscribers.remove(esce->PluginId);
+					ChangeEventSubscribers.erase(esce->PluginId);
 					return TRUE;
 				}
-				class guid_compare
-				{
-					public:
-					static bool compare_eq(const GUID& a, const GUID& b)
-					{
-						// In WinSDK's older than 8.0 operator== for GUIDs declared as int (sic!), This will suppress the warning:
-						return (a == b) != 0;
-					}
 
-					static bool compare_lt(const GUID& a, const GUID& b)
-					{
-						const char *aa = (const char *)&a;
-						const char *bb = (const char *)&b;
-						for (size_t i=0; i<sizeof(GUID); i++)
-						{
-							if (aa[i] < bb[i])
-								return true;
-							if (aa[i] > bb[i])
-								return false;
-						}
-						return false;
-					}
-				};
-				ChangeEventSubscribers.emplace_back(esce->PluginId);
-				ChangeEventSubscribers.sort(guid_compare::compare_lt);
-				ChangeEventSubscribers.unique(guid_compare::compare_eq);
+				ChangeEventSubscribers.insert(esce->PluginId);
 				return TRUE;
 			}
 			break;

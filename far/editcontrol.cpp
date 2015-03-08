@@ -763,17 +763,17 @@ const FarColor& EditControl::GetUnchangedColor() const
 	return m_UnchangedColor;
 }
 
-const int EditControl::GetTabSize() const
+size_t EditControl::GetTabSize() const
 {
 	return Global->Opt->EdOpt.TabSize;
 }
 
-const EXPAND_TABS EditControl::GetTabExpandMode() const
+EXPAND_TABS EditControl::GetTabExpandMode() const
 {
 	return EXPAND_NOTABS;
 }
 
-const void EditControl::SetInputMask(const string& InputMask)
+void EditControl::SetInputMask(const string& InputMask)
 {
 	m_Mask = InputMask;
 	if (!m_Mask.empty())
@@ -788,14 +788,10 @@ void EditControl::RefreshStrByMask(int InitMode)
 	auto Mask = GetInputMask();
 	if (!Mask.empty())
 	{
-		int MaskLen = static_cast<int>(Mask.size());
+		const auto MaskLen = Mask.size();
+		m_Str.resize(MaskLen, L' ');
 
-		if (m_Str.size() != MaskLen)
-		{
-			m_Str.resize(MaskLen, L' ');
-		}
-
-		for (int i=0; i<MaskLen; i++)
+		for (size_t i = 0; i != MaskLen; ++i)
 		{
 			if (InitMode)
 				m_Str[i]=L' ';

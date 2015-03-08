@@ -491,9 +491,9 @@ void Options::MaskGroupsSettings()
 						}
 						DialogBuilder Builder(MMenuMaskGroups, L"MaskGroupsSettings");
 						Builder.AddText(MMaskGroupName);
-						Builder.AddEditField(&Name, 60);
+						Builder.AddEditField(Name, 60);
 						Builder.AddText(MMaskGroupMasks);
-						Builder.AddEditField(&Value, 60);
+						Builder.AddEditField(Value, 60);
 						Builder.AddOKCancel();
 						if(Builder.ShowDialog())
 						{
@@ -527,7 +527,7 @@ void Options::MaskGroupsSettings()
 					string Value;
 					DialogBuilder Builder(MFileFilterTitle, nullptr);
 					Builder.AddText(MMaskGroupFindMask);
-					Builder.AddEditField(&Value, 60, L"MaskGroupsFindMask");
+					Builder.AddEditField(Value, 60, L"MaskGroupsFindMask");
 					Builder.AddOKCancel();
 					if(Builder.ShowDialog())
 					{
@@ -1551,7 +1551,7 @@ public:
 	{
 	}
 
-	farconfig(farconfig&& rhs):
+	farconfig(farconfig&& rhs) noexcept:
 		m_items(),
 		m_size(),
 		m_cfg()

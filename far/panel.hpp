@@ -62,7 +62,7 @@ struct column: public column_base
 struct PanelViewSettings: noncopyable
 {
 	PanelViewSettings(): Flags() {}
-	PanelViewSettings(PanelViewSettings&& rhs): Flags() { *this = std::move(rhs); }
+	PanelViewSettings(PanelViewSettings&& rhs) noexcept: Flags() { *this = std::move(rhs); }
 	MOVE_OPERATOR_BY_SWAP(PanelViewSettings);
 
 	void swap(PanelViewSettings& rhs) noexcept

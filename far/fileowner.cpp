@@ -85,11 +85,11 @@ static bool SidToNameCached(PSID Sid, string& Name, const string& Computer)
 			CopySid(Size, m_Data.get(), rhs);
 		}
 
-		sid(sid&& rhs) { *this = std::move(rhs); }
+		sid(sid&& rhs) noexcept { *this = std::move(rhs); }
 
 		MOVE_OPERATOR_BY_SWAP(sid);
 
-		void swap(sid& rhs)
+		void swap(sid& rhs) noexcept
 		{
 			using std::swap;
 			swap(m_Data, rhs.m_Data);

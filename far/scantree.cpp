@@ -45,7 +45,7 @@ struct ScanTree::scantree_item: noncopyable
 public:
 	scantree_item() {}
 
-	scantree_item(scantree_item&& rhs) { *this = std::move(rhs); }
+	scantree_item(scantree_item&& rhs) noexcept { *this = std::move(rhs); }
 
 	MOVE_OPERATOR_BY_SWAP(scantree_item);
 

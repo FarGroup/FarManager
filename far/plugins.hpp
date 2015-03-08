@@ -111,7 +111,7 @@ public:
 	static int Compare(PluginHandle* hPlugin,const PluginPanelItem *Item1,const PluginPanelItem *Item2,unsigned int Mode);
 	int ProcessEditorInput(const INPUT_RECORD *Rec) const;
 	int ProcessEditorEvent(int Event,void *Param,int EditorID) const;
-	int ProcessSubscribedEditorEvent(int Event,void *Param,int EditorID, const std::list<GUID> &PluginIds) const;
+	int ProcessSubscribedEditorEvent(int Event, void *Param, int EditorID, const std::unordered_set<GUID, uuid_hash, uuid_equal>& PluginIds) const;
 	int ProcessViewerEvent(int Event,void *Param,int ViewerID) const;
 	int ProcessDialogEvent(int Event,FarDialogEvent *Param) const;
 	int ProcessConsoleInput(ProcessConsoleInputInfo *Info) const;

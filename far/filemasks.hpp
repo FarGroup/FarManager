@@ -43,7 +43,7 @@ class filemasks: noncopyable
 public:
 	filemasks();
 	~filemasks();
-	filemasks(filemasks&& rhs);
+	filemasks(filemasks&& rhs) noexcept;
 
 	MOVE_OPERATOR_BY_SWAP(filemasks);
 

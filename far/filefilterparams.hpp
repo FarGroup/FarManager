@@ -80,7 +80,7 @@ public:
 
 	FileFilterParams();
 
-	FileFilterParams(FileFilterParams&& rhs);
+	FileFilterParams(FileFilterParams&& rhs) noexcept;
 	MOVE_OPERATOR_BY_SWAP(FileFilterParams);
 
 	void swap(FileFilterParams& rhs) noexcept
@@ -149,7 +149,7 @@ private:
 		filemasks FilterMask; // Хранилище скомпилированной маски.
 
 		fmask():Used(false) {}
-		fmask(fmask&& rhs):Used(false) {*this = std::move(rhs);}
+		fmask(fmask&& rhs) noexcept: Used(false) { *this = std::move(rhs); }
 		MOVE_OPERATOR_BY_SWAP(fmask);
 
 		void swap(fmask& rhs) noexcept
@@ -216,4 +216,4 @@ private:
 bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig=false);
 
 //Централизованная функция для создания строк меню различных фильтров.
-string MenuString(FileFilterParams* FF, bool bHighlightType=false, int Hotkey=0, bool bPanelType=false, const wchar_t *FMask=nullptr, const wchar_t *Title=nullptr);
+string MenuString(const FileFilterParams* FF, bool bHighlightType=false, int Hotkey=0, bool bPanelType=false, const wchar_t *FMask=nullptr, const wchar_t *Title=nullptr);

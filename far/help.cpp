@@ -85,7 +85,7 @@ public:
 	string HelpStr;
 
 	HelpRecord(const string& HStr): HelpStr(HStr) {}
-	HelpRecord(HelpRecord&& rhs) { *this = std::move(rhs); }
+	HelpRecord(HelpRecord&& rhs) noexcept { *this = std::move(rhs); }
 	MOVE_OPERATOR_BY_SWAP(HelpRecord);
 
 	void swap(HelpRecord& rhs) noexcept
@@ -132,7 +132,7 @@ struct Help::StackHelpData: ::noncopyable
 		CurY(rhs.CurY)
 	{}
 
-	StackHelpData(StackHelpData&& rhs):
+	StackHelpData(StackHelpData&& rhs) noexcept:
 		Flags(),
 		TopStr(),
 		CurX(),

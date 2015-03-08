@@ -141,6 +141,22 @@ bool InRange(const T& from, const T& what, const T& to)
 	return from <= what && what <= to;
 };
 
+template<class owner, typename acquire, typename release>
+class raii_wrapper: ::noncopyable
+{
+public:
+	raii_wrapper(const owner& Owner, const acquire& Acquire, const release& Release): m_Owner(Owner), m_Release(Release) { (*m_Owner.*Acquire)(); }
+	raii_wrapper(raii_wrapper&& rhs) noexcept: m_Release() { *this = std::move(rhs); }
+	~raii_wrapper() { (*m_Owner.*m_Release)(); }
+	MOVE_OPERATOR_BY_SWAP(raii_wrapper);
+	void swap(raii_wrapper& rhs) noexcept { using std::swap; swap(m_Owner, rhs.m_Owner); swap(m_Release, rhs.m_Release); }
+	FREE_SWAP(raii_wrapper);
+
+private:
+	owner m_Owner;
+	release m_Release;
+};
+
 #ifdef _DEBUG
 #define SELF_TEST(code) \
 namespace \

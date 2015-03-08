@@ -79,10 +79,10 @@ private:
 	virtual const FarColor& GetNormalColor() const override;
 	virtual const FarColor& GetSelectedColor() const override;
 	virtual const FarColor& GetUnchangedColor() const override;
-	virtual const int GetTabSize() const override;
-	virtual const EXPAND_TABS GetTabExpandMode() const override;
-	virtual const string GetInputMask() const override {return m_Mask;}
-	virtual const void SetInputMask(const string& InputMask) override;
+	virtual size_t GetTabSize() const override;
+	virtual EXPAND_TABS GetTabExpandMode() const override;
+	virtual string GetInputMask() const override {return m_Mask;}
+	virtual void SetInputMask(const string& InputMask) override;
 	virtual const string& WordDiv() const override;
 	virtual int GetPrevCurPos() const override { return PrevCurPos; }
 	virtual void SetPrevCurPos(int Pos) override { PrevCurPos = Pos; }

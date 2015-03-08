@@ -63,7 +63,7 @@ protected:
 	public:
 		SQLiteStmt(){};
 		SQLiteStmt(sqlite::sqlite3_stmt* Stmt): m_Stmt(Stmt), m_Param(1) {}
-		SQLiteStmt(SQLiteStmt&& rhs) { *this = std::move(rhs); };
+		SQLiteStmt(SQLiteStmt&& rhs) noexcept { *this = std::move(rhs); };
 
 		MOVE_OPERATOR_BY_SWAP(SQLiteStmt);
 

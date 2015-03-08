@@ -101,7 +101,7 @@ public:
 		HotKey()
 	{}
 
-	ChDiskPluginItem(ChDiskPluginItem&& rhs):
+	ChDiskPluginItem(ChDiskPluginItem&& rhs) noexcept:
 		HotKey()
 	{
 		*this = std::move(rhs);
@@ -948,7 +948,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 			const wchar_t Drive[] = {mitem->cDrive,L'\0'};
 			string DriveLetter = Drive;
-			DialogItemEx *DriveLetterEdit = Builder.AddFixEditField(&DriveLetter, 1);
+			DialogItemEx *DriveLetterEdit = Builder.AddFixEditField(DriveLetter, 1);
 			Builder.AddTextBefore(DriveLetterEdit, MChangeDriveCannotReadDisk);
 			Builder.AddTextAfter(DriveLetterEdit, L":", 0);
 

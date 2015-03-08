@@ -60,7 +60,7 @@ public:
 	TVar(int);
 	TVar(double);
 	TVar(const TVar&);
-	TVar(TVar&& rhs): inum(), dnum(), str(), vType(vtUnknown) { *this = std::move(rhs); }
+	TVar(TVar&& rhs) noexcept: inum(), dnum(), str(), vType(vtUnknown) { *this = std::move(rhs); }
 	~TVar() {};
 
 	void swap(TVar& rhs) noexcept

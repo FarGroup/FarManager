@@ -57,3 +57,27 @@ inline void repeat(size_t count, const T& f)
 		f();
 	}
 }
+
+template <class I, class T, class P>
+void fill_if(I First, I Last, const T& Value, P Predicate)
+{
+	while (First != Last)
+	{
+		if (Predicate(*First))
+			*First = Value;
+		++First;
+	}
+}
+
+template <class I, class N, class T, class P>
+I fill_n_if(I First, N Size, const T& Value, P Predicate)
+{
+	while (Size > 0)
+	{
+		if (Predicate(*First))
+			*First = Value;
+		++First;
+		--Size;
+	}
+	return First;
+}

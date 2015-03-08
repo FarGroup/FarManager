@@ -65,7 +65,7 @@ public:
 		{
 		}
 
-		TreeItem(TreeItem&& rhs): Depth() { *this = std::move(rhs); }
+		TreeItem(TreeItem&& rhs) noexcept: Depth() { *this = std::move(rhs); }
 
 		MOVE_OPERATOR_BY_SWAP(TreeItem);
 

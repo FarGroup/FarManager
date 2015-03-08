@@ -32,12 +32,12 @@ class array_ptr
 {
 public:
 	array_ptr() : m_size() {}
-	array_ptr(array_ptr&& other) : m_size() { *this = std::move(other); }
+	array_ptr(array_ptr&& other) noexcept: m_size() { *this = std::move(other); }
 	array_ptr(size_t size, bool init = false) : m_array(init? new T[size]() : new T[size]), m_size(size) {}
 	MOVE_OPERATOR_BY_SWAP(array_ptr);
 	void reset(size_t size, bool init = false) { m_array.reset(init? new T[size]() : new T[size]); m_size = size;}
 	void reset() { m_array.reset(); m_size = 0; }
-	void swap(array_ptr& other) noexcept{ using std::swap; m_array.swap(other.m_array); swap(m_size, other.m_size); }
+	void swap(array_ptr& other) noexcept { using std::swap; m_array.swap(other.m_array); swap(m_size, other.m_size); }
 	FREE_SWAP(array_ptr);
 	size_t size() const {return m_size;}
 	operator bool() const { return get() != nullptr; }

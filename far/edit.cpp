@@ -89,7 +89,7 @@ Edit::Edit(window_ptr Owner):
 	m_Flags.Change(FEDITLINE_SHOWLINEBREAK,Global->Opt->EdOpt.ShowWhiteSpace==1);
 }
 
-Edit::Edit(Edit&& rhs):
+Edit::Edit(Edit&& rhs) noexcept:
 	SimpleScreenObject(rhs.GetOwner()),
 	m_CurPos(),
 	m_SelStart(-1),
@@ -164,7 +164,7 @@ int Edit::GetNextCursorPos(int Position,int Where) const
 	if (!Mask.empty() && (Where==-1 || Where==1))
 	{
 		int PosChanged=FALSE;
-		int MaskLen = static_cast<int>(Mask.size());
+		const int MaskLen = static_cast<int>(Mask.size());
 
 		for (int i=Position; i<MaskLen && i>=0; i+=Where)
 		{
@@ -191,13 +191,10 @@ int Edit::GetNextCursorPos(int Position,int Where) const
 
 		if (!PosChanged)
 		{
-			for (int i=Position; i<MaskLen; i++)
+			const auto It = std::find_if(ALL_CONST_RANGE(Mask), CheckCharMask);
+			if (It != Mask.cend())
 			{
-				if (CheckCharMask(Mask[i]))
-				{
-					Result=i;
-					break;
-				}
+				Result = It - Mask.cbegin();
 			}
 		}
 	}
@@ -270,7 +267,7 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 			TrailingSpaces = std::find_if_not(OutStrTmp.crbegin(), OutStrTmp.crend(), [](wchar_t i) { return IsSpace(i);}).base();
 		}
 
-		for (auto i = OutStrTmp.begin(), end = OutStrTmp.end(); OutStr.size() < EditLength && i != end; ++i)
+		FOR_RANGE(OutStrTmp, i)
 		{
 			if ((m_Flags.Check(FEDITLINE_SHOWWHITESPACE) && m_Flags.Check(FEDITLINE_EDITORMODE)) || i >= TrailingSpaces)
 			{
@@ -282,19 +279,19 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 
 			if (*i == L'\t')
 			{
-				int S=GetTabSize()-((FocusedLeftPos+OutStr.size()) % GetTabSize());
+				const size_t S = GetTabSize() - ((FocusedLeftPos + OutStr.size()) % GetTabSize());
 				OutStr.push_back((((m_Flags.Check(FEDITLINE_SHOWWHITESPACE) && m_Flags.Check(FEDITLINE_EDITORMODE)) || i >= TrailingSpaces) && (!OutStr.empty() || S==GetTabSize()))?L'\x2192':L' ');
-				for (int j=1; j<S && OutStr.size() < EditLength; ++j)
-				{
-					OutStr.push_back(L' ');
-				}
+				const auto PaddedSize = std::min(OutStr.size() + S - 1, EditLength);
+				OutStr.resize(PaddedSize, L' ');
 			}
 			else
 			{
-				if (!*i)
-					OutStr.push_back(L' ');
-				else
-					OutStr.push_back(*i);
+				OutStr.push_back(!*i? L' ' : *i);
+			}
+
+			if (OutStr.size() >= EditLength)
+			{
+				break;
 			}
 		}
 
@@ -1431,7 +1428,7 @@ int Edit::InsertKey(int Key)
 	{
 		SetPrevCurPos(m_CurPos);
 		int Pos = GetLineCursorPos();
-		SetLineCursorPos(Pos + (GetTabSize() - (Pos % GetTabSize())));
+		SetLineCursorPos(static_cast<int>(Pos + (GetTabSize() - (Pos % GetTabSize()))));
 		SetTabCurPos(GetLineCursorPos());
 		return TRUE;
 	}
@@ -1921,7 +1918,7 @@ void Edit::InsertTab()
 		return;
 
 	const auto Pos = m_CurPos;
-	const auto S = GetTabSize() - (RealPosToTab(Pos) % GetTabSize());
+	const auto S = static_cast<int>(GetTabSize() - (RealPosToTab(Pos) % GetTabSize()));
 
 	if (m_SelStart!=-1)
 	{
@@ -1954,7 +1951,7 @@ bool Edit::ReplaceTabs()
 	{
 		changed=true;
 		Pos=(int)(TabPtr - m_Str.begin());
-		int S=GetTabSize()-(Pos % GetTabSize());
+		const auto S = static_cast<int>(GetTabSize() - (Pos % GetTabSize()));
 
 		if (m_SelStart!=-1)
 		{
@@ -2046,7 +2043,7 @@ int Edit::RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos) co
 				}
 
 				// Рассчитываем длину таба с учётом настроек и текущей позиции в строке
-				TabPos += GetTabSize()-(TabPos%GetTabSize());
+				TabPos += static_cast<int>(GetTabSize() - (TabPos%GetTabSize()));
 			}
 		// Обрабатываем все остальные символы
 			else
@@ -2077,7 +2074,7 @@ int Edit::TabPosToReal(int Pos) const
 
 		if (m_Str[Index] == L'\t')
 		{
-			int NewTabPos = TabPos+GetTabSize()-(TabPos%GetTabSize());
+			const auto NewTabPos = static_cast<int>(TabPos + GetTabSize() - (TabPos%GetTabSize()));
 
 			if (NewTabPos > Pos)
 				break;
@@ -2192,23 +2189,13 @@ void Edit::DeleteBlock()
 	auto Mask = GetInputMask();
 	if (!Mask.empty())
 	{
-		for (int i=m_SelStart; i<m_SelEnd; i++)
-		{
-			if (CheckCharMask(Mask[i]))
-				m_Str[i]=L' ';
-		}
-
+		fill_if(Mask.begin() + m_SelStart, Mask.begin() + m_SelEnd, L' ', CheckCharMask);
 		m_CurPos=m_SelStart;
 	}
 	else
 	{
-		int From=m_SelStart,To=m_SelEnd;
-
-		if (From>m_Str.size())
-			From = m_Str.size();
-
-		if (To>m_Str.size())
-			To = m_Str.size();
+		const auto From = std::min(m_SelStart, m_Str.size());
+		const auto To = std::min(m_SelEnd, m_Str.size());
 
 		m_Str.erase(m_Str.begin() + From, m_Str.begin() + To);
 
@@ -2228,8 +2215,7 @@ void Edit::DeleteBlock()
 	// OT: Проверка на корректность поведения строки при удалении и вставке
 	if (m_Flags.Check((FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE)))
 	{
-		if (LeftPos>m_CurPos)
-			LeftPos=m_CurPos;
+		LeftPos = std::min(LeftPos, m_CurPos);
 	}
 
 	Changed(true);
@@ -2578,12 +2564,12 @@ const FarColor& Edit::GetUnchangedColor() const
 	return GetNormalColor();
 }
 
-const int Edit::GetTabSize() const
+size_t Edit::GetTabSize() const
 {
 	return GetEditor()->GetTabSize();
 }
 
-const EXPAND_TABS Edit::GetTabExpandMode() const
+EXPAND_TABS Edit::GetTabExpandMode() const
 {
 	return GetEditor()->GetConvertTabs();
 }

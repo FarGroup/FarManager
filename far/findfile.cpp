@@ -949,17 +949,17 @@ bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const api::FAR_FIND_DATA& Fi
 
 	if (Global->CtrlObject->Plugins->GetFindData(ArcItem->hPlugin,&pItems,&nItemsNumber,OPM_SILENT))
 	{
-		for (size_t i=0; i<nItemsNumber; i++)
+		const auto End = pItems + nItemsNumber;
+		const auto It = std::find_if(pItems, End, [&](PluginPanelItem& Item) -> bool
 		{
-			PluginPanelItem Item = pItems[i];
-			Item.FileName=const_cast<LPWSTR>(PointToName(NullToEmpty(pItems[i].FileName)));
-			Item.AlternateFileName=const_cast<LPWSTR>(PointToName(NullToEmpty(pItems[i].AlternateFileName)));
+			Item.FileName = PointToName(NullToEmpty(Item.FileName));
+			Item.AlternateFileName = PointToName(NullToEmpty(Item.AlternateFileName));
+			return !StrCmp(lpFileNameToFind, Item.FileName) && !StrCmp(lpFileNameToFindShort, Item.AlternateFileName);
+		});
 
-			if (!StrCmp(lpFileNameToFind,Item.FileName) && !StrCmp(lpFileNameToFindShort,Item.AlternateFileName))
-			{
-				nResult=Global->CtrlObject->Plugins->GetFile(ArcItem->hPlugin,&Item,DestPath,strResultName,OPM_SILENT)!=0;
-				break;
-			}
+		if (It != End)
+		{
+			nResult = Global->CtrlObject->Plugins->GetFile(ArcItem->hPlugin, &*It, DestPath, strResultName, OPM_SILENT) != 0;
 		}
 
 		Global->CtrlObject->Plugins->FreeFindData(ArcItem->hPlugin,pItems,nItemsNumber,true);

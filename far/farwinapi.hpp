@@ -172,7 +172,7 @@ namespace api
 		public:
 			file();
 			~file();
-			file(file&& rhs):
+			file(file&& rhs) noexcept:
 				Handle(INVALID_HANDLE_VALUE),
 				Pointer(),
 				NeedSyncPointer(),

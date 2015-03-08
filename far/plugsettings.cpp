@@ -213,7 +213,7 @@ class PluginSettings::FarSettingsNameItems: ::noncopyable
 {
 public:
 	FarSettingsNameItems() {}
-	FarSettingsNameItems(FarSettingsNameItems&& rhs) { *this = std::move(rhs); }
+	FarSettingsNameItems(FarSettingsNameItems&& rhs) noexcept { *this = std::move(rhs); }
 	~FarSettingsNameItems()
 	{
 		std::for_each(CONST_RANGE(Items, i)
@@ -280,7 +280,7 @@ class FarSettings::FarSettingsHistoryItems: ::noncopyable
 {
 public:
 	FarSettingsHistoryItems() {}
-	FarSettingsHistoryItems(FarSettingsHistoryItems&& rhs) { *this = std::move(rhs); }
+	FarSettingsHistoryItems(FarSettingsHistoryItems&& rhs) noexcept { *this = std::move(rhs); }
 	~FarSettingsHistoryItems()
 	{
 		std::for_each(CONST_RANGE(Items, i)

@@ -494,19 +494,9 @@ void HighlightFiles::GetHiColor(FileListItem* To, bool UseAttrHighlighting)
 
 int HighlightFiles::GetGroup(const FileListItem *fli)
 {
-	for (int i=FirstCount; i<FirstCount+UpperCount; i++)
-	{
-		if (HiData[i].FileInFilter(fli, CurrentTime))
-			return HiData[i].GetSortGroup();
-	}
-
-	for (int i=FirstCount+UpperCount; i<FirstCount+UpperCount+LowerCount; i++)
-	{
-		if (HiData[i].FileInFilter(fli, CurrentTime))
-			return HiData[i].GetSortGroup();
-	}
-
-	return DEFAULT_SORT_GROUP;
+	const auto Begin = HiData.cbegin() + FirstCount, End = Begin + UpperCount + LowerCount;
+	const auto It = std::find_if(Begin, End, [&](CONST_REFERENCE(HiData) i) { return i.FileInFilter(fli, CurrentTime); });
+	return It != End? It->GetSortGroup() : DEFAULT_SORT_GROUP;
 }
 
 void HighlightFiles::FillMenu(VMenu2 *HiMenu,int MenuPos)
@@ -529,10 +519,10 @@ void HighlightFiles::FillMenu(VMenu2 *HiMenu,int MenuPos)
 
 	std::for_each(CONST_RANGE(Data, i)
 	{
-		for (auto j = i.from; j != i.to; ++j)
+		std::for_each(HiData.cbegin() + i.from, HiData.cbegin() + i.to, [&](CONST_REFERENCE(HiData) Item)
 		{
-			HiMenu->AddItem(MenuString(&HiData[j], true));
-		}
+			HiMenu->AddItem(MenuString(&Item, true));
+		});
 
 		HiMenu->AddItem(MenuItemEx());
 
@@ -549,7 +539,7 @@ void HighlightFiles::FillMenu(VMenu2 *HiMenu,int MenuPos)
 
 void HighlightFiles::ProcessGroups()
 {
-	for (int i=0; i<FirstCount; i++)
+	for (int i = 0; i<FirstCount; i++)
 		HiData[i].SetSortGroup(DEFAULT_SORT_GROUP);
 
 	for (int i=FirstCount; i<FirstCount+UpperCount; i++)

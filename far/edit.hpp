@@ -118,7 +118,7 @@ public:
 	typedef std::function<bool(const ColorItem&)> delete_color_condition;
 
 	Edit(window_ptr Owner);
-	Edit(Edit&& rhs);
+	Edit(Edit&& rhs) noexcept;
 	virtual ~Edit() {}
 
 	MOVE_OPERATOR_BY_SWAP(Edit);
@@ -216,10 +216,10 @@ private:
 	virtual const FarColor& GetNormalColor() const;
 	virtual const FarColor& GetSelectedColor() const;
 	virtual const FarColor& GetUnchangedColor() const;
-	virtual const int GetTabSize() const;
-	virtual const EXPAND_TABS GetTabExpandMode() const;
-	virtual const void SetInputMask(const string& InputMask) {}
-	virtual const string GetInputMask() const {return string();}
+	virtual size_t GetTabSize() const;
+	virtual EXPAND_TABS GetTabExpandMode() const;
+	virtual void SetInputMask(const string& InputMask) {}
+	virtual string GetInputMask() const {return string();}
 	virtual const string& WordDiv() const;
 	virtual int GetPrevCurPos() const { return 0; }
 	virtual void SetPrevCurPos(int Pos) {}
@@ -275,7 +275,7 @@ protected:
 		wchar_t& operator[](size_t index) { assert(index < string_size()); return m_Data[index]; }
 		const wchar_t& operator[](size_t index) const { assert(index < string_size()); return m_Data[index]; }
 		bool empty() const { return m_Data.size() == 1; }
-		void swap(tiny_string& rhs)
+		void swap(tiny_string& rhs) noexcept
 		{
 			m_Data.swap(rhs.m_Data);
 		}

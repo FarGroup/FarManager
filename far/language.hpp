@@ -39,7 +39,7 @@ class Language: noncopyable
 {
 public:
 	Language(const string& Path, int CountNeed = -1) { init(Path, CountNeed); }
-	Language(Language&& rhs) { *this = std::move(rhs); }
+	Language(Language&& rhs) noexcept { *this = std::move(rhs); }
 	virtual ~Language() {}
 
 	MOVE_OPERATOR_BY_SWAP(Language);

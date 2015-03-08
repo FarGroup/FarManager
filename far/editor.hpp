@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "bitflags.hpp"
 #include "config.hpp"
 #include "TPreRedrawFunc.hpp"
+#include "mix.hpp"
 
 class FileEditor;
 class KeyBar;
@@ -69,7 +70,7 @@ public:
 	void PrepareResizedConsole() { m_Flags.Set(FEDITOR_ISRESIZEDCONSOLE); }
 	void SetOptions(const Options::EditorOptions& Options);
 	void SetTabSize(int NewSize);
-	int GetTabSize() const { return EdOpt.TabSize; }
+	size_t GetTabSize() const { return EdOpt.TabSize; }
 	void SetConvertTabs(int NewMode);
 	EXPAND_TABS GetConvertTabs() const { return static_cast<EXPAND_TABS>(static_cast<int>(EdOpt.ExpandTabs)); }
 	void SetDelRemovesBlocks(bool NewMode);
@@ -270,7 +271,7 @@ private:
 	iterator CurLine;
 	iterator LastGetLine;
 	int LastGetLineNumber;
-	std::list<GUID> ChangeEventSubscribers;
+	std::unordered_set<GUID, uuid_hash, uuid_equal> ChangeEventSubscribers;
 	std::list<EditorUndoData> UndoData;
 	std::list<EditorUndoData>::iterator UndoPos;
 	std::list<EditorUndoData>::iterator UndoSavePos;

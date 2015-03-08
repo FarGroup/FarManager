@@ -111,7 +111,7 @@ struct FileListItem: noncopyable
 	{
 	}
 
-	FileListItem(FileListItem&& rhs):
+	FileListItem(FileListItem&& rhs) noexcept:
 		Selected(),
 		PrevSelected(),
 		ShowFolderSize(),
@@ -200,7 +200,7 @@ struct PluginsListItem: noncopyable
 		m_PrevViewSettings(PrevViewSettings.clone())
 	{}
 
-	PluginsListItem(PluginsListItem&& rhs):
+	PluginsListItem(PluginsListItem&& rhs) noexcept:
 		m_Plugin(),
 		m_HostFile(),
 		m_PrevOriginalCurDir(),

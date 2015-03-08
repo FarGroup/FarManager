@@ -784,13 +784,11 @@ int PluginManager::ProcessEditorInput(const INPUT_RECORD *Rec) const
 int PluginManager::ProcessEditorEvent(int Event,void *Param,int EditorID) const
 {
 	int nResult = 0;
-
-	auto editor=Global->WindowManager->GetEditorContainerById(EditorID);
-	if (editor)
+	if (auto editor = Global->WindowManager->GetEditorContainerById(EditorID))
 	{
 		if (Event == EE_REDRAW)
 		{
-			FileEditor *FED = std::dynamic_pointer_cast<FileEditor>(editor).get();
+			auto FED = std::dynamic_pointer_cast<FileEditor>(editor).get();
 			FED->AutoDeleteColors();
 		}
 
@@ -799,39 +797,36 @@ int PluginManager::ProcessEditorEvent(int Event,void *Param,int EditorID) const
 		Info.Param = Param;
 		Info.EditorID = EditorID;
 
-		editor->Pin();
+		SCOPED_ACTION(auto)(editor->GetPinner());
 		std::for_each(CONST_RANGE(SortedPlugins, i)
 		{
 			if (i->HasProcessEditorEvent())
 				nResult = i->ProcessEditorEvent(&Info);
 		});
-		editor->UnPin();
 	}
 
 	return nResult;
 }
 
 
-int PluginManager::ProcessSubscribedEditorEvent(int Event,void *Param,int EditorID, const std::list<GUID> &PluginIds) const
+int PluginManager::ProcessSubscribedEditorEvent(int Event, void *Param, int EditorID, const std::unordered_set<GUID, uuid_hash, uuid_equal>& PluginIds) const
 {
 	int nResult = 0;
-
-	auto editor=Global->WindowManager->GetEditorContainerById(EditorID);
-	if (editor)
+	if (auto editor = Global->WindowManager->GetEditorContainerById(EditorID))
 	{
 		ProcessEditorEventInfo Info = {sizeof(Info)};
 		Info.Event = Event;
 		Info.Param = Param;
 		Info.EditorID = EditorID;
 
-		editor->Pin();
-		std::for_each(CONST_RANGE(PluginIds, i)
+		SCOPED_ACTION(auto)(editor->GetPinner());
+		std::for_each(CONST_RANGE(SortedPlugins, i)
 		{
-			auto Plugin = FindPlugin(i);
-			if (Plugin && Plugin->HasProcessEditorEvent())
-				nResult = Plugin->ProcessEditorEvent(&Info);
+			if (i->HasProcessEditorEvent() && PluginIds.count(i->GetGUID()))
+			{
+				nResult = i->ProcessEditorEvent(&Info);
+			}
 		});
-		editor->UnPin();
 	}
 
 	return nResult;
@@ -841,22 +836,19 @@ int PluginManager::ProcessSubscribedEditorEvent(int Event,void *Param,int Editor
 int PluginManager::ProcessViewerEvent(int Event, void *Param,int ViewerID) const
 {
 	int nResult = 0;
-
-	window_ptr viewer=Global->WindowManager->GetViewerContainerById(ViewerID);
-	if (viewer)
+	if (auto viewer = Global->WindowManager->GetViewerContainerById(ViewerID))
 	{
 		ProcessViewerEventInfo Info = {sizeof(Info)};
 		Info.Event = Event;
 		Info.Param = Param;
 		Info.ViewerID = ViewerID;
 
-		viewer->Pin();
+		SCOPED_ACTION(auto)(viewer->GetPinner());
 		std::for_each(CONST_RANGE(SortedPlugins, i)
 		{
 			if (i->HasProcessViewerEvent())
 				nResult = i->ProcessViewerEvent(&Info);
 		});
-		viewer->UnPin();
 	}
 	return nResult;
 }
@@ -1597,7 +1589,7 @@ bool PluginManager::SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHo
 
 	DialogBuilder Builder(MPluginHotKeyTitle, L"SetHotKeyDialog");
 	Builder.AddText(MPluginHotKey);
-	Builder.AddTextAfter(Builder.AddFixEditField(&strHotKey, 1), DlgPluginTitle.data());
+	Builder.AddTextAfter(Builder.AddFixEditField(strHotKey, 1), DlgPluginTitle.data());
 	Builder.AddOKCancel();
 	if(Builder.ShowDialog())
 	{

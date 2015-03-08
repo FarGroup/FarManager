@@ -112,7 +112,7 @@ public:
 	typedef void (Thread::*mode)();
 
 	Thread(): m_Mode(), m_ThreadId() {}
-	Thread(Thread&& rhs): m_Mode(), m_ThreadId() { *this = std::move(rhs); }
+	Thread(Thread&& rhs) noexcept: m_Mode(), m_ThreadId() { *this = std::move(rhs); }
 
 #if defined _MSC_VER && _MSC_VER < 1800
 
@@ -213,7 +213,7 @@ class Mutex: public HandleWrapper
 {
 public:
 	Mutex(const wchar_t* Name = nullptr): HandleWrapper(CreateMutex(nullptr, false, EmptyToNull(Name))) {}
-	Mutex(Mutex& rhs) { *this = std::move(rhs); }
+	Mutex(Mutex& rhs) noexcept { *this = std::move(rhs); }
 
 	virtual ~Mutex() {}
 
@@ -241,7 +241,7 @@ public:
 
 	Event() {}
 	Event(event_type Type, event_state InitialState, const wchar_t* Name = nullptr): HandleWrapper(CreateEvent(nullptr, Type == manual, InitialState == signaled, EmptyToNull(Name))) {}
-	Event(Event& rhs) { *this = std::move(rhs); }
+	Event(Event& rhs) noexcept { *this = std::move(rhs); }
 	virtual ~Event() {}
 
 	static const wchar_t *GetNamespace() { return L"Far_Manager_Event_"; }

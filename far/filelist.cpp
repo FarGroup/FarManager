@@ -174,7 +174,7 @@ struct FileList::PrevDataItem
 		PrevListData.swap(rhsPrevListData);
 	}
 
-	PrevDataItem(PrevDataItem&& rhs): PrevTopFile() { *this = std::move(rhs); }
+	PrevDataItem(PrevDataItem&& rhs) noexcept: PrevTopFile() { *this = std::move(rhs); }
 
 	MOVE_OPERATOR_BY_SWAP(PrevDataItem);
 

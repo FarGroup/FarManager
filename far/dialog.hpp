@@ -96,7 +96,7 @@ struct DialogItemEx: noncopyable, public FarDialogItem
 
 	DialogItemEx();
 	DialogItemEx(const DialogItemEx& rhs);
-	DialogItemEx(DialogItemEx&& rhs);
+	DialogItemEx(DialogItemEx&& rhs) noexcept;
 	~DialogItemEx();
 
 	COPY_OPERATOR_BY_SWAP(DialogItemEx);

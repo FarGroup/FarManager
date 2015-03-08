@@ -495,7 +495,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		std::for_each(RANGE(items, i)
 		{
 			TruncStrFromCenter(i, ScrX+1-6*2);
-			DialogItemEx *dx = Builder.AddText(i.data());
+			auto dx = Builder.AddText(i.data());
 			dx->Flags = (SelCount <= 1 || mshow <= 1 ? DIF_CENTERTEXT : 0) | DIF_SHOWAMPERSAND;
 			size_t index = Builder.GetLastID();
 			end_hilite = index;

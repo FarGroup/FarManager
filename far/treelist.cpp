@@ -399,7 +399,7 @@ class TreeListCache: noncopyable
 {
 public:
 	TreeListCache() {}
-	TreeListCache(TreeListCache&& rhs) { *this = std::move(rhs); }
+	TreeListCache(TreeListCache&& rhs) noexcept { *this = std::move(rhs); }
 
 	MOVE_OPERATOR_BY_SWAP(TreeListCache);
 

@@ -343,7 +343,7 @@ DialogItemEx::DialogItemEx(const DialogItemEx& rhs):
 	SelEnd(rhs.SelEnd)
 {}
 
-DialogItemEx::DialogItemEx(DialogItemEx&& rhs):
+DialogItemEx::DialogItemEx(DialogItemEx&& rhs) noexcept:
 	FarDialogItem(),
 	ListPos(),
 	ObjPtr(),

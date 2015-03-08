@@ -89,7 +89,7 @@ struct Shortcuts::shortcut: noncopyable
 	{
 	}
 
-	shortcut(shortcut&& rhs): PluginGuid(FarGuid) { *this = std::move(rhs); }
+	shortcut(shortcut&& rhs) noexcept: PluginGuid(FarGuid){ *this = std::move(rhs); }
 
 	MOVE_OPERATOR_BY_SWAP(shortcut);
 
@@ -516,16 +516,16 @@ void Shortcuts::EditItem(VMenu2& Menu, shortcut& Item, bool Root, bool raw)
 
 	DialogBuilder Builder(MFolderShortcutsTitle, HelpFolderShortcuts);
 	Builder.AddText(MFSShortcutName);
-	Builder.AddEditField(&NewItem.strName, 50, L"FS_Name", DIF_EDITPATH);
+	Builder.AddEditField(NewItem.strName, 50, L"FS_Name", DIF_EDITPATH);
 	Builder.AddText(MFSShortcutPath);
-	Builder.AddEditField(&NewItem.strFolder, 50, L"FS_Path", DIF_EDITPATH);
+	Builder.AddEditField(NewItem.strFolder, 50, L"FS_Path", DIF_EDITPATH);
 	if (Item.PluginGuid != FarGuid)
 	{
 		Builder.AddSeparator(Global->CtrlObject->Plugins->FindPlugin(Item.PluginGuid)->GetTitle().data());
 		Builder.AddText(MFSShortcutPluginFile);
-		Builder.AddEditField(&NewItem.strPluginFile, 50, L"FS_Path", DIF_EDITPATH);
+		Builder.AddEditField(NewItem.strPluginFile, 50, L"FS_Path", DIF_EDITPATH);
 		Builder.AddText(MFSShortcutPluginData);
-		Builder.AddEditField(&NewItem.strPluginData, 50, L"FS_Path", DIF_EDITPATH);
+		Builder.AddEditField(NewItem.strPluginData, 50, L"FS_Path", DIF_EDITPATH);
 	}
 	Builder.SetId(FolderShortcutsDlgId);
 	Builder.AddOKCancel();
