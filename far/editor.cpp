@@ -5438,9 +5438,12 @@ void Editor::VPaste(const wchar_t *ClipText)
 		VBlockSizeY=0;
 		auto SavedTopScreen = TopScreen;
 
-		for (int I=0; ClipText[I]; I++)
-			if (ClipText[I]!=L'\r' && ClipText[I+1]!=L'\n')
-				ProcessKey(Manager::Key(ClipText[I]));
+		for (int I=0; ClipText[I]; )
+		{
+			int NewLineLen = ClipText[I]==L'\n' ? 1 : ClipText[I]==L'\r' ? ClipText[I+1]==L'\n' ? 2 : 1 : 0;
+
+			if (!NewLineLen)
+				ProcessKey(Manager::Key(ClipText[I++]));
 			else
 			{
 				int CurWidth=CurLine->GetTabCurPos()-StartPos;
@@ -5452,7 +5455,7 @@ void Editor::VPaste(const wchar_t *ClipText)
 
 				if (CurLine == LastLine)
 				{
-					if (ClipText[I+2])
+					if (ClipText[I+NewLineLen])
 					{
 						ProcessKey(Manager::Key(KEY_END));
 						ProcessKey(Manager::Key(KEY_ENTER));
@@ -5473,9 +5476,9 @@ void Editor::VPaste(const wchar_t *ClipText)
 					CurLine->SetOvertypeMode(false);
 				}
 
-				I++;
-				continue;
+				I += NewLineLen;
 			}
+		}
 
 		int CurWidth=CurLine->GetTabCurPos()-StartPos;
 
