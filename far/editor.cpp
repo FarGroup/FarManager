@@ -5460,13 +5460,8 @@ void Editor::VPaste(const wchar_t *ClipText)
 						ProcessKey(Manager::Key(KEY_END));
 						ProcessKey(Manager::Key(KEY_ENTER));
 
-						/* $ 19.05.2001 IS
-						   Не вставляем пробелы тогда, когда нас об этом не просят, а
-						   именно - при включенном автоотступе ничего вставлять не нужно,
-						   оно само вставится и в другом месте.
-						*/
-						if (!EdOpt.AutoIndent)
-							repeat(StartPos, [this]{ ProcessKey(Manager::Key(L' ')); });
+						// Mantis 0002966: Неправильная вставка вертикального блока в конце файла
+						repeat(StartPos, [this]{ ProcessKey(Manager::Key(L' ')); });
 					}
 				}
 				else
