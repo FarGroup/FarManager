@@ -949,9 +949,8 @@ int Editor::ProcessKey(const Manager::Key& Key)
 				const auto NextLine = std::next(CurLine);
 				if (NextLine != Lines.end())
 				{
-					CurLine = NextLine;
 					intptr_t NextSelStart=-1,NextSelEnd=0;
-					CurLine->GetRealSelection(NextSelStart,NextSelEnd);
+					NextLine->GetRealSelection(NextSelStart, NextSelEnd);
 					IsLastSelectionLine=IsLastSelectionLine&&(NextSelStart<0);
 				}
 				bool IsSpecialCase=false;
