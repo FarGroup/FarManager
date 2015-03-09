@@ -801,7 +801,7 @@ __int64 FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		return m_editor->NumLine+1;
 
 	if (OpCode == MCODE_V_ITEMCOUNT || OpCode == MCODE_V_EDITORLINES)
-		return m_editor->NumLastLine;
+		return m_editor->m_LinesCount;
 
 	if (OpCode == MCODE_F_KEYBAR_SHOW)
 	{
@@ -1118,7 +1118,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 							if (!bInPlace)
 							{
 								m_editor->FreeAllocatedData();
-								m_editor->InsertString(nullptr, 0, m_editor->LastLine);
+								m_editor->PushString(nullptr, 0);
 								m_codepage = codepage;
 							}
 
@@ -1651,7 +1651,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 				LastLineCR=1;
 			}
 
-			m_editor->InsertString(Str, static_cast<int>(StrLength), m_editor->LastLine);
+			m_editor->PushString(Str, StrLength);
 		}
 
 		BadConversion = !GetStr.IsConversionValid();
@@ -1678,8 +1678,8 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		break;
 	}
 
-	if (LastLineCR||!m_editor->NumLastLine)
-		m_editor->InsertString(L"", 0, m_editor->LastLine);
+	if (LastLineCR||!m_editor->m_LinesCount)
+		m_editor->PushString(L"", 0);
 
 	EditFile.Close();
 	m_editor->SetCacheParams(pc, m_bAddSignature);
@@ -1929,7 +1929,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 				BOOL UsedDefaultCharStr=FALSE,UsedDefaultCharEOL=FALSE;
 				WideCharToMultiByte(codepage, WC_NO_BEST_FIT_CHARS, SaveStr, static_cast<int>(Length), nullptr, 0, nullptr, &UsedDefaultCharStr);
 
-				if (!*EndSeq && CurPtr != m_editor->LastLine)
+				if (!*EndSeq && !m_editor->IsLastLine(CurPtr))
 					EndSeq = m_editor->GlobalEOL.empty() ? DOS_EOL_fmt : m_editor->GlobalEOL.data();
 
 				if (TextFormat&&*EndSeq)
@@ -2046,7 +2046,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 
 			if (TimeCheck)
 			{
-				Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditSaving),Name,(int)(LineNumber*100/m_editor->NumLastLine));
+				Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditSaving),Name,(int)(LineNumber*100/m_editor->m_LinesCount));
 			}
 
 			const wchar_t *SaveStr, *EndSeq;
@@ -2055,7 +2055,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 
 			CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
 
-			if (!*EndSeq && CurPtr != m_editor->LastLine && (*CurPtr->GetEOL()))
+			if (!*EndSeq && !m_editor->IsLastLine(CurPtr) && (*CurPtr->GetEOL()))
 				EndSeq = m_editor->GlobalEOL.empty()? DOS_EOL_fmt : m_editor->GlobalEOL.data();
 
 			if (TextFormat && *EndSeq)
@@ -2377,7 +2377,7 @@ void FileEditor::ShowStatus()
 		TruncPathStr(strLocalTitle, NameLength);
 
 	//предварительный расчет
-	strLineStr = std::to_wstring(m_editor->NumLastLine) + L'/' + std::to_wstring(m_editor->NumLastLine);
+	strLineStr = std::to_wstring(m_editor->m_LinesCount) + L'/' + std::to_wstring(m_editor->m_LinesCount);
 	int SizeLineStr = (int)strLineStr.size();
 
 	if (SizeLineStr > 12)
@@ -2385,7 +2385,7 @@ void FileEditor::ShowStatus()
 	else
 		SizeLineStr = 12;
 
-	strLineStr = std::to_wstring(m_editor->NumLine + 1) + L'/' + std::to_wstring(m_editor->NumLastLine);
+	strLineStr = std::to_wstring(m_editor->NumLine + 1) + L'/' + std::to_wstring(m_editor->m_LinesCount);
 	string strAttr(AttrStr);
 	FormatString FString;
 	FString<<fmt::LeftAlign()<<fmt::MinWidth(NameLength)<<strLocalTitle<<L' '<<

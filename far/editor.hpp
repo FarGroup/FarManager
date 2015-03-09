@@ -151,6 +151,7 @@ private:
 
 	typedef std::list<Edit> editor_container;
 	typedef editor_container::iterator iterator;
+	typedef editor_container::const_iterator const_iterator;
 
 	struct InternalEditorSessionBookMark;
 	typedef std::list<InternalEditorSessionBookMark> bookmark_list;
@@ -169,7 +170,7 @@ private:
 	void GoToLine(int Line);
 	void GoToPosition();
 	void TextChanged(bool State);
-	int CalcDistance(iterator From, iterator To, int MaxDist);
+	int CalcDistance(iterator From, iterator To, int MaxDist = -1);
 	void Paste(const wchar_t *Src=nullptr);
 	void Copy(int Append);
 	void DeleteBlock();
@@ -240,9 +241,14 @@ private:
 	string VBlock2Text() { return VBlock2Text(nullptr, 0); }
 	void Change(EDITOR_CHANGETYPE Type,int StrNum);
 	DWORD EditSetCodePage(iterator edit, uintptr_t codepage, bool check_only);
-	iterator InsertString(const wchar_t *lpwszStr, int nLength, iterator pAfter, int AfterLineNumber = -1);
+	iterator InsertString(const wchar_t *lpwszStr, int nLength, iterator Where, int WhereLineNumber = -1);
+	iterator PushString(const wchar_t* Str, size_t Size) { return InsertString(Str, static_cast<int>(Size), Lines.end()); }
 	void TurnOffMarkingBlock();
 	void SwapState(Editor& swap_state);
+
+	iterator LastLine();
+	const_iterator LastLine() const;
+	bool IsLastLine(iterator Line) const;
 
 	static bool InitSessionBookmarksForPlugin(EditorBookmarks *Param, size_t Count, size_t& Size);
 	static void EditorShowMsg(const string& Title, const string& Msg, const string& Name, int Percent);
@@ -266,7 +272,6 @@ private:
 	};
 
 	editor_container Lines;
-	iterator LastLine;
 	iterator TopScreen;
 	iterator CurLine;
 	iterator LastGetLine;
@@ -277,7 +282,7 @@ private:
 	std::list<EditorUndoData>::iterator UndoSavePos;
 	int UndoSkipLevel;
 	int LastChangeStrPos;
-	int NumLastLine;
+	int m_LinesCount;
 	int NumLine;
 	/* $ 26.02.2001 IS
 	—юда запомним размер табул€ции и в дальнейшем будем использовать его,

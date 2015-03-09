@@ -102,7 +102,6 @@ private:
 
 Editor::Editor(window_ptr Owner, bool DialogUsed):
 	SimpleScreenObject(Owner),
-	LastLine(Lines.end()),
 	TopScreen(Lines.end()),
 	CurLine(Lines.end()),
 	LastGetLine(Lines.end()),
@@ -111,7 +110,7 @@ Editor::Editor(window_ptr Owner, bool DialogUsed):
 	UndoSavePos(UndoData.end()),
 	UndoSkipLevel(0),
 	LastChangeStrPos(0),
-	NumLastLine(0),
+	m_LinesCount(0),
 	NumLine(0),
 	EdOpt(Global->Opt->EdOpt),
 	Pasting(0),
@@ -158,7 +157,7 @@ Editor::Editor(window_ptr Owner, bool DialogUsed):
 	UnmarkMacroBlock();
 
 	GlobalEOL = DOS_EOL_fmt;
-	InsertString(nullptr, 0, LastLine);
+	PushString(nullptr, 0);
 }
 
 
@@ -180,8 +179,8 @@ void Editor::FreeAllocatedData(bool FreeUndo)
 	UndoSavePos = UndoPos = UndoData.end();
 	UndoSkipLevel=0;
 	ClearSessionBookmarks();
-	BlockStart = VBlockStart = LastGetLine = LastLine = CurLine = TopScreen = Lines.end();
-	NumLastLine = 0;
+	BlockStart = VBlockStart = LastGetLine = CurLine = TopScreen = Lines.end();
+	m_LinesCount = 0;
 }
 
 void Editor::SwapState(Editor& swap_state)
@@ -194,10 +193,9 @@ void Editor::SwapState(Editor& swap_state)
 	swap(LastGetLine, swap_state.LastGetLine);
 	swap(LastGetLineNumber, swap_state.LastGetLineNumber);
 	swap(TopScreen, swap_state.TopScreen);
-	swap(LastLine, swap_state.LastLine);
 	swap(CurLine, swap_state.CurLine);
 	swap(NumLine, swap_state.NumLine);
-	swap(NumLastLine, swap_state.NumLastLine);
+	swap(m_LinesCount, swap_state.m_LinesCount);
 	UndoData.swap(swap_state.UndoData);
 	swap(UndoPos, swap_state.UndoPos);
 	swap(UndoSavePos, swap_state.UndoSavePos);
@@ -266,7 +264,7 @@ void Editor::ShowEditor()
 	  курсор загоним в экран.
 	*/
 
-	while (CalcDistance(TopScreen,CurLine,-1)>=m_Y2-m_Y1+1)
+	while (CalcDistance(TopScreen,CurLine)>=m_Y2-m_Y1+1)
 	{
 		++TopScreen;
 		//DisableOut=TRUE;
@@ -362,7 +360,7 @@ void Editor::ShowEditor()
 
 	if (VBlockStart != Lines.end() && VBlockSizeX > 0 && VBlockSizeY > 0)
 	{
-		int CurScreenLine=NumLine-CalcDistance(TopScreen,CurLine,-1);
+		int CurScreenLine = NumLine - CalcDistance(TopScreen, CurLine);
 		LeftPos=CurLine->GetLeftPos();
 
 		Y = m_Y1;
@@ -430,7 +428,7 @@ int Editor::BlockStart2NumLine(int *Pos)
 				*Pos = eBlock->RealPosToTab(eBlock->m_SelStart);
 		}
 
-		return CalcDistance(Lines.begin(), eBlock, -1);
+		return CalcDistance(Lines.begin(), eBlock);
 	}
 
 	return -1;
@@ -468,9 +466,9 @@ int Editor::BlockEnd2NumLine(int *Pos)
 
 				if (StartSel == -1)
 				{
-					if (eLine != LastLine)
+					const auto NextLine = std::next(eLine);
+					if (NextLine != Lines.end())
 					{
-						const auto NextLine = std::next(eLine);
 						// ≈сли в текущей строки нет выделени€, это еще не значит что мы в конце. Ёто может быть только начало :)
 						NextLine->GetSelection(StartSel, EndSel);
 
@@ -519,9 +517,10 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 	switch (OpCode)
 	{
 		case MCODE_C_EMPTY:
-			return Lines.empty(); //??
+			// Editor always has at least one line
+			return Lines.empty() || (m_LinesCount == 1 && Lines.front().m_Str.empty());
 		case MCODE_C_EOF:
-			return CurLine == LastLine && CurPos>=CurLine->GetLength();
+			return IsLastLine(CurLine) && CurPos >= CurLine->GetLength();
 		case MCODE_C_BOF:
 			return CurLine == Lines.begin() && !CurPos;
 		case MCODE_C_SELECTED:
@@ -534,7 +533,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			return NumLine+1;
 		case MCODE_V_ITEMCOUNT:
 		case MCODE_V_EDITORLINES:
-			return NumLastLine;
+			return m_LinesCount;
 			// работа со стековыми закладками
 		case MCODE_F_BM_ADD:
 			AddSessionBookmark();
@@ -695,18 +694,18 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 								}
 								else
 								{
-									int bl = CalcDistance(Lines.begin(), MBlockStart, -1);
-									int el = CalcDistance(Lines.begin(), CurLine, -1);
+									int bl = CalcDistance(Lines.begin(), MBlockStart);
+									int el = CalcDistance(Lines.begin(), CurLine);
 
 									if (bl > el)
 									{
 										eSel.BlockStartLine=el;
-										eSel.BlockHeight=CalcDistance(CurLine,MBlockStart,-1)+1;
+										eSel.BlockHeight = CalcDistance(CurLine, MBlockStart) + 1;
 									}
 									else
 									{
 										eSel.BlockStartLine=bl;
-										eSel.BlockHeight=CalcDistance(MBlockStart,CurLine,-1)+1;
+										eSel.BlockHeight = CalcDistance(MBlockStart, CurLine) + 1;
 									}
 
 									if (bl > el || (bl == el && eSel.BlockWidth<0))
@@ -776,7 +775,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				}
 				case MCODE_F_EDITOR_INSSTR:  // N=Editor.InsStr([S[,Line]])
 				{
-					auto NewEditPtr = InsertString((const wchar_t *)vParam, StrLength((const wchar_t *)vParam), EditPtr, DestLine);
+					auto NewEditPtr = InsertString((const wchar_t *)vParam, StrLength((const wchar_t *)vParam), std::next(EditPtr), DestLine + 1);
 					NewEditPtr->SetEOL(EditPtr->GetEOL());
 					AddUndoData(UNDO_INSSTR,NewEditPtr->GetStringAddr(),EditPtr->GetEOL(),DestLine,0,NewEditPtr->GetLength());
 					Change(ECTYPE_ADDED,DestLine+1);
@@ -947,10 +946,12 @@ int Editor::ProcessKey(const Manager::Key& Key)
 			if (m_Flags.Check(FEDITOR_CURPOSCHANGEDBYPLUGIN))
 			{
 				bool IsLastSelectionLine=SelStart>=0;
-				if (CurLine != LastLine)
+				const auto NextLine = std::next(CurLine);
+				if (NextLine != Lines.end())
 				{
+					CurLine = NextLine;
 					intptr_t NextSelStart=-1,NextSelEnd=0;
-					std::next(CurLine)->GetRealSelection(NextSelStart,NextSelEnd);
+					CurLine->GetRealSelection(NextSelStart,NextSelEnd);
 					IsLastSelectionLine=IsLastSelectionLine&&(NextSelStart<0);
 				}
 				bool IsSpecialCase=false;
@@ -1022,7 +1023,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 			Lock();
 			Pasting++;
 
-			while (CurLine != LastLine)
+			while (!IsLastLine(CurLine))
 			{
 				ProcessKey(Manager::Key(KEY_SHIFTPGDN));
 			}
@@ -1178,7 +1179,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 		{
 			_SVS(CleverSysLog SL(L"case KEY_SHIFTRIGHT"));
 
-			if (CurLine == LastLine && CurPos==CurLine->GetLength() && !EdOpt.CursorBeyondEOL)
+			if (IsLastLine(CurLine) && CurPos == CurLine->GetLength() && !EdOpt.CursorBeyondEOL)
 			{
 				return TRUE;
 			}
@@ -1318,12 +1319,12 @@ int Editor::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_SHIFTDOWN:  case KEY_SHIFTNUMPAD2:
 		{
-			if (CurLine == LastLine)
+			const auto NextLine = std::next(CurLine);
+			if (NextLine == Lines.end())
 				return TRUE;
 
 			CurPos = CurLine->RealPosToTab(CurPos);
 
-			const auto NextLine = std::next(CurLine);
 			if (SelAtBeginning)//—нимаем выделение
 			{
 				if (SelEnd==-1)
@@ -1662,7 +1663,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 			if (!m_Flags.Check(FEDITOR_LOCKMODE))
 			{
 				// Del в самой последней позиции ничего не удал€ет, поэтому не модифицируем...
-				if (CurLine == LastLine && CurPos >= CurLine->GetLength() && BlockStart == Lines.end() && VBlockStart == Lines.end())
+				if (IsLastLine(CurLine) && CurPos >= CurLine->GetLength() && BlockStart == Lines.end() && VBlockStart == Lines.end())
 					return TRUE;
 
 				/* $ 07.03.2002 IS
@@ -1680,11 +1681,13 @@ int Editor::ProcessKey(const Manager::Key& Key)
 						AddUndoData(UNDO_BEGIN);
 						AddUndoData(UNDO_EDIT,CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,CurLine->GetCurPos(),CurLine->GetLength());
 
-						if (CurLine == LastLine)
+						const auto NextLine = std::next(CurLine);
+						if (NextLine == Lines.end())
+						{
 							CurLine->SetEOL(L"");
+						}
 						else
 						{
-							const auto NextLine = std::next(CurLine);
 							intptr_t CurSelStart, CurSelEnd, NextSelStart, NextSelEnd;
 							int Length=CurLine->GetLength();
 							CurLine->GetSelection(CurSelStart, CurSelEnd);
@@ -1953,8 +1956,8 @@ int Editor::ProcessKey(const Manager::Key& Key)
 			{
 				m_Flags.Set(FEDITOR_NEWUNDO);
 				int StartPos=CurLine->GetTabCurPos();
-				NumLine=NumLastLine-1;
-				CurLine = LastLine;
+				NumLine=m_LinesCount-1;
+				CurLine = LastLine();
 				TopScreen=CurLine;
 				for (int I = m_Y1; I < m_Y2 && TopScreen != Lines.begin(); I++)
 				{
@@ -2013,7 +2016,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 				int CurLineFound=FALSE;
 				for (int I = m_Y1; I<m_Y2; ++I, ++CurPtr)
 				{
-					if (CurPtr == LastLine)
+					if (IsLastLine(CurPtr))
 						break;
 
 					if (CurPtr==CurLine)
@@ -2385,12 +2388,12 @@ int Editor::ProcessKey(const Manager::Key& Key)
 		case KEY_ALTDOWN:
 		case KEY_RALTDOWN:
 		{
-			if (CurLine == LastLine)
+			const auto NextLine = std::next(CurLine);
+			if (NextLine == Lines.end())
 				return TRUE;
 
 			ProcessVBlockMarking();
 
-			const auto NextLine = std::next(CurLine);
 			if (!EdOpt.CursorBeyondEOL && VBlockX >= NextLine->RealPosToTab(NextLine->GetLength()))
 				return TRUE;
 
@@ -2507,7 +2510,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 			Pasting++;
 
 			auto PrevLine = Lines.end();
-			while (CurLine != LastLine && PrevLine != CurLine)
+			while (!IsLastLine(CurLine) && PrevLine != CurLine)
 			{
 				PrevLine = CurLine;
 				ProcessKey(Manager::Key(KEY_ALTDOWN));
@@ -2712,7 +2715,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 				if (((!EdOpt.CursorBeyondEOL && (LocalKey==KEY_RIGHT || LocalKey==KEY_NUMPAD6))
 					|| LocalKey==KEY_CTRLRIGHT || LocalKey==KEY_RCTRLRIGHT || LocalKey==KEY_CTRLNUMPAD6 || LocalKey==KEY_RCTRLNUMPAD6) &&
 				        CurLine->GetCurPos()>=CurLine->GetLength() &&
-				        CurLine != LastLine)
+				        !IsLastLine(CurLine))
 				{
 					Pasting++;
 					ProcessKey(Manager::Key(KEY_HOME));
@@ -2952,7 +2955,7 @@ int Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		else
 		{
 			while (IsMouseButtonPressed())
-				GoToLine((NumLastLine-1)*(IntKeyState.MouseY-m_Y1)/(m_Y2-m_Y1));
+				GoToLine((m_LinesCount-1)*(IntKeyState.MouseY-m_Y1)/(m_Y2-m_Y1));
 		}
 
 		return TRUE;
@@ -3052,10 +3055,10 @@ int Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	int NewDist = MouseEvent->dwMousePosition.Y-m_Y1;
 	auto NewPtr=TopScreen;
 
-	while (NewDist-- && NewPtr != LastLine)
+	while (NewDist-- && !IsLastLine(NewPtr))
 		++NewPtr;
 
-	int Dist = CalcDistance(TopScreen,NewPtr,-1) - CalcDistance(TopScreen,CurLine,-1);
+	int Dist = CalcDistance(TopScreen, NewPtr) - CalcDistance(TopScreen, CurLine);
 
 	if (Dist>0)
 		while (Dist--)
@@ -3074,7 +3077,7 @@ int Editor::CalcDistance(iterator From, iterator To,int MaxDist)
 {
 	int Distance=0;
 
-	while (From != To && From != LastLine && (MaxDist==-1 || MaxDist-- > 0))
+	while (From != To && !IsLastLine(From) && (MaxDist == -1 || MaxDist-- > 0))
 	{
 		++Distance;
 		++From;
@@ -3115,7 +3118,7 @@ void Editor::DeleteString(iterator DelPtr, int LineNumber, int DeleteLast,int Un
 
 	TextChanged(1);
 
-	if (DelPtr == LastLine && (!DeleteLast || DelPtr == Lines.begin()))
+	if (IsLastLine(DelPtr) && (!DeleteLast || DelPtr == Lines.begin()))
 	{
 		AddUndoData(UNDO_EDIT,DelPtr->GetStringAddr(),DelPtr->GetEOL(),UndoLine,DelPtr->GetCurPos(),DelPtr->GetLength());
 		DelPtr->SetString(L"");
@@ -3123,7 +3126,7 @@ void Editor::DeleteString(iterator DelPtr, int LineNumber, int DeleteLast,int Un
 		return;
 	}
 
-	NumLastLine--;
+	m_LinesCount--;
 
 	if (LastGetLine != Lines.end())
 	{
@@ -3162,15 +3165,14 @@ void Editor::DeleteString(iterator DelPtr, int LineNumber, int DeleteLast,int Un
 		CurLine->SetTabCurPos(CurPos);
 	}
 
-	if (DelPtr == LastLine)
+	if (IsLastLine(DelPtr))
 	{
-		--LastLine;
-		LastLine->SetEOL(L"");
+		std::prev(DelPtr)->SetEOL(L"");
 	}
 
 	if (DelPtr==TopScreen)
 	{
-		if (TopScreen != LastLine)
+		if (!IsLastLine(TopScreen))
 			++TopScreen;
 		else
 			--TopScreen;
@@ -3241,7 +3243,7 @@ void Editor::InsertString()
 	iterator SrcIndent = Lines.end();
 	intptr_t SelStart,SelEnd;
 	int NewLineEmpty=TRUE;
-	auto NewString = InsertString(nullptr, 0, CurLine, NumLine);
+	auto NewString = InsertString(nullptr, 0, std::next(CurLine), NumLine + 1);
 
 	if (NewString == Lines.end())
 		return;
@@ -3383,9 +3385,6 @@ void Editor::InsertString()
 	NewString->SetEOL(EndSeq);
 	CurLine->SetCurPos(0);
 
-	if (CurLine == LastLine)
-		LastLine = NewString;
-
 	Down();
 
 	if (IndentPos>0)
@@ -3475,7 +3474,7 @@ void Editor::Down()
 	//TODO: "—вертка" - если учесть "!Flags.Check(FSCROBJ_VISIBLE)", то крутить надо до следующей видимой строки
 	int LeftPos,CurPos,Y;
 
-	if (CurLine == LastLine)
+	if (IsLastLine(CurLine))
 		return;
 
 	Y = std::distance(TopScreen, CurLine);
@@ -3497,10 +3496,10 @@ void Editor::ScrollDown()
 	//TODO: "—вертка" - если учесть "!Flags.Check(FSCROBJ_VISIBLE)", то крутить надо до следующей видимой строки
 	int LeftPos,CurPos;
 
-	if (CurLine == LastLine || TopScreen == LastLine)
+	if (IsLastLine(CurLine) || IsLastLine(TopScreen))
 		return;
 
-	if (!EdOpt.AllowEmptySpaceAfterEof && CalcDistance(TopScreen, LastLine, m_Y2-m_Y1) < m_Y2-m_Y1)
+	if (!EdOpt.AllowEmptySpaceAfterEof && CalcDistance(TopScreen, LastLine(), m_Y2-m_Y1) < m_Y2-m_Y1)
 	{
 		Down();
 		return;
@@ -3739,7 +3738,7 @@ BOOL Editor::Search(int Next)
 				strMsgStr=strSearchStr;
 				InsertQuote(strMsgStr);
 				SetCursorType(false, -1);
-				int Total=FindAllReferences? NumLastLine : (ReverseSearch? StartLine : NumLastLine - StartLine);
+				int Total=FindAllReferences? m_LinesCount : (ReverseSearch? StartLine : m_LinesCount - StartLine);
 				int Current=abs(NewNumLine-StartLine);
 				EditorShowMsg(MSG(MEditSearchTitle),MSG(MEditSearchingFor),strMsgStr,Total > 0 ? Current*100/Total : 100);
 				Taskbar().SetProgressValue(Current,Total);
@@ -4422,7 +4421,7 @@ void Editor::DeleteBlock()
 		{
 			EndSel=Length;
 
-			if (CurPtr != LastLine)
+			if (!IsLastLine(CurPtr))
 				DeleteNext=TRUE;
 		}
 
@@ -4526,9 +4525,10 @@ void Editor::UnmarkBlock()
 			  это еще не значит что мы в конце.
 			  Ёто может быть только начало :)
 			*/
-			if (BlockStart != LastLine)
+			const auto NextLine = std::next(BlockStart);
+			if (NextLine != Lines.end())
 			{
-				std::next(BlockStart)->GetSelection(StartSel,EndSel);
+				NextLine->GetSelection(StartSel,EndSel);
 
 				if (StartSel==-1)
 				{
@@ -4600,7 +4600,7 @@ void Editor::GoToLine(int Line)
 	{
 		bool bReverse = false;
 		int LastNumLine=NumLine;
-		int CurScrLine=CalcDistance(TopScreen,CurLine,-1);
+		int CurScrLine = CalcDistance(TopScreen,CurLine);
 		int CurPos=CurLine->GetTabCurPos();
 		int LeftPos=CurLine->GetLeftPos();
 
@@ -4618,11 +4618,11 @@ void Editor::GoToLine(int Line)
 		}
 		else
 		{
-			if (Line > (NumLine + (NumLastLine-NumLine)/2))
+			if (Line > (NumLine + (m_LinesCount-NumLine)/2))
 			{
 				bReverse = true;
-				CurLine = LastLine;
-				NumLine = NumLastLine-1;
+				CurLine = LastLine();
+				NumLine = m_LinesCount-1;
 			}
 		}
 
@@ -4636,7 +4636,7 @@ void Editor::GoToLine(int Line)
 		}
 		else
 		{
-			while (NumLine < Line && CurLine != LastLine)
+			while (NumLine < Line && !IsLastLine(CurLine))
 			{
 				++NumLine;
 				++CurLine;
@@ -4726,7 +4726,7 @@ void Editor::GetRowCol(const string& _argv, int& row, int& col)
 			if (match[b_row_percent].end>=0)
 			{
 				row = std::stoi(get_match(b_row_percent_value));
-				row = NumLastLine * row / 100;
+				row = m_LinesCount * row / 100;
 			}
 			else if (match[b_row_absolute].end>=0)
 			{
@@ -4734,7 +4734,7 @@ void Editor::GetRowCol(const string& _argv, int& row, int& col)
 				row = is_match_empty(b_row_absolute_sign)?y-1:row+y;
 			}
 		}
-		if (row >= NumLastLine) row = NumLastLine - 1;
+		if (row >= m_LinesCount) row = m_LinesCount - 1;
 		auto CurPtr=GetStringByNumber(row);
 		col=CurPtr->TabPosToReal(CurLine->GetTabCurPos());
 		if (match[b_col].end>=0)
@@ -5052,11 +5052,11 @@ void Editor::SelectAll()
 	BlockStart = Lines.begin();
 	BlockStartLine=0;
 
-	FOR_RANGE(Lines, i)
-		if (i != LastLine)
-			i->Select(0, -1);
-		else
-			i->Select(0, i->GetLength());
+	FOR(auto& i, Lines)
+	{
+		i.Select(0, -1);
+	}
+	Lines.back().Select(0, Lines.back().GetLength());
 
 	Show();
 }
@@ -5453,7 +5453,7 @@ void Editor::VPaste(const wchar_t *ClipText)
 
 				VBlockSizeY++;
 
-				if (CurLine == LastLine)
+				if (!IsLastLine(CurLine))
 				{
 					if (ClipText[I+NewLineLen])
 					{
@@ -5780,11 +5780,11 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				Info->EditorID=Editor::EditorID;
 				Info->WindowSizeX=ObjWidth();
 				Info->WindowSizeY=m_Y2-m_Y1+1;
-				Info->TotalLines=NumLastLine;
+				Info->TotalLines=m_LinesCount;
 				Info->CurLine=NumLine;
 				Info->CurPos=CurLine->GetCurPos();
 				Info->CurTabPos=CurLine->GetTabCurPos();
-				Info->TopScreenLine=NumLine-CalcDistance(TopScreen,CurLine,-1);
+				Info->TopScreenLine = NumLine - CalcDistance(TopScreen, CurLine);
 				Info->LeftPos=CurLine->GetLeftPos();
 				Info->Overtype=m_Flags.Check(FEDITOR_OVERTYPE);
 				Info->BlockType = VBlockStart != Lines.end()? BTYPE_COLUMN : BlockStart != Lines.end()? BTYPE_STREAM : BTYPE_NONE;
@@ -6323,7 +6323,7 @@ bool Editor::SetBookmark(int Pos)
 		Bookmark.Line = NumLine;
 		Bookmark.LinePos = CurLine->GetCurPos();
 		Bookmark.LeftPos = CurLine->GetLeftPos();
-		Bookmark.ScreenLine = CalcDistance(TopScreen,CurLine,-1);
+		Bookmark.ScreenLine = CalcDistance(TopScreen, CurLine);
 		return true;
 	}
 
@@ -6455,7 +6455,7 @@ void Editor::AddSessionBookmark(bool NewPos)
 	sb_new.Line = NumLine;
 	sb_new.Cursor = CurLine->GetCurPos();
 	sb_new.LeftPos = CurLine->GetLeftPos();
-	sb_new.ScreenLine = CalcDistance(TopScreen, CurLine, -1);
+	sb_new.ScreenLine = CalcDistance(TopScreen, CurLine);
 	NewSessionPos = NewPos; // We had to save current position, if we will go to previous bookmark (by default)
 	SessionBookmarks.emplace_back(sb_new);
 	SessionPos = std::prev(SessionBookmarks.end());
@@ -6674,10 +6674,10 @@ Editor::iterator Editor::GetStringByNumber(int DestLine)
 		return CurLine;
 	}
 
-	if (DestLine>=NumLastLine)
+	if (DestLine>=m_LinesCount)
 		return Lines.end();
 
-	if(DestLine==0 || DestLine==(NumLastLine-1))
+	if(DestLine==0 || DestLine==(m_LinesCount-1))
 	{
 		if(DestLine==0)
 		{
@@ -6685,7 +6685,7 @@ Editor::iterator Editor::GetStringByNumber(int DestLine)
 		}
 		else
 		{
-			LastGetLine = LastLine;
+			LastGetLine = LastLine();
 		}
 
 		LastGetLineNumber = DestLine;
@@ -6704,14 +6704,14 @@ Editor::iterator Editor::GetStringByNumber(int DestLine)
 		StartLine = LastGetLineNumber;
 	}
 
-	bool Forward = (DestLine>StartLine && DestLine<StartLine+(NumLastLine-StartLine)/2) || (DestLine<StartLine/2);
+	bool Forward = (DestLine>StartLine && DestLine<StartLine+(m_LinesCount-StartLine)/2) || (DestLine<StartLine/2);
 
 	if(DestLine>StartLine)
 	{
 		if(!Forward)
 		{
-			StartLine = NumLastLine-1;
-			CurPtr = LastLine;
+			StartLine = m_LinesCount-1;
+			CurPtr = LastLine();
 		}
 	}
 	else
@@ -6747,8 +6747,8 @@ Editor::iterator Editor::GetStringByNumber(int DestLine)
 
 			if (CurPtr == Lines.end())
 			{
-				LastGetLine = LastLine;
-				LastGetLineNumber = NumLastLine-1;
+				LastGetLine = LastLine();
+				LastGetLineNumber = m_LinesCount-1;
 				return Lines.end();
 			}
 		}
@@ -7097,11 +7097,11 @@ void Editor::PR_EditorShowMsg()
 	}
 }
 
-Editor::iterator Editor::InsertString(const wchar_t *lpwszStr, int nLength, iterator pAfter, int AfterLineNumber)
+Editor::iterator Editor::InsertString(const wchar_t *lpwszStr, int nLength, iterator Where, int WhereLineNumber)
 {
 	bool Empty = Lines.empty();
 
-	auto NewLine = Lines.emplace(Empty ? Lines.begin() : std::next(pAfter), Edit(GetOwner()));
+	auto NewLine = Lines.emplace(Where, Edit(GetOwner()));
 
 	NewLine->SetPersistentBlocks(EdOpt.PersistentBlocks);
 
@@ -7114,20 +7114,19 @@ Editor::iterator Editor::InsertString(const wchar_t *lpwszStr, int nLength, iter
 
 	if (Empty)
 	{
-		LastLine = TopScreen = CurLine = NewLine;
+		TopScreen = CurLine = NewLine;
 	}
 	else
 	{
-		if (pAfter == LastLine)
+		if (Where == Lines.end())
 		{
-			LastLine = NewLine;
-			AfterLineNumber = NumLastLine-1;
+			WhereLineNumber = m_LinesCount-1;
 		}
 	}
 
-	NumLastLine++;
+	m_LinesCount++;
 
-	if(AfterLineNumber<LastGetLineNumber)
+	if(WhereLineNumber<=LastGetLineNumber)
 	{
 		LastGetLineNumber++;
 	}
@@ -7158,7 +7157,7 @@ void Editor::SetCacheParams(EditorPosCache &pc, bool count_bom)
 				StartChar -= 3;
 		}
 
-		while (CurPtr != LastLine)
+		while (!IsLastLine(CurPtr))
 		{
 			const wchar_t *SaveStr,*EndSeq;
 			size_t Length;
@@ -7228,7 +7227,7 @@ void Editor::SetCacheParams(EditorPosCache &pc, bool count_bom)
 void Editor::GetCacheParams(EditorPosCache &pc)
 {
 	pc.cur.Line = NumLine;
-	pc.cur.ScreenLine = CalcDistance(TopScreen, CurLine,-1);
+	pc.cur.ScreenLine = CalcDistance(TopScreen, CurLine);
 	pc.cur.LinePos = CurLine->GetTabCurPos();
 	pc.cur.LeftPos = CurLine->GetLeftPos();
 	pc.CodePage = m_codepage;
@@ -7481,7 +7480,7 @@ void Editor::DrawScrollbar()
 	if (EdOpt.ShowScrollBar)
 	{
 		SetColor(COL_EDITORSCROLLBAR);
-		XX2=m_X2-(ScrollBarEx(m_X2,m_Y1,m_Y2-m_Y1+1,NumLine-CalcDistance(TopScreen,CurLine,-1),NumLastLine)?1:0);
+		XX2 = m_X2 - (ScrollBarEx(m_X2, m_Y1, m_Y2 - m_Y1 + 1, NumLine - CalcDistance(TopScreen, CurLine), m_LinesCount) ? 1 : 0);
 	}
 }
 
@@ -7525,9 +7524,24 @@ void Editor::TurnOffMarkingBlock()
 	m_Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
 }
 
-bool Editor::IsLastLine(const Edit* line) const
+Editor::iterator Editor::LastLine()
 {
-	return LastLine != Lines.end() && line == &*LastLine;
+	return std::prev(Lines.end());
+}
+
+Editor::const_iterator Editor::LastLine() const
+{
+	return std::prev(Lines.cend());
+}
+
+bool Editor::IsLastLine(const Edit* Line) const
+{
+	return Line == &*LastLine();
+}
+
+bool Editor::IsLastLine(Editor::iterator Line) const
+{
+	return Line == LastLine();
 }
 
 void Editor::AutoDeleteColors()
