@@ -2189,7 +2189,13 @@ void Edit::DeleteBlock()
 	auto Mask = GetInputMask();
 	if (!Mask.empty())
 	{
-		fill_if(Mask.begin() + m_SelStart, Mask.begin() + m_SelEnd, L' ', CheckCharMask);
+		for (auto i = m_SelStart; i != m_SelEnd; ++i)
+		{
+			if (CheckCharMask(Mask[i]))
+			{
+				m_Str[i] = L' ';
+			}
+		}
 		m_CurPos=m_SelStart;
 	}
 	else
