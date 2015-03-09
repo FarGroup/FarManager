@@ -5453,7 +5453,7 @@ void Editor::VPaste(const wchar_t *ClipText)
 
 				VBlockSizeY++;
 
-				if (!IsLastLine(CurLine))
+				if (IsLastLine(CurLine))
 				{
 					if (ClipText[I+NewLineLen])
 					{
