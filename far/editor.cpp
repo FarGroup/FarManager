@@ -5080,7 +5080,7 @@ bool Editor::IsFileModified() const
 }
 
 // используется в FileEditor
-uint64_t Editor::GetCurPos(bool file_pos, bool add_bom) const
+int64_t Editor::GetCurPos(bool file_pos, bool add_bom) const
 {
 	auto CurPtr = Lines.begin();
 	uint64_t TotalSize = 0;
@@ -5104,7 +5104,7 @@ uint64_t Editor::GetCurPos(bool file_pos, bool add_bom) const
 			UINT cp_maxlen = 0;
 			std::tie(cp_maxlen, cp_name) = Codepages().GetCodePageInfo(m_codepage);
 			if (cp_maxlen > 1)
-				mult = -static_cast<int>(cp_maxlen);
+				mult = -1;
 		}
 	}
 
@@ -5120,7 +5120,7 @@ uint64_t Editor::GetCurPos(bool file_pos, bool add_bom) const
 		++CurPtr;
 	}
 
-	return TotalSize * (mult > 0 ? mult : 1) + bom;
+	return TotalSize*mult + bom;
 }
 
 

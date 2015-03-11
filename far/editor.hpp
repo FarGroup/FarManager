@@ -64,7 +64,7 @@ public:
 	bool IsFileModified() const;
 	bool IsFileChanged() const;
 	void SetTitle(const wchar_t *Title);
-	uint64_t GetCurPos(bool file_pos = false, bool add_bom = false) const;
+	int64_t GetCurPos(bool file_pos = false, bool add_bom = false) const;
 	int EditorControl(int Command, intptr_t Param1, void *Param2);
 	void SetHostFileEditor(FileEditor *Editor) { HostFileEditor = Editor; }
 	void PrepareResizedConsole() { m_Flags.Set(FEDITOR_ISRESIZEDCONSOLE); }
