@@ -7115,13 +7115,6 @@ Editor::iterator Editor::InsertString(const wchar_t *lpwszStr, int nLength, iter
 	{
 		TopScreen = CurLine = NewLine;
 	}
-	else
-	{
-		if (Where == Lines.end())
-		{
-			WhereLineNumber = m_LinesCount-1;
-		}
-	}
 
 	m_LinesCount++;
 

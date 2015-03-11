@@ -241,8 +241,8 @@ private:
 	string VBlock2Text() { return VBlock2Text(nullptr, 0); }
 	void Change(EDITOR_CHANGETYPE Type,int StrNum);
 	DWORD EditSetCodePage(iterator edit, uintptr_t codepage, bool check_only);
-	iterator InsertString(const wchar_t *lpwszStr, int nLength, iterator Where, int WhereLineNumber = -1);
-	iterator PushString(const wchar_t* Str, size_t Size) { return InsertString(Str, static_cast<int>(Size), Lines.end()); }
+	iterator InsertString(const wchar_t *lpwszStr, int nLength, iterator Where, int WhereLineNumber);
+	iterator PushString(const wchar_t* Str, size_t Size) { return InsertString(Str, static_cast<int>(Size), Lines.end(), m_LinesCount); }
 	void TurnOffMarkingBlock();
 	void SwapState(Editor& swap_state);
 
