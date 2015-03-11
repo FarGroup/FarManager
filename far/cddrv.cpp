@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "drivemix.hpp"
 #include "flink.hpp"
 #include "pathmix.hpp"
+#include "elevation.hpp"
 
 enum CDROM_DeviceCapabilities
 {
@@ -440,20 +441,20 @@ UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
 		string drive = HasPathPrefix(strRootDir) ? strRootDir : L"\\\\?\\" + strRootDir;
 		DeleteEndSlash(drive);
 
+		SCOPED_ACTION(elevation::suppress);
+
+		DrvType = DRIVE_USBDRIVE; // default type if detection failed
+
 		api::fs::file Device;
 		if (Device.Open(drive, GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
 		{
 			DISK_GEOMETRY g;
 			DWORD dwOutBytes;
 			if (Device.IoControl(IOCTL_DISK_GET_DRIVE_GEOMETRY, nullptr, 0, &g, sizeof(g), &dwOutBytes, nullptr))
-				if ( g.MediaType == FixedMedia || g.MediaType == RemovableMedia )
-					DrvType = DRIVE_USBDRIVE;
+				if (g.MediaType != FixedMedia && g.MediaType != RemovableMedia)
+					DrvType = DRIVE_REMOVABLE;
 		}
 	}
-//	if((Detect&2) && IsDriveUsb(*LocalName,nullptr)) //DrvType == DRIVE_REMOVABLE
-//		DrvType=DRIVE_USBDRIVE;
-//	if((Detect&4) && GetSubstName(DrvType,LocalName,nullptr,0))
-//		DrvType=DRIVE_SUBSTITUTE;
 
 	return DrvType;
 }
