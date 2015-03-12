@@ -54,16 +54,21 @@ void CachedRead::AdjustAlignment()
 	if (!file.Opened())
 		return;
 
-	DWORD ret;
-	size_t buff_size = Buffer.size();
-	DISK_GEOMETRY g;
+	auto buff_size = Buffer.size();
 
-	if (file.IoControl(IOCTL_DISK_GET_DRIVE_GEOMETRY, nullptr,0, &g, sizeof(g), &ret, nullptr))
+	STORAGE_PROPERTY_QUERY q;
+	DWORD ret = 0;
+	STORAGE_ACCESS_ALIGNMENT_DESCRIPTOR a = {0};
+
+	q.QueryType  = PropertyStandardQuery;
+	q.PropertyId = StorageAccessAlignmentProperty;
+
+	if (file.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &q,sizeof(q), &a,sizeof(a), &ret, nullptr))
 	{
-		if (g.BytesPerSector > 512 && g.BytesPerSector <= 256*1024)
+		if (a.BytesPerPhysicalSector > 512 && a.BytesPerPhysicalSector <= 256*1024)
 		{
-			Alignment = (int)g.BytesPerSector;
-			buff_size = 16 * g.BytesPerSector;
+			Alignment = (int)a.BytesPerPhysicalSector;
+			buff_size = 16 * a.BytesPerPhysicalSector;
 		}
 		file.IoControl(FSCTL_ALLOW_EXTENDED_DASD_IO, nullptr,0, nullptr,0, &ret,nullptr);
 	}
