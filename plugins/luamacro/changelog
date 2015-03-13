@@ -1,4 +1,8 @@
-﻿zg 08.03.2015 02:30:10 +0200 - build 490
+﻿shmuel 13.03.2015 16:38:56 +0200 - build 491
+
+1. LuaFAR: неправильно работал far.AdvControl("ACTL_GETARRAYCOLOR").
+
+zg 08.03.2015 02:30:10 +0200 - build 490
 
 1. moonscript 0.3.1.
 

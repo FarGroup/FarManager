@@ -1374,28 +1374,61 @@ function MT.test_mantis_1722()
   assert(Dlg[1][10] == "W123")
 end
 
-local function test_AdvControl()
+---------------------------------------------------------------------------------------------------
+-- ACTL_GETWINDOWCOUNT, ACTL_GETWINDOWTYPE, ACTL_GETWINDOWINFO, ACTL_SETCURRENTWINDOW, ACTL_COMMIT
+---------------------------------------------------------------------------------------------------
+local function test_AdvControl_Window()
   local num, t
 
   num = far.AdvControl("ACTL_GETWINDOWCOUNT")
+  assert(num == 2)
   mf.acall(far.Show); mf.acall(far.Show)
+  assert(far.AdvControl("ACTL_GETWINDOWTYPE").Type == F.WTYPE_VMENU)
   assert(num+2 == far.AdvControl("ACTL_GETWINDOWCOUNT"))
   Keys("Esc Esc")
   assert(num == far.AdvControl("ACTL_GETWINDOWCOUNT"))
 
+  -- Get information about 2 available windows
+  t = assert(far.AdvControl("ACTL_GETWINDOWINFO", 1))
+  assert(t.Type==F.WTYPE_DESKTOP and t.Id==0 and t.Pos==1 and t.Flags==0 and t.TypeName=="Desktop" and
+         t.Name=="")
+
+  t = assert(far.AdvControl("ACTL_GETWINDOWINFO", 2))
+  assert(t.Type==F.WTYPE_PANELS and t.Id==0 and t.Pos==2 and t.Flags==F.WIF_CURRENT and
+         t.TypeName=="Panels" and #t.Name>0)
+  assert(far.AdvControl("ACTL_GETWINDOWTYPE").Type == F.WTYPE_PANELS)
+
+  -- Set "Desktop" as the current window
+  assert(0 < far.AdvControl("ACTL_SETCURRENTWINDOW", 1))
+  assert(0 < far.AdvControl("ACTL_COMMIT"))
+  t = assert(far.AdvControl("ACTL_GETWINDOWINFO", 2)) -- "z-order": the window that was #1 is now #2
+  assert(t.Type==0 and t.Id==0 and t.Pos==2 and t.Flags==F.WIF_CURRENT and t.TypeName=="Desktop" and
+         t.Name=="")
+  assert(far.AdvControl("ACTL_GETWINDOWTYPE").Type == F.WTYPE_DESKTOP)
+  t = assert(far.AdvControl("ACTL_GETWINDOWINFO", 1))
+  assert(t.Type==F.WTYPE_PANELS and t.Id==0 and t.Pos==1 and t.Flags==0 and t.TypeName=="Panels" and
+         #t.Name>0)
+
+  -- Restore "Panels" as the current window
+  assert(0 < far.AdvControl("ACTL_SETCURRENTWINDOW", 1))
+  assert(0 < far.AdvControl("ACTL_COMMIT"))
+  assert(far.AdvControl("ACTL_GETWINDOWTYPE").Type == F.WTYPE_PANELS)
+end
+
+local function test_AdvControl_Misc()
+  local t
+
   assert(type(far.AdvControl("ACTL_GETFARHWND"))=="userdata")
 
-  t = far.AdvControl("ACTL_GETCOLOR",0)
+  t = assert(far.AdvControl("ACTL_GETCOLOR",0))
   assert(t.Flags and t.ForegroundColor and t.BackgroundColor)
 
-  t = far.AdvControl("ACTL_GETARRAYCOLOR")[1]
-  assert(t.Flags and t.ForegroundColor and t.BackgroundColor)
+  t = assert(far.AdvControl("ACTL_GETARRAYCOLOR"))
+  assert(#t == 146)
+  assert(t[1].Flags and t[1].ForegroundColor and t[1].BackgroundColor)
 
   assert(far.AdvControl("ACTL_GETFARMANAGERVERSION"):sub(1,1)=="3")
   assert(far.AdvControl("ACTL_GETFARMANAGERVERSION",true)==3)
-
-  t = far.AdvControl("ACTL_GETWINDOWINFO")
-  assert(t.Type and t.Id and t.Pos and t.Flags and t.TypeName and t.Name)
 
   t = far.AdvControl("ACTL_GETFARRECT")
   assert(t.Left and t.Top and t.Right and t.Bottom)
@@ -1403,13 +1436,15 @@ local function test_AdvControl()
   t = far.AdvControl("ACTL_GETCURSORPOS")
   assert(t.X and t.Y)
 
-  t = far.AdvControl("ACTL_GETWINDOWTYPE")
-  assert(t.Type)
-
-  mf.acall(far.AdvControl, "ACTL_WAITKEY", nil, "F1")
+  assert(true == mf.acall(far.AdvControl, "ACTL_WAITKEY", nil, "F1"))
   Keys("F1")
-  mf.acall(far.AdvControl, "ACTL_WAITKEY")
+  assert(true == mf.acall(far.AdvControl, "ACTL_WAITKEY"))
   Keys("F2")
+end
+
+local function test_AdvControl()
+  test_AdvControl_Window()
+  test_AdvControl_Misc()
 end
 
 local function test_far_GetMsg()

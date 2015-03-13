@@ -4417,10 +4417,9 @@ static int far_AdvControl(lua_State *L)
 		}
 		case ACTL_GETARRAYCOLOR:
 		{
-			intptr_t size = Info->AdvControl(PluginId, Command, 0, NULL), i;
-			intptr_t len = size / sizeof(struct FarColor);
-			struct FarColor *arr = (struct FarColor*) lua_newuserdata(L, size);
-			Info->AdvControl(PluginId, Command, 0, arr);
+			intptr_t len = Info->AdvControl(PluginId, Command, 0, NULL), i;
+			struct FarColor *arr = (struct FarColor*) lua_newuserdata(L, len*sizeof(struct FarColor));
+			Info->AdvControl(PluginId, Command, len, arr);
 			lua_createtable(L, (int)len, 0);
 
 			for(i=0; i < len; i++)
