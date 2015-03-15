@@ -954,7 +954,15 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 		_SVS(if (Global->CtrlObject->Macro.IsRecording() == MACROSTATE_RECORDING_COMMON || Global->CtrlObject->Macro.IsExecuting() == MACROSTATE_EXECUTING_COMMON))
 			_SVS(SysLog(L"%d !!!! Global->CtrlObject->Macro.GetState() != MACROSTATE_NOMACRO !!!!",__LINE__));
 
-		ProcessedNext=!ProcessEditorInput(Global->WindowManager->GetLastInputRecord());
+		switch (Key)
+		{
+			case KEY_IDLE:
+			case KEY_NONE:
+				break;
+			default:
+				ProcessedNext=!ProcessEditorInput(Global->WindowManager->GetLastInputRecord());
+				break;
+		}
 	}
 
 	if (ProcessedNext)
