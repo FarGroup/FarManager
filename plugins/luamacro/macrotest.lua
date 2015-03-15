@@ -111,6 +111,9 @@ local function test_bit64()
   assert(w == bit64.new("0x8000".."0000".."0000".."0000"))
   assert(rshift(w,63)==1)
   assert(rshift(w,64)==0)
+  assert(bit64.arshift(w,62)==-2)
+  assert(bit64.arshift(w,63)==-1)
+  assert(bit64.arshift(w,64)==-1)
 end
 
 local function test_eval()
@@ -592,7 +595,6 @@ function MT.test_mf()
   test_asc()
   test_atoi()
   test_beep()
-  test_bit64()
   test_chr()
   test_clip()
   test_date()
@@ -1399,8 +1401,8 @@ local function test_AdvControl_Window()
   assert(far.AdvControl("ACTL_GETWINDOWTYPE").Type == F.WTYPE_PANELS)
 
   -- Set "Desktop" as the current window
-  assert(0 < far.AdvControl("ACTL_SETCURRENTWINDOW", 1))
-  assert(0 < far.AdvControl("ACTL_COMMIT"))
+  assert(1 == far.AdvControl("ACTL_SETCURRENTWINDOW", 1))
+  assert(1 == far.AdvControl("ACTL_COMMIT"))
   t = assert(far.AdvControl("ACTL_GETWINDOWINFO", 2)) -- "z-order": the window that was #1 is now #2
   assert(t.Type==0 and t.Id==0 and t.Pos==2 and t.Flags==F.WIF_CURRENT and t.TypeName=="Desktop" and
          t.Name=="")
@@ -1410,9 +1412,37 @@ local function test_AdvControl_Window()
          #t.Name>0)
 
   -- Restore "Panels" as the current window
-  assert(0 < far.AdvControl("ACTL_SETCURRENTWINDOW", 1))
-  assert(0 < far.AdvControl("ACTL_COMMIT"))
+  assert(1 == far.AdvControl("ACTL_SETCURRENTWINDOW", 1))
+  assert(1 == far.AdvControl("ACTL_COMMIT"))
   assert(far.AdvControl("ACTL_GETWINDOWTYPE").Type == F.WTYPE_PANELS)
+end
+
+local function test_AdvControl_Colors()
+  local t = assert(far.AdvControl("ACTL_GETARRAYCOLOR"))
+  assert(#t == 146)
+  for n=1,#t do
+    local color = assert(far.AdvControl("ACTL_GETCOLOR", n-1))
+    assert(color.Flags and color.ForegroundColor and color.BackgroundColor)
+    for k,v in pairs(color) do
+      assert(t[n][k] == v)
+    end
+  end
+  assert(not far.AdvControl("ACTL_GETCOLOR", #t))
+  assert(not far.AdvControl("ACTL_GETCOLOR", -1))
+
+  -- change the colors
+  local arr, elem = {StartIndex=0; Flags=0}, {Flags=100; ForegroundColor=101; BackgroundColor=102}
+  for n=1,#t do arr[n]=elem end
+  assert(far.AdvControl("ACTL_SETARRAYCOLOR", nil, arr))
+  for n=1,#t do
+    local color = assert(far.AdvControl("ACTL_GETCOLOR", n-1))
+    for k,v in pairs(elem) do
+      assert(color[k] == v)
+    end
+  end
+
+  -- restore the colors
+  assert(far.AdvControl("ACTL_SETARRAYCOLOR", nil, t))
 end
 
 local function test_AdvControl_Misc()
@@ -1420,21 +1450,18 @@ local function test_AdvControl_Misc()
 
   assert(type(far.AdvControl("ACTL_GETFARHWND"))=="userdata")
 
-  t = assert(far.AdvControl("ACTL_GETCOLOR",0))
-  assert(t.Flags and t.ForegroundColor and t.BackgroundColor)
-
-  t = assert(far.AdvControl("ACTL_GETARRAYCOLOR"))
-  assert(#t == 146)
-  assert(t[1].Flags and t[1].ForegroundColor and t[1].BackgroundColor)
-
   assert(far.AdvControl("ACTL_GETFARMANAGERVERSION"):sub(1,1)=="3")
   assert(far.AdvControl("ACTL_GETFARMANAGERVERSION",true)==3)
 
   t = far.AdvControl("ACTL_GETFARRECT")
-  assert(t.Left and t.Top and t.Right and t.Bottom)
+  assert(t.Left>=0 and t.Top>=0 and t.Right>t.Left and t.Bottom>t.Top)
 
-  t = far.AdvControl("ACTL_GETCURSORPOS")
-  assert(t.X and t.Y)
+  assert(0 == far.AdvControl("ACTL_SETCURSORPOS", nil, {X=-1,Y=0}))
+  for k=0,2 do
+    assert(1 == far.AdvControl("ACTL_SETCURSORPOS", nil, {X=k,Y=k+1}))
+    t = assert(far.AdvControl("ACTL_GETCURSORPOS"))
+    assert(t.X==k and t.Y==k+1)
+  end
 
   assert(true == mf.acall(far.AdvControl, "ACTL_WAITKEY", nil, "F1"))
   Keys("F1")
@@ -1444,6 +1471,7 @@ end
 
 local function test_AdvControl()
   test_AdvControl_Window()
+  test_AdvControl_Colors()
   test_AdvControl_Misc()
 end
 
@@ -1476,12 +1504,12 @@ local function test_FarStandardFunctions()
 end
 
 function MT.test_luafar()
-  test_far_GetMsg()
-
   test_AdvControl()
+  test_bit64()
+  test_far_GetMsg()
+  test_FarStandardFunctions()
   test_MacroControl()
   test_RegexControl()
-  test_FarStandardFunctions()
 end
 
 function MT.test_all()

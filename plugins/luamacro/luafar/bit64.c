@@ -120,21 +120,21 @@ static int lshift(lua_State *L)
 {
 	UINT64 v = check64(L, 1, NULL);
 	unsigned int n = luaL_checkint(L, 2);
-	return bit64_push(L, v << n);
+	return bit64_push(L, n < 64 ? (v << n) : 0);
 }
 
 static int rshift(lua_State *L)
 {
 	UINT64 v = check64(L, 1, NULL);
 	unsigned int n = luaL_checkint(L, 2);
-	return bit64_push(L, v >> n);
+	return bit64_push(L, n < 64 ? (v >> n) : 0);
 }
 
 static int arshift(lua_State *L)
 {
 	INT64 v = check64(L, 1, NULL);
 	unsigned int n = luaL_checkint(L, 2);
-	return bit64_push(L, v >> n);
+	return bit64_push(L, n < 64 ? (v >> n) : ((v >> 63) >> 1));
 }
 
 static int f_new(lua_State *L)
