@@ -3,6 +3,50 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 15.03.2015 03:02:46 +0200 - build 4305
+
+1. ProcessEditorInput is not sent KEY_IDLE and KEY_NONE pseudo-keys.
+
+w17 12.03.2015 17:40:22 +0300 - build 4304
+
+1. Correction of 4302.
+
+drkns 11.03.2015 20:07:31 +0200 - build 4303
+
+1. Correction of 4298.
+
+w17 11.03.2015 15:50:45 +0300 - build 4302
+
+1. Remove query for privilege escalation for file viewed from flash drive with NTFS on Win Server 2008 R2 SP1
+
+w17 11.03.2015 13:20:04 +0300 - build 4301
+
+1. Correction of 4279.
+
+drkns 09.03.2015 23:54:31 +0200 - build 4300
+
+1. Correction of 4298.
+
+zg 09.03.2015 20:27:35 +0200 - build 4299
+
+1. typo in 4298.
+
+drkns 09.03.2015 19:35:06 +0200 - build 4298
+
+1. Refactoring.
+
+shmuel 09.03.2015 19:09:39 +0200 - build 4297
+
+1. M#2966: Incorrect insertion of vertical block at the end of file.
+
+drkns 09.03.2015 16:57:18 +0200 - build 4296
+
+1. Correction of 4294.
+
+shmuel 09.03.2015 00:15:32 +0200 - build 4295
+
+1. M#2965: Insertion of a vertical block strips last characters in each line.
+
 drkns 08.03.2015 19:08:46 +0200 - build 4294
 
 1. Refactoring.
@@ -251,7 +295,7 @@ drkns 17.01.2015 09:38:11 +0200 - build 4241
 
 1. Race condition in far /?
 
-2. Уточнение 4232.
+2. Correction of 4232.
 
 3. Refactoring.
 
