@@ -1,4 +1,8 @@
-﻿zg 15.03.2015 03:02:46 +0200 - build 4305
+﻿zg 17.03.2015 00:30:18 +0200 - build 4306
+
+1. с форума: проблемы с EF_OPENMODE_USEEXISTING.
+
+zg 15.03.2015 03:02:46 +0200 - build 4305
 
 1. в ProcessEditorInput не посылаются псевдоклавиши KEY_IDLE и KEY_NONE.
 

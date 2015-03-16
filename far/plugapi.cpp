@@ -1889,32 +1889,40 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 			editorExitCode = Editor->GetExitCode();
 
 			// выполним предпроверку (ошибки разные могут быть)
-			if (editorExitCode == XC_OPEN_ERROR || editorExitCode == XC_LOADING_INTERRUPTED)
-				return editorExitCode == XC_OPEN_ERROR ? EEC_OPEN_ERROR : EEC_LOADING_INTERRUPTED;
-			else
+			switch (editorExitCode)
 			{
-				Editor->SetEnableF6((Flags & EF_ENABLE_F6) != 0);
-				Editor->SetPluginTitle(&strTitle);
-				/* $ 15.05.2002 SKV
-				  Зафиксируем вход и выход в/из модального редактора.
-				  */
-				Global->WindowManager->ExecuteModal(Editor);
-				editorExitCode = Editor->GetExitCode();
-
-				if (editorExitCode)
+				case XC_OPEN_ERROR:
+					return EEC_OPEN_ERROR;
+				case XC_LOADING_INTERRUPTED:
+					return EEC_LOADING_INTERRUPTED;
+				case XC_EXISTS:
+					return EEC_MODIFIED;
+				default:
 				{
+					Editor->SetEnableF6((Flags & EF_ENABLE_F6) != 0);
+					Editor->SetPluginTitle(&strTitle);
+					/* $ 15.05.2002 SKV
+					  Зафиксируем вход и выход в/из модального редактора.
+					  */
+					Global->WindowManager->ExecuteModal(Editor);
+					editorExitCode = Editor->GetExitCode();
+
+					if (editorExitCode)
+					{
 #if 0
 
-					if (OpMode == EF_OPENMODE_BREAKIFOPEN && ExitCode == XC_QUIT)
-						ExitCode = XC_OPEN_ERROR;
-					else
+						if (OpMode == EF_OPENMODE_BREAKIFOPEN && ExitCode == XC_QUIT)
+							ExitCode = XC_OPEN_ERROR;
+						else
 #endif
-						ExitCode = Editor->IsFileChanged() ? EEC_MODIFIED : EEC_NOT_MODIFIED;
+							ExitCode = Editor->IsFileChanged() ? EEC_MODIFIED : EEC_NOT_MODIFIED;
+					}
+					else
+					{
+						ExitCode = EEC_OPEN_ERROR;
+					}
 				}
-				else
-				{
-					ExitCode = EEC_OPEN_ERROR;
-				}
+				break;
 			}
 		}
 
