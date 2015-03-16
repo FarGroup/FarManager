@@ -1445,6 +1445,23 @@ local function test_AdvControl_Colors()
   assert(far.AdvControl("ACTL_SETARRAYCOLOR", nil, t))
 end
 
+local function test_AdvControl_Synchro()
+  local pass = 0
+  local oldProcessSynchroEvent = export.ProcessSynchroEvent
+  export.ProcessSynchroEvent =
+    function(event,param)
+      assert(pass==0 and param==123 or pass==1 and param==-456)
+      pass = pass + 1
+    end
+  far.AdvControl("ACTL_SYNCHRO", 123)
+  far.AdvControl("ACTL_SYNCHRO", -456)
+  for k=1,2 do
+    mf.acall(far.Show); Keys"Esc"
+  end
+  export.ProcessSynchroEvent = oldProcessSynchroEvent
+  assert(pass == 2)
+end
+
 local function test_AdvControl_Misc()
   local t
 
@@ -1472,6 +1489,7 @@ end
 local function test_AdvControl()
   test_AdvControl_Window()
   test_AdvControl_Colors()
+  test_AdvControl_Synchro()
   test_AdvControl_Misc()
 end
 
@@ -1501,6 +1519,52 @@ end
 local function test_FarStandardFunctions()
   test_clipboard()
   test_far_FarClock()
+
+  assert(far.ConvertPath([[c:\foo\bar\..\..\abc]], "CPM_FULL") == [[c:\abc]])
+
+  assert(far.FormatFileSize(123456, 8)  == "  123456")
+  assert(far.FormatFileSize(123456, -8) == "123456  ")
+
+  assert(type(far.GetCurrentDirectory()) == "string")
+
+  assert(far.GetPathRoot[[D:\foo\bar]] == [[D:\]])
+
+  assert(far.LIsAlpha("A") == true)
+  assert(far.LIsAlpha("Я") == true)
+  assert(far.LIsAlpha("7") == false)
+  assert(far.LIsAlpha(";") == false)
+
+  assert(far.LIsAlphanum("A") == true)
+  assert(far.LIsAlphanum("Я") == true)
+  assert(far.LIsAlphanum("7") == true)
+  assert(far.LIsAlphanum(";") == false)
+
+  assert(far.LIsLower("A") == false)
+  assert(far.LIsLower("a") == true)
+  assert(far.LIsLower("Я") == false)
+  assert(far.LIsLower("я") == true)
+  assert(far.LIsLower("7") == false)
+  assert(far.LIsLower(";") == false)
+
+  assert(far.LIsUpper("A") == true)
+  assert(far.LIsUpper("a") == false)
+  assert(far.LIsUpper("Я") == true)
+  assert(far.LIsUpper("я") == false)
+  assert(far.LIsUpper("7") == false)
+  assert(far.LIsUpper(";") == false)
+
+  assert(far.LLowerBuf("abc-ABC-эюя-ЭЮЯ-7;") == "abc-abc-эюя-эюя-7;")
+  assert(far.LUpperBuf("abc-ABC-эюя-ЭЮЯ-7;") == "ABC-ABC-ЭЮЯ-ЭЮЯ-7;")
+
+  assert(far.LStricmp("abc","def") < 0)
+  assert(far.LStricmp("def","abc") > 0)
+  assert(far.LStricmp("abc","abc") == 0)
+
+  assert(far.LStrnicmp("abc","def",3) < 0)
+  assert(far.LStrnicmp("def","abc",3) > 0)
+  assert(far.LStrnicmp("abc","abc",3) == 0)
+  assert(far.LStrnicmp("111abc","111def",3) == 0)
+  assert(far.LStrnicmp("111abc","111def",4) < 0)
 end
 
 function MT.test_luafar()
