@@ -91,8 +91,7 @@ void ControlObject::Init(int DirCount)
 
 	Global->WindowManager->InsertWindow(FPanels); // before PluginCommit()
 
-	string strOldTitle;
-	Console().GetTitle(strOldTitle);
+	const auto strOldTitle = Console().GetTitle();
 	Global->WindowManager->PluginCommit();
 	Plugins->LoadPlugins();
 	Console().SetTitle(strOldTitle);

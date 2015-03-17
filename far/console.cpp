@@ -178,24 +178,28 @@ virtual bool GetWorkingRect(SMALL_RECT& WorkingRect) const override
 	return Result;
 }
 
-virtual bool GetTitle(string &strTitle) const override
+virtual string GetPhysicalTitle() const override
 {
 	// Don't use GetConsoleTitle here, it's buggy.
 
-	int Length = GetWindowTextLength(GetWindow());
-
-	if (Length)
+	if (int Length = GetWindowTextLength(GetWindow()))
 	{
 		std::vector<wchar_t> Buffer(Length + 1);
 		GetWindowText(GetWindow(), Buffer.data(), Length + 1);
-		strTitle.assign(Buffer.data(), Length);
+		return string(Buffer.data(), Length);
 	}
 
-	return true;
+	return string();
+}
+
+virtual string GetTitle() const override
+{
+	return m_Title;
 }
 
 virtual bool SetTitle(const string& Title) const override
 {
+	m_Title = Title;
 	return SetConsoleTitle(Title.data())!=FALSE;
 }
 
@@ -703,6 +707,7 @@ virtual short GetDelta() const
 private:
 	const unsigned int MAXSIZE;
 	HANDLE m_OriginalInputHandle;
+	mutable string m_Title;
 };
 
 class extendedconsole:public basicconsole

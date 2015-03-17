@@ -102,13 +102,13 @@ CriticalSection TitleCS;
 ConsoleTitle::ConsoleTitle()
 {
 	SCOPED_ACTION(CriticalSectionLock)(TitleCS);
-	Console().GetTitle(strOldTitle);
+	strOldTitle = Console().GetTitle();
 }
 
 ConsoleTitle::ConsoleTitle(const string& title)
 {
 	SCOPED_ACTION(CriticalSectionLock)(TitleCS);
-	Console().GetTitle(strOldTitle);
+	strOldTitle = Console().GetTitle();
 	SetFarTitle(title);
 }
 
@@ -145,7 +145,7 @@ void ConsoleTitle::SetFarTitle(const string& Title)
 	SCOPED_ACTION(CriticalSectionLock)(TitleCS);
 	string strOldFarTitle;
 
-	Console().GetTitle(strOldFarTitle);
+	strOldFarTitle = Console().GetTitle();
 
 	if (!GetUserTitle().empty())
 	{

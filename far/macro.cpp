@@ -1553,8 +1553,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			return ScrY + 1;
 
 		case MCODE_V_FAR_TITLE:
-			Console().GetTitle(strFileName);
-			return PassString(strFileName, Data);
+			return PassString(Console().GetTitle(), Data);
 
 		case MCODE_V_FAR_PID:
 			return PassNumber(GetCurrentProcessId(), Data);

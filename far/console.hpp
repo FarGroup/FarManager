@@ -65,7 +65,8 @@ public:
 
 	virtual bool GetWorkingRect(SMALL_RECT& WorkingRect) const = 0;
 
-	virtual bool GetTitle(string &strTitle) const = 0;
+	virtual string GetPhysicalTitle() const = 0;
+	virtual string GetTitle() const = 0;
 	virtual bool SetTitle(const string& Title) const = 0;
 
 	virtual bool GetKeyboardLayoutName(string &strName) const = 0;

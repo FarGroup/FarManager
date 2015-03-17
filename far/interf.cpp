@@ -302,7 +302,7 @@ void InitConsole(int FirstInit)
 
 	Console().SetControlHandler(CtrlHandler, true);
 	Console().GetMode(Console().GetInputHandle(),InitialConsoleMode);
-	Console().GetTitle(Global->strInitTitle);
+	Global->strInitTitle = Console().GetPhysicalTitle();
 	Console().GetWindowRect(InitWindowRect);
 	Console().GetSize(InitialSize);
 	Console().GetCursorInfo(InitialCursorInfo);

@@ -1683,8 +1683,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 					if (api::fs::exists(strSearchFileName))
 					{
-						string strOldTitle;
-						Console().GetTitle(strOldTitle);
+						const auto strOldTitle = Console().GetTitle();
 
 						if (key==KEY_F3 || key==KEY_NUMPAD5 || key==KEY_SHIFTNUMPAD5)
 						{
