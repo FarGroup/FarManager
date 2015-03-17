@@ -104,3 +104,9 @@ RAII_type ADD_SUFFIX(scoped_object_, __LINE__)
 #define PACK_PUSH(n) __pragma(pack(push, n))
 #define PACK_POP() __pragma(pack(pop))
 #endif
+
+#if defined _MSC_VER && _MSC_VER < 1800
+#define DELETED_FUNCTION(...) private: __VA_ARGS__
+#else
+#define DELETED_FUNCTION(...) __VA_ARGS__ = delete
+#endif

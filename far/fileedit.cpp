@@ -782,8 +782,8 @@ __int64 FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		MacroEditState|=m_Flags.Check(FFILEEDIT_ENABLEF6)?0x00000002:0;
 		MacroEditState|=m_Flags.Check(FFILEEDIT_DELETEONCLOSE)?0x00000004:0;
 		MacroEditState|=m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED)?0x00000008:0;
-		MacroEditState|=m_editor->BlockStart != m_editor->Lines.end()? 0x00000010 : 0;
-		MacroEditState|=m_editor->VBlockStart != m_editor->Lines.end()? 0x00000020 : 0;
+		MacroEditState|=m_editor->IsStreamSelection()? 0x00000010 : 0;
+		MacroEditState|=m_editor->IsVerticalSelection()? 0x00000020 : 0;
 		MacroEditState|=m_editor->m_Flags.Check(Editor::FEDITOR_WASCHANGED)?0x00000040:0;
 		MacroEditState|=m_editor->m_Flags.Check(Editor::FEDITOR_OVERTYPE)?0x00000080:0;
 		MacroEditState|=m_editor->m_Flags.Check(Editor::FEDITOR_CURPOSCHANGEDBYPLUGIN)?0x00000100:0;
@@ -795,10 +795,10 @@ __int64 FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 	}
 
 	if (OpCode == MCODE_V_EDITORCURPOS)
-		return m_editor->CurLine->GetTabCurPos()+1;
+		return m_editor->m_it_CurLine->GetTabCurPos()+1;
 
 	if (OpCode == MCODE_V_EDITORCURLINE)
-		return m_editor->NumLine+1;
+		return m_editor->m_it_CurLine.Number() + 1;
 
 	if (OpCode == MCODE_V_ITEMCOUNT || OpCode == MCODE_V_EDITORLINES)
 		return m_editor->m_LinesCount;
@@ -990,7 +990,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					m_editor->Pasting++;
 					m_editor->TextChanged(true);
 
-					if (!m_editor->EdOpt.PersistentBlocks && (m_editor->VBlockStart != m_editor->Lines.end() || m_editor->BlockStart != m_editor->Lines.end()))
+					if (!m_editor->EdOpt.PersistentBlocks && m_editor->IsAnySelection())
 					{
 						m_editor->TurnOffMarkingBlock();
 						m_editor->DeleteBlock();
@@ -2393,7 +2393,7 @@ void FileEditor::ShowStatus()
 	else
 		SizeLineStr = 12;
 
-	strLineStr = std::to_wstring(m_editor->NumLine + 1) + L'/' + std::to_wstring(m_editor->m_LinesCount);
+	strLineStr = std::to_wstring(m_editor->m_it_CurLine.Number() + 1) + L'/' + std::to_wstring(m_editor->m_LinesCount);
 	string strAttr(AttrStr);
 	FormatString FString;
 	FString<<fmt::LeftAlign()<<fmt::MinWidth(NameLength)<<strLocalTitle<<L' '<<
@@ -2403,9 +2403,9 @@ void FileEditor::ShowStatus()
 		fmt::MinWidth(5)<<m_codepage<<L' '<<fmt::MinWidth(3)<<MSG(MEditStatusLine)<<L' '<<
 		fmt::ExactWidth(SizeLineStr)<<strLineStr<<L' '<<
 		fmt::MinWidth(3)<<MSG(MEditStatusCol)<<L' '<<
-		fmt::LeftAlign()<<fmt::MinWidth(4)<<m_editor->CurLine->GetTabCurPos()+1<<L' '<<
+		fmt::LeftAlign()<<fmt::MinWidth(4)<<m_editor->m_it_CurLine->GetTabCurPos()+1<<L' '<<
 		fmt::MinWidth(2)<<MSG(MEditStatusChar)<<L' '<<
-		fmt::LeftAlign()<<fmt::MinWidth(4)<<m_editor->CurLine->GetCurPos()+1<<L' '<<
+		fmt::LeftAlign()<<fmt::MinWidth(4)<<m_editor->m_it_CurLine->GetCurPos()+1<<L' '<<
 		fmt::MinWidth(3)<<strAttr;
 
 	int StatusWidth=ObjWidth() - ((Global->Opt->ViewerEditorClock && m_Flags.Check(FFILEEDIT_FULLSCREEN))?5:0);
@@ -2417,8 +2417,8 @@ void FileEditor::ShowStatus()
 	{
 		const wchar_t *Str;
 		size_t Length;
-		m_editor->CurLine->GetBinaryString(&Str,nullptr,Length);
-		size_t CurPos = m_editor->CurLine->GetCurPos();
+		m_editor->m_it_CurLine->GetBinaryString(&Str,nullptr,Length);
+		size_t CurPos = m_editor->m_it_CurLine->GetCurPos();
 
 		if (CurPos<Length)
 		{
@@ -2918,7 +2918,7 @@ bool FileEditor::SetCodePage(uintptr_t codepage)
 			if (ret == 1)
 			{
 				m_editor->GoToLine(y);
-				m_editor->CurLine->SetCurPos(x);
+				m_editor->m_it_CurLine->SetCurPos(x);
 				Show();
 			}
 			return false;

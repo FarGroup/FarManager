@@ -121,10 +121,8 @@ public:
 	void SetClearFlag(int Flag);
 	int GetClearFlag() const;
 	int GetCurCol() const;
-	int GetCurRow() const { return NumLine; }
+	int GetCurRow() const { return static_cast<int>(m_it_CurLine.Number()); }
 	void SetCurPos(int NewCol, int NewRow = -1);
-	void SetCursorType(bool Visible, DWORD Size);
-	void GetCursorType(bool& Visible, DWORD& Size);
 	void DrawScrollbar();
 	void SortColorLock();
 	void SortColorUnlock();
@@ -147,7 +145,7 @@ public:
 private:
 	friend class DlgEdit;
 	friend class FileEditor;
-	friend class AutoUndoBlock;
+	friend class undo_block;
 
 	typedef std::list<Edit> editor_container;
 	typedef editor_container::iterator iterator;
@@ -158,9 +156,59 @@ private:
 
 	struct InternalEditorBookmark;
 
+	template<class T>
+	struct numbered_iterator_t: public T
+	{
+	public:
+		numbered_iterator_t(const T& Iterator, size_t Number):
+			T(Iterator),
+			m_Number(Number)
+		{
+		}
+
+		numbered_iterator_t(const numbered_iterator_t& rhs):
+			T(rhs),
+			m_Number(rhs.m_Number)
+		{
+		}
+
+		void swap(numbered_iterator_t& rhs) noexcept
+		{
+			using std::swap;
+			swap(base(), rhs.base());
+			swap(m_Number, rhs.m_Number);
+		}
+
+		// BUGBUG, size_t
+		int Number() const { return static_cast<int>(m_Number); }
+		void IncrementNumber() { ++m_Number; }
+		void DecrementNumber() { --m_Number; }
+
+		numbered_iterator_t& operator++() { ++base(); ++m_Number; return *this; }
+		numbered_iterator_t& operator--() { --base(); --m_Number; return *this; }
+
+		bool operator==(const numbered_iterator_t& rhs) const { return base() == rhs.base(); }
+		bool operator==(const T& rhs) const { return base() == rhs; }
+		template<class Y>
+		bool operator !=(const Y& rhs) const { return !(*this == rhs); }
+
+		T& base() { return static_cast<T&>(*this); }
+		const T& base() const { return static_cast<const T&>(*this); }
+
+	private:
+		// Intentionally not implemented, use prefix forms.
+		DELETED_FUNCTION(numbered_iterator_t operator++(int));
+		DELETED_FUNCTION(numbered_iterator_t operator--(int));
+
+		size_t m_Number;
+	};
+
+	typedef numbered_iterator_t<iterator> numbered_iterator;
+	typedef numbered_iterator_t<const_iterator> numbered_line_iterator;
+
 	virtual void DisplayObject() override;
 	void ShowEditor();
-	void DeleteString(iterator DelPtr, int LineNumber, int DeleteLast, int UndoLine);
+	numbered_iterator DeleteString(numbered_iterator DelPtr, bool DeleteLast);
 	void InsertString();
 	void Up();
 	void Down();
@@ -170,7 +218,7 @@ private:
 	void GoToLine(int Line);
 	void GoToPosition();
 	void TextChanged(bool State);
-	int CalcDistance(iterator From, iterator To, int MaxDist = -1);
+	int CalcDistance(const numbered_iterator& From, const numbered_iterator& To) const;
 	void Paste(const wchar_t *Src=nullptr);
 	void Copy(int Append);
 	void DeleteBlock();
@@ -188,7 +236,7 @@ private:
 	void VCopy(int Append);
 	void VPaste(const wchar_t *ClipText);
 	void VBlockShift(int Left);
-	iterator GetStringByNumber(int DestLine);
+	numbered_iterator GetStringByNumber(int DestLine);
 	// Set the numbered bookmark (CtrlShift-0..9)
 	bool SetBookmark(int Pos);
 	// Restore the numbered bookmark (LeftCtrl-0..9)
@@ -232,7 +280,7 @@ private:
 	void UpdateCurrentSessionBookmark();
 	int BlockStart2NumLine(int *Pos);
 	int BlockEnd2NumLine(int *Pos);
-	bool CheckLine(iterator line);
+	bool CheckLine(const iterator& line);
 	string Block2Text(const wchar_t* InitData, size_t size);
 	string Block2Text(const string& InitData) { return Block2Text(InitData.data(), InitData.size()); }
 	string Block2Text() { return Block2Text(nullptr, 0); }
@@ -240,18 +288,33 @@ private:
 	string VBlock2Text(const string& InitData) { return VBlock2Text(InitData.data(), InitData.size()); }
 	string VBlock2Text() { return VBlock2Text(nullptr, 0); }
 	void Change(EDITOR_CHANGETYPE Type,int StrNum);
-	DWORD EditSetCodePage(iterator edit, uintptr_t codepage, bool check_only);
-	iterator InsertString(const wchar_t *lpwszStr, int nLength, iterator Where, int WhereLineNumber);
-	iterator PushString(const wchar_t* Str, size_t Size) { return InsertString(Str, static_cast<int>(Size), Lines.end(), m_LinesCount); }
+	DWORD EditSetCodePage(const iterator& edit, uintptr_t codepage, bool check_only);
+	numbered_iterator InsertString(const wchar_t *lpwszStr, int nLength, const numbered_iterator& Where);
+	numbered_iterator PushString(const wchar_t* Str, size_t Size) { return InsertString(Str, static_cast<int>(Size), EndIterator()); }
 	void TurnOffMarkingBlock();
 	void SwapState(Editor& swap_state);
 
-	iterator LastLine();
-	const_iterator LastLine() const;
-	bool IsLastLine(iterator Line) const;
+	template<class F>
+	void UpdateIteratorAndKeepPos(numbered_iterator& Iter, const F& Func);
+
+	numbered_iterator EndIterator();
+	numbered_line_iterator EndIterator() const;
+
+	numbered_iterator FirstLine();
+	numbered_line_iterator FirstLine() const;
+
+	numbered_iterator LastLine();
+	numbered_line_iterator LastLine() const;
+
+	bool IsLastLine(const iterator& Line) const;
 
 	static bool InitSessionBookmarksForPlugin(EditorBookmarks *Param, size_t Count, size_t& Size);
 	static void EditorShowMsg(const string& Title, const string& Msg, const string& Name, int Percent);
+
+	bool IsAnySelection() const { return Lines.end() != m_it_AnyBlockStart; }
+	bool IsStreamSelection() const { return IsAnySelection() && m_BlockType == BTYPE_STREAM; }
+	bool IsVerticalSelection() const { return IsAnySelection() && m_BlockType == BTYPE_COLUMN; }
+	bool IsNoSelection() const { return !IsAnySelection(); }
 
 	// ћладший байт (маска 0xFF) юзаетс€ классом ScreenObject!!!
 	enum editor_flags
@@ -272,10 +335,10 @@ private:
 	};
 
 	editor_container Lines;
-	iterator TopScreen;
-	iterator CurLine;
-	iterator LastGetLine;
-	int LastGetLineNumber;
+	numbered_iterator m_it_TopScreen;
+	numbered_iterator m_it_CurLine;
+	numbered_iterator m_it_LastGetLine;
+
 	std::unordered_set<GUID, uuid_hash, uuid_equal> ChangeEventSubscribers;
 	std::list<EditorUndoData> UndoData;
 	std::list<EditorUndoData>::iterator UndoPos;
@@ -283,7 +346,6 @@ private:
 	int UndoSkipLevel;
 	int LastChangeStrPos;
 	int m_LinesCount;
-	int NumLine;
 	/* $ 26.02.2001 IS
 	—юда запомним размер табул€ции и в дальнейшем будем использовать его,
 	а не Global->Opt->TabSize
@@ -292,14 +354,12 @@ private:
 	int Pasting;
 	string GlobalEOL;
 	// работа с блоками из макросов (MCODE_F_EDITOR_SEL)
-	iterator MBlockStart;
+	numbered_iterator m_it_MBlockStart;
+	numbered_iterator m_it_AnyBlockStart;
+	EDITOR_BLOCK_TYPES m_BlockType;
 	int MBlockStartX;
-	iterator BlockStart;
-	int BlockStartLine;
-	iterator VBlockStart;
 	int VBlockX;
 	int VBlockSizeX;
-	int VBlockY;
 	int VBlockSizeY;
 	int MaxRightPos;
 	int XX2; //scrollbar
