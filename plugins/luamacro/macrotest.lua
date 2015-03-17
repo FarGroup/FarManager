@@ -119,19 +119,13 @@ end
 local function test_eval()
   assert(eval==mf.eval)
 
-  temp=3
   assert(eval("temp=5+7")==0)
-  assert(temp==12)
-
-  temp=3
   assert(eval("temp=5+7",0,"moonscript")==0)
   assert(eval("temp=5+7",1,"lua")==0)
   assert(eval("temp=5+7",3,"lua")=="")
   assert(eval("temp=5+7",1,"moonscript")==0)
   assert(eval("temp=5+7",3,"moonscript")=="")
-  assert(temp==3)
   assert(eval("getfenv(1).temp=12",0,"moonscript")==0)
-  assert(temp==12)
 
   assert(eval("5",0,"moonscript")==0)
   assert(eval("5+7",1,"lua")==11)
@@ -1559,10 +1553,16 @@ local function test_FarStandardFunctions()
   assert(far.LStricmp("abc","def") < 0)
   assert(far.LStricmp("def","abc") > 0)
   assert(far.LStricmp("abc","abc") == 0)
+  assert(far.LStricmp("ABC","def") < 0)
+  assert(far.LStricmp("DEF","abc") > 0)
+  assert(far.LStricmp("ABC","abc") == 0)
 
   assert(far.LStrnicmp("abc","def",3) < 0)
   assert(far.LStrnicmp("def","abc",3) > 0)
   assert(far.LStrnicmp("abc","abc",3) == 0)
+  assert(far.LStrnicmp("ABC","def",3) < 0)
+  assert(far.LStrnicmp("DEF","abc",3) > 0)
+  assert(far.LStrnicmp("ABC","abc",3) == 0)
   assert(far.LStrnicmp("111abc","111def",3) == 0)
   assert(far.LStrnicmp("111abc","111def",4) < 0)
 end

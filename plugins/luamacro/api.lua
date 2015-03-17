@@ -415,7 +415,7 @@ function mf.eval (str, mode, lang)
     return Eval_FixReturn(yieldcall("eval", macro, key))
   end
 
-  local chunk, params = Shared.loadmacro(lang, str, getfenv(2))
+  local chunk, params = Shared.loadmacro(lang, str)
   if chunk then
     if mode==1 then return 0 end
     if mode==3 then return "" end
