@@ -1033,7 +1033,7 @@ int InfoList::OpenDizFile(const string& DizFile,int YPos)
 
 	if (!DizView)
 	{
-		DizView.reset(new DizViewer(GetOwner()));
+		DizView = std::make_unique<DizViewer>(GetOwner());
 
 		_tran(SysLog(L"InfoList::OpenDizFile() create new Viewer = %p",DizView));
 		DizView->SetRestoreScreenMode(false);

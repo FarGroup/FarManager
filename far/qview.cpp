@@ -481,7 +481,7 @@ void QuickView::ShowFile(const string& FileName, bool TempFile, PluginHandle* hD
 	{
 		if (!strCurFileName.empty())
 		{
-			QView.reset(new Viewer(GetOwner(), true));
+			QView = std::make_unique<Viewer>(GetOwner(), true);
 			QView->SetRestoreScreenMode(false);
 			QView->SetPosition(m_X1+1,m_Y1+1,m_X2-1,m_Y2-3);
 			QView->SetStatusMode(0);

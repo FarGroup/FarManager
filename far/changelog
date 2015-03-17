@@ -1,4 +1,8 @@
-﻿zg 17.03.2015 00:30:18 +0200 - build 4306
+﻿drkns 17.03.2015 09:46:47 +0200 - build 4307
+
+1. 0002969: В ProcessViewerEventW не приходят сообщения о закрытии QuickView
+
+zg 17.03.2015 00:30:18 +0200 - build 4306
 
 1. с форума: проблемы с EF_OPENMODE_USEEXISTING.
 

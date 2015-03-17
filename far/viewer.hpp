@@ -276,15 +276,3 @@ public:
 	virtual Viewer* GetViewer(void)=0;
 	virtual Viewer* GetById(int ID)=0;
 };
-
-struct viewer_deleter
-{
-	void operator()(Viewer* Object)
-	{
-		if (Object)
-		{
-			Object->OnDestroy();
-		}
-		delete Object;
-	}
-};
