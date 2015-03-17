@@ -1894,9 +1894,8 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 				case XC_OPEN_ERROR:
 					return EEC_OPEN_ERROR;
 				case XC_LOADING_INTERRUPTED:
-					return EEC_LOADING_INTERRUPTED;
 				case XC_EXISTS:
-					return EEC_MODIFIED;
+					return EEC_LOADING_INTERRUPTED;
 				default:
 				{
 					Editor->SetEnableF6((Flags & EF_ENABLE_F6) != 0);
