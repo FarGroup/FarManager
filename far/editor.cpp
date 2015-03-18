@@ -4913,6 +4913,7 @@ void Editor::Undo(int redo)
 void Editor::SelectAll()
 {
 	m_it_AnyBlockStart = FirstLine();
+	m_BlockType = BTYPE_STREAM;
 
 	FOR(auto& i, Lines)
 	{

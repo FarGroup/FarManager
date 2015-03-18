@@ -311,7 +311,7 @@ private:
 	static bool InitSessionBookmarksForPlugin(EditorBookmarks *Param, size_t Count, size_t& Size);
 	static void EditorShowMsg(const string& Title, const string& Msg, const string& Name, int Percent);
 
-	bool IsAnySelection() const { return Lines.end() != m_it_AnyBlockStart; }
+	bool IsAnySelection() const { assert(Lines.end() == m_it_AnyBlockStart || m_BlockType != BTYPE_NONE); return Lines.end() != m_it_AnyBlockStart; }
 	bool IsStreamSelection() const { return IsAnySelection() && m_BlockType == BTYPE_STREAM; }
 	bool IsVerticalSelection() const { return IsAnySelection() && m_BlockType == BTYPE_COLUMN; }
 	bool IsNoSelection() const { return !IsAnySelection(); }
