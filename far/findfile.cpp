@@ -80,8 +80,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filestr.hpp"
 #include "exitcode.hpp"
 
-const int CHAR_TABLE_SIZE=5;
-
 // Список архивов. Если файл найден в архиве, то FindList->ArcIndex указывает сюда.
 struct ArcListItem
 {

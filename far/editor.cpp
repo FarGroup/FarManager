@@ -676,7 +676,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 						{
 							int Ret=0;
 
-							if (CheckLine(m_it_MBlockStart))
+							if (m_it_MBlockStart != Lines.end())
 							{
 								EditorSelect eSel={sizeof(EditorSelect)};
 								eSel.BlockType=(Action == 2)?BTYPE_STREAM:BTYPE_COLUMN;
@@ -1505,7 +1505,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLINS:    case KEY_CTRLNUMPAD0:
 		case KEY_RCTRLINS:   case KEY_RCTRLNUMPAD0:
 		{
-			if (/*!EdOpt.PersistentBlocks && */ IsNoSelection())
+			if (/*!EdOpt.PersistentBlocks && */ !IsAnySelection())
 			{
 				m_it_AnyBlockStart = m_it_CurLine;
 				m_it_CurLine->AddSelect(0,-1);
@@ -3086,7 +3086,7 @@ Editor::numbered_iterator Editor::DeleteString(numbered_iterator DelPtr, bool De
 		}
 		if (!VBlockSizeY)
 		{
-			m_it_AnyBlockStart = EndIterator();
+			Unselect();
 		}
 	}
 
@@ -3106,9 +3106,9 @@ Editor::numbered_iterator Editor::DeleteString(numbered_iterator DelPtr, bool De
 	UpdateIterator(m_it_LastGetLine);
 	UpdateIterator(m_it_MBlockStart);
 
-	if (m_it_MBlockStart != Lines.end() && !m_it_MBlockStart->IsSelection())
+	if (IsAnySelection() && !m_it_AnyBlockStart->IsSelection())
 	{
-		m_it_MBlockStart = EndIterator();
+		Unselect();
 	}
 
 	if (IsLastLine(DelPtr))
@@ -4369,7 +4369,7 @@ void Editor::DeleteBlock()
 	}
 
 	AddUndoData(UNDO_END);
-	m_it_AnyBlockStart = EndIterator();
+	Unselect();
 }
 
 
@@ -4412,7 +4412,7 @@ void Editor::UnmarkBlock()
 		++m_it_AnyBlockStart;
 	}
 
-	m_it_AnyBlockStart = EndIterator();
+	Unselect();
 	Show();
 }
 
@@ -5194,7 +5194,7 @@ void Editor::DeleteVBlock()
 	}
 
 	AddUndoData(UNDO_END);
-	m_it_AnyBlockStart = EndIterator();
+	Unselect();
 }
 
 void Editor::VCopy(int Append)
