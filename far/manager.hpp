@@ -40,14 +40,19 @@ class Viewer;
 class Manager: noncopyable
 {
 public:
-	struct Key
+	class Key
 	{
-		INPUT_RECORD Event;
-		int FarKey;
-		bool EventFilled;
-		Key(): Event(), FarKey(0), EventFilled(false) {}
-		explicit Key(int Key): Event(), FarKey(Key), EventFilled(false) {}
-		//Key(INPUT_RECORD Key): EventFilled(true), Event(Key) {FarKey=0; /*FIXME*/ }
+	private:
+		INPUT_RECORD m_Event;
+		int m_FarKey;
+		bool m_EventFilled;
+	public:
+		Key(): m_Event(), m_FarKey(0), m_EventFilled(false) {}
+		explicit Key(int Key): m_Event(), m_FarKey(Key), m_EventFilled(false) {}
+		Key(int Key, const INPUT_RECORD& Event): m_Event(Event), m_FarKey(Key), m_EventFilled(true) {}
+		const INPUT_RECORD& Event(void)const {return m_Event;}
+		bool IsEvent(void)const {return m_EventFilled;}
+		int FarKey(void)const {return m_FarKey;}
 	};
 
 	class MessageAbstract;

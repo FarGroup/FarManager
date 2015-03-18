@@ -2493,7 +2493,7 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
 */
 int Dialog::ProcessKey(const Manager::Key& Key)
 {
-	int LocalKey=Key.FarKey;
+	int LocalKey=Key.FarKey();
 	// flag to call global ProcessKey out of critical section, Mantis#2511
 	bool doGlobalProcessKey = false;
 

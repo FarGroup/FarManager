@@ -173,7 +173,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 {
 	const wchar_t *PStr;
 	string strStr;
-	int LocalKey=Key.FarKey;
+	int LocalKey=Key.FarKey();
 
 	if ((LocalKey==KEY_CTRLEND || LocalKey==KEY_RCTRLEND || LocalKey==KEY_CTRLNUMPAD1 || LocalKey==KEY_RCTRLNUMPAD1) && (CmdStr.GetCurPos()==CmdStr.GetLength()))
 	{

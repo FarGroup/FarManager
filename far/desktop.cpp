@@ -72,7 +72,7 @@ void desktop::DisplayObject()
 
 int desktop::ProcessKey(const Manager::Key& Key)
 {
-	switch (Key.FarKey)
+	switch (Key.FarKey())
 	{
 	case KEY_F1:
 		{

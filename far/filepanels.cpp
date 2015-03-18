@@ -445,7 +445,7 @@ __int64 FilePanels::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 int FilePanels::ProcessKey(const Manager::Key& Key)
 {
-	int LocalKey=Key.FarKey;
+	int LocalKey=Key.FarKey();
 	if (!LocalKey)
 		return TRUE;
 

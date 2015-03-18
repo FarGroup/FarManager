@@ -122,7 +122,7 @@ private:
 		2 - удалять только файл
 	*/
 	void SetDeleteOnClose(int NewMode);
-	int ReProcessKey(int Key, int CalledFromControl = TRUE);
+	int ReProcessKey(const Manager::Key& Key, int CalledFromControl = TRUE);
 	bool AskOverwrite(const string& FileName);
 	// возвращает признак того, является ли файл временным
 	// используется для принятия решения переходить в каталог по CtrlF10

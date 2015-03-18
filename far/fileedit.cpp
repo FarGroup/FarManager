@@ -838,15 +838,16 @@ __int64 FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 int FileEditor::ProcessKey(const Manager::Key& Key)
 {
-	return ReProcessKey(Key.FarKey,FALSE);
+	return ReProcessKey(Key,FALSE);
 }
 
-int FileEditor::ReProcessKey(int Key,int CalledFromControl)
+int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 {
-	if (Key!=KEY_F4 && Key!=KEY_IDLE)
+	int LocalKey=Key.FarKey();
+	if (LocalKey!=KEY_F4 && LocalKey!=KEY_IDLE)
 		F4KeyOnly=false;
 
-	if (m_Flags.Check(FFILEEDIT_REDRAWTITLE) && (((unsigned int)Key & 0x00ffffff) < KEY_END_FKEY || IsInternalKeyReal((unsigned int)Key & 0x00ffffff)))
+	if (m_Flags.Check(FFILEEDIT_REDRAWTITLE) && (((unsigned int)LocalKey & 0x00ffffff) < KEY_END_FKEY || IsInternalKeyReal((unsigned int)LocalKey & 0x00ffffff)))
 		ShowConsoleTitle();
 
 	// ¬се остальные необработанные клавиши пустим далее
@@ -855,12 +856,12 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 	   никак не соответствует обрабатываемой клавише, возникают разномастные
 	   глюки
 	*/
-	if (((unsigned int)Key >= KEY_MACRO_BASE && (unsigned int)Key <= KEY_MACRO_ENDBASE) || ((unsigned int)Key>=KEY_OP_BASE && (unsigned int)Key <=KEY_OP_ENDBASE)) // исключаем MACRO
+	if (((unsigned int)LocalKey >= KEY_MACRO_BASE && (unsigned int)LocalKey <= KEY_MACRO_ENDBASE) || ((unsigned int)LocalKey>=KEY_OP_BASE && (unsigned int)LocalKey <=KEY_OP_ENDBASE)) // исключаем MACRO
 	{
 		; //
 	}
 
-	switch (Key)
+	switch (LocalKey)
 	{
 		case KEY_F6:
 		{
@@ -945,8 +946,8 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 #if 1
 	BOOL ProcessedNext=TRUE;
 
-	_SVS(if (Key=='n' || Key=='m'))
-		_SVS(SysLog(L"%d Key='%c'",__LINE__,Key));
+	_SVS(if (LocalKey=='n' || LocalKey=='m'))
+		_SVS(SysLog(L"%d Key='%c'",__LINE__,LocalKey));
 
 	if (!CalledFromControl && (Global->CtrlObject->Macro.IsRecording() == MACROSTATE_RECORDING_COMMON || Global->CtrlObject->Macro.IsExecuting() == MACROSTATE_EXECUTING_COMMON || Global->CtrlObject->Macro.GetState() == MACROSTATE_NOMACRO))
 	{
@@ -954,10 +955,9 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 		_SVS(if (Global->CtrlObject->Macro.IsRecording() == MACROSTATE_RECORDING_COMMON || Global->CtrlObject->Macro.IsExecuting() == MACROSTATE_EXECUTING_COMMON))
 			_SVS(SysLog(L"%d !!!! Global->CtrlObject->Macro.GetState() != MACROSTATE_NOMACRO !!!!",__LINE__));
 
-		auto InputRecord=Global->WindowManager->GetLastInputRecord();
-		if (Key!=KEY_IDLE&&InputRecord.EventType!=0)
+		if (Key.IsEvent()&&LocalKey!=KEY_IDLE&&Key.Event().EventType!=0)
 		{
-			ProcessedNext=!ProcessEditorInput(InputRecord);
+			ProcessedNext=!ProcessEditorInput(Key.Event());
 		}
 	}
 
@@ -968,7 +968,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 #endif
 	{
 
-		switch (Key)
+		switch (LocalKey)
 		{
 			case KEY_F1:
 			{
@@ -1049,14 +1049,14 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 						}
 					}
 
-					if (Key == KEY_F2 && api::fs::is_file(strFullFileName))
+					if (LocalKey == KEY_F2 && api::fs::is_file(strFullFileName))
 					{
 						m_Flags.Clear(FFILEEDIT_SAVETOSAVEAS);
 					}
 
 					static int TextFormat=0;
 					uintptr_t codepage = m_codepage;
-					bool SaveAs = Key==KEY_SHIFTF2 || m_Flags.Check(FFILEEDIT_SAVETOSAVEAS);
+					bool SaveAs = LocalKey==KEY_SHIFTF2 || m_Flags.Check(FFILEEDIT_SAVETOSAVEAS);
 					int NameChanged=FALSE;
 					string strFullSaveAsName = strFullFileName;
 
@@ -1160,7 +1160,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 				{
 					if (!m_Flags.Check(FFILEEDIT_DISABLESAVEPOS) && (m_editor->EdOpt.SavePos || m_editor->EdOpt.SaveShortPos)) // save position/codepage before reload
 						SaveToCache();
-					Global->CtrlObject->Cp()->ActivePanel()->ProcessKey(Manager::Key(Key));
+					Global->CtrlObject->Cp()->ActivePanel()->ProcessKey(Manager::Key(LocalKey));
 				}
 				return TRUE;
 			}
@@ -1234,7 +1234,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			{
 				int FirstSave=1, NeedQuestion=1;
 
-				if (Key != KEY_SHIFTF10)   // KEY_SHIFTF10 не учитываем!
+				if (LocalKey != KEY_SHIFTF10)   // KEY_SHIFTF10 не учитываем!
 				{
 					bool FilePlaced = !api::fs::exists(strFullFileName) && !m_Flags.Check(FFILEEDIT_NEW);
 
@@ -1325,8 +1325,8 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					if (Global->Opt->EdOpt.ShowKeyBar)
 						m_windowKeyBar->Show();
 
-				if (!m_windowKeyBar->ProcessKey(Manager::Key(Key)))
-					return m_editor->ProcessKey(Manager::Key(Key));
+				if (!m_windowKeyBar->ProcessKey(Manager::Key(LocalKey)))
+					return m_editor->ProcessKey(Manager::Key(LocalKey));
 			}
 		}
 	}
@@ -2770,7 +2770,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 					if ((!rec->EventType || rec->EventType == KEY_EVENT || rec->EventType == FARMACRO_KEY_EVENT) &&
 					        ((Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE) || (Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE))) // исключаем MACRO
-						ReProcessKey(Key);
+						ReProcessKey(Manager::Key(Key, *rec));
 					else
 						break;
 				}
@@ -2822,7 +2822,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 #endif
 					int Key=ShieldCalcKeyCode(&rec,FALSE);
-					ReProcessKey(Key);
+					ReProcessKey(Manager::Key(Key, rec));
 				}
 
 				return TRUE;

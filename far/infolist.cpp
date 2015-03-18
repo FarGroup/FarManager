@@ -683,7 +683,7 @@ void InfoList::SelectShowMode()
 
 int InfoList::ProcessKey(const Manager::Key& Key)
 {
-	int LocalKey=Key.FarKey;
+	int LocalKey=Key.FarKey();
 	if (!IsVisible())
 		return FALSE;
 

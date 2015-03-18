@@ -1208,7 +1208,7 @@ __int64 Help::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 int Help::ProcessKey(const Manager::Key& Key)
 {
-	int LocalKey=Key.FarKey;
+	int LocalKey=Key.FarKey();
 	if (StackData->strSelTopic.empty())
 		StackData->CurX=StackData->CurY=0;
 

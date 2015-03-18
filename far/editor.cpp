@@ -802,7 +802,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 int Editor::ProcessKey(const Manager::Key& Key)
 {
-	int LocalKey=Key.FarKey;
+	int LocalKey=Key.FarKey();
 	if (LocalKey==KEY_IDLE)
 	{
 		if (Global->Opt->ViewerEditorClock && HostFileEditor && HostFileEditor->IsFullScreen() && Global->Opt->EdOpt.ShowTitleBar)

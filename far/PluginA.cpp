@@ -5066,7 +5066,7 @@ private:
 
 static int SendKeyToPluginHook(const Manager::Key& key)
 {
-	DWORD KeyM = (key.FarKey&(~KEY_CTRLMASK));
+	DWORD KeyM = (key.FarKey()&(~KEY_CTRLMASK));
 
 	if (!((KeyM >= KEY_MACRO_BASE && KeyM <= KEY_MACRO_ENDBASE) || (KeyM >= KEY_OP_BASE && KeyM <= KEY_OP_ENDBASE))) // пропустим макро-коды
 	{
@@ -5075,7 +5075,7 @@ static int SendKeyToPluginHook(const Manager::Key& key)
 			if (Global->CtrlObject->Cp()->ActivePanel()->GetMode() == PLUGIN_PANEL)
 			{
 				const auto ph = Global->CtrlObject->Cp()->ActivePanel()->GetPluginHandle();
-				if (ph && ph->pPlugin->IsOemPlugin() && Global->CtrlObject->Cp()->ActivePanel()->SendKeyToPlugin(key.FarKey, true))
+				if (ph && ph->pPlugin->IsOemPlugin() && Global->CtrlObject->Cp()->ActivePanel()->SendKeyToPlugin(key.FarKey(), true))
 					return TRUE;
 			}
 		}

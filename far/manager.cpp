@@ -560,7 +560,7 @@ void Manager::ProcessMainLoop()
 				ProcessMouse(&mer);
 		}
 		else
-			ProcessKey(Manager::Key(Key));
+			ProcessKey(Manager::Key(Key, LastInputRecord));
 	}
 
 	if(IsPanelsActive())
@@ -615,7 +615,7 @@ int Manager::ProcessKey(Key key)
 		/*** ÁËÎÊ ÏÐÈÂÈËÅÃÈÐÎÂÀÍÍÛÕ ÊËÀÂÈØ ! ***/
 		/***   ÊÎÒÎÐÛÅ ÍÅËÜÇß ÍÀÌÀÊÐÎÑÈÒÜ    ***/
 
-		switch (key.FarKey)
+		switch (key.FarKey())
 		{
 			case KEY_ALT|KEY_NUMPAD0:
 			case KEY_RALT|KEY_NUMPAD0:
@@ -639,7 +639,7 @@ int Manager::ProcessKey(Key key)
 				return TRUE;
 			}
 
-			switch (key.FarKey)
+			switch (key.FarKey())
 			{
 				case KEY_CTRLW:
 				case KEY_RCTRLW:
@@ -717,10 +717,10 @@ int Manager::ProcessKey(Key key)
 				case KEY_CTRLALTSHIFTPRESS:
 				case KEY_RCTRLALTSHIFTPRESS:
 				{
-					if (!(Global->Opt->CASRule&1) && key.FarKey == KEY_CTRLALTSHIFTPRESS)
+					if (!(Global->Opt->CASRule&1) && key.FarKey() == KEY_CTRLALTSHIFTPRESS)
 						break;
 
-					if (!(Global->Opt->CASRule&2) && key.FarKey == KEY_RCTRLALTSHIFTPRESS)
+					if (!(Global->Opt->CASRule&2) && key.FarKey() == KEY_RCTRLALTSHIFTPRESS)
 						break;
 
 						if (m_currentWindow->CanFastHide())
@@ -751,7 +751,7 @@ int Manager::ProcessKey(Key key)
 										break;
 								}
 
-								WaitKey(key.FarKey==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:KEY_RCTRLALTSHIFTRELEASE);
+								WaitKey(key.FarKey()==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:KEY_RCTRLALTSHIFTRELEASE);
 
 								if (LeftVisible)      Global->CtrlObject->Cp()->LeftPanel->Show();
 
@@ -764,7 +764,7 @@ int Manager::ProcessKey(Key key)
 							else
 							{
 								ImmediateHide();
-								WaitKey(key.FarKey==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:KEY_RCTRLALTSHIFTRELEASE);
+								WaitKey(key.FarKey()==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:KEY_RCTRLALTSHIFTRELEASE);
 							}
 
 							Global->WindowManager->RefreshWindow();
@@ -779,7 +779,7 @@ int Manager::ProcessKey(Key key)
 
 					if (m_currentWindow->GetCanLoseFocus())
 					{
-						SwitchWindow((key.FarKey==KEY_CTRLTAB||key.FarKey==KEY_RCTRLTAB)?NextWindow:PreviousWindow);
+						SwitchWindow((key.FarKey()==KEY_CTRLTAB||key.FarKey()==KEY_RCTRLTAB)?NextWindow:PreviousWindow);
 					}
 					else
 						break;

@@ -1370,7 +1370,7 @@ void Search::Process(void)
 
 int Search::ProcessKey(const Manager::Key& Key)
 {
-	int LocalKey=Key.FarKey;
+	int LocalKey=Key.FarKey();
 	INPUT_RECORD rec=Global->WindowManager->GetLastInputRecord(); //BUGBUG: в будущем использовать Key.Event
 	string strName;
 

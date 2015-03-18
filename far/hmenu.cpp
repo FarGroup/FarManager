@@ -189,7 +189,7 @@ __int64 HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 int HMenu::ProcessKey(const Manager::Key& Key)
 {
-	int LocalKey=Key.FarKey;
+	int LocalKey=Key.FarKey();
 	SelectPos=0;
 	for (size_t i = 0; i<ItemCount; i++)
 	{
