@@ -1,4 +1,9 @@
-﻿shmuel 17.03.2015 17:57:24 +0200 - build 493
+﻿shmuel 18.03.2015 20:34:15 +0200 - build 494
+
+1. LuaFAR (библиотека regex): падение при большом количестве captures (несколько десятков) из-за
+   отсутствовавшего вызова lua_checkstack.
+
+shmuel 17.03.2015 17:57:24 +0200 - build 493
 
 1. С форума: Запуск lua: mf.postmacro(eval,"F1") приводит к ошибке "bad argument #1 to 'getfenv'
              (invalid level)".

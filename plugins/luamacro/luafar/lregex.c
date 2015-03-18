@@ -194,6 +194,9 @@ int rx_find_match(lua_State *L, int op_find, int is_function, int is_wide)
 
 		skip = (op_find || data.Count>1) ? 1 : 0;
 
+		if (!lua_checkstack(L, (int)data.Count - skip))
+			luaL_error(L, "cannot add %d stack slots", (int)data.Count - skip);
+
 		for(i=skip; i<data.Count; i++)
 		{
 			if(data.Match[i].start >= 0 && data.Match[i].end >= data.Match[i].start)
