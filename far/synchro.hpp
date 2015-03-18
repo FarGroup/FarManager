@@ -64,7 +64,9 @@ typedef lock_guard<CriticalSection> CriticalSectionLock;
 template<class T, class S>
 inline string make_name(const S& HashPart, const S& TextPart)
 {
-	return T::GetNamespace() + std::to_wstring(make_hash(HashPart)) + L"_" + TextPart;
+	auto Str = T::GetNamespace() + std::to_wstring(make_hash(HashPart)) + L"_" + TextPart;
+	std::replace(ALL_RANGE(Str), L'\\', L'/');
+	return Str;
 }
 
 class HandleWrapper: noncopyable
@@ -87,7 +89,7 @@ public:
 
 protected:
 	HandleWrapper(): m_Handle() {}
-	HandleWrapper(HANDLE Handle): m_Handle(Handle) {}
+	HandleWrapper(HANDLE Handle): m_Handle(Handle) { assert(Opened()); }
 	virtual ~HandleWrapper() { Close(); }
 
 	void swap(HandleWrapper& rhs) noexcept
