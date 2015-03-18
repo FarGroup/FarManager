@@ -3106,6 +3106,11 @@ Editor::numbered_iterator Editor::DeleteString(numbered_iterator DelPtr, bool De
 	UpdateIterator(m_it_LastGetLine);
 	UpdateIterator(m_it_MBlockStart);
 
+	if (m_it_MBlockStart != Lines.end() && !m_it_MBlockStart->IsSelection())
+	{
+		m_it_MBlockStart = EndIterator();
+	}
+
 	if (IsLastLine(DelPtr))
 	{
 		std::prev(DelPtr)->SetEOL(L"");
