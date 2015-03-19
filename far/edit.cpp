@@ -206,7 +206,7 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 {
 	const size_t EditLength=ObjWidth();
 
-	if (!m_Flags.Check(FEDITLINE_EDITBEYONDEND) && !m_Str.empty() && m_CurPos > m_Str.size())
+	if (!m_Flags.Check(FEDITLINE_EDITBEYONDEND) && m_CurPos > m_Str.size())
 		m_CurPos = m_Str.size();
 
 	if (GetMaxLength()!=-1)
