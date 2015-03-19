@@ -559,10 +559,9 @@ int RegExp::CalcLength(const wchar_t* src,int srclength)
 		{
 			case L'(':
 			{
-				brackets[count]=i;
-				count++;
-
-				if (count==MAXDEPTH)return SetError(errMaxDepth,i);
+				brackets[count++]=i;
+				if (count >= MAXDEPTH)
+					return SetError(errMaxDepth, i);
 
 				if (src[i+1]==L'?')
 				{
@@ -876,8 +875,8 @@ int RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int src
 	// counter of normal brackets
 	int brcount=0;
 	// counter of closed brackets
-	// used to check correctness of backreferences
-	bool closedbrackets[MAXDEPTH];
+	// used to check correctness of back-references
+	std::vector<bool> closedbrackets(1);
 	// quoting is active
 	int inquote=0;
 	maxbackref=0;
@@ -1127,7 +1126,8 @@ int RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int src
 					}
 				}
 
-				if (brdepth == MAXDEPTH)return SetError(errMaxDepth, i + (src - start));
+				if (brdepth >= MAXDEPTH)
+					return SetError(errMaxDepth, i + (src - start));
 
 				brackets[brdepth++]=op;
 				op->op=opAlternative;
@@ -1158,7 +1158,8 @@ int RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int src
 							{
 								op->op=opNotLookBehind;
 							}
-							else return SetError(errSyntax, i + (src - start));
+							else
+								return SetError(errSyntax, i + (src - start));
 
 							lookbehind++;
 						} break;
@@ -1194,8 +1195,8 @@ int RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int src
 				}
 				else
 				{
-					brcount++;
-					closedbrackets[brcount]=false;
+					++brcount;
+					closedbrackets.push_back(false);
 					op->bracket.index=brcount;
 				}
 
