@@ -3060,7 +3060,7 @@ BOOL WINAPI apiKeyNameToInputRecord(const wchar_t *Name, INPUT_RECORD* RecKey) n
 	try
 	{
 		int Key = KeyNameToKey(Name);
-		return Key > 0 ? KeyToInputRecord(Key, RecKey) != 0 : FALSE;
+		return Key > 0 ? KeyToInputRecord(Key, RecKey) : FALSE;
 	}
 	catch (...)
 	{

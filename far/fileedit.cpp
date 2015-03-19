@@ -955,7 +955,8 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 		_SVS(if (Global->CtrlObject->Macro.IsRecording() == MACROSTATE_RECORDING_COMMON || Global->CtrlObject->Macro.IsExecuting() == MACROSTATE_EXECUTING_COMMON))
 			_SVS(SysLog(L"%d !!!! Global->CtrlObject->Macro.GetState() != MACROSTATE_NOMACRO !!!!",__LINE__));
 
-		if (Key.IsEvent()&&LocalKey!=KEY_IDLE&&Key.Event().EventType!=0)
+		assert(Key.IsEvent());
+		if (LocalKey!=KEY_IDLE&&Key.Event().EventType!=0)
 		{
 			ProcessedNext=!ProcessEditorInput(Key.Event());
 		}

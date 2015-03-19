@@ -48,7 +48,7 @@ public:
 		bool m_EventFilled;
 	public:
 		Key(): m_Event(), m_FarKey(0), m_EventFilled(false) {}
-		explicit Key(int Key): m_Event(), m_FarKey(Key), m_EventFilled(false) {}
+		explicit Key(int Key);
 		Key(int Key, const INPUT_RECORD& Event): m_Event(Event), m_FarKey(Key), m_EventFilled(true) {}
 		const INPUT_RECORD& Event(void)const {return m_Event;}
 		bool IsEvent(void)const {return m_EventFilled;}

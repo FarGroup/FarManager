@@ -112,6 +112,12 @@ public:
 	virtual bool Process(void) override { return false; }
 };
 
+Manager::Key::Key(int Key): m_Event(), m_FarKey(Key), m_EventFilled(false)
+{
+	m_EventFilled = KeyToInputRecord(m_FarKey, &m_Event);
+	assert(m_EventFilled);
+}
+
 Manager::Manager():
 	m_currentWindow(nullptr),
 	EndLoop(false),

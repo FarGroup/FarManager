@@ -490,10 +490,10 @@ int InputRecordToKey(const INPUT_RECORD *r)
 }
 
 
-int KeyToInputRecord(int Key, INPUT_RECORD *Rec)
+bool KeyToInputRecord(int Key, INPUT_RECORD *Rec)
 {
   int VirtKey, ControlState;
-  return TranslateKeyToVK(Key, VirtKey, ControlState, Rec);
+  return TranslateKeyToVK(Key, VirtKey, ControlState, Rec) != 0;
 }
 
 //BUGBUG - временная затычка

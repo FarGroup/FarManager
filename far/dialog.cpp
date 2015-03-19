@@ -2513,11 +2513,10 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 
 	if (LocalKey == KEY_KILLFOCUS || LocalKey == KEY_GOTFOCUS)
 	{
-		INPUT_RECORD rec;
-		if (KeyToInputRecord(LocalKey,&rec))
-		{
-			DlgProc(DN_INPUT,0,&rec);
-		}
+		assert(Key.IsEvent());
+		INPUT_RECORD rec=Key.Event();
+		assert(rec.EventType == FOCUS_EVENT);
+		DlgProc(DN_INPUT,0,&rec);
 
 		return FALSE;
 	}
@@ -2554,8 +2553,9 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 					LocalKey = KEY_END;
 			}
 		}
-		INPUT_RECORD rec;
-		if (KeyToInputRecord(LocalKey,&rec) && DlgProc(DN_CONTROLINPUT,m_FocusPos,&rec))
+		assert(Key.IsEvent());
+		INPUT_RECORD rec=Key.Event();
+		if (DlgProc(DN_CONTROLINPUT,m_FocusPos,&rec))
 			return TRUE;
 	}
 

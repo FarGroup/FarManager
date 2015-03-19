@@ -87,7 +87,7 @@ bool InputRecordToText(const INPUT_RECORD *Rec, string &strKeyText);
 bool KeyToText(int Key, string &strKeyText);
 bool KeyToLocalizedText(int Key, string &strKeyText);
 int InputRecordToKey(const INPUT_RECORD *Rec);
-int KeyToInputRecord(int Key, INPUT_RECORD *Rec);
+bool KeyToInputRecord(int Key, INPUT_RECORD *Rec);
 void ProcessKeyToInputRecord(int Key, unsigned int dwControlState, INPUT_RECORD *Rec);
 void FarKeyToInputRecord(const FarKey& Key,INPUT_RECORD* Rec);
 DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro=false,bool ProcessMouse=false,bool AllowSynchro=true);
