@@ -193,9 +193,9 @@ int rx_find_match(lua_State *L, int op_find, int is_function, int is_wide)
 		}
 
 		skip = (op_find || data.Count>1) ? 1 : 0;
-
-		if (!lua_checkstack(L, (int)data.Count - skip))
-			luaL_error(L, "cannot add %d stack slots", (int)data.Count - skip);
+		i = (int)data.Count - skip + 1;
+		if (!lua_checkstack(L, i))
+			luaL_error(L, "cannot add %d stack slots", i);
 
 		for(i=skip; i<data.Count; i++)
 		{
