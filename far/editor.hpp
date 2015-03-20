@@ -315,7 +315,10 @@ private:
 	bool IsStreamSelection() const { return IsAnySelection() && m_BlockType == BTYPE_STREAM; }
 	bool IsVerticalSelection() const { return IsAnySelection() && m_BlockType == BTYPE_COLUMN; }
 
-	void Unselect() { m_it_AnyBlockStart = EndIterator(); m_BlockType = BTYPE_NONE; }
+	void Unselect() { m_it_AnyBlockStart = EndIterator(); m_BlockType = BTYPE_NONE; TurnOffMarkingBlock(); }
+
+	void BeginStreamMarking(const numbered_iterator& Where);
+	void BeginVBlockMarking(const numbered_iterator& Where);
 
 	// ћладший байт (маска 0xFF) юзаетс€ классом ScreenObject!!!
 	enum editor_flags

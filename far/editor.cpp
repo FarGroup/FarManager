@@ -966,9 +966,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 			if (!m_Flags.Check(FEDITOR_MARKINGBLOCK))
 			{
 				UnmarkBlock();
-				m_Flags.Set(FEDITOR_MARKINGBLOCK);
-				m_BlockType = BTYPE_STREAM;
-				m_it_AnyBlockStart=m_it_CurLine;
+				BeginStreamMarking(m_it_CurLine);
 				SelFirst=TRUE;
 				SelStart=SelEnd=CurPos;
 			}
@@ -1507,7 +1505,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 		{
 			if (/*!EdOpt.PersistentBlocks && */ !IsAnySelection())
 			{
-				m_it_AnyBlockStart = m_it_CurLine;
+				BeginStreamMarking(m_it_CurLine);
 				m_it_CurLine->AddSelect(0,-1);
 				Show();
 			}
@@ -2572,9 +2570,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 
 				if (m_it_CurLine->IsSelection())
 				{
-					m_Flags.Set(FEDITOR_MARKINGBLOCK);
-					m_BlockType = BTYPE_STREAM;
-					m_it_AnyBlockStart=m_it_CurLine;
+					BeginStreamMarking(m_it_CurLine);
 					//SelFirst=TRUE;
 					//BUGBUG, never used
 					SelStart=SStart;
@@ -2942,9 +2938,7 @@ int Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 			if (m_it_CurLine->IsSelection())
 			{
-				m_Flags.Set(FEDITOR_MARKINGBLOCK);
-				m_BlockType = BTYPE_STREAM;
-				m_it_AnyBlockStart = m_it_CurLine;
+				BeginStreamMarking(m_it_CurLine);
 			}
 
 			EditorPrevDoubleClick=0;
@@ -3671,10 +3665,8 @@ BOOL Editor::Search(int Next)
 						Pasting++;
 						Lock();
 						UnmarkBlock();
-						m_Flags.Set(FEDITOR_MARKINGBLOCK);
-						m_BlockType = BTYPE_STREAM;
+						BeginStreamMarking(CurPtr);
 						CurPtr->Select(iFoundPos, iFoundPos+SearchLength);
-						m_it_AnyBlockStart = CurPtr;
 						Unlock();
 						Pasting--;
 					}
@@ -3834,10 +3826,8 @@ BOOL Editor::Search(int Next)
 								if (EdOpt.SearchSelFound && !ReplaceMode)
 								{
 									UnmarkBlock();
-									m_Flags.Set(FEDITOR_MARKINGBLOCK);
-									m_BlockType = BTYPE_STREAM;
+									BeginStreamMarking(CurPtr);
 									CurPtr->Select(LocalCurPos, LocalCurPos + static_cast<int>(strReplaceStrCurrent.size()));
-									m_it_AnyBlockStart = CurPtr;
 								}
 
 								if (at_end)
@@ -3927,10 +3917,8 @@ BOOL Editor::Search(int Next)
 							Lock();
 							// if (!EdOpt.PersistentBlocks)
 							UnmarkBlock();
-							m_Flags.Set(FEDITOR_MARKINGBLOCK);
-							m_BlockType = BTYPE_STREAM;
+							BeginStreamMarking(m_it_CurLine);
 							m_it_CurLine->Select(coord->Pos, coord->Pos+coord->SearchLen);
-							m_it_AnyBlockStart = m_it_CurLine;
 							Unlock();
 							Pasting--;
 						}
@@ -3983,10 +3971,8 @@ BOOL Editor::Search(int Next)
 				Lock();
 				// if (!EdOpt.PersistentBlocks)
 				UnmarkBlock();
-				m_Flags.Set(FEDITOR_MARKINGBLOCK);
-				m_BlockType = BTYPE_STREAM;
+				BeginStreamMarking(m_it_CurLine);
 				m_it_CurLine->Select(coord->Pos, coord->Pos+coord->SearchLen);
-				m_it_AnyBlockStart = m_it_CurLine;
 				Unlock();
 				Pasting--;
 			}
@@ -4051,7 +4037,8 @@ void Editor::Paste(const wchar_t *Src)
 			m_it_CurLine->SetOvertypeMode(false);
 		}
 
-		m_it_AnyBlockStart=m_it_CurLine;
+		BeginStreamMarking(m_it_CurLine);
+
 		/* $ 19.05.2001 IS
 		   Решение проблемы непрошеной конвертации табуляции (которая должна быть
 		   добавлена в начало строки при автоотступе) в пробелы.
@@ -4912,8 +4899,7 @@ void Editor::Undo(int redo)
 
 void Editor::SelectAll()
 {
-	m_it_AnyBlockStart = FirstLine();
-	m_BlockType = BTYPE_STREAM;
+	BeginStreamMarking(FirstLine());
 
 	FOR(auto& i, Lines)
 	{
@@ -5284,10 +5270,8 @@ void Editor::VPaste(const wchar_t *ClipText)
 			m_it_CurLine->SetOvertypeMode(false);
 		}
 
-		m_it_AnyBlockStart = m_it_CurLine;
+		BeginVBlockMarking();
 		int StartPos=m_it_CurLine->GetTabCurPos();
-		VBlockX=StartPos;
-		VBlockSizeX=0;
 		VBlockSizeY=0;
 		auto SavedTopScreen = m_it_TopScreen;
 
@@ -5793,9 +5777,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 				if (Sel->BlockType==BTYPE_STREAM)
 				{
-					m_Flags.Set(FEDITOR_MARKINGBLOCK);
-					m_BlockType = BTYPE_STREAM;
-					m_it_AnyBlockStart = CurPtr;
+					BeginStreamMarking(CurPtr);
 
 					for (int i=0; i < Sel->BlockHeight; i++)
 					{
@@ -5810,9 +5792,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				}
 				else if (Sel->BlockType==BTYPE_COLUMN)
 				{
-					m_Flags.Set(FEDITOR_MARKINGVBLOCK);
-					m_BlockType = BTYPE_COLUMN;
-					m_it_AnyBlockStart = CurPtr;
+					BeginVBlockMarking(CurPtr);
 
 					VBlockX=Sel->BlockStartPos;
 
@@ -6613,15 +6593,27 @@ void Editor::ProcessVBlockMarking()
 		BeginVBlockMarking();
 }
 
-void Editor::BeginVBlockMarking()
+void Editor::BeginVBlockMarking(const numbered_iterator& Where)
 {
 	UnmarkBlock();
-	m_it_AnyBlockStart = m_it_CurLine;
-	VBlockX=m_it_CurLine->GetTabCurPos();
+	m_it_AnyBlockStart = Where;
+	VBlockX = Where->GetTabCurPos();
 	VBlockSizeX=0;
 	VBlockSizeY=1;
 	m_Flags.Set(FEDITOR_MARKINGVBLOCK);
 	m_BlockType = BTYPE_COLUMN;
+}
+
+void Editor::BeginVBlockMarking()
+{
+	return BeginVBlockMarking(m_it_CurLine);
+}
+
+void Editor::BeginStreamMarking(const numbered_iterator& Where)
+{
+	m_it_AnyBlockStart = Where;
+	m_BlockType = BTYPE_STREAM;
+	m_Flags.Set(FEDITOR_MARKINGBLOCK);
 }
 
 void Editor::AdjustVBlock(int PrevX)
