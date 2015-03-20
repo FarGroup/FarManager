@@ -13,8 +13,6 @@ enum {
   FARMANAGERVERSION_BUILD = 3674,
 };
 
-static const uint32_t FARMACRO_KEY_EVENT = (KEY_EVENT|0x8000);
-
 enum {
   CP_UNICODE    = 1200,
   CP_REVERSEBOM = 1201,

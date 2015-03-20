@@ -70,17 +70,12 @@ typedef struct _INPUT_RECORD {
 <td class="cont" width="60%">Элемент Event содержит структуру <a href="focus_event_record.html">FOCUS_EVENT_RECORD</a>.
         Эти сообщения используются системой и должны игнорироваться.</td>
 </tr>
-<tr class="cont"><td class="cont" width="40%">FARMACRO_KEY_EVENT</td>
-<td class="cont" width="60%">Элемент Event содержит структуру <a href="key_event_record.html">KEY_EVENT_RECORD</a>
-        с информацией о сообщении с клавиатуры. <font color="red">Это сообщение, специфичное для Far Manager, приходит плагину во время "проигрывания" макрокоманды.</font>
-        </td>
-</tr>
 </table>
     </div>
 
     <div class=dfn>Event</div>
     <div class=dfndescr>Содержит структуры <code>KEY_EVENT_RECORD</code>, <code>MOUSE_EVENT_RECORD</code>, <code>WINDOW_BUFFER_SIZE_RECORD</code>,
-      <code>MENU_EVENT_RECORD</code>, <code>FOCUS_EVENT_RECORD</code> или <code>FARMACRO_KEY_EVENT</code>, в зависимости от значения,
+      <code>MENU_EVENT_RECORD</code> или <code>FOCUS_EVENT_RECORD</code>, в зависимости от значения,
       указанного в <code>EventType</code>.
     </div>
 </div>

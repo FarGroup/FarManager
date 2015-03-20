@@ -4432,7 +4432,6 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 					switch (pIR->EventType)
 					{
 						case KEY_EVENT:
-						case FARMACRO_KEY_EVENT:
 						{
 							wchar_t res;
 							if (MultiByteToWideChar(
@@ -4469,7 +4468,6 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 					switch (pIR->EventType)
 					{
 						case KEY_EVENT:
-						case FARMACRO_KEY_EVENT:
 						{
 							char res;
 							if (WideCharToMultiByte(

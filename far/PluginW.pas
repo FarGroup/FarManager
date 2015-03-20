@@ -104,8 +104,6 @@ type
   TGuidsArray = packed array[0..Pred(MaxLongint div SizeOf(TGUID))] of TGUID;
 
 const
-  FARMACRO_KEY_EVENT = KEY_EVENT or $8000;
-
   CP_UNICODE    = 1200;
   CP_REVERSEBOM = 1201;
   CP_DEFAULT    = TUIntPtr(-1);

@@ -635,7 +635,7 @@ bool TmpPanel::IsCurrentFileCorrect(wchar_t **pCurFileName)
 
 int TmpPanel::ProcessKey(const INPUT_RECORD *Rec)
 {
-	if (!(Rec->EventType == KEY_EVENT || Rec->EventType == FARMACRO_KEY_EVENT))
+	if (Rec->EventType != KEY_EVENT)
 		return FALSE;
 
 	int Key=Rec->Event.KeyEvent.wVirtualKeyCode;

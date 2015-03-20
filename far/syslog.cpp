@@ -1698,14 +1698,13 @@ string __INPUT_RECORD_Dump(const INPUT_RECORD *rec)
 			    rec->Event.MenuEvent.dwCommandId
 			);
 			break;
-		case FARMACRO_KEY_EVENT:
 		case KEY_EVENT:
 		case 0:
 		{
 			WORD AsciiChar = (WORD)(BYTE)rec->Event.KeyEvent.uChar.AsciiChar;
 			Records = str_printf(
 			    L"%s: %s, %d, Vk=%s, Scan=0x%04X uChar=[U='%c' (0x%04X): A='%C' (0x%02X)] Ctrl=0x%08X (%c%c%c%c%c - %c%c%c%c)",
-			    (rec->EventType==KEY_EVENT?L"KEY_EVENT_RECORD":(rec->EventType==FARMACRO_KEY_EVENT?L"FARMACRO_KEY_EVENT":L"(internal, macro)_KEY_EVENT")),
+			    (rec->EventType==KEY_EVENT?L"KEY_EVENT_RECORD":L"(internal, macro)_KEY_EVENT"),
 			    (rec->Event.KeyEvent.bKeyDown?L"Dn":L"Up"),
 			    rec->Event.KeyEvent.wRepeatCount,
 			    _VK_KEY_ToName(rec->Event.KeyEvent.wVirtualKeyCode),

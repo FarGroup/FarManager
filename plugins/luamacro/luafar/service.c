@@ -1419,7 +1419,6 @@ void PushInputRecord(lua_State *L, const INPUT_RECORD* ir)
 	switch(ir->EventType)
 	{
 		case KEY_EVENT:
-		case FARMACRO_KEY_EVENT:
 			PutBoolToTable(L,"KeyDown", ir->Event.KeyEvent.bKeyDown);
 			PutNumToTable(L, "RepeatCount", ir->Event.KeyEvent.wRepeatCount);
 			PutNumToTable(L, "VirtualKeyCode", ir->Event.KeyEvent.wVirtualKeyCode);

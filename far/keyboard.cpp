@@ -679,7 +679,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 				Global->ScrBuf->Flush();
 				int VirtKey,ControlState;
 				TranslateKeyToVK(MacroKey,VirtKey,ControlState,rec);
-				rec->EventType=((((unsigned int)MacroKey >= KEY_MACRO_BASE && (unsigned int)MacroKey <= KEY_MACRO_ENDBASE) || ((unsigned int)MacroKey>=KEY_OP_BASE && (unsigned int)MacroKey <=KEY_OP_ENDBASE)) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:FARMACRO_KEY_EVENT;
+				rec->EventType=((((unsigned int)MacroKey >= KEY_MACRO_BASE && (unsigned int)MacroKey <= KEY_MACRO_ENDBASE) || ((unsigned int)MacroKey>=KEY_OP_BASE && (unsigned int)MacroKey <=KEY_OP_ENDBASE)) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:KEY_EVENT;
 
 				if (!(MacroKey&KEY_SHIFT))
 					IntKeyState.ShiftPressed=0;
@@ -1111,6 +1111,34 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 				{
 					Key=KEY_RALT;
 					// _SVS(SysLog(L"RightAltPressedLast, Key=KEY_RALT"));
+				}
+			}
+
+			//BUGBUG: грязный хак. всё связанное с CAS надо выносить отсюда.
+			if (Key!=-1)
+			{
+				rec->Event.KeyEvent.bKeyDown=1;
+				switch (Key)
+				{
+					case KEY_SHIFT:
+					case KEY_RSHIFT:
+					    rec->Event.KeyEvent.dwControlKeyState|=SHIFT_PRESSED;
+						break;
+					case KEY_CTRL:
+					    rec->Event.KeyEvent.dwControlKeyState|=LEFT_CTRL_PRESSED;
+						break;
+					case KEY_RCTRL:
+					    rec->Event.KeyEvent.dwControlKeyState|=RIGHT_CTRL_PRESSED;
+						break;
+					case KEY_ALT:
+					    rec->Event.KeyEvent.dwControlKeyState|=LEFT_ALT_PRESSED;
+						break;
+					case KEY_RALT:
+					    rec->Event.KeyEvent.dwControlKeyState|=RIGHT_ALT_PRESSED;
+						break;
+					default:
+						assert(false);
+						break;
 				}
 			}
 
@@ -2216,7 +2244,7 @@ DWORD CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros, bool Pro
 
 //  CtrlState&=~0x80000000;
 
-	if (!(rec->EventType==KEY_EVENT || rec->EventType == FARMACRO_KEY_EVENT || rec->EventType == MOUSE_EVENT))
+	if (!(rec->EventType==KEY_EVENT || rec->EventType == MOUSE_EVENT))
 		return KEY_NONE;
 
 	if (!RealKey)

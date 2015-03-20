@@ -2769,7 +2769,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				{
 					DWORD Key=GetInputRecord(rec);
 
-					if ((!rec->EventType || rec->EventType == KEY_EVENT || rec->EventType == FARMACRO_KEY_EVENT) &&
+					if ((!rec->EventType || rec->EventType == KEY_EVENT) &&
 					        ((Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE) || (Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE))) // исключаем MACRO
 						ReProcessKey(Manager::Key(Key, *rec));
 					else
@@ -2782,8 +2782,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 				if (rec->EventType == KEY_EVENT)
 				{
-					SysLog(L"ECTL_READINPUT={%s,{%d,%d,Vk=0x%04X,0x%08X}}",
-					       (rec->EventType == FARMACRO_KEY_EVENT?L"FARMACRO_KEY_EVENT":L"KEY_EVENT"),
+					SysLog(L"ECTL_READINPUT={KEY_EVENT,{%d,%d,Vk=0x%04X,0x%08X}}",
 					       rec->Event.KeyEvent.bKeyDown,
 					       rec->Event.KeyEvent.wRepeatCount,
 					       rec->Event.KeyEvent.wVirtualKeyCode,
@@ -2811,10 +2810,10 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				{
 #if defined(SYSLOG_KEYMACRO)
 
-					if (!rec.EventType || rec.EventType == KEY_EVENT || rec.EventType == FARMACRO_KEY_EVENT)
+					if (!rec.EventType || rec.EventType == KEY_EVENT)
 					{
 						SysLog(L"ECTL_PROCESSINPUT={%s,{%d,%d,Vk=0x%04X,0x%08X}}",
-						       (rec.EventType == FARMACRO_KEY_EVENT?L"FARMACRO_KEY_EVENT":L"KEY_EVENT"),
+						       (rec.EventType == KEY_EVENT?L"KEY_EVENT":L"(internal, macro)_KEY_EVENT"),
 						       rec.Event.KeyEvent.bKeyDown,
 						       rec.Event.KeyEvent.wRepeatCount,
 						       rec.Event.KeyEvent.wVirtualKeyCode,
