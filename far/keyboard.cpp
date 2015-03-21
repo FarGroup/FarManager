@@ -698,24 +698,6 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		NotMacros=CalcKey&0x80000000?1:0;
 		CalcKey&=~0x80000000;
 
-		//???
-		if (!ExcludeMacro && Global->CtrlObject && Global->CtrlObject->Macro.IsRecording() &&
-			(CalcKey == (KEY_ALT|KEY_NUMPAD0) || CalcKey == (KEY_RALT|KEY_NUMPAD0) || CalcKey == (KEY_ALT|KEY_INS) || CalcKey == (KEY_RALT|KEY_INS)))
-		{
-			_KEYMACRO(SysLog(L"[%d] CALL Global->CtrlObject->Macro.ProcessEvent(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
-			Global->WindowManager->SetLastInputRecord(rec);
-			irec.IntKey=CalcKey;
-			irec.Rec=*rec;
-			if (Global->CtrlObject->Macro.ProcessEvent(&irec))
-			{
-				RunGraber();
-				rec->EventType=0;
-				CalcKey=KEY_NONE;
-			}
-
-			return CalcKey;
-		}
-
 		if (!NotMacros)
 		{
 			_KEYMACRO(SysLog(L"[%d] CALL Global->CtrlObject->Macro.ProcessEvent(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
@@ -2512,26 +2494,6 @@ DWORD CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros, bool Pro
 
 	if (IntKeyState.AltPressed && !IntKeyState.CtrlPressed && !IntKeyState.ShiftPressed)
 	{
-		if (!AltValue)
-		{
-			if (KeyCode==VK_INSERT || KeyCode==VK_NUMPAD0)
-			{
-				if (Global->CtrlObject && Global->CtrlObject->Macro.IsRecording())
-				{
-					_KEYMACRO(SysLog(L"[%d] CALL Global->CtrlObject->Macro.ProcessEvent(KEY_INS|KEY_ALT)",__LINE__));
-					struct FAR_INPUT_RECORD irec={KEY_INS|KEY_ALT,*rec};
-					Global->CtrlObject->Macro.ProcessEvent(&irec);
-				}
-
-				// макрос проигрывается и мы "сейчас" в состоянии выполнения функции waitkey? (Mantis#0000968: waitkey() пропускает AltIns)
-				if (Global->CtrlObject->Macro.IsExecuting() && Global->CtrlObject->Macro.CheckWaitKeyFunc())
-					return KEY_INS|KEY_ALT;
-
-				RunGraber();
-				return KEY_NONE;
-			}
-		}
-
 		// _SVS(SysLog(L"1 AltNumPad -> CalcKeyCode -> KeyCode=%s  ScanCode=0x%0X AltValue=0x%0X CtrlState=%X GetAsyncKeyState(VK_SHIFT)=%X",_VK_KEY_ToName(KeyCode),ScanCode,AltValue,CtrlState,GetAsyncKeyState(VK_SHIFT)));
 		if (!(CtrlState & ENHANCED_KEY)
 		        //(CtrlState&NUMLOCK_ON) && KeyCode >= VK_NUMPAD0 && KeyCode <= VK_NUMPAD9 ||
