@@ -1267,10 +1267,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 				}
 				else if (m_SelEnd <= m_Str.size()) // TODO: если в начало условия добавить "StrSize &&", то пропадет баг "Ctrl-Ins в пустой строке очищает клипборд"
 				{
-					int Ch=m_Str[m_SelEnd];
-					m_Str[m_SelEnd]=0;
-					SetClipboard(m_Str.data() + m_SelStart);
-					m_Str[m_SelEnd]=Ch;
+					SetClipboard(string(m_Str.cbegin() + m_SelStart, m_Str.cbegin() + m_SelEnd));
 				}
 			}
 
