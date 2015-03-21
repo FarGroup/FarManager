@@ -78,9 +78,9 @@ static void InitGlobal (Global *g, HINSTANCE hDll)
 
 static void DestroyGlobal (Global *g)
 {
-	if (g->StartupInfo) free(g->StartupInfo);
-
 	if (g->LS) lua_close(g->LS);
+
+	if (g->StartupInfo) free(g->StartupInfo);
 
 	DeleteCriticalSection(&g->FindFileSection);
 }
