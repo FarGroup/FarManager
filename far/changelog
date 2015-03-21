@@ -1,4 +1,8 @@
-﻿zg 21.03.2015 16:47:45 +0200 - build 4322
+﻿drkns 21.03.2015 16:50:29 +0200 - build 4323
+
+1. Копирование текста из полей ввода могло вызывать ассерты.
+
+zg 21.03.2015 16:47:45 +0200 - build 4322
 
 1. удалена пасхалка от валентина. если, например, в командной строке ввести магический набор букв:
    lua:far.InputRecordToName ({EventType=far.Flags.KEY_EVENT,KeyDown=true,RepeatCount=1,VirtualKeyCode=45,VirtualScanCode=82,UnicodeChar=0,ControlKeyState=258})
