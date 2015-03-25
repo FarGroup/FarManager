@@ -73,7 +73,6 @@ ControlObject::ControlObject()
 	Plugins = std::make_unique<PluginManager>();
 
 	CmdHistory = std::make_unique<History>(HISTORYTYPE_CMD, string(), Global->Opt->SaveHistory);
-	CmdHistory->SetAddMode(true, 2, false); // case insensitive
 
 	FolderHistory = std::make_unique<History>(HISTORYTYPE_FOLDER, string(), Global->Opt->SaveFoldersHistory);
 	FolderHistory->SetAddMode(true, 2, true);

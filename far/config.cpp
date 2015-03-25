@@ -1890,6 +1890,7 @@ void Options::InitRoamingCFG()
 	#ifndef NO_WRAPPER
 		{FSSF_PRIVATE,       NKeySystem,L"OEMPluginsSupport",  &LoadPlug.OEMPluginsSupport, true},
 	#endif // NO_WRAPPER
+		{FSSF_PRIVATE,       NKeySystem,L"PerFolderCmdHistory", &PerFolderCmdHistory, false},
 		{FSSF_SYSTEM,        NKeySystem,L"PluginMaxReadData", &PluginMaxReadData, 0x20000},
 		{FSSF_PRIVATE,       NKeySystem,L"QuotedName", &QuotedName, QUOTEDNAME_INSERT},
 		{FSSF_PRIVATE,       NKeySystem,L"QuotedSymbols", &strQuotedSymbols, L" &()[]{}^=;!'+,`\xA0"},

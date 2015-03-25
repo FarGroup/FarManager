@@ -725,6 +725,8 @@ public:
 	BoolOption CmdHistoryRule;
 
 	IntOption ExcludeCmdHistory;
+	BoolOption PerFolderCmdHistory; // Keep same commands invoked from different folders
+
 	BoolOption SubstPluginPrefix; // 1 = подстанавливать префикс плагина (для Ctrl-[ и ему подобные)
 	BoolOption SetAttrFolderRules;
 
