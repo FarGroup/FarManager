@@ -1838,6 +1838,36 @@ mtime=3619172074
 </article>
 </node>
 <node>
+id=96
+lv=2
+dt=Text
+nm=Adding command line prefixes
+ctime=3636459316
+mtime=3636460034
+<article>
+#_<markdown>
+#_
+#_Like the [regular macros][1], the added command line prefixes are loaded from Lua- and MoonScript-files,  residing in the directory `%FARPROFILE%\Macros\scripts` and its subdirectories.
+#_
+#_Prefixes are loaded by the global function `CommandLine` that takes one argument - a table with parameters. The function returns the number of successfully loaded prefixes.
+#_
+#_```
+#_CommandLine {
+#_  description = "Adding prefixes";                  -- string (optional field)
+#_  prefixes = "abc:def:1234";                        -- string
+#_  action = function(prefix,text) ...... end;        -- function
+#_}
+#_```
+#_* The field `prefixes` is a list of prefixes delimited by colons. Spaces are not allowed.
+#_
+#_* The field `action` is the function that is called when the command line begins with one of the registered prefixes. It takes 2 arguments: `prefix` is the actual prefix in lower case; `text` is the rest of the command line with leading and trailing spaces stripped.
+#_
+#_[1]: 75.html
+#_@@@
+#_
+</article>
+</node>
+<node>
 id=77
 lv=2
 dt=Text

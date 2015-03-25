@@ -45,6 +45,8 @@ local EnumState = {}
 local Events
 local EventGroups = {"dialogevent","editorevent","editorinput","exitfar","viewerevent"}
 local AddMacro_filename
+local AddedMenuItems
+local AddedPrefixes
 
 package.nounload = {lpeg=true}
 local initial_modules = {}
@@ -421,8 +423,6 @@ local function AddEvent (srctable)
   return macro.id
 end
 
-local AddedMenuItems = {}
-
 local function AddMenuItem (srctable)
   if type(srctable)=="table" and
      type(srctable.menu)=="string" and
@@ -458,6 +458,28 @@ local function AddMenuItem (srctable)
     end
   end
   return false
+end
+
+local function AddPrefixes (srctable)
+  local result = 0
+  if type(srctable)=="table" and
+     type(srctable.prefixes)=="string" and
+     type(srctable.action)=="function"
+  then
+    for prefix in srctable.prefixes:lower():gmatch("[^:]+") do
+      if prefix:match("^%S+$") and not AddedPrefixes[prefix] then
+        local item = {}
+        item.prefix = prefix
+        item.action = srctable.action
+        item.description = type(srctable.description)=="string" and srctable.description or ""
+        item.FileName = AddMacro_filename
+        AddedPrefixes[prefix] = item
+        AddedPrefixes[1] = AddedPrefixes[1]..":"..prefix
+        result = result + 1
+      end
+    end
+  end
+  return result
 end
 
 local function EnumMacros (strArea, resetEnum)
@@ -558,6 +580,7 @@ local function LoadMacros (unload, paths)
   EnumState = {}
   LoadedMacros = {}
   AddedMenuItems = {}
+  AddedPrefixes = { [1]="" }
   if Shared.panelsort then Shared.panelsort.DeleteSortModes() end
 
   local AreaNames = allAreas and AllAreaNames or SomeAreaNames
@@ -613,13 +636,13 @@ local function LoadMacros (unload, paths)
         return
       end
       local env = {Macro=AddRegularMacro,Event=AddEvent,NoMacro=DummyFunc,NoEvent=DummyFunc,
-                   MenuItem=AddMenuItem,NoMenuItem=DummyFunc}
+                   MenuItem=AddMenuItem,NoMenuItem=DummyFunc,CommandLine=AddPrefixes}
       setmetatable(env,gmeta)
       setfenv(f, env)
       AddMacro_filename = FullPath
       local ok, msg = pcall(f, FullPath)
       if ok then
-        env.Macro, env.Event, env.NoMacro, env.NoEvent, env.MenuItem, env.NoMenuItem = nil
+        env.Macro,env.Event,env.NoMacro,env.NoEvent,env.MenuItem,env.NoMenuItem,env.CommandLine = nil
       else
         numerrors=numerrors+1
         ErrMsgLoad(msg,FullPath,isMoonScript,"run")
@@ -1030,6 +1053,7 @@ return {
   FlagsToString = FlagsToString,
   GetMoonscriptLineNumber = GetMoonscriptLineNumber,
   GetMenuItems = function() return AddedMenuItems end,
+  GetPrefixes = function() return AddedPrefixes end,
   LoadingInProgress = function() return LoadingInProgress end,
   FixInitialModules = FixInitialModules,
 }

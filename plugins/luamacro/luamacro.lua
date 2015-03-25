@@ -96,7 +96,7 @@ local PluginInfo
 function export.GetPluginInfo()
   local out = {
     Flags = bor(F.PF_PRELOAD,F.PF_FULLCMDLINE,F.PF_EDITOR,F.PF_VIEWER,F.PF_DIALOG),
-    CommandPrefix = "lm:macro:lua:moon",
+    CommandPrefix = "lm:macro:lua:moon"..utils.GetPrefixes()[1],
     PluginMenuGuids = win.Uuid("EF6D67A2-59F7-4DF3-952E-F9049877B492"),
     PluginMenuStrings = { "Macro Browser" },
   }
@@ -357,6 +357,9 @@ local function ProcessCommandLine (CmdLine)
       else ErrMsg(f2)
       end
     end
+  else
+    local item = utils.GetPrefixes()[prefix]
+    if item then item.action(prefix, text) end
   end
 end
 
