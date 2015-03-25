@@ -1909,7 +1909,7 @@ lv=2
 dt=Text
 nm=Command line operations
 ctime=3617997112
-mtime=3618583193
+mtime=3636471221
 <article>
 #_<markdown>
 #_* `macro: load [path]`<br>
@@ -1936,10 +1936,14 @@ mtime=3618583193
 #_   - The global (within the environment of the script) variable `_filename` contains
 #_     the file name.
 #_
-#_**Note:**<br>
+#_**Note 1:**<br>
 #_Prefix `lm:` can be used instead of prefix `macro:` - they are equivalent.
 #_
+#_**Note 2:**<br>
+#_[Additional][2] command line prefixes can be defined and loaded from macrofiles.
+#_
 #_[1]: 76.html
+#_[2]: 96.html
 #_
 #_@@@
 #_{mctl_addmacro}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_ADDMACRO
