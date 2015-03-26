@@ -526,7 +526,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 		if (MenuExitCode >= 0)
 		{
 			int iCurr = *static_cast<int*>(HistoryMenu.GetUserData(nullptr, 0, MenuExitCode));
-			SelectedRecord = iCurr > 0 ? records[iCurr].id : 0;
+			SelectedRecord = iCurr >= 0 ? records[iCurr].id : 0;
 
 			if (!SelectedRecord)
 				return HRT_CANCEL;
