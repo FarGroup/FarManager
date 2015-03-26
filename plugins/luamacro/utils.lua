@@ -468,11 +468,12 @@ local function AddPrefixes (srctable)
   then
     for prefix in srctable.prefixes:lower():gmatch("[^:]+") do
       if prefix:match("^%S+$") and not AddedPrefixes[prefix] then
-        local item = {}
-        item.prefix = prefix
-        item.action = srctable.action
-        item.description = type(srctable.description)=="string" and srctable.description or ""
-        item.FileName = AddMacro_filename
+        local item = {
+          prefix = prefix,
+          action = srctable.action,
+          description = type(srctable.description)=="string" and srctable.description or "",
+          FileName = AddMacro_filename
+        }
         AddedPrefixes[prefix] = item
         AddedPrefixes[1] = AddedPrefixes[1]..":"..prefix
         result = result + 1
@@ -635,14 +636,16 @@ local function LoadMacros (unload, paths)
         ErrMsgLoad(msg,FullPath,isMoonScript,"compile")
         return
       end
-      local env = {Macro=AddRegularMacro,Event=AddEvent,NoMacro=DummyFunc,NoEvent=DummyFunc,
-                   MenuItem=AddMenuItem,NoMenuItem=DummyFunc,CommandLine=AddPrefixes}
+      local env = {
+        Macro=AddRegularMacro, Event=AddEvent, MenuItem=AddMenuItem, CommandLine=AddPrefixes,
+        NoMacro=DummyFunc, NoEvent=DummyFunc, NoMenuItem=DummyFunc, NoCommandLine=DummyFunc }
       setmetatable(env,gmeta)
       setfenv(f, env)
       AddMacro_filename = FullPath
       local ok, msg = pcall(f, FullPath)
       if ok then
-        env.Macro,env.Event,env.NoMacro,env.NoEvent,env.MenuItem,env.NoMenuItem,env.CommandLine = nil
+        env.Macro, env.Event, env.MenuItem, env.CommandLine,
+        env.NoMacro, env.NoEvent, env.NoMenuItem, env.NoCommandLine = nil
       else
         numerrors=numerrors+1
         ErrMsgLoad(msg,FullPath,isMoonScript,"run")
