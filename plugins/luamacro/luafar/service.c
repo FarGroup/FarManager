@@ -163,11 +163,13 @@ BOOL WINAPI DllMain(HANDLE hDll, DWORD dwReason, LPVOID lpReserved)
 	return TRUE;
 }
 
-static void InitSynchroData(TSynchroData* SD, TTimerData *td, int action, int data)
+static TSynchroData* CreateSynchroData(TTimerData *td, int action, int data)
 {
+	TSynchroData* SD = (TSynchroData*) malloc(sizeof(TSynchroData));
 	SD->timerData = td;
 	SD->regAction = action;
 	SD->data = data;
+	return SD;
 }
 
 static int IsFarSpring(lua_State *L)
@@ -4397,8 +4399,7 @@ static int far_AdvControl(lua_State *L)
 		case ACTL_SYNCHRO:
 		{
 			intptr_t p = luaL_checkinteger(L, 2);
-			Param2 = malloc(sizeof(TSynchroData));
-			InitSynchroData((TSynchroData*)Param2, NULL, 0, (int)p);
+			Param2 = CreateSynchroData(NULL, 0, (int)p);
 			break;
 		}
 		case ACTL_SETPROGRESSSTATE:
@@ -5255,14 +5256,12 @@ DWORD WINAPI TimerThreadFunc(LPVOID data)
 
 		if(!td->needClose && td->enabled)
 		{
-			sd = (TSynchroData*) malloc(sizeof(TSynchroData));
-			InitSynchroData(sd, td, LUAFAR_TIMER_CALL, 0);
+			sd = CreateSynchroData(td, LUAFAR_TIMER_CALL, 0);
 			td->Info->AdvControl(td->PluginGuid, ACTL_SYNCHRO, 0, sd);
 		}
 	}
 
-	sd = (TSynchroData*) malloc(sizeof(TSynchroData));
-	InitSynchroData(sd, td, LUAFAR_TIMER_UNREF, 0);
+	sd = CreateSynchroData(td, LUAFAR_TIMER_UNREF, 0);
 	td->Info->AdvControl(td->PluginGuid, ACTL_SYNCHRO, 0, sd);
 	return 0;
 }
