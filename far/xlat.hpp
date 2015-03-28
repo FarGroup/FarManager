@@ -33,4 +33,5 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-wchar_t* Xlat(wchar_t *Line,int StartPos,int EndPos,unsigned __int64 Flags);
+void xlat_initialize();
+wchar_t* Xlat(wchar_t *Line, int StartPos, int EndPos, unsigned __int64 Flags);

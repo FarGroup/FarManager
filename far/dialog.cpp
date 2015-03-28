@@ -3439,7 +3439,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 					/* ********************************************************** */
 					if (Type==DI_BUTTON &&
 					        MsY==m_Y1+Items[I].Y1 &&
-					        MsX < m_X1+Items[I].X1 + static_cast<int>(HiStrlen(Items[I].strData)))
+							MsX < m_X1 + Items[I].X1 + static_cast<intptr_t>(HiStrlen(Items[I].strData)))
 					{
 						ChangeFocus2(I);
 						ShowDialog();
@@ -3447,7 +3447,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 						while (IsMouseButtonPressed());
 
 						if (IntKeyState.MouseX <  m_X1 ||
-						        IntKeyState.MouseX >  m_X1 + Items[I].X1 + static_cast<int>(HiStrlen(Items[I].strData)) + 4 ||
+							IntKeyState.MouseX >  m_X1 + Items[I].X1 + static_cast<intptr_t>(HiStrlen(Items[I].strData)) + 4 ||
 						        IntKeyState.MouseY != m_Y1+Items[I].Y1)
 						{
 							ChangeFocus2(I);
@@ -3464,7 +3464,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 					if ((Type == DI_CHECKBOX ||
 					        Type == DI_RADIOBUTTON) &&
 					        MsY==m_Y1+Items[I].Y1 &&
-					        MsX < (m_X1 + Items[I].X1 + static_cast<int>(HiStrlen(Items[I].strData)) + 4 - ((Items[I].Flags & DIF_MOVESELECT) != 0)))
+							MsX < (m_X1 + Items[I].X1 + static_cast<intptr_t>(HiStrlen(Items[I].strData)) + 4 - ((Items[I].Flags & DIF_MOVESELECT) != 0)))
 					{
 						ChangeFocus2(I);
 						ProcessKey(KEY_SPACE, I);
@@ -5178,7 +5178,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						case DM_LISTGETDATA: // Param1=ID Param2=Index
 						{
 							if (reinterpret_cast<intptr_t>(Param2) < ListBox->GetItemCount())
-								return (intptr_t)ListBox->GetUserData(nullptr,0,static_cast<int>(reinterpret_cast<intptr_t>(Param2)));
+								return (intptr_t)ListBox->GetUserData(nullptr,0,static_cast<int>(reinterpret_cast<size_t>(Param2)));
 
 							return 0;
 						}

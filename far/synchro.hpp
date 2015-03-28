@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "farexcpt.hpp"
+#include "pathmix.hpp"
 
 class CriticalSection: noncopyable
 {
@@ -65,7 +66,7 @@ template<class T, class S>
 inline string make_name(const S& HashPart, const S& TextPart)
 {
 	auto Str = T::GetNamespace() + std::to_wstring(make_hash(HashPart)) + L"_" + TextPart;
-	std::replace(ALL_RANGE(Str), L'\\', L'/');
+	ReplaceBackslashToSlash(Str);
 	return Str;
 }
 

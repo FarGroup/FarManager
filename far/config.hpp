@@ -358,7 +358,7 @@ public:
 		StringOption Table[2]; // [0] non-english буквы, [1] english буквы
 		StringOption strWordDivForXlat;
 		IntOption Flags;
-		int CurrentLayout;
+		mutable int CurrentLayout;
 	};
 
 	struct EditorOptions

@@ -89,7 +89,7 @@ private:
 
 	notifier();
 
-	std::map<string, std::unique_ptr<notification>> m_notifications;
+	std::unordered_map<string, std::unique_ptr<notification>> m_notifications;
 	std::unique_ptr<wm_listener> m_Window;
 };
 

@@ -43,8 +43,8 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeText);
 
 void PrepareStrFTime();
-size_t StrFTime(string &strDest, const wchar_t *Format,const tm *t);
-size_t MkStrFTime(string &strDest, const wchar_t *Fmt=nullptr);
+string StrFTime(const wchar_t* Format, const tm* t);
+string MkStrFTime(const wchar_t* Format = nullptr);
 
 inline uint64_t FileTimeToUI64(const FILETIME& ft)
 {

@@ -138,9 +138,9 @@ inline bool elevation::Write(const T& Data) const
 	return pipe::Write(m_pipe, Data);
 }
 
-bool elevation::SendCommand(ELEVATION_COMMAND Command) const
+bool elevation::SendCommand(ELEVATION_COMMAND Command)
 {
-	return pipe::Write(m_pipe, Command);
+	return Initialize() && pipe::Write(m_pipe, Command);
 }
 
 struct ERRORCODES
@@ -168,7 +168,7 @@ struct ERRORCODES
 bool elevation::ReceiveLastError() const
 {
 	ERRORCODES ErrorCodes(ERROR_SUCCESS, STATUS_SUCCESS);
-	bool Result = Read(ErrorCodes.Codes);
+	const bool Result = Read(ErrorCodes.Codes);
 	SetLastError(ErrorCodes.Codes.Win32Error);
 	Imports().RtlNtStatusToDosError(ErrorCodes.Codes.NtError);
 	return Result;
@@ -208,8 +208,7 @@ bool elevation::Initialize()
 						if(SetSecurityDescriptorDacl(pSD, TRUE, pACL, FALSE))
 						{
 							SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), pSD, FALSE};
-							string strPipe(L"\\\\.\\pipe\\");
-							strPipe+=strPipeID;
+							const auto strPipe = L"\\\\.\\pipe\\" + strPipeID;
 							m_pipe = CreateNamedPipe(strPipe.data(), PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE|PIPE_READMODE_BYTE|PIPE_WAIT, 1, 0, 0, 0, &sa);
 						}
 					}
@@ -260,7 +259,7 @@ bool elevation::Initialize()
 
 			string Param = string(ElevationArgument) + L" " + strPipeID + L' ' + std::to_wstring(GetCurrentProcessId()) + L' ' + ((Global->Opt->ElevationMode&ELEVATION_USE_PRIVILEGES) ? L'1' : L'0');
 
-			SHELLEXECUTEINFO info=
+			SHELLEXECUTEINFO info =
 			{
 				sizeof(info),
 				SEE_MASK_FLAG_NO_UI|SEE_MASK_UNICODE|SEE_MASK_NOASYNC|SEE_MASK_NOCLOSEPROCESS,
@@ -386,7 +385,7 @@ void ElevationApproveDlgSync(LPVOID Param)
 {
 	SCOPED_ACTION(PluginSynchro::suppress);
 
-	auto Data = static_cast<EAData*>(Param);
+	const auto Data = static_cast<const EAData*>(Param);
 	enum {DlgX=64,DlgY=12};
 	FarDialogItem ElevationApproveDlgData[]=
 	{
@@ -449,7 +448,7 @@ bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
 	{
 		Recurse = true;
 		SCOPED_ACTION(GuardLastError);
-		TaskBarPause TBP;
+		SCOPED_ACTION(TaskBarPause);
 		EAData Data(Object, Why, AskApprove, IsApproved, DontAskAgain);
 		if(!Global->IsMainThread())
 		{
@@ -477,7 +476,7 @@ bool elevation::fCreateDirectoryEx(const string& TemplateObject, const string& O
 			SCOPED_ACTION(Privilege)(make_vector(SE_BACKUP_NAME, SE_RESTORE_NAME));
 			Result = (TemplateObject.empty()?CreateDirectory(Object.data(), Attributes) : CreateDirectoryEx(TemplateObject.data(), Object.data(), Attributes)) != FALSE;
 		}
-		else if(Initialize() && SendCommand(C_FUNCTION_CREATEDIRECTORYEX) && Write(TemplateObject) && Write(Object))
+		else if(SendCommand(C_FUNCTION_CREATEDIRECTORYEX) && Write(TemplateObject) && Write(Object))
 		{
 			// BUGBUG: SecurityAttributes ignored
 			bool OpResult = false;
@@ -501,7 +500,7 @@ bool elevation::fRemoveDirectory(const string& Object)
 			SCOPED_ACTION(Privilege)(make_vector(SE_BACKUP_NAME, SE_RESTORE_NAME));
 			Result = RemoveDirectory(Object.data()) != FALSE;
 		}
-		else if(Initialize() && SendCommand(C_FUNCTION_REMOVEDIRECTORY) && Write(Object))
+		else if(SendCommand(C_FUNCTION_REMOVEDIRECTORY) && Write(Object))
 		{
 			bool OpResult = false;
 			if(Read(OpResult) && ReceiveLastError())
@@ -524,7 +523,7 @@ bool elevation::fDeleteFile(const string& Object)
 			SCOPED_ACTION(Privilege)(make_vector(SE_BACKUP_NAME, SE_RESTORE_NAME));
 			Result = DeleteFile(Object.data()) != FALSE;
 		}
-		else if(Initialize() && SendCommand(C_FUNCTION_DELETEFILE) && Write(Object))
+		else if(SendCommand(C_FUNCTION_DELETEFILE) && Write(Object))
 		{
 			bool OpResult = false;
 			if(Read(OpResult) && ReceiveLastError())
@@ -567,7 +566,7 @@ bool elevation::fCopyFileEx(const string& From, const string& To, LPPROGRESS_ROU
 			Result = CopyFileEx(From.data(), To.data(), ProgressRoutine, Data, Cancel, Flags) != FALSE;
 		}
 		// BUGBUG: Cancel ignored
-		else if(Initialize() && SendCommand(C_FUNCTION_COPYFILEEX) && Write(From) && Write(To) && Write(&ProgressRoutine, sizeof(ProgressRoutine)) && Write(reinterpret_cast<intptr_t>(Data)) && Write(Flags))
+		else if(SendCommand(C_FUNCTION_COPYFILEEX) && Write(From) && Write(To) && Write(&ProgressRoutine, sizeof(ProgressRoutine)) && Write(reinterpret_cast<intptr_t>(Data)) && Write(Flags))
 		{
 			int OpResult = 0;
 			if(Read(OpResult))
@@ -602,7 +601,7 @@ bool elevation::fMoveFileEx(const string& From, const string& To, DWORD Flags)
 			SCOPED_ACTION(Privilege)(make_vector(SE_BACKUP_NAME, SE_RESTORE_NAME));
 			Result = MoveFileEx(From.data(), To.data(), Flags) != FALSE;
 		}
-		else if(Initialize() && SendCommand(C_FUNCTION_MOVEFILEEX) && Write(From) && Write(To) && Write(Flags))
+		else if(SendCommand(C_FUNCTION_MOVEFILEEX) && Write(From) && Write(To) && Write(Flags))
 		{
 			bool OpResult = false;
 			if(Read(OpResult) && ReceiveLastError())
@@ -625,7 +624,7 @@ DWORD elevation::fGetFileAttributes(const string& Object)
 			SCOPED_ACTION(Privilege)(make_vector(SE_BACKUP_NAME, SE_RESTORE_NAME));
 			Result = GetFileAttributes(Object.data());
 		}
-		else if(Initialize() && SendCommand(C_FUNCTION_GETFILEATTRIBUTES) && Write(Object))
+		else if(SendCommand(C_FUNCTION_GETFILEATTRIBUTES) && Write(Object))
 		{
 			DWORD OpResult = INVALID_FILE_ATTRIBUTES;
 			if(Read(OpResult) && ReceiveLastError())
@@ -648,7 +647,7 @@ bool elevation::fSetFileAttributes(const string& Object, DWORD FileAttributes)
 			SCOPED_ACTION(Privilege)(make_vector(SE_BACKUP_NAME, SE_RESTORE_NAME));
 			Result = SetFileAttributes(Object.data(), FileAttributes) != FALSE;
 		}
-		else if(Initialize() && SendCommand(C_FUNCTION_SETFILEATTRIBUTES) && Write(Object) && Write(FileAttributes))
+		else if(SendCommand(C_FUNCTION_SETFILEATTRIBUTES) && Write(Object) && Write(FileAttributes))
 		{
 			bool OpResult = false;
 			if(Read(OpResult) && ReceiveLastError())
@@ -672,7 +671,7 @@ bool elevation::fCreateHardLink(const string& Object, const string& Target, LPSE
 			Result = CreateHardLink(Object.data(), Target.data(), SecurityAttributes) != FALSE;
 		}
 		// BUGBUG: SecurityAttributes ignored.
-		else if(Initialize() && SendCommand(C_FUNCTION_CREATEHARDLINK) && Write(Object) && Write(Target))
+		else if(SendCommand(C_FUNCTION_CREATEHARDLINK) && Write(Object) && Write(Target))
 		{
 			bool OpResult = false;
 			if(Read(OpResult) && ReceiveLastError())
@@ -695,7 +694,7 @@ bool elevation::fCreateSymbolicLink(const string& Object, const string& Target, 
 			SCOPED_ACTION(Privilege)(make_vector(SE_BACKUP_NAME, SE_RESTORE_NAME));
 			Result = api::CreateSymbolicLinkInternal(Object, Target, Flags);
 		}
-		else if(Initialize() && SendCommand(C_FUNCTION_CREATESYMBOLICLINK) && Write(Object) && Write(Target) && Write(Flags))
+		else if(SendCommand(C_FUNCTION_CREATESYMBOLICLINK) && Write(Object) && Write(Target) && Write(Flags))
 		{
 			bool OpResult = false;
 			if(Read(OpResult) && ReceiveLastError())
@@ -720,23 +719,16 @@ int elevation::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 		}
 		else
 		{
-			if(Initialize())
+			if(SendCommand(C_FUNCTION_MOVETORECYCLEBIN) && Write(FileOpStruct)
+			   && Write(FileOpStruct.pFrom, FileOpStruct.pFrom? (wcslen(FileOpStruct.pFrom) + 1 + 1) * sizeof(wchar_t) : 0) // achtung! +1
+			   && Write(FileOpStruct.pTo, FileOpStruct.pTo? (wcslen(FileOpStruct.pTo) + 1 + 1) * sizeof(wchar_t) : 0)) // achtung! +1
 			{
-				if(SendCommand(C_FUNCTION_MOVETORECYCLEBIN) && Write(FileOpStruct)
-					&& Write(FileOpStruct.pFrom, FileOpStruct.pFrom? (wcslen(FileOpStruct.pFrom) + 1 + 1) * sizeof(wchar_t) : 0) // achtung! +1
-					&& Write(FileOpStruct.pTo, FileOpStruct.pTo? (wcslen(FileOpStruct.pTo) + 1 + 1) * sizeof(wchar_t) : 0)) // achtung! +1
+				int OpResult = 0;
+				if(Read(OpResult) && Read(FileOpStruct.fAnyOperationsAborted))
 				{
-					int OpResult = 0;
-					if(Read(OpResult) && Read(FileOpStruct.fAnyOperationsAborted))
-					{
-						// achtung! no "last error" here
-						Result = OpResult;
-					}
+					// achtung! no "last error" here
+					Result = OpResult;
 				}
-			}
-			else
-			{
-				Result = 0x75; // DE_OPCANCELLED
 			}
 		}
 	}
@@ -754,7 +746,7 @@ bool elevation::fSetOwner(const string& Object, const string& Owner)
 			SCOPED_ACTION(Privilege)(make_vector(SE_BACKUP_NAME, SE_RESTORE_NAME));
 			Result = SetOwnerInternal(Object, Owner);
 		}
-		else if(Initialize() && SendCommand(C_FUNCTION_SETOWNER) && Write(Object) && Write(Owner))
+		else if(SendCommand(C_FUNCTION_SETOWNER) && Write(Object) && Write(Owner))
 		{
 			bool OpResult = false;
 			if(Read(OpResult) && ReceiveLastError())
@@ -779,7 +771,7 @@ HANDLE elevation::fCreateFile(const string& Object, DWORD DesiredAccess, DWORD S
 		}
 		// BUGBUG: SecurityAttributes ignored
 		// BUGBUG: TemplateFile ignored
-		else if(Initialize() && SendCommand(C_FUNCTION_CREATEFILE) && Write(Object) && Write(DesiredAccess) && Write(ShareMode) && Write(CreationDistribution) && Write(FlagsAndAttributes))
+		else if(SendCommand(C_FUNCTION_CREATEFILE) && Write(Object) && Write(DesiredAccess) && Write(ShareMode) && Write(CreationDistribution) && Write(FlagsAndAttributes))
 		{
 			intptr_t OpResult;
 			if(Read(OpResult) && ReceiveLastError())
@@ -802,7 +794,7 @@ bool elevation::fSetFileEncryption(const string& Object, bool Encrypt)
 			SCOPED_ACTION(Privilege)(make_vector(SE_BACKUP_NAME, SE_RESTORE_NAME));
 			Result = api::SetFileEncryptionInternal(Object.data(), Encrypt);
 		}
-		else if(Initialize() && SendCommand(C_FUNCTION_SETENCRYPTION) && Write(Object) && Write(Encrypt))
+		else if(SendCommand(C_FUNCTION_SETENCRYPTION) && Write(Object) && Write(Encrypt))
 		{
 			bool OpResult = false;
 			if(Read(OpResult) && ReceiveLastError())
@@ -825,7 +817,7 @@ bool elevation::fDetachVirtualDisk(const string& Object, VIRTUAL_STORAGE_TYPE& V
 			SCOPED_ACTION(Privilege)(make_vector(SE_BACKUP_NAME, SE_RESTORE_NAME));
 			Result = api::DetachVirtualDiskInternal(Object, VirtualStorageType);
 		}
-		else if (Initialize() && SendCommand(C_FUNCTION_DETACHVIRTUALDISK) && Write(Object) && Write(VirtualStorageType))
+		else if (SendCommand(C_FUNCTION_DETACHVIRTUALDISK) && Write(Object) && Write(VirtualStorageType))
 		{
 			bool OpResult = false;
 			if(Read(OpResult) && ReceiveLastError())
@@ -848,7 +840,7 @@ bool elevation::fGetDiskFreeSpaceEx(const string& Object, ULARGE_INTEGER* FreeBy
 			SCOPED_ACTION(Privilege)(make_vector(SE_BACKUP_NAME, SE_RESTORE_NAME));
 			Result = GetDiskFreeSpaceEx(Object.data(), FreeBytesAvailableToCaller, TotalNumberOfBytes, TotalNumberOfFreeBytes) != FALSE;
 		}
-		else if(Initialize() && SendCommand(C_FUNCTION_GETDISKFREESPACEEX) && Write(Object))
+		else if(SendCommand(C_FUNCTION_GETDISKFREESPACEEX) && Write(Object))
 		{
 			bool OpResult = false;
 			if(Read(OpResult) && ReceiveLastError())
@@ -881,13 +873,13 @@ bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus)
 	{
 		if(UseNtStatus && Imports().RtlGetLastNtStatus)
 		{
-			NTSTATUS LastNtStatus = api::GetLastNtStatus();
+			const auto LastNtStatus = api::GetLastNtStatus();
 			Result = LastNtStatus == STATUS_ACCESS_DENIED || LastNtStatus == STATUS_PRIVILEGE_NOT_HELD;
 		}
 		else
 		{
 			// RtlGetLastNtStatus not implemented in w2k.
-			DWORD LastWin32Error = GetLastError();
+			const auto LastWin32Error = GetLastError();
 			Result = LastWin32Error == ERROR_ACCESS_DENIED || LastWin32Error == ERROR_PRIVILEGE_NOT_HELD;
 		}
 	}
@@ -918,8 +910,7 @@ public:
 
 		SCOPED_ACTION(Privilege)(Privileges);
 
-		string strPipe(L"\\\\.\\pipe\\");
-		strPipe+=guid;
+		const auto strPipe = string(L"\\\\.\\pipe\\") + guid;
 		WaitNamedPipe(strPipe.data(), NMPWAIT_WAIT_FOREVER);
 		Pipe = CreateFile(strPipe.data(),GENERIC_READ|GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr);
 		if (Pipe != INVALID_HANDLE_VALUE)
@@ -927,7 +918,7 @@ public:
 			ULONG ServerProcessId;
 			if(!Imports().GetNamedPipeServerProcessId || (Imports().GetNamedPipeServerProcessId(Pipe, &ServerProcessId) && ServerProcessId == PID))
 			{
-				HANDLE ParentProcess = OpenProcess(PROCESS_QUERY_INFORMATION|PROCESS_VM_READ, FALSE, PID);
+				const auto ParentProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, PID);
 				if(ParentProcess)
 				{
 					string strCurrentProcess, strParentProcess;
@@ -989,8 +980,8 @@ private:
 			if(Read(Object))
 			{
 				// BUGBUG, SecurityAttributes ignored
-				bool Result = TemplateObject.empty()? CreateDirectory(Object.data(), nullptr) != FALSE : CreateDirectoryEx(TemplateObject.data(), Object.data(), nullptr) != FALSE;
-				ERRORCODES ErrorCodes;
+				const bool Result = TemplateObject.empty() ? CreateDirectory(Object.data(), nullptr) != FALSE : CreateDirectoryEx(TemplateObject.data(), Object.data(), nullptr) != FALSE;
+				const ERRORCODES ErrorCodes;
 				if(Write(Result))
 				{
 					Write(ErrorCodes.Codes);
@@ -1004,8 +995,8 @@ private:
 		string Object;
 		if(Read(Object))
 		{
-			bool Result = RemoveDirectory(Object.data()) != FALSE;
-			ERRORCODES ErrorCodes;
+			const bool Result = RemoveDirectory(Object.data()) != FALSE;
+			const ERRORCODES ErrorCodes;
 			if(Write(Result))
 			{
 				Write(ErrorCodes.Codes);
@@ -1018,8 +1009,8 @@ private:
 		string Object;
 		if(Read(Object))
 		{
-			bool Result = DeleteFile(Object.data()) != FALSE;
-			ERRORCODES ErrorCodes;
+			const bool Result = DeleteFile(Object.data()) != FALSE;
+			const ERRORCODES ErrorCodes;
 			if(Write(Result))
 			{
 				Write(ErrorCodes.Codes);
@@ -1037,7 +1028,7 @@ private:
 		{
 			copy_progress_routine_param Param(this, reinterpret_cast<void*>(Data));
 			int Result = CopyFileEx(From.data(), To.data(), UserCopyProgressRoutine? CopyProgressRoutineWrapper : nullptr, &Param, nullptr, Flags);
-			ERRORCODES ErrorCodes;
+			const ERRORCODES ErrorCodes;
 			if(Write(Result))
 			{
 				Write(ErrorCodes.Codes);
@@ -1051,8 +1042,8 @@ private:
 		DWORD Flags = 0;
 		if(Read(From) && Read(To) && Read(Flags))
 		{
-			bool Result = MoveFileEx(From.data(), To.data(), Flags) != FALSE;
-			ERRORCODES ErrorCodes;
+			const bool Result = MoveFileEx(From.data(), To.data(), Flags) != FALSE;
+			const ERRORCODES ErrorCodes;
 			if(Write(Result))
 			{
 				Write(ErrorCodes.Codes);
@@ -1065,8 +1056,8 @@ private:
 		string Object;
 		if(Read(Object))
 		{
-			DWORD Result = GetFileAttributes(Object.data());
-			ERRORCODES ErrorCodes;
+			const DWORD Result = GetFileAttributes(Object.data());
+			const ERRORCODES ErrorCodes;
 			if(Write(Result))
 			{
 				Write(ErrorCodes.Codes);
@@ -1080,8 +1071,8 @@ private:
 		DWORD Attributes = 0;
 		if(Read(Object) && Read(Attributes))
 		{
-			bool Result = SetFileAttributes(Object.data(), Attributes) != FALSE;
-			ERRORCODES ErrorCodes;
+			const bool Result = SetFileAttributes(Object.data(), Attributes) != FALSE;
+			const ERRORCODES ErrorCodes;
 			if(Write(Result))
 			{
 				Write(ErrorCodes.Codes);
@@ -1095,8 +1086,8 @@ private:
 		if(Read(Object) && Read(Target))
 		{
 			// BUGBUG: SecurityAttributes ignored.
-			bool Result = CreateHardLink(Object.data(), Target.data(), nullptr) != FALSE;
-			ERRORCODES ErrorCodes;
+			const bool Result = CreateHardLink(Object.data(), Target.data(), nullptr) != FALSE;
+			const ERRORCODES ErrorCodes;
 			if(Write(Result))
 			{
 				Write(ErrorCodes.Codes);
@@ -1110,8 +1101,8 @@ private:
 		DWORD Flags = 0;
 		if(Read(Object) && Read(Target) && Read(Flags))
 		{
-			bool Result = api::CreateSymbolicLinkInternal(Object, Target, Flags);
-			ERRORCODES ErrorCodes;
+			const bool Result = api::CreateSymbolicLinkInternal(Object, Target, Flags);
+			const ERRORCODES ErrorCodes;
 			if(Write(Result))
 			{
 				Write(ErrorCodes.Codes);
@@ -1139,8 +1130,8 @@ private:
 		string Object, Owner;
 		if(Read(Object) && Read(Owner))
 		{
-			bool Result = SetOwnerInternal(Object, Owner);
-			ERRORCODES ErrorCodes;
+			const bool Result = SetOwnerInternal(Object, Owner);
+			const ERRORCODES ErrorCodes;
 			if(Write(Result))
 			{
 				Write(ErrorCodes.Codes);
@@ -1155,10 +1146,10 @@ private:
 		// BUGBUG: SecurityAttributes, TemplateFile ignored
 		if(Read(Object) && Read(DesiredAccess) && Read(ShareMode) && Read(CreationDistribution) && Read(FlagsAndAttributes))
 		{
-			HANDLE Result = api::CreateFile(Object, DesiredAccess, ShareMode, nullptr, CreationDistribution, FlagsAndAttributes, nullptr);
+			auto Result = api::CreateFile(Object, DesiredAccess, ShareMode, nullptr, CreationDistribution, FlagsAndAttributes, nullptr);
 			if(Result!=INVALID_HANDLE_VALUE)
 			{
-				HANDLE ParentProcess = OpenProcess(PROCESS_DUP_HANDLE, FALSE, ParentPID);
+				const auto ParentProcess = OpenProcess(PROCESS_DUP_HANDLE, FALSE, ParentPID);
 				if(ParentProcess)
 				{
 					if(!DuplicateHandle(GetCurrentProcess(), Result, ParentProcess, &Result, 0, FALSE, DUPLICATE_CLOSE_SOURCE|DUPLICATE_SAME_ACCESS))
@@ -1169,7 +1160,7 @@ private:
 					CloseHandle(ParentProcess);
 				}
 			}
-			ERRORCODES ErrorCodes;
+			const ERRORCODES ErrorCodes;
 			if(Write(reinterpret_cast<intptr_t>(Result)))
 			{
 				Write(ErrorCodes.Codes);
@@ -1183,8 +1174,8 @@ private:
 		bool Encrypt = false;
 		if(Read(Object) && Read(Encrypt))
 		{
-			bool Result = api::SetFileEncryptionInternal(Object.data(), Encrypt);
-			ERRORCODES ErrorCodes;
+			const bool Result = api::SetFileEncryptionInternal(Object.data(), Encrypt);
+			const ERRORCODES ErrorCodes;
 			if(Write(Result))
 			{
 				Write(ErrorCodes.Codes);
@@ -1198,8 +1189,8 @@ private:
 		VIRTUAL_STORAGE_TYPE VirtualStorateType;
 		if (Read(Object) && Read(VirtualStorateType))
 		{
-			bool Result = api::DetachVirtualDiskInternal(Object, VirtualStorateType);
-			ERRORCODES ErrorCodes;
+			const bool Result = api::DetachVirtualDiskInternal(Object, VirtualStorateType);
+			const ERRORCODES ErrorCodes;
 			if (Write(Result))
 			{
 				Write(ErrorCodes.Codes);
@@ -1213,8 +1204,8 @@ private:
 		string Object;
 		if(Read(Object))
 		{
-			bool Result = GetDiskFreeSpaceEx(Object.data(), &FreeBytesAvailableToCaller, &TotalNumberOfBytes, &TotalNumberOfFreeBytes) != FALSE;
-			ERRORCODES ErrorCodes;
+			const bool Result = GetDiskFreeSpaceEx(Object.data(), &FreeBytesAvailableToCaller, &TotalNumberOfBytes, &TotalNumberOfFreeBytes) != FALSE;
+			const ERRORCODES ErrorCodes;
 			if (Write(Result) && Write(ErrorCodes.Codes))
 			{
 				if(Result)
@@ -1230,8 +1221,8 @@ private:
 	static DWORD WINAPI CopyProgressRoutineWrapper(LARGE_INTEGER TotalFileSize, LARGE_INTEGER TotalBytesTransferred, LARGE_INTEGER StreamSize, LARGE_INTEGER StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE SourceFile,HANDLE DestinationFile, LPVOID Data)
 	{
 		int Result=0;
-		auto Param = reinterpret_cast<copy_progress_routine_param*>(Data);
-		const elevated* Context = Param->first;
+		const auto Param = reinterpret_cast<const copy_progress_routine_param*>(Data);
+		const auto Context = Param->first;
 		// BUGBUG: SourceFile, DestinationFile ignored
 		if (Context->Write(CallbackMagic) && Context->Write(TotalFileSize) && Context->Write(TotalBytesTransferred) && Context->Write(StreamSize) && Context->Write(StreamBytesTransferred) && Context->Write(StreamNumber) && Context->Write(CallbackReason) && Context->Write(reinterpret_cast<intptr_t>(Param->second)))
 		{

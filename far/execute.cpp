@@ -1241,7 +1241,7 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 				if (!(strCmd[1] == L':' || (strCmd[0] == L'\\' && strCmd[1]==L'\\') || strExpandedStr[1] == L':' || (strExpandedStr[0] == L'\\' && strExpandedStr[1]==L'\\')))
 				{
 					if (Global->CtrlObject)
-						Global->CtrlObject->CmdLine()->GetCurDir(strFullPath);
+						strFullPath = Global->CtrlObject->CmdLine()->GetCurDir();
 					else
 						api::GetCurrentDirectory(strFullPath);
 

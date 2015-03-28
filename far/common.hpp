@@ -157,6 +157,48 @@ private:
 	release m_Release;
 };
 
+class blob
+{
+public:
+	blob(const void* Data, size_t Size): m_Data(Data), m_Size(Size) {}
+	const void* data() const { return m_Data; }
+	size_t size() const { return m_Size; }
+
+protected:
+	const void* m_Data;
+	size_t m_Size;
+};
+
+class writable_blob: public blob
+{
+public:
+	writable_blob(): blob(nullptr, 0), m_Allocated() {}
+	writable_blob(void* Data, size_t Size): blob(Data, Size), m_Allocated(){}
+	~writable_blob()
+	{
+		if (m_Allocated)
+			delete[] static_cast<const char*>(m_Data);
+	}
+
+	blob& operator=(const blob& rhs)
+	{
+		if (m_Data)
+		{
+			if (size() != rhs.size())
+				throw std::runtime_error("incorrect blob size");
+		}
+		else
+		{
+			m_Data = new char[rhs.size()];
+			m_Size = rhs.size();
+		}
+		memcpy(const_cast<void*>(m_Data), rhs.data(), size());
+		return *this;
+	}
+private:
+	bool m_Allocated;
+};
+
 #ifdef _DEBUG
 #define SELF_TEST(code) \
 namespace \

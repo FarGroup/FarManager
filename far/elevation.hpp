@@ -84,7 +84,7 @@ private:
 	inline bool Read(T& Data) const;
 	template<typename T>
 	inline bool Write(const T& Data) const;
-	bool SendCommand(ELEVATION_COMMAND Command) const;
+	bool SendCommand(ELEVATION_COMMAND Command);
 	bool ReceiveLastError() const;
 	bool Initialize();
 	bool ElevationApproveDlg(LNGID Why, const string& Object);

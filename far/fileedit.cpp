@@ -334,7 +334,7 @@ fileeditor_ptr FileEditor::create(const string& Name, uintptr_t codepage, DWORD 
 	return FileEditorPtr;
 }
 
-fileeditor_ptr FileEditor::create(const string& Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose, window_ptr Update, EDITOR_FLAGS OpenModeExstFile)
+fileeditor_ptr FileEditor::create(const string& Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose, window_ptr_ref Update, EDITOR_FLAGS OpenModeExstFile)
 {
 	fileeditor_ptr FileEditorPtr(new FileEditor);
 	FileEditorPtr->m_Flags.Set(InitFlags);
@@ -415,7 +415,7 @@ void FileEditor::Init(
     int StartChar,
     const string* PluginData,
     int DeleteOnClose,
-	window_ptr Update,
+	window_ptr_ref Update,
     EDITOR_FLAGS OpenModeExstFile
 )
 {
@@ -1636,7 +1636,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 				}
 
 				SetCursorType(false, 0);
-				INT64 CurPos = EditFile.GetPointer();
+				const auto CurPos = EditFile.GetPointer();
 				int Percent = static_cast<int>(CurPos*100/FileSize);
 				// В случае если во время загрузки файл увеличивается размере, то количество
 				// процентов может быть больше 100. Обрабатываем эту ситуацию.
@@ -2330,7 +2330,7 @@ BOOL FileEditor::SetFileName(const string& NewFileName)
 		}
 
 		//Дабы избежать бардака, развернём слешики...
-		ReplaceSlashToBSlash(strFullFileName);
+		ReplaceSlashToBackslash(strFullFileName);
 	}
 	else
 	{
@@ -2871,7 +2871,7 @@ bool FileEditor::LoadFromCache(EditorPosCache &pc)
 	else
 	{
 		strCacheName+=strFullFileName;
-		ReplaceSlashToBSlash(strCacheName);
+		ReplaceSlashToBackslash(strCacheName);
 	}
 
 	pc.Clear();

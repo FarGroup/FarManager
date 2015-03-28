@@ -113,7 +113,7 @@ static int PrepareHotKey(string &strHotKey)
 	return FuncNum;
 }
 
-const wchar_t *LocalMenuFileName=L"FarMenu.ini";
+static const wchar_t LocalMenuFileName[] = L"FarMenu.ini";
 
 struct UserMenu::UserMenuItem
 {
@@ -309,8 +309,7 @@ static string GetMenuTitle(MENUMODE MenuMode)
 void UserMenu::ProcessUserMenu(bool MenuType, const string& MenuFileName)
 {
 	// Путь к текущему каталогу с файлом LocalMenuFileName
-	string strMenuFilePath;
-	Global->CtrlObject->CmdLine()->GetCurDir(strMenuFilePath);
+	auto strMenuFilePath = Global->CtrlObject->CmdLine()->GetCurDir();
 	// по умолчанию меню - это FarMenu.ini
 	m_MenuMode = MM_LOCAL;
 	m_MenuModified = false;
@@ -446,7 +445,7 @@ void UserMenu::ProcessUserMenu(bool MenuType, const string& MenuFileName)
 						break;
 
 					default: // MM_USER
-						Global->CtrlObject->CmdLine()->GetCurDir(strMenuFilePath);
+						strMenuFilePath = Global->CtrlObject->CmdLine()->GetCurDir();
 						m_MenuMode=MM_LOCAL;
 				}
 
@@ -747,8 +746,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 
 		/* $ 01.05.2001 IS Отключим до лучших времен */
 		//int LeftVisible,RightVisible,PanelsHidden=0;
-		string strCmdLineDir;
-		Global->CtrlObject->CmdLine()->GetCurDir(strCmdLineDir);
+		const auto strCmdLineDir = Global->CtrlObject->CmdLine()->GetCurDir();
 		Global->CtrlObject->CmdLine()->LockUpdatePanel(true);
 
 		// Цикл исполнения команд меню (CommandX)

@@ -77,16 +77,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "locale.hpp"
 #include "constitle.hpp"
+#include "xlat.hpp"
 
 static const size_t predefined_panel_modes_count = 10;
 
 // Стандартный набор разделителей
-static const wchar_t* WordDiv0 = L"~!%^&*()+|{}:\"<>?`-=\\[];',./";
+static const wchar_t WordDiv0[] = L"~!%^&*()+|{}:\"<>?`-=\\[];',./";
 
 // Стандартный набор разделителей для функции Xlat
-static const wchar_t* WordDivForXlat0=L" \t!#$%^&*()+|=\\/@?";
+static const wchar_t WordDivForXlat0[] = L" \t!#$%^&*()+|=\\/@?";
 
-static const wchar_t* constBatchExt=L".BAT;.CMD;";
+static const wchar_t constBatchExt[] = L".BAT;.CMD;";
 
 static const int DefaultTabSize = 8;
 
@@ -96,46 +97,46 @@ static const size_t default_copy_buffer_size = 32 * 1024;
 
 
 #if defined(TREEFILE_PROJECT)
-static const wchar_t* constLocalDiskTemplate=L"LD.%D.%SN.tree";
-static const wchar_t* constNetDiskTemplate=L"ND.%D.%SN.tree";
-static const wchar_t* constNetPathTemplate=L"NP.%SR.%SH.tree";
-static const wchar_t* constRemovableDiskTemplate=L"RD.%SN.tree";
-static const wchar_t* constCDDiskTemplate=L"CD.%L.%SN.tree";
+static const wchar_t constLocalDiskTemplate[] = L"LD.%D.%SN.tree";
+static const wchar_t constNetDiskTemplate[] = L"ND.%D.%SN.tree";
+static const wchar_t constNetPathTemplate[] = L"NP.%SR.%SH.tree";
+static const wchar_t constRemovableDiskTemplate[] = L"RD.%SN.tree";
+static const wchar_t constCDDiskTemplate[] = L"CD.%L.%SN.tree";
 #endif
 
-static const wchar_t* NKeyScreen=L"Screen";
-static const wchar_t* NKeyCmdline=L"Cmdline";
-static const wchar_t* NKeyInterface=L"Interface";
-static const wchar_t* NKeyInterfaceCompletion=L"Interface.Completion";
-static const wchar_t* NKeyViewer=L"Viewer";
-static const wchar_t* NKeyDialog=L"Dialog";
-static const wchar_t* NKeyEditor=L"Editor";
-static const wchar_t* NKeyXLat=L"XLat";
-static const wchar_t* NKeySystem=L"System";
-static const wchar_t* NKeySystemException=L"System.Exception";
-static const wchar_t* NKeySystemKnownIDs=L"System.KnownIDs";
-static const wchar_t* NKeySystemExecutor=L"System.Executor";
-static const wchar_t* NKeySystemNowell=L"System.Nowell";
-static const wchar_t* NKeyHelp=L"Help";
-static const wchar_t* NKeyLanguage=L"Language";
-static const wchar_t* NKeyConfirmations=L"Confirmations";
-static const wchar_t* NKeyPluginConfirmations=L"PluginConfirmations";
-static const wchar_t* NKeyPanel=L"Panel";
-static const wchar_t* NKeyPanelLeft=L"Panel.Left";
-static const wchar_t* NKeyPanelRight=L"Panel.Right";
-static const wchar_t* NKeyPanelLayout=L"Panel.Layout";
-static const wchar_t* NKeyPanelTree=L"Panel.Tree";
-static const wchar_t* NKeyPanelInfo=L"Panel.Info";
-static const wchar_t* NKeyLayout=L"Layout";
-static const wchar_t* NKeyDescriptions=L"Descriptions";
-static const wchar_t* NKeyKeyMacros=L"Macros";
-static const wchar_t* NKeyPolicies=L"Policies";
-static const wchar_t* NKeyCodePages=L"CodePages";
-static const wchar_t* NKeyVMenu=L"VMenu";
-static const wchar_t* NKeyCommandHistory=L"History.CommandHistory";
-static const wchar_t* NKeyViewEditHistory=L"History.ViewEditHistory";
-static const wchar_t* NKeyFolderHistory=L"History.FolderHistory";
-static const wchar_t* NKeyDialogHistory=L"History.DialogHistory";
+static const wchar_t NKeyScreen[] = L"Screen";
+static const wchar_t NKeyCmdline[] = L"Cmdline";
+static const wchar_t NKeyInterface[] = L"Interface";
+static const wchar_t NKeyInterfaceCompletion[] = L"Interface.Completion";
+static const wchar_t NKeyViewer[] = L"Viewer";
+static const wchar_t NKeyDialog[] = L"Dialog";
+static const wchar_t NKeyEditor[] = L"Editor";
+static const wchar_t NKeyXLat[] = L"XLat";
+static const wchar_t NKeySystem[] = L"System";
+static const wchar_t NKeySystemException[] = L"System.Exception";
+static const wchar_t NKeySystemKnownIDs[] = L"System.KnownIDs";
+static const wchar_t NKeySystemExecutor[] = L"System.Executor";
+static const wchar_t NKeySystemNowell[] = L"System.Nowell";
+static const wchar_t NKeyHelp[] = L"Help";
+static const wchar_t NKeyLanguage[] = L"Language";
+static const wchar_t NKeyConfirmations[] = L"Confirmations";
+static const wchar_t NKeyPluginConfirmations[] = L"PluginConfirmations";
+static const wchar_t NKeyPanel[] = L"Panel";
+static const wchar_t NKeyPanelLeft[] = L"Panel.Left";
+static const wchar_t NKeyPanelRight[] = L"Panel.Right";
+static const wchar_t NKeyPanelLayout[] = L"Panel.Layout";
+static const wchar_t NKeyPanelTree[] = L"Panel.Tree";
+static const wchar_t NKeyPanelInfo[] = L"Panel.Info";
+static const wchar_t NKeyLayout[] = L"Layout";
+static const wchar_t NKeyDescriptions[] = L"Descriptions";
+static const wchar_t NKeyKeyMacros[] = L"Macros";
+static const wchar_t NKeyPolicies[] = L"Policies";
+static const wchar_t NKeyCodePages[] = L"CodePages";
+static const wchar_t NKeyVMenu[] = L"VMenu";
+static const wchar_t NKeyCommandHistory[] = L"History.CommandHistory";
+static const wchar_t NKeyViewEditHistory[] = L"History.ViewEditHistory";
+static const wchar_t NKeyFolderHistory[] = L"History.FolderHistory";
+static const wchar_t NKeyDialogHistory[] = L"History.DialogHistory";
 
 static inline size_t DisplayModeToReal(size_t Mode)
 {
@@ -1370,7 +1371,7 @@ void BoolOption::Export(FarSettingsItem& To) const
 bool BoolOption::ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool Default)
 {
 	long long CfgValue = Default;
-	bool Result = Storage->GetValue(KeyName, ValueName, &CfgValue, CfgValue);
+	bool Result = Storage->GetValue(KeyName, ValueName, CfgValue, CfgValue);
 	Set(CfgValue != 0);
 	return Result;
 }
@@ -1420,7 +1421,7 @@ void Bool3Option::Export(FarSettingsItem& To) const
 bool Bool3Option::ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, int Default)
 {
 	long long CfgValue = Default;
-	bool Result = Storage->GetValue(KeyName, ValueName, &CfgValue, CfgValue);
+	bool Result = Storage->GetValue(KeyName, ValueName, CfgValue, CfgValue);
 	Set(CfgValue);
 	return Result;
 }
@@ -1473,7 +1474,7 @@ void IntOption::Export(FarSettingsItem& To) const
 bool IntOption::ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, long long Default)
 {
 	long long CfgValue = Default;
-	bool Result = Storage->GetValue(KeyName, ValueName, &CfgValue, CfgValue);
+	bool Result = Storage->GetValue(KeyName, ValueName, CfgValue, CfgValue);
 	Set(CfgValue);
 	return Result;
 }
@@ -2168,62 +2169,7 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 	if (Exec.strExecuteBatchType.empty()) // предохраняемся
 		Exec.strExecuteBatchType=constBatchExt;
 
-	// Инициализация XLat для русской раскладки qwerty<->йцукен
-	if (std::any_of(ALL_CONST_RANGE(XLat.Table), std::mem_fn(&StringOption::empty)) ||
-		std::any_of(ALL_CONST_RANGE(XLat.Rules), std::mem_fn(&StringOption::empty)))
-	{
-		int Count = GetKeyboardLayoutList(0, nullptr);
-		if (Count)
-		{
-			std::vector<HKL> Layouts(Count);
-			if (GetKeyboardLayoutList(static_cast<int>(Layouts.size()), Layouts.data()))
-			{
-				const WORD RussianLanguageId = MAKELANGID(LANG_RUSSIAN, SUBLANG_RUSSIAN_RUSSIA);
-				if (std::any_of(CONST_RANGE(Layouts, i){ return LOWORD(i) == RussianLanguageId; }))
-				{
-					static const wchar_t* Tables[] =
-					{
-						L"\x2116\x0410\x0412\x0413\x0414\x0415\x0417\x0418\x0419\x041a\x041b\x041c\x041d\x041e\x041f\x0420\x0421\x0422\x0423\x0424\x0425\x0426\x0427\x0428\x0429\x042a\x042b\x042c\x042f\x0430\x0432\x0433\x0434\x0435\x0437\x0438\x0439\x043a\x043b\x043c\x043d\x043e\x043f\x0440\x0441\x0442\x0443\x0444\x0445\x0446\x0447\x0448\x0449\x044a\x044b\x044c\x044d\x044f\x0451\x0401\x0411\x042e",
-						L"#FDULTPBQRKVYJGHCNEA{WXIO}SMZfdultpbqrkvyjghcnea[wxio]sm'z`~<>",
-					};
-
-					static const wchar_t* Rules[] =
-					{
-						L",??&./\x0431,\x044e.:^\x0416:\x0436;;$\"@\x042d\"",
-						L"?,&?/.,\x0431.\x044e^::\x0416;\x0436$;@\"\"\x042d",
-						L"^::\x0416\x0416^$;;\x0436\x0436$@\"\"\x042d\x042d@&??,,\x0431\x0431&/..\x044e\x044e/",
-					};
-
-					const auto SetIfEmpty = [](StringOption& opt, const wchar_t* table) { if (opt.empty()) opt = table; };
-
-					for_each_2(ALL_RANGE(XLat.Table), Tables, SetIfEmpty);
-					for_each_2(ALL_RANGE(XLat.Rules), Rules, SetIfEmpty);
-				}
-			}
-		}
-
-	}
-
-	{
-		if (!XLat.strLayouts.empty())
-		{
-			size_t I=0;
-			std::vector<string> Strings;
-			split(Strings, XLat.strLayouts, STLF_UNIQUE);
-			FOR(const auto& i, Strings)
-			{
-				DWORD res = std::stoul(i, nullptr, 16);
-				XLat.Layouts[I]=(HKL)(intptr_t)(HIWORD(res)? res : MAKELONG(res,res));
-				++I;
-
-				if (I >= ARRAYSIZE(XLat.Layouts))
-					break;
-			}
-
-			if (I <= 1) // если указано меньше двух - "отключаем" эту
-				XLat.Layouts[0]=0;
-		}
-	}
+	xlat_initialize();
 
 	FindOpt.OutColumns.clear();
 
@@ -2482,13 +2428,13 @@ void Options::DeleteViewSettings(size_t Index)
 	m_ViewSettingsChanged = true;
 }
 
-static const wchar_t *CustomModesKeyName = L"CustomModes";
-static const wchar_t *ModesNameName = L"Name";
-static const wchar_t *ModesColumnTitlesName = L"ColumnTitles";
-static const wchar_t *ModesColumnWidthsName = L"ColumnWidths";
-static const wchar_t *ModesStatusColumnTitlesName = L"StatusColumnTitles";
-static const wchar_t *ModesStatusColumnWidthsName = L"StatusColumnWidths";
-static const wchar_t *ModesFlagsName = L"Flags";
+static const wchar_t CustomModesKeyName[] = L"CustomModes";
+static const wchar_t ModesNameName[] = L"Name";
+static const wchar_t ModesColumnTitlesName[] = L"ColumnTitles";
+static const wchar_t ModesColumnWidthsName[] = L"ColumnWidths";
+static const wchar_t ModesStatusColumnTitlesName[] = L"StatusColumnTitles";
+static const wchar_t ModesStatusColumnWidthsName[] = L"StatusColumnWidths";
+static const wchar_t ModesFlagsName[] = L"Flags";
 
 void Options::ReadPanelModes()
 {
@@ -2513,7 +2459,7 @@ void Options::ReadPanelModes()
 		cfg->GetValue(id, ModesStatusColumnWidthsName, strStatusColumnWidths);
 
 		unsigned __int64 Flags=0;
-		cfg->GetValue(id, ModesFlagsName, &Flags);
+		cfg->GetValue(id, ModesFlagsName, Flags);
 
 		cfg->GetValue(id, ModesNameName, i.Name);
 

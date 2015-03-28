@@ -52,7 +52,7 @@ void GetStoredUserName(wchar_t cDrive, string &strUserName)
 	api::reg::GetValue(HKEY_CURRENT_USER, KeyName, L"UserName", strUserName);
 }
 
-std::bitset<32> AddSavedNetworkDisks(std::bitset<32>& Mask)
+api::drives_set AddSavedNetworkDisks(api::drives_set& Mask)
 {
 	FN_RETURN_TYPE(AddSavedNetworkDisks) Result;
 	HANDLE hEnum;

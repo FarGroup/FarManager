@@ -81,7 +81,8 @@ bool AddEndSlash(wchar_t *Path, wchar_t TypeSlash);
 bool AddEndSlash(wchar_t *Path);
 void DeleteEndSlash(wchar_t* Path);
 void DeleteEndSlash(string& Path);
-string &ReplaceSlashToBSlash(string &strStr);
+inline void ReplaceSlashToBackslash(string &strStr) { std::replace(ALL_RANGE(strStr), L'/', L'\\'); }
+inline void ReplaceBackslashToSlash(string &strStr) { std::replace(ALL_RANGE(strStr), L'\\', L'/'); }
 
 const wchar_t *FirstSlash(const wchar_t *String);
 const wchar_t *LastSlash(const wchar_t *String);

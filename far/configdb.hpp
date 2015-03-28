@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "synchro.hpp"
 
 struct VersionInfo;
+class blob;
 
 namespace tinyxml
 {
@@ -62,7 +63,7 @@ public:
 	virtual bool SetValue(const string& Key, const string& Name, const string& Value) = 0;
 	virtual bool SetValue(const string& Key, const string& Name, const wchar_t* Value) = 0;
 	virtual bool SetValue(const string& Key, const string& Name, unsigned __int64 Value) = 0;
-	virtual bool SetValue(const string& Key, const string& Name, const void *Value, size_t Size) = 0;
+	virtual bool SetValue(const string& Key, const string& Name, const blob& Value) = 0;
 	template<class T>
 	typename std::enable_if<!std::is_pointer<T>::value && !std::is_integral<T>::value, bool>::type
 	SetValue(const string& Key, const string& Name, const T& Value)
@@ -71,20 +72,12 @@ public:
 		return SetValue(Key, Name, &Value, sizeof(Value));
 	}
 
-	virtual bool GetValue(const string& Key, const string& Name, long long *Value, long long Default) = 0;
-	virtual bool GetValue(const string& Key, const string& Name, string &strValue, const wchar_t *Default) = 0;
-	virtual int GetValue(const string& Key, const string& Name, void *Value, size_t Size, const void *Default) = 0;
-	template<class T>
-	typename std::enable_if<!std::is_pointer<T>::value && !std::is_integral<T>::value, bool>::type
-	GetValue(const string& Key, const string& Name, T& Value)
-	{
-		static_assert(std::is_pod<T>::value, "This template requires a POD type");
-		return GetValue(Key, Name, &Value, sizeof(Value)) != 0;
-	}
+	virtual bool GetValue(const string& Key, const string& Name, long long& Value, long long Default) = 0;
+	virtual bool GetValue(const string& Key, const string& Name, string& Value, const wchar_t *Default) = 0;
 
 	virtual bool DeleteValue(const string& Key, const string& Name) = 0;
 	virtual bool EnumValues(const string& Key, DWORD Index, string &strName, string &strValue) = 0;
-	virtual bool EnumValues(const string& Key, DWORD Index, string &strName, DWORD& Value) = 0;
+	virtual bool EnumValues(const string& Key, DWORD Index, string &strName, long long& Value) = 0;
 
 	template<class T>
 	class values_enumerator: public enumerator<std::pair<string, T>>
@@ -101,8 +94,11 @@ public:
 		const string m_key;
 	};
 
-	values_enumerator<string> GetStringValuesEnumerator(const string& key) { return values_enumerator<string>(*this, key); }
-	values_enumerator<DWORD> GetIntValuesEnumerator(const string& key) { return values_enumerator<DWORD>(*this, key); }
+	typedef values_enumerator<string> string_values_enumerator;
+	typedef values_enumerator<long long> int_values_enumerator;
+
+	string_values_enumerator GetStringValuesEnumerator(const string& key) { return string_values_enumerator(*this, key); }
+	int_values_enumerator GetIntValuesEnumerator(const string& key) { return int_values_enumerator(*this, key); }
 
 protected:
 	GeneralConfig() {}
@@ -118,31 +114,32 @@ public:
 
 	virtual bool SetValue(unsigned __int64 Root, const string& Name, const string& Value) = 0;
 	virtual bool SetValue(unsigned __int64 Root, const string& Name, const wchar_t* Value) = 0;
-	virtual bool SetValue(unsigned __int64 Root, const string& Name, unsigned __int64 Value) = 0;
-	virtual bool SetValue(unsigned __int64 Root, const string& Name, const void *Value, size_t Size) = 0;
+	virtual bool SetValue(unsigned __int64 Root, const string& Name, unsigned long long Value) = 0;
+	virtual bool SetValue(unsigned __int64 Root, const string& Name, const blob& Value) = 0;
 	template<class T>
 	typename std::enable_if<!std::is_pointer<T>::value && !std::is_integral<T>::value, bool>::type
 	SetValue(unsigned __int64 Root, const string& Name, const T& Value)
 	{
 		static_assert(std::is_pod<T>::value, "This template requires a POD type");
-		return SetValue(Root, Name, &Value, sizeof(Value));
+		return SetValue(Root, Name, blob(&Value, sizeof(Value)));
 	}
 
-	virtual bool GetValue(unsigned __int64 Root, const string& Name, unsigned __int64 *Value) = 0;
+	virtual bool GetValue(unsigned __int64 Root, const string& Name, unsigned long long& Value) = 0;
 	virtual bool GetValue(unsigned __int64 Root, const string& Name, string &strValue) = 0;
-	virtual int GetValue(unsigned __int64 Root, const string& Name, void *Value, size_t Size) = 0;
+	virtual bool GetValue(unsigned __int64 Root, const string& Name, writable_blob& Value) = 0;
 	template<class T>
 	typename std::enable_if<!std::is_pointer<T>::value && !std::is_integral<T>::value, bool>::type
 	GetValue(unsigned __int64 Root, const string& Name, T& Value)
 	{
 		static_assert(std::is_pod<T>::value, "This template requires a POD type");
-		return GetValue(Root, Name, &Value, sizeof(Value)) != 0;
+		writable_blob Blob(&Value, sizeof(Value));
+		return GetValue(Root, Name, Blob);
 	}
 
 	virtual bool DeleteKeyTree(unsigned __int64 KeyID) = 0;
 	virtual bool DeleteValue(unsigned __int64 Root, const string& Name) = 0;
 	virtual bool EnumKeys(unsigned __int64 Root, DWORD Index, string &strName) = 0;
-	virtual bool EnumValues(unsigned __int64 Root, DWORD Index, string &strName, DWORD *Type) = 0;
+	virtual bool EnumValues(unsigned __int64 Root, DWORD Index, string &strName, DWORD& Type) = 0;
 	virtual bool Flush() = 0;
 
 protected:
@@ -193,22 +190,22 @@ class PluginsCacheConfig: public XmlConfig, virtual public transactional
 public:
 	virtual ~PluginsCacheConfig() {}
 	virtual unsigned __int64 CreateCache(const string& CacheName) = 0;
-	virtual unsigned __int64 GetCacheID(const string& CacheName) = 0;
+	virtual unsigned __int64 GetCacheID(const string& CacheName) const = 0;
 	virtual bool DeleteCache(const string& CacheName) = 0;
-	virtual bool IsPreload(unsigned __int64 id) = 0;
-	virtual string GetSignature(unsigned __int64 id) = 0;
-	virtual void *GetExport(unsigned __int64 id, const string& ExportName) = 0;
-	virtual string GetGuid(unsigned __int64 id) = 0;
-	virtual string GetTitle(unsigned __int64 id) = 0;
-	virtual string GetAuthor(unsigned __int64 id) = 0;
-	virtual string GetDescription(unsigned __int64 id) = 0;
-	virtual bool GetMinFarVersion(unsigned __int64 id, VersionInfo *Version) = 0;
-	virtual bool GetVersion(unsigned __int64 id, VersionInfo *Version) = 0;
-	virtual bool GetDiskMenuItem(unsigned __int64 id, size_t index, string &Text, string &Guid) = 0;
-	virtual bool GetPluginsMenuItem(unsigned __int64 id, size_t index, string &Text, string &Guid) = 0;
-	virtual bool GetPluginsConfigMenuItem(unsigned __int64 id, size_t index, string &Text, string &Guid) = 0;
-	virtual string GetCommandPrefix(unsigned __int64 id) = 0;
-	virtual unsigned __int64 GetFlags(unsigned __int64 id) = 0;
+	virtual bool IsPreload(unsigned __int64 id) const = 0;
+	virtual string GetSignature(unsigned __int64 id) const = 0;
+	virtual void *GetExport(unsigned __int64 id, const string& ExportName) const = 0;
+	virtual string GetGuid(unsigned __int64 id) const = 0;
+	virtual string GetTitle(unsigned __int64 id) const = 0;
+	virtual string GetAuthor(unsigned __int64 id) const = 0;
+	virtual string GetDescription(unsigned __int64 id) const = 0;
+	virtual bool GetMinFarVersion(unsigned __int64 id, VersionInfo *Version) const = 0;
+	virtual bool GetVersion(unsigned __int64 id, VersionInfo *Version) const = 0;
+	virtual bool GetDiskMenuItem(unsigned __int64 id, size_t index, string &Text, string &Guid) const = 0;
+	virtual bool GetPluginsMenuItem(unsigned __int64 id, size_t index, string &Text, string &Guid) const = 0;
+	virtual bool GetPluginsConfigMenuItem(unsigned __int64 id, size_t index, string &Text, string &Guid) const = 0;
+	virtual string GetCommandPrefix(unsigned __int64 id) const = 0;
+	virtual unsigned __int64 GetFlags(unsigned __int64 id) const = 0;
 	virtual bool SetPreload(unsigned __int64 id, bool Preload) = 0;
 	virtual bool SetSignature(unsigned __int64 id, const string& Signature) = 0;
 	virtual bool SetDiskMenuItem(unsigned __int64 id, size_t index, const string& Text, const string& Guid) = 0;
@@ -223,9 +220,9 @@ public:
 	virtual bool SetTitle(unsigned __int64 id, const string& Title) = 0;
 	virtual bool SetAuthor(unsigned __int64 id, const string& Author) = 0;
 	virtual bool SetDescription(unsigned __int64 id, const string& Description) = 0;
-	virtual bool EnumPlugins(DWORD index, string &CacheName) = 0;
+	virtual bool EnumPlugins(DWORD index, string &CacheName) const = 0;
 	virtual bool DiscardCache() = 0;
-	virtual bool IsCacheEmpty() = 0;
+	virtual bool IsCacheEmpty() const = 0;
 
 protected:
 	PluginsCacheConfig() {}

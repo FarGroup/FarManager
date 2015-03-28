@@ -51,9 +51,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     Например, значение 00000000000000000000010101(0x7h)
     скрывает диски A, C, и E
 */
-DWORD FarGetLogicalDrives()
+api::drives_set FarGetLogicalDrives()
 {
-	static DWORD LogicalDrivesMask = 0;
+	static unsigned int LogicalDrivesMask = 0;
 	unsigned int NoDrives=0;
 
 	if ((!Global->Opt->RememberLogicalDrives) || !LogicalDrivesMask)
@@ -68,7 +68,7 @@ DWORD FarGetLogicalDrives()
 		});
 	}
 
-	return LogicalDrivesMask&(~NoDrives);
+	return static_cast<int>(LogicalDrivesMask&(~NoDrives));
 }
 
 int CheckDisksProps(const string& SrcPath,const string& DestPath,int CheckedType)

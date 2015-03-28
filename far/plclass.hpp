@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class PluginManager;
 class Plugin;
 class Language;
+class PluginsCacheConfig;
 
 enum EXPORTS_ENUM
 {
@@ -106,8 +107,8 @@ public:
 	virtual bool Destroy(plugin_instance module) = 0;
 	virtual void InitExports(plugin_instance instance, exports_array& exports) = 0;
 
-	void SaveExportsToCache(class PluginsCacheConfig* cache, unsigned long long id, const exports_array& exports);
-	void LoadExportsFromCache(class PluginsCacheConfig* cache, unsigned long long id, exports_array& exports);
+	void SaveExportsToCache(PluginsCacheConfig& cache, unsigned long long id, const exports_array& exports);
+	void LoadExportsFromCache(const PluginsCacheConfig& cache, unsigned long long id, exports_array& exports);
 
 	PluginManager* GetOwner() const { return m_owner; }
 	const wchar_t* GetExportName(size_t index) const { return m_ExportsNames[index].UName; }

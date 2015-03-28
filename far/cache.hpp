@@ -48,7 +48,7 @@ private:
 	api::fs::file& file;
 	size_t ReadSize;
 	size_t BytesLeft;
-	INT64 LastPtr;
+	uint64_t LastPtr;
 	int Alignment;
 	std::vector<char> Buffer; // = 2*k*Alignment (k >= 2)
 };

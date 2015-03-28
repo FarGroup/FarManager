@@ -590,7 +590,7 @@ bool AbortMessage()
 		return true;
 	}
 
-	TaskBarPause TBP;
+	SCOPED_ACTION(TaskBarPause);
 	int Res = Message(MSG_WARNING|MSG_KILLSAVESCREEN,2,MSG(MKeyESCWasPressed),
 	                  MSG((Global->Opt->Confirm.EscTwiceToInterrupt)?MDoYouWantToStopWork2:MDoYouWantToStopWork),
 	                  MSG(MYes),MSG(MNo));

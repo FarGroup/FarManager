@@ -67,7 +67,7 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 		{
 			strCurDir = NewDir;
 			AddEndSlash(strCurDir);
-			ReplaceSlashToBSlash(strCurDir);
+			ReplaceSlashToBackslash(strCurDir);
 		}
 
 		if (ChangeDir)
@@ -84,7 +84,7 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 			if (strCurDir == L"\\")
 				api::GetCurrentDirectory(strCurDir); // здесь берем корень
 
-			ReplaceSlashToBSlash(strCurDir);
+			ReplaceSlashToBackslash(strCurDir);
 			ConvertNameToFull(NewDir,strCurDir);
 			PrepareDiskPath(strCurDir,false); // resolving not needed, very slow
 			rc=api::SetCurrentDirectory(strCurDir);

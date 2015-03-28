@@ -63,7 +63,7 @@ enum PSCR_RECTYPE
 	PSCR_RT_PLUGINDATA,
 };
 
-static const wchar_t *RecTypeName[]=
+static const wchar_t* const RecTypeName[]=
 {
 	L"Shortcut",
 	L"Name",
@@ -72,8 +72,8 @@ static const wchar_t *RecTypeName[]=
 	L"PluginData",
 };
 
-static const wchar_t* FolderShortcutsKey = L"Shortcuts";
-static const wchar_t* HelpFolderShortcuts = L"FolderShortcuts";
+static const wchar_t FolderShortcutsKey[] = L"Shortcuts";
+static const wchar_t HelpFolderShortcuts[] = L"FolderShortcuts";
 
 
 struct Shortcuts::shortcut: noncopyable
@@ -367,13 +367,13 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 						if (Key == KEY_INS || Key == KEY_NUMPAD0)
 						{
 							shortcut NewItem;
-							Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
-							Global->CtrlObject->CmdLine()->GetCurDir(NewItem.strFolder);
+							const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
+							NewItem.strFolder = Global->CtrlObject->CmdLine()->GetCurDir();
 							if (ActivePanel->GetMode() == PLUGIN_PANEL)
 							{
 								OpenPanelInfo Info;
 								ActivePanel->GetOpenPanelInfo(&Info);
-								auto ph = ActivePanel->GetPluginHandle();
+								const auto ph = ActivePanel->GetPluginHandle();
 								NewItem.PluginGuid = ph->pPlugin->GetGUID();
 								NewItem.strPluginFile = NullToEmpty(Info.HostFile);
 								NewItem.strPluginData = NullToEmpty(Info.ShortcutData);
@@ -609,13 +609,13 @@ void Shortcuts::Configure()
 						ItemIterator = Items[Pos].end();
 						--ItemIterator;
 					}
-					Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
-					Global->CtrlObject->CmdLine()->GetCurDir(ItemIterator->strFolder);
+					const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
+					ItemIterator->strFolder = Global->CtrlObject->CmdLine()->GetCurDir();
 					if (ActivePanel->GetMode() == PLUGIN_PANEL)
 					{
 						OpenPanelInfo Info;
 						ActivePanel->GetOpenPanelInfo(&Info);
-						auto ph = ActivePanel->GetPluginHandle();
+						const auto ph = ActivePanel->GetPluginHandle();
 						ItemIterator->PluginGuid = ph->pPlugin->GetGUID();
 						ItemIterator->strPluginFile = NullToEmpty(Info.HostFile);
 						ItemIterator->strPluginData = NullToEmpty(Info.ShortcutData);

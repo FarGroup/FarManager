@@ -1452,7 +1452,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	strDestDizPath.clear();
 	SrcPanel->SaveSelection();
 	// TODO: Posix - bugbug
-	ReplaceSlashToBSlash(strCopyDlgValue);
+	ReplaceSlashToBackslash(strCopyDlgValue);
 	// нужно ли показывать время копирования?
 	// ***********************************************************************
 	// **** Здесь все подготовительные операции закончены, можно приступать
@@ -3072,7 +3072,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const api::FAR_FIND_DATA &Src
 	}
 
 	api::fs::file DestFile;
-	__int64 AppendPos=0;
+	uint64_t AppendPos=0;
 	DWORD flags_attrs=0;
 
 	bool CopySparse=false;
@@ -3130,7 +3130,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const api::FAR_FIND_DATA &Src
 		{
 			if (FreeBytes>SrcData.nFileSize)
 			{
-				INT64 CurPtr = DestFile.GetPointer();
+				const auto CurPtr = DestFile.GetPointer();
 				DestFile.SetPointer(SrcData.nFileSize, nullptr, FILE_CURRENT);
 				DestFile.SetEnd();
 				DestFile.SetPointer(CurPtr, nullptr, FILE_BEGIN);
@@ -3318,7 +3318,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const api::FAR_FIND_DATA &Src
 
 					if (Split)
 					{
-						INT64 FilePtr=SrcFile.GetPointer();
+						const auto FilePtr = SrcFile.GetPointer();
 						api::FAR_FIND_DATA SplitData=SrcData;
 						SplitData.nFileSize-=FilePtr;
 						int RetCode = COPY_CANCEL;

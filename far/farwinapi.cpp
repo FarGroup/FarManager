@@ -423,8 +423,13 @@ inline void file::SyncPointer()
 {
 	if(NeedSyncPointer)
 	{
-		if (SetFilePointerEx(Handle, *reinterpret_cast<PLARGE_INTEGER>(&Pointer), reinterpret_cast<PLARGE_INTEGER>(&Pointer), FILE_BEGIN))
+		LARGE_INTEGER Distance, NewPointer;
+		Distance.QuadPart = Pointer;
+		if (SetFilePointerEx(Handle, Distance, &NewPointer, FILE_BEGIN))
+		{
+			Pointer = NewPointer.QuadPart;
 			NeedSyncPointer = false;
+		}
 	}
 }
 
@@ -459,9 +464,9 @@ bool file::Write(LPCVOID Buffer, size_t NumberOfBytesToWrite, size_t& NumberOfBy
 	return Result;
 }
 
-bool file::SetPointer(INT64 DistanceToMove, PINT64 NewFilePointer, DWORD MoveMethod)
+bool file::SetPointer(int64_t DistanceToMove, uint64_t* NewFilePointer, DWORD MoveMethod)
 {
-	INT64 OldPointer = Pointer;
+	const auto OldPointer = Pointer;
 	switch (MoveMethod)
 	{
 	case FILE_BEGIN:
@@ -472,7 +477,7 @@ bool file::SetPointer(INT64 DistanceToMove, PINT64 NewFilePointer, DWORD MoveMet
 		break;
 	case FILE_END:
 		{
-			UINT64 Size=0;
+			uint64_t Size = 0;
 			GetSize(Size);
 			Pointer = Size+DistanceToMove;
 		}
@@ -495,7 +500,7 @@ bool file::SetEnd()
 	bool ok = SetEndOfFile(Handle) != FALSE;
 	if (!ok && !name.empty() && GetLastError() == ERROR_INVALID_PARAMETER) // OSX buggy SMB workaround
 	{
-		INT64 fsize = GetPointer();
+		const auto fsize = GetPointer();
 		Close();
 		if (Open(name, GENERIC_WRITE, share_mode, nullptr, OPEN_EXISTING, 0))
 		{
@@ -596,10 +601,10 @@ bool file::Close()
 
 bool file::Eof()
 {
-	INT64 Ptr = GetPointer();
-	UINT64 Size=0;
+	const auto Ptr = GetPointer();
+	uint64_t Size=0;
 	GetSize(Size);
-	return static_cast<UINT64>(Ptr) >= Size;
+	return Ptr >= Size;
 }
 //-------------------------------------------------------------------------
 file_walker::file_walker():
@@ -906,7 +911,7 @@ BOOL SetCurrentDirectory(const string& PathName, bool Validate)
 {
 	// correct path to our standard
 	string strDir=PathName;
-	ReplaceSlashToBSlash(strDir);
+	ReplaceSlashToBackslash(strDir);
 	bool Root = false;
 	const auto Type = ParsePath(strDir, nullptr, &Root);
 	if(Root && (Type == PATH_DRIVELETTER || Type == PATH_DRIVELETTERUNC || Type == PATH_VOLUMEGUID))

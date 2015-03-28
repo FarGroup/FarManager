@@ -87,7 +87,7 @@ enum CDROM_DeviceCapabilities
 static CDROM_DeviceCapabilities getCapsUsingProductId(const char* prodID)
 {
 	std::string productID;
-	auto strID = as_string(prodID);
+	const auto strID = as_string(prodID);
 
 	std::for_each(CONST_RANGE(strID, i)
 	{
@@ -135,7 +135,7 @@ static CDROM_DeviceCapabilities getCapsUsingMagic(api::fs::file& Device)
 	int caps = CAPABILITIES_NONE;
 
 	SCSI_PASS_THROUGH_WITH_BUFFERS sptwb;
-	unsigned short sDataLength = sizeof(sptwb.DataBuf);
+	const auto sDataLength = sizeof(sptwb.DataBuf);
 
 	InitSCSIPassThrough(&sptwb);
 
@@ -212,8 +212,8 @@ static CDROM_DeviceCapabilities getCapsUsingMagic(api::fs::file& Device)
 			&returned
 			) && (sptwb.Spt.ScsiStatus == 0) )
 	{
-		unsigned char *ptr = sptwb.DataBuf;
-		unsigned char *ptr_end = &sptwb.DataBuf[sDataLength];
+		const auto* ptr = sptwb.DataBuf;
+		const auto* ptr_end = &sptwb.DataBuf[sDataLength];
 
 		ptr += 8;
 
@@ -353,9 +353,7 @@ static CDROM_DeviceCapabilities getCapsUsingDeviceProps(api::fs::file& Device)
 
 static CDROM_DeviceCapabilities GetDeviceCapabilities(api::fs::file& Device)
 {
-	CDROM_DeviceCapabilities caps = CAPABILITIES_NONE;
-
-	caps = getCapsUsingMagic(Device);
+	auto caps = getCapsUsingMagic(Device);
 
 	if ( caps == CAPABILITIES_NONE )
 		caps = getCapsUsingDeviceProps(Device);

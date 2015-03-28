@@ -282,22 +282,20 @@ static int iso8601wknum(const tm *timeptr)
 	return weeknum;
 }
 
-size_t StrFTime(string &strDest, const wchar_t *Format,const tm *t)
+string StrFTime(const wchar_t* Format, const tm* t)
 {
 	if (CurLang==-1 && Global && Global->Lang)
 		PrepareStrFTime();
 
 	// меняем язык.
 	CurLang=0;
-	size_t Len;
 
-	strDest.clear();
+	string strDest;
 
-	for (Len=1; *Format; Format++)
+	for (; *Format; ++Format)
 	{
 		if (*Format!=L'%')
 		{
-			Len++;
 			const wchar_t Text[]={*Format,0};
 			strDest+=Text;
 		}
@@ -471,11 +469,11 @@ size_t StrFTime(string &strDest, const wchar_t *Format,const tm *t)
 					break;
 					// time as %I:%M:%S %p
 				case L'r':
-					StrFTime(strBuf,L"%I:%M:%S %p",t);
+					strBuf = StrFTime(L"%I:%M:%S %p", t);
 					break;
 					// time as %H:%M
 				case L'R':
-					StrFTime(strBuf,L"%H:%M",t);
+					strBuf = StrFTime(L"%H:%M", t);
 					break;
 					// week of year according ISO 8601
 				case L'V':
@@ -484,29 +482,27 @@ size_t StrFTime(string &strDest, const wchar_t *Format,const tm *t)
 			}
 
 			strDest+=strBuf;
-			Len+=strBuf.size();
 		}
 #endif
 	}
 
 	if (*Format)
-		return 0;
+		strDest.clear();
 
-	return Len-1;
+	return strDest;
 }
 
-size_t MkStrFTime(string &strDest, const wchar_t *Fmt)
+string MkStrFTime(const wchar_t *Format)
 {
-	tm *time_now;
 	time_t secs_now;
 	_tzset();
 	time(&secs_now);
-	time_now=localtime(&secs_now);
+	const auto time_now = localtime(&secs_now);
 
-	if (!Fmt||!*Fmt)
-		Fmt=Global->Opt->Macro.strDateFormat.data();
+	if (!Format || !*Format)
+		Format = Global->Opt->Macro.strDateFormat.data();
 
-	return StrFTime(strDest,Fmt,time_now);
+	return StrFTime(Format, time_now);
 }
 
 void GetFileDateAndTime(const string& Src, LPWORD Dst, size_t Count, wchar_t Separator)

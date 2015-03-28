@@ -529,7 +529,7 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 	{
 		if (strPath.size() > 1 && (strPath[1]==L':' || (strPath[0]==L'\\' && strPath[1]==L'\\')))
 		{
-			ReplaceSlashToBSlash(strPath);
+			ReplaceSlashToBackslash(strPath);
 			bool DoubleSlash = strPath[1]==L'\\';
 			while(ReplaceStrings(strPath,L"\\\\",L"\\"));
 			if(DoubleSlash)

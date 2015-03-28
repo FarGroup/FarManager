@@ -46,7 +46,7 @@ public:
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
 
-	int GetCurDir(string &strCurDir) const;
+	string GetCurDir() const { return m_CurDir; }
 	void SetCurDir(const string& CurDir);
 	void GetString(string &strStr) const { CmdStr.GetString(strStr); }
 	int GetLength() const { return CmdStr.GetLength(); }

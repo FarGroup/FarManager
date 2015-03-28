@@ -64,8 +64,27 @@ void ColorItem::SetColor(const FarColor& Value)
 
 static int Recurse=0;
 
-enum {EOL_NONE,EOL_CR,EOL_LF,EOL_CRLF,EOL_CRCRLF};
-static const wchar_t *EOL_TYPE_CHARS[]={L"",L"\r",L"\n",L"\r\n",L"\r\r\n"};
+enum
+{
+	EOL_NONE,
+	EOL_CR,
+	EOL_LF,
+	EOL_CRLF,
+	EOL_CRCRLF,
+
+	EOL_COUNT
+};
+
+static const wchar_t* const EOL_TYPE_CHARS[] =
+{
+	L"",
+	L"\r",
+	L"\n",
+	L"\r\n",
+	L"\r\r\n"
+};
+
+static_assert(ARRAYSIZE(EOL_TYPE_CHARS) == EOL_COUNT, "wrong EOL_TYPE_CHARS[] size");
 
 static const wchar_t EDMASK_ANY    = L'X'; // позволяет вводить в строку ввода любой символ;
 static const wchar_t EDMASK_DSS    = L'#'; // позволяет вводить в строку ввода цифры, пробел и знак минуса;

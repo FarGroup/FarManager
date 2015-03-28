@@ -3743,7 +3743,7 @@ bool Viewer::vseek(__int64 Offset, int Whence)
 
 __int64 Viewer::vtell()
 {
-	__int64 Ptr = ViewFile.GetPointer();
+	auto Ptr = ViewFile.GetPointer();
 
 	if (vgetc_ready)
 		Ptr -= (vgetc_cb - vgetc_ib);

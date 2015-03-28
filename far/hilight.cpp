@@ -117,7 +117,7 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 	{
 		if (auto root = cfg->CreateKey(0, HighlightKeyName))
 		{
-			static const wchar_t *Masks[]=
+			static const wchar_t* const Masks[]=
 			{
 				/* 0 */ L"*.*",
 				/* 1 */ L"<arc>",
@@ -172,7 +172,7 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 				cfg->SetValue(key, HLS.NormalColor, i.NormalColor);
 				cfg->SetValue(key, HLS.CursorColor, i.CursorColor);
 
-				static const wchar_t* Names[] =
+				static const wchar_t* const Names[] =
 				{
 					HLS.SelectedColor,
 					HLS.SelectedCursorColor,
@@ -208,13 +208,13 @@ static void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilter
 	if (bSortGroup)
 	{
 		unsigned __int64 UseMask = 1;
-		cfg->GetValue(key,HLS.UseMask,&UseMask);
+		cfg->GetValue(key, HLS.UseMask, UseMask);
 		HData.SetMask(UseMask!=0, Mask);
 	}
 	else
 	{
 		unsigned __int64 IgnoreMask = 0;
-		cfg->GetValue(key,HLS.IgnoreMask,&IgnoreMask);
+		cfg->GetValue(key, HLS.IgnoreMask, IgnoreMask);
 		HData.SetMask(IgnoreMask==0, Mask);
 	}
 
@@ -223,11 +223,11 @@ static void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilter
 	FILETIME DateBefore = {};
 	cfg->GetValue(key,HLS.DateBefore, DateBefore);
 	unsigned __int64 UseDate = 0;
-	cfg->GetValue(key,HLS.UseDate,&UseDate);
+	cfg->GetValue(key, HLS.UseDate, UseDate);
 	unsigned __int64 DateType = 0;
-	cfg->GetValue(key,HLS.DateType,&DateType);
+	cfg->GetValue(key, HLS.DateType, DateType);
 	unsigned __int64 DateRelative = 0;
-	cfg->GetValue(key,HLS.DateRelative, &DateRelative);
+	cfg->GetValue(key, HLS.DateRelative, DateRelative);
 	HData.SetDate(UseDate!=0, (DWORD)DateType, DateAfter, DateBefore, DateRelative!=0);
 
 	string strSizeAbove;
@@ -235,35 +235,35 @@ static void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilter
 	string strSizeBelow;
 	cfg->GetValue(key,HLS.SizeBelow,strSizeBelow);
 	unsigned __int64 UseSize = 0;
-	cfg->GetValue(key,HLS.UseSize,&UseSize);
+	cfg->GetValue(key, HLS.UseSize, UseSize);
 	HData.SetSize(UseSize!=0, strSizeAbove, strSizeBelow);
 
 	unsigned __int64 UseHardLinks = 0;
-	cfg->GetValue(key,HLS.UseHardLinks,&UseHardLinks);
+	cfg->GetValue(key, HLS.UseHardLinks, UseHardLinks);
 	unsigned __int64 HardLinksAbove = 0;
-	cfg->GetValue(key,HLS.HardLinksAbove,&HardLinksAbove);
+	cfg->GetValue(key, HLS.HardLinksAbove, HardLinksAbove);
 	unsigned __int64 HardLinksBelow = 0;
-	cfg->GetValue(key,HLS.HardLinksBelow,&HardLinksBelow);
+	cfg->GetValue(key, HLS.HardLinksBelow, HardLinksBelow);
 	HData.SetHardLinks(UseHardLinks!=0,HardLinksAbove,HardLinksBelow);
 
 	if (bSortGroup)
 	{
 		unsigned __int64 UseAttr = 1;
-		cfg->GetValue(key,HLS.UseAttr,&UseAttr);
+		cfg->GetValue(key, HLS.UseAttr, UseAttr);
 		unsigned __int64 AttrSet = 0;
-		cfg->GetValue(key,HLS.AttrSet,&AttrSet);
+		cfg->GetValue(key, HLS.AttrSet, AttrSet);
 		unsigned __int64 AttrClear = FILE_ATTRIBUTE_DIRECTORY;
-		cfg->GetValue(key,HLS.AttrClear,&AttrClear);
+		cfg->GetValue(key, HLS.AttrClear, AttrClear);
 		HData.SetAttr(UseAttr!=0, (DWORD)AttrSet, (DWORD)AttrClear);
 	}
 	else
 	{
 		unsigned __int64 UseAttr = 1;
-		cfg->GetValue(key,HLS.UseAttr,&UseAttr);
+		cfg->GetValue(key, HLS.UseAttr, UseAttr);
 		unsigned __int64 IncludeAttributes = 0;
-		cfg->GetValue(key,HLS.IncludeAttributes,&IncludeAttributes);
+		cfg->GetValue(key, HLS.IncludeAttributes, IncludeAttributes);
 		unsigned __int64 ExcludeAttributes = 0;
-		cfg->GetValue(key,HLS.ExcludeAttributes,&ExcludeAttributes);
+		cfg->GetValue(key, HLS.ExcludeAttributes, ExcludeAttributes);
 		HData.SetAttr(UseAttr!=0, (DWORD)IncludeAttributes, (DWORD)ExcludeAttributes);
 	}
 
@@ -280,7 +280,7 @@ static void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilter
 	cfg->GetValue(key,HLS.MarkCharSelectedCursorColor, Colors.Color[HighlightFiles::SELECTEDUNDERCURSOR_COLOR].MarkColor);
 
 	unsigned __int64 MarkChar;
-	if (cfg->GetValue(key,HLS.MarkChar,&MarkChar))
+	if (cfg->GetValue(key, HLS.MarkChar, MarkChar))
 	{
 		Colors.Mark.Char = LOWORD(MarkChar);
 		Colors.Mark.Transparent = LOBYTE(HIWORD(MarkChar)) == 0xff;
@@ -288,7 +288,7 @@ static void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilter
 	HData.SetColors(Colors);
 
 	unsigned __int64 ContinueProcessing = 0;
-	cfg->GetValue(key,HLS.ContinueProcessing,&ContinueProcessing);
+	cfg->GetValue(key, HLS.ContinueProcessing, ContinueProcessing);
 	HData.SetContinueProcessing(ContinueProcessing!=0);
 }
 

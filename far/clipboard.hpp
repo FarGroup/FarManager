@@ -73,7 +73,8 @@ private:
 	static UINT RegisterFormat(FAR_CLIPBOARD_FORMAT Format);
 	static bool IsFormatAvailable(UINT Format);
 	static HANDLE GetData(UINT uFormat);
-	static HANDLE SetData(UINT uFormat, HANDLE hMem);
+	static bool SetData(UINT uFormat, HGLOBAL hMem);
+	static bool SetData(UINT uFormat, api::memory::global::ptr&& hMem);
 
 	static bool UseInternalClipboard;
 	static bool InternalClipboardOpened;

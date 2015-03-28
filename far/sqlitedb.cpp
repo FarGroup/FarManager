@@ -77,7 +77,7 @@ bool SQLiteDb::SQLiteStmt::Step() const
 
 bool SQLiteDb::SQLiteStmt::StepAndReset()
 {
-	bool b = sqlite::sqlite3_step(m_Stmt.get()) == SQLITE_DONE;
+	const bool b = sqlite::sqlite3_step(m_Stmt.get()) == SQLITE_DONE;
 	Reset();
 	return b;
 }
@@ -111,7 +111,7 @@ SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const string& Value, bool b
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const blob& Value, bool bStatic)
 {
 	using sqlite::sqlite3_destructor_type; // for SQLITE_* macros
-	sqlite::sqlite3_bind_blob(m_Stmt.get(), m_Param++, Value.m_Data, static_cast<int>(Value.m_Size), bStatic ? SQLITE_STATIC : SQLITE_TRANSIENT);
+	sqlite::sqlite3_bind_blob(m_Stmt.get(), m_Param++, Value.data(), static_cast<int>(Value.size()), bStatic ? SQLITE_STATIC : SQLITE_TRANSIENT);
 	return *this;
 }
 
@@ -125,11 +125,6 @@ const char* SQLiteDb::SQLiteStmt::GetColTextUTF8(int Col) const
 	return reinterpret_cast<const char*>(sqlite::sqlite3_column_text(m_Stmt.get(), Col));
 }
 
-int SQLiteDb::SQLiteStmt::GetColBytes(int Col) const
-{
-	return sqlite::sqlite3_column_bytes(m_Stmt.get(), Col);
-}
-
 int SQLiteDb::SQLiteStmt::GetColInt(int Col) const
 {
 	return sqlite::sqlite3_column_int(m_Stmt.get(), Col);
@@ -140,9 +135,9 @@ unsigned __int64 SQLiteDb::SQLiteStmt::GetColInt64(int Col) const
 	return sqlite::sqlite3_column_int64(m_Stmt.get(), Col);
 }
 
-const char* SQLiteDb::SQLiteStmt::GetColBlob(int Col) const
+blob SQLiteDb::SQLiteStmt::GetColBlob(int Col) const
 {
-	return static_cast<const char*>(sqlite::sqlite3_column_blob(m_Stmt.get(), Col));
+	return blob(sqlite::sqlite3_column_blob(m_Stmt.get(), Col), sqlite::sqlite3_column_bytes(m_Stmt.get(), Col));
 }
 
 SQLiteDb::ColumnType SQLiteDb::SQLiteStmt::GetColType(int Col) const
@@ -273,9 +268,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 
 void SQLiteDb::Initialize(const string& DbName, bool Local)
 {
-	string &path = Local ? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath;
-
-	Mutex m(make_name<Mutex>(path, DbName).data());
+	Mutex m(make_name<Mutex>(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, DbName).data());
 	SCOPED_ACTION(lock_guard<Mutex>)(m);
 
 	m_Name = DbName;
@@ -324,29 +317,32 @@ bool SQLiteDb::RollbackTransaction()
 	return Exec("ROLLBACK TRANSACTION;");
 }
 
-bool SQLiteDb::InitStmt(SQLiteStmt &stmtStmt, const wchar_t *Stmt) const
+SQLiteDb::SQLiteStmt SQLiteDb::create_stmt(const wchar_t* Stmt) const
 {
 	sqlite::sqlite3_stmt* pStmt;
-	if (sqlite::sqlite3_prepare16_v2(m_Db.get(), Stmt, -1, &pStmt, nullptr) == SQLITE_OK)
+	if (sqlite::sqlite3_prepare16_v2(m_Db.get(), Stmt, -1, &pStmt, nullptr) != SQLITE_OK)
 	{
-		stmtStmt = SQLiteStmt(pStmt);
-		return true;
+		throw std::runtime_error("SQLiteDb::create_stmt failed");
 	}
-	return false;
+	return SQLiteStmt(pStmt);
 }
 
-bool SQLiteDb::PrepareStatements(const simple_pair<int, const wchar_t*>* Init, size_t Size)
+bool SQLiteDb::PrepareStatements(const stmt_init_t* Init, size_t Size)
 {
-	m_Statements.resize(Size);
-	return std::all_of(Init, Init + Size, [this](const simple_pair<int, const wchar_t*>& i)
+	assert(m_Statements.empty());
+
+	m_Statements.reserve(Size);
+	std::transform(Init, Init + Size, std::back_inserter(m_Statements), [this](decltype(*Init) i) -> SQLiteStmt
 	{
-		return InitStmt(m_Statements[i.first], i.second);
+		assert(i.first == m_Statements.size());
+		return create_stmt(i.second);
 	});
+	return true;
 }
 
-int SQLiteDb::Changes() const
+bool SQLiteDb::Changes() const
 {
-	return sqlite::sqlite3_changes(m_Db.get());
+	return sqlite::sqlite3_changes(m_Db.get()) != 0;
 }
 
 unsigned __int64 SQLiteDb::LastInsertRowID() const

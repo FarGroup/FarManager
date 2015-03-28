@@ -134,13 +134,16 @@ int PluginSettings::Set(const FarSettingsItem& Item)
 			case FST_SUBKEY:
 				break;
 			case FST_QWORD:
-				if (PluginsCfg->SetValue(m_Keys[Item.Root],Item.Name,Item.Number)) result=TRUE;
+				if (PluginsCfg->SetValue(m_Keys[Item.Root],Item.Name,Item.Number))
+					result=TRUE;
 				break;
 			case FST_STRING:
-				if (PluginsCfg->SetValue(m_Keys[Item.Root],Item.Name,Item.String)) result=TRUE;
+				if (PluginsCfg->SetValue(m_Keys[Item.Root],Item.Name,Item.String))
+					result=TRUE;
 				break;
 			case FST_DATA:
-				if (PluginsCfg->SetValue(m_Keys[Item.Root],Item.Name, Item.Data.Data, Item.Data.Size)) result=TRUE;
+				if (PluginsCfg->SetValue(m_Keys[Item.Root], Item.Name, blob(Item.Data.Data, Item.Data.Size)))
+					result = TRUE;
 				break;
 			default:
 				break;
@@ -161,7 +164,7 @@ int PluginSettings::Get(FarSettingsItem& Item)
 			case FST_QWORD:
 				{
 					unsigned __int64 value;
-					if (PluginsCfg->GetValue(m_Keys[Item.Root],Item.Name,&value))
+					if (PluginsCfg->GetValue(m_Keys[Item.Root], Item.Name, value))
 					{
 						result=TRUE;
 						Item.Number=value;
@@ -180,17 +183,12 @@ int PluginSettings::Get(FarSettingsItem& Item)
 				break;
 			case FST_DATA:
 				{
-					int size=PluginsCfg->GetValue(m_Keys[Item.Root],Item.Name,nullptr,0);
-					if (size)
+					writable_blob data;
+					if (PluginsCfg->GetValue(m_Keys[Item.Root], Item.Name, data))
 					{
-						auto data = Add(size);
-						int checkedSize=PluginsCfg->GetValue(m_Keys[Item.Root],Item.Name,data,size);
-						if (size==checkedSize)
-						{
-							result=TRUE;
-							Item.Data.Data=data;
-							Item.Data.Size=size;
-						}
+						result = TRUE;
+						Item.Data.Data = memcpy(Add(data.size()), data.data(), data.size());
+						Item.Data.Size = data.size();
 					}
 				}
 				break;
@@ -338,7 +336,7 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 			m_Enum.back().add(item, strName);
 		}
 		Index=0;
-		while (PluginsCfg->EnumValues(root,Index++,strName,&Type))
+		while (PluginsCfg->EnumValues(root, Index++, strName, Type))
 		{
 			item.Type=FST_UNKNOWN;
 			switch (Type)

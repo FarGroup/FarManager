@@ -564,7 +564,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		{
 			__int64 Ret=-1;
 			InternalEditorBookmark ebm = {};
-			int iMode=(int)((intptr_t)vParam);
+			const auto iMode = reinterpret_cast<intptr_t>(vParam);
 
 			if (iMode >= 0 && iMode <= 3 && GetSessionBookmark((int)iParam-1,&ebm))
 			{
@@ -587,7 +587,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_F_EDITOR_SEL:
 		{
 			int iPos;
-			int Action=(int)((intptr_t)vParam);
+			const auto Action = reinterpret_cast<intptr_t>(vParam);
 
 			switch (Action)
 			{
@@ -4532,35 +4532,31 @@ void Editor::GoToPosition()
 		}
 		catch(const std::exception&)
 		{
-			// TODO maybe we need to display message in case of incorrect input
+			// TODO: log
+			// maybe we need to display message in case of incorrect input
 		}
 		Show();
 	}
 }
 
-void Editor::GetRowCol(const string& _argv, int& row, int& col)
+void Editor::GetRowCol(const string& argv, int& row, int& col)
 {
-	RegExp re;
-	auto compiled=re.Compile(L"/^[ \\t]*((([0-9]+)%)|(([+-]?)[0-9]+))?([ \\t]*[.,;: ][ \\t]*(([+-]?)[0-9]+))?[ \\t]*$/", OP_PERLSTYLE|OP_OPTIMIZE);
-	(void)compiled;
-	assert(compiled);
-	RegExpMatch match[9];
-	intptr_t matchcount = ARRAYSIZE(match);
-	auto get_match=[&](intptr_t index)->string
+	static const std::wregex re(L"^[ \\t]*((([0-9]+)%)|(([+-]?)[0-9]+))?([ \\t]*[.,;: ][ \\t]*(([+-]?)[0-9]+))?[ \\t]*$", std::regex::optimize);
+
+	std::wsmatch SMatch;
+
+	const auto get_match = [&SMatch](size_t index)
 	{
-		assert(index<matchcount);
-		assert(match[index].end>=0);
-		return string(_argv.data()+match[index].start,match[index].end-match[index].start);
+		return string(SMatch[index].first, SMatch[index].second);
 	};
-	auto is_match_empty=[&](intptr_t index)->bool
+	
+	const auto is_match_empty = [&SMatch](size_t index)
 	{
-		assert(index<matchcount);
-		assert(match[index].end>=0);
-		return match[index].end==match[index].start;
+		return !SMatch[index].length();
 	};
-	if (re.Match(_argv.data(), _argv.data() + _argv.size(), match, matchcount))
+	
+	if (std::regex_match(argv, SMatch, re))
 	{
-		assert(matchcount == ARRAYSIZE(match));
 		enum
 		{
 			b_row=1,
@@ -4573,31 +4569,29 @@ void Editor::GetRowCol(const string& _argv, int& row, int& col)
 			b_col_sign
 		};
 		row = m_it_CurLine.Number();
-		if (match[b_row].end>=0)
+		if (SMatch[b_row].matched)
 		{
-			if (match[b_row_percent].end>=0)
+			if (SMatch[b_row_percent].matched)
 			{
 				row = std::stoi(get_match(b_row_percent_value));
 				row = m_LinesCount * row / 100;
 			}
-			else if (match[b_row_absolute].end>=0)
+			else if (SMatch[b_row_absolute].matched)
 			{
-				int y = std::stoi(get_match(b_row_absolute));
+				const auto y = std::stoi(get_match(b_row_absolute));
 				row = is_match_empty(b_row_absolute_sign)?y-1:row+y;
 			}
 		}
-		if (row >= m_LinesCount) row = m_LinesCount - 1;
-		auto CurPtr=GetStringByNumber(row);
+		row = std::min(row, m_LinesCount - 1);
+		const auto CurPtr=GetStringByNumber(row);
 		col=CurPtr->TabPosToReal(m_it_CurLine->GetTabCurPos());
-		if (match[b_col].end>=0)
+		if (SMatch[b_col].matched)
 		{
-			int x = std::stoi(get_match(b_col_absolute));
+			const auto x = std::stoi(get_match(b_col_absolute));
 			col = is_match_empty(b_col_sign)?x-1:col+x;
 		}
-
 	}
 	else throw std::invalid_argument("invalid syntax");
-
 }
 
 struct Editor::EditorUndoData : ::noncopyable
@@ -4607,7 +4601,7 @@ struct Editor::EditorUndoData : ::noncopyable
 	int m_StrNum;
 	wchar_t m_EOL[10];
 	std::vector<wchar_t> m_Str;
-	std::list<InternalEditorSessionBookMark> m_BM; //treat as uni-directional linked list
+	bookmark_list m_BM; //treat as uni-directional linked list
 
 private:
 	static size_t UndoDataSize;

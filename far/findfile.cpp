@@ -474,8 +474,7 @@ void FindFiles::ReleaseInFileSearch()
 
 string& FindFiles::PrepareDriveNameStr(string &strSearchFromRoot)
 {
-	string strCurDir;
-	Global->CtrlObject->CmdLine()->GetCurDir(strCurDir);
+	auto strCurDir = Global->CtrlObject->CmdLine()->GetCurDir();
 	GetPathRoot(strCurDir,strCurDir);
 	DeleteEndSlash(strCurDir);
 
@@ -2537,8 +2536,7 @@ void FindFiles::ScanPluginTree(Dialog* Dlg, PluginHandle* hPlugin, UINT64 Flags,
 
 void FindFiles::DoPrepareFileList(Dialog* Dlg)
 {
-	string strRoot;
-	Global->CtrlObject->CmdLine()->GetCurDir(strRoot);
+	auto strRoot = Global->CtrlObject->CmdLine()->GetCurDir();
 	if (strRoot.find_first_of(L";,") != string::npos)
 		InsertQuote(strRoot);
 
@@ -3033,8 +3031,8 @@ FindFiles::FindFiles():
 		Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 		PluginMode=ActivePanel->GetMode()==PLUGIN_PANEL && ActivePanel->IsVisible();
 		PrepareDriveNameStr(strSearchFromRoot);
-		const wchar_t *MasksHistoryName=L"Masks",*TextHistoryName=L"SearchText";
-		const wchar_t *HexMask=L"HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH";
+		static const wchar_t MasksHistoryName[] = L"Masks", TextHistoryName[] = L"SearchText";
+		static const wchar_t HexMask[]=L"HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH";
 		const wchar_t VSeparator[] = { BoxSymbols[BS_T_H1V1], BoxSymbols[BS_V1], BoxSymbols[BS_V1], BoxSymbols[BS_V1], BoxSymbols[BS_V1], BoxSymbols[BS_B_H1V1], 0 };
 		FarDialogItem FindAskDlgData[]=
 		{

@@ -53,8 +53,8 @@ codepages& Codepages()
 }
 
 // Ключ где хранятся имена кодовых страниц
-const wchar_t *NamesOfCodePagesKey = L"CodePages.Names";
-const wchar_t *FavoriteCodePagesKey = L"CodePages.Favorites";
+static const wchar_t NamesOfCodePagesKey[] = L"CodePages.Names";
+static const wchar_t FavoriteCodePagesKey[] = L"CodePages.Favorites";
 
 // Источник вызова каллбака прохода по кодовым страницам
 ENUM(CodePagesCallbackCallSource)
@@ -861,7 +861,7 @@ bool codepages::IsCodePageSupported(uintptr_t CodePage, size_t MaxCharSize) cons
 long long codepages::GetFavorite(uintptr_t cp)
 {
 	long long value = 0;
-	Global->Db->GeneralCfg()->GetValue(FavoriteCodePagesKey, std::to_wstring(cp), &value, 0);
+	Global->Db->GeneralCfg()->GetValue(FavoriteCodePagesKey, std::to_wstring(cp), value, 0);
 	return value;
 }
 
@@ -875,7 +875,7 @@ void codepages::DeleteFavorite(uintptr_t cp)
 	Global->Db->GeneralCfg()->DeleteValue(FavoriteCodePagesKey, std::to_wstring(cp));
 }
 
-GeneralConfig::values_enumerator<DWORD> codepages::GetFavoritesEnumerator()
+GeneralConfig::int_values_enumerator codepages::GetFavoritesEnumerator()
 {
 	return Global->Db->GeneralCfg()->GetIntValuesEnumerator(FavoriteCodePagesKey);
 }

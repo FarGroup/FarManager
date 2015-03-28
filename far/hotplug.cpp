@@ -81,17 +81,17 @@ public:
 		return m_info != INVALID_HANDLE_VALUE;
 	}
 
-	bool OpenDeviceInfo(SP_DEVINFO_DATA& info_data)
+	bool OpenDeviceInfo(SP_DEVINFO_DATA& info_data) const
 	{
 		return SetupDiOpenDeviceInfo(m_info, m_id.data(), nullptr, 0, &info_data) != FALSE;
 	}
 
-	bool GetDeviceRegistryProperty(SP_DEVINFO_DATA& info_data, DWORD Property, PDWORD PropertyRegDataType, PBYTE PropertyBuffer, DWORD PropertyBufferSize, PDWORD RequiredSize)
+	bool GetDeviceRegistryProperty(SP_DEVINFO_DATA& info_data, DWORD Property, PDWORD PropertyRegDataType, PBYTE PropertyBuffer, DWORD PropertyBufferSize, PDWORD RequiredSize) const
 	{
 		return SetupDiGetDeviceRegistryProperty(m_info, &info_data, Property, PropertyRegDataType, PropertyBuffer, PropertyBufferSize, RequiredSize) != FALSE;
 	}
 
-	bool EnumDeviceInterfaces(const GUID& InterfaceClassGuid, DWORD MemberIndex, SP_DEVICE_INTERFACE_DATA& DeviceInterfaceData)
+	bool EnumDeviceInterfaces(const GUID& InterfaceClassGuid, DWORD MemberIndex, SP_DEVICE_INTERFACE_DATA& DeviceInterfaceData) const
 	{
 		return SetupDiEnumDeviceInterfaces(m_info, nullptr, &InterfaceClassGuid, MemberIndex, &DeviceInterfaceData) != FALSE;
 	}
@@ -120,7 +120,7 @@ public:
 		return device_interfaces(m_info, InterfaceClassGuid);
 	}
 
-	string GetDevicePath(SP_DEVICE_INTERFACE_DATA& DeviceInterfaceData)
+	string GetDevicePath(SP_DEVICE_INTERFACE_DATA& DeviceInterfaceData) const
 	{
 		string result;
 		DWORD RequiredSize = 0;
@@ -198,7 +198,7 @@ static DWORD DriveMaskFromVolumeName(const string& VolumeName)
 {
 	DWORD Result = 0;
 	string strCurrentVolumeName;
-	auto Strings = api::GetLogicalDriveStrings();
+	const auto Strings = api::GetLogicalDriveStrings();
 	std::any_of(CONST_RANGE(Strings, i) -> bool
 	{
 		if (api::GetVolumeNameForVolumeMountPoint(i, strCurrentVolumeName) && strCurrentVolumeName.compare(0, VolumeName.size(), VolumeName) == 0)
@@ -220,7 +220,7 @@ static DWORD GetDriveMaskFromMountPoints(DEVINST hDevInst)
 		auto interfaces = Info.GetDeviceInterfaces(GUID_DEVINTERFACE_VOLUME);
 		std::for_each(RANGE(interfaces, i)
 		{
-			string strMountPoint(Info.GetDevicePath(i));
+			auto strMountPoint = Info.GetDevicePath(i);
 			if (!strMountPoint.empty())
 			{
 				AddEndSlash(strMountPoint);
@@ -281,7 +281,7 @@ static DWORD GetDriveMaskForDeviceInternal(DEVINST hDevInst)
 }
 
 
-static std::bitset<32> GetDisksForDevice(DEVINST hDevInst)
+static api::drives_set GetDisksForDevice(DEVINST hDevInst)
 {
 	int DisksMask = 0;
 	DisksMask |= GetDriveMaskFromMountPoints(hDevInst);
@@ -291,7 +291,7 @@ static std::bitset<32> GetDisksForDevice(DEVINST hDevInst)
 	if (CM_Get_Child(&hDevChild, hDevInst, 0) == CR_SUCCESS)
 		DisksMask |= GetDriveMaskForDeviceInternal(hDevChild);
 
-	return std::bitset<32>(DisksMask);
+	return DisksMask;
 }
 
 static bool GetDeviceProperty(DEVINST hDevInst, DWORD Property, string& strValue, bool bSearchChild)
@@ -333,7 +333,7 @@ static bool GetDeviceProperty(DEVINST hDevInst, DWORD Property, string& strValue
 struct DeviceInfo
 {
 	DEVINST DevInst;
-	std::bitset<32> Disks;
+	api::drives_set Disks;
 };
 
 static void GetChildHotplugDevicesInfo(DEVINST hDevInst, std::vector<DeviceInfo>& Info)

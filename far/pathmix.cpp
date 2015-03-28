@@ -49,7 +49,7 @@ void NTPath::Transform()
 
 			if (!HasPathPrefix(Data))
 			{
-				ReplaceSlashToBSlash(Data);
+				ReplaceSlashToBackslash(Data);
 				string Prefix(ParsePath(Data) == PATH_DRIVELETTER? L"\\\\?\\" : L"\\\\?\\UNC");
 				while(ReplaceStrings(Data,L"\\\\",L"\\"));
 				Data=Prefix+Data;
@@ -445,12 +445,6 @@ string &CutToFolderNameIfFolder(string &strPath)
 	size_t size = *lpwszNamePtr ? lpwszNamePtr - strPath.data() : lpwszprevNamePtr - strPath.data();
 	strPath.resize(size);
 	return strPath;
-}
-
-string &ReplaceSlashToBSlash(string &strStr)
-{
-	std::replace(ALL_RANGE(strStr), L'/', L'\\');
-	return strStr;
 }
 
 const wchar_t *FirstSlash(const wchar_t *String)

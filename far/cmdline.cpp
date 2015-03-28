@@ -115,8 +115,8 @@ void CommandLine::SetAutoComplete(int Mode)
 void CommandLine::DisplayObject()
 {
 	_OT(SysLog(L"[%p] CommandLine::DisplayObject()",this));
-	auto PromptList = GetPrompt();
-	size_t MaxLength = PromptSize*ObjWidth()/100;
+	const auto PromptList = GetPrompt();
+	const size_t MaxLength = PromptSize*ObjWidth() / 100;
 	size_t CurLength = 0;
 	GotoXY(m_X1,m_Y1);
 
@@ -507,14 +507,6 @@ void CommandLine::SetCurDir(const string& CurDir)
 	}
 }
 
-
-int CommandLine::GetCurDir(string &CurDir) const
-{
-	CurDir = m_CurDir;
-	return (int)CurDir.size();
-}
-
-
 void CommandLine::SetString(const string& Str, bool Redraw)
 {
 	LastCmdPartLength=-1;
@@ -569,26 +561,25 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 	FN_RETURN_TYPE(CommandLine::GetPrompt) Result;
 	int NewPromptSize = DEFAULT_CMDLINE_WIDTH;
 
-	FarColor PrefixColor(colors::PaletteColorToFarColor(COL_COMMANDLINEPREFIX));
+	const auto PrefixColor = colors::PaletteColorToFarColor(COL_COMMANDLINEPREFIX);
 
 	if (Global->Opt->CmdLine.UsePromptFormat)
 	{
-		string Format(Global->Opt->CmdLine.strPromptFormat.Get());
-		FarColor F(PrefixColor);
-		string Str(Format);
+		const auto Format = Global->Opt->CmdLine.strPromptFormat.Get();
+		auto F = PrefixColor;
+		auto Str = Format;
 		FOR_CONST_RANGE(Format, Ptr)
 		{
 			// color in ([[T]ffffffff][:[T]bbbbbbbb]) format
 			if (*Ptr == L'(')
 			{
 				string Color = &*Ptr + 1;
-				size_t Pos = Color.find(L')');
+				auto Pos = Color.find(L')');
 				if(Pos != string::npos)
 				{
 					if (Ptr != Format.cbegin())
 					{
-						size_t PrevPos = Str.find(L'(');
-						Str.resize(PrevPos);
+						Str.resize(Str.find(L'('));
 						Result.emplace_back(VALUE_TYPE(Result)(Str, F));
 					}
 					Ptr += Pos+2;
@@ -614,9 +605,8 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 
 		std::for_each(RANGE(Result, i)
 		{
-			string& strDestStr = i.first;
-			string strExpandedDestStr;
-			strExpandedDestStr = api::env::expand_strings(strDestStr);
+			auto& strDestStr = i.first;
+			const auto strExpandedDestStr = api::env::expand_strings(strDestStr);
 			strDestStr.clear();
 			static const simple_pair<wchar_t, wchar_t> ChrFmt[] =
 			{
@@ -635,9 +625,9 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 			{
 				if (*it == L'$' && it + 1 != strExpandedDestStr.cend())
 				{
-					wchar_t Chr = ToUpper(*++it);
+					const auto Chr = ToUpper(*++it);
 
-					auto ItemIterator = std::find_if(CONST_RANGE(ChrFmt, i)
+					const auto ItemIterator = std::find_if(CONST_RANGE(ChrFmt, i)
 					{
 						return i.first == Chr;
 					});
@@ -698,9 +688,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 							case L'D': // $D - Current date
 							case L'T': // $T - Current time
 							{
-								string strDateTime;
-								MkStrFTime(strDateTime,(Chr==L'D'?L"%D":L"%T"));
-								strDestStr += strDateTime;
+								strDestStr += MkStrFTime(Chr == L'D'? L"%D" : L"%T");
 								break;
 							}
 							case L'N': // $N - Current drive
@@ -789,7 +777,7 @@ void CommandLine::ShowViewEditHistory()
 			{
 				case HR_VIEWER:
 				{
-					auto FView = FileViewer::create(strStr, TRUE);
+					FileViewer::create(strStr, TRUE);
 					break;
 				}
 
@@ -797,7 +785,7 @@ void CommandLine::ShowViewEditHistory()
 				case HR_EDITOR_RO:
 				{
 					// пусть файл создается
-					auto FEdit = FileEditor::create(strStr, CP_DEFAULT, FFILEEDIT_CANNEWFILE | FFILEEDIT_ENABLEF6);
+					const auto FEdit = FileEditor::create(strStr, CP_DEFAULT, FFILEEDIT_CANNEWFILE | FFILEEDIT_ENABLEF6);
 
 					if (Type == HR_EDITOR_RO)
 						FEdit->SetLockEditor(TRUE);
@@ -914,7 +902,7 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 	if (m_CurDir.size() > 1 && m_CurDir[1]==L':')
 		FarChDir(m_CurDir);
 
-	string strPrevDir=m_CurDir;
+	const auto strPrevDir=m_CurDir;
 	bool PrintCommand=true;
 	if ((Code=ProcessOSCommands(CmdLine,SeparateWindow,PrintCommand)) == TRUE)
 	{
@@ -937,11 +925,10 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 	}
 	else
 	{
-		string strTempStr;
-		strTempStr = CmdLine;
+		auto strTempStr = CmdLine;
 
 		if (Code == -1)
-			ReplaceSlashToBSlash(strTempStr);
+			ReplaceSlashToBackslash(strTempStr);
 
 		Code=Execute(strTempStr,AlwaysWaitFinish,SeparateWindow,DirectRun, 0, WaitForIdle, Silent, RunAs);
 	}
@@ -966,8 +953,8 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 
 int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, bool &PrintCommand)
 {
-	string strCmdLine = CmdLine;
-	Panel *SetPanel = Global->CtrlObject->Cp()->ActivePanel();
+	auto strCmdLine = CmdLine;
+	auto SetPanel = Global->CtrlObject->Cp()->ActivePanel();
 	PrintCommand=true;
 
 	if (SetPanel->GetType() != FILE_PANEL && Global->CtrlObject->Cp()->PassivePanel()->GetType() == FILE_PANEL)
@@ -984,7 +971,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 
 	const auto IsCommand = [&strCmdLine](const string& cmd, bool bslash)->bool
 	{
-		size_t n = cmd.size();
+		const auto n = cmd.size();
 		return (!StrCmpNI(strCmdLine.data(), cmd.data(), n)
 		 && (n==strCmdLine.size() || nullptr != wcschr(L"/ \t",strCmdLine[n]) || (bslash && strCmdLine[n]==L'\\')));
 	};
@@ -1051,7 +1038,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		}
 		else
 		{
-			string strExpandedStr = api::env::expand_strings(strCmdLine.substr(pos + 1));
+			const auto strExpandedStr = api::env::expand_strings(strCmdLine.substr(pos + 1));
 			strCmdLine.resize(pos);
 			api::env::set_variable(strCmdLine, strExpandedStr);
 		}
@@ -1087,7 +1074,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		if (CheckCmdLineForHelp(strCmdLine.data()))
 			return FALSE; // отдадимся COMSPEC`у
 
-		string PushDir = m_CurDir;
+		const auto PushDir = m_CurDir;
 
 		if (IntChDir(strCmdLine,true,SilentInt))
 		{
@@ -1110,7 +1097,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 
 		if (!ppstack.empty())
 		{
-			int Ret=IntChDir(ppstack.top(),true,SilentInt);
+			const int Ret=IntChDir(ppstack.top(),true,SilentInt);
 			ppstack.pop();
 			if (!ppstack.empty())
 			{
@@ -1142,7 +1129,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	{
 		strCmdLine.erase(0, 4);
 
-		const wchar_t *Ptr=RemoveExternalSpaces(strCmdLine).data();
+		auto Ptr = RemoveExternalSpaces(strCmdLine).data();
 
 		if (CheckCmdLineForHelp(Ptr))
 			return FALSE; // отдадимся COMSPEC`у
@@ -1199,7 +1186,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	// пропускаем обработку, если нажат Shift-Enter
 	else if (!SeparateWindow && (IsCommand(L"CD",true) || IsCommand(L"CHDIR",true)))
 	{
-		int Length = IsCommand(L"CD",true)? 2 : 5;
+		const int Length = IsCommand(L"CD",true)? 2 : 5;
 
 		strCmdLine.erase(0, Length);
 		RemoveLeadingSpaces(strCmdLine);
@@ -1220,7 +1207,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	}
 	else if (IsCommand(L"TITLE", false))
 	{
-		auto Title = strCmdLine.data() + 5; // wcslen(L"title")
+		const auto Title = strCmdLine.data() + 5; // wcslen(L"title")
 		if (CheckCmdLineForHelp(Title))
 			return FALSE; // отдадимся COMSPEC`у
 
@@ -1359,7 +1346,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	*/
 	if (api::fs::is_directory(strExpandedDir) && IsAbsolutePath(strExpandedDir))
 	{
-		ReplaceSlashToBSlash(strExpandedDir);
+		ReplaceSlashToBackslash(strExpandedDir);
 		SetPanel->SetCurDir(strExpandedDir,true);
 		return true;
 	}

@@ -90,11 +90,11 @@ void CachedRead::Clear()
 
 bool CachedRead::Read(void* Data, size_t DataSize, size_t* BytesRead)
 {
-	INT64 Ptr = file.GetPointer();
+	const auto Ptr = file.GetPointer();
 
 	if(Ptr!=LastPtr)
 	{
-		INT64 MaxValidPtr=LastPtr+BytesLeft, MinValidPtr=MaxValidPtr-ReadSize;
+		const auto MaxValidPtr=LastPtr+BytesLeft, MinValidPtr=MaxValidPtr-ReadSize;
 		if(Ptr>=MinValidPtr && Ptr<MaxValidPtr)
 		{
 			BytesLeft-=static_cast<int>(Ptr-LastPtr);
@@ -121,7 +121,7 @@ bool CachedRead::Read(void* Data, size_t DataSize, size_t* BytesRead)
 
 			Result=true;
 
-			size_t Actual = std::min(BytesLeft, DataSize);
+			const auto Actual = std::min(BytesLeft, DataSize);
 			memcpy(Data, &Buffer[ReadSize-BytesLeft], Actual);
 			Data=((LPBYTE)Data)+Actual;
 			BytesLeft-=Actual;
@@ -142,7 +142,7 @@ bool CachedRead::Unread(size_t BytesUnread)
 	if (BytesUnread + BytesLeft <= ReadSize)
 	{
 		BytesLeft += BytesUnread;
-		__int64 off = BytesUnread;
+		const __int64 off = BytesUnread;
 		file.SetPointer(-off, &LastPtr, FILE_CURRENT);
 		return true;
 	}
@@ -154,7 +154,7 @@ bool CachedRead::FillBuffer()
 	bool Result=false;
 	if (!file.Eof())
 	{
-		UINT64 Pointer = file.GetPointer();
+		const auto Pointer = file.GetPointer();
 
 		int shift = (int)(Pointer % Alignment);
 		if (Pointer-shift > Buffer.size()/2)

@@ -382,9 +382,9 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	};
 	SCOPED_ACTION(Guard_Macro_DskShowPosType)(this);
 
-	std::bitset<32> Mask(static_cast<int>(FarGetLogicalDrives()));
-	const std::bitset<32> NetworkMask = AddSavedNetworkDisks(Mask);
-	const size_t DiskCount = Mask.count();
+	auto Mask = FarGetLogicalDrives();
+	const auto NetworkMask = AddSavedNetworkDisks(Mask);
+	const auto DiskCount = Mask.count();
 
 	PanelMenuItem Item, *mitem=0;
 	{ // эта скобка надо, см. M#605
@@ -2029,22 +2029,7 @@ void Panel::SetTitle()
 {
 	if (GetFocus())
 	{
-		string strTitleDir(L"{");
-
-		if (!m_CurDir.empty())
-		{
-			strTitleDir += m_CurDir;
-		}
-		else
-		{
-			string strCmdText;
-			Parent()->GetCmdLine()->GetCurDir(strCmdText);
-			strTitleDir += strCmdText;
-		}
-
-		strTitleDir += L"}";
-
-		ConsoleTitle::SetFarTitle(strTitleDir);
+		ConsoleTitle::SetFarTitle(L"{" + (m_CurDir.empty()? Parent()->GetCmdLine()->GetCurDir() : m_CurDir) + L"}");
 	}
 }
 

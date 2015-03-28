@@ -75,7 +75,7 @@ public:
 	static long long GetFavorite(uintptr_t cp);
 	static void SetFavorite(uintptr_t cp, long long value);
 	static void DeleteFavorite(uintptr_t cp);
-	static GeneralConfig::values_enumerator<DWORD> GetFavoritesEnumerator();
+	static GeneralConfig::int_values_enumerator GetFavoritesEnumerator();
 
 private:
 	friend codepages& Codepages();
@@ -113,7 +113,7 @@ private:
 	class codepages_data
 	{
 	public:
-		typedef std::map<UINT, std::pair<UINT, string>> cp_map;
+		typedef std::unordered_map<UINT, std::pair<UINT, string>> cp_map;
 		const cp_map& get() const;
 
 	private:

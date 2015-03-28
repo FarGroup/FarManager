@@ -425,7 +425,7 @@ int SubstFileName(const wchar_t *DlgTitle,
 	if (CmdLineDir)
 		PSubstData->strCmdDir = CmdLineDir;
 	else // ...спросим у ком.строки
-		Global->CtrlObject->CmdLine()->GetCurDir(PSubstData->strCmdDir);
+		PSubstData->strCmdDir = Global->CtrlObject->CmdLine()->GetCurDir();
 
 	// ѕредварительно получим некоторые "константы" :-)
 	PSubstData->strNameOnly = Name;
@@ -813,7 +813,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 
 					if (Modifers.find(L'S') != string::npos) // 'S' - использовать '/' вместо '\' в пут€х файлов;
 					{
-						std::replace(ALL_RANGE(strFileName), L'\\', L'/');
+						ReplaceBackslashToSlash(strFileName);
 					}
 				}
 

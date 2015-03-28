@@ -122,7 +122,7 @@ public:
 			"CREATE TABLE IF NOT EXISTS general_config(key TEXT NOT NULL, name TEXT NOT NULL, value BLOB, PRIMARY KEY (key, name));"
 		;
 
-		static const simple_pair<int, const wchar_t*> Statements[] =
+		static const stmt_init_t Statements[] =
 		{
 			{ stmtUpdateValue, L"UPDATE general_config SET value=?1 WHERE key=?2 AND name=?3;" },
 			{ stmtInsertValue, L"INSERT INTO general_config VALUES (?1,?2,?3);" },
@@ -130,6 +130,7 @@ public:
 			{ stmtDelValue, L"DELETE FROM general_config WHERE key=?1 AND name=?2;" },
 			{ stmtEnumValues, L"SELECT name, value FROM general_config WHERE key=?1;" },
 		};
+		CheckStmt<stmt_count>(Statements);
 
 		return Open(DbName, Local)
 		    && Exec(Schema)
@@ -139,113 +140,32 @@ public:
 
 	virtual bool SetValue(const string& Key, const string& Name, const string& Value) override
 	{
-		bool b = m_Statements[stmtUpdateValue].Bind(Value, Key, Name).StepAndReset();
-		if (!b || Changes() == 0)
-			b = m_Statements[stmtInsertValue].Bind(Key, Name, Value).StepAndReset();
-		return b;
+		return SetValueT(Key, Name, Value);
 	}
 
 	virtual bool SetValue(const string& Key, const string& Name, const wchar_t* Value) override
 	{
-		bool b = m_Statements[stmtUpdateValue].Bind(Value, Key, Name).StepAndReset();
-		if (!b || Changes() == 0)
-			b = m_Statements[stmtInsertValue].Bind(Key, Name, Value).StepAndReset();
-		return b;
+		return SetValueT(Key, Name, Value);
 	}
 
 	virtual bool SetValue(const string& Key, const string& Name, unsigned __int64 Value) override
 	{
-		bool b = m_Statements[stmtUpdateValue].Bind(Value, Key, Name).StepAndReset();
-		if (!b || Changes() == 0)
-			b = m_Statements[stmtInsertValue].Bind(Key, Name, Value).StepAndReset();
-		return b;
+		return SetValueT(Key, Name, Value);
 	}
 
-	virtual bool SetValue(const string& Key, const string& Name, const void *Value, size_t Size) override
+	virtual bool SetValue(const string& Key, const string& Name, const blob& Value) override
 	{
-		bool b = m_Statements[stmtUpdateValue].Bind(blob(Value,Size), Key, Name).StepAndReset();
-		if (!b || Changes() == 0)
-			b = m_Statements[stmtInsertValue].Bind(Key, Name, blob(Value, Size)).StepAndReset();
-		return b;
+		return SetValueT(Key, Name, Value);
 	}
 
-	virtual bool GetValue(const string& Key, const string& Name, long long *Value, long long Default) override
+	virtual bool GetValue(const string& Key, const string& Name, long long& Value, long long Default) override
 	{
-		bool b = m_Statements[stmtGetValue].Bind(Key, Name).Step();
-		if (b)
-		{
-			if (m_Statements[stmtGetValue].GetColType(0) == TYPE_INTEGER)
-			{
-				*Value = m_Statements[stmtGetValue].GetColInt64(0);
-			}
-			else
-			{
-				// TODO: log
-			}
-		}
-		m_Statements[stmtGetValue].Reset();
-
-		if (b)
-		{
-			return true;
-		}
-		*Value = Default;
-		return false;
+		return GetValueT<TYPE_INTEGER>(Key, Name, Value, Default, &SQLiteStmt::GetColInt64);
 	}
 
-	virtual bool GetValue(const string& Key, const string& Name, string &strValue, const wchar_t *Default) override
+	virtual bool GetValue(const string& Key, const string& Name, string& Value, const wchar_t* Default) override
 	{
-		bool b = m_Statements[stmtGetValue].Bind(Key, Name).Step();
-		if (b)
-		{
-			if (m_Statements[stmtGetValue].GetColType(0) == TYPE_STRING)
-			{
-				strValue = m_Statements[stmtGetValue].GetColText(0);
-			}
-			else
-			{
-				// TODO: log
-			}
-		}
-		m_Statements[stmtGetValue].Reset();
-
-		if (b)
-		{
-			return true;
-		}
-		strValue = Default;
-		return false;
-	}
-
-	virtual int GetValue(const string& Key, const string& Name, void *Value, size_t Size, const void *Default) override
-	{
-		int realsize = 0;
-		if (m_Statements[stmtGetValue].Bind(Key, Name).Step())
-		{
-			if (m_Statements[stmtGetValue].GetColType(0) == TYPE_BLOB)
-			{
-				const char *blob = m_Statements[stmtGetValue].GetColBlob(0);
-				realsize = m_Statements[stmtGetValue].GetColBytes(0);
-				if (Value)
-					memcpy(Value, blob, std::min(realsize, static_cast<int>(Size)));
-			}
-			else
-			{
-				// TODO: log
-			}
-		}
-		m_Statements[stmtGetValue].Reset();
-
-		if (realsize)
-		{
-			return realsize;
-		}
-		else if (Default)
-		{
-			memcpy(Value, Default, Size);
-			return static_cast<int>(Size);
-		}
-		return 0;
+		return GetValueT<TYPE_STRING>(Key, Name, Value, Default, &SQLiteStmt::GetColText);
 	}
 
 	virtual bool DeleteValue(const string& Key, const string& Name) override
@@ -255,42 +175,19 @@ public:
 
 	virtual bool EnumValues(const string& Key, DWORD Index, string &Name, string &Value) override
 	{
-		if (Index == 0)
-			m_Statements[stmtEnumValues].Reset().Bind(Key);
-
-		if (m_Statements[stmtEnumValues].Step())
-		{
-			Name = m_Statements[stmtEnumValues].GetColText(0);
-			Value = m_Statements[stmtEnumValues].GetColText(1);
-			return true;
-		}
-
-		m_Statements[stmtEnumValues].Reset();
-		return false;
+		return EnumValuesT(Key, Index, Name, Value, &SQLiteStmt::GetColText);
 	}
 
-	virtual bool EnumValues(const string& Key, DWORD Index, string &Name, DWORD& Value) override
+	virtual bool EnumValues(const string& Key, DWORD Index, string &Name, long long& Value) override
 	{
-		if (Index == 0)
-			m_Statements[stmtEnumValues].Reset().Bind(transient(Key));
-
-		if (m_Statements[stmtEnumValues].Step())
-		{
-			Name = m_Statements[stmtEnumValues].GetColText(0);
-			Value = (DWORD)m_Statements[stmtEnumValues].GetColInt(1);
-			return true;
-		}
-
-		m_Statements[stmtEnumValues].Reset();
-		return false;
+		return EnumValuesT(Key, Index, Name, Value, &SQLiteStmt::GetColInt64);
 	}
 
 	virtual void Export(tinyxml::TiXmlElement& Parent) override
 	{
 		auto& root = CreateChild(Parent, GetKeyName());
 
-		SQLiteStmt stmtEnumAllValues;
-		InitStmt(stmtEnumAllValues, L"SELECT key, name, value FROM general_config ORDER BY key, name;");
+		auto stmtEnumAllValues = create_stmt(L"SELECT key, name, value FROM general_config ORDER BY key, name;");
 
 		while (stmtEnumAllValues.Step())
 		{
@@ -311,7 +208,8 @@ public:
 					break;
 				default:
 				{
-					auto hex = BlobToHexString(stmtEnumAllValues.GetColBlob(2),stmtEnumAllValues.GetColBytes(2));
+					const auto Blob = stmtEnumAllValues.GetColBlob(2);
+					auto hex = BlobToHexString(Blob.data(), Blob.size());
 					e.SetAttribute("type", "hex");
 					e.SetAttribute("value", hex);
 				}
@@ -326,10 +224,10 @@ public:
 		SCOPED_ACTION(auto)(ScopedTransaction());
 		FOR(const auto& e, xml_enum(root.FirstChild(GetKeyName()), "setting"))
 		{
-			const char *key = e->Attribute("key");
-			const char *name = e->Attribute("name");
-			const char *type = e->Attribute("type");
-			const char *value = e->Attribute("value");
+			const auto key = e->Attribute("key");
+			const auto name = e->Attribute("name");
+			const auto type = e->Attribute("type");
+			const auto value = e->Attribute("value");
 
 			if (!key || !name || !type || !value)
 				continue;
@@ -349,7 +247,7 @@ public:
 			else if (!strcmp(type,"hex"))
 			{
 				auto Blob = HexStringToBlob(value);
-				SetValue(Key, Name, Blob.data(), Blob.size());
+				SetValue(Key, Name, blob(Blob.data(), Blob.size()));
 			}
 			else
 			{
@@ -367,6 +265,61 @@ protected:
 private:
 	virtual const char* GetKeyName() const = 0;
 
+	template<int TypeId, class getter_t, class T, class DT>
+	bool GetValueT(const string& Key, const string& Name, T& Value, const DT& Default, getter_t Getter)
+	{
+		auto& Stmt = m_Statements[stmtGetValue];
+		bool Result = false;
+		if (Stmt.Bind(Key, Name).Step())
+		{
+			if (Stmt.GetColType(0) == TypeId)
+			{
+				Value = (Stmt.*Getter)(0);
+				Result = true;
+			}
+			else
+			{
+				// TODO: log
+			}
+		}
+		Stmt.Reset();
+
+		if (!Result)
+		{
+			Value = Default;
+		}
+		return Result;
+	}
+
+	template<class T>
+	bool SetValueT(const string& Key, const string& Name, const T Value)
+	{
+		const auto StmtStepAndReset = [&](int StmtId) { return m_Statements[StmtId].Bind(Value, Key, Name).StepAndReset(); };
+
+		bool b = StmtStepAndReset(stmtUpdateValue);
+		if (!b || !Changes())
+			b = StmtStepAndReset(stmtInsertValue);
+		return b;
+	}
+
+	template<class T, class getter_t>
+	bool EnumValuesT(const string& Key, DWORD Index, string& Name, T& Value, getter_t Getter)
+	{
+		auto& Stmt = m_Statements[stmtEnumValues];
+		if (Index == 0)
+			Stmt.Reset().Bind(transient(Key));
+
+		if (Stmt.Step())
+		{
+			Name = Stmt.GetColText(0);
+			Value = (Stmt.*Getter)(1);
+			return true;
+		}
+
+		Stmt.Reset();
+		return false;
+	}
+
 	enum statement_id
 	{
 		stmtUpdateValue,
@@ -374,6 +327,8 @@ private:
 		stmtGetValue,
 		stmtDelValue,
 		stmtEnumValues,
+
+		stmt_count
 	};
 };
 
@@ -424,7 +379,7 @@ public:
 			"INSERT OR IGNORE INTO table_keys VALUES (0,0,\"\",\"Root - do not edit\");"
 		;
 
-		static const simple_pair<int, const wchar_t*> Statements[] =
+		static const stmt_init_t Statements[] =
 		{
 			{ stmtCreateKey, L"INSERT INTO table_keys VALUES (NULL,?1,?2,?3);" },
 			{ stmtFindKey, L"SELECT id FROM table_keys WHERE parent_id=?1 AND name=?2 AND id<>0;" },
@@ -436,6 +391,7 @@ public:
 			{ stmtDelValue, L"DELETE FROM table_values WHERE key_id=?1 AND name=?2;" },
 			{ stmtDeleteTree, L"DELETE FROM table_keys WHERE id=?1 AND id<>0;" },
 		};
+		CheckStmt<stmt_count>(Statements);
 
 		return Open(DbName, Local)
 		    && EnableForeignKeysConstraints()
@@ -447,7 +403,7 @@ public:
 
 	virtual bool Flush() override
 	{
-		bool b = EndTransaction();
+		const bool b = EndTransaction();
 		BeginTransaction();
 		return b;
 	}
@@ -464,10 +420,11 @@ public:
 
 	virtual unsigned __int64 GetKeyID(unsigned __int64 Root, const string& Name) override
 	{
+		auto& Stmt = m_Statements[stmtFindKey];
 		unsigned __int64 id = 0;
-		if (m_Statements[stmtFindKey].Bind(Root, Name).Step())
-			id = m_Statements[stmtFindKey].GetColInt64(0);
-		m_Statements[stmtFindKey].Reset();
+		if (Stmt.Bind(Root, Name).Step())
+			id = Stmt.GetColInt64(0);
+		Stmt.Reset();
 		return id;
 	}
 
@@ -478,54 +435,37 @@ public:
 
 	virtual bool SetValue(unsigned __int64 Root, const string& Name, const string& Value) override
 	{
-		return m_Statements[stmtSetValue].Bind(Root, Name, Value).StepAndReset();
+		return SetValueT(Root, Name, Value);
 	}
 
 	virtual bool SetValue(unsigned __int64 Root, const string& Name, const wchar_t* Value) override
 	{
-		return m_Statements[stmtSetValue].Bind(Root, Name, Value).StepAndReset();
+		return SetValueT(Root, Name, Value);
 	}
 
-	virtual bool SetValue(unsigned __int64 Root, const string& Name, unsigned __int64 Value) override
+	virtual bool SetValue(unsigned __int64 Root, const string& Name, unsigned long long Value) override
 	{
-		return m_Statements[stmtSetValue].Bind(Root, Name, Value).StepAndReset();
+		return SetValueT(Root, Name, Value);
 	}
 
-	virtual bool SetValue(unsigned __int64 Root, const string& Name, const void *Value, size_t Size) override
+	virtual bool SetValue(unsigned __int64 Root, const string& Name, const blob& Value) override
 	{
-		return m_Statements[stmtSetValue].Bind(Root, Name, blob(Value, Size)).StepAndReset();
+		return SetValueT(Root, Name, Value);
 	}
 
-	virtual bool GetValue(unsigned __int64 Root, const string& Name, unsigned __int64 *Value) override
+	virtual bool GetValue(unsigned __int64 Root, const string& Name, unsigned long long& Value) override
 	{
-		bool b = m_Statements[stmtGetValue].Bind(Root, Name).Step();
-		if (b)
-			*Value = m_Statements[stmtGetValue].GetColInt64(0);
-		m_Statements[stmtGetValue].Reset();
-		return b;
+		return GetValueT(Root, Name, Value, &SQLiteStmt::GetColInt64);
 	}
 
-	virtual bool GetValue(unsigned __int64 Root, const string& Name, string &strValue) override
+	virtual bool GetValue(unsigned __int64 Root, const string& Name, string &Value) override
 	{
-		bool b = m_Statements[stmtGetValue].Bind(Root, Name).Step();
-		if (b)
-			strValue = m_Statements[stmtGetValue].GetColText(0);
-		m_Statements[stmtGetValue].Reset();
-		return b;
+		return GetValueT(Root, Name, Value, &SQLiteStmt::GetColText);
 	}
 
-	virtual int GetValue(unsigned __int64 Root, const string& Name, void *Value, size_t Size) override
+	virtual bool GetValue(unsigned __int64 Root, const string& Name, writable_blob& Value) override
 	{
-		int realsize = 0;
-		if (m_Statements[stmtGetValue].Bind(Root, Name).Step())
-		{
-			const char *blob = m_Statements[stmtGetValue].GetColBlob(0);
-			realsize = m_Statements[stmtGetValue].GetColBytes(0);
-			if (Value)
-				memcpy(Value,blob,std::min(realsize,static_cast<int>(Size)));
-		}
-		m_Statements[stmtGetValue].Reset();
-		return realsize;
+		return GetValueT(Root, Name, Value, &SQLiteStmt::GetColBlob);
 	}
 
 	virtual bool DeleteKeyTree(unsigned __int64 KeyID) override
@@ -539,73 +479,79 @@ public:
 		return m_Statements[stmtDelValue].Bind(Root, Name).StepAndReset();
 	}
 
+
 	virtual bool EnumKeys(unsigned __int64 Root, DWORD Index, string& Name) override
 	{
+		auto& Stmt = m_Statements[stmtEnumKeys];
 		if (Index == 0)
-			m_Statements[stmtEnumKeys].Reset().Bind(Root);
+			Stmt.Reset().Bind(Root);
 
-		if (m_Statements[stmtEnumKeys].Step())
+		if (Stmt.Step())
 		{
-			Name = m_Statements[stmtEnumKeys].GetColText(0);
+			Name = Stmt.GetColText(0);
 			return true;
 		}
 
-		m_Statements[stmtEnumKeys].Reset();
+		Stmt.Reset();
 		return false;
 	}
 
-	virtual bool EnumValues(unsigned __int64 Root, DWORD Index, string& Name, DWORD *Type) override
+	virtual bool EnumValues(unsigned __int64 Root, DWORD Index, string& Name, DWORD& Type) override
 	{
+		auto& Stmt = m_Statements[stmtEnumValues];
 		if (Index == 0)
-			m_Statements[stmtEnumValues].Reset().Bind(Root);
+			Stmt.Reset().Bind(Root);
 
 		if (m_Statements[stmtEnumValues].Step())
 		{
-			Name = m_Statements[stmtEnumValues].GetColText(0);
-			*Type = m_Statements[stmtEnumValues].GetColType(1);
+			Name = Stmt.GetColText(0);
+			Type = Stmt.GetColType(1);
 			return true;
 		}
 
-		m_Statements[stmtEnumValues].Reset();
+		Stmt.Reset();
 		return false;
-
 	}
 
-	virtual void SerializeBlob(const char* Name, const void* Blob, int Size, tinyxml::TiXmlElement& e)
+	virtual void SerializeBlob(const char* Name, const void* Blob, size_t Size, tinyxml::TiXmlElement& e)
 	{
-			auto hex = BlobToHexString(Blob, Size);
-			e.SetAttribute("type", "hex");
-			e.SetAttribute("value", hex);
+		auto hex = BlobToHexString(Blob, Size);
+		e.SetAttribute("type", "hex");
+		e.SetAttribute("value", hex);
 	}
 
 	virtual void Export(unsigned __int64 id, tinyxml::TiXmlElement& key)
 	{
-		m_Statements[stmtEnumValues].Bind(id);
-		while (m_Statements[stmtEnumValues].Step())
+		auto& Stmt = m_Statements[stmtEnumValues];
+		Stmt.Bind(id);
+		while (Stmt.Step())
 		{
 			auto& e = CreateChild(key, "value");
 
-			const char* name = m_Statements[stmtEnumValues].GetColTextUTF8(0);
+			const auto name = Stmt.GetColTextUTF8(0);
 			e.SetAttribute("name", name);
 
-			switch (m_Statements[stmtEnumValues].GetColType(1))
+			switch (Stmt.GetColType(1))
 			{
 				case TYPE_INTEGER:
 					e.SetAttribute("type", "qword");
-					e.SetAttribute("value", to_hex_string(m_Statements[stmtEnumValues].GetColInt64(1)));
+					e.SetAttribute("value", to_hex_string(Stmt.GetColInt64(1)));
 					break;
 				case TYPE_STRING:
 					e.SetAttribute("type", "text");
-					e.SetAttribute("value", m_Statements[stmtEnumValues].GetColTextUTF8(1));
+					e.SetAttribute("value", Stmt.GetColTextUTF8(1));
 					break;
 				default:
-					SerializeBlob(name, m_Statements[stmtEnumValues].GetColBlob(1), m_Statements[stmtEnumValues].GetColBytes(1), e);
+					{
+						const auto Blob = Stmt.GetColBlob(1);
+						SerializeBlob(name, Blob.data(), Blob.size(), e);
+					}
+					break;
 			}
 		}
-		m_Statements[stmtEnumValues].Reset();
+		Stmt.Reset();
 
-		SQLiteStmt stmtEnumSubKeys;
-		InitStmt(stmtEnumSubKeys, L"SELECT id, name, description FROM table_keys WHERE parent_id=?1 AND id<>0;");
+		auto stmtEnumSubKeys = create_stmt(L"SELECT id, name, description FROM table_keys WHERE parent_id=?1 AND id<>0;");
 
 		stmtEnumSubKeys.Bind(id);
 		while (stmtEnumSubKeys.Step())
@@ -613,7 +559,7 @@ public:
 			auto& e = CreateChild(key, "key");
 
 			e.SetAttribute("name", stmtEnumSubKeys.GetColTextUTF8(1));
-			const char *description = stmtEnumSubKeys.GetColTextUTF8(2);
+			const auto description = stmtEnumSubKeys.GetColTextUTF8(2);
 			if (description)
 				e.SetAttribute("description", description);
 
@@ -636,8 +582,8 @@ public:
 	{
 		unsigned __int64 id;
 		{
-			const char *name = key.Attribute("name");
-			const char *description = key.Attribute("description");
+			const auto name = key.Attribute("name");
+			const auto description = key.Attribute("description");
 			if (!name)
 				return;
 
@@ -654,9 +600,9 @@ public:
 
 		FOR(const auto& e, xml_enum(key, "value"))
 		{
-			const char *name = e->Attribute("name");
-			const char *type = e->Attribute("type");
-			const char *value = e->Attribute("value");
+			const auto name = e->Attribute("name");
+			const auto type = e->Attribute("type");
+			const auto value = e->Attribute("value");
 
 			if (!name || !type)
 				continue;
@@ -675,13 +621,13 @@ public:
 			else if (value && !strcmp(type,"hex"))
 			{
 				auto Blob = HexStringToBlob(value);
-				SetValue(id, Name, Blob.data(), Blob.size());
+				SetValue(id, Name, blob(Blob.data(), Blob.size()));
 			}
 			else
 			{
 				// custom types, value is optional
 				auto Blob = DeserializeBlob(name, type, value, *e);
-				SetValue(id, Name, Blob.data(), Blob.size());
+				SetValue(id, Name, blob(Blob.data(), Blob.size()));
 			}
 		}
 
@@ -707,6 +653,23 @@ private:
 		delete this;
 	}
 
+	template<class T, class getter_t>
+	bool GetValueT(unsigned __int64 Root, const string& Name, T& Value, getter_t Getter)
+	{
+		auto& Stmt = m_Statements[stmtGetValue];
+		const bool b = Stmt.Bind(Root, Name).Step();
+		if (b)
+			Value = (Stmt.*Getter)(0);
+		Stmt.Reset();
+		return b;
+	}
+
+	template<class T>
+	bool SetValueT(unsigned __int64 Root, const string& Name, const T& Value)
+	{
+		return m_Statements[stmtSetValue].Bind(Root, Name, Value).StepAndReset();
+	}
+
 	enum statement_id
 	{
 		stmtCreateKey,
@@ -718,6 +681,8 @@ private:
 		stmtEnumValues,
 		stmtDelValue,
 		stmtDeleteTree,
+
+		stmt_count
 	};
 
 	Event AsyncDone;
@@ -739,7 +704,7 @@ public:
 	virtual ~HighlightHierarchicalConfigDb() {}
 
 private:
-	virtual void SerializeBlob(const char* Name, const void* Blob, int Size, tinyxml::TiXmlElement& e) override
+	virtual void SerializeBlob(const char* Name, const void* Blob, size_t Size, tinyxml::TiXmlElement& e) override
 	{
 		static const char* ColorKeys[] =
 		{
@@ -751,11 +716,11 @@ private:
 
 		if (std::any_of(CONST_RANGE(ColorKeys, i) { return !strcmp(Name, i); }))
 		{
-			auto Color = reinterpret_cast<const FarColor*>(Blob);
+			auto& Color = *static_cast<const FarColor*>(Blob);
 			e.SetAttribute("type", "color");
-			e.SetAttribute("background", to_hex_string(Color->BackgroundColor));
-			e.SetAttribute("foreground", to_hex_string(Color->ForegroundColor));
-			e.SetAttribute("flags", Utf8String(FlagsToString(Color->Flags, ColorFlagNames)).data());
+			e.SetAttribute("background", to_hex_string(Color.BackgroundColor));
+			e.SetAttribute("foreground", to_hex_string(Color.ForegroundColor));
+			e.SetAttribute("flags", Utf8String(FlagsToString(Color.Flags, ColorFlagNames)).data());
 		}
 		else
 		{
@@ -775,10 +740,10 @@ private:
 			if(background && foreground && flags)
 			{
 				Blob.resize(sizeof(FarColor));
-				auto Color = reinterpret_cast<FarColor*>(Blob.data());
-				Color->BackgroundColor = std::strtoul(background, nullptr, 16);
-				Color->ForegroundColor = std::strtoul(foreground, nullptr, 16);
-				Color->Flags = StringToFlags(wide(flags, CP_UTF8), ColorFlagNames);
+				auto& Color = *reinterpret_cast<FarColor*>(Blob.data());
+				Color.BackgroundColor = std::strtoul(background, nullptr, 16);
+				Color.ForegroundColor = std::strtoul(foreground, nullptr, 16);
+				Color.Flags = StringToFlags(wide(flags, CP_UTF8), ColorFlagNames);
 			}
 			return Blob;
 		}
@@ -805,13 +770,14 @@ public:
 			"CREATE TABLE IF NOT EXISTS colors(name TEXT NOT NULL PRIMARY KEY, value BLOB);"
 		;
 
-		static const simple_pair<int, const wchar_t*> Statements[] =
+		static const stmt_init_t Statements[] =
 		{
 			{ stmtUpdateValue, L"UPDATE colors SET value=?1 WHERE name=?2;" },
 			{ stmtInsertValue, L"INSERT INTO colors VALUES (?1,?2);" },
 			{ stmtGetValue, L"SELECT value FROM colors WHERE name=?1;" },
 			{ stmtDelValue, L"DELETE FROM colors WHERE name=?1;" },
 		};
+		CheckStmt<stmt_count>(Statements);
 
 		return Open(DbName, Local)
 		    && Exec(Schema)
@@ -821,21 +787,26 @@ public:
 
 	virtual bool SetValue(const string& Name, const FarColor& Value) override
 	{
-		bool b = m_Statements[stmtUpdateValue].Bind(blob(&Value, sizeof(Value)), Name).StepAndReset();
-		if (!b || Changes() == 0)
-			b = m_Statements[stmtInsertValue].Bind(Name, blob(&Value, sizeof(Value))).StepAndReset();
+		const auto StmtStepAndReset = [&](int StmtId) { return m_Statements[StmtId].Bind(blob(&Value, sizeof(Value)), Name).StepAndReset(); };
+
+		bool b = StmtStepAndReset(stmtUpdateValue);
+		if (!b || !Changes())
+			b = StmtStepAndReset(stmtInsertValue);
 		return b;
 	}
 
 	virtual bool GetValue(const string& Name, FarColor& Value) override
 	{
-		bool b = m_Statements[stmtGetValue].Bind(Name).Step();
+		auto& Stmt = m_Statements[stmtGetValue];
+		const bool b = Stmt.Bind(Name).Step();
 		if (b)
 		{
-			const void* blob = m_Statements[stmtGetValue].GetColBlob(0);
-			Value = *static_cast<const FarColor*>(blob);
+			const auto Blob = Stmt.GetColBlob(0);
+			if (Blob.size() != sizeof(Value))
+				throw std::runtime_error("incorrect blob size");
+			Value = *static_cast<const FarColor*>(Blob.data());
 		}
-		m_Statements[stmtGetValue].Reset();
+		Stmt.Reset();
 		return b;
 	}
 
@@ -843,18 +814,20 @@ public:
 	{
 		auto& root = CreateChild(Parent, "colors");
 
-		SQLiteStmt stmtEnumAllValues;
-		InitStmt(stmtEnumAllValues, L"SELECT name, value FROM colors ORDER BY name;");
+		auto stmtEnumAllValues = create_stmt(L"SELECT name, value FROM colors ORDER BY name;");
 
 		while (stmtEnumAllValues.Step())
 		{
 			auto& e = CreateChild(root, "object");
 
 			e.SetAttribute("name", stmtEnumAllValues.GetColTextUTF8(0));
-			auto Color = reinterpret_cast<const FarColor*>(stmtEnumAllValues.GetColBlob(1));
-			e.SetAttribute("background", to_hex_string(Color->BackgroundColor));
-			e.SetAttribute("foreground", to_hex_string(Color->ForegroundColor));
-			e.SetAttribute("flags", Utf8String(FlagsToString(Color->Flags, ColorFlagNames)).data());
+			const auto Blob = stmtEnumAllValues.GetColBlob(1);
+			if (Blob.size() != sizeof(FarColor))
+				throw std::runtime_error("incorrect blob size");
+			auto& Color = *static_cast<const FarColor*>(Blob.data());
+			e.SetAttribute("background", to_hex_string(Color.BackgroundColor));
+			e.SetAttribute("foreground", to_hex_string(Color.ForegroundColor));
+			e.SetAttribute("flags", Utf8String(FlagsToString(Color.Flags, ColorFlagNames)).data());
 		}
 
 		stmtEnumAllValues.Reset();
@@ -865,10 +838,10 @@ public:
 		SCOPED_ACTION(auto)(ScopedTransaction());
 		FOR(const auto& e, xml_enum(root.FirstChild("colors"), "object"))
 		{
-			const char *name = e->Attribute("name");
-			const char *background = e->Attribute("background");
-			const char *foreground = e->Attribute("foreground");
-			const char *flags = e->Attribute("flags");
+			const auto name = e->Attribute("name");
+			const auto background = e->Attribute("background");
+			const auto foreground = e->Attribute("foreground");
+			const auto flags = e->Attribute("flags");
 
 			if (!name)
 				continue;
@@ -897,6 +870,8 @@ private:
 		stmtInsertValue,
 		stmtGetValue,
 		stmtDelValue,
+
+		stmt_count
 	};
 };
 
@@ -917,7 +892,7 @@ public:
 			"CREATE TABLE IF NOT EXISTS commands(ft_id INTEGER NOT NULL, type INTEGER NOT NULL, enabled INTEGER NOT NULL, command TEXT, FOREIGN KEY(ft_id) REFERENCES filetypes(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (ft_id, type));"
 		;
 
-		static const simple_pair<int, const wchar_t*> Statements[] =
+		static const stmt_init_t Statements[] =
 		{
 			{ stmtReorder, L"UPDATE filetypes SET weight=weight+1 WHERE weight>(CASE ?1 WHEN 0 THEN 0 ELSE (SELECT weight FROM filetypes WHERE id=?1) END);" },
 			{ stmtAddType, L"INSERT INTO filetypes VALUES (NULL,(CASE ?1 WHEN 0 THEN 1 ELSE (SELECT weight FROM filetypes WHERE id=?1)+1 END),?2,?3);" },
@@ -933,6 +908,7 @@ public:
 			{ stmtGetWeight, L"SELECT weight FROM filetypes WHERE id=?1;" },
 			{ stmtSetWeight, L"UPDATE filetypes SET weight=?1 WHERE id=?2;" },
 		};
+		CheckStmt<stmt_count>(Statements);
 
 		return Open(DbName, Local)
 		    && EnableForeignKeysConstraints()
@@ -943,64 +919,69 @@ public:
 
 	virtual bool EnumMasks(DWORD Index, unsigned __int64 *id, string &strMask) override
 	{
+		auto& Stmt = m_Statements[stmtEnumMasks];
 		if (Index == 0)
-			m_Statements[stmtEnumMasks].Reset();
+			Stmt.Reset();
 
-		if (m_Statements[stmtEnumMasks].Step())
+		if (Stmt.Step())
 		{
-			*id = m_Statements[stmtEnumMasks].GetColInt64(0);
-			strMask = m_Statements[stmtEnumMasks].GetColText(1);
+			*id = Stmt.GetColInt64(0);
+			strMask = Stmt.GetColText(1);
 			return true;
 		}
 
-		m_Statements[stmtEnumMasks].Reset();
+		Stmt.Reset();
 		return false;
 	}
 
 	virtual bool EnumMasksForType(int Type, DWORD Index, unsigned __int64 *id, string &strMask) override
 	{
+		auto& Stmt = m_Statements[stmtEnumMasksForType];
 		if (Index == 0)
-			m_Statements[stmtEnumMasksForType].Reset().Bind(Type);
+			Stmt.Reset().Bind(Type);
 
-		if (m_Statements[stmtEnumMasksForType].Step())
+		if (Stmt.Step())
 		{
-			*id = m_Statements[stmtEnumMasksForType].GetColInt64(0);
-			strMask = m_Statements[stmtEnumMasksForType].GetColText(1);
+			*id = Stmt.GetColInt64(0);
+			strMask = Stmt.GetColText(1);
 			return true;
 		}
 
-		m_Statements[stmtEnumMasksForType].Reset();
+		Stmt.Reset();
 		return false;
 	}
 
 	virtual bool GetMask(unsigned __int64 id, string &strMask) override
 	{
-		bool b = m_Statements[stmtGetMask].Bind(id).Step();
+		auto& Stmt = m_Statements[stmtGetMask];
+		const bool b = Stmt.Bind(id).Step();
 		if (b)
-			strMask = m_Statements[stmtGetMask].GetColText(0);
-		m_Statements[stmtGetMask].Reset();
+			strMask = Stmt.GetColText(0);
+		Stmt.Reset();
 		return b;
 	}
 
 	virtual bool GetDescription(unsigned __int64 id, string &strDescription) override
 	{
-		bool b = m_Statements[stmtGetDescription].Bind(id).Step();
+		auto& Stmt = m_Statements[stmtGetDescription];
+		const bool b = Stmt.Bind(id).Step();
 		if (b)
-			strDescription = m_Statements[stmtGetDescription].GetColText(0);
-		m_Statements[stmtGetDescription].Reset();
+			strDescription = Stmt.GetColText(0);
+		Stmt.Reset();
 		return b;
 	}
 
 	virtual bool GetCommand(unsigned __int64 id, int Type, string &strCommand, bool *Enabled = nullptr) override
 	{
-		bool b = m_Statements[stmtGetCommand].Bind(id, Type).Step();
+		auto& Stmt = m_Statements[stmtGetCommand];
+		const bool b = Stmt.Bind(id, Type).Step();
 		if (b)
 		{
-			strCommand = m_Statements[stmtGetCommand].GetColText(0);
+			strCommand = Stmt.GetColText(0);
 			if (Enabled)
-				*Enabled = m_Statements[stmtGetCommand].GetColInt(1) != 0;
+				*Enabled = Stmt.GetColInt(1) != 0;
 		}
-		m_Statements[stmtGetCommand].Reset();
+		Stmt.Reset();
 		return b;
 	}
 
@@ -1011,18 +992,19 @@ public:
 
 	virtual bool SwapPositions(unsigned __int64 id1, unsigned __int64 id2) override
 	{
-		if (m_Statements[stmtGetWeight].Bind(id1).Step())
+		auto& Stmt = m_Statements[stmtGetWeight];
+		if (Stmt.Bind(id1).Step())
 		{
-			unsigned __int64 weight1 = m_Statements[stmtGetWeight].GetColInt64(0);
-			m_Statements[stmtGetWeight].Reset();
-			if (m_Statements[stmtGetWeight].Bind(id2).Step())
+			const auto weight1 = Stmt.GetColInt64(0);
+			Stmt.Reset();
+			if (Stmt.Bind(id2).Step())
 			{
-				unsigned __int64 weight2 = m_Statements[stmtGetWeight].GetColInt64(0);
-				m_Statements[stmtGetWeight].Reset();
+				const auto weight2 = Stmt.GetColInt64(0);
+				Stmt.Reset();
 				return m_Statements[stmtSetWeight].Bind(weight1, id2).StepAndReset() && m_Statements[stmtSetWeight].Bind(weight2, id1).StepAndReset();
 			}
 		}
-		m_Statements[stmtGetWeight].Reset();
+		Stmt.Reset();
 		return false;
 	}
 
@@ -1047,10 +1029,8 @@ public:
 	{
 		auto& root = CreateChild(Parent, "associations");
 
-		SQLiteStmt stmtEnumAllTypes;
-		InitStmt(stmtEnumAllTypes, L"SELECT id, mask, description FROM filetypes ORDER BY weight;");
-		SQLiteStmt stmtEnumCommandsPerFiletype;
-		InitStmt(stmtEnumCommandsPerFiletype, L"SELECT type, enabled, command FROM commands WHERE ft_id=?1 ORDER BY type;");
+		auto stmtEnumAllTypes = create_stmt(L"SELECT id, mask, description FROM filetypes ORDER BY weight;");
+		auto stmtEnumCommandsPerFiletype = create_stmt(L"SELECT type, enabled, command FROM commands WHERE ft_id=?1 ORDER BY type;");
 
 		while (stmtEnumAllTypes.Step())
 		{
@@ -1085,8 +1065,8 @@ public:
 		unsigned __int64 id = 0;
 		FOR(const auto& e, xml_enum(base, "filetype"))
 		{
-			const char *mask = e->Attribute("mask");
-			const char *description = e->Attribute("description");
+			const auto mask = e->Attribute("mask");
+			const auto description = e->Attribute("description");
 
 			if (!mask)
 				continue;
@@ -1100,11 +1080,11 @@ public:
 
 			FOR(const auto& se, xml_enum(*e, "command"))
 			{
-				const char *command = se->Attribute("command");
+				const auto command = se->Attribute("command");
 				int type=0;
-				const char *stype = se->Attribute("type", &type);
+				const auto stype = se->Attribute("type", &type);
 				int enabled=0;
-				const char *senabled = se->Attribute("enabled", &enabled);
+				const auto senabled = se->Attribute("enabled", &enabled);
 
 				if (!command || !stype || !senabled)
 					continue;
@@ -1132,6 +1112,8 @@ private:
 		stmtDelType,
 		stmtGetWeight,
 		stmtSetWeight,
+
+		stmt_count
 	};
 };
 
@@ -1177,7 +1159,7 @@ public:
 			"CREATE TABLE IF NOT EXISTS menuitems(cid INTEGER NOT NULL, type INTEGER NOT NULL, number INTEGER NOT NULL, guid TEXT NOT NULL, name TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (cid, type, number));"
 		;
 
-		static const simple_pair<int, const wchar_t*> Statements[] =
+		static const stmt_init_t Statements[] =
 		{
 			{ stmtCreateCache, L"INSERT INTO cachename VALUES (NULL,?1);," },
 			{ stmtFindCacheName, L"SELECT id FROM cachename WHERE name=?1;" },
@@ -1209,6 +1191,7 @@ public:
 			{ stmtGetMenuItem, L"SELECT name, guid FROM menuitems WHERE cid=?1 AND type=?2 AND number=?3;" },
 			{ stmtSetMenuItem, L"INSERT OR REPLACE INTO menuitems VALUES (?1,?2,?3,?4,?5);" },
 		};
+		CheckStmt<stmt_count>(Statements);
 
 		return Open(DbName, Local, true)
 		    && SetWALJournalingMode()
@@ -1228,12 +1211,13 @@ public:
 		return 0;
 	}
 
-	virtual unsigned __int64 GetCacheID(const string& CacheName) override
+	virtual unsigned __int64 GetCacheID(const string& CacheName) const override
 	{
+		auto& Stmt = m_Statements[stmtFindCacheName];
 		unsigned __int64 id = 0;
-		if (m_Statements[stmtFindCacheName].Bind(CacheName).Step())
-			id = m_Statements[stmtFindCacheName].GetColInt64(0);
-		m_Statements[stmtFindCacheName].Reset();
+		if (Stmt.Bind(CacheName).Step())
+			id = Stmt.GetColInt64(0);
+		Stmt.Reset();
 		return id;
 	}
 
@@ -1243,102 +1227,109 @@ public:
 		return m_Statements[stmtDelCache].Bind(CacheName).StepAndReset();
 	}
 
-	virtual bool IsPreload(unsigned __int64 id) override
+	virtual bool IsPreload(unsigned __int64 id) const override
 	{
+		auto& Stmt = m_Statements[stmtGetPreloadState];
 		bool preload = false;
-		if (m_Statements[stmtGetPreloadState].Bind(id).Step())
-			preload = m_Statements[stmtGetPreloadState].GetColInt(0) != 0;
-		m_Statements[stmtGetPreloadState].Reset();
+		if (Stmt.Bind(id).Step())
+			preload = Stmt.GetColInt(0) != 0;
+		Stmt.Reset();
 		return preload;
 	}
 
-	virtual string GetSignature(unsigned __int64 id) override
+	virtual string GetSignature(unsigned __int64 id) const override
 	{
 		return GetTextFromID(m_Statements[stmtGetSignature], id);
 	}
 
-	virtual void *GetExport(unsigned __int64 id, const string& ExportName) override
+	virtual void *GetExport(unsigned __int64 id, const string& ExportName) const override
 	{
+		auto& Stmt = m_Statements[stmtGetExportState];
 		void *enabled = nullptr;
-		if (m_Statements[stmtGetExportState].Bind(id, ExportName).Step())
-			if (m_Statements[stmtGetExportState].GetColInt(0))
+		if (Stmt.Bind(id, ExportName).Step())
+			if (Stmt.GetColInt(0))
 				enabled = ToPtr(1);
-		m_Statements[stmtGetExportState].Reset();
+		Stmt.Reset();
 		return enabled;
 	}
 
-	virtual string GetGuid(unsigned __int64 id) override
+	virtual string GetGuid(unsigned __int64 id) const override
 	{
 		return GetTextFromID(m_Statements[stmtGetGuid], id);
 	}
 
-	virtual string GetTitle(unsigned __int64 id) override
+	virtual string GetTitle(unsigned __int64 id) const override
 	{
 		return GetTextFromID(m_Statements[stmtGetTitle], id);
 	}
 
-	virtual string GetAuthor(unsigned __int64 id) override
+	virtual string GetAuthor(unsigned __int64 id) const override
 	{
 		return GetTextFromID(m_Statements[stmtGetAuthor], id);
 	}
 
-	virtual string GetDescription(unsigned __int64 id) override
+	virtual string GetDescription(unsigned __int64 id) const override
 	{
 		return GetTextFromID(m_Statements[stmtGetDescription], id);
 	}
 
-	virtual bool GetMinFarVersion(unsigned __int64 id, VersionInfo *Version) override
+	virtual bool GetMinFarVersion(unsigned __int64 id, VersionInfo *Version) const override
 	{
-		bool b = m_Statements[stmtGetMinFarVersion].Bind(id).Step();
+		auto& Stmt = m_Statements[stmtGetMinFarVersion];
+		const bool b = Stmt.Bind(id).Step();
 		if (b)
 		{
-			const char *blob = m_Statements[stmtGetMinFarVersion].GetColBlob(0);
-			size_t realsize = m_Statements[stmtGetMinFarVersion].GetColBytes(0);
-			memcpy(Version, blob, std::min(realsize, sizeof(VersionInfo)));
+			const auto Blob = Stmt.GetColBlob(0);
+			if (Blob.size() != sizeof(*Version))
+				throw std::runtime_error("incorrect blob size");
+			*Version = *static_cast<const VersionInfo*>(Blob.data());
 		}
-		m_Statements[stmtGetMinFarVersion].Reset();
+		Stmt.Reset();
 		return b;
 	}
 
-	virtual bool GetVersion(unsigned __int64 id, VersionInfo *Version) override
+	virtual bool GetVersion(unsigned __int64 id, VersionInfo *Version) const override
 	{
-		bool b = m_Statements[stmtGetVersion].Bind(id).Step();
+		auto& Stmt = m_Statements[stmtGetVersion];
+		const bool b = Stmt.Bind(id).Step();
 		if (b)
 		{
-			const char *blob = m_Statements[stmtGetVersion].GetColBlob(0);
-			size_t realsize = m_Statements[stmtGetVersion].GetColBytes(0);
-			memcpy(Version, blob, std::min(realsize, sizeof(VersionInfo)));
+			const auto Blob = Stmt.GetColBlob(0);
+			if (Blob.size() != sizeof(*Version))
+				throw std::runtime_error("incorrect blob size");
+			*Version = *static_cast<const VersionInfo*>(Blob.data());
 		}
-		m_Statements[stmtGetVersion].Reset();
+		Stmt.Reset();
 		return b;
 	}
 
-	virtual bool GetDiskMenuItem(unsigned __int64 id, size_t index, string &Text, string &Guid) override
+	virtual bool GetDiskMenuItem(unsigned __int64 id, size_t index, string &Text, string &Guid) const override
 	{
 		return GetMenuItem(id, DRIVE_MENU, index, Text, Guid);
 	}
 
-	virtual bool GetPluginsMenuItem(unsigned __int64 id, size_t index, string &Text, string &Guid) override
+	virtual bool GetPluginsMenuItem(unsigned __int64 id, size_t index, string &Text, string &Guid) const override
 	{
 		return GetMenuItem(id, PLUGINS_MENU, index, Text, Guid);
 	}
 
-	virtual bool GetPluginsConfigMenuItem(unsigned __int64 id, size_t index, string &Text, string &Guid) override
+	virtual bool GetPluginsConfigMenuItem(unsigned __int64 id, size_t index, string &Text, string &Guid) const override
 	{
 		return GetMenuItem(id, CONFIG_MENU, index, Text, Guid);
 	}
 
-	virtual string GetCommandPrefix(unsigned __int64 id) override
+	virtual string GetCommandPrefix(unsigned __int64 id) const override
 	{
 		return GetTextFromID(m_Statements[stmtGetPrefix], id);
 	}
 
-	virtual unsigned __int64 GetFlags(unsigned __int64 id) override
+	virtual unsigned __int64 GetFlags(unsigned __int64 id) const override
 	{
+		auto& Stmt = m_Statements[stmtGetFlags];
 		unsigned __int64 flags = 0;
-		if (m_Statements[stmtGetFlags].Bind(id).Step())
-			flags = m_Statements[stmtGetFlags].GetColInt64(0);
-		m_Statements[stmtGetFlags].Reset();
+		if (Stmt.Bind(id).Step())
+			flags = Stmt.GetColInt64(0);
+		Stmt.Reset();
 		return flags;
 	}
 
@@ -1412,18 +1403,19 @@ public:
 		return m_Statements[stmtSetDescription].Bind(id, Description).StepAndReset();
 	}
 
-	virtual bool EnumPlugins(DWORD index, string &CacheName) override
+	virtual bool EnumPlugins(DWORD index, string &CacheName) const override
 	{
+		auto& Stmt = m_Statements[stmtEnumCache];
 		if (index == 0)
-			m_Statements[stmtEnumCache].Reset();
+			Stmt.Reset();
 
-		if (m_Statements[stmtEnumCache].Step())
+		if (Stmt.Step())
 		{
-			CacheName = m_Statements[stmtEnumCache].GetColText(0);
+			CacheName = Stmt.GetColText(0);
 			return true;
 		}
 
-		m_Statements[stmtEnumCache].Reset();
+		Stmt.Reset();
 		return false;
 	}
 
@@ -1434,12 +1426,13 @@ public:
 		return ret;
 	}
 
-	virtual bool IsCacheEmpty() override
+	virtual bool IsCacheEmpty() const override
 	{
+		auto& Stmt = m_Statements[stmtCountCacheNames];
 		int count = 0;
-		if (m_Statements[stmtCountCacheNames].Step())
-			count = m_Statements[stmtCountCacheNames].GetColInt(0);
-		m_Statements[stmtCountCacheNames].Reset();
+		if (Stmt.Step())
+			count = Stmt.GetColInt(0);
+		Stmt.Reset();
 		return count==0;
 	}
 
@@ -1451,15 +1444,16 @@ private:
 		DRIVE_MENU
 	};
 
-	bool GetMenuItem(unsigned __int64 id, MenuItemTypeEnum type, size_t index, string &Text, string &Guid)
+	bool GetMenuItem(unsigned __int64 id, MenuItemTypeEnum type, size_t index, string &Text, string &Guid) const
 	{
-		bool b = m_Statements[stmtGetMenuItem].Bind(id, type, index).Step();
+		auto& Stmt = m_Statements[stmtGetMenuItem];
+		const bool b = Stmt.Bind(id, type, index).Step();
 		if (b)
 		{
-			Text = m_Statements[stmtGetMenuItem].GetColText(0);
-			Guid = m_Statements[stmtGetMenuItem].GetColText(1);
+			Text = Stmt.GetColText(0);
+			Guid = Stmt.GetColText(1);
 		}
-		m_Statements[stmtGetMenuItem].Reset();
+		Stmt.Reset();
 		return b;
 	}
 
@@ -1508,6 +1502,8 @@ private:
 		stmtEnumCache,
 		stmtGetMenuItem,
 		stmtSetMenuItem,
+
+		stmt_count
 	};
 };
 
@@ -1526,13 +1522,14 @@ public:
 			"CREATE TABLE IF NOT EXISTS pluginhotkeys(pluginkey TEXT NOT NULL, menuguid TEXT NOT NULL, type INTEGER NOT NULL, hotkey TEXT, PRIMARY KEY(pluginkey, menuguid, type));"
 			;
 
-		static const simple_pair<int, const wchar_t*> Statements[] =
+		static const stmt_init_t Statements[] =
 		{
 			{ stmtGetHotkey, L"SELECT hotkey FROM pluginhotkeys WHERE pluginkey=?1 AND menuguid=?2 AND type=?3;" },
 			{ stmtSetHotkey, L"INSERT OR REPLACE INTO pluginhotkeys VALUES (?1,?2,?3,?4);" },
 			{ stmtDelHotkey, L"DELETE FROM pluginhotkeys WHERE pluginkey=?1 AND menuguid=?2 AND type=?3;" },
 			{ stmtCheckForHotkeys, L"SELECT count(hotkey) FROM pluginhotkeys WHERE type=?1;" },
 		};
+		CheckStmt<stmt_count>(Statements);
 
 		return Open(DbName, Local)
 		    && Exec(Schema)
@@ -1544,19 +1541,21 @@ public:
 
 	virtual bool HotkeysPresent(HotKeyTypeEnum HotKeyType) override
 	{
+		auto& Stmt = m_Statements[stmtCheckForHotkeys];
 		int count = 0;
-		if (m_Statements[stmtCheckForHotkeys].Bind((int)HotKeyType).Step())
-			count = m_Statements[stmtCheckForHotkeys].GetColInt(0);
-		m_Statements[stmtCheckForHotkeys].Reset();
+		if (Stmt.Bind((int)HotKeyType).Step())
+			count = Stmt.GetColInt(0);
+		Stmt.Reset();
 		return count!=0;
 	}
 
 	virtual string GetHotkey(const string& PluginKey, const string& MenuGuid, HotKeyTypeEnum HotKeyType) override
 	{
+		auto& Stmt = m_Statements[stmtGetHotkey];
 		string strHotKey;
-		if (m_Statements[stmtGetHotkey].Bind(PluginKey, MenuGuid, HotKeyType).Step())
-			strHotKey = m_Statements[stmtGetHotkey].GetColText(0);
-		m_Statements[stmtGetHotkey].Reset();
+		if (Stmt.Bind(PluginKey, MenuGuid, HotKeyType).Step())
+			strHotKey = Stmt.GetColText(0);
+		Stmt.Reset();
 		return strHotKey;
 	}
 
@@ -1574,10 +1573,8 @@ public:
 	{
 		auto& root = CreateChild(Parent, "pluginhotkeys");
 
-		SQLiteStmt stmtEnumAllPluginKeys;
-		InitStmt(stmtEnumAllPluginKeys, L"SELECT pluginkey FROM pluginhotkeys GROUP BY pluginkey;");
-		SQLiteStmt stmtEnumAllHotkeysPerKey;
-		InitStmt(stmtEnumAllHotkeysPerKey, L"SELECT menuguid, type, hotkey FROM pluginhotkeys WHERE pluginkey=$1;");
+		auto stmtEnumAllPluginKeys = create_stmt(L"SELECT pluginkey FROM pluginhotkeys GROUP BY pluginkey;");
+		auto stmtEnumAllHotkeysPerKey = create_stmt(L"SELECT menuguid, type, hotkey FROM pluginhotkeys WHERE pluginkey=$1;");
 
 		while (stmtEnumAllPluginKeys.Step())
 		{
@@ -1600,7 +1597,7 @@ public:
 				}
 				e.SetAttribute("menu", type);
 				e.SetAttribute("guid", stmtEnumAllHotkeysPerKey.GetColTextUTF8(0));
-				const char *hotkey = stmtEnumAllHotkeysPerKey.GetColTextUTF8(2);
+				const auto hotkey = stmtEnumAllHotkeysPerKey.GetColTextUTF8(2);
 				e.SetAttribute("hotkey", NullToEmpty(hotkey));
 			}
 			stmtEnumAllHotkeysPerKey.Reset();
@@ -1614,7 +1611,7 @@ public:
 		SCOPED_ACTION(auto)(ScopedTransaction());
 		FOR(const auto& e, xml_enum(root.FirstChild("pluginhotkeys"), "plugin"))
 		{
-			const char *key = e->Attribute("key");
+			const auto key = e->Attribute("key");
 
 			if (!key)
 				continue;
@@ -1623,9 +1620,9 @@ public:
 
 			FOR(const auto& se, xml_enum(*e, "hotkey"))
 			{
-				const char *stype = se->Attribute("menu");
-				const char *guid = se->Attribute("guid");
-				const char *hotkey = se->Attribute("hotkey");
+				const auto stype = se->Attribute("menu");
+				const auto guid = se->Attribute("guid");
+				const auto hotkey = se->Attribute("hotkey");
 
 				if (!guid || !stype)
 					continue;
@@ -1651,6 +1648,8 @@ public:
 		stmtSetHotkey,
 		stmtDelHotkey,
 		stmtCheckForHotkeys,
+
+		stmt_count
 	};
 };
 
@@ -1787,7 +1786,7 @@ public:
 			"CREATE INDEX IF NOT EXISTS viewerposition_history_idx1 ON viewerposition_history (time DESC);"
 		;
 
-		static const simple_pair<int, const wchar_t*> Statements[] =
+		static const stmt_init_t Statements[] =
 		{
 			{ stmtEnum, L"SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 ORDER BY time;" },
 			{ stmtEnumDesc, L"SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC;" },
@@ -1816,6 +1815,7 @@ public:
 			{ stmtDeleteOldEditor, L"DELETE FROM editorposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM editorposition_history ORDER BY time DESC LIMIT ?2);" },
 			{ stmtDeleteOldViewer, L"DELETE FROM viewerposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM viewerposition_history ORDER BY time DESC LIMIT ?2);" },
 		};
+		CheckStmt<stmt_count>(Statements);
 
 		return Open(DbName, Local, true)
 		    && SetWALJournalingMode()
@@ -1895,68 +1895,73 @@ public:
 	virtual bool EnumLargeHistories(DWORD index, int MinimumEntries, unsigned int TypeHistory, string &strHistoryName) override
 	{
 		WaitAllAsync();
+		auto& Stmt = m_Statements[stmtEnumLargeHistories];
 		if (index == 0)
-			m_Statements[stmtEnumLargeHistories].Reset().Bind(TypeHistory, MinimumEntries);
+			Stmt.Reset().Bind(TypeHistory, MinimumEntries);
 
-		if (m_Statements[stmtEnumLargeHistories].Step())
+		if (Stmt.Step())
 		{
-			strHistoryName = m_Statements[stmtEnumLargeHistories].GetColText(0);
+			strHistoryName = Stmt.GetColText(0);
 			return true;
 		}
 
-		m_Statements[stmtEnumLargeHistories].Reset();
+		Stmt.Reset();
 		return false;
 	}
 
 	virtual bool GetNewest(unsigned int TypeHistory, const string& HistoryName, string& Name) override
 	{
 		WaitAllAsync();
-		bool b = m_Statements[stmtGetNewestName].Bind(TypeHistory, HistoryName).Step();
+		auto& Stmt = m_Statements[stmtGetNewestName];
+		const bool b = Stmt.Bind(TypeHistory, HistoryName).Step();
 		if (b)
 		{
-			Name = m_Statements[stmtGetNewestName].GetColText(0);
+			Name = Stmt.GetColText(0);
 		}
-		m_Statements[stmtGetNewestName].Reset();
+		Stmt.Reset();
 		return b;
 	}
 
 	virtual bool Get(unsigned __int64 id, string& Name) override
 	{
 		WaitAllAsync();
-		bool b = m_Statements[stmtGetName].Bind(id).Step();
+		auto& Stmt = m_Statements[stmtGetName];
+		const bool b = Stmt.Bind(id).Step();
 		if (b)
 		{
-			Name = m_Statements[stmtGetName].GetColText(0);
+			Name = Stmt.GetColText(0);
 		}
-		m_Statements[stmtGetName].Reset();
+		Stmt.Reset();
 		return b;
 	}
 
 	virtual bool Get(unsigned __int64 id, string& Name, history_record_type* Type, string &strGuid, string &strFile, string &strData) override
 	{
 		WaitAllAsync();
-		bool b = m_Statements[stmtGetNameAndType].Bind(id).Step();
+		auto& Stmt = m_Statements[stmtGetNameAndType];
+		const bool b = Stmt.Bind(id).Step();
 		if (b)
 		{
-			Name = m_Statements[stmtGetNameAndType].GetColText(0);
-			*Type = static_cast<history_record_type>(m_Statements[stmtGetNameAndType].GetColInt(1));
-			strGuid = m_Statements[stmtGetNameAndType].GetColText(2);
-			strFile = m_Statements[stmtGetNameAndType].GetColText(3);
-			strData = m_Statements[stmtGetNameAndType].GetColText(4);
+			Name = Stmt.GetColText(0);
+			*Type = static_cast<history_record_type>(Stmt.GetColInt(1));
+			strGuid = Stmt.GetColText(2);
+			strFile = Stmt.GetColText(3);
+			strData = Stmt.GetColText(4);
 		}
-		m_Statements[stmtGetNameAndType].Reset();
+		Stmt.Reset();
 		return b;
 	}
 
 	virtual DWORD Count(unsigned int TypeHistory, const string& HistoryName) override
 	{
 		WaitAllAsync();
+		auto& Stmt = m_Statements[stmtCount];
 		DWORD c = 0;
-		if (m_Statements[stmtCount].Bind((int)TypeHistory, HistoryName).Step())
+		if (Stmt.Bind((int)TypeHistory, HistoryName).Step())
 		{
-			 c = (DWORD) m_Statements[stmtCount].GetColInt(0);
+			c = (DWORD)Stmt.GetColInt(0);
 		}
-		m_Statements[stmtCount].Reset();
+		Stmt.Reset();
 		return c;
 	}
 
@@ -1969,12 +1974,13 @@ public:
 	virtual bool IsLocked(unsigned __int64 id) override
 	{
 		WaitAllAsync();
+		auto& Stmt = m_Statements[stmtGetLock];
 		bool l = false;
-		if (m_Statements[stmtGetLock].Bind(id).Step())
+		if (Stmt.Bind(id).Step())
 		{
-			l = m_Statements[stmtGetLock].GetColInt(0) != 0;
+			l = Stmt.GetColInt(0) != 0;
 		}
-		m_Statements[stmtGetLock].Reset();
+		Stmt.Reset();
 		return l;
 	}
 
@@ -1988,15 +1994,18 @@ public:
 	{
 		WaitAllAsync();
 		Name.clear();
+
 		unsigned __int64 nid = 0;
 		if (!id)
 			return nid;
-		if (m_Statements[stmtGetNext].Bind(id, TypeHistory, HistoryName).Step())
+
+		auto& Stmt = m_Statements[stmtGetNext];
+		if (Stmt.Bind(id, TypeHistory, HistoryName).Step())
 		{
-			nid = m_Statements[stmtGetNext].GetColInt64(0);
-			Name = m_Statements[stmtGetNext].GetColText(1);
+			nid = Stmt.GetColInt64(0);
+			Name = Stmt.GetColText(1);
 		}
-		m_Statements[stmtGetNext].Reset();
+		Stmt.Reset();
 		return nid;
 	}
 
@@ -2004,21 +2013,25 @@ public:
 	{
 		WaitAllAsync();
 		Name.clear();
+
+		auto& GetNewestStmt = m_Statements[stmtGetNewest];
 		unsigned __int64 nid = 0;
 		if (!id)
 		{
-			if (m_Statements[stmtGetNewest].Bind(TypeHistory, HistoryName).Step())
+			if (GetNewestStmt.Bind(TypeHistory, HistoryName).Step())
 			{
-				nid = m_Statements[stmtGetNewest].GetColInt64(0);
-				Name = m_Statements[stmtGetNewest].GetColText(1);
+				nid = GetNewestStmt.GetColInt64(0);
+				Name = GetNewestStmt.GetColText(1);
 			}
-			m_Statements[stmtGetNewest].Reset();
+			GetNewestStmt.Reset();
 			return nid;
 		}
-		if (m_Statements[stmtGetPrev].Bind(id, TypeHistory, HistoryName).Step())
+
+		auto& GetPrevStmt = m_Statements[stmtGetPrev];
+		if (GetPrevStmt.Bind(id, TypeHistory, HistoryName).Step())
 		{
-			nid = m_Statements[stmtGetPrev].GetColInt64(0);
-			Name = m_Statements[stmtGetPrev].GetColText(1);
+			nid = GetPrevStmt.GetColInt64(0);
+			Name = GetPrevStmt.GetColText(1);
 		}
 		else if (Get(id, Name))
 		{
@@ -2032,23 +2045,28 @@ public:
 	{
 		WaitAllAsync();
 		Name.clear();
+
+		auto& GetNewestStmt = m_Statements[stmtGetNewest];
+
 		unsigned __int64 nid = 0;
 		if (!id)
 		{
-			if (m_Statements[stmtGetNewest].Bind(TypeHistory, HistoryName).Step())
+			if (GetNewestStmt.Bind(TypeHistory, HistoryName).Step())
 			{
-				nid = m_Statements[stmtGetNewest].GetColInt64(0);
-				Name = m_Statements[stmtGetNewest].GetColText(1);
+				nid = GetNewestStmt.GetColInt64(0);
+				Name = GetNewestStmt.GetColText(1);
 			}
-			m_Statements[stmtGetNewest].Reset();
+			GetNewestStmt.Reset();
 			return nid;
 		}
-		if (m_Statements[stmtGetPrev].Bind(id, TypeHistory, HistoryName).Step())
+
+		auto& GetPrevStmt = m_Statements[stmtGetPrev];
+		if (GetPrevStmt.Bind(id, TypeHistory, HistoryName).Step())
 		{
-			nid = m_Statements[stmtGetPrev].GetColInt64(0);
-			Name = m_Statements[stmtGetPrev].GetColText(1);
+			nid = GetPrevStmt.GetColInt64(0);
+			Name = GetPrevStmt.GetColText(1);
 		}
-		m_Statements[stmtGetPrev].Reset();
+		GetPrevStmt.Reset();
 		return nid;
 	}
 
@@ -2063,17 +2081,18 @@ public:
 	virtual unsigned __int64 GetEditorPos(const string& Name, int *Line, int *LinePos, int *ScreenLine, int *LeftPos, uintptr_t *CodePage) override
 	{
 		WaitCommitAsync();
+		auto& Stmt = m_Statements[stmtGetEditorPos];
 		unsigned __int64 id=0;
-		if (m_Statements[stmtGetEditorPos].Bind(Name).Step())
+		if (Stmt.Bind(Name).Step())
 		{
-			id = m_Statements[stmtGetEditorPos].GetColInt64(0);
-			*Line = m_Statements[stmtGetEditorPos].GetColInt(1);
-			*LinePos = m_Statements[stmtGetEditorPos].GetColInt(2);
-			*ScreenLine = m_Statements[stmtGetEditorPos].GetColInt(3);
-			*LeftPos = m_Statements[stmtGetEditorPos].GetColInt(4);
-			*CodePage = m_Statements[stmtGetEditorPos].GetColInt(5);
+			id = Stmt.GetColInt64(0);
+			*Line = Stmt.GetColInt(1);
+			*LinePos = Stmt.GetColInt(2);
+			*ScreenLine = Stmt.GetColInt(3);
+			*LeftPos = Stmt.GetColInt(4);
+			*CodePage = Stmt.GetColInt(5);
 		}
-		m_Statements[stmtGetEditorPos].Reset();
+		Stmt.Reset();
 		return id;
 	}
 
@@ -2086,15 +2105,16 @@ public:
 	virtual bool GetEditorBookmark(unsigned __int64 id, size_t i, int *Line, int *LinePos, int *ScreenLine, int *LeftPos) override
 	{
 		WaitCommitAsync();
-		bool b = m_Statements[stmtGetEditorBookmark].Bind(id, i).Step();
+		auto& Stmt = m_Statements[stmtGetEditorBookmark];
+		const bool b = Stmt.Bind(id, i).Step();
 		if (b)
 		{
-			*Line = m_Statements[stmtGetEditorBookmark].GetColInt(0);
-			*LinePos = m_Statements[stmtGetEditorBookmark].GetColInt(1);
-			*ScreenLine = m_Statements[stmtGetEditorBookmark].GetColInt(2);
-			*LeftPos = m_Statements[stmtGetEditorBookmark].GetColInt(3);
+			*Line = Stmt.GetColInt(0);
+			*LinePos = Stmt.GetColInt(1);
+			*ScreenLine = Stmt.GetColInt(2);
+			*LeftPos = Stmt.GetColInt(3);
 		}
-		m_Statements[stmtGetEditorBookmark].Reset();
+		Stmt.Reset();
 		return b;
 	}
 
@@ -2109,16 +2129,17 @@ public:
 	virtual unsigned __int64 GetViewerPos(const string& Name, __int64 *FilePos, __int64 *LeftPos, int *Hex, uintptr_t *CodePage) override
 	{
 		WaitCommitAsync();
+		auto& Stmt = m_Statements[stmtGetViewerPos];
 		unsigned __int64 id=0;
-		if (m_Statements[stmtGetViewerPos].Bind(Name).Step())
+		if (Stmt.Bind(Name).Step())
 		{
-			id = m_Statements[stmtGetViewerPos].GetColInt64(0);
-			*FilePos = m_Statements[stmtGetViewerPos].GetColInt64(1);
-			*LeftPos = m_Statements[stmtGetViewerPos].GetColInt64(2);
-			*Hex = m_Statements[stmtGetViewerPos].GetColInt(3);
-			*CodePage = m_Statements[stmtGetViewerPos].GetColInt(4);
+			id = Stmt.GetColInt64(0);
+			*FilePos = Stmt.GetColInt64(1);
+			*LeftPos = Stmt.GetColInt64(2);
+			*Hex = Stmt.GetColInt(3);
+			*CodePage = Stmt.GetColInt(4);
 		}
-		m_Statements[stmtGetViewerPos].Reset();
+		Stmt.Reset();
 		return id;
 	}
 
@@ -2131,13 +2152,14 @@ public:
 	virtual bool GetViewerBookmark(unsigned __int64 id, size_t i, __int64 *FilePos, __int64 *LeftPos) override
 	{
 		WaitCommitAsync();
-		bool b = m_Statements[stmtGetViewerBookmark].Bind(id, i).Step();
+		auto& Stmt = m_Statements[stmtGetViewerBookmark];
+		const bool b = Stmt.Bind(id, i).Step();
 		if (b)
 		{
-			*FilePos = m_Statements[stmtGetViewerBookmark].GetColInt64(0);
-			*LeftPos = m_Statements[stmtGetViewerBookmark].GetColInt64(1);
+			*FilePos = Stmt.GetColInt64(0);
+			*LeftPos = Stmt.GetColInt64(1);
 		}
-		m_Statements[stmtGetViewerBookmark].Reset();
+		Stmt.Reset();
 		return b;
 	}
 
@@ -2178,6 +2200,8 @@ public:
 		stmtGetViewerBookmark,
 		stmtDeleteOldEditor,
 		stmtDeleteOldViewer,
+
+		stmt_count
 	};
 };
 
@@ -2254,7 +2278,7 @@ void Database::TryImportDatabase(XmlConfig *p, const char *son, bool plugin)
 			{
 				FOR(const auto& i, xml_enum(root.FirstChild("pluginsconfig"), "plugin"))
 				{
-					const char *guid = i->Attribute("guid");
+					const auto guid = i->Attribute("guid");
 					if (guid && 0 == strcmp(guid, son))
 					{
 						p->Import(tinyxml::TiXmlHandle(&const_cast<tinyxml::TiXmlElement&>(*i)));
@@ -2350,10 +2374,9 @@ Database::~Database()
 	ThreadWaiter.Wait();
 }
 
-RegExp& GetRE()
+const std::wregex& uuid_regex()
 {
-	static RegExp re;
-	re.Compile(L"/^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$/", OP_PERLSTYLE | OP_OPTIMIZE);
+	static const std::wregex re(L"^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$", std::regex::icase | std::regex::optimize);
 	return re;
 }
 
@@ -2388,9 +2411,7 @@ bool Database::Export(const string& File)
 		{
 			i.strFileName.resize(i.strFileName.size()-3);
 			ToUpper(i.strFileName);
-			RegExpMatch m[2];
-			intptr_t mc = ARRAYSIZE(m);
-			if (GetRE().Match(i.strFileName.data(), i.strFileName.data() + i.strFileName.size(), m, mc))
+			if (std::regex_search(i.strFileName, uuid_regex()))
 			{
 				auto& plugin = CreateChild(e, "plugin");
 				plugin.SetAttribute("guid", Utf8String(i.strFileName).data());
@@ -2438,8 +2459,6 @@ bool Database::Import(const string& File)
 			CreateShortcutsConfig()->Import(root.FirstChildElement("shortcuts"));
 
 			//TODO: import for local plugin settings
-			RegExpMatch m[2];
-
 			FOR(const auto& plugin, xml_enum(root.FirstChild("pluginsconfig"), "plugin"))
 			{
 				auto guid = plugin->Attribute("guid");
@@ -2448,8 +2467,7 @@ bool Database::Import(const string& File)
 				string Guid = wide(guid, CP_UTF8);
 				ToUpper(Guid);
 
-				intptr_t mc = ARRAYSIZE(m);
-				if (GetRE().Match(Guid.data(), Guid.data() + Guid.size(), m, mc))
+				if (std::regex_search(Guid, uuid_regex()))
 				{
 					CreatePluginsConfig(Guid)->Import(tinyxml::TiXmlHandle(&const_cast<tinyxml::TiXmlElement&>(*plugin)));
 				}

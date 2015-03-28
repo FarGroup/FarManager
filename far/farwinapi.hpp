@@ -198,8 +198,8 @@ namespace api
 			bool Open(const string& Object, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDistribution, DWORD dwFlagsAndAttributes = 0, file* TemplateFile = nullptr, bool ForceElevation = false);
 			bool Read(LPVOID Buffer, size_t NumberOfBytesToRead, size_t& NumberOfBytesRead, LPOVERLAPPED Overlapped = nullptr);
 			bool Write(LPCVOID Buffer, size_t NumberOfBytesToWrite, size_t& NumberOfBytesWritten, LPOVERLAPPED Overlapped = nullptr);
-			bool SetPointer(INT64 DistanceToMove, PINT64 NewFilePointer, DWORD MoveMethod);
-			INT64 GetPointer(){ return Pointer; }
+			bool SetPointer(int64_t DistanceToMove, uint64_t* NewFilePointer, DWORD MoveMethod);
+			uint64_t GetPointer(){ return Pointer; }
 			bool SetEnd();
 			bool GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime);
 			bool SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime);
@@ -218,7 +218,7 @@ namespace api
 
 		private:
 			HANDLE Handle;
-			INT64 Pointer;
+			uint64_t Pointer;
 			bool NeedSyncPointer;
 			string name;
 			DWORD share_mode;
@@ -442,6 +442,29 @@ namespace api
 		};
 	}
 
+	namespace memory
+	{
+		namespace global
+		{
+			struct deleter { void operator()(HGLOBAL MemoryBlock) { GlobalFree(MemoryBlock); } };
+
+			typedef std::unique_ptr<std::remove_pointer<HGLOBAL>::type, deleter> ptr;
+
+			inline ptr alloc(UINT Flags, size_t size) { return ptr(GlobalAlloc(Flags, size)); }
+
+			struct unlocker { void operator()(const void* MemoryBlock) { GlobalUnlock(const_cast<HGLOBAL>(MemoryBlock)); } };
+
+			template<class T>
+			struct lock_t { typedef std::unique_ptr<typename std::remove_pointer<T>::type, unlocker> ptr; };
+
+			template<class T>
+			typename lock_t<T>::ptr lock(HGLOBAL Ptr) { return typename lock_t<T>::ptr(static_cast<T>(GlobalLock(Ptr))); }
+
+			template<class T>
+			typename lock_t<T>::ptr lock(const ptr& Ptr) { return lock<T>(Ptr.get()); }
+		}
+	}
+
 	class co_initialize: noncopyable
 	{
 	public:
@@ -452,4 +475,6 @@ namespace api
 	private:
 		const HRESULT m_hr;
 	};
+
+	typedef std::bitset<26> drives_set;
 }

@@ -112,7 +112,7 @@ int GetLangParam(api::fs::file& LangFile,const string& ParamName,string *strPara
 	   не поганим позицию в файле; дальше @Contents не читаем
 	*/
 	BOOL Found = FALSE;
-	auto OldPos = LangFile.GetPointer();
+	const auto OldPos = LangFile.GetPointer();
 
 	string ReadStr;
 	GetFileString GetStr(LangFile, nCodePage);
@@ -236,7 +236,7 @@ bool SelectHelpLanguage() {return SelectLanguage(true);}
 int GetOptionsParam(api::fs::file& SrcFile,const wchar_t *KeyName,string &strValue, UINT nCodePage)
 {
 	int Length=StrLength(L".Options");
-	auto CurFilePos = SrcFile.GetPointer();
+	const auto CurFilePos = SrcFile.GetPointer();
 	string ReadStr;
 	GetFileString GetStr(SrcFile, nCodePage);
 	while (GetStr.GetString(ReadStr))

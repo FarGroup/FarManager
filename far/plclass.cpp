@@ -94,20 +94,20 @@ Plugin* GenericPluginModel::CreatePlugin(const string& filename)
 	return IsPlugin(filename)? new Plugin(this, filename) : nullptr;
 }
 
-void GenericPluginModel::SaveExportsToCache(PluginsCacheConfig* cache, unsigned long long id, const exports_array& exports)
+void GenericPluginModel::SaveExportsToCache(PluginsCacheConfig& cache, unsigned long long id, const exports_array& exports)
 {
 	for_each_2(m_ExportsNames, m_ExportsNames + ExportsCount, exports.cbegin(), [&](const export_name& i, const void* Export)
 	{
 		if (*i.UName)
-			cache->SetExport(id, i.UName, Export != nullptr);
+			cache.SetExport(id, i.UName, Export != nullptr);
 	});
 }
 
-void GenericPluginModel::LoadExportsFromCache(PluginsCacheConfig* cache, unsigned long long id, exports_array& exports)
+void GenericPluginModel::LoadExportsFromCache(const PluginsCacheConfig& cache, unsigned long long id, exports_array& exports)
 {
 	std::transform(m_ExportsNames, m_ExportsNames + ExportsCount, exports.begin(), [&](const export_name& i)
 	{
-		return *i.UName? cache->GetExport(id, i.UName) : nullptr;
+		return *i.UName? cache.GetExport(id, i.UName) : nullptr;
 	});
 }
 
@@ -540,7 +540,7 @@ bool Plugin::SaveToCache()
 	PlCache.SetDescription(id, strDescription);
 	PlCache.SetAuthor(id, strAuthor);
 
-	m_model->SaveExportsToCache(&PlCache, id, Exports);
+	m_model->SaveExportsToCache(PlCache, id, Exports);
 
 	return true;
 }
@@ -551,6 +551,7 @@ void Plugin::InitExports()
 }
 
 Plugin::Plugin(GenericPluginModel* model, const string& ModuleName):
+	Exports(),
 	m_model(model),
 	Activity(0),
 	bPendingRemove(false),
@@ -558,8 +559,7 @@ Plugin::Plugin(GenericPluginModel* model, const string& ModuleName):
 	m_strCacheName(ModuleName),
 	m_Instance(nullptr)
 {
-	std::replace(ALL_RANGE(m_strCacheName), L'\\', L'/');
-	ClearExports();
+	ReplaceBackslashToSlash(m_strCacheName);
 	SetGuid(FarGuid);
 }
 
@@ -573,7 +573,7 @@ void Plugin::SetGuid(const GUID& Guid)
 	m_strGuid = GuidToStr(m_Guid);
 }
 
-void InitVersionString(const VersionInfo& PluginVersion, string& VersionString)
+static string VersionToString(const VersionInfo& PluginVersion)
 {
 	const wchar_t* Stage[] = { L" Release", L" Alpha", L" Beta", L" RC"};
 	FormatString strVersion;
@@ -582,7 +582,7 @@ void InitVersionString(const VersionInfo& PluginVersion, string& VersionString)
 	{
 		strVersion << Stage[PluginVersion.Stage];
 	}
-	VersionString = strVersion;
+	return strVersion;
 }
 
 bool Plugin::LoadData()
@@ -652,7 +652,7 @@ bool Plugin::LoadData()
 	{
 		MinFarVersion = Info.MinFarVersion;
 		PluginVersion = Info.Version;
-		InitVersionString(PluginVersion, VersionString);
+		VersionString = VersionToString(PluginVersion);
 		strTitle = Info.Title;
 		strDescription = Info.Description;
 		strAuthor = Info.Author;
@@ -722,11 +722,9 @@ bool Plugin::Load()
 
 bool Plugin::LoadFromCache(const api::FAR_FIND_DATA &FindData)
 {
-	PluginsCacheConfig& PlCache = *Global->Db->PlCacheCfg();
+	const auto& PlCache = *Global->Db->PlCacheCfg();
 
-	unsigned __int64 id = PlCache.GetCacheID(m_strCacheName);
-
-	if (id)
+	if (const auto id = PlCache.GetCacheID(m_strCacheName))
 	{
 		if (PlCache.IsPreload(id))   //PF_PRELOAD plugin, skip cache
 		{
@@ -757,7 +755,7 @@ bool Plugin::LoadFromCache(const api::FAR_FIND_DATA &FindData)
 		{
 			ClearStruct(PluginVersion);
 		}
-		InitVersionString(PluginVersion, VersionString);
+		VersionString = VersionToString(PluginVersion);
 
 		m_strGuid = PlCache.GetGuid(id);
 		SetGuid(StrToGuid(m_strGuid,m_Guid)?m_Guid:FarGuid);
@@ -765,7 +763,7 @@ bool Plugin::LoadFromCache(const api::FAR_FIND_DATA &FindData)
 		strDescription = PlCache.GetDescription(id);
 		strAuthor = PlCache.GetAuthor(id);
 
-		m_model->LoadExportsFromCache(&PlCache, id, Exports);
+		m_model->LoadExportsFromCache(PlCache, id, Exports);
 
 		WorkFlags.Set(PIWF_CACHED); //too much "cached" flags
 		return true;

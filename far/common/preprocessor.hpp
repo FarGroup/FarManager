@@ -94,7 +94,7 @@ Type& operator=(Type&& rhs) noexcept { swap(rhs); return *this; }
 friend inline void swap(Type& a, Type& b) noexcept { a.swap(b); }
 
 #define SCOPED_ACTION(RAII_type) \
-RAII_type ADD_SUFFIX(scoped_object_, __LINE__)
+const RAII_type ADD_SUFFIX(scoped_object_, __LINE__)
 
 #ifdef __GNUC__
 #define DO_PRAGMA(x) _Pragma(#x)

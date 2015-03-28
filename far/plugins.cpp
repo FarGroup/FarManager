@@ -69,7 +69,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "desktop.hpp"
 #include "PluginA.hpp"
 
-static const wchar_t *PluginsFolderName=L"Plugins";
+static const wchar_t PluginsFolderName[] = L"Plugins";
 
 static void ReadUserBackgound(SaveScreen *SaveScr)
 {
@@ -452,7 +452,7 @@ void PluginManager::LoadPluginsFromCache()
 
 	for (DWORD i=0; Global->Db->PlCacheCfg()->EnumPlugins(i, strModuleName); i++)
 	{
-		ReplaceSlashToBSlash(strModuleName);
+		ReplaceSlashToBackslash(strModuleName);
 
 		api::FAR_FIND_DATA FindData;
 

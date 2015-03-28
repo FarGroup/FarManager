@@ -2982,7 +2982,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 			case oldfar::DM_SETCHECK:
 			{
 				FARCHECKEDSTATE State = BSTATE_UNCHECKED;
-				switch (static_cast<const oldfar::FARCHECKEDSTATE>(reinterpret_cast<intptr_t>(Param2)))
+				switch (static_cast<oldfar::FARCHECKEDSTATE>(reinterpret_cast<intptr_t>(Param2)))
 				{
 				case oldfar::BSTATE_UNCHECKED:
 					State=BSTATE_UNCHECKED;
@@ -3300,7 +3300,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 				NativeInfo.SendDlgMessage(hDlg, DM_GETDLGITEMSHORT, Param1, &DlgItem);
 				FARDIALOGITEMFLAGS OldFlags = DlgItem.Flags;
 				DlgItem.Flags&=~(DIF_LISTTRACKMOUSE|DIF_LISTTRACKMOUSEINFOCUS);
-				switch (static_cast<const oldfar::FARLISTMOUSEREACTIONTYPE>(reinterpret_cast<intptr_t>(Param2)))
+				switch (static_cast<oldfar::FARLISTMOUSEREACTIONTYPE>(reinterpret_cast<intptr_t>(Param2)))
 				{
 				case oldfar::LMRT_ONLYFOCUS:
 					DlgItem.Flags|=DIF_LISTTRACKMOUSEINFOCUS;

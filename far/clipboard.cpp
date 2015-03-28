@@ -38,21 +38,21 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "strmix.hpp"
 
+enum { NO_FORMAT = 0xffff };
 static struct internal_clipboard
 {
-	HGLOBAL Handle;
 	UINT Format;
+	api::memory::global::ptr Handle;
 }
 InternalClipboard[] =
 {
 	// CF_OEMTEXT CF_TEXT CF_UNICODETEXT CF_HDROP
-	{nullptr, 0xFFFF},
-	{nullptr, 0xFFFF},
-	{nullptr, 0xFFFF},
-	{nullptr, 0xFFFF},
-	{nullptr, 0xFFFF},
+	{ NO_FORMAT },
+	{ NO_FORMAT },
+	{ NO_FORMAT },
+	{ NO_FORMAT },
+	{ NO_FORMAT },
 };
-
 
 bool Clipboard::UseInternalClipboard = false;
 bool Clipboard::InternalClipboardOpened = false;
@@ -61,7 +61,7 @@ bool Clipboard::SystemClipboardOpened = false;
 //Sets UseInternalClipboard to State, and returns previous state
 bool Clipboard::SetUseInternalClipboardState(bool State)
 {
-	bool OldState = UseInternalClipboard;
+	const bool OldState = UseInternalClipboard;
 	UseInternalClipboard = State;
 	return OldState;
 }
@@ -138,9 +138,8 @@ bool Clipboard::Clear()
 			{
 				if (i.Handle)
 				{
-					GlobalFree(i.Handle);
-					i.Handle = nullptr;
-					i.Format = 0xFFFF;
+					i.Handle.reset();
+					i.Format = NO_FORMAT;
 				}
 			});
 
@@ -157,7 +156,7 @@ HANDLE Clipboard::GetData(UINT uFormat)
 {
 	if (UseInternalClipboard)
 	{
-		if (InternalClipboardOpened && uFormat != 0xFFFF)
+		if (InternalClipboardOpened && uFormat != NO_FORMAT)
 		{
 			auto ItemIterator = std::find_if(CONST_RANGE(InternalClipboard, i)
 			{
@@ -165,7 +164,7 @@ HANDLE Clipboard::GetData(UINT uFormat)
 			});
 
 			if (ItemIterator != std::cend(InternalClipboard))
-				return ItemIterator->Handle;
+				return ItemIterator->Handle.get();
 		}
 		return nullptr;
 	}
@@ -173,7 +172,7 @@ HANDLE Clipboard::GetData(UINT uFormat)
 	return GetClipboardData(uFormat);
 }
 
-HANDLE Clipboard::SetData(UINT uFormat,HANDLE hMem)
+bool Clipboard::SetData(UINT uFormat, HGLOBAL hMem)
 {
 	if (UseInternalClipboard)
 	{
@@ -186,48 +185,48 @@ HANDLE Clipboard::SetData(UINT uFormat,HANDLE hMem)
 
 			if (ItemIterator != std::cend(InternalClipboard))
 			{
-				ItemIterator->Handle = hMem;
+				ItemIterator->Handle.reset(hMem);
 				ItemIterator->Format = uFormat;
-				return hMem;
+				return true;
 			}
 		}
 
-		return nullptr;
+		return false;
 	}
 
-	HANDLE hData=SetClipboardData(uFormat,hMem);
-
-	if (hData)
+	if (SetClipboardData(uFormat, hMem))
 	{
-		HANDLE hLC=GlobalAlloc(GMEM_MOVEABLE,sizeof(LCID));
-
-		if (hLC)
+		if (auto hLC = api::memory::global::alloc(GMEM_MOVEABLE, sizeof(LCID)))
 		{
-			PLCID pLc=(PLCID)GlobalLock(hLC);
-
-			if (pLc)
+			if (const auto pLc = api::memory::global::lock<PLCID>(hLC))
 			{
 				*pLc=LOCALE_USER_DEFAULT;
-				GlobalUnlock(hLC);
 
-				if (!SetClipboardData(CF_LOCALE,pLc))
-					GlobalFree(hLC);
-			}
-			else
-			{
-				GlobalFree(hLC);
+				if (SetClipboardData(CF_LOCALE, pLc.get()))
+					hLC.release();
 			}
 		}
+		return true;
 	}
 
-	return hData;
+	return false;
+}
+
+bool Clipboard::SetData(UINT uFormat, api::memory::global::ptr&& hMem)
+{
+	const auto Result = SetData(uFormat, hMem.get());
+	if (Result)
+	{
+		hMem.release();
+	}
+	return Result;
 }
 
 bool Clipboard::IsFormatAvailable(UINT Format)
 {
 	if (UseInternalClipboard)
 	{
-		return Format != 0xFFFF && std::any_of(CONST_RANGE(InternalClipboard, i)
+		return Format != NO_FORMAT && std::any_of(CONST_RANGE(InternalClipboard, i)
 		{
 			return i.Format == Format;
 		});
@@ -242,21 +241,13 @@ bool Clipboard::Set(const wchar_t *Data)
 	Clear();
 	if (Data)
 	{
-		size_t BufferSize=(wcslen(Data)+1)*sizeof(wchar_t);
-		HGLOBAL hData = GlobalAlloc(GMEM_MOVEABLE,BufferSize);
-		if (hData)
+		const size_t BufferSize = (wcslen(Data) + 1) * sizeof(wchar_t);
+		if (auto hData = api::memory::global::alloc(GMEM_MOVEABLE, BufferSize))
 		{
-			void *GData = GlobalLock(hData);
-			if (GData)
+			if (const auto GData = api::memory::global::lock<void*>(hData))
 			{
-				memcpy(GData,Data,BufferSize);
-				GlobalUnlock(hData);
-				if (!SetData(CF_UNICODETEXT, hData))
-					GlobalFree(hData);
-			}
-			else
-			{
-				GlobalFree(hData);
+				memcpy(GData.get(), Data, BufferSize);
+				SetData(CF_UNICODETEXT, std::move(hData));
 			}
 		}
 	}
@@ -267,29 +258,20 @@ bool Clipboard::Set(const wchar_t *Data)
 // вставка без очистки буфера - на добавление
 bool Clipboard::SetFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data)
 {
-	UINT FormatType=RegisterFormat(Format);
+	const auto FormatType = RegisterFormat(Format);
 
 	if (!FormatType)
 		return false;
 
 	if (Data && *Data)
 	{
-		size_t BufferSize=(wcslen(Data)+1)*sizeof(wchar_t);
-		HGLOBAL hData = GlobalAlloc(GMEM_MOVEABLE,BufferSize);
-		if (hData)
+		const size_t BufferSize = (wcslen(Data) + 1) * sizeof(wchar_t);
+		if (auto hData = api::memory::global::alloc(GMEM_MOVEABLE, BufferSize))
 		{
-			void* GData = GlobalLock(hData);
-			if (GData)
+			if (const auto GData = api::memory::global::lock<void*>(hData))
 			{
-				memcpy(GData,Data,BufferSize);
-				GlobalUnlock(hData);
-
-				if (!SetData(FormatType, hData))
-					GlobalFree(hData);
-			}
-			else
-			{
-				GlobalFree(hData);
+				memcpy(GData.get(), Data, BufferSize);
+				SetData(FormatType, std::move(hData));
 			}
 		}
 	}
@@ -302,61 +284,37 @@ bool Clipboard::SetHDROP(const void* NamesArray, size_t NamesArraySize, bool bMo
 	bool Result=false;
 	if (NamesArray && NamesArraySize)
 	{
-		HGLOBAL hMemory=GlobalAlloc(GMEM_MOVEABLE, sizeof(DROPFILES)+NamesArraySize);
-		if (hMemory)
+		if (auto hMemory = api::memory::global::alloc(GMEM_MOVEABLE, sizeof(DROPFILES) + NamesArraySize))
 		{
-			auto Drop = static_cast<LPDROPFILES>(GlobalLock(hMemory));
-			if(Drop)
+			if (const auto Drop = api::memory::global::lock<LPDROPFILES>(hMemory))
 			{
 				Drop->pFiles=sizeof(DROPFILES);
 				Drop->pt.x=0;
 				Drop->pt.y=0;
 				Drop->fNC = TRUE;
 				Drop->fWide = TRUE;
-				memcpy(Drop+1,NamesArray,NamesArraySize);
-				GlobalUnlock(hMemory);
+				memcpy(Drop.get() + 1, NamesArray, NamesArraySize);
 				Clear();
-				if(SetData(CF_HDROP, hMemory))
+				if(SetData(CF_HDROP, std::move(hMemory)))
 				{
 					if(bMoved)
 					{
-						HGLOBAL hMemoryMove = GlobalAlloc(GMEM_MOVEABLE, sizeof(DWORD));
-						if (hMemoryMove)
+						if (auto hMemoryMove = api::memory::global::alloc(GMEM_MOVEABLE, sizeof(DWORD)))
 						{
-							DWORD *pData = (DWORD*)GlobalLock(hMemoryMove);
-							if (pData)
+							if (const auto pData = api::memory::global::lock<DWORD*>(hMemoryMove))
 							{
 								*pData = DROPEFFECT_MOVE;
-								GlobalUnlock(hMemoryMove);
 
-								if(SetData(RegisterFormat(FCF_CFSTR_PREFERREDDROPEFFECT), hMemoryMove))
+								if(SetData(RegisterFormat(FCF_CFSTR_PREFERREDDROPEFFECT), std::move(hMemoryMove)))
 								{
 									Result = true;
 								}
-								else
-								{
-									GlobalFree(hMemoryMove);
-								}
-							}
-							else
-							{
-								GlobalFree(hMemoryMove);
 							}
 						}
 					}
 					else
 						Result = true;
 				}
-				else
-				{
-					GlobalFree(hMemory);
-				}
-
-
-			}
-			else
-			{
-				GlobalFree(hMemory);
 			}
 		}
 	}
@@ -366,60 +324,50 @@ bool Clipboard::SetHDROP(const void* NamesArray, size_t NamesArraySize, bool bMo
 bool Clipboard::Get(string& data)
 {
 	bool Result = false;
-	HANDLE hClipData=GetData(CF_UNICODETEXT);
 
-	if (hClipData)
+	if (auto hClipData = GetData(CF_UNICODETEXT))
 	{
-		wchar_t *ClipAddr=(wchar_t *)GlobalLock(hClipData);
-
-		if (ClipAddr)
+		if (const auto ClipAddr = api::memory::global::lock<const wchar_t*>(hClipData))
 		{
 			Result = true;
-			data = ClipAddr;
-			GlobalUnlock(hClipData);
+			data = ClipAddr.get();
 		}
 	}
-	else
+	else if ((hClipData = GetData(CF_HDROP)))
 	{
-		hClipData=GetData(CF_HDROP);
-		if (hClipData)
+		if (const auto Files = api::memory::global::lock<const LPDROPFILES>(hClipData))
 		{
-			auto Files = static_cast<LPDROPFILES>(GlobalLock(hClipData));
-			if (Files)
+			auto StartA=reinterpret_cast<const char*>(Files.get())+Files->pFiles;
+			auto Start = reinterpret_cast<const wchar_t*>(StartA);
+			if(Files->fWide)
 			{
-				auto StartA=reinterpret_cast<const char*>(Files)+Files->pFiles;
-				auto Start = reinterpret_cast<const wchar_t*>(StartA);
-				if(Files->fWide)
+				while(*Start)
 				{
-					while(*Start)
+					size_t l1=data.size();
+					data+=Start;
+					Start+=data.size()-l1;
+					Start++;
+					if(*Start)
 					{
-						size_t l1=data.size();
-						data+=Start;
-						Start+=data.size()-l1;
-						Start++;
-						if(*Start)
-						{
-							data+=L"\r\n";
-						}
+						data+=L"\r\n";
 					}
 				}
-				else
-				{
-					while(*StartA)
-					{
-						size_t l1=data.size();
-						data+=wide(StartA);
-						StartA+=data.size()-l1;
-						StartA++;
-						if(*StartA)
-						{
-							data+=L"\r\n";
-						}
-					}
-				}
-				GlobalUnlock(hClipData);
-				Result = true;
 			}
+			else
+			{
+				while(*StartA)
+				{
+					size_t l1=data.size();
+					data+=wide(StartA);
+					StartA+=data.size()-l1;
+					StartA++;
+					if(*StartA)
+					{
+						data+=L"\r\n";
+					}
+				}
+			}
+			Result = true;
 		}
 	}
 	return Result;
@@ -429,17 +377,11 @@ bool Clipboard::Get(string& data)
 bool Clipboard::GetEx(int max, string& data)
 {
 	bool Result = false;
-	HANDLE hClipData=GetData(CF_UNICODETEXT);
-
-	if (hClipData)
+	if (const auto hClipData = GetData(CF_UNICODETEXT))
 	{
-		wchar_t *ClipAddr=(wchar_t *)GlobalLock(hClipData);
-
-		if (ClipAddr)
+		if (const auto ClipAddr = api::memory::global::lock<const wchar_t*>(hClipData))
 		{
-			int length = std::min(max, StrLength(ClipAddr));
-			data.assign(ClipAddr, length);
-			GlobalUnlock(hClipData);
+			data.assign(ClipAddr.get(), std::min(max, StrLength(ClipAddr.get())));
 			Result = true;
 		}
 	}
@@ -451,7 +393,7 @@ bool Clipboard::GetFormat(FAR_CLIPBOARD_FORMAT Format, string& data)
 {
 	bool Result = false;
 	bool isOEMVBlock=false;
-	UINT FormatType=RegisterFormat(Format);
+	auto FormatType = RegisterFormat(Format);
 
 	if (!FormatType)
 		return false;
@@ -465,20 +407,11 @@ bool Clipboard::GetFormat(FAR_CLIPBOARD_FORMAT Format, string& data)
 	if (!FormatType || !IsFormatAvailable(FormatType))
 		return false;
 
-	HANDLE hClipData=GetData(FormatType);
-
-	if (hClipData)
+	if (const auto hClipData = GetData(FormatType))
 	{
-		wchar_t *ClipAddr=(wchar_t *)GlobalLock(hClipData);
-
-		if (ClipAddr)
+		if (const auto ClipAddr = api::memory::global::lock<const wchar_t*>(hClipData))
 		{
-			if (isOEMVBlock)
-				data = wide(reinterpret_cast<char*>(ClipAddr));
-			else
-				data = ClipAddr;
-
-			GlobalUnlock(hClipData);
+			data = isOEMVBlock? wide(reinterpret_cast<const char*>(ClipAddr.get())) : ClipAddr.get();
 			Result = true;
 		}
 	}
@@ -489,10 +422,10 @@ bool Clipboard::GetFormat(FAR_CLIPBOARD_FORMAT Format, string& data)
 bool Clipboard::InternalCopy(bool FromWin)
 {
 	bool Ret=false;
-	bool OldUseInternalClipboard=SetUseInternalClipboardState(!FromWin);
+	const bool OldUseInternalClipboard = SetUseInternalClipboardState(!FromWin);
 
 	UINT uFormat;
-	HANDLE hClipData=GetData(uFormat = CF_UNICODETEXT);
+	auto hClipData = GetData(uFormat = CF_UNICODETEXT);
 
 	if (!hClipData)
 		hClipData = GetData(uFormat = CF_HDROP);

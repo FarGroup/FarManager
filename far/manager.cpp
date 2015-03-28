@@ -1286,7 +1286,7 @@ static window_ptr GetContainerById(const windows_type& NonModal, const windows_t
 	{
 		auto ItemIterator = std::find_if(CONST_RANGE(*List, i) -> bool
 		{
-			auto window = std::dynamic_pointer_cast<window_type>(i);
+			const auto window = std::dynamic_pointer_cast<window_type>(i);
 			return window && window->GetById(ID);
 		});
 		if (ItemIterator != List->cend()) return *ItemIterator;

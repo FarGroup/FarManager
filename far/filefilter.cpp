@@ -773,7 +773,7 @@ void FileFilter::InitFilter()
 		strMask.clear();
 		cfg->GetValue(key,L"Mask",strMask);
 		unsigned __int64 UseMask = 1;
-		cfg->GetValue(key,L"UseMask",&UseMask);
+		cfg->GetValue(key, L"UseMask", UseMask);
 		NewItem.SetMask(UseMask != 0, strMask);
 
 		FILETIME DateAfter = {}, DateBefore = {};
@@ -781,11 +781,11 @@ void FileFilter::InitFilter()
 		cfg->GetValue(key,L"DateBefore", DateBefore);
 
 		unsigned __int64 UseDate = 0;
-		cfg->GetValue(key,L"UseDate",&UseDate);
+		cfg->GetValue(key, L"UseDate", UseDate);
 		unsigned __int64 DateType = 0;
-		cfg->GetValue(key,L"DateType",&DateType);
+		cfg->GetValue(key, L"DateType", DateType);
 		unsigned __int64 RelativeDate = 0;
-		cfg->GetValue(key,L"RelativeDate",&RelativeDate);
+		cfg->GetValue(key, L"RelativeDate", RelativeDate);
 		NewItem.SetDate(UseDate != 0, (DWORD)DateType, DateAfter, DateBefore, RelativeDate != 0);
 
 		strSizeAbove.clear();
@@ -793,23 +793,23 @@ void FileFilter::InitFilter()
 		strSizeBelow.clear();
 		cfg->GetValue(key,L"SizeBelowS",strSizeBelow);
 		unsigned __int64 UseSize = 0;
-		cfg->GetValue(key,L"UseSize",&UseSize);
+		cfg->GetValue(key, L"UseSize", UseSize);
 		NewItem.SetSize(UseSize != 0, strSizeAbove, strSizeBelow);
 
 		unsigned __int64 UseHardLinks = 0;
-		cfg->GetValue(key,L"UseHardLinks",&UseHardLinks);
+		cfg->GetValue(key, L"UseHardLinks", UseHardLinks);
 		unsigned __int64 HardLinksAbove = 0;
-		cfg->GetValue(key,L"HardLinksAbove",&HardLinksAbove);
+		cfg->GetValue(key, L"HardLinksAbove", HardLinksAbove);
 		unsigned __int64 HardLinksBelow = 0;
-		cfg->GetValue(key,L"HardLinksAbove",&HardLinksBelow);
+		cfg->GetValue(key, L"HardLinksAbove", HardLinksBelow);
 		NewItem.SetHardLinks(UseHardLinks != 0, HardLinksAbove, HardLinksBelow);
 
 		unsigned __int64 UseAttr = 1;
-		cfg->GetValue(key,L"UseAttr",&UseAttr);
+		cfg->GetValue(key, L"UseAttr", UseAttr);
 		unsigned __int64 AttrSet = 0;
-		cfg->GetValue(key,L"AttrSet", &AttrSet);
+		cfg->GetValue(key, L"AttrSet", AttrSet);
 		unsigned __int64 AttrClear = FILE_ATTRIBUTE_DIRECTORY;
-		cfg->GetValue(key,L"AttrClear",&AttrClear);
+		cfg->GetValue(key, L"AttrClear", AttrClear);
 		NewItem.SetAttr(UseAttr != 0, (DWORD)AttrSet, (DWORD)AttrClear);
 
 		DWORD Flags[FFFT_COUNT] = {};

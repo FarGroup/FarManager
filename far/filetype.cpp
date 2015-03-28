@@ -231,8 +231,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 				Mode == FILETYPE_VIEW || Mode == FILETYPE_ALTVIEW || Mode == FILETYPE_EDIT || Mode == FILETYPE_ALTEDIT);
 			if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTFARASS) && !AlwaysWaitFinish) //AN
 			{
-				string curDir;
-				Global->CtrlObject->CmdLine()->GetCurDir(curDir);
+				const auto curDir = Global->CtrlObject->CmdLine()->GetCurDir();
 				Global->CtrlObject->CmdHistory->AddToHistory(strCommand, HR_DEFAULT, nullptr, nullptr, curDir.data());
 			}
 		}
@@ -256,8 +255,7 @@ void ProcessGlobalFileTypes(const string& Name, bool AlwaysWaitFinish, bool RunA
 
 	if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTWINASS) && !AlwaysWaitFinish)
 	{
-		string curDir;
-		Global->CtrlObject->CmdLine()->GetCurDir(curDir);
+		const auto curDir = Global->CtrlObject->CmdLine()->GetCurDir();
 		Global->CtrlObject->CmdHistory->AddToHistory(strName, HR_DEFAULT, nullptr, nullptr, curDir.data());
 	}
 }

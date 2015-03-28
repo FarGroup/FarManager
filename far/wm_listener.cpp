@@ -38,10 +38,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "notification.hpp"
 
-static const wchar_t* devices_notify = L"devices";
-static const wchar_t* power_notify = L"power";
-static const wchar_t* environment_notify = L"environment";
-static const wchar_t* intl_notify = L"intl";
+static const wchar_t devices_notify[] = L"devices";
+static const wchar_t power_notify[] = L"power";
+static const wchar_t environment_notify[] = L"environment";
+static const wchar_t intl_notify[] = L"intl";
 
 static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 {

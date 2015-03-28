@@ -61,7 +61,6 @@ protected:
 	class SQLiteStmt: noncopyable
 	{
 	public:
-		SQLiteStmt(){};
 		SQLiteStmt(sqlite::sqlite3_stmt* Stmt): m_Stmt(Stmt), m_Param(1) {}
 		SQLiteStmt(SQLiteStmt&& rhs) noexcept { *this = std::move(rhs); };
 
@@ -75,13 +74,6 @@ protected:
 		}
 
 		FREE_SWAP(SQLiteStmt);
-
-		struct blob
-		{
-			blob(const void* Data, size_t Size): m_Data(Data), m_Size(Size) {}
-			const void* const m_Data;
-			const size_t m_Size;
-		};
 
 		template<class T>
 		struct transient_t
@@ -121,10 +113,9 @@ protected:
 
 		const wchar_t *GetColText(int Col) const;
 		const char *GetColTextUTF8(int Col) const;
-		int GetColBytes(int Col) const;
 		int GetColInt(int Col) const;
 		unsigned __int64 GetColInt64(int Col) const;
-		const char *GetColBlob(int Col) const;
+		blob GetColBlob(int Col) const;
 		ColumnType GetColType(int Col) const;
 
 	private:
@@ -143,20 +134,27 @@ protected:
 		int m_Param;
 	};
 
-	typedef SQLiteStmt::blob blob;
+	typedef simple_pair<size_t, const wchar_t*> stmt_init_t;
+
 	template<class T>
 	static SQLiteStmt::transient_t<T> transient(const T& Value) { return SQLiteStmt::transient_t<T>(Value); }
+
+	template<size_t ExpectedSize, class T, size_t N>
+	void CheckStmt(const T (&Stmts)[N])
+	{
+		static_assert(N == ExpectedSize, "Not all statements initialized");
+	}
 
 	bool Open(const string& DbName, bool Local, bool WAL=false);
 	void Close();
 	void Initialize(const string& DbName, bool Local = false);
-	bool InitStmt(SQLiteStmt &stmtStmt, const wchar_t *Stmt) const;
+	SQLiteStmt create_stmt(const wchar_t *Stmt) const;
 	template<size_t N>
-	bool PrepareStatements(const simple_pair<int, const wchar_t*>(&Init)[N]) { return PrepareStatements(Init, N); }
+	bool PrepareStatements(const stmt_init_t (&Init)[N]) { return PrepareStatements(Init, N); }
 	bool Exec(const char *Command) const;
 	bool SetWALJournalingMode() const;
 	bool EnableForeignKeysConstraints() const;
-	int Changes() const;
+	bool Changes() const;
 	unsigned __int64 LastInsertRowID() const;
 
 	virtual bool BeginTransaction() override;
@@ -166,11 +164,11 @@ protected:
 	string strPath;
 	string m_Name;
 
-	std::vector<SQLiteStmt> m_Statements;
+	mutable std::vector<SQLiteStmt> m_Statements;
 
 private:
 	virtual bool InitializeImpl(const string& DbName, bool Local) = 0;
-	bool PrepareStatements(const simple_pair<int, const wchar_t*>* Init, size_t Size);
+	bool PrepareStatements(const stmt_init_t* Init, size_t Size);
 
 	struct db_closer { void operator()(sqlite::sqlite3*) const; };
 	typedef std::unique_ptr<sqlite::sqlite3, db_closer> database_ptr;

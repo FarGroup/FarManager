@@ -108,8 +108,8 @@ public:
 
 static int RunURL(const string& Protocol, const string& URLPath);
 
-static const wchar_t* HelpFormatLink = L"<%s\\>%s";
-static const wchar_t* HelpFormatLinkModule = L"<%s>%s";
+static const wchar_t HelpFormatLink[] = L"<%s\\>%s";
+static const wchar_t HelpFormatLinkModule[] = L"<%s>%s";
 
 
 struct Help::StackHelpData: ::noncopyable

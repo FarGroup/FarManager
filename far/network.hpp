@@ -32,7 +32,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-std::bitset<32> AddSavedNetworkDisks(std::bitset<32>& Mask);
+api::drives_set AddSavedNetworkDisks(api::drives_set& Mask);
 
 void ConnectToNetworkDrive(const string& NewDir);
 

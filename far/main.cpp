@@ -433,7 +433,7 @@ static void UpdateErrorMode()
 {
 	Global->ErrorMode |= SEM_NOGPFAULTERRORBOX;
 	long long IgnoreDataAlignmentFaults = 0;
-	Global->Db->GeneralCfg()->GetValue(L"System.Exception", L"IgnoreDataAlignmentFaults", &IgnoreDataAlignmentFaults, IgnoreDataAlignmentFaults);
+	Global->Db->GeneralCfg()->GetValue(L"System.Exception", L"IgnoreDataAlignmentFaults", IgnoreDataAlignmentFaults, IgnoreDataAlignmentFaults);
 	if (IgnoreDataAlignmentFaults)
 	{
 		Global->ErrorMode |= SEM_NOALIGNMENTFAULTEXCEPT;
@@ -444,7 +444,7 @@ static void UpdateErrorMode()
 static void SetDriveMenuHotkeys()
 {
 	long long InitDriveMenuHotkeys = 1;
-	Global->Db->GeneralCfg()->GetValue(L"Interface", L"InitDriveMenuHotkeys", &InitDriveMenuHotkeys, InitDriveMenuHotkeys);
+	Global->Db->GeneralCfg()->GetValue(L"Interface", L"InitDriveMenuHotkeys", InitDriveMenuHotkeys, InitDriveMenuHotkeys);
 
 	if (InitDriveMenuHotkeys)
 	{

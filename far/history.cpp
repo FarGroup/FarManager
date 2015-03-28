@@ -105,7 +105,7 @@ void History::AddToHistory(const string& Str, history_record_type Type, const GU
 
 	unsigned __int64 DeleteId = 0;
 
-	bool ignore_data = (m_TypeHistory == HISTORYTYPE_CMD) && !Global->Opt->PerFolderCmdHistory;
+	const bool ignore_data = (m_TypeHistory == HISTORYTYPE_CMD) && !Global->Opt->PerFolderCmdHistory;
 
 	if (m_RemoveDups) // удалять дубликаты?
 	{
@@ -198,7 +198,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 			bool    hide;
 		};
 		std::vector<hRecord> records;
-		std::map<string, int> name2idx;
+		std::unordered_map<string, int> name2idx;
 
 		bool IsUpdate=false;
 		HistoryMenu.DeleteItems();
@@ -240,7 +240,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 					GUID HGuid;
 					if(StrToGuid(strHGuid,HGuid) &&  HGuid != FarGuid)
 					{
-						Plugin *pPlugin = Global->CtrlObject->Plugins->FindPlugin(HGuid);
+						const auto pPlugin = Global->CtrlObject->Plugins->FindPlugin(HGuid);
 						rec.Name = (pPlugin ? pPlugin->GetTitle() : L"{" + strHGuid + L"}") + L":";
 						if(!strHFile.empty())
 							rec.Name += strHFile + L":";
@@ -263,11 +263,9 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 			}
 			
 			bool bSelected = false;
-			SYSTEMTIME st;
-			GetLocalTime(&st);
 			int LastDay=0, LastMonth = 0, LastYear = 0;
 
-			for (int i = 0; i < static_cast<int>(records.size()); ++i)
+			for (int i = 0, size = static_cast<int>(records.size()); i != size; ++i)
 			{
 				if (records[i].hide)
 					continue;
@@ -341,8 +339,8 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 			}
 
 			HistoryMenu.GetSelectPos(&Pos);
-			void* Data = HistoryMenu.GetUserData(nullptr, 0,Pos.SelectPos);
-			int iCurr = Data ? *static_cast<int*>(Data) : -1;
+			const void* Data = HistoryMenu.GetUserData(nullptr, 0,Pos.SelectPos);
+			const int iCurr = Data ? *static_cast<const int*>(Data) : -1;
 			int KeyProcessed = 1;
 
 			switch (Key)
@@ -525,7 +523,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 
 		if (MenuExitCode >= 0)
 		{
-			int iCurr = *static_cast<int*>(HistoryMenu.GetUserData(nullptr, 0, MenuExitCode));
+			int iCurr = *static_cast<const int*>(HistoryMenu.GetUserData(nullptr, 0, MenuExitCode));
 			SelectedRecord = iCurr >= 0 ? records[iCurr].id : 0;
 
 			if (!SelectedRecord)
@@ -664,10 +662,10 @@ bool History::GetAllSimilar(VMenu2 &HistoryMenu,const string& Str)
 	bool HLock;
 	unsigned __int64 id;
 	unsigned __int64 Time;
-	std::set<string> used;
+	std::unordered_set<string> used;
 	while (HistoryCfgRef()->Enum(index++,m_TypeHistory,m_HistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData,true))
 	{
-		if (!StrCmpNI(Str.data(),strHName.data(),Length) && used.find(strHName) == used.end())
+		if (!StrCmpNI(Str.data(),strHName.data(),Length) && !used.count(strHName))
 		{
 			used.insert(strHName);
 			MenuItemEx NewItem(strHName);

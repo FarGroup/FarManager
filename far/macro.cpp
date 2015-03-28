@@ -2951,15 +2951,8 @@ static bool dateFunc(FarMacroCall* Data)
 	if (Params[0].isInteger() && !Params[0].asInteger())
 		Params[0]=L"";
 
-	const wchar_t *s = Params[0].toString().data();
-	bool Ret=false;
-	string strTStr;
-
-	if (MkStrFTime(strTStr,s))
-		Ret=true;
-	else
-		strTStr.clear();
-
+	const auto strTStr = MkStrFTime(Params[0].toString().data());
+	const auto Ret = !strTStr.empty();
 	PassString(strTStr, Data);
 	return Ret;
 }
