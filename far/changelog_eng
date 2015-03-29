@@ -3,6 +3,29 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 29.03.2015 20:49:04 +0200 - build 4328
+
+1. Correction of 4261.
+
+drkns 28.03.2015 16:51:12 +0200 - build 4327
+
+1. Refactoring.
+
+w17 26.03.2015 13:57:16 +0300 - build 4326
+
+1. Correction of 4324
+
+w17 26.03.2015 13:51:15 +0300 - build 4325
+
+1. Correction of 4324
+
+w17 25.03.2015 13:23:12 +0300 - build 4324
+
+1. Experimental: Continuation of 3717 (M#2208: Store the folder a command was issued in).
+   A new configuration parameter: System.PerFolderCmdHistory.
+   The default is false, if true then duplicate commands are written into history
+   if the folders of launch are different. The duplicate commands are not shown in standard FAR history.
+
 drkns 21.03.2015 16:50:29 +0200 - build 4323
 
 1. Copying of text from edit fields could trigger assertions.
