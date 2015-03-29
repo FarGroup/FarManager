@@ -137,10 +137,14 @@ uint64_t global::FarUpTime() const
 	const auto GetFrequency = []() -> LARGE_INTEGER { LARGE_INTEGER Frequency; QueryPerformanceFrequency(&Frequency); return Frequency; };
 	static const auto Frequency = GetFrequency();
 
+	const int Factor = 1000000;
 	LARGE_INTEGER Counter;
 	QueryPerformanceCounter(&Counter);
 
-	return (Counter.QuadPart - m_FarUpTime.QuadPart) * 1000000 / Frequency.QuadPart;
+	uint64_t Diff = Counter.QuadPart - m_FarUpTime.QuadPart;
+	uint64_t Whole = Diff / Frequency.QuadPart;
+	uint64_t Fraction = Diff % Frequency.QuadPart;
+	return Whole * Factor + (Fraction * Factor) / Frequency.QuadPart;
 }
 
 bool global::IsUserAdmin()
