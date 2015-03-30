@@ -4794,60 +4794,70 @@ void pushFileTime(lua_State *L, const FILETIME *ft)
 static int far_MakeMenuItems(lua_State *L)
 {
 	int argn = lua_gettop(L);
-	lua_createtable(L, argn, 0);
+	lua_createtable(L, argn, 0);               //+1 (items)
 
 	if(argn > 0)
 	{
 		int item = 1, i;
-		wchar_t delim[] = { 9474, L'\0' };
-		wchar_t fmt1[64], fmt2[64], wbuf[64];
-		int maxno = (int)floor(log10(argn)) + 1;
-		wsprintfW(fmt1, L"%%%dd%ls ", maxno, delim);
-		wsprintfW(fmt2, L"%%%dls%ls ", maxno, delim);
+		char delim[] = { 226,148,130,0 };        // Unicode char 9474 in UTF-8
+		char buf_prefix[64], buf_space[64];
+		int maxno = 0;
+		size_t len_prefix;
+
+		for (i=argn; i; maxno++,i/=10) {}
+		len_prefix = sprintf(buf_space, "%*s%s ", maxno, "", delim);
 
 		for(i=1; i<=argn; i++)
 		{
-			size_t len, j;
-			wchar_t *str, *start;
+			size_t j, len_arg;
+			const char *start;
+			char* str;
 
-			lua_pushvalue(L, i); // keep the original argument here
-			lua_getglobal(L, "tostring");
+			lua_getglobal(L, "tostring");          //+2
 
 			if(i == 1 && lua_type(L,-1) != LUA_TFUNCTION)
 				luaL_error(L, "global `tostring' is not function");
 
-			lua_pushvalue(L, i);
+			lua_pushvalue(L, i);                   //+3
 
-			if(0 != lua_pcall(L, 1, 1, 0))
+			if(0 != lua_pcall(L, 1, 1, 0))         //+2 (items,str)
 				luaL_error(L, lua_tostring(L, -1));
 
-			lua_replace(L, i);
-			str = check_utf8_string(L, i, &len);
-			start = str;
+			if(lua_type(L, -1) != LUA_TSTRING)
+				luaL_error(L, "tostring() returned a non-string value");
 
-			for(j=0; j<len; j++)
-				if(str[j] == 0) str[j] = L' ';
+			sprintf(buf_prefix, "%*d%s ", maxno, i, delim);
+			start = lua_tolstring(L, -1, &len_arg);
+			str = (char*) malloc(len_arg + 1);
+			memcpy(str, start, len_arg + 1);
 
-			do
+			for (j=0; j<len_arg; j++)
+				if(str[j] == '\0') str[j] = ' ';
+
+			for (start=str; start; )
 			{
-				wchar_t* nl = wcschr(start, L'\n');
+				size_t len_text;
+				char *line;
+				const char* nl = strchr(start, '\n');
 
-				if(nl) *nl = L'\0';
+				lua_newtable(L);                     //+3 (items,str,curr_item)
+				len_text = nl ? (nl++) - start : (str+len_arg) - start;
+				line = (char*) malloc(len_prefix + len_text);
+				memcpy(line, buf_prefix, len_prefix);
+				memcpy(line + len_prefix, start, len_text);
 
-				start == str ? wsprintfW(wbuf, fmt1, i) : wsprintfW(wbuf, fmt2, L"");
-				lua_newtable(L);
-				push_utf8_string(L, wbuf, -1);
-				push_utf8_string(L, start, nl ? (nl++) - start : (intptr_t)len - (start-str));
-				lua_concat(L, 2);
-				lua_setfield(L, -2, "text");
-				lua_pushvalue(L, -2);
-				lua_setfield(L, -2, "arg");
-				lua_rawseti(L, -3, item++);
+				lua_pushlstring(L, line, len_prefix + len_text);
+				free(line);
+				lua_setfield(L, -2, "text");         //+3
+				lua_pushvalue(L, i);
+				lua_setfield(L, -2, "arg");          //+3
+				lua_rawseti(L, -3, item++);          //+2 (items,str)
+				strcpy(buf_prefix, buf_space);
 				start = nl;
 			}
-			while(start);
 
-			lua_pop(L, 1); // pop the original argument
+			free(str);
+			lua_pop(L, 1);                         //+1 (items)
 		}
 	}
 
