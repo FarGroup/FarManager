@@ -1180,14 +1180,13 @@ bool FindFiles::LookForString(const string& Name)
 						continue;
 					}
 
-					// ≈сли прочитали меньше размера строки поиска и поиска по словам, то провер€ем
-					// первый символ блока на разделитель и выходим
 					// ≈сли у нас поиск по словам и в конце предыдущего блока было вхождение
 					if (WholeWords && i.WordFound)
 					{
 						// ≈сли конец файла, то считаем, что есть разделитель в конце
 						if (findStringCount-1>=bufferCount)
 							return true;
+
 						// ѕровер€ем первый символ текущего блока с учЄтом обратного смещени€, которое делаетс€
 						// при переходе между блоками
 						i.LastSymbol = readBuffer[findStringCount-1];
@@ -1207,6 +1206,7 @@ bool FindFiles::LookForString(const string& Name)
 					buffer = readBuffer.data();
 				}
 
+				i.WordFound = false;
 				unsigned int index = 0;
 
 				do
