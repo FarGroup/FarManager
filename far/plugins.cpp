@@ -2026,11 +2026,11 @@ int PluginManager::ProcessCommandLine(const string& CommandParam,Panel *Target)
 		}
 	}
 
-	Global->CtrlObject->CmdLine()->SetString(L"");
 	string strPluginCommand=strCommand.substr(PData->PluginFlags & PF_FULLCMDLINE ? 0:PrefixLength+1);
 	RemoveTrailingSpaces(strPluginCommand);
 	OpenCommandLineInfo info={sizeof(OpenCommandLineInfo),strPluginCommand.data()}; //BUGBUG
 	auto hPlugin=Open(PData->pPlugin,OPEN_COMMANDLINE,FarGuid,(intptr_t)&info);
+	Global->CtrlObject->CmdLine()->SetString(L"", false);
 
 	if (hPlugin)
 	{

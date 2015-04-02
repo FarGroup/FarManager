@@ -863,11 +863,6 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 		Silent=true;
 	}
 
-	{
-		SCOPED_ACTION(SetAutocomplete)(&CmdStr);
-		SetString(CmdLine);
-	}
-
 	if (!FromPanel)
 	{
 		ProcessOSAliases(CmdLine);
@@ -877,24 +872,22 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 
 	if (!StrCmpI(CmdLine.data(),L"far:config"))
 	{
-		SetString(L"", false);
-		Show();
+		if (!RestoreCmd)
+		{
+			SetString(L"", false);
+			Show();
+		}
 		return Global->Opt->AdvancedConfig();
 	}
 
 	if (!SeparateWindow && Global->CtrlObject->Plugins->ProcessCommandLine(CmdLine))
 	{
-		/* $ 12.05.2001 DJ - рисуемся только если остались верхним окном */
-		if (Global->CtrlObject->Cp()->IsTopWindow())
-		{
-			//CmdStr.SetString(L"");
-			GotoXY(m_X1,m_Y1);
-			Global->FS << fmt::MinWidth(m_X2-m_X1+1)<<L"";
-			Show();
-			Global->ScrBuf->Flush();
-		}
-
 		return -1;
+	}
+
+	{
+		SCOPED_ACTION(SetAutocomplete)(&CmdStr);
+		SetString(CmdLine);
 	}
 
 	int Code;
@@ -1174,10 +1167,6 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 
 		if (PtrCmd && *PtrCmd && Global->CtrlObject->Plugins->ProcessCommandLine(PtrCmd))
 		{
-			//CmdStr.SetString(L"");
-			GotoXY(m_X1,m_Y1);
-			Global->FS << fmt::MinWidth(m_X2-m_X1+1)<<L"";
-			Show();
 			return TRUE;
 		}
 
