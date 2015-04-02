@@ -173,6 +173,7 @@ namespace Utf7 {
 namespace Utf8 {
 	int ToWideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int wlen, int &tail);
 	int ToWideChar(const char *src, int len, wchar_t* out, int wlen, Utf::Errs *errs);
+	size_t ToMultiByte(const wchar_t *src, size_t len, char *dst);
 }
 
 //#############################################################################

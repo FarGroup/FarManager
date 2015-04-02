@@ -1212,6 +1212,7 @@ int Utf8::ToWideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int wlen, i
 		wlen = 2;
 
 	int ic = 0, nw = 0, wc;
+	const auto InvalidChar = [](unsigned char c) -> int { return 0xDC00 + c; };
 
 	while ( ic < nc )
 	{
@@ -1220,7 +1221,7 @@ int Utf8::ToWideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int wlen, i
 		if (c1 < 0x80) // simple ASCII
 			wc = (wchar_t)c1;
 		else if ( c1 < 0xC2 || c1 >= 0xF5 ) // illegal 1-st byte
-			wc = -1;
+			wc = InvalidChar(c1);
 		else
 		{ // multibyte (2, 3, 4)
 			if (ic + 0 >= nc )
@@ -1231,9 +1232,10 @@ unfinished:
 				else
 				{
 					tail = 0;
-					w1[0] = Utf::REPLACE_CHAR;
+					wc = InvalidChar(c1);
+					w1[0] = wc;
 					if (w2)
-						w2[0] = L'?';
+						w2[0] = wc;
 					nw = 1;
 				}
 				return nw;
@@ -1245,7 +1247,7 @@ unfinished:
 				|| (0xF4 == c1 && c2 >= 0x90) // illegal 4-byte (out of unicode range)
 				)
 			{
-				wc = -1;
+				wc = InvalidChar(c1);
 			}
 			else if ( c1 < 0xE0 )
 			{ // legal 2-byte
@@ -1258,11 +1260,14 @@ unfinished:
 					goto unfinished;
 				unsigned char c3 = ((const unsigned char *)s)[ic+1];
 				if ( 0x80 != (c3 & 0xC0) ) // illegal 3-rd byte
-					wc = -1;
+					wc = InvalidChar(c1);
 				else if ( c1 < 0xF0 )
 				{ // legal 3-byte
-					ic += 2;
 					wc = ((c1 & 0x0F) << 12) | ((c2 & 0x3F) << 6) | (c3 & 0x3F);
+					if (wc - 0xD800 <= 0xDFFF - 0xD800) // invalid: surrogate area code
+						wc = InvalidChar(c1);
+					else
+					ic += 2;
 				}
 				else
 				{ // 4-byte
@@ -1271,7 +1276,7 @@ unfinished:
 
 					unsigned char c4 = ((const unsigned char *)s)[ic+2];
 					if ( 0x80 != (c4 & 0xC0) ) // illegal 4-th byte
-						wc = -1;
+						wc = InvalidChar(c1);
 					else
 					{ // legal 4-byte (produce 2 WCHARs)
 						ic += 3;
@@ -1282,9 +1287,7 @@ unfinished:
 							w2[nw] = w1[nw];
 						++nw;
 						wc = 0xDC00 + (wc & 0x3FF);
-#if 0
-						_ASSERTE(nw < wlen); //??? caller should be fixed to avoid this...
-#endif
+						assert(nw < wlen); //??? caller should be fixed to avoid this...
 						if (nw >= wlen)
 						{
 							--nw;
@@ -1320,7 +1323,7 @@ static inline int Utf8_GetChar(const char *src, int length, wchar_t* wc)
 	wchar_t w1[2], w2[2];
 	int tail;
 	int WCharCount = Utf8::ToWideChar(src, length, w1, w2, -2, tail);
-	
+
 	if (WCharCount <= 0)
 		return 0;
 
@@ -1399,6 +1402,70 @@ int Utf8::ToWideChar(const char *src, int length, wchar_t* out, int wlen, Utf::E
 		errs->count = ne;
 
 	return no;
+}
+
+size_t Utf8::ToMultiByte(const wchar_t *src, size_t len, char *dst)
+{
+	const wchar_t *end = src + len;
+	if (!dst) // buf counting mode
+	{
+		size_t result = 0;
+		while (src < end)
+		{
+			unsigned int c = *src++;
+			if (c < 0x80)
+				result += 1;
+			else if (c < 0x800)
+				result += 2;
+			else if (c - 0xD800 > 0xDFFF - 0xD800) // not surrogates
+				result += 3;
+			else if (c - 0xDC80 <= 0xDCFF - 0xDC80) // embedded raw byte
+				result += 1;
+			else if (c - 0xD800 <= 0xDBFF - 0xD800 && src < end && *src - 0xDC00u <= 0xDFFF - 0xDC00) // valid surrogate pair
+				result += 4, src++;
+			else
+				result += 3; // invalid
+		}
+		return result;
+	}
+	// conversion mode
+	while (src < end)
+	{
+		unsigned int c = *src++;
+		if (c < 0x80)
+			*dst++ = c;
+		else if (c < 0x800)
+		{
+			dst[0] = 0xC0 + (c >> 6);
+			dst[1] = 0x80 + (c & 0x3F);
+			dst += 2;
+		}
+		else if (c - 0xD800 > 0xDFFF - 0xD800) // not surrogates
+		{
+		l:
+			dst[0] = 0xE0 + (c >> 12);
+			dst[1] = 0x80 + (c >> 6 & 0x3F);
+			dst[2] = 0x80 + (c & 0x3F);
+			dst += 3;
+		}
+		else if (c - 0xDC80 <= 0xDCFF - 0xDC80) // embedded raw byte
+			*dst++ = c & 0xFF;
+		else if (c - 0xD800 <= 0xDBFF - 0xD800 && src < end && *src - 0xDC00u <= 0xDFFF - 0xDC00) // valid surrogate pair
+		{
+			c = 0x3C10000 + ((c - 0xD800) << 10) + (unsigned int)*src++ - 0xDC00;
+			dst[0] = c >> 18;
+			dst[1] = 0x80 + (c >> 12 & 0x3F);
+			dst[2] = 0x80 + (c >> 6 & 0x3F);
+			dst[3] = 0x80 + (c & 0x3F);
+			dst += 4;
+		}
+		else
+		{
+			c = 0xFFFD; // invalid: mapped to 'Replacement Character'
+			goto l;
+		}
+	}
+	return 0;
 }
 
 //################################################################################################

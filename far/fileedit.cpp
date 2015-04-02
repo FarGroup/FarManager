@@ -2092,7 +2092,11 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 
 				if (Length)
 				{
-					size_t length = codepage == CP_REVERSEBOM? Length * sizeof(wchar_t) : WideCharToMultiByte(codepage, 0, SaveStr, static_cast<int>(Length), nullptr, 0, nullptr, nullptr);
+					size_t length = codepage == CP_REVERSEBOM ?
+						Length * sizeof(wchar_t) :
+						codepage == CP_UTF8 ?
+							Utf8::ToMultiByte(SaveStr, Length, nullptr) :
+							WideCharToMultiByte(codepage, 0, SaveStr, static_cast<int>(Length), nullptr, 0, nullptr, nullptr);
 					char_ptr SaveStrCopy(length);
 
 					if (SaveStrCopy)
@@ -2100,7 +2104,12 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 						if (codepage == CP_REVERSEBOM)
 							SwapBytes(SaveStr, SaveStrCopy.get(), length);
 						else
-							WideCharToMultiByte(codepage, 0, SaveStr, static_cast<int>(Length), SaveStrCopy.get(), static_cast<int>(length), nullptr, nullptr);
+						{
+							if (codepage == CP_UTF8)
+								Utf8::ToMultiByte(SaveStr, Length, SaveStrCopy.get());
+							else
+								WideCharToMultiByte(codepage, 0, SaveStr, static_cast<int>(Length), SaveStrCopy.get(), static_cast<int>(length), nullptr, nullptr);
+						}
 
 						if (!Cache.Write(SaveStrCopy.get(),length))
 						{
