@@ -825,6 +825,12 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 			Global->Opt->ShellOptions(true,nullptr);
 			return TRUE;
 		}
+		case KEY_F11:
+		{
+			// We will never get here in normal flow since F11 is processed by manager itself,
+			// but auto-completion menu can forward keys back to the owner
+			return Global->WindowManager->ProcessKey(Key);
+		}
 		default:
 		{
 			if (LocalKey >= KEY_CTRL0 && LocalKey <= KEY_CTRL9)

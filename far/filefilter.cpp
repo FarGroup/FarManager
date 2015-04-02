@@ -735,9 +735,8 @@ void FileFilter::InitFilter()
 {
 	string strTitle, strMask, strSizeBelow, strSizeAbove;
 
-	auto cfg = Global->Db->CreateFiltersConfig();
-
-	unsigned __int64 root = cfg->GetKeyID(0, L"Filters");
+	const auto cfg = Global->Db->CreateFiltersConfig();
+	const auto root = cfg->GetKeyID(cfg->root_key(), L"Filters");
 
 	{
 		static FileFilterParams _FoldersFilter;
@@ -759,7 +758,7 @@ void FileFilter::InitFilter()
 
 	for (;;)
 	{
-		unsigned __int64 key = cfg->GetKeyID(root, L"Filter" + std::to_wstring(FilterData().size()));
+		const auto key = cfg->GetKeyID(root, L"Filter" + std::to_wstring(FilterData().size()));
 
 		if (!key || !cfg->GetValue(key,L"Title",strTitle))
 			break;
@@ -823,7 +822,7 @@ void FileFilter::InitFilter()
 
 	for (;;)
 	{
-		unsigned __int64 key = cfg->GetKeyID(root, L"PanelMask" + std::to_wstring(TempFilterData().size()));
+		const auto key = cfg->GetKeyID(root, L"PanelMask" + std::to_wstring(TempFilterData().size()));
 
 		if (!key || !cfg->GetValue(key,L"Mask",strMask))
 			break;
@@ -859,68 +858,66 @@ void FileFilter::Save(bool always)
 
 	auto cfg = Global->Db->CreateFiltersConfig();
 
-	unsigned __int64 root = cfg->GetKeyID(0, L"Filters");
+	auto root = cfg->GetKeyID(cfg->root_key(), L"Filters");
 	if (root)
 		cfg->DeleteKeyTree(root);
 
-	root = cfg->CreateKey(0, L"Filters");
-
-	if (!root)
+	if (!(root = cfg->CreateKey(cfg->root_key(), L"Filters")))
 	{
 		return;
 	}
 
 	for (size_t i=0; i<FilterData().size(); ++i)
 	{
-		unsigned __int64 key = cfg->CreateKey(root, L"Filter" + std::to_wstring(i));
-		if (!key)
+		const auto Key = cfg->CreateKey(root, L"Filter" + std::to_wstring(i));
+		if (!Key)
 			break;
 		const auto& CurFilterData = FilterData()[i];
 
-		cfg->SetValue(key,L"Title",CurFilterData.GetTitle());
-		cfg->SetValue(key,L"UseMask", CurFilterData.IsMaskUsed());
-		cfg->SetValue(key,L"Mask", CurFilterData.GetMask());
+		cfg->SetValue(Key, L"Title",CurFilterData.GetTitle());
+		cfg->SetValue(Key, L"UseMask", CurFilterData.IsMaskUsed());
+		cfg->SetValue(Key, L"Mask", CurFilterData.GetMask());
 		DWORD DateType;
 		FILETIME DateAfter, DateBefore;
 		bool bRelative;
-		cfg->SetValue(key,L"UseDate",CurFilterData.GetDate(&DateType, &DateAfter, &DateBefore, &bRelative)?1:0);
-		cfg->SetValue(key,L"DateType",DateType);
-		cfg->SetValue(key,L"DateAfter", DateAfter);
-		cfg->SetValue(key,L"DateBefore", DateBefore);
-		cfg->SetValue(key,L"RelativeDate",bRelative?1:0);
-		cfg->SetValue(key, L"UseSize", CurFilterData.IsSizeUsed());
-		cfg->SetValue(key, L"SizeAboveS", CurFilterData.GetSizeAbove());
-		cfg->SetValue(key, L"SizeBelowS", CurFilterData.GetSizeBelow());
+		cfg->SetValue(Key, L"UseDate",CurFilterData.GetDate(&DateType, &DateAfter, &DateBefore, &bRelative)? 1 : 0);
+		cfg->SetValue(Key, L"DateType", DateType);
+		cfg->SetValue(Key, L"DateAfter", DateAfter);
+		cfg->SetValue(Key, L"DateBefore", DateBefore);
+		cfg->SetValue(Key, L"RelativeDate", bRelative?1:0);
+		cfg->SetValue(Key, L"UseSize", CurFilterData.IsSizeUsed());
+		cfg->SetValue(Key, L"SizeAboveS", CurFilterData.GetSizeAbove());
+		cfg->SetValue(Key, L"SizeBelowS", CurFilterData.GetSizeBelow());
 		DWORD HardLinksAbove,HardLinksBelow;
-		cfg->SetValue(key,L"UseHardLinks",CurFilterData.GetHardLinks(&HardLinksAbove,&HardLinksBelow)?1:0);
-		cfg->SetValue(key,L"HardLinksAboveS", HardLinksAbove);
-		cfg->SetValue(key,L"HardLinksBelowS", HardLinksBelow);
+		cfg->SetValue(Key, L"UseHardLinks", CurFilterData.GetHardLinks(&HardLinksAbove,&HardLinksBelow)? 1 : 0);
+		cfg->SetValue(Key, L"HardLinksAboveS", HardLinksAbove);
+		cfg->SetValue(Key, L"HardLinksBelowS", HardLinksBelow);
 		DWORD AttrSet, AttrClear;
-		cfg->SetValue(key,L"UseAttr",CurFilterData.GetAttr(&AttrSet, &AttrClear)?1:0);
-		cfg->SetValue(key,L"AttrSet",AttrSet);
-		cfg->SetValue(key,L"AttrClear",AttrClear);
+		cfg->SetValue(Key, L"UseAttr", CurFilterData.GetAttr(&AttrSet, &AttrClear)? 1 : 0);
+		cfg->SetValue(Key, L"AttrSet", AttrSet);
+		cfg->SetValue(Key, L"AttrClear", AttrClear);
 		DWORD Flags[FFFT_COUNT];
 
 		for (DWORD j=FFFT_FIRST; j < FFFT_COUNT; j++)
 			Flags[j] = CurFilterData.GetFlags((enumFileFilterFlagsType)j);
 
-		cfg->SetValue(key,L"FFlags", Flags);
+		cfg->SetValue(Key, L"FFlags", Flags);
 	}
 
 	for (size_t i=0; i<TempFilterData().size(); ++i)
 	{
-		unsigned __int64 key = cfg->CreateKey(root, L"PanelMask" + std::to_wstring(i));
-		if (!key)
+		const auto Key = cfg->CreateKey(root, L"PanelMask" + std::to_wstring(i));
+		if (!Key)
 			break;
 		const auto& CurFilterData = TempFilterData()[i];
 
-		cfg->SetValue(key, L"Mask", CurFilterData.GetMask());
+		cfg->SetValue(Key, L"Mask", CurFilterData.GetMask());
 		DWORD Flags[FFFT_COUNT];
 
 		for (DWORD j=FFFT_FIRST; j < FFFT_COUNT; j++)
 			Flags[j] = CurFilterData.GetFlags((enumFileFilterFlagsType)j);
 
-		cfg->SetValue(key,L"FFlags", Flags);
+		cfg->SetValue(Key, L"FFlags", Flags);
 	}
 
 	{

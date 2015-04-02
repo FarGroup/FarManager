@@ -58,10 +58,51 @@ static inline void PrintError(const wchar_t *Title, const string& Error, int Row
 	Console().Commit();
 }
 
-static void PrintError(const wchar_t *Title, const tinyxml::TiXmlDocument &doc)
+class representation
 {
-	PrintError(Title, wide(doc.ErrorDesc(), CP_UTF8), doc.ErrorRow(), doc.ErrorCol());
-}
+public:
+	representation(): m_ImportRoot(), m_ExportRoot() {}
+
+	tinyxml::TiXmlElement& GetExportRoot() { return *m_ExportRoot; }
+	const tinyxml::TiXmlHandle& GetImportRoot() const { return *m_ImportRoot; }
+
+	void SetImportRoot(const tinyxml::TiXmlHandle& ImportRoot) { m_ImportRoot = &ImportRoot; }
+	void SetExportRoot(tinyxml::TiXmlElement& ExportRoot) { m_ExportRoot = &ExportRoot; }
+
+private:
+	const tinyxml::TiXmlHandle* m_ImportRoot;
+	tinyxml::TiXmlElement* m_ExportRoot;
+};
+
+class representation_source
+{
+public:
+	representation_source(const string& TemplateFile):
+		m_ImportRoot(nullptr)
+	{
+		if (const auto XmlFile = file_ptr(_wfopen(NTPath(TemplateFile).data(), L"rb")))
+		{
+			if (m_TemplateDoc.LoadFile(XmlFile.get()))
+			{
+				m_ImportRoot = m_TemplateDoc.FirstChildElement("farconfig");
+			}
+		}
+	}
+
+	bool readable() const { return m_ImportRoot.Node() != nullptr; }
+	const tinyxml::TiXmlHandle& GetImportRoot() const { return m_ImportRoot; }
+
+	void PrintErrorIfError() const
+	{
+		if (m_TemplateDoc.Error())
+			PrintError(L"XML Error", wide(m_TemplateDoc.ErrorDesc(), CP_UTF8), m_TemplateDoc.ErrorRow(), m_TemplateDoc.ErrorCol());
+	}
+
+private:
+	tinyxml::TiXmlDocument m_TemplateDoc;
+	tinyxml::TiXmlHandle m_ImportRoot;
+};
+
 
 class TiXmlElementWrapper
 {
@@ -183,9 +224,9 @@ public:
 		return EnumValuesT(Key, Index, Name, Value, &SQLiteStmt::GetColInt64);
 	}
 
-	virtual void Export(tinyxml::TiXmlElement& Parent) override
+	virtual void Export(representation& Representation) override
 	{
-		auto& root = CreateChild(Parent, GetKeyName());
+		auto& root = CreateChild(Representation.GetExportRoot(), GetKeyName());
 
 		auto stmtEnumAllValues = create_stmt(L"SELECT key, name, value FROM general_config ORDER BY key, name;");
 
@@ -219,10 +260,10 @@ public:
 		stmtEnumAllValues.Reset();
 	}
 
-	virtual void Import(const tinyxml::TiXmlHandle &root) override
+	virtual void Import(const representation& Representation) override
 	{
 		SCOPED_ACTION(auto)(ScopedTransaction());
-		FOR(const auto& e, xml_enum(root.FirstChild(GetKeyName()), "setting"))
+		FOR(const auto& e, xml_enum(Representation.GetImportRoot().FirstChild(GetKeyName()), "setting"))
 		{
 			const auto key = e->Attribute("key");
 			const auto name = e->Attribute("name");
@@ -408,83 +449,84 @@ public:
 		return b;
 	}
 
-	virtual unsigned __int64 CreateKey(unsigned __int64 Root, const string& Name, const string* Description) override
+	virtual key CreateKey(const key& Root, const string& Name, const string* Description) override
 	{
-		if (m_Statements[stmtCreateKey].Bind(Root, Name, Description? *Description : string()).StepAndReset())
-			return LastInsertRowID();
-		unsigned __int64 id = GetKeyID(Root,Name);
-		if (id && Description)
-			SetKeyDescription(id, *Description);
-		return id;
+		if (m_Statements[stmtCreateKey].Bind(Root.get(), Name, Description? *Description : string()).StepAndReset())
+			return make_key(LastInsertRowID());
+
+		auto Key = GetKeyID(Root, Name);
+		if (Key.get() && Description)
+			SetKeyDescription(Key, *Description);
+		return Key;
 	}
 
-	virtual unsigned __int64 GetKeyID(unsigned __int64 Root, const string& Name) override
+	virtual key GetKeyID(const key& Root, const string& Name) override
 	{
 		auto& Stmt = m_Statements[stmtFindKey];
-		unsigned __int64 id = 0;
-		if (Stmt.Bind(Root, Name).Step())
+		uint64_t id = 0;
+		if (Stmt.Bind(Root.get(), Name).Step())
 			id = Stmt.GetColInt64(0);
 		Stmt.Reset();
-		return id;
+		return make_key(id);
 	}
 
-	virtual bool SetKeyDescription(unsigned __int64 Root, const string& Description) override
+	virtual bool SetKeyDescription(const key& Root, const string& Description) override
 	{
-		return m_Statements[stmtSetKeyDescription].Bind(Description, Root).StepAndReset();
+		return m_Statements[stmtSetKeyDescription].Bind(Description, Root.get()).StepAndReset();
 	}
 
-	virtual bool SetValue(unsigned __int64 Root, const string& Name, const string& Value) override
-	{
-		return SetValueT(Root, Name, Value);
-	}
-
-	virtual bool SetValue(unsigned __int64 Root, const string& Name, const wchar_t* Value) override
+	virtual bool SetValue(const key& Root, const string& Name, const string& Value) override
 	{
 		return SetValueT(Root, Name, Value);
 	}
 
-	virtual bool SetValue(unsigned __int64 Root, const string& Name, unsigned long long Value) override
+	virtual bool SetValue(const key& Root, const string& Name, const wchar_t* Value) override
 	{
 		return SetValueT(Root, Name, Value);
 	}
 
-	virtual bool SetValue(unsigned __int64 Root, const string& Name, const blob& Value) override
+	virtual bool SetValue(const key& Root, const string& Name, unsigned long long Value) override
 	{
 		return SetValueT(Root, Name, Value);
 	}
 
-	virtual bool GetValue(unsigned __int64 Root, const string& Name, unsigned long long& Value) override
+	virtual bool SetValue(const key& Root, const string& Name, const blob& Value) override
+	{
+		return SetValueT(Root, Name, Value);
+	}
+
+	virtual bool GetValue(const key& Root, const string& Name, unsigned long long& Value) override
 	{
 		return GetValueT(Root, Name, Value, &SQLiteStmt::GetColInt64);
 	}
 
-	virtual bool GetValue(unsigned __int64 Root, const string& Name, string &Value) override
+	virtual bool GetValue(const key& Root, const string& Name, string &Value) override
 	{
 		return GetValueT(Root, Name, Value, &SQLiteStmt::GetColText);
 	}
 
-	virtual bool GetValue(unsigned __int64 Root, const string& Name, writable_blob& Value) override
+	virtual bool GetValue(const key& Root, const string& Name, writable_blob& Value) override
 	{
 		return GetValueT(Root, Name, Value, &SQLiteStmt::GetColBlob);
 	}
 
-	virtual bool DeleteKeyTree(unsigned __int64 KeyID) override
+	virtual bool DeleteKeyTree(const key& Key) override
 	{
 		//All subtree is automatically deleted because of foreign key constraints
-		return m_Statements[stmtDeleteTree].Bind(KeyID).StepAndReset();
+		return m_Statements[stmtDeleteTree].Bind(Key.get()).StepAndReset();
 	}
 
-	virtual bool DeleteValue(unsigned __int64 Root, const string& Name) override
+	virtual bool DeleteValue(const key& Root, const string& Name) override
 	{
-		return m_Statements[stmtDelValue].Bind(Root, Name).StepAndReset();
+		return m_Statements[stmtDelValue].Bind(Root.get(), Name).StepAndReset();
 	}
 
 
-	virtual bool EnumKeys(unsigned __int64 Root, DWORD Index, string& Name) override
+	virtual bool EnumKeys(const key& Root, DWORD Index, string& Name) override
 	{
 		auto& Stmt = m_Statements[stmtEnumKeys];
 		if (Index == 0)
-			Stmt.Reset().Bind(Root);
+			Stmt.Reset().Bind(Root.get());
 
 		if (Stmt.Step())
 		{
@@ -496,11 +538,11 @@ public:
 		return false;
 	}
 
-	virtual bool EnumValues(unsigned __int64 Root, DWORD Index, string& Name, DWORD& Type) override
+	virtual bool EnumValues(const key& Root, DWORD Index, string& Name, DWORD& Type) override
 	{
 		auto& Stmt = m_Statements[stmtEnumValues];
 		if (Index == 0)
-			Stmt.Reset().Bind(Root);
+			Stmt.Reset().Bind(Root.get());
 
 		if (m_Statements[stmtEnumValues].Step())
 		{
@@ -520,57 +562,9 @@ public:
 		e.SetAttribute("value", hex);
 	}
 
-	virtual void Export(unsigned __int64 id, tinyxml::TiXmlElement& key)
+	virtual void Export(representation& Representation) override
 	{
-		auto& Stmt = m_Statements[stmtEnumValues];
-		Stmt.Bind(id);
-		while (Stmt.Step())
-		{
-			auto& e = CreateChild(key, "value");
-
-			const auto name = Stmt.GetColTextUTF8(0);
-			e.SetAttribute("name", name);
-
-			switch (Stmt.GetColType(1))
-			{
-				case TYPE_INTEGER:
-					e.SetAttribute("type", "qword");
-					e.SetAttribute("value", to_hex_string(Stmt.GetColInt64(1)));
-					break;
-				case TYPE_STRING:
-					e.SetAttribute("type", "text");
-					e.SetAttribute("value", Stmt.GetColTextUTF8(1));
-					break;
-				default:
-					{
-						const auto Blob = Stmt.GetColBlob(1);
-						SerializeBlob(name, Blob.data(), Blob.size(), e);
-					}
-					break;
-			}
-		}
-		Stmt.Reset();
-
-		auto stmtEnumSubKeys = create_stmt(L"SELECT id, name, description FROM table_keys WHERE parent_id=?1 AND id<>0;");
-
-		stmtEnumSubKeys.Bind(id);
-		while (stmtEnumSubKeys.Step())
-		{
-			auto& e = CreateChild(key, "key");
-
-			e.SetAttribute("name", stmtEnumSubKeys.GetColTextUTF8(1));
-			const auto description = stmtEnumSubKeys.GetColTextUTF8(2);
-			if (description)
-				e.SetAttribute("description", description);
-
-			Export(stmtEnumSubKeys.GetColInt64(0), e);
-		}
-		stmtEnumSubKeys.Reset();
-	}
-
-	virtual void Export(tinyxml::TiXmlElement& Parent) override
-	{
-		Export(0, CreateChild(Parent, "hierarchicalconfig"));
+		Export(root_key(), CreateChild(Representation.GetExportRoot(), "hierarchicalconfig"));
 	}
 
 	virtual std::vector<char> DeserializeBlob(const char* Name, const char* Type, const char* Value, const tinyxml::TiXmlElement& e)
@@ -578,25 +572,80 @@ public:
 		return HexStringToBlob(Value);
 	}
 
-	virtual void Import(unsigned __int64 root, const tinyxml::TiXmlElement& key)
+	virtual void Import(const representation& Representation) override
 	{
-		unsigned __int64 id;
+		SCOPED_ACTION(auto)(ScopedTransaction());
+		FOR(const auto& e, xml_enum(Representation.GetImportRoot().FirstChild("hierarchicalconfig"), "key"))
 		{
-			const auto name = key.Attribute("name");
-			const auto description = key.Attribute("description");
-			if (!name)
-				return;
-
-			string Name = wide(name, CP_UTF8);
-			string Description;
-			if (description)
-			{
-				Description = wide(description, CP_UTF8);
-			}
-			id = CreateKey(root, Name, description ? &Description : nullptr);
-			if (!id)
-				return;
+			Import(root_key(), *e);
 		}
+	}
+
+private:
+	void Export(const key& Key, tinyxml::TiXmlElement& XmlKey)
+	{
+		auto& Stmt = m_Statements[stmtEnumValues];
+		Stmt.Bind(Key.get());
+		while (Stmt.Step())
+		{
+			auto& e = CreateChild(XmlKey, "value");
+
+			const auto name = Stmt.GetColTextUTF8(0);
+			e.SetAttribute("name", name);
+
+			switch (Stmt.GetColType(1))
+			{
+			case TYPE_INTEGER:
+				e.SetAttribute("type", "qword");
+				e.SetAttribute("value", to_hex_string(Stmt.GetColInt64(1)));
+				break;
+			case TYPE_STRING:
+				e.SetAttribute("type", "text");
+				e.SetAttribute("value", Stmt.GetColTextUTF8(1));
+				break;
+			default:
+			{
+				const auto Blob = Stmt.GetColBlob(1);
+				SerializeBlob(name, Blob.data(), Blob.size(), e);
+			}
+			break;
+			}
+		}
+		Stmt.Reset();
+
+		auto stmtEnumSubKeys = create_stmt(L"SELECT id, name, description FROM table_keys WHERE parent_id=?1 AND id<>0;");
+
+		stmtEnumSubKeys.Bind(Key.get());
+		while (stmtEnumSubKeys.Step())
+		{
+			auto& e = CreateChild(XmlKey, "key");
+
+			e.SetAttribute("name", stmtEnumSubKeys.GetColTextUTF8(1));
+			const auto description = stmtEnumSubKeys.GetColTextUTF8(2);
+			if (description)
+				e.SetAttribute("description", description);
+
+			Export(make_key(stmtEnumSubKeys.GetColInt64(0)), e);
+		}
+		stmtEnumSubKeys.Reset();
+	}
+
+	void Import(const key& root, const tinyxml::TiXmlElement& key)
+	{
+		const auto name = key.Attribute("name");
+		const auto description = key.Attribute("description");
+		if (!name)
+			return;
+
+		const auto Name = wide(name, CP_UTF8);
+		string Description;
+		if (description)
+		{
+			Description = wide(description, CP_UTF8);
+		}
+		const auto Key = CreateKey(root, Name, description? &Description : nullptr);
+		if (!Key.get())
+			return;
 
 		FOR(const auto& e, xml_enum(key, "value"))
 		{
@@ -609,55 +658,44 @@ public:
 
 			string Name = wide(name, CP_UTF8);
 
-			if (value && !strcmp(type,"qword"))
+			if (value && !strcmp(type, "qword"))
 			{
-				SetValue(id, Name, strtoull(value, 0, 16));
+				SetValue(Key, Name, strtoull(value, 0, 16));
 			}
-			else if (value && !strcmp(type,"text"))
+			else if (value && !strcmp(type, "text"))
 			{
 				string Value = wide(value, CP_UTF8);
-				SetValue(id, Name, Value);
+				SetValue(Key, Name, Value);
 			}
-			else if (value && !strcmp(type,"hex"))
+			else if (value && !strcmp(type, "hex"))
 			{
 				auto Blob = HexStringToBlob(value);
-				SetValue(id, Name, blob(Blob.data(), Blob.size()));
+				SetValue(Key, Name, blob(Blob.data(), Blob.size()));
 			}
 			else
 			{
 				// custom types, value is optional
 				auto Blob = DeserializeBlob(name, type, value, *e);
-				SetValue(id, Name, blob(Blob.data(), Blob.size()));
+				SetValue(Key, Name, blob(Blob.data(), Blob.size()));
 			}
 		}
 
 		FOR(const auto& e, xml_enum(key, "key"))
 		{
-			Import(id, *e);
-		}
-
-	}
-
-	virtual void Import(const tinyxml::TiXmlHandle &root) override
-	{
-		SCOPED_ACTION(auto)(ScopedTransaction());
-		FOR(const auto& e, xml_enum(root.FirstChild("hierarchicalconfig"), "key"))
-		{
-			Import(0, *e);
+			Import(Key, *e);
 		}
 	}
 
-private:
 	void AsyncDelete()
 	{
 		delete this;
 	}
 
 	template<class T, class getter_t>
-	bool GetValueT(unsigned __int64 Root, const string& Name, T& Value, getter_t Getter)
+	bool GetValueT(const key& Root, const string& Name, T& Value, getter_t Getter)
 	{
 		auto& Stmt = m_Statements[stmtGetValue];
-		const bool b = Stmt.Bind(Root, Name).Step();
+		const bool b = Stmt.Bind(Root.get(), Name).Step();
 		if (b)
 			Value = (Stmt.*Getter)(0);
 		Stmt.Reset();
@@ -665,9 +703,9 @@ private:
 	}
 
 	template<class T>
-	bool SetValueT(unsigned __int64 Root, const string& Name, const T& Value)
+	bool SetValueT(const key& Root, const string& Name, const T& Value)
 	{
-		return m_Statements[stmtSetValue].Bind(Root, Name, Value).StepAndReset();
+		return m_Statements[stmtSetValue].Bind(Root.get(), Name, Value).StepAndReset();
 	}
 
 	enum statement_id
@@ -810,9 +848,9 @@ public:
 		return b;
 	}
 
-	virtual void Export(tinyxml::TiXmlElement& Parent) override
+	virtual void Export(representation& Representation) override
 	{
-		auto& root = CreateChild(Parent, "colors");
+		auto& root = CreateChild(Representation.GetExportRoot(), "colors");
 
 		auto stmtEnumAllValues = create_stmt(L"SELECT name, value FROM colors ORDER BY name;");
 
@@ -833,10 +871,10 @@ public:
 		stmtEnumAllValues.Reset();
 	}
 
-	virtual void Import(const tinyxml::TiXmlHandle &root) override
+	virtual void Import(const representation& Representation) override
 	{
 		SCOPED_ACTION(auto)(ScopedTransaction());
-		FOR(const auto& e, xml_enum(root.FirstChild("colors"), "object"))
+		FOR(const auto& e, xml_enum(Representation.GetImportRoot().FirstChild("colors"), "object"))
 		{
 			const auto name = e->Attribute("name");
 			const auto background = e->Attribute("background");
@@ -1025,9 +1063,9 @@ public:
 		return m_Statements[stmtDelType].Bind(id).StepAndReset();
 	}
 
-	virtual void Export(tinyxml::TiXmlElement& Parent) override
+	virtual void Export(representation& Representation) override
 	{
-		auto& root = CreateChild(Parent, "associations");
+		auto& root = CreateChild(Representation.GetExportRoot(), "associations");
 
 		auto stmtEnumAllTypes = create_stmt(L"SELECT id, mask, description FROM filetypes ORDER BY weight;");
 		auto stmtEnumCommandsPerFiletype = create_stmt(L"SELECT type, enabled, command FROM commands WHERE ft_id=?1 ORDER BY type;");
@@ -1054,9 +1092,9 @@ public:
 		stmtEnumAllTypes.Reset();
 	}
 
-	virtual void Import(const tinyxml::TiXmlHandle &root) override
+	virtual void Import(const representation& Representation) override
 	{
-		const auto base = root.FirstChild("associations");
+		const auto base = Representation.GetImportRoot().FirstChild("associations");
 		if (!base.ToElement())
 			return;
 
@@ -1201,8 +1239,8 @@ public:
 		;
 	}
 
-	virtual void Import(const tinyxml::TiXmlHandle&) override {}
-	virtual void Export(tinyxml::TiXmlElement&) override {}
+	virtual void Import(const representation&) override {}
+	virtual void Export(representation&) override {}
 
 	virtual unsigned __int64 CreateCache(const string& CacheName) override
 	{
@@ -1569,9 +1607,9 @@ public:
 		return m_Statements[stmtDelHotkey].Bind(PluginKey, MenuGuid, HotKeyType).StepAndReset();
 	}
 
-	virtual void Export(tinyxml::TiXmlElement& Parent) override
+	virtual void Export(representation& Representation) override
 	{
-		auto& root = CreateChild(Parent, "pluginhotkeys");
+		auto& root = CreateChild(Representation.GetExportRoot(), "pluginhotkeys");
 
 		auto stmtEnumAllPluginKeys = create_stmt(L"SELECT pluginkey FROM pluginhotkeys GROUP BY pluginkey;");
 		auto stmtEnumAllHotkeysPerKey = create_stmt(L"SELECT menuguid, type, hotkey FROM pluginhotkeys WHERE pluginkey=$1;");
@@ -1606,10 +1644,10 @@ public:
 		stmtEnumAllPluginKeys.Reset();
 	}
 
-	virtual void Import(const tinyxml::TiXmlHandle &root) override
+	virtual void Import(const representation& Representation) override
 	{
 		SCOPED_ACTION(auto)(ScopedTransaction());
-		FOR(const auto& e, xml_enum(root.FirstChild("pluginhotkeys"), "plugin"))
+		FOR(const auto& e, xml_enum(Representation.GetImportRoot().FirstChild("pluginhotkeys"), "plugin"))
 		{
 			const auto key = e->Attribute("key");
 
@@ -2214,8 +2252,8 @@ public:
 
 	// TODO: log
 	// TODO: implementation
-	virtual void Import(const tinyxml::TiXmlHandle&) override {}
-	virtual void Export(tinyxml::TiXmlElement&) override {}
+	virtual void Import(const representation&) override {}
+	virtual void Export(representation&) override {}
 };
 
 class HistoryConfigMemory: public HistoryConfigCustom {
@@ -2225,8 +2263,8 @@ public:
 		Initialize(L":memory:", true);
 	}
 
-	virtual void Import(const tinyxml::TiXmlHandle&) override {}
-	virtual void Export(tinyxml::TiXmlElement&) override {}
+	virtual void Import(const representation&) override {}
+	virtual void Export(representation&) override {}
 };
 
 void Database::CheckDatabase(SQLiteDb *pDb)
@@ -2247,43 +2285,39 @@ void Database::CheckDatabase(SQLiteDb *pDb)
 	}
 }
 
-void Database::TryImportDatabase(XmlConfig *p, const char *son, bool plugin)
+void Database::TryImportDatabase(representable *p, const char *son, bool plugin)
 {
-	if (m_TemplateLoadState != 0)
+	if (!m_TemplateSource && !Global->Opt->TemplateProfilePath.empty())
 	{
-		if (m_TemplateLoadState < 0 && !Global->Opt->TemplateProfilePath.empty())
-		{
-			m_TemplateLoadState = 0;
-			string def_config = Global->Opt->TemplateProfilePath;
-			file_ptr XmlFile(_wfopen(NTPath(def_config).data(), L"rb"));
-			if (XmlFile)
-			{
-				m_TemplateDoc = std::make_unique<tinyxml::TiXmlDocument>();
-				if (m_TemplateDoc->LoadFile(XmlFile.get()))
-				{
-					if (nullptr != (m_TemplateRoot = m_TemplateDoc->FirstChildElement("farconfig")))
-						m_TemplateLoadState = +1;
-				}
-			}
-		}
+		m_TemplateSource = std::make_unique<representation_source>(Global->Opt->TemplateProfilePath);
+	}
 
-		if (m_TemplateLoadState > 0)
+	if (m_TemplateSource && m_TemplateSource->readable())
+	{
+		representation Representation;
+		const tinyxml::TiXmlHandle root(m_TemplateSource->GetImportRoot());
+
+		if (!son)
 		{
-			const tinyxml::TiXmlHandle root(m_TemplateRoot);
-			if (!son)
-				p->Import(root);
-			else if (!plugin)
-				p->Import(root.FirstChildElement(son));
-			else
+			Representation.SetImportRoot(root);
+			p->Import(Representation);
+		}
+		else if (!plugin)
+		{
+			Representation.SetImportRoot(root.FirstChildElement(son));
+			p->Import(Representation);
+		}
+		else
+		{
+			FOR(const auto& i, xml_enum(root.FirstChild("pluginsconfig"), "plugin"))
 			{
-				FOR(const auto& i, xml_enum(root.FirstChild("pluginsconfig"), "plugin"))
+				const auto guid = i->Attribute("guid");
+				if (guid && 0 == strcmp(guid, son))
 				{
-					const auto guid = i->Attribute("guid");
-					if (guid && 0 == strcmp(guid, son))
-					{
-						p->Import(tinyxml::TiXmlHandle(&const_cast<tinyxml::TiXmlElement&>(*i)));
-						break;
-					}
+					const tinyxml::TiXmlHandle PluginRoot(&const_cast<tinyxml::TiXmlElement&>(*i));
+					Representation.SetImportRoot(PluginRoot);
+					p->Import(Representation);
+					break;
 				}
 			}
 		}
@@ -2353,8 +2387,6 @@ HierarchicalConfigUniquePtr Database::CreatePanelModeConfig()
 }
 
 Database::Database(mode Mode):
-	m_TemplateRoot(nullptr),
-	m_TemplateLoadState(-1),
 	m_Mode(Mode),
 	m_GeneralCfg(CreateDatabase<GeneralConfigDb>()),
 	m_LocalGeneralCfg(CreateDatabase<LocalGeneralConfigDb>()),
@@ -2383,7 +2415,7 @@ const std::wregex& uuid_regex()
 
 bool Database::Export(const string& File)
 {
-	file_ptr XmlFile(_wfopen(NTPath(File).data(), L"w"));
+	const file_ptr XmlFile(_wfopen(NTPath(File).data(), L"w"));
 
 	if(!XmlFile)
 		return false;
@@ -2394,15 +2426,22 @@ bool Database::Export(const string& File)
 	auto& root = CreateChild(doc, "farconfig");
 	root.SetAttribute("version", Utf8String(std::to_wstring(FAR_VERSION.Major) + L"." + std::to_wstring(FAR_VERSION.Minor) + L"." + std::to_wstring(FAR_VERSION.Build)).data());
 
-	GeneralCfg()->Export(root);
-	LocalGeneralCfg()->Export(root);
-	ColorsCfg()->Export(root);
-	AssocConfig()->Export(root);
-	PlHotkeyCfg()->Export(root);
-	CreateFiltersConfig()->Export(CreateChild(root, "filters"));
-	CreateHighlightConfig()->Export(CreateChild(root, "highlight"));
-	CreatePanelModeConfig()->Export(CreateChild(root, "panelmodes"));
-	CreateShortcutsConfig()->Export(CreateChild(root, "shortcuts"));
+	representation Representation;
+	Representation.SetExportRoot(root);
+
+	GeneralCfg()->Export(Representation);
+	LocalGeneralCfg()->Export(Representation);
+	ColorsCfg()->Export(Representation);
+	AssocConfig()->Export(Representation);
+	PlHotkeyCfg()->Export(Representation);
+	Representation.SetExportRoot(CreateChild(root, "filters"));
+	CreateFiltersConfig()->Export(Representation);
+	Representation.SetExportRoot(CreateChild(root, "highlight"));
+	CreateHighlightConfig()->Export(Representation);
+	Representation.SetExportRoot(CreateChild(root, "panelmodes"));
+	CreatePanelModeConfig()->Export(Representation);
+	Representation.SetExportRoot(CreateChild(root, "shortcuts"));
+	CreateShortcutsConfig()->Export(Representation);
 
 	{ //TODO: export for local plugin settings
 		auto& e = CreateChild(root, "pluginsconfig");
@@ -2413,9 +2452,10 @@ bool Database::Export(const string& File)
 			ToUpper(i.strFileName);
 			if (std::regex_search(i.strFileName, uuid_regex()))
 			{
-				auto& plugin = CreateChild(e, "plugin");
-				plugin.SetAttribute("guid", Utf8String(i.strFileName).data());
-				CreatePluginsConfig(i.strFileName)->Export(plugin);
+				auto& PluginRoot = CreateChild(e, "plugin");
+				PluginRoot.SetAttribute("guid", Utf8String(i.strFileName).data());
+				Representation.SetExportRoot(PluginRoot);
+				CreatePluginsConfig(i.strFileName)->Export(Representation);
 			}
 		});
 	}
@@ -2423,64 +2463,52 @@ bool Database::Export(const string& File)
 	return doc.SaveFile(XmlFile.get());
 }
 
-bool Database::Import(const string& File)
+bool Database::Import(const string& Filename)
 {
-	file_ptr XmlFile(_wfopen(NTPath(File).data(), L"rb"));
+	representation_source Source(Filename);
 
-	if(!XmlFile)
-		return false;
-
-	bool ret = false;
-
-	tinyxml::TiXmlDocument doc;
-
-	if (doc.LoadFile(XmlFile.get()))
+	if (!Source.readable())
 	{
-		if (auto farconfig = doc.FirstChildElement("farconfig"))
+		Source.PrintErrorIfError();
+		return false;
+	}
+
+	auto farconfig = Source.GetImportRoot();
+	representation Representation;
+	const tinyxml::TiXmlHandle root(farconfig);
+	Representation.SetImportRoot(root);
+
+	GeneralCfg()->Import(Representation);
+	LocalGeneralCfg()->Import(Representation);
+	ColorsCfg()->Import(Representation);
+	AssocConfig()->Import(Representation);
+	PlHotkeyCfg()->Import(Representation);
+	Representation.SetImportRoot(root.FirstChildElement("filters"));
+	CreateFiltersConfig()->Import(Representation);
+	Representation.SetImportRoot(root.FirstChildElement("highlight"));
+	CreateHighlightConfig()->Import(Representation);
+	Representation.SetImportRoot(root.FirstChildElement("panelmodes"));
+	CreatePanelModeConfig()->Import(Representation);
+	Representation.SetImportRoot(root.FirstChildElement("shortcuts"));
+	CreateShortcutsConfig()->Import(Representation);
+
+	//TODO: import for local plugin settings
+	FOR(const auto& plugin, xml_enum(root.FirstChild("pluginsconfig"), "plugin"))
+	{
+		auto guid = plugin->Attribute("guid");
+		if (!guid)
+			continue;
+		string Guid = wide(guid, CP_UTF8);
+		ToUpper(Guid);
+
+		if (std::regex_search(Guid, uuid_regex()))
 		{
-			const tinyxml::TiXmlHandle root(farconfig);
-
-			GeneralCfg()->Import(root);
-
-			LocalGeneralCfg()->Import(root);
-
-			ColorsCfg()->Import(root);
-
-			AssocConfig()->Import(root);
-
-			PlHotkeyCfg()->Import(root);
-
-			CreateFiltersConfig()->Import(root.FirstChildElement("filters"));
-
-			CreateHighlightConfig()->Import(root.FirstChildElement("highlight"));
-
-			CreatePanelModeConfig()->Import(root.FirstChildElement("panelmodes"));
-
-			CreateShortcutsConfig()->Import(root.FirstChildElement("shortcuts"));
-
-			//TODO: import for local plugin settings
-			FOR(const auto& plugin, xml_enum(root.FirstChild("pluginsconfig"), "plugin"))
-			{
-				auto guid = plugin->Attribute("guid");
-				if (!guid)
-					continue;
-				string Guid = wide(guid, CP_UTF8);
-				ToUpper(Guid);
-
-				if (std::regex_search(Guid, uuid_regex()))
-				{
-					CreatePluginsConfig(Guid)->Import(tinyxml::TiXmlHandle(&const_cast<tinyxml::TiXmlElement&>(*plugin)));
-				}
-			}
-
-			ret = true;
+			Representation.SetImportRoot(tinyxml::TiXmlHandle(&const_cast<tinyxml::TiXmlElement&>(*plugin)));
+			CreatePluginsConfig(Guid)->Import(Representation);
 		}
 	}
 
-	if (doc.Error())
-		PrintError(L"XML Error", doc);
-
-	return ret;
+	return true;
 }
 
 void Database::ClearPluginsCache()

@@ -711,7 +711,7 @@ bool History::EqualType(history_record_type Type1, history_record_type Type2) co
 	return Type1 == Type2 || (m_TypeHistory == HISTORYTYPE_VIEW && ((Type1 == HR_EDITOR_RO && Type2 == HR_EDITOR) || (Type1 == HR_EDITOR && Type2 == HR_EDITOR_RO)));
 }
 
-HistoryConfig* History::HistoryCfgRef() const
+const std::unique_ptr<HistoryConfig>& History::HistoryCfgRef() const
 {
 	return m_EnableSave? Global->Db->HistoryCfg() : Global->Db->HistoryCfgMem();
 }

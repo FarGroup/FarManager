@@ -483,7 +483,7 @@ bool Plugin::SaveToCache()
 	PluginInfo Info = {sizeof(Info)};
 	GetPluginInfo(&Info);
 
-	PluginsCacheConfig& PlCache = *Global->Db->PlCacheCfg();
+	auto& PlCache = *Global->Db->PlCacheCfg();
 
 	SCOPED_ACTION(auto)(PlCache.ScopedTransaction());
 

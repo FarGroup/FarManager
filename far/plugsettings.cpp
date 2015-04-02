@@ -74,7 +74,7 @@ public:
 
 private:
 	std::vector<FarSettingsNameItems> m_Enum;
-	std::vector<uint64_t> m_Keys;
+	std::vector<HierarchicalConfig::key> m_Keys;
 	HierarchicalConfigUniquePtr PluginsCfg;
 };
 
@@ -88,14 +88,12 @@ AbstractSettings* AbstractSettings::CreatePluginSettings(const GUID& Guid, bool 
 PluginSettings::PluginSettings(const GUID& Guid, bool Local):
 	PluginsCfg(nullptr)
 {
-	Plugin* pPlugin = Global->CtrlObject->Plugins->FindPlugin(Guid);
+	const auto pPlugin = Global->CtrlObject->Plugins->FindPlugin(Guid);
 	if (pPlugin)
 	{
 		string strGuid = GuidToStr(Guid);
 		PluginsCfg = Global->Db->CreatePluginsConfig(strGuid, Local);
-		m_Keys.resize(1);
-		unsigned __int64& root = m_Keys.front();
-		root=PluginsCfg->CreateKey(0, strGuid, &pPlugin->GetTitle());
+		m_Keys.emplace_back(PluginsCfg->CreateKey(HierarchicalConfig::root_key(), strGuid, &pPlugin->GetTitle()));
 
 		if (!Global->Opt->ReadOnlyConfig)
 		{
@@ -329,7 +327,7 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 		DWORD Index=0,Type;
 		string strName;
 
-		unsigned __int64 root = m_Keys[Enum.Root];
+		const auto& root = m_Keys[Enum.Root];
 		item.Type=FST_SUBKEY;
 		while (PluginsCfg->EnumKeys(root,Index++,strName))
 		{
@@ -387,12 +385,7 @@ int PluginSettings::SubKey(const FarSettingsValue& Value, bool bCreate)
 	//Don't allow illegal key names - empty names or with backslashes
 	if(Value.Root<m_Keys.size() && Value.Value && *Value.Value && !wcschr(Value.Value,'\\'))
 	{
-		unsigned __int64 root = 0;
-		if (bCreate)
-			root = PluginsCfg->CreateKey(m_Keys[Value.Root],Value.Value);
-		else
-			root = PluginsCfg->GetKeyID(m_Keys[Value.Root],Value.Value);
-		if (root)
+		if (const auto root = bCreate? PluginsCfg->CreateKey(m_Keys[Value.Root], Value.Value) : PluginsCfg->GetKeyID(m_Keys[Value.Root], Value.Value))
 		{
 			result=static_cast<int>(m_Keys.size());
 			m_Keys.emplace_back(root);
@@ -493,7 +486,7 @@ int FarSettings::SubKey(const FarSettingsValue& Value, bool bCreate)
 	return result+FSSF_COUNT;
 }
 
-static HistoryConfig* HistoryRef(int Type)
+static const std::unique_ptr<HistoryConfig>& HistoryRef(int Type)
 {
 	bool Save=true;
 	switch(Type)

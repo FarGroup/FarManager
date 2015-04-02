@@ -39,23 +39,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct VersionInfo;
 class blob;
+class representation;
+class representation_source;
 
-namespace tinyxml
-{
-	class TiXmlElement;
-	class TiXmlHandle;
-	class TiXmlDocument;
-}
-
-class XmlConfig: noncopyable
+class representable: noncopyable
 {
 public:
-	virtual ~XmlConfig() {}
-	virtual void Export(tinyxml::TiXmlElement& Parent) = 0;
-	virtual void Import(const tinyxml::TiXmlHandle& root) = 0;
+	virtual ~representable() {}
+	virtual void Export(representation& Representation) = 0;
+	virtual void Import(const representation& Representation) = 0;
 };
 
-class GeneralConfig: public XmlConfig, virtual public transactional
+class GeneralConfig: public representable, virtual public transactional
 {
 public:
 	virtual ~GeneralConfig() {}
@@ -104,47 +99,65 @@ protected:
 	GeneralConfig() {}
 };
 
-class HierarchicalConfig: public XmlConfig, virtual public transactional
+class HierarchicalConfig: public representable, virtual public transactional
 {
 public:
-	virtual void AsyncFinish() = 0;
-	virtual unsigned __int64 CreateKey(unsigned __int64 Root, const string& Name, const string* Description=nullptr) = 0;
-	virtual unsigned __int64 GetKeyID(unsigned __int64 Root, const string& Name) = 0;
-	virtual bool SetKeyDescription(unsigned __int64 Root, const string& Description) = 0;
+	class key
+	{
+	public:
+		uint64_t get() const { return m_Key; }
+		bool operator!() const { return m_Key == 0; }
+		EXPLICIT_OPERATOR_BOOL();
 
-	virtual bool SetValue(unsigned __int64 Root, const string& Name, const string& Value) = 0;
-	virtual bool SetValue(unsigned __int64 Root, const string& Name, const wchar_t* Value) = 0;
-	virtual bool SetValue(unsigned __int64 Root, const string& Name, unsigned long long Value) = 0;
-	virtual bool SetValue(unsigned __int64 Root, const string& Name, const blob& Value) = 0;
+	private:
+		friend class HierarchicalConfig;
+
+		key(uint64_t Key): m_Key(Key) {}
+		uint64_t m_Key;
+	};
+
+	static key root_key() { return make_key(0); }
+
+	virtual void AsyncFinish() = 0;
+	virtual key CreateKey(const key& Root, const string& Name, const string* Description = nullptr) = 0;
+	virtual key GetKeyID(const key& Root, const string& Name) = 0;
+	virtual bool SetKeyDescription(const key& Root, const string& Description) = 0;
+
+	virtual bool SetValue(const key& Root, const string& Name, const string& Value) = 0;
+	virtual bool SetValue(const key& Root, const string& Name, const wchar_t* Value) = 0;
+	virtual bool SetValue(const key& Root, const string& Name, unsigned long long Value) = 0;
+	virtual bool SetValue(const key& Root, const string& Name, const blob& Value) = 0;
 	template<class T>
 	typename std::enable_if<!std::is_pointer<T>::value && !std::is_integral<T>::value, bool>::type
-	SetValue(unsigned __int64 Root, const string& Name, const T& Value)
+	SetValue(const key& Root, const string& Name, const T& Value)
 	{
 		static_assert(std::is_pod<T>::value, "This template requires a POD type");
 		return SetValue(Root, Name, blob(&Value, sizeof(Value)));
 	}
 
-	virtual bool GetValue(unsigned __int64 Root, const string& Name, unsigned long long& Value) = 0;
-	virtual bool GetValue(unsigned __int64 Root, const string& Name, string &strValue) = 0;
-	virtual bool GetValue(unsigned __int64 Root, const string& Name, writable_blob& Value) = 0;
+	virtual bool GetValue(const key& Root, const string& Name, unsigned long long& Value) = 0;
+	virtual bool GetValue(const key& Root, const string& Name, string &strValue) = 0;
+	virtual bool GetValue(const key& Root, const string& Name, writable_blob& Value) = 0;
 	template<class T>
 	typename std::enable_if<!std::is_pointer<T>::value && !std::is_integral<T>::value, bool>::type
-	GetValue(unsigned __int64 Root, const string& Name, T& Value)
+	GetValue(const key& Root, const string& Name, T& Value)
 	{
 		static_assert(std::is_pod<T>::value, "This template requires a POD type");
 		writable_blob Blob(&Value, sizeof(Value));
 		return GetValue(Root, Name, Blob);
 	}
 
-	virtual bool DeleteKeyTree(unsigned __int64 KeyID) = 0;
-	virtual bool DeleteValue(unsigned __int64 Root, const string& Name) = 0;
-	virtual bool EnumKeys(unsigned __int64 Root, DWORD Index, string &strName) = 0;
-	virtual bool EnumValues(unsigned __int64 Root, DWORD Index, string &strName, DWORD& Type) = 0;
+	virtual bool DeleteKeyTree(const key& Key) = 0;
+	virtual bool DeleteValue(const key& Root, const string& Name) = 0;
+	virtual bool EnumKeys(const key& Root, DWORD Index, string &strName) = 0;
+	virtual bool EnumValues(const key& Root, DWORD Index, string &strName, DWORD& Type) = 0;
 	virtual bool Flush() = 0;
 
 protected:
 	HierarchicalConfig() {}
 	virtual ~HierarchicalConfig() {}
+
+	static key make_key(uint64_t Key) { return key(Key); }
 };
 
 struct HierarchicalConfigDeleter
@@ -154,7 +167,7 @@ struct HierarchicalConfigDeleter
 
 typedef std::unique_ptr<HierarchicalConfig, HierarchicalConfigDeleter> HierarchicalConfigUniquePtr;
 
-class ColorsConfig: public XmlConfig, virtual public transactional
+class ColorsConfig: public representable, virtual public transactional
 {
 public:
 	virtual ~ColorsConfig() {}
@@ -165,7 +178,7 @@ protected:
 	ColorsConfig() {}
 };
 
-class AssociationsConfig: public XmlConfig, virtual public transactional {
+class AssociationsConfig: public representable, virtual public transactional {
 
 public:
 
@@ -185,7 +198,7 @@ protected:
 	AssociationsConfig() {}
 };
 
-class PluginsCacheConfig: public XmlConfig, virtual public transactional
+class PluginsCacheConfig: public representable, virtual public transactional
 {
 public:
 	virtual ~PluginsCacheConfig() {}
@@ -228,7 +241,7 @@ protected:
 	PluginsCacheConfig() {}
 };
 
-class PluginsHotkeysConfig: public XmlConfig, virtual public transactional
+class PluginsHotkeysConfig: public representable, virtual public transactional
 {
 public:
 	enum HotKeyTypeEnum
@@ -250,7 +263,7 @@ protected:
 
 ENUM(history_record_type);
 
-class HistoryConfig: public XmlConfig, virtual public transactional
+class HistoryConfig: public representable, virtual public transactional
 {
 public:
 	virtual ~HistoryConfig() {}
@@ -303,14 +316,14 @@ public:
 
 	static void ClearPluginsCache();
 
-	GeneralConfig* GeneralCfg() const { return m_GeneralCfg.get(); }
-	GeneralConfig* LocalGeneralCfg() const { return m_LocalGeneralCfg.get(); }
-	ColorsConfig* ColorsCfg() const { return m_ColorsCfg.get(); }
-	AssociationsConfig* AssocConfig() const { return m_AssocConfig.get(); }
-	PluginsCacheConfig* PlCacheCfg() const { return m_PlCacheCfg.get(); }
-	PluginsHotkeysConfig* PlHotkeyCfg() const { return m_PlHotkeyCfg.get(); }
-	HistoryConfig* HistoryCfg() const { return m_HistoryCfg.get(); }
-	HistoryConfig* HistoryCfgMem() const { return m_HistoryCfgMem.get(); }
+	const std::unique_ptr<GeneralConfig>& GeneralCfg() const { return m_GeneralCfg; }
+	const std::unique_ptr<GeneralConfig>& LocalGeneralCfg() const { return m_LocalGeneralCfg; }
+	const std::unique_ptr<ColorsConfig>& ColorsCfg() const { return m_ColorsCfg; }
+	const std::unique_ptr<AssociationsConfig>& AssocConfig() const { return m_AssocConfig; }
+	const std::unique_ptr<PluginsCacheConfig>& PlCacheCfg() const { return m_PlCacheCfg; }
+	const std::unique_ptr<PluginsHotkeysConfig>& PlHotkeyCfg() const { return m_PlHotkeyCfg; }
+	const std::unique_ptr<HistoryConfig>& HistoryCfg() const { return m_HistoryCfg; }
+	const std::unique_ptr<HistoryConfig>& HistoryCfgMem() const { return m_HistoryCfgMem; }
 
 	HierarchicalConfigUniquePtr CreatePluginsConfig(const string& guid, bool Local=false);
 	HierarchicalConfigUniquePtr CreateFiltersConfig();
@@ -321,14 +334,12 @@ public:
 private:
 	template<class T> HierarchicalConfigUniquePtr CreateHierarchicalConfig(dbcheck DbId, const string& dbn, const char *xmln, bool Local = false, bool plugin = false);
 	template<class T> std::unique_ptr<T> CreateDatabase(const char *son = nullptr);
-	void TryImportDatabase(XmlConfig *p, const char *son = nullptr, bool plugin=false);
+	void TryImportDatabase(representable *p, const char *son = nullptr, bool plugin=false);
 	void CheckDatabase(class SQLiteDb *pDb);
 
 	std::vector<Thread> m_Threads;
 	std::vector<string> m_Problems;
-	std::unique_ptr<tinyxml::TiXmlDocument> m_TemplateDoc;
-	tinyxml::TiXmlElement *m_TemplateRoot;
-	int m_TemplateLoadState;
+	std::unique_ptr<representation_source> m_TemplateSource;
 	mode m_Mode;
 
 	std::unique_ptr<GeneralConfig> m_GeneralCfg;

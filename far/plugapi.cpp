@@ -2791,8 +2791,7 @@ intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS
 				}
 				else
 				{
-					Plugin* plugin = Global->CtrlObject->Plugins->FindPlugin(data->Guid);
-					if (plugin)
+					if (const auto plugin = Global->CtrlObject->Plugins->FindPlugin(data->Guid))
 					{
 						settings = AbstractSettings::CreatePluginSettings(data->Guid, Param1 == PSL_LOCAL);
 					}

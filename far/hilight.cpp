@@ -109,13 +109,13 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 {
 	if (DeleteOld)
 	{
-		if (auto root = cfg->GetKeyID(0, HighlightKeyName))
+		if (const auto root = cfg->GetKeyID(cfg->root_key(), HighlightKeyName))
 			cfg->DeleteKeyTree(root);
 	}
 
-	if (!cfg->GetKeyID(0, HighlightKeyName))
+	if (!cfg->GetKeyID(cfg->root_key(), HighlightKeyName))
 	{
-		if (auto root = cfg->CreateKey(0, HighlightKeyName))
+		if (const auto root = cfg->CreateKey(cfg->root_key(), HighlightKeyName))
 		{
 			static const wchar_t* const Masks[]=
 			{
@@ -162,15 +162,15 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 				i.CursorColor = colors::ConsoleColorToFarColor(i.InitCC);
 				MAKE_TRANSPARENT(i.CursorColor.BackgroundColor);
 
-				unsigned __int64 key = cfg->CreateKey(root, L"Group" + std::to_wstring(Index++));
-				if (!key)
+				const auto Key = cfg->CreateKey(root, L"Group" + std::to_wstring(Index++));
+				if (!Key)
 					break;
-				cfg->SetValue(key,HLS.Mask,i.Mask);
-				cfg->SetValue(key,HLS.IgnoreMask,i.IgnoreMask);
-				cfg->SetValue(key,HLS.IncludeAttributes,i.IncludeAttr);
+				cfg->SetValue(Key, HLS.Mask, i.Mask);
+				cfg->SetValue(Key, HLS.IgnoreMask, i.IgnoreMask);
+				cfg->SetValue(Key, HLS.IncludeAttributes, i.IncludeAttr);
 
-				cfg->SetValue(key, HLS.NormalColor, i.NormalColor);
-				cfg->SetValue(key, HLS.CursorColor, i.CursorColor);
+				cfg->SetValue(Key, HLS.NormalColor, i.NormalColor);
+				cfg->SetValue(Key, HLS.CursorColor, i.CursorColor);
 
 				static const wchar_t* const Names[] =
 				{
@@ -185,7 +185,7 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 				FOR(const auto& j, Names)
 				{
 					static const FarColor DefaultColor = {FCF_FG_4BIT | FCF_BG_4BIT, 0xff000000, 0x00000000};
-					cfg->SetValue(key, j, DefaultColor);
+					cfg->SetValue(Key, j, DefaultColor);
 				}
 			}
 		}
@@ -201,7 +201,7 @@ HighlightFiles::HighlightFiles()
 	UpdateCurrentTime();
 }
 
-static void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilterParams& HData, const string& Mask, int SortGroup, bool bSortGroup)
+static void LoadFilter(HierarchicalConfig *cfg, const HierarchicalConfig::key& key, FileFilterParams& HData, const string& Mask, int SortGroup, bool bSortGroup)
 {
 	//Дефолтные значения выбраны так чтоб как можно правильней загрузить
 	//настройки старых версий фара.
@@ -314,7 +314,7 @@ void HighlightFiles::InitHighlightFiles(HierarchicalConfig* cfg)
 
 	std::for_each(CONST_RANGE(GroupItems, Item)
 	{
-		if (auto root = cfg->GetKeyID(0, Item.KeyName))
+		if (auto root = cfg->GetKeyID(cfg->root_key(), Item.KeyName))
 		{
 			for (int i=0;; ++i)
 			{
@@ -802,7 +802,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 	}
 }
 
-static void SaveFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilterParams *CurHiData, bool bSortGroup)
+static void SaveFilter(HierarchicalConfig *cfg, const HierarchicalConfig::key& key, FileFilterParams *CurHiData, bool bSortGroup)
 {
 	if (bSortGroup)
 	{
@@ -855,12 +855,12 @@ void HighlightFiles::Save(bool always)
 	Changed = false;
 
 	auto cfg = Global->Db->CreateHighlightConfig();
-	auto root = cfg->GetKeyID(0, HighlightKeyName);
+	auto root = cfg->GetKeyID(cfg->root_key(), HighlightKeyName);
 
 	if (root)
 		cfg->DeleteKeyTree(root);
 
-	root = cfg->GetKeyID(0, SortGroupsKeyName);
+	root = cfg->GetKeyID(cfg->root_key(), SortGroupsKeyName);
 
 	if (root)
 		cfg->DeleteKeyTree(root);
@@ -883,14 +883,12 @@ void HighlightFiles::Save(bool always)
 
 	std::for_each(CONST_RANGE(Data, i)
 	{
-		root = cfg->CreateKey(0, i.KeyName);
-		if (root)
+		if ((root = cfg->CreateKey(cfg->root_key(), i.KeyName)))
 		{
 			for (int j = i.from; j != i.to; ++j)
 			{
-				auto key = cfg->CreateKey(root, i.GroupName + std::to_wstring(j - i.from));
-				if (key)
-					SaveFilter(cfg.get(), key, &HiData[j], i.IsSort);
+				if (const auto Key = cfg->CreateKey(root, i.GroupName + std::to_wstring(j - i.from)))
+					SaveFilter(cfg.get(), Key, &HiData[j], i.IsSort);
 				// else diagnostics
 			}
 		}

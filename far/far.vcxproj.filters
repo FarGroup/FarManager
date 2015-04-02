@@ -1010,5 +1010,8 @@
     <ClInclude Include="transactional.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="common\explicit_operator_bool.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

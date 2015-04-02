@@ -77,7 +77,8 @@ public:
 	T* get() const { return ptr.get(); }
 	T* operator->() const { return get(); }
 	T& operator*() const { return *get(); }
-	operator const void*() const { return reinterpret_cast<const void*>(static_cast<intptr_t>(ptr != nullptr)); }
+	bool operator!() const { return !ptr; }
+	EXPLICIT_OPERATOR_BOOL();
 	unique_ptr_with_ondestroy& operator=(ptr_type&& value) noexcept { OnDestroy(); ptr = std::move(value); return *this; }
 };
 

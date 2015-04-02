@@ -134,13 +134,12 @@ Shortcuts::Shortcuts()
 
 	auto cfg = Global->Db->CreateShortcutsConfig();
 
-	if (auto root = cfg->GetKeyID(0, FolderShortcutsKey))
+	if (auto root = cfg->GetKeyID(cfg->root_key(), FolderShortcutsKey))
 	{
 		for_each_cnt(RANGE(Items, i, size_t index)
 		{
 			i.clear();
-			unsigned __int64 key = cfg->GetKeyID(root, std::to_wstring(index));
-			if (key)
+			if (const auto key = cfg->GetKeyID(root, std::to_wstring(index)))
 			{
 				for(size_t j=0; ; j++)
 				{
@@ -177,40 +176,37 @@ void Shortcuts::Save()
 	if (!Changed)
 		return;
 
-	auto cfg = Global->Db->CreateShortcutsConfig();
-	unsigned __int64 root = cfg->GetKeyID(0,FolderShortcutsKey);
+	const auto cfg = Global->Db->CreateShortcutsConfig();
+	auto root = cfg->GetKeyID(cfg->root_key(), FolderShortcutsKey);
 	if (root)
 		cfg->DeleteKeyTree(root);
 
-	root = cfg->CreateKey(0,FolderShortcutsKey);
-
-	if (root)
+	if ((root = cfg->CreateKey(cfg->root_key(), FolderShortcutsKey)))
 	{
 		for_each_cnt(CONST_RANGE(Items, i, size_t index)
 		{
-			auto key = cfg->CreateKey(root, std::to_wstring(index));
-			if (key)
+			if (const auto Key = cfg->CreateKey(root, std::to_wstring(index)))
 			{
 				for_each_cnt(CONST_RANGE(i, j, size_t index)
 				{
 					const auto sIndex = std::to_wstring(index);
 
-					cfg->SetValue(key, RecTypeName[PSCR_RT_SHORTCUT] + sIndex, j.strFolder);
-					cfg->SetValue(key, RecTypeName[PSCR_RT_NAME] + sIndex, j.strName);
+					cfg->SetValue(Key, RecTypeName[PSCR_RT_SHORTCUT] + sIndex, j.strFolder);
+					cfg->SetValue(Key, RecTypeName[PSCR_RT_NAME] + sIndex, j.strName);
 
 					if(j.PluginGuid != FarGuid)
 					{
-						cfg->SetValue(key, RecTypeName[PSCR_RT_PLUGINGUID] + sIndex, GuidToStr(j.PluginGuid));
+						cfg->SetValue(Key, RecTypeName[PSCR_RT_PLUGINGUID] + sIndex, GuidToStr(j.PluginGuid));
 					}
 
 					if(!j.strPluginFile.empty())
 					{
-						cfg->SetValue(key, RecTypeName[PSCR_RT_PLUGINFILE] + sIndex, j.strPluginFile);
+						cfg->SetValue(Key, RecTypeName[PSCR_RT_PLUGINFILE] + sIndex, j.strPluginFile);
 					}
 
 					if(!j.strPluginData.empty())
 					{
-						cfg->SetValue(key, RecTypeName[PSCR_RT_PLUGINDATA] + sIndex, j.strPluginData);
+						cfg->SetValue(Key, RecTypeName[PSCR_RT_PLUGINDATA] + sIndex, j.strPluginData);
 					}
 				});
 			}

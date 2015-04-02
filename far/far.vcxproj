@@ -508,6 +508,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\as_string.hpp" />
     <ClInclude Include="common\enum.hpp" />
     <ClInclude Include="common\enumerator.hpp" />
+    <ClInclude Include="common\explicit_operator_bool.hpp" />
     <ClInclude Include="common\function_traits.hpp" />
     <ClInclude Include="common\iterator_range.hpp" />
     <ClInclude Include="common\make_vector.hpp" />

@@ -1978,7 +1978,7 @@ void Options::InitRoamingCFG()
 	};
 
 	assert(Config.empty());
-	Config.emplace_back(farconfig(_CFG, ARRAYSIZE(_CFG), Global->Db->GeneralCfg()));
+	Config.emplace_back(farconfig(_CFG, ARRAYSIZE(_CFG), Global->Db->GeneralCfg().get()));
 }
 
 void Options::InitLocalCFG()
@@ -1996,7 +1996,7 @@ void Options::InitLocalCFG()
 	};
 
 	assert(Config.size() == 1);
-	Config.emplace_back(farconfig(_CFG, ARRAYSIZE(_CFG), Global->Db->LocalGeneralCfg()));
+	Config.emplace_back(farconfig(_CFG, ARRAYSIZE(_CFG), Global->Db->LocalGeneralCfg().get()));
 }
 
 template<class container, class pred>
@@ -2440,28 +2440,28 @@ void Options::ReadPanelModes()
 {
 	auto cfg = Global->Db->CreatePanelModeConfig();
 
-	unsigned __int64 root = 0;
+	auto root = HierarchicalConfig::root_key();
 
 	const auto ReadMode = [&](REFERENCE(m_ViewSettings) i, size_t Index) -> bool
 	{
-		unsigned __int64 id = cfg->GetKeyID(root, std::to_wstring(Index));
+		const auto Key = cfg->GetKeyID(root, std::to_wstring(Index));
 
-		if (!id)
+		if (!Key)
 		{
 			return false;
 		}
 		string strColumnTitles, strColumnWidths;
-		cfg->GetValue(id, ModesColumnTitlesName, strColumnTitles);
-		cfg->GetValue(id, ModesColumnWidthsName, strColumnWidths);
+		cfg->GetValue(Key, ModesColumnTitlesName, strColumnTitles);
+		cfg->GetValue(Key, ModesColumnWidthsName, strColumnWidths);
 
 		string strStatusColumnTitles, strStatusColumnWidths;
-		cfg->GetValue(id, ModesStatusColumnTitlesName, strStatusColumnTitles);
-		cfg->GetValue(id, ModesStatusColumnWidthsName, strStatusColumnWidths);
+		cfg->GetValue(Key, ModesStatusColumnTitlesName, strStatusColumnTitles);
+		cfg->GetValue(Key, ModesStatusColumnWidthsName, strStatusColumnWidths);
 
 		unsigned __int64 Flags=0;
-		cfg->GetValue(id, ModesFlagsName, Flags);
+		cfg->GetValue(Key, ModesFlagsName, Flags);
 
-		cfg->GetValue(id, ModesNameName, i.Name);
+		cfg->GetValue(Key, ModesNameName, i.Name);
 
 		if (!strColumnTitles.empty())
 			TextToViewSettings(strColumnTitles, strColumnWidths, i.PanelColumns);
@@ -2476,7 +2476,7 @@ void Options::ReadPanelModes()
 
 	for_each_cnt(m_ViewSettings.begin(), m_ViewSettings.begin() + predefined_panel_modes_count, ReadMode);
 
-	root = cfg->GetKeyID(0, CustomModesKeyName);
+	root = cfg->GetKeyID(cfg->root_key(), CustomModesKeyName);
 
 	if (root)
 	{
@@ -2499,8 +2499,8 @@ void Options::SavePanelModes(bool always)
 	if (!always && !m_ViewSettingsChanged)
 		return;
 
-	auto cfg = Global->Db->CreatePanelModeConfig();
-	unsigned __int64 root = 0;
+	const auto cfg = Global->Db->CreatePanelModeConfig();
+	auto root = cfg->root_key();
 
 	const auto SaveMode = [&](CONST_REFERENCE(ViewSettings) i, size_t Index)
 	{
@@ -2510,27 +2510,25 @@ void Options::SavePanelModes(bool always)
 		ViewSettingsToText(i.PanelColumns, strColumnTitles, strColumnWidths);
 		ViewSettingsToText(i.StatusColumns, strStatusColumnTitles, strStatusColumnWidths);
 
-		unsigned __int64 id = cfg->CreateKey(root, std::to_wstring(Index));
-		if (id)
+		if(const auto Key = cfg->CreateKey(root, std::to_wstring(Index)))
 		{
-			cfg->SetValue(id, ModesNameName, i.Name);
-			cfg->SetValue(id, ModesColumnTitlesName, strColumnTitles);
-			cfg->SetValue(id, ModesColumnWidthsName, strColumnWidths);
-			cfg->SetValue(id, ModesStatusColumnTitlesName, strStatusColumnTitles);
-			cfg->SetValue(id, ModesStatusColumnWidthsName, strStatusColumnWidths);
-			cfg->SetValue(id, ModesFlagsName, i.Flags);
+			cfg->SetValue(Key, ModesNameName, i.Name);
+			cfg->SetValue(Key, ModesColumnTitlesName, strColumnTitles);
+			cfg->SetValue(Key, ModesColumnWidthsName, strColumnWidths);
+			cfg->SetValue(Key, ModesStatusColumnTitlesName, strStatusColumnTitles);
+			cfg->SetValue(Key, ModesStatusColumnWidthsName, strStatusColumnWidths);
+			cfg->SetValue(Key, ModesFlagsName, i.Flags);
 		}
 	};
 
 	for_each_cnt(ViewSettings.cbegin(), ViewSettings.cbegin() + predefined_panel_modes_count, SaveMode);
 
-	root = cfg->GetKeyID(0, CustomModesKeyName);
-	if (root)
+	if ((root = cfg->GetKeyID(cfg->root_key(), CustomModesKeyName)))
 	{
 		cfg->DeleteKeyTree(root);
 	}
-	root = cfg->CreateKey(0, CustomModesKeyName);
-	if (root)
+
+	if ((root = cfg->CreateKey(cfg->root_key(), CustomModesKeyName)))
 	{
 		for_each_cnt(ViewSettings.cbegin() + predefined_panel_modes_count, ViewSettings.cend(), SaveMode);
 	}
