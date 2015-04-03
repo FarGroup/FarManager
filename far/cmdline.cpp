@@ -882,6 +882,7 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 
 	if (!SeparateWindow && Global->CtrlObject->Plugins->ProcessCommandLine(CmdLine))
 	{
+		Refresh();
 		return -1;
 	}
 
@@ -1167,6 +1168,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 
 		if (PtrCmd && *PtrCmd && Global->CtrlObject->Plugins->ProcessCommandLine(PtrCmd))
 		{
+			Refresh();
 			return TRUE;
 		}
 
