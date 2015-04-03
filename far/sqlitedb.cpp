@@ -367,3 +367,13 @@ bool SQLiteDb::EnableForeignKeysConstraints() const
 {
 	return Exec("PRAGMA foreign_keys = ON;");
 }
+
+int SQLiteDb::GetLastErrorCode() const
+{
+	return sqlite::sqlite3_errcode(m_Db.get());
+}
+
+string SQLiteDb::GetLastErrorString() const
+{
+	return wide(sqlite::sqlite3_errmsg(m_Db.get()));
+}

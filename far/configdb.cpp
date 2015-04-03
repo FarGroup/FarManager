@@ -165,7 +165,7 @@ public:
 
 		static const stmt_init_t Statements[] =
 		{
-			{ stmtUpdateValue, L"UPDATE general_config SET value=?1 WHERE key=?2 AND name=?3;" },
+			{ stmtUpdateValue, L"UPDATE general_config SET value=?3 WHERE key=?1 AND name=?2;" },
 			{ stmtInsertValue, L"INSERT INTO general_config VALUES (?1,?2,?3);" },
 			{ stmtGetValue, L"SELECT value FROM general_config WHERE key=?1 AND name=?2;" },
 			{ stmtDelValue, L"DELETE FROM general_config WHERE key=?1 AND name=?2;" },
@@ -335,7 +335,7 @@ private:
 	template<class T>
 	bool SetValueT(const string& Key, const string& Name, const T Value)
 	{
-		const auto StmtStepAndReset = [&](int StmtId) { return m_Statements[StmtId].Bind(Value, Key, Name).StepAndReset(); };
+		const auto StmtStepAndReset = [&](statement_id StmtId) { return m_Statements[StmtId].Bind(Key, Name, Value).StepAndReset(); };
 
 		bool b = StmtStepAndReset(stmtUpdateValue);
 		if (!b || !Changes())
@@ -810,7 +810,7 @@ public:
 
 		static const stmt_init_t Statements[] =
 		{
-			{ stmtUpdateValue, L"UPDATE colors SET value=?1 WHERE name=?2;" },
+			{ stmtUpdateValue, L"UPDATE colors SET value=?2 WHERE name=?1;" },
 			{ stmtInsertValue, L"INSERT INTO colors VALUES (?1,?2);" },
 			{ stmtGetValue, L"SELECT value FROM colors WHERE name=?1;" },
 			{ stmtDelValue, L"DELETE FROM colors WHERE name=?1;" },
@@ -825,7 +825,7 @@ public:
 
 	virtual bool SetValue(const string& Name, const FarColor& Value) override
 	{
-		const auto StmtStepAndReset = [&](int StmtId) { return m_Statements[StmtId].Bind(blob(&Value, sizeof(Value)), Name).StepAndReset(); };
+		const auto StmtStepAndReset = [&](int StmtId) { return m_Statements[StmtId].Bind(Name, blob(&Value, sizeof(Value))).StepAndReset(); };
 
 		bool b = StmtStepAndReset(stmtUpdateValue);
 		if (!b || !Changes())

@@ -183,7 +183,7 @@ inline bool codepages::IsPositionStandard(UINT position)
 // Проверяем попадает или нет позиция в диапазон избранных кодовых страниц (правильность работы для разделителей не гарантируется)
 inline bool codepages::IsPositionFavorite(UINT position)
 {
-	return favoriteCodePages && position < (UINT)CodePagesMenu->GetItemCount() - normalCodePages;
+	return !IsPositionStandard(position) && !IsPositionNormal(position);
 }
 
 // Проверяем попадает или нет позиция в диапазон обыкновенных кодовых страниц (правильность работы для разделителей не гарантируется)

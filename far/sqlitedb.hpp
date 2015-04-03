@@ -161,6 +161,10 @@ protected:
 	virtual bool EndTransaction() override;
 	virtual bool RollbackTransaction() override;
 
+	// TODO: use in log
+	int GetLastErrorCode() const;
+	string GetLastErrorString() const;
+
 	string strPath;
 	string m_Name;
 
