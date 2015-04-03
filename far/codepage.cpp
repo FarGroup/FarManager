@@ -1264,10 +1264,10 @@ unfinished:
 				else if ( c1 < 0xF0 )
 				{ // legal 3-byte
 					wc = ((c1 & 0x0F) << 12) | ((c2 & 0x3F) << 6) | (c3 & 0x3F);
-					if (wc - 0xD800 <= 0xDFFF - 0xD800) // invalid: surrogate area code
+					if (wc >= 0xD800 && wc <= 0xDFFF) // invalid: surrogate area code
 						wc = InvalidChar(c1);
 					else
-					ic += 2;
+						ic += 2;
 				}
 				else
 				{ // 4-byte
