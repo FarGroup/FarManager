@@ -606,7 +606,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 		std::for_each(RANGE(Result, i)
 		{
 			auto& strDestStr = i.first;
-			const auto strExpandedDestStr = api::env::expand_strings(strDestStr);
+			const auto strExpandedDestStr = os::env::expand_strings(strDestStr);
 			strDestStr.clear();
 			static const simple_pair<wchar_t, wchar_t> ChrFmt[] =
 			{
@@ -675,7 +675,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 									if (it + 1 != strExpandedDestStr.cend())
 									{
 										wchar_t rb = *(++it);
-										if (Global->IsUserAdmin())
+										if (os::security::is_admin())
 										{
 											strDestStr += lb;
 											strDestStr += MSG(MConfigCmdlinePromptFormatAdmin);
@@ -1006,7 +1006,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			Global->ScrBuf->Flush();
 			Console().SetTextAttributes(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 			string strOut(L"\n");
-			FOR(const auto& i, api::env::enum_strings())
+			FOR(const auto& i, os::env::enum_strings())
 			{
 				size_t ItemLength = wcslen(i);
 				if (!StrCmpNI(i, strCmdLine.data(), strCmdLine.size()))
@@ -1028,13 +1028,13 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		if (strCmdLine.size() == pos+1) //set var=
 		{
 			strCmdLine.resize(pos);
-			api::env::delete_variable(strCmdLine);
+			os::env::delete_variable(strCmdLine);
 		}
 		else
 		{
-			const auto strExpandedStr = api::env::expand_strings(strCmdLine.substr(pos + 1));
+			const auto strExpandedStr = os::env::expand_strings(strCmdLine.substr(pos + 1));
 			strCmdLine.resize(pos);
-			api::env::set_variable(strCmdLine, strExpandedStr);
+			os::env::set_variable(strCmdLine, strExpandedStr);
 		}
 
 		return TRUE;
@@ -1073,7 +1073,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		if (IntChDir(strCmdLine,true,SilentInt))
 		{
 			ppstack.push(PushDir);
-			api::env::set_variable(L"FARDIRSTACK", PushDir);
+			os::env::set_variable(L"FARDIRSTACK", PushDir);
 		}
 		else
 		{
@@ -1095,11 +1095,11 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			ppstack.pop();
 			if (!ppstack.empty())
 			{
-				api::env::set_variable(L"FARDIRSTACK", ppstack.top());
+				os::env::set_variable(L"FARDIRSTACK", ppstack.top());
 			}
 			else
 			{
-				api::env::delete_variable(L"FARDIRSTACK");
+				os::env::delete_variable(L"FARDIRSTACK");
 			}
 			return Ret;
 		}
@@ -1110,7 +1110,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	else if (IsCommand(L"CLRD",false))
 	{
 		clear_and_shrink(ppstack);
-		api::env::delete_variable(L"FARDIRSTACK");
+		os::env::delete_variable(L"FARDIRSTACK");
 		return TRUE;
 	}
 	/*
@@ -1293,9 +1293,9 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	if (SetPanel->GetType() != FILE_PANEL && Global->CtrlObject->Cp()->PassivePanel()->GetType() == FILE_PANEL)
 		SetPanel=Global->CtrlObject->Cp()->PassivePanel();
 
-	string strExpandedDir = Unquote(api::env::expand_strings(CmdLine));
+	string strExpandedDir = Unquote(os::env::expand_strings(CmdLine));
 
-	if (SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir[0] == L'~' && ((strExpandedDir.size() == 1 && !api::fs::exists(strExpandedDir)) || IsSlash(strExpandedDir[1])))
+	if (SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir[0] == L'~' && ((strExpandedDir.size() == 1 && !os::fs::exists(strExpandedDir)) || IsSlash(strExpandedDir[1])))
 	{
 		if (Global->Opt->Exec.UseHomeDir && !Global->Opt->Exec.strHomeDir.empty())
 		{
@@ -1308,7 +1308,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 			}
 
 			DeleteEndSlash(strTemp);
-			strExpandedDir = api::env::expand_strings(strTemp);
+			strExpandedDir = os::env::expand_strings(strTemp);
 		}
 	}
 
@@ -1316,9 +1316,9 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	ParsePath(strExpandedDir, &DirOffset);
 	if (strExpandedDir.find_first_of(L"?*", DirOffset) != string::npos) // это маска?
 	{
-		api::FAR_FIND_DATA wfd;
+		os::FAR_FIND_DATA wfd;
 
-		if (api::GetFindDataEx(strExpandedDir, wfd))
+		if (os::GetFindDataEx(strExpandedDir, wfd))
 		{
 			size_t pos;
 
@@ -1335,7 +1335,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 		Сначала проверяем есть ли такая "обычная" директория.
 		если уж нет, то тогда начинаем думать, что это директория плагинная
 	*/
-	if (api::fs::is_directory(strExpandedDir) && IsAbsolutePath(strExpandedDir))
+	if (os::fs::is_directory(strExpandedDir) && IsAbsolutePath(strExpandedDir))
 	{
 		ReplaceSlashToBackslash(strExpandedDir);
 		SetPanel->SetCurDir(strExpandedDir,true);

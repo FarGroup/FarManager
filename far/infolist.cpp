@@ -272,13 +272,13 @@ void InfoList::DisplayObject()
 		m_CurDir = AnotherPanel->GetCurDir();
 
 		if (m_CurDir.empty())
-			api::GetCurrentDirectory(m_CurDir);
+			os::GetCurrentDirectory(m_CurDir);
 
 		/*
 			Корректно отображать инфу при заходе в Juction каталог
 			Рут-диск может быть другим
 		*/
-		if (api::fs::file_status(m_CurDir).check(FILE_ATTRIBUTE_REPARSE_POINT))
+		if (os::fs::file_status(m_CurDir).check(FILE_ATTRIBUTE_REPARSE_POINT))
 		{
 			string strJuncName;
 
@@ -291,7 +291,7 @@ void InfoList::DisplayObject()
 		else
 			GetPathRoot(m_CurDir, strDriveRoot);
 
-		if (api::GetVolumeInformation(strDriveRoot,&strVolumeName,
+		if (os::GetVolumeInformation(strDriveRoot,&strVolumeName,
 		                            &VolumeNumber,&MaxNameLength,&FileSystemFlags,
 		                            &strFileSystemName))
 		{
@@ -343,7 +343,7 @@ void InfoList::DisplayObject()
 			{
 				case DRIVE_REMOTE:
 				{
-					api::WNetGetConnection(strDriveRoot, strAssocPath);
+					os::WNetGetConnection(strDriveRoot, strAssocPath);
 				}
 				break;
 
@@ -373,7 +373,7 @@ void InfoList::DisplayObject()
 		/* #2.2 - disk info: size */
 		unsigned __int64 TotalSize, UserFree;
 
-		if (api::GetDiskSize(m_CurDir,&TotalSize, nullptr, &UserFree))
+		if (os::GetDiskSize(m_CurDir,&TotalSize, nullptr, &UserFree))
 		{
 			GotoXY(m_X1+2,CurY++);
 			PrintText(MInfoDiskTotal);
@@ -945,9 +945,9 @@ bool InfoList::ShowDirDescription(int YPos)
 		string strFullDizName;
 		strFullDizName = strDizDir;
 		strFullDizName += strArgName;
-		api::FAR_FIND_DATA FindData;
+		os::FAR_FIND_DATA FindData;
 
-		if (!api::GetFindDataEx(strFullDizName, FindData))
+		if (!os::GetFindDataEx(strFullDizName, FindData))
 			continue;
 
 		CutToSlash(strFullDizName, false);

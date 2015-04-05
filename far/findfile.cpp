@@ -92,7 +92,7 @@ struct ArcListItem
 // Список найденных файлов. Индекс из списка хранится в меню.
 struct FindListItem
 {
-	api::FAR_FIND_DATA FindData;
+	os::FAR_FIND_DATA FindData;
 	ArcListItem* Arc;
 	DWORD Used;
 	void* Data;
@@ -232,7 +232,7 @@ public:
 		return ArcList.back();
 	}
 
-	FindListItem& AddFindListItem(const api::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData)
+	FindListItem& AddFindListItem(const os::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData)
 	{
 		SCOPED_ACTION(CriticalSectionLock)(DataCS);
 
@@ -928,7 +928,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const api::FAR_FIND_DATA& FindData, const string& DestPath, string &strResultName, UserDataItem *UserData)
+bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const os::FAR_FIND_DATA& FindData, const string& DestPath, string &strResultName, UserDataItem *UserData)
 {
 	_ALGO(CleverSysLog clv(L"FindFiles::GetPluginFile()"));
 	OpenPanelInfo Info;
@@ -1018,7 +1018,7 @@ bool FindFiles::LookForString(const string& Name)
 	if (!(findStringCount = strFindStr.size()))
 		return true;
 
-	api::fs::file file;
+	os::fs::file file;
 	// Открываем файл
 	if(!file.Open(Name, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 	{
@@ -1326,7 +1326,7 @@ bool FindFiles::IsFileIncluded(PluginPanelItem* FileItem, const string& FullName
 					{
 						string strTempDir;
 						FarMkTempEx(strTempDir); // А проверка на nullptr???
-						api::CreateDirectory(strTempDir,nullptr);
+						os::CreateDirectory(strTempDir,nullptr);
 
 						bool GetFileResult=false;
 						{
@@ -1339,7 +1339,7 @@ bool FindFiles::IsFileIncluded(PluginPanelItem* FileItem, const string& FullName
 						}
 						else
 						{
-							api::RemoveDirectory(strTempDir);
+							os::RemoveDirectory(strTempDir);
 						}
 					}
 					else
@@ -1644,13 +1644,13 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 								ClosePanel = true;
 							}
 							FarMkTempEx(strTempDir);
-							api::CreateDirectory(strTempDir, nullptr);
+							os::CreateDirectory(strTempDir, nullptr);
 							SCOPED_ACTION(CriticalSectionLock)(PluginCS);
 							UserDataItem UserData = {FindItem->Data,FindItem->FreeData};
 							bool bGet=GetPluginFile(FindItem->Arc,FindItem->FindData,strTempDir,strSearchFileName,&UserData);
 							if (!bGet)
 							{
-								api::RemoveDirectory(strTempDir);
+								os::RemoveDirectory(strTempDir);
 
 								if (ClosePanel)
 								{
@@ -1674,11 +1674,11 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					if (real_name)
 					{
 						strSearchFileName = FindItem->FindData.strFileName;
-						if (!api::fs::exists(strSearchFileName) && api::fs::exists(FindItem->FindData.strAlternateFileName))
+						if (!os::fs::exists(strSearchFileName) && os::fs::exists(FindItem->FindData.strAlternateFileName))
 							strSearchFileName = FindItem->FindData.strAlternateFileName;
 					}
 
-					if (api::fs::exists(strSearchFileName))
+					if (os::fs::exists(strSearchFileName))
 					{
 						const auto strOldTitle = Console().GetTitle();
 
@@ -1980,7 +1980,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const api::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData)
+void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData)
 {
 	if (!Dlg)
 		return;
@@ -2197,7 +2197,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const api::FAR
 
 void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, PluginPanelItem& FindData)
 {
-	api::FAR_FIND_DATA fdata;
+	os::FAR_FIND_DATA fdata;
 	PluginPanelItemToFindDataEx(&FindData, &fdata);
 	AddMenuRecord(Dlg,FullName, fdata, FindData.UserData.Data, FindData.UserData.FreeData);
 	FindData.UserData.FreeData = nullptr; //передано в FINDLIST
@@ -2305,13 +2305,13 @@ void FindFiles::DoScanTree(Dialog* Dlg, const string& strRoot)
 
 		ScTree.SetFindPath(strCurRoot,L"*");
 		itd->SetFindMessage(strCurRoot);
-		api::FAR_FIND_DATA FindData;
+		os::FAR_FIND_DATA FindData;
 		string strFullName;
 
 		while (!StopEvent.Signaled() && ScTree.GetNextName(&FindData,strFullName))
 		{
 			HANDLE hFindStream = INVALID_HANDLE_VALUE;
-			SCOPE_EXIT{ if (hFindStream != INVALID_HANDLE_VALUE) api::FindStreamClose(hFindStream); };
+			SCOPE_EXIT{ if (hFindStream != INVALID_HANDLE_VALUE) os::FindStreamClose(hFindStream); };
 
 			Sleep(0);
 			PauseEvent.Wait();
@@ -2323,7 +2323,7 @@ void FindFiles::DoScanTree(Dialog* Dlg, const string& strRoot)
 
 			if (Global->Opt->FindOpt.FindAlternateStreams)
 			{
-				hFindStream=api::FindFirstStream(strFullName,FindStreamInfoStandard,&sd);
+				hFindStream=os::FindFirstStream(strFullName,FindStreamInfoStandard,&sd);
 			}
 
 			// process default streams first
@@ -2338,7 +2338,7 @@ void FindFiles::DoScanTree(Dialog* Dlg, const string& strRoot)
 					{
 						if (!FirstCall)
 						{
-							if (!api::FindNextStream(hFindStream,&sd))
+							if (!os::FindNextStream(hFindStream,&sd))
 							{
 								break;
 							}
@@ -2545,7 +2545,7 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 	if (SearchMode==FINDAREA_INPATH)
 	{
 		string strPathEnv;
-		api::env::get_variable(L"PATH", strPathEnv);
+		os::env::get_variable(L"PATH", strPathEnv);
 		InitString = strPathEnv;
 	}
 	else if (SearchMode==FINDAREA_ROOT)
@@ -2557,14 +2557,14 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 	{
 		std::list<string> Volumes;
 		string strGuidVolime;
-		auto Strings = api::GetLogicalDriveStrings();
+		auto Strings = os::GetLogicalDriveStrings();
 		std::for_each(CONST_RANGE(Strings, i)
 		{
 			int DriveType=FAR_GetDriveType(i);
 
 			if (DriveType != DRIVE_REMOVABLE && !IsDriveTypeCDROM(DriveType) && (DriveType != DRIVE_REMOTE || SearchMode != FINDAREA_ALL_BUTNETWORK))
 			{
-				if(api::GetVolumeNameForVolumeMountPoint(i, strGuidVolime))
+				if(os::GetVolumeNameForVolumeMountPoint(i, strGuidVolime))
 				{
 					Volumes.emplace_back(strGuidVolime);
 				}
@@ -2911,7 +2911,7 @@ bool FindFiles::FindFilesProcess()
 					if (Length>1 && IsSlash(strFileName[Length-1]) && strFileName[Length-2] != L':')
 						strFileName.pop_back();
 
-					if (!api::fs::exists(strFileName) && (GetLastError() != ERROR_ACCESS_DENIED))
+					if (!os::fs::exists(strFileName) && (GetLastError() != ERROR_ACCESS_DENIED))
 						break;
 
 					const wchar_t *NamePtr = PointToName(strFileName);

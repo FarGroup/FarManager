@@ -199,7 +199,7 @@ int FolderTree::ProcessKey(const Manager::Key& Key)
 		case KEY_ENTER:
 			strNewFolder = Tree->GetCurDir();
 
-			if (api::fs::exists(strNewFolder))
+			if (os::fs::exists(strNewFolder))
 			{
 				Global->WindowManager->DeleteWindow();
 				SetExitCode(XC_MODIFIED);

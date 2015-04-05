@@ -47,11 +47,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 const wchar_t LangFileMask[] = L"*.lng";
 
-bool OpenLangFile(api::fs::file& LangFile, const string& Path,const string& Mask,const string& Language, string &strFileName, uintptr_t &nCodePage, bool StrongLang,string *pstrLangName)
+bool OpenLangFile(os::fs::file& LangFile, const string& Path,const string& Mask,const string& Language, string &strFileName, uintptr_t &nCodePage, bool StrongLang,string *pstrLangName)
 {
 	strFileName.clear();
 	string strFullName, strEngFileName;
-	api::FAR_FIND_DATA FindData;
+	os::FAR_FIND_DATA FindData;
 	string strLangName;
 	ScanTree ScTree(false, false);
 	ScTree.SetFindPath(Path,Mask);
@@ -103,7 +103,7 @@ bool OpenLangFile(api::fs::file& LangFile, const string& Path,const string& Mask
 }
 
 
-int GetLangParam(api::fs::file& LangFile,const string& ParamName,string *strParam1, string *strParam2, UINT nCodePage)
+int GetLangParam(os::fs::file& LangFile,const string& ParamName,string *strParam1, string *strParam2, UINT nCodePage)
 {
 	string strFullParamName = L".";
 	strFullParamName += ParamName;
@@ -178,13 +178,13 @@ static bool SelectLanguage(bool HelpLanguage)
 	LangMenu->SetFlags(VMENU_WRAPMODE);
 	LangMenu->SetPosition(ScrX/2-8+5*HelpLanguage,ScrY/2-4+2*HelpLanguage,0,0);
 	string strFullName;
-	api::FAR_FIND_DATA FindData;
+	os::FAR_FIND_DATA FindData;
 	ScanTree ScTree(false, false);
 	ScTree.SetFindPath(Global->g_strFarPath, Mask);
 
 	while (ScTree.GetNextName(&FindData,strFullName))
 	{
-		api::fs::file LangFile;
+		os::fs::file LangFile;
 		if (!LangFile.Open(strFullName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
 			continue;
 
@@ -233,7 +233,7 @@ bool SelectHelpLanguage() {return SelectLanguage(true);}
   + Ќовый метод, дл€ получени€ параметров дл€ .Options
    .Options <KeyName>=<Value>
 */
-int GetOptionsParam(api::fs::file& SrcFile,const wchar_t *KeyName,string &strValue, UINT nCodePage)
+int GetOptionsParam(os::fs::file& SrcFile,const wchar_t *KeyName,string &strValue, UINT nCodePage)
 {
 	int Length=StrLength(L".Options");
 	const auto CurFilePos = SrcFile.GetPointer();
@@ -328,7 +328,7 @@ void Language::init(const string& Path, int CountNeed)
 
 	uintptr_t nCodePage = CP_OEMCP;
 	string strLangName = Global->Opt->strLanguage.Get();
-	api::fs::file LangFile;
+	os::fs::file LangFile;
 
 	if (!OpenLangFile(LangFile, Path, LangFileMask, Global->Opt->strLanguage, m_FileName, nCodePage, false, &strLangName))
 	{

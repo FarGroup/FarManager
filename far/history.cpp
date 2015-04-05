@@ -70,17 +70,17 @@ History::~History()
 
 void History::CompactHistory()
 {
-	SCOPED_ACTION(auto)(Global->Db->HistoryCfg()->ScopedTransaction());
+	SCOPED_ACTION(auto)(ConfigProvider().HistoryCfg()->ScopedTransaction());
 
-	Global->Db->HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_CMD, L"", Global->Opt->HistoryLifetime, Global->Opt->HistoryCount);
-	Global->Db->HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_FOLDER, L"", Global->Opt->FoldersHistoryLifetime, Global->Opt->FoldersHistoryCount);
-	Global->Db->HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_VIEW, L"", Global->Opt->ViewHistoryLifetime, Global->Opt->ViewHistoryCount);
+	ConfigProvider().HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_CMD, L"", Global->Opt->HistoryLifetime, Global->Opt->HistoryCount);
+	ConfigProvider().HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_FOLDER, L"", Global->Opt->FoldersHistoryLifetime, Global->Opt->FoldersHistoryCount);
+	ConfigProvider().HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_VIEW, L"", Global->Opt->ViewHistoryLifetime, Global->Opt->ViewHistoryCount);
 
 	DWORD index=0;
 	string strName;
-	while (Global->Db->HistoryCfg()->EnumLargeHistories(index++, Global->Opt->DialogsHistoryCount, HISTORYTYPE_DIALOG, strName))
+	while (ConfigProvider().HistoryCfg()->EnumLargeHistories(index++, Global->Opt->DialogsHistoryCount, HISTORYTYPE_DIALOG, strName))
 	{
-		Global->Db->HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_DIALOG, strName, Global->Opt->DialogsHistoryLifetime, Global->Opt->DialogsHistoryCount);
+		ConfigProvider().HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_DIALOG, strName, Global->Opt->DialogsHistoryLifetime, Global->Opt->DialogsHistoryCount);
 	}
 }
 
@@ -372,10 +372,10 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 							{
 								if (!Global->CtrlObject->Plugins->FindPlugin(HGuid))
 									kill=true;
-								else if (!strHFile.empty() && !api::fs::exists(strHFile))
+								else if (!strHFile.empty() && !os::fs::exists(strHFile))
 									kill=true;
 							}
-							else if (!api::fs::exists(strHName))
+							else if (!os::fs::exists(strHName))
 								kill=true;
 
 							if(kill)
@@ -533,7 +533,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 				return HRT_CANCEL;
 
 			if (SelectedRecordType != HR_EXTERNAL && SelectedRecordType != HR_EXTERNAL_WAIT
-				&& RetCode != HRT_CTRLENTER && ((m_TypeHistory == HISTORYTYPE_FOLDER && strSelectedRecordGuid.empty()) || m_TypeHistory == HISTORYTYPE_VIEW) && !api::fs::exists(strSelectedRecordName))
+				&& RetCode != HRT_CTRLENTER && ((m_TypeHistory == HISTORYTYPE_FOLDER && strSelectedRecordGuid.empty()) || m_TypeHistory == HISTORYTYPE_VIEW) && !os::fs::exists(strSelectedRecordName))
 			{
 				SetLastError(ERROR_FILE_NOT_FOUND);
 				Global->CatchError();
@@ -713,5 +713,5 @@ bool History::EqualType(history_record_type Type1, history_record_type Type2) co
 
 const std::unique_ptr<HistoryConfig>& History::HistoryCfgRef() const
 {
-	return m_EnableSave? Global->Db->HistoryCfg() : Global->Db->HistoryCfgMem();
+	return m_EnableSave? ConfigProvider().HistoryCfg() : ConfigProvider().HistoryCfgMem();
 }

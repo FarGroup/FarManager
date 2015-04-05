@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "synchro.hpp"
 #include "components.hpp"
+#include "strmix.hpp"
 
 static string getInfo() { return L"SQLite, version " + wide(SQLITE_VERSION); }
 SCOPED_ACTION(components::component)(getInfo);
@@ -169,7 +170,7 @@ SQLiteDb::~SQLiteDb()
 
 static bool can_create_file(const string& fname)
 {
-	return api::fs::file().Open(fname, GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS, FILE_FLAG_DELETE_ON_CLOSE);
+	return os::fs::file().Open(fname, GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS, FILE_FLAG_DELETE_ON_CLOSE);
 }
 
 
@@ -204,7 +205,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 	if (!Global->Opt->ReadOnlyConfig || mem_db)
 	{
 		if (!mem_db && db_exists < 0) {
-			db_exists = api::fs::is_file(strPath)? +1 : 0;
+			db_exists = os::fs::is_file(strPath)? +1 : 0;
 		}
 		bool ret = OpenDatabase(m_Db, strPath, v1_opener);
 		if (ret)
@@ -219,7 +220,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 
 	bool ok = true, copied = false;
 
-	if (api::fs::is_file(strPath))
+	if (os::fs::is_file(strPath))
 	{
 		database_ptr db_source;
 
@@ -230,10 +231,10 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 		if (WAL && !can_create_file(strPath + L"." + GuidToStr(Id))) // can't open db -- copy to %TEMP%
 		{
 			FormatString strTmp;
-			api::GetTempPath(strTmp);
+			os::GetTempPath(strTmp);
 			strTmp << GetCurrentProcessId() << L'-' << DbFile;
-			ok = copied = FALSE != api::CopyFileEx(strPath, strTmp, nullptr, nullptr, nullptr, 0);
-			api::SetFileAttributes(strTmp, FILE_ATTRIBUTE_NORMAL);
+			ok = copied = FALSE != os::CopyFileEx(strPath, strTmp, nullptr, nullptr, nullptr, 0);
+			os::SetFileAttributes(strTmp, FILE_ATTRIBUTE_NORMAL);
 			if (ok)
 				strPath = strTmp;
 			ok = ok && OpenDatabase(db_source, strPath, v1_opener);
@@ -258,7 +259,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 	}
 
 	if (copied)
-		api::DeleteFile(strPath);
+		os::DeleteFile(strPath);
 
 	strPath = L":memory:";
 	if (!ok)
@@ -280,7 +281,7 @@ void SQLiteDb::Initialize(const string& DbName, bool Local)
 		++init_status;
 
 		bool in_memory = (Global->Opt->ReadOnlyConfig != 0) ||
-			!api::MoveFileEx(strPath, strPath+L".bad",MOVEFILE_REPLACE_EXISTING) || !InitializeImpl(DbName,Local);
+			!os::MoveFileEx(strPath, strPath+L".bad",MOVEFILE_REPLACE_EXISTING) || !InitializeImpl(DbName,Local);
 
 		if (in_memory)
 		{

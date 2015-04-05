@@ -630,12 +630,12 @@ string& codepages::FormatCodePageName(uintptr_t CodePage, string& CodePageName, 
 	string CurrentCodePageName;
 
 	// Пытаемся получить заданное пользователем имя таблицы символов
-	if (Global->Db->GeneralCfg()->GetValue(NamesOfCodePagesKey, strCodePage, CurrentCodePageName, L""))
+	if (ConfigProvider().GeneralCfg()->GetValue(NamesOfCodePagesKey, strCodePage, CurrentCodePageName, L""))
 	{
 		IsCodePageNameCustom = true;
 		if (CurrentCodePageName == CodePageName)
 		{
-			Global->Db->GeneralCfg()->DeleteValue(NamesOfCodePagesKey, strCodePage);
+			ConfigProvider().GeneralCfg()->DeleteValue(NamesOfCodePagesKey, strCodePage);
 			IsCodePageNameCustom = false;
 		}
 		else
@@ -675,9 +675,9 @@ intptr_t codepages::EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 			}
 			// Если имя кодовой страницы пустое, то считаем, что имя не задано
 			if (strCodePageName.empty())
-				Global->Db->GeneralCfg()->DeleteValue(NamesOfCodePagesKey, strCodePage);
+				ConfigProvider().GeneralCfg()->DeleteValue(NamesOfCodePagesKey, strCodePage);
 			else
-				Global->Db->GeneralCfg()->SetValue(NamesOfCodePagesKey, strCodePage, strCodePageName);
+				ConfigProvider().GeneralCfg()->SetValue(NamesOfCodePagesKey, strCodePage, strCodePageName);
 			// Получаем информацию о кодовой странице
 			string CodepageName;
 			UINT len = 0;
@@ -861,23 +861,23 @@ bool codepages::IsCodePageSupported(uintptr_t CodePage, size_t MaxCharSize) cons
 long long codepages::GetFavorite(uintptr_t cp)
 {
 	long long value = 0;
-	Global->Db->GeneralCfg()->GetValue(FavoriteCodePagesKey, std::to_wstring(cp), value, 0);
+	ConfigProvider().GeneralCfg()->GetValue(FavoriteCodePagesKey, std::to_wstring(cp), value, 0);
 	return value;
 }
 
 void codepages::SetFavorite(uintptr_t cp, long long value)
 {
-	Global->Db->GeneralCfg()->SetValue(FavoriteCodePagesKey, std::to_wstring(cp), value);
+	ConfigProvider().GeneralCfg()->SetValue(FavoriteCodePagesKey, std::to_wstring(cp), value);
 }
 
 void codepages::DeleteFavorite(uintptr_t cp)
 {
-	Global->Db->GeneralCfg()->DeleteValue(FavoriteCodePagesKey, std::to_wstring(cp));
+	ConfigProvider().GeneralCfg()->DeleteValue(FavoriteCodePagesKey, std::to_wstring(cp));
 }
 
 GeneralConfig::int_values_enumerator codepages::GetFavoritesEnumerator()
 {
-	return Global->Db->GeneralCfg()->GetIntValuesEnumerator(FavoriteCodePagesKey);
+	return ConfigProvider().GeneralCfg()->GetIntValuesEnumerator(FavoriteCodePagesKey);
 }
 
 

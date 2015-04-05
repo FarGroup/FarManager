@@ -307,7 +307,7 @@ int Help::ReadHelp(const string& Mask)
 	}
 
 	uintptr_t nCodePage = CP_OEMCP;
-	api::fs::file HelpFile;
+	os::fs::file HelpFile;
 
 	if (!OpenLangFile(HelpFile, strPath,(Mask.empty()?Global->HelpFileMask:Mask),Global->Opt->strHelpLanguage,strFullHelpPathName, nCodePage))
 	{
@@ -1906,7 +1906,7 @@ void Help::MoveToReference(int Forward,int CurScreen)
 	FastShow();
 }
 
-void Help::Search(api::fs::file& HelpFile,uintptr_t nCodePage)
+void Help::Search(os::fs::file& HelpFile,uintptr_t nCodePage)
 {
 	FixCount=1;
 	FixSize=2;
@@ -2035,7 +2035,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 				strPath = i->GetModuleName();
 				CutToSlash(strPath);
 				uintptr_t nCodePage = CP_OEMCP;
-				api::fs::file HelpFile;
+				os::fs::file HelpFile;
 				if (OpenLangFile(HelpFile,strPath,Global->HelpFileMask,Global->Opt->strHelpLanguage,strFullFileName, nCodePage))
 				{
 					string strEntryName, strSecondParam;
@@ -2182,12 +2182,12 @@ static int RunURL(const string& Protocol, const string& URLPath)
 			else
 			{
 				strType += L"\\shell\\open\\command";
-				Success = api::reg::GetValue(HKEY_CLASSES_ROOT, strType, L"", strAction);
+				Success = os::reg::GetValue(HKEY_CLASSES_ROOT, strType, L"", strAction);
 			}
 
 			if (Success)
 			{
-				strAction = api::env::expand_strings(strAction);
+				strAction = os::env::expand_strings(strAction);
 
 				string FilteredURLPath(URLPath);
 				// óäàëèì äâà èäóùèõ ïîäðÿä ~~
@@ -2218,7 +2218,7 @@ static int RunURL(const string& Protocol, const string& URLPath)
 					ÒÎÃÎ ÈËÈ ÈÍÎÃÎ ÀÊÒÈÂÀÒÎÐÀ - ÈÕ ÌÎÆÅÒ ÁÛÒÜ ÍÅÑÊÎËÜÊÎ!!!!!
 					*/
 					string strCurDir;
-					api::GetCurrentDirectory(strCurDir);
+					os::GetCurrentDirectory(strCurDir);
 
 					if (Global->Opt->HelpURLRules < 256) // SHELLEXECUTEEX_METHOD
 					{

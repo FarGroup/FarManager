@@ -263,7 +263,7 @@ public:
 	virtual const string& GetCurDir() const;
 	virtual size_t GetSelCount() const { return 0; }
 	virtual size_t GetRealSelCount() const {return 0;}
-	virtual int GetSelName(string *strName, DWORD &FileAttr, string *ShortName = nullptr, api::FAR_FIND_DATA *fd = nullptr) { return FALSE; }
+	virtual int GetSelName(string *strName, DWORD &FileAttr, string *ShortName = nullptr, os::FAR_FIND_DATA *fd = nullptr) { return FALSE; }
 	virtual void UngetSelName() {}
 	virtual void ClearLastGetSelection() {}
 	virtual unsigned __int64 GetLastSelectedSize() const { return -1; }

@@ -104,12 +104,12 @@ size_t GetDescriptionWidth()
 	string strDescription;
 	filemasks FMask;
 
-	while (Global->Db->AssocConfig()->EnumMasks(Index++,&id,strMask))
+	while (ConfigProvider().AssocConfig()->EnumMasks(Index++,&id,strMask))
 	{
 		if (!FMask.Set(strMask, FMF_SILENT))
 			continue;
 
-		Global->Db->AssocConfig()->GetDescription(id,strDescription);
+		ConfigProvider().AssocConfig()->GetDescription(id,strDescription);
 		Width = std::max(Width, HiStrlen(strDescription));
 	}
 
@@ -147,7 +147,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 		unsigned __int64 id;
 		string FileName = PointToName(Name);
 
-		while (Global->Db->AssocConfig()->EnumMasksForType(Mode,Index++,&id,strMask))
+		while (ConfigProvider().AssocConfig()->EnumMasksForType(Mode,Index++,&id,strMask))
 		{
 			strCommand.clear();
 
@@ -155,11 +155,11 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 			{
 				if (FMask.Compare(FileName))
 				{
-					Global->Db->AssocConfig()->GetCommand(id,Mode,strCommand);
+					ConfigProvider().AssocConfig()->GetCommand(id,Mode,strCommand);
 
 					if (!strCommand.empty())
 					{
-						Global->Db->AssocConfig()->GetDescription(id,strDescription);
+						ConfigProvider().AssocConfig()->GetDescription(id,strDescription);
 						CommandCount++;
 					}
 				}
@@ -240,7 +240,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 	std::for_each(CONST_RANGE(ListNames, i)
 	{
 		if (!i->empty())
-			api::DeleteFile(*i);
+			os::DeleteFile(*i);
 	});
 
 	return true;
@@ -305,7 +305,7 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 	std::for_each(CONST_RANGE(ListNames, i)
 	{
 		if (!i->empty())
-			api::DeleteFile(*i);
+			os::DeleteFile(*i);
 	});
 }
 
@@ -318,13 +318,13 @@ static int FillFileTypesMenu(VMenu2 *TypesMenu,int MenuPos)
 	string strTitle;
 	unsigned __int64 id;
 
-	while (Global->Db->AssocConfig()->EnumMasks(Index++,&id,strMask))
+	while (ConfigProvider().AssocConfig()->EnumMasks(Index++,&id,strMask))
 	{
 		string strMenuText;
 
 		if (DizWidth)
 		{
-			Global->Db->AssocConfig()->GetDescription(id,strTitle);
+			ConfigProvider().AssocConfig()->GetDescription(id,strTitle);
 
 			size_t AddLen=strTitle.size() - HiStrlen(strTitle);
 
@@ -432,12 +432,12 @@ bool EditTypeRecord(unsigned __int64 EditPos,bool NewRec)
 
 	if (!NewRec)
 	{
-		Global->Db->AssocConfig()->GetMask(EditPos,EditDlg[ETR_EDIT_MASKS].strData);
-		Global->Db->AssocConfig()->GetDescription(EditPos,EditDlg[ETR_EDIT_DESCR].strData);
+		ConfigProvider().AssocConfig()->GetMask(EditPos,EditDlg[ETR_EDIT_MASKS].strData);
+		ConfigProvider().AssocConfig()->GetDescription(EditPos,EditDlg[ETR_EDIT_DESCR].strData);
 		for (int i=FILETYPE_EXEC,Item=ETR_EDIT_EXEC; i<=FILETYPE_ALTEDIT; i++,Item+=2)
 		{
 			bool on=false;
-			if (!Global->Db->AssocConfig()->GetCommand(EditPos,i,EditDlg[Item].strData,&on) || !on)
+			if (!ConfigProvider().AssocConfig()->GetCommand(EditPos,i,EditDlg[Item].strData,&on) || !on)
 			{
 				EditDlg[Item-1].Selected = BSTATE_UNCHECKED;
 				EditDlg[Item].Flags |= DIF_DISABLE;
@@ -459,16 +459,16 @@ bool EditTypeRecord(unsigned __int64 EditPos,bool NewRec)
 	{
 		if (NewRec)
 		{
-			EditPos = Global->Db->AssocConfig()->AddType(EditPos,EditDlg[ETR_EDIT_MASKS].strData,EditDlg[ETR_EDIT_DESCR].strData);
+			EditPos = ConfigProvider().AssocConfig()->AddType(EditPos,EditDlg[ETR_EDIT_MASKS].strData,EditDlg[ETR_EDIT_DESCR].strData);
 		}
 		else
 		{
-			Global->Db->AssocConfig()->UpdateType(EditPos,EditDlg[ETR_EDIT_MASKS].strData,EditDlg[ETR_EDIT_DESCR].strData);
+			ConfigProvider().AssocConfig()->UpdateType(EditPos,EditDlg[ETR_EDIT_MASKS].strData,EditDlg[ETR_EDIT_DESCR].strData);
 		}
 
 		for (int i=FILETYPE_EXEC,Item=ETR_EDIT_EXEC; i<=FILETYPE_ALTEDIT; i++,Item+=2)
 		{
-			Global->Db->AssocConfig()->SetCommand(EditPos,i,EditDlg[Item].strData,EditDlg[Item-1].Selected==BSTATE_CHECKED);
+			ConfigProvider().AssocConfig()->SetCommand(EditPos,i,EditDlg[Item].strData,EditDlg[Item-1].Selected==BSTATE_CHECKED);
 		}
 
 		return true;
@@ -480,12 +480,12 @@ bool EditTypeRecord(unsigned __int64 EditPos,bool NewRec)
 bool DeleteTypeRecord(unsigned __int64 DeletePos)
 {
 	string strMask;
-	Global->Db->AssocConfig()->GetMask(DeletePos,strMask);
+	ConfigProvider().AssocConfig()->GetMask(DeletePos,strMask);
 	InsertQuote(strMask);
 
 	if (!Message(MSG_WARNING,2,MSG(MAssocTitle),MSG(MAskDelAssoc),strMask.data(),MSG(MDelete),MSG(MCancel)))
 	{
-		Global->Db->AssocConfig()->DelType(DeletePos);
+		ConfigProvider().AssocConfig()->DelType(DeletePos);
 		return true;
 	}
 
@@ -494,7 +494,7 @@ bool DeleteTypeRecord(unsigned __int64 DeletePos)
 
 void EditFileTypes()
 {
-	SCOPED_ACTION(auto)(Global->Db->AssocConfig()->ScopedTransaction());
+	SCOPED_ACTION(auto)(ConfigProvider().AssocConfig()->ScopedTransaction());
 
 	int MenuPos=0;
 	unsigned __int64 id;
@@ -558,7 +558,7 @@ void EditFileTypes()
 						unsigned __int64 id2=0;
 						if (TypesMenu->GetUserData(&id,sizeof(id),MenuPos))
 							if (TypesMenu->GetUserData(&id2,sizeof(id2),NewMenuPos))
-								if (Global->Db->AssocConfig()->SwapPositions(id,id2))
+								if (ConfigProvider().AssocConfig()->SwapPositions(id,id2))
 									MenuPos=NewMenuPos;
 						NumLine = FillFileTypesMenu(TypesMenu.get(), MenuPos);
 					}

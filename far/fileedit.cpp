@@ -399,8 +399,8 @@ FileEditor::~FileEditor()
 				DeleteFileWithFolder(strFullFileName);
 			else
 			{
-				api::SetFileAttributes(strFullFileName,FILE_ATTRIBUTE_NORMAL);
-				api::DeleteFile(strFullFileName); //BUGBUG
+				os::SetFileAttributes(strFullFileName,FILE_ATTRIBUTE_NORMAL);
+				os::DeleteFile(strFullFileName); //BUGBUG
 			}
 		}
 	}
@@ -461,7 +461,7 @@ void FileEditor::Init(
 	SetPluginData(PluginData);
 	m_editor->SetHostFileEditor(this);
 	SetCanLoseFocus(m_Flags.Check(FFILEEDIT_ENABLEF6));
-	api::GetCurrentDirectory(strStartDir);
+	os::GetCurrentDirectory(strStartDir);
 
 	if (!SetFileName(Name))
 	{
@@ -573,7 +573,7 @@ void FileEditor::Init(
 	/* $ 15.12.2000 SVS
 	  - Shift-F4, новый файл. ¬ыдает сообщение :-(
 	*/
-	DWORD FAttr=api::GetFileAttributes(Name);
+	DWORD FAttr=os::GetFileAttributes(Name);
 
 	/* $ 05.06.2001 IS
 	   + посылаем подальше всех, кто пытаетс€ отредактировать каталог
@@ -874,7 +874,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 				// возможно здесь она и не нужна!
 				// хот€, раз уж были изменени€, то
 				if (m_editor->IsFileChanged() && // в текущем сеансе были изменени€?
-				        !api::fs::exists(strFullFileName))
+				        !os::fs::exists(strFullFileName))
 				{
 					switch (Message(MSG_WARNING, MSG(MEditTitle),
 						make_vector<string>(MSG(MEditSavedChangedNonFile), MSG(MEditSavedChangedNonFile2)),
@@ -894,7 +894,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 					}
 				}
 
-				if (!FirstSave || m_editor->IsFileChanged() || api::fs::exists(strFullFileName))
+				if (!FirstSave || m_editor->IsFileChanged() || os::fs::exists(strFullFileName))
 				{
 					const auto FilePos = m_editor->GetCurPos(true, m_bAddSignature);
 
@@ -1027,7 +1027,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 			{
 				BOOL Done=FALSE;
 				string strOldCurDir;
-				api::GetCurrentDirectory(strOldCurDir);
+				os::GetCurrentDirectory(strOldCurDir);
 				while (!Done) // бьемс€ до упора
 				{
 					size_t pos;
@@ -1043,14 +1043,14 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 						if(IsRootPath(Path))
 						{
 							// а дальше? каталог существует?
-							if (!api::fs::is_directory(Path)
+							if (!os::fs::is_directory(Path)
 							        //|| LocalStricmp(OldCurDir,FullFileName)  // <- это видимо лишнее.
 							   )
 								m_Flags.Set(FFILEEDIT_SAVETOSAVEAS);
 						}
 					}
 
-					if (LocalKey == KEY_F2 && api::fs::is_file(strFullFileName))
+					if (LocalKey == KEY_F2 && os::fs::is_file(strFullFileName))
 					{
 						m_Flags.Clear(FFILEEDIT_SAVETOSAVEAS);
 					}
@@ -1068,7 +1068,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 						if (!dlgSaveFileAs(strSaveAsName, TextFormat, codepage, m_bAddSignature))
 							return FALSE;
 
-						strSaveAsName = Unquote(api::env::expand_strings(strSaveAsName));
+						strSaveAsName = Unquote(os::env::expand_strings(strSaveAsName));
 						NameChanged=StrCmpI(strSaveAsName, m_Flags.Check(FFILEEDIT_SAVETOSAVEAS)? strFullFileName : strFileName);
 
 						if (!NameChanged)
@@ -1176,7 +1176,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 
 				string strFullFileNameTemp = strFullFileName;
 
-				if (!api::fs::exists(strFullFileName)) // а сам файл то еще на месте?
+				if (!os::fs::exists(strFullFileName)) // а сам файл то еще на месте?
 				{
 					if (!CheckShortcutFolder(strFullFileNameTemp, true, false))
 						return FALSE;
@@ -1237,7 +1237,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 
 				if (LocalKey != KEY_SHIFTF10)   // KEY_SHIFTF10 не учитываем!
 				{
-					bool FilePlaced = !api::fs::exists(strFullFileName) && !m_Flags.Check(FFILEEDIT_NEW);
+					bool FilePlaced = !os::fs::exists(strFullFileName) && !m_Flags.Check(FFILEEDIT_NEW);
 
 					if (m_editor->IsFileChanged() || // в текущем сеансе были изменени€?
 					        FilePlaced) // а сам файл то еще на месте?
@@ -1358,7 +1358,7 @@ int FileEditor::SetCodePage(uintptr_t cp,	bool redetect_default, bool ascii2def)
 			cp = epc.CodePage;
 	}
 	else if (cp == CP_REDETECT) {
-		api::fs::file edit_file;
+		os::fs::file edit_file;
 		bool detect = false, sig_found = false, ascii_or_empty = false;
 
 		if (edit_file.Open(strFileName, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
@@ -1430,7 +1430,7 @@ int FileEditor::SetCodePage(uintptr_t cp,	bool redetect_default, bool ascii2def)
 int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion,bool DeleteWindow)
 {
 	string strOldCurDir;
-	api::GetCurrentDirectory(strOldCurDir);
+	os::GetCurrentDirectory(strOldCurDir);
 
 	for (;;)
 	{
@@ -1451,7 +1451,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion,bool DeleteWindow
 			  + ќбновить панели, если писали в текущий каталог */
 			if (NeedQuestion)
 			{
-				if (api::fs::exists(strFullFileName))
+				if (os::fs::exists(strFullFileName))
 				{
 					UpdateFileList();
 				}
@@ -1499,7 +1499,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 	int LastLineCR = 0;
 	EditorPosCache pc;
 	UserBreak = 0;
-	api::fs::file EditFile;
+	os::fs::file EditFile;
 	if(!EditFile.Open(Name, FILE_READ_DATA, FILE_SHARE_READ|(Global->Opt->EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 	{
 		Global->CatchError();
@@ -1565,7 +1565,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		m_editor->FreeAllocatedData(false);
 		bool bCached = LoadFromCache(pc);
 
-		DWORD FileAttributes=api::GetFileAttributes(Name);
+		DWORD FileAttributes=os::GetFileAttributes(Name);
 		if((m_editor->EdOpt.ReadOnlyLock&1) && FileAttributes != INVALID_FILE_ATTRIBUTES && (FileAttributes & (FILE_ATTRIBUTE_READONLY|((m_editor->EdOpt.ReadOnlyLock&0x60)>>4))))
 		{
 			m_editor->m_Flags.Swap(Editor::FEDITOR_LOCKMODE);
@@ -1689,7 +1689,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 	EditFile.Close();
 	m_editor->SetCacheParams(pc, m_bAddSignature);
 	Global->CatchError();
-	api::GetFindDataEx(Name, FileInfo);
+	os::GetFindDataEx(Name, FileInfo);
 	EditorGetFileAttributes(Name);
 	return TRUE;
 
@@ -1799,14 +1799,14 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 	int NewFile=TRUE;
 	FileAttributesModified=false;
 
-	if ((m_FileAttributes=api::GetFileAttributes(Name))!=INVALID_FILE_ATTRIBUTES)
+	if ((m_FileAttributes=os::GetFileAttributes(Name))!=INVALID_FILE_ATTRIBUTES)
 	{
 		// ѕроверка времени модификации...
 		if (!m_Flags.Check(FFILEEDIT_SAVEWQUESTIONS))
 		{
-			api::FAR_FIND_DATA FInfo;
+			os::FAR_FIND_DATA FInfo;
 
-			if (api::GetFindDataEx(Name, FInfo) && !FileInfo.strFileName.empty())
+			if (os::GetFindDataEx(Name, FInfo) && !FileInfo.strFileName.empty())
 			{
 				if (FileInfo.ftLastWriteTime != FInfo.ftLastWriteTime || FInfo.nFileSize != FileInfo.nFileSize)
 				{
@@ -1847,13 +1847,13 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			if (AskOverwrite)
 				return SAVEFILE_CANCEL;
 
-			api::SetFileAttributes(Name,m_FileAttributes & ~FILE_ATTRIBUTE_READONLY); // сн€ты атрибуты
+			os::SetFileAttributes(Name,m_FileAttributes & ~FILE_ATTRIBUTE_READONLY); // сн€ты атрибуты
 			FileAttributesModified=true;
 		}
 
 		if (m_FileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))
 		{
-			api::SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
+			os::SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
 			FileAttributesModified=true;
 		}
 	}
@@ -1866,12 +1866,12 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		if (Ptr)
 		{
 			CutToSlash(strCreatedPath);
-			if (!api::fs::exists(strCreatedPath))
+			if (!os::fs::exists(strCreatedPath))
 			{
 				// и попробуем создать.
 				// –аз уж
 				CreatePath(strCreatedPath);
-				if (!api::fs::exists(strCreatedPath))
+				if (!os::fs::exists(strCreatedPath))
 					return SAVEFILE_ERROR;
 			}
 		}
@@ -1910,7 +1910,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			break;
 	}
 
-	if (!api::fs::exists(Name))
+	if (!os::fs::exists(Name))
 		m_Flags.Set(FFILEEDIT_NEW);
 
 	{
@@ -1983,7 +1983,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 
 		EditorSaveFile esf = {sizeof(esf), Name.data(), m_editor->GlobalEOL.data(), codepage};
 		Global->CtrlObject->Plugins->ProcessEditorEvent(EE_SAVE, &esf, m_editor->EditorID);
-		api::fs::file EditFile;
+		os::fs::file EditFile;
 		size_t dwWritten = 0;
 		// Don't use CreationDisposition=CREATE_ALWAYS here - it's kills alternate streams
 		if(!EditFile.Open(Name, m_Flags.Check(FFILEEDIT_NEW)? FILE_WRITE_DATA : GENERIC_WRITE, FILE_SHARE_READ, nullptr, m_Flags.Check(FFILEEDIT_NEW)? CREATE_NEW : TRUNCATE_EXISTING, FILE_ATTRIBUTE_ARCHIVE|FILE_FLAG_SEQUENTIAL_SCAN))
@@ -2035,7 +2035,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			if (!EditFile.Write(&dwSignature,SignLength,dwWritten,nullptr)||dwWritten!=SignLength)
 			{
 				EditFile.Close();
-				api::DeleteFile(Name);
+				os::DeleteFile(Name);
 				RetCode=SAVEFILE_ERROR;
 				goto end;
 			}
@@ -2150,7 +2150,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			if (bError)
 			{
 				EditFile.Close();
-				api::DeleteFile(Name);
+				os::DeleteFile(Name);
 				RetCode=SAVEFILE_ERROR;
 				goto end;
 			}
@@ -2165,7 +2165,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		{
 			Global->CatchError();
 			EditFile.Close();
-			api::DeleteFile(Name);
+			os::DeleteFile(Name);
 			RetCode=SAVEFILE_ERROR;
 		}
 	}
@@ -2174,10 +2174,10 @@ end:
 
 	if (m_FileAttributes!=INVALID_FILE_ATTRIBUTES && FileAttributesModified)
 	{
-		api::SetFileAttributes(Name,m_FileAttributes|FILE_ATTRIBUTE_ARCHIVE);
+		os::SetFileAttributes(Name,m_FileAttributes|FILE_ATTRIBUTE_ARCHIVE);
 	}
 
-	api::GetFindDataEx(Name, FileInfo);
+	os::GetFindDataEx(Name, FileInfo);
 	EditorGetFileAttributes(Name);
 
 	if (m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED) || NewFile)
@@ -2329,7 +2329,7 @@ BOOL FileEditor::SetFileName(const string& NewFileName)
 		{
 			string strCurPath;
 
-			if (api::GetCurrentDirectory(strCurPath))
+			if (os::GetCurrentDirectory(strCurPath))
 			{
 				DeleteEndSlash(strCurPath);
 
@@ -2483,7 +2483,7 @@ void FileEditor::ShowStatus()
 */
 DWORD FileEditor::EditorGetFileAttributes(const string& Name)
 {
-	m_FileAttributes=api::GetFileAttributes(Name);
+	m_FileAttributes=os::GetFileAttributes(Name);
 	int ind=0;
 
 	if (m_FileAttributes!=INVALID_FILE_ATTRIBUTES)
@@ -2938,7 +2938,7 @@ bool FileEditor::SetCodePage(uintptr_t codepage)
 bool FileEditor::AskOverwrite(const string& FileName)
 {
 	bool result=true;
-	if (api::fs::exists(FileName))
+	if (os::fs::exists(FileName))
 	{
 		if (Message(MSG_WARNING, MSG(MEditTitle),
 			make_vector(FileName, MSG(MEditExists), MSG(MEditOvr)),

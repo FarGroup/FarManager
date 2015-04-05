@@ -198,10 +198,10 @@ static DWORD DriveMaskFromVolumeName(const string& VolumeName)
 {
 	DWORD Result = 0;
 	string strCurrentVolumeName;
-	const auto Strings = api::GetLogicalDriveStrings();
+	const auto Strings = os::GetLogicalDriveStrings();
 	std::any_of(CONST_RANGE(Strings, i) -> bool
 	{
-		if (api::GetVolumeNameForVolumeMountPoint(i, strCurrentVolumeName) && strCurrentVolumeName.compare(0, VolumeName.size(), VolumeName) == 0)
+		if (os::GetVolumeNameForVolumeMountPoint(i, strCurrentVolumeName) && strCurrentVolumeName.compare(0, VolumeName.size(), VolumeName) == 0)
 		{
 			Result = 1 << (i.front() - L'A');
 			return true;
@@ -225,7 +225,7 @@ static DWORD GetDriveMaskFromMountPoints(DEVINST hDevInst)
 			{
 				AddEndSlash(strMountPoint);
 				string strVolumeName;
-				if (api::GetVolumeNameForVolumeMountPoint(strMountPoint,strVolumeName))
+				if (os::GetVolumeNameForVolumeMountPoint(strMountPoint,strVolumeName))
 				{
 					dwMask |= DriveMaskFromVolumeName(strVolumeName);
 				}
@@ -281,7 +281,7 @@ static DWORD GetDriveMaskForDeviceInternal(DEVINST hDevInst)
 }
 
 
-static api::drives_set GetDisksForDevice(DEVINST hDevInst)
+static os::drives_set GetDisksForDevice(DEVINST hDevInst)
 {
 	int DisksMask = 0;
 	DisksMask |= GetDriveMaskFromMountPoints(hDevInst);
@@ -333,7 +333,7 @@ static bool GetDeviceProperty(DEVINST hDevInst, DWORD Property, string& strValue
 struct DeviceInfo
 {
 	DEVINST DevInst;
-	api::drives_set Disks;
+	os::drives_set Disks;
 };
 
 static void GetChildHotplugDevicesInfo(DEVINST hDevInst, std::vector<DeviceInfo>& Info)

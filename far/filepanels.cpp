@@ -97,7 +97,7 @@ static void PrepareOptFolder(string &strSrc, int IsLocalPath_FarPath)
 	}
 	else
 	{
-		strSrc = api::env::expand_strings(strSrc);
+		strSrc = os::env::expand_strings(strSrc);
 	}
 
 	if (strSrc == L"/")
@@ -176,7 +176,7 @@ void FilePanels::Init(int DirCount)
 
 	const auto InitCurDir_checked = [&](const std::pair<Panel*, const Options::PanelOptions&>& Params)
 	{
-		Params.first->InitCurDir(api::fs::exists(Params.second.Folder.Get()) ? Params.second.Folder.Get() : Global->g_strFarPath);
+		Params.first->InitCurDir(os::fs::exists(Params.second.Folder.Get()) ? Params.second.Folder.Get() : Global->g_strFarPath);
 	};
 
 	const auto LeftSet = std::make_pair(LeftPanel, Global->Opt->LeftPanel);
@@ -202,7 +202,7 @@ void FilePanels::Init(int DirCount)
 
 		const string& PassiveFolder=PassiveIsLeftFlag?Global->Opt->LeftPanel.Folder:Global->Opt->RightPanel.Folder;
 
-		if (DirCount < 2 && !PassiveFolder.empty() && api::fs::exists(PassiveFolder))
+		if (DirCount < 2 && !PassiveFolder.empty() && os::fs::exists(PassiveFolder))
 		{
 			PassivePanel->InitCurDir(PassiveFolder);
 		}

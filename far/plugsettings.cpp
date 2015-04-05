@@ -92,7 +92,7 @@ PluginSettings::PluginSettings(const GUID& Guid, bool Local):
 	if (pPlugin)
 	{
 		string strGuid = GuidToStr(Guid);
-		PluginsCfg = Global->Db->CreatePluginsConfig(strGuid, Local);
+		PluginsCfg = ConfigProvider().CreatePluginsConfig(strGuid, Local);
 		m_Keys.emplace_back(PluginsCfg->CreateKey(HierarchicalConfig::root_key(), strGuid, &pPlugin->GetTitle()));
 
 		if (!Global->Opt->ReadOnlyConfig)
@@ -385,7 +385,7 @@ int PluginSettings::SubKey(const FarSettingsValue& Value, bool bCreate)
 	//Don't allow illegal key names - empty names or with backslashes
 	if(Value.Root<m_Keys.size() && Value.Value && *Value.Value && !wcschr(Value.Value,'\\'))
 	{
-		if (const auto root = bCreate? PluginsCfg->CreateKey(m_Keys[Value.Root], Value.Value) : PluginsCfg->GetKeyID(m_Keys[Value.Root], Value.Value))
+		if (const auto root = bCreate? PluginsCfg->CreateKey(m_Keys[Value.Root], Value.Value) : PluginsCfg->FindByName(m_Keys[Value.Root], Value.Value))
 		{
 			result=static_cast<int>(m_Keys.size());
 			m_Keys.emplace_back(root);
@@ -504,7 +504,7 @@ static const std::unique_ptr<HistoryConfig>& HistoryRef(int Type)
 			Save=Global->Opt->Dialogs.EditHistory;
 			break;
 	}
-	return Save? Global->Db->HistoryCfg() : Global->Db->HistoryCfgMem();
+	return Save? ConfigProvider().HistoryCfg() : ConfigProvider().HistoryCfgMem();
 }
 
 int FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum, const std::function<bool(history_record_type)>& Filter)

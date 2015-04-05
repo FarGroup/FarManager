@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "RegExp.hpp"
 #include "stddlg.hpp"
+#include "strmix.hpp"
 
 const wchar_t ExcludeMaskSeparator = L'|';
 const wchar_t RE_start = L'/', RE_end = L'/';
@@ -146,7 +147,7 @@ bool filemasks::Set(const string& masks, DWORD Flags)
 			string MaskGroupValue;
 			if (!UsedGroups.count(MaskGroupName))
 			{
-				Global->Db->GeneralCfg()->GetValue(L"Masks", MaskGroupName, MaskGroupValue, L"");
+				ConfigProvider().GeneralCfg()->GetValue(L"Masks", MaskGroupName, MaskGroupValue, L"");
 				ReplaceStrings(expmasks, MaskGroupNameWB, MaskGroupValue);
 				UsedGroups.emplace(MaskGroupName);
 			}
@@ -282,7 +283,7 @@ bool filemasks::masks::Set(const string& masks, DWORD Flags)
 	if (StrStrI(expmasks.data(), PathExtName))
 	{
 		string strSysPathExt;
-		if (api::env::get_variable(L"PATHEXT", strSysPathExt))
+		if (os::env::get_variable(L"PATHEXT", strSysPathExt))
 		{
 			std::vector<string> MaskList;
 			split(MaskList, strSysPathExt, STLF_UNIQUE);

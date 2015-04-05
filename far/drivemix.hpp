@@ -66,5 +66,5 @@ enum CHECKEDPROPS_TYPE
 };
 
 bool IsDriveTypeRemote(UINT DriveType);
-api::drives_set FarGetLogicalDrives();
+os::drives_set FarGetLogicalDrives();
 int CheckDisksProps(const string& SrcPath, const string&DestPath, int CheckedType);

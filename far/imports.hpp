@@ -40,7 +40,7 @@ private:
 	class unique_function_pointer: noncopyable
 	{
 	public:
-		unique_function_pointer(const api::rtdl::module& Module): m_module(Module) {}
+		unique_function_pointer(const os::rtdl::module& Module): m_module(Module) {}
 		operator T() const { return get_pointer(); }
 		operator bool() const { return get_pointer() != stub; }
 
@@ -53,16 +53,16 @@ private:
 			return pointer;
 		}
 
-		const api::rtdl::module& m_module;
+		const os::rtdl::module& m_module;
 	};
 
-	const api::rtdl::module m_ntdll;
-	const api::rtdl::module m_kernel32;
-	const api::rtdl::module m_shell32;
-	const api::rtdl::module m_user32;
-	const api::rtdl::module m_virtdisk;
-	const api::rtdl::module m_rstrtmgr;
-	const api::rtdl::module m_netapi32;
+	const os::rtdl::module m_ntdll;
+	const os::rtdl::module m_kernel32;
+	const os::rtdl::module m_shell32;
+	const os::rtdl::module m_user32;
+	const os::rtdl::module m_virtdisk;
+	const os::rtdl::module m_rstrtmgr;
+	const os::rtdl::module m_netapi32;
 
 #define DECLARE_IMPORT_FUNCTION(RETTYPE, CALLTYPE, NAME, ...)\
 private: static RETTYPE CALLTYPE stub_##NAME(__VA_ARGS__);\

@@ -108,7 +108,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, g
 	SCOPED_ACTION(IndeterminateTaskBar)(MessageDelay != getdirinfo_infinite_delay);
 	SCOPED_ACTION(wakeful);
 	ScanTree ScTree(false, true, (Flags & GETDIRINFO_SCANSYMLINKDEF? (DWORD)-1 : (Flags & GETDIRINFO_SCANSYMLINK)));
-	api::FAR_FIND_DATA FindData;
+	os::FAR_FIND_DATA FindData;
 	clock_t StartTime=clock();
 	SetCursorType(false, 0);
 	GetPathRoot(strFullDirName,strDriveRoot);
@@ -148,7 +148,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, g
 	string FileSystemName;
 	string Root;
 	GetPathRoot(DirName, Root);
-	if(api::GetVolumeInformation(Root, nullptr, nullptr, nullptr, &FileSystemFlags, &FileSystemName))
+	if(os::GetVolumeInformation(Root, nullptr, nullptr, nullptr, &FileSystemFlags, &FileSystemName))
 	{
 		if (!IsWindows7OrGreater())
 		{

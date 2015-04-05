@@ -52,7 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 bool CreateVolumeMountPoint(const string& TargetVolume, const string& Object)
 {
 	string VolumeName;
-	return api::GetVolumeNameForVolumeMountPoint(TargetVolume, VolumeName) && SetVolumeMountPoint(Object.data(), VolumeName.data());
+	return os::GetVolumeNameForVolumeMountPoint(TargetVolume, VolumeName) && SetVolumeMountPoint(Object.data(), VolumeName.data());
 }
 
 bool FillREPARSE_DATA_BUFFER(PREPARSE_DATA_BUFFER rdb, const string& PrintName, const string& SubstituteName)
@@ -110,18 +110,18 @@ bool SetREPARSE_DATA_BUFFER(const string& Object,PREPARSE_DATA_BUFFER rdb)
 	bool Result=false;
 	if (IsReparseTagValid(rdb->ReparseTag))
 	{
-		SCOPED_ACTION(Privilege)(make_vector(SE_CREATE_SYMBOLIC_LINK_NAME));
+		SCOPED_ACTION(os::security::privilege)(make_vector(SE_CREATE_SYMBOLIC_LINK_NAME));
 
 		bool ForceElevation=false;
 
-		const auto Attributes = api::GetFileAttributes(Object);
+		const auto Attributes = os::GetFileAttributes(Object);
 		if(Attributes&FILE_ATTRIBUTE_READONLY)
 		{
-			api::SetFileAttributes(Object, Attributes&~FILE_ATTRIBUTE_READONLY);
+			os::SetFileAttributes(Object, Attributes&~FILE_ATTRIBUTE_READONLY);
 		}
 		for(size_t i=0;i<2;i++)
 		{
-			api::fs::file fObject;
+			os::fs::file fObject;
 			if (fObject.Open(Object, FILE_WRITE_ATTRIBUTES, 0, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT, nullptr, ForceElevation))
 			{
 				DWORD dwBytesReturned;
@@ -140,7 +140,7 @@ bool SetREPARSE_DATA_BUFFER(const string& Object,PREPARSE_DATA_BUFFER rdb)
 		}
 		if(Attributes&FILE_ATTRIBUTE_READONLY)
 		{
-			api::SetFileAttributes(Object, Attributes);
+			os::SetFileAttributes(Object, Attributes);
 		}
 
 	}
@@ -164,25 +164,25 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 			case RP_SYMLINKFILE:
 			case RP_SYMLINKDIR:
 				{
-					api::fs::file_status ObjectStatus(Object);
+					os::fs::file_status ObjectStatus(Object);
 					if(Type == RP_SYMLINK)
 					{
-						Type = api::fs::is_directory(Target)? RP_SYMLINKDIR : RP_SYMLINKFILE;
+						Type = os::fs::is_directory(Target)? RP_SYMLINKDIR : RP_SYMLINKFILE;
 					}
-					if (Imports().CreateSymbolicLinkW && !api::fs::exists(ObjectStatus))
+					if (Imports().CreateSymbolicLinkW && !os::fs::exists(ObjectStatus))
 					{
-						Result=api::CreateSymbolicLink(Object,Target,Type==RP_SYMLINKDIR?SYMBOLIC_LINK_FLAG_DIRECTORY:0);
+						Result=os::CreateSymbolicLink(Object,Target,Type==RP_SYMLINKDIR?SYMBOLIC_LINK_FLAG_DIRECTORY:0);
 					}
 					else
 					{
 						bool ObjectCreated=false;
 						if (Type==RP_SYMLINKDIR)
 						{
-							ObjectCreated = api::fs::is_directory(ObjectStatus) || api::CreateDirectory(Object,nullptr) != FALSE;
+							ObjectCreated = os::fs::is_directory(ObjectStatus) || os::CreateDirectory(Object,nullptr) != FALSE;
 						}
 						else
 						{
-							ObjectCreated = api::fs::is_file(ObjectStatus) || api::fs::file().Open(Object, 0, 0, nullptr, CREATE_NEW);
+							ObjectCreated = os::fs::is_file(ObjectStatus) || os::fs::file().Open(Object, 0, 0, nullptr, CREATE_NEW);
 						}
 
 						if (ObjectCreated)
@@ -245,11 +245,11 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 bool GetREPARSE_DATA_BUFFER(const string& Object,PREPARSE_DATA_BUFFER rdb)
 {
 	bool Result=false;
-	const auto FileAttr = api::GetFileAttributes(Object);
+	const auto FileAttr = os::GetFileAttributes(Object);
 
 	if (FileAttr!=INVALID_FILE_ATTRIBUTES && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT))
 	{
-		api::fs::file fObject;
+		os::fs::file fObject;
 		if(fObject.Open(Object,0,0,nullptr,OPEN_EXISTING,FILE_FLAG_OPEN_REPARSE_POINT))
 		{
 			DWORD dwBytesReturned;
@@ -269,7 +269,7 @@ bool DeleteReparsePoint(const string& Object)
 	block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
 	if (GetREPARSE_DATA_BUFFER(Object, rdb.get()))
 	{
-		api::fs::file fObject;
+		os::fs::file fObject;
 		if (fObject.Open(Object, FILE_WRITE_ATTRIBUTES, 0, 0, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
 		{
 			DWORD dwBytes;
@@ -341,7 +341,7 @@ bool GetReparsePointInfo(const string& Object, string &strDestBuff,LPDWORD lpRep
 int GetNumberOfLinks(const string& Name, bool negative_if_error)
 {
 	int NumberOfLinks = (negative_if_error ? -1 : +1);
-	api::fs::file file;
+	os::fs::file file;
 	if(file.Open(Name, 0, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
 	{
 		BY_HANDLE_FILE_INFORMATION bhfi;
@@ -356,7 +356,7 @@ int GetNumberOfLinks(const string& Name, bool negative_if_error)
 
 int MkHardLink(const string& ExistingName,const string& NewName, bool Silent)
 {
-	BOOL Result = api::CreateHardLink(NewName, ExistingName, nullptr);
+	BOOL Result = os::CreateHardLink(NewName, ExistingName, nullptr);
 
 	if (!Result && !Silent)
 	{
@@ -370,20 +370,20 @@ bool EnumStreams(const string& FileName,UINT64 &StreamsSize,DWORD &StreamsCount)
 {
 	bool Result=false;
 	WIN32_FIND_STREAM_DATA fsd;
-	HANDLE hFind=api::FindFirstStream(FileName,FindStreamInfoStandard,&fsd);
+	HANDLE hFind=os::FindFirstStream(FileName,FindStreamInfoStandard,&fsd);
 
 	if (hFind!=INVALID_HANDLE_VALUE)
 	{
 		StreamsCount=1;
 		StreamsSize=fsd.StreamSize.QuadPart;
 
-		while (api::FindNextStream(hFind,&fsd))
+		while (os::FindNextStream(hFind,&fsd))
 		{
 			StreamsCount++;
 			StreamsSize+=fsd.StreamSize.QuadPart;
 		}
 
-		api::FindStreamClose(hFind);
+		os::FindStreamClose(hFind);
 		Result=true;
 	}
 
@@ -421,7 +421,7 @@ bool GetSubstName(int DriveType,const string& DeviceName, string &strTargetPath)
 		if (Type == PATH_DRIVELETTER)
 		{
 			string Name;
-			if (api::QueryDosDevice(DeviceName, Name))
+			if (os::QueryDosDevice(DeviceName, Name))
 			{
 				if (Name.compare(0, 4, L"\\??\\") == 0)
 				{
@@ -438,7 +438,7 @@ bool GetSubstName(int DriveType,const string& DeviceName, string &strTargetPath)
 bool GetVHDInfo(const string& DeviceName, string &strVolumePath, VIRTUAL_STORAGE_TYPE* StorageType)
 {
 	bool Result=false;
-	api::fs::file Device;
+	os::fs::file Device;
 	if(Device.Open(DeviceName, FILE_READ_ATTRIBUTES,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
 	{
 		ULONG Size = 4096;
@@ -614,7 +614,7 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 
 				if (CutToSlash(strPath))
 				{
-					if (!api::fs::exists(strPath))
+					if (!os::fs::exists(strPath))
 						CreatePath(strPath);
 				}
 			}
@@ -625,13 +625,13 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 				if (LinkType==RP_EXACTCOPY)
 				{
 					// в этом случае создается или каталог, или пустой файл
-					if (api::fs::is_file(strFullTarget))
+					if (os::fs::is_file(strFullTarget))
 						CreateDir=false;
 				}
 
 				if (CreateDir)
 				{
-					if (api::CreateDirectory(strFullLink,nullptr))
+					if (os::CreateDirectory(strFullLink,nullptr))
 						TreeList::AddTreeName(strFullLink);
 					else
 						CreatePath(strFullLink);
@@ -642,13 +642,13 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 
 					if (CutToSlash(strPath))
 					{
-						if (!api::fs::exists(strPath))
+						if (!os::fs::exists(strPath))
 							CreatePath(strPath);
-						api::fs::file().Open(strFullLink, 0, 0, 0, CREATE_NEW, api::GetFileAttributes(strFullTarget));
+						os::fs::file().Open(strFullLink, 0, 0, 0, CREATE_NEW, os::GetFileAttributes(strFullTarget));
 					}
 				}
 
-				if (!api::fs::exists(strFullLink))
+				if (!os::fs::exists(strFullLink))
 				{
 					if (!Silent)
 					{

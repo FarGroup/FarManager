@@ -44,7 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "datetime.hpp"
 
-namespace api
+namespace os
 {
 
 struct pseudo_handle
@@ -265,13 +265,13 @@ namespace fs
 	}
 
 	file_status::file_status(const string& Object) :
-		m_Data(api::GetFileAttributes(Object))
+		m_Data(os::GetFileAttributes(Object))
 	{
 
 	}
 
 	file_status::file_status(const wchar_t* Object):
-		m_Data(api::GetFileAttributes(Object))
+		m_Data(os::GetFileAttributes(Object))
 	{
 
 	}
@@ -298,7 +298,7 @@ namespace fs
 
 	bool is_not_empty_directory(const string& Object)
 	{
-		api::fs::enum_file Find(Object + L"\\*");
+		os::fs::enum_file Find(Object + L"\\*");
 		return Find.begin() != Find.end();
 	}
 
@@ -728,7 +728,7 @@ BOOL DeleteFile(const string& FileName)
 		Result = Global->Elevation->fDeleteFile(strNtName);
 	}
 
-	if (!Result && !api::fs::exists(strNtName))
+	if (!Result && !os::fs::exists(strNtName))
 	{
 		// Someone deleted it already,
 		// but job is done, no need to report error.
@@ -747,7 +747,7 @@ BOOL RemoveDirectory(const string& DirName)
 		Result = Global->Elevation->fRemoveDirectory(strNtName);
 	}
 
-	if (!Result && !api::fs::exists(strNtName))
+	if (!Result && !os::fs::exists(strNtName))
 	{
 		// Someone deleted it already,
 		// but job is done, no need to report error.
@@ -2020,6 +2020,45 @@ DWORD GetAppPathsRedirectionFlag()
 				m_loaded = m_module != nullptr;
 			}
 			return m_module;
+		}
+	}
+
+	namespace memory
+	{
+		bool is_pointer(const void* Address)
+		{
+			const auto GetInfo = []() -> SYSTEM_INFO { SYSTEM_INFO Info; GetSystemInfo(&Info); return Info; };
+			static const auto info = GetInfo();
+
+			return InRange<const void*>(info.lpMinimumApplicationAddress, Address, info.lpMaximumApplicationAddress);
+		}
+	}
+
+	namespace security
+	{
+		bool is_admin()
+		{
+			const auto GetResult = []() -> bool
+			{
+				SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
+				try
+				{
+					os::sid_object AdministratorsGroup(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
+					BOOL IsMember = FALSE;
+					if (CheckTokenMembership(nullptr, AdministratorsGroup.get(), &IsMember) && IsMember)
+					{
+						return true;
+					}
+				}
+				catch (const FarRecoverableException&)
+				{
+					// TODO: Log
+				}
+				return false;
+			};
+
+			static const auto Result = GetResult();
+			return Result;
 		}
 	}
 }

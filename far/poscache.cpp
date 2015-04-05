@@ -48,8 +48,8 @@ void GetFullName(const string& Name, string &strFullName)
 
 void FilePositionCache::CompactHistory()
 {
-	SCOPED_ACTION(auto)(Global->Db->HistoryCfg()->ScopedTransaction());
-	Global->Db->HistoryCfg()->DeleteOldPositions(90,1000);
+	SCOPED_ACTION(auto)(ConfigProvider().HistoryCfg()->ScopedTransaction());
+	ConfigProvider().HistoryCfg()->DeleteOldPositions(90,1000);
 }
 
 bool FilePositionCache::AddPosition(const string& Name, const EditorPosCache& poscache)
@@ -60,16 +60,16 @@ bool FilePositionCache::AddPosition(const string& Name, const EditorPosCache& po
 	string strFullName;
 	GetFullName(Name,strFullName);
 
-	SCOPED_ACTION(auto)(Global->Db->HistoryCfg()->ScopedTransaction());
+	SCOPED_ACTION(auto)(ConfigProvider().HistoryCfg()->ScopedTransaction());
 
 	bool ret = false;
 
 	unsigned __int64 id = 0;
 
 	if (Global->Opt->EdOpt.SavePos)
-		id=Global->Db->HistoryCfg()->SetEditorPos(strFullName, poscache.cur.Line, poscache.cur.LinePos, poscache.cur.ScreenLine, poscache.cur.LeftPos, poscache.CodePage);
+		id=ConfigProvider().HistoryCfg()->SetEditorPos(strFullName, poscache.cur.Line, poscache.cur.LinePos, poscache.cur.ScreenLine, poscache.cur.LeftPos, poscache.CodePage);
 	else if (Global->Opt->EdOpt.SaveShortPos)
-		id=Global->Db->HistoryCfg()->SetEditorPos(strFullName, 0, 0, 0, 0, 0);
+		id=ConfigProvider().HistoryCfg()->SetEditorPos(strFullName, 0, 0, 0, 0, 0);
 
 	if (id)
 	{
@@ -78,7 +78,7 @@ bool FilePositionCache::AddPosition(const string& Name, const EditorPosCache& po
 			for_each_cnt(CONST_RANGE(poscache.bm, i, size_t index)
 			{
 				if (i.Line != POS_NONE)
-					Global->Db->HistoryCfg()->SetEditorBookmark(id, index, i.Line, i.LinePos, i.ScreenLine, i.LeftPos);
+					ConfigProvider().HistoryCfg()->SetEditorBookmark(id, index, i.Line, i.LinePos, i.ScreenLine, i.LeftPos);
 			});
 		}
 		ret = true;
@@ -97,7 +97,7 @@ bool FilePositionCache::GetPosition(const string& Name, EditorPosCache& poscache
 	unsigned __int64 id = 0;
 
 	if (Global->Opt->EdOpt.SavePos || Global->Opt->EdOpt.SaveShortPos)
-		id = Global->Db->HistoryCfg()->GetEditorPos(strFullName, &poscache.cur.Line, &poscache.cur.LinePos, &poscache.cur.ScreenLine, &poscache.cur.LeftPos, &poscache.CodePage);
+		id = ConfigProvider().HistoryCfg()->GetEditorPos(strFullName, &poscache.cur.Line, &poscache.cur.LinePos, &poscache.cur.ScreenLine, &poscache.cur.LeftPos, &poscache.CodePage);
 
 	if (!Global->Opt->EdOpt.SavePos)
 	{
@@ -111,7 +111,7 @@ bool FilePositionCache::GetPosition(const string& Name, EditorPosCache& poscache
 
 		for_each_cnt(RANGE(poscache.bm, i, size_t index)
 		{
-			Global->Db->HistoryCfg()->GetEditorBookmark(id, index, &i.Line, &i.LinePos, &i.ScreenLine, &i.LeftPos);
+			ConfigProvider().HistoryCfg()->GetEditorBookmark(id, index, &i.Line, &i.LinePos, &i.ScreenLine, &i.LeftPos);
 		});
 
 		return true;
@@ -128,19 +128,19 @@ bool FilePositionCache::AddPosition(const string& Name, const ViewerPosCache& po
 	string strFullName;
 	GetFullName(Name,strFullName);
 
-	SCOPED_ACTION(auto)(Global->Db->HistoryCfg()->ScopedTransaction());
+	SCOPED_ACTION(auto)(ConfigProvider().HistoryCfg()->ScopedTransaction());
 
 	bool ret = false;
 	unsigned __int64 id = 0;
 
 	if (Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SaveWrapMode)
-		id=Global->Db->HistoryCfg()->SetViewerPos(strFullName,
+		id=ConfigProvider().HistoryCfg()->SetViewerPos(strFullName,
 				Global->Opt->ViOpt.SavePos?poscache.cur.FilePos:0,
 				Global->Opt->ViOpt.SavePos?poscache.cur.LeftPos:0,
 				Global->Opt->ViOpt.SaveWrapMode?poscache.Hex_Wrap:0,
 				Global->Opt->ViOpt.SaveCodepage?poscache.CodePage:0);
 	else if (Global->Opt->ViOpt.SaveShortPos)
-		id=Global->Db->HistoryCfg()->SetViewerPos(strFullName, 0, 0, 0, 0);
+		id=ConfigProvider().HistoryCfg()->SetViewerPos(strFullName, 0, 0, 0, 0);
 
 	if (id)
 	{
@@ -149,7 +149,7 @@ bool FilePositionCache::AddPosition(const string& Name, const ViewerPosCache& po
 			for_each_cnt(CONST_RANGE(poscache.bm, i, size_t index)
 			{
 				if (i.FilePos != POS_NONE)
-					Global->Db->HistoryCfg()->SetViewerBookmark(id, index, i.FilePos, i.LeftPos);
+					ConfigProvider().HistoryCfg()->SetViewerBookmark(id, index, i.FilePos, i.LeftPos);
 			});
 		}
 		ret = true;
@@ -168,7 +168,7 @@ bool FilePositionCache::GetPosition(const string& Name, ViewerPosCache& poscache
 	unsigned __int64 id = 0;
 
 	if (Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SaveWrapMode || Global->Opt->ViOpt.SaveShortPos)
-		id = Global->Db->HistoryCfg()->GetViewerPos(strFullName, &poscache.cur.FilePos, &poscache.cur.LeftPos, &poscache.Hex_Wrap, &poscache.CodePage);
+		id = ConfigProvider().HistoryCfg()->GetViewerPos(strFullName, &poscache.cur.FilePos, &poscache.cur.LeftPos, &poscache.Hex_Wrap, &poscache.CodePage);
 
 	if (!Global->Opt->ViOpt.SavePos && !Global->Opt->ViOpt.SaveCodepage && !Global->Opt->ViOpt.SaveWrapMode)
 	{
@@ -182,7 +182,7 @@ bool FilePositionCache::GetPosition(const string& Name, ViewerPosCache& poscache
 
 		for_each_cnt(RANGE(poscache.bm, i, size_t index)
 		{
-			Global->Db->HistoryCfg()->GetViewerBookmark(id, index, &i.FilePos, &i.LeftPos);
+			ConfigProvider().HistoryCfg()->GetViewerBookmark(id, index, &i.FilePos, &i.LeftPos);
 		});
 
 		return true;

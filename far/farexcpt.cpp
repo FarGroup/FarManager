@@ -221,7 +221,7 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 
 	if (Global && Global->Opt->ExceptUsed && !Global->Opt->strExceptEventSvc.empty())
 	{
-		api::rtdl::module m(Global->Opt->strExceptEventSvc.data());
+		os::rtdl::module m(Global->Opt->strExceptEventSvc.data());
 
 		if (m)
 		{
@@ -236,7 +236,7 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 				DWORD SizeModuleName;
 			};
 
-			api::rtdl::function_pointer<BOOL(WINAPI*)(EXCEPTION_POINTERS* xp, const PLUGINRECORD* Module, const PluginStartupInfo* LocalStartupInfo, LPDWORD Result)> p(m, "ExceptionProc");
+			os::rtdl::function_pointer<BOOL(WINAPI*)(EXCEPTION_POINTERS* xp, const PLUGINRECORD* Module, const PluginStartupInfo* LocalStartupInfo, LPDWORD Result)> p(m, "ExceptionProc");
 
 			if (p)
 			{
@@ -314,7 +314,7 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 		}
 		else
 		{
-			api::GetModuleFileName(nullptr, strFileName);
+			os::GetModuleFileName(nullptr, strFileName);
 		}
 	}
 	else

@@ -183,7 +183,7 @@ string& CreateTreeFileName(const string& Path, string &strDest)
 	string strVolumeName, strFileSystemName;
 	DWORD MaxNameLength = 0, FileSystemFlags = 0, VolumeNumber = 0;
 
-	if (api::GetVolumeInformation(strRootDir, &strVolumeName,
+	if (os::GetVolumeInformation(strRootDir, &strVolumeName,
 		&VolumeNumber, &MaxNameLength, &FileSystemFlags,
 		&strFileSystemName))
 	{
@@ -253,7 +253,7 @@ string& CreateTreeFileName(const string& Path, string &strDest)
 		}
 		if ( !strPath.empty() )
 		{
-			strDest = api::env::expand_strings(strPath);
+			strDest = os::env::expand_strings(strPath);
 		}
 		else
 		{
@@ -306,7 +306,7 @@ int GetCacheTreeName(const string& Root, string& strName, int CreateDir)
 	string strVolumeName, strFileSystemName;
 	DWORD dwVolumeSerialNumber;
 
-	if (!api::GetVolumeInformation(
+	if (!os::GetVolumeInformation(
 		Root,
 		&strVolumeName,
 		&dwVolumeSerialNumber,
@@ -325,8 +325,8 @@ int GetCacheTreeName(const string& Root, string& strName, int CreateDir)
 
 	if (CreateDir)
 	{
-		api::CreateDirectory(strFolderName, nullptr);
-		api::SetFileAttributes(strFolderName, Global->Opt->Tree.TreeFileAttr);
+		os::CreateDirectory(strFolderName, nullptr);
+		os::SetFileAttributes(strFolderName, Global->Opt->Tree.TreeFileAttr);
 	}
 
 	string strRemoteName;
@@ -337,7 +337,7 @@ int GetCacheTreeName(const string& Root, string& strName, int CreateDir)
 	{
 		string LocalName(L"?:");
 		LocalName.front() = Root.front();
-		api::WNetGetConnection(LocalName, strRemoteName);
+		os::WNetGetConnection(LocalName, strRemoteName);
 
 		if (!strRemoteName.empty())
 			AddEndSlash(strRemoteName);
@@ -727,7 +727,7 @@ void TreeList::Update(int Mode)
 		SyncDir();
 		auto& CurPtr=m_ListData[m_CurFile];
 
-		if (!api::fs::exists(CurPtr.strName))
+		if (!os::fs::exists(CurPtr.strName))
 		{
 			DelTreeName(CurPtr.strName);
 			Update(UPDATE_KEEP_SELECTION);
@@ -795,9 +795,9 @@ static void PR_MsgReadTree()
 	}
 }
 
-static api::fs::file OpenTreeFile(const string& Name, bool Writable)
+static os::fs::file OpenTreeFile(const string& Name, bool Writable)
 {
-	api::fs::file Result;
+	os::fs::file Result;
 	Result.Open(Name, Writable? FILE_WRITE_DATA : FILE_READ_DATA, FILE_SHARE_READ, nullptr, Writable? OPEN_ALWAYS : OPEN_EXISTING);
 	return std::move(Result);
 }
@@ -820,9 +820,9 @@ static bool MustBeCached(const string& Root)
 	return false;
 }
 
-static api::fs::file OpenCacheableTreeFile(const string& Root, string& Name, bool Writable)
+static os::fs::file OpenCacheableTreeFile(const string& Root, string& Name, bool Writable)
 {
-	api::fs::file Result;
+	os::fs::file Result;
 	if (!MustBeCached(Root))
 		Result = OpenTreeFile(Name, Writable);
 
@@ -836,7 +836,7 @@ static api::fs::file OpenCacheableTreeFile(const string& Root, string& Name, boo
 	return std::move(Result);
 }
 
-static void ReadLines(api::fs::file& TreeFile, const std::function<void(string&)>& Inserter)
+static void ReadLines(os::fs::file& TreeFile, const std::function<void(string&)>& Inserter)
 {
 	GetFileString GetStr(TreeFile, CP_UNICODE);
 	string Record;
@@ -858,12 +858,12 @@ template<class string_type, class container_type, class opener_type>
 static inline void WriteTree(string_type& Name, const container_type& Container, const opener_type& Opener, size_t offset)
 {
 	// получим и сразу сбросим атрибуты (если получится)
-	DWORD SavedAttributes = api::GetFileAttributes(Name);
+	DWORD SavedAttributes = os::GetFileAttributes(Name);
 
 	if (SavedAttributes != INVALID_FILE_ATTRIBUTES)
-		api::SetFileAttributes(Name, FILE_ATTRIBUTE_NORMAL);
+		os::SetFileAttributes(Name, FILE_ATTRIBUTE_NORMAL);
 
-	api::fs::file TreeFile = Opener(Name);
+	os::fs::file TreeFile = Opener(Name);
 
 	bool Result = false;
 
@@ -892,11 +892,11 @@ static inline void WriteTree(string_type& Name, const container_type& Container,
 	if (Result)
 	{
 		if (SavedAttributes != INVALID_FILE_ATTRIBUTES) // вернем атрибуты (если получится :-)
-			api::SetFileAttributes(Name, SavedAttributes);
+			os::SetFileAttributes(Name, SavedAttributes);
 	}
 	else
 	{
-		api::DeleteFile(TreeCache().GetTreeName());
+		os::DeleteFile(TreeCache().GetTreeName());
 		if (!Global->WindowManager->ManagerIsDown())
 			Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), MSG(MCannotSaveTree), Name.data(), MSG(MOk));
 	}
@@ -908,7 +908,7 @@ int TreeList::ReadTree()
 	//SaveScreen SaveScr;
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<TreePreRedrawItem>());
 	ScanTree ScTree(false);
-	api::FAR_FIND_DATA fdata;
+	os::FAR_FIND_DATA fdata;
 	string strFullName;
 	FlushCache();
 	SaveState();
@@ -1004,7 +1004,7 @@ void TreeList::SaveTreeFile()
 	WriteTree(strName, m_ListData, Opener, RootLength);
 
 #if defined(TREEFILE_PROJECT)
-	api::SetFileAttributes(strName, Global->Opt->Tree.TreeFileAttr);
+	os::SetFileAttributes(strName, Global->Opt->Tree.TreeFileAttr);
 #endif
 
 }
@@ -1754,7 +1754,7 @@ void TreeList::MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 void TreeList::ProcessEnter()
 {
 	auto& CurPtr=m_ListData[m_CurFile];
-	if (api::fs::is_directory(CurPtr.strName))
+	if (os::fs::is_directory(CurPtr.strName))
 	{
 		if (!m_ModalMode && FarChDir(CurPtr.strName))
 		{
@@ -1857,7 +1857,7 @@ size_t TreeList::GetSelCount() const
 	return 1;
 }
 
-int TreeList::GetSelName(string *strName, DWORD &FileAttr, string *strShortName, api::FAR_FIND_DATA *fd)
+int TreeList::GetSelName(string *strName, DWORD &FileAttr, string *strShortName, os::FAR_FIND_DATA *fd)
 {
 	if (!strName)
 	{
@@ -1958,12 +1958,12 @@ void TreeList::ReadSubTree(const string& Path)
 	//SaveScreen SaveScr;
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<TreePreRedrawItem>());
 	ScanTree ScTree(false);
-	api::FAR_FIND_DATA fdata;
+	os::FAR_FIND_DATA fdata;
 	string strDirName;
 	string strFullName;
 	int Count=0;
 
-	if (!api::fs::is_directory(Path))
+	if (!os::fs::is_directory(Path))
 		return;
 
 	ConvertNameToFull(Path, strDirName);
@@ -2103,7 +2103,7 @@ int TreeList::GetFileName(string &strName, int Pos, DWORD &FileAttr) const
 		return FALSE;
 
 	strName = m_ListData[Pos].strName;
-	FileAttr=FILE_ATTRIBUTE_DIRECTORY|api::GetFileAttributes(m_ListData[Pos].strName);
+	FileAttr=FILE_ATTRIBUTE_DIRECTORY|os::GetFileAttributes(m_ListData[Pos].strName);
 	return TRUE;
 }
 
@@ -2117,7 +2117,7 @@ void TreeList::KillFocus()
 {
 	if (static_cast<size_t>(m_CurFile) < m_ListData.size())
 	{
-		if (!api::fs::exists(m_ListData[m_CurFile].strName))
+		if (!os::fs::exists(m_ListData[m_CurFile].strName))
 		{
 			DelTreeName(m_ListData[m_CurFile].strName);
 			Update(UPDATE_KEEP_SELECTION);

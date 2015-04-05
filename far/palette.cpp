@@ -244,7 +244,7 @@ void palette::Load()
 {
 	for_each_cnt(RANGE(CurrentPalette, i, size_t index)
 	{
-		Global->Db->ColorsCfg()->GetValue(Init[index].Name, i);
+		ConfigProvider().ColorsCfg()->GetValue(Init[index].Name, i);
 	});
 	PaletteChanged = false;
 }
@@ -253,11 +253,11 @@ void palette::Save(bool always)
 {
 	if (always || PaletteChanged)
 	{
-		SCOPED_ACTION(auto)(Global->Db->ColorsCfg()->ScopedTransaction());
+		SCOPED_ACTION(auto)(ConfigProvider().ColorsCfg()->ScopedTransaction());
 
 		for_each_cnt(CONST_RANGE(CurrentPalette, i, size_t index)
 		{
-			Global->Db->ColorsCfg()->SetValue(Init[index].Name, i);
+			ConfigProvider().ColorsCfg()->SetValue(Init[index].Name, i);
 		});
 		PaletteChanged = false;
 	}

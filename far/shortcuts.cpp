@@ -132,14 +132,14 @@ Shortcuts::Shortcuts()
 {
 	Changed = false;
 
-	auto cfg = Global->Db->CreateShortcutsConfig();
+	auto cfg = ConfigProvider().CreateShortcutsConfig();
 
-	if (auto root = cfg->GetKeyID(cfg->root_key(), FolderShortcutsKey))
+	if (auto root = cfg->FindByName(cfg->root_key(), FolderShortcutsKey))
 	{
 		for_each_cnt(RANGE(Items, i, size_t index)
 		{
 			i.clear();
-			if (const auto key = cfg->GetKeyID(root, std::to_wstring(index)))
+			if (const auto key = cfg->FindByName(root, std::to_wstring(index)))
 			{
 				for(size_t j=0; ; j++)
 				{
@@ -176,8 +176,8 @@ void Shortcuts::Save()
 	if (!Changed)
 		return;
 
-	const auto cfg = Global->Db->CreateShortcutsConfig();
-	auto root = cfg->GetKeyID(cfg->root_key(), FolderShortcutsKey);
+	const auto cfg = ConfigProvider().CreateShortcutsConfig();
+	auto root = cfg->FindByName(cfg->root_key(), FolderShortcutsKey);
 	if (root)
 		cfg->DeleteKeyTree(root);
 
@@ -218,7 +218,7 @@ static void Fill(const Shortcuts::shortcut& RetItem, string* Folder, GUID* Plugi
 {
 	if(Folder)
 	{
-		*Folder = api::env::expand_strings(RetItem.strFolder);
+		*Folder = os::env::expand_strings(RetItem.strFolder);
 	}
 	if(PluginGuid)
 	{
@@ -249,7 +249,7 @@ static string MakeName(const Shortcuts::shortcut& Item)
 		{
 			result = Item.strFolder;
 		}
-		result = api::env::expand_strings(result);
+		result = os::env::expand_strings(result);
 	}
 	else
 	{
@@ -538,9 +538,9 @@ void Shortcuts::EditItem(VMenu2& Menu, shortcut& Item, bool Root, bool raw)
 				DeleteEndSlash(NewItem.strFolder);
 			}
 
-			string strTemp = api::env::expand_strings(NewItem.strFolder);
+			string strTemp = os::env::expand_strings(NewItem.strFolder);
 
-			if ((!raw || !strTemp.empty()) && !api::fs::exists(strTemp))
+			if ((!raw || !strTemp.empty()) && !os::fs::exists(strTemp))
 			{
 				Global->CatchError();
 				Save=!Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), NewItem.strFolder.data(), MSG(MSaveThisShortcut), MSG(MYes), MSG(MNo));

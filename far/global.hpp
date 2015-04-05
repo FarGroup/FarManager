@@ -43,8 +43,6 @@ public:
 	HANDLE MainThreadHandle() const {return m_MainThreadHandle;}
 	inline bool IsMainThread() const {return GetCurrentThreadId() == m_MainThreadId;}
 	uint64_t FarUpTime() const;
-	static bool IsPtr(const void* Address);
-	static bool IsUserAdmin();
 	static const wchar_t* Version();
 	static const wchar_t* Copyright();
 
@@ -107,13 +105,14 @@ private:
 	static thread_local NTSTATUS m_LastStatus;
 
 public:
+	// TODO: review the order and make private
 	class ScreenBuf* ScrBuf;
 	class FormatScreen FS;
 	class Manager* WindowManager;
 	class Options *Opt;
 	class Language *Lang;
 	class elevation *Elevation;
-	class Database* Db;
+	class config_provider* m_ConfigProvider;
 	class ControlObject* CtrlObject;
 };
 

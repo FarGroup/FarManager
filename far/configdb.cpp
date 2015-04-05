@@ -408,7 +408,7 @@ public:
 	virtual void AsyncFinish() override
 	{
 		AsyncDone.Reset();
-		Global->Db->AddThread(Thread(&Thread::detach, &HierarchicalConfigDb::AsyncDelete, this));
+		ConfigProvider().AddThread(Thread(&Thread::detach, &HierarchicalConfigDb::AsyncDelete, this));
 	}
 
 	virtual bool InitializeImpl(const string& DbName, bool Local) override
@@ -454,13 +454,13 @@ public:
 		if (m_Statements[stmtCreateKey].Bind(Root.get(), Name, Description? *Description : string()).StepAndReset())
 			return make_key(LastInsertRowID());
 
-		auto Key = GetKeyID(Root, Name);
+		auto Key = FindByName(Root, Name);
 		if (Key.get() && Description)
 			SetKeyDescription(Key, *Description);
 		return Key;
 	}
 
-	virtual key GetKeyID(const key& Root, const string& Name) override
+	virtual key FindByName(const key& Root, const string& Name) override
 	{
 		auto& Stmt = m_Statements[stmtFindKey];
 		uint64_t id = 0;
@@ -825,7 +825,7 @@ public:
 
 	virtual bool SetValue(const string& Name, const FarColor& Value) override
 	{
-		const auto StmtStepAndReset = [&](int StmtId) { return m_Statements[StmtId].Bind(Name, blob(&Value, sizeof(Value))).StepAndReset(); };
+		const auto StmtStepAndReset = [&](statement_id StmtId) { return m_Statements[StmtId].Bind(Name, blob(&Value, sizeof(Value))).StepAndReset(); };
 
 		bool b = StmtStepAndReset(stmtUpdateValue);
 		if (!b || !Changes())
@@ -2267,7 +2267,7 @@ public:
 	virtual void Export(representation&) override {}
 };
 
-void Database::CheckDatabase(SQLiteDb *pDb)
+void config_provider::CheckDatabase(SQLiteDb *pDb)
 {
 	string pname;
 	int rc = pDb->InitStatus(pname, m_Mode != default_mode);
@@ -2285,7 +2285,7 @@ void Database::CheckDatabase(SQLiteDb *pDb)
 	}
 }
 
-void Database::TryImportDatabase(representable *p, const char *son, bool plugin)
+void config_provider::TryImportDatabase(representable *p, const char *son, bool plugin)
 {
 	if (!m_TemplateSource && !Global->Opt->TemplateProfilePath.empty())
 	{
@@ -2325,7 +2325,7 @@ void Database::TryImportDatabase(representable *p, const char *son, bool plugin)
 }
 
 template<class T>
-std::unique_ptr<T> Database::CreateDatabase(const char *son)
+std::unique_ptr<T> config_provider::CreateDatabase(const char *son)
 {
 	auto cfg = std::make_unique<T>();
 	CheckDatabase(cfg.get());
@@ -2337,7 +2337,7 @@ std::unique_ptr<T> Database::CreateDatabase(const char *son)
 }
 
 template<class T>
-HierarchicalConfigUniquePtr Database::CreateHierarchicalConfig(dbcheck DbId, const string& dbn, const char *xmln, bool Local, bool plugin)
+HierarchicalConfigUniquePtr config_provider::CreateHierarchicalConfig(dbcheck DbId, const string& dbn, const char *xmln, bool Local, bool plugin)
 {
 	auto cfg = std::make_unique<T>(dbn, Local);
 	if (!CheckedDb.Check(DbId))
@@ -2361,32 +2361,32 @@ ENUM(dbcheck)
 	CHECK_PANELMODES = BIT(3),
 };
 
-HierarchicalConfigUniquePtr Database::CreatePluginsConfig(const string& guid, bool Local)
+HierarchicalConfigUniquePtr config_provider::CreatePluginsConfig(const string& guid, bool Local)
 {
 	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, L"PluginsData\\" + guid + L".db", Utf8String(guid).data(), Local, true);
 }
 
-HierarchicalConfigUniquePtr Database::CreateFiltersConfig()
+HierarchicalConfigUniquePtr config_provider::CreateFiltersConfig()
 {
 	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_FILTERS, L"filters.db","filters");
 }
 
-HierarchicalConfigUniquePtr Database::CreateHighlightConfig()
+HierarchicalConfigUniquePtr config_provider::CreateHighlightConfig()
 {
 	return CreateHierarchicalConfig<HighlightHierarchicalConfigDb>(CHECK_HIGHLIGHT, L"highlight.db","highlight");
 }
 
-HierarchicalConfigUniquePtr Database::CreateShortcutsConfig()
+HierarchicalConfigUniquePtr config_provider::CreateShortcutsConfig()
 {
 	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_SHORTCUTS, L"shortcuts.db","shortcuts", true);
 }
 
-HierarchicalConfigUniquePtr Database::CreatePanelModeConfig()
+HierarchicalConfigUniquePtr config_provider::CreatePanelModeConfig()
 {
 	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_PANELMODES, L"panelmodes.db","panelmodes");
 }
 
-Database::Database(mode Mode):
+config_provider::config_provider(mode Mode):
 	m_Mode(Mode),
 	m_GeneralCfg(CreateDatabase<GeneralConfigDb>()),
 	m_LocalGeneralCfg(CreateDatabase<LocalGeneralConfigDb>()),
@@ -2399,7 +2399,7 @@ Database::Database(mode Mode):
 {
 }
 
-Database::~Database()
+config_provider::~config_provider()
 {
 	MultiWaiter ThreadWaiter;
 	FOR(const auto& i, m_Threads) { ThreadWaiter.Add(i); }
@@ -2413,7 +2413,7 @@ const std::wregex& uuid_regex()
 }
 
 
-bool Database::Export(const string& File)
+bool config_provider::Export(const string& File)
 {
 	const file_ptr XmlFile(_wfopen(NTPath(File).data(), L"w"));
 
@@ -2445,7 +2445,7 @@ bool Database::Export(const string& File)
 
 	{ //TODO: export for local plugin settings
 		auto& e = CreateChild(root, "pluginsconfig");
-		api::fs::enum_file ff(Global->Opt->ProfilePath + L"\\PluginsData\\*.db");
+		os::fs::enum_file ff(Global->Opt->ProfilePath + L"\\PluginsData\\*.db");
 		std::for_each(RANGE(ff, i)
 		{
 			i.strFileName.resize(i.strFileName.size()-3);
@@ -2463,7 +2463,7 @@ bool Database::Export(const string& File)
 	return doc.SaveFile(XmlFile.get());
 }
 
-bool Database::Import(const string& Filename)
+bool config_provider::Import(const string& Filename)
 {
 	representation_source Source(Filename);
 
@@ -2511,12 +2511,12 @@ bool Database::Import(const string& Filename)
 	return true;
 }
 
-void Database::ClearPluginsCache()
+void config_provider::ClearPluginsCache()
 {
 	PluginsCacheConfigDb().DiscardCache();
 }
 
-int Database::ShowProblems()
+int config_provider::ShowProblems()
 {
 	int rc = 0;
 	if (!m_Problems.empty())
@@ -2529,8 +2529,13 @@ int Database::ShowProblems()
 	return rc;
 }
 
-void Database::AddThread(Thread&& thread)
+void config_provider::AddThread(Thread&& thread)
 {
 	m_Threads.emplace_back(std::move(thread));
 	m_Threads.erase(std::remove_if(ALL_RANGE(m_Threads), std::mem_fn(&Thread::Signaled)), m_Threads.end());
+}
+
+config_provider& ConfigProvider()
+{
+	return *Global->m_ConfigProvider;
 }

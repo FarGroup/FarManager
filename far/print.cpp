@@ -208,7 +208,7 @@ void PrintFiles(FileList* SrcPanel)
 			{
 				if (FarMkTempEx(strTempDir))
 				{
-					api::CreateDirectory(strTempDir,nullptr);
+					os::CreateDirectory(strTempDir,nullptr);
 					auto ListItem = SrcPanel->GetLastSelectedItem();
 					if (ListItem)
 					{
@@ -218,7 +218,7 @@ void PrintFiles(FileList* SrcPanel)
 						if (Global->CtrlObject->Plugins->GetFile(hPlugin,&PanelItem,strTempDir,strTempName,OPM_SILENT))
 							FileName = strTempName;
 						else
-							api::RemoveDirectory(strTempDir);
+							os::RemoveDirectory(strTempDir);
 
 						FreePluginPanelItem(PanelItem);
 					}
@@ -227,7 +227,7 @@ void PrintFiles(FileList* SrcPanel)
 			else
 				FileName = strSelName;
 
-			api::fs::file SrcFile;
+			os::fs::file SrcFile;
 			if(SrcFile.Open(FileName, GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 			{
 				DOC_INFO_1 di1 = {UNSAFE_CSTR(FileName)};

@@ -251,7 +251,7 @@ public:
 	bool Load();
 	int Unload(bool bExitFAR = false);
 	bool LoadData();
-	bool LoadFromCache(const api::FAR_FIND_DATA &FindData);
+	bool LoadFromCache(const os::FAR_FIND_DATA &FindData);
 	bool SaveToCache();
 	bool IsPanelPlugin();
 	bool Active() const {return Activity != 0;}
@@ -328,17 +328,17 @@ public:
 	virtual void InitExports(plugin_instance instance, exports_array& exports) override;
 
 private:
-	api::rtdl::module m_Module;
+	os::rtdl::module m_Module;
 	struct ModuleImports
 	{
-		api::rtdl::function_pointer<BOOL(WINAPI*)(GlobalInfo* info)> pInitialize;
-		api::rtdl::function_pointer<BOOL(WINAPI*)(const wchar_t* filename)> pIsPlugin;
-		api::rtdl::function_pointer<HANDLE(WINAPI*)(const wchar_t* filename)> pCreateInstance;
-		api::rtdl::function_pointer<FARPROC(WINAPI*)(HANDLE Instance, const wchar_t* functionname)> pGetFunctionAddress;
-		api::rtdl::function_pointer<BOOL(WINAPI*)(HANDLE Instance)> pDestroyInstance;
-		api::rtdl::function_pointer<void (WINAPI*)(const ExitInfo* info)> pFree;
+		os::rtdl::function_pointer<BOOL(WINAPI*)(GlobalInfo* info)> pInitialize;
+		os::rtdl::function_pointer<BOOL(WINAPI*)(const wchar_t* filename)> pIsPlugin;
+		os::rtdl::function_pointer<HANDLE(WINAPI*)(const wchar_t* filename)> pCreateInstance;
+		os::rtdl::function_pointer<FARPROC(WINAPI*)(HANDLE Instance, const wchar_t* functionname)> pGetFunctionAddress;
+		os::rtdl::function_pointer<BOOL(WINAPI*)(HANDLE Instance)> pDestroyInstance;
+		os::rtdl::function_pointer<void (WINAPI*)(const ExitInfo* info)> pFree;
 
-		ModuleImports(const api::rtdl::module& Module);
+		ModuleImports(const os::rtdl::module& Module);
 	}
 	m_Imports;
 	bool m_Success;

@@ -109,11 +109,11 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 {
 	if (DeleteOld)
 	{
-		if (const auto root = cfg->GetKeyID(cfg->root_key(), HighlightKeyName))
+		if (const auto root = cfg->FindByName(cfg->root_key(), HighlightKeyName))
 			cfg->DeleteKeyTree(root);
 	}
 
-	if (!cfg->GetKeyID(cfg->root_key(), HighlightKeyName))
+	if (!cfg->FindByName(cfg->root_key(), HighlightKeyName))
 	{
 		if (const auto root = cfg->CreateKey(cfg->root_key(), HighlightKeyName))
 		{
@@ -195,7 +195,7 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 HighlightFiles::HighlightFiles()
 {
 	Changed = false;
-	auto cfg = Global->Db->CreateHighlightConfig();
+	auto cfg = ConfigProvider().CreateHighlightConfig();
 	SetHighlighting(false, cfg.get());
 	InitHighlightFiles(cfg.get());
 	UpdateCurrentTime();
@@ -314,11 +314,11 @@ void HighlightFiles::InitHighlightFiles(HierarchicalConfig* cfg)
 
 	std::for_each(CONST_RANGE(GroupItems, Item)
 	{
-		if (auto root = cfg->GetKeyID(cfg->root_key(), Item.KeyName))
+		if (auto root = cfg->FindByName(cfg->root_key(), Item.KeyName))
 		{
 			for (int i=0;; ++i)
 			{
-				auto key = cfg->GetKeyID(root, Item.GroupName + std::to_wstring(i));
+				auto key = cfg->FindByName(root, Item.GroupName + std::to_wstring(i));
 				if (!key)
 					break;
 
@@ -631,7 +631,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 					            MSG(MYes),MSG(MCancel)) != 0)
 						break;
 
-					auto cfg = Global->Db->CreateHighlightConfig();
+					auto cfg = ConfigProvider().CreateHighlightConfig();
 					SetHighlighting(true, cfg.get()); //delete old settings
 					ClearData();
 					InitHighlightFiles(cfg.get());
@@ -854,13 +854,13 @@ void HighlightFiles::Save(bool always)
 
 	Changed = false;
 
-	auto cfg = Global->Db->CreateHighlightConfig();
-	auto root = cfg->GetKeyID(cfg->root_key(), HighlightKeyName);
+	auto cfg = ConfigProvider().CreateHighlightConfig();
+	auto root = cfg->FindByName(cfg->root_key(), HighlightKeyName);
 
 	if (root)
 		cfg->DeleteKeyTree(root);
 
-	root = cfg->GetKeyID(cfg->root_key(), SortGroupsKeyName);
+	root = cfg->FindByName(cfg->root_key(), SortGroupsKeyName);
 
 	if (root)
 		cfg->DeleteKeyTree(root);

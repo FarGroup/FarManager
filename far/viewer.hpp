@@ -165,10 +165,10 @@ private:
 	string strFileName;
 	string strFullFileName;
 
-	api::fs::file ViewFile;
+	os::fs::file ViewFile;
 	CachedRead Reader;
 
-	api::FAR_FIND_DATA ViewFindData;
+	os::FAR_FIND_DATA ViewFindData;
 
 	string strTempViewName;
 

@@ -163,7 +163,7 @@ bool FileFilter::FilterEdit()
 		if (GetHostPanel()->GetMode()==NORMAL_PANEL)
 		{
 			string strFileName;
-			api::FAR_FIND_DATA fdata;
+			os::FAR_FIND_DATA fdata;
 			ScanTree ScTree(false, false);
 			ScTree.SetFindPath(GetHostPanel()->GetCurDir(), L"*");
 
@@ -574,7 +574,7 @@ void FileFilter::UpdateCurrentTime()
 
 bool FileFilter::FileInFilter(const FileListItem* fli,enumFileInFilterType *foundType)
 {
-	api::FAR_FIND_DATA fde;
+	os::FAR_FIND_DATA fde;
 	fde.dwFileAttributes=fli->FileAttr;
 	fde.ftCreationTime=fli->CreationTime;
 	fde.ftLastAccessTime=fli->AccessTime;
@@ -587,7 +587,7 @@ bool FileFilter::FileInFilter(const FileListItem* fli,enumFileInFilterType *foun
 	return FileInFilter(fde, foundType, &fli->strName);
 }
 
-bool FileFilter::FileInFilter(const api::FAR_FIND_DATA& fde,enumFileInFilterType *foundType, const string* FullName)
+bool FileFilter::FileInFilter(const os::FAR_FIND_DATA& fde,enumFileInFilterType *foundType, const string* FullName)
 {
 	auto FFFT = GetFFFT();
 	bool bFound=false;
@@ -710,7 +710,7 @@ final:
 
 bool FileFilter::FileInFilter(const PluginPanelItem& fd,enumFileInFilterType *foundType)
 {
-	api::FAR_FIND_DATA fde;
+	os::FAR_FIND_DATA fde;
 	PluginPanelItemToFindDataEx(&fd,&fde);
 	return FileInFilter(fde, foundType, &fde.strFileName);
 }
@@ -735,8 +735,8 @@ void FileFilter::InitFilter()
 {
 	string strTitle, strMask, strSizeBelow, strSizeAbove;
 
-	const auto cfg = Global->Db->CreateFiltersConfig();
-	const auto root = cfg->GetKeyID(cfg->root_key(), L"Filters");
+	const auto cfg = ConfigProvider().CreateFiltersConfig();
+	const auto root = cfg->FindByName(cfg->root_key(), L"Filters");
 
 	{
 		static FileFilterParams _FoldersFilter;
@@ -758,7 +758,7 @@ void FileFilter::InitFilter()
 
 	for (;;)
 	{
-		const auto key = cfg->GetKeyID(root, L"Filter" + std::to_wstring(FilterData().size()));
+		const auto key = cfg->FindByName(root, L"Filter" + std::to_wstring(FilterData().size()));
 
 		if (!key || !cfg->GetValue(key,L"Title",strTitle))
 			break;
@@ -822,7 +822,7 @@ void FileFilter::InitFilter()
 
 	for (;;)
 	{
-		const auto key = cfg->GetKeyID(root, L"PanelMask" + std::to_wstring(TempFilterData().size()));
+		const auto key = cfg->FindByName(root, L"PanelMask" + std::to_wstring(TempFilterData().size()));
 
 		if (!key || !cfg->GetValue(key,L"Mask",strMask))
 			break;
@@ -856,9 +856,9 @@ void FileFilter::Save(bool always)
 
 	Changed = false;
 
-	auto cfg = Global->Db->CreateFiltersConfig();
+	auto cfg = ConfigProvider().CreateFiltersConfig();
 
-	auto root = cfg->GetKeyID(cfg->root_key(), L"Filters");
+	auto root = cfg->FindByName(cfg->root_key(), L"Filters");
 	if (root)
 		cfg->DeleteKeyTree(root);
 

@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class CachedRead: noncopyable
 {
 public:
-	CachedRead(api::fs::file& file, size_t buffer_size = 0);
+	CachedRead(os::fs::file& file, size_t buffer_size = 0);
 	~CachedRead();
 	void AdjustAlignment(); // file have to be opened already
 	bool Read(void* Data, size_t DataSize, size_t* BytesRead);
@@ -45,7 +45,7 @@ public:
 
 private:
 	enum { DefaultBufferSize = 0x10000 };
-	api::fs::file& file;
+	os::fs::file& file;
 	size_t ReadSize;
 	size_t BytesLeft;
 	uint64_t LastPtr;
@@ -57,13 +57,13 @@ private:
 class CachedWrite: noncopyable
 {
 public:
-	CachedWrite(api::fs::file& file);
+	CachedWrite(os::fs::file& file);
 	~CachedWrite();
 	bool Write(const void* Data, size_t DataSize);
 	bool Flush();
 
 private:
-	api::fs::file& file;
+	os::fs::file& file;
 	std::vector<char> Buffer;
 	size_t FreeSize;
 	bool Flushed;

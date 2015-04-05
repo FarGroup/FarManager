@@ -31,17 +31,23 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
-class Privilege: noncopyable
+namespace os
 {
-public:
-	Privilege(const std::vector<const wchar_t*>& PrivilegeNames);
-	~Privilege();
+	namespace security
+	{
+		class privilege: noncopyable
+		{
+		public:
+			privilege(const std::vector<const wchar_t*>& PrivilegeNames);
+			~privilege();
 
-private:
-	HANDLE hToken;
-	bool Changed;
-	block_ptr<TOKEN_PRIVILEGES> SavedState;
-};
+			static bool is_set(const wchar_t* PrivilegeName);
 
-bool CheckPrivilege(LPCWSTR PrivilegeName);
+		private:
+			HANDLE m_Token;
+			block_ptr<TOKEN_PRIVILEGES> m_SavedState;
+			bool m_Changed;
+		};
+
+	}
+}

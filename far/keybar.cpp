@@ -257,7 +257,7 @@ void KeyBar::SetCustomLabels(KEYBARAREA Area)
 		CustomArea = Area;
 		ClearKeyTitles(true);
 
-		FOR(auto& i, Global->Db->GeneralCfg()->GetStringValuesEnumerator(L"KeyBarLabels." + strLanguage + L"." + Names[Area]))
+		FOR(auto& i, ConfigProvider().GeneralCfg()->GetStringValuesEnumerator(L"KeyBarLabels." + strLanguage + L"." + Names[Area]))
 		{
 			DWORD Key = KeyNameToKey(i.first);
 			DWORD fnum = (Key & ~KEY_CTRLMASK) - KEY_F1;

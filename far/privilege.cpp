@@ -36,11 +36,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "privilege.hpp"
 #include "lasterror.hpp"
 
-Privilege::Privilege(const std::vector<const wchar_t*>& PrivilegeNames):
-	hToken(INVALID_HANDLE_VALUE),
-	Changed(false)
+namespace os { namespace security {
+
+privilege::privilege(const std::vector<const wchar_t*>& PrivilegeNames):
+	m_Token(INVALID_HANDLE_VALUE),
+	m_Changed(false)
 {
-	if (OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken))
+	if (OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &m_Token))
 	{
 		block_ptr<TOKEN_PRIVILEGES> NewState(sizeof(TOKEN_PRIVILEGES) + sizeof(LUID_AND_ATTRIBUTES) * (PrivilegeNames.size() - 1));
 		NewState->PrivilegeCount = static_cast<DWORD>(PrivilegeNames.size());
@@ -53,31 +55,31 @@ Privilege::Privilege(const std::vector<const wchar_t*>& PrivilegeNames):
 			return laa;
 		});
 
-		SavedState.reset(NewState.size());
+		m_SavedState.reset(NewState.size());
 
 		DWORD ReturnLength;
 		// TODO: log if failed
-		if (AdjustTokenPrivileges(hToken, FALSE, NewState.get(), static_cast<DWORD>(NewState.size()), SavedState.get(), &ReturnLength) && GetLastError() == ERROR_SUCCESS)
+		if (AdjustTokenPrivileges(m_Token, FALSE, NewState.get(), static_cast<DWORD>(NewState.size()), m_SavedState.get(), &ReturnLength) && GetLastError() == ERROR_SUCCESS)
 		{
-			Changed = true;
+			m_Changed = true;
 		}
 	}
 }
 
-Privilege::~Privilege()
+privilege::~privilege()
 {
-	if(hToken!=INVALID_HANDLE_VALUE)
+	if(m_Token!=INVALID_HANDLE_VALUE)
 	{
 		SCOPED_ACTION(GuardLastError);
-		if(Changed)
+		if(m_Changed)
 		{
-			AdjustTokenPrivileges(hToken, FALSE, SavedState.get(), static_cast<DWORD>(SavedState.size()), nullptr, nullptr);
+			AdjustTokenPrivileges(m_Token, FALSE, m_SavedState.get(), static_cast<DWORD>(m_SavedState.size()), nullptr, nullptr);
 		}
-		CloseHandle(hToken);
+		CloseHandle(m_Token);
 	}
 }
 
-bool CheckPrivilege(LPCWSTR PrivilegeName)
+bool privilege::is_set(const wchar_t* PrivilegeName)
 {
 	bool Result=false;
 	TOKEN_PRIVILEGES State={1};
@@ -110,3 +112,5 @@ bool CheckPrivilege(LPCWSTR PrivilegeName)
 	}
 	return Result;
 }
+
+}}

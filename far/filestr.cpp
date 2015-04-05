@@ -36,10 +36,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "filestr.hpp"
 #include "nsUniversalDetectorEx.hpp"
-
 #include "config.hpp"
 #include "configdb.hpp"
 #include "codepage.hpp"
+#include "strmix.hpp"
 
 const size_t DELTA = 1024;
 const size_t ReadBufCount = 0x2000;
@@ -104,7 +104,7 @@ bool IsTextUTF8(const char* Buffer, size_t Length, bool& PureAscii)
 	return (!Octets || Length - LastOctetsPos < MaxCharSize) && !Ascii;
 }
 
-GetFileString::GetFileString(api::fs::file& SrcFile, uintptr_t CodePage) :
+GetFileString::GetFileString(os::fs::file& SrcFile, uintptr_t CodePage) :
 	SrcFile(SrcFile),
 	m_CodePage(CodePage),
 	ReadPos(0),
@@ -366,7 +366,7 @@ bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, bool bB
 }
 
 bool GetFileFormat(
-	api::fs::file& file, uintptr_t& nCodePage, bool* pSignatureFound, bool bUseHeuristics, bool* pPureAscii)
+	os::fs::file& file, uintptr_t& nCodePage, bool* pSignatureFound, bool bUseHeuristics, bool* pPureAscii)
 {
 	DWORD dwTemp = 0;
 	bool bSignatureFound = false;

@@ -176,7 +176,7 @@ private:
 	friend class Plugin;
 
 	void LoadIfCacheAbsent();
-	Plugin* LoadPlugin(const string& lpwszModuleName, const api::FAR_FIND_DATA &FindData, bool LoadToMem);
+	Plugin* LoadPlugin(const string& lpwszModuleName, const os::FAR_FIND_DATA &FindData, bool LoadToMem);
 	bool AddPlugin(Plugin *pPlugin);
 	bool RemovePlugin(Plugin *pPlugin);
 	bool UpdateId(Plugin *pPlugin, const GUID& Id);

@@ -133,7 +133,7 @@ static int MainProcess(
 		SetRealColor(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 
 		string ename(lpwszEditName),vname(lpwszViewName), apanel(lpwszDestName1),ppanel(lpwszDestName2);
-		if (Global->Db->ShowProblems() > 0)
+		if (ConfigProvider().ShowProblems() > 0)
 		{
 			ename.clear();
 			vname.clear();
@@ -309,10 +309,10 @@ static void InitTemplateProfile(string &strTemplatePath)
 
 	if (!strTemplatePath.empty())
 	{
-		ConvertNameToFull(Unquote(api::env::expand_strings(strTemplatePath)), strTemplatePath);
+		ConvertNameToFull(Unquote(os::env::expand_strings(strTemplatePath)), strTemplatePath);
 		DeleteEndSlash(strTemplatePath);
 
-		if (api::fs::is_directory(strTemplatePath))
+		if (os::fs::is_directory(strTemplatePath))
 			strTemplatePath += L"\\Default.farconfig";
 
 		Global->Opt->TemplateProfilePath = strTemplatePath;
@@ -323,11 +323,11 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 {
 	if (!strProfilePath.empty())
 	{
-		ConvertNameToFull(Unquote(api::env::expand_strings(strProfilePath)), strProfilePath);
+		ConvertNameToFull(Unquote(os::env::expand_strings(strProfilePath)), strProfilePath);
 	}
 	if (!strLocalProfilePath.empty())
 	{
-		ConvertNameToFull(Unquote(api::env::expand_strings(strLocalProfilePath)), strLocalProfilePath);
+		ConvertNameToFull(Unquote(os::env::expand_strings(strLocalProfilePath)), strLocalProfilePath);
 	}
 
 	if (strProfilePath.empty())
@@ -367,8 +367,8 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 		{
 			string strUserProfileDir = GetFarIniString(L"General", L"UserProfileDir", L"%FARHOME%\\Profile");
 			string strUserLocalProfileDir = GetFarIniString(L"General", L"UserLocalProfileDir", strUserProfileDir);
-			ConvertNameToFull(Unquote(api::env::expand_strings(strUserProfileDir)), Global->Opt->ProfilePath);
-			ConvertNameToFull(Unquote(api::env::expand_strings(strUserLocalProfileDir)), Global->Opt->LocalProfilePath);
+			ConvertNameToFull(Unquote(os::env::expand_strings(strUserProfileDir)), Global->Opt->ProfilePath);
+			ConvertNameToFull(Unquote(os::env::expand_strings(strUserLocalProfileDir)), Global->Opt->LocalProfilePath);
 		}
 	}
 	else
@@ -379,8 +379,8 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 
 	Global->Opt->LoadPlug.strPersonalPluginsPath = Global->Opt->ProfilePath + L"\\Plugins";
 
-	api::env::set_variable(L"FARPROFILE", Global->Opt->ProfilePath);
-	api::env::set_variable(L"FARLOCALPROFILE", Global->Opt->LocalProfilePath);
+	os::env::set_variable(L"FARPROFILE", Global->Opt->ProfilePath);
+	os::env::set_variable(L"FARLOCALPROFILE", Global->Opt->LocalProfilePath);
 
 	if (Global->Opt->ReadOnlyConfig < 0) // do not override 'far /ro', 'far /ro-'
 		Global->Opt->ReadOnlyConfig = GetFarIniInt(L"General", L"ReadOnlyConfig", 0);
@@ -413,8 +413,8 @@ static bool ProcessServiceModes(const range<wchar_t**>& Args, int& ServiceResult
 		string strProfilePath(Args.size() > 2 ? Args[2] : L""), strLocalProfilePath(Args.size() > 3 ? Args[3] : L""), strTemplatePath(Args.size() > 4 ? Args[4] : L"");
 		InitTemplateProfile(strTemplatePath);
 		InitProfile(strProfilePath, strLocalProfilePath);
-		Global->Db = new Database(Export ? Database::export_mode : Database::import_mode);
-		ServiceResult = !(Export ? Global->Db->Export(Args[1]) : Global->Db->Import(Args[1]));
+		Global->m_ConfigProvider = new config_provider(Export ? config_provider::export_mode : config_provider::import_mode);
+		ServiceResult = !(Export ? ConfigProvider().Export(Args[1]) : ConfigProvider().Import(Args[1]));
 		return true;
 	}
 	else if (InRange(size_t(1), Args.size(), size_t(3)) && isArg(Args[0], L"clearcache"))
@@ -422,7 +422,7 @@ static bool ProcessServiceModes(const range<wchar_t**>& Args, int& ServiceResult
 		string strProfilePath(Args.size() > 1 ? Args[1] : L"");
 		string strLocalProfilePath(Args.size() > 2 ? Args[2] : L"");
 		InitProfile(strProfilePath, strLocalProfilePath);
-		Database::ClearPluginsCache();
+		config_provider::ClearPluginsCache();
 		ServiceResult = 0;
 		return true;
 	}
@@ -433,7 +433,7 @@ static void UpdateErrorMode()
 {
 	Global->ErrorMode |= SEM_NOGPFAULTERRORBOX;
 	long long IgnoreDataAlignmentFaults = 0;
-	Global->Db->GeneralCfg()->GetValue(L"System.Exception", L"IgnoreDataAlignmentFaults", IgnoreDataAlignmentFaults, IgnoreDataAlignmentFaults);
+	ConfigProvider().GeneralCfg()->GetValue(L"System.Exception", L"IgnoreDataAlignmentFaults", IgnoreDataAlignmentFaults, IgnoreDataAlignmentFaults);
 	if (IgnoreDataAlignmentFaults)
 	{
 		Global->ErrorMode |= SEM_NOALIGNMENTFAULTEXCEPT;
@@ -444,7 +444,7 @@ static void UpdateErrorMode()
 static void SetDriveMenuHotkeys()
 {
 	long long InitDriveMenuHotkeys = 1;
-	Global->Db->GeneralCfg()->GetValue(L"Interface", L"InitDriveMenuHotkeys", InitDriveMenuHotkeys, InitDriveMenuHotkeys);
+	ConfigProvider().GeneralCfg()->GetValue(L"Interface", L"InitDriveMenuHotkeys", InitDriveMenuHotkeys, InitDriveMenuHotkeys);
 
 	if (InitDriveMenuHotkeys)
 	{
@@ -462,10 +462,10 @@ static void SetDriveMenuHotkeys()
 
 		std::for_each(CONST_RANGE(DriveMenuHotkeys, i)
 		{
-			Global->Db->PlHotkeyCfg()->SetHotkey(i.PluginId, i.MenuId, PluginsHotkeysConfig::DRIVE_MENU, i.Hotkey);
+			ConfigProvider().PlHotkeyCfg()->SetHotkey(i.PluginId, i.MenuId, PluginsHotkeysConfig::DRIVE_MENU, i.Hotkey);
 		});
 
-		Global->Db->GeneralCfg()->SetValue(L"Interface", L"InitDriveMenuHotkeys", 0ull);
+		ConfigProvider().GeneralCfg()->SetValue(L"Interface", L"InitDriveMenuHotkeys", 0ull);
 	}
 }
 
@@ -485,7 +485,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 	// Applications do not need to enable the LFH for their heaps.
 	if (!IsWindowsVistaOrGreater())
 	{
-		api::EnableLowFragmentationHeap();
+		os::EnableLowFragmentationHeap();
 	}
 
 	if(!Console().IsFullscreenSupported())
@@ -494,9 +494,9 @@ static int mainImpl(const range<wchar_t**>& Args)
 		Imports().SetConsoleKeyShortcuts(TRUE, ReserveAltEnter, nullptr, 0);
 	}
 
-	api::InitCurrentDirectory();
+	os::InitCurrentDirectory();
 
-	if (api::GetModuleFileName(nullptr, Global->g_strFarModuleName))
+	if (os::GetModuleFileName(nullptr, Global->g_strFarModuleName))
 	{
 		ConvertNameToLong(Global->g_strFarModuleName, Global->g_strFarModuleName);
 		PrepareDiskPath(Global->g_strFarModuleName);
@@ -505,13 +505,13 @@ static int mainImpl(const range<wchar_t**>& Args)
 	Global->g_strFarINI = Global->g_strFarModuleName+L".ini";
 	Global->g_strFarPath = Global->g_strFarModuleName;
 	CutToSlash(Global->g_strFarPath,true);
-	api::env::set_variable(L"FARHOME", Global->g_strFarPath);
+	os::env::set_variable(L"FARHOME", Global->g_strFarPath);
 	AddEndSlash(Global->g_strFarPath);
 
-	if (Global->IsUserAdmin())
-		api::env::set_variable(L"FARADMINMODE", L"1");
+	if (os::security::is_admin())
+		os::env::set_variable(L"FARADMINMODE", L"1");
 	else
-		api::env::delete_variable(L"FARADMINMODE");
+		os::env::delete_variable(L"FARADMINMODE");
 
 	{
 		int ServiceResult;
@@ -698,10 +698,10 @@ static int mainImpl(const range<wchar_t**>& Args)
 				}
 				else
 				{
-					string ArgvI = Unquote(api::env::expand_strings(Arg));
+					string ArgvI = Unquote(os::env::expand_strings(Arg));
 					ConvertNameToFull(ArgvI, ArgvI);
 
-					if (api::fs::exists(ArgvI))
+					if (os::fs::exists(ArgvI))
 					{
 						DestNames[CntDestName++] = ArgvI;
 					}
@@ -712,7 +712,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 	InitTemplateProfile(strTemplatePath);
 	InitProfile(strProfilePath, strLocalProfilePath);
-	Global->Db = new Database;
+	Global->m_ConfigProvider = new config_provider;
 
 	Global->Opt->Load(Overridden);
 
@@ -734,10 +734,10 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 	Global->Lang = new Language(Global->g_strFarPath, MNewFileName + 1);
 
-	api::env::set_variable(L"FARLANG", Global->Opt->strLanguage);
+	os::env::set_variable(L"FARLANG", Global->Opt->strLanguage);
 
 	if (!Global->Opt->LoadPlug.strCustomPluginsPath.empty())
-		ConvertNameToFull(Unquote(api::env::expand_strings(Global->Opt->LoadPlug.strCustomPluginsPath)), Global->Opt->LoadPlug.strCustomPluginsPath);
+		ConvertNameToFull(Unquote(os::env::expand_strings(Global->Opt->LoadPlug.strCustomPluginsPath)), Global->Opt->LoadPlug.strCustomPluginsPath);
 
 	UpdateErrorMode();
 
@@ -803,7 +803,7 @@ int wmain(int Argc, wchar_t *Argv[])
 		SetUnhandledExceptionFilter(FarUnhandledExceptionFilter);
 #endif
 		// Must be static - dependent static objects exist
-		static SCOPED_ACTION(api::co_initialize);
+		static SCOPED_ACTION(os::co_initialize);
 		return mainImpl(make_range(Argv + 1, Argv + Argc));
 	}
 	catch (const SException& e)

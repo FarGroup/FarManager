@@ -142,11 +142,11 @@ void OpenSysLog()
 	if (!LogStream)
 	{
 		string strLogFileName=Global->g_strFarPath+L"$Log";
-		DWORD Attr=api::GetFileAttributes(strLogFileName);
+		DWORD Attr=os::GetFileAttributes(strLogFileName);
 
 		if (Attr == INVALID_FILE_ATTRIBUTES)
 		{
-			if (!api::CreateDirectory(strLogFileName,nullptr))
+			if (!os::CreateDirectory(strLogFileName,nullptr))
 				strLogFileName.resize(Global->g_strFarPath.size());
 		}
 		else if (!(Attr&FILE_ATTRIBUTE_DIRECTORY))

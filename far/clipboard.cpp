@@ -42,7 +42,7 @@ enum { NO_FORMAT = 0xffff };
 static struct internal_clipboard
 {
 	UINT Format;
-	api::memory::global::ptr Handle;
+	os::memory::global::ptr Handle;
 }
 InternalClipboard[] =
 {
@@ -196,9 +196,9 @@ bool Clipboard::SetData(UINT uFormat, HGLOBAL hMem)
 
 	if (SetClipboardData(uFormat, hMem))
 	{
-		if (auto hLC = api::memory::global::alloc(GMEM_MOVEABLE, sizeof(LCID)))
+		if (auto hLC = os::memory::global::alloc(GMEM_MOVEABLE, sizeof(LCID)))
 		{
-			if (const auto pLc = api::memory::global::lock<PLCID>(hLC))
+			if (const auto pLc = os::memory::global::lock<PLCID>(hLC))
 			{
 				*pLc=LOCALE_USER_DEFAULT;
 
@@ -212,7 +212,7 @@ bool Clipboard::SetData(UINT uFormat, HGLOBAL hMem)
 	return false;
 }
 
-bool Clipboard::SetData(UINT uFormat, api::memory::global::ptr&& hMem)
+bool Clipboard::SetData(UINT uFormat, os::memory::global::ptr&& hMem)
 {
 	const auto Result = SetData(uFormat, hMem.get());
 	if (Result)
@@ -242,9 +242,9 @@ bool Clipboard::Set(const wchar_t *Data)
 	if (Data)
 	{
 		const size_t BufferSize = (wcslen(Data) + 1) * sizeof(wchar_t);
-		if (auto hData = api::memory::global::alloc(GMEM_MOVEABLE, BufferSize))
+		if (auto hData = os::memory::global::alloc(GMEM_MOVEABLE, BufferSize))
 		{
-			if (const auto GData = api::memory::global::lock<void*>(hData))
+			if (const auto GData = os::memory::global::lock<void*>(hData))
 			{
 				memcpy(GData.get(), Data, BufferSize);
 				SetData(CF_UNICODETEXT, std::move(hData));
@@ -266,9 +266,9 @@ bool Clipboard::SetFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data)
 	if (Data && *Data)
 	{
 		const size_t BufferSize = (wcslen(Data) + 1) * sizeof(wchar_t);
-		if (auto hData = api::memory::global::alloc(GMEM_MOVEABLE, BufferSize))
+		if (auto hData = os::memory::global::alloc(GMEM_MOVEABLE, BufferSize))
 		{
-			if (const auto GData = api::memory::global::lock<void*>(hData))
+			if (const auto GData = os::memory::global::lock<void*>(hData))
 			{
 				memcpy(GData.get(), Data, BufferSize);
 				SetData(FormatType, std::move(hData));
@@ -284,9 +284,9 @@ bool Clipboard::SetHDROP(const void* NamesArray, size_t NamesArraySize, bool bMo
 	bool Result=false;
 	if (NamesArray && NamesArraySize)
 	{
-		if (auto hMemory = api::memory::global::alloc(GMEM_MOVEABLE, sizeof(DROPFILES) + NamesArraySize))
+		if (auto hMemory = os::memory::global::alloc(GMEM_MOVEABLE, sizeof(DROPFILES) + NamesArraySize))
 		{
-			if (const auto Drop = api::memory::global::lock<LPDROPFILES>(hMemory))
+			if (const auto Drop = os::memory::global::lock<LPDROPFILES>(hMemory))
 			{
 				Drop->pFiles=sizeof(DROPFILES);
 				Drop->pt.x=0;
@@ -299,9 +299,9 @@ bool Clipboard::SetHDROP(const void* NamesArray, size_t NamesArraySize, bool bMo
 				{
 					if(bMoved)
 					{
-						if (auto hMemoryMove = api::memory::global::alloc(GMEM_MOVEABLE, sizeof(DWORD)))
+						if (auto hMemoryMove = os::memory::global::alloc(GMEM_MOVEABLE, sizeof(DWORD)))
 						{
-							if (const auto pData = api::memory::global::lock<DWORD*>(hMemoryMove))
+							if (const auto pData = os::memory::global::lock<DWORD*>(hMemoryMove))
 							{
 								*pData = DROPEFFECT_MOVE;
 
@@ -327,7 +327,7 @@ bool Clipboard::Get(string& data)
 
 	if (auto hClipData = GetData(CF_UNICODETEXT))
 	{
-		if (const auto ClipAddr = api::memory::global::lock<const wchar_t*>(hClipData))
+		if (const auto ClipAddr = os::memory::global::lock<const wchar_t*>(hClipData))
 		{
 			Result = true;
 			data = ClipAddr.get();
@@ -335,7 +335,7 @@ bool Clipboard::Get(string& data)
 	}
 	else if ((hClipData = GetData(CF_HDROP)))
 	{
-		if (const auto Files = api::memory::global::lock<const LPDROPFILES>(hClipData))
+		if (const auto Files = os::memory::global::lock<const LPDROPFILES>(hClipData))
 		{
 			auto StartA=reinterpret_cast<const char*>(Files.get())+Files->pFiles;
 			auto Start = reinterpret_cast<const wchar_t*>(StartA);
@@ -379,7 +379,7 @@ bool Clipboard::GetEx(int max, string& data)
 	bool Result = false;
 	if (const auto hClipData = GetData(CF_UNICODETEXT))
 	{
-		if (const auto ClipAddr = api::memory::global::lock<const wchar_t*>(hClipData))
+		if (const auto ClipAddr = os::memory::global::lock<const wchar_t*>(hClipData))
 		{
 			data.assign(ClipAddr.get(), std::min(max, StrLength(ClipAddr.get())));
 			Result = true;
@@ -409,7 +409,7 @@ bool Clipboard::GetFormat(FAR_CLIPBOARD_FORMAT Format, string& data)
 
 	if (const auto hClipData = GetData(FormatType))
 	{
-		if (const auto ClipAddr = api::memory::global::lock<const wchar_t*>(hClipData))
+		if (const auto ClipAddr = os::memory::global::lock<const wchar_t*>(hClipData))
 		{
 			data = isOEMVBlock? wide(reinterpret_cast<const char*>(ClipAddr.get())) : ClipAddr.get();
 			Result = true;

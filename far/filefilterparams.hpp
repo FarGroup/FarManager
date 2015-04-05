@@ -134,7 +134,7 @@ public:
 	// Возвращает true  - попадает;
 	//            false - не попадает.
 	bool FileInFilter(const FileListItem* fli, unsigned __int64 CurrentTime) const;
-	bool FileInFilter(const api::FAR_FIND_DATA& fde, unsigned __int64 CurrentTime,const string* FullName=nullptr) const; //Used in dirinfo, copy, findfile
+	bool FileInFilter(const os::FAR_FIND_DATA& fde, unsigned __int64 CurrentTime,const string* FullName=nullptr) const; //Used in dirinfo, copy, findfile
 	bool FileInFilter(const PluginPanelItem& fd, unsigned __int64 CurrentTime) const;
 
 

@@ -53,11 +53,11 @@ global::global():
 	OnlyEditorViewerUsed(),
 	m_MainThreadId(GetCurrentThreadId()),
 	m_SearchHex(),
+	m_ConfigProvider(),
 	ScrBuf(nullptr),
 	Opt(nullptr),
 	Lang(nullptr),
 	Elevation(nullptr),
-	Db(nullptr),
 	CtrlObject(nullptr)
 {
 	Global = this;
@@ -113,8 +113,8 @@ global::~global()
 {
 	delete CtrlObject;
 	CtrlObject = nullptr;
-	delete Db;
-	Db = nullptr;
+	delete m_ConfigProvider;
+	m_ConfigProvider = nullptr;
 	delete Elevation;
 	Elevation = nullptr;
 	// TODO: it could be useful to delete Lang only at the very end
@@ -145,39 +145,6 @@ uint64_t global::FarUpTime() const
 	uint64_t Whole = Diff / Frequency.QuadPart;
 	uint64_t Fraction = Diff % Frequency.QuadPart;
 	return Whole * Factor + (Fraction * Factor) / Frequency.QuadPart;
-}
-
-bool global::IsUserAdmin()
-{
-	const auto GetResult = []() -> bool
-	{
-		SID_IDENTIFIER_AUTHORITY NtAuthority=SECURITY_NT_AUTHORITY;
-		try
-		{
-			api::sid_object AdministratorsGroup(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
-			BOOL IsMember = FALSE;
-			if(CheckTokenMembership(nullptr, AdministratorsGroup.get(), &IsMember) && IsMember)
-			{
-				return true;
-			}
-		}
-		catch(const FarRecoverableException&)
-		{
-			// TODO: Log
-		}
-		return false;
-	};
-
-	static const auto Result = GetResult();
-	return Result;
-}
-
-bool global::IsPtr(const void* Address)
-{
-	const auto GetInfo = []() -> SYSTEM_INFO { SYSTEM_INFO Info; GetSystemInfo(&Info); return Info; };
-	static const auto info = GetInfo();
-
-	return InRange<const void*>(info.lpMinimumApplicationAddress, Address, info.lpMaximumApplicationAddress);
 }
 
 void global::CatchError()

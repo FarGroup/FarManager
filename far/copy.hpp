@@ -50,15 +50,15 @@ public:
 
 private:
 	COPY_CODES CopyFileTree(const string&  Dest);
-	COPY_CODES ShellCopyOneFile(const string& Src, const api::FAR_FIND_DATA &SrcData, string &strDest, int KeepPathPos, int Rename);
+	COPY_CODES ShellCopyOneFile(const string& Src, const os::FAR_FIND_DATA &SrcData, string &strDest, int KeepPathPos, int Rename);
 	COPY_CODES CheckStreams(const string& Src,const string& DestPath);
-	int ShellCopyFile(const string& SrcName,const api::FAR_FIND_DATA &SrcData, string &strDestName,DWORD &DestAttr,int Append);
-	int ShellSystemCopy(const string& SrcName,const string& DestName,const api::FAR_FIND_DATA &SrcData);
+	int ShellCopyFile(const string& SrcName,const os::FAR_FIND_DATA &SrcData, string &strDestName,DWORD &DestAttr,int Append);
+	int ShellSystemCopy(const string& SrcName,const string& DestName,const os::FAR_FIND_DATA &SrcData);
 	int DeleteAfterMove(const string& Name,DWORD Attr);
-	int AskOverwrite(const api::FAR_FIND_DATA &SrcData,const string& SrcName,const string& DestName, DWORD DestAttr,int SameName,int Rename,int AskAppend, int &Append,string &strNewName,int &RetCode);
-	bool GetSecurity(const string& FileName, api::FAR_SECURITY_DESCRIPTOR& sd);
-	bool SetSecurity(const string& FileName, const api::FAR_SECURITY_DESCRIPTOR& sd);
-	int SetRecursiveSecurity(const string& FileName,const api::FAR_SECURITY_DESCRIPTOR& sd);
+	int AskOverwrite(const os::FAR_FIND_DATA &SrcData,const string& SrcName,const string& DestName, DWORD DestAttr,int SameName,int Rename,int AskAppend, int &Append,string &strNewName,int &RetCode);
+	bool GetSecurity(const string& FileName, os::FAR_SECURITY_DESCRIPTOR& sd);
+	bool SetSecurity(const string& FileName, const os::FAR_SECURITY_DESCRIPTOR& sd);
+	int SetRecursiveSecurity(const string& FileName,const os::FAR_SECURITY_DESCRIPTOR& sd);
 	bool CalcTotalSize();
 	bool ShellSetAttr(const string& Dest,DWORD Attr);
 	void SetDestDizPath(const string& DestPath);

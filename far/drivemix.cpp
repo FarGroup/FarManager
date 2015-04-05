@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "flink.hpp"
 #include "cddrv.hpp"
 #include "pathmix.hpp"
+#include "strmix.hpp"
 
 /*
   FarGetLogicalDrives
@@ -51,7 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     Например, значение 00000000000000000000010101(0x7h)
     скрывает диски A, C, и E
 */
-api::drives_set FarGetLogicalDrives()
+os::drives_set FarGetLogicalDrives()
 {
 	static unsigned int LogicalDrivesMask = 0;
 	unsigned int NoDrives=0;
@@ -64,7 +65,7 @@ api::drives_set FarGetLogicalDrives()
 		static const HKEY Roots[] = {HKEY_LOCAL_MACHINE, HKEY_CURRENT_USER};
 		std::any_of(CONST_RANGE(Roots, i)
 		{
-			return api::reg::GetValue(i, L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer", L"NoDrives", NoDrives);
+			return os::reg::GetValue(i, L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer", L"NoDrives", NoDrives);
 		});
 	}
 
@@ -87,10 +88,10 @@ int CheckDisksProps(const string& SrcPath,const string& DestPath,int CheckedType
 	GetPathRoot(strDestRoot,strDestRoot);
 	int DestDriveType=FAR_GetDriveType(strDestRoot, TRUE);
 
-	if (!api::GetVolumeInformation(strSrcRoot,&strSrcVolumeName,&SrcVolumeNumber,&SrcMaximumComponentLength,&SrcFileSystemFlags,&strSrcFileSystemName))
+	if (!os::GetVolumeInformation(strSrcRoot,&strSrcVolumeName,&SrcVolumeNumber,&SrcMaximumComponentLength,&SrcFileSystemFlags,&strSrcFileSystemName))
 		return FALSE;
 
-	if (!api::GetVolumeInformation(strDestRoot,&strDestVolumeName,&DestVolumeNumber,&DestMaximumComponentLength,&DestFileSystemFlags,&strDestFileSystemName))
+	if (!os::GetVolumeInformation(strDestRoot,&strDestVolumeName,&DestVolumeNumber,&DestMaximumComponentLength,&DestFileSystemFlags,&strDestFileSystemName))
 		return FALSE;
 
 	if (CheckedType == CHECKEDPROPS_ISSAMEDISK)
@@ -110,10 +111,10 @@ int CheckDisksProps(const string& SrcPath,const string& DestPath,int CheckedType
 
 		unsigned __int64 SrcTotalSize, DestTotalSize;
 
-		if (!api::GetDiskSize(SrcPath, &SrcTotalSize, nullptr, nullptr))
+		if (!os::GetDiskSize(SrcPath, &SrcTotalSize, nullptr, nullptr))
 			return FALSE;
 
-		if (!api::GetDiskSize(DestPath, &DestTotalSize, nullptr, nullptr))
+		if (!os::GetDiskSize(DestPath, &DestTotalSize, nullptr, nullptr))
 			return FALSE;
 
 		if (!(SrcVolumeNumber &&

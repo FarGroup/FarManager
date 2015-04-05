@@ -130,7 +130,7 @@ static void InitSCSIPassThrough(SCSI_PASS_THROUGH_WITH_BUFFERS* pSptwb)
 	ClearArray(pSptwb->Spt.Cdb);
 }
 
-static CDROM_DeviceCapabilities getCapsUsingMagic(api::fs::file& Device)
+static CDROM_DeviceCapabilities getCapsUsingMagic(os::fs::file& Device)
 {
 	int caps = CAPABILITIES_NONE;
 
@@ -329,7 +329,7 @@ static CDROM_DeviceCapabilities getCapsUsingMagic(api::fs::file& Device)
 	return (CDROM_DeviceCapabilities)caps;
 }
 
-static CDROM_DeviceCapabilities getCapsUsingDeviceProps(api::fs::file& Device)
+static CDROM_DeviceCapabilities getCapsUsingDeviceProps(os::fs::file& Device)
 {
 	STORAGE_DESCRIPTOR_HEADER hdr = {};
 	STORAGE_PROPERTY_QUERY query = {StorageDeviceProperty, PropertyStandardQuery};
@@ -351,7 +351,7 @@ static CDROM_DeviceCapabilities getCapsUsingDeviceProps(api::fs::file& Device)
 	return CAPABILITIES_NONE;
 }
 
-static CDROM_DeviceCapabilities GetDeviceCapabilities(api::fs::file& Device)
+static CDROM_DeviceCapabilities GetDeviceCapabilities(os::fs::file& Device)
 {
 	auto caps = getCapsUsingMagic(Device);
 
@@ -402,7 +402,7 @@ UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
 	if (strRootDir.empty())
 	{
 		string strCurDir;
-		api::GetCurrentDirectory(strCurDir);
+		os::GetCurrentDirectory(strCurDir);
 		GetPathRoot(strCurDir, strRootDir);
 	}
 
@@ -421,7 +421,7 @@ UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
 		else
 			VolumePath.insert(0, L"\\\\.\\");
 
-		api::fs::file Device;
+		os::fs::file Device;
 		if(Device.Open(VolumePath, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 		{
 			DrvType = GetDeviceTypeByCaps(GetDeviceCapabilities(Device));
@@ -439,7 +439,7 @@ UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
 		DeleteEndSlash(drive);
 
 		DrvType = DRIVE_USBDRIVE; // default type if detection failed
-		api::fs::file Device;
+		os::fs::file Device;
 		if (Device.Open(drive, STANDARD_RIGHTS_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 		{
 			DISK_GEOMETRY g;

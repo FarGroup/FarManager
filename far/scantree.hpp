@@ -63,7 +63,7 @@ public:
 
 	// 3-й параметр - флаги из старшего слова
 	void SetFindPath(const string& Path,const string& Mask, const DWORD NewScanFlags = FSCANTREE_FILESFIRST);
-	bool GetNextName(api::FAR_FIND_DATA *fdata, string &strFullName);
+	bool GetNextName(os::FAR_FIND_DATA *fdata, string &strFullName);
 	void SkipDir();
 	int IsDirSearchDone() const {return Flags.Check(FSCANTREE_SECONDDIRNAME);}
 	int InsideJunction() const {return Flags.Check(FSCANTREE_INSIDEJUNCTION);}

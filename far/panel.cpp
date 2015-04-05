@@ -182,7 +182,7 @@ void Panel::SetViewMode(int ViewMode)
 void Panel::ChangeDirToCurrent()
 {
 	string strNewDir;
-	api::GetCurrentDirectory(strNewDir);
+	os::GetCurrentDirectory(strNewDir);
 	SetCurDir(strNewDir,true);
 }
 
@@ -478,7 +478,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			if (Global->Opt->ChangeDriveMode & (DRIVE_SHOW_LABEL|DRIVE_SHOW_FILESYSTEM))
 			{
 				bool Absent = false;
-				if (ShowDisk && !api::GetVolumeInformation(strRootDir, &NewItem.Label, nullptr, nullptr, nullptr, &NewItem.Fs))
+				if (ShowDisk && !os::GetVolumeInformation(strRootDir, &NewItem.Label, nullptr, nullptr, nullptr, &NewItem.Fs))
 				{
 					Absent = true;
 					ShowDisk = FALSE;
@@ -489,7 +489,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					static const HKEY Roots[] = { HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE };
 					std::any_of(CONST_RANGE(Roots, i)
 					{
-						return api::reg::GetValue(i, string(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\DriveIcons\\") + NewItem.Letter[1] + L"\\DefaultLabel", L"", NewItem.Label);
+						return os::reg::GetValue(i, string(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\DriveIcons\\") + NewItem.Letter[1] + L"\\DefaultLabel", L"", NewItem.Label);
 					});
 				}
 
@@ -503,7 +503,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			{
 				unsigned __int64 TotalSize = 0, UserFree = 0;
 
-				if (ShowDisk && api::GetDiskSize(strRootDir,&TotalSize, nullptr, &UserFree))
+				if (ShowDisk && os::GetDiskSize(strRootDir,&TotalSize, nullptr, &UserFree))
 				{
 					if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_SIZE)
 					{
@@ -893,7 +893,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		string RootDir(L"?:");
 		RootDir[0] = mitem->cDrive;
 
-		if (!api::IsDiskInDrive(RootDir))
+		if (!os::IsDiskInDrive(RootDir))
 		{
 			if (!EjectVolume(mitem->cDrive, EJECT_READY|EJECT_NO_MESSAGE))
 			{
@@ -966,7 +966,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		}
 
 		string strNewCurDir;
-		api::GetCurrentDirectory(strNewCurDir);
+		os::GetCurrentDirectory(strNewCurDir);
 
 		if ((m_PanelMode == NORMAL_PANEL) &&
 		        (GetType() == FILE_PANEL) &&
@@ -1247,7 +1247,7 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 			int Result = DRIVE_DEL_FAIL;
 			if (GetVHDInfo(DiskLetter, strVhdPath, &VirtualStorageType) && !strVhdPath.empty())
 			{
-				if (api::DetachVirtualDisk(strVhdPath, VirtualStorageType))
+				if (os::DetachVirtualDisk(strVhdPath, VirtualStorageType))
 				{
 					Result = DRIVE_DEL_SUCCESS;
 				}
@@ -1878,9 +1878,9 @@ int Panel::SetCurPath()
 			string strRoot;
 			GetPathRoot(m_CurDir, strRoot);
 
-			if (FAR_GetDriveType(strRoot) != DRIVE_REMOVABLE || api::IsDiskInDrive(strRoot))
+			if (FAR_GetDriveType(strRoot) != DRIVE_REMOVABLE || os::IsDiskInDrive(strRoot))
 			{
-				if (!api::fs::is_directory(m_CurDir))
+				if (!os::fs::is_directory(m_CurDir))
 				{
 					if (CheckShortcutFolder(m_CurDir, true, true) && FarChDir(m_CurDir))
 					{
@@ -2519,7 +2519,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	bool IsPersistent = true;
 	const wchar_t KeyName[] = {L'N', L'e', L't', L'w', L'o', L'r', L'k', L'\\', Letter, L'\0'};
 
-	if (api::reg::key(HKEY_CURRENT_USER, KeyName, KEY_QUERY_VALUE))
+	if (os::reg::key(HKEY_CURRENT_USER, KeyName, KEY_QUERY_VALUE))
 	{
 		DCDlg[5].Selected = Global->Opt->ChangeDriveDisconnectMode;
 	}

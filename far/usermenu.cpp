@@ -237,7 +237,7 @@ void UserMenu::SaveMenu(const string& MenuFileName)
 {
 	if (m_MenuModified)
 	{
-		DWORD FileAttr=api::GetFileAttributes(MenuFileName);
+		DWORD FileAttr=os::GetFileAttributes(MenuFileName);
 
 		if (FileAttr != INVALID_FILE_ATTRIBUTES)
 		{
@@ -247,15 +247,15 @@ void UserMenu::SaveMenu(const string& MenuFileName)
 				AskOverwrite=Message(MSG_WARNING,2,MSG(MUserMenuTitle),LocalMenuFileName,MSG(MEditRO),MSG(MEditOvr),MSG(MYes),MSG(MNo));
 
 				if (!AskOverwrite)
-					api::SetFileAttributes(MenuFileName,FileAttr & ~FILE_ATTRIBUTE_READONLY);
+					os::SetFileAttributes(MenuFileName,FileAttr & ~FILE_ATTRIBUTE_READONLY);
 			}
 
 			if (FileAttr & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))
-				api::SetFileAttributes(MenuFileName,FILE_ATTRIBUTE_NORMAL);
+				os::SetFileAttributes(MenuFileName,FILE_ATTRIBUTE_NORMAL);
 		}
 
 		// Don't use CreationDisposition=CREATE_ALWAYS here - it kills alternate streams
-		api::fs::file MenuFile;
+		os::fs::file MenuFile;
 		if (MenuFile.Open(MenuFileName,GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr==INVALID_FILE_ATTRIBUTES?CREATE_NEW:TRUNCATE_EXISTING))
 		{
 			CachedWrite CW(MenuFile);
@@ -270,11 +270,11 @@ void UserMenu::SaveMenu(const string& MenuFileName)
 			// если файл FarMenu.ini пуст, то удалим его
 			if (Size<3) // 2 for BOM
 			{
-				api::DeleteFile(MenuFileName);
+				os::DeleteFile(MenuFileName);
 			}
 			else if (FileAttr!=INVALID_FILE_ATTRIBUTES)
 			{
-				api::SetFileAttributes(MenuFileName,FileAttr);
+				os::SetFileAttributes(MenuFileName,FileAttr);
 			}
 		}
 	}
@@ -349,7 +349,7 @@ void UserMenu::ProcessUserMenu(bool MenuType, const string& MenuFileName)
 		m_Menu.clear();
 
 		// Пытаемся открыть файл на локальном диске
-		api::fs::file MenuFile;
+		os::fs::file MenuFile;
 		bool FileOpened = PathCanHoldRegularFile(strMenuFilePath) ? MenuFile.Open(strMenuFileFullPath,GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING) : false;
 		if (FileOpened)
 		{
@@ -485,7 +485,7 @@ static void FillUserMenu(VMenu2& FarUserMenu, const UserMenu::menu_container& Me
 		{
 			string strLabel = MenuItem->strLabel;
 			SubstFileName(nullptr,strLabel,Name,ShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
-			strLabel = api::env::expand_strings(strLabel);
+			strLabel = os::env::expand_strings(strLabel);
 			string strHotKey = MenuItem->strHotKey;
 			FuncNum = PrepareHotKey(strHotKey);
 			bool have_hotkey = !strHotKey.empty();
@@ -642,7 +642,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				case KEY_ALTF4:       // редактировать все меню
 				case KEY_RALTF4:
 				{
-					api::fs::file MenuFile;
+					os::fs::file MenuFile;
 					Global->CtrlObject->Cp()->Unlock();
 					{
 						auto OldTitle = std::make_unique<ConsoleTitle>();
@@ -728,7 +728,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			/* $ 20.08.2001 VVM + При вложенных меню показывает заголовки предыдущих */
 			string strSubMenuLabel = (*CurrentMenuItem)->strLabel;
 			SubstFileName(nullptr,strSubMenuLabel,strName,strShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
-			strSubMenuLabel = api::env::expand_strings(strSubMenuLabel);
+			strSubMenuLabel = os::env::expand_strings(strSubMenuLabel);
 
 			size_t pos = strSubMenuLabel.find(L'&');
 			if (pos != string::npos)
@@ -809,7 +809,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			FOR(auto& i, Names)
 			{
 				if (!i->empty())
-					api::DeleteFile(*i);
+					os::DeleteFile(*i);
 			}
 		});
 

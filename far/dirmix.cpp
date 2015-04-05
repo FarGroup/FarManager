@@ -63,7 +63,7 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 	{
 		Drive[1] = ToUpper(NewDir[0]);
 
-		if (!api::env::get_variable(Drive, strCurDir))
+		if (!os::env::get_variable(Drive, strCurDir))
 		{
 			strCurDir = NewDir;
 			AddEndSlash(strCurDir);
@@ -72,7 +72,7 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 
 		if (ChangeDir)
 		{
-			rc=api::SetCurrentDirectory(strCurDir);
+			rc=os::SetCurrentDirectory(strCurDir);
 		}
 	}
 	else
@@ -82,22 +82,22 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 			strCurDir = NewDir;
 
 			if (strCurDir == L"\\")
-				api::GetCurrentDirectory(strCurDir); // здесь берем корень
+				os::GetCurrentDirectory(strCurDir); // здесь берем корень
 
 			ReplaceSlashToBackslash(strCurDir);
 			ConvertNameToFull(NewDir,strCurDir);
 			PrepareDiskPath(strCurDir,false); // resolving not needed, very slow
-			rc=api::SetCurrentDirectory(strCurDir);
+			rc=os::SetCurrentDirectory(strCurDir);
 		}
 	}
 
 	if (rc || !ChangeDir)
 	{
-		if ((!ChangeDir || api::GetCurrentDirectory(strCurDir)) &&
+		if ((!ChangeDir || os::GetCurrentDirectory(strCurDir)) &&
 		        strCurDir.size() > 1 && strCurDir[1]==L':')
 		{
 			Drive[1] = ToUpper(strCurDir[0]);
-			api::env::set_variable(Drive, strCurDir);
+			os::env::set_variable(Drive, strCurDir);
 		}
 	}
 
@@ -124,7 +124,7 @@ int TestFolder(const string& Path)
 	strFindPath += L"*";
 
 	// первая проверка - че-нить считать можем?
-	api::fs::enum_file Find(strFindPath);
+	os::fs::enum_file Find(strFindPath);
 	if (Find.begin() != Find.end())
 	{
 		return TSTFLD_NOTEMPTY;
@@ -145,7 +145,7 @@ int TestFolder(const string& Path)
 	if (strFindPath == Path)
 	{
 		// проверка атрибутов гарантировано скажет - это бага BugZ#743 или пустой корень диска.
-		if (api::fs::exists(strFindPath))
+		if (os::fs::exists(strFindPath))
 		{
 			if (LastError == ERROR_ACCESS_DENIED)
 				return TSTFLD_NOTACCESS;
@@ -156,14 +156,14 @@ int TestFolder(const string& Path)
 
 	strFindPath = Path;
 
-	if (!api::fs::exists(strFindPath))
+	if (!os::fs::exists(strFindPath))
 	{
 		return TSTFLD_NOTFOUND;
 	}
 
 	{
 		SCOPED_ACTION(elevation::suppress);
-		if (api::fs::is_file(strFindPath))
+		if (os::fs::is_file(strFindPath))
 			return TSTFLD_ERROR;
 	}
 	return TSTFLD_NOTACCESS;
@@ -177,7 +177,7 @@ int TestFolder(const string& Path)
 */
 bool CheckShortcutFolder(string& pTestPath, bool TryClosest, bool Silent)
 {
-	bool Result = api::fs::exists(pTestPath);
+	bool Result = os::fs::exists(pTestPath);
 
 	if (!Result)
 	{
@@ -202,7 +202,7 @@ bool CheckShortcutFolder(string& pTestPath, bool TryClosest, bool Silent)
 					if (!CutToParent(strTestPathTemp))
 						break;
 
-					if (api::fs::exists(strTestPathTemp))
+					if (os::fs::exists(strTestPathTemp))
 					{
 						pTestPath = strTestPathTemp;
 						Result = true;
@@ -229,9 +229,9 @@ void CreatePath(const string &InputPath, bool Simple)
 		if (i == Path.size() || IsSlash(Path[i]))
 		{
 			Part = Path.substr(0, i);
-			if (!api::fs::exists(Part))
+			if (!os::fs::exists(Part))
 			{
-				if(api::CreateDirectory(Part, nullptr) && !Simple)
+				if(os::CreateDirectory(Part, nullptr) && !Simple)
 					TreeList::AddTreeName(Part);
 			}
 		}

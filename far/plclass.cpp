@@ -166,7 +166,7 @@ bool NativePluginModel::IsPlugin(const string& filename)
 		return false;
 
 	bool Result = false;
-	HANDLE hModuleFile = api::CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
+	HANDLE hModuleFile = os::CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
 
 	if (hModuleFile != INVALID_HANDLE_VALUE)
 	{
@@ -188,7 +188,7 @@ bool NativePluginModel::IsPlugin(const string& filename)
 
 GenericPluginModel::plugin_instance NativePluginModel::Create(const string& filename)
 {
-	auto Module = std::make_unique<api::rtdl::module>(filename.data(), true);
+	auto Module = std::make_unique<os::rtdl::module>(filename.data(), true);
 	if (!*Module)
 	{
 		Global->CatchError();
@@ -199,13 +199,13 @@ GenericPluginModel::plugin_instance NativePluginModel::Create(const string& file
 
 bool NativePluginModel::Destroy(GenericPluginModel::plugin_instance instance)
 {
-	delete static_cast<api::rtdl::module*>(instance);
+	delete static_cast<os::rtdl::module*>(instance);
 	return true;
 }
 
 void NativePluginModel::InitExports(GenericPluginModel::plugin_instance instance, exports_array& exports)
 {
-	auto Module = static_cast<api::rtdl::module*>(instance);
+	auto Module = static_cast<os::rtdl::module*>(instance);
 	std::transform(m_ExportsNames, m_ExportsNames + ExportsCount, exports.begin(), [&](const export_name& i)
 	{
 		return *i.AName? reinterpret_cast<void*>(Module->GetProcAddress(i.AName)) : nullptr;
@@ -483,7 +483,7 @@ bool Plugin::SaveToCache()
 	PluginInfo Info = {sizeof(Info)};
 	GetPluginInfo(&Info);
 
-	auto& PlCache = *Global->Db->PlCacheCfg();
+	auto& PlCache = *ConfigProvider().PlCacheCfg();
 
 	SCOPED_ACTION(auto)(PlCache.ScopedTransaction());
 
@@ -504,8 +504,8 @@ bool Plugin::SaveToCache()
 
 	{
 		string strCurPluginID;
-		api::FAR_FIND_DATA fdata;
-		api::GetFindDataEx(m_strModuleName, fdata);
+		os::FAR_FIND_DATA fdata;
+		os::GetFindDataEx(m_strModuleName, fdata);
 		strCurPluginID = str_printf(
 			L"%I64x%x%x",
 			fdata.nFileSize,
@@ -600,13 +600,13 @@ bool Plugin::LoadData()
 	{
 		string strCurPath, strCurPlugDiskPath;
 		wchar_t Drive[]={0,L' ',L':',0}; //ставим 0, как признак того, что вертать обратно ненадо!
-		api::GetCurrentDirectory(strCurPath);
+		os::GetCurrentDirectory(strCurPath);
 
 		if (ParsePath(m_strModuleName) == PATH_DRIVELETTER)  // если указан локальный путь, то...
 		{
 			Drive[0] = L'=';
 			Drive[1] = m_strModuleName.front();
-			api::env::get_variable(Drive, strCurPlugDiskPath);
+			os::env::get_variable(Drive, strCurPlugDiskPath);
 		}
 
 		PrepareModulePath(m_strModuleName);
@@ -614,7 +614,7 @@ bool Plugin::LoadData()
 		FarChDir(strCurPath);
 
 		if (Drive[0]) // вернем ее (переменную окружения) обратно
-			api::env::set_variable(Drive, strCurPlugDiskPath);
+			os::env::set_variable(Drive, strCurPlugDiskPath);
 	}
 
 	if (!m_Instance)
@@ -720,9 +720,9 @@ bool Plugin::Load()
 	return true;
 }
 
-bool Plugin::LoadFromCache(const api::FAR_FIND_DATA &FindData)
+bool Plugin::LoadFromCache(const os::FAR_FIND_DATA &FindData)
 {
-	const auto& PlCache = *Global->Db->PlCacheCfg();
+	const auto& PlCache = *ConfigProvider().PlCacheCfg();
 
 	if (const auto id = PlCache.GetCacheID(m_strCacheName))
 	{
@@ -1259,7 +1259,7 @@ void Plugin::ExitFAR(ExitInfo *Info)
 	}
 }
 
-CustomPluginModel::ModuleImports::ModuleImports(const api::rtdl::module& Module):
+CustomPluginModel::ModuleImports::ModuleImports(const os::rtdl::module& Module):
 #define INIT_IMPORT(name) p ## name(Module, #name)
 	INIT_IMPORT(Initialize),
 	INIT_IMPORT(IsPlugin),

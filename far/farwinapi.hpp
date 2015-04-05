@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "farexcpt.hpp"
 
-namespace api
+namespace os
 {
 	enum
 	{
@@ -463,6 +463,13 @@ namespace api
 			template<class T>
 			typename lock_t<T>::ptr lock(const ptr& Ptr) { return lock<T>(Ptr.get()); }
 		}
+
+		bool is_pointer(const void* Address);
+	}
+
+	namespace security
+	{
+		bool is_admin();
 	}
 
 	class co_initialize: noncopyable

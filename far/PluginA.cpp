@@ -1039,7 +1039,7 @@ static void AnsiDialogItemToUnicode(const oldfar::FarDialogItem &diA, FarDialogI
 	case DI_LISTBOX:
 	case DI_COMBOBOX:
 	{
-		if (diA.ListItems && global::IsPtr(diA.ListItems))
+		if (diA.ListItems && os::memory::is_pointer(diA.ListItems))
 		{
 			l.Items = new FarListItem[diA.ListItems->ItemsNumber];
 			l.ItemsNumber = diA.ListItems->ItemsNumber;
@@ -2294,7 +2294,7 @@ static DWORD WINAPI ExpandEnvironmentStrA(const char *src, char *dest, size_t si
 {
 	try
 	{
-		string strD = api::env::expand_strings(wide(src));
+		string strD = os::env::expand_strings(wide(src));
 		DWORD len = (DWORD)std::min(strD.size(), size - 1);
 		UnicodeToOEM(strD.data(), dest, len + 1);
 		return len;
@@ -5289,9 +5289,9 @@ bool PluginA::SetStartupInfo(PluginStartupInfo* Info)
 		_info.RootKey = static_cast<OEMPluginModel*>(m_model)->getUserName().data();
 
 		if (Global->strRegUser.empty())
-			api::env::delete_variable(L"FARUSER");
+			os::env::delete_variable(L"FARUSER");
 		else
-			api::env::set_variable(L"FARUSER", Global->strRegUser);
+			os::env::set_variable(L"FARUSER", Global->strRegUser);
 
 		EXECUTE_FUNCTION(FUNCTION(iSetStartupInfo)(&_info));
 

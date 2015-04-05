@@ -297,7 +297,7 @@ void ItemToItemEx(const FarDialogItem* Item, DialogItemEx *ItemEx, size_t Count,
 		ItemEx.X2 = std::max(ItemEx.X1, ItemEx.X2);
 		ItemEx.Y2 = std::max(ItemEx.Y1, ItemEx.Y2);
 
-		if ((ItemEx.Type == DI_COMBOBOX || ItemEx.Type == DI_LISTBOX) && !global::IsPtr(Item.ListItems))
+		if ((ItemEx.Type == DI_COMBOBOX || ItemEx.Type == DI_LISTBOX) && !os::memory::is_pointer(Item.ListItems))
 		{
 			ItemEx.ListItems=nullptr;
 		}
@@ -1378,7 +1378,7 @@ void Dialog::GetDialogObjectsData()
 
 					if ((IFlags&DIF_EDITEXPAND) && i.Type != DI_PSWEDIT && i.Type != DI_FIXEDIT)
 					{
-						strData = api::env::expand_strings(strData);
+						strData = os::env::expand_strings(strData);
 						//как бы грязный хак, нам нужно обновить строку чтоб отдавалась правильная строка
 						//для различных DM_* после закрытия диалога, но ни в коем случае нельзя чтоб
 						//высылался DN_EDITCHANGE для этого изменения, ибо диалог уже закрыт.

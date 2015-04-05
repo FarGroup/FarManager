@@ -201,8 +201,8 @@ Viewer::~Viewer()
 			DeleteFileWithFolder(strTempViewName);
 		else
 		{
-			api::SetFileAttributes(strTempViewName,FILE_ATTRIBUTE_NORMAL);
-			api::DeleteFile(strTempViewName); //BUGBUG
+			os::SetFileAttributes(strTempViewName,FILE_ATTRIBUTE_NORMAL);
+			os::DeleteFile(strTempViewName); //BUGBUG
 		}
 	}
 }
@@ -310,7 +310,7 @@ int Viewer::OpenFile(const string& Name,int warning)
 	Reader.AdjustAlignment();
 
 	ConvertNameToFull(strFileName,strFullFileName);
-	api::GetFindDataEx(strFileName, ViewFindData);
+	os::GetFindDataEx(strFileName, ViewFindData);
 	uintptr_t CachedCodePage=0;
 
 	if ((Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveShortPos || Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SaveWrapMode) && !ReadStdin)
@@ -451,8 +451,8 @@ void Viewer::AdjustWidth()
 
 bool Viewer::CheckChanged()
 {
-	api::FAR_FIND_DATA NewViewFindData;
-	if (!api::GetFindDataEx(strFullFileName, NewViewFindData))
+	os::FAR_FIND_DATA NewViewFindData;
+	if (!os::GetFindDataEx(strFullFileName, NewViewFindData))
 		return TRUE;
 
 	// Smart file change check -- thanks Dzirt2005

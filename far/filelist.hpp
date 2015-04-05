@@ -313,7 +313,7 @@ public:
 	virtual void GetOpenPanelInfo(OpenPanelInfo *Info) const override;
 	virtual void SetPluginMode(PluginHandle* hPlugin,const string& PluginFile,bool SendOnFocus=false) override;
 	virtual size_t GetSelCount() const override;
-	virtual int GetSelName(string *strName, DWORD &FileAttr, string *strShortName = nullptr, api::FAR_FIND_DATA *fde = nullptr) override;
+	virtual int GetSelName(string *strName, DWORD &FileAttr, string *strShortName = nullptr, os::FAR_FIND_DATA *fde = nullptr) override;
 	virtual void UngetSelName() override;
 	virtual void ClearLastGetSelection() override;
 	virtual unsigned __int64 GetLastSelectedSize() const override;

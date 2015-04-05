@@ -42,9 +42,9 @@ PreserveLongName::PreserveLongName(const string& ShortName,int Preserve):
 {
 	if (Preserve)
 	{
-		api::FAR_FIND_DATA FindData;
+		os::FAR_FIND_DATA FindData;
 
-		if (api::GetFindDataEx(ShortName, FindData))
+		if (os::GetFindDataEx(ShortName, FindData))
 			strSaveLongName = FindData.strFileName;
 		else
 			strSaveLongName.clear();
@@ -56,11 +56,11 @@ PreserveLongName::PreserveLongName(const string& ShortName,int Preserve):
 
 PreserveLongName::~PreserveLongName()
 {
-	if (Preserve && api::fs::exists(strSaveShortName))
+	if (Preserve && os::fs::exists(strSaveShortName))
 	{
-		api::FAR_FIND_DATA FindData;
+		os::FAR_FIND_DATA FindData;
 
-		if (!api::GetFindDataEx(strSaveShortName, FindData) || strSaveLongName != FindData.strFileName)
+		if (!os::GetFindDataEx(strSaveShortName, FindData) || strSaveLongName != FindData.strFileName)
 		{
 			string strNewName;
 			strNewName = strSaveShortName;
@@ -73,7 +73,7 @@ PreserveLongName::~PreserveLongName()
 			else
 				strNewName = strSaveLongName;
 
-			api::MoveFile(strSaveShortName, strNewName);
+			os::MoveFile(strSaveShortName, strNewName);
 		}
 	}
 }

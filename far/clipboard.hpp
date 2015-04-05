@@ -74,7 +74,7 @@ private:
 	static bool IsFormatAvailable(UINT Format);
 	static HANDLE GetData(UINT uFormat);
 	static bool SetData(UINT uFormat, HGLOBAL hMem);
-	static bool SetData(UINT uFormat, api::memory::global::ptr&& hMem);
+	static bool SetData(UINT uFormat, os::memory::global::ptr&& hMem);
 
 	static bool UseInternalClipboard;
 	static bool InternalClipboardOpened;

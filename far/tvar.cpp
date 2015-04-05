@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "tvar.hpp"
 #include "config.hpp"
+#include "strmix.hpp"
 
 //#define TVAR_USE_STRMUN
 

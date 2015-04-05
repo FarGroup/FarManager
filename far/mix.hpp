@@ -48,11 +48,11 @@ bool FarMkTempEx(string &strDest, const wchar_t *Prefix=nullptr, BOOL WithTempPa
 
 void PluginPanelItemToFindDataEx(
     const PluginPanelItem *pSrc,
-    api::FAR_FIND_DATA *pDest
+    os::FAR_FIND_DATA *pDest
 );
 
 void FindDataExToPluginPanelItem(
-    const api::FAR_FIND_DATA *pSrc,
+    const os::FAR_FIND_DATA *pSrc,
     PluginPanelItem *pDest
 );
 

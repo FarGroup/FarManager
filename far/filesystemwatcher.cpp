@@ -62,7 +62,7 @@ void FileSystemWatcher::Set(const string& Directory, bool WatchSubtree)
 	this->m_Directory = Directory;
 	this->m_WatchSubtree = WatchSubtree;
 
-	if (api::GetFileTimeSimple(Directory,nullptr,nullptr,&m_PreviousLastWriteTime,nullptr))
+	if (os::GetFileTimeSimple(Directory,nullptr,nullptr,&m_PreviousLastWriteTime,nullptr))
 		m_CurrentLastWriteTime = m_PreviousLastWriteTime;
 }
 
@@ -109,7 +109,7 @@ void FileSystemWatcher::Watch(bool got_focus, bool check_time)
 		GetPathRoot(m_Directory, strRoot);
 		if (!strRoot.empty())
 		{
-			if (api::GetVolumeInformation(strRoot, nullptr, nullptr, nullptr, nullptr, &strFileSystem))
+			if (os::GetVolumeInformation(strRoot, nullptr, nullptr, nullptr, nullptr, &strFileSystem))
 				isFAT = (strFileSystem.substr(0,3) == L"FAT");
 		}
 		if (isFAT)             // emulate FAT folder time change
@@ -121,7 +121,7 @@ void FileSystemWatcher::Watch(bool got_focus, bool check_time)
 
 	if (check_time)
 	{
-		if (!api::GetFileTimeSimple(m_Directory,nullptr,nullptr,&m_CurrentLastWriteTime,nullptr))
+		if (!os::GetFileTimeSimple(m_Directory,nullptr,nullptr,&m_CurrentLastWriteTime,nullptr))
 		{
 			m_PreviousLastWriteTime.dwLowDateTime = 0;
 			m_PreviousLastWriteTime.dwHighDateTime = 0;

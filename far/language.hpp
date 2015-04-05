@@ -69,9 +69,9 @@ private:
 	string m_FileName;
 };
 
-bool OpenLangFile(api::fs::file& LangFile, const string& Path, const string& Mask, const string& Language, string &strFileName, uintptr_t &nCodePage, bool StrongLang = false, string *pstrLangName = nullptr);
-int GetLangParam(api::fs::file& LangFile, const string& ParamName,string *strParam1, string *strParam2, UINT nCodePage);
-int GetOptionsParam(api::fs::file& LangFile, const wchar_t *KeyName,string &strValue, UINT nCodePage);
+bool OpenLangFile(os::fs::file& LangFile, const string& Path, const string& Mask, const string& Language, string &strFileName, uintptr_t &nCodePage, bool StrongLang = false, string *pstrLangName = nullptr);
+int GetLangParam(os::fs::file& LangFile, const string& ParamName,string *strParam1, string *strParam2, UINT nCodePage);
+int GetOptionsParam(os::fs::file& LangFile, const wchar_t *KeyName,string &strValue, UINT nCodePage);
 bool SelectInterfaceLanguage();
 bool SelectHelpLanguage();
 

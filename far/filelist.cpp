@@ -258,7 +258,7 @@ FileList::FileList(window_ptr Owner):
 		openBracket[1]=closeBracket[1]=0;
 	}
 	m_Type=FILE_PANEL;
-	api::GetCurrentDirectory(m_CurDir);
+	os::GetCurrentDirectory(m_CurDir);
 	strOriginalCurDir = m_CurDir;
 	m_CurTopFile=m_CurFile=0;
 	m_ShowShortNames=0;
@@ -1655,7 +1655,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 							{
 								if (!(HasPathPrefix(strFileName) && pos==3))
 								{
-									if (!api::fs::exists(strFileName.substr(0, pos)))
+									if (!os::fs::exists(strFileName.substr(0, pos)))
 									{
 										if (Message(MSG_WARNING, MSG(MWarning),
 											make_vector<string>(MSG(MEditNewPath1), MSG(MEditNewPath2), MSG(MEditNewPath3)),
@@ -1711,7 +1711,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 					if (!FarMkTempEx(strTempDir))
 						return TRUE;
 
-					api::CreateDirectory(strTempDir,nullptr);
+					os::CreateDirectory(strTempDir,nullptr);
 					strTempName=strTempDir+L"\\"+PointToName(strFileName);
 
 					if (LocalKey==KEY_SHIFTF4)
@@ -1736,7 +1736,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 
 						if (!Result)
 						{
-							api::RemoveDirectory(strTempDir);
+							os::RemoveDirectory(strTempDir);
 							return TRUE;
 						}
 					}
@@ -1809,16 +1809,16 @@ int FileList::ProcessKey(const Manager::Key& Key)
 						{
 							PluginPanelItem PanelItem;
 							string strSaveDir;
-							api::GetCurrentDirectory(strSaveDir);
+							os::GetCurrentDirectory(strSaveDir);
 
-							if (!api::fs::exists(strTempName))
+							if (!os::fs::exists(strTempName))
 							{
 								string strFindName;
 								string strPath;
 								strPath = strTempName;
 								CutToSlash(strPath, false);
 								strFindName = strPath+L"*";
-								api::fs::enum_file Find(strFindName);
+								os::fs::enum_file Find(strFindName);
 								auto ItemIterator = std::find_if(CONST_RANGE(Find, i) { return !(i.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY); });
 								if (ItemIterator != Find.cend())
 									strTempName = strPath + ItemIterator->strFileName;
@@ -2546,7 +2546,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			if (!FarMkTempEx(strTempDir))
 				return;
 
-			api::CreateDirectory(strTempDir,nullptr);
+			os::CreateDirectory(strTempDir,nullptr);
 			PluginPanelItem PanelItem;
 			FileListToPluginItem(*CurPtr, &PanelItem);
 			int Result=Global->CtrlObject->Plugins->GetFile(m_hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|OPM_VIEW);
@@ -2554,7 +2554,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 
 			if (!Result)
 			{
-				api::RemoveDirectory(strTempDir);
+				os::RemoveDirectory(strTempDir);
 				return;
 			}
 
@@ -2865,7 +2865,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 		SetDirectorySuccess=false;
 	}
 
-	api::GetCurrentDirectory(m_CurDir);
+	os::GetCurrentDirectory(m_CurDir);
 	if (!IsUpdated)
 		return SetDirectorySuccess;
 
@@ -3197,7 +3197,7 @@ void FileList::SetViewMode(int Mode)
 	DWORD FileSystemFlags = 0;
 	GetPathRoot(m_CurDir,strDriveRoot);
 
-	if (NewPacked && api::GetVolumeInformation(strDriveRoot,nullptr,nullptr,nullptr,&FileSystemFlags,nullptr))
+	if (NewPacked && os::GetVolumeInformation(strDriveRoot,nullptr,nullptr,nullptr,&FileSystemFlags,nullptr))
 		if (!(FileSystemFlags&FILE_FILE_COMPRESSION))
 			NewPacked = false;
 
@@ -3712,7 +3712,7 @@ size_t FileList::GetRealSelCount() const
 }
 
 
-int FileList::GetSelName(string *strName, DWORD &FileAttr, string *strShortName, api::FAR_FIND_DATA *fde)
+int FileList::GetSelName(string *strName, DWORD &FileAttr, string *strShortName, os::FAR_FIND_DATA *fde)
 {
 	if (!strName)
 	{
@@ -4105,7 +4105,7 @@ void FileList::UpdateViewPanel()
 			if (!FarMkTempEx(strTempDir))
 				return;
 
-			api::CreateDirectory(strTempDir,nullptr);
+			os::CreateDirectory(strTempDir,nullptr);
 			PluginPanelItem PanelItem;
 			FileListToPluginItem(*CurPtr, &PanelItem);
 			int Result=Global->CtrlObject->Plugins->GetFile(m_hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|OPM_VIEW|OPM_QUICKVIEW);
@@ -4114,7 +4114,7 @@ void FileList::UpdateViewPanel()
 			if (!Result)
 			{
 				ViewPanel->ShowFile(L"", false, nullptr);
-				api::RemoveDirectory(strTempDir);
+				os::RemoveDirectory(strTempDir);
 				return;
 			}
 
@@ -4193,8 +4193,8 @@ void FileList::CompareDir()
 		GetPathRoot(m_CurDir, strRoot1);
 		GetPathRoot(Another->m_CurDir, strRoot2);
 
-		if (api::GetVolumeInformation(strRoot1,nullptr,nullptr,nullptr,nullptr,&strFileSystemName1) &&
-		        api::GetVolumeInformation(strRoot2,nullptr,nullptr,nullptr,nullptr,&strFileSystemName2))
+		if (os::GetVolumeInformation(strRoot1,nullptr,nullptr,nullptr,nullptr,&strFileSystemName1) &&
+		        os::GetVolumeInformation(strRoot2,nullptr,nullptr,nullptr,nullptr,&strFileSystemName2))
 			if (StrCmpI(strFileSystemName1, strFileSystemName2))
 				CompareFatTime=TRUE;
 	}
@@ -4875,16 +4875,16 @@ bool FileList::ApplyCommand()
 		}
 
 		if (!strListName.empty())
-			api::DeleteFile(strListName);
+			os::DeleteFile(strListName);
 
 		if (!strAnotherListName.empty())
-			api::DeleteFile(strAnotherListName);
+			os::DeleteFile(strAnotherListName);
 
 		if (!strShortListName.empty())
-			api::DeleteFile(strShortListName);
+			os::DeleteFile(strShortListName);
 
 		if (!strAnotherShortListName.empty())
-			api::DeleteFile(strAnotherShortListName);
+			os::DeleteFile(strAnotherShortListName);
 	}
 
 	Parent()->GetCmdLine()->LockUpdatePanel(false);
@@ -5198,7 +5198,7 @@ int FileList::PluginPanelHelp(const PluginHandle* hPlugin) const
 	strPath = hPlugin->pPlugin->GetModuleName();
 	CutToSlash(strPath);
 	uintptr_t nCodePage = CP_OEMCP;
-	api::fs::file HelpFile;
+	os::fs::file HelpFile;
 	if (!OpenLangFile(HelpFile, strPath,Global->HelpFileMask,Global->Opt->strHelpLanguage,strFileName, nCodePage))
 		return FALSE;
 
@@ -5344,7 +5344,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 		{
 			PluginPanelItem PanelItem={};
 			string strSaveDir;
-			api::GetCurrentDirectory(strSaveDir);
+			os::GetCurrentDirectory(strSaveDir);
 
 			if (FileNameToPluginItem(CurPlugin.m_HostFile,&PanelItem))
 			{
@@ -5444,9 +5444,9 @@ int FileList::FileNameToPluginItem(const string& Name,PluginPanelItem *pi)
 
 	FarChDir(strTempDir);
 	ClearStruct(*pi);
-	api::FAR_FIND_DATA fdata;
+	os::FAR_FIND_DATA fdata;
 
-	if (api::GetFindDataEx(Name, fdata))
+	if (os::GetFindDataEx(Name, fdata))
 	{
 		FindDataExToPluginPanelItem(&fdata, pi);
 		return TRUE;
@@ -5719,7 +5719,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanel
 	if (((Global->Opt->Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && IsDizDisplayed()) ||
 	        Global->Opt->Diz.UpdateMode==DIZ_UPDATE_ALWAYS) && !DestPanel->strPluginDizName.empty() &&
 	        (!Info.HostFile || !*Info.HostFile || DestPanel->GetModalMode() ||
-             api::fs::exists(Info.HostFile)))
+             os::fs::exists(Info.HostFile)))
 	{
 		Parent()->LeftPanel->ReadDiz();
 		Parent()->RightPanel->ReadDiz();
@@ -5754,10 +5754,10 @@ void FileList::PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanel
 		{
 			string strTempDir;
 
-			if (FarMkTempEx(strTempDir) && api::CreateDirectory(strTempDir,nullptr))
+			if (FarMkTempEx(strTempDir) && os::CreateDirectory(strTempDir,nullptr))
 			{
 				string strSaveDir;
-				api::GetCurrentDirectory(strSaveDir);
+				os::GetCurrentDirectory(strSaveDir);
 				string strDizName=strTempDir+L"\\"+DestPanel->strPluginDizName;
 				DestPanel->Diz.Flush(L"", &strDizName);
 
@@ -5854,7 +5854,7 @@ void FileList::PluginToPluginFiles(int Move)
 		return;
 
 	SaveSelection();
-	api::CreateDirectory(strTempDir,nullptr);
+	os::CreateDirectory(strTempDir,nullptr);
 	auto ItemList = CreatePluginItemList();
 
 	if (!ItemList.empty())
@@ -5866,7 +5866,7 @@ void FileList::PluginToPluginFiles(int Move)
 		if (PutCode==1 || PutCode==2)
 		{
 			string strSaveDir;
-			api::GetCurrentDirectory(strSaveDir);
+			os::GetCurrentDirectory(strSaveDir);
 			FarChDir(strTempDir);
 			PutCode = Global->CtrlObject->Plugins->PutFiles(AnotherFilePanel->m_hPlugin, ItemList.data(), ItemList.size(), false, 0);
 
@@ -6539,7 +6539,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	UpdateRequired=FALSE;
 	AccessTimeUpdateRequired=FALSE;
 	DizRead=FALSE;
-	api::FAR_FIND_DATA fdata;
+	os::FAR_FIND_DATA fdata;
 	decltype(m_ListData) OldData;
 	string strCurName, strNextCurName;
 	StopFSWatcher();
@@ -6549,7 +6549,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		return;
 
 	string strSaveDir;
-	api::GetCurrentDirectory(strSaveDir);
+	os::GetCurrentDirectory(strSaveDir);
 	{
 		string strOldCurDir(m_CurDir);
 
@@ -6561,7 +6561,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 			{
 				GetPathRoot(strOldCurDir,strOldCurDir);
 
-				if (!api::IsDiskInDrive(strOldCurDir))
+				if (!os::IsDiskInDrive(strOldCurDir))
 					IfGoHome(strOldCurDir.front());
 
 				/* При смене каталога путь не изменился */
@@ -6588,7 +6588,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	FreeDiskSize = -1;
 	if (Global->Opt->ShowPanelFree)
 	{
-		api::GetDiskSize(m_CurDir, nullptr, nullptr, &FreeDiskSize);
+		os::GetDiskSize(m_CurDir, nullptr, nullptr, &FreeDiskSize);
 	}
 
 	if (!m_ListData.empty())
@@ -6615,7 +6615,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	DWORD FileSystemFlags = 0;
 	string PathRoot;
 	GetPathRoot(m_CurDir, PathRoot);
-	api::GetVolumeInformation(PathRoot, nullptr, nullptr, nullptr, &FileSystemFlags, nullptr);
+	os::GetVolumeInformation(PathRoot, nullptr, nullptr, nullptr, &FileSystemFlags, nullptr);
 
 	m_ListData.clear();
 
@@ -6662,7 +6662,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	string strFind(m_CurDir);
 	AddEndSlash(strFind);
 	strFind+=L'*';
-	api::fs::enum_file Find(strFind, true);
+	os::fs::enum_file Find(strFind, true);
 	DWORD FindErrorCode = ERROR_SUCCESS;
 	bool UseFilter=m_Filter->IsEnabledOnPanel();
 
@@ -6811,7 +6811,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		}
 
 		FILETIME TwoDotsTimes[4]={};
-		api::GetFileTimeSimple(m_CurDir,&TwoDotsTimes[0],&TwoDotsTimes[1],&TwoDotsTimes[2],&TwoDotsTimes[3]);
+		os::GetFileTimeSimple(m_CurDir,&TwoDotsTimes[0],&TwoDotsTimes[1],&TwoDotsTimes[2],&TwoDotsTimes[3]);
 
 		AddParentPoint(&NewItem, m_ListData.size(), TwoDotsTimes, TwoDotsOwner);
 	}
@@ -7041,7 +7041,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	{
 		if (Info.Flags & OPIF_REALNAMES)
 		{
-			api::GetDiskSize(m_CurDir, nullptr, nullptr, &FreeDiskSize);
+			os::GetDiskSize(m_CurDir, nullptr, nullptr, &FreeDiskSize);
 		}
 		else if (Info.Flags & OPIF_USEFREESIZE)
 			FreeDiskSize=Info.FreeSize;
@@ -7170,9 +7170,9 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 
 		if (Info.HostFile && *Info.HostFile)
 		{
-			api::FAR_FIND_DATA FindData;
+			os::FAR_FIND_DATA FindData;
 
-			if (api::GetFindDataEx(Info.HostFile, FindData))
+			if (os::GetFindDataEx(Info.HostFile, FindData))
 			{
 				NewItem.WriteTime=FindData.ftLastWriteTime;
 				NewItem.CreationTime=FindData.ftCreationTime;
@@ -7277,7 +7277,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 					{
 						string strTempDir, strDizName;
 
-						if (FarMkTempEx(strTempDir) && api::CreateDirectory(strTempDir,nullptr))
+						if (FarMkTempEx(strTempDir) && os::CreateDirectory(strTempDir,nullptr))
 						{
 							if (Global->CtrlObject->Plugins->GetFile(m_hPlugin,CurPanelData,strTempDir,strDizName,OPM_SILENT|OPM_VIEW|OPM_QUICKVIEW|OPM_DESCR))
 							{
@@ -7288,7 +7288,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 								break;
 							}
 
-							api::RemoveDirectory(strTempDir);
+							os::RemoveDirectory(strTempDir);
 							//ViewPanel->ShowFile(nullptr,FALSE,nullptr);
 						}
 					}

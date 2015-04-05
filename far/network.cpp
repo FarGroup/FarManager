@@ -49,10 +49,10 @@ void GetStoredUserName(wchar_t cDrive, string &strUserName)
 	strUserName.clear();
 	const wchar_t KeyName[]={L'N',L'e',L't',L'w',L'o',L'r',L'k',L'\\',cDrive,L'\0'};
 
-	api::reg::GetValue(HKEY_CURRENT_USER, KeyName, L"UserName", strUserName);
+	os::reg::GetValue(HKEY_CURRENT_USER, KeyName, L"UserName", strUserName);
 }
 
-api::drives_set AddSavedNetworkDisks(api::drives_set& Mask)
+os::drives_set AddSavedNetworkDisks(os::drives_set& Mask)
 {
 	FN_RETURN_TYPE(AddSavedNetworkDisks) Result;
 	HANDLE hEnum;
@@ -149,7 +149,7 @@ string &CurPath2ComputerName(const string& CurDir, string &strComputerName, stri
 	else
 	{
 		string LocalName(CurDir.data(), 2);
-		api::WNetGetConnection(LocalName, strNetDir);
+		os::WNetGetConnection(LocalName, strNetDir);
 	}
 
 	if (!strNetDir.compare(0, 2, L"\\\\"))
@@ -187,7 +187,7 @@ bool DriveLocalToRemoteName(int DriveType, wchar_t Letter, string &strDest)
 
 	if (IsDriveTypeRemote(DriveType))
 	{
-		DWORD res = api::WNetGetConnection(LocalName,strRemoteName);
+		DWORD res = os::WNetGetConnection(LocalName,strRemoteName);
 
 		if (res == NO_ERROR || res == ERROR_CONNECTION_UNAVAIL)
 		{

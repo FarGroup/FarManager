@@ -61,8 +61,8 @@ public:
 	FREE_SWAP(scantree_item);
 
 	BitFlags Flags;
-	std::unique_ptr<api::fs::enum_file> Find;
-	api::fs::enum_file::iterator Iterator;
+	std::unique_ptr<os::fs::enum_file> Find;
+	os::fs::enum_file::iterator Iterator;
 	string RealPath;
 };
 
@@ -94,7 +94,7 @@ void ScanTree::SetFindPath(const string& Path,const string& Mask, const DWORD Ne
 	Flags.Set((Flags.Flags()&0x0000FFFF)|(NewScanFlags&0xFFFF0000));
 }
 
-bool ScanTree::GetNextName(api::FAR_FIND_DATA *fdata,string &strFullName)
+bool ScanTree::GetNextName(os::FAR_FIND_DATA *fdata,string &strFullName)
 {
 	if (ScanItems.empty())
 		return false;
@@ -108,7 +108,7 @@ bool ScanTree::GetNextName(api::FAR_FIND_DATA *fdata,string &strFullName)
 		{
 			if (!LastItem.Find)
 			{
-				LastItem.Find = std::make_unique<api::fs::enum_file>(strFindPath);
+				LastItem.Find = std::make_unique<os::fs::enum_file>(strFindPath);
 				LastItem.Iterator = LastItem.Find->end();
 			}
 
@@ -170,7 +170,7 @@ bool ScanTree::GetNextName(api::FAR_FIND_DATA *fdata,string &strFullName)
 			if (Flags.Check(FSCANTREE_RETUPDIR))
 			{
 				strFullName = strFindPathOriginal;
-				api::GetFindDataEx(strFindPath, *fdata);
+				os::GetFindDataEx(strFindPath, *fdata);
 			}
 
 			CutToSlash(strFindPath);

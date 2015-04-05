@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "transactional.hpp"
 #include "bitflags.hpp"
-#include "strmix.hpp"
 #include "synchro.hpp"
 
 struct VersionInfo;
@@ -120,7 +119,7 @@ public:
 
 	virtual void AsyncFinish() = 0;
 	virtual key CreateKey(const key& Root, const string& Name, const string* Description = nullptr) = 0;
-	virtual key GetKeyID(const key& Root, const string& Name) = 0;
+	virtual key FindByName(const key& Root, const string& Name) = 0;
 	virtual bool SetKeyDescription(const key& Root, const string& Description) = 0;
 
 	virtual bool SetValue(const key& Root, const string& Name, const string& Value) = 0;
@@ -302,12 +301,12 @@ protected:
 
 ENUM(dbcheck);
 
-class Database: noncopyable
+class config_provider: noncopyable
 {
 public:
 	enum mode { default_mode, import_mode, export_mode };
-	Database(mode Mode = default_mode);
-	~Database();
+	config_provider(mode Mode = default_mode);
+	~config_provider();
 	bool Import(const string& File);
 	bool Export(const string& File);
 	int ShowProblems();
@@ -353,3 +352,5 @@ private:
 
 	BitFlags CheckedDb;
 };
+
+config_provider& ConfigProvider();

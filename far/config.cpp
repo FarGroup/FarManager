@@ -406,7 +406,7 @@ static void ApplyDefaultMaskGroups()
 
 	std::for_each(CONST_RANGE(Sets, i)
 	{
-		Global->Db->GeneralCfg()->SetValue(L"Masks", i.first, i.second);
+		ConfigProvider().GeneralCfg()->SetValue(L"Masks", i.first, i.second);
 	});
 }
 
@@ -414,7 +414,7 @@ static void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 {
 	MasksMenu.DeleteItems();
 
-	const auto MasksEnum = Global->Db->GeneralCfg()->GetStringValuesEnumerator(L"Masks");
+	const auto MasksEnum = ConfigProvider().GeneralCfg()->GetStringValuesEnumerator(L"Masks");
 	std::for_each(CONST_RANGE(MasksEnum, i)
 	{
 		MenuItemEx Item;
@@ -469,7 +469,7 @@ void Options::MaskGroupsSettings()
 			case KEY_DEL:
 				if(Item && !Message(0,2,MSG(MMenuMaskGroups),MSG(MMaskGroupAskDelete), Item, MSG(MDelete), MSG(MCancel)))
 				{
-					Global->Db->GeneralCfg()->DeleteValue(L"Masks", Item);
+					ConfigProvider().GeneralCfg()->DeleteValue(L"Masks", Item);
 					Changed = true;
 				}
 				break;
@@ -488,7 +488,7 @@ void Options::MaskGroupsSettings()
 						if (*Item)
 						{
 							Name = Item;
-							Global->Db->GeneralCfg()->GetValue(L"Masks", Name, Value, L"");
+							ConfigProvider().GeneralCfg()->GetValue(L"Masks", Name, Value, L"");
 						}
 						DialogBuilder Builder(MMenuMaskGroups, L"MaskGroupsSettings");
 						Builder.AddText(MMaskGroupName);
@@ -500,9 +500,9 @@ void Options::MaskGroupsSettings()
 						{
 							if(*Item)
 							{
-								Global->Db->GeneralCfg()->DeleteValue(L"Masks", Item);
+								ConfigProvider().GeneralCfg()->DeleteValue(L"Masks", Item);
 							}
-							Global->Db->GeneralCfg()->SetValue(L"Masks", Name, Value);
+							ConfigProvider().GeneralCfg()->SetValue(L"Masks", Name, Value);
 							Changed = true;
 						}
 					}
@@ -535,7 +535,7 @@ void Options::MaskGroupsSettings()
 						for (int i=0; i < MasksMenu->GetItemCount(); ++i)
 						{
 							string CurrentMasks;
-							Global->Db->GeneralCfg()->GetValue(L"Masks", static_cast<const wchar_t*>(MasksMenu->GetUserData(nullptr, 0, i)), CurrentMasks, L"");
+							ConfigProvider().GeneralCfg()->GetValue(L"Masks", static_cast<const wchar_t*>(MasksMenu->GetUserData(nullptr, 0, i)), CurrentMasks, L"");
 							filemasks Masks;
 							Masks.Set(CurrentMasks);
 							if(!Masks.Compare(Value))
@@ -1978,7 +1978,7 @@ void Options::InitRoamingCFG()
 	};
 
 	assert(Config.empty());
-	Config.emplace_back(farconfig(_CFG, ARRAYSIZE(_CFG), Global->Db->GeneralCfg().get()));
+	Config.emplace_back(farconfig(_CFG, ARRAYSIZE(_CFG), ConfigProvider().GeneralCfg().get()));
 }
 
 void Options::InitLocalCFG()
@@ -1996,7 +1996,7 @@ void Options::InitLocalCFG()
 	};
 
 	assert(Config.size() == 1);
-	Config.emplace_back(farconfig(_CFG, ARRAYSIZE(_CFG), Global->Db->LocalGeneralCfg().get()));
+	Config.emplace_back(farconfig(_CFG, ARRAYSIZE(_CFG), ConfigProvider().LocalGeneralCfg().get()));
 }
 
 template<class container, class pred>
@@ -2097,7 +2097,7 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 
 	Palette.Load();
 	GlobalUserMenuDir = GetFarIniString(L"General", L"GlobalUserMenuDir", Global->g_strFarPath);
-	GlobalUserMenuDir = api::env::expand_strings(GlobalUserMenuDir);
+	GlobalUserMenuDir = os::env::expand_strings(GlobalUserMenuDir);
 	ConvertNameToFull(GlobalUserMenuDir,GlobalUserMenuDir);
 	AddEndSlash(GlobalUserMenuDir);
 
@@ -2176,7 +2176,7 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 	SetSearchColumns(FindOpt.strSearchOutFormat, FindOpt.strSearchOutFormatWidth);
 
 	string tmp[2];
-	if (!Global->Db->GeneralCfg()->EnumValues(L"Masks", 0, tmp[0], tmp[1]))
+	if (!ConfigProvider().GeneralCfg()->EnumValues(L"Masks", 0, tmp[0], tmp[1]))
 	{
 		ApplyDefaultMaskGroups();
 	}
@@ -2438,13 +2438,13 @@ static const wchar_t ModesFlagsName[] = L"Flags";
 
 void Options::ReadPanelModes()
 {
-	auto cfg = Global->Db->CreatePanelModeConfig();
+	auto cfg = ConfigProvider().CreatePanelModeConfig();
 
 	auto root = HierarchicalConfig::root_key();
 
 	const auto ReadMode = [&](REFERENCE(m_ViewSettings) i, size_t Index) -> bool
 	{
-		const auto Key = cfg->GetKeyID(root, std::to_wstring(Index));
+		const auto Key = cfg->FindByName(root, std::to_wstring(Index));
 
 		if (!Key)
 		{
@@ -2476,7 +2476,7 @@ void Options::ReadPanelModes()
 
 	for_each_cnt(m_ViewSettings.begin(), m_ViewSettings.begin() + predefined_panel_modes_count, ReadMode);
 
-	root = cfg->GetKeyID(cfg->root_key(), CustomModesKeyName);
+	root = cfg->FindByName(cfg->root_key(), CustomModesKeyName);
 
 	if (root)
 	{
@@ -2499,7 +2499,7 @@ void Options::SavePanelModes(bool always)
 	if (!always && !m_ViewSettingsChanged)
 		return;
 
-	const auto cfg = Global->Db->CreatePanelModeConfig();
+	const auto cfg = ConfigProvider().CreatePanelModeConfig();
 	auto root = cfg->root_key();
 
 	const auto SaveMode = [&](CONST_REFERENCE(ViewSettings) i, size_t Index)
@@ -2523,7 +2523,7 @@ void Options::SavePanelModes(bool always)
 
 	for_each_cnt(ViewSettings.cbegin(), ViewSettings.cbegin() + predefined_panel_modes_count, SaveMode);
 
-	if ((root = cfg->GetKeyID(cfg->root_key(), CustomModesKeyName)))
+	if ((root = cfg->FindByName(cfg->root_key(), CustomModesKeyName)))
 	{
 		cfg->DeleteKeyTree(root);
 	}
@@ -3098,7 +3098,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 
 						SelectHelpLanguage();
 						Global->CtrlObject->Plugins->ReloadLanguage();
-						api::env::set_variable(L"FARLANG", strLanguage);
+						os::env::set_variable(L"FARLANG", strLanguage);
 						PrepareStrFTime();
 						PrepareUnitStr();
 						Global->WindowManager->InitKeyBar();
@@ -3187,7 +3187,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 
 string GetFarIniString(const string& AppName, const string& KeyName, const string& Default)
 {
-	return api::GetPrivateProfileString(AppName, KeyName, Default, Global->g_strFarINI);
+	return os::GetPrivateProfileString(AppName, KeyName, Default, Global->g_strFarINI);
 }
 
 int GetFarIniInt(const string& AppName, const string& KeyName, int Default)

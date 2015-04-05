@@ -47,7 +47,7 @@ int ESetFileAttributes(const string& Name,DWORD Attr,int SkipMode)
 	if (Attr&FILE_ATTRIBUTE_DIRECTORY && Attr&FILE_ATTRIBUTE_TEMPORARY)
 		Attr&=~FILE_ATTRIBUTE_TEMPORARY;
 
-	while (!api::SetFileAttributes(Name,Attr))
+	while (!os::SetFileAttributes(Name,Attr))
 	{
 		Global->CatchError();
 
@@ -77,7 +77,7 @@ int ESetFileAttributes(const string& Name,DWORD Attr,int SkipMode)
 
 static int SetFileCompression(const string& Name,int State)
 {
-	api::fs::file file;
+	os::fs::file file;
 
 	if (!file.Open(Name, FILE_READ_DATA|FILE_WRITE_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 		return FALSE;
@@ -96,11 +96,11 @@ int ESetFileCompression(const string& Name,int State,DWORD FileAttr,int SkipMode
 	int Ret=SETATTR_RET_OK;
 
 	if (FileAttr & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
-		api::SetFileAttributes(Name,FileAttr & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM));
+		os::SetFileAttributes(Name,FileAttr & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM));
 
 	// Drop Encryption
 	if ((FileAttr & FILE_ATTRIBUTE_ENCRYPTED) && State)
-		api::SetFileEncryption(Name, false);
+		os::SetFileEncryption(Name, false);
 
 	while (!SetFileCompression(Name,State))
 	{
@@ -134,7 +134,7 @@ int ESetFileCompression(const string& Name,int State,DWORD FileAttr,int SkipMode
 
 	// Set ReadOnly
 	if (FileAttr & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
-		api::SetFileAttributes(Name,FileAttr);
+		os::SetFileAttributes(Name,FileAttr);
 
 	return Ret;
 }
@@ -149,9 +149,9 @@ int ESetFileEncryption(const string& Name, bool State, DWORD FileAttr, int SkipM
 
 	// Drop ReadOnly
 	if (FileAttr & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
-		api::SetFileAttributes(Name,FileAttr & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM));
+		os::SetFileAttributes(Name,FileAttr & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM));
 
-	while (!api::SetFileEncryption(Name, State))
+	while (!os::SetFileEncryption(Name, State))
 	{
 		Global->CatchError();
 
@@ -191,7 +191,7 @@ int ESetFileEncryption(const string& Name, bool State, DWORD FileAttr, int SkipM
 
 	// Set ReadOnly
 	if (FileAttr & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
-		api::SetFileAttributes(Name,FileAttr);
+		os::SetFileAttributes(Name,FileAttr);
 
 	return Ret;
 }
@@ -205,11 +205,11 @@ int ESetFileTime(const string& Name, const FILETIME *LastWriteTime, const FILETI
 	for(;;)
 	{
 		if (FileAttr & FILE_ATTRIBUTE_READONLY)
-			api::SetFileAttributes(Name,FileAttr & ~FILE_ATTRIBUTE_READONLY);
+			os::SetFileAttributes(Name,FileAttr & ~FILE_ATTRIBUTE_READONLY);
 
 		bool SetTime=false;
 		DWORD LastError=ERROR_SUCCESS;
-		api::fs::file file;
+		os::fs::file file;
 		if (!file.Open(Name,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,
 		                           nullptr,OPEN_EXISTING,
 		                           FILE_FLAG_OPEN_REPARSE_POINT))
@@ -232,7 +232,7 @@ int ESetFileTime(const string& Name, const FILETIME *LastWriteTime, const FILETI
 		}
 
 		if (FileAttr & FILE_ATTRIBUTE_READONLY)
-			api::SetFileAttributes(Name,FileAttr);
+			os::SetFileAttributes(Name,FileAttr);
 
 		SetLastError(LastError);
 		Global->CatchError();
@@ -268,7 +268,7 @@ int ESetFileTime(const string& Name, const FILETIME *LastWriteTime, const FILETI
 static bool SetFileSparse(const string& Name,bool State)
 {
 	bool Ret=false;
-	api::fs::file file;
+	os::fs::file file;
 	if (file.Open(Name,FILE_WRITE_DATA,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING))
 	{
 		DWORD BytesReturned;
@@ -285,7 +285,7 @@ int ESetFileSparse(const string& Name,bool State,DWORD FileAttr,int SkipMode)
 	if ((((FileAttr&FILE_ATTRIBUTE_SPARSE_FILE)!=0)!=State) && !(FileAttr&FILE_ATTRIBUTE_DIRECTORY))
 	{
 		if (FileAttr&(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
-			api::SetFileAttributes(Name,FileAttr&~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM));
+			os::SetFileAttributes(Name,FileAttr&~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM));
 
 		while (!SetFileSparse(Name,State))
 		{
@@ -317,7 +317,7 @@ int ESetFileSparse(const string& Name,bool State,DWORD FileAttr,int SkipMode)
 		}
 
 		if (FileAttr&(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
-			api::SetFileAttributes(Name,FileAttr);
+			os::SetFileAttributes(Name,FileAttr);
 	}
 
 	return Ret;

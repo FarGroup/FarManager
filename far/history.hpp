@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class Dialog;
 class VMenu2;
+class HistoryConfig;
 
 enum history_type
 {

@@ -1568,7 +1568,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			return PassBoolean(IsConsoleFullscreen(), Data);
 
 		case MCODE_C_ISUSERADMIN: // IsUserAdmin?
-			return PassBoolean(Global->IsUserAdmin(), Data);
+			return PassBoolean(os::security::is_admin(), Data);
 
 		case MCODE_V_DRVSHOWPOS: // Drv.ShowPos
 			return Global->Macro_DskShowPosType;
@@ -3515,7 +3515,7 @@ static bool environFunc(FarMacroCall* Data)
 	string strEnv;
 
 
-	if (api::env::get_variable(S.toString(), strEnv))
+	if (os::env::get_variable(S.toString(), strEnv))
 		Ret=true;
 	else
 		strEnv.clear();
@@ -3523,9 +3523,9 @@ static bool environFunc(FarMacroCall* Data)
 	if (Mode.asInteger()) // Mode != 0: Set
 	{
 		if (Value.isUnknown() || Value.asString().empty())
-			api::env::delete_variable(S.toString());
+			os::env::delete_variable(S.toString());
 		else
-			api::env::set_variable(S.toString(), Value.toString());
+			os::env::set_variable(S.toString(), Value.toString());
 	}
 
 	PassString(strEnv, Data);
@@ -3586,8 +3586,8 @@ static bool _fattrFunc(int Type, FarMacroCall* Data)
 	{
 		auto Params = parseParams<1>(Data);
 		TVar& Str(Params[0]);
-		api::FAR_FIND_DATA FindData;
-		api::GetFindDataEx(Str.toString(), FindData);
+		os::FAR_FIND_DATA FindData;
+		os::GetFindDataEx(Str.toString(), FindData);
 		FileAttr=FindData.dwFileAttributes;
 		Ret=true;
 	}

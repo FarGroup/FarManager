@@ -476,7 +476,7 @@ int SubstFileName(const wchar_t *DlgTitle,
 	if (!IgnoreInput)
 	{
 		string title = NullToEmpty(DlgTitle);
-		ReplaceVariables(api::env::expand_strings(title).data(), strStr, PSubstData);
+		ReplaceVariables(os::env::expand_strings(title).data(), strStr, PSubstData);
 	}
 
 	return PSubstData->PreserveLFN;
@@ -623,7 +623,7 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 		}
 
 		//do it - типа здесь все уже раскрыто и преобразовано
-		DlgData[DlgData.size() - 2].strData = api::env::expand_strings(strTitle);
+		DlgData[DlgData.size() - 2].strData = os::env::expand_strings(strTitle);
 
 		// «аполн€ем поле ввода заданным шаблоном - если есть
 		string strTxt;
@@ -731,7 +731,7 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 		}
 	}
 
-	strStr = api::env::expand_strings(strTmpStr);
+	strStr = os::env::expand_strings(strTmpStr);
 	return 1;
 }
 
@@ -741,7 +741,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 
 	if (FarMkTempEx(strListFileName))
 	{
-		api::fs::file ListFile;
+		os::fs::file ListFile;
 		if (ListFile.Open(strListFileName,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,CREATE_ALWAYS))
 		{
 			uintptr_t CodePage=CP_OEMCP;
@@ -857,7 +857,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 				{
 					Global->CatchError();
 					Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MCannotCreateListWrite),MSG(MOk));
-					api::DeleteFile(strListFileName);
+					os::DeleteFile(strListFileName);
 					break;
 				}
 			}

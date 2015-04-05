@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "xlat.hpp"
 #include "console.hpp"
 #include "configdb.hpp"
+#include "strmix.hpp"
 
 void xlat_initialize()
 {
@@ -85,8 +86,6 @@ void xlat_initialize()
 
 					for_each_2(ALL_RANGE(XLat.Table), Tables, SetIfEmpty);
 					for_each_2(ALL_RANGE(XLat.Rules), Rules, SetIfEmpty);
-
-
 				}
 			}
 		}
@@ -168,7 +167,7 @@ wchar_t* Xlat(wchar_t *Line, int StartPos, int EndPos, unsigned __int64 Flags)
 		      снова конвертим и...
 		*/
 		string XlatRules;
-		Global->Db->GeneralCfg()->GetValue(L"XLat", strLayoutName, XlatRules, L"");
+		ConfigProvider().GeneralCfg()->GetValue(L"XLat", strLayoutName, XlatRules, L"");
 		RulesNamed = XlatRules;
 		if (!RulesNamed.empty())
 			ProcessLayoutName=true;

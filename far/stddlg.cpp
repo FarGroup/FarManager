@@ -567,7 +567,7 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 								if (GetProcessTimes(hProcess, &ftCreate, &ftExit, &ftKernel, &ftUser) && rgpi[i].Process.ProcessStartTime == ftCreate)
 								{
 									string Name;
-									if (api::GetModuleFileNameEx(hProcess, nullptr, Name))
+									if (os::GetModuleFileNameEx(hProcess, nullptr, Name))
 									{
 										tmp += L", " + Name;
 									}

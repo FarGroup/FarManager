@@ -104,7 +104,7 @@ void DizList::Read(const string& Path, const string* DizName)
 			strDizFileName += strArgName;
 		}
 
-		api::fs::file DizFile;
+		os::fs::file DizFile;
 		if (DizFile.Open(strDizFileName,GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
 		{
 			clock_t StartTime=clock();
@@ -281,7 +281,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		strDizFileName += strArgName;
 	}
 
-	DWORD FileAttr=api::GetFileAttributes(strDizFileName);
+	DWORD FileAttr=os::GetFileAttributes(strDizFileName);
 
 	if (FileAttr != INVALID_FILE_ATTRIBUTES)
 	{
@@ -289,7 +289,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		{
 			if(Global->Opt->Diz.ROUpdate)
 			{
-				if(api::SetFileAttributes(strDizFileName,FileAttr))
+				if(os::SetFileAttributes(strDizFileName,FileAttr))
 				{
 					FileAttr^=FILE_ATTRIBUTE_READONLY;
 				}
@@ -298,7 +298,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 
 		if(!(FileAttr&FILE_ATTRIBUTE_READONLY))
 		{
-			api::SetFileAttributes(strDizFileName,FILE_ATTRIBUTE_ARCHIVE);
+			os::SetFileAttributes(strDizFileName,FILE_ATTRIBUTE_ARCHIVE);
 		}
 		else
 		{
@@ -307,7 +307,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		}
 	}
 
-	api::fs::file DizFile;
+	os::fs::file DizFile;
 
 	bool AnyError=false;
 
@@ -387,14 +387,14 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		{
 			FileAttr=FILE_ATTRIBUTE_ARCHIVE|(Global->Opt->Diz.SetHidden?FILE_ATTRIBUTE_HIDDEN:0);
 		}
-		api::SetFileAttributes(strDizFileName,FileAttr);
+		os::SetFileAttributes(strDizFileName,FileAttr);
 	}
 	else
 	{
 		if(AnyError)
 			Global->CatchError();
 
-		api::DeleteFile(strDizFileName);
+		os::DeleteFile(strDizFileName);
 		if(AnyError)
 		{
 			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotUpdateDiz),MSG(MOk));

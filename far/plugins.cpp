@@ -114,7 +114,7 @@ static void GetPluginHotKey(Plugin *pPlugin, const GUID& Guid, PluginsHotkeysCon
 	string strPluginKey;
 	strHotKey.clear();
 	GetHotKeyPluginKey(pPlugin, strPluginKey);
-	strHotKey = Global->Db->PlHotkeyCfg()->GetHotkey(strPluginKey, GuidToStr(Guid), HotKeyType);
+	strHotKey = ConfigProvider().PlHotkeyCfg()->GetHotkey(strPluginKey, GuidToStr(Guid), HotKeyType);
 }
 
 bool PluginManager::plugin_less::operator ()(const Plugin* a, const Plugin *b) const
@@ -205,7 +205,7 @@ bool PluginManager::RemovePlugin(Plugin *pPlugin)
 }
 
 
-Plugin* PluginManager::LoadPlugin(const string& FileName, const api::FAR_FIND_DATA &FindData, bool LoadToMem)
+Plugin* PluginManager::LoadPlugin(const string& FileName, const os::FAR_FIND_DATA &FindData, bool LoadToMem)
 {
 	Plugin *pPlugin = nullptr;
 
@@ -259,9 +259,9 @@ Plugin* PluginManager::LoadPluginExternal(const string& lpwszModuleName, bool Lo
 	}
 	else
 	{
-		api::FAR_FIND_DATA FindData;
+		os::FAR_FIND_DATA FindData;
 
-		if (api::GetFindDataEx(lpwszModuleName, FindData))
+		if (os::GetFindDataEx(lpwszModuleName, FindData))
 		{
 			pPlugin = LoadPlugin(lpwszModuleName, FindData, LoadToMem);
 			if (!pPlugin)
@@ -359,7 +359,7 @@ void PluginManager::LoadModels()
 #endif // NO_WRAPPER
 
 	ScanTree ScTree(false, true, Global->Opt->LoadPlug.ScanSymlinks);
-	api::FAR_FIND_DATA FindData;
+	os::FAR_FIND_DATA FindData;
 	ScTree.SetFindPath(Global->g_strFarPath + L"\\Adapters", L"*");
 
 	string filename;
@@ -392,7 +392,7 @@ void PluginManager::LoadPlugins()
 		ScanTree ScTree(false, true, Global->Opt->LoadPlug.ScanSymlinks);
 		string strPluginsDir;
 		string strFullName;
-		api::FAR_FIND_DATA FindData;
+		os::FAR_FIND_DATA FindData;
 
 		// сначала подготовим список
 		if (Global->Opt->LoadPlug.MainPluginDir) // только основные и персональные?
@@ -413,7 +413,7 @@ void PluginManager::LoadPlugins()
 		FOR(const auto& i, Strings)
 		{
 			// расширяем значение пути
-			strFullName = Unquote(api::env::expand_strings(i)); //??? здесь ХЗ
+			strFullName = Unquote(os::env::expand_strings(i)); //??? здесь ХЗ
 
 			if (!IsAbsolutePath(strFullName))
 			{
@@ -450,13 +450,13 @@ void PluginManager::LoadPluginsFromCache()
 {
 	string strModuleName;
 
-	for (DWORD i=0; Global->Db->PlCacheCfg()->EnumPlugins(i, strModuleName); i++)
+	for (DWORD i=0; ConfigProvider().PlCacheCfg()->EnumPlugins(i, strModuleName); i++)
 	{
 		ReplaceSlashToBackslash(strModuleName);
 
-		api::FAR_FIND_DATA FindData;
+		os::FAR_FIND_DATA FindData;
 
-		if (api::GetFindDataEx(strModuleName, FindData))
+		if (os::GetFindDataEx(strModuleName, FindData))
 			LoadPlugin(strModuleName, FindData, false);
 	}
 }
@@ -492,7 +492,7 @@ PluginHandle* PluginManager::OpenFilePlugin(
 	if(Type==OFP_ALTERNATIVE) OpMode|=OPM_PGDN;
 	if(Type==OFP_COMMANDS) OpMode|=OPM_COMMANDS;
 
-	api::fs::file file;
+	os::fs::file file;
 	AnalyseInfo Info={sizeof(Info), Name? Name->data() : nullptr, nullptr, 0, (OPERATION_MODES)OpMode};
 	std::vector<BYTE> Buffer(Global->Opt->PluginMaxReadData);
 
@@ -980,7 +980,7 @@ int PluginManager::GetFile(PluginHandle* hPlugin, PluginPanelItem *PanelItem, co
 	strFindPath = Info.DestPath;
 	AddEndSlash(strFindPath);
 	strFindPath += L"*";
-	api::fs::enum_file Find(strFindPath);
+	os::fs::enum_file Find(strFindPath);
 	auto ItemIterator = std::find_if(CONST_RANGE(Find, i) { return !(i.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY); });
 	if (ItemIterator != Find.cend())
 	{
@@ -990,8 +990,8 @@ int PluginManager::GetFile(PluginHandle* hPlugin, PluginPanelItem *PanelItem, co
 
 		if (GetCode!=1)
 		{
-			api::SetFileAttributes(strResultName,FILE_ATTRIBUTE_NORMAL);
-			api::DeleteFile(strResultName); //BUGBUG
+			os::SetFileAttributes(strResultName,FILE_ATTRIBUTE_NORMAL);
+			os::DeleteFile(strResultName); //BUGBUG
 		}
 		else
 			Found=TRUE;
@@ -1088,7 +1088,7 @@ int PluginManager::PutFiles(PluginHandle* hPlugin, PluginPanelItem *PanelItem, s
 	Global->KeepUserScreen=FALSE;
 
 	static string strCurrentDirectory;
-	api::GetCurrentDirectory(strCurrentDirectory);
+	os::GetCurrentDirectory(strCurrentDirectory);
 	PutFilesInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->hPlugin;
 	Info.PanelItem = PanelItem;
@@ -1116,7 +1116,7 @@ void PluginManager::GetOpenPanelInfo(PluginHandle* hPlugin, OpenPanelInfo *Info)
 	hPlugin->pPlugin->GetOpenPanelInfo(Info);
 
 	if (Info->CurDir && *Info->CurDir && (Info->Flags & OPIF_REALNAMES) && (Global->CtrlObject->Cp()->ActivePanel()->GetPluginHandle() == hPlugin) && ParsePath(Info->CurDir)!=PATH_UNKNOWN)
-		api::SetCurrentDirectory(Info->CurDir, false);
+		os::SetCurrentDirectory(Info->CurDir, false);
 }
 
 
@@ -1203,7 +1203,7 @@ void PluginManager::Configure(int StartPos)
 		while (!Global->CloseFAR)
 		{
 			bool NeedUpdateItems = true;
-			bool HotKeysPresent = Global->Db->PlHotkeyCfg()->HotkeysPresent(PluginsHotkeysConfig::CONFIG_MENU);
+			bool HotKeysPresent = ConfigProvider().PlHotkeyCfg()->HotkeysPresent(PluginsHotkeysConfig::CONFIG_MENU);
 
 			if (NeedUpdateItems)
 			{
@@ -1220,7 +1220,7 @@ void PluginManager::Configure(int StartPos)
 					PluginInfo Info = {sizeof(Info)};
 					if (bCached)
 					{
-						id = Global->Db->PlCacheCfg()->GetCacheID(i->GetCacheName());
+						id = ConfigProvider().PlCacheCfg()->GetCacheID(i->GetCacheName());
 					}
 					else
 					{
@@ -1234,7 +1234,7 @@ void PluginManager::Configure(int StartPos)
 						{
 							string strGuid;
 
-							if (!Global->Db->PlCacheCfg()->GetPluginsConfigMenuItem(id, J, strName, strGuid))
+							if (!ConfigProvider().PlCacheCfg()->GetPluginsConfigMenuItem(id, J, strName, strGuid))
 								break;
 							if (!StrToGuid(strGuid,guid))
 								break;
@@ -1367,7 +1367,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 		while (NeedUpdateItems)
 		{
-			bool HotKeysPresent = Global->Db->PlHotkeyCfg()->HotkeysPresent(PluginsHotkeysConfig::PLUGINS_MENU);
+			bool HotKeysPresent = ConfigProvider().PlHotkeyCfg()->HotkeysPresent(PluginsHotkeysConfig::PLUGINS_MENU);
 
 			if (NeedUpdateItems)
 			{
@@ -1385,8 +1385,8 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 					PluginInfo Info = {sizeof(Info)};
 					if (bCached)
 					{
-						id = Global->Db->PlCacheCfg()->GetCacheID(i->GetCacheName());
-						IFlags = Global->Db->PlCacheCfg()->GetFlags(id);
+						id = ConfigProvider().PlCacheCfg()->GetCacheID(i->GetCacheName());
+						IFlags = ConfigProvider().PlCacheCfg()->GetFlags(id);
 					}
 					else
 					{
@@ -1408,7 +1408,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 						{
 							string strGuid;
 
-							if (!Global->Db->PlCacheCfg()->GetPluginsMenuItem(id, J, strName, strGuid))
+							if (!ConfigProvider().PlCacheCfg()->GetPluginsMenuItem(id, J, strName, strGuid))
 								break;
 							if (!StrToGuid(strGuid,guid))
 								break;
@@ -1585,7 +1585,7 @@ bool PluginManager::SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHo
 	string strPluginKey;
 	GetHotKeyPluginKey(pPlugin, strPluginKey);
 	string strGuid = GuidToStr(Guid);
-	string strHotKey = Global->Db->PlHotkeyCfg()->GetHotkey(strPluginKey, strGuid, HotKeyType);
+	string strHotKey = ConfigProvider().PlHotkeyCfg()->GetHotkey(strPluginKey, strGuid, HotKeyType);
 
 	DialogBuilder Builder(MPluginHotKeyTitle, L"SetHotKeyDialog");
 	Builder.AddText(MPluginHotKey);
@@ -1594,9 +1594,9 @@ bool PluginManager::SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHo
 	if(Builder.ShowDialog())
 	{
 		if (!strHotKey.empty() && strHotKey.front() != L' ')
-			Global->Db->PlHotkeyCfg()->SetHotkey(strPluginKey, strGuid, HotKeyType, strHotKey);
+			ConfigProvider().PlHotkeyCfg()->SetHotkey(strPluginKey, strGuid, HotKeyType, strHotKey);
 		else
-			Global->Db->PlHotkeyCfg()->DelHotkey(strPluginKey, strGuid, HotKeyType);
+			ConfigProvider().PlHotkeyCfg()->DelHotkey(strPluginKey, strGuid, HotKeyType);
 		return true;
 	}
 	return false;
@@ -1609,8 +1609,8 @@ void PluginManager::ShowPluginInfo(Plugin *pPlugin, const GUID& Guid)
 	string strPluginPrefix;
 	if (pPlugin->CheckWorkFlags(PIWF_CACHED))
 	{
-		unsigned __int64 id = Global->Db->PlCacheCfg()->GetCacheID(pPlugin->GetCacheName());
-		strPluginPrefix = Global->Db->PlCacheCfg()->GetCommandPrefix(id);
+		unsigned __int64 id = ConfigProvider().PlCacheCfg()->GetCacheID(pPlugin->GetCacheName());
+		strPluginPrefix = ConfigProvider().PlCacheCfg()->GetCommandPrefix(id);
 	}
 	else
 	{
@@ -1720,25 +1720,25 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 
 	if (pPlugin->CheckWorkFlags(PIWF_CACHED))
 	{
-		unsigned __int64 id = Global->Db->PlCacheCfg()->GetCacheID(pPlugin->GetCacheName());
-		Flags = Global->Db->PlCacheCfg()->GetFlags(id);
-		Prefix = Global->Db->PlCacheCfg()->GetCommandPrefix(id);
+		unsigned __int64 id = ConfigProvider().PlCacheCfg()->GetCacheID(pPlugin->GetCacheName());
+		Flags = ConfigProvider().PlCacheCfg()->GetFlags(id);
+		Prefix = ConfigProvider().PlCacheCfg()->GetCommandPrefix(id);
 
 		string Name, Guid;
 
-		for(int i = 0; Global->Db->PlCacheCfg()->GetPluginsMenuItem(id, i, Name, Guid); ++i)
+		for(int i = 0; ConfigProvider().PlCacheCfg()->GetPluginsMenuItem(id, i, Name, Guid); ++i)
 		{
 			MenuNames.emplace_back(Name);
 			MenuGuids.emplace_back(Guid);
 		}
 
-		for(int i = 0; Global->Db->PlCacheCfg()->GetDiskMenuItem(id, i, Name, Guid); ++i)
+		for(int i = 0; ConfigProvider().PlCacheCfg()->GetDiskMenuItem(id, i, Name, Guid); ++i)
 		{
 			DiskNames.emplace_back(Name);
 			DiskGuids.emplace_back(Guid);
 		}
 
-		for(int i = 0; Global->Db->PlCacheCfg()->GetPluginsConfigMenuItem(id, i, Name, Guid); ++i)
+		for(int i = 0; ConfigProvider().PlCacheCfg()->GetPluginsConfigMenuItem(id, i, Name, Guid); ++i)
 		{
 			ConfNames.emplace_back(Name);
 			ConfGuids.emplace_back(Guid);
@@ -1844,7 +1844,7 @@ bool PluginManager::GetDiskMenuItem(
 	if (pPlugin->CheckWorkFlags(PIWF_CACHED))
 	{
 		string strGuid;
-		if (Global->Db->PlCacheCfg()->GetDiskMenuItem(Global->Db->PlCacheCfg()->GetCacheID(pPlugin->GetCacheName()), PluginItem, strPluginText, strGuid))
+		if (ConfigProvider().PlCacheCfg()->GetDiskMenuItem(ConfigProvider().PlCacheCfg()->GetCacheID(pPlugin->GetCacheName()), PluginItem, strPluginText, strGuid))
 			if (StrToGuid(strGuid,Guid))
 				ItemPresent = true;
 		ItemPresent = ItemPresent && !strPluginText.empty();
@@ -1902,12 +1902,12 @@ int PluginManager::UseFarCommand(PluginHandle* hPlugin,int CommandType)
 void PluginManager::ReloadLanguage()
 {
 	std::for_each(ALL_CONST_RANGE(SortedPlugins), std::mem_fn(&Plugin::CloseLang));
-	Global->Db->PlCacheCfg()->DiscardCache();
+	ConfigProvider().PlCacheCfg()->DiscardCache();
 }
 
 void PluginManager::LoadIfCacheAbsent()
 {
-	if (Global->Db->PlCacheCfg()->IsCacheEmpty())
+	if (ConfigProvider().PlCacheCfg()->IsCacheEmpty())
 	{
 		std::for_each(ALL_CONST_RANGE(SortedPlugins), std::mem_fn(&Plugin::Load));
 	}
@@ -1941,9 +1941,9 @@ int PluginManager::ProcessCommandLine(const string& CommandParam,Panel *Target)
 
 		if (i->CheckWorkFlags(PIWF_CACHED))
 		{
-			unsigned __int64 id = Global->Db->PlCacheCfg()->GetCacheID(i->GetCacheName());
-			strPluginPrefix = Global->Db->PlCacheCfg()->GetCommandPrefix(id);
-			PluginFlags = Global->Db->PlCacheCfg()->GetFlags(id);
+			unsigned __int64 id = ConfigProvider().PlCacheCfg()->GetCacheID(i->GetCacheName());
+			strPluginPrefix = ConfigProvider().PlCacheCfg()->GetCommandPrefix(id);
+			PluginFlags = ConfigProvider().PlCacheCfg()->GetFlags(id);
 		}
 		else
 		{
@@ -2071,7 +2071,7 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void **
 			{
 				if (hNewPlugin)
 				{
-					if (global::IsPtr(hNewPlugin->hPlugin) && hNewPlugin->hPlugin != INVALID_HANDLE_VALUE)
+					if (os::memory::is_pointer(hNewPlugin->hPlugin) && hNewPlugin->hPlugin != INVALID_HANDLE_VALUE)
 					{
 						auto fmc = reinterpret_cast<FarMacroCall*>(hNewPlugin->hPlugin);
 						if (fmc->Count > 0 && fmc->Values[0].Type == FMVT_PANEL)

@@ -126,7 +126,7 @@ private:
 	virtual void KillFocus() override;
 	virtual void UpdateKeyBar() override;
 	virtual int GetCurrentPos() const override;
-	virtual int GetSelName(string *strName, DWORD &FileAttr, string *ShortName = nullptr, api::FAR_FIND_DATA *fd = nullptr) override;
+	virtual int GetSelName(string *strName, DWORD &FileAttr, string *ShortName = nullptr, os::FAR_FIND_DATA *fd = nullptr) override;
 	virtual void DisplayObject() override;
 	virtual size_t GetSelCount() const override;
 

@@ -112,7 +112,7 @@ void VMenu::init(MenuDataEx *Data, int ItemsCount, DWORD Flags)
 	{
 		MenuItemEx NewItem;
 
-		if (!global::IsPtr(i.Name))
+		if (!os::memory::is_pointer(i.Name))
 			NewItem.strName = MSG(static_cast<LNGID>(reinterpret_cast<intptr_t>(i.Name)));
 		else
 			NewItem.strName = i.Name;

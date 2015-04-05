@@ -164,7 +164,7 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 					string DriveVar(_DriveVar);
 					string strValue;
 
-					if (api::env::get_variable(DriveVar,strValue))
+					if (os::env::get_variable(DriveVar,strValue))
 					{
 						strDest=strValue;
 					}
@@ -224,7 +224,7 @@ void ConvertNameToFull(const string& Src, string &strDest, LPCWSTR CurrentDirect
 	string strCurDir;
 	if(!CurrentDirectory)
 	{
-		api::GetCurrentDirectory(strCurDir);
+		os::GetCurrentDirectory(strCurDir);
 	}
 	else
 	{
@@ -244,7 +244,7 @@ static string TryConvertVolumeGuidToDrivePath(const string& Path, const wchar_t 
 	{
 		if (Imports().GetVolumePathNamesForVolumeNameW)
 		{
-			wchar_t_ptr Buffer(api::NT_MAX_PATH);
+			wchar_t_ptr Buffer(os::NT_MAX_PATH);
 			DWORD RetSize;
 			BOOL Res = Imports().GetVolumePathNamesForVolumeName(ExtractPathRoot(Path).data(), Buffer.get(), static_cast<DWORD>(Buffer.size()), &RetSize);
 
@@ -285,10 +285,10 @@ static string TryConvertVolumeGuidToDrivePath(const string& Path, const wchar_t 
 		else
 		{
 			string strVolumeGuid;
-			auto Strings = api::GetLogicalDriveStrings();
+			auto Strings = os::GetLogicalDriveStrings();
 			std::any_of(CONST_RANGE(Strings, i) -> bool
 			{
-				if (api::GetVolumeNameForVolumeMountPoint(i, strVolumeGuid) && Path.compare(0, DirectoryOffset, strVolumeGuid.data(), DirectoryOffset) == 0)
+				if (os::GetVolumeNameForVolumeMountPoint(i, strVolumeGuid) && Path.compare(0, DirectoryOffset, strVolumeGuid.data(), DirectoryOffset) == 0)
 				{
 					Result.replace(0, DirectoryOffset, i);
 					return true;
@@ -320,7 +320,7 @@ size_t GetMountPointLen(const string& abs_path, const string& drive_root)
 	case PATH_VOLUMEGUID:
 		break;
 	case PATH_DRIVELETTER:
-		if (api::GetVolumeNameForVolumeMountPoint(drive_root, vol_guid))
+		if (os::GetVolumeNameForVolumeMountPoint(drive_root, vol_guid))
 			break;
 		// else fall down to default:
 	default:
@@ -349,7 +349,7 @@ void ConvertNameToReal(const string& Src, string &strDest)
 
 	for (;;)
 	{
-		hFile = api::CreateFile(Path, 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, 0);
+		hFile = os::CreateFile(Path, 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, 0);
 
 		if (hFile != INVALID_HANDLE_VALUE)
 			break;
@@ -363,7 +363,7 @@ void ConvertNameToReal(const string& Src, string &strDest)
 	if (hFile != INVALID_HANDLE_VALUE)
 	{
 		string FinalFilePath;
-		api::GetFinalPathNameByHandle(hFile, FinalFilePath);
+		os::GetFinalPathNameByHandle(hFile, FinalFilePath);
 
 		CloseHandle(hFile);
 
@@ -471,7 +471,7 @@ void ConvertNameToUNC(string &strFileName)
 	string strTemp;
 	GetPathRoot(strFileName,strTemp);
 
-	if (!api::GetVolumeInformation(strTemp,nullptr,nullptr,nullptr,nullptr,&strFileSystemName))
+	if (!os::GetVolumeInformation(strTemp,nullptr,nullptr,nullptr,nullptr,&strFileSystemName))
 		strFileSystemName.clear();
 
 	DWORD uniSize = 1024;
@@ -562,9 +562,9 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 						if ((i < strPath.size() && IsSlash(strPath[i])) || (i == strPath.size() && !EndsWithSlash))
 						{
 							TmpStr = strPath.substr(0, i);
-							api::FAR_FIND_DATA fd;
+							os::FAR_FIND_DATA fd;
 
-							if (api::GetFindDataEx(TmpStr, fd))
+							if (os::GetFindDataEx(TmpStr, fd))
 							{
 								strPath.replace(LastPos, i - LastPos, fd.strFileName);
 								i += fd.strFileName.size() - (i - LastPos);

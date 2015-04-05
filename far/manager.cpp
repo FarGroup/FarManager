@@ -840,7 +840,7 @@ void Manager::PluginsMenu() const
 				if (!strCurFileName.empty())
 				{
 					// интересуют только обычные файлы
-					if (api::fs::is_file(strCurFileName))
+					if (os::fs::is_file(strCurFileName))
 						curType=windowtype_viewer;
 				}
 			}
