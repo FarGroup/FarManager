@@ -3,6 +3,40 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 05.04.2015 19:07:30 +0200 - build 4336
+
+1. Refactoring. Some renaming and moving of some functions.
+
+drkns 03.04.2015 20:55:27 +0200 - build 4335
+
+1. 0002980: Malfunction of "Code pages" menu.
+
+zg 03.04.2015 14:10:08 +0200 - build 4334
+
+1. correction of 4330.
+
+zg 03.04.2015 13:55:43 +0200 - build 4333
+
+1. correction of 4332.
+
+zg 03.04.2015 02:57:53 +0200 - build 4332
+
+1. 0002979: Lossless editing of any files in UTF-8 mode.
+
+drkns 02.04.2015 23:15:07 +0200 - build 4331
+
+1. Refactoring.
+
+2. Plugins menu would not be invoked from command line completion menu.
+
+zg 02.04.2015 16:15:43 +0200 - build 4330
+
+1. forum: Get the contents of command line with a plugin from user menu.
+
+w17 01.04.2015 20:26:38 +0300 - build 4329
+
+1. 'Find file' word search worked incorrectly if a word was at the end of a block.
+
 shmuel 29.03.2015 20:49:04 +0200 - build 4328
 
 1. Correction of 4261.
