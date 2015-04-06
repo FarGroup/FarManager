@@ -1042,7 +1042,7 @@ lv=2
 dt=Text
 nm=CmdLine
 ctime=3553252699
-mtime=3607097860
+mtime=3637527697
 <article>
 #_**CmdLine** - таблица со следующими полями:
 #_
@@ -1055,12 +1055,14 @@ mtime=3607097860
 #_  CurPos:     number
 #_  ItemCount:  number
 #_  Value:      string
+#_  `Result`:     table или nil
 #_
 #_**Функции:**
 #_
 #_  Нет.
 #_
 #_@@@
+#_[Result]: 92.html
 #_{bof}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/cmdline.html#CmdLine.Bof
 #_{empty}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/cmdline.html#CmdLine.Empty
 #_{eof}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/cmdline.html#CmdLine.Eof
@@ -1904,7 +1906,7 @@ lv=2
 dt=Text
 nm=Работа с командной строки
 ctime=3617996372
-mtime=3636471608
+mtime=3637527278
 <article>
 #_<markdown>
 #_* `macro: load [path]`<br>
@@ -1933,6 +1935,13 @@ mtime=3636471608
 #_Вместо префикса `macro:` может использоваться эквивалентный ему префикс `lm:`.
 #_
 #_**Примечание 2:**<br>
+#_Вместо префиксов `lua:` и `moon:` могут использоваться соответственно префиксы `luas:` и `moons:`.
+#_В этом случае макрос не создаётся, а производится немедленное ("синхронное") исполнение кода.
+#_Если код завершается нормально, то величина `CmdLine.Result` содержит таблицу с массивом возвращённых
+#_величин, а поле `n` этой таблицы - количество этих величин. В случае прерывания кода по ошибке,
+#_значение `CmdLine.Result` равно `nil`.
+#_
+#_**Примечание 3:**<br>
 #_[Дополнительные][2] префиксы командной строки могут быть определены и загружены из макрофайлов.
 #_
 #_[1]: 76.html

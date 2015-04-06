@@ -19,6 +19,7 @@ local co_yield, co_resume, co_status, co_wrap =
 local PROPAGATE={} -- a unique value, inaccessible to scripts.
 local gmeta = { __index=_G }
 local LastMessage
+local Shared
 local TablePanelSort -- must be separate from LastMessage, otherwise Far crashes after a macro is called from CtrlF12.
 local TableExecString -- must be separate from LastMessage, otherwise Far crashes
 local utils, macrobrowser, panelsort, keymacro
@@ -96,7 +97,7 @@ local PluginInfo
 function export.GetPluginInfo()
   local out = {
     Flags = bor(F.PF_PRELOAD,F.PF_FULLCMDLINE,F.PF_EDITOR,F.PF_VIEWER,F.PF_DIALOG),
-    CommandPrefix = "lm:macro:lua:moon"..utils.GetPrefixes()[1],
+    CommandPrefix = "lm:macro:lua:moon:luas:moons"..utils.GetPrefixes()[1],
     PluginMenuGuids = win.Uuid("EF6D67A2-59F7-4DF3-952E-F9049877B492"),
     PluginMenuStrings = { "Macro Browser" },
   }
@@ -324,8 +325,8 @@ local function About()
   far.Message(text, "About", nil, "l")
 end
 
-local function ProcessCommandLine (CmdLine)
-  local prefix, text = CmdLine:match("^%s*(%w+):%s*(.-)%s*$")
+local function ProcessCommandLine (strCmdLine)
+  local prefix, text = strCmdLine:match("^%s*(%w+):%s*(.-)%s*$")
   if not prefix then return end -- this can occur with Plugin.Command()
   prefix = prefix:lower()
   if prefix == "lm" or prefix == "macro" then
@@ -338,7 +339,7 @@ local function ProcessCommandLine (CmdLine)
     elseif cmd == "unload" then utils.UnloadMacros()
     elseif cmd == "about" then About()
     elseif cmd ~= "" then ErrMsg(Msg.CL_UnsupportedCommand .. cmd) end
-  elseif prefix == "lua" or prefix == "moon" then
+  elseif prefix == "lua" or prefix == "moon" or prefix == "luas" or prefix == "moons" then
     if text~="" then
       if text:find("^=") then
         text = "far.Show(" .. text:sub(2) .. ")"
@@ -352,9 +353,17 @@ local function ProcessCommandLine (CmdLine)
           if params then text = text.." "..params end
         end
       end
-      local f1,f2 = loadmacro(prefix=="lua" and "lua" or "moonscript", text)
-      if f1 then keymacro.PostNewMacro({ f1,f2,HasFunction=true }, 0, nil, true)
-      else ErrMsg(f2)
+      local f1,f2 = loadmacro((prefix=="lua" or prefix=="luas") and "lua" or "moonscript", text)
+      if f1 then
+        if prefix=="lua" or prefix=="moon" then
+          keymacro.PostNewMacro({ f1,f2,HasFunction=true }, 0, nil, true)
+        else
+          f2 = f2 or function() end
+          Shared.CmdLineResult = nil
+          Shared.CmdLineResult = pack(f1(f2()))
+        end
+      else
+        ErrMsg(f2)
       end
     end
   else
@@ -435,8 +444,8 @@ local function AddCfindFunction()
 end
 
 local function Init()
-  local Shared = { ErrMsg=ErrMsg, pack=pack, checkarg=checkarg, loadmacro=loadmacro, yieldcall=yieldcall,
-                   MacroInit=MacroInit, MacroStep=MacroStep, ExpandEnv=ExpandEnv }
+  Shared = { ErrMsg=ErrMsg, pack=pack, checkarg=checkarg, loadmacro=loadmacro, yieldcall=yieldcall,
+             MacroInit=MacroInit, MacroStep=MacroStep, ExpandEnv=ExpandEnv }
 
   local ModuleDir = far.PluginStartupInfo().ModuleDir
   local function RunPluginFile (fname, param)

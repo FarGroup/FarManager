@@ -203,6 +203,7 @@ local prop_CmdLine = {
   CurPos    = function() return MacroCallFar(0x8083C) end,
   ItemCount = function() return MacroCallFar(0x8083B) end,
   Value     = function() return MacroCallFar(0x8083D) end,
+  Result    = function() return Shared.CmdLineResult end,
 }
 
 local prop_Drv = {
