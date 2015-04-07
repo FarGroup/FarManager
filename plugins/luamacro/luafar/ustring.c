@@ -625,9 +625,9 @@ int ustring_GetFileAttr(lua_State *L)
 {
 	DWORD attr = GetFileAttributesW(check_utf8_string(L,1,NULL));
 
-	if(attr == 0xFFFFFFFF) lua_pushnil(L);
-	else PushAttrString(L, attr);
+	if(attr == 0xFFFFFFFF) return SysErrorReturn(L);
 
+	PushAttrString(L, attr);
 	return 1;
 }
 
