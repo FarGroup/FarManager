@@ -1911,7 +1911,7 @@ lv=2
 dt=Text
 nm=Command line operations
 ctime=3617997112
-mtime=3637572835
+mtime=3637689351
 <article>
 #_<markdown>
 #_* `macro: load [path]`<br>
@@ -1923,13 +1923,13 @@ mtime=3637572835
 #_   Unload macros (except those created with operation `MCTL_ADDMACRO`) and event handlers.
 #_* `macro: about`<br>
 #_   Show versions of the plugin and the libraries it is using.
-#_* `lua: <code>`
-#_* `moon: <code>`<br>
+#_* `lua: [=] <code>`
+#_* `moon: [=] <code>`<br>
 #_   Execute the code `<code>` written correspondingly in Lua or MoonScript.<br>
-#_   If `<code>` begins with a character `=` then `far.Show()` is called, e.g.:<br>
+#_   If `<code>` is preceded with a character `=` then `far.Show()` is called, e.g.:<br>
 #_   `lua:=5+2,6,"foo"` is equivalent to `lua:far.Show(5+2,6,"foo")`.
-#_* `lua: @<filename> [<args>]`
-#_* `moon: @<filename> [<args>]`<br>
+#_* `lua: [=] @<filename> [<args>]`
+#_* `moon: [=] @<filename> [<args>]`<br>
 #_   Execute the script `<filename>` written correspondingly in Lua or MoonScript.<br>
 #_   - For passing arguments to the script they should be specified after the file name,
 #_     separated with whitespace.

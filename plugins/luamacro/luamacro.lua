@@ -325,6 +325,8 @@ local function About()
   far.Message(text, "About", nil, "l")
 end
 
+local function ShowAndPass(...) far.Show(...) return ... end
+
 local function ProcessCommandLine (strCmdLine)
   local prefix, text = strCmdLine:match("^%s*(%w+):%s*(.-)%s*$")
   if not prefix then return end -- this can occur with Plugin.Command()
@@ -340,26 +342,29 @@ local function ProcessCommandLine (strCmdLine)
     elseif cmd == "about" then About()
     elseif cmd ~= "" then ErrMsg(Msg.CL_UnsupportedCommand .. cmd) end
   elseif prefix == "lua" or prefix == "moon" or prefix == "luas" or prefix == "moons" then
+    local show = false
     if text:find("^=") then
-      text = "far.Show(" .. text:sub(2) .. ")"
+      show, text = true, text:sub(2)
+    end
+    local fname, params = SplitMacroString(text)
+    if fname then
+      fname = ExpandEnv(fname)
+      fname = far.ConvertPath(fname, F.CPM_NATIVE)
+      if fname:find("%s") then fname = '"'..fname..'"' end
+      text = "@"..fname
+      if params then text = text.." "..params end
     else
-      local fname, params = SplitMacroString(text)
-      if fname then
-        fname = ExpandEnv(fname)
-        fname = far.ConvertPath(fname, F.CPM_NATIVE)
-        if fname:find("%s") then fname = '"'..fname..'"' end
-        text = "@"..fname
-        if params then text = text.." "..params end
-      end
+      if show then text = "return "..text end
     end
     local f1,f2 = loadmacro((prefix=="lua" or prefix=="luas") and "lua" or "moonscript", text)
     if f1 then
+      local ff1 = show and function(...) return ShowAndPass(f1(...)) end or f1
       if prefix=="lua" or prefix=="moon" then
-        keymacro.PostNewMacro({ f1,f2,HasFunction=true }, 0, nil, true)
+        keymacro.PostNewMacro({ ff1,f2,HasFunction=true }, 0, nil, true)
       else
         f2 = f2 or function() end
         Shared.CmdLineResult = nil
-        Shared.CmdLineResult = pack(f1(f2()))
+        Shared.CmdLineResult = pack(ff1(f2()))
       end
     else
       ErrMsg(f2)
