@@ -1485,8 +1485,6 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				}
 				break;
 
-			case KEY_CTRLALTSHIFTPRESS:
-			case KEY_RCTRLALTSHIFTPRESS:
 			case KEY_ALTF9:
 			case KEY_RALTF9:
 			case KEY_F11:

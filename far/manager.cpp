@@ -118,6 +118,110 @@ Manager::Key::Key(int Key): m_Event(), m_FarKey(Key), m_EventFilled(false)
 	assert(m_EventFilled);
 }
 
+static int CASHook(const Manager::Key& key)
+{
+	if (key.IsEvent())
+	{
+		const KEY_EVENT_RECORD& rec=key.Event().Event.KeyEvent;
+		if (rec.bKeyDown)
+		{
+			switch (rec.wVirtualKeyCode)
+			{
+				case VK_SHIFT:
+				case VK_MENU:
+				case VK_CONTROL:
+				{
+					const auto
+						maskLeft=LEFT_CTRL_PRESSED|LEFT_ALT_PRESSED|SHIFT_PRESSED,
+						maskRight=RIGHT_CTRL_PRESSED|RIGHT_ALT_PRESSED|SHIFT_PRESSED;
+					auto state=rec.dwControlKeyState;
+					auto wait=[](DWORD mask)
+					{
+						for (;;)
+						{
+							INPUT_RECORD rec;
+
+							if (PeekInputRecord(&rec,true))
+							{
+								GetInputRecord(&rec,true,true);
+								if ((rec.Event.KeyEvent.dwControlKeyState&mask) != mask)
+									break;
+							}
+
+							Sleep(1);
+						}
+					};
+					auto
+						case1 = Global->Opt->CASRule&1 && (state&maskLeft) == maskLeft,
+						case2 = Global->Opt->CASRule&2 && (state&maskRight) == maskRight;
+					if (case1 || case2)
+					{
+						auto maskCurrent = case1?maskLeft:maskRight;
+						const auto currentWindow = Global->WindowManager->GetCurrentWindow();
+						if (currentWindow->CanFastHide())
+						{
+							int isPanelFocus=currentWindow->GetType() == windowtype_panels;
+
+							if (isPanelFocus)
+							{
+								int LeftVisible=Global->CtrlObject->Cp()->LeftPanel->IsVisible();
+								int RightVisible=Global->CtrlObject->Cp()->RightPanel->IsVisible();
+								int CmdLineVisible=Global->CtrlObject->CmdLine()->IsVisible();
+								int KeyBarVisible=Global->CtrlObject->Cp()->GetKeybar().IsVisible();
+								Manager::ShowBackground();
+								Global->CtrlObject->Cp()->LeftPanel->HideButKeepSaveScreen();
+								Global->CtrlObject->Cp()->RightPanel->HideButKeepSaveScreen();
+
+								switch (Global->Opt->PanelCtrlAltShiftRule)
+								{
+									case 0:
+										if (CmdLineVisible)
+											Global->CtrlObject->CmdLine()->Show();
+										if (KeyBarVisible)
+											Global->CtrlObject->Cp()->GetKeybar().Show();
+										break;
+									case 1:
+										if (KeyBarVisible)
+											Global->CtrlObject->Cp()->GetKeybar().Show();
+										break;
+								}
+
+								wait(maskCurrent);
+
+								if (LeftVisible)      Global->CtrlObject->Cp()->LeftPanel->Show();
+								if (RightVisible)     Global->CtrlObject->Cp()->RightPanel->Show();
+								if (CmdLineVisible)   Global->CtrlObject->CmdLine()->Show();
+								if (KeyBarVisible)    Global->CtrlObject->Cp()->GetKeybar().Show();
+							}
+							else
+							{
+								Global->WindowManager->ImmediateHide();
+								wait(maskCurrent);
+							}
+
+							Global->WindowManager->RefreshWindow();
+						}
+
+						return TRUE;
+					}
+					break;
+				}
+			}
+		}
+	}
+	return FALSE;
+}
+
+static void RegisterCASHook(Manager& WindowManager)
+{
+	static bool registered = false;
+	if (!registered)
+	{
+		WindowManager.AddGlobalKeyHandler(CASHook);
+		registered = true;
+	}
+}
+
 Manager::Manager():
 	m_currentWindow(nullptr),
 	EndLoop(false),
@@ -126,6 +230,7 @@ Manager::Manager():
 {
 	m_windows.reserve(1024);
 	m_modalWindows.reserve(1024);
+	RegisterCASHook(*this);
 }
 
 Manager::~Manager()
@@ -718,65 +823,6 @@ int Manager::ProcessKey(Key key)
 					}
 
 					break; // отдадим F12 дальше по цепочке
-				}
-
-				case KEY_CTRLALTSHIFTPRESS:
-				case KEY_RCTRLALTSHIFTPRESS:
-				{
-					if (!(Global->Opt->CASRule&1) && key.FarKey() == KEY_CTRLALTSHIFTPRESS)
-						break;
-
-					if (!(Global->Opt->CASRule&2) && key.FarKey() == KEY_RCTRLALTSHIFTPRESS)
-						break;
-
-						if (m_currentWindow->CanFastHide())
-						{
-							int isPanelFocus=m_currentWindow->GetType() == windowtype_panels;
-
-							if (isPanelFocus)
-							{
-								int LeftVisible=Global->CtrlObject->Cp()->LeftPanel->IsVisible();
-								int RightVisible=Global->CtrlObject->Cp()->RightPanel->IsVisible();
-								int CmdLineVisible=Global->CtrlObject->CmdLine()->IsVisible();
-								int KeyBarVisible=Global->CtrlObject->Cp()->GetKeybar().IsVisible();
-								ShowBackground();
-								Global->CtrlObject->Cp()->LeftPanel->HideButKeepSaveScreen();
-								Global->CtrlObject->Cp()->RightPanel->HideButKeepSaveScreen();
-
-								switch (Global->Opt->PanelCtrlAltShiftRule)
-								{
-									case 0:
-										if (CmdLineVisible)
-											Global->CtrlObject->CmdLine()->Show();
-										if (KeyBarVisible)
-											Global->CtrlObject->Cp()->GetKeybar().Show();
-										break;
-									case 1:
-										if (KeyBarVisible)
-											Global->CtrlObject->Cp()->GetKeybar().Show();
-										break;
-								}
-
-								WaitKey(key.FarKey()==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:KEY_RCTRLALTSHIFTRELEASE);
-
-								if (LeftVisible)      Global->CtrlObject->Cp()->LeftPanel->Show();
-
-								if (RightVisible)     Global->CtrlObject->Cp()->RightPanel->Show();
-
-								if (CmdLineVisible)   Global->CtrlObject->CmdLine()->Show();
-
-								if (KeyBarVisible)    Global->CtrlObject->Cp()->GetKeybar().Show();
-							}
-							else
-							{
-								ImmediateHide();
-								WaitKey(key.FarKey()==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:KEY_RCTRLALTSHIFTRELEASE);
-							}
-
-							Global->WindowManager->RefreshWindow();
-						}
-
-						return TRUE;
 				}
 				case KEY_CTRLTAB:
 				case KEY_RCTRLTAB:

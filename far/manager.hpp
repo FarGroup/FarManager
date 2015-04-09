@@ -134,6 +134,8 @@ public:
 	FileEditor* GetCurrentEditor(void) const;
 	window_ptr GetViewerContainerById(int ID) const;
 	window_ptr GetEditorContainerById(int ID) const;
+	// BUGBUG, do we need this?
+	void ImmediateHide();
 
 private:
 #if defined(SYSLOG)
@@ -155,8 +157,6 @@ private:
 	void ExecuteCommit(window_ptr_ref Param);
 	void ReplaceCommit(window_ptr_ref Old, window_ptr_ref New);
 	int GetModalExitCode() const;
-	// BUGBUG, do we need this?
-	void ImmediateHide();
 
 	typedef void(Manager::*window_callback)(window_ptr_ref);
 
