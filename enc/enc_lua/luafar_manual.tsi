@@ -3383,7 +3383,7 @@ lv=2
 dt=Text
 nm=far.SubscribeDialogDrawEvents
 ctime=3615718962
-mtime=3615723431
+mtime=3637727924
 <article>
 #_result = far.SubscribeDialogDrawEvents (subscribe)
 #_
@@ -3418,11 +3418,15 @@ mtime=3615723431
 #_
 #_  The function returns the previous state, that is the state that existed before the call.
 #_
+#_**Note:**
+#_  This function has global action (unlike `editor.SubscribeChangeEvent`), i.e. it affects all dialogs.
+#_
 #_**Far API used:**
 #_  none
 #_
 #_@@@
 #_[export.ProcessDialogEvent]: 221.html
+#_[editor.SubscribeChangeEvent]: 486.html
 #_[DN_CTLCOLORDIALOG]: http://api.farmanager.com/ru/dialogapi/dmsg/dn_ctlcolordialog.html
 #_[DN_CTLCOLORDLGITEM]: http://api.farmanager.com/ru/dialogapi/dmsg/dn_ctlcolordlgitem.html
 #_[DN_CTLCOLORDLGLIST]: http://api.farmanager.com/ru/dialogapi/dmsg/dn_ctlcolordlglist.html
