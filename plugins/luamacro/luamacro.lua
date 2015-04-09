@@ -148,17 +148,17 @@ function export.GetPluginInfo()
   return out
 end
 
-local function SplitMacroString (Text)
+local function GetFileParams (Text)
   local from,to = Text:find("^%s*@%s*")
   if from then
     local from2,to2,fname = Text:find("^\"([^\"]+)\"", to+1) -- test for quoted file name
     if not from2 then
-      from2,to2,fname = Text:find("^([^%s\"]+)", to+1) -- test for unquoted file name
+      from2,to2,fname = Text:find("^(%S+)", to+1) -- test for unquoted file name
     end
     if from2 then
       local space,params = Text:match("^(%s*)(.*)", to2+1)
       if space~="" or params=="" then
-        return fname, params
+        return ExpandEnv(fname), params
       end
     end
     error("Invalid macrosequence specification")
@@ -173,13 +173,10 @@ local function loadmacro (Lang, Text, Env)
   end
 
   local f1,f2,msg
-  local fname,params = SplitMacroString(Text)
+  local fname,params = GetFileParams(Text)
   if fname then
-    fname = ExpandEnv(fname)
-    if params then
-      f2,msg = _loadstring("return "..params)
-      if not f2 then return nil,msg end
-    end
+    f2,msg = _loadstring("return "..params)
+    if not f2 then return nil,msg end
     f1,msg = _loadfile(fname)
   else
     f1,msg = _loadstring(Text)
@@ -267,13 +264,11 @@ local function MacroParse (Lang, Text, onlyCheck, skipFile)
   end
 
   local ok,msg = true,nil
-  local fname,params = SplitMacroString(Text)
+  local fname,params = GetFileParams(Text)
   if fname then
-    if params then
-      ok,msg = _loadstring("return "..params)
-    end
+    ok,msg = _loadstring("return "..params)
     if ok and not skipFile then
-      ok,msg = _loadfile(ExpandEnv(fname))
+      ok,msg = _loadfile(fname)
     end
   else
     ok,msg = _loadstring(Text)
@@ -346,13 +341,11 @@ local function ProcessCommandLine (strCmdLine)
     if text:find("^=") then
       show, text = true, text:sub(2)
     end
-    local fname, params = SplitMacroString(text)
+    local fname, params = GetFileParams(text)
     if fname then
-      fname = ExpandEnv(fname)
       fname = far.ConvertPath(fname, F.CPM_NATIVE)
       if fname:find("%s") then fname = '"'..fname..'"' end
-      text = "@"..fname
-      if params then text = text.." "..params end
+      text = "@"..fname.." "..params
     else
       if show then text = "return "..text end
     end
