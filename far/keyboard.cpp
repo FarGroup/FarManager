@@ -942,7 +942,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		else
 			IntKeyState.ShiftPressed=(CtrlState & SHIFT_PRESSED);
 
-		if ((KeyCode==VK_F16) || !KeyCode)
+		if (!KeyCode)
 			return KEY_NONE;
 
 		RightShiftPressedLast=FALSE;
@@ -1895,6 +1895,7 @@ int IsShiftKey(DWORD Key)
 		KEY_RALT,
 		KEY_CTRL,
 		KEY_RCTRL,
+		KEY_SHIFT,
 	};
 
 	return std::find(ALL_CONST_RANGE(ShiftKeys), Key) != std::cend(ShiftKeys);

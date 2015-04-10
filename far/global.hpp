@@ -106,13 +106,13 @@ private:
 
 public:
 	// TODO: review the order and make private
+	class config_provider* m_ConfigProvider;
 	class ScreenBuf* ScrBuf;
 	class FormatScreen FS;
 	class Manager* WindowManager;
 	class Options *Opt;
 	class Language *Lang;
 	class elevation *Elevation;
-	class config_provider* m_ConfigProvider;
 	class ControlObject* CtrlObject;
 };
 

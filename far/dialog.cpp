@@ -290,7 +290,7 @@ void ItemToItemEx(const FarDialogItem* Item, DialogItemEx *ItemEx, size_t Count,
 			if(Item.Data)
 			{
 				auto Length = StrLength(Item.Data);
-				if (Item.MaxLength && Item.MaxLength < Length) Length = Item.MaxLength;
+				if (Item.MaxLength && static_cast<decltype(Length)>(Item.MaxLength) < Length) Length = Item.MaxLength;
 				ItemEx.strData.assign(Item.Data, Length);
 			}
 		}

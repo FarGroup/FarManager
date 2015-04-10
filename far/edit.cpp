@@ -698,6 +698,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 	if (m_Flags.Check(FEDITLINE_CLEARFLAG) && LocalKey!=KEY_NONE && LocalKey!=KEY_IDLE && LocalKey!=KEY_SHIFTINS && LocalKey!=KEY_SHIFTNUMPAD0 && (LocalKey!=KEY_CTRLINS && LocalKey!=KEY_RCTRLINS) &&
 	        ((unsigned int)LocalKey<KEY_F1 || (unsigned int)LocalKey>KEY_F12) && LocalKey!=KEY_ALT && LocalKey!=KEY_SHIFT &&
 	        LocalKey!=KEY_CTRL && LocalKey!=KEY_RALT && LocalKey!=KEY_RCTRL &&
+	        LocalKey!=KEY_CAPSLOCK && LocalKey!=KEY_NUMLOCK && LocalKey!=KEY_SCROLLLOCK &&
 	        !((LocalKey>=KEY_ALT_BASE && LocalKey <= KEY_ALT_BASE+0xFFFF) || (LocalKey>=KEY_RALT_BASE && LocalKey <= KEY_RALT_BASE+0xFFFF)) && // ???? 256 ???
 	        !(((unsigned int)LocalKey>=KEY_MACRO_BASE && (unsigned int)LocalKey<=KEY_MACRO_ENDBASE) || ((unsigned int)LocalKey>=KEY_OP_BASE && (unsigned int)LocalKey <=KEY_OP_ENDBASE)) &&
 	        (LocalKey!=KEY_CTRLQ && LocalKey!=KEY_RCTRLQ))
