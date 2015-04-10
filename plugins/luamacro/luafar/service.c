@@ -3400,6 +3400,11 @@ int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2)
 				++Param1;
 			break;
 
+		case DN_INITDIALOG:
+			++Param1; // dialog element position
+			GetPluginData(L)->DialogEventDrawGroup = 0;
+			break;
+
 		case DN_BTNCLICK:
 		case DN_CTLCOLORDLGITEM:
 		case DN_CTLCOLORDLGLIST:
@@ -3411,7 +3416,6 @@ int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2)
 		case DN_GOTFOCUS:
 		case DN_HELP:
 		case DN_HOTKEY:
-		case DN_INITDIALOG:
 		case DN_KILLFOCUS:
 		case DN_LISTCHANGE:
 		case DN_LISTHOTKEY:
@@ -3757,10 +3761,8 @@ static int far_SetDlgItem(lua_State *L)
 
 static int far_SubscribeDialogDrawEvents(lua_State *L)
 {
-	intptr_t old = GetPluginData(L)->DialogEventDrawGroup;
-	GetPluginData(L)->DialogEventDrawGroup = lua_toboolean(L, 1);
-	lua_pushboolean(L, old != 0);
-	return 1;
+	GetPluginData(L)->DialogEventDrawGroup = 1;
+	return 0;
 }
 
 static int editor_Editor(lua_State *L)

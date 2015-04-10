@@ -3383,15 +3383,15 @@ lv=2
 dt=Text
 nm=far.SubscribeDialogDrawEvents
 ctime=3615718962
-mtime=3637727924
+mtime=3637851409
 <article>
-#_result = far.SubscribeDialogDrawEvents (subscribe)
+#_far.SubscribeDialogDrawEvents ()
 #_
 #_**Parameters:**
-#_  subscribe:  boolean
+#_  none
 #_
 #_**Returns:**
-#_  result:     boolean
+#_  nothing
 #_
 #_**Description:**
 #_  This function affects the action of `export.ProcessDialogEvent`.
@@ -3400,7 +3400,7 @@ mtime=3637727924
 #_  especially in menus containing 10000+ items. This occurs due to conversion
 #_  of arguments between C and Lua.
 #_
-#_  By default `export.ProcessDialogEvent` will **not** be called for the following
+#_  For each new dialog, `export.ProcessDialogEvent` will **not** be called for the following
 #_  values of *Param.Msg*:
 #_      `DN_CTLCOLORDIALOG`
 #_      `DN_CTLCOLORDLGITEM`
@@ -3410,16 +3410,8 @@ mtime=3637727924
 #_      `DN_DRAWDLGITEM`
 #_      `DN_DRAWDLGITEMDONE`
 #_
-#_  In order to start receiving this group of messages, call:
-#_      far.SubscribeDialogDrawEvents(true)
-#_
-#_  In order to stop receiving this group of messages, call:
-#_      far.SubscribeDialogDrawEvents(false)
-#_
-#_  The function returns the previous state, that is the state that existed before the call.
-#_
-#_**Note:**
-#_  This function has global action (unlike `editor.SubscribeChangeEvent`), i.e. it affects all dialogs.
+#_  In order to start receiving this group of messages, call far.SubscribeDialogDrawEvents()
+#_  after the dialog creation, e.g. when `DN_INITDIALOG` comes.
 #_
 #_**Far API used:**
 #_  none
@@ -3434,6 +3426,7 @@ mtime=3637727924
 #_[DN_DRAWDIALOGDONE]: http://api.farmanager.com/ru/dialogapi/dmsg/dn_drawdialogdone.html
 #_[DN_DRAWDLGITEM]: http://api.farmanager.com/ru/dialogapi/dmsg/dn_drawdlgitem.html
 #_[DN_DRAWDLGITEMDONE]: http://api.farmanager.com/ru/dialogapi/dmsg/dn_drawdlgitemdone.html
+#_[DN_INITDIALOG]: http://api.farmanager.com/ru/dialogapi/dmsg/dn_initdialog.html
 #_
 </article>
 </node>
