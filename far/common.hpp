@@ -132,7 +132,7 @@ inline size_t make_hash(const T& value)
 }
 
 template <class T>
-inline const T Round(const T &a, const T &b) { return a / b + (a%b * 2 > b ? 1 : 0); }
+inline T Round(const T &a, const T &b) { return a / b + (a%b * 2 > b ? 1 : 0); }
 
 inline void* ToPtr(intptr_t T){ return reinterpret_cast<void*>(T); }
 

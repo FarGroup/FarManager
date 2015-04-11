@@ -41,8 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 #include "fileedit.hpp"
 #include "fileview.hpp"
-#include "lockscrn.hpp"
-#include "hilight.hpp"
 #include "manager.hpp"
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
@@ -64,7 +62,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "treelist.hpp"
 #include "plugins.hpp"
 #include "notification.hpp"
-#include "message.hpp"
 #include "datetime.hpp"
 
 global *Global = nullptr;
@@ -519,8 +516,8 @@ static int mainImpl(const range<wchar_t**>& Args)
 			return ServiceResult;
 	}
 
-	listener EnvironmentListener(L"environment", &ReloadEnvironment);
-	listener IntlListener(L"intl", &OnIntlSettingsChange);
+	SCOPED_ACTION(listener)(L"environment", &ReloadEnvironment);
+	SCOPED_ACTION(listener)(L"intl", &OnIntlSettingsChange);
 
 	_OT(SysLog(L"[[[[[[[[New Session of FAR]]]]]]]]]"));
 

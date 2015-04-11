@@ -53,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "language.hpp"
 #include "datetime.hpp"
+#include "colormix.hpp"
 
 static std::vector<FileFilterParams>& FilterData()
 {
@@ -110,7 +111,7 @@ bool FileFilter::FilterEdit()
 	FilterList->SetHelp(L"FiltersMenu");
 	FilterList->SetPosition(-1,-1,0,0);
 	FilterList->SetBottomTitle(MSG(MFilterBottom));
-	FilterList->SetFlags(/*VMENU_SHOWAMPERSAND|*/VMENU_WRAPMODE);
+	FilterList->SetMenuFlags(/*VMENU_SHOWAMPERSAND|*/VMENU_WRAPMODE);
 	FilterList->SetId(FiltersMenuId);
 
 	std::for_each(RANGE(FilterData(), i)

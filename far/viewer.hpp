@@ -273,6 +273,7 @@ private:
 class ViewerContainer
 {
 public:
+	virtual ~ViewerContainer() {}
 	virtual Viewer* GetViewer(void)=0;
 	virtual Viewer* GetById(int ID)=0;
 };

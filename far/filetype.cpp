@@ -42,9 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "cmdline.hpp"
 #include "history.hpp"
-#include "filepanels.hpp"
-#include "panel.hpp"
-#include "savescr.hpp"
 #include "filemasks.hpp"
 #include "message.hpp"
 #include "interf.hpp"
@@ -136,7 +133,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 	{
 		auto TypesMenu = VMenu2::create(MSG(MSelectAssocTitle), nullptr, 0, ScrY - 4);
 		TypesMenu->SetHelp(L"FileAssoc");
-		TypesMenu->SetFlags(VMENU_WRAPMODE);
+		TypesMenu->SetMenuFlags(VMENU_WRAPMODE);
 		TypesMenu->SetId(SelectAssocMenuId);
 
 		int ActualCmdCount=0; // отображаемых ассоциаций в меню
@@ -222,7 +219,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 	// Снова все "подставлено", теперь проверим условия "if exist"
 	if (ExtractIfExistCommand(strCommand))
 	{
-		PreserveLongName PreserveName(ShortName, PreserveLFN);
+		SCOPED_ACTION(PreserveLongName)(ShortName, PreserveLFN);
 		RemoveExternalSpaces(strCommand);
 
 		if (!strCommand.empty())
@@ -284,7 +281,7 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 		if (!ExtractIfExistCommand(strExecStr))
 			return;
 
-		PreserveLongName PreserveName(ShortName,PreserveLFN);
+		SCOPED_ACTION(PreserveLongName)(ShortName,PreserveLFN);
 		string strFullName;
 		ConvertNameToFull(Name, strFullName);
 		string strFullShortName;
@@ -500,7 +497,7 @@ void EditFileTypes()
 	unsigned __int64 id;
 	auto TypesMenu = VMenu2::create(MSG(MAssocTitle),nullptr,0,ScrY-4);
 	TypesMenu->SetHelp(L"FileAssoc");
-	TypesMenu->SetFlags(VMENU_WRAPMODE);
+	TypesMenu->SetMenuFlags(VMENU_WRAPMODE);
 	TypesMenu->SetBottomTitle(MSG(MAssocBottom));
 	TypesMenu->SetId(FileAssocMenuId);
 

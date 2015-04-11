@@ -1,4 +1,5 @@
 #pragma once
+#include "datetime.hpp"
 
 /*
 global.hpp
@@ -95,7 +96,7 @@ public:
 
 private:
 	DWORD m_MainThreadId;
-	LARGE_INTEGER m_FarUpTime;
+	os::hp_clock m_FarUpTime;
 	HANDLE m_MainThreadHandle;
 
 	string m_SearchString;

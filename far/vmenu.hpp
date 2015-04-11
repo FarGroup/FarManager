@@ -231,7 +231,7 @@ public:
 	void SetDialogStyle(bool Style) { ChangeFlags(VMENU_WARNDIALOG, Style); SetColors(nullptr); }
 	void SetUpdateRequired(bool SetUpdate) { ChangeFlags(VMENU_UPDATEREQUIRED, SetUpdate); }
 	void SetBoxType(int BoxType);
-	void SetFlags(DWORD Flags) { VMFlags.Set(Flags); }
+	void SetMenuFlags(DWORD Flags) { VMFlags.Set(Flags); }
 	void ClearFlags(DWORD Flags) { VMFlags.Clear(Flags); }
 	bool CheckFlags(DWORD Flags) const { return VMFlags.Check(Flags); }
 	DWORD GetFlags() const { return VMFlags.Flags(); }
@@ -300,7 +300,7 @@ public:
 		// скорректируем SelectPos
 		UpdateSelectPos();
 
-		SetFlags(VMENU_UPDATEREQUIRED);
+		SetMenuFlags(VMENU_UPDATEREQUIRED);
 	}
 
 	static FarListItem *MenuItem2FarList(const MenuItemEx *ListItem, FarListItem *Item);

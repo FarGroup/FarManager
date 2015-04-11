@@ -39,21 +39,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cmdline.hpp"
 #include "hilight.hpp"
 #include "history.hpp"
-#include "treelist.hpp"
 #include "filefilter.hpp"
 #include "filepanels.hpp"
 #include "syslog.hpp"
 #include "interf.hpp"
 #include "config.hpp"
-#include "fileowner.hpp"
 #include "dirmix.hpp"
 #include "console.hpp"
-#include "shortcuts.hpp"
 #include "poscache.hpp"
 #include "plugins.hpp"
 #include "desktop.hpp"
-#include "keybar.hpp"
 #include "menubar.hpp"
+#include "colormix.hpp"
 
 ControlObject::ControlObject()
 {

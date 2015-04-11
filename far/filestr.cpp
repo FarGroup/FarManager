@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filestr.hpp"
 #include "nsUniversalDetectorEx.hpp"
 #include "config.hpp"
-#include "configdb.hpp"
 #include "codepage.hpp"
 #include "strmix.hpp"
 
@@ -358,7 +357,7 @@ bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, bool bB
 			ReadPos += sizeof(T);
 
 			To.emplace_back(*ReadBufPtr);
-			ReadBufPtr++;
+			++ReadBufPtr;
 		}
 	}
 	To.push_back(0);

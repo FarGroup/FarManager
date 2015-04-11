@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "language.hpp"
-#include "scantree.hpp"
 #include "vmenu2.hpp"
 #include "manager.hpp"
 #include "message.hpp"
@@ -50,15 +49,14 @@ const wchar_t LangFileMask[] = L"*.lng";
 bool OpenLangFile(os::fs::file& LangFile, const string& Path,const string& Mask,const string& Language, string &strFileName, uintptr_t &nCodePage, bool StrongLang,string *pstrLangName)
 {
 	strFileName.clear();
-	string strFullName, strEngFileName;
-	os::FAR_FIND_DATA FindData;
+	string strEngFileName;
 	string strLangName;
-	ScanTree ScTree(false, false);
-	ScTree.SetFindPath(Path,Mask);
 
-	while (ScTree.GetNextName(&FindData, strFullName))
+	auto PathWithSlash = Path;
+	AddEndSlash(PathWithSlash);
+	FOR(const auto& FindData, os::fs::enum_file(PathWithSlash + Mask))
 	{
-		strFileName = strFullName;
+		strFileName = PathWithSlash + FindData.strFileName;
 
 		if (!LangFile.Open(strFileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
 		{
@@ -175,17 +173,15 @@ static bool SelectLanguage(bool HelpLanguage)
 	}
 
 	auto LangMenu = VMenu2::create(Title, nullptr, 0, ScrY - 4);
-	LangMenu->SetFlags(VMENU_WRAPMODE);
+	LangMenu->SetMenuFlags(VMENU_WRAPMODE);
 	LangMenu->SetPosition(ScrX/2-8+5*HelpLanguage,ScrY/2-4+2*HelpLanguage,0,0);
-	string strFullName;
-	os::FAR_FIND_DATA FindData;
-	ScanTree ScTree(false, false);
-	ScTree.SetFindPath(Global->g_strFarPath, Mask);
 
-	while (ScTree.GetNextName(&FindData,strFullName))
+	auto PathWithSlash = Global->g_strFarPath;
+	AddEndSlash(PathWithSlash);
+	FOR(const auto& FindData, os::fs::enum_file(PathWithSlash + Mask))
 	{
 		os::fs::file LangFile;
-		if (!LangFile.Open(strFullName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
+		if (!LangFile.Open(PathWithSlash + FindData.strFileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
 			continue;
 
 		uintptr_t nCodePage=CP_OEMCP;

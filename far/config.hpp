@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "panel.hpp"
-#include "panelctype.hpp"
 #include "palette.hpp"
 
 class GeneralConfig;
@@ -94,10 +93,10 @@ public:
 	explicit Option(const long long Value):m_iValue(Value), ValueChanged(false){}
 	virtual ~Option(){}
 
-	virtual const string toString() const = 0;
+	virtual string toString() const = 0;
 	virtual void fromString(const string& value) = 0;
-	virtual const string ExInfo() const = 0;
-	virtual const string typeToString() const = 0;
+	virtual string ExInfo() const = 0;
+	virtual string typeToString() const = 0;
 	virtual bool IsDefault(const FARConfigItem* Holder) const = 0;
 	virtual void SetDefault(const FARConfigItem* Holder) = 0;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) = 0;
@@ -107,7 +106,7 @@ public:
 
 protected:
 	const string& GetString() const {return *m_sValue;}
-	const long long GetInt() const {return m_iValue;}
+	long long GetInt() const {return m_iValue;}
 	void Set(const string& NewValue) {if(*m_sValue != NewValue) {*m_sValue = NewValue; ValueChanged = true;}}
 	void Set(const long long NewValue) {if(m_iValue != NewValue) {m_iValue = NewValue; ValueChanged = true;}}
 	void Free() {delete m_sValue;}
@@ -134,10 +133,10 @@ public:
 	BoolOption(const bool& Value):Option(Value){}
 	BoolOption(const BoolOption& Value):Option(Value.Get()){}
 
-	virtual const string toString() const override { return Get() ? L"true" : L"false"; }
+	virtual string toString() const override { return Get() ? L"true" : L"false"; }
 	virtual void fromString(const string& value) override;
-	virtual const string ExInfo() const override { return string(); }
-	virtual const string typeToString() const override { return L"boolean"; }
+	virtual string ExInfo() const override { return string(); }
+	virtual string typeToString() const override { return L"boolean"; }
 	virtual bool IsDefault(const FARConfigItem* Holder) const override;
 	virtual void SetDefault(const FARConfigItem* Holder) override;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
@@ -146,7 +145,7 @@ public:
 	BoolOption& operator=(bool Value){Set(Value); return *this;}
 	BoolOption& operator=(const BoolOption& Value){Set(Value); return *this;}
 	operator bool() const { return GetInt() != 0; }
-	const bool Get() const { return GetInt() != 0; }
+	bool Get() const { return GetInt() != 0; }
 
 private:
 	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const override;
@@ -161,10 +160,10 @@ public:
 	Bool3Option(const int& Value):Option(Value % 3){}
 	Bool3Option(const Bool3Option& Value):Option(Value.Get() % 3){}
 
-	virtual const string toString() const override { int v = Get(); return v ? (v == 1 ? L"true" : L"other") : L"false"; }
+	virtual string toString() const override { int v = Get(); return v ? (v == 1 ? L"true" : L"other") : L"false"; }
 	virtual void fromString(const string& value) override;
-	virtual const string ExInfo() const override { return string(); }
-	virtual const string typeToString() const override { return L"3-state"; }
+	virtual string ExInfo() const override { return string(); }
+	virtual string typeToString() const override { return L"3-state"; }
 	virtual bool IsDefault(const FARConfigItem* Holder) const override;
 	virtual void SetDefault(const FARConfigItem* Holder) override;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
@@ -177,7 +176,7 @@ public:
 	Bool3Option operator--(int){int Current = GetInt() % 3; Set((Current+2) % 3); return Current;}
 	Bool3Option operator++(int){int Current = GetInt() % 3; Set((Current+1) % 3); return Current;}
 	operator int() const {return GetInt() % 3;}
-	const int Get() const { return GetInt() % 3; }
+	int Get() const { return GetInt() % 3; }
 
 private:
 	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const override;
@@ -192,10 +191,10 @@ public:
 	IntOption(long long Value):Option(Value){}
 	IntOption(const IntOption& Value):Option(Value.Get()){}
 
-	virtual const string toString() const override { return std::to_wstring(Get()); }
+	virtual string toString() const override { return std::to_wstring(Get()); }
 	virtual void fromString(const string& value) override;
-	virtual const string ExInfo() const override;
-	virtual const string typeToString() const override { return L"integer"; }
+	virtual string ExInfo() const override;
+	virtual string typeToString() const override { return L"integer"; }
 	virtual bool IsDefault(const FARConfigItem* Holder) const override;
 	virtual void SetDefault(const FARConfigItem* Holder) override;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
@@ -212,7 +211,7 @@ public:
 	IntOption operator--(int){long long Current = GetInt(); Set(Current-1); return Current;}
 	IntOption operator++(int){long long Current = GetInt(); Set(Current+1); return Current;}
 	operator long long() const {return GetInt();}
-	const long long Get() const { return GetInt(); }
+	long long Get() const { return GetInt(); }
 
 private:
 	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const override;
@@ -228,10 +227,10 @@ public:
 	StringOption(const string& Value):Option(Value){}
 	~StringOption(){Free();}
 
-	virtual const string toString() const override { return Get(); }
+	virtual string toString() const override { return Get(); }
 	virtual void fromString(const string& value) override { Set(value); }
-	virtual const string ExInfo() const override { return string(); }
-	virtual const string typeToString() const override { return L"string"; }
+	virtual string ExInfo() const override { return string(); }
+	virtual string typeToString() const override { return L"string"; }
 	virtual bool IsDefault(const FARConfigItem* Holder) const override;
 	virtual void SetDefault(const FARConfigItem* Holder) override;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
@@ -865,8 +864,8 @@ private:
 	void SetConfirmations();
 	void PluginsManagerSettings();
 	void SetDizConfig();
-	void ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local = false);
-	void EditorConfig(Options::EditorOptions &EdOptRef, bool Local = false);
+	void ViewerConfig(ViewerOptions &ViOptRef, bool Local = false);
+	void EditorConfig(EditorOptions &EdOptRef, bool Local = false);
 	void SetFolderInfoFiles();
 	void InfoPanelSettings();
 	static void MaskGroupsSettings();

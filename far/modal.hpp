@@ -52,7 +52,6 @@ public:
 
 	bool Done() const;
 	void ClearDone();
-	int GetExitCode() const;
 	void Process();
 	void WriteInput(int Key);
 	void ProcessInput();

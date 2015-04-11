@@ -317,19 +317,19 @@ public:
 	virtual void UngetSelName() override;
 	virtual void ClearLastGetSelection() override;
 	virtual unsigned __int64 GetLastSelectedSize() const override;
-	const FileListItem* GetLastSelectedItem() const;
 	virtual PluginHandle* GetPluginHandle() const override;
 	virtual size_t GetRealSelCount() const override;
 	virtual void SetPluginModified() override;
 	virtual int ProcessPluginEvent(int Event,void *Param) override;
 	virtual void SetTitle() override;
 	virtual size_t GetFileCount() const override { return m_ListData.size(); }
-	const FileListItem* GetItem(size_t Index) const;
 	virtual void UpdateKeyBar() override;
 	virtual void IfGoHome(wchar_t Drive) override;
 
+	const FileListItem* GetItem(size_t Index) const;
+	const FileListItem* GetLastSelectedItem() const;
+
 	PluginHandle* OpenFilePlugin(const string* FileName,int PushPrev, OPENFILEPLUGINTYPE Type);
-	long FindFile(const char *Name,BOOL OnlyPartName=FALSE);
 	void ProcessHostFile();
 	bool GetPluginInfo(PluginInfo *PInfo);
 	void PluginGetPanelInfo(PanelInfo &Info);
@@ -343,9 +343,6 @@ public:
 	int PluginPanelHelp(const PluginHandle* hPlugin) const;
 	void ResetLastUpdateTime() {LastUpdateTime = 0;}
 
-	static void SetFilePanelModes();
-	static void SavePanelModes();
-	static void ReadPanelModes();
 	static size_t FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *pi);
 	static int FileNameToPluginItem(const string& Name,PluginPanelItem *pi);
 	static void FileListToPluginItem(const FileListItem& fi,PluginPanelItem *pi);
@@ -376,7 +373,7 @@ private:
 	void ShowFileList(int Fast);
 	void ShowList(int ShowStatus,int StartColumn);
 	void SetShowColor(int Position, bool FileColor = true) const;
-	const FarColor GetShowColor(int Position, bool FileColor = true) const;
+	FarColor GetShowColor(int Position, bool FileColor = true) const;
 	void ShowSelectedSize();
 	void ShowTotalSize(const OpenPanelInfo &Info);
 	int ConvertName(const wchar_t *SrcName, string &strDest, int MaxLength, unsigned __int64 RightAlign, int ShowStatus, DWORD dwFileAttr) const;
@@ -398,7 +395,6 @@ private:
 	bool ApplyCommand();
 	void DescribeFiles();
 	std::vector<PluginPanelItem> CreatePluginItemList(bool AddTwoDot = true);
-	static void DeletePluginItemList(std::vector<PluginPanelItem> &ItemList);
 	PluginHandle* OpenPluginForFile(const string* FileName,DWORD FileAttr, OPENFILEPLUGINTYPE Type);
 	int PreparePanelView(PanelViewSettings *PanelView);
 	int PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen, bool StatusLine);
@@ -419,7 +415,8 @@ private:
 	void InitFSWatcher(bool CheckTree);
 	bool IsColumnDisplayed(std::function<bool(const column&)> Compare);
 
-	static void AddParentPoint(FileListItem *CurPtr, size_t CurFilePos, const FILETIME* Times=nullptr, const string& Owner = string());
+	static void DeletePluginItemList(std::vector<PluginPanelItem> &ItemList);
+	static void AddParentPoint(FileListItem *CurPtr, size_t CurFilePos, const FILETIME* Times = nullptr, const string& Owner = string());
 
 	std::unique_ptr<FileFilter> m_Filter;
 	DizList Diz;

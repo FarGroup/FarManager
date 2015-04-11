@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarDlgBuilder.hpp"
 #include "DlgGuid.hpp"
 #include "constitle.hpp"
+#include "strmix.hpp"
 
 codepages& Codepages()
 {
@@ -736,7 +737,7 @@ bool codepages::SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bVie
 	// Создаём меню
 	CodePagesMenu = VMenu2::create(L"", nullptr, 0, ScrY-4);
 	CodePagesMenu->SetBottomTitle(MSG(!Global->Opt->CPMenuMode?MGetCodePageBottomTitle:MGetCodePageBottomShortTitle));
-	CodePagesMenu->SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
+	CodePagesMenu->SetMenuFlags(VMENU_WRAPMODE | VMENU_AUTOHIGHLIGHT);
 	CodePagesMenu->SetHelp(L"CodePagesMenu");
 	CodePagesMenu->SetId(CodePagesMenuId);
 	// Добавляем таблицы символов

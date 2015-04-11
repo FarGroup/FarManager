@@ -39,17 +39,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keys.hpp"
 #include "treelist.hpp"
 #include "editcontrol.hpp"
-#include "ctrlobj.hpp"
-#include "filepanels.hpp"
 #include "help.hpp"
 #include "manager.hpp"
-#include "savescr.hpp"
 #include "interf.hpp"
 #include "config.hpp"
 #include "exitcode.hpp"
 #include "language.hpp"
 #include "keybar.hpp"
-#include "pathmix.hpp"
 
 FolderTree::FolderTree(int iModalMode, int IsStandalone, bool IsFullScreen):
 	Tree(nullptr),

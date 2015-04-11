@@ -49,14 +49,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "usermenu.hpp"
 #include "filetype.hpp"
 #include "fnparce.hpp"
-#include "execute.hpp"
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "panelmix.hpp"
 #include "filestr.hpp"
-#include "mix.hpp"
-#include "savescr.hpp"
-#include "syslog.hpp"
 #include "interf.hpp"
 #include "cache.hpp"
 #include "language.hpp"
@@ -527,7 +523,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		/* $ 24.07.2000 VVM + ѕри показе главного меню в заголовок добавл€ет тип - FAR/Registry */
 
 		auto UserMenu = VMenu2::create(Title, nullptr, 0, ScrY - 4);
-		UserMenu->SetFlags(VMENU_WRAPMODE);
+		UserMenu->SetMenuFlags(VMENU_WRAPMODE);
 		UserMenu->SetHelp(L"UserMenu");
 		UserMenu->SetPosition(-1,-1,0,0);
 		UserMenu->SetBottomTitle(MSG(MMainMenuBottomTitle));
@@ -793,7 +789,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 
 					if (ExtractIfExistCommand(strCommand))
 					{
-						PreserveLongName PreserveName(strShortName,PreserveLFN);
+						SCOPED_ACTION(PreserveLongName)(strShortName, PreserveLFN);
 						RemoveExternalSpaces(strCommand);
 
 						if (!strCommand.empty())

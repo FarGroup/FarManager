@@ -43,7 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrobj.hpp"
 #include "bitflags.hpp"
 #include "editcontrol.hpp"
-#include "editor.hpp"
 
 enum DLGEDITTYPE
 {
@@ -52,6 +51,7 @@ enum DLGEDITTYPE
 };
 
 class Dialog;
+class Editor;
 
 class DlgEdit: public SimpleScreenObject
 {

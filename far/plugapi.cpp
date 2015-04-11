@@ -52,8 +52,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "window.hpp"
 #include "scrbuf.hpp"
-#include "farexcpt.hpp"
-#include "lockscrn.hpp"
 #include "constitle.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "syslog.hpp"
@@ -78,7 +76,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "clipboard.hpp"
 #include "strmix.hpp"
 #include "PluginSynchro.hpp"
-#include "copy.hpp"
 #include "panelmix.hpp"
 #include "xlat.hpp"
 #include "dirinfo.hpp"
@@ -901,7 +898,7 @@ intptr_t WINAPI apiMenuFn(
 			if (Flags & FMENU_CHANGECONSOLETITLE)
 				MenuFlags|=VMENU_CHANGECONSOLETITLE;
 
-			FarMenu->SetFlags(MenuFlags);
+			FarMenu->SetMenuFlags(MenuFlags);
 			size_t Selected=0;
 
 			for (size_t i=0; i < ItemsNumber; i++)
@@ -1698,7 +1695,7 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 		if (Global->WindowManager->ManagerIsDown())
 			return FALSE;
 
-		class ConsoleTitle ct;
+		SCOPED_ACTION(ConsoleTitle);
 		int DisableHistory = (Flags & VF_DISABLEHISTORY) != 0;
 
 		// $ 15.05.2002 SKV - «апретим вызов немодального редактора viewer-а из модального.
@@ -1778,7 +1775,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 		if (Global->WindowManager->ManagerIsDown())
 			return EEC_OPEN_ERROR;
 
-		ConsoleTitle ct;
+		SCOPED_ACTION(ConsoleTitle);
 		/* $ 12.07.2000 IS
 		 ѕроверка флагов редактора (раньше они игнорировались) и открытие
 		 немодального редактора, если есть соответствующий флаг
@@ -2791,7 +2788,7 @@ intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS
 				}
 				else
 				{
-					if (const auto plugin = Global->CtrlObject->Plugins->FindPlugin(data->Guid))
+					if (Global->CtrlObject->Plugins->FindPlugin(data->Guid))
 					{
 						settings = AbstractSettings::CreatePluginSettings(data->Guid, Param1 == PSL_LOCAL);
 					}

@@ -40,7 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu2.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
-#include "savescr.hpp"
 #include "cmdline.hpp"
 #include "ctrlobj.hpp"
 #include "syslog.hpp"
@@ -54,8 +53,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "exitcode.hpp"
 #include "scrbuf.hpp"
-#include "console.hpp"
-#include "configdb.hpp"
 #include "DlgGuid.hpp"
 #include "plugins.hpp"
 #include "language.hpp"
@@ -444,7 +441,7 @@ window_ptr Manager::WindowMenu()
 	{
 		auto ModalMenu = VMenu2::create(MSG(MScreensTitle), nullptr, 0, ScrY - 4);
 		ModalMenu->SetHelp(L"ScrSwitch");
-		ModalMenu->SetFlags(VMENU_WRAPMODE);
+		ModalMenu->SetMenuFlags(VMENU_WRAPMODE);
 		ModalMenu->SetPosition(-1,-1,0,0);
 		ModalMenu->SetId(ScreensSwitchId);
 

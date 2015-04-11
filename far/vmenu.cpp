@@ -50,17 +50,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "manager.hpp"
 #include "constitle.hpp"
-#include "syslog.hpp"
 #include "interf.hpp"
 #include "colormix.hpp"
 #include "config.hpp"
 #include "processname.hpp"
-#include "pathmix.hpp"
-#include "cmdline.hpp"
 #include "FarGuid.hpp"
 #include "xlat.hpp"
 #include "language.hpp"
 #include "vmenu2.hpp"
+#include "strmix.hpp"
 
 MenuItemEx FarList2MenuItem(const FarListItem& FItem)
 {
@@ -99,7 +97,7 @@ vmenu_ptr VMenu::create(const string& Title, MenuDataEx *Data, int ItemCount, in
 void VMenu::init(MenuDataEx *Data, int ItemsCount, DWORD Flags)
 {
 	SaveScr=nullptr;
-	SetFlags(Flags|VMENU_MOUSEREACTION|VMENU_UPDATEREQUIRED);
+	SetMenuFlags(Flags | VMENU_MOUSEREACTION | VMENU_UPDATEREQUIRED);
 	ClearFlags(VMENU_SHOWAMPERSAND|VMENU_MOUSEDOWN);
 	CurrentWindow = Global->WindowManager->GetCurrentWindow();
 	GetCursorType(PrevCursorVisible,PrevCursorSize);
@@ -289,7 +287,7 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 	if (Pos >= 0)
 		UpdateItemFlags(Pos, Items[Pos].Flags|LIF_SELECTED);
 
-	SetFlags(VMENU_UPDATEREQUIRED);
+	SetMenuFlags(VMENU_UPDATEREQUIRED);
 
 	SelectPosResult=Pos;
 	return Pos;
@@ -470,7 +468,7 @@ int VMenu::AddItem(MenuItemEx& NewItem,int PosAdd)
 	NewMenuItem.Flags = 0;
 	UpdateItemFlags(PosAdd, NewFlags);
 
-	SetFlags(VMENU_UPDATEREQUIRED|(bFilterEnabled?VMENU_REFILTERREQUIRED:0));
+	SetMenuFlags(VMENU_UPDATEREQUIRED | (bFilterEnabled ? VMENU_REFILTERREQUIRED : 0));
 
 	return static_cast<int>(Items.size()-1);
 }
@@ -495,7 +493,7 @@ int VMenu::UpdateItem(const FarListUpdate *NewItem)
 
 		UpdateItemFlags(NewItem->Index, MItem.Flags);
 
-		SetFlags(VMENU_UPDATEREQUIRED|(bFilterEnabled?VMENU_REFILTERREQUIRED:0));
+		SetMenuFlags(VMENU_UPDATEREQUIRED | (bFilterEnabled ? VMENU_REFILTERREQUIRED : 0));
 
 		return TRUE;
 	}
@@ -553,7 +551,7 @@ int VMenu::DeleteItem(int ID, int Count)
 			TopPos -= Count;
 	}
 
-	SetFlags(VMENU_UPDATEREQUIRED);
+	SetMenuFlags(VMENU_UPDATEREQUIRED);
 
 	return static_cast<int>(Items.size());
 }
@@ -574,7 +572,7 @@ void VMenu::DeleteItems()
 	m_MaxLength=0;
 	UpdateMaxLengthFromTitles();
 
-	SetFlags(VMENU_UPDATEREQUIRED);
+	SetMenuFlags(VMENU_UPDATEREQUIRED);
 }
 
 int VMenu::GetCheck(int Position)
@@ -1178,7 +1176,7 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 			LocalKey=*str;
 	}
 
-	SetFlags(VMENU_UPDATEREQUIRED);
+	SetMenuFlags(VMENU_UPDATEREQUIRED);
 
 	if (!GetShowItemCount())
 	{
@@ -1524,7 +1522,7 @@ int VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
-	SetFlags(VMENU_UPDATEREQUIRED);
+	SetMenuFlags(VMENU_UPDATEREQUIRED);
 
 	if (!GetShowItemCount())
 	{
@@ -1680,7 +1678,7 @@ int VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			/* $ 13.10.2001 VVM
 			  + Запомнить нажатие клавиши мышки и только в этом случае реагировать при отпускании */
 			if (!MouseEvent->dwEventFlags && (MouseEvent->dwButtonState & (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED)))
-				SetFlags(VMENU_MOUSEDOWN);
+				SetMenuFlags(VMENU_MOUSEDOWN);
 
 			if (!MouseEvent->dwEventFlags && !(MouseEvent->dwButtonState & (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED)) && CheckFlags(VMENU_MOUSEDOWN))
 			{
@@ -1886,7 +1884,7 @@ void VMenu::Show()
 		}
 		else
 		{
-			SetFlags(VMENU_UPDATEREQUIRED);
+			SetMenuFlags(VMENU_UPDATEREQUIRED);
 			DisplayObject();
 		}
 	}
@@ -1903,7 +1901,7 @@ void VMenu::Hide()
 		ScreenObjectWithShadow::Hide();
 	}
 
-	SetFlags(VMENU_UPDATEREQUIRED);
+	SetMenuFlags(VMENU_UPDATEREQUIRED);
 
 	OldTitle.reset();
 }
@@ -1966,7 +1964,7 @@ void VMenu::DisplayObject()
 				Box(m_X1,m_Y1,m_X2,m_Y2,Colors[VMenuColorBox],m_BoxType);
 		}
 
-		//SetFlags(VMENU_DISABLEDRAWBACKGROUND);
+		//SetMenuFlags(VMENU_DISABLEDRAWBACKGROUND);
 	}
 
 	if (!CheckFlags(VMENU_LISTBOX))
@@ -2448,7 +2446,7 @@ void VMenu::AssignHighlights(int Reverse)
 		VMOldFlags.Set(VMENU_SHOWAMPERSAND);
 
 	if (VMOldFlags.Check(VMENU_SHOWAMPERSAND))
-		SetFlags(VMENU_SHOWAMPERSAND);
+		SetMenuFlags(VMENU_SHOWAMPERSAND);
 
 	int I, Delta = Reverse ? -1 : 1;
 
@@ -2506,7 +2504,7 @@ void VMenu::AssignHighlights(int Reverse)
 		}
 	}
 
-	SetFlags(VMENU_AUTOHIGHLIGHT|(Reverse?VMENU_REVERSEHIGHLIGHT:0));
+	SetMenuFlags(VMENU_AUTOHIGHLIGHT | (Reverse ? VMENU_REVERSEHIGHLIGHT : 0));
 	ClearFlags(VMENU_SHOWAMPERSAND);
 }
 
@@ -2586,7 +2584,7 @@ void VMenu::SetBottomTitle(const wchar_t *BottomTitle)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
-	SetFlags(VMENU_UPDATEREQUIRED);
+	SetMenuFlags(VMENU_UPDATEREQUIRED);
 
 	if (BottomTitle)
 		strBottomTitle = BottomTitle;
@@ -2600,7 +2598,7 @@ void VMenu::SetTitle(const string& Title)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
-	SetFlags(VMENU_UPDATEREQUIRED);
+	SetMenuFlags(VMENU_UPDATEREQUIRED);
 
 	strTitle = Title;
 

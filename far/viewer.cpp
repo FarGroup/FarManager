@@ -43,10 +43,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keys.hpp"
 #include "help.hpp"
 #include "dialog.hpp"
-#include "panel.hpp"
 #include "filepanels.hpp"
 #include "fileview.hpp"
-#include "savescr.hpp"
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
 #include "TPreRedrawFunc.hpp"
@@ -58,13 +56,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "clipboard.hpp"
 #include "delete.hpp"
-#include "dirmix.hpp"
 #include "pathmix.hpp"
 #include "filestr.hpp"
 #include "mix.hpp"
 #include "constitle.hpp"
 #include "console.hpp"
-#include "wakeful.hpp"
 #include "RegExp.hpp"
 #include "colormix.hpp"
 #include "vmenu2.hpp"
@@ -74,6 +70,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "keybar.hpp"
 #include "stddlg.hpp"
+#include "strmix.hpp"
 
 enum SHOW_MODES
 {
@@ -1657,7 +1654,7 @@ int Viewer::process_key(const Manager::Key& Key)
 			int mode;
 			{
 				auto vModes = VMenu2::create(MSG(MViewMode), ModeListMenu, ARRAYSIZE(ModeListMenu), ScrY - 4);
-				vModes->SetFlags(VMENU_WRAPMODE | VMENU_AUTOHIGHLIGHT);
+				vModes->SetMenuFlags(VMENU_WRAPMODE | VMENU_AUTOHIGHLIGHT);
 				vModes->SetSelectPos(VM.Hex, +1);
 				mode = vModes->Run();
 			}

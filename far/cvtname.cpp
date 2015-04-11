@@ -36,10 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "cvtname.hpp"
 #include "flink.hpp"
-#include "cddrv.hpp"
-#include "syslog.hpp"
 #include "pathmix.hpp"
-#include "drivemix.hpp"
 #include "network.hpp"
 #include "imports.hpp"
 #include "strmix.hpp"
@@ -68,17 +65,15 @@ void MixToFullPath(string& strPath)
 				}
 				continue;
 			}
-			else switch (strPath[Pos + 1])
+
+			switch (strPath[Pos + 1])
 			{
 					//fragment ".\"
 				case L'\\':
 					//fragment "./"
 				case L'/':
-				{
 					strPath.erase(Pos, 2);
 					continue;
-				}
-				break;
 
 				//fragment "..\" or "../" or ".." at the end
 				case L'.':
@@ -531,7 +526,8 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 		{
 			ReplaceSlashToBackslash(strPath);
 			bool DoubleSlash = strPath[1]==L'\\';
-			while(ReplaceStrings(strPath,L"\\\\",L"\\"));
+			while(ReplaceStrings(strPath,L"\\\\",L"\\"))
+				;
 			if(DoubleSlash)
 			{
 				strPath = L"\\" + strPath;

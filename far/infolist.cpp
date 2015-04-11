@@ -40,7 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "flink.hpp"
 #include "colors.hpp"
 #include "keys.hpp"
-#include "ctrlobj.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "help.hpp"
@@ -57,8 +56,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "colormix.hpp"
 #include "vmenu2.hpp"
-#include "datetime.hpp"
-#include "wm_listener.hpp"
 #include "language.hpp"
 #include "dizviewer.hpp"
 #include "locale.hpp"
@@ -93,7 +90,7 @@ InfoList::InfoList(window_ptr Owner):
 	OldWrapMode(),
 	OldWrapType(),
 	SectionState(ILSS_SIZE),
-	PowerListener(L"power", [&]() { if (Global->Opt->InfoPanel.ShowPowerStatus && IsVisible() && SectionState[ILSS_POWERSTATUS].Show) { Redraw(); }})
+	PowerListener(L"power", [&]{ if (Global->Opt->InfoPanel.ShowPowerStatus && IsVisible() && SectionState[ILSS_POWERSTATUS].Show) { Redraw(); }})
 {
 	m_Type=INFO_PANEL;
 	if (Global->Opt->InfoPanel.strShowStatusInfo.empty())
@@ -622,7 +619,7 @@ void InfoList::SelectShowMode()
 		auto ShowModeMenu = VMenu2::create(MSG(MMenuInfoShowModeTitle), ShowModeMenuItem, ARRAYSIZE(ShowModeMenuItem), 0);
 		ShowModeMenu->SetHelp(L"InfoPanelShowMode");
 		ShowModeMenu->SetPosition(m_X1+4,-1,0,0);
-		ShowModeMenu->SetFlags(VMENU_WRAPMODE);
+		ShowModeMenu->SetMenuFlags(VMENU_WRAPMODE);
 
 		ShowCode=ShowModeMenu->Run([&](int Key)->int
 		{

@@ -44,12 +44,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "clipboard.hpp"
 #include "xlat.hpp"
 #include "shortcuts.hpp"
-#include "pathmix.hpp"
 #include "panelmix.hpp"
 #include "manager.hpp"
 #include "editor.hpp"
 #include "window.hpp"
 #include "colormix.hpp"
+#include "strmix.hpp"
 
 void ColorItem::SetOwner(const GUID& Value)
 {

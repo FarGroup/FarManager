@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "palette.hpp"
 #include "colors.hpp"
 #include "colormix.hpp"
-#include "config.hpp"
 #include "configdb.hpp"
 
 static const struct ColorsInit

@@ -48,7 +48,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "help.hpp"
 #include "fileedit.hpp"
 #include "namelist.hpp"
-#include "savescr.hpp"
 #include "fileview.hpp"
 #include "copy.hpp"
 #include "history.hpp"
@@ -68,7 +67,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "setattr.hpp"
 #include "filetype.hpp"
 #include "execute.hpp"
-#include "shortcuts.hpp"
 #include "fnparce.hpp"
 #include "datetime.hpp"
 #include "dirinfo.hpp"
@@ -90,6 +88,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fileowner.hpp"
 #include "colormix.hpp"
 #include "keybar.hpp"
+#include "panelctype.hpp"
 
 static int ListSortGroups,ListSelectedFirst,ListDirectoriesFirst;
 static int ListSortMode;
@@ -1982,7 +1981,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 				if (RealName)
 				{
 					int ToPlugin=0;
-					ShellCopy ShCopy(this,LocalKey==KEY_SHIFTF6,FALSE,TRUE,TRUE,ToPlugin,nullptr);
+					ShellCopy(this,LocalKey==KEY_SHIFTF6,FALSE,TRUE,TRUE,ToPlugin,nullptr);
 				}
 				else
 				{
@@ -4629,7 +4628,7 @@ void FileList::SelectSortMode()
 		auto SortModeMenu = VMenu2::create(MSG(MMenuSortTitle), SortMenu.data(), SortMenu.size(), 0);
 		SortModeMenu->SetHelp(L"PanelCmdSort");
 		SortModeMenu->SetPosition(m_X1+4,-1,0,0);
-		SortModeMenu->SetFlags(VMENU_WRAPMODE);
+		SortModeMenu->SetMenuFlags(VMENU_WRAPMODE);
 		SortModeMenu->SetId(SelectSortModeId);
 
 		SortCode=SortModeMenu->Run([&](int Key)->int
@@ -4861,7 +4860,7 @@ bool FileList::ApplyCommand()
 
 		if (ExtractIfExistCommand(strConvertedCommand))
 		{
-			PreserveLongName PreserveName(strSelShortName,PreserveLFN);
+			SCOPED_ACTION(PreserveLongName)(strSelShortName,PreserveLFN);
 			RemoveExternalSpaces(strConvertedCommand);
 
 			if (!strConvertedCommand.empty())
@@ -5106,7 +5105,7 @@ void FileList::ProcessCopyKeys(int Key)
 				        !Global->CtrlObject->Plugins->UseFarCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES))
 				{
 					ToPlugin=2;
-					ShellCopy ShCopy(this,Move,FALSE,FALSE,Ask,ToPlugin,strPluginDestPath.data());
+					ShellCopy(this,Move,FALSE,FALSE,Ask,ToPlugin,strPluginDestPath.data());
 				}
 
 				if (ToPlugin!=-1)
@@ -5152,7 +5151,7 @@ void FileList::ProcessCopyKeys(int Key)
 			int ToPlugin=AnotherPanel->GetMode()==PLUGIN_PANEL &&
 			             AnotherPanel->IsVisible() && (Key!=KEY_ALTF6 && Key!=KEY_RALTF6) &&
 			             !Global->CtrlObject->Plugins->UseFarCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES);
-			ShellCopy ShCopy(this,Move,(Key==KEY_ALTF6 || Key==KEY_RALTF6),FALSE,Ask,ToPlugin,nullptr, Drag && AnotherDir);
+			ShellCopy(this,Move,(Key==KEY_ALTF6 || Key==KEY_RALTF6),FALSE,Ask,ToPlugin,nullptr, Drag && AnotherDir);
 
 			if (ToPlugin==1)
 				PluginPutFilesToAnother(Move,AnotherPanel);
@@ -6539,7 +6538,6 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	UpdateRequired=FALSE;
 	AccessTimeUpdateRequired=FALSE;
 	DizRead=FALSE;
-	os::FAR_FIND_DATA fdata;
 	decltype(m_ListData) OldData;
 	string strCurName, strNextCurName;
 	StopFSWatcher();
@@ -7750,9 +7748,9 @@ void FileList::ShowFileList(int Fast)
 }
 
 
-const FarColor FileList::GetShowColor(int Position, bool FileColor) const
+FarColor FileList::GetShowColor(int Position, bool FileColor) const
 {
-	FarColor ColorAttr=colors::PaletteColorToFarColor(COL_PANELTEXT);
+	auto ColorAttr = colors::PaletteColorToFarColor(COL_PANELTEXT);
 
 	if (static_cast<size_t>(Position) < m_ListData.size())
 	{
@@ -8503,9 +8501,10 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								else
 									SetShowColor(J);
 							}
+
 							break;
 						}
-						break;
+
 						case SIZE_COLUMN:
 						case PACKED_COLUMN:
 						case STREAMSSIZE_COLUMN:

@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "processname.hpp"
-#include "strmix.hpp"
 #include "pathmix.hpp"
 
 /* $ 09.10.2000 IS

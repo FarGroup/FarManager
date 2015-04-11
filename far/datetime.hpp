@@ -118,3 +118,4 @@ private:
 	mutable clock_t m_Begin;
 	const clock_t m_Interval;
 };
+

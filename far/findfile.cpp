@@ -62,7 +62,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "delete.hpp"
 #include "datetime.hpp"
-#include "drivemix.hpp"
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "mix.hpp"
@@ -72,13 +71,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "wakeful.hpp"
 #include "panelmix.hpp"
-#include "setattr.hpp"
 #include "keyboard.hpp"
 #include "configdb.hpp"
 #include "plugins.hpp"
 #include "language.hpp"
 #include "filestr.hpp"
 #include "exitcode.hpp"
+#include "panelctype.hpp"
 
 // Список архивов. Если файл найден в архиве, то FindList->ArcIndex указывает сюда.
 struct ArcListItem
@@ -1440,7 +1439,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	{
 	case DN_INITDIALOG:
 		{
-			Dlg->GetAllItem()[FD_LISTBOX].ListPtr->SetFlags(VMENU_NOMERGEBORDER);
+			Dlg->GetAllItem()[FD_LISTBOX].ListPtr->SetMenuFlags(VMENU_NOMERGEBORDER);
 		}
 		break;
 

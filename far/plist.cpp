@@ -40,7 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu2.hpp"
 #include "language.hpp"
 #include "message.hpp"
-#include "config.hpp"
 #include "interf.hpp"
 #include "imports.hpp"
 
@@ -71,7 +70,7 @@ void ShowProcessList()
 	Active = true;
 
 	auto ProcList = VMenu2::create(MSG(MProcessListTitle), nullptr, 0, ScrY - 4);
-	ProcList->SetFlags(VMENU_WRAPMODE);
+	ProcList->SetMenuFlags(VMENU_WRAPMODE);
 	ProcList->SetPosition(-1,-1,0,0);
 	static bool bShowImage = false;
 

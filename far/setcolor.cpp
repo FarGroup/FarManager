@@ -35,13 +35,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "setcolor.hpp"
-#include "keys.hpp"
 #include "colors.hpp"
 #include "vmenu2.hpp"
 #include "dialog.hpp"
 #include "filepanels.hpp"
 #include "ctrlobj.hpp"
-#include "savescr.hpp"
 #include "scrbuf.hpp"
 #include "panel.hpp"
 #include "interf.hpp"
@@ -49,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "colormix.hpp"
 #include "language.hpp"
-#include "keyboard.hpp"
 #include "manager.hpp"
 
 void GetColor(PaletteColors PaletteIndex)
@@ -356,7 +353,7 @@ void SetColors()
 		GroupsMenu->AddItem(MSG(MSetBW));
 
 		GroupsMenu->SetPosition(2,1,0,0);
-		GroupsMenu->SetFlags(VMENU_WRAPMODE);
+		GroupsMenu->SetMenuFlags(VMENU_WRAPMODE);
 		int GroupsCode=GroupsMenu->RunEx([&](int Msg, void *param)->int
 		{
 			intptr_t ItemsCode=(intptr_t)param;
@@ -396,7 +393,7 @@ static void SetItemColors(const color_item* Items, size_t Size)
 	SCOPE_EXIT{ MenuX -= 10; MenuY -= 5; };
 
 	ItemsMenu->SetPosition(MenuX, MenuY, 0, 0);
-	ItemsMenu->SetFlags(VMENU_WRAPMODE);
+	ItemsMenu->SetMenuFlags(VMENU_WRAPMODE);
 	ItemsMenu->RunEx([&](int Msg, void *param)->int
 	{
 		intptr_t ItemsCode=(intptr_t)param;

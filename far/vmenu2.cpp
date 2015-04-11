@@ -39,11 +39,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "language.hpp"
 #include "colormix.hpp"
-#include "macroopcode.hpp"
 #include "interf.hpp"
-#include "ctrlobj.hpp"
 #include "syslog.hpp"
 #include "constitle.hpp"
+#include "strmix.hpp"
 
 intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
@@ -327,7 +326,7 @@ const std::array<FarDialogItem, 1> VMenu2DialogItems =
 	{DI_LISTBOX, 2, 1, 10, 10, 0, nullptr, nullptr, DIF_LISTNOAMPERSAND/*|DIF_LISTNOCLOSE*/, nullptr},
 }};
 
-VMenu2::VMenu2(const string& Title, const MenuDataEx *Data, size_t ItemCount, int MaxHeight, DWORD Flags):
+VMenu2::VMenu2(int MaxHeight):
 	Dialog(VMenu2DialogItems, this, &VMenu2::VMenu2DlgProc, nullptr),
 	MaxHeight(MaxHeight),
 	cancel(0),
@@ -345,7 +344,7 @@ VMenu2::VMenu2(const string& Title, const MenuDataEx *Data, size_t ItemCount, in
 
 vmenu2_ptr VMenu2::create(const string& Title, const MenuDataEx *Data, size_t ItemCount, int MaxHeight, DWORD Flags)
 {
-	vmenu2_ptr VMenu2Ptr(new VMenu2(Title, Data, ItemCount, MaxHeight, Flags));
+	vmenu2_ptr VMenu2Ptr(new VMenu2(MaxHeight));
 
 	VMenu2Ptr->InitDialogObjects();
 	VMenu2Ptr->SetMacroMode(MACROAREA_MENU);
@@ -371,7 +370,7 @@ vmenu2_ptr VMenu2::create(const string& Title, const MenuDataEx *Data, size_t It
 
 	// BUGBUG
 	VMenu2Ptr->Dialog::SetPosition(-1, -1, 20, 20);
-	VMenu2Ptr->SetFlags(Flags | VMENU_MOUSEREACTION);
+	VMenu2Ptr->SetMenuFlags(Flags | VMENU_MOUSEREACTION);
 	VMenu2Ptr->Resize();
 	return VMenu2Ptr;
 }
@@ -394,7 +393,7 @@ void VMenu2::SetBottomTitle(const string& Title)
 	SendMessage(DM_LISTSETTITLES, 0, &titles);
 }
 
-void VMenu2::SetFlags(DWORD Flags)
+void VMenu2::SetMenuFlags(DWORD Flags)
 {
 	FarDialogItem fdi;
 	SendMessage(DM_GETDLGITEMSHORT, 0, &fdi);
@@ -410,7 +409,7 @@ void VMenu2::SetFlags(DWORD Flags)
 	if(Flags&VMENU_SHOWNOBOX)
 		fdi.Flags|=DIF_LISTNOBOX;
 
-	ListBox().SetFlags(Flags&(VMENU_REVERSEHIGHLIGHT|VMENU_CHANGECONSOLETITLE|VMENU_LISTSINGLEBOX));
+	ListBox().SetMenuFlags(Flags&(VMENU_REVERSEHIGHLIGHT | VMENU_CHANGECONSOLETITLE | VMENU_LISTSINGLEBOX));
 
 	SendMessage(DM_SETDLGITEMSHORT, 0, &fdi);
 }
@@ -668,8 +667,8 @@ void VMenu2::SetBoxType(int BoxType)
 {
 	ShortBox=(BoxType==SHORT_SINGLE_BOX || BoxType==SHORT_DOUBLE_BOX || BoxType==NO_BOX);
 	if(BoxType==NO_BOX)
-		SetFlags(VMENU_SHOWNOBOX);
+		SetMenuFlags(VMENU_SHOWNOBOX);
 	if(BoxType==SINGLE_BOX || BoxType==SHORT_SINGLE_BOX)
-		SetFlags(VMENU_LISTSINGLEBOX);
+		SetMenuFlags(VMENU_LISTSINGLEBOX);
 	Resize();
 }

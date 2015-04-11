@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "edit.hpp"
+#include "colors.hpp"
 
 class History;
 class VMenu2;

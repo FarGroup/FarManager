@@ -42,7 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
 #include "macroopcode.hpp"
-#include "panel.hpp"
 #include "savescr.hpp"
 #include "lockscrn.hpp"
 #include "interf.hpp"
@@ -426,7 +425,7 @@ void HMenu::ProcessSubMenu(const MenuDataEx *Data,int DataCount,
 	Position=-1;
 	auto SubMenu = VMenu2::create(L"", Data, DataCount);
 	SubMenu->SetBoxType(SHORT_DOUBLE_BOX);
-	SubMenu->SetFlags(VMENU_WRAPMODE);
+	SubMenu->SetMenuFlags(VMENU_WRAPMODE);
 	SubMenu->SetHelp(SubMenuHelp);
 	SubMenu->SetPosition(X,Y,0,0);
 	SubMenu->SetMacroMode(MACROAREA_MAINMENU);
@@ -445,7 +444,7 @@ void HMenu::ProcessSubMenu(const MenuDataEx *Data,int DataCount,
 
 		if (Key==KEY_CONSOLE_BUFFER_RESIZE)
 		{
-			LockScreen LckScr;
+			SCOPED_ACTION(LockScreen);
 			ResizeConsole();
 			Show();
 			return 1;

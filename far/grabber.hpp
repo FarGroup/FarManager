@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "modal.hpp"
-#include "macro.hpp"
 
 class Grabber: public SimpleModal
 {
@@ -48,12 +47,13 @@ public:
 
 private:
 	Grabber();
-	void init();
+
 	virtual void DisplayObject() override;
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual string GetTitle() const override { return string(); }
 
+	void init();
 	void CopyGrabbedArea(bool Append, bool VerticalBlock);
 	void Reset();
 

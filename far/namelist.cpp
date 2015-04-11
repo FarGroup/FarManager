@@ -35,8 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "namelist.hpp"
-#include "pathmix.hpp"
-#include "strmix.hpp"
 
 void NamesList::AddName(const string& Name)
 {

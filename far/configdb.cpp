@@ -41,11 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "tinyxml.hpp"
 #include "farversion.hpp"
-#include "RegExp.hpp"
-#include "keyboard.hpp"
-#include "macro.hpp"
 #include "console.hpp"
-#include "syslog.hpp"
 #include "language.hpp"
 #include "message.hpp"
 #include "synchro.hpp"
@@ -2295,7 +2291,7 @@ void config_provider::TryImportDatabase(representable *p, const char *son, bool 
 	if (m_TemplateSource && m_TemplateSource->readable())
 	{
 		representation Representation;
-		const tinyxml::TiXmlHandle root(m_TemplateSource->GetImportRoot());
+		const auto root = m_TemplateSource->GetImportRoot();
 
 		if (!son)
 		{
@@ -2495,10 +2491,10 @@ bool config_provider::Import(const string& Filename)
 	//TODO: import for local plugin settings
 	FOR(const auto& plugin, xml_enum(root.FirstChild("pluginsconfig"), "plugin"))
 	{
-		auto guid = plugin->Attribute("guid");
+		const auto guid = plugin->Attribute("guid");
 		if (!guid)
 			continue;
-		string Guid = wide(guid, CP_UTF8);
+		auto Guid = wide(guid, CP_UTF8);
 		ToUpper(Guid);
 
 		if (std::regex_search(Guid, uuid_regex()))

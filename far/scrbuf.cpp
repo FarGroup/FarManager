@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "colors.hpp"
 #include "ctrlobj.hpp"
-#include "syslog.hpp"
 #include "interf.hpp"
 #include "config.hpp"
 #include "elevation.hpp"

@@ -35,17 +35,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "stddlg.hpp"
-#include "keys.hpp"
 #include "dialog.hpp"
 #include "ctrlobj.hpp"
 #include "farexcpt.hpp"
 #include "strmix.hpp"
 #include "macro.hpp"
-#include "keyboard.hpp"
 #include "imports.hpp"
 #include "message.hpp"
-#include "lasterror.hpp"
-#include "TaskBar.hpp"
 #include "language.hpp"
 #include "DlgGuid.hpp"
 #include "datetime.hpp"

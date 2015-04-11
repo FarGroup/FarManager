@@ -57,11 +57,11 @@ public:
 
 	class MessageAbstract;
 
-public:
 	Manager();
 	~Manager();
 
-	enum DirectionType {
+	enum DirectionType
+	{
 		PreviousWindow,
 		NextWindow
 	};

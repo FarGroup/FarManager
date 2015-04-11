@@ -739,7 +739,7 @@ public:
 
 	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
 	{
-		const wchar_t *DataPtr = (const wchar_t *) Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, 0);
+		const wchar_t *DataPtr = reinterpret_cast<const wchar_t*>(Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, 0));
 		lstrcpynW(Value, DataPtr, MaxSize);
 	}
 };
@@ -767,7 +767,7 @@ public:
 
 	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
 	{
-		const wchar_t *DataPtr = (const wchar_t *) Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, 0);
+		const wchar_t *DataPtr = reinterpret_cast<const wchar_t*>(Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, 0));
 		*Value = Info.FSF->atoi(DataPtr);
 	}
 
@@ -805,8 +805,8 @@ public:
 
 	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
 	{
-		const wchar_t *DataPtr = (const wchar_t *) Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, 0);
-		*Value = (unsigned int)Info.FSF->atoi64(DataPtr);
+		const wchar_t *DataPtr = reinterpret_cast<const wchar_t*>(Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, 0));
+		*Value = static_cast<unsigned int>(Info.FSF->atoi64(DataPtr));
 	}
 
 	wchar_t *GetBuffer()

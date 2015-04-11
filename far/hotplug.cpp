@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "notification.hpp"
 #include "lasterror.hpp"
 #include "flink.hpp"
+#include "strmix.hpp"
 
 /*
 A device is considered a HotPlug device if the following are TRUE:
@@ -504,14 +505,14 @@ void ShowHotplugDevices()
 	};
 
 	FillMenu();
-	HotPlugList->SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
+	HotPlugList->SetMenuFlags(VMENU_WRAPMODE | VMENU_AUTOHIGHLIGHT);
 	HotPlugList->SetPosition(-1,-1,0,0);
 	HotPlugList->AssignHighlights(TRUE);
 	HotPlugList->SetBottomTitle(MSG(MHotPlugListBottom));
 
 	bool NeedRefresh = false;
 
-	listener DeviceListener(L"devices", [&NeedRefresh]()
+	SCOPED_ACTION(listener)(L"devices", [&NeedRefresh]()
 	{
 		NeedRefresh = true;
 	});

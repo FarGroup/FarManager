@@ -39,7 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keys.hpp"
 #include "help.hpp"
 #include "lockscrn.hpp"
-#include "interf.hpp"
 #include "keyboard.hpp"
 
 SimpleModal::SimpleModal():
@@ -78,7 +77,7 @@ int SimpleModal::ReadInput(INPUT_RECORD *GetReadRec)
 
 	if (m_ReadKey == KEY_CONSOLE_BUFFER_RESIZE)
 	{
-		LockScreen LckScr;
+		SCOPED_ACTION(LockScreen);
 		Hide();
 		Show();
 	}
@@ -119,12 +118,6 @@ void SimpleModal::SetDone(void)
 {
 	m_EndLoop=true;
 }
-
-int SimpleModal::GetExitCode() const
-{
-	return m_ExitCode;
-}
-
 
 void SimpleModal::SetExitCode(int Code)
 {

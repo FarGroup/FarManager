@@ -51,7 +51,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "scrbuf.hpp"
 #include "plugins.hpp"
-#include "pathmix.hpp"
 
 History::History(history_type TypeHistory, const string& HistoryName, const BoolOption& EnableSave):
 	m_TypeHistory(TypeHistory),
@@ -151,7 +150,7 @@ history_return_type History::Select(const wchar_t *Title, const wchar_t *HelpTop
 {
 	int Height=ScrY-8;
 	auto HistoryMenu = VMenu2::create(Title, nullptr, 0, Height);
-	HistoryMenu->SetFlags(VMENU_WRAPMODE);
+	HistoryMenu->SetMenuFlags(VMENU_WRAPMODE);
 
 	if (HelpTopic)
 		HistoryMenu->SetHelp(HelpTopic);

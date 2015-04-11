@@ -42,7 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "filelist.hpp"
-#include "savescr.hpp"
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
 #include "message.hpp"
@@ -601,7 +600,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 {
 	auto HiMenu = VMenu2::create(MSG(MHighlightTitle), nullptr, 0, ScrY - 4);
 	HiMenu->SetHelp(HLS.HighlightList);
-	HiMenu->SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
+	HiMenu->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 	HiMenu->SetPosition(-1,-1,0,0);
 	HiMenu->SetBottomTitle(MSG(MHighlightBottom));
 	HiMenu->SetId(HighlightMenuId);

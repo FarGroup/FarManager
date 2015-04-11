@@ -52,7 +52,7 @@ private:
 
 	bool Peek;
 	size_t LastLength;
-	LPWSTR LastString;
+	wchar_t* LastString;
 	bool LastResult;
 
 	std::vector<char> m_ReadBuf;
@@ -63,5 +63,4 @@ private:
 	bool bCrCr;
 };
 
-bool GetFileFormat(os::fs::file& file, uintptr_t& nCodePage,
-	bool* pSignatureFound = nullptr, bool bUseHeuristics = true, bool* pPureAscii = nullptr);
+bool GetFileFormat(os::fs::file& file, uintptr_t& nCodePage, bool* pSignatureFound = nullptr, bool bUseHeuristics = true, bool* pPureAscii = nullptr);

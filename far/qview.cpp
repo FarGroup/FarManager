@@ -43,17 +43,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "help.hpp"
 #include "viewer.hpp"
 #include "cmdline.hpp"
-#include "ctrlobj.hpp"
 #include "interf.hpp"
 #include "execute.hpp"
 #include "dirinfo.hpp"
 #include "pathmix.hpp"
 #include "mix.hpp"
 #include "constitle.hpp"
-#include "syslog.hpp"
 #include "colormix.hpp"
 #include "language.hpp"
 #include "keybar.hpp"
+#include "strmix.hpp"
 
 static bool LastMode = false;
 static bool LastWrapMode = false;

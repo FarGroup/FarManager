@@ -45,7 +45,6 @@ public:
 	bool Signaled() const;
 
 private:
-
 	void WatchRegister();
 
 	string m_Directory;

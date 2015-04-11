@@ -44,13 +44,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "history.hpp"
 #include "vmenu2.hpp"
-#include "imports.hpp"
 #include "console.hpp"
 #include "elevation.hpp"
 #include "colormix.hpp"
 #include "manager.hpp"
 #include "interf.hpp"
 #include "ctrlobj.hpp"
+#include "strmix.hpp"
 
 EditControl::EditControl(window_ptr Owner, SimpleScreenObject* Parent, parent_processkey_t&& ParentProcessKey, Callback* aCallback, History* iHistory, FarList* iList, DWORD iFlags):
 	Edit(Owner),
@@ -393,7 +393,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 		}
 		if(ComplMenu->GetItemCount()>1 || (ComplMenu->GetItemCount()==1 && StrCmpI(strTemp, ComplMenu->GetItemPtr(0)->strName)))
 		{
-			ComplMenu->SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
+			ComplMenu->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 			if(!DelBlock && Global->Opt->AutoComplete.AppendCompletion && (!m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS) || Global->Opt->AutoComplete.ShowList))
 			{
 				int SelStart=GetLength();

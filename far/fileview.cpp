@@ -38,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keys.hpp"
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
-#include "panel.hpp"
 #include "history.hpp"
 #include "manager.hpp"
 #include "fileedit.hpp"
@@ -47,7 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
-#include "message.hpp"
 #include "config.hpp"
 #include "strmix.hpp"
 #include "mix.hpp"
@@ -293,7 +291,7 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 				return TRUE;
 			}
 
-			SaveScreen Sc;
+			SCOPED_ACTION(SaveScreen);
 			string strFileName;
 			GetView().GetFileName(strFileName);
 			Global->CtrlObject->Cp()->GoToFile(strFileName);

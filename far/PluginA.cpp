@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cmdline.hpp"
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
-#include "farexcpt.hpp"
 #include "config.hpp"
 #include "plclass.hpp"
 #include "PluginA.hpp"
@@ -48,11 +47,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "FarGuid.hpp"
 #include "keys.hpp"
-#include "processname.hpp"
 #include "language.hpp"
 #include "filepanels.hpp"
 
 #define OLDFAR_TO_FAR_MAP(x) { oldfar::x, x }
+#include "strmix.hpp"
 
 namespace wrapper
 {
@@ -2587,7 +2586,8 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 		if (BreakKeys)
 		{
 			int BreakKeysCount = 0;
-			while (BreakKeys[BreakKeysCount++]);
+			while (BreakKeys[BreakKeysCount++])
+				;
 			if (BreakKeysCount)
 			{
 				NewBreakKeys.resize(BreakKeysCount);

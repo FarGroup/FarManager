@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "language.hpp"
 #include "dialog.hpp"
-#include "pathmix.hpp"
 #include "colors.hpp"
 #include "colormix.hpp"
 #include "lasterror.hpp"

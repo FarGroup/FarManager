@@ -86,7 +86,6 @@ private:
 	void SetPanelPositions(bool LeftFullScreen, bool RightFullScreen);
 	int SetAnhoterPanelFocus();
 	int SwapPanels();
-	void Update();
 
 	std::unique_ptr<CommandLine> CmdLine;
 	std::unique_ptr<MenuBar> TopMenuBar;

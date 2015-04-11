@@ -893,7 +893,6 @@ static int IsReplaceVariable(const wchar_t *str,
 // где  i - тот прыжок, который надо совершить, чтоб прыгнуть на конец ! структуры !??!
 {
 	const wchar_t *s      = str;
-	const wchar_t *scrtxt = str;
 	int count_scob = 0;
 	int second_count_scob = 0;
 	bool was_quest = false;         //  ?
@@ -957,7 +956,7 @@ static int IsReplaceVariable(const wchar_t *str,
 
 	if (count_scob ) return -1;
 
-	scrtxt = s - 1; //remember s for return
+	const auto scrtxt = s - 1; //remember s for return
 
 	for (;;)   //analize from ? or !
 	{

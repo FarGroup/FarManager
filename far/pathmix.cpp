@@ -51,7 +51,8 @@ void NTPath::Transform()
 			{
 				ReplaceSlashToBackslash(Data);
 				string Prefix(ParsePath(Data) == PATH_DRIVELETTER? L"\\\\?\\" : L"\\\\?\\UNC");
-				while(ReplaceStrings(Data,L"\\\\",L"\\"));
+				while(ReplaceStrings(Data,L"\\\\",L"\\"))
+					;
 				Data=Prefix+Data;
 			}
 		}

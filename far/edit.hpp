@@ -34,10 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "scrobj.hpp"
-#include "colors.hpp"
 #include "bitflags.hpp"
-#include "macro.hpp"
-#include "mix.hpp"
 #include "RegExp.hpp"
 
 // ћладший байт (маска 0xFF) юзаетс€ классом ScreenObject!!!
@@ -236,7 +233,6 @@ private:
 	int GetNextCursorPos(int Position,int Where) const;
 	int KeyMatchedMask(int Key, const string& Mask) const;
 	int ProcessCtrlQ();
-	int ProcessInsDate(const wchar_t *Str);
 	int ProcessInsPlainText(const wchar_t *Str);
 	int ProcessInsPath(int Key,int PrevSelStart=-1,int PrevSelEnd=0);
 	int RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos) const;

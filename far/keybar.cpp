@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "config.hpp"
 #include "configdb.hpp"
+#include "strmix.hpp"
 
 enum
 {

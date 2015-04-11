@@ -47,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarDlgBuilder.hpp"
 #include "fileview.hpp"
 #include "help.hpp"
-#include "ctrlobj.hpp"
 #include "manager.hpp"
 #include "namelist.hpp"
 #include "history.hpp"
@@ -911,7 +910,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 							delete_on_close = 2;
 						SetDeleteOnClose(0);
 
-						auto FView = FileViewer::create(
+						FileViewer::create(
 							strFullFileName,
 							GetCanLoseFocus(), m_Flags.Check(FFILEEDIT_DISABLEHISTORY), FALSE,
 							FilePos, nullptr, &EditNamesList, m_Flags.Check(FFILEEDIT_SAVETOSAVEAS), cp,
@@ -1193,7 +1192,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 				}
 
 				{
-					SaveScreen Sc;
+					SCOPED_ACTION(SaveScreen);
 					Global->CtrlObject->Cp()->GoToFile(strFullFileNameTemp);
 					m_Flags.Set(FFILEEDIT_REDRAWTITLE);
 				}

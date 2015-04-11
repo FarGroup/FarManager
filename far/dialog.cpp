@@ -52,7 +52,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "TaskBar.hpp"
 #include "interf.hpp"
-#include "message.hpp"
 #include "strmix.hpp"
 #include "history.hpp"
 #include "FarGuid.hpp"
@@ -274,12 +273,12 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 	return size;
 }
 
-void ItemToItemEx(const FarDialogItem* Item, DialogItemEx *ItemEx, size_t Count, bool Short)
+void ItemToItemEx(const FarDialogItem* Items, DialogItemEx *ItemsEx, size_t Count, bool Short)
 {
-	if (!Item || !ItemEx)
+	if (!Items || !ItemsEx)
 		return;
 
-	for_each_2(Item, Item + Count, ItemEx, [Short](const FarDialogItem& Item, DialogItemEx& ItemEx)
+	for_each_2(Items, Items + Count, ItemsEx, [Short](const FarDialogItem& Item, DialogItemEx& ItemEx)
 	{
 		static_cast<FarDialogItem&>(ItemEx) = Item;
 
@@ -289,8 +288,9 @@ void ItemToItemEx(const FarDialogItem* Item, DialogItemEx *ItemEx, size_t Count,
 			ItemEx.strMask = NullToEmpty(Item.Mask);
 			if(Item.Data)
 			{
-				auto Length = StrLength(Item.Data);
-				if (Item.MaxLength && static_cast<decltype(Length)>(Item.MaxLength) < Length) Length = Item.MaxLength;
+				auto Length = wcslen(Item.Data);
+				if (Item.MaxLength && Item.MaxLength < Length)
+					Length = Item.MaxLength;
 				ItemEx.strData.assign(Item.Data, Length);
 			}
 		}
@@ -895,7 +895,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 					if (Items[I].ListItems && !DialogMode.Check(DMODE_OBJECTS_CREATED))
 						ListPtr->AddItem(Items[I].ListItems);
 
-					ListPtr->SetFlags(VMENU_COMBOBOX);
+					ListPtr->SetMenuFlags(VMENU_COMBOBOX);
 					ListPtr->SetDialogStyle(DialogMode.Check(DMODE_WARNINGSTYLE));
 				}
 			}
@@ -3446,7 +3446,8 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 						ChangeFocus2(I);
 						ShowDialog();
 
-						while (IsMouseButtonPressed());
+						while (IsMouseButtonPressed())
+							;
 
 						if (IntKeyState.MouseX <  m_X1 ||
 							IntKeyState.MouseX >  m_X1 + Items[I].X1 + static_cast<intptr_t>(HiStrlen(Items[I].strData)) + 4 ||
@@ -3527,7 +3528,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 							// Да, мальчик был. Зачнем...
 							{
-								LockScreen LckScr;
+								SCOPED_ACTION(LockScreen);
 								Hide();
 								m_X1=NX1; m_X2=NX2; m_Y1=NY1; m_Y2=NY2;
 
@@ -3540,7 +3541,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 					}
 					else if (Mb==RIGHTMOST_BUTTON_PRESSED) // abort
 					{
-						LockScreen LckScr;
+						SCOPED_ACTION(LockScreen);
 						Hide();
 						AdjustEditPos(OldX1-m_X1,OldY1-m_Y1);
 						m_X1=OldX1;
@@ -3559,7 +3560,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 					{
 						if (OldX1!=m_X1 || OldX2!=m_X2 || OldY1!=m_Y1 || OldY2!=m_Y2)
 						{
-							LockScreen LckScr;
+							SCOPED_ACTION(LockScreen);
 							DialogMode.Clear(DMODE_DRAGGED);
 							DlgProc(DN_DRAGGED,1,0);
 
@@ -3935,7 +3936,7 @@ void Dialog::ChangeFocus2(size_t SetFocusPos)
 			Items[m_FocusPos].ListPtr->ClearFlags(VMENU_LISTHASFOCUS);
 
 		if (Items[SetFocusPos].Type == DI_LISTBOX)
-			Items[SetFocusPos].ListPtr->SetFlags(VMENU_LISTHASFOCUS);
+			Items[SetFocusPos].ListPtr->SetMenuFlags(VMENU_LISTHASFOCUS);
 
 		SelectOnEntry(m_FocusPos,FALSE);
 		SelectOnEntry(SetFocusPos,TRUE);
@@ -4161,7 +4162,7 @@ BOOL Dialog::SelectFromEditHistory(const DialogItemEx *CurItem,
 		auto HistoryMenu = VMenu2::create(string(),nullptr,0,Global->Opt->Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR|VMENU_COMBOBOX);
 		HistoryMenu->SetDialogMode(DMODE_NODRAWSHADOW);
 		HistoryMenu->SetModeMoving(false);
-		HistoryMenu->SetFlags(VMENU_SHOWAMPERSAND);
+		HistoryMenu->SetMenuFlags(VMENU_SHOWAMPERSAND);
 		HistoryMenu->SetBoxType(SHORT_SINGLE_BOX);
 		HistoryMenu->SetId(SelectFromEditHistoryId);
 //		SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.

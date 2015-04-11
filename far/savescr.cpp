@@ -129,8 +129,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 		return;
 	}
 
-	int NX1,NX2,NY1,NY2;
-	NX1=NX2=NY1=NY2=0;
+	int NX1 = 0, NX2 = 0, NY1 = 0, NY2 = 0;
 	matrix<FAR_CHAR_INFO> NewBuf(NewY, NewX);
 	CleanupBuffer(NewBuf.data(), NewBuf.size());
 	int NewWidth=std::min(OWi,NewX);

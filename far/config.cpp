@@ -36,21 +36,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "config.hpp"
 #include "keys.hpp"
-#include "colors.hpp"
 #include "cmdline.hpp"
 #include "ctrlobj.hpp"
 #include "dialog.hpp"
 #include "filepanels.hpp"
-#include "filelist.hpp"
 #include "panel.hpp"
 #include "help.hpp"
 #include "filefilter.hpp"
-#include "poscache.hpp"
 #include "findfile.hpp"
 #include "hilight.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
-#include "colormix.hpp"
 #include "message.hpp"
 #include "stddlg.hpp"
 #include "pathmix.hpp"
@@ -74,10 +70,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "plugins.hpp"
 #include "manager.hpp"
-#include "language.hpp"
-#include "locale.hpp"
 #include "constitle.hpp"
 #include "xlat.hpp"
+#include "panelctype.hpp"
+#include "colormix.hpp"
 
 static const size_t predefined_panel_modes_count = 10;
 
@@ -1028,7 +1024,7 @@ void Options::SetFilePanelModes()
 			auto ModeList = VMenu2::create(MSG(MEditPanelModes), ModeListMenu.data(), ModeListMenu.size(), ScrY - 4);
 			ModeList->SetPosition(-1,-1,0,0);
 			ModeList->SetHelp(L"PanelViewModes");
-			ModeList->SetFlags(VMENU_WRAPMODE);
+			ModeList->SetMenuFlags(VMENU_WRAPMODE);
 			ModeList->SetId(PanelViewModesId);
 			ModeNumber=ModeList->Run([&](int Key)->int
 			{
@@ -1489,7 +1485,7 @@ bool IntOption::StoreValue(GeneralConfig* Storage, const string& KeyName, const 
 	return (!always && !Changed()) || Storage->SetValue(KeyName, ValueName, Get());
 }
 
-const string IntOption::ExInfo() const
+string IntOption::ExInfo() const
 {
 	std::wostringstream oss;
 	oss << L" = 0x" << std::hex << Get();
@@ -3036,7 +3032,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 				break;
 			case MENU_COMMANDS_EDITUSERMENU: // Edit user menu
 				{
-					UserMenu Menu(true);
+					UserMenu(true);
 				}
 				break;
 			case MENU_COMMANDS_FILEASSOCIATIONS: // File associations

@@ -184,7 +184,7 @@ void split(Container& C, const string& InitString, DWORD Flags = 0, const wchar_
 }
 
 template<class container>
-const string FlagsToString(unsigned long long Flags, const container& From, wchar_t Separator = L' ')
+string FlagsToString(unsigned long long Flags, const container& From, wchar_t Separator = L' ')
 {
 	string strFlags;
 	std::for_each(CONST_RANGE(From, i)

@@ -38,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "flink.hpp"
 #include "cddrv.hpp"
-#include "pathmix.hpp"
 #include "strmix.hpp"
 
 /*

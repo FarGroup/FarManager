@@ -34,14 +34,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "copy.hpp"
 #include "flink.hpp"
 #include "imports.hpp"
-#include "cddrv.hpp"
 #include "config.hpp"
 #include "pathmix.hpp"
 #include "drivemix.hpp"
-#include "panelmix.hpp"
 #include "privilege.hpp"
 #include "message.hpp"
 #include "language.hpp"

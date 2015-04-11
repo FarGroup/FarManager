@@ -37,10 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colors.hpp"
 #include "chgprior.hpp"
 #include "savescr.hpp"
-#include "manager.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
-#include "config.hpp"
 #include "scrsaver.hpp"
 #include "console.hpp"
 #include "colormix.hpp"
@@ -152,7 +150,7 @@ static void ShowSaver(int Step)
 	}
 }
 
-int ScreenSaver(int EnableExit)
+int ScreenSaver()
 {
 	INPUT_RECORD rec;
 	clock_t WaitTime;
@@ -174,7 +172,7 @@ int ScreenSaver(int EnableExit)
 	CONSOLE_CURSOR_INFO CursorInfo;
 	Console().GetCursorInfo(CursorInfo);
 	{
-		SaveScreen SaveScr;
+		SCOPED_ACTION(SaveScreen);
 		SetCursorType(0,10);
 		srand(67898);
 		FarColor Color = colors::ConsoleColorToFarColor(F_LIGHTGRAY|B_BLACK);

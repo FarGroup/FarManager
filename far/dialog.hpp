@@ -40,7 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu.hpp"
 #include "bitflags.hpp"
 #include "synchro.hpp"
-#include "macro.hpp"
 
 class History;
 

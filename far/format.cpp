@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "format.hpp"
 #include "interf.hpp"
 #include "language.hpp"
+#include "strmix.hpp"
 
 BaseFormat::BaseFormat()
 {

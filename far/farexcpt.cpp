@@ -36,9 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "farexcpt.hpp"
 #include "plugins.hpp"
-#include "macro.hpp"
 #include "filepanels.hpp"
-#include "ctrlobj.hpp"
 #include "manager.hpp"
 #include "config.hpp"
 #include "dialog.hpp"
@@ -46,13 +44,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "keys.hpp"
 #include "keyboard.hpp"
-#include "configdb.hpp"
-#include "console.hpp"
 #include "language.hpp"
 #include "message.hpp"
 #include "imports.hpp"
 #include "vmenu2.hpp"
 #include "interf.hpp"
+#include "strmix.hpp"
 
 /* ************************************************************************
    $ 16.10.2000 SVS
@@ -589,7 +586,7 @@ static int ExceptionTestHook(Manager::Key key)
 		} zero_const; //, refers;
 		zero_const.i = 0L;
 		auto ModalMenu = VMenu2::create(L"Test Exceptions", nullptr, 0, ScrY - 4);
-		ModalMenu->SetFlags(VMENU_WRAPMODE);
+		ModalMenu->SetMenuFlags(VMENU_WRAPMODE);
 		ModalMenu->SetPosition(-1, -1, 0, 0);
 
 		std::for_each(CONST_RANGE(ECode, i)

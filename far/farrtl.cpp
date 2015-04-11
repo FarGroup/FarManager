@@ -7,11 +7,6 @@ farrtl.cpp
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "console.hpp"
-#include "colormix.hpp"
-#include "imports.hpp"
-#include "synchro.hpp"
-
 #ifdef MEMCHECK
 #undef DuplicateString
 #undef new

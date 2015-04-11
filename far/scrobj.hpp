@@ -79,7 +79,6 @@ public:
 	window_ptr GetOwner() const {return m_Owner.lock();}
 
 private:
-	SimpleScreenObject();
 	virtual void DisplayObject() = 0;
 
 protected:

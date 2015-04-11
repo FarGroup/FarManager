@@ -36,12 +36,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "imports.hpp"
 #include "scrbuf.hpp"
-#include "format.hpp"
 #include "config.hpp"
 #include "language.hpp"
 #include "elevation.hpp"
-#include "PluginSynchro.hpp"
-#include "codepage.hpp"
 #include "configdb.hpp"
 #include "ctrlobj.hpp"
 #include "manager.hpp"
@@ -61,8 +58,6 @@ global::global():
 	CtrlObject(nullptr)
 {
 	Global = this;
-
-	QueryPerformanceCounter(&m_FarUpTime);
 
 	DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &m_MainThreadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS);
 
@@ -134,17 +129,7 @@ global::~global()
 
 uint64_t global::FarUpTime() const
 {
-	const auto GetFrequency = []() -> LARGE_INTEGER { LARGE_INTEGER Frequency; QueryPerformanceFrequency(&Frequency); return Frequency; };
-	static const auto Frequency = GetFrequency();
-
-	const int Factor = 1000000;
-	LARGE_INTEGER Counter;
-	QueryPerformanceCounter(&Counter);
-
-	uint64_t Diff = Counter.QuadPart - m_FarUpTime.QuadPart;
-	uint64_t Whole = Diff / Frequency.QuadPart;
-	uint64_t Fraction = Diff % Frequency.QuadPart;
-	return Whole * Factor + (Fraction * Factor) / Frequency.QuadPart;
+	return m_FarUpTime.query(os::hp_clock::microseconds);
 }
 
 void global::CatchError()

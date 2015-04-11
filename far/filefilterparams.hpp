@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "filemasks.hpp"
-#include "bitflags.hpp"
 #include "hilight.hpp"
 
 enum
@@ -77,9 +76,7 @@ enum enumFDateType
 class FileFilterParams: noncopyable
 {
 public:
-
 	FileFilterParams();
-
 	FileFilterParams(FileFilterParams&& rhs) noexcept;
 	MOVE_OPERATOR_BY_SWAP(FileFilterParams);
 
@@ -139,7 +136,6 @@ public:
 
 
 private:
-
 	string m_strTitle;
 
 	struct fmask:noncopyable

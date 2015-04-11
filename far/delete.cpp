@@ -40,7 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filepanels.hpp"
 #include "scantree.hpp"
 #include "treelist.hpp"
-#include "filelist.hpp"
 #include "manager.hpp"
 #include "constitle.hpp"
 #include "TPreRedrawFunc.hpp"
@@ -61,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "FarDlgBuilder.hpp"
 #include "datetime.hpp"
+#include "strmix.hpp"
 
 enum DEL_MODE
 {

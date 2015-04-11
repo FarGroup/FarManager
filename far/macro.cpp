@@ -73,6 +73,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "interf.hpp"
 #include "language.hpp"
+#include "colormix.hpp"
 
 #if 0
 void print_opcodes()
@@ -339,6 +340,7 @@ void print_opcodes()
 	fclose(fp);
 }
 #endif
+#include "strmix.hpp"
 
 typedef unsigned __int64 MACROFLAGS_MFLAGS;
 static const MACROFLAGS_MFLAGS
@@ -739,11 +741,11 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 static void ShowUserMenu(size_t Count, const FarMacroValue *Values)
 {
 	if (Count==0)
-		UserMenu uMenu(false);
+		UserMenu(false);
 	else if (Values[0].Type==FMVT_BOOLEAN)
-		UserMenu uMenu(Values[0].Boolean != 0);
+		UserMenu(Values[0].Boolean != 0);
 	else if (Values[0].Type==FMVT_STRING)
-		UserMenu uMenu(string(Values[0].String));
+		UserMenu(string(Values[0].String));
 }
 
 int KeyMacro::GetKey()
@@ -1976,7 +1978,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		{
 			auto f = Global->WindowManager->GetCurrentWindow();
 
-			if (auto FilePanelsPtr = std::dynamic_pointer_cast<FilePanels>(f))
+			if (std::dynamic_pointer_cast<FilePanels>(f))
 			{
 				strFileName = ActivePanel->GetTitle();
 			}
@@ -2146,7 +2148,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_F_EDITOR_INSSTR:   return editorinsstrFunc(Data);
 		case MCODE_F_EDITOR_POS:
 		{
-			LockOutput Lock(IsTopMacroOutputDisabled());
+			SCOPED_ACTION(LockOutput)(IsTopMacroOutputDisabled());
 			return editorposFunc(Data);
 		}
 		case MCODE_F_EDITOR_SEL:      return editorselFunc(Data);
@@ -2199,7 +2201,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_F_UCASE:           return ucaseFunc(Data);
 		case MCODE_F_WAITKEY:
 		{
-			LockOutput Lock(IsTopMacroOutputDisabled());
+			SCOPED_ACTION(LockOutput)(IsTopMacroOutputDisabled());
 
 			++m_WaitKey;
 			bool result=waitkeyFunc(Data);
@@ -3241,7 +3243,7 @@ static bool menushowFunc(FarMacroCall* Data)
 	}
 	auto Menu = VMenu2::create(strTitle, nullptr, 0, ScrY - 4);
 	Menu->SetBottomTitle(strBottom);
-	Menu->SetFlags(MenuFlags);
+	Menu->SetMenuFlags(MenuFlags);
 	Menu->SetPosition(X,Y,0,0);
 	Menu->SetBoxType(BoxType);
 

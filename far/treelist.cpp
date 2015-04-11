@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "treelist.hpp"
-#include "flink.hpp"
 #include "keyboard.hpp"
 #include "colors.hpp"
 #include "keys.hpp"
@@ -52,7 +51,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lockscrn.hpp"
 #include "macroopcode.hpp"
 #include "refreshwindowmanager.hpp"
-#include "scrbuf.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "TaskBar.hpp"
 #include "cddrv.hpp"
@@ -64,17 +62,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mkdir.hpp"
 #include "setattr.hpp"
 #include "execute.hpp"
-#include "shortcuts.hpp"
 #include "dirmix.hpp"
 #include "pathmix.hpp"
 #include "processname.hpp"
 #include "constitle.hpp"
-#include "syslog.hpp"
 #include "cache.hpp"
 #include "filestr.hpp"
 #include "wakeful.hpp"
 #include "colormix.hpp"
-#include "FarGuid.hpp"
 #include "plugins.hpp"
 #include "manager.hpp"
 #if defined(TREEFILE_PROJECT)
@@ -84,6 +79,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 #include "language.hpp"
 #include "keybar.hpp"
+#include "strmix.hpp"
 
 static bool StaticSortNumeric;
 static bool StaticSortCaseSensitive;
@@ -920,13 +916,13 @@ int TreeList::ReadTree()
 
 	m_ListData.emplace_back(m_Root);
 	SaveScreen SaveScrTree;
-	UndoGlobalSaveScrPtr UndSaveScr(&SaveScrTree);
+	SCOPED_ACTION(UndoGlobalSaveScrPtr)(&SaveScrTree);
 	/* Т.к. мы можем вызвать диалог подтверждения (который не перерисовывает панельки,
 	   а восстанавливает сохраненный образ экрана, то нарисуем чистую панель */
 	//Redraw();
 	int FirstCall=TRUE, AscAbort=FALSE;
 	TreeStartTime = clock();
-	RefreshWindowManager frref(ScrX,ScrY);
+	SCOPED_ACTION(RefreshWindowManager)(ScrX, ScrY);
 	ScTree.SetFindPath(m_Root, L"*", 0);
 	LastScrX = ScrX;
 	LastScrY = ScrY;
@@ -1242,7 +1238,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 			if (SetCurPath())
 			{
 				int ToPlugin=0;
-				ShellCopy ShCopy(this,LocalKey==KEY_SHIFTF6,FALSE,TRUE,TRUE,ToPlugin,nullptr);
+				ShellCopy(this,LocalKey==KEY_SHIFTF6,FALSE,TRUE,TRUE,ToPlugin,nullptr);
 			}
 
 			return TRUE;
@@ -1268,7 +1264,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 					return TRUE;
 
 				{
-					ShellCopy ShCopy(this,Move,Link,FALSE,Ask,ToPlugin,nullptr);
+					ShellCopy(this,Move,Link,FALSE,Ask,ToPlugin,nullptr);
 				}
 
 				if (ToPlugin==1)

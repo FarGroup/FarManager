@@ -37,10 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "flink.hpp"
 #include "imports.hpp"
 #include "pathmix.hpp"
-#include "mix.hpp"
 #include "ctrlobj.hpp"
 #include "elevation.hpp"
-#include "config.hpp"
 #include "plugins.hpp"
 #include "datetime.hpp"
 
@@ -1166,13 +1164,12 @@ int GetFileTypeByName(const string& Name)
 
 bool GetDiskSize(const string& Path,unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree)
 {
-	bool Result = false;
 	NTPath strPath(Path);
 	AddEndSlash(strPath);
 
 	ULARGE_INTEGER FreeBytesAvailableToCaller, TotalNumberOfBytes, TotalNumberOfFreeBytes;
 
-	Result = GetDiskFreeSpaceEx(strPath.data(), &FreeBytesAvailableToCaller, &TotalNumberOfBytes, &TotalNumberOfFreeBytes) != FALSE;
+	auto Result = GetDiskFreeSpaceEx(strPath.data(), &FreeBytesAvailableToCaller, &TotalNumberOfBytes, &TotalNumberOfFreeBytes) != FALSE;
 	if(!Result && ElevationRequired(ELEVATION_READ_REQUEST))
 	{
 		Result = Global->Elevation->fGetDiskFreeSpaceEx(strPath.data(), &FreeBytesAvailableToCaller, &TotalNumberOfBytes, &TotalNumberOfFreeBytes);
@@ -1678,7 +1675,6 @@ bool GetFileTimeEx(HANDLE Object, LPFILETIME CreationTime, LPFILETIME LastAccess
 
 bool SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime)
 {
-	bool Result = false;
 	const ULONG Length = 40;
 	BYTE Buffer[Length] = {};
 	auto fbi = reinterpret_cast<PFILE_BASIC_INFORMATION>(Buffer);
@@ -1701,8 +1697,7 @@ bool SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILETIME* 
 	IO_STATUS_BLOCK IoStatusBlock;
 	NTSTATUS Status = Imports().NtSetInformationFile(Object, &IoStatusBlock, fbi, Length, FileBasicInformation);
 	::SetLastError(Imports().RtlNtStatusToDosError(Status));
-	Result = Status == STATUS_SUCCESS;
-	return Result;
+	return Status == STATUS_SUCCESS;
 }
 
 bool GetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, FAR_SECURITY_DESCRIPTOR& SecurityDescriptor)

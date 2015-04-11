@@ -40,7 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "global.hpp"
 #include "imports.hpp"
-#include "notification.hpp"
 #include "locale.hpp"
 
 struct loc_names

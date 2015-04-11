@@ -82,7 +82,6 @@ protected:
 			const T& m_Value;
 		};
 
-		bool Finalize() const;
 		SQLiteStmt& Reset();
 		bool Step() const;
 		bool StepAndReset();

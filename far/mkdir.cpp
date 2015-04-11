@@ -44,7 +44,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dialog.hpp"
 #include "pathmix.hpp"
 #include "strmix.hpp"
-#include "dirmix.hpp"
 #include "DlgGuid.hpp"
 #include "flink.hpp"
 #include "stddlg.hpp"

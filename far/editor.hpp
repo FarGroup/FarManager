@@ -63,7 +63,6 @@ public:
 	void SetStartPos(int LineNum, int CharNum);
 	bool IsFileModified() const;
 	bool IsFileChanged() const;
-	void SetTitle(const wchar_t *Title);
 	int64_t GetCurPos(bool file_pos = false, bool add_bom = false) const;
 	int EditorControl(int Command, intptr_t Param1, void *Param2);
 	void SetHostFileEditor(FileEditor *Editor) { HostFileEditor = Editor; }
@@ -157,7 +156,7 @@ private:
 	struct InternalEditorBookmark;
 
 	template<class T>
-	struct numbered_iterator_t: public T
+	class numbered_iterator_t: public T
 	{
 	public:
 		numbered_iterator_t(const T& Iterator, size_t Number):
@@ -227,7 +226,6 @@ private:
 	void UnmarkMacroBlock();
 	void AddUndoData(int Type) { return AddUndoData(Type, nullptr, nullptr, 0, 0, 0); }
 	void AddUndoData(int Type,const wchar_t *Str, const wchar_t *Eol, int StrNum, int StrPos, size_t Length);
-	void AddBookmarkUndo(bookmark_list::iterator BM);
 	void Undo(int redo);
 	void SelectAll();
 	void BlockLeft();
@@ -411,5 +409,6 @@ private:
 class EditorContainer
 {
 public:
-	virtual Editor* GetEditor(void)=0;
+	virtual ~EditorContainer() {}
+	virtual Editor* GetEditor(void) = 0;
 };

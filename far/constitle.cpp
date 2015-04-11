@@ -36,13 +36,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "constitle.hpp"
 #include "language.hpp"
-#include "interf.hpp"
 #include "config.hpp"
-#include "ctrlobj.hpp"
 #include "synchro.hpp"
 #include "console.hpp"
 #include "farversion.hpp"
 #include "scrbuf.hpp"
+#include "strmix.hpp"
 
 static const string& GetFarTitleAddons()
 {

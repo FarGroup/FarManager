@@ -48,8 +48,8 @@ public:
 	void SetTitle(const string& Title);
 	void SetBottomTitle(const string& Title);
 	void SetBoxType(int BoxType);
-	void SetFlags(DWORD Flags);
-	void AssignHighlights(int Reverse) { SetFlags(Reverse ? VMENU_REVERSEHIGHLIGHT|VMENU_AUTOHIGHLIGHT : VMENU_AUTOHIGHLIGHT); }
+	void SetMenuFlags(DWORD Flags);
+	void AssignHighlights(int Reverse) { SetMenuFlags(Reverse ? VMENU_REVERSEHIGHLIGHT | VMENU_AUTOHIGHLIGHT : VMENU_AUTOHIGHLIGHT); }
 	void DeleteItems();
 	int DeleteItem(int ID,int Count=1);
 	int AddItem(const MenuItemEx& NewItem,int PosAdd=0x7FFFFFFF);
@@ -84,7 +84,7 @@ public:
 	int GetShowItemCount() { return ListBox().GetShowItemCount(); }
 
 private:
-	VMenu2(const string& Title, const MenuDataEx *Data, size_t ItemCount, int MaxHeight, DWORD Flags);
+	VMenu2(int MaxHeight);
 
 	intptr_t VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	int Call(int Msg, void *param);

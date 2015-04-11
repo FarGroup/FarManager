@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "panel.hpp"
-#include "macroopcode.hpp"
 #include "keyboard.hpp"
 #include "flink.hpp"
 #include "keys.hpp"
@@ -68,11 +67,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "shortcuts.hpp"
 #include "pathmix.hpp"
 #include "dirmix.hpp"
-#include "imports.hpp"
 #include "constitle.hpp"
 #include "FarDlgBuilder.hpp"
 #include "setattr.hpp"
-#include "wm_listener.hpp"
 #include "colormix.hpp"
 #include "FarGuid.hpp"
 #include "elevation.hpp"
@@ -83,6 +80,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "keybar.hpp"
 #include "menubar.hpp"
+#include "strmix.hpp"
+#include "drivemix.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;
@@ -391,7 +390,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		auto ChDisk = VMenu2::create(MSG(MChangeDriveTitle), nullptr, 0, ScrY - m_Y1 - 3);
 		ChDisk->SetBottomTitle(MSG(MChangeDriveMenuFooter));
 		ChDisk->SetHelp(L"DriveDlg");
-		ChDisk->SetFlags(VMENU_WRAPMODE);
+		ChDisk->SetMenuFlags(VMENU_WRAPMODE);
 		ChDisk->SetId(ChangeDiskMenuId);
 
 		struct DiskMenuItem
@@ -628,10 +627,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		bool NeedRefresh = false;
 
-		listener DeviceListener(L"devices", [&NeedRefresh]()
-		{
-			NeedRefresh = true;
-		});
+		SCOPED_ACTION(listener)(L"devices", [&NeedRefresh] { NeedRefresh = true; });
 
 		ChDisk->Run([&](int Key)->int
 		{
@@ -678,7 +674,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					{
 						if (IsDriveTypeCDROM(item->nDriveType) /* || DriveType == DRIVE_REMOVABLE*/)
 						{
-							SaveScreen SvScrn;
+							SCOPED_ACTION(SaveScreen);
 							EjectVolume(item->cDrive, EJECT_LOAD_MEDIA);
 							RetCode=SelPos;
 						}
@@ -897,7 +893,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		{
 			if (!EjectVolume(mitem->cDrive, EJECT_READY|EJECT_NO_MESSAGE))
 			{
-				SaveScreen SvScrn;
+				SCOPED_ACTION(SaveScreen);
 				Message(0,0,L"",MSG(MChangeWaitingLoadDisk));
 				EjectVolume(mitem->cDrive, EJECT_LOAD_MEDIA|EJECT_NO_MESSAGE);
 			}
@@ -1180,7 +1176,7 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 			if (MessageRemoveConnection(Drive,UpdateProfile))
 			{
 				// < ќ—“џЋ№>
-				LockScreen LckScr;
+				SCOPED_ACTION(LockScreen);
 				// если мы находимс€ на удал€емом диске - уходим с него, чтобы не мешать
 				// удалению
 				IfGoHome(Drive);
@@ -1316,7 +1312,6 @@ private:
 	int m_FirstKey;
 	std::unique_ptr<EditControl> m_FindEdit;
 	int m_KeyToProcess;
-	Search();
 	virtual void DisplayObject(void) override;
 	virtual string GetTitle() const override { return string(); }
 	void ProcessName(const string& Src, string &strName);
@@ -1557,7 +1552,8 @@ void Search::ProcessName(const string& Src, string &strName)
 	m_FindEdit->GetString(Buffer);
 	Buffer = Unquote(Buffer + Src);
 
-	for (; !Buffer.empty() && !m_Owner->FindPartName(Buffer, FALSE, 1); Buffer.pop_back());
+	for (; !Buffer.empty() && !m_Owner->FindPartName(Buffer, FALSE, 1); Buffer.pop_back())
+		;
 
 	if (!Buffer.empty())
 	{
@@ -1640,7 +1636,7 @@ int  Panel::PanelProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 			if (Global->Opt->ScreenSaver && !(MouseEvent->dwButtonState & 3))
 			{
 				EndDrag();
-				ScreenSaver(TRUE);
+				ScreenSaver();
 				return TRUE;
 			}
 		}
@@ -1944,7 +1940,7 @@ void Panel::Show()
 	if (Locked())
 		return;
 
-	DelayDestroy dd(this);
+	SCOPED_ACTION(DelayDestroy)(this);
 
 	/* $ 03.10.2001 IS перерисуем строчку меню */
 	if (Global->Opt->ShowMenuBar)

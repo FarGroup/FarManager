@@ -63,7 +63,7 @@ public:
 	void GetSelection(intptr_t &Start,intptr_t &End) const { CmdStr.GetSelection(Start,End); }
 	void Select(int Start, int End) { CmdStr.Select(Start,End); CmdStr.AdjustMarkBlock(); }
 	void LockUpdatePanel(bool Mode);
-	const int GetPromptSize() const {return PromptSize;}
+	int GetPromptSize() const {return PromptSize;}
 	void SetPromptSize(int NewSize);
 
 private:

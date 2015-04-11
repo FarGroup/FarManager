@@ -49,11 +49,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "language.hpp"
 #include "plugins.hpp"
+#include "colormix.hpp"
 
 #define PRINTER_INFO_LEVEL 4
 #define GENERATE_PRINTER_INFO(prefix, value) prefix##value##W
 #define PRINTER_INFO_X(level) GENERATE_PRINTER_INFO(PRINTER_INFO_, level)
 #define PRINTER_INFO PRINTER_INFO_X(PRINTER_INFO_LEVEL)
+#include "strmix.hpp"
 
 static void AddToPrintersMenu(VMenu2 *PrinterList, const PRINTER_INFO *pi, int PrinterNumber)
 {
@@ -157,7 +159,7 @@ void PrintFiles(FileList* SrcPanel)
 		}
 
 		auto PrinterList = VMenu2::create(strTitle, nullptr, 0, ScrY - 4);
-		PrinterList->SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
+		PrinterList->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 		PrinterList->SetPosition(-1,-1,0,0);
 		AddToPrintersMenu(PrinterList.get(), pi.get(), Returned);
 

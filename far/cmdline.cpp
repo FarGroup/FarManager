@@ -47,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "treelist.hpp"
 #include "fileview.hpp"
 #include "fileedit.hpp"
-#include "savescr.hpp"
 #include "scrbuf.hpp"
 #include "interf.hpp"
 #include "syslog.hpp"
@@ -268,7 +267,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 			return TRUE;
 		case KEY_F2:
 		{
-			UserMenu Menu(false);
+			UserMenu(false);
 			return TRUE;
 		}
 		case KEY_ALTF8:
@@ -850,8 +849,9 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 		string strOldCmdLine;
 		int OldCmdLineCurPos, OldCmdLineLeftPos;
 		intptr_t OldCmdLineSelStart, OldCmdLineSelEnd;
-	}
-	PreserveCmdline(RestoreCmd);
+	};
+
+	SCOPED_ACTION(preservecmdline)(RestoreCmd);
 
 	string CmdLine(InputCmdLine);
 

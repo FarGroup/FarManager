@@ -41,9 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
-#include "filelist.hpp"
 #include "message.hpp"
-#include "stddlg.hpp"
 #include "pathmix.hpp"
 #include "interf.hpp"
 #include "dialog.hpp"
@@ -53,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarGuid.hpp"
 #include "DlgGuid.hpp"
 #include "language.hpp"
+#include "strmix.hpp"
 
 enum PSCR_RECTYPE
 {
@@ -340,7 +339,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 		if(Items[Pos].size()>1)
 		{
 			auto FolderList = VMenu2::create(MSG(MFolderShortcutsTitle), nullptr, 0, ScrY - 4);
-			FolderList->SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
+			FolderList->SetMenuFlags(VMENU_WRAPMODE | VMENU_AUTOHIGHLIGHT);
 			FolderList->SetHelp(HelpFolderShortcuts);
 			FolderList->SetBottomTitle(MSG(MFolderShortcutBottomSub));
 			FolderList->SetId(FolderShortcutsMoreId);
@@ -566,7 +565,7 @@ void Shortcuts::EditItem(VMenu2& Menu, shortcut& Item, bool Root, bool raw)
 void Shortcuts::Configure()
 {
 	auto FolderList = VMenu2::create(MSG(MFolderShortcutsTitle), nullptr, 0, ScrY - 4);
-	FolderList->SetFlags(VMENU_WRAPMODE);
+	FolderList->SetMenuFlags(VMENU_WRAPMODE);
 	FolderList->SetHelp(HelpFolderShortcuts);
 	FolderList->SetBottomTitle(MSG(MFolderShortcutBottom));
 	FolderList->SetId(FolderShortcutsId);

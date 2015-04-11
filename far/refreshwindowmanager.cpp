@@ -63,7 +63,7 @@ RefreshWindowManager::~RefreshWindowManager()
 {
 	if ((OScrX != ScrX || OScrY != ScrY || m_Force) && Global->WindowManager->ManagerStarted())
 	{
-		LockScreen LckScr;
+		SCOPED_ACTION(LockScreen);
 		Global->WindowManager->ResizeAllWindows();
 		Global->WindowManager->GetCurrentWindow()->Show();
 	}

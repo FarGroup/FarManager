@@ -36,9 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "eject.hpp"
 #include "language.hpp"
-#include "imports.hpp"
 #include "cddrv.hpp"
-#include "message.hpp"
 #include "stddlg.hpp"
 
 #if 0

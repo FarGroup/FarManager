@@ -82,7 +82,6 @@ public:
 		operator string() const { return strName; }
 	};
 
-public:
 	TreeList(window_ptr Owner, bool IsPanel = true);
 
 	virtual int ProcessKey(const Manager::Key& Key) override;

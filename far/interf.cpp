@@ -41,13 +41,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
-#include "fileedit.hpp"
 #include "manager.hpp"
 #include "scrbuf.hpp"
 #include "syslog.hpp"
 #include "strmix.hpp"
 #include "console.hpp"
-#include "configdb.hpp"
 #include "colormix.hpp"
 #include "imports.hpp"
 #include "synchro.hpp"
@@ -63,14 +61,25 @@ consoleicons& ConsoleIcons()
 }
 
 consoleicons::consoleicons():
-	LargeIcon(nullptr),
-	SmallIcon(nullptr),
-	PreviousLargeIcon(nullptr),
-	PreviousSmallIcon(nullptr),
-	Loaded(false),
-	LargeChanged(false),
-	SmallChanged(false)
+	LargeIcon(),
+	SmallIcon(),
+	PreviousLargeIcon(),
+	PreviousSmallIcon(),
+	Loaded(),
+	LargeChanged(),
+	SmallChanged()
 {
+}
+
+enum icon_mode
+{
+	icon_big,
+	icon_small
+};
+
+static HICON set_icon(HWND Wnd, icon_mode Mode, HICON Icon)
+{
+	return reinterpret_cast<HICON>(SendMessage(Wnd, WM_SETICON, Mode == icon_big? ICON_BIG : ICON_SMALL, reinterpret_cast<LPARAM>(Icon)));
 }
 
 void consoleicons::setFarIcons()
@@ -79,23 +88,23 @@ void consoleicons::setFarIcons()
 	{
 		if(!Loaded)
 		{
-			int IconId = (Global->Opt->SetAdminIcon && os::security::is_admin())? FAR_ICON_A : FAR_ICON;
-			LargeIcon = reinterpret_cast<HICON>(LoadImage(GetModuleHandle(nullptr), MAKEINTRESOURCE(IconId), IMAGE_ICON, GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON), 0));
-			SmallIcon = reinterpret_cast<HICON>(LoadImage(GetModuleHandle(nullptr), MAKEINTRESOURCE(IconId), IMAGE_ICON, GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON), 0));
+			const int IconId = (Global->Opt->SetAdminIcon && os::security::is_admin())? FAR_ICON_A : FAR_ICON;
+			const auto load_icon = [IconId](icon_mode Mode) { return static_cast<HICON>(LoadImage(GetModuleHandle(nullptr), MAKEINTRESOURCE(IconId), IMAGE_ICON, GetSystemMetrics(Mode == icon_big? SM_CXICON : SM_CXSMICON), GetSystemMetrics(Mode == icon_big? SM_CXICON : SM_CXSMICON), 0)); };
+			LargeIcon = load_icon(icon_big);
+			SmallIcon = load_icon(icon_small);
 			Loaded = true;
 		}
 
-		HWND hWnd = Console().GetWindow();
-		if (hWnd)
+		if (const auto hWnd = Console().GetWindow())
 		{
 			if(LargeIcon)
 			{
-				PreviousLargeIcon = reinterpret_cast<HICON>(SendMessage(hWnd, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(LargeIcon)));
+				PreviousLargeIcon = set_icon(hWnd, icon_big, LargeIcon);
 				LargeChanged = true;
 			}
 			if(SmallIcon)
 			{
-				PreviousSmallIcon = reinterpret_cast<HICON>(SendMessage(hWnd, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(SmallIcon)));
+				PreviousSmallIcon = set_icon(hWnd, icon_small, SmallIcon);
 				SmallChanged = true;
 			}
 		}
@@ -106,17 +115,16 @@ void consoleicons::restorePreviousIcons()
 {
 	if(Global->Opt->SetIcon)
 	{
-		HWND hWnd = Console().GetWindow();
-		if (hWnd)
+		if (const auto hWnd = Console().GetWindow())
 		{
 			if(LargeChanged)
 			{
-				SendMessage(hWnd, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(PreviousLargeIcon));
+				set_icon(hWnd, icon_big, PreviousLargeIcon);
 				LargeChanged = false;
 			}
 			if(SmallChanged)
 			{
-				SendMessage(hWnd, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(PreviousSmallIcon));
+				set_icon(hWnd, icon_small, PreviousSmallIcon);
 				SmallChanged = false;
 			}
 		}

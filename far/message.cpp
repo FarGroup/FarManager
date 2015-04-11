@@ -45,11 +45,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "config.hpp"
 #include "keyboard.hpp"
-#include "imports.hpp"
 #include "FarDlgBuilder.hpp"
 #include "clipboard.hpp"
 #include "language.hpp"
 #include "constitle.hpp"
+#include "strmix.hpp"
 
 static string FormatErrorString(bool Nt, DWORD Code)
 {

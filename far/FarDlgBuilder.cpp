@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarDlgBuilder.hpp"
 #include "dialog.hpp"
 #include "interf.hpp"
+#include "strmix.hpp"
 
 template<class T>
 struct EditFieldBinding: public DialogItemBinding<DialogItemEx>

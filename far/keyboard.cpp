@@ -39,12 +39,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
-#include "cmdline.hpp"
 #include "manager.hpp"
 #include "scrbuf.hpp"
 #include "savescr.hpp"
 #include "lockscrn.hpp"
-#include "imports.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "syslog.hpp"
 #include "interf.hpp"
@@ -53,10 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrsaver.hpp"
 #include "strmix.hpp"
 #include "PluginSynchro.hpp"
-#include "constitle.hpp"
-#include "wm_listener.hpp"
 #include "console.hpp"
-#include "colormix.hpp"
 #include "plugins.hpp"
 #include "notification.hpp"
 #include "language.hpp"
@@ -733,7 +728,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 
 			if (Global->Opt->ScreenSaver && Global->Opt->ScreenSaverTime>0 &&
 			        CurTime-Global->StartIdleTime>Global->Opt->ScreenSaverTime*60000)
-				if (!ScreenSaver(Global->WaitInMainLoop))
+				if (!ScreenSaver())
 					return KEY_NONE;
 
 			if (!Global->WaitInMainLoop && LoopCount==64)
@@ -823,7 +818,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		IntKeyState.RightAltPressed=(CtrlState & RIGHT_ALT_PRESSED);
 		IntKeyState.RightShiftPressed=(CtrlState & SHIFT_PRESSED); //???
 		KeyPressedLastTime=CurClock;
-	}
+		}
 	else
 	{
 		was_repeat = false;
@@ -907,7 +902,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 			{
 				Global->ScrBuf->ResetShadow();
 				// апдейтим панели (именно они сейчас!)
-				LockScreen LckScr;
+				SCOPED_ACTION(LockScreen);
 
 				if (Global->GlobalSaveScrPtr)
 					Global->GlobalSaveScrPtr->Discard();
@@ -1334,7 +1329,7 @@ int KeyNameToKey(const string& Name)
 
 	DWORD Key=0;
 
-	if (Name.size() > 1) // если не один символ
+   if (Name.size() > 1) // если не один символ
 	{
 		// Это макроклавиша? -- ??? Это ещё актуально ???
 		if (Name[0] == L'$')

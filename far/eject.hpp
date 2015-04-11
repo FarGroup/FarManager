@@ -33,7 +33,5 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "drivemix.hpp"
-
 bool EjectVolume(wchar_t Letter,UINT64 Flags);
 bool IsEjectableMedia(wchar_t Letter);

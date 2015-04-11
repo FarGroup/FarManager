@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filepanels.hpp"
 #include "keys.hpp"
 #include "macroopcode.hpp"
-#include "ctrlobj.hpp"
 #include "filelist.hpp"
 #include "cmdline.hpp"
 #include "treelist.hpp"
@@ -54,9 +53,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "language.hpp"
 #include "config.hpp"
-#include "desktop.hpp"
 #include "keybar.hpp"
 #include "menubar.hpp"
+#include "strmix.hpp"
+#include "colormix.hpp"
 
 FilePanels::FilePanels():
 	LastLeftFilePanel(),
@@ -679,9 +679,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_ALTF7:
 		case KEY_RALTF7:
 		{
-			{
-				FindFiles FindFiles;
-			}
+			FindFiles();
 			break;
 		}
 		case KEY_CTRLUP:  case KEY_CTRLNUMPAD8:

@@ -43,7 +43,6 @@ class MenuBar;
 class HighlightFiles;
 class FilePositionCache;
 class Shortcuts;
-class WindowHandler;
 class PluginManager;
 class Manager;
 

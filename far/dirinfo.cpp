@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "dirinfo.hpp"
-#include "plugapi.hpp"
 #include "keys.hpp"
 #include "scantree.hpp"
 #include "savescr.hpp"
@@ -58,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "mix.hpp"
 #include "language.hpp"
+#include "colormix.hpp"
 
 static void PR_DrawGetDirInfoMsg();
 
@@ -438,7 +438,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, Pl
 
 
 	{
-		SaveScreen SaveScr;
+		SCOPED_ACTION(SaveScreen);
 		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<PluginDirInfoPreRedrawItem>());
 		{
 			string strDirName;

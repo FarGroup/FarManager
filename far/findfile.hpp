@@ -89,7 +89,6 @@ private:
 	static void SetPluginDirectory(const string& DirName, PluginHandle* hPlugin, bool UpdatePanel = false, UserDataItem *UserData = nullptr);
 	static bool GetPluginFile(struct ArcListItem* ArcItem, const os::FAR_FIND_DATA& FindData, const string& DestPath, string &strResultName, UserDataItem *UserData);
 
-private:
 	// BUGBUG
 	bool AnySetFindList;
 	bool CmpCase;

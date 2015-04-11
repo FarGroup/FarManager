@@ -83,7 +83,7 @@ LNGID operator+(LNGID Id, T Shift)
 
 inline LNGID operator++(LNGID& Id, int)
 {
-	LNGID Value = Id;
+	auto Value = Id;
 	Id = Id + 1;
 	return Value;
 }

@@ -37,27 +37,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "execute.hpp"
 #include "keyboard.hpp"
 #include "filepanels.hpp"
-#include "keys.hpp"
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
-#include "savescr.hpp"
 #include "chgprior.hpp"
 #include "cmdline.hpp"
-#include "panel.hpp"
 #include "imports.hpp"
 #include "manager.hpp"
 #include "interf.hpp"
 #include "message.hpp"
 #include "config.hpp"
 #include "pathmix.hpp"
-#include "dirmix.hpp"
 #include "strmix.hpp"
-#include "syslog.hpp"
 #include "constitle.hpp"
 #include "console.hpp"
-#include "constitle.hpp"
-#include "configdb.hpp"
-#include "mix.hpp"
 #include "language.hpp"
 #include "colormix.hpp"
 #include "desktop.hpp"
@@ -798,7 +790,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	int add_show_clock = 0;
 
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-	ConsoleTitle OldTitle;
+	SCOPED_ACTION(ConsoleTitle);
 
 	SHELLEXECUTEINFO seInfo={sizeof(seInfo)};
 	string strCurDir;

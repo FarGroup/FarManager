@@ -41,7 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 #include "ctrlobj.hpp"
 #include "keys.hpp"
-#include "treelist.hpp"
 #include "filelist.hpp"
 #include "pathmix.hpp"
 #include "panelctype.hpp"
@@ -50,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "language.hpp"
 #include "fileattr.hpp"
+#include "colormix.hpp"
 
 static const struct column_info
 {

@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "grabber.hpp"
 #include "keyboard.hpp"
-#include "colors.hpp"
 #include "keys.hpp"
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
@@ -46,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "clipboard.hpp"
 #include "config.hpp"
 #include "help.hpp"
+#include "strmix.hpp"
 
 Grabber::Grabber():
 	PrevArea(),

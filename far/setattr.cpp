@@ -52,10 +52,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "setattr.hpp"
 #include "pathmix.hpp"
 #include "strmix.hpp"
-#include "lasterror.hpp"
 #include "network.hpp"
 #include "fileowner.hpp"
-#include "privilege.hpp"
 #include "wakeful.hpp"
 #include "DlgGuid.hpp"
 #include "interf.hpp"
@@ -1379,7 +1377,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				/* Multi *********************************************************** */
 				else
 				{
-					ConsoleTitle SetAttrTitle(MSG(MSetAttrTitle));
+					SCOPED_ACTION(ConsoleTitle)(MSG(MSetAttrTitle));
 					if(SrcPanel)
 					{
 						Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->CloseFile();

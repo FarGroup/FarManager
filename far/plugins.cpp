@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "plugins.hpp"
 #include "keys.hpp"
-#include "flink.hpp"
 #include "scantree.hpp"
 #include "chgprior.hpp"
 #include "constitle.hpp"
@@ -48,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
-#include "farexcpt.hpp"
 #include "fileedit.hpp"
 #include "refreshwindowmanager.hpp"
 #include "plugapi.hpp"
@@ -57,7 +55,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "processname.hpp"
 #include "interf.hpp"
-#include "filelist.hpp"
 #include "message.hpp"
 #include "FarGuid.hpp"
 #include "configdb.hpp"
@@ -575,7 +572,7 @@ PluginHandle* PluginManager::OpenFilePlugin(
 			auto menu = VMenu2::create(MSG(MPluginConfirmationTitle), nullptr, 0, ScrY - 4);
 			menu->SetPosition(-1, -1, 0, 0);
 			menu->SetHelp(L"ChoosePluginMenu");
-			menu->SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
+			menu->SetMenuFlags(VMENU_SHOWAMPERSAND | VMENU_WRAPMODE);
 
 			std::for_each(CONST_RANGE(items, i)
 			{
@@ -704,7 +701,7 @@ PluginHandle* PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem
 			auto menu = VMenu2::create(MSG(MPluginConfirmationTitle), nullptr, 0, ScrY - 4);
 			menu->SetPosition(-1, -1, 0, 0);
 			menu->SetHelp(L"ChoosePluginMenu");
-			menu->SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
+			menu->SetMenuFlags(VMENU_SHOWAMPERSAND | VMENU_WRAPMODE);
 
 			std::for_each(CONST_RANGE(items, i)
 			{
@@ -964,7 +961,7 @@ int PluginManager::GetFile(PluginHandle* hPlugin, PluginPanelItem *PanelItem, co
 	if (!(OpMode & OPM_FIND))
 		SaveScr = std::make_unique<SaveScreen>(); //???
 
-	UndoGlobalSaveScrPtr UndSaveScr(SaveScr.get());
+	SCOPED_ACTION(UndoGlobalSaveScrPtr)(SaveScr.get());
 
 	GetFilesInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->hPlugin;
@@ -1196,7 +1193,7 @@ struct PluginMenuItemData
 void PluginManager::Configure(int StartPos)
 {
 		auto PluginList = VMenu2::create(MSG(MPluginConfigTitle), nullptr, 0, ScrY - 4);
-		PluginList->SetFlags(VMENU_WRAPMODE);
+		PluginList->SetMenuFlags(VMENU_WRAPMODE);
 		PluginList->SetHelp(L"PluginsConfig");
 		PluginList->SetId(PluginsConfigMenuId);
 
@@ -1360,7 +1357,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 	{
 		auto PluginList = VMenu2::create(MSG(MPluginCommandsMenuTitle), nullptr, 0, ScrY - 4);
-		PluginList->SetFlags(VMENU_WRAPMODE);
+		PluginList->SetMenuFlags(VMENU_WRAPMODE);
 		PluginList->SetHelp(L"PluginCommands");
 		PluginList->SetId(PluginsMenuId);
 		bool NeedUpdateItems = true;
@@ -2009,7 +2006,7 @@ int PluginManager::ProcessCommandLine(const string& CommandParam,Panel *Target)
 		auto menu = VMenu2::create(MSG(MPluginConfirmationTitle), nullptr, 0, ScrY - 4);
 		menu->SetPosition(-1, -1, 0, 0);
 		menu->SetHelp(L"ChoosePluginMenu");
-		menu->SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
+		menu->SetMenuFlags(VMENU_SHOWAMPERSAND | VMENU_WRAPMODE);
 
 		std::for_each(CONST_RANGE(items, i)
 		{
