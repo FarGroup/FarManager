@@ -12,6 +12,9 @@ endif
 ifdef FAR_EXPORTS
   EXPORTS = $(addprefix -DEXPORT_,$(FAR_EXPORTS))
 endif
+ifndef DIRBIT
+  DIRBIT = 32
+endif
 
 PATH_LUAFAR = $(FARDIR)\..\plugins\luamacro\luafar
 
@@ -23,7 +26,6 @@ else
   LUADLLNAME = lua51
 endif
 
-DIRBIT = 32
 INC_FAR = $(FARDIR)\..\plugins\common\unicode
 LUAFARDLLNAME = luafar3
 
@@ -38,6 +40,9 @@ LDFLAGS = -Wl,--kill-at -shared -s $(ARCH) $(MYLDFLAGS) -L$(PATH_LIBS)
 
 vpath %.c $(PATH_LUAFAR)
 vpath %.h $(PATH_LUAFAR)
+
+%.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(TARGET): $(OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS) -l$(LUADLLNAME) -l$(LUAFARDLLNAME)
