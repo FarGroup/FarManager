@@ -241,104 +241,17 @@ private:
 	Editor* GetEditor(void)const;
 
 protected:
-	// compact STL-like string to reduce memory consumption
-	// TODO: replace with std::wstring someday
-	class tiny_string
+	// BUGBUG: the whole purpose of this class is to avoid zillions of casts in existing code by returning size() as int
+	// Remove it after fixing all signed/unsigned mess
+	class edit_string: public string
 	{
-		typedef std::vector<wchar_t> impl_type;
-
 	public:
-		typedef impl_type::iterator iterator;
-		typedef impl_type::const_iterator const_iterator;
+		edit_string() {}
+		edit_string(const wchar_t* Data, size_t Size): string(Data, Size) {}
 
-		tiny_string() { AddNullTerminator(); }
-		tiny_string(const wchar_t* Data, size_t Size)
-		{
-			m_Data.reserve(Size + 1);
-			m_Data.assign(Data, Data + Size);
-			AddNullTerminator();
-		}
-		wchar_t* data() { return m_Data.data(); }
-		const wchar_t* data() const { return m_Data.data(); }
-		// to avoid zillions of casts in existing code
-		int size() const { return static_cast<int>(string_size()); }
-		iterator begin() { return m_Data.begin(); }
-		iterator end() { return m_Data.end() - 1; }
-		const_iterator begin() const { return m_Data.begin(); }
-		const_iterator end() const { return m_Data.end() - 1; }
-		const_iterator cbegin() const { return begin(); }
-		const_iterator cend() const { return end(); }
-		wchar_t& operator[](size_t index) { assert(index < string_size()); return m_Data[index]; }
-		const wchar_t& operator[](size_t index) const { assert(index < string_size()); return m_Data[index]; }
-		bool empty() const { return m_Data.size() == 1; }
-		void swap(tiny_string& rhs) noexcept
-		{
-			m_Data.swap(rhs.m_Data);
-		}
-
-		void resize(size_t Size, wchar_t Value = wchar_t())
-		{
-			// remove existing null terminator
-			m_Data.pop_back();
-			m_Data.reserve(Size + 1);
-			m_Data.resize(Size, Value);
-			AddNullTerminator();
-		}
-
-		void clear() { resize(0); }
-
-		tiny_string& assign(const wchar_t* Data, size_t Size)
-		{
-			m_Data.reserve(Size + 1);
-			m_Data.assign(Data, Data + Size);
-			AddNullTerminator();
-			return *this;
-		}
-
-		iterator erase(const_iterator First, const_iterator Last)
-		{
-			assert(Last < m_Data.end());
-			return m_Data.erase(First, Last);
-		}
-
-		iterator erase(const_iterator Where)
-		{
-			return erase(Where, Where + 1);
-		}
-
-		void insert(const_iterator Where, const_iterator First, const_iterator Last)
-		{
-			assert(Where < m_Data.end());
-			m_Data.insert(Where, First, Last);
-		}
-
-		void insert(const_iterator Where, size_t Count, wchar_t Value)
-		{
-			assert(Where < m_Data.end());
-			m_Data.insert(Where, Count, Value);
-		}
-
-		tiny_string& insert(size_t Pos, const wchar_t* Data, size_t Size)
-		{
-			assert(Pos < m_Data.size());
-			m_Data.insert(begin() + Pos, Data, Data + Size);
-			return *this;
-		}
-
-		tiny_string& append(const_iterator First, const_iterator Last) 
-		{
-			m_Data.insert(end(), First, Last);
-			return *this;
-		}
-
-	private:
-		size_t string_size() const { return m_Data.size() - 1; }
-		void AddNullTerminator() { m_Data.push_back(L'\0'); }
-
-		std::vector<wchar_t> m_Data;
+		int size() const { return static_cast<int>(string::size()); }
 	};
-
-	tiny_string m_Str;
+	edit_string m_Str;
 
 	// KEEP ALIGNED!
 	int m_CurPos;

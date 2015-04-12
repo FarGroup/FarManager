@@ -349,7 +349,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 
 		if(Global->Opt->AutoComplete.AppendCompletion && !m_Flags.Check(FEDITLINE_CMP_CHANGED))
 		{
-			CurrentLine.assign(ALL_CONST_RANGE(m_Str));
+			CurrentLine = m_Str;
 			DeleteBlock();
 		}
 		m_Flags.Clear(FEDITLINE_CMP_CHANGED);
@@ -357,7 +357,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 		auto ComplMenu = VMenu2::create(string(), nullptr, 0, 0);
 		ComplMenu->SetDialogMode(DMODE_NODRAWSHADOW);
 		ComplMenu->SetModeMoving(false);
-		string strTemp(ALL_CONST_RANGE(m_Str));
+		string strTemp = m_Str;
 
 		ComplMenu->SetMacroMode(Area);
 
@@ -401,7 +401,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 				// magic
 				if(IsSlash(m_Str[SelStart-1]) && m_Str[SelStart-2] == L'"' && IsSlash(ComplMenu->GetItemPtr(0)->strName[SelStart-2]))
 				{
-					m_Str.erase(m_Str.begin() + SelStart - 2);
+					m_Str.erase(SelStart - 2);
 					SelStart--;
 					m_CurPos--;
 				}
@@ -505,7 +505,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 										// magic
 										if(IsSlash(m_Str[SelStart-1]) && m_Str[SelStart-2] == L'"' && IsSlash(ComplMenu->GetItemPtr(0)->strName[SelStart-2]))
 										{
-											m_Str.erase(m_Str.begin() + SelStart - 2);
+											m_Str.erase(SelStart - 2);
 											SelStart--;
 											m_CurPos--;
 										}

@@ -6650,6 +6650,13 @@ void Editor::AdjustVBlock(int PrevX)
 
 void Editor::Xlat()
 {
+	const auto XLatStr = [&](Edit::edit_string Str, int StartPos, int EndPos)
+	{
+		std::vector<wchar_t> Buffer(ALL_CONST_RANGE(Str));
+		::Xlat(Buffer.data(), StartPos, EndPos, Global->Opt->XLat.Flags);
+		Str.assign(Buffer.data(), Buffer.size());
+	};
+
 	bool DoXlat = false;
 	AddUndoData(UNDO_BEGIN);
 
@@ -6670,7 +6677,7 @@ void Editor::Xlat()
 				CopySize=TBlockSizeX;
 
 			AddUndoData(UNDO_EDIT, CurPtr->GetStringAddr(), CurPtr->GetEOL(), CurPtr.Number(), m_it_CurLine->GetCurPos(), CurPtr->GetLength());
-			::Xlat(CurPtr->m_Str.data(), static_cast<int>(TBlockX), static_cast<int>(TBlockX + CopySize), Global->Opt->XLat.Flags);
+			XLatStr(CurPtr->m_Str, static_cast<int>(TBlockX), static_cast<int>(TBlockX + CopySize));
 			Change(ECTYPE_CHANGED, CurPtr.Number());
 		}
 
@@ -6697,7 +6704,7 @@ void Editor::Xlat()
 					EndSel=CurPtr->GetLength();//StrLength(CurPtr->Str);
 
 				AddUndoData(UNDO_EDIT, CurPtr->GetStringAddr(), CurPtr->GetEOL(), CurPtr.Number(), m_it_CurLine->GetCurPos(), CurPtr->GetLength());
-				::Xlat(CurPtr->m_Str.data(), StartSel, EndSel, Global->Opt->XLat.Flags);
+				XLatStr(CurPtr->m_Str, StartSel, EndSel);
 				Change(ECTYPE_CHANGED, CurPtr.Number());
 				++CurPtr;
 			}
@@ -6706,7 +6713,7 @@ void Editor::Xlat()
 		}
 		else
 		{
-			wchar_t *Str = m_it_CurLine->m_Str.data();
+			auto& Str = m_it_CurLine->m_Str;
 			int start=m_it_CurLine->GetCurPos(), StrSize=m_it_CurLine->GetLength();//StrLength(Str);
 			// $ 10.12.2000 IS
 			//   Обрабатываем только то слово, на котором стоит курсор, или то слово,
@@ -6732,7 +6739,7 @@ void Editor::Xlat()
 					end++;
 
 				AddUndoData(UNDO_EDIT, m_it_CurLine->GetStringAddr(), m_it_CurLine->GetEOL(), m_it_CurLine.Number(), start, m_it_CurLine->GetLength());
-				::Xlat(Str,start,end,Global->Opt->XLat.Flags);
+				XLatStr(Str, start, end);
 				Change(ECTYPE_CHANGED, m_it_CurLine.Number());
 			}
 		}
@@ -7093,12 +7100,14 @@ DWORD Editor::EditSetCodePage(const iterator& edit, uintptr_t codepage, bool che
 			edit->m_Str.resize(length2);
 		}
 
+		std::vector<wchar_t> Buffer(ALL_CONST_RANGE(edit->m_Str));
 		if (codepage == CP_UTF8 || codepage == CP_UTF7)
-			length2 = Utf::ToWideChar(codepage, decoded.data(), length, edit->m_Str.data(), edit->m_Str.size(), nullptr);
+			length2 = Utf::ToWideChar(codepage, decoded.data(), length, Buffer.data(), static_cast<int>(Buffer.size()), nullptr);
 		else
-			length2 = MultiByteToWideChar(codepage, 0, decoded.data(), length, edit->m_Str.data(), edit->m_Str.size());
+			length2 = MultiByteToWideChar(codepage, 0, decoded.data(), length, Buffer.data(), static_cast<int>(Buffer.size()));
 
-		edit->m_Str.resize(length2);
+		Buffer.resize(length2);
+		edit->m_Str.assign(Buffer.data(), Buffer.size());
 	}
 
 	if (!check_only)
@@ -7216,7 +7225,7 @@ bool Editor::SetCodePage(uintptr_t codepage, bool *BOM)
 			auto& first = *Lines.begin();
 			if (!first.m_Str.empty() && first.m_Str[0] == Utf::BOM_CHAR)
 			{
-				first.m_Str.erase(first.m_Str.begin());
+				first.m_Str.erase(0);
 				*BOM = true;
 			}
 		}

@@ -838,7 +838,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 
 			if (!Mask.empty())
 			{
-				string ShortStr(ALL_CONST_RANGE(m_Str));
+				string ShortStr = m_Str;
 				Len = static_cast<int>(RemoveTrailingSpaces(ShortStr).size());
 			}
 			else
@@ -1101,7 +1101,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 
 			if (!Mask.empty())
 			{
-				string ShortStr(ALL_CONST_RANGE(m_Str));
+				string ShortStr = m_Str;
 				m_CurPos = static_cast<int>(RemoveTrailingSpaces(ShortStr).size());
 			}
 			else
@@ -1129,7 +1129,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 
 			if (!Mask.empty())
 			{
-				string ShortStr(ALL_CONST_RANGE(m_Str));
+				string ShortStr = m_Str;
 				int Len = static_cast<int>(RemoveTrailingSpaces(ShortStr).size());
 
 				if (Len>m_CurPos)
@@ -1191,7 +1191,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 			}
 			else
 			{
-				m_Str.erase(m_Str.begin() + m_CurPos);
+				m_Str.erase(m_CurPos);
 			}
 
 			Changed(true);
@@ -1232,7 +1232,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 
 			if (!Mask.empty())
 			{
-				string ShortStr(ALL_CONST_RANGE(m_Str));
+				string ShortStr = m_Str;
 				Len = static_cast<int>(RemoveTrailingSpaces(ShortStr).size());
 
 				if (Len>m_CurPos)
@@ -1277,17 +1277,17 @@ int Edit::ProcessKey(const Manager::Key& Key)
 				{
 					if (!Mask.empty())
 					{
-						string ShortStr(ALL_CONST_RANGE(m_Str));
+						string ShortStr = m_Str;
 						SetClipboard(RemoveTrailingSpaces(ShortStr));
 					}
 					else
 					{
-						SetClipboard(m_Str.data());
+						SetClipboard(m_Str);
 					}
 				}
 				else if (m_SelEnd <= m_Str.size()) // TODO: если в начало условия добавить "StrSize &&", то пропадет баг "Ctrl-Ins в пустой строке очищает клипборд"
 				{
-					SetClipboard(string(m_Str.cbegin() + m_SelStart, m_Str.cbegin() + m_SelEnd));
+					SetClipboard(m_Str.substr(m_SelStart, m_SelEnd - m_SelStart));
 				}
 			}
 
@@ -1520,7 +1520,7 @@ int Edit::InsertKey(int Key)
 
 			if (!m_Flags.Check(FEDITLINE_OVERTYPE) || m_CurPos >= m_Str.size())
 			{
-				m_Str.insert(m_Str.begin() + m_CurPos, 1, Key);
+				m_Str.insert(m_CurPos, 1, Key);
 
 				if (m_SelStart!=-1)
 				{
@@ -1558,7 +1558,7 @@ int Edit::InsertKey(int Key)
 
 void Edit::GetString(string &strStr) const
 {
-	strStr.assign(ALL_CONST_RANGE(m_Str));
+	strStr = m_Str;
 }
 
 const wchar_t* Edit::GetStringAddr() const
@@ -1950,7 +1950,7 @@ void Edit::InsertTab()
 		}
 	}
 
-	m_Str.insert(m_Str.begin() + Pos, S, L' ');
+	m_Str.insert(Pos, S, L' ');
 	m_CurPos += S;
 	Changed();
 }
@@ -2004,7 +2004,7 @@ void Edit::SetTabCurPos(int NewPos)
 	auto Mask = GetInputMask();
 	if (!Mask.empty())
 	{
-		string ShortStr(ALL_CONST_RANGE(m_Str));
+		string ShortStr = m_Str;
 		int Pos = static_cast<int>(RemoveTrailingSpaces(ShortStr).size());
 
 		if (NewPos>Pos)
@@ -2220,7 +2220,7 @@ void Edit::DeleteBlock()
 		const auto From = std::min(m_SelStart, m_Str.size());
 		const auto To = std::min(m_SelEnd, m_Str.size());
 
-		m_Str.erase(m_Str.begin() + From, m_Str.begin() + To);
+		m_Str.erase(From, To - From);
 
 		if (m_CurPos>From)
 		{
@@ -2460,10 +2460,17 @@ void Edit::ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos)
 */
 void Edit::Xlat(bool All)
 {
+	const auto XLatStr = [&](int StartPos, int EndPos)
+	{
+		std::vector<wchar_t> Buffer(ALL_CONST_RANGE(m_Str));
+		::Xlat(Buffer.data(), StartPos, EndPos, Global->Opt->XLat.Flags);
+		m_Str.assign(Buffer.data(), Buffer.size());
+	};
+
 	//   Для CmdLine - если нет выделения, преобразуем всю строку
 	if (All && m_SelStart == -1 && !m_SelEnd)
 	{
-		::Xlat(m_Str.data(), 0, m_Str.size(), Global->Opt->XLat.Flags);
+		XLatStr(0, m_Str.size());
 		Changed();
 		Show();
 		return;
@@ -2474,7 +2481,7 @@ void Edit::Xlat(bool All)
 		if (m_SelEnd == -1)
 			m_SelEnd = m_Str.size();
 
-		::Xlat(m_Str.data(), m_SelStart, m_SelEnd, Global->Opt->XLat.Flags);
+		XLatStr(m_SelStart, m_SelEnd);
 		Changed();
 		Show();
 	}
@@ -2509,7 +2516,7 @@ void Edit::Xlat(bool All)
 			while (end<StrSize && !IsWordDiv(Global->Opt->XLat.strWordDivForXlat,m_Str[end]))
 				end++;
 
-			::Xlat(m_Str.data(), start, end, Global->Opt->XLat.Flags);
+			XLatStr(start, end);
 			Changed();
 			Show();
 		}
