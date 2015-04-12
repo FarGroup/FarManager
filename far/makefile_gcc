@@ -12,6 +12,7 @@ DEPFILE = $(BOOTSTRAPDIR)far.gcc.dep
 
 SRCS = \
 	sqlite.c \
+	sqlite_unicode.c \
 	cache.cpp \
 	cddrv.cpp \
 	chgprior.cpp \

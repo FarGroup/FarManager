@@ -57,6 +57,9 @@ public:
 	bool IsNew() const { return db_exists <= 0; }
 	int InitStatus(string& name, bool full_name);
 
+	static int library_load();
+	static void library_free();
+
 protected:
 	class SQLiteStmt: noncopyable
 	{

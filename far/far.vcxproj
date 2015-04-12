@@ -479,6 +479,12 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
       <SmallerTypeCheck Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</SmallerTypeCheck>
       <SmallerTypeCheck Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</SmallerTypeCheck>
     </ClCompile>
+    <ClCompile Include="sqlite_unicode.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="sqlitedb.cpp" />
     <ClCompile Include="stddlg.cpp" />
     <ClCompile Include="strmix.cpp" />
@@ -698,6 +704,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="setattr.hpp" />
     <ClInclude Include="setcolor.hpp" />
     <ClInclude Include="sqlite.hpp" />
+    <ClInclude Include="sqlite_unicode.hpp" />
     <ClInclude Include="sqlitedb.hpp" />
     <ClInclude Include="stddlg.hpp" />
     <ClInclude Include="strmix.hpp" />

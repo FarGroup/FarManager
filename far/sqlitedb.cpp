@@ -35,13 +35,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "sqlitedb.hpp"
 #include "sqlite.hpp"
+#include "sqlite_unicode.hpp"
 #include "pathmix.hpp"
 #include "config.hpp"
 #include "synchro.hpp"
 #include "components.hpp"
 #include "strmix.hpp"
 
-static string getInfo() { return L"SQLite, version " + wide(SQLITE_VERSION); }
+static string getInfo() { return L"SQLite, version " + wide(SQLITE_VERSION) + L"; SQLite unicode extension, version " + wide(sqlite_unicode::SQLite_Unicode_Version);; }
 SCOPED_ACTION(components::component)(getInfo);
 
 static void GetDatabasePath(const string& FileName, string &strOut, bool Local)
@@ -56,6 +57,16 @@ static void GetDatabasePath(const string& FileName, string &strOut, bool Local)
 	{
 		strOut = FileName;
 	}
+}
+
+int SQLiteDb::library_load()
+{
+	return sqlite_unicode::sqlite3_unicode_load();
+}
+
+void SQLiteDb::library_free()
+{
+	return sqlite_unicode::sqlite3_unicode_free();
 }
 
 void SQLiteDb::SQLiteStmt::stmt_deleter::operator()(sqlite::sqlite3_stmt* object) const
@@ -196,6 +207,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 		sqlite::sqlite3* pDb;
 		auto Result = opener(Name, pDb);
 		Db.reset(pDb);
+		sqlite_unicode::sqlite3_unicode_init(Db.get());
 		return Result == SQLITE_OK;
 	};
 

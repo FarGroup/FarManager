@@ -336,6 +336,7 @@ private:
 	void TryImportDatabase(representable *p, const char *son = nullptr, bool plugin=false);
 	void CheckDatabase(class SQLiteDb *pDb);
 
+	int m_LoadResult;
 	std::vector<Thread> m_Threads;
 	std::vector<string> m_Problems;
 	std::unique_ptr<representation_source> m_TemplateSource;
