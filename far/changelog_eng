@@ -3,6 +3,54 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 12.04.2015 22:26:53 +0200 - build 4345
+
+1. Refactoring.
+
+drkns 12.04.2015 21:02:09 +0200 - build 4344
+
+1. Based on http://forum.farmanager.com/viewtopic.php?f=9&t=9034:
+   - Experimental: add support for Unicode in SQLite, now work with DB can be case insensitive.
+   - Storing of position in viewer/editor is case insensitive.
+   - For this to work correctly history.db has to be removed or updated according to the instruction in the topic above.
+   - Inform us if it matters anywhere but storing positions in viewer/editor.
+
+zg 12.04.2015 19:46:28 +0200 - build 4343
+
+1. correction of 4332: changing codepage in editor.
+
+drkns 12.04.2015 15:18:07 +0200 - build 4342
+
+1. Forum: far /import crash
+
+2. Refactoring.
+
+drkns 11.04.2015 23:04:41 +0200 - build 4341
+
+1. Refactoring.
+
+2. Warnings.
+
+zg 10.04.2015 13:29:09 +0200 - build 4340
+
+1. correction of 4337: selection reset while editing.
+
+2. numlock, capslock, scrolllock removed the 'Unchanged' flag in edit fields.
+
+3. gcc warnings.
+
+zg 10.04.2015 01:25:50 +0200 - build 4339
+
+1. incorrect initialization of a dialog item for nonzero FarDialogItem.MaxLength.
+
+svs 09.04.2015 06:54:08 +0300 - build 4338
+
+1. SQLite 3.8.9
+
+zg 09.04.2015 03:05:55 +0200 - build 4337
+
+1. processing of CtrlAltShift is isolated.
+
 drkns 05.04.2015 19:07:30 +0200 - build 4336
 
 1. Refactoring. Some renaming and moving of some functions.
