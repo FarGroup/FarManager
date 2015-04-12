@@ -4,17 +4,12 @@
 if far.ReloadDefaultScript then return end
 
 local function LOG (fmt, ...)
-  local log = io.open("c:\\lua.log",--[["at"]]"a")
-  if log then
-    log:write("LUA: ", fmt:format(...), "\n")
-    log:close()
-  end
+  win.OutputDebugString(fmt:format(...))
 end
 
 local F, Msg = far.Flags, nil
 local bor = bit64.bor
-local co_yield, co_resume, co_status, co_wrap =
-  coroutine.yield, coroutine.resume, coroutine.status, coroutine.wrap
+local co_yield, co_resume, co_status = coroutine.yield, coroutine.resume, coroutine.status
 
 local PROPAGATE={} -- a unique value, inaccessible to scripts.
 local gmeta = { __index=_G }
@@ -30,15 +25,17 @@ local function pack (...)
   return { n=select("#",...), ... }
 end
 
+local function yield_resume (co, ...)
+  local t1, t2 = ...
+  if t1==true and t2==PROPAGATE then
+    return co_resume(co, co_yield(select(2, ...)))
+  end
+  return ...
+end
+
 -- Override coroutine.resume for scripts, making it possible to call Keys(),
 -- print(), Plugin.Call(), exit(), etc. from nested coroutines.
-function coroutine.resume(co, ...)
-  local t = pack(co_resume(co, ...))
-  while t[1]==true and t[2]==PROPAGATE do
-    t = pack(co_resume(co, co_yield(unpack(t, 2, t.n))))
-  end
-  return unpack(t, 1, t.n)
-end
+function coroutine.resume(co, ...) return yield_resume(co, co_resume(co, ...)) end
 
 local ErrMsg = function(msg, title, buttons, flags)
   if type(msg)=="string" and not msg:utf8valid() then
@@ -165,7 +162,7 @@ local function GetFileParams (Text)
   end
 end
 
-local function loadmacro (Lang, Text, Env)
+local function loadmacro (Lang, Text, Env, ConvertPath)
   local _loadstring, _loadfile = loadstring, loadfile
   if Lang == "moonscript" then
     local ms = require "moonscript"
@@ -175,6 +172,7 @@ local function loadmacro (Lang, Text, Env)
   local f1,f2,msg
   local fname,params = GetFileParams(Text)
   if fname then
+    fname = ConvertPath and far.ConvertPath(fname, F.CPM_NATIVE) or fname
     f2,msg = _loadstring("return "..params)
     if not f2 then return nil,msg end
     f1,msg = _loadfile(fname)
@@ -274,17 +272,15 @@ local function MacroParse (Lang, Text, onlyCheck, skipFile)
     ok,msg = _loadstring(Text)
   end
 
-  if not ok then
+  if ok then
+    return F.MPRT_NORMALFINISH
+  else
     if not onlyCheck then
       far.Message(msg, Msg.MMacroParseErrorTitle, Msg.MOk, "lw")
     end
-    LastMessage = pack(
-      msg, -- keep alive from gc
-      tonumber(msg:match(":(%d+): ")) or 0)
+    LastMessage = pack(msg, tonumber(msg:match(":(%d+): ")) or 0)
     return F.MPRT_ERRORPARSE, LastMessage
   end
-
-  return F.MPRT_NORMALFINISH
 end
 
 local function ExecString (lang, text, params)
@@ -342,14 +338,11 @@ local function ProcessCommandLine (strCmdLine)
       show, text = true, text:sub(2)
     end
     local fname, params = GetFileParams(text)
-    if fname then
-      fname = far.ConvertPath(fname, F.CPM_NATIVE)
-      if fname:find("%s") then fname = '"'..fname..'"' end
-      text = "@"..fname.." "..params
-    else
-      if show then text = "return "..text end
+    if show and not fname then
+      text = "return "..text
     end
-    local f1,f2 = loadmacro((prefix=="lua" or prefix=="luas") and "lua" or "moonscript", text)
+    local lang = (prefix=="lua" or prefix=="luas") and "lua" or "moonscript"
+    local f1,f2 = loadmacro(lang, text, nil, true)
     if f1 then
       local ff1 = show and function(...) return ShowAndPass(f1(...)) end or f1
       if prefix=="lua" or prefix=="moon" then

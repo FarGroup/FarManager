@@ -19,6 +19,10 @@ local MT = {} -- "macrotest", this module
 local F = far.Flags
 local luamacroId="4ebbefc8-2084-4b7f-94c0-692ce136894d" -- LuaMacro plugin GUID
 
+local function pack (...)
+  return { n=select("#",...), ... }
+end
+
 local function IsNumOrInt(v)
   return type(v)=="number" or bit64.type(v)
 end
@@ -1582,6 +1586,36 @@ function MT.test_luafar()
   test_RegexControl()
 end
 
+-- Test in particular that Plugin.Call (a so-called "restricted" function) works properly
+-- from inside a deeply nested coroutine.
+local function test_coroutine()
+  for k=1,2 do
+    local Call = k==1 and Plugin.Call or Plugin.SyncCall
+    local function f1()
+      coroutine.yield(Call(luamacroId, "argtest", 1, false, "foo", nil))
+    end
+    local function f2() return coroutine.resume(coroutine.create(f1)) end
+    local function f3() return coroutine.resume(coroutine.create(f2)) end
+    local function f4() return coroutine.resume(coroutine.create(f3)) end
+    local t = pack(f4())
+    assert(t.n==7 and t[1]==true and t[2]==true and t[3]==true and
+           t[4]==1 and t[5]==false and t[6]=="foo" and t[7]==nil)
+  end
+end
+
+local function test_cfind()
+  assert(type(("").cfind) == "function")
+  assert(("").cfind == unicode.utf8.cfind)
+  local from, to, c1, c2 = ("абвгд"):cfind("(г)(д)", 4)
+  assert(from==4 and to==5 and c1=="г" and c2=="д")
+  assert(nil == ("абвгд"):cfind("(г)(д)", 5))
+end
+
+function MT.test_misc()
+  test_coroutine()
+  test_cfind()
+end
+
 function MT.test_all()
   TestArea("Shell", "Run these tests from the Shell area.")
   assert(not APanel.Plugin and not PPanel.Plugin, "Run these tests when neither of panels is a plugin panel.")
@@ -1601,6 +1635,7 @@ function MT.test_all()
   MT.test_XPanel(PPanel)
   MT.test_mantis_1722()
   MT.test_luafar()
+  MT.test_misc()
 end
 
 return MT
