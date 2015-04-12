@@ -4545,12 +4545,12 @@ void Editor::GetRowCol(const string& argv, int& row, int& col)
 	{
 		return string(SMatch[index].first, SMatch[index].second);
 	};
-	
+
 	const auto is_match_empty = [&SMatch](size_t index)
 	{
 		return !SMatch[index].length();
 	};
-	
+
 	if (std::regex_match(argv, SMatch, re))
 	{
 		enum
@@ -7058,7 +7058,7 @@ DWORD Editor::EditSetCodePage(const iterator& edit, uintptr_t codepage, bool che
 		if (3 * static_cast<size_t>(edit->m_Str.size()) + 1 > decoded.size())
 			decoded.resize(256 + 4 * edit->m_Str.size());
 
-		int length = WideCharToMultiByte(m_codepage, 0, edit->m_Str.data(), edit->m_Str.size(), decoded.data(), static_cast<int>(decoded.size()), nullptr, lpUsedDefaultChar);
+		int length = Multi::ToMultiByte(m_codepage, edit->m_Str.data(), edit->m_Str.size(), decoded.data(), static_cast<int>(decoded.size()), lpUsedDefaultChar);
 		if (!length || UsedDefaultChar)
 		{
 			Ret |= SETCP_WC2MBERROR;
@@ -7137,7 +7137,7 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 				wchar_offsets.push_back(total_len);
 				char *s = decoded.data() + total_len;
 
-				int len = WideCharToMultiByte(m_codepage, 0, i->m_Str.data() + j, 1, s, 3, nullptr, p_def);
+				int len = Multi::ToMultiByte(m_codepage, i->m_Str.data() + j, 1, s, 3, p_def);
 				if (len <= 0 || def)
 				{
 					X = j;

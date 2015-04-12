@@ -148,6 +148,11 @@ private:
 
 //#############################################################################
 
+namespace Multi
+{
+	int ToMultiByte(uintptr_t cp, const wchar_t *src, int srclen, char *dst, int dstlen, LPBOOL lpUsedDefaultChar=nullptr);
+}
+
 namespace Utf
 {
 	const wchar_t REPLACE_CHAR  = L'\xFFFD'; // Replacement
@@ -173,7 +178,7 @@ namespace Utf7 {
 namespace Utf8 {
 	int ToWideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int wlen, int &tail);
 	int ToWideChar(const char *src, int len, wchar_t* out, int wlen, Utf::Errs *errs);
-	size_t ToMultiByte(const wchar_t *src, size_t len, char *dst);
+	int ToMultiByte(const wchar_t *src, size_t len, char *dst);
 }
 
 //#############################################################################

@@ -973,6 +973,26 @@ int MultibyteCodepageDecoder::GetChar(const BYTE *bf, size_t cb, wchar_t& wc) co
 	}
 }
 
+int Multi::ToMultiByte(uintptr_t cp, const wchar_t *src, int srclen, char *dst, int dstlen, LPBOOL lpUsedDefaultChar)
+{
+	if (cp == CP_UTF8)
+	{
+		int len=Utf8::ToMultiByte(src, srclen, dst);
+		if (dst) assert(len<=dstlen);
+		return len;
+	}
+	else if (cp == CP_REVERSEBOM)
+	{
+		if (dst)
+			_swab(reinterpret_cast<char*>(const_cast<wchar_t*>(src)), dst, dstlen);
+		return srclen * sizeof(wchar_t);
+	}
+	else
+	{
+		return WideCharToMultiByte(cp, 0, src, srclen, dst, dstlen, nullptr, lpUsedDefaultChar);
+	}
+}
+
 //################################################################################################
 //################################################################################################
 
@@ -1405,60 +1425,63 @@ int Utf8::ToWideChar(const char *src, int length, wchar_t* out, int wlen, Utf::E
 	return no;
 }
 
-size_t Utf8::ToMultiByte(const wchar_t *src, size_t len, char *dst)
+int Utf8::ToMultiByte(const wchar_t *src, size_t len, char *dst)
 {
 	const wchar_t *end = src + len;
-	if (!dst) // buf counting mode
-	{
-		size_t result = 0;
-		while (src < end)
-		{
-			unsigned int c = *src++;
-			if (c < 0x80)
-				result += 1;
-			else if (c < 0x800)
-				result += 2;
-			else if (c - 0xD800 > 0xDFFF - 0xD800) // not surrogates
-				result += 3;
-			else if (c - 0xDC80 <= 0xDCFF - 0xDC80) // embedded raw byte
-				result += 1;
-			else if (c - 0xD800 <= 0xDBFF - 0xD800 && src < end && *src - 0xDC00u <= 0xDFFF - 0xDC00) // valid surrogate pair
-				result += 4, src++;
-			else
-				result += 3; // invalid
-		}
-		return result;
-	}
-	// conversion mode
+	int result=0;
 	while (src < end)
 	{
 		unsigned int c = *src++;
 		if (c < 0x80)
-			*dst++ = c;
+		{
+			if (dst)
+			{
+				*dst++ = c;
+			}
+			result += 1;
+		}
 		else if (c < 0x800)
 		{
-			dst[0] = 0xC0 + (c >> 6);
-			dst[1] = 0x80 + (c & 0x3F);
-			dst += 2;
+			if (dst)
+			{
+				dst[0] = 0xC0 + (c >> 6);
+				dst[1] = 0x80 + (c & 0x3F);
+				dst += 2;
+			}
+			result += 2;
 		}
 		else if (c - 0xD800 > 0xDFFF - 0xD800) // not surrogates
 		{
 		l:
-			dst[0] = 0xE0 + (c >> 12);
-			dst[1] = 0x80 + (c >> 6 & 0x3F);
-			dst[2] = 0x80 + (c & 0x3F);
-			dst += 3;
+			if (dst)
+			{
+				dst[0] = 0xE0 + (c >> 12);
+				dst[1] = 0x80 + (c >> 6 & 0x3F);
+				dst[2] = 0x80 + (c & 0x3F);
+				dst += 3;
+			}
+			result += 3;
 		}
 		else if (c - 0xDC80 <= 0xDCFF - 0xDC80) // embedded raw byte
-			*dst++ = c & 0xFF;
+		{
+			if (dst)
+			{
+				*dst++ = c & 0xFF;
+			}
+			result += 1;
+		}
 		else if (c - 0xD800 <= 0xDBFF - 0xD800 && src < end && *src - 0xDC00u <= 0xDFFF - 0xDC00) // valid surrogate pair
 		{
 			c = 0x3C10000 + ((c - 0xD800) << 10) + (unsigned int)*src++ - 0xDC00;
-			dst[0] = c >> 18;
-			dst[1] = 0x80 + (c >> 12 & 0x3F);
-			dst[2] = 0x80 + (c >> 6 & 0x3F);
-			dst[3] = 0x80 + (c & 0x3F);
-			dst += 4;
+			if (dst)
+			{
+				dst[0] = c >> 18;
+				dst[1] = 0x80 + (c >> 12 & 0x3F);
+				dst[2] = 0x80 + (c >> 6 & 0x3F);
+				dst[3] = 0x80 + (c & 0x3F);
+				dst += 4;
+			}
+			result += 4;
 		}
 		else
 		{
@@ -1466,7 +1489,7 @@ size_t Utf8::ToMultiByte(const wchar_t *src, size_t len, char *dst)
 			goto l;
 		}
 	}
-	return 0;
+	return result;
 }
 
 //################################################################################################

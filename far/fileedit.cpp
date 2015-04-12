@@ -2084,32 +2084,14 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			}
 			else
 			{
-				const auto SwapBytes = [](const wchar_t* src, char* dst, size_t count)
-				{
-					return _swab(reinterpret_cast<char*>(const_cast<wchar_t*>(src)), dst, static_cast<int>(count));
-				};
-
 				if (Length)
 				{
-					size_t length = codepage == CP_REVERSEBOM ?
-						Length * sizeof(wchar_t) :
-						codepage == CP_UTF8 ?
-							Utf8::ToMultiByte(SaveStr, Length, nullptr) :
-							WideCharToMultiByte(codepage, 0, SaveStr, static_cast<int>(Length), nullptr, 0, nullptr, nullptr);
+					auto length = Multi::ToMultiByte(codepage, SaveStr, static_cast<int>(Length), nullptr, 0, nullptr);
 					char_ptr SaveStrCopy(length);
 
 					if (SaveStrCopy)
 					{
-						if (codepage == CP_REVERSEBOM)
-							SwapBytes(SaveStr, SaveStrCopy.get(), length);
-						else
-						{
-							if (codepage == CP_UTF8)
-								Utf8::ToMultiByte(SaveStr, Length, SaveStrCopy.get());
-							else
-								WideCharToMultiByte(codepage, 0, SaveStr, static_cast<int>(Length), SaveStrCopy.get(), static_cast<int>(length), nullptr, nullptr);
-						}
-
+						Multi::ToMultiByte(codepage, SaveStr, static_cast<int>(Length), SaveStrCopy.get(), length, nullptr);
 						if (!Cache.Write(SaveStrCopy.get(),length))
 						{
 							bError = true;
@@ -2129,11 +2111,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 
 						if (EndSeqCopy)
 						{
-							if (codepage == CP_REVERSEBOM)
-								SwapBytes(EndSeq, EndSeqCopy.get(), endlength);
-							else
-								WideCharToMultiByte(codepage, 0, EndSeq, EndLength, EndSeqCopy.get(), endlength, nullptr, nullptr);
-
+							Multi::ToMultiByte(codepage, EndSeq, EndLength, EndSeqCopy.get(), endlength, nullptr);
 							if (!Cache.Write(EndSeqCopy.get(),endlength))
 							{
 								bError = true;
