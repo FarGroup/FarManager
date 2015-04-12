@@ -57,16 +57,16 @@ static inline void PrintError(const wchar_t *Title, const string& Error, int Row
 class representation
 {
 public:
-	representation(): m_ImportRoot(), m_ExportRoot() {}
+	representation(): m_ImportRoot(nullptr), m_ExportRoot() {}
 
 	tinyxml::TiXmlElement& GetExportRoot() { return *m_ExportRoot; }
-	const tinyxml::TiXmlHandle& GetImportRoot() const { return *m_ImportRoot; }
+	const tinyxml::TiXmlHandle& GetImportRoot() const { return m_ImportRoot; }
 
-	void SetImportRoot(const tinyxml::TiXmlHandle& ImportRoot) { m_ImportRoot = &ImportRoot; }
+	void SetImportRoot(const tinyxml::TiXmlHandle& ImportRoot) { m_ImportRoot = ImportRoot; }
 	void SetExportRoot(tinyxml::TiXmlElement& ExportRoot) { m_ExportRoot = &ExportRoot; }
 
 private:
-	const tinyxml::TiXmlHandle* m_ImportRoot;
+	tinyxml::TiXmlHandle m_ImportRoot;
 	tinyxml::TiXmlElement* m_ExportRoot;
 };
 
@@ -104,10 +104,11 @@ class TiXmlElementWrapper
 {
 public:
 	TiXmlElementWrapper(): m_data() {}
-	TiXmlElementWrapper(tinyxml::TiXmlElement* rhs) { m_data = rhs; }
+	TiXmlElementWrapper(const tinyxml::TiXmlElement* rhs) { m_data = rhs; }
 	TiXmlElementWrapper& operator=(const tinyxml::TiXmlElement* rhs) { m_data = rhs; return *this; }
 
-	operator bool() const { return m_data != nullptr; }
+	bool operator!() const { return !m_data; }
+	EXPLICIT_OPERATOR_BOOL();
 	const tinyxml::TiXmlElement* operator->() const { return m_data; }
 	const tinyxml::TiXmlElement& operator*() const { return *m_data; }
 
@@ -130,9 +131,10 @@ public:
 
 	virtual bool get(size_t index, TiXmlElementWrapper& value) override
 	{
-		return index ?
-			value = value->NextSiblingElement(m_name.data()) :
-			value = m_base? m_base->FirstChildElement(m_name.data()) : nullptr;
+		value = index? value->NextSiblingElement(m_name.data()) :
+			m_base? m_base->FirstChildElement(m_name.data()) : nullptr;
+
+		return value? true : false;
 	}
 
 private:
@@ -2310,8 +2312,7 @@ void config_provider::TryImportDatabase(representable *p, const char *son, bool 
 				const auto guid = i->Attribute("guid");
 				if (guid && 0 == strcmp(guid, son))
 				{
-					const tinyxml::TiXmlHandle PluginRoot(&const_cast<tinyxml::TiXmlElement&>(*i));
-					Representation.SetImportRoot(PluginRoot);
+					Representation.SetImportRoot(&const_cast<tinyxml::TiXmlElement&>(*i));
 					p->Import(Representation);
 					break;
 				}
@@ -2499,7 +2500,7 @@ bool config_provider::Import(const string& Filename)
 
 		if (std::regex_search(Guid, uuid_regex()))
 		{
-			Representation.SetImportRoot(tinyxml::TiXmlHandle(&const_cast<tinyxml::TiXmlElement&>(*plugin)));
+			Representation.SetImportRoot(&const_cast<tinyxml::TiXmlElement&>(*plugin));
 			CreatePluginsConfig(Guid)->Import(Representation);
 		}
 	}

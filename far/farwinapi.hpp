@@ -286,7 +286,8 @@ namespace os
 			key(HKEY RootKey, const wchar_t* SubKey, REGSAM Sam);
 			~key();
 
-			operator bool() const { return m_Key != nullptr; }
+			bool operator!() const { return !m_Key; }
+			EXPLICIT_OPERATOR_BOOL();
 			HKEY Key() const { return m_Key; }
 
 		private:
@@ -413,7 +414,8 @@ namespace os
 			~module();
 
 			FARPROC GetProcAddress(const char* name) const { return ::GetProcAddress(get_module(), name); }
-			operator bool() const { return get_module() != nullptr; }
+			bool operator!() const { return !get_module(); }
+			EXPLICIT_OPERATOR_BOOL();
 
 		private:
 			HMODULE get_module() const;
@@ -434,7 +436,6 @@ namespace os
 				m_pointer(reinterpret_cast<T>(m_module.GetProcAddress(Name)))
 			{}
 			operator T() const { return m_pointer; }
-			operator bool() const { return m_pointer != nullptr; }
 
 		private:
 			const module& m_module;

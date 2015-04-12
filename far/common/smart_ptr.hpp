@@ -40,7 +40,8 @@ public:
 	void swap(array_ptr& other) noexcept { using std::swap; m_array.swap(other.m_array); swap(m_size, other.m_size); }
 	FREE_SWAP(array_ptr);
 	size_t size() const {return m_size;}
-	operator bool() const { return get() != nullptr; }
+	bool operator!() const { return !get(); }
+	EXPLICIT_OPERATOR_BOOL();
 	T* get() const {return m_array.get();}
 	T* operator->() const { return get(); }
 	T& operator*() const { return *get(); }
