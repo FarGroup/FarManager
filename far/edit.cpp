@@ -1191,7 +1191,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 			}
 			else
 			{
-				m_Str.erase(m_CurPos);
+				m_Str.erase(m_CurPos, 1);
 			}
 
 			Changed(true);

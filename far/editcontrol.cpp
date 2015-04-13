@@ -401,7 +401,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 				// magic
 				if(IsSlash(m_Str[SelStart-1]) && m_Str[SelStart-2] == L'"' && IsSlash(ComplMenu->GetItemPtr(0)->strName[SelStart-2]))
 				{
-					m_Str.erase(SelStart - 2);
+					m_Str.erase(SelStart - 2, 1);
 					SelStart--;
 					m_CurPos--;
 				}
@@ -505,7 +505,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 										// magic
 										if(IsSlash(m_Str[SelStart-1]) && m_Str[SelStart-2] == L'"' && IsSlash(ComplMenu->GetItemPtr(0)->strName[SelStart-2]))
 										{
-											m_Str.erase(SelStart - 2);
+											m_Str.erase(SelStart - 2, 1);
 											SelStart--;
 											m_CurPos--;
 										}

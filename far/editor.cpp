@@ -7225,7 +7225,7 @@ bool Editor::SetCodePage(uintptr_t codepage, bool *BOM)
 			auto& first = *Lines.begin();
 			if (!first.m_Str.empty() && first.m_Str[0] == Utf::BOM_CHAR)
 			{
-				first.m_Str.erase(0);
+				first.m_Str.erase(0, 1);
 				*BOM = true;
 			}
 		}
