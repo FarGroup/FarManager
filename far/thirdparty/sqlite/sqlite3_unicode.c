@@ -2943,6 +2943,10 @@ SQLITE_PRIVATE int sqlite3StrNICmp16(const void *zLeft, const void *zRight, int 
   const unsigned short *b = zRight;
   signed int ua = 0, ub = 0;
 
+  // BUGBUG begin: N in bytes but comparison expects u16-chars
+  N /= sizeof(unsigned short);
+  // BUGBUG end
+
   do {
     ua = *a;                    ub = *b;
     ua = GlogUpperToLower(ua);  ub = GlogUpperToLower(ub);

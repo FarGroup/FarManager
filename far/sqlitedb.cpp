@@ -207,7 +207,6 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 		sqlite::sqlite3* pDb;
 		auto Result = opener(Name, pDb);
 		Db.reset(pDb);
-		sqlite_unicode::sqlite3_unicode_init(Db.get());
 		return Result == SQLITE_OK;
 	};
 
