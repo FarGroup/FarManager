@@ -72,9 +72,7 @@ static int KeyCodeForALT_LastPressed=0;
 static MOUSE_EVENT_RECORD lastMOUSE_EVENT_RECORD;
 static int ShiftPressedLast=FALSE,AltPressedLast=FALSE,CtrlPressedLast=FALSE;
 
-static int RightShiftPressedLast=FALSE,RightAltPressedLast=FALSE,RightCtrlPressedLast=FALSE;
-
-static clock_t PressedLastTime,KeyPressedLastTime;
+static clock_t KeyPressedLastTime;
 static int ShiftState=0;
 static int LastShiftEnterPressed=FALSE;
 
@@ -829,12 +827,11 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 	{
 		/* $ 28.04.2001 VVM
 		  + Не только обработаем сами смену фокуса, но и передадим дальше */
-		IntKeyState.ShiftPressed=RightShiftPressedLast=ShiftPressedLast=FALSE;
-		IntKeyState.CtrlPressed=CtrlPressedLast=RightCtrlPressedLast=FALSE;
-		IntKeyState.AltPressed=AltPressedLast=RightAltPressedLast=FALSE;
+		IntKeyState.ShiftPressed=ShiftPressedLast=FALSE;
+		IntKeyState.CtrlPressed=CtrlPressedLast=FALSE;
+		IntKeyState.AltPressed=AltPressedLast=FALSE;
 		IntKeyState.MouseButtonState=0;
 		ShiftState=FALSE;
-		PressedLastTime=0;
 		Console().ReadInput(rec, 1, ReadCount);
 		CalcKey=rec->Event.FocusEvent.bSetFocus?KEY_GOTFOCUS:KEY_KILLFOCUS;
 		//чтоб решить баг винды приводящий к появлению скролов и т.п. после потери фокуса
@@ -940,43 +937,19 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		if (!KeyCode)
 			return KEY_NONE;
 
-		RightShiftPressedLast=FALSE;
-		CtrlPressedLast=RightCtrlPressedLast=FALSE;
-		AltPressedLast=RightAltPressedLast=FALSE;
+		CtrlPressedLast=FALSE;
+		AltPressedLast=FALSE;
 		ShiftPressedLast=(KeyCode==VK_SHIFT && rec->Event.KeyEvent.bKeyDown) ||
 		                 (KeyCode==VK_RETURN && IntKeyState.ShiftPressed && !rec->Event.KeyEvent.bKeyDown);
 
-		if (!ShiftPressedLast)
-			if (KeyCode==VK_CONTROL && rec->Event.KeyEvent.bKeyDown)
-			{
-				if (CtrlState & RIGHT_CTRL_PRESSED)
-				{
-					RightCtrlPressedLast=TRUE;
-				}
-				else
-				{
-					CtrlPressedLast=TRUE;
-				}
-			}
-
-		if (!ShiftPressedLast && !CtrlPressedLast && !RightCtrlPressedLast)
+		if (!ShiftPressedLast && KeyCode==VK_CONTROL && rec->Event.KeyEvent.bKeyDown && CtrlState&RIGHT_CTRL_PRESSED)
 		{
-			if (KeyCode==VK_MENU && rec->Event.KeyEvent.bKeyDown)
-			{
-				if (CtrlState & RIGHT_ALT_PRESSED)
-				{
-					RightAltPressedLast=TRUE;
-				}
-				else
-				{
-					AltPressedLast=TRUE;
-				}
-
-				PressedLastTime=CurClock;
-			}
+			CalcKey=KEY_RCTRL;
 		}
-		else
-			PressedLastTime=CurClock;
+		else if (!ShiftPressedLast && KeyCode==VK_MENU && rec->Event.KeyEvent.bKeyDown && CtrlState&RIGHT_ALT_PRESSED)
+		{
+			CalcKey=KEY_RALT;
+		}
 
 		Panel::EndDrag();
 	}
