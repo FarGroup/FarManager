@@ -3780,6 +3780,8 @@ BOOL Editor::Search(int Next)
 										ProcessKey(Manager::Key(Ch));
 								}
 
+								bool NeedUpdateCurPtr = false;
+
 								if (!SearchLength)
 								{
 									m_Flags.Clear(FEDITOR_OVERTYPE);
@@ -3788,7 +3790,7 @@ BOOL Editor::Search(int Next)
 									for (; I<static_cast<int>(strReplaceStrCurrent.size()); I++)
 									{
 										int Ch=strReplaceStrCurrent[I];
-
+										NeedUpdateCurPtr = Ch == KEY_ENTER;
 										if (Ch!=KEY_BS && !(Ch==KEY_DEL || Ch==KEY_NUMDEL))
 											ProcessKey(Manager::Key(Ch));
 									}
@@ -3799,6 +3801,11 @@ BOOL Editor::Search(int Next)
 									{
 										ProcessKey(Manager::Key(KEY_DEL));
 									}
+								}
+
+								if (NeedUpdateCurPtr)
+								{
+									CurPtr = m_it_CurLine;
 								}
 
 								m_Flags.Change(FEDITOR_OVERTYPE,SaveOvertypeMode!=0);
