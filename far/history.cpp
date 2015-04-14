@@ -104,7 +104,7 @@ void History::AddToHistory(const string& Str, history_record_type Type, const GU
 
 	unsigned __int64 DeleteId = 0;
 
-	const bool ignore_data = (m_TypeHistory == HISTORYTYPE_CMD) && !Global->Opt->PerFolderCmdHistory;
+	const bool ignore_data = m_TypeHistory == HISTORYTYPE_CMD;
 
 	if (m_RemoveDups) // удалять дубликаты?
 	{
@@ -187,21 +187,20 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 
 	while (!Done)
 	{
-		struct hRecord
-		{
-			unsigned __int64 id;
-			unsigned __int64 Time;
-			string  Name;
-			int     prev;
-			bool    Lock, Lock_db;
-			bool    hide;
-		};
-		std::vector<hRecord> records;
-		std::unordered_map<string, int> name2idx;
-
 		bool IsUpdate=false;
 		HistoryMenu.DeleteItems();
 		{
+			bool bSelected=false;
+			DWORD index=0;
+			string strHName,strHGuid,strHFile,strHData;
+			history_record_type HType;
+			bool HLock;
+			unsigned __int64 id;
+			unsigned __int64 Time;
+			SYSTEMTIME st;
+			GetLocalTime(&st);
+			int LastDay=0, LastMonth = 0, LastYear = 0;
+
 			const auto GetTitle = [](history_record_type Type) -> const wchar_t*
 			{
 				switch (Type)
@@ -219,57 +218,25 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 				return L"";
 			};
 
-			DWORD index=0;
-			string strHName,strHGuid,strHFile,strHData;
-			history_record_type HType;
-			hRecord rec;
-
-			while (HistoryCfgRef()->Enum(index++,m_TypeHistory,m_HistoryName,&rec.id,strHName,&HType,&rec.Lock_db,&rec.Time,strHGuid,strHFile,strHData,m_TypeHistory==HISTORYTYPE_DIALOG))
+			while (HistoryCfgRef()->Enum(index++,m_TypeHistory,m_HistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData,m_TypeHistory==HISTORYTYPE_DIALOG))
 			{
-				rec.Name.clear();
-				rec.prev = -1;
-				rec.hide = false;
-				rec.Lock = rec.Lock_db;
+				string strRecord;
 
 				if (m_TypeHistory == HISTORYTYPE_VIEW)
-					rec.Name = GetTitle(HType) + string(L":") + (HType == HR_EDITOR_RO ? L"-" : L" ");
+					strRecord = GetTitle(HType) + string(L":") + (HType == HR_EDITOR_RO ? L"-" : L" ");
 
 				else if (m_TypeHistory == HISTORYTYPE_FOLDER)
 				{
 					GUID HGuid;
 					if(StrToGuid(strHGuid,HGuid) &&  HGuid != FarGuid)
 					{
-						const auto pPlugin = Global->CtrlObject->Plugins->FindPlugin(HGuid);
-						rec.Name = (pPlugin ? pPlugin->GetTitle() : L"{" + strHGuid + L"}") + L":";
+						Plugin *pPlugin = Global->CtrlObject->Plugins->FindPlugin(HGuid);
+						strRecord = (pPlugin ? pPlugin->GetTitle() : L"{" + strHGuid + L"}") + L":";
 						if(!strHFile.empty())
-							rec.Name += strHFile + L":";
+							strRecord += strHFile + L":";
 					}
 				}
-				rec.Name += strHName;
-
-				if (m_TypeHistory == HISTORYTYPE_CMD)
-				{
-					auto found = name2idx.find(rec.Name);
-					if (found != name2idx.end())
-					{
-						rec.prev = found->second;
-						rec.Lock = rec.Lock || records[rec.prev].Lock;
-						records[rec.prev].hide = true;
-					}
-					name2idx[rec.Name] = static_cast<int>(records.size());
-				}
-				records.push_back(rec);
-			}
-			
-			bool bSelected = false;
-			int LastDay=0, LastMonth = 0, LastYear = 0;
-
-			for (int i = 0, size = static_cast<int>(records.size()); i != size; ++i)
-			{
-				if (records[i].hide)
-					continue;
-
-				auto FTTime = UI64ToFileTime(records[i].Time);
+				auto FTTime = UI64ToFileTime(Time);
 				SYSTEMTIME SavedTime;
 				Utc2Local(FTTime, SavedTime);
 				if(LastDay != SavedTime.wDay || LastMonth != SavedTime.wMonth || LastYear != SavedTime.wYear)
@@ -283,21 +250,21 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 					ConvertDate(FTTime, Separator.strName, strTime, 5, FALSE, FALSE, TRUE);
 					HistoryMenu.AddItem(Separator);
 				}
+				strRecord += strHName;
 
-				string strRecord(records[i].Name);
 				if (m_TypeHistory != HISTORYTYPE_DIALOG)
 					ReplaceStrings(strRecord, L"&", L"&&");
 
 				MenuItemEx MenuItem(strRecord);
-				MenuItem.SetCheck(records[i].Lock ? 1 : 0);
+				MenuItem.SetCheck(HLock?1:0);
 
-				if (!SetUpMenuPos && m_CurrentItem==records[i].id)
+				if (!SetUpMenuPos && m_CurrentItem==id)
 				{
 					MenuItem.SetSelect(TRUE);
 					bSelected=true;
 				}
 
-				HistoryMenu.SetUserData(&i,sizeof(i),HistoryMenu.AddItem(MenuItem));
+				HistoryMenu.SetUserData(&id,sizeof(id),HistoryMenu.AddItem(MenuItem));
 			}
 
 			if (!SetUpMenuPos && !bSelected && m_TypeHistory!=HISTORYTYPE_DIALOG)
@@ -338,8 +305,8 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 			}
 
 			HistoryMenu.GetSelectPos(&Pos);
-			const void* Data = HistoryMenu.GetUserData(nullptr, 0,Pos.SelectPos);
-			const int iCurr = Data ? *static_cast<const int*>(Data) : -1;
+			void* Data = HistoryMenu.GetUserData(nullptr, 0,Pos.SelectPos);
+			unsigned __int64 CurrentRecord = Data? *static_cast<unsigned __int64*>(Data) : 0;
 			int KeyProcessed = 1;
 
 			switch (Key)
@@ -444,10 +411,10 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 				case KEY_CTRLINS:  case KEY_CTRLNUMPAD0:
 				case KEY_RCTRLINS: case KEY_RCTRLNUMPAD0:
 				{
-					if (iCurr >= 0)
+					if (CurrentRecord)
 					{
 						string strName;
-						if (HistoryCfgRef()->Get(records[iCurr].id, strName))
+						if (HistoryCfgRef()->Get(CurrentRecord, strName))
 							SetClipboard(strName);
 					}
 
@@ -457,12 +424,9 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 				case KEY_INS:
 				case KEY_NUMPAD0:
 				{
-					if (iCurr >= 0)
+					if (CurrentRecord)
 					{
-						for (int irec = iCurr; irec >= 0; irec = records[irec].prev)
-							if (records[irec].Lock_db == records[iCurr].Lock)
-								HistoryCfgRef()->FlipLock(records[irec].id);
-
+						HistoryCfgRef()->FlipLock(CurrentRecord);
 						ResetPosition();
 						HistoryMenu.Close(Pos.SelectPos);
 						IsUpdate=true;
@@ -474,11 +438,9 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 				case KEY_SHIFTNUMDEL:
 				case KEY_SHIFTDEL:
 				{
-					if (iCurr >= 0 && !records[iCurr].Lock)
+					if (CurrentRecord && !HistoryCfgRef()->IsLocked(CurrentRecord))
 					{
-						for (int irec = iCurr; irec >= 0; irec = records[irec].prev)
-							HistoryCfgRef()->Delete(records[irec].id);
-
+						HistoryCfgRef()->Delete(CurrentRecord);
 						ResetPosition();
 						HistoryMenu.Close(Pos.SelectPos);
 						IsUpdate=true;
@@ -522,8 +484,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 
 		if (MenuExitCode >= 0)
 		{
-			int iCurr = *static_cast<const int*>(HistoryMenu.GetUserData(nullptr, 0, MenuExitCode));
-			SelectedRecord = iCurr >= 0 ? records[iCurr].id : 0;
+			SelectedRecord = *static_cast<unsigned __int64*>(HistoryMenu.GetUserData(nullptr, 0, MenuExitCode));
 
 			if (!SelectedRecord)
 				return HRT_CANCEL;
@@ -661,12 +622,10 @@ bool History::GetAllSimilar(VMenu2 &HistoryMenu,const string& Str)
 	bool HLock;
 	unsigned __int64 id;
 	unsigned __int64 Time;
-	std::unordered_set<string> used;
 	while (HistoryCfgRef()->Enum(index++,m_TypeHistory,m_HistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData,true))
 	{
-		if (!StrCmpNI(Str.data(),strHName.data(),Length) && !used.count(strHName))
+		if (!StrCmpNI(Str.data(),strHName.data(),Length))
 		{
-			used.insert(strHName);
 			MenuItemEx NewItem(strHName);
 			if(HLock)
 			{
