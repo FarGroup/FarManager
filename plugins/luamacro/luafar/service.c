@@ -1739,7 +1739,7 @@ static int far_Menu(lua_State *L)
 			lua_pop(L,2);                   // vk=-2; bk=-1;
 		}
 
-		BreakKeys[ind].VirtualKeyCode = 0; // required by FAR API //TODO / SUSPICIOUS
+		BreakKeys[ind].VirtualKeyCode = 0; // required by FAR API
 		pBreakKeys = BreakKeys;
 		pBreakCode = &BreakCode;
 	}

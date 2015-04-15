@@ -75,12 +75,13 @@ intptr_t WINAPI Menu(
   <div class=dfn>HelpTopic</div>
     <div class=dfndescr><a href="../language/helptopic.html">“ема</a> в файле помощи, ассоциированна€ с меню. ћожет быть <code>NULL</code>, если подсказка не требуетс€.</div>
   <div class=dfn>BreakKeys</div>
-    <div class=dfndescr>јдрес массива с кодами виртуальных клавиш типа <a href="../structures/farkey.html">FarKey</a>, которые будут закрывать меню.
+    <div class=dfndescr>јдрес массива структур типа <a href="../structures/farkey.html">FarKey</a>, которые будут закрывать меню.
+     онец массива определ€етс€ дополнительным элементом, у которого значение пол€ <code>VirtualKeyCode</code> должно быть равно 0.
     ≈сли вам не нужно определ€ть такие клавиши в дополнение к стандартным (<kbd>Enter</kbd>, <kbd>Esc</kbd> и <kbd>F10</kbd>),установите этот параметр в <code>NULL</code>.
     <p>Ќапример, реакци€ на нажатие клавиши <kbd>F4</kbd> в меню обрабатываетс€ так:
     <pre class=code>
 int BreakCode;
-struct FarKey BreakKeys[1]={VK_F4,0};
+struct FarKey BreakKeys[] = {{VK_F4,0},{0,0}};
 ExitCode=Info.Menu(&MainGUID,&MenuGUID,-1,-1,0,FMENU_WRAPMODE,GetMsg(MArcCmdTitle),GetMsg(MSelectF4),L"ArcCmd",<b>BreakKeys</b>,&amp;BreakCode,MenuItems,Count);
 if(ExitCode&gt;=0)
 {
