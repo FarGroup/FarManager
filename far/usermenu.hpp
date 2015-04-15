@@ -40,14 +40,14 @@ class UserMenu: noncopyable
 	struct UserMenuItem;
 
 public:
-	UserMenu(bool MenuType); //	true - выбор типа меню (основное или локальное), false - зависит от наличия FarMenu.Ini в текущем каталоге
+	UserMenu(bool ChooseMenuType); //	true - выбор типа меню (основное или локальное), false - зависит от наличия FarMenu.Ini в текущем каталоге
 	UserMenu(const string& MenuFileName);
 	~UserMenu();
 
 	typedef std::list<UserMenuItem> menu_container;
 
 private:
-	void ProcessUserMenu(bool MenuType, const string& MenuFileName);
+	void ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName);
 	bool DeleteMenuRecord(menu_container& Menu, const menu_container::iterator& MenuItem);
 	bool EditMenu(menu_container& Menu, menu_container::iterator* MenuItem, bool Create);
 	int ProcessSingleMenu(menu_container& Menu, int MenuPos, menu_container& MenuRoot, const string& MenuFileName, const string& Title);
@@ -57,5 +57,6 @@ private:
 	MENUMODE m_MenuMode;
 	bool m_MenuModified;
 	bool m_ItemChanged;
+	uintptr_t m_MenuCP;
 	menu_container m_Menu;
 };

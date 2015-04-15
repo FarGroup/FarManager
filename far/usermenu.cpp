@@ -57,6 +57,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cache.hpp"
 #include "language.hpp"
 
+enum 
+{
+	default_menu_file_codepage = CP_UTF8
+};
+
+
 #if defined(PROJECT_DI_MEMOEDIT)
 /*
   Идея в следующем.
@@ -121,34 +127,36 @@ struct UserMenu::UserMenuItem
 	menu_container Menu;
 };
 
-static void MenuListToFile(const UserMenu::menu_container& Menu, CachedWrite& CW)
+static string SerializeMenu(const UserMenu::menu_container& Menu)
 {
-	std::for_each(CONST_RANGE(Menu, i)
+	string Result;
+	FOR(const auto& i, Menu)
 	{
-		CW.Write(i.strHotKey.data(), static_cast<DWORD>(i.strHotKey.size()*sizeof(WCHAR)));
-		CW.Write(L":  ", 3*sizeof(WCHAR));
-		CW.Write(i.strLabel.data(), static_cast<DWORD>(i.strLabel.size()*sizeof(WCHAR)));
-		CW.Write(L"\r\n", 2*sizeof(WCHAR));
+		Result += i.strHotKey;
+		Result += L":  ";
+		Result += i.strLabel;
+		Result += L"\r\n";
 
 		if (i.Submenu)
 		{
-			CW.Write(L"{\r\n", 3*sizeof(WCHAR));
-			MenuListToFile(i.Menu, CW);
-			CW.Write(L"}\r\n", 3*sizeof(WCHAR));
+			Result += L"{\r\n";
+			Result += SerializeMenu(i.Menu);
+			Result += L"}\r\n";
 		}
 		else
 		{
-			std::for_each(CONST_RANGE(i.Commands, str)
+			FOR(const auto& str, i.Commands)
 			{
-				CW.Write(L"    ", 4*sizeof(WCHAR));
-				CW.Write(str.data(), static_cast<DWORD>(str.size()*sizeof(WCHAR)));
-				CW.Write(L"\r\n", 2*sizeof(WCHAR));
-			});
+				Result += L"    ";
+				Result += str;
+				Result += L"\r\n";
+			}
 		}
-	});
+	}
+	return Result;
 }
 
-static void MenuFileToList(UserMenu::menu_container& Menu, GetFileString& GetStr, uintptr_t MenuCP = CP_UNICODE)
+static void ParseMenu(UserMenu::menu_container& Menu, GetFileString& GetStr, bool OldFormat)
 {
 	UserMenu::menu_container::value_type *MenuItem = nullptr;
 
@@ -162,7 +170,7 @@ static void MenuFileToList(UserMenu::menu_container& Menu, GetFileString& GetStr
 
 		if (MenuStr.front() == L'{' && MenuItem)
 		{
-			MenuFileToList(MenuItem->Menu, GetStr, MenuCP);
+			ParseMenu(MenuItem->Menu, GetStr, OldFormat);
 			MenuItem = nullptr;
 			continue;
 		}
@@ -196,7 +204,7 @@ static void MenuFileToList(UserMenu::menu_container& Menu, GetFileString& GetStr
 			MenuItem->Submenu = (GetStr.PeekString(&Tmp, TmpLength) && *Tmp == L'{');
 
 			// Support for old 1.x separator format
-			if (MenuCP==CP_OEMCP && MenuItem->strHotKey==L"-" && MenuItem->strLabel.empty())
+			if (OldFormat && MenuItem->strHotKey == L"-" && MenuItem->strLabel.empty())
 			{
 				MenuItem->strHotKey += L"-";
 			}
@@ -209,18 +217,39 @@ static void MenuFileToList(UserMenu::menu_container& Menu, GetFileString& GetStr
 	}
 }
 
-UserMenu::UserMenu(bool MenuType):
+static void DeserializeMenu(UserMenu::menu_container& Menu, os::fs::file& File, uintptr_t& Codepage)
+{
+	bool OldFormat = false;
+
+	if (!GetFileFormat(File, Codepage))
+	{
+		Codepage = GetOEMCP();
+		OldFormat = true;
+	}
+
+	GetFileString GetStr(File, Codepage);
+	ParseMenu(Menu, GetStr, OldFormat);
+
+	if (!IsUnicodeOrUtfCodePage(Codepage))
+	{
+		Codepage = default_menu_file_codepage;
+	}
+}
+
+UserMenu::UserMenu(bool ChooseMenuType):
 	m_MenuMode(MM_LOCAL),
 	m_MenuModified(false),
-	m_ItemChanged(false)
+	m_ItemChanged(false),
+	m_MenuCP(default_menu_file_codepage)
 {
-	ProcessUserMenu(MenuType, string());
+	ProcessUserMenu(ChooseMenuType, string());
 }
 
 UserMenu::UserMenu(const string& MenuFileName):
 	m_MenuMode(MM_LOCAL),
 	m_MenuModified(false),
-	m_ItemChanged(false)
+	m_ItemChanged(false),
+	m_MenuCP(default_menu_file_codepage)
 {
 	ProcessUserMenu(false, MenuFileName);
 }
@@ -250,28 +279,47 @@ void UserMenu::SaveMenu(const string& MenuFileName)
 				os::SetFileAttributes(MenuFileName,FILE_ATTRIBUTE_NORMAL);
 		}
 
-		// Don't use CreationDisposition=CREATE_ALWAYS here - it kills alternate streams
-		os::fs::file MenuFile;
-		if (MenuFile.Open(MenuFileName,GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr==INVALID_FILE_ATTRIBUTES?CREATE_NEW:TRUNCATE_EXISTING))
+		auto SerializedMenu = SerializeMenu(m_Menu);
+		if (!SerializedMenu.empty())
 		{
-			CachedWrite CW(MenuFile);
-			WCHAR Data = SIGN_UNICODE;
-			CW.Write(&Data, 1*sizeof(WCHAR));
-			MenuListToFile(m_Menu, CW);
-			CW.Flush();
-			UINT64 Size = 0;
-			MenuFile.GetSize(Size);
-			MenuFile.Close();
+			os::fs::file MenuFile;
+			// Don't use CreationDisposition=CREATE_ALWAYS here - it kills alternate streams
+			if (MenuFile.Open(MenuFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr == INVALID_FILE_ATTRIBUTES ? CREATE_NEW : TRUNCATE_EXISTING))
+			{
+				if (IsUnicodeOrUtfCodePage(m_MenuCP))
+				{
+					SerializedMenu.insert(0, 1, SIGN_UNICODE);
+				}
 
+				std::vector<char> Buffer;
+				blob MenuBlob;
+				if (m_MenuCP == CP_UNICODE)
+				{
+					// no translation
+					MenuBlob = blob(SerializedMenu.data(), SerializedMenu.size() * sizeof(wchar_t));
+				}
+				else
+				{
+					Buffer = Multi::ToMultiByte(m_MenuCP, SerializedMenu.data(), SerializedMenu.size());
+					MenuBlob = blob(Buffer.data(), Buffer.size());
+				}
+
+				size_t Written;
+				MenuFile.Write(MenuBlob.data(), MenuBlob.size(), Written);
+
+				//BUGBUG, check if successful
+
+				MenuFile.Close();
+				if (FileAttr != INVALID_FILE_ATTRIBUTES)
+				{
+					os::SetFileAttributes(MenuFileName, FileAttr);
+				}
+			}
+		}
+		else
+		{
 			// если файл FarMenu.ini пуст, то удалим его
-			if (Size<3) // 2 for BOM
-			{
-				os::DeleteFile(MenuFileName);
-			}
-			else if (FileAttr!=INVALID_FILE_ATTRIBUTES)
-			{
-				os::SetFileAttributes(MenuFileName,FileAttr);
-			}
+			os::DeleteFile(MenuFileName);
 		}
 	}
 }
@@ -302,7 +350,7 @@ static string GetMenuTitle(MENUMODE MenuMode)
 	return strMenuTitle;
 }
 
-void UserMenu::ProcessUserMenu(bool MenuType, const string& MenuFileName)
+void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 {
 	// Путь к текущему каталогу с файлом LocalMenuFileName
 	auto strMenuFilePath = Global->CtrlObject->CmdLine()->GetCurDir();
@@ -310,7 +358,7 @@ void UserMenu::ProcessUserMenu(bool MenuType, const string& MenuFileName)
 	m_MenuMode = MM_LOCAL;
 	m_MenuModified = false;
 
-	if (MenuType)
+	if (ChooseMenuType)
 	{
 		int EditChoice=Message(0,3,MSG(MUserMenuTitle),MSG(MChooseMenuType),MSG(MChooseMenuMain),MSG(MChooseMenuLocal),MSG(MCancel));
 
@@ -349,12 +397,7 @@ void UserMenu::ProcessUserMenu(bool MenuType, const string& MenuFileName)
 		bool FileOpened = PathCanHoldRegularFile(strMenuFilePath) ? MenuFile.Open(strMenuFileFullPath,GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING) : false;
 		if (FileOpened)
 		{
-			uintptr_t MenuCP;
-			if (!GetFileFormat(MenuFile, MenuCP))
-				MenuCP = CP_OEMCP;
-
-			GetFileString GetStr(MenuFile, MenuCP);
-			MenuFileToList(m_Menu, GetStr);
+			DeserializeMenu(m_Menu, MenuFile, m_MenuCP);
 			MenuFile.Close();
 		}
 		else if (m_MenuMode != MM_USER)
@@ -366,7 +409,7 @@ void UserMenu::ProcessUserMenu(bool MenuType, const string& MenuFileName)
 				strMenuFilePath = Global->Opt->ProfilePath;
 				continue;
 			}
-			else if (!MenuType)
+			else if (!ChooseMenuType)
 			{
 				if (!FirstRun)
 				{
@@ -643,7 +686,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					{
 						auto OldTitle = std::make_unique<ConsoleTitle>();
 						SaveMenu(MenuFileName);
-						auto ShellEditor = FileEditor::create(MenuFileName, CP_UNICODE, FFILEEDIT_DISABLEHISTORY, -1, -1, nullptr);
+						auto ShellEditor = FileEditor::create(MenuFileName, m_MenuCP, FFILEEDIT_DISABLEHISTORY, -1, -1, nullptr);
 						OldTitle.reset();
 						Global->WindowManager->ExecuteModal(ShellEditor);
 						if (!ShellEditor->IsFileChanged() || (!MenuFile.Open(MenuFileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING)))
@@ -654,13 +697,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 						}
 					}
 					MenuRoot.clear();
-
-					uintptr_t MenuCP;
-					if (!GetFileFormat(MenuFile, MenuCP))
-						MenuCP = CP_OEMCP;
-
-					GetFileString GetStr(MenuFile, MenuCP);
-					MenuFileToList(MenuRoot, GetStr);
+					DeserializeMenu(MenuRoot, MenuFile, m_MenuCP);
 					MenuFile.Close();
 					m_MenuModified=true;
 					ReturnCode=0;

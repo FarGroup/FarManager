@@ -7072,7 +7072,7 @@ DWORD Editor::EditSetCodePage(const iterator& edit, uintptr_t codepage, bool che
 		if (3 * static_cast<size_t>(edit->m_Str.size()) + 1 > decoded.size())
 			decoded.resize(256 + 4 * edit->m_Str.size());
 
-		int length = Multi::ToMultiByte(m_codepage, edit->m_Str.data(), edit->m_Str.size(), decoded.data(), static_cast<int>(decoded.size()), lpUsedDefaultChar);
+		const size_t length = Multi::ToMultiByte(m_codepage, edit->m_Str.data(), edit->m_Str.size(), decoded.data(), decoded.size(), lpUsedDefaultChar);
 		if (!length || UsedDefaultChar)
 		{
 			Ret |= SETCP_WC2MBERROR;
@@ -7080,7 +7080,7 @@ DWORD Editor::EditSetCodePage(const iterator& edit, uintptr_t codepage, bool che
 				return Ret;
 		}
 
-		int length2;
+		size_t length2;
 		if (codepage == CP_UTF8 || codepage == CP_UTF7)
 		{
 			Utf::Errs errs;
@@ -7091,27 +7091,22 @@ DWORD Editor::EditSetCodePage(const iterator& edit, uintptr_t codepage, bool che
 		else
 		{
 			// BUGBUG: CP_SYMBOL, 50xxx, 57xxx
-			length2 = MultiByteToWideChar(codepage, MB_ERR_INVALID_CHARS, decoded.data(), length, nullptr, 0);
+			length2 = MultiByteToWideChar(codepage, MB_ERR_INVALID_CHARS, decoded.data(), static_cast<int>(length), nullptr, 0);
 			if (!length2 && GetLastError() == ERROR_NO_UNICODE_TRANSLATION)
 			{
 				Ret |= SETCP_MB2WCERROR;
 				if (!check_only)
-					length2 = MultiByteToWideChar(codepage, 0, decoded.data(), length, nullptr, 0);
+					length2 = MultiByteToWideChar(codepage, 0, decoded.data(), static_cast<int>(length), nullptr, 0);
 			}
 		}
 		if (check_only)
 			return Ret;
 
-		if (edit->m_Str.size() < length2)
-		{
-			edit->m_Str.resize(length2);
-		}
-
 		std::vector<wchar_t> Buffer(ALL_CONST_RANGE(edit->m_Str));
 		if (codepage == CP_UTF8 || codepage == CP_UTF7)
 			length2 = Utf::ToWideChar(codepage, decoded.data(), length, Buffer.data(), static_cast<int>(Buffer.size()), nullptr);
 		else
-			length2 = MultiByteToWideChar(codepage, 0, decoded.data(), length, Buffer.data(), static_cast<int>(Buffer.size()));
+			length2 = MultiByteToWideChar(codepage, 0, decoded.data(), static_cast<int>(length), Buffer.data(), static_cast<int>(Buffer.size()));
 
 		Buffer.resize(length2);
 		edit->m_Str.assign(Buffer.data(), Buffer.size());
@@ -7143,9 +7138,9 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 			if (3 * static_cast<size_t>(i->m_Str.size()) + 1 > decoded.size())
 				decoded.resize(256 + 4 * i->m_Str.size());
 
-			std::vector<int> wchar_offsets;
+			std::vector<size_t> wchar_offsets;
 			wchar_offsets.reserve(i->m_Str.size() + 1);
-			int total_len = 0;
+			size_t total_len = 0;
 
 			BOOL def = FALSE, *p_def = m_codepage == CP_UTF8 ? nullptr : &def;
 			for (int j = 0; j < i->m_Str.size(); ++j)
@@ -7153,8 +7148,8 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 				wchar_offsets.push_back(total_len);
 				char *s = decoded.data() + total_len;
 
-				int len = Multi::ToMultiByte(m_codepage, i->m_Str.data() + j, 1, s, 3, p_def);
-				if (len <= 0 || def)
+				const size_t len = Multi::ToMultiByte(m_codepage, i->m_Str.data() + j, 1, s, 3, p_def);
+				if (!len || def)
 				{
 					X = j;
 					return false;
@@ -7172,7 +7167,7 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 			else
 			{
 				int max_len = codepage == CP_UTF8 ? 3 : 2;
-				for (int j=0; j < total_len; )
+				for (size_t j = 0; j != total_len; )
 				{
 					int len;
 					for (len=1; len <= max_len; ++len)
@@ -7180,7 +7175,7 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 						if (j + len <= total_len)
 						{
 							int len2 = MultiByteToWideChar(codepage, MB_ERR_INVALID_CHARS, decoded.data()+j, len, nullptr, 0);
-							if (len2 <= 0 && GetLastError() == ERROR_NO_UNICODE_TRANSLATION)
+							if (!len2 && GetLastError() == ERROR_NO_UNICODE_TRANSLATION)
 								continue;
 							else
 								break;
@@ -7193,7 +7188,7 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 					}
 					else
 					{
-						err_pos = j;
+						err_pos = static_cast<int>(j);
 						break;
 					}
 				}

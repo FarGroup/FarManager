@@ -2044,6 +2044,8 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		size_t LineNumber = -1;
 		CachedWrite Cache(EditFile);
 
+		std::vector<char> Buffer;
+
 		FOR_RANGE(m_editor->Lines, CurPtr)
 		{
 			++LineNumber;
@@ -2084,43 +2086,26 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			}
 			else
 			{
-				if (Length)
+				const auto EncodeAndWriteBlock = [&](const wchar_t* Data, size_t Size)
 				{
-					auto length = Multi::ToMultiByte(codepage, SaveStr, static_cast<int>(Length), nullptr, 0, nullptr);
-					char_ptr SaveStrCopy(length);
-
-					if (SaveStrCopy)
+					if (Size)
 					{
-						Multi::ToMultiByte(codepage, SaveStr, static_cast<int>(Length), SaveStrCopy.get(), length, nullptr);
-						if (!Cache.Write(SaveStrCopy.get(),length))
+						const auto EncodedSize = Multi::ToMultiByte(codepage, Data, Size, nullptr, 0);
+						Buffer.resize(EncodedSize);
+						Multi::ToMultiByte(codepage, Data, Size, Buffer.data(), Buffer.size());
+						if (!Cache.Write(Buffer.data(), Buffer.size()))
 						{
 							bError = true;
 							Global->CatchError();
 						}
 					}
-					else
-						bError = true;
-				}
+				};
+
+				EncodeAndWriteBlock(SaveStr, Length);
 
 				if (!bError)
 				{
-					if (EndLength)
-					{
-						DWORD endlength = (codepage == CP_REVERSEBOM?static_cast<DWORD>(EndLength*sizeof(wchar_t)):WideCharToMultiByte(codepage, 0, EndSeq, EndLength, nullptr, 0, nullptr, nullptr));
-						char_ptr EndSeqCopy(endlength);
-
-						if (EndSeqCopy)
-						{
-							Multi::ToMultiByte(codepage, EndSeq, EndLength, EndSeqCopy.get(), endlength, nullptr);
-							if (!Cache.Write(EndSeqCopy.get(),endlength))
-							{
-								bError = true;
-								Global->CatchError();
-							}
-						}
-						else
-							bError = true;
-					}
+					EncodeAndWriteBlock(EndSeq, EndLength);
 				}
 			}
 

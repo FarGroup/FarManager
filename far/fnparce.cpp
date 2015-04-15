@@ -817,36 +817,21 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 					}
 				}
 
-				LPCVOID Ptr=nullptr;
-				char_ptr Buffer;
-				size_t NumberOfBytesToWrite = 0, NumberOfBytesWritten = 0;
+				blob Blob;
+				std::vector<char> Buffer;
 
 				if (CodePage==CP_UNICODE)
 				{
-					Ptr=strFileName.data();
-					NumberOfBytesToWrite = strFileName.size()*sizeof(WCHAR);
+					Blob = blob(strFileName.data(), strFileName.size() * sizeof(wchar_t));
 				}
 				else
 				{
-					int Size=WideCharToMultiByte(CodePage,0,strFileName.data(),static_cast<int>(strFileName.size()),nullptr,0,nullptr,nullptr);
-
-					if (Size)
-					{
-						Buffer.reset(Size);
-
-						if (Buffer)
-						{
-							NumberOfBytesToWrite=WideCharToMultiByte(CodePage, 0, strFileName.data(), static_cast<int>(strFileName.size()), Buffer.get(), Size, nullptr, nullptr);
-							Ptr=Buffer.get();
-						}
-					}
+					Buffer = Multi::ToMultiByte(CodePage, strFileName.data(), strFileName.size());
+					Blob = blob(Buffer.data(), Buffer.size());
 				}
 
-				BOOL Written=ListFile.Write(Ptr,NumberOfBytesToWrite,NumberOfBytesWritten);
-
-				Buffer.reset();
-
-				if (Written && NumberOfBytesWritten==NumberOfBytesToWrite)
+				size_t NumberOfBytesWritten = 0;
+				if (ListFile.Write(Blob.data(), Blob.size(), NumberOfBytesWritten) && NumberOfBytesWritten == Blob.size())
 				{
 					if (ListFile.Write(Eol,EolSize,NumberOfBytesWritten) && NumberOfBytesWritten==EolSize)
 					{

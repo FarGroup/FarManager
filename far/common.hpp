@@ -161,6 +161,7 @@ private:
 class blob
 {
 public:
+	blob(): m_Data(), m_Size() {}
 	blob(const void* Data, size_t Size): m_Data(Data), m_Size(Size) {}
 	const void* data() const { return m_Data; }
 	size_t size() const { return m_Size; }

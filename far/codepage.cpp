@@ -973,30 +973,37 @@ int MultibyteCodepageDecoder::GetChar(const BYTE *bf, size_t cb, wchar_t& wc) co
 	}
 }
 
-int Multi::ToMultiByte(uintptr_t cp, const wchar_t *src, int srclen, char *dst, int dstlen, LPBOOL lpUsedDefaultChar)
+size_t Multi::ToMultiByte(uintptr_t cp, const wchar_t *src, size_t srclen, char *dst, size_t dstlen, LPBOOL lpUsedDefaultChar)
 {
 	if (cp == CP_UTF8)
 	{
-		int len=Utf8::ToMultiByte(src, srclen, dst);
+		const size_t len=Utf8::ToMultiByte(src, srclen, dst);
 		if (dst) assert(len<=dstlen);
 		return len;
 	}
 	else if (cp == CP_REVERSEBOM)
 	{
 		if (dst)
-			_swab(reinterpret_cast<char*>(const_cast<wchar_t*>(src)), dst, dstlen);
+			_swab(reinterpret_cast<char*>(const_cast<wchar_t*>(src)), dst, static_cast<int>(dstlen));
 		return srclen * sizeof(wchar_t);
 	}
 	else
 	{
-		return WideCharToMultiByte(cp, 0, src, srclen, dst, dstlen, nullptr, lpUsedDefaultChar);
+		return WideCharToMultiByte(cp, 0, src, static_cast<int>(srclen), dst, static_cast<int>(dstlen), nullptr, lpUsedDefaultChar);
 	}
+}
+
+std::vector<char> Multi::ToMultiByte(uintptr_t Codepage, const wchar_t *Data, size_t Size, LPBOOL lpUsedDefaultChar)
+{
+	std::vector<char> Buffer(Multi::ToMultiByte(Codepage, Data, Size, nullptr, 0));
+	Multi::ToMultiByte(Codepage, Data, Size, Buffer.data(), Buffer.size(), lpUsedDefaultChar);
+	return Buffer;
 }
 
 //################################################################################################
 //################################################################################################
 
-int Utf::ToWideChar(uintptr_t cp,const char *src, int len, wchar_t* out, int wlen, Errs *errs)
+int Utf::ToWideChar(uintptr_t cp, const char *src, size_t len, wchar_t* out, size_t wlen, Errs *errs)
 {
 	if (cp == CP_UTF8)
 		return Utf8::ToWideChar(src, len, out, wlen, errs);
@@ -1169,8 +1176,12 @@ static int Utf7_GetChar(const BYTE *bf, size_t cb, wchar_t& wc, int& state)
 	return nc;
 }
 
-int Utf7::ToWideChar(const char *src, int length, wchar_t* out, int wlen, Utf::Errs *errs)
+int Utf7::ToWideChar(const char *src, size_t U_length, wchar_t* out, size_t U_wlen, Utf::Errs *errs)
 {
+	// BUGBUG
+	int length = static_cast<int>(U_length);
+	int wlen = static_cast<int>(U_wlen);
+
 	if (errs)
 	{
 		errs->first_src = errs->first_out = -1;
@@ -1226,8 +1237,12 @@ int Utf7::ToWideChar(const char *src, int length, wchar_t* out, int wlen, Utf::E
 
 //################################################################################################
 
-int Utf8::ToWideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int wlen, int &tail )
+int Utf8::ToWideChar(const char *s, size_t U_nc, wchar_t *w1, wchar_t *w2, size_t U_wlen, int &tail)
 {
+	// BUGBUG
+	int nc = static_cast<int>(U_nc);
+	int wlen = static_cast<int>(U_wlen);
+
 	bool need_one = wlen <= 0;
 	if (need_one)
 		wlen = 2;
@@ -1339,8 +1354,11 @@ unfinished:
 	return nw;
 }
 
-static inline int Utf8_GetChar(const char *src, int length, wchar_t* wc)
+static inline int Utf8_GetChar(const char *src, size_t U_length, wchar_t* wc)
 {
+	// BUGBUG
+	int length = static_cast<int>(U_length);
+
 	wchar_t w1[2], w2[2];
 	int tail;
 	int WCharCount = Utf8::ToWideChar(src, length, w1, w2, -2, tail);
@@ -1360,8 +1378,12 @@ static inline int Utf8_GetChar(const char *src, int length, wchar_t* wc)
 		return length - tail; // succeed: positive
  }
 
-int Utf8::ToWideChar(const char *src, int length, wchar_t* out, int wlen, Utf::Errs *errs)
+int Utf8::ToWideChar(const char *src, size_t U_length, wchar_t* out, size_t U_wlen, Utf::Errs *errs)
 {
+	// BUGBUG
+	int length = static_cast<int>(U_length);
+	int wlen = static_cast<int>(U_wlen);
+
 	if (errs)
 	{
 		errs->first_src = errs->first_out = -1;
@@ -1425,10 +1447,10 @@ int Utf8::ToWideChar(const char *src, int length, wchar_t* out, int wlen, Utf::E
 	return no;
 }
 
-int Utf8::ToMultiByte(const wchar_t *src, size_t len, char *dst)
+size_t Utf8::ToMultiByte(const wchar_t *src, size_t len, char *dst)
 {
 	const wchar_t *end = src + len;
-	int result=0;
+	size_t result=0;
 	while (src < end)
 	{
 		unsigned int c = *src++;

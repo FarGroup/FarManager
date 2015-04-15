@@ -150,7 +150,8 @@ private:
 
 namespace Multi
 {
-	int ToMultiByte(uintptr_t cp, const wchar_t *src, int srclen, char *dst, int dstlen, LPBOOL lpUsedDefaultChar=nullptr);
+	size_t ToMultiByte(uintptr_t cp, const wchar_t *src, size_t srclen, char *dst, size_t dstlen, LPBOOL lpUsedDefaultChar=nullptr);
+	std::vector<char> ToMultiByte(uintptr_t cp, const wchar_t *src, size_t srclen, LPBOOL lpUsedDefaultChar = nullptr);
 }
 
 namespace Utf
@@ -168,17 +169,17 @@ namespace Utf
 		bool small_buff;
 	};
 
-	int ToWideChar(uintptr_t cp,const char *src, int len, wchar_t* out, int wlen, Errs *errs);
+	int ToWideChar(uintptr_t cp, const char *src, size_t len, wchar_t* out, size_t wlen, Errs *errs);
 }
 
 namespace Utf7 {
-	int ToWideChar(const char *src, int len, wchar_t* out, int wlen, Utf::Errs *errs);
+	int ToWideChar(const char *src, size_t len, wchar_t* out, size_t wlen, Utf::Errs *errs);
 }
 
 namespace Utf8 {
-	int ToWideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int wlen, int &tail);
-	int ToWideChar(const char *src, int len, wchar_t* out, int wlen, Utf::Errs *errs);
-	int ToMultiByte(const wchar_t *src, size_t len, char *dst);
+	int ToWideChar(const char *s, size_t nc, wchar_t *w1, wchar_t *w2, size_t wlen, int &tail);
+	int ToWideChar(const char *src, size_t len, wchar_t* out, size_t wlen, Utf::Errs *errs);
+	size_t ToMultiByte(const wchar_t *src, size_t len, char *dst);
 }
 
 //#############################################################################

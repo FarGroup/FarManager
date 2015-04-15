@@ -233,10 +233,8 @@ DizList::desc_map::iterator DizList::Find(const string& Name, const string& Shor
 	//если файл описаний был в OEM/ANSI то имена файлов могут не совпадать с юникодными
 	if (i == DizData.end() && !IsUnicodeOrUtfCodePage(OrigCodePage) && OrigCodePage!=CP_DEFAULT)
 	{
-		std::vector<char> tmp(Name.size() + 1);
-		WideCharToMultiByte(OrigCodePage, 0, Name.data(), static_cast<int>(Name.size() + 1), tmp.data(), static_cast<int>(tmp.size()), nullptr, nullptr);
-
-		string strRecoded = wide(tmp.data(), OrigCodePage);
+		const auto tmp = Multi::ToMultiByte(OrigCodePage, Name.data(), Name.size());
+		const auto strRecoded = wide_n(tmp.data(), tmp.size(), OrigCodePage);
 
 		if (strRecoded==Name)
 			return DizData.end();
