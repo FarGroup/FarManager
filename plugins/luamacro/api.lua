@@ -70,13 +70,14 @@ mf.iif = function(Expr, res1, res2)
 end
 
 mf.usermenu = function(mode, filename)
-  if mode and type(mode)~="number" then return 0 end
+  if Shared.OnlyEditorViewerUsed then return end -- mantis #2986 (crash)
+  if mode and type(mode)~="number" then return end
   mode = mode or 0
   local sync_call = band(mode,0x100) ~= 0
   mode = band(mode,0xFF)
   if mode==0 or mode==1 then
-    if sync_call then return MacroCallFar(MCODE_F_USERMENU, mode==1)
-    else return yieldcall(F.MPRT_USERMENU, mode==1)
+    if sync_call then MacroCallFar(MCODE_F_USERMENU, mode==1)
+    else yieldcall(F.MPRT_USERMENU, mode==1)
     end
   elseif (mode==2 or mode==3) and type(filename)=="string" then
     if mode==3 then
@@ -84,11 +85,10 @@ mf.usermenu = function(mode, filename)
         filename = win.GetEnv("farprofile").."\\Menus\\"..filename
       end
     end
-    if sync_call then return MacroCallFar(MCODE_F_USERMENU, filename)
-    else return yieldcall(F.MPRT_USERMENU, filename)
+    if sync_call then MacroCallFar(MCODE_F_USERMENU, filename)
+    else yieldcall(F.MPRT_USERMENU, filename)
     end
   end
-  return 0
 end
 
 mf.GetMacroCopy = utils.GetMacroCopy

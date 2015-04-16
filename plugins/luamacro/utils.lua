@@ -36,6 +36,7 @@ end
 
 local MCODE_F_CHECKALL     = 0x80C64
 local MCODE_F_GETOPTIONS   = 0x80C65
+Shared.OnlyEditorViewerUsed = band(MacroCallFar(MCODE_F_GETOPTIONS),0x3) ~= 0
 
 local Areas
 local LoadedMacros
