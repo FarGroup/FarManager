@@ -3,6 +3,32 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 15.04.2015 22:47:32 +0200 - build 4351
+
+1. 0002872: Do not break the codepage of FarMenu.ini
+
+2. Related to #1 refactoring.
+
+w17 14.04.2015 15:03:44 +0300 - build 4350
+
+1. Rollback of 4324+, unnecessary feature.
+
+drkns 13.04.2015 14:09:29 +0200 - build 4349
+
+1. History could contain duplicate items (bug in sqlite_unicode.c)
+
+zg 13.04.2015 13:27:28 +0200 - build 4348
+
+1. correction of 4337: ralt does not switch the menu filter on.
+
+drkns 13.04.2015 10:40:22 +0200 - build 4347
+
+1. Correction of 4309.
+
+drkns 13.04.2015 09:52:11 +0200 - build 4346
+
+1. Correction of 4345.
+
 drkns 12.04.2015 22:26:53 +0200 - build 4345
 
 1. Refactoring.
