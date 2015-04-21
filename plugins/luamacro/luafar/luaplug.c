@@ -15,14 +15,6 @@ extern int FUNC_OPENLIBS(lua_State*);
 #define FUNC_OPENLIBS NULL
 #endif
 
-#ifndef ENV_PREFIX
-# ifdef _WIN64
-#  define ENV_PREFIX L"LUAFAR64"
-# else
-#  define ENV_PREFIX L"LUAFAR"
-# endif
-#endif
-
 typedef struct
 {
 	lua_State *LS;
@@ -111,7 +103,9 @@ __declspec(dllexport) int luaopen_luaplug(lua_State *L)
 static void InitLuaState2(lua_State *L, TPluginData* PluginData)
 {
 	LF_InitLuaState2(L, PluginData);
+#ifdef ENV_PREFIX
 	LF_ProcessEnvVars(L, ENV_PREFIX, G.PluginDir);
+#endif
 	lua_pushcfunction(L, luaopen_luaplug);
 	lua_setglobal(L, "_luaplug");
 }
