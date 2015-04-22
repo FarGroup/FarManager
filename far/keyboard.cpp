@@ -70,7 +70,15 @@ static unsigned int AltValue=0;
 static int KeyCodeForALT_LastPressed=0;
 
 static MOUSE_EVENT_RECORD lastMOUSE_EVENT_RECORD;
-static int ShiftPressedLast=FALSE,AltPressedLast=FALSE,CtrlPressedLast=FALSE;
+enum MODIF_PRESSED_LAST
+{
+	MODIF_SHIFT =0x00000001,
+	MODIF_ALT   =0x00000002,
+	MODIF_RALT  =0x00000004,
+	MODIF_CTRL  =0x00000008,
+	MODIF_RCTRL =0x00000010,
+};
+static BitFlags PressedLast;
 
 static clock_t KeyPressedLastTime;
 static int ShiftState=0;
@@ -827,9 +835,10 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 	{
 		/* $ 28.04.2001 VVM
 		  + Не только обработаем сами смену фокуса, но и передадим дальше */
-		IntKeyState.ShiftPressed=ShiftPressedLast=FALSE;
-		IntKeyState.CtrlPressed=CtrlPressedLast=FALSE;
-		IntKeyState.AltPressed=AltPressedLast=FALSE;
+		PressedLast.ClearAll();
+		IntKeyState.ShiftPressed=FALSE;
+		IntKeyState.CtrlPressed=FALSE;
+		IntKeyState.AltPressed=FALSE;
 		IntKeyState.MouseButtonState=0;
 		ShiftState=FALSE;
 		Console().ReadInput(rec, 1, ReadCount);
@@ -937,18 +946,25 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		if (!KeyCode)
 			return KEY_NONE;
 
-		CtrlPressedLast=FALSE;
-		AltPressedLast=FALSE;
-		ShiftPressedLast=(KeyCode==VK_SHIFT && rec->Event.KeyEvent.bKeyDown) ||
-		                 (KeyCode==VK_RETURN && IntKeyState.ShiftPressed && !rec->Event.KeyEvent.bKeyDown);
-
-		if (!ShiftPressedLast && KeyCode==VK_CONTROL && rec->Event.KeyEvent.bKeyDown && CtrlState&RIGHT_CTRL_PRESSED)
+		struct KeysData
 		{
-			CalcKey=KEY_RCTRL;
-		}
-		else if (!ShiftPressedLast && KeyCode==VK_MENU && rec->Event.KeyEvent.bKeyDown && CtrlState&RIGHT_ALT_PRESSED)
+			size_t FarKey;
+			size_t VkKey;
+			size_t Modif;
+			bool Enhanced;
+		} Keys[]=
 		{
-			CalcKey=KEY_RALT;
+			{KEY_SHIFT,VK_SHIFT,MODIF_SHIFT,false},
+			{KEY_ALT,VK_MENU,MODIF_ALT,false},
+			{KEY_RALT,VK_MENU,MODIF_RALT,true},
+			{KEY_CTRL,VK_CONTROL,MODIF_CTRL,false},
+			{KEY_RCTRL,VK_CONTROL,MODIF_RCTRL,true}
+		};
+		std::for_each(ALL_CONST_RANGE(Keys), [&CalcKey](const KeysData& A){if (CalcKey == A.FarKey && !PressedLast.Check(A.Modif)) CalcKey=KEY_NONE;});
+		PressedLast.ClearAll();
+		if (rec->Event.KeyEvent.bKeyDown)
+		{
+			std::for_each(ALL_CONST_RANGE(Keys), [KeyCode, CtrlState](const KeysData& A){if (KeyCode == A.VkKey && (!A.Enhanced || CtrlState&ENHANCED_KEY)) PressedLast.Set(A.Modif);});
 		}
 
 		Panel::EndDrag();
@@ -1976,49 +1992,64 @@ DWORD CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros, bool Pro
 	if (!rec->Event.KeyEvent.bKeyDown)
 	{
 		KeyCodeForALT_LastPressed=0;
+		auto ModifPressed=CtrlState&(LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED|LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED|SHIFT_PRESSED);
 
-		if (KeyCode==VK_MENU && AltValue)
+		switch (KeyCode)
 		{
-			INPUT_RECORD TempRec;
-			size_t ReadCount;
-			Console().ReadInput(&TempRec, 1, ReadCount);
-			IntKeyState.ReturnAltValue=TRUE;
-			AltValue&=0xFFFF;
-			/*
-			О перетаскивании из проводника / вставке текста в консоль, на примере буквы 'ы':
-
-			1. Нажимается Alt:
-			bKeyDown=TRUE,  wRepeatCount=1, wVirtualKeyCode=VK_MENU,    UnicodeChar=0,    dwControlKeyState=LEFT_ALT_PRESSED
-
-			2. Через numpad-клавиши вводится код символа в OEM, если он туда мапится, или 63 ('?'), если не мапится:
-			bKeyDown=TRUE,  wRepeatCount=1, wVirtualKeyCode=VK_NUMPAD2, UnicodeChar=0,    dwControlKeyState=LEFT_ALT_PRESSED
-			bKeyDown=FALSE, wRepeatCount=1, wVirtualKeyCode=VK_NUMPAD2, UnicodeChar=0,    dwControlKeyState=LEFT_ALT_PRESSED
-			bKeyDown=TRUE,  wRepeatCount=1, wVirtualKeyCode=VK_NUMPAD3, UnicodeChar=0,    dwControlKeyState=LEFT_ALT_PRESSED
-			bKeyDown=FALSE, wRepeatCount=1, wVirtualKeyCode=VK_NUMPAD3, UnicodeChar=0,    dwControlKeyState=LEFT_ALT_PRESSED
-			bKeyDown=TRUE,  wRepeatCount=1, wVirtualKeyCode=VK_NUMPAD5, UnicodeChar=0,    dwControlKeyState=LEFT_ALT_PRESSED
-			bKeyDown=FALSE, wRepeatCount=1, wVirtualKeyCode=VK_NUMPAD5, UnicodeChar=0,    dwControlKeyState=LEFT_ALT_PRESSED
-
-			3. Отжимается Alt, при этом в uChar.UnicodeChar лежит исходный символ:
-			bKeyDown=FALSE, wRepeatCount=1, wVirtualKeyCode=VK_MENU,    UnicodeChar=1099, dwControlKeyState=0
-
-			Мораль сей басни такова: если rec->Event.KeyEvent.uChar.UnicodeChar не пуст - берём его, а не то, что во время удерживания Alt пришло.
-			*/
-
-			if (rec->Event.KeyEvent.uChar.UnicodeChar)
-			{
-				// BUGBUG: в Windows 7 Event.KeyEvent.uChar.UnicodeChar _всегда_ заполнен, но далеко не всегда тем, чем надо.
-				// условно считаем, что если интервал между нажатиями не превышает 50 мс, то это сгенерированная при D&D или вставке комбинация,
-				// иначе - ручной ввод.
-				if (!TimeCheck)
+			case VK_MENU:
+				if (AltValue)
 				{
-					AltValue=rec->Event.KeyEvent.uChar.UnicodeChar;
-				}
-			}
+					INPUT_RECORD TempRec;
+					size_t ReadCount;
+					Console().ReadInput(&TempRec, 1, ReadCount);
+					IntKeyState.ReturnAltValue=TRUE;
+					AltValue&=0xFFFF;
+					/*
+					О перетаскивании из проводника / вставке текста в консоль, на примере буквы 'ы':
 
-			return AltValue;
+					1. Нажимается Alt:
+					bKeyDown=TRUE,  wRepeatCount=1, wVirtualKeyCode=VK_MENU,    UnicodeChar=0,    dwControlKeyState=LEFT_ALT_PRESSED
+
+					2. Через numpad-клавиши вводится код символа в OEM, если он туда мапится, или 63 ('?'), если не мапится:
+					bKeyDown=TRUE,  wRepeatCount=1, wVirtualKeyCode=VK_NUMPAD2, UnicodeChar=0,    dwControlKeyState=LEFT_ALT_PRESSED
+					bKeyDown=FALSE, wRepeatCount=1, wVirtualKeyCode=VK_NUMPAD2, UnicodeChar=0,    dwControlKeyState=LEFT_ALT_PRESSED
+					bKeyDown=TRUE,  wRepeatCount=1, wVirtualKeyCode=VK_NUMPAD3, UnicodeChar=0,    dwControlKeyState=LEFT_ALT_PRESSED
+					bKeyDown=FALSE, wRepeatCount=1, wVirtualKeyCode=VK_NUMPAD3, UnicodeChar=0,    dwControlKeyState=LEFT_ALT_PRESSED
+					bKeyDown=TRUE,  wRepeatCount=1, wVirtualKeyCode=VK_NUMPAD5, UnicodeChar=0,    dwControlKeyState=LEFT_ALT_PRESSED
+					bKeyDown=FALSE, wRepeatCount=1, wVirtualKeyCode=VK_NUMPAD5, UnicodeChar=0,    dwControlKeyState=LEFT_ALT_PRESSED
+
+					3. Отжимается Alt, при этом в uChar.UnicodeChar лежит исходный символ:
+					bKeyDown=FALSE, wRepeatCount=1, wVirtualKeyCode=VK_MENU,    UnicodeChar=1099, dwControlKeyState=0
+
+					Мораль сей басни такова: если rec->Event.KeyEvent.uChar.UnicodeChar не пуст - берём его, а не то, что во время удерживания Alt пришло.
+					*/
+
+					if (rec->Event.KeyEvent.uChar.UnicodeChar)
+					{
+						// BUGBUG: в Windows 7 Event.KeyEvent.uChar.UnicodeChar _всегда_ заполнен, но далеко не всегда тем, чем надо.
+						// условно считаем, что если интервал между нажатиями не превышает 50 мс, то это сгенерированная при D&D или вставке комбинация,
+						// иначе - ручной ввод.
+						if (!TimeCheck)
+						{
+							AltValue=rec->Event.KeyEvent.uChar.UnicodeChar;
+						}
+					}
+
+					return AltValue;
+				}
+				else if (!ModifPressed)
+				{
+					return (CtrlState&ENHANCED_KEY)?KEY_RALT:KEY_ALT;
+				}
+				break;
+			case VK_CONTROL:
+				if (!ModifPressed) return (CtrlState&ENHANCED_KEY)?KEY_RCTRL:KEY_CTRL;
+				break;
+			case VK_SHIFT:
+				if (!ModifPressed) return KEY_SHIFT;
+				break;
 		}
-		else
-			return KEY_NONE;
+		return KEY_NONE;
 	}
 
 	//прежде, чем убирать это шаманство, поставьте себе раскладку, в которой по ralt+символ можно вводить символы.
@@ -2725,7 +2756,7 @@ DWORD CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros, bool Pro
 				else if (KeyCode == VK_RCONTROL)
 					return KEY_RCTRL;
 			}
-			else if (KeyCode == VK_CONTROL) return KEY_CTRL;
+			else if (KeyCode == VK_CONTROL) return KEY_NONE;
 
 			if (!RealKey && KeyCode==VK_CONTROL)
 				return KEY_NONE;
@@ -2801,7 +2832,7 @@ DWORD CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros, bool Pro
 			else if (KeyCode == VK_RMENU)
 				return KEY_RALT;
 		}
-		else if (KeyCode == VK_MENU) return KEY_ALT;
+		else if (KeyCode == VK_MENU) return KEY_NONE;
 
 		if (!RealKey && KeyCode==VK_MENU)
 			return KEY_NONE;
@@ -2853,7 +2884,7 @@ DWORD CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros, bool Pro
 			else if (KeyCode == VK_RSHIFT)
 				return KEY_RSHIFT;
 		}
-		else if (KeyCode == VK_SHIFT) return KEY_SHIFT;
+		else if (KeyCode == VK_SHIFT) return KEY_NONE;
 	}
 
 	if (Char && (ModifAlt || ModifCtrl))

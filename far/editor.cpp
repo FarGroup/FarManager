@@ -7196,7 +7196,7 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 
 			if (err_pos >= 0)
 			{
-				auto low_pos = std::lower_bound(wchar_offsets.begin(), wchar_offsets.end(), err_pos);
+				auto low_pos = std::lower_bound(wchar_offsets.begin(), wchar_offsets.end(), static_cast<size_t>(err_pos));
 				if (low_pos != wchar_offsets.end())
 					X = static_cast<int>(low_pos - wchar_offsets.begin());
 			}
