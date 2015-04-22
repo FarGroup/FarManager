@@ -2861,7 +2861,7 @@ int PushDMParams (lua_State *L, intptr_t Msg, intptr_t Param1)
 		case DM_REDRAW:
 		case DM_RESIZEDIALOG:
 		case DM_SETDLGDATA:
-		case DM_SETMOUSEEVENTNOTIFY:
+		case DM_SETINPUTNOTIFY:
 		case DM_SHOWDIALOG:
 		case DM_USER:
 			lua_pushinteger(L, Param1);
@@ -2910,7 +2910,7 @@ static int far_SendDlgMessage(lua_State *L)
 		case DM_REDRAW:
 		case DM_RESIZEDIALOG:
 		case DM_SETDLGDATA:
-		case DM_SETMOUSEEVENTNOTIFY:
+		case DM_SETINPUTNOTIFY:
 		case DM_SHOWDIALOG:
 		case DM_USER:
 			Param1 = luaL_optinteger(L,3,0);
@@ -2957,7 +2957,7 @@ static int far_SendDlgMessage(lua_State *L)
 		case DM_SETFOCUS:
 		case DM_SETITEMDATA:
 		case DM_SETMAXTEXTLENGTH:     // alias: DM_SETTEXTLENGTH
-		case DM_SETMOUSEEVENTNOTIFY:
+		case DM_SETINPUTNOTIFY:
 		case DM_SHOWDIALOG:
 		case DM_SHOWITEM:
 		case DM_USER:
