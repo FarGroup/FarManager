@@ -6657,7 +6657,7 @@ void Editor::AdjustVBlock(int PrevX)
 
 void Editor::Xlat()
 {
-	const auto XLatStr = [&](Edit::edit_string Str, int StartPos, int EndPos)
+	const auto XLatStr = [&](Edit::edit_string& Str, int StartPos, int EndPos)
 	{
 		std::vector<wchar_t> Buffer(ALL_CONST_RANGE(Str));
 		::Xlat(Buffer.data(), StartPos, EndPos, Global->Opt->XLat.Flags);
