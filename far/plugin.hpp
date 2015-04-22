@@ -326,6 +326,7 @@ enum FARMESSAGE
 
 	DM_GETITEMPOSITION              = 48,
 	DM_SETMOUSEEVENTNOTIFY          = 49,
+	DM_SETINPUTNOTIFY               = 49,
 
 	DM_EDITUNCHANGEDFLAG            = 50,
 

@@ -56,7 +56,7 @@ enum DIALOG_MODES
 	DMODE_DRAWING               =0x00001000, // диалог рисуется?
 	DMODE_KEY                   =0x00002000, // Идет посылка клавиш?
 	DMODE_SHOW                  =0x00004000, // Диалог виден?
-	DMODE_MOUSEEVENT            =0x00008000, // Нужно посылать MouseMove в обработчик?
+	DMODE_INPUTEVENT            =0x00008000, // Нужно посылать DN_INPUT в обработчик?
 	DMODE_RESIZED               =0x00010000, //
 	DMODE_ENDLOOP               =0x00020000, // Конец цикла обработки диалога?
 	DMODE_BEGINLOOP             =0x00040000, // Начало цикла обработки диалога?

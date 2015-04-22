@@ -3262,7 +3262,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 				}
 
 			case oldfar::DM_GETITEMPOSITION:     Msg = DM_GETITEMPOSITION; break;
-			case oldfar::DM_SETMOUSEEVENTNOTIFY: Msg = DM_SETMOUSEEVENTNOTIFY; break;
+			case oldfar::DM_SETMOUSEEVENTNOTIFY: Msg = DM_SETINPUTNOTIFY; break;
 			case oldfar::DM_EDITUNCHANGEDFLAG:   Msg = DM_EDITUNCHANGEDFLAG; break;
 			case oldfar::DM_GETITEMDATA:         Msg = DM_GETITEMDATA; break;
 			case oldfar::DM_SETITEMDATA:         Msg = DM_SETITEMDATA; break;

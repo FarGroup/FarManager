@@ -52,6 +52,7 @@ public:
 		Key(int Key, const INPUT_RECORD& Event): m_Event(Event), m_FarKey(Key), m_EventFilled(true) {}
 		const INPUT_RECORD& Event(void)const {return m_Event;}
 		bool IsEvent(void)const {return m_EventFilled;}
+		bool IsReal(void)const;
 		int FarKey(void)const {return m_FarKey;}
 	};
 

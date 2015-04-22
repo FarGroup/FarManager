@@ -2507,19 +2507,17 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 
 	string strStr;
 
+	assert(Key.IsEvent());
+	if (DialogMode.Check(DMODE_INPUTEVENT) && Key.IsReal())
+	{
+		INPUT_RECORD rec=Key.Event();
+		if (!DlgProc(DN_INPUT,0,&rec))
+			return TRUE;
+	}
+
 	if (LocalKey==KEY_NONE || LocalKey==KEY_IDLE)
 	{
 		DlgProc(DN_ENTERIDLE,0,0); // $ 28.07.2000 SVS Передадим этот факт в обработчик :-)
-		return FALSE;
-	}
-
-	if (LocalKey == KEY_KILLFOCUS || LocalKey == KEY_GOTFOCUS)
-	{
-		assert(Key.IsEvent());
-		INPUT_RECORD rec=Key.Event();
-		assert(rec.EventType == FOCUS_EVENT);
-		DlgProc(DN_INPUT,0,&rec);
-
 		return FALSE;
 	}
 
@@ -3186,7 +3184,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (!DialogMode.Check(DMODE_SHOW))
 		return FALSE;
 
-	if (DialogMode.Check(DMODE_MOUSEEVENT))
+	if (DialogMode.Check(DMODE_INPUTEVENT))
 	{
 		if (!DlgProc(DN_INPUT,0,&mouse))
 			return TRUE;
@@ -4981,16 +4979,16 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			return OldIsProcessAssignMacroKey;
 		}
 		/*****************************************************************/
-		case DM_SETMOUSEEVENTNOTIFY: // Param1 = 1 on, 0 off, -1 - get
+		case DM_SETINPUTNOTIFY: // Param1 = 1 on, 0 off, -1 - get
 		{
-			bool State=DialogMode.Check(DMODE_MOUSEEVENT);
+			bool State=DialogMode.Check(DMODE_INPUTEVENT);
 
 			if (Param1 != -1)
 			{
 				if (!Param1)
-					DialogMode.Clear(DMODE_MOUSEEVENT);
+					DialogMode.Clear(DMODE_INPUTEVENT);
 				else
-					DialogMode.Set(DMODE_MOUSEEVENT);
+					DialogMode.Set(DMODE_INPUTEVENT);
 			}
 
 			return State;

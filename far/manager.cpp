@@ -115,6 +115,11 @@ Manager::Key::Key(int Key): m_Event(), m_FarKey(Key), m_EventFilled(false)
 	assert(m_EventFilled);
 }
 
+bool Manager::Key::IsReal(void)const
+{
+	return m_FarKey!=KEY_IDLE && m_Event.EventType!=0;
+}
+
 static int CASHook(const Manager::Key& key)
 {
 	if (key.IsEvent())

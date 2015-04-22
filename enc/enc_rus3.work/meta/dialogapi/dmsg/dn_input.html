@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Событие <code>DN_INPUT</code> посылается обработчику диалога до обработки ядром событий мыши.
+Событие <code>DN_INPUT</code> посылается обработчику диалога до обработки ядром событий консоли.
 </div>
 
 <h3>Param1</h3>
@@ -48,7 +48,7 @@
 <div class=descr>
 <ol>
 <li>По умолчанию событие <code>DN_INPUT</code> не приходит в диалоговую процедуру. Для включения/выключения посылки этого события воспользуйтесь
-сообщением <a href="dm_setmouseeventnotify.html">DM_SETMOUSEEVENTNOTIFY</a>.
+сообщением <a href="dm_setmouseeventnotify.html">DM_SETINPUTNOTIFY</a>.
 <li>Не включайте без нужды данный механизм - события от мыши приходят очень часто.
 <li>По умолчанию для открытого <a href="../controls/di_combobox.html">DI_COMBOBOX</a> событие <code>DN_INPUT</code>
 в диалоговую процедуру не приходит. Воспользуйтесь сообщением <a href="dm_setcomboboxevent.html">DM_SETCOMBOBOXEVENT</a>,
@@ -63,7 +63,7 @@
 <div class=see>Смотрите также:</div>
 <div class=seecont>
 <a href="../../service_functions/dialoginit.html">DialogInit</a>,
-<a href="dm_setmouseeventnotify.html">DM_SETMOUSEEVENTNOTIFY</a>
+<a href="dm_setmouseeventnotify.html">DM_SETINPUTNOTIFY</a>
 </div>
 
 </body>

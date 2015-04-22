@@ -667,7 +667,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 	{
 		case DN_INITDIALOG:
 			Dlg->SendMessage(DM_SETCOMBOBOXEVENT,ID_SC_COMBO,ToPtr(CBET_KEY|CBET_MOUSE));
-			Dlg->SendMessage(DM_SETMOUSEEVENTNOTIFY,TRUE,0);
+			Dlg->SendMessage(DM_SETINPUTNOTIFY,TRUE,0);
 			break;
 		case DM_SWITCHRO:
 		{

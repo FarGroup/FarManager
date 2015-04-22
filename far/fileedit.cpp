@@ -955,7 +955,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 			_SVS(SysLog(L"%d !!!! Global->CtrlObject->Macro.GetState() != MACROSTATE_NOMACRO !!!!",__LINE__));
 
 		assert(Key.IsEvent());
-		if (LocalKey!=KEY_IDLE&&Key.Event().EventType!=0)
+		if (Key.IsReal())
 		{
 			ProcessedNext=!ProcessEditorInput(Key.Event());
 		}
