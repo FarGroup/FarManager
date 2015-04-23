@@ -419,7 +419,7 @@ int InputRecordToKey(const INPUT_RECORD *r)
 		INPUT_RECORD Rec=*r; // НАДО!, т.к. внутри CalcKeyCode
 		//   структура INPUT_RECORD модифицируется!
 
-		return (int)ShieldCalcKeyCode(&Rec,FALSE,nullptr,true);
+		return (int)ShieldCalcKeyCode(&Rec,FALSE,nullptr);
 	}
 
 	return KEY_NONE;
@@ -1885,16 +1885,16 @@ int IsShiftKey(DWORD Key)
 	return std::find(ALL_CONST_RANGE(ShiftKeys), Key) != std::cend(ShiftKeys);
 }
 
-DWORD ShieldCalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros, bool ProcessCtrlCode)
+DWORD ShieldCalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros)
 {
 	FarKeyboardState _IntKeyState=IntKeyState; // нада! ибо CalcKeyCode "портит"... (Mantis#0001760)
 	ClearStruct(IntKeyState);
-	DWORD Ret=CalcKeyCode(rec,RealKey,NotMacros,ProcessCtrlCode);
+	DWORD Ret=CalcKeyCode(rec,RealKey,NotMacros);
 	IntKeyState=_IntKeyState;
 	return Ret;
 }
 
-DWORD CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros, bool ProcessCtrlCode)
+DWORD CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros)
 {
 	_SVS(CleverSysLog Clev(L"CalcKeyCode"));
 	_SVS(SysLog(L"CalcKeyCode -> %s| RealKey=%d  *NotMacros=%d",_INPUT_RECORD_Dump(rec),RealKey,(NotMacros?*NotMacros:0)));
@@ -2749,14 +2749,7 @@ DWORD CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros, bool Pro
 
 		if (KeyCode)
 		{
-			if (ProcessCtrlCode)
-			{
-				if (KeyCode == VK_CONTROL)
-					return (IntKeyState.CtrlPressed && !IntKeyState.RightCtrlPressed)?KEY_CTRL:(IntKeyState.RightCtrlPressed?KEY_RCTRL:KEY_CTRL);
-				else if (KeyCode == VK_RCONTROL)
-					return KEY_RCTRL;
-			}
-			else if (KeyCode == VK_CONTROL) return KEY_NONE;
+			if (KeyCode == VK_CONTROL) return KEY_NONE;
 
 			if (!RealKey && KeyCode==VK_CONTROL)
 				return KEY_NONE;
@@ -2825,14 +2818,7 @@ DWORD CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros, bool Pro
 				return ModifAlt|Char;
 		}
 
-		if (ProcessCtrlCode)
-		{
-			if (KeyCode == VK_MENU)
-				return (IntKeyState.AltPressed && !IntKeyState.RightAltPressed)?KEY_ALT:(IntKeyState.RightAltPressed?KEY_RALT:KEY_ALT);
-			else if (KeyCode == VK_RMENU)
-				return KEY_RALT;
-		}
-		else if (KeyCode == VK_MENU) return KEY_NONE;
+		if (KeyCode == VK_MENU) return KEY_NONE;
 
 		if (!RealKey && KeyCode==VK_MENU)
 			return KEY_NONE;
@@ -2877,14 +2863,7 @@ DWORD CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros, bool Pro
 				return KEY_SHIFT|KEY_PRNTSCRN;
 		}
 
-		if (ProcessCtrlCode)
-		{
-			if (KeyCode == VK_SHIFT)
-				return KEY_SHIFT;
-			else if (KeyCode == VK_RSHIFT)
-				return KEY_RSHIFT;
-		}
-		else if (KeyCode == VK_SHIFT) return KEY_NONE;
+		if (KeyCode == VK_SHIFT) return KEY_NONE;
 	}
 
 	if (Char && (ModifAlt || ModifCtrl))
