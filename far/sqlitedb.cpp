@@ -116,7 +116,14 @@ SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const wchar_t* Value, bool 
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const string& Value, bool bStatic)
 {
 	using sqlite::sqlite3_destructor_type; // for SQLITE_* macros
-	sqlite::sqlite3_bind_text16(m_Stmt.get(), m_Param++, Value.data(), -1, bStatic ? SQLITE_STATIC : SQLITE_TRANSIENT);
+	sqlite::sqlite3_bind_text16(m_Stmt.get(), m_Param++, Value.data(), static_cast<int>(Value.size() * sizeof(wchar_t)), bStatic ? SQLITE_STATIC : SQLITE_TRANSIENT);
+	return *this;
+}
+
+SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(string&& Value)
+{
+	using sqlite::sqlite3_destructor_type; // for SQLITE_* macros
+	sqlite::sqlite3_bind_text16(m_Stmt.get(), m_Param++, Value.data(), static_cast<int>(Value.size() * sizeof(wchar_t)), SQLITE_TRANSIENT);
 	return *this;
 }
 
@@ -176,7 +183,6 @@ SQLiteDb::SQLiteDb():
 
 SQLiteDb::~SQLiteDb()
 {
-	Close();
 }
 
 static bool can_create_file(const string& fname)
@@ -210,15 +216,15 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 		return Result == SQLITE_OK;
 	};
 
-	GetDatabasePath(DbFile, strPath, Local);
+	GetDatabasePath(DbFile, m_Path, Local);
 	bool mem_db = DbFile == L":memory:";
 
 	if (!Global->Opt->ReadOnlyConfig || mem_db)
 	{
 		if (!mem_db && db_exists < 0) {
-			db_exists = os::fs::is_file(strPath)? +1 : 0;
+			db_exists = os::fs::is_file(m_Path)? +1 : 0;
 		}
-		bool ret = OpenDatabase(m_Db, strPath, v1_opener);
+		bool ret = OpenDatabase(m_Db, m_Path, v1_opener);
 		if (ret)
 			sqlite::sqlite3_busy_timeout(m_Db.get(), 1000);
 		return ret;
@@ -231,7 +237,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 
 	bool ok = true, copied = false;
 
-	if (os::fs::is_file(strPath))
+	if (os::fs::is_file(m_Path))
 	{
 		database_ptr db_source;
 
@@ -239,20 +245,20 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 			db_exists = +1;
 		UUID Id;
 		UuidCreate(&Id);
-		if (WAL && !can_create_file(strPath + L"." + GuidToStr(Id))) // can't open db -- copy to %TEMP%
+		if (WAL && !can_create_file(m_Path + L"." + GuidToStr(Id))) // can't open db -- copy to %TEMP%
 		{
 			FormatString strTmp;
 			os::GetTempPath(strTmp);
 			strTmp << GetCurrentProcessId() << L'-' << DbFile;
-			ok = copied = FALSE != os::CopyFileEx(strPath, strTmp, nullptr, nullptr, nullptr, 0);
+			ok = copied = FALSE != os::CopyFileEx(m_Path, strTmp, nullptr, nullptr, nullptr, 0);
 			os::SetFileAttributes(strTmp, FILE_ATTRIBUTE_NORMAL);
 			if (ok)
-				strPath = strTmp;
-			ok = ok && OpenDatabase(db_source, strPath, v1_opener);
+				m_Path = strTmp;
+			ok = ok && OpenDatabase(db_source, m_Path, v1_opener);
 		}
 		else
 		{
-			ok = OpenDatabase(db_source, strPath, v2_opener);
+			ok = OpenDatabase(db_source, m_Path, v2_opener);
 		}
 		if (ok)
 		{
@@ -270,9 +276,9 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 	}
 
 	if (copied)
-		os::DeleteFile(strPath);
+		os::DeleteFile(m_Path);
 
-	strPath = L":memory:";
+	m_Path = L":memory:";
 	if (!ok)
 		Close();
 	return ok;
@@ -292,7 +298,7 @@ void SQLiteDb::Initialize(const string& DbName, bool Local)
 		++init_status;
 
 		bool in_memory = (Global->Opt->ReadOnlyConfig != 0) ||
-			!os::MoveFileEx(strPath, strPath+L".bad",MOVEFILE_REPLACE_EXISTING) || !InitializeImpl(DbName,Local);
+			!os::MoveFileEx(m_Path, m_Path + L".bad",MOVEFILE_REPLACE_EXISTING) || !InitializeImpl(DbName,Local);
 
 		if (in_memory)
 		{
@@ -305,7 +311,7 @@ void SQLiteDb::Initialize(const string& DbName, bool Local)
 
 int SQLiteDb::InitStatus(string& name, bool full_name)
 {
-	name = (full_name && !strPath.empty() && strPath != L":memory:") ? strPath : m_Name;
+	name = (full_name && !m_Path.empty() && m_Path != L":memory:") ? m_Path : m_Name;
 	return init_status;
 }
 

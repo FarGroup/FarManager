@@ -104,7 +104,6 @@ SRCS = \
 	plugapi.cpp \
 	PluginA.cpp \
 	plugins.cpp \
-	PluginSynchro.cpp \
 	plugsettings.cpp \
 	poscache.cpp \
 	preservelongname.cpp \

@@ -90,7 +90,7 @@ InfoList::InfoList(window_ptr Owner):
 	OldWrapMode(),
 	OldWrapType(),
 	SectionState(ILSS_SIZE),
-	PowerListener(L"power", [&]{ if (Global->Opt->InfoPanel.ShowPowerStatus && IsVisible() && SectionState[ILSS_POWERSTATUS].Show) { Redraw(); }})
+	PowerListener(update_power, [&]{ if (Global->Opt->InfoPanel.ShowPowerStatus && IsVisible() && SectionState[ILSS_POWERSTATUS].Show) { Redraw(); }})
 {
 	m_Type=INFO_PANEL;
 	if (Global->Opt->InfoPanel.strShowStatusInfo.empty())
@@ -201,16 +201,16 @@ void InfoList::DisplayObject()
 		PrintText(MInfoCompName);
 		PrintInfo(strComputerName);
 
-		LPSERVER_INFO_101 ServerInfo = nullptr;
-		if(NetServerGetInfo(nullptr, 101, reinterpret_cast<LPBYTE*>(&ServerInfo)) == NERR_Success)
+		LPSERVER_INFO_101 RawServerPointer;
+		if (NetServerGetInfo(nullptr, 101, reinterpret_cast<LPBYTE*>(&RawServerPointer)) == NERR_Success)
 		{
+			const auto ServerInfo = os::memory::netapi::ptr(RawServerPointer);
 			if(ServerInfo->sv101_comment && *ServerInfo->sv101_comment)
 			{
 				GotoXY(m_X1+2,CurY++);
 				PrintText(MInfoCompDescription);
 				PrintInfo(ServerInfo->sv101_comment);
 			}
-			NetApiBufferFree(ServerInfo);
 		}
 
 
@@ -231,9 +231,10 @@ void InfoList::DisplayObject()
 		wchar_t UserNameBuffer[UNLEN+1];
 		if (GetUserName(UserNameBuffer, &dwSize))
 		{
-			LPUSER_INFO_1 UserInfo = nullptr;
-			if(NetUserGetInfo(nullptr, strUserName.data(), 1, reinterpret_cast<LPBYTE*>(&UserInfo)) == NERR_Success)
+			LPUSER_INFO_1 RawUserPointer;
+			if (NetUserGetInfo(nullptr, strUserName.data(), 1, reinterpret_cast<LPBYTE*>(&RawUserPointer)) == NERR_Success)
 			{
+				const auto UserInfo = os::memory::netapi::ptr(RawUserPointer);
 				if(UserInfo->usri1_comment && *UserInfo->usri1_comment)
 				{
 					GotoXY(m_X1+2,CurY++);
@@ -256,8 +257,6 @@ void InfoList::DisplayObject()
 				GotoXY(m_X1+2,CurY++);
 				PrintText(MInfoUserAccessLevel);
 				PrintInfo(LabelId);
-
-				NetApiBufferFree(UserInfo);
 			}
 		}
 

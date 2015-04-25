@@ -33,64 +33,129 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "synchro.hpp"
 
-class payload
+enum event_id
 {
-public:
-	virtual ~payload() {}
-};
+	update_intl,
+	update_power,
+	update_devices,
+	update_environment,
 
-class notification;
+	elevation_dialog,
+	plugin_synchro,
 
-class listener: noncopyable
-{
-public:
-	listener(const string& id, const std::function<void()>& function);
-	listener(const std::function<void(const payload&)>& function, const string& id);
-	~listener();
-
-	void callback(const payload& p) { m_ex_function? m_ex_function(p) : m_function(); }
-
-private:
-	notification& m_notification;
-	std::function<void()> m_function;
-	std::function<void(const payload&)> m_ex_function;
-};
-
-class notification: noncopyable
-{
-public:
-	notification(const string& name): m_name(name) {}
-	~notification() {}
-
-	void notify(std::unique_ptr<const payload>&& p);
-	void dispatch();
-	void subscribe(listener* l) { m_listeners.emplace_back(l); }
-	void unsubscribe(listener* l) { m_listeners.remove(l); }
-	const string& name() const { return m_name; }
-
-private:
-	string m_name;
-	std::list<listener*> m_listeners;
-	SyncedQueue<std::unique_ptr<const payload>> m_events;
+	event_id_count
 };
 
 class wm_listener;
 
-class notifier: noncopyable
+namespace detail
+{
+	class i_event_handler
+	{
+	public:
+		virtual ~i_event_handler() {}
+		virtual void operator()(const variant&) const = 0;
+	};
+
+	class event_handler: public i_event_handler
+	{
+	public:
+		typedef std::function<void()> handler_type;
+
+		event_handler(const handler_type& Handler):
+			m_Handler(Handler)
+		{
+		}
+
+		virtual void operator()(const variant&) const override
+		{
+			m_Handler();
+		}
+
+	private:
+		handler_type m_Handler;
+	};
+
+	class parametrized_event_handler: public i_event_handler
+	{
+	public:
+		typedef std::function<void(const variant&)> handler_type;
+
+		parametrized_event_handler(const handler_type& Handler):
+			m_Handler(Handler)
+		{
+		}
+
+		virtual void operator()(const variant& Payload) const override
+		{
+			m_Handler(Payload);
+		}
+
+	private:
+		handler_type m_Handler;
+	};
+}
+
+class message_manager: noncopyable
 {
 public:
-	notification& at(const string& key) { return *m_notifications.at(key).get(); }
+	typedef std::multimap<string, const detail::i_event_handler*> handlers_map;
 
+	handlers_map::iterator subscribe(event_id EventId, const detail::i_event_handler& EventHandler);
+	handlers_map::iterator subscribe(const string& EventName, const detail::i_event_handler& EventHandler);
+	void unsubscribe(handlers_map::iterator HandlerIterator);
+	void notify(event_id EventId, variant&& Payload = variant());
+	void notify(const string& EventName, variant&& Payload = variant());
 	void dispatch();
-	void add(std::unique_ptr<notification>&& i);
+
+	class suppress: noncopyable
+	{
+	public:
+		suppress();
+		~suppress();
+
+	private:
+		message_manager& m_owner;
+	};
 
 private:
-	friend notifier& Notifier();
+	friend message_manager& MessageManager();
 
-	notifier();
+	typedef SyncedQueue<std::pair<string, variant>> message_queue;
 
-	std::unordered_map<string, std::unique_ptr<notification>> m_notifications;
+	message_manager();
+
+	message_queue m_Messages;
+	handlers_map m_Handlers;
 	std::unique_ptr<wm_listener> m_Window;
+	volatile long m_suppressions;
 };
 
-notifier& Notifier();
+message_manager& MessageManager();
+
+namespace detail
+{
+	template<class T>
+	class listener_t: noncopyable
+	{
+	public:
+		template<class id_type>
+		listener_t(const id_type& EventId, const typename T::handler_type& EventHandler):
+			m_Handler(EventHandler),
+			m_Iterator(MessageManager().subscribe(EventId, m_Handler))
+		{
+		}
+
+		~listener_t()
+		{
+			MessageManager().unsubscribe(m_Iterator);
+		}
+
+	private:
+		T m_Handler;
+		message_manager::handlers_map::iterator m_Iterator;
+	};
+}
+
+typedef detail::listener_t<detail::event_handler> listener;
+typedef detail::listener_t<detail::parametrized_event_handler> listener_ex;

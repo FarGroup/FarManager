@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plclass.hpp"
 #include "configdb.hpp"
 #include "mix.hpp"
+#include "notification.hpp"
 
 class SaveScreen;
 class FileEditor;
@@ -185,6 +186,8 @@ private:
 	std::unordered_map<GUID, std::unique_ptr<Plugin>, uuid_hash, uuid_equal> m_Plugins;
 	plugins_set SortedPlugins;
 	std::list<Plugin*> UnloadedPlugins;
+	listener_ex m_PluginSynchro;
+
 #ifndef NO_WRAPPER
 	size_t OemPluginsCount;
 #endif // NO_WRAPPER

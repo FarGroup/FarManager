@@ -447,16 +447,18 @@ namespace os
 	{
 		namespace global
 		{
-			struct deleter { void operator()(HGLOBAL MemoryBlock) { GlobalFree(MemoryBlock); } };
+			namespace detail
+			{
+				struct deleter { void operator()(HGLOBAL MemoryBlock) const { GlobalFree(MemoryBlock); } };
+				struct unlocker { void operator()(const void* MemoryBlock) { GlobalUnlock(const_cast<HGLOBAL>(MemoryBlock)); } };
+			};
 
-			typedef std::unique_ptr<std::remove_pointer<HGLOBAL>::type, deleter> ptr;
+			typedef std::unique_ptr<std::remove_pointer<HGLOBAL>::type, detail::deleter> ptr;
 
 			inline ptr alloc(UINT Flags, size_t size) { return ptr(GlobalAlloc(Flags, size)); }
 
-			struct unlocker { void operator()(const void* MemoryBlock) { GlobalUnlock(const_cast<HGLOBAL>(MemoryBlock)); } };
-
 			template<class T>
-			struct lock_t { typedef std::unique_ptr<typename std::remove_pointer<T>::type, unlocker> ptr; };
+			struct lock_t { typedef std::unique_ptr<typename std::remove_pointer<T>::type, detail::unlocker> ptr; };
 
 			template<class T>
 			typename lock_t<T>::ptr lock(HGLOBAL Ptr) { return typename lock_t<T>::ptr(static_cast<T>(GlobalLock(Ptr))); }
@@ -466,6 +468,21 @@ namespace os
 		}
 
 		bool is_pointer(const void* Address);
+	
+		namespace netapi
+		{
+			namespace detail
+			{
+				template<class T>
+				struct deleter { void operator()(T* Ptr) const { NetApiBufferFree(Ptr); } };
+			};
+
+			template<class T>
+			struct ptr_t { typedef std::unique_ptr<T, detail::deleter<T>> type; };
+
+			template<class T>
+			typename ptr_t<T>::type ptr(T* RawPtr) { return typename ptr_t<T>::type(RawPtr); }
+		}
 	}
 
 	namespace security

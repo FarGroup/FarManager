@@ -189,9 +189,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "cpp.hpp"
 
+#include "farrtl.hpp"
+
 #include "common.hpp"
 
-#include "farrtl.hpp"
 #include "format.hpp"
 #include "local.hpp"
 #include "farwinapi.hpp"

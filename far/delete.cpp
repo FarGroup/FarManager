@@ -340,7 +340,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		GetPathRoot(strRoot,strRoot);
 
 		if (Global->Opt->DeleteToRecycleBin && FAR_GetDriveType(strRoot) != DRIVE_FIXED)
-			Global->Opt->DeleteToRecycleBin=0;
+			Global->Opt->DeleteToRecycleBin = false;
 	}
 
 	if (SelCount==1)

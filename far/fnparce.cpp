@@ -85,24 +85,24 @@ static int IsReplaceVariable(const wchar_t *str,int *scr = nullptr,
                              int *end_txt_break = nullptr);
 
 
-static int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstData);
+static int ReplaceVariables(const wchar_t *DlgTitle,string &strStr, TSubstData& SubstData);
 
 // Str=if exist !#!\!^!.! far:edit < diff -c -p "!#!\!^!.!" !\!.!
 
-static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstData,string &strOut)
+static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstData, string &strOut)
 {
 	// рассмотрим переключатели активности/пассивности панели.
 	if (!StrCmpN(CurStr,L"!#",2))
 	{
 		CurStr+=2;
-		PSubstData->PassivePanel=TRUE;
+		SubstData.PassivePanel=TRUE;
 		return CurStr;
 	}
 
 	if (!StrCmpN(CurStr,L"!^",2))
 	{
 		CurStr+=2;
-		PSubstData->PassivePanel=FALSE;
+		SubstData.PassivePanel=FALSE;
 		return CurStr;
 	}
 
@@ -117,10 +117,10 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 	// !.!      Длинное имя файла с расширением
 	if (!StrCmpN(CurStr,L"!.!",3) && CurStr[3] != L'?')
 	{
-		if (PSubstData->PassivePanel)
-			strOut += PSubstData->strAnotherName;
+		if (SubstData.PassivePanel)
+			strOut += SubstData.strAnotherName;
 		else
-			strOut += PSubstData->Name;
+			strOut += SubstData.Name;
 
 		CurStr+=3;
 		return CurStr;
@@ -129,7 +129,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 	// !~       Короткое имя файла без расширения
 	if (!StrCmpN(CurStr,L"!~",2))
 	{
-		strOut += PSubstData->PassivePanel ? PSubstData->strAnotherShortNameOnly : PSubstData->strShortNameOnly;
+		strOut += SubstData.PassivePanel ? SubstData.strAnotherShortNameOnly : SubstData.strShortNameOnly;
 		CurStr+=2;
 		return CurStr;
 	}
@@ -141,12 +141,12 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 
 		if (CurStr[2] == L'~')
 		{
-			Ext=wcsrchr((PSubstData->PassivePanel ? PSubstData->strAnotherShortName.data():PSubstData->ShortName),L'.');
+			Ext=wcsrchr((SubstData.PassivePanel ? SubstData.strAnotherShortName.data():SubstData.ShortName),L'.');
 			CurStr+=3;
 		}
 		else
 		{
-			Ext=wcsrchr((PSubstData->PassivePanel ? PSubstData->strAnotherName.data():PSubstData->Name),L'.');
+			Ext=wcsrchr((SubstData.PassivePanel ? SubstData.strAnotherName.data():SubstData.Name),L'.');
 			CurStr+=2;
 		}
 
@@ -161,7 +161,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 	        (!StrCmpN(CurStr,L"!&",2) && CurStr[2] != L'?'))
 	{
 		string strFileNameL, strShortNameL;
-		Panel *WPanel=PSubstData->PassivePanel?PSubstData->AnotherPanel:PSubstData->ActivePanel;
+		Panel *WPanel=SubstData.PassivePanel?SubstData.AnotherPanel:SubstData.ActivePanel;
 		DWORD FileAttrL;
 		int ShortN0=FALSE;
 		int CntSkip=2;
@@ -215,13 +215,13 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 
 		if (ShortN0)
 		{
-			pListName = PSubstData->pShortListName;
-			pAnotherListName = PSubstData->pAnotherShortListName;
+			pListName = SubstData.pShortListName;
+			pAnotherListName = SubstData.pAnotherShortListName;
 		}
 		else
 		{
-			pListName = PSubstData->pListName;
-			pAnotherListName = PSubstData->pAnotherListName;
+			pListName = SubstData.pListName;
+			pAnotherListName = SubstData.pAnotherListName;
 		}
 
 		const wchar_t *Ptr;
@@ -234,7 +234,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 
 				if (pListName)
 				{
-					if (PSubstData->PassivePanel && (!pAnotherListName->empty() || PSubstData->AnotherPanel->MakeListFile(*pAnotherListName, ShortN0, Modifers)))
+					if (SubstData.PassivePanel && (!pAnotherListName->empty() || SubstData.AnotherPanel->MakeListFile(*pAnotherListName, ShortN0, Modifers)))
 					{
 						if (ShortN0)
 							ConvertNameToShort(*pAnotherListName, *pAnotherListName);
@@ -242,7 +242,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 						strOut += *pAnotherListName;
 					}
 
-					if (!PSubstData->PassivePanel && (!pListName->empty() || PSubstData->ActivePanel->MakeListFile(*pListName, ShortN0, Modifers)))
+					if (!SubstData.PassivePanel && (!pListName->empty() || SubstData.ActivePanel->MakeListFile(*pListName, ShortN0, Modifers)))
 					{
 						if (ShortN0)
 							ConvertNameToShort(*pListName,*pListName);
@@ -266,10 +266,10 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 	// !-!      Короткое имя файла с расширением
 	if (!StrCmpN(CurStr,L"!-!",3) && CurStr[3] != L'?')
 	{
-		if (PSubstData->PassivePanel)
-			strOut += PSubstData->strAnotherShortName;
+		if (SubstData.PassivePanel)
+			strOut += SubstData.strAnotherShortName;
 		else
-			strOut += PSubstData->ShortName;
+			strOut += SubstData.ShortName;
 
 		CurStr+=3;
 		return CurStr;
@@ -279,13 +279,13 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 	//          после выполнения команды, FAR восстановит его
 	if (!StrCmpN(CurStr,L"!+!",3) && CurStr[3] != L'?')
 	{
-		if (PSubstData->PassivePanel)
-			strOut += PSubstData->strAnotherShortName;
+		if (SubstData.PassivePanel)
+			strOut += SubstData.strAnotherShortName;
 		else
-			strOut += PSubstData->ShortName;
+			strOut += SubstData.ShortName;
 
 		CurStr+=3;
-		PSubstData->PreserveLFN=TRUE;
+		SubstData.PreserveLFN=TRUE;
 		return CurStr;
 	}
 
@@ -295,12 +295,12 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 		string strCurDir;
 		string strRootDir;
 
-		if (*PSubstData->Name && PSubstData->Name[1]==L':')
-			strCurDir = PSubstData->Name;
-		else if (PSubstData->PassivePanel)
-			strCurDir = PSubstData->AnotherPanel->GetCurDir();
+		if (*SubstData.Name && SubstData.Name[1]==L':')
+			strCurDir = SubstData.Name;
+		else if (SubstData.PassivePanel)
+			strCurDir = SubstData.AnotherPanel->GetCurDir();
 		else
-			strCurDir = PSubstData->strCmdDir;
+			strCurDir = SubstData.strCmdDir;
 
 		GetPathRoot(strCurDir,strRootDir);
 		DeleteEndSlash(strRootDir);
@@ -323,14 +323,14 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 			ShortN0 = true;
 		}
 
-		if (PSubstData->PassivePanel)
-			strCurDir = PSubstData->AnotherPanel->GetCurDir();
+		if (SubstData.PassivePanel)
+			strCurDir = SubstData.AnotherPanel->GetCurDir();
 		else
-			strCurDir = PSubstData->strCmdDir;
+			strCurDir = SubstData.strCmdDir;
 
 		if (RealPath)
 		{
-			_MakePath1(PSubstData->PassivePanel?KEY_ALTSHIFTBACKBRACKET:KEY_ALTSHIFTBRACKET,strCurDir,L"",ShortN0);
+			_MakePath1(SubstData.PassivePanel?KEY_ALTSHIFTBACKBRACKET:KEY_ALTSHIFTBRACKET,strCurDir,L"",ShortN0);
 			Unquote(strCurDir);
 		}
 
@@ -343,7 +343,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 
 		if (*CurStr==L'!')
 		{
-			if (wcspbrk(PSubstData->PassivePanel?PSubstData->strAnotherName.data():PSubstData->Name,L"\\:"))
+			if (wcspbrk(SubstData.PassivePanel?SubstData.strAnotherName.data():SubstData.Name,L"\\:"))
 				strCurDir.clear();
 		}
 
@@ -374,7 +374,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 	// !        Длинное имя файла без расширения
 	if (*CurStr==L'!')
 	{
-		strOut += PointToName(PSubstData->PassivePanel ? PSubstData->strAnotherNameOnly : PSubstData->strNameOnly);
+		strOut += PointToName(SubstData.PassivePanel ? SubstData.strAnotherNameOnly : SubstData.strNameOnly);
 		CurStr++;
 	}
 
@@ -414,46 +414,46 @@ int SubstFileName(const wchar_t *DlgTitle,
 	if (strStr.find(L'!') == string::npos)
 		return FALSE;
 
-	TSubstData SubstData, *PSubstData=&SubstData;
-	PSubstData->Name=Name.data();                    // Длинное имя
-	PSubstData->ShortName=ShortName.data();          // Короткое имя
-	PSubstData->pListName=pListName;            // Длинное имя файла-списка
-	PSubstData->pAnotherListName=pAnotherListName;            // Длинное имя файла-списка
-	PSubstData->pShortListName=pShortListName;  // Короткое имя файла-списка
-	PSubstData->pAnotherShortListName=pAnotherShortListName;  // Короткое имя файла-списка
+	TSubstData SubstData;
+	SubstData.Name=Name.data();                    // Длинное имя
+	SubstData.ShortName=ShortName.data();          // Короткое имя
+	SubstData.pListName=pListName;            // Длинное имя файла-списка
+	SubstData.pAnotherListName=pAnotherListName;            // Длинное имя файла-списка
+	SubstData.pShortListName=pShortListName;  // Короткое имя файла-списка
+	SubstData.pAnotherShortListName=pAnotherShortListName;  // Короткое имя файла-списка
 	// Если имя текущего каталога не задано...
 	if (CmdLineDir)
-		PSubstData->strCmdDir = CmdLineDir;
+		SubstData.strCmdDir = CmdLineDir;
 	else // ...спросим у ком.строки
-		PSubstData->strCmdDir = Global->CtrlObject->CmdLine()->GetCurDir();
+		SubstData.strCmdDir = Global->CtrlObject->CmdLine()->GetCurDir();
 
 	// Предварительно получим некоторые "константы" :-)
-	PSubstData->strNameOnly = Name;
+	SubstData.strNameOnly = Name;
 
-	size_t pos = PSubstData->strNameOnly.rfind(L'.');
+	size_t pos = SubstData.strNameOnly.rfind(L'.');
 	if (pos != string::npos)
-		PSubstData->strNameOnly.resize(pos);
+		SubstData.strNameOnly.resize(pos);
 
-	PSubstData->strShortNameOnly = ShortName;
+	SubstData.strShortNameOnly = ShortName;
 
-	if ((pos = PSubstData->strShortNameOnly.rfind(L'.')) != string::npos)
-		PSubstData->strShortNameOnly.resize(pos);
+	if ((pos = SubstData.strShortNameOnly.rfind(L'.')) != string::npos)
+		SubstData.strShortNameOnly.resize(pos);
 
-	PSubstData->ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
-	PSubstData->AnotherPanel=Global->CtrlObject->Cp()->PassivePanel();
-	PSubstData->AnotherPanel->GetCurName(PSubstData->strAnotherName,PSubstData->strAnotherShortName);
-	PSubstData->strAnotherNameOnly = PSubstData->strAnotherName;
+	SubstData.ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
+	SubstData.AnotherPanel=Global->CtrlObject->Cp()->PassivePanel();
+	SubstData.AnotherPanel->GetCurName(SubstData.strAnotherName,SubstData.strAnotherShortName);
+	SubstData.strAnotherNameOnly = SubstData.strAnotherName;
 
-	if ((pos = PSubstData->strAnotherNameOnly.rfind(L'.')) != string::npos)
-		PSubstData->strAnotherNameOnly.resize(pos);
+	if ((pos = SubstData.strAnotherNameOnly.rfind(L'.')) != string::npos)
+		SubstData.strAnotherNameOnly.resize(pos);
 
-	PSubstData->strAnotherShortNameOnly = PSubstData->strAnotherShortName;
+	SubstData.strAnotherShortNameOnly = SubstData.strAnotherShortName;
 
-	if ((pos = PSubstData->strAnotherShortNameOnly.rfind(L'.')) != string::npos)
-		PSubstData->strAnotherShortNameOnly.resize(pos);
+	if ((pos = SubstData.strAnotherShortNameOnly.rfind(L'.')) != string::npos)
+		SubstData.strAnotherShortNameOnly.resize(pos);
 
-	PSubstData->PreserveLFN=FALSE;
-	PSubstData->PassivePanel=FALSE; // первоначально речь идет про активную панель!
+	SubstData.PreserveLFN=FALSE;
+	SubstData.PassivePanel=FALSE; // первоначально речь идет про активную панель!
 
 	const wchar_t *CurStr = strStr.data();
 	string strOut;
@@ -462,7 +462,7 @@ int SubstFileName(const wchar_t *DlgTitle,
 	{
 		if (*CurStr == L'!')
 		{
-			CurStr=_SubstFileName(CurStr,PSubstData,strOut);
+			CurStr=_SubstFileName(CurStr, SubstData, strOut);
 		}
 		else
 		{
@@ -476,13 +476,13 @@ int SubstFileName(const wchar_t *DlgTitle,
 	if (!IgnoreInput)
 	{
 		string title = NullToEmpty(DlgTitle);
-		ReplaceVariables(os::env::expand_strings(title).data(), strStr, PSubstData);
+		ReplaceVariables(os::env::expand_strings(title).data(), strStr, SubstData);
 	}
 
-	return PSubstData->PreserveLFN;
+	return SubstData.PreserveLFN;
 }
 
-int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstData)
+int ReplaceVariables(const wchar_t *DlgTitle, string &strStr, TSubstData& SubstData)
 {
 	const wchar_t *Str=strStr.data();
 	const wchar_t * const StartStr=Str;
@@ -609,7 +609,7 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 			{
 				if (*CurStr == L'!')
 				{
-					CurStr=_SubstFileName(CurStr,PSubstData,strTmp);
+					CurStr=_SubstFileName(CurStr, SubstData, strTmp);
 				}
 				else
 				{
@@ -656,7 +656,7 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 			{
 				if (*CurStr == L'!')
 				{
-					CurStr=_SubstFileName(CurStr,PSubstData,strTmp);
+					CurStr = _SubstFileName(CurStr, SubstData, strTmp);
 				}
 				else
 				{

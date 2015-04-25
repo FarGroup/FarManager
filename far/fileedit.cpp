@@ -810,13 +810,13 @@ __int64 FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			case 0:
 				break;
 			case 1:
-				Global->Opt->EdOpt.ShowKeyBar=1;
+				Global->Opt->EdOpt.ShowKeyBar = true;
 				m_windowKeyBar->Show();
 				Show();
 				m_KeyBarVisible = Global->Opt->EdOpt.ShowKeyBar;
 				break;
 			case 2:
-				Global->Opt->EdOpt.ShowKeyBar=0;
+				Global->Opt->EdOpt.ShowKeyBar = false;
 				m_windowKeyBar->Hide();
 				Show();
 				m_KeyBarVisible = Global->Opt->EdOpt.ShowKeyBar;

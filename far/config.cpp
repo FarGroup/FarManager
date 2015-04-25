@@ -1338,7 +1338,7 @@ void BoolOption::fromString(const string& value)
 	long long iValue;
 	if (ParseIntValue(value, iValue))
 	{
-		Set(iValue);
+		Set(iValue != 0);
 	}
 }
 
@@ -1388,7 +1388,7 @@ void Bool3Option::fromString(const string& value)
 	long long iValue;
 	if (ParseIntValue(value, iValue))
 	{
-		Set(iValue);
+		Set(static_cast<int>(iValue));
 	}
 }
 
@@ -1584,6 +1584,7 @@ private:
 };
 
 Options::Options():
+	strWordDiv(EdOpt.strWordDiv),
 	KnownIDs(),
 	ReadOnlyConfig(-1),
 	UseExceptionHandler(0),
@@ -1696,7 +1697,7 @@ void Options::InitRoamingCFG()
 		{FSSF_PRIVATE,       NKeyEditor,L"TabSize", &EdOpt.TabSize, DefaultTabSize},
 		{FSSF_PRIVATE,       NKeyEditor,L"UndoDataSize", &EdOpt.UndoSize, 100*1024*1024},
 		{FSSF_PRIVATE,       NKeyEditor,L"UseExternalEditor", &EdOpt.UseExternalEditor, false},
-		{FSSF_EDITOR,        NKeyEditor,L"WordDiv", &strWordDiv, WordDiv0},
+		{FSSF_EDITOR,        NKeyEditor,L"WordDiv", &EdOpt.strWordDiv, WordDiv0},
 
 		{FSSF_PRIVATE,       NKeyHelp,L"ActivateURL", &HelpURLRules, 1},
 		{FSSF_PRIVATE,       NKeyHelp,L"HelpSearchRegexp", &HelpSearchRegexp, false},
@@ -2114,8 +2115,8 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 		ViOpt.MaxLineSize = ViewerOptions::eMaxLineSize;
 
 	// Исключаем случайное стирание разделителей ;-)
-	if (strWordDiv.empty())
-		strWordDiv = WordDiv0;
+	if (EdOpt.strWordDiv.empty())
+		EdOpt.strWordDiv = WordDiv0;
 
 	// Исключаем случайное стирание разделителей
 	if (XLat.strWordDivForXlat.empty())
@@ -2152,7 +2153,6 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 			*i.RuntimePtr = i.Default;
 	}
 
-	EdOpt.strWordDiv = strWordDiv;
 	ReadPanelModes();
 
 	/* BUGBUG??

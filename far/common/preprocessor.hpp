@@ -110,3 +110,6 @@ const RAII_type ADD_SUFFIX(scoped_object_, __LINE__)
 #else
 #define DELETED_FUNCTION(...) __VA_ARGS__ = delete
 #endif
+
+#define STR(x) #x
+#define WSTR(x) L###x

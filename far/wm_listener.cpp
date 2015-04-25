@@ -38,11 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "notification.hpp"
 
-static const wchar_t devices_notify[] = L"devices";
-static const wchar_t power_notify[] = L"power";
-static const wchar_t environment_notify[] = L"environment";
-static const wchar_t intl_notify[] = L"intl";
-
 static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
 	switch(Msg)
@@ -72,7 +67,7 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 
 						//auto Pdv=reinterpret_cast<PDEV_BROADCAST_VOLUME>(Pbh);
 						//bool Media = Pdv->dbcv_flags & DBTF_MEDIA != 0;
-						Notifier().at(devices_notify).notify(std::make_unique<payload>());
+						MessageManager().notify(update_devices);
 					}
 				}
 				break;
@@ -88,12 +83,12 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 			{
 				if (Global->Opt->UpdateEnvironment) 
 				{
-					Notifier().at(environment_notify).notify(std::make_unique<payload>());
+					MessageManager().notify(update_environment);
 				}
 			}
 			else if (!StrCmp(reinterpret_cast<LPCWSTR>(lParam),L"intl"))
 			{
-				Notifier().at(intl_notify).notify(std::make_unique<payload>());
+				MessageManager().notify(update_intl);
 			}
 		}
 		break;
@@ -104,7 +99,7 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 		case PBT_APMPOWERSTATUSCHANGE: // change status
 
 		case PBT_POWERSETTINGCHANGE:   // change percent
-			Notifier().at(power_notify).notify(std::make_unique<payload>());
+			MessageManager().notify(update_power);
 			break;
 		// TODO:
 		// PBT_APMSUSPEND & PBT_APMRESUMEAUTOMATIC handlers
@@ -117,16 +112,10 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 	return DefWindowProc(Hwnd, Msg, wParam, lParam);
 }
 
-wm_listener::wm_listener(notifier* owner):
-	m_Owner(owner),
+wm_listener::wm_listener():
 	m_Hwnd(nullptr),
 	m_exitEvent(Event::automatic, Event::nonsignaled)
 {
-	m_Owner->add(std::make_unique<notification>(devices_notify));
-	m_Owner->add(std::make_unique<notification>(power_notify));
-	m_Owner->add(std::make_unique<notification>(environment_notify));
-	m_Owner->add(std::make_unique<notification>(intl_notify));
-
 	Check();
 }
 

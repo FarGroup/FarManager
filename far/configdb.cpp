@@ -209,7 +209,7 @@ public:
 
 	virtual bool DeleteValue(const string& Key, const string& Name) override
 	{
-		return m_Statements[stmtDelValue].Bind(Key, Name).StepAndReset();
+		return Statement(stmtDelValue).Bind(Key, Name).StepAndReset();
 	}
 
 	virtual bool EnumValues(const string& Key, DWORD Index, string &Name, string &Value) override
@@ -307,7 +307,7 @@ private:
 	template<int TypeId, class getter_t, class T, class DT>
 	bool GetValueT(const string& Key, const string& Name, T& Value, const DT& Default, getter_t Getter)
 	{
-		auto& Stmt = m_Statements[stmtGetValue];
+		auto& Stmt = Statement(stmtGetValue);
 		bool Result = false;
 		if (Stmt.Bind(Key, Name).Step())
 		{
@@ -333,7 +333,7 @@ private:
 	template<class T>
 	bool SetValueT(const string& Key, const string& Name, const T Value)
 	{
-		const auto StmtStepAndReset = [&](statement_id StmtId) { return m_Statements[StmtId].Bind(Key, Name, Value).StepAndReset(); };
+		const auto StmtStepAndReset = [&](statement_id StmtId) { return Statement(StmtId).Bind(Key, Name, Value).StepAndReset(); };
 
 		bool b = StmtStepAndReset(stmtUpdateValue);
 		if (!b || !Changes())
@@ -344,7 +344,7 @@ private:
 	template<class T, class getter_t>
 	bool EnumValuesT(const string& Key, DWORD Index, string& Name, T& Value, getter_t Getter)
 	{
-		auto& Stmt = m_Statements[stmtEnumValues];
+		auto& Stmt = Statement(stmtEnumValues);
 		if (Index == 0)
 			Stmt.Reset().Bind(transient(Key));
 
@@ -394,7 +394,7 @@ class HierarchicalConfigDb: public HierarchicalConfig, public SQLiteDb
 public:
 	explicit HierarchicalConfigDb(const string& DbName, bool Local = false):
 		// If a thread with same event name is running, we will open that event here
-		AsyncDone(Event::manual, Event::signaled, make_name<Event>(strPath, m_Name).data())
+		AsyncDone(Event::manual, Event::signaled, make_name<Event>(GetPath(), GetName()).data())
 	{
 		// and wait for the signal
 		AsyncDone.Wait();
@@ -449,7 +449,8 @@ public:
 
 	virtual key CreateKey(const key& Root, const string& Name, const string* Description) override
 	{
-		if (m_Statements[stmtCreateKey].Bind(Root.get(), Name, Description? *Description : string()).StepAndReset())
+		static string emptyString;
+		if (Statement(stmtCreateKey).Bind(Root.get(), Name, Description? *Description : emptyString).StepAndReset())
 			return make_key(LastInsertRowID());
 
 		auto Key = FindByName(Root, Name);
@@ -460,7 +461,7 @@ public:
 
 	virtual key FindByName(const key& Root, const string& Name) override
 	{
-		auto& Stmt = m_Statements[stmtFindKey];
+		auto& Stmt = Statement(stmtFindKey);
 		uint64_t id = 0;
 		if (Stmt.Bind(Root.get(), Name).Step())
 			id = Stmt.GetColInt64(0);
@@ -470,7 +471,7 @@ public:
 
 	virtual bool SetKeyDescription(const key& Root, const string& Description) override
 	{
-		return m_Statements[stmtSetKeyDescription].Bind(Description, Root.get()).StepAndReset();
+		return Statement(stmtSetKeyDescription).Bind(Description, Root.get()).StepAndReset();
 	}
 
 	virtual bool SetValue(const key& Root, const string& Name, const string& Value) override
@@ -511,18 +512,18 @@ public:
 	virtual bool DeleteKeyTree(const key& Key) override
 	{
 		//All subtree is automatically deleted because of foreign key constraints
-		return m_Statements[stmtDeleteTree].Bind(Key.get()).StepAndReset();
+		return Statement(stmtDeleteTree).Bind(Key.get()).StepAndReset();
 	}
 
 	virtual bool DeleteValue(const key& Root, const string& Name) override
 	{
-		return m_Statements[stmtDelValue].Bind(Root.get(), Name).StepAndReset();
+		return Statement(stmtDelValue).Bind(Root.get(), Name).StepAndReset();
 	}
 
 
 	virtual bool EnumKeys(const key& Root, DWORD Index, string& Name) override
 	{
-		auto& Stmt = m_Statements[stmtEnumKeys];
+		auto& Stmt = Statement(stmtEnumKeys);
 		if (Index == 0)
 			Stmt.Reset().Bind(Root.get());
 
@@ -538,11 +539,11 @@ public:
 
 	virtual bool EnumValues(const key& Root, DWORD Index, string& Name, DWORD& Type) override
 	{
-		auto& Stmt = m_Statements[stmtEnumValues];
+		auto& Stmt = Statement(stmtEnumValues);
 		if (Index == 0)
 			Stmt.Reset().Bind(Root.get());
 
-		if (m_Statements[stmtEnumValues].Step())
+		if (Statement(stmtEnumValues).Step())
 		{
 			Name = Stmt.GetColText(0);
 			Type = Stmt.GetColType(1);
@@ -582,7 +583,7 @@ public:
 private:
 	void Export(const key& Key, tinyxml::TiXmlElement& XmlKey)
 	{
-		auto& Stmt = m_Statements[stmtEnumValues];
+		auto& Stmt = Statement(stmtEnumValues);
 		Stmt.Bind(Key.get());
 		while (Stmt.Step())
 		{
@@ -692,7 +693,7 @@ private:
 	template<class T, class getter_t>
 	bool GetValueT(const key& Root, const string& Name, T& Value, getter_t Getter)
 	{
-		auto& Stmt = m_Statements[stmtGetValue];
+		auto& Stmt = Statement(stmtGetValue);
 		const bool b = Stmt.Bind(Root.get(), Name).Step();
 		if (b)
 			Value = (Stmt.*Getter)(0);
@@ -703,7 +704,7 @@ private:
 	template<class T>
 	bool SetValueT(const key& Root, const string& Name, const T& Value)
 	{
-		return m_Statements[stmtSetValue].Bind(Root.get(), Name, Value).StepAndReset();
+		return Statement(stmtSetValue).Bind(Root.get(), Name, Value).StepAndReset();
 	}
 
 	enum statement_id
@@ -823,7 +824,7 @@ public:
 
 	virtual bool SetValue(const string& Name, const FarColor& Value) override
 	{
-		const auto StmtStepAndReset = [&](statement_id StmtId) { return m_Statements[StmtId].Bind(Name, blob(&Value, sizeof(Value))).StepAndReset(); };
+		const auto StmtStepAndReset = [&](statement_id StmtId) { return Statement(StmtId).Bind(Name, blob(&Value, sizeof(Value))).StepAndReset(); };
 
 		bool b = StmtStepAndReset(stmtUpdateValue);
 		if (!b || !Changes())
@@ -833,7 +834,7 @@ public:
 
 	virtual bool GetValue(const string& Name, FarColor& Value) override
 	{
-		auto& Stmt = m_Statements[stmtGetValue];
+		auto& Stmt = Statement(stmtGetValue);
 		const bool b = Stmt.Bind(Name).Step();
 		if (b)
 		{
@@ -894,7 +895,7 @@ public:
 			}
 			else
 			{
-				m_Statements[stmtDelValue].Bind(Name).StepAndReset();
+				Statement(stmtDelValue).Bind(Name).StepAndReset();
 			}
 		}
 	}
@@ -955,7 +956,7 @@ public:
 
 	virtual bool EnumMasks(DWORD Index, unsigned __int64 *id, string &strMask) override
 	{
-		auto& Stmt = m_Statements[stmtEnumMasks];
+		auto& Stmt = Statement(stmtEnumMasks);
 		if (Index == 0)
 			Stmt.Reset();
 
@@ -972,7 +973,7 @@ public:
 
 	virtual bool EnumMasksForType(int Type, DWORD Index, unsigned __int64 *id, string &strMask) override
 	{
-		auto& Stmt = m_Statements[stmtEnumMasksForType];
+		auto& Stmt = Statement(stmtEnumMasksForType);
 		if (Index == 0)
 			Stmt.Reset().Bind(Type);
 
@@ -989,7 +990,7 @@ public:
 
 	virtual bool GetMask(unsigned __int64 id, string &strMask) override
 	{
-		auto& Stmt = m_Statements[stmtGetMask];
+		auto& Stmt = Statement(stmtGetMask);
 		const bool b = Stmt.Bind(id).Step();
 		if (b)
 			strMask = Stmt.GetColText(0);
@@ -999,7 +1000,7 @@ public:
 
 	virtual bool GetDescription(unsigned __int64 id, string &strDescription) override
 	{
-		auto& Stmt = m_Statements[stmtGetDescription];
+		auto& Stmt = Statement(stmtGetDescription);
 		const bool b = Stmt.Bind(id).Step();
 		if (b)
 			strDescription = Stmt.GetColText(0);
@@ -1009,7 +1010,7 @@ public:
 
 	virtual bool GetCommand(unsigned __int64 id, int Type, string &strCommand, bool *Enabled = nullptr) override
 	{
-		auto& Stmt = m_Statements[stmtGetCommand];
+		auto& Stmt = Statement(stmtGetCommand);
 		const bool b = Stmt.Bind(id, Type).Step();
 		if (b)
 		{
@@ -1023,12 +1024,12 @@ public:
 
 	virtual bool SetCommand(unsigned __int64 id, int Type, const string& Command, bool Enabled) override
 	{
-		return m_Statements[stmtSetCommand].Bind(id, Type, Enabled, Command).StepAndReset();
+		return Statement(stmtSetCommand).Bind(id, Type, Enabled, Command).StepAndReset();
 	}
 
 	virtual bool SwapPositions(unsigned __int64 id1, unsigned __int64 id2) override
 	{
-		auto& Stmt = m_Statements[stmtGetWeight];
+		auto& Stmt = Statement(stmtGetWeight);
 		if (Stmt.Bind(id1).Step())
 		{
 			const auto weight1 = Stmt.GetColInt64(0);
@@ -1037,7 +1038,7 @@ public:
 			{
 				const auto weight2 = Stmt.GetColInt64(0);
 				Stmt.Reset();
-				return m_Statements[stmtSetWeight].Bind(weight1, id2).StepAndReset() && m_Statements[stmtSetWeight].Bind(weight2, id1).StepAndReset();
+				return Statement(stmtSetWeight).Bind(weight1, id2).StepAndReset() && Statement(stmtSetWeight).Bind(weight2, id1).StepAndReset();
 			}
 		}
 		Stmt.Reset();
@@ -1046,19 +1047,19 @@ public:
 
 	virtual unsigned __int64 AddType(unsigned __int64 after_id, const string& Mask, const string& Description) override
 	{
-		if (m_Statements[stmtReorder].Bind(after_id).StepAndReset() && m_Statements[stmtAddType].Bind(after_id, Mask, Description).StepAndReset())
+		if (Statement(stmtReorder).Bind(after_id).StepAndReset() && Statement(stmtAddType).Bind(after_id, Mask, Description).StepAndReset())
 			return LastInsertRowID();
 		return 0;
 	}
 
 	virtual bool UpdateType(unsigned __int64 id, const string& Mask, const string& Description) override
 	{
-		return m_Statements[stmtUpdateType].Bind(Mask, Description, id).StepAndReset();
+		return Statement(stmtUpdateType).Bind(Mask, Description, id).StepAndReset();
 	}
 
 	virtual bool DelType(unsigned __int64 id) override
 	{
-		return m_Statements[stmtDelType].Bind(id).StepAndReset();
+		return Statement(stmtDelType).Bind(id).StepAndReset();
 	}
 
 	virtual void Export(representation& Representation) override
@@ -1242,14 +1243,14 @@ public:
 
 	virtual unsigned __int64 CreateCache(const string& CacheName) override
 	{
-		if (m_Statements[stmtCreateCache].Bind(CacheName).StepAndReset())
+		if (Statement(stmtCreateCache).Bind(CacheName).StepAndReset())
 			return LastInsertRowID();
 		return 0;
 	}
 
 	virtual unsigned __int64 GetCacheID(const string& CacheName) const override
 	{
-		auto& Stmt = m_Statements[stmtFindCacheName];
+		auto& Stmt = Statement(stmtFindCacheName);
 		unsigned __int64 id = 0;
 		if (Stmt.Bind(CacheName).Step())
 			id = Stmt.GetColInt64(0);
@@ -1260,12 +1261,12 @@ public:
 	virtual bool DeleteCache(const string& CacheName) override
 	{
 		//All related entries are automatically deleted because of foreign key constraints
-		return m_Statements[stmtDelCache].Bind(CacheName).StepAndReset();
+		return Statement(stmtDelCache).Bind(CacheName).StepAndReset();
 	}
 
 	virtual bool IsPreload(unsigned __int64 id) const override
 	{
-		auto& Stmt = m_Statements[stmtGetPreloadState];
+		auto& Stmt = Statement(stmtGetPreloadState);
 		bool preload = false;
 		if (Stmt.Bind(id).Step())
 			preload = Stmt.GetColInt(0) != 0;
@@ -1275,12 +1276,12 @@ public:
 
 	virtual string GetSignature(unsigned __int64 id) const override
 	{
-		return GetTextFromID(m_Statements[stmtGetSignature], id);
+		return GetTextFromID(Statement(stmtGetSignature), id);
 	}
 
 	virtual void *GetExport(unsigned __int64 id, const string& ExportName) const override
 	{
-		auto& Stmt = m_Statements[stmtGetExportState];
+		auto& Stmt = Statement(stmtGetExportState);
 		void *enabled = nullptr;
 		if (Stmt.Bind(id, ExportName).Step())
 			if (Stmt.GetColInt(0))
@@ -1291,27 +1292,27 @@ public:
 
 	virtual string GetGuid(unsigned __int64 id) const override
 	{
-		return GetTextFromID(m_Statements[stmtGetGuid], id);
+		return GetTextFromID(Statement(stmtGetGuid), id);
 	}
 
 	virtual string GetTitle(unsigned __int64 id) const override
 	{
-		return GetTextFromID(m_Statements[stmtGetTitle], id);
+		return GetTextFromID(Statement(stmtGetTitle), id);
 	}
 
 	virtual string GetAuthor(unsigned __int64 id) const override
 	{
-		return GetTextFromID(m_Statements[stmtGetAuthor], id);
+		return GetTextFromID(Statement(stmtGetAuthor), id);
 	}
 
 	virtual string GetDescription(unsigned __int64 id) const override
 	{
-		return GetTextFromID(m_Statements[stmtGetDescription], id);
+		return GetTextFromID(Statement(stmtGetDescription), id);
 	}
 
 	virtual bool GetMinFarVersion(unsigned __int64 id, VersionInfo *Version) const override
 	{
-		auto& Stmt = m_Statements[stmtGetMinFarVersion];
+		auto& Stmt = Statement(stmtGetMinFarVersion);
 		const bool b = Stmt.Bind(id).Step();
 		if (b)
 		{
@@ -1326,7 +1327,7 @@ public:
 
 	virtual bool GetVersion(unsigned __int64 id, VersionInfo *Version) const override
 	{
-		auto& Stmt = m_Statements[stmtGetVersion];
+		auto& Stmt = Statement(stmtGetVersion);
 		const bool b = Stmt.Bind(id).Step();
 		if (b)
 		{
@@ -1356,12 +1357,12 @@ public:
 
 	virtual string GetCommandPrefix(unsigned __int64 id) const override
 	{
-		return GetTextFromID(m_Statements[stmtGetPrefix], id);
+		return GetTextFromID(Statement(stmtGetPrefix), id);
 	}
 
 	virtual unsigned __int64 GetFlags(unsigned __int64 id) const override
 	{
-		auto& Stmt = m_Statements[stmtGetFlags];
+		auto& Stmt = Statement(stmtGetFlags);
 		unsigned __int64 flags = 0;
 		if (Stmt.Bind(id).Step())
 			flags = Stmt.GetColInt64(0);
@@ -1371,12 +1372,12 @@ public:
 
 	virtual bool SetPreload(unsigned __int64 id, bool Preload) override
 	{
-		return m_Statements[stmtSetPreloadState].Bind(id, Preload).StepAndReset();
+		return Statement(stmtSetPreloadState).Bind(id, Preload).StepAndReset();
 	}
 
 	virtual bool SetSignature(unsigned __int64 id, const string& Signature) override
 	{
-		return m_Statements[stmtSetSignature].Bind(id, Signature).StepAndReset();
+		return Statement(stmtSetSignature).Bind(id, Signature).StepAndReset();
 	}
 
 	virtual bool SetDiskMenuItem(unsigned __int64 id, size_t index, const string& Text, const string& Guid) override
@@ -1396,52 +1397,52 @@ public:
 
 	virtual bool SetCommandPrefix(unsigned __int64 id, const string& Prefix) override
 	{
-		return m_Statements[stmtSetPrefix].Bind(id, Prefix).StepAndReset();
+		return Statement(stmtSetPrefix).Bind(id, Prefix).StepAndReset();
 	}
 
 	virtual bool SetFlags(unsigned __int64 id, unsigned __int64 Flags) override
 	{
-		return m_Statements[stmtSetFlags].Bind(id, Flags).StepAndReset();
+		return Statement(stmtSetFlags).Bind(id, Flags).StepAndReset();
 	}
 
 	virtual bool SetExport(unsigned __int64 id, const string& ExportName, bool Exists) override
 	{
-		return m_Statements[stmtSetExportState].Bind(id, ExportName, Exists).StepAndReset();
+		return Statement(stmtSetExportState).Bind(id, ExportName, Exists).StepAndReset();
 	}
 
 	virtual bool SetMinFarVersion(unsigned __int64 id, const VersionInfo *Version) override
 	{
-		return m_Statements[stmtSetMinFarVersion].Bind(id, blob(Version, sizeof(*Version))).StepAndReset();
+		return Statement(stmtSetMinFarVersion).Bind(id, blob(Version, sizeof(*Version))).StepAndReset();
 	}
 
 	virtual bool SetVersion(unsigned __int64 id, const VersionInfo *Version) override
 	{
-		return m_Statements[stmtSetVersion].Bind(id, blob(Version, sizeof(*Version))).StepAndReset();
+		return Statement(stmtSetVersion).Bind(id, blob(Version, sizeof(*Version))).StepAndReset();
 	}
 
 	virtual bool SetGuid(unsigned __int64 id, const string& Guid) override
 	{
-		return m_Statements[stmtSetGuid].Bind(id, Guid).StepAndReset();
+		return Statement(stmtSetGuid).Bind(id, Guid).StepAndReset();
 	}
 
 	virtual bool SetTitle(unsigned __int64 id, const string& Title) override
 	{
-		return m_Statements[stmtSetTitle].Bind(id, Title).StepAndReset();
+		return Statement(stmtSetTitle).Bind(id, Title).StepAndReset();
 	}
 
 	virtual bool SetAuthor(unsigned __int64 id, const string& Author) override
 	{
-		return m_Statements[stmtSetAuthor].Bind(id, Author).StepAndReset();
+		return Statement(stmtSetAuthor).Bind(id, Author).StepAndReset();
 	}
 
 	virtual bool SetDescription(unsigned __int64 id, const string& Description) override
 	{
-		return m_Statements[stmtSetDescription].Bind(id, Description).StepAndReset();
+		return Statement(stmtSetDescription).Bind(id, Description).StepAndReset();
 	}
 
 	virtual bool EnumPlugins(DWORD index, string &CacheName) const override
 	{
-		auto& Stmt = m_Statements[stmtEnumCache];
+		auto& Stmt = Statement(stmtEnumCache);
 		if (index == 0)
 			Stmt.Reset();
 
@@ -1464,7 +1465,7 @@ public:
 
 	virtual bool IsCacheEmpty() const override
 	{
-		auto& Stmt = m_Statements[stmtCountCacheNames];
+		auto& Stmt = Statement(stmtCountCacheNames);
 		int count = 0;
 		if (Stmt.Step())
 			count = Stmt.GetColInt(0);
@@ -1482,7 +1483,7 @@ private:
 
 	bool GetMenuItem(unsigned __int64 id, MenuItemTypeEnum type, size_t index, string &Text, string &Guid) const
 	{
-		auto& Stmt = m_Statements[stmtGetMenuItem];
+		auto& Stmt = Statement(stmtGetMenuItem);
 		const bool b = Stmt.Bind(id, type, index).Step();
 		if (b)
 		{
@@ -1495,7 +1496,7 @@ private:
 
 	bool SetMenuItem(unsigned __int64 id, MenuItemTypeEnum type, size_t index, const string& Text, const string& Guid)
 	{
-		return m_Statements[stmtSetMenuItem].Bind(id, type, index, Guid, Text).StepAndReset();
+		return Statement(stmtSetMenuItem).Bind(id, type, index, Guid, Text).StepAndReset();
 	}
 
 	static string GetTextFromID(SQLiteStmt &stmt, unsigned __int64 id)
@@ -1577,7 +1578,7 @@ public:
 
 	virtual bool HotkeysPresent(HotKeyTypeEnum HotKeyType) override
 	{
-		auto& Stmt = m_Statements[stmtCheckForHotkeys];
+		auto& Stmt = Statement(stmtCheckForHotkeys);
 		int count = 0;
 		if (Stmt.Bind((int)HotKeyType).Step())
 			count = Stmt.GetColInt(0);
@@ -1587,7 +1588,7 @@ public:
 
 	virtual string GetHotkey(const string& PluginKey, const string& MenuGuid, HotKeyTypeEnum HotKeyType) override
 	{
-		auto& Stmt = m_Statements[stmtGetHotkey];
+		auto& Stmt = Statement(stmtGetHotkey);
 		string strHotKey;
 		if (Stmt.Bind(PluginKey, MenuGuid, HotKeyType).Step())
 			strHotKey = Stmt.GetColText(0);
@@ -1597,12 +1598,12 @@ public:
 
 	virtual bool SetHotkey(const string& PluginKey, const string& MenuGuid, HotKeyTypeEnum HotKeyType, const string& HotKey) override
 	{
-		return m_Statements[stmtSetHotkey].Bind(PluginKey, MenuGuid, HotKeyType, HotKey).StepAndReset();
+		return Statement(stmtSetHotkey).Bind(PluginKey, MenuGuid, HotKeyType, HotKey).StepAndReset();
 	}
 
 	virtual bool DelHotkey(const string& PluginKey, const string& MenuGuid, HotKeyTypeEnum HotKeyType) override
 	{
-		return m_Statements[stmtDelHotkey].Bind(PluginKey, MenuGuid, HotKeyType).StepAndReset();
+		return Statement(stmtDelHotkey).Bind(PluginKey, MenuGuid, HotKeyType).StepAndReset();
 	}
 
 	virtual void Export(representation& Representation) override
@@ -1725,9 +1726,9 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb
 	{
 		StopEvent = Event(Event::automatic, Event::nonsignaled);
 		string EventName;
-		if (strPath != L":memory:")
+		if (GetPath() != L":memory:")
 		{
-			EventName = make_name<Event>(strPath, m_Name);
+			EventName = make_name<Event>(GetPath(), GetName());
 		}
 		AsyncDeleteAddDone = Event(Event::manual, Event::signaled, EventName.data());
 		AsyncCommitDone = Event(Event::manual, Event::signaled, EventName.data());
@@ -1781,12 +1782,12 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb
 
 	bool AddInternal(unsigned int TypeHistory, const string& HistoryName, const string &Name, int Type, bool Lock, const string &strGuid, const string &strFile, const string &strData)
 	{
-		return m_Statements[stmtAdd].Bind(TypeHistory, HistoryName, Type, Lock, Name, GetCurrentUTCTimeInUI64(), strGuid, strFile, strData).StepAndReset();
+		return Statement(stmtAdd).Bind(TypeHistory, HistoryName, Type, Lock, Name, GetCurrentUTCTimeInUI64(), strGuid, strFile, strData).StepAndReset();
 	}
 
 	bool DeleteInternal(unsigned __int64 id)
 	{
-		return m_Statements[stmtDel].Bind(id).StepAndReset();
+		return Statement(stmtDel).Bind(id).StepAndReset();
 	}
 
 public:
@@ -1877,7 +1878,7 @@ public:
 	virtual bool Enum(DWORD index, unsigned int TypeHistory, const string& HistoryName, unsigned __int64 *id, string &Name, history_record_type* Type, bool *Lock, unsigned __int64 *Time, string &strGuid, string &strFile, string &strData, bool Reverse = false) override
 	{
 		WaitAllAsync();
-		auto &stmt = m_Statements[Reverse? stmtEnumDesc : stmtEnum];
+		auto &stmt = Statement(Reverse? stmtEnumDesc : stmtEnum);
 
 		if (index == 0)
 			stmt.Reset().Bind(TypeHistory, transient(HistoryName));
@@ -1925,13 +1926,13 @@ public:
 		WaitAllAsync();
 		unsigned __int64 older = GetCurrentUTCTimeInUI64();
 		older -= DaysToUI64(DaysToKeep);
-		return m_Statements[stmtDeleteOldUnlocked].Bind(TypeHistory, HistoryName, older, MinimumEntries).StepAndReset();
+		return Statement(stmtDeleteOldUnlocked).Bind(TypeHistory, HistoryName, older, MinimumEntries).StepAndReset();
 	}
 
 	virtual bool EnumLargeHistories(DWORD index, int MinimumEntries, unsigned int TypeHistory, string &strHistoryName) override
 	{
 		WaitAllAsync();
-		auto& Stmt = m_Statements[stmtEnumLargeHistories];
+		auto& Stmt = Statement(stmtEnumLargeHistories);
 		if (index == 0)
 			Stmt.Reset().Bind(TypeHistory, MinimumEntries);
 
@@ -1948,7 +1949,7 @@ public:
 	virtual bool GetNewest(unsigned int TypeHistory, const string& HistoryName, string& Name) override
 	{
 		WaitAllAsync();
-		auto& Stmt = m_Statements[stmtGetNewestName];
+		auto& Stmt = Statement(stmtGetNewestName);
 		const bool b = Stmt.Bind(TypeHistory, HistoryName).Step();
 		if (b)
 		{
@@ -1961,7 +1962,7 @@ public:
 	virtual bool Get(unsigned __int64 id, string& Name) override
 	{
 		WaitAllAsync();
-		auto& Stmt = m_Statements[stmtGetName];
+		auto& Stmt = Statement(stmtGetName);
 		const bool b = Stmt.Bind(id).Step();
 		if (b)
 		{
@@ -1974,7 +1975,7 @@ public:
 	virtual bool Get(unsigned __int64 id, string& Name, history_record_type* Type, string &strGuid, string &strFile, string &strData) override
 	{
 		WaitAllAsync();
-		auto& Stmt = m_Statements[stmtGetNameAndType];
+		auto& Stmt = Statement(stmtGetNameAndType);
 		const bool b = Stmt.Bind(id).Step();
 		if (b)
 		{
@@ -1991,7 +1992,7 @@ public:
 	virtual DWORD Count(unsigned int TypeHistory, const string& HistoryName) override
 	{
 		WaitAllAsync();
-		auto& Stmt = m_Statements[stmtCount];
+		auto& Stmt = Statement(stmtCount);
 		DWORD c = 0;
 		if (Stmt.Bind((int)TypeHistory, HistoryName).Step())
 		{
@@ -2004,13 +2005,13 @@ public:
 	virtual bool FlipLock(unsigned __int64 id) override
 	{
 		WaitAllAsync();
-		return m_Statements[stmtSetLock].Bind(!IsLocked(id), id).StepAndReset();
+		return Statement(stmtSetLock).Bind(!IsLocked(id), id).StepAndReset();
 	}
 
 	virtual bool IsLocked(unsigned __int64 id) override
 	{
 		WaitAllAsync();
-		auto& Stmt = m_Statements[stmtGetLock];
+		auto& Stmt = Statement(stmtGetLock);
 		bool l = false;
 		if (Stmt.Bind(id).Step())
 		{
@@ -2023,7 +2024,7 @@ public:
 	virtual bool DeleteAllUnlocked(unsigned int TypeHistory, const string& HistoryName) override
 	{
 		WaitAllAsync();
-		return m_Statements[stmtDelUnlocked].Bind(TypeHistory, HistoryName).StepAndReset();
+		return Statement(stmtDelUnlocked).Bind(TypeHistory, HistoryName).StepAndReset();
 	}
 
 	virtual unsigned __int64 GetNext(unsigned int TypeHistory, const string& HistoryName, unsigned __int64 id, string& Name) override
@@ -2035,7 +2036,7 @@ public:
 		if (!id)
 			return nid;
 
-		auto& Stmt = m_Statements[stmtGetNext];
+		auto& Stmt = Statement(stmtGetNext);
 		if (Stmt.Bind(id, TypeHistory, HistoryName).Step())
 		{
 			nid = Stmt.GetColInt64(0);
@@ -2050,7 +2051,7 @@ public:
 		WaitAllAsync();
 		Name.clear();
 
-		auto& GetNewestStmt = m_Statements[stmtGetNewest];
+		auto& GetNewestStmt = Statement(stmtGetNewest);
 		unsigned __int64 nid = 0;
 		if (!id)
 		{
@@ -2063,7 +2064,7 @@ public:
 			return nid;
 		}
 
-		auto& GetPrevStmt = m_Statements[stmtGetPrev];
+		auto& GetPrevStmt = Statement(stmtGetPrev);
 		if (GetPrevStmt.Bind(id, TypeHistory, HistoryName).Step())
 		{
 			nid = GetPrevStmt.GetColInt64(0);
@@ -2073,7 +2074,7 @@ public:
 		{
 			nid = id;
 		}
-		m_Statements[stmtGetPrev].Reset();
+		Statement(stmtGetPrev).Reset();
 		return nid;
 	}
 
@@ -2082,7 +2083,7 @@ public:
 		WaitAllAsync();
 		Name.clear();
 
-		auto& GetNewestStmt = m_Statements[stmtGetNewest];
+		auto& GetNewestStmt = Statement(stmtGetNewest);
 
 		unsigned __int64 nid = 0;
 		if (!id)
@@ -2096,7 +2097,7 @@ public:
 			return nid;
 		}
 
-		auto& GetPrevStmt = m_Statements[stmtGetPrev];
+		auto& GetPrevStmt = Statement(stmtGetPrev);
 		if (GetPrevStmt.Bind(id, TypeHistory, HistoryName).Step())
 		{
 			nid = GetPrevStmt.GetColInt64(0);
@@ -2109,7 +2110,7 @@ public:
 	virtual unsigned __int64 SetEditorPos(const string& Name, int Line, int LinePos, int ScreenLine, int LeftPos, uintptr_t CodePage) override
 	{
 		WaitCommitAsync();
-		if (m_Statements[stmtSetEditorPos].Bind(Name, GetCurrentUTCTimeInUI64(), Line, LinePos, ScreenLine, LeftPos, (int)CodePage).StepAndReset())
+		if (Statement(stmtSetEditorPos).Bind(Name, GetCurrentUTCTimeInUI64(), Line, LinePos, ScreenLine, LeftPos, (int)CodePage).StepAndReset())
 			return LastInsertRowID();
 		return 0;
 	}
@@ -2117,7 +2118,7 @@ public:
 	virtual unsigned __int64 GetEditorPos(const string& Name, int *Line, int *LinePos, int *ScreenLine, int *LeftPos, uintptr_t *CodePage) override
 	{
 		WaitCommitAsync();
-		auto& Stmt = m_Statements[stmtGetEditorPos];
+		auto& Stmt = Statement(stmtGetEditorPos);
 		unsigned __int64 id=0;
 		if (Stmt.Bind(Name).Step())
 		{
@@ -2135,13 +2136,13 @@ public:
 	virtual bool SetEditorBookmark(unsigned __int64 id, size_t i, int Line, int LinePos, int ScreenLine, int LeftPos) override
 	{
 		WaitCommitAsync();
-		return m_Statements[stmtSetEditorBookmark].Bind(id, i, Line, LinePos, ScreenLine, LeftPos).StepAndReset();
+		return Statement(stmtSetEditorBookmark).Bind(id, i, Line, LinePos, ScreenLine, LeftPos).StepAndReset();
 	}
 
 	virtual bool GetEditorBookmark(unsigned __int64 id, size_t i, int *Line, int *LinePos, int *ScreenLine, int *LeftPos) override
 	{
 		WaitCommitAsync();
-		auto& Stmt = m_Statements[stmtGetEditorBookmark];
+		auto& Stmt = Statement(stmtGetEditorBookmark);
 		const bool b = Stmt.Bind(id, i).Step();
 		if (b)
 		{
@@ -2157,7 +2158,7 @@ public:
 	virtual unsigned __int64 SetViewerPos(const string& Name, __int64 FilePos, __int64 LeftPos, int Hex_Wrap, uintptr_t CodePage) override
 	{
 		WaitCommitAsync();
-		if (m_Statements[stmtSetViewerPos].Bind(Name, GetCurrentUTCTimeInUI64(), FilePos, LeftPos, Hex_Wrap, CodePage).StepAndReset())
+		if (Statement(stmtSetViewerPos).Bind(Name, GetCurrentUTCTimeInUI64(), FilePos, LeftPos, Hex_Wrap, CodePage).StepAndReset())
 			return LastInsertRowID();
 		return 0;
 	}
@@ -2165,7 +2166,7 @@ public:
 	virtual unsigned __int64 GetViewerPos(const string& Name, __int64 *FilePos, __int64 *LeftPos, int *Hex, uintptr_t *CodePage) override
 	{
 		WaitCommitAsync();
-		auto& Stmt = m_Statements[stmtGetViewerPos];
+		auto& Stmt = Statement(stmtGetViewerPos);
 		unsigned __int64 id=0;
 		if (Stmt.Bind(Name).Step())
 		{
@@ -2182,13 +2183,13 @@ public:
 	virtual bool SetViewerBookmark(unsigned __int64 id, size_t i, __int64 FilePos, __int64 LeftPos) override
 	{
 		WaitCommitAsync();
-		return m_Statements[stmtSetViewerBookmark].Bind(id, i, FilePos, LeftPos).StepAndReset();
+		return Statement(stmtSetViewerBookmark).Bind(id, i, FilePos, LeftPos).StepAndReset();
 	}
 
 	virtual bool GetViewerBookmark(unsigned __int64 id, size_t i, __int64 *FilePos, __int64 *LeftPos) override
 	{
 		WaitCommitAsync();
-		auto& Stmt = m_Statements[stmtGetViewerBookmark];
+		auto& Stmt = Statement(stmtGetViewerBookmark);
 		const bool b = Stmt.Bind(id, i).Step();
 		if (b)
 		{
@@ -2204,8 +2205,8 @@ public:
 		WaitCommitAsync();
 		unsigned __int64 older = GetCurrentUTCTimeInUI64();
 		older -= DaysToUI64(DaysToKeep);
-		m_Statements[stmtDeleteOldEditor].Bind(older, MinimumEntries).StepAndReset();
-		m_Statements[stmtDeleteOldViewer].Bind(older, MinimumEntries).StepAndReset();
+		Statement(stmtDeleteOldEditor).Bind(older, MinimumEntries).StepAndReset();
+		Statement(stmtDeleteOldViewer).Bind(older, MinimumEntries).StepAndReset();
 	}
 
 	enum statement_id

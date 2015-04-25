@@ -125,6 +125,7 @@ protected:
 		SQLiteStmt& BindImpl(__int64 Value);
 		SQLiteStmt& BindImpl(const wchar_t* Value, bool bStatic = true);
 		SQLiteStmt& BindImpl(const string& Value, bool bStatic = true);
+		SQLiteStmt& BindImpl(string&& Value);
 		SQLiteStmt& BindImpl(const blob& Value, bool bStatic = true);
 		SQLiteStmt& BindImpl(unsigned int Value) { return BindImpl(static_cast<int>(Value)); }
 		SQLiteStmt& BindImpl(unsigned __int64 Value) { return BindImpl(static_cast<__int64>(Value)); }
@@ -148,7 +149,6 @@ protected:
 	}
 
 	bool Open(const string& DbName, bool Local, bool WAL=false);
-	void Close();
 	void Initialize(const string& DbName, bool Local = false);
 	SQLiteStmt create_stmt(const wchar_t *Stmt) const;
 	template<size_t N>
@@ -167,19 +167,24 @@ protected:
 	int GetLastErrorCode() const;
 	string GetLastErrorString() const;
 
-	string strPath;
-	string m_Name;
+	const string& GetPath() const { return m_Path; }
+	const string& GetName() const { return m_Name; }
 
-	mutable std::vector<SQLiteStmt> m_Statements;
+	SQLiteStmt& Statement(size_t Index) const { return m_Statements[Index]; }
 
 private:
+	void Close();
 	virtual bool InitializeImpl(const string& DbName, bool Local) = 0;
 	bool PrepareStatements(const stmt_init_t* Init, size_t Size);
 
 	struct db_closer { void operator()(sqlite::sqlite3*) const; };
 	typedef std::unique_ptr<sqlite::sqlite3, db_closer> database_ptr;
 
+	// must be destroyed last
 	database_ptr m_Db;
+	mutable std::vector<SQLiteStmt> m_Statements;
+	string m_Path;
+	string m_Name;
 	int init_status;
 	int db_exists;
 };

@@ -453,7 +453,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="plugapi.cpp" />
     <ClCompile Include="PluginA.cpp" />
     <ClCompile Include="plugins.cpp" />
-    <ClCompile Include="PluginSynchro.cpp" />
     <ClCompile Include="plugsettings.cpp" />
     <ClCompile Include="poscache.cpp" />
     <ClCompile Include="preservelongname.cpp" />
@@ -525,6 +524,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\smart_ptr.hpp" />
     <ClInclude Include="common\variadic_emulation_helpers_begin.hpp" />
     <ClInclude Include="common\variadic_emulation_helpers_end.hpp" />
+    <ClInclude Include="common\variant.hpp" />
     <ClInclude Include="configdb.hpp" />
     <ClInclude Include="elevation.hpp" />
     <ClInclude Include="bitflags.hpp" />
@@ -684,7 +684,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="PluginA.hpp" />
     <ClInclude Include="pluginold.hpp" />
     <ClInclude Include="plugins.hpp" />
-    <ClInclude Include="PluginSynchro.hpp" />
     <ClInclude Include="plugsettings.hpp" />
     <ClInclude Include="poscache.hpp" />
     <ClInclude Include="preservelongname.hpp" />

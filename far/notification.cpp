@@ -35,66 +35,76 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "notification.hpp"
 #include "wm_listener.hpp"
 
-listener::listener(const string& id, const std::function<void()>& function):
-	m_notification(Notifier().at(id)),
-	m_function(function)
+static const wchar_t* EventNames[] =
 {
-	m_notification.subscribe(this);
+	WSTR(update_intl),
+	WSTR(update_power),
+	WSTR(update_devices),
+	WSTR(update_environment),
+	WSTR(elevation_dialog),
+	WSTR(plugin_synchro),
+};
+
+static_assert(ARRAYSIZE(EventNames) == event_id_count, "Incomplete EventNames array");
+
+message_manager::message_manager():
+	m_Window(std::make_unique<wm_listener>())
+{
 }
 
-listener::listener(const std::function<void(const payload&)>& function, const string& id):
-m_notification(Notifier().at(id)),
-m_ex_function(function)
+message_manager::handlers_map::iterator message_manager::subscribe(event_id EventId, const detail::i_event_handler& EventHandler)
 {
-	m_notification.subscribe(this);
+	return m_Handlers.insert(handlers_map::value_type(EventNames[EventId], &EventHandler));
 }
 
-listener::~listener()
+message_manager::handlers_map::iterator message_manager::subscribe(const string& EventName, const detail::i_event_handler& EventHandler)
 {
-	m_notification.unsubscribe(this);
+	return m_Handlers.insert(handlers_map::value_type(EventName, &EventHandler));
 }
 
-void notification::notify(std::unique_ptr<const payload>&& p)
+void message_manager::unsubscribe(handlers_map::iterator HandlerIterator)
 {
-	m_events.Push(std::move(p));
+	m_Handlers.erase(HandlerIterator);
 }
 
-void notification::dispatch()
+void message_manager::notify(event_id EventId, variant&& Payload)
 {
-	decltype(m_events)::value_type item;
+	m_Messages.Push(message_queue::value_type(EventNames[EventId], std::move(Payload)));
+}
 
-	while(m_events.PopIfNotEmpty(item))
+void message_manager::notify(const string& EventName, variant&& Payload)
+{
+	m_Messages.Push(message_queue::value_type(EventName, std::move(Payload)));
+}
+
+void message_manager::dispatch()
+{
+	message_queue::value_type EventData;
+	while (m_Messages.PopIfNotEmpty(EventData))
 	{
-		std::for_each(RANGE(m_listeners, i)
+		const auto RelevantListeners = m_Handlers.equal_range(EventData.first);
+		std::for_each(RelevantListeners.first, RelevantListeners.second, [&](const handlers_map::value_type& i)
 		{
-			i->callback(*item);
+			(*i.second)(EventData.second);
 		});
 	}
-}
-
-notifier& Notifier()
-{
-	static notifier n;
-	return n;
-}
-
-notifier::notifier():
-	m_Window(std::make_unique<wm_listener>(this))
-{
-}
-
-void notifier::dispatch()
-{
-	std::for_each(RANGE(m_notifications, i)
-	{
-		i.second->dispatch();
-	});
 
 	m_Window->Check();
 }
 
-void notifier::add(std::unique_ptr<notification>&& i)
+message_manager::suppress::suppress():
+	m_owner(MessageManager())
 {
-	auto Name = i->name();
-	m_notifications.insert(VALUE_TYPE(m_notifications)(std::move(Name), std::move(i)));
+	InterlockedIncrement(&m_owner.m_suppressions);
+}
+
+message_manager::suppress::~suppress()
+{
+	InterlockedDecrement(&m_owner.m_suppressions);
+}
+
+message_manager& MessageManager()
+{
+	static message_manager sMessageManager;
+	return sMessageManager;
 }

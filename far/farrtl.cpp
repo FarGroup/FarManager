@@ -7,6 +7,8 @@ farrtl.cpp
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "strmix.hpp"
+
 #ifdef MEMCHECK
 #undef DuplicateString
 #undef new
@@ -248,6 +250,27 @@ static void DebugDeallocator(void* block, ALLOCATION_TYPE type)
 	free(realBlock);
 }
 
+string FindStr(const void* Data, size_t Size)
+{
+	auto ABegin = reinterpret_cast<const char*>(Data);
+	auto AEnd = ABegin + Size;
+
+	if (std::all_of(ABegin, AEnd, [](char c){ return c >= ' ' || IsEol(c); }))
+	{
+		return string(wide(std::string(ABegin, AEnd)));
+	}
+
+	auto WBegin = reinterpret_cast<const wchar_t*>(Data);
+	auto WEnd = WBegin + Size / sizeof(wchar_t);
+
+	if (std::all_of(WBegin, WEnd, [](wchar_t c){ return c >= L' ' || IsEol(c); }))
+	{
+		return string(WBegin, WEnd);
+	}
+
+	return string();
+}
+
 void PrintMemory()
 {
 	bool MonitoringState = MonitoringEnabled;
@@ -255,7 +278,7 @@ void PrintMemory()
 
 	if (CallNewDeleteVector || CallNewDeleteScalar || AllocatedMemoryBlocks || AllocatedMemorySize)
 	{
-		std::wostringstream oss;
+ 		std::wostringstream oss;
 		oss << L"Memory leaks detected:" << std::endl;
 		if (CallNewDeleteVector)
 			oss << L"  delete[]:   " << CallNewDeleteVector << std::endl;
@@ -264,7 +287,7 @@ void PrintMemory()
 		if (AllocatedMemoryBlocks)
 			oss << L"Total blocks: " << AllocatedMemoryBlocks << std::endl;
 		if (AllocatedMemorySize)
-			oss << L"Total bytes:  " << AllocatedMemorySize - AllocatedMemoryBlocks * sizeof(MEMINFO) <<  L" payload, " << AllocatedMemoryBlocks * sizeof(MEMINFO) << L" overhead" << std::endl;
+			oss << L"Total bytes:  " << AllocatedMemorySize - AllocatedMemoryBlocks * (sizeof(MEMINFO) + sizeof(EndMarker)) << L" payload, " << AllocatedMemoryBlocks * sizeof(MEMINFO) << L" overhead" << std::endl;
 		oss << std::endl;
 
 		oss << "Not freed blocks:" << std::endl;
@@ -275,7 +298,11 @@ void PrintMemory()
 
 		for(auto i = FirstMemBlock.next; i; i = i->next)
 		{
-			oss << FormatLine(i->File, i->Line, i->Function, i->AllocationType, i->Size - sizeof(MEMINFO)).data() << std::endl;
+			const auto BlockSize = i->Size - sizeof(MEMINFO) - sizeof(EndMarker);
+			oss << FormatLine(i->File, i->Line, i->Function, i->AllocationType, BlockSize).data()
+				<< L"\nData: " << BlobToHexWString(ToUser(i), std::min(BlockSize, size_t(16)), L' ')
+				<< L"\nhr: " << FindStr(ToUser(i), BlockSize) << std::endl;
+
 			std::wcerr << oss.str();
 			OutputDebugString(oss.str().data());
 			oss.str(string());

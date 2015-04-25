@@ -901,14 +901,14 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 							else if (ReparseTag == IO_REPARSE_TAG_DFS)
 							{
 								string path(SrcPanel->GetCurDir() + L'\\' + strSelName);
-								PDFS_INFO_3 pData;
-								if (Imports().NetDfsGetInfo(UNSAFE_CSTR(path), nullptr, nullptr, 3, (LPBYTE *)&pData) == NERR_Success)
+								PDFS_INFO_3 RawDfsInfoPointer;
+								if (Imports().NetDfsGetInfo(UNSAFE_CSTR(path), nullptr, nullptr, 3, reinterpret_cast<LPBYTE*>(&RawDfsInfoPointer)) == NERR_Success)
 								{
-									SCOPE_EXIT{ NetApiBufferFree(pData); };
+									const auto DfsInfo = os::memory::netapi::ptr(RawDfsInfoPointer);
 
 									KnownReparsePoint = true;
 
-									NameList.ItemsNumber = pData->NumberOfStorages;
+									NameList.ItemsNumber = DfsInfo->NumberOfStorages;
 
 									ListItems.resize(NameList.ItemsNumber);
 									Links.resize(NameList.ItemsNumber);
@@ -917,11 +917,11 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 									for (size_t i = 0; i < NameList.ItemsNumber; ++i)
 									{
-										Links[i] = string(L"\\\\") + pData->Storage[i].ServerName + L'\\' + pData->Storage[i].ShareName;
+										Links[i] = string(L"\\\\") + DfsInfo->Storage[i].ServerName + L'\\' + DfsInfo->Storage[i].ShareName;
 										NameList.Items[i].Text = Links[i].data();
 										NameList.Items[i].Flags =
-											((pData->Storage[i].State & DFS_STORAGE_STATE_ACTIVE) ? (LIF_CHECKED | LIF_SELECTED) : LIF_NONE) |
-											((pData->Storage[i].State & DFS_STORAGE_STATE_OFFLINE) ? LIF_GRAYED : LIF_NONE);
+											((DfsInfo->Storage[i].State & DFS_STORAGE_STATE_ACTIVE) ? (LIF_CHECKED | LIF_SELECTED) : LIF_NONE) |
+											((DfsInfo->Storage[i].State & DFS_STORAGE_STATE_OFFLINE) ? LIF_GRAYED : LIF_NONE);
 									}
 
 									AttrDlg[SA_EDIT_SYMLINK].Flags |= DIF_HIDDEN;

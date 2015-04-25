@@ -627,7 +627,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		bool NeedRefresh = false;
 
-		SCOPED_ACTION(listener)(L"devices", [&NeedRefresh] { NeedRefresh = true; });
+		SCOPED_ACTION(listener)(update_devices, [&NeedRefresh] { NeedRefresh = true; });
 
 		ChDisk->Run([&](int Key)->int
 		{

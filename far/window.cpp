@@ -88,12 +88,7 @@ bool window::CanFastHide() const
 
 bool window::HasSaveScreen() const
 {
-	if (this->SaveScr||this->ShadowSaveScr)
-	{
-		return true;
-	}
-
-	return false;
+	return SaveScr || ShadowSaveScr;
 }
 
 void window::SetDeleting(void)

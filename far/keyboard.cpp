@@ -50,7 +50,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "scrsaver.hpp"
 #include "strmix.hpp"
-#include "PluginSynchro.hpp"
 #include "console.hpp"
 #include "plugins.hpp"
 #include "notification.hpp"
@@ -78,7 +77,7 @@ enum MODIF_PRESSED_LAST
 	MODIF_CTRL  =0x00000008,
 	MODIF_RCTRL =0x00000010,
 };
-static BitFlags PressedLast;
+static TBitFlags<size_t> PressedLast;
 
 static clock_t KeyPressedLastTime;
 static int ShiftState=0;
@@ -565,9 +564,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 	struct FAR_INPUT_RECORD irec={};
 
 	if (AllowSynchro)
-		PluginSynchroManager().Process();
-
-	Notifier().dispatch();
+		MessageManager().dispatch();
 
 	if (!ExcludeMacro && Global->CtrlObject && Global->CtrlObject->Cp())
 	{
@@ -748,11 +745,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 
 		if (!(LoopCount & 3))
 		{
-			if (PluginSynchroManager().Process())
-			{
-				ClearStruct(*rec);
-				return KEY_NONE;
-			}
+			MessageManager().dispatch();
 		}
 
 		LoopCount++;

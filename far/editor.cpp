@@ -6014,7 +6014,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 						break;
 					case ESPT_SETWORDDIV:
 						_ECTLLOG(SysLog(L"  wszParam    =[%s]",espar->wszParam));
-						SetWordDiv((!espar->wszParam || !*espar->wszParam)?Global->Opt->strWordDiv.data():espar->wszParam);
+						SetWordDiv((!espar->wszParam || !*espar->wszParam)?Global->Opt->EdOpt.strWordDiv.data():espar->wszParam);
 						break;
 					case ESPT_TABSIZE:
 						_ECTLLOG(SysLog(L"  iParam      =%d",espar->iParam));

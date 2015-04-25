@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/range_for.hpp"
 #include "common/scope_exit.hpp"
 #include "common/smart_ptr.hpp"
+#include "common/variant.hpp"
 
 
 // TODO: clean up & split
@@ -162,7 +163,11 @@ class blob
 {
 public:
 	blob(): m_Data(), m_Size() {}
-	blob(const void* Data, size_t Size): m_Data(Data), m_Size(Size) {}
+	template<class T>
+	blob(const T& Data, size_t Size): m_Data(Data), m_Size(Size)
+	{
+		static_assert(std::is_pod<T>::value, "This template requires a POD type");
+	}
 	const void* data() const { return m_Data; }
 	size_t size() const { return m_Size; }
 
@@ -174,7 +179,7 @@ protected:
 class writable_blob: public blob
 {
 public:
-	writable_blob(): blob(nullptr, 0), m_Allocated() {}
+	writable_blob(): m_Allocated() {}
 	writable_blob(void* Data, size_t Size): blob(Data, Size), m_Allocated(){}
 	~writable_blob()
 	{
@@ -192,6 +197,7 @@ public:
 		else
 		{
 			m_Data = new char[rhs.size()];
+			m_Allocated = true;
 			m_Size = rhs.size();
 		}
 		memcpy(const_cast<void*>(m_Data), rhs.data(), size());

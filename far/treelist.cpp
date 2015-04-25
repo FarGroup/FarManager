@@ -1323,7 +1323,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 				bool SaveOpt=Global->Opt->DeleteToRecycleBin;
 
 				if (LocalKey==KEY_SHIFTDEL||LocalKey==KEY_SHIFTNUMDEL||LocalKey==KEY_SHIFTDECIMAL)
-					Global->Opt->DeleteToRecycleBin=0;
+					Global->Opt->DeleteToRecycleBin = false;
 
 				ShellDelete(this,LocalKey==KEY_ALTDEL||LocalKey==KEY_RALTDEL||LocalKey==KEY_ALTNUMDEL||LocalKey==KEY_RALTNUMDEL||LocalKey==KEY_ALTDECIMAL||LocalKey==KEY_RALTDECIMAL);
 				// Надобно не забыть обновить противоположную панель...

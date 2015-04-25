@@ -512,7 +512,7 @@ void ShowHotplugDevices()
 
 	bool NeedRefresh = false;
 
-	SCOPED_ACTION(listener)(L"devices", [&NeedRefresh]()
+	SCOPED_ACTION(listener)(update_devices, [&NeedRefresh]()
 	{
 		NeedRefresh = true;
 	});

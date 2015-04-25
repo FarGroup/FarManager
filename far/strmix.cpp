@@ -140,7 +140,7 @@ string& InsertQuote(string &strStr)
 string& InsertRegexpQuote(string &strStr)
 {
 	//выражение вида /regexp/i не дополняем слешами
-	if (strStr.empty() || strStr[0] != L'/')
+	if (!strStr.empty() && strStr[0] != L'/')
 	{
 		strStr.insert(0, 1, L'/');
 		strStr += L'/';
@@ -360,69 +360,32 @@ string& TruncPathStr(string &strStr, int MaxLength)
 
 wchar_t* RemoveLeadingSpaces(wchar_t *Str)
 {
-	wchar_t *ChPtr = Str;
-
-	if (!ChPtr)
-		return nullptr;
-
-	for (; IsSpace(*ChPtr) || IsEol(*ChPtr); ChPtr++)
-		;
-
-	if (ChPtr!=Str)
-		std::copy_n(ChPtr, wcslen(ChPtr) + 1, Str);
-
+	const auto End = Str + wcslen(Str);
+	const auto NewBegin = std::find_if_not(Str, End, IsSpaceOrEol);
+	if (NewBegin != Str)
+		std::copy(NewBegin, End + 1, Str);
 	return Str;
 }
 
-
 string& RemoveLeadingSpaces(string &strStr)
 {
-	const wchar_t *ChPtr = strStr.data();
-
-	for (; IsSpace(*ChPtr) || IsEol(*ChPtr); ChPtr++)
-		;
-
-	strStr.erase(0, ChPtr - strStr.data());
+	strStr.erase(strStr.begin(), std::find_if_not(ALL_RANGE(strStr), IsSpaceOrEol));
 	return strStr;
 }
-
 
 // удалить конечные пробелы
 wchar_t* RemoveTrailingSpaces(wchar_t *Str)
 {
-	if (!Str)
-		return nullptr;
-
-	if (!*Str)
-		return Str;
-
-	for (wchar_t *ChPtr = Str + wcslen(Str) - 1; ChPtr >= Str; ChPtr--)
-	{
-		if (IsSpace(*ChPtr) || IsEol(*ChPtr))
-			*ChPtr=0;
-		else
-			break;
-	}
-
+	const auto REnd = std::reverse_iterator<decltype(Str)>(Str);
+	Str[REnd - std::find_if_not(REnd - wcslen(Str), REnd, IsSpaceOrEol)] = 0;
 	return Str;
 }
 
-
 string& RemoveTrailingSpaces(string &strStr)
 {
-	if (strStr.empty())
-		return strStr;
-
-	const wchar_t *Str = strStr.data();
-	const wchar_t *ChPtr = Str + strStr.size() - 1;
-
-	for (; ChPtr >= Str && (IsSpace(*ChPtr) || IsEol(*ChPtr)); ChPtr--)
-		;
-
-	strStr.resize(ChPtr < Str ? 0 : ChPtr-Str+1);
+	strStr.resize(strStr.rend() - std::find_if_not(ALL_REVERSE_RANGE(strStr), IsSpaceOrEol));
 	return strStr;
 }
-
 
 wchar_t* RemoveExternalSpaces(wchar_t *Str)
 {

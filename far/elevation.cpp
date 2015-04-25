@@ -44,10 +44,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fileowner.hpp"
 #include "imports.hpp"
 #include "TaskBar.hpp"
-#include "PluginSynchro.hpp"
+#include "notification.hpp"
 #include "scrbuf.hpp"
 #include "synchro.hpp"
-#include "FarGuid.hpp"
 #include "strmix.hpp"
 #include "manager.hpp"
 #include "pipe.hpp"
@@ -372,7 +371,6 @@ intptr_t ElevationApproveDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, voi
 
 struct EAData: noncopyable
 {
-	std::unique_ptr<Event> pEvent;
 	const string& Object;
 	LNGID Why;
 	bool& AskApprove;
@@ -382,18 +380,17 @@ struct EAData: noncopyable
 		Object(Object), Why(Why), AskApprove(AskApprove), IsApproved(IsApproved), DontAskAgain(DontAskAgain){}
 };
 
-void ElevationApproveDlgSync(LPVOID Param)
+void ElevationApproveDlgSync(const EAData& Data)
 {
-	SCOPED_ACTION(PluginSynchro::suppress);
+	SCOPED_ACTION(message_manager::suppress);
 
-	const auto Data = static_cast<const EAData*>(Param);
 	enum {DlgX=64,DlgY=12};
 	FarDialogItem ElevationApproveDlgData[]=
 	{
 		{DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,nullptr,nullptr,0,MSG(MAccessDenied)},
 		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(is_admin()?MElevationRequiredPrivileges:MElevationRequired)},
-		{DI_TEXT,5,3,0,3,0,nullptr,nullptr,0,MSG(Data->Why)},
-		{DI_EDIT,5,4,DlgX-6,4,0,nullptr,nullptr,DIF_READONLY,Data->Object.data()},
+		{DI_TEXT,5,3,0,3,0,nullptr,nullptr,0,MSG(Data.Why)},
+		{DI_EDIT,5,4,DlgX-6,4,0,nullptr,nullptr,DIF_READONLY,Data.Object.data()},
 		{DI_CHECKBOX,5,6,0,6,1,nullptr,nullptr,0,MSG(MElevationDoForAll)},
 		{DI_CHECKBOX,5,7,0,7,0,nullptr,nullptr,0,MSG(MElevationDoNotAskAgainInTheCurrentSession)},
 		{DI_TEXT,-1,DlgY-4,0,DlgY-4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
@@ -419,13 +416,9 @@ void ElevationApproveDlgSync(LPVOID Param)
 		Current->Unlock();
 	}
 
-	Data->AskApprove=!ElevationApproveDlg[AAD_CHECKBOX_DOFORALL].Selected;
-	Data->IsApproved = Dlg->GetExitCode() == AAD_BUTTON_OK;
-	Data->DontAskAgain=ElevationApproveDlg[AAD_CHECKBOX_DONTASKAGAIN].Selected!=FALSE;
-	if(Data->pEvent)
-	{
-		Data->pEvent->Set();
-	}
+	Data.AskApprove=!ElevationApproveDlg[AAD_CHECKBOX_DOFORALL].Selected;
+	Data.IsApproved = Dlg->GetExitCode() == AAD_BUTTON_OK;
+	Data.DontAskAgain=ElevationApproveDlg[AAD_CHECKBOX_DONTASKAGAIN].Selected!=FALSE;
 }
 
 bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
@@ -453,13 +446,18 @@ bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
 		EAData Data(Object, Why, AskApprove, IsApproved, DontAskAgain);
 		if(!Global->IsMainThread())
 		{
-			Data.pEvent = std::make_unique<Event>(Event::automatic, Event::nonsignaled);
-			PluginSynchroManager().Synchro(false, FarGuid, &Data);
-			Data.pEvent->Wait();
+			Event SyncEvent(Event::automatic, Event::nonsignaled);
+			SCOPED_ACTION(listener_ex)(elevation_dialog, [&SyncEvent](const variant& Payload)
+			{
+				ElevationApproveDlgSync(*Payload.get<EAData*>());
+				SyncEvent.Set();
+			});
+			MessageManager().notify(elevation_dialog, variant(&Data));
+			SyncEvent.Wait();
 		}
 		else
 		{
-			ElevationApproveDlgSync(&Data);
+			ElevationApproveDlgSync(Data);
 		}
 		Recurse = false;
 	}

@@ -33,19 +33,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "synchro.hpp"
 
-class notifier;
-
 class wm_listener: noncopyable
 {
 public:
-	wm_listener(notifier* owner);
+	wm_listener();
 	~wm_listener();
 	void Check();
 
 private:
 	void WindowThreadRoutine(const Event* ReadyEvent);
 
-	notifier* m_Owner;
 	Thread m_Thread;
 	HWND m_Hwnd;
 

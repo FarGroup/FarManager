@@ -418,14 +418,14 @@ __int64 FilePanels::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			case 0:
 				break;
 			case 1:
-				Global->Opt->ShowKeyBar=1;
+				Global->Opt->ShowKeyBar = true;
 				m_windowKeyBar->Show();
 				m_KeyBarVisible = Global->Opt->ShowKeyBar;
 				SetScreenPosition();
 				Global->WindowManager->RefreshWindow();
 				break;
 			case 2:
-				Global->Opt->ShowKeyBar=0;
+				Global->Opt->ShowKeyBar = false;
 				m_windowKeyBar->Hide();
 				m_KeyBarVisible = Global->Opt->ShowKeyBar;
 				SetScreenPosition();

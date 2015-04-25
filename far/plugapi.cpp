@@ -75,7 +75,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarGuid.hpp"
 #include "clipboard.hpp"
 #include "strmix.hpp"
-#include "PluginSynchro.hpp"
+#include "notification.hpp"
 #include "panelmix.hpp"
 #include "xlat.hpp"
 #include "dirinfo.hpp"
@@ -464,7 +464,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 	{
 		if (ACTL_SYNCHRO==Command) //must be first
 		{
-			PluginSynchroManager().Synchro(true, *PluginId, Param2);
+			MessageManager().notify(plugin_synchro, std::make_pair(*PluginId, Param2));
 			return 0;
 		}
 		if (ACTL_GETWINDOWTYPE==Command)

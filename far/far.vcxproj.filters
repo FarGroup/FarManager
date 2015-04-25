@@ -291,9 +291,6 @@
     <ClCompile Include="plugins.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PluginSynchro.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="plugsettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -714,9 +711,6 @@
     <ClInclude Include="plugins.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PluginSynchro.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="plugsettings.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1017,6 +1011,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="common\explicit_operator_bool.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\variant.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
   </ItemGroup>
