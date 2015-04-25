@@ -77,7 +77,7 @@ public:
 
 	variant& operator=(const variant& rhs)
 	{
-		variant(rhs.m_Data->clone().get()).swap(*this);
+		rhs.m_Data->clone().swap(m_Data);
 		return *this;
 	}
 
