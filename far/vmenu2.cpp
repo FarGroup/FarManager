@@ -108,8 +108,9 @@ intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void*
 		}
 		break;
 
-	case DN_CONTROLINPUT:
 	case DN_INPUT:
+		if (static_cast<INPUT_RECORD*>(Param2)->EventType==KEY_EVENT) break;
+	case DN_CONTROLINPUT:
 		if(!cancel)
 		{
 			if (Msg==DN_CONTROLINPUT)
