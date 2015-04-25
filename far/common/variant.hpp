@@ -43,9 +43,11 @@ namespace detail
 	class variant_impl: noncopyable, public variant_base
 	{
 	public:
-		variant_impl(const T& Data):
-			m_Data(Data)
-		{}
+		template<class Y>
+		variant_impl(Y&& Data):
+			m_Data(std::forward<Y>(Data))
+		{
+		}
 
 		virtual std::unique_ptr<variant_base> clone() const override { return std::make_unique<variant_impl>(m_Data); }
 
@@ -68,8 +70,8 @@ public:
 	}
 
 	template<class T>
-	variant(const T& Data):
-		m_Data(std::make_unique<detail::variant_impl<typename std::decay<T>::type>>(Data))
+	variant(T&& Data):
+		m_Data(std::make_unique<detail::variant_impl<typename std::decay<T>::type>>(std::forward<T>((Data))))
 	{
 	}
 
@@ -77,7 +79,14 @@ public:
 
 	variant& operator=(const variant& rhs)
 	{
-		rhs.m_Data->clone().swap(m_Data);
+		variant(rhs).swap(*this);
+		return *this;
+	}
+
+	template<class T>
+	variant& operator=(T&& rhs)
+	{
+		variant(std::forward<T>(rhs)).swap(*this);
 		return *this;
 	}
 
