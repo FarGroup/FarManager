@@ -3,6 +3,48 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 26.04.2015 13:40:02 +0200 - build 4361
+
+1. Continuation of 4356.
+
+drkns 26.04.2015 03:26:55 +0200 - build 4360
+
+1. Correction of 4356.
+
+drkns 26.04.2015 01:04:53 +0200 - build 4359
+
+1. Continuation of 4356.
+
+zg 26.04.2015 00:40:10 +0200 - build 4358
+
+1. correction of 4353.2: Releasing of a modifier may be interpreted as BreakKey for menu.
+
+drkns 25.04.2015 23:44:26 +0200 - build 4357
+
+1. Correction of 4356.
+
+drkns 25.04.2015 22:27:47 +0200 - build 4356
+
+1. Refactoring.
+
+zg 23.04.2015 12:54:15 +0200 - build 4355
+
+1. correction of 4352 for FarInputRecordToName.
+
+zg 23.04.2015 02:01:09 +0200 - build 4354
+
+1. correction of 4345: xlat malfunction in editor.
+
+zg 22.04.2015 21:26:13 +0200 - build 4353
+
+1. DM_SETMOUSEEVENTNOTIFY is renamed to DM_SETINPUTNOTIFY.
+
+2. DN_INPUT now receives all console events.
+
+zg 22.04.2015 14:23:46 +0200 - build 4352
+
+1. correction of 4337: FAR responds to modifiers release. 
+
 drkns 15.04.2015 22:47:32 +0200 - build 4351
 
 1. 0002872: Do not break the codepage of FarMenu.ini
