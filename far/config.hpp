@@ -106,9 +106,9 @@ public:
 
 protected:
 	template<class T>
-	const T& GetT() const { return m_Value.get<T>(); }
+	const T& GetT() const { return any_cast<T>(m_Value); }
 	template<class T>
-	void SetT(const T& NewValue) {if(m_Value.get<T>() != NewValue) { m_Value = NewValue; ValueChanged = true; } }
+	void SetT(const T& NewValue) { if (any_cast<T>(m_Value) != NewValue) { m_Value = NewValue; ValueChanged = true; } }
 
 private:
 	friend class Options;
@@ -118,7 +118,7 @@ private:
 
 	void MakeUnchanged(){ ValueChanged = false; }
 
-	variant m_Value;
+	any m_Value;
 	bool ValueChanged;
 };
 

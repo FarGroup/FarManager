@@ -54,7 +54,7 @@ namespace detail
 	{
 	public:
 		virtual ~i_event_handler() {}
-		virtual void operator()(const variant&) const = 0;
+		virtual void operator()(const any&) const = 0;
 	};
 
 	class event_handler: public i_event_handler
@@ -67,7 +67,7 @@ namespace detail
 		{
 		}
 
-		virtual void operator()(const variant&) const override
+		virtual void operator()(const any&) const override
 		{
 			m_Handler();
 		}
@@ -79,14 +79,14 @@ namespace detail
 	class parametrized_event_handler: public i_event_handler
 	{
 	public:
-		typedef std::function<void(const variant&)> handler_type;
+		typedef std::function<void(const any&)> handler_type;
 
 		parametrized_event_handler(const handler_type& Handler):
 			m_Handler(Handler)
 		{
 		}
 
-		virtual void operator()(const variant& Payload) const override
+		virtual void operator()(const any& Payload) const override
 		{
 			m_Handler(Payload);
 		}
@@ -104,8 +104,8 @@ public:
 	handlers_map::iterator subscribe(event_id EventId, const detail::i_event_handler& EventHandler);
 	handlers_map::iterator subscribe(const string& EventName, const detail::i_event_handler& EventHandler);
 	void unsubscribe(handlers_map::iterator HandlerIterator);
-	void notify(event_id EventId, variant&& Payload = variant());
-	void notify(const string& EventName, variant&& Payload = variant());
+	void notify(event_id EventId, any&& Payload = any());
+	void notify(const string& EventName, any&& Payload = any());
 	bool dispatch();
 
 	class suppress: noncopyable
@@ -121,7 +121,7 @@ public:
 private:
 	friend message_manager& MessageManager();
 
-	typedef SyncedQueue<std::pair<string, variant>> message_queue;
+	typedef SyncedQueue<std::pair<string, any>> message_queue;
 
 	message_manager();
 

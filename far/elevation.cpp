@@ -447,12 +447,12 @@ bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
 		if(!Global->IsMainThread())
 		{
 			Event SyncEvent(Event::automatic, Event::nonsignaled);
-			SCOPED_ACTION(listener_ex)(elevation_dialog, [&SyncEvent](const variant& Payload)
+			SCOPED_ACTION(listener_ex)(elevation_dialog, [&SyncEvent](const any& Payload)
 			{
-				ElevationApproveDlgSync(*Payload.get<EAData*>());
+				ElevationApproveDlgSync(*any_cast<EAData*>(Payload));
 				SyncEvent.Set();
 			});
-			MessageManager().notify(elevation_dialog, variant(&Data));
+			MessageManager().notify(elevation_dialog, any(&Data));
 			SyncEvent.Wait();
 		}
 		else

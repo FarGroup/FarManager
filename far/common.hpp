@@ -35,20 +35,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // TODO: use separately where required
 
-#include "common/algorithm.hpp"
-#include "common/as_string.hpp"
-#include "common/enum.hpp"
-#include "common/enumerator.hpp"
-#include "common/explicit_operator_bool.hpp"
-#include "common/function_traits.hpp"
-#include "common/iterator_range.hpp"
-#include "common/make_vector.hpp"
-#include "common/noncopyable.hpp"
 #include "common/preprocessor.hpp"
+#include "common/noncopyable.hpp"
+#include "common/enum.hpp"
+#include "common/explicit_operator_bool.hpp"
 #include "common/range_for.hpp"
 #include "common/scope_exit.hpp"
+#include "common/function_traits.hpp"
 #include "common/smart_ptr.hpp"
-#include "common/variant.hpp"
+#include "common/make_vector.hpp"
+#include "common/any.hpp"
+#include "common/as_string.hpp"
+#include "common/enumerator.hpp"
+#include "common/iterator_range.hpp"
+#include "common/algorithm.hpp"
 
 
 // TODO: clean up & split

@@ -1,7 +1,7 @@
 #pragma once
 
 /*
-variant.hpp
+any.hpp
 */
 /*
 Copyright © 2015 Far Group
@@ -32,24 +32,24 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace detail
 {
-	class variant_base
+	class any_base
 	{
 	public:
-		virtual ~variant_base() {}
-		virtual std::unique_ptr<variant_base> clone() const = 0;
+		virtual ~any_base() {}
+		virtual std::unique_ptr<any_base> clone() const = 0;
 	};
 
 	template<class T>
-	class variant_impl: noncopyable, public variant_base
+	class any_impl: noncopyable, public any_base
 	{
 	public:
 		template<class Y>
-		variant_impl(Y&& Data):
+		any_impl(Y&& Data):
 			m_Data(std::forward<Y>(Data))
 		{
 		}
 
-		virtual std::unique_ptr<variant_base> clone() const override { return std::make_unique<variant_impl>(m_Data); }
+		virtual std::unique_ptr<any_base> clone() const override { return std::make_unique<any_impl>(m_Data); }
 
 		const T& get() const noexcept { return m_Data; }
 		T& get() noexcept{ return m_Data; }
@@ -59,67 +59,79 @@ namespace detail
 	};
 };
 
-class variant
+class any
 {
 public:
-	variant() {}
+	any() {}
 
-	variant(const variant& rhs):
+	any(const any& rhs):
 		m_Data(rhs.m_Data->clone())
 	{
 	}
 
 	template<class T>
-	variant(T&& Data):
-		m_Data(std::make_unique<detail::variant_impl<typename std::decay<T>::type>>(std::forward<T>((Data))))
+	any(T&& Data):
+		m_Data(std::make_unique<detail::any_impl<typename std::decay<T>::type>>(std::forward<T>((Data))))
 	{
 	}
 
-	variant(variant&& rhs) { *this = std::move(rhs); }
+	any(any&& rhs) { *this = std::move(rhs); }
 
-	variant& operator=(const variant& rhs)
+	any& operator=(const any& rhs)
 	{
-		variant(rhs).swap(*this);
+		any(rhs).swap(*this);
 		return *this;
 	}
 
 	template<class T>
-	variant& operator=(T&& rhs)
+	any& operator=(T&& rhs)
 	{
-		variant(std::forward<T>(rhs)).swap(*this);
+		any(std::forward<T>(rhs)).swap(*this);
 		return *this;
 	}
 
-	MOVE_OPERATOR_BY_SWAP(variant);
-	FREE_SWAP(variant);
+	MOVE_OPERATOR_BY_SWAP(any);
+	FREE_SWAP(any);
 
-	void swap(variant& rhs) noexcept { m_Data.swap(rhs.m_Data); }
+	void swap(any& rhs) noexcept { m_Data.swap(rhs.m_Data); }
 
-	template<class T>
-	const T& get() const
-	{
-		return dynamic_cast<const detail::variant_impl<typename std::decay<T>::type>&>(*m_Data.get()).get();
-	}
+	bool empty() const noexcept{ return m_Data != nullptr; }
 
 	template<class T>
-	T& get()
+	friend T* any_cast(any* Any) noexcept
 	{
-		return const_cast<T&>(const_cast<const variant*>(this)->get<T>());
-	}
-
-	template<class T>
-	const T* get_ptr() const
-	{
-		const auto Derived = dynamic_cast<const detail::variant_impl<typename std::decay<T>::type>*>(m_Data.get());
-		return Derived? &Derived->get() : nullptr;
-	}
-
-	template<class T>
-	T* get_ptr()
-	{
-		return const_cast<T*>(const_cast<const variant*>(this)->get_ptr<T>());
+		if (Any)
+		{
+			auto* Impl = dynamic_cast<detail::any_impl<T>*>(Any->m_Data.get());
+			return Impl? &Impl->get() : nullptr;
+		}
+		return nullptr;
 	}
 
 private:
-	std::unique_ptr<detail::variant_base> m_Data;
+	std::unique_ptr<detail::any_base> m_Data;
 };
+
+template<class T>
+const T* any_cast(const any* Any) noexcept
+{
+	return any_cast<T>(const_cast<any*>(Any));
+}
+
+template<class T>
+T& any_cast(any& Any)
+{
+	auto Result = any_cast<T>(&Any);
+	if (!Result)
+	{
+		throw std::bad_cast();
+	}
+	return *Result;
+}
+
+template<class T>
+const T& any_cast(const any& Any)
+{
+	return any_cast<T>(const_cast<any&>(Any));
+}
+

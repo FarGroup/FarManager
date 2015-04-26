@@ -119,9 +119,9 @@ bool PluginManager::plugin_less::operator ()(const Plugin* a, const Plugin *b) c
 	return StrCmpI(PointToName(a->GetModuleName()),PointToName(b->GetModuleName())) < 0;
 }
 
-static void CallPluginSynchroEvent(const variant& Payload)
+static void CallPluginSynchroEvent(const any& Payload)
 {
-	const auto& Data = Payload.get<std::pair<GUID, void*>>();
+	const auto& Data = any_cast<std::pair<GUID, void*>>(Payload);
 	if (const auto pPlugin = Global->CtrlObject->Plugins->FindPlugin(Data.first))
 	{
 		ProcessSynchroEventInfo Info = { sizeof(Info) };

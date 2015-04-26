@@ -67,12 +67,12 @@ void message_manager::unsubscribe(handlers_map::iterator HandlerIterator)
 	m_Handlers.erase(HandlerIterator);
 }
 
-void message_manager::notify(event_id EventId, variant&& Payload)
+void message_manager::notify(event_id EventId, any&& Payload)
 {
 	m_Messages.Push(message_queue::value_type(EventNames[EventId], std::move(Payload)));
 }
 
-void message_manager::notify(const string& EventName, variant&& Payload)
+void message_manager::notify(const string& EventName, any&& Payload)
 {
 	m_Messages.Push(message_queue::value_type(EventName, std::move(Payload)));
 }

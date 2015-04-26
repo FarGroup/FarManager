@@ -1013,7 +1013,7 @@
     <ClInclude Include="common\explicit_operator_bool.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
-    <ClInclude Include="common\variant.hpp">
+    <ClInclude Include="common\any.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
   </ItemGroup>
