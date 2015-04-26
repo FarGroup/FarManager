@@ -106,7 +106,7 @@ public:
 	void unsubscribe(handlers_map::iterator HandlerIterator);
 	void notify(event_id EventId, variant&& Payload = variant());
 	void notify(const string& EventName, variant&& Payload = variant());
-	void dispatch();
+	bool dispatch();
 
 	class suppress: noncopyable
 	{

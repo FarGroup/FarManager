@@ -77,8 +77,9 @@ void message_manager::notify(const string& EventName, variant&& Payload)
 	m_Messages.Push(message_queue::value_type(EventName, std::move(Payload)));
 }
 
-void message_manager::dispatch()
+bool message_manager::dispatch()
 {
+	bool Result = false;
 	message_queue::value_type EventData;
 	while (m_Messages.PopIfNotEmpty(EventData))
 	{
@@ -87,9 +88,10 @@ void message_manager::dispatch()
 		{
 			(*i.second)(EventData.second);
 		});
+		Result = Result || RelevantListeners.first != RelevantListeners.second;
 	}
-
 	m_Window->Check();
+	return Result;
 }
 
 message_manager::suppress::suppress():

@@ -745,7 +745,11 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 
 		if (!(LoopCount & 3))
 		{
-			MessageManager().dispatch();
+			if (MessageManager().dispatch())
+			{
+				ClearStruct(*rec);
+				return KEY_NONE;
+			}
 		}
 
 		LoopCount++;

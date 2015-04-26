@@ -278,7 +278,7 @@ void PrintMemory()
 
 	if (CallNewDeleteVector || CallNewDeleteScalar || AllocatedMemoryBlocks || AllocatedMemorySize)
 	{
- 		std::wostringstream oss;
+		std::wostringstream oss;
 		oss << L"Memory leaks detected:" << std::endl;
 		if (CallNewDeleteVector)
 			oss << L"  delete[]:   " << CallNewDeleteVector << std::endl;
