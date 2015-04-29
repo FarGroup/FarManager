@@ -105,9 +105,6 @@ public:
 	int ProcessMouse(const MOUSE_EVENT_RECORD *me);
 	void PluginsMenu() const; // вызываем меню по F11
 	void SwitchToPanels();
-	const INPUT_RECORD& GetLastInputRecord() const { return LastInputRecord; }
-	void SetLastInputRecord(const INPUT_RECORD *Rec);
-	void ResetLastInputRecord() { LastInputRecord.EventType = 0; }
 	window_ptr GetCurrentWindow() { return m_currentWindow; }
 	window_ptr GetWindow(size_t Index) const;
 	int IndexOf(window_ptr_ref Window);
@@ -167,7 +164,6 @@ private:
 	bool AddWindow(window_ptr_ref Param);
 	void SwitchWindow(DirectionType Direction);
 
-	INPUT_RECORD LastInputRecord;
 	window_ptr m_currentWindow;     // текущее окно. ќно может находитьс€ как в немодальном, так и в модальном контейнере, его можно получить с помощью WindowManager->GetCurrentWindow();
 	typedef std::vector<window_ptr> windows;
 	void* GetCurrent(std::function<void*(windows::const_reverse_iterator)> Check) const;

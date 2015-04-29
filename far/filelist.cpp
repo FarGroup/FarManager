@@ -4631,8 +4631,9 @@ void FileList::SelectSortMode()
 		SortModeMenu->SetMenuFlags(VMENU_WRAPMODE);
 		SortModeMenu->SetId(SelectSortModeId);
 
-		SortCode=SortModeMenu->Run([&](int Key)->int
+		SortCode=SortModeMenu->Run([&](const Manager::Key& RawKey)->int
 		{
+			const auto Key=RawKey.FarKey();
 			bool KeyProcessed = false;
 
 			switch (Key)

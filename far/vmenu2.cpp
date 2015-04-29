@@ -558,20 +558,19 @@ intptr_t VMenu2::RunEx(const std::function<int(int Msg, void *param)>& fn)
 	return GetExitCode();
 }
 
-intptr_t VMenu2::Run(const std::function<int(int Key)>& fn)
+intptr_t VMenu2::Run(const std::function<int(const Manager::Key& RawKey)>& fn)
 {
 	if(!fn)
 		return RunEx(nullptr);
 
 	return RunEx([&](int Msg, void *param)->int
 	{
-		int key=KEY_NONE;
 		if(Msg==DN_INPUT)
 		{
 			auto ir = static_cast<INPUT_RECORD*>(param);
-			key=ir->EventType==WINDOW_BUFFER_SIZE_EVENT ? KEY_CONSOLE_BUFFER_RESIZE : InputRecordToKey(ir);
+			return fn(Manager::Key(ir->EventType==WINDOW_BUFFER_SIZE_EVENT ? KEY_CONSOLE_BUFFER_RESIZE : InputRecordToKey(ir), *ir));
 		}
-		return fn(key);
+		return fn(Manager::Key(KEY_NONE));
 	});
 }
 

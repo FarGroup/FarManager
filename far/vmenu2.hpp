@@ -67,7 +67,7 @@ public:
 		функция обработки меню должна возвращать true если она обработала событие и дальше ничего делать не надо
 		(вне зависимости что говорит енц. о кодах возврата различных DN_*).
 	*/
-	intptr_t Run(const std::function<int(int Key)>& fn=nullptr);
+	intptr_t Run(const std::function<int(const Manager::Key& RawKey)>& fn=nullptr);
 	intptr_t RunEx(const std::function<int(int Msg, void *param)>& fn);
 	intptr_t GetExitCode();
 	void Close(int ExitCode=-2, bool Force = false);

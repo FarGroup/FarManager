@@ -82,8 +82,9 @@ void ShowProcessList()
 		ProcList->SetBottomTitle(MSG(MProcessListBottom));
 		ProcList->SortItems(TaskSort);
 
-		ProcList->Run([&](int Key)->int
+		ProcList->Run([&](const Manager::Key& RawKey)->int
 		{
+			const auto Key=RawKey.FarKey();
 			int KeyProcessed = 1;
 			switch (Key)
 			{

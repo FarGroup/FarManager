@@ -618,7 +618,6 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		if (!NotMacros)
 		{
 			_KEYMACRO(SysLog(L"[%d] CALL Global->CtrlObject->Macro.ProcessEvent(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
-			Global->WindowManager->SetLastInputRecord(rec);
 			irec.IntKey=CalcKey;
 			irec.Rec=*rec;
 			if (!ExcludeMacro && Global->CtrlObject && Global->CtrlObject->Macro.ProcessEvent(&irec))
@@ -855,7 +854,6 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 	if (IntKeyState.ReturnAltValue && !NotMacros)
 	{
 		_KEYMACRO(SysLog(L"[%d] CALL Global->CtrlObject->Macro.ProcessEvent(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
-		Global->WindowManager->SetLastInputRecord(rec);
 		irec.IntKey=CalcKey;
 		irec.Rec=*rec;
 		if (Global->CtrlObject && Global->CtrlObject->Macro.ProcessEvent(&irec))
@@ -1059,10 +1057,6 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 					else
 					{
 						_KEYMACRO(SysLog(L"[%d] CALL Global->CtrlObject->Macro.ProcessEvent(%s)",__LINE__,_FARKEY_ToName(MsCalcKey)));
-						if(Global->WindowManager)
-						{
-							Global->WindowManager->SetLastInputRecord(rec);
-						}
 						irec.IntKey=MsCalcKey;
 						irec.Rec=*rec;
 						if (Global->CtrlObject->Macro.ProcessEvent(&irec))
@@ -1078,10 +1072,6 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 
 	{
 		_KEYMACRO(SysLog(L"[%d] CALL Global->CtrlObject->Macro.ProcessEvent(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
-		if(Global->WindowManager)
-		{
-			Global->WindowManager->SetLastInputRecord(rec);
-		}
 		irec.IntKey=CalcKey;
 		irec.Rec=*rec;
 		if (!NotMacros && Global->CtrlObject && Global->CtrlObject->Macro.ProcessEvent(&irec))

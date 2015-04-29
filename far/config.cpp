@@ -438,8 +438,9 @@ void Options::MaskGroupsSettings()
 	bool Filter = false;
 	for(;;)
 	{
-		MasksMenu->Run([&](int Key)->int
+		MasksMenu->Run([&](const Manager::Key& RawKey)->int
 		{
+			const auto Key=RawKey.FarKey();
 			if(Filter)
 			{
 				if(Key == KEY_ESC || Key == KEY_F10 || Key == KEY_ENTER || Key == KEY_NUMENTER)
@@ -1026,8 +1027,9 @@ void Options::SetFilePanelModes()
 			ModeList->SetHelp(L"PanelViewModes");
 			ModeList->SetMenuFlags(VMENU_WRAPMODE);
 			ModeList->SetId(PanelViewModesId);
-			ModeNumber=ModeList->Run([&](int Key)->int
+			ModeNumber=ModeList->Run([&](const Manager::Key& RawKey)->int
 			{
+				const auto Key=RawKey.FarKey();
 				switch (Key)
 				{
 				case KEY_CTRLENTER:

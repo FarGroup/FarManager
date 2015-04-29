@@ -504,8 +504,9 @@ void EditFileTypes()
 	for (;;)
 	{
 		int NumLine = FillFileTypesMenu(TypesMenu.get(), MenuPos);
-		int ExitCode=TypesMenu->Run([&](int Key)->int
+		int ExitCode=TypesMenu->Run([&](const Manager::Key& RawKey)->int
 		{
+			const auto Key=RawKey.FarKey();
 			MenuPos=TypesMenu->GetSelectPos();
 
 			int KeyProcessed = 1;

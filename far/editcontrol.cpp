@@ -336,7 +336,7 @@ bool EnumModules(const string& Module, VMenu2* DestMenu)
 	return Result;
 }
 
-int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMACROAREA Area)
+int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKey, FARMACROAREA Area)
 {
 	int Result=0;
 	static int Reenter=0;
@@ -438,8 +438,9 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 				::GetCursorType(Visible, Size);
 				ComplMenu->Key(KEY_NONE);
 
-				int ExitCode=ComplMenu->Run([&](int MenuKey)->int
+				int ExitCode=ComplMenu->Run([&](const Manager::Key& RawKey)->int
 				{
+					auto MenuKey=RawKey.FarKey();
 					::SetCursorType(Visible, Size);
 
 					if(!Global->Opt->AutoComplete.ModalList)
@@ -644,7 +645,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 							default:
 								{
 									ComplMenu->Close(-1);
-									BackKey=MenuKey;
+									BackKey=RawKey;
 									Result=1;
 								}
 							}
@@ -662,7 +663,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 					}
 					else
 					{
-						BackKey = KEY_ENTER;
+						BackKey = Manager::Key(KEY_ENTER);
 						Result=1;
 					}
 				}
@@ -676,13 +677,13 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 
 void EditControl::AutoComplete(bool Manual,bool DelBlock)
 {
-	int Key=0;
+	Manager::Key Key;
 	if(AutoCompleteProc(Manual,DelBlock,Key,MacroAreaAC))
 	{
 		// BUGBUG, hack
 		int Wait=Global->WaitInMainLoop;
 		Global->WaitInMainLoop=1;
-		struct FAR_INPUT_RECORD irec={(DWORD)Key, Global->WindowManager->GetLastInputRecord()};
+		struct FAR_INPUT_RECORD irec={(DWORD)Key.FarKey(), Key.Event()};
 		if(!Global->CtrlObject->Macro.ProcessEvent(&irec))
 			m_ParentProcessKey(Manager::Key(Key));
 		Global->WaitInMainLoop=Wait;

@@ -641,13 +641,6 @@ void Manager::EnterMainLoop()
 	}
 }
 
-void Manager::SetLastInputRecord(const INPUT_RECORD *Rec)
-{
-	if (&LastInputRecord != Rec)
-		LastInputRecord=*Rec;
-}
-
-
 void Manager::ProcessMainLoop()
 {
 	if ( m_currentWindow && !m_currentWindow->ProcessEvents() )
@@ -659,21 +652,22 @@ void Manager::ProcessMainLoop()
 		// Mantis#0000073: Не работает автоскролинг в QView
 		Global->WaitInMainLoop=IsPanelsActive(true);
 		//WaitInFastFind++;
-		int Key=GetInputRecord(&LastInputRecord);
+		INPUT_RECORD rec;
+		int Key=GetInputRecord(&rec);
 		//WaitInFastFind--;
 		Global->WaitInMainLoop=FALSE;
 
 		if (EndLoop)
 			return;
 
-		if (LastInputRecord.EventType==MOUSE_EVENT && !(Key==KEY_MSWHEEL_UP || Key==KEY_MSWHEEL_DOWN || Key==KEY_MSWHEEL_RIGHT || Key==KEY_MSWHEEL_LEFT))
+		if (rec.EventType==MOUSE_EVENT && !(Key==KEY_MSWHEEL_UP || Key==KEY_MSWHEEL_DOWN || Key==KEY_MSWHEEL_RIGHT || Key==KEY_MSWHEEL_LEFT))
 		{
 				// используем копию структуры, т.к. LastInputRecord может внезапно измениться во время выполнения ProcessMouse
-				MOUSE_EVENT_RECORD mer=LastInputRecord.Event.MouseEvent;
+				MOUSE_EVENT_RECORD mer=rec.Event.MouseEvent;
 				ProcessMouse(&mer);
 		}
 		else
-			ProcessKey(Manager::Key(Key, LastInputRecord));
+			ProcessKey(Manager::Key(Key, rec));
 	}
 
 	if(IsPanelsActive())

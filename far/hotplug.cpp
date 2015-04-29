@@ -517,8 +517,9 @@ void ShowHotplugDevices()
 		NeedRefresh = true;
 	});
 
-	HotPlugList->Run([&](int Key)->int
+	HotPlugList->Run([&](const Manager::Key& RawKey)->int
 	{
+		auto Key=RawKey.FarKey();
 		if(Key==KEY_NONE && NeedRefresh)
 		{
 			Key=KEY_CTRLR;

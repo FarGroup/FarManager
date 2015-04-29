@@ -664,13 +664,8 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 					if (key != Rec->IntKey)
 						KeyToText(key,textKey);
 
-					INPUT_RECORD RecCopy = Rec->Rec;
-
 					if (TryToPostMacro(m_Area, textKey, Rec->IntKey))
 						return true;
-
-					// Mantis 0002307: При вызове msgbox из condition(), ключ закрытия msgbox передаётся дальше (не съедается)
-					Global->WindowManager->SetLastInputRecord(&RecCopy);
 				}
 			}
 		}
@@ -687,7 +682,6 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 				// выставляем флаги по умолчанию.
 				UINT64 Flags=0;
 				int AssignRet=AssignMacroKey(MacroKey,Flags);
-				Global->WindowManager->ResetLastInputRecord();
 				Global->WindowManager->GetCurrentWindow()->Unlock(); // теперь можно :-)
 
 				if (AssignRet && AssignRet!=2 && !m_RecCode.empty())
@@ -3367,8 +3361,9 @@ static bool menushowFunc(FarMacroCall* Data)
 	bool CheckFlag;
 
 	Menu->Key(KEY_NONE);
-	Menu->Run([&](int Key)->int
+	Menu->Run([&](const Manager::Key& RawKey)->int
 	{
+		const auto Key=RawKey.FarKey();
 		if (bSetMenuFilter && !VFindOrFilter.isUnknown())
 		{
 			string NewStr=VFindOrFilter.toString();

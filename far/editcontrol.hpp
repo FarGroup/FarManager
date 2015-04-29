@@ -104,7 +104,7 @@ private:
 	};
 
 	void SetMenuPos(VMenu2& menu);
-	int AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMACROAREA Area);
+	int AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKey, FARMACROAREA Area);
 
 	struct Callback
 	{

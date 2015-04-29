@@ -3893,8 +3893,9 @@ BOOL Editor::Search(int Next)
 
 		bool MenuZoomed=true;
 
-		int ExitCode=FindAllList->Run([&](int Key)->int
+		int ExitCode=FindAllList->Run([&](const Manager::Key& RawKey)->int
 		{
+			const auto Key=RawKey.FarKey();
 			int SelectedPos=FindAllList->GetSelectPos();
 			int KeyProcessed = 1;
 

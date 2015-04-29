@@ -296,8 +296,9 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 		if(m_TypeHistory == HISTORYTYPE_DIALOG && !HistoryMenu.GetItemCount())
 			return HRT_CANCEL;
 
-		MenuExitCode=HistoryMenu.Run([&](int Key)->int
+		MenuExitCode=HistoryMenu.Run([&](const Manager::Key& RawKey)->int
 		{
+			const auto Key=RawKey.FarKey();
 			if (m_TypeHistory == HISTORYTYPE_DIALOG && Key==KEY_TAB) // Tab в списке хистори диалогов - аналог Enter
 			{
 				HistoryMenu.Close();

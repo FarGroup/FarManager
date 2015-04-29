@@ -57,7 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cache.hpp"
 #include "language.hpp"
 
-enum 
+enum
 {
 	default_menu_file_codepage = CP_UTF8
 };
@@ -576,8 +576,9 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 
 		FillUserMenu(*UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
 		ITERATOR(Menu)* CurrentMenuItem;
-		ExitCode=UserMenu->Run([&](int Key)->int
+		ExitCode=UserMenu->Run([&](const Manager::Key& RawKey)->int
 		{
+			const auto Key=RawKey.FarKey();
 			MenuPos=UserMenu->GetSelectPos();
 			{
 				void* userdata = UserMenu->GetUserData(nullptr, 0, MenuPos);

@@ -629,8 +629,9 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		SCOPED_ACTION(listener)(update_devices, [&NeedRefresh] { NeedRefresh = true; });
 
-		ChDisk->Run([&](int Key)->int
+		ChDisk->Run([&](const Manager::Key& RawKey)->int
 		{
+			auto Key=RawKey.FarKey();
 			if(Key==KEY_NONE && NeedRefresh)
 			{
 				Key=KEY_CTRLR;
@@ -1366,7 +1367,6 @@ void Search::Process(void)
 int Search::ProcessKey(const Manager::Key& Key)
 {
 	int LocalKey=Key.FarKey();
-	INPUT_RECORD rec=Global->WindowManager->GetLastInputRecord(); //BUGBUG: в будущем использовать Key.Event
 	string strName;
 
 	// для вставки воспользуемся макродвижком...
@@ -1405,7 +1405,7 @@ int Search::ProcessKey(const Manager::Key& Key)
 		return TRUE;
 	}
 	else
-		LocalKey=_CorrectFastFindKbdLayout(rec,LocalKey);
+		LocalKey=_CorrectFastFindKbdLayout(Key.Event(),LocalKey);
 
 	if (LocalKey==KEY_ESC || LocalKey==KEY_F10)
 	{

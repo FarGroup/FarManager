@@ -942,7 +942,6 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 		}
 	}
 
-#if 1
 	BOOL ProcessedNext=TRUE;
 
 	_SVS(if (LocalKey=='n' || LocalKey=='m'))
@@ -962,10 +961,6 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 	}
 
 	if (ProcessedNext)
-#else
-	if (!CalledFromControl && //Global->CtrlObject->Macro.IsExecuting() || Global->CtrlObject->Macro.IsRecording() || // пусть доходят!
-	        !ProcessEditorInput(WindowManager->GetLastInputRecord()))
-#endif
 	{
 
 		switch (LocalKey)
@@ -2170,9 +2165,14 @@ int FileEditor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	F4KeyOnly = false;
 	if (!m_windowKeyBar->ProcessMouse(MouseEvent))
-		if (!ProcessEditorInput(Global->WindowManager->GetLastInputRecord()))
+	{
+		INPUT_RECORD mouse = {};
+		mouse.EventType=MOUSE_EVENT;
+		mouse.Event.MouseEvent=*MouseEvent;
+		if (!ProcessEditorInput(mouse))
 			if (!m_editor->ProcessMouse(MouseEvent))
 				return FALSE;
+	}
 
 	return TRUE;
 }
