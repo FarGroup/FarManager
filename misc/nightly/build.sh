@@ -7,7 +7,7 @@ function run {
   fi
 }
 
-if svnsync sync file://`pwd`/fromgoogle; then
+if svnsync sync file://`pwd`/syncrepo; then
 
 	#start mspdbsrv.exe manually before compilation, with an infinite timeout
 	#prevents compilation being stuck when using cmake

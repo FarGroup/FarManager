@@ -35,7 +35,7 @@ cd ..
 
 rm -fR enc
 
-svn co file://`pwd`/fromgoogle/trunk/enc enc || exit 1
+svn co file://`pwd`/syncrepo/trunk/enc enc || exit 1
 
 mkdir -p outfinalnew32/Encyclopedia
 mkdir -p outfinalnew64/Encyclopedia

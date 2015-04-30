@@ -79,7 +79,7 @@ return 0
 
 rm -fR unicode_far
 ( \
-	svn export file://`pwd`/fromgoogle/trunk/unicode_far unicode_far && \
+	svn export file://`pwd`/syncrepo/trunk/unicode_far unicode_far && \
 	buildfar unicode_far \
 ) || exit 1
 
