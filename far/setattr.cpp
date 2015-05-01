@@ -1005,27 +1005,28 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				{
 					AttrDlg[SA_TEXT_NAME].Flags|=DIF_HIDDEN;
 					AttrDlg[SA_COMBO_HARDLINK].Flags&=~DIF_HIDDEN;
-					ListItems.resize(NameList.ItemsNumber);
-					Links.resize(NameList.ItemsNumber);
-					NameList.Items = ListItems.data();
-					HANDLE hFind=os::FindFirstFileName(strSelName,0, Links[0]);
 
-					if (hFind!=INVALID_HANDLE_VALUE)
+					string strRoot;
+					GetPathRoot(strSelName, strRoot);
+					DeleteEndSlash(strRoot);
+
+					Links.reserve(NameList.ItemsNumber);
+					FOR(const auto& i, os::fs::enum_name(strSelName))
 					{
-						string strRoot;
-						GetPathRoot(strSelName,strRoot);
-						DeleteEndSlash(strRoot);
-						Links[0] = strRoot + Links[0];
-						NameList.Items[0].Text = Links[0].data();
+						Links.emplace_back(strRoot + i);
+					}
 
-						for (size_t i = 1; i < Links.size() && os::FindNextFileName(hFind, Links[i]); ++i)
+					if (!Links.empty())
+					{
+						ListItems.reserve(Links.size());
+						std::transform(ALL_CONST_RANGE(Links), std::back_inserter(ListItems), [&](const string& i) -> FarListItem
 						{
-							Links[i] = strRoot + Links[i];
-							NameList.Items[i].Text = Links[i].data();
-						}
+							FarListItem Item = { 0, i.data() };
+							return Item;
+						});
 
-						FindClose(hFind);
-						AttrDlg[SA_COMBO_HARDLINK].ListItems=&NameList;
+						NameList.Items = ListItems.data();
+						AttrDlg[SA_COMBO_HARDLINK].ListItems = &NameList;
 					}
 					else
 					{

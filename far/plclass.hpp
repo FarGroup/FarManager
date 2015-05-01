@@ -192,46 +192,8 @@ public:
 	void CloseLang();
 	void* GetOpen() const { return Exports[iOpen]; }
 
-	#define HAS_FUNCTION(Name) bool Has##Name() const { return Exports[i##Name] != nullptr; }
-
-	HAS_FUNCTION(GetGlobalInfo)
-	HAS_FUNCTION(Open)
-	HAS_FUNCTION(MakeDirectory)
-	HAS_FUNCTION(DeleteFiles)
-	HAS_FUNCTION(PutFiles)
-	HAS_FUNCTION(GetFiles)
-	HAS_FUNCTION(SetStartupInfo)
-	HAS_FUNCTION(ClosePanel)
-	HAS_FUNCTION(GetPluginInfo)
-	HAS_FUNCTION(GetOpenPanelInfo)
-	HAS_FUNCTION(GetFindData)
-	HAS_FUNCTION(FreeFindData)
-	HAS_FUNCTION(GetVirtualFindData)
-	HAS_FUNCTION(FreeVirtualFindData)
-	HAS_FUNCTION(SetDirectory)
-	HAS_FUNCTION(ProcessHostFile)
-	HAS_FUNCTION(SetFindList)
-	HAS_FUNCTION(Configure)
-	HAS_FUNCTION(ExitFAR)
-	HAS_FUNCTION(ProcessPanelInput)
-	HAS_FUNCTION(ProcessPanelEvent)
-	HAS_FUNCTION(ProcessEditorEvent)
-	HAS_FUNCTION(Compare)
-	HAS_FUNCTION(ProcessEditorInput)
-	HAS_FUNCTION(ProcessViewerEvent)
-	HAS_FUNCTION(ProcessDialogEvent)
-	HAS_FUNCTION(ProcessSynchroEvent)
-	HAS_FUNCTION(ProcessConsoleInput)
-	HAS_FUNCTION(Analyse)
-	HAS_FUNCTION(CloseAnalyse)
-	HAS_FUNCTION(GetContentFields)
-	HAS_FUNCTION(GetContentData)
-	HAS_FUNCTION(FreeContentData)
-
-	HAS_FUNCTION(OpenFilePlugin)
-	HAS_FUNCTION(GetMinFarVersion)
-
-	#undef HAS_FUNCTION
+	template<EXPORTS_ENUM N>
+	bool has() { static_assert(N != ExportsCount, "Wrong index"); return Exports[N] != nullptr; }
 
 	const string& GetModuleName() const { return m_strModuleName; }
 	const string& GetCacheName() const  { return m_strCacheName; }

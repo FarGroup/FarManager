@@ -1623,7 +1623,7 @@ void Options::InitRoamingCFG()
 		L'\x256A', L'\x2518', L'\x250C', L'\x2588', L'\x2584', L'\x258C', L'\x2590', L'\x2580',
 		L'\0'
 	};
-	static_assert(ARRAYSIZE(DefaultBoxSymbols) == 48 + 1, "wrong DefaultBoxSymbols array");
+	static_assert(ARRAYSIZE(DefaultBoxSymbols) == BS_COUNT + 1, "Incomplete DefaultBoxSymbols array");
 
 	static FARConfigItem _CFG[] =
 	{

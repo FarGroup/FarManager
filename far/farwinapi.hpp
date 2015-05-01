@@ -37,6 +37,76 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace os
 {
+	namespace detail
+	{
+		struct handle_closer { static bool close(HANDLE Handle); };
+		struct find_handle_closer { static bool close(HANDLE Handle); };
+	}
+
+	template<class T>
+	class handle_t: noncopyable
+	{
+	public:
+		handle_t(HANDLE Handle = nullptr): m_Handle(normalise(Handle)) {}
+
+		handle_t(handle_t&& rhs) noexcept: m_Handle() { *this = std::move(rhs); }
+
+		~handle_t() { close(); }
+
+		MOVE_OPERATOR_BY_SWAP(handle_t);
+
+		FREE_SWAP(handle_t);
+
+		void swap(handle_t& rhs) noexcept
+		{
+			using std::swap;
+			swap(m_Handle, rhs.m_Handle);
+		}
+
+		bool operator!() const { return !m_Handle; }
+		EXPLICIT_OPERATOR_BOOL();
+
+		bool close()
+		{
+			if (!m_Handle)
+				return true;
+			bool ret = T::close(m_Handle);
+			m_Handle = nullptr;
+			return ret;
+		}
+
+		void reset(HANDLE Handle = nullptr) { close(); m_Handle = normalise(Handle); }
+
+		HANDLE native_handle() const { return m_Handle; }
+
+		HANDLE release() { auto Result = m_Handle; m_Handle = nullptr; return Result; }
+
+		bool wait(DWORD Milliseconds = INFINITE) const { return WaitForSingleObject(m_Handle, Milliseconds) == WAIT_OBJECT_0; }
+
+		bool signaled() const { return wait(0); }
+
+	private:
+		static HANDLE normalise(HANDLE Handle) { return Handle == INVALID_HANDLE_VALUE? nullptr : Handle; }
+
+		HANDLE m_Handle;
+	};
+
+	typedef handle_t<detail::handle_closer> handle;
+	typedef handle_t<detail::find_handle_closer> find_handle;
+
+	class HandleWrapper
+	{
+	public:
+		HandleWrapper(HANDLE Handle = nullptr): m_Handle(Handle) {}
+		virtual ~HandleWrapper() = 0;
+
+		bool Wait(DWORD Milliseconds = INFINITE) const { return m_Handle.wait(Milliseconds); }
+		bool Signaled() const { return m_Handle.signaled(); }
+		void Close() { m_Handle.reset(); }
+
+		os::handle m_Handle;
+	};
+
 	enum
 	{
 		NT_MAX_PATH = 32768
@@ -106,20 +176,19 @@ namespace os
 	DWORD GetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFileName);
 	DWORD WNetGetConnection(const string& LocalName, string &RemoteName);
 	BOOL GetVolumeInformation(const string& RootPathName, string *pVolumeName, LPDWORD lpVolumeSerialNumber, LPDWORD lpMaximumComponentLength, LPDWORD lpFileSystemFlags, string *pFileSystemName);
-	BOOL FindStreamClose(HANDLE hFindFile);
 	bool GetFindDataEx(const string& FileName, FAR_FIND_DATA& FindData, bool ScanSymLink=true);
 	bool GetFileSizeEx(HANDLE hFile, UINT64 &Size);
 	BOOL DeleteFile(const string& FileName);
 	BOOL RemoveDirectory(const string& DirName);
-	HANDLE CreateFile(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes=0, HANDLE TemplateFile=nullptr, bool ForceElevation = false);
+	handle CreateFile(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes=0, HANDLE TemplateFile=nullptr, bool ForceElevation = false);
 	BOOL CopyFileEx(const string& ExistingFileName, const string& NewFileName, LPPROGRESS_ROUTINE lpProgressRoutine, LPVOID lpData, LPBOOL pbCancel, DWORD dwCopyFlags);
 	BOOL MoveFile(const string& ExistingFileName, const string& NewFileName);
 	BOOL MoveFileEx(const string& ExistingFileName, const string& NewFileName, DWORD dwFlags);
 	BOOL IsDiskInDrive(const string& Root);
 	int GetFileTypeByName(const string& Name);
 	bool GetDiskSize(const string& Path, unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree);
-	HANDLE FindFirstFileName(const string& FileName, DWORD dwFlags, string& LinkName);
-	BOOL FindNextFileName(HANDLE hFindStream, string& LinkName);
+	find_handle FindFirstFileName(const string& FileName, DWORD dwFlags, string& LinkName);
+	bool FindNextFileName(const find_handle& hFindStream, string& LinkName);
 	BOOL CreateDirectory(const string& PathName, LPSECURITY_ATTRIBUTES lpSecurityAttributes);
 	BOOL CreateDirectoryEx(const string& TemplateDirectory, const string& NewDirectory, LPSECURITY_ATTRIBUTES SecurityAttributes);
 	DWORD GetFileAttributes(const string& FileName);
@@ -129,8 +198,8 @@ namespace os
 	bool CreateSymbolicLink(const string& SymlinkFileName, const string& TargetFileName, DWORD dwFlags);
 	bool SetFileEncryption(const string& Name, bool Encrypt);
 	BOOL CreateHardLink(const string& FileName, const string& ExistingFileName, LPSECURITY_ATTRIBUTES lpSecurityAttributes);
-	HANDLE FindFirstStream(const string& FileName, STREAM_INFO_LEVELS InfoLevel, LPVOID lpFindStreamData, DWORD dwFlags = 0);
-	BOOL FindNextStream(HANDLE hFindStream, LPVOID lpFindStreamData);
+	find_handle FindFirstStream(const string& FileName, STREAM_INFO_LEVELS InfoLevel, LPVOID lpFindStreamData, DWORD dwFlags = 0);
+	bool FindNextStream(const find_handle& hFindStream, LPVOID lpFindStreamData);
 	std::vector<string> GetLogicalDriveStrings();
 	bool GetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath);
 	bool SearchPath(const wchar_t *Path, const string& FileName, const wchar_t *Extension, string &strDest);
@@ -151,29 +220,57 @@ namespace os
 	bool SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime);
 	bool DetachVirtualDiskInternal(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType);
 
+
 	namespace fs
 	{
 		class enum_file: noncopyable, public enumerator < FAR_FIND_DATA >
 		{
 		public:
 			enum_file(const string& Object, bool ScanSymLink = true);
-			~enum_file();
 
 		private:
 			virtual bool get(size_t index, FAR_FIND_DATA& value) override;
 
 			string m_Object;
-			HANDLE m_Handle;
+			find_handle m_Handle;
 			bool m_ScanSymLink;
+		};
+
+		class enum_name: noncopyable, public enumerator < string >
+		{
+		public:
+			enum_name(const string& Object): m_Object(Object) {}
+
+		private:
+			virtual bool get(size_t index, string& value) override;
+
+			string m_Object;
+			find_handle m_Handle;
+		};
+
+		class enum_stream: noncopyable, public enumerator<WIN32_FIND_STREAM_DATA>
+		{
+		public:
+			enum_stream(const string& Object): m_Object(Object) {}
+
+		private:
+			virtual bool get(size_t index, WIN32_FIND_STREAM_DATA& value) override;
+
+			string m_Object;
+			find_handle m_Handle;
 		};
 
 		class file: noncopyable
 		{
 		public:
-			file();
-			~file();
+			file():
+				Pointer(),
+				NeedSyncPointer(),
+				share_mode()
+			{
+			}
+
 			file(file&& rhs) noexcept:
-				Handle(INVALID_HANDLE_VALUE),
 				Pointer(),
 				NeedSyncPointer(),
 				share_mode()
@@ -195,6 +292,10 @@ namespace os
 
 			FREE_SWAP(file);
 
+			bool operator!() const { return !Handle; }
+			EXPLICIT_OPERATOR_BOOL();
+
+			// TODO: half of these should be free functions
 			bool Open(const string& Object, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDistribution, DWORD dwFlagsAndAttributes = 0, file* TemplateFile = nullptr, bool ForceElevation = false);
 			bool Read(LPVOID Buffer, size_t NumberOfBytesToRead, size_t& NumberOfBytesRead, LPOVERLAPPED Overlapped = nullptr);
 			bool Write(LPCVOID Buffer, size_t NumberOfBytesToWrite, size_t& NumberOfBytesWritten, LPOVERLAPPED Overlapped = nullptr);
@@ -212,12 +313,11 @@ namespace os
 			bool NtQueryInformationFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status = nullptr);
 			bool Close();
 			bool Eof();
-			bool Opened() const { return Handle != INVALID_HANDLE_VALUE; }
 			const string& GetName() const { return name; }
-			HANDLE GetHandle() const { return Handle; }
+			//HANDLE GetHandle() const { return Handle.native_handle(); }
 
 		private:
-			HANDLE Handle;
+			handle Handle;
 			uint64_t Pointer;
 			bool NeedSyncPointer;
 			string name;

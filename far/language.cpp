@@ -83,7 +83,7 @@ bool OpenLangFile(os::fs::file& LangFile, const string& Path,const string& Mask,
 		}
 	}
 
-	if (!LangFile.Opened())
+	if (!LangFile)
 	{
 		if (!strEngFileName.empty())
 			strFileName = strEngFileName;
@@ -97,7 +97,7 @@ bool OpenLangFile(os::fs::file& LangFile, const string& Path,const string& Mask,
 		}
 	}
 
-	return LangFile.Opened();
+	return LangFile? true : false;
 }
 
 

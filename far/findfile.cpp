@@ -2307,8 +2307,7 @@ void FindFiles::DoScanTree(Dialog* Dlg, const string& strRoot)
 
 		while (!StopEvent.Signaled() && ScTree.GetNextName(&FindData,strFullName))
 		{
-			HANDLE hFindStream = INVALID_HANDLE_VALUE;
-			SCOPE_EXIT{ if (hFindStream != INVALID_HANDLE_VALUE) os::FindStreamClose(hFindStream); };
+			os::find_handle FindStream;
 
 			Sleep(0);
 			PauseEvent.Wait();
@@ -2320,7 +2319,7 @@ void FindFiles::DoScanTree(Dialog* Dlg, const string& strRoot)
 
 			if (Global->Opt->FindOpt.FindAlternateStreams)
 			{
-				hFindStream=os::FindFirstStream(strFullName,FindStreamInfoStandard,&sd);
+				FindStream = os::FindFirstStream(strFullName, FindStreamInfoStandard, &sd);
 			}
 
 			// process default streams first
@@ -2331,11 +2330,11 @@ void FindFiles::DoScanTree(Dialog* Dlg, const string& strRoot)
 
 				if (ProcessAlternateStreams)
 				{
-					if (hFindStream != INVALID_HANDLE_VALUE)
+					if (FindStream)
 					{
 						if (!FirstCall)
 						{
-							if (!os::FindNextStream(hFindStream,&sd))
+							if (!os::FindNextStream(FindStream, &sd))
 							{
 								break;
 							}
@@ -2410,7 +2409,7 @@ void FindFiles::DoScanTree(Dialog* Dlg, const string& strRoot)
 				}
 
 				ProcessAlternateStreams = Global->Opt->FindOpt.FindAlternateStreams;
-				if (!Global->Opt->FindOpt.FindAlternateStreams || hFindStream == INVALID_HANDLE_VALUE)
+				if (!Global->Opt->FindOpt.FindAlternateStreams || !FindStream)
 				{
 					break;
 				}
@@ -2755,7 +2754,7 @@ bool FindFiles::FindFilesProcess()
 
 	AnySetFindList = std::any_of(CONST_RANGE(*Global->CtrlObject->Plugins, i)
 	{
-		return i->HasSetFindList();
+		return i->has<iSetFindList>();
 	});
 
 	if (!AnySetFindList)

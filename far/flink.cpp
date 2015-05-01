@@ -366,22 +366,21 @@ int MkHardLink(const string& ExistingName,const string& NewName, bool Silent)
 bool EnumStreams(const string& FileName,UINT64 &StreamsSize,DWORD &StreamsCount)
 {
 	bool Result=false;
-	WIN32_FIND_STREAM_DATA fsd;
-	HANDLE hFind=os::FindFirstStream(FileName,FindStreamInfoStandard,&fsd);
+	
+	UINT64 Size = 0;
+	DWORD Count = 0;
 
-	if (hFind!=INVALID_HANDLE_VALUE)
+	FOR(const auto& i, os::fs::enum_stream(FileName))
 	{
-		StreamsCount=1;
-		StreamsSize=fsd.StreamSize.QuadPart;
+		++Count;
+		Size += i.StreamSize.QuadPart;
+	}
 
-		while (os::FindNextStream(hFind,&fsd))
-		{
-			StreamsCount++;
-			StreamsSize+=fsd.StreamSize.QuadPart;
-		}
-
-		os::FindStreamClose(hFind);
-		Result=true;
+	if (Count)
+	{
+		StreamsCount = Count;
+		StreamsSize = Size;
+		Result = true;
 	}
 
 	return Result;

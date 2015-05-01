@@ -51,7 +51,7 @@ CachedRead::~CachedRead()
 
 void CachedRead::AdjustAlignment()
 {
-	if (!file.Opened())
+	if (!file)
 		return;
 
 	auto buff_size = Buffer.size();

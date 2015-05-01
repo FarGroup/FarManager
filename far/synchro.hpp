@@ -70,46 +70,7 @@ inline string make_name(const S& HashPart, const S& TextPart)
 	return Str;
 }
 
-class HandleWrapper: noncopyable
-{
-public:
-	bool Opened() const { return m_Handle != nullptr; }
-
-	bool Close()
-	{
-		if (!m_Handle)
-			return true;
-		bool ret = CloseHandle(m_Handle) != FALSE;
-		m_Handle = nullptr;
-		return ret;
-	}
-
-	bool Wait(DWORD Milliseconds = INFINITE) const { return WaitForSingleObject(m_Handle, Milliseconds) == WAIT_OBJECT_0; }
-
-	bool Signaled() const { return Wait(0); }
-
-protected:
-	HandleWrapper(): m_Handle() {}
-	HandleWrapper(HANDLE Handle): m_Handle(Handle) { assert(Opened()); }
-	virtual ~HandleWrapper() { Close(); }
-
-	void swap(HandleWrapper& rhs) noexcept
-	{
-		using std::swap;
-		swap(m_Handle, rhs.m_Handle);
-	}
-
-	FREE_SWAP(HandleWrapper);
-
-	HANDLE m_Handle;
-
-private:
-	friend class MultiWaiter;
-
-	HANDLE GetHandle() const { return m_Handle; }
-};
-
-class Thread: public HandleWrapper
+class Thread: public os::HandleWrapper
 {
 public:
 	typedef void (Thread::*mode)();
@@ -152,7 +113,7 @@ public:
 	void swap(Thread& rhs) noexcept
 	{
 		using std::swap;
-		HandleWrapper::swap(rhs);
+		m_Handle.swap(rhs.m_Handle);
 		swap(m_Mode, rhs.m_Mode);
 		swap(m_ThreadId, rhs.m_ThreadId);
 	}
@@ -166,15 +127,15 @@ public:
 	void detach()
 	{
 		check_joinable();
-		Close();
+		m_Handle.close();
 		m_ThreadId = 0;
 	}
 
 	void join()
 	{
 		check_joinable();
-		Wait();
-		Close();
+		m_Handle.wait();
+		m_Handle.close();
 		m_ThreadId = 0;
 	}
 
@@ -212,7 +173,7 @@ private:
 	unsigned int m_ThreadId;
 };
 
-class Mutex: public HandleWrapper
+class Mutex: public os::HandleWrapper
 {
 public:
 	Mutex(const wchar_t* Name = nullptr): HandleWrapper(CreateMutex(nullptr, false, EmptyToNull(Name))) {}
@@ -226,17 +187,17 @@ public:
 
 	void swap(Mutex& rhs) noexcept
 	{
-		HandleWrapper::swap(rhs);
+		m_Handle.swap(rhs.m_Handle);
 	}
 
 	FREE_SWAP(Mutex);
 
-	bool lock() const { return Wait(); }
+	bool lock() const { return m_Handle.wait(); }
 
-	bool unlock() const { return ReleaseMutex(m_Handle) != FALSE; }
+	bool unlock() const { return ReleaseMutex(m_Handle.native_handle()) != FALSE; }
 };
 
-class Event: public HandleWrapper
+class Event: public os::HandleWrapper
 {
 public:
 	enum event_type { automatic, manual };
@@ -253,16 +214,16 @@ public:
 
 	void swap(Event& rhs) noexcept
 	{
-		HandleWrapper::swap(rhs);
+		m_Handle.swap(rhs.m_Handle);
 	}
 
 	FREE_SWAP(Event);
 
-	bool Set() const { check_valid(); return SetEvent(m_Handle) != FALSE; }
+	bool Set() const { check_valid(); return SetEvent(m_Handle.native_handle()) != FALSE; }
 
-	bool Reset() const { check_valid(); return ResetEvent(m_Handle) != FALSE; }
+	bool Reset() const { check_valid(); return ResetEvent(m_Handle.native_handle()) != FALSE; }
 
-	void Associate(OVERLAPPED& o) const { check_valid(); o.hEvent = m_Handle; }
+	void Associate(OVERLAPPED& o) const { check_valid(); o.hEvent = m_Handle.native_handle(); }
 
 private:
 	void check_valid() const
@@ -331,7 +292,7 @@ public:
 	};
 	MultiWaiter() { Objects.reserve(10); }
 	~MultiWaiter() {}
-	void Add(const HandleWrapper& Object) { assert(Objects.size() < MAXIMUM_WAIT_OBJECTS); Objects.emplace_back(Object.GetHandle()); }
+	void Add(const os::HandleWrapper& Object) { assert(Objects.size() < MAXIMUM_WAIT_OBJECTS); Objects.emplace_back(Object.m_Handle.native_handle()); }
 	void Add(HANDLE handle) { assert(Objects.size() < MAXIMUM_WAIT_OBJECTS); Objects.emplace_back(handle); }
 	DWORD Wait(wait_mode Mode = wait_all, DWORD Milliseconds = INFINITE) const { return WaitForMultipleObjects(static_cast<DWORD>(Objects.size()), Objects.data(), Mode == wait_all, Milliseconds); }
 	void Clear() {Objects.clear();}

@@ -103,6 +103,8 @@ enum BOX_DEF_SYMBOLS
 	BS_X_DD,          // 0xDD
 	BS_X_DE,          // 0xDE
 	BS_X_DF,          // 0xDF
+
+	BS_COUNT
 };
 
 void ShowTime(int ShowAlways);

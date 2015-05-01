@@ -642,7 +642,7 @@ void FileList::SortFileList(int KeepPosition)
 			strCurName = m_ListData[m_CurFile].strName;
 		}
 
-		hSortPlugin=(m_PanelMode==PLUGIN_PANEL && m_hPlugin && m_hPlugin->pPlugin->HasCompare()) ? m_hPlugin:nullptr;
+		hSortPlugin=(m_PanelMode==PLUGIN_PANEL && m_hPlugin && m_hPlugin->pPlugin->has<iCompare>())? m_hPlugin : nullptr;
 
 		// ЭТО ЕСТЬ УЗКОЕ МЕСТО ДЛЯ СКОРОСТНЫХ ХАРАКТЕРИСТИК Far Manager
 		// при считывании директории

@@ -840,7 +840,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					break;
 				case KEY_SHIFTF9:
 
-					if (item && item->bIsPlugin && item->pPlugin->HasConfigure())
+					if (item && item->bIsPlugin && item->pPlugin->has<iConfigure>())
 						Global->CtrlObject->Plugins->ConfigureCurrent(item->pPlugin, item->Guid);
 
 					RetCode=SelPos;
@@ -2680,7 +2680,7 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid
 
 		if (auto pPlugin = Global->CtrlObject->Plugins->FindPlugin(PluginGuid))
 		{
-			if (pPlugin->HasOpen())
+			if (pPlugin->has<iOpen>())
 			{
 				if (!strPluginFile.empty())
 				{

@@ -75,7 +75,7 @@ public:
 	{
 	}
 
-	any(any&& rhs) { *this = std::move(rhs); }
+	any(any&& rhs) noexcept { *this = std::move(rhs); }
 
 	any& operator=(const any& rhs)
 	{

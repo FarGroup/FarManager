@@ -158,22 +158,16 @@ bool NativePluginModel::IsPlugin(const string& filename)
 		return false;
 
 	bool Result = false;
-	HANDLE hModuleFile = os::CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
-
-	if (hModuleFile != INVALID_HANDLE_VALUE)
+	if (const os::handle ModuleFile = os::CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
 	{
-		HANDLE hModuleMapping = CreateFileMapping(hModuleFile, nullptr, PAGE_READONLY, 0, 0, nullptr);
-		if (hModuleMapping)
+		if (const os::handle ModuleMapping = CreateFileMapping(ModuleFile.native_handle(), nullptr, PAGE_READONLY, 0, 0, nullptr))
 		{
-			const void* pData = MapViewOfFile(hModuleMapping, FILE_MAP_READ, 0, 0, 0);
-			if (pData)
+			if (const auto Data = MapViewOfFile(ModuleMapping.native_handle(), FILE_MAP_READ, 0, 0, 0))
 			{
-				Result = IsPlugin2(pData);
-				UnmapViewOfFile(pData);
+				Result = IsPlugin2(Data);
+				UnmapViewOfFile(Data);
 			}
-			CloseHandle(hModuleMapping);
 		}
-		CloseHandle(hModuleFile);
 	}
 	return Result;
 }

@@ -177,7 +177,7 @@ Viewer::~Viewer()
 {
 	KeepInitParameters();
 
-	if (ViewFile.Opened())
+	if (ViewFile)
 	{
 		ViewFile.Close();
 		SavePosition();
@@ -291,7 +291,7 @@ int Viewer::OpenFile(const string& Name,int warning)
 		ViewFile.Open(strFileName, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING);
 	}
 
-	if (!ViewFile.Opened())
+	if (!ViewFile)
 	{
 		Global->CatchError();
 		/* $ 04.07.2000 tran
@@ -481,7 +481,7 @@ void Viewer::ShowPage(int nMode)
 
 	AdjustWidth();
 
-	if (!ViewFile.Opened())
+	if (!ViewFile)
 	{
 		if (!strFileName.empty() && ((nMode == SHOW_RELOAD) || (nMode == SHOW_HEX)|| (nMode == SHOW_DUMP)))
 		{
@@ -1408,9 +1408,9 @@ __int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_C_SELECTED:
 			return SelectSize >= 0;
 		case MCODE_C_EOF:
-			return LastPage || !ViewFile.Opened();
+			return LastPage || !ViewFile;
 		case MCODE_C_BOF:
-			return !FilePos || !ViewFile.Opened();
+			return !FilePos || !ViewFile;
 		case MCODE_V_VIEWERSTATE:
 		{
 			DWORD MacroViewerState = 0x00000004; // always UNICODE
@@ -1523,7 +1523,7 @@ int Viewer::process_key(const Manager::Key& Key)
 		case KEY_CTRLINS:  case KEY_CTRLNUMPAD0:
 		case KEY_RCTRLINS: case KEY_RCTRLNUMPAD0:
 		{
-			if (SelectSize >= 0 && ViewFile.Opened())
+			if (SelectSize >= 0 && ViewFile)
 			{
 				wchar_t_ptr SelData(SelectSize+1, true);
 				__int64 CurFilePos=vtell();
@@ -1552,7 +1552,7 @@ int Viewer::process_key(const Manager::Key& Key)
 			if (Global->Opt->ViewerEditorClock && HostFileViewer && HostFileViewer->IsFullScreen() && Global->Opt->ViOpt.ShowTitleBar)
 				ShowTime(FALSE);
 
-			if (ViewFile.Opened())
+			if (ViewFile)
 			{
 				if (!*m_TimeCheck)
 					return TRUE;
@@ -1719,7 +1719,7 @@ int Viewer::process_key(const Manager::Key& Key)
 		case KEY_ALTF8:
 		case KEY_RALTF8:
 		{
-			if (ViewFile.Opened())
+			if (ViewFile)
 			{
 				LastPage = 0;
 				GoTo();
@@ -1779,7 +1779,7 @@ int Viewer::process_key(const Manager::Key& Key)
 		}
 		case KEY_UP: case KEY_NUMPAD8: case KEY_SHIFTNUMPAD8:
 		{
-			if (FilePos>0 && ViewFile.Opened())
+			if (FilePos>0 && ViewFile)
 			{
 				Up(1, false); // LastPage = 0
 
@@ -1800,7 +1800,7 @@ int Viewer::process_key(const Manager::Key& Key)
 		}
 		case KEY_DOWN: case KEY_NUMPAD2:  case KEY_SHIFTNUMPAD2:
 		{
-			if (!LastPage && ViewFile.Opened())
+			if (!LastPage && ViewFile)
 			{
 				if (VM.Hex)
 				{
@@ -1815,7 +1815,7 @@ int Viewer::process_key(const Manager::Key& Key)
 		}
 		case KEY_PGUP: case KEY_NUMPAD9: case KEY_SHIFTNUMPAD9: case KEY_CTRLUP: case KEY_RCTRLUP:
 		{
-			if (ViewFile.Opened())
+			if (ViewFile)
 			{
 				Up(m_Y2-m_Y1, false);
 				Show();
@@ -1825,7 +1825,7 @@ int Viewer::process_key(const Manager::Key& Key)
 		}
 		case KEY_PGDN: case KEY_NUMPAD3:  case KEY_SHIFTNUMPAD3: case KEY_CTRLDOWN: case KEY_RCTRLDOWN:
 		{
-			if (LastPage || !ViewFile.Opened())
+			if (LastPage || !ViewFile)
 				return TRUE;
 
 			FilePos = EndOfScreen(-1); // start of last screen line
@@ -1853,7 +1853,7 @@ int Viewer::process_key(const Manager::Key& Key)
 		}
 		case KEY_LEFT: case KEY_NUMPAD4: case KEY_SHIFTNUMPAD4:
 		{
-			if (LeftPos>0 && ViewFile.Opened())
+			if (LeftPos>0 && ViewFile)
 			{
 				if (VM.Hex == 1 && LeftPos > 80-Width)
 					LeftPos=std::max(80-Width,1);
@@ -1866,7 +1866,7 @@ int Viewer::process_key(const Manager::Key& Key)
 		}
 		case KEY_RIGHT: case KEY_NUMPAD6: case KEY_SHIFTNUMPAD6:
 		{
-			if (LeftPos<MAX_VIEWLINE && ViewFile.Opened() && !VM.Hex && !VM.Wrap)
+			if (LeftPos<MAX_VIEWLINE && ViewFile && !VM.Hex && !VM.Wrap)
 			{
 				LeftPos++;
 				Show();
@@ -1877,7 +1877,7 @@ int Viewer::process_key(const Manager::Key& Key)
 		case KEY_CTRLLEFT:  case KEY_CTRLNUMPAD4:
 		case KEY_RCTRLLEFT: case KEY_RCTRLNUMPAD4:
 		{
-			if (ViewFile.Opened())
+			if (ViewFile)
 			{
 				if (VM.Hex)
 				{
@@ -1898,7 +1898,7 @@ int Viewer::process_key(const Manager::Key& Key)
 		case KEY_CTRLRIGHT:  case KEY_CTRLNUMPAD6:
 		case KEY_RCTRLRIGHT: case KEY_RCTRLNUMPAD6:
 		{
-			if (ViewFile.Opened())
+			if (ViewFile)
 			{
 				if (VM.Hex)
 				{
@@ -1924,7 +1924,7 @@ int Viewer::process_key(const Manager::Key& Key)
 		case KEY_RCTRLSHIFTLEFT:   case KEY_RCTRLSHIFTNUMPAD4:
 		{
 			// Перейти на начало строк
-			if (ViewFile.Opened())
+			if (ViewFile)
 			{
 				LeftPos = 0;
 				Show();
@@ -1936,7 +1936,7 @@ int Viewer::process_key(const Manager::Key& Key)
 		case KEY_RCTRLSHIFTRIGHT:    case KEY_RCTRLSHIFTNUMPAD6:
 		{
 			// Перейти на конец строк
-			if (ViewFile.Opened())
+			if (ViewFile)
 			{
 				const size_t MaxLen = std::accumulate(ALL_CONST_RANGE(Strings), size_t(0), [](size_t Value, const ViewerString& i)
 				{
@@ -1952,12 +1952,12 @@ int Viewer::process_key(const Manager::Key& Key)
 		case KEY_RCTRLHOME:   case KEY_RCTRLNUMPAD7:
 		case KEY_HOME:        case KEY_NUMPAD7:   case KEY_SHIFTNUMPAD7:
 			// Перейти на начало файла
-			if (ViewFile.Opened())
+			if (ViewFile)
 				LeftPos=0;
 
 		case KEY_CTRLPGUP:    case KEY_CTRLNUMPAD9:
 		case KEY_RCTRLPGUP:   case KEY_RCTRLNUMPAD9:
-			if (ViewFile.Opened())
+			if (ViewFile)
 			{
 				FilePos=0;
 				Show();
@@ -1968,13 +1968,13 @@ int Viewer::process_key(const Manager::Key& Key)
 		case KEY_RCTRLEND:    case KEY_RCTRLNUMPAD1:
 		case KEY_END:         case KEY_NUMPAD1: case KEY_SHIFTNUMPAD1:
 			// Перейти на конец файла
-			if (ViewFile.Opened())
+			if (ViewFile)
 				LeftPos=0;
 
 		case KEY_CTRLPGDN:    case KEY_CTRLNUMPAD3:
 		case KEY_RCTRLPGDN:   case KEY_RCTRLNUMPAD3:
 
-			if (ViewFile.Opened())
+			if (ViewFile)
 			{
 				int max_counter = m_Y2 - m_Y1;
 				int ch_size = getChSize(VM.CodePage);
@@ -2297,7 +2297,7 @@ void Viewer::Up( int nlines, bool adjust )
 {
 	assert( nlines > 0 );
 
-	if (!ViewFile.Opened())
+	if (!ViewFile)
 		return;
 
 	LastPage = 0;
@@ -3275,7 +3275,7 @@ SEARCHER_RESULT Viewer::search_regex_backward(search_data* sd)
 */
 void Viewer::Search(int Next,int FirstChar)
 {
-	if (!ViewFile.Opened() || (Next && strLastSearchStr.empty()))
+	if (!ViewFile || (Next && strLastSearchStr.empty()))
 		return;
 
 	string strSearchStr, strMsgStr;
@@ -4083,7 +4083,7 @@ void Viewer::AdjustFilePos()
 
 void Viewer::SetFileSize()
 {
-	if (!ViewFile.Opened())
+	if (!ViewFile)
 		return;
 
 	UINT64 uFileSize=0; // BUGBUG, sign
@@ -4104,7 +4104,7 @@ void Viewer::GetSelectedParam(__int64 &Pos, __int64 &Length, DWORD &Flags) const
 //
 void Viewer::SelectText(const __int64 &match_pos,const __int64 &search_len, const DWORD flags)
 {
-	if (!ViewFile.Opened())
+	if (!ViewFile)
 		return;
 
 	SelectPos = match_pos;

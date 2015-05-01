@@ -822,7 +822,7 @@ static os::fs::file OpenCacheableTreeFile(const string& Root, string& Name, bool
 	if (!MustBeCached(Root))
 		Result = OpenTreeFile(Name, Writable);
 
-	if (!Result.Opened())
+	if (!Result)
 	{
 		if (GetCacheTreeName(Root, Name, Writable))
 		{
@@ -863,7 +863,7 @@ static inline void WriteTree(string_type& Name, const container_type& Container,
 
 	bool Result = false;
 
-	if (TreeFile.Opened())
+	if (TreeFile)
 	{
 		CachedWrite Cache(TreeFile);
 
@@ -1782,7 +1782,7 @@ int TreeList::ReadTreeFile()
 #endif
 
 	auto TreeFile = OpenCacheableTreeFile(m_Root, strName, false);
-	if (!TreeFile.Opened())
+	if (!TreeFile)
 	{
 		//RestoreState();
 		return FALSE;
@@ -2005,7 +2005,7 @@ void TreeList::ReadCache(const string& TreeRoot)
 		FlushCache();
 
 	auto TreeFile = OpenCacheableTreeFile(TreeRoot, strTreeName, false);
-	if (!TreeFile.Opened())
+	if (!TreeFile)
 	{
 		ClearCache();
 		return;

@@ -340,13 +340,11 @@ void ConvertNameToReal(const string& Src, string &strDest)
 	strDest = FullPath;
 
 	string Path = FullPath;
-	HANDLE hFile;
+	os::handle File;
 
 	for (;;)
 	{
-		hFile = os::CreateFile(Path, 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, 0);
-
-		if (hFile != INVALID_HANDLE_VALUE)
+		if ((File = os::CreateFile(Path, 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, 0)))
 			break;
 
 		if (IsRootPath(Path))
@@ -355,12 +353,11 @@ void ConvertNameToReal(const string& Src, string &strDest)
 		Path = ExtractFilePath(Path);
 	}
 
-	if (hFile != INVALID_HANDLE_VALUE)
+	if (File)
 	{
 		string FinalFilePath;
-		os::GetFinalPathNameByHandle(hFile, FinalFilePath);
-
-		CloseHandle(hFile);
+		os::GetFinalPathNameByHandle(File.native_handle(), FinalFilePath);
+		File.close();
 
 		//assert(!FinalFilePath.empty());
 

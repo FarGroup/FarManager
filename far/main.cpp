@@ -63,7 +63,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "notification.hpp"
 #include "datetime.hpp"
-#include "help.hpp"
 
 global *Global = nullptr;
 

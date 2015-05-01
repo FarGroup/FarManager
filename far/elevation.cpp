@@ -1145,22 +1145,16 @@ private:
 		// BUGBUG: SecurityAttributes, TemplateFile ignored
 		if(Read(Object) && Read(DesiredAccess) && Read(ShareMode) && Read(CreationDistribution) && Read(FlagsAndAttributes))
 		{
-			auto Result = os::CreateFile(Object, DesiredAccess, ShareMode, nullptr, CreationDistribution, FlagsAndAttributes, nullptr);
-			if(Result!=INVALID_HANDLE_VALUE)
+			HANDLE Duplicate = INVALID_HANDLE_VALUE;
+			if (const os::handle Handle = os::CreateFile(Object, DesiredAccess, ShareMode, nullptr, CreationDistribution, FlagsAndAttributes, nullptr))
 			{
-				const auto ParentProcess = OpenProcess(PROCESS_DUP_HANDLE, FALSE, ParentPID);
-				if(ParentProcess)
+				if (const os::handle ParentProcess = OpenProcess(PROCESS_DUP_HANDLE, FALSE, ParentPID))
 				{
-					if(!DuplicateHandle(GetCurrentProcess(), Result, ParentProcess, &Result, 0, FALSE, DUPLICATE_CLOSE_SOURCE|DUPLICATE_SAME_ACCESS))
-					{
-						CloseHandle(Result);
-						Result = INVALID_HANDLE_VALUE;
-					}
-					CloseHandle(ParentProcess);
+					DuplicateHandle(GetCurrentProcess(), Handle.native_handle(), ParentProcess.native_handle(), &Duplicate, 0, FALSE, DUPLICATE_SAME_ACCESS);
 				}
 			}
 			const ERRORCODES ErrorCodes;
-			if(Write(reinterpret_cast<intptr_t>(Result)))
+			if (Write(reinterpret_cast<intptr_t>(Duplicate)))
 			{
 				Write(ErrorCodes.Codes);
 			}

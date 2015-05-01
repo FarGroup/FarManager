@@ -44,32 +44,59 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace os
 {
+	HandleWrapper::~HandleWrapper() {}
 
-struct pseudo_handle
-{
-	pseudo_handle():
-		NextOffset(),
-		BufferSize(),
-		Extended(),
-		ReadDone()
+	namespace detail
 	{
+		class i_find_handle_impl
+		{
+		public:
+			virtual ~i_find_handle_impl() = 0;
+		};
+		i_find_handle_impl::~i_find_handle_impl() {}
+
+		bool detail::find_handle_closer::close(HANDLE Handle) { delete static_cast<i_find_handle_impl*>(Handle); return true; }
+		bool detail::handle_closer::close(HANDLE Handle) { return CloseHandle(Handle) != FALSE; }
+		struct os_find_handle_closer { static bool close(HANDLE Handle) { return FindClose(Handle) != FALSE; } };
+
+		class far_find_handle_impl: public i_find_handle_impl
+		{
+		public:
+			far_find_handle_impl():
+				NextOffset(),
+				BufferSize(),
+				Extended(),
+				ReadDone()
+			{
+			}
+
+			fs::file Object;
+			block_ptr<BYTE> BufferBase;
+			block_ptr<BYTE> Buffer2;
+			ULONG NextOffset;
+			ULONG BufferSize;
+			bool Extended;
+			bool ReadDone;
+		};
+
+		class os_find_handle_impl: public i_find_handle_impl
+		{
+		public:
+			os_find_handle_impl(HANDLE Handle): m_Handle(Handle) {}
+			HANDLE hative_handle() const { return m_Handle.native_handle(); }
+
+		private:
+			handle_t<os_find_handle_closer> m_Handle;
+		};
 	}
 
-	fs::file Object;
-	block_ptr<BYTE> BufferBase;
-	block_ptr<BYTE> Buffer2;
-	ULONG NextOffset;
-	ULONG BufferSize;
-	bool Extended;
-	bool ReadDone;
-};
-
-static HANDLE FindFirstFileInternal(const string& Name, FAR_FIND_DATA& FindData)
+static find_handle FindFirstFileInternal(const string& Name, FAR_FIND_DATA& FindData)
 {
-	HANDLE Result = INVALID_HANDLE_VALUE;
+	FN_RETURN_TYPE(FindFirstFileInternal) Result;
+
 	if(!Name.empty() && !IsSlash(Name.back()))
 	{
-		auto Handle = new pseudo_handle;
+			auto Handle = std::make_unique<detail::far_find_handle_impl>();
 
 			string strDirectory(Name);
 			CutToSlash(strDirectory);
@@ -147,7 +174,7 @@ static HANDLE FindFirstFileInternal(const string& Name, FAR_FIND_DATA& FindData)
 						}
 
 						Handle->NextOffset = DirectoryInfo->NextEntryOffset;
-						Result = static_cast<HANDLE>(Handle);
+						Result.reset(Handle.release());
 					}
 					else
 					{
@@ -163,18 +190,14 @@ static HANDLE FindFirstFileInternal(const string& Name, FAR_FIND_DATA& FindData)
 					SetLastError(ERROR_PATH_NOT_FOUND);
 				}
 			}
-			if(Result == INVALID_HANDLE_VALUE)
-			{
-				delete Handle;
-			}
 	}
 	return Result;
 }
 
-static bool FindNextFileInternal(HANDLE Find, FAR_FIND_DATA& FindData)
+static bool FindNextFileInternal(const find_handle& Find, FAR_FIND_DATA& FindData)
 {
 	bool Result = false;
-	auto Handle = static_cast<pseudo_handle*>(Find);
+	auto Handle = static_cast<detail::far_find_handle_impl*>(Find.native_handle());
 	bool Status = true, set_errcode = true;
 	auto DirectoryInfo = reinterpret_cast<PFILE_ID_BOTH_DIR_INFORMATION>(Handle->BufferBase.get());
 	if(Handle->NextOffset)
@@ -248,12 +271,6 @@ static bool FindNextFileInternal(HANDLE Find, FAR_FIND_DATA& FindData)
 	return Result;
 }
 
-static bool FindCloseInternal(HANDLE Find)
-{
-	delete static_cast<pseudo_handle*>(Find);
-	return true;
-}
-
 //-------------------------------------------------------------------------
 namespace fs
 {
@@ -302,7 +319,6 @@ namespace fs
 
 enum_file::enum_file(const string& Object, bool ScanSymLink):
 	m_Object(NTPath(Object)),
-	m_Handle(INVALID_HANDLE_VALUE),
 	m_ScanSymLink(ScanSymLink)
 {
 	bool Root = false;
@@ -317,31 +333,18 @@ enum_file::enum_file(const string& Object, bool ScanSymLink):
 	}
 }
 
-enum_file::~enum_file()
-{
-	if(m_Handle != INVALID_HANDLE_VALUE)
-	{
-		FindCloseInternal(m_Handle);
-	}
-}
-
 bool enum_file::get(size_t index, FAR_FIND_DATA& FindData)
 {
 	bool Result = false;
 	if (!index)
 	{
-		if(m_Handle != INVALID_HANDLE_VALUE)
-		{
-			FindCloseInternal(m_Handle);
-		}
-
 		// temporary disable elevation to try "real" name first
 		{
 			SCOPED_ACTION(elevation::suppress);
 			m_Handle = FindFirstFileInternal(m_Object, FindData);
 		}
 
-		if (m_Handle == INVALID_HANDLE_VALUE && GetLastError() == ERROR_ACCESS_DENIED)
+		if (!m_Handle && GetLastError() == ERROR_ACCESS_DENIED)
 		{
 			if(m_ScanSymLink)
 			{
@@ -355,16 +358,16 @@ bool enum_file::get(size_t index, FAR_FIND_DATA& FindData)
 				m_Handle = FindFirstFileInternal(strReal, FindData);
 			}
 
-			if (m_Handle == INVALID_HANDLE_VALUE && ElevationRequired(ELEVATION_READ_REQUEST))
+			if (!m_Handle && ElevationRequired(ELEVATION_READ_REQUEST))
 			{
 				m_Handle = FindFirstFileInternal(m_Object, FindData);
 			}
 		}
-		Result = m_Handle != INVALID_HANDLE_VALUE;
+		Result = m_Handle? true : false;
 	}
 	else
 	{
-		if (m_Handle != INVALID_HANDLE_VALUE)
+		if (m_Handle)
 		{
 			Result = FindNextFileInternal(m_Handle, FindData);
 		}
@@ -382,29 +385,48 @@ bool enum_file::get(size_t index, FAR_FIND_DATA& FindData)
 	return Result;
 }
 
+//-------------------------------------------------------------------------
 
+bool enum_name::get(size_t index, string& value)
+{
+	if (!index)
+	{
+		m_Handle = FindFirstFileName(m_Object, 0, value);
+		return m_Handle? true : false;
+	}
+	else
+	{
+		return FindNextFileName(m_Handle, value);
+	}
+}
 
 //-------------------------------------------------------------------------
-file::file():
-	Handle(INVALID_HANDLE_VALUE),
-	Pointer(0),
-	NeedSyncPointer(false),
-	share_mode(0)
+
+bool enum_stream::get(size_t index, WIN32_FIND_STREAM_DATA& value)
 {
+	if (!index)
+	{
+		m_Handle = FindFirstStream(m_Object, FindStreamInfoStandard, &value);
+		return m_Handle ? true : false;
+	}
+	else
+	{
+		return FindNextStream(m_Handle, &value);
+	}
 }
 
-file::~file()
-{
-	Close();
-}
+//-------------------------------------------------------------------------
 
 bool file::Open(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, file* TemplateFile, bool ForceElevation)
 {
-	assert(Handle == INVALID_HANDLE_VALUE);
-	HANDLE TemplateFileHandle = TemplateFile? TemplateFile->Handle : nullptr;
+	assert(!Handle);
+
+	Pointer = 0;
+	NeedSyncPointer = false;
+
+	HANDLE TemplateFileHandle = TemplateFile ? TemplateFile->Handle.native_handle() : nullptr;
 	Handle = CreateFile(Object, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFileHandle, ForceElevation);
-	bool ok =  Handle != INVALID_HANDLE_VALUE;
-	if (ok)
+	if (Handle)
 	{
 		name = Object;
 		share_mode = ShareMode;
@@ -414,7 +436,7 @@ bool file::Open(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSE
 		name.clear();
 		share_mode = 0;
 	}
-	return ok;
+	return Handle? true : false;
 }
 
 inline void file::SyncPointer()
@@ -423,7 +445,7 @@ inline void file::SyncPointer()
 	{
 		LARGE_INTEGER Distance, NewPointer;
 		Distance.QuadPart = Pointer;
-		if (SetFilePointerEx(Handle, Distance, &NewPointer, FILE_BEGIN))
+		if (SetFilePointerEx(Handle.native_handle(), Distance, &NewPointer, FILE_BEGIN))
 		{
 			Pointer = NewPointer.QuadPart;
 			NeedSyncPointer = false;
@@ -438,7 +460,7 @@ bool file::Read(LPVOID Buffer, size_t NumberOfBytesToRead, size_t& NumberOfBytes
 
 	SyncPointer();
 	DWORD BytesRead = 0;
-	bool Result = ReadFile(Handle, Buffer, static_cast<DWORD>(NumberOfBytesToRead), &BytesRead, Overlapped) != FALSE;
+	bool Result = ReadFile(Handle.native_handle(), Buffer, static_cast<DWORD>(NumberOfBytesToRead), &BytesRead, Overlapped) != FALSE;
 	NumberOfBytesRead = BytesRead;
 	if(Result)
 	{
@@ -453,7 +475,7 @@ bool file::Write(LPCVOID Buffer, size_t NumberOfBytesToWrite, size_t& NumberOfBy
 
 	SyncPointer();
 	DWORD BytesWritten = 0;
-	bool Result = WriteFile(Handle, Buffer, static_cast<DWORD>(NumberOfBytesToWrite), &BytesWritten, Overlapped) != FALSE;
+	bool Result = WriteFile(Handle.native_handle(), Buffer, static_cast<DWORD>(NumberOfBytesToWrite), &BytesWritten, Overlapped) != FALSE;
 	NumberOfBytesWritten = BytesWritten;
 	if(Result)
 	{
@@ -495,7 +517,7 @@ bool file::SetPointer(int64_t DistanceToMove, uint64_t* NewFilePointer, DWORD Mo
 bool file::SetEnd()
 {
 	SyncPointer();
-	bool ok = SetEndOfFile(Handle) != FALSE;
+	bool ok = SetEndOfFile(Handle.native_handle()) != FALSE;
 	if (!ok && !name.empty() && GetLastError() == ERROR_INVALID_PARAMETER) // OSX buggy SMB workaround
 	{
 		const auto fsize = GetPointer();
@@ -504,7 +526,7 @@ bool file::SetEnd()
 		{
 			SetPointer(fsize, nullptr, FILE_BEGIN);
 			SyncPointer();
-			ok = SetEndOfFile(Handle) != FALSE;
+			ok = SetEndOfFile(Handle.native_handle()) != FALSE;
 		}
 	}
 	return ok;
@@ -512,37 +534,37 @@ bool file::SetEnd()
 
 bool file::GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime)
 {
-	return GetFileTimeEx(Handle, CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
+	return GetFileTimeEx(Handle.native_handle(), CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
 }
 
 bool file::SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime)
 {
-	return SetFileTimeEx(Handle, CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
+	return SetFileTimeEx(Handle.native_handle(), CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
 }
 
 bool file::GetSize(UINT64& Size)
 {
-	return GetFileSizeEx(Handle, Size);
+	return GetFileSizeEx(Handle.native_handle(), Size);
 }
 
 bool file::FlushBuffers()
 {
-	return FlushFileBuffers(Handle) != FALSE;
+	return FlushFileBuffers(Handle.native_handle()) != FALSE;
 }
 
 bool file::GetInformation(BY_HANDLE_FILE_INFORMATION& info)
 {
-	return GetFileInformationByHandle(Handle, &info) != FALSE;
+	return GetFileInformationByHandle(Handle.native_handle(), &info) != FALSE;
 }
 
 bool file::IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped)
 {
-	return ::DeviceIoControl(Handle, IoControlCode, InBuffer, InBufferSize, OutBuffer, OutBufferSize, BytesReturned, Overlapped) != FALSE;
+	return ::DeviceIoControl(Handle.native_handle(), IoControlCode, InBuffer, InBufferSize, OutBuffer, OutBufferSize, BytesReturned, Overlapped) != FALSE;
 }
 
 bool file::GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed)
 {
-	DWORD Result = Imports().GetStorageDependencyInformation(Handle, Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed);
+	DWORD Result = Imports().GetStorageDependencyInformation(Handle.native_handle(), Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed);
 	SetLastError(Result);
 	return Result == ERROR_SUCCESS;
 }
@@ -562,7 +584,7 @@ bool file::NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORM
 	auto di = reinterpret_cast<PFILE_ID_BOTH_DIR_INFORMATION>(FileInformation);
 	di->NextEntryOffset = 0xffffffffUL;
 
-	NTSTATUS Result = Imports().NtQueryDirectoryFile(Handle, nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, pNameString, RestartScan);
+	NTSTATUS Result = Imports().NtQueryDirectoryFile(Handle.native_handle(), nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, pNameString, RestartScan);
 	SetLastError(Imports().RtlNtStatusToDosError(Result));
 	if(Status)
 	{
@@ -575,7 +597,7 @@ bool file::NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORM
 bool file::NtQueryInformationFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status)
 {
 	IO_STATUS_BLOCK IoStatusBlock;
-	NTSTATUS Result = Imports().NtQueryInformationFile(Handle, &IoStatusBlock, FileInformation, Length, FileInformationClass);
+	NTSTATUS Result = Imports().NtQueryInformationFile(Handle.native_handle(), &IoStatusBlock, FileInformation, Length, FileInformationClass);
 	SetLastError(Imports().RtlNtStatusToDosError(Result));
 	if(Status)
 	{
@@ -586,15 +608,7 @@ bool file::NtQueryInformationFile(PVOID FileInformation, ULONG Length, FILE_INFO
 
 bool file::Close()
 {
-	bool Result=true;
-	if(Handle!=INVALID_HANDLE_VALUE)
-	{
-		Result = ::CloseHandle(Handle) != FALSE;
-		Handle = INVALID_HANDLE_VALUE;
-	}
-	Pointer = 0;
-	NeedSyncPointer = false;
-	return Result;
+	return Handle.close();
 }
 
 bool file::Eof()
@@ -755,7 +769,7 @@ BOOL RemoveDirectory(const string& DirName)
 	return Result;
 }
 
-HANDLE CreateFile(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile, bool ForceElevation)
+os::handle CreateFile(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile, bool ForceElevation)
 {
 	NTPath strObject(Object);
 	FlagsAndAttributes|=FILE_FLAG_BACKUP_SEMANTICS|(CreationDistribution==OPEN_EXISTING?FILE_FLAG_POSIX_SEMANTICS:0);
@@ -1152,14 +1166,11 @@ BOOL IsDiskInDrive(const string& Root)
 
 int GetFileTypeByName(const string& Name)
 {
-	HANDLE hFile=CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_EXISTING,0);
-
-	if (hFile==INVALID_HANDLE_VALUE)
-		return FILE_TYPE_UNKNOWN;
-
-	int Type=::GetFileType(hFile);
-	CloseHandle(hFile);
-	return Type;
+	if (const auto File = CreateFile(Name, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0))
+	{
+		return ::GetFileType(File.native_handle());
+	}
+	return FILE_TYPE_UNKNOWN;
 }
 
 bool GetDiskSize(const string& Path,unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree)
@@ -1189,7 +1200,7 @@ bool GetDiskSize(const string& Path,unsigned __int64 *TotalSize, unsigned __int6
 	return Result;
 }
 
-HANDLE FindFirstFileName(const string& FileName, DWORD dwFlags, string& LinkName)
+find_handle FindFirstFileName(const string& FileName, DWORD dwFlags, string& LinkName)
 {
 	HANDLE hRet=INVALID_HANDLE_VALUE;
 	DWORD StringLength=0;
@@ -1200,17 +1211,18 @@ HANDLE FindFirstFileName(const string& FileName, DWORD dwFlags, string& LinkName
 		hRet=Imports().FindFirstFileNameW(NtFileName.data(), 0, &StringLength, Buffer.get());
 		LinkName = Buffer.get();
 	}
-	return hRet;
+	return hRet != INVALID_HANDLE_VALUE? new detail::os_find_handle_impl(hRet) : nullptr;
 }
 
-BOOL FindNextFileName(HANDLE hFindStream, string& LinkName)
+bool FindNextFileName(const find_handle& hFindStream, string& LinkName)
 {
-	BOOL Ret=FALSE;
+	bool Ret = false;
 	DWORD StringLength=0;
-	if (!Imports().FindNextFileNameW(hFindStream, &StringLength, nullptr) && GetLastError()==ERROR_MORE_DATA)
+	const auto Handle = static_cast<detail::os_find_handle_impl*>(hFindStream.native_handle())->hative_handle();
+	if (!Imports().FindNextFileNameW(Handle, &StringLength, nullptr) && GetLastError() == ERROR_MORE_DATA)
 	{
 		wchar_t_ptr Buffer(StringLength);
-		Ret = Imports().FindNextFileNameW(hFindStream, &StringLength, Buffer.get());
+		Ret = Imports().FindNextFileNameW(Handle, &StringLength, Buffer.get()) != FALSE;
 		LinkName = Buffer.get();
 	}
 	return Ret;
@@ -1320,18 +1332,22 @@ BOOL CreateHardLink(const string& FileName, const string& ExistingFileName, LPSE
 	return Result;
 }
 
-HANDLE FindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,LPVOID lpFindStreamData,DWORD dwFlags)
+find_handle FindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,LPVOID lpFindStreamData,DWORD dwFlags)
 {
-	HANDLE Ret=INVALID_HANDLE_VALUE;
+	find_handle Ret;
 	if(Imports().FindFirstStreamW)
 	{
-		Ret=Imports().FindFirstStreamW(NTPath(FileName).data(),InfoLevel,lpFindStreamData,dwFlags);
+		const auto Handle = Imports().FindFirstStreamW(NTPath(FileName).data(), InfoLevel, lpFindStreamData, dwFlags);
+		if (Handle != INVALID_HANDLE_VALUE)
+		{
+			Ret.reset(new detail::os_find_handle_impl(Handle));
+		}
 	}
 	else
 	{
 		if (InfoLevel==FindStreamInfoStandard)
 		{
-			auto Handle=new pseudo_handle;
+				auto Handle = std::make_unique<detail::far_find_handle_impl>();
 
 				if (Handle->Object.Open(FileName, 0, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING))
 				{
@@ -1363,15 +1379,11 @@ HANDLE FindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,LPVOI
 							std::copy_n(StreamInfo->StreamName, StreamInfo->StreamNameLength/sizeof(wchar_t), pFsd->cStreamName);
 							pFsd->cStreamName[StreamInfo->StreamNameLength / sizeof(wchar_t)] = L'\0';
 							pFsd->StreamSize=StreamInfo->StreamSize;
-							Ret=Handle;
+							Ret.reset(Handle.release());
 						}
 					}
 
 					Handle->Object.Close();
-				}
-				if (Ret == INVALID_HANDLE_VALUE)
-				{
-					delete Handle;
 				}
 		}
 	}
@@ -1379,16 +1391,16 @@ HANDLE FindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,LPVOI
 	return Ret;
 }
 
-BOOL FindNextStream(HANDLE hFindStream,LPVOID lpFindStreamData)
+bool FindNextStream(const find_handle& hFindStream,LPVOID lpFindStreamData)
 {
-	BOOL Ret=FALSE;
+	bool Ret=FALSE;
 	if(Imports().FindFirstStreamW)
 	{
-		Ret=Imports().FindNextStreamW(hFindStream,lpFindStreamData);
+		Ret = Imports().FindNextStreamW(static_cast<detail::os_find_handle_impl*>(hFindStream.native_handle())->hative_handle(), lpFindStreamData) != FALSE;
 	}
 	else
 	{
-		auto Handle = static_cast<pseudo_handle*>(hFindStream);
+		const auto Handle = static_cast<detail::far_find_handle_impl*>(hFindStream.native_handle());
 
 		if (Handle->NextOffset)
 		{
@@ -1400,26 +1412,9 @@ BOOL FindNextStream(HANDLE hFindStream,LPVOID lpFindStreamData)
 				std::copy_n(pStreamInfo->StreamName, pStreamInfo->StreamNameLength / sizeof(wchar_t), pFsd->cStreamName);
 				pFsd->cStreamName[pStreamInfo->StreamNameLength / sizeof(wchar_t)] = L'\0';
 				pFsd->StreamSize=pStreamInfo->StreamSize;
-				Ret=TRUE;
+				Ret = true;
 			}
 		}
-	}
-
-	return Ret;
-}
-
-BOOL FindStreamClose(HANDLE hFindStream)
-{
-	BOOL Ret=FALSE;
-
-	if(Imports().FindFirstStreamW)
-	{
-		Ret=::FindClose(hFindStream);
-	}
-	else
-	{
-		delete static_cast<pseudo_handle*>(hFindStream);
-		Ret=TRUE;
 	}
 
 	return Ret;
