@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 30.04.2015 01:15:07 +0200 - build 4362
+
+1. refactoring: processing of keypresses.
+
 drkns 26.04.2015 13:40:02 +0200 - build 4361
 
 1. Continuation of 4356.
