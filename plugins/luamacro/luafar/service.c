@@ -6058,6 +6058,28 @@ static int luaopen_far(lua_State *L)
 	return 0;
 }
 
+void LF_RunLuafarInit(lua_State* L)
+{
+	const wchar_t *filename = L"\\luafar_init.lua";
+	wchar_t buf[2048];
+	int size;
+
+	size = GetEnvironmentVariableW(L"FARPROFILE", buf, ARRAYSIZE(buf));
+	if(size && (size + wcslen(filename) < ARRAYSIZE(buf)))
+	{
+		DWORD attr = GetFileAttributesW(wcscat(buf, filename));
+		if (attr != INVALID_FILE_ATTRIBUTES && (attr & FILE_ATTRIBUTE_DIRECTORY) == 0)
+		{
+			int status = LF_LoadFile(L, buf) || lua_pcall(L,0,0,0);
+			if(status)
+			{
+				LF_Error(L, check_utf8_string(L, -1, NULL));
+				lua_pop(L, 1);
+			}
+		}
+	}
+}
+
 // Run default script
 BOOL LF_RunDefaultScript(lua_State* L)
 {
@@ -6116,74 +6138,9 @@ BOOL LF_RunDefaultScript(lua_State* L)
 	return (status == 0);
 }
 
+// This exported function is needed for old builds of the plugins.
 void LF_ProcessEnvVars(lua_State *L, const wchar_t* aEnvPrefix, const wchar_t* PluginDir)
 {
-	wchar_t bufName[256];
-	const int VALSIZE = 16384;
-	wchar_t* bufVal = NULL;
-
-	if(aEnvPrefix && wcslen(aEnvPrefix) <=  ARRSIZE(bufName) - 8)
-		bufVal = (wchar_t*)lua_newuserdata(L, VALSIZE*sizeof(wchar_t));
-
-	if(bufVal)
-	{
-		int size;
-		wcscpy(bufName, aEnvPrefix);
-		wcscat(bufName, L"_PATH");
-		size = GetEnvironmentVariableW(bufName, bufVal, VALSIZE);
-
-		if(size && size < VALSIZE)
-		{
-			lua_getglobal(L, "package");
-			push_utf8_string(L, bufVal, -1);
-			lua_setfield(L, -2, "path");
-			lua_pop(L,1);
-		}
-	}
-
-	if(bufVal)
-	{
-		int size;
-		wcscpy(bufName, aEnvPrefix);
-		wcscat(bufName, L"_CPATH");
-		size = GetEnvironmentVariableW(bufName, bufVal, VALSIZE);
-
-		if(size && size < VALSIZE)
-		{
-			lua_getglobal(L, "package");
-			push_utf8_string(L, bufVal, -1);
-			lua_setfield(L, -2, "cpath");
-			lua_pop(L,1);
-		}
-
-		wcscpy(bufName, aEnvPrefix);
-		wcscat(bufName, L"_INIT");
-		size = GetEnvironmentVariableW(bufName, bufVal, VALSIZE);
-
-		if(size && size < VALSIZE)
-		{
-			int status;
-
-			if(*bufVal==L'@')
-			{
-				status = LF_LoadFile(L, bufVal+1) || lua_pcall(L,0,0,0);
-			}
-			else
-			{
-				push_utf8_string(L, bufVal, -1);
-				status = luaL_loadstring(L, lua_tostring(L,-1)) || lua_pcall(L,0,0,0);
-				lua_remove(L, status ? -2 : -1);
-			}
-
-			if(status)
-			{
-				LF_Error(L, check_utf8_string(L, -1, NULL));
-				lua_pop(L,1);
-			}
-		}
-
-		lua_pop(L, 1); // bufVal
-	}
 }
 
 static const luaL_Reg lualibs[] =

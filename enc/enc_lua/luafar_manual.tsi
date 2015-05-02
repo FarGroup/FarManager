@@ -161,7 +161,7 @@ lv=2
 dt=Text
 nm=Customizing the generic plugin
 ctime=3612528153
-mtime=3638786049
+mtime=3639761180
 <article>
 #_<markdown>
 #_
@@ -177,16 +177,39 @@ mtime=3638786049
 #_
 #_- **`FARDIR`** - the root directory of Far Manager source tree, e.g. "`FARDIR = C:\farmanager`".
 #_
-#_- **`ENV_PREFIX`** - prefix for LuaFAR-specific environment variables.<br>
-#_  If specified, e.g. "`ENV_PREFIX = LUAFAR`" then [`LF_ProcessEnvVars`](441.html) is called
-#_  before the first run of the plugin's main script.
-#_
 #_@@@
 #_{getglobalinfow}: http://api.farmanager.com/ru/exported_functions/getglobalinfow.html
 #_{getplugininfow}: http://api.farmanager.com/ru/exported_functions/getplugininfow.html
 #_{processsynchroeventw}: http://api.farmanager.com/ru/exported_functions/processsynchroeventw.html
 #_{setstartupinfow}: http://api.farmanager.com/ru/exported_functions/setstartupinfow.html
 #_
+#_
+</article>
+</node>
+<node>
+id=511
+lv=2
+dt=Text
+nm=luafar_init.lua
+ctime=3639761849
+mtime=3639766286
+<article>
+#_<markdown>
+#_
+#_If the file `%FARPROFILE%\luafar_init.lua` exists it is executed before the first run of
+#_the plugin's default script.<br>
+#_It is also executed when the Lua state is [recreated][1].<br>
+#_It is **not** executed when the default script is reloaded due to `far.ReloadDefaultScript == true`.
+#_
+#_See also:<br>
+#_[`LF_LuafarInit`](510.html)<br>
+#_[`LF_RunDefaultScript`](130.html)<br>
+#_[`LF_Open`](173.html)<br>
+#_
+#_[1]: 495.html
+#_
+#_@@@
+#_{setstartupinfow}: http://api.farmanager.com/ru/exported_functions/setstartupinfow.html
 #_
 </article>
 </node>
@@ -11711,36 +11734,23 @@ mtime=3601970281
 </article>
 </node>
 <node>
-id=441
+id=510
 lv=2
 dt=Text
-nm=LF_ProcessEnvVars
-ctime=3512931631
-mtime=3602178351
+nm=LF_RunLuafarInit
+ctime=3639761355
+mtime=3639762183
 <article>
 #_<markdown>
-#_    void LF_ProcessEnvVars (lua_State* L,
-#_                            const wchar_t* EnvVarPrefix,
-#_                            const wchar_t* PluginDir)
+#_    void LF_LuafarInit (lua_State *L)
 #_
 #_#### Parameters:
-#_      L:            Lua state.
-#_
-#_      EnvVarPrefix: Prefix for names of environment variables to be
-#_                    processed. (NULL is allowed.)
-#_
-#_      PluginDir:    Full path to the plugin directory.
+#_      L:     Lua state.
 #_
 #_#### Description:
 #_
-#_This function is called by the plugin during **`SetStartupInfoW`** call. It performs the following actions, in the specified order (for simplicity, let's assume `EnvVarPrefix==L"LUAFAR"`):
-#_
-#_1. Process `LUAFAR_PATH` the same way the standard Lua
-#_   interpreter does with `LUA_PATH`.
-#_1. Process `LUAFAR_CPATH` the same way the standard Lua
-#_   interpreter does with `LUA_CPATH`.
-#_1. Process `LUAFAR_INIT` the same way the standard Lua
-#_   interpreter does with `LUA_INIT`.
+#_This function executes the file `%FARPROFILE%\luafar_init.lua` if such a file exists.
+#_It should be called **before** the first run of the plugin's default script.
 #_
 #_@@@
 #_{setstartupinfow}: http://api.farmanager.com/ru/exported_functions/setstartupinfow.html

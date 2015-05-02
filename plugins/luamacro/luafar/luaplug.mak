@@ -26,16 +26,12 @@ ifndef DIRBIT
   DIRBIT = 32
 endif
 
-ifdef ENV_PREFIX
-  ENV_FLAG = -DENV_PREFIX=L\"$(ENV_PREFIX)\"
-endif
-
 ARCH= -m$(DIRBIT)
 CC= gcc
 
 OBJ = luaplug.o $(MYOBJ)
 
-CFLAGS = -O2 -Wall -I$(INC_FAR) -I$(INC_LUA) $(EXPORTS) $(ARCH) $(ENV_FLAG) $(MYCFLAGS)
+CFLAGS = -O2 -Wall -I$(INC_FAR) -I$(INC_LUA) $(EXPORTS) $(ARCH) $(MYCFLAGS)
 
 LDFLAGS = -Wl,--kill-at -shared -s $(ARCH) $(MYLDFLAGS) -L$(PATH_LIBS)
 

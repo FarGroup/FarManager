@@ -107,6 +107,7 @@ DLLFUNC int     LF_LoadFile(lua_State *L, const wchar_t* filename);
 DLLFUNC int     LF_DoFile(lua_State *L, const wchar_t *fname, int argc, wchar_t* argv[]);
 DLLFUNC int     LF_Message(lua_State *L, const wchar_t* aMsg, const wchar_t* aTitle, const wchar_t* aButtons, const char* aFlags, const wchar_t* aHelpTopic, const GUID* aId);
 DLLFUNC void    LF_ProcessEnvVars(lua_State *L, const wchar_t* aEnvPrefix, const wchar_t* PluginDir);
+DLLFUNC void    LF_RunLuafarInit(lua_State *L);
 DLLFUNC BOOL    LF_RunDefaultScript(lua_State* L);
 
 DLLFUNC HANDLE   LF_Analyse(lua_State* L, const struct AnalyseInfo *Info);
