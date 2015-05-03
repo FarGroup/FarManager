@@ -13,42 +13,6 @@ SetConsoleTitle & Macro
 
    svs 26.01.2007 16:02:00 +0300
 
-
-IA64Stacks
-   ¬ IA64 два стека, регистровый и "обычный", имитаци€ с помощью структуры
-   вот примерно такого:
-
-0x1a000            Backing store hard guard
-0x19000            Backing store soft guard
-0x14000            <space>
-0x13000            -- Frame D rotating register store
-0x12000            -- Frame C rotating register store
-0x11000            -- Frame B rotating register store
-0x10000            -- Frame A rotating register store
-                        -- "top" of "backing store" stack
-                        -- top of "normal" stack
-0x9000              -- Frame A
-0x8000              -- Frame B
-0x7000              -- Frame C
-0x6000              -- Frame D [call graph looks like: A()->B()->C()->D()]
-0x5FF8             <return address>
-0x5FF0             BYTE* ptr
-0x5F00             BYTE[] a (stack allocated byte array, size F0)
-0x5000              <space>
-0x1000              Soft guard
-0x0000              Hard guard
-
-   в лоб не удалась, кто знает как лучше, чем с помошью CreateThread, починить
-   стек, сделайте.
-
-   Zuz 26.09.2008 23:04:38 +0500
-
-intrin.h
-   VC9 нету сейчас под рукой, посему там, возможно, не нужно эти прототипы объ€вл€ть.
-
-   Zuz 26.09.2008 23:05:12 +0500
-
-
 TPreRedrawFunc
    2SVS: "надо бы описать сей чудный механизм автоматической отрисовки" :)
 
@@ -57,18 +21,6 @@ TPreRedrawFunc
 copy.cpp
    ѕри вызовах apiGetDiskSize использовать не Root, а Dest (если Dest существует)
    drkns 20.04.2009 14:07:34 +0200
-
-ѕовторные имплементации стека/списка/вектора которые в общем надо убить:
-   Frame
-   CallBackStack
-   Manager?
-   FilePositionCache?
-   TPreRedrawFunc
-   TreeListCache
-
-   ≈сть наверно ещЄ но эти сразу в глаза бросаютс€.
-
-   t-rex 25.05.2009 21:16:54 +0200
 
 usermenu.cpp, filetype.cpp
    јхтунг. ¬ режиме isSilent имеем проблемы с командами, которые вывод€т что-то на экран
