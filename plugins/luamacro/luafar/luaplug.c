@@ -103,7 +103,9 @@ __declspec(dllexport) int luaopen_luaplug(lua_State *L)
 static void InitLuaState2(lua_State *L, TPluginData* PluginData)
 {
 	LF_InitLuaState2(L, PluginData);
+#ifdef RUN_LUAFAR_INIT
 	LF_RunLuafarInit(L);
+#endif
 	lua_pushcfunction(L, luaopen_luaplug);
 	lua_setglobal(L, "_luaplug");
 }

@@ -1,4 +1,11 @@
-﻿shmuel 02.05.2015 19:57:59 +0200 - build 511
+﻿shmuel 03.05.2015 16:07:30 +0200 - build 512
+
+1. LuaFAR (generic plugin): запуск плагином "%FARPROFILE%\luafar_init.lua" обусловлен флагом
+   компиляции -DRUN_LUAFAR_INIT при сборке плагина.
+
+2. Плагин LuaMacro собирается с заданным флагом компиляции -DRUN_LUAFAR_INIT.
+
+shmuel 02.05.2015 19:57:59 +0200 - build 511
 
 1. LuaFAR (generic plugin):
    - Параметр ENV_PREFIX ликвидирован. Переменные окружения при инициализации плагина теперь

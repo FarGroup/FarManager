@@ -1974,6 +1974,20 @@ mtime=3618035419
 </article>
 </node>
 <node>
+id=97
+lv=2
+dt=Text
+nm=Файл luafar_init.lua
+ctime=3639831642
+mtime=3639833657
+<article>
+#_<markdown>
+#_Плагин LuaMacro исполняет файл `%FARPROFILE%\luafar_init.lua` (если этот файл существует) перед загрузкой своего стартового скрипта.
+#_См. описание этой особенности в мануале LuaFAR.
+#_
+</article>
+</node>
+<node>
 id=5
 lv=1
 dt=Text

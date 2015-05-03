@@ -1980,6 +1980,19 @@ mtime=3618041778
 </article>
 </node>
 <node>
+id=97
+lv=2
+dt=Text
+nm=File luafar_init.lua
+ctime=3639831305
+mtime=3639833929
+<article>
+#_<markdown>
+#_Plugin LuaMacro runs the file `%FARPROFILE%\luafar_init.lua` (if that file exists) before loading its default script.
+#_See description of this feature in LuaFAR manual.
+</article>
+</node>
+<node>
 id=5
 lv=1
 dt=Text
