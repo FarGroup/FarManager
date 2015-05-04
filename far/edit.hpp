@@ -147,6 +147,7 @@ public:
 	int GetPersistentBlocks() const {return m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS); }
 	void SetShowWhiteSpace(int Mode) {m_Flags.Change(FEDITLINE_SHOWWHITESPACE, Mode!=0); m_Flags.Change(FEDITLINE_SHOWLINEBREAK, Mode == 1);}
 	void GetString(string &strStr) const;
+	const string& GetString() const { return m_Str; }
 	const wchar_t* GetStringAddr() const;
 	void SetHiString(const string& Str);
 	void SetString(const wchar_t *Str,int Length=-1);

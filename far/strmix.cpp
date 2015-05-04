@@ -940,94 +940,60 @@ string& FarFormatText(const string& SrcText,      // источник
 	return strDestText;
 }
 
-/*
-  Ptr=CalcWordFromString(Str,I,&Start,&End);
-  xstrncpy(Dest,Ptr,End-Start+1);
-  Dest[End-Start+1]=0;
-
-// Параметры:
-//   WordDiv  - набор разделителей слова в кодировке OEM
-  возвращает указатель на начало слова
-*/
-const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Start,int *End, const string& WordDiv0)
+bool FindWordInString(const string& Str, size_t CurPos, size_t& Begin, size_t& End, const string& WordDiv0)
 {
-	int StartWPos, EndWPos;
-	int StrSize=StrLength(Str);
+	if (Str.empty() || CurPos > Str.size())
+		return false;
 
-	if (CurPos > StrSize)
-		return nullptr;
+	const auto WordDiv = WordDiv0 + GetSpacesAndEols();
 
-	string strWordDiv(WordDiv0);
-	strWordDiv += L" \t\n\r";
-
-	if (IsWordDiv(strWordDiv,Str[CurPos]))
+	if (!CurPos)
 	{
-		// вычисляем дистанцию - куда копать, где ближе слово - слева или справа
-		int I = CurPos, J = CurPos;
-		// копаем влево
-		DWORD DistLeft=-1;
+		Begin = 0;
+	}
+	else
+	{
+		Begin = Str.find_last_of(WordDiv, CurPos - 1);
+		Begin = Begin == string::npos? 0 : Begin + 1;
+	}
 
-		while (I >= 0 && IsWordDiv(strWordDiv,Str[I]))
+	if (CurPos == Str.size())
+	{
+		End = CurPos;
+	}
+	else
+	{
+		End = Str.find_first_of(WordDiv, CurPos);
+		if (End == string::npos)
 		{
-			DistLeft++;
-			I--;
+			End = Str.size();
 		}
+	}
 
-		if (I < 0)
-			DistLeft=-1;
-
-		// копаем вправо
-		DWORD DistRight=-1;
-
-		while (J < StrSize && IsWordDiv(strWordDiv,Str[J]))
+	if (Begin == End)
+	{
+		// Go deeper and find one-character words even if they are in WordDiv, e.g. {}()<>,.= etc. (except whitespace)
+		if (Begin == Str.size())
 		{
-			DistRight++;
-			J++;
+			if (!IsSpaceOrEol(Str[Begin - 1]))
+				--Begin;
 		}
-
-		if (J >= StrSize)
-			DistRight=-1;
-
-		if (DistLeft > DistRight) // ?? >=
-			EndWPos=StartWPos=J;
 		else
-			EndWPos=StartWPos=I;
-	}
-	else // здесь все оби, т.е. стоим на буковке
-		EndWPos=StartWPos=CurPos;
-
-	if (StartWPos < StrSize)
-	{
-		while (StartWPos >= 0)
-			if (IsWordDiv(strWordDiv,Str[StartWPos]))
+		{
+			if (!IsSpaceOrEol(Str[Begin]))
 			{
-				StartWPos++;
-				break;
+				++End;
 			}
 			else
-				StartWPos--;
-
-		while (EndWPos < StrSize)
-			if (IsWordDiv(strWordDiv,Str[EndWPos]))
 			{
-				EndWPos--;
-				break;
+				if (!IsSpaceOrEol(Str[Begin - 1]))
+					--Begin;
 			}
-			else
-				EndWPos++;
+		}
 	}
 
-	if (StartWPos < 0)
-		StartWPos=0;
-
-	if (EndWPos >= StrSize)
-		EndWPos=StrSize;
-
-	*Start=StartWPos;
-	*End=EndWPos;
-	return Str+StartWPos;
+	return Begin != End;
 }
-
 
 bool CheckFileSizeStringFormat(const string& FileSizeStr)
 {

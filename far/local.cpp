@@ -41,6 +41,26 @@ const wchar_t UNIX_EOL_fmt[] = L"\n";
 const wchar_t MAC_EOL_fmt[]  = L"\r";
 const wchar_t WIN_EOL_fmt[]  = L"\r\r\n";
 
+const string& GetSpaces()
+{
+	// TODO: test for consistency with IsSpace()
+	static const string Spaces = L" \t";
+	return Spaces;
+}
+
+const string& GetEols()
+{
+	// TODO: test for consistency with IsEol()
+	static const string Eols = L" \t";
+	return Eols;
+}
+
+const string& GetSpacesAndEols()
+{
+	static const string SpacesOrEols = GetSpaces() + GetEols();
+	return SpacesOrEols;
+}
+
 const wchar_t * StrStrI(const wchar_t *str1, const wchar_t *str2)
 {
 	if (!*str2)

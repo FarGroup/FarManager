@@ -48,6 +48,12 @@ inline int IsSpaceOrEos(wchar_t x) { return IsSpace(x) || !x; }
 
 inline int IsSpaceOrEol(wchar_t x) { return IsSpace(x) || IsEol(x); }
 
+const string& GetSpaces();
+
+const string& GetEols();
+
+const string& GetSpacesAndEols();
+
 inline wchar_t ToUpper(wchar_t Ch) { CharUpperBuff(&Ch, 1); return Ch; }
 
 inline wchar_t ToLower(wchar_t Ch) { CharLowerBuff(&Ch, 1); return Ch; }

@@ -111,9 +111,7 @@ string &InsertCommas(unsigned __int64 li, string &strDest);
 
 inline bool IsWordDiv(const string& WordDiv, wchar_t Chr) { return !Chr || WordDiv.find(Chr) != string::npos; }
 
-//   WordDiv  - набор разделителей слова в кодировке OEM
-// возвращает указатель на начало слова
-const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Start,int *End,const string& WordDiv);
+bool FindWordInString(const string& Str, size_t CurPos, size_t& Begin, size_t& End, const string& WordDiv);
 
 wchar_t* TruncStr(wchar_t *Str,int MaxLength);
 wchar_t* TruncStrFromCenter(wchar_t *Str, int MaxLength);

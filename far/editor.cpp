@@ -2554,23 +2554,23 @@ int Editor::ProcessKey(const Manager::Key& Key)
 		case KEY_OP_SELWORD:
 		{
 			int OldCurPos=CurPos;
-			int SStart, SEnd;
+			size_t SBegin, SEnd;
 			Pasting++;
 			Lock();
 			UnmarkBlock();
 
 			// CurLine->TableSet ??? => UseDecodeTable?CurLine->TableSet:nullptr !!!
-			if (CalcWordFromString(m_it_CurLine->GetStringAddr(),CurPos,&SStart,&SEnd,EdOpt.strWordDiv))
+			if (FindWordInString(m_it_CurLine->GetString(), CurPos, SBegin, SEnd, EdOpt.strWordDiv))
 			{
-				m_it_CurLine->Select(SStart, SEnd + (SEnd < m_it_CurLine->m_Str.size()? 1 : 0));
+				m_it_CurLine->Select(static_cast<int>(SBegin), static_cast<int>(SEnd));
 
 				if (m_it_CurLine->IsSelection())
 				{
 					BeginStreamMarking(m_it_CurLine);
 					//SelFirst=TRUE;
 					//BUGBUG, never used
-					SelStart=SStart;
-					SelEnd=SEnd;
+					SelStart = static_cast<int>(SBegin);
+					SelEnd = static_cast<int>(SEnd - 1);
 				}
 			}
 
@@ -3490,13 +3490,11 @@ BOOL Editor::Search(int Next)
 	{
 		if (EdOpt.SearchPickUpWord)
 		{
-			int StartPickPos=-1,EndPickPos=-1;
-			const wchar_t *Ptr=CalcWordFromString(m_it_CurLine->GetStringAddr(),m_it_CurLine->GetCurPos(),&StartPickPos,&EndPickPos, EdOpt.strWordDiv);
-
-			if (Ptr)
+			size_t PickBegin, PickEnd;
+			const auto& Str = m_it_CurLine->GetString();
+			if (FindWordInString(Str, m_it_CurLine->GetCurPos(), PickBegin, PickEnd, EdOpt.strWordDiv))
 			{
-				string strWord(Ptr,(size_t)EndPickPos-StartPickPos+1);
-				strSearchStr=strWord;
+				strSearchStr = Str.substr(PickBegin, PickEnd - PickBegin);
 			}
 		}
 

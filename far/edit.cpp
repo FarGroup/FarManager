@@ -961,10 +961,10 @@ int Edit::ProcessKey(const Manager::Key& Key)
 			else
 #endif
 			{
-				int SStart, SEnd;
+				size_t SBegin, SEnd;
 
-				if (CalcWordFromString(m_Str.data(), m_CurPos, &SStart, &SEnd, WordDiv()))
-					Select(SStart, SEnd + (SEnd < m_Str.size()? 1 : 0));
+				if (FindWordInString(m_Str, m_CurPos, SBegin, SEnd, WordDiv()))
+					Select(static_cast<int>(SBegin), static_cast<int>(SEnd));
 			}
 
 			m_CurPos=OldCurPos; // возвращаем обратно
