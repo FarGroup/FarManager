@@ -51,7 +51,7 @@ const string& GetSpaces()
 const string& GetEols()
 {
 	// TODO: test for consistency with IsEol()
-	static const string Eols = L" \t";
+	static const string Eols = L"\r\n";
 	return Eols;
 }
 
