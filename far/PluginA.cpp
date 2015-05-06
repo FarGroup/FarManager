@@ -85,12 +85,12 @@ typedef int    (WINAPI *iProcessDialogEventPrototype)  (int Event,void *Param);
 
 inline int UnicodeToOEM(const wchar_t* src, char* dst, size_t lendst)
 {
-	return static_cast<int>(unicode::to(CP_OEMCP, src, wcslen(src), dst, lendst));
+	return static_cast<int>(unicode::to(CP_OEMCP, src, wcslen(src) + 1, dst, lendst));
 }
 
 inline int OEMToUnicode(const char* src, wchar_t* dst, size_t lendst)
 {
-	return static_cast<int>(unicode::from(CP_OEMCP, src, strlen(src), dst, lendst));
+	return static_cast<int>(unicode::from(CP_OEMCP, src, strlen(src) + 1, dst, lendst));
 }
 
 OEMPluginModel::OEMPluginModel(PluginManager* owner):
