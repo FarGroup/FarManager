@@ -111,7 +111,7 @@ void EditControl::Changed(bool DelBlock)
 
 void EditControl::SetMenuPos(VMenu2& menu)
 {
-	int MaxHeight = std::min(Global->Opt->Dialogs.CBoxMaxHeight.Get(),(long long)menu.GetItemCount())+2;
+	int MaxHeight = std::min(Global->Opt->Dialogs.CBoxMaxHeight.Get(),(long long)menu.GetItemCount()) + 1;
 
 	int NewX2 = std::max(std::min(ScrX-2,(int)m_X2), m_X1 + 20);
 
@@ -126,30 +126,65 @@ void EditControl::SetMenuPos(VMenu2& menu)
 	}
 }
 
-void EnumFiles(VMenu2& Menu, const string& Str)
+static void AddSeparatorOrSetTitle(VMenu2& Menu, LNGID TitleId)
 {
-	if(!Str.empty())
+	bool Separator = false;
+	for (intptr_t i = 0; i != Menu.GetItemCount(); ++i)
 	{
-		string strStr(Str);
-
-		size_t Pos = 0;
-		if(std::count(ALL_CONST_RANGE(strStr), L'"') & 1) // odd quotes count
+		if (Menu.GetItemPtr(i)->Flags&LIF_SEPARATOR)
 		{
-			Pos = strStr.rfind(L'"');
+			Separator = true;
+			break;
+		}
+	}
+	if (!Separator)
+	{
+		if (Menu.GetItemCount())
+		{
+			MenuItemEx Item(MSG(TitleId));
+			Item.Flags = LIF_SEPARATOR;
+			Menu.AddItem(Item);
 		}
 		else
 		{
-			for(Pos=strStr.size()-1; Pos!=static_cast<size_t>(-1); Pos--)
+			Menu.SetTitle(MSG(TitleId));
+		}
+	}
+}
+
+static bool EnumFiles(VMenu2& Menu, const string& Str)
+{
+	bool Result = false;
+	if(!Str.empty())
+	{
+		size_t Pos = 0;
+		if(std::count(ALL_CONST_RANGE(Str), L'"') & 1) // odd quotes count
+		{
+			Pos = Str.rfind(L'"');
+		}
+		else
+		{
+			auto WordDiv = GetSpaces() + Global->Opt->strWordDiv.Get();
+			static const string NoQuote = L"\":\\/";
+			for (size_t i = 0; i != WordDiv.size(); ++i)
 			{
-				if(strStr[Pos]==L'"')
+				if (NoQuote.find(WordDiv[i]) != string::npos)
+				{
+					WordDiv.erase(i--, 1);
+				}
+			}
+
+			for(Pos = Str.size()-1; Pos!=static_cast<size_t>(-1); Pos--)
+			{
+				if(Str[Pos]==L'"')
 				{
 					Pos--;
-					while(strStr[Pos]!=L'"' && Pos!=static_cast<size_t>(-1))
+					while(Str[Pos]!=L'"' && Pos!=static_cast<size_t>(-1))
 					{
 						Pos--;
 					}
 				}
-				else if(strStr[Pos]==L' ')
+				else if (WordDiv.find(Str[Pos]) != string::npos)
 				{
 					Pos++;
 					break;
@@ -161,26 +196,29 @@ void EnumFiles(VMenu2& Menu, const string& Str)
 			Pos=0;
 		}
 		bool StartQuote=false;
-		if(Pos < strStr.size() && strStr[Pos]==L'"')
+		if(Pos < Str.size() && Str[Pos]==L'"')
 		{
 			Pos++;
 			StartQuote=true;
 		}
-		string strStart(strStr.data(),Pos);
-		Unquote(strStr.erase(0, Pos));
-		if(!strStr.empty())
+
+		auto strStart = Str.substr(0, Pos);
+		auto Token = Str.substr(Pos);
+		Unquote(Token);
+		if (!Token.empty())
 		{
-			string strExp = os::env::expand_strings(strStr);
+			std::set<string, string_i_less> ResultStrings;
+			
+			string strExp = os::env::expand_strings(Token);
 			os::fs::enum_file Find(strExp+L"*");
-			bool Separator=false;
 			std::for_each(CONST_RANGE(Find, i)
 			{
-				const wchar_t* FileName=PointToName(strStr);
+				const wchar_t* FileName = PointToName(Token);
 				bool NameMatch=!StrCmpNI(FileName, i.strFileName.data(), StrLength(FileName)), AltNameMatch = NameMatch? false : !StrCmpNI(FileName, i.strAlternateFileName.data(), StrLength(FileName));
 				if(NameMatch || AltNameMatch)
 				{
-					strStr.resize(FileName-strStr.data());
-					string strAdd (strStr + (NameMatch ? i.strFileName : i.strAlternateFileName));
+					Token.resize(FileName - Token.data());
+					string strAdd(Token + (NameMatch ? i.strFileName : i.strAlternateFileName));
 					if (!StartQuote)
 						QuoteSpace(strAdd);
 
@@ -188,29 +226,27 @@ void EnumFiles(VMenu2& Menu, const string& Str)
 					if(StartQuote)
 						strTmp += L'"';
 
-					if(!Separator)
-					{
-						if(Menu.GetItemCount())
-						{
-							MenuItemEx Item;
-							Item.strName = MSG(MCompletionFilesTitle);
-							Item.Flags=LIF_SEPARATOR;
-							Menu.AddItem(Item);
-						}
-						else
-						{
-							Menu.SetTitle(MSG(MCompletionFilesTitle));
-						}
-						Separator=true;
-					}
-					Menu.AddItem(strTmp);
+					ResultStrings.emplace(strTmp);
 				}
 			});
+
+			if (!ResultStrings.empty())
+			{
+				AddSeparatorOrSetTitle(Menu, MCompletionFilesTitle);
+
+				std::for_each(CONST_RANGE(ResultStrings, i)
+				{
+					Menu.AddItem(i);
+				});
+
+				Result = true;
+			}
 		}
 	}
+	return Result;
 }
 
-bool EnumModules(const string& Module, VMenu2* DestMenu)
+static bool EnumModules(VMenu2& Menu, const string& Module)
 {
 	bool Result=false;
 
@@ -218,52 +254,50 @@ bool EnumModules(const string& Module, VMenu2* DestMenu)
 
 	if(!Module.empty() && !FirstSlash(Module.data()))
 	{
-		std::unordered_set<string> Modules;
-		std::vector<string> Strings;
-		split(Strings, Global->Opt->Exec.strExcludeCmds);
-		FOR(const auto& i, Strings)
+		std::set<string, string_i_less> ResultStrings;
 		{
-			if (!StrCmpNI(Module.data(), i.data(), Module.size()))
+			std::vector<string> ExcludeCmds;
+			split(ExcludeCmds, Global->Opt->Exec.strExcludeCmds);
+
+			FOR(const auto& i, ExcludeCmds)
 			{
-				Modules.emplace(i);
-				Result = true;
+				if (!StrCmpNI(Module.data(), i.data(), Module.size()))
+				{
+					ResultStrings.emplace(i);
+				}
 			}
 		}
 
-		string strName=Module;
-		string strPathExt(L".COM;.EXE;.BAT;.CMD;.VBS;.JS;.WSH");
-		os::env::get_variable(L"PATHEXT", strPathExt);
-		std::vector<string> PathExtList;
-		split(PathExtList, strPathExt);
-
-		string strPathEnv;
-		if (os::env::get_variable(L"PATH", strPathEnv))
 		{
-			std::vector<string> PathList;
-			split(PathList, strPathEnv);
-
-			std::for_each(CONST_RANGE(PathList, i)
+			string strPathEnv;
+			if (os::env::get_variable(L"PATH", strPathEnv))
 			{
-				string str(i);
-				AddEndSlash(str);
-				str.append(strName).append(L"*");
-				os::fs::enum_file Find(str);
-				std::for_each(CONST_RANGE(Find, i)
+				std::vector<string> PathList;
+				split(PathList, strPathEnv);
+
+				std::vector<string> PathExtList;
+				split(PathExtList, os::env::get_pathext());
+
+				FOR(const auto& Path, PathList)
 				{
-					std::for_each(CONST_RANGE(PathExtList, Ext)
+					string str = Path;
+					AddEndSlash(str);
+					str.append(Module).append(L"*");
+					FOR(const auto& FindData, os::fs::enum_file(str))
 					{
-						if (!StrCmpI(Ext.data(), PointToExt(i.strFileName)))
+						FOR(const auto& Ext, PathExtList)
 						{
-							Modules.emplace(i.strFileName);
-							Result=true;
+							if (!StrCmpI(Ext.data(), PointToExt(FindData.strFileName)))
+							{
+								ResultStrings.emplace(FindData.strFileName);
+							}
 						}
-					});
-				});
-			});
+					}
+				}
+			}
 		}
 
-
-		static const WCHAR RegPath[] = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
+		static const wchar_t RegPath[] = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
 		static const HKEY RootFindKey[]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE,HKEY_LOCAL_MACHINE};
 
 		DWORD samDesired = KEY_ENUMERATE_SUB_KEYS|KEY_QUERY_VALUE;
@@ -294,8 +328,7 @@ bool EnumModules(const string& Module, VMenu2* DestMenu)
 						{
 							if (!StrCmpNI(Module.data(), Subkey.data(), Module.size()))
 							{
-								Modules.emplace(Subkey);
-								Result=true;
+								ResultStrings.emplace(Subkey);
 							}
 						}
 						RegCloseKey(hSubKey);
@@ -305,33 +338,65 @@ bool EnumModules(const string& Module, VMenu2* DestMenu)
 			}
 		}
 
-		bool Separator = false;
-		for(int i = 0; i != DestMenu->GetItemCount(); ++i)
+		if (!ResultStrings.empty())
 		{
-			if(DestMenu->GetItemPtr(i)->Flags&LIF_SEPARATOR)
+			AddSeparatorOrSetTitle(Menu, MCompletionFilesTitle);
+
+			std::for_each(CONST_RANGE(ResultStrings, i)
 			{
-				Separator = true;
-				break;
-			}
+				Menu.AddItem(i);
+			});
+
+			Result = true;
 		}
-		if(!Separator)
+	}
+	return Result;
+}
+
+static bool EnumEnvironment(VMenu2& Menu, const string& Str)
+{
+	bool Result=false;
+
+	SCOPED_ACTION(elevation::suppress);
+
+	auto Token = Str.data();
+	auto TokenSize = Str.size();
+	string Head;
+	{
+		auto WordDiv = GetSpaces() + Global->Opt->strWordDiv.Get();
+		std::replace(ALL_RANGE(WordDiv), L'%', L' ');
+		const auto WordStart = Str.find_last_of(WordDiv);
+		if (WordStart != string::npos)
 		{
-			if(DestMenu->GetItemCount())
+			Token += WordStart + 1;
+			TokenSize -= WordStart + 1;
+			Head = Str.substr(0, Str.size() - TokenSize);
+		}
+	}
+
+	if(*Token)
+	{
+		std::set<string, string_i_less> ResultStrings;
+		FOR(const auto& i, os::env::enum_strings())
+		{
+			auto VarName = L"%" + string(i, wcschr(i + 1, L'=') - i) + L"%";
+			if (!StrCmpNI(Token, VarName.data(), TokenSize))
 			{
-				MenuItemEx Item(MSG(MCompletionFilesTitle));
-				Item.Flags=LIF_SEPARATOR;
-				DestMenu->AddItem(Item);
-			}
-			else
-			{
-				DestMenu->SetTitle(MSG(MCompletionFilesTitle));
+				ResultStrings.emplace(Head + VarName);
 			}
 		}
 
-		std::for_each(CONST_RANGE(Modules, i)
+		if (!ResultStrings.empty())
 		{
-			DestMenu->AddItem(i);
-		});
+			AddSeparatorOrSetTitle(Menu, MCompletionEnvironmentTitle);
+
+			std::for_each(CONST_RANGE(ResultStrings, i)
+			{
+				Menu.AddItem(i);
+			});
+
+			Result = true;
+		}
 	}
 	return Result;
 }
@@ -383,14 +448,25 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 				}
 			}
 		}
-		if(ECFlags.Check(EC_COMPLETE_FILESYSTEM) && CompletionEnabled(Global->Opt->AutoComplete.UseFilesystem))
+
+		const auto Complete = [&](VMenu2& Menu, const string& Str)
 		{
-			EnumFiles(*ComplMenu,strTemp);
-		}
-		if(ECFlags.Check(EC_COMPLETE_PATH) && CompletionEnabled(Global->Opt->AutoComplete.UsePath))
-		{
-			EnumModules(strTemp, ComplMenu.get());
-		}
+			if(ECFlags.Check(EC_COMPLETE_FILESYSTEM) && CompletionEnabled(Global->Opt->AutoComplete.UseFilesystem))
+			{
+				EnumFiles(Menu,Str);
+			}
+			if(ECFlags.Check(EC_COMPLETE_ENVIRONMENT) && CompletionEnabled(Global->Opt->AutoComplete.UseEnvironment))
+			{
+				EnumEnvironment(Menu, Str);
+			}
+			if(ECFlags.Check(EC_COMPLETE_PATH) && CompletionEnabled(Global->Opt->AutoComplete.UsePath))
+			{
+				EnumModules(Menu, Str);
+			}
+		};
+
+		Complete(*ComplMenu, strTemp);
+
 		if(ComplMenu->GetItemCount()>1 || (ComplMenu->GetItemCount()==1 && StrCmpI(strTemp, ComplMenu->GetItemPtr(0)->strName)))
 		{
 			ComplMenu->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
@@ -489,14 +565,9 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 										}
 									}
 								}
-								if(ECFlags.Check(EC_COMPLETE_FILESYSTEM) && CompletionEnabled(Global->Opt->AutoComplete.UseFilesystem))
-								{
-									EnumFiles(*ComplMenu, strTemp);
-								}
-								if(ECFlags.Check(EC_COMPLETE_PATH) && CompletionEnabled(Global->Opt->AutoComplete.UsePath))
-								{
-									EnumModules(strTemp, ComplMenu.get());
-								}
+
+								Complete(*ComplMenu, strTemp);
+
 								if(ComplMenu->GetItemCount()>1 || (ComplMenu->GetItemCount()==1 && StrCmpI(strTemp, ComplMenu->GetItemPtr(0)->strName)))
 								{
 									if(MenuKey!=KEY_BS && MenuKey!=KEY_DEL && MenuKey!=KEY_NUMDEL && Global->Opt->AutoComplete.AppendCompletion)

@@ -311,6 +311,7 @@ public:
 		Bool3Option UseFilesystem;
 		Bool3Option UseHistory;
 		Bool3Option UsePath;
+		Bool3Option UseEnvironment;
 	};
 
 	struct PluginConfirmation

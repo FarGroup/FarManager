@@ -184,13 +184,13 @@ bool GetFileString::GetString(LPWSTR* DestStr, size_t& Length)
 			if (ExitCode)
 			{
 				Utf::Errs errs;
-				int len = Utf::ToWideChar(m_CodePage, CharStr.data(), static_cast<int>(CharStr.size())-1, m_wStr.data(), static_cast<int>(m_wStr.size()), &errs);
+				int len = Utf::ToWideChar(m_CodePage, CharStr.data(), CharStr.size() - 1, m_wStr.data(), m_wStr.size(), &errs);
 
 				SomeDataLost = SomeDataLost || errs.count > 0;
 				if (errs.small_buff)
 				{
 					std::vector<wchar_t>(len + 1).swap(m_wStr);
-					Utf::ToWideChar(m_CodePage, CharStr.data(), static_cast<int>(CharStr.size())-1, m_wStr.data(), len, nullptr);
+					Utf::ToWideChar(m_CodePage, CharStr.data(), CharStr.size() - 1, m_wStr.data(), len, nullptr);
 				}
 
 				m_wStr.resize(len+1);
@@ -210,7 +210,7 @@ bool GetFileString::GetString(LPWSTR* DestStr, size_t& Length)
 			if (ExitCode)
 			{
 				DWORD Result = ERROR_SUCCESS;
-				int nResultLength = 0;
+				size_t nResultLength = 0;
 				bool bGet = false;
 				m_wStr.resize(CharStr.size());
 
@@ -234,7 +234,7 @@ bool GetFileString::GetString(LPWSTR* DestStr, size_t& Length)
 				}
 				if (bGet)
 				{
-					nResultLength = MultiByteToWideChar(m_CodePage, 0, CharStr.data(), static_cast<int>(CharStr.size()), m_wStr.data(), static_cast<int>(m_wStr.size()));
+					nResultLength = unicode::from(m_CodePage, CharStr.data(), CharStr.size(), m_wStr.data(), m_wStr.size());
 					if (!nResultLength)
 					{
 						Result = GetLastError();
@@ -242,9 +242,9 @@ bool GetFileString::GetString(LPWSTR* DestStr, size_t& Length)
 				}
 				if (Result == ERROR_INSUFFICIENT_BUFFER)
 				{
-					nResultLength = MultiByteToWideChar(m_CodePage, 0, CharStr.data(), static_cast<int>(CharStr.size()), nullptr, 0);
-					std::vector<wchar_t>(nResultLength + 1).swap(m_wStr);
-					nResultLength = MultiByteToWideChar(m_CodePage, 0, CharStr.data(), static_cast<int>(CharStr.size()), m_wStr.data(), nResultLength);
+					nResultLength = unicode::from(m_CodePage, CharStr.data(), CharStr.size(), nullptr, 0);
+					m_wStr.resize(nResultLength);
+					nResultLength = unicode::from(m_CodePage, CharStr.data(), CharStr.size(), m_wStr.data(), m_wStr.size());
 				}
 
 				m_wStr.resize(nResultLength);

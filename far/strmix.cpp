@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "preservestyle.hpp"
 #include "locale.hpp"
 #include "stddlg.hpp"
+#include "codepage.hpp"
 
 namespace strmix
 {
@@ -997,25 +998,8 @@ bool FindWordInString(const string& Str, size_t CurPos, size_t& Begin, size_t& E
 
 bool CheckFileSizeStringFormat(const string& FileSizeStr)
 {
-//проверяет если формат строки такой: [0-9]+[BbKkMmGgTtPpEe]?
-	const wchar_t *p = FileSizeStr.data();
-
-	while (iswdigit(*p))
-		p++;
-
-	if (p == FileSizeStr.data())
-		return false;
-
-	if (*p)
-	{
-		if (*(p+1))
-			return false;
-
-		if (!StrStrI(L"BKMGTPE", p))
-			return false;
-	}
-
-	return true;
+	static const std::wregex SizeRegex(L"^[0-9]+?[BKMGTPE]?$", std::regex::icase | std::regex::optimize);
+	return std::regex_search(FileSizeStr, SizeRegex);
 }
 
 unsigned __int64 ConvertFileSizeString(const string& FileSizeStr)
@@ -1290,24 +1274,12 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 
 string wide_n(const char *str, size_t size, uintptr_t codepage)
 {
-	if (size_t Size = MultiByteToWideChar(codepage, 0, str, static_cast<int>(size), nullptr, 0))
-	{
-		std::vector<wchar_t> Buffer(Size);
-		MultiByteToWideChar(codepage, 0, str, static_cast<int>(size), Buffer.data(), static_cast<int>(Buffer.size()));
-		return string(Buffer.data(), Buffer.size());
-	}
-	return string();
+	return unicode::from(codepage, str, size);
 }
 
 std::string narrow_n(const wchar_t* str, size_t size, uintptr_t codepage)
 {
-	if (size_t Size = WideCharToMultiByte(codepage, 0, str, static_cast<int>(size), nullptr, 0, nullptr, nullptr))
-	{
-		std::vector<char> Buffer(Size);
-		WideCharToMultiByte(codepage, 0, str, static_cast<int>(size), Buffer.data(), static_cast<int>(Buffer.size()), nullptr, nullptr);
-		return std::string(Buffer.data(), Buffer.size());
-	}
-	return std::string();
+	return unicode::to(codepage, str, size);
 }
 
 string str_vprintf(const wchar_t * format, va_list argptr)
@@ -1531,9 +1503,9 @@ std::vector<char> HexStringToBlobT(const C* Hex, size_t Size, C Separator)
 {
 	std::vector<char> Blob;
 	Blob.reserve((Size + 1) / 3);
-	while (*Hex && *(Hex+1))
+	while (Hex[0] && Hex[1])
 	{
-		Blob.push_back((HexToInt(*Hex)<<4) | HexToInt(*(Hex+1)));
+		Blob.push_back((HexToInt(Hex[0])<<4) | HexToInt(Hex[1]));
 		Hex += 2;
 		if (!*Hex)
 		{

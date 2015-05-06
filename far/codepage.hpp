@@ -36,6 +36,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "windowsfwd.hpp"
 
+namespace unicode
+{
+	size_t to(uintptr_t Codepage, const wchar_t* Data, size_t Size, char* Buffer, size_t BufferSize, bool* UsedDefaultChar = nullptr);
+	std::string to(uintptr_t Codepage, const wchar_t* Data, size_t Size, bool* UsedDefaultChar = nullptr);
+
+	size_t from(uintptr_t Codepage, const char* Data, size_t Size, wchar_t* Buffer, size_t BufferSize);
+	string from(uintptr_t Codepage, const char* Data, size_t Size);
+}
+
 // Тип выбранной таблицы символов
 enum CPSelectType
 {
@@ -136,7 +145,7 @@ public:
 
 	bool SetCP(UINT cp);
 
-	int GetChar(const BYTE *buff, size_t cb, wchar_t& wchar) const;
+	int GetChar(const char* buff, size_t cb, wchar_t& wchar) const;
 
 	MultibyteCodepageDecoder() : current_cp(0), current_mb(0) {}
 
@@ -147,12 +156,6 @@ private:
 };
 
 //#############################################################################
-
-namespace Multi
-{
-	size_t ToMultiByte(uintptr_t cp, const wchar_t *src, size_t srclen, char *dst, size_t dstlen, LPBOOL lpUsedDefaultChar=nullptr);
-	std::vector<char> ToMultiByte(uintptr_t cp, const wchar_t *src, size_t srclen, LPBOOL lpUsedDefaultChar = nullptr);
-}
 
 namespace Utf
 {

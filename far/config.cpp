@@ -1699,7 +1699,6 @@ void Options::InitRoamingCFG()
 		{FSSF_PRIVATE,       NKeyEditor,L"TabSize", &EdOpt.TabSize, DefaultTabSize},
 		{FSSF_PRIVATE,       NKeyEditor,L"UndoDataSize", &EdOpt.UndoSize, 100*1024*1024},
 		{FSSF_PRIVATE,       NKeyEditor,L"UseExternalEditor", &EdOpt.UseExternalEditor, false},
-		{FSSF_EDITOR,        NKeyEditor,L"WordDiv", &EdOpt.strWordDiv, WordDiv0},
 
 		{FSSF_PRIVATE,       NKeyHelp,L"ActivateURL", &HelpURLRules, 1},
 		{FSSF_PRIVATE,       NKeyHelp,L"HelpSearchRegexp", &HelpSearchRegexp, false},
@@ -1744,6 +1743,7 @@ void Options::InitRoamingCFG()
 		{FSSF_PRIVATE,       NKeyInterfaceCompletion,L"UseFilesystem", &AutoComplete.UseFilesystem, 1},
 		{FSSF_PRIVATE,       NKeyInterfaceCompletion,L"UseHistory", &AutoComplete.UseHistory, 1},
 		{FSSF_PRIVATE,       NKeyInterfaceCompletion,L"UsePath", &AutoComplete.UsePath, 1},
+		{FSSF_PRIVATE,       NKeyInterfaceCompletion,L"UseEnvironment", &AutoComplete.UseEnvironment, 1},
 
 		{FSSF_PRIVATE,       NKeyLanguage, L"Main", &strLanguage, DefaultLanguage},
 		{FSSF_PRIVATE,       NKeyLanguage, L"Help", &strHelpLanguage, DefaultLanguage},
@@ -1914,6 +1914,7 @@ void Options::InitRoamingCFG()
 		{FSSF_PRIVATE,       NKeySystem,L"UseSystemCopy", &CMOpt.UseSystemCopy, true},
 		{FSSF_PRIVATE,       NKeySystem,L"WindowMode", &StoredWindowMode, false},
 		{FSSF_PRIVATE,       NKeySystem,L"WipeSymbol", &WipeSymbol, 0},
+		{FSSF_SYSTEM,        NKeySystem,L"WordDiv", &strWordDiv, WordDiv0 },
 
 		{FSSF_PRIVATE,       NKeySystemKnownIDs, L"EMenu", &KnownIDs.Emenu.StrId, KnownIDs.Emenu.Default},
 		{FSSF_PRIVATE,       NKeySystemKnownIDs, L"Network", &KnownIDs.Network.StrId, KnownIDs.Network.Default},

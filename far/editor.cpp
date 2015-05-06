@@ -4960,9 +4960,9 @@ int64_t Editor::GetCurPos(bool file_pos, bool add_bom) const
 		size_t Length;
 		CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
 		if (mult > 0)
-			TotalSize += Length + StrLength(EndSeq);
+			TotalSize += Length + wcslen(EndSeq);
 		else
-			TotalSize -= WideCharToMultiByte(m_codepage, 0, SaveStr, static_cast<int>(Length), nullptr, 0, nullptr, nullptr) + StrLength(EndSeq);
+			TotalSize -= unicode::to(m_codepage, SaveStr, Length, nullptr, 0) + wcslen(EndSeq);
 		++CurPtr;
 	}
 
@@ -6986,7 +6986,7 @@ void Editor::SetCacheParams(EditorPosCache &pc, bool count_bom)
 			size_t Length;
 			CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
 			if (m_codepage == CP_UTF8)
-				Length = WideCharToMultiByte(CP_UTF8, 0, SaveStr, static_cast<int>(Length), nullptr, 0, nullptr, nullptr);
+				Length = unicode::to(CP_UTF8, SaveStr, Length, nullptr, 0);
 
 			TotalSize += Length + StrLength(EndSeq);
 
@@ -7062,16 +7062,16 @@ DWORD Editor::EditSetCodePage(const iterator& edit, uintptr_t codepage, bool che
 	if (codepage == m_codepage)
 		return Ret;
 
-	BOOL UsedDefaultChar = FALSE;
+	bool UsedDefaultChar = false;
 	assert(m_codepage != CP_UTF7); // BUGBUG: CP_SYMBOL, 50xxx, 57xxx
-	LPBOOL lpUsedDefaultChar = m_codepage == CP_UTF8 ? nullptr : &UsedDefaultChar;
+	bool* lpUsedDefaultChar = m_codepage == CP_UTF8 ? nullptr : &UsedDefaultChar;
 
 	if (!edit->m_Str.empty())
 	{
 		if (3 * static_cast<size_t>(edit->m_Str.size()) + 1 > decoded.size())
 			decoded.resize(256 + 4 * edit->m_Str.size());
 
-		const size_t length = Multi::ToMultiByte(m_codepage, edit->m_Str.data(), edit->m_Str.size(), decoded.data(), decoded.size(), lpUsedDefaultChar);
+		const size_t length = unicode::to(m_codepage, edit->m_Str.data(), edit->m_Str.size(), decoded.data(), decoded.size(), lpUsedDefaultChar);
 		if (!length || UsedDefaultChar)
 		{
 			Ret |= SETCP_WC2MBERROR;
@@ -7079,36 +7079,25 @@ DWORD Editor::EditSetCodePage(const iterator& edit, uintptr_t codepage, bool che
 				return Ret;
 		}
 
-		size_t length2;
 		if (codepage == CP_UTF8 || codepage == CP_UTF7)
 		{
 			Utf::Errs errs;
-			length2 = Utf::ToWideChar(codepage, decoded.data(), length, nullptr, 0, &errs);
+			Utf::ToWideChar(codepage, decoded.data(), length, nullptr, 0, &errs);
 			if (errs.count > 0)
 				Ret |= SETCP_MB2WCERROR;
 		}
 		else
 		{
 			// BUGBUG: CP_SYMBOL, 50xxx, 57xxx
-			length2 = MultiByteToWideChar(codepage, MB_ERR_INVALID_CHARS, decoded.data(), static_cast<int>(length), nullptr, 0);
-			if (!length2 && GetLastError() == ERROR_NO_UNICODE_TRANSLATION)
+			if (!MultiByteToWideChar(codepage, MB_ERR_INVALID_CHARS, decoded.data(), static_cast<int>(length), nullptr, 0) && GetLastError() == ERROR_NO_UNICODE_TRANSLATION)
 			{
 				Ret |= SETCP_MB2WCERROR;
-				if (!check_only)
-					length2 = MultiByteToWideChar(codepage, 0, decoded.data(), static_cast<int>(length), nullptr, 0);
 			}
 		}
 		if (check_only)
 			return Ret;
 
-		std::vector<wchar_t> Buffer(ALL_CONST_RANGE(edit->m_Str));
-		if (codepage == CP_UTF8 || codepage == CP_UTF7)
-			length2 = Utf::ToWideChar(codepage, decoded.data(), length, Buffer.data(), static_cast<int>(Buffer.size()), nullptr);
-		else
-			length2 = MultiByteToWideChar(codepage, 0, decoded.data(), static_cast<int>(length), Buffer.data(), static_cast<int>(Buffer.size()));
-
-		Buffer.resize(length2);
-		edit->m_Str.assign(Buffer.data(), Buffer.size());
+		edit->m_Str.assign(unicode::from(codepage, decoded.data(), length));
 	}
 
 	if (!check_only)
@@ -7141,13 +7130,13 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 			wchar_offsets.reserve(i->m_Str.size() + 1);
 			size_t total_len = 0;
 
-			BOOL def = FALSE, *p_def = m_codepage == CP_UTF8 ? nullptr : &def;
+			bool def = false, *p_def = m_codepage == CP_UTF8? nullptr : &def;
 			for (int j = 0; j < i->m_Str.size(); ++j)
 			{
 				wchar_offsets.push_back(total_len);
 				char *s = decoded.data() + total_len;
 
-				const size_t len = Multi::ToMultiByte(m_codepage, i->m_Str.data() + j, 1, s, 3, p_def);
+				const size_t len = unicode::to(m_codepage, i->m_Str.data() + j, 1, s, 3, p_def);
 				if (!len || def)
 				{
 					X = j;

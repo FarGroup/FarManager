@@ -85,12 +85,12 @@ typedef int    (WINAPI *iProcessDialogEventPrototype)  (int Event,void *Param);
 
 inline int UnicodeToOEM(const wchar_t* src, char* dst, size_t lendst)
 {
-	return WideCharToMultiByte(CP_OEMCP, 0, src, -1, dst, (int) lendst, nullptr, nullptr);
+	return static_cast<int>(unicode::to(CP_OEMCP, src, wcslen(src), dst, lendst));
 }
 
 inline int OEMToUnicode(const char* src, wchar_t* dst, size_t lendst)
 {
-	return MultiByteToWideChar(CP_OEMCP, 0, src, -1, dst, (int) lendst);
+	return static_cast<int>(unicode::from(CP_OEMCP, src, strlen(src), dst, lendst));
 }
 
 OEMPluginModel::OEMPluginModel(PluginManager* owner):
@@ -270,7 +270,7 @@ static void AnsiToUnicodeBin(const char *lpszAnsiString, wchar_t *lpwszUnicodeSt
 	{
 		// BUGBUG, error checking
 		*lpwszUnicodeString = 0;
-		MultiByteToWideChar(CodePage, 0, lpszAnsiString, static_cast<int>(nLength), lpwszUnicodeString, static_cast<int>(nLength));
+		unicode::from(CodePage, lpszAnsiString, nLength, lpwszUnicodeString, nLength);
 	}
 }
 
@@ -284,10 +284,7 @@ static wchar_t *AnsiToUnicodeBin(const char *lpszAnsiString, size_t nLength, uin
 
 static wchar_t *AnsiToUnicode(const char *lpszAnsiString)
 {
-	if (!lpszAnsiString)
-		return nullptr;
-
-	return AnsiToUnicodeBin(lpszAnsiString, strlen(lpszAnsiString) + 1, CP_OEMCP);
+	return lpszAnsiString? AnsiToUnicodeBin(lpszAnsiString, strlen(lpszAnsiString) + 1, CP_OEMCP) : nullptr;
 }
 
 static char *UnicodeToAnsiBin(const wchar_t *lpwszUnicodeString, size_t nLength, uintptr_t CodePage = CP_OEMCP)
@@ -300,23 +297,14 @@ static char *UnicodeToAnsiBin(const wchar_t *lpwszUnicodeString, size_t nLength,
 	if (!lpwszUnicodeString)
 		return nullptr;
 
-	const auto Result = new char[nLength + 1]();
+	const auto Result = new char[nLength + 1];
+	Result[0] = 0;
+	Result[nLength] = 0;
 
 	if (nLength)
 	{
 		// BUGBUG, error checking
-		Result[0] = 0;
-		Result[nLength] = 0;
-		WideCharToMultiByte(
-			CodePage,
-			0,
-			lpwszUnicodeString,
-			static_cast<int>(nLength),
-			Result,
-			static_cast<int>(nLength),
-			nullptr,
-			nullptr
-			);
+		unicode::to(CodePage, lpwszUnicodeString, nLength, Result, nLength);
 	}
 
 	return Result;
@@ -330,20 +318,16 @@ static char *UnicodeToAnsi(const wchar_t *lpwszUnicodeString)
 	return UnicodeToAnsiBin(lpwszUnicodeString, wcslen(lpwszUnicodeString), CP_OEMCP);
 }
 
-static wchar_t **ArrayAnsiToUnicode(const char* const * const lpaszAnsiString, size_t iCount)
+static wchar_t **ArrayAnsiToUnicode(const char* const* lpaszAnsiString, size_t iCount)
 {
 	wchar_t** Result = nullptr;
 
 	if (lpaszAnsiString)
 	{
 		Result = new wchar_t*[iCount + 1];
-
-		for (size_t i = 0; i<iCount; i++)
-		{
-			Result[i] = (lpaszAnsiString[i]) ? AnsiToUnicode(lpaszAnsiString[i]) : nullptr;
-		}
-
-		Result[iCount] = (wchar_t*)(intptr_t)1; //Array end mark
+		Result[0] = static_cast<wchar_t*>(ToPtr(iCount));
+		++Result;
+		std::transform(lpaszAnsiString, lpaszAnsiString + iCount, Result, AnsiToUnicode);
 	}
 
 	return Result;
@@ -353,11 +337,10 @@ static void FreeArrayUnicode(const wchar_t* const* lpawszUnicodeString)
 {
 	if (lpawszUnicodeString)
 	{
-		for (int i = 0; (intptr_t)lpawszUnicodeString[i] != 1; i++) //Until end mark
-		{
-			delete[] lpawszUnicodeString[i];
-		}
-		delete[] lpawszUnicodeString;
+		const auto RealPtr = lpawszUnicodeString - 1;
+		const auto Size = reinterpret_cast<size_t>(RealPtr[0]);
+		std::for_each(lpawszUnicodeString, lpawszUnicodeString + Size, std::default_delete<const wchar_t[]>());
+		delete[] RealPtr;
 	}
 }
 
@@ -379,7 +362,7 @@ static DWORD OldKeyToKey(DWORD dOldKey)
 		{
 			char OemChar = static_cast<char>(CleanKey);
 			wchar_t WideChar = 0;
-			if (MultiByteToWideChar(CP_OEMCP, 0, &OemChar, 1, &WideChar, 1))
+			if (unicode::from(CP_OEMCP, &OemChar, 1, &WideChar, 1))
 				dOldKey = (dOldKey^CleanKey) | WideChar;
 		}
 	}
@@ -405,7 +388,7 @@ static DWORD KeyToOldKey(DWORD dKey)
 		{
 			wchar_t WideChar = static_cast<wchar_t>(CleanKey);
 			char OemChar = 0;
-			if (WideCharToMultiByte(CP_OEMCP, 0, &WideChar, 1, &OemChar, 1, 0, nullptr))
+			if (unicode::to(CP_OEMCP, &WideChar, 1, &OemChar, 1))
 				dKey = (dKey^CleanKey) | as_unsigned(OemChar);
 		}
 	}
@@ -497,18 +480,15 @@ static void ConvertPanelModesA(const oldfar::PanelMode *pnmA, PanelMode **ppnmW,
 
 static void FreeUnicodePanelModes(const PanelMode *pnmW, size_t iCount)
 {
-	if (pnmW)
+	std::for_each(pnmW, pnmW + iCount, [](const PanelMode& Item)
 	{
-		std::for_each(pnmW, pnmW + iCount, [](const PanelMode& Item)
-		{
-			delete[] Item.ColumnTypes;
-			delete[] Item.ColumnWidths;
-			FreeArrayUnicode(Item.ColumnTitles);
-			delete[] Item.StatusColumnTypes;
-			delete[] Item.StatusColumnWidths;
-		});
-		delete[] pnmW;
-	}
+		delete[] Item.ColumnTypes;
+		delete[] Item.ColumnWidths;
+		FreeArrayUnicode(Item.ColumnTitles);
+		delete[] Item.StatusColumnTypes;
+		delete[] Item.StatusColumnWidths;
+	});
+	delete[] pnmW;
 }
 
 static void ProcLabels(const char *Title, KeyBarLabel *Label, int& j, WORD Key, DWORD Shift)
@@ -584,7 +564,7 @@ static void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles *kbtA, KeyBarTitles 
 
 static void FreeUnicodeKeyBarTitles(KeyBarTitles *kbtW)
 {
-	if (kbtW && kbtW->CountLabels && kbtW->Labels)
+	if (kbtW)
 	{
 		std::for_each(kbtW->Labels, kbtW->Labels + kbtW->CountLabels, [](const KeyBarLabel& Item)
 		{
@@ -718,15 +698,7 @@ static void FreeUnicodePanelItem(PluginPanelItem *PanelItem, size_t ItemsNumber)
 	{
 		delete[] PanelItem[i].Description;
 		delete[] PanelItem[i].Owner;
-
-		if (PanelItem[i].CustomColumnNumber)
-		{
-			for (size_t j = 0; j<PanelItem[i].CustomColumnNumber; j++)
-				delete[] PanelItem[i].CustomColumnData[j];
-
-			delete[] PanelItem[i].CustomColumnData;
-		}
-
+		FreeArrayUnicode(PanelItem[i].CustomColumnData);
 		FreePluginPanelItem(PanelItem[i]);
 	}
 
@@ -735,24 +707,19 @@ static void FreeUnicodePanelItem(PluginPanelItem *PanelItem, size_t ItemsNumber)
 
 static void FreePanelItemA(const oldfar::PluginPanelItem *PanelItem, size_t ItemsNumber, bool bFreeArray = true)
 {
-	for (size_t i = 0; i<ItemsNumber; i++)
+	std::for_each(PanelItem, PanelItem + ItemsNumber, [](const oldfar::PluginPanelItem& Item)
 	{
-		delete[] PanelItem[i].Description;
-		delete[] PanelItem[i].Owner;
+		delete[] Item.Description;
+		delete[] Item.Owner;
 
-		if (PanelItem[i].CustomColumnNumber)
+		std::for_each(Item.CustomColumnData, Item.CustomColumnData + Item.CustomColumnNumber, std::default_delete<char[]>());
+		delete[] Item.CustomColumnData;
+
+		if (Item.Flags & oldfar::PPIF_USERDATA)
 		{
-			for (int j = 0; j<PanelItem[i].CustomColumnNumber; j++)
-				delete[] PanelItem[i].CustomColumnData[j];
-
-			delete[] PanelItem[i].CustomColumnData;
+			delete[] reinterpret_cast<char*>(Item.UserData);
 		}
-
-		if (PanelItem[i].Flags & oldfar::PPIF_USERDATA)
-		{
-			delete[] reinterpret_cast<char*>(PanelItem[i].UserData);
-		}
-	}
+	});
 
 	if (bFreeArray)
 		delete[] PanelItem;
@@ -1414,9 +1381,8 @@ static void MultiByteRecode(UINT nCPin, UINT nCPout, char *szBuffer, int nLength
 {
 	if (szBuffer && nLength > 0)
 	{
-		std::vector<wchar_t> TempTable(nLength);
-		MultiByteToWideChar(nCPin, 0, szBuffer, nLength, TempTable.data(), nLength);
-		WideCharToMultiByte(nCPout, 0, TempTable.data(), nLength, szBuffer, nLength, nullptr, nullptr);
+		const auto TempTable(unicode::from(nCPin, szBuffer, nLength));
+		unicode::to(nCPout, TempTable.data(), nLength, szBuffer, nLength);
 	}
 };
 
@@ -4434,14 +4400,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 						case KEY_EVENT:
 						{
 							wchar_t res;
-							if (MultiByteToWideChar(
-								CP_OEMCP,
-								0,
-								&pIR->Event.KeyEvent.uChar.AsciiChar,
-								1,
-								&res,
-								1
-							))
+							if (unicode::from(CP_OEMCP, &pIR->Event.KeyEvent.uChar.AsciiChar, 1, &res, 1))
 								pIR->Event.KeyEvent.uChar.UnicodeChar=res;
 						}
 						default:
@@ -4470,16 +4429,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 						case KEY_EVENT:
 						{
 							char res;
-							if (WideCharToMultiByte(
-								CP_OEMCP,
-								0,
-								&pIR->Event.KeyEvent.uChar.UnicodeChar,
-								1,
-								&res,
-								1,
-								nullptr,
-								nullptr
-							))
+							if (unicode::to(CP_OEMCP, &pIR->Event.KeyEvent.uChar.UnicodeChar, 1, &res, 1))
 								pIR->Event.KeyEvent.uChar.UnicodeChar=res;
 						}
 					}
@@ -4924,9 +4874,9 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize) noexc
 			UnicodeToOEM(sTableName.data(), TableSet->TableName, sizeof(TableSet->TableName) - 1);
 			std::unique_ptr<wchar_t[]> us(AnsiToUnicodeBin((char*)TableSet->DecodeTable, sizeof(TableSet->DecodeTable), nCP));
 			CharLowerBuff(us.get(), sizeof(TableSet->DecodeTable));
-			WideCharToMultiByte(static_cast<UINT>(nCP), 0, us.get(), sizeof(TableSet->DecodeTable), (char*)TableSet->LowerTable, sizeof(TableSet->DecodeTable), nullptr, nullptr);
+			unicode::to(nCP, us.get(), sizeof(TableSet->DecodeTable), reinterpret_cast<char*>(TableSet->LowerTable), sizeof(TableSet->DecodeTable));
 			CharUpperBuff(us.get(), sizeof(TableSet->DecodeTable));
-			WideCharToMultiByte(static_cast<UINT>(nCP), 0, us.get(), sizeof(TableSet->DecodeTable), (char*)TableSet->UpperTable, sizeof(TableSet->DecodeTable), nullptr, nullptr);
+			unicode::to(nCP, us.get(), sizeof(TableSet->DecodeTable), reinterpret_cast<char*>(TableSet->UpperTable), sizeof(TableSet->DecodeTable));
 			MultiByteRecode(static_cast<UINT>(nCP), CP_OEMCP, (char *)TableSet->DecodeTable, sizeof(TableSet->DecodeTable));
 			MultiByteRecode(CP_OEMCP, static_cast<UINT>(nCP), (char *)TableSet->EncodeTable, sizeof(TableSet->EncodeTable));
 			return Command;
@@ -5733,30 +5683,12 @@ void PluginA::FreeOpenPanelInfo()
 	delete[] OPI.HostFile;
 	delete[] OPI.Format;
 	delete[] OPI.PanelTitle;
-
-	if (OPI.InfoLines && OPI.InfoLinesNumber)
-	{
-		FreeUnicodeInfoPanelLines(OPI.InfoLines,OPI.InfoLinesNumber);
-	}
-
-	if (OPI.DescrFiles)
-	{
-		FreeArrayUnicode(OPI.DescrFiles);
-	}
-
-	if (OPI.PanelModesArray)
-	{
-		FreeUnicodePanelModes(OPI.PanelModesArray, OPI.PanelModesNumber);
-	}
-
-	if (OPI.KeyBar)
-	{
-		FreeUnicodeKeyBarTitles(const_cast<KeyBarTitles*>(OPI.KeyBar));
-		delete OPI.KeyBar;
-	}
-
+	FreeUnicodeInfoPanelLines(OPI.InfoLines, OPI.InfoLinesNumber);
+	FreeArrayUnicode(OPI.DescrFiles);
+	FreeUnicodePanelModes(OPI.PanelModesArray, OPI.PanelModesNumber);
+	FreeUnicodeKeyBarTitles(const_cast<KeyBarTitles*>(OPI.KeyBar));
+	delete OPI.KeyBar;
 	delete[] OPI.ShortcutData;
-
 	ClearStruct(OPI);
 }
 
@@ -5765,21 +5697,27 @@ void PluginA::ConvertOpenPanelInfo(const oldfar::OpenPanelInfo &Src, OpenPanelIn
 	FreeOpenPanelInfo();
 	OPI.StructSize = sizeof(OPI);
 	OPI.Flags = 0;
-	if (!(Src.Flags&oldfar::OPIF_USEFILTER)) OPI.Flags|=OPIF_DISABLEFILTER;
-	if (!(Src.Flags&oldfar::OPIF_USESORTGROUPS)) OPI.Flags|=OPIF_DISABLESORTGROUPS;
-	if (!(Src.Flags&oldfar::OPIF_USEHIGHLIGHTING)) OPI.Flags|=OPIF_DISABLEHIGHLIGHTING;
-	if (Src.Flags&oldfar::OPIF_ADDDOTS) OPI.Flags|=OPIF_ADDDOTS;
-	if (Src.Flags&oldfar::OPIF_RAWSELECTION) OPI.Flags|=OPIF_RAWSELECTION;
-	if (Src.Flags&oldfar::OPIF_REALNAMES) OPI.Flags|=OPIF_REALNAMES;
-	if (Src.Flags&oldfar::OPIF_SHOWNAMESONLY) OPI.Flags|=OPIF_SHOWNAMESONLY;
-	if (Src.Flags&oldfar::OPIF_SHOWRIGHTALIGNNAMES) OPI.Flags|=OPIF_SHOWRIGHTALIGNNAMES;
-	if (Src.Flags&oldfar::OPIF_SHOWPRESERVECASE) OPI.Flags|=OPIF_SHOWPRESERVECASE;
-	if (Src.Flags&oldfar::OPIF_COMPAREFATTIME) OPI.Flags|=OPIF_COMPAREFATTIME;
-	if (Src.Flags&oldfar::OPIF_EXTERNALGET) OPI.Flags|=OPIF_EXTERNALGET;
-	if (Src.Flags&oldfar::OPIF_EXTERNALPUT) OPI.Flags|=OPIF_EXTERNALPUT;
-	if (Src.Flags&oldfar::OPIF_EXTERNALDELETE) OPI.Flags|=OPIF_EXTERNALDELETE;
-	if (Src.Flags&oldfar::OPIF_EXTERNALMKDIR) OPI.Flags|=OPIF_EXTERNALMKDIR;
-	if (Src.Flags&oldfar::OPIF_USEATTRHIGHLIGHTING) OPI.Flags|=OPIF_USEATTRHIGHLIGHTING;
+	
+	static const simple_pair<oldfar::OPENPANELINFO_FLAGS, OPENPANELINFO_FLAGS> PanelInfoFlagsMap[] =
+	{
+		OLDFAR_TO_FAR_MAP(OPIF_ADDDOTS),
+		OLDFAR_TO_FAR_MAP(OPIF_RAWSELECTION),
+		OLDFAR_TO_FAR_MAP(OPIF_REALNAMES),
+		OLDFAR_TO_FAR_MAP(OPIF_SHOWNAMESONLY),
+		OLDFAR_TO_FAR_MAP(OPIF_SHOWRIGHTALIGNNAMES),
+		OLDFAR_TO_FAR_MAP(OPIF_SHOWPRESERVECASE),
+		OLDFAR_TO_FAR_MAP(OPIF_COMPAREFATTIME),
+		OLDFAR_TO_FAR_MAP(OPIF_EXTERNALGET),
+		OLDFAR_TO_FAR_MAP(OPIF_EXTERNALPUT),
+		OLDFAR_TO_FAR_MAP(OPIF_EXTERNALDELETE),
+		OLDFAR_TO_FAR_MAP(OPIF_EXTERNALMKDIR),
+		OLDFAR_TO_FAR_MAP(OPIF_USEATTRHIGHLIGHTING),
+	};
+	FirstFlagsToSecond(Src.Flags, OPI.Flags, PanelInfoFlagsMap);
+
+	if (!(Src.Flags&oldfar::OPIF_USEFILTER)) OPI.Flags |= OPIF_DISABLEFILTER;
+	if (!(Src.Flags&oldfar::OPIF_USESORTGROUPS)) OPI.Flags |= OPIF_DISABLESORTGROUPS;
+	if (!(Src.Flags&oldfar::OPIF_USEHIGHLIGHTING)) OPI.Flags |= OPIF_DISABLEHIGHLIGHTING;
 	if (opif_shortcut) OPI.Flags|=OPIF_SHORTCUT;
 
 	if (Src.CurDir)

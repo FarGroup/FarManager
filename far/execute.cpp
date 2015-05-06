@@ -228,8 +228,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 		{
 			string strFullName=Module;
 			LPCWSTR ModuleExt=wcsrchr(PointToName(Module),L'.');
-			string strPathExt(L".COM;.EXE;.BAT;.CMD;.VBS;.JS;.WSH");
-			os::env::get_variable(L"PATHEXT", strPathExt);
+			string strPathExt = os::env::get_pathext();
 			std::vector<string> PathExtList;
 			split(PathExtList, strPathExt, STLF_UNIQUE);
 

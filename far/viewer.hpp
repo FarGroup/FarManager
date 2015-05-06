@@ -142,7 +142,7 @@ private:
 	void SavePosition();
 	intptr_t ViewerSearchDlgProc(Dialog* Dlg, intptr_t Msg,intptr_t Param1,void* Param2);
 	int getCharSize() const;
-	int txt_dump(const unsigned char *line, size_t nr, int width, wchar_t *outstr, wchar_t zch, int tail) const;
+	int txt_dump(const char *line, size_t nr, int width, wchar_t *outstr, wchar_t zch, int tail) const;
 
 	static uintptr_t GetDefaultCodePage();
 
@@ -258,7 +258,7 @@ private:
 	}
 	vString;
 
-	unsigned char vgetc_buffer[32];
+	char vgetc_buffer[32];
 	bool vgetc_ready;
 	int  vgetc_cb;
 	int  vgetc_ib;

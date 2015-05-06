@@ -155,8 +155,8 @@ string str_vprintf(const wchar_t * format, va_list argptr);
 
 inline string& ToUpper(string& str, size_t pos = 0, size_t n = string::npos) {std::transform(str.begin() + pos, n == string::npos? str.end() : str.begin() + pos + n, str.begin() + pos, ::ToUpper); return str;}
 inline string& ToLower(string& str, size_t pos = 0, size_t n = string::npos) {std::transform(str.begin() + pos, n == string::npos? str.end() : str.begin() + pos + n, str.begin() + pos, ::ToLower); return str;}
-inline string ToUpper(string&& str, size_t pos = 0, size_t n = string::npos) { ToUpper(str); return str; }
-inline string ToLower(string&& str, size_t pos = 0, size_t n = string::npos) { ToLower(str); return str; }
+inline string ToUpper(string&& str, size_t pos = 0, size_t n = string::npos) { ToUpper(str, pos, n); return str; }
+inline string ToLower(string&& str, size_t pos = 0, size_t n = string::npos) { ToLower(str, pos, n); return str; }
 
 inline wchar_t* UNSAFE_CSTR(const string& s) {return const_cast<wchar_t*>(s.data());}
 
@@ -255,7 +255,7 @@ S to_hex_string_t(T Value)
 	static_assert(std::is_integral<T>::value, "Integral value required");
 	S Result;
 	Result.resize(sizeof(T) * 2, '0');
-	for (int i = sizeof(T) * 2 - 1; i >= 0; i--, Value >>= 4)
+	for (int i = sizeof(T) * 2 - 1; i >= 0; --i, Value >>= 4)
 		Result[i] = IntToHex(Value & 0xF);
 	return Result;
 }
@@ -265,6 +265,14 @@ std::string to_hex_string(T Value) { return to_hex_string_t<std::string>(Value);
 
 template<class T>
 string to_hex_wstring(T Value) { return to_hex_string_t<string>(Value); }
+
+struct string_i_less
+{
+	bool operator()(const string& a, const string& b) const
+	{
+		return StrCmpI(a, b) < 0;
+	}
+};
 
 };
 

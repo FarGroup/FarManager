@@ -291,7 +291,7 @@ void UserMenu::SaveMenu(const string& MenuFileName)
 					SerializedMenu.insert(0, 1, SIGN_UNICODE);
 				}
 
-				std::vector<char> Buffer;
+				std::string Buffer;
 				blob MenuBlob;
 				if (m_MenuCP == CP_UNICODE)
 				{
@@ -300,7 +300,7 @@ void UserMenu::SaveMenu(const string& MenuFileName)
 				}
 				else
 				{
-					Buffer = Multi::ToMultiByte(m_MenuCP, SerializedMenu.data(), SerializedMenu.size());
+					Buffer = unicode::to(m_MenuCP, SerializedMenu.data(), SerializedMenu.size());
 					MenuBlob = blob(Buffer.data(), Buffer.size());
 				}
 

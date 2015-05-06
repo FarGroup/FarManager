@@ -666,7 +666,7 @@ static inline int getChSize( UINT cp )
 		return +1;
 }
 
-int Viewer::txt_dump(const unsigned char *line, size_t nr, int width, wchar_t *outstr, wchar_t zch, int tail) const
+int Viewer::txt_dump(const char *line, size_t nr, int width, wchar_t *outstr, wchar_t zch, int tail) const
 {
 	int ib, iw;
 	std::vector<wchar_t> w1(width);
@@ -705,9 +705,10 @@ int Viewer::txt_dump(const unsigned char *line, size_t nr, int width, wchar_t *o
 				first = false;
 				outstr[ib++] = (w1[iw] == Utf::BOM_CHAR ? Utf::REPLACE_CHAR : w1[iw]); // BOM can be Zero Length
 			}
-			int clen = WideCharToMultiByte(CP_UTF8, 0, w2.data()+iw, 1, nullptr,0, nullptr,nullptr);
-			while (--clen > 0 && ib < width)
-				outstr[ib++] = Utf::CONTINUE_CHAR;
+			const auto clen = unicode::to(CP_UTF8, w2.data() + iw, 1, nullptr, 0);
+			const auto CharsToAdd = std::min(clen - 1, static_cast<size_t>(width));
+			std::fill_n(outstr + ib, CharsToAdd, Utf::CONTINUE_CHAR);
+			ib += static_cast<int>(CharsToAdd);
 			++iw;
 		}
 	}
@@ -740,9 +741,7 @@ int Viewer::txt_dump(const unsigned char *line, size_t nr, int width, wchar_t *o
 	}
 	else
 	{
-		ib = MultiByteToWideChar(cp, 0, (const char *)line, static_cast<int>(nr), outstr, width);
-		if ( ib < 0)
-			ib = 0;
+		ib = static_cast<int>(unicode::from(cp, line, nr, outstr, width));
 	}
 
 	for ( iw = 0; iw < width; ++iw ) {
@@ -762,7 +761,7 @@ void Viewer::ShowDump()
 	int Y, EndFile = 0, ch_size = getChSize(VM.CodePage);
 	int tail = 0, xl = VM.CodePage == CP_UTF8 ? 4-1 : (VM.CodePage==MB.current_cp ? MB.current_mb-1 : 0);
 
-	std::vector<unsigned char> line(Width * 2);
+	std::vector<char> line(Width * 2);
 	std::vector<wchar_t> OutStr(Width + 1);
 	size_t nr, nb = Width*ch_size + xl;
 	DWORD mb = Width*ch_size;
@@ -847,7 +846,7 @@ void Viewer::ShowHex()
 		if ( SelectSize < 0 )
 			bSelStartFound = bSelEndFound = false;
 
-		unsigned char line[16+3];
+		char line[16+3];
 		size_t nr = 0;
 		size_t nb = CP_UTF8 == VM.CodePage ? 16 + 4 - 1 : (VM.CodePage == MB.current_cp ? 16 + MB.current_mb - 1 : 16);
 		Reader.Read(line, nb, &nr);
@@ -2426,13 +2425,13 @@ void Viewer::Up( int nlines, bool adjust )
 	}
 }
 
-int Viewer::GetStrBytesNum( const wchar_t *Str, int Length )
+int Viewer::GetStrBytesNum(const wchar_t *Str, int Length)
 {
 	int ch_size = getCharSize();
 	if (ch_size > 0)
 		return Length * ch_size;
 	else
-		return WideCharToMultiByte(VM.CodePage,0, Str,Length, nullptr,0, nullptr,nullptr);
+		return static_cast<int>(unicode::to(VM.CodePage, Str, Length, nullptr, 0));
 }
 
 void Viewer::SetViewKeyBar(KeyBar *ViewKeyBar)
@@ -2698,14 +2697,14 @@ void Viewer::SearchTextTransform(string &to, const wchar_t *from, size_t from_le
 			to = wide_n(Bytes.data(), Bytes.size(), VM.CodePage);
 			if ( pos >= 0 )
 			{
-				pos = MultiByteToWideChar(VM.CodePage, 0, Bytes.data(), pos, nullptr, 0);
+				pos = unicode::from(VM.CodePage, Bytes.data(), pos, nullptr, 0);
 			}
 		}
 	}
 	else // text2hex
 	{
 		char Buffer[128];
-		int Size;
+		size_t Size;
 		int ps = 0, pd = 0, p0 = pos, p1 = -1;
 		for (size_t i=0; i < from_len; ++i)
 		{
@@ -2723,12 +2722,12 @@ void Viewer::SearchTextTransform(string &to, const wchar_t *from, size_t from_le
 					Size = 2; Buffer[0] = (char)HIBYTE(ch); Buffer[1] = (char)LOBYTE(ch);
 				break;
 				default:
-					Size = WideCharToMultiByte(VM.CodePage, 0, &ch, 1, Buffer, 4, nullptr, nullptr);
+					Size = unicode::to(VM.CodePage, &ch, 1, Buffer, 4);
 				break;
 			}
 
 			to += BlobToHexWString(Buffer, Size, 0);
-			pd += Size * 3;
+			pd += static_cast<int>(Size) * 3;
 		}
 		pos = p1;
 	}
@@ -3687,7 +3686,7 @@ int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 			ReadSize = 0;
 			for (int ib = 0; ib < ConvertSize; )
 			{
-				int clen = MB.GetChar((BYTE *)(TmpBuf+ib), ConvertSize-ib, *(Buf+ReadSize));
+				int clen = MB.GetChar(TmpBuf + ib, ConvertSize - ib, Buf[ReadSize]);
 				if (clen > 0)
 				{
 					if (Buf2)
@@ -3713,7 +3712,7 @@ int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 		}
 		else
 		{
-			ReadSize = (DWORD)MultiByteToWideChar(VM.CodePage,0, TmpBuf,ConvertSize, Buf,Count);
+			ReadSize = unicode::from(VM.CodePage, TmpBuf, ConvertSize, Buf, Count);
 		}
 	}
 
@@ -3837,7 +3836,7 @@ bool Viewer::vgetc(wchar_t *pCh)
 			}
 			else
 			{
-				MultiByteToWideChar(VM.CodePage, 0, (LPCSTR)vgetc_buffer+vgetc_ib,1, pCh,1);
+				unicode::from(VM.CodePage, vgetc_buffer + vgetc_ib, 1, pCh, 1);
 				++vgetc_ib;
 			}
 		break;
@@ -3893,7 +3892,7 @@ wchar_t Viewer::vgetc_prev()
 			default:
 				if (ch_size == +1)
 				{
-					MultiByteToWideChar(VM.CodePage, 0, (LPCSTR)ss,1, &ch,1);
+					unicode::from(VM.CodePage, ss, 1, &ch, 1);
 				}
 				else
 				{
@@ -3901,7 +3900,7 @@ wchar_t Viewer::vgetc_prev()
 					for (int i = 0; i < nb; ++i)
 					{
 						wchar_t wc;
-						if (MB.GetChar((BYTE *)ss+i, static_cast<size_t>(nb-i), wc) == nb-i)
+						if (MB.GetChar(ss + i, static_cast<size_t>(nb - i), wc) == nb - i)
 						{
 							ch = wc; break;
 						}

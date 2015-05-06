@@ -1170,7 +1170,7 @@ bool FindFiles::LookForString(const string& Name)
 				else
 				{
 					// Конвертируем буфер чтения из кодировки поиска в UTF-16
-					bufferCount = MultiByteToWideChar(i.CodePage, 0, readBufferA.data(), static_cast<int>(readBlockSize), readBuffer.data(), static_cast<int>(readBuffer.size() * sizeof(VALUE_TYPE(readBuffer))));
+					bufferCount = unicode::from(i.CodePage, readBufferA.data(), readBlockSize, readBuffer.data(), readBuffer.size());
 
 					// Выходим, если нам не удалось сконвертировать строку
 					if (!bufferCount)

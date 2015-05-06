@@ -25980,6 +25980,17 @@ upd:"History"
 "História"
 "Cronologia"
 
+MCompletionEnvironmentTitle
+"Окружение"
+"Environment"
+upd:"Environment"
+upd:"Environment"
+upd:"Environment"
+upd:"Environment"
+upd:"Environment"
+upd:"Environment"
+upd:"Environment"
+
 MCompletionFilesTitle
 "Файлы"
 "Files"

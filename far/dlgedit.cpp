@@ -89,6 +89,8 @@ DlgEdit::DlgEdit(window_ptr Owner,size_t Index,DLGEDITTYPE Type):
 			{
 				iFlags|=EditControl::EC_COMPLETE_PATH;
 			}
+			iFlags|=EditControl::EC_COMPLETE_ENVIRONMENT;
+
 			lineEdit = std::make_unique<EditControl>(GetOwner(), GetOwner().get(), nullptr, &callback, iHistory.get(), iList, iFlags);
 		}
 		break;

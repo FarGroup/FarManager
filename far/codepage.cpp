@@ -947,13 +947,13 @@ bool MultibyteCodepageDecoder::SetCP(UINT cp)
 	return true;
 }
 
-int MultibyteCodepageDecoder::GetChar(const BYTE *bf, size_t cb, wchar_t& wc) const
+int MultibyteCodepageDecoder::GetChar(const char* bf, size_t cb, wchar_t& wc) const
 {
 	if (!bf || cb < 1)
 		return -11; // invalid argument
 
-	BYTE b1 = bf[0];
-	BYTE lmask = len_mask[b1];
+	char b1 = bf[0];
+	char lmask = len_mask[b1];
 	if (!lmask)
 		return -1;
 	if (lmask & 0x01)
@@ -974,7 +974,7 @@ int MultibyteCodepageDecoder::GetChar(const BYTE *bf, size_t cb, wchar_t& wc) co
 	}
 }
 
-size_t Multi::ToMultiByte(uintptr_t cp, const wchar_t *src, size_t srclen, char *dst, size_t dstlen, LPBOOL lpUsedDefaultChar)
+size_t unicode::to(uintptr_t cp, const wchar_t *src, size_t srclen, char *dst, size_t dstlen, bool* UsedDefaultChar)
 {
 	if (cp == CP_UTF8)
 	{
@@ -990,18 +990,52 @@ size_t Multi::ToMultiByte(uintptr_t cp, const wchar_t *src, size_t srclen, char 
 	}
 	else
 	{
-		return WideCharToMultiByte(cp, 0, src, static_cast<int>(srclen), dst, static_cast<int>(dstlen), nullptr, lpUsedDefaultChar);
+		BOOL bUsedDefaultChar = FALSE;
+		const auto Result = WideCharToMultiByte(cp, 0, src, static_cast<int>(srclen), dst, static_cast<int>(dstlen), nullptr, UsedDefaultChar? &bUsedDefaultChar : nullptr);
+		if (UsedDefaultChar)
+			*UsedDefaultChar = bUsedDefaultChar != FALSE;
+		return Result;
 	}
 }
 
-std::vector<char> Multi::ToMultiByte(uintptr_t Codepage, const wchar_t *Data, size_t Size, LPBOOL lpUsedDefaultChar)
+std::string unicode::to(uintptr_t Codepage, const wchar_t *Data, size_t Size, bool* UsedDefaultChar)
 {
-	std::vector<char> Buffer(Multi::ToMultiByte(Codepage, Data, Size, nullptr, 0));
-	Multi::ToMultiByte(Codepage, Data, Size, Buffer.data(), Buffer.size(), lpUsedDefaultChar);
-	return Buffer;
+	if (const auto NewSize = unicode::to(Codepage, Data, Size, nullptr, 0))
+	{
+		std::string Buffer(NewSize, 0);
+		unicode::to(Codepage, Data, Size, &Buffer[0], Buffer.size(), UsedDefaultChar);
+		return Buffer;
+	}
+	return std::string();
 }
 
-//################################################################################################
+size_t unicode::from(uintptr_t Codepage, const char* Data, size_t Size, wchar_t* Buffer, size_t BufferSize)
+{
+	if (Codepage == CP_UTF8)
+	{
+		return Utf8::ToWideChar(Data, Size, Buffer, BufferSize, nullptr);
+	}
+	else if (Codepage == CP_UTF7)
+	{
+		return Utf7::ToWideChar(Data, Size, Buffer, BufferSize, nullptr);
+	}
+	else
+	{
+		return MultiByteToWideChar(Codepage, 0, Data, static_cast<int>(Size), Buffer, static_cast<int>(BufferSize));
+	}
+}
+
+string unicode::from(uintptr_t Codepage, const char* Data, size_t Size)
+{
+	if (const auto NewSize = unicode::from(Codepage, Data, Size, nullptr, 0))
+	{
+		string Buffer(NewSize, 0);
+		unicode::from(Codepage, Data, Size, &Buffer[0], Buffer.size());
+		return Buffer;
+	}
+	return string();
+}
+
 //################################################################################################
 
 int Utf::ToWideChar(uintptr_t cp, const char *src, size_t len, wchar_t* out, size_t wlen, Errs *errs)

@@ -233,7 +233,7 @@ DizList::desc_map::iterator DizList::Find(const string& Name, const string& Shor
 	//если файл описаний был в OEM/ANSI то имена файлов могут не совпадать с юникодными
 	if (i == DizData.end() && !IsUnicodeOrUtfCodePage(OrigCodePage) && OrigCodePage!=CP_DEFAULT)
 	{
-		const auto tmp = Multi::ToMultiByte(OrigCodePage, Name.data(), Name.size());
+		const auto tmp = unicode::to(OrigCodePage, Name.data(), Name.size());
 		const auto strRecoded = wide_n(tmp.data(), tmp.size(), OrigCodePage);
 
 		if (strRecoded==Name)
@@ -345,8 +345,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 				char_ptr DizText(Size);
 				if (DizText)
 				{
-					int BytesCount=WideCharToMultiByte(CodePage, 0, dump.data(), static_cast<int>(dump.size()+1), DizText.get(), Size, nullptr, nullptr);
-					if (BytesCount && BytesCount-1)
+					if (const auto BytesCount = unicode::to(CodePage, dump.data(), dump.size(), DizText.get(), Size))
 					{
 						if(Cache.Write(DizText.get(), BytesCount-1))
 						{

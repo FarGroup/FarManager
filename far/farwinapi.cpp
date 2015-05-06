@@ -1983,6 +1983,13 @@ DWORD GetAppPathsRedirectionFlag()
 			}
 			return str;
 		}
+
+		string get_pathext()
+		{
+			string PathExt(L".COM;.EXE;.BAT;.CMD;.VBS;.JS;.JSE;.WSF;.WSH;.MSC");
+			os::env::get_variable(L"PATHEXT", PathExt);
+			return PathExt;
+		}
 	}
 
 	namespace rtdl

@@ -496,6 +496,8 @@ namespace os
 
 		string expand_strings(const wchar_t* str);
 		inline string expand_strings(const string& str) { return expand_strings(str.data()); }
+
+		string get_pathext();
 	}
 
 	// Run-Time Dynamic Linking

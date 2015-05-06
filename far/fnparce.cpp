@@ -818,7 +818,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 				}
 
 				blob Blob;
-				std::vector<char> Buffer;
+				std::string Buffer;
 
 				if (CodePage==CP_UNICODE)
 				{
@@ -826,7 +826,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 				}
 				else
 				{
-					Buffer = Multi::ToMultiByte(CodePage, strFileName.data(), strFileName.size());
+					Buffer = unicode::to(CodePage, strFileName.data(), strFileName.size());
 					Blob = blob(Buffer.data(), Buffer.size());
 				}
 

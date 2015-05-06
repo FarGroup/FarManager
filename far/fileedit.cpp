@@ -2085,9 +2085,9 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 				{
 					if (Size)
 					{
-						const auto EncodedSize = Multi::ToMultiByte(codepage, Data, Size, nullptr, 0);
+						const auto EncodedSize = unicode::to(codepage, Data, Size, nullptr, 0);
 						Buffer.resize(EncodedSize);
-						Multi::ToMultiByte(codepage, Data, Size, Buffer.data(), Buffer.size());
+						unicode::to(codepage, Data, Size, Buffer.data(), Buffer.size());
 						if (!Cache.Write(Buffer.data(), Buffer.size()))
 						{
 							bError = true;
