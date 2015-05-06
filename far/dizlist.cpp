@@ -347,7 +347,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 				{
 					if (const auto BytesCount = unicode::to(CodePage, dump.data(), dump.size(), DizText.get(), Size))
 					{
-						if(Cache.Write(DizText.get(), BytesCount-1))
+						if(Cache.Write(DizText.get(), BytesCount))
 						{
 							EmptyDiz=false;
 						}
