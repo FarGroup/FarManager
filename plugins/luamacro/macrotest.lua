@@ -750,6 +750,7 @@ local function test_Far_GetConfig()
     "Editor.TabSize", "integer",
     "Editor.UndoDataSize", "integer",
     "Editor.UseExternalEditor", "boolean",
+    "Editor.WordDiv", "string",
     "Help.ActivateURL", "integer",
     "Help.HelpSearchRegexp", "boolean",
     "History.CommandHistory.Count", "integer",
