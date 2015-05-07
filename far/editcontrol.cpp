@@ -165,7 +165,7 @@ static bool EnumFiles(VMenu2& Menu, const string& Str)
 		else
 		{
 			auto WordDiv = GetSpaces() + Global->Opt->strWordDiv.Get();
-			static const string NoQuote = L"\":\\/%";
+			static const string NoQuote = L"\":\\/%.-";
 			for (size_t i = 0; i != WordDiv.size(); ++i)
 			{
 				if (NoQuote.find(WordDiv[i]) != string::npos)

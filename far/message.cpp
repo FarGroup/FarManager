@@ -514,13 +514,19 @@ void Message::Init(
 				SetColor((Flags & MSG_WARNING)?COL_WARNDIALOGBOX:COL_DIALOGBOX);
 				GotoXY(X1 + 3, Y1 + static_cast<int>(i) + 2);
 				DrawLine(Length, SrcItem.front() == L'\2'? 3 : 1);
-				const auto Ptr = SrcItem.data() + 1;
-				auto TextLength = wcslen(Ptr);
-
-				if (TextLength < static_cast<size_t>(Length))
+				string SeparatorText = SrcItem.substr(1);
+				if (!SeparatorText.empty())
 				{
-					GotoXY(X1 + 3 + static_cast<int>(Length - TextLength) / 2, Y1 + static_cast<int>(i)+2);
-					Text(Ptr, TextLength);
+					if (SeparatorText.front() != L' ')
+						SeparatorText.insert(0, 1, L' ');
+					if (SeparatorText.back() != L' ')
+						SeparatorText.push_back(L' ');
+				}
+
+				if (SeparatorText.size() < static_cast<size_t>(Length))
+				{
+					GotoXY(X1 + 3 + static_cast<int>(Length - SeparatorText.size()) / 2, Y1 + static_cast<int>(i)+2);
+					Text(SeparatorText);
 				}
 
 				SetColor((Flags & MSG_WARNING)?COL_WARNDIALOGBOX:COL_DIALOGTEXT);

@@ -4486,7 +4486,7 @@ MCopyWriteError
 "Nemôžem zapísať dáta do"
 "Non Posso Scrivere Su"
 
-MCopyProcessed
+MCopyFilesProcessed
 l:
 "Обработано файлов: %1"
 "Files processed: %1"
@@ -4498,16 +4498,38 @@ l:
 "Spracované súbory: %1"
 "Files Elaborati: %1"
 
-MCopyProcessedTotal
-"Обработано файлов: %1 из %2"
-"Files processed: %1 of %2"
-"Zpracováno souborů: %1 z %2"
-"Dateien verarbeitet: %1 von %2"
-" %1 fájl kész %2 fájlból"
-"Przetworzonych plików: %1 z %2"
-"Archivos procesados: %1 de %2"
-"Spracované súbory: %1 z %2"
-"Files Elaborati: %1 di %2"
+MCopyFilesTotalInfo
+"Файлов: %1 / %2"
+"Files: %1 / %2"
+upd:"Files: %1 / %2"
+upd:"Files: %1 / %2"
+upd:"Files: %1 / %2"
+upd:"Files: %1 / %2"
+upd:"Files: %1 / %2"
+upd:"Files: %1 / %2"
+upd:"Files: %1 / %2"
+
+MCopyBytesProcessed
+"Обработано байт:   %1"
+"Bytes processed: %1"
+upd:"Bytes processed: %1"
+upd:"Bytes processed: %1"
+upd:"Bytes processed: %1"
+upd:"Bytes processed: %1"
+upd:"Bytes processed: %1"
+upd:"Bytes processed: %1"
+upd:"Bytes processed: %1"
+
+MCopyBytesTotalInfo
+"Байт:   %1 / %2"
+"Bytes: %1 / %2"
+upd:"Bytes: %1 / %2"
+upd:"Bytes: %1 / %2"
+upd:"Bytes: %1 / %2"
+upd:"Bytes: %1 / %2"
+upd:"Bytes: %1 / %2"
+upd:"Bytes: %1 / %2"
+upd:"Bytes: %1 / %2"
 
 MCopyMoving
 "Перенос файла"

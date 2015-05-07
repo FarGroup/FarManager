@@ -233,7 +233,6 @@ class CopyProgress
 		void SetTotalProgressValue(UINT64 CompletedSize,UINT64 TotalSize) {return SetProgress(true,CompletedSize,TotalSize);}
 
 		// BUGBUG
-		string strTotalCopySizeText;
 		time_check SecurityTimeCheck;
 };
 
@@ -314,74 +313,32 @@ void CopyProgress::CreateBackground()
 	Bar = make_progressbar(BarSize, 0, false, false);
 
 	std::vector<string> Items;
-	const wchar_t* Title;
-	string strTotalSeparator(L"\x1 ");
+	const auto Title = MSG(Move? MMoveDlgTitle : MCopyDlgTitle);
 
-	if (!Total)
-	{
-		if (!m_Time)
-		{
-			Title = MSG(Move? MMoveDlgTitle : MCopyDlgTitle);
-			Items = make_vector<string>(
-				MSG(Move? MCopyMoving : MCopyCopying),
-				L"",
-				MSG(MCopyTo),
-				L"",
-				Bar,
-				L"\x1",
-				L"");
-		}
-		else
-		{
-			Title = MSG(Move? MMoveDlgTitle : MCopyDlgTitle);
-			Items = make_vector<string>(
-				MSG(Move? MCopyMoving : MCopyCopying),
-				L"",
-				MSG(MCopyTo),
-				L"",
-				Bar,
-				L"\x1",
-				L"",
-				L"\x1",
-				L"");
-		}
-	}
-	else
-	{
-		strTotalSeparator+=MSG(MCopyDlgTotal);
-		strTotalSeparator+=L": ";
-		strTotalSeparator+=strTotalCopySizeText;
-		strTotalSeparator+=L" ";
+	Items = make_vector<string>(
+		MSG(Move? MCopyMoving : MCopyCopying),
+		L"", // source name
+		MSG(MCopyTo),
+		L"", // dest path
+		Bar,
+		string(L"\x1") + MSG(MCopyDlgTotal),
+		L"", // files [total] <processed>
+		L""  // bytes [total] <processed>
+	);
 
-		if (!m_Time)
-		{
-			Title = MSG(Move? MMoveDlgTitle : MCopyDlgTitle);
-			Items = make_vector<string>(MSG(Move? MCopyMoving : MCopyCopying),
-				L"",
-				MSG(MCopyTo),
-				L"",
-				Bar,
-				strTotalSeparator,
-				Bar,
-				L"\x1",
-				L"");
-		}
-		else
-		{
-			Title = MSG(Move? MMoveDlgTitle : MCopyDlgTitle),
-			Items = make_vector<string>(MSG(Move? MCopyMoving : MCopyCopying),
-				L"",
-				MSG(MCopyTo),
-				L"",
-				Bar,
-				strTotalSeparator,
-				Bar,
-				L"\x1",
-				L"",
-				L"\x1",
-				L"");
-		}
+	// total progress bar
+	if (Total)
+	{
+		Items.emplace_back(Bar);
 	}
+
+	// time & speed
+	if (m_Time)
+	{
+		Items.emplace_back(L"\x1");
+		Items.emplace_back(L"");
+	}
+
 	Message m(MSG_LEFTALIGN, Title, Items, std::vector<string>());
 
 	int MX1,MY1,MX2,MY2;
@@ -398,10 +355,10 @@ void CopyProgress::DrawNames()
 {
 	Text(Rect.Left+5,Rect.Top+3,Color,strSrc);
 	Text(Rect.Left+5,Rect.Top+5,Color,strDst);
-	Text(Rect.Left+5,Rect.Top+(Total?10:8),Color,strFiles);
+	Text(Rect.Left + 5, Rect.Top + 8, Color, strFiles);
 }
 
-void CopyProgress::SetNames(const string& Src,const string& Dst)
+void CopyProgress::SetNames(const string& Src, const string& Dst)
 {
 	if (!BgInit)
 	{
@@ -429,12 +386,12 @@ void CopyProgress::SetNames(const string& Src,const string& Dst)
 
 	if (Total)
 	{
-		strFiles = MCopyProcessedTotal;
-		strFiles << TotalFiles << TotalFilesToProcess;
+		strFiles = MCopyFilesTotalInfo;
+		strFiles << TotalFilesToProcess << TotalFiles;
 	}
 	else
 	{
-		strFiles = MCopyProcessed;
+		strFiles = MCopyFilesProcessed;
 		strFiles << TotalFiles;
 	}
 
@@ -449,12 +406,32 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 		CreateBackground();
 	}
 
+	{
+		LangString strBytes;
+		string BytesTotal, BytesProcessed;
+		InsertCommas(TotalCopiedSize + TotalSkippedSize, BytesProcessed);
+
+		if (Total)
+		{
+			strBytes = MCopyBytesTotalInfo;
+			InsertCommas(TotalCopySize, BytesTotal);
+			strBytes << BytesTotal << BytesProcessed;
+		}
+		else
+		{
+			strBytes = MCopyBytesProcessed;
+			strBytes << BytesProcessed;
+		}
+
+		Text(Rect.Left + 5, Rect.Top + 9, Color, strBytes);
+	}
+
 	UINT64 OldCompletedSize = CompletedSize;
 	UINT64 OldTotalSize = TotalSize;
 	CompletedSize>>=8;
 	TotalSize>>=8;
 	CompletedSize=std::min(CompletedSize,TotalSize);
-	COORD BarCoord={static_cast<SHORT>(Rect.Left+5),static_cast<SHORT>(Rect.Top+(TotalProgress?8:6))};
+	COORD BarCoord = { static_cast<SHORT>(Rect.Left + 5), static_cast<SHORT>(Rect.Top + (TotalProgress? 10 : 6)) };
 	size_t BarLength = Rect.Right - Rect.Left - 9;
 
 	Percents = ToPercent(CompletedSize, TotalSize);
@@ -507,7 +484,7 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 			strTime = LangString(MCopyTimeInfo) << tmp[0] << tmp[1] << tmp[2];
 		}
 
-		Text(Rect.Left+5,Rect.Top+(Total?12:10),Color,strTime);
+		Text(Rect.Left + 5, Rect.Top + (Total? 12 : 11), Color, strTime);
 	}
 
 	Flush();
@@ -1709,8 +1686,6 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 
 	if (!TotalCopySize)
 	{
-		CP->strTotalCopySizeText.clear();
-
 		//  ! Не сканируем каталоги при создании линков
 		if (ShowTotalCopySize && !(Flags&FCOPY_LINK) && !CalcTotalSize())
 			return COPY_FAILURE;
@@ -2636,10 +2611,13 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					if (NWFS_Attr)
 						os::SetFileAttributes(strDestPath,SrcData.dwFileAttributes);
 
-					if (ShowTotalCopySize && MoveCode)
+					if (MoveCode)
 					{
 						TotalCopiedSize+=SrcData.nFileSize;
-						CP->SetTotalProgressValue(TotalCopiedSize,TotalCopySize);
+						if (ShowTotalCopySize)
+						{
+							CP->SetTotalProgressValue(TotalCopiedSize, TotalCopySize);
+						}
 					}
 
 					AskDelete=0;
@@ -3394,13 +3372,11 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::FAR_FIND_DATA &SrcD
 				BytesWritten=BytesRead; // не забудем приравнять количество записанных байт
 			}
 
-			if (ShowTotalCopySize)
-				TotalCopiedSize-=CurCopiedSize;
+			TotalCopiedSize-=CurCopiedSize;
 
 			CurCopiedSize = SrcFile.GetChunkOffset() + SrcFile.GetChunkSize();
 
-			if (ShowTotalCopySize)
-				TotalCopiedSize+=CurCopiedSize;
+			TotalCopiedSize+=CurCopiedSize;
 
 			CP->SetProgressValue(CurCopiedSize,SrcData.nFileSize);
 
@@ -4057,9 +4033,10 @@ DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
 		TotalCopySize += TotalFileSize.QuadPart;
 	}
 
+	TotalCopiedSize = TotalCopiedSizeEx + CurCopiedSize;
+
 	if (ShowTotalCopySize)
 	{
-		TotalCopiedSize=TotalCopiedSizeEx+CurCopiedSize;
 		CP->SetTotalProgressValue(TotalCopiedSize,TotalCopySize);
 	}
 
@@ -4129,7 +4106,6 @@ bool ShellCopy::CalcTotalSize()
 	// INFO: Это для варианта, когда "ВСЕГО = общий размер * количество целей"
 	TotalCopySize *= CountTarget;
 	TotalFilesToProcess *= CountTarget;
-	InsertCommas(TotalCopySize,CP->strTotalCopySizeText);
 	return true;
 }
 
