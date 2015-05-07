@@ -1,4 +1,8 @@
-﻿svs 07.05.2015 20:33:44 +0300 - build 4371
+﻿drkns 08.05.2015 01:29:05 +0200 - build 4372
+
+1. 0002990: Viewer crashed if opened from temporary editor
+
+svs 07.05.2015 20:33:44 +0300 - build 4371
 
 1. SQLite 3.8.10
 

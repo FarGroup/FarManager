@@ -70,13 +70,15 @@ fileviewer_ptr FileViewer::create(const string& Name, int EnableSwitch, int Disa
 {
 	fileviewer_ptr FileViewerPtr(new FileViewer(DisableEdit, Title));
 
+	FileViewerPtr->SetPosition(0, 0, ScrX, ScrY);
+	FileViewerPtr->Init(Name, EnableSwitch, DisableHistory, ViewStartPos, PluginData, ViewNamesList, ToSaveAs, aCodePage, Update);
+
 	if (DeleteOnClose)
 	{
 		FileViewerPtr->delete_on_close = DeleteOnClose == 1 ? 1 : 2;
 		FileViewerPtr->SetTempViewName(Name, DeleteOnClose == 1);
 	}
-	FileViewerPtr->SetPosition(0, 0, ScrX, ScrY);
-	FileViewerPtr->Init(Name, EnableSwitch, DisableHistory, ViewStartPos, PluginData, ViewNamesList, ToSaveAs, aCodePage, Update);
+
 	return FileViewerPtr;
 }
 
