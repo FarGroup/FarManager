@@ -1,4 +1,8 @@
-﻿shmuel 03.05.2015 16:07:30 +0200 - build 512
+﻿shmuel 07.05.2015 16:59:03 +0200 - build 513
+
+1. LuaFAR: добавлены функции win.GetCurrentDir и win.SetCurrentDir.
+
+shmuel 03.05.2015 16:07:30 +0200 - build 512
 
 1. LuaFAR (generic plugin): запуск плагином "%FARPROFILE%\luafar_init.lua" обусловлен флагом
    компиляции -DRUN_LUAFAR_INIT при сборке плагина.

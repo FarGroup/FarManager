@@ -6064,8 +6064,8 @@ void LF_RunLuafarInit(lua_State* L)
 	wchar_t buf[2048];
 	int size;
 
-	size = GetEnvironmentVariableW(L"FARPROFILE", buf, ARRAYSIZE(buf));
-	if(size && (size + wcslen(filename) < ARRAYSIZE(buf)))
+	size = GetEnvironmentVariableW(L"FARPROFILE", buf, ARRSIZE(buf));
+	if(size && (size + wcslen(filename) < ARRSIZE(buf)))
 	{
 		DWORD attr = GetFileAttributesW(wcscat(buf, filename));
 		if (attr != INVALID_FILE_ATTRIBUTES && (attr & FILE_ATTRIBUTE_DIRECTORY) == 0)

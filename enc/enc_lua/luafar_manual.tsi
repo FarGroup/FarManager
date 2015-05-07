@@ -9820,6 +9820,27 @@ mtime=3500809349
 </article>
 </node>
 <node>
+id=512
+lv=2
+dt=Text
+nm=win.GetCurrentDir
+ctime=3640178067
+mtime=3640178294
+<article>
+#_dir = win.GetCurrentDir ()
+#_
+#_**Parameters:**
+#_  none
+#_
+#_**Returns:**
+#_  dir : string (or: nil, errormessage)
+#_
+#_**Windows API used:**
+#_  GetCurrentDirectoryW
+#_
+</article>
+</node>
+<node>
 id=398
 lv=2
 dt=Text
@@ -10252,6 +10273,27 @@ mtime=3509095033
 #_
 #_**Windows API used:**
 #_  SearchPathW
+#_
+</article>
+</node>
+<node>
+id=513
+lv=2
+dt=Text
+nm=win.SetCurrentDir
+ctime=3640178091
+mtime=3640178534
+<article>
+#_result = win.SetCurrentDir (dir)
+#_
+#_**Parameters:**
+#_  dir    : string 
+#_
+#_**Returns:**
+#_  result : boolean
+#_
+#_**Windows API used:**
+#_  SetCurrentDirectoryW
 #_
 </article>
 </node>

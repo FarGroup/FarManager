@@ -732,11 +732,36 @@ static int ustring_system(lua_State *L)
 	return 1;
 }
 
+int ustring_GetCurrentDir (lua_State *L)
+{
+	wchar_t buf[256];
+	DWORD num = GetCurrentDirectoryW(ARRSIZE(buf), buf);
+	if(num) {
+		if(num < ARRSIZE(buf))
+			push_utf8_string(L, buf, -1);
+		else {
+			wchar_t* alloc = (wchar_t*) malloc(num * sizeof(wchar_t));
+			num = GetCurrentDirectoryW(num, alloc);
+			if(num) push_utf8_string(L, alloc, -1);
+			free(alloc);
+		}
+	}
+	return num ? 1 : SysErrorReturn(L);
+}
+
+int ustring_SetCurrentDir (lua_State *L)
+{
+	if (SetCurrentDirectoryW(check_utf8_string(L, 1, NULL)))
+		return lua_pushboolean(L, 1), 1;
+	return SysErrorReturn(L);
+}
+
 const luaL_Reg ustring_funcs[] =
 {
 	{"EnumSystemCodePages", ustring_EnumSystemCodePages},
 	{"GetACP",              ustring_GetACP},
 	{"GetCPInfo",           ustring_GetCPInfo},
+	{"GetCurrentDir",       ustring_GetCurrentDir},
 	{"GetDriveType",        ustring_GetDriveType},
 	{"GetFileAttr",         ustring_GetFileAttr},
 	{"GetLogicalDriveStrings",ustring_GetLogicalDriveStrings},
@@ -747,6 +772,7 @@ const luaL_Reg ustring_funcs[] =
 	{"OutputDebugString",   ustring_OutputDebugString},
 	{"SHGetFolderPath",     ustring_SHGetFolderPath},
 	{"SearchPath",          ustring_SearchPath},
+	{"SetCurrentDir",       ustring_SetCurrentDir},
 	{"SetFileAttr",         ustring_SetFileAttr},
 	{"Sleep",               ustring_Sleep},
 	{"Utf16ToUtf8",         ustring_Utf16ToUtf8},
