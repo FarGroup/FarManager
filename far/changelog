@@ -1,4 +1,8 @@
-﻿drkns 08.05.2015 01:29:05 +0200 - build 4372
+﻿drkns 08.05.2015 18:51:45 +0200 - build 4373
+
+1. Ошибка в вычислении размера файла при копировании с учётом ADS.
+
+drkns 08.05.2015 01:29:05 +0200 - build 4372
 
 1. 0002990: Viewer crashed if opened from temporary editor
 

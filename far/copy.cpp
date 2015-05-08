@@ -163,6 +163,9 @@ static int UseFilter=FALSE;
 
 static BOOL ZoomedState,IconicState;
 
+// BUGBUG
+static HANDLE FileHandleForStreamSizeFix = nullptr;
+
 enum enumShellCopy
 {
 	ID_SC_TITLE,
@@ -3986,6 +3989,9 @@ int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,cons
 	CP->SetNames(SrcName,DestName);
 	CP->SetProgressValue(0,0);
 	TotalCopiedSizeEx=TotalCopiedSize;
+
+	FileHandleForStreamSizeFix = nullptr;
+
 	if (!os::CopyFileEx(SrcName, DestName, CopyProgressRoutine, CP.get(), nullptr, Flags&FCOPY_DECRYPTED_DESTINATION? COPY_FILE_ALLOW_DECRYPTED_DESTINATION : 0))
 	{
 		Flags&=~FCOPY_DECRYPTED_DESTINATION;
@@ -4027,10 +4033,11 @@ DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
 	CP->SetProgressValue(TotalBytesTransferred.QuadPart,TotalFileSize.QuadPart);
 
 	//fix total size
-	if(dwStreamNumber == 1)
+	if (dwStreamNumber == 1 && hSourceFile != FileHandleForStreamSizeFix)
 	{
 		TotalCopySize -= StreamSize.QuadPart;
 		TotalCopySize += TotalFileSize.QuadPart;
+		FileHandleForStreamSizeFix = hSourceFile;
 	}
 
 	TotalCopiedSize = TotalCopiedSizeEx + CurCopiedSize;
