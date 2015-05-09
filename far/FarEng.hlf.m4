@@ -3914,8 +3914,9 @@ on. The last item, "Alternative full", corresponds to view mode called with
   - #Column types# - column types are encoded as one or several
 characters, delimited with commas. Allowed column types are:
 
-    N[M,O,R[F],N] - file name
-                 where: M - show selection marks;
+    N[M[D],O,R[F],N] - file name
+                 where: M - show selection marks
+                            where: D - dynamic selection marks;
                         O - show names without paths
                             (intended mainly for plugins);
                         R - right align names that do not fit in column

@@ -330,6 +330,9 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 				case L'M':
 					ColumnType |= COLUMN_MARK;
 					break;
+				case L'D':
+					ColumnType |= COLUMN_MARK_DYNAMIC;
+					break;
 				case L'O':
 					ColumnType |= COLUMN_NAMEONLY;
 					break;
@@ -495,7 +498,11 @@ void ViewSettingsToText(const std::vector<column>& Columns, string &strColumnTit
 		if (ColumnType==NAME_COLUMN)
 		{
 			if (i.type & COLUMN_MARK)
+			{
 				strType += L"M";
+				if (i.type & COLUMN_MARK_DYNAMIC)
+					strType += L"D";
+			}
 
 			if (i.type & COLUMN_NAMEONLY)
 				strType += L"O";

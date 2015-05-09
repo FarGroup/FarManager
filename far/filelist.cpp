@@ -8329,8 +8329,15 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 							if ((ViewFlags & COLUMN_MARK) && Width>2)
 							{
-								Text(m_ListData[ListPos].Selected?L"\x221A ":L"  ");
-								Width-=2;
+								if (ViewFlags & COLUMN_MARK_DYNAMIC)
+								{
+									Text(m_ListData[ListPos].Selected?L"\x221A ":L"");
+								}
+								else
+								{
+									Text(m_ListData[ListPos].Selected?L"\x221A ":L"  ");
+									Width-=2;
+								}
 							}
 
 							if (Global->Opt->Highlight && m_ListData[ListPos].Colors && m_ListData[ListPos].Colors->Mark.Char && Width>1)
