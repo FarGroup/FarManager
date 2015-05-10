@@ -3,6 +3,63 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 10.05.2015 02:14:51 +0200 - build 4375
+
+1. 0002991: Dynamic selection mark in panels.
+
+svs 09.05.2015 23:17:24 +0300 - build 4374
+
+1. SQLite 3.8.10.1
+
+drkns 08.05.2015 18:51:45 +0200 - build 4373
+
+1. Error in file size calculation at copying with ADS taken into account.
+
+drkns 08.05.2015 01:29:05 +0200 - build 4372
+
+1. 0002990: Viewer crashed if opened from temporary editor
+
+svs 07.05.2015 20:33:44 +0300 - build 4371
+
+1. SQLite 3.8.10
+
+drkns 07.05.2015 16:23:58 +0200 - build 4370
+
+1. Displaying the number of processed bytes in copying progress dialog.
+
+drkns 06.05.2015 22:16:11 +0200 - build 4369
+
+1. And once more.
+
+drkns 06.05.2015 20:26:51 +0200 - build 4368
+
+1. And once more.
+
+drkns 06.05.2015 17:29:36 +0200 - build 4367
+
+1. A couple of corrections in 4366.
+
+drkns 06.05.2015 16:39:28 +0200 - build 4366
+
+1. Forum: Autocompletion of environment variables in command line
+
+2. far:config: Editor.WordDiv option is renamed to System.WordDiv.
+
+3. Refactoring.
+
+drkns 04.05.2015 14:51:59 +0200 - build 4365
+
+1. Correction of 4364.
+
+drkns 04.05.2015 14:42:35 +0200 - build 4364
+
+1. Forum: Crash in editor during text replace done with [x] Pick up the word
+   In addition, the algorithm of word search in a line is slightly redone.
+
+drkns 01.05.2015 21:11:56 +0200 - build 4363
+
+1. Refactoring.
+
 zg 30.04.2015 01:15:07 +0200 - build 4362
 
 1. refactoring: processing of keypresses.
