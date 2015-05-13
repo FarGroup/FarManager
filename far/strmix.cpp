@@ -1056,7 +1056,7 @@ string ReplaceBrackets(const wchar_t *SearchStr, const string& ReplaceStr, const
 				size_t ShiftLength = 0;
 				bool Success = false;
 
-				if (std::isdigit(ReplaceStr[TokenStart]))
+				if (std::iswdigit(ReplaceStr[TokenStart]))
 				{
 					try
 					{

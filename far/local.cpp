@@ -277,7 +277,7 @@ static int NumStrCmp_base(const wchar_t *s1, size_t n1, const wchar_t *s2, size_
 	size_t l2 = 0;
 	while (l1 < n1 && l2 < n2 && *s1 && *s2)
 	{
-		if (iswdigit(*s1) && iswdigit(*s2))
+		if (std::iswdigit(*s1) && std::iswdigit(*s2))
 		{
 			// skip leading zeros
 			while (l1 < n1 && *s1 == L'0')
@@ -297,7 +297,7 @@ static int NumStrCmp_base(const wchar_t *s1, size_t n1, const wchar_t *s2, size_
 
 			// compare numbers
 			int res = 0;
-			while (l1 < n1 && l2 < n2 && iswdigit(*s1) && iswdigit(*s2))
+			while (l1 < n1 && l2 < n2 && std::iswdigit(*s1) && std::iswdigit(*s2))
 			{
 				if (!res && *s1 != *s2)
 					res = *s1 < *s2 ? -1 : 1;
@@ -305,14 +305,14 @@ static int NumStrCmp_base(const wchar_t *s1, size_t n1, const wchar_t *s2, size_
 				s1++; s2++;
 				l1++; l2++;
 			}
-			if ((l1 == n1 || !iswdigit(*s1)) && (l2 == n2 || !iswdigit(*s2)))
+			if ((l1 == n1 || !std::iswdigit(*s1)) && (l2 == n2 || !std::iswdigit(*s2)))
 			{
 				if (res)
 					return res;
 			}
-			else if (l1 == n1 || !iswdigit(*s1))
+			else if (l1 == n1 || !std::iswdigit(*s1))
 				return -1;
-			else if (l2 == n2 || !iswdigit(*s2))
+			else if (l2 == n2 || !std::iswdigit(*s2))
 				return 1;
 		}
 		else

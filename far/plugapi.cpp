@@ -206,7 +206,7 @@ int WINAPI apiAtoi(const wchar_t *s) noexcept
 {
 	try
 	{
-		return _wtoi(s);
+		return static_cast<int>(std::wcstol(s, nullptr, 10));
 	}
 	catch (...)
 	{
@@ -219,7 +219,7 @@ __int64 WINAPI apiAtoi64(const wchar_t *s) noexcept
 {
 	try
 	{
-		return _wtoi64(s);
+		return std::wcstoll(s, nullptr, 10);
 	}
 	catch (...)
 	{

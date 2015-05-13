@@ -97,7 +97,7 @@ static int PrepareHotKey(string &strHotKey)
 	if (strHotKey.size() > 1)
 	{
 		// если хоткей больше 1 символа, считаем это случаем "F?", причем при кривизне всегда будет "F1"
-		FuncNum=_wtoi(strHotKey.data()+1);
+		FuncNum = static_cast<int>(std::wcstoul(strHotKey.data() + 1, nullptr, 10));
 
 		if (FuncNum < 1 || FuncNum > 24)
 		{
@@ -931,7 +931,7 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 
 						if (ToUpper(*HotKey)==L'F')
 						{
-							int FuncNum=_wtoi(HotKey+1);
+							int FuncNum = static_cast<int>(std::wcstol(HotKey + 1, nullptr, 10));
 
 							if (FuncNum > 0 && FuncNum < 25)
 								FocusPos=-1;

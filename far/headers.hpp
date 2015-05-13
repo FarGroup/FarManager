@@ -73,6 +73,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <climits>
 #include <cstdint>
 #include <ctime>
+#include <cwctype>
 
 #include <process.h>
 

@@ -1144,20 +1144,7 @@ bool FindFiles::LookForString(const string& Name)
 					if (i.CodePage==CP_REVERSEBOM)
 					{
 						// Для UTF-16 (big endian) преобразуем буфер чтения в буфер сравнения
-						bufferCount = LCMapStringW(
-							                LOCALE_NEUTRAL,//LOCALE_INVARIANT,
-							                LCMAP_BYTEREV,
-							                (wchar_t *)readBufferA.data(),
-							                (int)bufferCount,
-							                readBuffer.data(),
-							                static_cast<int>(readBuffer.size() * sizeof(VALUE_TYPE(readBuffer)))
-							            );
-
-						if (!bufferCount)
-						{
-							ErrorState = true;
-							continue;
-						}
+						swap_bytes(readBufferA.data(), readBuffer.data(), readBuffer.size() * sizeof(VALUE_TYPE(readBuffer)));
 						// Устанавливаем буфер сравнения
 						buffer = readBuffer.data();
 					}

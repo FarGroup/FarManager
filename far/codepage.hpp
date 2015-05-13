@@ -45,6 +45,8 @@ namespace unicode
 	string from(uintptr_t Codepage, const char* Data, size_t Size);
 }
 
+void swap_bytes(const void* Src, void* Dst, size_t SizeInBytes);
+
 // Тип выбранной таблицы символов
 enum CPSelectType
 {
@@ -137,22 +139,25 @@ codepages& Codepages();
 
 //#############################################################################
 
-class MultibyteCodepageDecoder
+class MultibyteCodepageDecoder: noncopyable
 {
 public:
-	UINT current_cp;
-	int  current_mb;
+	MultibyteCodepageDecoder(): m_Codepage(), m_Size() {}
 
-	bool SetCP(UINT cp);
+	bool SetCP(uintptr_t Codepage);
+	const uintptr_t GetCP() const { return m_Codepage; }
+	const size_t GetSize() const { return m_Size; }
 
-	int GetChar(const char* buff, size_t cb, wchar_t& wchar) const;
+	size_t GetChar(const char* Buffer, size_t Size, wchar_t& Char, bool* End = nullptr) const;
 
-	MultibyteCodepageDecoder() : current_cp(0), current_mb(0) {}
 
 private:
-	std::vector<BYTE> len_mask; //[256]
+	std::vector<char> len_mask; //[256]
 	std::vector<wchar_t> m1;    //[256]
 	std::vector<wchar_t> m2;  //[65536]
+
+	uintptr_t m_Codepage;
+	size_t m_Size;
 };
 
 //#############################################################################

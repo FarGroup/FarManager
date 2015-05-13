@@ -89,7 +89,7 @@ public:
 
 	static BOOL CALLBACK enum_cp(wchar_t *cpNum)
 	{
-		auto cp = static_cast<UINT>(_wtoi(cpNum));
+		auto cp = static_cast<UINT>(std::wcstoul(cpNum, nullptr, 10));
 		if (cp == CP_UTF8)
 			return TRUE; // skip standard unicode
 
@@ -895,82 +895,100 @@ inline static bool IsValid(UINT cp)
 }
 
 
-bool MultibyteCodepageDecoder::SetCP(UINT cp)
+bool MultibyteCodepageDecoder::SetCP(uintptr_t Codepage)
 {
-	if (cp && cp == current_cp)
+	if (Codepage && Codepage == m_Codepage)
 		return true;
 
-	if (!IsValid(cp))
+	if (!IsValid(Codepage))
 		return false;
 
 	len_mask.assign(256, 0);
 	m1.assign(256, 0);
 	m2.assign(256*256, 0);
 
-	BOOL DefUsed, *pDefUsed = (cp==CP_UTF8 || cp==CP_UTF7) ? nullptr : &DefUsed;
-	DWORD flags = WC_NO_BEST_FIT_CHARS;
-	if (cp == CP_UTF8 || cp == 54936 || IsNoFlagsCodepage(cp))
-		flags = 0;
+	BOOL DefUsed, *pDefUsed = (Codepage == CP_UTF8 || Codepage == CP_UTF7) ? nullptr : &DefUsed;
 
-	union {
-		BYTE bf[2];
-		BYTE    b1;
-		UINT16  b2;
-	} u;
+	const DWORD flags = (Codepage == CP_UTF8 || Codepage == 54936 || IsNoFlagsCodepage(Codepage))? 0 : WC_NO_BEST_FIT_CHARS;
 
-	int nnn = 0, mb = 0;
-	for (unsigned w=0x0000; w <= 0xffff; ++w) // only UCS2 range
+	union
+	{
+		char Buffer[2];
+		char b1;
+		wchar_t b2;
+	}
+	u;
+
+	int CharsProcessed = 0;
+	size_t Size = 0;
+	for (size_t i = 0; i != 65536; ++i) // only UCS2 range
 	{
 		DefUsed = FALSE;
-		auto wc = static_cast<wchar_t>(w);
-		int len = WideCharToMultiByte(cp, flags, &wc,1, (LPSTR)u.bf,(int)sizeof(u.bf), nullptr, pDefUsed);
-		if (len <= 0 || DefUsed)
+		auto Char = static_cast<wchar_t>(i);
+		size_t CharSize = WideCharToMultiByte(Codepage, flags, &Char, 1, u.Buffer, ARRAYSIZE(u.Buffer), nullptr, pDefUsed);
+		if (!CharSize || DefUsed)
 			continue;
 
-		len_mask[u.b1] |= (BYTE)(1 << (len - 1));
-		++nnn;
-		if (mb < len) mb = len;
+		len_mask[u.b1] |= BIT(CharSize - 1);
+		++CharsProcessed;
+		Size = std::max(Size, CharSize);
 
-		switch (len)
+		switch (CharSize)
 		{
-			case 1: m1[u.b1] = wc; break;
-			case 2: m2[u.b2] = wc; break;
+			case 1: m1[u.b1] = Char; break;
+			case 2: m2[u.b2] = Char; break;
 		}
 	}
 
-	assert(nnn >= 256);
-	if (nnn < 256)
+	assert(CharsProcessed >= 256);
+	if (CharsProcessed < 256)
 		return false;
 
-	current_cp = cp;
-	current_mb = mb;
+	m_Codepage = Codepage;
+	m_Size = Size;
 	return true;
 }
 
-int MultibyteCodepageDecoder::GetChar(const char* bf, size_t cb, wchar_t& wc) const
+size_t MultibyteCodepageDecoder::GetChar(const char* Buffer, size_t Size, wchar_t& Char, bool* End) const
 {
-	if (!bf || cb < 1)
-		return -11; // invalid argument
-
-	char b1 = bf[0];
-	char lmask = len_mask[b1];
-	if (!lmask)
-		return -1;
-	if (lmask & 0x01)
+	if (!Buffer || !Size)
 	{
-		wc = m1[b1];
-		return +1;
+		if (End)
+		{
+			*End = true;
+		}
+		return 0;
 	}
 
-	if (cb < 2)
-		return -12;
+	char b1 = Buffer[0];
+	char lmask = len_mask[b1];
+	if (!lmask)
+		return 0;
 
-	UINT16 b2 = b1 | (bf[1] << 8);
+	if (lmask & 0x01)
+	{
+		Char = m1[b1];
+		return 1;
+	}
+
+	if (Size < 2)
+	{
+		if (End)
+		{
+			*End = true;
+		}
+		return 0;
+	}
+
+	UINT16 b2 = b1 | (Buffer[1] << 8);
 	if (!m2[b2])
-		return -2;
-	else {
-		wc = m2[b2];
-		return +2;
+	{
+		return 0;
+	}
+	else
+	{
+		Char = m2[b2];
+		return 2;
 	}
 }
 
@@ -985,7 +1003,7 @@ size_t unicode::to(uintptr_t cp, const wchar_t *src, size_t srclen, char *dst, s
 	else if (cp == CP_REVERSEBOM)
 	{
 		if (dst)
-			_swab(reinterpret_cast<char*>(const_cast<wchar_t*>(src)), dst, static_cast<int>(dstlen));
+			swap_bytes(src, dst, std::min(srclen * sizeof(wchar_t), dstlen));
 		return srclen * sizeof(wchar_t);
 	}
 	else
@@ -1018,6 +1036,12 @@ size_t unicode::from(uintptr_t Codepage, const char* Data, size_t Size, wchar_t*
 	else if (Codepage == CP_UTF7)
 	{
 		return Utf7::ToWideChar(Data, Size, Buffer, BufferSize, nullptr);
+	}
+	else if (Codepage == CP_REVERSEBOM)
+	{
+		if (Buffer)
+			swap_bytes(Data, Buffer, std::min(Size, BufferSize * sizeof(wchar_t)));
+		return Size / sizeof(wchar_t);
 	}
 	else
 	{
@@ -1628,4 +1652,8 @@ const string& F8CP::NextCPname(uintptr_t cp) const
 }
 
 //################################################################################################
-//################################################################################################
+
+void swap_bytes(const void* Src, void* Dst, size_t SizeInBytes)
+{
+	_swab(reinterpret_cast<char*>(const_cast<void*>(Src)), reinterpret_cast<char*>(Dst), static_cast<int>(SizeInBytes));
+}

@@ -80,7 +80,7 @@ static TypeString checkTypeString(const string& TestStr)
 			ptrTestStr++;
 		}
 
-		if (*ptrTestStr == L'.' && iswdigit(ptrTestStr[1]))
+		if (*ptrTestStr == L'.' && std::iswdigit(ptrTestStr[1]))
 		{
 			isPoint=true;
 			ptrTestStr++;
@@ -90,14 +90,14 @@ static TypeString checkTypeString(const string& TestStr)
 			isBegDec=true;
 		else if (*ptrTestStr == L'0')
 		{
-			if ((ptrTestStr[1] == L'x' || ptrTestStr[1] == L'X') && iswxdigit(ptrTestStr[2]))
+			if ((ptrTestStr[1] == L'x' || ptrTestStr[1] == L'X') && std::iswxdigit(ptrTestStr[2]))
 			{
 				isBegHex=true;
 				ptrTestStr+=2;
 			}
 			else
 			{
-				if (iswdigit(ptrTestStr[1]) || ptrTestStr[1] == L'.')
+				if (std::iswdigit(ptrTestStr[1]) || ptrTestStr[1] == L'.')
 					isBegDec=true;
 				else if (!ptrTestStr[1])
 					return tsInt;
@@ -143,7 +143,7 @@ static TypeString checkTypeString(const string& TestStr)
 
 					isPoint=true;
 
-					if (!(iswdigit(ptrTestStr[1]) || ptrTestStr[1] == L'e' || ptrTestStr[1] == L'E' || !ptrTestStr[1]))
+					if (!(std::iswdigit(ptrTestStr[1]) || ptrTestStr[1] == L'e' || ptrTestStr[1] == L'E' || !ptrTestStr[1]))
 					{
 						isNum=false;
 						break;
@@ -167,7 +167,7 @@ static TypeString checkTypeString(const string& TestStr)
 						isExpSign=true;
 						wchar_t ch3=*ptrTestStr++;
 
-						if (!iswdigit(ch3))   // за знаком идет число?
+						if (!std::iswdigit(ch3))   // за знаком идет число?
 						{
 							isNum=false;
 							break;
@@ -177,7 +177,7 @@ static TypeString checkTypeString(const string& TestStr)
 							isExp=true;
 						}
 					}
-					else if (!iswdigit(ch2))   // ED
+					else if (!std::iswdigit(ch2))   // ED
 					{
 						if (isBegDec)
 						{

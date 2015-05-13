@@ -75,11 +75,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "manager.hpp"
 
-/* Общее время ожидания пользователя */
-extern long WaitUserTime;
-/* Для того, что бы время при ожидании пользователя тикало, а remaining/speed нет */
-static long OldCalcTime;
-
 enum
 {
 	SDDATA_SIZE = 64*1024,
@@ -94,10 +89,9 @@ enum
 ENUM(COPY_CODES)
 {
 	COPY_CANCEL,
-	COPY_NEXT,
+	COPY_SKIPPED,
 	COPY_NOFILTER,                              // не считать размеры, т.к. файл не прошел по фильтру
 	COPY_FAILURE,
-	COPY_FAILUREREAD,
 	COPY_SUCCESS,
 	COPY_SUCCESS_MOVE,
 	COPY_RETRY,
@@ -137,34 +131,17 @@ enum COPYSECURITYOPTIONS
 };
 
 
-size_t TotalFiles,TotalFilesToProcess;
+/* Общее время ожидания пользователя */
+extern long WaitUserTime;
+/* Для того, что бы время при ожидании пользователя тикало, а remaining/speed нет */
+static long OldCalcTime;
 
-static clock_t CopyStartTime;
+static int OrigScrX, OrigScrY;
 
-static int OrigScrX,OrigScrY;
-
-static DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
-                                        LARGE_INTEGER TotalBytesTransferred,LARGE_INTEGER StreamSize,
-                                        LARGE_INTEGER StreamBytesTransferred,DWORD dwStreamNumber,
-                                        DWORD dwCallbackReason,HANDLE /*hSourceFile*/,HANDLE /*hDestinationFile*/,
-                                        LPVOID lpData);
-
-static unsigned __int64 TotalCopySize, TotalCopiedSize; // Общий индикатор копирования
-static unsigned __int64 CurCopiedSize;                  // Текущий индикатор копирования
-static unsigned __int64 TotalSkippedSize;               // Общий размер пропущенных файлов
-static unsigned __int64 TotalCopiedSizeEx;
-static size_t   CountTarget;                    // всего целей.
 static int CopySecurityCopy=-1;
 static int CopySecurityMove=-1;
-static bool ShowTotalCopySize;
-
-static FileFilter *Filter;
-static int UseFilter=FALSE;
 
 static BOOL ZoomedState,IconicState;
-
-// BUGBUG
-static HANDLE FileHandleForStreamSizeFix = nullptr;
 
 enum enumShellCopy
 {
@@ -205,38 +182,72 @@ enum CopyMode
 
 // CopyProgress start
 // гнать это отсюда в отдельный файл после разбора кучи глобальных переменных вверху
-class CopyProgress
+class CopyProgress: noncopyable
 {
-		ConsoleTitle CopyTitle;
-		IndeterminateTaskBar TB;
-		wakeful W;
-		SMALL_RECT Rect;
-		string Bar;
-		size_t BarSize;
-		bool Move,Total,m_Time;
-		bool BgInit,ScanBgInit;
-		bool IsCancelled;
-		FarColor Color;
-		int Percents;
-		time_check TimeCheck;
-		FormatString strSrc,strDst;
-		string strTime;
-		LangString strFiles;
-		void Flush();
-		void DrawNames();
-		void CreateScanBackground();
-		void SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 TotalSize);
-	public:
-		CopyProgress(bool Move,bool Total,bool Time);
-		void CreateBackground();
-		bool Cancelled() const {return IsCancelled;}
-		void SetScanName(const string& Name);
-		void SetNames(const string& Src,const string& Dst);
-		void SetProgressValue(UINT64 CompletedSize,UINT64 TotalSize) {return SetProgress(false,CompletedSize,TotalSize);}
-		void SetTotalProgressValue(UINT64 CompletedSize,UINT64 TotalSize) {return SetProgress(true,CompletedSize,TotalSize);}
+public:
+	CopyProgress(bool Move, bool Total, bool Time);
+	void CreateBackground();
+	bool Cancelled() const { return IsCancelled; }
+	void SetScanName(const string& Name);
+	void SetNames(const string& Src, const string& Dst);
+	void SetProgressValue(UINT64 CompletedSize, UINT64 TotalSize) { return SetProgress(false, CompletedSize, TotalSize); }
+	void UpdateTotalProgress()
+	{
+		if (m_Total)
+			return SetProgress(true, GetBytesDone(), m_Bytes.Total);
+	}
+	bool TotalVisible() const { return m_Total; }
 
-		// BUGBUG
-		time_check SecurityTimeCheck;
+	void UpdateCurrentBytesInfo(uint64_t NewValue);
+	void UpdateAllBytesInfo(uint64_t FileSize);
+
+private:
+	void Flush();
+	void DrawNames();
+	void CreateScanBackground();
+	void SetProgress(bool TotalProgress, UINT64 CompletedSize, UINT64 TotalSize);
+	uint64_t GetBytesDone() const { return m_Bytes.Copied + m_Bytes.Skipped; }
+
+	clock_t m_CopyStartTime;
+	ConsoleTitle CopyTitle;
+	IndeterminateTaskBar TB;
+	wakeful W;
+	SMALL_RECT Rect;
+	string Bar;
+	size_t BarSize;
+	bool Move;
+	bool m_Total;
+	bool m_Time;
+	bool BgInit,ScanBgInit;
+	bool IsCancelled;
+	FarColor Color;
+	int Percents;
+	time_check TimeCheck;
+	time_check m_SpeedUpdateCheck;
+	FormatString strSrc, strDst;
+	string strTime;
+	string m_Speed;
+	LangString strFiles;
+
+	// BUGBUG
+public:
+	time_check SecurityTimeCheck;
+
+	struct
+	{
+		size_t Copied;
+		size_t Total;
+	}
+	m_Files;
+
+	struct
+	{
+		uint64_t Total;
+		uint64_t Copied;
+		uint64_t Skipped;
+		uint64_t CurrCopied;
+	}
+	m_Bytes;
 };
 
 static void GetTimeText(DWORD Time,string &strTimeText)
@@ -247,6 +258,22 @@ static void GetTimeText(DWORD Time,string &strTimeText)
 	DWORD Hour=Min/60;
 	Min-=(Hour*60);
 	strTimeText = FormatString() << fmt::ExactWidth(2) << fmt::FillChar(L'0') << Hour << L":" << fmt::ExactWidth(2) << fmt::FillChar(L'0') << Min << L":" << fmt::ExactWidth(2) << fmt::FillChar(L'0') << Sec;
+}
+
+void CopyProgress::UpdateAllBytesInfo(uint64_t FileSize)
+{
+	m_Bytes.Copied += m_Bytes.CurrCopied;
+	if (m_Bytes.CurrCopied < FileSize)
+	{
+		m_Bytes.Skipped += FileSize - m_Bytes.CurrCopied;
+	}
+}
+
+void CopyProgress::UpdateCurrentBytesInfo(uint64_t NewValue)
+{
+	m_Bytes.Copied -= m_Bytes.CurrCopied;
+	m_Bytes.CurrCopied = NewValue;
+	m_Bytes.Copied += m_Bytes.CurrCopied;
 }
 
 void CopyProgress::Flush()
@@ -263,18 +290,24 @@ void CopyProgress::Flush()
 			}
 		}
 
-		if (Total || (TotalFilesToProcess==1))
+		if (m_Total || (m_Files.Total == 1))
 		{
-			CopyTitle << L"{" << (Total?ToPercent(TotalCopiedSize>>8,TotalCopySize>>8):Percents) << L"%} " << MSG(Move? MCopyMovingTitle : MCopyCopyingTitle) << fmt::Flush();
+			CopyTitle
+				<< L"{"
+				<< (m_Total? ToPercent(GetBytesDone(), m_Bytes.Total) : Percents)
+				<< L"%} "
+				<< MSG(Move? MCopyMovingTitle : MCopyCopyingTitle)
+				<< fmt::Flush();
 		}
 	}
 }
 
-CopyProgress::CopyProgress(bool Move,bool Total,bool Time):
+CopyProgress::CopyProgress(bool Move, bool Total, bool Time):
+	m_CopyStartTime(),
 	Rect(),
 	BarSize(52),
 	Move(Move),
-	Total(Total),
+	m_Total(Total),
 	m_Time(Time),
 	BgInit(false),
 	ScanBgInit(false),
@@ -282,7 +315,10 @@ CopyProgress::CopyProgress(bool Move,bool Total,bool Time):
 	Color(colors::PaletteColorToFarColor(COL_DIALOGTEXT)),
 	Percents(0),
 	TimeCheck(time_check::immediate, GetRedrawTimeout()),
-	SecurityTimeCheck(time_check::immediate, GetRedrawTimeout())
+	m_SpeedUpdateCheck(time_check::immediate, 3000 * CLOCKS_PER_SEC / 1000),
+	SecurityTimeCheck(time_check::immediate, GetRedrawTimeout()),
+	m_Files(),
+	m_Bytes()
 {
 }
 
@@ -330,7 +366,7 @@ void CopyProgress::CreateBackground()
 	);
 
 	// total progress bar
-	if (Total)
+	if (m_Total)
 	{
 		Items.emplace_back(Bar);
 	}
@@ -370,9 +406,9 @@ void CopyProgress::SetNames(const string& Src, const string& Dst)
 
 	if (m_Time)
 	{
-		if (!ShowTotalCopySize || 0 == TotalFiles)
+		if (!m_Total || !m_Files.Copied)
 		{
-			CopyStartTime = clock();
+			m_CopyStartTime = clock();
 			WaitUserTime = OldCalcTime = 0;
 		}
 	}
@@ -387,15 +423,15 @@ void CopyProgress::SetNames(const string& Src, const string& Dst)
 	strDst.clear();
 	strDst<<fmt::LeftAlign()<<fmt::ExactWidth(NameWidth)<<tmp;
 
-	if (Total)
+	if (m_Total)
 	{
 		strFiles = MCopyFilesTotalInfo;
-		strFiles << TotalFilesToProcess << TotalFiles;
+		strFiles << m_Files.Total << m_Files.Copied;
 	}
 	else
 	{
 		strFiles = MCopyFilesProcessed;
-		strFiles << TotalFiles;
+		strFiles << m_Files.Copied;
 	}
 
 	DrawNames();
@@ -412,12 +448,12 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 	{
 		LangString strBytes;
 		string BytesTotal, BytesProcessed;
-		InsertCommas(TotalCopiedSize + TotalSkippedSize, BytesProcessed);
+		InsertCommas(GetBytesDone(), BytesProcessed);
 
-		if (Total)
+		if (m_Total)
 		{
 			strBytes = MCopyBytesTotalInfo;
-			InsertCommas(TotalCopySize, BytesTotal);
+			InsertCommas(m_Bytes.Total, BytesTotal);
 			strBytes << BytesTotal << BytesProcessed;
 		}
 		else
@@ -438,13 +474,13 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 	size_t BarLength = Rect.Right - Rect.Left - 9;
 
 	Percents = ToPercent(CompletedSize, TotalSize);
-	Bar = make_progressbar(BarLength, Percents, true, Total == TotalProgress);
+	Bar = make_progressbar(BarLength, Percents, true, m_Total == TotalProgress);
 
 	Text(BarCoord.X,BarCoord.Y,Color,Bar);
 
-	if (m_Time&&(!Total||TotalProgress))
+	if (m_Time && (!m_Total || TotalProgress))
 	{
-		auto WorkTime = clock() - CopyStartTime;
+		auto WorkTime = clock() - m_CopyStartTime;
 		UINT64 SizeLeft=(OldTotalSize>OldCompletedSize)?(OldTotalSize-OldCompletedSize):0;
 		long CalcTime=OldCalcTime;
 
@@ -464,30 +500,33 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 		{
 			if (TotalProgress)
 			{
-				OldCompletedSize=OldCompletedSize-TotalSkippedSize;
+				OldCompletedSize -= m_Bytes.Skipped;
 			}
 
-			UINT64 CPS=CalcTime?OldCompletedSize/CalcTime:0;
-			DWORD TimeLeft=static_cast<DWORD>(CPS?SizeLeft/CPS:0);
-			string strSpeed;
-			FileSizeToStr(strSpeed,CPS,8,COLUMN_FLOATSIZE|COLUMN_COMMAS);
-			string strWorkTimeStr,strTimeLeftStr;
-			GetTimeText(WorkTime,strWorkTimeStr);
-			GetTimeText(TimeLeft,strTimeLeftStr);
-			if(!strSpeed.empty() && strSpeed.front() == L' ' && strSpeed.back() >= L'0' && strSpeed.back() <= L'9')
+			const auto CPS = CalcTime? OldCompletedSize / CalcTime : 0;
+			const auto TimeLeft = static_cast<DWORD>(CPS? SizeLeft / CPS : 0);
+			string strWorkTimeStr, strTimeLeftStr;
+			GetTimeText(WorkTime, strWorkTimeStr);
+			GetTimeText(TimeLeft, strTimeLeftStr);
+
+			if (m_SpeedUpdateCheck)
 			{
-				strSpeed.erase(0, 1);
-				strSpeed+=L" ";
+				FileSizeToStr(m_Speed, CPS, 8, COLUMN_FLOATSIZE | COLUMN_COMMAS);
+				if (!m_Speed.empty() && m_Speed.front() == L' ' && std::iswdigit(m_Speed.back()))
+				{
+					m_Speed.erase(0, 1);
+					m_Speed += L" ";
+				}
 			}
-			;
+
 			string tmp[3];
 			tmp[0] = FormatString() << fmt::ExactWidth(8) << strWorkTimeStr;
 			tmp[1] = FormatString() << fmt::ExactWidth(8) << strTimeLeftStr;
-			tmp[2] = FormatString() << fmt::ExactWidth(8) << strSpeed;
+			tmp[2] = FormatString() << fmt::ExactWidth(8) << m_Speed;
 			strTime = LangString(MCopyTimeInfo) << tmp[0] << tmp[1] << tmp[2];
 		}
 
-		Text(Rect.Left + 5, Rect.Top + (Total? 12 : 11), Color, strTime);
+		Text(Rect.Left + 5, Rect.Top + (m_Total? 12 : 11), Color, strTime);
 	}
 
 	Flush();
@@ -515,16 +554,17 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 
 int CmpFullNames(const string& Src,const string& Dest)
 {
-	string strSrcFullName, strDestFullName;
+	const auto ToFull = [](const string& in) -> string
+	{
+		string out;
+		// получим полные пути с учетом символических связей
+		// (ConvertNameToReal eliminates short names too)
+		ConvertNameToReal(in, out);
+		DeleteEndSlash(out);
+		return out;
+	};
 
-	// получим полные пути с учетом символических связей
-	// (ConvertNameToReal eliminates short names too)
-	ConvertNameToReal(Src, strSrcFullName);
-	ConvertNameToReal(Dest, strDestFullName);
-	DeleteEndSlash(strSrcFullName);
-	DeleteEndSlash(strDestFullName);
-
-	return !StrCmpI(strSrcFullName, strDestFullName);
+	return !StrCmpI(ToFull(Src), ToFull(Dest));
 }
 
 bool CheckNulOrCon(const wchar_t *Src)
@@ -544,23 +584,22 @@ string& GetParentFolder(const string& Src, string &strDest)
 
 int CmpFullPath(const string& Src, const string& Dest)
 {
-	string strSrcFullName, strDestFullName;
+	const auto ToFull = [](const string& in) -> string
+	{
+		string out;
+		GetParentFolder(in, out);
+		DeleteEndSlash(out);
+		// избавимся от коротких имен
+		ConvertNameToReal(out, out);
+		return out;
+	};
 
-	GetParentFolder(Src, strSrcFullName);
-	GetParentFolder(Dest, strDestFullName);
-	DeleteEndSlash(strSrcFullName);
-	DeleteEndSlash(strDestFullName);
-
-	// избавимся от коротких имен
-	ConvertNameToReal(strSrcFullName, strSrcFullName);
-	ConvertNameToReal(strDestFullName, strDestFullName);
-
-	return !StrCmpI(strSrcFullName, strDestFullName);
+	return !StrCmpI(ToFull(Src), ToFull(Dest));
 }
 
-static void GenerateName(string &strName,const wchar_t *Path=nullptr)
+static void GenerateName(string &strName, const string& Path)
 {
-	if (Path&&*Path)
+	if (!Path.empty())
 	{
 		string strTmp=Path;
 		AddEndSlash(strTmp);
@@ -603,9 +642,9 @@ static void PR_ShellCopyMsg()
 
 BOOL CheckAndUpdateConsole(BOOL IsChangeConsole)
 {
-	HWND hWnd = Console().GetWindow();
-	BOOL curZoomedState=IsZoomed(hWnd);
-	BOOL curIconicState=IsIconic(hWnd);
+	const auto hWnd = Console().GetWindow();
+	const auto curZoomedState = IsZoomed(hWnd);
+	const auto curIconicState = IsIconic(hWnd);
 
 	if (ZoomedState!=curZoomedState && IconicState==curIconicState)
 	{
@@ -667,7 +706,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 		{
 			if (Param1==ID_SC_USEFILTER) // "Use filter"
 			{
-				UseFilter=static_cast<int>(reinterpret_cast<intptr_t>(Param2));
+				m_UseFilter = static_cast<int>(reinterpret_cast<intptr_t>(Param2)) == BSTATE_CHECKED;
 				return TRUE;
 			}
 
@@ -680,16 +719,9 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 			{
 				Dlg->SendMessage(DM_CLOSE,ID_SC_BTNCOPY,0);
 			}
-			/*
-			else if(Param1 == ID_SC_ONLYNEWER && ((Flags)&FCOPY_LINK))
-			{
-			  // подсократим код путем эмуляции телодвижений в строке ввода :-))
-			  		Dlg->SendMessage(DN_EDITCHANGE,ID_SC_TARGETEDIT,0);
-			}
-			*/
 			else if (Param1==ID_SC_BTNFILTER) // Filter
 			{
-				Filter->FilterEdit();
+				m_Filter->FilterEdit();
 				return TRUE;
 			}
 
@@ -697,10 +729,10 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 		}
 		case DN_CONTROLINPUT: // по поводу дерева!
 		{
-			const INPUT_RECORD* record=(const INPUT_RECORD *)Param2;
-			if (record->EventType==KEY_EVENT)
+			const auto& record = *static_cast<const INPUT_RECORD*>(Param2);
+			if (record.EventType==KEY_EVENT)
 			{
-				int key = InputRecordToKey(record);
+				int key = InputRecordToKey(&record);
 				if (key == KEY_ALTF10 || key == KEY_RALTF10 || key == KEY_F10 || key == KEY_SHIFTF10)
 				{
 					AltF10=(key == KEY_ALTF10 || key == KEY_RALTF10)?1:(key == KEY_SHIFTF10?2:0);
@@ -846,6 +878,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
                      int &ToPlugin,          // =?
                      const wchar_t* PluginDestPath,
                      bool ToSubdir):
+	m_Filter(std::make_unique<FileFilter>(SrcPanel, FFT_COPY)),
 	Flags((Move? FCOPY_MOVE : 0) | (Link? FCOPY_LINK : 0) | (CurrentOnly? FCOPY_CURRENTONLY : 0)),
 	SrcPanel(SrcPanel),
 	DestPanel(Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel)),
@@ -861,10 +894,11 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	m_FileAttr(),
 	FolderPresent(),
 	FilesPresent(),
-	AskRO()
+	AskRO(),
+	m_UseFilter(),
+	m_FileHandleForStreamSizeFix(),
+	m_NumberOfTargets()
 {
-	Filter=nullptr;
-
 	if (!(SelCount=SrcPanel->GetSelCount()))
 		return;
 
@@ -881,11 +915,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
 	ZoomedState=IsZoomed(Console().GetWindow());
 	IconicState=IsIconic(Console().GetWindow());
-	// Создадим объект фильтра
-	Filter=new FileFilter(SrcPanel, FFT_COPY);
 	// $ 26.05.2001 OT Запретить перерисовку панелей во время копирования
 	Global->CtrlObject->Cp()->Lock();
-	ShowTotalCopySize=Global->Opt->CMOpt.CopyShowTotal!=0;
+	bool ShowTotalCopySize = Global->Opt->CMOpt.CopyShowTotal;
 	int DestPlugin=ToPlugin;
 	ToPlugin=FALSE;
 
@@ -910,11 +942,11 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		{DI_CHECKBOX,    5, 8, 0, 8,0,nullptr,nullptr,0,MSG(MCopySymLinkContents)},
 		{DI_CHECKBOX,    5, 9, 0, 9,0,nullptr,nullptr,0,MSG(MCopyMultiActions)},
 		{DI_TEXT,       -1,10, 0,10,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_CHECKBOX,    5,11, 0,11,(int)(UseFilter?BSTATE_CHECKED:BSTATE_UNCHECKED),nullptr,nullptr,DIF_AUTOMATION,MSG(MCopyUseFilter)},
+		{DI_CHECKBOX,    5,11, 0,11,(int)(m_UseFilter? BSTATE_CHECKED : BSTATE_UNCHECKED), nullptr, nullptr, DIF_AUTOMATION, MSG(MCopyUseFilter)},
 		{DI_TEXT,       -1,12, 0,12,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_BUTTON,      0,13, 0,13,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MCopyDlgCopy)},
 		{DI_BUTTON,      0,13, 0,13,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,MSG(MCopyDlgTree)},
-		{DI_BUTTON,      0,13, 0,13,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE|DIF_AUTOMATION|(UseFilter?0:DIF_DISABLE),MSG(MCopySetFilter)},
+		{DI_BUTTON,      0,13, 0,13,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE|DIF_AUTOMATION|(m_UseFilter? 0 : DIF_DISABLE), MSG(MCopySetFilter)},
 		{DI_BUTTON,      0,13, 0,13,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCopyDlgCancel)},
 		{DI_TEXT,        5, 2, 0, 2,0,nullptr,nullptr,DIF_SHOWAMPERSAND,L""},
 	};
@@ -1148,9 +1180,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
 	while (SrcPanel->GetSelName(&strSelName,m_FileAttr,nullptr,&fd))
 	{
-		if (UseFilter)
+		if (m_UseFilter)
 		{
-			if (!Filter->FileInFilter(fd, nullptr, &fd.strFileName))
+			if (!m_Filter->FileInFilter(fd, nullptr, &fd.strFileName))
 				continue;
 		}
 
@@ -1265,7 +1297,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 			Dlg->Process();
 			DlgExitCode=Dlg->GetExitCode();
 			//Рефреш текущему времени для фильтра сразу после выхода из диалога
-			Filter->UpdateCurrentTime();
+			m_Filter->UpdateCurrentTime();
 
 			if (DlgExitCode == ID_SC_BTNCOPY)
 			{
@@ -1291,7 +1323,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 				if (!m_DestList.empty())
 				{
 					// Запомнить признак использования фильтра. KM
-					UseFilter=CopyDlg[ID_SC_USEFILTER].Selected;
+					m_UseFilter = CopyDlg[ID_SC_USEFILTER].Selected == BSTATE_CHECKED;
 					break;
 				}
 				else
@@ -1452,11 +1484,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		{
 			string strNameTmp;
 			// посчитаем количество целей.
-			CountTarget=m_DestList.size();
-			TotalFiles=0;
-			TotalCopySize=TotalCopiedSize=TotalSkippedSize=0;
+			m_NumberOfTargets=m_DestList.size();
 
-			if (CountTarget > 1)
+			if (m_NumberOfTargets > 1)
 				Move=0;
 
 			FOR_CONST_RANGE(m_DestList, i)
@@ -1467,7 +1497,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 					if (++j == m_DestList.end())
 						LastIteration = true;
 				}
-				CurCopiedSize=0;
+
 				strNameTmp = *i;
 
 				if ((strNameTmp.size() == 2) && IsAlpha(strNameTmp[0]) && (strNameTmp[1] == L':'))
@@ -1505,21 +1535,23 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
 				if (SelCount==1 && !FolderPresent)
 				{
-					ShowTotalCopySize=false;
-					TotalFilesToProcess=1;
+					ShowTotalCopySize = false;
 				}
 
 				if (Move) // при перемещении "тотал" так же скидывается для "того же диска"
 				{
 					if (CheckDisksProps(strSrcDir,strNameTmp,CHECKEDPROPS_ISSAMEDISK))
-						ShowTotalCopySize=false;
+						ShowTotalCopySize = false;
 					if (SelCount==1 && FolderPresent && CheckUpdateAnotherPanel(SrcPanel,strSelName))
 					{
 						NeedUpdateAPanel=TRUE;
 					}
 				}
+
 				if (!CP)
-					CP = std::make_unique<CopyProgress>(Move!=0,ShowTotalCopySize,ShowCopyTime);
+					CP = std::make_unique<CopyProgress>(Move != 0, ShowTotalCopySize, ShowCopyTime);
+
+				CP->m_Bytes.CurrCopied = 0;
 
 				// Обнулим инфу про дизы
 				strDestDizPath.clear();
@@ -1660,8 +1692,6 @@ ShellCopy::~ShellCopy()
 	// $ 26.05.2001 OT Разрешить перерисовку панелей
 	Global->CtrlObject->Cp()->Unlock();
 	Global->CtrlObject->Cp()->Refresh();
-
-	delete Filter;
 }
 
 COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
@@ -1670,8 +1700,6 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 	//SaveScreen SaveScr;
 	DWORD DestAttr = INVALID_FILE_ATTRIBUTES;
 	size_t DestMountLen = 0;
-	string strSelName, strSelShortName;
-	DWORD FileAttr;
 
 	if (Dest.empty() || Dest == L".")
 		return COPY_FAILURE; //????
@@ -1687,20 +1715,23 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 	bool move_rename = (0 != (Flags & FCOPY_MOVE));
 	bool SameDisk = false;
 
-	if (!TotalCopySize)
+	if (!CP->m_Bytes.Total)
 	{
 		//  ! Не сканируем каталоги при создании линков
-		if (ShowTotalCopySize && !(Flags&FCOPY_LINK) && !CalcTotalSize())
+		if (CP->TotalVisible() && !(Flags&FCOPY_LINK) && !CalcTotalSize())
 			return COPY_FAILURE;
 	}
 	else
 	{
-		CurCopiedSize=0;
+		CP->m_Bytes.CurrCopied = 0;
 	}
 
 	// Основной цикл копирования одной порции.
 	//
+	DWORD FileAttr;
 	SrcPanel->GetSelName(nullptr, FileAttr);
+
+	string strSelName, strSelShortName;
 	while (SrcPanel->GetSelName(&strSelName, FileAttr, &strSelShortName))
 	{
 		string strDest(Dest);
@@ -1784,11 +1815,11 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 					if (ret < 0 || ret == 4)
 						return COPY_CANCEL;
 					else if (ret == 1)
-						return COPY_NEXT;
+						return COPY_SKIPPED;
 					else if (ret == 2)
 					{
 						SkipMode = 2;
-						return COPY_NEXT;
+						return COPY_SKIPPED;
 					}
 
 					Exists_2 = os::fs::exists(strDestDriveRoot);
@@ -1869,7 +1900,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 
 		if (move_rename)
 		{
-			if ((UseFilter || !SameDisk) || ((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (Flags&FCOPY_COPYSYMLINKCONTENTS)))
+			if ((m_UseFilter || !SameDisk) || ((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (Flags&FCOPY_COPYSYMLINKCONTENTS)))
 			{
 				CopyCode=COPY_FAILURE;
 			}
@@ -1906,10 +1937,9 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 				if (CopyCode==COPY_CANCEL)
 					return COPY_CANCEL;
 
-				if (CopyCode==COPY_NEXT)
+				if (CopyCode==COPY_SKIPPED)
 				{
-					TotalCopiedSize = TotalCopiedSize - CurCopiedSize + SrcData.nFileSize;
-					TotalSkippedSize = TotalSkippedSize + SrcData.nFileSize - CurCopiedSize;
+					CP->UpdateAllBytesInfo(SrcData.nFileSize);
 					continue;
 				}
 
@@ -1935,12 +1965,10 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 
 			if (CopyCode!=COPY_SUCCESS)
 			{
-				if (CopyCode != COPY_NOFILTER) //????
-					TotalCopiedSize = TotalCopiedSize - CurCopiedSize +  SrcData.nFileSize;
-
-				if (CopyCode == COPY_NEXT)
-					TotalSkippedSize = TotalSkippedSize +  SrcData.nFileSize - CurCopiedSize;
-
+				if (CopyCode == COPY_SKIPPED)
+				{
+					CP->UpdateAllBytesInfo(SrcData.nFileSize);
+				}
 				continue;
 			}
 		}
@@ -1977,12 +2005,12 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 
 			while (ScTree.GetNextName(&SrcData,strFullName))
 			{
-				if (UseFilter && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+				if (m_UseFilter && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 				{
 					// Просто пропустить каталог недостаточно - если каталог помечен в
 					// фильтре как некопируемый, то следует пропускать и его и всё его
 					// содержимое.
-					if (!Filter->FileInFilter(SrcData, nullptr, &strFullName))
+					if (!m_Filter->FileInFilter(SrcData, nullptr, &strFullName))
 					{
 						ScTree.SkipDir();
 						continue;
@@ -2007,10 +2035,9 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 						{
 							case COPY_CANCEL:
 								return COPY_CANCEL;
-							case COPY_NEXT:
+							case COPY_SKIPPED:
 							{
-								TotalCopiedSize = TotalCopiedSize - CurCopiedSize + SrcData.nFileSize;
-								TotalSkippedSize = TotalSkippedSize + SrcData.nFileSize - CurCopiedSize;
+								CP->UpdateAllBytesInfo(SrcData.nFileSize);
 								continue;
 							}
 							case COPY_SUCCESS_MOVE:
@@ -2021,8 +2048,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 
 								if (!NeedRename) // вариант при перемещении содержимого симлинка с опцией "копировать содержимое сим..."
 								{
-									TotalCopiedSize = TotalCopiedSize - CurCopiedSize + SrcData.nFileSize;
-									TotalSkippedSize = TotalSkippedSize + SrcData.nFileSize - CurCopiedSize;
+									CP->UpdateAllBytesInfo(SrcData.nFileSize);
 									continue;     // ...  т.к. мы ЭТО не мувили, а скопировали, то все, на этом закончим бадаться с этим файлов
 								}
 						}
@@ -2048,10 +2074,9 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 				if (SubCopyCode==COPY_CANCEL)
 					return COPY_CANCEL;
 
-				if (SubCopyCode==COPY_NEXT)
+				if (SubCopyCode==COPY_SKIPPED)
 				{
-					TotalCopiedSize = TotalCopiedSize - CurCopiedSize + SrcData.nFileSize;
-					TotalSkippedSize = TotalSkippedSize + SrcData.nFileSize - CurCopiedSize;
+					CP->UpdateAllBytesInfo(SrcData.nFileSize);
 				}
 
 				if (SubCopyCode==COPY_SUCCESS)
@@ -2127,16 +2152,16 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
     int Rename
 )
 {
-	CurCopiedSize = 0; // Сбросить текущий прогресс
+	CP->m_Bytes.CurrCopied = 0; // Сбросить текущий прогресс
 
 	if (CP->Cancelled())
 	{
 		return COPY_CANCEL;
 	}
 
-	if (UseFilter)
+	if (m_UseFilter)
 	{
-		if (!Filter->FileInFilter(SrcData, nullptr, &Src))
+		if (!m_Filter->FileInFilter(SrcData, nullptr, &Src))
 			return COPY_NOFILTER;
 	}
 
@@ -2221,8 +2246,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 		// проверка очередного монстрика на потоки
 		switch (CheckStreams(Src,strDestPath))
 		{
-			case COPY_NEXT:
-				return COPY_NEXT;
+			case COPY_SKIPPED:
+				return COPY_SKIPPED;
 			case COPY_CANCEL:
 				return COPY_CANCEL;
 			default:
@@ -2267,13 +2292,13 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 					string strSrcFullName;
 					ConvertNameToFull(Src,strSrcFullName);
-					return (strDestPath == strSrcFullName)? COPY_NEXT : COPY_SUCCESS;
+					return (strDestPath == strSrcFullName)? COPY_SKIPPED : COPY_SUCCESS;
 				}
 
 				int Type=os::GetFileTypeByName(strDestPath);
 
 				if (Type==FILE_TYPE_CHAR || Type==FILE_TYPE_PIPE)
-					return Rename? COPY_NEXT : COPY_SUCCESS;
+					return Rename? COPY_SKIPPED : COPY_SUCCESS;
 			}
 
 			if (Rename)
@@ -2302,9 +2327,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				// Пытаемся переименовать, пока не отменят
 				for (;;)
 				{
-					BOOL SuccessMove=os::MoveFile(Src,strDestPath);
-
-					if (SuccessMove)
+					if (os::MoveFile(Src, strDestPath))
 					{
 						if (IsSetSecuty)// && !strcmp(DestFSName,"NTFS"))
 							SetRecursiveSecurity(strDestPath,sd);
@@ -2316,7 +2339,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 						ConvertNameToFull(strDest, strDestFullName);
 						TreeList::RenTreeName(strSrcFullName,strDestFullName);
-						return SameName? COPY_NEXT : COPY_SUCCESS_MOVE;
+						return SameName? COPY_SKIPPED : COPY_SUCCESS_MOVE;
 					}
 					else
 					{
@@ -2373,7 +2396,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					                MSG(MCopySkip),MSG(MCopyCancel));
 
 					if (MsgCode)
-						return (MsgCode==-2 || MsgCode==2)? COPY_CANCEL : COPY_NEXT;
+						return (MsgCode==-2 || MsgCode==2)? COPY_CANCEL : COPY_SKIPPED;
 				}
 
 				DWORD SetAttr=SrcData.dwFileAttributes;
@@ -2409,7 +2432,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 							}
 
 							if (MsgCode != SETATTR_RET_OK)
-								return (MsgCode==SETATTR_RET_SKIP || MsgCode==SETATTR_RET_SKIPALL) ? COPY_NEXT:COPY_CANCEL;
+								return (MsgCode==SETATTR_RET_SKIP || MsgCode==SETATTR_RET_SKIPALL) ? COPY_SKIPPED:COPY_CANCEL;
 						}
 					}
 
@@ -2432,7 +2455,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 							}
 
 							os::RemoveDirectory(strDestPath);
-							return (MsgCode==-2 || MsgCode==3)? COPY_CANCEL : COPY_NEXT;
+							return (MsgCode==-2 || MsgCode==3)? COPY_CANCEL : COPY_SKIPPED;
 						}
 					}
 				}
@@ -2457,7 +2480,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 							}
 
 							os::RemoveDirectory(strDestPath);
-							return (MsgCode==-2 || MsgCode==3)? COPY_CANCEL : COPY_NEXT;
+							return (MsgCode==-2 || MsgCode==3)? COPY_CANCEL : COPY_SKIPPED;
 						}
 					}
 				}
@@ -2547,17 +2570,19 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 		for (;;)
 		{
 			int CopyCode=0;
-			unsigned __int64 SaveTotalSize=TotalCopiedSize;
+			unsigned __int64 SaveTotalSize = CP->m_Bytes.Copied;
 
 			if (!(Flags&FCOPY_COPYTONUL) && Rename)
 			{
-				int MoveCode=FALSE,AskDelete;
+				int AskDelete;
 
 				if (strDestFSName == L"NWFS" && !Append &&
 				        DestAttr!=INVALID_FILE_ATTRIBUTES && !SameName)
 				{
 					os::DeleteFile(strDestPath); //BUGBUG
 				}
+
+				bool FileMoved = false;
 
 				if (!Append)
 				{
@@ -2588,11 +2613,11 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					}
 
 					if (strDestFSName == L"NWFS")
-						MoveCode=os::MoveFile(strSrcFullName,strDestPath);
+						FileMoved = os::MoveFile(strSrcFullName, strDestPath);
 					else
-						MoveCode=os::MoveFileEx(strSrcFullName,strDestPath,SameName ? MOVEFILE_COPY_ALLOWED:MOVEFILE_COPY_ALLOWED|MOVEFILE_REPLACE_EXISTING);
+						FileMoved = os::MoveFileEx(strSrcFullName, strDestPath, SameName ? MOVEFILE_COPY_ALLOWED : MOVEFILE_COPY_ALLOWED | MOVEFILE_REPLACE_EXISTING);
 
-					if (!MoveCode)
+					if (!FileMoved)
 					{
 						int MoveLastError=GetLastError();
 
@@ -2614,13 +2639,11 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					if (NWFS_Attr)
 						os::SetFileAttributes(strDestPath,SrcData.dwFileAttributes);
 
-					if (MoveCode)
+					if (FileMoved)
 					{
-						TotalCopiedSize+=SrcData.nFileSize;
-						if (ShowTotalCopySize)
-						{
-							CP->SetTotalProgressValue(TotalCopiedSize, TotalCopySize);
-						}
+						CP->m_Bytes.CurrCopied = SrcData.nFileSize;
+						CP->UpdateAllBytesInfo(SrcData.nFileSize);
+						CP->UpdateTotalProgress();
 					}
 
 					AskDelete=0;
@@ -2637,22 +2660,21 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					switch (CopyCode)
 					{
 						case COPY_SUCCESS:
-							MoveCode=TRUE;
+							FileMoved = TRUE;
 							break;
-						case COPY_FAILUREREAD:
 						case COPY_FAILURE:
-							MoveCode=FALSE;
+							FileMoved = FALSE;
 							break;
 						case COPY_CANCEL:
 							return COPY_CANCEL;
-						case COPY_NEXT:
-							return COPY_NEXT;
+						case COPY_SKIPPED:
+							return COPY_SKIPPED;
 					}
 
 					AskDelete=1;
 				}
 
-				if (MoveCode)
+				if (FileMoved)
 				{
 					if (DestAttr==INVALID_FILE_ATTRIBUTES || !(DestAttr & FILE_ATTRIBUTE_DIRECTORY))
 					{
@@ -2665,7 +2687,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					if (IsDriveTypeCDROM(SrcDriveType) && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_READONLY))
 						ShellSetAttr(strDestPath,SrcData.dwFileAttributes & (~FILE_ATTRIBUTE_READONLY));
 
-					TotalFiles++;
+					++CP->m_Files.Copied;
 
 					if (AskDelete && DeleteAfterMove(Src,SrcData.dwFileAttributes)==COPY_CANCEL)
 						return COPY_CANCEL;
@@ -2695,14 +2717,14 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 							os::MoveFile(strDestPath,strDestPath); //???
 					}
 
-					TotalFiles++;
+					++CP->m_Files.Copied;
 
 					if (DestAttr!=INVALID_FILE_ATTRIBUTES && Append)
 						os::SetFileAttributes(strDestPath,DestAttr);
 
 					return COPY_SUCCESS;
 				}
-				else if (CopyCode==COPY_CANCEL || CopyCode==COPY_NEXT)
+				else if (CopyCode==COPY_CANCEL || CopyCode==COPY_SKIPPED)
 				{
 					if (DestAttr!=INVALID_FILE_ATTRIBUTES && Append)
 						os::SetFileAttributes(strDestPath,DestAttr);
@@ -2714,11 +2736,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					os::SetFileAttributes(strDestPath,DestAttr);
 			}
 
-			//????
-			if (CopyCode == COPY_FAILUREREAD)
-				return COPY_FAILURE;
-
-			//????
 			string strMsg1, strMsg2;
 			LNGID MsgMCannot=(Flags&FCOPY_LINK) ? MCannotLink: (Flags&FCOPY_MOVE) ? MCannotMove: MCannotCopy;
 			strMsg1 = Src;
@@ -2767,7 +2784,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				case 3:
 					SkipEncMode = 3;
 				case 2:
-					return COPY_NEXT;
+					return COPY_SKIPPED;
 
 				case -1:
 				case -2:
@@ -2794,17 +2811,17 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				switch (MsgCode)
 				{
 				case  1:
-					return COPY_NEXT;
+					return COPY_SKIPPED;
 				case  2:
 					SkipMode=1;
-					return COPY_NEXT;
+					return COPY_SKIPPED;
 				case -1:
 				case -2:
 				case  3:
 					return COPY_CANCEL;
 				}
 			}
-			TotalCopiedSize=SaveTotalSize;
+			CP->m_Bytes.Copied = SaveTotalSize;
 			int RetCode = COPY_CANCEL;
 			string strNewName;
 
@@ -2897,10 +2914,10 @@ int ShellCopy::DeleteAfterMove(const string& Name,DWORD Attr)
 				ReadOnlyDelMode=1;
 				break;
 			case 2:
-				return COPY_NEXT;
+				return COPY_SKIPPED;
 			case 3:
 				ReadOnlyDelMode=3;
-				return COPY_NEXT;
+				return COPY_SKIPPED;
 			case -1:
 			case -2:
 			case 4:
@@ -2923,10 +2940,10 @@ int ShellCopy::DeleteAfterMove(const string& Name,DWORD Attr)
 		switch (MsgCode)
 		{
 			case 1:
-				return COPY_NEXT;
+				return COPY_SKIPPED;
 			case 2:
 				SkipDeleteMode=1;
-				return COPY_NEXT;
+				return COPY_SKIPPED;
 			case -1:
 			case -2:
 			case 3:
@@ -3140,12 +3157,8 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::FAR_FIND_DATA &SrcD
 				PR_ShellCopyMsg();
 			}
 
-			CP->SetProgressValue(CurCopiedSize,SrcData.nFileSize);
-
-			if (ShowTotalCopySize)
-			{
-				CP->SetTotalProgressValue(TotalCopiedSize,TotalCopySize);
-			}
+			CP->SetProgressValue(CP->m_Bytes.CurrCopied, SrcData.nFileSize);
+			CP->UpdateTotalProgress();
 
 			if (AbortOp)
 			{
@@ -3206,7 +3219,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::FAR_FIND_DATA &SrcD
 				CP->SetProgressValue(0,0);
 				SetLastError(LastError);
 				Global->CatchError();
-				CurCopiedSize = 0; // Сбросить текущий прогресс
+				CP->m_Bytes.CurrCopied = 0; // Сбросить текущий прогресс
 				return COPY_FAILURE;
 			}
 
@@ -3362,7 +3375,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::FAR_FIND_DATA &SrcD
 						SetLastError(LastError);
 
 						if (SplitSkipped)
-							return COPY_NEXT;
+							return COPY_SKIPPED;
 
 						return SplitCancelled? COPY_CANCEL : COPY_FAILURE;
 					}
@@ -3375,18 +3388,9 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::FAR_FIND_DATA &SrcD
 				BytesWritten=BytesRead; // не забудем приравнять количество записанных байт
 			}
 
-			TotalCopiedSize-=CurCopiedSize;
-
-			CurCopiedSize = SrcFile.GetChunkOffset() + SrcFile.GetChunkSize();
-
-			TotalCopiedSize+=CurCopiedSize;
-
-			CP->SetProgressValue(CurCopiedSize,SrcData.nFileSize);
-
-			if (ShowTotalCopySize)
-			{
-				CP->SetTotalProgressValue(TotalCopiedSize,TotalCopySize);
-			}
+			CP->UpdateCurrentBytesInfo(SrcFile.GetChunkOffset() + SrcFile.GetChunkSize());
+			CP->SetProgressValue(CP->m_Bytes.CurrCopied, SrcData.nFileSize);
+			CP->UpdateTotalProgress();
 		}
 		while(SrcFile.Step());
 	}
@@ -3538,7 +3542,7 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 				{
 					auto WFN = reinterpret_cast<file_names_for_overwrite_dialog*>(Dlg->SendMessage(DM_GETDLGDATA, 0, 0));
 					string strDestName = *WFN->Dest;
-					GenerateName(strDestName, WFN->DestPath->data());
+					GenerateName(strDestName, *WFN->DestPath);
 
 					if (Dlg->SendMessage(DM_GETCHECK,WDLG_CHECKBOX,0)==BSTATE_UNCHECKED)
 					{
@@ -3626,7 +3630,7 @@ int ShellCopy::AskOverwrite(const os::FAR_FIND_DATA &SrcData,
 
 	if ((Flags&FCOPY_COPYTONUL))
 	{
-		RetCode=COPY_NEXT;
+		RetCode=COPY_SKIPPED;
 		return TRUE;
 	}
 
@@ -3736,11 +3740,11 @@ int ShellCopy::AskOverwrite(const os::FAR_FIND_DATA &SrcData,
 		case 3:
 			OvrMode = 2;
 		case 2:
-			RetCode = COPY_NEXT;
+			RetCode = COPY_SKIPPED;
 			return FALSE;
 		case 5:
 			OvrMode = 5;
-			GenerateName(strDestName, strRenamedFilesPath.data());
+			GenerateName(strDestName, strRenamedFilesPath);
 		case 4:
 			RetCode = COPY_RETRY;
 			strNewName = strDestName;
@@ -3835,7 +3839,7 @@ int ShellCopy::AskOverwrite(const os::FAR_FIND_DATA &SrcData,
 				case 3:
 					ReadOnlyOvrMode=2;
 				case 2:
-					RetCode=COPY_NEXT;
+					RetCode=COPY_SKIPPED;
 					return FALSE;
 				case -1:
 				case -2:
@@ -3977,8 +3981,6 @@ int ShellCopy::SetRecursiveSecurity(const string& FileName,const os::FAR_SECURIT
 	return FALSE;
 }
 
-
-
 int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,const os::FAR_FIND_DATA &SrcData)
 {
 	os::FAR_SECURITY_DESCRIPTOR sd;
@@ -3988,11 +3990,18 @@ int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,cons
 
 	CP->SetNames(SrcName,DestName);
 	CP->SetProgressValue(0,0);
-	TotalCopiedSizeEx=TotalCopiedSize;
 
-	FileHandleForStreamSizeFix = nullptr;
+	m_FileHandleForStreamSizeFix = nullptr;
 
-	if (!os::CopyFileEx(SrcName, DestName, CopyProgressRoutine, CP.get(), nullptr, Flags&FCOPY_DECRYPTED_DESTINATION? COPY_FILE_ALLOW_DECRYPTED_DESTINATION : 0))
+	struct callback_wrapper
+	{
+		static DWORD WINAPI callback(LARGE_INTEGER TotalFileSize, LARGE_INTEGER TotalBytesTransferred, LARGE_INTEGER StreamSize, LARGE_INTEGER StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE SourceFile, HANDLE DestinationFile, LPVOID Data)
+		{
+			return static_cast<ShellCopy*>(Data)->CopyProgressRoutine(TotalFileSize.QuadPart, TotalBytesTransferred.QuadPart, StreamSize.QuadPart, StreamBytesTransferred.QuadPart, StreamNumber, CallbackReason, SourceFile, DestinationFile);
+		}
+	};
+
+	if (!os::CopyFileEx(SrcName, DestName, callback_wrapper::callback, this, nullptr, Flags&FCOPY_DECRYPTED_DESTINATION ? COPY_FILE_ALLOW_DECRYPTED_DESTINATION : 0))
 	{
 		Flags&=~FCOPY_DECRYPTED_DESTINATION;
 		return (GetLastError() == ERROR_REQUEST_ABORTED)? COPY_CANCEL : COPY_FAILURE;
@@ -4006,16 +4015,11 @@ int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,cons
 	return COPY_SUCCESS;
 }
 
-DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
-                                 LARGE_INTEGER TotalBytesTransferred,LARGE_INTEGER StreamSize,
-                                 LARGE_INTEGER StreamBytesTransferred,DWORD dwStreamNumber,
-                                 DWORD dwCallbackReason,HANDLE hSourceFile,HANDLE hDestinationFile,
-                                 LPVOID lpData)
+DWORD ShellCopy::CopyProgressRoutine(uint64_t TotalFileSize, uint64_t TotalBytesTransferred, uint64_t StreamSize, uint64_t StreamBytesTransferred, DWORD dwStreamNumber, DWORD dwCallbackReason, HANDLE hSourceFile, HANDLE hDestinationFile)
 {
 	// // _LOGCOPYR(CleverSysLog clv(L"CopyProgressRoutine"));
 	// // _LOGCOPYR(SysLog(L"dwStreamNumber=%d",dwStreamNumber));
 	bool Abort = false;
-	auto CP = static_cast<CopyProgress*>(lpData);
 	if (CP->Cancelled())
 	{
 		// // _LOGCOPYR(SysLog(L"2='%s'/0x%08X  3='%s'/0x%08X  Flags=0x%08X",(char*)PreRedrawParam.Param2,PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Param3,PreRedrawParam.Flags));
@@ -4029,23 +4033,18 @@ DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
 		PR_ShellCopyMsg();
 	}
 
-	CurCopiedSize = TotalBytesTransferred.QuadPart;
-	CP->SetProgressValue(TotalBytesTransferred.QuadPart,TotalFileSize.QuadPart);
+	CP->UpdateCurrentBytesInfo(TotalBytesTransferred);
+	CP->SetProgressValue(TotalBytesTransferred, TotalFileSize);
 
 	//fix total size
-	if (dwStreamNumber == 1 && hSourceFile != FileHandleForStreamSizeFix)
+	if (dwStreamNumber == 1 && hSourceFile != m_FileHandleForStreamSizeFix)
 	{
-		TotalCopySize -= StreamSize.QuadPart;
-		TotalCopySize += TotalFileSize.QuadPart;
-		FileHandleForStreamSizeFix = hSourceFile;
+		CP->m_Bytes.Total -= StreamSize;
+		CP->m_Bytes.Total += TotalFileSize;
+		m_FileHandleForStreamSizeFix = hSourceFile;
 	}
 
-	TotalCopiedSize = TotalCopiedSizeEx + CurCopiedSize;
-
-	if (ShowTotalCopySize)
-	{
-		CP->SetTotalProgressValue(TotalCopiedSize,TotalCopySize);
-	}
+	CP->UpdateTotalProgress();
 
 	return Abort?PROGRESS_CANCEL:PROGRESS_CONTINUE;
 }
@@ -4062,8 +4061,9 @@ bool ShellCopy::CalcTotalSize()
 	item->CP = CP.get();
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::move(item));
 
-	TotalCopySize=CurCopiedSize=0;
-	TotalFilesToProcess = 0;
+	CP->m_Bytes.Total = 0;
+	CP->m_Bytes.CurrCopied = 0;
+	CP->m_Files.Total = 0;
 	SrcPanel->GetSelName(nullptr,FileAttr);
 
 	while (SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName,&fd))
@@ -4076,27 +4076,26 @@ bool ShellCopy::CalcTotalSize()
 			{
 				DirInfoData Data = {};
 				CP->SetScanName(strSelName);
-				int __Ret = GetDirInfo(L"", strSelName, Data, getdirinfo_infinite_delay, Filter, (Flags&FCOPY_COPYSYMLINKCONTENTS? GETDIRINFO_SCANSYMLINK : 0) | (UseFilter? GETDIRINFO_USEFILTER : 0));
+				int __Ret = GetDirInfo(L"", strSelName, Data, getdirinfo_infinite_delay, m_Filter.get(), (Flags&FCOPY_COPYSYMLINKCONTENTS ? GETDIRINFO_SCANSYMLINK : 0) | (m_UseFilter? GETDIRINFO_USEFILTER : 0));
 				FileSize = Data.FileSize;
 				if (__Ret <= 0)
 				{
-					ShowTotalCopySize=false;
 					return false;
 				}
 
 				if (Data.FileCount > 0)
 				{
-					TotalCopySize+=FileSize;
-					TotalFilesToProcess += Data.FileCount;
+					CP->m_Bytes.Total += FileSize;
+					CP->m_Files.Total += Data.FileCount;
 				}
 			}
 		}
 		else
 		{
 			//  Подсчитаем количество файлов
-			if (UseFilter)
+			if (m_UseFilter)
 			{
-				if (!Filter->FileInFilter(fd, nullptr, &fd.strFileName))
+				if (!m_Filter->FileInFilter(fd, nullptr, &fd.strFileName))
 					continue;
 			}
 
@@ -4104,15 +4103,15 @@ bool ShellCopy::CalcTotalSize()
 
 			if (FileSize != (unsigned __int64)-1)
 			{
-				TotalCopySize+=FileSize;
-				TotalFilesToProcess++;
+				CP->m_Bytes.Total += FileSize;
+				++CP->m_Files.Total;
 			}
 		}
 	}
 
 	// INFO: Это для варианта, когда "ВСЕГО = общий размер * количество целей"
-	TotalCopySize *= CountTarget;
-	TotalFilesToProcess *= CountTarget;
+	CP->m_Bytes.Total *= m_NumberOfTargets;
+	CP->m_Files.Total *= m_NumberOfTargets;
 	return true;
 }
 

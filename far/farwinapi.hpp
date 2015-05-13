@@ -63,7 +63,7 @@ namespace os
 			swap(m_Handle, rhs.m_Handle);
 		}
 
-		bool operator!() const { return !m_Handle; }
+		bool operator!() const noexcept { return !m_Handle; }
 		EXPLICIT_OPERATOR_BOOL();
 
 		bool close()
@@ -182,8 +182,8 @@ namespace os
 	BOOL RemoveDirectory(const string& DirName);
 	handle CreateFile(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes=0, HANDLE TemplateFile=nullptr, bool ForceElevation = false);
 	BOOL CopyFileEx(const string& ExistingFileName, const string& NewFileName, LPPROGRESS_ROUTINE lpProgressRoutine, LPVOID lpData, LPBOOL pbCancel, DWORD dwCopyFlags);
-	BOOL MoveFile(const string& ExistingFileName, const string& NewFileName);
-	BOOL MoveFileEx(const string& ExistingFileName, const string& NewFileName, DWORD dwFlags);
+	bool MoveFile(const string& ExistingFileName, const string& NewFileName);
+	bool MoveFileEx(const string& ExistingFileName, const string& NewFileName, DWORD dwFlags);
 	BOOL IsDiskInDrive(const string& Root);
 	int GetFileTypeByName(const string& Name);
 	bool GetDiskSize(const string& Path, unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree);
@@ -292,7 +292,7 @@ namespace os
 
 			FREE_SWAP(file);
 
-			bool operator!() const { return !Handle; }
+			bool operator!() const noexcept { return !Handle; }
 			EXPLICIT_OPERATOR_BOOL();
 
 			// TODO: half of these should be free functions
@@ -386,7 +386,7 @@ namespace os
 			key(HKEY RootKey, const wchar_t* SubKey, REGSAM Sam);
 			~key();
 
-			bool operator!() const { return !m_Key; }
+			bool operator!() const noexcept { return !m_Key; }
 			EXPLICIT_OPERATOR_BOOL();
 			HKEY Key() const { return m_Key; }
 
@@ -516,7 +516,7 @@ namespace os
 			~module();
 
 			FARPROC GetProcAddress(const char* name) const { return ::GetProcAddress(get_module(), name); }
-			bool operator!() const { return !get_module(); }
+			bool operator!() const noexcept { return !get_module(); }
 			EXPLICIT_OPERATOR_BOOL();
 
 		private:

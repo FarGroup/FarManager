@@ -103,7 +103,7 @@ public:
 
 	void reset(clock_t Value = clock()) const { m_Begin = Value; }
 
-	bool operator!() const
+	bool operator!() const noexcept
 	{
 		const auto Current = clock();
 		if (m_Interval > 0 && Current - m_Begin > m_Interval)

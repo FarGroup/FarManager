@@ -401,7 +401,7 @@ static bool ProcessServiceModes(const range<wchar_t**>& Args, int& ServiceResult
 
 	if (Args.size() == 4 && IsElevationArgument(Args[0])) // /service:elevation {GUID} PID UsePrivileges
 	{
-		ServiceResult = ElevationMain(Args[1], wcstoul(Args[2], nullptr, 10), *Args[3] == L'1');
+		ServiceResult = ElevationMain(Args[1], std::wcstoul(Args[2], nullptr, 10), *Args[3] == L'1');
 		return true;
 	}
 	else if (InRange(size_t(2), Args.size(), size_t(5)) && (isArg(Args[0], L"export") || isArg(Args[0], L"import")))
@@ -552,13 +552,13 @@ static int mainImpl(const range<wchar_t**>& Args)
 					break;
 
 				case L'E':
-					if (iswdigit(Arg[2]))
+					if (std::iswdigit(Arg[2]))
 					{
-						StartLine=_wtoi(&Arg[2]);
-						const wchar_t *ChPtr=wcschr(&Arg[2],L':');
+						StartLine = static_cast<int>(std::wcstol(Arg + 2, nullptr, 10));
+						const wchar_t *ChPtr = wcschr(Arg + 2, L':');
 
 						if (ChPtr)
-							StartChar=_wtoi(ChPtr+1);
+							StartChar = static_cast<int>(std::wcstol(ChPtr + 1, nullptr, 10));;
 					}
 
 					if (Iter + 1 != Args.end())

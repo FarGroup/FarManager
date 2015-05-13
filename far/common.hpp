@@ -49,7 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/enumerator.hpp"
 #include "common/iterator_range.hpp"
 #include "common/algorithm.hpp"
-
+#include "common/monitored.hpp"
 
 // TODO: clean up & split
 
@@ -101,9 +101,6 @@ struct simple_pair
 	first_type first;
 	second_type second;
 };
-
-template<class T>
-typename std::make_unsigned<T>::type as_unsigned(T t) { return static_cast<typename std::make_unsigned<T>::type>(t); }
 
 template<typename T>
 inline void ClearStruct(T& s)

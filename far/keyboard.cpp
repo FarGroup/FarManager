@@ -283,10 +283,10 @@ void InitKeysArray()
 		Layout().reserve(10);
 		FOR(const auto& i, os::reg::enum_value(HKEY_CURRENT_USER, L"Keyboard Layout\\Preload"))
 		{
-			if (i.Type() == REG_SZ && std::isdigit(i.Name().front()))
+			if (i.Type() == REG_SZ && std::iswdigit(i.Name().front()))
 			{
 				string Value = i.GetString();
-				if (!Value.empty() && (std::isdigit(Value.front()) || InRange(L'A', ToUpper(Value.front()), L'Z')))
+				if (!Value.empty() && std::iswxdigit(Value.front()))
 				{
 					try
 					{
@@ -1383,7 +1383,7 @@ int KeyNameToKey(const string& Name)
 			else if (Key == KEY_ALT || Key == KEY_RALT || Key == KEY_M_SPEC || Key == KEY_M_OEM) // Варианты (3), (4) и (5)
 			{
 				wchar_t *endptr=nullptr;
-				int K=(int)wcstol(Ptr, &endptr, 10);
+				int K = static_cast<int>(std::wcstol(Ptr, &endptr, 10));
 
 				if (Ptr+5 == endptr)
 				{

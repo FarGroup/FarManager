@@ -957,10 +957,10 @@ static bool GetHelpColor(const wchar_t* &Str, wchar_t cColor, FarColor &color)
 		return true;
 	}
 
-	if (!iswxdigit(wc1)) // '\hh' custom color
+	if (!std::iswxdigit(wc1)) // '\hh' custom color
 		return false;
 	wchar_t wc2 = Str[2];
-	if (!iswxdigit(wc2))
+	if (!std::iswxdigit(wc2))
 		return false;
 
 	if (wc1 > L'9')
@@ -994,7 +994,7 @@ static bool FastParseLine(const wchar_t *Str, int *pLen, int x0, int realX, stri
 				Str += 2-1;
 				continue;
 			}
-			else if (iswxdigit(*Str) && iswxdigit(Str[1])) // '\hh' custom color
+			else if (std::iswxdigit(*Str) && std::iswxdigit(Str[1])) // '\hh' custom color
 			{
 				Str += 3-1;
 				continue;

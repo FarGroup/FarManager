@@ -197,7 +197,7 @@ const wchar_t* DizList::GetDizTextAddr(const string& Name, const string& ShortNa
 	{
 		DizText=DizPos->second.front().data();
 
-		if (iswdigit(*DizText))
+		if (std::iswdigit(*DizText))
 		{
 			auto SizeText = std::to_wstring(FileSize);
 			const wchar_t *DizPtr=DizText;

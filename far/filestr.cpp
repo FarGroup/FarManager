@@ -294,7 +294,7 @@ bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, bool bB
 
 				if (bBigEndian && sizeof(T) != 1)
 				{
-					_swab(reinterpret_cast<char*>(From.data()), reinterpret_cast<char*>(From.data()), static_cast<int>(ReadSize));
+					swap_bytes(From.data(), From.data(), ReadSize);
 				}
 
 				ReadPos = 0;

@@ -84,11 +84,10 @@ public:
 	void SelectText(const __int64 &MatchPos,const __int64 &SearchLength, const DWORD Flags=0x1);
 	bool GetShowScrollbar() const { return ViOpt.ShowScrollbar; }
 	void SetShowScrollbar(bool newValue) { ViOpt.ShowScrollbar=newValue; }
-	int GetHexMode() const { return VM.Hex; }
-	uintptr_t GetCodePage() const { return VM.CodePage; }
+	uintptr_t GetCodePage() const { return m_Codepage; }
 	NamesList& GetNamesList() { return ViewNamesList; }
 	bool isTemporary() const;
-	int ProcessHexMode(int newMode, bool isRedraw = true);
+	bool ProcessDisplayMode(VIEWER_MODE_TYPE newMode, bool isRedraw = true);
 	int ProcessWrapMode(int newMode, bool isRedraw = true);
 	int ProcessTypeWrapMode(int newMode, bool isRedraw = true);
 	void SearchTextTransform(string& to, const wchar_t *from, size_t from_len, bool hex2text, intptr_t &pos);
@@ -142,9 +141,16 @@ private:
 	void SavePosition();
 	intptr_t ViewerSearchDlgProc(Dialog* Dlg, intptr_t Msg,intptr_t Param1,void* Param2);
 	int getCharSize() const;
-	int txt_dump(const char *line, size_t nr, int width, wchar_t *outstr, wchar_t zch, int tail) const;
+	int txt_dump(const char *line, size_t nr, size_t width, string& outstr, wchar_t zch, int tail) const;
 
 	static uintptr_t GetDefaultCodePage();
+
+	int GetModeDependentCharSize() const;
+	int GetModeDependentLineSize() const;
+
+	wchar_t ZeroChar() const;
+	size_t MaxViewLineSize() const { return ViOpt.MaxLineSize; }
+	size_t MaxViewLineBufferSize() const { return ViOpt.MaxLineSize + 15; }
 
 protected:
 	void ReadEvent(void);
@@ -179,14 +185,12 @@ private:
 	int LastSearchDirection;
 	__int64 StartSearchPos;
 
-	struct ViewerModeInternal: ::noncopyable
-	{
-		uintptr_t CodePage;
-		int Wrap;
-		int WordWrap;
-		int Hex;
-	}
-	VM;
+	uintptr_t m_DefCodepage;
+	uintptr_t m_Codepage;
+	int m_Wrap;
+	int m_WordWrap;
+	monitored<VIEWER_MODE_TYPE> m_DisplayMode;
+	monitored<bool> m_DumpTextMode;
 
 	MultibyteCodepageDecoder MB;
 
@@ -196,7 +200,7 @@ private:
 	__int64 LastSelectPos, LastSelectSize;
 
 	__int64 LeftPos;
-	__int64 LastPage;
+	bool LastPage;
 	__int64 SelectPos,SelectSize, ManualSelectPos;
 	DWORD SelectFlags;
 	int ShowStatusLine;
@@ -223,8 +227,6 @@ private:
 	bool redraw_selection;
 
 	bool m_bQuickView;
-
-	uintptr_t DefCodePage;
 
 	std::unique_ptr<time_check> m_TimeCheck;
 	std::unique_ptr<time_check> m_IdleCheck;
@@ -263,8 +265,6 @@ private:
 	int  vgetc_cb;
 	int  vgetc_ib;
 	wchar_t vgetc_composite;
-
-	int dump_text_mode;
 
 	std::vector<wchar_t> ReadBuffer;
 	F8CP f8cps;

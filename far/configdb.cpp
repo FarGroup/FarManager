@@ -107,7 +107,7 @@ public:
 	TiXmlElementWrapper(const tinyxml::TiXmlElement* rhs) { m_data = rhs; }
 	TiXmlElementWrapper& operator=(const tinyxml::TiXmlElement* rhs) { m_data = rhs; return *this; }
 
-	bool operator!() const { return !m_data; }
+	bool operator!() const noexcept { return !m_data; }
 	EXPLICIT_OPERATOR_BOOL();
 	const tinyxml::TiXmlElement* operator->() const { return m_data; }
 	const tinyxml::TiXmlElement& operator*() const { return *m_data; }

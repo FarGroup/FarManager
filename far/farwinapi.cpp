@@ -827,7 +827,7 @@ BOOL CopyFileEx(
 	return Result;
 }
 
-BOOL MoveFile(
+bool MoveFile(
     const string& ExistingFileName, // address of name of the existing file
     const string& NewFileName   // address of new name for the file
 )
@@ -837,7 +837,7 @@ BOOL MoveFile(
 	{
 		strTo += PointToName(strFrom);
 	}
-	BOOL Result = ::MoveFile(strFrom.data(), strTo.data());
+	bool Result = ::MoveFile(strFrom.data(), strTo.data()) != FALSE;
 
 	if(!Result)
 	{
@@ -850,7 +850,7 @@ BOOL MoveFile(
 	return Result;
 }
 
-BOOL MoveFileEx(
+bool MoveFileEx(
     const string& ExistingFileName, // address of name of the existing file
     const string& NewFileName,   // address of new name for the file
     DWORD dwFlags   // flag to determine how to move file
@@ -861,7 +861,7 @@ BOOL MoveFileEx(
 	{
 		strTo += PointToName(strFrom);
 	}
-	BOOL Result = ::MoveFileEx(strFrom.data(), strTo.data(), dwFlags);
+	bool Result = ::MoveFileEx(strFrom.data(), strTo.data(), dwFlags) != FALSE;
 	if(!Result)
 	{
 		if (STATUS_STOPPED_ON_SYMLINK == GetLastNtStatus() && ERROR_STOPPED_ON_SYMLINK != GetLastError())

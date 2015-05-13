@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class Panel;
 class Dialog;
 class CopyProgress;
+class FileFilter;
 
 ENUM(COPY_CODES);
 ENUM(ReparsePointTypes);
@@ -47,6 +48,7 @@ class ShellCopy: noncopyable
 public:
 	ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask, int &ToPlugin, const wchar_t* PluginDestPath, bool ToSubdir=false);
 	~ShellCopy();
+	DWORD CopyProgressRoutine(uint64_t TotalFileSize, uint64_t TotalBytesTransferred, uint64_t StreamSize, uint64_t StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE SourceFile, HANDLE DestinationFile);
 
 private:
 	COPY_CODES CopyFileTree(const string&  Dest);
@@ -66,6 +68,7 @@ private:
 	intptr_t CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 
 	std::unique_ptr<CopyProgress> CP;
+	std::unique_ptr<FileFilter> m_Filter;
 	DWORD Flags;
 	Panel *SrcPanel,*DestPanel;
 	int SrcPanelMode,DestPanelMode;
@@ -101,4 +104,7 @@ private:
 	bool FolderPresent;
 	bool FilesPresent;
 	bool AskRO;
+	bool m_UseFilter;
+	HANDLE m_FileHandleForStreamSizeFix;
+	size_t m_NumberOfTargets;
 };

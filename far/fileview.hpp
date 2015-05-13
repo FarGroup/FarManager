@@ -79,7 +79,7 @@ public:
 	__int64 GetViewFileSize() const;
 	__int64 GetViewFilePos() const;
 	void ShowStatus();
-	int GetId() const { return GetView().ViewerID; }
+	int GetId() const { return m_View->ViewerID; }
 	void OnReload(void);
 	void ReadEvent(void);
 
@@ -91,7 +91,6 @@ private:
 	virtual void DisplayObject() override;
 
 	void Init(const string& Name, int EnableSwitch, int DisableHistory, __int64 ViewStartPos, const wchar_t *PluginData, NamesList *ViewNamesList, bool ToSaveAs, uintptr_t aCodePage, window_ptr Update = nullptr);
-	Viewer& GetView(void)const {return *m_View;}
 
 	std::unique_ptr<Viewer> m_View;
 	int RedrawTitle;

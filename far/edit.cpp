@@ -2533,15 +2533,15 @@ int Edit::KeyMatchedMask(int Key, const string& Mask) const
 
 	if (Mask[m_CurPos]==EDMASK_ANY)
 		Inserted=TRUE;
-	else if (Mask[m_CurPos]==EDMASK_DSS && (iswdigit(Key) || Key==L' ' || Key==L'-'))
+	else if (Mask[m_CurPos] == EDMASK_DSS && (std::iswdigit(Key) || Key == L' ' || Key == L'-'))
 		Inserted=TRUE;
-	else if (Mask[m_CurPos]==EDMASK_DIGITS && (iswdigit(Key) || Key==L' '))
+	else if (Mask[m_CurPos] == EDMASK_DIGITS && (std::iswdigit(Key) || Key == L' '))
 		Inserted=TRUE;
-	else if (Mask[m_CurPos]==EDMASK_DIGIT && (iswdigit(Key)))
+	else if (Mask[m_CurPos] == EDMASK_DIGIT && (std::iswdigit(Key)))
 		Inserted=TRUE;
 	else if (Mask[m_CurPos]==EDMASK_ALPHA && IsAlpha(Key))
 		Inserted=TRUE;
-	else if (Mask[m_CurPos]==EDMASK_HEX && (iswdigit(Key) || (ToUpper(Key)>=L'A' && ToUpper(Key)<=L'F') || (ToUpper(Key)>=L'a' && ToUpper(Key)<=L'f')))
+	else if (Mask[m_CurPos] == EDMASK_HEX && std::iswxdigit(Key))
 		Inserted=TRUE;
 
 	return Inserted;

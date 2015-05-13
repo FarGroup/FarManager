@@ -545,7 +545,7 @@ inline void AssignColor(const string& Color, COLORREF& Target, FARCOLORFLAGS& Ta
 		if (ToUpper(Color[0]) == L'T')
 		{
 			TargetFlags &= ~SetFlag;
-			Target = ARGB2ABGR(wcstoul(Color.data() + 1, nullptr, 16));
+			Target = ARGB2ABGR(std::wcstoul(Color.data() + 1, nullptr, 16));
 		}
 		else
 		{
@@ -1128,14 +1128,14 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		if (CheckCmdLineForHelp(Ptr))
 			return FALSE; // מעהאהטלסÿ COMSPEC`ף
 
-		if (!iswdigit(*Ptr))
+		if (!std::iswdigit(*Ptr))
 			return FALSE;
 
 		wchar_t Chr;
 
 		while ((Chr=*Ptr) )
 		{
-			if (!iswdigit(Chr))
+			if (!std::iswdigit(Chr))
 				break;
 
 			++Ptr;

@@ -152,10 +152,18 @@ namespace std
 
 // already included in VC2013
 #if defined _MSC_VER && _MSC_VER < 1800
-# define strtoll _strtoi64
-# define strtoull _strtoui64
-# define wcstoll _wcstoi64
-# define wcstoull _wcstoui64
+namespace std
+{
+	inline long long strtoll(const char* Str, char** EndPtr, int Radix) { return _strtoi64(Str, EndPtr, Radix); }
+	inline long long wcstoll(const wchar_t* Str, wchar_t** EndPtr, int Radix) { return _wcstoi64(Str, EndPtr, Radix); }
+	inline unsigned long long strtoull(const char* Str, char** EndPtr, int Radix) { return _strtoui64(Str, EndPtr, Radix); }
+	inline unsigned long long wsctoull(const wchar_t* Str, wchar_t** EndPtr, int Radix) { return _wcstoui64(Str, EndPtr, Radix); }
+}
+
+using std::strtoll;
+using std::wcstoll;
+using std::strtoull;
+using std::wsctoull;
 #endif
 
 // already fixed in VC2013

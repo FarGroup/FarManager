@@ -105,7 +105,7 @@ public:
 	{
 	public:
 		uint64_t get() const { return m_Key; }
-		bool operator!() const { return m_Key == 0; }
+		bool operator!() const noexcept { return m_Key == 0; }
 		EXPLICIT_OPERATOR_BOOL();
 
 	private:

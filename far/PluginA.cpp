@@ -389,7 +389,7 @@ static DWORD KeyToOldKey(DWORD dKey)
 			wchar_t WideChar = static_cast<wchar_t>(CleanKey);
 			char OemChar = 0;
 			if (unicode::to(CP_OEMCP, &WideChar, 1, &OemChar, 1))
-				dKey = (dKey^CleanKey) | as_unsigned(OemChar);
+				dKey = (dKey^CleanKey) | OemChar;
 		}
 	}
 
@@ -1552,7 +1552,7 @@ static void WINAPI LocalUpperBuf(char *Buf, int Length) noexcept
 	try
 	{
 		auto str = as_string(Buf, Length);
-		std::for_each(RANGE(str, i) { i = LowerToUpper[as_unsigned(i)]; });
+		std::for_each(RANGE(str, i) { i = LowerToUpper[i]; });
 	}
 	catch (...)
 	{
@@ -1579,7 +1579,7 @@ static void WINAPI LocalLowerBuf(char *Buf, int Length) noexcept
 	try
 	{
 		auto str = as_string(Buf, Length);
-		std::for_each(RANGE(str, i) { i = UpperToLower[as_unsigned(i)]; });
+		std::for_each(RANGE(str, i) { i = UpperToLower[i]; });
 	}
 	catch (...)
 	{
@@ -1593,7 +1593,7 @@ static void WINAPI LocalStrupr(char *s1) noexcept
 	try
 	{
 		auto str = as_string(s1);
-		std::for_each(RANGE(str, i) { i = LowerToUpper[as_unsigned(i)]; });
+		std::for_each(RANGE(str, i) { i = LowerToUpper[i]; });
 	}
 	catch (...)
 	{
@@ -1607,7 +1607,7 @@ static void WINAPI LocalStrlwr(char *s1) noexcept
 	try
 	{
 		auto str = as_string(s1);
-		std::for_each(RANGE(str, i) { i = UpperToLower[as_unsigned(i)]; });
+		std::for_each(RANGE(str, i) { i = UpperToLower[i]; });
 	}
 	catch (...)
 	{
@@ -1713,7 +1713,7 @@ static __int64 WINAPI FarAtoi64A(const char *s) noexcept
 {
 	try
 	{
-		return _atoi64(s);
+		return std::strtoll(s, nullptr, 10);
 	}
 	catch (...)
 	{
