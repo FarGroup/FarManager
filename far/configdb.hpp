@@ -66,7 +66,9 @@ public:
 		return SetValue(Key, Name, &Value, sizeof(Value));
 	}
 
+	virtual bool GetValue(const string& Key, const string& Name, bool& Value, bool Default) = 0;
 	virtual bool GetValue(const string& Key, const string& Name, long long& Value, long long Default) = 0;
+	virtual bool GetValue(const string& Key, const string& Name, string& Value, const string& Default) = 0;
 	virtual bool GetValue(const string& Key, const string& Name, string& Value, const wchar_t *Default) = 0;
 
 	virtual bool DeleteValue(const string& Key, const string& Name) = 0;

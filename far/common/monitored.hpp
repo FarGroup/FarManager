@@ -39,7 +39,7 @@ public:
 	monitored(monitored&& rhs) noexcept: m_Value(std::move(rhs.m_Value)), m_Touched() {}
 
 	monitored& operator=(const T& Value) { m_Value = Value; m_Touched = true; return *this; }
-	monitored& operator=(const monitored& rhs) { m_Value = rhs.Value; m_Touched = true; return *this; }
+	monitored& operator=(const monitored& rhs) { m_Value = rhs.m_Value; m_Touched = true; return *this; }
 
 	monitored& operator=(T&& Value) noexcept { m_Value = std::move(Value); m_Touched = true; return *this; }
 	monitored& operator=(monitored&& rhs) noexcept { m_Value = std::move(rhs.m_Value); m_Touched = true; return *this; }

@@ -197,12 +197,25 @@ public:
 		return SetValueT(Key, Name, Value);
 	}
 
+	virtual bool GetValue(const string& Key, const string& Name, bool& Value, bool Default) override
+	{
+		long long Data = Default;
+		const auto Result = GetValue(Key, Name, Data, Data);
+		Value = Data != 0;
+		return Result;
+	}
+
 	virtual bool GetValue(const string& Key, const string& Name, long long& Value, long long Default) override
 	{
 		return GetValueT<TYPE_INTEGER>(Key, Name, Value, Default, &SQLiteStmt::GetColInt64);
 	}
 
 	virtual bool GetValue(const string& Key, const string& Name, string& Value, const wchar_t* Default) override
+	{
+		return GetValueT<TYPE_STRING>(Key, Name, Value, Default, &SQLiteStmt::GetColText);
+	}
+
+	virtual bool GetValue(const string& Key, const string& Name, string& Value, const string& Default) override
 	{
 		return GetValueT<TYPE_STRING>(Key, Name, Value, Default, &SQLiteStmt::GetColText);
 	}

@@ -82,7 +82,6 @@ enum DIZUPDATETYPE
 	DIZ_UPDATE_ALWAYS
 };
 
-struct default_value;
 struct column;
 struct FARConfigItem;
 
@@ -90,48 +89,55 @@ class Option
 {
 public:
 	template<class T>
-	explicit Option(const T& Value): m_Value(Value), ValueChanged() {}
+	explicit Option(const T& Value): m_Value(Value) {}
 	virtual ~Option(){}
 
 	virtual string toString() const = 0;
 	virtual void fromString(const string& value) = 0;
 	virtual string ExInfo() const = 0;
 	virtual string typeToString() const = 0;
-	virtual bool IsDefault(const FARConfigItem* Holder) const = 0;
-	virtual void SetDefault(const FARConfigItem* Holder) = 0;
+	virtual bool IsDefault(const any& Default) const = 0;
+	virtual void SetDefault(const any& Default) = 0;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) = 0;
 	virtual void Export(FarSettingsItem& To) const = 0;
 
-	bool Changed() const { return ValueChanged; }
+	bool Changed() const { return m_Value.touched(); }
 
 protected:
 	template<class T>
 	const T& GetT() const { return any_cast<T>(m_Value); }
 	template<class T>
-	void SetT(const T& NewValue) { if (any_cast<T>(m_Value) != NewValue) { m_Value = NewValue; ValueChanged = true; } }
+	void SetT(const T& NewValue) { if (GetT<T>() != NewValue) m_Value = NewValue; }
 
 private:
 	friend class Options;
 
 	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const = 0;
-	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const default_value* Default) = 0;
+	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const any& Default) = 0;
 
-	void MakeUnchanged(){ ValueChanged = false; }
+	void MakeUnchanged() { decltype(m_Value)(std::move(m_Value.value())).swap(m_Value); }
 
-	any m_Value;
-	bool ValueChanged;
+	monitored<any> m_Value;
 };
 
 template<class base_type, class derived>
 class opt_traits: public Option
 {
 public:
+	typedef base_type type;
+
 	opt_traits(): Option(base_type()) {}
 	opt_traits(const base_type& Value): Option(Value) {}
 	opt_traits(const derived& Value): Option(Value.Get()) {}
 
 	const base_type& Get() const { return GetT<base_type>(); }
 	void Set(const base_type& Value) { SetT(Value); }
+
+	virtual bool IsDefault(const any& Default) const override { return Get() == any_cast<base_type>(Default); }
+	virtual void SetDefault(const any& Default) override { Set(any_cast<base_type>(Default)); }
+
+	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const any& Default) override;
+	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const override;
 
 	//operator const base_type&() const { return Get(); }
 };
@@ -147,22 +153,16 @@ public:
 	virtual void fromString(const string& value) override;
 	virtual string ExInfo() const override { return string(); }
 	virtual string typeToString() const override { return L"boolean"; }
-	virtual bool IsDefault(const FARConfigItem* Holder) const override;
-	virtual void SetDefault(const FARConfigItem* Holder) override;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;
 
 	template<class T>
 	BoolOption& operator=(const T& Value) { Set(Value); return *this; }
-	operator bool() const { return Get(); }
 
-private:
-	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const override;
-	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const default_value* Default) override;
-	bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool Default);
+	operator bool() const { return Get(); }
 };
 
-class Bool3Option: public opt_traits<int, Bool3Option>
+class Bool3Option: public opt_traits<long long, Bool3Option>
 {
 public:
 	Bool3Option() {}
@@ -173,24 +173,13 @@ public:
 	virtual void fromString(const string& value) override;
 	virtual string ExInfo() const override { return string(); }
 	virtual string typeToString() const override { return L"3-state"; }
-	virtual bool IsDefault(const FARConfigItem* Holder) const override;
-	virtual void SetDefault(const FARConfigItem* Holder) override;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;
 
 	template<class T>
 	Bool3Option& operator=(const T& Value) { Set(Value); return *this; }
-	Bool3Option& operator--(){ Set((Get() + 2) % 3); return *this; }
-	Bool3Option& operator++(){Set((Get()+1) % 3); return *this;}
-	Bool3Option operator--(int){int Current = Get() % 3; Set((Current+2) % 3); return Current;}
-	Bool3Option operator++(int){int Current = Get() % 3; Set((Current+1) % 3); return Current;}
 
-	operator int() const { return Get(); }
-
-private:
-	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const override;
-	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const default_value* Default) override;
-	bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, int Default);
+	operator FARCHECKEDSTATE() const { return static_cast<FARCHECKEDSTATE>(Get()); }
 };
 
 class IntOption: public opt_traits<long long, IntOption>
@@ -204,13 +193,12 @@ public:
 	virtual void fromString(const string& value) override;
 	virtual string ExInfo() const override;
 	virtual string typeToString() const override { return L"integer"; }
-	virtual bool IsDefault(const FARConfigItem* Holder) const override;
-	virtual void SetDefault(const FARConfigItem* Holder) override;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;
 
 	template<class T>
 	IntOption& operator=(const T& Value) { Set(Value); return *this; }
+
 	IntOption& operator|=(long long Value){ Set(Get() | Value); return *this; }
 	IntOption& operator&=(long long Value){Set(Get()&Value); return *this;}
 	IntOption& operator%=(long long Value){Set(Get()%Value); return *this;}
@@ -221,11 +209,6 @@ public:
 	IntOption operator++(int){long long Current = Get(); Set(Current+1); return Current;}
 
 	operator long long() const { return Get(); }
-
-private:
-	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const override;
-	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const default_value* Default) override;
-	bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string&  ValueName, long long Default);
 };
 
 class StringOption: public opt_traits<string, StringOption>
@@ -239,13 +222,12 @@ public:
 	virtual void fromString(const string& value) override { Set(value); }
 	virtual string ExInfo() const override { return string(); }
 	virtual string typeToString() const override { return L"string"; }
-	virtual bool IsDefault(const FARConfigItem* Holder) const override;
-	virtual void SetDefault(const FARConfigItem* Holder) override;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;
 
 	template<class T>
 	StringOption& operator=(const T& Value) { Set(Value); return *this; }
+
 	StringOption& operator+=(const string& Value) {Set(Get()+Value); return *this;}
 	wchar_t operator[] (size_t index) const { return Get()[index]; }
 	const wchar_t* data() const { return Get().data(); }
@@ -254,11 +236,6 @@ public:
 	size_t size() const { return Get().size(); }
 
 	operator const string&() const { return Get(); }
-
-private:
-	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const override;
-	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const default_value* Default) override;
-	bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const wchar_t* Default);
 };
 
 class Options: noncopyable
@@ -859,8 +836,7 @@ public:
 
 private:
 	void InitConfig();
-	void InitRoamingCFG();
-	void InitLocalCFG();
+	void InitConfigData();
 	intptr_t AdvancedConfigDlgProc(class Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	void SystemSettings();
 	void PanelSettings();
