@@ -987,7 +987,7 @@ bool FindWordInString(const string& Str, size_t CurPos, size_t& Begin, size_t& E
 			}
 			else
 			{
-				if (!IsSpaceOrEol(Str[Begin - 1]))
+				if (Begin && !IsSpaceOrEol(Str[Begin - 1]))
 					--Begin;
 			}
 		}
