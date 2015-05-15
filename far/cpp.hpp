@@ -139,11 +139,11 @@ namespace std
 #endif
 
 #if defined _MSC_VER && _MSC_VER < 1900
-// already included in VC2014
+// already included in VC2015
 #define thread_local __declspec(thread)
 #endif
 
-// already included in VC2014
+// already included in VC2015
 #if defined _MSC_VER && _MSC_VER < 1900
 #if !defined __clang__ && !defined __INTEL_COMPILER
 #define noexcept throw()

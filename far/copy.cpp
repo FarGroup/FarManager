@@ -1553,6 +1553,11 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
 				CP->m_Bytes.CurrCopied = 0;
 
+				if (SelCount == 1 && !FolderPresent)
+				{
+					CP->m_Files.Total = 1;
+				}
+
 				// Обнулим инфу про дизы
 				strDestDizPath.clear();
 				Flags&=~FCOPY_DIZREAD;

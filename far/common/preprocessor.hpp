@@ -85,7 +85,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #define COPY_OPERATOR_BY_SWAP(Type) \
-Type& operator=(const Type& rhs) { Type t(rhs); swap(t); return *this; }
+Type& operator=(const Type& rhs) { Type(rhs).swap(*this); return *this; }
 
 #define MOVE_OPERATOR_BY_SWAP(Type) \
 Type& operator=(Type&& rhs) noexcept { swap(rhs); return *this; }

@@ -261,7 +261,7 @@ public:
 				default:
 				{
 					const auto Blob = stmtEnumAllValues.GetColBlob(2);
-					auto hex = BlobToHexString(Blob.data(), Blob.size());
+					const auto hex = BlobToHexString(Blob.data(), Blob.size());
 					e.SetAttribute("type", "hex");
 					e.SetAttribute("value", hex);
 				}
@@ -569,7 +569,7 @@ public:
 
 	virtual void SerializeBlob(const char* Name, const void* Blob, size_t Size, tinyxml::TiXmlElement& e)
 	{
-		auto hex = BlobToHexString(Blob, Size);
+		const auto hex = BlobToHexString(Blob, Size);
 		e.SetAttribute("type", "hex");
 		e.SetAttribute("value", hex);
 	}
