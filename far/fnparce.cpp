@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cmdline.hpp"
 #include "filepanels.hpp"
 #include "dialog.hpp"
+#include "DlgGuid.hpp"
 #include "message.hpp"
 #include "pathmix.hpp"
 #include "strmix.hpp"
@@ -705,6 +706,7 @@ int ReplaceVariables(const wchar_t *DlgTitle, string &strStr, TSubstData& SubstD
 	{
 		auto Dlg = Dialog::create(DlgData);
 		Dlg->SetPosition(-1, -1, 76, static_cast<int>(DlgData.size() + 2));
+		Dlg->SetId(UserMenuUserInputId);
 		Dlg->Process();
 		ExitCode=Dlg->GetExitCode();
 	}
