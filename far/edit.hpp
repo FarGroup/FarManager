@@ -235,7 +235,7 @@ private:
 	int KeyMatchedMask(int Key, const string& Mask) const;
 	int ProcessCtrlQ();
 	int ProcessInsPlainText(const wchar_t *Str);
-	int ProcessInsPath(int Key,int PrevSelStart=-1,int PrevSelEnd=0);
+	int ProcessInsPath(unsigned int Key,int PrevSelStart=-1,int PrevSelEnd=0);
 	int RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos) const;
 	void FixLeftPos(int TabCurPos=-1);
 	void SetRightCoord(int Value) {SetPosition(m_X1, m_Y2, Value, m_Y2);}

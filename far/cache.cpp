@@ -41,7 +41,7 @@ CachedRead::CachedRead(os::fs::file& file, size_t buffer_size):
 	BytesLeft(0),
 	LastPtr(0),
 	Alignment(512),
-	Buffer(buffer_size ? (buffer_size + Alignment - 1) & ~(Alignment - 1) : DefaultBufferSize)
+	Buffer(buffer_size? ALIGNAS(buffer_size, 512) : 65536)
 {
 }
 

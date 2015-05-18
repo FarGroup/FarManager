@@ -301,9 +301,6 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 	string strSelName;
 	string strSelShortName;
 	string strDizName;
-	DWORD FileAttr;
-	size_t SelCount;
-	int UpdateDiz;
 	int DizPresent;
 	int Ret;
 	BOOL NeedUpdate=TRUE, NeedSetUpADir=FALSE;
@@ -312,7 +309,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 	auto WindowFromLaunched = Global->WindowManager->GetCurrentWindow();
 	WindowFromLaunched->Lock();
 	bool DeleteAllFolders=!Global->Opt->Confirm.DeleteFolder;
-	UpdateDiz=(Global->Opt->Diz.UpdateMode==DIZ_UPDATE_ALWAYS ||
+	const auto UpdateDiz=(Global->Opt->Diz.UpdateMode==DIZ_UPDATE_ALWAYS ||
 	           (SrcPanel->IsDizDisplayed() &&
 	            Global->Opt->Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED));
 
@@ -328,9 +325,11 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		}
 	};
 
-	if (!(SelCount=SrcPanel->GetSelCount()))
+	const auto SelCount = SrcPanel->GetSelCount();
+	if (!SelCount)
 		return;
 
+	DWORD FileAttr;
 	// Удаление в корзину только для  FIXED-дисков
 	{
 		string strRoot;

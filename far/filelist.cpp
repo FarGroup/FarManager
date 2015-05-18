@@ -457,22 +457,22 @@ static struct list_less
 				break;
 
 			case BY_MTIME:
-				if ((RetCode64 = CompareTime(&FileListItem::WriteTime)))
+				if ((RetCode64 = CompareTime(&FileListItem::WriteTime)) != 0)
 					return less_opt(RetCode64 < 0);
 				break;
 
 			case BY_CTIME:
-				if ((RetCode64 = CompareTime(&FileListItem::CreationTime)))
+				if ((RetCode64 = CompareTime(&FileListItem::CreationTime)) != 0)
 					return less_opt(RetCode64 < 0);
 				break;
 
 			case BY_ATIME:
-				if ((RetCode64 = CompareTime(&FileListItem::AccessTime)))
+				if ((RetCode64 = CompareTime(&FileListItem::AccessTime)) != 0)
 					return less_opt(RetCode64 < 0);
 				break;
 
 			case BY_CHTIME:
-				if ((RetCode64 = CompareTime(&FileListItem::ChangeTime)))
+				if ((RetCode64 = CompareTime(&FileListItem::ChangeTime)) != 0)
 					return less_opt(RetCode64 < 0);
 				break;
 
@@ -960,7 +960,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 int FileList::ProcessKey(const Manager::Key& Key)
 {
-	int LocalKey=Key.FarKey();
+	auto LocalKey = Key.FarKey();
 	Global->Elevation->ResetApprove();
 
 	FileListItem *CurPtr=nullptr;
@@ -2453,7 +2453,7 @@ void FileList::Select(FileListItem& SelItem, int Selection)
 		CacheSelIndex=-1;
 		CacheSelClearIndex=-1;
 
-		if ((SelItem.Selected=Selection))
+		if ((SelItem.Selected = Selection) != 0)
 		{
 			SelFileCount++;
 			SelFileSize += SelItem.FileSize;
@@ -2610,7 +2610,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 				return;
 			}
 
-			if (SeparateWindow || !(hOpen=OpenFilePlugin(&strFileName,TRUE, Type)) ||
+			if (SeparateWindow || (hOpen = OpenFilePlugin(&strFileName,TRUE, Type)) == nullptr ||
 			        hOpen==PANEL_STOP)
 			{
 				if (EnableExec && hOpen!=PANEL_STOP)
@@ -7928,7 +7928,7 @@ int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,u
 	        ((!(FileAttr&FILE_ATTRIBUTE_DIRECTORY) && (m_ViewSettings.Flags&PVS_ALIGNEXTENSIONS))
 	         || ((FileAttr&FILE_ATTRIBUTE_DIRECTORY) && (m_ViewSettings.Flags&PVS_FOLDERALIGNEXTENSIONS)))
 	        && SrcLength<=MaxLength &&
-	        (DotPtr=wcsrchr(SrcName,L'.')) && DotPtr!=SrcName &&
+	        (DotPtr=wcsrchr(SrcName,L'.')) != nullptr && DotPtr!=SrcName &&
 	        (SrcName[0]!=L'.' || SrcName[2]) && !wcschr(DotPtr+1,L' '))
 	{
 		int DotLength=StrLength(DotPtr+1);

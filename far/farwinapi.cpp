@@ -333,7 +333,7 @@ enum_file::enum_file(const string& Object, bool ScanSymLink):
 	}
 }
 
-bool enum_file::get(size_t index, FAR_FIND_DATA& FindData)
+bool enum_file::get(size_t index, value_type& FindData)
 {
 	bool Result = false;
 	if (!index)
@@ -387,7 +387,7 @@ bool enum_file::get(size_t index, FAR_FIND_DATA& FindData)
 
 //-------------------------------------------------------------------------
 
-bool enum_name::get(size_t index, string& value)
+bool enum_name::get(size_t index, value_type& value)
 {
 	if (!index)
 	{
@@ -402,7 +402,7 @@ bool enum_name::get(size_t index, string& value)
 
 //-------------------------------------------------------------------------
 
-bool enum_stream::get(size_t index, WIN32_FIND_STREAM_DATA& value)
+bool enum_stream::get(size_t index, value_type& value)
 {
 	if (!index)
 	{
@@ -1228,12 +1228,12 @@ bool FindNextFileName(const find_handle& hFindStream, string& LinkName)
 	return Ret;
 }
 
-BOOL CreateDirectory(const string& PathName,LPSECURITY_ATTRIBUTES lpSecurityAttributes)
+bool CreateDirectory(const string& PathName,LPSECURITY_ATTRIBUTES lpSecurityAttributes)
 {
 	return CreateDirectoryEx(L"", PathName, lpSecurityAttributes);
 }
 
-BOOL CreateDirectoryEx(const string& TemplateDirectory, const string& NewDirectory, LPSECURITY_ATTRIBUTES SecurityAttributes)
+bool CreateDirectoryEx(const string& TemplateDirectory, const string& NewDirectory, LPSECURITY_ATTRIBUTES SecurityAttributes)
 {
 	NTPath NtTemplateDirectory(TemplateDirectory);
 	NTPath NtNewDirectory(NewDirectory);
@@ -1251,7 +1251,7 @@ BOOL CreateDirectoryEx(const string& TemplateDirectory, const string& NewDirecto
 			NtTemplateDirectory.clear();
 		}
 	}
-	return Result;
+	return Result != FALSE;
 }
 
 DWORD GetFileAttributes(const string& FileName)
@@ -1927,7 +1927,7 @@ DWORD GetAppPathsRedirectionFlag()
 			FreeEnvironmentStrings(m_Environment);
 		}
 
-		bool enum_strings::get(size_t index, const wchar_t*& value)
+		bool enum_strings::get(size_t index, value_type& value)
 		{
 			return *(value = index? value + wcslen(value) + 1 : m_Environment) != L'\0';
 		}

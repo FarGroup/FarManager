@@ -10,6 +10,8 @@ EXENAME = Far.exe
 EXEFULLNAME = $(EXEDIR)$(EXENAME)
 DEPFILE = $(BOOTSTRAPDIR)far.gcc.dep
 
+DEFINES += -D FAR_ALPHA_VERSION -D FAR_USE_INTERNALS
+
 SRCS = \
 	sqlite.c \
 	sqlite_unicode.c \
@@ -180,10 +182,6 @@ $(EXEFULLNAME): $(BOOTSTRAPDIR)copyright.inc $(BOOTSTRAPDIR)farversion.inc $(OBJ
 $(OBJDIR)%.o: %.c
 	@echo $<
 	$(CC) $(CFLAGS) -c -o $@ $<
-
-$(OBJDIR)sqlite.o: sqlite.c
-	@echo $<
-	$(CC) $(CFLAGS) -Wno-array-bounds -c -o $@ $<
 
 $(OBJDIR)hook_wow64.o: hook_wow64.cpp
 	@echo $<

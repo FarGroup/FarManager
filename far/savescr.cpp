@@ -41,6 +41,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "colormix.hpp"
 
+static void CleanupBuffer(FAR_CHAR_INFO* Buffer, size_t BufSize)
+{
+	const FAR_CHAR_INFO Value = { L' ', colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN) };
+	std::fill_n(Buffer, BufSize, Value);
+}
+
 SaveScreen::SaveScreen()
 {
 	_OT(SysLog(L"[%p] SaveScreen::SaveScreen()", this));
@@ -49,6 +55,7 @@ SaveScreen::SaveScreen()
 
 SaveScreen::SaveScreen(int X1,int Y1,int X2,int Y2)
 {
+	fix_coordinates(X1, Y1, X2, Y2);
 	_OT(SysLog(L"[%p] SaveScreen::SaveScreen(X1=%i,Y1=%i,X2=%i,Y2=%i)",this,X1,Y1,X2,Y2));
 	SaveArea(X1,Y1,X2,Y2);
 }
@@ -85,16 +92,15 @@ void SaveScreen::RestoreArea(int RestoreCursor)
 
 void SaveScreen::SaveArea(int X1,int Y1,int X2,int Y2)
 {
+	fix_coordinates(X1, Y1, X2, Y2);
+
 	m_X1=X1;
 	m_Y1=Y1;
 	m_X2=X2;
 	m_Y2=Y2;
 
-	ScreenBuf.allocate(Y2 - Y1 + 1, X2 - X1 + 1);
-
-	GetText(X1, Y1, X2, Y2, ScreenBuf);
-	GetCursorPos(CurPosX,CurPosY);
-	GetCursorType(CurVisible,CurSize);
+	ScreenBuf.allocate(height(), width());
+	SaveArea();
 }
 
 void SaveScreen::SaveArea()
@@ -113,7 +119,8 @@ void SaveScreen::AppendArea(const SaveScreen *NewArea)
 		if (X >= NewArea->m_X1 && X <= NewArea->m_X2)
 			for (int Y = m_Y1; Y <= m_Y2; Y++)
 				if (Y >= NewArea->m_Y1 && Y <= NewArea->m_Y2)
-					ScreenBuf.vector()[X - m_X1 + (m_X2 - m_X1 + 1)*(Y - m_Y1)] = (NewArea->ScreenBuf.vector())[X - NewArea->m_X1 + (NewArea->m_X2 - NewArea->m_X1 + 1)*(Y - NewArea->m_Y1)];
+					ScreenBuf.vector()[X - m_X1 + width() * (Y - m_Y1)] =
+					(NewArea->ScreenBuf.vector())[X - NewArea->m_X1 + NewArea->width() * (Y - NewArea->m_Y1)];
 }
 
 void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
@@ -122,7 +129,9 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 //  |     |
 //  2 --- 3
 {
-	int OWi = m_X2 - m_X1 + 1, OHe = m_Y2 - m_Y1 + 1, iY = 0;
+	const auto OWi = width();
+	const auto OHe = height();
+	int iY = 0;
 
 	if (OWi==NewX && OHe==NewY)
 	{
@@ -132,8 +141,8 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 	int NX1 = 0, NX2 = 0, NY1 = 0, NY2 = 0;
 	matrix<FAR_CHAR_INFO> NewBuf(NewY, NewX);
 	CleanupBuffer(NewBuf.data(), NewBuf.size());
-	int NewWidth=std::min(OWi,NewX);
-	int NewHeight=std::min(OHe,NewY);
+	const auto NewWidth = std::min(OWi, NewX);
+	const auto NewHeight = std::min(OHe, NewY);
 	int iYReal;
 	int ToIndex=0;
 	int FromIndex=0;
@@ -247,12 +256,6 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 
 	ScreenBuf.swap(NewBuf);
 	m_X1 = NX1; m_Y1 = NY1; m_X2 = NX2; m_Y2 = NY2;
-}
-
-void SaveScreen::CleanupBuffer(FAR_CHAR_INFO* Buffer, size_t BufSize)
-{
-	const FAR_CHAR_INFO Value = { L' ', colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN) };
-	std::fill_n(Buffer, BufSize, Value);
 }
 
 void SaveScreen::DumpBuffer(const wchar_t *Title)

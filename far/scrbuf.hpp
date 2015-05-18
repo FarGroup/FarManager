@@ -67,7 +67,7 @@ public:
 	void ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color,const FarColor& ExceptColor, bool ForceExFlags = false);
 	void FillRect(int X1,int Y1,int X2,int Y2,WCHAR Ch,const FarColor& Color);
 
-	void Scroll(int);
+	void Scroll(size_t Count);
 	void Flush(bool SuppressIndicators = false);
 
 private:

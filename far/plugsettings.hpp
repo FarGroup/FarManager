@@ -48,7 +48,10 @@ public:
 
 protected:
 	wchar_t* Add(const string& String);
-	void* Add(size_t Size);
+	void* Add(const void* Data, size_t Size);
+
+private:
+	void* Allocate(size_t Size);
 
 private:
 	std::list<char_ptr> m_Data;

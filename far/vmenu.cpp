@@ -1086,8 +1086,7 @@ bool VMenu::AddToFilter(const wchar_t *str)
 {
 	if (bFilterEnabled && !bFilterLocked)
 	{
-		int Key;
-		while ((Key=*str))
+		while (const auto Key = *str)
 		{
 			if( IsFilterEditKey(Key) )
 			{
@@ -1148,7 +1147,7 @@ int VMenu::ProcessFilterKey(int Key)
 
 int VMenu::ProcessKey(const Manager::Key& Key)
 {
-	int LocalKey=Key.FarKey();
+	auto LocalKey = Key.FarKey();
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
 	if (LocalKey==KEY_NONE || LocalKey==KEY_IDLE)

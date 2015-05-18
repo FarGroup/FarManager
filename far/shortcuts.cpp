@@ -235,7 +235,6 @@ static void Fill(const Shortcuts::shortcut& RetItem, string* Folder, GUID* Plugi
 
 static string MakeName(const Shortcuts::shortcut& Item)
 {
-	Plugin* plugin = nullptr;
 	string result(MSG(MShortcutNone));
 
 	if (Item.PluginGuid == FarGuid)
@@ -252,7 +251,7 @@ static string MakeName(const Shortcuts::shortcut& Item)
 	}
 	else
 	{
-		if ((plugin = Global->CtrlObject->Plugins->FindPlugin(Item.PluginGuid)))
+		if (const auto plugin = Global->CtrlObject->Plugins->FindPlugin(Item.PluginGuid))
 		{
 			if(!Item.strName.empty())
 			{

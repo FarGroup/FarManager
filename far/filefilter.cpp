@@ -426,7 +426,7 @@ bool FileFilter::FilterEdit()
 	return ExitCode != -1;
 }
 
-const enumFileFilterFlagsType FileFilter::GetFFFT()
+enumFileFilterFlagsType FileFilter::GetFFFT()
 {
 	switch (m_FilterType)
 	{

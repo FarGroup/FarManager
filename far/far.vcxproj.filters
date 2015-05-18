@@ -1019,5 +1019,17 @@
     <ClInclude Include="common\monitored.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
+    <ClInclude Include="disabled_warnings.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="disable_warnings_in_std_begin.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="disable_warnings_in_std_end.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

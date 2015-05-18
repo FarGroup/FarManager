@@ -38,11 +38,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define _HAS_EXCEPTIONS 0
 #endif
 
-// BUGBUG, temporary
-#if defined _MSC_VER && _MSC_VER >= 1900
-#pragma warning(push)
-#pragma warning(disable: 4091 4265) // warnings in std headers, so awesome
-#endif
+#include "disable_warnings_in_std_begin.hpp"
+//----------------------------------------------------------------------------
 
 #include <array>
 #include <algorithm>
@@ -172,21 +169,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # endif
 #endif // __GNUC__
 
-// BUGBUG, temporary
-#if defined _MSC_VER && _MSC_VER >= 1900
-#pragma warning(pop)
-#pragma warning(disable: 4201 5024 5025 5026 5027)
-#endif
+//----------------------------------------------------------------------------
+#include "disable_warnings_in_std_end.hpp"
 
-#include "SDK/sdk.common.h"
-
-#ifdef _MSC_VER
-# include "SDK/sdk.vc.h"
-#endif // _MSC_VER
-
-#ifdef __GNUC__
-# include "SDK/sdk.gcc.h"
-#endif // __GNUC__
+#include "sdk.hpp"
 
 #include "cpp.hpp"
 

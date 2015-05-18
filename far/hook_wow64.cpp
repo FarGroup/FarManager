@@ -30,7 +30,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #if (defined(_MSC_VER) || defined(__GNUC__)) && !defined(_WIN64)
 
+#ifdef FAR_USE_INTERNALS
+#include "disable_warnings_in_std_begin.hpp"
+//----------------------------------------------------------------------------
+#endif // END FAR_USE_INTERNALS
+
 #include <windows.h>
+
+#ifdef FAR_USE_INTERNALS
+//----------------------------------------------------------------------------
+#include "disable_warnings_in_std_end.hpp"
+#endif // END FAR_USE_INTERNALS
 
 #if defined(_MSC_VER)
 #pragma optimize("gty", on)

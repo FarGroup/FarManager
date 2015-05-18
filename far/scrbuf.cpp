@@ -61,14 +61,6 @@ static inline bool is_visible(int X1, int Y1, int X2, int Y2)
 	return X1 <= ScrX && Y1 <= ScrY && X2 >= 0 && Y2 >= 0;
 }
 
-static inline void fix_coordinates(int& X1, int& Y1, int& X2, int& Y2)
-{
-	X1 = std::max(X1, 0);
-	X2 = std::min(static_cast<int>(ScrX), X2);
-	Y1 = std::max(Y1, 0);
-	Y2 = std::min(static_cast<int>(ScrY), Y2);
-}
-
 ScreenBuf::ScreenBuf():
 	MacroChar(),
 	ElevationChar(),
@@ -169,13 +161,12 @@ void ScreenBuf::Read(int X1, int Y1, int X2, int Y2, matrix<FAR_CHAR_INFO>& Dest
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
-	int tempX1 = X1, tempY1 = Y1;
-
 	fix_coordinates(X1, Y1, X2, Y2);
 
-	for (auto i = Y1, dest_i = Y1 - tempY1; i <= Y2; ++i, ++dest_i)
+	for (auto i = Y1; i <= Y2; ++i)
 	{
-		std::copy(&Buf[i][X1], &Buf[i][X2 + 1], Dest[dest_i].data() + X1 - tempX1);
+		const auto Row = Buf[i];
+		std::copy(&Row[X1], &Row[X2 + 1], &Dest[i - Y1][0]);
 	}
 }
 
@@ -191,32 +182,27 @@ void ScreenBuf::ApplyShadow(int X1,int Y1,int X2,int Y2)
 
 	fix_coordinates(X1, Y1, X2, Y2);
 
-	for (auto i = Y1; i <= Y2; ++i)
+	for_submatrix(Buf, X1, Y1, X2, Y2, [](FAR_CHAR_INFO& Element)
 	{
-		for (auto j = X1; j <= X2; ++j)
+		Element.Attributes.BackgroundColor = 0;
+
+		if (Element.Attributes.Flags&FCF_FG_4BIT)
 		{
-			auto& Element = Buf[i][j];
-
-			Element.Attributes.BackgroundColor = 0;
-
-			if (Element.Attributes.Flags&FCF_FG_4BIT)
+			Element.Attributes.ForegroundColor &= ~0x8;
+			if (!COLORVALUE(Element.Attributes.ForegroundColor))
 			{
-				Element.Attributes.ForegroundColor &= ~0x8;
-				if (!COLORVALUE(Element.Attributes.ForegroundColor))
-				{
-					Element.Attributes.ForegroundColor = 0x8;
-				}
-			}
-			else
-			{
-				Element.Attributes.ForegroundColor &= ~0x808080;
-				if (!COLORVALUE(Element.Attributes.ForegroundColor))
-				{
-					Element.Attributes.ForegroundColor = 0x808080;
-				}
+				Element.Attributes.ForegroundColor = 0x8;
 			}
 		}
-	}
+		else
+		{
+			Element.Attributes.ForegroundColor &= ~0x808080;
+			if (!COLORVALUE(Element.Attributes.ForegroundColor))
+			{
+				Element.Attributes.ForegroundColor = 0x808080;
+			}
+		}
+	});
 
 #ifdef DIRECT_SCREEN_OUT
 	Flush();
@@ -242,27 +228,19 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color, bo
 
 	if(PreserveExFlags)
 	{
-		for (auto i = Y1; i <= Y2; ++i)
+		for_submatrix(Buf, X1, Y1, X2, Y2, [&Color](FAR_CHAR_INFO& Element)
 		{
-			for (auto j = X1; j <= X2; ++j)
-			{
-				auto& Element = Buf[i][j];
-				auto ExFlags = Element.Attributes.Flags&FCF_EXTENDEDFLAGS;
-				Element.Attributes = Color;
-				Element.Attributes.Flags = (Element.Attributes.Flags&~FCF_EXTENDEDFLAGS) | ExFlags;
-			}
-		}
+			auto ExFlags = Element.Attributes.Flags&FCF_EXTENDEDFLAGS;
+			Element.Attributes = Color;
+			Element.Attributes.Flags = (Element.Attributes.Flags&~FCF_EXTENDEDFLAGS) | ExFlags;
+		});
 	}
 	else
 	{
-		for (auto i = Y1; i <= Y2; ++i)
+		for_submatrix(Buf, X1, Y1, X2, Y2, [&Color](FAR_CHAR_INFO& Element)
 		{
-			for (auto j = X1; j <= X2; ++j)
-			{
-				auto& Element = Buf[i][j];
-				Element.Attributes = Color;
-			}
-		}
+			Element.Attributes = Color;
+		});
 	}
 
 #ifdef DIRECT_SCREEN_OUT
@@ -285,22 +263,17 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color,con
 
 	fix_coordinates(X1, Y1, X2, Y2);
 
-	for (auto i = Y1; i <= Y2; ++i)
+	for_submatrix(Buf, X1, Y1, X2, Y2, [&](FAR_CHAR_INFO& Element)
 	{
-		for (auto j = X1; j <= X2; ++j)
+		if (Element.Attributes.ForegroundColor != ExceptColor.ForegroundColor || Element.Attributes.BackgroundColor != ExceptColor.BackgroundColor)
 		{
-			auto& Element = Buf[i][j];
-
-			if (Element.Attributes.ForegroundColor != ExceptColor.ForegroundColor || Element.Attributes.BackgroundColor != ExceptColor.BackgroundColor)
-			{
-				Element.Attributes = Color;
-			}
-			else if (ForceExFlags)
-			{
-				Element.Attributes.Flags = (Element.Attributes.Flags&~FCF_EXTENDEDFLAGS) | (Color.Flags&FCF_EXTENDEDFLAGS);
-			}
+			Element.Attributes = Color;
 		}
-	}
+		else if (ForceExFlags)
+		{
+			Element.Attributes.Flags = (Element.Attributes.Flags&~FCF_EXTENDEDFLAGS) | (Color.Flags&FCF_EXTENDEDFLAGS);
+		}
+	});
 
 #ifdef DIRECT_SCREEN_OUT
 	Flush();
@@ -325,14 +298,10 @@ void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,WCHAR Ch,const FarColor& Co
 
 	fix_coordinates(X1, Y1, X2, Y2);
 
-	for (auto i = Y1; i <= Y2; ++i)
+	for_submatrix(Buf, X1, Y1, X2, Y2, [&CI](FAR_CHAR_INFO& Element)
 	{
-		for (auto j = X1; j <= X2; ++j)
-		{
-			auto& Element = Buf[i][j];
-			Element = CI;
-		}
-	}
+		Element = CI;
+	});
 
 	SBFlags.Clear(SBFLAGS_FLUSHED);
 
@@ -411,14 +380,14 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 					//Чревато тормозами/миганием в зависимости от конфигурации системы.
 					SMALL_RECT WriteRegion={0, 0, static_cast<SHORT>(Buf.width() - 1), 0};
 
-					for (SHORT I = 0; I < static_cast<SHORT>(Buf.height()); ++I)
+					for (size_t I = 0, Height = Buf.height(); I < Height; ++I)
 					{
 						auto BufRow = Buf[I], ShadowRow = Shadow[I];
 
-						WriteRegion.Top=I;
-						WriteRegion.Bottom=I-1;
+						WriteRegion.Top = static_cast<short>(I);
+						WriteRegion.Bottom = static_cast<short>(I - 1);
 
-						while (I < static_cast<SHORT>(Buf.height()) && !std::equal(BufRow.cbegin(), BufRow.cend(), ShadowRow.cbegin()))
+						while (I < Height && BufRow != ShadowRow)
 						{
 							I++;
 							BufRow = Buf[I];
@@ -439,20 +408,20 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 					SMALL_RECT WriteRegion = { static_cast<SHORT>(Buf.width() - 1), static_cast<SHORT>(Buf.height() - 1), 0, 0 };
 
 					auto PtrBuf = Buf.data(), PtrShadow = Shadow.data();
-					for (SHORT I = 0; I < static_cast<SHORT>(Buf.height()); ++I)
+					for (size_t I = 0, Height = Buf.height(); I < Height; ++I)
 					{
-						for (SHORT J = 0; J < static_cast<SHORT>(Buf.width()); ++J, ++PtrBuf, ++PtrShadow)
+						for (size_t J = 0, Width = Buf.width(); J < Width; ++J, ++PtrBuf, ++PtrShadow)
 						{
 							if (*PtrBuf != *PtrShadow)
 							{
-								WriteRegion.Left=std::min(WriteRegion.Left,J);
-								WriteRegion.Top=std::min(WriteRegion.Top,I);
-								WriteRegion.Right=std::max(WriteRegion.Right,J);
-								WriteRegion.Bottom=std::max(WriteRegion.Bottom,I);
+								WriteRegion.Left = std::min(WriteRegion.Left, static_cast<SHORT>(J));
+								WriteRegion.Top = std::min(WriteRegion.Top, static_cast<SHORT>(I));
+								WriteRegion.Right = std::max(WriteRegion.Right, static_cast<SHORT>(J));
+								WriteRegion.Bottom = std::max(WriteRegion.Bottom, static_cast<SHORT>(I));
 								Changes=true;
 								Started=true;
 							}
-							else if (Started && I>WriteRegion.Bottom && J>=WriteRegion.Left)
+							else if (Started && static_cast<SHORT>(I) > WriteRegion.Bottom && static_cast<SHORT>(J) >= WriteRegion.Left)
 							{
 								//BUGBUG: при включенном СlearType-сглаживании на экране остаётся "мусор" - тонкие вертикальные полосы
 								// кстати, и при выключенном тоже (но реже).
@@ -635,15 +604,15 @@ void ScreenBuf::RestoreElevationChar()
 }
 
 //  проскроллировать буфер на одну строку вверх.
-void ScreenBuf::Scroll(int Num)
+void ScreenBuf::Scroll(size_t Count)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
-	if (Num > 0 && Num < static_cast<int>(Buf.height()))
+	if (Count && Count < Buf.height())
 	{
 		auto& RawBuf = Buf.vector();
 		size_t size = RawBuf.size();
-		RawBuf.erase(RawBuf.begin(), RawBuf.begin() + Num * Buf.width());
+		RawBuf.erase(RawBuf.begin(), RawBuf.begin() + Count * Buf.width());
 		RawBuf.resize(size);
 	}
 

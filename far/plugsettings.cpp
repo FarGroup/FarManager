@@ -49,10 +49,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 wchar_t* AbstractSettings::Add(const string& String)
 {
 	auto size = (String.size() + 1) * sizeof(wchar_t);
-	return static_cast<wchar_t*>(memcpy(Add(size), String.data(), size));
+	return static_cast<wchar_t*>(memcpy(Allocate(size), String.data(), size));
 }
 
-void* AbstractSettings::Add(size_t Size)
+void* AbstractSettings::Add(const void* Data, size_t Size)
+{
+	return memcpy(Allocate(Size), Data, Size);
+}
+
+void* AbstractSettings::Allocate(size_t Size)
 {
 	m_Data.emplace_back(Size);
 	return m_Data.back().get();
@@ -175,7 +180,7 @@ int PluginSettings::Get(FarSettingsItem& Item)
 					if (PluginsCfg->GetValue(m_Keys[Item.Root],Item.Name,data))
 					{
 						result=TRUE;
-						Item.String=(wchar_t*)Add(data);
+						Item.String = Add(data);
 					}
 				}
 				break;
@@ -185,7 +190,7 @@ int PluginSettings::Get(FarSettingsItem& Item)
 					if (PluginsCfg->GetValue(m_Keys[Item.Root], Item.Name, data))
 					{
 						result = TRUE;
-						Item.Data.Data = memcpy(Add(data.size()), data.data(), data.size());
+						Item.Data.Data = Add(data.data(), data.size());
 						Item.Data.Size = data.size();
 					}
 				}

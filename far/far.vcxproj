@@ -49,15 +49,19 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+    <Import Project="far.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+    <Import Project="far.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+    <Import Project="far.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+    <Import Project="far.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -115,7 +119,6 @@ if not exist bootstrap mkdir bootstrap</Command>
     <ClCompile>
       <AdditionalOptions>/J %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MaxSpeed</Optimization>
-      <PreprocessorDefinitions>NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;_CRT_STDIO_LEGACY_WIDE_SPECIFIERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Async</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -127,10 +130,11 @@ if not exist bootstrap mkdir bootstrap</Command>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <StringPooling>true</StringPooling>
-      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4250;4255;4345;4350;4351;4355;4365;4371;4396;4435;4480;4481;4512;4514;4571;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Cpp0xSupport>true</Cpp0xSupport>
       <DisableSpecificDiagnostics>869,3280</DisableSpecificDiagnostics>
+      <ForcedIncludeFiles>disabled_warnings.hpp</ForcedIncludeFiles>
+      <PreprocessorDefinitions>NDEBUG;_UNICODE;UNICODE;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;_CRT_STDIO_LEGACY_WIDE_SPECIFIERS;FAR_USE_INTERNALS;FAR_ALPHA_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -164,7 +168,6 @@ if not exist bootstrap mkdir bootstrap</Command>
     <ClCompile>
       <AdditionalOptions>/J %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MaxSpeed</Optimization>
-      <PreprocessorDefinitions>NDEBUG;_WIN64;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;_CRT_STDIO_LEGACY_WIDE_SPECIFIERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>Async</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -176,10 +179,11 @@ if not exist bootstrap mkdir bootstrap</Command>
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4250;4255;4345;4350;4351;4355;4365;4371;4396;4435;4480;4481;4512;4514;4571;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Cpp0xSupport>true</Cpp0xSupport>
       <DisableSpecificDiagnostics>869,3280</DisableSpecificDiagnostics>
+      <ForcedIncludeFiles>disabled_warnings.hpp</ForcedIncludeFiles>
+      <PreprocessorDefinitions>NDEBUG;_UNICODE;UNICODE;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;_CRT_STDIO_LEGACY_WIDE_SPECIFIERS;FAR_USE_INTERNALS;FAR_ALPHA_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -211,7 +215,7 @@ if not exist bootstrap mkdir bootstrap</Command>
     <ClCompile>
       <AdditionalOptions>/J %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;FAR_ALPHA_VERSION;SYSLOG_FARSYSLOG;SYSLOG;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;_CRT_STDIO_LEGACY_WIDE_SPECIFIERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;SYSLOG;SYSLOG_FARSYSLOG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Async</ExceptionHandling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -224,11 +228,11 @@ if not exist bootstrap mkdir bootstrap</Command>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <StringPooling>true</StringPooling>
-      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4250;4255;4345;4350;4351;4355;4365;4371;4396;4435;4480;4481;4512;4514;4571;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Cpp0xSupport>true</Cpp0xSupport>
       <DisableSpecificDiagnostics>869,3280</DisableSpecificDiagnostics>
       <SmallerTypeCheck>true</SmallerTypeCheck>
+      <ForcedIncludeFiles>disabled_warnings.hpp</ForcedIncludeFiles>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -260,7 +264,6 @@ if not exist bootstrap mkdir bootstrap</Command>
     <ClCompile>
       <AdditionalOptions>/J %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_WIN64;FAR_ALPHA_VERSION;SYSLOG_FARSYSLOG;SYSLOG;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;_CRT_STDIO_LEGACY_WIDE_SPECIFIERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>Async</ExceptionHandling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -273,11 +276,12 @@ if not exist bootstrap mkdir bootstrap</Command>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4250;4255;4345;4350;4351;4355;4365;4371;4396;4435;4480;4481;4512;4514;4571;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Cpp0xSupport>true</Cpp0xSupport>
       <DisableSpecificDiagnostics>869,3280</DisableSpecificDiagnostics>
       <SmallerTypeCheck>true</SmallerTypeCheck>
+      <ForcedIncludeFiles>disabled_warnings.hpp</ForcedIncludeFiles>
+      <PreprocessorDefinitions>_DEBUG;SYSLOG;SYSLOG_FARSYSLOG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -527,6 +531,9 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\variadic_emulation_helpers_end.hpp" />
     <ClInclude Include="common\any.hpp" />
     <ClInclude Include="configdb.hpp" />
+    <ClInclude Include="disabled_warnings.hpp" />
+    <ClInclude Include="disable_warnings_in_std_begin.hpp" />
+    <ClInclude Include="disable_warnings_in_std_end.hpp" />
     <ClInclude Include="elevation.hpp" />
     <ClInclude Include="bitflags.hpp" />
     <ClInclude Include="cache.hpp" />
@@ -608,6 +615,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="Include\DlgBuilder.hpp" />
     <ClInclude Include="nsUniversalDetectorEx.hpp" />
     <ClInclude Include="panelctype.hpp" />
+    <ClInclude Include="sdk.hpp" />
     <ClInclude Include="shortcuts.hpp" />
     <ClInclude Include="fileattr.hpp" />
     <ClInclude Include="fileedit.hpp" />

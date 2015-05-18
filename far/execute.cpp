@@ -447,13 +447,13 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 {
 	string strValue;
 	string strNewValue;
-	const wchar_t *ExtPtr;
 	const wchar_t *RetPtr;
 	const wchar_t command_action[]=L"\\command";
 	Error = ERROR_SUCCESS;
 	ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
 
-	if (!(ExtPtr=wcsrchr(FileName.data(),L'.')))
+	const auto ExtPtr = wcsrchr(FileName.data(), L'.');
+	if (!ExtPtr)
 		return nullptr;
 
 	if (!GetShellType(ExtPtr, strValue))

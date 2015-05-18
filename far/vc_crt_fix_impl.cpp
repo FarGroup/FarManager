@@ -30,7 +30,17 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifdef FAR_USE_INTERNALS
+#include "disable_warnings_in_std_begin.hpp"
+//----------------------------------------------------------------------------
+#endif // END FAR_USE_INTERNALS
+
 #include <windows.h>
+
+#ifdef FAR_USE_INTERNALS
+//----------------------------------------------------------------------------
+#include "disable_warnings_in_std_end.hpp"
+#endif // END FAR_USE_INTERNALS
 
 template<typename T>
 inline T GetFunctionPointer(const wchar_t* ModuleName, const char* FunctionName, T Replacement)
@@ -82,7 +92,8 @@ extern "C" BOOL WINAPI GetModuleHandleExWWrapper(DWORD Flags, LPCWSTR ModuleName
 			}
 			else
 			{
-				if ((*Module = GetModuleHandleW(ModuleName)))
+				*Module = GetModuleHandleW(ModuleName);
+				if (*Module)
 				{
 					Result = TRUE;
 				}

@@ -99,6 +99,7 @@ ENUM(COPY_CODES)
 
 enum COPY_FLAGS
 {
+	FCOPY_NONE                 = 0,
 	FCOPY_COPYTONUL               = 0x00000001, // Признак копирования в NUL
 	FCOPY_CURRENTONLY             = 0x00000002, // Только текущий?
 	FCOPY_ONLYNEWERFILES          = 0x00000004, // Copy only newer files
@@ -879,7 +880,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
                      const wchar_t* PluginDestPath,
                      bool ToSubdir):
 	m_Filter(std::make_unique<FileFilter>(SrcPanel, FFT_COPY)),
-	Flags((Move? FCOPY_MOVE : 0) | (Link? FCOPY_LINK : 0) | (CurrentOnly? FCOPY_CURRENTONLY : 0)),
+	Flags((Move? FCOPY_MOVE : FCOPY_NONE) | (Link? FCOPY_LINK : FCOPY_NONE) | (CurrentOnly? FCOPY_CURRENTONLY : FCOPY_NONE)),
 	SrcPanel(SrcPanel),
 	DestPanel(Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel)),
 	SrcPanelMode(SrcPanel->GetMode()),
@@ -891,6 +892,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	RPT(RP_EXACTCOPY),
 	AltF10(),
 	m_CopySecurity(),
+	SelCount(SrcPanel->GetSelCount()),
 	m_FileAttr(),
 	FolderPresent(),
 	FilesPresent(),
@@ -899,7 +901,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	m_FileHandleForStreamSizeFix(),
 	m_NumberOfTargets()
 {
-	if (!(SelCount=SrcPanel->GetSelCount()))
+	if (!SelCount)
 		return;
 
 	string strSelName;
@@ -1433,7 +1435,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		}
 	}
 
-	Flags|=CopyDlg[ID_SC_COPYSYMLINK].Selected?FCOPY_COPYSYMLINKCONTENTS:0;
+	Flags|=CopyDlg[ID_SC_COPYSYMLINK].Selected? FCOPY_COPYSYMLINKCONTENTS : FCOPY_NONE;
 
 	if (DestPlugin && CopyDlg[ID_SC_TARGETEDIT].strData == strInitDestDir)
 	{
@@ -1524,7 +1526,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
 				if (LastIteration) // нужно учесть моменты связанные с операцией Move.
 				{
-					Flags|=FCOPY_COPYLASTTIME|(Move?FCOPY_MOVE:0); // только для последней операции
+					Flags |= FCOPY_COPYLASTTIME | (Move? FCOPY_MOVE : FCOPY_NONE); // только для последней операции
 				}
 
 				// Если выделенных элементов больше 1 и среди них есть каталог, то всегда

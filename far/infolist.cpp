@@ -680,7 +680,7 @@ void InfoList::SelectShowMode()
 
 int InfoList::ProcessKey(const Manager::Key& Key)
 {
-	int LocalKey=Key.FarKey();
+	auto LocalKey = Key.FarKey();
 	if (!IsVisible())
 		return FALSE;
 
@@ -733,7 +733,7 @@ int InfoList::ProcessKey(const Manager::Key& Key)
 				string strArgName;
 				const wchar_t *p = Global->Opt->InfoPanel.strFolderInfoFiles.data();
 
-				while ((p = GetCommaWord(p,strArgName)) )
+				while ((p = GetCommaWord(p,strArgName)) != nullptr)
 				{
 					if (strArgName.find_first_of(L"*?") == string::npos)
 					{
@@ -937,7 +937,7 @@ bool InfoList::ShowDirDescription(int YPos)
 	string strArgName;
 	const wchar_t *NamePtr = Global->Opt->InfoPanel.strFolderInfoFiles.data();
 
-	while ((NamePtr=GetCommaWord(NamePtr,strArgName)))
+	while ((NamePtr=GetCommaWord(NamePtr,strArgName)) != nullptr)
 	{
 		string strFullDizName;
 		strFullDizName = strDizDir;

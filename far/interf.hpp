@@ -185,6 +185,14 @@ string make_progressbar(size_t Size, int Percent, bool ShowPercent, bool Propaga
 
 void InitRecodeOutTable();
 
+inline void fix_coordinates(int& X1, int& Y1, int& X2, int& Y2)
+{
+	X1 = std::max(X1, 0);
+	X2 = std::min(static_cast<int>(ScrX), X2);
+	Y1 = std::max(Y1, 0);
+	Y2 = std::min(static_cast<int>(ScrY), Y2);
+}
+
 inline void SetVidChar(FAR_CHAR_INFO& CI,wchar_t Chr)
 {
 	CI.Char = (Chr<L'\x20'||Chr==L'\x7f')?Oem2Unicode[Chr]:Chr;

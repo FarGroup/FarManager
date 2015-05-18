@@ -4540,7 +4540,7 @@ static bool replaceFunc(FarMacroCall* Data)
 		const wchar_t *Ptr=Src.asString().data();
 		if( !Mode )
 		{
-			while ((Ptr = StrStrI(Ptr, Find.asString().data())))
+			while ((Ptr = StrStrI(Ptr, Find.asString().data())) != nullptr)
 			{
 				cnt++;
 				Ptr+=lenF;
@@ -4548,7 +4548,7 @@ static bool replaceFunc(FarMacroCall* Data)
 		}
 		else
 		{
-			while ((Ptr = StrStr(Ptr, Find.asString().data())))
+			while ((Ptr = StrStr(Ptr, Find.asString().data())) != nullptr)
 			{
 				cnt++;
 				Ptr+=lenF;

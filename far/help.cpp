@@ -109,7 +109,7 @@ static const wchar_t HelpFormatLink[] = L"<%s\\>%s";
 static const wchar_t HelpFormatLinkModule[] = L"<%s>%s";
 
 
-struct Help::StackHelpData: ::noncopyable
+struct Help::StackHelpData
 {
 	StackHelpData():
 		Flags(),
@@ -1205,7 +1205,7 @@ __int64 Help::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 int Help::ProcessKey(const Manager::Key& Key)
 {
-	int LocalKey=Key.FarKey();
+	auto LocalKey = Key.FarKey();
 	if (StackData->strSelTopic.empty())
 		StackData->CurX=StackData->CurY=0;
 

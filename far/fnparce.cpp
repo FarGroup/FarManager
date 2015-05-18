@@ -225,9 +225,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 			pAnotherListName = SubstData.pAnotherListName;
 		}
 
-		const wchar_t *Ptr;
-
-		if ((Ptr=wcschr(CurStr+2,L'!')) )
+		if (const auto Ptr = wcschr(CurStr + 2, L'!'))
 		{
 			if (Ptr[1] != L'?')
 			{

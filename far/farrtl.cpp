@@ -393,7 +393,7 @@ char * xstrncpy(char * dest,const char * src,size_t DestSize)
 {
 	char *tmpsrc = dest;
 
-	while (DestSize>1 && (*dest++ = *src++))
+	while (DestSize>1 && (*dest++ = *src++) != 0)
 	{
 		DestSize--;
 	}
@@ -406,7 +406,7 @@ wchar_t * xwcsncpy(wchar_t * dest,const wchar_t * src,size_t DestSize)
 {
 	wchar_t *tmpsrc = dest;
 
-	while (DestSize>1 && (*dest++ = *src++))
+	while (DestSize>1 && (*dest++ = *src++) != 0)
 		DestSize--;
 
 	*dest = 0;

@@ -76,7 +76,7 @@ enum DIALOG_MODES
 Описывает один элемент диалога - внутренне представление.
 Для плагинов это FarDialogItem
 */
-struct DialogItemEx: noncopyable, public FarDialogItem
+struct DialogItemEx: public FarDialogItem
 {
 	// Структура, описывающая автоматизацию для DIF_AUTOMATION
 	struct DialogItemAutomation;

@@ -95,8 +95,9 @@ void DizList::Read(const string& Path, const string* DizName)
 				break;
 
 			string strArgName;
+			NamePtr = GetCommaWord(NamePtr, strArgName);
 
-			if (!(NamePtr=GetCommaWord(NamePtr,strArgName)))
+			if (!NamePtr)
 				break;
 
 			AddEndSlash(strDizFileName);

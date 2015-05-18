@@ -172,7 +172,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 {
 	const wchar_t *PStr;
 	string strStr;
-	int LocalKey=Key.FarKey();
+	auto LocalKey = Key.FarKey();
 
 	if ((LocalKey==KEY_CTRLEND || LocalKey==KEY_RCTRLEND || LocalKey==KEY_CTRLNUMPAD1 || LocalKey==KEY_RCTRLNUMPAD1) && (CmdStr.GetCurPos()==CmdStr.GetLength()))
 	{
@@ -1131,11 +1131,9 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		if (!std::iswdigit(*Ptr))
 			return FALSE;
 
-		wchar_t Chr;
-
-		while ((Chr=*Ptr) )
+		while (*Ptr)
 		{
-			if (!std::iswdigit(Chr))
+			if (!std::iswdigit(*Ptr))
 				break;
 
 			++Ptr;

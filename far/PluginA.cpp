@@ -1773,9 +1773,9 @@ static char* WINAPI RemoveLeadingSpacesA(char *Str) noexcept
 {
 	try
 	{
-		char *ChPtr;
+		auto ChPtr = Str;
 
-		if (!(ChPtr = Str))
+		if (!ChPtr)
 			return nullptr;
 
 		for (; IsSpaceA(*ChPtr); ChPtr++)
@@ -1852,8 +1852,8 @@ static char* WINAPI TruncPathStrA(char *Str, int MaxLength) noexcept
 			{
 				if ((Str[0] == '\\') && (Str[1] == '\\'))
 				{
-					if ((lpStart = const_cast<char*>(FirstSlashA(Str + 2))))
-						if ((lpStart = const_cast<char*>(FirstSlashA(lpStart + 1))))
+					if ((lpStart = const_cast<char*>(FirstSlashA(Str + 2))) != nullptr)
+						if ((lpStart = const_cast<char*>(FirstSlashA(lpStart + 1))) != nullptr)
 							lpStart++;
 				}
 			}
@@ -5176,22 +5176,22 @@ bool PluginA::GetGlobalInfo(GlobalInfo* Info)
 	if (FileVersion->Read())
 	{
 		const wchar_t* Value;
-		if ((Value = FileVersion->GetStringValue(L"InternalName")) || (Value = FileVersion->GetStringValue(L"OriginalName")))
+		if ((Value = FileVersion->GetStringValue(L"InternalName")) != nullptr || (Value = FileVersion->GetStringValue(L"OriginalName")) != nullptr)
 		{
 			Info->Title = Value;
 		}
 
-		if ((Value = FileVersion->GetStringValue(L"CompanyName")) || (Value = FileVersion->GetStringValue(L"LegalCopyright")) )
+		if ((Value = FileVersion->GetStringValue(L"CompanyName")) != nullptr || (Value = FileVersion->GetStringValue(L"LegalCopyright")) != nullptr)
 		{
 			Info->Author = Value;
 		}
 
-		if ((Value = FileVersion->GetStringValue(L"FileDescription")))
+		if ((Value = FileVersion->GetStringValue(L"FileDescription")) != nullptr)
 		{
 			Info->Description = Value;
 		}
 
-		if ((Value = FileVersion->GetStringValue(L"PluginGUID")))
+		if ((Value = FileVersion->GetStringValue(L"PluginGUID")) != nullptr)
 		{
 			if (UuidFromString(reinterpret_cast<RPC_WSTR>(const_cast<wchar_t*>(Value)), &PluginGuid) == RPC_S_OK)
 				GuidFound = true;

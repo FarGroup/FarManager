@@ -256,7 +256,7 @@ void Grabber::DisplayObject()
 
 int Grabber::ProcessKey(const Manager::Key& Key)
 {
-	int LocalKey=Key.FarKey();
+	auto LocalKey = Key.FarKey();
 	if(Global->CloseFAR)
 	{
 		LocalKey = KEY_ESC;

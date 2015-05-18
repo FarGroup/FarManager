@@ -42,8 +42,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define INTERNAL_KEY_BASE_2   0x00030000
 #define INTERNAL_MACRO_BASE   0x00080000
 
-enum BaseDefKeyboard
+enum far_key_code
 {
+	NO_KEY = 0,
+
 	KEY_CTRLMASK             =0xFFF00000,
 	KEY_M_OEM                =0x00100000,
 	KEY_M_SPEC               =0x00200000,
@@ -238,10 +240,9 @@ enum BaseDefKeyboard
 	KEY_MACRO_F_BASE         =INTERNAL_MACRO_BASE+0x0C00,     // функции            0x00080C00 -
 
 	KEY_MACRO_ENDBASE        =0x000FFFFF,
-};
 
-enum AddDefKeyboard
-{
+	// Additional
+
 	KEY_CTRLSHIFT            =KEY_CTRL|KEY_SHIFT,
 	KEY_ALTSHIFT             =KEY_ALT|KEY_SHIFT,
 	KEY_CTRLALT              =KEY_CTRL|KEY_ALT,

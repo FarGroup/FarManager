@@ -44,16 +44,16 @@ public:
 	{
 	private:
 		INPUT_RECORD m_Event;
-		int m_FarKey;
+		unsigned int m_FarKey;
 		bool m_EventFilled;
 	public:
 		Key(): m_Event(), m_FarKey(0), m_EventFilled(false) {}
 		explicit Key(int Key);
-		Key(int Key, const INPUT_RECORD& Event): m_Event(Event), m_FarKey(Key), m_EventFilled(true) {}
+		Key(unsigned int Key, const INPUT_RECORD& Event): m_Event(Event), m_FarKey(Key), m_EventFilled(true) {}
 		const INPUT_RECORD& Event(void)const {return m_Event;}
 		bool IsEvent(void)const {return m_EventFilled;}
 		bool IsReal(void)const;
-		int FarKey(void)const {return m_FarKey;}
+		unsigned int FarKey(void) const {return m_FarKey;}
 	};
 
 	class MessageAbstract;

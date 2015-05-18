@@ -99,24 +99,7 @@ private:
 	tinyxml::TiXmlHandle m_ImportRoot;
 };
 
-
-class TiXmlElementWrapper
-{
-public:
-	TiXmlElementWrapper(): m_data() {}
-	TiXmlElementWrapper(const tinyxml::TiXmlElement* rhs) { m_data = rhs; }
-	TiXmlElementWrapper& operator=(const tinyxml::TiXmlElement* rhs) { m_data = rhs; return *this; }
-
-	bool operator!() const noexcept { return !m_data; }
-	EXPLICIT_OPERATOR_BOOL();
-	const tinyxml::TiXmlElement* operator->() const { return m_data; }
-	const tinyxml::TiXmlElement& operator*() const { return *m_data; }
-
-private:
-	const tinyxml::TiXmlElement* m_data;
-};
-
-class xml_enum: noncopyable, public enumerator<TiXmlElementWrapper>
+class xml_enum: noncopyable, public enumerator<const tinyxml::TiXmlElement*>
 {
 public:
 	xml_enum(const tinyxml::TiXmlHandle& base, const std::string& name):
@@ -129,7 +112,7 @@ public:
 		m_base(&base)
 	{}
 
-	virtual bool get(size_t index, TiXmlElementWrapper& value) override
+	virtual bool get(size_t index, value_type& value) override
 	{
 		value = index? value->NextSiblingElement(m_name.data()) :
 			m_base? m_base->FirstChildElement(m_name.data()) : nullptr;
@@ -644,18 +627,18 @@ private:
 
 	void Import(const key& root, const tinyxml::TiXmlElement& key)
 	{
-		const auto name = key.Attribute("name");
-		const auto description = key.Attribute("description");
-		if (!name)
+		const auto key_name = key.Attribute("name");
+		const auto key_description = key.Attribute("description");
+		if (!key_name)
 			return;
 
-		const auto Name = wide(name, CP_UTF8);
-		string Description;
-		if (description)
+		const auto KeyName = wide(key_name, CP_UTF8);
+		string KeyDescription;
+		if (key_description)
 		{
-			Description = wide(description, CP_UTF8);
+			KeyDescription = wide(key_description, CP_UTF8);
 		}
-		const auto Key = CreateKey(root, Name, description? &Description : nullptr);
+		const auto Key = CreateKey(root, KeyName, key_description? &KeyDescription : nullptr);
 		if (!Key.get())
 			return;
 

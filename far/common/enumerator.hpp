@@ -31,6 +31,8 @@ template<typename T>
 class enumerator
 {
 public:
+	typedef T value_type;
+
 	virtual ~enumerator() {}
 	class const_iterator: public std::iterator<std::forward_iterator_tag, T>
 	{

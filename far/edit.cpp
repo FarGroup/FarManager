@@ -446,7 +446,7 @@ int Edit::RecurseProcessKey(int Key)
 }
 
 // Функция вставки всякой хреновени - от шорткатов до имен файлов
-int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
+int Edit::ProcessInsPath(unsigned int Key,int PrevSelStart,int PrevSelEnd)
 {
 	int RetCode=FALSE;
 	string strPathName;
@@ -592,7 +592,7 @@ __int64 Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 int Edit::ProcessKey(const Manager::Key& Key)
 {
-	int LocalKey=Key.FarKey();
+	auto LocalKey = Key.FarKey();
 	auto Mask = GetInputMask();
 	switch (LocalKey)
 	{

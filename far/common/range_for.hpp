@@ -38,8 +38,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	if (bool f_stop = false); \
 	else for (auto&& f_container = c; !f_stop; f_stop = true) \
 	for (auto f_it = std::begin(f_container), e = false? f_it : std::end(f_container); f_it != e && !f_stop; ++f_it) \
-	if (bool f_stop_it = !(f_stop = true)); \
-			else for (i = *f_it; !f_stop_it; f_stop_it = true, f_stop = false)
+	if (bool f_stop_it = (f_stop = true) == false); \
+	else for (i = *f_it; !f_stop_it; ((f_stop_it = true) != false), f_stop = false)
 // { body }
 #undef f_stop_it
 #undef f_it

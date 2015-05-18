@@ -53,7 +53,8 @@ public:
 private:
 	friend class Grabber;
 
-	static void CleanupBuffer(FAR_CHAR_INFO* Buffer, size_t BufSize);
+	int width() const { return m_X2 - m_X1 + 1; }
+	int height() const { return m_Y2 - m_Y1 + 1; }
 
 	matrix<FAR_CHAR_INFO> ScreenBuf;
 	SHORT CurPosX,CurPosY;

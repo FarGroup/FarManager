@@ -189,8 +189,8 @@ namespace os
 	bool GetDiskSize(const string& Path, unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree);
 	find_handle FindFirstFileName(const string& FileName, DWORD dwFlags, string& LinkName);
 	bool FindNextFileName(const find_handle& hFindStream, string& LinkName);
-	BOOL CreateDirectory(const string& PathName, LPSECURITY_ATTRIBUTES lpSecurityAttributes);
-	BOOL CreateDirectoryEx(const string& TemplateDirectory, const string& NewDirectory, LPSECURITY_ATTRIBUTES SecurityAttributes);
+	bool CreateDirectory(const string& PathName, LPSECURITY_ATTRIBUTES lpSecurityAttributes);
+	bool CreateDirectoryEx(const string& TemplateDirectory, const string& NewDirectory, LPSECURITY_ATTRIBUTES SecurityAttributes);
 	DWORD GetFileAttributes(const string& FileName);
 	BOOL SetFileAttributes(const string& FileName, DWORD dwFileAttributes);
 	void InitCurrentDirectory();
@@ -229,7 +229,7 @@ namespace os
 			enum_file(const string& Object, bool ScanSymLink = true);
 
 		private:
-			virtual bool get(size_t index, FAR_FIND_DATA& value) override;
+			virtual bool get(size_t index, value_type& value) override;
 
 			string m_Object;
 			find_handle m_Handle;
@@ -242,7 +242,7 @@ namespace os
 			enum_name(const string& Object): m_Object(Object) {}
 
 		private:
-			virtual bool get(size_t index, string& value) override;
+			virtual bool get(size_t index, value_type& value) override;
 
 			string m_Object;
 			find_handle m_Handle;
@@ -254,7 +254,7 @@ namespace os
 			enum_stream(const string& Object): m_Object(Object) {}
 
 		private:
-			virtual bool get(size_t index, WIN32_FIND_STREAM_DATA& value) override;
+			virtual bool get(size_t index, value_type& value) override;
 
 			string m_Object;
 			find_handle m_Handle;
@@ -451,7 +451,7 @@ namespace os
 		public:
 			enum_key(HKEY Key): m_Key(Key) {}
 			enum_key(HKEY RootKey, const wchar_t* SubKey, REGSAM Sam = 0): m_Key(RootKey, SubKey, KEY_ENUMERATE_SUB_KEYS | Sam) {}
-			virtual bool get(size_t Index, string& Value) override { return m_Key && EnumKey(m_Key.Key(), Index, Value); }
+			virtual bool get(size_t Index, value_type& Value) override { return m_Key && EnumKey(m_Key.Key(), Index, Value); }
 
 		private:
 			key m_Key;
@@ -462,7 +462,7 @@ namespace os
 		public:
 			enum_value(HKEY Key): m_Key(Key) {}
 			enum_value(HKEY RootKey, const wchar_t* SubKey, REGSAM Sam = 0): m_Key(RootKey, SubKey, KEY_QUERY_VALUE | Sam) {}
-			virtual bool get(size_t Index, value& Value) override { return m_Key && EnumValue(m_Key.Key(), Index, Value); }
+			virtual bool get(size_t Index, value_type& Value) override { return m_Key && EnumValue(m_Key.Key(), Index, Value); }
 
 		private:
 			key m_Key;
@@ -477,7 +477,7 @@ namespace os
 			enum_strings();
 			~enum_strings();
 
-			virtual bool get(size_t index, const wchar_t*& value) override;
+			virtual bool get(size_t index, value_type& value) override;
 
 		private:
 			wchar_t* m_Environment;

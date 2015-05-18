@@ -80,7 +80,7 @@ public:
 	{
 	public:
 		values_enumerator(GeneralConfig& provider, const string& key): m_provider(provider), m_key(key) {}
-		virtual bool get(size_t index, std::pair<string, T>& value) override
+		virtual bool get(size_t index, typename values_enumerator::value_type& value) override
 		{
 			return m_provider.EnumValues(m_key, static_cast<DWORD>(index), value.first, value.second);
 		}

@@ -286,7 +286,7 @@ void KeyBar::SetCustomLabels(KEYBARAREA Area)
 
 int KeyBar::ProcessKey(const Manager::Key& Key)
 {
-	int LocalKey=Key.FarKey();
+	auto LocalKey = Key.FarKey();
 	switch (LocalKey)
 	{
 		case KEY_KILLFOCUS:

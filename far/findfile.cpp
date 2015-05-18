@@ -1011,10 +1011,10 @@ int FindFiles::FindStringBMH(const unsigned char* searchBuffer, size_t searchBuf
 bool FindFiles::LookForString(const string& Name)
 {
 	// Длина строки поиска
-	size_t findStringCount;
+	size_t findStringCount = strFindStr.size();
 
 	// Если строки поиска пустая, то считаем, что мы всегда что-нибудь найдём
-	if (!(findStringCount = strFindStr.size()))
+	if (!findStringCount)
 		return true;
 
 	os::fs::file file;

@@ -36,7 +36,7 @@ class as_string_t: public enumerator<T>
 {
 public:
 	as_string_t(const T* str, size_t size): m_str(str), m_size(size) {}
-	virtual bool get(size_t index, T& value) override
+	virtual bool get(size_t index, typename as_string_t::value_type& value) override
 	{
 		if (m_size == size_t(-1))
 		{

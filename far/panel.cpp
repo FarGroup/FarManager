@@ -1366,7 +1366,7 @@ void Search::Process(void)
 
 int Search::ProcessKey(const Manager::Key& Key)
 {
-	int LocalKey=Key.FarKey();
+	auto LocalKey = Key.FarKey();
 	string strName;
 
 	// для вставки воспользуемся макродвижком...
@@ -1753,13 +1753,15 @@ void Panel::DragMessage(int X,int Y,int Move)
 {
 
 	string strSelName;
-	size_t SelCount;
 	int MsgX,Length;
 
-	if (!(SelCount=SrcDragPanel->GetSelCount()))
-		return;
+	const auto SelCount = SrcDragPanel->GetSelCount();
 
-	if (SelCount==1)
+	if (!SelCount)
+	{
+		return;
+	}
+	else if (SelCount == 1)
 	{
 		string strCvtName;
 		DWORD FileAttr;

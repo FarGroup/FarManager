@@ -697,10 +697,8 @@ void Manager::ExitMainLoop(int Ask)
 		*/
 		if (ExitAll() || Global->CloseFAR)
 		{
-			FilePanels *cp;
-
-			if (!(cp = Global->CtrlObject->Cp())
-			        || (!cp->LeftPanel->ProcessPluginEvent(FE_CLOSE,nullptr) && !cp->RightPanel->ProcessPluginEvent(FE_CLOSE,nullptr)))
+			const auto cp = Global->CtrlObject->Cp();
+			if (!cp || (!cp->LeftPanel->ProcessPluginEvent(FE_CLOSE, nullptr) && !cp->RightPanel->ProcessPluginEvent(FE_CLOSE, nullptr)))
 				EndLoop=true;
 		}
 		else

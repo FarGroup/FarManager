@@ -308,8 +308,8 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 	for (;;)
 	{
 		string strArgName;
-
-		if (!(TextPtr=GetCommaWord(TextPtr,strArgName)))
+		TextPtr = GetCommaWord(TextPtr, strArgName);
+		if (!TextPtr)
 			break;
 
 		Columns.emplace_back(VALUE_TYPE(Columns)());
@@ -448,8 +448,8 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 	FOR(auto& i, Columns)
 	{
 		string strArgName;
-
-		if (!(TextPtr=GetCommaWord(TextPtr,strArgName)))
+		TextPtr = GetCommaWord(TextPtr, strArgName);
+		if (!TextPtr)
 			break;
 
 		try

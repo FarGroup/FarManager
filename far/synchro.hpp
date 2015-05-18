@@ -177,7 +177,7 @@ class Mutex: public os::HandleWrapper
 {
 public:
 	Mutex(const wchar_t* Name = nullptr): HandleWrapper(CreateMutex(nullptr, false, EmptyToNull(Name))) {}
-	Mutex(Mutex& rhs) noexcept { *this = std::move(rhs); }
+	Mutex(Mutex&& rhs) noexcept { *this = std::move(rhs); }
 
 	virtual ~Mutex() {}
 
@@ -205,7 +205,7 @@ public:
 
 	Event() {}
 	Event(event_type Type, event_state InitialState, const wchar_t* Name = nullptr): HandleWrapper(CreateEvent(nullptr, Type == manual, InitialState == signaled, EmptyToNull(Name))) {}
-	Event(Event& rhs) noexcept { *this = std::move(rhs); }
+	Event(Event&& rhs) noexcept { *this = std::move(rhs); }
 	virtual ~Event() {}
 
 	static const wchar_t *GetNamespace() { return L"Far_Manager_Event_"; }

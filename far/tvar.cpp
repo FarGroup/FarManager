@@ -106,7 +106,7 @@ static TypeString checkTypeString(const string& TestStr)
 			}
 		}
 
-		while ((ch=*ptrTestStr++) )
+		while ((ch=*ptrTestStr++) != 0)
 		{
 			switch (ch)
 			{

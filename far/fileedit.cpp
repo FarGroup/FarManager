@@ -842,7 +842,7 @@ int FileEditor::ProcessKey(const Manager::Key& Key)
 
 int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 {
-	int LocalKey=Key.FarKey();
+	auto LocalKey = Key.FarKey();
 	if (LocalKey!=KEY_F4 && LocalKey!=KEY_IDLE)
 		F4KeyOnly=false;
 
@@ -1554,7 +1554,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		}
 	}
 
-	for (BitFlags f0 = m_editor->m_Flags; true; m_editor->m_Flags = f0)
+	for (BitFlags f0 = m_editor->m_Flags; ; m_editor->m_Flags = f0)
 	{
 		m_editor->FreeAllocatedData(false);
 		bool bCached = LoadFromCache(pc);
@@ -2792,7 +2792,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					}
 
 #endif
-					int Key=ShieldCalcKeyCode(&rec,FALSE);
+					const auto Key = ShieldCalcKeyCode(&rec,FALSE);
 					ReProcessKey(Manager::Key(Key, rec));
 				}
 

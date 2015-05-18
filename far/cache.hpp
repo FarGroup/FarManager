@@ -44,7 +44,6 @@ public:
 	void Clear();
 
 private:
-	enum { DefaultBufferSize = 0x10000 };
 	os::fs::file& file;
 	size_t ReadSize;
 	size_t BytesLeft;

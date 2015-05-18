@@ -131,7 +131,8 @@ bool IsKeyHighlighted(const string& str,int Key,int Translate,int AmpPos)
 	auto Str = str.data();
 	if (AmpPos == -1)
 	{
-		if (!(Str=wcschr(Str,L'&')))
+		Str = wcschr(Str, L'&');
+		if (!Str)
 			return false;
 
 		AmpPos=1;
@@ -2495,7 +2496,7 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
 */
 int Dialog::ProcessKey(const Manager::Key& Key)
 {
-	int LocalKey=Key.FarKey();
+	auto LocalKey = Key.FarKey();
 	// flag to call global ProcessKey out of critical section, Mantis#2511
 	bool doGlobalProcessKey = false;
 
@@ -5158,9 +5159,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 							if (!CheckStructSize(ListItems))
 								return FALSE;
 
-							MenuItemEx *ListMenuItem;
-
-							if ((ListMenuItem=ListBox->GetItemPtr(ListItems->ItemIndex)) )
+							if (const auto ListMenuItem = ListBox->GetItemPtr(ListItems->ItemIndex))
 							{
 								//ListItems->ItemIndex=1;
 								FarListItem *Item=&ListItems->Item;
@@ -5300,9 +5299,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 					// уточнение для DI_COMBOBOX - здесь еще и DlgEdit нужно корректно заполнить
 					if (!CurItem->IFlags.Check(DLGIIF_COMBOBOXNOREDRAWEDIT) && Type==DI_COMBOBOX && CurItem->ObjPtr)
 					{
-						MenuItemEx *ListMenuItem;
-
-						if ((ListMenuItem=ListBox->GetItemPtr(ListBox->GetSelectPos())) )
+						if (const auto ListMenuItem = ListBox->GetItemPtr(ListBox->GetSelectPos()))
 						{
 							if (CurItem->Flags & (DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND))
 								static_cast<DlgEdit*>(CurItem->ObjPtr)->SetHiString(ListMenuItem->strName);
@@ -5795,9 +5792,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						break;
 					case DI_LISTBOX:
 					{
-						MenuItemEx *ListMenuItem;
-
-						if ((ListMenuItem=CurItem->ListPtr->GetItemPtr(-1)) )
+						if (const auto ListMenuItem = CurItem->ListPtr->GetItemPtr(-1))
 						{
 							Ptr=ListMenuItem->strName.data();
 							Len=ListMenuItem->strName.size();
@@ -5848,9 +5843,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				case DI_LISTBOX:
 				{
 					Len=0;
-					MenuItemEx *ListMenuItem;
-
-					if ((ListMenuItem=CurItem->ListPtr->GetItemPtr(-1)) )
+					if (const auto ListMenuItem = CurItem->ListPtr->GetItemPtr(-1))
 					{
 						Len = ListMenuItem->strName.size();
 					}

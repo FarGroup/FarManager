@@ -66,6 +66,8 @@ public:
 		const_iterator begin() const { return m_row; }
 		const_iterator end() const { return m_row + m_size; }
 
+		bool operator==(const row& rhs) const { return m_size == rhs.m_size && std::equal(m_row, m_row + m_size, rhs.m_row); }
+		bool operator!=(const row& rhs) const { return !(*this == rhs); }
 	private:
 		T* m_row;
 		size_t m_size;

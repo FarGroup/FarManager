@@ -333,7 +333,7 @@ bool Clipboard::Get(string& data)
 			data = ClipAddr.get();
 		}
 	}
-	else if ((hClipData = GetData(CF_HDROP)))
+	else if ((hClipData = GetData(CF_HDROP)) != nullptr)
 	{
 		if (const auto Files = os::memory::global::lock<const LPDROPFILES>(hClipData))
 		{

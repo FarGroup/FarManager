@@ -105,7 +105,7 @@ public:
 			m_InterfaceClassGuid(InterfaceClassGuid)
 		{}
 
-		virtual bool get(size_t index, SP_DEVICE_INTERFACE_DATA& value) override
+		virtual bool get(size_t index, value_type& value) override
 		{
 			value.cbSize = sizeof(value);
 			return SetupDiEnumDeviceInterfaces(m_info, nullptr, &m_InterfaceClassGuid, static_cast<int>(index), &value) != FALSE;
