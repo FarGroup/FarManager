@@ -1,4 +1,8 @@
-﻿shmuel 07.05.2015 16:59:03 +0200 - build 513
+﻿shmuel 21.05.2015 23:38:29 +0200 - build 514
+
+1. M#2794: MenuItem: возможность определить имя пункта строкой, а не функцией.
+
+shmuel 07.05.2015 16:59:03 +0200 - build 513
 
 1. LuaFAR: добавлены функции win.GetCurrentDir и win.SetCurrentDir.
 

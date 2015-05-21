@@ -428,7 +428,7 @@ local function AddMenuItem (srctable)
   if type(srctable)=="table" and
      type(srctable.menu)=="string" and
      type(srctable.guid)=="string" and
-     type(srctable.text)=="function" and
+     (type(srctable.text)=="function" or type(srctable.text)=="string") and
      type(srctable.action)=="function"
   then
     local item = {}
@@ -448,7 +448,8 @@ local function AddMenuItem (srctable)
           end
         end
       end
-      item.text = srctable.text
+      local text = srctable.text
+      item.text = type(text)=="function" and text or function() return text end
       item.action = srctable.action
       item.description = type(srctable.description)=="string" and srctable.description or ""
       item.FileName = AddMacro_filename

@@ -1802,7 +1802,7 @@ lv=2
 dt=Text
 nm=Adding items to plugins' menus
 ctime=3613740592
-mtime=3619172074
+mtime=3641412371
 <article>
 #_<markdown>
 #_
@@ -1816,7 +1816,7 @@ mtime=3619172074
 #_  menu   = "Plugins Disks Config";                  -- string
 #_  area   = "Shell Editor Viewer Dialog Menu";       -- string (optional field)
 #_  guid   = "A435D567-AD64-4DD1-8C61-28CB90358817";  -- string
-#_  text   = function(menu,area) return "Hello!" end; -- function
+#_  text   = function(menu,area) return "Hello!" end; -- string, or function
 #_  action = function(OpenFrom,Item) ...... end;      -- function
 #_}
 #_```
@@ -1828,7 +1828,9 @@ mtime=3619172074
 #_
 #_* The field `guid` contains a unique identifier (GUID) of the given menu item.
 #_
-#_* The field `text` is the function returning a string - the text of the given menu item. The menu item is added only if the function returned a `string` value. The function takes 2 arguments:
+#_* The field `text`: if it is a string then that string is used as the menu item's text.<br>
+#_  Otherwise it should be a function. The menu item is added only if the function returned a string value.<br>
+#_  The function receives 2 arguments:
 #_  1. *menu* - type of the menu (either of: `"Plugins"`, `"Disks"` or `"Config"`)
 #_  2. *area* - name of the current macroarea.<br><br>
 #_
