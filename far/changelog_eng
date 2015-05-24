@@ -3,6 +3,18 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 21.05.2015 07:33:01 +0300 - build 4382
+
+1. SQLite 3.8.10.2
+
+drkns 18.05.2015 22:39:06 +0200 - build 4381
+
+1. Warnings mix:
+   - for vc, suppression of warnings moved to a separate file
+   - -Wextra for gcc.
+
+2. Refactoring.
+
 zg 16.05.2015 04:38:48 +0200 - build 4380
 
 1. 0002994: GUID for User Menu dialogs invoked with !?<title>?<init>!.
