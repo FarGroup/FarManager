@@ -4252,11 +4252,14 @@ void FileList::CompareDir()
 		}
 	}
 
-	if (SelectedFirst)
-		SortFileList(TRUE);
-
-	Redraw();
-	Another->Redraw();
+	auto refresh=[](FileList* Panel)
+	{
+		if (Panel->GetSelectedFirstMode())
+			Panel->SortFileList(TRUE);
+		Panel->Redraw();
+	};
+	refresh(this);
+	refresh(Another);
 
 	if (!SelFileCount && !Another->SelFileCount)
 		Message(0,1,MSG(MCompareTitle),MSG(MCompareSameFolders1),MSG(MCompareSameFolders2),MSG(MOk));

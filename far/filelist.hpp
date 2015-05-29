@@ -325,6 +325,7 @@ public:
 	virtual size_t GetFileCount() const override { return m_ListData.size(); }
 	virtual void UpdateKeyBar() override;
 	virtual void IfGoHome(wchar_t Drive) override;
+	virtual bool GetSelectedFirstMode() const override { return SelectedFirst; }
 
 	const FileListItem* GetItem(size_t Index) const;
 	const FileListItem* GetLastSelectedItem() const;
@@ -358,7 +359,6 @@ protected:
 private:
 	virtual ~FileList();
 	virtual void SetSelectedFirstMode(bool Mode) override;
-	virtual bool GetSelectedFirstMode() const override { return SelectedFirst; }
 	virtual void DisplayObject() override;
 	virtual int GetCurName(string &strName, string &strShortName) const override;
 	virtual int GetCurBaseName(string &strName, string &strShortName) const override;
