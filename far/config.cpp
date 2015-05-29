@@ -87,8 +87,6 @@ static const wchar_t constBatchExt[] = L".BAT;.CMD;";
 
 static const int DefaultTabSize = 8;
 
-static wchar_t DefaultLanguage[100] = {};
-
 static const size_t default_copy_buffer_size = 32 * 1024;
 
 
@@ -1513,6 +1511,8 @@ void Options::InitConfigData()
 	};
 	static_assert(ARRAYSIZE(DefaultBoxSymbols) == BS_COUNT + 1, "Incomplete DefaultBoxSymbols array");
 
+	string strDefaultLanguage = GetFarIniString(L"General", L"DefaultLanguage", L"English");
+
 	#define OPT_DEF(option, def) &option, std::remove_reference<decltype(option)>::type::type(def)
 
 	static FARConfigItem RoamingData[] =
@@ -1636,8 +1636,8 @@ void Options::InitConfigData()
 		{FSSF_PRIVATE,       NKeyInterfaceCompletion,L"UsePath", OPT_DEF(AutoComplete.UsePath, 1)},
 		{FSSF_PRIVATE,       NKeyInterfaceCompletion,L"UseEnvironment", OPT_DEF(AutoComplete.UseEnvironment, 1)},
 
-		{FSSF_PRIVATE,       NKeyLanguage, L"Main", OPT_DEF(strLanguage, DefaultLanguage)},
-		{FSSF_PRIVATE,       NKeyLanguage, L"Help", OPT_DEF(strHelpLanguage, DefaultLanguage)},
+		{FSSF_PRIVATE,       NKeyLanguage, L"Main", OPT_DEF(strLanguage, strDefaultLanguage)},
+		{FSSF_PRIVATE,       NKeyLanguage, L"Help", OPT_DEF(strHelpLanguage, strDefaultLanguage)},
 
 		{FSSF_PRIVATE,       NKeyLayout,L"FullscreenHelp", OPT_DEF(FullScreenHelp, false)},
 		{FSSF_PRIVATE,       NKeyLayout,L"LeftHeightDecrement", OPT_DEF(LeftHeightDecrement, 0)},
@@ -1955,10 +1955,6 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 	SetRegRootKey(HKEY_CURRENT_USER);
 	*/
 	/* *************************************************** </опеопнжеяяш> */
-
-	// BUGBUG
-	string strDefaultLanguage = GetFarIniString(L"General", L"DefaultLanguage", L"English");
-	xwcsncpy(DefaultLanguage, strDefaultLanguage.data(), ARRAYSIZE(DefaultLanguage));
 
 	FOR(auto& i, Config)
 	{
