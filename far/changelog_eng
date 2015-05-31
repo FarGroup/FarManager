@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 29.05.2015 23:39:54 +0200 - build 4384
+
+1. 0002997: Improper sorting after Compare Folders.
+
+zg 29.05.2015 19:12:18 +0200 - build 4383
+
+1. FARLANG is assigned an empty value for a clean profile.
+
 svs 21.05.2015 07:33:01 +0300 - build 4382
 
 1. SQLite 3.8.10.2
