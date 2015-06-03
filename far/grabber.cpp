@@ -156,26 +156,23 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 				}
 			}
 
-			if (Global->Opt->NoGraphics && InRange(BS_V1, BOX_DEF_SYMBOLS(Chr2), BS_LT_H1V1))
+			if (Global->Opt->NoGraphics && InRange(BoxSymbols[BS_V1], static_cast<wchar_t>(Chr2), BoxSymbols[BS_LT_H1V1]))
 			{
-				switch (Chr2)
+				if (Chr2 == BoxSymbols[BS_V1] || Chr2 == BoxSymbols[BS_V2])
 				{
-				case BS_V1:
-				case BS_V2:
 					Chr = L'|';
-					break;
-
-				case BS_H1:
+				}
+				else if (Chr2 == BoxSymbols[BS_H1])
+				{
 					Chr = L'-';
-					break;
-
-				case BS_H2:
+				}
+				else if (Chr2 == BoxSymbols[BS_H2])
+				{
 					Chr = L'=';
-					break;
-
-				default:
+				}
+				else
+				{
 					Chr=L'+';
-					break;
 				}
 			}
 
