@@ -605,6 +605,11 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 				return MacroKey;
 			}
 		}
+		else if (Global->WindowManager->HaveAnyMessage())
+		{
+			ClearStruct(*rec);
+			return KEY_NONE;
+		}
 	}
 
 	if (KeyQueue().size())
@@ -819,7 +824,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		IntKeyState.RightAltPressed=(CtrlState & RIGHT_ALT_PRESSED);
 		IntKeyState.RightShiftPressed=(CtrlState & SHIFT_PRESSED); //???
 		KeyPressedLastTime=CurClock;
-		}
+	}
 	else
 	{
 		was_repeat = false;

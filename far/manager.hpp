@@ -134,6 +134,7 @@ public:
 	window_ptr GetEditorContainerById(int ID) const;
 	// BUGBUG, do we need this?
 	void ImmediateHide();
+	bool HaveAnyMessage() const;
 
 private:
 #if defined(SYSLOG)

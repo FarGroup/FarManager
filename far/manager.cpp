@@ -623,6 +623,11 @@ bool Manager::OnlyDesktop() const
 	return m_windows.size() == 1 && m_Queue.empty();
 }
 
+bool Manager::HaveAnyMessage() const
+{
+	return !m_Queue.empty();
+}
+
 void Manager::EnterMainLoop()
 {
 	Global->WaitInFastFind=0;
