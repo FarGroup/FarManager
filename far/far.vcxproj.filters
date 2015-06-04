@@ -968,9 +968,6 @@
     <ClInclude Include="common\algorithm.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
-    <ClInclude Include="common\as_string.hpp">
-      <Filter>Header Files\common</Filter>
-    </ClInclude>
     <ClInclude Include="common\enum.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
@@ -1030,6 +1027,9 @@
     </ClInclude>
     <ClInclude Include="sdk.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common\null_iterator.hpp">
+      <Filter>Header Files\common</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

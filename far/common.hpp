@@ -45,7 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/smart_ptr.hpp"
 #include "common/make_vector.hpp"
 #include "common/any.hpp"
-#include "common/as_string.hpp"
+#include "common/null_iterator.hpp"
 #include "common/enumerator.hpp"
 #include "common/iterator_range.hpp"
 #include "common/algorithm.hpp"

@@ -27,19 +27,20 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename T>
+template<typename Derived, typename T>
 class enumerator
 {
 public:
 	typedef T value_type;
 
 	virtual ~enumerator() {}
+
 	class const_iterator: public std::iterator<std::forward_iterator_tag, T>
 	{
 	public:
 		typedef const T value_type;
 
-		const_iterator(enumerator* collection = nullptr, size_t index = -1): m_collection(collection), m_index(index), m_value() {}
+		const_iterator(Derived* collection = nullptr, size_t index = -1): m_collection(collection), m_index(index), m_value() {}
 		const_iterator(const const_iterator& rhs): m_collection(rhs.m_collection), m_index(rhs.m_index), m_value(rhs.m_value) {}
 		const_iterator& operator =(const const_iterator& rhs) { m_collection = rhs.m_collection; m_index = rhs.m_index; m_value = rhs.m_value; return *this;}
 		value_type* operator ->() const { return &m_value; }
@@ -51,7 +52,7 @@ public:
 	private:
 		friend enumerator;
 
-		enumerator* m_collection;
+		Derived* m_collection;
 		size_t m_index;
 		T m_value;
 	};
@@ -61,14 +62,15 @@ public:
 	public:
 		typedef T value_type;
 
-		iterator(enumerator* collection = nullptr, size_t index = -1): const_iterator(collection, index) {}
+		iterator(Derived* collection = nullptr, size_t index = -1): const_iterator(collection, index) {}
 		iterator(const iterator& rhs): const_iterator(rhs) {}
 		value_type* operator ->() { return const_cast<T*>(const_iterator::operator->()); }
 		value_type& operator *() { return const_cast<T&>(const_iterator::operator*()); }
+		iterator& operator ++() { const_iterator::operator++(); return *this; }
 	};
 
-	iterator begin() { iterator result(this, 0); if (!get(result.m_index, result.m_value)) result.m_index = size_t(-1); return result; }
-	iterator end() { return iterator(this, size_t(-1)); }
+	iterator begin() { iterator result(static_cast<Derived*>(this), 0); if (!static_cast<Derived*>(this)->get(result.m_index, result.m_value)) result.m_index = size_t(-1); return result; }
+	iterator end() { return iterator(static_cast<Derived*>(this), size_t(-1)); }
 	const_iterator begin() const { return const_cast<enumerator*>(this)->begin(); }
 	const_iterator end() const { return const_cast<enumerator*>(this)->end(); }
 	const_iterator cbegin() const { return begin(); }
@@ -76,6 +78,4 @@ public:
 
 private:
 	friend iterator;
-
-	virtual bool get(size_t index, T& value) = 0;
 };

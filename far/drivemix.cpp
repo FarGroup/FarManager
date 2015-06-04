@@ -78,7 +78,6 @@ int CheckDisksProps(const string& SrcPath,const string& DestPath,int CheckedType
 	string strSrcVolumeName, strDestVolumeName;
 	string strSrcFileSystemName, strDestFileSystemName;
 	DWORD SrcFileSystemFlags, DestFileSystemFlags;
-	DWORD SrcMaximumComponentLength, DestMaximumComponentLength;
 	strSrcRoot=SrcPath;
 	strDestRoot=DestPath;
 	ConvertNameToUNC(strSrcRoot);
@@ -87,10 +86,10 @@ int CheckDisksProps(const string& SrcPath,const string& DestPath,int CheckedType
 	GetPathRoot(strDestRoot,strDestRoot);
 	int DestDriveType=FAR_GetDriveType(strDestRoot, TRUE);
 
-	if (!os::GetVolumeInformation(strSrcRoot,&strSrcVolumeName,&SrcVolumeNumber,&SrcMaximumComponentLength,&SrcFileSystemFlags,&strSrcFileSystemName))
+	if (!os::GetVolumeInformation(strSrcRoot, &strSrcVolumeName, &SrcVolumeNumber, nullptr, &SrcFileSystemFlags, nullptr))
 		return FALSE;
 
-	if (!os::GetVolumeInformation(strDestRoot,&strDestVolumeName,&DestVolumeNumber,&DestMaximumComponentLength,&DestFileSystemFlags,&strDestFileSystemName))
+	if (!os::GetVolumeInformation(strDestRoot, &strDestVolumeName, &DestVolumeNumber, nullptr, &DestFileSystemFlags, nullptr))
 		return FALSE;
 
 	if (CheckedType == CHECKEDPROPS_ISSAMEDISK)
@@ -116,10 +115,10 @@ int CheckDisksProps(const string& SrcPath,const string& DestPath,int CheckedType
 		if (!os::GetDiskSize(DestPath, &DestTotalSize, nullptr, nullptr))
 			return FALSE;
 
-		if (!(SrcVolumeNumber &&
-		        SrcVolumeNumber==DestVolumeNumber &&
-		        !StrCmpI(strSrcVolumeName, strDestVolumeName) &&
-		        SrcTotalSize==DestTotalSize))
+		if (!SrcVolumeNumber
+			|| SrcVolumeNumber != DestVolumeNumber
+			|| StrCmpI(strSrcVolumeName, strDestVolumeName)
+			|| SrcTotalSize != DestTotalSize)
 			return FALSE;
 	}
 	else if (CheckedType == CHECKEDPROPS_ISDST_ENCRYPTION)

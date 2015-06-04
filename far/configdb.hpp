@@ -76,11 +76,11 @@ public:
 	virtual bool EnumValues(const string& Key, DWORD Index, string &strName, long long& Value) = 0;
 
 	template<class T>
-	class values_enumerator: public enumerator<std::pair<string, T>>
+	class values_enumerator: public enumerator<values_enumerator<T>, std::pair<string, T>>
 	{
 	public:
 		values_enumerator(GeneralConfig& provider, const string& key): m_provider(provider), m_key(key) {}
-		virtual bool get(size_t index, typename values_enumerator::value_type& value) override
+		bool get(size_t index, typename values_enumerator::value_type& value)
 		{
 			return m_provider.EnumValues(m_key, static_cast<DWORD>(index), value.first, value.second);
 		}

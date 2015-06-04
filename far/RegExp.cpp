@@ -68,8 +68,8 @@ const wchar_t *ops[]=
 	L"opClosingBracket",
 	L"opAlternative",
 	L"opBackRef",
-	"opNamedBracket",
-	"opNamedBackRef",
+	L"opNamedBracket",
+	L"opNamedBackRef",
 	L"opRangesBegin",
 	L"opRange",
 	L"opMinRange",
@@ -1498,8 +1498,8 @@ int RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int src
 				if (classsize==1)
 				{
 					delete op->symbolclass;
-					op->symbolclass=0;
-					tmpclass=0;
+					op->symbolclass = nullptr;
+					tmpclass = nullptr;
 					op->op=negative?opNotSymbol:opSymbol;
 
 					if (ignorecase)
@@ -3537,7 +3537,7 @@ int RegExp::Optimize()
 				continue;
 			}
 			case opRegExpEnd:
-				it = 0;
+				it = nullptr;
 				break;
 		}
 

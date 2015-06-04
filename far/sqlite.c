@@ -31,19 +31,22 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "common/preprocessor.hpp"
 
-#pragma warning(push, 1)
-#pragma warning(disable:4701)
-#ifdef __GNUC__
-#pragma GCC diagnostic ignored "-Warray-bounds"
-#pragma GCC diagnostic ignored "-Wstrict-overflow"
-#pragma GCC diagnostic ignored "-Wuninitialized"
-#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#pragma GCC diagnostic ignored "-Wcast-qual"
-#pragma GCC diagnostic ignored "-Wsign-compare"
-#endif // __GNUC__
+WARNING_PUSH(1)
+
+WARNING_DISABLE_MSC(4701) // https://msdn.microsoft.com/en-us/library/1wea5zwe.aspx Potentially uninitialized local variable 'name' used
+
+WARNING_DISABLE_GCC("-Warray-bounds")
+WARNING_DISABLE_GCC("-Wstrict-overflow")
+WARNING_DISABLE_GCC("-Wuninitialized")
+WARNING_DISABLE_GCC("-Wunused-but-set-variable")
+WARNING_DISABLE_GCC("-Wmaybe-uninitialized")
+WARNING_DISABLE_GCC("-Wcast-qual")
+WARNING_DISABLE_GCC("-Wsign-compare")
+WARNING_DISABLE_GCC("-Wshadow")
+
 
 #include "thirdparty/sqlite/sqlite3.c"
 
-#pragma warning(pop)
+WARNING_POP()

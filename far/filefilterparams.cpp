@@ -597,20 +597,20 @@ void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const Highli
 
 void FilterDlgRelativeDateItemsUpdate(Dialog* Dlg, bool bClear)
 {
-	Dlg->SendMessage(DM_ENABLEREDRAW,FALSE,0);
+	Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
 
-	if (Dlg->SendMessage(DM_GETCHECK,ID_FF_DATERELATIVE,0))
+	if (Dlg->SendMessage(DM_GETCHECK, ID_FF_DATERELATIVE, nullptr))
 	{
-		Dlg->SendMessage(DM_SHOWITEM,ID_FF_DATEBEFOREEDIT,0);
-		Dlg->SendMessage(DM_SHOWITEM,ID_FF_DATEAFTEREDIT,0);
-		Dlg->SendMessage(DM_SHOWITEM,ID_FF_CURRENT,0);
+		Dlg->SendMessage(DM_SHOWITEM, ID_FF_DATEBEFOREEDIT, nullptr);
+		Dlg->SendMessage(DM_SHOWITEM, ID_FF_DATEAFTEREDIT, nullptr);
+		Dlg->SendMessage(DM_SHOWITEM, ID_FF_CURRENT, nullptr);
 		Dlg->SendMessage(DM_SHOWITEM,ID_FF_DAYSBEFOREEDIT,ToPtr(1));
 		Dlg->SendMessage(DM_SHOWITEM,ID_FF_DAYSAFTEREDIT,ToPtr(1));
 	}
 	else
 	{
-		Dlg->SendMessage(DM_SHOWITEM,ID_FF_DAYSBEFOREEDIT,0);
-		Dlg->SendMessage(DM_SHOWITEM,ID_FF_DAYSAFTEREDIT,0);
+		Dlg->SendMessage(DM_SHOWITEM, ID_FF_DAYSBEFOREEDIT, nullptr);
+		Dlg->SendMessage(DM_SHOWITEM, ID_FF_DAYSAFTEREDIT, nullptr);
 		Dlg->SendMessage(DM_SHOWITEM,ID_FF_DATEBEFOREEDIT,ToPtr(1));
 		Dlg->SendMessage(DM_SHOWITEM,ID_FF_DATEAFTEREDIT,ToPtr(1));
 		Dlg->SendMessage(DM_SHOWITEM,ID_FF_CURRENT,ToPtr(1));
@@ -626,7 +626,7 @@ void FilterDlgRelativeDateItemsUpdate(Dialog* Dlg, bool bClear)
 		Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_DAYSBEFOREEDIT,nullptr);
 	}
 
-	Dlg->SendMessage(DM_ENABLEREDRAW,TRUE,0);
+	Dlg->SendMessage(DM_ENABLEREDRAW, TRUE, nullptr);
 }
 
 intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
@@ -656,25 +656,25 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 					strTime.clear();
 				}
 
-				Dlg->SendMessage(DM_ENABLEREDRAW,FALSE,0);
-				int relative = (int)Dlg->SendMessage(DM_GETCHECK,ID_FF_DATERELATIVE,0);
+				Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
+				int relative = (int)Dlg->SendMessage(DM_GETCHECK, ID_FF_DATERELATIVE, nullptr);
 				int db = relative ? ID_FF_DAYSBEFOREEDIT : ID_FF_DATEBEFOREEDIT;
 				int da = relative ? ID_FF_DAYSAFTEREDIT  : ID_FF_DATEAFTEREDIT;
 				Dlg->SendMessage(DM_SETTEXTPTR,da, UNSAFE_CSTR(strDate));
 				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT, UNSAFE_CSTR(strTime));
 				Dlg->SendMessage(DM_SETTEXTPTR,db, UNSAFE_CSTR(strDate));
 				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT, UNSAFE_CSTR(strTime));
-				Dlg->SendMessage(DM_SETFOCUS,da,0);
+				Dlg->SendMessage(DM_SETFOCUS, da, nullptr);
 				COORD r;
 				r.X=r.Y=0;
 				Dlg->SendMessage(DM_SETCURSORPOS,da,&r);
-				Dlg->SendMessage(DM_ENABLEREDRAW,TRUE,0);
+				Dlg->SendMessage(DM_ENABLEREDRAW, TRUE, nullptr);
 				break;
 			}
 			else if (Param1==ID_FF_RESET) // Reset
 			{
-				Dlg->SendMessage(DM_ENABLEREDRAW,FALSE,0);
-				intptr_t ColorConfig = Dlg->SendMessage( DM_GETDLGDATA, 0, 0);
+				Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
+				intptr_t ColorConfig = Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr);
 				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_MASKEDIT,const_cast<wchar_t*>(L"*"));
 				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_SIZEFROMEDIT,nullptr);
 				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_SIZETOEDIT,nullptr);
@@ -696,12 +696,12 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 				Dlg->SendMessage(DM_SETCHECK,ID_FF_DATERELATIVE,ToPtr(BSTATE_UNCHECKED));
 				FilterDlgRelativeDateItemsUpdate(Dlg, true);
 				Dlg->SendMessage(DM_SETCHECK,ID_FF_MATCHATTRIBUTES,ToPtr(ColorConfig?BSTATE_UNCHECKED:BSTATE_CHECKED));
-				Dlg->SendMessage(DM_ENABLEREDRAW,TRUE,0);
+				Dlg->SendMessage(DM_ENABLEREDRAW, TRUE, nullptr);
 				break;
 			}
 			else if (Param1==ID_FF_MAKETRANSPARENT)
 			{
-				auto Colors = reinterpret_cast<HighlightFiles::highlight_item*>(Dlg->SendMessage(DM_GETDLGDATA, 0, 0));
+				auto Colors = reinterpret_cast<HighlightFiles::highlight_item*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 
 				std::for_each(RANGE(Colors->Color, i)
 				{
@@ -725,7 +725,7 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 			if ((Msg==DN_BTNCLICK && Param1 >= ID_HER_NORMALFILE && Param1 <= ID_HER_SELECTEDCURSORMARKING)
 			        || (Msg==DN_CONTROLINPUT && Param1==ID_HER_COLOREXAMPLE && ((INPUT_RECORD *)Param2)->EventType == MOUSE_EVENT && ((INPUT_RECORD *)Param2)->Event.MouseEvent.dwButtonState==FROM_LEFT_1ST_BUTTON_PRESSED))
 			{
-				auto EditData = reinterpret_cast<HighlightFiles::highlight_item*>(Dlg->SendMessage(DM_GETDLGDATA, 0, 0));
+				auto EditData = reinterpret_cast<HighlightFiles::highlight_item*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 
 				if (Msg==DN_CONTROLINPUT)
 				{
@@ -738,7 +738,7 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 				//Color[0=file, 1=mark][0=normal,1=selected,2=undercursor,3=selectedundercursor]
 				Console().GetColorDialog(((Param1-ID_HER_NORMALFILE)&1)? EditData->Color[(Param1-ID_HER_NORMALFILE)/2].MarkColor : EditData->Color[(Param1-ID_HER_NORMALFILE)/2].FileColor, true, true);
 
-				size_t Size = Dlg->SendMessage(DM_GETDLGITEM,ID_HER_COLOREXAMPLE,0);
+				size_t Size = Dlg->SendMessage(DM_GETDLGITEM, ID_HER_COLOREXAMPLE, nullptr);
 				block_ptr<FarDialogItem> Buffer(Size);
 				FarGetDialogItem gdi = {sizeof(FarGetDialogItem), Size, Buffer.get()};
 				Dlg->SendMessage(DM_GETDLGITEM,ID_HER_COLOREXAMPLE,&gdi);
@@ -757,8 +757,8 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 
 			if (Param1 == ID_HER_MARKEDIT)
 			{
-				auto EditData = reinterpret_cast<HighlightFiles::highlight_item*>(Dlg->SendMessage( DM_GETDLGDATA, 0, 0));
-				size_t Size = Dlg->SendMessage(DM_GETDLGITEM,ID_HER_COLOREXAMPLE,0);
+				auto EditData = reinterpret_cast<HighlightFiles::highlight_item*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+				size_t Size = Dlg->SendMessage(DM_GETDLGITEM, ID_HER_COLOREXAMPLE, nullptr);
 				block_ptr<FarDialogItem> Buffer(Size);
 				FarGetDialogItem gdi = {sizeof(FarGetDialogItem), Size, Buffer.get()};
 				Dlg->SendMessage(DM_GETDLGITEM,ID_HER_COLOREXAMPLE,&gdi);
@@ -775,18 +775,18 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 			break;
 		case DN_CLOSE:
 
-			if (Param1 == ID_FF_OK && Dlg->SendMessage(DM_GETCHECK,ID_FF_MATCHSIZE,0))
+			if (Param1 == ID_FF_OK && Dlg->SendMessage(DM_GETCHECK, ID_FF_MATCHSIZE, nullptr))
 			{
-				string Size = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ID_FF_SIZEFROMEDIT, 0));
+				string Size = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ID_FF_SIZEFROMEDIT, nullptr));
 				bool Ok = Size.empty() || CheckFileSizeStringFormat(Size);
 				if (Ok)
 				{
-					Size = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ID_FF_SIZETOEDIT, 0));
+					Size = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ID_FF_SIZETOEDIT, nullptr));
 					Ok = Size.empty() || CheckFileSizeStringFormat(Size);
 				}
 				if (!Ok)
 				{
-					intptr_t ColorConfig = Dlg->SendMessage( DM_GETDLGDATA, 0, 0);
+					intptr_t ColorConfig = Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr);
 					Message(MSG_WARNING,1,ColorConfig?MSG(MFileHilightTitle):MSG(MFileFilterTitle),MSG(MBadFileSizeFormat),MSG(MOk));
 					return FALSE;
 				}

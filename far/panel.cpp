@@ -385,7 +385,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	const auto NetworkMask = AddSavedNetworkDisks(Mask);
 	const auto DiskCount = Mask.count();
 
-	PanelMenuItem Item, *mitem=0;
+	PanelMenuItem Item, *mitem = nullptr;
 	{ // эта скобка надо, см. M#605
 		auto ChDisk = VMenu2::create(MSG(MChangeDriveTitle), nullptr, 0, ScrY - m_Y1 - 3);
 		ChDisk->SetBottomTitle(MSG(MChangeDriveMenuFooter));

@@ -691,7 +691,7 @@ public:
 
 	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
 	{
-		int Selected = static_cast<int>(Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, 0));
+		int Selected = static_cast<int>(Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, nullptr));
 		if (!Mask)
 		{
 			*Value = Selected;
@@ -720,7 +720,7 @@ class PluginRadioButtonBinding: public DialogAPIBinding
 
 		virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
 		{
-			if (Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, 0))
+			if (Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, nullptr))
 				*Value = RadioGroupIndex;
 		}
 };
@@ -739,7 +739,7 @@ public:
 
 	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
 	{
-		const wchar_t *DataPtr = reinterpret_cast<const wchar_t*>(Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, 0));
+		const wchar_t *DataPtr = reinterpret_cast<const wchar_t*>(Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, nullptr));
 		lstrcpynW(Value, DataPtr, MaxSize);
 	}
 };
@@ -767,7 +767,7 @@ public:
 
 	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
 	{
-		const wchar_t *DataPtr = reinterpret_cast<const wchar_t*>(Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, 0));
+		const wchar_t *DataPtr = reinterpret_cast<const wchar_t*>(Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, nullptr));
 		*Value = Info.FSF->atoi(DataPtr);
 	}
 
@@ -805,7 +805,7 @@ public:
 
 	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
 	{
-		const wchar_t *DataPtr = reinterpret_cast<const wchar_t*>(Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, 0));
+		const wchar_t *DataPtr = reinterpret_cast<const wchar_t*>(Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, nullptr));
 		*Value = static_cast<unsigned int>(Info.FSF->atoi64(DataPtr));
 	}
 
@@ -851,7 +851,7 @@ public:
 	{
 		if (SelectedIndex)
 		{
-			*SelectedIndex = static_cast<int>(Info.SendDlgMessage(*DialogHandle, DM_LISTGETCURPOS, ID, 0));
+			*SelectedIndex = static_cast<int>(Info.SendDlgMessage(*DialogHandle, DM_LISTGETCURPOS, ID, nullptr));
 		}
 		if (TextBuf)
 		{
@@ -961,13 +961,13 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 
 public:
 		PluginDialogBuilder(const PluginStartupInfo &aInfo, const GUID &aPluginId, const GUID &aId, int TitleMessageID, const wchar_t *aHelpTopic, FARWINDOWPROC aDlgProc=nullptr, void* aUserParam=nullptr, FARDIALOGFLAGS aFlags = FDLG_NONE)
-			: Info(aInfo), DialogHandle(0), HelpTopic(aHelpTopic), PluginId(aPluginId), Id(aId), DlgProc(aDlgProc), UserParam(aUserParam), Flags(aFlags)
+			: Info(aInfo), DialogHandle(nullptr), HelpTopic(aHelpTopic), PluginId(aPluginId), Id(aId), DlgProc(aDlgProc), UserParam(aUserParam), Flags(aFlags)
 		{
 			AddBorder(GetLangString(TitleMessageID));
 		}
 
 		PluginDialogBuilder(const PluginStartupInfo &aInfo, const GUID &aPluginId, const GUID &aId, const wchar_t *TitleMessage, const wchar_t *aHelpTopic, FARWINDOWPROC aDlgProc=nullptr, void* aUserParam=nullptr, FARDIALOGFLAGS aFlags = FDLG_NONE)
-			: Info(aInfo), DialogHandle(0), HelpTopic(aHelpTopic), PluginId(aPluginId), Id(aId), DlgProc(aDlgProc), UserParam(aUserParam), Flags(aFlags)
+			: Info(aInfo), DialogHandle(nullptr), HelpTopic(aHelpTopic), PluginId(aPluginId), Id(aId), DlgProc(aDlgProc), UserParam(aUserParam), Flags(aFlags)
 		{
 			AddBorder(TitleMessage);
 		}

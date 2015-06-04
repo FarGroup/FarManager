@@ -99,7 +99,7 @@ private:
 	tinyxml::TiXmlHandle m_ImportRoot;
 };
 
-class xml_enum: noncopyable, public enumerator<const tinyxml::TiXmlElement*>
+class xml_enum: noncopyable, public enumerator<xml_enum, const tinyxml::TiXmlElement*>
 {
 public:
 	xml_enum(const tinyxml::TiXmlHandle& base, const std::string& name):
@@ -112,10 +112,10 @@ public:
 		m_base(&base)
 	{}
 
-	virtual bool get(size_t index, value_type& value) override
+	bool get(size_t index, value_type& value)
 	{
 		value = index? value->NextSiblingElement(m_name.data()) :
-			m_base? m_base->FirstChildElement(m_name.data()) : nullptr;
+		        m_base? m_base->FirstChildElement(m_name.data()) : nullptr;
 
 		return value? true : false;
 	}
@@ -272,7 +272,7 @@ public:
 
 			if (!strcmp(type,"qword"))
 			{
-				SetValue(Key, Name, strtoull(value, 0, 16));
+				SetValue(Key, Name, strtoull(value, nullptr, 16));
 			}
 			else if (!strcmp(type,"text"))
 			{
@@ -655,7 +655,7 @@ private:
 
 			if (value && !strcmp(type, "qword"))
 			{
-				SetValue(Key, Name, strtoull(value, 0, 16));
+				SetValue(Key, Name, strtoull(value, nullptr, 16));
 			}
 			else if (value && !strcmp(type, "text"))
 			{
@@ -884,8 +884,8 @@ public:
 			if(background && foreground && flags)
 			{
 				FarColor Color = {};
-				Color.BackgroundColor = std::strtoul(background, 0, 16);
-				Color.ForegroundColor = std::strtoul(foreground, 0, 16);
+				Color.BackgroundColor = std::strtoul(background, nullptr, 16);
+				Color.ForegroundColor = std::strtoul(foreground, nullptr, 16);
 				Color.Flags = StringToFlags(wide(flags, CP_UTF8), ColorFlagNames);
 				SetValue(Name, Color);
 			}

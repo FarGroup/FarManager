@@ -31,11 +31,16 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma warning(push, 1)
-
 namespace sqlite
 {
-#include "thirdparty/sqlite/sqlite3.h"
-}
+WARNING_PUSH(1)
 
-#pragma warning(pop)
+WARNING_DISABLE_GCC("-Wzero-as-null-pointer-constant")
+
+#include "thirdparty/sqlite/sqlite3.h"
+
+static const auto static_destructor = SQLITE_STATIC;
+static const auto transient_destructor = SQLITE_TRANSIENT;
+
+WARNING_POP()
+}

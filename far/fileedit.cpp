@@ -102,7 +102,7 @@ intptr_t hndOpenEditor(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 	{
 		if (param1 == ID_OE_OK)
 		{
-			uintptr_t* param = (uintptr_t*)Dlg->SendMessage(DM_GETDLGDATA, 0, 0);
+			uintptr_t* param = (uintptr_t*)Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr);
 			FarListPos pos={sizeof(FarListPos)};
 			Dlg->SendMessage(DM_LISTGETCURPOS, ID_OE_CODEPAGE, &pos);
 			*param = *(uintptr_t*)Dlg->SendMessage(DM_LISTGETDATA, ID_OE_CODEPAGE, ToPtr(pos.SelectPos));
@@ -206,7 +206,7 @@ intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 	{
 		case DN_INITDIALOG:
 		{
-			CurrentCodepage = *(uintptr_t *) Dlg->SendMessage(DM_GETDLGDATA, 0, 0);
+			CurrentCodepage = *(uintptr_t *)Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr);
 			Codepages().FillCodePagesList(Dlg, ID_SF_CODEPAGE, CurrentCodepage, false, false, false, false);
 			break;
 		}
@@ -214,7 +214,7 @@ intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 		{
 			if (param1 == ID_SF_OK)
 			{
-				uintptr_t *CodepagePtr = (uintptr_t *)Dlg->SendMessage(DM_GETDLGDATA, 0, 0);
+				uintptr_t *CodepagePtr = (uintptr_t *)Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr);
 				FarListPos pos={sizeof(FarListPos)};
 				Dlg->SendMessage(DM_LISTGETCURPOS, ID_SF_CODEPAGE, &pos);
 				*CodepagePtr = *(UINT*)Dlg->SendMessage(DM_LISTGETDATA, ID_SF_CODEPAGE, ToPtr(pos.SelectPos));
@@ -2412,7 +2412,7 @@ void FileEditor::ShowStatus()
 			{
 				char C=0;
 				BOOL UsedDefaultChar=FALSE;
-				WideCharToMultiByte(m_codepage,WC_NO_BEST_FIT_CHARS,&Str[CurPos],1,&C,1,0,&UsedDefaultChar);
+				WideCharToMultiByte(m_codepage, WC_NO_BEST_FIT_CHARS, &Str[CurPos], 1, &C, 1, nullptr, &UsedDefaultChar);
 
 				if (C && !UsedDefaultChar && static_cast<wchar_t>(C)!=Str[CurPos])
 				{

@@ -2007,7 +2007,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 	m_TopicFound = true;
 	StackData->CurX=StackData->CurY=0;
 	strCtrlColorChar.clear();
-	const wchar_t *PtrTitle=0, *ContentsName=0;
+	const wchar_t *PtrTitle = nullptr, *ContentsName = nullptr;
 	string strPath, strFullFileName;
 
 	switch (TypeIndex)
@@ -2220,7 +2220,7 @@ static int RunURL(const string& Protocol, const string& URLPath)
 					if (Global->Opt->HelpURLRules < 256) // SHELLEXECUTEEX_METHOD
 					{
 						strAction=FilteredURLPath;
-						EditCode=ShellExecute(0, 0, RemoveExternalSpaces(strAction).data(), 0, strCurDir.data(), SW_SHOWNORMAL)?1:2;
+						EditCode = ShellExecute(nullptr, nullptr, RemoveExternalSpaces(strAction).data(), nullptr, strCurDir.data(), SW_SHOWNORMAL) ? 1 : 2;
 					}
 					else
 					{

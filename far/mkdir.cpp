@@ -73,7 +73,7 @@ intptr_t MkDirDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 			{
 				if (Param1 == MKDIR_COMBOBOX_LINKTYPE)
 				{
-					Dlg->SendMessage( DM_ENABLE, MKDIR_EDIT_LINKPATH, ToPtr(Param2 != 0));
+					Dlg->SendMessage(DM_ENABLE, MKDIR_EDIT_LINKPATH, ToPtr(Param2 != nullptr));
 				}
 			}
 			break;
@@ -81,8 +81,8 @@ intptr_t MkDirDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 		{
 			if (Param1==MKDIR_OK)
 			{
-				string strDirName=reinterpret_cast<LPCWSTR>(Dlg->SendMessage(DM_GETCONSTTEXTPTR,MKDIR_EDIT,0));
-				Global->Opt->MultiMakeDir=(Dlg->SendMessage(DM_GETCHECK,MKDIR_CHECKBOX,0)==BSTATE_CHECKED);
+				string strDirName = reinterpret_cast<LPCWSTR>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, MKDIR_EDIT, nullptr));
+				Global->Opt->MultiMakeDir = (Dlg->SendMessage(DM_GETCHECK, MKDIR_CHECKBOX, nullptr) == BSTATE_CHECKED);
 
 				// это по поводу создания одиночного каталога, который
 				// начинается с пробела! Чтобы ручками не заключать
@@ -100,7 +100,7 @@ intptr_t MkDirDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 					InsertQuote(Unquote(strDirName));
 				}
 
-				auto pDirList=reinterpret_cast<std::vector<string>*>(Dlg->SendMessage(DM_GETDLGDATA,0,0));
+				auto pDirList = reinterpret_cast<std::vector<string>*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 				split(*pDirList, strDirName, STLF_UNIQUE);
 				if (pDirList->empty())
 				{

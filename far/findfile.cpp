@@ -573,7 +573,7 @@ intptr_t FindFiles::AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, 
 
 			if (Param1==AD_BUTTON_OK)
 			{
-				auto Data = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, AD_EDIT_SEARCHFIRST, 0));
+				auto Data = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, AD_EDIT_SEARCHFIRST, nullptr));
 
 				if (Data && *Data && !CheckFileSizeStringFormat(Data))
 				{
@@ -640,7 +640,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	{
 		case DN_INITDIALOG:
 		{
-			bool Hex=(Dlg->SendMessage(DM_GETCHECK,FAD_CHECKBOX_HEX,0)==BSTATE_CHECKED);
+			bool Hex = (Dlg->SendMessage(DM_GETCHECK, FAD_CHECKBOX_HEX, nullptr) == BSTATE_CHECKED);
 			Dlg->SendMessage(DM_SHOWITEM,FAD_EDIT_TEXT,ToPtr(!Hex));
 			Dlg->SendMessage(DM_SHOWITEM,FAD_EDIT_HEX,ToPtr(Hex));
 			Dlg->SendMessage(DM_ENABLE,FAD_TEXT_CP,ToPtr(!Hex));
@@ -675,7 +675,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			{
 				case FAD_BUTTON_FIND:
 				{
-					string Mask((LPCWSTR)Dlg->SendMessage(DM_GETCONSTTEXTPTR,FAD_EDIT_MASK,0));
+					string Mask((LPCWSTR)Dlg->SendMessage(DM_GETCONSTTEXTPTR, FAD_EDIT_MASK, nullptr));
 
 					if (Mask.empty())
 						Mask=L"*";
@@ -745,8 +745,8 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 				case FAD_CHECKBOX_HEX:
 				{
-					Dlg->SendMessage(DM_ENABLEREDRAW,FALSE,0);
-					auto Src = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, Param2? FAD_EDIT_TEXT : FAD_EDIT_HEX, 0));
+					Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
+					auto Src = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, Param2 ? FAD_EDIT_TEXT : FAD_EDIT_HEX, nullptr));
 					string strDataStr;
 					if (Param2)
 					{
@@ -779,7 +779,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 						Dlg->SendMessage(DM_EDITUNCHANGEDFLAG,FAD_EDIT_HEX,ToPtr(UnchangeFlag));
 					}
 
-					Dlg->SendMessage(DM_ENABLEREDRAW,TRUE,0);
+					Dlg->SendMessage(DM_ENABLEREDRAW, TRUE, nullptr);
 				}
 				break;
 			}
@@ -900,7 +900,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				case FAD_COMBOBOX_CP:
 				{
 					// Получаем выбранную в выпадающем списке таблицу символов
-					CodePage = *(uintptr_t*)Dlg->SendMessage( DM_LISTGETDATA, FAD_COMBOBOX_CP, ToPtr(Dlg->SendMessage( DM_LISTGETCURPOS, FAD_COMBOBOX_CP, 0)));
+					CodePage = *(uintptr_t*)Dlg->SendMessage(DM_LISTGETDATA, FAD_COMBOBOX_CP, ToPtr(Dlg->SendMessage(DM_LISTGETCURPOS, FAD_COMBOBOX_CP, nullptr)));
 				}
 				return TRUE;
 				case FAD_COMBOBOX_WHERE:
@@ -914,8 +914,8 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 		{
 			if (Param1==FAD_TEXT_TEXTHEX)
 			{
-				Dlg->SendMessage(DM_SETFOCUS, FAD_EDIT_HEX,  0); // only one
-				Dlg->SendMessage(DM_SETFOCUS, FAD_EDIT_TEXT, 0); // is active
+				Dlg->SendMessage(DM_SETFOCUS, FAD_EDIT_HEX, nullptr); // only one
+				Dlg->SendMessage(DM_SETFOCUS, FAD_EDIT_TEXT, nullptr); // is active
 				return FALSE;
 			}
 		}
@@ -1411,12 +1411,12 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	{
 		LangString strMessage(MFindDone);
 		strMessage << itd->GetFileCount() << itd->GetDirCount();
-		Dlg->SendMessage( DM_ENABLEREDRAW, FALSE, 0);
+		Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
 		Dlg->SendMessage( DM_SETTEXTPTR, FD_SEPARATOR1, nullptr);
 		Dlg->SendMessage( DM_SETTEXTPTR, FD_TEXT_STATUS, UNSAFE_CSTR(strMessage));
 		Dlg->SendMessage( DM_SETTEXTPTR, FD_TEXT_STATUS_PERCENTS, nullptr);
 		Dlg->SendMessage( DM_SETTEXTPTR, FD_BUTTON_STOP, const_cast<wchar_t*>(MSG(MFindCancel)));
-		Dlg->SendMessage( DM_ENABLEREDRAW, TRUE, 0);
+		Dlg->SendMessage(DM_ENABLEREDRAW, TRUE, nullptr);
 		ConsoleTitle::SetFarTitle(strMessage);
 		TB.reset();
 		Finalized=true;
@@ -1439,7 +1439,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			if ((itd->GetDirCount() || itd->GetFileCount()) && !FindPositionChanged)
 			{
 				FindPositionChanged=true;
-				Dlg->SendMessage(DM_SETFOCUS,FD_BUTTON_GOTO,0);
+				Dlg->SendMessage(DM_SETFOCUS, FD_BUTTON_GOTO, nullptr);
 			}
 			return TRUE;
 		}
@@ -1489,7 +1489,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					if (Param1==FD_BUTTON_STOP)
 					{
 						FindPositionChanged=true;
-						Dlg->SendMessage(DM_SETFOCUS,FD_BUTTON_NEW,0);
+						Dlg->SendMessage(DM_SETFOCUS, FD_BUTTON_NEW, nullptr);
 						return TRUE;
 					}
 				}
@@ -1502,7 +1502,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					if (Param1==FD_BUTTON_NEW)
 					{
 						FindPositionChanged=true;
-						Dlg->SendMessage(DM_SETFOCUS,FD_BUTTON_STOP,0);
+						Dlg->SendMessage(DM_SETFOCUS, FD_BUTTON_STOP, nullptr);
 						return TRUE;
 					}
 				}
@@ -1695,8 +1695,8 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 							itd->Unlock();
 							ViewList.SetCurName(FindItem->FindData.strFileName);
 
-							Dlg->SendMessage(DM_SHOWDIALOG,FALSE,0);
-							Dlg->SendMessage(DM_ENABLEREDRAW,FALSE,0);
+							Dlg->SendMessage(DM_SHOWDIALOG, FALSE, nullptr);
+							Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
 							{
 								auto ShellViewer = FileViewer::create(strSearchFileName, FALSE, FALSE, FALSE, -1, nullptr, (list_count > 1 ? &ViewList : nullptr));
 								ShellViewer->SetEnableF6(TRUE);
@@ -1712,13 +1712,13 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 								// заставляем рефрешится экран
 								Global->WindowManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
 							}
-							Dlg->SendMessage(DM_ENABLEREDRAW,TRUE,0);
-							Dlg->SendMessage(DM_SHOWDIALOG,TRUE,0);
+							Dlg->SendMessage(DM_ENABLEREDRAW, TRUE, nullptr);
+							Dlg->SendMessage(DM_SHOWDIALOG, TRUE, nullptr);
 						}
 						else
 						{
-							Dlg->SendMessage(DM_SHOWDIALOG,FALSE,0);
-							Dlg->SendMessage(DM_ENABLEREDRAW,FALSE,0);
+							Dlg->SendMessage(DM_SHOWDIALOG, FALSE, nullptr);
+							Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
 							{
 								/* $ 14.08.2002 VVM
 								  ! Пока-что запретим из поиска переключаться в активный редактор.
@@ -1790,8 +1790,8 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 									}
 								}
 							}
-							Dlg->SendMessage(DM_ENABLEREDRAW,TRUE,0);
-							Dlg->SendMessage(DM_SHOWDIALOG,TRUE,0);
+							Dlg->SendMessage(DM_ENABLEREDRAW, TRUE, nullptr);
+							Dlg->SendMessage(DM_SHOWDIALOG, TRUE, nullptr);
 						}
 						Console().SetTitle(strOldTitle);
 					}
@@ -1871,7 +1871,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			{
 				if(ListBox->GetItemCount())
 				{
-					FindDlgProc(Dlg,DN_BTNCLICK,FD_BUTTON_GOTO,0); // emulates a [ Go to ] button pressing;
+					FindDlgProc(Dlg, DN_BTNCLICK, FD_BUTTON_GOTO, nullptr); // emulates a [ Go to ] button pressing;
 				}
 				else
 				{
@@ -1895,7 +1895,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			int DlgHeight=DlgRect.Bottom-DlgRect.Top+1;
 			int IncX = pCoord->X - DlgWidth - 2;
 			int IncY = pCoord->Y - DlgHeight - 2;
-			Dlg->SendMessage( DM_ENABLEREDRAW, FALSE, 0);
+			Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
 
 			for (int i = 0; i <= FD_BUTTON_STOP; i++)
 			{
@@ -1953,7 +1953,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				Dlg->SendMessage( DM_SHOWITEM, i, ToPtr(TRUE));
 			}
 
-			Dlg->SendMessage( DM_ENABLEREDRAW, TRUE, 0);
+			Dlg->SendMessage(DM_ENABLEREDRAW, TRUE, nullptr);
 			return TRUE;
 		}
 		break;
@@ -2707,7 +2707,7 @@ bool FindFiles::FindFilesProcess()
 	FarDialogItem FindDlgData[]=
 	{
 		{DI_DOUBLEBOX,3,1,DlgWidth-4,DlgHeight-2,0,nullptr,nullptr,DIF_SHOWAMPERSAND,strTitle.data()},
-		{DI_LISTBOX,4,2,DlgWidth-5,DlgHeight-7,0,nullptr,nullptr,DIF_LISTNOBOX|DIF_DISABLE,0},
+		{DI_LISTBOX,4,2,DlgWidth-5,DlgHeight-7,0,nullptr,nullptr,DIF_LISTNOBOX|DIF_DISABLE,L""},
 		{DI_TEXT,-1,DlgHeight-6,0,DlgHeight-6,0,nullptr,nullptr,DIF_SEPARATOR2,L""},
 		{DI_TEXT,5,DlgHeight-5,DlgWidth-(strFindStr.empty()?6:12),DlgHeight-5,0,nullptr,nullptr,DIF_SHOWAMPERSAND,strSearchStr.data()},
 		{DI_TEXT,DlgWidth-9,DlgHeight-5,DlgWidth-6,DlgHeight-5,0,nullptr,nullptr,(strFindStr.empty()?DIF_HIDDEN:0),L""},

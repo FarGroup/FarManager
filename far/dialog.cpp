@@ -544,7 +544,7 @@ void Dialog::InitDialog()
 		// все объекты проинициализированы!
 		DialogMode.Set(DMODE_OBJECTS_INITED);
 
-		DlgProc(DN_GOTFOCUS,InitFocus,0);
+		DlgProc(DN_GOTFOCUS, InitFocus, nullptr);
 	}
 }
 
@@ -1618,7 +1618,7 @@ void Dialog::ShowDialog(size_t ID)
 		DrawFullDialog = true;
 
 		//   Перед прорисовкой диалога посылаем сообщение в обработчик
-		if (!DlgProc(DN_DRAWDIALOG,0,0))
+		if (!DlgProc(DN_DRAWDIALOG, 0, nullptr))
 		{
 			_DIALOG(SysLog(L"[%d] DialogMode.Clear(DMODE_DRAWING)",__LINE__));
 			DialogMode.Clear(DMODE_DRAWING);  // конец отрисовки диалога!!!
@@ -1674,7 +1674,7 @@ void Dialog::ShowDialog(size_t ID)
 		   Перед прорисовкой каждого элемента посылаем сообщение
 		   посредством функции SendDlgMessage - в ней делается все!
 		*/
-		if (!SendMessage(DN_DRAWDLGITEM,I,0))
+		if (!SendMessage(DN_DRAWDLGITEM, I, nullptr))
 			continue;
 
 		int LenText;
@@ -2115,7 +2115,7 @@ void Dialog::ShowDialog(size_t ID)
 				//.........
 		} // end switch(...
 
-		SendMessage(DN_DRAWDLGITEMDONE,I,0);
+		SendMessage(DN_DRAWDLGITEMDONE, I, nullptr);
 	} // end for (I=...
 
 	// КОСТЫЛЬ!
@@ -2145,10 +2145,10 @@ void Dialog::ShowDialog(size_t ID)
 			Убираем вызов плагинового обработчика.
 			*/
 			//DlgProc(this,DN_DRAWDIALOGDONE,1,0);
-			DefProc(DN_DRAWDIALOGDONE, 1, 0);
+			DefProc(DN_DRAWDIALOGDONE, 1, nullptr);
 		}
 		else
-			DlgProc(DN_DRAWDIALOGDONE, 0, 0);
+			DlgProc(DN_DRAWDIALOGDONE, 0, nullptr);
 	}
 
 	_DIALOG(SysLog(L"[%d] DialogMode.Clear(DMODE_DRAWING)",__LINE__));
@@ -2269,7 +2269,7 @@ int Dialog::ProcessMoveDialog(DWORD Key)
 
 				if (!DialogMode.Check(DMODE_ALTDRAGGED))
 				{
-					DlgProc(DN_DRAGGED,1,0);
+					DlgProc(DN_DRAGGED, 1, nullptr);
 					Show();
 				}
 
@@ -2295,7 +2295,7 @@ int Dialog::ProcessMoveDialog(DWORD Key)
 		if (DialogMode.Check(DMODE_ALTDRAGGED))
 		{
 			DialogMode.Clear(DMODE_DRAGGED|DMODE_ALTDRAGGED);
-			DlgProc(DN_DRAGGED,1,0);
+			DlgProc(DN_DRAGGED, 1, nullptr);
 			Show();
 		}
 
@@ -2304,7 +2304,7 @@ int Dialog::ProcessMoveDialog(DWORD Key)
 
 	if ((Key == KEY_CTRLF5 || Key == KEY_RCTRLF5) && DialogMode.Check(DMODE_ISCANMOVE))
 	{
-		if (DlgProc(DN_DRAGGED,0,0)) // если разрешили перемещать!
+		if (DlgProc(DN_DRAGGED, 0, nullptr)) // если разрешили перемещать!
 		{
 			// включаем флаг и запоминаем координаты
 			DialogMode.Set(DMODE_DRAGGED);
@@ -2518,7 +2518,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 
 	if (LocalKey==KEY_NONE || LocalKey==KEY_IDLE)
 	{
-		DlgProc(DN_ENTERIDLE,0,0); // $ 28.07.2000 SVS Передадим этот факт в обработчик :-)
+		DlgProc(DN_ENTERIDLE, 0, nullptr); // $ 28.07.2000 SVS Передадим этот факт в обработчик :-)
 		return FALSE;
 	}
 
@@ -2740,7 +2740,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 				Items[m_FocusPos].Selected=1;
 
 				// сообщение - "Кнопка нажата"
-				if (SendMessage(DN_BTNCLICK,m_FocusPos,0))
+				if (SendMessage(DN_BTNCLICK, m_FocusPos, nullptr))
 					return TRUE;
 
 				if (Items[m_FocusPos].Flags&DIF_BTNNOCLOSE)
@@ -3518,7 +3518,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 							{
 								NeedSendMsg++;
 
-								if (!DlgProc(DN_DRAGGED,0,0)) // а может нас обломали?
+								if (!DlgProc(DN_DRAGGED, 0, nullptr)) // а может нас обломали?
 									break;  // валим отсель...плагин сказал - в морг перемещения
 
 								if (!DialogMode.Check(DMODE_SHOW))
@@ -3561,7 +3561,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 						{
 							SCOPED_ACTION(LockScreen);
 							DialogMode.Clear(DMODE_DRAGGED);
-							DlgProc(DN_DRAGGED,1,0);
+							DlgProc(DN_DRAGGED, 1, nullptr);
 
 							if (DialogMode.Check(DMODE_SHOW))
 								Show();
@@ -3654,7 +3654,7 @@ size_t Dialog::ProcessRadioButton(size_t CurRB)
 	  При изменении состояния каждого элемента посылаем сообщение
 	  посредством функции SendDlgMessage - в ней делается все!
 	*/
-	if (!SendMessage(DN_BTNCLICK,PrevRB,0) ||
+	if (!SendMessage(DN_BTNCLICK, PrevRB, nullptr) ||
 		!SendMessage(DN_BTNCLICK,CurRB,ToPtr(1)))
 	{
 		// вернем назад, если пользователь не захотел...
@@ -3876,7 +3876,7 @@ void Dialog::ChangeFocus2(size_t SetFocusPos)
 		int FocusPosNeed=-1;
 		if (DialogMode.Check(DMODE_OBJECTS_INITED))
 		{
-			FocusPosNeed=(int)DlgProc(DN_KILLFOCUS,m_FocusPos,0);
+			FocusPosNeed = (int)DlgProc(DN_KILLFOCUS, m_FocusPos, nullptr);
 
 			if (!DialogMode.Check(DMODE_SHOW))
 				return;
@@ -3944,7 +3944,7 @@ void Dialog::ChangeFocus2(size_t SetFocusPos)
 		m_FocusPos=SetFocusPos;
 
 		if (DialogMode.Check(DMODE_OBJECTS_INITED))
-			DlgProc(DN_GOTFOCUS,m_FocusPos,0);
+			DlgProc(DN_GOTFOCUS, m_FocusPos, nullptr);
 	}
 }
 
@@ -4111,7 +4111,7 @@ int Dialog::SelectFromComboBox(
 			ComboBox->SetSelectPos(OriginalPos,0); //????
 
 		SetDropDownOpened(FALSE); // Установим флаг "закрытия" комбобокса.
-		DlgProc(DN_DROPDOWNOPENED, m_FocusPos, (void*)0);
+		DlgProc(DN_DROPDOWNOPENED, m_FocusPos, nullptr);
 
 		if (Dest<0)
 		{
@@ -4171,7 +4171,7 @@ BOOL Dialog::SelectFromEditHistory(const DialogItemEx *CurItem,
 		DlgProc(DN_DROPDOWNOPENED, m_FocusPos, ToPtr(1));
 		ret = DlgHist->Select(*HistoryMenu, Global->Opt->Dialogs.CBoxMaxHeight, this, strStr);
 		SetDropDownOpened(FALSE); // Установим флаг "открытия" комбобокса.
-		DlgProc(DN_DROPDOWNOPENED, m_FocusPos, (void*)0);
+		DlgProc(DN_DROPDOWNOPENED, m_FocusPos, nullptr);
 		// забудем (не нужен)
 //		CurItem->ListPtr=nullptr;
 //		SetDropDownOpened(FALSE); // Установим флаг "закрытия" комбобокса.
@@ -4443,7 +4443,7 @@ intptr_t Dialog::CloseDialog()
 	_DIALOG(CleverSysLog CL(L"Dialog::CloseDialog()"));
 	GetDialogObjectsData();
 
-	intptr_t result=DlgProc(DN_CLOSE,m_ExitCode,0);
+	intptr_t result = DlgProc(DN_CLOSE, m_ExitCode, nullptr);
 	if (result)
 	{
 		DialogMode.Set(DMODE_ENDLOOP);
@@ -6119,7 +6119,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 					Sleep(10);
 				}
 
-				if (SendMessage(DM_SETFOCUS,Param1,0))
+				if (SendMessage(DM_SETFOCUS, Param1, nullptr))
 				{
 					ProcessOpenComboBox(Type,CurItem,Param1); //?? Param1 ??
 					//ProcessKey(KEY_CTRLDOWN);
@@ -6201,7 +6201,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 				if (reinterpret_cast<intptr_t>(Param2) >= 0)
 				{
-					EditLine->SetClearFlag(Param2!=0);
+					EditLine->SetClearFlag(Param2 != nullptr);
 					EditLine->Select(-1,0); // снимаем выделение
 
 					if (DialogMode.Check(DMODE_SHOW)) //???

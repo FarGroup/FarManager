@@ -223,38 +223,36 @@ namespace os
 
 	namespace fs
 	{
-		class enum_file: noncopyable, public enumerator < FAR_FIND_DATA >
+		class enum_file: noncopyable, public enumerator<enum_file, FAR_FIND_DATA>
 		{
 		public:
 			enum_file(const string& Object, bool ScanSymLink = true);
+			bool get(size_t index, value_type& value);
 
 		private:
-			virtual bool get(size_t index, value_type& value) override;
-
 			string m_Object;
 			find_handle m_Handle;
 			bool m_ScanSymLink;
 		};
 
-		class enum_name: noncopyable, public enumerator < string >
+		class enum_name: noncopyable, public enumerator<enum_name, string>
 		{
 		public:
 			enum_name(const string& Object): m_Object(Object) {}
+			bool get(size_t index, value_type& value);
 
 		private:
-			virtual bool get(size_t index, value_type& value) override;
-
 			string m_Object;
 			find_handle m_Handle;
 		};
 
-		class enum_stream: noncopyable, public enumerator<WIN32_FIND_STREAM_DATA>
+		class enum_stream: noncopyable, public enumerator<enum_stream, WIN32_FIND_STREAM_DATA>
 		{
 		public:
 			enum_stream(const string& Object): m_Object(Object) {}
+			bool get(size_t index, value_type& value);
 
 		private:
-			virtual bool get(size_t index, value_type& value) override;
 
 			string m_Object;
 			find_handle m_Handle;
@@ -446,23 +444,23 @@ namespace os
 #undef CHECK_TYPE
 #undef IS_SAME
 
-		class enum_key: noncopyable, public enumerator<string>
+		class enum_key: noncopyable, public enumerator<enum_key, string>
 		{
 		public:
 			enum_key(HKEY Key): m_Key(Key) {}
 			enum_key(HKEY RootKey, const wchar_t* SubKey, REGSAM Sam = 0): m_Key(RootKey, SubKey, KEY_ENUMERATE_SUB_KEYS | Sam) {}
-			virtual bool get(size_t Index, value_type& Value) override { return m_Key && EnumKey(m_Key.Key(), Index, Value); }
+			bool get(size_t Index, value_type& Value) { return m_Key && EnumKey(m_Key.Key(), Index, Value); }
 
 		private:
 			key m_Key;
 		};
 
-		class enum_value: noncopyable, public enumerator<value>
+		class enum_value: noncopyable, public enumerator<enum_value, value>
 		{
 		public:
 			enum_value(HKEY Key): m_Key(Key) {}
 			enum_value(HKEY RootKey, const wchar_t* SubKey, REGSAM Sam = 0): m_Key(RootKey, SubKey, KEY_QUERY_VALUE | Sam) {}
-			virtual bool get(size_t Index, value_type& Value) override { return m_Key && EnumValue(m_Key.Key(), Index, Value); }
+			bool get(size_t Index, value_type& Value) { return m_Key && EnumValue(m_Key.Key(), Index, Value); }
 
 		private:
 			key m_Key;
@@ -471,13 +469,12 @@ namespace os
 
 	namespace env
 	{
-		class enum_strings: noncopyable, public enumerator<const wchar_t*>
+		class enum_strings: noncopyable, public enumerator<enum_strings, const wchar_t*>
 		{
 		public:
 			enum_strings();
 			~enum_strings();
-
-			virtual bool get(size_t index, value_type& value) override;
+			bool get(size_t index, value_type& value);
 
 		private:
 			wchar_t* m_Environment;

@@ -150,7 +150,7 @@ enum
 
 intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
-	auto DlgParam=reinterpret_cast<SetAttrDlgParam*>(Dlg->SendMessage(DM_GETDLGDATA,0,0));
+	auto DlgParam = reinterpret_cast<SetAttrDlgParam*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 
 	switch (Msg)
 	{
@@ -163,10 +163,10 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 					DlgParam->cb[Param1 - SA_ATTR_FIRST].Value = static_cast<int>(reinterpret_cast<intptr_t>(Param2));
 					DlgParam->cb[Param1 - SA_ATTR_FIRST].Changed = true;
 				}
-				int FocusPos=static_cast<int>(Dlg->SendMessage(DM_GETFOCUS,0,0));
-				auto CompressState = static_cast<FARCHECKEDSTATE>(Dlg->SendMessage(DM_GETCHECK, SA_CHECKBOX_COMPRESSED, 0));
-				auto EncryptState = static_cast<FARCHECKEDSTATE>(Dlg->SendMessage(DM_GETCHECK, SA_CHECKBOX_ENCRYPTED, 0));
-				auto SubfoldersState = static_cast<FARCHECKEDSTATE>(Dlg->SendMessage(DM_GETCHECK, SA_CHECKBOX_SUBFOLDERS, 0));
+				int FocusPos = static_cast<int>(Dlg->SendMessage(DM_GETFOCUS, 0, nullptr));
+				auto CompressState = static_cast<FARCHECKEDSTATE>(Dlg->SendMessage(DM_GETCHECK, SA_CHECKBOX_COMPRESSED, nullptr));
+				auto EncryptState = static_cast<FARCHECKEDSTATE>(Dlg->SendMessage(DM_GETCHECK, SA_CHECKBOX_ENCRYPTED, nullptr));
+				auto SubfoldersState = static_cast<FARCHECKEDSTATE>(Dlg->SendMessage(DM_GETCHECK, SA_CHECKBOX_SUBFOLDERS, nullptr));
 
 				if (DlgParam->DialogMode==MODE_FILE)
 				{
@@ -228,7 +228,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 						{
 							if (DlgParam->OSubfoldersState != SubfoldersState) // Состояние изменилось?
 							{
-								auto Owner=reinterpret_cast<LPCWSTR>(Dlg->SendMessage(DM_GETCONSTTEXTPTR,SA_EDIT_OWNER,0));
+								auto Owner = reinterpret_cast<LPCWSTR>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, SA_EDIT_OWNER, nullptr));
 								if(*Owner)
 								{
 									if(!DlgParam->OwnerChanged)
@@ -281,7 +281,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 
 									std::for_each(CONST_RANGE(Items, i)
 									{
-										Dlg->SendMessage(DM_SETATTR, i.first, SubfoldersState? 0 : i.second);
+										Dlg->SendMessage(DM_SETATTR, i.first, SubfoldersState? nullptr : i.second);
 									});
 								}
 							}
@@ -292,7 +292,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 							// Состояние изменилось?
 							if (DlgParam->OSubfoldersState!=SubfoldersState)
 							{
-								auto Owner = reinterpret_cast<LPCWSTR>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, SA_EDIT_OWNER, 0));
+								auto Owner = reinterpret_cast<LPCWSTR>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, SA_EDIT_OWNER, nullptr));
 								if(*Owner)
 								{
 									if(!DlgParam->OwnerChanged)
@@ -357,12 +357,12 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 					Dlg->SendMessage(DM_SETATTR,SA_TEXT_CHANGE,&FindData.ftChangeTime);
 				}
 
-				Dlg->SendMessage(DM_SETFOCUS,SA_EDIT_WDATE,0);
+				Dlg->SendMessage(DM_SETFOCUS, SA_EDIT_WDATE, nullptr);
 				return TRUE;
 			}
 			else if (Param1 == SA_BUTTON_CURRENT || Param1 == SA_BUTTON_BLANK)
 			{
-				void* Value = 0;
+				void* Value = nullptr;
 				FILETIME CurrentTime;
 				if(Param1 == SA_BUTTON_CURRENT)
 				{
@@ -373,7 +373,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 				Dlg->SendMessage( DM_SETATTR, SA_TEXT_CREATION, Value);
 				Dlg->SendMessage( DM_SETATTR, SA_TEXT_LASTACCESS, Value);
 				Dlg->SendMessage( DM_SETATTR, SA_TEXT_CHANGE, Value);
-				Dlg->SendMessage(DM_SETFOCUS,SA_EDIT_WDATE,0);
+				Dlg->SendMessage(DM_SETFOCUS, SA_EDIT_WDATE, nullptr);
 				return TRUE;
 			}
 
@@ -399,7 +399,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 						Param1++;
 					}
 
-					Dlg->SendMessage(DM_SETFOCUS,Param1,0);
+					Dlg->SendMessage(DM_SETFOCUS, Param1, nullptr);
 				}
 			}
 		}
@@ -430,7 +430,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 				{
 					if(locale::GetDateFormat() == 2)
 					{
-						if(reinterpret_cast<LPCWSTR>(Dlg->SendMessage( DM_GETCONSTTEXTPTR, Param1, 0))[0] == L' ')
+						if (reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, Param1, nullptr))[0] == L' ')
 						{
 							COORD Pos;
 							Dlg->SendMessage( DM_GETCURSORPOS, Param1, &Pos);
@@ -717,7 +717,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		os::GetCurrentDirectory(strRootPathName);
 		GetPathRoot(strRootPathName,strRootPathName);
 
-		if (os::GetVolumeInformation(strRootPathName,nullptr,0,nullptr,&DlgParam.FileSystemFlags,nullptr))
+		if (os::GetVolumeInformation(strRootPathName, nullptr, nullptr, nullptr, &DlgParam.FileSystemFlags, nullptr))
 		{
 			if (!(DlgParam.FileSystemFlags&FILE_FILE_COMPRESSION))
 			{
@@ -979,7 +979,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				string strRoot;
 				GetPathRoot(strSelName,strRoot);
 
-				if (os::GetVolumeInformation(strRoot,nullptr,0,nullptr,&DlgParam.FileSystemFlags,nullptr))
+				if (os::GetVolumeInformation(strRoot, nullptr, nullptr, nullptr, &DlgParam.FileSystemFlags, nullptr))
 				{
 					if (!(DlgParam.FileSystemFlags&FILE_FILE_COMPRESSION))
 					{

@@ -33,17 +33,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace tinyxml
 {
-#if defined(_MSC_VER) && _MSC_VER >= 1900
-#pragma warning(push)
-#pragma warning(disable: 4458)
-#endif
+WARNING_PUSH()
+
+WARNING_DISABLE_MSC(4458) // no page                                                declaration of 'identifier' hides class member
+
+WARNING_DISABLE_GCC("-Wzero-as-null-pointer-constant")
 
 #define TIXML_USE_STL
 
 #include "thirdparty/tinyxml/tinyxml.h"
 
-#if defined(_MSC_VER) && _MSC_VER >= 1900
-#pragma warning(pop)
-#endif
-
+WARNING_POP()
 }

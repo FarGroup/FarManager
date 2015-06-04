@@ -34,28 +34,25 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#ifdef __GNUC__
-#pragma GCC diagnostic ignored "-Wuseless-cast"
-#endif // __GNUC__
-
-#if defined(_MSC_VER) && _MSC_VER >= 1900
-#pragma warning(push)
-#pragma warning(disable: 4458)
-#endif
-
 #include "tinyxml.hpp"
 #include "components.hpp"
 
 namespace tinyxml
 {
+WARNING_PUSH()
+
+WARNING_DISABLE_MSC(4458) // no page                                                declaration of 'identifier' hides class member
+
+WARNING_DISABLE_GCC("-Wuseless-cast")
+WARNING_DISABLE_GCC("-Wzero-as-null-pointer-constant")
+
+
 #include "thirdparty/tinyxml/tinyxml.cpp"
 #include "thirdparty/tinyxml/tinyxmlerror.cpp"
 #include "thirdparty/tinyxml/tinyxmlparser.cpp"
 
+WARNING_POP()
+
 	static string getInfo() { return FormatString() << L"TinyXML, version " << TIXML_MAJOR_VERSION << L"." << TIXML_MINOR_VERSION << L"." << TIXML_PATCH_VERSION; }
 	SCOPED_ACTION(components::component)(getInfo);
 }
-
-#if defined(_MSC_VER) && _MSC_VER >= 1900
-#pragma warning(pop)
-#endif

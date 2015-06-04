@@ -97,7 +97,7 @@ public:
 		return SetupDiEnumDeviceInterfaces(m_info, nullptr, &InterfaceClassGuid, MemberIndex, &DeviceInterfaceData) != FALSE;
 	}
 
-	class device_interfaces: public enumerator<SP_DEVICE_INTERFACE_DATA>
+	class device_interfaces: public enumerator<device_interfaces, SP_DEVICE_INTERFACE_DATA>
 	{
 	public:
 		device_interfaces(HDEVINFO& info, const GUID& InterfaceClassGuid):
@@ -105,7 +105,7 @@ public:
 			m_InterfaceClassGuid(InterfaceClassGuid)
 		{}
 
-		virtual bool get(size_t index, value_type& value) override
+		bool get(size_t index, value_type& value)
 		{
 			value.cbSize = sizeof(value);
 			return SetupDiEnumDeviceInterfaces(m_info, nullptr, &m_InterfaceClassGuid, static_cast<int>(index), &value) != FALSE;

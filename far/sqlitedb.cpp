@@ -108,29 +108,25 @@ SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(__int64 Value)
 
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const wchar_t* Value, bool bStatic)
 {
-	using sqlite::sqlite3_destructor_type; // for SQLITE_* macros
-	sqlite::sqlite3_bind_text16(m_Stmt.get(), m_Param++, Value, -1, bStatic ? SQLITE_STATIC : SQLITE_TRANSIENT);
+	sqlite::sqlite3_bind_text16(m_Stmt.get(), m_Param++, Value, -1, bStatic? sqlite::static_destructor : sqlite::transient_destructor);
 	return *this;
 }
 
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const string& Value, bool bStatic)
 {
-	using sqlite::sqlite3_destructor_type; // for SQLITE_* macros
-	sqlite::sqlite3_bind_text16(m_Stmt.get(), m_Param++, Value.data(), static_cast<int>(Value.size() * sizeof(wchar_t)), bStatic ? SQLITE_STATIC : SQLITE_TRANSIENT);
+	sqlite::sqlite3_bind_text16(m_Stmt.get(), m_Param++, Value.data(), static_cast<int>(Value.size() * sizeof(wchar_t)), bStatic? sqlite::static_destructor : sqlite::transient_destructor);
 	return *this;
 }
 
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(string&& Value)
 {
-	using sqlite::sqlite3_destructor_type; // for SQLITE_* macros
-	sqlite::sqlite3_bind_text16(m_Stmt.get(), m_Param++, Value.data(), static_cast<int>(Value.size() * sizeof(wchar_t)), SQLITE_TRANSIENT);
+	sqlite::sqlite3_bind_text16(m_Stmt.get(), m_Param++, Value.data(), static_cast<int>(Value.size() * sizeof(wchar_t)), sqlite::transient_destructor);
 	return *this;
 }
 
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const blob& Value, bool bStatic)
 {
-	using sqlite::sqlite3_destructor_type; // for SQLITE_* macros
-	sqlite::sqlite3_bind_blob(m_Stmt.get(), m_Param++, Value.data(), static_cast<int>(Value.size()), bStatic ? SQLITE_STATIC : SQLITE_TRANSIENT);
+	sqlite::sqlite3_bind_blob(m_Stmt.get(), m_Param++, Value.data(), static_cast<int>(Value.size()), bStatic? sqlite::static_destructor : sqlite::transient_destructor);
 	return *this;
 }
 

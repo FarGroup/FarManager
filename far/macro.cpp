@@ -423,7 +423,7 @@ template<class T> bool MacroPluginOp(double OpCode, T Param, MacroPluginReturn* 
 int KeyMacro::IsExecuting()
 {
 	MacroPluginReturn Ret;
-	return MacroPluginOp(1.0,false,&Ret) ? Ret.ReturnType : MACROSTATE_NOMACRO;
+	return MacroPluginOp(1.0,false,&Ret) ? Ret.ReturnType : static_cast<int>(MACROSTATE_NOMACRO);
 }
 
 int KeyMacro::IsDisableOutput()
@@ -1135,13 +1135,13 @@ intptr_t KeyMacro::ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 
 			if (Param1==MS_BUTTON_OK)
 			{
-				LPCWSTR Sequence=(LPCWSTR)Dlg->SendMessage(DM_GETCONSTTEXTPTR,MS_EDIT_SEQUENCE,0);
+				const auto Sequence = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, MS_EDIT_SEQUENCE, nullptr));
 				if (*Sequence)
 				{
 					if (ParseMacroString(Sequence,KMFLAGS_LUA,true))
 					{
 						m_RecCode=Sequence;
-						m_RecDescription=(LPCWSTR)Dlg->SendMessage(DM_GETCONSTTEXTPTR,MS_EDIT_DESCR,0);
+						m_RecDescription = (LPCWSTR)Dlg->SendMessage(DM_GETCONSTTEXTPTR, MS_EDIT_DESCR, nullptr);
 						return TRUE;
 					}
 				}
@@ -3026,7 +3026,7 @@ static bool kbdLayoutFunc(FarMacroCall* Data)
 	DWORD dwLayout = (DWORD)Params[0].asInteger();
 
 	BOOL Ret=TRUE;
-	HKL RetLayout=0;
+	HKL RetLayout = nullptr;
 
 	wchar_t LayoutName[1024]={}; // BUGBUG!!!
 	if (Imports().GetConsoleKeyboardLayoutNameW(LayoutName))
@@ -3040,7 +3040,7 @@ static bool kbdLayoutFunc(FarMacroCall* Data)
 
 	if (hWnd && dwLayout)
 	{
-		HKL Layout = 0;
+		HKL Layout = nullptr;
 		WPARAM wParam;
 
 		if ((long)dwLayout == -1)
@@ -3705,7 +3705,7 @@ static bool dlgsetfocusFunc(FarMacroCall* Data)
 			Ret = Dlg->VMProcess(MCODE_V_DLGCURPOS);
 			if ((int)Index >= 0)
 			{
-				if (!Dlg->SendMessage(DM_SETFOCUS, Index, 0))
+				if (!Dlg->SendMessage(DM_SETFOCUS, Index, nullptr))
 					Ret = 0;
 			}
 		}
@@ -5314,7 +5314,7 @@ M1:
 				if (!Result)
 				{
 					// в любом случае - вываливаемся
-					Dlg->SendMessage(DM_CLOSE,1,0);
+					Dlg->SendMessage(DM_CLOSE, 1, nullptr);
 					return TRUE;
 				}
 				else if (SetChange && Result == 1)
@@ -5332,7 +5332,7 @@ M1:
 						KMParam->Flags = Data.Flags;
 						KMParam->Changed = true;
 						// в любом случае - вываливаемся
-						Dlg->SendMessage(DM_CLOSE,1,0);
+						Dlg->SendMessage(DM_CLOSE, 1, nullptr);
 						return TRUE;
 					}
 				}

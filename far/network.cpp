@@ -57,7 +57,7 @@ os::drives_set AddSavedNetworkDisks(os::drives_set& Mask)
 	FN_RETURN_TYPE(AddSavedNetworkDisks) Result;
 	HANDLE hEnum;
 
-	if (!WNetOpenEnum(RESOURCE_REMEMBERED, RESOURCETYPE_DISK, 0, 0, &hEnum))
+	if (!WNetOpenEnum(RESOURCE_REMEMBERED, RESOURCETYPE_DISK, 0, nullptr, &hEnum))
 	{
 		DWORD bufsz = 16*1024;
 		block_ptr<NETRESOURCE> netResource(bufsz);
@@ -107,7 +107,7 @@ void ConnectToNetworkDrive(const string& NewDir)
 	netResource.dwType = RESOURCETYPE_DISK;
 	netResource.lpLocalName = UNSAFE_CSTR(NewDir);
 	netResource.lpRemoteName = UNSAFE_CSTR(strRemoteName);
-	netResource.lpProvider = 0;
+	netResource.lpProvider = nullptr;
 	DWORD res = WNetAddConnection2(&netResource, nullptr, EmptyToNull(strUserName.data()), 0);
 
 	if (res == ERROR_SESSION_CREDENTIAL_CONFLICT)

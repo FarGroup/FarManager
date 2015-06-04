@@ -915,8 +915,8 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 			if (Param1==EM_BUTTON_OK)
 			{
 				BOOL Result=TRUE;
-				auto HotKey = reinterpret_cast<LPCWSTR>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EM_HOTKEY_EDIT, 0));
-				auto Label = reinterpret_cast<LPCWSTR>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EM_LABEL_EDIT, 0));
+				auto HotKey = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EM_HOTKEY_EDIT, nullptr));
+				auto Label = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EM_LABEL_EDIT, nullptr));
 				int FocusPos=-1;
 
 				if(StrCmp(HotKey,L"--"))
@@ -942,7 +942,7 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 				if (FocusPos!=-1)
 				{
 					Message(MSG_WARNING,1,MSG(MUserMenuTitle),MSG((*Label?MUserMenuInvalidInputHotKey:MUserMenuInvalidInputLabel)),MSG(MOk));
-					Dlg->SendMessage(DM_SETFOCUS,FocusPos,0);
+					Dlg->SendMessage(DM_SETFOCUS, FocusPos, nullptr);
 					Result=FALSE;
 				}
 

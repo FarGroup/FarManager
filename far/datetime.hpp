@@ -56,9 +56,7 @@ inline FILETIME UI64ToFileTime(uint64_t time)
 {
 	ULARGE_INTEGER i;
 	i.QuadPart = time;
-	FILETIME ft;
-	ft.dwLowDateTime = i.LowPart;
-	ft.dwHighDateTime = i.HighPart;
+	FILETIME ft = { i.LowPart, i.HighPart };
 	return ft;
 }
 

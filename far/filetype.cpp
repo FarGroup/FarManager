@@ -214,7 +214,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 	};
 
 	int PreserveLFN=SubstFileName(nullptr,strCommand, Name, ShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
-	bool ListFileUsed = std::any_of(ALL_CONST_RANGE(ListNames), [](CONST_REFERENCE(ListNames) i) { return !i->empty(); });
+	const auto ListFileUsed = !std::all_of(ALL_CONST_RANGE(ListNames), std::mem_fn(&string::empty));
 
 	// —нова все "подставлено", теперь проверим услови€ "if exist"
 	if (ExtractIfExistCommand(strCommand))
@@ -275,7 +275,7 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 	{
 		string strExecStr = Command;
 		int PreserveLFN = SubstFileName(nullptr, strExecStr, Name, ShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
-		bool ListFileUsed = std::any_of(ALL_CONST_RANGE(ListNames), [](CONST_REFERENCE(ListNames) i) { return !i->empty(); });
+		const auto ListFileUsed = !std::all_of(ALL_CONST_RANGE(ListNames), std::mem_fn(&string::empty));
 
 		// —нова все "подставлено", теперь проверим услови€ "if exist"
 		if (!ExtractIfExistCommand(strExecStr))
@@ -387,7 +387,7 @@ intptr_t EditTypeRecordDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 
 			if (Param1==ETR_BUTTON_OK)
 			{
-				return filemasks().Set(reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ETR_EDIT_MASKS, 0)));
+				return filemasks().Set(reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ETR_EDIT_MASKS, nullptr)));
 			}
 			break;
 

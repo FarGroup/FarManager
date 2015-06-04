@@ -108,7 +108,7 @@ void xlat_initialize()
 		}
 
 		if (I <= 1) // если указано меньше двух - "отключаем" эту
-			XLat.Layouts[0] = 0;
+			XLat.Layouts[0] = nullptr;
 	}
 }
 

@@ -62,7 +62,7 @@ DlgEdit::DlgEdit(window_ptr Owner,size_t Index,DLGEDITTYPE Type):
 		{
 			EditControl::Callback callback={true,EditChange,this};
 
-			FarList* iList=0;
+			FarList* iList = nullptr;
 			DWORD iFlags=0;
 			auto& CurItem=GetDialog()->Items[Index];
 			if(Global->Opt->Dialogs.AutoComplete && CurItem.Flags&(DIF_HISTORY|DIF_EDITPATH|DIF_EDITPATHEXEC) && !(CurItem.Flags&DIF_DROPDOWNLIST) && !(CurItem.Flags&DIF_NOAUTOCOMPLETE))
@@ -728,7 +728,7 @@ void DlgEdit::DoEditChange()
 	_DIALOG(SysLog(L"m_Owner=%p, m_Owner->IsInited()=%d, m_Index=%d",dialog,dialog->IsInited(),m_Index));
 	if (dialog->IsInited())
 	{
-		dialog->SendMessage(DN_EDITCHANGE,m_Index,0);
+		dialog->SendMessage(DN_EDITCHANGE, m_Index, nullptr);
 	}
 }
 

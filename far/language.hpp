@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class Language: noncopyable
 {
 public:
-	Language(const string& Path, int CountNeed = -1) { init(Path, CountNeed); }
+	Language(const string& Path, int CountNeed = -1);
 	Language(Language&& rhs) noexcept { *this = std::move(rhs); }
 	virtual ~Language() {}
 
@@ -55,9 +55,6 @@ public:
 	FREE_SWAP(Language);
 
 protected:
-	Language() {}
-
-	void init(const string& Path, int CountNeed = -1);
 	bool CheckMsgId(LNGID MsgId) const;
 
 private:

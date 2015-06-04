@@ -53,7 +53,7 @@ struct PreserveStyleToken
 
 static inline bool IsPreserveStyleTokenSeparator(wchar_t C)
 {
-	return wcschr(PreserveStyleTokenSeparators, C) != 0;
+	return wcschr(PreserveStyleTokenSeparators, C) != nullptr;
 }
 
 static int GetPeserveCaseStyleMask(const string& strStr)

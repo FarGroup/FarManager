@@ -176,8 +176,7 @@ string& QuoteSpaceOnly(string &strStr)
 
 string &QuoteLeadingSpace(string &strStr)
 {
-	size_t len = strStr.size();
-	if (len > 0 && (L' ' == strStr[0] || L' ' == strStr[len-1]))
+	if (!strStr.empty() && (strStr.front() == L' ' || strStr.back() == L' '))
 		InsertQuote(strStr);
 
 	return strStr;
@@ -496,17 +495,8 @@ void Unquote(wchar_t *Str)
 	if (!Str)
 		return;
 
-	wchar_t *Dst=Str;
-
-	while (*Str)
-	{
-		if (*Str!=L'\"')
-			*Dst++=*Str;
-
-		Str++;
-	}
-
-	*Dst=0;
+	auto Iterator = null_iterator(Str);
+	*std::remove(Iterator, Iterator.end(), L'"') = 0;
 }
 
 string& Unquote(string &strStr)

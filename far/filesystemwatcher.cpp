@@ -110,7 +110,7 @@ void FileSystemWatcher::Watch(bool got_focus, bool check_time)
 		if (!strRoot.empty())
 		{
 			if (os::GetVolumeInformation(strRoot, nullptr, nullptr, nullptr, nullptr, &strFileSystem))
-				isFAT = (strFileSystem.substr(0,3) == L"FAT");
+				isFAT = !strFileSystem.compare(0, 3, L"FAT", 3);
 		}
 		if (isFAT)             // emulate FAT folder time change
 		{                      // otherwise changes missed (FAT folder time is NOT modified)

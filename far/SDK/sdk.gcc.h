@@ -565,7 +565,7 @@ typedef CONST OBJECT_ATTRIBUTES *PCOBJECT_ATTRIBUTES;
   (p)->Attributes = (a); \
   (p)->ObjectName = (n); \
   (p)->SecurityDescriptor = (s); \
-  (p)->SecurityQualityOfService = NULL; \
+  (p)->SecurityQualityOfService = nullptr; \
 }
 
 typedef struct _REPARSE_DATA_BUFFER {

@@ -132,7 +132,7 @@ bool EjectVolume(wchar_t Letter,UINT64 Flags)
 						// чистой воды шаманство...
 						if (Flags&EJECT_READY)
 						{
-							fAutoEject=Disk.IoControl(IOCTL_STORAGE_CHECK_VERIFY, nullptr, 0, 0, 0, &temp);
+							fAutoEject = Disk.IoControl(IOCTL_STORAGE_CHECK_VERIFY, nullptr, 0, nullptr, 0, &temp);
 
 							// ...если ошибка = "нет доступа", то это похоже на то,
 							// что диск вставлен
@@ -184,7 +184,7 @@ bool IsEjectableMedia(wchar_t Letter)
 	string name(L"\\\\.\\?:");
 	name[4] = Letter;
 	os::fs::file file;
-	if(file.Open(name, 0, FILE_SHARE_WRITE, 0, OPEN_EXISTING))
+	if (file.Open(name, 0, FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 	{
 		DISK_GEOMETRY dg;
 		DWORD Bytes;

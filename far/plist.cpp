@@ -175,7 +175,7 @@ void ShowProcessList()
 				BOOL bSPI = SystemParametersInfo(SPI_GETFOREGROUNDLOCKTIMEOUT, 0, &dwMs, 0);
 
 				if (bSPI) // Reset foreground lock timeout
-					bSPI = SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, 0, 0);
+					bSPI = SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, nullptr, 0);
 
 				SetForegroundWindow(ProcWnd);
 

@@ -36,15 +36,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "components.hpp"
 
-#pragma warning(push, 1)
-
-#ifdef __GNUC__
-#pragma GCC diagnostic ignored "-Wcast-qual"
-#pragma GCC diagnostic ignored "-Wuseless-cast"
-#endif // __GNUC__
-
 namespace ucd
 {
+WARNING_PUSH(1)
+
+WARNING_DISABLE_GCC("-Wcast-qual")
+WARNING_DISABLE_GCC("-Wuseless-cast")
+WARNING_DISABLE_GCC("-Wzero-as-null-pointer-constant")
+
+
 #include "thirdparty/ucd/nsCore.h"
 #include "thirdparty/ucd/nsError.h"
 #include "thirdparty/ucd/nsUniversalDetector.h"
@@ -73,9 +73,9 @@ namespace ucd
 #include "thirdparty/ucd/nsSJISProber.cpp"
 #include "thirdparty/ucd/nsUniversalDetector.cpp"
 #include "thirdparty/ucd/nsUTF8Prober.cpp"
-};
 
-#pragma warning(pop)
+WARNING_POP()
+};
 
 static string getInfo() { return L"Mozilla Universal Charset Detector"; } // BUGBUG, version unknown
 SCOPED_ACTION(components::component)(getInfo);

@@ -631,7 +631,7 @@ bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
 			return true;
 		}
 
-		HKEY hCRKey = 0, hUserKey = 0;
+		HKEY hCRKey = nullptr, hUserKey = nullptr;
 		string strFoundValue;
 
 		if (aType == AT_FILEEXTENSION)

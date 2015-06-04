@@ -143,7 +143,7 @@ void wm_listener::WindowThreadRoutine(const Event* ReadyEvent)
 	WNDCLASSEX wc={sizeof(wc)};
 	wc.lpfnWndProc = WndProc;
 	wc.lpszClassName = L"FarHiddenWindowClass";
-	UnregisterClass(wc.lpszClassName, 0);
+	UnregisterClass(wc.lpszClassName, nullptr);
 	if(RegisterClassEx(&wc))
 	{
 		m_Hwnd = CreateWindowEx(0, wc.lpszClassName, nullptr, 0, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, nullptr, nullptr, nullptr, nullptr);
@@ -164,6 +164,6 @@ void wm_listener::WindowThreadRoutine(const Event* ReadyEvent)
 				Imports().UnregisterPowerSettingNotification(hpn);
 
 		}
-		UnregisterClass(wc.lpszClassName, 0);
+		UnregisterClass(wc.lpszClassName, nullptr);
 	}
 }

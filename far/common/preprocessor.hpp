@@ -96,14 +96,44 @@ friend inline void swap(Type& a, Type& b) noexcept { a.swap(b); }
 #define SCOPED_ACTION(RAII_type) \
 const RAII_type ADD_SUFFIX(scoped_object_, __LINE__)
 
+//----------------------------------------------------------------------------
 #ifdef __GNUC__
-#define DO_PRAGMA(x) _Pragma(#x)
-#define PACK_PUSH(n) DO_PRAGMA(pack(n))
-#define PACK_POP() DO_PRAGMA(pack())
-#else
+#define GCC_STR_PRAGMA(x) _Pragma(#x)
+#endif
+//----------------------------------------------------------------------------
+#ifdef __GNUC__
+#define PACK_PUSH(n) GCC_STR_PRAGMA(pack(n))
+#define PACK_POP() GCC_STR_PRAGMA(pack())
+#endif
+
+#ifdef _MSC_VER
 #define PACK_PUSH(n) __pragma(pack(push, n))
 #define PACK_POP() __pragma(pack(pop))
 #endif
+//----------------------------------------------------------------------------
+#ifdef __GNUC__
+#define WARNING_PUSH(...) GCC_STR_PRAGMA(GCC diagnostic push)
+#define WARNING_POP() GCC_STR_PRAGMA(GCC diagnostic pop)
+#endif
+
+#ifdef _MSC_VER
+#define WARNING_PUSH(...) __pragma(warning(push, __VA_ARGS__))
+#define WARNING_POP() __pragma(warning(pop))
+#endif
+//----------------------------------------------------------------------------
+#ifdef __GNUC__
+#define WARNING_DISABLE_GCC(id) GCC_STR_PRAGMA(GCC diagnostic ignored id)
+#else
+#define WARNING_DISABLE_GCC(id)
+#endif
+//----------------------------------------------------------------------------
+#ifdef _MSC_VER
+#define WARNING_DISABLE_MSC(id) __pragma(warning(disable: id))
+#else
+#define WARNING_DISABLE_MSC(id)
+#endif
+//----------------------------------------------------------------------------
+
 
 #if defined _MSC_VER && _MSC_VER < 1800
 #define DELETED_FUNCTION(...) private: __VA_ARGS__

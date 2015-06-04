@@ -27,43 +27,22 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// begin() / end() interface for null-terminated strings
-
-#include "enumerator.hpp"
-
-template<class T>
-class as_string_t: public enumerator<T>
+template <class T>
+class null_iterator_t: public std::iterator<std::forward_iterator_tag, T>
 {
 public:
-	as_string_t(const T* str, size_t size): m_str(str), m_size(size) {}
-	virtual bool get(size_t index, typename as_string_t::value_type& value) override
-	{
-		if (m_size == size_t(-1))
-		{
-			return (value = m_str[index]) != 0;
-		}
-		else
-		{
-			if (index == m_size)
-			{
-				return false;
-			}
-			else
-			{
-				value = m_str[index];
-				return true;
-			}
-		}
-	}
+	null_iterator_t(T* Data): m_Data(Data) {}
+	null_iterator_t& operator++() { ++m_Data; return *this; }
+	null_iterator_t operator++(int) { return null_iterator_t(m_Data++); }
+	T& operator*() { return *m_Data; }
+	T* operator->() { return m_Data; }
+	static const null_iterator_t& end() { static T Empty[1] = {}; static null_iterator_t Iter(Empty); return Iter; }
+	bool operator==(const null_iterator_t& rhs) { return (!*m_Data && !*rhs.m_Data) || m_Data == rhs.m_Data; }
+	bool operator!=(const null_iterator_t& rhs) { return !(*this == rhs); }
 
 private:
-	const T* m_str;
-	size_t m_size;
+	T* m_Data;
 };
 
-template<class T>
-typename std::enable_if<!std::is_array<T>::value, as_string_t<T>>::type as_string(const T* str, size_t size = size_t(-1)) { return as_string_t<T>(str, size); }
-
-// to avoid processing null character in cases like char c[] = "foo".
-template <typename T, size_t N>
-typename std::enable_if<std::is_array<T>::value, as_string_t<T>>::type as_string(T(&str)[N]) { return as_string_t<T>(str, N - 1); }
+template <class T>
+null_iterator_t<T> null_iterator(T* Data) { return null_iterator_t<T>(Data); }

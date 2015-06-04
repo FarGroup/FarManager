@@ -59,8 +59,20 @@ LGEN = $(WINE_CMD)$(strip $(call os_name, $(TOOLSDIR)lng.generator.exe))
 
 DEFINES = -D UNICODE -D _UNICODE
 CFLAGS = -m$(DIRBIT) $(DEBUGFLAGS) -fdiagnostics-show-option -pipe -funsigned-char $(DEFINES)
-CFLAGS += -Wall -Wextra -Wcast-qual -Wno-unknown-pragmas -Wno-char-subscripts -Wno-unused-parameter -Wno-missing-field-initializers
-CCFLAGS = $(CFLAGS) -std=c++14 -Woverloaded-virtual
+CFLAGS += \
+-Wall \
+-Wextra \
+-Wcast-qual \
+-Wformat=2 \
+-Wlogical-op \
+-Wno-unknown-pragmas \
+-Wno-char-subscripts \
+-Wno-unused-parameter \
+-Wno-missing-field-initializers \
+
+CCFLAGS = $(CFLAGS) -std=c++14 \
+-Woverloaded-virtual \
+-Wzero-as-null-pointer-constant \
 
 LNKFLAGS = -m$(DIRBIT) -static-libgcc -static $(DEBUGLINKFLAGS)
 LNKFLAGS += -Xlinker -Map -Xlinker $(MAP) -Xlinker --tsaware -Xlinker --dynamicbase -Xlinker --nxcompat

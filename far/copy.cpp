@@ -687,7 +687,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 	{
 		case DN_INITDIALOG:
 			Dlg->SendMessage(DM_SETCOMBOBOXEVENT,ID_SC_COMBO,ToPtr(CBET_KEY|CBET_MOUSE));
-			Dlg->SendMessage(DM_SETINPUTNOTIFY,TRUE,0);
+			Dlg->SendMessage(DM_SETINPUTNOTIFY, TRUE, nullptr);
 			break;
 		case DM_SWITCHRO:
 		{
@@ -700,7 +700,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 				LGI.Item.Flags|=LIF_CHECKED;
 
 			Dlg->SendMessage(DM_LISTUPDATE,ID_SC_COMBO,&LGI);
-			Dlg->SendMessage(DM_REDRAW,0,0);
+			Dlg->SendMessage(DM_REDRAW, 0, nullptr);
 			return TRUE;
 		}
 		case DN_BTNCLICK:
@@ -713,12 +713,12 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 
 			if (Param1 == ID_SC_BTNTREE) // Tree
 			{
-				Dlg->SendMessage(DM_CALLTREE,0,0);
+				Dlg->SendMessage(DM_CALLTREE, 0, nullptr);
 				return FALSE;
 			}
 			else if (Param1 == ID_SC_BTNCOPY)
 			{
-				Dlg->SendMessage(DM_CLOSE,ID_SC_BTNCOPY,0);
+				Dlg->SendMessage(DM_CLOSE, ID_SC_BTNCOPY, nullptr);
 			}
 			else if (Param1==ID_SC_BTNFILTER) // Filter
 			{
@@ -737,7 +737,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 				if (key == KEY_ALTF10 || key == KEY_RALTF10 || key == KEY_F10 || key == KEY_SHIFTF10)
 				{
 					AltF10=(key == KEY_ALTF10 || key == KEY_RALTF10)?1:(key == KEY_SHIFTF10?2:0);
-					Dlg->SendMessage(DM_CALLTREE,AltF10,0);
+					Dlg->SendMessage(DM_CALLTREE, AltF10, nullptr);
 					return TRUE;
 				}
 
@@ -745,8 +745,8 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 				{
 					if (key==KEY_ENTER || key==KEY_NUMENTER || key==KEY_INS || key==KEY_NUMPAD0 || key==KEY_SPACE)
 					{
-						if (Dlg->SendMessage(DM_LISTGETCURPOS,ID_SC_COMBO,0)==CM_ASKRO)
-							return Dlg->SendMessage(DM_SWITCHRO,0,0);
+						if (Dlg->SendMessage(DM_LISTGETCURPOS, ID_SC_COMBO, nullptr) == CM_ASKRO)
+							return Dlg->SendMessage(DM_SWITCHRO, 0, nullptr);
 					}
 				}
 			}
@@ -756,22 +756,22 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 		case DN_LISTHOTKEY:
 			if(Param1==ID_SC_COMBO)
 			{
-				if (Dlg->SendMessage(DM_LISTGETCURPOS,ID_SC_COMBO,0)==CM_ASKRO)
+				if (Dlg->SendMessage(DM_LISTGETCURPOS, ID_SC_COMBO, nullptr) == CM_ASKRO)
 				{
-					Dlg->SendMessage(DM_SWITCHRO,0,0);
+					Dlg->SendMessage(DM_SWITCHRO, 0, nullptr);
 					return TRUE;
 				}
 			}
 			break;
 		case DN_INPUT:
 
-			if (Dlg->SendMessage(DM_GETDROPDOWNOPENED,ID_SC_COMBO,0))
+			if (Dlg->SendMessage(DM_GETDROPDOWNOPENED, ID_SC_COMBO, nullptr))
 			{
 				auto& mer = reinterpret_cast<INPUT_RECORD*>(Param2)->Event.MouseEvent;
 
-				if (Dlg->SendMessage(DM_LISTGETCURPOS, ID_SC_COMBO, 0) == CM_ASKRO && mer.dwButtonState && !(mer.dwEventFlags & MOUSE_MOVED))
+				if (Dlg->SendMessage(DM_LISTGETCURPOS, ID_SC_COMBO, nullptr) == CM_ASKRO && mer.dwButtonState && !(mer.dwEventFlags & MOUSE_MOVED))
 				{
-					Dlg->SendMessage(DM_SWITCHRO,0,0);
+					Dlg->SendMessage(DM_SWITCHRO, 0, nullptr);
 					return FALSE;
 				}
 			}
@@ -791,8 +791,8 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 			     показывался корневой каталог, теперь показывается самый первый каталог
 			     в списке.
 			*/
-			BOOL MultiCopy=Dlg->SendMessage(DM_GETCHECK,ID_SC_MULTITARGET,0)==BSTATE_CHECKED;
-			string strOldFolder = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ID_SC_TARGETEDIT, 0));
+			BOOL MultiCopy = Dlg->SendMessage(DM_GETCHECK, ID_SC_MULTITARGET, nullptr) == BSTATE_CHECKED;
+			string strOldFolder = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ID_SC_TARGETEDIT, nullptr));
 			string strNewFolder;
 
 			if (AltF10 == 2)
@@ -844,7 +844,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 					}
 
 					Dlg->SendMessage(DM_SETTEXTPTR,ID_SC_TARGETEDIT, UNSAFE_CSTR(strNewFolder));
-					Dlg->SendMessage(DM_SETFOCUS,ID_SC_TARGETEDIT,0);
+					Dlg->SendMessage(DM_SETFOCUS, ID_SC_TARGETEDIT, nullptr);
 				}
 			}
 
@@ -3500,7 +3500,7 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 	{
 		case DM_OPENVIEWER:
 		{
-			auto WFN = reinterpret_cast<file_names_for_overwrite_dialog*>(Dlg->SendMessage(DM_GETDLGDATA, 0, 0));
+			auto WFN = reinterpret_cast<file_names_for_overwrite_dialog*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 
 			if (WFN)
 			{
@@ -3543,15 +3543,15 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 			{
 				case WDLG_SRCFILEBTN:
 				case WDLG_DSTFILEBTN:
-					Dlg->SendMessage(DM_OPENVIEWER,Param1,0);
+					Dlg->SendMessage(DM_OPENVIEWER, Param1, nullptr);
 					break;
 				case WDLG_RENAME:
 				{
-					auto WFN = reinterpret_cast<file_names_for_overwrite_dialog*>(Dlg->SendMessage(DM_GETDLGDATA, 0, 0));
+					auto WFN = reinterpret_cast<file_names_for_overwrite_dialog*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 					string strDestName = *WFN->Dest;
 					GenerateName(strDestName, *WFN->DestPath);
 
-					if (Dlg->SendMessage(DM_GETCHECK,WDLG_CHECKBOX,0)==BSTATE_UNCHECKED)
+					if (Dlg->SendMessage(DM_GETCHECK, WDLG_CHECKBOX, nullptr) == BSTATE_UNCHECKED)
 					{
 						int All=BSTATE_UNCHECKED;
 
@@ -3587,7 +3587,7 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 				int key = InputRecordToKey(record);
 				if ((Param1==WDLG_SRCFILEBTN || Param1==WDLG_DSTFILEBTN) && key==KEY_F3)
 				{
-					Dlg->SendMessage(DM_OPENVIEWER,Param1,0);
+					Dlg->SendMessage(DM_OPENVIEWER, Param1, nullptr);
 				}
 			}
 		}

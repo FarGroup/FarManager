@@ -267,7 +267,7 @@ bool DeleteReparsePoint(const string& Object)
 	if (GetREPARSE_DATA_BUFFER(Object, rdb.get()))
 	{
 		os::fs::file fObject;
-		if (fObject.Open(Object, FILE_WRITE_ATTRIBUTES, 0, 0, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
+		if (fObject.Open(Object, FILE_WRITE_ATTRIBUTES, 0, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
 		{
 			DWORD dwBytes;
 			REPARSE_GUID_DATA_BUFFER rgdb = {rdb->ReparseTag};
@@ -640,7 +640,7 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 					{
 						if (!os::fs::exists(strPath))
 							CreatePath(strPath);
-						os::fs::file().Open(strFullLink, 0, 0, 0, CREATE_NEW, os::GetFileAttributes(strFullTarget));
+						os::fs::file().Open(strFullLink, 0, 0, nullptr, CREATE_NEW, os::GetFileAttributes(strFullTarget));
 					}
 				}
 

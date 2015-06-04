@@ -3,8 +3,9 @@
 
 namespace oldfar
 {
-#pragma warning(push)
-#pragma warning(disable:6244)
+WARNING_PUSH()
+
+WARNING_DISABLE_MSC(6244) // https://msdn.microsoft.com/en-us/library/35whedce.aspx local declaration of <variable> hides previous declaration at <line> of <file>
 
 #ifndef _WIN64
 PACK_PUSH(2)
@@ -1760,5 +1761,5 @@ PACK_PUSH(2)
 PACK_POP()
 #endif
 
-#pragma warning(pop)
+WARNING_POP()
 }

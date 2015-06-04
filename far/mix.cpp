@@ -122,7 +122,7 @@ void FindDataExToPluginPanelItem(const os::FAR_FIND_DATA *pSrc, PluginPanelItem 
 	pDest->AlternateFileName = DuplicateString(pSrc->strAlternateFileName.data());
 }
 
-void FreePluginPanelItem(PluginPanelItem& Data)
+void FreePluginPanelItem(const PluginPanelItem& Data)
 {
 	delete[] Data.FileName;
 	delete[] Data.AlternateFileName;

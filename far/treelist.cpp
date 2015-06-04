@@ -1057,20 +1057,18 @@ void TreeList::SyncDir()
 
 bool TreeList::FillLastData()
 {
-	const auto CountSlash = [](const wchar_t *Str) -> size_t
+	const auto CountSlash = [](const string& Str, size_t Offset)
 	{
-		auto str = as_string(Str);
-		return std::count_if(ALL_CONST_RANGE(str), IsSlash);
+		return static_cast<size_t>(std::count_if(Str.cbegin() + Offset, Str.cend(), IsSlash));
 	};
 
-	size_t RootLength = m_Root.empty()? 0 : m_Root.size()-1;
-	auto Range = make_range(m_ListData.begin() + 1, m_ListData.end());
+	const auto RootLength = m_Root.empty()? 0 : m_Root.size()-1;
+	const auto Range = make_range(m_ListData.begin() + 1, m_ListData.end());
 	FOR_RANGE(Range, i)
 	{
-		size_t Pos = i->strName.rfind(L'\\');
-		int PathLength = Pos != string::npos? (int)Pos+1 : 0;
-
-		size_t Depth = i->Depth=CountSlash(i->strName.data()+RootLength);
+		const auto Pos = i->strName.rfind(L'\\');
+		const auto PathLength = Pos != string::npos? (int)Pos+1 : 0;
+		const auto Depth = i->Depth = CountSlash(i->strName, RootLength);
 
 		if (!Depth)
 			return false;
@@ -1081,7 +1079,7 @@ bool TreeList::FillLastData()
 		auto SubRange = make_range(i + 1, Range.end());
 		FOR_RANGE(SubRange, j)
 		{
-			if (CountSlash(j->strName.data()+RootLength)>Depth)
+			if (CountSlash(j->strName, RootLength) > Depth)
 			{
 				SubDirPos = j;
 				continue;

@@ -136,7 +136,7 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 				case KEY_NUMPAD6:
 					if(Param1==LastButtonIndex)
 					{
-						Dlg->SendMessage(DM_SETFOCUS,FirstButtonIndex,0);
+						Dlg->SendMessage(DM_SETFOCUS, FirstButtonIndex, nullptr);
 						return TRUE;
 					}
 					break;
@@ -146,7 +146,7 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 				case KEY_NUMPAD4:
 					if(Param1==FirstButtonIndex)
 					{
-						Dlg->SendMessage(DM_SETFOCUS,LastButtonIndex,0);
+						Dlg->SendMessage(DM_SETFOCUS, LastButtonIndex, nullptr);
 						return TRUE;
 					}
 					break;
@@ -158,7 +158,7 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 				case KEY_CTRLNUMPAD0:
 				case KEY_RCTRLNUMPAD0:
 					{
-						SetClipboard(*reinterpret_cast<string*>(Dlg->SendMessage(DM_GETDLGDATA, 0, 0)));
+						SetClipboard(*reinterpret_cast<string*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr)));
 					}
 					break;
 				}
@@ -464,7 +464,7 @@ void Message::Init(
 		FlushInputBuffer();
 
 		if (Flags & MSG_KILLSAVESCREEN)
-			Dlg->SendMessage(DM_KILLSAVESCREEN,0,0);
+			Dlg->SendMessage(DM_KILLSAVESCREEN, 0, nullptr);
 
 		Dlg->Process();
 		RetCode=Dlg->GetExitCode();

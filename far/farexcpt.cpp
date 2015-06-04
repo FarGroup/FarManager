@@ -56,7 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    Простенький обработчик исключений.
 */
 
-static const wchar_t* From=0;
+static const wchar_t* From = nullptr;
 static Plugin *PluginModule = nullptr;     // модуль, приведший к исключению.
 
 extern void CreatePluginStartupInfo(const Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF);
@@ -88,12 +88,12 @@ intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 				int key = InputRecordToKey(record);
 				if (Param1==10 && (key==KEY_LEFT || key == KEY_NUMPAD4 || key==KEY_SHIFTTAB))
 				{
-					Dlg->SendMessage(DM_SETFOCUS,12,0);
+					Dlg->SendMessage(DM_SETFOCUS, 12, nullptr);
 					return TRUE;
 				}
 				else if (Param1==12 && (key==KEY_RIGHT || key == KEY_NUMPAD6 || key==KEY_TAB))
 				{
-					Dlg->SendMessage(DM_SETFOCUS,10,0);
+					Dlg->SendMessage(DM_SETFOCUS, 10, nullptr);
 					return TRUE;
 				}
 			}
@@ -515,10 +515,10 @@ void EnableVectoredExceptionHandling()
 }
 
 #if defined(FAR_ALPHA_VERSION)
-#if defined(_MSC_VER)
-#pragma warning( push )
-#pragma warning( disable : 4717)
-#endif
+WARNING_PUSH()
+
+WARNING_DISABLE_MSC(4717) // https://msdn.microsoft.com/en-us/library/97c54274.aspx 'function' : recursive on all control paths, function will cause runtime stack overflow
+
 static void Test_EXCEPTION_STACK_OVERFLOW(char* target)
 {
 	char Buffer[1024]; /* чтобы быстрее рвануло */
@@ -528,9 +528,7 @@ static void Test_EXCEPTION_STACK_OVERFLOW(char* target)
 	// "side effect" to prevent deletion of this function call due to C4718.
 	Sleep(0);
 }
-#if defined(_MSC_VER)
-#pragma warning( pop )
-#endif
+WARNING_POP()
 
 static int ExceptionTestHook(Manager::Key key)
 {

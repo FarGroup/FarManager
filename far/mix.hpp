@@ -56,7 +56,7 @@ void FindDataExToPluginPanelItem(
     PluginPanelItem *pDest
 );
 
-void FreePluginPanelItem(PluginPanelItem& Data);
+void FreePluginPanelItem(const PluginPanelItem& Data);
 
 void FreePluginPanelItemsUserData(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber);
 
