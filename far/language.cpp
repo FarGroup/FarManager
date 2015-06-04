@@ -318,7 +318,7 @@ static string ConvertString(const wchar_t *Src, size_t size)
 	return strDest;
 }
 
-Language::Language(const string& Path, int CountNeed)
+void Language::init(const string& Path, int CountNeed)
 {
 	SCOPED_ACTION(GuardLastError);
 

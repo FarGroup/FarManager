@@ -5952,7 +5952,7 @@ void PluginA::ExitFAR(ExitInfo *Info)
 class AnsiLanguage: public Language
 {
 public:
-	AnsiLanguage(const string& Path): Language(Path) {}
+	AnsiLanguage(const string& Path) { init(Path); }
 	const char* GetMsgA(LNGID nID) const { return CheckMsgId(nID)? m_AnsiMessages[nID].data() : ""; }
 
 private:
