@@ -522,6 +522,11 @@ end
 
 local function ErrMsgLoad (msg, filename, isMoonScript, mode)
   local title = isMoonScript and mode=="compile" and "MoonScript" or "LuaMacro"
+  
+  if type(msg)~="string" and type(msg)~="number" then
+    ErrMsg(filename..":\n<non-string error message>", title, nil, "w")
+    return
+  end
 
   if mode=="run" then
     local found = false
@@ -618,9 +623,9 @@ local function LoadMacros (unload, paths)
 
   if not unload then
     local DummyFunc = function() end
-    local dir = win.GetEnv("farprofile").."\\Macros"
+    local DirMacros = win.GetEnv("farprofile").."\\Macros"
     if 0 == band(MacroCallFar(MCODE_F_GETOPTIONS),0x10) then -- not ReadOnlyConfig
-      win.CreateDir(dir.."\\scripts", true)
+      win.CreateDir(DirMacros.."\\scripts", true)
       win.CreateDir(win.GetEnv("farprofile").."\\Menus", true)
     end
 
@@ -691,7 +696,7 @@ local function LoadMacros (unload, paths)
     if paths then
       paths = ExpandEnv(paths)
     else
-      paths = dir.."\\scripts"
+      paths = DirMacros.."\\scripts"
       local cfg, msg = ReadIniFile(far.PluginStartupInfo().ModuleDir.."luamacro.ini")
       if cfg then
         if cfg.General then
@@ -715,7 +720,7 @@ local function LoadMacros (unload, paths)
       far.RecursiveSearch (p, "*.lua,*.moon", LoadRegularFile, bor(F.FRS_RECUR,F.FRS_SCANSYMLINK), macroinit)
     end
 
-    far.RecursiveSearch (dir.."\\internal", "*.lua", LoadRecordedFile, 0)
+    far.RecursiveSearch (DirMacros.."\\internal", "*.lua", LoadRecordedFile, 0)
 
     LoadMacrosDone = true
   end
@@ -1040,25 +1045,25 @@ local function GetMacroCopy (id)
 end
 
 return {
+  AddMacroFromFAR = AddMacroFromFAR,
+  CheckFileName = CheckFileName,
   DelMacro = DelMacro,
   EnumMacros = EnumMacros,
+  FixInitialModules = FixInitialModules,
+  FlagsToString = FlagsToString,
   GetAreaCode = GetAreaCode,
   GetMacro = GetMacro,
+  GetMacroCopy = GetMacroCopy,
   GetMacroWrapper = GetMacroWrapper,
+  GetMenuItems = function() return AddedMenuItems end,
+  GetMoonscriptLineNumber = GetMoonscriptLineNumber,
+  GetPrefixes = function() return AddedPrefixes end,
   GetTrueAreaName = GetTrueAreaName,
+  InitMacroSystem = InitMacroSystem,
+  LoadingInProgress = function() return LoadingInProgress end,
   LoadMacros = LoadMacros,
   ProcessRecordedMacro = ProcessRecordedMacro,
-  AddMacroFromFAR = AddMacroFromFAR,
   RunStartMacro = RunStartMacro,
   UnloadMacros = InitMacroSystem,
-  InitMacroSystem = InitMacroSystem,
   WriteMacros = WriteMacros,
-  GetMacroCopy = GetMacroCopy,
-  CheckFileName = CheckFileName,
-  FlagsToString = FlagsToString,
-  GetMoonscriptLineNumber = GetMoonscriptLineNumber,
-  GetMenuItems = function() return AddedMenuItems end,
-  GetPrefixes = function() return AddedPrefixes end,
-  LoadingInProgress = function() return LoadingInProgress end,
-  FixInitialModules = FixInitialModules,
 }
