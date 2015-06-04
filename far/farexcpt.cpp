@@ -509,7 +509,7 @@ void EnableVectoredExceptionHandling()
 	static bool VEH_installed = false;
 	if (!VEH_installed)
 	{
-		Imports().AddVectoredExceptionHandler(TRUE, &VectoredExceptionHandler);
+		Imports().AddVectoredExceptionHandler()(TRUE, &VectoredExceptionHandler);
 		VEH_installed = true;
 	}
 }

@@ -592,18 +592,18 @@ int MatchNtPathRoot(const string &NtPath, const string& DeviceName)
 		OBJECT_ATTRIBUTES ObjAttrs;
 		InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, nullptr, nullptr);
 		HANDLE hSymLink;
-		NTSTATUS Res = Imports().NtOpenSymbolicLinkObject(&hSymLink, GENERIC_READ, &ObjAttrs);
+		NTSTATUS Res = Imports().NtOpenSymbolicLinkObject()(&hSymLink, GENERIC_READ, &ObjAttrs);
 
 		if (Res == STATUS_SUCCESS)
 		{
-			SCOPE_EXIT{ Imports().NtClose(hSymLink); };
+			SCOPE_EXIT{ Imports().NtClose()(hSymLink); };
 
 			ULONG BufSize = 32767;
 			wchar_t_ptr Buffer(BufSize);
 			UNICODE_STRING LinkTarget;
 			LinkTarget.MaximumLength = static_cast<USHORT>(BufSize * sizeof(wchar_t));
 			LinkTarget.Buffer = Buffer.get();
-			Res = Imports().NtQuerySymbolicLinkObject(hSymLink, &LinkTarget, nullptr);
+			Res = Imports().NtQuerySymbolicLinkObject()(hSymLink, &LinkTarget, nullptr);
 
 			if (Res == STATUS_SUCCESS)
 			{

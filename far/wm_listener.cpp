@@ -151,7 +151,7 @@ void wm_listener::WindowThreadRoutine(const Event* ReadyEvent)
 		if(m_Hwnd)
 		{
 			// for PBT_POWERSETTINGCHANGE
-			HPOWERNOTIFY hpn=Imports().RegisterPowerSettingNotification(m_Hwnd,&GUID_BATTERY_PERCENTAGE_REMAINING,DEVICE_NOTIFY_WINDOW_HANDLE);
+			HPOWERNOTIFY hpn=Imports().RegisterPowerSettingNotification()(m_Hwnd,&GUID_BATTERY_PERCENTAGE_REMAINING,DEVICE_NOTIFY_WINDOW_HANDLE);
 
 			MSG Msg;
 			while(!m_exitEvent.Signaled() && GetMessage(&Msg, nullptr, 0, 0) > 0)
@@ -161,7 +161,7 @@ void wm_listener::WindowThreadRoutine(const Event* ReadyEvent)
 			}
 
 			if (hpn) // for PBT_POWERSETTINGCHANGE
-				Imports().UnregisterPowerSettingNotification(hpn);
+				Imports().UnregisterPowerSettingNotification()(hpn);
 
 		}
 		UnregisterClass(wc.lpszClassName, nullptr);

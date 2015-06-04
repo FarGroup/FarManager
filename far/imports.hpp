@@ -41,8 +41,9 @@ private:
 	{
 	public:
 		unique_function_pointer(const os::rtdl::module& Module): m_module(Module) {}
-		operator T() const { return get_pointer(); }
-		bool operator!() const noexcept{ return get_pointer() == stub; }
+		// operator T() const { return get_pointer(); } // VC10 can't handle this together with operator bool :(
+		T operator()() const { return get_pointer(); }
+		bool operator!() const noexcept { return get_pointer() == stub; }
 		EXPLICIT_OPERATOR_BOOL();
 
 	private:

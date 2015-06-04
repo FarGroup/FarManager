@@ -241,12 +241,12 @@ static string TryConvertVolumeGuidToDrivePath(const string& Path, const wchar_t 
 		{
 			wchar_t_ptr Buffer(os::NT_MAX_PATH);
 			DWORD RetSize;
-			BOOL Res = Imports().GetVolumePathNamesForVolumeName(ExtractPathRoot(Path).data(), Buffer.get(), static_cast<DWORD>(Buffer.size()), &RetSize);
+			BOOL Res = Imports().GetVolumePathNamesForVolumeName()(ExtractPathRoot(Path).data(), Buffer.get(), static_cast<DWORD>(Buffer.size()), &RetSize);
 
 			if (!Res && RetSize > Buffer.size())
 			{
 				Buffer.reset(RetSize);
-				Res = Imports().GetVolumePathNamesForVolumeName(ExtractPathRoot(Path).data(), Buffer.get(), static_cast<DWORD>(Buffer.size()), &RetSize);
+				Res = Imports().GetVolumePathNamesForVolumeName()(ExtractPathRoot(Path).data(), Buffer.get(), static_cast<DWORD>(Buffer.size()), &RetSize);
 			}
 
 			if (Res)

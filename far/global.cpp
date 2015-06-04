@@ -135,7 +135,7 @@ uint64_t global::FarUpTime() const
 void global::CatchError()
 {
 	m_LastError = GetLastError();
-	m_LastStatus = Imports().RtlGetLastNtStatus();
+	m_LastStatus = Imports().RtlGetLastNtStatus()();
 }
 
 void global::StoreSearchString(const string& Str, bool Hex)
