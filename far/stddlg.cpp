@@ -531,17 +531,17 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 		{
 			DWORD dwSession;
 			WCHAR szSessionKey[CCH_RM_SESSION_KEY+1] = {};
-			if (Imports().RmStartSession()(&dwSession, 0, szSessionKey) == ERROR_SUCCESS)
+			if (Imports().RmStartSession(&dwSession, 0, szSessionKey) == ERROR_SUCCESS)
 			{
 				PCWSTR pszFile = FullName.data();
-				if (Imports().RmRegisterResources()(dwSession, 1, &pszFile, 0, nullptr, 0, nullptr) == ERROR_SUCCESS)
+				if (Imports().RmRegisterResources(dwSession, 1, &pszFile, 0, nullptr, 0, nullptr) == ERROR_SUCCESS)
 				{
 					DWORD dwReason;
 					DWORD RmGetListResult;
 					UINT nProcInfoNeeded;
 					UINT nProcInfo = 1;
 					std::vector<RM_PROCESS_INFO> rgpi(nProcInfo);
-					while((RmGetListResult=Imports().RmGetList()(dwSession, &nProcInfoNeeded, &nProcInfo, rgpi.data(), &dwReason)) == ERROR_MORE_DATA)
+					while((RmGetListResult=Imports().RmGetList(dwSession, &nProcInfoNeeded, &nProcInfo, rgpi.data(), &dwReason)) == ERROR_MORE_DATA)
 					{
 						nProcInfo = nProcInfoNeeded;
 						rgpi.resize(nProcInfo);
@@ -575,7 +575,7 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 						}
 					}
 				}
-				Imports().RmEndSession()(dwSession);
+				Imports().RmEndSession(dwSession);
 			}
 		}
 	}

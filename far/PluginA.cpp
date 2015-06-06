@@ -5952,6 +5952,7 @@ void PluginA::ExitFAR(ExitInfo *Info)
 class AnsiLanguage: public Language
 {
 public:
+	// Don't add Language(Path) to initialiser list and don't move init() to the Language ctor - it calls virtual functions.
 	AnsiLanguage(const string& Path) { init(Path); }
 	const char* GetMsgA(LNGID nID) const { return CheckMsgId(nID)? m_AnsiMessages[nID].data() : ""; }
 

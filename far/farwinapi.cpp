@@ -564,7 +564,7 @@ bool file::IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, L
 
 bool file::GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed)
 {
-	DWORD Result = Imports().GetStorageDependencyInformation()(Handle.native_handle(), Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed);
+	DWORD Result = Imports().GetStorageDependencyInformation(Handle.native_handle(), Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed);
 	SetLastError(Result);
 	return Result == ERROR_SUCCESS;
 }
@@ -584,8 +584,8 @@ bool file::NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORM
 	auto di = reinterpret_cast<PFILE_ID_BOTH_DIR_INFORMATION>(FileInformation);
 	di->NextEntryOffset = 0xffffffffUL;
 
-	NTSTATUS Result = Imports().NtQueryDirectoryFile()(Handle.native_handle(), nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, pNameString, RestartScan);
-	SetLastError(Imports().RtlNtStatusToDosError()(Result));
+	NTSTATUS Result = Imports().NtQueryDirectoryFile(Handle.native_handle(), nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, pNameString, RestartScan);
+	SetLastError(Imports().RtlNtStatusToDosError(Result));
 	if(Status)
 	{
 		*Status = Result;
@@ -597,8 +597,8 @@ bool file::NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORM
 bool file::NtQueryInformationFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status)
 {
 	IO_STATUS_BLOCK IoStatusBlock;
-	NTSTATUS Result = Imports().NtQueryInformationFile()(Handle.native_handle(), &IoStatusBlock, FileInformation, Length, FileInformationClass);
-	SetLastError(Imports().RtlNtStatusToDosError()(Result));
+	NTSTATUS Result = Imports().NtQueryInformationFile(Handle.native_handle(), &IoStatusBlock, FileInformation, Length, FileInformationClass);
+	SetLastError(Imports().RtlNtStatusToDosError(Result));
 	if(Status)
 	{
 		*Status = Result;
@@ -728,7 +728,7 @@ int file_walker::GetPercent() const
 
 NTSTATUS GetLastNtStatus()
 {
-	return Imports().RtlGetLastNtStatus? Imports().RtlGetLastNtStatus()() : STATUS_SUCCESS;
+	return Imports().RtlGetLastNtStatus? Imports().RtlGetLastNtStatus() : STATUS_SUCCESS;
 }
 
 BOOL DeleteFile(const string& FileName)
@@ -1006,7 +1006,7 @@ DWORD GetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFileName)
 			{
 				DWORD sz = BufferSize;
 				Size = 0;
-				if (Imports().QueryFullProcessImageNameW()(hProcess, 0, FileName.get(), &sz))
+				if (Imports().QueryFullProcessImageNameW(hProcess, 0, FileName.get(), &sz))
 				{
 					Size = sz;
 				}
@@ -1205,10 +1205,10 @@ find_handle FindFirstFileName(const string& FileName, DWORD dwFlags, string& Lin
 	HANDLE hRet=INVALID_HANDLE_VALUE;
 	DWORD StringLength=0;
 	NTPath NtFileName(FileName);
-	if (Imports().FindFirstFileNameW()(NtFileName.data(), 0, &StringLength, nullptr)==INVALID_HANDLE_VALUE && GetLastError()==ERROR_MORE_DATA)
+	if (Imports().FindFirstFileNameW(NtFileName.data(), 0, &StringLength, nullptr)==INVALID_HANDLE_VALUE && GetLastError()==ERROR_MORE_DATA)
 	{
 		wchar_t_ptr Buffer(StringLength);
-		hRet=Imports().FindFirstFileNameW()(NtFileName.data(), 0, &StringLength, Buffer.get());
+		hRet=Imports().FindFirstFileNameW(NtFileName.data(), 0, &StringLength, Buffer.get());
 		LinkName = Buffer.get();
 	}
 	return hRet != INVALID_HANDLE_VALUE? new detail::os_find_handle_impl(hRet) : nullptr;
@@ -1219,10 +1219,10 @@ bool FindNextFileName(const find_handle& hFindStream, string& LinkName)
 	bool Ret = false;
 	DWORD StringLength=0;
 	const auto Handle = static_cast<detail::os_find_handle_impl*>(hFindStream.native_handle())->hative_handle();
-	if (!Imports().FindNextFileNameW()(Handle, &StringLength, nullptr) && GetLastError() == ERROR_MORE_DATA)
+	if (!Imports().FindNextFileNameW(Handle, &StringLength, nullptr) && GetLastError() == ERROR_MORE_DATA)
 	{
 		wchar_t_ptr Buffer(StringLength);
-		Ret = Imports().FindNextFileNameW()(Handle, &StringLength, Buffer.get()) != FALSE;
+		Ret = Imports().FindNextFileNameW(Handle, &StringLength, Buffer.get()) != FALSE;
 		LinkName = Buffer.get();
 	}
 	return Ret;
@@ -1280,7 +1280,7 @@ BOOL SetFileAttributes(const string& FileName,DWORD dwFileAttributes)
 bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD dwFlags)
 {
 	return Imports().CreateSymbolicLinkW?
-		(Imports().CreateSymbolicLink()(Object.data(), Target.data(), dwFlags) != FALSE) :
+		(Imports().CreateSymbolicLink(Object.data(), Target.data(), dwFlags) != FALSE) :
 		CreateReparsePoint(Target, Object, dwFlags&SYMBOLIC_LINK_FLAG_DIRECTORY?RP_SYMLINKDIR:RP_SYMLINKFILE);
 }
 
@@ -1337,7 +1337,7 @@ find_handle FindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,
 	find_handle Ret;
 	if(Imports().FindFirstStreamW)
 	{
-		const auto Handle = Imports().FindFirstStreamW()(NTPath(FileName).data(), InfoLevel, lpFindStreamData, dwFlags);
+		const auto Handle = Imports().FindFirstStreamW(NTPath(FileName).data(), InfoLevel, lpFindStreamData, dwFlags);
 		if (Handle != INVALID_HANDLE_VALUE)
 		{
 			Ret.reset(new detail::os_find_handle_impl(Handle));
@@ -1396,7 +1396,7 @@ bool FindNextStream(const find_handle& hFindStream,LPVOID lpFindStreamData)
 	bool Ret=FALSE;
 	if(Imports().FindFirstStreamW)
 	{
-		Ret = Imports().FindNextStreamW()(static_cast<detail::os_find_handle_impl*>(hFindStream.native_handle())->hative_handle(), lpFindStreamData) != FALSE;
+		Ret = Imports().FindNextStreamW(static_cast<detail::os_find_handle_impl*>(hFindStream.native_handle())->hative_handle(), lpFindStreamData) != FALSE;
 	}
 	else
 	{
@@ -1460,12 +1460,12 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 	{
 		ULONG BufSize = NT_MAX_PATH;
 		block_ptr<OBJECT_NAME_INFORMATION> oni(BufSize);
-		Res = Imports().NtQueryObject()(hFile, ObjectNameInformation, oni.get(), BufSize, &RetLen);
+		Res = Imports().NtQueryObject(hFile, ObjectNameInformation, oni.get(), BufSize, &RetLen);
 
 		if (Res == STATUS_BUFFER_OVERFLOW || Res == STATUS_BUFFER_TOO_SMALL)
 		{
 			oni.reset(BufSize = RetLen);
-			Res = Imports().NtQueryObject()(hFile, ObjectNameInformation, oni.get(), BufSize, &RetLen);
+			Res = Imports().NtQueryObject(hFile, ObjectNameInformation, oni.get(), BufSize, &RetLen);
 		}
 
 		if (Res == STATUS_SUCCESS)
@@ -1536,7 +1536,7 @@ bool GetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 	if (Imports().GetFinalPathNameByHandleW)
 	{
 		wchar_t Buffer[MAX_PATH];
-		size_t Size = Imports().GetFinalPathNameByHandle()(hFile, Buffer, ARRAYSIZE(Buffer), VOLUME_NAME_GUID);
+		size_t Size = Imports().GetFinalPathNameByHandle(hFile, Buffer, ARRAYSIZE(Buffer), VOLUME_NAME_GUID);
 		if (Size < ARRAYSIZE(Buffer))
 		{
 			FinalFilePath.assign(Buffer, Size);
@@ -1544,7 +1544,7 @@ bool GetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 		else
 		{
 			wchar_t_ptr vBuffer(Size);
-			Size = Imports().GetFinalPathNameByHandle()(hFile, vBuffer.get(), static_cast<DWORD>(vBuffer.size()), VOLUME_NAME_GUID);
+			Size = Imports().GetFinalPathNameByHandle(hFile, vBuffer.get(), static_cast<DWORD>(vBuffer.size()), VOLUME_NAME_GUID);
 			FinalFilePath.assign(vBuffer.get(), Size);
 		}
 
@@ -1621,7 +1621,7 @@ void EnableLowFragmentationHeap()
 		std::for_each(CONST_RANGE(Heaps, i)
 		{
 			ULONG HeapFragValue = 2;
-			Imports().HeapSetInformation()(i, HeapCompatibilityInformation, &HeapFragValue, sizeof(HeapFragValue));
+			Imports().HeapSetInformation(i, HeapCompatibilityInformation, &HeapFragValue, sizeof(HeapFragValue));
 		});
 	}
 }
@@ -1643,8 +1643,8 @@ bool GetFileTimeEx(HANDLE Object, LPFILETIME CreationTime, LPFILETIME LastAccess
 	BYTE Buffer[Length] = {};
 	auto fbi = reinterpret_cast<PFILE_BASIC_INFORMATION>(Buffer);
 	IO_STATUS_BLOCK IoStatusBlock;
-	NTSTATUS Status = Imports().NtQueryInformationFile()(Object, &IoStatusBlock, fbi, Length, FileBasicInformation);
-	::SetLastError(Imports().RtlNtStatusToDosError()(Status));
+	NTSTATUS Status = Imports().NtQueryInformationFile(Object, &IoStatusBlock, fbi, Length, FileBasicInformation);
+	::SetLastError(Imports().RtlNtStatusToDosError(Status));
 	if (Status == STATUS_SUCCESS)
 	{
 		if(CreationTime)
@@ -1690,8 +1690,8 @@ bool SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILETIME* 
 		fbi->ChangeTime.QuadPart = FileTimeToUI64(*ChangeTime);
 	}
 	IO_STATUS_BLOCK IoStatusBlock;
-	NTSTATUS Status = Imports().NtSetInformationFile()(Object, &IoStatusBlock, fbi, Length, FileBasicInformation);
-	::SetLastError(Imports().RtlNtStatusToDosError()(Status));
+	NTSTATUS Status = Imports().NtSetInformationFile(Object, &IoStatusBlock, fbi, Length, FileBasicInformation);
+	::SetLastError(Imports().RtlNtStatusToDosError(Status));
 	return Status == STATUS_SUCCESS;
 }
 
@@ -1717,10 +1717,10 @@ bool SetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInforma
 bool DetachVirtualDiskInternal(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType)
 {
 	HANDLE Handle;
-	DWORD Result = Imports().OpenVirtualDisk()(&VirtualStorageType, Object.data(), VIRTUAL_DISK_ACCESS_DETACH, OPEN_VIRTUAL_DISK_FLAG_NONE, nullptr, &Handle);
+	DWORD Result = Imports().OpenVirtualDisk(&VirtualStorageType, Object.data(), VIRTUAL_DISK_ACCESS_DETACH, OPEN_VIRTUAL_DISK_FLAG_NONE, nullptr, &Handle);
 	if (Result == ERROR_SUCCESS)
 	{
-		Result = Imports().DetachVirtualDisk()(Handle, DETACH_VIRTUAL_DISK_FLAG_NONE, 0);
+		Result = Imports().DetachVirtualDisk(Handle, DETACH_VIRTUAL_DISK_FLAG_NONE, 0);
 		if (Result != ERROR_SUCCESS)
 		{
 			SetLastError(Result);
@@ -1764,7 +1764,7 @@ DWORD GetAppPathsRedirectionFlag()
 			RedirectionFlag = KEY_WOW64_32KEY;
 #else
 			BOOL Wow64Process = FALSE;
-			if (Imports().IsWow64Process()(GetCurrentProcess(), &Wow64Process) && Wow64Process)
+			if (Imports().IsWow64Process(GetCurrentProcess(), &Wow64Process) && Wow64Process)
 			{
 				RedirectionFlag = KEY_WOW64_64KEY;
 			}

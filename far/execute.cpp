@@ -606,7 +606,7 @@ bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
 	if (IsWindowsVistaOrGreater())
 	{
 		IApplicationAssociationRegistration* pAAR;
-		HRESULT hr = Imports().SHCreateAssociationRegistration()(IID_IApplicationAssociationRegistration, (void**)&pAAR);
+		HRESULT hr = Imports().SHCreateAssociationRegistration(IID_IApplicationAssociationRegistration, (void**)&pAAR);
 
 		if (SUCCEEDED(hr))
 		{

@@ -748,7 +748,7 @@ static inline bool local_to_utc(const SYSTEMTIME &lst, SYSTEMTIME &ust)
 {
 	if (Imports().TzSpecificLocalTimeToSystemTime)
 	{
-		return Imports().TzSpecificLocalTimeToSystemTime()(nullptr, &lst, &ust) != FALSE;
+		return Imports().TzSpecificLocalTimeToSystemTime(nullptr, &lst, &ust) != FALSE;
 	}
 	else
 	{

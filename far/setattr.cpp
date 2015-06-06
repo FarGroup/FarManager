@@ -902,7 +902,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 							{
 								string path(SrcPanel->GetCurDir() + L'\\' + strSelName);
 								PDFS_INFO_3 RawDfsInfoPointer;
-								if (Imports().NetDfsGetInfo()(UNSAFE_CSTR(path), nullptr, nullptr, 3, reinterpret_cast<LPBYTE*>(&RawDfsInfoPointer)) == NERR_Success)
+								if (Imports().NetDfsGetInfo(UNSAFE_CSTR(path), nullptr, nullptr, 3, reinterpret_cast<LPBYTE*>(&RawDfsInfoPointer)) == NERR_Success)
 								{
 									const auto DfsInfo = os::memory::netapi::ptr(RawDfsInfoPointer);
 

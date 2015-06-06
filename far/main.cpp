@@ -488,7 +488,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 	if(!Console().IsFullscreenSupported())
 	{
 		const BYTE ReserveAltEnter = 0x8;
-		Imports().SetConsoleKeyShortcuts()(TRUE, ReserveAltEnter, nullptr, 0);
+		Imports().SetConsoleKeyShortcuts(TRUE, ReserveAltEnter, nullptr, 0);
 	}
 
 	os::InitCurrentDirectory();

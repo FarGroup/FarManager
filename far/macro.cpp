@@ -3029,7 +3029,7 @@ static bool kbdLayoutFunc(FarMacroCall* Data)
 	HKL RetLayout = nullptr;
 
 	wchar_t LayoutName[1024]={}; // BUGBUG!!!
-	if (Imports().GetConsoleKeyboardLayoutNameW()(LayoutName))
+	if (Imports().GetConsoleKeyboardLayoutNameW(LayoutName))
 	{
 		wchar_t *endptr;
 		DWORD res = std::wcstoul(LayoutName, &endptr, 16);

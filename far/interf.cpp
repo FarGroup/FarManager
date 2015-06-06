@@ -157,7 +157,7 @@ static Event& CancelIoInProgress()
 
 unsigned int CancelSynchronousIoWrapper(void* Thread)
 {
-	unsigned int Result = Imports().CancelSynchronousIo()(Thread);
+	unsigned int Result = Imports().CancelSynchronousIo(Thread);
 	CancelIoInProgress().Reset();
 	return Result;
 }

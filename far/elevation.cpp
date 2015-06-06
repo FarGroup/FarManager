@@ -155,7 +155,7 @@ struct ERRORCODES
 	ERRORCODES()
 	{
 		Codes.Win32Error = GetLastError();
-		Codes.NtError = Imports().RtlGetLastNtStatus()();
+		Codes.NtError = Imports().RtlGetLastNtStatus();
 	}
 	
 	ERRORCODES(DWORD InitWin32Error, NTSTATUS InitNtError)
@@ -170,7 +170,7 @@ bool elevation::ReceiveLastError() const
 	ERRORCODES ErrorCodes(ERROR_SUCCESS, STATUS_SUCCESS);
 	const bool Result = Read(ErrorCodes.Codes);
 	SetLastError(ErrorCodes.Codes.Win32Error);
-	Imports().RtlNtStatusToDosError()(ErrorCodes.Codes.NtError);
+	Imports().RtlNtStatusToDosError(ErrorCodes.Codes.NtError);
 	return Result;
 }
 
@@ -876,8 +876,8 @@ bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus)
 	{
 		if(UseNtStatus && Imports().RtlGetLastNtStatus)
 		{
-			const auto LastNtStatus = os::GetLastNtStatus();
-			Result = LastNtStatus == STATUS_ACCESS_DENIED || LastNtStatus == STATUS_PRIVILEGE_NOT_HELD;
+				const auto LastNtStatus = os::GetLastNtStatus();
+				Result = LastNtStatus == STATUS_ACCESS_DENIED || LastNtStatus == STATUS_PRIVILEGE_NOT_HELD;
 		}
 		else
 		{
@@ -919,7 +919,7 @@ public:
 		if (Pipe != INVALID_HANDLE_VALUE)
 		{
 			ULONG ServerProcessId;
-			if(!Imports().GetNamedPipeServerProcessId || (Imports().GetNamedPipeServerProcessId()(Pipe, &ServerProcessId) && ServerProcessId == PID))
+			if(!Imports().GetNamedPipeServerProcessId || (Imports().GetNamedPipeServerProcessId(Pipe, &ServerProcessId) && ServerProcessId == PID))
 			{
 				const auto ParentProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, PID);
 				if(ParentProcess)

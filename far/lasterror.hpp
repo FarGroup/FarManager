@@ -40,14 +40,14 @@ class GuardLastError: noncopyable
 public:
 	GuardLastError():
 		LastError(GetLastError()),
-		LastStatus(Imports().RtlGetLastNtStatus()())
+		LastStatus(Imports().RtlGetLastNtStatus())
 	{
 	}
 
 	~GuardLastError()
 	{
 		SetLastError(LastError);
-		Imports().RtlNtStatusToDosError()(LastStatus);
+		Imports().RtlNtStatusToDosError(LastStatus);
 	}
 
 private:
