@@ -3,6 +3,34 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 06.06.2015 23:50:38 +0200 - build 4390
+
+1. More correct solution for 4388.
+
+drkns 05.06.2015 00:28:50 +0200 - build 4389
+
+1. Correction of 4387.3.
+
+drkns 04.06.2015 23:42:07 +0200 - build 4388
+
+1. VC10.
+
+drkns 04.06.2015 21:34:47 +0200 - build 4387
+
+1. More paranoid settings for gcc warnings.
+
+2. In some previous version there was broken check for presence of certain functions in OS. It could influence other parts.
+
+3. Refactoring.
+
+zg 03.06.2015 21:49:26 +0200 - build 4386
+
+1. 0003001: BookmarkManager script functionality broken in nightly builds.
+
+drkns 03.06.2015 20:24:43 +0200 - build 4385
+
+1. 0003000: problem with copying screen with /ag key
+
 zg 29.05.2015 23:39:54 +0200 - build 4384
 
 1. 0002997: Improper sorting after Compare Folders.
