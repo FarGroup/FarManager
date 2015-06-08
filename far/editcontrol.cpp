@@ -708,8 +708,13 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 							case KEY_ENTER:
 							case KEY_NUMENTER:
 								{
-									if(Global->Opt->AutoComplete.ModalList)
-										break;
+									if (!Global->Opt->AutoComplete.ModalList)
+									{
+										ComplMenu->Close(-1);
+										BackKey = Manager::Key(MenuKey);
+										Result = 1;
+									}
+									break;
 								}
 
 							// всё остальное закрывает список и идёт владельцу
