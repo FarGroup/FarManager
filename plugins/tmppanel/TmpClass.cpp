@@ -898,7 +898,7 @@ void TmpPanel::SaveListFile(const wchar_t *Path)
 			static const char *CRLF = "\r\n";
 			char *dest=new char[lstrlen(FName)*3+1];
 			WideCharToMultiByte(CP_UTF8, 0, FName, -1, dest, (int) lstrlen(FName)*3+1, nullptr, nullptr);
-			WriteFile(hFile, dest, strlen(dest), &BytesWritten, NULL);
+			WriteFile(hFile, dest, (DWORD)strlen(dest), &BytesWritten, NULL);
 			delete[] dest;
 			WriteFile(hFile, CRLF, 2*sizeof(char), &BytesWritten, NULL);
 		}
