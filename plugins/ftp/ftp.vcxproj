@@ -1,10 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Itanium">
-      <Configuration>Debug</Configuration>
-      <Platform>Itanium</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
@@ -12,10 +8,6 @@
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|Itanium">
-      <Configuration>Release</Configuration>
-      <Platform>Itanium</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
@@ -42,15 +34,6 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <CharacterSet>NotSet</CharacterSet>
-    <WholeProgramOptimization>false</WholeProgramOptimization>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <CharacterSet>NotSet</CharacterSet>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>NotSet</CharacterSet>
@@ -60,6 +43,12 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '10.0'">v100</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '11.0'">v110</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
@@ -67,12 +56,6 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
@@ -84,59 +67,40 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30128.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)debug.32.vc\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)obj\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)debug.32.v$(VisualStudioVersion)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)obj\ftp\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</GenerateManifest>
     <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</EmbedManifest>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)debug.64.vc\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)obj\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)debug.64.v$(VisualStudioVersion)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)obj\ftp\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</GenerateManifest>
     <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</EmbedManifest>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(ProjectDir)debug.IA64.vc\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)obj\</IntDir>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">false</LinkIncremental>
-    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">false</GenerateManifest>
-    <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">false</EmbedManifest>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)final.32.vc\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)obj\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)final.32.v$(VisualStudioVersion)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)obj\ftp\</IntDir>
     <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</IgnoreImportLibrary>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</GenerateManifest>
     <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</EmbedManifest>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)final.64.vc\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)obj\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)final.64.v$(VisualStudioVersion)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)obj\ftp\</IntDir>
     <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</IgnoreImportLibrary>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</GenerateManifest>
     <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</EmbedManifest>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">$(ProjectDir)final.IA64.vc\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">$(OutDir)obj\</IntDir>
-    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">true</IgnoreImportLibrary>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">false</LinkIncremental>
-    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">false</GenerateManifest>
-    <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">false</EmbedManifest>
-    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">AllRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'" />
-    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'" />
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
-    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">AllRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'" />
-    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'" />
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">FarFtp</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">FarFtp</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">FarFtp</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">FarFtp</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">FarFtp</TargetName>
@@ -177,7 +141,6 @@
       <NoEntryPoint>false</NoEntryPoint>
       <MergeSections>.rdata=.text</MergeSections>
       <TargetMachine>MachineX86</TargetMachine>
-      <MinimumRequiredVersion>5.0</MinimumRequiredVersion>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -221,47 +184,6 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">
-    <Midl>
-      <TargetEnvironment>Itanium</TargetEnvironment>
-    </Midl>
-    <ClCompile>
-      <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.\FStdLib;..\common;..\common\ascii;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>__NOMEM__=1;__USEASSERT__=1;_DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;__FILELOG__=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <StringPooling>true</StringPooling>
-      <MinimalRebuild>true</MinimalRebuild>
-      <ExceptionHandling>
-      </ExceptionHandling>
-      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <StructMemberAlignment>8Bytes</StructMemberAlignment>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
-      <AdditionalOptions> /J</AdditionalOptions>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <PrecompiledHeader>Create</PrecompiledHeader>
-      <PrecompiledHeaderFile>all_far.h</PrecompiledHeaderFile>
-      <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <CallingConvention>FastCall</CallingConvention>
-      <DisableSpecificWarnings>4985;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-    </ClCompile>
-    <Link>
-      <AdditionalDependencies>FsdLib.lib;Ws2_32.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)FarFtp.dll</OutputFile>
-      <AdditionalLibraryDirectories>$(OutDir)obj;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <ModuleDefinitionFile>FarFtp.vc.def</ModuleDefinitionFile>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <GenerateMapFile>true</GenerateMapFile>
-      <SubSystem>Windows</SubSystem>
-      <LinkTimeCodeGeneration>
-      </LinkTimeCodeGeneration>
-      <NoEntryPoint>false</NoEntryPoint>
-      <MergeSections>.rdata=.text</MergeSections>
-      <TargetMachine>MachineIA64</TargetMachine>
-    </Link>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <Optimization>MinSpace</Optimization>
@@ -280,8 +202,7 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>all_far.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>
-      </DebugInformationFormat>
+      <DebugInformationFormat Condition="'$(VisualStudioVersion)'!='10.0'">None</DebugInformationFormat>
       <CallingConvention>FastCall</CallingConvention>
       <DisableSpecificWarnings>4985;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
@@ -293,7 +214,7 @@
       <ModuleDefinitionFile>FarFtp.vc.def</ModuleDefinitionFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <LinkTimeCodeGeneration>
@@ -301,8 +222,11 @@
       <NoEntryPoint>false</NoEntryPoint>
       <MergeSections>.rdata=.text</MergeSections>
       <TargetMachine>MachineX86</TargetMachine>
-      <MinimumRequiredVersion>5.0</MinimumRequiredVersion>
     </Link>
+    <PostBuildEvent>
+      <Message>Fixing subsystem version</Message>
+      <Command>editbin /nologo /subsystem:console,5.0 /osversion:5.0 $(OutDir)$(TargetName)$(TargetExt) &gt; nul</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Midl>
@@ -326,8 +250,7 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>all_far.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>
-      </DebugInformationFormat>
+      <DebugInformationFormat Condition="'$(VisualStudioVersion)'!='10.0'">None</DebugInformationFormat>
       <CallingConvention>FastCall</CallingConvention>
       <DisableSpecificWarnings>4985;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
@@ -339,7 +262,7 @@
       <ModuleDefinitionFile>FarFtp.vc.def</ModuleDefinitionFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <LinkTimeCodeGeneration>
@@ -348,59 +271,14 @@
       <MergeSections>.rdata=.text</MergeSections>
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">
-    <Midl>
-      <TargetEnvironment>Itanium</TargetEnvironment>
-    </Midl>
-    <ClCompile>
-      <Optimization>MinSpace</Optimization>
-      <IntrinsicFunctions>false</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>.\FStdLib;..\common;..\common\ascii;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>__NOMEM__=1;__USEASSERT__=1;NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <StringPooling>true</StringPooling>
-      <ExceptionHandling>
-      </ExceptionHandling>
-      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <StructMemberAlignment>8Bytes</StructMemberAlignment>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <AdditionalOptions> /J</AdditionalOptions>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <PrecompiledHeader>Create</PrecompiledHeader>
-      <PrecompiledHeaderFile>all_far.h</PrecompiledHeaderFile>
-      <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>
-      </DebugInformationFormat>
-      <CallingConvention>FastCall</CallingConvention>
-      <DisableSpecificWarnings>4985;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-    </ClCompile>
-    <Link>
-      <AdditionalDependencies>FsdLib.lib;Ws2_32.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)FarFtp.dll</OutputFile>
-      <AdditionalLibraryDirectories>$(OutDir)obj;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <ModuleDefinitionFile>FarFtp.vc.def</ModuleDefinitionFile>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <GenerateMapFile>true</GenerateMapFile>
-      <SubSystem>Windows</SubSystem>
-      <OptimizeReferences>true</OptimizeReferences>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <LinkTimeCodeGeneration>
-      </LinkTimeCodeGeneration>
-      <NoEntryPoint>false</NoEntryPoint>
-      <MergeSections>.rdata=.text</MergeSections>
-      <TargetMachine>MachineIA64</TargetMachine>
-    </Link>
+    <PostBuildEvent>
+      <Message>Fixing subsystem version</Message>
+      <Command>editbin /nologo /subsystem:console,5.0 /osversion:5.0 $(OutDir)$(TargetName)$(TargetExt) &gt; nul</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="FarFtp.vc.def" />
     <CustomBuild Include="FtpEng.lng">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">copy /y "%(Identity)" "$(OutDir)"
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Converting %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy /y "%(Identity)" "$(OutDir)"
 </Command>
@@ -409,10 +287,6 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy /y "%(Identity)" "$(OutDir)"
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">copy /y "%(Identity)" "$(OutDir)"
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Converting %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy /y "%(Identity)" "$(OutDir)"
 </Command>
@@ -423,10 +297,6 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="FtpRus.lng">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">copy /y "%(Identity)" "$(OutDir)"
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Converting %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy /y "%(Identity)" "$(OutDir)"
 </Command>
@@ -435,10 +305,6 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy /y "%(Identity)" "$(OutDir)"
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">copy /y "%(Identity)" "$(OutDir)"
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Converting %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy /y "%(Identity)" "$(OutDir)"
 </Command>
@@ -449,10 +315,6 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="FtpEng.hlf">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">copy /y "%(Identity)" "$(OutDir)"
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Converting %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy /y "%(Identity)" "$(OutDir)"
 </Command>
@@ -461,10 +323,6 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy /y "%(Identity)" "$(OutDir)"
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">copy /y "%(Identity)" "$(OutDir)"
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Converting %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy /y "%(Identity)" "$(OutDir)"
 </Command>
@@ -475,10 +333,6 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="FtpRus.hlf">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">copy /y "%(Identity)" "$(OutDir)"
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Converting %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy /y "%(Identity)" "$(OutDir)"
 </Command>
@@ -487,10 +341,6 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy /y "%(Identity)" "$(OutDir)"
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">copy /y "%(Identity)" "$(OutDir)"
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Converting %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy /y "%(Identity)" "$(OutDir)"
 </Command>
@@ -501,10 +351,6 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="TechInfo.reg">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">copy /y "%(Identity)" "$(OutDir)"
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Converting %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy /y "%(Identity)" "$(OutDir)"
 </Command>
@@ -513,10 +359,6 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy /y "%(Identity)" "$(OutDir)"
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">copy /y "%(Identity)" "$(OutDir)"
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Converting %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy /y "%(Identity)" "$(OutDir)"
 </Command>
@@ -527,10 +369,6 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="TechInfo_rus.reg">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">copy /y "%(Identity)" "$(OutDir)"
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Converting %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy /y "%(Identity)" "$(OutDir)"
 </Command>
@@ -539,10 +377,6 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy /y "%(Identity)" "$(OutDir)"
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">copy /y "%(Identity)" "$(OutDir)"
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Converting %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy /y "%(Identity)" "$(OutDir)"
 </Command>
@@ -553,18 +387,12 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="FtpCmds.txt">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">copy /y "%(Identity)" "$(OutDir)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Converting %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy /y "%(Identity)" "$(OutDir)"</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Converting %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy /y "%(Identity)" "$(OutDir)"</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">copy /y "%(Identity)" "$(OutDir)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Converting %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy /y "%(Identity)" "$(OutDir)"</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
@@ -573,18 +401,12 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="FtpCmds_rus.txt">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">copy /y "%(Identity)" "$(OutDir)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Converting %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy /y "%(Identity)" "$(OutDir)"</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Converting %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy /y "%(Identity)" "$(OutDir)"</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">copy /y "%(Identity)" "$(OutDir)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Converting %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy /y "%(Identity)" "$(OutDir)"</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
@@ -593,18 +415,12 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="Notes.txt">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">copy /y "%(Identity)" "$(OutDir)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Converting %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy /y "%(Identity)" "$(OutDir)"</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Converting %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy /y "%(Identity)" "$(OutDir)"</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">copy /y "%(Identity)" "$(OutDir)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Converting %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy /y "%(Identity)" "$(OutDir)"</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
@@ -613,18 +429,12 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="Notes_rus.txt">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">copy /y "%(Identity)" "$(OutDir)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Converting %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy /y "%(Identity)" "$(OutDir)"</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Converting %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy /y "%(Identity)" "$(OutDir)"</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">copy /y "%(Identity)" "$(OutDir)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Converting %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy /y "%(Identity)" "$(OutDir)"</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
@@ -689,18 +499,11 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="FarFtp.rc">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">..\common\ascii;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\common\ascii;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\common\ascii;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">..\common\ascii;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\common\ascii;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\common\ascii;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="FARStdlib.vcxproj">
-      <Project>{6a6e122a-4151-4af2-bbcb-2b4603cf029f}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,9 +1,14 @@
 @echo off
+  if /i "%~1" == "set_vcver" goto :set_vcver
+  if /i "%~1" == "set_vcvars" call :set_vcvars %~2 & goto :EOF
+
   setlocal
   rem examples:
   rem ---------------------------------------------------------------
   rem   build.bat
   rem   build.bat vc
+  rem   build.bat vc10
+  rem   build.bat vc12
   rem   build.bat vc 32 debug sln
   rem   build.bat gcc 64
   rem   build.bat clean gcc
@@ -15,12 +20,10 @@
   set nbits=32 64
   set deb_b=N
   set clean=N& set cleanonly=N
-  set vcsln=N& rem -- vc  only
+  set "vcsln=N" & set "vcver=" & rem -- vc  only
   set dwarf=N& rem -- gcc only
   rem if auto-detection doesn't work - change/uncomment line(s) below
   rem ---------------------------------------------------------------
-  rem set VSDIR=Your_VS2010_Path\
-  rem set MSSDK=Your_W7Sdk_Path\
   rem set MINGW32=Your_MinGW32_Path\
   rem set MINGW64=Your_MinGW64_Path\
   rem set GMAKE=gmake.exe
@@ -29,7 +32,10 @@
   if exist "%~dpn0_settings.bat" call "%~dpn0_settings.bat"
   rem ---------------------------------------------------------------
 
+  call :set_vcver %*
   for %%a in (%*) do call :proc_param %%a
+  if not "%vcver%" == "" set "ccomp=vc"
+
   set opath=%PATH%
   for %%c in (%ccomp%) do for %%b in (%nbits%) do call :init %%c %%b& call :build_%%c %%b
   endlocal
@@ -39,40 +45,6 @@ goto :EOF
   if "32" == "%~1" (set gccdir=%MINGW32%) else (set gccdir=%MINGW64%)
   if "" == "%gccdir%" if "32" == "%~1" (set gccdir=C:\MinGW\32\) else (set gccdir=C:\MinGW\64\)
   PATH=%gccdir%bin;%opath%
-goto :EOF
-
-:set_vc
-  if "" == "%vsdir%" set vsdir=%VS100COMNTOOLS:\Common7\Tools\=\%
-  if "" == "%mssdk%" call :try_msdk Windows       CurrentInstallFolder
-  if "" == "%mssdk%" call :try_msdk Windows\v7.1  InstallationFolder
-  if "" == "%mssdk%" call :try_msdk Windows\v7.0A InstallationFolder
-  if "" == "%fwdir%" call :try_framework %~1 HKLM ""
-  if "" == "%fwdir%" call :try_framework %~1 HKLM "\Wow6432Node"
-  if "" == "%fwdir%" call :try_framework %~1 HKCU ""
-  if "" == "%fwdir%" call :try_framework %~1 HKCU "\Wow6432Node"
-  set INCLUDE=%vsdir%VC\Include;%mssdk%Include
-  if "32" == "%~1" set LIB=%vsdir%VC\Lib;%mssdk%Lib
-  if "32" == "%~1" set pth=& rem
-  if "64" == "%~1" set LIB=%vsdir%VC\Lib\amd64;%mssdk%Lib\x64
-  if "64" == "%~1" set pth=%vsdir%VC\Bin\x86_amd64;
-  PATH=%pth%%vsdir%VC\Bin;%vsdir%VC\VCPackages;%vsdir%Common7\Tools;%vsdir%Common7\IDE;%mssdk%Bin;%fwdir%;%opath%
-goto :EOF
-:try_msdk
-  for /F "tokens=1,2*" %%i in ('reg query "HKLM\SOFTWARE\Microsoft\Microsoft SDKs\%1" /v "%2" 2^>NUL') do (
-    if "%%i" == "%2" if exist "%%kInclude\*" if exist "%%kLib\*" if exist "%%kBin\*" set mssdk=%%k
-  )
-goto :EOF
-:try_framework
-  set "fwd="& set "fwv="
-  for /F "tokens=1,2*" %%i in ('reg query "%2\Software%~3\Microsoft\VisualStudio\SxS\VC7" 2^>NUL') do (
-    if /i "%%i" == "FrameworkDir%1" set "fwd=%%k"
-    if /i "%%i" == "FrameworkVer%1" set "fwv=%%k"
-  )
-  if not ""=="%fwd%" if not ""=="%fwv%" (
-    if exist "%fwd%\%fwv%\*" set "fwdir=%fwd%\%fwv%\"
-    if exist "%fwd%%fwv%\*" set "fwdir=%fwd%%fwv%\"
-  )
-  set "fwd="& set "fwv="
 goto :EOF
 
 :proc_param
@@ -86,7 +58,7 @@ goto :EOF
   for %%p in (cleanonly) do if /i "%%p" == "%~1" set clean=Y& set cleanonly=Y
   for %%p in (debug dbg) do if /i "%%p" == "%~1" set deb_b=Y
   for %%p in (dev devenv) do if /i "%%p" == "%~1" set vcsln=Devenv
-  for %%p in (mb msb msbuild sln solution) do if /i "%%p" == "%~1" set vcsln=Msbuild
+  for %%p in (msbuild) do if /i "%%p" == "%~1" set vcsln=Msbuild
   for %%p in (dwarf dw2) do if /i "%%p" == "%~1" set dwarf=Y
 goto :EOF
 
@@ -95,7 +67,7 @@ goto :EOF
   set dirbit=%dirbit:~0,2%
   echo.
   if /i "vc" == "%1" (set x=sln=%vcsln%) else (set x=dwarf=%dwarf%)
-  echo build far-%2 %1 [clean=%clean% debug=%deb_b% %x%]
+  echo build far-%2 %1%vcver% [clean=%clean% debug=%deb_b% %x%]
   echo.
   for %%f in (copyright.inc far.rc) do if exist bootsrap\%%f del /q bootstrap\%%f >NUL
   call :set_%1 %2
@@ -124,4 +96,28 @@ goto :do_make
   if /i "Y"  == "%deb_b%"  (set c=Debug) else (set c=Release)
   if /i "Devenv" == "%vcsln%" devenv far.vcxproj /%b% "%c%^|%p%"
   if /i "Msbuild" == "%vcsln%" msbuild far.vcxproj /nologo /t:%b% /p:Configuration=%c%;Platform=%p%
+goto :EOF
+
+:set_vcver
+  set "vcver="
+  for %%v in (10 11 12 14) do for %%a in (%*) do if /i "vc%%v" == "%%a" set "vcver=%%v"
+goto :EOF
+
+:set_vc
+:set_vcvars
+  if "" == "%vcver%" if not "" == "%VS120COMNTOOLS%" if exist "%VS120COMNTOOLS%\..\..vc\vcvarsall.bat" set "vcver=12"
+  if "" == "%vcver%" if not "" == "%VS100COMNTOOLS%" if exist "%VS100COMNTOOLS%\..\..vc\vcvarsall.bat" set "vcver=10"
+  if "" == "%vcver%" if not "" == "%VS140COMNTOOLS%" if exist "%VS140COMNTOOLS%\..\..vc\vcvarsall.bat" set "vcver=14"
+  if "" == "%vcver%" if not "" == "%VS110COMNTOOLS%" if exist "%VS110COMNTOOLS%\..\..vc\vcvarsall.bat" set "vcver=11"
+  if "" == "%vcver%" set "vcver=12"
+  set "VisualStudioVersion=%vcver%.0"
+  if "" == "%~1" goto :EOF
+  set "vcmod=%~1"
+  if "%vcmod:~0,2%" == "32" set "vcmod=x86"
+  if "%vcmod:~0,2%" == "64" set "vcmod=x86_amd64"
+  if "%vcver%" == "10" call "%VS100COMNTOOLS%\..\..\vc\vcvarsall.bat" %vcmod%
+  if "%vcver%" == "11" call "%VS110COMNTOOLS%\..\..\vc\vcvarsall.bat" %vcmod%
+  if "%vcver%" == "12" call "%VS120COMNTOOLS%\..\..\vc\vcvarsall.bat" %vcmod%
+  if "%vcver%" == "14" call "%VS140COMNTOOLS%\..\..\vc\vcvarsall.bat" %vcmod%
+  set "vcmod="
 goto :EOF
