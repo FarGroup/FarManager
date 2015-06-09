@@ -13,12 +13,12 @@
 static wchar_t* getCurrDir(bool winApi)
 {
 	wchar_t *CurDir=nullptr;
-	DWORD Size=winApi?GetCurrentDirectory(0,nullptr):FSF.GetCurrentDirectory(0,nullptr);
+	size_t Size=winApi?GetCurrentDirectory(0,nullptr):FSF.GetCurrentDirectory(0,nullptr);
 	if (Size)
 	{
 		CurDir=new wchar_t[Size+1];
 		if (winApi)
-			GetCurrentDirectory(Size,CurDir);
+			GetCurrentDirectory(static_cast<DWORD>(Size),CurDir);
 		else
 			FSF.GetCurrentDirectory(Size,CurDir);
 	}
@@ -1348,7 +1348,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 								wchar_t *resAlias=ProcessOSAliases(pCmd);
 								if (resAlias)
 								{
-									lstrcpyn(pCmd,resAlias,ARRAYSIZE(farcmdbuf)-(pCmd-farcmdbuf)/sizeof(wchar_t));
+									lstrcpyn(pCmd,resAlias,(int)(ARRAYSIZE(farcmdbuf)-(pCmd-farcmdbuf)/sizeof(wchar_t)));
 									delete[] resAlias;
 								}
 							}

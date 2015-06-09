@@ -29,6 +29,28 @@ void __stdcall _com_issue_error(HRESULT) throw(_com_error)
 #pragma warning(default : 4290)
 #endif
 
+#if _WIN32_WINNT >= 0x0603
+# include <VersionHelpers.h>
+#else
+ inline bool IsWindowsVersionOrGreater(WORD wMajorVersion, WORD wMinorVersion, WORD wServicePackMajor)
+ {
+	OSVERSIONINFOEXW osvi = { sizeof(osvi), 0, 0, 0, 0, { 0 }, 0, 0 };
+	DWORDLONG const dwlConditionMask = VerSetConditionMask(
+		VerSetConditionMask(
+		VerSetConditionMask(
+		0, VER_MAJORVERSION, VER_GREATER_EQUAL),
+		VER_MINORVERSION, VER_GREATER_EQUAL),
+		VER_SERVICEPACKMAJOR, VER_GREATER_EQUAL);
+	osvi.dwMajorVersion = wMajorVersion;
+	osvi.dwMinorVersion = wMinorVersion;
+	osvi.wServicePackMajor = wServicePackMajor;
+	return VerifyVersionInfoW(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_SERVICEPACKMAJOR, dwlConditionMask) != FALSE;
+ }
+
+ inline bool IsWindowsXPOrGreater()
+ { return IsWindowsVersionOrGreater(HIBYTE(_WIN32_WINNT_WINXP), LOBYTE(_WIN32_WINNT_WINXP), 0); }
+#endif
+
 CPlugin::~CPlugin(void)
 {
 }
@@ -54,10 +76,7 @@ CPlugin::CPlugin(const PluginStartupInfo *Info)
 
   ReadRegValues();
 
-  OSVERSIONINFO osvi;
-  osvi.dwOSVersionInfoSize=sizeof(osvi);
-  if (!GetVersionEx(&osvi)) return;
-  m_bWin2K=(5==osvi.dwMajorVersion && 0==osvi.dwMinorVersion && VER_PLATFORM_WIN32_NT==osvi.dwPlatformId);
+  m_bWin2K = !IsWindowsXPOrGreater();
 }
 
 void CPlugin::ReadRegValues()

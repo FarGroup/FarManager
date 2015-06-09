@@ -537,7 +537,7 @@ UINT GetCPBuffer(const void* data, size_t size, size_t* off)
 			else
 			{
 				int test = IS_TEXT_UNICODE_UNICODE_MASK | IS_TEXT_UNICODE_REVERSE_MASK | IS_TEXT_UNICODE_NOT_UNICODE_MASK | IS_TEXT_UNICODE_NOT_ASCII_MASK;
-				IsTextUnicode(Ptr, PtrSize, &test); // return value is ignored, it's ok.
+				IsTextUnicode(Ptr, static_cast<int>(PtrSize), &test); // return value is ignored, it's ok.
 				if (!(test & IS_TEXT_UNICODE_NOT_UNICODE_MASK) || (test & IS_TEXT_UNICODE_ODD_LENGTH)) // ignore odd
 				{
 					if (test & IS_TEXT_UNICODE_UNICODE_MASK)
