@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 09.06.2015 00:59:20 +0200 - build 4391
+
+1. Mouse click action in autocompletion menu was different from Enter key press.
+
 drkns 06.06.2015 23:50:38 +0200 - build 4390
 
 1. More correct solution for 4388.
