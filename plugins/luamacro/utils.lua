@@ -792,7 +792,8 @@ local function GetFromMenu (macrolist)
     if not descr or descr=="" then
       descr = ("< No description: Id=%d >"):format(macro.id)
     end
-    menuitems[i] = { text = descr }
+    local ch = i<10 and i or i<36 and string.char(i+55)
+    menuitems[i] = { text = ch and ("&"..ch..". "..descr) or descr }
   end
 
   local props, bkeys = {Title=Msg.UtExecuteMacroTitle,Bottom=Msg.UtExecuteMacroBottom}, {{BreakKey="A+F4"}}
