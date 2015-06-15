@@ -56,8 +56,8 @@ function MT.test_areas()
   Keys "F1"                  TestArea "Help"       Keys "Esc"
   Keys "CtrlL Tab"           TestArea "Info"       Keys "Tab CtrlL"
   Keys "CtrlQ Tab"           TestArea "QView"      Keys "Tab CtrlQ"
-  Keys "CtrlT Tab"           TestArea "Tree"       Keys "Tab CtrlT"
-  Keys "AltF10"              TestArea "FindFolder" Keys "Esc"
+--Keys "CtrlT Tab"           TestArea "Tree"       Keys "Tab CtrlT"
+--Keys "AltF10"              TestArea "FindFolder" Keys "Esc"
   Keys "F2"                  TestArea "UserMenu"   Keys "Esc"
 
   assert(Area.Current              =="Shell")
