@@ -2821,8 +2821,14 @@ $ #Viewer: control keys#
     #LeftCtrl-0..9#      Go to bookmark 0..9
 
     #Ctrl-Ins, Ctrl-C#   Copy the text highlighted as a result of
-                       the search to the clipboard.
-    #Ctrl-U#             Remove the highlighting of the search results.
+                       the search or manual selection to the clipboard.
+    #Ctrl-U#             Remove the highlighting of the selected text.
+    #Shift-Клик мыши#    Manual text selection.
+                       Если курсор находится над текстом, первый
+                       клик задаёт начало области выделения текста,
+                       второй клик - конец области. Между первым и вторым
+                       кликом можно использовать любые клавиши навигации.
+                       Второй коик может быть выше первого.
 
     See also the list of ~macro keys~@KeyMacroViewerList@, available in the viewer.
 
@@ -6169,8 +6175,8 @@ $ #far:config History.*#
     Изменить эти параметры возможно через ~far:config~@FarConfig@
 
 @Editor.F8CPs
-$ #far:config Editor.F8CP#
-$ #far:config Viewer.F8CP#
+$ #far:config Editor.F8CPs#
+$ #far:config Viewer.F8CPs#
     Строка позволяющая задавать список кодовых страниц используемых при переключении
 кодировки клавишей #F8# в редакторе или просмотрщике.
 
