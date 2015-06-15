@@ -364,7 +364,7 @@
                     <value name="MarkCharNormalColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
                     <value name="MarkCharSelectedColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
                     <value name="MarkCharSelectedCursorColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="Mask" type="text" value="*.3g2,*.3gp,*.asf,*.avi,*.drc,*.flv,*.m2v,*.m4p,*.m4v,*.mkv,*.mng,*.mov,*.mp2,*.mp4,*.mpe,*.mpeg,*.mpg,*.mpv,*.mxf,*.nsv,*.ogv,*.qt,*.rm,*.rmvb,*.roq,*.svi,*.ts,*.vob,*.webm,*.wmv,*.yuv" />
+                    <value name="Mask" type="text" value="*.3g2,*.3gp,*.asf,*.avi,*.drc,*.flv,*.m2ts,*.m2v,*.m4p,*.m4v,*.mkv,*.mng,*.mov,*.mp2,*.mp4,*.mpe,*.mpeg,*.mpg,*.mpv,*.mts,*.mxf,*.nsv,*.ogv,*.qt,*.rm,*.rmvb,*.roq,*.svi,*.ts,*.vob,*.webm,*.wmv,*.yuv" />
                     <value name="NormalColor" type="color" background="FF000002" foreground="FF00000D" flags="fg4bit bg4bit" />
                     <value name="SelectedColor" type="color" background="FF000002" foreground="FF00000F" flags="fg4bit bg4bit" />
                     <value name="SelectedCursorColor" type="color" background="FF00000A" foreground="FF00000F" flags="fg4bit bg4bit" />
