@@ -797,23 +797,14 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 			WORD PrevVKKeyCode2=PrevVKKeyCode;
 			PrevVKKeyCode=rec->Event.KeyEvent.wVirtualKeyCode;
 
-			/* 1.07.2001 KM
-			  При отпускании Shift-Enter в диалоге назначения
-			  вылазил Shift после отпускания клавиш.
-			*/
-			if ((PrevVKKeyCode2==VK_SHIFT && PrevVKKeyCode==VK_RETURN &&
-			        rec->Event.KeyEvent.bKeyDown) ||
-			        (PrevVKKeyCode2==VK_RETURN && PrevVKKeyCode==VK_SHIFT &&
-			         !rec->Event.KeyEvent.bKeyDown))
+			// Для Shift-Enter в диалоге назначения вылазил Shift после отпускания клавиш.
+			//
+			if (PrevVKKeyCode2==VK_RETURN && PrevVKKeyCode==VK_SHIFT  && !rec->Event.KeyEvent.bKeyDown)
 			{
-				if (PrevVKKeyCode2 != VK_SHIFT)
-				{
-					INPUT_RECORD pinp;
-					size_t nread;
-					// Удалим из очереди...
-					Console().ReadInput(&pinp, 1, nread);
-					return KEY_NONE;
-				}
+				INPUT_RECORD pinp;
+				size_t nread;
+				Console().ReadInput(&pinp, 1, nread); // Удалим из очереди...
+				return KEY_NONE;
 			}
 		}
 
