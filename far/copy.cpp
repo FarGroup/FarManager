@@ -734,11 +734,14 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 			if (record.EventType==KEY_EVENT)
 			{
 				int key = InputRecordToKey(&record);
-				if (key == KEY_ALTF10 || key == KEY_RALTF10 || key == KEY_F10 || key == KEY_SHIFTF10)
+				if (!Global->Opt->Tree.TurnOffCopmletely)
 				{
-					AltF10=(key == KEY_ALTF10 || key == KEY_RALTF10)?1:(key == KEY_SHIFTF10?2:0);
-					Dlg->SendMessage(DM_CALLTREE, AltF10, nullptr);
-					return TRUE;
+					if (key == KEY_ALTF10 || key == KEY_RALTF10 || key == KEY_F10 || key == KEY_SHIFTF10)
+					{
+						AltF10 = (key == KEY_ALTF10 || key == KEY_RALTF10) ? 1 : (key == KEY_SHIFTF10 ? 2 : 0);
+						Dlg->SendMessage(DM_CALLTREE, AltF10, nullptr);
+						return TRUE;
+					}
 				}
 
 				if (Param1 == ID_SC_COMBO)
@@ -928,6 +931,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	// ***********************************************************************
 	int DLG_HEIGHT=16, DLG_WIDTH=76;
 
+	FARDIALOGITEMFLAGS no_tree = Global->Opt->Tree.TurnOffCopmletely ? DIF_DISABLE : 0;
+
 	FarDialogItem CopyDlgData[]=
 	{
 		{DI_DOUBLEBOX,   3, 1,DLG_WIDTH-4,DLG_HEIGHT-2,0,nullptr,nullptr,0,MSG(MCopyDlgTitle)},
@@ -947,7 +952,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		{DI_CHECKBOX,    5,11, 0,11,(int)(m_UseFilter? BSTATE_CHECKED : BSTATE_UNCHECKED), nullptr, nullptr, DIF_AUTOMATION, MSG(MCopyUseFilter)},
 		{DI_TEXT,       -1,12, 0,12,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_BUTTON,      0,13, 0,13,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MCopyDlgCopy)},
-		{DI_BUTTON,      0,13, 0,13,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,MSG(MCopyDlgTree)},
+		{DI_BUTTON,      0,13, 0,13,0,nullptr,nullptr,no_tree|DIF_CENTERGROUP|DIF_BTNNOCLOSE,MSG(MCopyDlgTree)},
 		{DI_BUTTON,      0,13, 0,13,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE|DIF_AUTOMATION|(m_UseFilter? 0 : DIF_DISABLE), MSG(MCopySetFilter)},
 		{DI_BUTTON,      0,13, 0,13,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCopyDlgCancel)},
 		{DI_TEXT,        5, 2, 0, 2,0,nullptr,nullptr,DIF_SHOWAMPERSAND,L""},

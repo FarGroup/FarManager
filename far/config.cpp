@@ -1710,6 +1710,7 @@ void Options::InitConfigData()
 		{FSSF_PRIVATE,       NKeyPanelRight,L"ViewMode", OPT_DEF(RightPanel.ViewMode, 2)},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"Visible", OPT_DEF(RightPanel.Visible, true)},
 
+		{FSSF_PRIVATE,       NKeyPanelTree,L"TurnOffCompletely", OPT_DEF(Tree.TurnOffCopmletely, true)},
 		{FSSF_PRIVATE,       NKeyPanelTree,L"AutoChangeFolder", OPT_DEF(Tree.AutoChangeFolder, false)},
 		{FSSF_PRIVATE,       NKeyPanelTree,L"MinTreeCount", OPT_DEF(Tree.MinTreeCount, 4)},
 		{FSSF_PRIVATE,       NKeyPanelTree,L"TreeFileAttr", OPT_DEF(Tree.TreeFileAttr, FILE_ATTRIBUTE_HIDDEN)},
@@ -2574,6 +2575,8 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		}
 	};
 
+	LISTITEMFLAGS no_tree = Global->Opt->Tree.TurnOffCopmletely ? LIF_DISABLE : 0;
+
 	MenuDataEx LeftMenu[]=
 	{
 		MSG(MMenuBriefView),LIF_SELECTED,KEY_CTRL1,
@@ -2588,7 +2591,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		MSG(MMenuAlternativeView),0,KEY_CTRL0,
 		L"",LIF_SEPARATOR,0,
 		MSG(MMenuInfoPanel),0,KEY_CTRLL,
-		MSG(MMenuTreePanel),0,KEY_CTRLT,
+		MSG(MMenuTreePanel),no_tree,KEY_CTRLT,
 		MSG(MMenuQuickView),0,KEY_CTRLQ,
 		L"",LIF_SEPARATOR,0,
 		MSG(MMenuSortModes),0,KEY_CTRLF12,
@@ -2658,7 +2661,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 	{
 		MSG(MMenuSystemSettings),LIF_SELECTED,0,
 		MSG(MMenuPanelSettings),0,0,
-		MSG(MMenuTreeSettings),0,0,
+		MSG(MMenuTreeSettings),no_tree,0,
 		MSG(MMenuInterface),0,0,
 		MSG(MMenuLanguages),0,0,
 		MSG(MMenuPluginsConfig),0,0,
@@ -2701,7 +2704,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		MSG(MMenuAlternativeView),0,KEY_CTRL0,
 		L"",LIF_SEPARATOR,0,
 		MSG(MMenuInfoPanel),0,KEY_CTRLL,
-		MSG(MMenuTreePanel),0,KEY_CTRLT,
+		MSG(MMenuTreePanel),no_tree,KEY_CTRLT,
 		MSG(MMenuQuickView),0,KEY_CTRLQ,
 		L"",LIF_SEPARATOR,0,
 		MSG(MMenuSortModes),0,KEY_CTRLF12,

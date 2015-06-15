@@ -530,9 +530,11 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 			Global->WindowManager->RefreshWindow();
 			break;
 		}
+		case KEY_CTRLT: case KEY_RCTRLT:
+			if (Global->Opt->Tree.TurnOffCopmletely)
+				break;
 		case KEY_CTRLL: case KEY_RCTRLL:
 		case KEY_CTRLQ: case KEY_RCTRLQ:
-		case KEY_CTRLT: case KEY_RCTRLT:
 		{
 			if (m_ActivePanel->IsVisible())
 			{

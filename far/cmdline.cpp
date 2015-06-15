@@ -293,6 +293,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 		return TRUE;
 		case KEY_ALTF10:
 		case KEY_RALTF10:
+		if (!Global->Opt->Tree.TurnOffCopmletely)
 		{
 			Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 			{

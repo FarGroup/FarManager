@@ -503,16 +503,18 @@ public:
 
 	struct TreeOptions
 	{
+		BoolOption TurnOffCopmletely;   // Turn OFF SlowlyAndBuglyTreeView
+
 		IntOption MinTreeCount;         // Минимальное количество папок для сохранения дерева в файле.
-		BoolOption AutoChangeFolder;     // Автосмена папок при перемещении по дереву
-		IntOption TreeFileAttr;       // Файловые атрибуты для файлов-деревях
+		BoolOption AutoChangeFolder;    // Автосмена папок при перемещении по дереву
+		IntOption TreeFileAttr;         // Файловые атрибуты для файлов-деревях
 
 #if defined(TREEFILE_PROJECT)
-		BoolOption LocalDisk;            // Хранить файл структуры папок для локальных дисков
-		BoolOption NetDisk;              // Хранить файл структуры папок для сетевых дисков
-		BoolOption NetPath;              // Хранить файл структуры папок для сетевых путей
-		BoolOption RemovableDisk;        // Хранить файл структуры папок для сменных дисков
-		BoolOption CDDisk;               // Хранить файл структуры папок для CD/DVD/BD/etc дисков
+		BoolOption LocalDisk;           // Хранить файл структуры папок для локальных дисков
+		BoolOption NetDisk;             // Хранить файл структуры папок для сетевых дисков
+		BoolOption NetPath;             // Хранить файл структуры папок для сетевых путей
+		BoolOption RemovableDisk;       // Хранить файл структуры папок для сменных дисков
+		BoolOption CDDisk;              // Хранить файл структуры папок для CD/DVD/BD/etc дисков
 
 		StringOption strLocalDisk;      // шаблон имени файла-деревяхи для локальных дисков
 		StringOption strNetDisk;        // шаблон имени файла-деревяхи для сетевых дисков
