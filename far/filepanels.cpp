@@ -531,7 +531,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 			break;
 		}
 		case KEY_CTRLT: case KEY_RCTRLT:
-			if (Global->Opt->Tree.TurnOffCopmletely)
+			if (Global->Opt->Tree.TurnOffCompletely)
 				break;
 		case KEY_CTRLL: case KEY_RCTRLL:
 		case KEY_CTRLQ: case KEY_RCTRLQ:

@@ -1891,7 +1891,7 @@ int TreeList::GetCurName(string &strName, string &strShortName) const
 
 void TreeList::AddTreeName(const string& Name)
 {
-	if (Global->Opt->Tree.TurnOffCopmletely)
+	if (Global->Opt->Tree.TurnOffCompletely)
 		return;
 	if (Name.empty())
 		return;
@@ -1912,7 +1912,7 @@ void TreeList::AddTreeName(const string& Name)
 
 void TreeList::DelTreeName(const string& Name)
 {
-	if (Global->Opt->Tree.TurnOffCopmletely)
+	if (Global->Opt->Tree.TurnOffCompletely)
 		return;
 	if (Name.empty())
 		return;
@@ -1929,7 +1929,7 @@ void TreeList::DelTreeName(const string& Name)
 
 void TreeList::RenTreeName(const string& strSrcName,const string& strDestName)
 {
-	if (Global->Opt->Tree.TurnOffCopmletely)
+	if (Global->Opt->Tree.TurnOffCompletely)
 		return;
 
 	string SrcNameFull, DestNameFull;
@@ -2002,7 +2002,7 @@ void TreeList::ClearCache()
 
 void TreeList::ReadCache(const string& TreeRoot)
 {
-	if (Global->Opt->Tree.TurnOffCopmletely)
+	if (Global->Opt->Tree.TurnOffCompletely)
 		return;
 
 	string strTreeName;
@@ -2026,7 +2026,7 @@ void TreeList::ReadCache(const string& TreeRoot)
 
 void TreeList::FlushCache()
 {
-	if (Global->Opt->Tree.TurnOffCopmletely)
+	if (Global->Opt->Tree.TurnOffCompletely)
 		return;
 
 	if (!TreeCache().GetTreeName().empty())

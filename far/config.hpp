@@ -503,7 +503,7 @@ public:
 
 	struct TreeOptions
 	{
-		BoolOption TurnOffCopmletely;   // Turn OFF SlowlyAndBuglyTreeView
+		BoolOption TurnOffCompletely;   // Turn OFF SlowlyAndBuglyTreeView
 
 		IntOption MinTreeCount;         // Минимальное количество папок для сохранения дерева в файле.
 		BoolOption AutoChangeFolder;    // Автосмена папок при перемещении по дереву

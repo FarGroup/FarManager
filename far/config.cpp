@@ -1710,7 +1710,7 @@ void Options::InitConfigData()
 		{FSSF_PRIVATE,       NKeyPanelRight,L"ViewMode", OPT_DEF(RightPanel.ViewMode, 2)},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"Visible", OPT_DEF(RightPanel.Visible, true)},
 
-		{FSSF_PRIVATE,       NKeyPanelTree,L"TurnOffCompletely", OPT_DEF(Tree.TurnOffCopmletely, true)},
+		{FSSF_PRIVATE,       NKeyPanelTree,L"TurnOffCompletely", OPT_DEF(Tree.TurnOffCompletely, true)},
 		{FSSF_PRIVATE,       NKeyPanelTree,L"AutoChangeFolder", OPT_DEF(Tree.AutoChangeFolder, false)},
 		{FSSF_PRIVATE,       NKeyPanelTree,L"MinTreeCount", OPT_DEF(Tree.MinTreeCount, 4)},
 		{FSSF_PRIVATE,       NKeyPanelTree,L"TreeFileAttr", OPT_DEF(Tree.TreeFileAttr, FILE_ATTRIBUTE_HIDDEN)},
@@ -2575,7 +2575,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		}
 	};
 
-	LISTITEMFLAGS no_tree = Global->Opt->Tree.TurnOffCopmletely ? LIF_DISABLE : 0;
+	LISTITEMFLAGS no_tree = Global->Opt->Tree.TurnOffCompletely ? LIF_DISABLE : 0;
 
 	MenuDataEx LeftMenu[]=
 	{

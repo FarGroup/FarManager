@@ -734,7 +734,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 			if (record.EventType==KEY_EVENT)
 			{
 				int key = InputRecordToKey(&record);
-				if (!Global->Opt->Tree.TurnOffCopmletely)
+				if (!Global->Opt->Tree.TurnOffCompletely)
 				{
 					if (key == KEY_ALTF10 || key == KEY_RALTF10 || key == KEY_F10 || key == KEY_SHIFTF10)
 					{
@@ -931,7 +931,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	// ***********************************************************************
 	int DLG_HEIGHT=16, DLG_WIDTH=76;
 
-	FARDIALOGITEMFLAGS no_tree = Global->Opt->Tree.TurnOffCopmletely ? DIF_DISABLE : 0;
+	FARDIALOGITEMFLAGS no_tree = Global->Opt->Tree.TurnOffCompletely ? DIF_DISABLE : 0;
 
 	FarDialogItem CopyDlgData[]=
 	{
