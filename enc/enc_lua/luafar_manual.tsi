@@ -6515,7 +6515,7 @@ id=77
 lv=2
 dt=Text
 nm=viewer.Viewer
-mtime=3625957353
+mtime=3643655890
 <article>
 #_result = viewer.Viewer (FileName, Title, X1, Y1, X2, Y2, Flags, CodePage)
 #_
@@ -6533,7 +6533,10 @@ mtime=3625957353
 #_  result: boolean
 #_
 #_**Far API used:**
-#_  Viewer
+#_  `Viewer`
+#_
+#_@@@
+#_[Viewer]: http://api.farmanager.com/ru/service_functions/viewer.html
 #_
 </article>
 </node>
