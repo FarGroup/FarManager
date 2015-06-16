@@ -219,7 +219,7 @@ end
 local function FixReturn (handle, ok, ...)
   local ret1, ret_type = ...
   if ok then
-    status = co_status(handle.coro)
+    local status = co_status(handle.coro)
     if status == "suspended" and ret1 == PROPAGATE and ret_type ~= "exit" then
       handle._store = pack(select(3, ...))
       return ret_type, handle._store
