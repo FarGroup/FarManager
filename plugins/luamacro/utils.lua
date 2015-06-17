@@ -796,9 +796,10 @@ local function GetFromMenu (macrolist)
     menuitems[i] = { text = ch and (ch..". "..descr) or descr }
   end
 
-  local props, bkeys =
-    { Title=Msg.UtExecuteMacroTitle, Bottom=Msg.UtExecuteMacroBottom,
-      Flags={FMENU_AUTOHIGHLIGHT=1,FMENU_WRAPMODE=1} }, { {BreakKey="A+F4"} }
+  local props, bkeys = {
+      Title = Msg.UtExecuteMacroTitle, Bottom = Msg.UtExecuteMacroBottom,
+      Flags = { FMENU_AUTOHIGHLIGHT=1, FMENU_WRAPMODE=1 },
+      Id = win.Uuid("165AA6E3-C89B-4F82-A0C5-C309243FD21B") }, { {BreakKey="A+F4"} }
   while true do
     local item, pos = far.Menu(props, menuitems, bkeys)
     if not item then
