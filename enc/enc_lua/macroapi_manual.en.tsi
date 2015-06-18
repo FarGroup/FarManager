@@ -278,7 +278,7 @@ lv=3
 dt=Text
 nm=printf
 ctime=3554233087
-mtime=3600460574
+mtime=3643817347
 <article>
 #_printf (fmt, ...)
 #_
@@ -292,6 +292,10 @@ mtime=3600460574
 #_**Description:**
 #_  Works just like the macro language function *print*, but with additional
 #_  ability of formatting. Formatting rules are described in the `Lua manual`.
+#_
+#_**Note:**
+#_  Do not use this function in new developments and remove it from the existing ones.
+#_  This function will be removed in December 2015.
 #_
 #_@@@
 #_[Lua manual]: http://www.lua.org/manual/5.1/manual.html#pdf-string.format
