@@ -425,7 +425,7 @@ public:
   // *** ISetProperties ***
 
   // set compression properties
-  STDMETHODIMP SetProperties(const wchar_t** names, const PROPVARIANT* values, UInt32 num_properties) {
+  STDMETHODIMP SetProperties(const wchar_t*const* names, const PROPVARIANT* values, UInt32 num_properties) {
     COM_ERROR_HANDLER_BEGIN
     for (Int32 i = 0; i < num_properties; i++) {
       PropVariant prop = values[i];
