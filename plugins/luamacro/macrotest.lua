@@ -1397,23 +1397,23 @@ local function test_AdvControl_Window()
 
   -- Get information about 2 available windows
   t = assert(far.AdvControl("ACTL_GETWINDOWINFO", 1))
-  assert(t.Type==F.WTYPE_DESKTOP and t.Id==0 and t.Pos==1 and t.Flags==0 and t.TypeName=="Desktop" and
+  assert(t.Type==F.WTYPE_DESKTOP and t.Id==0 and t.Pos==1 and t.Flags==0 and #t.TypeName>0 and
          t.Name=="")
 
   t = assert(far.AdvControl("ACTL_GETWINDOWINFO", 2))
   assert(t.Type==F.WTYPE_PANELS and t.Id==0 and t.Pos==2 and t.Flags==F.WIF_CURRENT and
-         t.TypeName=="Panels" and #t.Name>0)
+         #t.TypeName>0 and #t.Name>0)
   assert(far.AdvControl("ACTL_GETWINDOWTYPE").Type == F.WTYPE_PANELS)
 
   -- Set "Desktop" as the current window
   assert(1 == far.AdvControl("ACTL_SETCURRENTWINDOW", 1))
   assert(1 == far.AdvControl("ACTL_COMMIT"))
   t = assert(far.AdvControl("ACTL_GETWINDOWINFO", 2)) -- "z-order": the window that was #1 is now #2
-  assert(t.Type==0 and t.Id==0 and t.Pos==2 and t.Flags==F.WIF_CURRENT and t.TypeName=="Desktop" and
+  assert(t.Type==0 and t.Id==0 and t.Pos==2 and t.Flags==F.WIF_CURRENT and #t.TypeName>0 and
          t.Name=="")
   assert(far.AdvControl("ACTL_GETWINDOWTYPE").Type == F.WTYPE_DESKTOP)
   t = assert(far.AdvControl("ACTL_GETWINDOWINFO", 1))
-  assert(t.Type==F.WTYPE_PANELS and t.Id==0 and t.Pos==1 and t.Flags==0 and t.TypeName=="Panels" and
+  assert(t.Type==F.WTYPE_PANELS and t.Id==0 and t.Pos==1 and t.Flags==0 and #t.TypeName>0 and
          #t.Name>0)
 
   -- Restore "Panels" as the current window
