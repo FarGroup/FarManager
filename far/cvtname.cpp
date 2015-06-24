@@ -42,7 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "elevation.hpp"
 
-void MixToFullPath(string& strPath)
+static void MixToFullPath(string& strPath)
 {
 	//Skip all path to root (with slash if exists)
 	size_t DirOffset = 0;
@@ -107,24 +107,25 @@ void MixToFullPath(string& strPath)
 	}
 }
 
-bool MixToFullPath(const string& stPath, string& strDest, const string& stCurrentDir)
+static void MixToFullPath(const string& stPath, string& Dest, const string& stCurrentDir)
 {
-	size_t lPath = stPath.size(), lCurrentDir = stCurrentDir.size(), lFullPath = lPath + lCurrentDir;
-
-	if (lFullPath > 0)
-	{
-		strDest.clear();
-		LPCWSTR pstPath = stPath.data(), pstCurrentDir = nullptr;
+		string strDest;
+		const string* pstCurrentDir = nullptr;
 		bool blIgnore = false;
 		size_t PathDirOffset = 0;
 		const auto PathType = ParsePath(stPath, &PathDirOffset);
-		pstPath += PathDirOffset;
+		size_t PathOffset = PathDirOffset;
 		switch (PathType)
 		{
 			case PATH_UNKNOWN:
 			{
-				if(!stPath.empty() && IsSlash(stPath[0]) && (stPath.size() == 1 || !IsSlash(stPath[1]))) //"\" or "\abc"
+				if (HasPathPrefix(stPath)) // \\?\<ANY_UNKNOWN_FORMAT>
 				{
+					blIgnore = true;
+				}
+				else if (!stPath.empty() && IsSlash(stPath.front())) //"\" or "\abc"
+				{
+					++PathOffset;
 					if (!stCurrentDir.empty())
 					{
 						size_t CurDirDirOffset = 0;
@@ -134,16 +135,9 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 						}
 					}
 				}
-				else
+				else //"abc" or whatever
 				{
-					if(HasPathPrefix(stPath)) // \\?\<ANY_UNKNOWN_FORMAT>
-					{
-						blIgnore = true;
-					}
-					else //"abc" or whatever
-					{
-						pstCurrentDir=stCurrentDir.data();
-					}
+					pstCurrentDir = &stCurrentDir;
 				}
 			}
 			break;
@@ -151,7 +145,7 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 			{
 				if(stPath.size() > 2 && IsSlash(stPath[2]))
 				{
-					pstPath=stPath.data();
+					PathOffset = 0;
 				}
 				else
 				{
@@ -180,7 +174,7 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 			break;
 			case PATH_REMOTE: //"\\abc"
 			{
-				pstPath=stPath.data();
+				PathOffset = 0;
 			}
 			break;
 			case PATH_DRIVELETTERUNC: //"\\?\whatever"
@@ -189,44 +183,28 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 			case PATH_PIPE:
 			{
 				blIgnore=true;
-				pstPath=stPath.data();
+				PathOffset = 0;
 			}
 			break;
 		}
 
 		if (pstCurrentDir)
 		{
-			strDest+=pstCurrentDir;
+			strDest += *pstCurrentDir;
 			AddEndSlash(strDest);
 		}
 
-		if (pstPath)
-		{
-			strDest+=pstPath;
-		}
+		strDest.append(stPath, PathOffset, string::npos);
 
 		if (!blIgnore && !HasPathPrefix(strDest))
 			MixToFullPath(strDest);
 
-		return true;
-	}
-
-	return false;
+		Dest = std::move(strDest);
 }
 
 void ConvertNameToFull(const string& Src, string &strDest, LPCWSTR CurrentDirectory)
 {
-	string strCurDir;
-	if(!CurrentDirectory)
-	{
-		os::GetCurrentDirectory(strCurDir);
-	}
-	else
-	{
-		strCurDir = CurrentDirectory;
-	}
-	string strSrc = Src;
-	MixToFullPath(strSrc,strDest,strCurDir);
+	MixToFullPath(Src, strDest, CurrentDirectory? CurrentDirectory : os::GetCurrentDirectory());
 }
 
 // try to replace volume GUID (if present) with drive letter

@@ -38,6 +38,7 @@
 @History.ViewEditHistory.Count=History.Config
 @History.ViewEditHistory.Lifetime=History.Config
 @Viewer.F8CPs=Editor.F8CPs
+@Editor.WordDiv=System.WordDiv
 
 @Contents
 $^#File and archive manager#
@@ -5887,10 +5888,9 @@ $ #far:config Interface.CursorSizeX#
 
     Изменение этого параметра возможно через ~far:config~@FarConfig@
 
-@Editor.WordDiv
-$ #far:config Editor.WordDiv#
-    Параметр "Editor.WordDiv" позволяет задавать дополнительные (кроме пробела и табуляции) 
-используемые для редактора и строк редактирования символы-разделители слов.
+@System.WordDiv
+$ #far:config System.WordDiv#
+    Параметр "System.WordDiv" позволяет задавать дополнительные (кроме пробела и табуляции) cимволы-разделители слов.
 
     По умолчанию: #~~!%^&*()+|{}:"<>?`-=\\[];',./#
 

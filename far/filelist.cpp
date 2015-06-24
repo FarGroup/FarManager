@@ -257,7 +257,7 @@ FileList::FileList(window_ptr Owner):
 		openBracket[1]=closeBracket[1]=0;
 	}
 	m_Type=FILE_PANEL;
-	os::GetCurrentDirectory(m_CurDir);
+	m_CurDir = os::GetCurrentDirectory();
 	strOriginalCurDir = m_CurDir;
 	m_CurTopFile=m_CurFile=0;
 	m_ShowShortNames=0;
@@ -1807,8 +1807,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 						if (PluginMode && UploadFile)
 						{
 							PluginPanelItem PanelItem;
-							string strSaveDir;
-							os::GetCurrentDirectory(strSaveDir);
+							const auto strSaveDir = os::GetCurrentDirectory();
 
 							if (!os::fs::exists(strTempName))
 							{
@@ -2864,7 +2863,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 		SetDirectorySuccess=false;
 	}
 
-	os::GetCurrentDirectory(m_CurDir);
+	m_CurDir = os::GetCurrentDirectory();
 	if (!IsUpdated)
 		return SetDirectorySuccess;
 
@@ -5346,8 +5345,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 		if (CurPlugin.m_Modified)
 		{
 			PluginPanelItem PanelItem={};
-			string strSaveDir;
-			os::GetCurrentDirectory(strSaveDir);
+			const auto strSaveDir = os::GetCurrentDirectory();
 
 			if (FileNameToPluginItem(CurPlugin.m_HostFile,&PanelItem))
 			{
@@ -5759,8 +5757,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanel
 
 			if (FarMkTempEx(strTempDir) && os::CreateDirectory(strTempDir,nullptr))
 			{
-				string strSaveDir;
-				os::GetCurrentDirectory(strSaveDir);
+				const auto strSaveDir = os::GetCurrentDirectory();
 				string strDizName=strTempDir+L"\\"+DestPanel->strPluginDizName;
 				DestPanel->Diz.Flush(L"", &strDizName);
 
@@ -5868,8 +5865,7 @@ void FileList::PluginToPluginFiles(int Move)
 
 		if (PutCode==1 || PutCode==2)
 		{
-			string strSaveDir;
-			os::GetCurrentDirectory(strSaveDir);
+			const auto strSaveDir = os::GetCurrentDirectory();
 			FarChDir(strTempDir);
 			PutCode = Global->CtrlObject->Plugins->PutFiles(AnotherFilePanel->m_hPlugin, ItemList.data(), ItemList.size(), false, 0);
 
@@ -6550,8 +6546,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	if (this != Parent()->LeftPanel && this != Parent()->RightPanel)
 		return;
 
-	string strSaveDir;
-	os::GetCurrentDirectory(strSaveDir);
+	const auto strSaveDir = os::GetCurrentDirectory();
 	{
 		string strOldCurDir(m_CurDir);
 

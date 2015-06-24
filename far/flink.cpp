@@ -353,7 +353,7 @@ int GetNumberOfLinks(const string& Name, bool negative_if_error)
 
 int MkHardLink(const string& ExistingName,const string& NewName, bool Silent)
 {
-	BOOL Result = os::CreateHardLink(NewName, ExistingName, nullptr);
+	const auto Result = os::CreateHardLink(NewName, ExistingName, nullptr);
 
 	if (!Result && !Silent)
 	{

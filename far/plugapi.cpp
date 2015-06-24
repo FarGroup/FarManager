@@ -2836,8 +2836,7 @@ size_t WINAPI apiGetCurrentDirectory(size_t Size, wchar_t* Buffer) noexcept
 {
 	try
 	{
-		string strCurDir;
-		os::GetCurrentDirectory(strCurDir);
+		const auto strCurDir = os::GetCurrentDirectory();
 
 		if (Buffer && Size)
 		{

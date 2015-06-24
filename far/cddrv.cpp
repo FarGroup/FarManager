@@ -396,9 +396,7 @@ UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
 
 	if (strRootDir.empty())
 	{
-		string strCurDir;
-		os::GetCurrentDirectory(strCurDir);
-		GetPathRoot(strCurDir, strRootDir);
+		GetPathRoot(os::GetCurrentDirectory(), strRootDir);
 	}
 
 	AddEndSlash(strRootDir);

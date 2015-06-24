@@ -174,7 +174,7 @@ string& QuoteSpaceOnly(string &strStr)
 	return strStr;
 }
 
-string &QuoteLeadingSpace(string &strStr)
+string &QuoteOuterSpace(string &strStr)
 {
 	if (!strStr.empty() && (strStr.front() == L' ' || strStr.back() == L' '))
 		InsertQuote(strStr);
@@ -297,23 +297,11 @@ string& TruncStrFromCenter(string &strStr, int maxLength)
 	return strStr;
 }
 
-static int StartOffset(const wchar_t *Str, int nLength)
+static int StartOffset(const string& Str)
 {
-	if (nLength > 2)
-	{
-		if (Str[1] == L':' && IsSlash(Str[2]))
-			return 3;
-
-		else if (Str[0] == L'\\' && Str[1] == L'\\')
-		{
-			for (int n=2, i=2; i < nLength; ++i)
-			{
-				if (Str[i] == L'\\' && --n == 0)
-					return i + 1;
-			}
-		}
-	}
-	return 0;
+	size_t DirOffset = 0;
+	ParsePath(Str, &DirOffset);
+	return static_cast<int>(DirOffset);
 }
 
 wchar_t* TruncPathStr(wchar_t *Str, int MaxLength)
@@ -327,7 +315,7 @@ wchar_t* TruncPathStr(wchar_t *Str, int MaxLength)
 
 		if (nLength > MaxLength && nLength >= 2)
 		{
-			int start = StartOffset(Str, nLength);
+			int start = StartOffset(Str);
 
 			if (!start || start+2+DotsLen > MaxLength)
 				return TruncStr(Str, MaxLength);
@@ -347,7 +335,7 @@ string& TruncPathStr(string &strStr, int MaxLength)
 
 	if (nLength > MaxLength && nLength >= 2)
 	{
-		int start = StartOffset(strStr.data(), nLength);
+		int start = StartOffset(strStr);
 
 		if (!start || start+DotsLen+2 > MaxLength)
 			return TruncStr(strStr, MaxLength);

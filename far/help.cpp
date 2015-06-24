@@ -2214,8 +2214,7 @@ static int RunURL(const string& Protocol, const string& URLPath)
 					ÑÞÄÛ ÍÓÆÍÎ ÂÏÈÍÄÞËÈÒÜ ÌÅÍÞÕÓ Ñ ÂÎÇÌÎÆÍÎÑÒÜÞ ÂÛÁÎÐÀ
 					ÒÎÃÎ ÈËÈ ÈÍÎÃÎ ÀÊÒÈÂÀÒÎÐÀ - ÈÕ ÌÎÆÅÒ ÁÛÒÜ ÍÅÑÊÎËÜÊÎ!!!!!
 					*/
-					string strCurDir;
-					os::GetCurrentDirectory(strCurDir);
+					const auto strCurDir = os::GetCurrentDirectory();
 
 					if (Global->Opt->HelpURLRules < 256) // SHELLEXECUTEEX_METHOD
 					{

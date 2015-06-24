@@ -31,17 +31,18 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "common/preprocessor.hpp"
+
 #define SQLITE_CORE
 #define SQLITE_ENABLE_UNICODE
 
-#pragma warning(push, 1)
-#ifdef __GNUC__
-#pragma GCC diagnostic ignored "-Wcast-qual"
-#pragma GCC diagnostic ignored "-Wsequence-point"
-#pragma GCC diagnostic ignored "-Wsign-compare"
-#endif // __GNUC__
+WARNING_PUSH(1)
+WARNING_DISABLE_GCC("-Wcast-qual")
+WARNING_DISABLE_GCC("-Wsequence-point")
+WARNING_DISABLE_GCC("-Wsign-compare")
 
 #include "thirdparty/sqlite/sqlite3_unicode.c"
 
 const char SQLite_Unicode_Version[] = SQLITE3_UNICODE_VERSION_STRING;
-#pragma warning(pop)
+
+WARNING_POP()

@@ -713,8 +713,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 	if (!DlgParam.Plugin)
 	{
-		string strRootPathName;
-		os::GetCurrentDirectory(strRootPathName);
+		auto strRootPathName = os::GetCurrentDirectory();
 		GetPathRoot(strRootPathName,strRootPathName);
 
 		if (os::GetVolumeInformation(strRootPathName, nullptr, nullptr, nullptr, &DlgParam.FileSystemFlags, nullptr))
@@ -1038,7 +1037,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			}
 
 			string strSelNameQ(strSelName);
-			QuoteLeadingSpace(strSelNameQ);
+			QuoteOuterSpace(strSelNameQ);
 			AttrDlg[SA_TEXT_NAME].strData = strSelNameQ;
 			TruncStr(AttrDlg[SA_TEXT_NAME].strData,DlgX-10);
 
@@ -1728,8 +1727,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					seInfo.lpFile += 4;
 				}
 				seInfo.lpVerb = L"properties";
-				string strCurDir;
-				os::GetCurrentDirectory(strCurDir);
+				const auto strCurDir = os::GetCurrentDirectory();
 				seInfo.lpDirectory=strCurDir.data();
 				ShellExecuteExW(&seInfo);
 			}

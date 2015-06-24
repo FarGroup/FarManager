@@ -306,7 +306,7 @@ static bool EnumModules(VMenu2& Menu, const string& Module)
 		{
 			if (i==ARRAYSIZE(RootFindKey)-1)
 			{
-				if (DWORD RedirectionFlag = os::GetAppPathsRedirectionFlag())
+				if (const auto RedirectionFlag = os::GetAppPathsRedirectionFlag())
 				{
 					samDesired|=RedirectionFlag;
 				}

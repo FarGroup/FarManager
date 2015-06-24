@@ -4101,7 +4101,7 @@ void Editor::Paste(const wchar_t *Src)
 
 				int Pos=I;
 
-				while (Src[Pos] && Src[Pos]!=L'\n' && Src[Pos]!=L'\r')
+				while (Src[Pos] && !IsEol(Src[Pos]))
 					Pos++;
 
 				if (Pos>I)

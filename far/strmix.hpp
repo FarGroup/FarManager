@@ -84,8 +84,8 @@ string& RemoveTrailingSpaces(string &strStr);
 string& RemoveExternalSpaces(string &strStr);
 string& RemoveUnprintableCharacters(string &strStr);
 string& QuoteSpaceOnly(string &strStr);
-string& QuoteLeadingSpace(string &strStr);
-inline string QuoteLeadingSpace(string&& strStr) { QuoteLeadingSpace(strStr); return strStr; }
+string& QuoteOuterSpace(string &strStr);
+inline string QuoteOuterSpace(string&& strStr) { QuoteOuterSpace(strStr); return strStr; }
 
 size_t ReplaceStrings(string &strStr, const wchar_t* FindStr, size_t FindStrSize, const wchar_t* ReplStr, size_t ReplStrSize, bool IgnoreCase = false, size_t Count = string::npos);
 

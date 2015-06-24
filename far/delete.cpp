@@ -268,13 +268,11 @@ static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel, Console
 
 static int WipeDirectory(const string& Name)
 {
-	string strTempName, strPath;
+	string strTempName, strPath = Name;
 
-	if (FirstSlash(Name.data()))
+	if (!CutToParent(strPath))
 	{
-		strPath = Name;
-		DeleteEndSlash(strPath);
-		CutToSlash(strPath);
+		strPath.clear();
 	}
 
 	FarMkTempEx(strTempName,nullptr, FALSE, strPath.empty()?nullptr:strPath.data());
@@ -354,7 +352,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		}
 
 		strDeleteFilesMsg = strSelName;
-		QuoteLeadingSpace(strDeleteFilesMsg);
+		QuoteOuterSpace(strDeleteFilesMsg);
 	}
 	else
 	{
@@ -435,7 +433,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 			{
 				string name, sname;
 				SrcPanel->GetCurName(name, sname);
-				QuoteLeadingSpace(name);
+				QuoteOuterSpace(name);
 				bHilite = strDeleteFilesMsg != name;
 			}
 		}
@@ -465,7 +463,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 						break;
 					}
 					SrcPanel->GetSelName(&name, attr);
-					QuoteLeadingSpace(name);
+					QuoteOuterSpace(name);
 					items.push_back(name);
 				}
 			}
@@ -971,7 +969,7 @@ DEL_RESULT ShellDelete::ERemoveDirectory(const string& Name,DIRDELTYPE Type)
 		switch(Type)
 		{
 		case D_DEL:
-			Success = os::RemoveDirectory(Name) != FALSE;
+			Success = os::RemoveDirectory(Name);
 			break;
 
 		case D_WIPE:
@@ -1079,7 +1077,7 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 	{
 		Global->CatchError();
 		string qName(strFullName);
-		QuoteLeadingSpace(qName);
+		QuoteOuterSpace(qName);
 
 		int MsgCode = Message(MSG_WARNING|MSG_ERRORTYPE, MSG(MError),
 			make_vector<string>(MSG(dir ? MCannotRecycleFolder : MCannotRecycleFile), qName),
@@ -1143,8 +1141,7 @@ bool DeleteFileWithFolder(const string& FileName)
 	{
 		if (os::DeleteFile(strFileOrFolderName)) //BUGBUG
 		{
-			CutToSlash(strFileOrFolderName,true);
-			Result = os::RemoveDirectory(strFileOrFolderName) != FALSE;
+			Result = CutToParent(strFileOrFolderName) && os::RemoveDirectory(strFileOrFolderName);
 		}
 	}
 	return Result;

@@ -288,18 +288,23 @@ void SysLogLastError()
 	if (!IsLogON())
 		return;
 
-	wchar_t *lpMsgBuf = nullptr;
-	DWORD LastErr=GetLastError();
-	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS,
-	              nullptr,LastErr,MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),
-	              (LPWSTR) &lpMsgBuf,0,nullptr);
+	DWORD LastErr = GetLastError();
+
+	os::memory::local::ptr_t<wchar_t>::type MsgPtr;
+	{
+		wchar_t *lpMsgBuf = nullptr;
+		FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS,
+		              nullptr,LastErr,MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),
+		              (LPWSTR) &lpMsgBuf,0,nullptr);
+		MsgPtr.reset(lpMsgBuf);
+	}
 	OpenSysLog();
 
 	if (LogStream)
 	{
 		wchar_t timebuf[64];
-		// RemoveUnprintableCharacters(lpMsgBuf);
-		fwprintf(LogStream,L"%s %sGetLastError()=[%u/0x%X] \"%s\"\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),LastErr,LastErr,lpMsgBuf);
+		// RemoveUnprintableCharacters(MsgPtr.get());
+		fwprintf(LogStream, L"%s %sGetLastError()=[%u/0x%X] \"%s\"\n", PrintTime(timebuf, ARRAYSIZE(timebuf)), MakeSpace(), LastErr, LastErr, MsgPtr.get());
 		fflush(LogStream);
 	}
 
@@ -307,13 +312,12 @@ void SysLogLastError()
 
 	if (IsDebuggerPresent())
 	{
-		OutputDebugString(lpMsgBuf);
+		OutputDebugString(MsgPtr.get());
 #ifdef _MSC_VER
 		OutputDebugString(L"\n");
 #endif _MSC_VER
 	}
 
-	LocalFree(lpMsgBuf);
 	SetLastError(LastErr);
 #endif
 }
@@ -1710,9 +1714,9 @@ string __INPUT_RECORD_Dump(const INPUT_RECORD *rec)
 			    rec->Event.KeyEvent.wRepeatCount,
 			    _VK_KEY_ToName(rec->Event.KeyEvent.wVirtualKeyCode),
 			    rec->Event.KeyEvent.wVirtualScanCode,
-			    ((rec->Event.KeyEvent.uChar.UnicodeChar && !(rec->Event.KeyEvent.uChar.UnicodeChar == L'\t' || rec->Event.KeyEvent.uChar.UnicodeChar == L'\r' || rec->Event.KeyEvent.uChar.UnicodeChar == L'\n'))?rec->Event.KeyEvent.uChar.UnicodeChar:L' '),
+			    ((rec->Event.KeyEvent.uChar.UnicodeChar && !(rec->Event.KeyEvent.uChar.UnicodeChar == L'\t' || IsEol(rec->Event.KeyEvent.uChar.UnicodeChar)))?rec->Event.KeyEvent.uChar.UnicodeChar:L' '),
 			    rec->Event.KeyEvent.uChar.UnicodeChar,
-			    ((AsciiChar && AsciiChar != '\r' && AsciiChar != '\t' && AsciiChar !='\n')? AsciiChar : ' '),
+			    ((AsciiChar && AsciiChar != '\t' && !IsEol(AsciiChar))? AsciiChar : ' '),
 			    AsciiChar,
 			    rec->Event.KeyEvent.dwControlKeyState,
 			    (rec->Event.KeyEvent.dwControlKeyState&LEFT_CTRL_PRESSED?L'C':L'c'),

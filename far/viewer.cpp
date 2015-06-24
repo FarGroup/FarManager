@@ -1138,7 +1138,7 @@ void Viewer::ReadString(ViewerString *pString, int MaxSize, bool update_cache)
 			nTab = ViOpt.TabSize - (OutPtr % ViOpt.TabSize);
 			continue;
 		}
-		if (L'\n' == ch || L'\r' == ch)
+		if (IsEol(ch))
 		{
 			eol_char = ch;
 			break;
@@ -1270,7 +1270,7 @@ __int64 Viewer::EndOfScreen(int line)
 			{
 				if ( !vgetc(&ch) )
 					break;
-				if ( ch == L'\n' || ch == L'\r' )
+				if (IsEol(ch))
 					break;
 				if ( ch == L'\t' )
 					col += ViOpt.TabSize - (col % ViOpt.TabSize);
@@ -1312,7 +1312,7 @@ __int64 Viewer::BegOfScreen()
 			prev_pos = vtell();
 			if ( !vgetc(&ch) )
 				break;
-			if ( ch == L'\n' || ch == L'\r' )
+			if (IsEol(ch))
 			{
 				pos = std::next(Strings.begin())->nFilePos;
 				break;
@@ -1394,7 +1394,7 @@ __int64 Viewer::XYfilepos(int col, int row)
 						pos = i.nFilePos + i.linesize;
 						break;
 					}
-					else if (ch == L'\n' || ch == L'\r')
+					else if (IsEol(ch))
 					{
 						pos = i.nFilePos + i.linesize - 1;
 						break;
@@ -2008,7 +2008,7 @@ int Viewer::process_key(const Manager::Key& Key)
 						FilePos -= FilePos % CharSize;
 						vseek(FilePos, FILE_BEGIN);
 						wchar_t LastSym = L'\0';
-						if (vgetc(&LastSym) && LastSym != L'\n' && LastSym != L'\r')
+						if (vgetc(&LastSym) && !IsEol(LastSym))
 							++max_counter;
 
 						FilePos = vtell();

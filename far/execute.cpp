@@ -318,7 +318,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 					{
 						if (i==ARRAYSIZE(RootFindKey)-1)
 						{
-							if (DWORD RedirectionFlag = os::GetAppPathsRedirectionFlag())
+							if (const auto RedirectionFlag = os::GetAppPathsRedirectionFlag())
 							{
 								samDesired|=RedirectionFlag;
 							}
@@ -792,13 +792,11 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	SCOPED_ACTION(ConsoleTitle);
 
 	SHELLEXECUTEINFO seInfo={sizeof(seInfo)};
-	string strCurDir;
-	os::GetCurrentDirectory(strCurDir);
+	const auto strCurDir = os::GetCurrentDirectory();
 	seInfo.lpDirectory=strCurDir.data();
 	seInfo.nShow = SW_SHOWNORMAL;
 
 	string strFarTitle;
-
 
 	if(!Silent)
 	{
@@ -1231,11 +1229,7 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 
 				if (!(strCmd[1] == L':' || (strCmd[0] == L'\\' && strCmd[1]==L'\\') || strExpandedStr[1] == L':' || (strExpandedStr[0] == L'\\' && strExpandedStr[1]==L'\\')))
 				{
-					if (Global->CtrlObject)
-						strFullPath = Global->CtrlObject->CmdLine()->GetCurDir();
-					else
-						os::GetCurrentDirectory(strFullPath);
-
+					strFullPath = Global->CtrlObject? Global->CtrlObject->CmdLine()->GetCurDir() : os::GetCurrentDirectory();
 					AddEndSlash(strFullPath);
 				}
 

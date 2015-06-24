@@ -50,7 +50,7 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 	if (NewDir.empty())
 		return FALSE;
 
-	BOOL rc=FALSE;
+	bool rc = false;
 	string Drive(L"=A:");
 	string strCurDir;
 
@@ -78,7 +78,7 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 			strCurDir = NewDir;
 
 			if (strCurDir == L"\\")
-				os::GetCurrentDirectory(strCurDir); // здесь берем корень
+				strCurDir = os::GetCurrentDirectory(); // здесь берем корень
 
 			ReplaceSlashToBackslash(strCurDir);
 			ConvertNameToFull(NewDir,strCurDir);
@@ -89,8 +89,10 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 
 	if (rc || !ChangeDir)
 	{
-		if ((!ChangeDir || os::GetCurrentDirectory(strCurDir)) &&
-		        strCurDir.size() > 1 && strCurDir[1]==L':')
+		if (ChangeDir)
+			strCurDir = os::GetCurrentDirectory();
+
+		if (strCurDir.size() > 1 && strCurDir[1]==L':')
 		{
 			Drive[1] = ToUpper(strCurDir[0]);
 			os::env::set_variable(Drive, strCurDir);

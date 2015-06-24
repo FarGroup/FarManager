@@ -731,10 +731,10 @@ NTSTATUS GetLastNtStatus()
 	return Imports().RtlGetLastNtStatus? Imports().RtlGetLastNtStatus() : STATUS_SUCCESS;
 }
 
-BOOL DeleteFile(const string& FileName)
+bool DeleteFile(const string& FileName)
 {
 	NTPath strNtName(FileName);
-	BOOL Result = ::DeleteFile(strNtName.data());
+	bool Result = ::DeleteFile(strNtName.data()) != FALSE;
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
 		Result = Global->Elevation->fDeleteFile(strNtName);
@@ -750,10 +750,10 @@ BOOL DeleteFile(const string& FileName)
 	return Result;
 }
 
-BOOL RemoveDirectory(const string& DirName)
+bool RemoveDirectory(const string& DirName)
 {
 	NTPath strNtName(DirName);
-	BOOL Result = ::RemoveDirectory(strNtName.data());
+	bool Result = ::RemoveDirectory(strNtName.data()) != FALSE;
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
 		Result = Global->Elevation->fRemoveDirectory(strNtName);
@@ -798,7 +798,7 @@ os::handle CreateFile(const string& Object, DWORD DesiredAccess, DWORD ShareMode
 	return Handle;
 }
 
-BOOL CopyFileEx(
+bool CopyFileEx(
     const string& ExistingFileName,
     const string& NewFileName,
     LPPROGRESS_ROUTINE lpProgressRoutine,
@@ -812,7 +812,7 @@ BOOL CopyFileEx(
 	{
 		strTo += PointToName(strFrom);
 	}
-	BOOL Result = ::CopyFileEx(strFrom.data(), strTo.data(), lpProgressRoutine, lpData, pbCancel, dwCopyFlags);
+	bool Result = ::CopyFileEx(strFrom.data(), strTo.data(), lpProgressRoutine, lpData, pbCancel, dwCopyFlags) != FALSE;
 	if(!Result)
 	{
 		if (STATUS_STOPPED_ON_SYMLINK == GetLastNtStatus() && ERROR_STOPPED_ON_SYMLINK != GetLastError())
@@ -911,15 +911,14 @@ void InitCurrentDirectory()
 	}
 }
 
-DWORD GetCurrentDirectory(string &strCurDir)
+string GetCurrentDirectory()
 {
 	//never give outside world a direct pointer to our internal string
 	//who knows what they gonna do
-	strCurDir.assign(strCurrentDirectory().data(),strCurrentDirectory().size());
-	return static_cast<DWORD>(strCurDir.size());
+	return strCurrentDirectory();
 }
 
-BOOL SetCurrentDirectory(const string& PathName, bool Validate)
+bool SetCurrentDirectory(const string& PathName, bool Validate)
 {
 	// correct path to our standard
 	string strDir=PathName;
@@ -936,7 +935,7 @@ BOOL SetCurrentDirectory(const string& PathName, bool Validate)
 	}
 
 	if (strDir == strCurrentDirectory())
-		return TRUE;
+		return true;
 
 	if (Validate)
 	{
@@ -948,7 +947,7 @@ BOOL SetCurrentDirectory(const string& PathName, bool Validate)
 		{
 			DWORD LastError = ::GetLastError();
 			if(!(LastError == ERROR_FILE_NOT_FOUND || LastError == ERROR_NO_MORE_FILES))
-				return FALSE;
+				return false;
 		}
 	}
 
@@ -961,7 +960,7 @@ BOOL SetCurrentDirectory(const string& PathName, bool Validate)
 		::SetCurrentDirectory(strCurrentDirectory().data());
 	}
 #endif // NO_WRAPPER
-	return TRUE;
+	return true;
 }
 
 DWORD GetTempPath(string &strBuffer)
@@ -1044,7 +1043,7 @@ DWORD WNetGetConnection(const string& LocalName, string &RemoteName)
 	return dwResult;
 }
 
-BOOL GetVolumeInformation(
+bool GetVolumeInformation(
     const string& RootPathName,
     string *pVolumeName,
     LPDWORD lpVolumeSerialNumber,
@@ -1064,8 +1063,8 @@ BOOL GetVolumeInformation(
 		FileSystemNameBuffer.reset(MAX_PATH + 1);
 		FileSystemNameBuffer[0] = L'\0';
 	}
-	BOOL bResult = ::GetVolumeInformation(RootPathName.data(), VolumeNameBuffer.get(), static_cast<DWORD>(VolumeNameBuffer.size()), lpVolumeSerialNumber,
-		lpMaximumComponentLength, lpFileSystemFlags, FileSystemNameBuffer.get(), static_cast<DWORD>(FileSystemNameBuffer.size()));
+	bool bResult = ::GetVolumeInformation(RootPathName.data(), VolumeNameBuffer.get(), static_cast<DWORD>(VolumeNameBuffer.size()), lpVolumeSerialNumber,
+		lpMaximumComponentLength, lpFileSystemFlags, FileSystemNameBuffer.get(), static_cast<DWORD>(FileSystemNameBuffer.size())) != FALSE;
 
 	if (pVolumeName)
 		*pVolumeName = VolumeNameBuffer.get();
@@ -1151,17 +1150,15 @@ bool GetFileSizeEx(HANDLE hFile, UINT64 &Size)
 	return Result;
 }
 
-BOOL IsDiskInDrive(const string& Root)
+bool IsDiskInDrive(const string& Root)
 {
 	string strVolName;
-	string strDrive;
 	DWORD  MaxComSize;
 	DWORD  Flags;
 	string strFS;
-	strDrive = Root;
+	auto strDrive = Root;
 	AddEndSlash(strDrive);
-	BOOL Res = GetVolumeInformation(strDrive, &strVolName, nullptr, &MaxComSize, &Flags, &strFS);
-	return Res;
+	return GetVolumeInformation(strDrive, &strVolName, nullptr, &MaxComSize, &Flags, &strFS);
 }
 
 int GetFileTypeByName(const string& Name)
@@ -1265,10 +1262,10 @@ DWORD GetFileAttributes(const string& FileName)
 	return Result;
 }
 
-BOOL SetFileAttributes(const string& FileName,DWORD dwFileAttributes)
+bool SetFileAttributes(const string& FileName, DWORD dwFileAttributes)
 {
 	NTPath NtName(FileName);
-	BOOL Result = ::SetFileAttributes(NtName.data(), dwFileAttributes);
+	bool Result = ::SetFileAttributes(NtName.data(), dwFileAttributes) != FALSE;
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
 		Result = Global->Elevation->fSetFileAttributes(NtName, dwFileAttributes);
@@ -1321,9 +1318,9 @@ bool CreateHardLinkInternal(const string& Object, const string& Target,LPSECURIT
 	return Result;
 }
 
-BOOL CreateHardLink(const string& FileName, const string& ExistingFileName, LPSECURITY_ATTRIBUTES lpSecurityAttributes)
+bool CreateHardLink(const string& FileName, const string& ExistingFileName, LPSECURITY_ATTRIBUTES lpSecurityAttributes)
 {
-	BOOL Result = CreateHardLinkInternal(NTPath(FileName),NTPath(ExistingFileName), lpSecurityAttributes);
+	bool Result = CreateHardLinkInternal(NTPath(FileName),NTPath(ExistingFileName), lpSecurityAttributes) != FALSE;
 	//bug in win2k: \\?\ fails
 	if (!Result && !IsWindowsXPOrGreater())
 	{
@@ -1753,25 +1750,25 @@ string GetPrivateProfileString(const string& AppName, const string& KeyName, con
 
 DWORD GetAppPathsRedirectionFlag()
 {
-	DWORD RedirectionFlag = 0;
-	static bool Checked = false;
-	if (!Checked)
+	const auto GetFlag = []() -> DWORD
 	{
 		// App Paths key is shared in Windows 7 and above
 		if (!IsWindows7OrGreater())
 		{
 #ifdef _WIN64
-			RedirectionFlag = KEY_WOW64_32KEY;
+			return KEY_WOW64_32KEY;
 #else
 			BOOL Wow64Process = FALSE;
 			if (Imports().IsWow64Process(GetCurrentProcess(), &Wow64Process) && Wow64Process)
 			{
-				RedirectionFlag = KEY_WOW64_64KEY;
+				return KEY_WOW64_64KEY;
 			}
 #endif
 		}
-		Checked = true;
-	}
+		return 0;
+	};
+
+	static const auto RedirectionFlag = GetFlag();
 	return RedirectionFlag;
 }
 

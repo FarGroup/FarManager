@@ -186,14 +186,11 @@ bool elevation::Initialize()
 			SID_IDENTIFIER_AUTHORITY NtAuthority=SECURITY_NT_AUTHORITY;
 
 			os::sid_object AdminSID(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
-			PSECURITY_DESCRIPTOR pSD = LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH);
+			const auto pSD = os::memory::local::alloc<PSECURITY_DESCRIPTOR>(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH);
 			if(pSD)
 			{
-				SCOPE_EXIT { LocalFree(pSD); };
-
-				if (InitializeSecurityDescriptor(pSD, SECURITY_DESCRIPTOR_REVISION))
+				if (InitializeSecurityDescriptor(pSD.get(), SECURITY_DESCRIPTOR_REVISION))
 				{
-					PACL pACL = nullptr;
 					EXPLICIT_ACCESS ea={};
 					ea.grfAccessPermissions = GENERIC_READ|GENERIC_WRITE;
 					ea.grfAccessMode = SET_ACCESS;
@@ -201,13 +198,14 @@ bool elevation::Initialize()
 					ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
 					ea.Trustee.TrusteeType = TRUSTEE_IS_WELL_KNOWN_GROUP;
 					ea.Trustee.ptstrName = static_cast<LPWSTR>(AdminSID.get());
-					if(SetEntriesInAcl(1, &ea, nullptr, &pACL) == ERROR_SUCCESS)
+					PACL pRawACL = nullptr;
+					if (SetEntriesInAcl(1, &ea, nullptr, &pRawACL) == ERROR_SUCCESS)
 					{
-						SCOPE_EXIT { LocalFree(pACL); };
+						const auto pACL = os::memory::local::ptr(pRawACL);
 
-						if(SetSecurityDescriptorDacl(pSD, TRUE, pACL, FALSE))
+						if(SetSecurityDescriptorDacl(pSD.get(), TRUE, pACL.get(), FALSE))
 						{
-							SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), pSD, FALSE};
+							SECURITY_ATTRIBUTES sa = { sizeof(SECURITY_ATTRIBUTES), pSD.get(), FALSE };
 							const auto strPipe = L"\\\\.\\pipe\\" + strPipeID;
 							m_pipe = CreateNamedPipe(strPipe.data(), PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE|PIPE_READMODE_BYTE|PIPE_WAIT, 1, 0, 0, 0, &sa);
 						}

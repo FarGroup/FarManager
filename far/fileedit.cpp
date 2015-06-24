@@ -460,7 +460,7 @@ void FileEditor::Init(
 	SetPluginData(PluginData);
 	m_editor->SetHostFileEditor(this);
 	SetCanLoseFocus(m_Flags.Check(FFILEEDIT_ENABLEF6));
-	os::GetCurrentDirectory(strStartDir);
+	strStartDir = os::GetCurrentDirectory();
 
 	if (!SetFileName(Name))
 	{
@@ -1020,8 +1020,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 			case KEY_SHIFTF2:
 			{
 				BOOL Done=FALSE;
-				string strOldCurDir;
-				os::GetCurrentDirectory(strOldCurDir);
+				const auto strOldCurDir = os::GetCurrentDirectory();
 				while (!Done) // бьемся до упора
 				{
 					size_t pos;
@@ -1423,8 +1422,7 @@ int FileEditor::SetCodePage(uintptr_t cp,	bool redetect_default, bool ascii2def)
 
 int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion,bool DeleteWindow)
 {
-	string strOldCurDir;
-	os::GetCurrentDirectory(strOldCurDir);
+	const auto strOldCurDir = os::GetCurrentDirectory();
 
 	for (;;)
 	{
@@ -1750,43 +1748,43 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		codepage=m_editor->GetCodePage();
 	}
 
-	SCOPED_ACTION(IndeterminateTaskBar);
-	SCOPED_ACTION(wakeful);
-
 	if (m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE) && !m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED) && !bSaveAs)
 		return SAVEFILE_SUCCESS;
+
+	SCOPED_ACTION(IndeterminateTaskBar);
+	SCOPED_ACTION(wakeful);
 
 	if (Ask)
 	{
 		if (!m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED))
 			return SAVEFILE_SUCCESS;
 
-		if (Ask)
-		{
 
-			auto Buttons = make_vector<string>(MSG(MHYes), MSG(MHNo));
-			if (Global->AllowCancelExit)
-				Buttons.emplace_back(MSG(MHCancel));
-			int Code = Message(MSG_WARNING, MSG(MEditTitle),
-				make_vector<string>(MSG(MEditAskSave)),
-				Buttons,
-				nullptr, nullptr, &EditAskSaveId);
-			if(Code < 0 && !Global->AllowCancelExit)
-			{
-				Code = 1; // close == not save
-			}
-			switch (Code)
-			{
-				case -1:
-				case -2:
-				case 2:  // Continue Edit
-					return SAVEFILE_CANCEL;
-				case 0:  // Save
-					break;
-				case 1:  // Not Save
-					m_editor->TextChanged(false); // 10.08.2000 skv: TextChanged() support;
-					return SAVEFILE_SUCCESS;
-			}
+		auto Buttons = make_vector<string>(MSG(MHYes), MSG(MHNo));
+		if (Global->AllowCancelExit)
+		{
+			Buttons.emplace_back(MSG(MHCancel));
+		}
+
+		int Code = Message(MSG_WARNING, MSG(MEditTitle), make_vector<string>(MSG(MEditAskSave)), Buttons, nullptr, nullptr, &EditAskSaveId);
+		if(Code < 0 && !Global->AllowCancelExit)
+		{
+			Code = 1; // close == not save
+		}
+
+		switch (Code)
+		{
+		case 0:  // Save
+			break;
+		
+		case 1:  // Not Save
+			m_editor->TextChanged(false); // 10.08.2000 skv: TextChanged() support;
+			return SAVEFILE_SUCCESS;
+
+		case -1:
+		case -2:
+		case 2:  // Continue Edit
+			return SAVEFILE_CANCEL;
 		}
 	}
 
@@ -1855,11 +1853,8 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 	{
 		// проверим путь к файлу, может его уже снесли...
 		string strCreatedPath = Name;
-		const wchar_t *Ptr=LastSlash(strCreatedPath.data());
-
-		if (Ptr)
+		if (CutToParent(strCreatedPath))
 		{
-			CutToSlash(strCreatedPath);
 			if (!os::fs::exists(strCreatedPath))
 			{
 				// и попробуем создать.
@@ -2287,17 +2282,10 @@ BOOL FileEditor::SetFileName(const string& NewFileName)
 		ConvertNameToFull(strFileName, strFullFileName);
 		string strFilePath=strFullFileName;
 
-		if (CutToSlash(strFilePath,1))
+		if (CutToParent(strFilePath))
 		{
-			string strCurPath;
-
-			if (os::GetCurrentDirectory(strCurPath))
-			{
-				DeleteEndSlash(strCurPath);
-
-				if (!StrCmpI(strFilePath, strCurPath))
-					strFileName=PointToName(strFullFileName);
-			}
+			if (!StrCmpI(strFilePath, os::GetCurrentDirectory()))
+				strFileName=PointToName(strFullFileName);
 		}
 
 		//Дабы избежать бардака, развернём слешики...

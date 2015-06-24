@@ -170,21 +170,21 @@ namespace os
 	};
 
 	NTSTATUS GetLastNtStatus();
-	DWORD GetCurrentDirectory(string &strCurDir);
+	string GetCurrentDirectory();
 	DWORD GetTempPath(string &strBuffer);
 	DWORD GetModuleFileName(HMODULE hModule, string &strFileName);
 	DWORD GetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFileName);
 	DWORD WNetGetConnection(const string& LocalName, string &RemoteName);
-	BOOL GetVolumeInformation(const string& RootPathName, string *pVolumeName, LPDWORD lpVolumeSerialNumber, LPDWORD lpMaximumComponentLength, LPDWORD lpFileSystemFlags, string *pFileSystemName);
+	bool GetVolumeInformation(const string& RootPathName, string *pVolumeName, LPDWORD lpVolumeSerialNumber, LPDWORD lpMaximumComponentLength, LPDWORD lpFileSystemFlags, string *pFileSystemName);
 	bool GetFindDataEx(const string& FileName, FAR_FIND_DATA& FindData, bool ScanSymLink=true);
 	bool GetFileSizeEx(HANDLE hFile, UINT64 &Size);
-	BOOL DeleteFile(const string& FileName);
-	BOOL RemoveDirectory(const string& DirName);
+	bool DeleteFile(const string& FileName);
+	bool RemoveDirectory(const string& DirName);
 	handle CreateFile(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes=0, HANDLE TemplateFile=nullptr, bool ForceElevation = false);
-	BOOL CopyFileEx(const string& ExistingFileName, const string& NewFileName, LPPROGRESS_ROUTINE lpProgressRoutine, LPVOID lpData, LPBOOL pbCancel, DWORD dwCopyFlags);
+	bool CopyFileEx(const string& ExistingFileName, const string& NewFileName, LPPROGRESS_ROUTINE lpProgressRoutine, LPVOID lpData, LPBOOL pbCancel, DWORD dwCopyFlags);
 	bool MoveFile(const string& ExistingFileName, const string& NewFileName);
 	bool MoveFileEx(const string& ExistingFileName, const string& NewFileName, DWORD dwFlags);
-	BOOL IsDiskInDrive(const string& Root);
+	bool IsDiskInDrive(const string& Root);
 	int GetFileTypeByName(const string& Name);
 	bool GetDiskSize(const string& Path, unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree);
 	find_handle FindFirstFileName(const string& FileName, DWORD dwFlags, string& LinkName);
@@ -192,12 +192,12 @@ namespace os
 	bool CreateDirectory(const string& PathName, LPSECURITY_ATTRIBUTES lpSecurityAttributes);
 	bool CreateDirectoryEx(const string& TemplateDirectory, const string& NewDirectory, LPSECURITY_ATTRIBUTES SecurityAttributes);
 	DWORD GetFileAttributes(const string& FileName);
-	BOOL SetFileAttributes(const string& FileName, DWORD dwFileAttributes);
+	bool SetFileAttributes(const string& FileName, DWORD dwFileAttributes);
 	void InitCurrentDirectory();
-	BOOL SetCurrentDirectory(const string& PathName, bool Validate = true);
+	bool SetCurrentDirectory(const string& PathName, bool Validate = true);
 	bool CreateSymbolicLink(const string& SymlinkFileName, const string& TargetFileName, DWORD dwFlags);
 	bool SetFileEncryption(const string& Name, bool Encrypt);
-	BOOL CreateHardLink(const string& FileName, const string& ExistingFileName, LPSECURITY_ATTRIBUTES lpSecurityAttributes);
+	bool CreateHardLink(const string& FileName, const string& ExistingFileName, LPSECURITY_ATTRIBUTES lpSecurityAttributes);
 	find_handle FindFirstStream(const string& FileName, STREAM_INFO_LEVELS InfoLevel, LPVOID lpFindStreamData, DWORD dwFlags = 0);
 	bool FindNextStream(const find_handle& hFindStream, LPVOID lpFindStreamData);
 	std::vector<string> GetLogicalDriveStrings();
@@ -565,6 +565,26 @@ namespace os
 			template<class T>
 			typename lock_t<T>::ptr lock(const ptr& Ptr) { return lock<T>(Ptr.get()); }
 		}
+
+		namespace local
+		{
+			namespace detail
+			{
+				struct deleter { void operator()(HLOCAL MemoryBlock) const { LocalFree(MemoryBlock); } };
+			};
+
+			template<class T>
+			struct ptr_t
+			{
+				typedef std::unique_ptr<T, detail::deleter> type;
+			};
+
+			template<class T>
+			inline typename ptr_t<T>::type ptr(T* Pointer) { return typename ptr_t<T>::type(Pointer); }
+
+			template<class T>
+			inline typename ptr_t<T>::type alloc(UINT Flags, size_t size) { return ptr(static_cast<T*>(LocalAlloc(Flags, size))); }
+		};
 
 		bool is_pointer(const void* Address);
 	

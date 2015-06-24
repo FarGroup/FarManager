@@ -580,7 +580,7 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 		}
 	}
 
-	auto Msgs = make_vector(Description, QuoteLeadingSpace(string(Object)));
+	auto Msgs = make_vector(Description, QuoteOuterSpace(string(Object)));
 	if(!Msg.empty())
 	{
 		Msgs.emplace_back(LangString(MObjectLockedReason) << MSG(Reason));

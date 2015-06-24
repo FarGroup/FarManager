@@ -1060,7 +1060,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		}
 
 		string strSelNameShort(strSelName);
-		QuoteLeadingSpace(strSelNameShort);
+		QuoteOuterSpace(strSelNameShort);
 		strCopyStr=MSG(Move?MMoveFile:(Link?MLinkFile:MCopyFile));
 		TruncPathStr(strSelNameShort,static_cast<int>(CopyDlg[ID_SC_TITLE].X2-CopyDlg[ID_SC_TITLE].X1-strCopyStr.size()-7));
 		strCopyStr+=L" "+strSelNameShort;
@@ -2542,7 +2542,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					{
 						string qSrc(Src);
 						Message(MSG_WARNING,1,MSG(MError),MSG(MCannotCopyFileToItself1),
-							    QuoteLeadingSpace(qSrc).data(),MSG(MCannotCopyFileToItself2),MSG(MOk));
+							    QuoteOuterSpace(qSrc).data(),MSG(MCannotCopyFileToItself2),MSG(MOk));
 						return COPY_CANCEL;
 					}
 				}
@@ -3617,7 +3617,7 @@ int ShellCopy::AskOverwrite(const os::FAR_FIND_DATA &SrcData,
 		WARN_DLG_WIDTH=76,
 	};
 	string qDst(DestName);
-	QuoteLeadingSpace(qDst);
+	QuoteOuterSpace(qDst);
 	FarDialogItem WarnCopyDlgData[]=
 	{
 		{DI_DOUBLEBOX,3,1,WARN_DLG_WIDTH-4,WARN_DLG_HEIGHT-2,0,nullptr,nullptr,0,MSG(MWarning)},

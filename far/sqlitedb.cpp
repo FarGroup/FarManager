@@ -246,7 +246,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 			FormatString strTmp;
 			os::GetTempPath(strTmp);
 			strTmp << GetCurrentProcessId() << L'-' << DbFile;
-			ok = copied = FALSE != os::CopyFileEx(m_Path, strTmp, nullptr, nullptr, nullptr, 0);
+			ok = copied = os::CopyFileEx(m_Path, strTmp, nullptr, nullptr, nullptr, 0);
 			os::SetFileAttributes(strTmp, FILE_ATTRIBUTE_NORMAL);
 			if (ok)
 				m_Path = strTmp;

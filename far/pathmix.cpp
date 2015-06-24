@@ -180,12 +180,7 @@ bool TestParentFolderName(const string& Name)
 
 bool TestCurrentDirectory(const string& TestDir)
 {
-	string strCurDir;
-
-	if (os::GetCurrentDirectory(strCurDir) && !StrCmpI(strCurDir, TestDir))
-		return true;
-
-	return false;
+	return !StrCmpI(os::GetCurrentDirectory(), TestDir);
 }
 
 const wchar_t* PointToName(const wchar_t *lpwszPath)

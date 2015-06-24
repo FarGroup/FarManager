@@ -1098,7 +1098,7 @@ int PluginManager::PutFiles(PluginHandle* hPlugin, PluginPanelItem *PanelItem, s
 	Global->KeepUserScreen=FALSE;
 
 	static string strCurrentDirectory;
-	os::GetCurrentDirectory(strCurrentDirectory);
+	strCurrentDirectory = os::GetCurrentDirectory();
 	PutFilesInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->hPlugin;
 	Info.PanelItem = PanelItem;

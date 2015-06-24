@@ -180,9 +180,7 @@ void Panel::SetViewMode(int ViewMode)
 
 void Panel::ChangeDirToCurrent()
 {
-	string strNewDir;
-	os::GetCurrentDirectory(strNewDir);
-	SetCurDir(strNewDir,true);
+	SetCurDir(os::GetCurrentDirectory(), true);
 }
 
 
@@ -962,8 +960,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			}
 		}
 
-		string strNewCurDir;
-		os::GetCurrentDirectory(strNewCurDir);
+		const auto strNewCurDir = os::GetCurrentDirectory();
 
 		if ((m_PanelMode == NORMAL_PANEL) &&
 		        (GetType() == FILE_PANEL) &&

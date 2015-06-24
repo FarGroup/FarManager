@@ -60,11 +60,11 @@ static bool SidToName(PSID Sid, string& Name, const string& Computer)
 	}
 	else
 	{
-		LPWSTR StrSid;
-		if(ConvertSidToStringSid(Sid, &StrSid))
+		wchar_t* Ptr;
+		if(ConvertSidToStringSid(Sid, &Ptr))
 		{
-			Name = StrSid;
-			LocalFree(StrSid);
+			const auto StrSid = os::memory::local::ptr(Ptr);
+			Name = StrSid.get();
 			Result = true;
 		}
 	}
@@ -162,21 +162,24 @@ bool SetOwnerInternal(const string& Object, const string& Owner)
 {
 	bool Result = false;
 
-	PSID Sid = nullptr;
-	SCOPE_EXIT { LocalFree(Sid); };
-
-	if(!ConvertStringSidToSid(Owner.data(), &Sid))
+	PSID Ptr = nullptr;
+	os::memory::local::ptr_t<void>::type Sid;
+	if (ConvertStringSidToSid(Owner.data(), &Ptr))
+	{
+		Sid.reset(Ptr);
+	}
+	else
 	{
 		SID_NAME_USE Use;
 		DWORD cSid=0, ReferencedDomain=0;
 		LookupAccountName(nullptr, Owner.data(), nullptr, &cSid, nullptr, &ReferencedDomain, &Use);
 		if(cSid)
 		{
-			Sid = LocalAlloc(LMEM_FIXED, cSid);
+			Sid = os::memory::local::alloc<PSID>(LMEM_FIXED, cSid);
 			if(Sid)
 			{
 				std::vector<wchar_t> ReferencedDomainName(ReferencedDomain);
-				if(LookupAccountName(nullptr, Owner.data(), Sid, &cSid, ReferencedDomainName.data(), &ReferencedDomain, &Use))
+				if(LookupAccountName(nullptr, Owner.data(), Sid.get(), &cSid, ReferencedDomainName.data(), &ReferencedDomain, &Use))
 				{
 					;
 				}
@@ -186,7 +189,7 @@ bool SetOwnerInternal(const string& Object, const string& Owner)
 	if(Sid)
 	{
 		SCOPED_ACTION(os::security::privilege)(make_vector(SE_TAKE_OWNERSHIP_NAME, SE_RESTORE_NAME));
-		DWORD dwResult = SetNamedSecurityInfo(const_cast<LPWSTR>(Object.data()), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, Sid, nullptr, nullptr, nullptr);
+		DWORD dwResult = SetNamedSecurityInfo(const_cast<LPWSTR>(Object.data()), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, Sid.get(), nullptr, nullptr, nullptr);
 		if(dwResult == ERROR_SUCCESS)
 		{
 			Result = true;

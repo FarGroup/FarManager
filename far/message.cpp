@@ -55,8 +55,8 @@ static string FormatErrorString(bool Nt, DWORD Code)
 {
 	LPWSTR lpBuffer=nullptr;
 	size_t size = FormatMessage((Nt?FORMAT_MESSAGE_FROM_HMODULE:FORMAT_MESSAGE_FROM_SYSTEM)|FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_IGNORE_INSERTS, (Nt?GetModuleHandle(L"ntdll.dll"):nullptr), Code, 0, reinterpret_cast<LPWSTR>(&lpBuffer), 0, nullptr);
-	string Result(lpBuffer, size);
-	LocalFree(lpBuffer);
+	const auto Ptr = os::memory::local::ptr(lpBuffer);
+	string Result(Ptr.get(), size);
 	RemoveUnprintableCharacters(Result);
 	return Result;
 }
