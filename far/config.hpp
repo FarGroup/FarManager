@@ -380,6 +380,7 @@ public:
 
 		BoolOption KeepEOL;
 		BoolOption AddUnicodeBOM;
+		BoolOption NewFileUnixEOL;
 	};
 
 	struct ViewerOptions

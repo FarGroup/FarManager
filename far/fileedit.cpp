@@ -1924,7 +1924,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 				WideCharToMultiByte(codepage, WC_NO_BEST_FIT_CHARS, SaveStr, static_cast<int>(Length), nullptr, 0, nullptr, &UsedDefaultCharStr);
 
 				if (!*EndSeq && !m_editor->IsLastLine(CurPtr))
-					EndSeq = m_editor->GlobalEOL.empty() ? DOS_EOL_fmt : m_editor->GlobalEOL.data();
+					EndSeq = m_editor->GlobalEOL.empty() ? (Global->Opt->EdOpt.NewFileUnixEOL ? UNIX_EOL_fmt : DOS_EOL_fmt) : m_editor->GlobalEOL.data();
 
 				if (TextFormat&&*EndSeq)
 					EndSeq=m_editor->GlobalEOL.data();
@@ -2052,7 +2052,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
 
 			if (!*EndSeq && !m_editor->IsLastLine(CurPtr) && (*CurPtr->GetEOL()))
-				EndSeq = m_editor->GlobalEOL.empty()? DOS_EOL_fmt : m_editor->GlobalEOL.data();
+				EndSeq = m_editor->GlobalEOL.empty() ? (Global->Opt->EdOpt.NewFileUnixEOL ? UNIX_EOL_fmt : DOS_EOL_fmt) : m_editor->GlobalEOL.data();
 
 			if (TextFormat && *EndSeq)
 			{

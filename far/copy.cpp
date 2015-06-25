@@ -931,7 +931,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	// ***********************************************************************
 	int DLG_HEIGHT=16, DLG_WIDTH=76;
 
-	FARDIALOGITEMFLAGS no_tree = Global->Opt->Tree.TurnOffCompletely ? DIF_DISABLE : 0;
+	FARDIALOGITEMFLAGS no_tree = Global->Opt->Tree.TurnOffCompletely ? DIF_HIDDEN|DIF_DISABLE : 0;
 
 	FarDialogItem CopyDlgData[]=
 	{

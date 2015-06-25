@@ -6031,6 +6031,19 @@ $ #far:config Editor.AddUnicodeBOM#
 
     Изменение этого параметра возможно через ~far:config~@FarConfig@
 
+@Editor.NewFileUnixEOL
+$ #far:config Editor.NewFileUnixEOL#
+    Параметр "Editor.NewFileUnixEOL" позволяет задавать умолчательные символы конца строки в редакторе
+для вновь создаваемых файлов.
+
+     false - ^<wrap>Во вновь создаваемых файлах строки закнчиваются символами #<CR><LF># - (как в Windows).
+
+     true  - ^<wrap>Во вновь создаваемых файлах строки закнчиваются символом #<LF># - (как в Unix).
+
+    По умолчанию значение = false
+
+    Изменение этого параметра возможно через ~far:config~@FarConfig@
+
 @Panel.ShortcutAlwaysChdir
 $ #far:config Panel.ShortcutAlwaysChdir#
     Параметр "Panel.ShortcutAlwaysChdir" управляет поведением при нажатии клавиш перехода на папку

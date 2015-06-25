@@ -623,67 +623,67 @@ void Dialog::ProcessCenterGroup()
 			(i == Items.begin() || (i != Items.begin() && (!((i-1)->Flags & DIF_CENTERGROUP) || (i-1)->Y1 != i->Y1)))
 		)
 		{
-			int Length=0;
-
+			int s = 0, n = 0;
 			for (auto j = i; j != Items.end() && (j->Flags & DIF_CENTERGROUP) && j->Y1 == i->Y1; ++j)
-			{
-				Length+=LenStrItem(j - Items.begin());
+				++n;
+			while (s < n && ((i + s)->Flags & DIF_HIDDEN)) // skip start hidden items
+				++s;
 
-				if (!j->strData.empty())
-					switch (j->Type)
-					{
-						case DI_BUTTON:
-							Length++;
-							break;
-						case DI_CHECKBOX:
-						case DI_RADIOBUTTON:
-							Length+=5;
-							break;
-						default:
-							break;
-					}
-			}
-
-			if (!i->strData.empty())
+			int Length = 0;
+			for (int k = s; k < n; ++k)
 			{
-				switch (i->Type)
+				auto j = i + k;
+				if (!(j->Flags & DIF_HIDDEN))
 				{
-					case DI_BUTTON:
-						Length--;
-						break;
-					case DI_CHECKBOX:
-					case DI_RADIOBUTTON:
-//            Length-=5;
-						break;
-					default:
-						break;
-				} //Бля, це ж ботва какая-то
-			}
-			int StartX=std::max(0,(m_X2-m_X1+1-Length)/2);
-
-			for (auto j = i; j != Items.end() && (j->Flags & DIF_CENTERGROUP) && j->Y1 == i->Y1; ++j)
-			{
-				j->X1=StartX;
-				StartX+=LenStrItem(j - Items.begin());
-
-				if (!j->strData.empty())
-					switch (j->Type)
+					Length += LenStrItem(j - Items.begin());
+					if (!j->strData.empty())
 					{
+						switch (j->Type)
+						{
 						case DI_BUTTON:
-							StartX++;
+							++Length;
 							break;
 						case DI_CHECKBOX:
 						case DI_RADIOBUTTON:
-							StartX+=5;
+							Length += 5;
 							break;
 						default:
 							break;
+						}
 					}
+				}
+			}
+			if (!(i + s)->strData.empty() && (i + s)->Type == DI_BUTTON)
+				--Length;
 
-				if (StartX == j->X1)
-					j->X2=StartX;
-				else
-					j->X2=StartX-1;
+			int StartX = std::max(0, (m_X2-m_X1+1-Length)/2);
+			for (int k = s; k < n; ++k)
+			{
+				auto j = i + k;
+				if (!(j->Flags & DIF_HIDDEN))
+				{
+					j->X1 = StartX;
+					StartX += LenStrItem(j - Items.begin());
+					if (!j->strData.empty())
+					{
+						switch (j->Type)
+						{
+						case DI_BUTTON:
+							++StartX;
+							break;
+						case DI_CHECKBOX:
+						case DI_RADIOBUTTON:
+							StartX += 5;
+							break;
+						default:
+							break;
+						}
+					}
+					if (StartX == j->X1)
+						j->X2 = StartX;
+					else
+						j->X2 = StartX - 1;
+				}
 			}
 		}
 	}
@@ -746,7 +746,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 		{
 			LPCWSTR Brackets[]={L"[ ", L" ]", L"{ ",L" }"};
 			int Start=((Items[I].Flags&DIF_DEFAULTBUTTON)?2:0);
-			if(Items[I].strData[0]!=*Brackets[Start])
+			if(Items[I].strData.data()[0]!=*Brackets[Start])
 			{
 				Items[I].strData=Brackets[Start]+Items[I].strData+Brackets[Start+1];
 			}

@@ -151,7 +151,7 @@ Editor::Editor(window_ptr Owner, bool DialogUsed):
 	}
 	UnmarkMacroBlock();
 
-	GlobalEOL = DOS_EOL_fmt;
+	GlobalEOL = Global->Opt->EdOpt.NewFileUnixEOL ? UNIX_EOL_fmt : DOS_EOL_fmt;
 	PushString(nullptr, 0);
 }
 
@@ -3265,7 +3265,7 @@ void Editor::InsertString()
 	}
 	else
 	{
-		m_it_CurLine->SetEOL(GlobalEOL.empty()? DOS_EOL_fmt : GlobalEOL.data());
+		m_it_CurLine->SetEOL(GlobalEOL.empty() ? (Global->Opt->EdOpt.NewFileUnixEOL ? UNIX_EOL_fmt : DOS_EOL_fmt) : GlobalEOL.data());
 		NewString->SetEOL(EndSeq);
 	}
 
@@ -5239,7 +5239,7 @@ string Editor::VBlock2Text(const wchar_t* InitData, size_t size)
 			CopyData.append(TBlockSizeX, L' ');
 		}
 
-		CopyData.append(DOS_EOL_fmt);
+		CopyData.append(Global->Opt->EdOpt.NewFileUnixEOL ? UNIX_EOL_fmt : DOS_EOL_fmt);
 	}
 
 	return CopyData;

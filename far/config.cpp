@@ -1574,6 +1574,7 @@ void Options::InitConfigData()
 		{FSSF_PRIVATE,       NKeyEditor,L"ExternalEditorName", OPT_DEF(strExternalEditor, L"")},
 		{FSSF_PRIVATE,       NKeyEditor,L"FileSizeLimit", OPT_DEF(EdOpt.FileSizeLimit, 0)},
 		{FSSF_PRIVATE,       NKeyEditor,L"KeepEditorEOL", OPT_DEF(EdOpt.KeepEOL, true)},
+		{FSSF_PRIVATE,       NKeyEditor,L"NewFileUnixEOL", OPT_DEF(EdOpt.NewFileUnixEOL, false)},
 		{FSSF_PRIVATE,       NKeyEditor,L"PersistentBlocks", OPT_DEF(EdOpt.PersistentBlocks, false)},
 		{FSSF_PRIVATE,       NKeyEditor,L"ReadOnlyLock", OPT_DEF(EdOpt.ReadOnlyLock, 0)},
 		{FSSF_PRIVATE,       NKeyEditor,L"SaveEditorPos", OPT_DEF(EdOpt.SavePos, true)},
@@ -2575,7 +2576,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		}
 	};
 
-	LISTITEMFLAGS no_tree = Global->Opt->Tree.TurnOffCompletely ? LIF_DISABLE : 0;
+	LISTITEMFLAGS no_tree = Global->Opt->Tree.TurnOffCompletely ? LIF_HIDDEN : 0;
 
 	MenuDataEx LeftMenu[]=
 	{
