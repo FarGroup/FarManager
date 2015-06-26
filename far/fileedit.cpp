@@ -1886,16 +1886,16 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 	switch (TextFormat)
 	{
 		case 1:
-			m_editor->GlobalEOL = DOS_EOL_fmt;
+			m_editor->GlobalEOL = WIN_EOL_fmt;
 			break;
 		case 2:
 			m_editor->GlobalEOL = UNIX_EOL_fmt;
 			break;
 		case 3:
-			m_editor->GlobalEOL = MAC_EOL_fmt;
+			m_editor->GlobalEOL = OLD_MAC_EOL_fmt;
 			break;
 		case 4:
-			m_editor->GlobalEOL = WIN_EOL_fmt;
+			m_editor->GlobalEOL = BAD_WIN_EOL_fmt;
 			break;
 	}
 
@@ -1924,7 +1924,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 				WideCharToMultiByte(codepage, WC_NO_BEST_FIT_CHARS, SaveStr, static_cast<int>(Length), nullptr, 0, nullptr, &UsedDefaultCharStr);
 
 				if (!*EndSeq && !m_editor->IsLastLine(CurPtr))
-					EndSeq = m_editor->GlobalEOL.empty() ? (Global->Opt->EdOpt.NewFileUnixEOL ? UNIX_EOL_fmt : DOS_EOL_fmt) : m_editor->GlobalEOL.data();
+					EndSeq = m_editor->GlobalEOL.empty() ? Editor::GetDefaultEOL() : m_editor->GlobalEOL.data();
 
 				if (TextFormat&&*EndSeq)
 					EndSeq=m_editor->GlobalEOL.data();
@@ -2052,7 +2052,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
 
 			if (!*EndSeq && !m_editor->IsLastLine(CurPtr) && (*CurPtr->GetEOL()))
-				EndSeq = m_editor->GlobalEOL.empty() ? (Global->Opt->EdOpt.NewFileUnixEOL ? UNIX_EOL_fmt : DOS_EOL_fmt) : m_editor->GlobalEOL.data();
+				EndSeq = m_editor->GlobalEOL.empty() ? Editor::GetDefaultEOL() : m_editor->GlobalEOL.data();
 
 			if (TextFormat && *EndSeq)
 			{
@@ -2664,13 +2664,13 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 				if (esf->FileEOL)
 				{
-					if (!StrCmp(esf->FileEOL,DOS_EOL_fmt))
+					if (!StrCmp(esf->FileEOL,WIN_EOL_fmt))
 						EOL=1;
 					else if (!StrCmp(esf->FileEOL,UNIX_EOL_fmt))
 						EOL=2;
-					else if (!StrCmp(esf->FileEOL,MAC_EOL_fmt))
+					else if (!StrCmp(esf->FileEOL,OLD_MAC_EOL_fmt))
 						EOL=3;
-					else if (!StrCmp(esf->FileEOL,WIN_EOL_fmt))
+					else if (!StrCmp(esf->FileEOL,BAD_WIN_EOL_fmt))
 						EOL=4;
 				}
 

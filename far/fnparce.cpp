@@ -764,7 +764,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 						CodePage=CP_UNICODE;
 						Signature=SIGN_UNICODE;
 						SignatureSize=2;
-						Eol=DOS_EOL_fmt;
+						Eol=WIN_EOL_fmt;
 						EolSize=2*sizeof(WCHAR);
 					}
 					else

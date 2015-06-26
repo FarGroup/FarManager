@@ -33,10 +33,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-extern const wchar_t DOS_EOL_fmt[];
-extern const wchar_t UNIX_EOL_fmt[];
-extern const wchar_t MAC_EOL_fmt[];
-extern const wchar_t WIN_EOL_fmt[];
+extern const wchar_t WIN_EOL_fmt[];     // <CR><LF>     // same as DOS
+extern const wchar_t UNIX_EOL_fmt[];    // <LF>         //
+extern const wchar_t OLD_MAC_EOL_fmt[]; // <CR>         // modern is Unix <LF>
+extern const wchar_t BAD_WIN_EOL_fmt[]; // <CR><CR><LF> // result of <CR><LF> text mode conversion
 
 inline int StrLength(const wchar_t *str) { return (int) wcslen(str); }
 

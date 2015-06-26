@@ -138,6 +138,7 @@ public:
 
 	static void PR_EditorShowMsg();
 	static void SetReplaceMode(bool Mode);
+	static const wchar_t* GetDefaultEOL();
 
 	struct EditorUndoData;
 
