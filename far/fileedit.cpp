@@ -1776,7 +1776,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		{
 		case 0:  // Save
 			break;
-		
+
 		case 1:  // Not Save
 			m_editor->TextChanged(false); // 10.08.2000 skv: TextChanged() support;
 			return SAVEFILE_SUCCESS;
@@ -2710,6 +2710,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			{
 				Global->WindowManager->DeleteWindow(shared_from_this());
 				SetExitCode(XC_OPEN_ERROR); // что-то меня терзают смутные сомнения ...??? SAVEFILE_ERROR ???
+				Global->WindowManager->PluginCommit();
 			}
 			return TRUE;
 		}

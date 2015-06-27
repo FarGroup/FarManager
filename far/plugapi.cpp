@@ -726,6 +726,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			{
 				auto PrevWindow = Global->WindowManager->GetCurrentWindow();
 				Global->WindowManager->ActivateWindow(NextWindow);
+				Global->WindowManager->PluginCommit();
 				return TRUE;
 			}
 
@@ -736,7 +737,6 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			(и может еще для чего в будущем)
 		*/
 		case ACTL_COMMIT:
-			Global->WindowManager->PluginCommit();
 			return TRUE;
 
 		case ACTL_GETFARHWND:
