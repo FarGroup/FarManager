@@ -3,6 +3,35 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 28.06.2015 02:50:26 +0200 - build 4396
+
+1. ACTL_SETCURRENTWINDOW, VCTL_QUIT and ECTL_QUIT are executed immediately.
+
+2. ACTL_COMMIT does nothing and is left for compatibility reasons.
+
+w17 26.06.2015 18:43:53 +0300 - build 4395
+
+1. Cosmetic changes.
+
+w17 25.06.2015 13:28:40 +0300 - build 4394
+
+1. Items with DIF_CENTERGROUP|DIF_HIDDEN shall not take space in dialogs.
+
+2. Continuation of 4392 -- when tree is switched off then its menu items and dialog buttons are not shown.
+
+3. New far:config setting -- Editor.NewFileUnixEOL
+   If True then new files use Unix line endings <LF>.
+
+drkns 24.06.2015 22:13:33 +0200 - build 4393
+
+1. Refactoring.
+
+w17 15.06.2015 16:31:15 +0300 - build 4392
+
+1. M#2951: Remove everything tree-related from far3
+   Not dropped yet, just turned off by default.
+   Tree fans can use Panel.Tree.TurnOffCompletely = False in far:config.
+
 drkns 09.06.2015 00:59:20 +0200 - build 4391
 
 1. Mouse click action in autocompletion menu was different from Enter key press.
