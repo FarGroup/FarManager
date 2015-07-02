@@ -393,6 +393,10 @@ private:
 
 	bool fake_editor;
 
+	numbered_iterator m_FoundLine;
+	int m_FoundPos;
+	int m_FoundSize;
+
 	struct EditorPreRedrawItem : public PreRedrawItem
 	{
 		EditorPreRedrawItem():

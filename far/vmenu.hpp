@@ -176,7 +176,7 @@ struct MenuDataEx
 {
 	const wchar_t *Name;
 
-	DWORD Flags;
+	LISTITEMFLAGS Flags;
 	DWORD AccelKey;
 
 	DWORD SetCheck(int Value)

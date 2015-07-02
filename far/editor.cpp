@@ -137,7 +137,10 @@ Editor::Editor(window_ptr Owner, bool DialogUsed):
 	SelColor(colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT)),
 	MacroSelectionStart(-1),
 	CursorPos(0),
-	fake_editor(false)
+	fake_editor(false),
+	m_FoundLine(EndIterator()),
+	m_FoundPos(),
+	m_FoundSize()
 {
 	_KEYMACRO(SysLog(L"Editor::Editor()"));
 	_KEYMACRO(SysLog(1));
@@ -1681,6 +1684,13 @@ int Editor::ProcessKey(const Manager::Key& Key)
 							m_it_CurLine->InsertBinaryString(Str,NextLength);
 							m_it_CurLine->SetEOL(NextLine->GetEOL());
 							m_it_CurLine->SetCurPos(CurPos);
+
+							if (m_FoundLine == NextLine)
+							{
+								m_FoundLine = m_it_CurLine;
+								m_FoundPos += m_FoundLine->GetLength();
+							}
+
 							DeleteString(NextLine, true);
 
 							m_it_CurLine->SetEOL(NextEOL);
@@ -3100,6 +3110,7 @@ Editor::numbered_iterator Editor::DeleteString(numbered_iterator DelPtr, bool De
 	UpdateIterator(m_it_TopScreen);
 	UpdateIterator(m_it_LastGetLine);
 	UpdateIterator(m_it_MBlockStart);
+	UpdateIterator(m_FoundLine);
 
 	if (IsAnySelection() && !m_it_AnyBlockStart->IsSelection())
 	{
@@ -3256,6 +3267,13 @@ void Editor::InsertString()
 		}
 
 		m_it_CurLine->SetBinaryString(NewCurLineStr.data(), NewCurLineStr.size());
+
+		if (m_FoundLine == m_it_CurLine && static_cast<size_t>(m_FoundPos) >= CurPos)
+		{
+			++m_FoundLine;
+			m_FoundPos -= static_cast<int>(CurPos);
+		}
+
 		Change(ECTYPE_CHANGED, m_it_CurLine.Number());
 	}
 	else
@@ -3547,24 +3565,21 @@ BOOL Editor::Search(int Next)
 		UserBreak=0;
 		int CurPos=m_it_CurLine->GetCurPos();
 
-		static int iFoundPos = 0;
-		static int LastFoundLength = 0;
-
-		if (Next)
+		if (Next && m_FoundLine == m_it_CurLine)
 		{
 			if (ReverseSearch)
 			{
 				if (EdOpt.SearchCursorAtEnd)
 				{
-					if (CurPos == iFoundPos + LastFoundLength)
-						CurPos -= LastFoundLength;
+					if (CurPos == m_FoundPos + m_FoundSize)
+						CurPos -= m_FoundSize;
 				}
 			}
 			else
 			{
 				if (!EdOpt.SearchCursorAtEnd)
 				{
-					if (CurPos == iFoundPos)
+					if (CurPos == m_FoundPos)
 					{
 						++CurPos;
 					}
@@ -3633,14 +3648,15 @@ BOOL Editor::Search(int Next)
 			int SearchLength;
 			if (CurPtr->Search(strSearchStr, strSearchStrUpper, strSearchStrLower, re, m.data(), &hm, strReplaceStrCurrent, CurPos, Case, WholeWords, ReverseSearch, Regexp, PreserveStyle, &SearchLength))
 			{
-				LastFoundLength = SearchLength;
 				Match = true;
-				auto FoundPtr = CurPtr;
-				iFoundPos = CurPtr->GetCurPos();
+
+				m_FoundLine = CurPtr;
+				m_FoundPos = CurPtr->GetCurPos();
+				m_FoundSize = SearchLength;
 
 				if(FindAllReferences)
 				{
-					CurPos = iFoundPos;
+					CurPos = m_FoundPos;
 					int NextPos = CurPos + (SearchLength? SearchLength : 1);
 
 					const int service_len = 12;
@@ -3665,7 +3681,7 @@ BOOL Editor::Search(int Next)
 						Lock();
 						UnmarkBlock();
 						BeginStreamMarking(CurPtr);
-						CurPtr->Select(iFoundPos, iFoundPos+SearchLength);
+						CurPtr->Select(m_FoundPos, m_FoundPos + m_FoundSize);
 						Unlock();
 						Pasting--;
 					}
@@ -3848,7 +3864,7 @@ BOOL Editor::Search(int Next)
 					}
 
 					if (at_end)
-						CurPtr->SetCurPos(iFoundPos+at_end);
+						CurPtr->SetCurPos(m_FoundPos + at_end);
 
 					if (!ReplaceMode)
 						break;
@@ -3856,7 +3872,7 @@ BOOL Editor::Search(int Next)
 					CurPos = m_it_CurLine->GetCurPos();
 					CurPos += (Skip && !ReverseSearch ? 1:0);
 					if (!Skip && ReverseSearch)
-						(m_it_CurLine = CurPtr = FoundPtr)->SetCurPos(CurPos = iFoundPos);
+						(m_it_CurLine = CurPtr = m_FoundLine)->SetCurPos(CurPos = m_FoundPos);
 				}
 			}
 			else
@@ -4651,8 +4667,6 @@ public:
 		swap(m_EOL, rhs.m_EOL);
 		m_BM.swap(rhs.m_BM);
 	}
-
-	FREE_SWAP(EditorUndoData);
 
 	void SetData(int Type, const wchar_t *Str, const wchar_t *Eol, int StrNum, int StrPos, size_t Length)
 	{
@@ -6958,6 +6972,7 @@ Editor::numbered_iterator Editor::InsertString(const wchar_t *lpwszStr, int nLen
 		UpdateIterator(m_it_LastGetLine);
 		UpdateIterator(m_it_AnyBlockStart);
 		UpdateIterator(m_it_MBlockStart);
+		UpdateIterator(m_FoundLine);
 	}
 	return NewLine;
 }
