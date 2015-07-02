@@ -6,7 +6,7 @@ set TERM=dumb
 cd libs\openssl
 rm -rf out32dll tmp32dll tmp32 inc32 out32
 rm -rf x64
-perl Configure VC-WIN64A no-asm enable-static-engine no-shared no-hw no-camellia no-seed no-rc4 no-rc5 no-cms no-krb5 no-whirlpool no-srp no-gost no-idea no-ripemd -Ox -Ob1 -Oi -Os -Oy -GF -GS- -Gy  -DNDEBUG;OPENSSL_NO_CAPIENG;NO_CHMOD;OPENSSL_NO_DGRAM;OPENSSL_NO_RIJNDAEL;DSO_WIN32
+perl Configure VC-WIN64A no-unit-test no-cast no-err no-bf no-sctp no-rsax no-asm enable-static-engine no-shared no-hw no-camellia no-seed no-rc4 no-rc5 no-krb5 no-whirlpool no-srp no-gost no-idea no-ripemd -Ox -Ob1 -Oi -Os -Oy -GF -GS- -Gy  -DNDEBUG;OPENSSL_NO_CAPIENG;NO_CHMOD;OPENSSL_NO_DGRAM;OPENSSL_NO_RIJNDAEL;DSO_WIN32
 call ms\do_win64a
 nmake -f ms\nt.mak
 mkdir x64
