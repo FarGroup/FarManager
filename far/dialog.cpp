@@ -618,71 +618,58 @@ void Dialog::ProcessCenterGroup()
 		// и одинаковой вертикальной позицией будут отцентрированы в диалоге.
 		// Их координаты X не важны. Удобно использовать для центрирования
 		// групп кнопок.
-		if (
-			(i->Flags & DIF_CENTERGROUP) &&
-			(i == Items.begin() || (i != Items.begin() && (!((i-1)->Flags & DIF_CENTERGROUP) || (i-1)->Y1 != i->Y1)))
-		)
-		{
-			int s = 0, n = 0;
-			for (auto j = i; j != Items.end() && (j->Flags & DIF_CENTERGROUP) && j->Y1 == i->Y1; ++j)
-				++n;
-			while (s < n && ((i + s)->Flags & DIF_HIDDEN)) // skip start hidden items
-				++s;
 
-			int Length = 0;
-			for (int k = s; k < n; ++k)
+		const auto IsNotSuitableItem = [](const DialogItemEx& Item, int Y) { return !(Item.Flags & DIF_CENTERGROUP && Item.Y1 == Y); };
+		const auto IsVisible = [](const DialogItemEx& Item) { return !(Item.Flags & DIF_HIDDEN); };
+
+		if ((i->Flags & DIF_CENTERGROUP) && (i == Items.begin() || IsNotSuitableItem(*(i - 1), i->Y1)))
+		{
+			const auto ButtonsEnd = std::find_if(i, Items.end(), [&](const DialogItemEx& Item) { return IsNotSuitableItem(Item, i->Y1); });
+			const auto FirstVisibleButton = std::find_if(i, ButtonsEnd, IsVisible);
+
+			const auto GetIncrement = [this](const DialogItemEx& Item) -> int
 			{
-				auto j = i + k;
-				if (!(j->Flags & DIF_HIDDEN))
+				auto Result = LenStrItem(Item);
+				if (!Item.strData.empty())
 				{
-					Length += LenStrItem(j - Items.begin());
-					if (!j->strData.empty())
+					switch (Item.Type)
 					{
-						switch (j->Type)
-						{
-						case DI_BUTTON:
-							++Length;
-							break;
-						case DI_CHECKBOX:
-						case DI_RADIOBUTTON:
-							Length += 5;
-							break;
-						default:
-							break;
-						}
+					case DI_BUTTON:
+						Result += 1;
+						break;
+					case DI_CHECKBOX:
+					case DI_RADIOBUTTON:
+						Result += 5;
+						break;
+					default:
+						break;
 					}
 				}
+				return Result;
+			};
+
+			int Length = 0;
+
+			for (auto j = FirstVisibleButton; j != ButtonsEnd; ++j)
+			{
+				if (IsVisible(*j))
+				{
+					Length += GetIncrement(*j);
+				}
 			}
-			if (!(i + s)->strData.empty() && (i + s)->Type == DI_BUTTON)
+
+			if (Length && !FirstVisibleButton->strData.empty() && FirstVisibleButton->Type == DI_BUTTON)
 				--Length;
 
-			int StartX = std::max(0, (m_X2-m_X1+1-Length)/2);
-			for (int k = s; k < n; ++k)
+			int StartX = std::max(0, (m_X2 - m_X1 + 1 - Length) / 2);
+
+			for (auto j = FirstVisibleButton; j != ButtonsEnd; ++j)
 			{
-				auto j = i + k;
-				if (!(j->Flags & DIF_HIDDEN))
+				if (IsVisible(*j))
 				{
 					j->X1 = StartX;
-					StartX += LenStrItem(j - Items.begin());
-					if (!j->strData.empty())
-					{
-						switch (j->Type)
-						{
-						case DI_BUTTON:
-							++StartX;
-							break;
-						case DI_CHECKBOX:
-						case DI_RADIOBUTTON:
-							StartX += 5;
-							break;
-						default:
-							break;
-						}
-					}
-					if (StartX == j->X1)
-						j->X2 = StartX;
-					else
-						j->X2 = StartX - 1;
+					StartX += GetIncrement(*j);
+					j->X2 = StartX - (StartX == j->X1) ? 0 : 1;
 				}
 			}
 		}
@@ -746,7 +733,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 		{
 			LPCWSTR Brackets[]={L"[ ", L" ]", L"{ ",L" }"};
 			int Start=((Items[I].Flags&DIF_DEFAULTBUTTON)?2:0);
-			if(Items[I].strData.data()[0]!=*Brackets[Start])
+			if (!Items[I].strData.empty() && Items[I].strData.front() != *Brackets[Start])
 			{
 				Items[I].strData=Brackets[Start]+Items[I].strData+Brackets[Start+1];
 			}
@@ -2158,7 +2145,7 @@ void Dialog::ShowDialog(size_t ID)
 int Dialog::LenStrItem(size_t ID)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
-	return LenStrItem(ID, Items[ID].strData);
+	return LenStrItem(Items[ID]);
 }
 
 int Dialog::LenStrItem(size_t ID, const string& lpwszStr) const
@@ -2167,6 +2154,10 @@ int Dialog::LenStrItem(size_t ID, const string& lpwszStr) const
 	return static_cast<int>((Items[ID].Flags & DIF_SHOWAMPERSAND)? lpwszStr.size() : HiStrlen(lpwszStr));
 }
 
+int Dialog::LenStrItem(const DialogItemEx& Item)
+{
+	return static_cast<int>((Item.Flags & DIF_SHOWAMPERSAND)? Item.strData.size() : HiStrlen(Item.strData));
+}
 
 int Dialog::ProcessMoveDialog(DWORD Key)
 {

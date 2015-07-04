@@ -237,6 +237,7 @@ private:
 	void DeleteDialogObjects();
 	int LenStrItem(size_t ID, const string& lpwszStr) const;
 	int LenStrItem(size_t ID);
+	int LenStrItem(const DialogItemEx& Item);
 	void ShowDialog(size_t ID=(size_t)-1);  //    ID=-1 - отрисовать весь диалог
 	intptr_t CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITEMTYPES Type, bool Focus, bool Default,FARDIALOGITEMFLAGS Flags);
 	/* $ 28.07.2000 SVS
