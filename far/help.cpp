@@ -76,7 +76,7 @@ enum
 	FHELPOBJ_ERRCANNOTOPENHELP  = 0x80000000,
 };
 
-class HelpRecord: noncopyable
+class HelpRecord: noncopyable, swapable<HelpRecord>
 {
 public:
 	string HelpStr;
@@ -89,8 +89,6 @@ public:
 	{
 		HelpStr.swap(rhs.HelpStr);
 	}
-
-	FREE_SWAP(HelpRecord);
 
 	bool operator ==(const HelpRecord& rhs) const
 	{
@@ -109,7 +107,7 @@ static const wchar_t HelpFormatLink[] = L"<%s\\>%s";
 static const wchar_t HelpFormatLinkModule[] = L"<%s>%s";
 
 
-struct Help::StackHelpData
+struct Help::StackHelpData: swapable<StackHelpData>
 {
 	StackHelpData():
 		Flags(),
@@ -154,8 +152,6 @@ struct Help::StackHelpData
 		swap(CurY, rhs.CurY);
 	}
 
-	FREE_SWAP(StackHelpData);
-
 	string strHelpMask;           // значение маски
 	string strHelpPath;           // путь к хелпам
 	string strHelpTopic;          // текущий топик
@@ -171,7 +167,7 @@ string Help::MakeLink(const string& path, const string& topic)
 	return string(L"<") + path + L"\\>" + topic;
 }
 
-Help::Help():
+Help::Help(private_tag):
 	StackData(std::make_unique<StackHelpData>()),
 	FixCount(0),
 	FixSize(0),
@@ -197,7 +193,7 @@ Help::Help():
 
 help_ptr Help::create(const string& Topic, const wchar_t *Mask, UINT64 Flags)
 {
-	help_ptr HelpPtr(new Help);
+	auto HelpPtr = std::make_shared<Help>(private_tag());
 	HelpPtr->init(Topic, Mask, Flags);
 	return HelpPtr;
 }

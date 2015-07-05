@@ -95,17 +95,17 @@ private:
 	codepages();
 
 	string& FormatCodePageName(uintptr_t CodePage, string& CodePageName, bool &IsCodePageNameCustom) const;
-	inline uintptr_t GetMenuItemCodePage(int Position=-1);
-	inline uintptr_t GetListItemCodePage(int Position=-1);
+	inline size_t GetMenuItemCodePage(size_t Position = -1);
+	inline size_t GetListItemCodePage(size_t Position);
 	inline bool IsPositionStandard(UINT position);
 	inline bool IsPositionFavorite(UINT position);
 	inline bool IsPositionNormal(UINT position);
 	string FormatCodePageString(uintptr_t CodePage, const string& CodePageName, bool IsCodePageNameCustom) const;
-	void AddCodePage(const string& codePageName, uintptr_t codePage, int position, bool enabled, bool checked, bool IsCodePageNameCustom);
+	void AddCodePage(const string& codePageName, uintptr_t codePage, size_t position, bool enabled, bool checked, bool IsCodePageNameCustom);
 	void AddStandardCodePage(const wchar_t *codePageName, uintptr_t codePage, int position=-1, bool enabled=true);
-	void AddSeparator(LPCWSTR Label=nullptr,int position=-1);
-	int GetItemsCount();
-	int GetCodePageInsertPosition(uintptr_t codePage, int start, int length);
+	void AddSeparator(LPCWSTR Label=nullptr, size_t position = -1);
+	size_t size() const;
+	size_t GetCodePageInsertPosition(uintptr_t codePage, size_t start, size_t length);
 	void AddCodePages(DWORD codePages);
 	void SetFavorite(bool State);
 	void FillCodePagesVMenu(bool bShowUnicode, bool bViewOnly=false, bool bShowAutoDetect=false);

@@ -54,7 +54,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelmix.hpp"
 #include "filestr.hpp"
 #include "interf.hpp"
-#include "cache.hpp"
 #include "language.hpp"
 
 enum
@@ -498,9 +497,9 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 }
 
 // заполнение меню
-static void FillUserMenu(VMenu2& FarUserMenu, const UserMenu::menu_container& Menu, int MenuPos, int *FuncPos, const string& Name, const string& ShortName)
+static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, int MenuPos, int *FuncPos, const string& Name, const string& ShortName)
 {
-	FarUserMenu.DeleteItems();
+	FarUserMenu.clear();
 	int NumLines = -1;
 
 	FOR_RANGE(Menu, MenuItem)
@@ -540,9 +539,8 @@ static void FillUserMenu(VMenu2& FarUserMenu, const UserMenu::menu_container& Me
 			FarUserMenuItem.SetSelect(NumLines==MenuPos);
 		}
 
+		FarUserMenuItem.UserData = MenuItem;
 		int ItemPos=FarUserMenu.AddItem(FarUserMenuItem);
-
-		FarUserMenu.SetUserData(&MenuItem,sizeof(MenuItem),ItemPos);
 
 		if (FuncNum>0)
 		{
@@ -581,8 +579,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			const auto Key=RawKey.FarKey();
 			MenuPos=UserMenu->GetSelectPos();
 			{
-				void* userdata = UserMenu->GetUserData(nullptr, 0, MenuPos);
-				CurrentMenuItem = reinterpret_cast<decltype(CurrentMenuItem)>(userdata);
+				CurrentMenuItem = UserMenu->GetUserDataPtr<ITERATOR(Menu)>(MenuPos);
 			}
 			if (Key==KEY_SHIFTF1)
 			{
@@ -594,7 +591,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				UserMenu->Key(KEY_F11);
 				return 1;
 			}
-			if ((unsigned int)Key>=KEY_F1 && (unsigned int)Key<=KEY_F24)
+			if (Key>=KEY_F1 && Key<=KEY_F24)
 			{
 				int FuncItemPos;
 
@@ -657,7 +654,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					if (CurrentMenuItem)
 					{
 						int Pos=UserMenu->GetSelectPos();
-						if (!((Key==KEY_CTRLUP || Key==KEY_RCTRLUP) && !Pos) && !((Key==KEY_CTRLDOWN || Key==KEY_RCTRLDOWN) && Pos==UserMenu->GetItemCount()-1))
+						if (!((Key == KEY_CTRLUP || Key == KEY_RCTRLUP) && !Pos) && !((Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN) && Pos == static_cast<int>(UserMenu->size() - 1)))
 						{
 							m_MenuModified = true;
 							auto Other = *CurrentMenuItem;
@@ -738,8 +735,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					if (MenuPos!=UserMenu->GetSelectPos())
 					{
 						MenuPos=UserMenu->GetSelectPos();
-						void* userdata = UserMenu->GetUserData(nullptr, 0, MenuPos);
-						CurrentMenuItem = reinterpret_cast<decltype(CurrentMenuItem)>(userdata);
+						CurrentMenuItem = UserMenu->GetUserDataPtr<ITERATOR(Menu)>(MenuPos);
 					}
 			} // switch(Key)
 			return KeyProcessed;
@@ -751,8 +747,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		if (ExitCode < 0 || !CurrentMenuItem)
 			return EC_CLOSE_LEVEL; //  вверх на один уровень
 
-		void* userdata = UserMenu->GetUserData(nullptr, 0, MenuPos);
-		CurrentMenuItem = reinterpret_cast<decltype(CurrentMenuItem)>(userdata);
+		CurrentMenuItem = UserMenu->GetUserDataPtr<ITERATOR(Menu)>(MenuPos);
 
 		if (!CurrentMenuItem)
 			return EC_CLOSE_LEVEL; //  вверх на один уровень

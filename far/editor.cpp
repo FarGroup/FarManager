@@ -174,7 +174,7 @@ Editor::~Editor()
 	_KEYMACRO(SysLog(L"Editor::~Editor()"));
 }
 
-void Editor::FreeAllocatedData(bool FreeUndo)
+void Editor::FreeAllocatedData()
 {
 	m_AutoDeletedColors.clear();
 	Lines.clear();
@@ -3663,8 +3663,7 @@ BOOL Editor::Search(int Next)
 					MenuItemEx Item(FormatString() << fmt::LeftAlign() << fmt::ExactWidth(service_len) << fmt::FillChar(L' ') << (FormatString() << CurPtr.Number() + 1 << L':' << CurPos+1) << BoxSymbols[BS_V1] << CurPtr->GetStringAddr());
 					Item.Annotations.emplace_back(VALUE_TYPE(Item.Annotations)(CurPos + service_len + 1, NextPos - CurPos));
 					FindCoord coord = { (UINT)CurPtr.Number(), (UINT)CurPos, (UINT)SearchLength };
-					Item.UserData = &coord;
-					Item.UserDataSize = sizeof(coord);
+					Item.UserData = coord;
 					FindAllList->AddItem(Item);
 					CurPos = NextPos;
 					if (CurPtr.Number() != LastCheckedLine)
@@ -3905,7 +3904,7 @@ BOOL Editor::Search(int Next)
 	{
 		FindAllList->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 		FindAllList->SetPosition(-1, -1, 0, 0);
-		FindAllList->SetTitle(LangString(MEditSearchStatistics) << FindAllList->GetItemCount() << AllRefLines);
+		FindAllList->SetTitle(LangString(MEditSearchStatistics) << FindAllList->size() << AllRefLines);
 		FindAllList->SetBottomTitle(LangString(MEditFindAllMenuFooter));
 		FindAllList->SetHelp(L"FindAllMenu");
 		FindAllList->SetId(EditorFindAllListId);
@@ -3931,9 +3930,9 @@ BOOL Editor::Search(int Next)
 				case KEY_CTRLENTER:
 				case KEY_RCTRLENTER:
 					{
-						auto coord = reinterpret_cast<FindCoord*>(FindAllList->GetUserData(nullptr, 0, SelectedPos));
-						GoToLine(coord->Line);
-						m_it_CurLine->SetCurPos(coord->Pos);
+						const auto& coord = *FindAllList->GetUserDataPtr<FindCoord>(SelectedPos);
+						GoToLine(coord.Line);
+						m_it_CurLine->SetCurPos(coord.Pos);
 						if (EdOpt.SearchSelFound)
 						{
 							Pasting++;
@@ -3941,13 +3940,13 @@ BOOL Editor::Search(int Next)
 							// if (!EdOpt.PersistentBlocks)
 							UnmarkBlock();
 							BeginStreamMarking(m_it_CurLine);
-							m_it_CurLine->Select(coord->Pos, coord->Pos+coord->SearchLen);
+							m_it_CurLine->Select(coord.Pos, coord.Pos + coord.SearchLen);
 							Unlock();
 							Pasting--;
 						}
 						if (EdOpt.SearchCursorAtEnd)
 						{
-							m_it_CurLine->SetCurPos(coord->Pos+coord->SearchLen);
+							m_it_CurLine->SetCurPos(coord.Pos + coord.SearchLen);
 						}
 						Show();
 					}
@@ -3985,9 +3984,9 @@ BOOL Editor::Search(int Next)
 
 		if(ExitCode >= 0)
 		{
-			auto coord = reinterpret_cast<FindCoord*>(FindAllList->GetUserData(nullptr, 0, ExitCode));
-			GoToLine(coord->Line);
-			m_it_CurLine->SetCurPos(coord->Pos);
+			const auto& coord = *FindAllList->GetUserDataPtr<FindCoord>(ExitCode);
+			GoToLine(coord.Line);
+			m_it_CurLine->SetCurPos(coord.Pos);
 			if (EdOpt.SearchSelFound)
 			{
 				Pasting++;
@@ -3995,13 +3994,13 @@ BOOL Editor::Search(int Next)
 				// if (!EdOpt.PersistentBlocks)
 				UnmarkBlock();
 				BeginStreamMarking(m_it_CurLine);
-				m_it_CurLine->Select(coord->Pos, coord->Pos+coord->SearchLen);
+				m_it_CurLine->Select(coord.Pos, coord.Pos + coord.SearchLen);
 				Unlock();
 				Pasting--;
 			}
 			if (EdOpt.SearchCursorAtEnd)
 			{
-				m_it_CurLine->SetCurPos(coord->Pos+coord->SearchLen);
+				m_it_CurLine->SetCurPos(coord.Pos + coord.SearchLen);
 			}
 			Show();
 		}
@@ -4617,7 +4616,7 @@ void Editor::GetRowCol(const string& argv, int& row, int& col)
 	else throw std::invalid_argument("invalid syntax");
 }
 
-struct Editor::EditorUndoData : ::noncopyable
+struct Editor::EditorUndoData: ::noncopyable, swapable<EditorUndoData>
 {
 	int m_Type;
 	int m_StrPos;

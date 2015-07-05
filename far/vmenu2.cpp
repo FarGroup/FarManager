@@ -327,8 +327,8 @@ const std::array<FarDialogItem, 1> VMenu2DialogItems =
 	{DI_LISTBOX, 2, 1, 10, 10, 0, nullptr, nullptr, DIF_LISTNOAMPERSAND/*|DIF_LISTNOCLOSE*/, nullptr},
 }};
 
-VMenu2::VMenu2(int MaxHeight):
-	Dialog(VMenu2DialogItems, this, &VMenu2::VMenu2DlgProc, nullptr),
+VMenu2::VMenu2(private_tag, int MaxHeight):
+	Dialog(Dialog::private_tag(), VMenu2DialogItems, this, &VMenu2::VMenu2DlgProc, nullptr),
 	MaxHeight(MaxHeight),
 	cancel(0),
 	m_X1(-1),
@@ -345,7 +345,7 @@ VMenu2::VMenu2(int MaxHeight):
 
 vmenu2_ptr VMenu2::create(const string& Title, const MenuDataEx *Data, size_t ItemCount, int MaxHeight, DWORD Flags)
 {
-	vmenu2_ptr VMenu2Ptr(new VMenu2(MaxHeight));
+	auto VMenu2Ptr = std::make_shared<VMenu2>(private_tag(), MaxHeight);
 
 	VMenu2Ptr->InitDialogObjects();
 	VMenu2Ptr->SetMacroMode(MACROAREA_MENU);
@@ -367,7 +367,7 @@ vmenu2_ptr VMenu2::create(const string& Title, const MenuDataEx *Data, size_t It
 	VMenu2Ptr->SendMessage(DM_LISTSET, 0, &fl);
 
 	for(size_t i=0; i<ItemCount; ++i)
-		VMenu2Ptr->GetItemPtr(static_cast<int>(i))->AccelKey = Data[i].AccelKey;
+		VMenu2Ptr->at(i).AccelKey = Data[i].AccelKey;
 
 	// BUGBUG
 	VMenu2Ptr->Dialog::SetPosition(-1, -1, 20, 20);
@@ -415,7 +415,7 @@ void VMenu2::SetMenuFlags(DWORD Flags)
 	SendMessage(DM_SETDLGITEMSHORT, 0, &fdi);
 }
 
-void VMenu2::DeleteItems()
+void VMenu2::clear()
 {
 	SendMessage(DM_LISTDELETE, 0, nullptr);
 	Resize();
@@ -426,14 +426,14 @@ int VMenu2::DeleteItem(int ID, int Count)
 	FarListDelete fld={sizeof(FarListDelete), ID, Count};
 	SendMessage(DM_LISTDELETE, 0, &fld);
 	Resize();
-	return GetItemCount();
+	return static_cast<int>(size());
 }
 
 int VMenu2::AddItem(const MenuItemEx& NewItem, int PosAdd)
 {
 	// BUGBUG
 
-	int n=GetItemCount();
+	int n = static_cast<int>(size());
 	if(PosAdd<0)
 		PosAdd=0;
 	if(PosAdd>n)
@@ -445,11 +445,11 @@ int VMenu2::AddItem(const MenuItemEx& NewItem, int PosAdd)
 	if(SendMessage(DM_LISTINSERT, 0, &fli)<0)
 		return -1;
 
-	FarListItemData flid={sizeof(FarListItemData), PosAdd, NewItem.UserDataSize, NewItem.UserData};
-	SendMessage(DM_LISTSETDATA, 0, &flid);
+	ListBox().SetUserData(NewItem.UserData, PosAdd);
 
-	GetItemPtr(PosAdd)->AccelKey=NewItem.AccelKey;
-	GetItemPtr(PosAdd)->Annotations=NewItem.Annotations;
+	auto& Item = at(PosAdd);
+	Item.AccelKey=NewItem.AccelKey;
+	Item.Annotations = NewItem.Annotations;
 
 	Resize();
 	return n;
@@ -473,7 +473,7 @@ int VMenu2::FindItem(int StartIndex, const string& Pattern, UINT64 Flags)
 	return SendMessage(DM_LISTFINDSTRING, 0, &flf);
 }
 
-intptr_t VMenu2::GetItemCount()
+size_t VMenu2::size()
 {
 	FarListInfo info={sizeof(FarListInfo)};
 	SendMessage(DM_LISTINFO, 0, &info);
@@ -588,28 +588,6 @@ void VMenu2::Close(int ExitCode, bool Force)
 	cancel=ExitCode==-1;
 	closing=true;
 	ForceClosing = Force;
-}
-
-void *VMenu2::GetUserData(void *Data, size_t Size, intptr_t Position)
-{
-	if(Position<0)
-		Position=GetSelectPos();
-	void *d=(void*)SendMessage(DM_LISTGETDATA, 0, (void*)Position);
-	size_t s=SendMessage(DM_LISTGETDATASIZE, 0, (void*)Position);
-
-	if (d && Size && Data && Size>=s)
-		memcpy(Data, d, s);
-
-	return d;
-}
-
-size_t VMenu2::SetUserData(LPCVOID Data, size_t Size, intptr_t Position)
-{
-	if(Position<0)
-		Position=GetSelectPos();
-
-	FarListItemData flid={sizeof(FarListItemData), Position, Size, const_cast<void*>(Data)};
-	return SendMessage(DM_LISTSETDATA, 0, &flid);
 }
 
 void VMenu2::Key(int key)

@@ -46,7 +46,7 @@ enum
 class TreeList: public Panel
 {
 public:
-	struct TreeItem: ::noncopyable
+	struct TreeItem: ::noncopyable, swapable<TreeItem>
 	{
 		string strName;
 		std::vector<int> Last;
@@ -76,8 +76,6 @@ public:
 			Last.swap(rhs.Last);
 			swap(Depth, rhs.Depth);
 		}
-
-		FREE_SWAP(TreeItem);
 
 		operator string() const { return strName; }
 	};

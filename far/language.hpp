@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lang.hpp"
 
-class Language: noncopyable
+class Language: noncopyable, swapable<Language>
 {
 public:
 	Language(const string& Path, int CountNeed = -1) { init(Path, CountNeed); }
@@ -51,8 +51,6 @@ public:
 		m_Messages.swap(rhs.m_Messages);
 		m_FileName.swap(rhs.m_FileName);
 	}
-
-	FREE_SWAP(Language);
 
 protected:
 	Language() {}

@@ -61,7 +61,7 @@ public:
 	static void library_free();
 
 protected:
-	class SQLiteStmt: noncopyable
+	class SQLiteStmt: noncopyable, swapable<SQLiteStmt>
 	{
 	public:
 		SQLiteStmt(sqlite::sqlite3_stmt* Stmt): m_Stmt(Stmt), m_Param(1) {}
@@ -75,8 +75,6 @@ protected:
 			swap(m_Param, rhs.m_Param);
 			swap(m_Stmt, rhs.m_Stmt);
 		}
-
-		FREE_SWAP(SQLiteStmt);
 
 		template<class T>
 		struct transient_t

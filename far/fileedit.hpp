@@ -69,9 +69,13 @@ enum FFILEEDIT_FLAGS
 
 class FileEditor: public window,public EditorContainer
 {
+	struct private_tag {};
+
 public:
 	static fileeditor_ptr create(const string&  Name, uintptr_t codepage, DWORD InitFlags, int StartLine = -1, int StartChar = -1, const string* PluginData = nullptr, EDITOR_FLAGS OpenModeExstFile = EF_OPENMODE_QUERY);
 	static fileeditor_ptr create(const string&  Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose = 0, window_ptr_ref Update = nullptr, EDITOR_FLAGS OpenModeExstFile = EF_OPENMODE_QUERY);
+
+	FileEditor(private_tag);
 	virtual ~FileEditor();
 
 	virtual BOOL IsFileModified() const override { return m_editor->IsFileModified(); }
@@ -100,8 +104,6 @@ public:
 	void AutoDeleteColors() const { m_editor->AutoDeleteColors(); }
 
 private:
-	FileEditor();
-
 	virtual void DisplayObject() override;
 	virtual void InitKeyBar() override;
 	virtual int ProcessKey(const Manager::Key& Key) override;
@@ -127,7 +129,7 @@ private:
 	// возвращает признак того, является ли файл временным
 	// используется для принятия решения переходить в каталог по CtrlF10
 	bool isTemporary() const;
-	void Init(const string& Name, uintptr_t codepage, const string* Title, DWORD InitFlags, int StartLine, int StartChar, const string* PluginData, int DeleteOnClose, window_ptr_ref Update, EDITOR_FLAGS OpenModeExstFile);
+	void Init(const string& Name, uintptr_t codepage, const string* Title, int StartLine, int StartChar, const string* PluginData, int DeleteOnClose, window_ptr_ref Update, EDITOR_FLAGS OpenModeExstFile);
 	int LoadFile(const string& Name, int &UserBreak);
 	bool ReloadFile(uintptr_t codepage);
 	//TextFormat, Codepage и AddSignature используются ТОЛЬКО, если bSaveAs = true!

@@ -43,7 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "help.hpp"
 
-desktop::desktop()
+desktop::desktop(private_tag)
 {
 	SetCanLoseFocus(TRUE);
 	SetPosition(0, 0, ScrX, ScrY);
@@ -51,7 +51,7 @@ desktop::desktop()
 
 desktop_ptr desktop::create()
 {
-	return desktop_ptr(new desktop);
+	return std::make_shared<desktop>(private_tag());
 }
 
 desktop::~desktop()

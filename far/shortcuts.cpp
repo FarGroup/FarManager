@@ -75,7 +75,7 @@ static const wchar_t FolderShortcutsKey[] = L"Shortcuts";
 static const wchar_t HelpFolderShortcuts[] = L"FolderShortcuts";
 
 
-struct Shortcuts::shortcut: noncopyable
+struct Shortcuts::shortcut: noncopyable, swapable<shortcut>
 {
 	shortcut(): PluginGuid(FarGuid) {}
 
@@ -112,8 +112,6 @@ struct Shortcuts::shortcut: noncopyable
 		strPluginData.swap(rhs.strPluginData);
 		swap(PluginGuid, rhs.PluginGuid);
 	}
-
-	FREE_SWAP(shortcut);
 
 	shortcut clone()
 	{
@@ -288,22 +286,21 @@ static string MakeName(const Shortcuts::shortcut& Item)
 	return result;
 }
 
-static void FillMenu(VMenu2& Menu, const std::list<Shortcuts::shortcut>& List, bool raw_mode = false)
+static void FillMenu(VMenu2& Menu, std::list<Shortcuts::shortcut>& List, bool raw_mode = false)
 {
-	Menu.DeleteItems();
-	FOR_CONST_RANGE(List, i)
+	Menu.clear();
+	FOR_RANGE(List, i)
 	{
 		MenuItemEx ListItem(MakeName(*i));
 		if (ListItem.strName.empty())
 			continue;
 
-		ListItem.UserData = &i;
-		ListItem.UserDataSize = sizeof(i);
+		ListItem.UserData = i;
 		if (!raw_mode && i->PluginGuid == FarGuid && i->strFolder.empty())
 		{
 			if (ListItem.strName != L"--")
 			{
-				if (Menu.GetItemCount() == 0)
+				if (Menu.empty())
 					Menu.SetTitle(ListItem.strName);
 
 				continue;
@@ -348,7 +345,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 			{
 				const auto Key=RawKey.FarKey();
 				int ItemPos = FolderList->GetSelectPos();
-				ITERATOR(Items[Pos])* Item = static_cast<decltype(Item)>(FolderList->GetUserData(nullptr, 0, ItemPos));
+				const auto Item = FolderList->GetUserDataPtr<ITERATOR(Items[Pos])>(ItemPos);
 				int KeyProcessed = 1;
 				switch (Key)
 				{
@@ -382,8 +379,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 							auto newIter = Items[Pos].emplace(Item ? *Item : Items[Pos].end(), std::move(NewItem));
 
 							MenuItemEx NewMenuItem(newIter->strFolder);
-							NewMenuItem.UserData = &newIter;
-							NewMenuItem.UserDataSize = sizeof(newIter);
+							NewMenuItem.UserData = newIter;
 							FolderList->AddItem(NewMenuItem, ItemPos);
 							FolderList->SetSelectPos(ItemPos, 1);
 						}
@@ -439,7 +435,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 			});
 			if (ExitCode>=0)
 			{
-				RetItem = *static_cast<decltype(&RetItem)>(FolderList->GetUserData(nullptr, 0, ExitCode));
+				RetItem = *FolderList->GetUserDataPtr<ITERATOR(Items[Pos])>(ExitCode);
 			}
 		}
 		else
@@ -551,7 +547,7 @@ void Shortcuts::EditItem(VMenu2& Menu, shortcut& Item, bool Root, bool raw)
 			Changed = true;
 			Item = std::move(NewItem);
 
-			auto& MenuItem = *Menu.GetItemPtr();
+			auto& MenuItem = Menu.current();
 			if(Root)
 			{
 				MakeItemName(Menu.GetSelectPos(), MenuItem);
@@ -596,7 +592,7 @@ void Shortcuts::Configure()
 		case KEY_NUMDEL:
 		case KEY_DEL:
 			{
-				MenuItemEx* MenuItem = FolderList->GetItemPtr();
+				auto& MenuItem = FolderList->current();
 				if (Key == KEY_INS || Key == KEY_NUMPAD0 || Key&KEY_SHIFT)
 				{
 					if(ItemIterator == Items[Pos].end() || !(Key&KEY_SHIFT))
@@ -622,18 +618,18 @@ void Shortcuts::Configure()
 						ItemIterator->strPluginFile.clear();
 						ItemIterator->strPluginData.clear();
 					}
-					MakeItemName(Pos, *MenuItem);
+					MakeItemName(Pos, MenuItem);
 				}
 				else
 				{
 					if(ItemIterator != Items[Pos].end())
 					{
 						Items[Pos].erase(ItemIterator);
-						MakeItemName(Pos, *MenuItem);
+						MakeItemName(Pos, MenuItem);
 					}
 				}
-				INT64 Flags = MenuItem->Flags;
-				MenuItem->Flags = 0;
+				INT64 Flags = MenuItem.Flags;
+				MenuItem.Flags = 0;
 				FolderList->UpdateItemFlags(FolderList->GetSelectPos(), Flags);
 				Changed = true;
 			}

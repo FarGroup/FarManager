@@ -210,7 +210,7 @@ static wchar_t* AddString(const string& String)
 	return result;
 }
 
-class PluginSettings::FarSettingsNameItems: ::noncopyable
+class PluginSettings::FarSettingsNameItems: ::noncopyable, swapable<FarSettingsNameItems>
 {
 public:
 	FarSettingsNameItems() {}
@@ -229,8 +229,6 @@ public:
 	{
 		Items.swap(rhs.Items);
 	}
-
-	FREE_SWAP(FarSettingsNameItems);
 
 	void add(FarSettingsName& Item, const string& String);
 
@@ -277,7 +275,7 @@ AbstractSettings* AbstractSettings::CreateFarSettings()
 }
 
 
-class FarSettings::FarSettingsHistoryItems: ::noncopyable
+class FarSettings::FarSettingsHistoryItems: ::noncopyable, swapable<FarSettingsHistoryItems>
 {
 public:
 	FarSettingsHistoryItems() {}
@@ -298,8 +296,6 @@ public:
 	{
 		Items.swap(rhs.Items);
 	}
-
-	FREE_SWAP(FarSettingsHistoryItems);
 
 	void add(FarSettingsHistory& Item, const string& Name, const string& Param, const GUID& Guid, const string& File);
 

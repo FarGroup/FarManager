@@ -37,8 +37,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "common/preprocessor.hpp"
 #include "common/noncopyable.hpp"
+#include "common/swapable.hpp"
 #include "common/enum.hpp"
-#include "common/explicit_operator_bool.hpp"
+#include "common/conditional.hpp"
 #include "common/range_for.hpp"
 #include "common/scope_exit.hpp"
 #include "common/function_traits.hpp"
@@ -141,7 +142,7 @@ bool InRange(const T& from, const T& what, const T& to)
 };
 
 template<class owner, typename acquire, typename release>
-class raii_wrapper: ::noncopyable
+class raii_wrapper: ::noncopyable, swapable<raii_wrapper<owner, acquire, release>>
 {
 public:
 	raii_wrapper(const owner& Owner, const acquire& Acquire, const release& Release): m_Owner(Owner), m_Release(Release) { (*m_Owner.*Acquire)(); }
@@ -149,7 +150,6 @@ public:
 	~raii_wrapper() { if (m_Owner && m_Release) (*m_Owner.*m_Release)(); }
 	MOVE_OPERATOR_BY_SWAP(raii_wrapper);
 	void swap(raii_wrapper& rhs) noexcept { using std::swap; swap(m_Owner, rhs.m_Owner); swap(m_Release, rhs.m_Release); }
-	FREE_SWAP(raii_wrapper);
 
 private:
 	owner m_Owner;

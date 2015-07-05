@@ -164,7 +164,7 @@ struct CustomSort
 
 };
 
-struct FileList::PrevDataItem
+struct FileList::PrevDataItem: swapable<PrevDataItem>
 {
 	PrevDataItem(const string& rhsPrevName, std::vector<FileListItem>&& rhsPrevListData, int rhsPrevTopFile):
 		strPrevName(rhsPrevName),
@@ -184,8 +184,6 @@ struct FileList::PrevDataItem
 		PrevListData.swap(rhs.PrevListData);
 		swap(PrevTopFile, rhs.PrevTopFile);
 	}
-
-	FREE_SWAP(PrevDataItem);
 
 	string strPrevName;
 	std::vector<FileListItem> PrevListData;

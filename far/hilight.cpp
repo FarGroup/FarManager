@@ -500,7 +500,7 @@ int HighlightFiles::GetGroup(const FileListItem *fli)
 
 void HighlightFiles::FillMenu(VMenu2 *HiMenu,int MenuPos)
 {
-	HiMenu->DeleteItems();
+	HiMenu->clear();
 
 	const struct
 	{
@@ -742,7 +742,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 					int *Count=nullptr;
 					int RealSelectPos=MenuPosToRealPos(SelectPos, Count);
 
-					if (Count && SelectPos < (int)HiMenu->GetItemCount()-2)
+					if (Count && SelectPos < static_cast<int>(HiMenu->size()-2))
 					{
 						if (FirstCount && RealSelectPos==FirstCount-1)
 						{

@@ -37,13 +37,12 @@ class ImportedFunctions: noncopyable
 {
 private:
 	template<typename T, class Y, T stub>
-	class unique_function_pointer: noncopyable
+	class unique_function_pointer: noncopyable, public conditional<unique_function_pointer<T, Y, stub>>
 	{
 	public:
 		unique_function_pointer(const os::rtdl::module& Module): m_module(Module) {}
 		operator T() const { return get_pointer(); }
 		bool operator!() const noexcept { return get_pointer() == stub; }
-		EXPLICIT_OPERATOR_BOOL();
 
 		// explicit operator bool emulation is implemented in terms of function pointer operator,
 		// but this class contains another function pointer operator, thus conversion is ambiguous.

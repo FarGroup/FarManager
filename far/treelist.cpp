@@ -391,7 +391,7 @@ static struct list_less
 }
 ListLess;
 
-class TreeListCache: noncopyable
+class TreeListCache: noncopyable, swapable<TreeListCache>
 {
 public:
 	TreeListCache() {}
@@ -404,8 +404,6 @@ public:
 		m_TreeName.swap(rhs.m_TreeName);
 		m_Names.swap(rhs.m_Names);
 	}
-
-	FREE_SWAP(TreeListCache);
 
 	void clear()
 	{

@@ -32,7 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 template<class T>
-class matrix
+class matrix: swapable<matrix<T>>
 {
 public:
 	class row
@@ -115,8 +115,6 @@ public:
 		swap(m_rows, rhs.m_rows);
 		swap(m_cols, rhs.m_cols);
 	}
-
-	FREE_SWAP(matrix);
 
 private:
 	std::vector<T> m_buffer;

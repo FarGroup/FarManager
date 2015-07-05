@@ -114,8 +114,8 @@ public:
 
 	bool get(size_t index, value_type& value)
 	{
-		value = index? value->NextSiblingElement(m_name.data()) :
-		        m_base? m_base->FirstChildElement(m_name.data()) : nullptr;
+		value = index? value->NextSiblingElement(m_name) :
+		        m_base? m_base->FirstChildElement(m_name) : nullptr;
 
 		return value? true : false;
 	}
@@ -1920,8 +1920,7 @@ public:
 	virtual bool DeleteOldUnlocked(unsigned int TypeHistory, const string& HistoryName, int DaysToKeep, int MinimumEntries) override
 	{
 		WaitAllAsync();
-		unsigned __int64 older = GetCurrentUTCTimeInUI64();
-		older -= DaysToUI64(DaysToKeep);
+		const auto older = GetCurrentUTCTimeInUI64() - DaysToUI64(DaysToKeep);
 		return Statement(stmtDeleteOldUnlocked).Bind(TypeHistory, HistoryName, older, MinimumEntries).StepAndReset();
 	}
 
@@ -1968,7 +1967,7 @@ public:
 		return b;
 	}
 
-	virtual bool Get(unsigned __int64 id, string& Name, history_record_type* Type, string &strGuid, string &strFile, string &strData) override
+	virtual bool Get(unsigned __int64 id, string& Name, history_record_type& Type, string &strGuid, string &strFile, string &strData) override
 	{
 		WaitAllAsync();
 		auto& Stmt = Statement(stmtGetNameAndType);
@@ -1976,7 +1975,7 @@ public:
 		if (b)
 		{
 			Name = Stmt.GetColText(0);
-			*Type = static_cast<history_record_type>(Stmt.GetColInt(1));
+			Type = static_cast<history_record_type>(Stmt.GetColInt(1));
 			strGuid = Stmt.GetColText(2);
 			strFile = Stmt.GetColText(3);
 			strData = Stmt.GetColText(4);

@@ -39,8 +39,11 @@ class HelpRecord;
 
 class Help:public Modal
 {
+	struct private_tag {};
+
 public:
 	static help_ptr create(const string& Topic,const wchar_t *Mask=nullptr,UINT64 Flags=0);
+	Help(private_tag);
 	virtual ~Help();
 
 	virtual int  ProcessKey(const Manager::Key& Key) override;
@@ -60,7 +63,6 @@ public:
 	struct StackHelpData;
 
 private:
-	Help();
 	virtual void DisplayObject() override;
 	virtual string GetTitle() const override { return string(); }
 	void init(const string& Topic, const wchar_t *Mask, UINT64 Flags);

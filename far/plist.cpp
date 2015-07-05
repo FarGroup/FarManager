@@ -97,9 +97,7 @@ void ShowProcessList()
 				case KEY_NUMDEL:
 				case KEY_DEL:
 				{
-					auto ProcWnd = *static_cast<HWND*>(ProcList->GetUserData(nullptr, 0));
-
-					if (ProcWnd)
+					if (const auto ProcWnd = *ProcList->GetUserDataPtr<HWND>())
 					{
 						wchar_t_ptr Title;
 						int LenTitle=GetWindowTextLength(ProcWnd);
@@ -131,7 +129,7 @@ void ShowProcessList()
 				case KEY_CTRLR:
 				case KEY_RCTRLR:
 				{
-					ProcList->DeleteItems();
+					ProcList->clear();
 
 					if (!EnumWindows(EnumWindowsProc,(LPARAM)&pi))
 						ProcList->Close(-1);
@@ -143,7 +141,7 @@ void ShowProcessList()
 				{
 					pi.bShowImage=(bShowImage=!bShowImage);
 					int SelectPos=ProcList->GetSelectPos();
-					ProcList->DeleteItems();
+					ProcList->clear();
 
 					if (!EnumWindows(EnumWindowsProc,(LPARAM)&pi))
 						ProcList->Close(-1);
@@ -164,9 +162,7 @@ void ShowProcessList()
 
 		if (ProcList->GetExitCode()>=0)
 		{
-			auto ProcWnd = *static_cast<HWND*>(ProcList->GetUserData(nullptr, 0));
-
-			if (ProcWnd)
+			if (const auto ProcWnd = *ProcList->GetUserDataPtr<HWND>())
 			{
 				//SetForegroundWindow(ProcWnd);
 				// Allow SetForegroundWindow on Win98+.
@@ -252,7 +248,9 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 		}
 		if (!strTitle.empty())
 		{
-			ProcList->SetUserData(&hwnd,sizeof(hwnd),ProcList->AddItem(FormatString()<<fmt::MinWidth(PID_LENGTH)<<ProcID<< L' ' << BoxSymbols[BS_V1]<< L' ' << strTitle));
+			MenuItemEx NewItem(FormatString() << fmt::MinWidth(PID_LENGTH) << ProcID << L' ' << BoxSymbols[BS_V1] << L' ' << strTitle);
+			NewItem.UserData = hwnd;
+			ProcList->AddItem(NewItem);
 		}
 
 	}

@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class FileViewer:public window,public ViewerContainer
 {
+	struct private_tag {};
 public:
 	static fileviewer_ptr create(const string& Name, int EnableSwitch = FALSE, int DisableHistory = FALSE,
 		int DisableEdit=FALSE,__int64 ViewStartPos=-1,const wchar_t *PluginData=nullptr,
@@ -45,6 +46,8 @@ public:
 		const wchar_t *Title=nullptr, int DeleteOnClose=0, window_ptr Update=nullptr);
 	static fileviewer_ptr create(const string& Name, int EnableSwitch, int DisableHistory,
 		const wchar_t *Title,int X1,int Y1,int X2,int Y2,uintptr_t aCodePage=CP_DEFAULT);
+
+	FileViewer(private_tag, int DisableEdit, const wchar_t *Title);
 	virtual ~FileViewer();
 
 	virtual void InitKeyBar() override;
@@ -85,8 +88,6 @@ public:
 
 
 private:
-	FileViewer(int DisableEdit, const wchar_t *Title);
-
 	virtual void Show() override;
 	virtual void DisplayObject() override;
 

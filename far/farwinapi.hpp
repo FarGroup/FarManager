@@ -44,7 +44,7 @@ namespace os
 	}
 
 	template<class T>
-	class handle_t: noncopyable
+	class handle_t: noncopyable, swapable<handle_t<T>>, public conditional<handle_t<T>>
 	{
 	public:
 		handle_t(HANDLE Handle = nullptr): m_Handle(normalise(Handle)) {}
@@ -55,8 +55,6 @@ namespace os
 
 		MOVE_OPERATOR_BY_SWAP(handle_t);
 
-		FREE_SWAP(handle_t);
-
 		void swap(handle_t& rhs) noexcept
 		{
 			using std::swap;
@@ -64,7 +62,6 @@ namespace os
 		}
 
 		bool operator!() const noexcept { return !m_Handle; }
-		EXPLICIT_OPERATOR_BOOL();
 
 		bool close()
 		{
@@ -258,7 +255,7 @@ namespace os
 			find_handle m_Handle;
 		};
 
-		class file: noncopyable
+		class file: noncopyable, swapable<file>, public conditional<file>
 		{
 		public:
 			file():
@@ -288,10 +285,7 @@ namespace os
 				swap(share_mode, rhs.share_mode);
 			}
 
-			FREE_SWAP(file);
-
 			bool operator!() const noexcept { return !Handle; }
-			EXPLICIT_OPERATOR_BOOL();
 
 			// TODO: half of these should be free functions
 			bool Open(const string& Object, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDistribution, DWORD dwFlagsAndAttributes = 0, file* TemplateFile = nullptr, bool ForceElevation = false);
@@ -377,7 +371,7 @@ namespace os
 			return Type == REG_SZ || Type == REG_EXPAND_SZ || Type == REG_MULTI_SZ;
 		}
 
-		class key:noncopyable
+		class key:noncopyable, public conditional<key>
 		{
 		public:
 			key(HKEY Key): m_Key(Key), m_Opened() {}
@@ -385,7 +379,6 @@ namespace os
 			~key();
 
 			bool operator!() const noexcept { return !m_Key; }
-			EXPLICIT_OPERATOR_BOOL();
 			HKEY Key() const { return m_Key; }
 
 		private:
@@ -500,7 +493,7 @@ namespace os
 	// Run-Time Dynamic Linking
 	namespace rtdl
 	{
-		class module: noncopyable
+		class module: noncopyable, public conditional<module>
 		{
 		public:
 			module(const wchar_t* name, bool AlternativeLoad = false):
@@ -514,7 +507,6 @@ namespace os
 
 			FARPROC GetProcAddress(const char* name) const { return ::GetProcAddress(get_module(), name); }
 			bool operator!() const noexcept { return !get_module(); }
-			EXPLICIT_OPERATOR_BOOL();
 
 		private:
 			HMODULE get_module() const;

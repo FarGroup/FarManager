@@ -181,7 +181,8 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 
 			MenuItemEx TypesMenuItem(strDescription);
 			TypesMenuItem.SetSelect(Index==1);
-			TypesMenu->SetUserData(strCommand.data(), (strCommand.size()+1)*sizeof(wchar_t), TypesMenu->AddItem(TypesMenuItem));
+			TypesMenuItem.UserData = strCommand;
+			TypesMenu->AddItem(TypesMenuItem);
 		}
 
 		if (!CommandCount)
@@ -200,7 +201,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 				return true;
 		}
 
-		strCommand = static_cast<const wchar_t*>(TypesMenu->GetUserData(nullptr, 0, ExitCode));
+		strCommand = *TypesMenu->GetUserDataPtr<string>(ExitCode);
 	}
 
 	string strListName, strAnotherListName, strShortListName, strAnotherShortListName;
@@ -309,7 +310,7 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 static int FillFileTypesMenu(VMenu2 *TypesMenu,int MenuPos)
 {
 	const auto DizWidth=GetDescriptionWidth();
-	TypesMenu->DeleteItems();
+	TypesMenu->clear();
 	DWORD Index=0;
 	string strMask;
 	string strTitle;
@@ -331,7 +332,8 @@ static int FillFileTypesMenu(VMenu2 *TypesMenu,int MenuPos)
 		strMenuText += strMask;
 		MenuItemEx TypesMenuItem(strMenuText);
 		TypesMenuItem.SetSelect((int)(Index-1)==MenuPos);
-		TypesMenu->SetUserData(&id, sizeof(id), TypesMenu->AddItem(TypesMenuItem));
+		TypesMenuItem.UserData = id;
+		TypesMenu->AddItem(TypesMenuItem);
 	}
 
 	return (int)(Index-1);
@@ -494,7 +496,6 @@ void EditFileTypes()
 	SCOPED_ACTION(auto)(ConfigProvider().AssocConfig()->ScopedTransaction());
 
 	int MenuPos=0;
-	unsigned __int64 id;
 	auto TypesMenu = VMenu2::create(MSG(MAssocTitle),nullptr,0,ScrY-4);
 	TypesMenu->SetHelp(L"FileAssoc");
 	TypesMenu->SetMenuFlags(VMENU_WRAPMODE);
@@ -518,18 +519,27 @@ void EditFileTypes()
 
 					if (MenuPos<NumLine)
 					{
-						if (TypesMenu->GetUserData(&id,sizeof(id),MenuPos))
-							DeleteTypeRecord(id);
+						if (const auto IdPtr = TypesMenu->GetUserDataPtr<unsigned __int64>(MenuPos))
+						{
+							DeleteTypeRecord(*IdPtr);
+						}
 						NumLine = FillFileTypesMenu(TypesMenu.get(), MenuPos);
 					}
 
 					break;
 				case KEY_NUMPAD0:
 				case KEY_INS:
-					if (MenuPos-1 >= 0 && TypesMenu->GetUserData(&id,sizeof(id),MenuPos-1))
-						EditTypeRecord(id,true);
+					if (MenuPos - 1 >= 0)
+					{
+						if (const auto IdPtr = TypesMenu->GetUserDataPtr<unsigned __int64>(MenuPos - 1))
+						{
+							EditTypeRecord(*IdPtr, true);
+						}
+					}
 					else
-						EditTypeRecord(0,true);
+					{
+						EditTypeRecord(0, true);
+					}
 					NumLine = FillFileTypesMenu(TypesMenu.get(), MenuPos);
 					break;
 				case KEY_NUMENTER:
@@ -538,8 +548,10 @@ void EditFileTypes()
 
 					if (MenuPos<NumLine)
 					{
-						if (TypesMenu->GetUserData(&id,sizeof(id),MenuPos))
-							EditTypeRecord(id,false);
+						if (const auto IdPtr = TypesMenu->GetUserDataPtr<unsigned __int64>(MenuPos))
+						{
+							EditTypeRecord(*IdPtr, false);
+						}
 						NumLine = FillFileTypesMenu(TypesMenu.get(), MenuPos);
 					}
 					return 1;
@@ -550,14 +562,19 @@ void EditFileTypes()
 				case KEY_RCTRLDOWN:
 				{
 					if (!((Key==KEY_CTRLUP || Key==KEY_RCTRLUP) && !MenuPos) &&
-						!((Key==KEY_CTRLDOWN || Key==KEY_RCTRLDOWN) && MenuPos==TypesMenu->GetItemCount()-1))
+						!((Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN) && MenuPos == static_cast<int>(TypesMenu->size() - 1)))
 					{
 						int NewMenuPos=MenuPos+((Key==KEY_CTRLUP || Key==KEY_RCTRLUP)?-1:+1);
-						unsigned __int64 id2=0;
-						if (TypesMenu->GetUserData(&id,sizeof(id),MenuPos))
-							if (TypesMenu->GetUserData(&id2,sizeof(id2),NewMenuPos))
-								if (ConfigProvider().AssocConfig()->SwapPositions(id,id2))
-									MenuPos=NewMenuPos;
+						if (const auto IdPtr = TypesMenu->GetUserDataPtr<unsigned __int64>(MenuPos))
+						{
+							if (const auto IdPtr2 = TypesMenu->GetUserDataPtr<unsigned __int64>(NewMenuPos))
+							{
+								if (ConfigProvider().AssocConfig()->SwapPositions(*IdPtr, *IdPtr2))
+								{
+									MenuPos = NewMenuPos;
+								}
+							}
+						}
 						NumLine = FillFileTypesMenu(TypesMenu.get(), MenuPos);
 					}
 				}

@@ -470,8 +470,7 @@ window_ptr Manager::WindowMenu()
 			/*  добавляется "*" если файл изменен */
 			ModalMenuItem.strName = str_printf(L"%s%-10.10s %c %s", strNumText.data(), strType.data(),(i->IsFileModified()?L'*':L' '), strName.data());
 			auto tmp = i.get();
-			ModalMenuItem.UserData = &tmp;
-			ModalMenuItem.UserDataSize = sizeof(tmp);
+			ModalMenuItem.UserData = tmp;
 			ModalMenuItem.SetSelect(i==m_windows.back());
 			ModalMenu->AddItem(ModalMenuItem);
 			++n;
@@ -485,8 +484,7 @@ window_ptr Manager::WindowMenu()
 		{
 			if (ExitCode>=0)
 			{
-				window* ActivatedWindow;
-				ModalMenu->GetUserData(&ActivatedWindow,sizeof(ActivatedWindow),ExitCode);
+				auto ActivatedWindow = *ModalMenu->GetUserDataPtr<window*>(ExitCode);
 				ActivateWindow(ActivatedWindow->shared_from_this());
 				return (ActivatedWindow == m_currentWindow.get() || !m_currentWindow->GetCanLoseFocus())? nullptr : m_currentWindow;
 			}

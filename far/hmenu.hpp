@@ -49,8 +49,11 @@ class VMenu2;
 
 class HMenu: public SimpleModal
 {
+	struct private_tag {};
+
 public:
 	static hmenu_ptr create(HMenuData* Item, size_t ItemCount);
+	HMenu(private_tag, HMenuData* Item, size_t ItemCount);
 	virtual ~HMenu();
 
 	virtual int ProcessKey(const Manager::Key& Key) override;
@@ -63,7 +66,6 @@ public:
 	void GetExitCode(int &ExitCode, int &VExitCode) const;
 
 private:
-	HMenu(HMenuData* Item, size_t ItemCount);
 	void init();
 
 	virtual void DisplayObject() override;

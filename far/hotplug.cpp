@@ -463,7 +463,7 @@ void ShowHotplugDevices()
 
 	const auto FillMenu = [&]()
 	{
-		HotPlugList->DeleteItems();
+		HotPlugList->clear();
 		Info = GetHotplugDevicesInfo();
 
 		if (!Info.empty())
@@ -543,7 +543,7 @@ void ShowHotplugDevices()
 			case KEY_NUMDEL:
 			case KEY_DEL:
 			{
-				if (HotPlugList->GetItemCount() > 0)
+				if (!HotPlugList->empty())
 				{
 					int bResult;
 					int I = HotPlugList->GetSelectPos();
@@ -557,7 +557,7 @@ void ShowHotplugDevices()
 						SetLastError(ERROR_DRIVE_LOCKED); // ...þ "The disk is in use or locked by another process."
 						Global->CatchError();
 						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
-						        MSG(MChangeCouldNotEjectHotPlugMedia2),HotPlugList->GetItemPtr(I)->strName.data(),MSG(MOk));
+						        MSG(MChangeCouldNotEjectHotPlugMedia2),HotPlugList->at(I).strName.data(),MSG(MOk));
 					}
 				}
 

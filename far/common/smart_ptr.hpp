@@ -28,7 +28,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 template<class T>
-class array_ptr
+class array_ptr: swapable<array_ptr<T>>, public conditional<array_ptr<T>>
 {
 public:
 	array_ptr() : m_size() {}
@@ -38,10 +38,8 @@ public:
 	void reset(size_t size, bool init = false) { m_array.reset(init? new T[size]() : new T[size]); m_size = size;}
 	void reset() { m_array.reset(); m_size = 0; }
 	void swap(array_ptr& other) noexcept { using std::swap; m_array.swap(other.m_array); swap(m_size, other.m_size); }
-	FREE_SWAP(array_ptr);
 	size_t size() const {return m_size;}
 	bool operator!() const noexcept { return !get(); }
-	EXPLICIT_OPERATOR_BOOL();
 	T* get() const {return m_array.get();}
 	T* operator->() const { return get(); }
 	T& operator*() const { return *get(); }
@@ -67,7 +65,8 @@ public:
 	T& operator*() const {return *get();}
 };
 
-template <typename T> class unique_ptr_with_ondestroy
+template <typename T>
+class unique_ptr_with_ondestroy: public conditional<unique_ptr_with_ondestroy<T>>
 {
 private:
 	typedef std::unique_ptr<T> ptr_type;
@@ -79,7 +78,6 @@ public:
 	T* operator->() const { return get(); }
 	T& operator*() const { return *get(); }
 	bool operator!() const noexcept { return !ptr; }
-	EXPLICIT_OPERATOR_BOOL();
 	unique_ptr_with_ondestroy& operator=(ptr_type&& value) noexcept { OnDestroy(); ptr = std::move(value); return *this; }
 };
 

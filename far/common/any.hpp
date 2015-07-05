@@ -52,26 +52,27 @@ namespace detail
 		virtual std::unique_ptr<any_base> clone() const override { return std::make_unique<any_impl>(m_Data); }
 
 		const T& get() const noexcept { return m_Data; }
-		T& get() noexcept{ return m_Data; }
+		T& get() noexcept { return m_Data; }
 
 	private:
 		T m_Data;
 	};
 };
 
-class any
+
+class any: swapable<any>
 {
 public:
 	any() {}
 
 	any(const any& rhs):
-		m_Data(rhs.m_Data->clone())
+		m_Data(construct(rhs))
 	{
 	}
 
 	template<class T>
-	any(T&& Data):
-		m_Data(std::make_unique<detail::any_impl<typename std::decay<T>::type>>(std::forward<T>((Data))))
+	any(T&& rhs):
+		m_Data(construct(std::forward<T>(rhs)))
 	{
 	}
 
@@ -91,24 +92,34 @@ public:
 	}
 
 	MOVE_OPERATOR_BY_SWAP(any);
-	FREE_SWAP(any);
 
 	void swap(any& rhs) noexcept { m_Data.swap(rhs.m_Data); }
 
-	bool empty() const noexcept{ return m_Data != nullptr; }
+	bool empty() const noexcept { return m_Data != nullptr; }
 
 	template<class T>
 	friend T* any_cast(any* Any) noexcept
 	{
 		if (Any)
 		{
-			auto* Impl = dynamic_cast<detail::any_impl<T>*>(Any->m_Data.get());
+			auto Impl = dynamic_cast<detail::any_impl<T>*>(Any->m_Data.get());
 			return Impl? &Impl->get() : nullptr;
 		}
 		return nullptr;
 	}
 
 private:
+	template<class T>
+	static typename std::enable_if<!std::is_same<typename std::decay<T>::type, any>::value, std::unique_ptr<detail::any_base>>::type construct(T&& rhs)
+	{
+		return std::make_unique<detail::any_impl<typename std::decay<T>::type>>(std::forward<T>(rhs));
+	}
+
+	static std::unique_ptr<detail::any_base> construct(const any& rhs)
+	{
+		return rhs.m_Data? rhs.m_Data->clone() : nullptr;
+	}
+
 	std::unique_ptr<detail::any_base> m_Data;
 };
 
@@ -134,4 +145,3 @@ const T& any_cast(const any& Any)
 {
 	return any_cast<T>(const_cast<any&>(Any));
 }
-

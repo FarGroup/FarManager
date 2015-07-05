@@ -37,8 +37,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class Grabber: public SimpleModal
 {
+	struct private_tag {};
+
 public:
 	static grabber_ptr create();
+	Grabber(private_tag);
 	virtual ~Grabber();
 
 	virtual int GetType() const override { return windowtype_grabber; }
@@ -46,7 +49,7 @@ public:
 	virtual void ResizeConsole(void) override;
 
 private:
-	Grabber();
+	struct grabber_tag {};
 
 	virtual void DisplayObject() override;
 	virtual int ProcessKey(const Manager::Key& Key) override;

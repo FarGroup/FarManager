@@ -164,7 +164,7 @@ static std::string FormatLine(const char* File, int Line, const char* Function, 
 
 thread_local bool inside_far_bad_alloc = false;
 
-class far_bad_alloc: public std::bad_alloc
+class far_bad_alloc: public std::bad_alloc, public swapable<far_bad_alloc>
 {
 public:
 	far_bad_alloc(const char* File, int Line, const char* Function, ALLOCATION_TYPE Type, size_t Size) noexcept
@@ -200,8 +200,6 @@ public:
 	{
 		m_What.swap(rhs.m_What);
 	}
-
-	FREE_SWAP(far_bad_alloc);
 
 private:
 	std::string m_What;

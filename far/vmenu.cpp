@@ -68,7 +68,7 @@ MenuItemEx FarList2MenuItem(const FarListItem& FItem)
 	return Result;
 }
 
-VMenu::VMenu(const string& Title, int MaxHeight, Dialog *ParentDialog) :
+VMenu::VMenu(private_tag, const string& Title, int MaxHeight, Dialog *ParentDialog) :
 	strTitle(Title),
 	SelectPos(-1),
 	SelectPosResult(-1),
@@ -89,7 +89,7 @@ VMenu::VMenu(const string& Title, int MaxHeight, Dialog *ParentDialog) :
 
 vmenu_ptr VMenu::create(const string& Title, MenuDataEx *Data, int ItemCount, int MaxHeight, DWORD Flags, Dialog *ParentDialog)
 {
-	vmenu_ptr VmenuPtr(new VMenu(Title, MaxHeight, ParentDialog));
+	auto VmenuPtr = std::make_shared<VMenu>(private_tag(), Title, MaxHeight, ParentDialog);
 	VmenuPtr->init(Data, ItemCount, Flags);
 	return VmenuPtr;
 }
@@ -128,7 +128,7 @@ void VMenu::init(MenuDataEx *Data, int ItemsCount, DWORD Flags)
 VMenu::~VMenu()
 {
 	Hide();
-	DeleteItems();
+	clear();
 
 	if (Global->WindowManager->GetCurrentWindow() == CurrentWindow)
 		SetCursorType(PrevCursorVisible,PrevCursorSize);
@@ -450,9 +450,6 @@ int VMenu::AddItem(MenuItemEx& NewItem,int PosAdd)
 	Items.emplace(Items.begin() + PosAdd, std::move(NewItem));
 	auto& NewMenuItem = Items[PosAdd];
 
-	// BUGBUG
-	_SetUserData(&NewMenuItem, NewMenuItem.UserData, NewMenuItem.UserDataSize);
-
 	NewMenuItem.AmpPos = -1;
 	NewMenuItem.ShowPos = 0;
 
@@ -482,9 +479,7 @@ int VMenu::UpdateItem(const FarListUpdate *NewItem)
 		// Освободим память... от ранее занятого ;-)
 		if (NewItem->Item.Flags&LIF_DELETEUSERDATA)
 		{
-			delete[] static_cast<char*>(Items[NewItem->Index].UserData);
-			Items[NewItem->Index].UserData = nullptr;
-			Items[NewItem->Index].UserDataSize = 0;
+			Items[NewItem->Index].UserData = any();
 		}
 
 		MenuItemEx MItem = FarList2MenuItem(NewItem->Item);
@@ -517,14 +512,12 @@ int VMenu::DeleteItem(int ID, int Count)
 
 	if (!ID && Count == static_cast<int>(Items.size()))
 	{
-		DeleteItems();
+		clear();
 		return static_cast<int>(Items.size());
 	}
 
-	// Надобно удалить данные, чтоб потери по памяти не были
 	for (int I=0; I < Count; ++I)
 	{
-		delete[] static_cast<char*>(Items[ID + I].UserData);
 		UpdateInternalCounters(Items[ID+I].Flags,0);
 	}
 
@@ -556,14 +549,10 @@ int VMenu::DeleteItem(int ID, int Count)
 	return static_cast<int>(Items.size());
 }
 
-void VMenu::DeleteItems()
+void VMenu::clear()
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
-	std::for_each(CONST_RANGE(Items, i)
-	{
-		delete[] static_cast<char*>(i.UserData);
-	});
 	Items.clear();
 	ItemHiddenCount=0;
 	ItemSubMenusCount=0;
@@ -852,13 +841,13 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							break;
 					}
 
-					MenuItemEx *_item = GetItemPtr(I);
+					const auto& Item = at(I);
 
-					if (!ItemCanHaveFocus(_item->Flags))
+					if (!ItemCanHaveFocus(Item.Flags))
 						continue;
 
 					Res = 0;
-					strTemp = HiText2Str(_item->strName);
+					strTemp = HiText2Str(Item.strName);
 					RemoveExternalSpaces(strTemp);
 					const wchar_t *p;
 
@@ -897,27 +886,24 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_F_MENU_GETHOTKEY:
 		case MCODE_F_MENU_GETVALUE: // S=Menu.GetValue([N])
 		{
-			int Param = (int)iParam;
+			intptr_t Param = iParam;
 
 			if (Param == -1)
 				Param = SelectPos;
 			else
 				Param = VisualPosToReal(Param);
 
-			if (Param>=0 && Param<static_cast<int>(Items.size()))
+			if (Param>=0 && Param<static_cast<intptr_t>(Items.size()))
 			{
-				MenuItemEx *menuEx = GetItemPtr(Param);
-				if (menuEx)
+				auto& menuEx = at(Param);
+				if (OpCode == MCODE_F_MENU_GETVALUE)
 				{
-					if (OpCode == MCODE_F_MENU_GETVALUE)
-					{
-						*(string *)vParam = menuEx->strName;
-						return 1;
-					}
-					else
-					{
-						return GetHighlights(menuEx);
-					}
+					*(string *)vParam = menuEx.strName;
+					return 1;
+				}
+				else
+				{
+					return GetHighlights(&menuEx);
 				}
 			}
 
@@ -926,38 +912,25 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 		case MCODE_F_MENU_ITEMSTATUS: // N=Menu.ItemStatus([N])
 		{
-			__int64 RetValue=-1;
-			int Param = (int)iParam;
+			if (iParam == size_t(-1))
+				iParam = SelectPos;
+			else if (iParam > static_cast<int>(size()))
+				return -1;
 
-			if (Param == -1)
-				Param = SelectPos;
+			auto& menuEx = at(iParam);
 
-			MenuItemEx *menuEx = GetItemPtr(Param);
+			auto RetValue = menuEx.Flags;
 
-			if (menuEx)
-			{
-				RetValue=menuEx->Flags;
+			if (iParam == SelectPos)
+				RetValue |= LIF_SELECTED;
 
-				if (Param == SelectPos)
-					RetValue |= LIF_SELECTED;
-
-				RetValue = MAKELONG(HIWORD(RetValue),LOWORD(RetValue));
-			}
-
-			return RetValue;
+			return MAKELONG(HIWORD(RetValue),LOWORD(RetValue));
 		}
 
 		case MCODE_V_MENU_VALUE: // Menu.Value
 		{
-			MenuItemEx *menuEx = GetItemPtr(SelectPos);
-
-			if (menuEx)
-			{
-				*(string *)vParam = menuEx->strName;
-				return 1;
-			}
-
-			return 0;
+			*reinterpret_cast<string*>(vParam) = at(SelectPos).strName;
+			return 1;
 		}
 
 		case MCODE_F_MENU_FILTER:
@@ -2814,94 +2787,37 @@ BOOL VMenu::GetVMenuInfo(FarListInfo* Info) const
 }
 
 // Функция GetItemPtr - получить указатель на нужный Items.
-MenuItemEx *VMenu::GetItemPtr(int Position)
+MenuItemEx& VMenu::at(size_t n)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
-	int ItemPos = GetItemPosition(Position);
+	int ItemPos = GetItemPosition(static_cast<int>(n));
 
 	if (ItemPos < 0)
-		return nullptr;
+		throw std::out_of_range(__FUNCTION__);
 
-	return &Items[ItemPos];
-}
-
-void *VMenu::_GetUserData(MenuItemEx *PItem, void *Data, size_t Size)
-{
-	if (Size && Data)
-	{
-		if (PItem->UserData && Size >= PItem->UserDataSize)
-		{
-			memcpy(Data, PItem->UserData, PItem->UserDataSize);
-		}
-	}
-
-	return PItem->UserData;
-}
-
-size_t VMenu::GetUserDataSize(int Position)
-{
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
-	int ItemPos = GetItemPosition(Position);
-
-	if (ItemPos < 0)
-		return 0;
-
-	return Items[ItemPos].UserDataSize;
-}
-
-size_t VMenu::_SetUserData(MenuItemEx *PItem,
-                        const void *Data,   // Данные
-                        size_t Size)           // Размер, если =0 то предполагается, что в Data-строка
-{
-	delete[] static_cast<char*>(PItem->UserData);
-	PItem->UserDataSize=0;
-	PItem->UserData=nullptr;
-
-	if (Data)
-	{
-		PItem->UserDataSize=Size;
-
-		// Если Size==0, то подразумевается, что в Data находится zero-terminated wide string
-		if (!PItem->UserDataSize)
-		{
-			PItem->UserDataSize = (wcslen(static_cast<const wchar_t *>(Data)) + 1)*sizeof(wchar_t);
-		}
-
-		PItem->UserData = new char[PItem->UserDataSize];
-		memcpy(PItem->UserData, Data, PItem->UserDataSize);
-	}
-
-	return PItem->UserDataSize;
+	return Items[ItemPos];
 }
 
 // Присовокупить к элементу данные.
-size_t VMenu::SetUserData(LPCVOID Data,   // Данные
-                       size_t Size,     // Размер, если =0 то предполагается, что в Data-строка
-                       int Position) // номер элемента
+void VMenu::SetUserData(const any& Data, int Position)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
 	int ItemPos = GetItemPosition(Position);
 
-	if (ItemPos < 0)
-		return 0;
-
-	return _SetUserData(&Items[ItemPos], Data, Size);
+	Items[ItemPos].UserData = Data;
 }
 
 // Получить данные
-void* VMenu::GetUserData(void *Data,size_t Size,int Position)
+any* VMenu::GetUserData(int Position)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
 	int ItemPos = GetItemPosition(Position);
-
-	if (ItemPos < 0)
+	if (ItemPos < 0 || static_cast<size_t>(ItemPos) >= Items.size())
 		return nullptr;
-
-	return _GetUserData(&Items[ItemPos], Data, Size);
+	return &Items[ItemPos].UserData;
 }
 
 FarListItem *VMenu::MenuItem2FarList(const MenuItemEx *MItem, FarListItem *FItem)

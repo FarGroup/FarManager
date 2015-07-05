@@ -406,7 +406,7 @@ static void ApplyDefaultMaskGroups()
 
 static void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 {
-	MasksMenu.DeleteItems();
+	MasksMenu.clear();
 
 	const auto MasksEnum = ConfigProvider().GeneralCfg()->GetStringValuesEnumerator(L"Masks");
 	std::for_each(CONST_RANGE(MasksEnum, i)
@@ -417,8 +417,7 @@ static void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 		TruncStrFromEnd(DisplayName, NameWidth);
 		DisplayName.resize(NameWidth, L' ');
 		Item.strName = DisplayName + L' ' + BoxSymbols[BS_V1] + L' ' + i.second;
-		Item.UserData = UNSAFE_CSTR(i.first);
-		Item.UserDataSize = (i.first.size()+1)*sizeof(wchar_t);
+		Item.UserData = i.first;
 		MasksMenu.AddItem(Item);
 	});
 	MasksMenu.SetSelectPos(SelPos, 0);
@@ -444,9 +443,9 @@ void Options::MaskGroupsSettings()
 				if(Key == KEY_ESC || Key == KEY_F10 || Key == KEY_ENTER || Key == KEY_NUMENTER)
 				{
 					Filter = false;
-					for (int i = 0; i < MasksMenu->GetItemCount(); ++i)
+					for (size_t i = 0, size = MasksMenu->size(); i != size;  ++i)
 					{
-						MasksMenu->UpdateItemFlags(i, MasksMenu->GetItemPtr(i)->Flags&~MIF_HIDDEN);
+						MasksMenu->UpdateItemFlags(static_cast<int>(i), MasksMenu->at(i).Flags & ~MIF_HIDDEN);
 					}
 					MasksMenu->SetPosition(-1, -1, -1, -1);
 					MasksMenu->SetTitle(MSG(MMenuMaskGroups));
@@ -455,23 +454,23 @@ void Options::MaskGroupsSettings()
 				return true;
 			}
 			int ItemPos = MasksMenu->GetSelectPos();
-			void* Data = MasksMenu->GetUserData(nullptr, 0, ItemPos);
-			auto Item = static_cast<const wchar_t*>(Data);
+			const auto* Item = MasksMenu->GetUserDataPtr<string>(ItemPos);
 			int KeyProcessed = 1;
+			static const string EmptyString;
 			switch (Key)
 			{
 			case KEY_NUMDEL:
 			case KEY_DEL:
-				if(Item && !Message(0,2,MSG(MMenuMaskGroups),MSG(MMaskGroupAskDelete), Item, MSG(MDelete), MSG(MCancel)))
+				if(Item && !Message(0,2,MSG(MMenuMaskGroups),MSG(MMaskGroupAskDelete), Item->data(), MSG(MDelete), MSG(MCancel)))
 				{
-					ConfigProvider().GeneralCfg()->DeleteValue(L"Masks", Item);
+					ConfigProvider().GeneralCfg()->DeleteValue(L"Masks", *Item);
 					Changed = true;
 				}
 				break;
 
 			case KEY_NUMPAD0:
 			case KEY_INS:
-				Item = L"";
+				Item = &EmptyString;
 			case KEY_ENTER:
 			case KEY_NUMENTER:
 			case KEY_F4:
@@ -480,9 +479,9 @@ void Options::MaskGroupsSettings()
 					{
 						string Name, Value;
 
-						if (*Item)
+						if (!Item->empty())
 						{
-							Name = Item;
+							Name = *Item;
 							ConfigProvider().GeneralCfg()->GetValue(L"Masks", Name, Value, L"");
 						}
 						DialogBuilder Builder(MMenuMaskGroups, L"MaskGroupsSettings");
@@ -493,9 +492,9 @@ void Options::MaskGroupsSettings()
 						Builder.AddOKCancel();
 						if(Builder.ShowDialog())
 						{
-							if(*Item)
+							if(!Item->empty())
 							{
-								ConfigProvider().GeneralCfg()->DeleteValue(L"Masks", Item);
+								ConfigProvider().GeneralCfg()->DeleteValue(L"Masks", *Item);
 							}
 							ConfigProvider().GeneralCfg()->SetValue(L"Masks", Name, Value);
 							Changed = true;
@@ -527,15 +526,15 @@ void Options::MaskGroupsSettings()
 					Builder.AddOKCancel();
 					if(Builder.ShowDialog())
 					{
-						for (int i=0; i < MasksMenu->GetItemCount(); ++i)
+						for (size_t i = 0, size = MasksMenu->size(); i != size; ++i)
 						{
 							string CurrentMasks;
-							ConfigProvider().GeneralCfg()->GetValue(L"Masks", static_cast<const wchar_t*>(MasksMenu->GetUserData(nullptr, 0, i)), CurrentMasks, L"");
+							ConfigProvider().GeneralCfg()->GetValue(L"Masks", *MasksMenu->GetUserDataPtr<string>(i), CurrentMasks, L"");
 							filemasks Masks;
 							Masks.Set(CurrentMasks);
 							if(!Masks.Compare(Value))
 							{
-								MasksMenu->UpdateItemFlags(i, MasksMenu->GetItemPtr(i)->Flags|MIF_HIDDEN);
+								MasksMenu->UpdateItemFlags(static_cast<int>(i), MasksMenu->at(i).Flags | MIF_HIDDEN);
 							}
 						}
 						MasksMenu->SetPosition(-1, -1, -1, -1);
@@ -1422,7 +1421,7 @@ void StringOption::Export(FarSettingsItem& To) const
 }
 
 
-class Options::farconfig:noncopyable
+class Options::farconfig: noncopyable, swapable<farconfig>
 {
 public:
 	typedef FARConfigItem* iterator;
@@ -1453,8 +1452,6 @@ public:
 		swap(m_size, rhs.m_size);
 		swap(m_cfg, rhs.m_cfg);
 	}
-
-	FREE_SWAP(farconfig);
 
 	iterator begin() const { return m_items; }
 	iterator end() const { return m_items + m_size; }

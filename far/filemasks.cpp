@@ -78,7 +78,7 @@ static inline const wchar_t* SkipRE(const wchar_t* masks)
 	return masks;
 }
 
-class filemasks::masks: noncopyable
+class filemasks::masks: noncopyable, swapable<masks>
 {
 public:
 	masks(): bRE(false) {}
@@ -94,8 +94,6 @@ public:
 		m.swap(rhs.m);
 		swap(bRE, rhs.bRE);
 	}
-
-	FREE_SWAP(masks);
 
 	bool Set(const string& Masks, DWORD Flags);
 	bool operator ==(const string& Name) const;

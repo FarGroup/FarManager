@@ -56,7 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exitcode.hpp"
 #include "keybar.hpp"
 
-FileViewer::FileViewer(int DisableEdit, const wchar_t *Title):
+FileViewer::FileViewer(private_tag, int DisableEdit, const wchar_t *Title):
 	FullScreen(true),
 	DisableEdit(DisableEdit),
 	delete_on_close(),
@@ -68,8 +68,7 @@ fileviewer_ptr FileViewer::create(const string& Name, int EnableSwitch, int Disa
                                   __int64 ViewStartPos,const wchar_t *PluginData, NamesList *ViewNamesList,bool ToSaveAs,
                                   uintptr_t aCodePage, const wchar_t *Title, int DeleteOnClose, window_ptr Update)
 {
-	fileviewer_ptr FileViewerPtr(new FileViewer(DisableEdit, Title));
-
+	auto FileViewerPtr = std::make_shared<FileViewer>(private_tag(), DisableEdit, Title);
 	FileViewerPtr->SetPosition(0, 0, ScrX, ScrY);
 	FileViewerPtr->Init(Name, EnableSwitch, DisableHistory, ViewStartPos, PluginData, ViewNamesList, ToSaveAs, aCodePage, Update);
 
@@ -86,7 +85,7 @@ fileviewer_ptr FileViewer::create(const string& Name, int EnableSwitch, int Disa
 fileviewer_ptr FileViewer::create(const string& Name, int EnableSwitch, int DisableHistory,
                                   const wchar_t *Title, int X1,int Y1,int X2,int Y2,uintptr_t aCodePage)
 {
-	fileviewer_ptr FileViewerPtr(new FileViewer(TRUE, Title));
+	auto FileViewerPtr = std::make_shared<FileViewer>(private_tag(), TRUE, Title);
 
 	_OT(SysLog(L"[%p] FileViewer::FileViewer(II variant...)", this));
 

@@ -1,12 +1,7 @@
 #pragma once
 
 /*
-desktop.hpp
-
-
-*/
-/*
-Copyright © 2014 Far Group
+Copyright © 2015 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -32,28 +27,11 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "window.hpp"
-
-class desktop: public window
+template<class T>
+struct swapable
 {
-	struct private_tag {};
-
-public:
-	static desktop_ptr create();
-	desktop(private_tag);
-	virtual ~desktop();
-
-	virtual int GetType() const override { return windowtype_desktop; }
-	virtual int GetTypeAndName(string& Type, string& Name) override { Type = GetTitle();  return GetType(); }
-	virtual void ResizeConsole() override;
-	virtual int ProcessKey(const Manager::Key& Key) override;
-
-	void FillFromBuffer();
-	void FillFromConsole();
-
-private:
-	virtual string GetTitle() const override { return L"Desktop"; } // TODO: localization
-	virtual void DisplayObject() override;
-
-	std::unique_ptr<SaveScreen> m_Background;
+	friend inline void swap(T& a, T& b) noexcept
+	{
+		a.swap(b);
+	}
 };

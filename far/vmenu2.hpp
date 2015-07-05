@@ -36,8 +36,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class VMenu2 : public Dialog
 {
+	struct private_tag {};
+
 public:
 	static vmenu2_ptr create(const string& Title, const MenuDataEx *Data, size_t ItemCount, int MaxHeight=0, DWORD Flags=0);
+
+	VMenu2(private_tag, int MaxHeight);
 
 	virtual int GetTypeAndName(string &strType, string &strName) override;
 	virtual int GetType() const override { return windowtype_menu; }
@@ -50,13 +54,14 @@ public:
 	void SetBoxType(int BoxType);
 	void SetMenuFlags(DWORD Flags);
 	void AssignHighlights(int Reverse) { SetMenuFlags(Reverse ? VMENU_REVERSEHIGHLIGHT | VMENU_AUTOHIGHLIGHT : VMENU_AUTOHIGHLIGHT); }
-	void DeleteItems();
+	void clear();
 	int DeleteItem(int ID,int Count=1);
 	int AddItem(const MenuItemEx& NewItem,int PosAdd=0x7FFFFFFF);
 	int AddItem(const FarList *NewItem);
 	int AddItem(const string& NewStrItem);
 	int FindItem(int StartIndex,const string& Pattern,UINT64 Flags=0);
-	intptr_t GetItemCount();
+	size_t size();
+	bool empty() { return !size(); }
 	int GetSelectPos();
 	int SetSelectPos(int Pos, int Direct=0/*, bool stop_on_edge=false*/);
 	int GetCheck(int Position=-1);
@@ -71,8 +76,11 @@ public:
 	intptr_t RunEx(const std::function<int(int Msg, void *param)>& fn);
 	intptr_t GetExitCode();
 	void Close(int ExitCode=-2, bool Force = false);
-	void *GetUserData(void *Data, size_t Size, intptr_t Position=-1);
-	size_t SetUserData(LPCVOID Data, size_t Size=0, intptr_t Position=-1);
+	template<class T>
+	T* GetUserDataPtr(intptr_t Position = -1)
+	{
+		return ListBox().GetUserDataPtr<T>(Position);
+	}
 	void Key(int key);
 	int GetSelectPos(FarListPos *ListPos) { return ListBox().GetSelectPos(ListPos); }
 	int SetSelectPos(const FarListPos *ListPos, int Direct=0) { return ListBox().SetSelectPos(ListPos, Direct); }
@@ -80,12 +88,11 @@ public:
 	template<class predicate>
 	void SortItems(predicate Pred, bool Reverse = false, int Offset = 0) { ListBox().SortItems(Pred, Reverse, Offset); }
 	void Pack() { ListBox().Pack(); }
-	MenuItemEx *GetItemPtr(int Position=-1) { return ListBox().GetItemPtr(Position); }
+	MenuItemEx& at(size_t n) { return ListBox().at(n); }
+	MenuItemEx& current() { return ListBox().current(); }
 	int GetShowItemCount() { return ListBox().GetShowItemCount(); }
 
 private:
-	VMenu2(int MaxHeight);
-
 	intptr_t VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	int Call(int Msg, void *param);
 	LISTITEMFLAGS GetItemFlags(int Position = -1);

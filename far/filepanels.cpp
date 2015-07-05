@@ -58,7 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "colormix.hpp"
 
-FilePanels::FilePanels():
+FilePanels::FilePanels(private_tag):
 	LastLeftFilePanel(),
 	LastRightFilePanel(),
 	LeftPanel(),
@@ -73,7 +73,7 @@ FilePanels::FilePanels():
 
 filepanels_ptr FilePanels::create(bool CreatePanels, int DirCount)
 {
-	filepanels_ptr FilePanelsPtr(new FilePanels());
+	auto FilePanelsPtr = std::make_shared<FilePanels>(private_tag());
 
 	FilePanelsPtr->m_windowKeyBar = std::make_unique<KeyBar>(FilePanelsPtr);
 	FilePanelsPtr->SetMacroMode(MACROAREA_SHELL);

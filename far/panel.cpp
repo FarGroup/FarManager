@@ -93,7 +93,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile);
    Класс для хранения пункта плагина в меню выбора дисков
 */
 
-class ChDiskPluginItem:noncopyable
+class ChDiskPluginItem:noncopyable, swapable<ChDiskPluginItem>
 {
 public:
 	ChDiskPluginItem():
@@ -113,13 +113,6 @@ public:
 		using std::swap;
 		Item.swap(rhs.Item);
 		swap(HotKey, rhs.HotKey);
-	}
-
-	FREE_SWAP(ChDiskPluginItem);
-
-	bool operator ==(const ChDiskPluginItem& rhs) const
-	{
-		return HotKey==rhs.HotKey && !StrCmpI(Item.strName, rhs.Item.strName) && Item.UserData==rhs.Item.UserData;
 	}
 
 	bool operator <(const ChDiskPluginItem& rhs) const
@@ -267,12 +260,11 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 				OneItem.getItem().strName = strMenuText;
 				OneItem.getHotKey()=HotKey;
 
-				PanelMenuItem *item = new PanelMenuItem;
-				item->bIsPlugin = true;
-				item->pPlugin = pPlugin;
-				item->Guid = guid;
-				OneItem.getItem().UserData=item;
-				OneItem.getItem().UserDataSize=sizeof(*item);
+				PanelMenuItem item = {};
+				item.bIsPlugin = true;
+				item.pPlugin = pPlugin;
+				item.Guid = guid;
+				OneItem.getItem().UserData = item;
 
 				MPItems.emplace_back(std::move(OneItem));
 			}
@@ -280,7 +272,7 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 	}
 
 	MPItems.sort();
-	MPItems.unique(); // выкинем дубли
+
 	PluginMenuItemsCount=MPItems.size();
 
 	if (PluginMenuItemsCount)
@@ -302,8 +294,6 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 			const wchar_t HotKeyStr[]={HotKey? L'&' : L' ', HotKey? HotKey : L' ', L' ', HotKey? L' ' : L'\0', L'\0'};
 			i.getItem().strName = string(HotKeyStr) + i.getItem().strName;
 			ChDisk.AddItem(i.getItem());
-
-			delete(PanelMenuItem*)i.getItem().UserData;  //ммда...
 		});
 	}
 	return PluginMenuItemsCount;
@@ -591,12 +581,15 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				ItemName << Separator.Get() << i.Path;
 			}
 
-			ChDiskItem.strName = ItemName;
 			PanelMenuItem item;
 			item.bIsPlugin = false;
 			item.cDrive = L'A' + DiskNumber;
 			item.nDriveType = i.DriveType;
-			ChDisk->SetUserData(&item, sizeof(item), ChDisk->AddItem(ChDiskItem));
+
+			ChDiskItem.strName = ItemName;
+			ChDiskItem.UserData = item;
+			ChDisk->AddItem(ChDiskItem);
+
 			MenuLine++;
 		});
 
@@ -637,7 +630,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			}
 
 			int SelPos=ChDisk->GetSelectPos();
-			PanelMenuItem *item = (PanelMenuItem*)ChDisk->GetUserData(nullptr,0);
+			const auto item = ChDisk->GetUserDataPtr<PanelMenuItem>();
 
 			int KeyProcessed = 1;
 
@@ -717,7 +710,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 						}
 						else
 						{
-							string strName = ChDisk->GetItemPtr(SelPos)->strName.data() + 3;
+							string strName = ChDisk->at(SelPos).strName.data() + 3;
 							RemoveExternalSpaces(strName);
 							if(Global->CtrlObject->Plugins->SetHotKeyDialog(item->pPlugin, item->Guid, PluginsHotkeysConfig::DRIVE_MENU, strName))
 							RetCode=SelPos;
@@ -874,7 +867,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		if (ChDisk->GetExitCode()<0)
 			return -1;
 
-		mitem=(PanelMenuItem*)ChDisk->GetUserData(nullptr,0);
+		mitem = ChDisk->GetUserDataPtr<PanelMenuItem>();
 
 		if (mitem)
 		{
@@ -1290,8 +1283,12 @@ static DWORD _CorrectFastFindKbdLayout(const INPUT_RECORD& rec,DWORD Key)
 
 class Search: public Modal
 {
+	struct private_tag {};
+
 public:
 	static search_ptr create(Panel* Owner, int FirstKey);
+
+	Search(private_tag, Panel* Owner, int FirstKey);
 
 	void Process(void);
 	virtual int ProcessKey(const Manager::Key& Key) override;
@@ -1302,7 +1299,6 @@ public:
 	int KeyToProcess(void) const { return m_KeyToProcess; }
 
 private:
-	Search(Panel* Owner, int FirstKey);
 	void InitPositionAndSize(void);
 	void init(void);
 
@@ -1317,7 +1313,7 @@ private:
 	void Close(void);
 };
 
-Search::Search(Panel* Owner, int FirstKey):
+Search::Search(private_tag, Panel* Owner, int FirstKey):
 	m_Owner(Owner),
 	m_FirstKey(FirstKey),
 	m_FindEdit(),
@@ -1337,7 +1333,7 @@ void Search::InitPositionAndSize(void)
 
 search_ptr Search::create(Panel* Owner, int FirstKey)
 {
-	search_ptr SearchPtr(new Search(Owner, FirstKey));
+	auto SearchPtr = std::make_shared<Search>(private_tag(), Owner, FirstKey);
 	SearchPtr->init();
 	return SearchPtr;
 }

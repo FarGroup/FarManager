@@ -91,13 +91,11 @@ class Dialog;
 class SaveScreen;
 
 
-struct MenuItemEx: noncopyable
+struct MenuItemEx: noncopyable, swapable<MenuItemEx>
 {
 	MenuItemEx(const string& Text = L""):
 		strName(Text),
 		Flags(),
-		UserData(),
-		UserDataSize(),
 		ShowPos(),
 		AccelKey(),
 		AmpPos(),
@@ -109,8 +107,6 @@ struct MenuItemEx: noncopyable
 	MenuItemEx(MenuItemEx&& rhs) noexcept:
 		strName(),
 		Flags(),
-		UserData(),
-		UserDataSize(),
 		ShowPos(),
 		AccelKey(),
 		AmpPos(),
@@ -128,7 +124,6 @@ struct MenuItemEx: noncopyable
 		strName.swap(rhs.strName);
 		swap(Flags, rhs.Flags);
 		swap(UserData, rhs.UserData);
-		swap(UserDataSize, rhs.UserDataSize);
 		swap(ShowPos, rhs.ShowPos);
 		swap(AccelKey, rhs.AccelKey);
 		swap(AmpPos, rhs.AmpPos);
@@ -137,12 +132,9 @@ struct MenuItemEx: noncopyable
 		Annotations.swap(rhs.Annotations);
 	}
 
-	FREE_SWAP(MenuItemEx);
-
 	string strName;
 	UINT64  Flags;                  // Флаги пункта
-	void *UserData;                // Пользовательские данные:
-	size_t UserDataSize;           // Размер пользовательских данных
+	any UserData;
 	int   ShowPos;
 	DWORD  AccelKey;
 	short AmpPos;                  // Позиция автоназначенной подсветки
@@ -208,8 +200,11 @@ class window;
 
 class VMenu: public SimpleModal
 {
+	struct private_tag {};
 public:
 	static vmenu_ptr create(const string& Title, MenuDataEx *Data, int ItemCount, int MaxHeight = 0, DWORD Flags = 0, Dialog *ParentDialog = nullptr);
+
+	VMenu(private_tag, const string& Title, int MaxHeight, Dialog *ParentDialog);
 	virtual ~VMenu();
 
 	virtual void Show() override;
@@ -241,7 +236,7 @@ public:
 	void GetColors(FarDialogItemColors *ColorsOut);
 	void SetOneColor(int Index, PaletteColors Color);
 	int ProcessFilterKey(int Key);
-	void DeleteItems();
+	void clear();
 	int DeleteItem(int ID, int Count = 1);
 	int AddItem(MenuItemEx& NewItem, int PosAdd = 0x7FFFFFFF);
 	int AddItem(const FarList *NewItem);
@@ -257,13 +252,17 @@ public:
 	void SetFilterLocked(bool bLocked) { bFilterEnabled = bLocked; }
 	bool AddToFilter(const wchar_t *str);
 	void SetFilterString(const wchar_t *str);
-	intptr_t GetItemCount() const { return Items.size(); }
+	size_t size() const { return Items.size(); }
+	bool empty() const { return Items.empty(); }
 	int GetShowItemCount() const { return static_cast<int>(Items.size() - ItemHiddenCount); }
 	int GetVisualPos(int Pos);
 	int VisualPosToReal(int VPos);
-	void *GetUserData(void *Data, size_t Size, int Position = -1);
-	size_t GetUserDataSize(int Position = -1);
-	size_t  SetUserData(LPCVOID Data, size_t Size = 0, int Position = -1);
+	template<class T>
+	T* GetUserDataPtr(int Position = -1)
+	{
+		return any_cast<T>(GetUserData(Position));
+	}
+	void SetUserData(const any& Data, int Position = -1);
 	int GetSelectPos() const { return SelectPos; }
 	int GetLastSelectPosResult() const { return SelectPosResult; }
 	int GetSelectPos(FarListPos *ListPos) const;
@@ -273,7 +272,8 @@ public:
 	void SetCheck(int Check, int Position = -1);
 	bool UpdateRequired() const;
 	void UpdateItemFlags(int Pos, UINT64 NewFlags);
-	struct MenuItemEx *GetItemPtr(int Position = -1);
+	MenuItemEx& at(size_t n);
+	MenuItemEx& current() { return at(-1); }
 	void SortItems(bool Reverse = false, int Offset = 0);
 	bool Pack();
 	BOOL GetVMenuInfo(FarListInfo* Info) const;
@@ -307,17 +307,13 @@ public:
 	static void AddHotkeys(std::vector<string>& Strings, MenuDataEx* Menu, size_t MenuSize);
 
 private:
-	VMenu(const string& Title, int MaxHeight, Dialog *ParentDialog);
 	void init(MenuDataEx *Data, int ItemsCount, DWORD Flags);
-
 
 	virtual void DisplayObject() override;
 
-	void ShowMenu(bool IsParent=false);
+	void ShowMenu(bool IsParent = false);
 	void DrawTitles();
 	int GetItemPosition(int Position) const;
-	static size_t _SetUserData(MenuItemEx *PItem,const void *Data,size_t Size);
-	static void* _GetUserData(MenuItemEx *PItem,void *Data,size_t Size);
 	bool CheckKeyHiOrAcc(DWORD Key,int Type,int Translate,bool ChangePos,int& NewPos);
 	int CheckHighlights(wchar_t Chr,int StartPos=0);
 	wchar_t GetHighlights(const MenuItemEx *_item);
@@ -331,6 +327,7 @@ private:
 	bool ShouldSendKeyToFilter(int Key) const;
 	//корректировка текущей позиции и флагов SELECTED
 	void UpdateSelectPos();
+	any* GetUserData(int Position = -1);
 
 	string strTitle;
 	string strBottomTitle;

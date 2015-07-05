@@ -141,7 +141,7 @@ int CheckUpdateAnotherPanel(Panel *SrcPanel, const string& SelName)
 	if (!SrcPanel)
 		SrcPanel = Global->CtrlObject->Cp()->ActivePanel();
 
-	Panel *AnotherPanel = Global->CtrlObject->Cp()->PassivePanel();
+	const auto AnotherPanel = Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
 	AnotherPanel->CloseFile();
 
 	if (AnotherPanel->GetMode() == NORMAL_PANEL)

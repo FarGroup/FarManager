@@ -517,7 +517,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\null_iterator.hpp" />
     <ClInclude Include="common\enum.hpp" />
     <ClInclude Include="common\enumerator.hpp" />
-    <ClInclude Include="common\explicit_operator_bool.hpp" />
+    <ClInclude Include="common\conditional.hpp" />
     <ClInclude Include="common\function_traits.hpp" />
     <ClInclude Include="common\iterator_range.hpp" />
     <ClInclude Include="common\make_vector.hpp" />
@@ -527,6 +527,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\range_for.hpp" />
     <ClInclude Include="common\scope_exit.hpp" />
     <ClInclude Include="common\smart_ptr.hpp" />
+    <ClInclude Include="common\swapable.hpp" />
     <ClInclude Include="common\variadic_emulation_helpers_begin.hpp" />
     <ClInclude Include="common\variadic_emulation_helpers_end.hpp" />
     <ClInclude Include="common\any.hpp" />

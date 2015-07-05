@@ -40,7 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class FileFilter;
 
-struct FileListItem: noncopyable
+struct FileListItem: noncopyable, swapable<FileListItem>
 {
 	string strName;
 	char Selected;
@@ -180,11 +180,9 @@ struct FileListItem: noncopyable
 		swap(ReparseTag, rhs.ReparseTag);
 		ContentData.swap(rhs.ContentData);
 	}
-
-	FREE_SWAP(FileListItem);
 };
 
-struct PluginsListItem: noncopyable
+struct PluginsListItem: noncopyable, swapable<PluginsListItem>
 {
 	PluginsListItem(PluginHandle* hPlugin, const string& HostFile, const string& PrevOriginalCurDir, int Modified, int PrevViewMode, int PrevSortMode, bool PrevSortOrder, bool PrevNumericSort, bool PrevCaseSensitiveSort, bool PrevDirectoriesFirst, const PanelViewSettings& PrevViewSettings):
 		m_Plugin(hPlugin),
@@ -233,8 +231,6 @@ struct PluginsListItem: noncopyable
 		swap(m_PrevDirectoriesFirst, rhs.m_PrevDirectoriesFirst);
 		m_PrevViewSettings.swap(rhs.m_PrevViewSettings);
 	}
-
-	FREE_SWAP(PluginsListItem);
 
 	PluginHandle* m_Plugin;
 	string m_HostFile;

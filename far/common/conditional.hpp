@@ -27,26 +27,44 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/*
+Usage:
+
+class object: public conditional<object>
+{
+public:
+    bool operator!() { return false; }
+};
+
+object Object;
+
+if (Object)
+    foo();
+
+if (!Object)
+    bar();
+*/
+
+template<class T>
+struct conditional
+{
 // already included in VC2013
 #if defined _MSC_VER && _MSC_VER < 1800
-struct unspecified_bool
-{
-	struct OPERATORS_NOT_ALLOWED;
-	void true_value(OPERATORS_NOT_ALLOWED*) {}
-};
-typedef void (unspecified_bool::*unspecified_bool_type)(unspecified_bool::OPERATORS_NOT_ALLOWED*);
+	struct unspecified_bool
+	{
+		struct OPERATORS_NOT_ALLOWED;
+		void true_value(OPERATORS_NOT_ALLOWED*) {}
+	};
+	typedef void (unspecified_bool::*unspecified_bool_type)(typename unspecified_bool::OPERATORS_NOT_ALLOWED*);
 
-#define EXPLICIT_OPERATOR_BOOL()\
-operator unspecified_bool_type () const\
-{\
-	return (!this->operator!()? &unspecified_bool::true_value : unspecified_bool_type());\
-}
+	operator unspecified_bool_type() const
+	{
+		return !static_cast<const T&>(*this).operator!()? &unspecified_bool::true_value : unspecified_bool_type();
+	}
 #else
-#define EXPLICIT_OPERATOR_BOOL()\
-explicit operator bool() const\
-{\
-	return !this->operator!();\
-}
+	explicit operator bool() const
+	{
+		return !static_cast<const T&>(*this).operator!();
+	}
 #endif
-
-
+};

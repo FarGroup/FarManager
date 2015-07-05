@@ -76,7 +76,6 @@ int CheckDisksProps(const string& SrcPath,const string& DestPath,int CheckedType
 	string strSrcRoot, strDestRoot;
 	DWORD SrcVolumeNumber=0, DestVolumeNumber=0;
 	string strSrcVolumeName, strDestVolumeName;
-	string strSrcFileSystemName, strDestFileSystemName;
 	DWORD SrcFileSystemFlags, DestFileSystemFlags;
 	strSrcRoot=SrcPath;
 	strDestRoot=DestPath;

@@ -1217,7 +1217,7 @@ void PluginManager::Configure(int StartPos)
 
 			if (NeedUpdateItems)
 			{
-				PluginList->DeleteItems();
+				PluginList->clear();
 				LoadIfCacheAbsent();
 				string strHotKey, strName;
 				GUID guid;
@@ -1274,7 +1274,10 @@ void PluginManager::Configure(int StartPos)
 						PluginMenuItemData item;
 						item.pPlugin = i;
 						item.Guid = guid;
-						PluginList->SetUserData(&item, sizeof(PluginMenuItemData),PluginList->AddItem(ListItem));
+
+						ListItem.UserData = item;
+
+						PluginList->AddItem(ListItem);
 					}
 				}
 
@@ -1291,7 +1294,7 @@ void PluginManager::Configure(int StartPos)
 			{
 				const auto Key=RawKey.FarKey();
 				int SelPos=PluginList->GetSelectPos();
-				PluginMenuItemData *item = (PluginMenuItemData*)PluginList->GetUserData(nullptr,0,SelPos);
+				const auto item = PluginList->GetUserDataPtr<PluginMenuItemData>(SelPos);
 				int KeyProcessed = 1;
 
 				switch (Key)
@@ -1320,7 +1323,7 @@ void PluginManager::Configure(int StartPos)
 						{
 							string strTitle;
 							int nOffset = HotKeysPresent?3:0;
-							strTitle = PluginList->GetItemPtr()->strName.substr(nOffset);
+							strTitle = PluginList->current().strName.substr(nOffset);
 							RemoveExternalSpaces(strTitle);
 
 							if (SetHotKeyDialog(item->pPlugin, item->Guid, PluginsHotkeysConfig::CONFIG_MENU, strTitle))
@@ -1346,7 +1349,7 @@ void PluginManager::Configure(int StartPos)
 				if (StartPos<0)
 					break;
 
-				PluginMenuItemData *item = (PluginMenuItemData*)PluginList->GetUserData(nullptr,0,StartPos);
+				const auto item = PluginList->GetUserDataPtr<PluginMenuItemData>(StartPos);
 				ConfigureCurrent(item->pPlugin, item->Guid);
 			}
 		}
@@ -1382,7 +1385,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 			if (NeedUpdateItems)
 			{
-				PluginList->DeleteItems();
+				PluginList->clear();
 				LoadIfCacheAbsent();
 				string strHotKey, strName;
 				GUID guid;
@@ -1449,7 +1452,10 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 						PluginMenuItemData itemdata;
 						itemdata.pPlugin = i;
 						itemdata.Guid = guid;
-						PluginList->SetUserData(&itemdata, sizeof(PluginMenuItemData),PluginList->AddItem(ListItem));
+
+						ListItem.UserData = itemdata;
+
+						PluginList->AddItem(ListItem);
 					}
 				}
 
@@ -1464,7 +1470,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 			{
 				const auto Key=RawKey.FarKey();
 				int SelPos=PluginList->GetSelectPos();
-				PluginMenuItemData *ItemPtr = (PluginMenuItemData*)PluginList->GetUserData(nullptr,0,SelPos);
+				const auto ItemPtr = PluginList->GetUserDataPtr<PluginMenuItemData>(SelPos);
 				int KeyProcessed = 1;
 
 				switch (Key)
@@ -1487,7 +1493,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 						{
 							string strTitle;
 							int nOffset = HotKeysPresent?3:0;
-							strTitle = PluginList->GetItemPtr()->strName.substr(nOffset);
+							strTitle = PluginList->current().strName.substr(nOffset);
 							RemoveExternalSpaces(strTitle);
 
 							if (SetHotKeyDialog(ItemPtr->pPlugin, ItemPtr->Guid, PluginsHotkeysConfig::PLUGINS_MENU, strTitle))
@@ -1543,7 +1549,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 		}
 
 		Global->ScrBuf->Flush();
-		item = *(PluginMenuItemData*)PluginList->GetUserData(nullptr,0,ExitCode);
+		item = *PluginList->GetUserDataPtr<PluginMenuItemData>(ExitCode);
 	}
 
 	Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();

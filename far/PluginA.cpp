@@ -5358,9 +5358,8 @@ void* PluginA::OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, si
 	ExecuteStruct es = {iOpenFilePlugin};
 	if (Load() && Exports[es.id] && !Global->ProcessException)
 	{
-		char *NameA = Name? UnicodeToAnsi(Name) : nullptr;
-		EXECUTE_FUNCTION(es = FUNCTION(iOpenFilePlugin)(NameA, Data, static_cast<int>(DataSize)));
-		delete[] NameA;
+		std::unique_ptr<char[]> NameA(Name? UnicodeToAnsi(Name) : nullptr);
+		EXECUTE_FUNCTION(es = FUNCTION(iOpenFilePlugin)(NameA.get(), Data, static_cast<int>(DataSize)));
 	}
 	return TranslateResult(es);
 }

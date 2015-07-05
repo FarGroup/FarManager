@@ -49,7 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "manager.hpp"
 
-HMenu::HMenu(HMenuData *Item,size_t ItemCount):
+HMenu::HMenu(private_tag, HMenuData *Item,size_t ItemCount):
 	Item(Item),
 	SelectPos(),
 	ItemCount(ItemCount),
@@ -61,7 +61,7 @@ HMenu::HMenu(HMenuData *Item,size_t ItemCount):
 
 hmenu_ptr HMenu::create(HMenuData *Item, size_t ItemCount)
 {
-	hmenu_ptr HmenuPtr(new HMenu(Item, ItemCount));
+	auto HmenuPtr = std::make_shared<HMenu>(private_tag(), Item, ItemCount);
 	HmenuPtr->init();
 	return HmenuPtr;
 }

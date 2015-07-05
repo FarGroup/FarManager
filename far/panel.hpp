@@ -58,7 +58,7 @@ struct column: public column_base
 	string title;
 };
 
-struct PanelViewSettings: noncopyable
+struct PanelViewSettings: noncopyable, swapable<PanelViewSettings>
 {
 	PanelViewSettings(): Flags() {}
 	PanelViewSettings(PanelViewSettings&& rhs) noexcept: Flags() { *this = std::move(rhs); }
@@ -72,8 +72,6 @@ struct PanelViewSettings: noncopyable
 		Name.swap(rhs.Name);
 		swap(Flags, rhs.Flags);
 	}
-
-	FREE_SWAP(PanelViewSettings);
 
 	PanelViewSettings clone() const
 	{

@@ -70,7 +70,7 @@ inline string make_name(const S& HashPart, const S& TextPart)
 	return Str;
 }
 
-class Thread: public os::HandleWrapper
+class Thread: public os::HandleWrapper, swapable<Thread>
 {
 public:
 	typedef void (Thread::*mode)();
@@ -117,8 +117,6 @@ public:
 		swap(m_Mode, rhs.m_Mode);
 		swap(m_ThreadId, rhs.m_ThreadId);
 	}
-
-	FREE_SWAP(Thread);
 
 	unsigned int get_id() const { return m_ThreadId; }
 
@@ -173,7 +171,7 @@ private:
 	unsigned int m_ThreadId;
 };
 
-class Mutex: public os::HandleWrapper
+class Mutex: public os::HandleWrapper, swapable<Mutex>
 {
 public:
 	Mutex(const wchar_t* Name = nullptr): HandleWrapper(CreateMutex(nullptr, false, EmptyToNull(Name))) {}
@@ -190,14 +188,12 @@ public:
 		m_Handle.swap(rhs.m_Handle);
 	}
 
-	FREE_SWAP(Mutex);
-
 	bool lock() const { return m_Handle.wait(); }
 
 	bool unlock() const { return ReleaseMutex(m_Handle.native_handle()) != FALSE; }
 };
 
-class Event: public os::HandleWrapper
+class Event: public os::HandleWrapper, swapable<Event>
 {
 public:
 	enum event_type { automatic, manual };
@@ -216,8 +212,6 @@ public:
 	{
 		m_Handle.swap(rhs.m_Handle);
 	}
-
-	FREE_SWAP(Event);
 
 	bool Set() const { check_valid(); return SetEvent(m_Handle.native_handle()) != FALSE; }
 

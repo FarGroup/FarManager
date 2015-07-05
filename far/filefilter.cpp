@@ -191,9 +191,9 @@ bool FileFilter::FilterEdit()
 		FOR(const auto& i, Extensions)
 		{
 			MenuItemEx ListItem(MenuString(nullptr, false, h, true, i.first.data(), MSG(MPanelFileType)));
-			size_t Length = i.first.size() + 1;
 			ListItem.SetCheck(i.second);
-			FilterList->SetUserData(i.first.data(), Length * sizeof(wchar_t), FilterList->AddItem(ListItem));
+			ListItem.UserData = i.first;
+			FilterList->AddItem(ListItem);
 
 			h == L'9' ? h = L'A' : (h == L'Z' || h ? h++ : h = 0);
 		}
@@ -251,9 +251,9 @@ bool FileFilter::FilterEdit()
 			}
 			case KEY_SHIFTBS:
 			{
-				for (int I=0; I < FilterList->GetItemCount(); I++)
+				for (size_t i = 0, size = FilterList->size(); i != size; ++i)
 				{
-					FilterList->SetCheck(FALSE, I);
+					FilterList->SetCheck(FALSE, static_cast<int>(i));
 				}
 
 				break;
@@ -321,7 +321,7 @@ bool FileFilter::FilterEdit()
 					}
 					else if (SelPos2 > FilterData().size() + 2)
 					{
-						NewFilter.SetMask(1,static_cast<const wchar_t*>(FilterList->GetUserData(nullptr, 0, SelPos2-1)));
+						NewFilter.SetMask(1, *FilterList->GetUserDataPtr<string>(SelPos2-1));
 						//Авто фильтры они только для файлов, папки не должны к ним подходить
 						NewFilter.SetAttr(1,0,FILE_ATTRIBUTE_DIRECTORY);
 					}
@@ -391,7 +391,7 @@ bool FileFilter::FilterEdit()
 					!((Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN) && SelPos == (int)(FilterData().size() - 1)))
 				{
 					int NewPos = SelPos + ((Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN) ? 1 : -1);
-					FilterList->GetItemPtr(SelPos)->swap(*FilterList->GetItemPtr(NewPos));
+					FilterList->at(SelPos).swap(FilterList->at(NewPos));
 					FilterData()[NewPos].swap(FilterData()[SelPos]);
 					FilterList->SetSelectPos(NewPos,1);
 					bNeedUpdate=true;
@@ -467,22 +467,22 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList)
 {
 	auto FFFT = GetFFFT();
 
-	for (int i = 0, j = 0; i < FilterList->GetItemCount(); i++)
+	for (size_t i = 0, j = 0, size = FilterList->size(); i != size; ++i)
 	{
-		int Check = FilterList->GetCheck(i);
+		int Check = FilterList->GetCheck(static_cast<int>(i));
 		FileFilterParams* CurFilterData = nullptr;
 
-		if (i < (int)FilterData().size())
+		if (i < FilterData().size())
 		{
 			CurFilterData = &FilterData()[i];
 		}
-		else if (i == (int)(FilterData().size() + 1))
+		else if (i == FilterData().size() + 1)
 		{
 			CurFilterData = FoldersFilter;
 		}
-		else if (i > (int)(FilterData().size() + 1))
+		else if (i > FilterData().size() + 1)
 		{
-			string Mask(static_cast<const wchar_t*>(FilterList->GetUserData(nullptr, 0, i)));
+			const auto& Mask = *FilterList->GetUserDataPtr<string>(i);
 			string strMask1(Mask);
 			//AY: Так как в меню мы показываем только те выбранные авто фильтры
 			//которые выбраны в области данного меню и TempFilterData вполне
@@ -492,7 +492,7 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList)
 			//поколдуем чтоб не было дубликатов в памяти.
 			Unquote(strMask1);
 
-			while (j < static_cast<int>(TempFilterData().size()))
+			while (j < TempFilterData().size())
 			{
 				CurFilterData = &TempFilterData()[j];
 				auto strMask2 = CurFilterData->GetMask();
@@ -559,7 +559,6 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList)
 			case L'I': return FFF_INCLUDE | FFF_STRONG;
 			case L'X': return FFF_EXCLUDE | FFF_STRONG;
 			default:
-				assert(false);
 				return 0;
 			}
 		};

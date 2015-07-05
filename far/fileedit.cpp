@@ -105,7 +105,7 @@ intptr_t hndOpenEditor(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 			uintptr_t* param = (uintptr_t*)Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr);
 			FarListPos pos={sizeof(FarListPos)};
 			Dlg->SendMessage(DM_LISTGETCURPOS, ID_OE_CODEPAGE, &pos);
-			*param = *(uintptr_t*)Dlg->SendMessage(DM_LISTGETDATA, ID_OE_CODEPAGE, ToPtr(pos.SelectPos));
+			*param = *Dlg->GetListItemDataPtr<uintptr_t>(ID_OE_CODEPAGE, pos.SelectPos);
 			return TRUE;
 		}
 	}
@@ -157,7 +157,7 @@ bool dlgBadEditorCodepage(uintptr_t &codepage)
 		{
 			FarListPos pos={sizeof(FarListPos)};
 			dlg->SendMessage(DM_LISTGETCURPOS, id_cp, &pos);
-			codepage = *(uintptr_t*)dlg->SendMessage(DM_LISTGETDATA, id_cp, ToPtr(pos.SelectPos));
+			codepage = *dlg->GetListItemDataPtr<uintptr_t>(id_cp, pos.SelectPos);
 			return TRUE;
 		}
 		return dlg->DefProc(msg, p1, p2);
@@ -217,7 +217,7 @@ intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 				uintptr_t *CodepagePtr = (uintptr_t *)Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr);
 				FarListPos pos={sizeof(FarListPos)};
 				Dlg->SendMessage(DM_LISTGETCURPOS, ID_SF_CODEPAGE, &pos);
-				*CodepagePtr = *(UINT*)Dlg->SendMessage(DM_LISTGETDATA, ID_SF_CODEPAGE, ToPtr(pos.SelectPos));
+				*CodepagePtr = *Dlg->GetListItemDataPtr<uintptr_t>(ID_SF_CODEPAGE, pos.SelectPos);
 				return TRUE;
 			}
 
@@ -229,8 +229,7 @@ intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 			{
 				FarListPos pos={sizeof(FarListPos)};
 				Dlg->SendMessage(DM_LISTGETCURPOS,ID_SF_CODEPAGE,&pos);
-				auto cp = *reinterpret_cast<UINT*>(Dlg->SendMessage(DM_LISTGETDATA,ID_SF_CODEPAGE,ToPtr(pos.SelectPos)));
-
+				auto cp = *Dlg->GetListItemDataPtr<uintptr_t>(ID_SF_CODEPAGE, pos.SelectPos);
 				if (cp != CurrentCodepage)
 				{
 					if (IsUnicodeOrUtfCodePage(cp))
@@ -318,24 +317,24 @@ bool dlgSaveFileAs(string &strFileName, int &TextFormat, uintptr_t &codepage,boo
 	return false;
 }
 
-FileEditor::FileEditor():
+FileEditor::FileEditor(private_tag):
 	BadConversion(false), f8cps(false)
 {
 }
 
 fileeditor_ptr FileEditor::create(const string& Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* PluginData, EDITOR_FLAGS OpenModeExstFile)
 {
-	fileeditor_ptr FileEditorPtr(new FileEditor);
+	auto FileEditorPtr = std::make_shared<FileEditor>(private_tag());
 	FileEditorPtr->ScreenObjectWithShadow::SetPosition(0, 0, ScrX, ScrY);
 	FileEditorPtr->m_Flags.Set(InitFlags);
 	FileEditorPtr->m_Flags.Set(FFILEEDIT_FULLSCREEN);
-	FileEditorPtr->Init(Name, codepage, nullptr, InitFlags, StartLine, StartChar, PluginData, FALSE, nullptr, OpenModeExstFile);
+	FileEditorPtr->Init(Name, codepage, nullptr, StartLine, StartChar, PluginData, FALSE, nullptr, OpenModeExstFile);
 	return FileEditorPtr;
 }
 
 fileeditor_ptr FileEditor::create(const string& Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose, window_ptr_ref Update, EDITOR_FLAGS OpenModeExstFile)
 {
-	fileeditor_ptr FileEditorPtr(new FileEditor);
+	auto FileEditorPtr = std::make_shared<FileEditor>(private_tag());
 	FileEditorPtr->m_Flags.Set(InitFlags);
 
 	if (X1 < 0)
@@ -365,7 +364,7 @@ fileeditor_ptr FileEditor::create(const string& Name, uintptr_t codepage, DWORD 
 	FileEditorPtr->SetPosition(X1, Y1, X2, Y2);
 	FileEditorPtr->m_Flags.Change(FFILEEDIT_FULLSCREEN, (!X1 && !Y1 && X2 == ScrX && Y2 == ScrY));
 	string EmptyTitle;
-	FileEditorPtr->Init(Name, codepage, Title, InitFlags, StartLine, StartChar, &EmptyTitle, DeleteOnClose, Update, OpenModeExstFile);
+	FileEditorPtr->Init(Name, codepage, Title, StartLine, StartChar, &EmptyTitle, DeleteOnClose, Update, OpenModeExstFile);
 	return FileEditorPtr;
 }
 
@@ -409,7 +408,6 @@ void FileEditor::Init(
     const string& Name,
     uintptr_t codepage,
     const string* Title,
-    DWORD InitFlags,
     int StartLine,
     int StartChar,
     const string* PluginData,
@@ -1554,7 +1552,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 
 	for (BitFlags f0 = m_editor->m_Flags; ; m_editor->m_Flags = f0)
 	{
-		m_editor->FreeAllocatedData(false);
+		m_editor->FreeAllocatedData();
 		bool bCached = LoadFromCache(pc);
 
 		DWORD FileAttributes=os::GetFileAttributes(Name);

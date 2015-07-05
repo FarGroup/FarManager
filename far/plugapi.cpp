@@ -724,7 +724,6 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			auto NextWindow=Global->WindowManager->GetWindow(Param1);
 			if (!Global->WindowManager->InModal() && NextWindow)
 			{
-				auto PrevWindow = Global->WindowManager->GetCurrentWindow();
 				Global->WindowManager->ActivateWindow(NextWindow);
 				Global->WindowManager->PluginCommit();
 				return TRUE;
@@ -1061,10 +1060,12 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 		{
 			class plugin_dialog: public Dialog
 			{
+				struct private_tag {};
+
 			public:
 				static dialog_ptr create(const range<const FarDialogItem*>& Src, FARWINDOWPROC DlgProc, void* InitParam)
 				{
-					return dialog_ptr(new plugin_dialog(Src, DlgProc, InitParam));
+					return std::make_shared<plugin_dialog>(private_tag(), Src, DlgProc, InitParam);
 				}
 
 				intptr_t Proc(Dialog* hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
@@ -1072,12 +1073,12 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 					return m_Proc(hDlg, Msg, Param1, Param2);
 				}
 
-			private:
-				plugin_dialog(const range<const FarDialogItem*>& Src, FARWINDOWPROC DlgProc, void* InitParam):
-					Dialog(Src, DlgProc ? this : nullptr, DlgProc ? &plugin_dialog::Proc : nullptr, InitParam),
+				plugin_dialog(private_tag, const range<const FarDialogItem*>& Src, FARWINDOWPROC DlgProc, void* InitParam):
+					Dialog(Dialog::private_tag(), Src, DlgProc? this : nullptr, DlgProc ? &plugin_dialog::Proc : nullptr, InitParam),
 					m_Proc(DlgProc)
 				{}
 
+			private:
 				FARWINDOWPROC m_Proc;
 			};
 

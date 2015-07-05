@@ -33,7 +33,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class NamesList: noncopyable
+class NamesList: noncopyable, swapable<NamesList>
 {
 public:
 	NamesList(): CurPos(Names.end()) {};
@@ -46,8 +46,6 @@ public:
 		Names.swap(rhs.Names);
 		swap(CurPos, rhs.CurPos);
 	}
-
-	FREE_SWAP(NamesList);
 
 	void AddName(const string& Name);
 	bool GetNextName(string& strName);

@@ -110,7 +110,7 @@ public:
 	void ProcessVBlockMarking();
 	void AdjustVBlock(int PrevX);
 	void Xlat();
-	void FreeAllocatedData(bool FreeUndo = true);
+	void FreeAllocatedData();
 	void SetDialogParent(DWORD Sets);
 	void SetReadOnly(bool NewReadOnly) { m_Flags.Change(FEDITOR_LOCKMODE, NewReadOnly); }
 	bool GetReadOnly() const { return m_Flags.Check(FEDITOR_LOCKMODE); }

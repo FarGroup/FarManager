@@ -111,7 +111,7 @@ void EditControl::Changed(bool DelBlock)
 
 void EditControl::SetMenuPos(VMenu2& menu)
 {
-	int MaxHeight = std::min(Global->Opt->Dialogs.CBoxMaxHeight.Get(),(long long)menu.GetItemCount()) + 1;
+	int MaxHeight = std::min(Global->Opt->Dialogs.CBoxMaxHeight.Get(),(long long)menu.size()) + 1;
 
 	int NewX2 = std::max(std::min(ScrX-2,(int)m_X2), m_X1 + 20);
 
@@ -129,9 +129,9 @@ void EditControl::SetMenuPos(VMenu2& menu)
 static void AddSeparatorOrSetTitle(VMenu2& Menu, LNGID TitleId)
 {
 	bool Separator = false;
-	for (intptr_t i = 0; i != Menu.GetItemCount(); ++i)
+	for (size_t i = 0; i != Menu.size(); ++i)
 	{
-		if (Menu.GetItemPtr(i)->Flags&LIF_SEPARATOR)
+		if (Menu.at(i).Flags & LIF_SEPARATOR)
 		{
 			Separator = true;
 			break;
@@ -139,7 +139,7 @@ static void AddSeparatorOrSetTitle(VMenu2& Menu, LNGID TitleId)
 	}
 	if (!Separator)
 	{
-		if (Menu.GetItemCount())
+		if (Menu.size())
 		{
 			MenuItemEx Item(MSG(TitleId));
 			Item.Flags = LIF_SEPARATOR;
@@ -467,7 +467,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 
 		Complete(*ComplMenu, strTemp);
 
-		if(ComplMenu->GetItemCount()>1 || (ComplMenu->GetItemCount()==1 && StrCmpI(strTemp, ComplMenu->GetItemPtr(0)->strName)))
+		if(ComplMenu->size() > 1 || (ComplMenu->size() == 1 && StrCmpI(strTemp, ComplMenu->at(0).strName)))
 		{
 			ComplMenu->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 			if(!DelBlock && Global->Opt->AutoComplete.AppendCompletion && (!m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS) || Global->Opt->AutoComplete.ShowList))
@@ -475,26 +475,26 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 				int SelStart=GetLength();
 
 				// magic
-				if(IsSlash(m_Str[SelStart-1]) && m_Str[SelStart-2] == L'"' && IsSlash(ComplMenu->GetItemPtr(0)->strName[SelStart-2]))
+				if (IsSlash(m_Str[SelStart - 1]) && m_Str[SelStart - 2] == L'"' && IsSlash(ComplMenu->at(0).strName[SelStart - 2]))
 				{
 					m_Str.erase(SelStart - 2, 1);
 					SelStart--;
 					m_CurPos--;
 				}
-				int Offset = 0;
+				size_t Offset = 0;
 				if(!CurrentLine.empty())
 				{
-					int Count = ComplMenu->GetItemCount();
-					while(Offset < Count && (StrCmpI(ComplMenu->GetItemPtr(Offset)->strName, CurrentLine) || ComplMenu->GetItemPtr(Offset)->Flags&LIF_SEPARATOR))
+					const auto Count = ComplMenu->size();
+					while (Offset < Count && (StrCmpI(ComplMenu->at(Offset).strName, CurrentLine) || ComplMenu->at(Offset).Flags & LIF_SEPARATOR))
 						++Offset;
 					if(Offset < Count)
 						++Offset;
-					if(Offset < Count && (ComplMenu->GetItemPtr(Offset)->Flags&LIF_SEPARATOR))
+					if (Offset < Count && (ComplMenu->at(Offset).Flags & LIF_SEPARATOR))
 						++Offset;
 					if(Offset >= Count)
 						Offset = 0;
 				}
-				AppendString(ComplMenu->GetItemPtr(Offset)->strName.data()+SelStart);
+				AppendString(ComplMenu->at(Offset).strName.data() + SelStart);
 				Select(SelStart, GetLength());
 				m_Flags.Clear(FEDITLINE_CMP_CHANGED);
 				m_CurPos = GetLength();
@@ -525,7 +525,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 						if(CurPos>=0 && PrevPos!=CurPos)
 						{
 							PrevPos=CurPos;
-							SetString(CurPos?ComplMenu->GetItemPtr(CurPos)->strName.data():strTemp.data());
+							SetString(CurPos ? ComplMenu->at(CurPos).strName.data() : strTemp.data());
 							Show();
 						}
 					}
@@ -543,7 +543,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 							GetString(strTemp);
 							if(strPrev != strTemp)
 							{
-								ComplMenu->DeleteItems();
+								ComplMenu->clear();
 								PrevPos=0;
 								if(!strTemp.empty())
 								{
@@ -568,14 +568,14 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 
 								Complete(*ComplMenu, strTemp);
 
-								if(ComplMenu->GetItemCount()>1 || (ComplMenu->GetItemCount()==1 && StrCmpI(strTemp, ComplMenu->GetItemPtr(0)->strName)))
+								if (ComplMenu->size() > 1 || (ComplMenu->size() == 1 && StrCmpI(strTemp, ComplMenu->at(0).strName)))
 								{
 									if(MenuKey!=KEY_BS && MenuKey!=KEY_DEL && MenuKey!=KEY_NUMDEL && Global->Opt->AutoComplete.AppendCompletion)
 									{
 										int SelStart=GetLength();
 
 										// magic
-										if(IsSlash(m_Str[SelStart-1]) && m_Str[SelStart-2] == L'"' && IsSlash(ComplMenu->GetItemPtr(0)->strName[SelStart-2]))
+										if(IsSlash(m_Str[SelStart-1]) && m_Str[SelStart-2] == L'"' && IsSlash(ComplMenu->at(0).strName[SelStart-2]))
 										{
 											m_Str.erase(SelStart - 2, 1);
 											SelStart--;
@@ -583,7 +583,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 										}
 
 										DisableCallback();
-										AppendString(ComplMenu->GetItemPtr(0)->strName.data()+SelStart);
+										AppendString(ComplMenu->at(0).strName.data()+SelStart);
 										if(m_X2-m_X1>GetLength())
 											SetLeftPos(0);
 										this->Select(SelStart, GetLength());
@@ -619,13 +619,13 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 							case KEY_SHIFTDEL:
 							case KEY_SHIFTNUMDEL:
 								{
-									if(ComplMenu->GetItemCount()>1)
+									if(ComplMenu->size() > 1)
 									{
-										unsigned __int64* CurrentRecord = static_cast<unsigned __int64*>(ComplMenu->GetUserData(nullptr, 0));
-										if(CurrentRecord && pHistory->DeleteIfUnlocked(*CurrentRecord))
+										const auto CurrentRecordPtr = ComplMenu->GetUserDataPtr<unsigned __int64>();
+										if(CurrentRecordPtr && pHistory->DeleteIfUnlocked(*CurrentRecordPtr))
 										{
 											ComplMenu->DeleteItem(ComplMenu->GetSelectPos());
-											if(ComplMenu->GetItemCount()>1)
+											if(ComplMenu->size() > 1)
 											{
 												SetMenuPos(*ComplMenu);
 												Show();
@@ -734,7 +734,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 				{
 					if(Global->Opt->AutoComplete.ModalList)
 					{
-						SetString(ComplMenu->GetItemPtr(ExitCode)->strName.data());
+						SetString(ComplMenu->at(ExitCode).strName.data());
 						Show();
 					}
 					else

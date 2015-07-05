@@ -3328,11 +3328,11 @@ static bool menushowFunc(FarMacroCall* Data)
 	{
 		for (int i = 0; i < Menu->GetShowItemCount(); i++)
 		{
-			MenuItemEx *Item = Menu->GetItemPtr(i);
-			if (!(Item->Flags & LIF_SEPARATOR))
+			auto& Item = Menu->at(i);
+			if (!(Item.Flags & LIF_SEPARATOR))
 			{
 				LineCount++;
-				Item->strName = str_printf(L"%*d - %s", nLeftShift-3, LineCount, Item->strName.data());
+				Item.strName = str_printf(L"%*d - %s", nLeftShift-3, LineCount, Item.strName.data());
 			}
 		}
 	}
@@ -3344,7 +3344,7 @@ static bool menushowFunc(FarMacroCall* Data)
 			if (VFindOrFilter.toInteger()-1>=0)
 				Menu->SetSelectPos(VFindOrFilter.toInteger() - 1, 1);
 			else
-				Menu->SetSelectPos(Menu->GetItemCount() + VFindOrFilter.toInteger(), 1);
+				Menu->SetSelectPos(static_cast<int>(Menu->size() + VFindOrFilter.toInteger()), 1);
 		}
 		else
 			if (VFindOrFilter.isString())
@@ -3390,20 +3390,20 @@ static bool menushowFunc(FarMacroCall* Data)
 			case KEY_RCTRLMULTIPLY:
 				if (bMultiSelect)
 				{
-					for(int i=0; i<Menu->GetItemCount(); i++)
+					for (size_t i = 0, size = Menu->size(); i != size; ++i)
 					{
-						if (Menu->GetItemPtr(i)->Flags&MIF_HIDDEN)
+						if (Menu->at(i).Flags & MIF_HIDDEN)
 							continue;
 
 						if (Key==KEY_CTRLMULTIPLY || Key==KEY_RCTRLMULTIPLY)
 						{
-							CheckFlag = !Menu->GetCheck(i);
+							CheckFlag = !Menu->GetCheck(static_cast<int>(i));
 						}
 						else
 						{
 							CheckFlag=(Key==KEY_CTRLADD || Key==KEY_RCTRLADD);
 						}
-						Menu->SetCheck(CheckFlag, i);
+						Menu->SetCheck(CheckFlag, static_cast<int>(i));
 					}
 				}
 				break;
@@ -3446,9 +3446,9 @@ static bool menushowFunc(FarMacroCall* Data)
 		if (bMultiSelect)
 		{
 			Result=L"";
-			for(int i=0; i<Menu->GetItemCount(); i++)
+			for (size_t i = 0, size = Menu->size(); i != size; ++i)
 			{
-				if (Menu->GetCheck(i))
+				if (Menu->GetCheck(static_cast<int>(i)))
 				{
 					if (bResultAsIndex)
 					{
@@ -3456,7 +3456,7 @@ static bool menushowFunc(FarMacroCall* Data)
 						Result+=temp;
 					}
 					else
-						Result+=(*Menu->GetItemPtr(i)).strName.data()+nLeftShift;
+						Result += Menu->at(i).strName.data() + nLeftShift;
 					Result+=L"\n";
 				}
 			}
@@ -3468,12 +3468,12 @@ static bool menushowFunc(FarMacroCall* Data)
 					Result=temp;
 				}
 				else
-					Result=(*Menu->GetItemPtr(SelectedPos)).strName.data()+nLeftShift;
+					Result = Menu->at(SelectedPos).strName.data() + nLeftShift;
 			}
 		}
 		else
 			if(!bResultAsIndex)
-				Result=(*Menu->GetItemPtr(SelectedPos)).strName.data()+nLeftShift;
+				Result = Menu->at(SelectedPos).strName.data() + nLeftShift;
 			else
 				Result=SelectedPos+1;
 	}
@@ -3898,7 +3898,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 				{
 					if (ItemType == DI_COMBOBOX || ItemType == DI_LISTBOX)
 					{
-						Ret=Item.ListPtr->GetItemCount();
+						Ret = static_cast<long long>(Item.ListPtr->size());
 					}
 					break;
 				}

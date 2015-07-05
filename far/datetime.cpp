@@ -724,24 +724,13 @@ void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeT
 bool Utc2Local(const FILETIME &ft, SYSTEMTIME &lst)
 {
 	SYSTEMTIME st;
-	bool ok = false;
-	if (FileTimeToSystemTime(&ft, &st))
-	{
-		ok = FALSE != SystemTimeToTzSpecificLocalTime(nullptr, &st, &lst);
-	}
-	return ok;
+	return FileTimeToSystemTime(&ft, &st) && SystemTimeToTzSpecificLocalTime(nullptr, &st, &lst);
 }
 
 bool Utc2Local(SYSTEMTIME &st, FILETIME &lft)
 {
 	SYSTEMTIME lst;
-	bool ok = false;
-
-	if (SystemTimeToTzSpecificLocalTime(nullptr, &st, &lst))
-	{
-		ok = FALSE != SystemTimeToFileTime(&lst, &lft);
-	}
-	return ok;
+	return SystemTimeToTzSpecificLocalTime(nullptr, &st, &lst) && SystemTimeToFileTime(&lst, &lft);
 }
 
 static inline bool local_to_utc(const SYSTEMTIME &lst, SYSTEMTIME &ust)
@@ -795,22 +784,11 @@ static inline bool local_to_utc(const SYSTEMTIME &lst, SYSTEMTIME &ust)
 bool Local2Utc(const FILETIME &lft, SYSTEMTIME &st)
 {
 	SYSTEMTIME lst;
-	bool ok = false;
-	if (FileTimeToSystemTime(&lft, &lst))
-	{
-		ok = local_to_utc(lst, st);
-	}
-	return ok;
+	return FileTimeToSystemTime(&lft, &lst) && local_to_utc(lst, st);
 }
 
 bool Local2Utc(const SYSTEMTIME &lst, FILETIME &ft)
 {
 	SYSTEMTIME st;
-	bool ok = false;
-
-	if (local_to_utc(lst, st))
-	{
-		ok = FALSE != SystemTimeToFileTime(&st, &ft);
-	}
-	return ok;
+	return local_to_utc(lst, st) && SystemTimeToFileTime(&st, &ft);
 }

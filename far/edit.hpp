@@ -99,7 +99,7 @@ enum SetCPFlags
 
 class Editor;
 
-class Edit:public SimpleScreenObject
+class Edit: public SimpleScreenObject, swapable<Edit>
 {
 	enum EDITCOLORLISTFLAGS
 	{
@@ -133,8 +133,6 @@ public:
 		swap(ColorListFlags, rhs.ColorListFlags);
 		swap(EndType, rhs.EndType);
 	}
-
-	FREE_SWAP(Edit);
 
 	void FastShow(const ShowInfo* Info=nullptr);
 	virtual int ProcessKey(const Manager::Key& Key) override;

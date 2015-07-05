@@ -205,7 +205,8 @@ static bool SelectLanguage(bool HelpLanguage)
 				if (LangMenu->FindItem(0,LangMenuItem.strName,LIFIND_EXACTMATCH) == -1)
 				{
 					LangMenuItem.SetSelect(!StrCmpI(*strDest, strLangName));
-					LangMenu->SetUserData(strLangName.data(), (strLangName.size()+1)*sizeof(wchar_t), LangMenu->AddItem(LangMenuItem));
+					LangMenuItem.UserData = strLangName;
+					LangMenu->AddItem(LangMenuItem);
 				}
 			}
 		}
@@ -217,7 +218,7 @@ static bool SelectLanguage(bool HelpLanguage)
 	if (LangMenu->GetExitCode()<0)
 		return false;
 
-	*strDest = static_cast<const wchar_t*>(LangMenu->GetUserData(nullptr, 0));
+	*strDest = *LangMenu->GetUserDataPtr<string>();
 	return true;
 }
 

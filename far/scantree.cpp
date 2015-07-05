@@ -40,7 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "pathmix.hpp"
 
-struct ScanTree::scantree_item: noncopyable
+struct ScanTree::scantree_item: noncopyable, swapable<scantree_item>
 {
 public:
 	scantree_item() {}
@@ -57,8 +57,6 @@ public:
 		swap(Iterator, rhs.Iterator);
 		RealPath.swap(rhs.RealPath);
 	}
-
-	FREE_SWAP(scantree_item);
 
 	BitFlags Flags;
 	std::unique_ptr<os::fs::enum_file> Find;

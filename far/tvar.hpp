@@ -51,7 +51,7 @@ enum TVarType
 typedef bool (*TVarFuncCmp)(TVarType vt,const void *, const void *);
 
 
-class TVar
+class TVar: swapable<TVar>
 {
 public:
 	TVar(long long = 0);
@@ -71,8 +71,6 @@ public:
 		swap(dnum, rhs.dnum);
 		swap(str, rhs.str);
 	}
-
-	FREE_SWAP(TVar);
 
 	COPY_OPERATOR_BY_SWAP(TVar);
 	MOVE_OPERATOR_BY_SWAP(TVar);

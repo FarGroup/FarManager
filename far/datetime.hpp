@@ -93,7 +93,7 @@ bool Local2Utc(const FILETIME &lft, SYSTEMTIME &st);
 bool Utc2Local(const SYSTEMTIME &st, FILETIME &lft);
 bool Local2Utc(const SYSTEMTIME &lst, FILETIME &ft);
 
-class time_check: noncopyable
+class time_check: noncopyable, public conditional<time_check>
 {
 public:
 	enum time_check_mode { delayed, immediate };
@@ -111,8 +111,6 @@ public:
 		}
 		return true;
 	}
-
-	EXPLICIT_OPERATOR_BOOL();
 
 private:
 	mutable clock_t m_Begin;

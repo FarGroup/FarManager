@@ -86,8 +86,8 @@ static void AddToPrintersMenu(VMenu2 *PrinterList, const PRINTER_INFO *pi, int P
 			Item.SetCheck(TRUE);
 			Item.SetSelect(TRUE);
 		}
-
-		PrinterList->SetUserData(Item.strName.data(), (Item.strName.size()+1)*sizeof(wchar_t), PrinterList->AddItem(Item));
+		Item.UserData = Item.strName;
+		PrinterList->AddItem(Item);
 	}
 
 	if (!bDefaultPrinterFound)
@@ -169,7 +169,8 @@ void PrintFiles(FileList* SrcPanel)
 			return;
 		}
 
-		strPrinterName = NullToEmpty(static_cast<const wchar_t*>(PrinterList->GetUserData(nullptr, 0)));
+		if (const auto NamePtr = PrinterList->GetUserDataPtr<string>())
+			strPrinterName = *NamePtr;
 	}
 
 	HANDLE hPrinter;

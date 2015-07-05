@@ -47,7 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "help.hpp"
 #include "strmix.hpp"
 
-Grabber::Grabber():
+Grabber::Grabber(private_tag):
 	PrevArea(),
 	GArea(),
 	ResetArea(true),
@@ -57,7 +57,7 @@ Grabber::Grabber():
 
 grabber_ptr Grabber::create()
 {
-	grabber_ptr GrabberPtr(new Grabber);
+	auto GrabberPtr = std::make_shared<Grabber>(private_tag());
 	GrabberPtr->init();
 	return GrabberPtr;
 }

@@ -42,8 +42,12 @@ class MenuBar;
 
 class FilePanels:public window,public ViewerContainer
 {
+	struct private_tag {};
+
 public:
 	static filepanels_ptr create(bool CreatePanels, int DirCount);
+
+	FilePanels(private_tag);
 	virtual ~FilePanels();
 
 	virtual int ProcessKey(const Manager::Key& Key) override;
@@ -76,7 +80,6 @@ public:
 	MenuBar* GetTopMenuBar(void);
 
 private:
-	FilePanels();
 	void Init(int DirCount);
 	virtual void DisplayObject() override;
 	virtual string GetTitle() const override { return string(); }

@@ -188,7 +188,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 	while (!Done)
 	{
 		bool IsUpdate=false;
-		HistoryMenu.DeleteItems();
+		HistoryMenu.clear();
 		{
 			bool bSelected=false;
 			DWORD index=0;
@@ -257,6 +257,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 
 				MenuItemEx MenuItem(strRecord);
 				MenuItem.SetCheck(HLock?1:0);
+				MenuItem.UserData = id;
 
 				if (!SetUpMenuPos && m_CurrentItem==id)
 				{
@@ -264,13 +265,13 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 					bSelected=true;
 				}
 
-				HistoryMenu.SetUserData(&id,sizeof(id),HistoryMenu.AddItem(MenuItem));
+				HistoryMenu.AddItem(MenuItem);
 			}
 
 			if (!SetUpMenuPos && !bSelected && m_TypeHistory!=HISTORYTYPE_DIALOG)
 			{
 				FarListPos p={sizeof(FarListPos)};
-				p.SelectPos = HistoryMenu.GetItemCount()-1;
+				p.SelectPos = HistoryMenu.size() - 1;
 				p.TopPos = 0;
 				HistoryMenu.SetSelectPos(&p);
 			}
@@ -279,7 +280,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 		if (m_TypeHistory == HISTORYTYPE_DIALOG)
 		{
 			int X1,Y1,X2,Y2;
-			Dlg->CalcComboBoxPos(nullptr, HistoryMenu.GetItemCount(), X1, Y1, X2, Y2);
+			Dlg->CalcComboBoxPos(nullptr, HistoryMenu.size(), X1, Y1, X2, Y2);
 			HistoryMenu.SetPosition(X1, Y1, X2, Y2);
 		}
 		else
@@ -287,13 +288,13 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 
 		if (SetUpMenuPos)
 		{
-			Pos.SelectPos=Pos.SelectPos < HistoryMenu.GetItemCount() ? Pos.SelectPos : HistoryMenu.GetItemCount()-1;
-			Pos.TopPos=std::min(Pos.TopPos,HistoryMenu.GetItemCount()-Height);
+			Pos.SelectPos = Pos.SelectPos < static_cast<intptr_t>(HistoryMenu.size()) ? Pos.SelectPos : static_cast<intptr_t>(HistoryMenu.size() - 1);
+			Pos.TopPos = std::min(Pos.TopPos, static_cast<intptr_t>(HistoryMenu.size() - Height));
 			HistoryMenu.SetSelectPos(&Pos);
 			SetUpMenuPos=false;
 		}
 
-		if(m_TypeHistory == HISTORYTYPE_DIALOG && !HistoryMenu.GetItemCount())
+		if (m_TypeHistory == HISTORYTYPE_DIALOG && !HistoryMenu.size())
 			return HRT_CANCEL;
 
 		MenuExitCode=HistoryMenu.Run([&](const Manager::Key& RawKey)->int
@@ -306,8 +307,8 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 			}
 
 			HistoryMenu.GetSelectPos(&Pos);
-			void* Data = HistoryMenu.GetUserData(nullptr, 0,Pos.SelectPos);
-			unsigned __int64 CurrentRecord = Data? *static_cast<unsigned __int64*>(Data) : 0;
+			const auto CurrentRecordPtr = HistoryMenu.GetUserDataPtr<unsigned __int64>(Pos.SelectPos);
+			const auto CurrentRecord = CurrentRecordPtr? *CurrentRecordPtr : 0;
 			int KeyProcessed = 1;
 
 			switch (Key)
@@ -453,7 +454,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 				case KEY_NUMDEL:
 				case KEY_DEL:
 				{
-					if (HistoryMenu.GetItemCount() &&
+					if (!HistoryMenu.empty() &&
 					        (!Global->Opt->Confirm.HistoryClear ||
 					         (Global->Opt->Confirm.HistoryClear &&
 					          !Message(MSG_WARNING,2,
@@ -485,12 +486,12 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 
 		if (MenuExitCode >= 0)
 		{
-			SelectedRecord = *static_cast<unsigned __int64*>(HistoryMenu.GetUserData(nullptr, 0, MenuExitCode));
+			SelectedRecord = *HistoryMenu.GetUserDataPtr<unsigned __int64>(MenuExitCode);
 
 			if (!SelectedRecord)
 				return HRT_CANCEL;
 
-			if (!HistoryCfgRef()->Get(SelectedRecord, strSelectedRecordName, &SelectedRecordType, strSelectedRecordGuid, strSelectedRecordFile, strSelectedRecordData))
+			if (!HistoryCfgRef()->Get(SelectedRecord, strSelectedRecordName, SelectedRecordType, strSelectedRecordGuid, strSelectedRecordFile, strSelectedRecordData))
 				return HRT_CANCEL;
 
 			if (SelectedRecordType != HR_EXTERNAL && SelectedRecordType != HR_EXTERNAL_WAIT
@@ -628,16 +629,17 @@ bool History::GetAllSimilar(VMenu2 &HistoryMenu,const string& Str)
 		if (!StrCmpNI(Str.data(),strHName.data(),Length))
 		{
 			MenuItemEx NewItem(strHName);
+			NewItem.UserData = id;
 			if(HLock)
 			{
 				NewItem.Flags|=LIF_CHECKED;
 			}
-			HistoryMenu.SetUserData(&id,sizeof(id),HistoryMenu.AddItem(NewItem));
+			HistoryMenu.AddItem(NewItem);
 		}
 	}
-	if(HistoryMenu.GetItemCount() == 1 && HistoryMenu.GetItemPtr(0)->strName.size() == static_cast<size_t>(Length))
+	if(HistoryMenu.size() == 1 && HistoryMenu.at(0).strName.size() == static_cast<size_t>(Length))
 	{
-		HistoryMenu.DeleteItems();
+		HistoryMenu.clear();
 		return false;
 	}
 

@@ -28,7 +28,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 template<class T>
-class monitored
+class monitored: swapable<monitored<T>>
 {
 public:
 	monitored(): m_Value(), m_Touched() {}
@@ -50,8 +50,6 @@ public:
 		swap(m_Value, rhs.m_Value);
 		swap(m_Touched, rhs.m_Touched);
 	}
-
-	FREE_SWAP(monitored);
 
 	T& value() { return m_Value; }
 	const T& value() const { return m_Value; }

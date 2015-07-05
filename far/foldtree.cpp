@@ -47,7 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "keybar.hpp"
 
-FolderTree::FolderTree(int iModalMode, int IsStandalone, bool IsFullScreen):
+FolderTree::FolderTree(private_tag, int iModalMode, int IsStandalone, bool IsFullScreen):
 	Tree(nullptr),
 	FindEdit(nullptr),
 	ModalMode(iModalMode),
@@ -58,7 +58,7 @@ FolderTree::FolderTree(int iModalMode, int IsStandalone, bool IsFullScreen):
 
 foldertree_ptr FolderTree::create(string &strResultFolder, int iModalMode, int IsStandalone, bool IsFullScreen)
 {
-	foldertree_ptr FoldertreePtr(new FolderTree(iModalMode, IsStandalone, IsFullScreen));
+	auto FoldertreePtr = std::make_shared<FolderTree>(private_tag(), iModalMode, IsStandalone, IsFullScreen);
 	FoldertreePtr->init(strResultFolder);
 	return FoldertreePtr;
 }

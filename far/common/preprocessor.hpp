@@ -90,9 +90,6 @@ Type& operator=(const Type& rhs) { Type(rhs).swap(*this); return *this; }
 #define MOVE_OPERATOR_BY_SWAP(Type) \
 Type& operator=(Type&& rhs) noexcept { swap(rhs); return *this; }
 
-#define FREE_SWAP(Type) \
-friend inline void swap(Type& a, Type& b) noexcept { a.swap(b); }
-
 #define SCOPED_ACTION(RAII_type) \
 const RAII_type ADD_SUFFIX(scoped_object_, __LINE__)
 

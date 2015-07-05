@@ -76,7 +76,7 @@ enum DIALOG_MODES
 Описывает один элемент диалога - внутренне представление.
 Для плагинов это FarDialogItem
 */
-struct DialogItemEx: public FarDialogItem
+struct DialogItemEx: public FarDialogItem, swapable<DialogItemEx>
 {
 	// Структура, описывающая автоматизацию для DIF_AUTOMATION
 	struct DialogItemAutomation;
@@ -103,8 +103,6 @@ struct DialogItemEx: public FarDialogItem
 
 	void swap(DialogItemEx& rhs) noexcept;
 
-	FREE_SWAP(DialogItemEx);
-
 	void Indent(int Delta)
 	{
 		X1 += Delta;
@@ -116,6 +114,9 @@ struct DialogItemEx: public FarDialogItem
 		FARDIALOGITEMFLAGS CheckedSet, FARDIALOGITEMFLAGS CheckedSkip,
 		FARDIALOGITEMFLAGS Checked3Set, FARDIALOGITEMFLAGS Checked3Skip);
 };
+
+bool IsKeyHighlighted(const string& Str, int Key, int Translate, int AmpPos = -1);
+void ItemToItemEx(const FarDialogItem *Data, DialogItemEx *Item, size_t Count, bool Short = false);
 
 template<size_t N>
 std::vector<DialogItemEx> MakeDialogItemsEx(const FarDialogItem (&InitData)[N])
@@ -132,25 +133,40 @@ class Dialog;
 
 class Dialog: public Modal
 {
+protected:
+	struct private_tag {};
+
 public:
 	typedef std::function<intptr_t(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)> dialog_handler;
 
 	template<class T, class O>
 	static dialog_ptr create(T&& Src, intptr_t(O::*function)(Dialog*, intptr_t, intptr_t, void*), O* object, void* InitParam = nullptr)
 	{
-		return dialog_ptr(new Dialog(Src, object, function, InitParam));
+		return std::make_shared<Dialog>(private_tag(), Src, object, function, InitParam);
 	}
 
 	template<class T>
 	static dialog_ptr create(T&& Src, dialog_handler handler = nullptr, void* InitParam = nullptr)
 	{
-		dialog_ptr Dlg(new Dialog);
+		auto Dlg = std::make_shared<Dialog>(private_tag());
 		Dlg->DataDialog = InitParam;
 		Dlg->m_handler = handler;
 
 		auto Ptr = Src.data();
 		Dlg->Construct(&Ptr, Src.size());
 		return Dlg;
+	}
+
+	Dialog(private_tag);
+
+	template<class T, class O>
+	Dialog(private_tag, T&& Src, O* object, intptr_t(O::*function)(Dialog*, intptr_t, intptr_t, void*), void* InitParam):
+		bInitOK(),
+		DataDialog(InitParam),
+		m_handler((object && function) ? [=](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2){ return (object->*function)(Dlg, Msg, Param1, Param2); } : dialog_handler())
+	{
+		auto Ptr = Src.data();
+		Construct(&Ptr, Src.size());
 	}
 
 	virtual ~Dialog();
@@ -204,24 +220,24 @@ public:
 	intptr_t DefProc(intptr_t Msg,intptr_t Param1,void* Param2);
 	static bool IsValid(Dialog* Handle);
 
-protected:
-	template<class T, class O>
-	Dialog(T&& Src, O* object, intptr_t(O::*function)(Dialog*, intptr_t, intptr_t, void*), void* InitParam):
-		bInitOK(),
-		DataDialog(InitParam),
-		m_handler((object && function) ? [=](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2){ return (object->*function)(Dlg, Msg, Param1, Param2); } : dialog_handler())
+	template<class T>
+	void SetListItemData(size_t ListId, size_t ItemId, const T& Data)
 	{
-		auto Ptr = Src.data();
-		Construct(&Ptr, Src.size());
+		Items[ListId].ListPtr->SetUserData(Data, static_cast<int>(ItemId));
 	}
 
+	template<class T>
+	T* GetListItemDataPtr(size_t ListId, size_t ItemId)
+	{
+		return Items[ListId].ListPtr->GetUserDataPtr<T>(static_cast<int>(ItemId));
+	}
+
+protected:
 	size_t InitDialogObjects(size_t ID = (size_t)-1);
 
 private:
 	friend class History;
 	friend class DlgEdit;
-
-	Dialog();
 
 	virtual void DisplayObject() override;
 	virtual string GetTitle() const override;
@@ -297,6 +313,3 @@ private:
 	bool IdExist;
 	MOUSE_EVENT_RECORD PrevMouseRecord;
 };
-
-bool IsKeyHighlighted(const string& Str,int Key,int Translate,int AmpPos=-1);
-void ItemToItemEx(const FarDialogItem *Data, DialogItemEx *Item, size_t Count, bool Short = false);

@@ -347,9 +347,9 @@ void SetColors()
 			GroupsMenu->AddItem(tmp);
 		}
 
-		const int DefaultId = GroupsMenu->GetItemCount();
+		const int DefaultId = static_cast<int>(GroupsMenu->size());
 		GroupsMenu->AddItem(MSG(MSetDefaultColors));
-		const int BlackWhiteId = GroupsMenu->GetItemCount();
+		const int BlackWhiteId = static_cast<int>(GroupsMenu->size());
 		GroupsMenu->AddItem(MSG(MSetBW));
 
 		GroupsMenu->SetPosition(2,1,0,0);

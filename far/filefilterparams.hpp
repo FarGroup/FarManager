@@ -73,7 +73,7 @@ enum enumFDateType
 	FDATE_COUNT, // всегда последний !!!
 };
 
-class FileFilterParams: noncopyable
+class FileFilterParams: noncopyable, swapable<FileFilterParams>
 {
 public:
 	FileFilterParams();
@@ -92,8 +92,6 @@ public:
 		swap(FHighlight, rhs.FHighlight);
 		FFlags.swap(rhs.FFlags);
 	}
-
-	FREE_SWAP(FileFilterParams);
 
 	FileFilterParams Clone() const;
 
@@ -138,7 +136,7 @@ public:
 private:
 	string m_strTitle;
 
-	struct fmask:noncopyable
+	struct fmask:noncopyable, swapable<fmask>
 	{
 		bool Used;
 		string strMask;
@@ -155,9 +153,6 @@ private:
 			strMask.swap(rhs.strMask);
 			FilterMask.swap(rhs.FilterMask);
 		}
-
-		FREE_SWAP(fmask);
-
 	} FMask;
 
 	struct

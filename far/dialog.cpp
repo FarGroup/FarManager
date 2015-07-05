@@ -180,7 +180,7 @@ bool IsKeyHighlighted(const string& str,int Key,int Translate,int AmpPos)
 
 static void ConvertItemSmall(const DialogItemEx& From, FarDialogItem& To)
 {
-	To = static_cast<FarDialogItem>(From);
+	To = static_cast<const FarDialogItem&>(From);
 
 	To.Data = nullptr;
 	To.History = nullptr;
@@ -212,7 +212,7 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 {
 	size_t size=ALIGN(sizeof(FarDialogItem)),offsetList=size,offsetListItems=size;
 	vmenu_ptr ListBox;
-	intptr_t ListBoxSize=0;
+	size_t ListBoxSize = 0;
 	if (ItemEx->Type==DI_LISTBOX || ItemEx->Type==DI_COMBOBOX)
 	{
 		ListBox=ItemEx->ListPtr;
@@ -220,12 +220,11 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 		{
 			size+=ALIGN(sizeof(FarList));
 			offsetListItems=size;
-			ListBoxSize=ListBox->GetItemCount();
+			ListBoxSize=ListBox->size();
 			size+=ListBoxSize*sizeof(FarListItem);
-			for(intptr_t ii=0;ii<ListBoxSize;++ii)
+			for(size_t ii=0;ii != ListBoxSize; ++ii)
 			{
-				MenuItemEx* item=ListBox->GetItemPtr(ii);
-				size+=(item->strName.size()+1)*sizeof(wchar_t);
+				size += (ListBox->at(ii).strName.size() + 1) * sizeof(wchar_t);
 			}
 		}
 	}
@@ -246,13 +245,13 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 				FarList* list=(FarList*)((char*)(Item->Item)+offsetList);
 				FarListItem* listItems=(FarListItem*)((char*)(Item->Item)+offsetListItems);
 				wchar_t* text=(wchar_t*)(listItems+ListBoxSize);
-				for(intptr_t ii=0;ii<ListBoxSize;++ii)
+				for(size_t ii = 0; ii != ListBoxSize; ++ii)
 				{
-					MenuItemEx* item=ListBox->GetItemPtr(ii);
-					listItems[ii].Flags=item->Flags;
+					auto& item = ListBox->at(ii);
+					listItems[ii].Flags=item.Flags;
 					listItems[ii].Text=text;
-					std::copy_n(item->strName.data(), item->strName.size() + 1, text);
-					text+=item->strName.size()+1;
+					std::copy_n(item.strName.data(), item.strName.size() + 1, text);
+					text+=item.strName.size()+1;
 					listItems[ii].Reserved[0]=listItems[ii].Reserved[1]=0;
 				}
 				list->StructSize=sizeof(list);
@@ -397,7 +396,7 @@ bool DialogItemEx::AddAutomation(DialogItemEx* DlgItem,
 }
 
 
-Dialog::Dialog():
+Dialog::Dialog(private_tag):
 	bInitOK(),
 	DataDialog(),
 	m_handler()
@@ -1270,7 +1269,7 @@ BOOL Dialog::GetItemRect(size_t I,SMALL_RECT& Rect)
 bool Dialog::ItemHasDropDownArrow(const DialogItemEx *Item)
 {
 	return (!Item->strHistory.empty() && (Item->Flags & DIF_HISTORY) && Global->Opt->Dialogs.EditHistory) ||
-		(Item->Type == DI_COMBOBOX && Item->ListPtr && Item->ListPtr->GetItemCount() > 0);
+		(Item->Type == DI_COMBOBOX && Item->ListPtr && !Item->ListPtr->empty());
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -3593,7 +3592,7 @@ int Dialog::ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem, s
 	// $ 18.07.2000 SVS:  +обработка DI_COMBOBOX - выбор из списка!
 	else if (Type == DI_COMBOBOX && CurItem->ListPtr &&
 	         !(CurItem->Flags & DIF_READONLY) &&
-	         CurItem->ListPtr->GetItemCount() > 0) //??
+	         !CurItem->ListPtr->empty()) //??
 	{
 		SelectFromComboBox(CurItem, CurEditLine, CurItem->ListPtr.get());
 	}
@@ -4111,15 +4110,15 @@ int Dialog::SelectFromComboBox(
 		}
 
 		//ComboBox->GetUserData(Str,MaxLen,Dest);
-		MenuItemEx *ItemPtr=ComboBox->GetItemPtr(Dest);
+		const auto& ItemPtr = ComboBox->at(Dest);
 
 		if (CurItem->Flags & (DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND))
 		{
-			strStr = HiText2Str(ItemPtr->strName);
+			strStr = HiText2Str(ItemPtr.strName);
 			EditLine->SetString(strStr);
 		}
 		else
-			EditLine->SetString(ItemPtr->strName);
+			EditLine->SetString(ItemPtr.strName);
 
 		EditLine->SetLeftPos(0);
 		Redraw();
@@ -5119,7 +5118,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 							{
 								int Count;
 								if (!ListItems || (Count=ListItems->Count) <= 0)
-									ListBox->DeleteItems();
+									ListBox->clear();
 								else
 									ListBox->DeleteItem(ListItems->StartIndex,Count);
 							}
@@ -5145,18 +5144,20 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						}
 						case DM_LISTGETITEM: // Param1=ID Param2=FarListGetItem: ItemsNumber=Index, Items=Dest
 						{
-							FarListGetItem *ListItems=(FarListGetItem *)Param2;
+							auto ListItems = reinterpret_cast<FarListGetItem*>(Param2);
 
 							if (!CheckStructSize(ListItems))
 								return FALSE;
 
-							if (const auto ListMenuItem = ListBox->GetItemPtr(ListItems->ItemIndex))
+
+							if (static_cast<size_t>(ListItems->ItemIndex) < ListBox->size())
 							{
+								const auto& ListMenuItem = ListBox->at(ListItems->ItemIndex);
 								//ListItems->ItemIndex=1;
 								FarListItem *Item=&ListItems->Item;
 								ClearStruct(*Item);
-								Item->Flags=ListMenuItem->Flags;
-								Item->Text=ListMenuItem->strName.data();
+								Item->Flags=ListMenuItem.Flags;
+								Item->Text=ListMenuItem.strName.data();
 								/*
 								if(ListMenuItem->UserDataSize <= sizeof(DWORD)) //???
 								   Item->UserData=ListMenuItem->UserData;
@@ -5168,29 +5169,35 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						}
 						case DM_LISTGETDATA: // Param1=ID Param2=Index
 						{
-							if (reinterpret_cast<intptr_t>(Param2) < ListBox->GetItemCount())
-								return (intptr_t)ListBox->GetUserData(nullptr,0,static_cast<int>(reinterpret_cast<size_t>(Param2)));
-
+							if (reinterpret_cast<size_t>(Param2) < ListBox->size())
+							{
+								const auto Data = ListBox->GetUserDataPtr<std::vector<char>>(static_cast<int>(reinterpret_cast<intptr_t>(Param2)));
+								return Data? reinterpret_cast<intptr_t>(Data->data()) : 0;
+							}
 							return 0;
 						}
 						case DM_LISTGETDATASIZE: // Param1=ID Param2=Index
 						{
-							if (reinterpret_cast<intptr_t>(Param2) < ListBox->GetItemCount())
-								return ListBox->GetUserDataSize(static_cast<int>(reinterpret_cast<intptr_t>(Param2)));
+							if (reinterpret_cast<size_t>(Param2) < ListBox->size())
+							{
+								const auto Data = ListBox->GetUserDataPtr<std::vector<char>>(static_cast<int>(reinterpret_cast<intptr_t>(Param2)));
+								return Data? Data->size() : 0;
+							}
 
 							return 0;
 						}
 						case DM_LISTSETDATA: // Param1=ID Param2=FarListItemData
 						{
-							FarListItemData *ListItems=(FarListItemData *)Param2;
+							auto ListItems = reinterpret_cast<FarListItemData*>(Param2);
 
-							if (CheckStructSize(ListItems) &&
-							        ListItems->Index < ListBox->GetItemCount())
+							if (CheckStructSize(ListItems) && static_cast<size_t>(ListItems->Index) < ListBox->size())
 							{
-								Ret=ListBox->SetUserData(ListItems->Data,
-								                         ListItems->DataSize,
-								                         ListItems->Index);
-								return Ret;
+								const auto Data = static_cast<const char*>(ListItems->Data);
+								const auto Size = ListItems->DataSize? ListItems->DataSize : (wcslen(static_cast<const wchar_t*>(ListItems->Data)) + 1) * sizeof(wchar_t);
+								std::vector<char> DataCopy(Data, Data + Size);
+								ListBox->SetUserData(DataCopy, ListItems->Index);
+
+								return Ret = 1;
 							}
 
 							return 0;
@@ -5206,7 +5213,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 							if (!CheckStructSize(ListItems))
 								return FALSE;
 
-							ListBox->DeleteItems();
+							ListBox->clear();
 							Ret=ListBox->AddItem(ListItems);
 							break;
 						}
@@ -5290,14 +5297,15 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 					// уточнение для DI_COMBOBOX - здесь еще и DlgEdit нужно корректно заполнить
 					if (!CurItem->IFlags.Check(DLGIIF_COMBOBOXNOREDRAWEDIT) && Type==DI_COMBOBOX && CurItem->ObjPtr)
 					{
-						if (const auto ListMenuItem = ListBox->GetItemPtr(ListBox->GetSelectPos()))
+						if (!ListBox->empty())
 						{
+							const auto& ListMenuItem = ListBox->at(ListBox->GetSelectPos());
+							const auto Edit = static_cast<DlgEdit*>(CurItem->ObjPtr);
 							if (CurItem->Flags & (DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND))
-								static_cast<DlgEdit*>(CurItem->ObjPtr)->SetHiString(ListMenuItem->strName);
+								Edit->SetHiString(ListMenuItem.strName);
 							else
-								static_cast<DlgEdit*>(CurItem->ObjPtr)->SetString(ListMenuItem->strName);
-
-							static_cast<DlgEdit*>(CurItem->ObjPtr)->Select(-1,-1); // снимаем выделение
+								Edit->SetString(ListMenuItem.strName);
+							Edit->Select(-1, -1); // снимаем выделение
 						}
 					}
 
@@ -5783,10 +5791,11 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						break;
 					case DI_LISTBOX:
 					{
-						if (const auto ListMenuItem = CurItem->ListPtr->GetItemPtr(-1))
+						if (!CurItem->ListPtr->empty())
 						{
-							Ptr=ListMenuItem->strName.data();
-							Len=ListMenuItem->strName.size();
+							const auto& ListMenuItem = CurItem->ListPtr->current();
+							Ptr = ListMenuItem.strName.data();
+							Len = ListMenuItem.strName.size();
 						}
 						InitItemData();
 						break;
@@ -5834,9 +5843,9 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				case DI_LISTBOX:
 				{
 					Len=0;
-					if (const auto ListMenuItem = CurItem->ListPtr->GetItemPtr(-1))
+					if (!CurItem->ListPtr->empty())
 					{
-						Len = ListMenuItem->strName.size();
+						Len = CurItem->ListPtr->current().strName.size();
 					}
 
 					break;
@@ -5945,18 +5954,14 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 					{
 						auto& ListBox = CurItem->ListPtr;
 
-						if (ListBox)
+						if (ListBox && !ListBox->empty())
 						{
 							FarListUpdate LUpdate={sizeof(FarListUpdate)};
 							LUpdate.Index=ListBox->GetSelectPos();
-							MenuItemEx *ListMenuItem=ListBox->GetItemPtr(LUpdate.Index);
-
-							if (ListMenuItem)
-							{
-								LUpdate.Item.Flags=ListMenuItem->Flags;
-								LUpdate.Item.Text=Ptr;
-								SendMessage(DM_LISTUPDATE,Param1,&LUpdate);
-							}
+							auto& ListMenuItem = ListBox->at(LUpdate.Index);
+							LUpdate.Item.Flags = ListMenuItem.Flags;
+							LUpdate.Item.Text = Ptr;
+							SendMessage(DM_LISTUPDATE, Param1, &LUpdate);
 
 							break;
 						}
@@ -6321,7 +6326,7 @@ void Dialog::SetComboBoxPos(DialogItemEx* CurItem)
 			CurItem = &Items[m_FocusPos];
 		}
 		int X1,Y1,X2,Y2;
-		CalcComboBoxPos(CurItem, CurItem->ListPtr->GetItemCount(), X1, Y1, X2, Y2);
+		CalcComboBoxPos(CurItem, CurItem->ListPtr->size(), X1, Y1, X2, Y2);
 		CurItem->ListPtr->SetPosition(X1, Y1, X2, Y2);
 	}
 }

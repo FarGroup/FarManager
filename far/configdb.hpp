@@ -100,15 +100,14 @@ protected:
 	GeneralConfig() {}
 };
 
-class HierarchicalConfig: public representable, virtual public transactional
+class HierarchicalConfig: public representable, virtual public transactional, public conditional<HierarchicalConfig>
 {
 public:
-	class key
+	class key: public conditional<key>
 	{
 	public:
 		uint64_t get() const { return m_Key; }
 		bool operator!() const noexcept { return m_Key == 0; }
-		EXPLICIT_OPERATOR_BOOL();
 
 	private:
 		friend class HierarchicalConfig;
@@ -277,7 +276,7 @@ public:
 	virtual bool EnumLargeHistories(DWORD index, int MinimumEntries, unsigned int TypeHistory, string &strHistoryName) = 0;
 	virtual bool GetNewest(unsigned int TypeHistory, const string& HistoryName, string &strName) = 0;
 	virtual bool Get(unsigned __int64 id, string &strName) = 0;
-	virtual bool Get(unsigned __int64 id, string &strName, history_record_type* Type, string &strGuid, string &strFile, string &strData) = 0;
+	virtual bool Get(unsigned __int64 id, string &strName, history_record_type& Type, string &strGuid, string &strFile, string &strData) = 0;
 	virtual DWORD Count(unsigned int TypeHistory, const string& HistoryName) = 0;
 	virtual bool FlipLock(unsigned __int64 id) = 0;
 	virtual bool IsLocked(unsigned __int64 id) = 0;

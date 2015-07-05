@@ -1007,9 +1007,6 @@
     <ClInclude Include="transactional.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="common\explicit_operator_bool.hpp">
-      <Filter>Header Files\common</Filter>
-    </ClInclude>
     <ClInclude Include="common\any.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
@@ -1029,6 +1026,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="common\null_iterator.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\swapable.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\conditional.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
   </ItemGroup>
