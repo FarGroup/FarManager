@@ -3,6 +3,21 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 05.07.2015 19:19:57 +0200 - build 4399
+
+1. Refactoring.
+
+drkns 04.07.2015 21:54:54 +0200 - build 4398
+
+1. After 4394.1, the search dialog crashed in some cases.
+   Also, please do not use one- and two-character names for variables in source code for anything but indices.
+
+drkns 02.07.2015 23:37:09 +0200 - build 4397
+
+1. Forum: Strange behavior of F7/Shift-F7 search in editor
+
+2. Warnings.
+
 zg 28.06.2015 02:50:26 +0200 - build 4396
 
 1. ACTL_SETCURRENTWINDOW, VCTL_QUIT and ECTL_QUIT are executed immediately.
