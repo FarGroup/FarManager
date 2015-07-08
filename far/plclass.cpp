@@ -158,9 +158,9 @@ bool NativePluginModel::IsPlugin(const string& filename)
 		return false;
 
 	bool Result = false;
-	if (const os::handle ModuleFile = os::CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
+	if (const auto ModuleFile = os::handle(os::CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING)))
 	{
-		if (const os::handle ModuleMapping = CreateFileMapping(ModuleFile.native_handle(), nullptr, PAGE_READONLY, 0, 0, nullptr))
+		if (const auto ModuleMapping = os::handle(CreateFileMapping(ModuleFile.native_handle(), nullptr, PAGE_READONLY, 0, 0, nullptr)))
 		{
 			if (const auto Data = MapViewOfFile(ModuleMapping.native_handle(), FILE_MAP_READ, 0, 0, 0))
 			{

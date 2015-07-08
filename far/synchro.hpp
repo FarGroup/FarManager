@@ -148,7 +148,8 @@ private:
 	void Starter(T&& f)
 	{
 		auto Param = new T(std::move(f));
-		if (!(m_Handle = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, Wrapper<T>, Param, 0, &m_ThreadId))))
+		m_Handle.reset(reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, Wrapper<T>, Param, 0, &m_ThreadId)));
+		if (!m_Handle)
 		{
 			delete Param;
 			throw std::runtime_error("Can't create thread"); // TODO: std::system_error

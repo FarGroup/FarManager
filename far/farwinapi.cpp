@@ -774,26 +774,22 @@ os::handle CreateFile(const string& Object, DWORD DesiredAccess, DWORD ShareMode
 	NTPath strObject(Object);
 	FlagsAndAttributes|=FILE_FLAG_BACKUP_SEMANTICS|(CreationDistribution==OPEN_EXISTING?FILE_FLAG_POSIX_SEMANTICS:0);
 
-	HANDLE Handle=::CreateFile(strObject.data(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
-	if(Handle == INVALID_HANDLE_VALUE)
+	os::handle Handle(::CreateFile(strObject.data(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile));
+	if(!Handle)
 	{
 		DWORD Error=::GetLastError();
 		if(Error==ERROR_FILE_NOT_FOUND||Error==ERROR_PATH_NOT_FOUND)
 		{
 			FlagsAndAttributes&=~FILE_FLAG_POSIX_SEMANTICS;
-			Handle = ::CreateFile(strObject.data(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
+			Handle.reset(::CreateFile(strObject.data(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile));
 		}
 		if (STATUS_STOPPED_ON_SYMLINK == GetLastNtStatus() && ERROR_STOPPED_ON_SYMLINK != GetLastError())
 			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	}
 
-	if((Handle == INVALID_HANDLE_VALUE && ElevationRequired(DesiredAccess&(GENERIC_ALL|GENERIC_WRITE|WRITE_OWNER|WRITE_DAC|DELETE|FILE_WRITE_DATA|FILE_ADD_FILE|FILE_APPEND_DATA|FILE_ADD_SUBDIRECTORY|FILE_CREATE_PIPE_INSTANCE|FILE_WRITE_EA|FILE_DELETE_CHILD|FILE_WRITE_ATTRIBUTES)?ELEVATION_MODIFY_REQUEST:ELEVATION_READ_REQUEST)) || ForceElevation)
+	if((!Handle && ElevationRequired(DesiredAccess&(GENERIC_ALL|GENERIC_WRITE|WRITE_OWNER|WRITE_DAC|DELETE|FILE_WRITE_DATA|FILE_ADD_FILE|FILE_APPEND_DATA|FILE_ADD_SUBDIRECTORY|FILE_CREATE_PIPE_INSTANCE|FILE_WRITE_EA|FILE_DELETE_CHILD|FILE_WRITE_ATTRIBUTES)?ELEVATION_MODIFY_REQUEST:ELEVATION_READ_REQUEST)) || ForceElevation)
 	{
-		if(ForceElevation && Handle!=INVALID_HANDLE_VALUE)
-		{
-			::CloseHandle(Handle);
-		}
-		Handle = Global->Elevation->fCreateFile(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
+		Handle.reset(Global->Elevation->fCreateFile(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile));
 	}
 	return Handle;
 }
@@ -1208,7 +1204,7 @@ find_handle FindFirstFileName(const string& FileName, DWORD dwFlags, string& Lin
 		hRet=Imports().FindFirstFileNameW(NtFileName.data(), 0, &StringLength, Buffer.get());
 		LinkName = Buffer.get();
 	}
-	return hRet != INVALID_HANDLE_VALUE? new detail::os_find_handle_impl(hRet) : nullptr;
+	return find_handle(hRet != INVALID_HANDLE_VALUE? new detail::os_find_handle_impl(hRet) : nullptr);
 }
 
 bool FindNextFileName(const find_handle& hFindStream, string& LinkName)

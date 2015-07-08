@@ -556,19 +556,17 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 								tmp.append(L" [").append(rgpi[i].strServiceShortName).append(L"]");
 							}
 							tmp += L" (PID: " + std::to_wstring(rgpi[i].Process.dwProcessId);
-							HANDLE hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, rgpi[i].Process.dwProcessId);
-							if (hProcess)
+							if (const auto Process = os::handle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, rgpi[i].Process.dwProcessId)))
 							{
 								FILETIME ftCreate, ftExit, ftKernel, ftUser;
-								if (GetProcessTimes(hProcess, &ftCreate, &ftExit, &ftKernel, &ftUser) && rgpi[i].Process.ProcessStartTime == ftCreate)
+								if (GetProcessTimes(Process.native_handle(), &ftCreate, &ftExit, &ftKernel, &ftUser) && rgpi[i].Process.ProcessStartTime == ftCreate)
 								{
 									string Name;
-									if (os::GetModuleFileNameEx(hProcess, nullptr, Name))
+									if (os::GetModuleFileNameEx(Process.native_handle(), nullptr, Name))
 									{
 										tmp += L", " + Name;
 									}
 								}
-								CloseHandle(hProcess);
 							}
 							tmp += L")";
 							Msg.emplace_back(tmp);

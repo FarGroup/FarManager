@@ -44,7 +44,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 
 static BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam);
-static BOOL KillProcess(DWORD dwPID);
 const size_t PID_LENGTH = 6;
 
 struct ProcInfo
@@ -61,6 +60,16 @@ static struct task_sort
 	}
 }
 TaskSort;
+
+bool KillProcess(DWORD dwPID)
+{
+	bool Result = false;
+	if (const auto Process = os::handle(OpenProcess(PROCESS_TERMINATE, FALSE, dwPID)))
+	{
+		Result = TerminateProcess(Process.native_handle(), 0xFFFFFFFF) != FALSE;
+	}
+	return Result;
+}
 
 void ShowProcessList()
 {
@@ -116,9 +125,7 @@ void ShowProcessList()
 						if (!Message(MSG_WARNING,2,MSG(MKillProcessTitle),MSG(MAskKillProcess),
 									NullToEmpty(Title.get()),MSG(MKillProcessWarning),MSG(MKillProcessKill),MSG(MCancel)))
 						{
-							if (KillProcess(ProcID))
-								Sleep(500);
-							else
+							if (!KillProcess(ProcID))
 							{
 								Global->CatchError();
 								Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MKillProcessTitle),MSG(MCannotKillProcess),MSG(MOk));
@@ -187,29 +194,6 @@ void ShowProcessList()
 	Active = false;
 }
 
-
-BOOL KillProcess(DWORD dwPID)
-{
-	HANDLE hProcess;
-	BOOL bRet;
-	hProcess=OpenProcess(PROCESS_TERMINATE,FALSE,dwPID);
-
-	if (hProcess)
-	{
-		bRet=TerminateProcess(hProcess,0xFFFFFFFF);
-
-		if (bRet)
-			WaitForSingleObject(hProcess,5000);
-
-		CloseHandle(hProcess);
-	}
-	else
-		bRet=FALSE;
-
-	return bRet;
-}
-
-
 BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 {
 	auto pi = reinterpret_cast<ProcInfo*>(lParam);
@@ -226,11 +210,9 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 		{
 			if (pi->bShowImage)
 			{
-				HANDLE hProc = OpenProcess(Imports().QueryFullProcessImageNameW? PROCESS_QUERY_LIMITED_INFORMATION : PROCESS_QUERY_INFORMATION|PROCESS_VM_READ, false, ProcID);
-				if (hProc)
+				if (const auto Process = os::handle(OpenProcess(Imports().QueryFullProcessImageNameW? PROCESS_QUERY_LIMITED_INFORMATION : PROCESS_QUERY_INFORMATION|PROCESS_VM_READ, false, ProcID)))
 				{
-					os::GetModuleFileNameEx(hProc, nullptr, strTitle);
-					CloseHandle(hProc);
+					os::GetModuleFileNameEx(Process.native_handle(), nullptr, strTitle);
 				}
 			}
 			else

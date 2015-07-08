@@ -81,9 +81,6 @@ static const wchar_t ElevationArgument[] = L"/service:elevation";
 
 elevation::elevation():
 	m_suppressions(),
-	m_pipe(INVALID_HANDLE_VALUE),
-	m_process(),
-	m_job(),
 	m_pid(),
 	IsApproved(false),
 	AskApprove(true),
@@ -95,16 +92,10 @@ elevation::elevation():
 
 elevation::~elevation()
 {
-	if (m_pipe != INVALID_HANDLE_VALUE)
+	if (m_pipe)
 	{
 		SendCommand(C_SERVICE_EXIT);
-		DisconnectNamedPipe(m_pipe);
-		CloseHandle(m_pipe);
-	}
-
-	if(m_job)
-	{
-		CloseHandle(m_job);
+		DisconnectNamedPipe(m_pipe.native_handle());
 	}
 }
 
@@ -123,24 +114,24 @@ void elevation::ResetApprove()
 
 bool elevation::Write(const void* Data,size_t DataSize) const
 {
-	return pipe::Write(m_pipe, Data, DataSize);
+	return pipe::Write(m_pipe.native_handle(), Data, DataSize);
 }
 
 template<typename T>
 inline bool elevation::Read(T& Data) const
 {
-	return pipe::Read(m_pipe, Data);
+	return pipe::Read(m_pipe.native_handle(), Data);
 }
 
 template<typename T>
 inline bool elevation::Write(const T& Data) const
 {
-	return pipe::Write(m_pipe, Data);
+	return pipe::Write(m_pipe.native_handle(), Data);
 }
 
 bool elevation::SendCommand(ELEVATION_COMMAND Command)
 {
-	return Initialize() && pipe::Write(m_pipe, Command);
+	return Initialize() && pipe::Write(m_pipe.native_handle(), Command);
 }
 
 struct ERRORCODES
@@ -177,7 +168,7 @@ bool elevation::ReceiveLastError() const
 bool elevation::Initialize()
 {
 	bool Result=false;
-	if (m_pipe == INVALID_HANDLE_VALUE)
+	if (!m_pipe)
 	{
 		GUID Id;
 		if(CoCreateGuid(&Id) == S_OK)
@@ -207,31 +198,30 @@ bool elevation::Initialize()
 						{
 							SECURITY_ATTRIBUTES sa = { sizeof(SECURITY_ATTRIBUTES), pSD.get(), FALSE };
 							const auto strPipe = L"\\\\.\\pipe\\" + strPipeID;
-							m_pipe = CreateNamedPipe(strPipe.data(), PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE|PIPE_READMODE_BYTE|PIPE_WAIT, 1, 0, 0, 0, &sa);
+							m_pipe.reset(CreateNamedPipe(strPipe.data(), PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE|PIPE_READMODE_BYTE|PIPE_WAIT, 1, 0, 0, 0, &sa));
 						}
 					}
 				}
 			}
 		}
 	}
-	if (m_pipe != INVALID_HANDLE_VALUE)
+	if (m_pipe)
 	{
 		if(m_process)
 		{
-			if (WaitForSingleObject(m_process, 0) == WAIT_TIMEOUT)
+			if (!m_process.signaled())
 			{
 				Result = true;
 			}
 			else
 			{
-				CloseHandle(m_process);
-				m_process = nullptr;
+				m_process.close();
 			}
 		}
 		if(!Result)
 		{
 			SCOPED_ACTION(IndeterminateTaskBar);
-			DisconnectNamedPipe(m_pipe);
+			DisconnectNamedPipe(m_pipe.native_handle());
 
 			BOOL InJob = FALSE;
 			if (!m_job)
@@ -243,13 +233,13 @@ bool elevation::Initialize()
 				InJob = QueryInformationJobObject(nullptr, JobObjectExtendedLimitInformation, &jeli, sizeof(jeli), nullptr);
 				if (!InJob)
 				{
-					m_job = CreateJobObject(nullptr, nullptr);
+					m_job.reset(CreateJobObject(nullptr, nullptr));
 					if (m_job)
 					{
 						jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_SILENT_BREAKAWAY_OK;
-						if (SetInformationJobObject(m_job, JobObjectExtendedLimitInformation, &jeli, sizeof(jeli)))
+						if (SetInformationJobObject(m_job.native_handle(), JobObjectExtendedLimitInformation, &jeli, sizeof(jeli)))
 						{
-							AssignProcessToJobObject(m_job, GetCurrentProcess());
+							AssignProcessToJobObject(m_job.native_handle(), GetCurrentProcess());
 						}
 					}
 				}
@@ -269,24 +259,24 @@ bool elevation::Initialize()
 			};
 			if (ShellExecuteEx(&info) && info.hProcess)
 			{
-				m_process = info.hProcess;
+				m_process.reset(info.hProcess);
 				if (!InJob && m_job)
 				{
-					AssignProcessToJobObject(m_job, m_process);
+					AssignProcessToJobObject(m_job.native_handle(), m_process.native_handle());
 				}
 				Event AEvent(Event::automatic, Event::nonsignaled);
 				OVERLAPPED Overlapped;
 				AEvent.Associate(Overlapped);
-				ConnectNamedPipe(m_pipe, &Overlapped);
+				ConnectNamedPipe(m_pipe.native_handle(), &Overlapped);
 				MultiWaiter Waiter;
 				Waiter.Add(AEvent);
-				Waiter.Add(m_process);
+				Waiter.Add(m_process.native_handle());
 				switch (Waiter.Wait(MultiWaiter::wait_any, 15000))
 				{
 				case WAIT_OBJECT_0:
 					{
 						DWORD NumberOfBytesTransferred;
-						if (GetOverlappedResult(m_pipe, &Overlapped, &NumberOfBytesTransferred, FALSE))
+						if (GetOverlappedResult(m_pipe.native_handle(), &Overlapped, &NumberOfBytesTransferred, FALSE))
 						{
 							if (Read(m_pid))
 							{
@@ -299,7 +289,7 @@ bool elevation::Initialize()
 				case WAIT_OBJECT_0 + 1:
 					{
 						DWORD ExitCode;
-						SetLastError(GetExitCodeProcess(m_process, &ExitCode)? ExitCode : ERROR_GEN_FAILURE);
+						SetLastError(GetExitCodeProcess(m_process.native_handle(), &ExitCode)? ExitCode : ERROR_GEN_FAILURE);
 					}
 					break;
 
@@ -309,16 +299,11 @@ bool elevation::Initialize()
 
 				if(!Result)
 				{
-					if (WaitForSingleObject(m_process, 0) == WAIT_TIMEOUT)
+					if (!m_process.signaled())
 					{
-						TerminateProcess(m_process, 0);
-						CloseHandle(m_process);
-						m_process = nullptr;
-						if (m_job)
-						{
-							CloseHandle(m_job);
-							m_job = nullptr;
-						}
+						TerminateProcess(m_process.native_handle(), 0);
+						m_process.close();
+						m_job.close();
 						SetLastError(ERROR_PROCESS_ABORTED);
 					}
 				}
@@ -891,7 +876,6 @@ class elevated:noncopyable
 {
 public:
 	elevated():
-		Pipe(INVALID_HANDLE_VALUE),
 		ParentPID(0),
 		Exit(false)
 	{}
@@ -913,18 +897,17 @@ public:
 
 		const auto strPipe = string(L"\\\\.\\pipe\\") + guid;
 		WaitNamedPipe(strPipe.data(), NMPWAIT_WAIT_FOREVER);
-		Pipe = CreateFile(strPipe.data(),GENERIC_READ|GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr);
-		if (Pipe != INVALID_HANDLE_VALUE)
+		m_Pipe.reset(CreateFile(strPipe.data(),GENERIC_READ|GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr));
+		if (m_Pipe)
 		{
 			ULONG ServerProcessId;
-			if(!Imports().GetNamedPipeServerProcessId || (Imports().GetNamedPipeServerProcessId(Pipe, &ServerProcessId) && ServerProcessId == PID))
+			if(!Imports().GetNamedPipeServerProcessId || (Imports().GetNamedPipeServerProcessId(m_Pipe.native_handle(), &ServerProcessId) && ServerProcessId == PID))
 			{
-				const auto ParentProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, PID);
-				if(ParentProcess)
+				if (auto ParentProcess = os::handle(OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, PID)))
 				{
 					string strCurrentProcess, strParentProcess;
-					bool TrustedServer = os::GetModuleFileNameEx(GetCurrentProcess(), nullptr, strCurrentProcess) && os::GetModuleFileNameEx(ParentProcess, nullptr, strParentProcess) && (!StrCmpI(strCurrentProcess, strParentProcess));
-					CloseHandle(ParentProcess);
+					bool TrustedServer = os::GetModuleFileNameEx(GetCurrentProcess(), nullptr, strCurrentProcess) && os::GetModuleFileNameEx(ParentProcess.native_handle(), nullptr, strParentProcess) && (!StrCmpI(strCurrentProcess, strParentProcess));
+					ParentProcess.close();
 					if(TrustedServer)
 					{
 						if(Write(GetCurrentProcessId()))
@@ -935,7 +918,7 @@ public:
 					}
 				}
 			}
-			CloseHandle(Pipe);
+			m_Pipe.close();
 		}
 		else
 		{
@@ -945,26 +928,26 @@ public:
 	}
 
 private:
-	HANDLE Pipe;
+	os::handle m_Pipe;
 	DWORD ParentPID;
 	mutable bool Exit;
 	typedef std::pair<const class elevated*, void*> copy_progress_routine_param;
 
 	bool Write(const void* Data,size_t DataSize) const
 	{
-		return pipe::Write(Pipe, Data, DataSize);
+		return pipe::Write(m_Pipe.native_handle(), Data, DataSize);
 	}
 
 	template<typename T>
 	inline bool Read(T& Data) const
 	{
-		return pipe::Read(Pipe, Data);
+		return pipe::Read(m_Pipe.native_handle(), Data);
 	}
 
 	template<typename T>
 	inline bool Write(const T& Data) const
 	{
-		return pipe::Write(Pipe, Data);
+		return pipe::Write(m_Pipe.native_handle(), Data);
 	}
 
 	void ExitHandler() const
@@ -1150,7 +1133,7 @@ private:
 			HANDLE Duplicate = INVALID_HANDLE_VALUE;
 			if (const os::handle Handle = os::CreateFile(Object, DesiredAccess, ShareMode, nullptr, CreationDistribution, FlagsAndAttributes, nullptr))
 			{
-				if (const os::handle ParentProcess = OpenProcess(PROCESS_DUP_HANDLE, FALSE, ParentPID))
+				if (const auto ParentProcess = os::handle(OpenProcess(PROCESS_DUP_HANDLE, FALSE, ParentPID)))
 				{
 					DuplicateHandle(GetCurrentProcess(), Handle.native_handle(), ParentProcess.native_handle(), &Duplicate, 0, FALSE, DUPLICATE_SAME_ACCESS);
 				}

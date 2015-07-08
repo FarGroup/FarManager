@@ -44,7 +44,7 @@ namespace os
 			static bool is_set(const wchar_t* PrivilegeName);
 
 		private:
-			HANDLE m_Token;
+			const handle m_Token;
 			block_ptr<TOKEN_PRIVILEGES> m_SavedState;
 			bool m_Changed;
 		};

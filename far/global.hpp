@@ -40,7 +40,7 @@ public:
 	global();
 	~global();
 
-	HANDLE MainThreadHandle() const {return m_MainThreadHandle;}
+	HANDLE MainThreadHandle() const {return m_MainThreadHandle.native_handle();}
 	inline bool IsMainThread() const {return GetCurrentThreadId() == m_MainThreadId;}
 	uint64_t FarUpTime() const;
 	static const wchar_t* Version();
@@ -96,7 +96,7 @@ public:
 private:
 	DWORD m_MainThreadId;
 	os::hp_clock m_FarUpTime;
-	HANDLE m_MainThreadHandle;
+	os::handle m_MainThreadHandle;
 
 	string m_SearchString;
 	bool m_SearchHex;

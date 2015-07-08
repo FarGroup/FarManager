@@ -46,9 +46,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 thread_local DWORD global::m_LastError = ERROR_SUCCESS;
 thread_local NTSTATUS global::m_LastStatus = STATUS_SUCCESS;
 
+static os::handle GetCurrentThreadRealHandle()
+{
+	HANDLE Handle;
+	return os::handle(DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &Handle, 0, FALSE, DUPLICATE_SAME_ACCESS) ? Handle : nullptr);
+}
+
 global::global():
 	OnlyEditorViewerUsed(),
 	m_MainThreadId(GetCurrentThreadId()),
+	m_MainThreadHandle(GetCurrentThreadRealHandle()),
 	m_SearchHex(),
 	m_ConfigProvider(),
 	ScrBuf(nullptr),
@@ -58,8 +65,6 @@ global::global():
 	CtrlObject(nullptr)
 {
 	Global = this;
-
-	DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &m_MainThreadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS);
 
 	// BUGBUG
 
@@ -121,8 +126,6 @@ global::~global()
 	WindowManager = nullptr;
 	delete ScrBuf;
 	ScrBuf = nullptr;
-
-	CloseHandle(m_MainThreadHandle);
 
 	Global = nullptr;
 }

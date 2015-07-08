@@ -90,9 +90,9 @@ private:
 	bool ElevationApproveDlg(LNGID Why, const string& Object);
 
 	volatile long m_suppressions;
-	HANDLE m_pipe;
-	HANDLE m_process;
-	HANDLE m_job;
+	os::handle m_pipe;
+	os::handle m_process;
+	os::handle m_job;
 	int m_pid;
 
 	bool IsApproved;

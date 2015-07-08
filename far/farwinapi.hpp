@@ -47,7 +47,7 @@ namespace os
 	class handle_t: noncopyable, swapable<handle_t<T>>, public conditional<handle_t<T>>
 	{
 	public:
-		handle_t(HANDLE Handle = nullptr): m_Handle(normalise(Handle)) {}
+		explicit handle_t(HANDLE Handle = nullptr): m_Handle(normalise(Handle)) {}
 
 		handle_t(handle_t&& rhs) noexcept: m_Handle() { *this = std::move(rhs); }
 
@@ -94,7 +94,7 @@ namespace os
 	class HandleWrapper
 	{
 	public:
-		HandleWrapper(HANDLE Handle = nullptr): m_Handle(Handle) {}
+		explicit HandleWrapper(HANDLE Handle = nullptr): m_Handle(Handle) {}
 		virtual ~HandleWrapper() = 0;
 
 		bool Wait(DWORD Milliseconds = INFINITE) const { return m_Handle.wait(Milliseconds); }

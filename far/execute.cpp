@@ -720,7 +720,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	}
 
 	DWORD dwSubSystem = IMAGE_SUBSYSTEM_UNKNOWN;
-	HANDLE hProcess = nullptr;
+	os::handle Process;
 	LPCWSTR lpVerb = nullptr;
 
 	if (FolderRun && DirectRun)
@@ -922,7 +922,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	DWORD dwError = 0;
 	if (ShellExecuteEx(&seInfo))
 	{
-		hProcess = seInfo.hProcess;
+		Process.reset(seInfo.hProcess);
 	}
 	else
 	{
@@ -938,7 +938,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 
 	if (!dwError)
 	{
-		if (hProcess)
+		if (Process)
 		{
 			if (!Silent)
 			{
@@ -948,7 +948,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 			{
 				if (Global->Opt->ConsoleDetachKey.empty())
 				{
-					WaitForSingleObject(hProcess,INFINITE);
+					Process.wait();
 				}
 				else
 				{
@@ -970,7 +970,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 					DWORD dwControlKeyState;
 
 					//Тут нельзя делать WaitForMultipleObjects из за бага в Win7 при работе в телнет
-					while (WaitForSingleObject(hProcess, 100) != WAIT_OBJECT_0)
+					while (!Process.wait(100))
 					{
 						if (WaitForSingleObject(hInput, 100)==WAIT_OBJECT_0 && Console().PeekInput(ir, 256, rd) && rd)
 						{
@@ -1061,9 +1061,9 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 			}
 			if(WaitForIdle)
 			{
-				WaitForInputIdle(hProcess, INFINITE);
+				WaitForInputIdle(Process.native_handle(), INFINITE);
 			}
-			CloseHandle(hProcess);
+			Process.close();
 		}
 
 		nResult = 0;
