@@ -3542,7 +3542,7 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 		{
 			int ColumnType=static_cast<int>(ColumnTypes[K] & 0xff);
 			int ColumnWidth=ColumnWidths[K];
-			if (ColumnType>=CUSTOM_COLUMN0 && ColumnType<=CUSTOM_COLUMN9)
+			if (ColumnType>=CUSTOM_COLUMN0 && ColumnType<=CUSTOM_COLUMN_MAX)
 			{
 				size_t ColumnNumber=ColumnType-CUSTOM_COLUMN0;
 				const wchar_t *ColumnData=nullptr;
@@ -8287,7 +8287,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 				if (!ShowStatus)
 					SetShowColor(ListPos);
 
-				if (ColumnType >= CUSTOM_COLUMN0 && ColumnType <= CUSTOM_COLUMN9)
+				if (ColumnType >= CUSTOM_COLUMN0 && ColumnType <= CUSTOM_COLUMN_MAX)
 				{
 					size_t ColumnNumber = ColumnType - CUSTOM_COLUMN0;
 					const wchar_t *ColumnData = nullptr;

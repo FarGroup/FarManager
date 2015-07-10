@@ -76,15 +76,6 @@ ColumnInfo[] =
 	{ STREAMSSIZE_COLUMN, 6, L"G" },
 	{ EXTENSION_COLUMN, 0, L"X", },
 	{ CUSTOM_COLUMN0, 0, L"C0" },
-	{ CUSTOM_COLUMN1, 0, L"C1" },
-	{ CUSTOM_COLUMN2, 0, L"C2" },
-	{ CUSTOM_COLUMN3, 0, L"C3" },
-	{ CUSTOM_COLUMN4, 0, L"C4" },
-	{ CUSTOM_COLUMN5, 0, L"C5" },
-	{ CUSTOM_COLUMN6, 0, L"C6" },
-	{ CUSTOM_COLUMN7, 0, L"C7" },
-	{ CUSTOM_COLUMN8, 0, L"C8" },
-	{ CUSTOM_COLUMN9, 0, L"C9" },
 };
 
 static_assert(ARRAYSIZE(ColumnInfo) == COLUMN_TYPES_COUNT, "wrong size of ColumnInfo array");
@@ -440,6 +431,12 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 			auto ItemIterator = std::find_if(CONST_RANGE(ColumnInfo, i) { return strArgName == i.Symbol; });
 			if (ItemIterator != std::cend(ColumnInfo))
 				Columns.back().type = ItemIterator->Type;
+			else if (strArgOrig.size() >= 2 && strArgOrig.size() <= 3 && strArgOrig.front() == L'C')
+			{
+				unsigned int num;
+				if (1 == swscanf(strArgOrig.c_str()+1, L"%u", &num))
+					Columns.back().type = CUSTOM_COLUMN0 + num;
+			}
 		}
 	}
 
@@ -493,7 +490,16 @@ void ViewSettingsToText(const std::vector<column>& Columns, string &strColumnTit
 		string strType;
 		int ColumnType=static_cast<int>(i.type & 0xff);
 		// If ColumnType >= ARRAYSIZE(ColumnSymbol) ==> BUGBUG!!!
-		strType = ColumnInfo[ColumnType].Symbol;
+		if (ColumnType <= CUSTOM_COLUMN0)
+		{
+			strType = ColumnInfo[ColumnType].Symbol;
+		}
+		else
+		{
+			wchar_t buf[16];
+			wsprintf(buf, L"C%u", ColumnType - CUSTOM_COLUMN0);
+			strType = buf;
+		}
 
 		if (ColumnType==NAME_COLUMN)
 		{
@@ -803,7 +809,7 @@ const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 St
 int GetDefaultWidth(uint64_t Type)
 {
 	int ColumnType = Type & 0xff;
-	int Width = ColumnInfo[ColumnType].DefaultWidth;
+	int Width = (ColumnType > CUSTOM_COLUMN0) ? 0 : ColumnInfo[ColumnType].DefaultWidth;
 
 	if (ColumnType == WDATE_COLUMN || ColumnType == CDATE_COLUMN || ColumnType == ADATE_COLUMN || ColumnType == CHDATE_COLUMN)
 	{

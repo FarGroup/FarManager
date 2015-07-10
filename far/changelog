@@ -1,4 +1,9 @@
-﻿drkns 09.07.2015 00:39:19 +0200 - build 4400
+﻿shmuel 11.07.2015 02:20:25 +0200 - build 4401
+
+1. M#3019: Number of custom columns is limited to 10 for plugin
+   -> Now it is limited to 100 (C0...C99).
+
+drkns 09.07.2015 00:39:19 +0200 - build 4400
 
 1. Рефакторинг.
 
