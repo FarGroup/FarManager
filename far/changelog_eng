@@ -3,6 +3,15 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 11.07.2015 02:20:25 +0200 - build 4401
+
+1. M#3019: Number of custom columns is limited to 10 for plugin
+   -> Now it is limited to 100 (C0...C99).
+
+drkns 09.07.2015 00:39:19 +0200 - build 4400
+
+1. Refactoring.
+
 drkns 05.07.2015 19:19:57 +0200 - build 4399
 
 1. Refactoring.
