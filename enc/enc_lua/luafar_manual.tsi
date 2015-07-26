@@ -2841,7 +2841,7 @@ id=20
 lv=2
 dt=Text
 nm=far.Dialog
-mtime=3602349751
+mtime=3646474948
 <article>
 #_result = far.Dialog (Guid,X1,Y1,X2,Y2,HelpTopic,Items,Flags,fDlgProc)
 #_
@@ -2849,7 +2849,7 @@ mtime=3602349751
 #_  Same parameters as in `far.DialogInit`
 #_
 #_**Returns:**
-#_  result: integer (1-based)
+#_  result: 1-based integer (or nil in case of failure)
 #_
 #_**Note:**
 #_  The function updates the *Items* array to the values
@@ -2904,7 +2904,7 @@ lv=2
 dt=Text
 nm=far.DialogInit
 ctime=3490426716
-mtime=3608641410
+mtime=3646474866
 <article>
 #_hDlg = far.DialogInit (Guid,X1,Y1,X2,Y2,HelpTopic,Items,Flags,fDlgProc)
 #_
@@ -2920,7 +2920,7 @@ mtime=3608641410
 #_  fDlgProc:  function (`dialog event handler`), or nil
 #_
 #_**Returns:**
-#_  hDlg:      userdata
+#_  hDlg:      userdata (or nil in case of failure)
 #_
 #_**Return value**
 #_  The dialog handle returned by this function has the following methods:
