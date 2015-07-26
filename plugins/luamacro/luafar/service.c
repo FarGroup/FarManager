@@ -2993,8 +2993,7 @@ static int far_SendDlgMessage(lua_State *L)
 
 			if(Info->SendDlgMessage(hDlg, Msg, Param1, &dlg_info))
 			{
-				lua_createtable(L,0,3);
-				PutNumToTable(L, "StructSize", (double) dlg_info.StructSize);
+				lua_createtable(L,0,2);
 				PutLStrToTable(L, "Id", (const char*)&dlg_info.Id, sizeof(dlg_info.Id));
 				PutLStrToTable(L, "Owner", (const char*)&dlg_info.Owner, sizeof(dlg_info.Owner));
 				return 1;
