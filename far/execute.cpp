@@ -170,7 +170,7 @@ static bool GetImageSubsystem(const string& FileName,DWORD& ImageSubsystem)
 
 static bool IsProperProgID(const string& ProgID)
 {
-	return !ProgID.empty() && os::reg::key(HKEY_CLASSES_ROOT, ProgID.data(), KEY_QUERY_VALUE);
+	return !ProgID.empty() && os::reg::open_key(HKEY_CLASSES_ROOT, ProgID.data(), KEY_QUERY_VALUE);
 }
 
 /*
@@ -178,9 +178,9 @@ static bool IsProperProgID(const string& ProgID)
 hExtKey - корневой ключ для поиска (ключ расширения)
 strType - сюда запишется результат, если будет найден
 */
-static bool SearchExtHandlerFromList(HKEY hExtKey, string &strType)
+static bool SearchExtHandlerFromList(const os::reg::key& hExtKey, string &strType)
 {
-	FOR(const auto& i, os::reg::enum_value(hExtKey, L"OpenWithProgids"))
+	FOR(const auto& i, os::reg::enum_value(hExtKey.get(), L"OpenWithProgids", KEY_ENUMERATE_SUB_KEYS))
 	{
 		if (i.Type() == REG_SZ && IsProperProgID(i.Name()))
 		{
@@ -188,7 +188,6 @@ static bool SearchExtHandlerFromList(HKEY hExtKey, string &strType)
 			return true;
 		}
 	}
-
 	return false;
 }
 
@@ -435,7 +434,7 @@ static int PartCmdLine(const string& CmdStr, string &strNewCmdStr, string &strNe
 static bool RunAsSupported(LPCWSTR Name)
 {
 	string Extension(PointToExt(Name)), Type;
-	return !Extension.empty() && GetShellType(Extension, Type) && os::reg::key(HKEY_CLASSES_ROOT, Type.append(L"\\shell\\runas\\command").data(), KEY_QUERY_VALUE);
+	return !Extension.empty() && GetShellType(Extension, Type) && os::reg::open_key(HKEY_CLASSES_ROOT, Type.append(L"\\shell\\runas\\command").data(), KEY_QUERY_VALUE);
 }
 
 /*
@@ -459,27 +458,23 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 	if (!GetShellType(ExtPtr, strValue))
 		return nullptr;
 
-	HKEY hKey;
-
-	if (RegOpenKeyEx(HKEY_CLASSES_ROOT,strValue.data(),0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS)
+	if (const auto Key = os::reg::open_key(HKEY_CLASSES_ROOT, strValue.data(), KEY_QUERY_VALUE))
 	{
-		int nResult=RegQueryValueEx(hKey,L"IsShortcut",nullptr,nullptr,nullptr,nullptr);
-		RegCloseKey(hKey);
-
-		if (nResult==ERROR_SUCCESS)
+		if (os::reg::GetValue(Key, L"IsShortcut"))
 			return nullptr;
 	}
 
 	strValue += L"\\shell";
 
-	if (RegOpenKeyEx(HKEY_CLASSES_ROOT, strValue.data(), 0, KEY_QUERY_VALUE | KEY_ENUMERATE_SUB_KEYS, &hKey)!=ERROR_SUCCESS)
+	const auto Key = os::reg::open_key(HKEY_CLASSES_ROOT, strValue.data(), KEY_QUERY_VALUE | KEY_ENUMERATE_SUB_KEYS);
+	if (!Key)
 		return nullptr;
 
 	strValue += L"\\";
 
 	static string strAction;
 
-	if (os::reg::GetValue(hKey, L"", strAction))
+	if (os::reg::GetValue(Key, L"", strAction))
 	{
 		RetPtr = EmptyToNull(strAction.data());
 		LONG RetEnum = ERROR_SUCCESS;
@@ -494,7 +489,7 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 				strNewValue += i;
 				strNewValue += command_action;
 
-				if (os::reg::key(HKEY_CLASSES_ROOT, strNewValue.data(), KEY_QUERY_VALUE))
+				if (os::reg::open_key(HKEY_CLASSES_ROOT, strNewValue.data(), KEY_QUERY_VALUE))
 				{
 					strValue += i;
 					strAction = i;
@@ -530,7 +525,7 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 		strNewValue += strAction;
 		strNewValue += command_action;
 
-		if (os::reg::key(HKEY_CLASSES_ROOT, strNewValue.data(), KEY_QUERY_VALUE))
+		if (os::reg::open_key(HKEY_CLASSES_ROOT, strNewValue.data(), KEY_QUERY_VALUE))
 		{
 			strValue += strAction;
 			RetPtr = strAction.data();
@@ -538,7 +533,7 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 		else
 		{
 			// ... а теперь все остальное, если "open" нету
-			FOR(const auto& i, os::reg::enum_key(hKey))
+			FOR(const auto& i, os::reg::enum_key(Key))
 			{
 				strAction = i;
 
@@ -547,7 +542,7 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 				strNewValue += strAction;
 				strNewValue += command_action;
 
-				if (os::reg::key(HKEY_CLASSES_ROOT, strNewValue.data(), KEY_QUERY_VALUE))
+				if (os::reg::open_key(HKEY_CLASSES_ROOT, strNewValue.data(), KEY_QUERY_VALUE))
 				{
 					strValue += strAction;
 					RetPtr = strAction.data();
@@ -556,8 +551,6 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 			}
 		}
 	}
-
-	RegCloseKey(hKey);
 
 	if (RetPtr)
 	{
@@ -631,22 +624,28 @@ bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
 			return true;
 		}
 
-		HKEY hCRKey = nullptr, hUserKey = nullptr;
+		os::reg::key hCRKey, hUserKey;
 		string strFoundValue;
 
 		if (aType == AT_FILEEXTENSION)
 		{
 			// Смотрим дефолтный обработчик расширения в HKEY_CURRENT_USER
-			if (os::reg::GetValue(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\" + Ext, L"ProgID", strFoundValue) && IsProperProgID(strFoundValue))
+			if (hUserKey = os::reg::open_key(HKEY_CURRENT_USER, (L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\" + Ext).data(), KEY_QUERY_VALUE))
 			{
-				strType = strFoundValue;
+				if (os::reg::GetValue(hUserKey, L"ProgID", strFoundValue) && IsProperProgID(strFoundValue))
+				{
+					strType = strFoundValue;
+				}
 			}
 		}
 
 		// Смотрим дефолтный обработчик расширения в HKEY_CLASSES_ROOT
-		if (strType.empty() && os::reg::GetValue(HKEY_CLASSES_ROOT, Ext, L"", strFoundValue) && IsProperProgID(strFoundValue))
+		if (strType.empty() && (hCRKey = os::reg::open_key(HKEY_CLASSES_ROOT, Ext.data(), KEY_QUERY_VALUE)))
 		{
-			strType = strFoundValue;
+			if (os::reg::GetValue(hCRKey, L"", strFoundValue) && IsProperProgID(strFoundValue))
+			{
+				strType = strFoundValue;
+			}
 		}
 
 		if (strType.empty() && hUserKey)
@@ -654,12 +653,6 @@ bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
 
 		if (strType.empty() && hCRKey)
 			SearchExtHandlerFromList(hCRKey, strType);
-
-		if (hUserKey)
-			RegCloseKey(hUserKey);
-
-		if (hCRKey)
-			RegCloseKey(hCRKey);
 	}
 
 	return !strType.empty();
@@ -920,6 +913,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	}
 
 	DWORD dwError = 0;
+
 	if (ShellExecuteEx(&seInfo))
 	{
 		Process.reset(seInfo.hProcess);

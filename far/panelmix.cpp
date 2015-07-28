@@ -434,7 +434,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 			else if (strArgOrig.size() >= 2 && strArgOrig.size() <= 3 && strArgOrig.front() == L'C')
 			{
 				unsigned int num;
-				if (1 == swscanf(strArgOrig.c_str()+1, L"%u", &num))
+				if (1 == swscanf(strArgOrig.data()+1, L"%u", &num))
 					Columns.back().type = CUSTOM_COLUMN0 + num;
 			}
 		}

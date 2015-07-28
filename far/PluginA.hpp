@@ -41,7 +41,7 @@ class OEMPluginModel : public NativePluginModel
 public:
 	OEMPluginModel(PluginManager* owner);
 
-	virtual Plugin* CreatePlugin(const string& filename) override;
+	virtual std::unique_ptr<Plugin> CreatePlugin(const string& filename) override;
 	const std::string& getUserName();
 
 private:

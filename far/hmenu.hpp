@@ -43,6 +43,7 @@ struct HMenuData
 	struct MenuDataEx *SubMenu;
 	int SubMenuSize;
 	int Selected;
+	int XPos;
 };
 
 class VMenu2;
@@ -73,15 +74,14 @@ private:
 
 	void ShowMenu();
 	void ProcessSubMenu(const MenuDataEx *Data, int DataCount, const wchar_t *SubMenuHelp, int X, int Y, int &Position);
-	wchar_t GetHighlights(const HMenuData *_item);
+	wchar_t GetHighlights(const HMenuData& Item);
 	size_t CheckHighlights(WORD CheckSymbol, int StartPos = 0);
 	bool TestMouse(const MOUSE_EVENT_RECORD *MouseEvent) const;
+	void UpdateSelectPos();
 
-	HMenuData* Item;
+	range<HMenuData*> Item;
 	size_t SelectPos;
-	size_t ItemCount;
 	int m_VExitCode;
-	int ItemX[16];
 	CriticalSection CS;
 	bool m_SubmenuOpened;
 };

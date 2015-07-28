@@ -99,7 +99,7 @@ public:
 	GenericPluginModel(PluginManager* owner);
 	virtual ~GenericPluginModel() {};
 
-	virtual Plugin* CreatePlugin(const string& filename);
+	virtual std::unique_ptr<Plugin> CreatePlugin(const string& filename);
 
 	virtual bool IsPlugin(const string& filename) = 0;
 	virtual plugin_instance Create(const string& filename) = 0;
@@ -113,12 +113,13 @@ public:
 	const wchar_t* GetExportName(size_t index) const { return m_ExportsNames[index].UName; }
 
 protected:
-	const struct export_name
+	struct export_name
 	{
 		const wchar_t* UName;
 		const char* AName;
-	}
-	* m_ExportsNames;
+	};
+
+	range<const export_name*> m_ExportsNames;
 	PluginManager* m_owner;
 };
 
@@ -193,7 +194,7 @@ public:
 	void* GetOpen() const { return Exports[iOpen]; }
 
 	template<EXPORTS_ENUM N>
-	bool has() { static_assert(N != ExportsCount, "Wrong index"); return Exports[N] != nullptr; }
+	bool has() const { static_assert(N != ExportsCount, "Wrong index"); return Exports[N] != nullptr; }
 
 	const string& GetModuleName() const { return m_strModuleName; }
 	const string& GetCacheName() const  { return m_strCacheName; }

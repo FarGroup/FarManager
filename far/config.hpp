@@ -121,14 +121,14 @@ private:
 };
 
 template<class base_type, class derived>
-class opt_traits: public Option
+class OptionImpl: public Option
 {
 public:
 	typedef base_type type;
 
-	opt_traits(): Option(base_type()) {}
-	opt_traits(const base_type& Value): Option(Value) {}
-	opt_traits(const derived& Value): Option(Value.Get()) {}
+	OptionImpl(): Option(base_type()) {}
+	OptionImpl(const base_type& Value): Option(Value) {}
+	OptionImpl(const derived& Value): Option(Value.Get()) {}
 
 	const base_type& Get() const { return GetT<base_type>(); }
 	void Set(const base_type& Value) { SetT(Value); }
@@ -142,12 +142,12 @@ public:
 	//operator const base_type&() const { return Get(); }
 };
 
-class BoolOption: public opt_traits<bool, BoolOption>
+class BoolOption: public OptionImpl<bool, BoolOption>
 {
 public:
 	BoolOption() {}
-	BoolOption(const bool& Value): opt_traits(Value) {}
-	BoolOption(const BoolOption& Value): opt_traits(Value) {}
+	BoolOption(const bool& Value): OptionImpl(Value) {}
+	BoolOption(const BoolOption& Value): OptionImpl(Value) {}
 
 	virtual string toString() const override { return Get() ? L"true" : L"false"; }
 	virtual void fromString(const string& value) override;
@@ -162,12 +162,12 @@ public:
 	operator bool() const { return Get(); }
 };
 
-class Bool3Option: public opt_traits<long long, Bool3Option>
+class Bool3Option: public OptionImpl<long long, Bool3Option>
 {
 public:
 	Bool3Option() {}
-	Bool3Option(const int& Value): opt_traits(Value){}
-	Bool3Option(const Bool3Option& Value): opt_traits(Value){}
+	Bool3Option(const int& Value): OptionImpl(Value){}
+	Bool3Option(const Bool3Option& Value): OptionImpl(Value){}
 
 	virtual string toString() const override { int v = Get(); return v ? (v == 1 ? L"true" : L"other") : L"false"; }
 	virtual void fromString(const string& value) override;
@@ -182,12 +182,12 @@ public:
 	operator FARCHECKEDSTATE() const { return static_cast<FARCHECKEDSTATE>(Get()); }
 };
 
-class IntOption: public opt_traits<long long, IntOption>
+class IntOption: public OptionImpl<long long, IntOption>
 {
 public:
 	IntOption() {}
-	IntOption(long long Value): opt_traits(Value){}
-	IntOption(const IntOption& Value): opt_traits(Value){}
+	IntOption(long long Value): OptionImpl(Value){}
+	IntOption(const IntOption& Value): OptionImpl(Value){}
 
 	virtual string toString() const override { return std::to_wstring(Get()); }
 	virtual void fromString(const string& value) override;
@@ -211,12 +211,12 @@ public:
 	operator long long() const { return Get(); }
 };
 
-class StringOption: public opt_traits<string, StringOption>
+class StringOption: public OptionImpl<string, StringOption>
 {
 public:
 	StringOption() {}
-	StringOption(const StringOption& Value): opt_traits(Value) {}
-	StringOption(const string& Value): opt_traits(Value) {}
+	StringOption(const StringOption& Value): OptionImpl(Value) {}
+	StringOption(const string& Value): OptionImpl(Value) {}
 
 	virtual string toString() const override { return Get(); }
 	virtual void fromString(const string& value) override { Set(value); }
@@ -258,8 +258,8 @@ public:
 	const Option* GetConfigValue(const wchar_t *Key, const wchar_t *Name) const;
 	const Option* GetConfigValue(size_t Root, const wchar_t* Name) const;
 	bool AdvancedConfig(farconfig_mode Mode = cfg_roaming);
-	void LocalViewerConfig(Options::ViewerOptions &ViOptRef) {return ViewerConfig(ViOptRef, true);}
-	void LocalEditorConfig(Options::EditorOptions &EdOptRef) {return EditorConfig(EdOptRef, true);}
+	void LocalViewerConfig(ViewerOptions &ViOptRef) {return ViewerConfig(ViOptRef, true);}
+	void LocalEditorConfig(EditorOptions &EdOptRef) {return EditorConfig(EdOptRef, true);}
 	void SetSearchColumns(const string& Columns, const string& Widths);
 
 	struct PanelOptions

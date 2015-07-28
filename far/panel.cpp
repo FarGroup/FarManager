@@ -2510,7 +2510,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	bool IsPersistent = true;
 	const wchar_t KeyName[] = {L'N', L'e', L't', L'w', L'o', L'r', L'k', L'\\', Letter, L'\0'};
 
-	if (os::reg::key(HKEY_CURRENT_USER, KeyName, KEY_QUERY_VALUE))
+	if (os::reg::open_key(HKEY_CURRENT_USER, KeyName, KEY_QUERY_VALUE))
 	{
 		DCDlg[5].Selected = Global->Opt->ChangeDriveDisconnectMode;
 	}

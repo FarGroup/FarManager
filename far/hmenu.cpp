@@ -50,11 +50,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 
 HMenu::HMenu(private_tag, HMenuData *Item,size_t ItemCount):
-	Item(Item),
+	Item(Item, Item + ItemCount),
 	SelectPos(),
-	ItemCount(ItemCount),
 	m_VExitCode(-1),
-	ItemX(),
 	m_SubmenuOpened()
 {
 }
@@ -90,49 +88,49 @@ void HMenu::ShowMenu()
 	string strTmpStr;
 	GotoXY(m_X1+2,m_Y1);
 
-	for (size_t i=0; i<ItemCount; i++)
+	FOR(auto& i, Item)
 	{
-		ItemX[i]=WhereX();
+		i.XPos = WhereX();
 
-		if (Item[i].Selected)
+		if (i.Selected)
 			SetColor(COL_HMENUSELECTEDTEXT);
 		else
 			SetColor(COL_HMENUTEXT);
 
 		strTmpStr=L"  ";
-		strTmpStr+=Item[i].Name;
+		strTmpStr+=i.Name;
 		strTmpStr+=L"  ";
-		HiText(strTmpStr,colors::PaletteColorToFarColor(Item[i].Selected ? COL_HMENUSELECTEDHIGHLIGHT:COL_HMENUHIGHLIGHT));
+		HiText(strTmpStr, colors::PaletteColorToFarColor(i.Selected? COL_HMENUSELECTEDHIGHLIGHT : COL_HMENUHIGHLIGHT));
 	}
-
-	ItemX[ItemCount]=WhereX();
 }
 
+void HMenu::UpdateSelectPos()
+{
+	SelectPos = 0;
+
+	const auto Selected = std::find_if(Item.begin(), Item.end(), [](CONST_REFERENCE(Item) i) { return i.Selected; });
+	if (Selected != Item.end())
+	{
+		SelectPos = Selected - Item.begin();
+	}
+}
 
 __int64 HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
-	SelectPos=0;
-	for (size_t i = 0; i<ItemCount; i++)
-	{
-		if (Item[i].Selected)
-		{
-			SelectPos=i;
-			break;
-		}
-	}
+	UpdateSelectPos();
 
 	switch (OpCode)
 	{
 		case MCODE_C_EMPTY:
-			return ItemCount<=0;
+			return Item.empty();
 		case MCODE_C_EOF:
-			return SelectPos==ItemCount-1;
+			return SelectPos == Item.size() - 1;
 		case MCODE_C_BOF:
 			return !SelectPos;
 		case MCODE_C_SELECTED:
-			return ItemCount != 0;
+			return !Item.empty();
 		case MCODE_V_ITEMCOUNT:
-			return ItemCount;
+			return Item.size();
 		case MCODE_V_CURPOS:
 			return SelectPos+1;
 		case MCODE_F_MENU_CHECKHOTKEY:
@@ -145,7 +143,7 @@ __int64 HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			if (iParam == -1)
 				iParam=SelectPos;
 
-			if ((size_t)iParam < ItemCount)
+			if (static_cast<size_t>(iParam) < Item.size())
 			{
 				if (OpCode == MCODE_F_MENU_GETVALUE)
 				{
@@ -154,7 +152,7 @@ __int64 HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				}
 				else
 				{
-					return GetHighlights((const HMenuData *)(Item+(int)iParam));
+					return GetHighlights(Item[static_cast<size_t>(iParam)]);
 				}
 			}
 
@@ -167,10 +165,10 @@ __int64 HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			if (iParam == -1)
 				iParam=SelectPos;
 
-			if ((size_t)iParam < ItemCount)
+			if (static_cast<size_t>(iParam) < Item.size())
 			{
 				RetValue=0;
-				if (Item[(int)iParam].Selected)
+				if (Item[static_cast<size_t>(iParam)].Selected)
 					RetValue |= 1;
 			}
 
@@ -189,15 +187,8 @@ __int64 HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 int HMenu::ProcessKey(const Manager::Key& Key)
 {
 	auto LocalKey = Key.FarKey();
-	SelectPos=0;
-	for (size_t i = 0; i<ItemCount; i++)
-	{
-		if (Item[i].Selected)
-		{
-			SelectPos=i;
-			break;
-		}
-	}
+
+	UpdateSelectPos();
 
 	switch (LocalKey)
 	{
@@ -233,7 +224,7 @@ int HMenu::ProcessKey(const Manager::Key& Key)
 			if (Item[SelectPos].SubMenu)
 			{
 				ProcessSubMenu(Item[SelectPos].SubMenu,Item[SelectPos].SubMenuSize,
-				               Item[SelectPos].SubMenuHelp,ItemX[SelectPos],
+				               Item[SelectPos].SubMenuHelp,Item[SelectPos].XPos,
 				               m_Y1+1,m_VExitCode);
 
 				if (m_VExitCode!=-1)
@@ -251,17 +242,17 @@ int HMenu::ProcessKey(const Manager::Key& Key)
 			Item[SelectPos].Selected=0;
 
 			/* Кусок для "некрайних" меню - прыжок к меню пассивной панели */
-			if (SelectPos  && SelectPos != ItemCount-1)
+			if (SelectPos  && SelectPos != Item.size() - 1)
 			{
 				if (Global->CtrlObject->Cp()->ActivePanel() == Global->CtrlObject->Cp()->RightPanel)
 					SelectPos=0;
 				else
-					SelectPos=ItemCount-1;
+					SelectPos = Item.size() - 1;
 			}
 			else
 			{
 				if (!SelectPos)
-					SelectPos=ItemCount-1;
+					SelectPos = Item.size() - 1;
 				else
 					SelectPos=0;
 			}
@@ -295,8 +286,8 @@ int HMenu::ProcessKey(const Manager::Key& Key)
 		case KEY_RCTRLPGDN: case KEY_RCTRLNUMPAD3:
 		{
 			Item[SelectPos].Selected=0;
-			Item[ItemCount-1].Selected=1;
-			SelectPos=ItemCount-1;
+			Item[Item.size() - 1].Selected = 1;
+			SelectPos = Item.size() - 1;
 			ShowMenu();
 			return TRUE;
 		}
@@ -305,7 +296,7 @@ int HMenu::ProcessKey(const Manager::Key& Key)
 			Item[SelectPos].Selected=0;
 
 			if (!SelectPos)
-				SelectPos = ItemCount - 1;
+				SelectPos = Item.size() - 1;
 			else
 				--SelectPos;
 
@@ -317,7 +308,7 @@ int HMenu::ProcessKey(const Manager::Key& Key)
 		{
 			Item[SelectPos].Selected=0;
 
-			if (SelectPos == ItemCount - 1)
+			if (SelectPos == Item.size() - 1)
 				SelectPos = 0;
 			else
 				++SelectPos;
@@ -328,7 +319,7 @@ int HMenu::ProcessKey(const Manager::Key& Key)
 		}
 		default:
 		{
-			for (size_t i = 0; i<ItemCount; i++)
+			for (size_t i = 0; i < Item.size(); i++)
 			{
 				if (IsKeyHighlighted(Item[i].Name,LocalKey,FALSE))
 				{
@@ -341,7 +332,7 @@ int HMenu::ProcessKey(const Manager::Key& Key)
 				}
 			}
 
-			for (size_t i = 0; i<ItemCount; i++)
+			for (size_t i = 0; i < Item.size(); i++)
 			{
 				if (IsKeyHighlighted(Item[i].Name,LocalKey,TRUE))
 				{
@@ -367,30 +358,22 @@ bool HMenu::TestMouse(const MOUSE_EVENT_RECORD *MouseEvent) const
 	int MsX=MouseEvent->dwMousePosition.X;
 	int MsY=MouseEvent->dwMousePosition.Y;
 
-	return MsY!=m_Y1 || (MsX>=ItemX[SelectPos] && MsX<ItemX[SelectPos+1]);
+	return MsY != m_Y1 || ((!SelectPos || MsX >= Item[SelectPos].XPos) && (SelectPos == Item.size() - 1 || MsX<Item[SelectPos + 1].XPos));
 }
 
 int HMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	int MsX,MsY;
 
-	SelectPos=0;
-	for (size_t i = 0; i<ItemCount; i++)
-	{
-		if (Item[i].Selected)
-		{
-			SelectPos=i;
-			break;
-		}
-	}
+	UpdateSelectPos();
 
 	MsX=MouseEvent->dwMousePosition.X;
 	MsY=MouseEvent->dwMousePosition.Y;
 
 	if (MsY==m_Y1 && MsX>=m_X1 && MsX<=m_X2)
 	{
-		for (size_t i = 0; i<ItemCount; i++)
-			if (MsX>=ItemX[i] && MsX<ItemX[i+1])
+		for (size_t i = 0; i < Item.size(); i++)
+			if (MsX >= Item[i].XPos && MsX<Item[i + 1].XPos)
 			{
 				if (m_SubmenuOpened && SelectPos==i)
 					return FALSE;
@@ -497,22 +480,19 @@ void HMenu::ResizeConsole()
 	SetPosition(0,0,::ScrX,0);
 }
 
-wchar_t HMenu::GetHighlights(const HMenuData *_item)
+wchar_t HMenu::GetHighlights(const HMenuData& Item)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 	wchar_t Ch=0;
 
-	if (_item)
+	const wchar_t *Name = Item.Name;
+
+	if (Name && *Name)
 	{
-		const wchar_t *Name=_item->Name;
+		const wchar_t *ChPtr=wcschr(Name,L'&');
 
-		if (Name && *Name)
-		{
-			const wchar_t *ChPtr=wcschr(Name,L'&');
-
-			if (ChPtr)
-				Ch=ChPtr[1];
-		}
+		if (ChPtr)
+			Ch=ChPtr[1];
 	}
 
 	return Ch;
@@ -525,9 +505,9 @@ size_t HMenu::CheckHighlights(WORD CheckSymbol, int StartPos)
 	if (StartPos < 0)
 		StartPos=0;
 
-	for (size_t I = StartPos; I < ItemCount; I++)
+	for (size_t I = StartPos; I < Item.size(); I++)
 	{
-		wchar_t Ch=GetHighlights((const HMenuData *)(Item+I));
+		wchar_t Ch=GetHighlights(Item[I]);
 
 		if (Ch)
 		{

@@ -315,26 +315,22 @@ static bool EnumModules(VMenu2& Menu, const string& Module)
 					break;
 				}
 			}
-			HKEY hKey;
-			if (RegOpenKeyEx(RootFindKey[i], RegPath, 0, samDesired, &hKey) == ERROR_SUCCESS)
+
+			if (const auto Key = os::reg::open_key(RootFindKey[i], RegPath, samDesired))
 			{
-				FOR(const auto& Subkey, os::reg::enum_key(hKey))
+				FOR(const auto& SubkeyName, os::reg::enum_key(Key))
 				{
-					HKEY hSubKey;
-					if (RegOpenKeyEx(hKey, Subkey.data(), 0, samDesired, &hSubKey) == ERROR_SUCCESS)
+					if (const auto SubKey = os::reg::open_key(Key.get(), SubkeyName.data(), samDesired))
 					{
-						DWORD cbSize = 0;
-						if(RegQueryValueEx(hSubKey, L"", nullptr, nullptr, nullptr, &cbSize) == ERROR_SUCCESS)
+						if(os::reg::GetValue(SubKey, L""))
 						{
-							if (!StrCmpNI(Module.data(), Subkey.data(), Module.size()))
+							if (!StrCmpNI(Module.data(), SubkeyName.data(), Module.size()))
 							{
-								ResultStrings.emplace(Subkey);
+								ResultStrings.emplace(SubkeyName);
 							}
 						}
-						RegCloseKey(hSubKey);
 					}
 				}
-				RegCloseKey(hKey);
 			}
 		}
 

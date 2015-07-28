@@ -136,12 +136,12 @@ OEMPluginModel::OEMPluginModel(PluginManager* owner):
 		WA("GetMinFarVersion"),
 	};
 	static_assert(ARRAYSIZE(ExportsNames) == ExportsCount, "Not all exports names are defined");
-	m_ExportsNames = ExportsNames;
+	m_ExportsNames = make_range(std::cbegin(ExportsNames), std::cend(ExportsNames));
 }
 
-Plugin* OEMPluginModel::CreatePlugin(const string& filename)
+std::unique_ptr<Plugin> OEMPluginModel::CreatePlugin(const string& filename)
 {
-	return IsPlugin(filename)? new PluginA(this, filename) : nullptr;
+	return IsPlugin(filename)? std::make_unique<PluginA>(this, filename) : nullptr;
 }
 
 const std::string& OEMPluginModel::getUserName()
@@ -154,11 +154,10 @@ const std::string& OEMPluginModel::getUserName()
 bool OEMPluginModel::FindExport(const char* ExportName)
 {
 	// module with ANY known export can be OEM plugin
-	const auto ExportsBegin = m_ExportsNames, ExportsEnd = ExportsBegin + ExportsCount;
-	return std::find_if(ExportsBegin, ExportsEnd, [&](const export_name& i)
+	return std::find_if(ALL_RANGE(m_ExportsNames), [&](const export_name& i)
 	{
 		return !strcmp(ExportName, i.AName);
-	}) != ExportsEnd;
+	}) != m_ExportsNames.end();
 }
 
 
@@ -5814,32 +5813,21 @@ int PluginA::Configure(ConfigureInfo* Info)
 
 void PluginA::FreePluginInfo()
 {
-	if (PI.DiskMenu.Count)
+	const auto DeleteItems = [](const PluginMenuItem& Item)
 	{
-		for (size_t i=0; i<PI.DiskMenu.Count; i++)
-			delete[] PI.DiskMenu.Strings[i];
+		if (Item.Count)
+		{
+			for (size_t i = 0; i < Item.Count; i++)
+				delete[] Item.Strings[i];
 
-		delete[] PI.DiskMenu.Guids;
-		delete[] PI.DiskMenu.Strings;
-	}
+			delete[] Item.Guids;
+			delete[] Item.Strings;
+		}
+	};
 
-	if (PI.PluginMenu.Count)
-	{
-		for (size_t i=0; i<PI.PluginMenu.Count; i++)
-			delete[] PI.PluginMenu.Strings[i];
-
-		delete[] PI.PluginMenu.Guids;
-		delete[] PI.PluginMenu.Strings;
-	}
-
-	if (PI.PluginConfig.Count)
-	{
-		for (size_t i=0; i<PI.PluginConfig.Count; i++)
-			delete[] PI.PluginConfig.Strings[i];
-
-		delete[] PI.PluginConfig.Guids;
-		delete[] PI.PluginConfig.Strings;
-	}
+	DeleteItems(PI.DiskMenu);
+	DeleteItems(PI.PluginMenu);
+	DeleteItems(PI.PluginConfig);
 
 	delete[] PI.CommandPrefix;
 
@@ -5850,70 +5838,49 @@ void PluginA::ConvertPluginInfo(const oldfar::PluginInfo &Src, PluginInfo *Dest)
 {
 	FreePluginInfo();
 	PI.StructSize = sizeof(PI);
-	PI.Flags=PF_NONE;
-	if(Src.Flags&oldfar::PF_PRELOAD)
-		PI.Flags|=PF_PRELOAD;
-	if(Src.Flags&oldfar::PF_DISABLEPANELS)
-		PI.Flags|=PF_DISABLEPANELS;
-	if(Src.Flags&oldfar::PF_EDITOR)
-		PI.Flags|=PF_EDITOR;
-	if(Src.Flags&oldfar::PF_VIEWER)
-		PI.Flags|=PF_VIEWER;
-	if(Src.Flags&oldfar::PF_DIALOG)
-		PI.Flags|=PF_DIALOG;
-	if(Src.Flags&oldfar::PF_FULLCMDLINE)
-		PI.Flags|=PF_FULLCMDLINE;
 
-	if (Src.DiskMenuStringsNumber)
+	static const simple_pair<oldfar::PLUGIN_FLAGS, PLUGIN_FLAGS> PluginFlagsMap[] =
 	{
-		const auto p = new wchar_t*[Src.DiskMenuStringsNumber];
-		const auto guid = new GUID[Src.DiskMenuStringsNumber]();
+		OLDFAR_TO_FAR_MAP(PF_PRELOAD),
+		OLDFAR_TO_FAR_MAP(PF_DISABLEPANELS),
+		OLDFAR_TO_FAR_MAP(PF_EDITOR),
+		OLDFAR_TO_FAR_MAP(PF_VIEWER),
+		OLDFAR_TO_FAR_MAP(PF_DIALOG),
+		OLDFAR_TO_FAR_MAP(PF_FULLCMDLINE),
+	};
 
-		for (int i=0; i<Src.DiskMenuStringsNumber; i++)
+	PI.Flags = PF_NONE;
+	FirstFlagsToSecond(Src.Flags, PI.Flags, PluginFlagsMap);
+
+	const auto CreatePluginMenuItems = [](const char* const* Strings, size_t Size, PluginMenuItem& Item)
+	{
+		if (Size)
 		{
-			p[i] = AnsiToUnicode(Src.DiskMenuStrings[i]);
-			guid[i].Data1=i;
+			const auto p = new wchar_t*[Size];
+			const auto guid = new GUID[Size]();
+
+			for (size_t i = 0; i != Size; ++i)
+			{
+				p[i] = AnsiToUnicode(Strings[i]);
+				guid[i].Data1 = static_cast<decltype(guid[i].Data1)>(i);
+			}
+
+			Item.Guids = guid;
+			Item.Strings = p;
+			Item.Count = Size;
 		}
 
-		PI.DiskMenu.Guids = guid;
-		PI.DiskMenu.Strings = p;
-		PI.DiskMenu.Count = Src.DiskMenuStringsNumber;
-	}
+	};
 
-	if (Src.PluginMenuStringsNumber)
-	{
-		const auto p = new wchar_t*[Src.PluginMenuStringsNumber];
-		const auto guid = new GUID[Src.PluginMenuStringsNumber]();
+	#define CREATE_ITEMS(ItemsType) CreatePluginMenuItems(Src.ItemsType##Strings, Src.ItemsType##StringsNumber, PI.ItemsType);
 
-		for (int i=0; i<Src.PluginMenuStringsNumber; i++)
-		{
-			p[i] = AnsiToUnicode(Src.PluginMenuStrings[i]);
-			guid[i].Data1=i;
-		}
+	CREATE_ITEMS(DiskMenu);
+	CREATE_ITEMS(PluginMenu);
+	CREATE_ITEMS(PluginConfig);
 
-		PI.PluginMenu.Guids = guid;
-		PI.PluginMenu.Strings = p;
-		PI.PluginMenu.Count = Src.PluginMenuStringsNumber;
-	}
+	#undef CREATE_ITEMS
 
-	if (Src.PluginConfigStringsNumber)
-	{
-		const auto p = new wchar_t*[Src.PluginConfigStringsNumber];
-		const auto guid = new GUID[Src.PluginConfigStringsNumber]();
-
-		for (int i=0; i<Src.PluginConfigStringsNumber; i++)
-		{
-			p[i] = AnsiToUnicode(Src.PluginConfigStrings[i]);
-			guid[i].Data1=i;
-		}
-
-		PI.PluginConfig.Guids = guid;
-		PI.PluginConfig.Strings = p;
-		PI.PluginConfig.Count = Src.PluginConfigStringsNumber;
-	}
-
-	if (Src.CommandPrefix)
-		PI.CommandPrefix = AnsiToUnicode(Src.CommandPrefix);
+	PI.CommandPrefix = AnsiToUnicode(Src.CommandPrefix);
 
 	*Dest=PI;
 }
@@ -5982,7 +5949,7 @@ bool PluginA::InitLang(const string& Path)
 
 const char* PluginA::GetMsgA(LNGID nID) const
 {
-	return static_cast<AnsiLanguage*>(PluginLang.get())->GetMsgA(nID);
+	return static_cast<const AnsiLanguage&>(*PluginLang.get()).GetMsgA(nID);
 }
 
 };

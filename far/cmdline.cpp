@@ -1241,7 +1241,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			}
 		}
 
-		if (Global->CtrlObject->Plugins->GetPluginsCount())
+		if (Global->CtrlObject->Plugins->size())
 		{
 			strOut += L"\nPlugins:\n";
 

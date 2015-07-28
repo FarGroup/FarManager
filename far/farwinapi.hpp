@@ -41,55 +41,55 @@ namespace os
 	{
 		struct handle_closer { static bool close(HANDLE Handle); };
 		struct find_handle_closer { static bool close(HANDLE Handle); };
+
+		template<class T>
+		class handle_t: noncopyable, swapable<handle_t<T>>, public conditional<handle_t<T>>
+		{
+		public:
+			explicit handle_t(HANDLE Handle = nullptr): m_Handle(normalise(Handle)) {}
+
+			handle_t(handle_t&& rhs) noexcept: m_Handle() { *this = std::move(rhs); }
+
+			~handle_t() { close(); }
+
+			MOVE_OPERATOR_BY_SWAP(handle_t);
+
+			void swap(handle_t& rhs) noexcept
+			{
+				using std::swap;
+				swap(m_Handle, rhs.m_Handle);
+			}
+
+			bool operator!() const noexcept { return !m_Handle; }
+
+			bool close()
+			{
+				if (!m_Handle)
+					return true;
+				bool ret = T::close(m_Handle);
+				m_Handle = nullptr;
+				return ret;
+			}
+
+			void reset(HANDLE Handle = nullptr) { close(); m_Handle = normalise(Handle); }
+
+			HANDLE native_handle() const { return m_Handle; }
+
+			HANDLE release() { auto Result = m_Handle; m_Handle = nullptr; return Result; }
+
+			bool wait(DWORD Milliseconds = INFINITE) const { return WaitForSingleObject(m_Handle, Milliseconds) == WAIT_OBJECT_0; }
+
+			bool signaled() const { return wait(0); }
+
+		private:
+			static HANDLE normalise(HANDLE Handle) { return Handle == INVALID_HANDLE_VALUE? nullptr : Handle; }
+
+			HANDLE m_Handle;
+		};
 	}
 
-	template<class T>
-	class handle_t: noncopyable, swapable<handle_t<T>>, public conditional<handle_t<T>>
-	{
-	public:
-		explicit handle_t(HANDLE Handle = nullptr): m_Handle(normalise(Handle)) {}
-
-		handle_t(handle_t&& rhs) noexcept: m_Handle() { *this = std::move(rhs); }
-
-		~handle_t() { close(); }
-
-		MOVE_OPERATOR_BY_SWAP(handle_t);
-
-		void swap(handle_t& rhs) noexcept
-		{
-			using std::swap;
-			swap(m_Handle, rhs.m_Handle);
-		}
-
-		bool operator!() const noexcept { return !m_Handle; }
-
-		bool close()
-		{
-			if (!m_Handle)
-				return true;
-			bool ret = T::close(m_Handle);
-			m_Handle = nullptr;
-			return ret;
-		}
-
-		void reset(HANDLE Handle = nullptr) { close(); m_Handle = normalise(Handle); }
-
-		HANDLE native_handle() const { return m_Handle; }
-
-		HANDLE release() { auto Result = m_Handle; m_Handle = nullptr; return Result; }
-
-		bool wait(DWORD Milliseconds = INFINITE) const { return WaitForSingleObject(m_Handle, Milliseconds) == WAIT_OBJECT_0; }
-
-		bool signaled() const { return wait(0); }
-
-	private:
-		static HANDLE normalise(HANDLE Handle) { return Handle == INVALID_HANDLE_VALUE? nullptr : Handle; }
-
-		HANDLE m_Handle;
-	};
-
-	typedef handle_t<detail::handle_closer> handle;
-	typedef handle_t<detail::find_handle_closer> find_handle;
+	typedef detail::handle_t<detail::handle_closer> handle;
+	typedef detail::handle_t<detail::find_handle_closer> find_handle;
 
 	class HandleWrapper
 	{
@@ -371,25 +371,28 @@ namespace os
 			return Type == REG_SZ || Type == REG_EXPAND_SZ || Type == REG_MULTI_SZ;
 		}
 
-		class key:noncopyable, public conditional<key>
+		namespace detail
 		{
-		public:
-			key(HKEY Key): m_Key(Key), m_Opened() {}
-			key(HKEY RootKey, const wchar_t* SubKey, REGSAM Sam);
-			~key();
+			struct hkey_deleter
+			{
+				void operator()(HKEY Key) const
+				{
+					if (Key)
+					{
+						RegCloseKey(Key);
+					}
+				}
+			};
+		}
 
-			bool operator!() const noexcept { return !m_Key; }
-			HKEY Key() const { return m_Key; }
+		typedef std::unique_ptr<std::remove_pointer<HKEY>::type, detail::hkey_deleter> key;
 
-		private:
-			HKEY m_Key;
-			bool m_Opened;
-		};
+		key open_key(HKEY RootKey, const wchar_t* SubKey, DWORD SamDesired);
 
 		class value
 		{
 		public:
-			value(): m_Type(REG_NONE), m_Key(nullptr) {}
+			value(): m_Type(REG_NONE), m_Key() {}
 
 			const string& Name() const { return m_Name; }
 			DWORD Type() const { return m_Type; }
@@ -399,32 +402,33 @@ namespace os
 			uint64_t GetUnsigned64() const;
 
 		private:
-			friend bool EnumValue(HKEY, size_t, value&);
+			friend bool EnumValue(const key&, size_t, value&);
 
 			string m_Name;
 			DWORD m_Type;
-			HKEY m_Key;
+			const key* m_Key;
 		};
 
-		bool EnumKey(HKEY Key, size_t Index, string& Name);
-		bool EnumValue(HKEY Key, size_t Index, value& Value);
+		bool EnumKey(const key& Key, size_t Index, string& Name);
+		bool EnumValue(const key& Key, size_t Index, value& Value);
 
-		bool GetValue(HKEY Key, const wchar_t* Name, string& Value);
-		bool GetValue(HKEY Key, const wchar_t* Name, unsigned int& Value);
-		bool GetValue(HKEY Key, const wchar_t* Name, uint64_t& Value);
+		bool GetValue(const key& Key, const wchar_t* Name);
+		bool GetValue(const key& Key, const wchar_t* Name, string& Value);
+		bool GetValue(const key& Key, const wchar_t* Name, unsigned int& Value);
+		bool GetValue(const key& Key, const wchar_t* Name, uint64_t& Value);
 
 #define IS_SAME(T1, T2) std::is_same<T1, T2>::value
 #define CHECK_TYPE(T) static_assert(IS_SAME(T, string) || IS_SAME(T, unsigned int) || IS_SAME(T, uint64_t), "this type is not supported");
 
 		template<class T>
-		bool GetValue(HKEY Key, const string& Name, T& Value) { CHECK_TYPE(T); return GetValue(Key, Name.data(), Value); }
+		bool GetValue(const key& Key, const string& Name, T& Value) { CHECK_TYPE(T); return GetValue(Key, Name.data(), Value); }
 
 		template<class T>
 		bool GetValue(HKEY RootKey, const wchar_t* SubKey, const wchar_t* Name, T& Value, REGSAM Sam = 0)
 		{
 			CHECK_TYPE(T);
-			key Key(RootKey, SubKey, KEY_QUERY_VALUE | Sam);
-			return Key && GetValue(Key.Key(), Name, Value);
+			const auto Key = open_key(RootKey, SubKey, KEY_QUERY_VALUE | Sam);
+			return Key && GetValue(Key, Name, Value);
 		}
 
 		template<class T>
@@ -440,23 +444,25 @@ namespace os
 		class enum_key: noncopyable, public enumerator<enum_key, string>
 		{
 		public:
-			enum_key(HKEY Key): m_Key(Key) {}
-			enum_key(HKEY RootKey, const wchar_t* SubKey, REGSAM Sam = 0): m_Key(RootKey, SubKey, KEY_ENUMERATE_SUB_KEYS | Sam) {}
-			bool get(size_t Index, value_type& Value) { return m_Key && EnumKey(m_Key.Key(), Index, Value); }
+			enum_key(const key& Key): m_KeyRef(Key) {}
+			enum_key(HKEY RootKey, const wchar_t* SubKey, REGSAM Sam = 0): m_Key(open_key(RootKey, SubKey, KEY_ENUMERATE_SUB_KEYS | Sam)), m_KeyRef(m_Key) {}
+			bool get(size_t Index, value_type& Value) { return m_KeyRef && EnumKey(m_KeyRef, Index, Value); }
 
 		private:
-			key m_Key;
+			const key m_Key;
+			const key& m_KeyRef;
 		};
 
 		class enum_value: noncopyable, public enumerator<enum_value, value>
 		{
 		public:
-			enum_value(HKEY Key): m_Key(Key) {}
-			enum_value(HKEY RootKey, const wchar_t* SubKey, REGSAM Sam = 0): m_Key(RootKey, SubKey, KEY_QUERY_VALUE | Sam) {}
-			bool get(size_t Index, value_type& Value) { return m_Key && EnumValue(m_Key.Key(), Index, Value); }
+			enum_value(const key& Key): m_KeyRef(Key) {}
+			enum_value(HKEY RootKey, const wchar_t* SubKey, REGSAM Sam = 0): m_Key(open_key(RootKey, SubKey, KEY_QUERY_VALUE | Sam)), m_KeyRef(m_Key) {}
+			bool get(size_t Index, value_type& Value) { return m_KeyRef && EnumValue(m_KeyRef, Index, Value); }
 
 		private:
-			key m_Key;
+			const key m_Key;
+			const key& m_KeyRef;
 		};
 	}
 

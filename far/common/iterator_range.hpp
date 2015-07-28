@@ -37,6 +37,11 @@ public:
 	typedef typename std::iterator_traits<iterator>::pointer pointer;
 	typedef typename std::iterator_traits<iterator>::value_type value_type;
 
+	range():
+		m_begin(),
+		m_end()
+	{}
+
 	range(iterator i_begin, iterator i_end):
 		m_begin(i_begin),
 		m_end(i_end)

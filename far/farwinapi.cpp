@@ -646,14 +646,14 @@ bool file_walker::InitWalk(size_t BlockSize)
 			DWORD BytesReturned;
 			for(;;)
 			{
-				bool QueryResult = IoControl(FSCTL_QUERY_ALLOCATED_RANGES, &QueryRange, sizeof(QueryRange), Ranges, sizeof(Ranges), &BytesReturned);
+				const bool QueryResult = IoControl(FSCTL_QUERY_ALLOCATED_RANGES, &QueryRange, sizeof(QueryRange), Ranges, sizeof(Ranges), &BytesReturned);
 				if((QueryResult || GetLastError() == ERROR_MORE_DATA) && BytesReturned)
 				{
-					for(size_t i = 0; i < BytesReturned/sizeof(FILE_ALLOCATED_RANGE_BUFFER); ++i)
+					FOR(const auto& i, make_range(Ranges, Ranges + BytesReturned / sizeof(*Ranges)))
 					{
-						AllocSize += Ranges[i].Length.QuadPart;
-						UINT64 RangeEndOffset = Ranges[i].FileOffset.QuadPart + Ranges[i].Length.QuadPart;
-						for(UINT64 j = Ranges[i].FileOffset.QuadPart; j < RangeEndOffset; j+=ChunkSize)
+						AllocSize += i.Length.QuadPart;
+						const UINT64 RangeEndOffset = i.FileOffset.QuadPart + i.Length.QuadPart;
+						for(UINT64 j = i.FileOffset.QuadPart; j < RangeEndOffset; j+=ChunkSize)
 						{
 							ChunkList.emplace_back(Chunk(j, std::min(static_cast<DWORD>(RangeEndOffset - j), ChunkSize)));
 						}
@@ -1770,32 +1770,36 @@ DWORD GetAppPathsRedirectionFlag()
 
 	namespace reg
 	{
-		key::key(HKEY RootKey, const wchar_t* SubKey, REGSAM Sam):
-			m_Key(),
-			m_Opened()
+		key open_key(HKEY RootKey, const wchar_t* SubKey, DWORD SamDesired)
 		{
-			m_Opened = RegOpenKeyEx(RootKey, SubKey, 0, Sam, &m_Key) == ERROR_SUCCESS;
+			HKEY Result;
+			return key(RegOpenKeyEx(RootKey, SubKey, 0, SamDesired, &Result) == ERROR_SUCCESS? Result : nullptr);
 		}
 
-		key::~key()
+		static bool QueryValue(const key& Key, const wchar_t* Name, DWORD* Type, void* Data, size_t* Size)
 		{
-			if (m_Opened)
-				RegCloseKey(m_Key);
+			DWORD dwSize = Size? static_cast<DWORD>(*Size) : 0;
+			const auto Result = RegQueryValueEx(Key.get(), Name, nullptr, Type, reinterpret_cast<LPBYTE>(Data), Size? &dwSize : nullptr);
+			if (Size)
+			{
+				*Size = dwSize;
+			}
+			return Result == ERROR_SUCCESS;
 		}
 
-		static bool QueryValue(HKEY Key, const wchar_t* Name, DWORD& Type, std::vector<char>& Value)
+		static bool QueryValue(const key& Key, const wchar_t* Name, DWORD& Type, std::vector<char>& Value)
 		{
 			bool Result = false;
-			DWORD Size = 0;
-			if (RegQueryValueEx(Key, Name, nullptr, nullptr, nullptr, &Size) == ERROR_SUCCESS)
+			size_t Size = 0;
+			if (QueryValue(Key, Name, nullptr, nullptr, &Size))
 			{
 				Value.resize(Size);
-				Result = RegQueryValueEx(Key, Name, nullptr, &Type, reinterpret_cast<LPBYTE>(Value.data()), &Size) == ERROR_SUCCESS;
+				Result = QueryValue(Key, Name, &Type, Value.data(), &Size);
 			}
 			return Result;
 		}
 
-		bool EnumKey(HKEY Key, size_t Index, string& Name)
+		bool EnumKey(const key& Key, size_t Index, string& Name)
 		{
 			LONG ExitCode = ERROR_MORE_DATA;
 
@@ -1803,7 +1807,7 @@ DWORD GetAppPathsRedirectionFlag()
 			{
 				wchar_t_ptr Buffer(Size);
 				DWORD RetSize = Size;
-				ExitCode = RegEnumKeyEx(Key, static_cast<DWORD>(Index), Buffer.get(), &RetSize, nullptr, nullptr, nullptr, nullptr);
+				ExitCode = RegEnumKeyEx(Key.get(), static_cast<DWORD>(Index), Buffer.get(), &RetSize, nullptr, nullptr, nullptr, nullptr);
 				if (ExitCode == ERROR_SUCCESS)
 				{
 					Name.assign(Buffer.get(), RetSize);
@@ -1812,7 +1816,7 @@ DWORD GetAppPathsRedirectionFlag()
 			return ExitCode == ERROR_SUCCESS;
 		}
 
-		bool EnumValue(HKEY Key, size_t Index, value& Value)
+		bool EnumValue(const key& Key, size_t Index, value& Value)
 		{
 			LONG ExitCode = ERROR_MORE_DATA;
 
@@ -1820,18 +1824,23 @@ DWORD GetAppPathsRedirectionFlag()
 			{
 				wchar_t_ptr Buffer(Size);
 				DWORD RetSize = Size;
-				ExitCode = RegEnumValue(Key, static_cast<DWORD>(Index), Buffer.get(), &RetSize, nullptr, &Value.m_Type, nullptr, nullptr);
+				ExitCode = RegEnumValue(Key.get(), static_cast<DWORD>(Index), Buffer.get(), &RetSize, nullptr, &Value.m_Type, nullptr, nullptr);
 				if (ExitCode == ERROR_SUCCESS)
 				{
 					Value.m_Name.assign(Buffer.get(), RetSize);
-					Value.m_Key = Key;
+					Value.m_Key = &Key;
 				}
 			}
 
 			return ExitCode == ERROR_SUCCESS;
 		}
 
-		bool GetValue(HKEY Key, const wchar_t* Name, string& Value)
+		bool GetValue(const key& Key, const wchar_t* Name)
+		{
+			return QueryValue(Key, Name, nullptr, nullptr, nullptr);
+		}
+
+		bool GetValue(const key& Key, const wchar_t* Name, string& Value)
 		{
 			bool Result = false;
 			std::vector<char> Buffer;
@@ -1848,7 +1857,7 @@ DWORD GetAppPathsRedirectionFlag()
 			return Result;
 		}
 
-		bool GetValue(HKEY Key, const wchar_t* Name, unsigned int& Value)
+		bool GetValue(const key& Key, const wchar_t* Name, unsigned int& Value)
 		{
 			bool Result = false;
 			std::vector<char> Buffer;
@@ -1862,7 +1871,7 @@ DWORD GetAppPathsRedirectionFlag()
 			return Result;
 		}
 
-		bool GetValue(HKEY Key, const wchar_t* Name, uint64_t& Value)
+		bool GetValue(const key& Key, const wchar_t* Name, uint64_t& Value)
 		{
 			bool Result = false;
 			std::vector<char> Buffer;
@@ -1882,7 +1891,7 @@ DWORD GetAppPathsRedirectionFlag()
 				throw std::runtime_error("bad value type");
 
 			string Result;
-			GetValue(m_Key, m_Name.data(), Result);
+			GetValue(*m_Key, m_Name.data(), Result);
 			return Result;
 		}
 
@@ -1892,7 +1901,7 @@ DWORD GetAppPathsRedirectionFlag()
 				throw std::runtime_error("bad value type");
 
 			unsigned int Result = 0;
-			GetValue(m_Key, m_Name.data(), Result);
+			GetValue(*m_Key, m_Name.data(), Result);
 			return Result;
 		}
 
@@ -1902,7 +1911,7 @@ DWORD GetAppPathsRedirectionFlag()
 				throw std::runtime_error("bad value type");
 
 			uint64_t Result = 0;
-			GetValue(m_Key, m_Name.data(), Result);
+			GetValue(*m_Key, m_Name.data(), Result);
 			return Result;
 		}
 	}

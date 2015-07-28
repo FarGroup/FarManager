@@ -616,15 +616,14 @@ void GetCursorPos(SHORT& X, SHORT& Y)
 	Global->ScrBuf->GetCursorPos(X,Y);
 }
 
-
 void SetCursorType(bool Visible, DWORD Size)
 {
-	if (Size==(DWORD)-1 || !Visible)
-		Size=IsConsoleFullscreen()?
-		     (Global->Opt->CursorSize[1]?(int)Global->Opt->CursorSize[1]:InitialCursorInfo.dwSize):
-				     (Global->Opt->CursorSize[0]?(int)Global->Opt->CursorSize[0]:InitialCursorInfo.dwSize);
-
-	Global->ScrBuf->SetCursorType(Visible,Size);
+	if (Size == (DWORD)-1 || !Visible)
+	{
+		const size_t index = IsConsoleFullscreen()? 1 : 0;
+		Size = Global->Opt->CursorSize[index] ? (int)Global->Opt->CursorSize[index] : InitialCursorInfo.dwSize;
+	}
+	Global->ScrBuf->SetCursorType(Visible, Size);
 }
 
 void SetInitialCursorType()
@@ -1275,4 +1274,14 @@ bool IsConsoleFullscreen()
 		}
 	}
 	return Result;
+}
+
+void fix_coordinates(int& X1, int& Y1, int& X2, int& Y2)
+{
+	const auto fix = [](int Min, int& Value, int Max) { Value = std::min(std::max(Min, Value), Max); };
+
+	fix(0, X1, ScrX);
+	fix(0, X2, ScrX);
+	fix(0, Y1, ScrY);
+	fix(0, Y2, ScrY);
 }

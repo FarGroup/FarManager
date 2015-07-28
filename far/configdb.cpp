@@ -46,14 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "synchro.hpp"
 
-static inline void PrintError(const wchar_t *Title, const string& Error, int Row, int Col)
-{
-	string strResult(Title);
-	strResult += L" (" + std::to_wstring(Row) + L"," + std::to_wstring(Col) + L"): " + Error + L'\n';
-	Console().Write(strResult);
-	Console().Commit();
-}
-
 class representation
 {
 public:
@@ -70,34 +62,15 @@ private:
 	tinyxml::TiXmlElement* m_ExportRoot;
 };
 
-class representation_source
+namespace {
+
+static inline void PrintError(const wchar_t *Title, const string& Error, int Row, int Col)
 {
-public:
-	representation_source(const string& TemplateFile):
-		m_ImportRoot(nullptr)
-	{
-		if (const auto XmlFile = file_ptr(_wfopen(NTPath(TemplateFile).data(), L"rb")))
-		{
-			if (m_TemplateDoc.LoadFile(XmlFile.get()))
-			{
-				m_ImportRoot = m_TemplateDoc.FirstChildElement("farconfig");
-			}
-		}
-	}
-
-	bool readable() const { return m_ImportRoot.Node() != nullptr; }
-	const tinyxml::TiXmlHandle& GetImportRoot() const { return m_ImportRoot; }
-
-	void PrintErrorIfError() const
-	{
-		if (m_TemplateDoc.Error())
-			PrintError(L"XML Error", wide(m_TemplateDoc.ErrorDesc(), CP_UTF8), m_TemplateDoc.ErrorRow(), m_TemplateDoc.ErrorCol());
-	}
-
-private:
-	tinyxml::TiXmlDocument m_TemplateDoc;
-	tinyxml::TiXmlHandle m_ImportRoot;
-};
+	string strResult(Title);
+	strResult += L" (" + std::to_wstring(Row) + L"," + std::to_wstring(Col) + L"): " + Error + L'\n';
+	Console().Write(strResult);
+	Console().Commit();
+}
 
 class xml_enum: noncopyable, public enumerator<xml_enum, const tinyxml::TiXmlElement*>
 {
@@ -136,8 +109,6 @@ static inline tinyxml::TiXmlElement& CreateChild(T& Parent, const char* Name)
 class iGeneralConfigDb: public GeneralConfig, public SQLiteDb
 {
 public:
-	virtual ~iGeneralConfigDb() {};
-
 	virtual bool InitializeImpl(const string& DbName, bool Local) override
 	{
 		static const auto Schema =
@@ -243,10 +214,9 @@ public:
 					break;
 				default:
 				{
-					const auto Blob = stmtEnumAllValues.GetColBlob(2);
-					const auto hex = BlobToHexString(Blob.data(), Blob.size());
 					e.SetAttribute("type", "hex");
-					e.SetAttribute("value", hex);
+					const auto Blob = stmtEnumAllValues.GetColBlob(2);
+					e.SetAttribute("value", BlobToHexString(Blob.data(), Blob.size()));
 				}
 			}
 		}
@@ -267,8 +237,8 @@ public:
 			if (!key || !name || !type || !value)
 				continue;
 
-			string Key = wide(key, CP_UTF8);
-			string Name = wide(name, CP_UTF8);
+			const auto Key = wide(key, CP_UTF8);
+			const auto Name = wide(name, CP_UTF8);
 
 			if (!strcmp(type,"qword"))
 			{
@@ -276,12 +246,11 @@ public:
 			}
 			else if (!strcmp(type,"text"))
 			{
-				string Value = wide(value, CP_UTF8);
-				SetValue(Key, Name, Value);
+				SetValue(Key, Name, wide(value, CP_UTF8));
 			}
 			else if (!strcmp(type,"hex"))
 			{
-				auto Blob = HexStringToBlob(value);
+				const auto Blob = HexStringToBlob(value);
 				SetValue(Key, Name, blob(Blob.data(), Blob.size()));
 			}
 			else
@@ -734,7 +703,6 @@ class HighlightHierarchicalConfigDb: public HierarchicalConfigDb
 {
 public:
 	explicit HighlightHierarchicalConfigDb(const string& DbName, bool Local = false):HierarchicalConfigDb(DbName, Local) {}
-	virtual ~HighlightHierarchicalConfigDb() {}
 
 private:
 	virtual void SerializeBlob(const char* Name, const void* Blob, size_t Size, tinyxml::TiXmlElement& e) override
@@ -794,8 +762,6 @@ public:
 	{
 		Initialize(L"colors.db");
 	}
-
-	virtual ~ColorsConfigDb() { }
 
 	virtual bool InitializeImpl(const string& DbName, bool Local) override
 	{
@@ -915,8 +881,6 @@ public:
 	{
 		Initialize(L"associations.db");
 	}
-
-	virtual ~AssociationsConfigDb() {}
 
 	virtual bool InitializeImpl(const string& DbName, bool Local) override
 	{
@@ -1172,8 +1136,6 @@ public:
 		Initialize(L"plugincache" PLATFORM_SUFFIX L".db", true);
 	}
 
-	virtual ~PluginsCacheConfigDb() {}
-
 	virtual bool InitializeImpl(const string& DbName, bool Local) override
 	{
 		static const auto Schema =
@@ -1336,17 +1298,17 @@ public:
 		return b;
 	}
 
-	virtual bool GetDiskMenuItem(unsigned __int64 id, size_t index, string &Text, string &Guid) const override
+	virtual bool GetDiskMenuItem(unsigned __int64 id, size_t index, string &Text, GUID& Guid) const override
 	{
 		return GetMenuItem(id, DRIVE_MENU, index, Text, Guid);
 	}
 
-	virtual bool GetPluginsMenuItem(unsigned __int64 id, size_t index, string &Text, string &Guid) const override
+	virtual bool GetPluginsMenuItem(unsigned __int64 id, size_t index, string &Text, GUID& Guid) const override
 	{
 		return GetMenuItem(id, PLUGINS_MENU, index, Text, Guid);
 	}
 
-	virtual bool GetPluginsConfigMenuItem(unsigned __int64 id, size_t index, string &Text, string &Guid) const override
+	virtual bool GetPluginsConfigMenuItem(unsigned __int64 id, size_t index, string &Text, GUID& Guid) const override
 	{
 		return GetMenuItem(id, CONFIG_MENU, index, Text, Guid);
 	}
@@ -1376,17 +1338,17 @@ public:
 		return Statement(stmtSetSignature).Bind(id, Signature).StepAndReset();
 	}
 
-	virtual bool SetDiskMenuItem(unsigned __int64 id, size_t index, const string& Text, const string& Guid) override
+	virtual bool SetDiskMenuItem(unsigned __int64 id, size_t index, const string& Text, const GUID& Guid) override
 	{
 		return SetMenuItem(id, DRIVE_MENU, index, Text, Guid);
 	}
 
-	virtual bool SetPluginsMenuItem(unsigned __int64 id, size_t index, const string& Text, const string& Guid) override
+	virtual bool SetPluginsMenuItem(unsigned __int64 id, size_t index, const string& Text, const GUID& Guid) override
 	{
 		return SetMenuItem(id, PLUGINS_MENU, index, Text, Guid);
 	}
 
-	virtual bool SetPluginsConfigMenuItem(unsigned __int64 id, size_t index, const string& Text, const string& Guid) override
+	virtual bool SetPluginsConfigMenuItem(unsigned __int64 id, size_t index, const string& Text, const GUID& Guid) override
 	{
 		return SetMenuItem(id, CONFIG_MENU, index, Text, Guid);
 	}
@@ -1477,22 +1439,22 @@ private:
 		DRIVE_MENU
 	};
 
-	bool GetMenuItem(unsigned __int64 id, MenuItemTypeEnum type, size_t index, string &Text, string &Guid) const
+	bool GetMenuItem(unsigned __int64 id, MenuItemTypeEnum type, size_t index, string &Text, GUID& Guid) const
 	{
 		auto& Stmt = Statement(stmtGetMenuItem);
-		const bool b = Stmt.Bind(id, type, index).Step();
+		bool b = Stmt.Bind(id, type, index).Step();
 		if (b)
 		{
 			Text = Stmt.GetColText(0);
-			Guid = Stmt.GetColText(1);
+			b = StrToGuid(Stmt.GetColText(1), Guid);
 		}
 		Stmt.Reset();
 		return b;
 	}
 
-	bool SetMenuItem(unsigned __int64 id, MenuItemTypeEnum type, size_t index, const string& Text, const string& Guid)
+	bool SetMenuItem(unsigned __int64 id, MenuItemTypeEnum type, size_t index, const string& Text, const GUID& Guid)
 	{
-		return Statement(stmtSetMenuItem).Bind(id, type, index, Guid, Text).StepAndReset();
+		return Statement(stmtSetMenuItem).Bind(id, type, index, GuidToStr(Guid), Text).StepAndReset();
 	}
 
 	static string GetTextFromID(SQLiteStmt &stmt, unsigned __int64 id)
@@ -1570,8 +1532,6 @@ public:
 		;
 	}
 
-	virtual ~PluginsHotkeysConfigDb() {}
-
 	virtual bool HotkeysPresent(HotKeyTypeEnum HotKeyType) override
 	{
 		auto& Stmt = Statement(stmtCheckForHotkeys);
@@ -1582,24 +1542,24 @@ public:
 		return count!=0;
 	}
 
-	virtual string GetHotkey(const string& PluginKey, const string& MenuGuid, HotKeyTypeEnum HotKeyType) override
+	virtual string GetHotkey(const string& PluginKey, const GUID& MenuGuid, HotKeyTypeEnum HotKeyType) override
 	{
 		auto& Stmt = Statement(stmtGetHotkey);
 		string strHotKey;
-		if (Stmt.Bind(PluginKey, MenuGuid, HotKeyType).Step())
+		if (Stmt.Bind(PluginKey, GuidToStr(MenuGuid), HotKeyType).Step())
 			strHotKey = Stmt.GetColText(0);
 		Stmt.Reset();
 		return strHotKey;
 	}
 
-	virtual bool SetHotkey(const string& PluginKey, const string& MenuGuid, HotKeyTypeEnum HotKeyType, const string& HotKey) override
+	virtual bool SetHotkey(const string& PluginKey, const GUID& MenuGuid, HotKeyTypeEnum HotKeyType, const string& HotKey) override
 	{
-		return Statement(stmtSetHotkey).Bind(PluginKey, MenuGuid, HotKeyType, HotKey).StepAndReset();
+		return Statement(stmtSetHotkey).Bind(PluginKey, GuidToStr(MenuGuid), HotKeyType, HotKey).StepAndReset();
 	}
 
-	virtual bool DelHotkey(const string& PluginKey, const string& MenuGuid, HotKeyTypeEnum HotKeyType) override
+	virtual bool DelHotkey(const string& PluginKey, const GUID& MenuGuid, HotKeyTypeEnum HotKeyType) override
 	{
-		return Statement(stmtDelHotkey).Bind(PluginKey, MenuGuid, HotKeyType).StepAndReset();
+		return Statement(stmtDelHotkey).Bind(PluginKey, GuidToStr(MenuGuid), HotKeyType).StepAndReset();
 	}
 
 	virtual void Export(representation& Representation) override
@@ -1657,10 +1617,11 @@ public:
 				const auto guid = se->Attribute("guid");
 				const auto hotkey = se->Attribute("hotkey");
 
-				if (!guid || !stype)
+				GUID Guid;
+
+				if (!stype || !guid || !StrToGuid(wide(guid, CP_UTF8), Guid))
 					continue;
 
-				string Guid = wide(guid, CP_UTF8);
 				string Hotkey = wide(hotkey, CP_UTF8);
 				HotKeyTypeEnum type;
 				if (!strcmp(stype,"drive"))
@@ -2261,6 +2222,43 @@ public:
 	virtual void Export(representation&) override {}
 };
 
+static const std::wregex& uuid_regex()
+{
+	static const std::wregex re(L"^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$", std::regex::icase | std::regex::optimize);
+	return re;
+}
+
+}
+
+class config_provider::representation_source
+{
+public:
+	representation_source(const string& TemplateFile):
+		m_ImportRoot(nullptr)
+	{
+		if (const auto XmlFile = file_ptr(_wfopen(NTPath(TemplateFile).data(), L"rb")))
+		{
+			if (m_TemplateDoc.LoadFile(XmlFile.get()))
+			{
+				m_ImportRoot = m_TemplateDoc.FirstChildElement("farconfig");
+			}
+		}
+	}
+
+	bool readable() const { return m_ImportRoot.Node() != nullptr; }
+	const tinyxml::TiXmlHandle& GetImportRoot() const { return m_ImportRoot; }
+
+	void PrintErrorIfError() const
+	{
+		if (m_TemplateDoc.Error())
+			PrintError(L"XML Error", wide(m_TemplateDoc.ErrorDesc(), CP_UTF8), m_TemplateDoc.ErrorRow(), m_TemplateDoc.ErrorCol());
+	}
+
+private:
+	tinyxml::TiXmlDocument m_TemplateDoc;
+	tinyxml::TiXmlHandle m_ImportRoot;
+};
+
 void config_provider::CheckDatabase(SQLiteDb *pDb)
 {
 	string pname;
@@ -2400,13 +2398,6 @@ config_provider::~config_provider()
 	ThreadWaiter.Wait();
 	SQLiteDb::library_free();
 }
-
-const std::wregex& uuid_regex()
-{
-	static const std::wregex re(L"^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$", std::regex::icase | std::regex::optimize);
-	return re;
-}
-
 
 bool config_provider::Export(const string& File)
 {

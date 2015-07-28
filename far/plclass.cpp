@@ -81,14 +81,14 @@ typedef intptr_t (WINAPI *iGetContentFieldsPrototype)    (const GetContentFields
 typedef intptr_t (WINAPI *iGetContentDataPrototype)      (GetContentDataInfo *Info);
 typedef void     (WINAPI *iFreeContentDataPrototype)     (const GetContentDataInfo *Info);
 
-Plugin* GenericPluginModel::CreatePlugin(const string& filename)
+std::unique_ptr<Plugin> GenericPluginModel::CreatePlugin(const string& filename)
 {
-	return IsPlugin(filename)? new Plugin(this, filename) : nullptr;
+	return IsPlugin(filename)? std::make_unique<Plugin>(this, filename) : nullptr;
 }
 
 void GenericPluginModel::SaveExportsToCache(PluginsCacheConfig& cache, unsigned long long id, const exports_array& exports)
 {
-	for_each_2(m_ExportsNames, m_ExportsNames + ExportsCount, exports.cbegin(), [&](const export_name& i, const void* Export)
+	for_each_2(ALL_RANGE(m_ExportsNames), exports.cbegin(), [&](const export_name& i, const void* Export)
 	{
 		if (*i.UName)
 			cache.SetExport(id, i.UName, Export != nullptr);
@@ -97,7 +97,7 @@ void GenericPluginModel::SaveExportsToCache(PluginsCacheConfig& cache, unsigned 
 
 void GenericPluginModel::LoadExportsFromCache(const PluginsCacheConfig& cache, unsigned long long id, exports_array& exports)
 {
-	std::transform(m_ExportsNames, m_ExportsNames + ExportsCount, exports.begin(), [&](const export_name& i)
+	std::transform(ALL_RANGE(m_ExportsNames), exports.begin(), [&](const export_name& i)
 	{
 		return *i.UName? cache.GetExport(id, i.UName) : nullptr;
 	});
@@ -147,9 +147,7 @@ GenericPluginModel::GenericPluginModel(PluginManager* owner):
 		WA(""), // GetMinFarVersion not used
 	};
 	static_assert(ARRAYSIZE(ExportsNames) == ExportsCount, "Not all exports names are defined");
-
-	m_ExportsNames = ExportsNames;
-
+	m_ExportsNames = make_range(std::cbegin(ExportsNames), std::cend(ExportsNames));
 }
 
 bool NativePluginModel::IsPlugin(const string& filename)
@@ -158,7 +156,7 @@ bool NativePluginModel::IsPlugin(const string& filename)
 		return false;
 
 	bool Result = false;
-	if (const auto ModuleFile = os::handle(os::CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING)))
+	if (const auto ModuleFile = os::CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
 	{
 		if (const auto ModuleMapping = os::handle(CreateFileMapping(ModuleFile.native_handle(), nullptr, PAGE_READONLY, 0, 0, nullptr)))
 		{
@@ -192,7 +190,7 @@ bool NativePluginModel::Destroy(GenericPluginModel::plugin_instance instance)
 void NativePluginModel::InitExports(GenericPluginModel::plugin_instance instance, exports_array& exports)
 {
 	auto Module = static_cast<os::rtdl::module*>(instance);
-	std::transform(m_ExportsNames, m_ExportsNames + ExportsCount, exports.begin(), [&](const export_name& i)
+	std::transform(ALL_RANGE(m_ExportsNames), exports.begin(), [&](const export_name& i)
 	{
 		return *i.AName? reinterpret_cast<void*>(Module->GetProcAddress(i.AName)) : nullptr;
 	});
@@ -208,11 +206,11 @@ bool NativePluginModel::IsPlugin2(const void* Module)
 {
 	try
 	{
-		auto pDOSHeader = reinterpret_cast<const IMAGE_DOS_HEADER*>(Module);
+		const auto pDOSHeader = reinterpret_cast<const IMAGE_DOS_HEADER*>(Module);
 		if (pDOSHeader->e_magic != IMAGE_DOS_SIGNATURE)
 			return false;
 
-		auto pPEHeader = reinterpret_cast<const IMAGE_NT_HEADERS*>(reinterpret_cast<const char*>(Module) + pDOSHeader->e_lfanew);
+		const auto pPEHeader = reinterpret_cast<const IMAGE_NT_HEADERS*>(reinterpret_cast<const char*>(Module) + pDOSHeader->e_lfanew);
 
 		if (pPEHeader->Signature != IMAGE_NT_SIGNATURE)
 			return false;
@@ -220,37 +218,41 @@ bool NativePluginModel::IsPlugin2(const void* Module)
 		if (!(pPEHeader->FileHeader.Characteristics & IMAGE_FILE_DLL))
 			return false;
 
-		static WORD FarMachineType = 0;
-		if (!FarMachineType)
+		const auto GetMachineType = []() -> WORD
 		{
-			HMODULE FarModule = GetModuleHandle(nullptr);
-			FarMachineType = reinterpret_cast<const IMAGE_NT_HEADERS*>(reinterpret_cast<const char*>(FarModule) + reinterpret_cast<const IMAGE_DOS_HEADER*>(FarModule)->e_lfanew)->FileHeader.Machine;
-		}
+			const auto FarModule = GetModuleHandle(nullptr);
+			return reinterpret_cast<const IMAGE_NT_HEADERS*>(reinterpret_cast<const char*>(FarModule) + reinterpret_cast<const IMAGE_DOS_HEADER*>(FarModule)->e_lfanew)->FileHeader.Machine;
+		};
+
+		static const auto FarMachineType = GetMachineType();
 
 		if (pPEHeader->FileHeader.Machine != FarMachineType)
 			return false;
 
-		DWORD dwExportAddr = pPEHeader->OptionalHeader.DataDirectory[0].VirtualAddress;
+		const auto dwExportAddr = pPEHeader->OptionalHeader.DataDirectory[0].VirtualAddress;
 
 		if (!dwExportAddr)
 			return false;
 
-		auto pSection = IMAGE_FIRST_SECTION(pPEHeader);
-
-		for (int i = 0; i < pPEHeader->FileHeader.NumberOfSections; i++)
+		FOR(const auto& Section, make_range(IMAGE_FIRST_SECTION(pPEHeader), IMAGE_FIRST_SECTION(pPEHeader) + pPEHeader->FileHeader.NumberOfSections))
 		{
-			if ((pSection[i].VirtualAddress == dwExportAddr) ||
-				((pSection[i].VirtualAddress <= dwExportAddr) && ((pSection[i].Misc.VirtualSize+pSection[i].VirtualAddress) > dwExportAddr)))
+			if ((Section.VirtualAddress == dwExportAddr) ||
+				((Section.VirtualAddress <= dwExportAddr) && ((Section.Misc.VirtualSize + Section.VirtualAddress) > dwExportAddr)))
 			{
-				int nDiff = pSection[i].VirtualAddress-pSection[i].PointerToRawData;
-				auto pExportDir = reinterpret_cast<const IMAGE_EXPORT_DIRECTORY*>(reinterpret_cast<const char*>(Module) + dwExportAddr - nDiff);
-				auto pNames = reinterpret_cast<const DWORD*>(reinterpret_cast<const char*>(Module) + pExportDir->AddressOfNames-nDiff);
-				for (DWORD n = 0; n < pExportDir->NumberOfNames; n++)
+				const auto GetAddress = [&](size_t Offset)
 				{
-					if (FindExport(reinterpret_cast<const char *>(Module) + pNames[n]-nDiff))
-					{
-						return true;
-					}
+					return reinterpret_cast<const char*>(Module) + Section.PointerToRawData - Section.VirtualAddress + Offset;
+				};
+
+				const auto pExportDir = reinterpret_cast<const IMAGE_EXPORT_DIRECTORY*>(GetAddress(dwExportAddr));
+				const auto pNames = reinterpret_cast<const DWORD*>(GetAddress(pExportDir->AddressOfNames));
+
+				if (std::any_of(pNames, pNames + pExportDir->NumberOfNames, [&](DWORD NameOffset)
+				{
+					return FindExport(reinterpret_cast<const char *>(GetAddress(NameOffset)));
+				}))
+				{
+					return true;
 				}
 			}
 		}
@@ -361,7 +363,7 @@ PluginStartupInfo NativeInfo =
 	nullptr, //Private, dynamic
 };
 
-ArclitePrivateInfo ArcliteInfo =
+static ArclitePrivateInfo ArcliteInfo =
 {
 	sizeof(ArcliteInfo),
 	pluginapi::apiCreateFile,
@@ -373,7 +375,7 @@ ArclitePrivateInfo ArcliteInfo =
 	pluginapi::apiCreateDirectory
 };
 
-NetBoxPrivateInfo NetBoxInfo =
+static NetBoxPrivateInfo NetBoxInfo =
 {
 	sizeof(NetBoxInfo),
 	pluginapi::apiCreateFile,
@@ -385,7 +387,7 @@ NetBoxPrivateInfo NetBoxInfo =
 	pluginapi::apiCreateDirectory
 };
 
-MacroPrivateInfo MacroInfo =
+static MacroPrivateInfo MacroInfo =
 {
 	sizeof(MacroPrivateInfo),
 	pluginapi::apiCallFar,
@@ -501,20 +503,17 @@ bool Plugin::SaveToCache()
 		PlCache.SetSignature(id, strCurPluginID);
 	}
 
-	for (size_t i = 0; i < Info.DiskMenu.Count; i++)
+	const auto SaveItems = [&](decltype(&PluginsCacheConfig::SetPluginsMenuItem) Setter, const PluginMenuItem& Item)
 	{
-		PlCache.SetDiskMenuItem(id, i, Info.DiskMenu.Strings[i], GuidToStr(Info.DiskMenu.Guids[i]));
-	}
+		for (size_t i = 0; i < Item.Count; i++)
+		{
+			(PlCache.*Setter)(id, i, Item.Strings[i], Item.Guids[i]);
+		}
+	};
 
-	for (size_t i = 0; i < Info.PluginMenu.Count; i++)
-	{
-		PlCache.SetPluginsMenuItem(id, i, Info.PluginMenu.Strings[i], GuidToStr(Info.PluginMenu.Guids[i]));
-	}
-
-	for (size_t i = 0; i < Info.PluginConfig.Count; i++)
-	{
-		PlCache.SetPluginsConfigMenuItem(id, i, Info.PluginConfig.Strings[i], GuidToStr(Info.PluginConfig.Guids[i]));
-	}
+	SaveItems(&PluginsCacheConfig::SetPluginsMenuItem, Info.PluginMenu);
+	SaveItems(&PluginsCacheConfig::SetDiskMenuItem, Info.DiskMenu);
+	SaveItems(&PluginsCacheConfig::SetPluginsConfigMenuItem, Info.PluginConfig);
 
 	PlCache.SetCommandPrefix(id, NullToEmpty(Info.CommandPrefix));
 	PlCache.SetFlags(id, Info.Flags);
@@ -1333,7 +1332,7 @@ void CustomPluginModel::InitExports(GenericPluginModel::plugin_instance instance
 {
 	try
 	{
-		std::transform(m_ExportsNames, m_ExportsNames + ExportsCount, Exports.begin(), [&](const export_name& i)
+		std::transform(ALL_RANGE(m_ExportsNames), Exports.begin(), [&](const export_name& i)
 		{
 			return *i.UName ? reinterpret_cast<void*>(m_Imports.pGetFunctionAddress(static_cast<HANDLE>(instance), i.UName)) : nullptr;
 		});

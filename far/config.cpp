@@ -1316,7 +1316,7 @@ inline bool ParseIntValue(const string& sValue, long long& iValue)
 
 
 template<class base_type, class derived>
-bool opt_traits<base_type, derived>::ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const any& Default)
+bool OptionImpl<base_type, derived>::ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const any& Default)
 {
 	base_type CfgValue;
 	const auto Result = Storage->GetValue(KeyName, ValueName, CfgValue, any_cast<base_type>(Default));
@@ -1325,7 +1325,7 @@ bool opt_traits<base_type, derived>::ReceiveValue(GeneralConfig* Storage, const 
 }
 
 template<class base_type, class derived>
-bool opt_traits<base_type, derived>::StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const
+bool OptionImpl<base_type, derived>::StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const
 {
 	return (!always && !Changed()) || Storage->SetValue(KeyName, ValueName, Get());
 }

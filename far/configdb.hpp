@@ -39,7 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 struct VersionInfo;
 class blob;
 class representation;
-class representation_source;
 
 class representable: noncopyable
 {
@@ -160,12 +159,15 @@ protected:
 	static key make_key(uint64_t Key) { return key(Key); }
 };
 
-struct HierarchicalConfigDeleter
+namespace detail
 {
-	void operator()(HierarchicalConfig *ptr) const { ptr->AsyncFinish(); }
-};
+	struct HierarchicalConfigDeleter
+	{
+		void operator()(HierarchicalConfig *ptr) const { ptr->AsyncFinish(); }
+	};
+}
 
-typedef std::unique_ptr<HierarchicalConfig, HierarchicalConfigDeleter> HierarchicalConfigUniquePtr;
+typedef std::unique_ptr<HierarchicalConfig, detail::HierarchicalConfigDeleter> HierarchicalConfigUniquePtr;
 
 class ColorsConfig: public representable, virtual public transactional
 {
@@ -214,16 +216,16 @@ public:
 	virtual string GetDescription(unsigned __int64 id) const = 0;
 	virtual bool GetMinFarVersion(unsigned __int64 id, VersionInfo *Version) const = 0;
 	virtual bool GetVersion(unsigned __int64 id, VersionInfo *Version) const = 0;
-	virtual bool GetDiskMenuItem(unsigned __int64 id, size_t index, string &Text, string &Guid) const = 0;
-	virtual bool GetPluginsMenuItem(unsigned __int64 id, size_t index, string &Text, string &Guid) const = 0;
-	virtual bool GetPluginsConfigMenuItem(unsigned __int64 id, size_t index, string &Text, string &Guid) const = 0;
+	virtual bool GetDiskMenuItem(unsigned __int64 id, size_t index, string &Text, GUID& Guid) const = 0;
+	virtual bool GetPluginsMenuItem(unsigned __int64 id, size_t index, string &Text, GUID& Guid) const = 0;
+	virtual bool GetPluginsConfigMenuItem(unsigned __int64 id, size_t index, string &Text, GUID& Guid) const = 0;
 	virtual string GetCommandPrefix(unsigned __int64 id) const = 0;
 	virtual unsigned __int64 GetFlags(unsigned __int64 id) const = 0;
 	virtual bool SetPreload(unsigned __int64 id, bool Preload) = 0;
 	virtual bool SetSignature(unsigned __int64 id, const string& Signature) = 0;
-	virtual bool SetDiskMenuItem(unsigned __int64 id, size_t index, const string& Text, const string& Guid) = 0;
-	virtual bool SetPluginsMenuItem(unsigned __int64 id, size_t index, const string& Text, const string& Guid) = 0;
-	virtual bool SetPluginsConfigMenuItem(unsigned __int64 id, size_t index, const string& Text, const string& Guid) = 0;
+	virtual bool SetDiskMenuItem(unsigned __int64 id, size_t index, const string& Text, const GUID& Guid) = 0;
+	virtual bool SetPluginsMenuItem(unsigned __int64 id, size_t index, const string& Text, const GUID& Guid) = 0;
+	virtual bool SetPluginsConfigMenuItem(unsigned __int64 id, size_t index, const string& Text, const GUID& Guid) = 0;
 	virtual bool SetCommandPrefix(unsigned __int64 id, const string& Prefix) = 0;
 	virtual bool SetFlags(unsigned __int64 id, unsigned __int64 Flags) = 0;
 	virtual bool SetExport(unsigned __int64 id, const string& ExportName, bool Exists) = 0;
@@ -253,9 +255,9 @@ public:
 
 	virtual ~PluginsHotkeysConfig() {}
 	virtual bool HotkeysPresent(HotKeyTypeEnum HotKeyType) = 0;
-	virtual string GetHotkey(const string& PluginKey, const string& MenuGuid, HotKeyTypeEnum HotKeyType) = 0;
-	virtual bool SetHotkey(const string& PluginKey, const string& MenuGuid, HotKeyTypeEnum HotKeyType, const string& HotKey) = 0;
-	virtual bool DelHotkey(const string& PluginKey, const string& MenuGuid, HotKeyTypeEnum HotKeyType) = 0;
+	virtual string GetHotkey(const string& PluginKey, const GUID& MenuGuid, HotKeyTypeEnum HotKeyType) = 0;
+	virtual bool SetHotkey(const string& PluginKey, const GUID& MenuGuid, HotKeyTypeEnum HotKeyType, const string& HotKey) = 0;
+	virtual bool DelHotkey(const string& PluginKey, const GUID& MenuGuid, HotKeyTypeEnum HotKeyType) = 0;
 
 protected:
 	PluginsHotkeysConfig() {}
@@ -340,6 +342,7 @@ private:
 	int m_LoadResult;
 	std::vector<Thread> m_Threads;
 	std::vector<string> m_Problems;
+	class representation_source;
 	std::unique_ptr<representation_source> m_TemplateSource;
 	mode m_Mode;
 

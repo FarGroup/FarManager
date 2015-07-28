@@ -117,21 +117,24 @@ public:
 	int ProcessConsoleInput(ProcessConsoleInputInfo *Info) const;
 	void GetContentPlugins(const std::vector<const wchar_t*>& ColNames, std::vector<Plugin*>& Plugins) const;
 	void GetContentData(const std::vector<Plugin*>& Plugins, const string& FilePath, const std::vector<const wchar_t*>& Names, std::vector<const wchar_t*>& Values, std::unordered_map<string,string>& ContentData) const;
-	int UnloadPlugin(Plugin *pPlugin, int From);
 	Plugin* LoadPluginExternal(const string& lpwszModuleName, bool LoadToMem);
 	int UnloadPluginExternal(Plugin* hPlugin);
 	bool IsPluginUnloaded(Plugin* pPlugin);
-	void LoadModels();
 	void LoadPlugins();
 
-	typedef Plugin* value_type;
+private:
 	typedef std::multiset<Plugin*, plugin_less> plugins_set;
+
+public:
+	typedef Plugin* value_type;
 	typedef plugins_set::const_iterator iterator;
 
 	iterator begin() const { return SortedPlugins.cbegin(); }
 	iterator end() const { return SortedPlugins.cend(); }
 	iterator cbegin() const { return begin(); }
 	iterator cend() const { return end(); }
+
+	size_t size() const { return SortedPlugins.size(); }
 
 	struct CallPluginInfo
 	{
@@ -147,8 +150,9 @@ public:
 		GUID FoundGuid;
 	};
 
-	Plugin *GetPlugin(const string& ModuleName);
-	size_t GetPluginsCount() const { return SortedPlugins.size(); }
+	Plugin *FindPlugin(const string& ModuleName) const;
+	Plugin *FindPlugin(const GUID& SysID) const;
+
 #ifndef NO_WRAPPER
 	size_t OemPluginsPresent() const { return OemPluginsCount > 0; }
 #endif // NO_WRAPPER
@@ -162,9 +166,7 @@ public:
 	// $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
 	int CallPlugin(const GUID& SysID,int OpenFrom, void *Data, void **Ret=nullptr);
 	int CallPluginItem(const GUID& Guid, CallPluginInfo *Data);
-	Plugin *FindPlugin(const GUID& SysID) const;
 	void RefreshPluginsList();
-	void UndoRemove(Plugin* plugin);
 
 	static void ConfigureCurrent(Plugin *pPlugin, const GUID& Guid);
 	static int UseFarCommand(PluginHandle* hPlugin, int CommandType);
@@ -175,10 +177,13 @@ public:
 private:
 	friend class Plugin;
 
+	void LoadModels();
 	void LoadIfCacheAbsent();
 	Plugin* LoadPlugin(const string& lpwszModuleName, const os::FAR_FIND_DATA &FindData, bool LoadToMem);
-	bool AddPlugin(Plugin *pPlugin);
+	Plugin* AddPlugin(std::unique_ptr<Plugin>&& pPlugin);
 	bool RemovePlugin(Plugin *pPlugin);
+	int UnloadPlugin(Plugin *pPlugin, int From);
+	void UndoRemove(Plugin* plugin);
 	bool UpdateId(Plugin *pPlugin, const GUID& Id);
 	void LoadPluginsFromCache();
 

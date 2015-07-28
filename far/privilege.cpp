@@ -53,7 +53,7 @@ privilege::privilege(const std::vector<const wchar_t*>& PrivilegeNames):
 		block_ptr<TOKEN_PRIVILEGES> NewState(sizeof(TOKEN_PRIVILEGES) + sizeof(LUID_AND_ATTRIBUTES) * (PrivilegeNames.size() - 1));
 		NewState->PrivilegeCount = static_cast<DWORD>(PrivilegeNames.size());
 
-		std::transform(ALL_CONST_RANGE(PrivilegeNames), std::begin(NewState->Privileges), [&](CONST_REFERENCE(PrivilegeNames) i) -> LUID_AND_ATTRIBUTES
+		std::transform(ALL_CONST_RANGE(PrivilegeNames), std::begin(NewState->Privileges), [](CONST_REFERENCE(PrivilegeNames) i) -> LUID_AND_ATTRIBUTES
 		{
 			LUID_AND_ATTRIBUTES laa = { {}, SE_PRIVILEGE_ENABLED };
 			LookupPrivilegeValue(nullptr, i, &laa.Luid);
@@ -102,7 +102,7 @@ bool privilege::is_set(const wchar_t* PrivilegeName)
 					if (GetTokenInformation(Token.native_handle(), TokenPrivileges, TokenInformation.get(), TokenInformationLength, &TokenInformationLength))
 					{
 						const auto PrivilegesEnd = TokenInformation->Privileges + TokenInformation->PrivilegeCount;
-						auto ItemIterator = std::find_if(TokenInformation->Privileges, PrivilegesEnd, [&State](decltype(*TokenInformation->Privileges)& i)
+						auto ItemIterator = std::find_if(TokenInformation->Privileges, PrivilegesEnd, [&State](CONST_REFERENCE(TokenInformation->Privileges) i)
 						{
 							return i.Luid.LowPart == State.Privileges[0].Luid.LowPart && i.Luid.HighPart==State.Privileges[0].Luid.HighPart;
 						});

@@ -5114,8 +5114,7 @@ static bool pluginunloadFunc(FarMacroCall* Data)
 	int Ret=0;
 	if (Data->Count>0 && Data->Values[0].Type==FMVT_STRING)
 	{
-		Plugin* p = Global->CtrlObject->Plugins->GetPlugin(Data->Values[0].String);
-		if(p)
+		if (const auto p = Global->CtrlObject->Plugins->FindPlugin(Data->Values[0].String))
 		{
 			Ret=(int)pluginapi::apiPluginsControl(p, PCTL_UNLOADPLUGIN, 0, nullptr);
 		}
