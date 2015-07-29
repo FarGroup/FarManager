@@ -62,6 +62,7 @@ private:
 
 	string strDizFileName;
 	desc_map DizData;
+	std::list<desc_map::value_type*> m_OrderForWrite;
 	bool Modified;
 	uintptr_t OrigCodePage;
 };

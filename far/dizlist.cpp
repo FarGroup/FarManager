@@ -60,6 +60,7 @@ DizList::~DizList()
 void DizList::Reset()
 {
 	DizData.clear();
+	m_OrderForWrite.clear();
 	Modified=false;
 	OrigCodePage=CP_DEFAULT;
 }
@@ -166,7 +167,12 @@ DizList::desc_map::iterator DizList::AddRecord(const string& Name, const string&
 	Modified=true;
 	std::list<string> DescStrings;
 	DescStrings.emplace_back(Description);
-	return DizData.insert(DizData.begin(), VALUE_TYPE(DizData)(Name, DescStrings));
+	auto Result = DizData.insert(VALUE_TYPE(DizData)(Name, std::move(DescStrings)));
+	if (Result.second)
+	{
+		m_OrderForWrite.push_back(&*Result.first);
+	}
+	return Result.first;
 }
 
 DizList::desc_map::iterator DizList::AddRecord(const string& DizText)
@@ -251,6 +257,7 @@ bool DizList::DeleteDiz(const string& Name,const string& ShortName)
 	auto i = Find(Name,ShortName);
 	if (i != DizData.end())
 	{
+		m_OrderForWrite.erase(std::find(ALL_RANGE(m_OrderForWrite), &*i));
 		i = DizData.erase(i);
 		Modified=true;
 		return true;
@@ -328,8 +335,9 @@ bool DizList::Flush(const string& Path,const string* DizName)
 
 		if(!AnyError)
 		{
-			FOR(const auto& i, DizData)
+			FOR(const auto& i_ptr, m_OrderForWrite)
 			{
+				const auto& i = *i_ptr;
 				string dump = i.first;
 				QuoteSpaceOnly(dump);
 				dump += i.second.front();
@@ -405,7 +413,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 
 void DizList::AddDizText(const string& Name,const string& ShortName,const string& DizText)
 {
-	DeleteDiz(Name,ShortName);
+	DeleteDiz(Name, ShortName);
 	string strQuotedName = Name;
 	QuoteSpaceOnly(strQuotedName);
 	AddRecord(FormatString()<<fmt::LeftAlign()<<fmt::MinWidth(Global->Opt->Diz.StartPos>1?Global->Opt->Diz.StartPos-2:0)<<strQuotedName<<L" "<<DizText);
@@ -419,7 +427,12 @@ bool DizList::CopyDiz(const string& Name, const string& ShortName, const string&
 		return false;
 
 	DestDiz->DeleteDiz(DestName, DestShortName);
-	DestDiz->DizData.insert(VALUE_TYPE(DizData)(DestName, i->second));
+	const auto it = DestDiz->DizData.insert(VALUE_TYPE(DizData)(DestName, i->second));
+	if (it.second)
+	{
+		DestDiz->m_OrderForWrite.push_back(&*it.first);
+	}
+
 	DestDiz->Modified = true;
 
 	return true;
