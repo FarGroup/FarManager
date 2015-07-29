@@ -111,9 +111,9 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
-#define SQLITE_VERSION        "3.8.11"
+#define SQLITE_VERSION        "3.8.11.1"
 #define SQLITE_VERSION_NUMBER 3008011
-#define SQLITE_SOURCE_ID      "2015-07-27 13:49:41 b8e92227a469de677a66da62e4361f099c0b79d0"
+#define SQLITE_SOURCE_ID      "2015-07-29 20:00:57 cf538e2783e468bbc25e7cb2a9ee64d3e0e80b2f"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -4535,9 +4535,9 @@ typedef void (*sqlite3_destructor_type)(void*);
 ** to by the second parameter and which is N bytes long where N is the
 ** third parameter.
 **
-** ^The sqlite3_result_zeroblob() and zeroblob64() interfaces set the result 
-** of the application-defined function to be a BLOB containing all zero
-** bytes and N bytes in size, where N is the value of the 2nd parameter.
+** ^The sqlite3_result_zeroblob(C,N) and sqlite3_result_zeroblob64(C,N)
+** interfaces set the result of the application-defined function to be
+** a BLOB containing all zero bytes and N bytes in size.
 **
 ** ^The sqlite3_result_double() interface sets the result from
 ** an application-defined function to be a floating point value specified
