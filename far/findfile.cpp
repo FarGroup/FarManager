@@ -1717,81 +1717,23 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 						}
 						else
 						{
-							Dlg->SendMessage(DM_SHOWDIALOG, FALSE, nullptr);
-							Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
-							{
-								/* $ 14.08.2002 VVM
-								  ! Пока-что запретим из поиска переключаться в активный редактор.
-								    К сожалению, манагер на это не способен сейчас
-															int WindowPos=WindowManager->FindWindowByFile(MODALTYPE_EDITOR,SearchFileName);
-															int SwitchTo=FALSE;
-															if (WindowPos!=-1)
-															{
-																if (!(*WindowManager)[WindowPos]->GetCanLoseFocus(TRUE) ||
-																	Global->Opt->Confirm.AllowReedit)
-																{
-																	char MsgFullFileName[NM];
-																	xstrncpy(MsgFullFileName,SearchFileName,sizeof(MsgFullFileName));
-																	int MsgCode=Message(0,2,MSG(MFindFileTitle),
-																				TruncPathStr(MsgFullFileName,ScrX-16),
-																				MSG(MAskReload),
-																				MSG(MCurrent),MSG(MNewOpen));
-																	if (!MsgCode)
-																	{
-																		SwitchTo=TRUE;
-																	}
-																	else if (MsgCode==1)
-																	{
-																		SwitchTo=FALSE;
-																	}
-																	else
-																	{
-																		Dlg->SendMessage(DM_ENABLEREDRAW,TRUE,0);
-																		Dlg->SendMessage(DM_SHOWDIALOG,TRUE,0);
-																		return TRUE;
-																	}
-																}
-																else
-																{
-																	SwitchTo=TRUE;
-																}
-															}
-															if (SwitchTo)
-															{
-																(*WindowManager)[WindowPos]->SetCanLoseFocus(FALSE);
-																(*WindowManager)[WindowPos]->SetDynamicallyBorn(false);
-																WindowManager->ActivateWindow(WindowPos);
-																WindowManager->EnterModalEV();
-																WindowManager->ExecuteModal ();
-																WindowManager->ExitModalEV();
-																// WindowManager->ExecuteNonModal();
-																// заставляем рефрешится экран
-																WindowManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
-															}
-															else
-								*/
-								{
-									auto ShellEditor = FileEditor::create(strSearchFileName, CP_DEFAULT, 0);
-									ShellEditor->SetEnableF6(true);
+							auto ShellEditor = FileEditor::create(strSearchFileName, CP_DEFAULT, 0);
+							ShellEditor->SetEnableF6(true);
 
-									if(FindItem->Arc)
-									{
-										if(!(FindItem->Arc->Flags & OPIF_REALNAMES))
-										{
-											ShellEditor->SetSaveToSaveAs(true);
-										}
-									}
-									auto editorExitCode=ShellEditor->GetExitCode();
-									if (editorExitCode != XC_OPEN_ERROR && editorExitCode != XC_LOADING_INTERRUPTED)
-									{
-										Global->WindowManager->ExecuteModal(ShellEditor);
-										// заставляем рефрешится экран
-										Global->WindowManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
-									}
+							if(FindItem->Arc)
+							{
+								if(!(FindItem->Arc->Flags & OPIF_REALNAMES))
+								{
+									ShellEditor->SetSaveToSaveAs(true);
 								}
 							}
-							Dlg->SendMessage(DM_ENABLEREDRAW, TRUE, nullptr);
-							Dlg->SendMessage(DM_SHOWDIALOG, TRUE, nullptr);
+							auto editorExitCode=ShellEditor->GetExitCode();
+							if (editorExitCode != XC_OPEN_ERROR && editorExitCode != XC_LOADING_INTERRUPTED)
+							{
+								Global->WindowManager->ExecuteModal(ShellEditor);
+								// заставляем рефрешится экран
+								Global->WindowManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
+							}
 						}
 						Console().SetTitle(strOldTitle);
 					}
