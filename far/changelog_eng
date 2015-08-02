@@ -3,6 +3,27 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 31.07.2015 15:36:58 +0200 - build 4406
+
+1. forum: when i search for files (any mask), choose one not in current folder, 
+   press F4 and Ctrl-F10 in opened editor, the panels are shown.
+
+svs 30.07.2015 00:03:25 +0300 - build 4405
+
+1. SQLite 3.8.11.1
+
+drkns 29.07.2015 23:25:17 +0200 - build 4404
+
+1. Do not sort modified description files.
+
+drkns 28.07.2015 23:15:06 +0200 - build 4403
+
+1. Refactoring.
+
+svs 28.07.2015 11:24:22 +0300 - build 4402
+
+1. SQLite 3.8.11
+
 shmuel 11.07.2015 02:20:25 +0200 - build 4401
 
 1. M#3019: Number of custom columns is limited to 10 for plugin
