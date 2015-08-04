@@ -60,8 +60,9 @@ class FTP
 		int         QuequeSize;
 		overCode    LastMsgCode,
 		       OverrideMsgCode;
-		BOOL        InGetFiles;
 	public:
+		static int  SkipRestoreScreen;
+
 		FTPHost     Host;
 		char        PanelTitle[512];
 		HANDLE      LongBeep;

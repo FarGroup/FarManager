@@ -99,10 +99,10 @@ int FTP::GetFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,Str
 	// because FAR delete it on next FCTL_GETPANELINFO
 	FP_SizeItemList FilesList;
 	FilesList.Add(PanelItem,ItemsNumber);
-	InGetFiles = TRUE;
+	++SkipRestoreScreen;
 	int rc = GetFilesInterface(FilesList.Items(), FilesList.Count(),
 	                           Move, DestPath, OpMode);
-	InGetFiles = FALSE;
+	--SkipRestoreScreen;
 	FtpCmdBlock(hConnect, FALSE);
 
 	if(rc == FALSE || rc == -1)

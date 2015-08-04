@@ -375,7 +375,7 @@ int FTP::ProcessCommandLine(char *CommandLine)
 
 	if(!CommandLine[0]) return TRUE;
 
-	//Dymmy call with "."
+	//Dummy call with "."
 	if(CommandLine[0] == '.' && !CommandLine[1])
 		return TRUE;
 
@@ -412,7 +412,7 @@ int FTP::ProcessCommandLine(char *CommandLine)
 		}
 		else
 		{
-			//User confirm downloading: execute queque
+			//User confirm downloading: execute queue
 			AddToQueque(&ui);
 
 			if(QuequeSize &&

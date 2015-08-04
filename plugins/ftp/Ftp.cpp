@@ -3,6 +3,8 @@
 
 #include "Int.h"
 
+int FTP::SkipRestoreScreen = 0;
+
 FTP *FTP::Backups[ FTP_MAXBACKUPS ] = { 0 };
 int  FTP::BackupCount = 0;
 
@@ -28,7 +30,6 @@ FTP::FTP()
 	KeepAlivePeriod = Opt.KeepAlive ? FP_PeriodCreate(Opt.KeepAlive*1000) : NULL;
 	hConnect = NULL;
 	CallLevel = 0;
-	InGetFiles = FALSE;
 
 	Host.Init();
 	FP_GetRegKey("LastHostsPath",HostsPath,NULL,ARRAYSIZE(HostsPath));

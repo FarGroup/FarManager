@@ -496,7 +496,15 @@ int WINAPI FMessage(unsigned int Flags,LPCSTR HelpTopic,LPCSTR *Items,int ItemsN
 	time_t b = time(NULL);
 	BOOL   delayed;
 	int    rc;
-	rc = FP_Message(Flags, HelpTopic, Items, ItemsNumber, ButtonsNumber, &delayed);
+
+	if (ButtonsNumber > 0)
+	{
+		++FTP::SkipRestoreScreen;
+		rc = FP_Message(Flags, HelpTopic, Items, ItemsNumber, ButtonsNumber, &delayed);
+		--FTP::SkipRestoreScreen;
+	}
+	else
+		rc = FP_Message(Flags, HelpTopic, Items, ItemsNumber, ButtonsNumber, &delayed);
 
 	if(delayed)
 		AddWait(time(NULL)-b);

@@ -369,9 +369,7 @@ void FTP::GetOpenPluginInfo(struct OpenPluginInfo *pi)
 	pi->KeyBar=&KeyBar;
 
 //---------------- RESTORE SCREEN
-	if(!InGetFiles && CurrentState != fcsExpandList &&
-	        CurrentState != fcsOperation &&
-	        !IS_SILENT(FP_LastOpMode))
+	if(!SkipRestoreScreen && CurrentState != fcsExpandList && CurrentState != fcsOperation && !IS_SILENT(FP_LastOpMode))
 		FP_Screen::FullRestore();
 
 //Back
