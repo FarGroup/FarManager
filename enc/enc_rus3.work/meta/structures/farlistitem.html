@@ -37,7 +37,7 @@ struct FarListItem
     <tr class="cont"><td class="cont" width="40%"><a name="LIF_SELECTED">LIF_SELECTED</a></td>
     <td class="cont" width="60%">Флаг активности пункта списка. Только один пункт может быть активным.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="LIF_CHECKED">LIF_CHECKED</a></td>
-    <td class="cont" width="60%">Если флаг установлен, то перед текстом пункта отображается символ пометки (например, символ с кодом 0xFB).</td></tr>
+    <td class="cont" width="60%">Если флаг установлен, то перед текстом пункта отображается символ пометки (например, символ с кодом 0xFB - <code>&#8730;</code>).</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="LIF_SEPARATOR">LIF_SEPARATOR</a></td>
     <td class="cont" width="60%">Если флаг установлен, то пункт отображается как разделитель. Разделитель может иметь непустой текст, который будет отображаться поверх разделительной линии.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="LIF_DISABLE">LIF_DISABLE</a></td>
@@ -60,6 +60,15 @@ struct FarListItem
 
 <h3>Замечания</h3>
 <div class=descr>
+<ol>
+<li>В младшем слове <code>Flags</code> можно указывать код символа, который будет использоваться для отображения метки выбора. В этом случае система самостоятельно выставит флаг <code>LIF_CHECKED</code> для данного пункта меню.</li>
+<li>Если младшее слово <code>Flags</code> равно <code>0</code> и выставлен флаг <code>LIF_CHECKED</code>, или если младшее слово <code>Flags</code> равно <code>1</code>, то будет отображаться стандартная метка выбора - символ с кодом 0FBh (<code>&#8730;</code>)</li>
+<li>При использовании флага <code>LIF_SEPARATOR</code> без текста, компонента <code>Text</code> должна быть проинициализирована в <code>0</code>, например так:
+<pre class=code>
+struct FarListItem Item;
+Item.Flags=LIF_SEPARATOR;
+Item.Text=NULL;</pre></li>
+</ol>
 </div>
 
 <div class=see>Смотрите также:</div>
