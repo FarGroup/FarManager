@@ -3120,7 +3120,7 @@ static int far_SendDlgMessage(lua_State *L)
 				{
 					while(iswspace(*p)) p++;
 					q = p;
-					while(!iswspace(*p)) p++;
+					while(*p && !iswspace(*p)) p++;
 					*p++ = 0;
 					if(!pluginData->FSF->FarNameToInputRecord(q, arr+i))
 						luaL_argerror(L, 4, "invalid key");
