@@ -3099,7 +3099,7 @@ id=71
 lv=2
 dt=Text
 nm=far.SendDlgMessage
-mtime=3608646560
+mtime=3648371446
 <article>
 #_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
 #_    or
@@ -3262,14 +3262,16 @@ mtime=3608646560
 #_          *is equivalent to*
 #_      res = `far.SetDlgItem`(hDlg, numitem, item)
 #_
-#_DM_RESIZEDIALOG,
 #_DM_MOVEDIALOG:
 #_    Param1:  integer (0=relative, otherwise absolute coordinates)
 #_    Param2:  table
 #_    Result:  table
 #_    *Example:*
-#_      res = far.SendDlgMessage(hDlg, "DM_MOVEDIALOG", 0,
-#_        { X=5, Y=-2 })
+#_      res = far.SendDlgMessage(hDlg, "DM_MOVEDIALOG", 0, { X=5, Y=-2 })
+#_
+#_DM_RESIZEDIALOG:
+#_    Param2:  table
+#_    Result:  table
 #_
 #_DM_SETCURSORPOS:
 #_    Param2:  table
