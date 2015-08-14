@@ -8327,7 +8327,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							{
 								const auto Mark = m_ListData[ListPos].Selected? L"\x221A " : ViewFlags & COLUMN_MARK_DYNAMIC ? L"" : L"  ";
 								Text(Mark);
-								Width -= wcslen(Mark);
+								Width -= static_cast<int>(wcslen(Mark));
 							}
 
 							if (Global->Opt->Highlight && m_ListData[ListPos].Colors && m_ListData[ListPos].Colors->Mark.Char && Width>1)

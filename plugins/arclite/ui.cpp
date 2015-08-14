@@ -355,7 +355,9 @@ private:
   int save_params_ctrl_id;
 
   void read_controls(ExtractOptions& options) {
-    options.dst_dir = expand_env_vars(search_and_replace(strip(get_text(dst_dir_ctrl_id)), L"\"", wstring()));
+    auto dst = search_and_replace(strip(get_text(dst_dir_ctrl_id)), L"\"", wstring());
+	 bool expand_env = add_trailing_slash(options.dst_dir) != add_trailing_slash(dst);
+	 options.dst_dir = expand_env ? expand_env_vars(dst) : dst;
     options.ignore_errors = get_check(ignore_errors_ctrl_id);
     if (get_check(oa_ask_ctrl_id)) options.overwrite = oaAsk;
     else if (get_check(oa_overwrite_ctrl_id)) options.overwrite = oaOverwrite;

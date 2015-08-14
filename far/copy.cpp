@@ -937,7 +937,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	{
 		{DI_DOUBLEBOX,   3, 1,DLG_WIDTH-4,DLG_HEIGHT-2,0,nullptr,nullptr,0,MSG(MCopyDlgTitle)},
 		{DI_TEXT,        5, 2, 0, 2,0,nullptr,nullptr,0,MSG(Link?MCMLTargetIN:MCMLTargetTO)},
-		{DI_EDIT,        5, 3,70, 3,0,L"Copy",nullptr,DIF_FOCUS|DIF_HISTORY|DIF_EDITEXPAND|DIF_USELASTHISTORY|DIF_EDITPATH,L""},
+		{DI_EDIT,        5, 3,70, 3,0,L"Copy",nullptr,DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY|DIF_EDITPATH,L""},
 		{DI_TEXT,       -1, 4, 0, 4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_TEXT,        5, 5, 0, 5,0,nullptr,nullptr,0,MSG(MCopySecurity)},
 		{DI_RADIOBUTTON, 5, 5, 0, 5,0,nullptr,nullptr,DIF_GROUP,MSG(MCopySecurityLeave)},
@@ -1239,7 +1239,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	string strCopyDlgValue;
 	if (!Ask)
 	{
-		strCopyDlgValue = CopyDlg[ID_SC_TARGETEDIT].strData;
+		strCopyDlgValue = os::env::expand_strings(CopyDlg[ID_SC_TARGETEDIT].strData);
 		split(m_DestList, InsertQuote(Unquote(strCopyDlgValue)), STLF_UNIQUE);
 		if (m_DestList.empty())
 			Ask=TRUE;
@@ -1312,7 +1312,11 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 				   Запомним строчку из диалога и начинаем ее мучить в зависимости от
 				   состояния опции мультикопирования
 				*/
-				strCopyDlgValue = CopyDlg[ID_SC_TARGETEDIT].strData;
+				auto tmp = strCopyDlgValue = CopyDlg[ID_SC_TARGETEDIT].strData;
+				DeleteEndSlash(tmp);
+				if (tmp != DestPanel->GetCurDir())
+					strCopyDlgValue = os::env::expand_strings(tmp);
+
 				if(!Move)
 				{
 					Global->Opt->CMOpt.MultiCopy=CopyDlg[ID_SC_MULTITARGET].Selected == BSTATE_CHECKED;

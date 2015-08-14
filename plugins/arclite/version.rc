@@ -23,7 +23,7 @@ BEGIN
 #ifdef DEBUG 
       VALUE "SpecialBuild", "Debug build.\0"
 #endif
-      VALUE "LegalCopyright", "Copyright © 2010 Far Group\0"
+      VALUE "LegalCopyright", "Copyright © 2010-2015 Far Group\0"
       VALUE "CompanyName", "Eugene Roshal & Far Group\0"
     END
   END
