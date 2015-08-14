@@ -683,15 +683,13 @@ void DumpNTCounters(HANDLE InfoFile, PerfThread& Thread, DWORD dwPid, DWORD dwTh
 			break;
 			case PERF_COUNTER_LARGE_RAWCOUNT: //  same, large int
 			{
-				fprintf(InfoFile, L"%10.0f\n", (FLOAT)pdata->qwResults[i]);
+				fprintf(InfoFile, L"%10I64u\n", pdata->qwResults[i]);
 			}
 			break;
 			case PERF_100NSEC_TIMER:
 			{
-				// 64-bit Timer in 100 nsec units. Display delta divided by
-				// delta time.  Display suffix: "%"
-				//fprintf(InfoFile, L"%10.0f%%\n", (FLOAT)pdata->qwResults[i]);
-				fprintf(InfoFile, L"%s %7.0f%%\n", PrintTime((ULONGLONG)pdata->qwCounters[i]), (FLOAT)pdata->qwResults[i]);
+				// 64-bit Timer in 100 nsec units. Display delta divided by delta time. Display suffix: "%"
+				fprintf(InfoFile, L"%s %7I64u%%\n", PrintTime((ULONGLONG)pdata->qwCounters[i]), pdata->qwResults[i]);
 			}
 			break;
 			case PERF_COUNTER_COUNTER:
@@ -703,7 +701,7 @@ void DumpNTCounters(HANDLE InfoFile, PerfThread& Thread, DWORD dwPid, DWORD dwTh
 			case PERF_COUNTER_BULK_COUNT: //PERF_COUNTER_BULK_COUNT
 			{
 				// 64-bit Counter.  Divide delta by delta time. Display Suffix: "/sec"
-				fprintf(InfoFile, L"%10.0f  %5.0f%s\n", (FLOAT)pdata->qwCounters[i], (FLOAT)pdata->qwResults[i], GetMsg(MperSec));
+				fprintf(InfoFile, L"%10I64u  %5I64u%s\n", pdata->qwCounters[i], pdata->qwResults[i], GetMsg(MperSec));
 			}
 			break;
 			default:
