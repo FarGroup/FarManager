@@ -1315,7 +1315,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 				auto tmp = strCopyDlgValue = CopyDlg[ID_SC_TARGETEDIT].strData;
 				DeleteEndSlash(tmp);
 				if (tmp != DestPanel->GetCurDir())
-					strCopyDlgValue = os::env::expand_strings(tmp);
+					strCopyDlgValue = os::env::expand_strings(strCopyDlgValue);
 
 				if(!Move)
 				{
