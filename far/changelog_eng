@@ -3,6 +3,18 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+w17 15.08.2015 10:46:45 +0300 - build 4409
+
+1. Correction of 4408
+
+w17 15.08.2015 00:24:24 +0300 - build 4408
+
+1. M#281: Automatic substitution of environment variables does not allow to use paths like C:\%AppData%
+
+drkns 14.08.2015 22:33:52 +0200 - build 4407
+
+1. 0003056: Marking files at the left panel "breaks" the panel separator
+
 zg 31.07.2015 15:36:58 +0200 - build 4406
 
 1. forum: when i search for files (any mask), choose one not in current folder, 
