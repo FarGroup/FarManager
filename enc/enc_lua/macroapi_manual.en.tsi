@@ -1473,7 +1473,7 @@ lv=3
 dt=Text
 nm=Call
 ctime=3560706460
-mtime=3607175169
+mtime=3648884251
 <article>
 #_... = Plugin.Call (PluginId [, ...])
 #_
@@ -1490,7 +1490,7 @@ mtime=3607175169
 #_     a dialog on the screen) then the function returns *true* without waiting for the plugin
 #_     return, and the macro continues its execution.
 #_
-#_  2. If the plugin call turned out to be synchronous, the macros gets values corresponding
+#_  2. If the plugin call turned out to be synchronous, the macro gets values corresponding
 #_     to those returned by the plugin:
 #_     - If the plugin is not found or returned 0, then *false* is returned to the macro.
 #_     - If the plugin returned 1 or INVALID_HANDLE_VALUE, then *true* is returned to the macro.
