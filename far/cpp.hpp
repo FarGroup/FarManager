@@ -83,8 +83,8 @@ namespace std
 }
 #endif
 
-// already included in VC2013
-#if !defined _MSC_VER || (defined _MSC_VER && _MSC_VER < 1800)
+// already included in VC2013 / GCC 5
+#if (defined _MSC_VER && _MSC_VER < 1800) || (defined __GNUC__ && __GNUC__ < 5)
 // const, reverse and const-reverse versions of std::begin and std::end are missed in C++11,
 // possibly they will be added in C++14, until then they are manually defined here:
 namespace std
