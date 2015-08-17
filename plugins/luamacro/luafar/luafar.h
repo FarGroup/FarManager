@@ -18,13 +18,18 @@ extern "C" {
 #  define DLLFUNC __declspec(dllimport)
 #endif
 
+typedef intptr_t PLUGINDATAFLAGS;
+static const PLUGINDATAFLAGS
+	PDF_DIALOGEVENTDRAWGROUP = 0x00000001,
+	PDF_PROCESSINGERROR      = 0x00000002;
+	
 typedef struct
 {
 	struct PluginStartupInfo *Info;
 	struct FarStandardFunctions *FSF;
 	GUID *PluginId;
 	FARWINDOWPROC DlgProc;
-	intptr_t DialogEventDrawGroup;
+	PLUGINDATAFLAGS Flags;
 	lua_Alloc origAlloc;
 	void *origUserdata;
 	lua_State *MainLuaState;

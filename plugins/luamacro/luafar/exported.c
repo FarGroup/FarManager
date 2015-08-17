@@ -102,7 +102,10 @@ int pcall_msg(lua_State* L, int narg, int nret)
 	if(status != 0)
 	{
 		int status2 = 1;
-
+		intptr_t *Flags = &GetPluginData(L)->Flags;
+		
+		*Flags |= PDF_PROCESSINGERROR;
+		
 		if(GetExportFunction(L, "OnError"))
 		{
 			lua_insert(L,-2);
@@ -114,6 +117,8 @@ int pcall_msg(lua_State* L, int narg, int nret)
 			LF_Error(L, check_utf8_string(L, -1, NULL));
 			lua_pop(L, 1);
 		}
+		
+		*Flags &= ~PDF_PROCESSINGERROR;
 	}
 
 	return status;
@@ -1293,8 +1298,12 @@ intptr_t LF_ProcessDialogEvent(lua_State* L, const struct ProcessDialogEventInfo
 {
 	intptr_t ret = 0;
 	struct FarDialogEvent *fde = Info->Param;
+	const intptr_t Flags = GetPluginData(L)->Flags;
 
-	if (!GetPluginData(L)->DialogEventDrawGroup && (
+	if (Flags & PDF_PROCESSINGERROR)
+		return 0;
+	
+	if (!(Flags & PDF_DIALOGEVENTDRAWGROUP) && (
 		fde->Msg == DN_CTLCOLORDIALOG  ||
 		fde->Msg == DN_CTLCOLORDLGITEM ||
 		fde->Msg == DN_CTLCOLORDLGLIST ||

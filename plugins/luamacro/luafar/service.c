@@ -3401,7 +3401,7 @@ int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2)
 
 		case DN_INITDIALOG:
 			++Param1; // dialog element position
-			GetPluginData(L)->DialogEventDrawGroup = 0;
+			GetPluginData(L)->Flags &= ~PDF_DIALOGEVENTDRAWGROUP;
 			break;
 
 		case DN_BTNCLICK:
@@ -3760,7 +3760,7 @@ static int far_SetDlgItem(lua_State *L)
 
 static int far_SubscribeDialogDrawEvents(lua_State *L)
 {
-	GetPluginData(L)->DialogEventDrawGroup = 1;
+	GetPluginData(L)->Flags |= PDF_DIALOGEVENTDRAWGROUP;
 	return 0;
 }
 
@@ -6229,7 +6229,7 @@ void LF_InitLuaState2(lua_State *L, TPluginData *aInfo)
 {
 	FP_PROTECT();
 	aInfo->MainLuaState = L;
-	aInfo->DialogEventDrawGroup = 0;
+	aInfo->Flags = 0;
 	aInfo->origAlloc = lua_getallocf(L, &aInfo->origUserdata);
 	lua_setallocf(L, CustomAllocator, aInfo);
 	// open "far" library
