@@ -986,7 +986,7 @@ EXTERN_C const IID IID_ISWbemServices;
 
         virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE GetAsync(
             /* [in] */ IDispatch *objWbemSink,
-            /* [defaultvalue][in] */ BSTR strObjectPath = L"",
+            /* [defaultvalue][in] */ BSTR strObjectPath = (wchar_t *)L"",
             /* [defaultvalue][in] */ long iFlags = 0,
             /* [defaultvalue][in] */ IDispatch *objWbemNamedValueSet = 0,
             /* [defaultvalue][in] */ IDispatch *objWbemAsyncContext = 0) = 0;
@@ -1024,7 +1024,7 @@ EXTERN_C const IID IID_ISWbemServices;
 
         virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE SubclassesOfAsync(
             /* [in] */ IDispatch *objWbemSink,
-            /* [defaultvalue][in] */ BSTR strSuperclass = L"",
+            /* [defaultvalue][in] */ BSTR strSuperclass = (wchar_t *)L"",
             /* [defaultvalue][in] */ long iFlags = wbemQueryFlagDeep,
             /* [defaultvalue][in] */ IDispatch *objWbemNamedValueSet = 0,
             /* [defaultvalue][in] */ IDispatch *objWbemAsyncContext = 0) = 0;
@@ -1039,7 +1039,7 @@ EXTERN_C const IID IID_ISWbemServices;
         virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE ExecQueryAsync(
             /* [in] */ IDispatch *objWbemSink,
             /* [in] */ BSTR strQuery,
-            /* [defaultvalue][in] */ BSTR strQueryLanguage = L"WQL",
+            /* [defaultvalue][in] */ BSTR strQueryLanguage = (wchar_t *)L"WQL",
             /* [defaultvalue][in] */ long lFlags = 0,
             /* [defaultvalue][in] */ IDispatch *objWbemNamedValueSet = 0,
             /* [defaultvalue][in] */ IDispatch *objWbemAsyncContext = 0) = 0;
@@ -1061,14 +1061,14 @@ EXTERN_C const IID IID_ISWbemServices;
         virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE AssociatorsOfAsync(
             /* [in] */ IDispatch *objWbemSink,
             /* [in] */ BSTR strObjectPath,
-            /* [defaultvalue][in] */ BSTR strAssocClass = L"",
-            /* [defaultvalue][in] */ BSTR strResultClass = L"",
-            /* [defaultvalue][in] */ BSTR strResultRole = L"",
-            /* [defaultvalue][in] */ BSTR strRole = L"",
+            /* [defaultvalue][in] */ BSTR strAssocClass = (wchar_t *)L"",
+            /* [defaultvalue][in] */ BSTR strResultClass = (wchar_t *)L"",
+            /* [defaultvalue][in] */ BSTR strResultRole = (wchar_t *)L"",
+            /* [defaultvalue][in] */ BSTR strRole = (wchar_t *)L"",
             /* [defaultvalue][in] */ VARIANT_BOOL bClassesOnly = FALSE,
             /* [defaultvalue][in] */ VARIANT_BOOL bSchemaOnly = FALSE,
-            /* [defaultvalue][in] */ BSTR strRequiredAssocQualifier = L"",
-            /* [defaultvalue][in] */ BSTR strRequiredQualifier = L"",
+            /* [defaultvalue][in] */ BSTR strRequiredAssocQualifier = (wchar_t *)L"",
+            /* [defaultvalue][in] */ BSTR strRequiredQualifier = (wchar_t *)L"",
             /* [defaultvalue][in] */ long iFlags = 0,
             /* [defaultvalue][in] */ IDispatch *objWbemNamedValueSet = 0,
             /* [defaultvalue][in] */ IDispatch *objWbemAsyncContext = 0) = 0;
@@ -1087,11 +1087,11 @@ EXTERN_C const IID IID_ISWbemServices;
         virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE ReferencesToAsync(
             /* [in] */ IDispatch *objWbemSink,
             /* [in] */ BSTR strObjectPath,
-            /* [defaultvalue][in] */ BSTR strResultClass = L"",
-            /* [defaultvalue][in] */ BSTR strRole = L"",
+            /* [defaultvalue][in] */ BSTR strResultClass = (wchar_t *)L"",
+            /* [defaultvalue][in] */ BSTR strRole = (wchar_t *)L"",
             /* [defaultvalue][in] */ VARIANT_BOOL bClassesOnly = FALSE,
             /* [defaultvalue][in] */ VARIANT_BOOL bSchemaOnly = FALSE,
-            /* [defaultvalue][in] */ BSTR strRequiredQualifier = L"",
+            /* [defaultvalue][in] */ BSTR strRequiredQualifier = (wchar_t *)L"",
             /* [defaultvalue][in] */ long iFlags = 0,
             /* [defaultvalue][in] */ IDispatch *objWbemNamedValueSet = 0,
             /* [defaultvalue][in] */ IDispatch *objWbemAsyncContext = 0) = 0;
@@ -1106,7 +1106,7 @@ EXTERN_C const IID IID_ISWbemServices;
         virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE ExecNotificationQueryAsync(
             /* [in] */ IDispatch *objWbemSink,
             /* [in] */ BSTR strQuery,
-            /* [defaultvalue][in] */ BSTR strQueryLanguage = L"WQL",
+            /* [defaultvalue][in] */ BSTR strQueryLanguage = (wchar_t *)L"WQL",
             /* [defaultvalue][in] */ long iFlags = 0,
             /* [defaultvalue][in] */ IDispatch *objWbemNamedValueSet = 0,
             /* [defaultvalue][in] */ IDispatch *objWbemAsyncContext = 0) = 0;
@@ -2032,14 +2032,14 @@ EXTERN_C const IID IID_ISWbemObject;
 
         virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE AssociatorsAsync_(
             /* [in] */ IDispatch *objWbemSink,
-            /* [defaultvalue][in] */ BSTR strAssocClass = L"",
-            /* [defaultvalue][in] */ BSTR strResultClass = L"",
-            /* [defaultvalue][in] */ BSTR strResultRole = L"",
-            /* [defaultvalue][in] */ BSTR strRole = L"",
+            /* [defaultvalue][in] */ BSTR strAssocClass = (wchar_t *)L"",
+            /* [defaultvalue][in] */ BSTR strResultClass = (wchar_t *)L"",
+            /* [defaultvalue][in] */ BSTR strResultRole = (wchar_t *)L"",
+            /* [defaultvalue][in] */ BSTR strRole = (wchar_t *)L"",
             /* [defaultvalue][in] */ VARIANT_BOOL bClassesOnly = FALSE,
             /* [defaultvalue][in] */ VARIANT_BOOL bSchemaOnly = FALSE,
-            /* [defaultvalue][in] */ BSTR strRequiredAssocQualifier = L"",
-            /* [defaultvalue][in] */ BSTR strRequiredQualifier = L"",
+            /* [defaultvalue][in] */ BSTR strRequiredAssocQualifier = (wchar_t *)L"",
+            /* [defaultvalue][in] */ BSTR strRequiredQualifier = (wchar_t *)L"",
             /* [defaultvalue][in] */ long iFlags = 0,
             /* [defaultvalue][in] */ IDispatch *objWbemNamedValueSet = 0,
             /* [defaultvalue][in] */ IDispatch *objWbemAsyncContext = 0) = 0;
@@ -2056,11 +2056,11 @@ EXTERN_C const IID IID_ISWbemObject;
 
         virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE ReferencesAsync_(
             /* [in] */ IDispatch *objWbemSink,
-            /* [defaultvalue][in] */ BSTR strResultClass = L"",
-            /* [defaultvalue][in] */ BSTR strRole = L"",
+            /* [defaultvalue][in] */ BSTR strResultClass = (wchar_t *)L"",
+            /* [defaultvalue][in] */ BSTR strRole = (wchar_t *)L"",
             /* [defaultvalue][in] */ VARIANT_BOOL bClassesOnly = FALSE,
             /* [defaultvalue][in] */ VARIANT_BOOL bSchemaOnly = FALSE,
-            /* [defaultvalue][in] */ BSTR strRequiredQualifier = L"",
+            /* [defaultvalue][in] */ BSTR strRequiredQualifier = (wchar_t *)L"",
             /* [defaultvalue][in] */ long iFlags = 0,
             /* [defaultvalue][in] */ IDispatch *objWbemNamedValueSet = 0,
             /* [defaultvalue][in] */ IDispatch *objWbemAsyncContext = 0) = 0;

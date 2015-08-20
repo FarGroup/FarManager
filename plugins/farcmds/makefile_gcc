@@ -1,7 +1,6 @@
 NAME = FARCmds
 SRCS = FARCmds.cpp Mix.cpp OpenCmd.cpp
 DOCS = FARCmdsEng.hlf FARCmdsRus.hlf FARCmdsEng.lng FARCmdsRus.lng FARCmdsSky.lng FARCmdsSpa.lng
-NEEDDEFLIB = 1
 USERLIBS = -lole32 -luuid -lrpcrt4
 
 include ../../unicode_far/makefile_gcc_common

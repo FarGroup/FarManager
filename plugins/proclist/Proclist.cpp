@@ -7,6 +7,25 @@
 #include "Proclng.hpp"
 #include "version.hpp"
 
+#if defined(__GNUC__)
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+	BOOL WINAPI DllMainCRTStartup(HANDLE hDll, DWORD dwReason, LPVOID lpReserved);
+#ifdef __cplusplus
+};
+#endif
+
+BOOL WINAPI DllMainCRTStartup(HANDLE hDll, DWORD dwReason, LPVOID lpReserved)
+{
+	(void)lpReserved;
+	(void)dwReason;
+	(void)hDll;
+	return TRUE;
+}
+#endif
+
 _Opt Opt;
 ui64Table *_ui64Table;
 

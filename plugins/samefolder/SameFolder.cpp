@@ -70,8 +70,6 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	PInfo.StructSize = sizeof(PInfo);
 	Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELINFO,0,&PInfo);
 
-	wchar_t *pTemp=nullptr;
-
 	if (OInfo->OpenFrom==OPEN_COMMANDLINE) // prefix
 	{
 		return nullptr;

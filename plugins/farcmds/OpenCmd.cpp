@@ -80,6 +80,7 @@ static void createFileStream(const wchar_t *Name,HANDLE hFile,TShowOutputStreamD
 	sd->hConsole = StdOutput;
 }
 
+#if 0
 static void clearScreen(HANDLE StdOutput,HANDLE StdInput,CONSOLE_SCREEN_BUFFER_INFO& csbi)
 {
 	wchar_t* Blank=new wchar_t[csbi.dwSize.X+1];
@@ -116,7 +117,7 @@ static void restoreScreen(HANDLE StdOutput,HANDLE StdInput,DWORD ConsoleMode,CON
 	fill.Attributes = LIGHTGRAY;
 	ScrollConsoleScreenBuffer(StdOutput, &src, NULL, dest, &fill);
 }
-
+#endif
 
 inline bool isDevice(const wchar_t* FileName, const wchar_t* dev_begin)
 {
@@ -138,7 +139,7 @@ inline bool isDevice(const wchar_t* FileName, const wchar_t* dev_begin)
 
 static bool validForView(const wchar_t *FileName, bool viewEmpty, bool editNew)
 {
-	if (!wmemcmp(FileName, L"\\\\.\\", 4) &&  // специальная обработка имен
+	if (!wcsncmp(FileName, L"\\\\.\\", 4) &&  // специальная обработка имен
 			FSF.LIsAlpha(FileName[4]) &&          // вида: \\.\буква:
 			FileName[5]==L':' && FileName[6]==0)
 		return true;
@@ -1775,6 +1776,9 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 
 										break;
 									}
+
+									default:
+										break;
 								}
 
 								/*if (ShowCmdOutput == scoShowAll)

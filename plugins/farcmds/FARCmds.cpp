@@ -72,7 +72,7 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *psInfo)
 
 HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 {
-	HANDLE SrcPanel = PANEL_ACTIVE, DstPanel = PANEL_PASSIVE;
+	HANDLE DstPanel = PANEL_PASSIVE;
 	struct PanelInfo PInfo={};
 	PInfo.StructSize = sizeof(PInfo);
 	Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELINFO,0,&PInfo);

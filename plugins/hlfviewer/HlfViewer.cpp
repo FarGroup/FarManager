@@ -634,7 +634,7 @@ intptr_t WINAPI ConfigureW(const ConfigureInfo* CfgInfo)
 	Builder.AddCheckbox(MCheckMaskFile, &Opt.CheckMaskFile);
 	Builder.ColumnBreak();
 	FarDialogItem *ItemAssignKeyName=Builder.AddEditField(Opt.AssignKeyName, ARRAYSIZE(Opt.AssignKeyName), 20);
-	FarDialogItem *ItemMaskFile=Builder.AddEditField(Opt.MaskFile, ARRAYSIZE(Opt.MaskFile), 20);
+	Builder.AddEditField(Opt.MaskFile, ARRAYSIZE(Opt.MaskFile), 20);
 	Builder.EndColumns();
 
     Builder.AddSeparator();

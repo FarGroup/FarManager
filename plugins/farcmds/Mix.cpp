@@ -189,7 +189,6 @@ static wchar_t *GetAlias(const wchar_t *ModuleName, const wchar_t *FindAlias)
 {
 	wchar_t *FoundAlias=nullptr;
 
-	bool found=false;
 	int ret=GetConsoleAliasesLength((LPWSTR)ModuleName);
 	if (ret)
 	{
