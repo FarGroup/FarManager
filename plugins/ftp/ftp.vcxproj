@@ -273,7 +273,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Fixing subsystem version</Message>
-      <Command>editbin /nologo /subsystem:console,5.0 /osversion:5.0 $(OutDir)$(TargetName)$(TargetExt) &gt; nul</Command>
+      <Command>editbin /nologo /subsystem:console,5.2 /osversion:5.2 $(OutDir)$(TargetName)$(TargetExt) &gt; nul</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
