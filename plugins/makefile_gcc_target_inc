@@ -34,7 +34,7 @@ X_OPT = $(if $(MAP),-Xlinker -Map -Xlinker $(MAP),)
 $(DLLFULLNAME): $(OBJS) $(DEF)
 	@echo linking $@
 	@$(MKDIR) -p $(@D)
-	@$(CXX) -o $@ $(OBJS) $(LNKFLAGS) -Wl,--kill-at -shared $(X_OPT)
+	@$(CXX) -o $@ $(DEF) $(OBJS) $(LNKFLAGS) -Wl,--kill-at -shared $(X_OPT)
 ifdef DOCS
 	@$(CP) $(DOCS) $(DLLDIR)
 endif
