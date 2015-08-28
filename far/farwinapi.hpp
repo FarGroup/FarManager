@@ -366,13 +366,13 @@ namespace os
 
 	namespace reg
 	{
-		inline bool IsStringType(DWORD Type)
-		{
-			return Type == REG_SZ || Type == REG_EXPAND_SZ || Type == REG_MULTI_SZ;
-		}
-
 		namespace detail
 		{
+			inline bool IsStringType(DWORD Type)
+			{
+				return Type == REG_SZ || Type == REG_EXPAND_SZ || Type == REG_MULTI_SZ;
+			}
+
 			struct hkey_deleter
 			{
 				void operator()(HKEY Key) const

@@ -480,12 +480,12 @@ void HMenu::ResizeConsole()
 	SetPosition(0,0,::ScrX,0);
 }
 
-wchar_t HMenu::GetHighlights(const HMenuData& Item)
+wchar_t HMenu::GetHighlights(const HMenuData& MenuItem)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 	wchar_t Ch=0;
 
-	const wchar_t *Name = Item.Name;
+	const wchar_t *Name = MenuItem.Name;
 
 	if (Name && *Name)
 	{

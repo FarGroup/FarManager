@@ -1845,7 +1845,7 @@ DWORD GetAppPathsRedirectionFlag()
 			bool Result = false;
 			std::vector<char> Buffer;
 			DWORD Type;
-			if (QueryValue(Key, Name, Type, Buffer) && IsStringType(Type))
+			if (QueryValue(Key, Name, Type, Buffer) && detail::IsStringType(Type))
 			{
 				Value = string(reinterpret_cast<const wchar_t*>(Buffer.data()), Buffer.size() / sizeof(wchar_t));
 				if (!Value.empty() && Value.back() == L'\0')
@@ -1887,7 +1887,7 @@ DWORD GetAppPathsRedirectionFlag()
 
 		string value::GetString() const
 		{
-			if (!IsStringType(m_Type))
+			if (!detail::IsStringType(m_Type))
 				throw std::runtime_error("bad value type");
 
 			string Result;

@@ -4214,11 +4214,11 @@ int Dialog::CheckHighlights(WORD CheckSymbol,int StartPos)
 
 		if ((!IsEdit(Type) || (Type == DI_COMBOBOX && (Flags&DIF_DROPDOWNLIST))) && !(Flags & (DIF_SHOWAMPERSAND|DIF_DISABLE|DIF_HIDDEN)))
 		{
-			size_t ChPos = Items[I].strData.find(L'&');
+			const auto ChPos = Items[I].strData.find(L'&');
 
 			if (ChPos != string::npos)
 			{
-				WORD Ch = Items[I].strData[ChPos + 1];
+				const auto Ch = Items[I].strData[ChPos + 1];
 
 				if (Ch && ToUpper(CheckSymbol) == ToUpper(Ch))
 					return static_cast<int>(I);

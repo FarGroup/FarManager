@@ -56,7 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    Простенький обработчик исключений.
 */
 
-static const wchar_t* From = nullptr;
+static const wchar_t* gFrom = nullptr;
 static Plugin *PluginModule = nullptr;     // модуль, приведший к исключению.
 
 void CreatePluginStartupInfo(const Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF);
@@ -144,7 +144,7 @@ static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, LPVOID Adres
 		{DI_TEXT,     5,3, 17,3,0,nullptr,nullptr,0,MSG(MExcAddress)},
 		{DI_TEXT,    18,3, 70,3,0,nullptr,nullptr,0,strAddr.data()},
 		{DI_TEXT,     5,4, 17,4,0,nullptr,nullptr,0,MSG(MExcFunction)},
-		{DI_TEXT,    18,4, 70,4,0,nullptr,nullptr,0,From},
+		{DI_TEXT,    18,4, 70,4,0,nullptr,nullptr,0,gFrom},
 		{DI_TEXT,     5,5, 17,5,0,nullptr,nullptr,0,MSG(MExcModule)},
 		{DI_EDIT,    18,5, 70,5,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,ModuleName.data()},
 		{DI_TEXT,    -1,6, 0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
@@ -193,7 +193,7 @@ static void ExcDump(const string& ModuleName,LPCWSTR Exception,LPVOID Adress)
 	string Dump =
 		Msg[0] + L" " + Exception + L"\n" +
 		Msg[1] + L" " + strAddr + L"\n" +
-		Msg[2] + L" " + From + L"\n" +
+		Msg[2] + L" " + gFrom + L"\n" +
 		Msg[3] + L" " + ModuleName + L"\n";
 
 	std::wcerr << Dump << std::endl;
@@ -409,7 +409,7 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 bool ProcessSEHException(Plugin *Module, const wchar_t* From, EXCEPTION_POINTERS *xp)
 {
 	// dummy parametrs setting
-	::From=From;
+	::gFrom=From;
 	::PluginModule = Module;
 
 	return ProcessSEHExceptionImpl(xp);

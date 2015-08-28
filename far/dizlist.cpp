@@ -117,7 +117,7 @@ void DizList::Read(const string& Path, const string* DizName)
 
 			GetFileString GetStr(DizFile, CodePage);
 
-			auto LastAdded = DizData.end(); 
+			auto LastAdded = DizData.end();
 			string DizText;
 			while (GetStr.GetString(DizText))
 			{
@@ -167,7 +167,7 @@ DizList::desc_map::iterator DizList::AddRecord(const string& Name, const string&
 	Modified=true;
 	std::list<string> DescStrings;
 	DescStrings.emplace_back(Description);
-	auto Result = DizData.insert(VALUE_TYPE(DizData)(Name, std::move(DescStrings)));
+	const auto Result = DizData.insert(VALUE_TYPE(DizData)(Name, std::move(DescStrings)));
 	if (Result.second)
 	{
 		m_OrderForWrite.push_back(&*Result.first);
@@ -198,7 +198,7 @@ DizList::desc_map::iterator DizList::AddRecord(const string& DizText)
 const wchar_t* DizList::GetDizTextAddr(const string& Name, const string& ShortName, const __int64 FileSize)
 {
 	const wchar_t *DizText=nullptr;
-	auto DizPos=Find(Name,ShortName);
+	const auto DizPos = Find(Name, ShortName);
 
 	if (DizPos != DizData.end())
 	{
@@ -206,7 +206,7 @@ const wchar_t* DizList::GetDizTextAddr(const string& Name, const string& ShortNa
 
 		if (std::iswdigit(*DizText))
 		{
-			auto SizeText = std::to_wstring(FileSize);
+			const auto SizeText = std::to_wstring(FileSize);
 			const wchar_t *DizPtr=DizText;
 			bool SkipSize=true;
 
@@ -254,11 +254,11 @@ DizList::desc_map::iterator DizList::Find(const string& Name, const string& Shor
 
 bool DizList::DeleteDiz(const string& Name,const string& ShortName)
 {
-	auto i = Find(Name,ShortName);
+	const auto i = Find(Name, ShortName);
 	if (i != DizData.end())
 	{
 		m_OrderForWrite.erase(std::find(ALL_RANGE(m_OrderForWrite), &*i));
-		i = DizData.erase(i);
+		DizData.erase(i);
 		Modified=true;
 		return true;
 	}
@@ -343,33 +343,29 @@ bool DizList::Flush(const string& Path,const string* DizName)
 				dump += i.second.front();
 				if(i.second.size() > 1)
 				{
-					auto start = i.second.cbegin();
-					++start;
-					std::for_each(start, i.second.cend(), [&](CONST_REFERENCE(i.second) j)
+					std::for_each(std::next(i.second.cbegin()), i.second.cend(), [&](CONST_REFERENCE(i.second) j)
 					{
 						dump.append(L"\r\n ").append(j);
 					});
 				}
 				DWORD Size=static_cast<DWORD>((dump.size() + 1) * (CodePage == CP_UTF8? 3 : 1)); //UTF-8, up to 3 bytes per char support
 				char_ptr DizText(Size);
-				if (DizText)
+
+				if (const auto BytesCount = unicode::to(CodePage, dump.data(), dump.size(), DizText.get(), Size))
 				{
-					if (const auto BytesCount = unicode::to(CodePage, dump.data(), dump.size(), DizText.get(), Size))
+					if(Cache.Write(DizText.get(), BytesCount))
 					{
-						if(Cache.Write(DizText.get(), BytesCount))
-						{
-							EmptyDiz=false;
-						}
-						else
-						{
-							AnyError=true;
-							break;
-						}
-						if(!Cache.Write("\r\n", 2))
-						{
-							AnyError=true;
-							break;
-						}
+						EmptyDiz=false;
+					}
+					else
+					{
+						AnyError=true;
+						break;
+					}
+					if(!Cache.Write("\r\n", 2))
+					{
+						AnyError=true;
+						break;
 					}
 				}
 			}
@@ -421,7 +417,7 @@ void DizList::AddDizText(const string& Name,const string& ShortName,const string
 
 bool DizList::CopyDiz(const string& Name, const string& ShortName, const string& DestName, const string& DestShortName, DizList* DestDiz)
 {
-	auto i = Find(Name,ShortName);
+	const auto i = Find(Name, ShortName);
 
 	if (i == DizData.end())
 		return false;

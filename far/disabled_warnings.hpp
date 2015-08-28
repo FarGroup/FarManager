@@ -68,6 +68,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning(disable: 4640) // https://msdn.microsoft.com/en-us/library/4f5c8560.aspx 'instance' : construction of local static object is not thread-safe
 #pragma warning(disable: 4710) // https://msdn.microsoft.com/en-us/library/yd3056cz.aspx 'function' : function not inlined
 #pragma warning(disable: 4711) // https://msdn.microsoft.com/en-us/library/k402bt7y.aspx function 'function' selected for inline expansion
+#pragma warning(disable: 4770) // no page                                                partially validated enum 'name' used as index
 #pragma warning(disable: 4738) // https://msdn.microsoft.com/en-us/library/c24hdbz6.aspx storing 32-bit float result in memory, possible loss of performance
 #pragma warning(disable: 4820) // https://msdn.microsoft.com/en-us/library/t7khkyth.aspx 'bytes' bytes padding added after construct 'member_name'
 #pragma warning(disable: 4836) // https://msdn.microsoft.com/en-us/library/ms173717.aspx nonstandard extension used : 'type' : local types or unnamed types cannot be used as template arguments

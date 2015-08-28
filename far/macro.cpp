@@ -4785,40 +4785,37 @@ static bool strpadFunc(FarMacroCall* Data)
 		if (FineLength > 0)
 		{
 			wchar_t_ptr NewFill(FineLength + 1);
-			if (NewFill)
+
+			const auto& pFill = Fill.asString();
+
+			for (int I=0; I < FineLength; ++I)
+				NewFill[I]=pFill[I%LengthFill];
+			NewFill[FineLength]=0;
+
+			int CntL=0, CntR=0;
+			switch (Op)
 			{
-				const auto& pFill = Fill.asString();
-
-				for (int I=0; I < FineLength; ++I)
-					NewFill[I]=pFill[I%LengthFill];
-				NewFill[FineLength]=0;
-
-				int CntL=0, CntR=0;
-				switch (Op)
+			case 0: // right
+				CntR=FineLength;
+				break;
+			case 1: // left
+				CntL=FineLength;
+				break;
+			case 2: // center
+				if (LengthSrc > 0)
 				{
-					case 0: // right
-						CntR=FineLength;
-						break;
-					case 1: // left
-						CntL=FineLength;
-						break;
-					case 2: // center
-						if (LengthSrc > 0)
-						{
-							CntL=FineLength / 2;
-							CntR=FineLength-CntL;
-						}
-						else
-							CntL=FineLength;
-						break;
+					CntL=FineLength / 2;
+					CntR=FineLength-CntL;
 				}
-
-				string strPad(NewFill.get());
-				strPad.resize(CntL);
-				strPad+=strDest;
-				strPad.append(NewFill.get(), CntR);
-				strDest=strPad;
+				else
+					CntL=FineLength;
+				break;
 			}
+
+			string strPad(NewFill.get(), CntL);
+			strPad+=strDest;
+			strPad.append(NewFill.get(), CntR);
+			strDest=strPad;
 		}
 	}
 

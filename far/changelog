@@ -1,4 +1,12 @@
-﻿w17 15.08.2015 10:46:45 +0300 - build 4409
+﻿drkns 29.08.2015 00:46:04 +0200 - build 4410
+
+1. Refactoring
+
+2. VC2015 warnings
+
+3. Whole program optimization in VC Release builds
+
+w17 15.08.2015 10:46:45 +0300 - build 4409
 
 1. Уточнение 4408
 

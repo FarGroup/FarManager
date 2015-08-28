@@ -205,8 +205,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 		GetWindowThreadProcessId(hwnd,&ProcID);
 		string strTitle;
 
-		int LenTitle=GetWindowTextLength(hwnd);
-		if (LenTitle)
+		if (auto LenTitle = GetWindowTextLength(hwnd))
 		{
 			if (pi->bShowImage)
 			{
@@ -218,14 +217,11 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 			else
 			{
 				wchar_t_ptr Title(LenTitle + 1);
-				if (Title)
-				{
-					if ((LenTitle=GetWindowText(hwnd, Title.get(), LenTitle+1)) != 0)
-						Title[LenTitle]=0;
-					else
-						Title[0]=0;
-					strTitle=Title.get();
-				}
+				if ((LenTitle=GetWindowText(hwnd, Title.get(), LenTitle+1)) != 0)
+					Title[LenTitle]=0;
+				else
+					Title[0]=0;
+				strTitle=Title.get();
 			}
 		}
 		if (!strTitle.empty())

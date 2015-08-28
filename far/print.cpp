@@ -212,8 +212,7 @@ void PrintFiles(FileList* SrcPanel)
 				if (FarMkTempEx(strTempDir))
 				{
 					os::CreateDirectory(strTempDir,nullptr);
-					auto ListItem = SrcPanel->GetLastSelectedItem();
-					if (ListItem)
+					if (const auto ListItem = SrcPanel->GetLastSelectedItem())
 					{
 						PluginPanelItem PanelItem;
 						FileList::FileListToPluginItem(*ListItem, &PanelItem);

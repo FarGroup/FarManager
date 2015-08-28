@@ -430,10 +430,6 @@ bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
 		if(!Global->IsMainThread())
 		{
 			Event SyncEvent(Event::automatic, Event::nonsignaled);
-#if defined _MSC_VER && _MSC_VER >= 1900
-			// Workaround for ICE in VC2015 RC (fixed, remove after release)
-			if (false) any_cast<EAData*>(&Data);
-#endif
 			SCOPED_ACTION(listener_ex)(elevation_dialog, [&SyncEvent](const any& Payload)
 			{
 				ElevationApproveDlgSync(*any_cast<EAData*>(Payload));

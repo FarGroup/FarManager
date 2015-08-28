@@ -135,6 +135,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <DisableSpecificDiagnostics>869,3280</DisableSpecificDiagnostics>
       <ForcedIncludeFiles>disabled_warnings.hpp</ForcedIncludeFiles>
       <PreprocessorDefinitions>NDEBUG;_UNICODE;UNICODE;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;_CRT_STDIO_LEGACY_WIDE_SPECIFIERS;FAR_USE_INTERNALS;FAR_ALPHA_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -150,6 +151,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <LargeAddressAware>true</LargeAddressAware>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
       <Command>editbin /nologo /subsystem:console,5.0 /osversion:5.0 $(OutDir)\Far.exe &gt; nul</Command>
@@ -184,6 +186,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <DisableSpecificDiagnostics>869,3280</DisableSpecificDiagnostics>
       <ForcedIncludeFiles>disabled_warnings.hpp</ForcedIncludeFiles>
       <PreprocessorDefinitions>NDEBUG;_UNICODE;UNICODE;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;_CRT_STDIO_LEGACY_WIDE_SPECIFIERS;FAR_USE_INTERNALS;FAR_ALPHA_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -199,6 +202,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <LargeAddressAware>true</LargeAddressAware>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
       <Command>editbin /nologo /subsystem:console,5.2 /osversion:5.2 $(OutDir)\Far.exe &gt; nul</Command>
