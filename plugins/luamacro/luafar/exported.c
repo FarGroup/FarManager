@@ -22,6 +22,7 @@ extern void PushInputRecord(lua_State *L, const INPUT_RECORD* ir);
 extern void FillInputRecord(lua_State *L, int pos, INPUT_RECORD *ir);
 extern int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2);
 extern int PushDMParams (lua_State *L, intptr_t Msg, intptr_t Param1);
+extern intptr_t ProcessDNResult(lua_State *L, intptr_t Msg, void *Param2);
 extern HANDLE Open_Luamacro(lua_State *L, const struct OpenInfo *Info);
 
 void PackMacroValues(lua_State* L, size_t Count, const struct FarMacroValue* Values); // forward declaration
@@ -1299,6 +1300,7 @@ intptr_t LF_ProcessDialogEvent(lua_State* L, const struct ProcessDialogEventInfo
 	intptr_t ret = 0;
 	struct FarDialogEvent *fde = Info->Param;
 	const intptr_t Flags = GetPluginData(L)->Flags;
+	BOOL PushDN = FALSE;
 
 	if (Flags & PDF_PROCESSINGERROR)
 		return 0;
@@ -1323,6 +1325,7 @@ intptr_t LF_ProcessDialogEvent(lua_State* L, const struct ProcessDialogEventInfo
 
 	if (PushDNParams(L, fde->Msg, fde->Param1, fde->Param2)) //+6
 	{
+		PushDN = TRUE;
 		lua_setfield(L, -4, "Param2"); //+5
 		lua_setfield(L, -3, "Param1"); //+4
 		lua_setfield(L, -2, "Msg");    //+3
@@ -1343,7 +1346,9 @@ intptr_t LF_ProcessDialogEvent(lua_State* L, const struct ProcessDialogEventInfo
 	if(pcall_msg(L, 2, 1) == 0)      //+1
 	{
 		if((ret=lua_toboolean(L,-1)) != 0)
-			fde->Result = lua_tointeger(L,-1);
+		{
+			fde->Result = PushDN ? ProcessDNResult(L, fde->Msg, fde->Param2) : lua_tointeger(L,-1);
+		}
 
 		lua_pop(L,1);
 	}

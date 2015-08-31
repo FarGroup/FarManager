@@ -55,6 +55,7 @@ const char SavedScreenType[]   = "FarSavedScreen";
 
 const char FAR_VIRTUALKEYS[]   = "far.virtualkeys";
 const char FAR_FLAGSTABLE[]    = "far.Flags";
+const char FAR_DN_STORAGE[]    = "FAR_DN_STORAGE";
 
 const char* VirtualKeyStrings[256] =
 {
@@ -3498,42 +3499,10 @@ int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2)
 	return TRUE;
 }
 
-intptr_t LF_DlgProc(lua_State *L, HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *Param2)
+intptr_t ProcessDNResult(lua_State *L, intptr_t Msg, void *Param2)
 {
-	intptr_t ret;
-	PSInfo *Info = GetPluginData(L)->Info;
-	TDialogData *dd = (TDialogData*) Info->SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
-
-	if(dd->wasError)
-		return Info->DefDlgProc(hDlg, Msg, Param1, Param2);
-
-	L = dd->L; // the dialog may be called from a lua_State other than the main one
-	lua_pushlightuserdata(L, dd);        //+1   retrieve the table
-	lua_rawget(L, LUA_REGISTRYINDEX);    //+1
-	lua_rawgeti(L, -1, 2);               //+2   retrieve the procedure
-	lua_rawgeti(L, -2, 3);               //+3   retrieve the handle
-
-	if (! PushDNParams(L, Msg, Param1, Param2)) //+6
-	{
-		lua_pop(L, 3);
-		return Info->DefDlgProc(hDlg, Msg, Param1, Param2);
-	}
-
-	ret = pcall_msg(L, 4, 1);  //+2
-
-	if(ret)
-	{
-		lua_pop(L, 1);
-		dd->wasError = TRUE;
-		Info->SendDlgMessage(hDlg, DM_CLOSE, -1, 0);
-		return Info->DefDlgProc(hDlg, Msg, Param1, Param2);
-	}
-
-	//---------------------------------------------------------------------------
-
-	if(lua_isnil(L, -1))
-		ret = Info->DefDlgProc(hDlg, Msg, Param1, Param2);
-	else if(Msg == DN_CTLCOLORDLGLIST || Msg == DN_CTLCOLORDLGITEM)
+	intptr_t ret = 0;
+	if(Msg == DN_CTLCOLORDLGLIST || Msg == DN_CTLCOLORDLGITEM)
 	{
 		if((ret = lua_istable(L,-1)) != 0)
 		{
@@ -3559,8 +3528,10 @@ intptr_t LF_DlgProc(lua_State *L, HANDLE hDlg, intptr_t Msg, intptr_t Param1, vo
 	{
 		if((ret = (intptr_t)utf8_to_utf16(L, -1, NULL)) != 0)
 		{
-			lua_pushvalue(L, -1);                // keep stack balanced
-			lua_setfield(L, -3, "helpstring");   // protect from garbage collector
+			lua_getfield(L, LUA_REGISTRYINDEX, FAR_DN_STORAGE);
+			lua_pushvalue(L, -2);                // keep stack balanced
+			lua_setfield(L, -2, "helpstring");   // protect from garbage collector
+			lua_pop(L, 1);
 		}
 	}
 	else if(Msg == DN_GETVALUE)
@@ -3576,8 +3547,10 @@ intptr_t LF_DlgProc(lua_State *L, HANDLE hDlg, intptr_t Msg, intptr_t Param1, vo
 				fgv->Value = tempValue;
 				if (fgv->Value.Type == FMVT_STRING)
 				{
-					lua_pushvalue(L, -1);                   // keep stack balanced
-					lua_setfield(L, -4, "getvaluestring");  // protect from garbage collector
+					lua_getfield(L, LUA_REGISTRYINDEX, FAR_DN_STORAGE);
+					lua_pushvalue(L, -2);                   // keep stack balanced
+					lua_setfield(L, -2, "getvaluestring");  // protect from garbage collector
+					lua_pop(L, 1);
 				}
 			}
 			else if (tempValue.Type==FMVT_DOUBLE && fgv->Value.Type==FMVT_INTEGER)
@@ -3593,7 +3566,46 @@ intptr_t LF_DlgProc(lua_State *L, HANDLE hDlg, intptr_t Msg, intptr_t Param1, vo
 	else
 		ret = lua_toboolean(L, -1);
 
-	lua_pop(L, 2);
+	return ret;
+}
+
+intptr_t LF_DlgProc(lua_State *L, HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *Param2)
+{
+	intptr_t ret;
+	PSInfo *Info = GetPluginData(L)->Info;
+	TDialogData *dd = (TDialogData*) Info->SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
+
+	if(dd->wasError)
+		return Info->DefDlgProc(hDlg, Msg, Param1, Param2);
+
+	L = dd->L; // the dialog may be called from a lua_State other than the main one
+	lua_pushlightuserdata(L, dd);        //+1   retrieve the table
+	lua_rawget(L, LUA_REGISTRYINDEX);    //+1
+	lua_rawgeti(L, -1, 2);               //+2   retrieve the procedure
+	lua_rawgeti(L, -2, 3);               //+3   retrieve the handle
+	lua_remove(L, -3);                   //+2
+
+	if (! PushDNParams(L, Msg, Param1, Param2)) //+5
+	{
+		lua_pop(L, 2);
+		return Info->DefDlgProc(hDlg, Msg, Param1, Param2);
+	}
+
+	ret = pcall_msg(L, 4, 1);  //+2
+
+	if(ret)
+	{
+		lua_pop(L, 1);
+		dd->wasError = TRUE;
+		Info->SendDlgMessage(hDlg, DM_CLOSE, -1, 0);
+		return Info->DefDlgProc(hDlg, Msg, Param1, Param2);
+	}
+
+	ret = lua_isnil(L, -1) ?
+		Info->DefDlgProc(hDlg, Msg, Param1, Param2) :
+		ProcessDNResult(L, Msg, Param2);
+	
+	lua_pop(L, 1);
 	return ret;
 }
 
@@ -5996,6 +6008,9 @@ end";
 
 static int luaopen_far(lua_State *L)
 {
+	lua_newtable(L);
+	lua_setfield(L, LUA_REGISTRYINDEX, FAR_DN_STORAGE);
+	
 	NewVirtualKeyTable(L, FALSE);
 	lua_setfield(L, LUA_REGISTRYINDEX, FAR_VIRTUALKEYS);
 	luaL_register(L, "far", far_funcs);
