@@ -78,6 +78,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filestr.hpp"
 #include "exitcode.hpp"
 #include "panelctype.hpp"
+#include "filetype.hpp"
 
 // Список архивов. Если файл найден в архиве, то FindList->ArcIndex указывает сюда.
 struct ArcListItem
@@ -101,7 +102,7 @@ struct FindListItem
 class InterThreadData
 {
 private:
-	CriticalSection DataCS;
+	mutable CriticalSection DataCS;
 	ArcListItem* FindFileArcItem;
 	int Percent;
 	int LastFoundNumber;
@@ -129,10 +130,6 @@ public:
 		strFindMessage.clear();
 	}
 
-	std::list<FindListItem>& GetFindList() {return FindList;}
-
-	void Lock() {DataCS.lock();}
-	void Unlock() {DataCS.unlock();}
 
 	ArcListItem* GetFindFileArcItem()
 	{
@@ -178,7 +175,11 @@ public:
 		DirCount = Value;
 	}
 
-	size_t GetFindListCount() const { return FindList.size(); }
+	size_t GetFindListCount() const
+	{
+		SCOPED_ACTION(CriticalSectionLock)(DataCS);
+		return FindList.size();
+	}
 
 	void GetFindMessage(string& To)
 	{
@@ -242,6 +243,22 @@ public:
 		NewItem.FreeData = FreeData;
 		FindList.emplace_back(NewItem);
 		return FindList.back();
+	}
+
+	template <typename Visitor>
+	void ForEachFindItem(const Visitor& visitor) const
+	{
+		SCOPED_ACTION(CriticalSectionLock)(DataCS);
+		FOR(const auto& i, FindList)
+			visitor(i);
+	}
+
+	template <typename Visitor>
+	void ForEachFindItem(const Visitor& visitor) 
+	{
+		SCOPED_ACTION(CriticalSectionLock)(DataCS);
+		FOR(auto& i, FindList)
+			visitor(i);
 	}
 };
 
@@ -1578,9 +1595,17 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			*/
 
 			case KEY_F3:
+			case KEY_ALTF3:
+			case KEY_RALTF3:
+			case KEY_CTRLSHIFTF3:
+			case KEY_RCTRLSHIFTF3:
 			case KEY_NUMPAD5:
 			case KEY_SHIFTNUMPAD5:
 			case KEY_F4:
+			case KEY_ALTF4:
+			case KEY_RALTF4:
+			case KEY_CTRLSHIFTF4:
+			case KEY_RCTRLSHIFTF4:
 				{
 					if (ListBox->empty())
 					{
@@ -1662,81 +1687,8 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 							strSearchFileName = FindItem->FindData.strAlternateFileName;
 					}
 
-					if (os::fs::exists(strSearchFileName))
-					{
-						const auto strOldTitle = Console().GetTitle();
+					OpenFile(strSearchFileName, key, FindItem, Dlg);
 
-						if (key==KEY_F3 || key==KEY_NUMPAD5 || key==KEY_SHIFTNUMPAD5)
-						{
-							NamesList ViewList;
-							int list_count = 0;
-
-							// Возьмем все файлы, которые имеют реальные имена...
-							itd->Lock();
-							std::for_each(CONST_RANGE(itd->GetFindList(), i)
-							{
-								bool RealNames=true;
-								if(i.Arc)
-								{
-									if(!(i.Arc->Flags & OPIF_REALNAMES))
-									{
-										RealNames=false;
-									}
-								}
-								if (RealNames)
-								{
-									if (!i.FindData.strFileName.empty() && !(i.FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
-									{
-										++list_count;
-										ViewList.AddName(i.FindData.strFileName);
-									}
-								}
-							});
-							itd->Unlock();
-							ViewList.SetCurName(FindItem->FindData.strFileName);
-
-							Dlg->SendMessage(DM_SHOWDIALOG, FALSE, nullptr);
-							Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
-							{
-								auto ShellViewer = FileViewer::create(strSearchFileName, FALSE, FALSE, FALSE, -1, nullptr, (list_count > 1 ? &ViewList : nullptr));
-								ShellViewer->SetEnableF6(TRUE);
-
-								if(FindItem->Arc)
-								{
-									if(!(FindItem->Arc->Flags & OPIF_REALNAMES))
-									{
-										ShellViewer->SetSaveToSaveAs(true);
-									}
-								}
-								Global->WindowManager->ExecuteModal(ShellViewer);
-								// заставляем рефрешится экран
-								Global->WindowManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
-							}
-							Dlg->SendMessage(DM_ENABLEREDRAW, TRUE, nullptr);
-							Dlg->SendMessage(DM_SHOWDIALOG, TRUE, nullptr);
-						}
-						else
-						{
-							auto ShellEditor = FileEditor::create(strSearchFileName, CP_DEFAULT, 0);
-							ShellEditor->SetEnableF6(true);
-
-							if(FindItem->Arc)
-							{
-								if(!(FindItem->Arc->Flags & OPIF_REALNAMES))
-								{
-									ShellEditor->SetSaveToSaveAs(true);
-								}
-							}
-							auto editorExitCode=ShellEditor->GetExitCode();
-							if (editorExitCode != XC_OPEN_ERROR && editorExitCode != XC_LOADING_INTERRUPTED)
-							{
-								Global->WindowManager->ExecuteModal(ShellEditor);
-								// заставляем рефрешится экран
-								Global->WindowManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
-							}
-						}
-						Console().SetTitle(strOldTitle);
-					}
 					if (RemoveTemp)
 					{
 						DeleteFileWithFolder(strSearchFileName);
@@ -1906,7 +1858,96 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData)
+void FindFiles::OpenFile(string strSearchFileName, int openKey, const FindListItem* FindItem, Dialog* Dlg)
+{
+	if (!os::fs::exists(strSearchFileName))
+		return;
+	
+	auto openMode = FILETYPE_VIEW;
+	auto shouldForceInternal = false;
+	const auto isKnownKey = GetFiletypeOpenMode(openKey, openMode, shouldForceInternal);
+
+	assert(isKnownKey); // ensure all possible keys are handled
+
+	if (!isKnownKey)
+		return;
+
+	const auto strOldTitle = Console().GetTitle();
+	const auto shortFileName = ExtractFileName(strSearchFileName);
+
+	if (shouldForceInternal || !ProcessLocalFileTypes(strSearchFileName, shortFileName, openMode, PluginMode))
+	{
+		if (openMode == FILETYPE_ALTVIEW && Global->Opt->strExternalViewer.empty())
+			openMode = FILETYPE_VIEW;
+
+		if (openMode == FILETYPE_ALTEDIT && Global->Opt->strExternalEditor.empty())
+			openMode = FILETYPE_EDIT;
+
+		if (openMode == FILETYPE_VIEW)
+		{
+			NamesList ViewList;
+			int list_count = 0;
+
+			// Возьмем все файлы, которые имеют реальные имена...
+			itd->ForEachFindItem([&list_count, &ViewList](const FindListItem& i)
+			{
+				if (!i.Arc || (i.Arc->Flags & OPIF_REALNAMES))
+				{
+					if (!i.FindData.strFileName.empty() && !(i.FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
+					{
+						++list_count;
+						ViewList.AddName(i.FindData.strFileName);
+					}
+				}
+			});
+
+			ViewList.SetCurName(FindItem->FindData.strFileName);
+
+			Dlg->SendMessage(DM_SHOWDIALOG, FALSE, nullptr);
+			Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
+			{
+				const auto ShellViewer = FileViewer::create(strSearchFileName, FALSE, FALSE, FALSE, -1, nullptr, (list_count > 1? &ViewList : nullptr));
+				ShellViewer->SetEnableF6(TRUE);
+
+				if (FindItem->Arc && !(FindItem->Arc->Flags & OPIF_REALNAMES))
+					ShellViewer->SetSaveToSaveAs(true);
+
+				Global->WindowManager->ExecuteModal(ShellViewer);
+				// заставляем рефрешится экран
+				Global->WindowManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
+			}
+			Dlg->SendMessage(DM_ENABLEREDRAW, TRUE, nullptr);
+			Dlg->SendMessage(DM_SHOWDIALOG, TRUE, nullptr);
+		}
+
+		if (openMode == FILETYPE_EDIT)
+		{
+			const auto ShellEditor = FileEditor::create(strSearchFileName, CP_DEFAULT, 0);
+			ShellEditor->SetEnableF6(true);
+
+			if (FindItem->Arc && !(FindItem->Arc->Flags & OPIF_REALNAMES))
+				ShellEditor->SetSaveToSaveAs(true);
+
+			const auto editorExitCode = ShellEditor->GetExitCode();
+			if (editorExitCode != XC_OPEN_ERROR && editorExitCode != XC_LOADING_INTERRUPTED)
+			{
+				Global->WindowManager->ExecuteModal(ShellEditor);
+				// заставляем рефрешится экран
+				Global->WindowManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
+			}
+		}
+
+		if (openMode == FILETYPE_ALTEDIT || openMode == FILETYPE_ALTVIEW)
+		{
+			const auto& externalCommand = openMode == FILETYPE_ALTEDIT? Global->Opt->strExternalEditor : Global->Opt->strExternalViewer;
+			ProcessExternal(externalCommand, strSearchFileName, shortFileName, PluginMode);
+		}
+	}
+
+	Console().SetTitle(strOldTitle);	
+}
+
+void FindFiles::AddMenuRecord(Dialog* Dlg, const string& FullName, const os::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData)
 {
 	if (!Dlg)
 		return;
@@ -2726,30 +2767,21 @@ bool FindFiles::FindFilesProcess()
 			case FD_BUTTON_PANEL:
 			// Отработаем переброску на временную панель
 			{
-				itd->Lock();
-				size_t ListSize = itd->GetFindList().size();
 				std::vector<PluginPanelItem> PanelItems;
-				PanelItems.reserve(ListSize);
+				PanelItems.reserve(itd->GetFindListCount());
 
-				std::for_each(RANGE(itd->GetFindList(), i)
+				itd->ForEachFindItem([&PanelItems, this](FindListItem& i)
 				{
 					if (!i.FindData.strFileName.empty() && i.Used)
-					// Добавляем всегда, если имя задано
 					{
+						// Добавляем всегда, если имя задано
 						// Для плагинов с виртуальными именами заменим имя файла на имя архива.
 						// панель сама уберет лишние дубли.
-						bool IsArchive=false;
-						if(i.Arc)
-						{
-							if(!(i.Arc->Flags&OPIF_REALNAMES))
-							{
-								IsArchive=true;
-							}
-						}
+						const auto IsArchive = i.Arc && !(i.Arc->Flags&OPIF_REALNAMES);
 						// Добавляем только файлы или имена архивов или папки когда просили
 						if (IsArchive || (Global->Opt->FindOpt.FindFolders && !SearchHex) ||
-							    !(i.FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
-						{
+							!(i.FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
+						{							
 							if (IsArchive)
 							{
 								i.FindData.strFileName = i.Arc->strArcName;
@@ -2768,7 +2800,7 @@ bool FindFiles::FindFilesProcess()
 						}
 					}
 				});
-				itd->Unlock();
+
 				auto hNewPlugin=Global->CtrlObject->Plugins->OpenFindListPlugin(PanelItems.data(), PanelItems.size());
 
 				if (hNewPlugin)

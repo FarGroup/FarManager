@@ -1843,8 +1843,21 @@ actions.
 
    #Cancel#          Close the search dialog.
 
-    #F3# and #F4# may be used to view and edit found files. Also viewing and
-editing is supported for plugin emulated file systems. Note, that saving editor
+    During or after search you can view or edit found files.
+
+   View                          #F3, Alt-F3, Numpad 5, Ctrl-Shift-F3#
+
+    #F3#, #Alt-F3# or #NumPad 5# invokes ~internal~@Viewer@, external or ~associated ~@FileAssoc@ viewer,
+depending on file type and ~viewer settings~@ViewerSettings@.
+    #Ctrl-Shift-F3# always invokes internal viewer regardless of file associations.
+
+   Edit                                    #F4, Alt-F4, Ctrl-Shift-F4#
+
+    #F4# or #Alt-F4# invokes ~internal~@Editor@, external or ~associated~@FileAssoc@ editor,
+depending on file type and ~editor settings~@EditorSettings@.
+    #Ctrl-Shift-F4# always invokes internal editor regardless of file associations.
+
+    Viewing and editing is supported for plugin emulated file systems. Note, that saving editor
 changes by #F2# key in emulated file system will perform #SaveAs# operation,
 instead of common #Save#.
 

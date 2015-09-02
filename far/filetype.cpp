@@ -245,6 +245,73 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 }
 
 
+bool GetFiletypeOpenMode(int keyPressed, FILETYPE_MODE& mode, bool& shouldForceInternal)
+{
+	bool isModeFound = false; 
+
+	switch (keyPressed)
+	{
+	case KEY_F3:
+	case KEY_NUMPAD5:
+	case KEY_SHIFTNUMPAD5:
+		mode = Global->Opt->ViOpt.UseExternalViewer? FILETYPE_ALTVIEW : FILETYPE_VIEW;
+		shouldForceInternal = false;
+		isModeFound = true;
+		break;
+
+	case KEY_CTRLSHIFTF3:
+	case KEY_RCTRLSHIFTF3:
+		mode = FILETYPE_VIEW;
+		shouldForceInternal = true;
+		isModeFound = true;
+		break;
+
+	case KEY_RALTF3:
+	case KEY_ALTF3:
+		mode = Global->Opt->ViOpt.UseExternalViewer? FILETYPE_VIEW : FILETYPE_ALTVIEW;
+		shouldForceInternal = false;
+		isModeFound = true;
+		break;
+
+	case KEY_F4:
+		mode = Global->Opt->EdOpt.UseExternalEditor? FILETYPE_ALTEDIT: FILETYPE_EDIT;
+		shouldForceInternal = false;
+		isModeFound = true;
+		break;
+
+	case KEY_CTRLSHIFTF4:
+	case KEY_RCTRLSHIFTF4:
+		mode = FILETYPE_EDIT;
+		shouldForceInternal = true;
+		isModeFound = true;
+		break;
+
+	case KEY_ALTF4:
+	case KEY_RALTF4:
+		mode = Global->Opt->EdOpt.UseExternalEditor? FILETYPE_EDIT : FILETYPE_ALTEDIT;
+		shouldForceInternal = false;
+		isModeFound = true;
+		break;
+
+	case KEY_ENTER:
+		mode = FILETYPE_EXEC;
+		isModeFound = true;
+		break;
+
+	case KEY_CTRLPGDN:
+	case KEY_RCTRLPGDN:
+		mode = FILETYPE_ALTEXEC;
+		isModeFound = true;
+		break;
+
+	default:
+		// non-default key may be pressed, it's ok. 
+		break;
+	}
+
+	return isModeFound;
+}
+
 void ProcessGlobalFileTypes(const string& Name, bool AlwaysWaitFinish, bool RunAs, bool FromPanel)
 {
 	string strName(Name);

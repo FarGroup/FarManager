@@ -54,6 +54,7 @@ class IndeterminateTaskBar;
 class InterThreadData;
 class filemasks;
 class FileFilter;
+struct FindListItem;
 
 class FindFiles: noncopyable
 {
@@ -74,7 +75,8 @@ private:
 	bool LookForString(const string& Name);
 	bool IsFileIncluded(PluginPanelItem* FileItem, const string& FullName, DWORD FileAttr, const string &strDisplayName);
 	intptr_t FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
-	void AddMenuRecord(Dialog* Dlg,const string& FullName, const os::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData);
+	void OpenFile(string strSearchFileName, int key, const FindListItem* FindItem, Dialog* Dlg);
+	void AddMenuRecord(Dialog* Dlg, const string& FullName, const os::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData);
 	void AddMenuRecord(Dialog* Dlg,const string& FullName, PluginPanelItem& FindData);
 	void DoPreparePluginList(Dialog* Dlg, bool Internal);
 	void ArchiveSearch(Dialog* Dlg, const string& ArcName);
