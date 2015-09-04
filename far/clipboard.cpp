@@ -73,16 +73,17 @@ bool Clipboard::GetUseInternalClipboardState()
 
 UINT Clipboard::RegisterFormat(FAR_CLIPBOARD_FORMAT Format)
 {
-	switch (Format)
+	static const simple_pair<unsigned, const wchar_t*> FormatMap[] =
 	{
-		case FCF_VERTICALBLOCK_OEM:
-			return UseInternalClipboard? 0xFEB0 : RegisterClipboardFormat(L"FAR_VerticalBlock");
-		case FCF_VERTICALBLOCK_UNICODE:
-			return UseInternalClipboard? 0xFEB1 : RegisterClipboardFormat(L"FAR_VerticalBlock_Unicode");
-		case FCF_CFSTR_PREFERREDDROPEFFECT:
-			return UseInternalClipboard? 0xFEB2 : RegisterClipboardFormat(CFSTR_PREFERREDDROPEFFECT);
-	}
-	return 0;
+		{ 0xFEB0, L"FAR_VerticalBlock" },
+		{ 0xFEB1, L"FAR_VerticalBlock_Unicode" },
+		{ 0xFEB2, CFSTR_PREFERREDDROPEFFECT },
+	};
+
+	static_assert(ARRAYSIZE(FormatMap) == FCF_COUNT, "Wrong size of FormatMap");
+	assert(Format < FCF_COUNT);
+
+	return UseInternalClipboard? FormatMap[Format].first : RegisterClipboardFormat(FormatMap[Format].second);
 }
 
 bool Clipboard::Open()

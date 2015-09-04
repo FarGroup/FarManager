@@ -630,7 +630,7 @@ bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
 		if (aType == AT_FILEEXTENSION)
 		{
 			// Смотрим дефолтный обработчик расширения в HKEY_CURRENT_USER
-			if (hUserKey = os::reg::open_key(HKEY_CURRENT_USER, (L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\" + Ext).data(), KEY_QUERY_VALUE))
+			if ((hUserKey = os::reg::open_key(HKEY_CURRENT_USER, (L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\" + Ext).data(), KEY_QUERY_VALUE)))
 			{
 				if (os::reg::GetValue(hUserKey, L"ProgID", strFoundValue) && IsProperProgID(strFoundValue))
 				{

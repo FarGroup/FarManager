@@ -264,13 +264,6 @@ Help::~Help()
 
 int Help::ReadHelp(const string& Mask)
 {
-	string strSplitLine;
-	int Formatting=TRUE,RepeatLastLine,BreakProcess;
-	bool drawline = false;
-	wchar_t DrawLineChar=0;
-	size_t PosTab;
-	const int MaxLength=m_X2-m_X1-1;
-	string strTabSpace;
 	string strPath;
 
 	if (StackData->strHelpTopic.front() == HelpBeginLink)
@@ -345,7 +338,7 @@ int Help::ReadHelp(const string& Mask)
 	if (!GetLangParam(HelpFile,L"PluginContents",&strCurPluginContents, nullptr, nCodePage))
 		strCurPluginContents.clear();
 
-	strTabSpace.assign(CtrlTabSize, L' ');
+	string strTabSpace(CtrlTabSize, L' ');
 
 	HelpList.clear();
 
@@ -357,10 +350,14 @@ int Help::ReadHelp(const string& Mask)
 
 	FixCount=0;
 	m_TopicFound=0;
-	RepeatLastLine=FALSE;
-	BreakProcess=FALSE;
-	int NearTopicFound=0;
+	bool RepeatLastLine = false;
+	bool BreakProcess = false;
+	bool Formatting = true;
+	int NearTopicFound = 0;
 	wchar_t PrevSymbol=0;
+	bool drawline = false;
+	wchar_t DrawLineChar = 0;
+	const int MaxLength = m_X2 - m_X1 - 1;
 
 	StartPos = (DWORD)-1;
 	LastStartPos = (DWORD)-1;
@@ -372,6 +369,7 @@ int Help::ReadHelp(const string& Mask)
 	GetFileString GetStr(HelpFile, nCodePage);
 	const size_t StartSizeKeyName = 20;
 	size_t SizeKeyName = StartSizeKeyName;
+	string strSplitLine;
 
 	for (;;)
 	{
@@ -392,7 +390,7 @@ int Help::ReadHelp(const string& Mask)
 				else
 				{
 					strReadStr.clear();
-					RepeatLastLine=TRUE;
+					RepeatLastLine = true;
 					continue;
 				}
 
@@ -461,8 +459,9 @@ int Help::ReadHelp(const string& Mask)
 			MI++;
 		}
 
-		RepeatLastLine=FALSE;
+		RepeatLastLine = false;
 
+		size_t PosTab;
 		while ((PosTab = strReadStr.find(L'\t')) != string::npos)
 		{
 			strReadStr[PosTab] = L' ';
@@ -497,14 +496,14 @@ int Help::ReadHelp(const string& Mask)
 			{
 				if (strReadStr == L"@+")
 				{
-					Formatting=TRUE;
+					Formatting = true;
 					PrevSymbol=0;
 					continue;
 				}
 
 				if (strReadStr == L"@-")
 				{
-					Formatting=FALSE;
+					Formatting = false;
 					PrevSymbol=0;
 					continue;
 				}
@@ -522,7 +521,7 @@ int Help::ReadHelp(const string& Mask)
 
 				if (!strSplitLine.empty())
 				{
-					BreakProcess=TRUE;
+					BreakProcess = true;
 					strReadStr.clear();
 					PrevSymbol=0;
 					goto m1;
@@ -556,7 +555,8 @@ m1:
 			{
 				if (!StrCmpNI(strReadStr.data(),L"<!Macro:",8) && Global->CtrlObject)
 				{
-					if (((PosTab = strReadStr.find(L'>')) != string::npos) && strReadStr[PosTab - 1] != L'!')
+					const auto PosTab = strReadStr.find(L'>');
+					if (PosTab != string::npos && strReadStr[PosTab - 1] != L'!')
 						continue;
 
 					strMacroArea=strReadStr.substr(8,PosTab-1-8); //???
@@ -613,7 +613,7 @@ m1:
 								}
 							}
 							else
-								RepeatLastLine=TRUE;
+								RepeatLastLine = true;
 						}
 						else if (!strReadStr.empty())
 						{
@@ -652,7 +652,7 @@ m1:
 							continue;
 						}
 						else
-							RepeatLastLine=TRUE;
+							RepeatLastLine = true;
 					}
 
 					if (drawline)

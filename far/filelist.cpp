@@ -6665,9 +6665,9 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		std::unordered_set<string> ColumnsSet;
 		const std::vector<column>* ColumnsContainers[] = { &m_ViewSettings.PanelColumns, &m_ViewSettings.StatusColumns };
 
-		for(int i=0; i<ARRAYSIZE(ColumnsContainers); i++)
+		FOR(const auto& ColumnsContainer, ColumnsContainers)
 		{
-			FOR(const auto& Column, *ColumnsContainers[i])
+			FOR(const auto& Column, *ColumnsContainer)
 			{
 				if ((Column.type & 0xff) == CUSTOM_COLUMN0)
 				{

@@ -222,7 +222,7 @@ Plugin* PluginManager::LoadPlugin(const string& FileName, const os::FAR_FIND_DAT
 {
 	std::unique_ptr<Plugin> pPlugin;
 
-	std::any_of(CONST_RANGE(PluginModels, i) { return (pPlugin = std::move(i->CreatePlugin(FileName))) != nullptr; });
+	std::any_of(CONST_RANGE(PluginModels, i) { return (pPlugin = i->CreatePlugin(FileName)) != nullptr; });
 
 	if (pPlugin)
 	{

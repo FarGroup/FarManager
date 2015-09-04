@@ -793,7 +793,7 @@ static os::fs::file OpenTreeFile(const string& Name, bool Writable)
 {
 	os::fs::file Result;
 	Result.Open(Name, Writable? FILE_WRITE_DATA : FILE_READ_DATA, FILE_SHARE_READ, nullptr, Writable? OPEN_ALWAYS : OPEN_EXISTING);
-	return std::move(Result);
+	return Result;
 }
 
 static bool MustBeCached(const string& Root)
@@ -827,7 +827,7 @@ static os::fs::file OpenCacheableTreeFile(const string& Root, string& Name, bool
 			Result = OpenTreeFile(Name, Writable);
 		}
 	}
-	return std::move(Result);
+	return Result;
 }
 
 static void ReadLines(os::fs::file& TreeFile, const std::function<void(string&)>& Inserter)

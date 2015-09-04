@@ -668,7 +668,11 @@ void Dialog::ProcessCenterGroup()
 				{
 					j->X1 = StartX;
 					StartX += GetIncrement(*j);
-					j->X2 = StartX - (StartX == j->X1) ? 0 : 1;
+					j->X2 = StartX;
+					if (j->X2 != j->X1)
+					{
+						--j->X2;
+					}
 				}
 			}
 		}

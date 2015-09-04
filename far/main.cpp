@@ -729,7 +729,16 @@ static int mainImpl(const range<wchar_t**>& Args)
 	}
 
 	InitConsole();
-	SCOPE_EXIT { CloseConsole(); };
+
+	SCOPE_EXIT
+	{
+		// BUGBUG, reorder to delete only in ~global()
+		delete Global->CtrlObject;
+		Global->CtrlObject = nullptr;
+
+		ClearInternalClipboard();
+		CloseConsole();
+	};
 
 	Global->Lang = new Language(Global->g_strFarPath, MNewFileName + 1);
 
@@ -776,11 +785,6 @@ static int mainImpl(const range<wchar_t**>& Args)
 			throw;
 		}
 	}
-
-	delete Global->CtrlObject;
-	Global->CtrlObject = nullptr;
-
-	ClearInternalClipboard();
 
 	_OT(SysLog(L"[[[[[Exit of FAR]]]]]]]]]"));
 
