@@ -3400,11 +3400,6 @@ int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2)
 				++Param1;
 			break;
 
-		case DN_INITDIALOG:
-			++Param1; // dialog element position
-			GetPluginData(L)->Flags &= ~PDF_DIALOGEVENTDRAWGROUP;
-			break;
-
 		case DN_BTNCLICK:
 		case DN_CTLCOLORDLGITEM:
 		case DN_CTLCOLORDLGLIST:
@@ -3416,6 +3411,7 @@ int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2)
 		case DN_GOTFOCUS:
 		case DN_HELP:
 		case DN_HOTKEY:
+		case DN_INITDIALOG:
 		case DN_KILLFOCUS:
 		case DN_LISTCHANGE:
 		case DN_LISTHOTKEY:
@@ -3772,7 +3768,7 @@ static int far_SetDlgItem(lua_State *L)
 
 static int far_SubscribeDialogDrawEvents(lua_State *L)
 {
-	GetPluginData(L)->Flags |= PDF_DIALOGEVENTDRAWGROUP;
+	GetPluginData(L)->Flags |= PDF_DIALOGEVENTDRAWENABLE;
 	return 0;
 }
 

@@ -1,4 +1,8 @@
-﻿shmuel 31.08.2015 18:33:16 +0200 - build 524
+﻿shmuel 04.09.2015 21:48:41 +0200 - build 525
+
+1. M#3067: LuaFAR: far.SubscribeDialogDrawEvents не срабатывает в момент Msg==F.DN_INITDIALOG and Event==F.DE_DLGPROCINIT
+
+shmuel 31.08.2015 18:33:16 +0200 - build 524
 
 1. M#3068: LuaFAR: не работает изменение цветовых атрибутов в DN_CTLCOLORDLGITEM
 
