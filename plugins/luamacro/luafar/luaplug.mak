@@ -1,7 +1,7 @@
 # luaplug.mak
 
 ifndef FARDIR
-  FARDIR = ..\..\..\..
+  FARDIR = ..\..\..
 endif
 
 INC_FAR = $(FARDIR)\plugins\common\unicode
