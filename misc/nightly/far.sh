@@ -39,7 +39,7 @@ wine cmd /c ../mysetnew.${DIRBIT}.bat
 cd ..
 
 ( \
-cp $2/$OUTDIR/File_id.diz $2/$OUTDIR/Far.exe $2/$OUTDIR/*.hlf $2/$OUTDIR/Far.map $2/$OUTDIR/*.lng $BINDIR/ && \
+cp $2/$OUTDIR/File_id.diz $2/$OUTDIR/Far.exe $2/$OUTDIR/*.hlf $2/$OUTDIR/Far.map $2/$OUTDIR/Far.pdb $2/$OUTDIR/*.lng $BINDIR/ && \
 cp $2/Include/*.hpp $BINDIR/PluginSDK/Headers.c/ && \
 cp $2/Include/*.pas $BINDIR/PluginSDK/Headers.pas/ && \
 cp -f $2/changelog $BINDIR/ && \
