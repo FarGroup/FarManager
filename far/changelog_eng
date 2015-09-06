@@ -3,6 +3,26 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 04.09.2015 21:47:21 +0200 - build 4413
+
+1. Refactoring.
+
+shmuel 04.09.2015 13:40:29 +0200 - build 4412
+
+1. M#3083: Content column is not updated on panel mode switch
+
+drkns 02.09.2015 21:13:07 +0200 - build 4411
+
+1. 0003080: Alternate editor/viewer in FindFile results
+
+drkns 29.08.2015 00:46:04 +0200 - build 4410
+
+1. Refactoring
+
+2. VC2015 warnings
+
+3. Whole program optimization in VC Release builds
+
 w17 15.08.2015 10:46:45 +0300 - build 4409
 
 1. Correction of 4408
