@@ -26,6 +26,7 @@
 using namespace std;
 
 #define INITGUID
+#include <basetyps.h>
 #include "CPP/7zip/Archive/IArchive.h"
 #include "CPP/7zip/IPassword.h"
 
