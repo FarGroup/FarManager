@@ -1,4 +1,35 @@
-﻿drkns 04.09.2015 21:47:21 +0200 - build 4413
+﻿svs 07.09.2015 16:06:23 +0300 - build 4414
+
+1. Mantis#0003084: Добавить GUIDs
+
+    DescribeFileId                   = {D8AF7A38-8357-44A5-A44B-A595CF707549}  --> Dlg.Id
+    Диалог ввода описаний (CtrlZ)
+
+    SelectDialogId                   = {29C03C36-9C50-4F78-AB99-F5DC1A9C67CD}  --> Dlg.Id
+    Диалог установки выделения файлов (Add)
+    
+    UnSelectDialogId                 = {34614DDB-2A22-4EA9-BD4A-2DC075643F1B}  --> Dlg.Id
+    Диалог снятия выделения файлов (Subtract)
+    
+    SUBSTDisconnectDriveError1Id     = {FF18299E-1881-42FA-AF7E-AC05D99F269C}  --> Dlg.Id
+    SUBSTDisconnectDriveError2Id     = {43B0FFC2-70BE-4289-91E6-FE9A3D54311B}  --> Dlg.Id
+    Диалоги ошибок удаления SUBST-дисков
+
+    RemoteDisconnectDriveError1Id    = {C9439386-9544-49BF-954B-6BEEDE7F1BD0}  --> Dlg.Id
+    RemoteDisconnectDriveError2Id    = {F06953B8-25AA-4FC0-9899-422FC1D49F7A}  --> Dlg.Id
+    Диалоги ошибок отключения Net-дисков
+
+    EjectHotPlugMediaErrorId         = {D6DC3621-877E-4BE2-80CC-BDB2864CE038}  --> Dlg.Id
+    Диалог ошибки отключения "флешек"
+
+    VHDDisconnectDriveErrorId        = {B890E6B0-05A9-4ED8-A4C3-BBC4D29DA3BE}  --> Dlg.Id
+    Диалог ошибки отключения виртуальных дисков
+
+    ChangeDriveCannotReadDiskErrorId = {F3D46DC3-380B-4264-8BF8-10B05B897A5E}
+    Диалог ошибки смены диска
+
+
+drkns 04.09.2015 21:47:21 +0200 - build 4413
 
 1. Рефакторинг.
 

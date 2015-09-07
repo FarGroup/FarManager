@@ -942,6 +942,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 			Builder.AddOKCancel(MRetry, MCancel);
 			Builder.SetDialogMode(DMODE_WARNINGSTYLE);
+			Builder.SetId(ChangeDriveCannotReadDiskErrorId);
 
 			if (Builder.ShowDialog())
 			{
@@ -1088,10 +1089,10 @@ void Panel::RemoveHotplugDevice(const PanelMenuItem *item, VMenu2 &ChDisk)
 				// ... и выведем месаг о...
 				SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
 				Global->CatchError();
-				DoneEject = Message(MSG_WARNING|MSG_ERRORTYPE, 2,
-				                MSG(MError),
-				                (LangString(MChangeCouldNotEjectHotPlugMedia) << item->cDrive).data(),
-				                MSG(MHRetry), MSG(MHCancel));
+				DoneEject = Message(MSG_WARNING|MSG_ERRORTYPE, MSG(MError),
+						make_vector<string>((LangString(MChangeCouldNotEjectHotPlugMedia) << item->cDrive).data()),
+						make_vector<string>(MSG(MHRetry), MSG(MHCancel)),
+						nullptr, nullptr, &EjectHotPlugMediaErrorId);
 			}
 			else
 				DoneEject=TRUE;
@@ -1136,13 +1137,10 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 				strMsgText << DiskLetter;
 				if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
 				{
-					if (!Message(MSG_WARNING|MSG_ERRORTYPE, 2,
-						MSG(MError),
-						strMsgText.data(),
-						L"\x1",
-						MSG(MChangeDriveOpenFiles),
-						MSG(MChangeDriveAskDisconnect),
-						MSG(MOk),MSG(MCancel)))
+					if (Message(MSG_WARNING|MSG_ERRORTYPE, MSG(MError),
+						make_vector<string>(strMsgText.data(),L"\x1",MSG(MChangeDriveOpenFiles),MSG(MChangeDriveAskDisconnect)),
+						make_vector<string>(MSG(MOk),MSG(MCancel)),
+						nullptr, nullptr, &SUBSTDisconnectDriveError1Id))
 					{
 						if (DelSubstDrive(DiskLetter))
 						{
@@ -1154,7 +1152,10 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 						return DRIVE_DEL_FAIL;
 					}
 				}
-				Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),strMsgText.data(),MSG(MOk));
+				Message(MSG_WARNING|MSG_ERRORTYPE, MSG(MError),
+						make_vector<string>(strMsgText.data()),
+						make_vector<string>(MSG(MOk)),
+						nullptr, nullptr, &SUBSTDisconnectDriveError2Id);
 			}
 			return DRIVE_DEL_FAIL; // блин. в прошлый раз забыл про это дело...
 		}
@@ -1187,12 +1188,10 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 					DWORD LastError = Global->CaughtError();
 					if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
 					{
-						if (!Message(MSG_WARNING|MSG_ERRORTYPE, 2,
-							MSG(MError),
-							strMsgText.data(),
-							L"\x1",
-							MSG(MChangeDriveOpenFiles),
-							MSG(MChangeDriveAskDisconnect),MSG(MOk),MSG(MCancel)))
+						if (Message(MSG_WARNING|MSG_ERRORTYPE, MSG(MError),
+							make_vector<string>(strMsgText.data(),L"\x1",MSG(MChangeDriveOpenFiles),MSG(MChangeDriveAskDisconnect)),
+							make_vector<string>(MSG(MOk),MSG(MCancel)),
+							nullptr, nullptr, &RemoteDisconnectDriveError1Id))
 						{
 							if (WNetCancelConnection2(DiskLetter.data(),UpdateProfile,TRUE)==NO_ERROR)
 							{
@@ -1207,7 +1206,10 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 					const wchar_t RootDir[]={DiskLetter[0],L':',L'\\',L'\0'};
 					if (FAR_GetDriveType(RootDir)==DRIVE_REMOTE)
 					{
-						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),strMsgText.data(),MSG(MOk));
+						Message(MSG_WARNING|MSG_ERRORTYPE, MSG(MError),
+							make_vector<string>(strMsgText.data()),
+							make_vector<string>(MSG(MOk)),
+							nullptr, nullptr, &RemoteDisconnectDriveError2Id);
 					}
 				}
 				return DRIVE_DEL_FAIL;
@@ -1250,7 +1252,10 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 
 			if (Result != DRIVE_DEL_SUCCESS)
 			{
-				Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), (LangString(MChangeDriveCannotDetach) << DiskLetter).data(), MSG(MOk));
+				Message(MSG_WARNING|MSG_ERRORTYPE, MSG(MError),
+					make_vector<string>((LangString(MChangeDriveCannotDetach) << DiskLetter).data()),
+					make_vector<string>(MSG(MOk)),
+					nullptr, nullptr, &VHDDisconnectDriveErrorId);
 			}
 			return Result;
 		}

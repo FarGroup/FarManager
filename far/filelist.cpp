@@ -3957,6 +3957,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 					auto Dlg = Dialog::create(SelectDlg);
 					Dlg->SetHelp(L"SelectFiles");
 					Dlg->SetPosition(-1,-1,55,7);
+					Dlg->SetId(Mode==SELECT_ADD?SelectDialogId:UnSelectDialogId);
 
 					for (;;)
 					{
@@ -4786,7 +4787,8 @@ void FileList::DescribeFiles()
 		*/
 		if (!GetString(MSG(MDescribeFiles),strMsg.data(),L"DizText",
 		               PrevText ? PrevText:L"",strDizText,
-		               L"FileDiz",FIB_ENABLEEMPTY|(!DizCount?FIB_NOUSELASTHISTORY:0)|FIB_BUTTONS))
+		               L"FileDiz",FIB_ENABLEEMPTY|(!DizCount?FIB_NOUSELASTHISTORY:0)|FIB_BUTTONS),
+		               nullptr,nullptr,nullptr,&DescribeFileId)
 			break;
 
 		DizCount++;
