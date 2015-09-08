@@ -4783,12 +4783,12 @@ void FileList::DescribeFiles()
 		strMsg.append(MSG(MEnterDescription)).append(L" ").append(strQuotedName).append(L":");
 
 		/* $ 09.08.2000 SVS
-		   Для Ctrl-Z ненужно брать предыдущее значение!
+		   Для Ctrl-Z не нужно брать предыдущее значение!
 		*/
 		if (!GetString(MSG(MDescribeFiles),strMsg.data(),L"DizText",
 		               PrevText ? PrevText:L"",strDizText,
-		               L"FileDiz",FIB_ENABLEEMPTY|(!DizCount?FIB_NOUSELASTHISTORY:0)|FIB_BUTTONS),
-		               nullptr,nullptr,nullptr,&DescribeFileId)
+		               L"FileDiz",FIB_ENABLEEMPTY|(!DizCount?FIB_NOUSELASTHISTORY:0)|FIB_BUTTONS,
+		               nullptr,nullptr,nullptr,&DescribeFileId))
 			break;
 
 		DizCount++;
