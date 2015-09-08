@@ -34,7 +34,7 @@ void WINAPI Text(
   <div class=dfn>X,Y</div>
     <div class=dfndescr>Координаты вывода текста. Начало системы координат (0,0) - в верхней левой ячейке экрана.</div>
   <div class=dfn>Color</div>
-    <div class=dfndescr>Цветовые атрибуты текста, массив структур <a href="../structures/farcolor.html">FarColor</a>.</div>
+    <div class=dfndescr>Цветовые атрибуты текста, указатель на структуру <a href="../structures/farcolor.html">FarColor</a>.</div>
   <div class=dfn>Str</div>
     <div class=dfndescr>Текстовая строка, завершающаяся нулём. После вывода строки, вы можете также вызвать <code>Text</code> с параметром <code>Str</code>
     равным <code>NULL</code> - эта операция сбросит экранный буфер Far Manager и ваши изменения вступят в силу немедленно. Но не используйте это слишком часто,
