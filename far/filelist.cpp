@@ -4837,7 +4837,19 @@ bool FileList::ApplyCommand()
 	static string strPrevCommand;
 	string strCommand;
 
-	if (!GetString(MSG(MAskApplyCommandTitle),MSG(MAskApplyCommand),L"ApplyCmd",strPrevCommand.data(),strCommand,L"ApplyCmd",FIB_BUTTONS|FIB_EDITPATH|FIB_EDITPATHEXEC) || !SetCurPath())
+	if (!GetString(
+			MSG(MAskApplyCommandTitle),
+			MSG(MAskApplyCommand),
+			L"ApplyCmd",
+			strPrevCommand.data(),
+			strCommand,
+			L"ApplyCmd",
+			FIB_BUTTONS|FIB_EDITPATH|FIB_EDITPATHEXEC,
+			nullptr,
+			nullptr,
+			nullptr,
+			&ApplyCommandId) ||
+		!SetCurPath())
 		return false;
 
 	strPrevCommand = strCommand;
