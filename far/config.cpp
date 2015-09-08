@@ -2634,7 +2634,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		MSG(MMenuFindFile),LIF_SELECTED,KEY_ALTF7,
 		MSG(MMenuHistory),0,KEY_ALTF8,
 		MSG(MMenuVideoMode),0,KEY_ALTF9,
-		MSG(MMenuFindFolder),0,KEY_ALTF10,
+		MSG(MMenuFindFolder),no_tree,KEY_ALTF10,
 		MSG(MMenuViewHistory),0,KEY_ALTF11,
 		MSG(MMenuFoldersHistory),0,KEY_ALTF12,
 		L"",LIF_SEPARATOR,0,

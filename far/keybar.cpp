@@ -199,11 +199,16 @@ void KeyBar::ClearKeyTitles(bool Custom)
 
 void KeyBar::SetLabels(LNGID StartIndex)
 {
+	bool no_tree = Global->Opt->Tree.TurnOffCompletely;
+
 	std::for_each(RANGE(Items, Group)
 	{
 		std::for_each(RANGE(Group, i)
 		{
-			i.first = MSG(StartIndex++);
+			i.first = MSG(StartIndex);
+			if (no_tree && (StartIndex == MAltF10 || StartIndex == MInfoAltF10 || StartIndex == MQViewAltF10))
+				i.first = L"";
+			StartIndex++;
 		});
 	});
 }
