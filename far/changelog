@@ -1,4 +1,53 @@
-﻿svs 08.09.2015 17:50:24 +0300 - build 4417
+﻿svs 10.09.2015 10:31:11 +0300 - build 4418
+
+1. Mantis#0003055: Отсутствие ID'а у "диалога удаления файлов", невозможность проверки.
+
+    DeleteWipeId                     = {9C054039-5C7E-4B04-96CD-3585228C916F}  --> Dlg.Id
+    Основной диалог уничтожения файлов/папок
+
+    DeleteRecycleId                  = {85A5F779-A881-4B0B-ACEE-6D05653AE0EB}  --> Dlg.Id
+    Основной диалог удаления файлов/папок в корзину
+
+    DeleteFileFolderId               = {85A5F779-A881-4B0B-ACEE-6D05653AE0EB}  --> Dlg.Id
+    Основной диалог удаления файлов/папок
+
+    Дальше разнообразные предупреждения по теме удаления/уничтожения:
+
+    DeleteLinkId                     = {B1099BC3-14BD-4B22-87AC-44770D4189A3}  --> Dlg.Id
+    Диалог "Удаление ссылки"
+
+    DeleteFolderId                   = {4E714029-11BF-476F-9B17-9E47AA0DA8EA}  --> Dlg.Id
+    Диалог удаления папки
+    (System.DeleteToRecycleBin = fasle)
+
+    DeleteFolderRecycleId            = {A318CBDC-DBA9-49E9-A248-E6A9FF8EC849}  --> Dlg.Id
+    Диалог удаления папки в корзину
+    (System.DeleteToRecycleBin = true)
+
+    WipeFolderId                     = {E23BB390-036E-4A30-A9E6-DC621617C7F5}  --> Dlg.Id
+    Диалог уничтожения папки
+
+    DeleteAskDeleteROId              = {8D4E84B3-08F6-47DF-8C40-7130CD31D0E6}  --> Dlg.Id
+    Подтверждение удаления ReadOnly-файла
+
+    DeleteAskWipeROId                = {6792A975-57C5-4110-8129-2D8045120964}  --> Dlg.Id
+    Подтверждение уничтожения ReadOnly-файла
+
+    WipeHardLinkId                   = {5297DDFE-0A37-4465-85EF-CBF9006D65C6}  --> Dlg.Id
+    Диалог-предупреждение об уничтожении файла с несколькими хардлинками
+
+    RecycleFolderConfirmDeleteLinkId = {26A7AB9F-51F5-40F7-9061-1AE6E2FBD00A}  --> Dlg.Id
+    Предупреждение о том, что папка содержит символические ссылки и при очистке корзины 
+    данные будут потеряны и нужно разорвать связи (см. MRecycleFolderConfirmDeleteLink?)
+
+    CannotRecycleFileId              = {52CEB5A5-06FA-43DD-B37C-239C02652C99}  --> Dlg.Id
+    Не удалось удалить файл в корзину
+
+    CannotRecycleFolderId            = {BBD9B7AE-9F6B-4444-89BF-C6124A5A83A4}  --> Dlg.Id
+    Не удалось удалить папку в корзину
+
+
+svs 08.09.2015 17:50:24 +0300 - build 4417
 
 1. Mantis#0002905: Присвоить гуид диалогу Apply command (CtrlG)
 
