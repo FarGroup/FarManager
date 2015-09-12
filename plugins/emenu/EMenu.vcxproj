@@ -27,6 +27,16 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <OutDir>plugins\$(ProjectName)</OutDir>
   </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <DebugInformationFormat Condition="'$(VisualStudioVersion)'!='10.0'">None</DebugInformationFormat>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <DebugInformationFormat Condition="'$(VisualStudioVersion)'!='10.0'">None</DebugInformationFormat>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ImportGroup Label="PropertySheets">
     <Import Project="$(ProjectDir)..\..\_build\vc\config\common.props" />
   </ImportGroup>
