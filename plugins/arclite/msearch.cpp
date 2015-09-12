@@ -1,4 +1,8 @@
 #include "utils.hpp"
+#include "sysutils.hpp"
+#include "farutils.hpp"
+#include "common.hpp"
+#include "archive.hpp"
 #include "msearch.hpp"
 
 typedef unsigned short State;
@@ -32,15 +36,15 @@ public:
   }
 };
 
-StateMatrix* create_state_matrix(const vector<ByteVector>& str_list) {
+StateMatrix* create_state_matrix(const vector<SigData>& str_list) {
   size_t max_states = 0;
   for (unsigned i = 0; i < str_list.size(); i++) {
-    max_states += str_list[i].size();
+    max_states += str_list[i].signature.size();
   }
   StateMatrix* matrix = new StateMatrix(max_states);
   State current_state = 0;
   for (StrIndex i = 0; i < str_list.size(); i++) {
-    const ByteVector& str = str_list[i];
+    const ByteVector& str = str_list[i].signature;
     State state = 0;
     for (unsigned j = 0; j + 1 < str.size(); j++) {
       StateElement& st_elem = matrix->at(state, str[j]);
@@ -60,7 +64,7 @@ StateMatrix* create_state_matrix(const vector<ByteVector>& str_list) {
   return matrix;
 }
 
-vector<StrPos> msearch(unsigned char* data, size_t size, const vector<ByteVector>& str_list) {
+vector<StrPos> msearch(unsigned char* data, size_t size, const vector<SigData>& str_list, bool eof) {
   vector<StrPos> result;
   if (str_list.empty())
     return result;
@@ -71,11 +75,15 @@ vector<StrPos> msearch(unsigned char* data, size_t size, const vector<ByteVector
     State state = 0;
     for (size_t j = i; j < size; j++) {
       const StateElement& st_elem = matrix->at(state, data[j]);
-      if (st_elem.str_index) { //found
+      if (st_elem.str_index) { // found signature
         StrIndex str_index = st_elem.str_index - 1;
-        if (!found[str_index]) {
-          found[str_index] = true;
-          result.push_back(StrPos(str_index, i));
+        auto format = str_list[str_index].format;
+        if (i >= format.SignatureOffset && !found[str_index]) { // more detailed check
+          UInt32 is_arc = format.IsArc ? format.IsArc(data+i-format.SignatureOffset, size-i+format.SignatureOffset) : k_IsArc_Res_YES;
+          if (is_arc == k_IsArc_Res_YES || (is_arc == k_IsArc_Res_NEED_MORE && !eof)) {
+            found[str_index] = true;
+            result.emplace_back(StrPos(str_index, i));
+			 }
         }
       }
       if (st_elem.next_state) {

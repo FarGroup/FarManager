@@ -2,100 +2,91 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Spec">
-      <UniqueIdentifier>{5a6319f3-01dd-47ee-b842-3cce9221b782}</UniqueIdentifier>
+      <UniqueIdentifier>{e9870969-3c44-46cb-9200-79df5102d42e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Spec\Icons">
-      <UniqueIdentifier>{7da224e4-2ab3-4585-8d14-24f27aa27b3a}</UniqueIdentifier>
+      <UniqueIdentifier>{e6053c75-2089-4017-aa07-28afa90a74c6}</UniqueIdentifier>
     </Filter>
     <Filter Include="Common">
-      <UniqueIdentifier>{6c7a077d-19a5-47b0-8d8b-aa8c1138d3fb}</UniqueIdentifier>
+      <UniqueIdentifier>{0532d05b-222b-4fd4-95b9-6660545b1bfe}</UniqueIdentifier>
     </Filter>
     <Filter Include="Compress">
-      <UniqueIdentifier>{dd49d24b-6095-4c9b-83b3-eb0590b78393}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Compress\PPMD">
-      <UniqueIdentifier>{fe023f1a-d235-4adf-9baf-15a26cc22913}</UniqueIdentifier>
+      <UniqueIdentifier>{097e431d-083e-4dcb-89b2-d7607dcd1d5f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Compress\Bit Coder">
-      <UniqueIdentifier>{9408dc27-f1a6-427f-b1ef-73321c84a113}</UniqueIdentifier>
+      <UniqueIdentifier>{7d1c8a43-4251-4a56-87b4-5d9572777eab}</UniqueIdentifier>
     </Filter>
     <Filter Include="Compress\Rar Compress">
-      <UniqueIdentifier>{713c1651-c158-44b9-8e72-c6bb761dc600}</UniqueIdentifier>
+      <UniqueIdentifier>{b6ce1332-dc95-4b16-b7c5-939e7cb08e45}</UniqueIdentifier>
     </Filter>
     <Filter Include="Compress\BZip2 Compress">
-      <UniqueIdentifier>{71ca9428-a004-4dc9-9eee-f84d407dd577}</UniqueIdentifier>
+      <UniqueIdentifier>{42c45c1d-4b21-4bff-9e0c-e1b050f9ed7f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Compress\Zip Compress">
-      <UniqueIdentifier>{5a103d2d-cde7-4d1d-942b-7832f13899e5}</UniqueIdentifier>
+      <UniqueIdentifier>{2caed8c9-cf60-43e6-96bc-beb89931d5d1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Compress\7z Compress">
-      <UniqueIdentifier>{4963a272-0ca5-4e96-9492-02b03470a7b8}</UniqueIdentifier>
+      <UniqueIdentifier>{963651a0-2b95-4b43-846c-e9d0a7e5a9dd}</UniqueIdentifier>
     </Filter>
     <Filter Include="Compress\Cab Compress">
-      <UniqueIdentifier>{743ddd3b-35e0-436d-927f-95a6f6233e75}</UniqueIdentifier>
+      <UniqueIdentifier>{94fd6752-78ac-4e60-a069-521fd24e1a0c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Crypto">
-      <UniqueIdentifier>{446b60d4-172e-48a8-8367-7c1345ef0a2b}</UniqueIdentifier>
+      <UniqueIdentifier>{57a5ced9-e091-4942-a527-f2413fc400bb}</UniqueIdentifier>
     </Filter>
     <Filter Include="7zip Common">
-      <UniqueIdentifier>{17363abc-1ff4-40a7-b32a-fe9758597473}</UniqueIdentifier>
+      <UniqueIdentifier>{89e660b0-201f-4044-bda0-47a583670926}</UniqueIdentifier>
     </Filter>
     <Filter Include="C">
-      <UniqueIdentifier>{a6278760-b5f3-4a99-a9b0-06c992384a5c}</UniqueIdentifier>
+      <UniqueIdentifier>{bb346c43-bd91-4037-beb7-474f6582aa7b}</UniqueIdentifier>
     </Filter>
     <Filter Include="C\xz">
-      <UniqueIdentifier>{2c74937d-afc6-47fe-8af3-c28e0f514117}</UniqueIdentifier>
+      <UniqueIdentifier>{4afe08d7-f925-422e-af94-3f982631f68d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Archive">
-      <UniqueIdentifier>{def6ed3a-4047-408d-8d2e-b7c245a4110f}</UniqueIdentifier>
+      <UniqueIdentifier>{6defa26c-4d6c-44c4-93de-3466cedae305}</UniqueIdentifier>
     </Filter>
     <Filter Include="Archive\7z">
-      <UniqueIdentifier>{281bc655-cad6-4505-b5b9-0b8f1a6e2c75}</UniqueIdentifier>
+      <UniqueIdentifier>{aafc29b8-1596-4537-8c1b-4b88055372a5}</UniqueIdentifier>
     </Filter>
     <Filter Include="Archive\Rar">
-      <UniqueIdentifier>{242c5a7f-a677-4b7e-a4b5-6ba739954bd1}</UniqueIdentifier>
+      <UniqueIdentifier>{be369833-bf6d-4f2c-8159-dbce24bb9449}</UniqueIdentifier>
     </Filter>
     <Filter Include="Archive\Cab">
-      <UniqueIdentifier>{474950f5-d709-4c82-baa6-39b957b54876}</UniqueIdentifier>
+      <UniqueIdentifier>{29877527-dee2-4c35-8f58-659fb28ba265}</UniqueIdentifier>
     </Filter>
     <Filter Include="Archive\Chm">
-      <UniqueIdentifier>{4bc9b22c-bea1-4d23-8afe-9827d35511e9}</UniqueIdentifier>
+      <UniqueIdentifier>{a1cfeb40-27f0-493f-b8ce-8a84703c1e93}</UniqueIdentifier>
     </Filter>
     <Filter Include="Archive\Archive common">
-      <UniqueIdentifier>{c18f9d8d-fbab-4d72-8b7c-29d32c969a12}</UniqueIdentifier>
+      <UniqueIdentifier>{7c13b3bc-3310-4843-acb0-c078159f84a3}</UniqueIdentifier>
     </Filter>
     <Filter Include="Archive\Iso">
-      <UniqueIdentifier>{420dd6f9-8066-4ff2-97db-f89ba9e84b66}</UniqueIdentifier>
+      <UniqueIdentifier>{4b3a2d6e-eaa3-4d2e-8a31-edc25777b9b6}</UniqueIdentifier>
     </Filter>
     <Filter Include="Archive\Nsis">
-      <UniqueIdentifier>{f0c73e63-64a4-4ebc-9c0a-35b48e3059be}</UniqueIdentifier>
+      <UniqueIdentifier>{90ac7573-419a-4b4b-9e79-021c4dd46499}</UniqueIdentifier>
     </Filter>
     <Filter Include="Archive\Tar">
-      <UniqueIdentifier>{f76093f8-ac6a-4590-90a0-95b3f933863a}</UniqueIdentifier>
+      <UniqueIdentifier>{2261a48a-34ad-45ba-9976-9dbeb54c29de}</UniqueIdentifier>
     </Filter>
     <Filter Include="Archive\Zip">
-      <UniqueIdentifier>{df2cfa0e-eaff-4b78-ba19-798186c013ca}</UniqueIdentifier>
+      <UniqueIdentifier>{76b60431-0d54-4abe-8d17-ca8b79430c20}</UniqueIdentifier>
     </Filter>
     <Filter Include="Archive\Wim">
-      <UniqueIdentifier>{f1d7bafc-2ed8-4f77-94be-719bf7102dde}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Archive\Com">
-      <UniqueIdentifier>{3f14cbcc-c05e-426a-b529-1f32a56275ba}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Archive\Hfs">
-      <UniqueIdentifier>{3e5932b7-362d-47d5-9358-7dc20b90beef}</UniqueIdentifier>
+      <UniqueIdentifier>{31a65f16-6edf-4909-bbd1-8f79a252720d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Archive\Udf">
-      <UniqueIdentifier>{1f519392-b422-4271-98b1-960518ec3556}</UniqueIdentifier>
+      <UniqueIdentifier>{a3187702-e6a9-45f6-a643-5c2944c9e41f}</UniqueIdentifier>
     </Filter>
     <Filter Include="7zip">
-      <UniqueIdentifier>{4e147b4e-92d9-4698-b859-de0bba19cb78}</UniqueIdentifier>
+      <UniqueIdentifier>{5f336538-ecb7-491b-ada7-ed5e2e3b29f7}</UniqueIdentifier>
     </Filter>
     <Filter Include="Windows">
-      <UniqueIdentifier>{3f14d0b2-a9e6-454e-8c32-5e2850174b41}</UniqueIdentifier>
+      <UniqueIdentifier>{b480db55-6a15-405f-971a-13fa143721dc}</UniqueIdentifier>
     </Filter>
     <Filter Include="Asm">
-      <UniqueIdentifier>{a9b87f6b-81b6-47b8-830e-0475ac52ba64}</UniqueIdentifier>
+      <UniqueIdentifier>{0a46f86e-b3d3-4e99-8c26-129218e8f194}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -114,6 +105,12 @@
     <ClCompile Include="..\..\..\Common\CRC.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Common\CrcReg.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Common\DynLimBuf.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\Common\IntToString.cpp">
       <Filter>Common</Filter>
     </ClCompile>
@@ -126,10 +123,19 @@
     <ClCompile Include="..\..\..\Common\MyVector.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Common\MyWindows.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\Common\MyXml.cpp">
       <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Common\NewHandler.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Common\Sha1Reg.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Common\Sha256Reg.cpp">
       <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Common\StringConvert.cpp">
@@ -144,14 +150,8 @@
     <ClCompile Include="..\..\..\Common\Wildcard.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Compress\PpmdDecoder.cpp">
-      <Filter>Compress\PPMD</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Compress\PpmdEncoder.cpp">
-      <Filter>Compress\PPMD</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Compress\PpmdRegister.cpp">
-      <Filter>Compress\PPMD</Filter>
+    <ClCompile Include="..\..\..\Common\XzCrc64Reg.cpp">
+      <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Compress\BitlDecoder.cpp">
       <Filter>Compress\Bit Coder</Filter>
@@ -225,9 +225,6 @@
     <ClCompile Include="..\..\Compress\BcjRegister.cpp">
       <Filter>Compress\7z Compress</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Compress\BranchCoder.cpp">
-      <Filter>Compress\7z Compress</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Compress\BranchMisc.cpp">
       <Filter>Compress\7z Compress</Filter>
     </ClCompile>
@@ -241,6 +238,9 @@
       <Filter>Compress\7z Compress</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Compress\CopyRegister.cpp">
+      <Filter>Compress\7z Compress</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Compress\DeltaFilter.cpp">
       <Filter>Compress\7z Compress</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Compress\Lzma2Decoder.cpp">
@@ -261,6 +261,15 @@
     <ClCompile Include="..\..\Compress\LzmaRegister.cpp">
       <Filter>Compress\7z Compress</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Compress\PpmdDecoder.cpp">
+      <Filter>Compress\7z Compress</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Compress\PpmdEncoder.cpp">
+      <Filter>Compress\7z Compress</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Compress\PpmdRegister.cpp">
+      <Filter>Compress\7z Compress</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Compress\Lzx86Converter.cpp">
       <Filter>Compress\Cab Compress</Filter>
     </ClCompile>
@@ -269,15 +278,6 @@
     </ClCompile>
     <ClCompile Include="..\..\Compress\QuantumDecoder.cpp">
       <Filter>Compress\Cab Compress</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Compress\ArjDecoder1.cpp">
-      <Filter>Compress</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Compress\ArjDecoder2.cpp">
-      <Filter>Compress</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Compress\DeltaFilter.cpp">
-      <Filter>Compress</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Compress\LzhDecoder.cpp">
       <Filter>Compress</Filter>
@@ -300,6 +300,9 @@
     <ClCompile Include="..\..\Crypto\MyAes.cpp">
       <Filter>Crypto</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Crypto\MyAesReg.cpp">
+      <Filter>Crypto</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Crypto\Pbkdf2HmacSha1.cpp">
       <Filter>Crypto</Filter>
     </ClCompile>
@@ -310,9 +313,6 @@
       <Filter>Crypto</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Crypto\RarAes.cpp">
-      <Filter>Crypto</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Crypto\Sha1.cpp">
       <Filter>Crypto</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Crypto\WzAes.cpp">
@@ -342,9 +342,6 @@
     <ClCompile Include="..\..\Common\LimitedStreams.cpp">
       <Filter>7zip Common</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Common\LockedStream.cpp">
-      <Filter>7zip Common</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Common\MemBlocks.cpp">
       <Filter>7zip Common</Filter>
     </ClCompile>
@@ -369,6 +366,9 @@
     <ClCompile Include="..\..\Common\ProgressUtils.cpp">
       <Filter>7zip Common</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Common\PropId.cpp">
+      <Filter>7zip Common</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Common\StreamBinder.cpp">
       <Filter>7zip Common</Filter>
     </ClCompile>
@@ -378,6 +378,9 @@
     <ClCompile Include="..\..\Common\StreamUtils.cpp">
       <Filter>7zip Common</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Common\UniqBlocks.cpp">
+      <Filter>7zip Common</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Common\VirtThread.cpp">
       <Filter>7zip Common</Filter>
     </ClCompile>
@@ -385,6 +388,9 @@
       <Filter>C\xz</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\C\XzCrc64.c">
+      <Filter>C\xz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\C\XzCrc64Opt.c">
       <Filter>C\xz</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\C\XzDec.c">
@@ -409,6 +415,12 @@
       <Filter>C</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\C\Alloc.c">
+      <Filter>C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\C\Bcj2.c">
+      <Filter>C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\C\Bcj2Enc.c">
       <Filter>C</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\C\Bra.c">
@@ -471,6 +483,9 @@
     <ClCompile Include="..\..\..\..\C\Ppmd8Enc.c">
       <Filter>C</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\C\Sha1.c">
+      <Filter>C</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\C\Sha256.c">
       <Filter>C</Filter>
     </ClCompile>
@@ -493,9 +508,6 @@
       <Filter>Archive\7z</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Archive\7z\7zFolderInStream.cpp">
-      <Filter>Archive\7z</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Archive\7z\7zFolderOutStream.cpp">
       <Filter>Archive\7z</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Archive\7z\7zHandler.cpp">
@@ -528,21 +540,6 @@
     <ClCompile Include="..\..\Archive\Rar\RarHandler.cpp">
       <Filter>Archive\Rar</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Archive\Rar\RarHeader.cpp">
-      <Filter>Archive\Rar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Archive\Rar\RarIn.cpp">
-      <Filter>Archive\Rar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Archive\Rar\RarItem.cpp">
-      <Filter>Archive\Rar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Archive\Rar\RarRegister.cpp">
-      <Filter>Archive\Rar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Archive\Rar\RarVolumeInStream.cpp">
-      <Filter>Archive\Rar</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Archive\Cab\CabBlockInStream.cpp">
       <Filter>Archive\Cab</Filter>
     </ClCompile>
@@ -561,19 +558,10 @@
     <ClCompile Include="..\..\Archive\Chm\ChmHandler.cpp">
       <Filter>Archive\Chm</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Archive\Chm\ChmHeader.cpp">
-      <Filter>Archive\Chm</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Archive\Chm\ChmIn.cpp">
       <Filter>Archive\Chm</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Archive\Chm\ChmRegister.cpp">
-      <Filter>Archive\Chm</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Archive\Common\CoderMixer2.cpp">
-      <Filter>Archive\Archive common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Archive\Common\CoderMixer2MT.cpp">
       <Filter>Archive\Archive common</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Archive\Common\DummyOutStream.cpp">
@@ -657,9 +645,6 @@
     <ClCompile Include="..\..\Archive\Zip\ZipHandlerOut.cpp">
       <Filter>Archive\Zip</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Archive\Zip\ZipHeader.cpp">
-      <Filter>Archive\Zip</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Archive\Zip\ZipIn.cpp">
       <Filter>Archive\Zip</Filter>
     </ClCompile>
@@ -687,34 +672,16 @@
     <ClCompile Include="..\..\Archive\Wim\WimRegister.cpp">
       <Filter>Archive\Wim</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Archive\Com\ComHandler.cpp">
-      <Filter>Archive\Com</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Archive\Com\ComIn.cpp">
-      <Filter>Archive\Com</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Archive\Com\ComRegister.cpp">
-      <Filter>Archive\Com</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Archive\Hfs\HfsHandler.cpp">
-      <Filter>Archive\Hfs</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Archive\Hfs\HfsIn.cpp">
-      <Filter>Archive\Hfs</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Archive\Hfs\HfsRegister.cpp">
-      <Filter>Archive\Hfs</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Archive\Udf\UdfHandler.cpp">
       <Filter>Archive\Udf</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Archive\Udf\UdfIn.cpp">
       <Filter>Archive\Udf</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Archive\Udf\UdfRegister.cpp">
-      <Filter>Archive\Udf</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Archive\ApmHandler.cpp">
+      <Filter>Archive</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Archive\ArHandler.cpp">
       <Filter>Archive</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Archive\ArjHandler.cpp">
@@ -723,13 +690,13 @@
     <ClCompile Include="..\..\Archive\Bz2Handler.cpp">
       <Filter>Archive</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Archive\ComHandler.cpp">
+      <Filter>Archive</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Archive\CpioHandler.cpp">
       <Filter>Archive</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Archive\CramfsHandler.cpp">
-      <Filter>Archive</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Archive\DebHandler.cpp">
       <Filter>Archive</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Archive\DeflateProps.cpp">
@@ -748,6 +715,12 @@
       <Filter>Archive</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Archive\GzHandler.cpp">
+      <Filter>Archive</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Archive\HfsHandler.cpp">
+      <Filter>Archive</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Archive\IhexHandler.cpp">
       <Filter>Archive</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Archive\LzhHandler.cpp">
@@ -789,6 +762,9 @@
     <ClCompile Include="..\..\Archive\SwfHandler.cpp">
       <Filter>Archive</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Archive\UefiHandler.cpp">
+      <Filter>Archive</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Archive\VhdHandler.cpp">
       <Filter>Archive</Filter>
     </ClCompile>
@@ -810,6 +786,9 @@
     <ClCompile Include="..\..\..\Windows\FileIO.cpp">
       <Filter>Windows</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Windows\FileName.cpp">
+      <Filter>Windows</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\Windows\PropVariant.cpp">
       <Filter>Windows</Filter>
     </ClCompile>
@@ -822,9 +801,25 @@
     <ClCompile Include="..\..\..\Windows\System.cpp">
       <Filter>Windows</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Windows\Time.cpp">
+    <ClCompile Include="..\..\..\Windows\TimeUtils.cpp">
       <Filter>Windows</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\C\Blake2s.c">
+      <Filter>C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Archive\Rar\Rar5Handler.cpp">
+      <Filter>Archive\Rar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Compress\Rar5Decoder.cpp">
+      <Filter>Compress\Rar Compress</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Crypto\HmacSha256.cpp">
+      <Filter>Crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Crypto\Rar5Aes.cpp">
+      <Filter>Crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="vc_crt_fix_impl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc">
@@ -835,13 +830,19 @@
     <ClInclude Include="StdAfx.h">
       <Filter>Spec</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Common\Buffer.h">
+    <ClInclude Include="..\..\..\Common\Common.h">
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Common\DynamicBuffer.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Common\DynLimBuf.h">
+      <Filter>Common</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\Common\IntToString.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Common\MyBuffer.h">
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Common\MyCom.h">
@@ -857,6 +858,9 @@
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Common\MyString.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Common\MyTypes.h">
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Common\MyUnknown.h">
@@ -880,26 +884,11 @@
     <ClInclude Include="..\..\..\Common\StringToInt.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Common\Types.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Common\UTFConvert.h">
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Common\Wildcard.h">
       <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Compress\PpmdDecoder.h">
-      <Filter>Compress\PPMD</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Compress\PpmdEncoder.h">
-      <Filter>Compress\PPMD</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Compress\PpmdSubAlloc.h">
-      <Filter>Compress\PPMD</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Compress\PpmdType.h">
-      <Filter>Compress\PPMD</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Compress\BitlDecoder.h">
       <Filter>Compress\Bit Coder</Filter>
@@ -973,9 +962,6 @@
     <ClInclude Include="..\..\Compress\BcjCoder.h">
       <Filter>Compress\7z Compress</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Compress\BranchCoder.h">
-      <Filter>Compress\7z Compress</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Compress\BranchMisc.h">
       <Filter>Compress\7z Compress</Filter>
     </ClInclude>
@@ -994,10 +980,10 @@
     <ClInclude Include="..\..\Compress\LzmaEncoder.h">
       <Filter>Compress\7z Compress</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Compress\RangeCoder.h">
+    <ClInclude Include="..\..\Compress\PpmdDecoder.h">
       <Filter>Compress\7z Compress</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Compress\RangeCoderBit.h">
+    <ClInclude Include="..\..\Compress\PpmdEncoder.h">
       <Filter>Compress\7z Compress</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Compress\Lzx.h">
@@ -1011,12 +997,6 @@
     </ClInclude>
     <ClInclude Include="..\..\Compress\QuantumDecoder.h">
       <Filter>Compress\Cab Compress</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Compress\ArjDecoder1.h">
-      <Filter>Compress</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Compress\ArjDecoder2.h">
-      <Filter>Compress</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Compress\HuffmanDecoder.h">
       <Filter>Compress</Filter>
@@ -1051,7 +1031,7 @@
     <ClInclude Include="..\..\Crypto\RarAes.h">
       <Filter>Crypto</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Crypto\Sha1.h">
+    <ClInclude Include="..\..\Crypto\Sha1Cls.h">
       <Filter>Crypto</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Crypto\WzAes.h">
@@ -1079,9 +1059,6 @@
       <Filter>7zip Common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Common\LimitedStreams.h">
-      <Filter>7zip Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Common\LockedStream.h">
       <Filter>7zip Common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Common\MemBlocks.h">
@@ -1123,6 +1100,9 @@
     <ClInclude Include="..\..\Common\StreamUtils.h">
       <Filter>7zip Common</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Common\UniqBlocks.h">
+      <Filter>7zip Common</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Common\VirtThread.h">
       <Filter>7zip Common</Filter>
     </ClInclude>
@@ -1138,16 +1118,25 @@
     <ClInclude Include="..\..\..\..\C\7zCrc.h">
       <Filter>C</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\C\7zTypes.h">
+      <Filter>C</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\..\C\Aes.h">
       <Filter>C</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\C\Alloc.h">
       <Filter>C</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\C\Bcj2.h">
+      <Filter>C</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\..\C\Bra.h">
       <Filter>C</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\C\BwtSort.h">
+      <Filter>C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\C\Compiler.h">
       <Filter>C</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\C\CpuArch.h">
@@ -1192,7 +1181,13 @@
     <ClInclude Include="..\..\..\..\C\Ppmd8.h">
       <Filter>C</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\C\Precomp.h">
+      <Filter>C</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\..\C\RotateDefs.h">
+      <Filter>C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\C\Sha1.h">
       <Filter>C</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\C\Sha256.h">
@@ -1201,10 +1196,10 @@
     <ClInclude Include="..\..\..\..\C\Sort.h">
       <Filter>C</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\C\Threads.h">
+    <ClInclude Include="..\..\..\..\C\StdAfx.h">
       <Filter>C</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\C\Types.h">
+    <ClInclude Include="..\..\..\..\C\Threads.h">
       <Filter>C</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Archive\7z\7zCompressionMode.h">
@@ -1217,9 +1212,6 @@
       <Filter>Archive\7z</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Archive\7z\7zFolderInStream.h">
-      <Filter>Archive\7z</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Archive\7z\7zFolderOutStream.h">
       <Filter>Archive\7z</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Archive\7z\7zHandler.h">
@@ -1255,13 +1247,7 @@
     <ClInclude Include="..\..\Archive\Rar\RarHeader.h">
       <Filter>Archive\Rar</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Archive\Rar\RarIn.h">
-      <Filter>Archive\Rar</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Archive\Rar\RarItem.h">
-      <Filter>Archive\Rar</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Archive\Rar\RarVolumeInStream.h">
       <Filter>Archive\Rar</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Archive\Cab\CabBlockInStream.h">
@@ -1282,16 +1268,10 @@
     <ClInclude Include="..\..\Archive\Chm\ChmHandler.h">
       <Filter>Archive\Chm</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Archive\Chm\ChmHeader.h">
-      <Filter>Archive\Chm</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Archive\Chm\ChmIn.h">
       <Filter>Archive\Chm</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Archive\Common\CoderMixer2.h">
-      <Filter>Archive\Archive common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Archive\Common\CoderMixer2MT.h">
       <Filter>Archive\Archive common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Archive\Common\DummyOutStream.h">
@@ -1378,9 +1358,6 @@
     <ClInclude Include="..\..\Archive\Zip\ZipItem.h">
       <Filter>Archive\Zip</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Archive\Zip\ZipItemEx.h">
-      <Filter>Archive\Zip</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Archive\Zip\ZipOut.h">
       <Filter>Archive\Zip</Filter>
     </ClInclude>
@@ -1393,18 +1370,6 @@
     <ClInclude Include="..\..\Archive\Wim\WimIn.h">
       <Filter>Archive\Wim</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Archive\Com\ComHandler.h">
-      <Filter>Archive\Com</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Archive\Com\ComIn.h">
-      <Filter>Archive\Com</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Archive\Hfs\HfsHandler.h">
-      <Filter>Archive\Hfs</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Archive\Hfs\HfsIn.h">
-      <Filter>Archive\Hfs</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Archive\Udf\UdfHandler.h">
       <Filter>Archive\Udf</Filter>
     </ClInclude>
@@ -1415,6 +1380,9 @@
       <Filter>Archive</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Archive\IArchive.h">
+      <Filter>Archive</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Archive\XzHandler.h">
       <Filter>Archive</Filter>
     </ClInclude>
     <ClInclude Include="..\..\ICoder.h">
@@ -1435,6 +1403,9 @@
     <ClInclude Include="..\..\PropID.h">
       <Filter>7zip</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Windows\Defs.h">
+      <Filter>Windows</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\Windows\FileDir.h">
       <Filter>Windows</Filter>
     </ClInclude>
@@ -1442,6 +1413,9 @@
       <Filter>Windows</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Windows\FileIO.h">
+      <Filter>Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Windows\FileName.h">
       <Filter>Windows</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Windows\PropVariant.h">
@@ -1459,8 +1433,29 @@
     <ClInclude Include="..\..\..\Windows\Thread.h">
       <Filter>Windows</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Windows\Time.h">
+    <ClInclude Include="..\..\..\Windows\TimeUtils.h">
       <Filter>Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\C\Blake2.h">
+      <Filter>C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Archive\Rar\Rar5Handler.h">
+      <Filter>Archive\Rar</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Archive\Rar\RarVol.h">
+      <Filter>Archive\Rar</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Common\Defs.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Compress\Rar5Decoder.h">
+      <Filter>Compress\Rar Compress</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Crypto\HmacSha256.h">
+      <Filter>Crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Crypto\Rar5Aes.h">
+      <Filter>Crypto</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1542,14 +1537,17 @@
     <CustomBuild Include="..\..\Archive\Archive2.def">
       <Filter>Spec</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\..\..\..\Asm\x86\7zAsm.asm">
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="..\..\..\..\Asm\x86\AesOpt.asm">
       <Filter>Asm</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\..\..\Asm\x86\7zCrcOpt.asm">
+    </MASM>
+    <MASM Include="..\..\..\..\Asm\x86\7zAsm.asm">
       <Filter>Asm</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\..\..\Asm\x86\AesOpt.asm">
+    </MASM>
+    <MASM Include="..\..\..\..\Asm\x86\7zCrcOpt.asm">
       <Filter>Asm</Filter>
-    </CustomBuild>
+    </MASM>
+    <MASM Include="vc_crt_fix.asm" />
   </ItemGroup>
 </Project>

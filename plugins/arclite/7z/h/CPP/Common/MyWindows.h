@@ -5,6 +5,8 @@
 
 #ifdef _WIN32
 
+#include <basetyps.h>
+#include <unknwn.h>
 #include <windows.h>
 
 #ifdef UNDER_CE

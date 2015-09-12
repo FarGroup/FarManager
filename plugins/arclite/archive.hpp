@@ -41,21 +41,49 @@ struct ArcLib {
   FGetNumberOfFormats GetNumberOfFormats;
   FGetHandlerProperty GetHandlerProperty;
   FGetHandlerProperty2 GetHandlerProperty2;
+  Func_GetIsArc GetIsArc;
 
   HRESULT get_prop(UInt32 index, PROPID prop_id, PROPVARIANT* prop) const;
   HRESULT get_bool_prop(UInt32 index, PROPID prop_id, bool& value) const;
+  HRESULT get_uint_prop(UInt32 index, PROPID prop_id, UInt32& value) const;
   HRESULT get_string_prop(UInt32 index, PROPID prop_id, wstring& value) const;
   HRESULT get_bytes_prop(UInt32 index, PROPID prop_id, ByteVector& value) const;
 };
 
 struct ArcFormat {
-  unsigned lib_index;
   wstring name;
   bool updatable;
-  ByteVector start_signature;
   list<wstring> extension_list;
   map<wstring, wstring> nested_ext_mapping;
   wstring default_extension() const;
+
+  UInt32 Flags;
+  bool NewInterface;
+
+  UInt32 SignatureOffset;
+  vector<ByteVector> Signatures;
+
+  int lib_index;
+  UInt32 FormatIndex;
+  ByteVector ClassID;
+
+  Func_IsArc IsArc;
+
+  bool Flags_KeepName() const { return (Flags & NArcInfoFlags::kKeepName) != 0; }
+  bool Flags_FindSignature() const { return (Flags & NArcInfoFlags::kFindSignature) != 0; }
+
+  bool Flags_AltStreams() const { return (Flags & NArcInfoFlags::kAltStreams) != 0; }
+  bool Flags_NtSecure() const { return (Flags & NArcInfoFlags::kNtSecure) != 0; }
+  bool Flags_SymLinks() const { return (Flags & NArcInfoFlags::kSymLinks) != 0; }
+  bool Flags_HardLinks() const { return (Flags & NArcInfoFlags::kHardLinks) != 0; }
+
+  bool Flags_UseGlobalOffset() const { return (Flags & NArcInfoFlags::kUseGlobalOffset) != 0; }
+  bool Flags_StartOpen() const { return (Flags & NArcInfoFlags::kStartOpen) != 0; }
+  bool Flags_BackwardOpen() const { return (Flags & NArcInfoFlags::kBackwardOpen) != 0; }
+  bool Flags_PreArc() const { return (Flags & NArcInfoFlags::kPreArc) != 0; }
+  bool Flags_PureStartOpen() const { return (Flags & NArcInfoFlags::kPureStartOpen) != 0; }
+
+  ArcFormat() : updatable(false), Flags(0), NewInterface(false), lib_index(-1), FormatIndex(0), IsArc(nullptr) {}
 };
 
 typedef vector<ArcLib> ArcLibs;
@@ -142,7 +170,7 @@ class Archive: public enable_shared_from_this<Archive> {
 private:
   ComObject<IInArchive> in_arc;
   bool open(IInStream* in_stream, const ArcType& type);
-  static ArcEntries detect(IInStream* stream, const wstring& file_ext, const ArcTypes& arc_types);
+  static ArcEntries detect(Byte *buffer, UInt32 size, bool eof, const wstring& file_ext, const ArcTypes& arc_types);
   static void open(const OpenOptions& options, Archives& archives);
 public:
   static unsigned max_check_size;

@@ -10,12 +10,45 @@
 OpenOptions::OpenOptions(): detect(false) {
 }
 
+class ArchiveSubStream : public IInStream, private ComBase {
+private:
+  ComObject<IInStream> base_stream;
+  size_t start_offset;
+
+public:
+  ArchiveSubStream(IInStream* stream, size_t offset) : base_stream(stream), start_offset(offset) {
+    base_stream->Seek(static_cast<Int64>(start_offset), STREAM_SEEK_SET, nullptr);
+  }
+
+  UNKNOWN_IMPL_BEGIN
+  UNKNOWN_IMPL_ITF(ISequentialInStream)
+  UNKNOWN_IMPL_ITF(IInStream)
+  UNKNOWN_IMPL_END
+
+  STDMETHODIMP Read(void *data, UInt32 size, UInt32 *processedSize) {
+	 return base_stream->Read(data, size, processedSize);
+  }
+
+  STDMETHODIMP Seek(Int64 offset, UInt32 seekOrigin, UInt64 *newPosition) {
+    if (seekOrigin == STREAM_SEEK_SET)
+      offset += start_offset;
+    UInt64 newPos = 0;
+	 auto res = base_stream->Seek(offset, seekOrigin, &newPos);
+	 if (res == S_OK && newPosition)
+      *newPosition = newPos - start_offset;
+	 return res;
+  }
+};
+
 class ArchiveOpenStream: public IInStream, private ComBase, private File {
 private:
   bool device_file;
   unsigned __int64 device_pos;
   unsigned __int64 device_size;
   unsigned device_sector_size;
+
+  Byte *cached_header;
+  UInt32 cached_size;
 
   void check_device_file() {
     device_pos = 0;
@@ -47,6 +80,15 @@ public:
   ArchiveOpenStream(const wstring& file_path) {
     open(file_path, FILE_READ_DATA | FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
     check_device_file();
+    cached_header = nullptr;
+    cached_size = 0;
+  }
+
+  void CacheHeader(Byte *buffer, UInt32 size) {
+    if (!device_file) {
+      cached_header = buffer;
+      cached_size = size;
+    }
   }
 
   UNKNOWN_IMPL_BEGIN
@@ -79,7 +121,20 @@ public:
       memcpy(data, alligned_buffer + aligned_offset, size_read);
     }
     else {
-      size_read = static_cast<unsigned>(read(data, size));
+      size_read = 0;
+      if (cached_size) {
+        auto cur_pos = set_pos(0, FILE_CURRENT);
+        if (cur_pos < cached_size) {
+          UInt32 off = static_cast<UInt32>(cur_pos);
+          UInt32 siz = min(size, cached_size - off);
+          memcpy(data, cached_header + off, siz);
+          size -= (size_read = siz);
+          data = static_cast<void *>(static_cast<Byte *>(data)+siz);
+			 set_pos(static_cast<Int64>(siz), FILE_CURRENT);
+        }
+      }
+      if (size > 0)
+        size_read += static_cast<unsigned>(read(data, size));
     }
     if (processedSize)
       *processedSize = size_read;
@@ -291,34 +346,32 @@ void prioritize(list<ArcEntry>& arc_entries, const ArcType& first, const ArcType
   }
 }
 
-ArcEntries Archive::detect(IInStream* stream, const wstring& file_ext, const ArcTypes& arc_types) {
+ArcEntries Archive::detect(Byte *buffer, UInt32 size, bool eof, const wstring& file_ext, const ArcTypes& arc_types) {
   ArcEntries arc_entries;
   set<ArcType> found_types;
 
   // 1. find formats by signature
-  vector<ByteVector> signatures;
-  signatures.reserve(arc_types.size());
-  vector<ArcType> sig_types;
-  sig_types.reserve(arc_types.size());
+  //
+  vector<SigData> signatures;
+  signatures.reserve(2 * arc_types.size());
   for_each(arc_types.begin(), arc_types.end(), [&] (const ArcType& arc_type) {
-    if (!ArcAPI::formats().at(arc_type).start_signature.empty()) {
-      sig_types.push_back(arc_type);
-      signatures.push_back(ArcAPI::formats().at(arc_type).start_signature);
+    const auto& format = ArcAPI::formats().at(arc_type);
+    for_each(format.Signatures.begin(), format.Signatures.end(), [&](const ByteVector& signature) {
+      signatures.emplace_back(SigData(signature, format));
+    });
+  });
+  vector<StrPos> sig_positions = msearch(buffer, size, signatures, eof);
+
+  for_each(sig_positions.begin(), sig_positions.end(), [&] (const StrPos& sig_pos) {
+    auto format = signatures[sig_pos.idx].format;
+    if (found_types.count(format.ClassID) == 0) { //??? maybe all ???
+      found_types.insert(format.ClassID);
+      arc_entries.push_back(ArcEntry(format.ClassID, sig_pos.pos - format.SignatureOffset));
     }
   });
 
-  Buffer<unsigned char> buffer(max_check_size);
-  UInt32 size;
-  CHECK_COM(stream->Read(buffer.data(), static_cast<UInt32>(buffer.size()), &size));
-
-  vector<StrPos> sig_positions = msearch(buffer.data(), size, signatures);
-
-  for_each(sig_positions.begin(), sig_positions.end(), [&] (const StrPos& sig_pos) {
-    found_types.insert(sig_types[sig_pos.idx]);
-    arc_entries.push_back(ArcEntry(sig_types[sig_pos.idx], sig_pos.pos));
-  });
-
   // 2. find formats by file extension
+  //
   ArcTypes types_by_ext = ArcAPI::formats().find_by_ext(file_ext);
   for_each(types_by_ext.begin(), types_by_ext.end(), [&] (const ArcType& arc_type) {
     if (found_types.count(arc_type) == 0 && find(arc_types.begin(), arc_types.end(), arc_type) != arc_types.end()) {
@@ -328,6 +381,7 @@ ArcEntries Archive::detect(IInStream* stream, const wstring& file_ext, const Arc
   });
 
   // 3. all other formats
+  //
   for_each(arc_types.begin(), arc_types.end(), [&] (const ArcType& arc_type) {
     if (found_types.count(arc_type) == 0) {
       arc_entries.push_back(ArcEntry(arc_type, 0));
@@ -347,11 +401,12 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
   if (!archives.empty())
     parent_idx = archives.size() - 1;
 
+  ArchiveOpenStream* stream_impl = nullptr;
   ComObject<IInStream> stream;
   FindData arc_info;
   memzero(arc_info);
   if (parent_idx == -1) {
-    ArchiveOpenStream* stream_impl = new ArchiveOpenStream(options.arc_path);
+    stream_impl = new ArchiveOpenStream(options.arc_path);
     stream = stream_impl;
     arc_info = stream_impl->get_info();
   }
@@ -364,7 +419,13 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
     arc_info = archives[parent_idx]->get_file_info(main_file);
   }
 
-  ArcEntries arc_entries = detect(stream, extract_file_ext(arc_info.cFileName), options.arc_types);
+  Buffer<unsigned char> buffer(max_check_size);
+  UInt32 size;
+  CHECK_COM(stream->Read(buffer.data(), static_cast<UInt32>(buffer.size()), &size));
+  if (stream_impl)
+    stream_impl->CacheHeader(buffer.data(), size);
+
+  ArcEntries arc_entries = detect(buffer.data(), size, size < max_check_size, extract_file_ext(arc_info.cFileName), options.arc_types);
   for (ArcEntries::const_iterator arc_entry = arc_entries.begin(); arc_entry != arc_entries.end(); arc_entry++) {
     shared_ptr<Archive> archive(new Archive());
     archive->arc_path = options.arc_path;
@@ -372,15 +433,27 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
     archive->password = options.password;
     if (parent_idx != -1)
       archive->volume_names = archives[parent_idx]->volume_names;
-    if (archive->open(stream, arc_entry->type)) {
+
+	 bool opened;
+	 if (!arc_entry->sig_pos)
+      opened = archive->open(stream, arc_entry->type);
+	 else {
+		 archive->arc_info.set_size(arc_info.size() - arc_entry->sig_pos);
+		 opened = archive->open(new ArchiveSubStream(stream, arc_entry->sig_pos), arc_entry->type);
+	 }
+    if (opened) {
       if (parent_idx != -1)
         archive->arc_chain.assign(archives[parent_idx]->arc_chain.begin(), archives[parent_idx]->arc_chain.end());
       archive->arc_chain.push_back(*arc_entry);
       archives.push_back(archive);
       open(options, archives);
-      if (!options.detect) break;
+      if (!options.detect)
+        break;
     }
   }
+
+  if (stream_impl)
+    stream_impl->CacheHeader(nullptr, 0);
 }
 
 unique_ptr<Archives> Archive::open(const OpenOptions& options) {

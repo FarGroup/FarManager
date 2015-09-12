@@ -22,8 +22,18 @@
     <ProjectName>7z</ProjectName>
     <SccProjectName />
     <SccLocalPath />
+    <ProjectGuid>{3AAF130C-999A-BC41-F53A-BC1339658B86}</ProjectGuid>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '10.0'">v100</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '11.0'">v110</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
+  </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
@@ -65,148 +75,212 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>false</LinkIncremental>
+    <OutDir>.\$(Configuration)_$(Platform)_$(VisualStudioVersion)\</OutDir>
+    <IntDir>$(OutDir)</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>false</LinkIncremental>
+    <OutDir>.\$(Configuration)_$(Platform)_$(VisualStudioVersion)\</OutDir>
+    <IntDir>$(OutDir)</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>.\$(Configuration)_$(Platform)_$(VisualStudioVersion)\</OutDir>
+    <IntDir>$(OutDir)</IntDir>
     <LinkIncremental>false</LinkIncremental>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>.\$(Configuration)_$(Platform)_$(VisualStudioVersion)\</OutDir>
+    <IntDir>$(OutDir)</IntDir>
     <LinkIncremental>false</LinkIncremental>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
       <Optimization>Disabled</Optimization>
-      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <MinimalRebuild>true</MinimalRebuild>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\..\..\..\SDK;..\..\..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;WIN32;_WINDOWS;_USRDLL;MY7Z_EXPORTS;NO_REGISTRY;EXTERNAL_CODECS;_7ZIP_LARGE_PAGES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <AdditionalIncludeDirectories>..\..\..\..\SDK;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;WIN32;_WINDOWS;_USRDLL;MY7Z_EXPORTS;NO_REGISTRY;EXTERNAL_CODECS;_7ZIP_LARGE_PAGES;_7ZIP_ST_9;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>StdAfx.h</PrecompiledHeaderFile>
       <CallingConvention>FastCall</CallingConvention>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <TypeLibraryName>.\Debug\Format7z.tlb</TypeLibraryName>
+      <TypeLibraryName>$(IntDir)Format7z.tlb</TypeLibraryName>
       <MkTypLibCompatible>true</MkTypLibCompatible>
       <TargetEnvironment>Win32</TargetEnvironment>
     </Midl>
     <ResourceCompile>
-      <Culture>0x0409</Culture>
+      <Culture>0x0419</Culture>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
-    <Bscmake />
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Bscmake>
     <Link>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
       <LinkDLL>true</LinkDLL>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
+      <OutputFile>$(OutDir)7z.dll</OutputFile>
+      <ImportLibrary>$(OutDir)7z.lib</ImportLibrary>
       <AdditionalDependencies>odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions> /ignore:4033</AdditionalOptions>
       <ModuleDefinitionFile>..\..\Archive\Archive2.def</ModuleDefinitionFile>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
+    <PostBuildEvent>
+      <Command>editbin /nologo /subsystem:console,5.0 /osversion:5.0 $(OutDir)\7z.dll &gt; nul</Command>
+      <Message>fixing subsystem version...</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
       <Optimization>Disabled</Optimization>
-      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\..\..\..\SDK;..\..\..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;WIN32;_WINDOWS;_USRDLL;MY7Z_EXPORTS;NO_REGISTRY;EXTERNAL_CODECS;_7ZIP_LARGE_PAGES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <AdditionalIncludeDirectories>..\..\..\..\SDK;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;WIN32;_WINDOWS;_USRDLL;MY7Z_EXPORTS;NO_REGISTRY;EXTERNAL_CODECS;_7ZIP_LARGE_PAGES;_7ZIP_ST_9;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>StdAfx.h</PrecompiledHeaderFile>
       <CallingConvention>FastCall</CallingConvention>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <TypeLibraryName>.\Debug\Format7z.tlb</TypeLibraryName>
+      <TypeLibraryName>$(IntDir)Format7z.tlb</TypeLibraryName>
       <MkTypLibCompatible>true</MkTypLibCompatible>
     </Midl>
     <ResourceCompile>
-      <Culture>0x0409</Culture>
+      <Culture>0x0419</Culture>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
-    <Bscmake />
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Bscmake>
     <Link>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
       <LinkDLL>true</LinkDLL>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
+      <OutputFile>$(OutDir)7z.dll</OutputFile>
+      <ImportLibrary>$(OutDir)7z.lib</ImportLibrary>
       <AdditionalDependencies>odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>..\..\Archive\Archive2.def</ModuleDefinitionFile>
     </Link>
+    <PostBuildEvent>
+      <Command>editbin /nologo /subsystem:console,5.2 /osversion:5.2 $(OutDir)\7z.dll &gt; nul</Command>
+      <Message>fixing subsystem version...</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
       <Optimization>MinSpace</Optimization>
-      <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>..\..\..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;_USRDLL;MY7Z_EXPORTS;NO_REGISTRY;EXTERNAL_CODECS;_7ZIP_LARGE_PAGES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AssemblerOutput>All</AssemblerOutput>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;_USRDLL;MY7Z_EXPORTS;NO_REGISTRY;EXTERNAL_CODECS;_7ZIP_LARGE_PAGES;_7ZIP_ST_9;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerOutput>NoListing</AssemblerOutput>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>StdAfx.h</PrecompiledHeaderFile>
       <CallingConvention>FastCall</CallingConvention>
-      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <TypeLibraryName>.\Release\Format7z.tlb</TypeLibraryName>
+      <TypeLibraryName>$(IntDir)Format7z.tlb</TypeLibraryName>
       <MkTypLibCompatible>true</MkTypLibCompatible>
       <TargetEnvironment>Win32</TargetEnvironment>
     </Midl>
     <ResourceCompile>
-      <Culture>0x0409</Culture>
+      <Culture>0x0419</Culture>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
-    <Bscmake />
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Bscmake>
     <Link>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
       <LinkDLL>true</LinkDLL>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
+      <OutputFile>$(OutDir)7z.dll</OutputFile>
+      <ImportLibrary>$(OutDir)7z.lib</ImportLibrary>
       <AdditionalDependencies>odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>..\..\Archive\Archive2.def</ModuleDefinitionFile>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
+    <PostBuildEvent>
+      <Command>editbin /nologo /subsystem:console,5.0 /osversion:5.0 $(OutDir)\7z.dll &gt; nul</Command>
+      <Message>fixing subsystem version...</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
       <Optimization>MinSpace</Optimization>
-      <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>..\..\..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;_USRDLL;MY7Z_EXPORTS;NO_REGISTRY;EXTERNAL_CODECS;_7ZIP_LARGE_PAGES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AssemblerOutput>All</AssemblerOutput>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;_USRDLL;MY7Z_EXPORTS;NO_REGISTRY;EXTERNAL_CODECS;_7ZIP_LARGE_PAGES;_7ZIP_ST_9;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerOutput>NoListing</AssemblerOutput>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>StdAfx.h</PrecompiledHeaderFile>
       <CallingConvention>FastCall</CallingConvention>
-      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <TypeLibraryName>.\Release\Format7z.tlb</TypeLibraryName>
+      <TypeLibraryName>$(IntDir)Format7z.tlb</TypeLibraryName>
       <MkTypLibCompatible>true</MkTypLibCompatible>
     </Midl>
     <ResourceCompile>
-      <Culture>0x0409</Culture>
+      <Culture>0x0419</Culture>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
-    <Bscmake />
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Bscmake>
     <Link>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
       <LinkDLL>true</LinkDLL>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
+      <OutputFile>$(OutDir)7z.dll</OutputFile>
+      <ImportLibrary>$(OutDir)7z.lib</ImportLibrary>
       <AdditionalDependencies>odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>..\..\Archive\Archive2.def</ModuleDefinitionFile>
     </Link>
+    <PostBuildEvent>
+      <Command>editbin /nologo /subsystem:console,5.2 /osversion:5.2 $(OutDir)\7z.dll &gt; nul</Command>
+      <Message>fixing subsystem version...</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\Archive\Icons\7z.ico" />
@@ -235,36 +309,21 @@
     <CustomBuild Include="..\..\Archive\Icons\z.ico" />
     <CustomBuild Include="..\..\Archive\Icons\zip.ico" />
     <CustomBuild Include="..\..\Archive\Archive2.def" />
-    <CustomBuild Include="..\..\..\..\Asm\x86\7zAsm.asm">
-      <FileType>Document</FileType>
-    </CustomBuild>
-    <CustomBuild Include="..\..\..\..\Asm\x86\7zCrcOpt.asm">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ml.exe -c -Fo$(OutDir)%(Filename).obj %(FullPath)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ml64.exe -c -Dx64 -Fo$(OutDir)%(Filename).obj %(FullPath)</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ml.exe -c -Fo$(OutDir)%(Filename).obj %(FullPath)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ml64.exe -c -Dx64 -Fo$(OutDir)%(Filename).obj %(FullPath)</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="..\..\..\..\Asm\x86\AesOpt.asm">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ml.exe -c -Fo$(OutDir)%(Filename).obj %(FullPath)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ml64.exe -c -Dx64 -Fo$(OutDir)%(Filename).obj %(FullPath)</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ml.exe -c -Fo$(OutDir)%(Filename).obj %(FullPath)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ml64.exe -c -Dx64 -Fo$(OutDir)%(Filename).obj %(FullPath)</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
-    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\C\Blake2s.c">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">StdAfx.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">StdAfx.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">StdAfx.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">StdAfx.h</PrecompiledHeaderFile>
+    </ClCompile>
     <ClCompile Include="..\..\Archive\ArchiveExports.cpp" />
+    <ClCompile Include="..\..\Archive\Rar\Rar5Handler.cpp" />
     <ClCompile Include="..\..\Compress\CodecExports.cpp" />
     <ClCompile Include="..\..\Archive\DllExports2.cpp" />
+    <ClCompile Include="..\..\Compress\Rar5Decoder.cpp" />
+    <ClCompile Include="..\..\Crypto\HmacSha256.cpp" />
+    <ClCompile Include="..\..\Crypto\Rar5Aes.cpp" />
     <ClCompile Include="StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -276,33 +335,22 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">StdAfx.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="..\..\..\Common\CRC.cpp" />
+    <ClCompile Include="..\..\..\Common\CrcReg.cpp" />
+    <ClCompile Include="..\..\..\Common\DynLimBuf.cpp" />
     <ClCompile Include="..\..\..\Common\IntToString.cpp" />
     <ClCompile Include="..\..\..\Common\MyMap.cpp" />
     <ClCompile Include="..\..\..\Common\MyString.cpp" />
     <ClCompile Include="..\..\..\Common\MyVector.cpp" />
+    <ClCompile Include="..\..\..\Common\MyWindows.cpp" />
     <ClCompile Include="..\..\..\Common\MyXml.cpp" />
     <ClCompile Include="..\..\..\Common\NewHandler.cpp" />
+    <ClCompile Include="..\..\..\Common\Sha1Reg.cpp" />
+    <ClCompile Include="..\..\..\Common\Sha256Reg.cpp" />
     <ClCompile Include="..\..\..\Common\StringConvert.cpp" />
     <ClCompile Include="..\..\..\Common\StringToInt.cpp" />
     <ClCompile Include="..\..\..\Common\UTFConvert.cpp" />
     <ClCompile Include="..\..\..\Common\Wildcard.cpp" />
-    <ClCompile Include="..\..\Compress\PpmdDecoder.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\..\Compress\PpmdEncoder.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\..\Compress\PpmdRegister.cpp" />
+    <ClCompile Include="..\..\..\Common\XzCrc64Reg.cpp" />
     <ClCompile Include="..\..\Compress\BitlDecoder.cpp" />
     <ClCompile Include="..\..\Compress\Rar1Decoder.cpp" />
     <ClCompile Include="..\..\Compress\Rar2Decoder.cpp" />
@@ -330,28 +378,40 @@
     <ClCompile Include="..\..\Compress\ShrinkDecoder.cpp" />
     <ClCompile Include="..\..\Compress\ZlibDecoder.cpp" />
     <ClCompile Include="..\..\Compress\ZlibEncoder.cpp" />
-    <ClCompile Include="..\..\Compress\Bcj2Coder.cpp" />
+    <ClCompile Include="..\..\Compress\Bcj2Coder.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\..\Compress\Bcj2Register.cpp" />
     <ClCompile Include="..\..\Compress\BcjCoder.cpp" />
     <ClCompile Include="..\..\Compress\BcjRegister.cpp" />
-    <ClCompile Include="..\..\Compress\BranchCoder.cpp" />
     <ClCompile Include="..\..\Compress\BranchMisc.cpp" />
     <ClCompile Include="..\..\Compress\BranchRegister.cpp" />
     <ClCompile Include="..\..\Compress\ByteSwap.cpp" />
     <ClCompile Include="..\..\Compress\CopyCoder.cpp" />
     <ClCompile Include="..\..\Compress\CopyRegister.cpp" />
+    <ClCompile Include="..\..\Compress\DeltaFilter.cpp" />
     <ClCompile Include="..\..\Compress\Lzma2Decoder.cpp" />
     <ClCompile Include="..\..\Compress\Lzma2Encoder.cpp" />
     <ClCompile Include="..\..\Compress\Lzma2Register.cpp" />
     <ClCompile Include="..\..\Compress\LzmaDecoder.cpp" />
     <ClCompile Include="..\..\Compress\LzmaEncoder.cpp" />
     <ClCompile Include="..\..\Compress\LzmaRegister.cpp" />
+    <ClCompile Include="..\..\Compress\PpmdDecoder.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\Compress\PpmdEncoder.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\Compress\PpmdRegister.cpp" />
     <ClCompile Include="..\..\Compress\Lzx86Converter.cpp" />
     <ClCompile Include="..\..\Compress\LzxDecoder.cpp" />
     <ClCompile Include="..\..\Compress\QuantumDecoder.cpp" />
-    <ClCompile Include="..\..\Compress\ArjDecoder1.cpp" />
-    <ClCompile Include="..\..\Compress\ArjDecoder2.cpp" />
-    <ClCompile Include="..\..\Compress\DeltaFilter.cpp" />
     <ClCompile Include="..\..\Compress\LzhDecoder.cpp" />
     <ClCompile Include="..\..\Compress\LzOutWindow.cpp" />
     <ClCompile Include="..\..\Compress\ZDecoder.cpp" />
@@ -366,6 +426,7 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\Crypto\MyAes.cpp" />
+    <ClCompile Include="..\..\Crypto\MyAesReg.cpp" />
     <ClCompile Include="..\..\Crypto\Pbkdf2HmacSha1.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -391,14 +452,6 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\Crypto\RarAes.cpp" />
-    <ClCompile Include="..\..\Crypto\Sha1.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="..\..\Crypto\WzAes.cpp" />
     <ClCompile Include="..\..\Crypto\ZipCrypto.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
@@ -422,7 +475,6 @@
     <ClCompile Include="..\..\Common\InBuffer.cpp" />
     <ClCompile Include="..\..\Common\InOutTempBuffer.cpp" />
     <ClCompile Include="..\..\Common\LimitedStreams.cpp" />
-    <ClCompile Include="..\..\Common\LockedStream.cpp" />
     <ClCompile Include="..\..\Common\MemBlocks.cpp" />
     <ClCompile Include="..\..\Common\MethodId.cpp" />
     <ClCompile Include="..\..\Common\MethodProps.cpp" />
@@ -431,9 +483,11 @@
     <ClCompile Include="..\..\Common\OutMemStream.cpp" />
     <ClCompile Include="..\..\Common\ProgressMt.cpp" />
     <ClCompile Include="..\..\Common\ProgressUtils.cpp" />
+    <ClCompile Include="..\..\Common\PropId.cpp" />
     <ClCompile Include="..\..\Common\StreamBinder.cpp" />
     <ClCompile Include="..\..\Common\StreamObjects.cpp" />
     <ClCompile Include="..\..\Common\StreamUtils.cpp" />
+    <ClCompile Include="..\..\Common\UniqBlocks.cpp" />
     <ClCompile Include="..\..\Common\VirtThread.cpp" />
     <ClCompile Include="..\..\..\..\C\Xz.c">
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Level4</WarningLevel>
@@ -462,6 +516,18 @@
       </PrecompiledHeader>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Level4</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Level4</WarningLevel>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\C\XzCrc64Opt.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -560,6 +626,32 @@
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </PrecompiledHeader>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\C\Bcj2.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\C\Bcj2Enc.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -799,6 +891,18 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\C\Sha1.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\C\Sha256.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
@@ -838,7 +942,6 @@
     <ClCompile Include="..\..\Archive\7z\7zEncode.cpp" />
     <ClCompile Include="..\..\Archive\7z\7zExtract.cpp" />
     <ClCompile Include="..\..\Archive\7z\7zFolderInStream.cpp" />
-    <ClCompile Include="..\..\Archive\7z\7zFolderOutStream.cpp" />
     <ClCompile Include="..\..\Archive\7z\7zHandler.cpp" />
     <ClCompile Include="..\..\Archive\7z\7zHandlerOut.cpp" />
     <ClCompile Include="..\..\Archive\7z\7zHeader.cpp" />
@@ -849,22 +952,14 @@
     <ClCompile Include="..\..\Archive\7z\7zSpecStream.cpp" />
     <ClCompile Include="..\..\Archive\7z\7zUpdate.cpp" />
     <ClCompile Include="..\..\Archive\Rar\RarHandler.cpp" />
-    <ClCompile Include="..\..\Archive\Rar\RarHeader.cpp" />
-    <ClCompile Include="..\..\Archive\Rar\RarIn.cpp" />
-    <ClCompile Include="..\..\Archive\Rar\RarItem.cpp" />
-    <ClCompile Include="..\..\Archive\Rar\RarRegister.cpp" />
-    <ClCompile Include="..\..\Archive\Rar\RarVolumeInStream.cpp" />
     <ClCompile Include="..\..\Archive\Cab\CabBlockInStream.cpp" />
     <ClCompile Include="..\..\Archive\Cab\CabHandler.cpp" />
     <ClCompile Include="..\..\Archive\Cab\CabHeader.cpp" />
     <ClCompile Include="..\..\Archive\Cab\CabIn.cpp" />
     <ClCompile Include="..\..\Archive\Cab\CabRegister.cpp" />
     <ClCompile Include="..\..\Archive\Chm\ChmHandler.cpp" />
-    <ClCompile Include="..\..\Archive\Chm\ChmHeader.cpp" />
     <ClCompile Include="..\..\Archive\Chm\ChmIn.cpp" />
-    <ClCompile Include="..\..\Archive\Chm\ChmRegister.cpp" />
     <ClCompile Include="..\..\Archive\Common\CoderMixer2.cpp" />
-    <ClCompile Include="..\..\Archive\Common\CoderMixer2MT.cpp" />
     <ClCompile Include="..\..\Archive\Common\DummyOutStream.cpp" />
     <ClCompile Include="..\..\Archive\Common\FindSignature.cpp" />
     <ClCompile Include="..\..\Archive\Common\HandlerOut.cpp" />
@@ -892,7 +987,6 @@
     <ClCompile Include="..\..\Archive\Zip\ZipAddCommon.cpp" />
     <ClCompile Include="..\..\Archive\Zip\ZipHandler.cpp" />
     <ClCompile Include="..\..\Archive\Zip\ZipHandlerOut.cpp" />
-    <ClCompile Include="..\..\Archive\Zip\ZipHeader.cpp" />
     <ClCompile Include="..\..\Archive\Zip\ZipIn.cpp" />
     <ClCompile Include="..\..\Archive\Zip\ZipItem.cpp" />
     <ClCompile Include="..\..\Archive\Zip\ZipOut.cpp" />
@@ -902,27 +996,23 @@
     <ClCompile Include="..\..\Archive\Wim\WimHandlerOut.cpp" />
     <ClCompile Include="..\..\Archive\Wim\WimIn.cpp" />
     <ClCompile Include="..\..\Archive\Wim\WimRegister.cpp" />
-    <ClCompile Include="..\..\Archive\Com\ComHandler.cpp" />
-    <ClCompile Include="..\..\Archive\Com\ComIn.cpp" />
-    <ClCompile Include="..\..\Archive\Com\ComRegister.cpp" />
-    <ClCompile Include="..\..\Archive\Hfs\HfsHandler.cpp" />
-    <ClCompile Include="..\..\Archive\Hfs\HfsIn.cpp" />
-    <ClCompile Include="..\..\Archive\Hfs\HfsRegister.cpp" />
     <ClCompile Include="..\..\Archive\Udf\UdfHandler.cpp" />
     <ClCompile Include="..\..\Archive\Udf\UdfIn.cpp" />
-    <ClCompile Include="..\..\Archive\Udf\UdfRegister.cpp" />
     <ClCompile Include="..\..\Archive\ApmHandler.cpp" />
+    <ClCompile Include="..\..\Archive\ArHandler.cpp" />
     <ClCompile Include="..\..\Archive\ArjHandler.cpp" />
     <ClCompile Include="..\..\Archive\Bz2Handler.cpp" />
+    <ClCompile Include="..\..\Archive\ComHandler.cpp" />
     <ClCompile Include="..\..\Archive\CpioHandler.cpp" />
     <ClCompile Include="..\..\Archive\CramfsHandler.cpp" />
-    <ClCompile Include="..\..\Archive\DebHandler.cpp" />
     <ClCompile Include="..\..\Archive\DeflateProps.cpp" />
     <ClCompile Include="..\..\Archive\DmgHandler.cpp" />
     <ClCompile Include="..\..\Archive\ElfHandler.cpp" />
     <ClCompile Include="..\..\Archive\FatHandler.cpp" />
     <ClCompile Include="..\..\Archive\FlvHandler.cpp" />
     <ClCompile Include="..\..\Archive\GzHandler.cpp" />
+    <ClCompile Include="..\..\Archive\HfsHandler.cpp" />
+    <ClCompile Include="..\..\Archive\IhexHandler.cpp" />
     <ClCompile Include="..\..\Archive\LzhHandler.cpp" />
     <ClCompile Include="..\..\Archive\LzmaHandler.cpp" />
     <ClCompile Include="..\..\Archive\MachoHandler.cpp" />
@@ -951,25 +1041,40 @@
     <ClCompile Include="..\..\..\Windows\FileDir.cpp" />
     <ClCompile Include="..\..\..\Windows\FileFind.cpp" />
     <ClCompile Include="..\..\..\Windows\FileIO.cpp" />
+    <ClCompile Include="..\..\..\Windows\FileName.cpp" />
     <ClCompile Include="..\..\..\Windows\PropVariant.cpp" />
     <ClCompile Include="..\..\..\Windows\PropVariantUtils.cpp" />
     <ClCompile Include="..\..\..\Windows\Synchronization.cpp" />
     <ClCompile Include="..\..\..\Windows\System.cpp" />
-    <ClCompile Include="..\..\..\Windows\Time.cpp" />
+    <ClCompile Include="..\..\..\Windows\TimeUtils.cpp" />
+    <ClCompile Include="vc_crt_fix_impl.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\C\Blake2.h" />
+    <ClInclude Include="..\..\..\Common\Defs.h" />
+    <ClInclude Include="..\..\Archive\Rar\Rar5Handler.h" />
+    <ClInclude Include="..\..\Archive\Rar\RarVol.h" />
+    <ClInclude Include="..\..\Compress\Rar5Decoder.h" />
+    <ClInclude Include="..\..\Crypto\HmacSha256.h" />
+    <ClInclude Include="..\..\Crypto\Rar5Aes.h" />
     <ClInclude Include="StdAfx.h" />
-    <ClInclude Include="..\..\..\Common\Buffer.h" />
+    <ClInclude Include="..\..\..\Common\Common.h" />
     <ClInclude Include="..\..\..\Common\DynamicBuffer.h" />
+    <ClInclude Include="..\..\..\Common\DynLimBuf.h" />
     <ClInclude Include="..\..\..\Common\IntToString.h" />
+    <ClInclude Include="..\..\..\Common\MyBuffer.h" />
     <ClInclude Include="..\..\..\Common\MyCom.h" />
     <ClInclude Include="..\..\..\Common\MyException.h" />
     <ClInclude Include="..\..\..\Common\MyInitGuid.h" />
     <ClInclude Include="..\..\..\Common\MyMap.h" />
     <ClInclude Include="..\..\..\Common\MyString.h" />
+    <ClInclude Include="..\..\..\Common\MyTypes.h" />
     <ClInclude Include="..\..\..\Common\MyUnknown.h" />
     <ClInclude Include="..\..\..\Common\MyVector.h" />
     <ClInclude Include="..\..\..\Common\MyWindows.h" />
@@ -977,13 +1082,8 @@
     <ClInclude Include="..\..\..\Common\NewHandler.h" />
     <ClInclude Include="..\..\..\Common\StringConvert.h" />
     <ClInclude Include="..\..\..\Common\StringToInt.h" />
-    <ClInclude Include="..\..\..\Common\Types.h" />
     <ClInclude Include="..\..\..\Common\UTFConvert.h" />
     <ClInclude Include="..\..\..\Common\Wildcard.h" />
-    <ClInclude Include="..\..\Compress\PpmdDecoder.h" />
-    <ClInclude Include="..\..\Compress\PpmdEncoder.h" />
-    <ClInclude Include="..\..\Compress\PpmdSubAlloc.h" />
-    <ClInclude Include="..\..\Compress\PpmdType.h" />
     <ClInclude Include="..\..\Compress\BitlDecoder.h" />
     <ClInclude Include="..\..\Compress\BitlEncoder.h" />
     <ClInclude Include="..\..\Compress\BitmDecoder.h" />
@@ -1008,21 +1108,18 @@
     <ClInclude Include="..\..\Compress\ZlibEncoder.h" />
     <ClInclude Include="..\..\Compress\Bcj2Coder.h" />
     <ClInclude Include="..\..\Compress\BcjCoder.h" />
-    <ClInclude Include="..\..\Compress\BranchCoder.h" />
     <ClInclude Include="..\..\Compress\BranchMisc.h" />
     <ClInclude Include="..\..\Compress\CopyCoder.h" />
     <ClInclude Include="..\..\Compress\Lzma2Decoder.h" />
     <ClInclude Include="..\..\Compress\Lzma2Encoder.h" />
     <ClInclude Include="..\..\Compress\LzmaDecoder.h" />
     <ClInclude Include="..\..\Compress\LzmaEncoder.h" />
-    <ClInclude Include="..\..\Compress\RangeCoder.h" />
-    <ClInclude Include="..\..\Compress\RangeCoderBit.h" />
+    <ClInclude Include="..\..\Compress\PpmdDecoder.h" />
+    <ClInclude Include="..\..\Compress\PpmdEncoder.h" />
     <ClInclude Include="..\..\Compress\Lzx.h" />
     <ClInclude Include="..\..\Compress\Lzx86Converter.h" />
     <ClInclude Include="..\..\Compress\LzxDecoder.h" />
     <ClInclude Include="..\..\Compress\QuantumDecoder.h" />
-    <ClInclude Include="..\..\Compress\ArjDecoder1.h" />
-    <ClInclude Include="..\..\Compress\ArjDecoder2.h" />
     <ClInclude Include="..\..\Compress\HuffmanDecoder.h" />
     <ClInclude Include="..\..\Compress\LzhDecoder.h" />
     <ClInclude Include="..\..\Compress\LzOutWindow.h" />
@@ -1034,7 +1131,7 @@
     <ClInclude Include="..\..\Crypto\RandGen.h" />
     <ClInclude Include="..\..\Crypto\Rar20Crypto.h" />
     <ClInclude Include="..\..\Crypto\RarAes.h" />
-    <ClInclude Include="..\..\Crypto\Sha1.h" />
+    <ClInclude Include="..\..\Crypto\Sha1Cls.h" />
     <ClInclude Include="..\..\Crypto\WzAes.h" />
     <ClInclude Include="..\..\Crypto\ZipCrypto.h" />
     <ClInclude Include="..\..\Crypto\ZipStrong.h" />
@@ -1044,7 +1141,6 @@
     <ClInclude Include="..\..\Common\InBuffer.h" />
     <ClInclude Include="..\..\Common\InOutTempBuffer.h" />
     <ClInclude Include="..\..\Common\LimitedStreams.h" />
-    <ClInclude Include="..\..\Common\LockedStream.h" />
     <ClInclude Include="..\..\Common\MemBlocks.h" />
     <ClInclude Include="..\..\Common\MethodId.h" />
     <ClInclude Include="..\..\Common\MethodProps.h" />
@@ -1058,15 +1154,19 @@
     <ClInclude Include="..\..\Common\StreamBinder.h" />
     <ClInclude Include="..\..\Common\StreamObjects.h" />
     <ClInclude Include="..\..\Common\StreamUtils.h" />
+    <ClInclude Include="..\..\Common\UniqBlocks.h" />
     <ClInclude Include="..\..\Common\VirtThread.h" />
     <ClInclude Include="..\..\..\..\C\Xz.h" />
     <ClInclude Include="..\..\..\..\C\XzCrc64.h" />
     <ClInclude Include="..\..\..\..\C\XzEnc.h" />
     <ClInclude Include="..\..\..\..\C\7zCrc.h" />
+    <ClInclude Include="..\..\..\..\C\7zTypes.h" />
     <ClInclude Include="..\..\..\..\C\Aes.h" />
     <ClInclude Include="..\..\..\..\C\Alloc.h" />
+    <ClInclude Include="..\..\..\..\C\Bcj2.h" />
     <ClInclude Include="..\..\..\..\C\Bra.h" />
     <ClInclude Include="..\..\..\..\C\BwtSort.h" />
+    <ClInclude Include="..\..\..\..\C\Compiler.h" />
     <ClInclude Include="..\..\..\..\C\CpuArch.h" />
     <ClInclude Include="..\..\..\..\C\Delta.h" />
     <ClInclude Include="..\..\..\..\C\HuffEnc.h" />
@@ -1081,16 +1181,17 @@
     <ClInclude Include="..\..\..\..\C\Ppmd.h" />
     <ClInclude Include="..\..\..\..\C\Ppmd7.h" />
     <ClInclude Include="..\..\..\..\C\Ppmd8.h" />
+    <ClInclude Include="..\..\..\..\C\Precomp.h" />
     <ClInclude Include="..\..\..\..\C\RotateDefs.h" />
+    <ClInclude Include="..\..\..\..\C\Sha1.h" />
     <ClInclude Include="..\..\..\..\C\Sha256.h" />
     <ClInclude Include="..\..\..\..\C\Sort.h" />
+    <ClInclude Include="..\..\..\..\C\StdAfx.h" />
     <ClInclude Include="..\..\..\..\C\Threads.h" />
-    <ClInclude Include="..\..\..\..\C\Types.h" />
     <ClInclude Include="..\..\Archive\7z\7zCompressionMode.h" />
     <ClInclude Include="..\..\Archive\7z\7zDecode.h" />
     <ClInclude Include="..\..\Archive\7z\7zEncode.h" />
     <ClInclude Include="..\..\Archive\7z\7zFolderInStream.h" />
-    <ClInclude Include="..\..\Archive\7z\7zFolderOutStream.h" />
     <ClInclude Include="..\..\Archive\7z\7zHandler.h" />
     <ClInclude Include="..\..\Archive\7z\7zHeader.h" />
     <ClInclude Include="..\..\Archive\7z\7zIn.h" />
@@ -1102,19 +1203,15 @@
     <ClInclude Include="..\..\Archive\7z\7zUpdateItem.h" />
     <ClInclude Include="..\..\Archive\Rar\RarHandler.h" />
     <ClInclude Include="..\..\Archive\Rar\RarHeader.h" />
-    <ClInclude Include="..\..\Archive\Rar\RarIn.h" />
     <ClInclude Include="..\..\Archive\Rar\RarItem.h" />
-    <ClInclude Include="..\..\Archive\Rar\RarVolumeInStream.h" />
     <ClInclude Include="..\..\Archive\Cab\CabBlockInStream.h" />
     <ClInclude Include="..\..\Archive\Cab\CabHandler.h" />
     <ClInclude Include="..\..\Archive\Cab\CabHeader.h" />
     <ClInclude Include="..\..\Archive\Cab\CabIn.h" />
     <ClInclude Include="..\..\Archive\Cab\CabItem.h" />
     <ClInclude Include="..\..\Archive\Chm\ChmHandler.h" />
-    <ClInclude Include="..\..\Archive\Chm\ChmHeader.h" />
     <ClInclude Include="..\..\Archive\Chm\ChmIn.h" />
     <ClInclude Include="..\..\Archive\Common\CoderMixer2.h" />
-    <ClInclude Include="..\..\Archive\Common\CoderMixer2MT.h" />
     <ClInclude Include="..\..\Archive\Common\DummyOutStream.h" />
     <ClInclude Include="..\..\Archive\Common\FindSignature.h" />
     <ClInclude Include="..\..\Archive\Common\HandlerOut.h" />
@@ -1143,36 +1240,57 @@
     <ClInclude Include="..\..\Archive\Zip\ZipHeader.h" />
     <ClInclude Include="..\..\Archive\Zip\ZipIn.h" />
     <ClInclude Include="..\..\Archive\Zip\ZipItem.h" />
-    <ClInclude Include="..\..\Archive\Zip\ZipItemEx.h" />
     <ClInclude Include="..\..\Archive\Zip\ZipOut.h" />
     <ClInclude Include="..\..\Archive\Zip\ZipUpdate.h" />
     <ClInclude Include="..\..\Archive\Wim\WimHandler.h" />
     <ClInclude Include="..\..\Archive\Wim\WimIn.h" />
-    <ClInclude Include="..\..\Archive\Com\ComHandler.h" />
-    <ClInclude Include="..\..\Archive\Com\ComIn.h" />
-    <ClInclude Include="..\..\Archive\Hfs\HfsHandler.h" />
-    <ClInclude Include="..\..\Archive\Hfs\HfsIn.h" />
     <ClInclude Include="..\..\Archive\Udf\UdfHandler.h" />
     <ClInclude Include="..\..\Archive\Udf\UdfIn.h" />
     <ClInclude Include="..\..\Archive\DeflateProps.h" />
     <ClInclude Include="..\..\Archive\IArchive.h" />
+    <ClInclude Include="..\..\Archive\XzHandler.h" />
     <ClInclude Include="..\..\ICoder.h" />
     <ClInclude Include="..\..\IDecl.h" />
     <ClInclude Include="..\..\IPassword.h" />
     <ClInclude Include="..\..\IProgress.h" />
     <ClInclude Include="..\..\IStream.h" />
     <ClInclude Include="..\..\PropID.h" />
+    <ClInclude Include="..\..\..\Windows\Defs.h" />
     <ClInclude Include="..\..\..\Windows\FileDir.h" />
     <ClInclude Include="..\..\..\Windows\FileFind.h" />
     <ClInclude Include="..\..\..\Windows\FileIO.h" />
+    <ClInclude Include="..\..\..\Windows\FileName.h" />
     <ClInclude Include="..\..\..\Windows\PropVariant.h" />
     <ClInclude Include="..\..\..\Windows\PropVariantUtils.h" />
     <ClInclude Include="..\..\..\Windows\Synchronization.h" />
     <ClInclude Include="..\..\..\Windows\System.h" />
     <ClInclude Include="..\..\..\Windows\Thread.h" />
-    <ClInclude Include="..\..\..\Windows\Time.h" />
+    <ClInclude Include="..\..\..\Windows\TimeUtils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="..\..\..\..\Asm\x86\7zAsm.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </MASM>
+    <MASM Include="..\..\..\..\Asm\x86\7zCrcOpt.asm">
+      <NoLogo Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</NoLogo>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">x64</PreprocessorDefinitions>
+      <NoLogo Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</NoLogo>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">x64</PreprocessorDefinitions>
+    </MASM>
+    <MASM Include="..\..\..\..\Asm\x86\AesOpt.asm">
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">x64</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">x64</PreprocessorDefinitions>
+    </MASM>
+    <MASM Include="vc_crt_fix.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </MASM>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
   </ImportGroup>
 </Project>

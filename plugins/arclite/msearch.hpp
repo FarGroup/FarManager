@@ -12,4 +12,12 @@ struct StrPos {
   }
 };
 
-vector<StrPos> msearch(unsigned char* data, size_t size, const vector<ByteVector>& str_list);
+struct ArcFormat;
+
+struct SigData {
+  const ByteVector& signature;
+  const ArcFormat& format;
+  SigData(const ByteVector& sig, const ArcFormat& fmt) : signature(sig), format(fmt) {}
+};
+
+vector<StrPos> msearch(unsigned char* data, size_t size, const vector<SigData>& str_list, bool eof);

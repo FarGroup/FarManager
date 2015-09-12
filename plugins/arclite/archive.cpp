@@ -57,6 +57,17 @@ HRESULT ArcLib::get_bool_prop(UInt32 index, PROPID prop_id, bool& value) const {
   return S_OK;
 }
 
+HRESULT ArcLib::get_uint_prop(UInt32 index, PROPID prop_id, UInt32& value) const {
+  PropVariant prop;
+  HRESULT res = get_prop(index, prop_id, prop.ref());
+  if (res != S_OK)
+    return res;
+  if (!prop.is_uint())
+    return E_FAIL;
+  value = (UInt32)prop.get_uint();
+  return S_OK;
+}
+
 HRESULT ArcLib::get_string_prop(UInt32 index, PROPID prop_id, wstring& value) const {
   PropVariant prop;
   HRESULT res = get_prop(index, prop_id, prop.ref());
@@ -180,6 +191,7 @@ void ArcAPI::load_libs(const wstring& path) {
     arc_lib.GetNumberOfFormats = reinterpret_cast<ArcLib::FGetNumberOfFormats>(GetProcAddress(arc_lib.h_module, "GetNumberOfFormats"));
     arc_lib.GetHandlerProperty = reinterpret_cast<ArcLib::FGetHandlerProperty>(GetProcAddress(arc_lib.h_module, "GetHandlerProperty"));
     arc_lib.GetHandlerProperty2 = reinterpret_cast<ArcLib::FGetHandlerProperty2>(GetProcAddress(arc_lib.h_module, "GetHandlerProperty2"));
+    arc_lib.GetIsArc = reinterpret_cast<Func_GetIsArc>(GetProcAddress(arc_lib.h_module, "GetIsArc"));
     if (arc_lib.CreateObject && ((arc_lib.GetNumberOfFormats && arc_lib.GetHandlerProperty2) || arc_lib.GetHandlerProperty)) {
       arc_lib.version = get_module_version(arc_lib.module_path);
       arc_libs.push_back(arc_lib);
@@ -251,6 +263,25 @@ void ArcAPI::find_sfx_modules(const wstring& path) {
   }
 }
 
+static bool ParseSignatures(const Byte *data, size_t size, vector<ByteVector> &signatures)
+{
+  signatures.clear();
+  while (size > 0)
+  {
+    size_t len = *data++;
+    size--;
+    if (len > size)
+      return false;
+
+    ByteVector v(data, data+len);
+    signatures.push_back(v);
+
+    data += len;
+    size -= len;
+  }
+  return true;
+}
+
 void ArcAPI::load() {
   load_libs(add_trailing_slash(Far::get_plugin_module_path()) + L"*.dll");
   find_sfx_modules(add_trailing_slash(Far::get_plugin_module_path()) + L"*.sfx");
@@ -285,34 +316,64 @@ void ArcAPI::load() {
       num_formats = 1;
 
     for (UInt32 idx = 0; idx < num_formats; idx++) {
-      ArcFormat arc_format;
-      arc_format.lib_index = i;
-      ArcType type;
-      if (arc_lib.get_bytes_prop(idx, NArchive::NHandlerPropID::kClassID, type) != S_OK) continue;
-      arc_lib.get_string_prop(idx, NArchive::NHandlerPropID::kName, arc_format.name);
-      if (arc_lib.get_bool_prop(idx, NArchive::NHandlerPropID::kUpdate, arc_format.updatable) != S_OK)
-        arc_format.updatable = false;
-      arc_lib.get_bytes_prop(idx, NArchive::NHandlerPropID::kSignature, arc_format.start_signature);
+      ArcFormat format;
+
+      if (arc_lib.get_bytes_prop(idx, NArchive::NHandlerPropID::kClassID, format.ClassID) != S_OK)
+        continue;
+
+      arc_lib.get_string_prop(idx, NArchive::NHandlerPropID::kName, format.name);
+      if (arc_lib.get_bool_prop(idx, NArchive::NHandlerPropID::kUpdate, format.updatable) != S_OK)
+        format.updatable = false;
+
       wstring extension_list_str;
       arc_lib.get_string_prop(idx, NArchive::NHandlerPropID::kExtension, extension_list_str);
-      arc_format.extension_list = split(extension_list_str, L' ');
+      format.extension_list = split(extension_list_str, L' ');
       wstring add_extension_list_str;
       arc_lib.get_string_prop(idx, NArchive::NHandlerPropID::kAddExtension, add_extension_list_str);
       std::list<wstring> add_extension_list = split(add_extension_list_str, L' ');
       auto add_ext_iter = add_extension_list.cbegin();
-      for (auto ext_iter = arc_format.extension_list.begin(); ext_iter != arc_format.extension_list.end(); ++ext_iter) {
+      for (auto ext_iter = format.extension_list.begin(); ext_iter != format.extension_list.end(); ++ext_iter) {
         ext_iter->insert(0, 1, L'.');
         if (add_ext_iter != add_extension_list.cend()) {
           if (*add_ext_iter != L"*") {
-            arc_format.nested_ext_mapping[upcase(*ext_iter)] = *add_ext_iter;
+            format.nested_ext_mapping[upcase(*ext_iter)] = *add_ext_iter;
           }
           ++add_ext_iter;
         }
       }
 
-      ArcFormats::const_iterator existing_format = arc_formats.find(type);
+      format.lib_index = (int)i;
+      format.FormatIndex = idx;
+
+      format.NewInterface = arc_lib.get_uint_prop(idx, NArchive::NHandlerPropID::kFlags, format.Flags) == S_OK;
+      if (!format.NewInterface) { // support for DLL version < 9.31:
+        bool v = false;
+        if (arc_lib.get_bool_prop(idx, NArchive::NHandlerPropID::kKeepName, v) != S_OK && v)
+          format.Flags |= NArcInfoFlags::kKeepName;
+        if (arc_lib.get_bool_prop(idx, NArchive::NHandlerPropID::kAltStreams, v) != S_OK && v)
+          format.Flags |= NArcInfoFlags::kAltStreams;
+        if (arc_lib.get_bool_prop(idx, NArchive::NHandlerPropID::kNtSecure, v) != S_OK && v)
+          format.Flags |= NArcInfoFlags::kNtSecure;
+      }
+
+      ByteVector sig;
+      arc_lib.get_bytes_prop(idx, NArchive::NHandlerPropID::kSignature, sig);
+      if (!sig.empty())
+        format.Signatures.push_back(sig);
+      else {
+        arc_lib.get_bytes_prop(idx, NArchive::NHandlerPropID::kMultiSignature, sig);
+        ParseSignatures(sig.data(), sig.size(), format.Signatures);
+      }
+
+      if (arc_lib.get_uint_prop(idx, NArchive::NHandlerPropID::kSignatureOffset, format.SignatureOffset) != S_OK)
+        format.SignatureOffset = 0;
+
+      if (arc_lib.GetIsArc)
+        arc_lib.GetIsArc(idx, &format.IsArc);
+
+      ArcFormats::const_iterator existing_format = arc_formats.find(format.ClassID);
       if (existing_format == arc_formats.end() || arc_libs[existing_format->second.lib_index].version < arc_lib.version)
-        arc_formats[type] = arc_format;
+        arc_formats[format.ClassID] = format;
     }
   }
   // unload unused libraries
