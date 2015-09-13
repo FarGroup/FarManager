@@ -3,6 +3,103 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 10.09.2015 10:31:11 +0300 - build 4418
+
+1. Mantis#0003055: ID missing for file deletion dialog, unable to check.
+
+    DeleteWipeId                     = {9C054039-5C7E-4B04-96CD-3585228C916F}  --> Dlg.Id
+    Main dialog for wiping of files/folders
+
+    DeleteRecycleId                  = {85A5F779-A881-4B0B-ACEE-6D05653AE0EB}  --> Dlg.Id
+    Main dialog for deleting of files/folders to recycle bin
+
+    DeleteFileFolderId               = {85A5F779-A881-4B0B-ACEE-6D05653AE0EB}  --> Dlg.Id
+    Main dialog for deleting of files/folders
+
+    The next ones are various warnings on removing/wiping:
+
+    DeleteLinkId                     = {B1099BC3-14BD-4B22-87AC-44770D4189A3}  --> Dlg.Id
+    "Remove link" dialog
+
+    DeleteFolderId                   = {4E714029-11BF-476F-9B17-9E47AA0DA8EA}  --> Dlg.Id
+    Folder removal dialog
+    (System.DeleteToRecycleBin = false)
+
+    DeleteFolderRecycleId            = {A318CBDC-DBA9-49E9-A248-E6A9FF8EC849}  --> Dlg.Id
+    Dialog for deleting a folder to recycle bin
+    (System.DeleteToRecycleBin = true)
+
+    WipeFolderId                     = {E23BB390-036E-4A30-A9E6-DC621617C7F5}  --> Dlg.Id
+    Dialog for wiping a folder
+
+    DeleteAskDeleteROId              = {8D4E84B3-08F6-47DF-8C40-7130CD31D0E6}  --> Dlg.Id
+    ReadOnly file deletion confirmation
+
+    DeleteAskWipeROId                = {6792A975-57C5-4110-8129-2D8045120964}  --> Dlg.Id
+    ReadOnly file wiping confirmation
+
+    WipeHardLinkId                   = {5297DDFE-0A37-4465-85EF-CBF9006D65C6}  --> Dlg.Id
+    Warning on wiping a file with multiple hard links
+
+    RecycleFolderConfirmDeleteLinkId = {26A7AB9F-51F5-40F7-9061-1AE6E2FBD00A}  --> Dlg.Id
+    Warning on a folder containing symbolic links and data loss after cleaning the recycle bin
+    so the links have to be deleted (см. MRecycleFolderConfirmDeleteLink?)
+
+    CannotRecycleFileId              = {52CEB5A5-06FA-43DD-B37C-239C02652C99}  --> Dlg.Id
+    Could not delete file to recycle bin
+
+    CannotRecycleFolderId            = {BBD9B7AE-9F6B-4444-89BF-C6124A5A83A4}  --> Dlg.Id
+    Could not delete folder to recycle bin
+
+
+svs 08.09.2015 17:50:24 +0300 - build 4417
+
+1. Mantis#0002905: Assign GUID to "Apply command" dialog (CtrlG)
+
+    ApplyCommandId                   = {044EF83E-8146-41B2-97F0-404C2F4C7B69}  --> Dlg.Id
+    "Apply command" dialog (CtrlG)
+
+
+w17 08.09.2015 16:09:18 +0300 - build 4416
+
+1. Correction of 4414 -typo
+
+w17 08.09.2015 12:29:00 +0300 - build 4415
+
+1. Continuation of 4392, 4394 (M#2951)
+   Remove traces of Tree from command menu and keybar.
+
+svs 07.09.2015 16:06:23 +0300 - build 4414
+
+1. Mantis#0003084: Add GUIDs
+
+    DescribeFileId                   = {D8AF7A38-8357-44A5-A44B-A595CF707549}  --> Dlg.Id
+    Description edit dialog (CtrlZ)
+
+    SelectDialogId                   = {29C03C36-9C50-4F78-AB99-F5DC1A9C67CD}  --> Dlg.Id
+    Set file selection dialog (Add)
+    
+    UnSelectDialogId                 = {34614DDB-2A22-4EA9-BD4A-2DC075643F1B}  --> Dlg.Id
+    Clear file selection dialog (Subtract)
+    
+    SUBSTDisconnectDriveError1Id     = {FF18299E-1881-42FA-AF7E-AC05D99F269C}  --> Dlg.Id
+    SUBSTDisconnectDriveError2Id     = {43B0FFC2-70BE-4289-91E6-FE9A3D54311B}  --> Dlg.Id
+    SUBST volumes removal error dialogs
+
+    RemoteDisconnectDriveError1Id    = {C9439386-9544-49BF-954B-6BEEDE7F1BD0}  --> Dlg.Id
+    RemoteDisconnectDriveError2Id    = {F06953B8-25AA-4FC0-9899-422FC1D49F7A}  --> Dlg.Id
+    Network volumes disconnection error dialogs
+
+    EjectHotPlugMediaErrorId         = {D6DC3621-877E-4BE2-80CC-BDB2864CE038}  --> Dlg.Id
+    Flash drive removal error dialog
+
+    VHDDisconnectDriveErrorId        = {B890E6B0-05A9-4ED8-A4C3-BBC4D29DA3BE}  --> Dlg.Id
+    Virtual volume removal error dialog
+
+    ChangeDriveCannotReadDiskErrorId = {F3D46DC3-380B-4264-8BF8-10B05B897A5E}
+    Drive change error dialog
+
+
 drkns 04.09.2015 21:47:21 +0200 - build 4413
 
 1. Refactoring.
