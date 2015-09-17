@@ -255,9 +255,8 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 
 			if (!Result) // второй проход - по правилам SearchPath
 			{
-				string strPathEnv;
-
-				if (os::env::get_variable(L"PATH", strPathEnv))
+				const auto strPathEnv(os::env::get_variable(L"PATH"));
+				if (!strPathEnv.empty())
 				{
 					std::vector<string> Strings;
 					split(Strings, strPathEnv, STLF_UNIQUE);
@@ -704,8 +703,7 @@ int Execute(const string& CmdStr,  //  ом.строка дл€ исполнени€
 		}
 	}
 
-	string strComspec;
-	os::env::get_variable(L"COMSPEC", strComspec);
+	const auto strComspec(os::env::get_variable(L"COMSPEC"));
 	if (strComspec.empty() && !DirectRun)
 	{
 		Message(MSG_WARNING, 1, MSG(MError), MSG(MComspecNotFound), MSG(MOk));
@@ -1282,7 +1280,7 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 				{
 					strCmd.assign(CmdStart,PtrCmd-CmdStart);
 
-					DWORD ERet = os::env::get_variable(strCmd, strExpandedStr);
+					const auto ERet = os::env::get_variable(strCmd, strExpandedStr);
 
 //_SVS(SysLog(Cmd));
 					if ((ERet && !Not) || (!ERet && Not))
@@ -1330,8 +1328,8 @@ bool ProcessOSAliases(string &strStr)
 
 	if (!ret)
 	{
-		string strComspec;
-		if (os::env::get_variable(L"COMSPEC", strComspec))
+		const auto strComspec(os::env::get_variable(L"COMSPEC"));
+		if (!strComspec.empty())
 		{
 			lpwszExeName=PointToName(strComspec);
 			ret = Console().GetAlias(strNewCmdStr.data(), Buffer.get(), Buffer.size() * sizeof(wchar_t) , lpwszExeName);

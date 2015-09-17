@@ -280,8 +280,8 @@ bool filemasks::masks::Set(const string& masks, DWORD Flags)
 	static const wchar_t PathExtName[] = L"%PATHEXT%";
 	if (StrStrI(expmasks.data(), PathExtName))
 	{
-		string strSysPathExt;
-		if (os::env::get_variable(L"PATHEXT", strSysPathExt))
+		const auto strSysPathExt(os::env::get_variable(L"PATHEXT"));
+		if (!strSysPathExt.empty())
 		{
 			std::vector<string> MaskList;
 			split(MaskList, strSysPathExt, STLF_UNIQUE);

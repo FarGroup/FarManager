@@ -58,8 +58,8 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 	if (NewDir.size() == 2 && NewDir[1]==L':')
 	{
 		Drive[1] = ToUpper(NewDir[0]);
-
-		if (!os::env::get_variable(Drive, strCurDir))
+		strCurDir = os::env::get_variable(Drive);
+		if (strCurDir.empty())
 		{
 			strCurDir = NewDir;
 			AddEndSlash(strCurDir);

@@ -591,7 +591,7 @@ bool Plugin::LoadData()
 		{
 			Drive[0] = L'=';
 			Drive[1] = m_strModuleName.front();
-			os::env::get_variable(Drive, strCurPlugDiskPath);
+			strCurPlugDiskPath = os::env::get_variable(Drive);
 		}
 
 		PrepareModulePath(m_strModuleName);

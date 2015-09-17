@@ -269,8 +269,8 @@ static bool EnumModules(VMenu2& Menu, const string& Module)
 		}
 
 		{
-			string strPathEnv;
-			if (os::env::get_variable(L"PATH", strPathEnv))
+			const auto strPathEnv(os::env::get_variable(L"PATH"));
+			if (!strPathEnv.empty())
 			{
 				std::vector<string> PathList;
 				split(PathList, strPathEnv);

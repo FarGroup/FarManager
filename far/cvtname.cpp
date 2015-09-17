@@ -151,9 +151,9 @@ static void MixToFullPath(const string& stPath, string& Dest, const string& stCu
 				{
 					WCHAR _DriveVar[]={L'=',stPath[0],L':',L'\0'};
 					string DriveVar(_DriveVar);
-					string strValue;
+					const auto strValue(os::env::get_variable(DriveVar));
 
-					if (os::env::get_variable(DriveVar,strValue))
+					if (!strValue.empty())
 					{
 						strDest=strValue;
 					}

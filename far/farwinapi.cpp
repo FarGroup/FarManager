@@ -1954,7 +1954,10 @@ DWORD GetAppPathsRedirectionFlag()
 		bool get_variable(const wchar_t* Name, string& strBuffer)
 		{
 			WCHAR Buffer[MAX_PATH];
+			// GetEnvironmentVariable doesn't change error code on success
+			SetLastError(ERROR_SUCCESS);
 			DWORD Size = ::GetEnvironmentVariable(Name, Buffer, ARRAYSIZE(Buffer));
+			const auto LastError = GetLastError();
 
 			if (Size)
 			{
@@ -1970,7 +1973,7 @@ DWORD GetAppPathsRedirectionFlag()
 				}
 			}
 
-			return Size != 0;
+			return LastError != ERROR_ENVVAR_NOT_FOUND;
 		}
 
 		bool set_variable(const wchar_t* Name, const wchar_t* Value)
@@ -2005,8 +2008,9 @@ DWORD GetAppPathsRedirectionFlag()
 
 		string get_pathext()
 		{
-			string PathExt(L".COM;.EXE;.BAT;.CMD;.VBS;.JS;.JSE;.WSF;.WSH;.MSC");
-			os::env::get_variable(L"PATHEXT", PathExt);
+			auto PathExt(os::env::get_variable(L"PATHEXT"));
+			if (PathExt.empty())
+				PathExt = L".COM;.EXE;.BAT;.CMD;.VBS;.JS;.JSE;.WSF;.WSH;.MSC";
 			return PathExt;
 		}
 	}

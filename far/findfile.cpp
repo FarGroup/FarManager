@@ -2510,9 +2510,7 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 
 	if (SearchMode==FINDAREA_INPATH)
 	{
-		string strPathEnv;
-		os::env::get_variable(L"PATH", strPathEnv);
-		InitString = strPathEnv;
+		InitString = os::env::get_variable(L"PATH");
 	}
 	else if (SearchMode==FINDAREA_ROOT)
 	{
