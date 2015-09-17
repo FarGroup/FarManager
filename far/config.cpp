@@ -1751,7 +1751,7 @@ void Options::InitConfigData()
 		{FSSF_PRIVATE,       NKeySystem,L"CloseCDGate", OPT_DEF(CloseCDGate, true)},
 		{FSSF_PRIVATE,       NKeySystem,L"CmdHistoryRule", OPT_DEF(CmdHistoryRule, false)},
 		{FSSF_PRIVATE,       NKeySystem,L"ConsoleDetachKey", OPT_DEF(ConsoleDetachKey, L"CtrlShiftTab")},
-		{FSSF_PRIVATE,       NKeySystem,L"CopyBufferSize", OPT_DEF(CMOpt.BufferSize, 0)},
+		{FSSF_PRIVATE,       NKeySystem,L"CopyBufferSize", OPT_DEF(CMOpt.BufferSize, default_copy_buffer_size)},
 		{FSSF_SYSTEM,        NKeySystem,L"CopyOpened", OPT_DEF(CMOpt.CopyOpened, true)},
 		{FSSF_PRIVATE,       NKeySystem,L"CopyTimeRule",  OPT_DEF(CMOpt.CopyTimeRule, 3)},
 		{FSSF_PRIVATE,       NKeySystem,L"CopySecurityOptions", OPT_DEF(CMOpt.CopySecurityOptions, 0)},
@@ -2070,11 +2070,6 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 		{
 			StrToGuid(i->StrId, i->Id);
 		}
-	}
-
-	if (!CMOpt.BufferSize)
-	{
-		CMOpt.BufferSize = default_copy_buffer_size;
 	}
 
 /* *************************************************** </оняропнжеяяш> */
