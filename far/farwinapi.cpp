@@ -1919,19 +1919,36 @@ DWORD GetAppPathsRedirectionFlag()
 
 	namespace env
 	{
-		enum_strings::enum_strings():
-			m_Environment(GetEnvironmentStrings())
+		provider::strings::strings()
 		{
+			m_Environment = GetEnvironmentStrings();
 		}
 
-		enum_strings::~enum_strings()
+		provider::strings::~strings()
 		{
-			FreeEnvironmentStrings(m_Environment);
+			FreeEnvironmentStrings(get());
 		}
 
-		bool enum_strings::get(size_t index, value_type& value)
+		provider::block::block()
 		{
-			return *(value = index? value + wcslen(value) + 1 : m_Environment) != L'\0';
+			m_Environment = nullptr;
+			HANDLE RawHandle = nullptr;
+			if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &RawHandle))
+			{
+				os::handle TokenHandle(RawHandle);
+				CreateEnvironmentBlock(reinterpret_cast<void**>(&m_Environment), TokenHandle.native_handle(), TRUE);
+			}
+		}
+
+		provider::block::~block()
+		{
+			DestroyEnvironmentBlock(get());
+		}
+
+		std::pair<string, string> split(const wchar_t* Line)
+		{
+			auto EqPos = wcschr(Line + 1, L'=');
+			return std::make_pair(string(Line, EqPos - Line), string(EqPos + 1));
 		}
 
 		bool get_variable(const wchar_t* Name, string& strBuffer)

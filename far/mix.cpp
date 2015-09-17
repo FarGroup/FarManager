@@ -192,45 +192,32 @@ SetAutocomplete::~SetAutocomplete()
 
 void ReloadEnvironment()
 {
-	static const simple_pair<HKEY, const wchar_t*> Addr[]=
+	// these are handled incorrectly by CreateEnvironmentBlock
+	const wchar_t* PreservedNames[] =
 	{
-		{HKEY_LOCAL_MACHINE, L"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment"},
-		{HKEY_CURRENT_USER, L"Environment"},
-		{HKEY_CURRENT_USER, L"Volatile Environment"}
+#ifndef _WIN64 // TODO: Use IsWow64Process() too?
+		L"PROCESSOR_ARCHITECTURE", // incorrect under WOW64
+#endif
+		L"USERDOMAIN", // absent
+		L"USERNAME", //absent
 	};
 
-	FOR(const auto& i, Addr)
+	std::vector<std::pair<const wchar_t*, string>> PreservedVariables(ARRAYSIZE(PreservedNames));
+
+	std::transform(ALL_CONST_RANGE(PreservedNames), PreservedVariables.begin(), [](const wchar_t* i)
 	{
-		static const DWORD Types[]={REG_SZ,REG_EXPAND_SZ}; // REG_SZ first
-		FOR(const auto& t, Types) // two passes
-		{
-			FOR(const auto& j, os::reg::enum_value(i.first, i.second))
-			{
-				if(j.Type() == t)
-				{
-					string Value = j.GetString();
-					if(j.Type() == REG_EXPAND_SZ)
-					{
-						Value = os::env::expand_strings(Value);
-					}
-					if (i.first==HKEY_CURRENT_USER)
-					{
-						// see http://support.microsoft.com/kb/100843 for details
-						if(!StrCmpI(j.Name().data(), L"path") || !StrCmpI(j.Name().data(), L"libpath") || !StrCmpI(j.Name().data(), L"os2libpath"))
-						{
-							string strMergedPath;
-							os::env::get_variable(j.Name(), strMergedPath);
-							if(strMergedPath.back() != L';')
-							{
-								strMergedPath+=L';';
-							}
-							Value = strMergedPath + Value;
-						}
-					}
-					os::env::set_variable(j.Name(), Value);
-				}
-			}
-		}
+		return std::make_pair(i, os::env::get_variable(i));
+	});
+
+	FOR(const auto& i, os::env::enum_strings_t<os::env::provider::block>())
+	{
+		const auto Data = os::env::split(i);
+		os::env::set_variable(Data.first, Data.second);
+	}
+
+	FOR(const auto& i, PreservedVariables)
+	{
+		os::env::set_variable(i.first, i.second);
 	}
 }
 

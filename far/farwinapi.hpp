@@ -468,19 +468,58 @@ namespace os
 
 	namespace env
 	{
-		class enum_strings: noncopyable, public enumerator<enum_strings, const wchar_t*>
+		namespace detail
+		{
+			class provider
+			{
+			public:
+				const wchar_t* get() const { return m_Environment; }
+				wchar_t* get() { return m_Environment; }
+
+			protected:
+				wchar_t* m_Environment;
+			};
+		}
+
+		namespace provider
+		{
+			class strings: public detail::provider
+			{
+			public:
+				strings();
+				~strings();
+			};
+
+			class block: public detail::provider
+			{
+			public:
+				block();
+				~block();
+			};
+		}
+
+		std::pair<string, string> split(const wchar_t* Line);
+
+		template<class T>
+		class enum_strings_t: noncopyable, public enumerator<enum_strings_t<T>, const wchar_t*>
 		{
 		public:
-			enum_strings();
-			~enum_strings();
-			bool get(size_t index, value_type& value);
+			enum_strings_t() {}
+			bool get(size_t index, typename enum_strings_t<T>::value_type& value)
+			{
+				return *(value = index? value + wcslen(value) + 1 : m_Provider.get()) != L'\0';
+			}
 
 		private:
-			wchar_t* m_Environment;
+			const T m_Provider;
 		};
+
+		typedef enum_strings_t<provider::strings> enum_strings;
 
 		bool get_variable(const wchar_t* Name, string& strBuffer);
 		inline bool get_variable(const string& Name, string& strBuffer) { return get_variable(Name.data(), strBuffer); }
+		template<class T>
+		inline string get_variable(const T& Name) { string Result; get_variable(Name, Result); return Result; }
 
 		bool set_variable(const wchar_t* Name, const wchar_t* Value);
 		inline bool set_variable(const wchar_t* Name, const string& Value) { return set_variable(Name, Value.data()); }

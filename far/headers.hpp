@@ -141,6 +141,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <psapi.h>
 #include <shlobj.h>
 #include <shellapi.h>
+#include <userenv.h>
 
 #ifdef _MSC_VER
 # include <ntstatus.h>
