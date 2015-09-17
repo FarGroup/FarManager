@@ -87,8 +87,6 @@ static const wchar_t constBatchExt[] = L".BAT;.CMD;";
 
 static const int DefaultTabSize = 8;
 
-static const size_t default_copy_buffer_size = 32 * 1024;
-
 
 #if defined(TREEFILE_PROJECT)
 static const wchar_t constLocalDiskTemplate[] = L"LD.%D.%SN.tree";
@@ -1751,7 +1749,7 @@ void Options::InitConfigData()
 		{FSSF_PRIVATE,       NKeySystem,L"CloseCDGate", OPT_DEF(CloseCDGate, true)},
 		{FSSF_PRIVATE,       NKeySystem,L"CmdHistoryRule", OPT_DEF(CmdHistoryRule, false)},
 		{FSSF_PRIVATE,       NKeySystem,L"ConsoleDetachKey", OPT_DEF(ConsoleDetachKey, L"CtrlShiftTab")},
-		{FSSF_PRIVATE,       NKeySystem,L"CopyBufferSize", OPT_DEF(CMOpt.BufferSize, default_copy_buffer_size)},
+		{FSSF_PRIVATE,       NKeySystem,L"CopyBufferSize", OPT_DEF(CMOpt.BufferSize, 0)},
 		{FSSF_SYSTEM,        NKeySystem,L"CopyOpened", OPT_DEF(CMOpt.CopyOpened, true)},
 		{FSSF_PRIVATE,       NKeySystem,L"CopyTimeRule",  OPT_DEF(CMOpt.CopyTimeRule, 3)},
 		{FSSF_PRIVATE,       NKeySystem,L"CopySecurityOptions", OPT_DEF(CMOpt.CopySecurityOptions, 0)},
