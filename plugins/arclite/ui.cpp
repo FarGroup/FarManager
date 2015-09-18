@@ -765,7 +765,7 @@ private:
         flu.Index = i;
         flu.Item.Flags = skip ? LIF_DISABLE : 0;
         flu.Item.Text = Far::msg_ptr(c_levels[i].name_id);
-        CHECK(send_message(DM_LISTUPDATE, level_ctrl_id, &flu));
+        send_message(DM_LISTUPDATE, level_ctrl_id, &flu);
       }
       if (new_level_sel == -1 && c_levels[i].value == 5) {
         new_level_sel = i;

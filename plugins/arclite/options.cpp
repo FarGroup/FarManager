@@ -110,7 +110,7 @@ Options::Options():
 
 void load_sfx_options(OptionsKey& key, SfxOptions& sfx_options) {
   SfxOptions def_sfx_options;
-#define GET_VALUE(name, type) sfx_options.name = key.get_##type(L"sfx."L#name, def_sfx_options.name)
+#define GET_VALUE(name, type) sfx_options.name = key.get_##type(L"sfx." L#name, def_sfx_options.name)
   GET_VALUE(name, str);
   GET_VALUE(replace_icon, bool);
   GET_VALUE(icon_path, str);
@@ -134,7 +134,7 @@ void load_sfx_options(OptionsKey& key, SfxOptions& sfx_options) {
 
 void save_sfx_options(OptionsKey& key, const SfxOptions& sfx_options) {
   SfxOptions def_sfx_options;
-#define SET_VALUE(name, type) key.set_##type(L"sfx."L#name, sfx_options.name, def_sfx_options.name)
+#define SET_VALUE(name, type) key.set_##type(L"sfx." L#name, sfx_options.name, def_sfx_options.name)
   SET_VALUE(name, str);
   SET_VALUE(replace_icon, bool);
   SET_VALUE(icon_path, str);

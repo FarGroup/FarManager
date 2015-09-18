@@ -280,6 +280,10 @@ UpdateCommand parse_update_command(const CommandArgs& ca) {
     else
       command.files.push_back(unquote(args[i]));
   }
+
+  if (command.options.level == 0)
+    command.options.method = c_method_copy;
+
   return command;
 }
 
