@@ -54,13 +54,16 @@ local function makefarcolors (colors_file, guids_file, out_file)
   fp = assert(io.open(guids_file))
   local collect = {}
   local pat = "^%s*DEFINE_GUID.-([%w_]+).-"..("0[xX](%x+).-"):rep(11)
+  local lineno = 0
   for line in fp:lines() do
+    lineno = lineno + 1
     local t = { line:match(pat) }
     if t[1] then
       for k=2,#t do t[k] = tonumber(t[k],16) end
       collect[#collect+1] = ("%s='%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X'"):format(unpack(t))
-    else
-      assert(not line:match("^%s*DEFINE_GUID"))
+    elseif line:match("^%s*DEFINE_GUID") then
+      fp:close()
+      error("GUIDs file: could not process line #"..lineno)
     end
   end
   assert(#collect >= 83)
