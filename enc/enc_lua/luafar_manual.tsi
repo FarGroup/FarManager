@@ -8947,6 +8947,27 @@ mtime=3512058652
 </article>
 </node>
 <node>
+id=514
+lv=2
+dt=Text
+nm=far.Guids
+ctime=3651736089
+mtime=3651736631
+<article>
+#_far.Guids
+#_
+#_**Description:**
+#_  A table containing GUIDs of various Far Manager dialogs and menus.
+#_  This table is auto-generated from file *DlgGuid.hpp* at the build time.
+#_
+#_  GUIDs are given in upper-case text representation, e.g.
+#_    FindFileId = '8C9EAD29-910F-4B24-A669-EDAFBA6ED964'
+#_
+#_@@@
+#_
+</article>
+</node>
+<node>
 id=84
 lv=1
 dt=Text

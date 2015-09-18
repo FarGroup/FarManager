@@ -5,6 +5,7 @@ LUA_VER=51
 LUA_PROXY=lua5.1.dll
 USERCPP=/Iluasdk/include /DBUILD_DLL /DWINVER=0x500 /DLUADLL=\"lua$(LUA_VER).dll\"
 LUA=luasdk\32\lua.exe
+FARDIR=..\..\unicode_far
 
 DOCS=luasdk\$(DIRBIT)\lua$(LUA_VER).dll luasdk\$(DIRBIT)\$(LUA_PROXY) \
      luasdk\$(DIRBIT)\lpeg.dll
@@ -52,6 +53,6 @@ luafar\flags.c: $(COMINC)\plugin.hpp luafar\makeflags.lua
 	@echo generating flags.c
 	@$(LUA) luafar\makeflags.lua $(COMINC)\plugin.hpp > luafar\flags.c
 
-luafar\keysandcolors.c: $(COMINC)\farcolor.hpp luafar\makefarkeys.lua
+luafar\keysandcolors.c: luafar\makefarkeys.lua $(COMINC)\farcolor.hpp $(FARDIR)\DlgGuid.hpp
 	@echo generating keysandcolors.c
-	@$(LUA) luafar\makefarkeys.lua $(COMINC) luafar\keysandcolors.c
+	@$(LUA) luafar\makefarkeys.lua $(COMINC)\farcolor.hpp $(FARDIR)\DlgGuid.hpp $@

@@ -1,4 +1,9 @@
-﻿shmuel 04.09.2015 21:48:41 +0200 - build 525
+﻿shmuel 18.09.2015 12:29:10 +0200 - build 526
+
+1. LuaFAR: M#2384: Нужна глобальная таблица guid'ов диалогов фара.
+   --> Таблица far.Guids.
+
+shmuel 04.09.2015 21:48:41 +0200 - build 525
 
 1. M#3067: LuaFAR: far.SubscribeDialogDrawEvents не срабатывает в момент Msg==F.DN_INITDIALOG and Event==F.DE_DLGPROCINIT
 
