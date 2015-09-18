@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "imports.hpp"
+#include "regex_helpers.hpp"
 
 void NTPath::Transform()
 {
@@ -79,18 +80,22 @@ PATH_TYPE ParsePath(const string& path, size_t* DirectoryOffset, bool* Root)
 	{
 		// TODO: tests for all these types
 
+#define RE_PATH_PREFIX(x) RE_C_GROUP(RE_BEGIN RE_BACKSLASH RE_REPEAT(2) RE_ANY_OF(RE_Q_MARK RE_DOT) RE_BACKSLASH x )
+
 		// x:<whatever> or x:\\<whatever>
-		{PATH_DRIVELETTER, L"(^.\\:)(?:[\\\\\\/]?)"},
+		{ PATH_DRIVELETTER, RE_C_GROUP(RE_BEGIN RE_ANY RE_ESCAPE(L":")) RE_NC_GROUP(RE_ANY_SLASH RE_ZERO_OR_ONE_GREEDY) },
 		// \\?\x: or \\?\x:\ or \\?\x:\<whatever>
-		{PATH_DRIVELETTERUNC, L"(^\\\\{2}[\\?\\.]\\\\.\\:)(?:[\\\\\\/]|$)"},
+		{ PATH_DRIVELETTERUNC, RE_PATH_PREFIX(L".\\:") RE_ANY_SLASH_OR_NONE },
 		// \\server\share or \\server\share\ or \\server\share<whatever>
-		{PATH_REMOTE, L"(^\\\\{2}[^ \\\\\\/\\?\\.][^ \\\\\\/\\?]+?\\\\[^\\\\\\/]+?)(?:[\\\\\\/]|$)"},
+		{ PATH_REMOTE, RE_C_GROUP(RE_BEGIN RE_ANY_SLASH RE_REPEAT(2) RE_NONE_OF(RE_SPACE RE_SLASHES RE_Q_MARK RE_DOT) RE_ONE_OR_MORE_LAZY RE_ANY_SLASH RE_ONE_OR_MORE_LAZY RE_NONE_OF(RE_SLASHES) RE_ONE_OR_MORE_GREEDY) RE_ANY_SLASH_OR_NONE },
 		// \\?\unc\server\share or \\?\unc\server\share\ or \\?\unc\server\share<whatever>
-		{PATH_REMOTEUNC, L"(^\\\\{2}[\\?\\.]\\\\unc\\\\[^ \\\\\\/]+?\\\\[^\\\\\\/]+?)(?:[\\\\\\/]|$)"},
+		{ PATH_REMOTEUNC, RE_PATH_PREFIX(L"unc" RE_BACKSLASH RE_NONE_OF(RE_SPACE RE_SLASHES RE_Q_MARK RE_DOT) RE_ONE_OR_MORE_LAZY RE_BACKSLASH RE_NONE_OF(RE_SLASHES) RE_ONE_OR_MORE_GREEDY) RE_ANY_SLASH_OR_NONE },
 		// \\?\Volume{GUID} or \\?\Volume{GUID}\ or \\?\Volume{GUID}<whatever>
-		{PATH_VOLUMEGUID, L"(^\\\\{2}[\\?\\.]\\\\volume\\{[0-9A-Fa-f]{8}-(?:[0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}\\})(?:[\\\\\\/]|$)"},
+		{ PATH_VOLUMEGUID, RE_PATH_PREFIX(L"volume" RE_ESCAPE(L"{") RE_ANY_UUID RE_ESCAPE(L"}")) RE_ANY_SLASH_OR_NONE },
 		// \\?\pipe\ or \\?\pipe
-		{PATH_PIPE, L"(^\\\\{2}[\\?\\.]\\\\pipe)(?:[\\\\\\/]|$)"},
+		{ PATH_PIPE, RE_PATH_PREFIX(L"pipe") RE_ANY_SLASH_OR_NONE },
+
+#undef RE_PATH_REFIX
 	};
 	static bool REInit = false;
 	if(!REInit)

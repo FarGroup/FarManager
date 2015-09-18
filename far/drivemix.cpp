@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "flink.hpp"
 #include "cddrv.hpp"
 #include "strmix.hpp"
+#include "pathmix.hpp"
 
 /*
   FarGetLogicalDrives
@@ -96,7 +97,7 @@ int CheckDisksProps(const string& SrcPath,const string& DestPath,int CheckedType
 		if (DestPath.find_first_of(L"\\:") == string::npos)
 			return TRUE;
 
-		if (((strSrcRoot[0]==L'\\' && strSrcRoot[1]==L'\\') || (strDestRoot[0]==L'\\' && strDestRoot[1]==L'\\')) &&
+		if (((IsSlash(strSrcRoot[0]) && IsSlash(strSrcRoot[1])) || (IsSlash(strDestRoot[0]) && IsSlash(strDestRoot[1]))) &&
 		        StrCmpI(strSrcRoot, strDestRoot))
 			return FALSE;
 

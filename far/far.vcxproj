@@ -620,6 +620,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="Include\DlgBuilder.hpp" />
     <ClInclude Include="nsUniversalDetectorEx.hpp" />
     <ClInclude Include="panelctype.hpp" />
+    <ClInclude Include="regex_helpers.hpp" />
     <ClInclude Include="sdk.hpp" />
     <ClInclude Include="shortcuts.hpp" />
     <ClInclude Include="fileattr.hpp" />

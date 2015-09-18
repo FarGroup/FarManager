@@ -892,7 +892,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	DestPanelMode(ToPlugin? DestPanel->GetMode() : NORMAL_PANEL),
 	SrcDriveType(),
 	DestDriveType(),
-	CopyBufferSize(!Global->Opt->CMOpt.BufferSize?default_copy_buffer_size:Global->Opt->CMOpt.BufferSize),
+	CopyBufferSize(!Global->Opt->CMOpt.BufferSize.Get()? default_copy_buffer_size : Global->Opt->CMOpt.BufferSize.Get()),
 	SelectedFolderNameLength(),
 	RPT(RP_EXACTCOPY),
 	AltF10(),

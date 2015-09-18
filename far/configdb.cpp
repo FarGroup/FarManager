@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "message.hpp"
 #include "synchro.hpp"
+#include "regex_helpers.hpp"
 
 class representation
 {
@@ -2224,7 +2225,7 @@ public:
 
 static const std::wregex& uuid_regex()
 {
-	static const std::wregex re(L"^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$", std::regex::icase | std::regex::optimize);
+	static const std::wregex re(RE_BEGIN RE_ANY_UUID RE_END, std::regex::icase | std::regex::optimize);
 	return re;
 }
 

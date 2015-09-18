@@ -62,6 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "RegExp.hpp"
 #include "plugins.hpp"
 #include "language.hpp"
+#include "regex_helpers.hpp"
 
 static bool ReplaceMode, ReplaceAll;
 
@@ -4563,7 +4564,33 @@ void Editor::GoToPosition()
 
 void Editor::GetRowCol(const string& argv, int& row, int& col)
 {
-	static const std::wregex re(L"^[ \\t]*((([0-9]+)%)|(([+-]?)[0-9]+))?([ \\t]*[.,;: ][ \\t]*(([+-]?)[0-9]+))?[ \\t]*$", std::regex::optimize);
+	static const std::wregex re(
+		RE_BEGIN
+		RE_ANY_WHITESPACE
+		RE_C_GROUP(
+			RE_C_GROUP(
+				RE_C_GROUP(RE_ANY_OF(L"0-9") RE_ONE_OR_MORE_GREEDY) L"%"
+			)
+			RE_OR
+			RE_C_GROUP(
+				RE_C_GROUP(
+					RE_ANY_OF(L"+-") RE_ZERO_OR_ONE_GREEDY
+				)
+				RE_ANY_OF(L"0-9") RE_ONE_OR_MORE_GREEDY
+			)
+		) RE_ZERO_OR_ONE_GREEDY
+		RE_C_GROUP(
+			RE_ANY_WHITESPACE
+			RE_ANY_OF(L".,;:" RE_SPACE)
+			RE_ANY_WHITESPACE
+			RE_C_GROUP
+			(
+				RE_C_GROUP(RE_ANY_OF(L"+-") RE_ZERO_OR_ONE_GREEDY)
+				RE_ANY_OF(L"0-9") RE_ONE_OR_MORE_GREEDY
+			)
+		) RE_ZERO_OR_ONE_GREEDY
+		RE_ANY_WHITESPACE
+		RE_END, std::regex::optimize);
 
 	std::wsmatch SMatch;
 

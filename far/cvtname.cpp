@@ -497,7 +497,7 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 
 	if (!strPath.empty())
 	{
-		if (strPath.size() > 1 && (strPath[1]==L':' || (strPath[0]==L'\\' && strPath[1]==L'\\')))
+		if (strPath.size() > 1 && (strPath[1]==L':' || (IsSlash(strPath[0]) && IsSlash(strPath[1]))))
 		{
 			ReplaceSlashToBackslash(strPath);
 			bool DoubleSlash = strPath[1]==L'\\';

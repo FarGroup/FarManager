@@ -854,15 +854,13 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		if (RetCode>=0)
 			return RetCode;
 
-		if (ChDisk->GetExitCode()<0 &&
-			        !m_CurDir.empty() &&
-			        (StrCmpN(m_CurDir.data(),L"\\\\",2) ))
-			{
-				const wchar_t RootDir[4] = {m_CurDir[0],L':',L'\\',L'\0'};
+		if (ChDisk->GetExitCode() < 0 && m_CurDir.size() > 2 && IsSlash(m_CurDir[0]) && IsSlash(m_CurDir[1]))
+		{
+			const wchar_t RootDir[4] = {m_CurDir[0],L':',L'\\',L'\0'};
 
-				if (FAR_GetDriveType(RootDir) == DRIVE_NO_ROOT_DIR)
-				return ChDisk->GetSelectPos();
-			}
+			if (FAR_GetDriveType(RootDir) == DRIVE_NO_ROOT_DIR)
+			return ChDisk->GetSelectPos();
+		}
 
 		if (ChDisk->GetExitCode()<0)
 			return -1;

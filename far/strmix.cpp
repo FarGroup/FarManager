@@ -43,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "locale.hpp"
 #include "stddlg.hpp"
 #include "codepage.hpp"
+#include "regex_helpers.hpp"
 
 namespace strmix
 {
@@ -976,7 +977,7 @@ bool FindWordInString(const string& Str, size_t CurPos, size_t& Begin, size_t& E
 
 bool CheckFileSizeStringFormat(const string& FileSizeStr)
 {
-	static const std::wregex SizeRegex(L"^[0-9]+?[BKMGTPE]?$", std::regex::icase | std::regex::optimize);
+	static const std::wregex SizeRegex(RE_BEGIN RE_ANY_OF(L"0-9") RE_ONE_OR_MORE_LAZY RE_ANY_OF(L"BKMGTPE") RE_ZERO_OR_ONE_GREEDY RE_END, std::regex::icase | std::regex::optimize);
 	return std::regex_search(FileSizeStr, SizeRegex);
 }
 
@@ -1053,7 +1054,7 @@ string ReplaceBrackets(const wchar_t *SearchStr, const string& ReplaceStr, const
 				}
 				else
 				{
-					static const std::wregex re(L"^\\{([\\w\\s]*?)\\}", std::regex::optimize);
+					static const std::wregex re(RE_BEGIN RE_ESCAPE(L"{"), RE_C_GROUP(RE_ANY_OF(L"\\w\\s") RE_ZERO_OR_MORE_LAZY) RE_ESCAPE(L"}"), std::regex::optimize);
 					std::wcmatch CMatch;
 					if (std::regex_search(ReplaceStr.data() + TokenStart, CMatch, re))
 					{

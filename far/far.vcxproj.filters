@@ -1034,5 +1034,8 @@
     <ClInclude Include="common\conditional.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
+    <ClInclude Include="regex_helpers.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
