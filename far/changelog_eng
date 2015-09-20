@@ -3,6 +3,31 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 18.09.2015 22:40:33 +0200 - build 4423
+
+1. Now we accept //these/paths too.
+
+2. GCC build fix
+
+3. Refactoring.
+
+drkns 17.09.2015 22:04:20 +0200 - build 4422
+
+1. Refactoring.
+
+drkns 17.09.2015 20:59:50 +0200 - build 4421
+
+1. Correction and simplification of environment variables auto-update logic.
+
+svs 17.09.2015 19:11:41 +0300 - build 4420
+
+1. Correction of build 4419 to match the planned logic (see the help)
+
+svs 17.09.2015 19:04:05 +0300 - build 4419
+
+1. Mantis#0003078: Configuration editor *marks some parameters as modified even in a new profile
+   Only about "System.CopyBufferSize".
+
 svs 10.09.2015 10:31:11 +0300 - build 4418
 
 1. Mantis#0003055: ID missing for file deletion dialog, unable to check.
