@@ -87,9 +87,9 @@ PATH_TYPE ParsePath(const string& path, size_t* DirectoryOffset, bool* Root)
 		// \\?\x: or \\?\x:\ or \\?\x:\<whatever>
 		{ PATH_DRIVELETTERUNC, RE_PATH_PREFIX(L".\\:") RE_ANY_SLASH_OR_NONE },
 		// \\server\share or \\server\share\ or \\server\share<whatever>
-		{ PATH_REMOTE, RE_C_GROUP(RE_BEGIN RE_ANY_SLASH RE_REPEAT(2) RE_NONE_OF(RE_SPACE RE_SLASHES RE_Q_MARK RE_DOT) RE_ONE_OR_MORE_LAZY RE_ANY_SLASH RE_ONE_OR_MORE_LAZY RE_NONE_OF(RE_SLASHES) RE_ONE_OR_MORE_GREEDY) RE_ANY_SLASH_OR_NONE },
+		{ PATH_REMOTE, RE_C_GROUP(RE_BEGIN RE_ANY_SLASH RE_REPEAT(2) RE_NONE_OF(RE_SPACE RE_SLASHES RE_Q_MARK) RE_ONE_OR_MORE_LAZY RE_ANY_SLASH RE_ONE_OR_MORE_LAZY RE_NONE_OF(RE_SLASHES) RE_ONE_OR_MORE_GREEDY) RE_ANY_SLASH_OR_NONE },
 		// \\?\unc\server\share or \\?\unc\server\share\ or \\?\unc\server\share<whatever>
-		{ PATH_REMOTEUNC, RE_PATH_PREFIX(L"unc" RE_BACKSLASH RE_NONE_OF(RE_SPACE RE_SLASHES RE_Q_MARK RE_DOT) RE_ONE_OR_MORE_LAZY RE_BACKSLASH RE_NONE_OF(RE_SLASHES) RE_ONE_OR_MORE_GREEDY) RE_ANY_SLASH_OR_NONE },
+		{ PATH_REMOTEUNC, RE_PATH_PREFIX(L"unc" RE_BACKSLASH RE_NONE_OF(RE_SPACE RE_SLASHES RE_Q_MARK) RE_ONE_OR_MORE_LAZY RE_BACKSLASH RE_NONE_OF(RE_SLASHES) RE_ONE_OR_MORE_GREEDY) RE_ANY_SLASH_OR_NONE },
 		// \\?\Volume{GUID} or \\?\Volume{GUID}\ or \\?\Volume{GUID}<whatever>
 		{ PATH_VOLUMEGUID, RE_PATH_PREFIX(L"volume" RE_ESCAPE(L"{") RE_ANY_UUID RE_ESCAPE(L"}")) RE_ANY_SLASH_OR_NONE },
 		// \\?\pipe\ or \\?\pipe
@@ -634,9 +634,11 @@ void TestPathParser()
     assert(ExtractPathRoot(L"\\\\server\\share") == L"\\\\server\\share\\");
     assert(ExtractPathRoot(L"\\\\server\\share\\") == L"\\\\server\\share\\");
     assert(ExtractPathRoot(L"\\\\server\\share\\path\\file") == L"\\\\server\\share\\");
+    assert(ExtractPathRoot(L"\\\\1.2.3.4\\share\\path\\file") == L"\\\\1.2.3.4\\share\\");
     assert(ExtractPathRoot(L"\\\\?\\UNC\\server\\share") == L"\\\\?\\UNC\\server\\share\\");
     assert(ExtractPathRoot(L"\\\\?\\UNC\\server\\share\\") == L"\\\\?\\UNC\\server\\share\\");
     assert(ExtractPathRoot(L"\\\\?\\UNC\\server\\share\\path\\file") == L"\\\\?\\UNC\\server\\share\\");
+    assert(ExtractPathRoot(L"\\\\?\\UNC\\1.2.3.4\\share\\path\\file") == L"\\\\?\\UNC\\1.2.3.4\\share\\");
 
     assert(ExtractFilePath(L"") == L"");
     assert(ExtractFilePath(L"\\") == L"");
