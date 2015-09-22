@@ -90,6 +90,83 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\..\Archive\Icons\7z.ico">
+      <Filter>Spec\Icons</Filter>
+    </Image>
+    <Image Include="..\..\Archive\Icons\arj.ico">
+      <Filter>Spec\Icons</Filter>
+    </Image>
+    <Image Include="..\..\Archive\Icons\bz2.ico">
+      <Filter>Spec\Icons</Filter>
+    </Image>
+    <Image Include="..\..\Archive\Icons\cab.ico">
+      <Filter>Spec\Icons</Filter>
+    </Image>
+    <Image Include="..\..\Archive\Icons\cpio.ico">
+      <Filter>Spec\Icons</Filter>
+    </Image>
+    <Image Include="..\..\Archive\Icons\deb.ico">
+      <Filter>Spec\Icons</Filter>
+    </Image>
+    <Image Include="..\..\Archive\Icons\dmg.ico">
+      <Filter>Spec\Icons</Filter>
+    </Image>
+    <Image Include="..\..\Archive\Icons\fat.ico">
+      <Filter>Spec\Icons</Filter>
+    </Image>
+    <Image Include="..\..\Archive\Icons\gz.ico">
+      <Filter>Spec\Icons</Filter>
+    </Image>
+    <Image Include="..\..\Archive\Icons\hfs.ico">
+      <Filter>Spec\Icons</Filter>
+    </Image>
+    <Image Include="..\..\Archive\Icons\iso.ico">
+      <Filter>Spec\Icons</Filter>
+    </Image>
+    <Image Include="..\..\Archive\Icons\lzh.ico">
+      <Filter>Spec\Icons</Filter>
+    </Image>
+    <Image Include="..\..\Archive\Icons\lzma.ico">
+      <Filter>Spec\Icons</Filter>
+    </Image>
+    <Image Include="..\..\Archive\Icons\ntfs.ico">
+      <Filter>Spec\Icons</Filter>
+    </Image>
+    <Image Include="..\..\Archive\Icons\rar.ico">
+      <Filter>Spec\Icons</Filter>
+    </Image>
+    <Image Include="..\..\Archive\Icons\rpm.ico">
+      <Filter>Spec\Icons</Filter>
+    </Image>
+    <Image Include="..\..\Archive\Icons\split.ico">
+      <Filter>Spec\Icons</Filter>
+    </Image>
+    <Image Include="..\..\Archive\Icons\squashfs.ico">
+      <Filter>Spec\Icons</Filter>
+    </Image>
+    <Image Include="..\..\Archive\Icons\tar.ico">
+      <Filter>Spec\Icons</Filter>
+    </Image>
+    <Image Include="..\..\Archive\Icons\vhd.ico">
+      <Filter>Spec\Icons</Filter>
+    </Image>
+    <Image Include="..\..\Archive\Icons\wim.ico">
+      <Filter>Spec\Icons</Filter>
+    </Image>
+    <Image Include="..\..\Archive\Icons\xar.ico">
+      <Filter>Spec\Icons</Filter>
+    </Image>
+    <Image Include="..\..\Archive\Icons\xz.ico">
+      <Filter>Spec\Icons</Filter>
+    </Image>
+    <Image Include="..\..\Archive\Icons\z.ico">
+      <Filter>Spec\Icons</Filter>
+    </Image>
+    <Image Include="..\..\Archive\Icons\zip.ico">
+      <Filter>Spec\Icons</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="..\..\Archive\ArchiveExports.cpp">
       <Filter>Spec</Filter>
     </ClCompile>
@@ -166,6 +243,9 @@
       <Filter>Compress\Rar Compress</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Compress\Rar3Vm.cpp">
+      <Filter>Compress\Rar Compress</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Compress\Rar5Decoder.cpp">
       <Filter>Compress\Rar Compress</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Compress\RarCodecsRegister.cpp">
@@ -270,9 +350,6 @@
     <ClCompile Include="..\..\Compress\PpmdRegister.cpp">
       <Filter>Compress\7z Compress</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Compress\Lzx86Converter.cpp">
-      <Filter>Compress\Cab Compress</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Compress\LzxDecoder.cpp">
       <Filter>Compress\Cab Compress</Filter>
     </ClCompile>
@@ -282,7 +359,13 @@
     <ClCompile Include="..\..\Compress\LzhDecoder.cpp">
       <Filter>Compress</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Compress\LzmsDecoder.cpp">
+      <Filter>Compress</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Compress\LzOutWindow.cpp">
+      <Filter>Compress</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Compress\XpressDecoder.cpp">
       <Filter>Compress</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Compress\ZDecoder.cpp">
@@ -295,6 +378,9 @@
       <Filter>Crypto</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Crypto\HmacSha1.cpp">
+      <Filter>Crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Crypto\HmacSha256.cpp">
       <Filter>Crypto</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Crypto\MyAes.cpp">
@@ -310,6 +396,9 @@
       <Filter>Crypto</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Crypto\Rar20Crypto.cpp">
+      <Filter>Crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Crypto\Rar5Aes.cpp">
       <Filter>Crypto</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Crypto\RarAes.cpp">
@@ -421,6 +510,9 @@
       <Filter>C</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\C\Bcj2Enc.c">
+      <Filter>C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\C\Blake2s.c">
       <Filter>C</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\C\Bra.c">
@@ -536,6 +628,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Archive\7z\7zUpdate.cpp">
       <Filter>Archive\7z</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Archive\Rar\Rar5Handler.cpp">
+      <Filter>Archive\Rar</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Archive\Rar\RarHandler.cpp">
       <Filter>Archive\Rar</Filter>
@@ -714,7 +809,13 @@
     <ClCompile Include="..\..\Archive\FlvHandler.cpp">
       <Filter>Archive</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Archive\GptHandler.cpp">
+      <Filter>Archive</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Archive\GzHandler.cpp">
+      <Filter>Archive</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Archive\HandlerCont.cpp">
       <Filter>Archive</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Archive\HfsHandler.cpp">
@@ -750,6 +851,9 @@
     <ClCompile Include="..\..\Archive\PpmdHandler.cpp">
       <Filter>Archive</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Archive\QcowHandler.cpp">
+      <Filter>Archive</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Archive\RpmHandler.cpp">
       <Filter>Archive</Filter>
     </ClCompile>
@@ -765,7 +869,13 @@
     <ClCompile Include="..\..\Archive\UefiHandler.cpp">
       <Filter>Archive</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Archive\VdiHandler.cpp">
+      <Filter>Archive</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Archive\VhdHandler.cpp">
+      <Filter>Archive</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Archive\VmdkHandler.cpp">
       <Filter>Archive</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Archive\XarHandler.cpp">
@@ -804,22 +914,6 @@
     <ClCompile Include="..\..\..\Windows\TimeUtils.cpp">
       <Filter>Windows</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\C\Blake2s.c">
-      <Filter>C</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Archive\Rar\Rar5Handler.cpp">
-      <Filter>Archive\Rar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Compress\Rar5Decoder.cpp">
-      <Filter>Compress\Rar Compress</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Crypto\HmacSha256.cpp">
-      <Filter>Crypto</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Crypto\Rar5Aes.cpp">
-      <Filter>Crypto</Filter>
-    </ClCompile>
-    <ClCompile Include="vc_crt_fix_impl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc">
@@ -831,6 +925,9 @@
       <Filter>Spec</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Common\Common.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Common\Defs.h">
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Common\DynamicBuffer.h">
@@ -914,6 +1011,9 @@
     <ClInclude Include="..\..\Compress\Rar3Vm.h">
       <Filter>Compress\Rar Compress</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Compress\Rar5Decoder.h">
+      <Filter>Compress\Rar Compress</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Compress\BZip2Const.h">
       <Filter>Compress\BZip2 Compress</Filter>
     </ClInclude>
@@ -989,9 +1089,6 @@
     <ClInclude Include="..\..\Compress\Lzx.h">
       <Filter>Compress\Cab Compress</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Compress\Lzx86Converter.h">
-      <Filter>Compress\Cab Compress</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Compress\LzxDecoder.h">
       <Filter>Compress\Cab Compress</Filter>
     </ClInclude>
@@ -1004,7 +1101,13 @@
     <ClInclude Include="..\..\Compress\LzhDecoder.h">
       <Filter>Compress</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Compress\LzmsDecoder.h">
+      <Filter>Compress</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Compress\LzOutWindow.h">
+      <Filter>Compress</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Compress\XpressDecoder.h">
       <Filter>Compress</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Compress\ZDecoder.h">
@@ -1014,6 +1117,9 @@
       <Filter>Crypto</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Crypto\HmacSha1.h">
+      <Filter>Crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Crypto\HmacSha256.h">
       <Filter>Crypto</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Crypto\MyAes.h">
@@ -1026,6 +1132,9 @@
       <Filter>Crypto</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Crypto\Rar20Crypto.h">
+      <Filter>Crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Crypto\Rar5Aes.h">
       <Filter>Crypto</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Crypto\RarAes.h">
@@ -1128,6 +1237,9 @@
       <Filter>C</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\C\Bcj2.h">
+      <Filter>C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\C\Blake2.h">
       <Filter>C</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\C\Bra.h">
@@ -1241,6 +1353,9 @@
     <ClInclude Include="..\..\Archive\7z\7zUpdateItem.h">
       <Filter>Archive\7z</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Archive\Rar\Rar5Handler.h">
+      <Filter>Archive\Rar</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Archive\Rar\RarHandler.h">
       <Filter>Archive\Rar</Filter>
     </ClInclude>
@@ -1248,6 +1363,9 @@
       <Filter>Archive\Rar</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Archive\Rar\RarItem.h">
+      <Filter>Archive\Rar</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Archive\Rar\RarVol.h">
       <Filter>Archive\Rar</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Archive\Cab\CabBlockInStream.h">
@@ -1379,6 +1497,9 @@
     <ClInclude Include="..\..\Archive\DeflateProps.h">
       <Filter>Archive</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Archive\HandlerCont.h">
+      <Filter>Archive</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Archive\IArchive.h">
       <Filter>Archive</Filter>
     </ClInclude>
@@ -1436,104 +1557,8 @@
     <ClInclude Include="..\..\..\Windows\TimeUtils.h">
       <Filter>Windows</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\C\Blake2.h">
-      <Filter>C</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Archive\Rar\Rar5Handler.h">
-      <Filter>Archive\Rar</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Archive\Rar\RarVol.h">
-      <Filter>Archive\Rar</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Common\Defs.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Compress\Rar5Decoder.h">
-      <Filter>Compress\Rar Compress</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Crypto\HmacSha256.h">
-      <Filter>Crypto</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Crypto\Rar5Aes.h">
-      <Filter>Crypto</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\..\Archive\Icons\7z.ico">
-      <Filter>Spec\Icons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\Archive\Icons\arj.ico">
-      <Filter>Spec\Icons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\Archive\Icons\bz2.ico">
-      <Filter>Spec\Icons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\Archive\Icons\cab.ico">
-      <Filter>Spec\Icons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\Archive\Icons\cpio.ico">
-      <Filter>Spec\Icons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\Archive\Icons\deb.ico">
-      <Filter>Spec\Icons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\Archive\Icons\dmg.ico">
-      <Filter>Spec\Icons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\Archive\Icons\fat.ico">
-      <Filter>Spec\Icons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\Archive\Icons\gz.ico">
-      <Filter>Spec\Icons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\Archive\Icons\hfs.ico">
-      <Filter>Spec\Icons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\Archive\Icons\iso.ico">
-      <Filter>Spec\Icons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\Archive\Icons\lzh.ico">
-      <Filter>Spec\Icons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\Archive\Icons\lzma.ico">
-      <Filter>Spec\Icons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\Archive\Icons\ntfs.ico">
-      <Filter>Spec\Icons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\Archive\Icons\rar.ico">
-      <Filter>Spec\Icons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\Archive\Icons\rpm.ico">
-      <Filter>Spec\Icons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\Archive\Icons\split.ico">
-      <Filter>Spec\Icons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\Archive\Icons\squashfs.ico">
-      <Filter>Spec\Icons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\Archive\Icons\tar.ico">
-      <Filter>Spec\Icons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\Archive\Icons\vhd.ico">
-      <Filter>Spec\Icons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\Archive\Icons\wim.ico">
-      <Filter>Spec\Icons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\Archive\Icons\xar.ico">
-      <Filter>Spec\Icons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\Archive\Icons\xz.ico">
-      <Filter>Spec\Icons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\Archive\Icons\z.ico">
-      <Filter>Spec\Icons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\Archive\Icons\zip.ico">
-      <Filter>Spec\Icons</Filter>
-    </CustomBuild>
     <CustomBuild Include="..\..\Archive\Archive2.def">
       <Filter>Spec</Filter>
     </CustomBuild>
@@ -1548,6 +1573,8 @@
     <MASM Include="..\..\..\..\Asm\x86\7zCrcOpt.asm">
       <Filter>Asm</Filter>
     </MASM>
-    <MASM Include="vc_crt_fix.asm" />
+    <MASM Include="..\..\..\..\..\common\vc_crt_fix.asm">
+      <Filter>Asm</Filter>
+    </MASM>
   </ItemGroup>
 </Project>
