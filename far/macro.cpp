@@ -2906,24 +2906,24 @@ static bool modFunc(FarMacroCall* Data)
 static bool indexFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<3>(Data);
-	const wchar_t *s = Params[0].toString().data();
-	const wchar_t *p = Params[1].toString().data();
-	const wchar_t *i = !Params[2].asInteger() ? StrStrI(s,p) : StrStr(s,p);
-	bool Ret = i != nullptr;
-	PassNumber((i ? i-s : -1), Data);
-	return Ret;
+	const auto& s = Params[0].toString();
+	const auto& p = Params[1].toString();
+	const auto i = Params[2].asInteger()? StrStr(s, p) : StrStrI(s, p);
+	const auto Position = i != s.cend() ? i - s.cbegin() : -1;
+	PassNumber(Position, Data);
+	return Position != -1;
 }
 
 // S=rindex(S1,S2[,Mode])
 static bool rindexFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<3>(Data);
-	const wchar_t *s = Params[0].toString().data();
-	const wchar_t *p = Params[1].toString().data();
-	const wchar_t *i = !Params[2].asInteger() ? RevStrStrI(s,p) : RevStrStr(s,p);
-	bool Ret = i != nullptr;
-	PassNumber((i ? i-s : -1), Data);
-	return Ret;
+	const auto& s = Params[0].toString();
+	const auto& p = Params[1].toString();
+	const auto i = Params[2].asInteger()? RevStrStr(s, p) : RevStrStrI(s, p);
+	const auto Position = i != s.cend()? i - s.cbegin() : -1;
+	PassNumber(Position, Data);
+	return Position != -1;
 }
 
 // S=Size2Str(Size,Flags[,Width])
@@ -4519,61 +4519,19 @@ Mode:
       1 - case sensitive
 
 */
+
 static bool replaceFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<5>(Data);
-	int Mode=(int)Params[4].asInteger();
-	TVar& Count(Params[3]);
-	TVar& Repl(Params[2]);
-	TVar& Find(Params[1]);
-	TVar& Src(Params[0]);
-	__int64 Ret=1;
-	// TODO: Здесь нужно проверить в соответствии с УНИКОДОМ!
-	string strStr;
-	//int lenS=(int)StrLength(Src.s());
-	size_t lenF = Find.asString().size();
-	//int lenR=(int)StrLength(Repl.s());
-	int cnt=0;
+	const auto Params = parseParams<5>(Data);
+	auto Src = Params[0].asString();
+	const auto& Find = Params[1].asString();
+	const auto& Repl = Params[2].asString();
+	const auto Count = Params[3].asInteger();
+	const auto IgnoreCase = !Params[4].asInteger();
 
-	if( lenF )
-	{
-		const wchar_t *Ptr=Src.asString().data();
-		if( !Mode )
-		{
-			while ((Ptr = StrStrI(Ptr, Find.asString().data())) != nullptr)
-			{
-				cnt++;
-				Ptr+=lenF;
-			}
-		}
-		else
-		{
-			while ((Ptr = StrStr(Ptr, Find.asString().data())) != nullptr)
-			{
-				cnt++;
-				Ptr+=lenF;
-			}
-		}
-	}
-
-	if (cnt)
-	{
-		//if (lenR > lenF)
-		//	lenS+=cnt*(lenR-lenF+1); //???
-
-		strStr=Src.asString();
-		cnt=(int)Count.asInteger();
-
-		if (cnt <= 0)
-			cnt=-1;
-
-		ReplaceStrings(strStr, Find.asString(), Repl.asString(), !Mode, cnt);
-		PassString(strStr, Data);
-	}
-	else
-		PassValue(&Src, Data);
-
-	return Ret != 0;
+	ReplaceStrings(Src, Find, Repl, IgnoreCase, Count <= 0 ? string::npos : static_cast<int>(Count));
+	PassString(Src, Data);
+	return true;
 }
 
 // V=Panel.Item(typePanel,Index,TypeInfo)

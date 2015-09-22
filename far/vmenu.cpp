@@ -657,7 +657,7 @@ void VMenu::FilterStringUpdated()
 		{
 			RemoveExternalSpaces(strName);
 			RemoveHighlights(strName);
-			if(!StrStrI(strName.data(), strFilter.data()))
+			if(StrStrI(strName, strFilter) == strName.cend())
 			{
 				CurItem.Flags |= LIF_HIDDEN;
 				ItemHiddenCount++;
@@ -800,10 +800,9 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		}
 		case MCODE_F_MENU_SELECT:
 		{
-			const wchar_t *str = (const wchar_t *)vParam;
-			const size_t strLength = wcslen(str);
+			const string str = reinterpret_cast<const wchar_t*>(vParam);
 
-			if (*str)
+			if (!str.empty())
 			{
 				string strTemp;
 				int Res;
@@ -849,23 +848,21 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 					Res = 0;
 					strTemp = HiText2Str(Item.strName);
 					RemoveExternalSpaces(strTemp);
-					const wchar_t *p;
+					string::const_iterator p;
 
 					switch (iParam)
 					{
 						case 0: // full compare
-							Res = !StrCmpI(strTemp.data(),str);
+							Res = !StrCmpI(strTemp, str);
 							break;
 						case 1: // begin compare
-							p = StrStrI(strTemp.data(),str);
-							Res = p==strTemp.data();
+							Res = StrStrI(strTemp, str) == strTemp.cbegin();
 							break;
 						case 2: // end compare
-							p = RevStrStrI(strTemp.data(),str);
-							Res = p && !*(p + strLength);
+							Res = RevStrStrI(strTemp, str) + str.size() == strTemp.cend();
 							break;
 						case 3: // in str
-							Res = StrStrI(strTemp.data(),str)!=nullptr;
+							Res = StrStrI(strTemp, str) != strTemp.cend();
 							break;
 					}
 

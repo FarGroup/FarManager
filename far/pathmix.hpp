@@ -55,6 +55,7 @@ enum PATH_TYPE
 
 PATH_TYPE ParsePath(const string& path, size_t* DirectoryOffset = nullptr, bool* Root = nullptr);
 
+inline bool IsRelativeRoot(const string& Path) { return Path.size() == 1 && IsSlash(Path.front()); }
 bool IsAbsolutePath(const string &Path);
 bool IsRootPath(const string &Path);
 bool HasPathPrefix(const string &Path);

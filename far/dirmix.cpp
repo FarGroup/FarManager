@@ -77,7 +77,7 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 		{
 			strCurDir = NewDir;
 
-			if (strCurDir == L"\\")
+			if (IsRelativeRoot(strCurDir))
 				strCurDir = os::GetCurrentDirectory(); // здесь берем корень
 
 			ReplaceSlashToBackslash(strCurDir);

@@ -136,13 +136,17 @@ void ConnectToNetworkDrive(const string& NewDir)
 	}
 }
 
-string &CurPath2ComputerName(const string& CurDir, string &strComputerName, string &strTail)
+string ExtractComputerName(const string& CurDir, string* strTail)
 {
-	string strNetDir;
-	strComputerName.clear();
-	strTail.clear();
+	string Result;
 
-	if (!CurDir.compare(0, 2, L"\\\\"))
+	string strNetDir;
+
+	if (strTail)
+		strTail->clear();
+
+	const auto CurDirPathType = ParsePath(CurDir);
+	if (CurDirPathType == PATH_REMOTE || CurDirPathType == PATH_REMOTEUNC)
 	{
 		strNetDir = CurDir;
 	}
@@ -152,21 +156,27 @@ string &CurPath2ComputerName(const string& CurDir, string &strComputerName, stri
 		os::WNetGetConnection(LocalName, strNetDir);
 	}
 
-	if (!strNetDir.compare(0, 2, L"\\\\"))
+	if (!strNetDir.empty())
 	{
-		strComputerName = strNetDir.substr(2);
-		size_t pos;
-
-		if (!FindSlash(pos,strComputerName))
-			strComputerName.clear();
-		else
+		const auto NetDirPathType = ParsePath(strNetDir);
+		if (NetDirPathType == PATH_REMOTE || NetDirPathType == PATH_REMOTEUNC)
 		{
-			strTail = strComputerName.substr(pos + 1);
-			strComputerName.resize(pos);
+			Result = strNetDir.substr(PATH_REMOTE ? 2 : 4);
+
+			size_t pos;
+			if (!FindSlash(pos, Result))
+				Result.clear();
+			else
+			{
+				if (strTail)
+				{
+					*strTail = Result.substr(pos + 1);
+				}
+				Result.resize(pos);
+			}
 		}
 	}
-
-	return strComputerName;
+	return Result;
 }
 
 bool DriveLocalToRemoteName(int DriveType, wchar_t Letter, string &strDest)

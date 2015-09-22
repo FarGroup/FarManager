@@ -576,7 +576,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 
 		while (!Cancel && (cannot_recycle_try_delete_folder || SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName)))
 		{
-			if (strSelName.empty() || (strSelName == L"\\") || IsRootPath(strSelName))
+			if (strSelName.empty() || IsRelativeRoot(strSelName) || IsRootPath(strSelName))
 				continue;
 
 			int TotalPercent = (Global->Opt->DelOpt.ShowTotal && ItemsCount >1)?(ProcessedItems*100/ItemsCount):-1;

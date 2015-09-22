@@ -340,6 +340,7 @@ void InfoList::DisplayObject()
 				case DRIVE_REMOTE:
 				{
 					os::WNetGetConnection(strDriveRoot, strAssocPath);
+					// TODO: check result
 				}
 				break;
 

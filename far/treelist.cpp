@@ -213,7 +213,7 @@ string& CreateTreeFileName(const string& Path, string &strDest)
 				string strServer, strShare;
 				if (PathType == PATH_REMOTE)
 				{
-					CurPath2ComputerName(strRootDir, strServer, strShare);
+					strServer = ExtractComputerName(strRootDir, &strShare);
 					DeleteEndSlash(strShare);
 				}
 
@@ -327,13 +327,17 @@ int GetCacheTreeName(const string& Root, string& strName, int CreateDir)
 
 	string strRemoteName;
 
-	if (Root.front() == L'\\')
+	const auto PathType = ParsePath(Root);
+	if (PathType == PATH_REMOTE || PathType == PATH_REMOTEUNC)
+	{
 		strRemoteName = Root;
-	else
+	}
+	else if (PathType == PATH_DRIVELETTER || PathType == PATH_DRIVELETTERUNC)
 	{
 		string LocalName(L"?:");
-		LocalName.front() = Root.front();
+		LocalName.front() = Root[PathType == PATH_DRIVELETTER? 0 : 4];
 		os::WNetGetConnection(LocalName, strRemoteName);
+		// TODO: check result?
 
 		if (!strRemoteName.empty())
 			AddEndSlash(strRemoteName);

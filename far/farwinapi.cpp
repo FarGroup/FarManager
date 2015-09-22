@@ -1026,17 +1026,20 @@ DWORD GetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFileName)
 
 DWORD WNetGetConnection(const string& LocalName, string &RemoteName)
 {
-	DWORD dwRemoteNameSize = 0;
-	DWORD dwResult = ::WNetGetConnection(LocalName.data(), nullptr, &dwRemoteNameSize);
-
-	if (dwResult == ERROR_SUCCESS || dwResult == ERROR_MORE_DATA)
+	wchar_t Buffer[MAX_PATH];
+	DWORD Size = ARRAYSIZE(Buffer);
+	auto Result = ::WNetGetConnection(LocalName.data(), Buffer, &Size);
+	if (Result == NO_ERROR)
 	{
-		std::vector<wchar_t> Buffer(dwRemoteNameSize);
-		dwResult = ::WNetGetConnection(LocalName.data(), Buffer.data(), &dwRemoteNameSize);
-		RemoteName.assign(Buffer.data(), dwRemoteNameSize);
+		RemoteName.assign(Buffer, Size);
 	}
-
-	return dwResult;
+	else if (Result == ERROR_MORE_DATA)
+	{
+		std::vector<wchar_t> vBuffer(Size);
+		Result = ::WNetGetConnection(LocalName.data(), vBuffer.data(), &Size);
+		RemoteName.assign(vBuffer.data(), Size);
+	}
+	return Result;
 }
 
 bool GetVolumeInformation(

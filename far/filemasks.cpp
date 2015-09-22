@@ -277,8 +277,8 @@ bool filemasks::masks::Set(const string& masks, DWORD Flags)
 
 	string expmasks(masks);
 
-	static const wchar_t PathExtName[] = L"%PATHEXT%";
-	if (StrStrI(expmasks.data(), PathExtName))
+	static const string PathExtName = L"%PATHEXT%";
+	if (StrStrI(expmasks, PathExtName) != expmasks.cend())
 	{
 		const auto strSysPathExt(os::env::get_variable(L"PATHEXT"));
 		if (!strSysPathExt.empty())

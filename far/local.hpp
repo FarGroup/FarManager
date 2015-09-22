@@ -74,10 +74,50 @@ inline void StrUpper(wchar_t *s1) { UpperBuf(s1, StrLength(s1)); }
 
 inline void StrLower(wchar_t *s1) { LowerBuf(s1, StrLength(s1)); }
 
-const wchar_t* StrStr(const wchar_t *str1, const wchar_t *str2);
-const wchar_t* StrStrI(const wchar_t *str1, const wchar_t *str2);
-const wchar_t* RevStrStr(const wchar_t *str1, const wchar_t *str2);
-const wchar_t* RevStrStrI(const wchar_t *str1, const wchar_t *str2);
+
+namespace detail
+{
+	struct wchar_t_compare_icase
+	{
+		inline bool operator()(wchar_t c1, wchar_t c2) const
+		{
+			return ToLower(c1) == ToLower(c2);
+		}
+	};
+}
+
+#pragma push_macro("decltype")
+#undef decltype
+
+template<class T>
+auto StrStr(T&& str1, const string& str2) -> decltype(std::begin(str1))
+{
+	static_assert(std::is_lvalue_reference<T>::value, "first argument must be lvalue");
+	return std::search(ALL_RANGE(str1), ALL_CONST_RANGE(str2));
+}
+
+template<class T>
+auto StrStrI(T&& str1, const string& str2) -> decltype(std::begin(str1))
+{
+	static_assert(std::is_lvalue_reference<T>::value, "first argument must be lvalue");
+	return std::search(ALL_RANGE(str1), ALL_CONST_RANGE(str2), detail::wchar_t_compare_icase());
+}
+
+template<class T>
+auto RevStrStr(T&& str1, const string& str2) -> decltype(std::begin(str1))
+{
+	static_assert(std::is_lvalue_reference<T>::value, "first argument must be lvalue");
+	return std::find_end(ALL_RANGE(str1), ALL_CONST_RANGE(str2));
+}
+
+template<class T>
+auto RevStrStrI(T&& str1, const string& str2) -> decltype(std::begin(str1))
+{
+	static_assert(std::is_lvalue_reference<T>::value, "first argument must be lvalue");
+	return std::find_end(ALL_RANGE(str1), ALL_CONST_RANGE(str2), detail::wchar_t_compare_icase());
+}
+
+#pragma pop_macro("decltype")
 
 inline int StrCmpNNI(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2) { return CompareString(0, NORM_IGNORECASE | NORM_STOP_ON_NULL | SORT_STRINGSORT, s1, static_cast<int>(n1), s2, static_cast<int>(n2)) - 2; }
 inline int StrCmpNI(const wchar_t *s1, const wchar_t *s2, size_t n) { return StrCmpNNI(s1, n, s2, n); }

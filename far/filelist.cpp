@@ -2720,7 +2720,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 			AddEndSlash(strSetDir);
 	}
 
-	if (!dot2Present && strSetDir != L"\\")
+	if (!dot2Present && !IsRelativeRoot(strSetDir))
 		UpperFolderTopFile=m_CurTopFile;
 
 	if (SelFileCount>0)
@@ -2744,7 +2744,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 		bool GoToPanelFile = false;
 		bool PluginClosed=false;
 
-		if (dot2Present && (strInfoCurDir.empty() || strInfoCurDir == L"\\"))
+		if (dot2Present && (strInfoCurDir.empty() || IsRelativeRoot(strInfoCurDir)))
 		{
 			if (ProcessPluginEvent(FE_CLOSE,nullptr))
 				return true;
@@ -2843,7 +2843,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 	int UpdateFlags = 0;
 	bool SetDirectorySuccess = true;
 
-	if (m_PanelMode!=PLUGIN_PANEL && strSetDir == L"\\")
+	if (m_PanelMode != PLUGIN_PANEL && IsRelativeRoot(strSetDir))
 	{
 		strSetDir = ExtractPathRoot(m_CurDir);
 	}
@@ -6646,8 +6646,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 	if (ReadOwners)
 	{
-		string strTemp;
-		CurPath2ComputerName(m_CurDir, strComputerName, strTemp);
+		strComputerName = ExtractComputerName(m_CurDir);
 	}
 
 	SetLastError(ERROR_SUCCESS);
