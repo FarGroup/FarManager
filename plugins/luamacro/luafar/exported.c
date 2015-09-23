@@ -425,6 +425,75 @@ intptr_t LF_GetFiles(lua_State* L, struct GetFilesInfo *Info)
 }
 //---------------------------------------------------------------------------
 
+static BOOL RunDefaultScript(lua_State* L, int ForFirstTime)
+{
+	int pos = lua_gettop(L);
+	int status = 1, i;
+	wchar_t *defscript;
+	FILE *fp = NULL;
+	const char *name = "<boot";
+	const wchar_t *ModuleName = GetPluginData(L)->Info->ModuleName;
+	const wchar_t delims[] = L".-";
+	// First: try to load the default script embedded into the plugin.
+	lua_getglobal(L, "package");
+	lua_getfield(L, -1, "preload");
+	lua_getfield(L, -1, name);
+
+	if(lua_isfunction(L, -1))
+	{
+		lua_pushstring(L, name);
+		if ((status = lua_pcall(L,1,1,0)) == 0)
+		{
+			lua_pushboolean(L, ForFirstTime);
+			status = pcall_msg(L,1,0);
+		}
+		lua_settop(L, pos);
+		return !status;
+	}
+
+	lua_pop(L, 3);
+	// Second: try to load the default script from a disk file
+	defscript = (wchar_t*)lua_newuserdata(L, sizeof(wchar_t)*(wcslen(ModuleName)+5));
+	wcscpy(defscript, ModuleName);
+
+	for(i=0; delims[i]; i++)
+	{
+		wchar_t *end = wcsrchr(defscript, delims[i]);
+
+		if(end)
+		{
+			wcscpy(end, L".lua");
+
+			if((fp = _wfopen(defscript, L"r")) != NULL)
+				break;
+		}
+	}
+
+	if(fp)
+	{
+		fclose(fp);
+		status = LF_LoadFile(L, defscript);
+
+		if(status == 0)
+		{
+			lua_pushboolean(L, ForFirstTime);
+			status = pcall_msg(L,1,0);
+		}
+		else
+			LF_Error(L, utf8_to_utf16(L, -1, NULL));
+	}
+	else
+		LF_Error(L, L"Default script not found");
+
+	lua_settop(L, pos);
+	return (status == 0);
+}
+
+BOOL LF_RunDefaultScript(lua_State* L)
+{
+	return RunDefaultScript(L, 1);
+}
+
 // return FALSE only if error occurred
 static BOOL CheckReloadDefaultScript(lua_State *L)
 {
@@ -438,7 +507,7 @@ static BOOL CheckReloadDefaultScript(lua_State *L)
 		lua_pop(L, 1);
 	}
 	lua_pop(L, 1);
-	return !reload || LF_RunDefaultScript(L);
+	return !reload || RunDefaultScript(L, 0);
 }
 
 // -- an object (any non-nil value) is on stack top;

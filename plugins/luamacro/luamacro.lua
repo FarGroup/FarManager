@@ -1,7 +1,7 @@
 -- started: 2012-04-20
 
 -- This plugin does not support reloading the default script on the fly.
-if far.ReloadDefaultScript then return end
+if not (...) then return end
 
 local function LOG (fmt, ...)
   win.OutputDebugString(fmt:format(...))

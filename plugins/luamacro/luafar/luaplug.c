@@ -210,8 +210,6 @@ static int RecreateLuaState (Global *g)
 			if (LF_GetGlobalInfo(newLS, &GInfo, g->PluginDir))
 			{
 				InitLuaState2(newLS, &g->PluginData);
-				lua_pushboolean(newLS,1);
-				lua_setglobal(newLS, "IsLuaStateRecreated");
 				OK = LF_RunDefaultScript(newLS);
 			}
 			if (OK) g->LS = newLS;

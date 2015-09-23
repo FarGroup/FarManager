@@ -1,7 +1,7 @@
 function export.GetGlobalInfo()
   return {
-    Version       = { 1, 0, 0, 528 },
-    MinFarVersion = { 3, 0, 0, 4363 },
+    Version       = { 1, 0, 0, 529 },
+    MinFarVersion = { 3, 0, 0, 4425 },
     Guid          = win.Uuid("4EBBEFC8-2084-4B7F-94C0-692CE136894D"),
     Title         = "LuaMacro",
     Description   = "Far macros in Lua",

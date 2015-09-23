@@ -7,7 +7,7 @@ id=91
 lv=0
 dt=Text
 nm=Manual of LuaFAR 3
-mtime=3602340141
+mtime=3652173155
 <article>
 #_<markdown>
 #_### Brief description of LuaFAR package
@@ -38,6 +38,12 @@ mtime=3602340141
 #_       `luaplug.dll -> luaplug.lua`
 #_    1. If the plugin name contains a hyphen, then its part preceding the last
 #_       hyphen is looked for, e.g.: `luaplug-x64.dll -> luaplug.lua`.
+#_
+#_When the starting script is run it receives one boolean argument:
+#_
+#_  - `true` - on its first run and after Lua state was [recreated](495.html)
+#_  - `false` - on subsequent runs caused by setting
+#_    [`far.ReloadDefaultScript`](173.html) `=` `true`.
 #_
 #_@@@
 #_{ectl_getinfo}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_GETINFO
@@ -226,7 +232,7 @@ lv=2
 dt=Text
 nm=Recreation of the Lua virtual machine
 ctime=3612528168
-mtime=3612529005
+mtime=3652123584
 <article>
 #_<markdown>
 #_
@@ -241,10 +247,8 @@ mtime=3612529005
 #_  function is called.
 #_* After the virtual machine is recreated all actions that normally occur
 #_  when Far Manager loads a LuaFAR plugin are conducted, including running
-#_  the plugin's "starting" Lua script.
-#_* After the virtual machine is recreated the global variable `IsLuaStateRecreated`
-#_  is set to true.
-#_
+#_  the plugin's "starting" Lua script (which in this case receives `true`
+#_  as an argument).
 #_
 </article>
 </node>

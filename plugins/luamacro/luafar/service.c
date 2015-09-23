@@ -6090,64 +6090,6 @@ void LF_RunLuafarInit(lua_State* L)
 	}
 }
 
-// Run default script
-BOOL LF_RunDefaultScript(lua_State* L)
-{
-	int pos = lua_gettop(L);
-	int status = 1, i;
-	wchar_t *defscript;
-	FILE *fp = NULL;
-	const char *name = "<boot";
-	const wchar_t *ModuleName = GetPluginData(L)->Info->ModuleName;
-	const wchar_t delims[] = L".-";
-	// First: try to load the default script embedded into the plugin.
-	lua_getglobal(L, "package");
-	lua_getfield(L, -1, "preload");
-	lua_getfield(L, -1, name);
-
-	if(lua_isfunction(L, -1))
-	{
-		lua_pushstring(L, name);
-		status = lua_pcall(L,1,1,0) || pcall_msg(L,0,0);
-		lua_settop(L, pos);
-		return !status;
-	}
-
-	lua_pop(L, 3);
-	// Second: try to load the default script from a disk file
-	defscript = (wchar_t*)lua_newuserdata(L, sizeof(wchar_t)*(wcslen(ModuleName)+5));
-	wcscpy(defscript, ModuleName);
-
-	for(i=0; delims[i]; i++)
-	{
-		wchar_t *end = wcsrchr(defscript, delims[i]);
-
-		if(end)
-		{
-			wcscpy(end, L".lua");
-
-			if((fp = _wfopen(defscript, L"r")) != NULL)
-				break;
-		}
-	}
-
-	if(fp)
-	{
-		fclose(fp);
-		status = LF_LoadFile(L, defscript);
-
-		if(status == 0)
-			status = pcall_msg(L,0,0);
-		else
-			LF_Error(L, utf8_to_utf16(L, -1, NULL));
-	}
-	else
-		LF_Error(L, L"Default script not found");
-
-	lua_settop(L, pos);
-	return (status == 0);
-}
-
 // This exported function is needed for old builds of the plugins.
 void LF_ProcessEnvVars(lua_State *L, const wchar_t* aEnvPrefix, const wchar_t* PluginDir)
 {
