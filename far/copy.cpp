@@ -709,7 +709,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 		{
 			if (Param1==ID_SC_USEFILTER) // "Use filter"
 			{
-				m_UseFilter = static_cast<int>(reinterpret_cast<intptr_t>(Param2)) == BSTATE_CHECKED;
+				m_UseFilter = static_cast<FARCHECKEDSTATE>(reinterpret_cast<intptr_t>(Param2)) == BSTATE_CHECKED;
 				return TRUE;
 			}
 

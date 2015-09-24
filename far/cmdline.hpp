@@ -81,5 +81,6 @@ private:
 	string m_CurDir;
 	string strLastCmdStr;
 	int LastCmdPartLength;
+	string m_CurCmdStr;
 	std::stack<string> ppstack;
 };

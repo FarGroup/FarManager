@@ -369,7 +369,7 @@ int Viewer::OpenFile(const string& Name,int warning)
 			if (m_Codepage == CP_DEFAULT)
 				m_Codepage = GetDefaultCodePage();
 
-			MB.SetCP(static_cast<UINT>(m_Codepage));
+			MB.SetCP(m_Codepage);
 		}
 
 		ViewFile.SetPointer(0, nullptr, FILE_BEGIN);
@@ -1703,7 +1703,7 @@ int Viewer::process_key(const Manager::Key& Key)
 		case KEY_F8:
 		{
 			m_Codepage = f8cps.NextCP(m_Codepage);
-			MB.SetCP(static_cast<UINT>(m_Codepage));
+			MB.SetCP(m_Codepage);
 			lcache_ready = false;
 			AdjustFilePos();
 			ChangeViewKeyBar();
@@ -1724,7 +1724,7 @@ int Viewer::process_key(const Manager::Key& Key)
 						nCodePage = GetDefaultCodePage();
 				}
 				m_Codepage = nCodePage;
-				MB.SetCP(static_cast<UINT>(m_Codepage));
+				MB.SetCP(m_Codepage);
 				lcache_ready = false;
 				AdjustFilePos();
 				ChangeViewKeyBar();

@@ -6019,21 +6019,10 @@ void FileList::PluginPutFilesToNew()
 			int n = 0;
 			std::for_each(CONST_RANGE(m_ListData, i)
 			{
-				if ((i.FileAttr & FILE_ATTRIBUTE_DIRECTORY) == 0)
+				if (!(i.FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (!PtrLastPos || PtrLastPos->CreationTime < i.CreationTime))
 				{
-					if (PtrLastPos)
-					{
-						if (PtrLastPos->CreationTime < i.CreationTime)
-						{
-							LastPos = n;
-							PtrLastPos = &i;
-						}
-					}
-					else
-					{
-						LastPos = n;
-						PtrLastPos = &i;
-					}
+					LastPos = n;
+					PtrLastPos = &i;
 				}
 				++n;
 			});

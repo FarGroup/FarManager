@@ -848,7 +848,6 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 					Res = 0;
 					strTemp = HiText2Str(Item.strName);
 					RemoveExternalSpaces(strTemp);
-					string::const_iterator p;
 
 					switch (iParam)
 					{

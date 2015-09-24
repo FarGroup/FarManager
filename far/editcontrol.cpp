@@ -375,7 +375,7 @@ static bool EnumEnvironment(VMenu2& Menu, const string& Str)
 		std::set<string, string_i_less> ResultStrings;
 		FOR(const auto& i, os::env::enum_strings())
 		{
-			auto VarName = L"%" + os::env::split(i).first + L"%";
+			auto VarName = L"%" + os::env::split(i.data()).first + L"%";
 
 			if (!StrCmpNI(Token, VarName.data(), TokenSize))
 			{

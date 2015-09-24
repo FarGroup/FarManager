@@ -338,34 +338,20 @@ bool Clipboard::Get(string& data)
 	{
 		if (const auto Files = os::memory::global::lock<const LPDROPFILES>(hClipData))
 		{
-			auto StartA=reinterpret_cast<const char*>(Files.get())+Files->pFiles;
-			auto Start = reinterpret_cast<const wchar_t*>(StartA);
+			const auto StartA=reinterpret_cast<const char*>(Files.get())+Files->pFiles;
+			const auto Start = reinterpret_cast<const wchar_t*>(StartA);
 			if(Files->fWide)
 			{
-				while(*Start)
+				FOR(const auto& i, os::enum_strings(Start))
 				{
-					size_t l1=data.size();
-					data+=Start;
-					Start+=data.size()-l1;
-					Start++;
-					if(*Start)
-					{
-						data+=L"\r\n";
-					}
+					data.append(i.data(), i.size()).append(L"\r\n");
 				}
 			}
 			else
 			{
-				while(*StartA)
+				FOR(const auto& i, (os::enum_strings_t<const char*, const char*>(StartA)))
 				{
-					size_t l1=data.size();
-					data+=wide(StartA);
-					StartA+=data.size()-l1;
-					StartA++;
-					if(*StartA)
-					{
-						data+=L"\r\n";
-					}
+					data.append(wide(std::string(i.data(), i.size()))).append(L"\r\n");
 				}
 			}
 			Result = true;

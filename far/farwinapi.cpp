@@ -1438,10 +1438,9 @@ std::vector<string> GetLogicalDriveStrings()
 			Ptr = vBuffer.get();
 		}
 
-		while(*Ptr)
+		FOR(const auto& i, os::enum_strings(Ptr))
 		{
-			Result.emplace_back(Ptr);
-			Ptr += wcslen(Ptr) + 1;
+			Result.emplace_back(string(i.data(), i.size()));
 		}
 	}
 	return Result;
@@ -1929,7 +1928,7 @@ DWORD GetAppPathsRedirectionFlag()
 
 		provider::strings::~strings()
 		{
-			FreeEnvironmentStrings(get());
+			FreeEnvironmentStrings(*this);
 		}
 
 		provider::block::block()
@@ -1945,7 +1944,7 @@ DWORD GetAppPathsRedirectionFlag()
 
 		provider::block::~block()
 		{
-			DestroyEnvironmentBlock(get());
+			DestroyEnvironmentBlock(*this);
 		}
 
 		std::pair<string, string> split(const wchar_t* Line)

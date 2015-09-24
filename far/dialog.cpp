@@ -4970,7 +4970,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				return Global->IsProcessAssignMacroKey;
 
 			BOOL OldIsProcessAssignMacroKey=Global->IsProcessAssignMacroKey;
-			Global->IsProcessAssignMacroKey=Param1;
+			Global->IsProcessAssignMacroKey = Param1 != 0;
 			return OldIsProcessAssignMacroKey;
 		}
 		/*****************************************************************/

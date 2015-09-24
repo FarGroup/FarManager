@@ -87,6 +87,7 @@ public:
 	void ResetPosition() { m_CurrentItem = 0; }
 	bool DeleteIfUnlocked(unsigned __int64 id);
 	bool ReadLastItem(const string& HistoryName, string &strStr) const;
+	bool IsOnTop() const { return !m_CurrentItem; }
 
 	static void CompactHistory();
 

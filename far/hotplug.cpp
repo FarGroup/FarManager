@@ -248,10 +248,10 @@ static DWORD GetRelationDrivesMask(DEVINST hDevInst)
 			wchar_t_ptr DeviceIdList(dwSize);
 			if (CM_Get_Device_ID_List(szDeviceID, DeviceIdList.get(), dwSize, CM_GETIDLIST_FILTER_REMOVALRELATIONS) == CR_SUCCESS)
 			{
-				for (auto p = DeviceIdList.get(); *p; p += wcslen(p) + 1)
+				FOR(const auto& i, (os::enum_strings_t<wchar_t*, wchar_t*>(DeviceIdList.get())))
 				{
 					DEVINST hRelationDevInst;
-					if (CM_Locate_DevNode(&hRelationDevInst, p, 0) == CR_SUCCESS)
+					if (CM_Locate_DevNode(&hRelationDevInst, i.data(), 0) == CR_SUCCESS)
 						dwMask |= GetDriveMaskFromMountPoints(hRelationDevInst);
 				}
 			}

@@ -4529,7 +4529,7 @@ static bool replaceFunc(FarMacroCall* Data)
 	const auto Count = Params[3].asInteger();
 	const auto IgnoreCase = !Params[4].asInteger();
 
-	ReplaceStrings(Src, Find, Repl, IgnoreCase, Count <= 0 ? string::npos : static_cast<int>(Count));
+	ReplaceStrings(Src, Find, Repl, IgnoreCase, Count <= 0 ? string::npos : static_cast<size_t>(Count));
 	PassString(Src, Data);
 	return true;
 }

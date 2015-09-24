@@ -233,6 +233,11 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLX:
 		case KEY_RCTRLX:
 			{
+				if (Global->CtrlObject->CmdHistory->IsOnTop())
+				{
+					CmdStr.GetString(m_CurCmdStr);
+				}
+
 				if (LocalKey == KEY_CTRLE || LocalKey == KEY_RCTRLE)
 				{
 					Global->CtrlObject->CmdHistory->GetPrev(strStr);
@@ -244,7 +249,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 
 				{
 					SCOPED_ACTION(SetAutocomplete)(&CmdStr);
-					SetString(strStr);
+					SetString(Global->CtrlObject->CmdHistory->IsOnTop()? m_CurCmdStr : strStr);
 				}
 
 			}
@@ -1009,10 +1014,9 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			string strOut(L"\n");
 			FOR(const auto& i, os::env::enum_strings())
 			{
-				size_t ItemLength = wcslen(i);
-				if (!StrCmpNI(i, strCmdLine.data(), strCmdLine.size()))
+				if (!StrCmpNI(i.data(), strCmdLine.data(), strCmdLine.size()))
 				{
-					strOut.append(i, ItemLength).append(L"\n");
+					strOut.append(i.data(), i.size()).append(L"\n");
 				}
 			}
 			strOut.append(L"\n\n", Global->Opt->ShowKeyBar?2:1);

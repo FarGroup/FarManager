@@ -2585,8 +2585,8 @@ int Editor::ProcessKey(const Manager::Key& Key)
 					BeginStreamMarking(m_it_CurLine);
 					//SelFirst=TRUE;
 					//BUGBUG, never used
-					SelStart = static_cast<int>(SBegin);
-					SelEnd = static_cast<int>(SEnd - 1);
+					SelStart = SBegin;
+					SelEnd = SEnd - 1;
 				}
 			}
 
