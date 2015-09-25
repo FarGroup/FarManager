@@ -85,12 +85,20 @@ local StringToFlags, FlagsToString do
   local MacroFlagsByStr={}
   for k,v in pairs(MacroFlagsByInt) do MacroFlagsByStr[v:lower()]=k end
 
-  function StringToFlags (str)
+  function StringToFlags (str, filename)
     local flags = 0
     if type(str) == "string" then
-      for word in str:lower():gmatch("[^ |]+") do
-        local f = MacroFlagsByStr[word]
-        if f then flags = bor(flags, f) end
+      for word in str:gmatch("[^ |]+") do
+        local f = MacroFlagsByStr[word:lower()]
+        if f then
+          flags = bor(flags, f)
+        else
+          local line1 = filename or "<not a file>"
+          local btn = filename and "OK;Edit" or "OK"
+          if 2 == ErrMsg(line1.."\nInvalid macro flag: "..word, nil, btn) then
+            editor.Editor(filename,nil,nil,nil,nil,nil,nil,1,nil,65001)          
+          end          
+        end
       end
     end
     return flags
@@ -336,7 +344,7 @@ local function AddRegularMacro (srctable)
   end
 
   if next(arFound) then
-    macro.flags = StringToFlags(srctable.flags)
+    macro.flags = StringToFlags(srctable.flags, AddMacro_filename)
 
     if type(srctable.description)=="string" then macro.description=srctable.description end
     if type(srctable.condition)=="function" then macro.condition=srctable.condition end
@@ -391,7 +399,7 @@ local function AddRecordedMacro (srctable, filename)
 
   for _,v in ipairs{"area","key","action","code","description"} do macro[v]=srctable[v] end
 
-  macro.flags = StringToFlags(srctable.flags)
+  macro.flags = StringToFlags(srctable.flags, filename)
   if type(macro.description)~="string" then macro.description=nil end
 
   macro.id = #LoadedMacros+1
