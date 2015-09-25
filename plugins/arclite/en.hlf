@@ -82,8 +82,8 @@ When using 32-bit version it is possible that process address space does not hav
 Compression will stop with "out of memory" error in this case.
 
 	#Compression method# - Data compression algorithm.
-	#LZMA# - standard algorithm for 7z archives.
-	#LZMA2# - improved version able to use multicore processors more efficienlty.
+	#LZMA# - standard algorithm for old 7z archives.
+	#LZMA2# - improved version able to use multicore processors more efficienlty, standard algorithm for new 7z archives.
 Older versions of 7-Zip (4.65) cannot open archives created using this algorithm.
 	#PPMD# - this algorithm is recommended for use with text files. Keep in mind that
 it uses equal amounts of memory for compression and decompression.

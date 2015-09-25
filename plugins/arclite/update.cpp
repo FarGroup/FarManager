@@ -773,53 +773,12 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
   if (SUCCEEDED(out_arc->QueryInterface(IID_ISetProperties, reinterpret_cast<void**>(&set_props)))) {
     vector<wstring> names;
     vector<PropVariant> values;
+
     if (options.arc_type == c_7z) {
-      names.push_back(L"0"); values.push_back(options.method);
-      if (options.method == c_method_ppmd) {
-        switch (options.level) {
-        case 1:
-        case 3:
-          names.push_back(L"0mem"); values.push_back(L"4194304B");
-          names.push_back(L"0o"); values.push_back(4u);
-          break;
-        case 5:
-          names.push_back(L"0mem"); values.push_back(L"16777216B");
-          names.push_back(L"0o"); values.push_back(6u);
-          break;
-        case 7:
-          names.push_back(L"0mem"); values.push_back(L"67108864B");
-          names.push_back(L"0o"); values.push_back(16u);
-          break;
-        case 9:
-          names.push_back(L"0mem"); values.push_back(L"201326592B");
-          names.push_back(L"0o"); values.push_back(32u);
-          break;
-        }
+      if (options.method != c_method_lzma2) { // LZMA2 is default method
+        names.push_back(L"0"); values.push_back(options.method);
       }
-      else {
-        switch (options.level) {
-        case 1:
-          names.push_back(L"0d"); values.push_back(L"65536B");
-          names.push_back(L"0fb"); values.push_back(32u);
-          break;
-        case 3:
-          names.push_back(L"0d"); values.push_back(L"1048576B");
-          names.push_back(L"0fb"); values.push_back(32u);
-          break;
-        case 5:
-          names.push_back(L"0d"); values.push_back(L"16777216B");
-          names.push_back(L"0fb"); values.push_back(32u);
-          break;
-        case 7:
-          names.push_back(L"0d"); values.push_back(L"33554432B");
-          names.push_back(L"0fb"); values.push_back(64u);
-          break;
-        case 9:
-          names.push_back(L"0d"); values.push_back(L"67108864B");
-          names.push_back(L"0fb"); values.push_back(64u);
-          break;
-        }
-      }
+		names.push_back(L"x"); values.push_back(options.level);
       if (options.level != 0) {
         names.push_back(L"s"); values.push_back(options.solid);
       }
@@ -829,71 +788,17 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
         }
       }
     }
-    else if (options.arc_type == c_zip) {
-      switch (options.level) {
-		case 0:
-         names.push_back(L"x"); values.push_back(options.level); break;
-		case 1:
-      case 3:
-      case 5:
-        names.push_back(L"fb"); values.push_back(32u); break;
-      case 7:
-        names.push_back(L"fb"); values.push_back(64u); break;
-      case 9:
-        names.push_back(L"fb"); values.push_back(128u); break;
-      }
+	 else if (options.arc_type == c_zip || options.arc_type == c_gzip || options.arc_type == c_xz) {
+      names.push_back(L"x"); values.push_back(options.level);
     }
     else if (options.arc_type == c_bzip2) {
-      switch (options.level) {
-      case 1:
-        names.push_back(L"d"); values.push_back(L"102400B"); break;
-      case 3:
-        names.push_back(L"d"); values.push_back(L"512000B"); break;
-      case 5:
-      case 7:
-      case 9:
-        names.push_back(L"d"); values.push_back(L"921600B"); break;
-      }
-    }
-    else if (options.arc_type == c_gzip) {
-      switch (options.level) {
-      case 1:
-      case 3:
-      case 5:
-        names.push_back(L"fb"); values.push_back(32u); break;
-      case 7:
-        names.push_back(L"fb"); values.push_back(64u); break;
-      case 9:
-        names.push_back(L"fb"); values.push_back(128u); break;
-      }
-    }
-    else if (options.arc_type == c_xz) {
-      switch (options.level) {
-      case 1:
-        names.push_back(L"d"); values.push_back(L"65536B");
-        names.push_back(L"fb"); values.push_back(32u);
-        break;
-      case 3:
-        names.push_back(L"d"); values.push_back(L"1048576B");
-        names.push_back(L"fb"); values.push_back(32u);
-        break;
-      case 5:
-        names.push_back(L"d"); values.push_back(L"16777216B");
-        names.push_back(L"fb"); values.push_back(32u);
-        break;
-      case 7:
-        names.push_back(L"d"); values.push_back(L"33554432B");
-        names.push_back(L"fb"); values.push_back(64u);
-        break;
-      case 9:
-        names.push_back(L"d"); values.push_back(L"50331648B");
-        names.push_back(L"fb"); values.push_back(64u);
-        break;
+      if (options.level != 0) {
+        names.push_back(L"x"); values.push_back(options.level);
       }
     }
 
-    list<wstring> params = split(options.advanced, L' ');
-    for_each(params.begin(), params.end(), [&] (const wstring& param) {
+    list<wstring> adv_params = split(options.method == c_method_copy ? wstring() : options.advanced, L' ');
+	 for_each(adv_params.begin(), adv_params.end(), [&](const wstring& param) {
       size_t sep = param.find(L'=');
       if (sep != wstring::npos) {
         wstring name = param.substr(0, sep);

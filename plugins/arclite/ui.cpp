@@ -748,11 +748,8 @@ private:
     unsigned level_sel = get_list_pos(level_ctrl_id);
     unsigned new_level_sel = -1;
     for (unsigned i = 0; i < ARRAYSIZE(c_levels); ++i) {
-      bool skip = c_levels[i].value == 0 && (arc_type == c_bzip2 || arc_type == c_gzip || arc_type == c_xz);
+      bool skip = c_levels[i].value == 0 && arc_type == c_bzip2;
       skip = skip || (c_levels[i].value != 0 && (arc_type == c_wim || arc_type == c_tar));
-      skip = skip || ((c_levels[i].value == 1 || c_levels[i].value == 3) && arc_type == c_zip);
-      skip = skip || ((c_levels[i].value == 7 || c_levels[i].value == 9) && arc_type == c_bzip2);
-      skip = skip || ((c_levels[i].value == 1 || c_levels[i].value == 3) && arc_type == c_gzip);
       FarListGetItem flgi;
       memzero(flgi);
       flgi.StructSize = sizeof(FarListGetItem);
