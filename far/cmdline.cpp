@@ -709,9 +709,11 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 							}
 							case L'W': // $W - “екущий рабочий каталог (без указани€ пути)
 							{
-								const wchar_t *ptrCurDir=LastSlash(m_CurDir.data());
-								if (ptrCurDir)
-									strDestStr += ptrCurDir+1;
+								const auto pos = FindLastSlash(m_CurDir);
+								if (pos != string::npos)
+								{
+									strDestStr += m_CurDir.substr(pos + 1);
+								}
 								break;
 							}
 							case L'P': // $P - Current drive and path
@@ -1323,13 +1325,15 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 
 		if (os::GetFindDataEx(strExpandedDir, wfd))
 		{
-			size_t pos;
-
-			if (FindLastSlash(pos,strExpandedDir))
-				strExpandedDir.resize(pos+1);
+			const auto pos = FindLastSlash(strExpandedDir);
+			if (pos != string::npos)
+			{
+				strExpandedDir.resize(pos + 1);
+			}
 			else
+			{
 				strExpandedDir.clear();
-
+			}
 			strExpandedDir += wfd.strFileName;
 		}
 	}

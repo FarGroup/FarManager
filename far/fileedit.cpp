@@ -1021,12 +1021,10 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 				const auto strOldCurDir = os::GetCurrentDirectory();
 				while (!Done) // бьемся до упора
 				{
-					size_t pos;
 					// проверим путь к файлу, может его уже снесли...
-
 					// BUGBUG, похоже, не работает
-
-					if (FindLastSlash(pos,strFullFileName))
+					const auto pos = FindLastSlash(strFullFileName);
+					if (pos != string::npos)
 					{
 						string Path = strFullFileName.substr(pos);
 

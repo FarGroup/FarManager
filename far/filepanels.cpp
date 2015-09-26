@@ -1176,7 +1176,7 @@ void FilePanels::Refresh()
 
 void FilePanels::GoToFile(const string& FileName)
 {
-	if (FirstSlash(FileName.data()))
+	if (FindSlash(FileName) != string::npos)
 	{
 		string ADir,PDir;
 		Panel *PassivePanel = this->PassivePanel();

@@ -1645,10 +1645,9 @@ int FileList::ProcessKey(const Manager::Key& Key)
 								PluginMode = false;
 							}
 
-							size_t pos;
-
 							// проверим путь к файлу
-							if (FindLastSlash(pos,strFileName) && pos)
+							const auto pos = FindLastSlash(strFileName);
+							if (pos != string::npos && pos)
 							{
 								if (!(HasPathPrefix(strFileName) && pos==3))
 								{
@@ -7692,17 +7691,10 @@ void FileList::ShowFileList(int Fast)
 			if (!TestParentFolderName(m_ListData[m_CurFile].strName))
 			{
 				m_CurDir=m_ListData[m_CurFile].strName;
-				size_t pos;
-
-				if (FindLastSlash(pos,m_CurDir))
+				const auto pos = FindLastSlash(m_CurDir);
+				if (pos != string::npos && pos)
 				{
-					if (pos)
-					{
-						if (m_CurDir[pos-1] != L':')
-							m_CurDir.resize(pos);
-						else
-							m_CurDir.resize(pos+1);
-					}
+					m_CurDir.resize(m_CurDir[pos - 1] != L':'? pos : pos + 1);
 				}
 			}
 			else
@@ -8590,10 +8582,11 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 							if (!(Columns[K].type & COLUMN_FULLOWNER) && m_PanelMode!=PLUGIN_PANEL)
 							{
-								const wchar_t* SlashPos=FirstSlash(Owner);
-
-								if (SlashPos)
-									Owner=SlashPos+1;
+								const auto SlashPos = FindSlash(m_ListData[ListPos].strOwner);
+								if (SlashPos != string::npos)
+								{
+									Owner += SlashPos + 1;
+								}
 							}
 							else if(IsSlash(*Owner))
 							{

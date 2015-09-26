@@ -119,10 +119,11 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, g
 
 	if (DirName.size() ==1 && DirName[0] == L'.')
 	{
-		const wchar_t *p = LastSlash(strFullDirName.data());
-
-		if (p)
-			ShowDirName = p + 1;
+		const auto pos = FindLastSlash(strFullDirName);
+		if (pos != string::npos)
+		{
+			ShowDirName = strFullDirName.data() + pos + 1;
+		}
 	}
 
 	ConsoleTitle OldTitle;

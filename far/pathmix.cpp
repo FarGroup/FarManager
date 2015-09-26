@@ -170,12 +170,8 @@ bool IsPluginPrefixPath(const string& Path) //Max:
 			return false;
 	}
 
-	const wchar_t* pS = FirstSlash(Path.data());
-
-	if (pS && static_cast<size_t>(pS - Path.data()) < pos)
-		return false;
-
-	return true;
+	const auto SlashPos = FindSlash(Path);
+	return SlashPos == string::npos || SlashPos > pos;
 }
 
 bool TestParentFolderName(const string& Name)
@@ -355,9 +351,8 @@ void DeleteEndSlash(string &Path)
 
 bool CutToSlash(string &strStr, bool bInclude)
 {
-	size_t pos;
-
-	if (FindLastSlash(pos,strStr))
+	const auto pos = FindLastSlash(strStr);
+	if (pos != string::npos)
 	{
 		if (pos==3 && HasPathPrefix(strStr))
 			return false;
@@ -380,10 +375,11 @@ bool CutToParent(string &strStr)
 	ParsePath(strStr, &RootLength);
 	const auto RootOnly = RootLength == strStr.size();
 	const auto EndPos = !strStr.empty() && IsSlash(strStr.back()) && !RootOnly? strStr.size() - 1 : strStr.size();
-	size_t pos;
-	if (FindLastSlash(pos, strStr, RootLength, EndPos))
+	const auto RBegin = strStr.rbegin() + strStr.size() - EndPos, REnd = strStr.rend() - RootLength;
+	const auto LastSlashIter = std::find_if(RBegin, REnd, IsSlash);
+	if (LastSlashIter != REnd)
 	{
-		strStr.resize(pos);
+		strStr.resize(strStr.rend() - LastSlashIter - 1);
 		Result = true;
 	}
 	else if (RootLength && !RootOnly)
@@ -448,57 +444,20 @@ string &CutToFolderNameIfFolder(string &strPath)
 	return strPath;
 }
 
-const wchar_t *FirstSlash(const wchar_t *String)
+bool ContainsSlash(const wchar_t *Str)
 {
-	do
-	{
-		if (IsSlash(*String))
-			return String;
-	}
-	while (*String++);
-
-	return nullptr;
+	const auto Iterator = null_iterator(Str);
+	return std::find_if(Iterator, Iterator.end(), IsSlash) != Iterator.end();
 }
 
-const wchar_t *LastSlash(const wchar_t *String)
+size_t FindSlash(const string &Str)
 {
-	const wchar_t *Start = String;
-	String += wcslen(String) + 1;
-
-	while (--String!=Start && !IsSlash(*String))
-		;
-
-	return IsSlash(*String)?String:nullptr;
+	return Str.find_first_of(L"/\\", 0, 2);
 }
 
-bool FindSlash(size_t &Pos, const string &Str, size_t StartPos, size_t EndPos)
+size_t FindLastSlash(const string &Str)
 {
-	EndPos = std::min(EndPos, Str.size());
-	for (size_t p = StartPos; p != EndPos; ++p)
-	{
-		if (IsSlash(Str[p]))
-		{
-			Pos = p;
-			return true;
-		}
-	}
-
-	return false;
-}
-
-bool FindLastSlash(size_t &Pos, const string &Str, size_t StartPos, size_t EndPos)
-{
-	EndPos = std::min(EndPos, Str.size());
-	for (size_t p = EndPos; p != StartPos; --p)
-	{
-		if (IsSlash(Str[p - 1]))
-		{
-			Pos = p - 1;
-			return true;
-		}
-	}
-
-	return false;
+	return Str.find_last_of(L"/\\", string::npos, 2);
 }
 
 // find path root component (drive letter / volume name / server share) and calculate its length
@@ -524,28 +483,21 @@ string ExtractPathRoot(const string &Path)
 
 string ExtractFileName(const string &Path)
 {
-	size_t p;
-
-	if (FindLastSlash(p, Path))
-		p++;
-	else
-		p = 0;
-
-	size_t PathRootLen = GetPathRootLength(Path);
-
-	p = std::max(p, PathRootLen);
-
+	auto p = FindLastSlash(Path);
+	p = p == string::npos? 0 : p + 1;
+	p = std::max(p, GetPathRootLength(Path));
 	return string(Path.data() + p, Path.size() - p);
 }
 
 string ExtractFilePath(const string &Path)
 {
-	size_t p;
-
-	if (!FindLastSlash(p, Path))
+	auto p = FindLastSlash(Path);
+	if (p == string::npos)
+	{
 		p = 0;
+	}
 
-	size_t PathRootLen = GetPathRootLength(Path);
+	const auto PathRootLen = GetPathRootLength(Path);
 
 	if (p <= PathRootLen && PathRootLen)
 	{

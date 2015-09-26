@@ -630,10 +630,12 @@ void TreeList::DisplayTree(int Fast)
 
 				strOutStr+=TreeLineSymbol[CurPtr.Last[CurPtr.Depth-1]?2:3];
 				BoxText(strOutStr);
-				const wchar_t *ChPtr=LastSlash(CurPtr.strName.data());
 
-				if (ChPtr)
-					DisplayTreeName(ChPtr+1,J);
+				const auto pos = FindLastSlash(CurPtr.strName);
+				if (pos != string::npos)
+				{
+					DisplayTreeName(CurPtr.strName.data() + pos + 1, J);
+				}
 			}
 		}
 
@@ -1904,8 +1906,10 @@ void TreeList::AddTreeName(const string& Name)
 	const wchar_t* NamePtr = strFullName.data();
 	NamePtr += strRoot.size() - 1;
 
-	if (!LastSlash(NamePtr))
+	if (!ContainsSlash(NamePtr))
+	{
 		return;
+	}
 
 	ReadCache(strRoot);
 

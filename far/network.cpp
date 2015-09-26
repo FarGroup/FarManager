@@ -163,16 +163,18 @@ string ExtractComputerName(const string& CurDir, string* strTail)
 		{
 			Result = strNetDir.substr(PATH_REMOTE ? 2 : 4);
 
-			size_t pos;
-			if (!FindSlash(pos, Result))
-				Result.clear();
-			else
+			const auto pos = FindSlash(Result);
+			if (pos != string::npos)
 			{
 				if (strTail)
 				{
 					*strTail = Result.substr(pos + 1);
 				}
 				Result.resize(pos);
+			}
+			else
+			{
+				Result.clear();
 			}
 		}
 	}

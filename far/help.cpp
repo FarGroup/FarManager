@@ -2104,11 +2104,15 @@ bool Help::MkTopic(const Plugin* pPlugin, const string& HelpTopic, string &strTo
 					if (!IsSlash(strTopic[SlashPos])) // Это имя модуля?
 					{
 						// значит удалим это чертово имя :-)
-						auto Ptr = LastSlash(strTopic.data());
-						if (Ptr)
-							SlashPos = Ptr - strTopic.data();
+						const auto pos = FindLastSlash(strTopic);
+						if (pos != string::npos)
+						{
+							SlashPos = pos;
+						}
 						else // ВО! Фигня какая-то :-(
+						{
 							strTopic.clear();
+						}
 					}
 
 					if (!strTopic.empty())

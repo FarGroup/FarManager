@@ -1048,9 +1048,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		if (SrcPanel->GetType()==TREE_PANEL)
 		{
 			string strNewDir(strSelName);
-			size_t pos;
-
-			if (FindLastSlash(pos,strNewDir))
+			const auto pos = FindLastSlash(strNewDir);
+			if (pos != string::npos)
 			{
 				strNewDir.resize(pos);
 
@@ -1775,14 +1774,18 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		if (!simple_rename && !dst_abspath && !IsAbsolutePath(strDest))
 		{
 			string tpath;
-			if (!src_abspath) {
+			if (!src_abspath)
+			{
 				tpath = SrcPanel->GetCurDir();
 				AddEndSlash(tpath);
 			}
-			else {
-				size_t slash_pos;
-				FindLastSlash(slash_pos, strSelName);
-				tpath = strSelName.substr(0, slash_pos+1);
+			else
+			{
+				const auto SlashPos = FindLastSlash(strSelName);
+				if (SlashPos)
+				{
+					tpath = strSelName.substr(0, SlashPos + 1);
+				}
 			}
 			strDest = tpath + strDest;
 		}
@@ -1847,8 +1850,8 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 			}
 		}
 
-		size_t pos;
-		if (!copy_to_null && FindLastSlash(pos,strDest) && (!DestMountLen || pos > DestMountLen))
+		const auto pos = FindLastSlash(strDest);
+		if (!copy_to_null && pos != string::npos && (!DestMountLen || pos > DestMountLen))
 		{
 			string strNewPath = strDest.substr(0, pos);
 			os::fs::file_status NewPathStatus(strNewPath);

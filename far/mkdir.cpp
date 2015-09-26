@@ -239,10 +239,11 @@ void ShellMakeDir(Panel *SrcPanel)
 
 		if (!strOriginalDirName.empty())
 		{
-			size_t pos;
-
-			if (FindSlash(pos, strOriginalDirName))
+			const auto pos = FindSlash(strOriginalDirName);
+			if (pos != string::npos)
+			{
 				strOriginalDirName.resize(pos);
+			}
 
 			SrcPanel->GoToFile(strOriginalDirName);
 		}

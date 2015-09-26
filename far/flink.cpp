@@ -559,12 +559,8 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 		// выделим имя
 		strSelOnlyName = Target;
 		DeleteEndSlash(strSelOnlyName);
-		const wchar_t *PtrSelName=LastSlash(strSelOnlyName.data());
-
-		if (!PtrSelName)
-			PtrSelName=strSelOnlyName.data();
-		else
-			++PtrSelName;
+		const auto SlashPos = FindLastSlash(strSelOnlyName);
+		const auto SelName = SlashPos != string::npos? strSelOnlyName.substr(SlashPos + 1) : strSelOnlyName;
 
 		bool symlink = LinkType==RP_SYMLINK || LinkType==RP_SYMLINKFILE || LinkType==RP_SYMLINKDIR;
 
@@ -590,7 +586,7 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 		if (IsSlash(strFullLink.back()))
 		{
 			if (LinkType!=RP_VOLMOUNT)
-				strFullLink += PtrSelName;
+				strFullLink += SelName;
 			else
 			{
 				strFullLink.append(L"Disk_").append(Target, 0, 1);

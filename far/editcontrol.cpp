@@ -252,7 +252,7 @@ static bool EnumModules(VMenu2& Menu, const string& Module)
 
 	SCOPED_ACTION(elevation::suppress);
 
-	if(!Module.empty() && !FirstSlash(Module.data()))
+	if(!Module.empty() && FindSlash(Module) == string::npos)
 	{
 		std::set<string, string_i_less> ResultStrings;
 		{

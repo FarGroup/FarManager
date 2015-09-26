@@ -473,12 +473,11 @@ void ConvertNameToUNC(string &strFileName)
 		// мапленный диск - получаем как для меню выбора дисков
 		if (DriveLocalToRemoteName(DRIVE_UNKNOWN,strFileName[0],strTemp))
 		{
-			const wchar_t *NamePtr=FirstSlash(strFileName.data());
-
-			if (NamePtr )
+			const auto SlashPos = FindSlash(strFileName);
+			if (SlashPos != string::npos)
 			{
 				AddEndSlash(strTemp);
-				strTemp += &NamePtr[1];
+				strTemp += strFileName.substr(SlashPos + 1);
 			}
 
 			strFileName = strTemp;

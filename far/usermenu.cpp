@@ -415,10 +415,10 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 					// подымаемся выше...
 					if(!IsRootPath(strMenuFilePath))
 					{
-						size_t pos;
-						if (FindLastSlash(pos,strMenuFilePath))
+						const auto pos = FindLastSlash(strMenuFilePath);
+						if (pos != string::npos)
 						{
-							strMenuFilePath.resize(pos--);
+							strMenuFilePath.resize(pos - 1);
 							continue;
 						}
 					}
@@ -447,10 +447,10 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 				{
 					if(!IsRootPath(strMenuFilePath))
 					{
-						size_t pos;
-						if (FindLastSlash(pos,strMenuFilePath))
+						const auto pos = FindLastSlash(strMenuFilePath);
+						if (pos != string::npos)
 						{
-							strMenuFilePath.resize(pos--);
+							strMenuFilePath.resize(pos - 1);
 							continue;
 						}
 					}

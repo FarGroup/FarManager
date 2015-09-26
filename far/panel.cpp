@@ -854,7 +854,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		if (RetCode>=0)
 			return RetCode;
 
-		if (ChDisk->GetExitCode() < 0 && m_CurDir.size() > 2 && IsSlash(m_CurDir[0]) && IsSlash(m_CurDir[1]))
+		if (ChDisk->GetExitCode() < 0 && m_CurDir.size() > 2 && !(IsSlash(m_CurDir[0]) && IsSlash(m_CurDir[1])))
 		{
 			const wchar_t RootDir[4] = {m_CurDir[0],L':',L'\\',L'\0'};
 
@@ -2748,10 +2748,7 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid
 bool Panel::CreateFullPathName(const string& Name, const string& ShortName,DWORD FileAttr, string &strDest, int UNC,int ShortNameAsIs) const
 {
 	string strFileName = strDest;
-	const wchar_t *ShortNameLastSlash=LastSlash(ShortName.data());
-	const wchar_t *NameLastSlash=LastSlash(Name.data());
-
-	if (nullptr==ShortNameLastSlash && nullptr==NameLastSlash)
+	if (FindSlash(Name) == string::npos && FindSlash(ShortName) == string::npos)
 	{
 		ConvertNameToFull(strFileName, strFileName);
 	}
@@ -2797,25 +2794,26 @@ bool Panel::CreateFullPathName(const string& Name, const string& ShortName,DWORD
 			}
 			else
 			{
-				size_t pos;
-				ToUpper(strFileName, 0, FindLastSlash(pos,strFileName)? pos : string::npos);
+				ToUpper(strFileName, 0, FindLastSlash(strFileName));
 			}
 		}
 
 		if ((m_ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE) && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 		{
-			size_t pos;
-
-			if (FindLastSlash(pos,strFileName) && !IsCaseMixed(strFileName.data()+pos))
+			const auto pos = FindLastSlash(strFileName);
+			if (pos != string::npos && !IsCaseMixed(strFileName.data() + pos))
+			{
 				ToLower(strFileName, pos);
+			}
 		}
 
 		if ((m_ViewSettings.Flags&PVS_FILELOWERCASE) && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 		{
-			size_t pos;
-
-			if (FindLastSlash(pos,strFileName))
+			const auto pos = FindLastSlash(strFileName);
+			if (pos != string::npos)
+			{
 				ToLower(strFileName, pos);
+			}
 		}
 	}
 

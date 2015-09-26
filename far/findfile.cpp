@@ -2078,12 +2078,15 @@ void FindFiles::AddMenuRecord(Dialog* Dlg, const string& FullName, const os::FAR
 
 	string strPathName=FullName;
 	{
-		size_t pos;
-
-		if (FindLastSlash(pos,strPathName))
+		const auto pos = FindLastSlash(strPathName);
+		if (pos != string::npos)
+		{
 			strPathName.resize(pos);
+		}
 		else
+		{
 			strPathName.clear();
+		}
 	}
 	AddEndSlash(strPathName);
 

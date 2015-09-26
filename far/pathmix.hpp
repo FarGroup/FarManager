@@ -85,10 +85,9 @@ void DeleteEndSlash(string& Path);
 inline void ReplaceSlashToBackslash(string &strStr) { std::replace(ALL_RANGE(strStr), L'/', L'\\'); }
 inline void ReplaceBackslashToSlash(string &strStr) { std::replace(ALL_RANGE(strStr), L'\\', L'/'); }
 
-const wchar_t *FirstSlash(const wchar_t *String);
-const wchar_t *LastSlash(const wchar_t *String);
-bool FindSlash(size_t &Pos, const string &Str, size_t StartPos = 0, size_t EndPos = string::npos);
-bool FindLastSlash(size_t &Pos, const string &Str, size_t StartPos = 0, size_t EndPos = string::npos);
+bool ContainsSlash(const wchar_t *Str);
+size_t FindSlash(const string &Str);
+size_t FindLastSlash(const string &Str);
 
 bool TestParentFolderName(const string& Name);
 bool TestCurrentDirectory(const string& TestDir);
