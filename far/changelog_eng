@@ -3,6 +3,28 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 26.09.2015 21:44:35 +0200 - build 4427
+
+1. 0003093: "Drive" dialog (Alt-F1,Alt-F2) is not closed on Esc key press if the current panel directory is UNC path
+
+2. Refactoring.
+
+drkns 24.09.2015 22:50:09 +0200 - build 4426
+
+1. Do not lose entered text when scrolling through history in command line.
+
+2. Refactoring.
+
+3. Warnings.
+
+drkns 23.09.2015 02:45:20 +0200 - build 4425
+
+1. Refactoring.
+
+drkns 21.09.2015 19:19:19 +0200 - build 4424
+
+1. Correction of 4423.1.
+
 drkns 18.09.2015 22:40:33 +0200 - build 4423
 
 1. Now we accept //these/paths too.
