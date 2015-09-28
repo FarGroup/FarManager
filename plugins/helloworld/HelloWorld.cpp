@@ -30,7 +30,7 @@ static struct PluginStartupInfo Info;
 
 void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 {
-	Info->StructSize=sizeof(GlobalInfo);
+	Info->StructSize=sizeof(struct GlobalInfo);
 	Info->MinFarVersion=FARMANAGERVERSION;
 	Info->Version=PLUGIN_VERSION;
 	Info->Guid=MainGuid;
@@ -89,12 +89,12 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	};
 
 	Info.Message(&MainGuid,           /* GUID */
-		nullptr,
+		NULL,
 		FMSG_WARNING|FMSG_LEFTALIGN,  /* Flags */
 		L"Contents",                  /* HelpTopic */
 		MsgItems,                     /* Items */
 		ARRAYSIZE(MsgItems),          /* ItemsNumber */
 		1);                           /* ButtonsNumber */
 
-	return nullptr;
+	return NULL;
 }
