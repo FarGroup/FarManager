@@ -1031,13 +1031,13 @@ DWORD WNetGetConnection(const string& LocalName, string &RemoteName)
 	auto Result = ::WNetGetConnection(LocalName.data(), Buffer, &Size);
 	if (Result == NO_ERROR)
 	{
-		RemoteName.assign(Buffer, Size);
+		RemoteName = Buffer;
 	}
 	else if (Result == ERROR_MORE_DATA)
 	{
 		std::vector<wchar_t> vBuffer(Size);
 		Result = ::WNetGetConnection(LocalName.data(), vBuffer.data(), &Size);
-		RemoteName.assign(vBuffer.data(), Size);
+		RemoteName.assign(vBuffer.data(), Size - 1);
 	}
 	return Result;
 }

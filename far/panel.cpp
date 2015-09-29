@@ -1115,8 +1115,12 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 			{
 				LangString Question(MChangeSUBSTDisconnectDriveQuestion);
 				Question << DiskLetter;
+				LangString MappedTo(MChangeDriveDisconnectMapped);
+				MappedTo << DiskLetter.front();
+				string SubstitutedPath;
+				GetSubstName(DriveType, DiskLetter, SubstitutedPath);
 				if (Message(MSG_WARNING, MSG(MChangeSUBSTDisconnectDriveTitle),
-					make_vector<string>(Question.data()),
+					make_vector<string>(Question.data(), MappedTo.data(), SubstitutedPath),
 					make_vector<string>(MSG(MYes), MSG(MNo)),
 					nullptr, nullptr, &SUBSTDisconnectDriveId))
 				{

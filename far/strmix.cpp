@@ -349,10 +349,12 @@ string& TruncPathStr(string &strStr, int MaxLength)
 
 wchar_t* RemoveLeadingSpaces(wchar_t *Str)
 {
-	const auto End = Str + wcslen(Str);
-	const auto NewBegin = std::find_if_not(Str, End, IsSpaceOrEol);
-	if (NewBegin != Str)
-		std::copy(NewBegin, End + 1, Str);
+	const auto Iterator = null_iterator(Str);
+	const auto NewBegin = std::find_if_not(Iterator, Iterator.end(), IsSpaceOrEol);
+	if (NewBegin != Iterator)
+	{
+		*std::copy(NewBegin, Iterator.end(), Str) = L'\0';
+	}
 	return Str;
 }
 
@@ -474,7 +476,7 @@ bool IsCaseMixed(const string &strSrc)
 	if (AlphaBegin != strSrc.cend())
 	{
 		const auto Case = IsLower(*AlphaBegin);
-		return std::any_of(AlphaBegin, strSrc.cend(), [&Case](wchar_t c){ return IsAlpha(c) && IsLower(c) != Case; });
+		return std::any_of(AlphaBegin, strSrc.cend(), [Case](wchar_t c){ return IsAlpha(c) && IsLower(c) != Case; });
 	}
 	return false;
 }
@@ -484,7 +486,7 @@ void Unquote(wchar_t *Str)
 	if (!Str)
 		return;
 
-	auto Iterator = null_iterator(Str);
+	const auto Iterator = null_iterator(Str);
 	*std::remove(Iterator, Iterator.end(), L'"') = 0;
 }
 
