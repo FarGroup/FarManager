@@ -43,7 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colors.hpp"
 
 // ÷ветовые атрибуты - индексы в массиве цветов
-enum
+enum vmenu_colors
 {
 	VMenuColorBody                = 0,     // подложка
 	VMenuColorBox                 = 1,     // рамка

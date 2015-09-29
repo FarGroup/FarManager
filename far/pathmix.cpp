@@ -486,7 +486,7 @@ string ExtractFileName(const string &Path)
 	auto p = FindLastSlash(Path);
 	p = p == string::npos? 0 : p + 1;
 	p = std::max(p, GetPathRootLength(Path));
-	return string(Path.data() + p, Path.size() - p);
+	return Path.substr(p);
 }
 
 string ExtractFilePath(const string &Path)
@@ -511,15 +511,9 @@ string ExtractFilePath(const string &Path)
 
 bool IsRootPath(const string &Path)
 {
-	size_t PathRootLen = GetPathRootLength(Path);
-
-	if (Path.size() == PathRootLen)
-		return true;
-
-	if (Path.size() == PathRootLen + 1 && IsSlash(Path[Path.size() - 1]))
-		return true;
-
-	return false;
+	bool IsRoot = false;
+	ParsePath(Path, nullptr, &IsRoot);
+	return IsRoot || IsRelativeRoot(Path);
 }
 
 bool PathStartsWith(const string &Path, const string &Start)

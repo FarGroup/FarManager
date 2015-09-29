@@ -92,10 +92,7 @@ void HMenu::ShowMenu()
 	{
 		i.XPos = WhereX();
 
-		if (i.Selected)
-			SetColor(COL_HMENUSELECTEDTEXT);
-		else
-			SetColor(COL_HMENUTEXT);
+		SetColor(i.Selected? COL_HMENUSELECTEDTEXT : COL_HMENUTEXT);
 
 		strTmpStr=L"  ";
 		strTmpStr+=i.Name;
@@ -372,18 +369,17 @@ int HMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	if (MsY==m_Y1 && MsX>=m_X1 && MsX<=m_X2)
 	{
-		for (size_t i = 0; i < Item.size(); i++)
-			if (MsX >= Item[i].XPos && MsX<Item[i + 1].XPos)
-			{
-				if (m_SubmenuOpened && SelectPos==i)
-					return FALSE;
+		const auto SubmenuIterator = std::find_if(REVERSE_RANGE(Item, i) { return MsX >= i.XPos; });
+		const size_t NewPos = std::distance(SubmenuIterator, Item.rend()) - 1;
 
-				Item[SelectPos].Selected=0;
-				Item[i].Selected=1;
-				SelectPos=i;
-				ShowMenu();
-				ProcessKey(Manager::Key(KEY_ENTER));
-			}
+		if (m_SubmenuOpened && SelectPos == NewPos)
+			return FALSE;
+
+		Item[SelectPos].Selected = 0;
+		SubmenuIterator->Selected = 1;
+		SelectPos = NewPos;
+		ShowMenu();
+		ProcessKey(Manager::Key(KEY_ENTER));
 	}
 	else if (!(MouseEvent->dwButtonState & 3) && !MouseEvent->dwEventFlags)
 		ProcessKey(Manager::Key(KEY_ESC));
@@ -469,12 +465,7 @@ void HMenu::ProcessSubMenu(const MenuDataEx *Data,int DataCount,
 
 void HMenu::ResizeConsole()
 {
-	if (SaveScr)
-	{
-		SaveScr->Discard();
-		SaveScr.reset();
-	}
-
+	SaveScr.reset();
 	Hide();
 	Modal::ResizeConsole();
 	SetPosition(0,0,::ScrX,0);

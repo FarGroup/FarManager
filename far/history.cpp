@@ -601,7 +601,7 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 		if (!StrCmpNI(strStr.data(),strName.data(),Length) && strStr != strName)
 		{
 			if (bAppend)
-				strStr += strName.data() + Length;
+				strStr.append(strName.data() + Length, strName.size() - Length);
 			else
 				strStr = strName;
 

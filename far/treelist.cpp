@@ -447,7 +447,8 @@ public:
 			size_t iLen = i->size();
 			if ((iLen == SrcLength || (iLen > SrcLength && IsSlash((*i)[SrcLength]))) && !StrCmpNI(OldName, i->data(), SrcLength))
 			{
-				string newName = string(NewName) + (i->data() + SrcLength);
+				string newName(NewName);
+				newName.append(i->data() + SrcLength, i->size() - SrcLength);
 				i = m_Names.erase(i);
 				m_Names.insert(std::move(newName));
 				if (i == m_Names.end())

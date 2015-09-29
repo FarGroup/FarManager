@@ -2212,7 +2212,7 @@ void VMenu::ShowMenu(bool IsParent)
 				strMenuLine.push_back(CheckMark);
 				strMenuLine.push_back(L' '); // left scroller (<<) placeholder
 				int ShowPos = HiFindRealPos(Items[I].strName, Items[I].ShowPos, CheckFlags(VMENU_SHOWAMPERSAND));
-				string strMItemPtr(Items[I].strName.data() + ShowPos);
+				string strMItemPtr = Items[I].strName.substr(ShowPos);
 				const auto strMItemPtrLen = CheckFlags(VMENU_SHOWAMPERSAND)? strMItemPtr.size() : HiStrlen(strMItemPtr);
 
 				// fit menu string into available space
@@ -2240,10 +2240,14 @@ void VMenu::ShowMenu(bool IsParent)
 
 				if (!(Items[I].Flags & LIF_DISABLE))
 				{
-					if (Items[I].Flags & LIF_SELECTED)
-						Col = Colors[Items[I].Flags & LIF_GRAYED ? VMenuColorSelGrayed : VMenuColorHSelect];
-					else
-						Col = Colors[Items[I].Flags & LIF_GRAYED ? VMenuColorGrayed : VMenuColorHilite];
+					static const vmenu_colors ItemColors[][2] =
+					{
+						{ VMenuColorHilite, VMenuColorHSelect },
+						{ VMenuColorGrayed, VMenuColorSelGrayed },
+					};
+
+					const auto Index = ItemColors[Items[I].Flags & LIF_GRAYED ? 1 : 0][Items[I].Flags & LIF_SELECTED ? 1 : 0];
+					Col = Colors[Index];
 				}
 				else
 				{

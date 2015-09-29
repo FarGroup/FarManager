@@ -2710,7 +2710,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 				string strMove;
 				if (CurPos < static_cast<int>(strStr.size()))
 				{
-					strMove = strStr.data() + CurPos;
+					strMove = strStr.substr(CurPos);
 					strStr.resize(CurPos);
 					focus->SetString(strStr, true, 0);
 				}

@@ -477,7 +477,7 @@ namespace os
 		{
 			auto Begin = index? value.data() + value.size() + 1 : m_Provider, End = Begin;
 			while (*End) ++End;
-			value = enum_strings_t<Provider, ResultType>::value_type(Begin, End);
+			value = typename enum_strings_t<Provider, ResultType>::value_type(Begin, End);
 			return !value.empty();
 		}
 

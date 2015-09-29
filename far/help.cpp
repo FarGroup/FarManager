@@ -274,7 +274,7 @@ int Help::ReadHelp(const string& Mask)
 		if (pos == string::npos)
 			return FALSE;
 
-		StackData->strHelpTopic = strPath.data() + pos + 1;
+		StackData->strHelpTopic = strPath.substr(pos + 1);
 		strPath.resize(pos);
 		DeleteEndSlash(strPath);
 		AddEndSlash(strPath);
@@ -1554,7 +1554,7 @@ int Help::JumpTopic()
 	}
 	else
 	{
-		strNewTopic = StackData->strSelTopic.data() + (StackData->strSelTopic == HelpOnHelpTopic? 1 : 0);
+		strNewTopic = StackData->strSelTopic.substr(StackData->strSelTopic == HelpOnHelpTopic? 1 : 0);
 	}
 
 	// удалим ссылку на .DLL

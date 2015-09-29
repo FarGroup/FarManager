@@ -209,7 +209,7 @@ void ReloadEnvironment()
 		return std::make_pair(i, os::env::get_variable(i));
 	});
 
-	FOR(const auto& i, (os::enum_strings_t<os::env::provider::block>()))
+	FOR(const auto& i, os::enum_strings_t<os::env::provider::block>())
 	{
 		const auto Data = os::env::split(i.data());
 		os::env::set_variable(Data.first, Data.second);

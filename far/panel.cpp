@@ -710,7 +710,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 						}
 						else
 						{
-							string strName = ChDisk->at(SelPos).strName.data() + 3;
+							string strName = ChDisk->at(SelPos).strName.substr(3);
 							RemoveExternalSpaces(strName);
 							if(Global->CtrlObject->Plugins->SetHotKeyDialog(item->pPlugin, item->Guid, PluginsHotkeysConfig::DRIVE_MENU, strName))
 							RetCode=SelPos;
