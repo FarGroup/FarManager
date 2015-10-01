@@ -1662,15 +1662,15 @@ intptr_t LF_ProcessConsoleInput(lua_State* L, struct ProcessConsoleInputInfo *In
 
 		if(pcall_msg(L, 2, 1) == 0)                      //+1: Res
 		{
-			if(lua_istable(L,-1))
+			if(lua_type(L,-1) == LUA_TNUMBER && lua_tonumber(L,-1) == 0)
+				ret = 0;				
+			else if(lua_type(L,-1) == LUA_TTABLE)
 			{
 				FillInputRecord(L, -1, &Info->Rec);
 				ret = 2;
 			}
 			else
-			{
-				ret = lua_tointeger(L,-1);
-			}
+				ret = lua_toboolean(L,-1);
 
 			lua_pop(L,1);
 		}

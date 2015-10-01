@@ -1583,7 +1583,7 @@ lv=2
 dt=Text
 nm=export.ProcessConsoleInput
 ctime=3557661223
-mtime=3602280132
+mtime=3652906894
 <article>
 #_result = export.ProcessConsoleInput (rec, flags)
 #_
@@ -1593,6 +1593,10 @@ mtime=3602280132
 #_
 #_**Returns:**
 #_  result: 0, 1, or table `tInputRecord`
+#_    **Details:**
+#_    - 0/false/nil/nothing result in returning 0 to Far Manager
+#_    - table results in returning 2 to Far Manager
+#_    - any other value results in returning 1 to Far Manager
 #_
 #_**Far API used:**
 #_  ProcessConsoleInputW, ProcessConsoleInputInfo

@@ -44,7 +44,7 @@ local LoadMacrosDone
 local LoadingInProgress
 local EnumState = {}
 local Events
-local EventGroups = {"dialogevent","editorevent","editorinput","exitfar","viewerevent"}
+local EventGroups = {"dialogevent","editorevent","editorinput","exitfar","viewerevent", "consoleinput"}
 local AddMacro_filename
 local AddedMenuItems
 local AddedPrefixes
@@ -177,8 +177,12 @@ local function EV_Handler (macros, filename, ...)
   for _,i in ipairs(indexes) do
     if priorities[i] < 0 then break end
     local ret = macros[i].action(...)
-    if ret and (macros==Events.dialogevent or macros==Events.editorinput or macros==Events.commandline) then
-      return ret
+    if ret then
+      if macros==Events.dialogevent or macros==Events.editorinput or macros==Events.commandline then
+        return ret
+      elseif macros==Events.consoleinput then
+        if ret ~= 0 then return ret end
+      end
     end
   end
 end
@@ -229,6 +233,10 @@ end
 
 local function export_ProcessEditorInput (Rec)
   return EV_Handler(Events.editorinput, editor.GetFileName(nil), Rec)
+end
+
+local function export_ProcessConsoleInput (Rec, Flags)
+  return EV_Handler(Events.consoleinput, nil, Rec, Flags)
 end
 
 local ExpandKey do -- измеренное время исполнения на ключе "CtrlAltShiftF12" = ??? (Lua); 2.3uS (LuaJIT);
@@ -737,6 +745,7 @@ local function LoadMacros (unload, paths)
   export.ProcessDialogEvent = Events.dialogevent[1] and export_ProcessDialogEvent
   export.ProcessEditorInput = Events.editorinput[1] and export_ProcessEditorInput
   export.ProcessViewerEvent = Events.viewerevent[1] and export_ProcessViewerEvent
+  export.ProcessConsoleInput = Events.consoleinput[1] and export_ProcessConsoleInput
 
   LoadingInProgress = nil
   return numerrors==0

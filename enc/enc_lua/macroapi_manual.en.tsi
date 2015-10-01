@@ -1763,7 +1763,7 @@ lv=2
 dt=Text
 nm=Event handlers
 ctime=3580139337
-mtime=3613334457
+mtime=3652907524
 <article>
 #_<markdown>
 #_
@@ -1783,7 +1783,7 @@ mtime=3613334457
 #_```
 #_
 #_The field `group` can have one of the following values:<br>
-#_`"DialogEvent", "EditorEvent", "EditorInput", "ExitFAR", "ViewerEvent"`.<br>
+#_`"DialogEvent", "EditorEvent", "EditorInput", "ExitFAR", "ViewerEvent", "ConsoleInput"`.<br>
 #_These names are derived from names of the corresponding functions, exported by the plugin, e.g.:<br>
 #_        export.ProcessDialogEvent -> DialogEvent
 #_The functions `condition` and `action` are called with the same parameters as the corresponding exported functions are called (see LuaFAR manual).

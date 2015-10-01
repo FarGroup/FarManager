@@ -1757,7 +1757,7 @@ lv=2
 dt=Text
 nm=Обработчики событий
 ctime=3580139337
-mtime=3613334291
+mtime=3652907606
 <article>
 #_<markdown>
 #_
@@ -1777,7 +1777,7 @@ mtime=3613334291
 #_```
 #_
 #_Поле `group` может иметь одно из следующих значений:<br>
-#_`"DialogEvent", "EditorEvent", "EditorInput", "ExitFAR", "ViewerEvent"`.<br>
+#_`"DialogEvent", "EditorEvent", "EditorInput", "ExitFAR", "ViewerEvent", "ConsoleInput"`.<br>
 #_Данные имена являются производными от имён соответствующих функций, экспортируемых плагином, например:<br>
 #_        export.ProcessDialogEvent -> DialogEvent
 #_Функции `condition` и `action` обработчика вызываются с теми же параметрами, с которыми вызывается соответствующая экспортируемая функция (см. мануал LuaFAR).
