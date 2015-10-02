@@ -379,6 +379,16 @@ struct FindFiles::CodePageInfo
 	}
 };
 
+class FindFiles::delayed_deleter: noncopyable
+{
+public:
+	delayed_deleter(const string& pathToDelete): m_pathToDelete(pathToDelete) {}
+	delayed_deleter() { DeleteFileWithFolder(m_pathToDelete); }
+
+private:
+	string m_pathToDelete;
+};
+
 void FindFiles::InitInFileSearch()
 {
 	if (!InFileSearchInited && !strFindStr.empty())
@@ -1691,7 +1701,8 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 					if (RemoveTemp)
 					{
-						DeleteFileWithFolder(strSearchFileName);
+						// external editor may not have enough time to open this file, so defer deletion
+						m_DelayedDeleters.emplace_back(strSearchFileName);
 					}
 					return TRUE;
 				}

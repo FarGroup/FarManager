@@ -128,6 +128,8 @@ private:
 	std::unique_ptr<InterThreadData> itd;
 	struct CodePageInfo;
 	std::list<CodePageInfo> m_CodePages;
+	class delayed_deleter;
+	std::list<delayed_deleter> m_DelayedDeleters;
 	CriticalSection PluginCS;
 	Event PauseEvent;
 	Event StopEvent;
