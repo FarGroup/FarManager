@@ -3,6 +3,24 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 02.10.2015 09:36:40 +0200 - build 4430
+
+1. 0003080: Alternate editor/viewer in FindFile results: temporary files will be deleted on FindFile closing. This should give enough time for external editor to open temporary file.
+
+drkns 29.09.2015 21:44:11 +0200 - build 4429
+
+1. Forum: "Something has happened to network volume deletion messages after 4424"
+
+2. The path is displayed in subst volume disconnection confirmation dialog.
+
+3. Minor fixes.
+
+drkns 29.09.2015 09:06:03 +0200 - build 4428
+
+1. gcc build fix
+
+2. Refactoring.
+
 drkns 26.09.2015 21:44:35 +0200 - build 4427
 
 1. 0003093: "Drive" dialog (Alt-F1,Alt-F2) is not closed on Esc key press if the current panel directory is UNC path
