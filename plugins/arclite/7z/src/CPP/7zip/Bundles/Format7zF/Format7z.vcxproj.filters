@@ -803,6 +803,9 @@
     <ClCompile Include="..\..\Archive\ElfHandler.cpp">
       <Filter>Archive</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Archive\ExtHandler.cpp">
+      <Filter>Archive</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Archive\FatHandler.cpp">
       <Filter>Archive</Filter>
     </ClCompile>
@@ -914,6 +917,7 @@
     <ClCompile Include="..\..\..\Windows\TimeUtils.cpp">
       <Filter>Windows</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\..\common\vc_crt_fix_impl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc">
@@ -949,6 +953,9 @@
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Common\MyInitGuid.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Common\MyLinux.h">
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Common\MyMap.h">
