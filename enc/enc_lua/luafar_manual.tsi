@@ -9150,13 +9150,13 @@ id=187
 lv=2
 dt=Text
 nm=tInputRecord
-mtime=3602278734
+mtime=3653036816
 <article>
 #_**The table has the following fields:**
 #_
 #_  EventType:         integer
 #_
-#_  *--if EventType is KEY_EVENT or FARMACRO_KEY_EVENT:*
+#_  *--if EventType is KEY_EVENT:*
 #_  KeyDown:          boolean
 #_  RepeatCount:      integer
 #_  VirtualKeyCode:   integer
@@ -9183,8 +9183,6 @@ mtime=3602278734
 #_[far.ProcessKey]: 114.html
 #_[far.InputRecordToKey]: 186.html
 #_[editor.ReadInput]: 38.html
-#_
-#_{farmacro_key_event}: http://api.farmanager.com/ru/defs/farmacro_key_event.html
 #_
 </article>
 </node>

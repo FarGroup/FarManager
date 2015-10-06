@@ -5239,12 +5239,12 @@ static int far_FarClock(lua_State *L)
 	return 1;
 }
 
-DWORD WINAPI TimerThreadFunc(LPVOID data)
+DWORD WINAPI TimerThreadFunc (void *data)
 {
 	FILETIME tCurrent;
 	UINT64 lStart, lCurrent;
 	TSynchroData *sd;
-	TTimerData* td = (TTimerData*)data;
+	TTimerData *td = (TTimerData*)data;
 	int interval_copy = td->interval;
 	td->interval_changed = 0;
 	memcpy(&lStart, &td->tStart, sizeof(lStart));
@@ -5306,6 +5306,8 @@ static int far_Timer(lua_State *L)
 	lua_rawseti(L, -2, 1);
 
 	td = (TTimerData*)lua_newuserdata(L, sizeof(TTimerData));
+	luaL_getmetatable(L, FarTimerType);
+	lua_setmetatable(L, -2);
 	lua_pushvalue(L, -1);
 	lua_rawseti(L, -3, 2);                  // place the userdata at [2]
 
@@ -5327,12 +5329,8 @@ static int far_Timer(lua_State *L)
 	td->needClose = 0;
 	td->enabled = 1;
 
-	if(CreateThread(NULL, 0, TimerThreadFunc, td, 0, NULL))
-	{
-		luaL_getmetatable(L, FarTimerType);
-		lua_setmetatable(L, -2);
+	if (CreateThread(NULL, 0, TimerThreadFunc, td, 0, NULL))
 		return 1;
-	}
 
 	luaL_unref(L, LUA_REGISTRYINDEX, td->tabRef);
 	return lua_pushnil(L), 1;

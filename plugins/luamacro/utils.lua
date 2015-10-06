@@ -141,6 +141,7 @@ local function ReadIniFile (filename)
       if id then
         t[currsect][id] = val
       elseif not (line:match("^%s*;") or line:match("^%s*$")) then
+        fp:close()
         return nil, (("%s:%d: invalid line in ini-file"):format(filename,numline))
       end
     end
