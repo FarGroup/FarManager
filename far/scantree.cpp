@@ -92,7 +92,7 @@ void ScanTree::SetFindPath(const string& Path,const string& Mask, const DWORD Ne
 	Flags.Set((Flags.Flags()&0x0000FFFF)|(NewScanFlags&0xFFFF0000));
 }
 
-bool ScanTree::GetNextName(os::FAR_FIND_DATA *fdata,string &strFullName)
+bool ScanTree::GetNextName(os::FAR_FIND_DATA& fdata,string &strFullName)
 {
 	if (ScanItems.empty())
 		return false;
@@ -123,19 +123,19 @@ bool ScanTree::GetNextName(os::FAR_FIND_DATA *fdata,string &strFullName)
 
 			if (!Done)
 			{
-				*fdata = *ScanItems.back().Iterator;
+				fdata = *ScanItems.back().Iterator;
 			}
 
 			if (Flags.Check(FSCANTREE_FILESFIRST))
 			{
 				if (LastItem.Flags.Check(FSCANTREE_SECONDPASS))
 				{
-					if (!Done && !(fdata->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+					if (!Done && !(fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 						continue;
 				}
 				else
 				{
-					if (!Done && (fdata->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+					if (!Done && (fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 						continue;
 
 					if (Done)
@@ -168,7 +168,7 @@ bool ScanTree::GetNextName(os::FAR_FIND_DATA *fdata,string &strFullName)
 			if (Flags.Check(FSCANTREE_RETUPDIR))
 			{
 				strFullName = strFindPathOriginal;
-				os::GetFindDataEx(strFindPath, *fdata);
+				os::GetFindDataEx(strFindPath, fdata);
 			}
 
 			CutToSlash(strFindPath);
@@ -186,14 +186,14 @@ bool ScanTree::GetNextName(os::FAR_FIND_DATA *fdata,string &strFullName)
 	}
 	else
 	{
-		if ((fdata->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && Flags.Check(FSCANTREE_RECUR) &&
-		        (!(fdata->dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) || Flags.Check(FSCANTREE_SCANSYMLINK)))
+		if ((fdata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && Flags.Check(FSCANTREE_RECUR) &&
+		        (!(fdata.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) || Flags.Check(FSCANTREE_SCANSYMLINK)))
 		{
 			string RealPath(ScanItems.back().RealPath);
 			AddEndSlash(RealPath);
-			RealPath += fdata->strFileName;
+			RealPath += fdata.strFileName;
 
-			if (fdata->dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
+			if (fdata.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
 				ConvertNameToReal(RealPath, RealPath);
 
 			//recursive symlinks guard
@@ -201,8 +201,8 @@ bool ScanTree::GetNextName(os::FAR_FIND_DATA *fdata,string &strFullName)
 			{
 				CutToSlash(strFindPath);
 				CutToSlash(strFindPathOriginal);
-				strFindPath += fdata->strFileName;
-				strFindPathOriginal += fdata->strFileName;
+				strFindPath += fdata.strFileName;
+				strFindPathOriginal += fdata.strFileName;
 				strFullName = strFindPathOriginal;
 				AddEndSlash(strFindPathOriginal);
 				strFindPath += L"\\";
@@ -212,7 +212,7 @@ bool ScanTree::GetNextName(os::FAR_FIND_DATA *fdata,string &strFullName)
 				Data.Flags.Clear(FSCANTREE_SECONDPASS);
 				Data.RealPath = RealPath;
 
-				if (fdata->dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
+				if (fdata.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
 				{
 					Data.Flags.Set(FSCANTREE_INSIDEJUNCTION);
 					Flags.Set(FSCANTREE_INSIDEJUNCTION);
@@ -226,7 +226,7 @@ bool ScanTree::GetNextName(os::FAR_FIND_DATA *fdata,string &strFullName)
 
 	strFullName = strFindPathOriginal;
 	CutToSlash(strFullName);
-	strFullName += fdata->strFileName;
+	strFullName += fdata.strFileName;
 
 	return true;
 }

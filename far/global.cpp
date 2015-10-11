@@ -58,8 +58,9 @@ global::global():
 	m_MainThreadHandle(GetCurrentThreadRealHandle()),
 	m_SearchHex(),
 	m_ConfigProvider(),
-	ScrBuf(nullptr),
-	Opt(nullptr),
+	Opt(std::make_unique<Options>()),
+	ScrBuf(std::make_unique<ScreenBuf>()),
+	WindowManager(std::make_unique<Manager>()),
 	Lang(nullptr),
 	Elevation(nullptr),
 	CtrlObject(nullptr)
@@ -103,9 +104,6 @@ global::global():
 
 	// BUGBUG end
 
-	ScrBuf = new ScreenBuf;
-	WindowManager = new Manager;
-	Opt = new Options;
 	Elevation = new elevation;
 }
 
@@ -120,12 +118,6 @@ global::~global()
 	// TODO: it could be useful to delete Lang only at the very end
 	delete Lang;
 	Lang = nullptr;
-	delete Opt;
-	Opt = nullptr;
-	delete WindowManager;
-	WindowManager = nullptr;
-	delete ScrBuf;
-	ScrBuf = nullptr;
 
 	Global = nullptr;
 }

@@ -297,7 +297,7 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 	};
 
 	string strBuf1, strBuf2;
-	LangString strBuf;
+	string strBuf;
 	string strFileName;
 	BOOL ShowMessages=FALSE;
 	// получим запись исключения
@@ -353,8 +353,7 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 			strBuf2 = str_printf(L"0x%p", xr->ExceptionInformation[1]+10);
 			if (LanguageLoaded())
 			{
-				strBuf = MExcRAccess+Offset;
-				strBuf << strBuf2;
+				strBuf = string_format(MExcRAccess + Offset, strBuf2);
 				Exception=strBuf.data();
 			}
 			else

@@ -373,7 +373,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 			else if (StrItems[LenItems-1] == L'1')
 				Ends=MSG(MAskDeleteItems0);
 		}
-		strDeleteFilesMsg = LangString(MAskDeleteItems) << SelCount << Ends;
+		strDeleteFilesMsg = string_format(MAskDeleteItems, SelCount, Ends);
 	}
 
 	Ret=1;
@@ -396,7 +396,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 			}
 
 			Ret=Message(0, MSG(MDeleteLinkTitle),
-					make_vector<string>(strDeleteFilesMsg.data(),strAskDeleteLink.data(),strJuncName.data()),
+					make_vector<string>(strDeleteFilesMsg, strAskDeleteLink, strJuncName),
 					make_vector<string>(MSG(MDeleteLinkDelete), MSG(MCancel)),
 					nullptr, nullptr, &DeleteLinkId);
 
@@ -614,7 +614,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 							}
 
 							MsgCode=Message(MSG_WARNING, MSG(tit),
-									make_vector<string>(MSG(con),strFullName.data()),
+									make_vector<string>(MSG(con), strFullName),
 									make_vector<string>(MSG(del), MSG(MDeleteFileAll), MSG(MDeleteFileSkip), MSG(MDeleteFileCancel)),
 									nullptr, nullptr, guidId);
 						}
@@ -655,7 +655,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 					ScTree.SetFindPath(strSelFullName,L"*", 0);
 					time_check TreeTimeCheck(time_check::immediate, GetRedrawTimeout());
 
-					while (ScTree.GetNextName(&FindData,strFullName))
+					while (ScTree.GetNextName(FindData,strFullName))
 					{
 						int TreeTotalPercent = (Global->Opt->DelOpt.ShowTotal && ItemsCount >1)?(ProcessedItems*100/ItemsCount):-1;
 						if (TreeTimeCheck)
@@ -705,7 +705,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 							if (!DeleteAllFolders && !ScTree.IsDirSearchDone() && os::fs::is_not_empty_directory(strFullName))
 							{
 								int MsgCode=Message(MSG_WARNING, MSG(Wipe?MWipeFolderTitle:MDeleteFolderTitle),
-											make_vector<string>(MSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),strFullName.data()),
+											make_vector<string>(MSG(Wipe? MWipeFolderConfirm : MDeleteFolderConfirm), strFullName),
 											make_vector<string>(MSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),MSG(MDeleteFileAll),MSG(MDeleteFileSkip),MSG(MDeleteFileCancel)),
 											nullptr, nullptr, (Wipe?&WipeFolderId:&DeleteFolderId)); // ??? other GUID ???
 
@@ -844,7 +844,7 @@ DEL_RESULT ShellDelete::AskDeleteReadOnly(const string& Name,DWORD Attr, bool Wi
 	else
 	{
 		MsgCode=Message(MSG_WARNING, MSG(MWarning),
-						make_vector<string>(MSG(MDeleteRO),Name.data(),MSG(Wipe?MAskWipeRO:MAskDeleteRO)),
+						make_vector<string>(MSG(MDeleteRO), MSG(Wipe?MAskWipeRO:MAskDeleteRO)),
 						make_vector<string>(MSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),MSG(MDeleteFileAll),MSG(MDeleteFileSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteFileCancel)),
 						nullptr, nullptr, (Wipe?&DeleteAskWipeROId:&DeleteAskDeleteROId));
 	}
@@ -895,7 +895,7 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int Total
 				                        ”ничтожать файл?
 				*/
 				MsgCode=Message(MSG_WARNING, MSG(MError),
-								make_vector<string>(strFullName.data(),MSG(MDeleteHardLink1),MSG(MDeleteHardLink2),MSG(MDeleteHardLink3)),
+								make_vector<string>(strFullName, MSG(MDeleteHardLink1), MSG(MDeleteHardLink2), MSG(MDeleteHardLink3)),
 								make_vector<string>(MSG(MDeleteFileWipe),MSG(MDeleteFileAll),MSG(MDeleteFileSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel)),
 								nullptr, nullptr, &WipeHardLinkId);
 			}
@@ -1042,7 +1042,7 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 		bool MessageShown = false;
 		int SkipMode = -1;
 
-		while (ScTree.GetNextName(&FindData,strFullName2))
+		while (ScTree.GetNextName(FindData,strFullName2))
 		{
 			if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY && FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
 			{
@@ -1128,7 +1128,7 @@ void DeleteDirTree(const string& Dir)
 	ScanTree ScTree(true, true, FALSE);
 	ScTree.SetFindPath(Dir,L"*",0);
 
-	while (ScTree.GetNextName(&FindData, strFullName))
+	while (ScTree.GetNextName(FindData, strFullName))
 	{
 		os::SetFileAttributes(strFullName,FILE_ATTRIBUTE_NORMAL);
 

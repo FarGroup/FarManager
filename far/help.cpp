@@ -461,13 +461,15 @@ int Help::ReadHelp(const string& Mask)
 
 		RepeatLastLine = false;
 
-		size_t PosTab;
-		while ((PosTab = strReadStr.find(L'\t')) != string::npos)
 		{
-			strReadStr[PosTab] = L' ';
+			size_t PosTab;
+			while ((PosTab = strReadStr.find(L'\t')) != string::npos)
+			{
+				strReadStr[PosTab] = L' ';
 
-			if (CtrlTabSize > 1) // заменим табулятор по всем правилам
-				strReadStr.insert(PosTab, strTabSpace.data(), CtrlTabSize - (PosTab % CtrlTabSize));
+				if (CtrlTabSize > 1) // заменим табулятор по всем правилам
+					strReadStr.insert(PosTab, strTabSpace.data(), CtrlTabSize - (PosTab % CtrlTabSize));
+			}
 		}
 
 		RemoveTrailingSpaces(strReadStr);

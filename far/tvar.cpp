@@ -266,6 +266,13 @@ TVar& TVar::AppendStr(wchar_t addChr)
 	return operator=(addStr(str,tmp));
 }
 
+TVar::TVar():
+	inum(),
+	dnum(),
+	vType(vtUnknown)
+{
+}
+
 TVar::TVar(__int64 v) :
 	inum(v),
 	dnum(),

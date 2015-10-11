@@ -419,13 +419,16 @@ void CreatePluginStartupInfo(const Plugin* pPlugin, PluginStartupInfo *PSI, FarS
 
 static void ShowMessageAboutIllegalPluginVersion(const string& plg,const VersionInfo& required)
 {
-	Message(MSG_WARNING|MSG_NOPLUGINS, 1,
+	Message(MSG_WARNING|MSG_NOPLUGINS,
 		MSG(MError),
-		MSG(MPlgBadVers),
-		plg.data(),
-		(LangString(MPlgRequired) << (FormatString() << required.Major << L'.' << required.Minor << L'.' << required.Revision << L'.' << required.Build)).data(),
-		(LangString(MPlgRequired2) << (FormatString() << FAR_VERSION.Major << L'.' << FAR_VERSION.Minor << L'.' << FAR_VERSION.Revision << L'.' << FAR_VERSION.Build)).data(),
-		MSG(MOk));
+		make_vector<string>(
+			MSG(MPlgBadVers),
+			plg,
+			string_format(MPlgRequired, (FormatString() << required.Major << L'.' << required.Minor << L'.' << required.Revision << L'.' << required.Build)),
+			string_format(MPlgRequired2, (FormatString() << FAR_VERSION.Major << L'.' << FAR_VERSION.Minor << L'.' << FAR_VERSION.Revision << L'.' << FAR_VERSION.Build))
+		),
+		make_vector<string>(MSG(MOk))
+	);
 }
 
 void Plugin::ExecuteFunction(ExecuteStruct& es, const std::function<void()>& f)
@@ -1202,12 +1205,12 @@ bool Plugin::GetPluginInfo(PluginInfo* Info)
 	return false;
 }
 
-int Plugin::GetContentFields(GetContentFieldsInfo *Info)
+int Plugin::GetContentFields(const GetContentFieldsInfo *Info)
 {
 	ExecuteStruct es = {iGetContentFields};
 	if (Load() && Exports[es.id] && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
+		const_cast<GetContentFieldsInfo*>(Info)->Instance = m_Instance;
 		EXECUTE_FUNCTION(es = FUNCTION(iGetContentFields)(Info));
 	}
 	return es;
@@ -1224,12 +1227,12 @@ int Plugin::GetContentData(GetContentDataInfo *Info)
 	return es;
 }
 
-void Plugin::FreeContentData(GetContentDataInfo *Info)
+void Plugin::FreeContentData(const GetContentDataInfo *Info)
 {
 	ExecuteStruct es = {iFreeContentData};
 	if (Load() && Exports[es.id] && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
+		const_cast<GetContentDataInfo*>(Info)->Instance = m_Instance;
 		EXECUTE_FUNCTION(FUNCTION(iFreeContentData)(Info));
 	}
 }

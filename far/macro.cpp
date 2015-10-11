@@ -407,7 +407,7 @@ static bool CallMacroPlugin(OpenMacroPluginInfo* Info)
 	return result && ptr;
 }
 
-template<class T> bool MacroPluginOp(double OpCode, T Param, MacroPluginReturn* Ret=nullptr)
+bool MacroPluginOp(double OpCode, const FarMacroValue& Param, MacroPluginReturn* Ret = nullptr)
 {
 	FarMacroValue values[]={OpCode,Param};
 	FarMacroCall fmc={sizeof(FarMacroCall),2,values,nullptr,nullptr};
@@ -1214,7 +1214,7 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 	auto MacroSettingsDlg = MakeDialogItemsEx(MacroSettingsDlgData);
 	string strKeyText;
 	KeyToText(Key,strKeyText);
-	MacroSettingsDlg[MS_DOUBLEBOX].strData = LangString(MMacroSettingsTitle) << strKeyText;
+	MacroSettingsDlg[MS_DOUBLEBOX].strData = string_format(MMacroSettingsTitle, strKeyText);
 	//if(!(Key&0x7F000000))
 	//MacroSettingsDlg[3].Flags|=DIF_DISABLE;
 	MacroSettingsDlg[MS_CHECKBOX_OUPUT].Selected=Flags&MFLAGS_ENABLEOUTPUT?1:0;
@@ -1453,66 +1453,55 @@ static int PassBoolean (int b, FarMacroCall* Data)
 	return 1;
 }
 
-static int PassValue (const TVar* Var, FarMacroCall* Data)
+static int PassValue (const TVar& Var, FarMacroCall* Data)
 {
 	if (Data->Callback)
 	{
 		FarMacroValue val;
 		double dd;
 
-		if (Var->isDouble())
-			val = Var->asDouble();
-		else if (Var->isString())
-			val = Var->asString();
-		else if (ToDouble(Var->asInteger(), &dd))
+		if (Var.isDouble())
+			val = Var.asDouble();
+		else if (Var.isString())
+			val = Var.asString();
+		else if (ToDouble(Var.asInteger(), &dd))
 			val = dd;
 		else
-			val = Var->asInteger();
+			val = Var.asInteger();
 
 		Data->Callback(Data->CallbackData, &val, 1);
 	}
 	return 1;
 }
 
-static void parseParams(TVar* Params, size_t Count, FarMacroCall* Data)
+static std::vector<TVar> parseParams(size_t Count, FarMacroCall* Data)
 {
-	size_t argNum = (Data->Count > Count) ? Count : Data->Count;
-
-	while (argNum < Count)
-		Params[--Count].SetType(vtUnknown);
-
-	for (size_t i=0; i<argNum; i++)
+	const auto argNum = std::min(Data->Count, Count);
+	std::vector<TVar> Params;
+	Params.reserve(Count);
+	std::transform(Data->Values, Data->Values + argNum, std::back_inserter(Params), [](const FarMacroValue& i) -> TVar
 	{
-		switch (Data->Values[i].Type)
+		switch (i.Type)
 		{
-			case FMVT_INTEGER:
-				Params[i] = Data->Values[i].Integer; break;
-			case FMVT_BOOLEAN:
-				Params[i] = Data->Values[i].Boolean; break;
-			case FMVT_DOUBLE:
-				Params[i] = Data->Values[i].Double; break;
-			case FMVT_STRING:
-				Params[i] = Data->Values[i].String; break;
-			default:
-				Params[i].SetType(vtUnknown); break;
+			case FMVT_INTEGER: return i.Integer;
+			case FMVT_BOOLEAN: return i.Boolean;
+			case FMVT_DOUBLE: return i.Double;
+			case FMVT_STRING: return i.String;
+			default: return TVar();
 		}
-	}
+	});
+	Params.resize(Count);
+	return Params;
 }
 
-template<size_t N>
-static const std::array<TVar, N> parseParams(FarMacroCall* Data)
+class LockOutput: noncopyable
 {
-	std::array<TVar, N> result;
-	parseParams(result.data(), N, Data);
-	return result;
-}
-
-class LockOutput
-{
-		bool dsbl;
 	public:
-		LockOutput(bool d) : dsbl(d) { if (dsbl) Global->ScrBuf->Lock(); }
-		~LockOutput() { if (dsbl) Global->ScrBuf->Unlock(); }
+		LockOutput(bool Lock): m_Lock(Lock) { if (m_Lock) Global->ScrBuf->Lock(); }
+		~LockOutput() { if (m_Lock) Global->ScrBuf->Unlock(); }
+
+private:
+	const bool m_Lock;
 };
 
 intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
@@ -2053,11 +2042,9 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_ITEMCOUNT: // ItemCount - число элементов в текущем объекте
 		case MCODE_V_CURPOS: // CurPos - текущий индекс в текущем объекте
 		{
-			auto f = Global->WindowManager->GetCurrentWindow();
-
-			if (f)
+			if (const auto Window = Global->WindowManager->GetCurrentWindow())
 			{
-				ret=f->VMProcess(CheckCode);
+				ret = Window->VMProcess(CheckCode);
 			}
 			return ret;
 		}
@@ -2328,7 +2315,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_F_BM_PUSH:             // N=BM.Push() - сохранить текущую позицию в виде закладки в конце стека
 		case MCODE_F_BM_POP:              // N=BM.Pop() - восстановить текущую позицию из закладки в конце стека и удалить закладку
 		{
-			auto Params = parseParams<2>(Data);
+			auto Params = parseParams(2, Data);
 			TVar& p1(Params[0]);
 			TVar& p2(Params[1]);
 
@@ -2347,7 +2334,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_F_MENU_GETVALUE:       // S=Menu.GetValue([N])
 		case MCODE_F_MENU_GETHOTKEY:      // S=gethotkey([N])
 		{
-			auto Params = parseParams<1>(Data);
+			auto Params = parseParams(1, Data);
 			TVar tmpVar=Params[0];
 
 			tmpVar.toInteger();
@@ -2396,14 +2383,14 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			else
 				tmpVar=L"";
 
-			PassValue(&tmpVar,Data);
+			PassValue(tmpVar,Data);
 			return 0;
 		}
 
 		case MCODE_F_MENU_SELECT:      // N=Menu.Select(S[,N[,Dir]])
 		case MCODE_F_MENU_CHECKHOTKEY: // N=checkhotkey(S[,N])
 		{
-			auto Params = parseParams<3>(Data);
+			auto Params = parseParams(3, Data);
 			__int64 Result=-1;
 			__int64 tmpMode=0;
 			__int64 tmpDir=0;
@@ -2438,7 +2425,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_F_MENU_FILTER:      // N=Menu.Filter([Action[,Mode]])
 		case MCODE_F_MENU_FILTERSTR:   // S=Menu.FilterStr([Action[,S]])
 		{
-			auto Params = parseParams<2>(Data);
+			auto Params = parseParams(2, Data);
 			bool success=false;
 			TVar& tmpAction(Params[0]);
 
@@ -2483,7 +2470,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					tmpVar = L"";
 			}
 
-			PassValue(&tmpVar,Data);
+			PassValue(tmpVar,Data);
 			return success;
 		}
 	}
@@ -2495,7 +2482,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 // S=trim(S[,N])
 static bool trimFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<2>(Data);
+	auto Params = parseParams(2, Data);
 	int  mode = (int) Params[1].asInteger();
 	string p = Params[0].toString();
 	bool Ret=true;
@@ -2527,7 +2514,7 @@ static bool substrFunc(FarMacroCall* Data)
 				если length = 0
 				если ...
 	*/
-	auto Params = parseParams<3>(Data);
+	auto Params = parseParams(3, Data);
 	bool Ret=false;
 
 	int  start     = (int)Params[1].asInteger();
@@ -2699,7 +2686,7 @@ static BOOL SplitFileName(const string& lpFullName,string &strDest,int nFlags)
 // S=fsplit(S,N)
 static bool fsplitFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<2>(Data);
+	auto Params = parseParams(2, Data);
 	int m = (int)Params[1].asInteger();
 	bool Ret=false;
 	string strPath;
@@ -2716,7 +2703,7 @@ static bool fsplitFunc(FarMacroCall* Data)
 // N=atoi(S[,radix])
 static bool atoiFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<2>(Data);
+	auto Params = parseParams(2, Data);
 	bool Ret=true;
 	long long Value = 0;
 	try
@@ -2734,9 +2721,8 @@ static bool atoiFunc(FarMacroCall* Data)
 // N=Window.Scroll(Lines[,Axis])
 static bool windowscrollFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<2>(Data);
+	auto Params = parseParams(2, Data);
 	bool Ret=false;
-	int L=0;
 
 	if (Global->Opt->WindowMode)
 	{
@@ -2750,18 +2736,17 @@ static bool windowscrollFunc(FarMacroCall* Data)
 		if (Console().ScrollWindow(Lines, Columns))
 		{
 			Ret=true;
-			L=1;
 		}
 	}
 
-	PassBoolean(L, Data);
+	PassBoolean(Ret, Data);
 	return Ret;
 }
 
 // S=itoa(N[,radix])
 static bool itowFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<2>(Data);
+	auto Params = parseParams(2, Data);
 	bool Ret=false;
 
 	if (Params[0].isInteger() || Params[0].isDouble())
@@ -2776,14 +2761,14 @@ static bool itowFunc(FarMacroCall* Data)
 		Params[0]=TVar(_i64tow(Params[0].toInteger(),value,Radix));
 	}
 
-	PassValue(&Params[0], Data);
+	PassValue(Params[0], Data);
 	return Ret;
 }
 
 // N=sleep(N)
 static bool sleepFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<1>(Data);
+	auto Params = parseParams(1, Data);
 	long Period=(long)Params[0].asInteger();
 
 	if (Period > 0)
@@ -2810,7 +2795,7 @@ static bool keybarshowFunc(FarMacroCall* Data)
 		3 - swap
 		ret: prev mode or -1 - KeyBar not found
     */
-	auto Params = parseParams<1>(Data);
+	auto Params = parseParams(1, Data);
 	auto f = Global->WindowManager->GetCurrentWindow();
 
 	PassNumber(f?f->VMProcess(MCODE_F_KEYBAR_SHOW,nullptr,Params[0].asInteger())-1:-1, Data);
@@ -2821,7 +2806,7 @@ static bool keybarshowFunc(FarMacroCall* Data)
 // S=key(V)
 static bool keyFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<1>(Data);
+	auto Params = parseParams(1, Data);
 	string strKeyText;
 
 	if (Params[0].isInteger() || Params[0].isDouble())
@@ -2845,7 +2830,7 @@ static bool keyFunc(FarMacroCall* Data)
 // V=waitkey([N,[T]])
 static bool waitkeyFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<2>(Data);
+	auto Params = parseParams(2, Data);
 	long Type=(long)Params[1].asInteger();
 	long Period=(long)Params[0].asInteger();
 	DWORD Key=WaitKey((DWORD)-1,Period);
@@ -2872,23 +2857,23 @@ static bool waitkeyFunc(FarMacroCall* Data)
 // n=min(n1,n2)
 static bool minFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<2>(Data);
-	PassValue(Params[1] < Params[0] ? &Params[1] : &Params[0], Data);
+	auto Params = parseParams(2, Data);
+	PassValue(std::min(Params[0], Params[1]), Data);
 	return true;
 }
 
 // n=max(n1.n2)
 static bool maxFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<2>(Data);
-	PassValue(Params[1] > Params[0]  ? &Params[1] : &Params[0], Data);
+	auto Params = parseParams(2, Data);
+	PassValue(std::max(Params[0], Params[1]), Data);
 	return true;
 }
 
 // n=mod(n1,n2)
 static bool modFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<2>(Data);
+	auto Params = parseParams(2, Data);
 
 	if (!Params[1].asInteger())
 	{
@@ -2897,15 +2882,14 @@ static bool modFunc(FarMacroCall* Data)
 		return false;
 	}
 
-	TVar tmp = Params[0] % Params[1];
-	PassValue(&tmp, Data);
+	PassValue(Params[0] % Params[1], Data);
 	return true;
 }
 
 // N=index(S1,S2[,Mode])
 static bool indexFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<3>(Data);
+	auto Params = parseParams(3, Data);
 	const auto& s = Params[0].toString();
 	const auto& p = Params[1].toString();
 	const auto i = Params[2].asInteger()? StrStr(s, p) : StrStrI(s, p);
@@ -2917,7 +2901,7 @@ static bool indexFunc(FarMacroCall* Data)
 // S=rindex(S1,S2[,Mode])
 static bool rindexFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<3>(Data);
+	auto Params = parseParams(3, Data);
 	const auto& s = Params[0].toString();
 	const auto& p = Params[1].toString();
 	const auto i = Params[2].asInteger()? RevStrStr(s, p) : RevStrStrI(s, p);
@@ -2929,7 +2913,7 @@ static bool rindexFunc(FarMacroCall* Data)
 // S=Size2Str(Size,Flags[,Width])
 static bool size2strFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<3>(Data);
+	auto Params = parseParams(3, Data);
 	int Width = (int)Params[2].asInteger();
 
 	string strDestStr;
@@ -2942,7 +2926,7 @@ static bool size2strFunc(FarMacroCall* Data)
 // S=date([S])
 static bool dateFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<1>(Data);
+	auto Params = parseParams(1, Data);
 
 	if (Params[0].isInteger() && !Params[0].asInteger())
 		Params[0]=L"";
@@ -2962,7 +2946,7 @@ static bool dateFunc(FarMacroCall* Data)
 */
 static bool xlatFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<2>(Data);
+	auto Params = parseParams(2, Data);
 	wchar_t* Str = const_cast<wchar_t*>(Params[0].toString().data());
 	bool Ret = Xlat(Str,0,StrLength(Str),Params[1].asInteger()) != nullptr;
 	PassString(Str, Data);
@@ -2972,7 +2956,7 @@ static bool xlatFunc(FarMacroCall* Data)
 // N=beep([N])
 static bool beepFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<1>(Data);
+	auto Params = parseParams(1, Data);
 	/*
 		MB_ICONASTERISK = 0x00000040
 			Звук Звездочка
@@ -3004,7 +2988,7 @@ static bool beepFunc(FarMacroCall* Data)
 		);
 	*/
 
-	PassBoolean(Ret?1:0, Data);
+	PassBoolean(Ret, Data);
 	return Ret;
 }
 
@@ -3022,7 +3006,7 @@ Res=kbdLayout([N])
 // N=kbdLayout([N])
 static bool kbdLayoutFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<1>(Data);
+	auto Params = parseParams(1, Data);
 	DWORD dwLayout = (DWORD)Params[0].asInteger();
 
 	BOOL Ret=TRUE;
@@ -3070,7 +3054,7 @@ static bool kbdLayoutFunc(FarMacroCall* Data)
 // S=prompt(["Title"[,"Prompt"[,flags[, "Src"[, "History"]]]]])
 static bool promptFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<5>(Data);
+	auto Params = parseParams(5, Data);
 	TVar& ValHistory(Params[4]);
 	TVar& ValSrc(Params[3]);
 	DWORD Flags = (DWORD)Params[2].asInteger();
@@ -3120,7 +3104,7 @@ static bool promptFunc(FarMacroCall* Data)
 // N=msgbox(["Title"[,"Text"[,flags]]])
 static bool msgBoxFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<3>(Data);
+	auto Params = parseParams(3, Data);
 	DWORD Flags = (DWORD)Params[2].asInteger();
 	TVar& ValB(Params[1]);
 	TVar& ValT(Params[0]);
@@ -3170,7 +3154,7 @@ static bool msgBoxFunc(FarMacroCall* Data)
 //0x800 -
 static bool menushowFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<6>(Data);
+	auto Params = parseParams(6, Data);
 	TVar& VY(Params[5]);
 	TVar& VX(Params[4]);
 	TVar& VFindOrFilter(Params[3]);
@@ -3497,14 +3481,14 @@ static bool menushowFunc(FarMacroCall* Data)
 	if (Window)
 		Window->Unlock();
 
-	PassValue(&Result, Data);
+	PassValue(Result, Data);
 	return true;
 }
 
 // S=Env(S[,Mode[,Value]])
 static bool environFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<3>(Data);
+	auto Params = parseParams(3, Data);
 	TVar& Value(Params[2]);
 	TVar& Mode(Params[1]);
 	TVar& S(Params[0]);
@@ -3532,7 +3516,7 @@ static bool environFunc(FarMacroCall* Data)
 // V=Panel.Select(panelType,Action[,Mode[,Items]])
 static bool panelselectFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<4>(Data);
+	auto Params = parseParams(4, Data);
 	TVar& ValItems(Params[3]);
 	int Mode=(int)Params[2].asInteger();
 	DWORD Action=(int)Params[1].asInteger();
@@ -3581,7 +3565,7 @@ static bool _fattrFunc(int Type, FarMacroCall* Data)
 
 	if (!Type || Type == 2) // не панели: fattr(0) & fexist(2)
 	{
-		auto Params = parseParams<1>(Data);
+		auto Params = parseParams(1, Data);
 		TVar& Str(Params[0]);
 		os::FAR_FIND_DATA FindData;
 		os::GetFindDataEx(Str.toString(), FindData);
@@ -3590,7 +3574,7 @@ static bool _fattrFunc(int Type, FarMacroCall* Data)
 	}
 	else // panel.fattr(1) & panel.fexist(3)
 	{
-		auto Params = parseParams<2>(Data);
+		auto Params = parseParams(2, Data);
 		TVar& S(Params[1]);
 		int typePanel=(int)Params[0].asInteger();
 		const auto& Str = S.toString();
@@ -3663,7 +3647,7 @@ static bool panelfexistFunc(FarMacroCall* Data)
 */
 static bool flockFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<2>(Data);
+	auto Params = parseParams(2, Data);
 	int Ret = -1;
 	int stateFLock=(int)Params[1].asInteger();
 	UINT vkKey=(UINT)Params[0].asInteger();
@@ -3694,7 +3678,7 @@ static bool flockFunc(FarMacroCall* Data)
 // N=Dlg->SetFocus([ID])
 static bool dlgsetfocusFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<1>(Data);
+	auto Params = parseParams(1, Data);
 	TVar Ret(-1);
 	unsigned Index=(unsigned)Params[0].asInteger()-1;
 
@@ -3710,14 +3694,14 @@ static bool dlgsetfocusFunc(FarMacroCall* Data)
 			}
 		}
 	}
-	PassValue(&Ret, Data);
+	PassValue(Ret, Data);
 	return Ret.asInteger() != -1; // ?? <= 0 ??
 }
 
 // V=Far.Cfg.Get(Key,Name)
 static bool farcfggetFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<2>(Data);
+	auto Params = parseParams(2, Data);
 	TVar& Name(Params[1]);
 	TVar& Key(Params[0]);
 
@@ -3773,7 +3757,7 @@ static bool fargetconfigFunc(FarMacroCall* Data)
 // V=Dlg->GetValue([Pos[,InfoID]])
 static bool dlggetvalueFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<2>(Data);
+	auto Params = parseParams(2, Data);
 	TVar Ret(-1);
 
 	if (Global->CtrlObject->Macro.GetArea()==MACROAREA_DIALOG)
@@ -3953,7 +3937,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 		}
 	}
 
-	PassValue(&Ret, Data);
+	PassValue(Ret, Data);
 	return Ret.asInteger() != -1;
 }
 
@@ -3961,7 +3945,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 // Op: 0 - get, 1 - set
 static bool editorposFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<3>(Data);
+	auto Params = parseParams(3, Data);
 	TVar Ret(-1);
 	int Where = (int)Params[2].asInteger();
 	int What  = (int)Params[1].asInteger();
@@ -4067,14 +4051,14 @@ static bool editorposFunc(FarMacroCall* Data)
 		}
 	}
 
-	PassValue(&Ret, Data);
+	PassValue(Ret, Data);
 	return Ret.asInteger() != -1;
 }
 
 // OldVar=Editor.Set(Idx,Value)
 static bool editorsetFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<2>(Data);
+	auto Params = parseParams(2, Data);
 	TVar Ret(-1);
 	TVar& Value(Params[1]);
 	int Index=(int)Params[0].asInteger();
@@ -4192,14 +4176,14 @@ static bool editorsetFunc(FarMacroCall* Data)
 		}
 	}
 
-	PassValue(&Ret, Data);
+	PassValue(Ret, Data);
 	return Ret.asInteger() == -1;
 }
 
 // V=Clip(N[,V])
 static bool clipFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<2>(Data);
+	auto Params = parseParams(2, Data);
 	TVar& Val(Params[1]);
 	int cmdType=(int)Params[0].asInteger();
 
@@ -4310,7 +4294,7 @@ static bool clipFunc(FarMacroCall* Data)
 */
 static bool panelsetposidxFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<3>(Data);
+	auto Params = parseParams(3, Data);
 	int InSelection=(int)Params[2].asInteger();
 	long idxItem=(long)Params[1].asInteger();
 	int typePanel=(int)Params[0].asInteger();
@@ -4423,11 +4407,11 @@ static bool panelsetposidxFunc(FarMacroCall* Data)
 // N=panel.SetPath(panelType,pathName[,fileName])
 static bool panelsetpathFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<3>(Data);
+	auto Params = parseParams(3, Data);
 	TVar& ValFileName(Params[2]);
 	TVar& Val(Params[1]);
 	int typePanel=(int)Params[0].asInteger();
-	__int64 Ret=0;
+	bool Ret = false;
 
 	if (!(Val.isInteger() && !Val.asInteger()))
 	{
@@ -4462,19 +4446,19 @@ static bool panelsetpathFunc(FarMacroCall* Data)
 				}
 				Global->WindowManager->RefreshWindow(Global->WindowManager->GetCurrentWindow());
 				// </Mantis#0000289>
-				Ret=1;
+				Ret = true;
 			}
 		}
 	}
 
 	PassBoolean(Ret, Data);
-	return Ret != 0;
+	return Ret;
 }
 
 // N=Panel.SetPos(panelType,fileName)
 static bool panelsetposFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<2>(Data);
+	auto Params = parseParams(2, Data);
 	TVar& Val(Params[1]);
 	int typePanel=(int)Params[0].asInteger();
 	const auto& fileName=Val.asString();
@@ -4522,7 +4506,7 @@ Mode:
 
 static bool replaceFunc(FarMacroCall* Data)
 {
-	const auto Params = parseParams<5>(Data);
+	const auto Params = parseParams(5, Data);
 	auto Src = Params[0].asString();
 	const auto& Find = Params[1].asString();
 	const auto& Repl = Params[2].asString();
@@ -4537,7 +4521,7 @@ static bool replaceFunc(FarMacroCall* Data)
 // V=Panel.Item(typePanel,Index,TypeInfo)
 static bool panelitemFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<3>(Data);
+	auto Params = parseParams(3, Data);
 	TVar& P2(Params[2]);
 	TVar& P1(Params[1]);
 	int typePanel=(int)Params[0].asInteger();
@@ -4548,7 +4532,7 @@ static bool panelitemFunc(FarMacroCall* Data)
 	auto SelPanel = TypeToPanel(typePanel);
 	if (!SelPanel)
 	{
-		PassValue(&Ret, Data);
+		PassValue(Ret, Data);
 		return false;
 	}
 
@@ -4556,7 +4540,7 @@ static bool panelitemFunc(FarMacroCall* Data)
 
 	if (!(TypePanel == FILE_PANEL || TypePanel ==TREE_PANEL))
 	{
-		PassValue(&Ret, Data);
+		PassValue(Ret, Data);
 		return false;
 	}
 
@@ -4676,51 +4660,51 @@ static bool panelitemFunc(FarMacroCall* Data)
 		}
 	}
 
-	PassValue(&Ret, Data);
+	PassValue(Ret, Data);
 	return false;
 }
 
 // N=len(V)
 static bool lenFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<1>(Data);
+	auto Params = parseParams(1, Data);
 	PassNumber(Params[0].toString().size(), Data);
 	return true;
 }
 
 static bool ucaseFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<1>(Data);
+	auto Params = parseParams(1, Data);
 	TVar& Val(Params[0]);
 	string Copy = Val.toString();
 	Val = ToUpper(Copy);
-	PassValue(&Val, Data);
+	PassValue(Val, Data);
 	return true;
 }
 
 static bool lcaseFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<1>(Data);
+	auto Params = parseParams(1, Data);
 	TVar& Val(Params[0]);
 	string Copy = Val.toString();
 	Val = ToLower(Copy);
-	PassValue(&Val, Data);
+	PassValue(Val, Data);
 	return true;
 }
 
 static bool stringFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<1>(Data);
+	auto Params = parseParams(1, Data);
 	TVar& Val(Params[0]);
 	Val.toString();
-	PassValue(&Val, Data);
+	PassValue(Val, Data);
 	return true;
 }
 
 // S=StrPad(Src,Cnt[,Fill[,Op]])
 static bool strpadFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<4>(Data);
+	auto Params = parseParams(4, Data);
 	TVar& Src(Params[0]);
 	if (Src.isUnknown())
 	{
@@ -4784,7 +4768,7 @@ static bool strpadFunc(FarMacroCall* Data)
 // S=StrWrap(Text,Width[,Break[,Flags]])
 static bool strwrapFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<4>(Data);
+	auto Params = parseParams(4, Data);
 	DWORD Flags=(DWORD)Params[3].asInteger();
 	TVar& Break(Params[2]);
 	int Width=(int)Params[1].asInteger();
@@ -4804,7 +4788,7 @@ static bool strwrapFunc(FarMacroCall* Data)
 
 static bool intFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<1>(Data);
+	auto Params = parseParams(1, Data);
 	TVar& Val(Params[0]);
 	Val.toInteger();
 	PassInteger(Val.asInteger(), Data);
@@ -4813,41 +4797,41 @@ static bool intFunc(FarMacroCall* Data)
 
 static bool floatFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<1>(Data);
+	auto Params = parseParams(1, Data);
 	TVar& Val(Params[0]);
 	Val.toDouble();
-	PassValue(&Val, Data);
+	PassValue(Val, Data);
 	return true;
 }
 
 static bool absFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<1>(Data);
+	auto Params = parseParams(1, Data);
 	TVar& tmpVar(Params[0]);
 
 	if (tmpVar < 0ll)
 		tmpVar=-tmpVar;
 
-	PassValue(&tmpVar, Data);
+	PassValue(tmpVar, Data);
 	return true;
 }
 
 static bool ascFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<1>(Data);
+	auto Params = parseParams(1, Data);
 	TVar& tmpVar(Params[0]);
 
 	if (tmpVar.isString())
 		PassNumber((DWORD)(WORD)*tmpVar.toString().data(), Data);
 	else
-		PassValue(&tmpVar, Data);
+		PassValue(tmpVar, Data);
 
 	return true;
 }
 
 static bool chrFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<1>(Data);
+	auto Params = parseParams(1, Data);
 	TVar tmpVar(Params[0]);
 
 	if (tmpVar.isNumber())
@@ -4857,14 +4841,14 @@ static bool chrFunc(FarMacroCall* Data)
 		tmpVar.toString();
 	}
 
-	PassValue(&tmpVar, Data);
+	PassValue(tmpVar, Data);
 	return true;
 }
 
 // N=FMatch(S,Mask)
 static bool fmatchFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<2>(Data);
+	auto Params = parseParams(2, Data);
 	TVar& Mask(Params[1]);
 	TVar& S(Params[0]);
 	filemasks FileMask;
@@ -4907,7 +4891,7 @@ static bool editorselFunc(FarMacroCall* Data)
 	              Opt: ignore
 	              return 1
 	*/
-	auto Params = parseParams<2>(Data);
+	auto Params = parseParams(2, Data);
 	TVar Ret(0ll);
 	TVar& Opts(Params[1]);
 	TVar& Action(Params[0]);
@@ -4924,14 +4908,14 @@ static bool editorselFunc(FarMacroCall* Data)
 			Ret=CurrentWindow->VMProcess(MCODE_F_EDITOR_SEL,ToPtr(Action.toInteger()),Opts.asInteger());
 	}
 
-	PassValue(&Ret, Data);
+	PassValue(Ret, Data);
 	return Ret.asInteger() == 1;
 }
 
 // V=Editor.Undo(Action)
 static bool editorundoFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<1>(Data);
+	auto Params = parseParams(1, Data);
 	TVar Ret(0ll);
 	TVar& Action(Params[0]);
 
@@ -4942,14 +4926,14 @@ static bool editorundoFunc(FarMacroCall* Data)
 		Ret = Global->WindowManager->GetCurrentEditor()->EditorControl(ECTL_UNDOREDO,0,&eur);
 	}
 
-	PassValue(&Ret, Data);
+	PassValue(Ret, Data);
 	return Ret.asInteger()!=0;
 }
 
 // N=Editor.SetTitle([Title])
 static bool editorsettitleFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<1>(Data);
+	auto Params = parseParams(1, Data);
 	TVar Ret(0ll);
 	TVar& Title(Params[0]);
 
@@ -4963,14 +4947,14 @@ static bool editorsettitleFunc(FarMacroCall* Data)
 		Ret = Global->WindowManager->GetCurrentEditor()->EditorControl(ECTL_SETTITLE, 0, const_cast<wchar_t*>(Title.asString().data()));
 	}
 
-	PassValue(&Ret, Data);
+	PassValue(Ret, Data);
 	return Ret.asInteger()!=0;
 }
 
 // N=Editor.DelLine([Line])
 static bool editordellineFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<1>(Data);
+	auto Params = parseParams(1, Data);
 	TVar Ret(0ll);
 	TVar& Line(Params[0]);
 
@@ -4982,14 +4966,14 @@ static bool editordellineFunc(FarMacroCall* Data)
 		}
 	}
 
-	PassValue(&Ret, Data);
+	PassValue(Ret, Data);
 	return Ret.asInteger()!=0;
 }
 
 // N=Editor.InsStr([S[,Line]])
 static bool editorinsstrFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<2>(Data);
+	auto Params = parseParams(2, Data);
 	TVar Ret(0ll);
 	TVar& S(Params[0]);
 	TVar& Line(Params[1]);
@@ -5008,14 +4992,14 @@ static bool editorinsstrFunc(FarMacroCall* Data)
 		}
 	}
 
-	PassValue(&Ret, Data);
+	PassValue(Ret, Data);
 	return Ret.asInteger()!=0;
 }
 
 // N=Editor.SetStr([S[,Line]])
 static bool editorsetstrFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<2>(Data);
+	auto Params = parseParams(2, Data);
 	TVar Ret(0ll);
 	TVar& S(Params[0]);
 	TVar& Line(Params[1]);
@@ -5034,32 +5018,32 @@ static bool editorsetstrFunc(FarMacroCall* Data)
 		}
 	}
 
-	PassValue(&Ret, Data);
+	PassValue(Ret, Data);
 	return Ret.asInteger()!=0;
 }
 
 // N=Plugin.Exist(Guid)
 static bool pluginexistFunc(FarMacroCall* Data)
 {
-	int Ret=0;
+	bool Ret = false;
 	if (Data->Count>0 && Data->Values[0].Type==FMVT_STRING)
 	{
 		GUID guid;
-		Ret=(StrToGuid(Data->Values[0].String,guid) && Global->CtrlObject->Plugins->FindPlugin(guid))?1:0;
+		Ret = StrToGuid(Data->Values[0].String,guid) && Global->CtrlObject->Plugins->FindPlugin(guid);
 	}
 	PassBoolean(Ret, Data);
-	return Ret != 0;
+	return Ret;
 }
 
 // N=Plugin.Load(DllPath[,ForceLoad])
 static bool pluginloadFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<2>(Data);
+	auto Params = parseParams(2, Data);
 	TVar Ret(0ll);
 	TVar& ForceLoad(Params[1]);
 	const auto& DllPath = Params[0].asString();
 	Ret = pluginapi::apiPluginsControl(nullptr, !ForceLoad.asInteger()?PCTL_LOADPLUGIN:PCTL_FORCEDLOADPLUGIN, 0, const_cast<wchar_t*>(DllPath.data()));
-	PassValue(&Ret, Data);
+	PassValue(Ret, Data);
 	return Ret.asInteger()!=0;
 }
 
@@ -5090,7 +5074,7 @@ TSTFLD_ERROR     (-2) - ошибка (кривые параметры или не хватило памяти для выдел
 */
 static bool testfolderFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams<1>(Data);
+	auto Params = parseParams(1, Data);
 	TVar& tmpVar(Params[0]);
 	__int64 Ret=TSTFLD_ERROR;
 
@@ -5239,18 +5223,18 @@ M1:
 				InsertQuote(strBufKey);
 
 				bool SetChange = m_RecCode.empty();
-				LangString strBuf;
+				LNGID MessageTemplate;
 				if (Data.Area==MACROAREA_COMMON_INTERNAL)
 				{
-					strBuf = SetChange ? MMacroCommonDeleteKey : MMacroCommonReDefinedKey;
+					MessageTemplate = SetChange? MMacroCommonDeleteKey : MMacroCommonReDefinedKey;
 					//"Общая макроклавиша '%1'   будет удалена : уже определена."
 				}
 				else
 				{
-					strBuf = SetChange ? MMacroDeleteKey : MMacroReDefinedKey;
+					MessageTemplate = SetChange? MMacroDeleteKey : MMacroReDefinedKey;
 					//"Макроклавиша '%1'   будет удалена : уже определена."
 				}
-				strBuf << strKeyText;
+				const auto strBuf = string_format(MessageTemplate, strKeyText);
 
 				int Result=0;
 				{

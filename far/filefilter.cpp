@@ -168,7 +168,7 @@ bool FileFilter::FilterEdit()
 			ScanTree ScTree(false, false);
 			ScTree.SetFindPath(GetHostPanel()->GetCurDir(), L"*");
 
-			while (ScTree.GetNextName(&fdata,strFileName))
+			while (ScTree.GetNextName(fdata,strFileName))
 				if (!ParseAndAddMasks(Extensions, fdata.strFileName, fdata.dwFileAttributes, 0))
 					break;
 		}
@@ -711,7 +711,7 @@ final:
 bool FileFilter::FileInFilter(const PluginPanelItem& fd,enumFileInFilterType *foundType)
 {
 	os::FAR_FIND_DATA fde;
-	PluginPanelItemToFindDataEx(&fd,&fde);
+	PluginPanelItemToFindDataEx(fd, fde);
 	return FileInFilter(fde, foundType, &fde.strFileName);
 }
 

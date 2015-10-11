@@ -230,7 +230,7 @@ private:
 	FormatString strSrc, strDst;
 	string strTime;
 	string m_Speed;
-	LangString strFiles;
+	string strFiles;
 
 	// BUGBUG
 public:
@@ -428,13 +428,11 @@ void CopyProgress::SetNames(const string& Src, const string& Dst)
 
 	if (m_Total)
 	{
-		strFiles = MCopyFilesTotalInfo;
-		strFiles << m_Files.Total << m_Files.Copied;
+		strFiles = string_format(MCopyFilesTotalInfo, m_Files.Total, m_Files.Copied);
 	}
 	else
 	{
-		strFiles = MCopyFilesProcessed;
-		strFiles << m_Files.Copied;
+		strFiles = string_format(MCopyFilesProcessed, m_Files.Copied);
 	}
 
 	DrawNames();
@@ -449,20 +447,19 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 	}
 
 	{
-		LangString strBytes;
-		string BytesTotal, BytesProcessed;
+		string strBytes;
+		string BytesProcessed;
 		InsertCommas(GetBytesDone(), BytesProcessed);
 
 		if (m_Total)
 		{
-			strBytes = MCopyBytesTotalInfo;
+			string BytesTotal;
 			InsertCommas(m_Bytes.Total, BytesTotal);
-			strBytes << BytesTotal << BytesProcessed;
+			strBytes = string_format(MCopyBytesTotalInfo, BytesTotal, BytesProcessed);
 		}
 		else
 		{
-			strBytes = MCopyBytesProcessed;
-			strBytes << BytesProcessed;
+			strBytes = string_format(MCopyBytesProcessed, BytesProcessed);
 		}
 
 		Text(Rect.Left + 5, Rect.Top + 9, Color, strBytes);
@@ -497,7 +494,7 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 
 		if (!WorkTime)
 		{
-			strTime = LangString(MCopyTimeInfo) << L"        " << L"        " << L"        ";
+			strTime = string_format(MCopyTimeInfo, L"        ", L"        ", L"        ");
 		}
 		else
 		{
@@ -526,7 +523,7 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 			tmp[0] = FormatString() << fmt::ExactWidth(8) << strWorkTimeStr;
 			tmp[1] = FormatString() << fmt::ExactWidth(8) << strTimeLeftStr;
 			tmp[2] = FormatString() << fmt::ExactWidth(8) << m_Speed;
-			strTime = LangString(MCopyTimeInfo) << tmp[0] << tmp[1] << tmp[2];
+			strTime = string_format(MCopyTimeInfo, tmp[0], tmp[1], tmp[2]);
 		}
 
 		Text(Rect.Left + 5, Rect.Top + (m_Total? 12 : 11), Color, strTime);
@@ -1091,7 +1088,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 			else if (StrItems[LenItems-1] == '1')
 				NItems=MCMLItems0;
 		}
-		strCopyStr = LangString(Move? MMoveFiles : (Link? MLinkFiles : MCopyFiles)) << SelCount << MSG(NItems);
+		strCopyStr = string_format(Move? MMoveFiles : Link? MLinkFiles : MCopyFiles, SelCount, MSG(NItems));
 	}
 
 	CopyDlg[ID_SC_SOURCEFILENAME].strData=strCopyStr;
@@ -2024,7 +2021,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 			int NeedRename=!((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (Flags&FCOPY_COPYSYMLINKCONTENTS) && (Flags&FCOPY_MOVE));
 			ScTree.SetFindPath(strSubName,L"*",FSCANTREE_FILESFIRST);
 
-			while (ScTree.GetNextName(&SrcData,strFullName))
+			while (ScTree.GetNextName(SrcData,strFullName))
 			{
 				if (m_UseFilter && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 				{
@@ -3273,7 +3270,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::FAR_FIND_DATA &SrcD
 							{
 								DestFile.Close();
 								int MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE, MSG(MError),
-									make_vector(strDestName),
+									make_vector<string>(strDestName),
 									make_vector<string>(MSG(MSplit), MSG(MSkip), MSG(MRetry), MSG(MCancel)),
 									L"CopyFiles");
 								PR_ShellCopyMsg();
@@ -3984,7 +3981,7 @@ int ShellCopy::SetRecursiveSecurity(const string& FileName,const os::FAR_SECURIT
 
 			string strFullName;
 			os::FAR_FIND_DATA SrcData;
-			while (ScTree.GetNextName(&SrcData,strFullName))
+			while (ScTree.GetNextName(SrcData,strFullName))
 			{
 				if (!ShellCopySecuryMsg(CP.get(), strFullName))
 					break;

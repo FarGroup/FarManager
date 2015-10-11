@@ -4381,7 +4381,7 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 		{
 			if (Param2&&(size_t)Param1>strFullFileName.size())
 			{
-				wcscpy(static_cast<LPWSTR>(Param2),strFullFileName.data());
+				*std::copy(ALL_CONST_RANGE(strFullFileName), static_cast<wchar_t*>(Param2)) = L'\0';
 			}
 
 			return static_cast<int>(strFullFileName.size()+1);

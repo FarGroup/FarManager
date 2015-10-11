@@ -790,7 +790,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 	return Result;
 }
-#include "pathmix.hpp"
+
 int wmain(int Argc, wchar_t *Argv[])
 {
 	try

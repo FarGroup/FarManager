@@ -38,12 +38,11 @@ public:
 	void reset(size_t size, bool init = false) { m_array.reset(init? new T[size]() : new T[size]); m_size = size;}
 	void reset() { m_array.reset(); m_size = 0; }
 	void swap(array_ptr& other) noexcept { using std::swap; m_array.swap(other.m_array); swap(m_size, other.m_size); }
-	size_t size() const {return m_size;}
-	bool operator!() const noexcept { return !get(); }
+	size_t size() const noexcept { return m_size; }
+	bool operator!() const noexcept { return !m_array; }
 	T* get() const {return m_array.get();}
-	T* operator->() const { return get(); }
-	T& operator*() const { return *get(); }
-	T& operator[](size_t n) const { return get()[n]; }
+	T& operator[](size_t n) const { assert(n < m_size); return m_array[n]; }
+
 private:
 	std::unique_ptr<T[]> m_array;
 	size_t m_size;
@@ -61,24 +60,25 @@ public:
 	block_ptr(size_t size, bool init = false):char_ptr(size, init){}
 	MOVE_OPERATOR_BY_SWAP(block_ptr);
 	T* get() const {return reinterpret_cast<T*>(char_ptr::get());}
-	T* operator->() const {return get();}
+	T* operator->() const noexcept { return get(); }
 	T& operator*() const {return *get();}
 };
 
 template <typename T>
 class unique_ptr_with_ondestroy: public conditional<unique_ptr_with_ondestroy<T>>
 {
-private:
-	typedef std::unique_ptr<T> ptr_type;
-	ptr_type ptr;
-	void OnDestroy(void) { if (ptr)ptr->OnDestroy(); }
 public:
 	~unique_ptr_with_ondestroy() { OnDestroy(); }
 	T* get() const { return ptr.get(); }
-	T* operator->() const { return get(); }
-	T& operator*() const { return *get(); }
+	T* operator->() const noexcept { return ptr.operator->(); }
+	T& operator*() const { return *ptr; }
 	bool operator!() const noexcept { return !ptr; }
-	unique_ptr_with_ondestroy& operator=(ptr_type&& value) noexcept { OnDestroy(); ptr = std::move(value); return *this; }
+	unique_ptr_with_ondestroy& operator=(std::unique_ptr<T>&& value) noexcept{ OnDestroy(); ptr = std::move(value); return *this; }
+
+private:
+	void OnDestroy(void) { if (ptr) ptr->OnDestroy(); }
+
+	std::unique_ptr<T> ptr;
 };
 
 struct file_closer

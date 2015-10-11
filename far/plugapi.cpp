@@ -1603,7 +1603,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 
 			time_check TimeCheck(time_check::delayed, GetRedrawTimeout());
 			bool MsgOut = false;
-			while (ScTree.GetNextName(&FindData,strFullName))
+			while (ScTree.GetNextName(FindData,strFullName))
 			{
 				if (TimeCheck)
 				{
@@ -1625,7 +1625,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 				auto& Item = Items->back();
 				ClearStruct(Item);
 				FindData.strFileName = strFullName;
-				FindDataExToPluginPanelItem(&FindData, &Item);
+				FindDataExToPluginPanelItem(FindData, Item);
 			}
 
 			*pItemsNumber=Items->size();
@@ -1966,7 +1966,7 @@ static intptr_t apiTControl(intptr_t Id, command_type Command, intptr_t Param1, 
 
 	if (Id == -1)
 	{
-		auto CurrentObject = (Global->WindowManager->*Getter)();
+		const auto CurrentObject = (*Global->WindowManager.*Getter)();
 		return CurrentObject ? (CurrentObject->*Control)(Command, Param1, Param2) : 0;
 	}
 	else
@@ -1979,13 +1979,12 @@ static intptr_t apiTControl(intptr_t Id, command_type Command, intptr_t Param1, 
 
 		FOR(const auto& i, Functions)
 		{
-			const size_t count = (Global->WindowManager->*i.second)();
+			const size_t count = (*Global->WindowManager.*i.second)();
 			for (size_t j = 0; j < count; ++j)
 			{
-				if (auto CurrentWindow = std::dynamic_pointer_cast<window_type>((Global->WindowManager->*i.first)(j)))
+				if (const auto CurrentWindow = std::dynamic_pointer_cast<window_type>((*Global->WindowManager.*i.first)(j)))
 				{
-					auto CurrentControlWindow=CurrentWindow->GetById(Id);
-					if (CurrentControlWindow)
+					if (const auto CurrentControlWindow = CurrentWindow->GetById(Id))
 					{
 						return (CurrentControlWindow->*Control)(Command, Param1, Param2);
 					}
@@ -2906,12 +2905,12 @@ void WINAPI apiRecursiveSearch(const wchar_t *InitDir, const wchar_t *Mask, FRSU
 		ScTree.SetFindPath(InitDir,L"*");
 
 		bool Found = false;
-		while (!Found && ScTree.GetNextName(&FindData,strFullName))
+		while (!Found && ScTree.GetNextName(FindData,strFullName))
 		{
 			if (FMask.Compare(FindData.strFileName))
 			{
 				PluginPanelItem fdata = {};
-				FindDataExToPluginPanelItem(&FindData, &fdata);
+				FindDataExToPluginPanelItem(FindData, fdata);
 
 				Found = !Func(&fdata,strFullName.data(),Param);
 				FreePluginPanelItem(fdata);

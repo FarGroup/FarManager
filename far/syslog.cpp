@@ -646,7 +646,7 @@ void ManagerClass_Dump(const wchar_t *Title,FILE *fp)
 
 	if (fp)
 	{
-		const Manager *Man = Global->WindowManager;
+		const auto& Man = Global->WindowManager;
 //StartSysLog
 		string Type,Name;
 		fwprintf(fp,L"**** Queue modal windows ***\nwindows count=%u\n",Man->m_windows.size());

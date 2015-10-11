@@ -346,7 +346,7 @@ bool FileFilterParams::FileInFilter(const os::FAR_FIND_DATA& fde, unsigned __int
 bool FileFilterParams::FileInFilter(const PluginPanelItem& fd, unsigned __int64 CurrentTime) const
 {
 	os::FAR_FIND_DATA fde;
-	PluginPanelItemToFindDataEx(&fd, &fde);
+	PluginPanelItemToFindDataEx(fd, fde);
 	return FileInFilter(fde, CurrentTime, &fde.strFileName);
 }
 

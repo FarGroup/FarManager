@@ -1397,22 +1397,17 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 		{
 			if (!StopEvent.Signaled())
 			{
-				LangString strDataStr(MFindFound);
-				strDataStr << itd->GetFileCount() << itd->GetDirCount();
+				const auto strDataStr = string_format(MFindFound, itd->GetFileCount(), itd->GetDirCount());
 				Dlg->SendMessage(DM_SETTEXTPTR,FD_SEPARATOR1, UNSAFE_CSTR(strDataStr));
 
-				LangString strSearchStr(MFindSearchingIn);
+				string strSearchStr;
 
 				if (!strFindStr.empty())
 				{
 					string strFStr(strFindStr);
 					TruncStrFromEnd(strFStr,10);
-					string strTemp(L" \"");
-					strTemp+=strFStr+=L"\"";
-					strSearchStr << strTemp;
+					strSearchStr = string_format(MFindSearchingIn, L" \"" + strFStr + L"\"");
 				}
-				else
-					strSearchStr << L"";
 
 				string strFM;
 				itd->GetFindMessage(strFM);
@@ -1436,8 +1431,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 	if(!Finalized && StopEvent.Signaled())
 	{
-		LangString strMessage(MFindDone);
-		strMessage << itd->GetFileCount() << itd->GetDirCount();
+		const auto strMessage = string_format(MFindDone, itd->GetFileCount(), itd->GetDirCount());
 		Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
 		Dlg->SendMessage( DM_SETTEXTPTR, FD_SEPARATOR1, nullptr);
 		Dlg->SendMessage( DM_SETTEXTPTR, FD_TEXT_STATUS, UNSAFE_CSTR(strMessage));
@@ -2179,7 +2173,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg, const string& FullName, const os::FAR
 void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, PluginPanelItem& FindData)
 {
 	os::FAR_FIND_DATA fdata;
-	PluginPanelItemToFindDataEx(&FindData, &fdata);
+	PluginPanelItemToFindDataEx(FindData, fdata);
 	AddMenuRecord(Dlg,FullName, fdata, FindData.UserData.Data, FindData.UserData.FreeData);
 	FindData.UserData.FreeData = nullptr; //передано в FINDLIST
 }
@@ -2289,7 +2283,7 @@ void FindFiles::DoScanTree(Dialog* Dlg, const string& strRoot)
 		os::FAR_FIND_DATA FindData;
 		string strFullName;
 
-		while (!StopEvent.Signaled() && ScTree.GetNextName(&FindData,strFullName))
+		while (!StopEvent.Signaled() && ScTree.GetNextName(FindData,strFullName))
 		{
 			os::find_handle FindStream;
 
@@ -2685,16 +2679,16 @@ bool FindFiles::FindFilesProcess()
 		}
 	}
 
-	LangString strSearchStr(MFindSearchingIn);
+	string strSearchStr;
 
 	if (!strFindStr.empty())
 	{
 		string strFStr=strFindStr;
-		strSearchStr << L" " + InsertQuote(TruncStrFromEnd(strFStr,10));
+		strSearchStr = string_format(MFindSearchingIn, L" " + InsertQuote(TruncStrFromEnd(strFStr, 10)));
 	}
 	else
 	{
-		strSearchStr << L"";
+		strSearchStr = string_format(MFindSearchingIn, strFindStr);
 	}
 
 	int DlgWidth = ScrX + 1 - 2;
@@ -2800,7 +2794,7 @@ bool FindFiles::FindFilesProcess()
 							}
 							PanelItems.emplace_back(VALUE_TYPE(PanelItems)());
 							PluginPanelItem& pi = PanelItems.back();
-							FindDataExToPluginPanelItem(&i.FindData, &pi);
+							FindDataExToPluginPanelItem(i.FindData, pi);
 
 							if (IsArchive)
 								pi.FileAttributes = 0;

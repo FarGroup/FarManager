@@ -90,9 +90,9 @@ public:
 	virtual void* Analyse(AnalyseInfo *Info) override { return nullptr; }
 	virtual void CloseAnalyse(CloseAnalyseInfo* Info) override {}
 
-	virtual int GetContentFields(GetContentFieldsInfo* Info) override { return 0; }
+	virtual int GetContentFields(const GetContentFieldsInfo* Info) override { return 0; }
 	virtual int GetContentData(GetContentDataInfo* Info) override { return 0; }
-	virtual void FreeContentData(GetContentDataInfo* Info) override {}
+	virtual void FreeContentData(const GetContentDataInfo* Info) override {}
 
 	virtual void* OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode) override;
 	virtual bool CheckMinFarVersion() override;

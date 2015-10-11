@@ -537,7 +537,7 @@ void Options::MaskGroupsSettings()
 						}
 						MasksMenu->SetPosition(-1, -1, -1, -1);
 						MasksMenu->SetTitle(Value);
-						MasksMenu->SetBottomTitle(LangString(MMaskGroupTotal) << MasksMenu->GetShowItemCount());
+						MasksMenu->SetBottomTitle(string_format(MMaskGroupTotal, MasksMenu->GetShowItemCount()));
 						Filter = true;
 					}
 				}

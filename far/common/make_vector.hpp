@@ -28,19 +28,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #if defined _MSC_VER && _MSC_VER < 1800
-template<class T1>
-std::vector<typename std::remove_const<typename std::decay<T1>::type>::type> make_vector(T1&& a1)
+template<class T, class T1>
+std::vector<T> make_vector(T1&& a1)
 {
-	std::vector<typename std::remove_const<typename std::decay<T1>::type>::type> v;
-	v.emplace_back(std::forward<T1>(a1));
-	return v;
+	return std::vector<T>(1, std::forward<T1>(a1));
 }
 
 #define MAKE_VECTOR_VTE(TYPENAME_LIST, ARG_LIST, REF_ARG_LIST, FWD_ARG_LIST) \
-template<TYPENAME_LIST, VTE_TYPENAME(last)> \
-std::vector<typename std::remove_const<typename std::decay<VTE_TYPE(a1)>::type>::type> make_vector(REF_ARG_LIST, VTE_REF_ARG(last)) \
+template<class T, TYPENAME_LIST, VTE_TYPENAME(last)> \
+std::vector<T> make_vector(REF_ARG_LIST, VTE_REF_ARG(last)) \
 { \
-	auto v = make_vector(FWD_ARG_LIST); \
+	auto v = make_vector<T>(FWD_ARG_LIST); \
 	v.emplace_back(VTE_FWD_ARG(last)); \
 	return v; \
 }
@@ -53,8 +51,8 @@ VTE_GENERATE(MAKE_VECTOR_VTE)
 
 #else
 template<class T, class... Args>
-std::vector<typename std::remove_const<typename std::decay<T>::type>::type> make_vector(T&& value, Args&&... args)
+std::vector<T> make_vector(Args&&... args)
 {
-	return std::vector<typename std::remove_const<typename std::decay<T>::type>::type>{std::forward<T>(value), std::forward<Args>(args)...};
+	return std::vector<T>{ std::forward<Args>(args)... };
 }
 #endif

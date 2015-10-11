@@ -114,36 +114,36 @@ enum SELECT_MODES
 namespace custom_sort
 {
 
-static void FileListToSortingPanelItem(const FileListItem *fi, SortingPanelItem *pi)
+static void FileListToSortingPanelItem(const FileListItem& fi, SortingPanelItem& pi)
 {
-	pi->FileName = fi->strName.data();               //! CHANGED
-	pi->AlternateFileName = fi->strShortName.data(); //! CHANGED
-	pi->FileSize=fi->FileSize;
-	pi->AllocationSize=fi->AllocationSize;
-	pi->FileAttributes=fi->FileAttr;
-	pi->LastWriteTime=fi->WriteTime;
-	pi->CreationTime=fi->CreationTime;
-	pi->LastAccessTime=fi->AccessTime;
-	pi->ChangeTime=fi->ChangeTime;
-	pi->NumberOfLinks=fi->NumberOfLinks;
-	pi->Flags=fi->UserFlags;
+	pi.FileName = fi.strName.data();               //! CHANGED
+	pi.AlternateFileName = fi.strShortName.data(); //! CHANGED
+	pi.FileSize=fi.FileSize;
+	pi.AllocationSize=fi.AllocationSize;
+	pi.FileAttributes=fi.FileAttr;
+	pi.LastWriteTime=fi.WriteTime;
+	pi.CreationTime=fi.CreationTime;
+	pi.LastAccessTime=fi.AccessTime;
+	pi.ChangeTime=fi.ChangeTime;
+	pi.NumberOfLinks=fi.NumberOfLinks;
+	pi.Flags=fi.UserFlags;
 
-	if (fi->Selected)
-		pi->Flags|=PPIF_SELECTED;
+	if (fi.Selected)
+		pi.Flags|=PPIF_SELECTED;
 
-	pi->CustomColumnData=fi->CustomColumnData;
-	pi->CustomColumnNumber=fi->CustomColumnNumber;
-	pi->Description=fi->DizText; //BUGBUG???
+	pi.CustomColumnData=fi.CustomColumnData;
+	pi.CustomColumnNumber=fi.CustomColumnNumber;
+	pi.Description=fi.DizText; //BUGBUG???
 
-	pi->UserData.Data=fi->UserData;
-	pi->UserData.FreeData=fi->Callback;
+	pi.UserData.Data=fi.UserData;
+	pi.UserData.FreeData=fi.Callback;
 
-	pi->CRC32=fi->CRC32;
-	pi->Position=fi->Position;                        //! CHANGED
-	pi->SortGroup=fi->SortGroup - DEFAULT_SORT_GROUP; //! CHANGED
-	pi->Owner = EmptyToNull(fi->strOwner.data());
-	pi->NumberOfStreams=fi->NumberOfStreams;
-	pi->StreamsSize=fi->StreamsSize;
+	pi.CRC32=fi.CRC32;
+	pi.Position=fi.Position;                        //! CHANGED
+	pi.SortGroup=fi.SortGroup - DEFAULT_SORT_GROUP; //! CHANGED
+	pi.Owner = EmptyToNull(fi.strOwner.data());
+	pi.NumberOfStreams=fi.NumberOfStreams;
+	pi.StreamsSize=fi.StreamsSize;
 }
 
 struct CustomSort
@@ -400,8 +400,8 @@ static struct list_less
 		if (hSortPlugin)
 		{
 			PluginPanelItem pi1, pi2;
-			FileList::FileListToPluginItem(a, &pi1);
-			FileList::FileListToPluginItem(b, &pi2);
+			FileList::FileListToPluginItem(a, pi1);
+			FileList::FileListToPluginItem(b, pi2);
 			pi1.Flags = a.Selected? PPIF_SELECTED : 0;
 			pi2.Flags = b.Selected? PPIF_SELECTED : 0;
 			RetCode=Global->CtrlObject->Plugins->Compare(hSortPlugin,&pi1,&pi2,ListSortMode+(SM_UNSORTED-UNSORTED));
@@ -1726,7 +1726,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 					if (!NewFile)
 					{
 						PluginPanelItem PanelItem;
-						FileListToPluginItem(*CurPtr, &PanelItem);
+						FileListToPluginItem(*CurPtr, PanelItem);
 						int Result=Global->CtrlObject->Plugins->GetFile(m_hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|(Edit ? OPM_EDIT:OPM_VIEW));
 						FreePluginPanelItem(PanelItem);
 
@@ -1819,7 +1819,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 									strTempName = strPath + ItemIterator->strFileName;
 							}
 
-							if (FileNameToPluginItem(strTempName,&PanelItem))
+							if (FileNameToPluginItem(strTempName, PanelItem))
 							{
 								int PutCode = Global->CtrlObject->Plugins->PutFiles(m_hPlugin, &PanelItem, 1, false, OPM_EDIT);
 
@@ -2543,7 +2543,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 
 			os::CreateDirectory(strTempDir,nullptr);
 			PluginPanelItem PanelItem;
-			FileListToPluginItem(*CurPtr, &PanelItem);
+			FileListToPluginItem(*CurPtr, PanelItem);
 			int Result=Global->CtrlObject->Plugins->GetFile(m_hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|OPM_VIEW);
 			FreePluginPanelItem(PanelItem);
 
@@ -4101,7 +4101,7 @@ void FileList::UpdateViewPanel()
 
 			os::CreateDirectory(strTempDir,nullptr);
 			PluginPanelItem PanelItem;
-			FileListToPluginItem(*CurPtr, &PanelItem);
+			FileListToPluginItem(*CurPtr, PanelItem);
 			int Result=Global->CtrlObject->Plugins->GetFile(m_hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|OPM_VIEW|OPM_QUICKVIEW);
 			FreePluginPanelItem(PanelItem);
 
@@ -5356,7 +5356,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 			PluginPanelItem PanelItem={};
 			const auto strSaveDir = os::GetCurrentDirectory();
 
-			if (FileNameToPluginItem(CurPlugin.m_HostFile,&PanelItem))
+			if (FileNameToPluginItem(CurPlugin.m_HostFile, PanelItem))
 			{
 				Global->CtrlObject->Plugins->PutFiles(m_hPlugin, &PanelItem, 1, false, 0);
 			}
@@ -5445,7 +5445,7 @@ void FileList::PopPrevData(const string& DefaultName,bool Closed,bool UsePrev,bo
 		m_CurFile = m_CurTopFile = 0;
 }
 
-int FileList::FileNameToPluginItem(const string& Name,PluginPanelItem *pi)
+int FileList::FileNameToPluginItem(const string& Name,PluginPanelItem& pi)
 {
 	string strTempDir = Name;
 
@@ -5453,12 +5453,12 @@ int FileList::FileNameToPluginItem(const string& Name,PluginPanelItem *pi)
 		return FALSE;
 
 	FarChDir(strTempDir);
-	ClearStruct(*pi);
+	ClearStruct(pi);
 	os::FAR_FIND_DATA fdata;
 
 	if (os::GetFindDataEx(Name, fdata))
 	{
-		FindDataExToPluginPanelItem(&fdata, pi);
+		FindDataExToPluginPanelItem(fdata, pi);
 		return TRUE;
 	}
 
@@ -5466,44 +5466,44 @@ int FileList::FileNameToPluginItem(const string& Name,PluginPanelItem *pi)
 }
 
 
-void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItem *pi)
+void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItem& pi)
 {
-	pi->FileName = DuplicateString(fi.strName.data());
-	pi->AlternateFileName = DuplicateString(fi.strShortName.data());
-	pi->FileSize=fi.FileSize;
-	pi->AllocationSize=fi.AllocationSize;
-	pi->FileAttributes=fi.FileAttr;
-	pi->LastWriteTime=fi.WriteTime;
-	pi->CreationTime=fi.CreationTime;
-	pi->LastAccessTime=fi.AccessTime;
-	pi->ChangeTime=fi.ChangeTime;
-	pi->NumberOfLinks=fi.NumberOfLinks;
-	pi->Flags=fi.UserFlags;
+	pi.FileName = DuplicateString(fi.strName.data());
+	pi.AlternateFileName = DuplicateString(fi.strShortName.data());
+	pi.FileSize=fi.FileSize;
+	pi.AllocationSize=fi.AllocationSize;
+	pi.FileAttributes=fi.FileAttr;
+	pi.LastWriteTime=fi.WriteTime;
+	pi.CreationTime=fi.CreationTime;
+	pi.LastAccessTime=fi.AccessTime;
+	pi.ChangeTime=fi.ChangeTime;
+	pi.NumberOfLinks=fi.NumberOfLinks;
+	pi.Flags=fi.UserFlags;
 
 	if (fi.Selected)
-		pi->Flags|=PPIF_SELECTED;
+		pi.Flags|=PPIF_SELECTED;
 
-	pi->CustomColumnData=fi.CustomColumnData;
-	pi->CustomColumnNumber=fi.CustomColumnNumber;
-	pi->Description=fi.DizText; //BUGBUG???
+	pi.CustomColumnData=fi.CustomColumnData;
+	pi.CustomColumnNumber=fi.CustomColumnNumber;
+	pi.Description=fi.DizText; //BUGBUG???
 
-	pi->UserData.Data=fi.UserData;
-	pi->UserData.FreeData=fi.Callback;
+	pi.UserData.Data=fi.UserData;
+	pi.UserData.FreeData=fi.Callback;
 
-	pi->CRC32=fi.CRC32;
-	pi->Reserved[0]=pi->Reserved[1]=0;
-	pi->Owner = EmptyToNull(fi.strOwner.data());
+	pi.CRC32=fi.CRC32;
+	pi.Reserved[0]=pi.Reserved[1]=0;
+	pi.Owner = EmptyToNull(fi.strOwner.data());
 }
 
-size_t FileList::FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *gpi)
+size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelItem* gpi)
 {
 	size_t size=ALIGN(sizeof(PluginPanelItem)),offset=size;
-	size+=fi->CustomColumnNumber*sizeof(wchar_t*);
-	size+=sizeof(wchar_t)*(fi->strName.size()+1);
-	size+=sizeof(wchar_t)*(fi->strShortName.size()+1);
-	size+=std::accumulate(fi->CustomColumnData, fi->CustomColumnData + fi->CustomColumnNumber, size_t(0), [](size_t size, const wchar_t* i) { return size + (i? (wcslen(i) + 1) * sizeof(wchar_t) : 0); });
-	size+=fi->DizText?sizeof(wchar_t)*(wcslen(fi->DizText)+1):0;
-	size+=fi->strOwner.empty()?0:sizeof(wchar_t)*(fi->strOwner.size()+1);
+	size+=fi.CustomColumnNumber*sizeof(wchar_t*);
+	size+=sizeof(wchar_t)*(fi.strName.size()+1);
+	size+=sizeof(wchar_t)*(fi.strShortName.size()+1);
+	size+=std::accumulate(fi.CustomColumnData, fi.CustomColumnData + fi.CustomColumnNumber, size_t(0), [](size_t size, const wchar_t* i) { return size + (i? (wcslen(i) + 1) * sizeof(wchar_t) : 0); });
+	size+=fi.DizText?sizeof(wchar_t)*(wcslen(fi.DizText)+1):0;
+	size+=fi.strOwner.empty()?0:sizeof(wchar_t)*(fi.strOwner.size()+1);
 
 	if (gpi)
 	{
@@ -5511,124 +5511,124 @@ size_t FileList::FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *g
 		{
 			char* data=(char*)(gpi->Item)+offset;
 
-			gpi->Item->FileSize=fi->FileSize;
-			gpi->Item->AllocationSize=fi->AllocationSize;
-			gpi->Item->FileAttributes=fi->FileAttr;
-			gpi->Item->LastWriteTime=fi->WriteTime;
-			gpi->Item->CreationTime=fi->CreationTime;
-			gpi->Item->LastAccessTime=fi->AccessTime;
-			gpi->Item->ChangeTime=fi->ChangeTime;
-			gpi->Item->NumberOfLinks=fi->NumberOfLinks;
-			gpi->Item->Flags=fi->UserFlags;
-			if (fi->Selected)
+			gpi->Item->FileSize=fi.FileSize;
+			gpi->Item->AllocationSize=fi.AllocationSize;
+			gpi->Item->FileAttributes=fi.FileAttr;
+			gpi->Item->LastWriteTime=fi.WriteTime;
+			gpi->Item->CreationTime=fi.CreationTime;
+			gpi->Item->LastAccessTime=fi.AccessTime;
+			gpi->Item->ChangeTime=fi.ChangeTime;
+			gpi->Item->NumberOfLinks=fi.NumberOfLinks;
+			gpi->Item->Flags=fi.UserFlags;
+			if (fi.Selected)
 				gpi->Item->Flags|=PPIF_SELECTED;
-			gpi->Item->CustomColumnNumber=fi->CustomColumnNumber;
-			gpi->Item->CRC32=fi->CRC32;
+			gpi->Item->CustomColumnNumber=fi.CustomColumnNumber;
+			gpi->Item->CRC32=fi.CRC32;
 			gpi->Item->Reserved[0]=gpi->Item->Reserved[1]=0;
 
 			gpi->Item->CustomColumnData=(wchar_t**)data;
-			data+=fi->CustomColumnNumber*sizeof(wchar_t*);
+			data+=fi.CustomColumnNumber*sizeof(wchar_t*);
 
-			gpi->Item->UserData.Data=fi->UserData;
-			gpi->Item->UserData.FreeData=fi->Callback;
+			gpi->Item->UserData.Data=fi.UserData;
+			gpi->Item->UserData.FreeData=fi.Callback;
 
-			gpi->Item->FileName=wcscpy((wchar_t*)data,fi->strName.data());
-			data+=sizeof(wchar_t)*(fi->strName.size()+1);
+			gpi->Item->FileName=wcscpy((wchar_t*)data,fi.strName.data());
+			data+=sizeof(wchar_t)*(fi.strName.size()+1);
 
-			gpi->Item->AlternateFileName=wcscpy((wchar_t*)data,fi->strShortName.data());
-			data+=sizeof(wchar_t)*(fi->strShortName.size()+1);
+			gpi->Item->AlternateFileName=wcscpy((wchar_t*)data,fi.strShortName.data());
+			data+=sizeof(wchar_t)*(fi.strShortName.size()+1);
 
-			for (size_t ii=0; ii<fi->CustomColumnNumber; ii++)
+			for (size_t ii=0; ii<fi.CustomColumnNumber; ii++)
 			{
-				if (!fi->CustomColumnData[ii])
+				if (!fi.CustomColumnData[ii])
 				{
 					const_cast<const wchar_t**>(gpi->Item->CustomColumnData)[ii] = nullptr;
 				}
 				else
 				{
-					const_cast<const wchar_t**>(gpi->Item->CustomColumnData)[ii] = wcscpy(reinterpret_cast<wchar_t*>(data), fi->CustomColumnData[ii]);
-					data+=sizeof(wchar_t)*(wcslen(fi->CustomColumnData[ii])+1);
+					const_cast<const wchar_t**>(gpi->Item->CustomColumnData)[ii] = wcscpy(reinterpret_cast<wchar_t*>(data), fi.CustomColumnData[ii]);
+					data+=sizeof(wchar_t)*(wcslen(fi.CustomColumnData[ii])+1);
 				}
 			}
 
-			if (!fi->DizText)
+			if (!fi.DizText)
 			{
 				gpi->Item->Description=nullptr;
 			}
 			else
 			{
-				gpi->Item->Description=wcscpy((wchar_t*)data,fi->DizText);
-				data+=sizeof(wchar_t)*(wcslen(fi->DizText)+1);
+				gpi->Item->Description=wcscpy((wchar_t*)data,fi.DizText);
+				data+=sizeof(wchar_t)*(wcslen(fi.DizText)+1);
 			}
 
 
-			if (fi->strOwner.empty())
+			if (fi.strOwner.empty())
 			{
 				gpi->Item->Owner=nullptr;
 			}
 			else
 			{
-				gpi->Item->Owner=wcscpy((wchar_t*)data,fi->strOwner.data());
+				gpi->Item->Owner=wcscpy((wchar_t*)data,fi.strOwner.data());
 			}
 		}
 	}
 	return size;
 }
 
-void FileList::PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi)
+void FileList::PluginToFileListItem(const PluginPanelItem& pi,FileListItem& fi)
 {
-	fi->strName = NullToEmpty(pi->FileName);
-	fi->strShortName = NullToEmpty(pi->AlternateFileName);
-	fi->strOwner = NullToEmpty(pi->Owner);
+	fi.strName = NullToEmpty(pi.FileName);
+	fi.strShortName = NullToEmpty(pi.AlternateFileName);
+	fi.strOwner = NullToEmpty(pi.Owner);
 
-	if (pi->Description)
+	if (pi.Description)
 	{
-		auto Str = new wchar_t[wcslen(pi->Description)+1];
-		wcscpy(Str, pi->Description);
-		fi->DizText = Str;
-		fi->DeleteDiz=true;
+		auto Str = new wchar_t[wcslen(pi.Description)+1];
+		wcscpy(Str, pi.Description);
+		fi.DizText = Str;
+		fi.DeleteDiz=true;
 	}
 	else
-		fi->DizText=nullptr;
+		fi.DizText=nullptr;
 
-	fi->FileSize=pi->FileSize;
-	fi->AllocationSize=pi->AllocationSize;
-	fi->FileAttr=pi->FileAttributes;
-	fi->WriteTime=pi->LastWriteTime;
-	fi->CreationTime=pi->CreationTime;
-	fi->AccessTime=pi->LastAccessTime;
-	fi->ChangeTime = pi->ChangeTime;
-	fi->NumberOfLinks=pi->NumberOfLinks;
-	fi->NumberOfStreams=1;
-	fi->UserFlags=pi->Flags;
+	fi.FileSize=pi.FileSize;
+	fi.AllocationSize=pi.AllocationSize;
+	fi.FileAttr=pi.FileAttributes;
+	fi.WriteTime=pi.LastWriteTime;
+	fi.CreationTime=pi.CreationTime;
+	fi.AccessTime=pi.LastAccessTime;
+	fi.ChangeTime = pi.ChangeTime;
+	fi.NumberOfLinks=pi.NumberOfLinks;
+	fi.NumberOfStreams=1;
+	fi.UserFlags=pi.Flags;
 
-	fi->UserData=pi->UserData.Data;
-	fi->Callback=pi->UserData.FreeData;
+	fi.UserData=pi.UserData.Data;
+	fi.Callback=pi.UserData.FreeData;
 
-	if (pi->CustomColumnNumber>0)
+	if (pi.CustomColumnNumber>0)
 	{
-		fi->CustomColumnData=new wchar_t*[pi->CustomColumnNumber];
+		fi.CustomColumnData=new wchar_t*[pi.CustomColumnNumber];
 
-		for (size_t I=0; I<pi->CustomColumnNumber; I++)
-			if (pi->CustomColumnData && pi->CustomColumnData[I])
+		for (size_t I=0; I<pi.CustomColumnNumber; I++)
+			if (pi.CustomColumnData && pi.CustomColumnData[I])
 			{
-				fi->CustomColumnData[I]=new wchar_t[StrLength(pi->CustomColumnData[I])+1];
-				wcscpy(fi->CustomColumnData[I],pi->CustomColumnData[I]);
+				fi.CustomColumnData[I]=new wchar_t[StrLength(pi.CustomColumnData[I])+1];
+				wcscpy(fi.CustomColumnData[I],pi.CustomColumnData[I]);
 			}
 			else
 			{
-				fi->CustomColumnData[I]=new wchar_t[1];
-				fi->CustomColumnData[I][0]=0;
+				fi.CustomColumnData[I]=new wchar_t[1];
+				fi.CustomColumnData[I][0]=0;
 			}
 	}
 
-	fi->CustomColumnNumber=pi->CustomColumnNumber;
-	fi->CRC32=pi->CRC32;
+	fi.CustomColumnNumber=pi.CustomColumnNumber;
+	fi.CRC32=pi.CRC32;
 
-	if (fi->FileAttr & FILE_ATTRIBUTE_REPARSE_POINT)
+	if (fi.FileAttr & FILE_ATTRIBUTE_REPARSE_POINT)
 	{
 		// we don't really know, but it's better than show it as 'unknown'
-		fi->ReparseTag = IO_REPARSE_TAG_SYMLINK;
+		fi.ReparseTag = IO_REPARSE_TAG_SYMLINK;
 	}
 }
 
@@ -5670,14 +5670,14 @@ std::vector<PluginPanelItem> FileList::CreatePluginItemList(bool AddTwoDot)
 		if ((!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) || !TestParentFolderName(strSelName)) && LastSelPosition>=0 && static_cast<size_t>(LastSelPosition) < m_ListData.size())
 		{
 			ItemList.emplace_back(VALUE_TYPE(ItemList)());
-			FileListToPluginItem(m_ListData[LastSelPosition], &ItemList.back());
+			FileListToPluginItem(m_ListData[LastSelPosition], ItemList.back());
 		}
 	}
 
 	if (AddTwoDot && ItemList.empty() && (FileAttr & FILE_ATTRIBUTE_DIRECTORY)) // это про ".."
 	{
 		ItemList.emplace_back(VALUE_TYPE(ItemList)());
-		FileListToPluginItem(m_ListData[0], &ItemList.front());
+		FileListToPluginItem(m_ListData[0], ItemList.front());
 	}
 
 	LastSelPosition=OldLastSelPosition;
@@ -5775,7 +5775,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanel
 
 				PluginPanelItem PanelItem;
 
-				if (FileNameToPluginItem(strDizName,&PanelItem))
+				if (FileNameToPluginItem(strDizName, PanelItem))
 					Global->CtrlObject->Plugins->PutFiles(DestPanel->m_hPlugin, &PanelItem, 1, false, OPM_SILENT | OPM_DESCR);
 				else if (Delete)
 				{
@@ -6276,7 +6276,7 @@ size_t FileList::PluginGetPanelItem(int ItemNumber,FarGetPluginPanelItem *Item)
 
 	if (static_cast<size_t>(ItemNumber) < m_ListData.size())
 	{
-		result=FileListToPluginItem2(&m_ListData[ItemNumber], Item);
+		result=FileListToPluginItem2(m_ListData[ItemNumber], Item);
 	}
 
 	return result;
@@ -6290,7 +6290,7 @@ size_t FileList::PluginGetSelectedPanelItem(int ItemNumber,FarGetPluginPanelItem
 	{
 		if (ItemNumber==CacheSelIndex)
 		{
-			result=FileListToPluginItem2(&m_ListData[CacheSelPos], Item);
+			result=FileListToPluginItem2(m_ListData[CacheSelPos], Item);
 		}
 		else
 		{
@@ -6305,7 +6305,7 @@ size_t FileList::PluginGetSelectedPanelItem(int ItemNumber,FarGetPluginPanelItem
 
 				if (CurSel==ItemNumber)
 				{
-					result=FileListToPluginItem2(&m_ListData[i], Item);
+					result=FileListToPluginItem2(m_ListData[i], Item);
 					CacheSelIndex=ItemNumber;
 					CacheSelPos=static_cast<int>(i);
 					break;
@@ -6314,7 +6314,7 @@ size_t FileList::PluginGetSelectedPanelItem(int ItemNumber,FarGetPluginPanelItem
 
 			if (CurSel==-1 && !ItemNumber)
 			{
-				result=FileListToPluginItem2(&m_ListData[m_CurFile], Item);
+				result=FileListToPluginItem2(m_ListData[m_CurFile], Item);
 				CacheSelIndex=-1;
 			}
 		}
@@ -6680,7 +6680,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 		if (!ContentNames.empty())
 		{
-			Global->CtrlObject->Plugins->GetContentPlugins(ContentNames, ContentPlugins);
+			ContentPlugins = Global->CtrlObject->Plugins->GetContentPlugins(ContentNames);
 			ContentValues.resize(ContentNames.size());
 		}
 	}
@@ -6762,8 +6762,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 						}
 					}
 
-					LangString strReadMsg(MReadingFiles);
-					strReadMsg << m_ListData.size();
+					auto strReadMsg = string_format(MReadingFiles, m_ListData.size());
 
 					if (DrawMessage)
 					{
@@ -6838,7 +6837,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 			auto PluginPtr = PanelData;
 			FOR(auto& i, make_range(m_ListData.begin() + OldSize, m_ListData.end()))
 			{
-				PluginToFileListItem(PluginPtr, &i);
+				PluginToFileListItem(*PluginPtr, i);
 				i.Position = Position;
 				TotalFileSize += PluginPtr->FileSize;
 				i.PrevSelected = i.Selected=0;
@@ -7119,7 +7118,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 		m_ListData.emplace_back(VALUE_TYPE(m_ListData)());
 		auto& CurListData = m_ListData.back();
 
-		PluginToFileListItem(&PanelData[i], &CurListData);
+		PluginToFileListItem(PanelData[i], CurListData);
 		CurListData.Position=i;
 
 		if (!(Info.Flags & OPIF_DISABLESORTGROUPS)/* && !(CurListData->FileAttr & FILE_ATTRIBUTE_DIRECTORY)*/)
@@ -7805,8 +7804,7 @@ void FileList::ShowSelectedSize()
 	{
 		string strFormStr;
 		InsertCommas(SelFileSize,strFormStr);
-		LangString strSelStr(__FormatEndSelectedPhrase(SelFileCount));
-		strSelStr << strFormStr << SelFileCount;
+		auto strSelStr = string_format(__FormatEndSelectedPhrase(SelFileCount), strFormStr, SelFileCount);
 		TruncStr(strSelStr,m_X2-m_X1-1);
 		int Length=(int)strSelStr.size();
 		SetColor(COL_PANELSELECTEDINFO);
@@ -7841,7 +7839,7 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 	{
 		if (!Global->Opt->ShowPanelFree || strFreeSize.empty())
 		{
-			strTotalStr = LangString(__FormatEndSelectedPhrase(TotalFileCount)) << strFormSize << TotalFileCount;
+			strTotalStr = string_format(__FormatEndSelectedPhrase(TotalFileCount), strFormSize, TotalFileCount);
 		}
 		else
 		{
@@ -7868,7 +7866,7 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 	}
 	else
 	{
-		strTotalStr = LangString(MListFreeSize) << (!strFreeSize.empty()? strFreeSize : L"?");
+		strTotalStr = string_format(MListFreeSize, strFreeSize.empty()? L"?" : strFreeSize);
 	}
 	SetColor(COL_PANELTOTALINFO);
 	/* $ 01.08.2001 VVM

@@ -1294,7 +1294,7 @@ struct FarMacroValue
 	FarMacroValue(unsigned int v)     { Type=FMVT_INTEGER; Integer=v; }
 	FarMacroValue(__int64 v)          { Type=FMVT_INTEGER; Integer=v; }
 	FarMacroValue(unsigned __int64 v) { Type=FMVT_INTEGER; Integer=v; }
-	FarMacroValue(bool v)             { Type=FMVT_BOOLEAN; Boolean=v?1:0; }
+	FarMacroValue(bool v)             { Type=FMVT_BOOLEAN; Boolean=v; }
 	FarMacroValue(double v)           { Type=FMVT_DOUBLE; Double=v; }
 	FarMacroValue(const wchar_t* v)   { Type=FMVT_STRING; String=v; }
 	FarMacroValue(void* v)            { Type=FMVT_POINTER; Pointer=v; }

@@ -142,7 +142,9 @@ private:
 
 ENUM(LNGID);
 
+namespace detail {
 // TODO: rename
+// TODO: %n -> {n}
 class LangString:public BaseFormat, public string
 {
 public:
@@ -157,3 +159,62 @@ private:
 	virtual void Commit(const string& Data) override;
 	size_t Iteration;
 };
+}
+
+namespace detail
+{
+	template<class C, class Arg>
+	void string_format_impl(C& Container, Arg&& arg)
+	{
+		Container << arg;
+	}
+}
+
+#if defined _MSC_VER && _MSC_VER < 1800
+#define STRING_FORMAT_IMPL_VTE(TYPENAME_LIST, ARG_LIST, REF_ARG_LIST, FWD_ARG_LIST) \
+namespace detail \
+{ \
+	template<class C, VTE_TYPENAME(first), TYPENAME_LIST> \
+	void string_format_impl(C& Container, VTE_REF_ARG(first), REF_ARG_LIST) \
+	{ \
+		Container << VTE_FWD_ARG(first); \
+		string_format_impl(Container, FWD_ARG_LIST); \
+	} \
+}
+
+#define STRING_FORMAT_VTE(TYPENAME_LIST, ARG_LIST, REF_ARG_LIST, FWD_ARG_LIST) \
+template<class T, TYPENAME_LIST> \
+string string_format(const T& Format, REF_ARG_LIST) \
+{ \
+	detail::LangString Container(Format); \
+	detail::string_format_impl(Container, FWD_ARG_LIST); \
+	return Container; \
+} \
+
+#include "common/variadic_emulation_helpers_begin.hpp"
+VTE_GENERATE(STRING_FORMAT_IMPL_VTE)
+VTE_GENERATE(STRING_FORMAT_VTE)
+#include "common/variadic_emulation_helpers_end.hpp"
+
+#undef STRING_FORMAT_VTE
+#undef STRING_FORMAT_IMPL_VTE
+#else
+namespace detail
+{
+	template<class C, class Arg1, class... Args>
+	void string_format_impl(C& Container, Arg1&& arg1, Args&&... args)
+	{
+		Container << arg1;
+		string_format_impl(Container, std::forward<Args>(args)...);
+	}
+}
+
+template<class T, class Arg1, class... Args>
+string string_format(const T& Format, Arg1&& arg1, Args&&... args)
+{
+	detail::LangString Container(Format);
+	detail::string_format_impl(Container, Format, std::forward<Args>(args)...);
+	// slicing is ok
+	return Container;
+}
+#endif

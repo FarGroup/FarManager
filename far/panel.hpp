@@ -375,7 +375,7 @@ private:
 	int ChangeDiskMenu(int Pos,int FirstCall);
 	int DisconnectDrive(const PanelMenuItem *item, VMenu2 &ChDisk);
 	void RemoveHotplugDevice(const PanelMenuItem *item, VMenu2 &ChDisk);
-	int ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu);
+	int ProcessDelDisk(wchar_t Drive, int DriveType);
 
 	static void DragMessage(int X,int Y,int Move);
 

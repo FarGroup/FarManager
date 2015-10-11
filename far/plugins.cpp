@@ -380,7 +380,7 @@ void PluginManager::LoadModels()
 	ScTree.SetFindPath(Global->g_strFarPath + L"\\Adapters", L"*");
 
 	string filename;
-	while (ScTree.GetNextName(&FindData, filename))
+	while (ScTree.GetNextName(FindData, filename))
 	{
 		if (CmpName(L"*.dll", filename.data(), false) && !(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 		{
@@ -448,7 +448,7 @@ void PluginManager::LoadPlugins()
 			ScTree.SetFindPath(strPluginsDir,L"*");
 
 			// ...и пройдемся по нему
-			while (ScTree.GetNextName(&FindData,strFullName))
+			while (ScTree.GetNextName(FindData,strFullName))
 			{
 				if (!(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 				{
@@ -2361,18 +2361,15 @@ PluginHandle* PluginManager::Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,
 	return nullptr;
 }
 
-void PluginManager::GetContentPlugins(const std::vector<const wchar_t*>& ColNames, std::vector<Plugin*>& Plugins) const
+std::vector<Plugin*> PluginManager::GetContentPlugins(const std::vector<const wchar_t*>& ColNames) const
 {
-	size_t Count = ColNames.size();
-	std::for_each(CONST_RANGE(SortedPlugins, i)
+	const GetContentFieldsInfo Info = { sizeof(GetContentFieldsInfo), ColNames.size(), ColNames.data() };
+	std::vector<Plugin*> Plugins;
+	std::copy_if(ALL_CONST_RANGE(SortedPlugins), std::back_inserter(Plugins), [&Info](Plugin* p)
 	{
-		if (i->has<iGetContentData>() && i->has<iGetContentFields>())
-		{
-			GetContentFieldsInfo Info = { sizeof(GetContentFieldsInfo),Count,ColNames.data() };
-			if (i->GetContentFields(&Info))
-				Plugins.emplace_back(i);
-		}
+		return p->has<iGetContentData>() && p->has<iGetContentFields>() && p->GetContentFields(&Info);
 	});
+	return Plugins;
 }
 
 void PluginManager::GetContentData(

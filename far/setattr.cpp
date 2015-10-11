@@ -760,23 +760,20 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		LPCWSTR FmtMask1=L"99%c99%c99%c999",FmtMask2=L"99%c99%c9999N",FmtMask3=L"N9999%c99%c99";
 		string strDMask, strTMask = str_printf(FmtMask1,TimeSeparator,TimeSeparator,DecimalSeparator);
 
-		LangString DateFormat;
+		string DateFormat;
 
 		switch (locale::GetDateFormat())
 		{
 			case 0:
-				DateFormat = MSetAttrTimeTitle1;
-				DateFormat << DateSeparator << DateSeparator << TimeSeparator << TimeSeparator << DecimalSeparator;
+				DateFormat = string_format(MSetAttrTimeTitle1, DateSeparator, DateSeparator, TimeSeparator, TimeSeparator, DecimalSeparator);
 				strDMask = str_printf(FmtMask2,DateSeparator,DateSeparator);
 				break;
 			case 1:
-				DateFormat = MSetAttrTimeTitle2;
-				DateFormat << DateSeparator << DateSeparator << TimeSeparator << TimeSeparator << DecimalSeparator;
+				DateFormat = string_format(MSetAttrTimeTitle2, DateSeparator, DateSeparator, TimeSeparator, TimeSeparator, DecimalSeparator);
 				strDMask = str_printf(FmtMask2,DateSeparator,DateSeparator);
 				break;
 			default:
-				DateFormat = MSetAttrTimeTitle3;
-				DateFormat << DateSeparator << DateSeparator << TimeSeparator << TimeSeparator << DecimalSeparator;
+				DateFormat = string_format(MSetAttrTimeTitle3, DateSeparator, DateSeparator, TimeSeparator, TimeSeparator, DecimalSeparator);
 				strDMask = str_printf(FmtMask3,DateSeparator,DateSeparator);
 				break;
 		}
@@ -1557,7 +1554,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 								time_check TreeTimeCheck(time_check::delayed, GetRedrawTimeout());
 								string strFullName;
 
-								while (ScTree.GetNextName(&FindData,strFullName))
+								while (ScTree.GetNextName(FindData,strFullName))
 								{
 									if (TreeTimeCheck)
 									{

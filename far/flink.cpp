@@ -107,7 +107,7 @@ bool SetREPARSE_DATA_BUFFER(const string& Object,PREPARSE_DATA_BUFFER rdb)
 	bool Result=false;
 	if (IsReparseTagValid(rdb->ReparseTag))
 	{
-		SCOPED_ACTION(os::security::privilege)(make_vector(SE_CREATE_SYMBOLIC_LINK_NAME));
+		SCOPED_ACTION(os::security::privilege)(make_vector<const wchar_t*>(SE_CREATE_SYMBOLIC_LINK_NAME));
 
 		bool ForceElevation=false;
 
@@ -684,8 +684,8 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 					Global->CatchError();
 					Message(MSG_WARNING|MSG_ERRORTYPE,1,
 						MSG(MError),
-						(LangString(MCopyMountVolFailed) << Target).data(),
-						(LangString(MCopyMountVolFailed2) << strFullLink).data(),
+						string_format(MCopyMountVolFailed, Target).data(),
+						string_format(MCopyMountVolFailed2, strFullLink).data(),
 						MSG(MOk));
 				}
 

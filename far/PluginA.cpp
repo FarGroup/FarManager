@@ -1992,10 +1992,10 @@ static int WINAPI ProcessNameA(const char *Param1, char *Param2, DWORD Flags) no
 {
 	try
 	{
-		string strP1 = wide(Param1), strP2 = wide(Param2);
-		int size = (int)(strP1.size() + strP2.size() + oldfar::NM) + 1; //а хрен ещё как угадать скока там этот Param2 для PN_GENERATENAME
+		const auto strP1 = wide(Param1), strP2 = wide(Param2);
+		const int size = (int)(strP1.size() + strP2.size() + oldfar::NM) + 1; //а хрен ещё как угадать скока там этот Param2 для PN_GENERATENAME
 		wchar_t_ptr p(size);
-		wcscpy(p.get(), strP2.data());
+		*std::copy(ALL_CONST_RANGE(strP2), p.get()) = L'\0';
 		int newFlags = 0;
 
 		if (Flags&oldfar::PN_SKIPPATH)

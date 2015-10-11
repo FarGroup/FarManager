@@ -35,9 +35,9 @@ public:
 	null_iterator_t& operator++() { ++m_Data; return *this; }
 	null_iterator_t operator++(int) { return null_iterator_t(m_Data++); }
 	T& operator*() { return *m_Data; }
-	T* operator->() { return m_Data; }
+	T* operator->() noexcept { return m_Data; }
 	const T& operator*() const { return *m_Data; }
-	const T* operator->() const { return m_Data; }
+	const T* operator->() const noexcept { return m_Data; }
 	static const null_iterator_t& end() { static T Empty[1] = {}; static null_iterator_t Iter(Empty); return Iter; }
 	bool operator==(const null_iterator_t& rhs) const { return (!*m_Data && !*rhs.m_Data) || m_Data == rhs.m_Data; }
 	bool operator!=(const null_iterator_t& rhs) const { return !(*this == rhs); }

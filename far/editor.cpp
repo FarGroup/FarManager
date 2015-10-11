@@ -3905,8 +3905,8 @@ BOOL Editor::Search(int Next)
 	{
 		FindAllList->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 		FindAllList->SetPosition(-1, -1, 0, 0);
-		FindAllList->SetTitle(LangString(MEditSearchStatistics) << FindAllList->size() << AllRefLines);
-		FindAllList->SetBottomTitle(LangString(MEditFindAllMenuFooter));
+		FindAllList->SetTitle(string_format(MEditSearchStatistics, FindAllList->size(), AllRefLines));
+		FindAllList->SetBottomTitle(MSG(MEditFindAllMenuFooter));
 		FindAllList->SetHelp(L"FindAllMenu");
 		FindAllList->SetId(EditorFindAllListId);
 

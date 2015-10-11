@@ -340,10 +340,10 @@ public:
 	int PluginPanelHelp(const PluginHandle* hPlugin) const;
 	void ResetLastUpdateTime() {LastUpdateTime = 0;}
 
-	static size_t FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *pi);
-	static int FileNameToPluginItem(const string& Name,PluginPanelItem *pi);
-	static void FileListToPluginItem(const FileListItem& fi,PluginPanelItem *pi);
-	static void PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi);
+	static size_t FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelItem* pi);
+	static int FileNameToPluginItem(const string& Name,PluginPanelItem& pi);
+	static void FileListToPluginItem(const FileListItem& fi,PluginPanelItem& pi);
+	static void PluginToFileListItem(const PluginPanelItem& pi,FileListItem& fi);
 	static bool IsModeFullScreen(int Mode);
 	static string &AddPluginPrefix(const FileList *SrcPanel,string &strPrefix);
 

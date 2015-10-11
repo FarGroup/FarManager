@@ -139,23 +139,20 @@ void PrintFiles(FileList* SrcPanel)
 
 	{
 		_ALGO(CleverSysLog clv2(L"Show Menu"));
-		LangString strTitle;
-		string strName;
-
+		string strTitle;
 		if (SelCount==1)
 		{
 			SrcPanel->GetSelName(nullptr,FileAttr);
+			string strName;
 			SrcPanel->GetSelName(&strName,FileAttr);
 			strSelName = TruncStr(strName,50);
-			strTitle = MPrintTo;
-			strTitle << InsertQuote(strSelName);
+			strTitle = string_format(MPrintTo, InsertQuote(strSelName));
 		}
 		else
 		{
 			_ALGO(SysLog(L"Correct: SelCount-=DirsCount"));
 			SelCount-=DirsCount;
-			strTitle = MPrintFilesTo;
-			strTitle << SelCount;
+			strTitle = string_format(MPrintFilesTo, SelCount);
 		}
 
 		auto PrinterList = VMenu2::create(strTitle, nullptr, 0, ScrY - 4);
@@ -215,7 +212,7 @@ void PrintFiles(FileList* SrcPanel)
 					if (const auto ListItem = SrcPanel->GetLastSelectedItem())
 					{
 						PluginPanelItem PanelItem;
-						FileList::FileListToPluginItem(*ListItem, &PanelItem);
+						FileList::FileListToPluginItem(*ListItem, PanelItem);
 
 						if (Global->CtrlObject->Plugins->GetFile(hPlugin,&PanelItem,strTempDir,strTempName,OPM_SILENT))
 							FileName = strTempName;

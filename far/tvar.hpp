@@ -54,7 +54,8 @@ typedef bool (*TVarFuncCmp)(TVarType vt,const void *, const void *);
 class TVar: swapable<TVar>
 {
 public:
-	TVar(long long = 0);
+	TVar();
+	TVar(long long);
 	TVar(const string&);
 	TVar(const wchar_t*);
 	TVar(int);

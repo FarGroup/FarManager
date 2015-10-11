@@ -46,15 +46,9 @@ inline unsigned int ToPercent(T N1, T N2)
 
 bool FarMkTempEx(string &strDest, const wchar_t *Prefix=nullptr, BOOL WithTempPath=TRUE, const wchar_t *UserTempPath=nullptr);
 
-void PluginPanelItemToFindDataEx(
-    const PluginPanelItem *pSrc,
-    os::FAR_FIND_DATA *pDest
-);
+void PluginPanelItemToFindDataEx(const PluginPanelItem& Src, os::FAR_FIND_DATA& Dest);
 
-void FindDataExToPluginPanelItem(
-    const os::FAR_FIND_DATA *pSrc,
-    PluginPanelItem *pDest
-);
+void FindDataExToPluginPanelItem(const os::FAR_FIND_DATA& Src, PluginPanelItem& Dest);
 
 void FreePluginPanelItem(const PluginPanelItem& Data);
 

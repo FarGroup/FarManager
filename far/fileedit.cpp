@@ -481,14 +481,14 @@ void FileEditor::Init(
 					if (m_Flags.Check(FFILEEDIT_ENABLEF6))
 					{
 						MsgCode=Message(0, MSG(MEditTitle),
-							make_vector(strFullFileName, MSG(MAskReload)),
+							make_vector<string>(strFullFileName, MSG(MAskReload)),
 							make_vector<string>(MSG(MCurrent), MSG(MNewOpen), MSG(MReload)),
 							L"EditorReload", nullptr, &EditorReloadId);
 					}
 					else
 					{
 						MsgCode=Message(0, MSG(MEditTitle),
-							make_vector(strFullFileName, MSG(MAskReload)),
+							make_vector<string>(strFullFileName, MSG(MAskReload)),
 							make_vector<string>(MSG(MNewOpen), MSG(MCancel)),
 							L"EditorReload", nullptr, &EditorReloadModalId);
 						if (MsgCode == 0)
@@ -599,7 +599,7 @@ void FileEditor::Init(
 	   )
 	{
 		if (Message(MSG_WARNING, MSG(MEditTitle),
-			make_vector(Name, MSG(MEditRSH), MSG(MEditROOpen)),
+			make_vector<string>(Name, MSG(MEditRSH), MSG(MEditROOpen)),
 			make_vector<string>(MSG(MYes), MSG(MNo)),
 			nullptr, nullptr, &EditorOpenRSHId))
 		{
@@ -1374,7 +1374,7 @@ int FileEditor::SetCodePage(uintptr_t cp,	bool redetect_default, bool ascii2def)
 
 	if (cp == CP_DEFAULT || !Codepages().IsCodePageSupported(cp))
 	{
-		Message(MSG_WARNING, 1, MSG(MEditTitle), (LangString(MEditorCPNotSupported) << cp).data(), MSG(MOk));
+		Message(MSG_WARNING, 1, MSG(MEditTitle), string_format(MEditorCPNotSupported, cp).data(), MSG(MOk));
 		return EC_CP_NOT_SUPPORTED;
 	}
 
@@ -1514,10 +1514,10 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 
 
 				if (Message(MSG_WARNING, MSG(MEditTitle),
-					make_vector(
+					make_vector<string>(
 						Name,
-						LangString(MEditFileLong) << RemoveExternalSpaces(strTempStr1),
-						LangString(MEditFileLong2) << RemoveExternalSpaces(strTempStr2),
+						string_format(MEditFileLong, RemoveExternalSpaces(strTempStr1)),
+						string_format(MEditFileLong2, RemoveExternalSpaces(strTempStr2)),
 						MSG(MEditROOpen)),
 					make_vector<string>(MSG(MYes), MSG(MNo)),
 					nullptr, nullptr, &EditorFileLongId))
@@ -1534,7 +1534,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		else
 		{
 			if (Message(MSG_WARNING, MSG(MEditTitle),
-				make_vector(Name, MSG(MEditFileGetSizeError), MSG(MEditROOpen)),
+				make_vector<string>(Name, MSG(MEditFileGetSizeError), MSG(MEditROOpen)),
 				make_vector<string>(MSG(MYes), MSG(MNo)),
 				nullptr, nullptr, &EditorFileGetSizeErrorId))
 			{
@@ -1828,7 +1828,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		{
 			//BUGBUG
 			int AskOverwrite=Message(MSG_WARNING, MSG(MEditTitle),
-				make_vector(Name, MSG(MEditRO), MSG(MEditOvr)),
+				make_vector<string>(Name, MSG(MEditRO), MSG(MEditOvr)),
 				make_vector<string>(MSG(MYes), MSG(MNo)),
 				nullptr, nullptr, &EditorSavedROId);
 
@@ -2529,7 +2529,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		{
 			if (Param2&&(size_t)Param1>strFullFileName.size())
 			{
-				wcscpy(static_cast<LPWSTR>(Param2),strFullFileName.data());
+				*std::copy(ALL_CONST_RANGE(strFullFileName), static_cast<wchar_t*>(Param2)) = L'\0';
 			}
 
 			return strFullFileName.size()+1;
@@ -2597,10 +2597,10 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		}
 		case ECTL_GETTITLE:
 		{
-			string strLocalTitle = GetTitle();
+			const auto strLocalTitle = GetTitle();
 			if (Param2&&(size_t)Param1>strLocalTitle.size())
 			{
-				wcscpy(static_cast<LPWSTR>(Param2),strLocalTitle.data());
+				*std::copy(ALL_CONST_RANGE(strLocalTitle), static_cast<wchar_t*>(Param2)) = L'\0';
 			}
 
 			return strLocalTitle.size()+1;
@@ -2861,7 +2861,7 @@ bool FileEditor::SetCodePage(uintptr_t codepage)
 	{
 		int ret = Message(MSG_WARNING, 3, MSG(MWarning),
 			MSG(MEditorSwitchCPWarn1),
-			(LangString(MEditorSwitchCPWarn2) << codepage).data(),
+			string_format(MEditorSwitchCPWarn2, codepage).data(),
 			MSG(MEditorSwitchCPConfirm),
 			MSG(MCancel), MSG(MEditorSaveCPWarnShow), MSG(MOk));
 
@@ -2888,7 +2888,7 @@ bool FileEditor::AskOverwrite(const string& FileName)
 	if (os::fs::exists(FileName))
 	{
 		if (Message(MSG_WARNING, MSG(MEditTitle),
-			make_vector(FileName, MSG(MEditExists), MSG(MEditOvr)),
+			make_vector<string>(FileName, MSG(MEditExists), MSG(MEditOvr)),
 			make_vector<string>(MSG(MYes), MSG(MNo)),
 			nullptr, nullptr, &EditorAskOverwriteId))
 		{

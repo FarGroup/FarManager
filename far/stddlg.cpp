@@ -578,10 +578,10 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 		}
 	}
 
-	auto Msgs = make_vector(Description, QuoteOuterSpace(string(Object)));
+	auto Msgs = make_vector<string>(Description, QuoteOuterSpace(string(Object)));
 	if(!Msg.empty())
 	{
-		Msgs.emplace_back(LangString(MObjectLockedReason) << MSG(Reason));
+		Msgs.emplace_back(string_format(MObjectLockedReason, MSG(Reason)));
 		Msgs.insert(Msgs.end(), ALL_CONST_RANGE(Msg));
 	}
 
@@ -683,7 +683,7 @@ static string GetReErrorString(int code)
 void ReCompileErrorMessage(const RegExp& re, const string& str)
 {
 	Message(MSG_WARNING | MSG_LEFTALIGN, MSG(MError),
-		make_vector(GetReErrorString(re.LastError()), str, string(re.ErrorPosition(), L' ') + L'^'),
+		make_vector<string>(GetReErrorString(re.LastError()), str, string(re.ErrorPosition(), L' ') + L'^'),
 		make_vector<string>(MSG(MOk)));
 }
 
@@ -693,7 +693,7 @@ void ReMatchErrorMessage(const RegExp& re)
 	{
 
 		Message(MSG_WARNING | MSG_LEFTALIGN, MSG(MError),
-			make_vector(GetReErrorString(re.LastError())),
+			make_vector<string>(GetReErrorString(re.LastError())),
 			make_vector<string>(MSG(MOk)));
 	}
 }

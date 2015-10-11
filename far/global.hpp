@@ -107,10 +107,10 @@ private:
 public:
 	// TODO: review the order and make private
 	class config_provider* m_ConfigProvider;
-	class ScreenBuf* ScrBuf;
+	std::unique_ptr<class Options> Opt;
+	std::unique_ptr<class ScreenBuf> ScrBuf;
 	class FormatScreen FS;
-	class Manager* WindowManager;
-	class Options *Opt;
+	std::unique_ptr<class Manager> WindowManager;
 	class Language *Lang;
 	class elevation *Elevation;
 	class ControlObject* CtrlObject;

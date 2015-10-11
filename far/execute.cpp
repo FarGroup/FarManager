@@ -1110,7 +1110,15 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		const auto Strings = DirectRun?
 			make_vector<string>(MSG(MCannotExecute), strNewCmdStr) :
 			make_vector<string>(MSG(MCannotInvokeComspec), strComspec, MSG(MCheckComspecVar));
-		Message(MSG_WARNING | MSG_ERRORTYPE, MSG(MError), Strings, make_vector<string>(MSG(MOk)), L"ErrCannotExecute", nullptr, nullptr, make_vector(DirectRun ? strNewCmdStr : strComspec));
+
+		Message(MSG_WARNING | MSG_ERRORTYPE,
+			MSG(MError),
+			Strings,
+			make_vector<string>(MSG(MOk)),
+			L"ErrCannotExecute",
+			nullptr,
+			nullptr,
+			make_vector<string>(DirectRun? strNewCmdStr : strComspec));
 	}
 
 	return nResult;

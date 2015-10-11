@@ -933,7 +933,7 @@ int TreeList::ReadTree()
 	LastScrY = ScrY;
 	SCOPED_ACTION(IndeterminateTaskBar);
 	SCOPED_ACTION(wakeful);
-	while (ScTree.GetNextName(&fdata,strFullName))
+	while (ScTree.GetNextName(fdata,strFullName))
 	{
 		MsgReadTree(m_ListData.size(), FirstCall);
 
@@ -1275,7 +1275,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 					PluginPanelItem Item;
 					int ItemNumber=1;
 					auto hAnotherPlugin=AnotherPanel->GetPluginHandle();
-					FileList::FileNameToPluginItem(m_ListData[m_CurFile].strName, &Item);
+					FileList::FileNameToPluginItem(m_ListData[m_CurFile].strName, Item);
 					int PutCode=Global->CtrlObject->Plugins->PutFiles(hAnotherPlugin, &Item, ItemNumber, Move != 0, 0);
 
 					if (PutCode==1 || PutCode==2)
@@ -1981,7 +1981,7 @@ void TreeList::ReadSubTree(const string& Path)
 	LastScrX = ScrX;
 	LastScrY = ScrY;
 
-	while (ScTree.GetNextName(&fdata, strFullName))
+	while (ScTree.GetNextName(fdata, strFullName))
 	{
 		if (fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		{

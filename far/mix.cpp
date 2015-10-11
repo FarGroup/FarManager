@@ -87,7 +87,7 @@ bool FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithTempPath, cons
 
 		if ((++uniq & 0xffff) == (uniq0 & 0xffff))
 		{
-			*Buffer = L'\0';
+			Buffer[0] = L'\0';
 			break;
 		}
 	}
@@ -96,30 +96,30 @@ bool FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithTempPath, cons
 	return !strDest.empty();
 }
 
-void PluginPanelItemToFindDataEx(const PluginPanelItem *pSrc, os::FAR_FIND_DATA *pDest)
+void PluginPanelItemToFindDataEx(const PluginPanelItem& Src, os::FAR_FIND_DATA& Dest)
 {
-	pDest->dwFileAttributes = pSrc->FileAttributes;
-	pDest->ftCreationTime = pSrc->CreationTime;
-	pDest->ftLastAccessTime = pSrc->LastAccessTime;
-	pDest->ftLastWriteTime = pSrc->LastWriteTime;
-	pDest->ftChangeTime = pSrc->ChangeTime;
-	pDest->nFileSize = pSrc->FileSize;
-	pDest->nAllocationSize = pSrc->AllocationSize;
-	pDest->strFileName = NullToEmpty(pSrc->FileName);
-	pDest->strAlternateFileName = NullToEmpty(pSrc->AlternateFileName);
+	Dest.dwFileAttributes = Src.FileAttributes;
+	Dest.ftCreationTime = Src.CreationTime;
+	Dest.ftLastAccessTime = Src.LastAccessTime;
+	Dest.ftLastWriteTime = Src.LastWriteTime;
+	Dest.ftChangeTime = Src.ChangeTime;
+	Dest.nFileSize = Src.FileSize;
+	Dest.nAllocationSize = Src.AllocationSize;
+	Dest.strFileName = NullToEmpty(Src.FileName);
+	Dest.strAlternateFileName = NullToEmpty(Src.AlternateFileName);
 }
 
-void FindDataExToPluginPanelItem(const os::FAR_FIND_DATA *pSrc, PluginPanelItem *pDest)
+void FindDataExToPluginPanelItem(const os::FAR_FIND_DATA& Src, PluginPanelItem& Dest)
 {
-	pDest->FileAttributes = pSrc->dwFileAttributes;
-	pDest->CreationTime = pSrc->ftCreationTime;
-	pDest->LastAccessTime = pSrc->ftLastAccessTime;
-	pDest->LastWriteTime = pSrc->ftLastWriteTime;
-	pDest->ChangeTime = pSrc->ftChangeTime;
-	pDest->FileSize = pSrc->nFileSize;
-	pDest->AllocationSize = pSrc->nAllocationSize;
-	pDest->FileName = DuplicateString(pSrc->strFileName.data());
-	pDest->AlternateFileName = DuplicateString(pSrc->strAlternateFileName.data());
+	Dest.FileAttributes = Src.dwFileAttributes;
+	Dest.CreationTime = Src.ftCreationTime;
+	Dest.LastAccessTime = Src.ftLastAccessTime;
+	Dest.LastWriteTime = Src.ftLastWriteTime;
+	Dest.ChangeTime = Src.ftChangeTime;
+	Dest.FileSize = Src.nFileSize;
+	Dest.AllocationSize = Src.nAllocationSize;
+	Dest.FileName = DuplicateString(Src.strFileName.data());
+	Dest.AlternateFileName = DuplicateString(Src.strAlternateFileName.data());
 }
 
 void FreePluginPanelItem(const PluginPanelItem& Data)

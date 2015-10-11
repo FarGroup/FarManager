@@ -241,6 +241,8 @@ void FormatScreen::Commit(const string& Data)
 	Text(Data);
 }
 
+namespace detail {
+
 LangString::LangString(enum LNGID MessageId):
 	Iteration(0)
 {
@@ -254,7 +256,7 @@ LangString::LangString(const string& str):
 }
 
 LangString::LangString(string&& str):
-Iteration(0)
+	Iteration(0)
 {
 	assign(std::move(str));
 }
@@ -262,4 +264,6 @@ Iteration(0)
 void LangString::Commit(const string& Data)
 {
 	ReplaceStrings(*this, L"%" + std::to_wstring(++Iteration), Data);
+}
+
 }

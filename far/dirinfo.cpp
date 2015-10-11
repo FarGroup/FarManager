@@ -160,7 +160,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, g
 			CheckHardlinks = (FileSystemFlags&FILE_SUPPORTS_HARD_LINKS) != 0;
 		}
 	}
-	while (ScTree.GetNextName(&FindData,strFullName))
+	while (ScTree.GetNextName(FindData,strFullName))
 	{
 		// Mantis#0002692
 		if (!Global->CtrlObject->Macro.IsExecuting())

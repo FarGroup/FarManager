@@ -215,7 +215,7 @@ void Message::Init(
 		{
 			FOR(const auto& i, Inserts)
 			{
-				strErrStr = LangString(strErrStr) << i;
+				strErrStr = string_format(strErrStr, i);
 			}
 		}
 	}
