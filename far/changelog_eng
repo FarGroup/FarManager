@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 11.10.2015 16:04:27 +0200 - build 4431
+
+1. Refactoring.
+
 drkns 02.10.2015 09:36:40 +0200 - build 4430
 
 1. 0003080: Alternate editor/viewer in FindFile results: temporary files will be deleted on FindFile closing. This should give enough time for external editor to open temporary file.
