@@ -213,7 +213,7 @@ template<class T, class Arg1, class... Args>
 string string_format(const T& Format, Arg1&& arg1, Args&&... args)
 {
 	detail::LangString Container(Format);
-	detail::string_format_impl(Container, Format, std::forward<Args>(args)...);
+	detail::string_format_impl(Container, arg1, std::forward<Args>(args)...);
 	// slicing is ok
 	return Container;
 }
