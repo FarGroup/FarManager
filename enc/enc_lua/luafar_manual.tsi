@@ -232,7 +232,7 @@ lv=2
 dt=Text
 nm=Recreation of the Lua virtual machine
 ctime=3612528168
-mtime=3652123584
+mtime=3653914601
 <article>
 #_<markdown>
 #_
@@ -249,6 +249,8 @@ mtime=3652123584
 #_  when Far Manager loads a LuaFAR plugin are conducted, including running
 #_  the plugin's "starting" Lua script (which in this case receives `true`
 #_  as an argument).
+#_* After the virtual machine is recreated the global variable `IsLuaStateRecreated`
+#_  is set to true.
 #_
 </article>
 </node>
