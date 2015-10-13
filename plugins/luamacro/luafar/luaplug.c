@@ -24,10 +24,10 @@ typedef struct
 	wchar_t PluginDir[512];
 	int InitStage;
 	int Depth;
-	CRITICAL_SECTION FindFileSection; // http://forum.farmanager.com/viewtopic.php?f=9&p=107075#p107075
+	DWORD ThreadId;
 } Global;
 
-#define IsPluginReady(g) (g.LS && g.InitStage==2)
+#define IsPluginReady(g) (g.ThreadId==GetCurrentThreadId() && g.LS && g.InitStage==2)
 
 static Global G;
 
@@ -65,7 +65,7 @@ static void InitGlobal (Global *g, HINSTANCE hDll)
 		wcsrchr(g->PluginDir, L'\\')[1] = 0;
 		g->LS = luaL_newstate();
 	}
-	InitializeCriticalSection(&g->FindFileSection);
+	g->ThreadId = GetCurrentThreadId();
 }
 
 static void DestroyGlobal (Global *g)
@@ -73,8 +73,6 @@ static void DestroyGlobal (Global *g)
 	if (g->LS) lua_close(g->LS);
 
 	if (g->StartupInfo) free(g->StartupInfo);
-
-	DeleteCriticalSection(&g->FindFileSection);
 }
 
 BOOL WINAPI DllMain(HANDLE hDll, DWORD dwReason, LPVOID lpReserved)
@@ -227,13 +225,7 @@ HANDLE LUAPLUG OpenW(const struct OpenInfo *Info)
 	{
 		HANDLE h;
 		++G.Depth; // prevents crashes (this function can be called recursively)
-#ifdef EXPORT_PROCESSDIALOGEVENT
-		EnterCriticalSection(&G.FindFileSection);
 		h = LF_Open(G.LS, Info);
-		LeaveCriticalSection(&G.FindFileSection);
-#else
-		h = LF_Open(G.LS, Info);
-#endif
 		return --G.Depth==0 && RecreateLuaState(&G) ? NULL : G.LS ? h : NULL;
 	}
 	return NULL;
@@ -399,19 +391,7 @@ intptr_t LUAPLUG ProcessViewerEventW(const struct ProcessViewerEventInfo *Info)
 #ifdef EXPORT_PROCESSDIALOGEVENT
 intptr_t LUAPLUG ProcessDialogEventW(const struct ProcessDialogEventInfo *Info)
 {
-	if (IsPluginReady(G))
-	{
-#ifdef EXPORT_OPEN
-		intptr_t r;
-		EnterCriticalSection(&G.FindFileSection);
-		r = LF_ProcessDialogEvent(G.LS, Info);
-		LeaveCriticalSection(&G.FindFileSection);
-		return r;
-#else
-		return LF_ProcessDialogEvent(G.LS, Info);
-#endif
-	}
-	return 0;
+	return IsPluginReady(G) ? LF_ProcessDialogEvent(G.LS, Info) : 0;
 }
 #endif
 //---------------------------------------------------------------------------
