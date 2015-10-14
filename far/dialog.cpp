@@ -1766,6 +1766,7 @@ void Dialog::ShowDialog(size_t ID)
 
 					X=(CX1==-1 || (Items[I].Flags & DIF_CENTERTEXT))?(m_X2-m_X1+1-LenText)/2:CX1;
 					Y=(CY1==-1)?(m_Y2-m_Y1+1)/2:CY1;
+					int XS=(CX1==-1 || !(Items[I].Flags&DIF_SEPARATORUSER))?X:CX1;
 
 					if( (Items[I].Flags & DIF_RIGHTTEXT) && CX2 > CX1 )
 						X=CX2-LenText+1;
@@ -1804,8 +1805,8 @@ void Dialog::ShowDialog(size_t ID)
 					if (Items[I].Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2))
 					{
 						SetColor(ItemColor[2]);
-						GotoXY(m_X1+((Items[I].Flags&DIF_SEPARATORUSER)?X:(!DialogMode.Check(DMODE_SMALLDIALOG)?3:0)),m_Y1+Y); //????
-						ShowUserSeparator((Items[I].Flags&DIF_SEPARATORUSER)?m_X2-m_X1+1:RealWidth-(!DialogMode.Check(DMODE_SMALLDIALOG)?6:0/* -1 */),
+						GotoXY(m_X1+((Items[I].Flags&DIF_SEPARATORUSER)?XS:(!DialogMode.Check(DMODE_SMALLDIALOG)?3:0)),m_Y1+Y); //????
+						ShowUserSeparator((Items[I].Flags&DIF_SEPARATORUSER)?CX2-CX1+1:RealWidth-(!DialogMode.Check(DMODE_SMALLDIALOG)?6:0/* -1 */),
 						                  (Items[I].Flags&DIF_SEPARATORUSER)?12:(Items[I].Flags&DIF_SEPARATOR2?3:1),
 					    	              Items[I].strMask.data()
 					        	         );
@@ -1872,6 +1873,7 @@ void Dialog::ShowDialog(size_t ID)
 
 				X=(CX1==-1)?(m_X2-m_X1+1)/2:CX1;
 				Y=(CY1==-1 || (Items[I].Flags & DIF_CENTERTEXT))?(m_Y2-m_Y1+1-LenText)/2:CY1;
+				int YS=(CY1==-1 || !(Items[I].Flags&DIF_SEPARATORUSER))?Y:CY1;
 
 				if( (Items[I].Flags & DIF_RIGHTTEXT) && CY2 > CY1 )
 					Y=CY2-LenText+1;
@@ -1910,8 +1912,8 @@ void Dialog::ShowDialog(size_t ID)
 				if (Items[I].Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2))
 				{
 					SetColor(ItemColor[2]);
-					GotoXY(m_X1+X,m_Y1+ ((Items[I].Flags&DIF_SEPARATORUSER)?Y:(!DialogMode.Check(DMODE_SMALLDIALOG)?1:0)));  //????
-					ShowUserSeparator((Items[I].Flags&DIF_SEPARATORUSER)?m_Y2-m_Y1+1:RealHeight-(!DialogMode.Check(DMODE_SMALLDIALOG)?2:0),
+					GotoXY(m_X1+X,m_Y1+ ((Items[I].Flags&DIF_SEPARATORUSER)?YS:(!DialogMode.Check(DMODE_SMALLDIALOG)?1:0)));  //????
+					ShowUserSeparator((Items[I].Flags&DIF_SEPARATORUSER)?CY2-CY1+1:RealHeight-(!DialogMode.Check(DMODE_SMALLDIALOG)?2:0),
 					                  (Items[I].Flags&DIF_SEPARATORUSER)?13:(Items[I].Flags&DIF_SEPARATOR2?7:5),
 					                  Items[I].strMask.data()
 					                 );
