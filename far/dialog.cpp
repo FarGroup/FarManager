@@ -1316,6 +1316,59 @@ void Dialog::DeleteDialogObjects()
 }
 
 
+
+void Dialog::GetDialogObjectsExpandData()
+{
+	SCOPED_ACTION(CriticalSectionLock)(CS);
+
+	std::for_each(RANGE(Items, i)
+	{
+		switch (i.Type)
+		{
+			case DI_EDIT:
+			case DI_COMBOBOX:
+			{
+				if (i.ObjPtr && (i.Flags&DIF_EDITEXPAND))
+				{
+					string strData;
+					auto EditPtr = static_cast<DlgEdit*>(i.ObjPtr);
+
+					// подготовим данные
+					// получим данные
+					EditPtr->GetString(strData);
+
+					/* $ 01.08.2000 SVS
+					   ! ¬ History должно заноситс€ значение (дл€ DIF_EXPAND...) перед
+					    расширением среды!
+					*/
+					/*$ 05.07.2000 SVS $
+					ѕроверка - этот элемент предполагает расширение переменных среды?
+					т.к. функци€ GetDialogObjectsData() может вызыватьс€ самосто€тельно
+					Ќо надо проверить!*/
+					/* $ 04.12.2000 SVS
+					  ! ƒл€ DI_PSWEDIT и DI_FIXEDIT обработка DIF_EDITEXPAND не нужна
+					   (DI_FIXEDIT допускаетс€ дл€ случа€ если нету маски)
+					*/
+
+					strData = os::env::expand_strings(strData);
+					//как бы гр€зный хак, нам нужно обновить строку чтоб отдавалась правильна€ строка
+					//дл€ различных DM_* после закрыти€ диалога, но ни в коем случае нельз€ чтоб
+					//высылалс€ DN_EDITCHANGE дл€ этого изменени€, ибо диалог уже закрыт.
+					EditPtr->SetCallbackState(false);
+					EditPtr->SetString(strData);
+					EditPtr->SetCallbackState(true);
+
+					i.strData = strData;
+				}
+
+				break;
+			}
+			default:
+				break;
+		}
+	});
+}
+
 //////////////////////////////////////////////////////////////////////////
 /* Public:
    —охран€ет значение из полей редактировани€.
@@ -1355,7 +1408,7 @@ void Dialog::GetDialogObjectsData()
 					{
 						AddToEditHistory(&i, strData);
 					}
-
+#if 0
 					/* $ 01.08.2000 SVS
 					   ! ¬ History должно заноситс€ значение (дл€ DIF_EXPAND...) перед
 					    расширением среды!
@@ -1380,7 +1433,7 @@ void Dialog::GetDialogObjectsData()
 						EditPtr->SetCallbackState(true);
 
 					}
-
+#endif
 					i.strData = strData;
 				}
 
@@ -4442,6 +4495,7 @@ intptr_t Dialog::CloseDialog()
 	intptr_t result = DlgProc(DN_CLOSE, m_ExitCode, nullptr);
 	if (result)
 	{
+		GetDialogObjectsExpandData();
 		DialogMode.Set(DMODE_ENDLOOP);
 		Hide();
 

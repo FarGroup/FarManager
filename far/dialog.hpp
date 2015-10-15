@@ -187,6 +187,7 @@ public:
 
 	bool InitOK() const {return bInitOK;}
 	void GetDialogObjectsData();
+	void GetDialogObjectsExpandData();
 	void SetDialogMode(DWORD Flags) { DialogMode.Set(Flags); }
 	bool CheckDialogMode(DWORD Flags) const { return DialogMode.Check(Flags); }
 	// метод для перемещения диалога
