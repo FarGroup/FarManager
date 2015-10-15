@@ -78,6 +78,8 @@ UINT Clipboard::RegisterFormat(FAR_CLIPBOARD_FORMAT Format)
 		{ 0xFEB0, L"FAR_VerticalBlock" },
 		{ 0xFEB1, L"FAR_VerticalBlock_Unicode" },
 		{ 0xFEB2, CFSTR_PREFERREDDROPEFFECT },
+		{ 0xFEB3, L"MSDEVColumnSelect" },
+		{ 0xFEB4, L"Borland IDE Block Type" }
 	};
 
 	static_assert(ARRAYSIZE(FormatMap) == FCF_COUNT, "Wrong size of FormatMap");
@@ -276,6 +278,20 @@ bool Clipboard::SetFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data)
 			}
 		}
 	}
+	if (Format == FCF_VERTICALBLOCK_UNICODE)
+	{
+		// support "Borland IDE Block Type"
+		if (auto hData = os::memory::global::alloc(GMEM_MOVEABLE, 1))
+		{
+			if (const auto GData = os::memory::global::lock<void*>(hData))
+			{
+				memcpy(GData.get(), "\x02", 1);
+				SetData(RegisterFormat(FCF_BORLANDIDEVBLOCK), std::move(hData));
+			}
+		}
+		// support "MSDEVColumnSelect"
+		SetData(RegisterFormat(FCF_MSDEVCOLUMNSELECT), 0);
+	}
 
 	return true;
 }
@@ -380,21 +396,25 @@ bool Clipboard::GetFormat(FAR_CLIPBOARD_FORMAT Format, string& data)
 {
 	bool Result = false;
 	bool isOEMVBlock=false;
+	BOOL MBColumnSelect = IsFormatAvailable(RegisterFormat(FCF_MSDEVCOLUMNSELECT)) || IsFormatAvailable(RegisterFormat(FCF_BORLANDIDEVBLOCK));
 	auto FormatType = RegisterFormat(Format);
 
 	if (!FormatType)
 		return false;
 
-	if (Format == FCF_VERTICALBLOCK_UNICODE && !IsFormatAvailable(FormatType))
+	if (!MBColumnSelect)
 	{
-		FormatType=RegisterFormat(FCF_VERTICALBLOCK_OEM);
-		isOEMVBlock=true;
+		if (Format == FCF_VERTICALBLOCK_UNICODE && !IsFormatAvailable(FormatType))
+		{
+			FormatType = RegisterFormat(FCF_VERTICALBLOCK_OEM);
+			isOEMVBlock = true;
+		}
+
+		if (!FormatType || !IsFormatAvailable(FormatType))
+			return false;
 	}
 
-	if (!FormatType || !IsFormatAvailable(FormatType))
-		return false;
-
-	if (const auto hClipData = GetData(FormatType))
+	if (const auto hClipData = GetData(MBColumnSelect? CF_UNICODETEXT : FormatType))
 	{
 		if (const auto ClipAddr = os::memory::global::lock<const wchar_t*>(hClipData))
 		{
