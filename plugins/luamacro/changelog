@@ -1,4 +1,8 @@
-﻿shmuel 13.10.2015 16:17:58 +0200 - build 534
+﻿shmuel 16.10.2015 19:08:56 +0200 - build 535
+
+1. Откат билда 533 (перестал работать макро-API в FarNet и PowerShellFar).
+
+shmuel 13.10.2015 16:17:58 +0200 - build 534
 
 1. LuaFAR (generic plugin):
    Возвращение установки переменной _G.IsLuaStateRecreated = true, отменённой в билде 529.
