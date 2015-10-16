@@ -1,4 +1,14 @@
-﻿svs 15.10.2015 16:40:58 +0300 - build 4436
+﻿svs 16.10.2015 12:33:02 +0300 - build 4437
+
+1. Mantis#0003062: FSF.CopyToClipboard+FCT_COLUMN рассинхронизирует буфер обмена
+   Для FCT_STREAM юзается SetClipboard, которая самостоятельно очищает буфер.
+   Для FCT_COLUMN юзается SetClipboardFormat(FCF_VERTICALBLOCK_UNICODE), которая не очищает буфер, а добавляет туда данные. Соответственно OEM остается нетронутым.
+
+   <АХТУНГ!>
+   	SetClipboardFormat просто добавляет к существующему содержимому данные по вертикальному блоку.
+   </АХТУНГ!>
+
+svs 15.10.2015 16:40:58 +0300 - build 4436
 
 1. Mantis#0003061: FSF.CopyToClipboard + FCT_COLUMN: вертикальные блоки, совместимые со сторонними приложениями
    Поддержка вертикальных блоков "Borland IDE Block Type" и "MSDEVColumnSelect" наравне с "FAR_VerticalBlock_Unicode".
