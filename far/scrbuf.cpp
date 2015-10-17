@@ -230,7 +230,7 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color, bo
 	{
 		for_submatrix(Buf, X1, Y1, X2, Y2, [&Color](FAR_CHAR_INFO& Element)
 		{
-			auto ExFlags = Element.Attributes.Flags&FCF_EXTENDEDFLAGS;
+			const auto ExFlags = Element.Attributes.Flags&FCF_EXTENDEDFLAGS;
 			Element.Attributes = Color;
 			Element.Attributes.Flags = (Element.Attributes.Flags&~FCF_EXTENDEDFLAGS) | ExFlags;
 		});

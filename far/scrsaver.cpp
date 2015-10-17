@@ -133,7 +133,7 @@ static void ShowSaver(int Step)
 		}
 	});
 
-	auto NotStar = std::find_if(RANGE(Star, i) {return i.Type == STAR_NONE;});
+	const auto NotStar = std::find_if(RANGE(Star, i) { return i.Type == STAR_NONE; });
 	if (NotStar != Star.end())
 	{
 		const auto random = [](int x)

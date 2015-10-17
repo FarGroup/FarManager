@@ -723,7 +723,7 @@ void DlgEdit::EditChange(void* aParam)
 
 void DlgEdit::DoEditChange()
 {
-	auto dialog=GetDialog();
+	const auto dialog = GetDialog();
 	_DIALOG(CleverSysLog CL(L"DlgEdit::DoEditChange()"));
 	_DIALOG(SysLog(L"m_Owner=%p, m_Owner->IsInited()=%d, m_Index=%d",dialog,dialog->IsInited(),m_Index));
 	if (dialog->IsInited())

@@ -44,7 +44,7 @@ void NamesList::AddName(const string& Name)
 
 bool NamesList::GetNextName(string &strName)
 {
-	auto NewPos = std::next(CurPos);
+	const auto NewPos = std::next(CurPos);
 	if (NewPos == Names.end())
 	{
 		return false;
@@ -67,7 +67,7 @@ bool NamesList::GetPrevName(string &strName)
 bool NamesList::SetCurName(const string& Name)
 {
 	bool Result = false;
-	auto ItemIterator = std::find(ALL_CONST_RANGE(Names), Name);
+	const auto ItemIterator = std::find(ALL_CONST_RANGE(Names), Name);
 
 	if (ItemIterator != Names.cend())
 	{

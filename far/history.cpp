@@ -149,7 +149,7 @@ bool History::ReadLastItem(const string& HistoryName, string &strStr) const
 history_return_type History::Select(const wchar_t *Title, const wchar_t *HelpTopic, string &strStr, history_record_type &Type, GUID* Guid, string *File, string *Data)
 {
 	int Height=ScrY-8;
-	auto HistoryMenu = VMenu2::create(Title, nullptr, 0, Height);
+	const auto HistoryMenu = VMenu2::create(Title, nullptr, 0, Height);
 	HistoryMenu->SetMenuFlags(VMENU_WRAPMODE);
 
 	if (HelpTopic)
@@ -160,7 +160,7 @@ history_return_type History::Select(const wchar_t *Title, const wchar_t *HelpTop
 	if (m_TypeHistory == HISTORYTYPE_CMD || m_TypeHistory == HISTORYTYPE_FOLDER || m_TypeHistory == HISTORYTYPE_VIEW)
 		HistoryMenu->SetId(m_TypeHistory == HISTORYTYPE_CMD?HistoryCmdId:(m_TypeHistory == HISTORYTYPE_FOLDER?HistoryFolderId:HistoryEditViewId));
 
-	auto ret = ProcessMenu(strStr, Guid, File, Data, Title, *HistoryMenu, Height, Type, nullptr);
+	const auto ret = ProcessMenu(strStr, Guid, File, Data, Title, *HistoryMenu, Height, Type, nullptr);
 	Global->ScrBuf->Flush();
 	return ret;
 }
@@ -236,7 +236,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 							strRecord += strHFile + L":";
 					}
 				}
-				auto FTTime = UI64ToFileTime(Time);
+				const auto FTTime = UI64ToFileTime(Time);
 				SYSTEMTIME SavedTime;
 				Utc2Local(FTTime, SavedTime);
 				if(LastDay != SavedTime.wDay || LastMonth != SavedTime.wMonth || LastYear != SavedTime.wYear)

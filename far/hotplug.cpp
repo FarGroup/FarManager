@@ -458,7 +458,7 @@ int RemoveHotplugDisk(wchar_t Disk, DWORD Flags)
 
 void ShowHotplugDevices()
 {
-	auto HotPlugList = VMenu2::create(MSG(MHotPlugListTitle), nullptr, 0, 0);
+	const auto HotPlugList = VMenu2::create(MSG(MHotPlugListTitle), nullptr, 0, 0);
 	std::vector<DeviceInfo> Info;
 
 	const auto FillMenu = [&]()

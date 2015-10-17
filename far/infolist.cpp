@@ -163,7 +163,7 @@ void InfoList::DisplayObject()
 	m_Flags.Set(FSCROBJ_ISREDRAWING);
 
 	string strOutStr;
-	auto AnotherPanel = Parent()->GetAnotherPanel(this);
+	const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 	string strDriveRoot;
 	string strVolumeName, strFileSystemName;
 	DWORD MaxNameLength,FileSystemFlags,VolumeNumber;
@@ -616,7 +616,7 @@ void InfoList::SelectShowMode()
 		//DEFINE_GUID(InfoListSelectShowModeId,0xbfc64a26, 0xf433, 0x4cf3, 0xa1, 0xde, 0x83, 0x61, 0xcf, 0x76, 0x2f, 0x68);
 		// ?????
 
-		auto ShowModeMenu = VMenu2::create(MSG(MMenuInfoShowModeTitle), ShowModeMenuItem, ARRAYSIZE(ShowModeMenuItem), 0);
+		const auto ShowModeMenu = VMenu2::create(MSG(MMenuInfoShowModeTitle), ShowModeMenuItem, ARRAYSIZE(ShowModeMenuItem), 0);
 		ShowModeMenu->SetHelp(L"InfoPanelShowMode");
 		ShowModeMenu->SetPosition(m_X1+4,-1,0,0);
 		ShowModeMenu->SetMenuFlags(VMENU_WRAPMODE);
@@ -681,7 +681,7 @@ void InfoList::SelectShowMode()
 
 int InfoList::ProcessKey(const Manager::Key& Key)
 {
-	auto LocalKey = Key.FarKey();
+	const auto LocalKey = Key.FarKey();
 	if (!IsVisible())
 		return FALSE;
 
@@ -721,7 +721,7 @@ int InfoList::ProcessKey(const Manager::Key& Key)
 			убираем лишнюю перерисовку панелей
 			*/
 		{
-			auto AnotherPanel = Parent()->GetAnotherPanel(this);
+			const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 			m_CurDir = AnotherPanel->GetCurDir();
 			FarChDir(m_CurDir);
 
@@ -804,9 +804,9 @@ int InfoList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return RetCode;
 
 	bool NeedRedraw=false;
-	auto AnotherPanel = Parent()->GetAnotherPanel(this);
-	bool ProcessDescription = AnotherPanel->GetMode() == FILE_PANEL;
-	bool ProcessPluginDescription = AnotherPanel->GetMode() == PLUGIN_PANEL;
+	const auto AnotherPanel = Parent()->GetAnotherPanel(this);
+	const auto ProcessDescription = AnotherPanel->GetMode() == FILE_PANEL;
+	const auto ProcessPluginDescription = AnotherPanel->GetMode() == PLUGIN_PANEL;
 	if ((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && !(MouseEvent->dwEventFlags & MOUSE_MOVED))
 	{
 		if (MouseEvent->dwMousePosition.Y == SectionState[ILSS_DISKINFO].Y)
@@ -928,7 +928,7 @@ void InfoList::PrintInfo(LNGID MsgID) const
 
 bool InfoList::ShowDirDescription(int YPos)
 {
-	auto AnotherPanel = Parent()->GetAnotherPanel(this);
+	const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 
 	string strDizDir(AnotherPanel->GetCurDir());
 
@@ -960,7 +960,7 @@ bool InfoList::ShowDirDescription(int YPos)
 
 bool InfoList::ShowPluginDescription(int YPos)
 {
-	auto AnotherPanel = Parent()->GetAnotherPanel(this);
+	const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 
 	static wchar_t VertcalLine[2]={BoxSymbols[BS_V2],0};
 

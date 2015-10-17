@@ -148,11 +148,11 @@ public:
 	template<class T>
 	static dialog_ptr create(T&& Src, dialog_handler handler = nullptr, void* InitParam = nullptr)
 	{
-		auto Dlg = std::make_shared<Dialog>(private_tag());
+		const auto Dlg = std::make_shared<Dialog>(private_tag());
 		Dlg->DataDialog = InitParam;
 		Dlg->m_handler = handler;
 
-		auto Ptr = Src.data();
+		const auto Ptr = Src.data();
 		Dlg->Construct(&Ptr, Src.size());
 		return Dlg;
 	}
@@ -165,7 +165,7 @@ public:
 		DataDialog(InitParam),
 		m_handler((object && function) ? [=](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2){ return (object->*function)(Dlg, Msg, Param1, Param2); } : dialog_handler())
 	{
-		auto Ptr = Src.data();
+		const auto Ptr = Src.data();
 		Construct(&Ptr, Src.size());
 	}
 
@@ -248,8 +248,8 @@ private:
 	void RemoveFromList();
 
 	// double pointer to avoid auto cast from DialogItemEx* to FarDialogItem*
-	void Construct(DialogItemEx** SrcItem, size_t SrcItemCount);
-	void Construct(const FarDialogItem** SrcItem, size_t SrcItemCount);
+	void Construct(DialogItemEx* const* SrcItem, size_t SrcItemCount);
+	void Construct(const FarDialogItem* const* SrcItem, size_t SrcItemCount);
 	void Init();
 	void DeleteDialogObjects();
 	int LenStrItem(size_t ID, const string& lpwszStr) const;

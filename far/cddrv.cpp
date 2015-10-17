@@ -334,7 +334,7 @@ static CDROM_DeviceCapabilities getCapsUsingDeviceProps(os::fs::file& Device)
 		std::vector<char> Buffer(hdr.Size);
 		if (Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(STORAGE_PROPERTY_QUERY), Buffer.data(), static_cast<DWORD>(Buffer.size()), &returnedLength))
 		{
-			auto devDesc = reinterpret_cast<const PSTORAGE_DEVICE_DESCRIPTOR>(Buffer.data());
+			const auto devDesc = reinterpret_cast<const PSTORAGE_DEVICE_DESCRIPTOR>(Buffer.data());
 
 			if (devDesc->ProductIdOffset && Buffer[devDesc->ProductIdOffset])
 			{
@@ -372,7 +372,7 @@ static UINT GetDeviceTypeByCaps(CDROM_DeviceCapabilities caps)
 		{DRIVE_CDROM, CAPABILITIES_GENERIC_CDROM},
 	};
 
-	auto ItemIterator = std::find_if(CONST_RANGE(DeviceCaps, i)
+	const auto ItemIterator = std::find_if(CONST_RANGE(DeviceCaps, i)
 	{
 		return (caps & i.second) == i.second;
 	});

@@ -59,9 +59,7 @@ intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void*
 
 	case DN_CTLCOLORDLGLIST:
 		{
-			FarDialogItemColors *colors=(FarDialogItemColors*)Param2;
-
-			PaletteColors MenuColors[]=
+			static const PaletteColors MenuColors[]=
 			{
 				COL_MENUBOX,                               // подложка
 				COL_MENUBOX,                               // рамка
@@ -79,9 +77,9 @@ intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void*
 				COL_MENUGRAYTEXT,                          // "серый"
 				COL_MENUSELECTEDGRAYTEXT,                  // выбранный "серый"
 			};
-			for(size_t i=0; i<colors->ColorsCount && i<ARRAYSIZE(MenuColors); ++i)
-				colors->Colors[i]=colors::PaletteColorToFarColor(MenuColors[i]);
 
+			const auto colors = static_cast<FarDialogItemColors*>(Param2);
+			std::transform(MenuColors, MenuColors + std::min(colors->ColorsCount, ARRAYSIZE(MenuColors)), colors->Colors, &colors::PaletteColorToFarColor);
 			return true;
 		}
 
@@ -113,13 +111,9 @@ intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void*
 	case DN_CONTROLINPUT:
 		if(!cancel)
 		{
-			if (Msg==DN_CONTROLINPUT)
+			if (Msg==DN_CONTROLINPUT && ListBox().ProcessFilterKey(InputRecordToKey(static_cast<const INPUT_RECORD*>(Param2))))
 			{
-				auto ir = static_cast<INPUT_RECORD*>(Param2);
-				int key=InputRecordToKey(ir);
-
-				if(ListBox().ProcessFilterKey(key))
-					return true;
+				return true;
 			}
 
 			if(Call(DN_INPUT, Param2))
@@ -567,7 +561,7 @@ intptr_t VMenu2::Run(const std::function<int(const Manager::Key& RawKey)>& fn)
 	{
 		if(Msg==DN_INPUT)
 		{
-			auto ir = static_cast<INPUT_RECORD*>(param);
+			const auto ir = static_cast<const INPUT_RECORD*>(param);
 			return fn(Manager::Key(ir->EventType==WINDOW_BUFFER_SIZE_EVENT ? KEY_CONSOLE_BUFFER_RESIZE : InputRecordToKey(ir), *ir));
 		}
 		return fn(Manager::Key(KEY_NONE));

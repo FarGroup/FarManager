@@ -144,7 +144,7 @@ public:
 private:
 	virtual void Report(const char* aCharset) override
 	{
-		auto i = CpMap().find(aCharset);
+		const auto i = CpMap().find(aCharset);
 		m_codepage = i != CpMap().end()? i->second : -1;
 	}
 

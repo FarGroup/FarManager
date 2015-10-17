@@ -202,7 +202,7 @@ static bool EnumFiles(VMenu2& Menu, const string& Str)
 			StartQuote=true;
 		}
 
-		auto strStart = Str.substr(0, Pos);
+		const auto strStart = Str.substr(0, Pos);
 		auto Token = Str.substr(Pos);
 		Unquote(Token);
 		if (!Token.empty())
@@ -375,7 +375,7 @@ static bool EnumEnvironment(VMenu2& Menu, const string& Str)
 		std::set<string, string_i_less> ResultStrings;
 		FOR(const auto& i, os::env::enum_strings())
 		{
-			auto VarName = L"%" + os::env::split(i.data()).first + L"%";
+			const auto VarName = L"%" + os::env::split(i.data()).first + L"%";
 
 			if (!StrCmpNI(Token, VarName.data(), TokenSize))
 			{
@@ -416,7 +416,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 		}
 		m_Flags.Clear(FEDITLINE_CMP_CHANGED);
 
-		auto ComplMenu = VMenu2::create(string(), nullptr, 0, 0);
+		const auto ComplMenu = VMenu2::create(string(), nullptr, 0, 0);
 		ComplMenu->SetDialogMode(DMODE_NODRAWSHADOW);
 		ComplMenu->SetModeMoving(false);
 		string strTemp = m_Str;
@@ -513,7 +513,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 
 				int ExitCode=ComplMenu->Run([&](const Manager::Key& RawKey)->int
 				{
-					auto MenuKey=RawKey.FarKey();
+					auto MenuKey = RawKey.FarKey();
 					::SetCursorType(Visible, Size);
 
 					if(!Global->Opt->AutoComplete.ModalList)
@@ -583,7 +583,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 										AppendString(ComplMenu->at(0).strName.data()+SelStart);
 										if(m_X2-m_X1>GetLength())
 											SetLeftPos(0);
-										this->Select(SelStart, GetLength());
+										Select(SelStart, GetLength());
 										RevertCallback();
 									}
 									ComplMenu->AddItem(MenuItemEx(), 0);
@@ -859,7 +859,7 @@ void EditControl::SetInputMask(const string& InputMask)
 // Функция обновления состояния строки ввода по содержимому Mask
 void EditControl::RefreshStrByMask(int InitMode)
 {
-	auto Mask = GetInputMask();
+	const auto Mask = GetInputMask();
 	if (!Mask.empty())
 	{
 		const auto MaskLen = Mask.size();

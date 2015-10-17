@@ -213,7 +213,7 @@ inline static size_t GetRequiredSize(size_t RequestedSize)
 static void* DebugAllocator(size_t size, bool Noexcept, ALLOCATION_TYPE type,const char* Function,  const char* File, int Line)
 {
 	size_t realSize = GetRequiredSize(size);
-	auto Info = static_cast<MEMINFO*>(malloc(realSize));
+	const auto Info = static_cast<MEMINFO*>(malloc(realSize));
 
 	if (!Info)
 	{
@@ -240,7 +240,7 @@ static void DebugDeallocator(void* block, ALLOCATION_TYPE type)
 	void* realBlock = block? ToReal(block) : nullptr;
 	if (realBlock)
 	{
-		auto Info = static_cast<MEMINFO*>(realBlock);
+		const auto Info = static_cast<MEMINFO*>(realBlock);
 		assert(Info->AllocationType == type);
 		assert(GetMarker(Info) == EndMarker);
 		UnregisterBlock(Info);
@@ -250,16 +250,14 @@ static void DebugDeallocator(void* block, ALLOCATION_TYPE type)
 
 string FindStr(const void* Data, size_t Size)
 {
-	auto ABegin = reinterpret_cast<const char*>(Data);
-	auto AEnd = ABegin + Size;
+	const auto ABegin = reinterpret_cast<const char*>(Data), AEnd = ABegin + Size;
 
 	if (std::all_of(ABegin, AEnd, [](char c){ return c >= ' ' || IsEol(c); }))
 	{
 		return string(wide(std::string(ABegin, AEnd)));
 	}
 
-	auto WBegin = reinterpret_cast<const wchar_t*>(Data);
-	auto WEnd = WBegin + Size / sizeof(wchar_t);
+	const auto WBegin = reinterpret_cast<const wchar_t*>(Data), WEnd = WBegin + Size / sizeof(wchar_t);
 
 	if (std::all_of(WBegin, WEnd, [](wchar_t c){ return c >= L' ' || IsEol(c); }))
 	{

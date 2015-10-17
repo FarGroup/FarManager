@@ -136,8 +136,8 @@ static int CASHook(const Manager::Key& key)
 					const auto
 						maskLeft=LEFT_CTRL_PRESSED|LEFT_ALT_PRESSED|SHIFT_PRESSED,
 						maskRight=RIGHT_CTRL_PRESSED|RIGHT_ALT_PRESSED|SHIFT_PRESSED;
-					auto state=rec.dwControlKeyState;
-					auto wait=[](DWORD mask)
+					const auto state = rec.dwControlKeyState;
+					const auto wait = [](DWORD mask)
 					{
 						for (;;)
 						{
@@ -153,12 +153,12 @@ static int CASHook(const Manager::Key& key)
 							Sleep(1);
 						}
 					};
-					auto
+					const auto
 						case1 = Global->Opt->CASRule&1 && (state&maskLeft) == maskLeft,
 						case2 = Global->Opt->CASRule&2 && (state&maskRight) == maskRight;
 					if (case1 || case2)
 					{
-						auto maskCurrent = case1?maskLeft:maskRight;
+						const auto maskCurrent = case1?maskLeft:maskRight;
 						const auto currentWindow = Global->WindowManager->GetCurrentWindow();
 						if (currentWindow->CanFastHide())
 						{
@@ -166,10 +166,10 @@ static int CASHook(const Manager::Key& key)
 
 							if (isPanelFocus)
 							{
-								int LeftVisible=Global->CtrlObject->Cp()->LeftPanel->IsVisible();
-								int RightVisible=Global->CtrlObject->Cp()->RightPanel->IsVisible();
-								int CmdLineVisible=Global->CtrlObject->CmdLine()->IsVisible();
-								int KeyBarVisible=Global->CtrlObject->Cp()->GetKeybar().IsVisible();
+								const auto LeftVisible = Global->CtrlObject->Cp()->LeftPanel->IsVisible();
+								const auto RightVisible = Global->CtrlObject->Cp()->RightPanel->IsVisible();
+								const auto CmdLineVisible = Global->CtrlObject->CmdLine()->IsVisible();
+								const auto KeyBarVisible = Global->CtrlObject->Cp()->GetKeybar().IsVisible();
 								Manager::ShowBackground();
 								Global->CtrlObject->Cp()->LeftPanel->HideButKeepSaveScreen();
 								Global->CtrlObject->Cp()->RightPanel->HideButKeepSaveScreen();
@@ -253,10 +253,10 @@ BOOL Manager::ExitAll()
 	{
 		if (i - 1 >= m_modalWindows.size())
 			continue;
-		auto CurrentWindow = m_modalWindows[i - 1];
+		const auto CurrentWindow = m_modalWindows[i - 1];
 		if (!CurrentWindow->GetCanLoseFocus(TRUE))
 		{
-			auto PrevWindowCount = m_modalWindows.size();
+			const auto PrevWindowCount = m_modalWindows.size();
 			CurrentWindow->ProcessKey(Manager::Key(KEY_ESC));
 			Commit();
 
@@ -272,12 +272,12 @@ BOOL Manager::ExitAll()
 	{
 		if (i - 1 >= m_windows.size())
 			continue;
-		auto CurrentWindow = m_windows[i - 1];
+		const auto CurrentWindow = m_windows[i - 1];
 		if (!CurrentWindow->GetCanLoseFocus(TRUE))
 		{
 			ActivateWindow(CurrentWindow);
 			Commit();
-			auto PrevWindoowCount = m_windows.size();
+			const auto PrevWindoowCount = m_windows.size();
 			CurrentWindow->ProcessKey(Manager::Key(KEY_ESC));
 			Commit();
 
@@ -383,7 +383,7 @@ void Manager::ExecuteModal(window_ptr_ref Executed)
 	if (stop_ref) return;
 	stop_ref=&stop;
 
-	auto OriginalStartManager = StartManager;
+	const auto OriginalStartManager = StartManager;
 	StartManager = true;
 
 	for (;;)
@@ -444,14 +444,14 @@ window_ptr Manager::WindowMenu()
 
 	int ExitCode, CheckCanLoseFocus=m_currentWindow->GetCanLoseFocus();
 	{
-		auto ModalMenu = VMenu2::create(MSG(MScreensTitle), nullptr, 0, ScrY - 4);
+		const auto ModalMenu = VMenu2::create(MSG(MScreensTitle), nullptr, 0, ScrY - 4);
 		ModalMenu->SetHelp(L"ScrSwitch");
 		ModalMenu->SetMenuFlags(VMENU_WRAPMODE);
 		ModalMenu->SetPosition(-1,-1,0,0);
 		ModalMenu->SetId(ScreensSwitchId);
 
 		size_t n = 0;
-		auto windows=GetSortedWindows();
+		const auto windows = GetSortedWindows();
 		std::for_each(CONST_RANGE(windows, i)
 		{
 			string strType, strName, strNumText;
@@ -469,7 +469,7 @@ window_ptr Manager::WindowMenu()
 			ReplaceStrings(strName, L"&", L"&&");
 			/*  добавляется "*" если файл изменен */
 			ModalMenuItem.strName = str_printf(L"%s%-10.10s %c %s", strNumText.data(), strType.data(),(i->IsFileModified()?L'*':L' '), strName.data());
-			auto tmp = i.get();
+			const auto tmp = i.get();
 			ModalMenuItem.UserData = tmp;
 			ModalMenuItem.SetSelect(i==m_windows.back());
 			ModalMenu->AddItem(ModalMenuItem);
@@ -484,7 +484,7 @@ window_ptr Manager::WindowMenu()
 		{
 			if (ExitCode>=0)
 			{
-				auto ActivatedWindow = *ModalMenu->GetUserDataPtr<window*>(ExitCode);
+				const auto ActivatedWindow = *ModalMenu->GetUserDataPtr<window*>(ExitCode);
 				ActivateWindow(ActivatedWindow->shared_from_this());
 				return (ActivatedWindow == m_currentWindow.get() || !m_currentWindow->GetCanLoseFocus())? nullptr : m_currentWindow;
 			}
@@ -517,7 +517,7 @@ window_ptr Manager::FindWindowByFile(int ModalType,const string& FileName, const
 		strFullFileName = strBufFileName;
 	}
 
-	auto ItemIterator = std::find_if(CONST_RANGE(m_windows, i) -> bool
+	const auto ItemIterator = std::find_if(CONST_RANGE(m_windows, i) -> bool
 	{
 		string strType, strName;
 
@@ -590,7 +590,7 @@ void Manager::ExecuteWindow(window_ptr_ref Executed)
 
 void Manager::ReplaceWindow(window_ptr_ref Old, window_ptr_ref New)
 {
-	m_Queue.push_back(std::make_unique<MessageTwoWindows>(Old, New, [this](window_ptr_ref Param1, window_ptr_ref Param2){this->ReplaceCommit(Param1, Param2); }));
+	m_Queue.push_back(std::make_unique<MessageTwoWindows>(Old, New, [this](window_ptr_ref Param1, window_ptr_ref Param2){ ReplaceCommit(Param1, Param2); }));
 }
 
 void Manager::SwitchToPanels()
@@ -903,7 +903,7 @@ bool Manager::IsPanelsActive(bool and_not_qview) const
 {
 	if (!m_windows.empty() && m_currentWindow)
 	{
-		auto fp = std::dynamic_pointer_cast<FilePanels>(m_currentWindow);
+		const auto fp = std::dynamic_pointer_cast<FilePanels>(m_currentWindow);
 		return fp && (!and_not_qview || fp->ActivePanel()->GetType() != QVIEW_PANEL);
 	}
 	else
@@ -924,13 +924,13 @@ window_ptr Manager::GetWindow(size_t Index) const
 
 int Manager::IndexOfStack(window_ptr_ref Window)
 {
-	auto ItemIterator = std::find(ALL_CONST_RANGE(m_modalWindows), Window);
+	const auto ItemIterator = std::find(ALL_CONST_RANGE(m_modalWindows), Window);
 	return ItemIterator != m_modalWindows.cend()? ItemIterator - m_modalWindows.cbegin() : -1;
 }
 
 int Manager::IndexOf(window_ptr_ref Window)
 {
-	auto ItemIterator = std::find(ALL_CONST_RANGE(m_windows), Window);
+	const auto ItemIterator = std::find(ALL_CONST_RANGE(m_windows), Window);
 	return ItemIterator != m_windows.cend() ? ItemIterator - m_windows.cbegin() : -1;
 }
 
@@ -940,7 +940,7 @@ void Manager::Commit(void)
 	_MANAGER(ManagerClass_Dump(L"ManagerClass"));
 	while (!m_Queue.empty())
 	{
-		auto message=std::move(m_Queue.front());
+		const auto message = std::move(m_Queue.front());
 		m_Queue.pop_front();
 		if (!message->Process()) break;
 	}
@@ -978,9 +978,9 @@ void Manager::DeleteCommit(window_ptr_ref Param)
 	int WindowIndex=IndexOf(Param);
 	assert(!(-1!=ModalIndex&&-1!=WindowIndex));
 
-	auto ClearCurrentWindow=[this]
+	const auto ClearCurrentWindow = [this]
 	{
-		this->m_currentWindow=nullptr;
+		m_currentWindow = nullptr;
 		InterlockedExchange(&CurrentWindowType,-1);
 	};
 	if (ModalIndex!=-1)
@@ -1027,13 +1027,13 @@ void Manager::DeleteCommit(window_ptr_ref Param)
 
 	assert(m_currentWindow!=Param);
 
-	auto stop=m_Executed.find(Param);
+	const auto stop = m_Executed.find(Param);
 	if (stop != m_Executed.end())
 	{
 		*(stop->second)=true;
 		m_Executed.erase(stop);
 	}
-	auto size=m_Added.erase(Param);
+	const auto size = m_Added.erase(Param);
 	(void)size;
 	assert(size==1);
 }
@@ -1062,7 +1062,7 @@ void Manager::ActivateCommit(window_ptr_ref Param)
 	  то надо его вытащит на верх стэка модалов.
 	*/
 
-	auto ItemIterator = std::find(ALL_RANGE(m_modalWindows), Param);
+	const auto ItemIterator = std::find(ALL_RANGE(m_modalWindows), Param);
 	if (ItemIterator != m_modalWindows.end())
 	{
 		m_modalWindows.erase(ItemIterator);
@@ -1085,18 +1085,18 @@ void Manager::RefreshCommit(window_ptr_ref Param)
 	if (!Param)
 		return;
 
-	auto WindowIndex=IndexOf(Param);
-	auto ModalIndex=IndexOfStack(Param);
+	const auto WindowIndex = IndexOf(Param);
+	auto ModalIndex = IndexOfStack(Param);
 
 	if (-1==WindowIndex && -1==ModalIndex)
 		return;
 
 	assert(!(-1!=WindowIndex && -1!=ModalIndex));
 
-	auto process=[](const windows& List, int Index) -> void
+	const auto process = [](const windows& List, int Index) -> void
 	{
-		auto first = std::next(List.begin(), Index);
-		auto ItemIterator = std::find_if(first, List.end(), LAMBDA_PREDICATE(List, i)
+		const auto first = std::next(List.begin(), Index);
+		const auto ItemIterator = std::find_if(first, List.end(), LAMBDA_PREDICATE(List, i)
 		{
 			return i->Locked();
 		});
@@ -1283,9 +1283,9 @@ Manager::sorted_windows Manager::GetSortedWindows(void) const
 
 void* Manager::GetCurrent(std::function<void*(windows::const_reverse_iterator)> Check) const
 {
-	auto process=[this,&Check](const windows& List,void*& Result) -> bool
+	const auto process = [this, &Check](const windows& List, void*& Result) -> bool
 	{
-		auto iterator = std::find_if(CONST_REVERSE_RANGE(List, i) { return !std::dynamic_pointer_cast<Modal>(i); });
+		const auto iterator = std::find_if(CONST_REVERSE_RANGE(List, i) { return !std::dynamic_pointer_cast<Modal>(i); });
 		if (iterator!=List.crend())
 		{
 			Result=Check(iterator);
@@ -1302,7 +1302,7 @@ Viewer* Manager::GetCurrentViewer(void) const
 {
 	return reinterpret_cast<Viewer*>(GetCurrent([](windows::const_reverse_iterator Iterator)->void*
 	{
-		auto result = std::dynamic_pointer_cast<ViewerContainer>(*Iterator);
+		const auto result = std::dynamic_pointer_cast<ViewerContainer>(*Iterator);
 		return result?result->GetViewer():nullptr;
 	}
 	));
@@ -1327,7 +1327,7 @@ static window_ptr GetContainerById(const windows_type& NonModal, const windows_t
 	};
 	FOR(const auto& List, Lists)
 	{
-		auto ItemIterator = std::find_if(CONST_RANGE(*List, i) -> bool
+		const auto ItemIterator = std::find_if(CONST_RANGE(*List, i) -> bool
 		{
 			const auto window = std::dynamic_pointer_cast<window_type>(i);
 			return window && window->GetById(ID);

@@ -139,7 +139,7 @@ static find_handle FindFirstFileInternal(const string& Name, FAR_FIND_DATA& Find
 					}
 					if(QueryResult)
 					{
-						auto DirectoryInfo = reinterpret_cast<PFILE_ID_BOTH_DIR_INFORMATION>(Handle->BufferBase.get());
+						const auto DirectoryInfo = reinterpret_cast<const FILE_ID_BOTH_DIR_INFORMATION*>(Handle->BufferBase.get());
 						FindData.dwFileAttributes = DirectoryInfo->FileAttributes;
 						FindData.ftCreationTime = UI64ToFileTime(DirectoryInfo->CreationTime.QuadPart);
 						FindData.ftLastAccessTime = UI64ToFileTime(DirectoryInfo->LastAccessTime.QuadPart);
@@ -158,7 +158,7 @@ static find_handle FindFirstFileInternal(const string& Name, FAR_FIND_DATA& Find
 						else
 						{
 							FindData.FileId = 0;
-							auto DirectoryInfoSimple = reinterpret_cast<PFILE_BOTH_DIR_INFORMATION>(DirectoryInfo);
+							const auto DirectoryInfoSimple = reinterpret_cast<const FILE_BOTH_DIR_INFORMATION*>(DirectoryInfo);
 							FindData.strFileName.assign(DirectoryInfoSimple->FileName,DirectoryInfoSimple->FileNameLength/sizeof(WCHAR));
 							FindData.strAlternateFileName.assign(DirectoryInfoSimple->ShortName,DirectoryInfoSimple->ShortNameLength/sizeof(WCHAR));
 						}
@@ -197,12 +197,12 @@ static find_handle FindFirstFileInternal(const string& Name, FAR_FIND_DATA& Find
 static bool FindNextFileInternal(const find_handle& Find, FAR_FIND_DATA& FindData)
 {
 	bool Result = false;
-	auto Handle = static_cast<detail::far_find_handle_impl*>(Find.native_handle());
+	const auto Handle = static_cast<detail::far_find_handle_impl*>(Find.native_handle());
 	bool Status = true, set_errcode = true;
-	auto DirectoryInfo = reinterpret_cast<PFILE_ID_BOTH_DIR_INFORMATION>(Handle->BufferBase.get());
+	auto DirectoryInfo = reinterpret_cast<const FILE_ID_BOTH_DIR_INFORMATION*>(Handle->BufferBase.get());
 	if(Handle->NextOffset)
 	{
-		DirectoryInfo = reinterpret_cast<PFILE_ID_BOTH_DIR_INFORMATION>(reinterpret_cast<LPBYTE>(DirectoryInfo)+Handle->NextOffset);
+		DirectoryInfo = reinterpret_cast<const FILE_ID_BOTH_DIR_INFORMATION*>(reinterpret_cast<const char*>(DirectoryInfo)+Handle->NextOffset);
 	}
 	else
 	{
@@ -246,7 +246,7 @@ static bool FindNextFileInternal(const find_handle& Find, FAR_FIND_DATA& FindDat
 		else
 		{
 			FindData.FileId = 0;
-			auto DirectoryInfoSimple = reinterpret_cast<PFILE_BOTH_DIR_INFORMATION>(DirectoryInfo);
+			const auto DirectoryInfoSimple = reinterpret_cast<const FILE_BOTH_DIR_INFORMATION*>(DirectoryInfo);
 			FindData.strFileName.assign(DirectoryInfoSimple->FileName,DirectoryInfoSimple->FileNameLength/sizeof(WCHAR));
 			FindData.strAlternateFileName.assign(DirectoryInfoSimple->ShortName,DirectoryInfoSimple->ShortNameLength/sizeof(WCHAR));
 		}
@@ -581,7 +581,7 @@ bool file::NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORM
 		NameString.MaximumLength = NameString.Length;
 		pNameString = &NameString;
 	}
-	auto di = reinterpret_cast<PFILE_ID_BOTH_DIR_INFORMATION>(FileInformation);
+	const auto di = reinterpret_cast<FILE_ID_BOTH_DIR_INFORMATION*>(FileInformation);
 	di->NextEntryOffset = 0xffffffffUL;
 
 	NTSTATUS Result = Imports().NtQueryDirectoryFile(Handle.native_handle(), nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, pNameString, RestartScan);
@@ -1358,7 +1358,7 @@ find_handle FindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,
 						if (Handle->BufferBase)
 						{
 							// sometimes for directories NtQueryInformationFile returns STATUS_SUCCESS but doesn't fill the buffer
-							auto StreamInfo = reinterpret_cast<PFILE_STREAM_INFORMATION>(Handle->BufferBase.get());
+							const auto StreamInfo = reinterpret_cast<FILE_STREAM_INFORMATION*>(Handle->BufferBase.get());
 							StreamInfo->StreamNameLength = 0;
 							Handle->Object.NtQueryInformationFile(Handle->BufferBase.get(), Handle->BufferSize, FileStreamInformation, &Result);
 						}
@@ -1367,8 +1367,8 @@ find_handle FindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,
 
 					if (Result == STATUS_SUCCESS)
 					{
-						auto pFsd=static_cast<PWIN32_FIND_STREAM_DATA>(lpFindStreamData);
-						auto StreamInfo = reinterpret_cast<PFILE_STREAM_INFORMATION>(Handle->BufferBase.get());
+						const auto pFsd = static_cast<WIN32_FIND_STREAM_DATA*>(lpFindStreamData);
+						const auto StreamInfo = reinterpret_cast<const FILE_STREAM_INFORMATION*>(Handle->BufferBase.get());
 						Handle->NextOffset = StreamInfo->NextEntryOffset;
 						if (StreamInfo->StreamNameLength)
 						{
@@ -1400,8 +1400,8 @@ bool FindNextStream(const find_handle& hFindStream,LPVOID lpFindStreamData)
 
 		if (Handle->NextOffset)
 		{
-			auto pStreamInfo=reinterpret_cast<PFILE_STREAM_INFORMATION>(Handle->BufferBase.get() + Handle->NextOffset);
-			auto pFsd=static_cast<PWIN32_FIND_STREAM_DATA>(lpFindStreamData);
+			const auto pStreamInfo = reinterpret_cast<const FILE_STREAM_INFORMATION*>(Handle->BufferBase.get() + Handle->NextOffset);
+			const auto pFsd = static_cast<WIN32_FIND_STREAM_DATA*>(lpFindStreamData);
 			Handle->NextOffset = pStreamInfo->NextEntryOffset?Handle->NextOffset+pStreamInfo->NextEntryOffset:0;
 			if (pStreamInfo->StreamNameLength && pStreamInfo->StreamNameLength < sizeof(pFsd->cStreamName))
 			{
@@ -1480,7 +1480,7 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 		if (FinalFilePath.empty())
 		{
 			// try to convert NT path (\Device\HarddiskVolume1) to drive letter
-			auto Strings = GetLogicalDriveStrings();
+			const auto Strings = GetLogicalDriveStrings();
 			std::any_of(CONST_RANGE(Strings, i) -> bool
 			{
 				int Len = MatchNtPathRoot(NtPath, i);
@@ -1636,7 +1636,7 @@ bool GetFileTimeEx(HANDLE Object, LPFILETIME CreationTime, LPFILETIME LastAccess
 	bool Result = false;
 	const ULONG Length = 40;
 	BYTE Buffer[Length] = {};
-	auto fbi = reinterpret_cast<PFILE_BASIC_INFORMATION>(Buffer);
+	const auto fbi = reinterpret_cast<FILE_BASIC_INFORMATION*>(Buffer);
 	IO_STATUS_BLOCK IoStatusBlock;
 	NTSTATUS Status = Imports().NtQueryInformationFile(Object, &IoStatusBlock, fbi, Length, FileBasicInformation);
 	::SetLastError(Imports().RtlNtStatusToDosError(Status));
@@ -1667,7 +1667,7 @@ bool SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILETIME* 
 {
 	const ULONG Length = 40;
 	BYTE Buffer[Length] = {};
-	auto fbi = reinterpret_cast<PFILE_BASIC_INFORMATION>(Buffer);
+	const auto fbi = reinterpret_cast<FILE_BASIC_INFORMATION*>(Buffer);
 	if(CreationTime)
 	{
 		fbi->CreationTime.QuadPart = FileTimeToUI64(*CreationTime);
@@ -1949,7 +1949,7 @@ DWORD GetAppPathsRedirectionFlag()
 
 		std::pair<string, string> split(const wchar_t* Line)
 		{
-			auto EqPos = wcschr(Line + 1, L'=');
+			const auto EqPos = wcschr(Line + 1, L'=');
 			return std::make_pair(string(Line, EqPos - Line), string(EqPos + 1));
 		}
 

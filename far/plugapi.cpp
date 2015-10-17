@@ -405,7 +405,7 @@ BOOL WINAPI apiShowHelp(const wchar_t *ModuleName, const wchar_t *HelpTopic, FAR
 			}
 			else
 			{
-				if (auto plugin = Global->CtrlObject->Plugins->FindPlugin(*reinterpret_cast<const GUID*>(ModuleName)))
+				if (const auto plugin = Global->CtrlObject->Plugins->FindPlugin(*reinterpret_cast<const GUID*>(ModuleName)))
 				{
 					Flags |= FHELP_CUSTOMPATH;
 					strTopic = Help::MakeLink(ExtractFilePath(plugin->GetModuleName()), HelpTopic);
@@ -721,7 +721,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		case ACTL_SETCURRENTWINDOW:
 		{
 			// Запретим переключение фрэймов, если находимся в модальном редакторе/вьюере.
-			auto NextWindow=Global->WindowManager->GetWindow(Param1);
+			const auto NextWindow = Global->WindowManager->GetWindow(Param1);
 			if (!Global->WindowManager->InModal() && NextWindow)
 			{
 				Global->WindowManager->ActivateWindow(NextWindow);
@@ -755,7 +755,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		case ACTL_SETPROGRESSVALUE:
 		{
 			BOOL Result=FALSE;
-			auto PV = static_cast<ProgressValue*>(Param2);
+			const auto PV = static_cast<const ProgressValue*>(Param2);
 			if(CheckStructSize(PV))
 			{
 				Taskbar().SetProgressValue(PV->Completed,PV->Total);
@@ -865,7 +865,7 @@ intptr_t WINAPI apiMenuFn(
 
 		int ExitCode;
 		{
-			auto FarMenu = VMenu2::create(NullToEmpty(Title), nullptr, 0, MaxHeight);
+			const auto FarMenu = VMenu2::create(NullToEmpty(Title), nullptr, 0, MaxHeight);
 			FarMenu->SetPosition(X,Y,0,0);
 			if(Id)
 			{
@@ -1026,7 +1026,7 @@ intptr_t WINAPI apiSendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void*
 
 	try
 	{
-		auto dialog = static_cast<Dialog*>(hDlg);
+		const auto dialog = static_cast<Dialog*>(hDlg);
 		return Dialog::IsValid(dialog)? dialog->SendMessage(Msg, Param1, Param2) : ErrorResult();
 	}
 	catch (...)
@@ -1056,7 +1056,7 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 			return hDlg;
 
 
-		if (auto Plugin = Global->CtrlObject->Plugins->FindPlugin(*PluginId))
+		if (const auto Plugin = Global->CtrlObject->Plugins->FindPlugin(*PluginId))
 		{
 			class plugin_dialog: public Dialog
 			{
@@ -1082,7 +1082,7 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 				FARWINDOWPROC m_Proc;
 			};
 
-			auto FarDialog = plugin_dialog::create(make_range(Item, Item + ItemsNumber), DlgProc, Param);
+			const auto FarDialog = plugin_dialog::create(make_range(Item, Item + ItemsNumber), DlgProc, Param);
 
 			if (FarDialog->InitOK())
 			{
@@ -1134,7 +1134,7 @@ intptr_t WINAPI apiDialogRun(HANDLE hDlg) noexcept
 		if (Global->WindowManager->ManagerIsDown())
 			return -1;
 
-		auto FarDialog = static_cast<Dialog*>(hDlg);
+		const auto FarDialog = static_cast<Dialog*>(hDlg);
 
 		FarDialog->Process();
 		int ExitCode = FarDialog->GetExitCode();
@@ -1157,7 +1157,7 @@ void WINAPI apiDialogFree(HANDLE hDlg) noexcept
 	{
 		if (hDlg != INVALID_HANDLE_VALUE)
 		{
-			auto Dlg = static_cast<Dialog*>(hDlg)->shared_from_this();
+			const auto Dlg = static_cast<Dialog*>(hDlg)->shared_from_this();
 			const auto& Plugins = Global->CtrlObject->Plugins;
 			std::any_of(RANGE(*Plugins, i) { return i->RemoveDialog(Dlg); });
 		}
@@ -1266,7 +1266,7 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 		}
 
 		// непосредственно... вывод
-		auto Window = Global->WindowManager->GetBottomWindow();
+		const auto Window = Global->WindowManager->GetBottomWindow();
 
 		if (Window)
 			Window->Lock(); // отменим прорисовку окна
@@ -1309,8 +1309,8 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 		if (Global->OnlyEditorViewerUsed || !Global->CtrlObject || Global->WindowManager->ManagerIsDown())
 			return 0;
 
-		auto FPanels = Global->CtrlObject->Cp();
-		auto CmdLine=Global->CtrlObject->CmdLine();
+		const auto FPanels = Global->CtrlObject->Cp();
+		const auto CmdLine = Global->CtrlObject->CmdLine();
 
 		switch (Command)
 		{
@@ -1365,9 +1365,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 
 			if (LeftPanel && LeftPanel->GetMode()==PLUGIN_PANEL)
 			{
-				auto PlHandle = LeftPanel->GetPluginHandle();
-
-				if (PlHandle)
+				if (const auto PlHandle = LeftPanel->GetPluginHandle())
 				{
 					hInternal=PlHandle->hPlugin;
 
@@ -1380,9 +1378,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 
 			if (RightPanel && RightPanel->GetMode()==PLUGIN_PANEL)
 			{
-				auto PlHandle = RightPanel->GetPluginHandle();
-
-				if (PlHandle)
+				if (const auto PlHandle = RightPanel->GetPluginHandle())
 				{
 					hInternal=PlHandle->hPlugin;
 
@@ -1506,9 +1502,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 
 			if (pPanel && (pPanel->GetMode() == PLUGIN_PANEL))
 			{
-				auto PlHandle = pPanel->GetPluginHandle();
-
-				if (PlHandle)
+				if (const auto PlHandle = pPanel->GetPluginHandle())
 				{
 					if (PlHandle->hPlugin == hPlugin)
 						return TRUE;
@@ -1599,7 +1593,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 			*pItemsNumber=0;
 			*pPanelItem=nullptr;
 
-			auto Items = new std::vector<PluginPanelItem>;
+			const auto Items = new std::vector<PluginPanelItem>;
 
 			time_check TimeCheck(time_check::delayed, GetRedrawTimeout());
 			bool MsgOut = false;
@@ -1664,7 +1658,7 @@ void WINAPI apiFreeDirList(PluginPanelItem *PanelItem, size_t nItemsNumber) noex
 {
 	try
 	{
-		auto Items = reinterpret_cast<std::vector<PluginPanelItem>*>(PanelItem[nItemsNumber].Reserved[0]);
+		const auto Items = reinterpret_cast<std::vector<PluginPanelItem>*>(PanelItem[nItemsNumber].Reserved[0]);
 		Items->pop_back(); // not needed anymore, see magic trick above
 		return FreeDirList(Items);
 	}
@@ -1708,7 +1702,7 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 		if (Flags & VF_NONMODAL)
 		{
 			/* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-			auto Viewer = FileViewer::create(FileName, TRUE, DisableHistory, Title, X1, Y1, X2, Y2, CodePage);
+			const auto Viewer = FileViewer::create(FileName, TRUE, DisableHistory, Title, X1, Y1, X2, Y2, CodePage);
 
 			if (!Viewer)
 				return FALSE;
@@ -1740,7 +1734,7 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 		else
 		{
 			/* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-			auto Viewer = FileViewer::create(FileName, FALSE, DisableHistory, Title, X1, Y1, X2, Y2, CodePage);
+			const auto Viewer = FileViewer::create(FileName, FALSE, DisableHistory, Title, X1, Y1, X2, Y2, CodePage);
 
 			Viewer->SetEnableF6(Flags & VF_ENABLE_F6);
 
@@ -1817,7 +1811,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 		if (Flags & EF_NONMODAL)
 		{
 			/* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-			if (auto Editor = FileEditor::create(NullToEmpty(FileName), CodePage,
+			if (const auto Editor = FileEditor::create(NullToEmpty(FileName), CodePage,
 				(CreateNew ? FFILEEDIT_CANNEWFILE : 0) | FFILEEDIT_ENABLEF6 |
 				(DisableHistory ? FFILEEDIT_DISABLEHISTORY : 0) |
 				(Locked ? FFILEEDIT_LOCKED : 0) |
@@ -1876,7 +1870,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 		else
 		{
 			/* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-			auto Editor = FileEditor::create(FileName, CodePage,
+			const auto Editor = FileEditor::create(FileName, CodePage,
 				(CreateNew ? FFILEEDIT_CANNEWFILE : 0) |
 				(DisableHistory ? FFILEEDIT_DISABLEHISTORY : 0) |
 				(Locked ? FFILEEDIT_LOCKED : 0) |
@@ -2585,7 +2579,7 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 			{
 				string strPath;
 				ConvertNameToFull(reinterpret_cast<const wchar_t*>(Param2), strPath);
-				auto ItemIterator = std::find_if(CONST_RANGE(*Global->CtrlObject->Plugins, i)
+				const auto ItemIterator = std::find_if(CONST_RANGE(*Global->CtrlObject->Plugins, i)
 				{
 					return !StrCmpI(i->GetModuleName(), strPath);
 				});
@@ -2605,7 +2599,7 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 
 		case PCTL_GETPLUGININFORMATION:
 		{
-			auto Info = reinterpret_cast<FarGetPluginInformation*>(Param2);
+			const auto Info = reinterpret_cast<FarGetPluginInformation*>(Param2);
 			if (Handle && (!Info || (CheckStructSize(Info) && static_cast<size_t>(Param1) > sizeof(FarGetPluginInformation))))
 			{
 				return Global->CtrlObject->Plugins->GetPluginInformation(reinterpret_cast<Plugin*>(Handle), Info, Param1);

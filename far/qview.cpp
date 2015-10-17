@@ -102,7 +102,7 @@ void QuickView::DisplayObject()
 	if (!QView && !ProcessingPluginCommand)
 		Parent()->GetAnotherPanel(this)->UpdateViewPanel();
 
-	if (this->Destroyed())
+	if (Destroyed())
 		return;
 
 	if (QView)
@@ -324,7 +324,7 @@ __int64 QuickView::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 int QuickView::ProcessKey(const Manager::Key& Key)
 {
-	auto LocalKey = Key.FarKey();
+	const auto LocalKey = Key.FarKey();
 	if (!IsVisible())
 		return FALSE;
 
@@ -342,7 +342,7 @@ int QuickView::ProcessKey(const Manager::Key& Key)
 
 	if (LocalKey==KEY_F3 || LocalKey==KEY_NUMPAD5 || LocalKey == KEY_SHIFTNUMPAD5)
 	{
-		auto AnotherPanel = Parent()->GetAnotherPanel(this);
+		const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 
 		if (AnotherPanel->GetType()==FILE_PANEL)
 			AnotherPanel->ProcessKey(Manager::Key(KEY_F3));
@@ -352,7 +352,7 @@ int QuickView::ProcessKey(const Manager::Key& Key)
 
 	if (LocalKey==KEY_ADD || LocalKey==KEY_SUBTRACT)
 	{
-		auto AnotherPanel = Parent()->GetAnotherPanel(this);
+		const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 
 		if (AnotherPanel->GetType()==FILE_PANEL)
 			AnotherPanel->ProcessKey(Manager::Key(LocalKey==KEY_ADD?KEY_DOWN:KEY_UP));
@@ -492,7 +492,7 @@ void QuickView::ShowFile(const string& FileName, bool TempFile, PluginHandle* hD
 			QView->OpenFile(strCurFileName,FALSE);
 		}
 	}
-	if (this->Destroyed())
+	if (Destroyed())
 		return;
 
 	m_TemporaryFile = TempFile;

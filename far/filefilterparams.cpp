@@ -274,8 +274,7 @@ bool FileFilterParams::FileInFilter(const os::FAR_FIND_DATA& fde, unsigned __int
 	// Режим проверки времени файла включен?
 	if (FDate.Used)
 	{
-		auto after  = FDate.DateAfter;
-		auto before = FDate.DateBefore;
+		auto before = FDate.DateBefore, after = FDate.DateAfter;
 
 		if (after || before)
 		{
@@ -305,7 +304,7 @@ bool FileFilterParams::FileInFilter(const os::FAR_FIND_DATA& fde, unsigned __int
 					before = CurrentTime - before;
 			}
 
-			auto ftime = FileTimeToUI64(*ft);
+			const auto ftime = FileTimeToUI64(*ft);
 
 			// Есть введённая пользователем начальная дата?
 			if (after)
@@ -701,7 +700,7 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 			}
 			else if (Param1==ID_FF_MAKETRANSPARENT)
 			{
-				auto Colors = reinterpret_cast<HighlightFiles::highlight_item*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+				const auto Colors = reinterpret_cast<HighlightFiles::highlight_item*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 
 				std::for_each(RANGE(Colors->Color, i)
 				{
@@ -725,7 +724,7 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 			if ((Msg==DN_BTNCLICK && Param1 >= ID_HER_NORMALFILE && Param1 <= ID_HER_SELECTEDCURSORMARKING)
 			        || (Msg==DN_CONTROLINPUT && Param1==ID_HER_COLOREXAMPLE && ((INPUT_RECORD *)Param2)->EventType == MOUSE_EVENT && ((INPUT_RECORD *)Param2)->Event.MouseEvent.dwButtonState==FROM_LEFT_1ST_BUTTON_PRESSED))
 			{
-				auto EditData = reinterpret_cast<HighlightFiles::highlight_item*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+				const auto EditData = reinterpret_cast<HighlightFiles::highlight_item*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 
 				if (Msg==DN_CONTROLINPUT)
 				{
@@ -757,7 +756,7 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 
 			if (Param1 == ID_HER_MARKEDIT)
 			{
-				auto EditData = reinterpret_cast<HighlightFiles::highlight_item*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+				const auto EditData = reinterpret_cast<HighlightFiles::highlight_item*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 				size_t Size = Dlg->SendMessage(DM_GETDLGITEM, ID_HER_COLOREXAMPLE, nullptr);
 				block_ptr<FarDialogItem> Buffer(Size);
 				FarGetDialogItem gdi = {sizeof(FarGetDialogItem), Size, Buffer.get()};
@@ -1039,7 +1038,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 			FilterDlg[i].Flags|=DIF_DISABLE;
 	}
 
-	auto Dlg = Dialog::create(FilterDlg, FileFilterConfigDlgProc, ColorConfig? &Colors : nullptr);
+	const auto Dlg = Dialog::create(FilterDlg, FileFilterConfigDlgProc, ColorConfig ? &Colors : nullptr);
 	Dlg->SetHelp(ColorConfig?L"HighlightEdit":L"Filter");
 	Dlg->SetPosition(-1,-1,FilterDlg[ID_FF_TITLE].X2+4,FilterDlg[ID_FF_TITLE].Y2+2);
 	Dlg->SetId(ColorConfig?HighlightConfigId:FiltersConfigId);

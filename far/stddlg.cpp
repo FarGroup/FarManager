@@ -135,7 +135,7 @@ int GetSearchReplaceString(
 		if (!pPreserveStyle)
 			ReplaceDlg[10].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
 
-		auto Dlg = Dialog::create(ReplaceDlg);
+		const auto Dlg = Dialog::create(ReplaceDlg);
 		Dlg->SetPosition(-1,-1,76,14);
 
 		if (HelpTopic && *HelpTopic)
@@ -202,7 +202,7 @@ int GetSearchReplaceString(
 		if (HideAll)
 			SearchDlg[10].Flags |= DIF_HIDDEN;
 
-		auto Dlg = Dialog::create(SearchDlg);
+		const auto Dlg = Dialog::create(SearchDlg);
 		Dlg->SetPosition(-1,-1,76,11);
 
 		if (HelpTopic && *HelpTopic)
@@ -331,7 +331,7 @@ int GetString(
 		StrDlg[2].strData = SrcText;
 
 	{
-		auto Dlg = Dialog::create(make_range(StrDlg.data(), StrDlg.data() + StrDlg.size() - Substract));
+		const auto Dlg = Dialog::create(make_range(StrDlg.data(), StrDlg.data() + StrDlg.size() - Substract));
 		Dlg->SetPosition(-1,-1,76,offset+((Flags&FIB_BUTTONS)?8:6));
 		if(Id) Dlg->SetId(*Id);
 
@@ -406,7 +406,7 @@ int GetNameAndPassword(const string& Title, string &strUserName, string &strPass
 	auto PassDlg = MakeDialogItemsEx(PassDlgData);
 
 	{
-		auto Dlg = Dialog::create(PassDlg);
+		const auto Dlg = Dialog::create(PassDlg);
 		Dlg->SetPosition(-1,-1,76,10);
 		Dlg->SetId(GetNameAndPasswordId);
 
@@ -548,18 +548,18 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 					}
 					if(RmGetListResult ==ERROR_SUCCESS)
 					{
-						for (size_t i = 0; i < nProcInfo; i++)
+						FOR(const auto& i, rgpi)
 						{
-							string tmp = rgpi[i].strAppName;
-							if (*rgpi[i].strServiceShortName)
+							string tmp = i.strAppName;
+							if (*i.strServiceShortName)
 							{
-								tmp.append(L" [").append(rgpi[i].strServiceShortName).append(L"]");
+								tmp.append(L" [").append(i.strServiceShortName).append(L"]");
 							}
-							tmp += L" (PID: " + std::to_wstring(rgpi[i].Process.dwProcessId);
-							if (const auto Process = os::handle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, rgpi[i].Process.dwProcessId)))
+							tmp += L" (PID: " + std::to_wstring(i.Process.dwProcessId);
+							if (const auto Process = os::handle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, i.Process.dwProcessId)))
 							{
 								FILETIME ftCreate, ftExit, ftKernel, ftUser;
-								if (GetProcessTimes(Process.native_handle(), &ftCreate, &ftExit, &ftKernel, &ftUser) && rgpi[i].Process.ProcessStartTime == ftCreate)
+								if (GetProcessTimes(Process.native_handle(), &ftCreate, &ftExit, &ftKernel, &ftUser) && i.Process.ProcessStartTime == ftCreate)
 								{
 									string Name;
 									if (os::GetModuleFileNameEx(Process.native_handle(), nullptr, Name))

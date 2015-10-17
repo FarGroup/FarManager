@@ -258,7 +258,7 @@ static string TryConvertVolumeGuidToDrivePath(const string& Path, const wchar_t 
 		else
 		{
 			string strVolumeGuid;
-			auto Strings = os::GetLogicalDriveStrings();
+			const auto Strings = os::GetLogicalDriveStrings();
 			std::any_of(CONST_RANGE(Strings, i) -> bool
 			{
 				if (os::GetVolumeNameForVolumeMountPoint(i, strVolumeGuid) && Path.compare(0, DirectoryOffset, strVolumeGuid.data(), DirectoryOffset) == 0)

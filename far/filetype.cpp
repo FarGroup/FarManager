@@ -131,7 +131,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 {
 	string strCommand, strDescription, strMask;
 	{
-		auto TypesMenu = VMenu2::create(MSG(MSelectAssocTitle), nullptr, 0, ScrY - 4);
+		const auto TypesMenu = VMenu2::create(MSG(MSelectAssocTitle), nullptr, 0, ScrY - 4);
 		TypesMenu->SetHelp(L"FileAssoc");
 		TypesMenu->SetMenuFlags(VMENU_WRAPMODE);
 		TypesMenu->SetId(SelectAssocMenuId);
@@ -515,7 +515,7 @@ bool EditTypeRecord(unsigned __int64 EditPos,bool NewRec)
 		}
 	}
 
-	auto Dlg = Dialog::create(EditDlg, EditTypeRecordDlgProc);
+	const auto Dlg = Dialog::create(EditDlg, EditTypeRecordDlgProc);
 	Dlg->SetHelp(L"FileAssocModify");
 	Dlg->SetId(FileAssocModifyId);
 	Dlg->SetPosition(-1,-1,DlgX,DlgY);
@@ -563,7 +563,7 @@ void EditFileTypes()
 	SCOPED_ACTION(auto)(ConfigProvider().AssocConfig()->ScopedTransaction());
 
 	int MenuPos=0;
-	auto TypesMenu = VMenu2::create(MSG(MAssocTitle),nullptr,0,ScrY-4);
+	const auto TypesMenu = VMenu2::create(MSG(MAssocTitle), nullptr, 0, ScrY - 4);
 	TypesMenu->SetHelp(L"FileAssoc");
 	TypesMenu->SetMenuFlags(VMENU_WRAPMODE);
 	TypesMenu->SetBottomTitle(MSG(MAssocBottom));

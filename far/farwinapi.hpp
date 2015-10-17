@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace os
 {
-	namespace detail
+	namespace detail 
 	{
 		struct handle_closer { static bool close(HANDLE Handle); };
 		struct find_handle_closer { static bool close(HANDLE Handle); };
@@ -75,7 +75,7 @@ namespace os
 
 			HANDLE native_handle() const { return m_Handle; }
 
-			HANDLE release() { auto Result = m_Handle; m_Handle = nullptr; return Result; }
+			HANDLE release() { const auto Result = m_Handle; m_Handle = nullptr; return Result; }
 
 			bool wait(DWORD Milliseconds = INFINITE) const { return WaitForSingleObject(m_Handle, Milliseconds) == WAIT_OBJECT_0; }
 
@@ -475,7 +475,8 @@ namespace os
 		enum_strings_t(Provider Data): m_Provider(Data) {}
 		bool get(size_t index, typename enum_strings_t<Provider, ResultType>::value_type& value)
 		{
-			auto Begin = index? value.data() + value.size() + 1 : m_Provider, End = Begin;
+			const auto Begin = index ? value.data() + value.size() + 1 : m_Provider;
+			auto End = Begin;
 			while (*End) ++End;
 			value = typename enum_strings_t<Provider, ResultType>::value_type(Begin, End);
 			return !value.empty();

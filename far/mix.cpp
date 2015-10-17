@@ -157,7 +157,7 @@ WINDOWINFO_TYPE WindowTypeToPluginWindowType(const int fType)
 		{windowtype_hmenu,      WTYPE_HMENU},
 	};
 
-	auto ItemIterator = std::find_if(CONST_RANGE(TypesMap, i)
+	const auto ItemIterator = std::find_if(CONST_RANGE(TypesMap, i)
 	{
 		return i.first == fType;
 	});

@@ -194,7 +194,7 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 HighlightFiles::HighlightFiles()
 {
 	Changed = false;
-	auto cfg = ConfigProvider().CreateHighlightConfig();
+	const auto cfg = ConfigProvider().CreateHighlightConfig();
 	SetHighlighting(false, cfg.get());
 	InitHighlightFiles(cfg.get());
 	UpdateCurrentTime();
@@ -313,11 +313,11 @@ void HighlightFiles::InitHighlightFiles(HierarchicalConfig* cfg)
 
 	std::for_each(CONST_RANGE(GroupItems, Item)
 	{
-		if (auto root = cfg->FindByName(cfg->root_key(), Item.KeyName))
+		if (const auto root = cfg->FindByName(cfg->root_key(), Item.KeyName))
 		{
 			for (int i=0;; ++i)
 			{
-				auto key = cfg->FindByName(root, Item.GroupName + std::to_wstring(i));
+				const auto key = cfg->FindByName(root, Item.GroupName + std::to_wstring(i));
 				if (!key)
 					break;
 
@@ -598,7 +598,7 @@ void HighlightFiles::UpdateHighlighting(bool RefreshMasks)
 
 void HighlightFiles::HiEdit(int MenuPos)
 {
-	auto HiMenu = VMenu2::create(MSG(MHighlightTitle), nullptr, 0, ScrY - 4);
+	const auto HiMenu = VMenu2::create(MSG(MHighlightTitle), nullptr, 0, ScrY - 4);
 	HiMenu->SetHelp(HLS.HighlightList);
 	HiMenu->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 	HiMenu->SetPosition(-1,-1,0,0);
@@ -631,7 +631,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 					            MSG(MYes),MSG(MCancel)) != 0)
 						break;
 
-					auto cfg = ConfigProvider().CreateHighlightConfig();
+					const auto cfg = ConfigProvider().CreateHighlightConfig();
 					SetHighlighting(true, cfg.get()); //delete old settings
 					ClearData();
 					InitHighlightFiles(cfg.get());
@@ -834,7 +834,7 @@ static void SaveFilter(HierarchicalConfig *cfg, const HierarchicalConfig::key& k
 	cfg->SetValue(key,HLS.UseAttr,CurHiData->GetAttr(&AttrSet, &AttrClear)?1:0);
 	cfg->SetValue(key,(bSortGroup?HLS.AttrSet:HLS.IncludeAttributes),AttrSet);
 	cfg->SetValue(key,(bSortGroup?HLS.AttrClear:HLS.ExcludeAttributes),AttrClear);
-	auto Colors = CurHiData->GetColors();
+	const auto Colors = CurHiData->GetColors();
 	cfg->SetValue(key,HLS.NormalColor, Colors.Color[HighlightFiles::NORMAL_COLOR].FileColor);
 	cfg->SetValue(key,HLS.SelectedColor, Colors.Color[HighlightFiles::SELECTED_COLOR].FileColor);
 	cfg->SetValue(key,HLS.CursorColor, Colors.Color[HighlightFiles::UNDERCURSOR_COLOR].FileColor);
@@ -854,7 +854,7 @@ void HighlightFiles::Save(bool always)
 
 	Changed = false;
 
-	auto cfg = ConfigProvider().CreateHighlightConfig();
+	const auto cfg = ConfigProvider().CreateHighlightConfig();
 	auto root = cfg->FindByName(cfg->root_key(), HighlightKeyName);
 
 	if (root)

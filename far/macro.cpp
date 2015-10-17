@@ -477,8 +477,8 @@ static bool TryToPostMacro(FARMACROAREA Area,const string& TextKey,DWORD IntKey)
 
 static inline Panel* TypeToPanel(int Type)
 {
-	auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
-	auto PassivePanel = Global->CtrlObject->Cp()->PassivePanel();
+	const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
+	const auto PassivePanel = Global->CtrlObject->Cp()->PassivePanel();
 	return Type == 0 ? ActivePanel : (Type == 1 ? PassivePanel : nullptr);
 }
 
@@ -957,7 +957,7 @@ static BOOL CheckEditSelected(FARMACROAREA Area, UINT64 CurFlags)
 	if (Area==MACROAREA_EDITOR || Area==MACROAREA_DIALOG || Area==MACROAREA_VIEWER || (Area==MACROAREA_SHELL&&Global->CtrlObject->CmdLine()->IsVisible()))
 	{
 		int NeedType = Area == MACROAREA_EDITOR?windowtype_editor:(Area == MACROAREA_VIEWER?windowtype_viewer:(Area == MACROAREA_DIALOG?windowtype_dialog:windowtype_panels));
-		auto CurrentWindow = Global->WindowManager->GetCurrentWindow();
+		const auto CurrentWindow = Global->WindowManager->GetCurrentWindow();
 
 		if (CurrentWindow && CurrentWindow->GetType()==NeedType)
 		{
@@ -1239,10 +1239,10 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 	MacroSettingsDlg[MS_EDIT_DESCR].strData=(Descr && *Descr)?Descr:m_RecDescription.data();
 
 	DlgParam Param={0, 0, MACROAREA_OTHER, 0, false};
-	auto Dlg = Dialog::create(MacroSettingsDlg, &KeyMacro::ParamMacroDlgProc, this, &Param);
+	const auto Dlg = Dialog::create(MacroSettingsDlg, &KeyMacro::ParamMacroDlgProc, this, &Param);
 	Dlg->SetPosition(-1,-1,73,21);
 	Dlg->SetHelp(L"KeyMacroSetting");
-	auto BottomWindow = Global->WindowManager->GetBottomWindow();
+	const auto BottomWindow = Global->WindowManager->GetBottomWindow();
 	if(BottomWindow)
 	{
 		BottomWindow->Lock(); // отменим прорисовку окна
@@ -1517,8 +1517,8 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			Global->WindowManager->GetCurrentWindow()->GetMacroArea() : GetArea(), Data);
 	}
 
-	Panel *ActivePanel = Global->CtrlObject->Cp() ? Global->CtrlObject->Cp()->ActivePanel() : nullptr;
-	Panel *PassivePanel = Global->CtrlObject->Cp() ? Global->CtrlObject->Cp()->PassivePanel() : nullptr;
+	const auto ActivePanel = Global->CtrlObject->Cp() ? Global->CtrlObject->Cp()->ActivePanel() : nullptr;
+	const auto PassivePanel = Global->CtrlObject->Cp() ? Global->CtrlObject->Cp()->PassivePanel() : nullptr;
 
 	auto CurrentWindow = Global->WindowManager->GetCurrentWindow();
 
@@ -1617,8 +1617,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			}
 			else
 			{
-				auto f = Global->WindowManager->GetCurrentWindow();
-				if (f)
+				if (const auto f = Global->WindowManager->GetCurrentWindow())
 				{
 					ret=f->VMProcess(CheckCode);
 				}
@@ -1641,13 +1640,9 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			}
 			else
 			{
+				if (const auto f = Global->WindowManager->GetCurrentWindow())
 				{
-					auto f = Global->WindowManager->GetCurrentWindow();
-
-					if (f)
-					{
-						ret=f->VMProcess(CheckCode);
-					}
+					ret=f->VMProcess(CheckCode);
 				}
 			}
 
@@ -1959,7 +1954,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 		case MCODE_V_TITLE: // Title
 		{
-			auto f = Global->WindowManager->GetCurrentWindow();
+			const auto f = Global->WindowManager->GetCurrentWindow();
 
 			if (std::dynamic_pointer_cast<FilePanels>(f))
 			{
@@ -1984,9 +1979,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_HEIGHT:  // Height - высота текущего объекта
 		case MCODE_V_WIDTH:   // Width - ширина текущего объекта
 		{
-			auto f = Global->WindowManager->GetCurrentWindow();
-
-			if (f)
+			if (const auto f = Global->WindowManager->GetCurrentWindow())
 			{
 				int X1, Y1, X2, Y2;
 				f->GetPosition(X1,Y1,X2,Y2);
@@ -2013,9 +2006,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			if (IsMenuArea(CurArea) || CurArea == MACROAREA_DIALOG)
 			{
-				auto f = Global->WindowManager->GetCurrentWindow();
-
-				if (f)
+				if (const auto f = Global->WindowManager->GetCurrentWindow())
 				{
 					string NewStr;
 
@@ -2320,9 +2311,8 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			TVar& p2(Params[1]);
 
 			__int64 Result=0;
-			auto f = Global->WindowManager->GetCurrentWindow();
 
-			if (f)
+			if (const auto f = Global->WindowManager->GetCurrentWindow())
 			{
 				Result = f->VMProcess(CheckCode, ToPtr(p2.toInteger()), p1.toInteger());
 			}
@@ -2343,9 +2333,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			if (IsMenuArea(CurArea) || CurArea == MACROAREA_DIALOG)
 			{
-				auto f = Global->WindowManager->GetCurrentWindow();
-
-				if (f)
+				if (const auto f = Global->WindowManager->GetCurrentWindow())
 				{
 					__int64 MenuItemPos=tmpVar.asInteger()-1;
 					if (CheckCode == MCODE_F_MENU_GETHOTKEY)
@@ -2408,14 +2396,14 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					tmpMode--;
 			}
 
-			int CurArea=GetArea();
+			const auto CurArea = GetArea();
 
 			if (IsMenuArea(CurArea) || CurArea == MACROAREA_DIALOG)
 			{
-				auto f = Global->WindowManager->GetCurrentWindow();
-
-				if (f)
-					Result=f->VMProcess(CheckCode, const_cast<wchar_t*>(Params[0].toString().data()), tmpMode);
+				if (const auto f = Global->WindowManager->GetCurrentWindow())
+				{
+					Result = f->VMProcess(CheckCode, const_cast<wchar_t*>(Params[0].toString().data()), tmpMode);
+				}
 			}
 
 			PassNumber(Result,Data);
@@ -2437,9 +2425,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			if (IsMenuArea(CurArea) || CurArea == MACROAREA_DIALOG)
 			{
-				auto f = Global->WindowManager->GetCurrentWindow();
-
-				if (f)
+				if (const auto f = Global->WindowManager->GetCurrentWindow())
 				{
 					if (CheckCode == MCODE_F_MENU_FILTER)
 					{
@@ -2796,7 +2782,7 @@ static bool keybarshowFunc(FarMacroCall* Data)
 		ret: prev mode or -1 - KeyBar not found
     */
 	auto Params = parseParams(1, Data);
-	auto f = Global->WindowManager->GetCurrentWindow();
+	const auto f = Global->WindowManager->GetCurrentWindow();
 
 	PassNumber(f?f->VMProcess(MCODE_F_KEYBAR_SHOW,nullptr,Params[0].asInteger())-1:-1, Data);
 	return f != nullptr;
@@ -3219,7 +3205,7 @@ static bool menushowFunc(FarMacroCall* Data)
 		strBottom=strTitle.substr(PosLF+1);
 		strTitle=strTitle.substr(0,PosLF);
 	}
-	auto Menu = VMenu2::create(strTitle, nullptr, 0, ScrY - 4);
+	const auto Menu = VMenu2::create(strTitle, nullptr, 0, ScrY - 4);
 	Menu->SetBottomTitle(strBottom);
 	Menu->SetMenuFlags(MenuFlags);
 	Menu->SetPosition(X,Y,0,0);
@@ -3523,8 +3509,7 @@ static bool panelselectFunc(FarMacroCall* Data)
 	int typePanel=(int)Params[0].asInteger();
 	__int64 Result=-1;
 
-	auto SelPanel = TypeToPanel(typePanel);
-	if (SelPanel)
+	if (const auto SelPanel = TypeToPanel(typePanel))
 	{
 		__int64 Index=-1;
 		if (Mode == 1)
@@ -3579,8 +3564,7 @@ static bool _fattrFunc(int Type, FarMacroCall* Data)
 		int typePanel=(int)Params[0].asInteger();
 		const auto& Str = S.toString();
 
-		auto SelPanel = TypeToPanel(typePanel);
-		if (SelPanel)
+		if (const auto SelPanel = TypeToPanel(typePanel))
 		{
 			if (Str.find_first_of(L"*?") != string::npos)
 				Pos=SelPanel->FindFirst(Str);
@@ -3684,7 +3668,7 @@ static bool dlgsetfocusFunc(FarMacroCall* Data)
 
 	if (Global->CtrlObject->Macro.GetArea() == MACROAREA_DIALOG)
 	{
-		if (auto Dlg = std::dynamic_pointer_cast<Dialog>(Global->WindowManager->GetCurrentWindow()))
+		if (const auto Dlg = std::dynamic_pointer_cast<Dialog>(Global->WindowManager->GetCurrentWindow()))
 		{
 			Ret = Dlg->VMProcess(MCODE_V_DLGCURPOS);
 			if ((int)Index >= 0)
@@ -3705,7 +3689,7 @@ static bool farcfggetFunc(FarMacroCall* Data)
 	TVar& Name(Params[1]);
 	TVar& Key(Params[0]);
 
-	auto option = Global->Opt->GetConfigValue(Key.asString().data(), Name.asString().data());
+	const auto option = Global->Opt->GetConfigValue(Key.asString().data(), Name.asString().data());
 	option ? PassString(option->toString(), Data) : PassBoolean(0, Data);
 	return option != nullptr;
 }
@@ -3715,23 +3699,23 @@ static bool fargetconfigFunc(FarMacroCall* Data)
 {
 	if (Data->Count >= 2 && Data->Values[0].Type==FMVT_STRING && Data->Values[1].Type==FMVT_STRING)
 	{
-		if (auto option = Global->Opt->GetConfigValue(Data->Values[0].String, Data->Values[1].String))
+		if (const auto option = Global->Opt->GetConfigValue(Data->Values[0].String, Data->Values[1].String))
 		{
-			if (auto Opt = dynamic_cast<const BoolOption*>(option))
+			if (const auto Opt = dynamic_cast<const BoolOption*>(option))
 			{
 				PassNumber(1,Data);
 				PassBoolean(Opt->Get(), Data);
 				return true;
 			}
 
-			if (auto Opt = dynamic_cast<const Bool3Option*>(option))
+			if (const auto Opt = dynamic_cast<const Bool3Option*>(option))
 			{
 				PassNumber(2,Data);
 				PassNumber((double)Opt->Get(), Data);
 				return true;
 			}
 
-			if (auto Opt = dynamic_cast<const IntOption*>(option))
+			if (const auto Opt = dynamic_cast<const IntOption*>(option))
 			{
 				double d;
 				PassNumber(3,Data);
@@ -3742,7 +3726,7 @@ static bool fargetconfigFunc(FarMacroCall* Data)
 				return true;
 			}
 
-			if (auto Opt = dynamic_cast<const StringOption*>(option))
+			if (const auto Opt = dynamic_cast<const StringOption*>(option))
 			{
 				PassNumber(4,Data);
 				PassString(Opt->Get(), Data);
@@ -3763,7 +3747,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 	if (Global->CtrlObject->Macro.GetArea()==MACROAREA_DIALOG)
 	{
 		// TODO: fix indentation
-		if (auto Dlg = std::dynamic_pointer_cast<Dialog>(Global->WindowManager->GetCurrentWindow()))
+		if (const auto Dlg = std::dynamic_pointer_cast<Dialog>(Global->WindowManager->GetCurrentWindow()))
 		{
 		TVarType typeIndex=Params[0].type();
 		size_t Index=(unsigned)Params[0].asInteger()-1;
@@ -3872,7 +3856,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 
 					if (IsEdit(ItemType))
 					{
-						if (auto EditPtr = static_cast<DlgEdit*>(Item.ObjPtr))
+						if (const auto EditPtr = static_cast<const DlgEdit*>(Item.ObjPtr))
 							Ret=EditPtr->GetStringAddr();
 					}
 
@@ -4211,7 +4195,7 @@ static bool clipFunc(FarMacroCall* Data)
 		}
 		case 1: // Put "S" into Clipboard
 		{
-			auto Str = Val.asString();
+			const auto Str = Val.asString();
 			if (Str.empty())
 			{
 				Clipboard clip;
@@ -4300,8 +4284,7 @@ static bool panelsetposidxFunc(FarMacroCall* Data)
 	int typePanel=(int)Params[0].asInteger();
 	__int64 Ret=0;
 
-	auto SelPanel = TypeToPanel(typePanel);
-	if (SelPanel)
+	if (const auto SelPanel = TypeToPanel(typePanel))
 	{
 		int TypePanel=SelPanel->GetType(); //FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
 
@@ -4420,7 +4403,7 @@ static bool panelsetpathFunc(FarMacroCall* Data)
 		Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 		Panel *PassivePanel = Global->CtrlObject->Cp()->PassivePanel();
 
-		//auto CurrentWindow=WindowManager->GetCurrentWindow();
+		//const auto CurrentWindow=WindowManager->GetCurrentWindow();
 		Panel *SelPanel = typePanel? (typePanel == 1?PassivePanel:nullptr):ActivePanel;
 
 		if (SelPanel)
@@ -4463,11 +4446,10 @@ static bool panelsetposFunc(FarMacroCall* Data)
 	int typePanel=(int)Params[0].asInteger();
 	const auto& fileName=Val.asString();
 
-	//auto CurrentWindow=WindowManager->GetCurrentWindow();
+	//const auto CurrentWindow=WindowManager->GetCurrentWindow();
 	__int64 Ret=0;
 
-	auto SelPanel = TypeToPanel(typePanel);
-	if (SelPanel)
+	if (const auto SelPanel = TypeToPanel(typePanel))
 	{
 		int TypePanel=SelPanel->GetType(); //FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
 
@@ -4527,9 +4509,9 @@ static bool panelitemFunc(FarMacroCall* Data)
 	int typePanel=(int)Params[0].asInteger();
 	TVar Ret(0ll);
 
-	//auto CurrentWindow=WindowManager->GetCurrentWindow();
+	//const auto CurrentWindow=WindowManager->GetCurrentWindow();
 
-	auto SelPanel = TypeToPanel(typePanel);
+	const auto SelPanel = TypeToPanel(typePanel);
 	if (!SelPanel)
 	{
 		PassValue(Ret, Data);
@@ -4549,7 +4531,7 @@ static bool panelitemFunc(FarMacroCall* Data)
 
 	if (TypePanel == TREE_PANEL)
 	{
-		const auto treeItem = static_cast<TreeList*>(SelPanel)->GetItem(Index);
+		const auto treeItem = static_cast<const TreeList*>(SelPanel)->GetItem(Index);
 		if (treeItem && !TypeInfo)
 		{
 			PassString(treeItem->strName, Data);
@@ -4898,7 +4880,7 @@ static bool editorselFunc(FarMacroCall* Data)
 
 	FARMACROAREA Area=Global->CtrlObject->Macro.GetArea();
 	int NeedType = Area == MACROAREA_EDITOR?windowtype_editor:(Area == MACROAREA_VIEWER?windowtype_viewer:(Area == MACROAREA_DIALOG?windowtype_dialog:windowtype_panels)); // MACROAREA_SHELL?
-	auto CurrentWindow = Global->WindowManager->GetCurrentWindow();
+	const auto CurrentWindow = Global->WindowManager->GetCurrentWindow();
 
 	if (CurrentWindow && CurrentWindow->GetType()==NeedType)
 	{
@@ -5311,7 +5293,7 @@ int KeyMacro::AssignMacroKey(DWORD &MacroKey, UINT64 &Flags)
 	DlgParam Param={Flags, 0, m_StartMode, 0, false};
 	//_SVS(SysLog(L"StartMode=%d",m_StartMode));
 	Global->IsProcessAssignMacroKey++;
-	auto Dlg = Dialog::create(MacroAssignDlg, &KeyMacro::AssignMacroDlgProc, this, &Param);
+	const auto Dlg = Dialog::create(MacroAssignDlg, &KeyMacro::AssignMacroDlgProc, this, &Param);
 	Dlg->SetPosition(-1,-1,34,6);
 	Dlg->SetHelp(L"KeyMacro");
 	Dlg->Process();

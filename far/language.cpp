@@ -172,7 +172,7 @@ static bool SelectLanguage(bool HelpLanguage)
 		strDest=&Global->Opt->strLanguage;
 	}
 
-	auto LangMenu = VMenu2::create(Title, nullptr, 0, ScrY - 4);
+	const auto LangMenu = VMenu2::create(Title, nullptr, 0, ScrY - 4);
 	LangMenu->SetMenuFlags(VMENU_WRAPMODE);
 	LangMenu->SetPosition(ScrX/2-8+5*HelpLanguage,ScrY/2-4+2*HelpLanguage,0,0);
 

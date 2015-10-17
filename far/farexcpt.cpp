@@ -72,8 +72,8 @@ intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 
 			if (di.Type==DI_EDIT)
 			{
-				auto Color = colors::PaletteColorToFarColor(COL_WARNDIALOGTEXT);
-				auto Colors = static_cast<FarDialogItemColors*>(Param2);
+				const auto Color = colors::PaletteColorToFarColor(COL_WARNDIALOGTEXT);
+				const auto Colors = static_cast<FarDialogItemColors*>(Param2);
 				Colors->Colors[0] = Color;
 				Colors->Colors[2] = Color;
 			}
@@ -153,7 +153,7 @@ static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, LPVOID Adres
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MIgnore)},
 	};
 	auto EditDlg = MakeDialogItemsEx(EditDlgData);
-	auto Dlg = Dialog::create(EditDlg, ExcDlgProc);
+	const auto Dlg = Dialog::create(EditDlg, ExcDlgProc);
 	Dlg->SetDialogMode(DMODE_WARNINGSTYLE|DMODE_NOPLUGINS);
 	Dlg->SetPosition(-1,-1,76,10);
 	Dlg->Process();
@@ -321,7 +321,7 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 
 	LPCWSTR Exception=nullptr;
 	// просмотрим "знакомые" FAR`у исключения и обработаем...
-	auto ItemIterator = std::find_if(CONST_RANGE(ECode, i)
+	const auto ItemIterator = std::find_if(CONST_RANGE(ECode, i)
 	{
 		return i.Code == static_cast<NTSTATUS>(xr->ExceptionCode);
 	});
@@ -582,7 +582,7 @@ static int ExceptionTestHook(Manager::Key key)
 			double  d;
 		} zero_const; //, refers;
 		zero_const.i = 0L;
-		auto ModalMenu = VMenu2::create(L"Test Exceptions", nullptr, 0, ScrY - 4);
+		const auto ModalMenu = VMenu2::create(L"Test Exceptions", nullptr, 0, ScrY - 4);
 		ModalMenu->SetMenuFlags(VMENU_WRAPMODE);
 		ModalMenu->SetPosition(-1, -1, 0, 0);
 

@@ -100,7 +100,7 @@ intptr_t MkDirDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 					InsertQuote(Unquote(strDirName));
 				}
 
-				auto pDirList = reinterpret_cast<std::vector<string>*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+				const auto pDirList = reinterpret_cast<std::vector<string>*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 				split(*pDirList, strDirName, STLF_UNIQUE);
 				if (pDirList->empty())
 				{
@@ -146,7 +146,7 @@ void ShellMakeDir(Panel *SrcPanel)
 	auto MkDirDlg = MakeDialogItemsEx(MkDirDlgData);
 	MkDirDlg[MKDIR_COMBOBOX_LINKTYPE].ListItems=&ComboList;
 	std::vector<string> DirList;
-	auto Dlg = Dialog::create(MkDirDlg, MkDirDlgProc, &DirList);
+	const auto Dlg = Dialog::create(MkDirDlg, MkDirDlgProc, &DirList);
 	Dlg->SetPosition(-1,-1,76,12);
 	Dlg->SetHelp(L"MakeFolder");
 	Dlg->SetId(MakeFolderId);

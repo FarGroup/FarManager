@@ -702,7 +702,7 @@ int ReplaceVariables(const wchar_t *DlgTitle, string &strStr, TSubstData& SubstD
 
 	int ExitCode;
 	{
-		auto Dlg = Dialog::create(DlgData);
+		const auto Dlg = Dialog::create(DlgData);
 		Dlg->SetPosition(-1, -1, 76, static_cast<int>(DlgData.size() + 2));
 		Dlg->SetId(UserMenuUserInputId);
 		Dlg->Process();
@@ -719,7 +719,7 @@ int ReplaceVariables(const wchar_t *DlgTitle, string &strStr, TSubstData& SubstD
 
 	for (Str=StartStr; *Str; Str++)
 	{
-		auto ItemIterator = std::find_if(CONST_RANGE(Positions, i) { return i.Pos == Str - StartStr; });
+		const auto ItemIterator = std::find_if(CONST_RANGE(Positions, i) { return i.Pos == Str - StartStr; });
 		if (ItemIterator != Positions.cend())
 		{
 			strTmpStr += DlgData[(ItemIterator - Positions.cbegin()) * 2 + 2].strData;

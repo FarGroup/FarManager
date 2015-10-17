@@ -107,7 +107,7 @@ bool FileFilter::FilterEdit()
 	bMenuOpen = true;
 	int ExitCode;
 	bool bNeedUpdate=false;
-	auto FilterList = VMenu2::create(MSG(MFilterTitle), nullptr, 0, ScrY - 6);
+	const auto FilterList = VMenu2::create(MSG(MFilterTitle), nullptr, 0, ScrY - 6);
 	FilterList->SetHelp(L"FiltersMenu");
 	FilterList->SetPosition(-1,-1,0,0);
 	FilterList->SetBottomTitle(MSG(MFilterBottom));
@@ -127,7 +127,7 @@ bool FileFilter::FilterEdit()
 		extension_list Extensions;
 
 		{
-			auto FFFT = GetFFFT();
+			const auto FFFT = GetFFFT();
 
 			FOR(const auto& i, TempFilterData())
 			{
@@ -465,7 +465,7 @@ int FileFilter::GetCheck(const FileFilterParams& FFP)
 
 void FileFilter::ProcessSelection(VMenu2 *FilterList)
 {
-	auto FFFT = GetFFFT();
+	const auto FFFT = GetFFFT();
 
 	for (size_t i = 0, j = 0, size = FilterList->size(); i != size; ++i)
 	{
@@ -589,7 +589,7 @@ bool FileFilter::FileInFilter(const FileListItem* fli,enumFileInFilterType *foun
 
 bool FileFilter::FileInFilter(const os::FAR_FIND_DATA& fde,enumFileInFilterType *foundType, const string* FullName)
 {
-	auto FFFT = GetFFFT();
+	const auto FFFT = GetFFFT();
 	bool bFound=false;
 	bool bAnyIncludeFound=false;
 	bool bAnyFolderIncludeFound=false;
@@ -720,7 +720,7 @@ bool FileFilter::IsEnabledOnPanel()
 	if (m_FilterType != FFT_PANEL)
 		return false;
 
-	auto FFFT = GetFFFT();
+	const auto FFFT = GetFFFT();
 
 	if (std::any_of(CONST_RANGE(FilterData(), i) { return i.GetFlags(FFFT); }))
 		return true;
@@ -856,7 +856,7 @@ void FileFilter::Save(bool always)
 
 	Changed = false;
 
-	auto cfg = ConfigProvider().CreateFiltersConfig();
+	const auto cfg = ConfigProvider().CreateFiltersConfig();
 
 	auto root = cfg->FindByName(cfg->root_key(), L"Filters");
 	if (root)

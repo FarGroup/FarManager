@@ -147,7 +147,7 @@ private:
 	template<class T>
 	void Starter(T&& f)
 	{
-		auto Param = new T(std::move(f));
+		const auto Param = new T(std::move(f));
 		m_Handle.reset(reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, Wrapper<T>, Param, 0, &m_ThreadId)));
 		if (!m_Handle)
 		{
@@ -161,7 +161,7 @@ private:
 	{
 		EnableSeTranslation();
 
-		auto pParam = reinterpret_cast<T*>(p);
+		const auto pParam = reinterpret_cast<T*>(p);
 		auto Param = std::move(*pParam);
 		delete pParam;
 		Param();

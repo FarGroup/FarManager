@@ -60,12 +60,12 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 			case DBT_DEVICEREMOVECOMPLETE:
 				{
 
-					auto Pbh = reinterpret_cast<PDEV_BROADCAST_HDR>(lParam);
+					const auto Pbh = reinterpret_cast<PDEV_BROADCAST_HDR>(lParam);
 					if(Pbh->dbch_devicetype==DBT_DEVTYP_VOLUME)
 					{
 						// currently we don't care what actually happened, "just a notification" is OK
 
-						//auto Pdv=reinterpret_cast<PDEV_BROADCAST_VOLUME>(Pbh);
+						//const auto Pdv=reinterpret_cast<PDEV_BROADCAST_VOLUME>(Pbh);
 						//bool Media = Pdv->dbcv_flags & DBTF_MEDIA != 0;
 						MessageManager().notify(update_devices);
 					}

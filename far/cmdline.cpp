@@ -279,7 +279,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 		case KEY_RALTF8:
 		{
 			history_record_type Type;
-			auto SelectType = Global->CtrlObject->CmdHistory->Select(MSG(MHistoryTitle), L"History", strStr, Type);
+			const auto SelectType = Global->CtrlObject->CmdHistory->Select(MSG(MHistoryTitle), L"History", strStr, Type);
 			if (SelectType == HRT_ENTER || SelectType == HRT_SHIFTETNER || SelectType == HRT_CTRLENTER || SelectType == HRT_CTRLALTENTER)
 			{
 				std::unique_ptr<SetAutocomplete> disable;
@@ -341,7 +341,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 			history_record_type Type;
 			GUID Guid;
 			string strFile, strData;
-			auto SelectType = Global->CtrlObject->FolderHistory->Select(MSG(MFolderHistoryTitle), L"HistoryFolders", strStr, Type, &Guid, &strFile, &strData);
+			const auto SelectType = Global->CtrlObject->FolderHistory->Select(MSG(MFolderHistoryTitle), L"HistoryFolders", strStr, Type, &Guid, &strFile, &strData);
 
 			switch(SelectType)
 			{
@@ -768,7 +768,7 @@ void CommandLine::ShowViewEditHistory()
 {
 	string strStr;
 	history_record_type Type;
-	auto SelectType = Global->CtrlObject->ViewHistory->Select(MSG(MViewHistoryTitle), L"HistoryViews", strStr, Type);
+	const auto SelectType = Global->CtrlObject->ViewHistory->Select(MSG(MViewHistoryTitle), L"HistoryViews", strStr, Type);
 
 	switch(SelectType)
 	{

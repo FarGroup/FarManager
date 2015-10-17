@@ -207,7 +207,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 	const auto OpenDatabase = [](database_ptr& Db, const string& Name, const std::function<int(const string&, sqlite::sqlite3*&)>& opener) -> bool
 	{
 		sqlite::sqlite3* pDb;
-		auto Result = opener(Name, pDb);
+		const auto Result = opener(Name, pDb);
 		Db.reset(pDb);
 		return Result == SQLITE_OK;
 	};
@@ -259,7 +259,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 		if (ok)
 		{
 			sqlite::sqlite3_busy_timeout(db_source.get(), 1000);
-			auto db_backup = sqlite::sqlite3_backup_init(m_Db.get(), "main", db_source.get(), "main");
+			const auto db_backup = sqlite::sqlite3_backup_init(m_Db.get(), "main", db_source.get(), "main");
 			ok = (nullptr != db_backup);
 			if (ok)
 			{

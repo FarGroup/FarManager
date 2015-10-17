@@ -513,7 +513,7 @@ static void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles *kbtA, KeyBarTitles 
 
 		for (size_t i = 0; i != 12; ++i)
 		{
-			const auto CheckLabel = [&](decltype(*LabelsMap)& Item) { return (kbtA->*Item.first)[i] != nullptr; };
+			const auto CheckLabel = [&](CONST_REFERENCE(LabelsMap) Item) { return (kbtA->*Item.first)[i] != nullptr; };
 
 			kbtW->CountLabels += std::count_if(ALL_CONST_RANGE(LabelsMap), CheckLabel);
 
@@ -529,7 +529,7 @@ static void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles *kbtA, KeyBarTitles 
 
 			for (size_t i = 0, j = 0; i != 12; ++i)
 			{
-				const auto ProcessLabel = [&](decltype(*LabelsMap)& Item)
+				const auto ProcessLabel = [&](CONST_REFERENCE(LabelsMap) Item)
 				{
 					if ((kbtA->*Item.first)[i])
 					{
@@ -863,7 +863,7 @@ static void UnicodeListItemToAnsi(const FarListItem* li, oldfar::FarListItem* li
 static void AnsiListItemToUnicode(const oldfar::FarListItem* liA, FarListItem* li)
 {
 	li->Text = AnsiToUnicode(liA->Text);
-	li->Flags = 0;
+	li->Flags = LIF_NONE;
 	if (liA->Flags)
 	{
 		FirstFlagsToSecond(liA->Flags, li->Flags, ListFlagsMap);
@@ -960,7 +960,7 @@ static void AnsiDialogItemToUnicodeSafe(const oldfar::FarDialogItem &diA, FarDia
 	di.Y1 = diA.Y1;
 	di.X2 = diA.X2;
 	di.Y2 = diA.Y2;
-	di.Flags = 0;
+	di.Flags = DIF_NONE;
 
 	if (diA.Focus)
 	{
@@ -1289,7 +1289,7 @@ static void FreeAnsiPanelInfo(oldfar::PanelInfo* PIA)
 	ClearStruct(*PIA);
 }
 
-struct oldPanelInfoContainer
+struct oldPanelInfoContainer: noncopyable
 {
 	oldPanelInfoContainer(): Info() {}
 	~oldPanelInfoContainer() { FreeAnsiPanelInfo(&Info); }
@@ -2335,7 +2335,7 @@ static int WINAPI FarInputBoxA(const char *Title, const char *Prompt, const char
 			OLDFAR_TO_FAR_MAP(FIB_NOAMPERSAND),
 		};
 
-		DWORD NewFlags = 0;
+		auto NewFlags = FIB_NONE;
 		FirstFlagsToSecond(Flags, NewFlags, FlagsMap);
 
 		wchar_t_ptr Buffer(DestLength);
@@ -2377,22 +2377,20 @@ static int WINAPI FarMessageFnA(intptr_t PluginNumber, DWORD Flags, const char *
 		else
 		{
 			AnsiItems.reserve(ItemsNumber);
-
-			for (int i = 0; i < ItemsNumber; i++)
-				AnsiItems.emplace_back(AnsiToUnicode(Items[i]));
+			std::transform(Items, Items + ItemsNumber, std::back_inserter(AnsiItems), [](const char* Item){ return std::unique_ptr<wchar_t[]>(AnsiToUnicode(Item)); });
 		}
 
-		FARMESSAGEFLAGS NewFlags = FMSG_NONE;
-		if (Flags&oldfar::FMSG_WARNING)
-			NewFlags |= FMSG_WARNING;
-		if (Flags&oldfar::FMSG_ERRORTYPE)
-			NewFlags |= FMSG_ERRORTYPE;
-		if (Flags&oldfar::FMSG_KEEPBACKGROUND)
-			NewFlags |= FMSG_KEEPBACKGROUND;
-		if (Flags&oldfar::FMSG_LEFTALIGN)
-			NewFlags |= FMSG_LEFTALIGN;
-		if (Flags&oldfar::FMSG_ALLINONE)
-			NewFlags |= FMSG_ALLINONE;
+		static const simple_pair<oldfar::FARMESSAGEFLAGS, FARMESSAGEFLAGS> FlagsMap[] =
+		{
+			OLDFAR_TO_FAR_MAP(FMSG_WARNING),
+			OLDFAR_TO_FAR_MAP(FMSG_ERRORTYPE),
+			OLDFAR_TO_FAR_MAP(FMSG_KEEPBACKGROUND),
+			OLDFAR_TO_FAR_MAP(FMSG_LEFTALIGN),
+			OLDFAR_TO_FAR_MAP(FMSG_ALLINONE),
+		};
+
+		auto NewFlags = FMSG_NONE;
+		FirstFlagsToSecond(Flags, NewFlags, FlagsMap);
 
 		switch (Flags & 0x000f0000)
 		{
@@ -2463,7 +2461,7 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 			OLDFAR_TO_FAR_MAP(FMENU_CHANGECONSOLETITLE),
 		};
 
-		DWORD NewFlags = 0;
+		auto NewFlags = FMENU_NONE;
 		FirstFlagsToSecond(Flags, NewFlags, FlagsMap);
 
 		if (!Item) ItemsNumber = 0;
@@ -2486,7 +2484,7 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 
 			for (int i = 0; i < ItemsNumber; i++)
 			{
-				mi[i].Flags = 0;
+				mi[i].Flags = MIF_NONE;
 				FirstFlagsToSecond(p[i].Flags, mi[i].Flags, ItemFlagsMap);
 				mi[i].Text = AnsiToUnicode(p[i].Flags&oldfar::MIF_USETEXTPTR ? p[i].TextPtr : p[i].Text);
 				INPUT_RECORD input = {};
@@ -4041,9 +4039,9 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 
 				string strSequence=L"Keys(\"";
 				string strKeyText;
-				for (int i=0; i<ksA->Count; i++)
+				FOR(const auto& Key, make_range(ksA->Sequence, ksA->Sequence + ksA->Count))
 				{
-					if (KeyToText(OldKeyToKey(ksA->Sequence[i]), strKeyText))
+					if (KeyToText(OldKeyToKey(Key), strKeyText))
 					{
 						strSequence += L" " + strKeyText;
 					}
@@ -5679,7 +5677,7 @@ void PluginA::ConvertOpenPanelInfo(const oldfar::OpenPanelInfo &Src, OpenPanelIn
 {
 	FreeOpenPanelInfo();
 	OPI.StructSize = sizeof(OPI);
-	OPI.Flags = 0;
+	OPI.Flags = OPIF_NONE;
 	
 	static const simple_pair<oldfar::OPENPANELINFO_FLAGS, OPENPANELINFO_FLAGS> PanelInfoFlagsMap[] =
 	{

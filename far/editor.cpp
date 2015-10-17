@@ -151,7 +151,7 @@ Editor::Editor(window_ptr Owner, bool DialogUsed):
 
 	if (Global->GetSearchHex())
 	{
-		auto Blob = HexStringToBlob(Global->GetSearchString().data(), 0);
+		const auto Blob = HexStringToBlob(Global->GetSearchString().data(), 0);
 		strLastSearchStr.assign(ALL_CONST_RANGE(Blob));
 	}
 	else
@@ -586,8 +586,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		}
 		case MCODE_F_BM_DEL:                   // N=BM.Del(Idx) - удаляет закладку с указанным индексом (x=1...), 0 - удаляет текущую закладку
 		{
-			auto i = PointerToSessionBookmark((int)iParam - 1);
-			return DeleteSessionBookmark(i);
+			return DeleteSessionBookmark(PointerToSessionBookmark((int)iParam - 1));
 		}
 		case MCODE_F_EDITOR_SEL:
 		{
@@ -756,7 +755,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			if (DestLine<0)
 				DestLine = m_it_CurLine.Number();
 
-			auto EditPtr=GetStringByNumber(DestLine);
+			const auto EditPtr = GetStringByNumber(DestLine);
 
 			if (EditPtr == Lines.end())
 			{
@@ -775,7 +774,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				}
 				case MCODE_F_EDITOR_INSSTR:  // N=Editor.InsStr([S[,Line]])
 				{
-					auto NewEditPtr = InsertString((const wchar_t *)vParam, StrLength((const wchar_t *)vParam), std::next(EditPtr));
+					const auto NewEditPtr = InsertString((const wchar_t *)vParam, StrLength((const wchar_t *)vParam), std::next(EditPtr));
 					NewEditPtr->SetEOL(EditPtr->GetEOL());
 					AddUndoData(UNDO_INSSTR,NewEditPtr->GetStringAddr(),EditPtr->GetEOL(),DestLine,0,NewEditPtr->GetLength());
 					Change(ECTYPE_ADDED,DestLine+1);
@@ -1134,7 +1133,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 
 			if (!CurPos) //курсор в начале строки
 			{
-				auto PrevLine = std::prev(m_it_CurLine);
+				const auto PrevLine = std::prev(m_it_CurLine);
 				if (SelAtBeginning) //курсор в начале блока
 				{
 					m_it_AnyBlockStart = PrevLine;
@@ -1184,7 +1183,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 				m_it_CurLine->Select(SelStart,SelEnd+1);
 			}
 
-			auto OldCur = m_it_CurLine;
+			const auto OldCur = m_it_CurLine;
 			Pasting++;
 			ProcessKey(Manager::Key(KEY_RIGHT));
 			Pasting--;
@@ -1408,7 +1407,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 			if (m_it_CurLine == Lines.begin())
 				return 0;
 
-			auto PrevLine = std::prev(m_it_CurLine);
+			const auto PrevLine = std::prev(m_it_CurLine);
 			if (SelAtBeginning || SelFirst) // расширяем выделение
 			{
 				m_it_CurLine->Select(0,SelEnd);
@@ -1796,7 +1795,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 			{
 				m_Flags.Set(FEDITOR_NEWUNDO);
 				int PrevMaxPos=MaxRightPos;
-				auto LastTopScreen = m_it_TopScreen;
+				const auto LastTopScreen = m_it_TopScreen;
 				Up();
 
 				if (m_it_TopScreen==LastTopScreen)
@@ -1819,7 +1818,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 			{
 				m_Flags.Set(FEDITOR_NEWUNDO);
 				int PrevMaxPos=MaxRightPos;
-				auto LastTopScreen = m_it_TopScreen;
+				const auto LastTopScreen = m_it_TopScreen;
 				Down();
 
 				if (m_it_TopScreen==LastTopScreen)
@@ -2342,7 +2341,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 
 			ProcessVBlockMarking();
 
-			auto PrevLine = std::prev(m_it_CurLine);
+			const auto PrevLine = std::prev(m_it_CurLine);
 			if (!EdOpt.CursorBeyondEOL && VBlockX >= PrevLine->RealPosToTab(PrevLine->GetLength()))
 				return TRUE;
 
@@ -3062,7 +3061,7 @@ struct Editor::InternalEditorSessionBookMark
 
 Editor::numbered_iterator Editor::DeleteString(numbered_iterator DelPtr, bool DeleteLast)
 {
-	auto UpdateIterator = [&DelPtr, this](numbered_iterator& What)
+	const auto UpdateIterator = [&DelPtr, this](numbered_iterator& What)
 	{
 		if (What == DelPtr)
 		{
@@ -3136,7 +3135,7 @@ Editor::numbered_iterator Editor::DeleteString(numbered_iterator DelPtr, bool De
 	{
 		for (auto i = SessionBookmarks.begin(), end = SessionBookmarks.end(); i != end;)
 		{
-			auto next = std::next(i);
+			const auto next = std::next(i);
 			if (DelPtr.Number() < static_cast<int>(i->Line))
 			{
 				i->Line--;
@@ -3179,7 +3178,7 @@ void Editor::InsertString()
 	intptr_t SelStart,SelEnd;
 	int NewLineEmpty=TRUE;
 	const auto NextLine = std::next(m_it_CurLine);
-	auto NewString = InsertString(nullptr, 0, NextLine);
+	const auto NewString = InsertString(nullptr, 0, NextLine);
 
 	if (NewString == Lines.end())
 		return;
@@ -3555,7 +3554,7 @@ BOOL Editor::Search(int Next)
 	if (!EdOpt.PersistentBlocks || (EdOpt.SearchSelFound && !ReplaceMode))
 		UnmarkBlock();
 
-	auto FindAllList = VMenu2::create(string(), nullptr, 0);
+	const auto FindAllList = VMenu2::create(string(), nullptr, 0);
 	UINT AllRefLines = 0;
 	{
 		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<EditorPreRedrawItem>());
@@ -3588,8 +3587,7 @@ BOOL Editor::Search(int Next)
 			}
 		}
 
-		auto CurPtr = FindAllReferences? FirstLine() : m_it_CurLine;
-		auto TmpPtr = CurPtr;
+		auto CurPtr = FindAllReferences? FirstLine() : m_it_CurLine, TmpPtr = CurPtr;
 
 		string strSlash(strSearchStr);
 		InsertRegexpQuote(strSlash);
@@ -4088,7 +4086,7 @@ void Editor::Paste(const wchar_t *Src)
 				m_it_CurLine->Select(StartPos,-1);
 				StartPos=0;
 				EdOpt.AutoIndent = false;
-				auto PrevLine = m_it_CurLine;
+				const auto PrevLine = m_it_CurLine;
 				ProcessKey(Manager::Key(KEY_ENTER));
 
 				int eol_len = 1;   // LF or CR
@@ -4709,7 +4707,7 @@ public:
 	static size_t HashBM(bookmark_list::iterator BM)
 	{
 		auto x = reinterpret_cast<size_t>(&*BM);
-		x = x ^ (BM->Line << 16) ^ (BM->Cursor);
+		x ^= (BM->Line << 16) ^ (BM->Cursor);
 		return x;
 	}
 };
@@ -4790,7 +4788,7 @@ void Editor::AddUndoData(int Type, const wchar_t *Str, const wchar_t *Eol, int S
 	{
 		while (!UndoData.empty() && (EditorUndoData::GetUndoDataSize()>static_cast<size_t>(EdOpt.UndoSize) || UndoSkipLevel>0))
 		{
-			auto ub=UndoData.begin();
+			const auto ub = UndoData.begin();
 
 			if (ub->m_Type == UNDO_BEGIN)
 				++UndoSkipLevel;
@@ -5314,7 +5312,7 @@ void Editor::VPaste(const wchar_t *ClipText)
 		BeginVBlockMarking();
 		int StartPos=m_it_CurLine->GetTabCurPos();
 		VBlockSizeY=0;
-		auto SavedTopScreen = m_it_TopScreen;
+		const auto SavedTopScreen = m_it_TopScreen;
 
 		for (int I=0; ClipText[I]; )
 		{
@@ -5449,7 +5447,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 			if (CheckStructSize(GetString))
 			{
-				auto CurPtr=GetStringByNumber(GetString->StringNumber);
+				const auto CurPtr = GetStringByNumber(GetString->StringNumber);
 
 				if (CurPtr == Lines.end())
 				{
@@ -5592,7 +5590,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					return FALSE;
 				}
 
-				auto CurPtr = GetStringByNumber(SetString->StringNumber);
+				const auto CurPtr = GetStringByNumber(SetString->StringNumber);
 
 				if (CurPtr == Lines.end())
 				{
@@ -5867,7 +5865,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			EditorConvertPos *ecp=(EditorConvertPos *)Param2;
 			if (CheckStructSize(ecp))
 			{
-				auto CurPtr = GetStringByNumber(ecp->StringNumber);
+				const auto CurPtr = GetStringByNumber(ecp->StringNumber);
 
 				if (CurPtr == Lines.end())
 				{
@@ -5891,7 +5889,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			EditorConvertPos *ecp=(EditorConvertPos *)Param2;
 			if (CheckStructSize(ecp))
 			{
-				auto CurPtr = GetStringByNumber(ecp->StringNumber);
+				const auto CurPtr = GetStringByNumber(ecp->StringNumber);
 
 				if (CurPtr == Lines.end())
 				{
@@ -5920,7 +5918,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			else
 			{
 				intptr_t StringNumber=*(intptr_t*)Param2;
-				auto CurPtr = GetStringByNumber(StringNumber);
+				const auto CurPtr = GetStringByNumber(StringNumber);
 
 				if (CurPtr == Lines.end())
 				{
@@ -5954,7 +5952,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				newcol.Flags=col->Flags;
 				newcol.SetOwner(col->Owner);
 				newcol.Priority=col->Priority;
-				auto CurPtr=GetStringByNumber(col->StringNumber);
+				const auto CurPtr = GetStringByNumber(col->StringNumber);
 
 				if (CurPtr == Lines.end())
 				{
@@ -5976,7 +5974,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			EditorColor *col=(EditorColor *)Param2;
 			if (CheckStructSize(col))
 			{
-				auto CurPtr = GetStringByNumber(col->StringNumber);
+				const auto CurPtr = GetStringByNumber(col->StringNumber);
 
 				if (CurPtr == Lines.end())
 				{
@@ -6012,10 +6010,10 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		}
 		case ECTL_DELCOLOR:
 		{
-			auto col = reinterpret_cast<const EditorDeleteColor*>(Param2);
+			const auto col = reinterpret_cast<const EditorDeleteColor*>(Param2);
 			if (CheckStructSize(col))
 			{
-				auto CurPtr = GetStringByNumber(col->StringNumber);
+				const auto CurPtr = GetStringByNumber(col->StringNumber);
 
 				if (CurPtr == Lines.end())
 				{
@@ -6162,7 +6160,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		case ECTL_SUBSCRIBECHANGEEVENT:
 		case ECTL_UNSUBSCRIBECHANGEEVENT:
 		{
-			auto esce = static_cast<EditorSubscribeChangeEvent*>(Param2);
+			const auto esce = static_cast<const EditorSubscribeChangeEvent*>(Param2);
 			if (CheckStructSize(esce))
 			{
 				if (Command == ECTL_UNSUBSCRIBECHANGEEVENT)
@@ -6331,7 +6329,7 @@ void Editor::MoveSavedSessionBookmarksBack(bookmark_list& SavedList)
 {
 	for (auto i = SavedList.begin(), end = SavedList.end(); i != end;)
 	{
-		auto next = std::next(i);
+		const auto next = std::next(i);
 		if (i->hash)
 		{
 			FOR_RANGE(SessionBookmarks, j)
@@ -6428,7 +6426,7 @@ bool Editor::GotoSessionBookmark(int iIdx)
 {
 	if (!SessionBookmarks.empty())
 	{
-		auto sb_temp = PointerToSessionBookmark(iIdx);
+		const auto sb_temp = PointerToSessionBookmark(iIdx);
 		if (sb_temp != SessionBookmarks.end())
 		{
 			SessionPos=sb_temp;
@@ -6462,7 +6460,7 @@ bool Editor::GetSessionBookmark(int iIdx, InternalEditorBookmark *Param)
 
 	if (!SessionBookmarks.empty() && Param)
 	{
-		auto sb_temp = PointerToSessionBookmark(iIdx);
+		const auto sb_temp = PointerToSessionBookmark(iIdx);
 		Param->Line = sb_temp->Line;
 		Param->Cursor     =sb_temp->Cursor;
 		Param->LeftPos    =sb_temp->LeftPos;
@@ -6946,7 +6944,7 @@ void Editor::EditorShowMsg(const string& Title,const string& Msg, const string& 
 	Message(MSG_LEFTALIGN,0,Title,strMsg.data(),strProgress.empty()?nullptr:strProgress.data());
 	if (!PreRedrawStack().empty())
 	{
-		auto item = dynamic_cast<EditorPreRedrawItem*>(PreRedrawStack().top());
+		const auto item = dynamic_cast<EditorPreRedrawItem*>(PreRedrawStack().top());
 		item->Title = Title;
 		item->Msg = Msg;
 		item->Name = Name;
@@ -6958,7 +6956,7 @@ void Editor::PR_EditorShowMsg()
 {
 	if (!PreRedrawStack().empty())
 	{
-		auto item = dynamic_cast<const EditorPreRedrawItem*>(PreRedrawStack().top());
+		const auto item = dynamic_cast<const EditorPreRedrawItem*>(PreRedrawStack().top());
 		Editor::EditorShowMsg(item->Title, item->Msg, item->Name, item->Percent);
 	}
 }
@@ -6967,7 +6965,7 @@ Editor::numbered_iterator Editor::InsertString(const wchar_t *lpwszStr, int nLen
 {
 	bool Empty = Lines.empty();
 
-	auto NewLine = numbered_iterator(Lines.emplace(Where, Edit(GetOwner())), Where.Number());
+	const auto NewLine = numbered_iterator(Lines.emplace(Where, Edit(GetOwner())), Where.Number());
 	m_LinesCount++;
 
 	auto UpdateIterator = [&NewLine, &Where](numbered_iterator& What)
@@ -7230,7 +7228,7 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 
 			if (err_pos >= 0)
 			{
-				auto low_pos = std::lower_bound(wchar_offsets.begin(), wchar_offsets.end(), static_cast<size_t>(err_pos));
+				const auto low_pos = std::lower_bound(wchar_offsets.begin(), wchar_offsets.end(), static_cast<size_t>(err_pos));
 				if (low_pos != wchar_offsets.end())
 					X = static_cast<int>(low_pos - wchar_offsets.begin());
 			}

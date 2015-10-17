@@ -102,7 +102,7 @@ private:
 template<class T>
 static inline tinyxml::TiXmlElement& CreateChild(T& Parent, const char* Name)
 {
-	auto e = new tinyxml::TiXmlElement(Name);
+	const auto e = new tinyxml::TiXmlElement(Name);
 	Parent.LinkEndChild(e);
 	return *e;
 }
@@ -419,7 +419,7 @@ public:
 		if (Statement(stmtCreateKey).Bind(Root.get(), Name, Description? *Description : emptyString).StepAndReset())
 			return make_key(LastInsertRowID());
 
-		auto Key = FindByName(Root, Name);
+		const auto Key = FindByName(Root, Name);
 		if (Key.get() && Description)
 			SetKeyDescription(Key, *Description);
 		return Key;
@@ -634,13 +634,13 @@ private:
 			}
 			else if (value && !strcmp(type, "hex"))
 			{
-				auto Blob = HexStringToBlob(value);
+				const auto Blob = HexStringToBlob(value);
 				SetValue(Key, Name, blob(Blob.data(), Blob.size()));
 			}
 			else
 			{
 				// custom types, value is optional
-				auto Blob = DeserializeBlob(name, type, value, *e);
+				const auto Blob = DeserializeBlob(name, type, value, *e);
 				SetValue(Key, Name, blob(Blob.data(), Blob.size()));
 			}
 		}
@@ -734,9 +734,9 @@ private:
 	{
 		if(!strcmp(Type, "color"))
 		{
-			auto background = e.Attribute("background");
-			auto foreground = e.Attribute("foreground");
-			auto flags = e.Attribute("flags");
+			const auto background = e.Attribute("background");
+			const auto foreground = e.Attribute("foreground");
+			const auto flags = e.Attribute("flags");
 
 			std::vector<char> Blob;
 			if(background && foreground && flags)
@@ -2460,7 +2460,7 @@ bool config_provider::Import(const string& Filename)
 		return false;
 	}
 
-	auto farconfig = Source.GetImportRoot();
+	const auto farconfig = Source.GetImportRoot();
 	representation Representation;
 	const tinyxml::TiXmlHandle root(farconfig);
 	Representation.SetImportRoot(root);

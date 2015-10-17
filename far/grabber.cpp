@@ -64,7 +64,7 @@ grabber_ptr Grabber::create()
 
 void Grabber::init()
 {
-	auto CurrentWindow = Global->WindowManager->GetCurrentWindow();
+	const auto CurrentWindow = Global->WindowManager->GetCurrentWindow();
 	CurrentWindow->Lock();
 	SaveScr = std::make_unique<SaveScreen>();
 	bool Visible=false;

@@ -45,12 +45,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 template<typename T>
 inline T GetFunctionPointer(const wchar_t* ModuleName, const char* FunctionName, T Replacement)
 {
-	auto Address = GetProcAddress(GetModuleHandleW(ModuleName), FunctionName);
+	const auto Address = GetProcAddress(GetModuleHandleW(ModuleName), FunctionName);
 	return Address? reinterpret_cast<T>(Address) : Replacement;
 }
 
 #define CREATE_FUNCTION_POINTER(ModuleName, FunctionName)\
-static auto Function = GetFunctionPointer(ModuleName, #FunctionName, &implementation::FunctionName)
+static const auto Function = GetFunctionPointer(ModuleName, #FunctionName, &implementation::FunctionName)
 
 static const wchar_t kernel32[] = L"kernel32";
 

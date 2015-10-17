@@ -89,7 +89,7 @@ public:
 
 	static BOOL CALLBACK enum_cp(wchar_t *cpNum)
 	{
-		auto cp = static_cast<UINT>(std::wcstoul(cpNum, nullptr, 10));
+		const auto cp = static_cast<UINT>(std::wcstoul(cpNum, nullptr, 10));
 		if (cp == CP_UTF8)
 			return TRUE; // skip standard unicode
 
@@ -155,7 +155,7 @@ codepages::~codepages()
 std::pair<UINT, string> codepages::GetCodePageInfo(UINT cp) const
 {
 	// Standard unicode CPs (1200, 1201, 65001) are NOT in the list.
-	auto found = data.get().find(cp);
+	const auto found = data.get().find(cp);
 	if (data.get().end() == found)
 		return std::pair<UINT, string>();
 
@@ -389,7 +389,7 @@ size_t codepages::GetCodePageInsertPosition(uintptr_t codePage, size_t start, si
 		}
 	};
 
-	auto iRange = make_irange(start, start + length);
+	const auto iRange = make_irange(start, start + length);
 	return *std::find_if(CONST_RANGE(iRange, i) { return GetCodePage(i) >= codePage; });
 }
 
@@ -715,7 +715,7 @@ void codepages::EditCodePageName()
 		{DI_BUTTON,    0, 4,  0, 3, 0, nullptr, nullptr, DIF_CENTERGROUP, MSG(MGetCodePageResetCodePageName)}
 	};
 	auto EditDialog = MakeDialogItemsEx(EditDialogData);
-	auto Dlg = Dialog::create(EditDialog, &codepages::EditDialogProc, this);
+	const auto Dlg = Dialog::create(EditDialog, &codepages::EditDialogProc, this);
 	Dlg->SetPosition(-1, -1, 54, 7);
 	Dlg->SetHelp(L"EditCodePageNameDlg");
 	Dlg->Process();
@@ -848,7 +848,7 @@ bool codepages::IsCodePageSupported(uintptr_t CodePage, size_t MaxCharSize) cons
 	if (CodePage == CP_DEFAULT || IsStandardCodePage(CodePage))
 		return true;
 
-	auto CharSize = GetCodePageInfo(static_cast<UINT>(CodePage)).first;
+	const auto CharSize = GetCodePageInfo(static_cast<UINT>(CodePage)).first;
 	return CharSize != 0 && CharSize <= MaxCharSize;
 }
 
@@ -916,7 +916,7 @@ bool MultibyteCodepageDecoder::SetCP(uintptr_t Codepage)
 	for (size_t i = 0; i != 65536; ++i) // only UCS2 range
 	{
 		DefUsed = FALSE;
-		auto Char = static_cast<wchar_t>(i);
+		const auto Char = static_cast<wchar_t>(i);
 		size_t CharSize = WideCharToMultiByte(Codepage, flags, &Char, 1, u.Buffer, ARRAYSIZE(u.Buffer), nullptr, pDefUsed);
 		if (!CharSize || DefUsed)
 			continue;
@@ -1468,7 +1468,7 @@ int Utf8::ToWideChar(const char *src, size_t U_length, wchar_t* out, size_t U_wl
 			}
 		}
 
-		auto Decrement = w1[1]? 2 : 1;
+		const auto Decrement = w1[1] ? 2 : 1;
 		if (move && (wlen -= Decrement) < 0)
 		{
 			if (errs)

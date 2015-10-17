@@ -145,7 +145,7 @@ static int MainProcess(
 
 			_tran(SysLog(L"create dummy panels"));
 			Global->CtrlObject->CreateDummyFilePanels();
-			auto DummyPanel = new dummy_panel(Global->CtrlObject->Panels());
+			const auto DummyPanel = new dummy_panel(Global->CtrlObject->Panels());
 			Global->CtrlObject->Cp()->LeftPanel = Global->CtrlObject->Cp()->RightPanel = DummyPanel;
 			Global->CtrlObject->Cp()->SetActivePanel(DummyPanel);
 			Global->WindowManager->PluginCommit();
@@ -155,7 +155,7 @@ static int MainProcess(
 
 			if (!ename.empty())
 			{
-				auto ShellEditor = FileEditor::create(ename, CP_DEFAULT, FFILEEDIT_CANNEWFILE | FFILEEDIT_ENABLEF6, StartLine, StartChar);
+				const auto ShellEditor = FileEditor::create(ename, CP_DEFAULT, FFILEEDIT_CANNEWFILE | FFILEEDIT_ENABLEF6, StartLine, StartChar);
 				_tran(SysLog(L"make shelleditor %p",ShellEditor));
 
 				if (!ShellEditor->GetExitCode())  // ????????????
@@ -166,7 +166,7 @@ static int MainProcess(
 			// TODO: Этот else убрать только после разборок с возможностью задавать несколько /e и /v в ком.строке
 			else if (!vname.empty())
 			{
-				auto ShellViewer = FileViewer::create(vname,TRUE);
+				const auto ShellViewer = FileViewer::create(vname, TRUE);
 
 				if (!ShellViewer->GetExitCode())
 				{
@@ -611,7 +611,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 					else if (Iter + 1 != Args.end())
 					{
 						strProfilePath = *++Iter;
-						auto Next = Iter + 1;
+						const auto Next = Iter + 1;
 						if (Next != Args.end() && *Next[0] != L'-'  && *Next[0] != L'/')
 						{
 							strLocalProfilePath = *Next;

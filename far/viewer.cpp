@@ -414,7 +414,7 @@ int Viewer::OpenFile(const string& Name,int warning)
 bool Viewer::isBinaryFile(uintptr_t cp) // very approximate: looks for '\0' in first 2k bytes
 {
 	char Buffer[2048];
-	auto CurrentPos = vtell();
+	const auto CurrentPos = vtell();
 	vseek(0, FILE_BEGIN);
 	size_t BytesRead = 0;
 	bool Result = ViewFile.Read(Buffer, sizeof(Buffer), BytesRead, nullptr);
@@ -554,9 +554,9 @@ void Viewer::ShowPage(int nMode)
 				Strings.pop_front();
 				Strings.emplace_back(VALUE_TYPE(Strings)());
 				FilePos = Strings.front().nFilePos;
-				auto Second = std::next(Strings.begin());
+				const auto Second = std::next(Strings.begin());
 				SecondPos = Second->nFilePos;
-				auto PreLast = std::prev(Strings.end(), 2);
+				const auto PreLast = std::prev(Strings.end(), 2);
 				Strings.back().nFilePos = PreLast->nFilePos + PreLast->linesize;
 			}
 			else
@@ -1259,7 +1259,7 @@ __int64 Viewer::EndOfScreen(int line)
 
 	if (m_DisplayMode == VMT_TEXT)
 	{
-		auto i = std::next(Strings.begin(), m_Y2-m_Y1+line);
+		const auto i = std::next(Strings.begin(), m_Y2 - m_Y1 + line);
 		pos = i->nFilePos + i->linesize;
 		if (!line && !m_Wrap && Strings.back().linesize > 0)
 		{
@@ -1455,7 +1455,7 @@ __int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 int Viewer::ProcessKey(const Manager::Key& Key)
 {
-	auto ret = process_key(Key);
+	const auto ret = process_key(Key);
 	if (redraw_selection)
 		Show();
 	return ret;
@@ -1586,7 +1586,7 @@ int Viewer::process_key(const Manager::Key& Key)
 				}
 				else
 				{
-					auto PrevLastPage = LastPage;
+					const auto PrevLastPage = LastPage;
 					LastPage = false;
 					Show();
 
@@ -1666,14 +1666,14 @@ int Viewer::process_key(const Manager::Key& Key)
 			};
 			int MenuResult;
 			{
-				auto vModes = VMenu2::create(MSG(MViewMode), ModeListMenu, ARRAYSIZE(ModeListMenu), ScrY - 4);
+				const auto vModes = VMenu2::create(MSG(MViewMode), ModeListMenu, ARRAYSIZE(ModeListMenu), ScrY - 4);
 				vModes->SetMenuFlags(VMENU_WRAPMODE | VMENU_AUTOHIGHLIGHT);
 				vModes->SetSelectPos(m_DisplayMode, +1);
 				MenuResult = vModes->Run();
 			}
 			if (MenuResult >= 0)
 			{
-				auto NewMode = static_cast<VIEWER_MODE_TYPE>(MenuResult);
+				const auto NewMode = static_cast<VIEWER_MODE_TYPE>(MenuResult);
 				if (NewMode != m_DisplayMode)
 				{
 					if (NewMode != VMT_HEX)
@@ -2304,7 +2304,7 @@ static int process_back(int BufferSize, int pos, int64_t& fpos, const F& Reader)
 	static const T crlf[] = { eol::cr, eol::lf };
 	const auto REnd = std::reverse_iterator<T*>(Buffer);
 	const auto RBegin = REnd - nr;
-	auto Iterator = std::find_first_of(RBegin, REnd, ALL_CONST_RANGE(crlf));
+	const auto Iterator = std::find_first_of(RBegin, REnd, ALL_CONST_RANGE(crlf));
 	if (Iterator != REnd)
 	{
 		fpos += sizeof(T) * (REnd - Iterator);
@@ -2508,7 +2508,7 @@ enum
 	DM_SDSETVISIBILITY = DM_USER + 1,
 };
 
-struct MyDialogData
+struct ViewerDialogData
 {
 	Viewer* viewer;
 	bool edit_autofocus;
@@ -2542,16 +2542,16 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 		{
 			if (SD_EDIT_TEXT == Param1 || SD_EDIT_HEX == Param1)
 			{
-				auto my = (MyDialogData *)Dlg->SendMessage(DM_GETITEMDATA, SD_EDIT_TEXT, nullptr);
-				my->hex_mode = (SD_EDIT_HEX == Param1);
+				const auto Data = reinterpret_cast<ViewerDialogData*>(Dlg->SendMessage(DM_GETITEMDATA, SD_EDIT_TEXT, nullptr));
+				Data->hex_mode = (SD_EDIT_HEX == Param1);
 			}
 			break;
 		}
 		case DN_BTNCLICK:
 		{
 			bool need_focus = false;
-			auto my = (MyDialogData *)Dlg->SendMessage(DM_GETITEMDATA, SD_EDIT_TEXT, nullptr);
-			int cradio = (my->hex_mode ? SD_RADIO_HEX : SD_RADIO_TEXT);
+			const auto Data = reinterpret_cast<ViewerDialogData*>(Dlg->SendMessage(DM_GETITEMDATA, SD_EDIT_TEXT, nullptr));
+			int cradio = (Data->hex_mode ? SD_RADIO_HEX : SD_RADIO_TEXT);
 
 			if ((Param1 == SD_RADIO_TEXT || Param1 == SD_RADIO_HEX) && Param2)
 			{
@@ -2572,7 +2572,7 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 					FarDialogItemData item = {sizeof(FarDialogItemData)};
 					Dlg->SendMessage(DM_GETTEXT, sd_src, &item);
 					string strTo;
-					my->viewer->SearchTextTransform(strTo, ps, item.PtrLength, !new_hex, esp.CurPos);
+					Data->viewer->SearchTextTransform(strTo, ps, item.PtrLength, !new_hex, esp.CurPos);
 					item.PtrLength = strTo.size();
 					item.PtrData = UNSAFE_CSTR(strTo);
 					Dlg->SendMessage(DM_SETTEXT, sd_dst, &item);
@@ -2595,17 +2595,17 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 					}
 
 					Dlg->SendMessage(DM_ENABLEREDRAW, TRUE, nullptr);
-					my->hex_mode = new_hex;
-					if (!my->edit_autofocus)
+					Data->hex_mode = new_hex;
+					if (!Data->edit_autofocus)
 						return TRUE;
 				}
 			}
 			else if (Param1 == SD_CHECKBOX_REGEXP)
 			{
-				Dlg->SendMessage(DM_SDSETVISIBILITY, my->hex_mode, nullptr);
+				Dlg->SendMessage(DM_SDSETVISIBILITY, Data->hex_mode, nullptr);
 			}
 
-			if (my->edit_autofocus && !my->recursive)
+			if (Data->edit_autofocus && !Data->recursive)
 			{
 				if ( need_focus
 				  || Param1 == SD_CHECKBOX_CASE
@@ -2613,9 +2613,9 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 				  || Param1 == SD_CHECKBOX_REVERSE
 				  || Param1 == SD_CHECKBOX_REGEXP
 				){
-					my->recursive = true;
-					Dlg->SendMessage(DM_SETFOCUS, my->hex_mode ? SD_EDIT_HEX : SD_EDIT_TEXT, nullptr);
-					my->recursive = false;
+					Data->recursive = true;
+					Dlg->SendMessage(DM_SETFOCUS, Data->hex_mode? SD_EDIT_HEX : SD_EDIT_TEXT, nullptr);
+					Data->recursive = false;
 				}
 			}
 
@@ -2628,7 +2628,7 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 		{
 			if (Param1==SD_TEXT_SEARCH)
 			{
-				MyDialogData *my = (MyDialogData *)Dlg->SendMessage(DM_GETITEMDATA, SD_EDIT_TEXT, nullptr);
+				ViewerDialogData *my = (ViewerDialogData *)Dlg->SendMessage(DM_GETITEMDATA, SD_EDIT_TEXT, nullptr);
 				Dlg->SendMessage(DM_SETFOCUS, (my->hex_mode ? SD_EDIT_HEX : SD_EDIT_TEXT), nullptr);
 				return FALSE;
 			}
@@ -2659,7 +2659,7 @@ static void PR_ViewerSearchMsg()
 {
 	if (!PreRedrawStack().empty())
 	{
-		auto item = dynamic_cast<const ViewerPreRedrawItem*>(PreRedrawStack().top());
+		const auto item = dynamic_cast<const ViewerPreRedrawItem*>(PreRedrawStack().top());
 		ViewerSearchMsg(item->name, item->percent, item->hex);
 	}
 }
@@ -2678,7 +2678,7 @@ void ViewerSearchMsg(const string& MsgStr, int Percent, int SearchHex)
 	Message(MSG_LEFTALIGN,0,MSG(MViewSearchTitle),strMsg.data(),strProgress.empty()?nullptr:strProgress.data());
 	if (!PreRedrawStack().empty())
 	{
-		auto item = dynamic_cast<ViewerPreRedrawItem*>(PreRedrawStack().top());
+		const auto item = dynamic_cast<ViewerPreRedrawItem*>(PreRedrawStack().top());
 		item->name = MsgStr;
 		item->percent = Percent;
 		item->hex = SearchHex;
@@ -2689,10 +2689,9 @@ static std::vector<char> hex2ss(const wchar_t *from, size_t len, intptr_t *pos =
 {
 	string strFrom(from, len);
 	RemoveTrailingSpaces(strFrom);
-	auto blob = HexStringToBlob(strFrom.data(), L' ');
 	if (pos)
 		*pos /= 3;
-	return blob;
+	return HexStringToBlob(strFrom.data(), L' ');
 }
 
 void Viewer::SearchTextTransform(string &to, const wchar_t *from, size_t from_len, bool hex2text, intptr_t &pos)
@@ -3114,7 +3113,7 @@ int Viewer::read_line(wchar_t *buf, wchar_t *tbuf, INT64 cpos, int adjust, INT64
 	const auto OldWrap = m_Wrap;
 	const auto OldWordWrap = m_WordWrap;
 
-	auto OldDisplayMode = std::move(m_DisplayMode);
+	const auto OldDisplayMode = std::move(m_DisplayMode);
 
 	m_DisplayMode = VMT_TEXT;
 	m_Wrap = m_WordWrap = 0;
@@ -3216,7 +3215,7 @@ SEARCHER_RESULT Viewer::search_regex_forward(search_data* sd)
 	}
 	else
 	{
-		auto pos = vtell();
+		const auto pos = vtell();
 		sd->CurPos = pos;
 
 		if (LastSelectPos > 0 && cpos < LastSelectPos && pos >= LastSelectPos)
@@ -3355,7 +3354,7 @@ void Viewer::Search(int Next,int FirstChar)
 		SearchDlg[SD_CHECKBOX_REGEXP].Selected=LastSearchRegexp;
 		SearchDlg[SearchDlg[SD_RADIO_HEX].Selected? SD_EDIT_HEX : SD_EDIT_TEXT].strData = strSearchStr;
 
-		MyDialogData my;
+		ViewerDialogData my;
 		//
 		my.viewer = this;
 		my.edit_autofocus = (ViOpt.SearchEditFocus != 0);
@@ -3364,7 +3363,7 @@ void Viewer::Search(int Next,int FirstChar)
 		//
 		SearchDlg[SD_EDIT_TEXT].UserData = (intptr_t)&my;
 
-		auto Dlg = Dialog::create(SearchDlg, &Viewer::ViewerSearchDlgProc, this);
+		const auto Dlg = Dialog::create(SearchDlg, &Viewer::ViewerSearchDlgProc, this);
 		Dlg->SetPosition(-1,-1,76,13);
 		Dlg->SetHelp(L"ViewerSearch");
 
@@ -3988,7 +3987,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 		__int64 Relative=0;
 		if (ShowDlg)
 		{
-			auto Dlg = Dialog::create(GoToDlg);
+			const auto Dlg = Dialog::create(GoToDlg);
 			Dlg->SetHelp(L"ViewerGotoPos");
 			Dlg->SetPosition(-1,-1,35,9);
 			Dlg->Process();

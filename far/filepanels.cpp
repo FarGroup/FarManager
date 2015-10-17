@@ -73,7 +73,7 @@ FilePanels::FilePanels(private_tag):
 
 filepanels_ptr FilePanels::create(bool CreatePanels, int DirCount)
 {
-	auto FilePanelsPtr = std::make_shared<FilePanels>(private_tag());
+	const auto FilePanelsPtr = std::make_shared<FilePanels>(private_tag());
 
 	FilePanelsPtr->m_windowKeyBar = std::make_unique<KeyBar>(FilePanelsPtr);
 	FilePanelsPtr->SetMacroMode(MACROAREA_SHELL);
@@ -445,7 +445,7 @@ __int64 FilePanels::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 int FilePanels::ProcessKey(const Manager::Key& Key)
 {
-	auto LocalKey = Key.FarKey();
+	const auto LocalKey = Key.FarKey();
 	if (!LocalKey)
 		return TRUE;
 
@@ -1179,12 +1179,12 @@ void FilePanels::GoToFile(const string& FileName)
 	if (FindSlash(FileName) != string::npos)
 	{
 		string ADir,PDir;
-		Panel *PassivePanel = this->PassivePanel();
-		int PassiveMode = PassivePanel->GetMode();
+		const auto Passive = PassivePanel();
+		int PassiveMode = Passive->GetMode();
 
 		if (PassiveMode == NORMAL_PANEL)
 		{
-			PDir = PassivePanel->GetCurDir();
+			PDir = Passive->GetCurDir();
 			AddEndSlash(PDir);
 		}
 

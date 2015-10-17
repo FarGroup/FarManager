@@ -381,16 +381,16 @@ void ElevationApproveDlgSync(const EAData& Data)
 		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MSkip)},
 	};
 	auto ElevationApproveDlg = MakeDialogItemsEx(ElevationApproveDlgData);
-	auto Dlg = Dialog::create(ElevationApproveDlg, ElevationApproveDlgProc);
+	const auto Dlg = Dialog::create(ElevationApproveDlg, ElevationApproveDlgProc);
 	Dlg->SetHelp(L"ElevationDlg");
 	Dlg->SetPosition(-1, -1, DlgX, DlgY);
 	Dlg->SetDialogMode(DMODE_FULLSHADOW | DMODE_NOPLUGINS);
-	auto Current = Global->WindowManager->GetCurrentWindow();
+	const auto Current = Global->WindowManager->GetCurrentWindow();
 	if(Current)
 	{
 		Current->Lock();
 	}
-	auto Lock = Global->ScrBuf->GetLockCount();
+	const auto Lock = Global->ScrBuf->GetLockCount();
 	Global->ScrBuf->SetLockCount(0);
 	Dlg->Process();
 	Global->ScrBuf->SetLockCount(Lock);

@@ -124,7 +124,7 @@ void SaveScreen::AppendArea(const SaveScreen *NewArea)
 		if (X >= NewArea->m_X1 && X <= NewArea->m_X2)
 			for (int Y = m_Y1; Y <= m_Y2; Y++)
 				if (Y >= NewArea->m_Y1 && Y <= NewArea->m_Y2)
-					this->ScreenBuf.vector()[Offset(this, X, Y)] = NewArea->ScreenBuf.vector()[Offset(NewArea, X, Y)];
+					ScreenBuf.vector()[Offset(this, X, Y)] = NewArea->ScreenBuf.vector()[Offset(NewArea, X, Y)];
 }
 
 void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)

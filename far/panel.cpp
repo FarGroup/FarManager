@@ -375,7 +375,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 	PanelMenuItem Item, *mitem = nullptr;
 	{ // эта скобка надо, см. M#605
-		auto ChDisk = VMenu2::create(MSG(MChangeDriveTitle), nullptr, 0, ScrY - m_Y1 - 3);
+		const auto ChDisk = VMenu2::create(MSG(MChangeDriveTitle), nullptr, 0, ScrY - m_Y1 - 3);
 		ChDisk->SetBottomTitle(MSG(MChangeDriveMenuFooter));
 		ChDisk->SetHelp(L"DriveDlg");
 		ChDisk->SetMenuFlags(VMENU_WRAPMODE);
@@ -453,7 +453,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					{DRIVE_USBDRIVE,MChangeDriveRemovable},
 				};
 
-				auto ItemIterator = std::find_if(CONST_RANGE(DrTMsg, i) {return i.first == NewItem.DriveType;});
+				const auto ItemIterator = std::find_if(CONST_RANGE(DrTMsg, i) { return i.first == NewItem.DriveType; });
 				if (ItemIterator != std::cend(DrTMsg))
 					NewItem.Type = MSG(ItemIterator->second);
 			}
@@ -622,7 +622,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		ChDisk->Run([&](const Manager::Key& RawKey)->int
 		{
-			auto Key=RawKey.FarKey();
+			auto Key = RawKey.FarKey();
 			if(Key==KEY_NONE && NeedRefresh)
 			{
 				Key=KEY_CTRLR;
@@ -965,7 +965,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		else
 		{
 			int Focus=GetFocus();
-			auto NewPanel = Parent()->ChangePanel(this, FILE_PANEL, TRUE, FALSE);
+			const auto NewPanel = Parent()->ChangePanel(this, FILE_PANEL, TRUE, FALSE);
 			NewPanel->SetCurDir(strNewCurDir,true);
 			NewPanel->Show();
 
@@ -978,7 +978,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	}
 	else //эта плагин, да
 	{
-		auto hPlugin = Global->CtrlObject->Plugins->Open(
+		const auto hPlugin = Global->CtrlObject->Plugins->Open(
 		                     mitem->pPlugin,
 		                     (Parent()->LeftPanel == this)?OPEN_LEFTDISKMENU:OPEN_RIGHTDISKMENU,
 		                     mitem->Guid,
@@ -988,7 +988,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		if (hPlugin)
 		{
 			int Focus=GetFocus();
-			auto NewPanel = Parent()->ChangePanel(this, FILE_PANEL, TRUE, TRUE);
+			const auto NewPanel = Parent()->ChangePanel(this, FILE_PANEL, TRUE, TRUE);
 			NewPanel->SetPluginMode(hPlugin, L"", Focus || !NewPanel->Parent()->GetAnotherPanel(NewPanel)->IsVisible());
 			NewPanel->Update(0);
 			NewPanel->Show();
@@ -1336,7 +1336,7 @@ void Search::InitPositionAndSize(void)
 
 search_ptr Search::create(Panel* Owner, int FirstKey)
 {
-	auto SearchPtr = std::make_shared<Search>(private_tag(), Owner, FirstKey);
+	const auto SearchPtr = std::make_shared<Search>(private_tag(), Owner, FirstKey);
 	SearchPtr->init();
 	return SearchPtr;
 }
@@ -1356,7 +1356,7 @@ void Search::init(void)
 void Search::Process(void)
 {
 	Global->WindowManager->ExecuteWindow(shared_from_this());
-	if(m_FirstKey) Global->WindowManager->CallbackWindow([this](){this->ProcessKey(Manager::Key(m_FirstKey));});
+	if(m_FirstKey) Global->WindowManager->CallbackWindow([this](){ ProcessKey(Manager::Key(m_FirstKey)); });
 	Global->WindowManager->ExecuteModal(shared_from_this());
 }
 
@@ -1576,7 +1576,7 @@ void Panel::FastFind(int FirstKey)
 	int KeyToProcess=0;
 	Global->WaitInFastFind++;
 	{
-		auto search = Search::create(this, FirstKey);
+		const auto search = Search::create(this, FirstKey);
 		search->Process();
 		KeyToProcess=search->KeyToProcess();
 	}
@@ -1585,7 +1585,7 @@ void Panel::FastFind(int FirstKey)
 	Parent()->GetKeybar().Redraw();
 	Global->ScrBuf->Flush();
 
-	auto TreePanel = dynamic_cast<TreeList*>(Parent()->ActivePanel());
+	const auto TreePanel = dynamic_cast<TreeList*>(Parent()->ActivePanel());
 	if (TreePanel && (KeyToProcess == KEY_ENTER || KeyToProcess == KEY_NUMENTER))
 		TreePanel->ProcessEnter();
 	else
@@ -1849,7 +1849,7 @@ int Panel::SetCurPath()
 	if (GetMode()==PLUGIN_PANEL)
 		return TRUE;
 
-	auto AnotherPanel = Parent()->GetAnotherPanel(this);
+	const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 
 	if (AnotherPanel->GetType()!=PLUGIN_PANEL)
 	{
@@ -1919,7 +1919,7 @@ int Panel::SetCurPath()
 void Panel::Hide()
 {
 	ScreenObject::Hide();
-	auto AnotherPanel = Parent()->GetAnotherPanel(this);
+	const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 
 	if (AnotherPanel->IsVisible())
 	{
@@ -1944,7 +1944,7 @@ void Panel::Show()
 
 	if (!GetModalMode())
 	{
-		auto AnotherPanel = Parent()->GetAnotherPanel(this);
+		const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 		if (AnotherPanel->IsVisible())
 		{
 			if (SaveScr)
@@ -1971,7 +1971,7 @@ void Panel::Show()
 	}
 
 	ScreenObject::Show();
-	if (!this->Destroyed())
+	if (!Destroyed())
 		ShowScreensCount();
 }
 
@@ -2331,7 +2331,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			if (GetType() == FILE_PANEL && CheckNullOrStructSize(static_cast<FarGetPluginPanelItem*>(Param2)))
 			{
 				PanelInfo Info;
-				auto DestPanel = static_cast<FileList*>(this);
+				const auto DestPanel = static_cast<FileList*>(this);
 				DestPanel->PluginGetPanelInfo(Info);
 				Result = static_cast<int>(DestPanel->PluginGetPanelItem(static_cast<int>(Info.CurrentItem), static_cast<FarGetPluginPanelItem*>(Param2)));
 			}
@@ -2415,7 +2415,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				// restore current directory to active panel path
 				if (Result)
 				{
-					auto ActivePanel = Parent()->ActivePanel();
+					const auto ActivePanel = Parent()->ActivePanel();
 					if (this != ActivePanel)
 					{
 						ActivePanel->SetCurPath();
@@ -2522,7 +2522,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 
 	if (Global->Opt->Confirm.RemoveConnection)
 	{
-		auto Dlg = Dialog::create(DCDlg);
+		const auto Dlg = Dialog::create(DCDlg);
 		Dlg->SetPosition(-1,-1,DCDlg[0].X2+4,11);
 		Dlg->SetHelp(L"DisconnectDrive");
 		Dlg->SetId(DisconnectDriveId);
@@ -2554,7 +2554,7 @@ bool Panel::GetShortcutInfo(ShortcutInfo& ShortcutInfo) const
 	bool result=true;
 	if (m_PanelMode==PLUGIN_PANEL)
 	{
-		auto ph = GetPluginHandle();
+		const auto ph = GetPluginHandle();
 		ShortcutInfo.PluginGuid = ph->pPlugin->GetGUID();
 		OpenPanelInfo Info;
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(ph, &Info);
@@ -2578,7 +2578,7 @@ bool Panel::SaveShortcutFolder(int Pos, bool Add) const
 	ShortcutInfo Info;
 	if(GetShortcutInfo(Info))
 	{
-		auto Function = Add? &Shortcuts::Add : &Shortcuts::Set;
+		const auto Function = Add? &Shortcuts::Add : &Shortcuts::Set;
 		(Shortcuts().*Function)(Pos, Info.ShortcutFolder, Info.PluginGuid, Info.PluginFile, Info.PluginData);
 		return true;
 	}
@@ -2592,7 +2592,7 @@ int Panel::ProcessShortcutFolder(int Key,BOOL ProcTreePanel)
 
 	if (GetShortcutFolder(Key-KEY_RCTRL0,&strShortcutFolder,&strPluginModule,&strPluginFile,&strPluginData))
 	{
-		auto AnotherPanel = Parent()->GetAnotherPanel(this);
+		const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 
 		if (ProcTreePanel)
 		{
@@ -2637,8 +2637,8 @@ bool Panel::ExecShortcutFolder(int Pos, bool raw)
 
 bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid, const string& strPluginFile, const string& strPluginData, bool CheckType, bool TryClosest, bool Silent)
 {
-	auto SrcPanel=this;
-	auto AnotherPanel = Parent()->GetAnotherPanel(this);
+	auto SrcPanel = this;
+	const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 
 	if(CheckType)
 	{
@@ -2668,7 +2668,7 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid
 			return true;
 		}
 
-		if (auto pPlugin = Global->CtrlObject->Plugins->FindPlugin(PluginGuid))
+		if (const auto pPlugin = Global->CtrlObject->Plugins->FindPlugin(PluginGuid))
 		{
 			if (pPlugin->has<iOpen>())
 			{
@@ -2694,11 +2694,11 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid
 					(SrcPanel == Parent()->ActivePanel()) ? FOSF_ACTIVE : FOSF_NONE
 				};
 
-				if (auto hNewPlugin = Global->CtrlObject->Plugins->Open(pPlugin, OPEN_SHORTCUT, FarGuid, (intptr_t)&info))
+				if (const auto hNewPlugin = Global->CtrlObject->Plugins->Open(pPlugin, OPEN_SHORTCUT, FarGuid, (intptr_t)&info))
 				{
 					int CurFocus=SrcPanel->GetFocus();
 
-					auto NewPanel = Parent()->ChangePanel(SrcPanel, FILE_PANEL, TRUE, TRUE);
+					const auto NewPanel = Parent()->ChangePanel(SrcPanel, FILE_PANEL, TRUE, TRUE);
 					NewPanel->SetPluginMode(hNewPlugin, L"", CurFocus || !Parent()->GetAnotherPanel(NewPanel)->IsVisible());
 
 					if (!strShortcutFolder.empty())

@@ -78,7 +78,7 @@ void ShowProcessList()
 		return;
 	Active = true;
 
-	auto ProcList = VMenu2::create(MSG(MProcessListTitle), nullptr, 0, ScrY - 4);
+	const auto ProcList = VMenu2::create(MSG(MProcessListTitle), nullptr, 0, ScrY - 4);
 	ProcList->SetMenuFlags(VMENU_WRAPMODE);
 	ProcList->SetPosition(-1,-1,0,0);
 	static bool bShowImage = false;
@@ -196,8 +196,8 @@ void ShowProcessList()
 
 BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 {
-	auto pi = reinterpret_cast<ProcInfo*>(lParam);
-	auto ProcList=pi->procList;
+	const auto pi = reinterpret_cast<const ProcInfo*>(lParam);
+	const auto ProcList = pi->procList;
 
 	if (IsWindowVisible(hwnd) || (IsIconic(hwnd) && !(GetWindowLongPtr(hwnd,GWL_STYLE) & WS_DISABLED)))
 	{

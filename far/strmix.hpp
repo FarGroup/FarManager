@@ -212,7 +212,7 @@ unsigned long long StringToFlags(const string& strFlags, const container& From, 
 		split(Strings, strFlags, STLF_UNIQUE, Separators);
 		FOR(const auto& i, Strings)
 		{
-			auto ItemIterator = std::find_if(CONST_RANGE(From, j)
+			const auto ItemIterator = std::find_if(CONST_RANGE(From, j)
 			{
 				return !StrCmpI(i, j.second);
 			});

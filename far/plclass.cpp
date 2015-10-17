@@ -189,7 +189,7 @@ bool NativePluginModel::Destroy(GenericPluginModel::plugin_instance instance)
 
 void NativePluginModel::InitExports(GenericPluginModel::plugin_instance instance, exports_array& exports)
 {
-	auto Module = static_cast<os::rtdl::module*>(instance);
+	const auto Module = static_cast<os::rtdl::module*>(instance);
 	std::transform(ALL_RANGE(m_ExportsNames), exports.begin(), [&](const export_name& i)
 	{
 		return *i.AName? reinterpret_cast<void*>(Module->GetProcAddress(i.AName)) : nullptr;
@@ -798,7 +798,7 @@ void Plugin::AddDialog(window_ptr_ref Dlg)
 
 bool Plugin::RemoveDialog(window_ptr_ref Dlg)
 {
-	auto ItemIterator = m_dialogs.find(Dlg);
+	const auto ItemIterator = m_dialogs.find(Dlg);
 	if (ItemIterator != m_dialogs.cend())
 	{
 		m_dialogs.erase(ItemIterator);

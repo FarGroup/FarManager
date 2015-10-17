@@ -600,7 +600,7 @@ intptr_t FindFiles::AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, 
 
 			if (Param1==AD_BUTTON_OK)
 			{
-				auto Data = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, AD_EDIT_SEARCHFIRST, nullptr));
+				const auto Data = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, AD_EDIT_SEARCHFIRST, nullptr));
 
 				if (Data && *Data && !CheckFileSizeStringFormat(Data))
 				{
@@ -634,7 +634,7 @@ void FindFiles::AdvancedDialog()
 		{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
 	};
 	auto AdvancedDlg = MakeDialogItemsEx(AdvancedDlgData);
-	auto Dlg = Dialog::create(AdvancedDlg, &FindFiles::AdvancedDlgProc);
+	const auto Dlg = Dialog::create(AdvancedDlg, &FindFiles::AdvancedDlgProc);
 	Dlg->SetHelp(L"FindFileAdvanced");
 	Dlg->SetPosition(-1,-1,52+4,13);
 	Dlg->Process();
@@ -655,7 +655,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	{
 		const int TitlePosition = 1;
 		const auto CpEnum = Codepages().GetFavoritesEnumerator();
-		auto Title = MSG(std::any_of(CONST_RANGE(CpEnum, i) { return i.second & CPST_FIND; }) ? MFindFileSelectedCodePages : MFindFileAllCodePages);
+		const auto Title = MSG(std::any_of(CONST_RANGE(CpEnum, i) { return i.second & CPST_FIND; }) ? MFindFileSelectedCodePages : MFindFileAllCodePages);
 		Dlg->GetAllItem()[FAD_COMBOBOX_CP].ListPtr->at(TitlePosition).strName = Title;
 		FarListPos Position = { sizeof(FarListPos) };
 		Dlg->SendMessage(DM_LISTGETCURPOS, FAD_COMBOBOX_CP, &Position);
@@ -773,7 +773,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				case FAD_CHECKBOX_HEX:
 				{
 					Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
-					auto Src = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, Param2 ? FAD_EDIT_TEXT : FAD_EDIT_HEX, nullptr));
+					const auto Src = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, Param2 ? FAD_EDIT_TEXT : FAD_EDIT_HEX, nullptr));
 					string strDataStr;
 					if (Param2)
 					{
@@ -785,12 +785,12 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					{
 						string strSrc(Src);
 						RemoveTrailingSpaces(strSrc); // BUGBUG: trailing spaces in DI_FIXEDIT. TODO: Fix in Dialog class.
-						auto Blob = HexStringToBlob(strSrc.data(), L' ');
+						const auto Blob = HexStringToBlob(strSrc.data(), L' ');
 						strDataStr.assign(ALL_CONST_RANGE(Blob));
 					}
 
 					Dlg->SendMessage(DM_SETTEXTPTR,Param2?FAD_EDIT_HEX:FAD_EDIT_TEXT, UNSAFE_CSTR(strDataStr));
-					auto iParam = reinterpret_cast<intptr_t>(Param2);
+					const auto iParam = reinterpret_cast<intptr_t>(Param2);
 					Dlg->SendMessage(DM_SHOWITEM,FAD_EDIT_TEXT,ToPtr(!iParam));
 					Dlg->SendMessage(DM_SHOWITEM,FAD_EDIT_HEX,ToPtr(iParam));
 					Dlg->SendMessage(DM_ENABLE,FAD_TEXT_CP,ToPtr(!iParam));
@@ -999,7 +999,7 @@ template<class T, class Pred>
 int FindFiles::FindStringBMH(const T* searchBuffer, size_t searchBufferCount, size_t findStringCount, Pred p) const
 {
 	auto buffer = searchBuffer;
-	auto lastBufferChar = findStringCount - 1;
+	const auto lastBufferChar = findStringCount - 1;
 
 	while (searchBufferCount >= findStringCount)
 	{
@@ -1007,7 +1007,7 @@ int FindFiles::FindStringBMH(const T* searchBuffer, size_t searchBufferCount, si
 			if (!index)
 				return static_cast<int>(buffer - searchBuffer);
 
-		auto offset = skipCharsTable[buffer[lastBufferChar]];
+		const auto offset = skipCharsTable[buffer[lastBufferChar]];
 		searchBufferCount -= offset;
 		buffer += offset;
 	}
@@ -1787,7 +1787,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 	case DN_RESIZECONSOLE:
 		{
-			auto pCoord = static_cast<PCOORD>(Param2);
+			const auto pCoord = static_cast<PCOORD>(Param2);
 			SMALL_RECT DlgRect;
 			Dlg->SendMessage( DM_GETDLGRECT, 0, &DlgRect);
 			int DlgWidth=DlgRect.Right-DlgRect.Left+1;
@@ -2101,7 +2101,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg, const string& FullName, const os::FAR
 		{
 			MenuItemEx ListItem;
 			ListItem.Flags|=LIF_SEPARATOR;
-			ListBox->AddItem(ListItem);
+			ListBox->AddItem(std::move(ListItem));
 		}
 
 		strLastDirName = strPathName;
@@ -2132,10 +2132,10 @@ void FindFiles::AddMenuRecord(Dialog* Dlg, const string& FullName, const os::FAR
 		FindItem.FindData.dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY;
 		FindItem.Arc = itd->GetFindFileArcItem();;
 
-		auto Ptr = &FindItem;
+		const auto Ptr = &FindItem;
 		MenuItemEx ListItem(strPathName);
 		ListItem.UserData = Ptr;
-		ListBox->AddItem(ListItem);
+		ListBox->AddItem(std::move(ListItem));
 	}
 
 	FindListItem& FindItem = itd->AddFindListItem(FindData,Data,FreeData);
@@ -2143,9 +2143,12 @@ void FindFiles::AddMenuRecord(Dialog* Dlg, const string& FullName, const os::FAR
 	FindItem.Used=1;
 	FindItem.Arc = itd->GetFindFileArcItem();
 
-	MenuItemEx ListItem(MenuText);
-	ListItem.UserData = &FindItem;
-	int ListPos = ListBox->AddItem(ListItem);
+	int ListPos;
+	{
+		MenuItemEx ListItem(MenuText);
+		ListItem.UserData = &FindItem;
+		ListPos = ListBox->AddItem(std::move(ListItem));
+	}
 
 	// Выделим как положено - в списке.
 	int FC=itd->GetFileCount(), DC=itd->GetDirCount(), LF=itd->GetLastFoundNumber();
@@ -2529,7 +2532,7 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 	{
 		std::list<string> Volumes;
 		string strGuidVolime;
-		auto Strings = os::GetLogicalDriveStrings();
+		const auto Strings = os::GetLogicalDriveStrings();
 		std::for_each(CONST_RANGE(Strings, i)
 		{
 			int DriveType=FAR_GetDriveType(i);
@@ -2712,8 +2715,7 @@ bool FindFiles::FindFilesProcess()
 
 	if (PluginMode)
 	{
-		Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
-		auto hPlugin=ActivePanel->GetPluginHandle();
+		const auto hPlugin = Global->CtrlObject->Cp()->ActivePanel()->GetPluginHandle();
 		OpenPanelInfo Info;
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 		itd->SetFindFileArcItem(&itd->AddArcListItem(NullToEmpty(Info.HostFile), hPlugin, Info.Flags, NullToEmpty(Info.CurDir)));
@@ -2738,7 +2740,7 @@ bool FindFiles::FindFilesProcess()
 		FindDlg[FD_BUTTON_PANEL].Flags|=DIF_DISABLE;
 	}
 
-	auto Dlg = Dialog::create(FindDlg, &FindFiles::FindDlgProc, this);
+	const auto Dlg = Dialog::create(FindDlg, &FindFiles::FindDlgProc, this);
 //  pDlg->SetDynamicallyBorn();
 	Dlg->SetHelp(L"FindFileResult");
 	Dlg->SetPosition(-1, -1, DlgWidth, DlgHeight);
@@ -2807,12 +2809,9 @@ bool FindFiles::FindFilesProcess()
 					}
 				});
 
-				auto hNewPlugin=Global->CtrlObject->Plugins->OpenFindListPlugin(PanelItems.data(), PanelItems.size());
-
-				if (hNewPlugin)
+				if (const auto hNewPlugin = Global->CtrlObject->Plugins->OpenFindListPlugin(PanelItems.data(), PanelItems.size()))
 				{
-					Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
-					Panel *NewPanel=Global->CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
+					const auto NewPanel=Global->CtrlObject->Cp()->ChangePanel(Global->CtrlObject->Cp()->ActivePanel(), FILE_PANEL, TRUE, TRUE);
 					NewPanel->SetPluginMode(hNewPlugin,L"",true);
 					NewPanel->SetVisible(true);
 					NewPanel->Update(0);
@@ -3089,7 +3088,7 @@ FindFiles::FindFiles():
 		FindAskDlg[FAD_CHECKBOX_WHOLEWORDS].Selected=WholeWords;
 		FindAskDlg[FAD_CHECKBOX_HEX].Selected=SearchHex;
 		int ExitCode;
-		auto Dlg = Dialog::create(FindAskDlg, &FindFiles::MainDlgProc, this);
+		const auto Dlg = Dialog::create(FindAskDlg, &FindFiles::MainDlgProc, this);
 		Dlg->SetAutomation(FAD_CHECKBOX_FILTER,FAD_BUTTON_FILTER,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 		Dlg->SetHelp(L"FindFile");
 		Dlg->SetId(FindFileId);

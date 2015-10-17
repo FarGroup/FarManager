@@ -233,7 +233,7 @@ static int FnGroup(DWORD ControlState)
 	};
 	static_assert(ARRAYSIZE(Area) == KBL_GROUP_COUNT, "Not all areas handled");
 
-	auto ItemIterator = std::find_if(CONST_RANGE(Area, i)
+	const auto ItemIterator = std::find_if(CONST_RANGE(Area, i)
 	{
 		return i.ControlState == ControlState;
 	});
@@ -291,7 +291,7 @@ void KeyBar::SetCustomLabels(KEYBARAREA Area)
 
 int KeyBar::ProcessKey(const Manager::Key& Key)
 {
-	auto LocalKey = Key.FarKey();
+	const auto LocalKey = Key.FarKey();
 	switch (LocalKey)
 	{
 		case KEY_KILLFOCUS:

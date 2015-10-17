@@ -317,7 +317,7 @@ virtual bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_
 
 	if(BufferSize.X*BufferSize.Y*sizeof(CHAR_INFO)>MAXSIZE)
 	{
-		auto SavedY = BufferSize.Y;
+		const auto SavedY = BufferSize.Y;
 		BufferSize.Y = std::max(static_cast<int>(MAXSIZE/(BufferSize.X*sizeof(CHAR_INFO))),1);
 		size_t Height = ReadRegion.Bottom - ReadRegion.Top + 1;
 		int Start=ReadRegion.Top;
@@ -375,7 +375,7 @@ virtual bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord,
 
 	if(BufferSize.X*BufferSize.Y*sizeof(CHAR_INFO)>MAXSIZE)
 	{
-		auto SavedY = BufferSize.Y;
+		const auto SavedY = BufferSize.Y;
 		BufferSize.Y=static_cast<SHORT>(std::max(static_cast<int>(MAXSIZE/(BufferSize.X*sizeof(CHAR_INFO))),1));
 		size_t Height = WriteRegion.Bottom - WriteRegion.Top + 1;
 		int Start=WriteRegion.Top;

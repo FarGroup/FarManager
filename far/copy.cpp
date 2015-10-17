@@ -635,7 +635,7 @@ static void PR_ShellCopyMsg()
 {
 	if (!PreRedrawStack().empty())
 	{
-		auto item = dynamic_cast<CopyPreRedrawItem*>(PreRedrawStack().top());
+		const auto item = dynamic_cast<CopyPreRedrawItem*>(PreRedrawStack().top());
 		item->CP->CreateBackground();
 	}
 }
@@ -650,7 +650,7 @@ BOOL CheckAndUpdateConsole(BOOL IsChangeConsole)
 	{
 		ZoomedState=curZoomedState;
 		ChangeVideoMode(ZoomedState);
-		auto Window = Global->WindowManager->GetBottomWindow();
+		const auto Window = Global->WindowManager->GetBottomWindow();
 		int LockCount=-1;
 
 		while (Window->Locked())
@@ -1287,7 +1287,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		}
 
 		CopyDlg[ID_SC_COMBO].ListItems=&ComboList;
-		auto Dlg = Dialog::create(CopyDlg, &ShellCopy::CopyDlgProc, this);
+		const auto Dlg = Dialog::create(CopyDlg, &ShellCopy::CopyDlgProc, this);
 		Dlg->SetHelp(Link?L"HardSymLink":L"CopyFiles");
 		Dlg->SetId(Link?HardSymLinkId:(Move?MoveFilesId:CopyFilesId));
 		Dlg->SetPosition(-1,-1,DLG_WIDTH,DLG_HEIGHT);
@@ -1502,9 +1502,10 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 			{
 				bool LastIteration = false;
 				{
-					auto j = i;
-					if (++j == m_DestList.end())
+					if (i + 1 == m_DestList.end())
+					{
 						LastIteration = true;
+					}
 				}
 
 				strNameTmp = *i;
@@ -1824,7 +1825,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 			DestAttr = os::GetFileAttributes(strDest);
 			if (INVALID_FILE_ATTRIBUTES == DestAttr)
 			{
-				auto Exists_1 = os::fs::exists(strDestDriveRoot);
+				const auto Exists_1 = os::fs::exists(strDestDriveRoot);
 				auto Exists_2 = Exists_1;
 				while ( !Exists_2 && SkipMode != 2)
 				{
@@ -3511,7 +3512,7 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 	{
 		case DM_OPENVIEWER:
 		{
-			auto WFN = reinterpret_cast<file_names_for_overwrite_dialog*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+			const auto WFN = reinterpret_cast<file_names_for_overwrite_dialog*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 
 			if (WFN)
 			{
@@ -3531,7 +3532,7 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 				List.AddName(*WFN->Dest);
 				List.SetCurName(*(Param1 == WDLG_SRCFILEBTN? WFN->Src : WFN->Dest));
 
-				auto Viewer = FileViewer::create(ViewName, FALSE, FALSE, TRUE, -1, nullptr, &List, false);
+				const auto Viewer = FileViewer::create(ViewName, FALSE, FALSE, TRUE, -1, nullptr, &List, false);
 				Global->WindowManager->ExecuteModal(Viewer);
 				Global->WindowManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
 			}
@@ -3558,7 +3559,7 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 					break;
 				case WDLG_RENAME:
 				{
-					auto WFN = reinterpret_cast<file_names_for_overwrite_dialog*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+					const auto WFN = reinterpret_cast<file_names_for_overwrite_dialog*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 					string strDestName = *WFN->Dest;
 					GenerateName(strDestName, *WFN->DestPath);
 
@@ -3592,7 +3593,7 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 		break;
 		case DN_CONTROLINPUT:
 		{
-			auto record = static_cast<const INPUT_RECORD*>(Param2);
+			const auto record = static_cast<const INPUT_RECORD*>(Param2);
 			if (record->EventType==KEY_EVENT)
 			{
 				int key = InputRecordToKey(record);
@@ -3718,7 +3719,7 @@ int ShellCopy::AskOverwrite(const os::FAR_FIND_DATA &SrcData,
 					string strFullSrcName;
 					ConvertNameToFull(SrcName, strFullSrcName);
 					file_names_for_overwrite_dialog WFN = { &strFullSrcName, &strDestName, &strRenamedFilesPath };
-					auto WarnDlg = Dialog::create(WarnCopyDlg, &ShellCopy::WarnDlgProc, &WFN);
+					const auto WarnDlg = Dialog::create(WarnCopyDlg, &ShellCopy::WarnDlgProc, &WFN);
 					WarnDlg->SetDialogMode(DMODE_WARNINGSTYLE);
 					WarnDlg->SetPosition(-1, -1, WARN_DLG_WIDTH, WARN_DLG_HEIGHT);
 					WarnDlg->SetHelp(L"CopyAskOverwrite");
@@ -3824,7 +3825,7 @@ int ShellCopy::AskOverwrite(const os::FAR_FIND_DATA &SrcData,
 					string strSrcName;
 					ConvertNameToFull(SrcData.strFileName,strSrcName);
 					file_names_for_overwrite_dialog WFN[] = { &strSrcName, &strDestName };
-					auto WarnDlg = Dialog::create(WarnCopyDlg, &ShellCopy::WarnDlgProc, &WFN);
+					const auto WarnDlg = Dialog::create(WarnCopyDlg, &ShellCopy::WarnDlgProc, &WFN);
 					WarnDlg->SetDialogMode(DMODE_WARNINGSTYLE);
 					WarnDlg->SetPosition(-1,-1,WARN_DLG_WIDTH,WARN_DLG_HEIGHT);
 					WarnDlg->SetHelp(L"CopyFiles");
@@ -4186,7 +4187,7 @@ bool ShellCopy::ShellSetAttr(const string& Dest, DWORD Attr)
 		}
 		else if (Ret==SETATTR_RET_SKIPALL)
 		{
-			this->SkipMode=SETATTR_RET_SKIP;
+			SkipMode = SETATTR_RET_SKIP;
 		}
 	}
 

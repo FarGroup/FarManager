@@ -279,7 +279,7 @@ bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const str
 		return false;
 
 
-	auto StrTokens = PreserveStyleTokenize(Str, 0, Str.size());
+	const auto StrTokens = PreserveStyleTokenize(Str, 0, Str.size());
 
 	for (int I=Position; (Reverse && I>=0) || (!Reverse && static_cast<size_t>(I)<StrSize); Reverse ? I--:I++)
 	{
@@ -363,7 +363,7 @@ bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const str
 		
 		if (Matched && T == j->Token.size() && j == LastItem)
 		{
-			auto SourceTokens = PreserveStyleTokenize(Source, I, Idx-I);
+			const auto SourceTokens = PreserveStyleTokenize(Source, I, Idx - I);
 			
 			bool Same = SourceTokens.size() == StrTokens.size();
 			if(Same)

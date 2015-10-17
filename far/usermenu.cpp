@@ -563,7 +563,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		Global->CtrlObject->Cp()->ActivePanel()->GetCurName(strName,strShortName);
 		/* $ 24.07.2000 VVM + ѕри показе главного меню в заголовок добавл€ет тип - FAR/Registry */
 
-		auto UserMenu = VMenu2::create(Title, nullptr, 0, ScrY - 4);
+		const auto UserMenu = VMenu2::create(Title, nullptr, 0, ScrY - 4);
 		UserMenu->SetMenuFlags(VMENU_WRAPMODE);
 		UserMenu->SetHelp(L"UserMenu");
 		UserMenu->SetPosition(-1,-1,0,0);
@@ -684,7 +684,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					{
 						auto OldTitle = std::make_unique<ConsoleTitle>();
 						SaveMenu(MenuFileName);
-						auto ShellEditor = FileEditor::create(MenuFileName, m_MenuCP, FFILEEDIT_DISABLEHISTORY, -1, -1, nullptr);
+						const auto ShellEditor = FileEditor::create(MenuFileName, m_MenuCP, FFILEEDIT_DISABLEHISTORY, -1, -1, nullptr);
 						OldTitle.reset();
 						Global->WindowManager->ExecuteModal(ShellEditor);
 						if (!ShellEditor->IsFileChanged() || (!MenuFile.Open(MenuFileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING)))
@@ -910,8 +910,8 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 			if (Param1==EM_BUTTON_OK)
 			{
 				BOOL Result=TRUE;
-				auto HotKey = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EM_HOTKEY_EDIT, nullptr));
-				auto Label = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EM_LABEL_EDIT, nullptr));
+				const auto HotKey = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EM_HOTKEY_EDIT, nullptr));
+				const auto Label = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EM_LABEL_EDIT, nullptr));
 				int FocusPos=-1;
 
 				if(StrCmp(HotKey,L"--"))
@@ -1057,7 +1057,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 #endif
 		}
 
-		auto Dlg = Dialog::create(EditDlg, &UserMenu::EditMenuDlgProc, this);
+		const auto Dlg = Dialog::create(EditDlg, &UserMenu::EditMenuDlgProc, this);
 		Dlg->SetHelp(L"UserMenu");
 		Dlg->SetPosition(-1,-1,DLG_X,DLG_Y);
 		Dlg->Process();

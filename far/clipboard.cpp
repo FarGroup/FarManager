@@ -161,7 +161,7 @@ HANDLE Clipboard::GetData(UINT uFormat)
 	{
 		if (InternalClipboardOpened && uFormat != NO_FORMAT)
 		{
-			auto ItemIterator = std::find_if(CONST_RANGE(InternalClipboard, i)
+			const auto ItemIterator = std::find_if(CONST_RANGE(InternalClipboard, i)
 			{
 				return i.Format == uFormat;
 			});
@@ -181,7 +181,7 @@ bool Clipboard::SetData(UINT uFormat, HGLOBAL hMem)
 	{
 		if (InternalClipboardOpened)
 		{
-			auto ItemIterator = std::find_if(RANGE(InternalClipboard, i)
+			const auto ItemIterator = std::find_if(RANGE(InternalClipboard, i)
 			{
 				return !i.Handle;
 			});
@@ -290,7 +290,7 @@ bool Clipboard::SetFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data)
 			}
 		}
 		// support "MSDEVColumnSelect"
-		SetData(RegisterFormat(FCF_MSDEVCOLUMNSELECT), 0);
+		SetData(RegisterFormat(FCF_MSDEVCOLUMNSELECT), nullptr);
 	}
 
 	return true;

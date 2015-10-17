@@ -129,9 +129,9 @@ Shortcuts::Shortcuts()
 {
 	Changed = false;
 
-	auto cfg = ConfigProvider().CreateShortcutsConfig();
+	const auto cfg = ConfigProvider().CreateShortcutsConfig();
 
-	if (auto root = cfg->FindByName(cfg->root_key(), FolderShortcutsKey))
+	if (const auto root = cfg->FindByName(cfg->root_key(), FolderShortcutsKey))
 	{
 		for_each_cnt(RANGE(Items, i, size_t index)
 		{
@@ -334,7 +334,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 		auto RetItem = Items[Pos].end();
 		if(Items[Pos].size()>1)
 		{
-			auto FolderList = VMenu2::create(MSG(MFolderShortcutsTitle), nullptr, 0, ScrY - 4);
+			const auto FolderList = VMenu2::create(MSG(MFolderShortcutsTitle), nullptr, 0, ScrY - 4);
 			FolderList->SetMenuFlags(VMENU_WRAPMODE | VMENU_AUTOHIGHLIGHT);
 			FolderList->SetHelp(HelpFolderShortcuts);
 			FolderList->SetBottomTitle(MSG(MFolderShortcutBottomSub));
@@ -376,7 +376,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 								NewItem.strPluginFile.clear();
 								NewItem.strPluginData.clear();
 							}
-							auto newIter = Items[Pos].emplace(Item ? *Item : Items[Pos].end(), std::move(NewItem));
+							const auto newIter = Items[Pos].emplace(Item ? *Item : Items[Pos].end(), std::move(NewItem));
 
 							MenuItemEx NewMenuItem(newIter->strFolder);
 							NewMenuItem.UserData = newIter;
@@ -405,8 +405,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 					{
 						if (*Item != Items[Pos].begin())
 						{
-							auto i = *Item;
-							--i;
+							const auto i = std::prev(*Item);
 							Items[Pos].splice(i, Items[Pos], *Item);
 							FillMenu(*FolderList, Items[Pos], raw);
 							FolderList->SetSelectPos(--ItemPos);
@@ -456,7 +455,7 @@ bool Shortcuts::Get(size_t Pos, size_t Index, string* Folder, GUID* PluginGuid, 
 {
 	if(Items[Pos].size()<=Index)
 		return false;
-	auto RetItem = std::next(Items[Pos].begin(), Index);
+	const auto RetItem = std::next(Items[Pos].begin(), Index);
 	Fill(*RetItem,Folder,PluginGuid,PluginFile,PluginData);
 	return true;
 }
@@ -560,7 +559,7 @@ void Shortcuts::EditItem(VMenu2& Menu, shortcut& Item, bool Root, bool raw)
 
 void Shortcuts::Configure()
 {
-	auto FolderList = VMenu2::create(MSG(MFolderShortcutsTitle), nullptr, 0, ScrY - 4);
+	const auto FolderList = VMenu2::create(MSG(MFolderShortcutsTitle), nullptr, 0, ScrY - 4);
 	FolderList->SetMenuFlags(VMENU_WRAPMODE);
 	FolderList->SetHelp(HelpFolderShortcuts);
 	FolderList->SetBottomTitle(MSG(MFolderShortcutBottom));

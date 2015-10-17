@@ -81,7 +81,7 @@ static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name, UINT64 S
 	Message(0,0,Title,MSG(MScanningFolder),Name,strSize.data());
 	if (!PreRedrawStack().empty())
 	{
-		auto item = dynamic_cast<DirInfoPreRedrawItem*>(PreRedrawStack().top());
+		const auto item = dynamic_cast<DirInfoPreRedrawItem*>(PreRedrawStack().top());
 		item->Title = Title;
 		item->Name = Name;
 		item->Size = Size;
@@ -92,7 +92,7 @@ static void PR_DrawGetDirInfoMsg()
 {
 	if (!PreRedrawStack().empty())
 	{
-		auto item = dynamic_cast<const DirInfoPreRedrawItem*>(PreRedrawStack().top());
+		const auto item = dynamic_cast<const DirInfoPreRedrawItem*>(PreRedrawStack().top());
 		DrawGetDirInfoMsg(item->Title.data(), item->Name.data(), item->Size);
 	}
 }
@@ -296,7 +296,7 @@ static void FarGetPluginDirListMsg(const string& Name,DWORD Flags)
 	Message(Flags,0,L"",MSG(MPreparingList),Name.data());
 	if (!PreRedrawStack().empty())
 	{
-		auto item = dynamic_cast<PluginDirInfoPreRedrawItem*>(PreRedrawStack().top());
+		const auto item = dynamic_cast<PluginDirInfoPreRedrawItem*>(PreRedrawStack().top());
 		item->Name = Name;
 		item->Flags = Flags;
 	}
@@ -306,7 +306,7 @@ static void PR_FarGetPluginDirListMsg()
 {
 	if (!PreRedrawStack().empty())
 	{
-		auto item = dynamic_cast<const PluginDirInfoPreRedrawItem*>(PreRedrawStack().top());
+		const auto item = dynamic_cast<const PluginDirInfoPreRedrawItem*>(PreRedrawStack().top());
 		FarGetPluginDirListMsg(item->Name, item->Flags);
 	}
 }
@@ -424,7 +424,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, Pl
 		/* $ 30.11.2001 DJ
 			А плагиновая ли это панель?
 		*/
-		auto Handle = ((!hPlugin || hPlugin==PANEL_ACTIVE)?Global->CtrlObject->Cp()->ActivePanel():Global->CtrlObject->Cp()->PassivePanel())->GetPluginHandle();
+		const auto Handle = ((!hPlugin || hPlugin == PANEL_ACTIVE) ? Global->CtrlObject->Cp()->ActivePanel() : Global->CtrlObject->Cp()->PassivePanel())->GetPluginHandle();
 
 		if (!Handle)
 			return FALSE;
@@ -452,7 +452,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, Pl
 			hDirListPlugin = &DirListPlugin;
 			StopSearch=FALSE;
 
-			auto PluginDirList = new std::vector<PluginPanelItem>;
+			const auto PluginDirList = new std::vector<PluginPanelItem>;
 			// first item is reserved for internal needs
 			PluginDirList->emplace_back(VALUE_TYPE(*PluginDirList)());
 			PluginDirList->front().Reserved[0] = reinterpret_cast<intptr_t>(PluginDirList);
@@ -502,7 +502,7 @@ void FreePluginDirList(HANDLE hPlugin, const PluginPanelItem *PanelItem)
 	if (!PanelItem)
 		return;
 
-	auto PluginDirList = reinterpret_cast<std::vector<PluginPanelItem>*>((PanelItem-1)->Reserved[0]);
+	const auto PluginDirList = reinterpret_cast<std::vector<PluginPanelItem>*>((PanelItem - 1)->Reserved[0]);
 
 	// first item is reserved for internal needs
 	std::for_each(PluginDirList->begin() + 1, PluginDirList->end(), LAMBDA_PREDICATE(*PluginDirList, i)

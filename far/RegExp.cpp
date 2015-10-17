@@ -971,7 +971,7 @@ int RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int src
 
 					if (len > 0)
 					{
-						auto Name = new wchar_t[len + 1];
+						const auto Name = new wchar_t[len + 1];
 						memcpy(Name, src + i, len*sizeof(wchar_t));
 						Name[len] = 0;
 						if (!h.count(Name))
@@ -1174,7 +1174,7 @@ int RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int src
 
 							if (len > 0)
 							{
-								auto Name = new wchar_t[len + 1];
+								const auto Name = new wchar_t[len + 1];
 								memcpy(Name, src + i, len*sizeof(wchar_t));
 								Name[len] = 0;
 								op->nbracket.name = Name;
@@ -2937,7 +2937,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 		{
 			if (stack.empty())
 				return 0;
-			auto ps = std::prev(stack.end());
+			const auto ps = std::prev(stack.end());
 
 			//dpf(("ps->op:%s\n",ops[ps->op]));
 			switch (ps->op)
@@ -3323,7 +3323,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 				}
 				case opNamedBracket:
 				{
-					auto n = ps->pos->nbracket.name;
+					const auto n = ps->pos->nbracket.name;
 
 					if (n && hmatch)
 					{

@@ -102,7 +102,7 @@ public:
 	{
 		if (Any)
 		{
-			auto Impl = dynamic_cast<detail::any_impl<T>*>(Any->m_Data.get());
+			const auto Impl = dynamic_cast<detail::any_impl<T>*>(Any->m_Data.get());
 			return Impl? &Impl->get() : nullptr;
 		}
 		return nullptr;
@@ -132,7 +132,7 @@ const T* any_cast(const any* Any) noexcept
 template<class T>
 T& any_cast(any& Any)
 {
-	auto Result = any_cast<T>(&Any);
+	const auto Result = any_cast<T>(&Any);
 	if (!Result)
 	{
 		throw std::bad_cast();

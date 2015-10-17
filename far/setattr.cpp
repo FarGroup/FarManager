@@ -150,7 +150,7 @@ enum
 
 intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
-	auto DlgParam = reinterpret_cast<SetAttrDlgParam*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+	const auto DlgParam = reinterpret_cast<SetAttrDlgParam*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 
 	switch (Msg)
 	{
@@ -164,9 +164,9 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 					DlgParam->cb[Param1 - SA_ATTR_FIRST].Changed = true;
 				}
 				int FocusPos = static_cast<int>(Dlg->SendMessage(DM_GETFOCUS, 0, nullptr));
-				auto CompressState = static_cast<FARCHECKEDSTATE>(Dlg->SendMessage(DM_GETCHECK, SA_CHECKBOX_COMPRESSED, nullptr));
-				auto EncryptState = static_cast<FARCHECKEDSTATE>(Dlg->SendMessage(DM_GETCHECK, SA_CHECKBOX_ENCRYPTED, nullptr));
-				auto SubfoldersState = static_cast<FARCHECKEDSTATE>(Dlg->SendMessage(DM_GETCHECK, SA_CHECKBOX_SUBFOLDERS, nullptr));
+				const auto CompressState = static_cast<FARCHECKEDSTATE>(Dlg->SendMessage(DM_GETCHECK, SA_CHECKBOX_COMPRESSED, nullptr));
+				const auto EncryptState = static_cast<FARCHECKEDSTATE>(Dlg->SendMessage(DM_GETCHECK, SA_CHECKBOX_ENCRYPTED, nullptr));
+				const auto SubfoldersState = static_cast<FARCHECKEDSTATE>(Dlg->SendMessage(DM_GETCHECK, SA_CHECKBOX_SUBFOLDERS, nullptr));
 
 				if (DlgParam->DialogMode==MODE_FILE)
 				{
@@ -228,7 +228,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 						{
 							if (DlgParam->OSubfoldersState != SubfoldersState) // Состояние изменилось?
 							{
-								auto Owner = reinterpret_cast<LPCWSTR>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, SA_EDIT_OWNER, nullptr));
+								const auto Owner = reinterpret_cast<LPCWSTR>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, SA_EDIT_OWNER, nullptr));
 								if(*Owner)
 								{
 									if(!DlgParam->OwnerChanged)
@@ -292,7 +292,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 							// Состояние изменилось?
 							if (DlgParam->OSubfoldersState!=SubfoldersState)
 							{
-								auto Owner = reinterpret_cast<LPCWSTR>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, SA_EDIT_OWNER, nullptr));
+								const auto Owner = reinterpret_cast<LPCWSTR>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, SA_EDIT_OWNER, nullptr));
 								if(*Owner)
 								{
 									if(!DlgParam->OwnerChanged)
@@ -544,7 +544,7 @@ void ShellSetFileAttributesMsg(const string& Name)
 	Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting),strOutFileName.data());
 	if (!PreRedrawStack().empty())
 	{
-		auto item = dynamic_cast<AttrPreRedrawItem*>(PreRedrawStack().top());
+		const auto item = dynamic_cast<AttrPreRedrawItem*>(PreRedrawStack().top());
 		item->Name = Name;
 	}
 }
@@ -609,7 +609,7 @@ void PR_ShellSetFileAttributesMsg()
 {
 	if (!PreRedrawStack().empty())
 	{
-		auto item = dynamic_cast<const AttrPreRedrawItem*>(PreRedrawStack().top());
+		const auto item = dynamic_cast<const AttrPreRedrawItem*>(PreRedrawStack().top());
 		ShellSetFileAttributesMsg(item->Name);
 	}
 }
@@ -690,7 +690,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 	if (SrcPanel && SrcPanel->GetMode()==PLUGIN_PANEL)
 	{
 		OpenPanelInfo Info;
-		auto hPlugin=SrcPanel->GetPluginHandle();
+		const auto hPlugin = SrcPanel->GetPluginHandle();
 
 		if (hPlugin == INVALID_HANDLE_VALUE)
 		{
@@ -1230,7 +1230,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		DlgParam.strSelName=strSelName;
 		DlgParam.OSubfoldersState=static_cast<FARCHECKEDSTATE>(AttrDlg[SA_CHECKBOX_SUBFOLDERS].Selected);
 
-		auto Dlg = Dialog::create(AttrDlg, SetAttrDlgProc, &DlgParam);
+		const auto Dlg = Dialog::create(AttrDlg, SetAttrDlgProc, &DlgParam);
 		Dlg->SetHelp(L"FileAttrDlg");                 //  ^ - это одиночный диалог!
 		Dlg->SetId(FileAttrDlgId);
 

@@ -423,7 +423,7 @@ static void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 
 void Options::MaskGroupsSettings()
 {
-	auto MasksMenu = VMenu2::create(MSG(MMenuMaskGroups), nullptr, 0, 0, VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
+	const auto MasksMenu = VMenu2::create(MSG(MMenuMaskGroups), nullptr, 0, 0, VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 	MasksMenu->SetBottomTitle(MSG(MMaskGroupBottom));
 	MasksMenu->SetHelp(L"MaskGroupsSettings");
 	FillMasksMenu(*MasksMenu);
@@ -989,7 +989,7 @@ void Options::SetFilePanelModes()
 		};
 		static_assert(ARRAYSIZE(PredefinedNames) == predefined_panel_modes_count, "Not all panel modes defined");
 
-		auto MenuCount = ViewSettings.size();
+		const auto MenuCount = ViewSettings.size();
 		// +1 for separator
 		std::vector<MenuDataEx> ModeListMenu(MenuCount > predefined_panel_modes_count? MenuCount + 1: MenuCount);
 
@@ -1017,7 +1017,7 @@ void Options::SetFilePanelModes()
 
 		ModeListMenu[CurMode].SetSelect(1);
 		{
-			auto ModeList = VMenu2::create(MSG(MEditPanelModes), ModeListMenu.data(), ModeListMenu.size(), ScrY - 4);
+			const auto ModeList = VMenu2::create(MSG(MEditPanelModes), ModeListMenu.data(), ModeListMenu.size(), ScrY - 4);
 			ModeList->SetPosition(-1,-1,0,0);
 			ModeList->SetHelp(L"PanelViewModes");
 			ModeList->SetMenuFlags(VMENU_WRAPMODE);
@@ -1073,7 +1073,7 @@ void Options::SetFilePanelModes()
 		{
 			const auto SwitchToAnotherMode = [&](Panel* p)
 			{
-				auto RealMode = static_cast<int>(DisplayModeToReal(CurMode));
+				const auto RealMode = static_cast<int>(DisplayModeToReal(CurMode));
 				if (p->GetViewMode() == RealMode)
 				{
 					p->SetViewMode(RealMode - 1);
@@ -1164,7 +1164,7 @@ void Options::SetFilePanelModes()
 		}
 
 		{
-			auto Dlg = Dialog::create(ModeDlg);
+			const auto Dlg = Dialog::create(ModeDlg);
 			Dlg->SetPosition(-1,-1,76,19);
 			Dlg->SetHelp(L"PanelViewModes");
 			Dlg->SetId(PanelViewModesEditId);
@@ -1885,7 +1885,7 @@ void Options::InitConfigData()
 template<class container, class pred>
 static const Option* GetConfigValuePtr(const container& Config, const pred& Pred)
 {
-	auto ItemIterator = std::find_if(ALL_CONST_RANGE(Config), Pred);
+	const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Config), Pred);
 	return ItemIterator == Config.cend()? nullptr : ItemIterator->Value;
 }
 
@@ -1955,14 +1955,14 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 
 	FOR(auto& i, Config)
 	{
-		auto Cfg = i.GetConfig();
-		FOR(auto& j, i)
+		const auto Cfg = i.GetConfig();
+		FOR(const auto& j, i)
 		{
 			j.Value->ReceiveValue(Cfg, j.KeyName, j.ValName, j.Default);
 
 			FOR(const auto& ovr, Overridden)
 			{
-				auto DotPos = ovr.first.rfind(L'.');
+				const auto DotPos = ovr.first.rfind(L'.');
 				if (DotPos != string::npos && !StrCmpNI(ovr.first.data(), j.KeyName, DotPos) && !StrCmpI(ovr.first.data() + DotPos + 1, j.ValName))
 				{
 					j.Value->fromString(ovr.second);
@@ -2126,7 +2126,7 @@ void Options::Save(bool Manual)
 
 	std::for_each(CONST_RANGE(Config, i)
 	{
-		auto Cfg = i.GetConfig();
+		const auto Cfg = i.GetConfig();
 		SCOPED_ACTION(auto) = Cfg->ScopedTransaction();
 		std::for_each(CONST_RANGE(i, j)
 		{
@@ -2154,7 +2154,7 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 
 	case DN_CONTROLINPUT:
 		{
-			auto record= reinterpret_cast<const INPUT_RECORD*>(Param2);
+			const auto record = reinterpret_cast<const INPUT_RECORD*>(Param2);
 			if (record->EventType==KEY_EVENT)
 			{
 				int key = InputRecordToKey(record);
@@ -2270,7 +2270,7 @@ bool Options::AdvancedConfig(farconfig_mode Mode)
 
 	AdvancedConfigDlg[0].ListItems = &Items;
 
-	auto Dlg = Dialog::create(AdvancedConfigDlg, &Options::AdvancedConfigDlgProc, this);
+	const auto Dlg = Dialog::create(AdvancedConfigDlg, &Options::AdvancedConfigDlgProc, this);
 	Dlg->SetHelp(L"FarConfig");
 	Dlg->SetPosition(-1, -1, DlgWidth, DlgHeight);
 	Dlg->SetId(AdvancedConfigId);
@@ -2310,7 +2310,7 @@ static const wchar_t ModesFlagsName[] = L"Flags";
 
 void Options::ReadPanelModes()
 {
-	auto cfg = ConfigProvider().CreatePanelModeConfig();
+	const auto cfg = ConfigProvider().CreatePanelModeConfig();
 
 	auto root = HierarchicalConfig::root_key();
 
@@ -2724,7 +2724,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 	SetLeftRightMenuChecks(RightMenu, false);
 	// Навигация по меню
 	{
-		auto HOptMenu = HMenu::create(MainMenu,ARRAYSIZE(MainMenu));
+		const auto HOptMenu = HMenu::create(MainMenu, ARRAYSIZE(MainMenu));
 		HOptMenu->SetHelp(L"Menus");
 		HOptMenu->SetPosition(0,0,ScrX,0);
 		Global->WindowManager->ExecuteWindow(HOptMenu);

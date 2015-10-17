@@ -105,8 +105,8 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 
 			if (di.Type==DI_EDIT)
 			{
-				auto Color = colors::PaletteColorToFarColor(IsWarningStyle ? COL_WARNDIALOGTEXT : COL_DIALOGTEXT);
-				auto Colors = static_cast<FarDialogItemColors*>(Param2);
+				const auto Color = colors::PaletteColorToFarColor(IsWarningStyle ? COL_WARNDIALOGTEXT : COL_DIALOGTEXT);
+				const auto Colors = static_cast<FarDialogItemColors*>(Param2);
 				Colors->Colors[0] = Color;
 				Colors->Colors[2] = Color;
 			}
@@ -114,7 +114,7 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 		break;
 		case DN_CONTROLINPUT:
 		{
-			auto record = static_cast<const INPUT_RECORD *>(Param2);
+			const auto record = static_cast<const INPUT_RECORD *>(Param2);
 			if (record->EventType==KEY_EVENT)
 			{
 				int key = InputRecordToKey(record);
@@ -246,7 +246,7 @@ void Message::Init(
 	}
 
 	// should fit in the screen, unless buttons > screen width
-	auto MAX_MESSAGE_WIDTH = std::max(size_t(ScrX - 10), BtnLength);
+	const auto MAX_MESSAGE_WIDTH = std::max(size_t(ScrX - 10), BtnLength);
 
 	MaxLength = std::min(MaxLength, MAX_MESSAGE_WIDTH);
 
@@ -442,7 +442,7 @@ void Message::Init(
 			MsgDlg.emplace_back(std::move(Item));
 		}
 
-		auto Dlg = Dialog::create(MsgDlg, &Message::MsgDlgProc, this, &strClipText);
+		const auto Dlg = Dialog::create(MsgDlg, &Message::MsgDlgProc, this, &strClipText);
 		if (X1 == -1) X1 = 0;
 		if (Y1 == -1) Y1 = 0;
 		Dlg->SetPosition(X1,Y1,X2,Y2);
@@ -548,7 +548,7 @@ void Message::Init(
 		}
 		else
 		{
-			auto PosX=X1+(Width-Length)/2;
+			const auto PosX = X1 + (Width - Length) / 2;
 			Temp << fmt::ExactWidth(PosX - X1 - 4) << L"" << fmt::ExactWidth(Length) << SrcItem << fmt::ExactWidth(X2 - PosX - Length - 3) << L"";
 			GotoXY(X1 + 4, Y1 + static_cast<int>(i) + 2);
 		}

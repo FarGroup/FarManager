@@ -428,7 +428,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 		}
 		else
 		{
-			auto ItemIterator = std::find_if(CONST_RANGE(ColumnInfo, i) { return strArgName == i.Symbol; });
+			const auto ItemIterator = std::find_if(CONST_RANGE(ColumnInfo, i) { return strArgName == i.Symbol; });
 			if (ItemIterator != std::cend(ColumnInfo))
 				Columns.back().type = ItemIterator->Type;
 			else if (strArgOrig.size() >= 2 && strArgOrig.size() <= 3 && strArgOrig.front() == L'C')

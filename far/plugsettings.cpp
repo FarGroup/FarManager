@@ -48,7 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 wchar_t* AbstractSettings::Add(const string& String)
 {
-	auto size = (String.size() + 1) * sizeof(wchar_t);
+	const auto size = (String.size() + 1) * sizeof(wchar_t);
 	return static_cast<wchar_t*>(memcpy(Allocate(size), String.data(), size));
 }
 
@@ -204,7 +204,7 @@ int PluginSettings::Get(FarSettingsItem& Item)
 
 static wchar_t* AddString(const string& String)
 {
-	auto result = new wchar_t[String.size() + 1];
+	const auto result = new wchar_t[String.size() + 1];
 	std::copy(ALL_CONST_RANGE(String), result);
 	result[String.size()] = 0;
 	return result;
@@ -410,7 +410,7 @@ int FarSettings::Set(const FarSettingsItem& Item)
 
 int FarSettings::Get(FarSettingsItem& Item)
 {
-	if (auto Data = Global->Opt->GetConfigValue(Item.Root, Item.Name))
+	if (const auto Data = Global->Opt->GetConfigValue(Item.Root, Item.Name))
 	{
 		Data->Export(Item);
 

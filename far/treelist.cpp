@@ -741,7 +741,7 @@ void TreeList::Update(int Mode)
 
 		if (!m_Flags.Check(FTREELIST_ISPANEL))
 		{
-			auto AnotherPanel = Parent()->GetAnotherPanel(this);
+			const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 			AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 			AnotherPanel->Redraw();
 		}
@@ -777,7 +777,7 @@ static int MsgReadTree(size_t TreeCount, int FirstCall)
 		Message((FirstCall? 0 : MSG_KEEPBACKGROUND), 0, MSG(MTreeTitle), MSG(MReadingTree), std::to_wstring(TreeCount).data());
 		if (!PreRedrawStack().empty())
 		{
-			auto item = dynamic_cast<TreePreRedrawItem*>(PreRedrawStack().top());
+			const auto item = dynamic_cast<TreePreRedrawItem*>(PreRedrawStack().top());
 			item->TreeCount = TreeCount;
 		}
 		TreeStartTime = clock();
@@ -791,7 +791,7 @@ static void PR_MsgReadTree()
 	if (!PreRedrawStack().empty())
 	{
 		int FirstCall = 1;
-		auto item = dynamic_cast<const TreePreRedrawItem*>(PreRedrawStack().top());
+		const auto item = dynamic_cast<const TreePreRedrawItem*>(PreRedrawStack().top());
 		MsgReadTree(item->TreeCount, FirstCall);
 	}
 }
@@ -805,7 +805,7 @@ static os::fs::file OpenTreeFile(const string& Name, bool Writable)
 
 static bool MustBeCached(const string& Root)
 {
-	auto type = FAR_GetDriveType(Root);
+	const auto type = FAR_GetDriveType(Root);
 
 	if (type==DRIVE_UNKNOWN || type==DRIVE_NO_ROOT_DIR || type==DRIVE_REMOVABLE || IsDriveTypeCDROM(type))
 	{
@@ -940,7 +940,7 @@ int TreeList::ReadTree()
 		if (CheckForEscSilent())
 		{
 			// BUGBUG, Dialog calls Commit, TreeList redraws and crashes.
-			auto f = Global->WindowManager->GetCurrentWindow();
+			const auto f = Global->WindowManager->GetCurrentWindow();
 			if (f)
 				f->Lock();
 
@@ -1081,7 +1081,7 @@ bool TreeList::FillLastData()
 		auto SubDirPos = i;
 		int Last = 1;
 
-		auto SubRange = make_range(i + 1, Range.end());
+		const auto SubRange = make_range(i + 1, Range.end());
 		FOR_RANGE(SubRange, j)
 		{
 			if (CountSlash(j->strName, RootLength) > Depth)
@@ -1132,7 +1132,7 @@ __int64 TreeList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 int TreeList::ProcessKey(const Manager::Key& Key)
 {
-	auto LocalKey = Key.FarKey();
+	const auto LocalKey = Key.FarKey();
 	if (!IsVisible())
 		return FALSE;
 
@@ -1255,7 +1255,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 		{
 			if (!m_ListData.empty() && SetCurPath())
 			{
-				auto AnotherPanel = Parent()->GetAnotherPanel(this);
+				const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 				int Ask=((LocalKey!=KEY_DRAGCOPY && LocalKey!=KEY_DRAGMOVE) || Global->Opt->Confirm.Drag);
 				int Move=(LocalKey==KEY_F6 || LocalKey==KEY_DRAGMOVE);
 				int ToPlugin=AnotherPanel->GetMode()==PLUGIN_PANEL &&
@@ -1274,7 +1274,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 				{
 					PluginPanelItem Item;
 					int ItemNumber=1;
-					auto hAnotherPlugin=AnotherPanel->GetPluginHandle();
+					const auto hAnotherPlugin = AnotherPanel->GetPluginHandle();
 					FileList::FileNameToPluginItem(m_ListData[m_CurFile].strName, Item);
 					int PutCode=Global->CtrlObject->Plugins->PutFiles(hAnotherPlugin, &Item, ItemNumber, Move != 0, 0);
 
@@ -1330,7 +1330,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 
 				ShellDelete(this,LocalKey==KEY_ALTDEL||LocalKey==KEY_RALTDEL||LocalKey==KEY_ALTNUMDEL||LocalKey==KEY_RALTNUMDEL||LocalKey==KEY_ALTDECIMAL||LocalKey==KEY_RALTDECIMAL);
 				// Надобно не забыть обновить противоположную панель...
-				auto AnotherPanel = Parent()->GetAnotherPanel(this);
+				const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 				AnotherPanel->Update(UPDATE_KEEP_SELECTION);
 				AnotherPanel->Redraw();
 				Global->Opt->DeleteToRecycleBin=SaveOpt;
@@ -1493,7 +1493,7 @@ int TreeList::GetNextNavPos() const
 
 	if (static_cast<size_t>(m_CurFile+1) < m_ListData.size())
 	{
-		auto CurDepth=m_ListData[m_CurFile].Depth;
+		const auto CurDepth = m_ListData[m_CurFile].Depth;
 
 		for (size_t I=m_CurFile+1; I < m_ListData.size(); ++I)
 			if (m_ListData[I].Depth == CurDepth)
@@ -1512,7 +1512,7 @@ int TreeList::GetPrevNavPos() const
 
 	if (m_CurFile-1 > 0)
 	{
-		auto CurDepth=m_ListData[m_CurFile].Depth;
+		const auto CurDepth = m_ListData[m_CurFile].Depth;
 
 		for (int I=m_CurFile-1; I > 0; --I)
 			if (m_ListData[I].Depth == CurDepth)
@@ -2049,7 +2049,7 @@ void TreeList::UpdateViewPanel()
 {
 	if (!m_ModalMode)
 	{
-		auto AnotherPanel = dynamic_cast<QuickView*>(GetRootPanel());
+		const auto AnotherPanel = dynamic_cast<QuickView*>(GetRootPanel());
 		if (AnotherPanel && SetCurPath())
 		{
 			AnotherPanel->ShowFile(GetCurDir(), false, nullptr);
@@ -2076,18 +2076,12 @@ int TreeList::GoToFile(const string& Name,BOOL OnlyPartName)
 
 long TreeList::FindFile(const string& Name,BOOL OnlyPartName)
 {
-	for (size_t i=0; i < m_ListData.size(); ++i)
+	const auto ItemIterator = std::find_if(CONST_RANGE(m_ListData, i)
 	{
-		const wchar_t* CurPtrName = OnlyPartName? PointToName(m_ListData[i].strName) : m_ListData[i].strName.data();
+		return !StrCmpI(Name.data(), OnlyPartName? PointToName(i.strName) : i.strName.data());
+	});
 
-		if (Name == CurPtrName)
-			return static_cast<long>(i);
-
-		if (!StrCmpI(Name.data(),CurPtrName))
-			return static_cast<long>(i);
-	}
-
-	return -1;
+	return ItemIterator == m_ListData.cend()? -1 : ItemIterator - m_ListData.cbegin();
 }
 
 long TreeList::FindFirst(const string& Name)
@@ -2099,7 +2093,7 @@ long TreeList::FindNext(int StartPos, const string& Name)
 {
 	if (static_cast<size_t>(StartPos) < m_ListData.size())
 	{
-		auto ItemIterator = std::find_if(CONST_RANGE(m_ListData, i)
+		const auto ItemIterator = std::find_if(CONST_RANGE(m_ListData, i)
 		{
 			return CmpName(Name.data(), i.strName.data(), true) && !TestParentFolderName(i.strName);
 		});

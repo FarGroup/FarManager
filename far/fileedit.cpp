@@ -128,7 +128,7 @@ bool dlgOpenEditor(string &strFileName, uintptr_t &codepage)
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
 	};
 	auto EditDlg = MakeDialogItemsEx(EditDlgData);
-	auto Dlg = Dialog::create(EditDlg, hndOpenEditor, &codepage);
+	const auto Dlg = Dialog::create(EditDlg, hndOpenEditor, &codepage);
 	Dlg->SetPosition(-1,-1,76,10);
 	Dlg->SetHelp(L"FileOpenCreate");
 	Dlg->SetId(FileOpenCreateId);
@@ -229,7 +229,7 @@ intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 			{
 				FarListPos pos={sizeof(FarListPos)};
 				Dlg->SendMessage(DM_LISTGETCURPOS,ID_SF_CODEPAGE,&pos);
-				auto cp = *Dlg->GetListItemDataPtr<uintptr_t>(ID_SF_CODEPAGE, pos.SelectPos);
+				const auto cp = *Dlg->GetListItemDataPtr<uintptr_t>(ID_SF_CODEPAGE, pos.SelectPos);
 				if (cp != CurrentCodepage)
 				{
 					if (IsUnicodeOrUtfCodePage(cp))
@@ -291,7 +291,7 @@ bool dlgSaveFileAs(string &strFileName, int &TextFormat, uintptr_t &codepage,boo
 			EditDlg[ID_SF_FILENAME].strData.resize(pos);
 	}
 	EditDlg[ID_SF_DONOTCHANGE+TextFormat].Selected = TRUE;
-	auto Dlg = Dialog::create(EditDlg, hndSaveFileAs, &codepage);
+	const auto Dlg = Dialog::create(EditDlg, hndSaveFileAs, &codepage);
 	Dlg->SetPosition(-1,-1,76,17);
 	Dlg->SetHelp(L"FileSaveAs");
 	Dlg->SetId(FileSaveAsId);
@@ -467,9 +467,7 @@ void FileEditor::Init(
 	}
 
 	{
-		auto EditorWindow = Global->WindowManager->FindWindowByFile(windowtype_editor, strFullFileName);
-
-		if (EditorWindow)
+		if (auto EditorWindow = Global->WindowManager->FindWindowByFile(windowtype_editor, strFullFileName))
 		{
 			int SwitchTo=FALSE;
 
@@ -700,7 +698,7 @@ void FileEditor::Init(
 		if (Update) Global->WindowManager->DeleteWindow(Update);
 		Global->WindowManager->ExecuteWindow(shared_from_this());
 	}
-	Global->WindowManager->CallbackWindow([this](){this->ReadEvent();});
+	Global->WindowManager->CallbackWindow([this](){ ReadEvent(); });
 }
 
 void FileEditor::ReadEvent(void)
@@ -840,7 +838,7 @@ int FileEditor::ProcessKey(const Manager::Key& Key)
 
 int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 {
-	auto LocalKey = Key.FarKey();
+	const auto LocalKey = Key.FarKey();
 	if (LocalKey!=KEY_F4 && LocalKey!=KEY_IDLE)
 		F4KeyOnly=false;
 
@@ -1281,14 +1279,14 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 
 			case KEY_F8:
 			{
-				this->SetCodePage(f8cps.NextCP(m_codepage), false,true);
+				SetCodePage(f8cps.NextCP(m_codepage), false,true);
 				return TRUE;
 			}
 			case KEY_SHIFTF8:
 			{
 				uintptr_t codepage = m_codepage;
 				if (Codepages().SelectCodePage(codepage, true, false, true))
-					this->SetCodePage(codepage, true,true);
+					SetCodePage(codepage, true,true);
 
 				return TRUE;
 			}
@@ -1354,7 +1352,7 @@ int FileEditor::SetCodePage(uintptr_t cp,	bool redetect_default, bool ascii2def)
 		{
 			detect = GetFileFormat(edit_file, cp, &sig_found, true, &ascii_or_empty);
 			if (!detect && ascii_or_empty && ascii2def) {
-				cp = this->GetDefaultCodePage();
+				cp = GetDefaultCodePage();
 				if (IsUnicodeCodePage(cp)) {
 					UINT64 file_size = 0;
 					edit_file.GetSize(file_size);
@@ -1697,10 +1695,10 @@ bool FileEditor::ReloadFile(uintptr_t codepage)
 {
 	m_editor->Lock();
 
-	auto save_codepage(m_codepage), save_codepage1(m_editor->m_codepage);
-	auto save_bAddSignature(m_bAddSignature);
-	auto save_BadConversiom(BadConversion);
-	auto save_Flags(m_Flags), save_Flags1(m_editor->m_Flags);
+	const auto save_codepage(m_codepage), save_codepage1(m_editor->m_codepage);
+	const auto save_bAddSignature(m_bAddSignature);
+	const auto save_BadConversiom(BadConversion);
+	const auto save_Flags(m_Flags), save_Flags1(m_editor->m_Flags);
 
 	Editor saved(shared_from_this());
 	saved.fake_editor = true;
@@ -2536,7 +2534,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		}
 		case ECTL_GETBOOKMARKS:
 		{
-			auto ebm = static_cast<EditorBookmarks*>(Param2);
+			const auto ebm = static_cast<EditorBookmarks*>(Param2);
 			if (!m_Flags.Check(FFILEEDIT_OPENFAILED) && CheckNullOrStructSize(ebm))
 			{
 				size_t size;
@@ -2588,8 +2586,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		}
 		case ECTL_DELETESESSIONBOOKMARK:
 		{
-			auto i = m_editor->PointerToSessionBookmark((int) (intptr_t) Param2);
-			return m_editor->DeleteSessionBookmark(i);
+			return m_editor->DeleteSessionBookmark(m_editor->PointerToSessionBookmark((int)(intptr_t)Param2));
 		}
 		case ECTL_GETSESSIONBOOKMARKS:
 		{
@@ -2698,7 +2695,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		}
 		case ECTL_QUIT:
 		{
-			if (!this->bLoaded) // do not delete not created window
+			if (!bLoaded) // do not delete not created window
 			{
 				SetExitCode(XC_LOADING_INTERRUPTED);
 			}

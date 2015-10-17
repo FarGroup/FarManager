@@ -402,7 +402,7 @@ void HMenu::ProcessSubMenu(const MenuDataEx *Data,int DataCount,
 	SCOPE_EXIT { m_SubmenuOpened = false; };
 
 	Position=-1;
-	auto SubMenu = VMenu2::create(L"", Data, DataCount);
+	const auto SubMenu = VMenu2::create(L"", Data, DataCount);
 	SubMenu->SetBoxType(SHORT_DOUBLE_BOX);
 	SubMenu->SetMenuFlags(VMENU_WRAPMODE);
 	SubMenu->SetHelp(SubMenuHelp);

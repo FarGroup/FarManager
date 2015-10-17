@@ -1336,7 +1336,7 @@ int KeyNameToKey(const string& Name)
 		const wchar_t* Ptr=Name.data()+Pos;
 		const auto PtrLen = Len-Pos;
 
-		auto ItemIterator = std::find_if(CONST_REVERSE_RANGE(FKeys1, i)
+		const auto ItemIterator = std::find_if(CONST_REVERSE_RANGE(FKeys1, i)
 		{
 			return PtrLen == i.Len && !StrCmpI(Ptr, i.Name);
 		});
@@ -1413,7 +1413,7 @@ bool KeyToTextImpl(int Key0, string& strKeyText, tfkey_to_text ToText, add_separ
 
 	GetShiftKeyName(strKeyText, Key, ToText, AddSeparator);
 
-	auto FKeys1Iterator = std::find(ALL_CONST_RANGE(FKeys1), FKey);
+	const auto FKeys1Iterator = std::find(ALL_CONST_RANGE(FKeys1), FKey);
 	if (FKeys1Iterator != std::cend(FKeys1))
 	{
 		AddSeparator(strKeyText);
@@ -1438,7 +1438,7 @@ bool KeyToTextImpl(int Key0, string& strKeyText, tfkey_to_text ToText, add_separ
 		{
 #if defined(SYSLOG)
 			// Этот кусок кода нужен только для того, что "спецклавиши" логировались нормально
-			auto SpecKeyIterator = std::find(ALL_CONST_RANGE(SpecKeyName), FKey);
+			const auto SpecKeyIterator = std::find(ALL_CONST_RANGE(SpecKeyName), FKey);
 			if (SpecKeyIterator != std::cend(SpecKeyName))
 			{
 				AddSeparator(strKeyText);
@@ -1485,7 +1485,7 @@ bool KeyToLocalizedText(int Key, string &strKeyText)
 		{
 			if (i->LocalizedNameId != LNGID(-1))
 			{
-				auto Msg = MSG(i->LocalizedNameId);
+				const auto Msg = MSG(i->LocalizedNameId);
 				if (*Msg)
 					return Msg;
 			}
@@ -1519,7 +1519,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 
 	bool KeyInTable = false;
 	{
-		auto ItemIterator = std::find_if(CONST_RANGE(Table_KeyToVK, i) { return static_cast<DWORD>(i.first) == FKey; });
+		const auto ItemIterator = std::find_if(CONST_RANGE(Table_KeyToVK, i) { return static_cast<DWORD>(i.first) == FKey; });
 		if (ItemIterator != std::cend(Table_KeyToVK))
 		{
 			VirtKey = ItemIterator->second;
@@ -1585,7 +1585,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 				{KEY_RCTRL, VK_RCONTROL},
 				{KEY_RALT, VK_RMENU},
 			};
-			auto ItemIterator = std::find_if(CONST_RANGE(ExtKeyMap, i) {return i.first == static_cast<far_key_code>(FShift);});
+			const auto ItemIterator = std::find_if(CONST_RANGE(ExtKeyMap, i) { return i.first == static_cast<far_key_code>(FShift); });
 			if (ItemIterator != std::cend(ExtKeyMap))
 				VirtKey = ItemIterator->second;
 		}
@@ -1671,7 +1671,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 					    (FKey==KEY_DECIMAL?NUMLOCK_ON:0);
 
 					static const DWORD ExtKey[] = {KEY_PGUP, KEY_PGDN, KEY_END, KEY_HOME, KEY_LEFT, KEY_UP, KEY_RIGHT, KEY_DOWN, KEY_INS, KEY_DEL, KEY_NUMENTER};
-					auto ItemIterator = std::find(ALL_CONST_RANGE(ExtKey), FKey);
+					const auto ItemIterator = std::find(ALL_CONST_RANGE(ExtKey), FKey);
 					if (ItemIterator != std::cend(ExtKey))
 						Rec->Event.KeyEvent.dwControlKeyState|=ENHANCED_KEY;
 				}
@@ -1974,7 +1974,7 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros)
 	if (!rec->Event.KeyEvent.bKeyDown)
 	{
 		KeyCodeForALT_LastPressed=0;
-		auto ModifPressed=CtrlState&(LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED|LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED|SHIFT_PRESSED);
+		const auto ModifPressed = CtrlState&(LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED | LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED | SHIFT_PRESSED);
 
 		switch (KeyCode)
 		{

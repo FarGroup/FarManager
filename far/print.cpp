@@ -155,7 +155,7 @@ void PrintFiles(FileList* SrcPanel)
 			strTitle = string_format(MPrintFilesTo, SelCount);
 		}
 
-		auto PrinterList = VMenu2::create(strTitle, nullptr, 0, ScrY - 4);
+		const auto PrinterList = VMenu2::create(strTitle, nullptr, 0, ScrY - 4);
 		PrinterList->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 		PrinterList->SetPosition(-1,-1,0,0);
 		AddToPrintersMenu(PrinterList.get(), pi.get(), Returned);
@@ -190,7 +190,7 @@ void PrintFiles(FileList* SrcPanel)
 		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<PreRedrawItem>(PR_PrintMsg));
 		SetCursorType(false, 0);
 		PR_PrintMsg();
-		auto hPlugin=SrcPanel->GetPluginHandle();
+		const auto hPlugin = SrcPanel->GetPluginHandle();
 		int PluginMode=SrcPanel->GetMode()==PLUGIN_PANEL &&
 		               !Global->CtrlObject->Plugins->UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
 		SrcPanel->GetSelName(nullptr,FileAttr);

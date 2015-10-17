@@ -154,7 +154,7 @@ static void PR_ShellDeleteMsg()
 {
 	if (!PreRedrawStack().empty())
 	{
-		auto item = dynamic_cast<const DelPreRedrawItem*>(PreRedrawStack().top());
+		const auto item = dynamic_cast<const DelPreRedrawItem*>(PreRedrawStack().top());
 		ShellDeleteMsg(item->name, item->Mode, item->Percent, item->WipePercent, item->Title);
 	}
 }
@@ -305,7 +305,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 	BOOL NeedUpdate=TRUE, NeedSetUpADir=FALSE;
 	bool Opt_DeleteToRecycleBin=Global->Opt->DeleteToRecycleBin;
 	/*& 31.05.2001 OT «апретить перерисовку текущего окна*/
-	auto WindowFromLaunched = Global->WindowManager->GetCurrentWindow();
+	const auto WindowFromLaunched = Global->WindowManager->GetCurrentWindow();
 	WindowFromLaunched->Lock();
 	bool DeleteAllFolders=!Global->Opt->Confirm.DeleteFolder;
 	const auto UpdateDiz=(Global->Opt->Diz.UpdateMode==DIZ_UPDATE_ALWAYS ||
@@ -476,7 +476,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		{
 			if (bHilite && Msg == DN_CTLCOLORDLGITEM && Param1 >= start_hilite && Param1 <= end_hilite)
 			{
-				auto Colors = static_cast<FarDialogItemColors*>(Param2);
+				const auto Colors = static_cast<const FarDialogItemColors*>(Param2);
 				Colors->Colors[0] = Colors->Colors[1];
 			}
 			return Dlg->DefProc(Msg, Param1, Param2);
@@ -493,7 +493,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		std::for_each(RANGE(items, i)
 		{
 			TruncStrFromCenter(i, ScrX+1-6*2);
-			auto dx = Builder.AddText(i.data());
+			const auto dx = Builder.AddText(i.data());
 			dx->Flags = (SelCount <= 1 || mshow <= 1 ? DIF_CENTERTEXT : 0) | DIF_SHOWAMPERSAND;
 			size_t index = Builder.GetLastID();
 			end_hilite = index;

@@ -114,7 +114,7 @@ static bool SidToNameCached(PSID Sid, string& Name, const string& Computer)
 	static std::unordered_map<sid, string, sid_hash> SIDCache;
 
 	sid SidCopy(Sid);
-	auto ItemIterator = SIDCache.find(SidCopy);
+	const auto ItemIterator = SIDCache.find(SidCopy);
 
 	if (ItemIterator != SIDCache.cend())
 	{
@@ -141,7 +141,7 @@ bool GetFileOwner(const string& Computer,const string& Name, string &strOwner)
 	DWORD LengthNeeded=0;
 	NTPath strName(Name);
 	static thread_local char sddata[64 * 1024];
-	auto sd = reinterpret_cast<PSECURITY_DESCRIPTOR>(sddata);
+	const auto sd = reinterpret_cast<SECURITY_DESCRIPTOR*>(sddata);
 
 	if (GetFileSecurity(strName.data(),si,sd,sizeof(sddata),&LengthNeeded) && LengthNeeded<=sizeof(sddata))
 	{

@@ -334,7 +334,7 @@ void SetColors()
 			{ MSetColorHelp, HelpItems, ARRAYSIZE(HelpItems) },
 		};
 
-		auto GroupsMenu = VMenu2::create(MSG(MSetColorGroupsTitle), nullptr, 0);
+		const auto GroupsMenu = VMenu2::create(MSG(MSetColorGroupsTitle), nullptr, 0);
 
 		FOR(const auto& i, Groups)
 		{
@@ -381,7 +381,7 @@ void SetColors()
 
 static void SetItemColors(const color_item* Items, size_t Size)
 {
-	auto ItemsMenu = VMenu2::create(MSG(MSetColorItemsTitle), nullptr, 0);
+	const auto ItemsMenu = VMenu2::create(MSG(MSetColorItemsTitle), nullptr, 0);
 
 	FOR(const auto& i, make_range(Items, Items + Size))
 	{
@@ -442,20 +442,20 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 			if (Param1 >= 2 && Param1 <= 17) // Fore
 			{
-				auto Colors = static_cast<FarDialogItemColors*>(Param2);
+				const auto Colors = static_cast<FarDialogItemColors*>(Param2);
 				Colors->Colors[0] = colors::ConsoleColorToFarColor(ColorIndex[Param1-2]);
 			}
 
 			if (Param1 >= 19 && Param1 <= 34) // Back
 			{
-				auto Colors = static_cast<FarDialogItemColors*>(Param2);
+				const auto Colors = static_cast<FarDialogItemColors*>(Param2);
 				Colors->Colors[0] = colors::ConsoleColorToFarColor(ColorIndex[Param1-19]);
 			}
 
 			if (Param1 >= 37 && Param1 <= 39)
 			{
-				auto CurColor = reinterpret_cast<FarColor*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
-				auto Colors = static_cast<FarDialogItemColors*>(Param2);
+				const auto CurColor = reinterpret_cast<FarColor*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+				const auto Colors = static_cast<FarDialogItemColors*>(Param2);
 				Colors->Colors[0] = *CurColor;
 			}
 			break;
@@ -465,7 +465,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			if (Param1 >= 2 && Param1 <= 34)
 			{
 				FarColor NewColor;
-				auto CurColor = reinterpret_cast<FarColor*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+				const auto CurColor = reinterpret_cast<FarColor*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 				FarDialogItem DlgItem = {};
 				Dlg->SendMessage( DM_GETDLGITEMSHORT, Param1, &DlgItem);
 				NewColor=*CurColor;
@@ -622,7 +622,7 @@ bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
 	}
 
 	{
-		auto Dlg = Dialog::create(ColorDlg, GetColorDlgProc, &CurColor);
+		const auto Dlg = Dialog::create(ColorDlg, GetColorDlgProc, &CurColor);
 
 		if (bCentered)
 			Dlg->SetPosition(-1,-1,39+(bAddTransparent?4:0),15+(bAddTransparent?3:0));

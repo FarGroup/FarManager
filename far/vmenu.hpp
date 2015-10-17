@@ -238,7 +238,7 @@ public:
 	int ProcessFilterKey(int Key);
 	void clear();
 	int DeleteItem(int ID, int Count = 1);
-	int AddItem(MenuItemEx& NewItem, int PosAdd = 0x7FFFFFFF);
+	int AddItem(MenuItemEx&& NewItem, int PosAdd = 0x7FFFFFFF);
 	int AddItem(const FarList *NewItem);
 	int AddItem(const wchar_t *NewStrItem);
 	int InsertItem(const FarListInsert *NewItem);

@@ -81,7 +81,7 @@ LNGID operator+(LNGID Id, T Shift)
 
 inline LNGID operator++(LNGID& Id, int)
 {
-	auto Value = Id;
+	const auto Value = Id;
 	Id = Id + 1;
 	return Value;
 }

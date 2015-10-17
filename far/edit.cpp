@@ -178,7 +178,7 @@ void Edit::GetCursorType(bool& Visible, DWORD& Size) const
 int Edit::GetNextCursorPos(int Position,int Where) const
 {
 	int Result = Position;
-	auto Mask = GetInputMask();
+	const auto Mask = GetInputMask();
 
 	if (!Mask.empty() && (Where==-1 || Where==1))
 	{
@@ -266,7 +266,7 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 	   все "постоянные" символы в маске, не являющиеся шаблонными
 	   должны постоянно присутствовать в Str
 	*/
-	auto Mask = GetInputMask();
+	const auto Mask = GetInputMask();
 	if (!Mask.empty())
 		RefreshStrByMask();
 
@@ -593,7 +593,7 @@ __int64 Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 int Edit::ProcessKey(const Manager::Key& Key)
 {
 	auto LocalKey = Key.FarKey();
-	auto Mask = GetInputMask();
+	const auto Mask = GetInputMask();
 	switch (LocalKey)
 	{
 		case KEY_ADD:
@@ -1450,7 +1450,7 @@ int Edit::InsertKey(int Key)
 		return TRUE;
 	}
 
-	auto Mask = GetInputMask();
+	const auto Mask = GetInputMask();
 	if (!Mask.empty())
 	{
 		int MaskLen = static_cast<int>(Mask.size());
@@ -1571,7 +1571,7 @@ void Edit::SetHiString(const string& Str)
 	if (m_Flags.Check(FEDITLINE_READONLY))
 		return;
 
-	auto NewStr = HiText2Str(Str);
+	const auto NewStr = HiText2Str(Str);
 	Select(-1,0);
 	SetBinaryString(NewStr.data(), NewStr.size());
 }
@@ -1659,7 +1659,7 @@ void Edit::SetBinaryString(const wchar_t *Str, size_t Length)
 
 	m_CurPos=0;
 
-	auto Mask = GetInputMask();
+	const auto Mask = GetInputMask();
 	if (!Mask.empty())
 	{
 		RefreshStrByMask(TRUE);
@@ -1785,7 +1785,7 @@ void Edit::InsertBinaryString(const wchar_t *Str, size_t Length)
 
 	m_Flags.Clear(FEDITLINE_CLEARFLAG);
 
-	auto Mask = GetInputMask();
+	const auto Mask = GetInputMask();
 	if (!Mask.empty())
 	{
 		const size_t Pos = m_CurPos;
@@ -1833,7 +1833,7 @@ void Edit::InsertBinaryString(const wchar_t *Str, size_t Length)
 		}
 
 		RefreshStrByMask();
-		//_SVS(SysLog(L"InsertBinaryString ==> this->Str='%s'",this->Str));
+		//_SVS(SysLog(L"InsertBinaryString ==> Str='%s'", Str));
 	}
 	else
 	{
@@ -2001,7 +2001,7 @@ int Edit::GetTabCurPos() const
 
 void Edit::SetTabCurPos(int NewPos)
 {
-	auto Mask = GetInputMask();
+	const auto Mask = GetInputMask();
 	if (!Mask.empty())
 	{
 		string ShortStr = m_Str;
@@ -2203,7 +2203,7 @@ void Edit::DeleteBlock()
 
 	SetPrevCurPos(m_CurPos);
 
-	auto Mask = GetInputMask();
+	const auto Mask = GetInputMask();
 	if (!Mask.empty())
 	{
 		for (auto i = m_SelStart; i != m_SelEnd; ++i)
@@ -2636,7 +2636,9 @@ void Edit::SetLineCursorPos(int Value)
 
 Editor* Edit::GetEditor(void)const
 {
-	auto owner=dynamic_cast<EditorContainer*>(GetOwner().get());
-	if (owner) return owner->GetEditor();
+	if (const auto owner = dynamic_cast<EditorContainer*>(GetOwner().get()))
+	{
+		return owner->GetEditor();
+	}
 	return nullptr;
 }

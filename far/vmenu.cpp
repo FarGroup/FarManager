@@ -118,7 +118,7 @@ void VMenu::init(MenuDataEx *Data, int ItemsCount, DWORD Flags)
 		//NewItem.AmpPos = -1;
 		NewItem.AccelKey = i.AccelKey;
 		NewItem.Flags = i.Flags;
-		AddItem(NewItem);
+		AddItem(std::move(NewItem));
 	}
 
 	SetMaxHeight(MaxHeight);
@@ -396,8 +396,7 @@ int VMenu::InsertItem(const FarListInsert *NewItem)
 
 	if (NewItem)
 	{
-		auto MenuItem = FarList2MenuItem(NewItem->Item);
-		if (AddItem(MenuItem, NewItem->Index) >= 0)
+		if (AddItem(FarList2MenuItem(NewItem->Item), NewItem->Index) >= 0)
 			return static_cast<int>(Items.size());
 	}
 
@@ -410,11 +409,10 @@ int VMenu::AddItem(const FarList *List)
 
 	if (List && List->Items)
 	{
-		for (size_t i=0; i<List->ItemsNumber; i++)
+		std::for_each(List->Items, List->Items + List->ItemsNumber, [this](const FarListItem& Item)
 		{
-			auto MenuItem = FarList2MenuItem(List->Items[i]);
-			AddItem(MenuItem);
-		}
+			AddItem(FarList2MenuItem(Item));
+		});
 	}
 
 	return static_cast<int>(Items.size());
@@ -441,7 +439,7 @@ int VMenu::AddItem(const wchar_t *NewStrItem)
 	return AddItem(&FarList0)-1; //-1 потому что AddItem(FarList) возвращает количество элементов
 }
 
-int VMenu::AddItem(MenuItemEx& NewItem,int PosAdd)
+int VMenu::AddItem(MenuItemEx&& NewItem,int PosAdd)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
@@ -461,7 +459,7 @@ int VMenu::AddItem(MenuItemEx& NewItem,int PosAdd)
 	else
 		UpdateMaxLength(HiStrlen(NewMenuItem.strName));
 
-	auto NewFlags = NewMenuItem.Flags;
+	const auto NewFlags = NewMenuItem.Flags;
 	NewMenuItem.Flags = 0;
 	UpdateItemFlags(PosAdd, NewFlags);
 
@@ -522,7 +520,7 @@ int VMenu::DeleteItem(int ID, int Count)
 	}
 
 	// а вот теперь перемещения
-	auto FirstIter = Items.begin()+ID, LastIter = FirstIter+Count;
+	const auto FirstIter = Items.begin() + ID, LastIter = FirstIter + Count;
 	if (Items.size() > 1)
 		Items.erase(FirstIter, LastIter);
 
@@ -1698,15 +1696,7 @@ int VMenu::GetVisualPos(int Pos)
 	if (Pos >= static_cast<int>(Items.size()))
 		return GetShowItemCount();
 
-	int v=0;
-
-	for (int i=0; i < Pos; i++)
-	{
-		if (ItemIsVisible(Items[i].Flags))
-			v++;
-	}
-
-	return v;
+	return std::count_if(Items.cbegin(), Items.cbegin() + Pos, [this](CONST_REFERENCE(Items) Item) { return ItemIsVisible(Item.Flags); });
 }
 
 int VMenu::VisualPosToReal(int VPos)
@@ -1720,7 +1710,7 @@ int VMenu::VisualPosToReal(int VPos)
 	if (VPos >= GetShowItemCount())
 		return static_cast<int>(Items.size());
 
-	auto ItemIterator = std::find_if(CONST_RANGE(Items, i) { return ItemIsVisible(i.Flags) && !VPos--; });
+	const auto ItemIterator = std::find_if(CONST_RANGE(Items, i) { return ItemIsVisible(i.Flags) && !VPos--; });
 	return ItemIterator != Items.cend()? ItemIterator - Items.cbegin() : -1;
 }
 
@@ -2392,7 +2382,7 @@ wchar_t VMenu::GetHighlights(const MenuItemEx *_item)
 		}
 		else if (!CheckFlags(VMENU_SHOWAMPERSAND))
 		{
-			auto AmpPos = _item->strName.find(L'&');
+			const auto AmpPos = _item->strName.find(L'&');
 			if (AmpPos != string::npos && AmpPos + 1 != _item->strName.size())
 			Ch = _item->strName[AmpPos + 1];
 		}
@@ -2895,7 +2885,7 @@ void VMenu::SortItems(bool Reverse, int Offset)
 
 bool VMenu::Pack()
 {
-	auto OldItemCount=Items.size();
+	const auto OldItemCount = Items.size();
 	size_t FirstIndex=0;
 
 	while (FirstIndex<Items.size())

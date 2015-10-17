@@ -59,8 +59,8 @@ FileSystemWatcher::~FileSystemWatcher()
 void FileSystemWatcher::Set(const string& Directory, bool WatchSubtree)
 {
 	m_WatchRegistered.Wait();
-	this->m_Directory = Directory;
-	this->m_WatchSubtree = WatchSubtree;
+	m_Directory = Directory;
+	m_WatchSubtree = WatchSubtree;
 
 	if (os::GetFileTimeSimple(Directory,nullptr,nullptr,&m_PreviousLastWriteTime,nullptr))
 		m_CurrentLastWriteTime = m_PreviousLastWriteTime;
