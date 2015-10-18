@@ -59,6 +59,8 @@
 #
 #NO_RELEASE_PDB - set to disable pdb generation for release
 #
+#GEN_IMPLIB - set when link with ulink and implib must be generated
+#
 
 !ifndef RC_NAME
 RC_NAME=$(NAME)
@@ -193,7 +195,10 @@ NODEFLIB = -n
 !ifdef DEFFILE
 LINK_DEF_OPT=/ZD:"$(DEFFILE)"
 !endif
-LINK_FLAGS=-q $(ULOUT) $(ULN_DELAY) -Gz -m- -v -Gh -Gh- $(NOENTRY) $(NODEFLIB) $(LINK_DEF_OPT) /ZM:"$(MAP)" /ZO:"$(DLLFULLNAME)" $(ENV_LIB_OPT)
+!ifdef GEN_IMPLIB
+LINK_GEN_IMPLIB=-Gic
+!endif
+LINK_FLAGS=-q -V5.0 -W5.0 -b* $(ULOUT) $(ULN_DELAY) -Gz -m- -v -Gh -Gh- $(NOENTRY) $(NODEFLIB) $(LINK_DEF_OPT) /ZM:"$(MAP)" /ZO:"$(DLLFULLNAME)" $(LINK_GEN_IMPLIB) $(ENV_LIB_OPT)
 !endif
 
 !ifndef AS
