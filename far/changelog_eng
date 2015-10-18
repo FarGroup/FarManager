@@ -3,6 +3,57 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 18.10.2015 13:18:18 +0200 - build 4439
+
+1. Carriage return was incorrectly processed in editor for codepages where it differed from 0x0d / 0x0a (EBCDIC etc.)
+
+drkns 17.10.2015 14:35:10 +0200 - build 4438
+
+1. Refactoring.
+
+svs 16.10.2015 12:33:02 +0300 - build 4437
+
+1. Mantis#0003062: FSF.CopyToClipboard+FCT_COLUMN desynchronizes clipboard
+   For FCT_STREAM SetClipboard is used which clears the clipboard by itself.
+   For FCT_COLUMN SetClipboardFormat(FCF_VERTICALBLOCK_UNICODE) is used which does not clear the clipboard and adds the data instead, so OEM is left intact.
+
+   <ACHTUNG!>
+   	SetClipboardFormat just adds the vertical block data to an existing content.
+   </ACHTUNG!>
+
+svs 15.10.2015 16:40:58 +0300 - build 4436
+
+1. Mantis#0003061: FSF.CopyToClipboard + FCT_COLUMN: vertical blocks compatible with third-party applications
+   Support for vertical blocks "Borland IDE Block Type" and "MSDEVColumnSelect" along with "FAR_VerticalBlock_Unicode".
+
+   FAR adds new types to clipboard only for copying a vertical block.
+   In clipboard:
+     "FAR_VerticalBlock_Unicode" "native" FAR block
+     "Borland IDE Block Type" block contains 1 byte 0x02
+     "MSDEVColumnSelect"      block contains 0 bytes.
+     The data itself is contained in "CF_UNICODETEXT".
+
+   FAR accepts these types when pasting into the editor so it inserts vertical block.
+
+svs 15.10.2015 13:15:19 +0300 - build 4435
+
+1. Mantis#0003070: DI_EDIT+DIF_EDITEXPAND: variables are expanded too early
+   "Expansion" takes place only if dialog procedure has returned TRUE.
+
+svs 14.10.2015 17:41:39 +0300 - build 4434
+
+1. SQLite 3.9.0
+
+2. Mantis#0003033: Defect in drawing a frame in DI_TEXT+DIF_SEPARATORUSER
+
+drkns 12.10.2015 18:26:07 +0200 - build 4433
+
+1. another correction of 4431.
+
+w17 12.10.2015 14:00:11 +0300 - build 4432
+
+1. correction of 4431.
+
 drkns 11.10.2015 16:04:27 +0200 - build 4431
 
 1. Refactoring.
