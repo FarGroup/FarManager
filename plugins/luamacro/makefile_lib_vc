@@ -5,7 +5,9 @@ LUA_VER=51
 LUA_PROXY=lua5.1.dll
 USERCPP=/Iluasdk/include /DBUILD_DLL /DWINVER=0x500 /DLUADLL=\"lua$(LUA_VER).dll\"
 LUA=luasdk\32\lua.exe
+!ifndef FARDIR
 FARDIR=..\..\unicode_far
+!endif
 
 DOCS=luasdk\$(DIRBIT)\lua$(LUA_VER).dll luasdk\$(DIRBIT)\$(LUA_PROXY) \
      luasdk\$(DIRBIT)\lpeg.dll
@@ -13,6 +15,7 @@ DOCS=luasdk\$(DIRBIT)\lua$(LUA_VER).dll luasdk\$(DIRBIT)\$(LUA_PROXY) \
 NEEDENTRY = 1
 NEEDDEFLIB = 1
 EXCLUDECRT=1
+GEN_IMPLIB=1
 
 RC_NAME=luafar\$(NAME)
 DEF_NAME=
@@ -44,10 +47,15 @@ LIBS=$(LIBS) luasdk\$(DIRBIT)\lua$(LUA_VER).lib rpcrt4.lib
 
 $(LINK_OBJS): luafar\flags.c luafar\keysandcolors.c
 
+!ifndef __MAKE__
 {luafar}.c{$(OBJDIR)}.obj::
 	$(CC) @<<
 	$(CPPFLAGS) $<
 <<
+!else
+{luafar}.c{$(OBJDIR)}.obj:
+	@$(CC) $(CPPFLAGS) /Fo$(OBJDIR)\ { $< } 
+!endif
 
 luafar\flags.c: $(COMINC)\plugin.hpp luafar\makeflags.lua
 	@echo generating flags.c

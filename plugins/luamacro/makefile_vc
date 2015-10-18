@@ -36,10 +36,15 @@ LIBS=$(LIBS) luasdk\$(DIRBIT)\lua$(LUA_VER).lib $(LUALIB)
 
 !include ..\makefile_vc_target_inc
 
+!ifndef __MAKE__
 {luafar}.c{$(OBJDIR)}.obj::
 	$(CC) @<<
 	$(CPPFLAGS) $<
 <<
+!else
+{luafar}.c{$(OBJDIR)}.obj:
+	@$(CC) $(CPPFLAGS) /Fo$(OBJDIR)\ { $< } 
+!endif
 
 .PHONY: lualib
 
