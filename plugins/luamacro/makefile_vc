@@ -48,5 +48,7 @@ LIBS=$(LIBS) luasdk\$(DIRBIT)\lua$(LUA_VER).lib $(LUALIB)
 
 .PHONY: lualib
 
+!include ../makefile_vc_getmode
+
 lualib:
-	@$(MAKE) $(_MKHIDE) /f makefile_lib_vc INSTALL=$(FAR_WORKDIR)
+	@$(MAKE) $(_MKHIDE) /f makefile_lib_vc INSTALL=$(FAR_WORKDIR) $(_MDEFS)
