@@ -207,3 +207,32 @@ private:
 };
 
 //#############################################################################
+
+class raw_eol
+{
+public:
+	raw_eol(): m_Cr('\r'), m_Lf('\n') {}
+	raw_eol(uintptr_t Codepage)
+	{
+		unicode::to(Codepage, L"\r", 1, &m_Cr, 1);
+		unicode::to(Codepage, L"\n", 1, &m_Lf, 1);
+	}
+
+	template <class T>
+	T cr() const;
+	template <class T>
+	T lf() const;
+
+private:
+	char m_Cr;
+	char m_Lf;
+};
+
+template<>
+inline char raw_eol::cr<char>() const { return m_Cr; }
+template<>
+inline char raw_eol::lf<char>() const { return m_Lf; }
+template<>
+inline wchar_t raw_eol::cr<wchar_t>() const { return L'\r'; }
+template<>
+inline wchar_t raw_eol::lf<wchar_t>() const { return L'\n'; }

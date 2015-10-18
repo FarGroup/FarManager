@@ -2273,7 +2273,7 @@ int Viewer::CacheFindUp( __int64 start )
 static const int portion_size = 250;
 
 template<typename T, typename F>
-static int process_back(int BufferSize, int pos, int64_t& fpos, const F& Reader)
+static int process_back(int BufferSize, int pos, int64_t& fpos, const F& Reader, const raw_eol& eol)
 {
 	T Buffer[portion_size/sizeof(T)];
 	int nr = Reader(Buffer, BufferSize);
@@ -2283,25 +2283,24 @@ static int process_back(int BufferSize, int pos, int64_t& fpos, const F& Reader)
 		throw std::runtime_error("wrong size");
 	}
 
-	typedef eol<T> eol;
 	if (!pos)
 	{
 		const auto PopEol = [&](T Char) { return nr && Buffer[nr - 1] == Char && --nr; };
 
-		if (PopEol(eol::lf))
+		if (PopEol(eol.lf<T>()))
 		{
-			if (PopEol(eol::cr))
+			if (PopEol(eol.cr<T>()))
 			{
-				PopEol(eol::cr);
+				PopEol(eol.cr<T>());
 			}
 		}
 		else
 		{
-			PopEol(eol::cr);
+			PopEol(eol.cr<T>());
 		}
 	}
 
-	static const T crlf[] = { eol::cr, eol::lf };
+	const T crlf[] = { eol.cr<T>(), eol.lf<T>() };
 	const auto REnd = std::reverse_iterator<T*>(Buffer);
 	const auto RBegin = REnd - nr;
 	const auto Iterator = std::find_first_of(RBegin, REnd, ALL_CONST_RANGE(crlf));
@@ -2353,6 +2352,8 @@ void Viewer::Up( int nlines, bool adjust )
 
 	int buff_size, ch_size = getCharSize();
 
+	raw_eol eol;
+
 	while ( nlines > 0 )
 	{
 		if ( fpos <= 0 )
@@ -2383,7 +2384,7 @@ void Viewer::Up( int nlines, bool adjust )
 				};
 				try
 				{
-					if (process_back<char>(buff_size, j, fpos, BufferReader))
+					if (process_back<char>(buff_size, j, fpos, BufferReader, eol))
 						break;
 				}
 				catch (std::runtime_error&)
@@ -2399,7 +2400,7 @@ void Viewer::Up( int nlines, bool adjust )
 				};
 				try
 				{
-					if (process_back<wchar_t>(buff_size, j, fpos, BufferReader))
+					if (process_back<wchar_t>(buff_size, j, fpos, BufferReader, eol))
 						break;
 				}
 				catch (std::runtime_error&)

@@ -223,23 +223,6 @@ unsigned long long StringToFlags(const string& strFlags, const container& From, 
 	return Flags;
 }
 
-template<class T>
-struct eol;
-
-template<>
-struct eol<char>
-{
-	static const char cr = '\r';
-	static const char lf = '\n';
-};
-
-template<>
-struct eol<wchar_t>
-{
-	static const wchar_t cr = L'\r';
-	static const wchar_t lf = L'\n';
-};
-
 int IntToHex(int h);
 int HexToInt(int h);
 

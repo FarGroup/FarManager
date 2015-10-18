@@ -112,6 +112,7 @@ GetFileString::GetFileString(os::fs::file& SrcFile, uintptr_t CodePage) :
 	LastLength(0),
 	LastString(nullptr),
 	LastResult(false),
+	m_Eol(m_CodePage),
 	SomeDataLost(false),
 	bCrCr(false)
 {
@@ -262,8 +263,6 @@ bool GetFileString::GetString(LPWSTR* DestStr, size_t& Length)
 template<class T>
 bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, bool bBigEndian)
 {
-	typedef eol<T> eol;
-
 	bool ExitCode = true;
 	T* ReadBufPtr = ReadPos < ReadSize ? From.data() + ReadPos / sizeof(T) : nullptr;
 
@@ -273,7 +272,7 @@ bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, bool bB
 	// ¬ этом случаем считаем \r\r двум€ MAC окончани€ми строк.
 	if (bCrCr)
 	{
-		To.emplace_back(T(eol::cr));
+		To.emplace_back(m_Eol.cr<T>());
 		bCrCr = false;
 	}
 	else
@@ -303,12 +302,12 @@ bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, bool bB
 			if (Eol == FEOL_NONE)
 			{
 				// UNIX
-				if (*ReadBufPtr == eol::lf)
+				if (*ReadBufPtr == m_Eol.lf<T>())
 				{
 					Eol = FEOL_UNIX;
 				}
 				// MAC / Windows? / Notepad?
-				else if (*ReadBufPtr == eol::cr)
+				else if (*ReadBufPtr == m_Eol.cr<T>())
 				{
 					Eol = FEOL_MAC;
 				}
@@ -316,12 +315,12 @@ bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, bool bB
 			else if (Eol == FEOL_MAC)
 			{
 				// Windows
-				if (*ReadBufPtr == eol::lf)
+				if (*ReadBufPtr == m_Eol.lf<T>())
 				{
 					Eol = FEOL_WINDOWS;
 				}
 				// Notepad?
-				else if (*ReadBufPtr == eol::cr)
+				else if (*ReadBufPtr == m_Eol.cr<T>())
 				{
 					Eol = FEOL_MAC2;
 				}
@@ -337,7 +336,7 @@ bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, bool bB
 			else if (Eol == FEOL_MAC2)
 			{
 				// Notepad
-				if (*ReadBufPtr == eol::lf)
+				if (*ReadBufPtr == m_Eol.lf<T>())
 				{
 					Eol = FEOL_NOTEPAD;
 				}

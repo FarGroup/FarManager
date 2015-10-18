@@ -33,6 +33,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "codepage.hpp"
+
 class GetFileString: noncopyable
 {
 public:
@@ -58,6 +60,8 @@ private:
 	std::vector<char> m_ReadBuf;
 	std::vector<wchar_t> m_wReadBuf;
 	std::vector<wchar_t> m_wStr;
+
+	raw_eol m_Eol;
 
 	bool SomeDataLost;
 	bool bCrCr;
