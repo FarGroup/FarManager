@@ -111,9 +111,9 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
-#define SQLITE_VERSION        "3.9.0"
-#define SQLITE_VERSION_NUMBER 3009000
-#define SQLITE_SOURCE_ID      "2015-10-14 12:29:53 a721fc0d89495518fe5612e2e3bbc60befd2e90d"
+#define SQLITE_VERSION        "3.9.1"
+#define SQLITE_VERSION_NUMBER 3009001
+#define SQLITE_SOURCE_ID      "2015-10-16 17:31:12 767c1727fec4ce11b83f25b3f1bfcfe68a2c8b02"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -7944,7 +7944,6 @@ struct sqlite3_rtree_query_info {
 #ifndef _FTS5_H
 #define _FTS5_H
 
-#include "sqlite3.h"
 
 #ifdef __cplusplus
 extern "C" {
