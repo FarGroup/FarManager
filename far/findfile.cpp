@@ -2478,7 +2478,7 @@ void FindFiles::ScanPluginTree(Dialog* Dlg, PluginHandle* hPlugin, UINT64 Flags,
 					SCOPED_ACTION(CriticalSectionLock)(PluginCS);
 					SetDirectoryResult=Global->CtrlObject->Plugins->SetDirectory(hPlugin, CurPanelItem->FileName, OPM_FIND, &CurPanelItem->UserData)!=FALSE;
 				}
-				if (SetDirectoryResult)
+				if (SetDirectoryResult && CurPanelItem->FileName[0])
 				{
 					strPluginSearchPath += CurPanelItem->FileName;
 					strPluginSearchPath += L"\\";
