@@ -432,9 +432,11 @@ private:
 	FileSystemWatcher FSWatcher;
 	long UpperFolderTopFile,LastCurFile;
 	long ReturnCurrentFile;
-	size_t SelFileCount;
+	size_t SelFileCount; // both files and directories
+	size_t SelDirCount; // directories only
 	long GetSelPosition,LastSelPosition;
-	size_t TotalFileCount;
+	size_t TotalFileCount; // files only
+	size_t TotalDirCount; // directories only
 	unsigned __int64 SelFileSize;
 	unsigned __int64 TotalFileSize;
 	unsigned __int64 FreeDiskSize;

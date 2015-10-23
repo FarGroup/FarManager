@@ -213,8 +213,10 @@ FileList::FileList(window_ptr Owner):
 	LastCurFile(-1),
 	ReturnCurrentFile(FALSE),
 	SelFileCount(0),
+	SelDirCount(),
 	GetSelPosition(0), LastSelPosition(-1),
 	TotalFileCount(0),
+	TotalDirCount(),
 	SelFileSize(0),
 	TotalFileSize(0),
 	FreeDiskSize(-1),
@@ -2452,11 +2454,13 @@ void FileList::Select(FileListItem& SelItem, int Selection)
 		if ((SelItem.Selected = Selection) != 0)
 		{
 			SelFileCount++;
+			SelDirCount += SelItem.FileAttr & FILE_ATTRIBUTE_DIRECTORY? 1 : 0;
 			SelFileSize += SelItem.FileSize;
 		}
 		else
 		{
 			SelFileCount--;
+			SelDirCount -= SelItem.FileAttr & FILE_ATTRIBUTE_DIRECTORY? 1 : 0;
 			SelFileSize -= SelItem.FileSize;
 		}
 	}
@@ -6569,8 +6573,10 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	AnotherPanel->QViewDelTempName();
 	size_t PrevSelFileCount=SelFileCount;
 	SelFileCount=0;
+	SelDirCount = 0;
 	SelFileSize=0;
 	TotalFileCount=0;
+	TotalDirCount = 0;
 	TotalFileSize=0;
 	CacheSelIndex=-1;
 	CacheSelClearIndex=-1;
@@ -6739,8 +6745,14 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 			if (!ContentPlugins.empty())
 				Global->CtrlObject->Plugins->GetContentData(ContentPlugins, NewItem.strName, ContentNames, ContentValues, NewItem.ContentData);
 
-			if (!(fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-				TotalFileCount++;
+			if (fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+			{
+				++TotalDirCount;
+			}
+			else
+			{
+				++TotalFileCount;
+			}
 
 			if (TimeCheck)
 			{
@@ -6839,9 +6851,17 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 				i.ShowFolderSize = 0;
 				i.SortGroup=Global->CtrlObject->HiFiles->GetGroup(&i);
 
-				if (!TestParentFolderName(PluginPtr->FileName) && !(i.FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-					TotalFileCount++;
-
+				if (!TestParentFolderName(PluginPtr->FileName))
+				{
+					if (i.FileAttr & FILE_ATTRIBUTE_DIRECTORY)
+					{
+						++TotalDirCount;
+					}
+					else
+					{
+						++TotalFileCount;
+					}
+				}
 				++PluginPtr;
 				++Position;
 			}
@@ -6978,6 +6998,7 @@ SearchListLess;
 void FileList::MoveSelection(std::vector<FileListItem>& From, std::vector<FileListItem>& To)
 {
 	SelFileCount=0;
+	SelDirCount = 0;
 	SelFileSize=0;
 	CacheSelIndex=-1;
 	CacheSelClearIndex=-1;
@@ -7053,8 +7074,10 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 
 	size_t PrevSelFileCount=SelFileCount;
 	SelFileCount=0;
+	SelDirCount = 0;
 	SelFileSize=0;
 	TotalFileCount=0;
+	TotalDirCount = 0;
 	TotalFileSize=0;
 	CacheSelIndex=-1;
 	CacheSelClearIndex=-1;
@@ -7132,9 +7155,16 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 			DotsPresent=TRUE;
 			CurListData.FileAttr|=FILE_ATTRIBUTE_DIRECTORY;
 		}
-		else if (!(CurListData.FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+		else
 		{
-			TotalFileCount++;
+			if (CurListData.FileAttr & FILE_ATTRIBUTE_DIRECTORY)
+			{
+				++TotalDirCount;
+			}
+			else
+			{
+				++TotalFileCount;
+			}
 		}
 
 		TotalFileSize += CurListData.FileSize;
@@ -7343,26 +7373,6 @@ void FileList::AddParentPoint(FileListItem *CurPtr, size_t CurFilePos, const FIL
 // Файловая панель - вывод на экран
 
 static wchar_t OutCharacter[8]={};
-
-static LNGID __FormatEndSelectedPhrase(size_t Count)
-{
-	LNGID M_Fmt=MListFileSize;
-
-	if (Count != 1)
-	{
-		FormatString StrItems;
-		StrItems << Count;
-		size_t LenItems= StrItems.size();
-
-		if (StrItems[LenItems-1] == '1' && Count != 11)
-			M_Fmt=MListFilesSize1;
-		else
-			M_Fmt=MListFilesSize2;
-	}
-
-	return M_Fmt;
-}
-
 
 void FileList::DisplayObject()
 {
@@ -7799,7 +7809,7 @@ void FileList::ShowSelectedSize()
 	{
 		string strFormStr;
 		InsertCommas(SelFileSize,strFormStr);
-		auto strSelStr = string_format(__FormatEndSelectedPhrase(SelFileCount), strFormStr, SelFileCount);
+		auto strSelStr = string_format(MListFileSize, strFormStr, SelFileCount - SelDirCount, SelDirCount);
 		TruncStr(strSelStr,m_X2-m_X1-1);
 		int Length=(int)strSelStr.size();
 		SetColor(COL_PANELSELECTEDINFO);
@@ -7834,13 +7844,13 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 	{
 		if (!Global->Opt->ShowPanelFree || strFreeSize.empty())
 		{
-			strTotalStr = string_format(__FormatEndSelectedPhrase(TotalFileCount), strFormSize, TotalFileCount);
+			strTotalStr = string_format(MListFileSize, strFormSize, TotalFileCount, TotalDirCount);
 		}
 		else
 		{
 			wchar_t DHLine[4]={BoxSymbols[BS_H2],BoxSymbols[BS_H2],BoxSymbols[BS_H2],0};
  			FormatString str;
-			str << L" " << strFormSize << L" (" << TotalFileCount << L") " << DHLine << L" " << strFreeSize << L" ";
+			str << L" " << strFormSize << L" (" << TotalFileCount << L"/" << TotalDirCount << L") " << DHLine << L" " << strFreeSize << L" ";
 
 			if ((int)str.size() > m_X2-m_X1-1)
 			{
@@ -7854,7 +7864,7 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 				}
 				InsertCommas(TotalFileSize>>20,strFormSize);
 				str.clear();
-				str << L" " << strFormSize << L" " << MSG(MListMb) << L" (" << TotalFileCount << L") " << DHLine << L" " << strFreeSize << L" " << MSG(MListMb) << L" ";
+				str << L" " << strFormSize << L" " << MSG(MListMb) << L" (" << TotalFileCount << L"/" << TotalDirCount << L") " << DHLine << L" " << strFreeSize << L" " << MSG(MListMb) << L" ";
 			}
 			strTotalStr = str;
 		}

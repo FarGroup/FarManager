@@ -8909,37 +8909,15 @@ MListEb
 "E"
 
 MListFileSize
-" %1 байт в 1 файле "
-" %1 bytes in 1 file "
-" %1 bytů v 1 souboru "
-" %1 Bytes in 1 Datei "
-" %1 bájt 1 fájlban "
-" %1 bajtów w 1 pliku "
-" %1 bytes en 1 archivo "
-" %1 bajtov v 1 súbore "
-" %1 Bytes In 1 File "
-
-MListFilesSize1
-" %1 байт в %2 файле "
-" %1 bytes in %2 files "
-" %1 bytů ve %2 souborech "
-" %1 Bytes in %2 Dateien "
-" %1 bájt %2 fájlban "
-" %1 bajtów w %2 plikach "
-" %1 bytes en %2 archivos "
-" %1 bajtov v %2 súboroch "
-" %1 Bytes In %2 Files "
-
-MListFilesSize2
-" %1 байт в %2 файлах "
-" %1 bytes in %2 files "
-" %1 bytů v %2 souborech "
-" %1 Bytes in %2 Dateien "
-" %1 bájt %2 fájlban "
-" %1 bajtów w %2 plikach "
-" %1 bytes en %2 archivos "
-" %1 bajtov v %2 súboroch "
-" %1 Bytes In %2 Files "
+" Байт: %1, файлов: %2, папок: %3 "
+" Bytes: %1, files: %2, folders: %3 "
+upd:" Bytes: %1, files: %2, folders: %3 "
+upd:" Bytes: %1, files: %2, folders: %3 "
+upd:" Bytes: %1, files: %2, folders: %3 "
+upd:" Bytes: %1, files: %2, folders: %3 "
+upd:" Bytes: %1, files: %2, folders: %3 "
+upd:" Bytes: %1, files: %2, folders: %3 "
+upd:" Bytes: %1, files: %2, folders: %3 "
 
 MListFreeSize
 " %1 байт свободно "

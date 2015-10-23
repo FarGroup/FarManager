@@ -2433,14 +2433,14 @@ void Viewer::Up( int nlines, bool adjust )
 		while ( i >= 0 )
 		{
 			int l = llengths[i--];
-			bool eol = false;
+			bool IsEol = false;
 			if (l < 0)
 			{
-				eol = true;
+				IsEol = true;
 				l = -l;
 			}
 			fpos1 -= l;
-			CacheLine(fpos1, l, eol);
+			CacheLine(fpos1, l, IsEol);
 			if (--nlines == 0)
 				FilePos = fpos1;
 		}
