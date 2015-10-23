@@ -12707,7 +12707,7 @@ MInfoDisk
 "Disco"
 
 MInfoDiskTotal
-"Всего байтов"
+"Всего байт"
 "Total bytes"
 "Celkem bytů"
 "Bytes gesamt"
@@ -12718,7 +12718,7 @@ MInfoDiskTotal
 "Bytes Totali"
 
 MInfoDiskFree
-"Свободных байтов"
+"Свободно байт"
 "Free bytes"
 "Volných bytů"
 "Bytes frei"
@@ -19153,7 +19153,7 @@ l:
 "Ricerca Di"
 
 MViewSearchingHex
-"Поиск байтов"
+"Поиск байт"
 "Searching for bytes"
 "Vyhledávám sekvenci bytů"
 "Suche nach Bytes"

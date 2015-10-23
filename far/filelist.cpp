@@ -2017,7 +2017,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 					strDirName=lpwszDirName;
 
 					if (!MakeCode)
-						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateFolder),strDirName.data(),MSG(MOk));
+						Message(MSG_WARNING, 1, MSG(MError), MSG(MCannotCreateFolder), strDirName.data(), MSG(MOk));
 
 					Update(UPDATE_KEEP_SELECTION);
 
