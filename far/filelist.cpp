@@ -6610,7 +6610,8 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	DWORD FileSystemFlags = 0;
 	string PathRoot;
 	GetPathRoot(m_CurDir, PathRoot);
-	os::GetVolumeInformation(PathRoot, nullptr, nullptr, nullptr, &FileSystemFlags, nullptr);
+	string FileSystemName;
+	os::GetVolumeInformation(PathRoot, nullptr, nullptr, nullptr, &FileSystemFlags, &FileSystemName);
 
 	m_ListData.clear();
 
@@ -6619,9 +6620,19 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	bool ReadNumStreams = IsColumnDisplayed(NUMSTREAMS_COLUMN);
 	bool ReadStreamsSize = IsColumnDisplayed(STREAMSSIZE_COLUMN);
 
-	if (!(FileSystemFlags&FILE_SUPPORTS_HARD_LINKS) && IsWindows7OrGreater())
+	if (IsWindows7OrGreater())
 	{
-		ReadNumLinks = false;
+		if (!(FileSystemFlags & FILE_SUPPORTS_HARD_LINKS))
+		{
+			ReadNumLinks = false;
+		}
+	}
+	else
+	{
+		if (FileSystemName != L"NTFS")
+		{
+			ReadNumLinks = false;
+		}
 	}
 
 	if(!(FileSystemFlags&FILE_NAMED_STREAMS))
