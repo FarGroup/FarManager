@@ -96,8 +96,8 @@ local StringToFlags, FlagsToString do
           local line1 = filename or "<not a file>"
           local btn = filename and "OK;Edit" or "OK"
           if 2 == ErrMsg(line1.."\nInvalid macro flag: "..word, nil, btn) then
-            editor.Editor(filename,nil,nil,nil,nil,nil,nil,1,nil,65001)          
-          end          
+            editor.Editor(filename,nil,nil,nil,nil,nil,nil,1,nil,65001)
+          end
         end
       end
     end
@@ -539,7 +539,7 @@ end
 
 local function ErrMsgLoad (msg, filename, isMoonScript, mode)
   local title = isMoonScript and mode=="compile" and "MoonScript" or "LuaMacro"
-  
+
   if type(msg)~="string" and type(msg)~="number" then
     ErrMsg(filename..":\n<non-string error message>", title, nil, "w")
     return
@@ -810,23 +810,29 @@ local function GetFromMenu (macrolist)
     if not descr or descr=="" then
       descr = ("< No description: Id=%d >"):format(macro.id)
     end
+    menuitems[i] = { text=descr, macro=macro }
+  end
+
+  table.sort(menuitems, function(a,b) return far.LStricmp(a.text, b.text) < 0 end)
+
+  for i,item in ipairs(menuitems) do
     local ch = i<10 and i or i<36 and string.char(i+55)
-    menuitems[i] = { text = ch and (ch..". "..descr) or descr }
+    item.text = ch and (ch..". "..item.text) or item.text
   end
 
   local props, bkeys = {
       Title = Msg.UtExecuteMacroTitle, Bottom = Msg.UtExecuteMacroBottom,
-      Flags = { FMENU_AUTOHIGHLIGHT=1, FMENU_WRAPMODE=1 },
+      Flags = { FMENU_AUTOHIGHLIGHT=1, FMENU_WRAPMODE=1, FMENU_CHANGECONSOLETITLE=1 },
       Id = win.Uuid("165AA6E3-C89B-4F82-A0C5-C309243FD21B") }, { {BreakKey="A+F4"} }
   while true do
     local item, pos = far.Menu(props, menuitems, bkeys)
     if not item then
       return
-    elseif item.BreakKey == nil then
-      return macrolist[pos]
+    elseif item.macro then
+      return item.macro
     elseif item.BreakKey == "A+F4" then
       props.SelectIndex = pos
-      local m = macrolist[pos]
+      local m = menuitems[pos].macro
       if m.FileName then
         local startline = m.action and debug.getinfo(m.action,"S").linedefined
         editor.Editor(m.FileName,nil,nil,nil,nil,nil,nil,startline,nil,65001)
