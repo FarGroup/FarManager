@@ -3,6 +3,36 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 24.10.2015 11:59:47 +0200 - build 4445
+
+1. 0003053: Highlighting of files with >1 hard links slows down the panels on network volumes
+   Add checking of FS name for OS which do not support FILE_SUPPORTS_HARD_LINKS.
+
+drkns 24.10.2015 02:29:09 +0200 - build 4444
+
+1. 0002520: Incorrect text of system error
+
+2. 0003089: Minor edits in info panel (Ctrl+L) (partially).
+
+drkns 24.10.2015 01:21:54 +0200 - build 4443
+
+1. Some renamings to fix VS2015 warnings.
+
+drkns 24.10.2015 00:04:08 +0200 - build 4442
+
+1. Forum: show the number of folders in current panel.
+
+2. Warnings.
+
+w17 20.10.2015 16:21:53 +0300 - build 4441
+
+1. M#3100: Crash on search in invalid ZIP archive
+   Treatment for symptoms.
+
+svs 19.10.2015 10:31:45 +0300 - build 4440
+
+1. SQLite 3.9.1
+
 drkns 18.10.2015 13:18:18 +0200 - build 4439
 
 1. Carriage return was incorrectly processed in editor for codepages where it differed from 0x0d / 0x0a (EBCDIC etc.)
