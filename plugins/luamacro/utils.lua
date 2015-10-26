@@ -885,7 +885,7 @@ local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
       if not Collector[m] then
         local n = #CInfo + 1
         Collector[m] = n
-        CInfo[n] = m.priority or (areaname=="common" and 40) or 50
+        CInfo[n] = m.priority or 50
         CInfo[n+1] = areaname
       end
     end

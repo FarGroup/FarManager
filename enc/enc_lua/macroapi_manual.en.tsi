@@ -1642,7 +1642,7 @@ lv=2
 dt=Text
 nm=Regular macros
 ctime=3580139016
-mtime=3629992131
+mtime=3655023321
 <article>
 #_<markdown>
 #_
@@ -1677,8 +1677,7 @@ mtime=3629992131
 #_1. Optional field `flags` may contain a set of [flags][flags] separated with spaces.
 #_   Some changes in names or interpretation of flags are described [here][api changes].
 #_
-#_1. Optional field `priority` - a number in the range 0 to 100.<br>
-#_   The default value = 50 (for `Common` area = 40).<br>
+#_1. Optional field `priority` - a number in the range 0 to 100. The default value = 50.<br>
 #_   Macros added via `MCTL_ADDMACRO` have priority = 50.
 #_
 #_1. Optional field `filemask` - a string.<br>

@@ -1318,9 +1318,12 @@ local function test_RegexControl()
   local rep = "%1%1"
   local R = regex.new(pat)
 
+  local fr,to,cap
+  local str, nfound, nrep
+
   assert(R:bracketscount()==2)
 
-  local fr,to,cap = regex.find("abc", pat)
+  fr,to,cap = regex.find("abc", pat)
   assert(fr==2 and to==3 and cap=="bc")
   fr,to,cap = regex.findW(L"abc", pat)
   assert(fr==2 and to==3 and cap==L"bc")
@@ -1336,21 +1339,26 @@ local function test_RegexControl()
   assert(R:match("abc")=="bc")
   assert(R:matchW(L"abc")==L"bc")
 
-  local s, nf, nr = regex.gsub("abc", pat, rep)
-  assert(s=="abcbc" and nf==1 and nr==1)
-  s, nf, nr = regex.gsubW(L"abc", pat, rep)
-  assert(s==L"abcbc" and nf==1 and nr==1)
+  str, nfound, nrep = regex.gsub("abc", pat, rep)
+  assert(str=="abcbc" and nfound==1 and nrep==1)
+  str, nfound, nrep = regex.gsubW(L"abc", pat, rep)
+  assert(str==L"abcbc" and nfound==1 and nrep==1)
 
-  local s, nf, nr = R:gsub("abc", rep)
-  assert(s=="abcbc" and nf==1 and nr==1)
-  s, nf, nr = R:gsubW(L"abc", rep)
-  assert(s==L"abcbc" and nf==1 and nr==1)
+  str, nfound, nrep = R:gsub("abc", rep)
+  assert(str=="abcbc" and nfound==1 and nrep==1)
+  str, nfound, nrep = R:gsubW(L"abc", rep)
+  assert(str==L"abcbc" and nfound==1 and nrep==1)
 
   local t = {}
   for cap in regex.gmatch("abc", ".") do t[#t+1]=cap end
   assert(#t==3 and t[1]=="a" and t[2]=="b" and t[3]=="c")
   for cap in regex.gmatchW(L"abc", ".") do t[#t+1]=cap end
   assert(#t==6 and t[4]==L"a" and t[5]==L"b" and t[6]==L"c")
+
+  str, nfound, nrep = regex.gsub(";a;", "a*", "ITEM")
+  assert(str=="ITEM;ITEM;ITEM" and nfound==3 and nrep==3)
+  str, nfound, nrep = regex.gsub(";a;", "a*?", "ITEM")
+  assert(str=="ITEM;ITEMaITEM;ITEM" and nfound==4 and nrep==4)
 end
 
 --[[------------------------------------------------------------------------------------------------
