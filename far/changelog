@@ -1,4 +1,8 @@
-﻿drkns 26.10.2015 09:25:44 +0200 - build 4446
+﻿drkns 27.10.2015 01:26:44 +0200 - build 4447
+
+1. 0003026: FindFiles access violation exception
+
+drkns 26.10.2015 09:25:44 +0200 - build 4446
 
 1. Формат статусной стоки вынесен в lng.
 
