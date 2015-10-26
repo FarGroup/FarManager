@@ -7859,23 +7859,20 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 		}
 		else
 		{
-			wchar_t DHLine[4]={BoxSymbols[BS_H2],BoxSymbols[BS_H2],BoxSymbols[BS_H2],0};
- 			FormatString str;
-			str << L" " << strFormSize << L" (" << m_TotalFileCount << L"/" << m_TotalDirCount << L") " << DHLine << L" " << strFreeSize << L" ";
-
-			if ((int)str.size() > m_X2-m_X1-1)
+			const string DHLine(3, BoxSymbols[BS_H2]);
+			auto str = string_format(MListFileSizeStatus, strFormSize, m_TotalFileCount, m_TotalDirCount, DHLine, strFreeSize);
+			if (str.size() > size_t(m_X2-m_X1-1))
 			{
-				if(FreeDiskSize != static_cast<unsigned __int64>(-1))
+				InsertCommas(TotalFileSize / 1024 / 1024, strFormSize);
+				if (FreeDiskSize != static_cast<unsigned __int64>(-1))
 				{
-					InsertCommas(FreeDiskSize>>20,strFreeSize);
+					InsertCommas(FreeDiskSize / 1024 / 1024, strFreeSize);
 				}
 				else
 				{
 					strFreeSize = L"?";
 				}
-				InsertCommas(TotalFileSize>>20,strFormSize);
-				str.clear();
-				str << L" " << strFormSize << L" " << MSG(MListMb) << L" (" << m_TotalFileCount << L"/" << m_TotalDirCount << L") " << DHLine << L" " << strFreeSize << L" " << MSG(MListMb) << L" ";
+				str = string_format(MListFileSizeStatus, strFormSize + L" " + MSG(MListMb), m_TotalFileCount, m_TotalDirCount, DHLine, strFreeSize + L" " + MSG(MListMb));
 			}
 			strTotalStr = str;
 		}

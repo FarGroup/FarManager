@@ -8919,6 +8919,17 @@ upd:" Bytes: %1, files: %2, folders: %3 "
 upd:" Bytes: %1, files: %2, folders: %3 "
 upd:" Bytes: %1, files: %2, folders: %3 "
 
+MListFileSizeStatus
+" %1 (%2/%3) %4 %5 "
+" %1 (%2/%3) %4 %5 "
+" %1 (%2/%3) %4 %5 "
+" %1 (%2/%3) %4 %5 "
+" %1 (%2/%3) %4 %5 "
+" %1 (%2/%3) %4 %5 "
+" %1 (%2/%3) %4 %5 "
+" %1 (%2/%3) %4 %5 "
+" %1 (%2/%3) %4 %5 "
+
 MListFreeSize
 " %1 байт свободно "
 " %1 free bytes "
