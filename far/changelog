@@ -1,4 +1,8 @@
-﻿drkns 27.10.2015 01:26:44 +0200 - build 4447
+﻿w17 27.10.2015 17:39:42 +0300 - build 4448
+
+1. Experimental: Кнопка записи минидампа (%FARPROFILE%\Far.mdmp) при обработке SEHException.
+
+drkns 27.10.2015 01:26:44 +0200 - build 4447
 
 1. 0003026: FindFiles access violation exception
 

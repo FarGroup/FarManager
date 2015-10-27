@@ -51,15 +51,23 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "strmix.hpp"
 
-/* ************************************************************************
-   $ 16.10.2000 SVS
-   Простенький обработчик исключений.
-*/
+#ifdef _MSC_VER
+# define WITH_MINIDUMP
+# ifdef WITH_MINIDUMP
+#  include <dbghelp.h>
+# endif
+#endif
 
 static const wchar_t* gFrom = nullptr;
 static Plugin *PluginModule = nullptr;     // модуль, приведший к исключению.
 
 void CreatePluginStartupInfo(const Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF);
+
+#ifdef WITH_MINIDUMP
+# define LAST_BUTTON 13
+#else
+# define LAST_BUTTON 12
+#endif
 
 intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
@@ -88,10 +96,10 @@ intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 				int key = InputRecordToKey(record);
 				if (Param1==10 && (key==KEY_LEFT || key == KEY_NUMPAD4 || key==KEY_SHIFTTAB))
 				{
-					Dlg->SendMessage(DM_SETFOCUS, 12, nullptr);
+					Dlg->SendMessage(DM_SETFOCUS, LAST_BUTTON, nullptr);
 					return TRUE;
 				}
-				else if (Param1==12 && (key==KEY_RIGHT || key == KEY_NUMPAD6 || key==KEY_TAB))
+				else if (Param1==LAST_BUTTON && (key==KEY_RIGHT || key == KEY_NUMPAD6 || key==KEY_TAB))
 				{
 					Dlg->SendMessage(DM_SETFOCUS, 10, nullptr);
 					return TRUE;
@@ -127,6 +135,9 @@ enum reply
 	reply_handle,
 	reply_debug,
 	reply_ignore,
+#ifdef WITH_MINIDUMP
+	reply_minidump,
+#endif
 };
 
 static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, LPVOID Adress)
@@ -151,6 +162,9 @@ static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, LPVOID Adres
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_CENTERGROUP, MSG(PluginModule? MExcUnload : MExcTerminate)},
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MExcDebugger)},
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MIgnore)},
+#ifdef WITH_MINIDUMP
+		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP, L"MiniDump"},
+#endif
 	};
 	auto EditDlg = MakeDialogItemsEx(EditDlgData);
 	const auto Dlg = Dialog::create(EditDlg, ExcDlgProc);
@@ -164,8 +178,11 @@ static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, LPVOID Adres
 		return reply_handle;
 	case 11:
 		return reply_debug;
-	case 12:
-	default:
+#ifdef WITH_MINIDUMP
+	case 13:
+		return reply_minidump;
+#endif
+	default: //case 12:
 		return reply_ignore;
 	}
 }
@@ -209,6 +226,55 @@ enum FARRECORDTYPE
 {
 	RTYPE_PLUGIN = MakeFourCC<'C', 'P', 'L', 'G'>::value, // информация о текущем плагине
 };
+
+#ifdef WITH_MINIDUMP
+static bool write_minidump(EXCEPTION_POINTERS *ex_pointers)
+{
+#if 0
+	if (::IsDebuggerPresent())
+		return false;
+#endif
+	bool written = false;
+	auto hm = ::LoadLibraryA("dbghelp.dll");
+	if (hm) {
+		typedef BOOL(WINAPI *MINIDUMP_WRITE_DUMP)(
+			IN HANDLE         hProcess,
+			IN DWORD          ProcessId,
+			IN HANDLE         hFile,
+			IN MINIDUMP_TYPE  DumpType,
+			IN CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam,
+			OPTIONAL IN PVOID UserStreamParam,
+			OPTIONAL IN PVOID CallbackParam
+		);
+		union {
+			void *pv;
+			MINIDUMP_WRITE_DUMP pf;
+		} u_MiniDumpWriteDump;
+
+		u_MiniDumpWriteDump.pv = ::GetProcAddress(hm, "MiniDumpWriteDump");
+		if (u_MiniDumpWriteDump.pv) {
+			string dump_file = os::env::get_variable(L"FARPROFILE") + L"\\Far.mdmp";
+			auto hDump_File = ::CreateFile(dump_file.data(),
+				GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr
+			);
+			if (INVALID_HANDLE_VALUE != hDump_File) {
+				MINIDUMP_EXCEPTION_INFORMATION m;
+				m.ThreadId = ::GetCurrentThreadId();
+				m.ExceptionPointers = ex_pointers;
+				m.ClientPointers = FALSE;
+
+				written = FALSE != (*u_MiniDumpWriteDump.pf) (
+					::GetCurrentProcess(), ::GetCurrentProcessId(), hDump_File, MiniDumpWithFullMemory,
+					ex_pointers ? &m : nullptr, nullptr, nullptr
+				);
+				::CloseHandle(hDump_File);
+			}
+		}
+		::FreeLibrary(hm);
+	}
+	return written;
+}
+#endif
 
 static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 {
@@ -350,7 +416,11 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 					break;
 			}
 
+#if 0
 			strBuf2 = str_printf(L"0x%p", xr->ExceptionInformation[1]+10);
+#else
+			strBuf2 = str_printf(L"0x%p", xr->ExceptionInformation[1]); //??? 10 добавлять не надо
+#endif
 			if (LanguageLoaded())
 			{
 				strBuf = string_format(MExcRAccess + Offset, strBuf2);
@@ -392,8 +462,14 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 
 	switch (MsgCode)
 	{
-	case reply_handle:
+	case reply_handle: // terminate
 		return true;
+
+#ifdef WITH_MINIDUMP
+	case reply_minidump: // write %FARPROFILE%\Far.mdmp and terminate
+		write_minidump(xp);
+		return true;
+#endif
 
 	case reply_debug:
 		attach_debugger();
