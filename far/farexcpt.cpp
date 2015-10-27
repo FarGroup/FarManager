@@ -525,18 +525,17 @@ LONG WINAPI VectoredExceptionHandler(EXCEPTION_POINTERS *xp)
 	// restore stack & call ProcessSEHExceptionWrapper
 	if (xp->ExceptionRecord->ExceptionCode == (DWORD)STATUS_STACK_OVERFLOW)
 	{
-#ifdef _M_IA64
+#if 1 // it is much better way than hack stack and modify original context
+//#ifdef _M_IA64
 		// TODO: Bad way to restore IA64 stacks (CreateThread)
 		// Can you do smartly? See REMINDER file, section IA64Stacks
-		static HANDLE hThread = nullptr;
-
-		if (!(hThread = CreateThread(nullptr, 0, ProcessSEHExceptionWrapper, xp, 0, nullptr)))
+		static HANDLE hThread = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)ProcessSEHExceptionWrapper, xp, 0, nullptr);
+		if (hThread)
 		{
-			TerminateProcess(GetCurrentProcess(), 1);
+			WaitForSingleObject(hThread, INFINITE);
+			CloseHandle(hThread);
 		}
-
-		WaitForSingleObject(hThread, INFINITE);
-		CloseHandle(hThread);
+		TerminateProcess(GetCurrentProcess(), 1);
 #else
 		static struct
 		{
@@ -561,8 +560,8 @@ LONG WINAPI VectoredExceptionHandler(EXCEPTION_POINTERS *xp)
 		xp->ContextRecord->Rsp = reinterpret_cast<DWORD_PTR>(&stack.ret_addr);
 		xp->ContextRecord->Rip = reinterpret_cast<DWORD_PTR>(&ProcessSEHExceptionWrapper);
 #endif
-#endif
 		return EXCEPTION_CONTINUE_EXECUTION;
+#endif
 	}
 	return EXCEPTION_CONTINUE_SEARCH;
 }
@@ -596,7 +595,7 @@ WARNING_DISABLE_MSC(4717) // https://msdn.microsoft.com/en-us/library/97c54274.a
 
 static void Test_EXCEPTION_STACK_OVERFLOW(char* target)
 {
-	char Buffer[1024]; /* чтобы быстрее рвануло */
+	char Buffer[2048]; /* чтобы быстрее рвануло */
 	strcpy(Buffer, "zzzz");
 	Test_EXCEPTION_STACK_OVERFLOW(Buffer);
 
