@@ -1642,11 +1642,11 @@ lv=2
 dt=Text
 nm=Regular macros
 ctime=3580139016
-mtime=3655023321
+mtime=3655200122
 <article>
 #_<markdown>
 #_
-#_A macro is loaded by the global function `Macro` that receives one argument - a table containing parameters of the macro. On successful completion the function returns a number-identifier of the loaded macro.
+#_A macro is loaded by the global function `Macro` that receives one argument - a table containing parameters of the macro. On successful completion the function returns `true`.
 #_
 #_```
 #_  Macro {
@@ -1762,13 +1762,13 @@ lv=2
 dt=Text
 nm=Event handlers
 ctime=3580139337
-mtime=3652907524
+mtime=3655200145
 <article>
 #_<markdown>
 #_
 #_Like [regular macros][1], event handlers are loaded from Lua-files (extension `*.lua`), residing in the directory<br> `%FARPROFILE%\Macros\scripts` and its subdirectories. Each Lua-file may contain both macros and event handlers.
 #_
-#_Loading a handler occurs when the global function `Event` is called. It receives one argument - a table containing parameters of the event handler. On successful completion the function returns a number-identifier of the loaded handler.
+#_Loading a handler occurs when the global function `Event` is called. It receives one argument - a table containing parameters of the event handler. On successful completion the function returns `true`.
 #_
 #_```
 #_Event {

@@ -45,7 +45,6 @@ local LoadingInProgress
 local EnumState = {}
 local Events
 local EventGroups = {"dialogevent","editorevent","editorinput","exitfar","viewerevent", "consoleinput"}
-local AddMacro_filename
 local AddedMenuItems
 local AddedPrefixes
 
@@ -288,7 +287,7 @@ local ExpandKey do -- измеренное время исполнения на ключе "CtrlAltShiftF12" = ?
   end
 end
 
-local function AddRegularMacro (srctable)
+local function AddRegularMacro (srctable, FileName)
   local macro = {}
   if type(srctable)=="table" and type(srctable.area)=="string" then
     macro.area = srctable.area
@@ -319,7 +318,7 @@ local function AddRegularMacro (srctable)
       if f then
         macro.action = f
       else
-        if AddMacro_filename then ErrMsg(msg, isMoonScript and "MoonScript") end
+        if FileName then ErrMsg(msg, isMoonScript and "MoonScript") end
         return
       end
     end
@@ -353,7 +352,7 @@ local function AddRegularMacro (srctable)
   end
 
   if next(arFound) then
-    macro.flags = StringToFlags(srctable.flags, AddMacro_filename)
+    macro.flags = StringToFlags(srctable.flags, FileName)
 
     if type(srctable.description)=="string" then macro.description=srctable.description end
     if type(srctable.condition)=="function" then macro.condition=srctable.condition end
@@ -364,8 +363,8 @@ local function AddRegularMacro (srctable)
       macro.priority = priority>100 and 100 or priority<0 and 0 or priority
     end
 
-    if AddMacro_filename then
-      macro.FileName = AddMacro_filename
+    if FileName then
+      macro.FileName = FileName
     else
       macro.guid = srctable.guid
       macro.callback = srctable.callback
@@ -375,7 +374,7 @@ local function AddRegularMacro (srctable)
 
     macro.id = #LoadedMacros+1
     LoadedMacros[macro.id] = macro
-    return macro.id
+    return macro
   end
 end
 
@@ -416,7 +415,7 @@ local function AddRecordedMacro (srctable, filename)
 end
 
 local AddEvent_fields = {"group","action","description","priority","condition","filemask"}
-local function AddEvent (srctable)
+local function AddEvent (srctable, FileName)
   local group = type(srctable)=="table" and type(srctable.group)=="string" and srctable.group:lower()
   if not (group and Events[group]) then return end
 
@@ -426,7 +425,7 @@ local function AddEvent (srctable)
   table.insert(Events[group], macro)
 
   for _,v in ipairs(AddEvent_fields) do macro[v]=srctable[v] end
-  macro.FileName = AddMacro_filename
+  macro.FileName = FileName
 
   if type(macro.description)~="string" then macro.description=nil end
   if type(macro.condition)~="function" then macro.condition=nil end
@@ -438,10 +437,10 @@ local function AddEvent (srctable)
 
   macro.id = #LoadedMacros+1
   LoadedMacros[macro.id] = macro
-  return macro.id
+  return macro
 end
 
-local function AddMenuItem (srctable)
+local function AddMenuItem (srctable, FileName)
   if type(srctable)=="table" and
      type(srctable.menu)=="string" and
      type(srctable.guid)=="string" and
@@ -469,7 +468,7 @@ local function AddMenuItem (srctable)
       item.text = type(text)=="function" and text or function() return text end
       item.action = srctable.action
       item.description = type(srctable.description)=="string" and srctable.description or ""
-      item.FileName = AddMacro_filename
+      item.FileName = FileName
       item.id = #AddedMenuItems + 1
       AddedMenuItems[item.id] = item
       AddedMenuItems[item.guid] = item
@@ -479,7 +478,7 @@ local function AddMenuItem (srctable)
   return false
 end
 
-local function AddPrefixes (srctable)
+local function AddPrefixes (srctable, FileName)
   local result = 0
   if type(srctable)=="table" and
      type(srctable.prefixes)=="string" and
@@ -491,7 +490,7 @@ local function AddPrefixes (srctable)
           prefix = prefix,
           action = srctable.action,
           description = type(srctable.description)=="string" and srctable.description or "",
-          FileName = AddMacro_filename
+          FileName = FileName
         }
         AddedPrefixes[prefix] = item
         AddedPrefixes[1] = AddedPrefixes[1]..":"..prefix
@@ -661,11 +660,13 @@ local function LoadMacros (unload, paths)
         return
       end
       local env = {
-        Macro=AddRegularMacro, Event=AddEvent, MenuItem=AddMenuItem, CommandLine=AddPrefixes,
+        Macro = function(t) return not not AddRegularMacro(t,FullPath) end;
+        Event = function(t) return not not AddEvent(t,FullPath) end;
+        MenuItem = function(t) return AddMenuItem(t,FullPath) end;
+        CommandLine = function(t) return AddPrefixes(t,FullPath) end;
         NoMacro=DummyFunc, NoEvent=DummyFunc, NoMenuItem=DummyFunc, NoCommandLine=DummyFunc }
       setmetatable(env,gmeta)
       setfenv(f, env)
-      AddMacro_filename = FullPath
       local ok, msg = pcall(f, FullPath)
       if ok then
         env.Macro, env.Event, env.MenuItem, env.CommandLine,
@@ -1007,18 +1008,14 @@ end
 
 local function AddMacroFromFAR (mode, key, lang, code, flags, description, guid, callback, callbackId)
   local area = GetTrueAreaName(mode)
-  -- MCTL_ADDMACRO may be called during LoadMacros execution, hence AddMacro_filename should be restored.
-  local fname = AddMacro_filename
-  AddMacro_filename = nil
-  local Id = AddRegularMacro { area=area, key=key, code=code, flags=flags, description=description,
-                               guid=guid, callback=callback, callbackId=callbackId, language=lang }
-  local action = Id and LoadedMacros[Id].action
+  local m = AddRegularMacro { area=area, key=key, code=code, flags=flags, description=description,
+                              guid=guid, callback=callback, callbackId=callbackId, language=lang }
+  local action = m and m.action
   if action then
     local env = setmetatable({}, gmeta)
     setfenv(action, env)
   end
-  AddMacro_filename = fname
-  return not not Id
+  return not not m
 end
 
 local function DelMacro (guid, callbackId) -- MCTL_DELMACRO
