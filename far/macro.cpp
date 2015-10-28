@@ -903,8 +903,7 @@ void KeyMacro::RunStartMacro()
 
 bool KeyMacro::AddMacro(const GUID& PluginId, const MacroAddMacro* Data)
 {
-	FARMACROAREA Area = Data->Area==MACROAREA_COMMON ? MACROAREA_COMMON_INTERNAL : Data->Area;
-	if (Area < 0 || Area >= MACROAREA_LAST)
+	if (!(Data->Area >= 0 && (Data->Area < MACROAREA_LAST || Data->Area == MACROAREA_COMMON)))
 		return false;
 
 	string strKeyText;
@@ -916,7 +915,7 @@ bool KeyMacro::AddMacro(const GUID& PluginId, const MacroAddMacro* Data)
 	if (Data->Flags & KMFLAGS_NOSENDKEYSTOPLUGINS) Flags |= MFLAGS_NOSENDKEYSTOPLUGINS;
 
 	FarMacroValue values[] = {
-		(double)Area,
+		(double)Data->Area,
 		strKeyText,
 		GetMacroLanguage(Data->Flags),
 		Data->SequenceText,
@@ -5199,14 +5198,14 @@ M1:
 		if (LM_GetMacro(&Data,KMParam->Area,strKeyText,true))
 		{
 			// общие макросы учитываем только при удалении.
-			if (m_RecCode.empty() || Data.Area!=MACROAREA_COMMON_INTERNAL)
+			if (m_RecCode.empty() || Data.Area!=MACROAREA_COMMON)
 			{
 				string strBufKey=Data.Code;
 				InsertQuote(strBufKey);
 
 				bool SetChange = m_RecCode.empty();
 				LNGID MessageTemplate;
-				if (Data.Area==MACROAREA_COMMON_INTERNAL)
+				if (Data.Area==MACROAREA_COMMON)
 				{
 					MessageTemplate = SetChange? MMacroCommonDeleteKey : MMacroCommonReDefinedKey;
 					//"Общая макроклавиша '%1'   будет удалена : уже определена."

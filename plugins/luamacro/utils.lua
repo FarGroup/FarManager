@@ -9,29 +9,42 @@ local MacroCallFar = far.MacroCallFar
 local gmeta = { __index=_G }
 local LastMessage = {}
 --------------------------------------------------------------------------------
--- Данный список должен в точности соответствовать enum FARMACROAREA, т.е. тот же смысл и порядок.
 local TrueAreaNames = {
- "Other", "Shell", "Viewer", "Editor", "Dialog", "Search", "Disks", "MainMenu", "Menu", "Help",
- "Info", "QView", "Tree", "FindFolder", "UserMenu", "ShellAutoCompletion", "DialogAutoCompletion",
- "Common",
+  [F.MACROAREA_OTHER]                = "Other",
+  [F.MACROAREA_SHELL]                = "Shell",
+  [F.MACROAREA_VIEWER]               = "Viewer",
+  [F.MACROAREA_EDITOR]               = "Editor",
+  [F.MACROAREA_DIALOG]               = "Dialog",
+  [F.MACROAREA_SEARCH]               = "Search",
+  [F.MACROAREA_DISKS]                = "Disks",
+  [F.MACROAREA_MAINMENU]             = "MainMenu",
+  [F.MACROAREA_MENU]                 = "Menu",
+  [F.MACROAREA_HELP]                 = "Help",
+  [F.MACROAREA_INFOPANEL]            = "Info",
+  [F.MACROAREA_QVIEWPANEL]           = "QView",
+  [F.MACROAREA_TREEPANEL]            = "Tree",
+  [F.MACROAREA_FINDFOLDER]           = "FindFolder",
+  [F.MACROAREA_USERMENU]             = "UserMenu",
+  [F.MACROAREA_SHELLAUTOCOMPLETION]  = "ShellAutoCompletion",
+  [F.MACROAREA_DIALOGAUTOCOMPLETION] = "DialogAutoCompletion",
+  [F.MACROAREA_COMMON]               = "Common",
 }
 
 local AllAreaNames = {}
-for i,v in ipairs(TrueAreaNames) do AllAreaNames[i]=v:lower() end
-for i=1,#AllAreaNames do local str=AllAreaNames[i]; AllAreaNames[str]=i; end
+for k,v in pairs(TrueAreaNames) do
+  local str = v:lower()
+  AllAreaNames[k] = str
+  AllAreaNames[str] = k
+end
 
 local SomeAreaNames = {
   "other", "viewer", "editor", "dialog", "menu", "help", "dialogautocompletion",
   "common" -- "common" должен идти последним
 }
 
-local function GetTrueAreaName(Mode) return TrueAreaNames[Mode+1] end
-local function GetAreaName(Mode)     return AllAreaNames[Mode+1] end
-
-local function GetAreaCode(Area)
-  local code = AllAreaNames[Area:lower()]
-  return code and code-1
-end
+local function GetTrueAreaName(Mode) return TrueAreaNames[Mode] end
+local function GetAreaName(Mode)     return AllAreaNames[Mode] end
+local function GetAreaCode(Area)     return AllAreaNames[Area:lower()] end
 --------------------------------------------------------------------------------
 
 local MCODE_F_CHECKALL     = 0x80C64
@@ -608,7 +621,7 @@ local function LoadMacros (unload, paths)
   if Shared.panelsort then Shared.panelsort.DeleteSortModes() end
 
   local AreaNames = allAreas and AllAreaNames or SomeAreaNames
-  for _,name in ipairs(AreaNames) do newAreas[name]={} end
+  for _,name in pairs(AreaNames) do newAreas[name]={} end
   for _,name in ipairs(EventGroups) do Events[name]={} end
   for k in pairs(package.loaded) do
     if initial_modules[k]==nil and not package.nounload[k] then
