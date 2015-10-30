@@ -54,7 +54,18 @@ intptr_t menu(const GUID& id, const wstring& title, const MenuItems& items, cons
     mi.Text = items[i].c_str();
     menu_items.push_back(mi);
   }
-  return g_far.Menu(&c_plugin_guid, &id, -1, -1, 0, FMENU_WRAPMODE, title.c_str(), NULL, help, NULL, NULL, menu_items.data(), static_cast<int>(menu_items.size()));
+
+  static const FarKey BreakKeys[] = {{ VK_ESCAPE, 0 }, { 0, 0 }};
+  intptr_t BreakCode = (intptr_t)-1;
+
+  auto ret =  g_far.Menu(&c_plugin_guid, &id, -1, -1, 0, FMENU_WRAPMODE, title.c_str(), nullptr, help,
+    BreakKeys, &BreakCode, menu_items.data(), static_cast<int>(menu_items.size())
+  );
+
+  if (BreakCode >= 0)
+    ret = (intptr_t)-1;
+
+  return ret;
 }
 
 wstring get_progress_bar_str(unsigned width, unsigned __int64 completed, unsigned __int64 total) {

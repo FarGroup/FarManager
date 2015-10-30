@@ -1062,9 +1062,12 @@ intptr_t WINAPI ProcessHostFileW(const ProcessHostFileInfo* info) {
   Far::MenuItems menu_items;
   menu_items.add(Far::get_msg(MSG_TEST_MENU));
   intptr_t item = Far::menu(c_arccmd_menu_guid, Far::get_msg(MSG_PLUGIN_NAME), menu_items);
-  if (item == 0)
+  if (item == 0) {
     reinterpret_cast<Plugin*>(info->hPanel)->test_files(info->PanelItem, info->ItemsNumber, info->OpMode);
-  return TRUE;
+    return TRUE;
+  }
+  else
+    return FALSE;
   FAR_ERROR_HANDLER_END(return FALSE, return FALSE, (info->OpMode & OPM_SILENT) != 0);
 }
 
