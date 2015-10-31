@@ -766,7 +766,8 @@ local function LoadMacros (unload, paths)
     export.ProcessViewerEvent = Events.viewerevent[1] and export_ProcessViewerEvent
     export.ProcessConsoleInput = Events.consoleinput[1] and export_ProcessConsoleInput
 
-    EV_Handler(Events.macrosloaded)
+    local ok, msg = pcall(EV_Handler, Events.macrosloaded)
+    if not ok then ErrMsg(msg) end
     LoadMacrosDone = true
   end
 
