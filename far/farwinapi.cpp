@@ -1372,14 +1372,12 @@ find_handle FindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,
 						Handle->NextOffset = StreamInfo->NextEntryOffset;
 						if (StreamInfo->StreamNameLength)
 						{
-							std::copy_n(StreamInfo->StreamName, StreamInfo->StreamNameLength/sizeof(wchar_t), pFsd->cStreamName);
+							std::copy_n(std::cbegin(StreamInfo->StreamName), StreamInfo->StreamNameLength/sizeof(wchar_t), pFsd->cStreamName);
 							pFsd->cStreamName[StreamInfo->StreamNameLength / sizeof(wchar_t)] = L'\0';
 							pFsd->StreamSize=StreamInfo->StreamSize;
 							Ret.reset(Handle.release());
 						}
 					}
-
-					Handle->Object.Close();
 				}
 		}
 	}
