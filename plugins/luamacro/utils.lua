@@ -57,7 +57,8 @@ local LoadMacrosDone
 local LoadingInProgress
 local EnumState = {}
 local Events
-local EventGroups = {"dialogevent","editorevent","editorinput","exitfar","viewerevent", "consoleinput"}
+local EventGroups = {"dialogevent","editorevent","editorinput","exitfar","viewerevent", "consoleinput",
+                     "macrosloaded"}
 local AddedMenuItems
 local AddedPrefixes
 
@@ -610,6 +611,12 @@ local function LoadMacros (unload, paths)
     LoadMacrosDone = false
   end
 
+  export.ExitFAR = nil
+  export.ProcessDialogEvent = nil
+  export.ProcessEditorInput = nil
+  export.ProcessViewerEvent = nil
+  export.ProcessConsoleInput = nil
+
   local allAreas = band(MacroCallFar(MCODE_F_GETOPTIONS),0x3) == 0
   local numerrors=0
   local newAreas = {}
@@ -753,14 +760,15 @@ local function LoadMacros (unload, paths)
 
     far.RecursiveSearch (DirMacros.."\\internal", "*.lua", LoadRecordedFile, 0)
 
+    export.ExitFAR = Events.exitfar[1] and export_ExitFAR
+    export.ProcessDialogEvent = Events.dialogevent[1] and export_ProcessDialogEvent
+    export.ProcessEditorInput = Events.editorinput[1] and export_ProcessEditorInput
+    export.ProcessViewerEvent = Events.viewerevent[1] and export_ProcessViewerEvent
+    export.ProcessConsoleInput = Events.consoleinput[1] and export_ProcessConsoleInput
+
+    EV_Handler(Events.macrosloaded)
     LoadMacrosDone = true
   end
-
-  export.ExitFAR = Events.exitfar[1] and export_ExitFAR
-  export.ProcessDialogEvent = Events.dialogevent[1] and export_ProcessDialogEvent
-  export.ProcessEditorInput = Events.editorinput[1] and export_ProcessEditorInput
-  export.ProcessViewerEvent = Events.viewerevent[1] and export_ProcessViewerEvent
-  export.ProcessConsoleInput = Events.consoleinput[1] and export_ProcessConsoleInput
 
   LoadingInProgress = nil
   return numerrors==0
