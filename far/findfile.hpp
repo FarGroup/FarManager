@@ -62,32 +62,21 @@ public:
 	FindFiles();
 	~FindFiles();
 
+	const std::unique_ptr<filemasks>& GetFileMask() const { return FileMaskForFindFile; }
+	const std::unique_ptr<FileFilter>& GetFilter() const { return Filter; }
+	static bool IsWordDiv(const wchar_t symbol);
+	// BUGBUG
+	void AddMenuRecord(Dialog* Dlg, const string& FullName, string& strLastDirName, const os::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData);
+
 private:
-	void InitInFileSearch();
-	void ReleaseInFileSearch();
 	string &PrepareDriveNameStr(string &strSearchFromRoot);
 	void AdvancedDialog();
 	intptr_t MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
-	template<class T, class Pred>
-	int FindStringBMH(const T* searchBuffer, size_t searchBufferCount, size_t findStringCount, Pred p) const;
-	int FindStringBMH(const wchar_t* searchBuffer, size_t searchBufferCount) const;
-	int FindStringBMH(const unsigned char* searchBuffer, size_t searchBufferCount) const;
-	bool LookForString(const string& Name);
-	bool IsFileIncluded(PluginPanelItem* FileItem, const string& FullName, DWORD FileAttr, const string &strDisplayName);
 	intptr_t FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	void OpenFile(string strSearchFileName, int key, const FindListItem* FindItem, Dialog* Dlg);
-	void AddMenuRecord(Dialog* Dlg, const string& FullName, const os::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData);
-	void AddMenuRecord(Dialog* Dlg,const string& FullName, PluginPanelItem& FindData);
-	void DoPreparePluginList(Dialog* Dlg, bool Internal);
-	void ArchiveSearch(Dialog* Dlg, const string& ArcName);
-	void DoScanTree(Dialog* Dlg, const string& strRoot);
-	void ScanPluginTree(Dialog* Dlg, PluginHandle* hPlugin, UINT64 Flags, int& RecurseLevel);
-	void DoPrepareFileList(Dialog* Dlg);
-	unsigned int ThreadRoutine(THREADPARAM* Param);
 	bool FindFilesProcess();
 
 	static intptr_t AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
-	static bool IsWordDiv(const wchar_t symbol);
 	static void SetPluginDirectory(const string& DirName, PluginHandle* hPlugin, bool UpdatePanel = false, UserDataItem *UserData = nullptr);
 	static bool GetPluginFile(struct ArcListItem* ArcItem, const os::FAR_FIND_DATA& FindData, const string& DestPath, string &strResultName, UserDataItem *UserData);
 
@@ -100,8 +89,6 @@ private:
 	bool NotContaining;
 	bool UseFilter;
 
-	bool m_Autodetection;
-	bool InFileSearchInited;
 	bool FindFoldersChanged;
 	bool SearchFromChanged;
 	bool FindPositionChanged;
@@ -109,29 +96,105 @@ private:
 	bool PluginMode;
 	FINDAREA SearchMode;
 	int favoriteCodePages;
-	std::vector<char> readBufferA;
-	std::vector<wchar_t> readBuffer;
-	const wchar_t *findString;
-	std::vector<char> hexFindString;
 	uintptr_t CodePage;
-	std::vector<size_t> skipCharsTable;
 	UINT64 SearchInFirst;
 	struct FindListItem* FindExitItem;
 	string strFindMask;
 	string strFindStr;
-	string strLastDirName;
-	string strPluginSearchPath;
-	string findStringBuffer;
 	std::unique_ptr<filemasks> FileMaskForFindFile;
 	std::unique_ptr<FileFilter> Filter;
 	std::unique_ptr<IndeterminateTaskBar> TB;
-	std::unique_ptr<InterThreadData> itd;
-	struct CodePageInfo;
-	std::list<CodePageInfo> m_CodePages;
+
 	class delayed_deleter;
 	std::list<delayed_deleter> m_DelayedDeleters;
+
+public:
+	std::unique_ptr<InterThreadData> itd;
+
+	// BUGBUG
+	void Lock() { PluginCS.lock(); }
+	void Unlock() { PluginCS.unlock(); }
+	typedef raii_wrapper<FindFiles*, void (FindFiles::*)(), void (FindFiles::*)()> scoped_lock;
+	scoped_lock ScopedLock() { return scoped_lock(this, &FindFiles::Lock, &FindFiles::Unlock); }
+
+private:
 	CriticalSection PluginCS;
+
+	time_check m_TimeCheck;
+	// BUGBUG
+	class background_searcher* m_Searcher;
+};
+
+class background_searcher: noncopyable
+{
+public:
+	background_searcher(FindFiles* Owner,
+		const string& FindString,
+		FINDAREA SearchMode,
+		uintptr_t CodePage,
+		UINT64 SearchInFirst,
+		bool AnySetFindList,
+		bool CmpCase,
+		bool WholeWords,
+		bool SearchInArchives,
+		bool SearchHex,
+		bool NotContaining,
+		bool UseFilter
+	);
+
+	unsigned int ThreadRoutine(THREADPARAM* Param);
+	void Pause() const { PauseEvent.Reset(); }
+	void Resume() const { PauseEvent.Set(); }
+	void Stop() const { StopEvent.Set(); }
+	bool Stopped() const { return StopEvent.Signaled(); }
+
+private:
+	void InitInFileSearch();
+	void ReleaseInFileSearch();
+
+	template<class T, class Pred>
+	int FindStringBMH(const T* searchBuffer, size_t searchBufferCount, size_t findStringCount, Pred p) const;
+	int FindStringBMH(const wchar_t* searchBuffer, size_t searchBufferCount) const;
+	int FindStringBMH(const unsigned char* searchBuffer, size_t searchBufferCount) const;
+	bool LookForString(const string& Name);
+	bool IsFileIncluded(PluginPanelItem* FileItem, const string& FullName, DWORD FileAttr, const string &strDisplayName);
+	void DoPrepareFileList(Dialog* Dlg);
+	void DoPreparePluginList(Dialog* Dlg, bool Internal);
+	void ArchiveSearch(Dialog* Dlg, const string& ArcName);
+	void DoScanTree(Dialog* Dlg, const string& strRoot);
+	void ScanPluginTree(Dialog* Dlg, PluginHandle* hPlugin, UINT64 Flags, int& RecurseLevel);
+	void AddMenuRecord(Dialog* Dlg, const string& FullName, string& strLastDirName, PluginPanelItem& FindData);
+
+
+	FindFiles* m_Owner;
+
+	std::vector<char> readBufferA;
+	std::vector<wchar_t> readBuffer;
+	std::vector<char> hexFindString;
+	std::vector<size_t> skipCharsTable;
+	struct CodePageInfo;
+	std::list<CodePageInfo> m_CodePages;
+	string findStringBuffer;
+	string strPluginSearchPath;
+	string strLastDirName;
+
+	const wchar_t *findString;
+
+	bool InFileSearchInited;
+	bool m_Autodetection;
+
+	const string strFindStr;
+	const FINDAREA SearchMode;
+	const uintptr_t CodePage;
+	const UINT64 SearchInFirst;
+	const bool AnySetFindList;
+	const bool CmpCase;
+	const bool WholeWords;
+	const bool SearchInArchives;
+	const bool SearchHex;
+	const bool NotContaining;
+	const bool UseFilter;
+
 	Event PauseEvent;
 	Event StopEvent;
-	time_check m_TimeCheck;
 };
