@@ -1762,7 +1762,7 @@ lv=2
 dt=Text
 nm=Event handlers
 ctime=3580139337
-mtime=3655482501
+mtime=3655200145
 <article>
 #_<markdown>
 #_
@@ -1782,17 +1782,15 @@ mtime=3655482501
 #_```
 #_
 #_The field `group` can have one of the following values:<br>
-#_`"DialogEvent", "EditorEvent", "EditorInput", "ExitFAR", "ViewerEvent", "ConsoleInput", "MacrosLoaded"`.<br>
-#_These names (except `MacrosLoaded`) are derived from names of the corresponding functions, exported by the plugin, e.g.:<br>
+#_`"DialogEvent", "EditorEvent", "EditorInput", "ExitFAR", "ViewerEvent", "ConsoleInput"`.<br>
+#_These names are derived from names of the corresponding functions, exported by the plugin, e.g.:<br>
 #_        export.ProcessDialogEvent -> DialogEvent
 #_The functions `condition` and `action` are called with the same parameters as the corresponding exported functions are called (see LuaFAR manual).
 #_
 #_When there are multiple event handlers for the same event (i.e. handlers with the same `group` value), these handlers will be called one after one: a handler having higher priority is called first. Priorities are evaluated dynamically accounting for `condition()` results if any, the same way it is done for macros.
 #_
-#_The `ExitFAR` handlers are called in the following cases: (a) exit from Far Manager,
+#_The `ExitFAR` handler is called in the following cases: (a) exit from Far Manager,
 #_(b) unloading LuaMacro plugin, \(c) unloading or reloading macros.
-#_
-#_The `MacrosLoaded` handlers are called after loading/reloading of macrofiles is finished. Their `condition` and `action` functions get no arguments.
 #_
 #_[1]: 75.html
 #_

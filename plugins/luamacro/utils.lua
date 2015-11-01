@@ -57,8 +57,7 @@ local LoadMacrosDone
 local LoadingInProgress
 local EnumState = {}
 local Events
-local EventGroups = {"dialogevent","editorevent","editorinput","exitfar","viewerevent", "consoleinput",
-                     "macrosloaded"}
+local EventGroups = {"dialogevent","editorevent","editorinput","exitfar","viewerevent", "consoleinput"}
 local AddedMenuItems
 local AddedPrefixes
 
@@ -766,8 +765,6 @@ local function LoadMacros (unload, paths)
     export.ProcessViewerEvent = Events.viewerevent[1] and export_ProcessViewerEvent
     export.ProcessConsoleInput = Events.consoleinput[1] and export_ProcessConsoleInput
 
-    local ok, msg = pcall(EV_Handler, Events.macrosloaded)
-    if not ok then ErrMsg(msg) end
     LoadMacrosDone = true
   end
 
