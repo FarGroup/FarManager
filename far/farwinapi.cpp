@@ -1403,7 +1403,7 @@ bool FindNextStream(const find_handle& hFindStream,LPVOID lpFindStreamData)
 			Handle->NextOffset = pStreamInfo->NextEntryOffset?Handle->NextOffset+pStreamInfo->NextEntryOffset:0;
 			if (pStreamInfo->StreamNameLength && pStreamInfo->StreamNameLength < sizeof(pFsd->cStreamName))
 			{
-				std::copy_n(pStreamInfo->StreamName, pStreamInfo->StreamNameLength / sizeof(wchar_t), pFsd->cStreamName);
+				std::copy_n(std::cbegin(pStreamInfo->StreamName), pStreamInfo->StreamNameLength / sizeof(wchar_t), pFsd->cStreamName);
 				pFsd->cStreamName[pStreamInfo->StreamNameLength / sizeof(wchar_t)] = L'\0';
 				pFsd->StreamSize=pStreamInfo->StreamSize;
 				Ret = true;

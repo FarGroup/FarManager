@@ -642,7 +642,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 
 	int _Macro_IsExecuting=Global->CtrlObject->Macro.IsExecuting();
 
-	if (!IntKeyState.ShiftPressed && (!_Macro_IsExecuting || (IsNavKey(LocalKey) && _Macro_IsExecuting)) &&
+	if (!IntKeyState.ShiftPressed && (!_Macro_IsExecuting || IsNavKey(LocalKey)) &&
 	        !IsShiftKey(LocalKey) && !Recurse &&
 	        LocalKey!=KEY_SHIFT && LocalKey!=KEY_CTRL && LocalKey!=KEY_ALT &&
 	        LocalKey!=KEY_RCTRL && LocalKey!=KEY_RALT && LocalKey!=KEY_NONE &&

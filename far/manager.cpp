@@ -598,15 +598,11 @@ void Manager::SwitchToPanels()
 	_MANAGER(CleverSysLog clv(L"Manager::SwitchToPanels()"));
 	if (!Global->OnlyEditorViewerUsed)
 	{
-		std::find_if(CONST_RANGE(m_windows, i) -> bool
+		const auto PanelsWindow = std::find_if(ALL_CONST_RANGE(m_windows), [](CONST_REFERENCE(m_windows) item) { return std::dynamic_pointer_cast<FilePanels>(item) != nullptr; });
+		if (PanelsWindow != m_windows.cend())
 		{
-			if (std::dynamic_pointer_cast<FilePanels>(i))
-			{
-				ActivateWindow(i);
-				return true;
-			}
-			return false;
-		});
+			ActivateWindow(*PanelsWindow);
+		}
 	}
 }
 

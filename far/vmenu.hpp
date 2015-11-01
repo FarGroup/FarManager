@@ -202,7 +202,7 @@ class VMenu: public SimpleModal
 {
 	struct private_tag {};
 public:
-	static vmenu_ptr create(const string& Title, MenuDataEx *Data, int ItemCount, int MaxHeight = 0, DWORD Flags = 0, Dialog *ParentDialog = nullptr);
+	static vmenu_ptr create(const string& Title, const MenuDataEx *Data, int ItemCount, int MaxHeight = 0, DWORD Flags = 0, Dialog *ParentDialog = nullptr);
 
 	VMenu(private_tag, const string& Title, int MaxHeight, Dialog *ParentDialog);
 	virtual ~VMenu();
@@ -307,7 +307,7 @@ public:
 	static void AddHotkeys(std::vector<string>& Strings, MenuDataEx* Menu, size_t MenuSize);
 
 private:
-	void init(MenuDataEx *Data, int ItemsCount, DWORD Flags);
+	void init(const MenuDataEx *Data, int ItemsCount, DWORD Flags);
 
 	virtual void DisplayObject() override;
 

@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "manager.hpp"
 #include "pipe.hpp"
+#include "console.hpp"
 
 using namespace os::security;
 
@@ -408,6 +409,8 @@ bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
 {
 	if (m_suppressions)
 		return false;
+
+	Console().FlushInputBuffer();
 
 	// request for backup&restore privilege is useless if the user already has them
 	{

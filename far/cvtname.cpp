@@ -149,8 +149,8 @@ static void MixToFullPath(const string& stPath, string& Dest, const string& stCu
 				}
 				else
 				{
-					WCHAR _DriveVar[]={L'=',stPath[0],L':',L'\0'};
-					string DriveVar(_DriveVar);
+					string DriveVar = L"=?:";
+					DriveVar[1] = stPath[0];
 					const auto strValue(os::env::get_variable(DriveVar));
 
 					if (!strValue.empty())
@@ -259,15 +259,14 @@ static string TryConvertVolumeGuidToDrivePath(const string& Path, const wchar_t 
 		{
 			string strVolumeGuid;
 			const auto Strings = os::GetLogicalDriveStrings();
-			std::any_of(CONST_RANGE(Strings, i) -> bool
+			const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Strings), [&](CONST_REFERENCE(Strings) item)
 			{
-				if (os::GetVolumeNameForVolumeMountPoint(i, strVolumeGuid) && Path.compare(0, DirectoryOffset, strVolumeGuid.data(), DirectoryOffset) == 0)
-				{
-					Result.replace(0, DirectoryOffset, i);
-					return true;
-				}
-				return false;
+				return os::GetVolumeNameForVolumeMountPoint(item, strVolumeGuid) && Path.compare(0, DirectoryOffset, strVolumeGuid.data(), DirectoryOffset) == 0;
 			});
+			if (ItemIterator != Strings.cend())
+			{
+				Result.replace(0, DirectoryOffset, *ItemIterator);
+			}
 		}
 	}
 

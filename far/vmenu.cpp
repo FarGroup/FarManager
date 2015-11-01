@@ -77,24 +77,29 @@ VMenu::VMenu(private_tag, const string& Title, int MaxHeight, Dialog *ParentDial
 	WasAutoHeight(false),
 	m_MaxLength(0),
 	m_BoxType(DOUBLE_BOX),
+	PrevCursorVisible(),
+	PrevCursorSize(),
 	ParentDialog(ParentDialog),
+	DialogItemID(),
 	OldTitle(nullptr),
 	bFilterEnabled(false),
 	bFilterLocked(false),
 	ItemHiddenCount(0),
 	ItemSubMenusCount(0),
+	MaxLineWidth(),
+	bRightBtnPressed(),
 	MenuId(FarGuid)
 {
 }
 
-vmenu_ptr VMenu::create(const string& Title, MenuDataEx *Data, int ItemCount, int MaxHeight, DWORD Flags, Dialog *ParentDialog)
+vmenu_ptr VMenu::create(const string& Title, const MenuDataEx *Data, int ItemCount, int MaxHeight, DWORD Flags, Dialog *ParentDialog)
 {
 	auto VmenuPtr = std::make_shared<VMenu>(private_tag(), Title, MaxHeight, ParentDialog);
 	VmenuPtr->init(Data, ItemCount, Flags);
 	return VmenuPtr;
 }
 
-void VMenu::init(MenuDataEx *Data, int ItemsCount, DWORD Flags)
+void VMenu::init(const MenuDataEx *Data, int ItemsCount, DWORD Flags)
 {
 	SaveScr=nullptr;
 	SetMenuFlags(Flags | VMENU_MOUSEREACTION | VMENU_UPDATEREQUIRED);

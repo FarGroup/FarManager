@@ -4327,7 +4327,7 @@ static bool panelsetposidxFunc(FarMacroCall* Data)
 								break;
 						}
 
-						if (!InSelection || (InSelection && SelPanel->IsSelected(I)))
+						if (!InSelection || SelPanel->IsSelected(I))
 						{
 							if (idxFoundItem == idxItem)
 							{

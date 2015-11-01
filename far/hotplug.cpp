@@ -200,15 +200,14 @@ static DWORD DriveMaskFromVolumeName(const string& VolumeName)
 	DWORD Result = 0;
 	string strCurrentVolumeName;
 	const auto Strings = os::GetLogicalDriveStrings();
-	std::any_of(CONST_RANGE(Strings, i) -> bool
+	const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Strings), [&](CONST_REFERENCE(Strings) item)
 	{
-		if (os::GetVolumeNameForVolumeMountPoint(i, strCurrentVolumeName) && strCurrentVolumeName.compare(0, VolumeName.size(), VolumeName) == 0)
-		{
-			Result = 1 << (i.front() - L'A');
-			return true;
-		}
-		return false;
+		return os::GetVolumeNameForVolumeMountPoint(item, strCurrentVolumeName) && strCurrentVolumeName.compare(0, VolumeName.size(), VolumeName) == 0;
 	});
+	if (ItemIterator != Strings.cend())
+	{
+		Result = BIT(ItemIterator->front() - L'A');
+	}
 	return Result;
 }
 

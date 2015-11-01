@@ -1555,24 +1555,24 @@ intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITE
 				if (DialogMode.Check(DMODE_WARNINGSTYLE))
 				{
 					// Text
-					Color[0] = colors::PaletteColorToFarColor(DisabledItem?COL_WARNDIALOGEDITDISABLED:COL_WARNDIALOGEDIT);
+					Color[0] = colors::PaletteColorToFarColor(DisabledItem? COL_WARNDIALOGEDITDISABLED: Focus? COL_WARNDIALOGEDITSELECTED : COL_WARNDIALOGEDIT);
 					// Select
-					Color[1] = colors::PaletteColorToFarColor(DisabledItem?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED);
+					Color[1] = colors::PaletteColorToFarColor(DisabledItem? COL_WARNDIALOGEDITDISABLED : Focus? COL_WARNDIALOGEDITSELECTED : COL_WARNDIALOGEDIT);
 					// Unchanged
-					Color[2] = colors::PaletteColorToFarColor(DisabledItem?COL_WARNDIALOGEDITDISABLED:COL_DIALOGEDITUNCHANGED); //???
+					Color[2] = colors::PaletteColorToFarColor(DisabledItem? COL_WARNDIALOGEDITDISABLED : COL_WARNDIALOGEDITUNCHANGED); //???
 					// History
-					Color[3] = colors::PaletteColorToFarColor(DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT);
+					Color[3] = colors::PaletteColorToFarColor(DisabledItem? COL_WARNDIALOGDISABLED : COL_WARNDIALOGTEXT);
 				}
 				else
 				{
 					// Text
-					Color[0] = colors::PaletteColorToFarColor(DisabledItem?COL_DIALOGEDITDISABLED:(!Focus?COL_DIALOGEDIT:COL_DIALOGEDITSELECTED));
+					Color[0] = colors::PaletteColorToFarColor(DisabledItem? COL_DIALOGEDITDISABLED : Focus? COL_DIALOGEDITSELECTED : COL_DIALOGEDIT);
 					// Select
-					Color[1] = colors::PaletteColorToFarColor(DisabledItem?COL_DIALOGEDITDISABLED:(!Focus?COL_DIALOGEDIT:COL_DIALOGEDITSELECTED));
+					Color[1] = colors::PaletteColorToFarColor(DisabledItem? COL_DIALOGEDITDISABLED: Focus? COL_DIALOGEDITSELECTED : COL_DIALOGEDIT);
 					// Unchanged
-					Color[2] = colors::PaletteColorToFarColor(DisabledItem?COL_DIALOGEDITDISABLED:COL_DIALOGEDITUNCHANGED); //???
+					Color[2] = colors::PaletteColorToFarColor(DisabledItem? COL_DIALOGEDITDISABLED : COL_DIALOGEDITUNCHANGED); //???
 					// History
-					Color[3] = colors::PaletteColorToFarColor(DisabledItem?COL_DIALOGDISABLED:COL_DIALOGTEXT);
+					Color[3] = colors::PaletteColorToFarColor(DisabledItem? COL_DIALOGDISABLED : COL_DIALOGTEXT);
 				}
 			}
 			else
@@ -1580,24 +1580,24 @@ intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITE
 				if (DialogMode.Check(DMODE_WARNINGSTYLE))
 				{
 					// Text
-					Color[0] = colors::PaletteColorToFarColor(DisabledItem?COL_WARNDIALOGEDITDISABLED:(Flags&DIF_NOFOCUS?COL_DIALOGEDITUNCHANGED:COL_WARNDIALOGEDIT));
+					Color[0] = colors::PaletteColorToFarColor(DisabledItem? COL_WARNDIALOGEDITDISABLED : Flags & DIF_NOFOCUS? COL_WARNDIALOGEDITUNCHANGED : COL_WARNDIALOGEDIT);
 					// Select
-					Color[1] = colors::PaletteColorToFarColor(DisabledItem?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED);
+					Color[1] = colors::PaletteColorToFarColor(DisabledItem? COL_WARNDIALOGEDITDISABLED : COL_WARNDIALOGEDITSELECTED);
 					// Unchanged
-					Color[2] = colors::PaletteColorToFarColor(DisabledItem?COL_WARNDIALOGEDITDISABLED:COL_DIALOGEDITUNCHANGED);
+					Color[2] = colors::PaletteColorToFarColor(DisabledItem? COL_WARNDIALOGEDITDISABLED : COL_WARNDIALOGEDITUNCHANGED);
 					// History
-					Color[3] = colors::PaletteColorToFarColor(DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT);
+					Color[3] = colors::PaletteColorToFarColor(DisabledItem? COL_WARNDIALOGDISABLED : COL_WARNDIALOGTEXT);
 				}
 				else
 				{
 					// Text
-					Color[0] = colors::PaletteColorToFarColor(DisabledItem?COL_DIALOGEDITDISABLED:(Flags&DIF_NOFOCUS?COL_DIALOGEDITUNCHANGED:COL_DIALOGEDIT));
+					Color[0] = colors::PaletteColorToFarColor(DisabledItem? COL_DIALOGEDITDISABLED : Flags & DIF_NOFOCUS? COL_DIALOGEDITUNCHANGED : COL_DIALOGEDIT);
 					// Select
-					Color[1] = colors::PaletteColorToFarColor(DisabledItem?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED);
+					Color[1] = colors::PaletteColorToFarColor(DisabledItem? COL_DIALOGEDITDISABLED : COL_DIALOGEDITSELECTED);
 					// Unchanged
-					Color[2] = colors::PaletteColorToFarColor(DisabledItem?COL_DIALOGEDITDISABLED:COL_DIALOGEDITUNCHANGED), //???;
+					Color[2] = colors::PaletteColorToFarColor(DisabledItem? COL_DIALOGEDITDISABLED : COL_DIALOGEDITUNCHANGED), //???;
 					// History
-					Color[3] = colors::PaletteColorToFarColor(DisabledItem?COL_DIALOGDISABLED:COL_DIALOGTEXT);
+					Color[3] = colors::PaletteColorToFarColor(DisabledItem? COL_DIALOGDISABLED : COL_DIALOGTEXT);
 				}
 			}
 			break;
@@ -5090,7 +5090,6 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 	}
 
 	/*****************************************************************/
-	DialogItemEx *CurItem=nullptr;
 	FARDIALOGITEMTYPES Type=DI_TEXT;
 	size_t Len=0;
 
@@ -5101,7 +5100,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 	if (static_cast<size_t>(Param1) >= Items.size() || Items.empty())
 		return 0;
 
-	CurItem=&Items[Param1];
+	const auto CurItem=&Items[Param1];
 	Type=CurItem->Type;
 	const wchar_t *Ptr= CurItem->strData.data();
 

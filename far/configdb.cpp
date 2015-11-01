@@ -1688,8 +1688,8 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb
 		{
 			EventName = make_name<Event>(GetPath(), GetName());
 		}
-		AsyncDeleteAddDone = Event(Event::manual, Event::signaled, EventName.data());
-		AsyncCommitDone = Event(Event::manual, Event::signaled, EventName.data());
+		AsyncDeleteAddDone = Event(Event::manual, Event::signaled, (EventName + L"_Delete").data());
+		AsyncCommitDone = Event(Event::manual, Event::signaled, (EventName + L"_Commit").data());
 		AllWaiter.Add(AsyncDeleteAddDone);
 		AllWaiter.Add(AsyncCommitDone);
 		AsyncWork = Event(Event::automatic, Event::nonsignaled);

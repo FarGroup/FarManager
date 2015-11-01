@@ -53,7 +53,8 @@ namespace components
 	components_list::components_list():
 		list(),
 		ptr(),
-		enum_ptr()
+		enum_ptr(),
+		m_size()
 	{
 	}
 

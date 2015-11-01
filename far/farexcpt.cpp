@@ -54,7 +54,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef _MSC_VER
 # define WITH_MINIDUMP
 # ifdef WITH_MINIDUMP
+WARNING_PUSH()
+WARNING_DISABLE_MSC(4091) // https://msdn.microsoft.com/en-us/library/eehkcz60.aspx 'typedef ': ignored on left of 'type' when no variable is declared
 #  include <dbghelp.h>
+WARNING_POP()
 # endif
 #endif
 

@@ -496,9 +496,7 @@ void ViewSettingsToText(const std::vector<column>& Columns, string &strColumnTit
 		}
 		else
 		{
-			wchar_t buf[16];
-			wsprintf(buf, L"C%u", ColumnType - CUSTOM_COLUMN0);
-			strType = buf;
+			strType = L"C" + std::to_wstring(ColumnType - CUSTOM_COLUMN0);
 		}
 
 		if (ColumnType==NAME_COLUMN)

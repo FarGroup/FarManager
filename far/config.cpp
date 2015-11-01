@@ -718,7 +718,7 @@ void Options::ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local)
 	{
 		if (Msg == DN_INITDIALOG && save_pos)
 		{
-			Dlg->SendMessage(DM_ENABLE, save_cp, reinterpret_cast<void *>(ViOpt.SavePos ? false : true));
+			Dlg->SendMessage(DM_ENABLE, save_cp, ToPtr(ViOpt.SavePos ? false : true));
 			if (ViOpt.SavePos)
 			{
 				ViOpt.SaveCodepage = true;
@@ -729,8 +729,8 @@ void Options::ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local)
 			if (Param1 == save_pos)
 			{
 				inside = true;
-				Dlg->SendMessage(DM_SETCHECK, save_cp, reinterpret_cast<void *>(Param2 ? true : prev_save_cp_value));
-				Dlg->SendMessage(DM_ENABLE, save_cp, reinterpret_cast<void *>(Param2 ? false : true));
+				Dlg->SendMessage(DM_SETCHECK, save_cp, ToPtr(Param2? true : prev_save_cp_value));
+				Dlg->SendMessage(DM_ENABLE, save_cp, ToPtr(Param2 ? false : true));
 				inside = false;
 			}
 			else if (Param1 == save_cp && !inside)
