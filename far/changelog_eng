@@ -3,6 +3,38 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 01.11.2015 19:04:35 +0200 - build 4453
+
+1. Refactoring, VS15 warnings and other issues.
+
+drkns 01.11.2015 18:59:48 +0200 - build 4452
+
+1. For the future: split FindFiles into two separate classes: UI and search.
+
+drkns 31.10.2015 13:07:10 +0200 - build 4451
+
+1. 0003077: Exception in search in alternate streams
+
+shmuel 28.10.2015 19:12:06 +0200 - build 4450
+
+1. Minor refactoring in macro system.
+
+w17 27.10.2015 19:36:48 +0300 - build 4449
+
+1. Continuation of 4448. Do not crash in STACK_OVERFLOW handler, minidump shows the correct place of stack overflow.
+
+w17 27.10.2015 17:39:42 +0300 - build 4448
+
+1. Experimental: Minidump save button (%FARPROFILE%\Far.mdmp) in processing of SEHException.
+
+drkns 27.10.2015 01:26:44 +0200 - build 4447
+
+1. 0003026: FindFiles access violation exception
+
+drkns 26.10.2015 09:25:44 +0200 - build 4446
+
+1. Status line format string moved to lng.
+
 drkns 24.10.2015 11:59:47 +0200 - build 4445
 
 1. 0003053: Highlighting of files with >1 hard links slows down the panels on network volumes
