@@ -143,27 +143,25 @@ unsigned __int64 ProgressMonitor::ticks_per_sec() {
   return time_freq;
 }
 
-const wchar_t** get_size_suffixes() {
-  static const wchar_t* suffixes[5] = {
-    L"",
-    Far::msg_ptr(MSG_SUFFIX_SIZE_KB),
-    Far::msg_ptr(MSG_SUFFIX_SIZE_MB),
-    Far::msg_ptr(MSG_SUFFIX_SIZE_GB),
-    Far::msg_ptr(MSG_SUFFIX_SIZE_TB),
+const wchar_t** get_suffixes(int start) {
+  static const int msg_ids[1 + 5 + 5] =
+  { MSG_LANG
+  , 0,                  MSG_SUFFIX_SIZE_KB,  MSG_SUFFIX_SIZE_MB,  MSG_SUFFIX_SIZE_GB,  MSG_SUFFIX_SIZE_TB
+  , MSG_SUFFIX_SPEED_B, MSG_SUFFIX_SPEED_KB, MSG_SUFFIX_SPEED_MB, MSG_SUFFIX_SPEED_GB, MSG_SUFFIX_SPEED_TB
   };
-  return suffixes;
+  static wstring       msg_texts[1 + 5 + 5];
+  static const wchar_t* suffixes[1 + 5 + 5];
+
+  if (Far::get_msg(msg_ids[0]) != msg_texts[0]) {
+    for (int i = 0; i < 1 + 5 + 5; ++i)
+      suffixes[i] = (msg_texts[i] = msg_ids[i] ? Far::get_msg(msg_ids[i]) : wstring()).data();
+  }
+
+  return suffixes + start;
 }
 
-const wchar_t** get_speed_suffixes() {
-  static const wchar_t* suffixes[5] = {
-    Far::msg_ptr(MSG_SUFFIX_SPEED_B),
-    Far::msg_ptr(MSG_SUFFIX_SPEED_KB),
-    Far::msg_ptr(MSG_SUFFIX_SPEED_MB),
-    Far::msg_ptr(MSG_SUFFIX_SPEED_GB),
-    Far::msg_ptr(MSG_SUFFIX_SPEED_TB),
-  };
-  return suffixes;
-}
+const wchar_t** get_size_suffixes()  { return get_suffixes(1+0); }
+const wchar_t** get_speed_suffixes() { return get_suffixes(1+5); }
 
 class PasswordDialog: public Far::Dialog {
 private:
