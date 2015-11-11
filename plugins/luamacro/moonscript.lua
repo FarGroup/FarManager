@@ -193,7 +193,7 @@ return {
 end
 
 package.preload["moonscript.version"] = function()
-local version = "0.3.1"
+local version = "0.3.2"
 return {
   version = version,
   print_version = function()
@@ -5582,14 +5582,32 @@ local dirsep, line_tables, create_moonpath, to_lua, moon_loader, loadstring, loa
 dirsep = "/"
 line_tables = require("moonscript.line_tables")
 create_moonpath = function(package_path)
-  local paths = split(package_path, ";")
-  for i, path in ipairs(paths) do
-    local p = path:match("^(.-)%.lua$")
-    if p then
-      paths[i] = p .. ".moon"
+  local moonpaths
+  do
+    local _accum_0 = { }
+    local _len_0 = 1
+    local _list_0 = split(package_path, ";")
+    for _index_0 = 1, #_list_0 do
+      local _continue_0 = false
+      repeat
+        local path = _list_0[_index_0]
+        local prefix = path:match("^(.-)%.lua$")
+        if not (prefix) then
+          _continue_0 = true
+          break
+        end
+        local _value_0 = prefix .. ".moon"
+        _accum_0[_len_0] = _value_0
+        _len_0 = _len_0 + 1
+        _continue_0 = true
+      until true
+      if not _continue_0 then
+        break
+      end
     end
+    moonpaths = _accum_0
   end
-  return concat(paths, ";")
+  return concat(moonpaths, ";")
 end
 to_lua = function(text, options)
   if options == nil then
@@ -5697,7 +5715,8 @@ return {
   dirsep = dirsep,
   dofile = dofile,
   loadfile = loadfile,
-  loadstring = loadstring
+  loadstring = loadstring,
+  create_moonpath = create_moonpath
 }
 end
 
