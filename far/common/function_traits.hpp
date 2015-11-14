@@ -29,7 +29,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 template <class F> struct return_type;
 #define DEFINE_R_TYPE { typedef typename std::remove_const<typename std::remove_reference<R>::type>::type type; };
-#if defined _MSC_VER && _MSC_VER < 1800
+#if COMPILER == C_CL && _MSC_VER < 1800
 
 template <class R>
 struct return_type<R(*)()> DEFINE_R_TYPE

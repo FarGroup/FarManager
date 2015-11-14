@@ -41,7 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class noncopyable
 {
-#if defined _MSC_VER && _MSC_VER < 1800
+#if COMPILER == C_CL && _MSC_VER < 1800
 protected:
 	noncopyable() {};
 

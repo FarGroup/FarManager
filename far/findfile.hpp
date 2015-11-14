@@ -133,7 +133,6 @@ public:
 		FINDAREA SearchMode,
 		uintptr_t CodePage,
 		UINT64 SearchInFirst,
-		bool AnySetFindList,
 		bool CmpCase,
 		bool WholeWords,
 		bool SearchInArchives,
@@ -187,7 +186,6 @@ private:
 	const FINDAREA SearchMode;
 	const uintptr_t CodePage;
 	const UINT64 SearchInFirst;
-	const bool AnySetFindList;
 	const bool CmpCase;
 	const bool WholeWords;
 	const bool SearchInArchives;

@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // TODO: use separately where required
 
+#include "common/compiler.hpp"
 #include "common/preprocessor.hpp"
 #include "common/noncopyable.hpp"
 #include "common/swapable.hpp"

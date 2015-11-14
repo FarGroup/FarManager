@@ -33,11 +33,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef __clang__
-// test only
-#define _HAS_EXCEPTIONS 0
-#endif
-
 #include "disable_warnings_in_std_begin.hpp"
 //----------------------------------------------------------------------------
 
@@ -114,13 +109,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VC_EXTRALEAN
 #ifndef NOMINMAX
 #define NOMINMAX
-#endif
-
-#ifdef __clang__
-// test only
-#define try if(true)
-#define catch(x) if(false)
-#define throw if(false)
 #endif
 
 #define WIN32_NO_STATUS //exclude ntstatus.h macros from winnt.h

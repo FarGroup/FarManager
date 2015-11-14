@@ -290,12 +290,10 @@ static int MainProcess(
 		return 0;
 }
 
-#ifndef _MSC_VER
 static LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS *ExceptionInfo)
 {
 	return ProcessSEHException(L"FarUnhandledExceptionFilter", ExceptionInfo)? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH;
 }
-#endif
 
 static void InitTemplateProfile(string &strTemplatePath)
 {
@@ -802,9 +800,8 @@ int wmain(int Argc, wchar_t *Argv[])
 		setlocale(LC_ALL, "");
 		EnableSeTranslation();
 		EnableVectoredExceptionHandling();
-#ifndef _MSC_VER
 		SetUnhandledExceptionFilter(FarUnhandledExceptionFilter);
-#endif
+
 		// Must be static - dependent static objects exist
 		static SCOPED_ACTION(os::co_initialize);
 		return mainImpl(make_range(Argv + 1, Argv + Argc));
@@ -831,7 +828,7 @@ int wmain(int Argc, wchar_t *Argv[])
 	return 1;
 }
 
-#ifdef __GNUC__
+#if COMPILER == C_GCC
 int main()
 {
 	int nArgs;

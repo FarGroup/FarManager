@@ -457,7 +457,7 @@ IFileIsInUse* CreateIFileIsInUse(const string& File)
 								if (prot->GetObject(pmk, &punk) == S_OK)
 								{
 									hr = punk->QueryInterface(
-#ifdef __GNUC__
+#if COMPILER == C_GCC
 										IID_IFileIsInUse, IID_PPV_ARGS_Helper(&pfiu)
 #else
 										IID_PPV_ARGS(&pfiu)

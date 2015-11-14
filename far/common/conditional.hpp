@@ -49,7 +49,7 @@ template<class T>
 struct conditional
 {
 // already included in VC2013
-#if defined _MSC_VER && _MSC_VER < 1800
+#if COMPILER == C_CL && _MSC_VER < 1800
 	struct unspecified_bool
 	{
 		struct OPERATORS_NOT_ALLOWED;

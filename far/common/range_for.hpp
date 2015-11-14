@@ -28,7 +28,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // C++11-like range-based for
-#if defined _MSC_VER && _MSC_VER < 1700
+#if COMPILER == C_CL && _MSC_VER < 1700
 #define DECORATED(name) _RANGE_FOR_EMULATION_ ## name ## _
 #define f_container DECORATED(container)
 #define f_stop DECORATED(stop)

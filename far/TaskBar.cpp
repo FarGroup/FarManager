@@ -46,10 +46,13 @@ taskbar::taskbar():
 	State(TBPF_NOPROGRESS),
 	pTaskbarList()
 {
-#ifdef _MSC_VER
-	assert(__uuidof(*pTaskbarList) == IID_ITaskbarList3);
+	CoCreateInstance(CLSID_TaskbarList, nullptr, CLSCTX_INPROC_SERVER,
+#if COMPILER == C_GCC
+		IID_ITaskbarList3, IID_PPV_ARGS_Helper(&pTaskbarList)
+#else
+		IID_PPV_ARGS(&pTaskbarList)
 #endif
-	CoCreateInstance(CLSID_TaskbarList, nullptr, CLSCTX_INPROC_SERVER, IID_ITaskbarList3, IID_PPV_ARGS_Helper(&pTaskbarList));
+		);
 }
 
 taskbar::~taskbar()

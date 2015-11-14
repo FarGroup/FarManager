@@ -2757,7 +2757,7 @@ bool FindFiles::FindFilesProcess()
 		SCOPED_ACTION(wakeful);
 
 		{
-			background_searcher BC(this, strFindStr, SearchMode, CodePage, SearchInFirst, AnySetFindList, CmpCase, WholeWords, SearchInArchives, SearchHex, NotContaining, UseFilter);
+			background_searcher BC(this, strFindStr, SearchMode, CodePage, SearchInFirst, CmpCase, WholeWords, SearchInArchives, SearchHex, NotContaining, UseFilter);
 
 			// BUGBUG
 			m_Searcher = &BC;
@@ -3192,26 +3192,26 @@ FindFiles::~FindFiles()
 }
 
 
-background_searcher::background_searcher(FindFiles* Owner, const string& FindString, 
+background_searcher::background_searcher(
+	FindFiles* Owner,
+	const string& FindString,
 	FINDAREA SearchMode,
 	uintptr_t CodePage,
 	UINT64 SearchInFirst,
-	bool AnySetFindList,
 	bool CmpCase,
 	bool WholeWords,
 	bool SearchInArchives,
 	bool SearchHex,
 	bool NotContaining,
 	bool UseFilter):
+
 	m_Owner(Owner),
 	InFileSearchInited(),
 	m_Autodetection(),
-
 	strFindStr(FindString),
 	SearchMode(SearchMode),
 	CodePage(CodePage),
 	SearchInFirst(SearchInFirst),
-	AnySetFindList(AnySetFindList),
 	CmpCase(CmpCase),
 	WholeWords(WholeWords),
 	SearchInArchives(SearchInArchives),

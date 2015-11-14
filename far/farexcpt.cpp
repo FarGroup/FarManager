@@ -595,6 +595,7 @@ void EnableVectoredExceptionHandling()
 WARNING_PUSH()
 
 WARNING_DISABLE_MSC(4717) // https://msdn.microsoft.com/en-us/library/97c54274.aspx 'function' : recursive on all control paths, function will cause runtime stack overflow
+WARNING_DISABLE_CLANG("-Winfinite-recursion")
 
 static void Test_EXCEPTION_STACK_OVERFLOW(char* target)
 {
@@ -687,14 +688,14 @@ static int ExceptionTestHook(Manager::Key key)
 			zero_const.i = 1 / zero_const.i;
 			break;
 		case 4:
-#if defined(_MSC_VER)
+#if COMPILER == C_CL || COMPILER == C_INTEL
 #ifdef _M_IA64
 			const int REG_IA64_IntR0 = 1024;
 			__setReg(REG_IA64_IntR0, 666);
 #else
 			__ud2();
 #endif
-#elif defined(__GNUC__)
+#elif COMPILER == C_GCC || COMPILER == C_CLANG
 			asm("ud2");
 #endif
 			break;
@@ -702,7 +703,7 @@ static int ExceptionTestHook(Manager::Key key)
 			Test_EXCEPTION_STACK_OVERFLOW(nullptr);
 			break;
 		case 6:
-			//refers.d = 1.0/zero_const.d;
+			zero_const.d = 1.0 / zero_const.d;
 			break;
 		case 7:
 			attach_debugger();

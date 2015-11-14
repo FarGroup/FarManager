@@ -34,6 +34,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "common/compiler.hpp"
+
 // already included in VC2012
 #if defined _MSC_VER && _MSC_VER < 1700
 // In VC++ 2010, there are three overloads of std::to_wstring taking long long, unsigned long long, and long double.
@@ -138,16 +140,14 @@ namespace std
 };
 #endif
 
-#if defined _MSC_VER && _MSC_VER < 1900
+#if (COMPILER == C_CL && _MSC_VER < 1900) || COMPILER == C_INTEL
 // already included in VC2015
 #define thread_local __declspec(thread)
 #endif
 
 // already included in VC2015
-#if defined _MSC_VER && _MSC_VER < 1900
-#if !defined __clang__ && !defined __INTEL_COMPILER
+#if COMPILER == C_CL && _MSC_VER < 1900
 #define noexcept throw()
-#endif
 #endif
 
 // already included in VC2013
@@ -167,7 +167,7 @@ using std::wsctoull;
 #endif
 
 // already fixed in VC2013
-#if defined _MSC_VER && _MSC_VER < 1800 || defined __INTEL_COMPILER
+#if (COMPILER == C_CL && _MSC_VER < 1800) || COMPILER == C_INTEL
 // operator :: doesn't work with decltype(T) in VC prior to 2013, this trick fixes it:
 #define decltype(T) std::enable_if<true, decltype(T)>::type
 #endif
