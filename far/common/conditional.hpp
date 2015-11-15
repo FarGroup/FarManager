@@ -48,8 +48,7 @@ if (!Object)
 template<class T>
 struct conditional
 {
-// already included in VC2013
-#if COMPILER == C_CL && _MSC_VER < 1800
+#ifdef NO_EXPLICIT_CONVERSION_OPERATORS
 	struct unspecified_bool
 	{
 		struct OPERATORS_NOT_ALLOWED;

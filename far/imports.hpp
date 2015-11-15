@@ -47,7 +47,7 @@ private:
 		// explicit operator bool emulation is implemented in terms of function pointer operator,
 		// but this class contains another function pointer operator, thus conversion is ambiguous.
 		// Implicit filthy operator bool resolves it.
-#if COMPILER == C_CL && _MSC_VER < 1800
+#ifdef NO_EXPLICIT_CONVERSION_OPERATORS
 		operator bool() const { return !!*this; }
 #endif
 

@@ -158,7 +158,7 @@ int WINAPIV apiSnprintf(wchar_t* Dest, size_t Count, const wchar_t* Format, ...)
 }
 
 // vswscanf is not available in VS prior to 2013
-#if COMPILER != C_CL || _MSC_VER >= 1800
+#if !VS_OLDER_THAN(VS_2013)
 int WINAPIV apiSscanf(const wchar_t* Src, const wchar_t* Format, ...) noexcept
 {
 	try

@@ -78,7 +78,7 @@ public:
 	Thread(): m_Mode(), m_ThreadId() {}
 	Thread(Thread&& rhs) noexcept: m_Mode(), m_ThreadId() { *this = std::move(rhs); }
 
-#if COMPILER == C_CL && _MSC_VER < 1800
+#ifdef NO_VARIADIC_TEMPLATES
 
 	template<typename T> \
 	Thread(mode Mode, T&& Function): m_Mode(Mode) { Starter(std::bind(std::forward<T>(Function))); }

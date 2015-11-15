@@ -90,7 +90,7 @@ protected:
 		template<typename T>
 		SQLiteStmt& Bind(T&& Arg) { return BindImpl(std::forward<T>(Arg)); }
 
-#if COMPILER == C_CL && _MSC_VER < 1800
+#ifdef NO_VARIADIC_TEMPLATES
 		#define BIND_VTE(TYPENAME_LIST, ARG_LIST, REF_ARG_LIST, FWD_ARG_LIST) \
 		template<VTE_TYPENAME(first), TYPENAME_LIST> \
 		SQLiteStmt& Bind(VTE_REF_ARG(first), REF_ARG_LIST) \

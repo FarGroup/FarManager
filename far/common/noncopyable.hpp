@@ -41,17 +41,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class noncopyable
 {
-#if COMPILER == C_CL && _MSC_VER < 1800
 protected:
+#ifdef NO_DEFAULTED_FUNCTIONS
 	noncopyable() {};
+#else
+	noncopyable() = default;
+#endif
 
+#ifdef NO_DELETED_FUNCTIONS
 private:
 	noncopyable(const noncopyable&);
 	noncopyable& operator=(const noncopyable&);
 #else
-protected:
-	noncopyable() = default;
-
 public:
 	noncopyable(const noncopyable&) = delete;
 	noncopyable& operator=(const noncopyable&) = delete;

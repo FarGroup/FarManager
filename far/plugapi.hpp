@@ -40,7 +40,7 @@ namespace pluginapi
 {
 	int      WINAPIV apiSprintf(wchar_t* Dest, const wchar_t* Format, ...) noexcept;
 	int      WINAPIV apiSnprintf(wchar_t* Dest, size_t Count, const wchar_t* Format, ...) noexcept;
-#if COMPILER != C_CL || _MSC_VER >= 1800
+#if !VS_OLDER_THAN(VS_2013)
 	int      WINAPIV apiSscanf(const wchar_t* Src, const wchar_t* Format, ...) noexcept;
 #endif
 	wchar_t* WINAPI apiItoa(int value, wchar_t *Str, int radix) noexcept;

@@ -278,7 +278,7 @@ FarStandardFunctions NativeFSF =
 	pluginapi::apiItoa,
 	pluginapi::apiItoa64,
 	pluginapi::apiSprintf,
-#if COMPILER != C_CL || _MSC_VER >= 1800
+#if !VS_OLDER_THAN(VS_2013)
 	pluginapi::apiSscanf,
 #else
 	swscanf,

@@ -170,7 +170,7 @@ namespace detail
 	}
 }
 
-#if COMPILER == C_CL && _MSC_VER < 1800
+#ifdef NO_VARIADIC_TEMPLATES
 #define STRING_FORMAT_IMPL_VTE(TYPENAME_LIST, ARG_LIST, REF_ARG_LIST, FWD_ARG_LIST) \
 namespace detail \
 { \

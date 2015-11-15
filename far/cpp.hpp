@@ -36,8 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "common/compiler.hpp"
 
-// already included in VC2012
-#if defined _MSC_VER && _MSC_VER < 1700
+#if VS_OLDER_THAN(VS_2012)
 // In VC++ 2010, there are three overloads of std::to_wstring taking long long, unsigned long long, and long double.
 // Clearly, int is none of these, and no one conversion is better than another, so the conversion cannot be done implicitly/unambiguously.
 // In terms of real C++11 support, this is a failing on the part of VC++ 2010's standard library implementation –
@@ -60,8 +59,7 @@ namespace std
 };
 #endif
 
-// already included in VC2012
-#if defined _MSC_VER && _MSC_VER < 1700
+#if VS_OLDER_THAN(VS_2012)
 // hash specializations for smart pointers are missed in VC++ 2010
 namespace std
 {
@@ -85,8 +83,7 @@ namespace std
 }
 #endif
 
-// already included in VC2013 / GCC 5
-#if (defined _MSC_VER && _MSC_VER < 1800) || (defined __GNUC__ && __GNUC__ < 5)
+#if VS_OLDER_THAN(VS_2013) || (defined __GNUC__ && __GNUC__ < 5)
 // const, reverse and const-reverse versions of std::begin and std::end are missed in C++11,
 // possibly they will be added in C++14, until then they are manually defined here:
 namespace std
@@ -108,8 +105,7 @@ namespace std
 };
 #endif
 
-// already included in VC2013
-#if defined _MSC_VER && _MSC_VER < 1800
+#if VS_OLDER_THAN(VS_2013)
 namespace std
 {
 	template<typename T>
@@ -140,18 +136,15 @@ namespace std
 };
 #endif
 
-#if (COMPILER == C_CL && _MSC_VER < 1900) || COMPILER == C_INTEL
-// already included in VC2015
+#if (COMPILER == C_CL && VS_OLDER_THAN(VS_2015)) || COMPILER == C_INTEL
 #define thread_local __declspec(thread)
 #endif
 
-// already included in VC2015
-#if COMPILER == C_CL && _MSC_VER < 1900
+#if COMPILER == C_CL && VS_OLDER_THAN(VS_2015)
 #define noexcept throw()
 #endif
 
-// already included in VC2013
-#if defined _MSC_VER && _MSC_VER < 1800
+#if VS_OLDER_THAN(VS_2013)
 namespace std
 {
 	inline long long strtoll(const char* Str, char** EndPtr, int Radix) { return _strtoi64(Str, EndPtr, Radix); }
@@ -166,8 +159,7 @@ using std::strtoull;
 using std::wsctoull;
 #endif
 
-// already fixed in VC2013
-#if (COMPILER == C_CL && _MSC_VER < 1800) || COMPILER == C_INTEL
+#if (COMPILER == C_CL && VS_OLDER_THAN(VS_2013)) || COMPILER == C_INTEL
 // operator :: doesn't work with decltype(T) in VC prior to 2013, this trick fixes it:
 #define decltype(T) std::enable_if<true, decltype(T)>::type
 #endif

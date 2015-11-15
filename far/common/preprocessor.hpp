@@ -95,7 +95,7 @@ Type& operator=(Type&& rhs) noexcept { swap(rhs); return *this; }
 #define SCOPED_ACTION(RAII_type) \
 const RAII_type ADD_SUFFIX(scoped_object_, __LINE__)
 
-#if COMPILER == C_CL && _MSC_VER < 1800
+#ifdef NO_DELETED_FUNCTIONS
 #define DELETED_FUNCTION(...) private: __VA_ARGS__
 #else
 #define DELETED_FUNCTION(...) __VA_ARGS__ = delete

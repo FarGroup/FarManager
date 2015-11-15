@@ -58,6 +58,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #error Unknown compiler
 #endif
 
+#define VS_2012 1700
+#define VS_2013 1800
+#define VS_2015 1900
+#define VS_OLDER_THAN(version) (defined _MSC_VER && _MSC_VER < version)
+
+
 #if COMPILER == C_GCC || COMPILER == C_CLANG
 #define STR_PRAGMA(x) _Pragma(#x)
 #endif
@@ -94,4 +100,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define WARNING_DISABLE_CLANG(id) STR_PRAGMA(clang diagnostic ignored id)
 #else
 #define WARNING_DISABLE_CLANG(id)
+#endif
+
+#if COMPILER == C_CL && VS_OLDER_THAN(VS_2013)
+#define NO_VARIADIC_TEMPLATES
+#define NO_EXPLICIT_CONVERSION_OPERATORS
+#define NO_DEFAULTED_FUNCTIONS
+#define NO_DELETED_FUNCTIONS
 #endif

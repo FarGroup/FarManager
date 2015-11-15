@@ -27,6 +27,8 @@
 #
 #ASM_LISTING - set to enable assembly, machine code and source listing generation
 #
+#LTCG_STATUS - specifies whether the linker displays a progress indicator that shows what percentage of the link is complete
+#
 #DEFUSERFLAGS -
 
 .SILENT:
@@ -282,6 +284,9 @@ CPPFLAG1=$(CPPFLAG1) /Zi
 LINKFLAGS=$(LINKFLAGS) /debug
 !endif
 LINKFLAGS=$(LINKFLAGS) /incremental:no /OPT:REF /OPT:ICF /ltcg
+!ifdef LTCG_STATUS
+LINKFLAGS=$(LINKFLAGS) /ltcg:status
+!endif
 !endif
 !ifdef ASM_LISTING
 CPPFLAG1=$(CPPFLAG1) /FAcs /Fa"$(CODDIR)\\"
