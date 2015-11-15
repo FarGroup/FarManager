@@ -25,39 +25,31 @@ typedef struct
 	int InitStage;
 	int Depth;
 	CRITICAL_SECTION CritSection; // http://forum.farmanager.com/viewtopic.php?f=9&p=107075#p107075
-	int CSRefCount;
 } Global;
 
 static Global G;
 
-#define TRY_ENTER_CS(g)    (TryEnterCriticalSection(&g.CritSection) && ++g.CSRefCount)
-#define LEAVE_CS(g)        { if (--g.CSRefCount==0) LeaveCriticalSection(&g.CritSection); }
-#define IS_PLUGIN_READY(g) (g.LS && g.InitStage==2 && TRY_ENTER_CS(g))
-
-#define EXP_INTPTR(Info,Name) \
-	if (IS_PLUGIN_READY(G)) \
-	{ \
-		intptr_t ret = Name(G.LS, Info); \
-		LEAVE_CS(G) \
-		return ret; \
-	} \
-	return 0;
-
-#define EXP_HANDLE(Info,Name) \
-	if (IS_PLUGIN_READY(G)) \
-	{ \
-		HANDLE ret = Name(G.LS, Info); \
-		LEAVE_CS(G) \
-		return ret; \
-	} \
-	return NULL;
+#define IS_PLUGIN_READY(g) (g.LS && g.InitStage==2 && TryEnterCriticalSection(&g.CritSection))
+#define LEAVE_CS(g)        LeaveCriticalSection(&g.CritSection)
 
 #define EXP_VOID(Info,Name) \
-	if (IS_PLUGIN_READY(G)) \
-	{ \
-		Name(G.LS, Info); \
-		LEAVE_CS(G) \
-	}
+	{ if (IS_PLUGIN_READY(G)) \
+	  { \
+		  Name(G.LS, Info); \
+		  LEAVE_CS(G); \
+	  } }
+
+#define EXP_TYPE(Info,Name,Type) \
+	{ if (IS_PLUGIN_READY(G)) \
+	  { \
+		  Type ret = Name(G.LS, Info); \
+		  LEAVE_CS(G); \
+		  return ret; \
+	  } \
+	  return (Type)0; }
+
+#define EXP_INTPTR(Info,Name) EXP_TYPE(Info,Name,intptr_t)
+#define EXP_HANDLE(Info,Name) EXP_TYPE(Info,Name,HANDLE)
 
 static void InitLuaState2(lua_State *L, TPluginData* PluginData);  /* forward declaration */
 
@@ -79,7 +71,7 @@ static intptr_t WINAPI DlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void 
 	if (IS_PLUGIN_READY(G))
 	{
 		intptr_t ret = LF_DlgProc(G.LS, hDlg, Msg, Param1, Param2);
-		LEAVE_CS(G)
+		LEAVE_CS(G);
 		return ret;
 	}
 	return 0;
@@ -149,7 +141,7 @@ __declspec(dllexport) lua_State* GetLuaState()
 	if (IS_PLUGIN_READY(G))
 	{
 		lua_State *L = G.LS;
-		LEAVE_CS(G)
+		LEAVE_CS(G);
 		return L;
 	}
 	return NULL;
@@ -271,7 +263,7 @@ HANDLE LUAPLUG OpenW(const struct OpenInfo *Info)
 		++G.Depth; // prevents crashes (this function can be called recursively)
 		h = LF_Open(G.LS, Info);
 		h = --G.Depth==0 && RecreateLuaState(&G) ? NULL : G.LS ? h : NULL;
-		LEAVE_CS(G)
+		LEAVE_CS(G);
 		return h;
 	}
 	return NULL;
@@ -325,7 +317,7 @@ void LUAPLUG ExitFARW(const struct ExitInfo *Info)
 		G.LS = NULL;
 		LF_ExitFAR(oldState, Info);
 		lua_close(oldState);
-		LEAVE_CS(G)
+		LEAVE_CS(G);
 	}
 }
 #endif
