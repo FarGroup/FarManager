@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 15.11.2015 11:59:17 +0200 - build 4456
+
+1. Continuation of 4455.
+
+drkns 15.11.2015 01:37:43 +0200 - build 4455
+
+1. It happens that Far already can be built with clang. Some related changes in preprocessor macros.
+
 svs 07.11.2015 00:28:32 +0300 - build 4454
 
 1. SQLite 3.9.2
