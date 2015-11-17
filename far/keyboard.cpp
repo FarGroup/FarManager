@@ -1981,9 +1981,12 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros)
 			case VK_MENU:
 				if (AltValue)
 				{
-					INPUT_RECORD TempRec;
-					size_t ReadCount;
-					Console().ReadInput(&TempRec, 1, ReadCount);
+					if (RealKey)
+					{
+						INPUT_RECORD TempRec;
+						size_t ReadCount;
+						Console().ReadInput(&TempRec, 1, ReadCount);
+					}
 					IntKeyState.ReturnAltValue=TRUE;
 					AltValue&=0xFFFF;
 					/*
