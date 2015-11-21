@@ -2955,6 +2955,8 @@ int Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			EditorPrevDoubleClick=0;
 			EditorPrevPosition.X=0;
 			EditorPrevPosition.Y=0;
+			Show();
+			return TRUE;
 		}
 
 		if (MouseEvent->dwEventFlags==DOUBLE_CLICK)
@@ -2967,6 +2969,8 @@ int Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			ProcessKey(Manager::Key(KEY_OP_SELWORD));
 			EditorPrevDoubleClick = CurrentTime;
 			EditorPrevPosition=MouseEvent->dwMousePosition;
+			Show();
+			return TRUE;
 		}
 		else
 		{
