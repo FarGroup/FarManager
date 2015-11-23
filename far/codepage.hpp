@@ -33,9 +33,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "configdb.hpp"
-#include "windowsfwd.hpp"
-
 namespace unicode
 {
 	size_t to(uintptr_t Codepage, const wchar_t* Data, size_t Size, char* Buffer, size_t BufferSize, bool* UsedDefaultChar = nullptr);
@@ -47,18 +44,6 @@ namespace unicode
 
 void swap_bytes(const void* Src, void* Dst, size_t SizeInBytes);
 
-// Тип выбранной таблицы символов
-enum CPSelectType
-{
-	CPST_FAVORITE = 1, // Избранная таблица символов
-	CPST_FIND     = 2  // Таблица символов участвующая в поиске по всем таблицам символов
-};
-
-enum
-{
-	StandardCPCount = 2 /* OEM, ANSI */ + 2 /* UTF-16 LE, UTF-16 BE */ + 1 /* UTF-8 */
-};
-
 inline bool IsUnicodeCodePage(uintptr_t cp) { return cp == CP_UNICODE || cp == CP_REVERSEBOM; }
 inline bool IsStandardCodePage(uintptr_t cp) { return IsUnicodeCodePage(cp) || cp == CP_UTF8 || cp == GetOEMCP() || cp == GetACP(); }
 inline bool IsUnicodeOrUtfCodePage(uintptr_t cp) { return IsUnicodeCodePage(cp) || cp==CP_UTF8 || cp==CP_UTF7; }
@@ -66,76 +51,6 @@ inline bool IsUnicodeOrUtfCodePage(uintptr_t cp) { return IsUnicodeCodePage(cp) 
 // See https://msdn.microsoft.com/en-us/library/windows/desktop/dd319072.aspx
 inline bool IsNoFlagsCodepage(uintptr_t cp) { return (cp >= 50220 && cp <= 50222) || cp == 50225 || cp == 50227 || cp == 50229 || (cp >= 57002 && cp <= 57011) || cp == CP_UTF7 || cp == CP_SYMBOL; }
 
-class Dialog;
-struct DialogBuilderListItem2;
-class VMenu2;
-ENUM(CodePagesCallbackCallSource);
-
-class codepages: noncopyable
-{
-public:
-	~codepages();
-
-	std::pair<UINT, string> GetCodePageInfo(UINT cp) const;
-	bool IsCodePageSupported(uintptr_t CodePage, size_t MaxCharSize = size_t(-1)) const;
-	bool SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool ViewOnly=false, bool bShowAutoDetect=false);
-	UINT FillCodePagesList(Dialog* Dlg, UINT controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault, bool bViewOnly=false);
-	void FillCodePagesList(std::vector<DialogBuilderListItem2> &List, bool allowAuto, bool allowAll, bool allowDefault, bool bViewOnly=false);
-	string& FormatCodePageName(uintptr_t CodePage, string& CodePageName) const;
-
-	static long long GetFavorite(uintptr_t cp);
-	static void SetFavorite(uintptr_t cp, long long value);
-	static void DeleteFavorite(uintptr_t cp);
-	static GeneralConfig::int_values_enumerator GetFavoritesEnumerator();
-
-private:
-	friend codepages& Codepages();
-	friend class system_codepages_enumerator;
-
-	codepages();
-
-	string& FormatCodePageName(uintptr_t CodePage, string& CodePageName, bool &IsCodePageNameCustom) const;
-	inline size_t GetMenuItemCodePage(size_t Position = -1);
-	inline size_t GetListItemCodePage(size_t Position);
-	inline bool IsPositionStandard(UINT position);
-	inline bool IsPositionFavorite(UINT position);
-	inline bool IsPositionNormal(UINT position);
-	string FormatCodePageString(uintptr_t CodePage, const string& CodePageName, bool IsCodePageNameCustom) const;
-	void AddCodePage(const string& codePageName, uintptr_t codePage, size_t position, bool enabled, bool checked, bool IsCodePageNameCustom);
-	void AddStandardCodePage(const wchar_t *codePageName, uintptr_t codePage, int position=-1, bool enabled=true);
-	void AddSeparator(LPCWSTR Label=nullptr, size_t position = -1);
-	size_t size() const;
-	size_t GetCodePageInsertPosition(uintptr_t codePage, size_t start, size_t length);
-	void AddCodePages(DWORD codePages);
-	void SetFavorite(bool State);
-	void FillCodePagesVMenu(bool bShowUnicode, bool bViewOnly=false, bool bShowAutoDetect=false);
-	intptr_t EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
-	void EditCodePageName();
-
-	Dialog* dialog;
-	UINT control;
-	std::vector<DialogBuilderListItem2> *DialogBuilderList;
-	vmenu2_ptr CodePagesMenu;
-	uintptr_t currentCodePage;
-	int favoriteCodePages, normalCodePages;
-	bool selectedCodePages;
-	CodePagesCallbackCallSource CallbackCallSource;
-
-	class codepages_data
-	{
-	public:
-		typedef std::unordered_map<UINT, std::pair<UINT, string>> cp_map;
-		const cp_map& get() const;
-
-	private:
-		friend class system_codepages_enumerator;
-
-		mutable cp_map installed_cp;
-	}
-	data;
-};
-
-codepages& Codepages();
 
 //#############################################################################
 
@@ -192,22 +107,6 @@ namespace Utf8 {
 
 //#############################################################################
 
-class F8CP
-{
-public:
-	F8CP(bool viewer=false);
-
-	uintptr_t NextCP(uintptr_t cp) const;
-	const string& NextCPname(uintptr_t cp) const;
-
-private:
-	string m_AcpName, m_OemName, m_UtfName;
-	mutable string m_Number;
-	std::vector<UINT> m_F8CpOrder;
-};
-
-//#############################################################################
-
 class raw_eol
 {
 public:
@@ -236,3 +135,9 @@ template<>
 inline wchar_t raw_eol::cr<wchar_t>() const { return L'\r'; }
 template<>
 inline wchar_t raw_eol::lf<wchar_t>() const { return L'\n'; }
+
+// {Codepage: (MaxCharSize, Name)}
+typedef std::unordered_map<UINT, std::pair<UINT, string>> cp_map;
+const cp_map& InstalledCodepages();
+cp_map::value_type::second_type GetCodePageInfo(UINT cp);
+

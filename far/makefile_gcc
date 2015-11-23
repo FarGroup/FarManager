@@ -21,6 +21,7 @@ SRCS = \
 	clipboard.cpp \
 	cmdline.cpp \
 	codepage.cpp \
+	codepage_selection.cpp \
 	colormix.cpp \
 	components.cpp \
 	config.cpp \

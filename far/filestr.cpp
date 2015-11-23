@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filestr.hpp"
 #include "nsUniversalDetectorEx.hpp"
 #include "config.hpp"
-#include "codepage.hpp"
+#include "codepage_selection.hpp"
 #include "strmix.hpp"
 
 const size_t DELTA = 1024;
@@ -446,6 +446,7 @@ bool GetFileFormat(
 			if (!bDetect && !bPureAscii)
 			{
 				int cp = GetCpUsingUniversalDetector(Buffer.get(), ReadSize);
+				// This whole block shouldn't be here
 				if ( cp >= 0 )
 				{
 					if (Global->Opt->strNoAutoDetectCP.Get() == L"-1")

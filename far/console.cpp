@@ -254,17 +254,28 @@ virtual bool SetMode(HANDLE ConsoleHandle, DWORD Mode) const override
 	return SetConsoleMode(ConsoleHandle, Mode)!=FALSE;
 }
 
+static void AdjustMouseEvents(INPUT_RECORD* Buffer, size_t Length, short Delta, short MaxX)
+{
+	FOR(auto& i, make_range(Buffer, Buffer + Length))
+	{
+		if (i.EventType == MOUSE_EVENT)
+		{
+			i.Event.MouseEvent.dwMousePosition.Y = std::max(0, i.Event.MouseEvent.dwMousePosition.Y - Delta);
+			i.Event.MouseEvent.dwMousePosition.X = std::min(i.Event.MouseEvent.dwMousePosition.X, MaxX);
+		}
+	}
+}
+
 virtual bool PeekInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsRead) const override
 {
 	DWORD dwNumberOfEventsRead = 0;
 	bool Result=PeekConsoleInput(GetInputHandle(), Buffer, static_cast<DWORD>(Length), &dwNumberOfEventsRead)!=FALSE;
 	NumberOfEventsRead = dwNumberOfEventsRead;
-	if(Global->Opt->WindowMode && Buffer->EventType==MOUSE_EVENT)
+	if(Global->Opt->WindowMode)
 	{
-		Buffer->Event.MouseEvent.dwMousePosition.Y=std::max(0, Buffer->Event.MouseEvent.dwMousePosition.Y-GetDelta());
-		COORD Size={};
+		COORD Size = {};
 		GetSize(Size);
-		Buffer->Event.MouseEvent.dwMousePosition.X=std::min(Buffer->Event.MouseEvent.dwMousePosition.X, static_cast<SHORT>(Size.X-1));
+		AdjustMouseEvents(Buffer, NumberOfEventsRead, GetDelta(), Size.X - 1);
 	}
 	return Result;
 }
@@ -276,12 +287,11 @@ virtual bool ReadInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEven
 	if (Result)
 	{
 		NumberOfEventsRead = dwNumberOfEventsRead;
-		if (Global->Opt->WindowMode && Buffer->EventType == MOUSE_EVENT)
+		if (Global->Opt->WindowMode)
 		{
-			Buffer->Event.MouseEvent.dwMousePosition.Y=std::max(0, Buffer->Event.MouseEvent.dwMousePosition.Y-GetDelta());
-			COORD Size={};
+			COORD Size = {};
 			GetSize(Size);
-			Buffer->Event.MouseEvent.dwMousePosition.X=std::min(Buffer->Event.MouseEvent.dwMousePosition.X, static_cast<SHORT>(Size.X-1));
+			AdjustMouseEvents(Buffer, NumberOfEventsRead, GetDelta(), Size.X - 1);
 		}
 	}
 	return Result;
@@ -289,9 +299,17 @@ virtual bool ReadInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEven
 
 virtual bool WriteInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsWritten) const override
 {
-	if(Global->Opt->WindowMode && Buffer->EventType==MOUSE_EVENT)
+	if(Global->Opt->WindowMode)
 	{
-		Buffer->Event.MouseEvent.dwMousePosition.Y+=GetDelta();
+		const auto Delta = GetDelta();
+
+		FOR(auto& i, make_range(Buffer, Buffer + NumberOfEventsWritten))
+		{
+			if (i.EventType == MOUSE_EVENT)
+			{
+				i.Event.MouseEvent.dwMousePosition.Y += Delta;
+			}
+		}
 	}
 	DWORD dwNumberOfEventsWritten = 0;
 	bool Result = WriteConsoleInput(GetInputHandle(), Buffer, static_cast<DWORD>(Length), &dwNumberOfEventsWritten)!=FALSE;

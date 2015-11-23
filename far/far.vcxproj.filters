@@ -858,6 +858,9 @@
     <ClInclude Include="vmenu2.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClCompile Include="codepage_selection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="bootstrap\lang.inc">
@@ -1039,6 +1042,9 @@
     </ClInclude>
     <ClInclude Include="common\compiler.hpp">
       <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="codepage_selection.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

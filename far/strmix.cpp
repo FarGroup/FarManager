@@ -79,8 +79,7 @@ string &FormatNumber(const string& Src, string &strDest, int NumDigits)
 
 string &InsertCommas(unsigned __int64 li,string &strDest)
 {
-	strDest = str_printf(L"%I64u", li);
-	return FormatNumber(strDest,strDest);
+	return FormatNumber(std::to_wstring(li), strDest);
 }
 
 static wchar_t * InsertCustomQuote(wchar_t *Str,wchar_t QuoteChar)

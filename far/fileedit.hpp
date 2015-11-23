@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "editor.hpp"
 #include "plugin.hpp"
 #include "namelist.hpp"
-#include "codepage.hpp"
+#include "codepage_selection.hpp"
 
 // коды возврата Editor::SaveFile()
 enum

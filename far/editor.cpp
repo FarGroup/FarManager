@@ -4995,7 +4995,7 @@ int64_t Editor::GetCurPos(bool file_pos, bool add_bom) const
 		else {
 			string cp_name;
 			UINT cp_maxlen = 0;
-			std::tie(cp_maxlen, cp_name) = Codepages().GetCodePageInfo(m_codepage);
+			std::tie(cp_maxlen, cp_name) = GetCodePageInfo(m_codepage);
 			if (cp_maxlen > 1)
 				mult = -1;
 		}
