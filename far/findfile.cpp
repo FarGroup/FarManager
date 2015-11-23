@@ -687,7 +687,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			favoriteCodePages = Codepages().FillCodePagesList(Dlg, FAD_COMBOBOX_CP, CodePage, true, true, false, false);
 			SetAllCpTitle();
 
-			// Текущее значение в в списке выбора кодовых страниц в общем случае может не совпадать с CodePage,
+			// Текущее значение в списке выбора кодовых страниц в общем случае может не совпадать с CodePage,
 			// так что получаем CodePage из списка выбора
 			FarListPos Position={sizeof(FarListPos)};
 			Dlg->SendMessage( DM_LISTGETCURPOS, FAD_COMBOBOX_CP, &Position);
