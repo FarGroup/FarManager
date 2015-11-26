@@ -303,7 +303,7 @@ virtual bool WriteInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEve
 	{
 		const auto Delta = GetDelta();
 
-		FOR(auto& i, make_range(Buffer, Buffer + NumberOfEventsWritten))
+		FOR(auto& i, make_range(Buffer, Buffer + Length))
 		{
 			if (i.EventType == MOUSE_EVENT)
 			{
