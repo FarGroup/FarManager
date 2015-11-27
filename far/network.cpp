@@ -199,9 +199,9 @@ bool DriveLocalToRemoteName(int DriveType, wchar_t Letter, string &strDest)
 
 	if (IsDriveTypeRemote(DriveType))
 	{
-		DWORD res = os::WNetGetConnection(LocalName,strRemoteName);
+		os::WNetGetConnection(LocalName,strRemoteName);
 
-		if (res == NO_ERROR || res == ERROR_CONNECTION_UNAVAIL)
+		if (!strRemoteName.empty())
 		{
 			NetPathShown=true;
 			IsOK=true;

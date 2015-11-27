@@ -1029,7 +1029,7 @@ DWORD WNetGetConnection(const string& LocalName, string &RemoteName)
 	wchar_t Buffer[MAX_PATH];
 	DWORD Size = ARRAYSIZE(Buffer);
 	auto Result = ::WNetGetConnection(LocalName.data(), Buffer, &Size);
-	if (Result == NO_ERROR)
+	if (Result == NO_ERROR || Result == ERROR_NOT_CONNECTED || Result == ERROR_CONNECTION_UNAVAIL)
 	{
 		RemoteName = Buffer;
 	}
