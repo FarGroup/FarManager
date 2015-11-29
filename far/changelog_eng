@@ -3,6 +3,18 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 27.11.2015 13:40:00 +0200 - build 4461
+
+1. 0003124: Persistent network connections are not restored when started from another account.
+
+drkns 26.11.2015 08:49:29 +0200 - build 4460
+
+1. Correction of 4459.
+
+drkns 23.11.2015 21:40:04 +0200 - build 4459
+
+1. Refactoring.
+
 drkns 21.11.2015 02:26:19 +0200 - build 4458
 
 1. In some cases, selection of words in editor with mouse clicks could create several selection blocks.
