@@ -15,7 +15,7 @@ FarPol.lng Polish "Polish (Polski)"
 FarSpa.lng Spanish "Spanish (Español)"
 FarSky.lng Slovak "Slovak (Slovenčina)"
 FarIta.lng Italian "Italian (Italiano)"
-FarUkrMy.lng Ukrainian "Ukrainian (Українська)"
+FarUkr.lng Ukrainian "Ukrainian (Українська)"
 
 #enum name
 enum:LNGID:int
