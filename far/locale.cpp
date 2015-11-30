@@ -42,13 +42,6 @@ int locale::GetDateFormat()
 	return Result;
 }
 
-int locale::GetFirstDayOfWeek()
-{
-	int Result = 0;
-	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_IFIRSTDAYOFWEEK|LOCALE_RETURN_NUMBER,reinterpret_cast<LPWSTR>(&Result),sizeof(Result)/sizeof(WCHAR));
-	return Result;
-}
-
 wchar_t locale::GetDateSeparator()
 {
 	wchar_t Info[100];
@@ -81,15 +74,15 @@ wchar_t locale::GetThousandSeparator()
 	return *Separator;
 }
 
-string locale::GetValue(LCID lcid, size_t id)
+string locale::GetValue(LCID lcid, LCTYPE id)
 {
 	string Result;
-	wchar_t_ptr Buffer(GetLocaleInfo(lcid, static_cast<DWORD>(id), nullptr, 0));
-	GetLocaleInfo(lcid, static_cast<DWORD>(id), Buffer.get(), static_cast<DWORD>(Buffer.size()));
-	Result.assign(Buffer.get(), Buffer.size() - 1);
-
-	// ???
-	if (!Result.empty())
-		Result[0] = ToUpper(Result[0]);
+	const auto Size = GetLocaleInfo(lcid, id, nullptr, 0);
+	if (Size != 0)
+	{
+		wchar_t_ptr Buffer(Size);
+		GetLocaleInfo(lcid, id, Buffer.get(), Size);
+		Result.assign(Buffer.get(), Size - 1);
+	}
 	return Result;
 }

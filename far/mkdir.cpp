@@ -100,9 +100,9 @@ intptr_t MkDirDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 					InsertQuote(Unquote(strDirName));
 				}
 
-				const auto pDirList = reinterpret_cast<std::vector<string>*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
-				split(*pDirList, strDirName, STLF_UNIQUE);
-				if (pDirList->empty())
+				auto& DirList = *reinterpret_cast<std::vector<string>*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+				split(DirList, strDirName, STLF_UNIQUE);
+				if (DirList.empty())
 				{
 					Message(MSG_WARNING,1,MSG(MWarning),MSG(MIncorrectDirList),MSG(MOk));
 					return FALSE;

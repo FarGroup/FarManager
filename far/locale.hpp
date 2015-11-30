@@ -34,10 +34,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace locale
 {
 	int GetDateFormat();
-	int GetFirstDayOfWeek();
 	wchar_t GetDateSeparator();
 	wchar_t GetTimeSeparator();
 	wchar_t GetDecimalSeparator();
 	wchar_t GetThousandSeparator();
-	string GetValue(LCID lcid, size_t id);
+	string GetValue(LCID lcid, LCTYPE id);
 }

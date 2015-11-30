@@ -2973,7 +2973,6 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 						SelectHelpLanguage();
 						Global->CtrlObject->Plugins->ReloadLanguage();
 						os::env::set_variable(L"FARLANG", strLanguage);
-						PrepareStrFTime();
 						PrepareUnitStr();
 						Global->WindowManager->InitKeyBar();
 						Global->CtrlObject->Cp()->RedrawKeyBar();

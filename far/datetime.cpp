@@ -35,33 +35,108 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "datetime.hpp"
-#include "language.hpp"
 #include "config.hpp"
 #include "strmix.hpp"
 #include "global.hpp"
 #include "imports.hpp"
 #include "locale.hpp"
 
-struct loc_names
+class locale_cache
 {
-	DWORD Locale;
-	string AMonth[12];
-	string AWeekday[7];
-	string Month[12];
-	string Weekday[7];
+public:
+	locale_cache():
+		m_Valid()
+	{
+		init();
+	}
+
+	void Invalidate()
+	{
+		m_Valid = false;
+	}
+
+	struct names
+	{
+		struct name
+		{
+			string Full;
+			string Short;
+		};
+
+		name Months[12];
+		name Weekdays[7];
+	};
+
+	int DateFormat() const { init(); return m_DateFormat; }
+	wchar_t DateSeparator() const { init(); return m_DateSeparator; }
+	wchar_t TimeSeparator() const { init(); return m_TimeSeparator; }
+	wchar_t DecimalSeparator() const { init(); return m_DecimalSeparator; }
+	const names& LocalNames() const { init(); return m_LocalNames; }
+	const names& EnglishNames() const { init(); return m_EnglishNames; }
+	const names& Names(bool Local) const { init(); return Local? m_LocalNames : m_EnglishNames; }
+
+private:
+	void init() const
+	{
+		if (m_Valid)
+		{
+			return;
+		}
+
+		const auto InitNames = [](int Language, names& Names)
+		{
+			// LOCALE_S[ABBREV]DAYNAME<1-7> indexes start from Monday, remap to Sunday to make them compatible with tm::tm_wday
+			static const LCTYPE DayIndexes[] = { LOCALE_SDAYNAME7, LOCALE_SDAYNAME1, LOCALE_SDAYNAME2, LOCALE_SDAYNAME3, LOCALE_SDAYNAME4, LOCALE_SDAYNAME5, LOCALE_SDAYNAME6 };
+			static const LCTYPE ShortDayIndexes[] = { LOCALE_SABBREVDAYNAME7, LOCALE_SABBREVDAYNAME1, LOCALE_SABBREVDAYNAME2, LOCALE_SABBREVDAYNAME3, LOCALE_SABBREVDAYNAME4, LOCALE_SABBREVDAYNAME5, LOCALE_SABBREVDAYNAME6 };
+
+			const LCID CurLCID = MAKELCID(MAKELANGID(Language, SUBLANG_DEFAULT), SORT_DEFAULT);
+
+			for_each_cnt(RANGE(Names.Months, i, size_t index)
+			{
+				i.Full = locale::GetValue(CurLCID, LCTYPE(LOCALE_SMONTHNAME1 + index));
+				i.Short = locale::GetValue(CurLCID, LCTYPE(LOCALE_SABBREVMONTHNAME1 + index));
+			});
+
+			for_each_cnt(RANGE(Names.Weekdays, i, size_t index)
+			{
+				i.Full = locale::GetValue(CurLCID, DayIndexes[index]);
+				i.Short = locale::GetValue(CurLCID, ShortDayIndexes[index]);
+			});
+		};
+
+		InitNames(LANG_NEUTRAL, m_LocalNames);
+		InitNames(LANG_ENGLISH, m_EnglishNames);
+
+		m_DateFormat = locale::GetDateFormat();
+		m_DateSeparator = locale::GetDateSeparator();
+		m_TimeSeparator = locale::GetTimeSeparator();
+		m_DecimalSeparator = locale::GetDecimalSeparator();
+
+		m_Valid = true;
+	}
+
+	mutable names m_LocalNames;
+	mutable names m_EnglishNames;
+	mutable int m_DateFormat;
+	mutable wchar_t m_DateSeparator;
+	mutable wchar_t m_TimeSeparator;
+	mutable wchar_t m_DecimalSeparator;
+
+	mutable bool m_Valid;
 };
 
-static std::array<loc_names, 2>& GetNames()
+locale_cache& LocaleCache()
 {
-	static FN_RETURN_TYPE(GetNames) LocNames =
-	{{
-		{LANG_ENGLISH},
-		{LANG_NEUTRAL},
-	}};
-	return LocNames;
+	static locale_cache sCache;
+	return sCache;
 }
 
-int CurLang=-1,WeekFirst=0;
+static bool IntlInit = false;
+
+void OnIntlSettingsChange()
+{
+	LocaleCache().Invalidate();
+}
 
 DWORD ConvertYearToFull(DWORD ShortYear)
 {
@@ -73,53 +148,21 @@ DWORD ConvertYearToFull(DWORD ShortYear)
 	return (UpperBoundary/100-(ShortYear<UpperBoundary%100?0:1))*100+ShortYear;
 }
 
-
-void PrepareStrFTime()
+static void st_time(string &strDest, const tm *tmPtr, const locale_cache::names& Names, const wchar_t chr)
 {
-	WeekFirst = locale::GetFirstDayOfWeek();
-
-	std::for_each(RANGE(GetNames(), i)
-	{
-		LCID CurLCID=MAKELCID(MAKELANGID(i.Locale, SUBLANG_DEFAULT), SORT_DEFAULT);
-		for_each_cnt(RANGE(i.Month, j, size_t index) { j = locale::GetValue(CurLCID, LOCALE_SMONTHNAME1 + index); });
-		for_each_cnt(RANGE(i.AMonth, j, size_t index) { j = locale::GetValue(CurLCID, LOCALE_SABBREVMONTHNAME1 + index); });
-		for_each_cnt(RANGE(i.Weekday, j, size_t index) { j = locale::GetValue(CurLCID, LOCALE_SDAYNAME1 + index); });
-		for_each_cnt(RANGE(i.AWeekday, j, size_t index) { j = locale::GetValue(CurLCID, LOCALE_SABBREVDAYNAME1 + index); });
-	});
-
-	CurLang=0;
-}
-
-static int atime(string &strDest,const tm *tmPtr)
-{
-	// Thu Oct 07 12:37:32 1999
-	strDest = str_printf(L"%s %s %02d %02d:%02d:%02d %4d",
-	                      GetNames()[CurLang].AWeekday[!WeekFirst?((tmPtr->tm_wday+6)%7):(!(tmPtr->tm_wday)?6:tmPtr->tm_wday-1)].data(),
-	                      GetNames()[CurLang].AMonth[tmPtr->tm_mon].data(),
-	                      tmPtr->tm_mday,
-	                      tmPtr->tm_hour,
-	                      tmPtr->tm_min,
-	                      tmPtr->tm_sec,
-	                      tmPtr->tm_year+1900);
-	return static_cast<int>(strDest.size());
-}
-
-static int st_time(string &strDest,const tm *tmPtr,const wchar_t chr)
-{
-	wchar_t DateSeparator = locale::GetDateSeparator();
+	const auto DateSeparator = LocaleCache().DateSeparator();
 
 	if (chr==L'v')
 	{
-		strDest = str_printf(
-			L"%2d-%3.3s-%4d",
-			std::max(1,std::min(tmPtr->tm_mday,31)),
-			GetNames()[CurLang].AMonth[std::max(0,std::min(tmPtr->tm_mon, 11))].data(),
+		strDest = str_printf(L"%2d-%3.3s-%4d",
+			tmPtr->tm_mday,
+			Names.Months[tmPtr->tm_mon].Short.data(),
 			tmPtr->tm_year+1900);
 
 		ToUpper(strDest, 3, 3);
 	}
 	else
-		switch (locale::GetDateFormat())
+		switch (LocaleCache().DateFormat())
 		{
 			case 0:
 				strDest = str_printf(L"%02d%c%02d%c%4d",
@@ -146,8 +189,6 @@ static int st_time(string &strDest,const tm *tmPtr,const wchar_t chr)
 				                   tmPtr->tm_mday);
 				break;
 		}
-
-	return static_cast<int>(strDest.size());
 }
 
 // weeknumber --- figure how many weeks into the year
@@ -283,11 +324,7 @@ static int iso8601wknum(const tm *timeptr)
 
 string StrFTime(const wchar_t* Format, const tm* t)
 {
-	if (CurLang==-1 && Global && Global->Lang)
-		PrepareStrFTime();
-
-	// меняем язык.
-	CurLang=0;
+	bool IsLocal = false;
 
 	string strDest;
 
@@ -306,33 +343,37 @@ string StrFTime(const wchar_t* Format, const tm* t)
 			switch (*++Format)
 			{
 				case L'L':
-					CurLang=!CurLang;
+					IsLocal = !IsLocal;
 					continue;
 					// Краткое имя дня недели (Sun,Mon,Tue,Wed,Thu,Fri,Sat)
 					// abbreviated weekday name
 				case L'a':
-					strBuf = GetNames()[CurLang].AWeekday[!WeekFirst?((t->tm_wday+6)%7):(!t->tm_wday?6:t->tm_wday-1)];
+					strBuf = LocaleCache().Names(IsLocal).Weekdays[t->tm_wday].Short;
 					break;
 					// Полное имя дня недели
 					// full weekday name
 				case L'A':
-					strBuf = GetNames()[CurLang].Weekday[!WeekFirst?((t->tm_wday+6)%7):(!t->tm_wday?6:t->tm_wday-1)];
+					strBuf = LocaleCache().Names(IsLocal).Weekdays[t->tm_wday].Full;
 					break;
 					// Краткое имя месяца (Jan,Feb,...)
 					// abbreviated month name
 				case L'h':
 				case L'b':
-					strBuf = GetNames()[CurLang].AMonth[t->tm_mon];
+					strBuf = LocaleCache().Names(IsLocal).Months[t->tm_mon].Short;
 					break;
 					// Полное имя месяца
 					// full month name
 				case L'B':
-					strBuf = GetNames()[CurLang].Month[t->tm_mon];
+					strBuf = LocaleCache().Names(IsLocal).Months[t->tm_mon].Full;
 					break;
 					//Дата и время в формате WDay Mnt  Day HH:MM:SS yyyy
 					//appropriate date and time representation
 				case L'c':
-					atime(strBuf,t);
+					// Thu Oct 07 12:37:32 1999
+					strBuf = str_printf(L"%s %s %02d %02d:%02d:%02d %4d",
+						LocaleCache().Names(IsLocal).Weekdays[t->tm_wday].Short.data(),
+						LocaleCache().Names(IsLocal).Months[t->tm_mon].Short.data(),
+						t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec, t->tm_year + 1900);
 					break;
 					// Столетие как десятичное число (00 - 99). Например, 1992 => 19
 				case L'C':
@@ -429,14 +470,14 @@ string StrFTime(const wchar_t* Format, const tm* t)
 					// appropriate date representation
 				case L'D':
 				case L'x':
-					st_time(strBuf,t,*Format);
+					st_time(strBuf, t, LocaleCache().Names(IsLocal), *Format);
 					break;
 					// Время в формате HH:MM:SS
 					// appropriate time representation
 				case L'T':
 				case L'X':
 				{
-					wchar_t TimeSeparator = locale::GetTimeSeparator();
+					const auto TimeSeparator = LocaleCache().TimeSeparator();
 					strBuf = str_printf(L"%02d%c%02d%c%02d",t->tm_hour,TimeSeparator,t->tm_min,TimeSeparator,t->tm_sec);
 					break;
 				}
@@ -583,29 +624,13 @@ void StrToDateTime(const string& CDate, const string& CTime, FILETIME &ft, int D
 	}
 }
 
-static bool IntlInit=false;
-
-void OnIntlSettingsChange()
-{
-	IntlInit = false;
-}
-
 void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int TimeLength,
                  int Brief,int TextMonth,int FullYear)
 {
-	static SYSTEMTIME lt;
-	static int DateFormat;
-	static wchar_t DateSeparator,TimeSeparator,DecimalSeparator;
-
-	if (!IntlInit)
-	{
-		DateFormat = locale::GetDateFormat();
-		DateSeparator = locale::GetDateSeparator();
-		TimeSeparator = locale::GetTimeSeparator();
-		DecimalSeparator = locale::GetDecimalSeparator();
-		GetLocalTime(&lt);
-		IntlInit = true;
-	}
+	const auto DateFormat = LocaleCache().DateFormat();
+	const auto DateSeparator = LocaleCache().DateSeparator();
+	const auto TimeSeparator = LocaleCache().TimeSeparator();
+	const auto DecimalSeparator = LocaleCache().DecimalSeparator();
 
 	int CurDateFormat=DateFormat;
 
@@ -655,7 +680,7 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 
 		if (TextMonth)
 		{
-			const wchar_t *Mnth=MSG(MMonthJan+(st.wMonth-1));
+			const auto Mnth = LocaleCache().LocalNames().Months[st.wMonth - 1].Short.data();
 
 			switch (CurDateFormat)
 			{
@@ -702,6 +727,9 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 	{
 		strDateText.resize(TextMonth ? 6 : 5);
 
+		SYSTEMTIME lt;
+		GetLocalTime(&lt);
+
 		if (lt.wYear!=st.wYear)
 			strTimeText = str_printf(L"%5d",st.wYear);
 	}
@@ -718,7 +746,7 @@ void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeT
 	UINT64 d = time/=24;
 
 	strDaysText = std::to_wstring(d);
-	strTimeText = FormatString() << fmt::MinWidth(2) << fmt::FillChar(L'0') << h << locale::GetTimeSeparator() << fmt::MinWidth(2) << fmt::FillChar(L'0') << m << locale::GetTimeSeparator() << fmt::MinWidth(2) << fmt::FillChar(L'0') << s << locale::GetDecimalSeparator() << fmt::MinWidth(3) << fmt::FillChar(L'0') << ms;
+	strTimeText = FormatString() << fmt::MinWidth(2) << fmt::FillChar(L'0') << h << LocaleCache().TimeSeparator() << fmt::MinWidth(2) << fmt::FillChar(L'0') << m << LocaleCache().TimeSeparator() << fmt::MinWidth(2) << fmt::FillChar(L'0') << s << LocaleCache().DecimalSeparator() << fmt::MinWidth(3) << fmt::FillChar(L'0') << ms;
 }
 
 bool Utc2Local(const FILETIME &ft, SYSTEMTIME &lst)
@@ -750,13 +778,13 @@ static inline bool local_to_utc(const SYSTEMTIME &lst, SYSTEMTIME &ust)
 		ltm.tm_hour = lst.wHour;
 		ltm.tm_min  = lst.wMinute;
 		ltm.tm_sec  = lst.wSecond;
-		ltm.tm_wday = lst.wDay;
-		ltm.tm_yday = ltm.tm_isdst = -1;
+		ltm.tm_wday = lst.wDayOfWeek;
+		ltm.tm_yday = -1;
+		ltm.tm_isdst = -1;
 		time_t gtim = mktime(&ltm);
 		if (gtim != (time_t)-1)
 		{
-			tm *ptm = gmtime(&gtim);
-			if (ptm)
+			if (const auto ptm = gmtime(&gtim))
 			{
 				ust.wYear   = ptm->tm_year + 1900;
 				ust.wMonth  = ptm->tm_mon + 1;

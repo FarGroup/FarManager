@@ -42,7 +42,6 @@ void StrToDateTime(const string& CDate, const string& CTime, FILETIME &ft, int D
 void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int TimeLength, int Brief=FALSE,int TextMonth=FALSE,int FullYear=0);
 void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeText);
 
-void PrepareStrFTime();
 string StrFTime(const wchar_t* Format, const tm* t);
 string MkStrFTime(const wchar_t* Format = nullptr);
 
