@@ -175,6 +175,12 @@
         <Feature Id="Slovak" Level="2" Title="!(loc.Feature.Title.Slovak)" AllowAdvertise="no">
           <ComponentRef Id="FarSky.lng" />
         </Feature>
+        <Feature Id="Italian" Level="2" Title="!(loc.Feature.Title.Italian)" AllowAdvertise="no">
+          <ComponentRef Id="FarIta.lng" />
+        </Feature>
+        <Feature Id="Ukrainian" Level="2" Title="!(loc.Feature.Title.Ukrainian)" AllowAdvertise="no">
+          <ComponentRef Id="FarUkr.lng" />
+        </Feature>
       </Feature>
       <Feature Id="FarShortcuts" Level="1" Title="!(loc.Feature.Title.FarShortcuts)" AllowAdvertise="no">
         <Feature Id="FarProgramsShortcut" Level="1" Title="!(loc.Feature.Title.FarProgramsShortcut)" AllowAdvertise="no">
