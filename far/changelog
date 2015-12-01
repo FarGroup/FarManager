@@ -1,4 +1,8 @@
-﻿drkns 30.11.2015 22:18:30 +0200 - build 4462
+﻿drkns 01.12.2015 20:24:11 +0200 - build 4463
+
+1. Вернём workaround для бага в kernel32::GetFinalPathNameByHandleW, потерянный в 2155.
+
+drkns 30.11.2015 22:18:30 +0200 - build 4462
 
 1. Рефакторинг.
 

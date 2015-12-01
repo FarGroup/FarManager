@@ -1528,20 +1528,37 @@ bool GetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 {
 	if (Imports().GetFinalPathNameByHandleW)
 	{
-		wchar_t Buffer[MAX_PATH];
-		size_t Size = Imports().GetFinalPathNameByHandle(hFile, Buffer, ARRAYSIZE(Buffer), VOLUME_NAME_GUID);
-		if (Size < ARRAYSIZE(Buffer))
+		const auto GetFinalPathNameByHandleGuarded = [](HANDLE File, wchar_t* Buffer, DWORD Size, DWORD Flags) -> DWORD
 		{
-			FinalFilePath.assign(Buffer, Size);
-		}
-		else
-		{
-			wchar_t_ptr vBuffer(Size);
-			Size = Imports().GetFinalPathNameByHandle(hFile, vBuffer.get(), static_cast<DWORD>(vBuffer.size()), VOLUME_NAME_GUID);
-			FinalFilePath.assign(vBuffer.get(), Size);
-		}
+			try
+			{
+				// It seems that Microsoft has forgotten to put an exception handler around this function.
+				// It causes EXCEPTION_ACCESS_VIOLATION (read from 0) in kernel32 under certain conditions,
+				// e.g. badly written file system drivers or weirdly formatted volumes.
+				return Imports().GetFinalPathNameByHandle(File, Buffer, Size, Flags);
+			}
+			catch (const SException& e)
+			{
+				SetLastError(ERROR_UNHANDLED_EXCEPTION);
+				return 0;
+			}
+		};
 
-		return Size != 0;
+		wchar_t Buffer[MAX_PATH];
+		if (size_t Size = GetFinalPathNameByHandleGuarded(hFile, Buffer, ARRAYSIZE(Buffer), VOLUME_NAME_GUID))
+		{
+			if (Size < ARRAYSIZE(Buffer))
+			{
+				FinalFilePath.assign(Buffer, Size);
+			}
+			else
+			{
+				wchar_t_ptr vBuffer(Size);
+				Size = GetFinalPathNameByHandleGuarded(hFile, vBuffer.get(), static_cast<DWORD>(vBuffer.size()), VOLUME_NAME_GUID);
+				FinalFilePath.assign(vBuffer.get(), Size);
+			}
+			return Size != 0;
+		}
 	}
 
 	return internalNtQueryGetFinalPathNameByHandle(hFile, FinalFilePath);
