@@ -89,6 +89,14 @@ inline void clear_and_shrink(T& container)
 	T().swap(container);
 }
 
+template<class T>
+inline void node_swap(T& Container, const typename T::const_iterator& a, const typename T::const_iterator& b)
+{
+	const auto NextA = std::next(a), NextB = std::next(b);
+	Container.splice(NextA, Container, b);
+	Container.splice(NextB, Container, a);
+}
+
 template <typename T>
 bool CheckNullOrStructSize(const T* s) {return !s || (s->StructSize >= sizeof(T));}
 template <typename T>

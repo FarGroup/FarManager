@@ -573,14 +573,12 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		int ReturnCode=1;
 
 		FillUserMenu(*UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
-		ITERATOR(Menu)* CurrentMenuItem;
+
 		ExitCode=UserMenu->Run([&](const Manager::Key& RawKey)->int
 		{
 			const auto Key=RawKey.FarKey();
 			MenuPos=UserMenu->GetSelectPos();
-			{
-				CurrentMenuItem = UserMenu->GetUserDataPtr<ITERATOR(Menu)>(MenuPos);
-			}
+			const auto CurrentMenuItem = UserMenu->GetUserDataPtr<ITERATOR(Menu)>(MenuPos);
 			if (Key==KEY_SHIFTF1)
 			{
 				UserMenu->Key(KEY_F1);
@@ -611,7 +609,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				case KEY_RIGHT:
 				case KEY_NUMPAD6:
 				case KEY_MSWHEEL_RIGHT:
-					if (CurrentMenuItem && (*CurrentMenuItem)->Submenu)
+					if (!UserMenu->empty() && (*CurrentMenuItem)->Submenu)
 						UserMenu->Close(MenuPos);
 					break;
 
@@ -624,10 +622,10 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 
 				case KEY_NUMDEL:
 				case KEY_DEL:
-					if (CurrentMenuItem)
+					if (!UserMenu->empty())
 					{
 						DeleteMenuRecord(Menu, *CurrentMenuItem);
-						FillUserMenu(*UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
+						FillUserMenu(*UserMenu, Menu, MenuPos, FuncPos, strName, strShortName);
 					}
 					break;
 
@@ -637,7 +635,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				case KEY_NUMPAD0:
 				{
 					bool bNew = Key == KEY_INS || Key == KEY_NUMPAD0;
-					if (!bNew && !CurrentMenuItem)
+					if (!bNew && UserMenu->empty())
 						break;
 
 					EditMenu(Menu, CurrentMenuItem, bNew);
@@ -651,26 +649,27 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				case KEY_RCTRLDOWN:
 				{
 
-					if (CurrentMenuItem)
+					if (!UserMenu->empty())
 					{
 						int Pos=UserMenu->GetSelectPos();
 						if (!((Key == KEY_CTRLUP || Key == KEY_RCTRLUP) && !Pos) && !((Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN) && Pos == static_cast<int>(UserMenu->size() - 1)))
 						{
 							m_MenuModified = true;
 							auto Other = *CurrentMenuItem;
+
 							if (Key==KEY_CTRLUP || Key==KEY_RCTRLUP)
 							{
 								--Other;
 								--MenuPos;
-								Menu.splice(Other, Menu, *CurrentMenuItem);
 							}
 							else
 							{
 								++Other;
 								++MenuPos;
-								Menu.splice(*CurrentMenuItem, Menu, Other);
 							}
-							FillUserMenu(*UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
+							node_swap(Menu, *CurrentMenuItem, Other);
+
+							FillUserMenu(*UserMenu, Menu, MenuPos, FuncPos, strName, strShortName);
 						}
 					}
 				}
@@ -729,28 +728,19 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					}
 
 				default:
-
 					KeyProcessed = 0;
-
-					if (MenuPos!=UserMenu->GetSelectPos())
-					{
-						MenuPos=UserMenu->GetSelectPos();
-						CurrentMenuItem = UserMenu->GetUserDataPtr<ITERATOR(Menu)>(MenuPos);
-					}
-			} // switch(Key)
+					break;
+			}
 			return KeyProcessed;
 		});
 
 		if (ReturnCode!=1)
 			return ReturnCode;
 
-		if (ExitCode < 0 || !CurrentMenuItem)
+		if (ExitCode < 0 || UserMenu->empty())
 			return EC_CLOSE_LEVEL; //  вверх на один уровень
 
-		CurrentMenuItem = UserMenu->GetUserDataPtr<ITERATOR(Menu)>(MenuPos);
-
-		if (!CurrentMenuItem)
-			return EC_CLOSE_LEVEL; //  вверх на один уровень
+		const auto CurrentMenuItem = UserMenu->GetUserDataPtr<ITERATOR(Menu)>(UserMenu->GetSelectPos());
 
 		if ((*CurrentMenuItem)->Submenu)
 		{

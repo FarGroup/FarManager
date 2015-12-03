@@ -1,4 +1,12 @@
-﻿drkns 01.12.2015 20:24:11 +0200 - build 4463
+﻿drkns 04.12.2015 00:24:07 +0200 - build 4464
+
+1. Рефакторинг.
+
+2. Warnings.
+
+3. GCC build fix.
+
+drkns 01.12.2015 20:24:11 +0200 - build 4463
 
 1. Вернём workaround для бага в kernel32::GetFinalPathNameByHandleW, потерянный в 2155.
 

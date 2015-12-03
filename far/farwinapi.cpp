@@ -1537,7 +1537,7 @@ bool GetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 				// e.g. badly written file system drivers or weirdly formatted volumes.
 				return Imports().GetFinalPathNameByHandle(File, Buffer, Size, Flags);
 			}
-			catch (const SException& e)
+			catch (const SException&)
 			{
 				SetLastError(ERROR_UNHANDLED_EXCEPTION);
 				return 0;

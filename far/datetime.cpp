@@ -131,8 +131,6 @@ locale_cache& LocaleCache()
 	return sCache;
 }
 
-static bool IntlInit = false;
-
 void OnIntlSettingsChange()
 {
 	LocaleCache().Invalidate();

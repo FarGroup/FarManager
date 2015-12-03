@@ -709,3 +709,8 @@ EXTERN_C NET_API_STATUS NET_API_FUNCTION NetDfsGetInfo(LPWSTR DfsEntryPath, LPWS
 #ifndef WC_ERR_INVALID_CHARS
 #define WC_ERR_INVALID_CHARS      0x00000080  // error for invalid chars
 #endif
+
+//winerror.h
+#ifndef ERROR_UNHANDLED_EXCEPTION
+#define ERROR_UNHANDLED_EXCEPTION 574L
+#endif
