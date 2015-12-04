@@ -136,6 +136,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <ForcedIncludeFiles>disabled_warnings.hpp</ForcedIncludeFiles>
       <PreprocessorDefinitions>NDEBUG;_UNICODE;UNICODE;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;_CRT_STDIO_LEGACY_WIDE_SPECIFIERS;FAR_USE_INTERNALS;FAR_ALPHA_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WholeProgramOptimization>true</WholeProgramOptimization>
+      <EnableEnhancedInstructionSet Condition="'$(VisualStudioVersion)' > '10.0'">NoExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -237,6 +238,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <DisableSpecificDiagnostics>869,3280</DisableSpecificDiagnostics>
       <SmallerTypeCheck>true</SmallerTypeCheck>
       <ForcedIncludeFiles>disabled_warnings.hpp</ForcedIncludeFiles>
+      <EnableEnhancedInstructionSet Condition="'$(VisualStudioVersion)' > '10.0'">NoExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>

@@ -315,6 +315,10 @@ LINKFLAGS=$(LINKFLAGS) /machine:ARM
 !endif
 
 # compiler-specific
+!if $(VC) >= 11 && defined (X86)
+CPPFLAG1=$(CPPFLAG1) /arch:IA32
+!endif
+
 !if $(VC) >= 14
 FIXCRT_CPPFLAGS = /Zc:threadSafeInit-
 !endif
