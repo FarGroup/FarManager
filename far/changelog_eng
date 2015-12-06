@@ -3,6 +3,24 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 04.12.2015 00:24:07 +0200 - build 4464
+
+1. Refactoring.
+
+2. Warnings.
+
+3. GCC build fix.
+
+drkns 01.12.2015 20:24:11 +0200 - build 4463
+
+1. Return the workaround for a bug in kernel32::GetFinalPathNameByHandleW lost in 2155.
+
+drkns 30.11.2015 22:18:30 +0200 - build 4462
+
+1. Refactoring.
+
+2. Ukrainian translation from Vlad Lozynskyi.
+
 drkns 27.11.2015 13:40:00 +0200 - build 4461
 
 1. 0003124: Persistent network connections are not restored when started from another account.
