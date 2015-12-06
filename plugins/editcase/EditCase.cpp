@@ -2,7 +2,8 @@
 // or current (nearest) word in the internal editor.
 // This plugin can change case to: lower case, Title Case, UPPER CASE and tOGGLE cASE
 // Besides, it has ability of cyclic case change like MS Word by ShiftF3
-#include <CRT/crt.hpp>
+#include <algorithm>
+#include <wchar.h>
 #include <plugin.hpp>
 #include <PluginSettings.hpp>
 #include "EditLng.hpp"
@@ -16,25 +17,6 @@
 #define MAXINT INT_MAX
 #else
 #include <values.h> //MAXINT
-#endif
-
-#if defined(__GNUC__)
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-	BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
-#ifdef __cplusplus
-};
-#endif
-
-BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
-{
-	(void) lpReserved;
-	(void) dwReason;
-	(void) hDll;
-	return TRUE;
-}
 #endif
 
 static struct PluginStartupInfo Info;
@@ -337,10 +319,10 @@ bool FindBounds(wchar_t *Str, intptr_t Len, intptr_t Pos, intptr_t &Start, intpt
 	// If line isn't empty
 	if (Len>Start)
 	{
-		End=Min(End,Len);
+		End = std::min(End,Len);
 		// Pos between [Start, End] ?
-		Pos=Max(Pos,Start);
-		Pos=Min(End,Pos);
+		Pos = std::max(Pos,Start);
+		Pos = std::min(End,Pos);
 
 		// If current character is non letter
 		if (!MyIsAlpha(Str[Pos]))
@@ -369,7 +351,7 @@ bool FindBounds(wchar_t *Str, intptr_t Len, intptr_t Pos, intptr_t &Start, intpt
 			// Here r is left radius and i is right radius
 
 			// If no letters was found
-			if (Min(r,i)!=MAXINT)
+			if (std::min(r,i) != MAXINT)
 			{
 				// What radius is less? Left?
 				if (r <= i)
@@ -483,10 +465,10 @@ int GetNextCCType(wchar_t *Str, intptr_t StrLen, intptr_t Start, intptr_t End)
 {
 	intptr_t SignalWordStart=Start,
 	                    SignalWordEnd=End;
-	intptr_t SignalWordLen=Max(Start,End);
+	intptr_t SignalWordLen = std::max(Start,End);
 	// Default conversion is to lower case
 	int CCType=CCLower;
-	Start=Min(Start,End);
+	Start = std::min(Start,End);
 	End=SignalWordLen;
 
 	if (StrLen<Start)

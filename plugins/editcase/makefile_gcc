@@ -1,3 +1,7 @@
+NEEDENTRY = 1
+NEEDDEFLIB = 1
+EXCLUDECRT = 1
+
 NAME = EditCase
 SRCS = EditCase.cpp
 DOCS = ECaseEng.hlf ECaseRus.hlf ECaseEng.lng ECaseRus.lng ECaseSky.lng ECaseSpa.lng
