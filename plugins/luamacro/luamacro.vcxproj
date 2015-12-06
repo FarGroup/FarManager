@@ -1,10 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Itanium">
-      <Configuration>Debug</Configuration>
-      <Platform>Itanium</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
@@ -12,10 +8,6 @@
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|Itanium">
-      <Configuration>Release</Configuration>
-      <Platform>Itanium</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
@@ -42,11 +34,6 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
@@ -54,12 +41,6 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -77,16 +58,10 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -104,13 +79,6 @@
     <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">
-    <LinkIncremental>false</LinkIncremental>
-    <OutDir>debug.IA64W.vc\</OutDir>
-    <IntDir>debug.IA64W.vc\obj\</IntDir>
-    <EmbedManifest>false</EmbedManifest>
-    <GenerateManifest>false</GenerateManifest>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IntDir>final.32W.vc\obj\</IntDir>
@@ -122,13 +90,6 @@
     <LinkIncremental>false</LinkIncremental>
     <OutDir>final.64W.vc\</OutDir>
     <IntDir>final.64W.vc\obj\</IntDir>
-    <EmbedManifest>false</EmbedManifest>
-    <GenerateManifest>false</GenerateManifest>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">
-    <LinkIncremental>false</LinkIncremental>
-    <OutDir>final.IA64W.vc\</OutDir>
-    <IntDir>final.IA64W.vc\obj\</IntDir>
     <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
@@ -186,41 +147,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>lua51.lib;luafar3.lib;kernel32.lib;user32.lib;advapi32.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>../../unicode_far/Debug.64.vc;luasdk/64</AdditionalLibraryDirectories>
-      <GenerateMapFile>true</GenerateMapFile>
-      <ModuleDefinitionFile>luamacroW.vc.def</ModuleDefinitionFile>
-    </Link>
-    <Manifest>
-      <GenerateCategoryTags>false</GenerateCategoryTags>
-    </Manifest>
-    <ResourceCompile>
-      <AdditionalIncludeDirectories>../common/unicode</AdditionalIncludeDirectories>
-    </ResourceCompile>
-    <PostBuildEvent>
-      <Command>@for %%s in (_globalinfo.lua api.lua farapi.lua lang.lua luamacro.lua macrotest.lua mbrowser.lua panelsort.lua utils.lua winapi.lua moonscript.lua keymacro.lua lm_eng.lng lm_rus.lng lm_sky.lng lm_spa.lng luamacro.example.ini) do @copy /y %%s $(OutDir) 1&gt;nul</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Message>copy .lua scripts</Message>
-    </PostBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">
-    <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>EXPORT_OPEN;EXPORT_EXITFAR;EXPORT_PROCESSEDITOREVENT;EXPORT_PROCESSEDITORINPUT;EXPORT_PROCESSCONSOLEINPUT;EXPORT_PROCESSVIEWEREVENT;EXPORT_PROCESSDIALOGEVENT;EXPORT_CONFIGURE;RUN_LUAFAR_INIT;WIN32;_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../common/unicode;luasdk/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <MinimalRebuild>false</MinimalRebuild>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <CallingConvention>Cdecl</CallingConvention>
-      <CompileAs>Default</CompileAs>
-    </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>lua51.lib;luafar3.lib;kernel32.lib;user32.lib;advapi32.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\unicode_far\Debug.IA64.vc;luasdk/IA64</AdditionalLibraryDirectories>
       <GenerateMapFile>true</GenerateMapFile>
       <ModuleDefinitionFile>luamacroW.vc.def</ModuleDefinitionFile>
     </Link>
@@ -313,50 +239,10 @@
       <Message>copy .lua scripts</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>EXPORT_OPEN;EXPORT_EXITFAR;EXPORT_PROCESSEDITOREVENT;EXPORT_PROCESSEDITORINPUT;EXPORT_PROCESSCONSOLEINPUT;EXPORT_PROCESSVIEWEREVENT;EXPORT_PROCESSDIALOGEVENT;EXPORT_CONFIGURE;RUN_LUAFAR_INIT;WIN32;NDEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../common/unicode;luasdk/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
-      <MinimalRebuild>false</MinimalRebuild>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <CallingConvention>Cdecl</CallingConvention>
-      <CompileAs>Default</CompileAs>
-    </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>lua51.lib;luafar3.lib;kernel32.lib;user32.lib;advapi32.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\unicode_far\Release.IA64.vc;luasdk/IA64</AdditionalLibraryDirectories>
-      <GenerateMapFile>true</GenerateMapFile>
-      <ModuleDefinitionFile>luamacroW.vc.def</ModuleDefinitionFile>
-    </Link>
-    <Manifest>
-      <GenerateCategoryTags>false</GenerateCategoryTags>
-    </Manifest>
-    <ResourceCompile>
-      <AdditionalIncludeDirectories>../common/unicode</AdditionalIncludeDirectories>
-    </ResourceCompile>
-    <PostBuildEvent>
-      <Command>@for %%s in (_globalinfo.lua api.lua farapi.lua lang.lua luamacro.lua macrotest.lua mbrowser.lua panelsort.lua utils.lua winapi.lua moonscript.lua keymacro.lua lm_eng.lng lm_rus.lng lm_sky.lng lm_spa.lng luamacro.example.ini) do @copy /y %%s $(OutDir) 1&gt;nul</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Message>copy .lua scripts</Message>
-    </PostBuildEvent>
-  </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\common\vc_crt_fix_impl.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="luafar\luaplug.c" />
   </ItemGroup>
@@ -371,8 +257,6 @@
     <MASM Include="..\common\vc_crt_fix.asm">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">true</ExcludedFromBuild>
     </MASM>
   </ItemGroup>
   <ItemGroup>
@@ -386,18 +270,12 @@
   <ItemGroup>
     <None Include="luamacroW.vc.def" />
     <CustomBuild Include="lm_eng.lng">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Copying %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">copy %(Identity) $(OutDir)</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Copying %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Copying %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Copying %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">copy %(Identity) $(OutDir)</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copying %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
@@ -406,18 +284,12 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="lm_rus.lng">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Copying %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">copy %(Identity) $(OutDir)</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Copying %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Copying %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Copying %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">copy %(Identity) $(OutDir)</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copying %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
@@ -426,18 +298,12 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="lm_sky.lng">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Copying %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">copy %(Identity) $(OutDir)</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Copying %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Copying %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Copying %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">copy %(Identity) $(OutDir)</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copying %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
@@ -446,18 +312,12 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="lm_spa.lng">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Copying %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">copy %(Identity) $(OutDir)</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Copying %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Copying %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Copying %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">copy %(Identity) $(OutDir)</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copying %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
