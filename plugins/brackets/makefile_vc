@@ -5,11 +5,9 @@ LINK_OBJS = $(OBJDIR)\Brackets.obj
 
 DOCS = BrackEng.hlf BrackRus.hlf BrackEng.lng BrackRus.lng BrackSky.lng BrackSpa.lng Brackets.lua
 
-!if "$(BUILD_PLATFORM)" == "X86"
 NEEDENTRY = 1
 NEEDDEFLIB = 1
 EXCLUDECRT = 1
-!endif
 
 !include ..\makefile_vc_def_inc
 

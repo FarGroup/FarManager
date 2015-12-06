@@ -1,3 +1,4 @@
+﻿#include <algorithm>
 #include <plugin.hpp>
 #include <PluginSettings.hpp>
 #include <DlgBuilder.hpp>
@@ -6,24 +7,6 @@
 #include "version.hpp"
 #include <initguid.h>
 #include "guid.hpp"
-
-#if defined(__GNUC__)
-#ifdef __cplusplus
-extern "C" {
-#endif
-	BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
-#ifdef __cplusplus
-};
-#endif
-
-BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
-{
-	(void) lpReserved;
-	(void) dwReason;
-	(void) hDll;
-	return TRUE;
-}
-#endif
 
 static struct Options Opt;
 static struct PluginStartupInfo Info;
@@ -562,9 +545,9 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		if(isSelect)
 		{
 			es.BlockType=BTYPE_STREAM;
-			es.BlockStartLine = min(esp.CurLine,espo.CurLine);
+			es.BlockStartLine = std::min(esp.CurLine,espo.CurLine);
 			es.BlockStartPos=(Direction > 0?espo.CurPos:esp.CurPos);
-			es.BlockHeight = max(esp.CurLine,espo.CurLine)- min(esp.CurLine,espo.CurLine)+1;
+			es.BlockHeight = std::max(esp.CurLine,espo.CurLine)- std::min(esp.CurLine,espo.CurLine)+1;
 
 			if(Direction > 0)
 				es.BlockWidth=esp.CurPos-espo.CurPos+1;

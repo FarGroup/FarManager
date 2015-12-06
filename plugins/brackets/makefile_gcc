@@ -1,3 +1,7 @@
+NEEDENTRY = 1
+NEEDDEFLIB = 1
+EXCLUDECRT = 1
+
 NAME = Brackets
 SRCS = Brackets.cpp
 DOCS = BrackEng.hlf BrackRus.hlf BrackEng.lng BrackRus.lng BrackSky.lng BrackSpa.lng Brackets.lua
