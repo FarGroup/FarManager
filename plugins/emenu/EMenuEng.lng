@@ -22,8 +22,6 @@
 "&2. Text menu"
 "file(s)"
 "folder(s)"
-"-- owner drawn --"
-"-- bitmap --"
 "Can't show the menu because files come from different folders."
 "Can't show the menu."
 "Can't invoke menu command."

@@ -1,3 +1,9 @@
+drkns 06.12.2015 02:51:02 +0200 - build 62
+
+1. 0003126: Context menu items with icons only say "-- bitmap --"
+   Теперь вместо "-- owner drawn --" и "-- bitmap --" будет нормальный текст.
+   Всего 16 лет, как появилась техническая возможность, да.
+
 svs 07.07.2014 13:57:19 +0400 - build 61
 
 1. Добавлена обработка OPEN_RIGHTDISKMENU

@@ -22,8 +22,6 @@
 "&2. Menú Texto"
 "archivo(s)"
 "carpeta(s)"
-"-- owner drawn --"
-"-- bitmap --"
 "No se puede mostrar el menú porque archivos vienen de carpetas diferentes."
 "No se puede mostrar el menú."
 "No se puede invocar comando de menú."
