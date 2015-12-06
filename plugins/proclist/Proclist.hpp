@@ -1,4 +1,5 @@
-#include <CRT/crt.hpp>
+#define _CRT_NON_CONFORMING_WCSTOK
+
 #include <stdio.h>
 #include <plugin.hpp>
 

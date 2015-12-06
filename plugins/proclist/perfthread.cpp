@@ -1,4 +1,3 @@
-#include <CRT/crt.hpp>
 #include <stddef.h>
 #include <stdlib.h>
 #include "Proclist.hpp"
@@ -59,7 +58,7 @@ static int getcounter(wchar_t*p)
 {
 	wchar_t* p2;
 
-	for (p2=p-2; _istdigit(*p2); p2--) ;
+	for (p2=p-2; iswdigit(*p2); p2--) ;
 
 	return FSF.atoi(p2+1);
 }

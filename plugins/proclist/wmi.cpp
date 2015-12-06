@@ -1,4 +1,3 @@
-#include <CRT/crt.hpp>
 #include <objbase.h>
 #include <wbemidl.h>
 #include "Proclist.hpp"
@@ -252,7 +251,7 @@ bool WMIConnection::Connect(LPCTSTR pMachineName, LPCTSTR pUser, LPCTSTR pPasswo
 	                             (LPVOID *) &pIWbemLocator)) == S_OK)
 	{
 		if (!pMachineName || !*pMachineName)
-			pMachineName = _T(".");
+			pMachineName = L".";
 
 		if (NORM_M_PREFIX(pMachineName))
 			pMachineName += 2;

@@ -1,3 +1,5 @@
+#define _CRT_NON_CONFORMING_WCSTOK
+#include <wchar.h>
 #include "Proclist.hpp"
 #include "perfthread.hpp"
 #include "Proclng.hpp"
@@ -22,7 +24,7 @@ class StrTok
 
 	public:
 		operator wchar_t*() { return ptr; }
-		void operator ++ () { ptr = _tcstok(NULL, tok); }
+		void operator ++ () { ptr = wcstok(NULL, tok); }
 		operator bool() { return ptr!=NULL; }
 };
 
@@ -65,7 +67,7 @@ static void ui64toa_width(unsigned __int64 value, wchar_t* buf, unsigned width, 
 		}
 	}
 
-	_ui64tot(value, buf, 10);
+	_ui64tow(value, buf, 10);
 	lstrcat(buf,pSuffix);
 }
 
@@ -259,7 +261,7 @@ bool Plist::TranslateMode(LPCTSTR src, LPTSTR dest)
 						if (*src<L'0' || *src>L'9')
 							return false;
 
-						_tcstol(src,&endptr,10);
+						wcstol(src,&endptr,10);
 
 						if (endptr==src) return false;
 
@@ -356,7 +358,7 @@ static void GenerateTitles(wchar_t ProcPanelModes[][MAX_MODE_STR],PanelMode* Pan
 								{
 									id = Counters[n].idCol;
 
-									if (_tcspbrk(&tok[1], L"Ss") && CANBE_PERSEC(n))
+									if (wcspbrk(&tok[1], L"Ss") && CANBE_PERSEC(n))
 										++id;
 								}
 
@@ -490,7 +492,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,size_t &ItemsNumber,OPERATIO
 
 	if (!*HostName)
 	{
-		wchar_t* p = _tcschr(ProcPanelModes[pi.ViewMode], L'Z');
+		wchar_t* p = wcschr(ProcPanelModes[pi.ViewMode], L'Z');
 
 		if (p)
 			cDescMode = p[1];
@@ -627,10 +629,10 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,size_t &ItemsNumber,OPERATIO
 							{
 								iCounter = FSF.atoi(&tok[1]);
 
-								if (_tcspbrk(&tok[1], L"Ss") && CANBE_PERSEC(iCounter))
+								if (wcspbrk(&tok[1], L"Ss") && CANBE_PERSEC(iCounter))
 									bPerSec = true;
 
-								if (_tcspbrk(&tok[1], L"Tt"))
+								if (wcspbrk(&tok[1], L"Tt"))
 									bThousands = true;
 							}
 					}
@@ -724,17 +726,17 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST 
 		if (!(OpMode&0x10000))
 		{
 			FSF.AddEndSlash(FileName);
-			_tcsncat(FileName,CurItem.FileName,ARRAYSIZE(FileName)-lstrlen(FileName)-1);
-			_tcsncat(FileName,L".txt",ARRAYSIZE(FileName)-lstrlen(FileName)-1);
+			wcsncat(FileName,CurItem.FileName,ARRAYSIZE(FileName)-lstrlen(FileName)-1);
+			wcsncat(FileName,L".txt",ARRAYSIZE(FileName)-lstrlen(FileName)-1);
 		}
 
 		// Replace "invalid" chars by underscores
-		wchar_t* pname = _tcsrchr(FileName, L'\\');
+		wchar_t* pname = wcsrchr(FileName, L'\\');
 		if (!pname) pname = FileName; else pname++;
 
 		for (; *pname; pname++)
 		{
-			if (_tcschr(invalid_chars, *pname) || *pname < L' ')
+			if (wcschr(invalid_chars, *pname) || *pname < L' ')
 				*pname = L'_';
 		}
 
@@ -1057,7 +1059,7 @@ int Plist::ProcessEvent(intptr_t Event,void *Param)
 
 	if (Event==FE_CHANGEVIEWMODE)
 	{
-		if (/*pPerfThread || */_tcschr((wchar_t*)Param,L'Z') || _tcschr((wchar_t*)Param,L'C'))
+		if (/*pPerfThread || */wcschr((wchar_t*)Param,L'Z') || wcschr((wchar_t*)Param,L'C'))
 			Reread();
 	}
 
@@ -1083,7 +1085,7 @@ void Plist::PutToCmdLine(wchar_t* tmp)
 	unsigned l = lstrlen(tmp);
 	wchar_t* tmp1 = 0;
 
-	if (_tcscspn(tmp,L" &^")!=l)
+	if (wcscspn(tmp,L" &^")!=l)
 	{
 		tmp1 = new wchar_t[l+3];
 		memcpy(tmp1+1,tmp,l*sizeof(wchar_t));

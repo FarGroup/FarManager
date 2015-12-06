@@ -62,9 +62,9 @@ int WinError(wchar_t* pSourceModule)
 				break;
 			}
 
-	items[1] = _tcstok(lpMsgBuf,L"\r\n");
+	items[1] = wcstok(lpMsgBuf,L"\r\n");
 
-	items[2] = _tcstok(NULL,L"\r\n");
+	items[2] = wcstok(NULL,L"\r\n");
 
 	if (!items[2])
 		items[2] = items[3];

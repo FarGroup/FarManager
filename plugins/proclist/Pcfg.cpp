@@ -1,4 +1,3 @@
-#include <CRT/crt.hpp>
 #include <stdlib.h>
 #include <PluginSettings.hpp>
 #include <DlgBuilder.hpp>
