@@ -1027,6 +1027,11 @@ DWORD GetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFileName)
 DWORD WNetGetConnection(const string& LocalName, string &RemoteName)
 {
 	wchar_t Buffer[MAX_PATH];
+	// MSDN says that call can fail with ERROR_NOT_CONNECTED or ERROR_CONNECTION_UNAVAIL if calling application
+	// is running in a different logon session than the application that made the connection.
+	// However, it may fail with ERROR_NOT_CONNECTED for non-network too, in this case Buffer will not be initialised.
+	// Deliberately initialised with empty string to fix that.
+	Buffer[0] = L'\0';
 	DWORD Size = ARRAYSIZE(Buffer);
 	auto Result = ::WNetGetConnection(LocalName.data(), Buffer, &Size);
 	if (Result == NO_ERROR || Result == ERROR_NOT_CONNECTED || Result == ERROR_CONNECTION_UNAVAIL)
