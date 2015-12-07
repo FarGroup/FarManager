@@ -1586,6 +1586,29 @@ local function test_FarStandardFunctions()
   assert(far.LStrnicmp("111abc","111def",4) < 0)
 end
 
+-- "Several lines are merged into one".
+local function test_issue_3129()
+  local fname = (win.GetEnv("TEMP") or ".").."\\far3-"..win.Uuid(win.Uuid()):sub(1,8)
+  local fp = assert(io.open(fname, "w"))
+  fp:close()
+  assert(editor.Editor(fname,nil,nil,nil,nil,nil,{EF_NONMODAL=1,EF_IMMEDIATERETURN=1})==F.EEC_MODIFIED)
+  for k=1,3 do
+    editor.InsertString()
+    editor.SetString(nil, k, "foo")
+  end
+  assert(editor.SaveFile())
+  assert(editor.Quit())
+  local fp = assert(io.open(fname))
+  local k = 0
+  for line in fp:lines() do
+    k = k + 1
+    assert(line=="foo")
+  end
+  fp:close()
+  win.DeleteFile(fname)
+  assert(k == 3)
+end
+
 function MT.test_luafar()
   test_AdvControl()
   test_bit64()
@@ -1593,6 +1616,7 @@ function MT.test_luafar()
   test_FarStandardFunctions()
   test_MacroControl()
   test_RegexControl()
+  test_issue_3129()
 end
 
 -- Test in particular that Plugin.Call (a so-called "restricted" function) works properly

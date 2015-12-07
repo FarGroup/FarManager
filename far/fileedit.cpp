@@ -1560,7 +1560,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		if (bCached && pc.CodePage && !Codepages().IsCodePageSupported(pc.CodePage))
 			pc.CodePage = 0;
 
-		m_editor->GlobalEOL.clear(); //BUGBUG???
+		m_editor->GlobalEOL = Editor::GetDefaultEOL();
 		bool testBOM = true;
 
 		bool redetect = (m_codepage == CP_REDETECT);
