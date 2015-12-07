@@ -1623,7 +1623,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 					if (Info.Flags & OPIF_REALNAMES)
 						PluginMode = false;
 					else
-						strPluginData = str_printf(L"<%s:%s>",strHostFile.data(),strInfoCurDir.data());
+						strPluginData = L'<' + strHostFile + L':' + strInfoCurDir + L'>';
 				}
 
 				if (!PluginMode)
@@ -2817,7 +2817,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 				if(DrivePath && Global->Opt->PgUpChangeDisk == 2)
 				{
 					string RemoteName;
-					if(DriveLocalToRemoteName(DRIVE_REMOTE, m_CurDir.front(), RemoteName))
+					if(DriveLocalToRemoteName(DRIVE_UNKNOWN, m_CurDir.front(), RemoteName))
 					{
 						if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Network.Id, OPEN_FILEPANEL, UNSAFE_CSTR(RemoteName))) // NetWork Plugin :-)
 						{
@@ -3676,13 +3676,13 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 
 					case NUMLINK_COLUMN:
 					{
-						Dest.append(str_printf(L"%d",m_ListData[ListPos].NumberOfLinks));
+						Dest.append(std::to_wstring(m_ListData[ListPos].NumberOfLinks));
 						break;
 					}
 
 					case NUMSTREAMS_COLUMN:
 					{
-						Dest.append(L"%d",m_ListData[ListPos].NumberOfStreams);
+						Dest.append(std::to_wstring(m_ListData[ListPos].NumberOfStreams));
 						break;
 					}
 

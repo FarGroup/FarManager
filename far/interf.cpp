@@ -934,7 +934,7 @@ void Box(int x1,int y1,int x2,int y2,const FarColor& Color,int Type)
 		{ BS_V2, BS_H2, BS_LT_H2V2, BS_RT_H2V2, BS_LB_H2V2, BS_RB_H2V2, },
 	};
 
-	const auto Box = BoxInit[(Type == DOUBLE_BOX || Type == SHORT_DOUBLE_BOX)];
+	const auto Box = BoxInit[(Type == DOUBLE_BOX || Type == SHORT_DOUBLE_BOX)? 1 : 0];
 	const auto Symbol = [Box](line Line) { return BoxSymbols[Box[Line]]; };
 
 	SetColor(Color);

@@ -53,10 +53,13 @@ public:
 	reverse_iterator rend() const { return reverse_iterator(m_begin); }
 
 	reference operator[](size_t n) { return *(m_begin + n); }
-	const reference operator[](size_t n) const { return *(m_begin + n); }
+	reference operator[](size_t n) const { return *(m_begin + n); }
 
 	reference front() { return *m_begin; }
+	reference front() const { return *m_begin; }
+
 	reference back() { return *std::prev(m_end); }
+	reference back() const { return *std::prev(m_end); }
 
 	pointer data() { return &*m_begin; }
 	pointer data() const { return &*m_begin; }

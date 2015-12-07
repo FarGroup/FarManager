@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // both Intel and Clang preserve this macro.
 
 // Use #if COMPILER == C_%NAME% to check for specific compiler.
-// Use _MSC_VER only for find out its specific version or to check for Microsoft standard library / Windows SDK
+// Use _MSC_VER only to find out its specific version or to check for Microsoft standard library / Windows SDK
 
 
 // Known compilers

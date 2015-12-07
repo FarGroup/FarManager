@@ -195,7 +195,7 @@ static bool SelectLanguage(bool HelpLanguage)
 			if (!HelpLanguage || (!GetLangParam(LangFile,L"PluginContents",&strEntryName,nullptr,nCodePage) &&
 			                      !GetLangParam(LangFile,L"DocumentContents",&strEntryName,nullptr,nCodePage)))
 			{
-				MenuItemEx LangMenuItem(str_printf(L"%.40s", !strLangDescr.empty() ? strLangDescr.data():strLangName.data()));
+				MenuItemEx LangMenuItem(!strLangDescr.empty()? strLangDescr : strLangName);
 
 				/* $ 01.08.2001 SVS
 				   Не допускаем дубликатов!

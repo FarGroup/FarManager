@@ -1206,6 +1206,13 @@ struct PluginMenuItemData
 	GUID Guid;
 };
 
+static string AddHotkey(const string& Item, const string& Hotkey)
+{
+	return Hotkey.empty()?
+		L"   " + Item :
+		string_format(L"&%1%2  %3", Hotkey.front(), Hotkey.front() == L'&' ? L"&" : L"", Item);
+}
+
 /* $ 29.05.2001 IS
    ! ѕри настройке "параметров внешних модулей" закрывать окно с их
      списком только при нажатии на ESC
@@ -1269,14 +1276,10 @@ void PluginManager::Configure(int StartPos)
 #endif // NO_WRAPPER
 						if (!HotKeysPresent)
 							ListItem.strName = strName;
-						else if (!strHotKey.empty())
-							ListItem.strName = str_printf(L"&%c%s  %s", static_cast<wchar_t>(strHotKey.front()),(strHotKey.front()==L'&'?L"&":L""), strName.data());
 						else
-							ListItem.strName = str_printf(L"   %s", strName.data());
+							ListItem.strName = AddHotkey(strName, strHotKey);
 
-						PluginMenuItemData item;
-						item.pPlugin = i;
-						item.Guid = guid;
+						PluginMenuItemData item = { i, guid };
 
 						ListItem.UserData = item;
 
@@ -1443,10 +1446,8 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 #endif // NO_WRAPPER
 						if (!HotKeysPresent)
 							ListItem.strName = strName;
-						else if (!strHotKey.empty())
-							ListItem.strName = str_printf(L"&%c%s  %s", static_cast<wchar_t>(strHotKey.front()),(strHotKey.front()==L'&'?L"&":L""), strName.data());
 						else
-							ListItem.strName = str_printf(L"   %s", strName.data());
+							ListItem.strName = AddHotkey(strName, strHotKey);
 
 						PluginMenuItemData itemdata;
 						itemdata.pPlugin = i;

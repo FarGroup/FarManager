@@ -161,7 +161,7 @@ string ExtractComputerName(const string& CurDir, string* strTail)
 		const auto NetDirPathType = ParsePath(strNetDir);
 		if (NetDirPathType == PATH_REMOTE || NetDirPathType == PATH_REMOTEUNC)
 		{
-			Result = strNetDir.substr(PATH_REMOTE ? 2 : 4);
+			Result = strNetDir.substr(NetDirPathType == PATH_REMOTE? 2 : 8);
 
 			const auto pos = FindSlash(Result);
 			if (pos != string::npos)

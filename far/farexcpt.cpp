@@ -83,7 +83,7 @@ intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 
 			if (di.Type==DI_EDIT)
 			{
-				const auto Color = colors::PaletteColorToFarColor(COL_WARNDIALOGTEXT);
+				const auto& Color = colors::PaletteColorToFarColor(COL_WARNDIALOGTEXT);
 				const auto Colors = static_cast<FarDialogItemColors*>(Param2);
 				Colors->Colors[0] = Color;
 				Colors->Colors[2] = Color;
@@ -148,7 +148,7 @@ static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, LPVOID Adres
 	// TODO: Far Dialog is not the best choice for exception reporting
 	// replace with something trivial
 
-	string strAddr = str_printf(L"0x%p",Adress);
+	const auto strAddr = L"0x" + to_hex_wstring(reinterpret_cast<uintptr_t>(Adress));
 
 	FarDialogItem EditDlgData[]=
 	{
@@ -192,7 +192,7 @@ static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, LPVOID Adres
 
 static void ExcDump(const string& ModuleName,LPCWSTR Exception,LPVOID Adress)
 {
-	string strAddr = str_printf(L"0x%p",Adress);
+	const auto strAddr = L"0x" + to_hex_wstring(reinterpret_cast<uintptr_t>(Adress));
 
 	string Msg[4];
 	if (LanguageLoaded())
@@ -419,11 +419,8 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 					break;
 			}
 
-#if 0
-			strBuf2 = str_printf(L"0x%p", xr->ExceptionInformation[1]+10);
-#else
-			strBuf2 = str_printf(L"0x%p", xr->ExceptionInformation[1]); //??? 10 добавлять не надо
-#endif
+			strBuf2 = L"0x" + to_hex_wstring(xr->ExceptionInformation[1]);
+
 			if (LanguageLoaded())
 			{
 				strBuf = string_format(MExcRAccess + Offset, strBuf2);
@@ -442,7 +439,7 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 	if (!Exception)
 	{
 		const wchar_t* Template = LanguageLoaded()? MSG(MExcUnknown) : L"Unknown exception";
-		strBuf2 = str_printf(L"%s (0x%X)", Template, xr->ExceptionCode);
+		strBuf2.append(Template).append(L" (0x").append(to_hex_wstring(xr->ExceptionCode)).append(L")");
 		Exception = strBuf2.data();
 	}
 

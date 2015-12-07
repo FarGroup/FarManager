@@ -105,7 +105,7 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 
 			if (di.Type==DI_EDIT)
 			{
-				const auto Color = colors::PaletteColorToFarColor(IsWarningStyle ? COL_WARNDIALOGTEXT : COL_DIALOGTEXT);
+				const auto& Color = colors::PaletteColorToFarColor(IsWarningStyle ? COL_WARNDIALOGTEXT : COL_DIALOGTEXT);
 				const auto Colors = static_cast<FarDialogItemColors*>(Param2);
 				Colors->Colors[0] = Color;
 				Colors->Colors[2] = Color;

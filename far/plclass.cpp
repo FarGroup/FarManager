@@ -469,6 +469,11 @@ void Plugin::ExecuteFunction(ExecuteStruct& es, const std::function<void()>& f)
 	Epilogue();
 }
 
+static string MakeSignature(const os::FAR_FIND_DATA& Data)
+{
+	return to_hex_wstring(Data.nFileSize) + to_hex_wstring(Data.ftCreationTime.dwLowDateTime) + to_hex_wstring(Data.ftLastWriteTime.dwLowDateTime);
+}
+
 bool Plugin::SaveToCache()
 {
 	PluginInfo Info = {sizeof(Info)};
@@ -494,16 +499,9 @@ bool Plugin::SaveToCache()
 	}
 
 	{
-		string strCurPluginID;
 		os::FAR_FIND_DATA fdata;
 		os::GetFindDataEx(m_strModuleName, fdata);
-		strCurPluginID = str_printf(
-			L"%I64x%x%x",
-			fdata.nFileSize,
-			fdata.ftCreationTime.dwLowDateTime,
-			fdata.ftLastWriteTime.dwLowDateTime
-			);
-		PlCache.SetSignature(id, strCurPluginID);
+		PlCache.SetSignature(id, MakeSignature(fdata));
 	}
 
 	const auto SaveItems = [&](decltype(&PluginsCacheConfig::SetPluginsMenuItem) Setter, const PluginMenuItem& Item)
@@ -721,14 +719,8 @@ bool Plugin::LoadFromCache(const os::FAR_FIND_DATA &FindData)
 		}
 
 		{
-			string strCurPluginID = str_printf(
-				L"%I64x%x%x",
-				FindData.nFileSize,
-				FindData.ftCreationTime.dwLowDateTime,
-				FindData.ftLastWriteTime.dwLowDateTime
-				);
-
-			string strPluginID = PlCache.GetSignature(id);
+			const auto strCurPluginID = MakeSignature(FindData);
+			const auto strPluginID = PlCache.GetSignature(id);
 
 			if (strPluginID != strCurPluginID)   //одинаковые ли бинарники?
 				return false;

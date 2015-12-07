@@ -10,7 +10,7 @@ EXENAME = Far.exe
 EXEFULLNAME = $(EXEDIR)$(EXENAME)
 DEPFILE = $(BOOTSTRAPDIR)far.gcc.dep
 
-DEFINES += -D FAR_ALPHA_VERSION -D FAR_USE_INTERNALS
+DEFINES += -D FAR_ALPHA_VERSION
 
 SRCS = \
 	sqlite.c \
@@ -154,13 +154,13 @@ TESTOBJS = $(OBJDIR)api_test_c.testobj $(OBJDIR)api_test_c++.testobj
 
 CFLAGS += -fexceptions
 
-.PHONY: all dirs
-all: dirs lng depfile
+.PHONY: all
+all: dirs lng depfile include docs $(TESTOBJS)
 	$(MAKE) -f $(THIS_MAKE) $(MK_FLAGS) build
 
 .PHONY: lng
 lng: $(BOOTSTRAPDIR)farlang.templ
-	@echo generating language files
+	@echo Generating language files
 	$(LGEN) -nc -i $(BOOTSTRAPDIR)lang.ini -ol "$(EXEDIR)" $(BOOTSTRAPDIR)farlang.templ
 
 .PHONY: depfile
@@ -170,14 +170,34 @@ depfile:
 	$(GAWK) -f scripts/mkdep.awk -v compiler=gcc bootstrap/mkdep.list > $(DEPFILE)
 	$(RM) bootstrap/mkdep.list
 
+.PHONY: dirs
 dirs:
 	$(MKDIR) $(EXEDIR) $(OBJDIR) $(FARINCLUDE) $(BOOTSTRAPDIR)
 
+.PHONY: include
+include: \
+	$(FARINCLUDE)PluginW.pas \
+	$(FARINCLUDE)FarColorW.pas \
+	$(FARINCLUDE)farcolor.hpp \
+	$(FARINCLUDE)plugin.hpp \
+	$(FARINCLUDE)DlgBuilder.hpp \
+	$(FARINCLUDE)vc_crt_fix_impl.cpp \
+	$(FARINCLUDE)vc_crt_fix.asm \
+	$(FARINCLUDE)vc_crt_fix_ulink.cpp
+
+.PHONY: docs
+docs: \
+	$(EXEDIR)FarEng.hlf \
+	$(EXEDIR)FarRus.hlf \
+	$(EXEDIR)FarHun.hlf \
+	$(EXEDIR)File_id.diz \
+	$(EXEDIR)Far.exe.example.ini
+
 .PHONY: build
-build: $(TESTOBJS) $(EXEFULLNAME) $(EXEDIR)FarEng.hlf $(EXEDIR)FarRus.hlf $(EXEDIR)FarHun.hlf $(EXEDIR)File_id.diz $(EXEDIR)Far.exe.example.ini $(FARINCLUDE)farcolor.hpp $(FARINCLUDE)plugin.hpp $(FARINCLUDE)DlgBuilder.hpp $(FARINCLUDE)PluginW.pas $(FARINCLUDE)FarColorW.pas
+build: $(EXEFULLNAME)
 
 $(EXEFULLNAME): $(BOOTSTRAPDIR)copyright.inc $(BOOTSTRAPDIR)farversion.inc $(OBJS)
-	@echo linking $@
+	@echo Linking $@
 	$(CXX) -o $@ $(OBJS) $(LNKFLAGS)
 
 $(OBJDIR)%.o: %.c
@@ -197,24 +217,24 @@ $(OBJDIR)%.o: %.cpp
 	$(CXX) $(CCFLAGS) -c -include $(OBJDIR)headers -o $@ $<
 
 $(OBJDIR)headers.gch: headers.cpp headers.hpp
-	@echo making precompiled headers
+	@echo Making precompiled headers
 	$(CXX) -x c++-header -c $(CCFLAGS) -o $@ $<
 
 $(OBJS): $(OBJDIR)headers.gch
 
 $(OBJDIR)far.rc.o: far.rc $(BOOTSTRAPDIR)far.rc.inc Far.ico FarA.ico bootstrap/Far.exe.manifest
-	@echo compiling resource file
+	@echo Compiling resource file
 	$(WINDRES) -i $< -o $@
 
 $(OBJDIR)api_test_c.testobj: $(FARINCLUDE)plugin.hpp $(FARINCLUDE)farcolor.hpp api_test.c
-	@echo testing C plugin API
+	@echo Testing C plugin API
 	$(CC) $(CFLAGS) -c -x c -o $@ api_test.c
 
 $(OBJDIR)api_test_c++.testobj: $(FARINCLUDE)plugin.hpp $(FARINCLUDE)farcolor.hpp $(FARINCLUDE)DlgBuilder.hpp api_test.c
-	@echo testing C++ plugin API
+	@echo Testing C++ plugin API
 	$(CXX) $(CCFLAGS) -c -x c++ -o $@ api_test.c
 
-MSG=@echo generating $@
+MSG=@echo Generating $@
 
 $(BOOTSTRAPDIR)Far.exe.manifest: Far.exe.manifest.m4 farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
@@ -276,13 +296,25 @@ $(FARINCLUDE)FarColorW.pas: FarColorW.pas farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	$(M4) -DINPUT=FarColorW.pas headers.m4 > $@
 
+$(FARINCLUDE)vc_crt_fix.asm: vc_crt_fix.asm
+	$(MSG)
+	$(CP) vc_crt_fix.asm $@
+
+$(FARINCLUDE)vc_crt_fix_impl.cpp: vc_crt_fix_impl.cpp
+	$(MSG)
+	$(M4) -DINPUT=vc_crt_fix_impl.cpp headers.m4 > $@
+
+$(FARINCLUDE)vc_crt_fix_ulink.cpp: vc_crt_fix_ulink.cpp
+	$(MSG)
+	$(CP) vc_crt_fix_ulink.cpp $@
+
 ifeq ($(MAKECMDGOALS),build)
  include $(DEPFILE)
 endif
 
 .PHONY: clean
 clean:
-	@echo cleaning
+	@echo Cleaning
 	$(RM) $(OBJS) $(TESTOBJS) $(OBJDIR)headers.gch
 	$(RM) $(EXEFULLNAME) $(MAP)
 	$(RM) $(BOOTSTRAPDIR)*.*  $(FARINCLUDE)*.*

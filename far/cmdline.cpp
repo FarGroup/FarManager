@@ -566,11 +566,11 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 	FN_RETURN_TYPE(CommandLine::GetPrompt) Result;
 	int NewPromptSize = DEFAULT_CMDLINE_WIDTH;
 
-	const auto PrefixColor = colors::PaletteColorToFarColor(COL_COMMANDLINEPREFIX);
+	const auto& PrefixColor = colors::PaletteColorToFarColor(COL_COMMANDLINEPREFIX);
 
 	if (Global->Opt->CmdLine.UsePromptFormat)
 	{
-		const auto Format = Global->Opt->CmdLine.strPromptFormat.Get();
+		const auto& Format = Global->Opt->CmdLine.strPromptFormat.Get();
 		auto F = PrefixColor;
 		auto Str = Format;
 		FOR_CONST_RANGE(Format, Ptr)
@@ -653,7 +653,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 							case L'M': // $M - Отображение полного имени удаленного диска, связанного с именем текущего диска, или пустой строки, если текущий диск не является сетевым.
 							{
 								string strTemp;
-								if (DriveLocalToRemoteName(DRIVE_REMOTE,m_CurDir[0],strTemp))
+								if (DriveLocalToRemoteName(DRIVE_UNKNOWN, m_CurDir[0], strTemp))
 								{
 									strDestStr += strTemp;
 									//strDestStr += L" "; // ???

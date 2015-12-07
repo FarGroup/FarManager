@@ -2288,7 +2288,7 @@ void config_provider::TryImportDatabase(representable *p, const char *son, bool 
 	if (m_TemplateSource && m_TemplateSource->readable())
 	{
 		representation Representation;
-		const auto root = m_TemplateSource->GetImportRoot();
+		const auto& root = m_TemplateSource->GetImportRoot();
 
 		if (!son)
 		{
@@ -2460,7 +2460,7 @@ bool config_provider::Import(const string& Filename)
 		return false;
 	}
 
-	const auto farconfig = Source.GetImportRoot();
+	const auto& farconfig = Source.GetImportRoot();
 	representation Representation;
 	const tinyxml::TiXmlHandle root(farconfig);
 	Representation.SetImportRoot(root);

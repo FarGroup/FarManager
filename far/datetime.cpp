@@ -442,7 +442,7 @@ string StrFTime(const wchar_t* Format, const tm* t)
 					// День недели где 0 - Воскресенье (Sunday) (0 - 6)
 					// weekday, Sunday == 0, 0 - 6
 				case L'w':
-					strBuf = str_printf(L"%d",t->tm_wday);
+					strBuf = std::to_wstring(t->tm_wday);
 					break;
 					// Две цифры номера недели, где Воскресенье (Sunday)
 					//   является первым днем недели (00 - 53)
@@ -487,7 +487,7 @@ string StrFTime(const wchar_t* Format, const tm* t)
 					// Год со столетием (19yy-20yy)
 					// year with century
 				case L'Y':
-					strBuf = str_printf(L"%d",1900+t->tm_year);
+					strBuf = std::to_wstring(1900+t->tm_year);
 					break;
 					// Имя часового пояса или пусто, если часовой пояс не задан
 				case L'Z':

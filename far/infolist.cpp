@@ -407,7 +407,7 @@ void InfoList::DisplayObject()
 
 			GotoXY(m_X1+2,CurY++);
 			PrintText(MInfoMemoryLoad);
-			PrintInfo(str_printf(L"%d%%",ms.dwMemoryLoad));
+			PrintInfo(string_format(L"%1%", ms.dwMemoryLoad));
 
 			ULONGLONG TotalMemoryInKilobytes=0;
 			if(Imports().GetPhysicallyInstalledSystemMemory(&TotalMemoryInKilobytes))
@@ -478,7 +478,7 @@ void InfoList::DisplayObject()
 			if (PowerStatus.BatteryLifePercent > 100)
 				strOutStr = MSG(MInfoPowerStatusBCLifePercentUnknown);
 			else
-				strOutStr = str_printf(L"%d%%",PowerStatus.BatteryLifePercent);
+				strOutStr = std::to_wstring(PowerStatus.BatteryLifePercent) + L'%';
 			PrintInfo(strOutStr);
 
 			GotoXY(m_X1+2,CurY++);

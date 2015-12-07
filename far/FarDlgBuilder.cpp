@@ -233,7 +233,7 @@ static bool IsEditField(DialogItemEx *Item)
 DialogBuilder::DialogBuilder(LNGID TitleMessageId, const wchar_t *HelpTopic, Dialog::dialog_handler handler):
 	m_HelpTopic(NullToEmpty(HelpTopic)), m_Mode(0), m_IdExist(false), m_handler(handler)
 {
-	AddBorder(GetLangString(TitleMessageId));
+	AddBorder(DialogBuilder::GetLangString(TitleMessageId));
 }
 
 DialogBuilder::DialogBuilder():

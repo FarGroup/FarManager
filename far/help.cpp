@@ -445,7 +445,7 @@ int Help::ReadHelp(const string& Mask)
 			if (strKeyName.find(L'~') != string::npos) // коррекция размера
 				SizeKeyName++;
 
-			strReadStr += str_printf(L" #%-*.*s# ",SizeKeyName,SizeKeyName,strKeyName.data());
+			strReadStr += FormatString() << L" #" << fmt::LeftAlign() << fmt::ExactWidth(SizeKeyName) << strKeyName << L"# ";
 
 			if (!strDescription.empty())
 			{
@@ -1982,7 +1982,7 @@ void Help::Search(os::fs::file& HelpFile,uintptr_t nCodePage)
 
 			if (Result)
 			{
-				AddLine(str_printf(L"   ~%s~%s@",strEntryName.data(), strCurTopic.data()));
+				AddLine(string_format(L"   ~%1~%2@",strEntryName, strCurTopic));
 				strCurTopic.clear();
 				strEntryName.clear();
 				TopicFound=false;

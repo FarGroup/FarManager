@@ -4194,7 +4194,7 @@ static bool clipFunc(FarMacroCall* Data)
 		}
 		case 1: // Put "S" into Clipboard
 		{
-			const auto Str = Val.asString();
+			const auto& Str = Val.asString();
 			if (Str.empty())
 			{
 				Clipboard clip;
