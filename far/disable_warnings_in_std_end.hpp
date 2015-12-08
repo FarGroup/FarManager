@@ -26,5 +26,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #ifdef _MSC_VER
+#pragma warning(suppress: 5031) // no page                                                #pragma warning(pop): likely mismatch, popping warning state pushed in different file
 #pragma warning(pop)
 #endif
