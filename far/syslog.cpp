@@ -77,7 +77,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define MAX_LOG_LINE 10240
 
-static FILE *LogStream=0;
+static FILE *LogStream = nullptr;
 static int   LogStreamCount=0;
 static int   Indent=0;
 static wchar_t *PrintTime(wchar_t *timebuf,size_t size);
@@ -86,6 +86,20 @@ static wchar_t *PrintTime(wchar_t *timebuf,size_t size);
 static BOOL IsLogON()
 {
 	return GetKeyState(VK_SCROLL) != 0;
+}
+
+static void FarOutputDebugString(const wchar_t* Str)
+{
+	if (IsDebuggerPresent())
+	{
+		OutputDebugString(Str);
+		OutputDebugString(L"\n");
+	}
+}
+
+static void FarOutputDebugString(const string& Str)
+{
+	return FarOutputDebugString(Str.data());
 }
 
 static const wchar_t *MakeSpace()
@@ -130,7 +144,7 @@ FILE * OpenLogStream(const string& file)
 #if defined(SYSLOG)
 	SYSTEMTIME st;
 	GetLocalTime(&st);
-	return _wfsopen(str_printf(L"%s\\Far.%04d%02d%02d.%05d.log",file.data(),st.wYear,st.wMonth,st.wDay,FAR_VERSION.Build).data(),L"a+t,ccs=UTF-8",SH_DENYWR);
+	return _wfsopen(str_printf(L"%s\\Far.%04d%02d%02d.%05d.log",file.data(),st.wYear,st.wMonth,st.wDay,FAR_VERSION.Build).data(),L"a+t,ccs=UTF-8",_SH_DENYWR);
 #else
 	return nullptr;
 #endif
@@ -172,7 +186,7 @@ void CloseSysLog()
 	{
 		fclose(LogStream);
 		LogStreamCount = 0;
-		LogStream = 0;
+		LogStream = nullptr;
 	}
 #endif
 }
@@ -271,13 +285,7 @@ void SysLog(const wchar_t *fmt,...)
 
 	CloseSysLog();
 
-	if (IsDebuggerPresent())
-	{
-		OutputDebugString(msg.data());
-#ifdef _MSC_VER
-		OutputDebugString(L"\n");
-#endif _MSC_VER
-	}
+	FarOutputDebugString(msg);
 #endif
 }
 
@@ -304,19 +312,13 @@ void SysLogLastError()
 	{
 		wchar_t timebuf[64];
 		// RemoveUnprintableCharacters(MsgPtr.get());
-		fwprintf(LogStream, L"%s %sGetLastError()=[%u/0x%X] \"%s\"\n", PrintTime(timebuf, ARRAYSIZE(timebuf)), MakeSpace(), LastErr, LastErr, MsgPtr.get());
+		fwprintf(LogStream, L"%s %sGetLastError()=[%lu/0x%lX] \"%s\"\n", PrintTime(timebuf, ARRAYSIZE(timebuf)), MakeSpace(), LastErr, LastErr, MsgPtr.get());
 		fflush(LogStream);
 	}
 
 	CloseSysLog();
 
-	if (IsDebuggerPresent())
-	{
-		OutputDebugString(MsgPtr.get());
-#ifdef _MSC_VER
-		OutputDebugString(L"\n");
-#endif _MSC_VER
-	}
+	FarOutputDebugString(MsgPtr.get());
 
 	SetLastError(LastErr);
 #endif
@@ -349,13 +351,7 @@ void SysLog(int l,const wchar_t *fmt,...)
 
 	CloseSysLog();
 
-	if (IsDebuggerPresent())
-	{
-		OutputDebugString(msg.data());
-#ifdef _MSC_VER
-		OutputDebugString(L"\n");
-#endif _MSC_VER
-	}
+	FarOutputDebugString(msg);
 
 #endif
 }
@@ -391,7 +387,7 @@ void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,unsigned Size
 		{
 			//memset(TmpBuf,' ',16);
 			fwprintf(fp,L"%s %s ",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace());
-			fwprintf(fp, L" %08X: ",StartAddress+Y*16);
+			fwprintf(fp, L" %08lX: ",StartAddress+Y*16);
 
 			for (size_t X=0; X < 16; ++X)
 			{
@@ -497,7 +493,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 
 	if (fp)
 	{
-#define DEF_SORTMODE_(m) { m , L#m }
+#define DEF_SORTMODE_(m) { m , L###m }
 		static struct SORTMode
 		{
 			int Mode;
@@ -609,9 +605,9 @@ void GetOpenPanelInfo_Dump(const wchar_t *Title,const OpenPanelInfo *Info,FILE *
 			}
 		}
 
-		fwprintf(fp,L"\tStartPanelMode   =%d\n",Info->StartPanelMode);
+		fwprintf(fp,L"\tStartPanelMode   =%s\n",std::to_wstring(Info->StartPanelMode).data());
 		fwprintf(fp,L"\tStartSortMode    =%d\n",Info->StartSortMode);
-		fwprintf(fp,L"\tStartSortOrder   =%d\n",Info->StartSortOrder);
+		fwprintf(fp,L"\tStartSortOrder   =%s\n",std::to_wstring(Info->StartSortOrder).data());
 		fwprintf(fp,L"\tKeyBar           =%p\n",Info->KeyBar);
 		fwprintf(fp,L"\tShortcutData     =%p\n",Info->ShortcutData);
 		fwprintf(fp,L"\tFreeSize         =%I64u (0x%I64X)\n",Info->FreeSize,Info->FreeSize);
@@ -649,7 +645,7 @@ void ManagerClass_Dump(const wchar_t *Title,FILE *fp)
 		const auto& Man = Global->WindowManager;
 //StartSysLog
 		string Type,Name;
-		fwprintf(fp,L"**** Queue modal windows ***\nwindows count=%u\n",Man->m_windows.size());
+		fwprintf(fp,L"**** Queue modal windows ***\nwindows count=%zu\n",Man->m_windows.size());
 
 		std::for_each(CONST_RANGE(Man->m_windows, i)
 		{
@@ -662,7 +658,7 @@ void ManagerClass_Dump(const wchar_t *Title,FILE *fp)
 				fwprintf(fp,L"\twindow nullptr\n");
 		});
 
-		fwprintf(fp,L"**** Stack modal windows ***\nModalStack.size()=%u\n",Man->m_modalWindows.size());
+		fwprintf(fp,L"**** Stack modal windows ***\nModalStack.size()=%zu\n",Man->m_modalWindows.size());
 
 		std::for_each(CONST_RANGE(Man->m_modalWindows, i)
 		{
@@ -716,13 +712,7 @@ void WINAPIV FarSysLog(const wchar_t *ModuleName,int l,const wchar_t *fmt,...)
 
 	CloseSysLog();
 
-	if (IsDebuggerPresent())
-	{
-		OutputDebugString(msg.data());
-#ifdef _MSC_VER
-		OutputDebugString(L"\n");
-#endif _MSC_VER
-	}
+	FarOutputDebugString(msg);
 }
 
 void WINAPI FarSysLogDump(const wchar_t *ModuleName,DWORD StartAddress,LPBYTE Buf,int SizeBuf)
@@ -808,7 +798,7 @@ static string _XXX_ToName(DWORD Val,const wchar_t *Pref,__XXX_Name *arrDef,size_
 string __ECTL_ToName(int Command)
 {
 #if defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL)
-#define DEF_ECTL_(m) { ECTL_##m , L#m }
+#define DEF_ECTL_(m) { ECTL_##m , L###m }
 	__XXX_Name ECTL[]=
 	{
 		DEF_ECTL_(GETSTRING),
@@ -855,7 +845,7 @@ string __ECTL_ToName(int Command)
 string __EE_ToName(int Command)
 {
 #if defined(SYSLOG)
-#define DEF_EE_(m) { EE_##m , L#m }
+#define DEF_EE_(m) { EE_##m , L###m }
 	__XXX_Name EE[]=
 	{
 		DEF_EE_(READ),
@@ -874,7 +864,7 @@ string __EE_ToName(int Command)
 string __EEREDRAW_ToName(int Command)
 {
 #if defined(SYSLOG)
-#define DEF_EEREDRAW_(m) { (int)(intptr_t)EEREDRAW_##m , L#m }
+#define DEF_EEREDRAW_(m) { (int)(intptr_t)EEREDRAW_##m , L###m }
 	__XXX_Name EEREDRAW[]=
 	{
 		DEF_EEREDRAW_(ALL),
@@ -888,7 +878,7 @@ string __EEREDRAW_ToName(int Command)
 string __ESPT_ToName(int Command)
 {
 #if defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL)
-#define DEF_ESPT_(m) { ESPT_##m , L#m }
+#define DEF_ESPT_(m) { ESPT_##m , L###m }
 	__XXX_Name ESPT[]=
 	{
 		DEF_ESPT_(TABSIZE),
@@ -913,7 +903,7 @@ string __ESPT_ToName(int Command)
 string __MCTL_ToName(int Command)
 {
 #if defined(SYSLOG_KEYMACRO) || defined(SYSLOG_MCTL)
-#define DEF_MCTL_(m) { MCTL_##m , L#m }
+#define DEF_MCTL_(m) { MCTL_##m , L###m }
 	__XXX_Name MCTL[]=
 	{
 		DEF_MCTL_(LOADALL),
@@ -934,7 +924,7 @@ string __MCTL_ToName(int Command)
 string __VE_ToName(int Command)
 {
 #if defined(SYSLOG)
-#define DEF_VE_(m) { VE_##m , L#m }
+#define DEF_VE_(m) { VE_##m , L###m }
 	__XXX_Name VE[]=
 	{
 		DEF_VE_(READ),
@@ -951,7 +941,7 @@ string __VE_ToName(int Command)
 string __FCTL_ToName(int Command)
 {
 #if defined(SYSLOG)
-#define DEF_FCTL_(m) { FCTL_##m , L#m }
+#define DEF_FCTL_(m) { FCTL_##m , L###m }
 	__XXX_Name FCTL[]=
 	{
 		DEF_FCTL_(CLOSEPANEL),
@@ -999,7 +989,7 @@ string __FCTL_ToName(int Command)
 string __ACTL_ToName(int Command)
 {
 #if defined(SYSLOG_ACTL)
-#define DEF_ACTL_(m) { ACTL_##m , L#m }
+#define DEF_ACTL_(m) { ACTL_##m , L###m }
 	__XXX_Name ACTL[]=
 	{
 		DEF_ACTL_(GETFARMANAGERVERSION),
@@ -1036,7 +1026,7 @@ string __ACTL_ToName(int Command)
 string __VCTL_ToName(int Command)
 {
 #if defined(SYSLOG_VCTL)
-#define DEF_VCTL_(m) { VCTL_##m , L#m }
+#define DEF_VCTL_(m) { VCTL_##m , L###m }
 	__XXX_Name VCTL[]=
 	{
 		DEF_VCTL_(GETINFO),
@@ -1057,7 +1047,7 @@ string __VCTL_ToName(int Command)
 string __MCODE_ToName(DWORD OpCode)
 {
 #if defined(SYSLOG)
-#define DEF_MCODE_(m) { MCODE_##m , L#m }
+#define DEF_MCODE_(m) { MCODE_##m , L###m }
 	__XXX_Name MCODE[]=
 	{
 		DEF_MCODE_(F_NOFUNC),
@@ -1316,7 +1306,7 @@ string __FARKEY_ToName(int Key)
 		return L"";
 
 	string Name;
-	if (!(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE) && KeyToText(Key,Name))
+	if (!(far_key_code(Key) >= KEY_MACRO_BASE && far_key_code(Key) <= KEY_MACRO_ENDBASE) && KeyToText(Key,Name))
 	{
 		InsertQuote(Name);
 		return str_printf(L"%s [%u/0x%08X]",Name.data(),Key,Key);
@@ -1331,7 +1321,7 @@ string __FARKEY_ToName(int Key)
 string __DLGDIF_ToName(DWORD Msg)
 {
 #if defined(SYSLOG)
-#define DEF_DIF_(m) { DIF_##m , L#m }
+#define DEF_DIF_(m) { DIF_##m , L###m }
 	__XXX64_Name Message[]=
 	{
 		DEF_DIF_(BOXCOLOR),
@@ -1396,7 +1386,7 @@ string __DLGDIF_ToName(DWORD Msg)
 string __DLGMSG_ToName(DWORD Msg)
 {
 #if defined(SYSLOG)
-#define DEF_DM_(m) { DM_##m , L#m }
+#define DEF_DM_(m) { DM_##m , L###m }
 	__XXX_Name DM[]=
 	{
 		DEF_DM_(FIRST),
@@ -1467,7 +1457,7 @@ string __DLGMSG_ToName(DWORD Msg)
 		DEF_DM_(GETDIALOGTITLE),
 	};
 
-#define DEF_DN_(m) { DN_##m , L#m }
+#define DEF_DN_(m) { DN_##m , L###m }
 	__XXX_Name DN[]=
 	{
 		DEF_DN_(FIRST),
@@ -1534,7 +1524,7 @@ string __VK_KEY_ToName(int VkKey)
 	if (!IsLogON())
 		return L"";
 
-#define DEF_VK(k) { VK_##k , L#k }
+#define DEF_VK(k) { VK_##k , L###k }
 	__XXX_Name VK[]=
 	{
 		DEF_VK(ACCEPT),                           DEF_VK(ADD),
@@ -1613,7 +1603,7 @@ string __VK_KEY_ToName(int VkKey)
 		DEF_VK(XBUTTON2),                         DEF_VK(ZOOM),
 	};
 
-	if (VkKey >= L'0' && VkKey <= L'9' || VkKey >= L'A' && VkKey <= L'Z')
+	if ((VkKey >= L'0' && VkKey <= L'9') || (VkKey >= L'A' && VkKey <= L'Z'))
 	{
 		return str_printf(L"\"VK_%c\" [%d/0x%04X]",VkKey,VkKey,VkKey);
 	}
@@ -1786,7 +1776,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
 
 			for (DWORD I=0; I < ReadCount3; ++I)
 			{
-				fwprintf(fp,L"             %s%04u: %s\n",MakeSpace(),I,_INPUT_RECORD_Dump(&TmpRec[I]));
+				fwprintf(fp,L"             %s%04lu: %s\n",MakeSpace(),I,_INPUT_RECORD_Dump(&TmpRec[I]));
 			}
 		}
 
@@ -1839,10 +1829,10 @@ void GetVolumeInformation_Dump(const wchar_t *Title,LPCWSTR lpRootPathName,LPCWS
 		fwprintf(fp,L"%*s %s  GetVolumeInformation{\n",12,L"",space);
 		fwprintf(fp,L"%*s %s    lpRootPathName            ='%s'\n",12,L"",space,lpRootPathName);
 		fwprintf(fp,L"%*s %s    lpVolumeNameBuffer        ='%s'\n",12,L"",space,lpVolumeNameBuffer);
-		fwprintf(fp,L"%*s %s    nVolumeNameSize           =%u\n",12,L"",space,nVolumeNameSize);
-		fwprintf(fp,L"%*s %s    lpVolumeSerialNumber      =%04X-%04X\n",12,L"",space,lpVolumeSerialNumber>>16,lpVolumeSerialNumber&0xffff);
-		fwprintf(fp,L"%*s %s    lpMaximumComponentLength  =%u\n",12,L"",space,lpMaximumComponentLength);
-		fwprintf(fp,L"%*s %s    lpFileSystemFlags         =%u\n",12,L"",space,lpFileSystemFlags);
+		fwprintf(fp,L"%*s %s    nVolumeNameSize           =%lu\n",12,L"",space,nVolumeNameSize);
+		fwprintf(fp,L"%*s %s    lpVolumeSerialNumber      =%04lX-%04lX\n",12,L"",space,lpVolumeSerialNumber>>16,lpVolumeSerialNumber&0xffff);
+		fwprintf(fp,L"%*s %s    lpMaximumComponentLength  =%lu\n",12,L"",space,lpMaximumComponentLength);
+		fwprintf(fp,L"%*s %s    lpFileSystemFlags         =%lu\n",12,L"",space,lpFileSystemFlags);
 
 		if (lpFileSystemFlags&FILE_CASE_PRESERVED_NAMES)
 			fwprintf(fp,L"%*s %s         FILE_CASE_PRESERVED_NAMES\n",12,L"",space);
@@ -1890,7 +1880,7 @@ void GetVolumeInformation_Dump(const wchar_t *Title,LPCWSTR lpRootPathName,LPCWS
 			fwprintf(fp,L"%*s %s         FILE_VOLUME_QUOTAS\n",12,L"",space);
 
 		fwprintf(fp,L"%*s %s    lpFileSystemNameBuffer    ='%s'\n",12,L"",space,lpFileSystemNameBuffer);
-		fwprintf(fp,L"%*s %s    nFileSystemNameSize       =%u\n",12,L"",space,nFileSystemNameSize);
+		fwprintf(fp,L"%*s %s    nFileSystemNameSize       =%lu\n",12,L"",space,nFileSystemNameSize);
 		fwprintf(fp,L"%*s %s  }\n",12,L"",space);
 		fflush(fp);
 	}
@@ -1920,7 +1910,7 @@ void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &wfd,FILE *
 
 	if (fp)
 	{
-		fwprintf(fp,L"%*s %s  dwFileAttributes      =0x%08X\n",12,L"",space,wfd.dwFileAttributes);
+		fwprintf(fp,L"%*s %s  dwFileAttributes      =0x%08lX\n",12,L"",space,wfd.dwFileAttributes);
 
 		if (wfd.dwFileAttributes&FILE_ATTRIBUTE_READONLY)
 			fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_READONLY            (0x00000001)\n",12,L"",space);
@@ -1976,14 +1966,14 @@ void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &wfd,FILE *
 
 		string D, T;
 		ConvertDate(wfd.ftCreationTime,D,T,8,FALSE,FALSE,TRUE);
-		fwprintf(fp,L"%*s %s  ftCreationTime        =0x%08X 0x%08X\n",12,L"",space,wfd.ftCreationTime.dwHighDateTime,wfd.ftCreationTime.dwLowDateTime);
+		fwprintf(fp,L"%*s %s  ftCreationTime        =0x%08lX 0x%08lX\n",12,L"",space,wfd.ftCreationTime.dwHighDateTime,wfd.ftCreationTime.dwLowDateTime);
 		ConvertDate(wfd.ftLastAccessTime,D,T,8,FALSE,FALSE,TRUE);
-		fwprintf(fp,L"%*s %s  ftLastAccessTime      =0x%08X 0x%08X\n",12,L"",space,wfd.ftLastAccessTime.dwHighDateTime,wfd.ftLastAccessTime.dwLowDateTime);
+		fwprintf(fp,L"%*s %s  ftLastAccessTime      =0x%08lX 0x%08lX\n",12,L"",space,wfd.ftLastAccessTime.dwHighDateTime,wfd.ftLastAccessTime.dwLowDateTime);
 		ConvertDate(wfd.ftLastWriteTime,D,T,8,FALSE,FALSE,TRUE);
-		fwprintf(fp,L"%*s %s  ftLastWriteTime       =0x%08X 0x%08X\n",12,L"",space,wfd.ftLastWriteTime.dwHighDateTime,wfd.ftLastWriteTime.dwLowDateTime);
+		fwprintf(fp,L"%*s %s  ftLastWriteTime       =0x%08lX 0x%08lX\n",12,L"",space,wfd.ftLastWriteTime.dwHighDateTime,wfd.ftLastWriteTime.dwLowDateTime);
 		ULARGE_INTEGER Number = {wfd.nFileSizeLow, wfd.nFileSizeHigh};
-		fwprintf(fp,L"%*s %s  nFileSize             =0x%08X, 0x%08X (%I64u)\n",12,L"",space,wfd.nFileSizeHigh,wfd.nFileSizeLow,static_cast<UINT64>(Number.QuadPart));
-		fwprintf(fp,L"%*s %s  dwReserved0           =0x%08X (%u)\n",12,L"",space,wfd.dwReserved0,wfd.dwReserved0);
+		fwprintf(fp,L"%*s %s  nFileSize             =0x%08lX, 0x%08lX (%I64u)\n",12,L"",space,wfd.nFileSizeHigh,wfd.nFileSizeLow,static_cast<UINT64>(Number.QuadPart));
+		fwprintf(fp,L"%*s %s  dwReserved0           =0x%08lX (%lu)\n",12,L"",space,wfd.dwReserved0,wfd.dwReserved0);
 
 		if (wfd.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
 		{
@@ -2026,12 +2016,12 @@ void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &wfd,FILE *
 					fwprintf(fp, L"%*s %s     IO_REPARSE_TAG_FILE_PLACEHOLDER (0x80000015L)\n", 12, L"", space);
 					break;
 				default:
-					fwprintf(fp,L"%*s %s     IO_REPARSE_TAG_???         (0x%08XL)\n",12,L"",space,wfd.dwReserved0);
+					fwprintf(fp,L"%*s %s     IO_REPARSE_TAG_???         (0x%08lX)\n",12,L"",space,wfd.dwReserved0);
 					break;
 			}
 		}
 
-		fwprintf(fp,L"%*s %s  dwReserved1           =0x%08X (%u)\n",12,L"",space,wfd.dwReserved1,wfd.dwReserved1);
+		fwprintf(fp,L"%*s %s  dwReserved1           =0x%08lX (%lu)\n",12,L"",space,wfd.dwReserved1,wfd.dwReserved1);
 		fwprintf(fp,L"%*s %s  cFileName             =\"%s\"\n",12,L"",space,wfd.cFileName);
 		fwprintf(fp,L"%*s %s  cAlternateFileName    =\"%s\"\n",12,L"",space,wfd.cAlternateFileName);
 		fwprintf(fp,L"%*s %s  }\n",12,L"",space);
@@ -2076,7 +2066,7 @@ void PanelViewSettings_Dump(const wchar_t *Title,const PanelViewSettings &ViewSe
 			fwprintf(fp,L"%d, ",ViewSettings.PanelColumns[I].width);
 
 		fwprintf(fp,L"%d]\n",ViewSettings.PanelColumns[I].width);
-		fwprintf(fp,L"%*s %s  ColumnCount          = %u\n",12,L"",space,ViewSettings.PanelColumns.size());
+		fwprintf(fp,L"%*s %s  ColumnCount          = %zu\n",12,L"",space,ViewSettings.PanelColumns.size());
 		fwprintf(fp,L"%*s %s  StatusColumnType     = [",12,L"",space);
 
 		for (I=0; I < ViewSettings.StatusColumns.size()-1; ++I)
@@ -2089,7 +2079,7 @@ void PanelViewSettings_Dump(const wchar_t *Title,const PanelViewSettings &ViewSe
 			fwprintf(fp,L"%d, ",ViewSettings.StatusColumns[I].width);
 
 		fwprintf(fp,L"%d]\n",ViewSettings.StatusColumns[I].width);
-		fwprintf(fp,L"%*s %s  StatusColumnCount    = %u\n",12,L"",space,ViewSettings.PanelColumns.size());
+		fwprintf(fp,L"%*s %s  StatusColumnCount    = %zu\n",12,L"",space,ViewSettings.PanelColumns.size());
 
 		fwprintf(fp,L"%*s %s  FullScreen           = %d\n",12,L"",space,(ViewSettings.Flags&PVS_FULLSCREEN)?1:0);
 		fwprintf(fp,L"%*s %s  AlignExtensions      = %d\n",12,L"",space,(ViewSettings.Flags&PVS_ALIGNEXTENSIONS)?1:0);
@@ -2111,6 +2101,6 @@ void PrintSysLogStat()
 {
 #if defined(SYSLOG)
     string oss=str_printf(L"SYSLOG::LogStream = %p\n",LogStream);
-	OutputDebugString(oss.data());
+	FarOutputDebugString(oss);
 #endif
 }

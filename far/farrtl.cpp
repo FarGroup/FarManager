@@ -359,6 +359,16 @@ void operator delete[](void* block)
 	return memcheck::DebugDeallocator(block, memcheck::AT_VECTOR);
 }
 
+void operator delete(void* block, size_t size)
+{
+	return memcheck::DebugDeallocator(block, memcheck::AT_SCALAR);
+}
+
+void operator delete[](void* block, size_t size)
+{
+	return memcheck::DebugDeallocator(block, memcheck::AT_VECTOR);
+}
+
 void operator delete(void* block, const char* Function, const char* File, int Line)
 {
 	return memcheck::DebugDeallocator(block, memcheck::AT_SCALAR);

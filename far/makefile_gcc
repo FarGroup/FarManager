@@ -12,6 +12,10 @@ DEPFILE = $(BOOTSTRAPDIR)far.gcc.dep
 
 DEFINES += -D FAR_ALPHA_VERSION
 
+ifdef DEBUG
+DEFINES += -D SYSLOG -D SYSLOG_FARSYSLOG
+endif
+
 SRCS = \
 	sqlite.c \
 	sqlite_unicode.c \

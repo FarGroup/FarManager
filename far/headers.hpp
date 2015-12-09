@@ -68,6 +68,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cwctype>
 
 #include <process.h>
+#include <share.h>
 
 #undef _W32API_OLD
 
