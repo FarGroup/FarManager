@@ -1034,23 +1034,28 @@ string ReplaceBrackets(const wchar_t *SearchStr, const string& ReplaceStr, const
 			{
 				intptr_t start = 0, end = 0;
 				size_t ShiftLength = 0;
+				auto TokenEnd = TokenStart;
 				bool Success = false;
 
-				if (std::iswdigit(ReplaceStr[TokenStart]))
+				while (TokenEnd != length && std::iswdigit(ReplaceStr[TokenEnd]))
 				{
-					try
+					++TokenEnd;
+				}
+
+				if (TokenEnd != TokenStart)
+				{
+					size_t index = 0;
+					while (TokenEnd != TokenStart && (index = std::stoul(ReplaceStr.substr(TokenStart, TokenEnd - TokenStart))) >= Count)
 					{
-						const auto index = std::stoul(ReplaceStr.substr(TokenStart), &ShiftLength);
-						if (index < Count)
-						{
-							Success = true;
-							start = Match[index].start;
-							end = Match[index].end;
-						}
+						--TokenEnd;
 					}
-					catch (const std::exception&)
+
+					if (TokenEnd != TokenStart)
 					{
-						// TODO: incorrect input diagnostic
+						Success = true;
+						start = Match[index].start;
+						end = Match[index].end;
+						ShiftLength = TokenEnd - TokenStart;
 					}
 				}
 				else
