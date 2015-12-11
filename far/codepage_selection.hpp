@@ -57,9 +57,9 @@ public:
 	~codepages();
 
 	bool IsCodePageSupported(uintptr_t CodePage, size_t MaxCharSize = size_t(-1)) const;
-	bool SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool ViewOnly = false, bool bShowAutoDetect = false);
-	UINT FillCodePagesList(Dialog* Dlg, UINT controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault, bool bViewOnly = false);
-	void FillCodePagesList(std::vector<DialogBuilderListItem2> &List, bool allowAuto, bool allowAll, bool allowDefault, bool bViewOnly = false);
+	bool SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool ViewOnly, bool bShowAutoDetect);
+	UINT FillCodePagesList(Dialog* Dlg, UINT controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault, bool allowChecked, bool bViewOnly);
+	void FillCodePagesList(std::vector<DialogBuilderListItem2> &List, bool allowAuto, bool allowAll, bool allowDefault, bool allowChecked, bool bViewOnly);
 	string& FormatCodePageName(uintptr_t CodePage, string& CodePageName) const;
 
 	static long long GetFavorite(uintptr_t cp);
@@ -87,7 +87,7 @@ private:
 	size_t GetCodePageInsertPosition(uintptr_t codePage, size_t start, size_t length);
 	void AddCodePages(DWORD codePages);
 	void SetFavorite(bool State);
-	void FillCodePagesVMenu(bool bShowUnicode, bool bViewOnly = false, bool bShowAutoDetect = false);
+	void FillCodePagesVMenu(bool bShowUnicode, bool bViewOnly, bool bShowAutoDetect);
 	intptr_t EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	void EditCodePageName();
 

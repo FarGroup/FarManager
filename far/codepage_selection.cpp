@@ -715,13 +715,13 @@ bool codepages::SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bVie
 }
 
 // Заполняем список таблицами символов
-void codepages::FillCodePagesList(std::vector<DialogBuilderListItem2> &List, bool allowAuto, bool allowAll, bool allowDefault, bool bViewOnly)
+void codepages::FillCodePagesList(std::vector<DialogBuilderListItem2> &List, bool allowAuto, bool allowAll, bool allowDefault, bool allowChecked, bool bViewOnly)
 {
 	CallbackCallSource = CodePagesFill2;
 	// Устанавливаем переменные для доступа из каллбака
 	DialogBuilderList = &List;
 	favoriteCodePages = normalCodePages = 0;
-	selectedCodePages = !allowAuto && allowAll;
+	selectedCodePages = allowChecked;
 	// Добавляем стандартные элементы в список
 	AddCodePages
 		((allowDefault ? ::DefaultCP : 0)
@@ -735,7 +735,7 @@ void codepages::FillCodePagesList(std::vector<DialogBuilderListItem2> &List, boo
 
 
 // Заполняем список таблицами символов
-UINT codepages::FillCodePagesList(Dialog* Dlg, UINT controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault, bool bViewOnly)
+UINT codepages::FillCodePagesList(Dialog* Dlg, UINT controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault, bool allowChecked, bool bViewOnly)
 {
 	CallbackCallSource = CodePagesFill;
 	// Устанавливаем переменные для доступа из каллбака
@@ -743,7 +743,7 @@ UINT codepages::FillCodePagesList(Dialog* Dlg, UINT controlId, uintptr_t codePag
 	control = controlId;
 	currentCodePage = codePage;
 	favoriteCodePages = normalCodePages = 0;
-	selectedCodePages = !allowAuto && allowAll;
+	selectedCodePages = allowChecked;
 	// Добавляем стандартные элементы в список
 	AddCodePages
 		((allowDefault ? ::DefaultCP : 0)

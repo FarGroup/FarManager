@@ -684,7 +684,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			Dlg->SendMessage(DM_LISTSETTITLES,FAD_COMBOBOX_CP,&Titles);
 			// Установка запомненных ранее параметров
 			CodePage = Global->Opt->FindCodePage;
-			favoriteCodePages = Codepages().FillCodePagesList(Dlg, FAD_COMBOBOX_CP, CodePage, true, true, false, false);
+			favoriteCodePages = Codepages().FillCodePagesList(Dlg, FAD_COMBOBOX_CP, CodePage, true, true, false, true, false);
 			SetAllCpTitle();
 
 			// Текущее значение в списке выбора кодовых страниц в общем случае может не совпадать с CodePage,

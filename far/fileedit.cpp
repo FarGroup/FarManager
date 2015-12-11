@@ -95,7 +95,7 @@ intptr_t hndOpenEditor(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 	if (msg == DN_INITDIALOG)
 	{
 		uintptr_t codepage = *(uintptr_t*)param2;
-		Codepages().FillCodePagesList(Dlg, ID_OE_CODEPAGE, codepage, true, false, true, false);
+		Codepages().FillCodePagesList(Dlg, ID_OE_CODEPAGE, codepage, true, false, true, false, false);
 	}
 
 	if (msg == DN_CLOSE)
@@ -151,7 +151,7 @@ bool dlgBadEditorCodepage(uintptr_t &codepage)
 	{
 		if (msg == DN_INITDIALOG)
 		{
-			Codepages().FillCodePagesList(dlg, id_cp, codepage, true, false, true, false);
+			Codepages().FillCodePagesList(dlg, id_cp, codepage, true, false, true, false, false);
 		}
 		else if (msg == DN_CLOSE && p1 == id_ok)
 		{
@@ -207,7 +207,7 @@ intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 		case DN_INITDIALOG:
 		{
 			CurrentCodepage = *(uintptr_t *)Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr);
-			Codepages().FillCodePagesList(Dlg, ID_SF_CODEPAGE, CurrentCodepage, false, false, false, false);
+			Codepages().FillCodePagesList(Dlg, ID_SF_CODEPAGE, CurrentCodepage, false, false, false, false, false);
 			break;
 		}
 		case DN_CLOSE:
