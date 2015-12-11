@@ -1055,7 +1055,7 @@ string ReplaceBrackets(const wchar_t *SearchStr, const string& ReplaceStr, const
 				}
 				else
 				{
-					static const std::wregex re(RE_BEGIN RE_ESCAPE(L"{"), RE_C_GROUP(RE_ANY_OF(L"\\w\\s") RE_ZERO_OR_MORE_LAZY) RE_ESCAPE(L"}"), std::regex::optimize);
+					static const std::wregex re(RE_BEGIN RE_ESCAPE(L"{") RE_C_GROUP(RE_ANY_OF(L"\\w\\s") RE_ZERO_OR_MORE_LAZY) RE_ESCAPE(L"}"), std::regex::optimize);
 					std::wcmatch CMatch;
 					if (std::regex_search(ReplaceStr.data() + TokenStart, CMatch, re))
 					{
