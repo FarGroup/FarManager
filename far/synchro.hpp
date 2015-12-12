@@ -1,13 +1,15 @@
+п»ї#ifndef SYNCHRO_HPP_ED4F0813_C518_409B_8576_F2E7CF4166CC
+#define SYNCHRO_HPP_ED4F0813_C518_409B_8576_F2E7CF4166CC
 #pragma once
 
 /*
 synchro.hpp
 
-Критические секции, мютексы, эвенты и т.п.
+РљСЂРёС‚РёС‡РµСЃРєРёРµ СЃРµРєС†РёРё, РјСЋС‚РµРєСЃС‹, СЌРІРµРЅС‚С‹ Рё С‚.Рї.
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -295,3 +297,5 @@ public:
 private:
 	std::vector<HANDLE> Objects;
 };
+
+#endif // SYNCHRO_HPP_ED4F0813_C518_409B_8576_F2E7CF4166CC

@@ -1,11 +1,11 @@
-/*
+п»ї/*
 cvtname.cpp
 
-Функций для преобразования имен файлов/путей.
+Р¤СѓРЅРєС†РёР№ РґР»СЏ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ РёРјРµРЅ С„Р°Р№Р»РѕРІ/РїСѓС‚РµР№.
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -304,14 +304,14 @@ size_t GetMountPointLen(const string& abs_path, const string& drive_root)
 }
 
 /*
-  Преобразует Src в полный РЕАЛЬНЫЙ путь с учетом reparse point.
+  РџСЂРµРѕР±СЂР°Р·СѓРµС‚ Src РІ РїРѕР»РЅС‹Р№ Р Р•РђР›Р¬РќР«Р™ РїСѓС‚СЊ СЃ СѓС‡РµС‚РѕРј reparse point.
   Note that Src can be partially non-existent.
 */
 void ConvertNameToReal(const string& Src, string &strDest)
 {
 	SCOPED_ACTION(elevation::suppress);
 
-	// Получим сначала полный путь до объекта обычным способом
+	// РџРѕР»СѓС‡РёРј СЃРЅР°С‡Р°Р»Р° РїРѕР»РЅС‹Р№ РїСѓС‚СЊ РґРѕ РѕР±СЉРµРєС‚Р° РѕР±С‹С‡РЅС‹Рј СЃРїРѕСЃРѕР±РѕРј
 	string FullPath;
 	ConvertNameToFull(Src, FullPath);
 	strDest = FullPath;
@@ -435,7 +435,7 @@ void ConvertNameToLong(const string& Src, string &strDest)
 void ConvertNameToUNC(string &strFileName)
 {
 	ConvertNameToFull(strFileName,strFileName);
-	// Посмотрим на тип файловой системы
+	// РџРѕСЃРјРѕС‚СЂРёРј РЅР° С‚РёРї С„Р°Р№Р»РѕРІРѕР№ СЃРёСЃС‚РµРјС‹
 	string strFileSystemName;
 	string strTemp;
 	GetPathRoot(strFileName,strTemp);
@@ -446,7 +446,7 @@ void ConvertNameToUNC(string &strFileName)
 	DWORD uniSize = 1024;
 	block_ptr<UNIVERSAL_NAME_INFO> uni(uniSize);
 
-	// применяем WNetGetUniversalName для чего угодно, только не для Novell`а
+	// РїСЂРёРјРµРЅСЏРµРј WNetGetUniversalName РґР»СЏ С‡РµРіРѕ СѓРіРѕРґРЅРѕ, С‚РѕР»СЊРєРѕ РЅРµ РґР»СЏ Novell`Р°
 	if (StrCmpI(strFileSystemName.data(),L"NWFS"))
 	{
 		DWORD dwRet=WNetGetUniversalName(strFileName.data(),UNIVERSAL_NAME_INFO_LEVEL,uni.get(),&uniSize);
@@ -467,9 +467,9 @@ void ConvertNameToUNC(string &strFileName)
 	}
 	else if (strFileName.size() > 1 && strFileName[1] == L':')
 	{
-		// BugZ#449 - Неверная работа CtrlAltF с ресурсами Novell DS
-		// Здесь, если не получилось получить UniversalName и если это
-		// мапленный диск - получаем как для меню выбора дисков
+		// BugZ#449 - РќРµРІРµСЂРЅР°СЏ СЂР°Р±РѕС‚Р° CtrlAltF СЃ СЂРµСЃСѓСЂСЃР°РјРё Novell DS
+		// Р—РґРµСЃСЊ, РµСЃР»Рё РЅРµ РїРѕР»СѓС‡РёР»РѕСЃСЊ РїРѕР»СѓС‡РёС‚СЊ UniversalName Рё РµСЃР»Рё СЌС‚Рѕ
+		// РјР°РїР»РµРЅРЅС‹Р№ РґРёСЃРє - РїРѕР»СѓС‡Р°РµРј РєР°Рє РґР»СЏ РјРµРЅСЋ РІС‹Р±РѕСЂР° РґРёСЃРєРѕРІ
 		if (DriveLocalToRemoteName(DRIVE_UNKNOWN,strFileName[0],strTemp))
 		{
 			const auto SlashPos = FindSlash(strFileName);
@@ -486,8 +486,8 @@ void ConvertNameToUNC(string &strFileName)
 	ConvertNameToReal(strFileName,strFileName);
 }
 
-// Косметические преобразования строки пути.
-// CheckFullPath используется в FCTL_SET[ANOTHER]PANELDIR
+// РљРѕСЃРјРµС‚РёС‡РµСЃРєРёРµ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ СЃС‚СЂРѕРєРё РїСѓС‚Рё.
+// CheckFullPath РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РІ FCTL_SET[ANOTHER]PANELDIR
 string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 {
 	// elevation not required during cosmetic operation

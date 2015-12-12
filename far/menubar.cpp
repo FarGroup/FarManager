@@ -1,11 +1,11 @@
-/*
+п»ї/*
 menubar.cpp
 
-Показ горизонтального меню при включенном "Always show menu bar"
+РџРѕРєР°Р· РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅРѕРіРѕ РјРµРЅСЋ РїСЂРё РІРєР»СЋС‡РµРЅРЅРѕРј "Always show menu bar"
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

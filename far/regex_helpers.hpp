@@ -1,3 +1,5 @@
+﻿#ifndef REGEX_HELPERS_HPP_6234E87B_6989_44C2_8B6E_1E2B4EA40099
+#define REGEX_HELPERS_HPP_6234E87B_6989_44C2_8B6E_1E2B4EA40099
 #pragma once
 /*
 regex_helpers.hpp
@@ -5,7 +7,7 @@ regex_helpers.hpp
 Some macro spells to make this witchcraft readable
 */
 /*
-Copyright � 2015 Far Group
+Copyright © 2015 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -65,3 +67,5 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define RE_ANY_HEX RE_ANY_OF(L"0-9A-Fa-f")
 #define RE_ANY_UUID RE_ANY_HEX RE_REPEAT(8) L"-" RE_NC_GROUP(RE_ANY_HEX RE_REPEAT(4) L"-") RE_REPEAT(3) RE_ANY_HEX RE_REPEAT(12)
 #define RE_ANY_WHITESPACE RE_ANY_OF(RE_SPACE RE_TAB) RE_ZERO_OR_MORE_GREEDY
+
+#endif // REGEX_HELPERS_HPP_6234E87B_6989_44C2_8B6E_1E2B4EA40099

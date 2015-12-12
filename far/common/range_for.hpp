@@ -1,7 +1,9 @@
+﻿#ifndef RANGE_FOR_HPP_ED9508AE_71CC_4F86_B802_47B026B392FD
+#define RANGE_FOR_HPP_ED9508AE_71CC_4F86_B802_47B026B392FD
 #pragma once
 
 /*
-Copyright � 2014 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -49,3 +51,5 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #else
 #define FOR(i, c) for(i: c)
 #endif
+
+#endif // RANGE_FOR_HPP_ED9508AE_71CC_4F86_B802_47B026B392FD

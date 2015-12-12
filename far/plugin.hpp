@@ -1,6 +1,6 @@
+ï»¿#ifndef PLUGIN_HPP_3FC978E9_63BE_4FC2_8F96_8188B0AF8363
+#define PLUGIN_HPP_3FC978E9_63BE_4FC2_8F96_8188B0AF8363
 #pragma once
-#ifndef __PLUGIN_HPP__
-#define __PLUGIN_HPP__
 
 #ifndef FAR_USE_INTERNALS
 #define FAR_USE_INTERNALS
@@ -12,8 +12,8 @@
 */
 
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright Â© 1996 Eugene Roshal
+Copyright Â© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -3027,4 +3027,4 @@ extern "C"
 
 #endif /* RC_INVOKED */
 
-#endif /* __PLUGIN_HPP__ */
+#endif // PLUGIN_HPP_3FC978E9_63BE_4FC2_8F96_8188B0AF8363

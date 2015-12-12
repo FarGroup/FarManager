@@ -1,11 +1,11 @@
-/*
+п»ї/*
 farexcpt.cpp
 
-Все про исключения
+Р’СЃРµ РїСЂРѕ РёСЃРєР»СЋС‡РµРЅРёСЏ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ WARNING_POP()
 #endif
 
 static const wchar_t* gFrom = nullptr;
-static Plugin *PluginModule = nullptr;     // модуль, приведший к исключению.
+static Plugin *PluginModule = nullptr;     // РјРѕРґСѓР»СЊ, РїСЂРёРІРµРґС€РёР№ Рє РёСЃРєР»СЋС‡РµРЅРёСЋ.
 
 void CreatePluginStartupInfo(const Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
@@ -227,7 +227,7 @@ struct MakeFourCC
 
 enum FARRECORDTYPE
 {
-	RTYPE_PLUGIN = MakeFourCC<'C', 'P', 'L', 'G'>::value, // информация о текущем плагине
+	RTYPE_PLUGIN = MakeFourCC<'C', 'P', 'L', 'G'>::value, // РёРЅС„РѕСЂРјР°С†РёСЏ Рѕ С‚РµРєСѓС‰РµРј РїР»Р°РіРёРЅРµ
 };
 
 #ifdef WITH_MINIDUMP
@@ -291,14 +291,14 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 
 		if (m)
 		{
-			struct PLUGINRECORD       // информация о плагине
+			struct PLUGINRECORD       // РёРЅС„РѕСЂРјР°С†РёСЏ Рѕ РїР»Р°РіРёРЅРµ
 			{
-				DWORD TypeRec;          // Тип записи = RTYPE_PLUGIN
-				DWORD SizeRec;          // Размер
+				DWORD TypeRec;          // РўРёРї Р·Р°РїРёСЃРё = RTYPE_PLUGIN
+				DWORD SizeRec;          // Р Р°Р·РјРµСЂ
 				DWORD Reserved1[4];
 				// DWORD SysID; GUID
 				const wchar_t *ModuleName;
-				DWORD Reserved2[2];    // резерв :-)
+				DWORD Reserved2[2];    // СЂРµР·РµСЂРІ :-)
 				DWORD SizeModuleName;
 			};
 
@@ -341,9 +341,9 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 
 	static const struct
 	{
-		NTSTATUS Code;     // код исключения
+		NTSTATUS Code;     // РєРѕРґ РёСЃРєР»СЋС‡РµРЅРёСЏ
 		const wchar_t* DefaultMsg; // Lng-files may not be loaded yet
-		LNGID IdMsg;    // ID сообщения из LNG-файла
+		LNGID IdMsg;    // ID СЃРѕРѕР±С‰РµРЅРёСЏ РёР· LNG-С„Р°Р№Р»Р°
 	}
 	ECode[]=
 	{
@@ -360,7 +360,7 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 		{CODEANDTEXT(EXCEPTION_ILLEGAL_INSTRUCTION),MExcBadInstruction},
 		{CODEANDTEXT(EXCEPTION_PRIV_INSTRUCTION),MExcBadInstruction},
 		{CODEANDTEXT(EXCEPTION_DATATYPE_MISALIGNMENT), MExcDatatypeMisalignment},
-		// сюды добавляем.
+		// СЃСЋРґС‹ РґРѕР±Р°РІР»СЏРµРј.
 
 		#undef CODEANDTEXT
 	};
@@ -369,7 +369,7 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 	string strBuf;
 	string strFileName;
 	BOOL ShowMessages=FALSE;
-	// получим запись исключения
+	// РїРѕР»СѓС‡РёРј Р·Р°РїРёСЃСЊ РёСЃРєР»СЋС‡РµРЅРёСЏ
 	EXCEPTION_RECORD *xr = xp->ExceptionRecord;
 
 	if (!PluginModule)
@@ -389,7 +389,7 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 	}
 
 	LPCWSTR Exception=nullptr;
-	// просмотрим "знакомые" FAR`у исключения и обработаем...
+	// РїСЂРѕСЃРјРѕС‚СЂРёРј "Р·РЅР°РєРѕРјС‹Рµ" FAR`Сѓ РёСЃРєР»СЋС‡РµРЅРёСЏ Рё РѕР±СЂР°Р±РѕС‚Р°РµРј...
 	const auto ItemIterator = std::find_if(CONST_RANGE(ECode, i)
 	{
 		return i.Code == static_cast<NTSTATUS>(xr->ExceptionCode);
@@ -402,9 +402,9 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 		if (xr->ExceptionCode == static_cast<DWORD>(EXCEPTION_ACCESS_VIOLATION))
 		{
 			int Offset = 0;
-			// вот только не надо здесь неочевидных оптимизаций вида
+			// РІРѕС‚ С‚РѕР»СЊРєРѕ РЅРµ РЅР°РґРѕ Р·РґРµСЃСЊ РЅРµРѕС‡РµРІРёРґРЅС‹С… РѕРїС‚РёРјРёР·Р°С†РёР№ РІРёРґР°
 			// if ( xr->ExceptionInformation[0] == 8 ) Offset = 2 else Offset = xr->ExceptionInformation[0],
-			// а то M$ порадует нас как-нибудь xr->ExceptionInformation[0] == 4 и все будет в полной жопе.
+			// Р° С‚Рѕ M$ РїРѕСЂР°РґСѓРµС‚ РЅР°СЃ РєР°Рє-РЅРёР±СѓРґСЊ xr->ExceptionInformation[0] == 4 Рё РІСЃРµ Р±СѓРґРµС‚ РІ РїРѕР»РЅРѕР№ Р¶РѕРїРµ.
 
 			switch (xr->ExceptionInformation[0])
 			{
@@ -596,7 +596,7 @@ WARNING_DISABLE_CLANG("-Winfinite-recursion")
 
 static void Test_EXCEPTION_STACK_OVERFLOW(char* target)
 {
-	char Buffer[2048]; /* чтобы быстрее рвануло */
+	char Buffer[2048]; /* С‡С‚РѕР±С‹ Р±С‹СЃС‚СЂРµРµ СЂРІР°РЅСѓР»Рѕ */
 	strcpy(Buffer, "zzzz");
 	Test_EXCEPTION_STACK_OVERFLOW(Buffer);
 
@@ -607,7 +607,7 @@ WARNING_POP()
 
 static int ExceptionTestHook(Manager::Key key)
 {
-	// сей код для проверки исключатор, просьба не трогать :-)
+	// СЃРµР№ РєРѕРґ РґР»СЏ РїСЂРѕРІРµСЂРєРё РёСЃРєР»СЋС‡Р°С‚РѕСЂ, РїСЂРѕСЃСЊР±Р° РЅРµ С‚СЂРѕРіР°С‚СЊ :-)
 	if (
 		key.FarKey() == KEY_CTRLALTAPPS ||
 		key.FarKey() == KEY_RCTRLRALTAPPS ||

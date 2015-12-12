@@ -1,13 +1,15 @@
+п»ї#ifndef HEADERS_HPP_9A02D08B_02BB_4240_845F_36ED60ED2647
+#define HEADERS_HPP_9A02D08B_02BB_4240_845F_36ED60ED2647
 #pragma once
 
 /*
 headers.hpp
 
-Стандартные заголовки
+РЎС‚Р°РЅРґР°СЂС‚РЅС‹Рµ Р·Р°РіРѕР»РѕРІРєРё
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -178,3 +180,5 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 
 #include "global.hpp"
+
+#endif // HEADERS_HPP_9A02D08B_02BB_4240_845F_36ED60ED2647

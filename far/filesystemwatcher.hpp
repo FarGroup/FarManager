@@ -1,12 +1,14 @@
+Ôªø#ifndef FILESYSTEMWATCHER_HPP_A4DC2834_A694_4E86_B8BA_FDA8DBF728CD
+#define FILESYSTEMWATCHER_HPP_A4DC2834_A694_4E86_B8BA_FDA8DBF728CD
 #pragma once
 
 /*
 filesystemwatcher.hpp
 
- Î‡ÒÒ FileSystemWatcher
+–ö–ª–∞—Å—Å FileSystemWatcher
 */
 /*
-Copyright © 2012 Far Group
+Copyright ¬© 2012 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -57,3 +59,5 @@ private:
 	Event m_DoneDone;
 	Event m_Changed;
 };
+
+#endif // FILESYSTEMWATCHER_HPP_A4DC2834_A694_4E86_B8BA_FDA8DBF728CD

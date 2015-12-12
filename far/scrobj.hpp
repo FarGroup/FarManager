@@ -1,13 +1,15 @@
+п»ї#ifndef SCROBJ_HPP_1BE17E05_38A9_47FA_B7B0_D362B61BCA38
+#define SCROBJ_HPP_1BE17E05_38A9_47FA_B7B0_D362B61BCA38
 #pragma once
 
 /*
 scrobj.hpp
 
-Parent class для всех screen objects
+Parent class РґР»СЏ РІСЃРµС… screen objects
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -38,13 +40,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class SaveScreen;
 
-// можно использовать только младший байт (т.е. маска 0x000000FF), остальное отдается порожденным классам
+// РјРѕР¶РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ С‚РѕР»СЊРєРѕ РјР»Р°РґС€РёР№ Р±Р°Р№С‚ (С‚.Рµ. РјР°СЃРєР° 0x000000FF), РѕСЃС‚Р°Р»СЊРЅРѕРµ РѕС‚РґР°РµС‚СЃСЏ РїРѕСЂРѕР¶РґРµРЅРЅС‹Рј РєР»Р°СЃСЃР°Рј
 enum
 {
 	FSCROBJ_VISIBLE              = 0x00000001,
 	FSCROBJ_ENABLERESTORESCREEN  = 0x00000002,
 	FSCROBJ_SETPOSITIONDONE      = 0x00000004,
-	FSCROBJ_ISREDRAWING          = 0x00000008,   // идет процесс Show?
+	FSCROBJ_ISREDRAWING          = 0x00000008,   // РёРґРµС‚ РїСЂРѕС†РµСЃСЃ Show?
 };
 
 class SimpleScreenObject: noncopyable
@@ -143,3 +145,5 @@ protected:
 
 	std::unique_ptr<SaveScreen> ShadowSaveScr;
 };
+
+#endif // SCROBJ_HPP_1BE17E05_38A9_47FA_B7B0_D362B61BCA38

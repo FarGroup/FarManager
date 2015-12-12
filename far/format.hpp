@@ -1,12 +1,14 @@
+п»ї#ifndef FORMAT_HPP_27C3F464_170B_432E_9D44_3884DDBB95AC
+#define FORMAT_HPP_27C3F464_170B_432E_9D44_3884DDBB95AC
 #pragma once
 
 /*
 format.hpp
 
-Форматирование строк
+Р¤РѕСЂРјР°С‚РёСЂРѕРІР°РЅРёРµ СЃС‚СЂРѕРє
 */
 /*
-Copyright © 2009 Far Group
+Copyright В© 2009 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -218,3 +220,5 @@ string string_format(const T& Format, Args&&... args)
 	return Container;
 }
 #endif
+
+#endif // FORMAT_HPP_27C3F464_170B_432E_9D44_3884DDBB95AC

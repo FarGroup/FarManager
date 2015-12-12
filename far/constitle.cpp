@@ -1,11 +1,11 @@
-/*
+п»ї/*
 constitle.cpp
 
-Заголовок консоли
+Р—Р°РіРѕР»РѕРІРѕРє РєРѕРЅСЃРѕР»Рё
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -170,9 +170,9 @@ void ConsoleTitle::RestoreTitle()
 	if(Global->ScrBuf->GetLockCount()==0)
 	{
 		/*
-			RestoreTitle() для случая, когда нужно выставить пред.заголовок
-			Не для всех!
-			Этот вызов имеет право делать только макро-движок!
+			RestoreTitle() РґР»СЏ СЃР»СѓС‡Р°СЏ, РєРѕРіРґР° РЅСѓР¶РЅРѕ РІС‹СЃС‚Р°РІРёС‚СЊ РїСЂРµРґ.Р·Р°РіРѕР»РѕРІРѕРє
+			РќРµ РґР»СЏ РІСЃРµС…!
+			Р­С‚РѕС‚ РІС‹Р·РѕРІ РёРјРµРµС‚ РїСЂР°РІРѕ РґРµР»Р°С‚СЊ С‚РѕР»СЊРєРѕ РјР°РєСЂРѕ-РґРІРёР¶РѕРє!
 		*/
 		Console().SetTitle(FarTitle());
 		TitleModified=false;

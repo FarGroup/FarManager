@@ -1,13 +1,15 @@
+п»ї#ifndef USERMENU_HPP_E234A9E0_BB8F_49CD_9C80_A1004107088D
+#define USERMENU_HPP_E234A9E0_BB8F_49CD_9C80_A1004107088D
 #pragma once
 
 /*
 usermenu.hpp
 
-User menu и есть
+User menu Рё РµСЃС‚СЊ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -40,7 +42,7 @@ class UserMenu: noncopyable
 	struct UserMenuItem;
 
 public:
-	UserMenu(bool ChooseMenuType); //	true - выбор типа меню (основное или локальное), false - зависит от наличия FarMenu.Ini в текущем каталоге
+	UserMenu(bool ChooseMenuType); //	true - РІС‹Р±РѕСЂ С‚РёРїР° РјРµРЅСЋ (РѕСЃРЅРѕРІРЅРѕРµ РёР»Рё Р»РѕРєР°Р»СЊРЅРѕРµ), false - Р·Р°РІРёСЃРёС‚ РѕС‚ РЅР°Р»РёС‡РёСЏ FarMenu.Ini РІ С‚РµРєСѓС‰РµРј РєР°С‚Р°Р»РѕРіРµ
 	UserMenu(const string& MenuFileName);
 	~UserMenu();
 
@@ -60,3 +62,5 @@ private:
 	uintptr_t m_MenuCP;
 	menu_container m_Menu;
 };
+
+#endif // USERMENU_HPP_E234A9E0_BB8F_49CD_9C80_A1004107088D

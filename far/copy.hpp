@@ -1,13 +1,15 @@
+п»ї#ifndef COPY_HPP_741275F9_6A07_4F73_9674_D8464C559194
+#define COPY_HPP_741275F9_6A07_4F73_9674_D8464C559194
 #pragma once
 
 /*
 copy.hpp
 
-class ShellCopy - Копирование файлов
+class ShellCopy - РљРѕРїРёСЂРѕРІР°РЅРёРµ С„Р°Р№Р»РѕРІ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -86,15 +88,15 @@ private:
 	int OvrMode;
 	int ReadOnlyOvrMode;
 	int ReadOnlyDelMode;
-	int SkipMode;          // ...для пропуска при копировании залоченных файлов.
+	int SkipMode;          // ...РґР»СЏ РїСЂРѕРїСѓСЃРєР° РїСЂРё РєРѕРїРёСЂРѕРІР°РЅРёРё Р·Р°Р»РѕС‡РµРЅРЅС‹С… С„Р°Р№Р»РѕРІ.
 	int SkipEncMode;
 	int SkipDeleteMode;
 	bool SkipSecurityErrors;
 	int SelectedFolderNameLength;
 	std::vector<string> m_DestList;
-	// тип создаваемого репарспоинта.
-	// при AltF6 будет то, что выбрал юзер в диалоге,
-	// в остальных случаях - RP_EXACTCOPY - как у источника
+	// С‚РёРї СЃРѕР·РґР°РІР°РµРјРѕРіРѕ СЂРµРїР°СЂСЃРїРѕРёРЅС‚Р°.
+	// РїСЂРё AltF6 Р±СѓРґРµС‚ С‚Рѕ, С‡С‚Рѕ РІС‹Р±СЂР°Р» СЋР·РµСЂ РІ РґРёР°Р»РѕРіРµ,
+	// РІ РѕСЃС‚Р°Р»СЊРЅС‹С… СЃР»СѓС‡Р°СЏС… - RP_EXACTCOPY - РєР°Рє Сѓ РёСЃС‚РѕС‡РЅРёРєР°
 	ReparsePointTypes RPT;
 	string strPluginFormat;
 	int AltF10;
@@ -108,3 +110,5 @@ private:
 	HANDLE m_FileHandleForStreamSizeFix;
 	size_t m_NumberOfTargets;
 };
+
+#endif // COPY_HPP_741275F9_6A07_4F73_9674_D8464C559194

@@ -1,12 +1,12 @@
-/*
+п»ї/*
 tvar.cpp
 
-Реализация класса TVar (для макросов)
+Р РµР°Р»РёР·Р°С†РёСЏ РєР»Р°СЃСЃР° TVar (РґР»СЏ РјР°РєСЂРѕСЃРѕРІ)
 
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -158,7 +158,7 @@ static TypeString checkTypeString(const string& TestStr)
 
 					if (ch2 == L'-' || ch2 == L'+')  // E+D
 					{
-						if (isBegHex || isExpSign)  // начало hex или уже был знак у порядка?
+						if (isBegHex || isExpSign)  // РЅР°С‡Р°Р»Рѕ hex РёР»Рё СѓР¶Рµ Р±С‹Р» Р·РЅР°Рє Сѓ РїРѕСЂСЏРґРєР°?
 						{
 							isNum=false;
 							break;
@@ -167,7 +167,7 @@ static TypeString checkTypeString(const string& TestStr)
 						isExpSign=true;
 						wchar_t ch3=*ptrTestStr++;
 
-						if (!std::iswdigit(ch3))   // за знаком идет число?
+						if (!std::iswdigit(ch3))   // Р·Р° Р·РЅР°РєРѕРј РёРґРµС‚ С‡РёСЃР»Рѕ?
 						{
 							isNum=false;
 							break;

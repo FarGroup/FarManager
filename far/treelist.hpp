@@ -1,3 +1,5 @@
+п»ї#ifndef TREELIST_HPP_B2FDA185_E801_437B_A9D7_F4D3CE6D40A4
+#define TREELIST_HPP_B2FDA185_E801_437B_A9D7_F4D3CE6D40A4
 #pragma once
 
 /*
@@ -6,8 +8,8 @@ treelist.hpp
 Tree panel
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -153,5 +155,7 @@ private:
 	size_t m_WorkDir;
 	size_t m_SavedWorkDir;
 	long m_GetSelPosition;
-	int m_ExitCode; // актуально только для дерева, вызванного из копира!
+	int m_ExitCode; // Р°РєС‚СѓР°Р»СЊРЅРѕ С‚РѕР»СЊРєРѕ РґР»СЏ РґРµСЂРµРІР°, РІС‹Р·РІР°РЅРЅРѕРіРѕ РёР· РєРѕРїРёСЂР°!
 };
+
+#endif // TREELIST_HPP_B2FDA185_E801_437B_A9D7_F4D3CE6D40A4

@@ -1,11 +1,11 @@
-/*
+п»ї/*
 panel.cpp
 
-Parent class для панелей
+Parent class РґР»СЏ РїР°РЅРµР»РµР№
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -90,7 +90,7 @@ static SaveScreen *DragSaveScr=nullptr;
 static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile);
 
 /* $ 21.08.2002 IS
-   Класс для хранения пункта плагина в меню выбора дисков
+   РљР»Р°СЃСЃ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РїСѓРЅРєС‚Р° РїР»Р°РіРёРЅР° РІ РјРµРЅСЋ РІС‹Р±РѕСЂР° РґРёСЃРєРѕРІ
 */
 
 class ChDiskPluginItem:noncopyable, swapable<ChDiskPluginItem>
@@ -361,7 +361,7 @@ enum
 
 int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 {
-	class Guard_Macro_DskShowPosType  //фигня какая-то
+	class Guard_Macro_DskShowPosType  //С„РёРіРЅСЏ РєР°РєР°СЏ-С‚Рѕ
 	{
 	public:
 		Guard_Macro_DskShowPosType(Panel *curPanel) { Global->Macro_DskShowPosType = (curPanel == curPanel->Parent()->LeftPanel) ? 1 : 2; }
@@ -374,7 +374,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	const auto DiskCount = Mask.count();
 
 	PanelMenuItem Item, *mitem = nullptr;
-	{ // эта скобка надо, см. M#605
+	{ // СЌС‚Р° СЃРєРѕР±РєР° РЅР°РґРѕ, СЃРј. M#605
 		const auto ChDisk = VMenu2::create(MSG(MChangeDriveTitle), nullptr, 0, ScrY - m_Y1 - 3);
 		ChDisk->SetBottomTitle(MSG(MChangeDriveMenuFooter));
 		ChDisk->SetHelp(L"DriveDlg");
@@ -400,10 +400,10 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		auto DE = std::make_unique<elevation::suppress>();
 		/* $ 02.04.2001 VVM
-		! Попытка не будить спящие диски... */
+		! РџРѕРїС‹С‚РєР° РЅРµ Р±СѓРґРёС‚СЊ СЃРїСЏС‰РёРµ РґРёСЃРєРё... */
 		for (size_t i = 0; i < Mask.size(); ++i)
 		{
-			if (!Mask[i])   //нету диска
+			if (!Mask[i])   //РЅРµС‚Сѓ РґРёСЃРєР°
 				continue;
 
 			DiskMenuItem NewItem;
@@ -493,13 +493,13 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				{
 					if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_SIZE)
 					{
-						//размер как минимум в мегабайтах
+						//СЂР°Р·РјРµСЂ РєР°Рє РјРёРЅРёРјСѓРј РІ РјРµРіР°Р±Р°Р№С‚Р°С…
 						FileSizeToStr(NewItem.TotalSize,TotalSize,9,COLUMN_COMMAS|COLUMN_MINSIZEINDEX|1);
 						FileSizeToStr(NewItem.FreeSize,UserFree,9,COLUMN_COMMAS|COLUMN_MINSIZEINDEX|1);
 					}
 					else
 					{
-						//размер с точкой и для 0 добавляем букву размера (B)
+						//СЂР°Р·РјРµСЂ СЃ С‚РѕС‡РєРѕР№ Рё РґР»СЏ 0 РґРѕР±Р°РІР»СЏРµРј Р±СѓРєРІСѓ СЂР°Р·РјРµСЂР° (B)
 						FileSizeToStr(NewItem.TotalSize,TotalSize,9,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
 						FileSizeToStr(NewItem.FreeSize,UserFree,9,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
 					}
@@ -635,7 +635,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 			switch (Key)
 			{
-				// Shift-Enter в меню выбора дисков вызывает проводник для данного диска
+				// Shift-Enter РІ РјРµРЅСЋ РІС‹Р±РѕСЂР° РґРёСЃРєРѕРІ РІС‹Р·С‹РІР°РµС‚ РїСЂРѕРІРѕРґРЅРёРє РґР»СЏ РґР°РЅРЅРѕРіРѕ РґРёСЃРєР°
 				case KEY_SHIFTNUMENTER:
 				case KEY_SHIFTENTER:
 				{
@@ -656,8 +656,8 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 						ChDisk->Close(-1);
 				}
 				break;
-				// Т.к. нет способа получить состояние "открытости" устройства,
-				// то добавим обработку Ins для CD - "закрыть диск"
+				// Рў.Рє. РЅРµС‚ СЃРїРѕСЃРѕР±Р° РїРѕР»СѓС‡РёС‚СЊ СЃРѕСЃС‚РѕСЏРЅРёРµ "РѕС‚РєСЂС‹С‚РѕСЃС‚Рё" СѓСЃС‚СЂРѕР№СЃС‚РІР°,
+				// С‚Рѕ РґРѕР±Р°РІРёРј РѕР±СЂР°Р±РѕС‚РєСѓ Ins РґР»СЏ CD - "Р·Р°РєСЂС‹С‚СЊ РґРёСЃРє"
 				case KEY_INS:
 				case KEY_NUMPAD0:
 				{
@@ -680,10 +680,10 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 						int Code = DisconnectDrive(item, *ChDisk);
 						if (Code != DRIVE_DEL_FAIL && Code != DRIVE_DEL_NONE)
 						{
-							Global->ScrBuf->Lock(); // отменяем всякую прорисовку
+							Global->ScrBuf->Lock(); // РѕС‚РјРµРЅСЏРµРј РІСЃСЏРєСѓСЋ РїСЂРѕСЂРёСЃРѕРІРєСѓ
 							Global->WindowManager->ResizeAllWindows();
-							Global->WindowManager->PluginCommit(); // коммитим.
-							Global->ScrBuf->Unlock(); // разрешаем прорисовку
+							Global->WindowManager->PluginCommit(); // РєРѕРјРјРёС‚РёРј.
+							Global->ScrBuf->Unlock(); // СЂР°Р·СЂРµС€Р°РµРј РїСЂРѕСЂРёСЃРѕРІРєСѓ
 							RetCode=(((DiskCount-SelPos)==1) && (SelPos > 0) && (Code != DRIVE_DEL_EJECT))?SelPos-1:SelPos;
 						}
 					}
@@ -722,7 +722,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				case KEY_SHIFTAPPS:
 				case KEY_MSRCLICK:
 				{
-					//вызовем EMenu если он есть
+					//РІС‹Р·РѕРІРµРј EMenu РµСЃР»Рё РѕРЅ РµСЃС‚СЊ
 					if (item && !item->bIsPlugin && Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu.Id))
 					{
 						const wchar_t DeviceName[] = {item->cDrive, L':', L'\\', 0};
@@ -810,7 +810,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				{
 					if (item && item->bIsPlugin)
 					{
-						// Вызываем нужный топик, который передали в CommandsMenu()
+						// Р’С‹Р·С‹РІР°РµРј РЅСѓР¶РЅС‹Р№ С‚РѕРїРёРє, РєРѕС‚РѕСЂС‹Р№ РїРµСЂРµРґР°Р»Рё РІ CommandsMenu()
 						pluginapi::apiShowHelp(
 						    item->pPlugin->GetModuleName().data(),
 						    nullptr,
@@ -871,7 +871,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			Item=*mitem;
 			mitem=&Item;
 		}
-	} // эта скобка надо, см. M#605
+	} // СЌС‚Р° СЃРєРѕР±РєР° РЅР°РґРѕ, СЃРј. M#605
 
 	if (Global->Opt->CloseCDGate && mitem && !mitem->bIsPlugin && IsDriveTypeCDROM(mitem->nDriveType))
 	{
@@ -958,7 +958,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		        !StrCmpI(m_CurDir, strNewCurDir) &&
 		        IsVisible())
 		{
-			// А нужно ли делать здесь Update????
+			// Рђ РЅСѓР¶РЅРѕ Р»Рё РґРµР»Р°С‚СЊ Р·РґРµСЃСЊ Update????
 			Update(UPDATE_KEEP_SELECTION);
 		}
 		else
@@ -975,7 +975,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				NewPanel->Parent()->GetAnotherPanel(NewPanel)->UpdateKeyBar();
 		}
 	}
-	else //эта плагин, да
+	else //СЌС‚Р° РїР»Р°РіРёРЅ, РґР°
 	{
 		const auto hPlugin = Global->CtrlObject->Plugins->Open(
 		                     mitem->pPlugin,
@@ -1007,36 +1007,36 @@ int Panel::DisconnectDrive(const PanelMenuItem *item, VMenu2 &ChDisk)
 		if ((item->nDriveType == DRIVE_REMOVABLE) && !IsEjectableMedia(item->cDrive))
 			return -1;
 
-		// первая попытка извлечь диск
+		// РїРµСЂРІР°СЏ РїРѕРїС‹С‚РєР° РёР·РІР»РµС‡СЊ РґРёСЃРє
 
 		if (!EjectVolume(item->cDrive, EJECT_NO_MESSAGE))
 		{
-			// запоминаем состояние панелей
+			// Р·Р°РїРѕРјРёРЅР°РµРј СЃРѕСЃС‚РѕСЏРЅРёРµ РїР°РЅРµР»РµР№
 			int CMode=GetMode();
 			int AMode = Parent()->GetAnotherPanel(this)->GetMode();
 			string strTmpCDir(GetCurDir()), strTmpADir(Parent()->GetAnotherPanel(this)->GetCurDir());
-			// "цикл до умопомрачения"
+			// "С†РёРєР» РґРѕ СѓРјРѕРїРѕРјСЂР°С‡РµРЅРёСЏ"
 			int DoneEject=FALSE;
 
 			while (!DoneEject)
 			{
-				// "освободим диск" - перейдем при необходимости в домашний каталог
-				// TODO: А если домашний каталог - CD? ;-)
+				// "РѕСЃРІРѕР±РѕРґРёРј РґРёСЃРє" - РїРµСЂРµР№РґРµРј РїСЂРё РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё РІ РґРѕРјР°С€РЅРёР№ РєР°С‚Р°Р»РѕРі
+				// TODO: Рђ РµСЃР»Рё РґРѕРјР°С€РЅРёР№ РєР°С‚Р°Р»РѕРі - CD? ;-)
 				IfGoHome(item->cDrive);
-				// очередная попытка извлечения без вывода сообщения
+				// РѕС‡РµСЂРµРґРЅР°СЏ РїРѕРїС‹С‚РєР° РёР·РІР»РµС‡РµРЅРёСЏ Р±РµР· РІС‹РІРѕРґР° СЃРѕРѕР±С‰РµРЅРёСЏ
 				int ResEject = EjectVolume(item->cDrive, EJECT_NO_MESSAGE);
 
 				if (!ResEject)
 				{
-					// восстановим пути - это избавит нас от левых данных в панели.
+					// РІРѕСЃСЃС‚Р°РЅРѕРІРёРј РїСѓС‚Рё - СЌС‚Рѕ РёР·Р±Р°РІРёС‚ РЅР°СЃ РѕС‚ Р»РµРІС‹С… РґР°РЅРЅС‹С… РІ РїР°РЅРµР»Рё.
 					if (AMode != PLUGIN_PANEL)
 						Parent()->GetAnotherPanel(this)->SetCurDir(strTmpADir, false);
 
 					if (CMode != PLUGIN_PANEL)
 						SetCurDir(strTmpCDir, false);
 
-					// ... и выведем месаг о...
-					SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
+					// ... Рё РІС‹РІРµРґРµРј РјРµСЃР°Рі Рѕ...
+					SetLastError(ERROR_DRIVE_LOCKED); // ...Рѕ "The disk is in use or locked by another process."
 					Global->CatchError();
 					wchar_t Drive[] = {item->cDrive, L':', L'\\', 0};
 					DoneEject = OperationFailed(Drive, MError, string_format(MChangeCouldNotEjectMedia, item->cDrive), false);
@@ -1059,32 +1059,32 @@ void Panel::RemoveHotplugDevice(const PanelMenuItem *item, VMenu2 &ChDisk)
 
 	if (!Code)
 	{
-		// запоминаем состояние панелей
+		// Р·Р°РїРѕРјРёРЅР°РµРј СЃРѕСЃС‚РѕСЏРЅРёРµ РїР°РЅРµР»РµР№
 		int CMode=GetMode();
 		int AMode = Parent()->GetAnotherPanel(this)->GetMode();
 		string strTmpCDir(GetCurDir()), strTmpADir(Parent()->GetAnotherPanel(this)->GetCurDir());
-		// "цикл до умопомрачения"
+		// "С†РёРєР» РґРѕ СѓРјРѕРїРѕРјСЂР°С‡РµРЅРёСЏ"
 		int DoneEject=FALSE;
 
 		while (!DoneEject)
 		{
-			// "освободим диск" - перейдем при необходимости в домашний каталог
-			// TODO: А если домашний каталог - USB? ;-)
+			// "РѕСЃРІРѕР±РѕРґРёРј РґРёСЃРє" - РїРµСЂРµР№РґРµРј РїСЂРё РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё РІ РґРѕРјР°С€РЅРёР№ РєР°С‚Р°Р»РѕРі
+			// TODO: Рђ РµСЃР»Рё РґРѕРјР°С€РЅРёР№ РєР°С‚Р°Р»РѕРі - USB? ;-)
 			IfGoHome(item->cDrive);
-			// очередная попытка извлечения без вывода сообщения
+			// РѕС‡РµСЂРµРґРЅР°СЏ РїРѕРїС‹С‚РєР° РёР·РІР»РµС‡РµРЅРёСЏ Р±РµР· РІС‹РІРѕРґР° СЃРѕРѕР±С‰РµРЅРёСЏ
 			Code = RemoveHotplugDisk(item->cDrive, EJECT_NO_MESSAGE|EJECT_NOTIFY_AFTERREMOVE);
 
 			if (!Code)
 			{
-				// восстановим пути - это избавит нас от левых данных в панели.
+				// РІРѕСЃСЃС‚Р°РЅРѕРІРёРј РїСѓС‚Рё - СЌС‚Рѕ РёР·Р±Р°РІРёС‚ РЅР°СЃ РѕС‚ Р»РµРІС‹С… РґР°РЅРЅС‹С… РІ РїР°РЅРµР»Рё.
 				if (AMode != PLUGIN_PANEL)
 					Parent()->GetAnotherPanel(this)->SetCurDir(strTmpADir, false);
 
 				if (CMode != PLUGIN_PANEL)
 					SetCurDir(strTmpCDir, false);
 
-				// ... и выведем месаг о...
-				SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
+				// ... Рё РІС‹РІРµРґРµРј РјРµСЃР°Рі Рѕ...
+				SetLastError(ERROR_DRIVE_LOCKED); // ...Рѕ "The disk is in use or locked by another process."
 				Global->CatchError();
 				DoneEject = Message(MSG_WARNING|MSG_ERRORTYPE,
 				    MSG(MError),
@@ -1099,7 +1099,7 @@ void Panel::RemoveHotplugDevice(const PanelMenuItem *item, VMenu2 &ChDisk)
 }
 
 /* $ 28.12.2001 DJ
-   обработка Del в меню дисков
+   РѕР±СЂР°Р±РѕС‚РєР° Del РІ РјРµРЅСЋ РґРёСЃРєРѕРІ
 */
 
 int Panel::ProcessDelDisk(wchar_t Drive, int DriveType)
@@ -1156,7 +1156,7 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType)
 						make_vector<string>(MSG(MOk)),
 						nullptr, nullptr, &SUBSTDisconnectDriveError2Id);
 			}
-			return DRIVE_DEL_FAIL; // блин. в прошлый раз забыл про это дело...
+			return DRIVE_DEL_FAIL; // Р±Р»РёРЅ. РІ РїСЂРѕС€Р»С‹Р№ СЂР°Р· Р·Р°Р±С‹Р» РїСЂРѕ СЌС‚Рѕ РґРµР»Рѕ...
 		}
 		break;
 
@@ -1166,14 +1166,14 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType)
 			int UpdateProfile=CONNECT_UPDATE_PROFILE;
 			if (MessageRemoveConnection(Drive,UpdateProfile))
 			{
-				// <КОСТЫЛЬ>
+				// <РљРћРЎРўР«Р›Р¬>
 				SCOPED_ACTION(LockScreen);
-				// если мы находимся на удаляемом диске - уходим с него, чтобы не мешать
-				// удалению
+				// РµСЃР»Рё РјС‹ РЅР°С…РѕРґРёРјСЃСЏ РЅР° СѓРґР°Р»СЏРµРјРѕРј РґРёСЃРєРµ - СѓС…РѕРґРёРј СЃ РЅРµРіРѕ, С‡С‚РѕР±С‹ РЅРµ РјРµС€Р°С‚СЊ
+				// СѓРґР°Р»РµРЅРёСЋ
 				IfGoHome(Drive);
 				Global->WindowManager->ResizeAllWindows();
 				Global->WindowManager->GetCurrentWindow()->Show();
-				// </КОСТЫЛЬ>
+				// </РљРћРЎРўР«Р›Р¬>
 
 				if (WNetCancelConnection2(DiskLetter.data(),UpdateProfile,FALSE)==NO_ERROR)
 				{
@@ -1268,7 +1268,7 @@ __int64 Panel::VMProcess(int OpCode,void *vParam,__int64 iParam)
 	return 0;
 }
 
-// корректировка букв
+// РєРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° Р±СѓРєРІ
 static DWORD _CorrectFastFindKbdLayout(const INPUT_RECORD& rec,DWORD Key)
 {
 	if ((Key&(KEY_ALT|KEY_RALT)))// && Key!=(KEY_ALT|0x3C))
@@ -1364,7 +1364,7 @@ int Search::ProcessKey(const Manager::Key& Key)
 	auto LocalKey = Key.FarKey();
 	string strName;
 
-	// для вставки воспользуемся макродвижком...
+	// РґР»СЏ РІСЃС‚Р°РІРєРё РІРѕСЃРїРѕР»СЊР·СѓРµРјСЃСЏ РјР°РєСЂРѕРґРІРёР¶РєРѕРј...
 	if (LocalKey==KEY_CTRLV || LocalKey==KEY_RCTRLV || LocalKey==KEY_SHIFTINS || LocalKey==KEY_SHIFTNUMPAD0)
 	{
 		string ClipText;
@@ -1470,7 +1470,7 @@ int Search::ProcessKey(const Manager::Key& Key)
 			{
 				m_FindEdit->GetString(strName);
 
-				// уберем двойные '**'
+				// СѓР±РµСЂРµРј РґРІРѕР№РЅС‹Рµ '**'
 				if (strName.size() > 1
 				        && strName.back() == L'*'
 				        && strName[strName.size()-2] == L'*')
@@ -1480,8 +1480,8 @@ int Search::ProcessKey(const Manager::Key& Key)
 				}
 
 				/* $ 09.04.2001 SVS
-				   проблемы с быстрым поиском.
-				   Подробнее в 00573.ChangeDirCrash.txt
+				   РїСЂРѕР±Р»РµРјС‹ СЃ Р±С‹СЃС‚СЂС‹Рј РїРѕРёСЃРєРѕРј.
+				   РџРѕРґСЂРѕР±РЅРµРµ РІ 00573.ChangeDirCrash.txt
 				*/
 				if (!strName.empty() && strName.front() == L'"')
 				{
@@ -1495,9 +1495,9 @@ int Search::ProcessKey(const Manager::Key& Key)
 				}
 				else
 				{
-					if (Global->CtrlObject->Macro.IsExecuting())// && Global->CtrlObject->Macro.GetLevelState() > 0) // если вставка макросом...
+					if (Global->CtrlObject->Macro.IsExecuting())// && Global->CtrlObject->Macro.GetLevelState() > 0) // РµСЃР»Рё РІСЃС‚Р°РІРєР° РјР°РєСЂРѕСЃРѕРј...
 					{
-						//Global->CtrlObject->Macro.DropProcess(); // ... то дропнем макропроцесс
+						//Global->CtrlObject->Macro.DropProcess(); // ... С‚Рѕ РґСЂРѕРїРЅРµРј РјР°РєСЂРѕРїСЂРѕС†РµСЃСЃ
 						//Global->CtrlObject->Macro.PopState();
 						;
 					}
@@ -1828,20 +1828,20 @@ void Panel::InitCurDir(const string& CurDir)
 
 
 /* $ 14.06.2001 KM
-   + Добавлена установка переменных окружения, определяющих
-     текущие директории дисков как для активной, так и для
-     пассивной панели. Это необходимо программам запускаемым
-     из FAR.
+   + Р”РѕР±Р°РІР»РµРЅР° СѓСЃС‚Р°РЅРѕРІРєР° РїРµСЂРµРјРµРЅРЅС‹С… РѕРєСЂСѓР¶РµРЅРёСЏ, РѕРїСЂРµРґРµР»СЏСЋС‰РёС…
+     С‚РµРєСѓС‰РёРµ РґРёСЂРµРєС‚РѕСЂРёРё РґРёСЃРєРѕРІ РєР°Рє РґР»СЏ Р°РєС‚РёРІРЅРѕР№, С‚Р°Рє Рё РґР»СЏ
+     РїР°СЃСЃРёРІРЅРѕР№ РїР°РЅРµР»Рё. Р­С‚Рѕ РЅРµРѕР±С…РѕРґРёРјРѕ РїСЂРѕРіСЂР°РјРјР°Рј Р·Р°РїСѓСЃРєР°РµРјС‹Рј
+     РёР· FAR.
 */
 /* $ 05.10.2001 SVS
-   ! Давайте для начала выставим нужные значения для пассивной панели,
-     а уж потом...
-     А то фигня какая-то получается...
+   ! Р”Р°РІР°Р№С‚Рµ РґР»СЏ РЅР°С‡Р°Р»Р° РІС‹СЃС‚Р°РІРёРј РЅСѓР¶РЅС‹Рµ Р·РЅР°С‡РµРЅРёСЏ РґР»СЏ РїР°СЃСЃРёРІРЅРѕР№ РїР°РЅРµР»Рё,
+     Р° СѓР¶ РїРѕС‚РѕРј...
+     Рђ С‚Рѕ С„РёРіРЅСЏ РєР°РєР°СЏ-С‚Рѕ РїРѕР»СѓС‡Р°РµС‚СЃСЏ...
 */
 /* $ 14.01.2002 IS
-   ! Убрал установку переменных окружения, потому что она производится
-     в FarChDir, которая теперь используется у нас для установления
-     текущего каталога.
+   ! РЈР±СЂР°Р» СѓСЃС‚Р°РЅРѕРІРєСѓ РїРµСЂРµРјРµРЅРЅС‹С… РѕРєСЂСѓР¶РµРЅРёСЏ, РїРѕС‚РѕРјСѓ С‡С‚Рѕ РѕРЅР° РїСЂРѕРёР·РІРѕРґРёС‚СЃСЏ
+     РІ FarChDir, РєРѕС‚РѕСЂР°СЏ С‚РµРїРµСЂСЊ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ Сѓ РЅР°СЃ РґР»СЏ СѓСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ
+     С‚РµРєСѓС‰РµРіРѕ РєР°С‚Р°Р»РѕРіР°.
 */
 int Panel::SetCurPath()
 {
@@ -1855,9 +1855,9 @@ int Panel::SetCurPath()
 		if (AnotherPanel->m_CurDir.size() > 1 && AnotherPanel->m_CurDir[1]==L':' &&
 		        (m_CurDir.empty() || ToUpper(AnotherPanel->m_CurDir[0])!=ToUpper(m_CurDir[0])))
 		{
-			// сначала установим переменные окружения для пассивной панели
-			// (без реальной смены пути, чтобы лишний раз пассивный каталог
-			// не перечитывать)
+			// СЃРЅР°С‡Р°Р»Р° СѓСЃС‚Р°РЅРѕРІРёРј РїРµСЂРµРјРµРЅРЅС‹Рµ РѕРєСЂСѓР¶РµРЅРёСЏ РґР»СЏ РїР°СЃСЃРёРІРЅРѕР№ РїР°РЅРµР»Рё
+			// (Р±РµР· СЂРµР°Р»СЊРЅРѕР№ СЃРјРµРЅС‹ РїСѓС‚Рё, С‡С‚РѕР±С‹ Р»РёС€РЅРёР№ СЂР°Р· РїР°СЃСЃРёРІРЅС‹Р№ РєР°С‚Р°Р»РѕРі
+			// РЅРµ РїРµСЂРµС‡РёС‚С‹РІР°С‚СЊ)
 			FarChDir(AnotherPanel->m_CurDir,FALSE);
 		}
 	}
@@ -1883,19 +1883,19 @@ int Panel::SetCurPath()
 					break;
 			}
 
-			if (Global->WindowManager->ManagerStarted()) // сначала проверим - а запущен ли менеджер
+			if (Global->WindowManager->ManagerStarted()) // СЃРЅР°С‡Р°Р»Р° РїСЂРѕРІРµСЂРёРј - Р° Р·Р°РїСѓС‰РµРЅ Р»Рё РјРµРЅРµРґР¶РµСЂ
 			{
-				SetCurDir(Global->g_strFarPath,true);                    // если запущен - выставим путь который мы точно знаем что существует
-				ChangeDisk();                                    // и вызовем меню выбора дисков
+				SetCurDir(Global->g_strFarPath,true);                    // РµСЃР»Рё Р·Р°РїСѓС‰РµРЅ - РІС‹СЃС‚Р°РІРёРј РїСѓС‚СЊ РєРѕС‚РѕСЂС‹Р№ РјС‹ С‚РѕС‡РЅРѕ Р·РЅР°РµРј С‡С‚Рѕ СЃСѓС‰РµСЃС‚РІСѓРµС‚
+				ChangeDisk();                                    // Рё РІС‹Р·РѕРІРµРј РјРµРЅСЋ РІС‹Р±РѕСЂР° РґРёСЃРєРѕРІ
 			}
-			else                                               // оппа...
+			else                                               // РѕРїРїР°...
 			{
 				string strTemp(m_CurDir);
-				CutToFolderNameIfFolder(m_CurDir);             // подымаемся вверх, для очередной порции ChDir
+				CutToFolderNameIfFolder(m_CurDir);             // РїРѕРґС‹РјР°РµРјСЃСЏ РІРІРµСЂС…, РґР»СЏ РѕС‡РµСЂРµРґРЅРѕР№ РїРѕСЂС†РёРё ChDir
 
-				if (strTemp.size()==m_CurDir.size())  // здесь проблема - видимо диск недоступен
+				if (strTemp.size()==m_CurDir.size())  // Р·РґРµСЃСЊ РїСЂРѕР±Р»РµРјР° - РІРёРґРёРјРѕ РґРёСЃРє РЅРµРґРѕСЃС‚СѓРїРµРЅ
 				{
-					SetCurDir(Global->g_strFarPath,true);                 // тогда просто сваливаем в каталог, откуда стартанул FAR.
+					SetCurDir(Global->g_strFarPath,true);                 // С‚РѕРіРґР° РїСЂРѕСЃС‚Рѕ СЃРІР°Р»РёРІР°РµРј РІ РєР°С‚Р°Р»РѕРі, РѕС‚РєСѓРґР° СЃС‚Р°СЂС‚Р°РЅСѓР» FAR.
 					break;
 				}
 				else
@@ -1937,7 +1937,7 @@ void Panel::Show()
 
 	SCOPED_ACTION(DelayDestroy)(this);
 
-	/* $ 03.10.2001 IS перерисуем строчку меню */
+	/* $ 03.10.2001 IS РїРµСЂРµСЂРёСЃСѓРµРј СЃС‚СЂРѕС‡РєСѓ РјРµРЅСЋ */
 	if (Global->Opt->ShowMenuBar)
 		Parent()->GetTopMenuBar()->Show();
 
@@ -2065,7 +2065,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 			if ((Mode>SM_DEFAULT) && (Mode<=SM_CHTIME))
 			{
-				SetSortMode(--Mode); // Уменьшим на 1 из-за SM_DEFAULT
+				SetSortMode(--Mode); // РЈРјРµРЅСЊС€РёРј РЅР° 1 РёР·-Р·Р° SM_DEFAULT
 				Result=TRUE;
 			}
 			break;
@@ -2191,7 +2191,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				DestFilePanel->PluginGetPanelInfo(*Info);
 			}
 
-			if (!(Info->Flags&PFLAGS_PLUGIN)) // $ 12.12.2001 DJ - на неплагиновой панели - всегда реальные имена
+			if (!(Info->Flags&PFLAGS_PLUGIN)) // $ 12.12.2001 DJ - РЅР° РЅРµРїР»Р°РіРёРЅРѕРІРѕР№ РїР°РЅРµР»Рё - РІСЃРµРіРґР° СЂРµР°Р»СЊРЅС‹Рµ РёРјРµРЅР°
 				Info->Flags |= PFLAGS_REALNAMES;
 
 			Result=TRUE;
@@ -2396,7 +2396,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				m_CurTopFile=static_cast<int>(Info->TopPanelItem);
 			}
 
-			// $ 12.05.2001 DJ перерисовываемся только в том случае, если мы - текущее окно
+			// $ 12.05.2001 DJ РїРµСЂРµСЂРёСЃРѕРІС‹РІР°РµРјСЃСЏ С‚РѕР»СЊРєРѕ РІ С‚РѕРј СЃР»СѓС‡Р°Рµ, РµСЃР»Рё РјС‹ - С‚РµРєСѓС‰РµРµ РѕРєРЅРѕ
 			if (Parent()->IsTopWindow())
 				Redraw();
 
@@ -2461,14 +2461,14 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	  0         1         2         3         4         5         6         7
 	  0123456789012345678901234567890123456789012345678901234567890123456789012345
 	0
-	1   +-------- Отключение сетевого устройства --------+
-	2   | Вы хотите удалить соединение с устройством C:? |
-	3   | На устройство %c: отображен каталог            |
+	1   +-------- РћС‚РєР»СЋС‡РµРЅРёРµ СЃРµС‚РµРІРѕРіРѕ СѓСЃС‚СЂРѕР№СЃС‚РІР° --------+
+	2   | Р’С‹ С…РѕС‚РёС‚Рµ СѓРґР°Р»РёС‚СЊ СЃРѕРµРґРёРЅРµРЅРёРµ СЃ СѓСЃС‚СЂРѕР№СЃС‚РІРѕРј C:? |
+	3   | РќР° СѓСЃС‚СЂРѕР№СЃС‚РІРѕ %c: РѕС‚РѕР±СЂР°Р¶РµРЅ РєР°С‚Р°Р»РѕРі            |
 	4   | \\host\share                                   |
 	6   +------------------------------------------------+
-	7   | [ ] Восстанавливать при входе в систему        |
+	7   | [ ] Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°С‚СЊ РїСЂРё РІС…РѕРґРµ РІ СЃРёСЃС‚РµРјСѓ        |
 	8   +------------------------------------------------+
-	9   |              [ Да ]   [ Отмена ]               |
+	9   |              [ Р”Р° ]   [ РћС‚РјРµРЅР° ]               |
 	10  +------------------------------------------------+
 	11
 	*/
@@ -2497,9 +2497,9 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	string strMsgText;
 	DriveLocalToRemoteName(DRIVE_REMOTE, Letter, strMsgText);
 	DCDlg[3].strData = TruncPathStr(strMsgText, static_cast<int>(Len1));
-	// проверяем - это было постоянное соединение или нет?
-	// Если ветка в реестре HKCU\Network\БукваДиска есть - это
-	//   есть постоянное подключение.
+	// РїСЂРѕРІРµСЂСЏРµРј - СЌС‚Рѕ Р±С‹Р»Рѕ РїРѕСЃС‚РѕСЏРЅРЅРѕРµ СЃРѕРµРґРёРЅРµРЅРёРµ РёР»Рё РЅРµС‚?
+	// Р•СЃР»Рё РІРµС‚РєР° РІ СЂРµРµСЃС‚СЂРµ HKCU\Network\Р‘СѓРєРІР°Р”РёСЃРєР° РµСЃС‚СЊ - СЌС‚Рѕ
+	//   РµСЃС‚СЊ РїРѕСЃС‚РѕСЏРЅРЅРѕРµ РїРѕРґРєР»СЋС‡РµРЅРёРµ.
 
 	bool IsPersistent = true;
 	const wchar_t KeyName[] = {L'N', L'e', L't', L'w', L'o', L'r', L'k', L'\\', Letter, L'\0'};
@@ -2515,7 +2515,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 		IsPersistent = false;
 	}
 
-	// скорректируем размеры диалога - для дизайнУ
+	// СЃРєРѕСЂСЂРµРєС‚РёСЂСѓРµРј СЂР°Р·РјРµСЂС‹ РґРёР°Р»РѕРіР° - РґР»СЏ РґРёР·Р°Р№РЅРЈ
 	DCDlg[0].X2 = DCDlg[0].X1 + Len1 + 3;
 	int ExitCode=7;
 
@@ -2540,7 +2540,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 
 BOOL Panel::NeedUpdatePanel(const Panel *AnotherPanel)
 {
-	/* Обновить, если обновление разрешено и пути совпадают */
+	/* РћР±РЅРѕРІРёС‚СЊ, РµСЃР»Рё РѕР±РЅРѕРІР»РµРЅРёРµ СЂР°Р·СЂРµС€РµРЅРѕ Рё РїСѓС‚Рё СЃРѕРІРїР°РґР°СЋС‚ */
 	if ((!Global->Opt->AutoUpdateLimit || static_cast<unsigned>(GetFileCount()) <= static_cast<unsigned>(Global->Opt->AutoUpdateLimit)) &&
 	        !StrCmpI(AnotherPanel->m_CurDir, m_CurDir))
 		return TRUE;
@@ -2744,7 +2744,7 @@ bool Panel::CreateFullPathName(const string& Name, const string& ShortName,DWORD
 		ConvertNameToFull(strFileName, strFileName);
 	}
 
-	/* BUGBUG весь этот if какая то чушь
+	/* BUGBUG РІРµСЃСЊ СЌС‚РѕС‚ if РєР°РєР°СЏ С‚Рѕ С‡СѓС€СЊ
 	else if (ShowShortNames)
 	{
 	  string strTemp = Name;
@@ -2768,15 +2768,15 @@ bool Panel::CreateFullPathName(const string& Name, const string& ShortName,DWORD
 		ConvertNameToShort(strFileName,strFileName);
 
 	/* $ 29.01.2001 VVM
-	  + По CTRL+ALT+F в командную строку сбрасывается UNC-имя текущего файла. */
+	  + РџРѕ CTRL+ALT+F РІ РєРѕРјР°РЅРґРЅСѓСЋ СЃС‚СЂРѕРєСѓ СЃР±СЂР°СЃС‹РІР°РµС‚СЃСЏ UNC-РёРјСЏ С‚РµРєСѓС‰РµРіРѕ С„Р°Р№Р»Р°. */
 	if (UNC)
 		ConvertNameToUNC(strFileName);
 
-	// $ 20.10.2000 SVS Сделаем фичу Ctrl-F опциональной!
+	// $ 20.10.2000 SVS РЎРґРµР»Р°РµРј С„РёС‡Сѓ Ctrl-F РѕРїС†РёРѕРЅР°Р»СЊРЅРѕР№!
 	if (Global->Opt->PanelCtrlFRule)
 	{
 		/* $ 13.10.2000 tran
-		  по Ctrl-f имя должно отвечать условиям на панели */
+		  РїРѕ Ctrl-f РёРјСЏ РґРѕР»Р¶РЅРѕ РѕС‚РІРµС‡Р°С‚СЊ СѓСЃР»РѕРІРёСЏРј РЅР° РїР°РЅРµР»Рё */
 		if (m_ViewSettings.Flags&PVS_FOLDERUPPERCASE)
 		{
 			if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)

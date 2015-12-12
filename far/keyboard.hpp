@@ -1,13 +1,15 @@
+п»ї#ifndef KEYBOARD_HPP_63436F7A_609D_4E3B_8EF8_178B9829AB46
+#define KEYBOARD_HPP_63436F7A_609D_4E3B_8EF8_178B9829AB46
 #pragma once
 
 /*
 keyboard.hpp
 
-Функции, имеющие отношение к клавиатуре
+Р¤СѓРЅРєС†РёРё, РёРјРµСЋС‰РёРµ РѕС‚РЅРѕС€РµРЅРёРµ Рє РєР»Р°РІРёР°С‚СѓСЂРµ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -70,7 +72,7 @@ struct FarKeyboardState {
 	SHORT MouseY;
 	int PreMouseEventFlags;
 	int MouseEventFlags;
-	int ReturnAltValue;   // только что был ввод Alt-Цифира?
+	int ReturnAltValue;   // С‚РѕР»СЊРєРѕ С‡С‚Рѕ Р±С‹Р» РІРІРѕРґ Alt-Р¦РёС„РёСЂР°?
 };
 
 extern FarKeyboardState IntKeyState;
@@ -79,7 +81,7 @@ void InitKeysArray();
 bool KeyToKeyLayoutCompare(int Key, int CompareKey);
 int KeyToKeyLayout(int Key);
 
-// возвращает: 1 - LeftPressed, 2 - Right Pressed, 3 - Middle Pressed, 0 - none
+// РІРѕР·РІСЂР°С‰Р°РµС‚: 1 - LeftPressed, 2 - Right Pressed, 3 - Middle Pressed, 0 - none
 DWORD IsMouseButtonPressed();
 int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *rec=nullptr);
 int KeyNameToKey(const string& Name);
@@ -104,3 +106,5 @@ int IsShiftKey(DWORD Key);
 bool CheckForEsc();
 bool CheckForEscSilent();
 bool ConfirmAbortOp();
+
+#endif // KEYBOARD_HPP_63436F7A_609D_4E3B_8EF8_178B9829AB46

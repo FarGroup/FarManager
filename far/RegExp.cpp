@@ -1,12 +1,12 @@
-/*
+ï»¿/*
 RegExp.cpp
 
 Regular expressions
 Syntax and semantics are very close to perl
 */
 /*
-Copyright © 2000 Konstantin Stupnik
-Copyright © 2008 Far Group
+Copyright Â© 2000 Konstantin Stupnik
+Copyright Â© 2008 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

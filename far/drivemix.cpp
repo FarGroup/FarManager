@@ -1,11 +1,11 @@
-/*
+п»ї/*
 drivemix.cpp
 
 Misc functions for drive/disk info
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -43,14 +43,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /*
   FarGetLogicalDrives
-  оболочка вокруг GetLogicalDrives, с учетом скрытых логических дисков
+  РѕР±РѕР»РѕС‡РєР° РІРѕРєСЂСѓРі GetLogicalDrives, СЃ СѓС‡РµС‚РѕРј СЃРєСЂС‹С‚С‹С… Р»РѕРіРёС‡РµСЃРєРёС… РґРёСЃРєРѕРІ
   <HKCU|HKLM>\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer
   NoDrives:DWORD
-    Последние 26 бит определяют буквы дисков от A до Z (отсчет справа налево).
-    Диск виден при установленном 0 и скрыт при значении 1.
-    Диск A представлен правой последней цифрой при двоичном представлении.
-    Например, значение 00000000000000000000010101(0x7h)
-    скрывает диски A, C, и E
+    РџРѕСЃР»РµРґРЅРёРµ 26 Р±РёС‚ РѕРїСЂРµРґРµР»СЏСЋС‚ Р±СѓРєРІС‹ РґРёСЃРєРѕРІ РѕС‚ A РґРѕ Z (РѕС‚СЃС‡РµС‚ СЃРїСЂР°РІР° РЅР°Р»РµРІРѕ).
+    Р”РёСЃРє РІРёРґРµРЅ РїСЂРё СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕРј 0 Рё СЃРєСЂС‹С‚ РїСЂРё Р·РЅР°С‡РµРЅРёРё 1.
+    Р”РёСЃРє A РїСЂРµРґСЃС‚Р°РІР»РµРЅ РїСЂР°РІРѕР№ РїРѕСЃР»РµРґРЅРµР№ С†РёС„СЂРѕР№ РїСЂРё РґРІРѕРёС‡РЅРѕРј РїСЂРµРґСЃС‚Р°РІР»РµРЅРёРё.
+    РќР°РїСЂРёРјРµСЂ, Р·РЅР°С‡РµРЅРёРµ 00000000000000000000010101(0x7h)
+    СЃРєСЂС‹РІР°РµС‚ РґРёСЃРєРё A, C, Рё E
 */
 os::drives_set FarGetLogicalDrives()
 {

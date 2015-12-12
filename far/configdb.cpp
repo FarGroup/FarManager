@@ -1,10 +1,10 @@
-/*
+п»ї/*
 configdb.cpp
 
-хранение настроек в базе sqlite.
+С…СЂР°РЅРµРЅРёРµ РЅР°СЃС‚СЂРѕРµРє РІ Р±Р°Р·Рµ sqlite.
 */
 /*
-Copyright © 2011 Far Group
+Copyright В© 2011 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

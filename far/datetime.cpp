@@ -1,11 +1,11 @@
-/*
+п»ї/*
 datetime.cpp
 
-Функции для работы с датой и временем
+Р¤СѓРЅРєС†РёРё РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РґР°С‚РѕР№ Рё РІСЂРµРјРµРЅРµРј
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -343,28 +343,28 @@ string StrFTime(const wchar_t* Format, const tm* t)
 				case L'L':
 					IsLocal = !IsLocal;
 					continue;
-					// Краткое имя дня недели (Sun,Mon,Tue,Wed,Thu,Fri,Sat)
+					// РљСЂР°С‚РєРѕРµ РёРјСЏ РґРЅСЏ РЅРµРґРµР»Рё (Sun,Mon,Tue,Wed,Thu,Fri,Sat)
 					// abbreviated weekday name
 				case L'a':
 					strBuf = LocaleCache().Names(IsLocal).Weekdays[t->tm_wday].Short;
 					break;
-					// Полное имя дня недели
+					// РџРѕР»РЅРѕРµ РёРјСЏ РґРЅСЏ РЅРµРґРµР»Рё
 					// full weekday name
 				case L'A':
 					strBuf = LocaleCache().Names(IsLocal).Weekdays[t->tm_wday].Full;
 					break;
-					// Краткое имя месяца (Jan,Feb,...)
+					// РљСЂР°С‚РєРѕРµ РёРјСЏ РјРµСЃСЏС†Р° (Jan,Feb,...)
 					// abbreviated month name
 				case L'h':
 				case L'b':
 					strBuf = LocaleCache().Names(IsLocal).Months[t->tm_mon].Short;
 					break;
-					// Полное имя месяца
+					// РџРѕР»РЅРѕРµ РёРјСЏ РјРµСЃСЏС†Р°
 					// full month name
 				case L'B':
 					strBuf = LocaleCache().Names(IsLocal).Months[t->tm_mon].Full;
 					break;
-					//Дата и время в формате WDay Mnt  Day HH:MM:SS yyyy
+					//Р”Р°С‚Р° Рё РІСЂРµРјСЏ РІ С„РѕСЂРјР°С‚Рµ WDay Mnt  Day HH:MM:SS yyyy
 					//appropriate date and time representation
 				case L'c':
 					// Thu Oct 07 12:37:32 1999
@@ -373,27 +373,27 @@ string StrFTime(const wchar_t* Format, const tm* t)
 						LocaleCache().Names(IsLocal).Months[t->tm_mon].Short.data(),
 						t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec, t->tm_year + 1900);
 					break;
-					// Столетие как десятичное число (00 - 99). Например, 1992 => 19
+					// РЎС‚РѕР»РµС‚РёРµ РєР°Рє РґРµСЃСЏС‚РёС‡РЅРѕРµ С‡РёСЃР»Рѕ (00 - 99). РќР°РїСЂРёРјРµСЂ, 1992 => 19
 				case L'C':
 					strBuf = str_printf(L"%02d",(t->tm_year+1900)/100);
 					break;
 					// day of month, blank padded
 				case L'e':
-					// Две цифры дня месяца (01 - 31)
+					// Р”РІРµ С†РёС„СЂС‹ РґРЅСЏ РјРµСЃСЏС†Р° (01 - 31)
 					// day of the month, 01 - 31
 				case L'd':
 					strBuf = str_printf(*Format==L'e'?L"%2d":L"%02d",t->tm_mday);
 					break;
 					// hour, 24-hour clock, blank pad
 				case L'k':
-					// Две цифры часа (00 - 23)
+					// Р”РІРµ С†РёС„СЂС‹ С‡Р°СЃР° (00 - 23)
 					// hour, 24-hour clock, 00 - 23
 				case L'H':
 					strBuf = str_printf(*Format==L'k'?L"%2d":L"%02d",t->tm_hour);
 					break;
 					// hour, 12-hour clock, 1 - 12, blank pad
 				case L'l':
-					// Две цифры часа (01 - 12)
+					// Р”РІРµ С†РёС„СЂС‹ С‡Р°СЃР° (01 - 12)
 					// hour, 12-hour clock, 01 - 12
 				case L'I':
 				{
@@ -405,17 +405,17 @@ string StrFTime(const wchar_t* Format, const tm* t)
 					strBuf = str_printf(*Format==L'l'?L"%2d":L"%02d",I);
 					break;
 				}
-				// Три цифры дня в году (001 - 366)
+				// РўСЂРё С†РёС„СЂС‹ РґРЅСЏ РІ РіРѕРґСѓ (001 - 366)
 				// day of the year, 001 - 366
 				case L'j':
 					strBuf = str_printf(L"%03d",t->tm_yday+1);
 					break;
-					// Две цифры месяца, как десятичное число (1 - 12)
+					// Р”РІРµ С†РёС„СЂС‹ РјРµСЃСЏС†Р°, РєР°Рє РґРµСЃСЏС‚РёС‡РЅРѕРµ С‡РёСЃР»Рѕ (1 - 12)
 					// month, 01 - 12
 				case L'm':
 				{
 					// %mh - Hex month digit
-					// %m0 - ведущий 0
+					// %m0 - РІРµРґСѓС‰РёР№ 0
 					const wchar_t *fmt=Format[1]==L'h'?L"%X":Format[1]==L'0'?L"%02d":L"%d";
 
 					if (fmt[1]!=L'd')
@@ -424,32 +424,32 @@ string StrFTime(const wchar_t* Format, const tm* t)
 					strBuf = str_printf(fmt,t->tm_mon+1);
 					break;
 				}
-				// Две цифры минут (00 - 59)
+				// Р”РІРµ С†РёС„СЂС‹ РјРёРЅСѓС‚ (00 - 59)
 				// minute, 00 - 59
 				case L'M':
 					strBuf = str_printf(L"%02d",t->tm_min);
 					break;
-					// AM или PM
+					// AM РёР»Рё PM
 					// am or pm based on 12-hour clock
 				case L'p':
 					strBuf=(t->tm_hour/12)?L"PM":L"AM";
 					break;
-					// Две цифры секунд (00 - 59)
+					// Р”РІРµ С†РёС„СЂС‹ СЃРµРєСѓРЅРґ (00 - 59)
 					// second, 00 - 59
 				case L'S':
 					strBuf = str_printf(L"%02d",t->tm_sec);
 					break;
-					// День недели где 0 - Воскресенье (Sunday) (0 - 6)
+					// Р”РµРЅСЊ РЅРµРґРµР»Рё РіРґРµ 0 - Р’РѕСЃРєСЂРµСЃРµРЅСЊРµ (Sunday) (0 - 6)
 					// weekday, Sunday == 0, 0 - 6
 				case L'w':
 					strBuf = std::to_wstring(t->tm_wday);
 					break;
-					// Две цифры номера недели, где Воскресенье (Sunday)
-					//   является первым днем недели (00 - 53)
+					// Р”РІРµ С†РёС„СЂС‹ РЅРѕРјРµСЂР° РЅРµРґРµР»Рё, РіРґРµ Р’РѕСЃРєСЂРµСЃРµРЅСЊРµ (Sunday)
+					//   СЏРІР»СЏРµС‚СЃСЏ РїРµСЂРІС‹Рј РґРЅРµРј РЅРµРґРµР»Рё (00 - 53)
 					// week of year, Sunday is first day of week
 				case L'U':
-					// Две цифры номера недели, где Понедельник (Monday)
-					//    является первым днем недели (00 - 53)
+					// Р”РІРµ С†РёС„СЂС‹ РЅРѕРјРµСЂР° РЅРµРґРµР»Рё, РіРґРµ РџРѕРЅРµРґРµР»СЊРЅРёРє (Monday)
+					//    СЏРІР»СЏРµС‚СЃСЏ РїРµСЂРІС‹Рј РґРЅРµРј РЅРµРґРµР»Рё (00 - 53)
 					// week of year, Monday is first day of week
 				case L'W':
 				{
@@ -464,13 +464,13 @@ string StrFTime(const wchar_t* Format, const tm* t)
 				}
 				// date as dd-bbb-YYYY
 				case L'v':
-					// Дата в формате mm.dd.yyyy
+					// Р”Р°С‚Р° РІ С„РѕСЂРјР°С‚Рµ mm.dd.yyyy
 					// appropriate date representation
 				case L'D':
 				case L'x':
 					st_time(strBuf, t, LocaleCache().Names(IsLocal), *Format);
 					break;
-					// Время в формате HH:MM:SS
+					// Р’СЂРµРјСЏ РІ С„РѕСЂРјР°С‚Рµ HH:MM:SS
 					// appropriate time representation
 				case L'T':
 				case L'X':
@@ -479,17 +479,17 @@ string StrFTime(const wchar_t* Format, const tm* t)
 					strBuf = str_printf(L"%02d%c%02d%c%02d",t->tm_hour,TimeSeparator,t->tm_min,TimeSeparator,t->tm_sec);
 					break;
 				}
-				// Две цифры года без столетия (00 to 99)
+				// Р”РІРµ С†РёС„СЂС‹ РіРѕРґР° Р±РµР· СЃС‚РѕР»РµС‚РёСЏ (00 to 99)
 				// year without a century, 00 - 99
 				case L'y':
 					strBuf = str_printf(L"%02d",t->tm_year%100);
 					break;
-					// Год со столетием (19yy-20yy)
+					// Р“РѕРґ СЃРѕ СЃС‚РѕР»РµС‚РёРµРј (19yy-20yy)
 					// year with century
 				case L'Y':
 					strBuf = std::to_wstring(1900+t->tm_year);
 					break;
-					// Имя часового пояса или пусто, если часовой пояс не задан
+					// РРјСЏ С‡Р°СЃРѕРІРѕРіРѕ РїРѕСЏСЃР° РёР»Рё РїСѓСЃС‚Рѕ, РµСЃР»Рё С‡Р°СЃРѕРІРѕР№ РїРѕСЏСЃ РЅРµ Р·Р°РґР°РЅ
 				case L'Z':
 					strBuf = str_printf(L"%+03d%02d",-(_timezone/3600),-(_timezone/60)%60);
 					//Ptr = _tzname[ t->tm_isdst ];
@@ -556,7 +556,7 @@ void StrToDateTime(const string& CDate, const string& CTime, FILETIME &ft, int D
 {
 	WORD DateN[3]={},TimeN[4]={};
 	SYSTEMTIME st={};
-	// Преобразуем введённые пользователем дату и время
+	// РџСЂРµРѕР±СЂР°Р·СѓРµРј РІРІРµРґС‘РЅРЅС‹Рµ РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј РґР°С‚Сѓ Рё РІСЂРµРјСЏ
 	GetFileDateAndTime(CDate, DateN, ARRAYSIZE(DateN), DateSeparator);
 	GetFileDateAndTime(CTime, TimeN, ARRAYSIZE(TimeN), TimeSeparator);
 
@@ -564,12 +564,12 @@ void StrToDateTime(const string& CDate, const string& CTime, FILETIME &ft, int D
 	{
 		if (DateN[0]==(WORD)-1||DateN[1]==(WORD)-1||DateN[2]==(WORD)-1)
 		{
-			// Пользователь оставил дату пустой, значит обнулим дату и время.
+			// РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РѕСЃС‚Р°РІРёР» РґР°С‚Сѓ РїСѓСЃС‚РѕР№, Р·РЅР°С‡РёС‚ РѕР±РЅСѓР»РёРј РґР°С‚Сѓ Рё РІСЂРµРјСЏ.
 			ClearStruct(ft);
 			return;
 		}
 
-		// "Оформим"
+		// "РћС„РѕСЂРјРёРј"
 		switch (DateFormat)
 		{
 			case 0:
@@ -604,7 +604,7 @@ void StrToDateTime(const string& CDate, const string& CTime, FILETIME &ft, int D
 	st.wSecond = TimeN[2]!=(WORD)-1?(TimeN[2]):0;
 	st.wMilliseconds = TimeN[3]!=(WORD)-1?(TimeN[3]):0;
 
-	// преобразование в "удобоваримый" формат
+	// РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ РІ "СѓРґРѕР±РѕРІР°СЂРёРјС‹Р№" С„РѕСЂРјР°С‚
 	if (bRelative)
 	{
 		uint64_t time;

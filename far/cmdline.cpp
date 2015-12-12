@@ -1,11 +1,11 @@
-/*
+п»ї/*
 cmdline.cpp
 
-Командная строка
+РљРѕРјР°РЅРґРЅР°СЏ СЃС‚СЂРѕРєР°
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -214,7 +214,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 		LocalKey=KEY_CTRLX;
 	}
 
-	// $ 25.03.2002 VVM + При погашенных панелях колесом крутим историю
+	// $ 25.03.2002 VVM + РџСЂРё РїРѕРіР°С€РµРЅРЅС‹С… РїР°РЅРµР»СЏС… РєРѕР»РµСЃРѕРј РєСЂСѓС‚РёРј РёСЃС‚РѕСЂРёСЋ
 	if (!Global->CtrlObject->Cp()->LeftPanel->IsVisible() && !Global->CtrlObject->Cp()->RightPanel->IsVisible())
 	{
 		switch (LocalKey)
@@ -259,7 +259,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 
 			if (LocalKey == KEY_ESC)
 			{
-				// $ 24.09.2000 SVS - Если задано поведение по "Несохранению при Esc", то позицию в хистори не меняем и ставим в первое положение.
+				// $ 24.09.2000 SVS - Р•СЃР»Рё Р·Р°РґР°РЅРѕ РїРѕРІРµРґРµРЅРёРµ РїРѕ "РќРµСЃРѕС…СЂР°РЅРµРЅРёСЋ РїСЂРё Esc", С‚Рѕ РїРѕР·РёС†РёСЋ РІ С…РёСЃС‚РѕСЂРё РЅРµ РјРµРЅСЏРµРј Рё СЃС‚Р°РІРёРј РІ РїРµСЂРІРѕРµ РїРѕР»РѕР¶РµРЅРёРµ.
 				if (Global->Opt->CmdHistoryRule)
 					Global->CtrlObject->CmdHistory->ResetPosition();
 
@@ -302,7 +302,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 		{
 			Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 			{
-				// TODO: здесь можно добавить проверку, что мы в корне диска и отсутствие файла Tree.Far...
+				// TODO: Р·РґРµСЃСЊ РјРѕР¶РЅРѕ РґРѕР±Р°РІРёС‚СЊ РїСЂРѕРІРµСЂРєСѓ, С‡С‚Рѕ РјС‹ РІ РєРѕСЂРЅРµ РґРёСЃРєР° Рё РѕС‚СЃСѓС‚СЃС‚РІРёРµ С„Р°Р№Р»Р° Tree.Far...
 				FolderTree::create(strStr, MODALTREE_ACTIVE, TRUE, false);
 			}
 			Global->CtrlObject->Cp()->RedrawKeyBar();
@@ -317,7 +317,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 			}
 			else
 			{
-				// TODO: ... а здесь проверить факт изменения/появления файла Tree.Far и мы опять же в корне (чтобы лишний раз не апдейтить панель)
+				// TODO: ... Р° Р·РґРµСЃСЊ РїСЂРѕРІРµСЂРёС‚СЊ С„Р°РєС‚ РёР·РјРµРЅРµРЅРёСЏ/РїРѕСЏРІР»РµРЅРёСЏ С„Р°Р№Р»Р° Tree.Far Рё РјС‹ РѕРїСЏС‚СЊ Р¶Рµ РІ РєРѕСЂРЅРµ (С‡С‚РѕР±С‹ Р»РёС€РЅРёР№ СЂР°Р· РЅРµ Р°РїРґРµР№С‚РёС‚СЊ РїР°РЅРµР»СЊ)
 				ActivePanel->Update(UPDATE_KEEP_SELECTION);
 				ActivePanel->Redraw();
 				Panel *AnotherPanel = Global->CtrlObject->Cp()->PassivePanel();
@@ -353,14 +353,14 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 					if (SelectType == HRT_SHIFTETNER)
 						Global->CtrlObject->FolderHistory->SetAddMode(false,2,true);
 
-					// пусть плагин сам прыгает... ;-)
+					// РїСѓСЃС‚СЊ РїР»Р°РіРёРЅ СЃР°Рј РїСЂС‹РіР°РµС‚... ;-)
 					Panel *Panel = Global->CtrlObject->Cp()->ActivePanel();
 
 					if (SelectType == HRT_CTRLSHIFTENTER)
 						Panel = Global->CtrlObject->Cp()->PassivePanel();
 
-					//Type==1 - плагиновый путь
-					//Type==0 - обычный путь
+					//Type==1 - РїР»Р°РіРёРЅРѕРІС‹Р№ РїСѓС‚СЊ
+					//Type==0 - РѕР±С‹С‡РЅС‹Р№ РїСѓС‚СЊ
 					Panel->ExecShortcutFolder(strStr,Guid,strFile,strData,true);
 					// Panel may be changed
 					if(SelectType == HRT_CTRLSHIFTENTER)
@@ -427,18 +427,18 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 			return TRUE;
 		case KEY_OP_XLAT:
 		{
-			// 13.12.2000 SVS - ! Для CmdLine - если нет выделения, преобразуем всю строку (XLat)
+			// 13.12.2000 SVS - ! Р”Р»СЏ CmdLine - РµСЃР»Рё РЅРµС‚ РІС‹РґРµР»РµРЅРёСЏ, РїСЂРµРѕР±СЂР°Р·СѓРµРј РІСЃСЋ СЃС‚СЂРѕРєСѓ (XLat)
 			CmdStr.Xlat((Global->Opt->XLat.Flags&XLAT_CONVERTALLCMDLINE) != 0);
 
-			// иначе неправильно работает ctrl-end
+			// РёРЅР°С‡Рµ РЅРµРїСЂР°РІРёР»СЊРЅРѕ СЂР°Р±РѕС‚Р°РµС‚ ctrl-end
 			CmdStr.GetString(strLastCmdStr);
 			LastCmdPartLength=(int)strLastCmdStr.size();
 
 			return TRUE;
 		}
-		/* дополнительные клавиши для выделения в ком строке.
-		   ВНИМАНИЕ!
-		   Для сокращения кода этот кусок должен стоять перед "default"
+		/* РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ РєР»Р°РІРёС€Рё РґР»СЏ РІС‹РґРµР»РµРЅРёСЏ РІ РєРѕРј СЃС‚СЂРѕРєРµ.
+		   Р’РќРРњРђРќРР•!
+		   Р”Р»СЏ СЃРѕРєСЂР°С‰РµРЅРёСЏ РєРѕРґР° СЌС‚РѕС‚ РєСѓСЃРѕРє РґРѕР»Р¶РµРЅ СЃС‚РѕСЏС‚СЊ РїРµСЂРµРґ "default"
 		*/
 		case KEY_ALTSHIFTLEFT:   case KEY_ALTSHIFTNUMPAD4:
 		case KEY_RALTSHIFTLEFT:  case KEY_RALTSHIFTNUMPAD4:
@@ -451,7 +451,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 			LocalKey&=~(KEY_ALT|KEY_RALT);
 		default:
 
-			//   Сбрасываем выделение на некоторых клавишах
+			//   РЎР±СЂР°СЃС‹РІР°РµРј РІС‹РґРµР»РµРЅРёРµ РЅР° РЅРµРєРѕС‚РѕСЂС‹С… РєР»Р°РІРёС€Р°С…
 			if (!Global->Opt->CmdLine.EditBlock)
 			{
 				static int UnmarkKeys[]=
@@ -506,7 +506,7 @@ void CommandLine::SetCurDir(const string& CurDir)
 	{
 		m_CurDir = CurDir;
 
-		//Mantis#2350 - тормоз, это и так делается выше
+		//Mantis#2350 - С‚РѕСЂРјРѕР·, СЌС‚Рѕ Рё С‚Р°Рє РґРµР»Р°РµС‚СЃСЏ РІС‹С€Рµ
 		//if (Global->CtrlObject->Cp()->ActivePanel()->GetMode()!=PLUGIN_PANEL)
 			//PrepareDiskPath(strCurDir);
 	}
@@ -645,12 +645,12 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 					{
 						switch (Chr)
 						{
-								/* эти не реaлизованы
+								/* СЌС‚Рё РЅРµ СЂРµaР»РёР·РѕРІР°РЅС‹
 								$E - Escape code (ASCII code 27)
 								$V - Windows version number
 								$_ - Carriage return and linefeed
 								*/
-							case L'M': // $M - Отображение полного имени удаленного диска, связанного с именем текущего диска, или пустой строки, если текущий диск не является сетевым.
+							case L'M': // $M - РћС‚РѕР±СЂР°Р¶РµРЅРёРµ РїРѕР»РЅРѕРіРѕ РёРјРµРЅРё СѓРґР°Р»РµРЅРЅРѕРіРѕ РґРёСЃРєР°, СЃРІСЏР·Р°РЅРЅРѕРіРѕ СЃ РёРјРµРЅРµРј С‚РµРєСѓС‰РµРіРѕ РґРёСЃРєР°, РёР»Рё РїСѓСЃС‚РѕР№ СЃС‚СЂРѕРєРё, РµСЃР»Рё С‚РµРєСѓС‰РёР№ РґРёСЃРє РЅРµ СЏРІР»СЏРµС‚СЃСЏ СЃРµС‚РµРІС‹Рј.
 							{
 								string strTemp;
 								if (DriveLocalToRemoteName(DRIVE_UNKNOWN, m_CurDir[0], strTemp))
@@ -660,7 +660,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 								}
 								break;
 							}
-							case L'+': // $+  - Отображение нужного числа знаков плюс (+) в зависимости от текущей глубины стека каталогов PUSHD, по одному знаку на каждый сохраненный путь.
+							case L'+': // $+  - РћС‚РѕР±СЂР°Р¶РµРЅРёРµ РЅСѓР¶РЅРѕРіРѕ С‡РёСЃР»Р° Р·РЅР°РєРѕРІ РїР»СЋСЃ (+) РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ С‚РµРєСѓС‰РµР№ РіР»СѓР±РёРЅС‹ СЃС‚РµРєР° РєР°С‚Р°Р»РѕРіРѕРІ PUSHD, РїРѕ РѕРґРЅРѕРјСѓ Р·РЅР°РєСѓ РЅР° РєР°Р¶РґС‹Р№ СЃРѕС…СЂР°РЅРµРЅРЅС‹Р№ РїСѓС‚СЊ.
 							{
 								strDestStr.append(ppstack.size(), L'+');
 								break;
@@ -707,7 +707,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 									strDestStr += L'?';
 								break;
 							}
-							case L'W': // $W - Текущий рабочий каталог (без указания пути)
+							case L'W': // $W - РўРµРєСѓС‰РёР№ СЂР°Р±РѕС‡РёР№ РєР°С‚Р°Р»РѕРі (Р±РµР· СѓРєР°Р·Р°РЅРёСЏ РїСѓС‚Рё)
 							{
 								const auto pos = FindLastSlash(m_CurDir);
 								if (pos != string::npos)
@@ -791,7 +791,7 @@ void CommandLine::ShowViewEditHistory()
 				case HR_EDITOR:
 				case HR_EDITOR_RO:
 				{
-					// пусть файл создается
+					// РїСѓСЃС‚СЊ С„Р°Р№Р» СЃРѕР·РґР°РµС‚СЃСЏ
 					const auto FEdit = FileEditor::create(strStr, CP_DEFAULT, FFILEEDIT_CANNEWFILE | FFILEEDIT_ENABLEF6);
 
 					if (Type == HR_EDITOR_RO)
@@ -988,7 +988,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		SetPanel->ChangeDirToCurrent();
 		return TRUE;
 	}
-	// SET [переменная=[строка]]
+	// SET [РїРµСЂРµРјРµРЅРЅР°СЏ=[СЃС‚СЂРѕРєР°]]
 	else if (IsCommand(L"SET",false))
 	{
 		size_t pos;
@@ -996,7 +996,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		RemoveLeadingSpaces(strCmdLine);
 
 		if (CheckCmdLineForHelp(strCmdLine.data()))
-			return FALSE; // отдадимся COMSPEC`у
+			return FALSE; // РѕС‚РґР°РґРёРјСЃСЏ COMSPEC`Сѓ
 
 		// "set" (display all) or "set var" (display all that begin with "var")
 		if (strCmdLine.empty() || ((pos = strCmdLine.find(L'=')) == string::npos) || !pos)
@@ -1006,7 +1006,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			if (std::find_first_of(ALL_CONST_RANGE(strCmdLine), ALL_CONST_RANGE(CharsToFind)) != strCmdLine.cend())
 				return FALSE;
 
-			Global->WindowManager->ShowBackground();  //??? почему не отдаём COMSPEC'у
+			Global->WindowManager->ShowBackground();  //??? РїРѕС‡РµРјСѓ РЅРµ РѕС‚РґР°С‘Рј COMSPEC'Сѓ
 			// display command //???
 			Redraw();
 			GotoXY(m_X2+1,m_Y1);
@@ -1029,7 +1029,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			return TRUE;
 		}
 
-		if (CheckCmdLineForSet(strCmdLine)) // вариант для /A и /P
+		if (CheckCmdLineForSet(strCmdLine)) // РІР°СЂРёР°РЅС‚ РґР»СЏ /A Рё /P
 			return FALSE; //todo: /p - dialog, /a - calculation; then set variable ...
 
 		if (strCmdLine.size() == pos+1) //set var=
@@ -1046,11 +1046,11 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 
 		return TRUE;
 	}
-	// REM все остальное
+	// REM РІСЃРµ РѕСЃС‚Р°Р»СЊРЅРѕРµ
 	else if (IsCommand(L"REM",false))
 	{
 		if (CheckCmdLineForHelp(strCmdLine.data()+3))
-			return FALSE; // отдадимся COMSPEC`у
+			return FALSE; // РѕС‚РґР°РґРёРјСЃСЏ COMSPEC`Сѓ
 	}
 	else if (!strCmdLine.compare(0, 2, L"::", 2))
 	{
@@ -1059,21 +1059,21 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	else if (IsCommand(L"CLS",false))
 	{
 		if (CheckCmdLineForHelp(strCmdLine.data()+3))
-			return FALSE; // отдадимся COMSPEC`у
+			return FALSE; // РѕС‚РґР°РґРёРјСЃСЏ COMSPEC`Сѓ
 
 		ClearScreen(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 		Global->CtrlObject->Desktop->FillFromBuffer();
 		PrintCommand=false;
 		return TRUE;
 	}
-	// PUSHD путь | ..
+	// PUSHD РїСѓС‚СЊ | ..
 	else if (IsCommand(L"PUSHD",false))
 	{
 		strCmdLine.erase(0, 5);
 		RemoveLeadingSpaces(strCmdLine);
 
 		if (CheckCmdLineForHelp(strCmdLine.data()))
-			return FALSE; // отдадимся COMSPEC`у
+			return FALSE; // РѕС‚РґР°РґРёРјСЃСЏ COMSPEC`Сѓ
 
 		const auto PushDir = m_CurDir;
 
@@ -1090,11 +1090,11 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		return TRUE;
 	}
 	// POPD
-	// TODO: добавить необязательный параметр - число, сколько уровней пропустить, после чего прыгнуть.
+	// TODO: РґРѕР±Р°РІРёС‚СЊ РЅРµРѕР±СЏР·Р°С‚РµР»СЊРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ - С‡РёСЃР»Рѕ, СЃРєРѕР»СЊРєРѕ СѓСЂРѕРІРЅРµР№ РїСЂРѕРїСѓСЃС‚РёС‚СЊ, РїРѕСЃР»Рµ С‡РµРіРѕ РїСЂС‹РіРЅСѓС‚СЊ.
 	else if (IsCommand(L"POPD",false))
 	{
 		if (CheckCmdLineForHelp(strCmdLine.data()+4))
-			return FALSE; // отдадимся COMSPEC`у
+			return FALSE; // РѕС‚РґР°РґРёРјСЃСЏ COMSPEC`Сѓ
 
 		if (!ppstack.empty())
 		{
@@ -1133,7 +1133,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		auto Ptr = RemoveExternalSpaces(strCmdLine).data();
 
 		if (CheckCmdLineForHelp(Ptr))
-			return FALSE; // отдадимся COMSPEC`у
+			return FALSE; // РѕС‚РґР°РґРёРјСЃСЏ COMSPEC`Сѓ
 
 		if (!std::iswdigit(*Ptr))
 			return FALSE;
@@ -1150,7 +1150,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		BOOL r1=Console().SetInputCodepage(cp);
 		BOOL r2=Console().SetOutputCodepage(cp);
 
-		if (r1 && r2) // Если все ОБИ, то так  и...
+		if (r1 && r2) // Р•СЃР»Рё РІСЃРµ РћР‘Р, С‚Рѕ С‚Р°Рє  Рё...
 		{
 			InitRecodeOutTable();
 			InitKeysArray();
@@ -1158,7 +1158,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			Global->ScrBuf->Flush();
 			return TRUE;
 		}
-		else  // про траблы внешняя chcp сама скажет ;-)
+		else  // РїСЂРѕ С‚СЂР°Р±Р»С‹ РІРЅРµС€РЅСЏСЏ chcp СЃР°РјР° СЃРєР°Р¶РµС‚ ;-)
 		{
 			return FALSE;
 		}
@@ -1166,10 +1166,10 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	else if (IsCommand(L"IF",false))
 	{
 		if (CheckCmdLineForHelp(strCmdLine.data()+2))
-			return FALSE; // отдадимся COMSPEC`у
+			return FALSE; // РѕС‚РґР°РґРёРјСЃСЏ COMSPEC`Сѓ
 
 		const wchar_t *PtrCmd=PrepareOSIfExist(strCmdLine);
-		// здесь PtrCmd - уже готовая команда, без IF
+		// Р·РґРµСЃСЊ PtrCmd - СѓР¶Рµ РіРѕС‚РѕРІР°СЏ РєРѕРјР°РЅРґР°, Р±РµР· IF
 
 		if (PtrCmd && *PtrCmd && Global->CtrlObject->Plugins->ProcessCommandLine(PtrCmd))
 		{
@@ -1179,7 +1179,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 
 		return FALSE;
 	}
-	// пропускаем обработку, если нажат Shift-Enter
+	// РїСЂРѕРїСѓСЃРєР°РµРј РѕР±СЂР°Р±РѕС‚РєСѓ, РµСЃР»Рё РЅР°Р¶Р°С‚ Shift-Enter
 	else if (!SeparateWindow && (IsCommand(L"CD",true) || IsCommand(L"CHDIR",true)))
 	{
 		const int Length = IsCommand(L"CD",true)? 2 : 5;
@@ -1187,8 +1187,8 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		strCmdLine.erase(0, Length);
 		RemoveLeadingSpaces(strCmdLine);
 
-		//проигнорируем /D
-		//мы и так всегда меняем диск а некоторые в алайсах или по привычке набирают этот ключ
+		//РїСЂРѕРёРіРЅРѕСЂРёСЂСѓРµРј /D
+		//РјС‹ Рё С‚Р°Рє РІСЃРµРіРґР° РјРµРЅСЏРµРј РґРёСЃРє Р° РЅРµРєРѕС‚РѕСЂС‹Рµ РІ Р°Р»Р°Р№СЃР°С… РёР»Рё РїРѕ РїСЂРёРІС‹С‡РєРµ РЅР°Р±РёСЂР°СЋС‚ СЌС‚РѕС‚ РєР»СЋС‡
 		if (!StrCmpNI(strCmdLine.data(),L"/D",2) && IsSpaceOrEos(strCmdLine[2]))
 		{
 			strCmdLine.erase(0, 2);
@@ -1196,7 +1196,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		}
 
 		if (strCmdLine.empty() || CheckCmdLineForHelp(strCmdLine.data()))
-			return FALSE; // отдадимся COMSPEC`у
+			return FALSE; // РѕС‚РґР°РґРёРјСЃСЏ COMSPEC`Сѓ
 
 		IntChDir(strCmdLine,Length==5,SilentInt);
 		return TRUE;
@@ -1205,7 +1205,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	{
 		const auto Title = strCmdLine.data() + 5; // wcslen(L"title")
 		if (CheckCmdLineForHelp(Title))
-			return FALSE; // отдадимся COMSPEC`у
+			return FALSE; // РѕС‚РґР°РґРёРјСЃСЏ COMSPEC`Сѓ
 
 		SetUserTitle(*Title? Title + 1 : Title);
 
@@ -1218,7 +1218,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	else if (IsCommand(L"EXIT",false))
 	{
 		if (CheckCmdLineForHelp(strCmdLine.data()+4))
-			return FALSE; // отдадимся COMSPEC`у
+			return FALSE; // РѕС‚РґР°РґРёРјСЃСЏ COMSPEC`Сѓ
 
 		Global->WindowManager->ExitMainLoop(FALSE);
 		return TRUE;
@@ -1319,7 +1319,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 
 	size_t DirOffset = 0;
 	ParsePath(strExpandedDir, &DirOffset);
-	if (strExpandedDir.find_first_of(L"?*", DirOffset) != string::npos) // это маска?
+	if (strExpandedDir.find_first_of(L"?*", DirOffset) != string::npos) // СЌС‚Рѕ РјР°СЃРєР°?
 	{
 		os::FAR_FIND_DATA wfd;
 
@@ -1339,8 +1339,8 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	}
 
 	/* $ 15.11.2001 OT
-		Сначала проверяем есть ли такая "обычная" директория.
-		если уж нет, то тогда начинаем думать, что это директория плагинная
+		РЎРЅР°С‡Р°Р»Р° РїСЂРѕРІРµСЂСЏРµРј РµСЃС‚СЊ Р»Рё С‚Р°РєР°СЏ "РѕР±С‹С‡РЅР°СЏ" РґРёСЂРµРєС‚РѕСЂРёСЏ.
+		РµСЃР»Рё СѓР¶ РЅРµС‚, С‚Рѕ С‚РѕРіРґР° РЅР°С‡РёРЅР°РµРј РґСѓРјР°С‚СЊ, С‡С‚Рѕ СЌС‚Рѕ РґРёСЂРµРєС‚РѕСЂРёСЏ РїР»Р°РіРёРЅРЅР°СЏ
 	*/
 	if (os::fs::is_directory(strExpandedDir) && IsAbsolutePath(strExpandedDir))
 	{
@@ -1350,11 +1350,11 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	}
 
 	/* $ 20.09.2002 SKV
-	  Это отключает возможность выполнять такие команды как:
-	  cd net:server и cd ftp://server/dir
-	  Так как под ту же гребёнку попадают и
-	  cd s&r:, cd make: и т.д., которые к смене
-	  каталога не имеют никакого отношения.
+	  Р­С‚Рѕ РѕС‚РєР»СЋС‡Р°РµС‚ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РІС‹РїРѕР»РЅСЏС‚СЊ С‚Р°РєРёРµ РєРѕРјР°РЅРґС‹ РєР°Рє:
+	  cd net:server Рё cd ftp://server/dir
+	  РўР°Рє РєР°Рє РїРѕРґ С‚Сѓ Р¶Рµ РіСЂРµР±С‘РЅРєСѓ РїРѕРїР°РґР°СЋС‚ Рё
+	  cd s&r:, cd make: Рё С‚.Рґ., РєРѕС‚РѕСЂС‹Рµ Рє СЃРјРµРЅРµ
+	  РєР°С‚Р°Р»РѕРіР° РЅРµ РёРјРµСЋС‚ РЅРёРєР°РєРѕРіРѕ РѕС‚РЅРѕС€РµРЅРёСЏ.
 	*/
 	/*
 	if (Global->CtrlObject->Plugins->ProcessCommandLine(ExpandedDir))

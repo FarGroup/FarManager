@@ -1,10 +1,10 @@
-/*
+п»ї/*
 network.cpp
 
 misc network functions
 */
 /*
-Copyright © 2009 Far Group
+Copyright В© 2009 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void GetStoredUserName(wchar_t cDrive, string &strUserName)
 {
-	//Тут может быть надо заюзать WNetGetUser
+	//РўСѓС‚ РјРѕР¶РµС‚ Р±С‹С‚СЊ РЅР°РґРѕ Р·Р°СЋР·Р°С‚СЊ WNetGetUser
 	strUserName.clear();
 	const wchar_t KeyName[]={L'N',L'e',L't',L'w',L'o',L'r',L'k',L'\\',cDrive,L'\0'};
 

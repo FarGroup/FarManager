@@ -1,11 +1,11 @@
-/*
+п»ї/*
 language.cpp
 
-Работа с lng файлами
+Р Р°Р±РѕС‚Р° СЃ lng С„Р°Р№Р»Р°РјРё
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -107,7 +107,7 @@ int GetLangParam(os::fs::file& LangFile,const string& ParamName,string *strParam
 	strFullParamName += ParamName;
 	int Length=(int)strFullParamName.size();
 	/* $ 29.11.2001 DJ
-	   не поганим позицию в файле; дальше @Contents не читаем
+	   РЅРµ РїРѕРіР°РЅРёРј РїРѕР·РёС†РёСЋ РІ С„Р°Р№Р»Рµ; РґР°Р»СЊС€Рµ @Contents РЅРµ С‡РёС‚Р°РµРј
 	*/
 	BOOL Found = FALSE;
 	const auto OldPos = LangFile.GetPointer();
@@ -198,9 +198,9 @@ static bool SelectLanguage(bool HelpLanguage)
 				MenuItemEx LangMenuItem(!strLangDescr.empty()? strLangDescr : strLangName);
 
 				/* $ 01.08.2001 SVS
-				   Не допускаем дубликатов!
-				   Если в каталог с ФАРом положить еще один HLF с одноименным
-				   языком, то... фигня получается при выборе языка.
+				   РќРµ РґРѕРїСѓСЃРєР°РµРј РґСѓР±Р»РёРєР°С‚РѕРІ!
+				   Р•СЃР»Рё РІ РєР°С‚Р°Р»РѕРі СЃ Р¤РђР РѕРј РїРѕР»РѕР¶РёС‚СЊ РµС‰Рµ РѕРґРёРЅ HLF СЃ РѕРґРЅРѕРёРјРµРЅРЅС‹Рј
+				   СЏР·С‹РєРѕРј, С‚Рѕ... С„РёРіРЅСЏ РїРѕР»СѓС‡Р°РµС‚СЃСЏ РїСЂРё РІС‹Р±РѕСЂРµ СЏР·С‹РєР°.
 				*/
 				if (LangMenu->FindItem(0,LangMenuItem.strName,LIFIND_EXACTMATCH) == -1)
 				{
@@ -227,7 +227,7 @@ bool SelectHelpLanguage() {return SelectLanguage(true);}
 
 
 /* $ 01.09.2000 SVS
-  + Новый метод, для получения параметров для .Options
+  + РќРѕРІС‹Р№ РјРµС‚РѕРґ, РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РїР°СЂР°РјРµС‚СЂРѕРІ РґР»СЏ .Options
    .Options <KeyName>=<Value>
 */
 int GetOptionsParam(os::fs::file& SrcFile,const wchar_t *KeyName,string &strValue, UINT nCodePage)
@@ -355,7 +355,7 @@ void Language::init(const string& Path, int CountNeed)
 		add(ConvertString(Buffer.data() + 1, Buffer.size() - 1));
 	}
 
-	//   Проведем проверку на количество строк в LNG-файлах
+	//   РџСЂРѕРІРµРґРµРј РїСЂРѕРІРµСЂРєСѓ РЅР° РєРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂРѕРє РІ LNG-С„Р°Р№Р»Р°С…
 	if (CountNeed != -1 && CountNeed != static_cast<int>(size()))
 	{
 		throw std::runtime_error("Language data is incorrect or damaged");
@@ -365,20 +365,20 @@ void Language::init(const string& Path, int CountNeed)
 bool Language::CheckMsgId(LNGID MsgId) const
 {
 	/* $ 19.03.2002 DJ
-	   при отрицательном индексе - также покажем сообщение об ошибке
-	   (все лучше, чем трапаться)
+	   РїСЂРё РѕС‚СЂРёС†Р°С‚РµР»СЊРЅРѕРј РёРЅРґРµРєСЃРµ - С‚Р°РєР¶Рµ РїРѕРєР°Р¶РµРј СЃРѕРѕР±С‰РµРЅРёРµ РѕР± РѕС€РёР±РєРµ
+	   (РІСЃРµ Р»СѓС‡С€Рµ, С‡РµРј С‚СЂР°РїР°С‚СЊСЃСЏ)
 	*/
 	if (MsgId >= static_cast<int>(size()) || MsgId < 0)
 	{
 		/* $ 26.03.2002 DJ
-		   если менеджер уже в дауне - сообщение не выводим
+		   РµСЃР»Рё РјРµРЅРµРґР¶РµСЂ СѓР¶Рµ РІ РґР°СѓРЅРµ - СЃРѕРѕР±С‰РµРЅРёРµ РЅРµ РІС‹РІРѕРґРёРј
 		*/
 		if (!Global->WindowManager->ManagerIsDown())
 		{
 			/* $ 03.09.2000 IS
-			   ! Нормальное сообщение об отсутствии строки в языковом файле
-			     (раньше имя файла обрезалось справа и приходилось иногда гадать - в
-			     каком же файле ошибка)
+			   ! РќРѕСЂРјР°Р»СЊРЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ РѕР± РѕС‚СЃСѓС‚СЃС‚РІРёРё СЃС‚СЂРѕРєРё РІ СЏР·С‹РєРѕРІРѕРј С„Р°Р№Р»Рµ
+			     (СЂР°РЅСЊС€Рµ РёРјСЏ С„Р°Р№Р»Р° РѕР±СЂРµР·Р°Р»РѕСЃСЊ СЃРїСЂР°РІР° Рё РїСЂРёС…РѕРґРёР»РѕСЃСЊ РёРЅРѕРіРґР° РіР°РґР°С‚СЊ - РІ
+			     РєР°РєРѕРј Р¶Рµ С„Р°Р№Р»Рµ РѕС€РёР±РєР°)
 			*/
 
 			// TODO: localization

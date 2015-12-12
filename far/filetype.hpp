@@ -1,13 +1,15 @@
+п»ї#ifndef FILETYPE_HPP_E08E6BC3_545B_4343_9D79_A72830AC30F0
+#define FILETYPE_HPP_E08E6BC3_545B_4343_9D79_A72830AC30F0
 #pragma once
 
 /*
 filetype.hpp
 
-Работа с ассоциациями файлов
+Р Р°Р±РѕС‚Р° СЃ Р°СЃСЃРѕС†РёР°С†РёСЏРјРё С„Р°Р№Р»РѕРІ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -33,7 +35,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// Работа с ассоциациями файлов
+// Р Р°Р±РѕС‚Р° СЃ Р°СЃСЃРѕС†РёР°С†РёСЏРјРё С„Р°Р№Р»РѕРІ
 enum FILETYPE_MODE
 {
 	FILETYPE_EXEC,       // Enter
@@ -56,3 +58,5 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 void ProcessExternal(const string& Command, const string& Name, const string& ShortName, bool AlwaysWaitFinish);
 bool ExtractIfExistCommand(string &strCommandText);
 void EditFileTypes();
+
+#endif // FILETYPE_HPP_E08E6BC3_545B_4343_9D79_A72830AC30F0

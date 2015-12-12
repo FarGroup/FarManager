@@ -1,13 +1,15 @@
+п»ї#ifndef NAMELIST_HPP_09E5F1A3_91E5_416F_B810_48B92D126FF5
+#define NAMELIST_HPP_09E5F1A3_91E5_416F_B810_48B92D126FF5
 #pragma once
 
 /*
 namelist.hpp
 
-Список имен файлов, используется в viewer при нажатии Gray+/Gray-
+РЎРїРёСЃРѕРє РёРјРµРЅ С„Р°Р№Р»РѕРІ, РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РІ viewer РїСЂРё РЅР°Р¶Р°С‚РёРё Gray+/Gray-
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -57,3 +59,5 @@ private:
 	names_list Names;
 	names_list::const_iterator CurPos;
 };
+
+#endif // NAMELIST_HPP_09E5F1A3_91E5_416F_B810_48B92D126FF5

@@ -1,13 +1,15 @@
+п»ї#ifndef PROCESSNAME_HPP_8DEB440D_A0C0_40CB_9960_AF2BCD568A88
+#define PROCESSNAME_HPP_8DEB440D_A0C0_40CB_9960_AF2BCD568A88
 #pragma once
 
 /*
 processname.hpp
 
-Обработать имя файла: сравнить с маской, масками, сгенерировать по маске
+РћР±СЂР°Р±РѕС‚Р°С‚СЊ РёРјСЏ С„Р°Р№Р»Р°: СЃСЂР°РІРЅРёС‚СЊ СЃ РјР°СЃРєРѕР№, РјР°СЃРєР°РјРё, СЃРіРµРЅРµСЂРёСЂРѕРІР°С‚СЊ РїРѕ РјР°СЃРєРµ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -33,6 +35,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// обработать имя файла: сравнить с маской, масками, сгенерировать по маске
+// РѕР±СЂР°Р±РѕС‚Р°С‚СЊ РёРјСЏ С„Р°Р№Р»Р°: СЃСЂР°РІРЅРёС‚СЊ СЃ РјР°СЃРєРѕР№, РјР°СЃРєР°РјРё, СЃРіРµРЅРµСЂРёСЂРѕРІР°С‚СЊ РїРѕ РјР°СЃРєРµ
 bool ConvertWildcards(const string& SrcName,string &strDest, int SelectedFolderNameLength);
 int CmpName(const wchar_t *pattern, const wchar_t *str, bool skippath=true, bool CmpNameSearchMode=false);
+
+#endif // PROCESSNAME_HPP_8DEB440D_A0C0_40CB_9960_AF2BCD568A88

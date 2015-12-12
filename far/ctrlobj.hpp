@@ -1,13 +1,15 @@
+п»ї#ifndef CTRLOBJ_HPP_7994231E_F8FF_42CD_9A40_A2A96828BC67
+#define CTRLOBJ_HPP_7994231E_F8FF_42CD_9A40_A2A96828BC67
 #pragma once
 
 /*
 ctrlobj.hpp
 
-Управление остальными объектами, раздача сообщений клавиатуры и мыши
+РЈРїСЂР°РІР»РµРЅРёРµ РѕСЃС‚Р°Р»СЊРЅС‹РјРё РѕР±СЉРµРєС‚Р°РјРё, СЂР°Р·РґР°С‡Р° СЃРѕРѕР±С‰РµРЅРёР№ РєР»Р°РІРёР°С‚СѓСЂС‹ Рё РјС‹С€Рё
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -72,3 +74,5 @@ public:
 private:
 	filepanels_ptr FPanels;
 };
+
+#endif // CTRLOBJ_HPP_7994231E_F8FF_42CD_9A40_A2A96828BC67

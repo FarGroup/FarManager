@@ -1,13 +1,15 @@
+п»ї#ifndef SCRBUF_HPP_9C71BBDC_FEF1_40D7_895F_7DEB31F6FBAC
+#define SCRBUF_HPP_9C71BBDC_FEF1_40D7_895F_7DEB31F6FBAC
 #pragma once
 
 /*
 scrbuf.hpp
 
-Буферизация вывода на экран, весь вывод идет через этот буфер
+Р‘СѓС„РµСЂРёР·Р°С†РёСЏ РІС‹РІРѕРґР° РЅР° СЌРєСЂР°РЅ, РІРµСЃСЊ РІС‹РІРѕРґ РёРґРµС‚ С‡РµСЂРµР· СЌС‚РѕС‚ Р±СѓС„РµСЂ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -84,3 +86,5 @@ private:
 	bool ElevationCharUsed;
 	bool CurVisible;
 };
+
+#endif // SCRBUF_HPP_9C71BBDC_FEF1_40D7_895F_7DEB31F6FBAC

@@ -1,7 +1,9 @@
+﻿#ifndef ITERATOR_RANGE_HPP_3B87674F_96D1_487D_B83E_43E43EFBA4D3
+#define ITERATOR_RANGE_HPP_3B87674F_96D1_487D_B83E_43E43EFBA4D3
 #pragma once
 
 /*
-Copyright � 2014 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -120,3 +122,5 @@ inline range<i_iterator<T>> make_irange(T i_end)
 {
 	return range<i_iterator<T>>(0, i_end);
 }
+
+#endif // ITERATOR_RANGE_HPP_3B87674F_96D1_487D_B83E_43E43EFBA4D3

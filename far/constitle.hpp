@@ -1,13 +1,15 @@
+п»ї#ifndef CONSTITLE_HPP_BEA2E6A2_E52A_4741_9E40_E6B50FF79633
+#define CONSTITLE_HPP_BEA2E6A2_E52A_4741_9E40_E6B50FF79633
 #pragma once
 
 /*
 constitle.hpp
 
-Заголовок консоли
+Р—Р°РіРѕР»РѕРІРѕРє РєРѕРЅСЃРѕР»Рё
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -53,3 +55,5 @@ private:
 };
 
 void SetUserTitle(const string& str);
+
+#endif // CONSTITLE_HPP_BEA2E6A2_E52A_4741_9E40_E6B50FF79633

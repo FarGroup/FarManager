@@ -1,13 +1,15 @@
+п»ї#ifndef HOTPLUG_HPP_0F56E211_1AA9_4160_BFA1_BB366C0244EB
+#define HOTPLUG_HPP_0F56E211_1AA9_4160_BFA1_BB366C0244EB
 #pragma once
 
 /*
 hotplug.hpp
 
-Отключение Hotplug-устройств
+РћС‚РєР»СЋС‡РµРЅРёРµ Hotplug-СѓСЃС‚СЂРѕР№СЃС‚РІ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -35,3 +37,5 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 int RemoveHotplugDisk(wchar_t Disk, DWORD Flags);
 void ShowHotplugDevices();
+
+#endif // HOTPLUG_HPP_0F56E211_1AA9_4160_BFA1_BB366C0244EB

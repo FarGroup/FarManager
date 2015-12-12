@@ -1,13 +1,15 @@
+п»ї#ifndef LASTERROR_HPP_1C20B3B0_E43C_4DCC_9729_DFD883E99DD3
+#define LASTERROR_HPP_1C20B3B0_E43C_4DCC_9729_DFD883E99DD3
 #pragma once
 
 /*
 lasterror.hpp
 
-Сохрание/восстановление LastError
+РЎРѕС…СЂР°РЅРёРµ/РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ LastError
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -54,3 +56,5 @@ private:
 	DWORD LastError;
 	NTSTATUS LastStatus;
 };
+
+#endif // LASTERROR_HPP_1C20B3B0_E43C_4DCC_9729_DFD883E99DD3

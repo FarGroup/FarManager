@@ -1,13 +1,15 @@
+п»ї#ifndef SAVESCR_HPP_778D9931_B748_4300_B9AF_330A1B2C80B9
+#define SAVESCR_HPP_778D9931_B748_4300_B9AF_330A1B2C80B9
 #pragma once
 
 /*
 savescr.hpp
 
-Сохраняем и восстанавливаем экран кусками и целиком
+РЎРѕС…СЂР°РЅСЏРµРј Рё РІРѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµРј СЌРєСЂР°РЅ РєСѓСЃРєР°РјРё Рё С†РµР»РёРєРѕРј
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -62,3 +64,5 @@ private:
 	DWORD CurSize;
 	int m_X1, m_Y1, m_X2, m_Y2;
 };
+
+#endif // SAVESCR_HPP_778D9931_B748_4300_B9AF_330A1B2C80B9

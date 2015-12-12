@@ -1,10 +1,10 @@
-/*
+п»ї/*
 plugsettings.cpp
 
-API для хранения плагинами настроек.
+API РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РїР»Р°РіРёРЅР°РјРё РЅР°СЃС‚СЂРѕРµРє.
 */
 /*
-Copyright © 2011 Far Group
+Copyright В© 2011 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

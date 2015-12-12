@@ -1,13 +1,15 @@
+п»ї#ifndef XLAT_HPP_F8CD041F_AB4B_42F8_B2AE_D117C0A8A848
+#define XLAT_HPP_F8CD041F_AB4B_42F8_B2AE_D117C0A8A848
 #pragma once
 
 /*
 xlat.hpp
 
-XLat - перекодировка
+XLat - РїРµСЂРµРєРѕРґРёСЂРѕРІРєР°
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -35,3 +37,5 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void xlat_initialize();
 wchar_t* Xlat(wchar_t *Line, int StartPos, int EndPos, unsigned __int64 Flags);
+
+#endif // XLAT_HPP_F8CD041F_AB4B_42F8_B2AE_D117C0A8A848

@@ -1,11 +1,11 @@
-/*
+п»ї/*
 plugins.cpp
 
-Работа с плагинами (низкий уровень, кое-что повыше в filelist.cpp)
+Р Р°Р±РѕС‚Р° СЃ РїР»Р°РіРёРЅР°РјРё (РЅРёР·РєРёР№ СѓСЂРѕРІРµРЅСЊ, РєРѕРµ-С‡С‚Рѕ РїРѕРІС‹С€Рµ РІ filelist.cpp)
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -142,7 +142,7 @@ PluginManager::PluginManager():
 
 PluginManager::~PluginManager()
 {
-	Plugin *Luamacro=nullptr; // обеспечить выгрузку данного плагина последним.
+	Plugin *Luamacro=nullptr; // РѕР±РµСЃРїРµС‡РёС‚СЊ РІС‹РіСЂСѓР·РєСѓ РґР°РЅРЅРѕРіРѕ РїР»Р°РіРёРЅР° РїРѕСЃР»РµРґРЅРёРј.
 
 	std::for_each(CONST_RANGE(SortedPlugins, i)
 	{
@@ -292,7 +292,7 @@ int PluginManager::UnloadPlugin(Plugin *pPlugin, int From)
 {
 	int nResult = FALSE;
 
-	if (pPlugin && (From != iExitFAR))   //схитрим, если упали в EXITFAR, не полезем в рекурсию, мы и так в Unload
+	if (pPlugin && (From != iExitFAR))   //СЃС…РёС‚СЂРёРј, РµСЃР»Рё СѓРїР°Р»Рё РІ EXITFAR, РЅРµ РїРѕР»РµР·РµРј РІ СЂРµРєСѓСЂСЃРёСЋ, РјС‹ Рё С‚Р°Рє РІ Unload
 	{
 		for(int i = static_cast<int>(Global->WindowManager->GetModalWindowCount()-1); i >= 0; --i)
 		{
@@ -339,7 +339,7 @@ bool PluginManager::IsPluginUnloaded(Plugin* pPlugin)
 
 int PluginManager::UnloadPluginExternal(Plugin* pPlugin)
 {
-	//BUGBUG нужны проверки на легальность выгрузки
+	//BUGBUG РЅСѓР¶РЅС‹ РїСЂРѕРІРµСЂРєРё РЅР° Р»РµРіР°Р»СЊРЅРѕСЃС‚СЊ РІС‹РіСЂСѓР·РєРё
 	int nResult = FALSE;
 	if(pPlugin->Active())
 	{
@@ -411,26 +411,26 @@ void PluginManager::LoadPlugins()
 		string strFullName;
 		os::FAR_FIND_DATA FindData;
 
-		// сначала подготовим список
-		if (Global->Opt->LoadPlug.MainPluginDir) // только основные и персональные?
+		// СЃРЅР°С‡Р°Р»Р° РїРѕРґРіРѕС‚РѕРІРёРј СЃРїРёСЃРѕРє
+		if (Global->Opt->LoadPlug.MainPluginDir) // С‚РѕР»СЊРєРѕ РѕСЃРЅРѕРІРЅС‹Рµ Рё РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹Рµ?
 		{
 			strPluginsDir=Global->g_strFarPath+PluginsFolderName;
-			// ...а персональные есть?
+			// ...Р° РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹Рµ РµСЃС‚СЊ?
 			if (Global->Opt->LoadPlug.PluginsPersonal && !Global->Opt->LoadPlug.strPersonalPluginsPath.empty())
 				strPluginsDir += L";" + Global->Opt->LoadPlug.strPersonalPluginsPath;
 		}
-		else if (!Global->Opt->LoadPlug.strCustomPluginsPath.empty())  // только "заказные" пути?
+		else if (!Global->Opt->LoadPlug.strCustomPluginsPath.empty())  // С‚РѕР»СЊРєРѕ "Р·Р°РєР°Р·РЅС‹Рµ" РїСѓС‚Рё?
 		{
 			strPluginsDir = Global->Opt->LoadPlug.strCustomPluginsPath;
 		}
 
-		// теперь пройдемся по всему ранее собранному списку
+		// С‚РµРїРµСЂСЊ РїСЂРѕР№РґРµРјСЃСЏ РїРѕ РІСЃРµРјСѓ СЂР°РЅРµРµ СЃРѕР±СЂР°РЅРЅРѕРјСѓ СЃРїРёСЃРєСѓ
 		std::vector<string> Strings;
 		split(Strings, strPluginsDir, STLF_UNIQUE);
 		FOR(const auto& i, Strings)
 		{
-			// расширяем значение пути
-			strFullName = Unquote(os::env::expand_strings(i)); //??? здесь ХЗ
+			// СЂР°СЃС€РёСЂСЏРµРј Р·РЅР°С‡РµРЅРёРµ РїСѓС‚Рё
+			strFullName = Unquote(os::env::expand_strings(i)); //??? Р·РґРµСЃСЊ РҐР—
 
 			if (!IsAbsolutePath(strFullName))
 			{
@@ -439,15 +439,15 @@ void PluginManager::LoadPlugins()
 				strFullName = strPluginsDir;
 			}
 
-			// Получим реальное значение полного длинного пути
+			// РџРѕР»СѓС‡РёРј СЂРµР°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РїРѕР»РЅРѕРіРѕ РґР»РёРЅРЅРѕРіРѕ РїСѓС‚Рё
 			ConvertNameToFull(strFullName,strFullName);
 			ConvertNameToLong(strFullName,strFullName);
 			strPluginsDir = strFullName;
 
-			// ставим на поток очередной путь из списка...
+			// СЃС‚Р°РІРёРј РЅР° РїРѕС‚РѕРє РѕС‡РµСЂРµРґРЅРѕР№ РїСѓС‚СЊ РёР· СЃРїРёСЃРєР°...
 			ScTree.SetFindPath(strPluginsDir,L"*");
 
-			// ...и пройдемся по нему
+			// ...Рё РїСЂРѕР№РґРµРјСЃСЏ РїРѕ РЅРµРјСѓ
 			while (ScTree.GetNextName(FindData,strFullName))
 			{
 				if (!(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
@@ -505,7 +505,7 @@ PluginHandle* PluginManager::OpenFilePlugin(
 
 	bool ShowMenu = Global->Opt->PluginConfirm.OpenFilePlugin==BSTATE_3STATE? !(Type == OFP_NORMAL || Type == OFP_SEARCH) : Global->Opt->PluginConfirm.OpenFilePlugin != 0;
 	bool ShowWarning = !OpMode;
-	 //у анси плагинов OpMode нет.
+	 //Сѓ Р°РЅСЃРё РїР»Р°РіРёРЅРѕРІ OpMode РЅРµС‚.
 	if(Type==OFP_ALTERNATIVE) OpMode|=OPM_PGDN;
 	if(Type==OFP_COMMANDS) OpMode|=OPM_COMMANDS;
 
@@ -550,7 +550,7 @@ PluginHandle* PluginManager::OpenFilePlugin(
 
 			const auto hPlugin = i->OpenFilePlugin(Name? Name->data() : nullptr, (BYTE*)Info.Buffer, Info.BufferSize, OpMode);
 
-			if (hPlugin == PANEL_STOP)   //сразу на выход, плагин решил нагло обработать все сам (Autorun/PictureView)!!!
+			if (hPlugin == PANEL_STOP)   //СЃСЂР°Р·Сѓ РЅР° РІС‹С…РѕРґ, РїР»Р°РіРёРЅ СЂРµС€РёР» РЅР°РіР»Рѕ РѕР±СЂР°Р±РѕС‚Р°С‚СЊ РІСЃРµ СЃР°Рј (Autorun/PictureView)!!!
 			{
 				hResult = reinterpret_cast<PluginHandle*>(PANEL_STOP);
 				break;
@@ -1214,8 +1214,8 @@ static string AddHotkey(const string& Item, const string& Hotkey)
 }
 
 /* $ 29.05.2001 IS
-   ! При настройке "параметров внешних модулей" закрывать окно с их
-     списком только при нажатии на ESC
+   ! РџСЂРё РЅР°СЃС‚СЂРѕР№РєРµ "РїР°СЂР°РјРµС‚СЂРѕРІ РІРЅРµС€РЅРёС… РјРѕРґСѓР»РµР№" Р·Р°РєСЂС‹РІР°С‚СЊ РѕРєРЅРѕ СЃ РёС…
+     СЃРїРёСЃРєРѕРј С‚РѕР»СЊРєРѕ РїСЂРё РЅР°Р¶Р°С‚РёРё РЅР° ESC
 */
 void PluginManager::Configure(int StartPos)
 {
@@ -1476,7 +1476,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 				switch (Key)
 				{
 					case KEY_SHIFTF1:
-						// Вызываем нужный топик, который передали в CommandsMenu()
+						// Р’С‹Р·С‹РІР°РµРј РЅСѓР¶РЅС‹Р№ С‚РѕРїРёРє, РєРѕС‚РѕСЂС‹Р№ РїРµСЂРµРґР°Р»Рё РІ CommandsMenu()
 						if (ItemPtr)
 							pluginapi::apiShowHelp(ItemPtr->pPlugin->GetModuleName().data(), HistoryName, FHELP_SELFHELP | FHELP_NOSHOWERROR | FHELP_USECONTENTS);
 						break;
@@ -2047,8 +2047,8 @@ int PluginManager::ProcessCommandLine(const string& CommandParam,Panel *Target)
 
 
 /* $ 27.09.2000 SVS
-  Функция CallPlugin - найти плагин по ID и запустить
-  в зачаточном состоянии!
+  Р¤СѓРЅРєС†РёСЏ CallPlugin - РЅР°Р№С‚Рё РїР»Р°РіРёРЅ РїРѕ ID Рё Р·Р°РїСѓСЃС‚РёС‚СЊ
+  РІ Р·Р°С‡Р°С‚РѕС‡РЅРѕРј СЃРѕСЃС‚РѕСЏРЅРёРё!
 */
 int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void **Ret)
 {
@@ -2129,7 +2129,7 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void **
 	return FALSE;
 }
 
-// поддержка макрофункций plugin.call, plugin.cmd, plugin.config и т.п
+// РїРѕРґРґРµСЂР¶РєР° РјР°РєСЂРѕС„СѓРЅРєС†РёР№ plugin.call, plugin.cmd, plugin.config Рё С‚.Рї
 int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
 {
 	BOOL Result=FALSE;
@@ -2155,7 +2155,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
 			Data->pPlugin = FindPlugin(Guid);
 			if (Data->pPlugin && Data->pPlugin->Load())
 			{
-				// Разрешен ли вызов данного типа в текущей области (предварительная проверка)
+				// Р Р°Р·СЂРµС€РµРЅ Р»Рё РІС‹Р·РѕРІ РґР°РЅРЅРѕРіРѕ С‚РёРїР° РІ С‚РµРєСѓС‰РµР№ РѕР±Р»Р°СЃС‚Рё (РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅР°СЏ РїСЂРѕРІРµСЂРєР°)
 				switch ((Data->CallFlags & CPT_MASK))
 				{
 					case CPT_MENU:
@@ -2165,7 +2165,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
 					case CPT_CONFIGURE:
 						if (curType!=windowtype_panels)
 						{
-							//TODO: Автокомплит не влияет?
+							//TODO: РђРІС‚РѕРєРѕРјРїР»РёС‚ РЅРµ РІР»РёСЏРµС‚?
 							return FALSE;
 						}
 						if (!Data->pPlugin->has<iConfigure>())
@@ -2174,15 +2174,15 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
 					case CPT_CMDLINE:
 						if (curType!=windowtype_panels)
 						{
-							//TODO: Автокомплит не влияет?
+							//TODO: РђРІС‚РѕРєРѕРјРїР»РёС‚ РЅРµ РІР»РёСЏРµС‚?
 							return FALSE;
 						}
-						//TODO: OpenPanel или OpenFilePlugin?
+						//TODO: OpenPanel РёР»Рё OpenFilePlugin?
 						if (!Data->pPlugin->has<iOpen>())
 							return FALSE;
 						break;
 					case CPT_INTERNAL:
-						//TODO: Уточнить функцию
+						//TODO: РЈС‚РѕС‡РЅРёС‚СЊ С„СѓРЅРєС†РёСЋ
 						if (!Data->pPlugin->has<iOpen>())
 							return FALSE;
 						break;
@@ -2197,7 +2197,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
 
 				PluginMenuItem *MenuItems=nullptr;
 
-				// Разрешен ли вызов данного типа в текущей области
+				// Р Р°Р·СЂРµС€РµРЅ Р»Рё РІС‹Р·РѕРІ РґР°РЅРЅРѕРіРѕ С‚РёРїР° РІ С‚РµРєСѓС‰РµР№ РѕР±Р»Р°СЃС‚Рё
 				switch ((Data->CallFlags & CPT_MASK))
 				{
 					case CPT_MENU:
@@ -2293,7 +2293,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
 				case CPT_CMDLINE:
 				{
 					ActivePanel=Global->CtrlObject->Cp()->ActivePanel();
-					string command=Data->Command; // Нужна копия строки
+					string command=Data->Command; // РќСѓР¶РЅР° РєРѕРїРёСЏ СЃС‚СЂРѕРєРё
 					OpenCommandLineInfo info={sizeof(OpenCommandLineInfo),command.data()};
 					hPlugin=Open(Data->pPlugin,OPEN_COMMANDLINE,FarGuid,(intptr_t)&info);
 
@@ -2301,15 +2301,15 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
 					break;
 				}
 				case CPT_INTERNAL:
-					//TODO: бывший CallPlugin
-					//WARNING: учесть, что он срабатывает без переключения MacroState
+					//TODO: Р±С‹РІС€РёР№ CallPlugin
+					//WARNING: СѓС‡РµСЃС‚СЊ, С‡С‚Рѕ РѕРЅ СЃСЂР°Р±Р°С‚С‹РІР°РµС‚ Р±РµР· РїРµСЂРµРєР»СЋС‡РµРЅРёСЏ MacroState
 					break;
 			}
 
 			if (hPlugin && !Editor && !Viewer && !Dialog)
 			{
-				//BUGBUG: Закрытие панели? Нужно ли оно?
-				//BUGBUG: В ProcessCommandLine зовется перед Open, а в CPT_MENU - после
+				//BUGBUG: Р—Р°РєСЂС‹С‚РёРµ РїР°РЅРµР»Рё? РќСѓР¶РЅРѕ Р»Рё РѕРЅРѕ?
+				//BUGBUG: Р’ ProcessCommandLine Р·РѕРІРµС‚СЃСЏ РїРµСЂРµРґ Open, Р° РІ CPT_MENU - РїРѕСЃР»Рµ
 				if (ActivePanel->ProcessPluginEvent(FE_CLOSE,nullptr))
 				{
 					ClosePanel(hPlugin);

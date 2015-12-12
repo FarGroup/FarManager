@@ -1,13 +1,15 @@
+п»ї#ifndef PLUGAPI_HPP_2389ECC5_6302_4627_9495_F76642AA9B56
+#define PLUGAPI_HPP_2389ECC5_6302_4627_9495_F76642AA9B56
 #pragma once
 
 /*
 plugapi.hpp
 
-API, доступное плагинам (диалоги, меню, ...)
+API, РґРѕСЃС‚СѓРїРЅРѕРµ РїР»Р°РіРёРЅР°Рј (РґРёР°Р»РѕРіРё, РјРµРЅСЋ, ...)
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -34,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 //----------- PLUGIN API/FSF ---------------------------------------------------
-//все эти функции, за исключение sprintf/sscanf имеют тип вызова __stdcall
+//РІСЃРµ СЌС‚Рё С„СѓРЅРєС†РёРё, Р·Р° РёСЃРєР»СЋС‡РµРЅРёРµ sprintf/sscanf РёРјРµСЋС‚ С‚РёРї РІС‹Р·РѕРІР° __stdcall
 
 namespace pluginapi
 {
@@ -132,3 +134,5 @@ namespace pluginapi
 	//luamacro
 	intptr_t WINAPI apiCallFar(intptr_t CheckCode, FarMacroCall* Data) noexcept;
 };
+
+#endif // PLUGAPI_HPP_2389ECC5_6302_4627_9495_F76642AA9B56

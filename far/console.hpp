@@ -1,3 +1,5 @@
+﻿#ifndef CONSOLE_HPP_DB857D87_FD76_4E96_A9EE_4C06712C6B6D
+#define CONSOLE_HPP_DB857D87_FD76_4E96_A9EE_4C06712C6B6D
 #pragma once
 
 /*
@@ -6,7 +8,7 @@ console.hpp
 Console functions
 */
 /*
-Copyright � 2010 Far Group
+Copyright © 2010 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -140,3 +142,5 @@ private:
 };
 
 console& Console();
+
+#endif // CONSOLE_HPP_DB857D87_FD76_4E96_A9EE_4C06712C6B6D

@@ -1,13 +1,15 @@
+п»ї#ifndef IMPORTS_HPP_0589C56B_4071_48EE_B07F_312C2E392280
+#define IMPORTS_HPP_0589C56B_4071_48EE_B07F_312C2E392280
 #pragma once
 
 /*
 imports.hpp
 
-импортируемые функции
+РёРјРїРѕСЂС‚РёСЂСѓРµРјС‹Рµ С„СѓРЅРєС†РёРё
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -137,3 +139,5 @@ private:
 };
 
 const ImportedFunctions& Imports();
+
+#endif // IMPORTS_HPP_0589C56B_4071_48EE_B07F_312C2E392280

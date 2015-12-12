@@ -1,11 +1,11 @@
-/*
+п»ї/*
 main.cpp
 
-Функция main.
+Р¤СѓРЅРєС†РёСЏ main.
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -163,7 +163,7 @@ static int MainProcess(
 					Global->WindowManager->ExitMainLoop(0);
 				}
 			}
-			// TODO: Этот else убрать только после разборок с возможностью задавать несколько /e и /v в ком.строке
+			// TODO: Р­С‚РѕС‚ else СѓР±СЂР°С‚СЊ С‚РѕР»СЊРєРѕ РїРѕСЃР»Рµ СЂР°Р·Р±РѕСЂРѕРє СЃ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊСЋ Р·Р°РґР°РІР°С‚СЊ РЅРµСЃРєРѕР»СЊРєРѕ /e Рё /v РІ РєРѕРј.СЃС‚СЂРѕРєРµ
 			else if (!vname.empty())
 			{
 				const auto ShellViewer = FileViewer::create(vname, TRUE);
@@ -187,15 +187,15 @@ static int MainProcess(
 			int DirCount=0;
 			string strPath;
 
-			// воспользуемся тем, что ControlObject::Init() создает панели
-			// юзая Global->Opt->*
+			// РІРѕСЃРїРѕР»СЊР·СѓРµРјСЃСЏ С‚РµРј, С‡С‚Рѕ ControlObject::Init() СЃРѕР·РґР°РµС‚ РїР°РЅРµР»Рё
+			// СЋР·Р°СЏ Global->Opt->*
 
 			const auto SetupPanel = [&](bool active)
 			{
 				++DirCount;
 				strPath = active? apanel : ppanel;
 				CutToNameUNC(strPath);
-				DeleteEndSlash(strPath); //BUGBUG!! если конечный слеш не убрать - получаем забавный эффект - отсутствует ".."
+				DeleteEndSlash(strPath); //BUGBUG!! РµСЃР»Рё РєРѕРЅРµС‡РЅС‹Р№ СЃР»РµС€ РЅРµ СѓР±СЂР°С‚СЊ - РїРѕР»СѓС‡Р°РµРј Р·Р°Р±Р°РІРЅС‹Р№ СЌС„С„РµРєС‚ - РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚ ".."
 
 				bool Root = false;
 				const auto Type = ParsePath(strPath, nullptr, &Root);
@@ -205,8 +205,8 @@ static int MainProcess(
 				}
 
 				auto& CurrentPanelOptions = (Global->Opt->LeftFocus == active)? Global->Opt->LeftPanel : Global->Opt->RightPanel;
-				CurrentPanelOptions.m_Type = FILE_PANEL;  // сменим моду панели
-				CurrentPanelOptions.Visible = true;     // и включим ее
+				CurrentPanelOptions.m_Type = FILE_PANEL;  // СЃРјРµРЅРёРј РјРѕРґСѓ РїР°РЅРµР»Рё
+				CurrentPanelOptions.Visible = true;     // Рё РІРєР»СЋС‡РёРј РµРµ
 				CurrentPanelOptions.Folder = strPath;
 			};
 
@@ -220,16 +220,16 @@ static int MainProcess(
 				}
 			}
 
-			// теперь все готово - создаем панели!
+			// С‚РµРїРµСЂСЊ РІСЃРµ РіРѕС‚РѕРІРѕ - СЃРѕР·РґР°РµРј РїР°РЅРµР»Рё!
 			Global->CtrlObject->Init(DirCount);
 
-			// а теперь "провалимся" в каталог или хост-файл (если получится ;-)
-			if (!apanel.empty())  // активная панель
+			// Р° С‚РµРїРµСЂСЊ "РїСЂРѕРІР°Р»РёРјСЃСЏ" РІ РєР°С‚Р°Р»РѕРі РёР»Рё С…РѕСЃС‚-С„Р°Р№Р» (РµСЃР»Рё РїРѕР»СѓС‡РёС‚СЃСЏ ;-)
+			if (!apanel.empty())  // Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ
 			{
 				Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 				Panel *AnotherPanel = Global->CtrlObject->Cp()->PassivePanel();
 
-				if (!ppanel.empty())  // пассивная панель
+				if (!ppanel.empty())  // РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ
 				{
 					FarChDir(AnotherPanel->GetCurDir());
 
@@ -268,8 +268,8 @@ static int MainProcess(
 					}
 				}
 
-				// !!! ВНИМАНИЕ !!!
-				// Сначала редравим пассивную панель, а потом активную!
+				// !!! Р’РќРРњРђРќРР• !!!
+				// РЎРЅР°С‡Р°Р»Р° СЂРµРґСЂР°РІРёРј РїР°СЃСЃРёРІРЅСѓСЋ РїР°РЅРµР»СЊ, Р° РїРѕС‚РѕРј Р°РєС‚РёРІРЅСѓСЋ!
 				AnotherPanel->Redraw();
 				ActivePanel->Redraw();
 			}
@@ -279,7 +279,7 @@ static int MainProcess(
 
 		TreeList::FlushCache();
 
-		// очистим за собой!
+		// РѕС‡РёСЃС‚РёРј Р·Р° СЃРѕР±РѕР№!
 		SetScreen(0,0,ScrX,ScrY,L' ',colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 		Console().SetTextAttributes(InitAttributes);
 		Global->ScrBuf->ResetShadow();
@@ -525,7 +525,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 	string strViewName;
 	string DestNames[2];
 	int StartLine=-1,StartChar=-1;
-	int CntDestName=0; // количество параметров-имен каталогов
+	int CntDestName=0; // РєРѕР»РёС‡РµСЃС‚РІРѕ РїР°СЂР°РјРµС‚СЂРѕРІ-РёРјРµРЅ РєР°С‚Р°Р»РѕРіРѕРІ
 
 	string strProfilePath, strLocalProfilePath, strTemplatePath;
 
@@ -637,8 +637,8 @@ static int mainImpl(const range<wchar_t**>& Args)
 						}
 						else
 						{
-							// если указан -P без <путь>, то, считаем, что основные
-							//  плагины не загружать вооообще!!!
+							// РµСЃР»Рё СѓРєР°Р·Р°РЅ -P Р±РµР· <РїСѓС‚СЊ>, С‚Рѕ, СЃС‡РёС‚Р°РµРј, С‡С‚Рѕ РѕСЃРЅРѕРІРЅС‹Рµ
+							//  РїР»Р°РіРёРЅС‹ РЅРµ Р·Р°РіСЂСѓР¶Р°С‚СЊ РІРѕРѕРѕРѕР±С‰Рµ!!!
 							Global->Opt->LoadPlug.strCustomPluginsPath.clear();
 						}
 					}
@@ -685,7 +685,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 					break;
 			}
 		}
-		else // простые параметры. Их может быть max две штукА.
+		else // РїСЂРѕСЃС‚С‹Рµ РїР°СЂР°РјРµС‚СЂС‹. РС… РјРѕР¶РµС‚ Р±С‹С‚СЊ max РґРІРµ С€С‚СѓРєРђ.
 		{
 			if (CntDestName < 2)
 			{
@@ -713,10 +713,10 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 	Global->Opt->Load(Overridden);
 
-	//Инициализация массива клавиш.
+	//РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РјР°СЃСЃРёРІР° РєР»Р°РІРёС€.
 	InitKeysArray();
 
-	if (!Global->Opt->LoadPlug.MainPluginDir) //если есть ключ /p то он отменяет /co
+	if (!Global->Opt->LoadPlug.MainPluginDir) //РµСЃР»Рё РµСЃС‚СЊ РєР»СЋС‡ /p С‚Рѕ РѕРЅ РѕС‚РјРµРЅСЏРµС‚ /co
 		Global->Opt->LoadPlug.PluginsCacheOnly=false;
 
 	if (Global->Opt->LoadPlug.PluginsCacheOnly)

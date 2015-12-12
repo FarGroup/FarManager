@@ -1,3 +1,5 @@
+ï»¿#ifndef CHGPRIOR_HPP_6CE2C2EA_A25D_402E_AD20_0C7885D73457
+#define CHGPRIOR_HPP_6CE2C2EA_A25D_402E_AD20_0C7885D73457
 #pragma once
 
 /*
@@ -6,8 +8,8 @@ chgprior.hpp
 class ChangePriority
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright Â© 1996 Eugene Roshal
+Copyright Â© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -42,3 +44,5 @@ public:
 private:
 	int SavePriority;
 };
+
+#endif // CHGPRIOR_HPP_6CE2C2EA_A25D_402E_AD20_0C7885D73457

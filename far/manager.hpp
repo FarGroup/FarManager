@@ -1,13 +1,15 @@
+п»ї#ifndef MANAGER_HPP_C3173B86_845B_4D8D_921F_803EA43A3C8A
+#define MANAGER_HPP_C3173B86_845B_4D8D_921F_803EA43A3C8A
 #pragma once
 
 /*
 manager.hpp
 
-Переключение между несколькими file panels, viewers, editors
+РџРµСЂРµРєР»СЋС‡РµРЅРёРµ РјРµР¶РґСѓ РЅРµСЃРєРѕР»СЊРєРёРјРё file panels, viewers, editors
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -67,43 +69,43 @@ public:
 		NextWindow
 	};
 
-	// Эти функции можно безопасно вызывать практически из любого места кода
-	// они как бы накапливают информацию о том, что нужно будет сделать с окнами при следующем вызове Commit()
+	// Р­С‚Рё С„СѓРЅРєС†РёРё РјРѕР¶РЅРѕ Р±РµР·РѕРїР°СЃРЅРѕ РІС‹Р·С‹РІР°С‚СЊ РїСЂР°РєС‚РёС‡РµСЃРєРё РёР· Р»СЋР±РѕРіРѕ РјРµСЃС‚Р° РєРѕРґР°
+	// РѕРЅРё РєР°Рє Р±С‹ РЅР°РєР°РїР»РёРІР°СЋС‚ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ С‚РѕРј, С‡С‚Рѕ РЅСѓР¶РЅРѕ Р±СѓРґРµС‚ СЃРґРµР»Р°С‚СЊ СЃ РѕРєРЅР°РјРё РїСЂРё СЃР»РµРґСѓСЋС‰РµРј РІС‹Р·РѕРІРµ Commit()
 	void InsertWindow(window_ptr_ref NewWindow);
 	void DeleteWindow(window_ptr_ref Deleted = nullptr);
 	void ActivateWindow(window_ptr_ref Activated);
 	void RefreshWindow(window_ptr_ref Refreshed = nullptr);
 	void ReplaceWindow(window_ptr_ref Old, window_ptr_ref New);
 	void CallbackWindow(const std::function<void(void)>& Callback);
-	//! Функции для запуска модальных окон.
+	//! Р¤СѓРЅРєС†РёРё РґР»СЏ Р·Р°РїСѓСЃРєР° РјРѕРґР°Р»СЊРЅС‹С… РѕРєРѕРЅ.
 	void ExecuteWindow(window_ptr_ref Executed);
-	//! Входит в новый цикл обработки событий
+	//! Р’С…РѕРґРёС‚ РІ РЅРѕРІС‹Р№ С†РёРєР» РѕР±СЂР°Р±РѕС‚РєРё СЃРѕР±С‹С‚РёР№
 	void ExecuteModal(window_ptr_ref Executed);
-	//! Запускает немодальное окно в модальном режиме
+	//! Р—Р°РїСѓСЃРєР°РµС‚ РЅРµРјРѕРґР°Р»СЊРЅРѕРµ РѕРєРЅРѕ РІ РјРѕРґР°Р»СЊРЅРѕРј СЂРµР¶РёРјРµ
 	void ExecuteNonModal(window_ptr_ref NonModal);
 	void RefreshAll(void);
 	void CloseAll();
 	/* $ 29.12.2000 IS
-	Аналог CloseAll, но разрешает продолжение полноценной работы в фаре,
-	если пользователь продолжил редактировать файл.
-	Возвращает TRUE, если все закрыли и можно выходить из фара.
+	РђРЅР°Р»РѕРі CloseAll, РЅРѕ СЂР°Р·СЂРµС€Р°РµС‚ РїСЂРѕРґРѕР»Р¶РµРЅРёРµ РїРѕР»РЅРѕС†РµРЅРЅРѕР№ СЂР°Р±РѕС‚С‹ РІ С„Р°СЂРµ,
+	РµСЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РїСЂРѕРґРѕР»Р¶РёР» СЂРµРґР°РєС‚РёСЂРѕРІР°С‚СЊ С„Р°Р№Р».
+	Р’РѕР·РІСЂР°С‰Р°РµС‚ TRUE, РµСЃР»Рё РІСЃРµ Р·Р°РєСЂС‹Р»Рё Рё РјРѕР¶РЅРѕ РІС‹С…РѕРґРёС‚СЊ РёР· С„Р°СЂР°.
 	*/
 	BOOL ExitAll();
 	size_t GetWindowCount()const { return m_windows.size(); }
 	int  GetWindowCountByType(int Type);
 	/*$ 26.06.2001 SKV
-	Для вызова через ACTL_COMMIT
+	Р”Р»СЏ РІС‹Р·РѕРІР° С‡РµСЂРµР· ACTL_COMMIT
 	*/
 	void PluginCommit();
 	int CountWindowsWithName(const string& Name, BOOL IgnoreCase = TRUE);
-	bool IsPanelsActive(bool and_not_qview = false) const; // используется как признак Global->WaitInMainLoop
+	bool IsPanelsActive(bool and_not_qview = false) const; // РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РєР°Рє РїСЂРёР·РЅР°Рє Global->WaitInMainLoop
 	window_ptr FindWindowByFile(int ModalType, const string& FileName, const wchar_t *Dir = nullptr);
 	void EnterMainLoop();
 	void ProcessMainLoop();
 	void ExitMainLoop(int Ask);
 	int ProcessKey(Key key);
 	int ProcessMouse(const MOUSE_EVENT_RECORD *me);
-	void PluginsMenu() const; // вызываем меню по F11
+	void PluginsMenu() const; // РІС‹Р·С‹РІР°РµРј РјРµРЅСЋ РїРѕ F11
 	void SwitchToPanels();
 	window_ptr GetCurrentWindow() { return m_currentWindow; }
 	window_ptr GetWindow(size_t Index) const;
@@ -141,13 +143,13 @@ private:
 	friend void ManagerClass_Dump(const wchar_t *Title, FILE *fp);
 #endif
 
-	window_ptr WindowMenu(); //    вместо void SelectWindow(); // show window menu (F12)
+	window_ptr WindowMenu(); //    РІРјРµСЃС‚Рѕ void SelectWindow(); // show window menu (F12)
 	bool HaveAnyWindow() const;
 	bool OnlyDesktop() const;
-	void Commit(void);         // завершает транзакцию по изменениям в контейнерах окон
-	// Она в цикле вызывает себя, пока хотябы один из указателей отличен от nullptr
-	// Функции, "подмастерья начальника" - Commit'a
-	// Иногда вызываются не только из него и из других мест
+	void Commit(void);         // Р·Р°РІРµСЂС€Р°РµС‚ С‚СЂР°РЅР·Р°РєС†РёСЋ РїРѕ РёР·РјРµРЅРµРЅРёСЏРј РІ РєРѕРЅС‚РµР№РЅРµСЂР°С… РѕРєРѕРЅ
+	// РћРЅР° РІ С†РёРєР»Рµ РІС‹Р·С‹РІР°РµС‚ СЃРµР±СЏ, РїРѕРєР° С…РѕС‚СЏР±С‹ РѕРґРёРЅ РёР· СѓРєР°Р·Р°С‚РµР»РµР№ РѕС‚Р»РёС‡РµРЅ РѕС‚ nullptr
+	// Р¤СѓРЅРєС†РёРё, "РїРѕРґРјР°СЃС‚РµСЂСЊСЏ РЅР°С‡Р°Р»СЊРЅРёРєР°" - Commit'a
+	// РРЅРѕРіРґР° РІС‹Р·С‹РІР°СЋС‚СЃСЏ РЅРµ С‚РѕР»СЊРєРѕ РёР· РЅРµРіРѕ Рё РёР· РґСЂСѓРіРёС… РјРµСЃС‚
 	void InsertCommit(window_ptr_ref Param);
 	void DeleteCommit(window_ptr_ref Param);
 	void ActivateCommit(window_ptr_ref Param);
@@ -165,21 +167,21 @@ private:
 	bool AddWindow(window_ptr_ref Param);
 	void SwitchWindow(DirectionType Direction);
 
-	window_ptr m_currentWindow;     // текущее окно. Оно может находиться как в немодальном, так и в модальном контейнере, его можно получить с помощью WindowManager->GetCurrentWindow();
+	window_ptr m_currentWindow;     // С‚РµРєСѓС‰РµРµ РѕРєРЅРѕ. РћРЅРѕ РјРѕР¶РµС‚ РЅР°С…РѕРґРёС‚СЊСЃСЏ РєР°Рє РІ РЅРµРјРѕРґР°Р»СЊРЅРѕРј, С‚Р°Рє Рё РІ РјРѕРґР°Р»СЊРЅРѕРј РєРѕРЅС‚РµР№РЅРµСЂРµ, РµРіРѕ РјРѕР¶РЅРѕ РїРѕР»СѓС‡РёС‚СЊ СЃ РїРѕРјРѕС‰СЊСЋ WindowManager->GetCurrentWindow();
 	typedef std::vector<window_ptr> windows;
 	void* GetCurrent(std::function<void*(windows::const_reverse_iterator)> Check) const;
 	windows m_modalWindows;
 	windows m_windows;
-	// текущее немодальное окно можно получить с помощью WindowManager->GetBottomWindow();
+	// С‚РµРєСѓС‰РµРµ РЅРµРјРѕРґР°Р»СЊРЅРѕРµ РѕРєРЅРѕ РјРѕР¶РЅРѕ РїРѕР»СѓС‡РёС‚СЊ СЃ РїРѕРјРѕС‰СЊСЋ WindowManager->GetBottomWindow();
 	/* $ 15.05.2002 SKV
-		Так как есть полумодалы, что б не было путаницы,
-		заведём счётчик модальных editor/viewer'ов.
-		Дёргать его  надо ручками перед вызовом ExecuteModal.
-		А автоматом нельзя, так как ExecuteModal вызывается
-		1) не только для настоящих модалов (как это ни пародоксально),
-		2) не только для editor/viewer'ов.
+		РўР°Рє РєР°Рє РµСЃС‚СЊ РїРѕР»СѓРјРѕРґР°Р»С‹, С‡С‚Рѕ Р± РЅРµ Р±С‹Р»Рѕ РїСѓС‚Р°РЅРёС†С‹,
+		Р·Р°РІРµРґС‘Рј СЃС‡С‘С‚С‡РёРє РјРѕРґР°Р»СЊРЅС‹С… editor/viewer'РѕРІ.
+		Р”С‘СЂРіР°С‚СЊ РµРіРѕ  РЅР°РґРѕ СЂСѓС‡РєР°РјРё РїРµСЂРµРґ РІС‹Р·РѕРІРѕРј ExecuteModal.
+		Рђ Р°РІС‚РѕРјР°С‚РѕРј РЅРµР»СЊР·СЏ, С‚Р°Рє РєР°Рє ExecuteModal РІС‹Р·С‹РІР°РµС‚СЃСЏ
+		1) РЅРµ С‚РѕР»СЊРєРѕ РґР»СЏ РЅР°СЃС‚РѕСЏС‰РёС… РјРѕРґР°Р»РѕРІ (РєР°Рє СЌС‚Рѕ РЅРё РїР°СЂРѕРґРѕРєСЃР°Р»СЊРЅРѕ),
+		2) РЅРµ С‚РѕР»СЊРєРѕ РґР»СЏ editor/viewer'РѕРІ.
 	*/
-	bool EndLoop;            // Признак выхода из цикла
+	bool EndLoop;            // РџСЂРёР·РЅР°Рє РІС‹С…РѕРґР° РёР· С†РёРєР»Р°
 	int ModalExitCode;
 	bool StartManager;
 	static long CurrentWindowType;
@@ -188,3 +190,5 @@ private:
 	std::unordered_map<window_ptr, bool*> m_Executed;
 	std::unordered_set<window_ptr> m_Added;
 };
+
+#endif // MANAGER_HPP_C3173B86_845B_4D8D_921F_803EA43A3C8A

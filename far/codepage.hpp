@@ -1,13 +1,15 @@
+п»ї#ifndef CODEPAGE_HPP_44AE7032_AF79_4A6F_A2ED_529BC1A38758
+#define CODEPAGE_HPP_44AE7032_AF79_4A6F_A2ED_529BC1A38758
 #pragma once
 
 /*
 codepage.hpp
 
-Работа с кодовыми страницами
+Р Р°Р±РѕС‚Р° СЃ РєРѕРґРѕРІС‹РјРё СЃС‚СЂР°РЅРёС†Р°РјРё
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -141,3 +143,5 @@ typedef std::unordered_map<UINT, std::pair<UINT, string>> cp_map;
 const cp_map& InstalledCodepages();
 cp_map::value_type::second_type GetCodePageInfo(UINT cp);
 
+
+#endif // CODEPAGE_HPP_44AE7032_AF79_4A6F_A2ED_529BC1A38758

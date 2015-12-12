@@ -1,10 +1,12 @@
+п»ї#ifndef FARRTL_HPP_3DC127D2_3D5C_4E0C_BFDD_6CE23AE099DB
+#define FARRTL_HPP_3DC127D2_3D5C_4E0C_BFDD_6CE23AE099DB
 
 #pragma once
 
 /*
 farrtl.cpp
 
-Переопределение различных CRT функций
+РџРµСЂРµРѕРїСЂРµРґРµР»РµРЅРёРµ СЂР°Р·Р»РёС‡РЅС‹С… CRT С„СѓРЅРєС†РёР№
 */
 
 #ifdef _DEBUG
@@ -34,3 +36,5 @@ wchar_t* xwcsncpy(wchar_t* dest, const wchar_t* src, size_t DestSize);
 
 #define ALIGNAS(value, alignment) ((value+(alignment-1))&~(alignment-1))
 #define ALIGN(value) ALIGNAS(value, sizeof(void*))
+
+#endif // FARRTL_HPP_3DC127D2_3D5C_4E0C_BFDD_6CE23AE099DB

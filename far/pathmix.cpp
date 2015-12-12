@@ -1,11 +1,11 @@
-/*
+ï»¿/*
 pathmix.cpp
 
 Misc functions for processing of path names
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright Â© 1996 Eugene Roshal
+Copyright Â© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -160,7 +160,7 @@ bool IsPluginPrefixPath(const string& Path) //Max:
 	if (pos == string::npos || !pos)
 		return false;
 
-	if (pos == 1) // îäíîñèìâîëüíûé ïðåôèêñ
+	if (pos == 1) // Ð¾Ð´Ð½Ð¾ÑÐ¸Ð¼Ð²Ð¾Ð»ÑŒÐ½Ñ‹Ð¹ Ð¿Ñ€ÐµÑ„Ð¸ÐºÑ
 	{
 		if ((Path[0] >= L'a' && Path[0] <= L'z') || (Path[0] >= L'A' && Path[0] <= L'Z'))
 			return false;
@@ -212,9 +212,9 @@ const wchar_t* PointToName(const wchar_t *lpwszPath,const wchar_t *lpwszEndPtr)
 		return lpwszPath;
 }
 
-//   Àíàëîã PointToName, òîëüêî äëÿ ñòðîê òèïà
-//   "name\" (îêàí÷èâàåòñÿ íà ñëåø) âîçâðàùàåò óêàçàòåëü íà name, à íå íà ïóñòóþ
-//   ñòðîêó
+//   ÐÐ½Ð°Ð»Ð¾Ð³ PointToName, Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ð´Ð»Ñ ÑÑ‚Ñ€Ð¾Ðº Ñ‚Ð¸Ð¿Ð°
+//   "name\" (Ð¾ÐºÐ°Ð½Ñ‡Ð¸Ð²Ð°ÐµÑ‚ÑÑ Ð½Ð° ÑÐ»ÐµÑˆ) Ð²Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÑ‚ ÑƒÐºÐ°Ð·Ð°Ñ‚ÐµÐ»ÑŒ Ð½Ð° name, Ð° Ð½Ðµ Ð½Ð° Ð¿ÑƒÑÑ‚ÑƒÑŽ
+//   ÑÑ‚Ñ€Ð¾ÐºÑƒ
 const wchar_t* PointToFolderNameIfFolder(const wchar_t *Path)
 {
 	if (!Path)
@@ -289,9 +289,9 @@ static int SlashType(const wchar_t *pw, const wchar_t *pe, wchar_t &TypeSlash)
 	return Len;
 }
 
-// Ôóíêöèÿ ðàáîòàåò ñ îáîèìè âèäàìè ñëåøåé, òàêæå ïðîèñõîäèò
-//	èçìåíåíèå óæå ñóùåñòâóþùåãî êîíå÷íîãî ñëåøà íà òàêîé, êîòîðûé
-// óêàçàí, èëè âñòðå÷àåòñÿ ÷àùå (ïðè ðàâåíñòâå '\'). 
+// Ð¤ÑƒÐ½ÐºÑ†Ð¸Ñ Ñ€Ð°Ð±Ð¾Ñ‚Ð°ÐµÑ‚ Ñ Ð¾Ð±Ð¾Ð¸Ð¼Ð¸ Ð²Ð¸Ð´Ð°Ð¼Ð¸ ÑÐ»ÐµÑˆÐµÐ¹, Ñ‚Ð°ÐºÐ¶Ðµ Ð¿Ñ€Ð¾Ð¸ÑÑ…Ð¾Ð´Ð¸Ñ‚
+//	Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½Ð¸Ðµ ÑƒÐ¶Ðµ ÑÑƒÑ‰ÐµÑÑ‚Ð²ÑƒÑŽÑ‰ÐµÐ³Ð¾ ÐºÐ¾Ð½ÐµÑ‡Ð½Ð¾Ð³Ð¾ ÑÐ»ÐµÑˆÐ° Ð½Ð° Ñ‚Ð°ÐºÐ¾Ð¹, ÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ð¹
+// ÑƒÐºÐ°Ð·Ð°Ð½, Ð¸Ð»Ð¸ Ð²ÑÑ‚Ñ€ÐµÑ‡Ð°ÐµÑ‚ÑÑ Ñ‡Ð°Ñ‰Ðµ (Ð¿Ñ€Ð¸ Ñ€Ð°Ð²ÐµÐ½ÑÑ‚Ð²Ðµ '\'). 
 //
 bool AddEndSlash(wchar_t *Path, wchar_t TypeSlash)
 {

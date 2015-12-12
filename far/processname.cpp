@@ -1,11 +1,11 @@
-/*
+п»ї/*
 processname.cpp
 
-Обработать имя файла: сравнить с маской, масками, сгенерировать по маске
+РћР±СЂР°Р±РѕС‚Р°С‚СЊ РёРјСЏ С„Р°Р№Р»Р°: СЃСЂР°РІРЅРёС‚СЊ СЃ РјР°СЃРєРѕР№, РјР°СЃРєР°РјРё, СЃРіРµРЅРµСЂРёСЂРѕРІР°С‚СЊ РїРѕ РјР°СЃРєРµ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -38,14 +38,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 
 /* $ 09.10.2000 IS
-    Генерация нового имени по маске
-    (взял из ShellCopy::ShellCopyConvertWildcards)
+    Р“РµРЅРµСЂР°С†РёСЏ РЅРѕРІРѕРіРѕ РёРјРµРЅРё РїРѕ РјР°СЃРєРµ
+    (РІР·СЏР» РёР· ShellCopy::ShellCopyConvertWildcards)
 */
-// На основе имени файла (Src) и маски (Dest) генерируем новое имя
-// SelectedFolderNameLength - длина каталога. Например, есть
-// каталог dir1, а в нем файл file1. Нужно сгенерировать имя по маске для dir1.
-// Параметры могут быть следующими: Src="dir1", SelectedFolderNameLength=0
-// или Src="dir1\\file1", а SelectedFolderNameLength=4 (длина "dir1")
+// РќР° РѕСЃРЅРѕРІРµ РёРјРµРЅРё С„Р°Р№Р»Р° (Src) Рё РјР°СЃРєРё (Dest) РіРµРЅРµСЂРёСЂСѓРµРј РЅРѕРІРѕРµ РёРјСЏ
+// SelectedFolderNameLength - РґР»РёРЅР° РєР°С‚Р°Р»РѕРіР°. РќР°РїСЂРёРјРµСЂ, РµСЃС‚СЊ
+// РєР°С‚Р°Р»РѕРі dir1, Р° РІ РЅРµРј С„Р°Р№Р» file1. РќСѓР¶РЅРѕ СЃРіРµРЅРµСЂРёСЂРѕРІР°С‚СЊ РёРјСЏ РїРѕ РјР°СЃРєРµ РґР»СЏ dir1.
+// РџР°СЂР°РјРµС‚СЂС‹ РјРѕРіСѓС‚ Р±С‹С‚СЊ СЃР»РµРґСѓСЋС‰РёРјРё: Src="dir1", SelectedFolderNameLength=0
+// РёР»Рё Src="dir1\\file1", Р° SelectedFolderNameLength=4 (РґР»РёРЅР° "dir1")
 bool ConvertWildcards(const string& SrcName, string &strDest, int SelectedFolderNameLength)
 {
 	size_t DestNamePos = PointToName(strDest.data()) - strDest.data();
@@ -130,15 +130,15 @@ bool ConvertWildcards(const string& SrcName, string &strDest, int SelectedFolder
 }
 
 
-// IS: это реальное тело функции сравнения с маской, но использовать
-// IS: "снаружи" нужно не эту функцию, а CmpName (ее тело расположено
-// IS: после CmpName_Body)
+// IS: СЌС‚Рѕ СЂРµР°Р»СЊРЅРѕРµ С‚РµР»Рѕ С„СѓРЅРєС†РёРё СЃСЂР°РІРЅРµРЅРёСЏ СЃ РјР°СЃРєРѕР№, РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ
+// IS: "СЃРЅР°СЂСѓР¶Рё" РЅСѓР¶РЅРѕ РЅРµ СЌС‚Сѓ С„СѓРЅРєС†РёСЋ, Р° CmpName (РµРµ С‚РµР»Рѕ СЂР°СЃРїРѕР»РѕР¶РµРЅРѕ
+// IS: РїРѕСЃР»Рµ CmpName_Body)
 static int CmpName_Body(const wchar_t *pattern,const wchar_t *str, bool CmpNameSearchMode)
 {
 	for (;; ++str)
 	{
 		/* $ 01.05.2001 DJ
-		   используем инлайновые версии
+		   РёСЃРїРѕР»СЊР·СѓРµРј РёРЅР»Р°Р№РЅРѕРІС‹Рµ РІРµСЂСЃРёРё
 		*/
 		wchar_t stringc=ToUpper(*str);
 		wchar_t patternc=ToUpper(*pattern++);
@@ -159,8 +159,8 @@ static int CmpName_Body(const wchar_t *pattern,const wchar_t *str, bool CmpNameS
 					return TRUE;
 
 				/* $ 01.05.2001 DJ
-				   оптимизированная ветка работает и для имен с несколькими
-				   точками
+				   РѕРїС‚РёРјРёР·РёСЂРѕРІР°РЅРЅР°СЏ РІРµС‚РєР° СЂР°Р±РѕС‚Р°РµС‚ Рё РґР»СЏ РёРјРµРЅ СЃ РЅРµСЃРєРѕР»СЊРєРёРјРё
+				   С‚РѕС‡РєР°РјРё
 				*/
 				if (*pattern==L'.')
 				{
@@ -255,7 +255,7 @@ static int CmpName_Body(const wchar_t *pattern,const wchar_t *str, bool CmpNameS
 	}
 }
 
-// IS: функция для внешнего мира, использовать ее
+// IS: С„СѓРЅРєС†РёСЏ РґР»СЏ РІРЅРµС€РЅРµРіРѕ РјРёСЂР°, РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РµРµ
 int CmpName(const wchar_t *pattern,const wchar_t *str, bool skippath, bool CmpNameSearchMode)
 {
 	if (!pattern || !str)

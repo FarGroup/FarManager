@@ -1,11 +1,11 @@
-/*
+ï»¿/*
 setcolor.cpp
 
-Óñòàíîâêà ôàðîâñêèõ öâåòîâ
+Ð£ÑÑ‚Ð°Ð½Ð¾Ð²ÐºÐ° Ñ„Ð°Ñ€Ð¾Ð²ÑÐºÐ¸Ñ… Ñ†Ð²ÐµÑ‚Ð¾Ð²
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright Â© 1996 Eugene Roshal
+Copyright Â© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -56,21 +56,21 @@ void GetColor(PaletteColors PaletteIndex)
 	if (Console().GetColorDialog(NewColor))
 	{
 		Global->Opt->Palette.Set(PaletteIndex, &NewColor, 1);
-		Global->ScrBuf->Lock(); // îòìåíÿåì âñÿêóþ ïðîðèñîâêó
+		Global->ScrBuf->Lock(); // Ð¾Ñ‚Ð¼ÐµÐ½ÑÐµÐ¼ Ð²ÑÑÐºÑƒÑŽ Ð¿Ñ€Ð¾Ñ€Ð¸ÑÐ¾Ð²ÐºÑƒ
 		Global->CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
 		Global->CtrlObject->Cp()->LeftPanel->Redraw();
 		Global->CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
 		Global->CtrlObject->Cp()->RightPanel->Redraw();
 
 
-		Global->WindowManager->ResizeAllWindows(); // ðåôðåøèì
-		Global->WindowManager->PluginCommit(); // êîììèòèì.
+		Global->WindowManager->ResizeAllWindows(); // Ñ€ÐµÑ„Ñ€ÐµÑˆÐ¸Ð¼
+		Global->WindowManager->PluginCommit(); // ÐºÐ¾Ð¼Ð¼Ð¸Ñ‚Ð¸Ð¼.
 
 		if (Global->Opt->Clock)
 			ShowTime(1);
 
-		Global->ScrBuf->Unlock(); // ðàçðåøàåì ïðîðèñîâêó
-		Global->WindowManager->PluginCommit(); // êîììèòèì.
+		Global->ScrBuf->Unlock(); // Ñ€Ð°Ð·Ñ€ÐµÑˆÐ°ÐµÐ¼ Ð¿Ñ€Ð¾Ñ€Ð¸ÑÐ¾Ð²ÐºÑƒ
+		Global->WindowManager->PluginCommit(); // ÐºÐ¾Ð¼Ð¼Ð¸Ñ‚Ð¸Ð¼.
 	}
 }
 

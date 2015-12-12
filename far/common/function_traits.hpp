@@ -1,7 +1,9 @@
+﻿#ifndef FUNCTION_TRAITS_HPP_071DD1DD_F933_40DC_A662_CB85F7BE7F00
+#define FUNCTION_TRAITS_HPP_071DD1DD_F933_40DC_A662_CB85F7BE7F00
 #pragma once
 
 /*
-Copyright � 2014 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -63,3 +65,5 @@ struct return_type<R(C::*)(A...)> DEFINE_R_TYPE
 #endif
 #undef DEFINE_R_TYPE
 #define FN_RETURN_TYPE(function_name) return_type<decltype(&function_name)>::type
+
+#endif // FUNCTION_TRAITS_HPP_071DD1DD_F933_40DC_A662_CB85F7BE7F00

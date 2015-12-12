@@ -1,13 +1,13 @@
-/*
+п»ї/*
 editcontrol.cpp
 
-Надстройка над Edit.
-Одиночная строка ввода для диалогов и комстроки (не для редактора)
+РќР°РґСЃС‚СЂРѕР№РєР° РЅР°Рґ Edit.
+РћРґРёРЅРѕС‡РЅР°СЏ СЃС‚СЂРѕРєР° РІРІРѕРґР° РґР»СЏ РґРёР°Р»РѕРіРѕРІ Рё РєРѕРјСЃС‚СЂРѕРєРё (РЅРµ РґР»СЏ СЂРµРґР°РєС‚РѕСЂР°)
 
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -530,7 +530,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 						SetMenuPos(*ComplMenu);
 					else if(MenuKey!=KEY_NONE)
 					{
-						// ввод
+						// РІРІРѕРґ
 						if((MenuKey>=L' ' && MenuKey<=static_cast<int>(WCHAR_MAX)) || MenuKey==KEY_BS || MenuKey==KEY_DEL || MenuKey==KEY_NUMDEL)
 						{
 							string strPrev;
@@ -602,7 +602,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 						{
 							switch(MenuKey)
 							{
-							// "классический" перебор
+							// "РєР»Р°СЃСЃРёС‡РµСЃРєРёР№" РїРµСЂРµР±РѕСЂ
 							case KEY_CTRLEND:
 							case KEY_RCTRLEND:
 
@@ -636,7 +636,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 								}
 								break;
 
-							// навигация по строке ввода
+							// РЅР°РІРёРіР°С†РёСЏ РїРѕ СЃС‚СЂРѕРєРµ РІРІРѕРґР°
 							case KEY_LEFT:
 							case KEY_NUMPAD4:
 							case KEY_CTRLS:     case KEY_RCTRLS:
@@ -660,7 +660,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 									return 1;
 								}
 
-							// навигация по списку
+							// РЅР°РІРёРіР°С†РёСЏ РїРѕ СЃРїРёСЃРєСѓ
 							case KEY_SHIFT:
 							case KEY_ALT:
 							case KEY_RALT:
@@ -714,7 +714,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 									break;
 								}
 
-							// всё остальное закрывает список и идёт владельцу
+							// РІСЃС‘ РѕСЃС‚Р°Р»СЊРЅРѕРµ Р·Р°РєСЂС‹РІР°РµС‚ СЃРїРёСЃРѕРє Рё РёРґС‘С‚ РІР»Р°РґРµР»СЊС†Сѓ
 							default:
 								{
 									ComplMenu->Close(-1);
@@ -856,7 +856,7 @@ void EditControl::SetInputMask(const string& InputMask)
 	}
 }
 
-// Функция обновления состояния строки ввода по содержимому Mask
+// Р¤СѓРЅРєС†РёСЏ РѕР±РЅРѕРІР»РµРЅРёСЏ СЃРѕСЃС‚РѕСЏРЅРёСЏ СЃС‚СЂРѕРєРё РІРІРѕРґР° РїРѕ СЃРѕРґРµСЂР¶РёРјРѕРјСѓ Mask
 void EditControl::RefreshStrByMask(int InitMode)
 {
 	const auto Mask = GetInputMask();

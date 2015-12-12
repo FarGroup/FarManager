@@ -1,11 +1,11 @@
-/*
+п»ї/*
 scrbuf.cpp
 
-Буферизация вывода на экран, весь вывод идет через этот буфер
+Р‘СѓС„РµСЂРёР·Р°С†РёСЏ РІС‹РІРѕРґР° РЅР° СЌРєСЂР°РЅ, РІРµСЃСЊ РІС‹РІРѕРґ РёРґРµС‚ С‡РµСЂРµР· СЌС‚РѕС‚ Р±СѓС„РµСЂ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -101,7 +101,7 @@ void ScreenBuf::AllocBuf(size_t rows, size_t cols)
 	Shadow.allocate(rows, cols);
 }
 
-/* Заполнение виртуального буфера значением из консоли.
+/* Р—Р°РїРѕР»РЅРµРЅРёРµ РІРёСЂС‚СѓР°Р»СЊРЅРѕРіРѕ Р±СѓС„РµСЂР° Р·РЅР°С‡РµРЅРёРµРј РёР· РєРѕРЅСЃРѕР»Рё.
 */
 void ScreenBuf::FillBuf()
 {
@@ -117,7 +117,7 @@ void ScreenBuf::FillBuf()
 	CurY=CursorPosition.Y;
 }
 
-/* Записать Text в виртуальный буфер
+/* Р—Р°РїРёСЃР°С‚СЊ Text РІ РІРёСЂС‚СѓР°Р»СЊРЅС‹Р№ Р±СѓС„РµСЂ
 */
 void ScreenBuf::Write(int X,int Y,const FAR_CHAR_INFO *Text, size_t Size)
 {
@@ -155,7 +155,7 @@ void ScreenBuf::Write(int X,int Y,const FAR_CHAR_INFO *Text, size_t Size)
 }
 
 
-/* Читать блок из виртуального буфера.
+/* Р§РёС‚Р°С‚СЊ Р±Р»РѕРє РёР· РІРёСЂС‚СѓР°Р»СЊРЅРѕРіРѕ Р±СѓС„РµСЂР°.
 */
 void ScreenBuf::Read(int X1, int Y1, int X2, int Y2, matrix<FAR_CHAR_INFO>& Dest)
 {
@@ -170,8 +170,8 @@ void ScreenBuf::Read(int X1, int Y1, int X2, int Y2, matrix<FAR_CHAR_INFO>& Dest
 	}
 }
 
-/* Изменить значение цветовых атрибутов в соответствии с маской
-   (применяется для "создания" тени)
+/* РР·РјРµРЅРёС‚СЊ Р·РЅР°С‡РµРЅРёРµ С†РІРµС‚РѕРІС‹С… Р°С‚СЂРёР±СѓС‚РѕРІ РІ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРё СЃ РјР°СЃРєРѕР№
+   (РїСЂРёРјРµРЅСЏРµС‚СЃСЏ РґР»СЏ "СЃРѕР·РґР°РЅРёСЏ" С‚РµРЅРё)
 */
 void ScreenBuf::ApplyShadow(int X1,int Y1,int X2,int Y2)
 {
@@ -214,7 +214,7 @@ void ScreenBuf::ApplyShadow(int X1,int Y1,int X2,int Y2)
 #endif
 }
 
-/* Непосредственное изменение цветовых атрибутов
+/* РќРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕРµ РёР·РјРµРЅРµРЅРёРµ С†РІРµС‚РѕРІС‹С… Р°С‚СЂРёР±СѓС‚РѕРІ
 */
 // used in block selection
 void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color, bool PreserveExFlags)
@@ -251,7 +251,7 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color, bo
 #endif
 }
 
-/* Непосредственное изменение цветовых атрибутов с заданным цветом исключением
+/* РќРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕРµ РёР·РјРµРЅРµРЅРёРµ С†РІРµС‚РѕРІС‹С… Р°С‚СЂРёР±СѓС‚РѕРІ СЃ Р·Р°РґР°РЅРЅС‹Рј С†РІРµС‚РѕРј РёСЃРєР»СЋС‡РµРЅРёРµРј
 */
 // used in stream selection
 void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color,const FarColor& ExceptColor, bool ForceExFlags)
@@ -283,7 +283,7 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color,con
 #endif
 }
 
-/* Закрасить прямоугольник символом Ch и цветом Color
+/* Р—Р°РєСЂР°СЃРёС‚СЊ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє СЃРёРјРІРѕР»РѕРј Ch Рё С†РІРµС‚РѕРј Color
 */
 void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,WCHAR Ch,const FarColor& Color)
 {
@@ -313,7 +313,7 @@ void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,WCHAR Ch,const FarColor& Co
 #endif
 }
 
-/* "Сбросить" виртуальный буфер на консоль
+/* "РЎР±СЂРѕСЃРёС‚СЊ" РІРёСЂС‚СѓР°Р»СЊРЅС‹Р№ Р±СѓС„РµСЂ РЅР° РєРѕРЅСЃРѕР»СЊ
 */
 void ScreenBuf::Flush(bool SuppressIndicators)
 {
@@ -376,8 +376,8 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 			{
 				if (Global->Opt->ClearType)
 				{
-					//Для полного избавления от артефактов ClearType будем перерисовывать на всю ширину.
-					//Чревато тормозами/миганием в зависимости от конфигурации системы.
+					//Р”Р»СЏ РїРѕР»РЅРѕРіРѕ РёР·Р±Р°РІР»РµРЅРёСЏ РѕС‚ Р°СЂС‚РµС„Р°РєС‚РѕРІ ClearType Р±СѓРґРµРј РїРµСЂРµСЂРёСЃРѕРІС‹РІР°С‚СЊ РЅР° РІСЃСЋ С€РёСЂРёРЅСѓ.
+					//Р§СЂРµРІР°С‚Рѕ С‚РѕСЂРјРѕР·Р°РјРё/РјРёРіР°РЅРёРµРј РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РєРѕРЅС„РёРіСѓСЂР°С†РёРё СЃРёСЃС‚РµРјС‹.
 					SMALL_RECT WriteRegion={0, 0, static_cast<SHORT>(Buf.width() - 1), 0};
 
 					for (size_t I = 0, Height = Buf.height(); I < Height; ++I)
@@ -423,10 +423,10 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 							}
 							else if (Started && static_cast<SHORT>(I) > WriteRegion.Bottom && static_cast<SHORT>(J) >= WriteRegion.Left)
 							{
-								//BUGBUG: при включенном СlearType-сглаживании на экране остаётся "мусор" - тонкие вертикальные полосы
-								// кстати, и при выключенном тоже (но реже).
-								// баг, конечно, не наш, но что делать.
-								// расширяем область прорисовки влево-вправо на 1 символ:
+								//BUGBUG: РїСЂРё РІРєР»СЋС‡РµРЅРЅРѕРј РЎlearType-СЃРіР»Р°Р¶РёРІР°РЅРёРё РЅР° СЌРєСЂР°РЅРµ РѕСЃС‚Р°С‘С‚СЃСЏ "РјСѓСЃРѕСЂ" - С‚РѕРЅРєРёРµ РІРµСЂС‚РёРєР°Р»СЊРЅС‹Рµ РїРѕР»РѕСЃС‹
+								// РєСЃС‚Р°С‚Рё, Рё РїСЂРё РІС‹РєР»СЋС‡РµРЅРЅРѕРј С‚РѕР¶Рµ (РЅРѕ СЂРµР¶Рµ).
+								// Р±Р°Рі, РєРѕРЅРµС‡РЅРѕ, РЅРµ РЅР°С€, РЅРѕ С‡С‚Рѕ РґРµР»Р°С‚СЊ.
+								// СЂР°СЃС€РёСЂСЏРµРј РѕР±Р»Р°СЃС‚СЊ РїСЂРѕСЂРёСЃРѕРІРєРё РІР»РµРІРѕ-РІРїСЂР°РІРѕ РЅР° 1 СЃРёРјРІРѕР»:
 								WriteRegion.Left=std::max(static_cast<SHORT>(0),static_cast<SHORT>(WriteRegion.Left-1));
 								WriteRegion.Right = std::min(static_cast<SHORT>(WriteRegion.Right + 1), static_cast<SHORT>(Buf.width() - 1));
 								bool Merge=false;
@@ -566,8 +566,8 @@ void ScreenBuf::GetCursorPos(SHORT& X, SHORT& Y) const
 void ScreenBuf::SetCursorType(bool Visible, DWORD Size)
 {
 	/* $ 09.01.2001 SVS
-	   По наводке ER - в SetCursorType не дергать раньше
-	   времени установку курсора
+	   РџРѕ РЅР°РІРѕРґРєРµ ER - РІ SetCursorType РЅРµ РґРµСЂРіР°С‚СЊ СЂР°РЅСЊС€Рµ
+	   РІСЂРµРјРµРЅРё СѓСЃС‚Р°РЅРѕРІРєСѓ РєСѓСЂСЃРѕСЂР°
 	*/
 
 	if (CurVisible!=Visible || CurSize!=Size)
@@ -603,7 +603,7 @@ void ScreenBuf::RestoreElevationChar()
 	}
 }
 
-//  проскроллировать буфер на одну строку вверх.
+//  РїСЂРѕСЃРєСЂРѕР»Р»РёСЂРѕРІР°С‚СЊ Р±СѓС„РµСЂ РЅР° РѕРґРЅСѓ СЃС‚СЂРѕРєСѓ РІРІРµСЂС….
 void ScreenBuf::Scroll(size_t Count)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);

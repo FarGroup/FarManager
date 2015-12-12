@@ -1,11 +1,11 @@
-/*
+п»ї/*
 panelmix.cpp
 
 Commonly used panel related functions
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -110,7 +110,7 @@ void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
 			//  AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 			//else
 			{
-				// Сбросим время обновления панели. Если там есть нотификация - обновится сама.
+				// РЎР±СЂРѕСЃРёРј РІСЂРµРјСЏ РѕР±РЅРѕРІР»РµРЅРёСЏ РїР°РЅРµР»Рё. Р•СЃР»Рё С‚Р°Рј РµСЃС‚СЊ РЅРѕС‚РёС„РёРєР°С†РёСЏ - РѕР±РЅРѕРІРёС‚СЃСЏ СЃР°РјР°.
 				if (AnotherType==FILE_PANEL)
 					((FileList *)AnotherPanel)->ResetLastUpdateTime();
 
@@ -161,33 +161,33 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 
 	switch (Key)
 	{
-		case KEY_CTRLALTBRACKET:       // Вставить сетевое (UNC) путь из левой панели
+		case KEY_CTRLALTBRACKET:       // Р’СЃС‚Р°РІРёС‚СЊ СЃРµС‚РµРІРѕРµ (UNC) РїСѓС‚СЊ РёР· Р»РµРІРѕР№ РїР°РЅРµР»Рё
 		case KEY_RCTRLRALTBRACKET:
 		case KEY_CTRLRALTBRACKET:
 		case KEY_RCTRLALTBRACKET:
-		case KEY_CTRLALTBACKBRACKET:   // Вставить сетевое (UNC) путь из правой панели
+		case KEY_CTRLALTBACKBRACKET:   // Р’СЃС‚Р°РІРёС‚СЊ СЃРµС‚РµРІРѕРµ (UNC) РїСѓС‚СЊ РёР· РїСЂР°РІРѕР№ РїР°РЅРµР»Рё
 		case KEY_RCTRLRALTBACKBRACKET:
 		case KEY_CTRLRALTBACKBRACKET:
 		case KEY_RCTRLALTBACKBRACKET:
-		case KEY_ALTSHIFTBRACKET:      // Вставить сетевое (UNC) путь из активной панели
+		case KEY_ALTSHIFTBRACKET:      // Р’СЃС‚Р°РІРёС‚СЊ СЃРµС‚РµРІРѕРµ (UNC) РїСѓС‚СЊ РёР· Р°РєС‚РёРІРЅРѕР№ РїР°РЅРµР»Рё
 		case KEY_RALTSHIFTBRACKET:
-		case KEY_ALTSHIFTBACKBRACKET:  // Вставить сетевое (UNC) путь из пассивной панели
+		case KEY_ALTSHIFTBACKBRACKET:  // Р’СЃС‚Р°РІРёС‚СЊ СЃРµС‚РµРІРѕРµ (UNC) РїСѓС‚СЊ РёР· РїР°СЃСЃРёРІРЅРѕР№ РїР°РЅРµР»Рё
 		case KEY_RALTSHIFTBACKBRACKET:
 			NeedRealName=TRUE;
-		case KEY_CTRLBRACKET:          // Вставить путь из левой панели
+		case KEY_CTRLBRACKET:          // Р’СЃС‚Р°РІРёС‚СЊ РїСѓС‚СЊ РёР· Р»РµРІРѕР№ РїР°РЅРµР»Рё
 		case KEY_RCTRLBRACKET:
-		case KEY_CTRLBACKBRACKET:      // Вставить путь из правой панели
+		case KEY_CTRLBACKBRACKET:      // Р’СЃС‚Р°РІРёС‚СЊ РїСѓС‚СЊ РёР· РїСЂР°РІРѕР№ РїР°РЅРµР»Рё
 		case KEY_RCTRLBACKBRACKET:
-		case KEY_CTRLSHIFTBRACKET:     // Вставить путь из активной панели
+		case KEY_CTRLSHIFTBRACKET:     // Р’СЃС‚Р°РІРёС‚СЊ РїСѓС‚СЊ РёР· Р°РєС‚РёРІРЅРѕР№ РїР°РЅРµР»Рё
 		case KEY_RCTRLSHIFTBRACKET:
-		case KEY_CTRLSHIFTBACKBRACKET: // Вставить путь из пассивной панели
+		case KEY_CTRLSHIFTBACKBRACKET: // Р’СЃС‚Р°РІРёС‚СЊ РїСѓС‚СЊ РёР· РїР°СЃСЃРёРІРЅРѕР№ РїР°РЅРµР»Рё
 		case KEY_RCTRLSHIFTBACKBRACKET:
-		case KEY_CTRLSHIFTNUMENTER:    // Текущий файл с пасс.панели
+		case KEY_CTRLSHIFTNUMENTER:    // РўРµРєСѓС‰РёР№ С„Р°Р№Р» СЃ РїР°СЃСЃ.РїР°РЅРµР»Рё
 		case KEY_RCTRLSHIFTNUMENTER:
-		case KEY_SHIFTNUMENTER:        // Текущий файл с актив.панели
-		case KEY_CTRLSHIFTENTER:       // Текущий файл с пасс.панели
+		case KEY_SHIFTNUMENTER:        // РўРµРєСѓС‰РёР№ С„Р°Р№Р» СЃ Р°РєС‚РёРІ.РїР°РЅРµР»Рё
+		case KEY_CTRLSHIFTENTER:       // РўРµРєСѓС‰РёР№ С„Р°Р№Р» СЃ РїР°СЃСЃ.РїР°РЅРµР»Рё
 		case KEY_RCTRLSHIFTENTER:
-		case KEY_SHIFTENTER:           // Текущий файл с актив.панели
+		case KEY_SHIFTENTER:           // РўРµРєСѓС‰РёР№ С„Р°Р№Р» СЃ Р°РєС‚РёРІ.РїР°РЅРµР»Рё
 		{
 			Panel *SrcPanel=nullptr;
 			FilePanels *Cp=Global->CtrlObject->Cp();
@@ -237,7 +237,7 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 					string strShortFileName;
 					SrcPanel->GetCurName(strPathName,strShortFileName);
 
-					if (SrcPanel->GetShowShortNamesMode()) // учтем короткость имен :-)
+					if (SrcPanel->GetShowShortNamesMode()) // СѓС‡С‚РµРј РєРѕСЂРѕС‚РєРѕСЃС‚СЊ РёРјРµРЅ :-)
 						strPathName = strShortFileName;
 				}
 				else

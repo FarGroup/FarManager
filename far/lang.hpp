@@ -1,10 +1,12 @@
+﻿#ifndef LANG_HPP_BB6D2D7F_CD59_4D0F_B11D_2077A8A22947
+#define LANG_HPP_BB6D2D7F_CD59_4D0F_B11D_2077A8A22947
 #pragma once
 
 /*
 lang.hpp
 */
 /*
-Copyright � 2010 Far Group
+Copyright © 2010 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -31,3 +33,5 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "bootstrap/lang.inc"
+
+#endif // LANG_HPP_BB6D2D7F_CD59_4D0F_B11D_2077A8A22947

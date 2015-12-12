@@ -1,13 +1,15 @@
+п»ї#ifndef FILEOWNER_HPP_F93A5379_C876_4A08_9F87_7189C2121ABE
+#define FILEOWNER_HPP_F93A5379_C876_4A08_9F87_7189C2121ABE
 #pragma once
 
 /*
 fileowner.hpp
 
-Кэш SID`ов и функция GetOwner
+РљСЌС€ SID`РѕРІ Рё С„СѓРЅРєС†РёСЏ GetOwner
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -40,3 +42,5 @@ bool SetFileOwner(const string& Object, const string& Owner);
 // internal, for elevation only.
 bool SetOwnerInternal(const string& Object, const string& Owner);
 
+
+#endif // FILEOWNER_HPP_F93A5379_C876_4A08_9F87_7189C2121ABE

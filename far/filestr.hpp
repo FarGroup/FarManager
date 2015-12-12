@@ -1,13 +1,15 @@
+Ôªø#ifndef FILESTR_HPP_1B6BCA12_AFF9_4C80_A59C_B4B92B21F83F
+#define FILESTR_HPP_1B6BCA12_AFF9_4C80_A59C_B4B92B21F83F
 #pragma once
 
 /*
 filestr.hpp
 
- Î‡ÒÒ GetFileString
+–ö–ª–∞—Å—Å GetFileString
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright ¬© 1996 Eugene Roshal
+Copyright ¬© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -68,3 +70,5 @@ private:
 };
 
 bool GetFileFormat(os::fs::file& file, uintptr_t& nCodePage, bool* pSignatureFound = nullptr, bool bUseHeuristics = true, bool* pPureAscii = nullptr);
+
+#endif // FILESTR_HPP_1B6BCA12_AFF9_4C80_A59C_B4B92B21F83F

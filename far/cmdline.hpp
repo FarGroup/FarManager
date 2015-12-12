@@ -1,13 +1,15 @@
+п»ї#ifndef CMDLINE_HPP_7E68C776_4AA9_4A24_BE9F_7F7FA6D50F30
+#define CMDLINE_HPP_7E68C776_4AA9_4A24_BE9F_7F7FA6D50F30
 #pragma once
 
 /*
 cmdline.hpp
 
-Командная строка
+РљРѕРјР°РЅРґРЅР°СЏ СЃС‚СЂРѕРєР°
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -84,3 +86,5 @@ private:
 	string m_CurCmdStr;
 	std::stack<string> ppstack;
 };
+
+#endif // CMDLINE_HPP_7E68C776_4AA9_4A24_BE9F_7F7FA6D50F30

@@ -1,3 +1,5 @@
+﻿#ifndef LOCALE_HPP_C358EF79_F894_425E_B689_C4F4131DBE76
+#define LOCALE_HPP_C358EF79_F894_425E_B689_C4F4131DBE76
 #pragma once
 
 /*
@@ -5,7 +7,7 @@ locale.hpp
 
 */
 /*
-Copyright � 2014 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -40,3 +42,5 @@ namespace locale
 	wchar_t GetThousandSeparator();
 	string GetValue(LCID lcid, LCTYPE id);
 }
+
+#endif // LOCALE_HPP_C358EF79_F894_425E_B689_C4F4131DBE76

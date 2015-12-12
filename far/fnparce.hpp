@@ -1,13 +1,15 @@
+п»ї#ifndef FNPARCE_HPP_4E73DE55_DA35_4962_86C4_EC0DBDE2E229
+#define FNPARCE_HPP_4E73DE55_DA35_4962_86C4_EC0DBDE2E229
 #pragma once
 
 /*
 fnparce.hpp
 
-Парсер файловых ассоциаций
+РџР°СЂСЃРµСЂ С„Р°Р№Р»РѕРІС‹С… Р°СЃСЃРѕС†РёР°С†РёР№
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -40,3 +42,5 @@ int SubstFileName(const wchar_t *DlgTitle,
                   string *strShortListName=nullptr,
                   string *strAnotherShortListName=nullptr,
                   int IgnoreInput=FALSE,const wchar_t *CmdLineDir=nullptr);
+
+#endif // FNPARCE_HPP_4E73DE55_DA35_4962_86C4_EC0DBDE2E229

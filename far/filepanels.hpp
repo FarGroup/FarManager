@@ -1,13 +1,15 @@
+п»ї#ifndef FILEPANELS_HPP_B2D6495E_DA8B_4E72_80F5_37282A14C316
+#define FILEPANELS_HPP_B2D6495E_DA8B_4E72_80F5_37282A14C316
 #pragma once
 
 /*
 filepanels.hpp
 
-файловые панели
+С„Р°Р№Р»РѕРІС‹Рµ РїР°РЅРµР»Рё
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -107,3 +109,5 @@ public:
 private:
 	Panel *m_ActivePanel;
 };
+
+#endif // FILEPANELS_HPP_B2D6495E_DA8B_4E72_80F5_37282A14C316

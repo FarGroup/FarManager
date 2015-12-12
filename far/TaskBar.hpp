@@ -1,3 +1,5 @@
+﻿#ifndef TASKBAR_HPP_2522B9DF_D677_4AA9_8777_B5A1F588D4C1
+#define TASKBAR_HPP_2522B9DF_D677_4AA9_8777_B5A1F588D4C1
 #pragma once
 
 /*
@@ -6,7 +8,7 @@ TaskBar.hpp
 Windows 7 taskbar support
 */
 /*
-Copyright � 2009 Far Group
+Copyright © 2009 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -90,3 +92,5 @@ private:
 
 typedef TaskBarState<TBPF_PAUSED> TaskBarPause;
 typedef TaskBarState<TBPF_ERROR> TaskBarError;
+
+#endif // TASKBAR_HPP_2522B9DF_D677_4AA9_8777_B5A1F588D4C1

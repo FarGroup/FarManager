@@ -1,7 +1,9 @@
+﻿#ifndef NULL_ITERATOR_HPP_18FC84FA_D7EE_47C4_9979_72EC06E57C37
+#define NULL_ITERATOR_HPP_18FC84FA_D7EE_47C4_9979_72EC06E57C37
 #pragma once
 
 /*
-Copyright � 2014 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -48,3 +50,5 @@ private:
 
 template <class T>
 null_iterator_t<T> null_iterator(T* Data) { return null_iterator_t<T>(Data); }
+
+#endif // NULL_ITERATOR_HPP_18FC84FA_D7EE_47C4_9979_72EC06E57C37

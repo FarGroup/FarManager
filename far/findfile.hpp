@@ -1,13 +1,15 @@
+п»ї#ifndef FINDFILE_HPP_8601893C_E4B7_4EC6_A79F_9C6E491FF5ED
+#define FINDFILE_HPP_8601893C_E4B7_4EC6_A79F_9C6E491FF5ED
 #pragma once
 
 /*
 findfile.hpp
 
-Поиск (Alt-F7)
+РџРѕРёСЃРє (Alt-F7)
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -196,3 +198,4 @@ private:
 	Event PauseEvent;
 	Event StopEvent;
 };
+#endif // FINDFILE_HPP_8601893C_E4B7_4EC6_A79F_9C6E491FF5ED

@@ -1,11 +1,11 @@
-/*
+п»ї/*
 history.cpp
 
-История (Alt-F8, Alt-F11, Alt-F12)
+РСЃС‚РѕСЂРёСЏ (Alt-F8, Alt-F11, Alt-F12)
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -84,8 +84,8 @@ void History::CompactHistory()
 }
 
 /*
-   SaveForbid - принудительно запретить запись добавляемой строки.
-                Используется на панели плагина
+   SaveForbid - РїСЂРёРЅСѓРґРёС‚РµР»СЊРЅРѕ Р·Р°РїСЂРµС‚РёС‚СЊ Р·Р°РїРёСЃСЊ РґРѕР±Р°РІР»СЏРµРјРѕР№ СЃС‚СЂРѕРєРё.
+                РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РЅР° РїР°РЅРµР»Рё РїР»Р°РіРёРЅР°
 */
 void History::AddToHistory(const string& Str, history_record_type Type, const GUID* Guid, const wchar_t *File, const wchar_t *Data, bool SaveForbid)
 {
@@ -106,7 +106,7 @@ void History::AddToHistory(const string& Str, history_record_type Type, const GU
 
 	const bool ignore_data = m_TypeHistory == HISTORYTYPE_CMD;
 
-	if (m_RemoveDups) // удалять дубликаты?
+	if (m_RemoveDups) // СѓРґР°Р»СЏС‚СЊ РґСѓР±Р»РёРєР°С‚С‹?
 	{
 		DWORD index=0;
 		string strHName,strHGuid,strHFile,strHData;
@@ -300,7 +300,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 		MenuExitCode=HistoryMenu.Run([&](const Manager::Key& RawKey)->int
 		{
 			const auto Key=RawKey.FarKey();
-			if (m_TypeHistory == HISTORYTYPE_DIALOG && Key==KEY_TAB) // Tab в списке хистори диалогов - аналог Enter
+			if (m_TypeHistory == HISTORYTYPE_DIALOG && Key==KEY_TAB) // Tab РІ СЃРїРёСЃРєРµ С…РёСЃС‚РѕСЂРё РґРёР°Р»РѕРіРѕРІ - Р°РЅР°Р»РѕРі Enter
 			{
 				HistoryMenu.Close();
 				return 1;
@@ -313,7 +313,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 
 			switch (Key)
 			{
-				case KEY_CTRLR: // обновить с удалением недоступных
+				case KEY_CTRLR: // РѕР±РЅРѕРІРёС‚СЊ СЃ СѓРґР°Р»РµРЅРёРµРј РЅРµРґРѕСЃС‚СѓРїРЅС‹С…
 				case KEY_RCTRLR:
 				{
 					if (m_TypeHistory == HISTORYTYPE_FOLDER || m_TypeHistory == HISTORYTYPE_VIEW)
@@ -330,10 +330,10 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 						unsigned __int64 Time;
 						while (HistoryCfgRef()->Enum(index++,m_TypeHistory,m_HistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData))
 						{
-							if (HLock) // залоченные не трогаем
+							if (HLock) // Р·Р°Р»РѕС‡РµРЅРЅС‹Рµ РЅРµ С‚СЂРѕРіР°РµРј
 								continue;
 
-							// убить запись из истории
+							// СѓР±РёС‚СЊ Р·Р°РїРёСЃСЊ РёР· РёСЃС‚РѕСЂРёРё
 							bool kill=false;
 							GUID HGuid;
 							if(StrToGuid(strHGuid,HGuid) && HGuid != FarGuid)
@@ -353,7 +353,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 							}
 						}
 
-						if (ModifiedHistory) // избавляемся от лишних телодвижений
+						if (ModifiedHistory) // РёР·Р±Р°РІР»СЏРµРјСЃСЏ РѕС‚ Р»РёС€РЅРёС… С‚РµР»РѕРґРІРёР¶РµРЅРёР№
 						{
 							IsUpdate=true;
 							HistoryMenu.Close(Pos.SelectPos);
@@ -407,7 +407,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 					RetCode=(Key==KEY_F4? HRT_F4 : HRT_F3);
 					break;
 				}
-				// $ 09.04.2001 SVS - Фича - копирование из истории строки в Clipboard
+				// $ 09.04.2001 SVS - Р¤РёС‡Р° - РєРѕРїРёСЂРѕРІР°РЅРёРµ РёР· РёСЃС‚РѕСЂРёРё СЃС‚СЂРѕРєРё РІ Clipboard
 				case KEY_CTRLC:
 				case KEY_RCTRLC:
 				case KEY_CTRLINS:  case KEY_CTRLNUMPAD0:
@@ -500,7 +500,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 				SetLastError(ERROR_FILE_NOT_FOUND);
 				Global->CatchError();
 
-				if (SelectedRecordType == HR_EDITOR && m_TypeHistory == HISTORYTYPE_VIEW) // Edit? тогда спросим и если надо создадим
+				if (SelectedRecordType == HR_EDITOR && m_TypeHistory == HISTORYTYPE_VIEW) // Edit? С‚РѕРіРґР° СЃРїСЂРѕСЃРёРј Рё РµСЃР»Рё РЅР°РґРѕ СЃРѕР·РґР°РґРёРј
 				{
 					if (!Message(MSG_WARNING|MSG_ERRORTYPE,2,Title,strSelectedRecordName.data(),MSG(MViewHistoryIsCreate),MSG(MHYes),MSG(MHNo)))
 						break;

@@ -1,11 +1,11 @@
-/*
+п»ї/*
 print.cpp
 
-Печать (Alt-F5)
+РџРµС‡Р°С‚СЊ (Alt-F5)
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static void AddToPrintersMenu(VMenu2 *PrinterList, const PRINTER_INFO *pi, int PrinterNumber)
 {
-	// Получаем принтер по умолчанию
+	// РџРѕР»СѓС‡Р°РµРј РїСЂРёРЅС‚РµСЂ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
 	string strDefaultPrinter;
 	DWORD pcchBuffer = 0;
 
@@ -72,10 +72,10 @@ static void AddToPrintersMenu(VMenu2 *PrinterList, const PRINTER_INFO *pi, int P
 			strDefaultPrinter.assign(Buffer.get(), Buffer.size());
 	}
 
-	// Признак наличия принтера по умолчанию
+	// РџСЂРёР·РЅР°Рє РЅР°Р»РёС‡РёСЏ РїСЂРёРЅС‚РµСЂР° РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
 	bool bDefaultPrinterFound = false;
 
-	// Заполняем список принтеров
+	// Р—Р°РїРѕР»РЅСЏРµРј СЃРїРёСЃРѕРє РїСЂРёРЅС‚РµСЂРѕРІ
 	FOR(const auto& printer, make_range(pi, pi + PrinterNumber))
 	{
 		MenuItemEx Item(printer.pPrinterName);
@@ -110,7 +110,7 @@ void PrintFiles(FileList* SrcPanel)
 		return;
 	}
 
-	// проверка каталогов
+	// РїСЂРѕРІРµСЂРєР° РєР°С‚Р°Р»РѕРіРѕРІ
 	_ALGO(SysLog(L"Check for FILE_ATTRIBUTE_DIRECTORY"));
 	SrcPanel->GetSelName(nullptr,FileAttr);
 

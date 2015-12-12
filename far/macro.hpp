@@ -1,13 +1,15 @@
+п»ї#ifndef MACRO_HPP_BA3167E8_1846_4B24_88A4_CF59CA90169F
+#define MACRO_HPP_BA3167E8_1846_4B24_88A4_CF59CA90169F
 #pragma once
 
 /*
 macro.hpp
 
-Макросы
+РњР°РєСЂРѕСЃС‹
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -48,8 +50,8 @@ enum {
 
 enum MACRODISABLEONLOAD
 {
-	MDOL_ALL            = 0x80000000, // дисаблим все макросы при загрузке
-	MDOL_AUTOSTART      = 0x00000001, // дисаблим автостартующие макросы
+	MDOL_ALL            = 0x80000000, // РґРёСЃР°Р±Р»РёРј РІСЃРµ РјР°РєСЂРѕСЃС‹ РїСЂРё Р·Р°РіСЂСѓР·РєРµ
+	MDOL_AUTOSTART      = 0x00000001, // РґРёСЃР°Р±Р»РёРј Р°РІС‚РѕСЃС‚Р°СЂС‚СѓСЋС‰РёРµ РјР°РєСЂРѕСЃС‹
 };
 
 struct MacroPanelSelect
@@ -117,3 +119,5 @@ private:
 };
 
 inline bool IsMenuArea(int Area){return Area==MACROAREA_MAINMENU || Area==MACROAREA_MENU || Area==MACROAREA_DISKS || Area==MACROAREA_USERMENU || Area==MACROAREA_SHELLAUTOCOMPLETION || Area==MACROAREA_DIALOGAUTOCOMPLETION;}
+
+#endif // MACRO_HPP_BA3167E8_1846_4B24_88A4_CF59CA90169F

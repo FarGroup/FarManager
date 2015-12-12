@@ -1,10 +1,10 @@
-/*
+﻿/*
 vc_crt_fix_impl.cpp
 
 Workaround for Visual C++ CRT incompatibility with old Windows versions
 */
 /*
-Copyright � 2011 Far Group
+Copyright © 2011 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

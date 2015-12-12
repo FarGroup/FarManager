@@ -1,11 +1,11 @@
-/*
+п»ї/*
 dirmix.cpp
 
 Misc functions for working with directories
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 	string Drive(L"=A:");
 	string strCurDir;
 
-	// если указана только буква диска, то путь возьмем из переменной
+	// РµСЃР»Рё СѓРєР°Р·Р°РЅР° С‚РѕР»СЊРєРѕ Р±СѓРєРІР° РґРёСЃРєР°, С‚Рѕ РїСѓС‚СЊ РІРѕР·СЊРјРµРј РёР· РїРµСЂРµРјРµРЅРЅРѕР№
 	if (NewDir.size() == 2 && NewDir[1]==L':')
 	{
 		Drive[1] = ToUpper(NewDir[0]);
@@ -78,7 +78,7 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 			strCurDir = NewDir;
 
 			if (IsRelativeRoot(strCurDir))
-				strCurDir = os::GetCurrentDirectory(); // здесь берем корень
+				strCurDir = os::GetCurrentDirectory(); // Р·РґРµСЃСЊ Р±РµСЂРµРј РєРѕСЂРµРЅСЊ
 
 			ReplaceSlashToBackslash(strCurDir);
 			ConvertNameToFull(NewDir,strCurDir);
@@ -103,13 +103,13 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 }
 
 /*
-  Функция TestFolder возвращает одно состояний тестируемого каталога:
+  Р¤СѓРЅРєС†РёСЏ TestFolder РІРѕР·РІСЂР°С‰Р°РµС‚ РѕРґРЅРѕ СЃРѕСЃС‚РѕСЏРЅРёР№ С‚РµСЃС‚РёСЂСѓРµРјРѕРіРѕ РєР°С‚Р°Р»РѕРіР°:
 
-    TSTFLD_NOTEMPTY   (2) - не пусто
-    TSTFLD_EMPTY      (1) - пусто
-    TSTFLD_NOTFOUND   (0) - нет такого
-    TSTFLD_NOTACCESS (-1) - нет доступа
-    TSTFLD_ERROR     (-2) - ошибка (кривые параметры или не хватило памяти для выделения промежуточных буферов)
+    TSTFLD_NOTEMPTY   (2) - РЅРµ РїСѓСЃС‚Рѕ
+    TSTFLD_EMPTY      (1) - РїСѓСЃС‚Рѕ
+    TSTFLD_NOTFOUND   (0) - РЅРµС‚ С‚Р°РєРѕРіРѕ
+    TSTFLD_NOTACCESS (-1) - РЅРµС‚ РґРѕСЃС‚СѓРїР°
+    TSTFLD_ERROR     (-2) - РѕС€РёР±РєР° (РєСЂРёРІС‹Рµ РїР°СЂР°РјРµС‚СЂС‹ РёР»Рё РЅРµ С…РІР°С‚РёР»Рѕ РїР°РјСЏС‚Рё РґР»СЏ РІС‹РґРµР»РµРЅРёСЏ РїСЂРѕРјРµР¶СѓС‚РѕС‡РЅС‹С… Р±СѓС„РµСЂРѕРІ)
 */
 int TestFolder(const string& Path)
 {
@@ -117,11 +117,11 @@ int TestFolder(const string& Path)
 		return TSTFLD_ERROR;
 
 	string strFindPath = Path;
-	// сообразим маску для поиска.
+	// СЃРѕРѕР±СЂР°Р·РёРј РјР°СЃРєСѓ РґР»СЏ РїРѕРёСЃРєР°.
 	AddEndSlash(strFindPath);
 	strFindPath += L"*";
 
-	// первая проверка - че-нить считать можем?
+	// РїРµСЂРІР°СЏ РїСЂРѕРІРµСЂРєР° - С‡Рµ-РЅРёС‚СЊ СЃС‡РёС‚Р°С‚СЊ РјРѕР¶РµРј?
 	os::fs::enum_file Find(strFindPath);
 	if (Find.begin() != Find.end())
 	{
@@ -136,13 +136,13 @@ int TestFolder(const string& Path)
 	if (LastError == ERROR_PATH_NOT_FOUND)
 		return TSTFLD_NOTFOUND;
 
-	// собственно... не факт, что диск не читаем, т.к. на чистом диске в корне нету даже "."
-	// поэтому посмотрим на Root
+	// СЃРѕР±СЃС‚РІРµРЅРЅРѕ... РЅРµ С„Р°РєС‚, С‡С‚Рѕ РґРёСЃРє РЅРµ С‡РёС‚Р°РµРј, С‚.Рє. РЅР° С‡РёСЃС‚РѕРј РґРёСЃРєРµ РІ РєРѕСЂРЅРµ РЅРµС‚Сѓ РґР°Р¶Рµ "."
+	// РїРѕСЌС‚РѕРјСѓ РїРѕСЃРјРѕС‚СЂРёРј РЅР° Root
 	GetPathRoot(Path,strFindPath);
 
 	if (strFindPath == Path)
 	{
-		// проверка атрибутов гарантировано скажет - это бага BugZ#743 или пустой корень диска.
+		// РїСЂРѕРІРµСЂРєР° Р°С‚СЂРёР±СѓС‚РѕРІ РіР°СЂР°РЅС‚РёСЂРѕРІР°РЅРѕ СЃРєР°Р¶РµС‚ - СЌС‚Рѕ Р±Р°РіР° BugZ#743 РёР»Рё РїСѓСЃС‚РѕР№ РєРѕСЂРµРЅСЊ РґРёСЃРєР°.
 		if (os::fs::exists(strFindPath))
 		{
 			if (LastError == ERROR_ACCESS_DENIED)
@@ -168,10 +168,10 @@ int TestFolder(const string& Path)
 }
 
 /*
-   Проверка пути или хост-файла на существование
-   Если идет проверка пути (TryClosest=true), то будет
-   предпринята попытка найти ближайший путь. Результат попытки
-   возвращается в переданном TestPath.
+   РџСЂРѕРІРµСЂРєР° РїСѓС‚Рё РёР»Рё С…РѕСЃС‚-С„Р°Р№Р»Р° РЅР° СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ
+   Р•СЃР»Рё РёРґРµС‚ РїСЂРѕРІРµСЂРєР° РїСѓС‚Рё (TryClosest=true), С‚Рѕ Р±СѓРґРµС‚
+   РїСЂРµРґРїСЂРёРЅСЏС‚Р° РїРѕРїС‹С‚РєР° РЅР°Р№С‚Рё Р±Р»РёР¶Р°Р№С€РёР№ РїСѓС‚СЊ. Р РµР·СѓР»СЊС‚Р°С‚ РїРѕРїС‹С‚РєРё
+   РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ РІ РїРµСЂРµРґР°РЅРЅРѕРј TestPath.
 */
 bool CheckShortcutFolder(string& pTestPath, bool TryClosest, bool Silent)
 {
@@ -190,7 +190,7 @@ bool CheckShortcutFolder(string& pTestPath, bool TryClosest, bool Silent)
 			if (!Silent)
 				Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), strTarget.data(), MSG(MOk));
 		}
-		else // попытка найти!
+		else // РїРѕРїС‹С‚РєР° РЅР°Р№С‚Рё!
 		{
 			if (Silent || !Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), strTarget.data(), MSG(MNeedNearPath), MSG(MHYes),MSG(MHNo)))
 			{

@@ -1,12 +1,14 @@
+п»ї#ifndef COLORMIX_HPP_2A689A10_E8AA_4B87_B167_FAAF812AC90F
+#define COLORMIX_HPP_2A689A10_E8AA_4B87_B167_FAAF812AC90F
 #pragma once
 
 /*
 colormix.hpp
 
-Работа с цветами
+Р Р°Р±РѕС‚Р° СЃ С†РІРµС‚Р°РјРё
 */
 /*
-Copyright © 2011 Far Group
+Copyright В© 2011 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -56,3 +58,5 @@ namespace std
 		}
 	};
 }
+
+#endif // COLORMIX_HPP_2A689A10_E8AA_4B87_B167_FAAF812AC90F

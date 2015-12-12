@@ -1,11 +1,11 @@
-/*
+п»ї/*
 savescr.cpp
 
-Сохраняем и восстанавливаем экран кусками и целиком
+РЎРѕС…СЂР°РЅСЏРµРј Рё РІРѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµРј СЌРєСЂР°РЅ РєСѓСЃРєР°РјРё Рё С†РµР»РёРєРѕРј
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

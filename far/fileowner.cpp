@@ -1,11 +1,11 @@
-/*
+п»ї/*
 fileowner.cpp
 
-Кэш SID`ов и функция GetOwner
+РљСЌС€ SID`РѕРІ Рё С„СѓРЅРєС†РёСЏ GetOwner
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "mix.hpp"
 
-// эта часть - перспективная фигня, которая значительно ускоряет получение овнеров
+// СЌС‚Р° С‡Р°СЃС‚СЊ - РїРµСЂСЃРїРµРєС‚РёРІРЅР°СЏ С„РёРіРЅСЏ, РєРѕС‚РѕСЂР°СЏ Р·РЅР°С‡РёС‚РµР»СЊРЅРѕ СѓСЃРєРѕСЂСЏРµС‚ РїРѕР»СѓС‡РµРЅРёРµ РѕРІРЅРµСЂРѕРІ
 
 static bool SidToName(PSID Sid, string& Name, const string& Computer)
 {

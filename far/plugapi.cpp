@@ -1,11 +1,11 @@
-/*
+п»ї/*
 plugapi.cpp
 
-API, доступное плагинам (диалоги, меню, ...)
+API, РґРѕСЃС‚СѓРїРЅРѕРµ РїР»Р°РіРёРЅР°Рј (РґРёР°Р»РѕРіРё, РјРµРЅСЋ, ...)
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -374,7 +374,7 @@ intptr_t WINAPI apiInputBox(
 	}
 }
 
-/* Функция вывода помощи */
+/* Р¤СѓРЅРєС†РёСЏ РІС‹РІРѕРґР° РїРѕРјРѕС‰Рё */
 BOOL WINAPI apiShowHelp(const wchar_t *ModuleName, const wchar_t *HelpTopic, FARHELPFLAGS Flags) noexcept
 {
 	try
@@ -390,8 +390,8 @@ BOOL WINAPI apiShowHelp(const wchar_t *ModuleName, const wchar_t *HelpTopic, FAR
 		string strTopic;
 		string strMask;
 
-		// двоеточие в начале топика надо бы игнорировать и в том случае,
-		// если стоит FHELP_FARHELP...
+		// РґРІРѕРµС‚РѕС‡РёРµ РІ РЅР°С‡Р°Р»Рµ С‚РѕРїРёРєР° РЅР°РґРѕ Р±С‹ РёРіРЅРѕСЂРёСЂРѕРІР°С‚СЊ Рё РІ С‚РѕРј СЃР»СѓС‡Р°Рµ,
+		// РµСЃР»Рё СЃС‚РѕРёС‚ FHELP_FARHELP...
 		if ((Flags&FHELP_FARHELP) || *HelpTopic == L':')
 		{
 			strTopic = HelpTopic + ((*HelpTopic == L':') ? 1 : 0);
@@ -416,11 +416,11 @@ BOOL WINAPI apiShowHelp(const wchar_t *ModuleName, const wchar_t *HelpTopic, FAR
 		{
 			if (ModuleName)
 			{
-				// FHELP_SELFHELP=0 - трактовать первый пар-р как Info.ModuleName
-				//                   и показать топик из хелпа вызвавшего плагина
+				// FHELP_SELFHELP=0 - С‚СЂР°РєС‚РѕРІР°С‚СЊ РїРµСЂРІС‹Р№ РїР°СЂ-СЂ РєР°Рє Info.ModuleName
+				//                   Рё РїРѕРєР°Р·Р°С‚СЊ С‚РѕРїРёРє РёР· С…РµР»РїР° РІС‹Р·РІР°РІС€РµРіРѕ РїР»Р°РіРёРЅР°
 				/* $ 17.11.2000 SVS
-				А значение FHELP_SELFHELP равно чему? Правильно - 0
-				И фигля здесь удивляться тому, что функция не работает :-(
+				Рђ Р·РЅР°С‡РµРЅРёРµ FHELP_SELFHELP СЂР°РІРЅРѕ С‡РµРјСѓ? РџСЂР°РІРёР»СЊРЅРѕ - 0
+				Р С„РёРіР»СЏ Р·РґРµСЃСЊ СѓРґРёРІР»СЏС‚СЊСЃСЏ С‚РѕРјСѓ, С‡С‚Рѕ С„СѓРЅРєС†РёСЏ РЅРµ СЂР°Р±РѕС‚Р°РµС‚ :-(
 				*/
 				string strPath;
 				if (Flags == FHELP_SELFHELP || (Flags&(FHELP_CUSTOMFILE | FHELP_CUSTOMPATH)))
@@ -456,7 +456,7 @@ BOOL WINAPI apiShowHelp(const wchar_t *ModuleName, const wchar_t *HelpTopic, FAR
 }
 
 /* $ 05.07.2000 IS
-  Функция, которая будет действовать и в редакторе, и в панелях, и...
+  Р¤СѓРЅРєС†РёСЏ, РєРѕС‚РѕСЂР°СЏ Р±СѓРґРµС‚ РґРµР№СЃС‚РІРѕРІР°С‚СЊ Рё РІ СЂРµРґР°РєС‚РѕСЂРµ, Рё РІ РїР°РЅРµР»СЏС…, Рё...
 */
 intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
 {
@@ -523,20 +523,20 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			return TRUE;
 
 		/* $ 24.08.2000 SVS
-			ожидать определенную (или любую) клавишу
-			(const INPUT_RECORD*)Param2 - код клавиши, которую ожидаем, или nullptr
-			если все равно какую клавишу ждать.
-			возвращает 0;
+			РѕР¶РёРґР°С‚СЊ РѕРїСЂРµРґРµР»РµРЅРЅСѓСЋ (РёР»Рё Р»СЋР±СѓСЋ) РєР»Р°РІРёС€Сѓ
+			(const INPUT_RECORD*)Param2 - РєРѕРґ РєР»Р°РІРёС€Рё, РєРѕС‚РѕСЂСѓСЋ РѕР¶РёРґР°РµРј, РёР»Рё nullptr
+			РµСЃР»Рё РІСЃРµ СЂР°РІРЅРѕ РєР°РєСѓСЋ РєР»Р°РІРёС€Сѓ Р¶РґР°С‚СЊ.
+			РІРѕР·РІСЂР°С‰Р°РµС‚ 0;
 		*/
 		case ACTL_WAITKEY:
 			WaitKey(Param2?InputRecordToKey((const INPUT_RECORD*)Param2):-1,0,false);
 			return 0;
 
 		/* $ 04.12.2000 SVS
-			ACTL_GETCOLOR - получить определенный цвет по индексу, определенному
-			в farcolor.hpp
-			Param2 - [OUT] значение цвета
-			Return - TRUE если OK или FALSE если индекс неверен.
+			ACTL_GETCOLOR - РїРѕР»СѓС‡РёС‚СЊ РѕРїСЂРµРґРµР»РµРЅРЅС‹Р№ С†РІРµС‚ РїРѕ РёРЅРґРµРєСЃСѓ, РѕРїСЂРµРґРµР»РµРЅРЅРѕРјСѓ
+			РІ farcolor.hpp
+			Param2 - [OUT] Р·РЅР°С‡РµРЅРёРµ С†РІРµС‚Р°
+			Return - TRUE РµСЃР»Рё OK РёР»Рё FALSE РµСЃР»Рё РёРЅРґРµРєСЃ РЅРµРІРµСЂРµРЅ.
 		*/
 		case ACTL_GETCOLOR:
 			if (static_cast<size_t>(Param1) < Global->Opt->Palette.size())
@@ -547,10 +547,10 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			return FALSE;
 
 		/* $ 04.12.2000 SVS
-			ACTL_GETARRAYCOLOR - получить весь массив цветов
-			Param1 - размер буфера (в элементах FarColor)
-			Param2 - указатель на буфер или nullptr, чтобы получить необходимый размер
-			Return - размер массива.
+			ACTL_GETARRAYCOLOR - РїРѕР»СѓС‡РёС‚СЊ РІРµСЃСЊ РјР°СЃСЃРёРІ С†РІРµС‚РѕРІ
+			Param1 - СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° (РІ СЌР»РµРјРµРЅС‚Р°С… FarColor)
+			Param2 - СѓРєР°Р·Р°С‚РµР»СЊ РЅР° Р±СѓС„РµСЂ РёР»Рё nullptr, С‡С‚РѕР±С‹ РїРѕР»СѓС‡РёС‚СЊ РЅРµРѕР±С…РѕРґРёРјС‹Р№ СЂР°Р·РјРµСЂ
+			Return - СЂР°Р·РјРµСЂ РјР°СЃСЃРёРІР°.
 		*/
 		case ACTL_GETARRAYCOLOR:
 			if (Param1 && Param2)
@@ -578,10 +578,10 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 					Global->Opt->Palette.Set(Pal->StartIndex, Pal->Colors, Pal->ColorsCount);
 					if (Pal->Flags&FSETCLR_REDRAW)
 					{
-						Global->ScrBuf->Lock(); // отменяем всякую прорисовку
+						Global->ScrBuf->Lock(); // РѕС‚РјРµРЅСЏРµРј РІСЃСЏРєСѓСЋ РїСЂРѕСЂРёСЃРѕРІРєСѓ
 						Global->WindowManager->ResizeAllWindows();
-						Global->WindowManager->PluginCommit(); // коммитим.
-						Global->ScrBuf->Unlock(); // разрешаем прорисовку
+						Global->WindowManager->PluginCommit(); // РєРѕРјРјРёС‚РёРј.
+						Global->ScrBuf->Unlock(); // СЂР°Р·СЂРµС€Р°РµРј РїСЂРѕСЂРёСЃРѕРІРєСѓ
 					}
 
 					return TRUE;
@@ -591,9 +591,9 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		}
 
 		/* $ 14.12.2000 SVS
-			ACTL_EJECTMEDIA - извлечь диск из съемного накопителя
-			Param - указатель на структуру ActlEjectMedia
-			Return - TRUE - успешное извлечение, FALSE - ошибка.
+			ACTL_EJECTMEDIA - РёР·РІР»РµС‡СЊ РґРёСЃРє РёР· СЃСЉРµРјРЅРѕРіРѕ РЅР°РєРѕРїРёС‚РµР»СЏ
+			Param - СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ ActlEjectMedia
+			Return - TRUE - СѓСЃРїРµС€РЅРѕРµ РёР·РІР»РµС‡РµРЅРёРµ, FALSE - РѕС€РёР±РєР°.
 		*/
 		case ACTL_EJECTMEDIA:
 		{
@@ -605,7 +605,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 							ActlEjectMedia *aem=(ActlEjectMedia *)Param;
 					char DiskLetter[4]=" :\\";
 					DiskLetter[0]=(char)aem->Letter;
-					int DriveType = FAR_GetDriveType(DiskLetter,nullptr,FALSE); // здесь не определяем тип CD
+					int DriveType = FAR_GetDriveType(DiskLetter,nullptr,FALSE); // Р·РґРµСЃСЊ РЅРµ РѕРїСЂРµРґРµР»СЏРµРј С‚РёРї CD
 
 					if(DriveType == DRIVE_USBDRIVE && RemoveUSBDrive((char)aem->Letter,aem->Flags))
 						return TRUE;
@@ -629,7 +629,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		*/
 
 		/* $ 05.06.2001 tran
-			новые ACTL_ для работы с окнами */
+			РЅРѕРІС‹Рµ ACTL_ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РѕРєРЅР°РјРё */
 		case ACTL_GETWINDOWINFO:
 		{
 			WindowInfo *wi=(WindowInfo*)Param2;
@@ -640,7 +640,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 				bool modal=false;
 
 				/* $ 22.12.2001 VVM
-					+ Если Pos == -1 то берем текущее окно */
+					+ Р•СЃР»Рё Pos == -1 С‚Рѕ Р±РµСЂРµРј С‚РµРєСѓС‰РµРµ РѕРєРЅРѕ */
 				if (wi->Pos == -1)
 				{
 					f = Global->WindowManager->GetCurrentWindow();
@@ -720,7 +720,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 
 		case ACTL_SETCURRENTWINDOW:
 		{
-			// Запретим переключение фрэймов, если находимся в модальном редакторе/вьюере.
+			// Р—Р°РїСЂРµС‚РёРј РїРµСЂРµРєР»СЋС‡РµРЅРёРµ С„СЂСЌР№РјРѕРІ, РµСЃР»Рё РЅР°С…РѕРґРёРјСЃСЏ РІ РјРѕРґР°Р»СЊРЅРѕРј СЂРµРґР°РєС‚РѕСЂРµ/РІСЊСЋРµСЂРµ.
 			const auto NextWindow = Global->WindowManager->GetWindow(Param1);
 			if (!Global->WindowManager->InModal() && NextWindow)
 			{
@@ -732,8 +732,8 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			return FALSE;
 		}
 		/*$ 26.06.2001 SKV
-			Для полноценной работы с ACTL_SETCURRENTWINDOW
-			(и может еще для чего в будущем)
+			Р”Р»СЏ РїРѕР»РЅРѕС†РµРЅРЅРѕР№ СЂР°Р±РѕС‚С‹ СЃ ACTL_SETCURRENTWINDOW
+			(Рё РјРѕР¶РµС‚ РµС‰Рµ РґР»СЏ С‡РµРіРѕ РІ Р±СѓРґСѓС‰РµРј)
 		*/
 		case ACTL_COMMIT:
 			return TRUE;
@@ -885,7 +885,7 @@ intptr_t WINAPI apiMenuFn(
 			if (Bottom)
 				FarMenu->SetBottomTitle(Bottom);
 
-			// общие флаги меню
+			// РѕР±С‰РёРµ С„Р»Р°РіРё РјРµРЅСЋ
 			DWORD MenuFlags=0;
 
 			if (Flags & FMENU_SHOWAMPERSAND)
@@ -905,7 +905,7 @@ intptr_t WINAPI apiMenuFn(
 				MenuItemEx CurItem;
 				CurItem.Flags=Item[i].Flags;
 				CurItem.strName.clear();
-				// исключаем MultiSelected, т.к. у нас сейчас движок к этому не приспособлен, оставляем только первый
+				// РёСЃРєР»СЋС‡Р°РµРј MultiSelected, С‚.Рє. Сѓ РЅР°СЃ СЃРµР№С‡Р°СЃ РґРІРёР¶РѕРє Рє СЌС‚РѕРјСѓ РЅРµ РїСЂРёСЃРїРѕСЃРѕР±Р»РµРЅ, РѕСЃС‚Р°РІР»СЏРµРј С‚РѕР»СЊРєРѕ РїРµСЂРІС‹Р№
 				DWORD SelCurItem=CurItem.Flags&LIF_SELECTED;
 				CurItem.Flags&=~LIF_SELECTED;
 
@@ -932,7 +932,7 @@ intptr_t WINAPI apiMenuFn(
 			if (!Selected)
 				FarMenu->SetSelectPos(0,1);
 
-			// флаги меню, с забитым контентом
+			// С„Р»Р°РіРё РјРµРЅСЋ, СЃ Р·Р°Р±РёС‚С‹Рј РєРѕРЅС‚РµРЅС‚РѕРј
 			if (Flags & FMENU_AUTOHIGHLIGHT)
 				FarMenu->AssignHighlights(FALSE);
 
@@ -994,7 +994,7 @@ intptr_t WINAPI apiMenuFn(
 	}
 }
 
-// Функция FarDefDlgProc обработки диалога по умолчанию
+// Р¤СѓРЅРєС†РёСЏ FarDefDlgProc РѕР±СЂР°Р±РѕС‚РєРё РґРёР°Р»РѕРіР° РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
 intptr_t WINAPI apiDefDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2) noexcept
 {
 	try
@@ -1008,7 +1008,7 @@ intptr_t WINAPI apiDefDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Par
 	}
 }
 
-// Посылка сообщения диалогу
+// РџРѕСЃС‹Р»РєР° СЃРѕРѕР±С‰РµРЅРёСЏ РґРёР°Р»РѕРіСѓ
 intptr_t WINAPI apiSendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2) noexcept
 {
 	const auto ErrorResult = [Msg]() -> int
@@ -1051,7 +1051,7 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 		if (Global->DisablePluginsOutput || !ItemsNumber || !Item)
 			return hDlg;
 
-		// ФИЧА! нельзя указывать отрицательные X2 и Y2
+		// Р¤РР§Рђ! РЅРµР»СЊР·СЏ СѓРєР°Р·С‹РІР°С‚СЊ РѕС‚СЂРёС†Р°С‚РµР»СЊРЅС‹Рµ X2 Рё Y2
 		if (X2 < 0 || Y2 < 0)
 			return hDlg;
 
@@ -1113,7 +1113,7 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 
 				FarDialog->SetId(*Id);
 				/* $ 29.08.2000 SVS
-				   Запомним номер плагина - сейчас в основном для формирования HelpTopic
+				   Р—Р°РїРѕРјРЅРёРј РЅРѕРјРµСЂ РїР»Р°РіРёРЅР° - СЃРµР№С‡Р°СЃ РІ РѕСЃРЅРѕРІРЅРѕРј РґР»СЏ С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ HelpTopic
 				*/
 				FarDialog->SetPluginOwner(GuidToPlugin(PluginId));
 			}
@@ -1140,7 +1140,7 @@ intptr_t WINAPI apiDialogRun(HANDLE hDlg) noexcept
 		int ExitCode = FarDialog->GetExitCode();
 
 		if (Global->IsMainThread()) // BUGBUG, findfile
-			Global->WindowManager->RefreshWindow(); //?? - //AY - это нужно чтоб обновлять панели после выхода из диалога
+			Global->WindowManager->RefreshWindow(); //?? - //AY - СЌС‚Рѕ РЅСѓР¶РЅРѕ С‡С‚РѕР± РѕР±РЅРѕРІР»СЏС‚СЊ РїР°РЅРµР»Рё РїРѕСЃР»Рµ РІС‹С…РѕРґР° РёР· РґРёР°Р»РѕРіР°
 
 		return ExitCode;
 	}
@@ -1258,18 +1258,18 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 		}
 
 		Plugin* PluginNumber = GuidToPlugin(PluginId);
-		// запоминаем топик
+		// Р·Р°РїРѕРјРёРЅР°РµРј С‚РѕРїРёРє
 		string strTopic;
 		if (PluginNumber)
 		{
 			Help::MkTopic(PluginNumber,NullToEmpty(HelpTopic),strTopic);
 		}
 
-		// непосредственно... вывод
+		// РЅРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕ... РІС‹РІРѕРґ
 		const auto Window = Global->WindowManager->GetBottomWindow();
 
 		if (Window)
-			Window->Lock(); // отменим прорисовку окна
+			Window->Lock(); // РѕС‚РјРµРЅРёРј РїСЂРѕСЂРёСЃРѕРІРєСѓ РѕРєРЅР°
 
 		int MsgCode=Message(Flags&(FMSG_WARNING|FMSG_ERRORTYPE|FMSG_KEEPBACKGROUND|FMSG_LEFTALIGN),
 			Title,
@@ -1278,10 +1278,10 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 			EmptyToNull(strTopic.data()), PluginNumber, Id);
 
 		/* $ 15.05.2002 SKV
-		  Однако разлочивать надо ровно то, что залочили.
+		  РћРґРЅР°РєРѕ СЂР°Р·Р»РѕС‡РёРІР°С‚СЊ РЅР°РґРѕ СЂРѕРІРЅРѕ С‚Рѕ, С‡С‚Рѕ Р·Р°Р»РѕС‡РёР»Рё.
 		*/
 		if (Window)
-			Window->Unlock(); // теперь можно :-)
+			Window->Unlock(); // С‚РµРїРµСЂСЊ РјРѕР¶РЅРѕ :-)
 
 		//CheckScreenLock();
 
@@ -1693,7 +1693,7 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 		SCOPED_ACTION(ConsoleTitle);
 		int DisableHistory = (Flags & VF_DISABLEHISTORY) != 0;
 
-		// $ 15.05.2002 SKV - Запретим вызов немодального редактора viewer-а из модального.
+		// $ 15.05.2002 SKV - Р—Р°РїСЂРµС‚РёРј РІС‹Р·РѕРІ РЅРµРјРѕРґР°Р»СЊРЅРѕРіРѕ СЂРµРґР°РєС‚РѕСЂР° viewer-Р° РёР· РјРѕРґР°Р»СЊРЅРѕРіРѕ.
 	if (Global->WindowManager->InModal())
 		{
 			Flags&=~VF_NONMODAL;
@@ -1701,15 +1701,15 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 
 		if (Flags & VF_NONMODAL)
 		{
-			/* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
+			/* 09.09.2001 IS ! Р”РѕР±Р°РІРёРј РёРјСЏ С„Р°Р№Р»Р° РІ РёСЃС‚РѕСЂРёСЋ, РµСЃР»Рё РїРѕС‚СЂРµР±СѓРµС‚СЃСЏ */
 			const auto Viewer = FileViewer::create(FileName, TRUE, DisableHistory, Title, X1, Y1, X2, Y2, CodePage);
 
 			if (!Viewer)
 				return FALSE;
 
 			/* $ 14.06.2002 IS
-			   Обработка VF_DELETEONLYFILEONCLOSE - этот флаг имеет более низкий
-			   приоритет по сравнению с VF_DELETEONCLOSE
+			   РћР±СЂР°Р±РѕС‚РєР° VF_DELETEONLYFILEONCLOSE - СЌС‚РѕС‚ С„Р»Р°Рі РёРјРµРµС‚ Р±РѕР»РµРµ РЅРёР·РєРёР№
+			   РїСЂРёРѕСЂРёС‚РµС‚ РїРѕ СЃСЂР°РІРЅРµРЅРёСЋ СЃ VF_DELETEONCLOSE
 			*/
 			if (Flags & (VF_DELETEONCLOSE|VF_DELETEONLYFILEONCLOSE))
 				Viewer->SetTempViewName(FileName, (Flags&VF_DELETEONCLOSE) != 0);
@@ -1717,7 +1717,7 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 			Viewer->SetEnableF6(Flags & VF_ENABLE_F6);
 
 			/* $ 21.05.2002 SKV
-			  Запускаем свой цикл только если не был указан флаг.
+			  Р—Р°РїСѓСЃРєР°РµРј СЃРІРѕР№ С†РёРєР» С‚РѕР»СЊРєРѕ РµСЃР»Рё РЅРµ Р±С‹Р» СѓРєР°Р·Р°РЅ С„Р»Р°Рі.
 			*/
 			if (!(Flags&VF_IMMEDIATERETURN))
 			{
@@ -1733,17 +1733,17 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 		}
 		else
 		{
-			/* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
+			/* 09.09.2001 IS ! Р”РѕР±Р°РІРёРј РёРјСЏ С„Р°Р№Р»Р° РІ РёСЃС‚РѕСЂРёСЋ, РµСЃР»Рё РїРѕС‚СЂРµР±СѓРµС‚СЃСЏ */
 			const auto Viewer = FileViewer::create(FileName, FALSE, DisableHistory, Title, X1, Y1, X2, Y2, CodePage);
 
 			Viewer->SetEnableF6(Flags & VF_ENABLE_F6);
 
-			/* $ 28.05.2001 По умолчанию viewer, поэтому нужно здесь признак выставить явно */
+			/* $ 28.05.2001 РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ viewer, РїРѕСЌС‚РѕРјСѓ РЅСѓР¶РЅРѕ Р·РґРµСЃСЊ РїСЂРёР·РЅР°Рє РІС‹СЃС‚Р°РІРёС‚СЊ СЏРІРЅРѕ */
 			if(Viewer->GetExitCode()) Global->WindowManager->ExecuteModal(Viewer);
 
 			/* $ 14.06.2002 IS
-			   Обработка VF_DELETEONLYFILEONCLOSE - этот флаг имеет более низкий
-			   приоритет по сравнению с VF_DELETEONCLOSE
+			   РћР±СЂР°Р±РѕС‚РєР° VF_DELETEONLYFILEONCLOSE - СЌС‚РѕС‚ С„Р»Р°Рі РёРјРµРµС‚ Р±РѕР»РµРµ РЅРёР·РєРёР№
+			   РїСЂРёРѕСЂРёС‚РµС‚ РїРѕ СЃСЂР°РІРЅРµРЅРёСЋ СЃ VF_DELETEONCLOSE
 			*/
 			if (Flags & (VF_DELETEONCLOSE|VF_DELETEONLYFILEONCLOSE))
 				Viewer->SetTempViewName(FileName, (Flags&VF_DELETEONCLOSE) != 0);
@@ -1772,16 +1772,16 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 
 		SCOPED_ACTION(ConsoleTitle);
 		/* $ 12.07.2000 IS
-		 Проверка флагов редактора (раньше они игнорировались) и открытие
-		 немодального редактора, если есть соответствующий флаг
+		 РџСЂРѕРІРµСЂРєР° С„Р»Р°РіРѕРІ СЂРµРґР°РєС‚РѕСЂР° (СЂР°РЅСЊС€Рµ РѕРЅРё РёРіРЅРѕСЂРёСЂРѕРІР°Р»РёСЃСЊ) Рё РѕС‚РєСЂС‹С‚РёРµ
+		 РЅРµРјРѕРґР°Р»СЊРЅРѕРіРѕ СЂРµРґР°РєС‚РѕСЂР°, РµСЃР»Рё РµСЃС‚СЊ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ С„Р»Р°Рі
 		 */
 		int CreateNew = (Flags & EF_CREATENEW) != 0;
 		int Locked=(Flags & EF_LOCKED) != 0;
 		int DisableHistory=(Flags & EF_DISABLEHISTORY) != 0;
 		int DisableSavePos=(Flags & EF_DISABLESAVEPOS) != 0;
 		/* $ 14.06.2002 IS
-		   Обработка EF_DELETEONLYFILEONCLOSE - этот флаг имеет более низкий
-		   приоритет по сравнению с EF_DELETEONCLOSE
+		   РћР±СЂР°Р±РѕС‚РєР° EF_DELETEONLYFILEONCLOSE - СЌС‚РѕС‚ С„Р»Р°Рі РёРјРµРµС‚ Р±РѕР»РµРµ РЅРёР·РєРёР№
+		   РїСЂРёРѕСЂРёС‚РµС‚ РїРѕ СЃСЂР°РІРЅРµРЅРёСЋ СЃ EF_DELETEONCLOSE
 		   */
 		int DeleteOnClose = 0;
 
@@ -1796,8 +1796,8 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 			OpMode = Flags&EF_OPENMODE_MASK;
 
 		/*$ 15.05.2002 SKV
-		  Запретим вызов немодального редактора, если находимся в модальном
-		  редакторе или viewer-е.
+		  Р—Р°РїСЂРµС‚РёРј РІС‹Р·РѕРІ РЅРµРјРѕРґР°Р»СЊРЅРѕРіРѕ СЂРµРґР°РєС‚РѕСЂР°, РµСЃР»Рё РЅР°С…РѕРґРёРјСЃСЏ РІ РјРѕРґР°Р»СЊРЅРѕРј
+		  СЂРµРґР°РєС‚РѕСЂРµ РёР»Рё viewer-Рµ.
 		  */
 	if (Global->WindowManager->InModal())
 		{
@@ -1810,7 +1810,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 
 		if (Flags & EF_NONMODAL)
 		{
-			/* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
+			/* 09.09.2001 IS ! Р”РѕР±Р°РІРёРј РёРјСЏ С„Р°Р№Р»Р° РІ РёСЃС‚РѕСЂРёСЋ, РµСЃР»Рё РїРѕС‚СЂРµР±СѓРµС‚СЃСЏ */
 			if (const auto Editor = FileEditor::create(NullToEmpty(FileName), CodePage,
 				(CreateNew ? FFILEEDIT_CANNEWFILE : 0) | FFILEEDIT_ENABLEF6 |
 				(DisableHistory ? FFILEEDIT_DISABLEHISTORY : 0) |
@@ -1822,7 +1822,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 			{
 				editorExitCode = Editor->GetExitCode();
 
-				// добавочка - проверка кода возврата (почему возникает XC_OPEN_ERROR - см. код FileEditor::Init())
+				// РґРѕР±Р°РІРѕС‡РєР° - РїСЂРѕРІРµСЂРєР° РєРѕРґР° РІРѕР·РІСЂР°С‚Р° (РїРѕС‡РµРјСѓ РІРѕР·РЅРёРєР°РµС‚ XC_OPEN_ERROR - СЃРј. РєРѕРґ FileEditor::Init())
 				if (editorExitCode == XC_OPEN_ERROR || editorExitCode == XC_LOADING_INTERRUPTED)
 				{
 					return editorExitCode == XC_OPEN_ERROR ? EEC_OPEN_ERROR : EEC_LOADING_INTERRUPTED;
@@ -1844,7 +1844,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 				Editor->SetEnableF6((Flags & EF_ENABLE_F6) != 0);
 				Editor->SetPluginTitle(&strTitle);
 
-				/* $ 21.05.2002 SKV - Запускаем свой цикл, только если не был указан флаг. */
+				/* $ 21.05.2002 SKV - Р—Р°РїСѓСЃРєР°РµРј СЃРІРѕР№ С†РёРєР», С‚РѕР»СЊРєРѕ РµСЃР»Рё РЅРµ Р±С‹Р» СѓРєР°Р·Р°РЅ С„Р»Р°Рі. */
 				if (!(Flags&EF_IMMEDIATERETURN))
 				{
 					Global->WindowManager->ExecuteNonModal(Editor);
@@ -1869,7 +1869,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 		}
 		else
 		{
-			/* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
+			/* 09.09.2001 IS ! Р”РѕР±Р°РІРёРј РёРјСЏ С„Р°Р№Р»Р° РІ РёСЃС‚РѕСЂРёСЋ, РµСЃР»Рё РїРѕС‚СЂРµР±СѓРµС‚СЃСЏ */
 			const auto Editor = FileEditor::create(FileName, CodePage,
 				(CreateNew ? FFILEEDIT_CANNEWFILE : 0) |
 				(DisableHistory ? FFILEEDIT_DISABLEHISTORY : 0) |
@@ -1880,7 +1880,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 				DeleteOnClose, nullptr, OpMode);
 			editorExitCode = Editor->GetExitCode();
 
-			// выполним предпроверку (ошибки разные могут быть)
+			// РІС‹РїРѕР»РЅРёРј РїСЂРµРґРїСЂРѕРІРµСЂРєСѓ (РѕС€РёР±РєРё СЂР°Р·РЅС‹Рµ РјРѕРіСѓС‚ Р±С‹С‚СЊ)
 			switch (editorExitCode)
 			{
 				case XC_OPEN_ERROR:
@@ -1893,7 +1893,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 					Editor->SetEnableF6((Flags & EF_ENABLE_F6) != 0);
 					Editor->SetPluginTitle(&strTitle);
 					/* $ 15.05.2002 SKV
-					  Зафиксируем вход и выход в/из модального редактора.
+					  Р—Р°С„РёРєСЃРёСЂСѓРµРј РІС…РѕРґ Рё РІС‹С…РѕРґ РІ/РёР· РјРѕРґР°Р»СЊРЅРѕРіРѕ СЂРµРґР°РєС‚РѕСЂР°.
 					  */
 					Global->WindowManager->ExecuteModal(Editor);
 					editorExitCode = Editor->GetExitCode();
@@ -2433,14 +2433,14 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 {
 	try
 	{
-		if (Global->CtrlObject) // все зависит от этой бадяги.
+		if (Global->CtrlObject) // РІСЃРµ Р·Р°РІРёСЃРёС‚ РѕС‚ СЌС‚РѕР№ Р±Р°РґСЏРіРё.
 		{
 			KeyMacro& Macro = Global->CtrlObject->Macro; //??
 
 			switch (Command)
 			{
 			// Param1=0, Param2 - FarMacroLoad*
-			case MCTL_LOADALL: // из реестра в память ФАР с затиранием предыдущего
+			case MCTL_LOADALL: // РёР· СЂРµРµСЃС‚СЂР° РІ РїР°РјСЏС‚СЊ Р¤РђР  СЃ Р·Р°С‚РёСЂР°РЅРёРµРј РїСЂРµРґС‹РґСѓС‰РµРіРѕ
 			{
 				FarMacroLoad *Data = (FarMacroLoad*)Param2;
 				return
@@ -2853,12 +2853,12 @@ size_t WINAPI apiFormatFileSize(unsigned __int64 Size, intptr_t Width, FARFORMAT
 	{
 		static const simple_pair<unsigned __int64, unsigned __int64> FlagsPair[] =
 		{
-			{FFFS_COMMAS,         COLUMN_COMMAS},         // Вставлять разделитель между тысячами
-			{FFFS_THOUSAND,       COLUMN_THOUSAND},       // Вместо делителя 1024 использовать делитель 1000
-			{FFFS_FLOATSIZE,      COLUMN_FLOATSIZE},      // Показывать размер файла в стиле Windows Explorer (т.е. 999 байт будут показаны как 999, а 1000 байт как 0.97 K)
-			{FFFS_ECONOMIC,       COLUMN_ECONOMIC},       // Экономичный режим, не показывать пробел перед суффиксом размера файла (т.е. 0.97K)
-			{FFFS_MINSIZEINDEX,   COLUMN_MINSIZEINDEX},   // Минимально допустимый индекс при форматировании
-			{FFFS_SHOWBYTESINDEX, COLUMN_SHOWBYTESINDEX}, // Показывать суффиксы B,K,M,G,T,P,E
+			{FFFS_COMMAS,         COLUMN_COMMAS},         // Р’СЃС‚Р°РІР»СЏС‚СЊ СЂР°Р·РґРµР»РёС‚РµР»СЊ РјРµР¶РґСѓ С‚С‹СЃСЏС‡Р°РјРё
+			{FFFS_THOUSAND,       COLUMN_THOUSAND},       // Р’РјРµСЃС‚Рѕ РґРµР»РёС‚РµР»СЏ 1024 РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РґРµР»РёС‚РµР»СЊ 1000
+			{FFFS_FLOATSIZE,      COLUMN_FLOATSIZE},      // РџРѕРєР°Р·С‹РІР°С‚СЊ СЂР°Р·РјРµСЂ С„Р°Р№Р»Р° РІ СЃС‚РёР»Рµ Windows Explorer (С‚.Рµ. 999 Р±Р°Р№С‚ Р±СѓРґСѓС‚ РїРѕРєР°Р·Р°РЅС‹ РєР°Рє 999, Р° 1000 Р±Р°Р№С‚ РєР°Рє 0.97 K)
+			{FFFS_ECONOMIC,       COLUMN_ECONOMIC},       // Р­РєРѕРЅРѕРјРёС‡РЅС‹Р№ СЂРµР¶РёРј, РЅРµ РїРѕРєР°Р·С‹РІР°С‚СЊ РїСЂРѕР±РµР» РїРµСЂРµРґ СЃСѓС„С„РёРєСЃРѕРј СЂР°Р·РјРµСЂР° С„Р°Р№Р»Р° (С‚.Рµ. 0.97K)
+			{FFFS_MINSIZEINDEX,   COLUMN_MINSIZEINDEX},   // РњРёРЅРёРјР°Р»СЊРЅРѕ РґРѕРїСѓСЃС‚РёРјС‹Р№ РёРЅРґРµРєСЃ РїСЂРё С„РѕСЂРјР°С‚РёСЂРѕРІР°РЅРёРё
+			{FFFS_SHOWBYTESINDEX, COLUMN_SHOWBYTESINDEX}, // РџРѕРєР°Р·С‹РІР°С‚СЊ СЃСѓС„С„РёРєСЃС‹ B,K,M,G,T,P,E
 		};
 
 		unsigned __int64 FinalFlags=Flags & COLUMN_MINSIZEINDEX_MASK;
@@ -2893,7 +2893,7 @@ void WINAPI apiRecursiveSearch(const wchar_t *InitDir, const wchar_t *Mask, FRSU
 
 		if (!FMask.Set(Mask, FMF_SILENT)) return;
 
-		Flags=Flags&0x000000FF; // только младший байт!
+		Flags=Flags&0x000000FF; // С‚РѕР»СЊРєРѕ РјР»Р°РґС€РёР№ Р±Р°Р№С‚!
 		ScanTree ScTree((Flags & FRS_RETUPDIR)!=0, (Flags & FRS_RECUR)!=0, (Flags & FRS_SCANSYMLINK)!=0);
 		os::FAR_FIND_DATA FindData;
 		string strFullName;

@@ -1,11 +1,11 @@
-/*
+п»ї/*
 hilight.cpp
 
 Files highlighting
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -122,11 +122,11 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 				/* 1 */ L"<arc>",
 				/* 2 */ L"<temp>",
 				/* $ 25.09.2001  IS
-					Эта маска для каталогов: обрабатывать все каталоги, кроме тех, что
-					являются родительскими (их имена - две точки).
+					Р­С‚Р° РјР°СЃРєР° РґР»СЏ РєР°С‚Р°Р»РѕРіРѕРІ: РѕР±СЂР°Р±Р°С‚С‹РІР°С‚СЊ РІСЃРµ РєР°С‚Р°Р»РѕРіРё, РєСЂРѕРјРµ С‚РµС…, С‡С‚Рѕ
+					СЏРІР»СЏСЋС‚СЃСЏ СЂРѕРґРёС‚РµР»СЊСЃРєРёРјРё (РёС… РёРјРµРЅР° - РґРІРµ С‚РѕС‡РєРё).
 				*/
-				/* 3 */ L"*.*|..", // маска для каталогов
-				/* 4 */ L"..",     // такие каталоги окрашивать как простые файлы
+				/* 3 */ L"*.*|..", // РјР°СЃРєР° РґР»СЏ РєР°С‚Р°Р»РѕРіРѕРІ
+				/* 4 */ L"..",     // С‚Р°РєРёРµ РєР°С‚Р°Р»РѕРіРё РѕРєСЂР°С€РёРІР°С‚СЊ РєР°Рє РїСЂРѕСЃС‚С‹Рµ С„Р°Р№Р»С‹
 				/* 5 */ L"<exec>",
 			};
 			static struct DefaultData
@@ -148,8 +148,8 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 				/* 4 */{Masks[5], false, 0, B_BLUE|F_LIGHTGREEN, B_CYAN|F_LIGHTGREEN},
 				/* 5 */{Masks[1], false, 0, B_BLUE|F_LIGHTMAGENTA, B_CYAN|F_LIGHTMAGENTA},
 				/* 6 */{Masks[2], false, 0, B_BLUE|F_BROWN, B_CYAN|F_BROWN},
-				// это настройка для каталогов на тех панелях, которые должны раскрашиваться
-				// без учета масок (например, список хостов в "far navigator")
+				// СЌС‚Рѕ РЅР°СЃС‚СЂРѕР№РєР° РґР»СЏ РєР°С‚Р°Р»РѕРіРѕРІ РЅР° С‚РµС… РїР°РЅРµР»СЏС…, РєРѕС‚РѕСЂС‹Рµ РґРѕР»Р¶РЅС‹ СЂР°СЃРєСЂР°С€РёРІР°С‚СЊСЃСЏ
+				// Р±РµР· СѓС‡РµС‚Р° РјР°СЃРѕРє (РЅР°РїСЂРёРјРµСЂ, СЃРїРёСЃРѕРє С…РѕСЃС‚РѕРІ РІ "far navigator")
 				/* 7 */{Masks[0], true, FILE_ATTRIBUTE_DIRECTORY, B_BLUE|F_WHITE, B_CYAN|F_WHITE},
 			};
 
@@ -202,8 +202,8 @@ HighlightFiles::HighlightFiles()
 
 static void LoadFilter(HierarchicalConfig *cfg, const HierarchicalConfig::key& key, FileFilterParams& HData, const string& Mask, int SortGroup, bool bSortGroup)
 {
-	//Дефолтные значения выбраны так чтоб как можно правильней загрузить
-	//настройки старых версий фара.
+	//Р”РµС„РѕР»С‚РЅС‹Рµ Р·РЅР°С‡РµРЅРёСЏ РІС‹Р±СЂР°РЅС‹ С‚Р°Рє С‡С‚РѕР± РєР°Рє РјРѕР¶РЅРѕ РїСЂР°РІРёР»СЊРЅРµР№ Р·Р°РіСЂСѓР·РёС‚СЊ
+	//РЅР°СЃС‚СЂРѕР№РєРё СЃС‚Р°СЂС‹С… РІРµСЂСЃРёР№ С„Р°СЂР°.
 	if (bSortGroup)
 	{
 		unsigned __int64 UseMask = 1;
@@ -370,10 +370,10 @@ static void ApplyBlackOnBlackColor(HighlightFiles::highlight_item::colors_array:
 		}
 	};
 
-	//Применим black on black.
-	//Для файлов возьмем цвета панели не изменяя прозрачность.
+	//РџСЂРёРјРµРЅРёРј black on black.
+	//Р”Р»СЏ С„Р°Р№Р»РѕРІ РІРѕР·СЊРјРµРј С†РІРµС‚Р° РїР°РЅРµР»Рё РЅРµ РёР·РјРµРЅСЏСЏ РїСЂРѕР·СЂР°С‡РЅРѕСЃС‚СЊ.
 	InheritColor(Color.FileColor, Global->Opt->Palette[PaletteColor]);
-	//Для пометки возьмем цвета файла включая прозрачность.
+	//Р”Р»СЏ РїРѕРјРµС‚РєРё РІРѕР·СЊРјРµРј С†РІРµС‚Р° С„Р°Р№Р»Р° РІРєР»СЋС‡Р°СЏ РїСЂРѕР·СЂР°С‡РЅРѕСЃС‚СЊ.
 	InheritColor(Color.MarkColor, Color.FileColor);
 }
 
@@ -384,16 +384,16 @@ static void ApplyBlackOnBlackColors(HighlightFiles::highlight_item::colors_array
 
 static void ApplyColors(HighlightFiles::highlight_item& DestColors, const HighlightFiles::highlight_item& Src)
 {
-	//Обработаем black on black чтоб наследовать правильные цвета
-	//и чтоб после наследования были правильные цвета.
+	//РћР±СЂР°Р±РѕС‚Р°РµРј black on black С‡С‚РѕР± РЅР°СЃР»РµРґРѕРІР°С‚СЊ РїСЂР°РІРёР»СЊРЅС‹Рµ С†РІРµС‚Р°
+	//Рё С‡С‚РѕР± РїРѕСЃР»Рµ РЅР°СЃР»РµРґРѕРІР°РЅРёСЏ Р±С‹Р»Рё РїСЂР°РІРёР»СЊРЅС‹Рµ С†РІРµС‚Р°.
 	ApplyBlackOnBlackColors(DestColors.Color);
 	auto SrcColors = Src;
 	ApplyBlackOnBlackColors(SrcColors.Color);
 
 	const auto ApplyColor = [](FarColor& Dst, const FarColor& Src)
 	{
-		//Если текущие цвета в Src (fore и/или back) не прозрачные
-		//то унаследуем их в Dest.
+		//Р•СЃР»Рё С‚РµРєСѓС‰РёРµ С†РІРµС‚Р° РІ Src (fore Рё/РёР»Рё back) РЅРµ РїСЂРѕР·СЂР°С‡РЅС‹Рµ
+		//С‚Рѕ СѓРЅР°СЃР»РµРґСѓРµРј РёС… РІ Dest.
 
 		const auto ApplyColorPart = [&](COLORREF FarColor::*Color, const FARCOLORFLAGS Flag)
 		{
@@ -416,7 +416,7 @@ static void ApplyColors(HighlightFiles::highlight_item& DestColors, const Highli
 		ApplyColor(Dst.MarkColor, Src.MarkColor);
 	});
 
-	//Унаследуем пометку из Src если она не прозрачная
+	//РЈРЅР°СЃР»РµРґСѓРµРј РїРѕРјРµС‚РєСѓ РёР· Src РµСЃР»Рё РѕРЅР° РЅРµ РїСЂРѕР·СЂР°С‡РЅР°СЏ
 	if (!SrcColors.Mark.Transparent)
 	{
 		DestColors.Mark.Transparent = false;
@@ -428,13 +428,13 @@ void HighlightFiles::ApplyFinalColor(highlight_item::colors_array::value_type& C
 {
 	const auto PaletteColor = PalColor[PaletteIndex];
 
-	//Обработаем black on black чтоб после наследования были правильные цвета.
+	//РћР±СЂР°Р±РѕС‚Р°РµРј black on black С‡С‚РѕР± РїРѕСЃР»Рµ РЅР°СЃР»РµРґРѕРІР°РЅРёСЏ Р±С‹Р»Рё РїСЂР°РІРёР»СЊРЅС‹Рµ С†РІРµС‚Р°.
 	ApplyBlackOnBlackColor(Colors, PaletteColor);
 
 	const auto& PanelColor = Global->Opt->Palette[PaletteColor];
 
-	//Если какой то из текущих цветов (fore или back) прозрачный
-	//то унаследуем соответствующий цвет с панелей.
+	//Р•СЃР»Рё РєР°РєРѕР№ С‚Рѕ РёР· С‚РµРєСѓС‰РёС… С†РІРµС‚РѕРІ (fore РёР»Рё back) РїСЂРѕР·СЂР°С‡РЅС‹Р№
+	//С‚Рѕ СѓРЅР°СЃР»РµРґСѓРµРј СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ С†РІРµС‚ СЃ РїР°РЅРµР»РµР№.
 	const auto ApplyColorPart = [&](FarColor& i, COLORREF FarColor::*Color, const FARCOLORFLAGS Flag)
 	{
 		if(IS_TRANSPARENT(i.*Color))
@@ -451,8 +451,8 @@ void HighlightFiles::ApplyFinalColor(highlight_item::colors_array::value_type& C
 	ApplyColorPart(Colors.MarkColor, &FarColor::BackgroundColor, FCF_BG_4BIT);
 	ApplyColorPart(Colors.MarkColor, &FarColor::ForegroundColor, FCF_FG_4BIT);
 
-	//Паранойя но случится может:
-	//Обработаем black on black снова чтоб обработались унаследованные цвета.
+	//РџР°СЂР°РЅРѕР№СЏ РЅРѕ СЃР»СѓС‡РёС‚СЃСЏ РјРѕР¶РµС‚:
+	//РћР±СЂР°Р±РѕС‚Р°РµРј black on black СЃРЅРѕРІР° С‡С‚РѕР± РѕР±СЂР°Р±РѕС‚Р°Р»РёСЃСЊ СѓРЅР°СЃР»РµРґРѕРІР°РЅРЅС‹Рµ С†РІРµС‚Р°.
 	ApplyBlackOnBlackColor(Colors, PaletteColor);
 }
 
@@ -484,7 +484,7 @@ void HighlightFiles::GetHiColor(FileListItem* To, bool UseAttrHighlighting)
 	// Called from FileList::GetShowColor dynamically instead
 	//for_each_2(ALL_RANGE(item.Color), PalColor, ApplyFinalColor);
 
-	//Если символ пометки прозрачный то его как бы и нет вообще.
+	//Р•СЃР»Рё СЃРёРјРІРѕР» РїРѕРјРµС‚РєРё РїСЂРѕР·СЂР°С‡РЅС‹Р№ С‚Рѕ РµРіРѕ РєР°Рє Р±С‹ Рё РЅРµС‚ РІРѕРѕР±С‰Рµ.
 	if (item.Mark.Transparent)
 		item.Mark.Char = 0;
 
@@ -582,18 +582,18 @@ int HighlightFiles::MenuPosToRealPos(int MenuPos, int*& Count, bool Insert)
 
 void HighlightFiles::UpdateHighlighting(bool RefreshMasks)
 {
-	Global->ScrBuf->Lock(); // отменяем всякую прорисовку
+	Global->ScrBuf->Lock(); // РѕС‚РјРµРЅСЏРµРј РІСЃСЏРєСѓСЋ РїСЂРѕСЂРёСЃРѕРІРєСѓ
 	ProcessGroups();
 
 	if(RefreshMasks)
 		std::for_each(ALL_RANGE(HiData), std::mem_fn(&FileFilterParams::RefreshMask));
 
-	//WindowManager->RefreshWindow(); // рефрешим
+	//WindowManager->RefreshWindow(); // СЂРµС„СЂРµС€РёРј
 	Global->CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
 	Global->CtrlObject->Cp()->LeftPanel->Redraw();
 	Global->CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
 	Global->CtrlObject->Cp()->RightPanel->Redraw();
-	Global->ScrBuf->Unlock(); // разрешаем прорисовку
+	Global->ScrBuf->Unlock(); // СЂР°Р·СЂРµС€Р°РµРј РїСЂРѕСЂРёСЃРѕРІРєСѓ
 }
 
 void HighlightFiles::HiEdit(int MenuPos)
@@ -620,7 +620,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 			switch (Key)
 			{
 					/* $ 07.07.2000 IS
-					  Если нажали ctrl+r, то восстановить значения по умолчанию.
+					  Р•СЃР»Рё РЅР°Р¶Р°Р»Рё ctrl+r, С‚Рѕ РІРѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ Р·РЅР°С‡РµРЅРёСЏ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ.
 					*/
 				case KEY_CTRLR:
 				case KEY_RCTRLR:
@@ -777,17 +777,17 @@ void HighlightFiles::HiEdit(int MenuPos)
 					KeyProcessed = 0;
 			}
 
-			// повторяющийся кусок!
+			// РїРѕРІС‚РѕСЂСЏСЋС‰РёР№СЃСЏ РєСѓСЃРѕРє!
 			if (NeedUpdate)
 			{
-				Global->ScrBuf->Lock(); // отменяем всякую прорисовку
+				Global->ScrBuf->Lock(); // РѕС‚РјРµРЅСЏРµРј РІСЃСЏРєСѓСЋ РїСЂРѕСЂРёСЃРѕРІРєСѓ
 				Changed = true;
 				UpdateHighlighting();
 				FillMenu(HiMenu.get(), MenuPos = SelectPos);
 
 				if (Global->Opt->AutoSaveSetup)
 					Save(false);
-				Global->ScrBuf->Unlock(); // разрешаем прорисовку
+				Global->ScrBuf->Unlock(); // СЂР°Р·СЂРµС€Р°РµРј РїСЂРѕСЂРёСЃРѕРІРєСѓ
 			}
 			return KeyProcessed;
 		});

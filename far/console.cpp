@@ -1,10 +1,10 @@
-/*
+п»ї/*
 Console.cpp
 
 Console functions
 */
 /*
-Copyright © 2010 Far Group
+Copyright В© 2010 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ class basicconsole:public console {
 public:
 
 basicconsole():
-	// пишем/читаем порциями по 32 K, иначе проблемы.
+	// РїРёС€РµРј/С‡РёС‚Р°РµРј РїРѕСЂС†РёСЏРјРё РїРѕ 32 K, РёРЅР°С‡Рµ РїСЂРѕР±Р»РµРјС‹.
 	MAXSIZE(0x8000),
 	m_OriginalInputHandle(GetStdHandle(STD_INPUT_HANDLE))
 {}

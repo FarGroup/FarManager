@@ -1,11 +1,11 @@
-/*
+ï»¿/*
 fileview.cpp
 
-Ïðîñìîòð ôàéëà - íàäñòðîéêà íàä viewer.cpp
+ÐŸÑ€Ð¾ÑÐ¼Ð¾Ñ‚Ñ€ Ñ„Ð°Ð¹Ð»Ð° - Ð½Ð°Ð´ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ° Ð½Ð°Ð´ viewer.cpp
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright Â© 1996 Eugene Roshal
+Copyright Â© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -146,8 +146,8 @@ void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 
 	if (!m_View->OpenFile(m_Name,TRUE)) // $ 04.07.2000 tran + add TRUE as 'warning' parameter
 	{
-		DisableHistory = TRUE;  // $ 26.03.2002 DJ - ïðè íåóäà÷å îòêðûòèÿ - íå ïèøåì ìóñîð â èñòîðèþ
-		// WindowManager->DeleteWindow(this); // ÇÀ×ÅÌ? Âüþâåð òî åùå íå ïîìåùåí â î÷åðåäü ìàíàãåðà!
+		DisableHistory = TRUE;  // $ 26.03.2002 DJ - Ð¿Ñ€Ð¸ Ð½ÐµÑƒÐ´Ð°Ñ‡Ðµ Ð¾Ñ‚ÐºÑ€Ñ‹Ñ‚Ð¸Ñ - Ð½Ðµ Ð¿Ð¸ÑˆÐµÐ¼ Ð¼ÑƒÑÐ¾Ñ€ Ð² Ð¸ÑÑ‚Ð¾Ñ€Ð¸ÑŽ
+		// WindowManager->DeleteWindow(this); // Ð—ÐÐ§Ð•Ðœ? Ð’ÑŒÑŽÐ²ÐµÑ€ Ñ‚Ð¾ ÐµÑ‰Ðµ Ð½Ðµ Ð¿Ð¾Ð¼ÐµÑ‰ÐµÐ½ Ð² Ð¾Ñ‡ÐµÑ€ÐµÐ´ÑŒ Ð¼Ð°Ð½Ð°Ð³ÐµÑ€Ð°!
 		m_ExitCode=FALSE;
 		return;
 	}
@@ -271,8 +271,8 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 	{
 #if 0
 			/* $ 30.05.2003 SVS
-			   Ôè÷à :-) Shift-F4 â ðåäàêòîðå/âüþâåðå ïîçâîëÿåò îòêðûâàòü äðóãîé ðåäàêòîð/âüþâåð
-			   Ïîêà çàêîììåíòèì
+			   Ð¤Ð¸Ñ‡Ð° :-) Shift-F4 Ð² Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¾Ñ€Ðµ/Ð²ÑŒÑŽÐ²ÐµÑ€Ðµ Ð¿Ð¾Ð·Ð²Ð¾Ð»ÑÐµÑ‚ Ð¾Ñ‚ÐºÑ€Ñ‹Ð²Ð°Ñ‚ÑŒ Ð´Ñ€ÑƒÐ³Ð¾Ð¹ Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¾Ñ€/Ð²ÑŒÑŽÐ²ÐµÑ€
+			   ÐŸÐ¾ÐºÐ° Ð·Ð°ÐºÐ¾Ð¼Ð¼ÐµÐ½Ñ‚Ð¸Ð¼
 			*/
 		case KEY_SHIFTF4:
 		{
@@ -283,7 +283,7 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 		}
 #endif
 		/* $ 22.07.2000 tran
-		   + âûõîä ïî ctrl-f10 ñ óñòàíîâêîé êóðñîðà íà ôàéë */
+		   + Ð²Ñ‹Ñ…Ð¾Ð´ Ð¿Ð¾ ctrl-f10 Ñ ÑƒÑÑ‚Ð°Ð½Ð¾Ð²ÐºÐ¾Ð¹ ÐºÑƒÑ€ÑÐ¾Ñ€Ð° Ð½Ð° Ñ„Ð°Ð¹Ð» */
 		case KEY_CTRLF10:
 		case KEY_RCTRLF10:
 		{
@@ -369,10 +369,10 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 				if (!(load == XC_LOADING_INTERRUPTED || load == XC_OPEN_ERROR))
 				{
 					ShellEditor->SetEnableF6(true);
-					/* $ 07.05.2001 DJ ñîõðàíÿåì NamesList */
+					/* $ 07.05.2001 DJ ÑÐ¾Ñ…Ñ€Ð°Ð½ÑÐµÐ¼ NamesList */
 					ShellEditor->SetNamesList(m_View->GetNamesList());
 
-					// Åñëè ïåðåêëþ÷àåìñÿ â ðåäàêòîð, òî óäàëÿòü ôàéë óæå íå íóæíî
+					// Ð•ÑÐ»Ð¸ Ð¿ÐµÑ€ÐµÐºÐ»ÑŽÑ‡Ð°ÐµÐ¼ÑÑ Ð² Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¾Ñ€, Ñ‚Ð¾ ÑƒÐ´Ð°Ð»ÑÑ‚ÑŒ Ñ„Ð°Ð¹Ð» ÑƒÐ¶Ðµ Ð½Ðµ Ð½ÑƒÐ¶Ð½Ð¾
 					SetTempViewName(L"");
 					SetExitCode(0);
 				}
@@ -383,7 +383,7 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 
 		case KEY_ALTSHIFTF9:
 		case KEY_RALTSHIFTF9:
-			// Ðàáîòà ñ ëîêàëüíîé êîïèåé ViewerOptions
+			// Ð Ð°Ð±Ð¾Ñ‚Ð° Ñ Ð»Ð¾ÐºÐ°Ð»ÑŒÐ½Ð¾Ð¹ ÐºÐ¾Ð¿Ð¸ÐµÐ¹ ViewerOptions
 			Global->Opt->LocalViewerConfig(m_View->ViOpt);
 
 			if (Global->Opt->ViOpt.ShowKeyBar)
@@ -398,11 +398,11 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 
 			return TRUE;
 		default:
-//      Ýòîò êóñîê - íà áóäóùåå (ïî àíàëîãèè ñ ðåäàêòîðîì :-)
+//      Ð­Ñ‚Ð¾Ñ‚ ÐºÑƒÑÐ¾Ðº - Ð½Ð° Ð±ÑƒÐ´ÑƒÑ‰ÐµÐµ (Ð¿Ð¾ Ð°Ð½Ð°Ð»Ð¾Ð³Ð¸Ð¸ Ñ Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¾Ñ€Ð¾Ð¼ :-)
 //      if (Global->CtrlObject->Macro.IsExecuting() || !View.ProcessViewerInput(&ReadRec))
 		{
 			/* $ 22.03.2001 SVS
-			   Ýòî ïîìîãëî îò çàëèïàíèÿ :-)
+			   Ð­Ñ‚Ð¾ Ð¿Ð¾Ð¼Ð¾Ð³Ð»Ð¾ Ð¾Ñ‚ Ð·Ð°Ð»Ð¸Ð¿Ð°Ð½Ð¸Ñ :-)
 			*/
 			if (!Global->CtrlObject->Macro.IsExecuting())
 				if (Global->Opt->ViOpt.ShowKeyBar)

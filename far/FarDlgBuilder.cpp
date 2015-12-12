@@ -1,10 +1,10 @@
-/*
+п»ї/*
 FarDlgBuilder.cpp
 
-Динамическое построение диалогов - версия для внутреннего употребления в FAR
+Р”РёРЅР°РјРёС‡РµСЃРєРѕРµ РїРѕСЃС‚СЂРѕРµРЅРёРµ РґРёР°Р»РѕРіРѕРІ - РІРµСЂСЃРёСЏ РґР»СЏ РІРЅСѓС‚СЂРµРЅРЅРµРіРѕ СѓРїРѕС‚СЂРµР±Р»РµРЅРёСЏ РІ FAR
 */
 /*
-Copyright © 2009 Far Group
+Copyright В© 2009 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

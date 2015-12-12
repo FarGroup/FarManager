@@ -1,11 +1,11 @@
-/*
+п»ї/*
 keyboard.cpp
 
-Функции, имеющие отношение к клавиатуре
+Р¤СѓРЅРєС†РёРё, РёРјРµСЋС‰РёРµ РѕС‚РЅРѕС€РµРЅРёРµ Рє РєР»Р°РІРёР°С‚СѓСЂРµ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -56,11 +56,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "datetime.hpp"
 
-/* start Глобальные переменные */
+/* start Р“Р»РѕР±Р°Р»СЊРЅС‹Рµ РїРµСЂРµРјРµРЅРЅС‹Рµ */
 
 FarKeyboardState IntKeyState={};
 
-/* end Глобальные переменные */
+/* end Р“Р»РѕР±Р°Р»СЊРЅС‹Рµ РїРµСЂРµРјРµРЅРЅС‹Рµ */
 
 static std::array<short, WCHAR_MAX + 1> KeyToVKey;
 static std::array<wchar_t, 512> VKeyToASCII;
@@ -264,9 +264,9 @@ static std::vector<HKL>& Layout()
 }
 
 /*
-   Инициализация массива клавиш.
-   Вызывать только после CopyGlobalSettings, потому что только тогда GetRegKey
-   считает правильные данные.
+   РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РјР°СЃСЃРёРІР° РєР»Р°РІРёС€.
+   Р’С‹Р·С‹РІР°С‚СЊ С‚РѕР»СЊРєРѕ РїРѕСЃР»Рµ CopyGlobalSettings, РїРѕС‚РѕРјСѓ С‡С‚Рѕ С‚РѕР»СЊРєРѕ С‚РѕРіРґР° GetRegKey
+   СЃС‡РёС‚Р°РµС‚ РїСЂР°РІРёР»СЊРЅС‹Рµ РґР°РЅРЅС‹Рµ.
 */
 void InitKeysArray()
 {
@@ -311,14 +311,14 @@ void InitKeysArray()
 	if (!Layout().empty())
 	{
 		BYTE KeyState[0x100]={};
-		//KeyToVKey - используется чтоб проверить если два символа это одна и та же кнопка на клаве
+		//KeyToVKey - РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ С‡С‚РѕР± РїСЂРѕРІРµСЂРёС‚СЊ РµСЃР»Рё РґРІР° СЃРёРјРІРѕР»Р° СЌС‚Рѕ РѕРґРЅР° Рё С‚Р° Р¶Рµ РєРЅРѕРїРєР° РЅР° РєР»Р°РІРµ
 		//*********
-		//Так как сделать полноценное мапирование между всеми раскладками не реально,
-		//по причине того что во время проигрывания макросов нет такого понятия раскладка
-		//то сделаем наилучшую попытку - смысл такой, делаем полное мапирование всех возможных
-		//VKs и ShiftVKs в юникодные символы проходясь по всем раскладкам с одним но:
-		//если разные VK мапятся в тот же юникод символ то мапирование будет только для первой
-		//раскладки которая вернула этот символ
+		//РўР°Рє РєР°Рє СЃРґРµР»Р°С‚СЊ РїРѕР»РЅРѕС†РµРЅРЅРѕРµ РјР°РїРёСЂРѕРІР°РЅРёРµ РјРµР¶РґСѓ РІСЃРµРјРё СЂР°СЃРєР»Р°РґРєР°РјРё РЅРµ СЂРµР°Р»СЊРЅРѕ,
+		//РїРѕ РїСЂРёС‡РёРЅРµ С‚РѕРіРѕ С‡С‚Рѕ РІРѕ РІСЂРµРјСЏ РїСЂРѕРёРіСЂС‹РІР°РЅРёСЏ РјР°РєСЂРѕСЃРѕРІ РЅРµС‚ С‚Р°РєРѕРіРѕ РїРѕРЅСЏС‚РёСЏ СЂР°СЃРєР»Р°РґРєР°
+		//С‚Рѕ СЃРґРµР»Р°РµРј РЅР°РёР»СѓС‡С€СѓСЋ РїРѕРїС‹С‚РєСѓ - СЃРјС‹СЃР» С‚Р°РєРѕР№, РґРµР»Р°РµРј РїРѕР»РЅРѕРµ РјР°РїРёСЂРѕРІР°РЅРёРµ РІСЃРµС… РІРѕР·РјРѕР¶РЅС‹С…
+		//VKs Рё ShiftVKs РІ СЋРЅРёРєРѕРґРЅС‹Рµ СЃРёРјРІРѕР»С‹ РїСЂРѕС…РѕРґСЏСЃСЊ РїРѕ РІСЃРµРј СЂР°СЃРєР»Р°РґРєР°Рј СЃ РѕРґРЅРёРј РЅРѕ:
+		//РµСЃР»Рё СЂР°Р·РЅС‹Рµ VK РјР°РїСЏС‚СЃСЏ РІ С‚РѕС‚ Р¶Рµ СЋРЅРёРєРѕРґ СЃРёРјРІРѕР» С‚Рѕ РјР°РїРёСЂРѕРІР°РЅРёРµ Р±СѓРґРµС‚ С‚РѕР»СЊРєРѕ РґР»СЏ РїРµСЂРІРѕР№
+		//СЂР°СЃРєР»Р°РґРєРё РєРѕС‚РѕСЂР°СЏ РІРµСЂРЅСѓР»Р° СЌС‚РѕС‚ СЃРёРјРІРѕР»
 		//
 		for (BYTE j=0; j<2; j++)
 		{
@@ -338,10 +338,10 @@ void InitKeysArray()
 			});
 		}
 
-		//VKeyToASCII - используется вместе с KeyToVKey чтоб подменить нац. символ на US-ASCII
+		//VKeyToASCII - РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РІРјРµСЃС‚Рµ СЃ KeyToVKey С‡С‚РѕР± РїРѕРґРјРµРЅРёС‚СЊ РЅР°С†. СЃРёРјРІРѕР» РЅР° US-ASCII
 		//***********
-		//Имея мапирование юникод -> VK строим обратное мапирование
-		//VK -> символы с кодом меньше 0x80, т.е. только US-ASCII символы
+		//РРјРµСЏ РјР°РїРёСЂРѕРІР°РЅРёРµ СЋРЅРёРєРѕРґ -> VK СЃС‚СЂРѕРёРј РѕР±СЂР°С‚РЅРѕРµ РјР°РїРёСЂРѕРІР°РЅРёРµ
+		//VK -> СЃРёРјРІРѕР»С‹ СЃ РєРѕРґРѕРј РјРµРЅСЊС€Рµ 0x80, С‚.Рµ. С‚РѕР»СЊРєРѕ US-ASCII СЃРёРјРІРѕР»С‹
 		for (WCHAR i=1, x=0; i < 0x80; i++)
 		{
 			x = KeyToVKey[i];
@@ -352,7 +352,7 @@ void InitKeysArray()
 	}
 }
 
-//Сравнивает если Key и CompareKey это одна и та же клавиша в разных раскладках
+//РЎСЂР°РІРЅРёРІР°РµС‚ РµСЃР»Рё Key Рё CompareKey СЌС‚Рѕ РѕРґРЅР° Рё С‚Р° Р¶Рµ РєР»Р°РІРёС€Р° РІ СЂР°Р·РЅС‹С… СЂР°СЃРєР»Р°РґРєР°С…
 bool KeyToKeyLayoutCompare(int Key, int CompareKey)
 {
 	_KEYMACRO(CleverSysLog Clev(L"KeyToKeyLayoutCompare()"));
@@ -366,7 +366,7 @@ bool KeyToKeyLayoutCompare(int Key, int CompareKey)
 	return false;
 }
 
-//Должно вернуть клавишный Eng эквивалент Key
+//Р”РѕР»Р¶РЅРѕ РІРµСЂРЅСѓС‚СЊ РєР»Р°РІРёС€РЅС‹Р№ Eng СЌРєРІРёРІР°Р»РµРЅС‚ Key
 int KeyToKeyLayout(int Key)
 {
 	_KEYMACRO(CleverSysLog Clev(L"KeyToKeyLayout()"));
@@ -415,8 +415,8 @@ unsigned int InputRecordToKey(const INPUT_RECORD *r)
 {
 	if (r)
 	{
-		INPUT_RECORD Rec=*r; // НАДО!, т.к. внутри CalcKeyCode
-		//   структура INPUT_RECORD модифицируется!
+		INPUT_RECORD Rec=*r; // РќРђР”Рћ!, С‚.Рє. РІРЅСѓС‚СЂРё CalcKeyCode
+		//   СЃС‚СЂСѓРєС‚СѓСЂР° INPUT_RECORD РјРѕРґРёС„РёС†РёСЂСѓРµС‚СЃСЏ!
 
 		return ShieldCalcKeyCode(&Rec,FALSE,nullptr);
 	}
@@ -431,7 +431,7 @@ bool KeyToInputRecord(int Key, INPUT_RECORD *Rec)
   return TranslateKeyToVK(Key, VirtKey, ControlState, Rec) != 0;
 }
 
-//BUGBUG - временная затычка
+//BUGBUG - РІСЂРµРјРµРЅРЅР°СЏ Р·Р°С‚С‹С‡РєР°
 void ProcessKeyToInputRecord(int Key, unsigned int dwControlState, INPUT_RECORD *Rec)
 {
 	if (Rec)
@@ -547,7 +547,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 DWORD GetInputRecordNoMacroArea(INPUT_RECORD *rec,bool AllowSynchro)
 {
 	FARMACROAREA MArea = Global->CtrlObject->Macro.GetArea();
-	Global->CtrlObject->Macro.SetArea(MACROAREA_LAST); // чтобы не срабатывали макросы :-)
+	Global->CtrlObject->Macro.SetArea(MACROAREA_LAST); // С‡С‚РѕР±С‹ РЅРµ СЃСЂР°Р±Р°С‚С‹РІР°Р»Рё РјР°РєСЂРѕСЃС‹ :-)
 	DWORD Key = GetInputRecord(rec, false, false, AllowSynchro);
 	Global->CtrlObject->Macro.SetArea(MArea);
 	return Key;
@@ -577,7 +577,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 			static int LastMsClickMacroKey=0;
 			if (const auto MsClickKey = KeyMsClick2ButtonState(MacroKey, EventState))
 			{
-				// Ахтунг! Для мышиной клавиши вернем значение MOUSE_EVENT, соответствующее _последнему_ событию мыши.
+				// РђС…С‚СѓРЅРі! Р”Р»СЏ РјС‹С€РёРЅРѕР№ РєР»Р°РІРёС€Рё РІРµСЂРЅРµРј Р·РЅР°С‡РµРЅРёРµ MOUSE_EVENT, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РµРµ _РїРѕСЃР»РµРґРЅРµРјСѓ_ СЃРѕР±С‹С‚РёСЋ РјС‹С€Рё.
 				rec->EventType=MOUSE_EVENT;
 				rec->Event.MouseEvent=lastMOUSE_EVENT_RECORD;
 				rec->Event.MouseEvent.dwButtonState=MsClickKey;
@@ -587,7 +587,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 			}
 			else
 			{
-				// если предыдущая клавиша мышиная - сбросим состояние панели Drag
+				// РµСЃР»Рё РїСЂРµРґС‹РґСѓС‰Р°СЏ РєР»Р°РІРёС€Р° РјС‹С€РёРЅР°СЏ - СЃР±СЂРѕСЃРёРј СЃРѕСЃС‚РѕСЏРЅРёРµ РїР°РЅРµР»Рё Drag
 				if (KeyMsClick2ButtonState(LastMsClickMacroKey,EventState))
 				{
 					LastMsClickMacroKey=0;
@@ -654,7 +654,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 
 	for (;;)
 	{
-		// "Реакция" на максимизацию/восстановление окна консоли
+		// "Р РµР°РєС†РёСЏ" РЅР° РјР°РєСЃРёРјРёР·Р°С†РёСЋ/РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ РѕРєРЅР° РєРѕРЅСЃРѕР»Рё
 		if (ZoomedState!=IsZoomed(Console().GetWindow()) && IconicState==IsIconic(Console().GetWindow()))
 		{
 			ZoomedState=!ZoomedState;
@@ -679,7 +679,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		Console().PeekInput(rec, 1, ReadCount);
 
 		/* $ 26.04.2001 VVM
-		   ! Убрал подмену колесика */
+		   ! РЈР±СЂР°Р» РїРѕРґРјРµРЅСѓ РєРѕР»РµСЃРёРєР° */
 		if (ReadCount)
 		{
 			//check for flock
@@ -777,7 +777,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 
 			if (rec->Event.KeyEvent.wVirtualKeyCode == VK_MENU)
 			{
-				// Шаманство с AltGr (виртуальная клавиатура)
+				// РЁР°РјР°РЅСЃС‚РІРѕ СЃ AltGr (РІРёСЂС‚СѓР°Р»СЊРЅР°СЏ РєР»Р°РІРёР°С‚СѓСЂР°)
 				bForceAltGr = (rec->Event.KeyEvent.wVirtualScanCode == 0)
 					&& ((rec->Event.KeyEvent.dwControlKeyState & 0x1F) == 0x0A);
 			}
@@ -797,13 +797,13 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 			WORD PrevVKKeyCode2=PrevVKKeyCode;
 			PrevVKKeyCode=rec->Event.KeyEvent.wVirtualKeyCode;
 
-			// Для Shift-Enter в диалоге назначения вылазил Shift после отпускания клавиш.
+			// Р”Р»СЏ Shift-Enter РІ РґРёР°Р»РѕРіРµ РЅР°Р·РЅР°С‡РµРЅРёСЏ РІС‹Р»Р°Р·РёР» Shift РїРѕСЃР»Рµ РѕС‚РїСѓСЃРєР°РЅРёСЏ РєР»Р°РІРёС€.
 			//
 			if (PrevVKKeyCode2==VK_RETURN && PrevVKKeyCode==VK_SHIFT  && !rec->Event.KeyEvent.bKeyDown)
 			{
 				INPUT_RECORD pinp;
 				size_t nread;
-				Console().ReadInput(&pinp, 1, nread); // Удалим из очереди...
+				Console().ReadInput(&pinp, 1, nread); // РЈРґР°Р»РёРј РёР· РѕС‡РµСЂРµРґРё...
 				return KEY_NONE;
 			}
 		}
@@ -825,7 +825,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 	if (rec->EventType==FOCUS_EVENT)
 	{
 		/* $ 28.04.2001 VVM
-		  + Не только обработаем сами смену фокуса, но и передадим дальше */
+		  + РќРµ С‚РѕР»СЊРєРѕ РѕР±СЂР°Р±РѕС‚Р°РµРј СЃР°РјРё СЃРјРµРЅСѓ С„РѕРєСѓСЃР°, РЅРѕ Рё РїРµСЂРµРґР°РґРёРј РґР°Р»СЊС€Рµ */
 		PressedLast.ClearAll();
 		IntKeyState.ShiftPressed=FALSE;
 		IntKeyState.CtrlPressed=FALSE;
@@ -834,7 +834,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		ShiftState=FALSE;
 		Console().ReadInput(rec, 1, ReadCount);
 		CalcKey=rec->Event.FocusEvent.bSetFocus?KEY_GOTFOCUS:KEY_KILLFOCUS;
-		//чтоб решить баг винды приводящий к появлению скролов и т.п. после потери фокуса
+		//С‡С‚РѕР± СЂРµС€РёС‚СЊ Р±Р°Рі РІРёРЅРґС‹ РїСЂРёРІРѕРґСЏС‰РёР№ Рє РїРѕСЏРІР»РµРЅРёСЋ СЃРєСЂРѕР»РѕРІ Рё С‚.Рї. РїРѕСЃР»Рµ РїРѕС‚РµСЂРё С„РѕРєСѓСЃР°
 		if (CalcKey == KEY_GOTFOCUS)
 			RestoreConsoleWindowRect();
 		else
@@ -876,7 +876,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		}
 	}
 
-	/*& 17.05.2001 OT Изменился размер консоли, генерим клавишу*/
+	/*& 17.05.2001 OT РР·РјРµРЅРёР»СЃСЏ СЂР°Р·РјРµСЂ РєРѕРЅСЃРѕР»Рё, РіРµРЅРµСЂРёРј РєР»Р°РІРёС€Сѓ*/
 	if (rec->EventType==WINDOW_BUFFER_SIZE_EVENT || SizeChanged)
 	{
 		int PScrX=ScrX;
@@ -897,7 +897,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 			if (Global->WindowManager)
 			{
 				Global->ScrBuf->ResetShadow();
-				// апдейтим панели (именно они сейчас!)
+				// Р°РїРґРµР№С‚РёРј РїР°РЅРµР»Рё (РёРјРµРЅРЅРѕ РѕРЅРё СЃРµР№С‡Р°СЃ!)
 				SCOPED_ACTION(LockScreen);
 
 				if (Global->GlobalSaveScrPtr)
@@ -926,7 +926,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		IntKeyState.RightAltPressed=(CtrlState & RIGHT_ALT_PRESSED);
 		KeyMacro::SetMacroConst(constMsLastCtrlState,CtrlState);
 
-		// Для NumPad!
+		// Р”Р»СЏ NumPad!
 		if ((CalcKey&(KEY_CTRL|KEY_SHIFT|KEY_ALT|KEY_RCTRL|KEY_RALT)) == KEY_SHIFT &&
 		        (CalcKey&KEY_MASKF) >= KEY_NUMPAD0 && (CalcKey&KEY_MASKF) <= KEY_NUMPAD9)
 			IntKeyState.ShiftPressed=SHIFT_PRESSED;
@@ -993,14 +993,14 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		KeyMacro::SetMacroConst(constMsY,IntKeyState.MouseY);
 
 		/* $ 26.04.2001 VVM
-		   + Обработка колесика мышки. */
+		   + РћР±СЂР°Р±РѕС‚РєР° РєРѕР»РµСЃРёРєР° РјС‹С€РєРё. */
 		if (IntKeyState.MouseEventFlags == MOUSE_WHEELED)
-		{ // Обработаем колесо и заменим на спец.клавиши
+		{ // РћР±СЂР°Р±РѕС‚Р°РµРј РєРѕР»РµСЃРѕ Рё Р·Р°РјРµРЅРёРј РЅР° СЃРїРµС†.РєР»Р°РІРёС€Рё
 			short zDelta = HIWORD(rec->Event.MouseEvent.dwButtonState);
 			CalcKey = (zDelta>0)?KEY_MSWHEEL_UP:KEY_MSWHEEL_DOWN;
 			/* $ 27.04.2001 SVS
-			   Не были учтены шифтовые клавиши при прокрутке колеса, из-за чего
-			   нельзя было использовать в макросах нечто вроде "ShiftMsWheelUp"
+			   РќРµ Р±С‹Р»Рё СѓС‡С‚РµРЅС‹ С€РёС„С‚РѕРІС‹Рµ РєР»Р°РІРёС€Рё РїСЂРё РїСЂРѕРєСЂСѓС‚РєРµ РєРѕР»РµСЃР°, РёР·-Р·Р° С‡РµРіРѕ
+			   РЅРµР»СЊР·СЏ Р±С‹Р»Рѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РІ РјР°РєСЂРѕСЃР°С… РЅРµС‡С‚Рѕ РІСЂРѕРґРµ "ShiftMsWheelUp"
 			*/
 			CalcKey |= (CtrlState&SHIFT_PRESSED?KEY_SHIFT:NO_KEY)|
 			           (CtrlState&LEFT_CTRL_PRESSED?KEY_CTRL:NO_KEY)|
@@ -1009,7 +1009,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 			           (CtrlState&RIGHT_ALT_PRESSED?KEY_RALT:NO_KEY);
 		}
 
-		// Обработка горизонтального колесика (NT>=6)
+		// РћР±СЂР°Р±РѕС‚РєР° РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅРѕРіРѕ РєРѕР»РµСЃРёРєР° (NT>=6)
 		if (IntKeyState.MouseEventFlags == MOUSE_HWHEELED)
 		{
 			short zDelta = HIWORD(rec->Event.MouseEvent.dwButtonState);
@@ -1046,7 +1046,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 					             (CtrlState&LEFT_ALT_PRESSED?KEY_ALT:NO_KEY)|
 					             (CtrlState&RIGHT_ALT_PRESSED?KEY_RALT:NO_KEY);
 
-					// для WaitKey()
+					// РґР»СЏ WaitKey()
 					if (ProcessMouse)
 						return MsCalcKey;
 					else
@@ -1079,7 +1079,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 	return CalcKey;
 }
 
-// "дополнительная" очередь кодов клавиш
+// "РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ" РѕС‡РµСЂРµРґСЊ РєРѕРґРѕРІ РєР»Р°РІРёС€
 std::deque<DWORD>& KeyQueue()
 {
 	static FN_RETURN_TYPE(KeyQueue) s_KeyQueue;
@@ -1114,8 +1114,8 @@ DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 }
 
 /* $ 24.08.2000 SVS
- + Параметр у функции WaitKey - возможность ожидать конкретную клавишу
-     Если KeyWait = -1 - как и раньше
+ + РџР°СЂР°РјРµС‚СЂ Сѓ С„СѓРЅРєС†РёРё WaitKey - РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РѕР¶РёРґР°С‚СЊ РєРѕРЅРєСЂРµС‚РЅСѓСЋ РєР»Р°РІРёС€Сѓ
+     Р•СЃР»Рё KeyWait = -1 - РєР°Рє Рё СЂР°РЅСЊС€Рµ
 */
 DWORD WaitKey(DWORD KeyWait,DWORD delayMS,bool ExcludeMacro)
 {
@@ -1200,12 +1200,12 @@ bool CheckForEscSilent()
 
 	INPUT_RECORD rec;
 	bool Processed = true;
-	/* TODO: Здесь, в общем то - ХЗ, т.к.
-	         по хорошему нужно проверять Global->CtrlObject->Macro.PeekKey() на ESC или BREAK
-	         Но к чему это приведет - пока не могу дать ответ !!!
+	/* TODO: Р—РґРµСЃСЊ, РІ РѕР±С‰РµРј С‚Рѕ - РҐР—, С‚.Рє.
+	         РїРѕ С…РѕСЂРѕС€РµРјСѓ РЅСѓР¶РЅРѕ РїСЂРѕРІРµСЂСЏС‚СЊ Global->CtrlObject->Macro.PeekKey() РЅР° ESC РёР»Рё BREAK
+	         РќРѕ Рє С‡РµРјСѓ СЌС‚Рѕ РїСЂРёРІРµРґРµС‚ - РїРѕРєР° РЅРµ РјРѕРіСѓ РґР°С‚СЊ РѕС‚РІРµС‚ !!!
 	*/
 
-	// если в "макросе"...
+	// РµСЃР»Рё РІ "РјР°РєСЂРѕСЃРµ"...
 	if (Global->CtrlObject->Macro.IsExecuting() != MACROSTATE_NOMACRO && Global->WindowManager->GetCurrentWindow())
 	{
 		if (Global->CtrlObject->Macro.IsDisableOutput())
@@ -1240,7 +1240,7 @@ bool ConfirmAbortOp()
 }
 
 /* $ 09.02.2001 IS
-     Подтверждение нажатия Esc
+     РџРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ РЅР°Р¶Р°С‚РёСЏ Esc
 */
 bool CheckForEsc()
 {
@@ -1280,18 +1280,18 @@ static void GetShiftKeyName(string& strName, DWORD Key, tfkey_to_text ToText, ad
 
 
 /* $ 24.09.2000 SVS
- + Функция KeyNameToKey - получение кода клавиши по имени
-   Если имя не верно или нет такого - возвращается -1
-   Может и криво, но правильно и коротко!
+ + Р¤СѓРЅРєС†РёСЏ KeyNameToKey - РїРѕР»СѓС‡РµРЅРёРµ РєРѕРґР° РєР»Р°РІРёС€Рё РїРѕ РёРјРµРЅРё
+   Р•СЃР»Рё РёРјСЏ РЅРµ РІРµСЂРЅРѕ РёР»Рё РЅРµС‚ С‚Р°РєРѕРіРѕ - РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ -1
+   РњРѕР¶РµС‚ Рё РєСЂРёРІРѕ, РЅРѕ РїСЂР°РІРёР»СЊРЅРѕ Рё РєРѕСЂРѕС‚РєРѕ!
 
-   Функция KeyNameToKey ждет строку по вот такой спецификации:
+   Р¤СѓРЅРєС†РёСЏ KeyNameToKey Р¶РґРµС‚ СЃС‚СЂРѕРєСѓ РїРѕ РІРѕС‚ С‚Р°РєРѕР№ СЃРїРµС†РёС„РёРєР°С†РёРё:
 
-   1. Сочетания, определенные в структуре FKeys1[]
-   2. Опциональные модификаторы (Alt/RAlt/Ctrl/RCtrl/Shift) и 1 символ, например, AltD или CtrlC
-   3. "Alt" (или RAlt) и 5 десятичных цифр (с ведущими нулями)
-   4. "Spec" и 5 десятичных цифр (с ведущими нулями)
-   5. "Oem" и 5 десятичных цифр (с ведущими нулями)
-   6. только модификаторы (Alt/RAlt/Ctrl/RCtrl/Shift)
+   1. РЎРѕС‡РµС‚Р°РЅРёСЏ, РѕРїСЂРµРґРµР»РµРЅРЅС‹Рµ РІ СЃС‚СЂСѓРєС‚СѓСЂРµ FKeys1[]
+   2. РћРїС†РёРѕРЅР°Р»СЊРЅС‹Рµ РјРѕРґРёС„РёРєР°С‚РѕСЂС‹ (Alt/RAlt/Ctrl/RCtrl/Shift) Рё 1 СЃРёРјРІРѕР», РЅР°РїСЂРёРјРµСЂ, AltD РёР»Рё CtrlC
+   3. "Alt" (РёР»Рё RAlt) Рё 5 РґРµСЃСЏС‚РёС‡РЅС‹С… С†РёС„СЂ (СЃ РІРµРґСѓС‰РёРјРё РЅСѓР»СЏРјРё)
+   4. "Spec" Рё 5 РґРµСЃСЏС‚РёС‡РЅС‹С… С†РёС„СЂ (СЃ РІРµРґСѓС‰РёРјРё РЅСѓР»СЏРјРё)
+   5. "Oem" Рё 5 РґРµСЃСЏС‚РёС‡РЅС‹С… С†РёС„СЂ (СЃ РІРµРґСѓС‰РёРјРё РЅСѓР»СЏРјРё)
+   6. С‚РѕР»СЊРєРѕ РјРѕРґРёС„РёРєР°С‚РѕСЂС‹ (Alt/RAlt/Ctrl/RCtrl/Shift)
 */
 int KeyNameToKey(const string& Name)
 {
@@ -1300,16 +1300,16 @@ int KeyNameToKey(const string& Name)
 
 	DWORD Key=0;
 
-   if (Name.size() > 1) // если не один символ
+   if (Name.size() > 1) // РµСЃР»Рё РЅРµ РѕРґРёРЅ СЃРёРјРІРѕР»
 	{
-		// Это макроклавиша? -- ??? Это ещё актуально ???
+		// Р­С‚Рѕ РјР°РєСЂРѕРєР»Р°РІРёС€Р°? -- ??? Р­С‚Рѕ РµС‰С‘ Р°РєС‚СѓР°Р»СЊРЅРѕ ???
 		if (Name[0] == L'$')
 		return -1;// KeyNameMacroToKey(Name);
 
 		if (Name[0] == L'%')
 		return -1;
 
-		if (Name.find_first_of(L"()") != string::npos) // встречаются '(' или ')', то это явно не клавиша!
+		if (Name.find_first_of(L"()") != string::npos) // РІСЃС‚СЂРµС‡Р°СЋС‚СЃСЏ '(' РёР»Рё ')', С‚Рѕ СЌС‚Рѕ СЏРІРЅРѕ РЅРµ РєР»Р°РІРёС€Р°!
 		return -1;
 	}
 
@@ -1319,7 +1319,7 @@ int KeyNameToKey(const string& Name)
 	ToUpper(strTmpName);
 	const auto Len = strTmpName.size();
 
-	// пройдемся по всем модификаторам
+	// РїСЂРѕР№РґРµРјСЃСЏ РїРѕ РІСЃРµРј РјРѕРґРёС„РёРєР°С‚РѕСЂР°Рј
 	FOR(const auto& i, ModifKeyName)
 	{
 		if (!(Key & i.Key) && strTmpName.find(i.UName) != string::npos)
@@ -1329,10 +1329,10 @@ int KeyNameToKey(const string& Name)
 		}
 	}
 
-	// если что-то осталось - преобразуем.
+	// РµСЃР»Рё С‡С‚Рѕ-С‚Рѕ РѕСЃС‚Р°Р»РѕСЃСЊ - РїСЂРµРѕР±СЂР°Р·СѓРµРј.
 	if (Pos < Len)
 	{
-		// сначала - FKeys1 - Вариант (1)
+		// СЃРЅР°С‡Р°Р»Р° - FKeys1 - Р’Р°СЂРёР°РЅС‚ (1)
 		const wchar_t* Ptr=Name.data()+Pos;
 		const auto PtrLen = Len-Pos;
 
@@ -1346,22 +1346,22 @@ int KeyNameToKey(const string& Name)
 			Key |= ItemIterator->Key;
 			Pos += ItemIterator->Len;
 		}
-		else // F-клавиш нет?
+		else // F-РєР»Р°РІРёС€ РЅРµС‚?
 		{
 			/*
-				здесь только 5 оставшихся вариантов:
-				2) Опциональные модификаторы (Alt/RAlt/Ctrl/RCtrl/Shift) и 1 символ, например, AltD или CtrlC
-				3) "Alt" (или RAlt) и 5 десятичных цифр (с ведущими нулями)
-				4) "Spec" и 5 десятичных цифр (с ведущими нулями)
-				5) "Oem" и 5 десятичных цифр (с ведущими нулями)
-				6) только модификаторы (Alt/RAlt/Ctrl/RCtrl/Shift)
+				Р·РґРµСЃСЊ С‚РѕР»СЊРєРѕ 5 РѕСЃС‚Р°РІС€РёС…СЃСЏ РІР°СЂРёР°РЅС‚РѕРІ:
+				2) РћРїС†РёРѕРЅР°Р»СЊРЅС‹Рµ РјРѕРґРёС„РёРєР°С‚РѕСЂС‹ (Alt/RAlt/Ctrl/RCtrl/Shift) Рё 1 СЃРёРјРІРѕР», РЅР°РїСЂРёРјРµСЂ, AltD РёР»Рё CtrlC
+				3) "Alt" (РёР»Рё RAlt) Рё 5 РґРµСЃСЏС‚РёС‡РЅС‹С… С†РёС„СЂ (СЃ РІРµРґСѓС‰РёРјРё РЅСѓР»СЏРјРё)
+				4) "Spec" Рё 5 РґРµСЃСЏС‚РёС‡РЅС‹С… С†РёС„СЂ (СЃ РІРµРґСѓС‰РёРјРё РЅСѓР»СЏРјРё)
+				5) "Oem" Рё 5 РґРµСЃСЏС‚РёС‡РЅС‹С… С†РёС„СЂ (СЃ РІРµРґСѓС‰РёРјРё РЅСѓР»СЏРјРё)
+				6) С‚РѕР»СЊРєРѕ РјРѕРґРёС„РёРєР°С‚РѕСЂС‹ (Alt/RAlt/Ctrl/RCtrl/Shift)
 			*/
 
-			if (Len == 1 || Pos == Len-1) // Вариант (2)
+			if (Len == 1 || Pos == Len-1) // Р’Р°СЂРёР°РЅС‚ (2)
 			{
 				int Chr=Name[Pos];
 
-				// если были модификаторы Alt/Ctrl, то преобразуем в "физическую клавишу" (независимо от языка)
+				// РµСЃР»Рё Р±С‹Р»Рё РјРѕРґРёС„РёРєР°С‚РѕСЂС‹ Alt/Ctrl, С‚Рѕ РїСЂРµРѕР±СЂР°Р·СѓРµРј РІ "С„РёР·РёС‡РµСЃРєСѓСЋ РєР»Р°РІРёС€Сѓ" (РЅРµР·Р°РІРёСЃРёРјРѕ РѕС‚ СЏР·С‹РєР°)
 				if (Key&(KEY_ALT|KEY_RCTRL|KEY_CTRL|KEY_RALT))
 				{
 					if (Chr > 0x7F)
@@ -1375,22 +1375,22 @@ int KeyNameToKey(const string& Name)
 				if (Chr)
 					Pos++;
 			}
-			else if (Key == KEY_ALT || Key == KEY_RALT || Key == KEY_M_SPEC || Key == KEY_M_OEM) // Варианты (3), (4) и (5)
+			else if (Key == KEY_ALT || Key == KEY_RALT || Key == KEY_M_SPEC || Key == KEY_M_OEM) // Р’Р°СЂРёР°РЅС‚С‹ (3), (4) Рё (5)
 			{
 				wchar_t *endptr=nullptr;
 				int K = static_cast<int>(std::wcstol(Ptr, &endptr, 10));
 
 				if (Ptr+5 == endptr)
 				{
-					if (Key == KEY_M_SPEC) // Вариант (4)
+					if (Key == KEY_M_SPEC) // Р’Р°СЂРёР°РЅС‚ (4)
 						Key=(Key|(K+KEY_VK_0xFF_BEGIN))&(~(KEY_M_SPEC|KEY_M_OEM));
-					else if (Key == KEY_M_OEM) // Вариант (5)
+					else if (Key == KEY_M_OEM) // Р’Р°СЂРёР°РЅС‚ (5)
 						Key=(Key|(K+KEY_FKEY_BEGIN))&(~(KEY_M_SPEC|KEY_M_OEM));
 
 					Pos=Len;
 				}
 			}
-			// Вариант (6). Уже "собран".
+			// Р’Р°СЂРёР°РЅС‚ (6). РЈР¶Рµ "СЃРѕР±СЂР°РЅ".
 		}
 	}
 
@@ -1437,7 +1437,7 @@ bool KeyToTextImpl(int Key0, string& strKeyText, tfkey_to_text ToText, add_separ
 		else
 		{
 #if defined(SYSLOG)
-			// Этот кусок кода нужен только для того, что "спецклавиши" логировались нормально
+			// Р­С‚РѕС‚ РєСѓСЃРѕРє РєРѕРґР° РЅСѓР¶РµРЅ С‚РѕР»СЊРєРѕ РґР»СЏ С‚РѕРіРѕ, С‡С‚Рѕ "СЃРїРµС†РєР»Р°РІРёС€Рё" Р»РѕРіРёСЂРѕРІР°Р»РёСЃСЊ РЅРѕСЂРјР°Р»СЊРЅРѕ
 			const auto SpecKeyIterator = std::find(ALL_CONST_RANGE(SpecKeyName), FKey);
 			if (SpecKeyIterator != std::cend(SpecKeyName))
 			{
@@ -1453,8 +1453,8 @@ bool KeyToTextImpl(int Key0, string& strKeyText, tfkey_to_text ToText, add_separ
 
 				if (FKey >= L'A' && FKey <= L'Z')
 				{
-					if (Key&(KEY_RCTRL|KEY_CTRL|KEY_RALT|KEY_ALT)) // ??? а если есть другие модификаторы ???
-						KeyText[0]=(wchar_t)FKey; // для клавиш с модификаторами подставляем "латиницу" в верхнем регистре
+					if (Key&(KEY_RCTRL|KEY_CTRL|KEY_RALT|KEY_ALT)) // ??? Р° РµСЃР»Рё РµСЃС‚СЊ РґСЂСѓРіРёРµ РјРѕРґРёС„РёРєР°С‚РѕСЂС‹ ???
+						KeyText[0]=(wchar_t)FKey; // РґР»СЏ РєР»Р°РІРёС€ СЃ РјРѕРґРёС„РёРєР°С‚РѕСЂР°РјРё РїРѕРґСЃС‚Р°РІР»СЏРµРј "Р»Р°С‚РёРЅРёС†Сѓ" РІ РІРµСЂС…РЅРµРј СЂРµРіРёСЃС‚СЂРµ
 					else
 						KeyText[0]=(wchar_t)(Key&0xFFFF);
 				}
@@ -1550,7 +1550,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 
 			if (Vk == -1)
 			{
-				// Заполнить хотя бы .UnicodeChar = FKey
+				// Р—Р°РїРѕР»РЅРёС‚СЊ С…РѕС‚СЏ Р±С‹ .UnicodeChar = FKey
 				VirtKey = -1;
 			}
 			else
@@ -1559,7 +1559,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 					FShift |= KEY_SHIFT;
 
 				VirtKey = Vk&0xFF;
-				if (HIBYTE(Vk)&&(HIBYTE(Vk)&6)!=6) //RAlt-E в немецкой раскладке это евро, а не CtrlRAltЕвро
+				if (HIBYTE(Vk)&&(HIBYTE(Vk)&6)!=6) //RAlt-E РІ РЅРµРјРµС†РєРѕР№ СЂР°СЃРєР»Р°РґРєРµ СЌС‚Рѕ РµРІСЂРѕ, Р° РЅРµ CtrlRAltР•РІСЂРѕ
 				{
 					FShift|=(HIBYTE(Vk)&1?KEY_SHIFT:NO_KEY)|
 					        (HIBYTE(Vk)&2?KEY_CTRL:NO_KEY)|
@@ -1650,7 +1650,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 					Rec->Event.KeyEvent.wRepeatCount=1;
 					if (VirtKey != -1)
 					{
-						// При нажатии RCtrl и RAlt в консоль приходит VK_CONTROL и VK_MENU а не их правые аналоги
+						// РџСЂРё РЅР°Р¶Р°С‚РёРё RCtrl Рё RAlt РІ РєРѕРЅСЃРѕР»СЊ РїСЂРёС…РѕРґРёС‚ VK_CONTROL Рё VK_MENU Р° РЅРµ РёС… РїСЂР°РІС‹Рµ Р°РЅР°Р»РѕРіРё
 						Rec->Event.KeyEvent.wVirtualKeyCode = (VirtKey==VK_RCONTROL)?VK_CONTROL:(VirtKey==VK_RMENU)?VK_MENU:VirtKey;
 						Rec->Event.KeyEvent.wVirtualScanCode = MapVirtualKey(Rec->Event.KeyEvent.wVirtualKeyCode,MAPVK_VK_TO_VSC);
 					}
@@ -1661,7 +1661,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 					}
 					Rec->Event.KeyEvent.uChar.UnicodeChar=FKey > WCHAR_MAX?0:FKey;
 
-					// здесь подход к Shift-клавишам другой, нежели для ControlState
+					// Р·РґРµСЃСЊ РїРѕРґС…РѕРґ Рє Shift-РєР»Р°РІРёС€Р°Рј РґСЂСѓРіРѕР№, РЅРµР¶РµР»Рё РґР»СЏ ControlState
 					Rec->Event.KeyEvent.dwControlKeyState=
 					    (FShift&KEY_SHIFT?SHIFT_PRESSED:0)|
 					    (FShift&KEY_ALT?LEFT_ALT_PRESSED:0)|
@@ -1869,7 +1869,7 @@ int IsShiftKey(DWORD Key)
 
 unsigned int ShieldCalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros)
 {
-	FarKeyboardState _IntKeyState=IntKeyState; // нада! ибо CalcKeyCode "портит"... (Mantis#0001760)
+	FarKeyboardState _IntKeyState=IntKeyState; // РЅР°РґР°! РёР±Рѕ CalcKeyCode "РїРѕСЂС‚РёС‚"... (Mantis#0001760)
 	ClearStruct(IntKeyState);
 	DWORD Ret=CalcKeyCode(rec,RealKey,NotMacros);
 	IntKeyState=_IntKeyState;
@@ -1990,12 +1990,12 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros)
 					IntKeyState.ReturnAltValue=TRUE;
 					AltValue&=0xFFFF;
 					/*
-					О перетаскивании из проводника / вставке текста в консоль, на примере буквы 'ы':
+					Рћ РїРµСЂРµС‚Р°СЃРєРёРІР°РЅРёРё РёР· РїСЂРѕРІРѕРґРЅРёРєР° / РІСЃС‚Р°РІРєРµ С‚РµРєСЃС‚Р° РІ РєРѕРЅСЃРѕР»СЊ, РЅР° РїСЂРёРјРµСЂРµ Р±СѓРєРІС‹ 'С‹':
 
-					1. Нажимается Alt:
+					1. РќР°Р¶РёРјР°РµС‚СЃСЏ Alt:
 					bKeyDown=TRUE,  wRepeatCount=1, wVirtualKeyCode=VK_MENU,    UnicodeChar=0,    dwControlKeyState=LEFT_ALT_PRESSED
 
-					2. Через numpad-клавиши вводится код символа в OEM, если он туда мапится, или 63 ('?'), если не мапится:
+					2. Р§РµСЂРµР· numpad-РєР»Р°РІРёС€Рё РІРІРѕРґРёС‚СЃСЏ РєРѕРґ СЃРёРјРІРѕР»Р° РІ OEM, РµСЃР»Рё РѕРЅ С‚СѓРґР° РјР°РїРёС‚СЃСЏ, РёР»Рё 63 ('?'), РµСЃР»Рё РЅРµ РјР°РїРёС‚СЃСЏ:
 					bKeyDown=TRUE,  wRepeatCount=1, wVirtualKeyCode=VK_NUMPAD2, UnicodeChar=0,    dwControlKeyState=LEFT_ALT_PRESSED
 					bKeyDown=FALSE, wRepeatCount=1, wVirtualKeyCode=VK_NUMPAD2, UnicodeChar=0,    dwControlKeyState=LEFT_ALT_PRESSED
 					bKeyDown=TRUE,  wRepeatCount=1, wVirtualKeyCode=VK_NUMPAD3, UnicodeChar=0,    dwControlKeyState=LEFT_ALT_PRESSED
@@ -2003,17 +2003,17 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros)
 					bKeyDown=TRUE,  wRepeatCount=1, wVirtualKeyCode=VK_NUMPAD5, UnicodeChar=0,    dwControlKeyState=LEFT_ALT_PRESSED
 					bKeyDown=FALSE, wRepeatCount=1, wVirtualKeyCode=VK_NUMPAD5, UnicodeChar=0,    dwControlKeyState=LEFT_ALT_PRESSED
 
-					3. Отжимается Alt, при этом в uChar.UnicodeChar лежит исходный символ:
+					3. РћС‚Р¶РёРјР°РµС‚СЃСЏ Alt, РїСЂРё СЌС‚РѕРј РІ uChar.UnicodeChar Р»РµР¶РёС‚ РёСЃС…РѕРґРЅС‹Р№ СЃРёРјРІРѕР»:
 					bKeyDown=FALSE, wRepeatCount=1, wVirtualKeyCode=VK_MENU,    UnicodeChar=1099, dwControlKeyState=0
 
-					Мораль сей басни такова: если rec->Event.KeyEvent.uChar.UnicodeChar не пуст - берём его, а не то, что во время удерживания Alt пришло.
+					РњРѕСЂР°Р»СЊ СЃРµР№ Р±Р°СЃРЅРё С‚Р°РєРѕРІР°: РµСЃР»Рё rec->Event.KeyEvent.uChar.UnicodeChar РЅРµ РїСѓСЃС‚ - Р±РµСЂС‘Рј РµРіРѕ, Р° РЅРµ С‚Рѕ, С‡С‚Рѕ РІРѕ РІСЂРµРјСЏ СѓРґРµСЂР¶РёРІР°РЅРёСЏ Alt РїСЂРёС€Р»Рѕ.
 					*/
 
 					if (rec->Event.KeyEvent.uChar.UnicodeChar)
 					{
-						// BUGBUG: в Windows 7 Event.KeyEvent.uChar.UnicodeChar _всегда_ заполнен, но далеко не всегда тем, чем надо.
-						// условно считаем, что если интервал между нажатиями не превышает 50 мс, то это сгенерированная при D&D или вставке комбинация,
-						// иначе - ручной ввод.
+						// BUGBUG: РІ Windows 7 Event.KeyEvent.uChar.UnicodeChar _РІСЃРµРіРґР°_ Р·Р°РїРѕР»РЅРµРЅ, РЅРѕ РґР°Р»РµРєРѕ РЅРµ РІСЃРµРіРґР° С‚РµРј, С‡РµРј РЅР°РґРѕ.
+						// СѓСЃР»РѕРІРЅРѕ СЃС‡РёС‚Р°РµРј, С‡С‚Рѕ РµСЃР»Рё РёРЅС‚РµСЂРІР°Р» РјРµР¶РґСѓ РЅР°Р¶Р°С‚РёСЏРјРё РЅРµ РїСЂРµРІС‹С€Р°РµС‚ 50 РјСЃ, С‚Рѕ СЌС‚Рѕ СЃРіРµРЅРµСЂРёСЂРѕРІР°РЅРЅР°СЏ РїСЂРё D&D РёР»Рё РІСЃС‚Р°РІРєРµ РєРѕРјР±РёРЅР°С†РёСЏ,
+						// РёРЅР°С‡Рµ - СЂСѓС‡РЅРѕР№ РІРІРѕРґ.
 						if (!TimeCheck)
 						{
 							AltValue=rec->Event.KeyEvent.uChar.UnicodeChar;
@@ -2037,39 +2037,39 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros)
 		return KEY_NONE;
 	}
 
-	//прежде, чем убирать это шаманство, поставьте себе раскладку, в которой по ralt+символ можно вводить символы.
-	//например немецкую:
-	//ralt+m - мю
+	//РїСЂРµР¶РґРµ, С‡РµРј СѓР±РёСЂР°С‚СЊ СЌС‚Рѕ С€Р°РјР°РЅСЃС‚РІРѕ, РїРѕСЃС‚Р°РІСЊС‚Рµ СЃРµР±Рµ СЂР°СЃРєР»Р°РґРєСѓ, РІ РєРѕС‚РѕСЂРѕР№ РїРѕ ralt+СЃРёРјРІРѕР» РјРѕР¶РЅРѕ РІРІРѕРґРёС‚СЊ СЃРёРјРІРѕР»С‹.
+	//РЅР°РїСЂРёРјРµСЂ РЅРµРјРµС†РєСѓСЋ:
+	//ralt+m - РјСЋ
 	//ralt+q - @
-	//ralt+e - евро
+	//ralt+e - РµРІСЂРѕ
 	//ralt+] - ~
-	//ralt+2 - квадрат
-	//ralt+3 - куб
+	//ralt+2 - РєРІР°РґСЂР°С‚
+	//ralt+3 - РєСѓР±
 	//ralt+7 - {
 	//ralt+8 - [
 	//ralt+9 - ]
 	//ralt+0 - }
 	//ralt+- - "\"
-	//или латышскую:
-	//ralt+4 - евро
+	//РёР»Рё Р»Р°С‚С‹С€СЃРєСѓСЋ:
+	//ralt+4 - РµРІСЂРѕ
 	//ralt+a/ralt+shift+a
 	//ralt+c/ralt+shift+c
-	//и т.д.
+	//Рё С‚.Рґ.
 	if ((CtrlState & 9)==9)
 	{
 		if (Char>=' ')
 			return Char;
 		else if (RealKey && ScanCode && !Char && (KeyCode && KeyCode != VK_MENU))
-			//Это шаманство для ввода всяческих букв с тильдами, акцентами и прочим.
-			//Например на Шведской раскладке, "AltGr+VK_OEM_1" вообще не должно обрабатываться фаром, т.к. это DeadKey
+			//Р­С‚Рѕ С€Р°РјР°РЅСЃС‚РІРѕ РґР»СЏ РІРІРѕРґР° РІСЃСЏС‡РµСЃРєРёС… Р±СѓРєРІ СЃ С‚РёР»СЊРґР°РјРё, Р°РєС†РµРЅС‚Р°РјРё Рё РїСЂРѕС‡РёРј.
+			//РќР°РїСЂРёРјРµСЂ РЅР° РЁРІРµРґСЃРєРѕР№ СЂР°СЃРєР»Р°РґРєРµ, "AltGr+VK_OEM_1" РІРѕРѕР±С‰Рµ РЅРµ РґРѕР»Р¶РЅРѕ РѕР±СЂР°Р±Р°С‚С‹РІР°С‚СЊСЃСЏ С„Р°СЂРѕРј, С‚.Рє. СЌС‚Рѕ DeadKey
 			//Dn, 1, Vk="VK_CONTROL" [17/0x0011], Scan=0x001D uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x00000008 (Casac - ecns)
 			//Dn, 1, Vk="VK_MENU" [18/0x0012], Scan=0x0038 uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x00000109 (CasAc - Ecns)
 			//Dn, 1, Vk="VK_OEM_1" [186/0x00BA], Scan=0x001B uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x00000009 (CasAc - ecns)
 			//Up, 1, Vk="VK_CONTROL" [17/0x0011], Scan=0x001D uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x00000001 (casAc - ecns)
 			//Up, 1, Vk="VK_MENU" [18/0x0012], Scan=0x0038 uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x00000100 (casac - Ecns)
 			//Up, 1, Vk="VK_OEM_1" [186/0x00BA], Scan=0x0000 uChar=[U='~' (0x007E): A='~' (0x7E)] Ctrl=0x00000000 (casac - ecns)
-			//Up, 1, Vk="VK_OEM_1" [186/0x00BA], Scan=0x001B uChar=[U='и' (0x00A8): A='' (0xA8)] Ctrl=0x00000000 (casac - ecns)
-			//Dn, 1, Vk="VK_A" [65/0x0041], Scan=0x001E uChar=[U='у' (0x00E3): A='' (0xE3)] Ctrl=0x00000000 (casac - ecns)
+			//Up, 1, Vk="VK_OEM_1" [186/0x00BA], Scan=0x001B uChar=[U='Рё' (0x00A8): A='' (0xA8)] Ctrl=0x00000000 (casac - ecns)
+			//Dn, 1, Vk="VK_A" [65/0x0041], Scan=0x001E uChar=[U='Сѓ' (0x00E3): A='' (0xE3)] Ctrl=0x00000000 (casac - ecns)
 			//Up, 1, Vk="VK_A" [65/0x0041], Scan=0x001E uChar=[U='a' (0x0061): A='a' (0x61)] Ctrl=0x00000000 (casac - ecns)
 			return KEY_NONE;
 		else
@@ -2814,8 +2814,8 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros)
 
 	if (!IntKeyState.CtrlPressed && !IntKeyState.AltPressed && (KeyCode >= VK_OEM_1 && KeyCode <= VK_OEM_8) && !Char)
 	{
-		//Это шаманство для того, чтобы фар не реагировал на DeadKeys (могут быть нажаты с Shift-ом)
-		//которые используются для ввода символов с диакритикой (тильды, шапки, и пр.)
+		//Р­С‚Рѕ С€Р°РјР°РЅСЃС‚РІРѕ РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ С„Р°СЂ РЅРµ СЂРµР°РіРёСЂРѕРІР°Р» РЅР° DeadKeys (РјРѕРіСѓС‚ Р±С‹С‚СЊ РЅР°Р¶Р°С‚С‹ СЃ Shift-РѕРј)
+		//РєРѕС‚РѕСЂС‹Рµ РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ РґР»СЏ РІРІРѕРґР° СЃРёРјРІРѕР»РѕРІ СЃ РґРёР°РєСЂРёС‚РёРєРѕР№ (С‚РёР»СЊРґС‹, С€Р°РїРєРё, Рё РїСЂ.)
 		//Dn, Vk="VK_SHIFT"    [ 16/0x0010], Scan=0x002A uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x10
 		//Dn, Vk="VK_OEM_PLUS" [187/0x00BB], Scan=0x000D uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x10
 		//Up, Vk="VK_OEM_PLUS" [187/0x00BB], Scan=0x0000 uChar=[U=''  (0x02C7): A='?' (0xC7)] Ctrl=0x10

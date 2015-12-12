@@ -1,11 +1,11 @@
-/*
+п»ї/*
 edit.cpp
 
-Строка редактора
+РЎС‚СЂРѕРєР° СЂРµРґР°РєС‚РѕСЂР°
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -86,12 +86,12 @@ static const wchar_t* const EOL_TYPE_CHARS[] =
 
 static_assert(ARRAYSIZE(EOL_TYPE_CHARS) == EOL_COUNT, "wrong EOL_TYPE_CHARS[] size");
 
-static const wchar_t EDMASK_ANY    = L'X'; // позволяет вводить в строку ввода любой символ;
-static const wchar_t EDMASK_DSS    = L'#'; // позволяет вводить в строку ввода цифры, пробел и знак минуса;
-static const wchar_t EDMASK_DIGIT  = L'9'; // позволяет вводить в строку ввода только цифры;
-static const wchar_t EDMASK_DIGITS = L'N'; // позволяет вводить в строку ввода только цифры и пробелы;
-static const wchar_t EDMASK_ALPHA  = L'A'; // позволяет вводить в строку ввода только буквы.
-static const wchar_t EDMASK_HEX    = L'H'; // позволяет вводить в строку ввода шестнадцатиричные символы.
+static const wchar_t EDMASK_ANY    = L'X'; // РїРѕР·РІРѕР»СЏРµС‚ РІРІРѕРґРёС‚СЊ РІ СЃС‚СЂРѕРєСѓ РІРІРѕРґР° Р»СЋР±РѕР№ СЃРёРјРІРѕР»;
+static const wchar_t EDMASK_DSS    = L'#'; // РїРѕР·РІРѕР»СЏРµС‚ РІРІРѕРґРёС‚СЊ РІ СЃС‚СЂРѕРєСѓ РІРІРѕРґР° С†РёС„СЂС‹, РїСЂРѕР±РµР» Рё Р·РЅР°Рє РјРёРЅСѓСЃР°;
+static const wchar_t EDMASK_DIGIT  = L'9'; // РїРѕР·РІРѕР»СЏРµС‚ РІРІРѕРґРёС‚СЊ РІ СЃС‚СЂРѕРєСѓ РІРІРѕРґР° С‚РѕР»СЊРєРѕ С†РёС„СЂС‹;
+static const wchar_t EDMASK_DIGITS = L'N'; // РїРѕР·РІРѕР»СЏРµС‚ РІРІРѕРґРёС‚СЊ РІ СЃС‚СЂРѕРєСѓ РІРІРѕРґР° С‚РѕР»СЊРєРѕ С†РёС„СЂС‹ Рё РїСЂРѕР±РµР»С‹;
+static const wchar_t EDMASK_ALPHA  = L'A'; // РїРѕР·РІРѕР»СЏРµС‚ РІРІРѕРґРёС‚СЊ РІ СЃС‚СЂРѕРєСѓ РІРІРѕРґР° С‚РѕР»СЊРєРѕ Р±СѓРєРІС‹.
+static const wchar_t EDMASK_HEX    = L'H'; // РїРѕР·РІРѕР»СЏРµС‚ РІРІРѕРґРёС‚СЊ РІ СЃС‚СЂРѕРєСѓ РІРІРѕРґР° С€РµСЃС‚РЅР°РґС†Р°С‚РёСЂРёС‡РЅС‹Рµ СЃРёРјРІРѕР»С‹.
 
 Edit::Edit(window_ptr Owner):
 	SimpleScreenObject(Owner),
@@ -124,20 +124,20 @@ void Edit::DisplayObject()
 {
 	if (m_Flags.Check(FEDITLINE_DROPDOWNBOX))
 	{
-		m_Flags.Clear(FEDITLINE_CLEARFLAG);  // при дроп-даун нам не нужно никакого unchanged text
+		m_Flags.Clear(FEDITLINE_CLEARFLAG);  // РїСЂРё РґСЂРѕРї-РґР°СѓРЅ РЅР°Рј РЅРµ РЅСѓР¶РЅРѕ РЅРёРєР°РєРѕРіРѕ unchanged text
 		m_SelStart=0;
-		m_SelEnd = m_Str.size(); // а также считаем что все выделено -
-		//    надо же отличаться от обычных Edit
+		m_SelEnd = m_Str.size(); // Р° С‚Р°РєР¶Рµ СЃС‡РёС‚Р°РµРј С‡С‚Рѕ РІСЃРµ РІС‹РґРµР»РµРЅРѕ -
+		//    РЅР°РґРѕ Р¶Рµ РѕС‚Р»РёС‡Р°С‚СЊСЃСЏ РѕС‚ РѕР±С‹С‡РЅС‹С… Edit
 	}
 
-	//   Вычисление нового положения курсора в строке с учётом Mask.
+	//   Р’С‹С‡РёСЃР»РµРЅРёРµ РЅРѕРІРѕРіРѕ РїРѕР»РѕР¶РµРЅРёСЏ РєСѓСЂСЃРѕСЂР° РІ СЃС‚СЂРѕРєРµ СЃ СѓС‡С‘С‚РѕРј Mask.
 	int Value=(GetPrevCurPos()>m_CurPos)?-1:1;
 	m_CurPos=GetNextCursorPos(m_CurPos,Value);
 	FastShow();
 
 	/* $ 26.07.2000 tran
-	   при DropDownBox курсор выключаем
-	   не знаю даже - попробовал но не очень красиво вышло */
+	   РїСЂРё DropDownBox РєСѓСЂСЃРѕСЂ РІС‹РєР»СЋС‡Р°РµРј
+	   РЅРµ Р·РЅР°СЋ РґР°Р¶Рµ - РїРѕРїСЂРѕР±РѕРІР°Р» РЅРѕ РЅРµ РѕС‡РµРЅСЊ РєСЂР°СЃРёРІРѕ РІС‹С€Р»Рѕ */
 	if (m_Flags.Check(FEDITLINE_DROPDOWNBOX))
 		::SetCursorType(0,10);
 	else
@@ -174,7 +174,7 @@ void Edit::GetCursorType(bool& Visible, DWORD& Size) const
 	Size = GetCursorSize();
 }
 
-//   Вычисление нового положения курсора в строке с учётом Mask.
+//   Р’С‹С‡РёСЃР»РµРЅРёРµ РЅРѕРІРѕРіРѕ РїРѕР»РѕР¶РµРЅРёСЏ РєСѓСЂСЃРѕСЂР° РІ СЃС‚СЂРѕРєРµ СЃ СѓС‡С‘С‚РѕРј Mask.
 int Edit::GetNextCursorPos(int Position,int Where) const
 {
 	int Result = Position;
@@ -242,8 +242,8 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 	int TabCurPos=GetTabCurPos();
 
 	/* $ 31.07.2001 KM
-	  ! Для комбобокса сделаем отображение строки
-	    с первой позиции.
+	  ! Р”Р»СЏ РєРѕРјР±РѕР±РѕРєСЃР° СЃРґРµР»Р°РµРј РѕС‚РѕР±СЂР°Р¶РµРЅРёРµ СЃС‚СЂРѕРєРё
+	    СЃ РїРµСЂРІРѕР№ РїРѕР·РёС†РёРё.
 	*/
 	if (!m_Flags.Check(FEDITLINE_DROPDOWNBOX))
 	{
@@ -262,9 +262,9 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 	int TabSelEnd=(m_SelEnd<0) ? -1:RealPosToTab(m_SelEnd);
 
 	/* $ 17.08.2000 KM
-	   Если есть маска, сделаем подготовку строки, то есть
-	   все "постоянные" символы в маске, не являющиеся шаблонными
-	   должны постоянно присутствовать в Str
+	   Р•СЃР»Рё РµСЃС‚СЊ РјР°СЃРєР°, СЃРґРµР»Р°РµРј РїРѕРґРіРѕС‚РѕРІРєСѓ СЃС‚СЂРѕРєРё, С‚Рѕ РµСЃС‚СЊ
+	   РІСЃРµ "РїРѕСЃС‚РѕСЏРЅРЅС‹Рµ" СЃРёРјРІРѕР»С‹ РІ РјР°СЃРєРµ, РЅРµ СЏРІР»СЏСЋС‰РёРµСЃСЏ С€Р°Р±Р»РѕРЅРЅС‹РјРё
+	   РґРѕР»Р¶РЅС‹ РїРѕСЃС‚РѕСЏРЅРЅРѕ РїСЂРёСЃСѓС‚СЃС‚РІРѕРІР°С‚СЊ РІ Str
 	*/
 	const auto Mask = GetInputMask();
 	if (!Mask.empty())
@@ -394,8 +394,8 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 		OutStr.append(EditLength - OutStr.size(), L' ');
 
 		/* $ 24.08.2000 SVS
-		   ! У DropDowList`а выделение по полной программе - на всю видимую длину
-		     ДАЖЕ ЕСЛИ ПУСТАЯ СТРОКА
+		   ! РЈ DropDowList`Р° РІС‹РґРµР»РµРЅРёРµ РїРѕ РїРѕР»РЅРѕР№ РїСЂРѕРіСЂР°РјРјРµ - РЅР° РІСЃСЋ РІРёРґРёРјСѓСЋ РґР»РёРЅСѓ
+		     Р”РђР–Р• Р•РЎР›Р РџРЈРЎРўРђРЇ РЎРўР РћРљРђ
 		*/
 		if (TabSelStart>=static_cast<int>(EditLength) /*|| !AllString && TabSelStart>=StrSize*/ ||
 		        TabSelEnd<TabSelStart)
@@ -432,7 +432,7 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 	}
 
 	/* $ 26.07.2000 tran
-	   при дроп-даун цвета нам не нужны */
+	   РїСЂРё РґСЂРѕРї-РґР°СѓРЅ С†РІРµС‚Р° РЅР°Рј РЅРµ РЅСѓР¶РЅС‹ */
 	if (!m_Flags.Check(FEDITLINE_DROPDOWNBOX))
 		ApplyColor(GetSelectedColor(), XPos, FocusedLeftPos);
 }
@@ -445,23 +445,23 @@ int Edit::RecurseProcessKey(int Key)
 	return RetCode;
 }
 
-// Функция вставки всякой хреновени - от шорткатов до имен файлов
+// Р¤СѓРЅРєС†РёСЏ РІСЃС‚Р°РІРєРё РІСЃСЏРєРѕР№ С…СЂРµРЅРѕРІРµРЅРё - РѕС‚ С€РѕСЂС‚РєР°С‚РѕРІ РґРѕ РёРјРµРЅ С„Р°Р№Р»РѕРІ
 int Edit::ProcessInsPath(unsigned int Key,int PrevSelStart,int PrevSelEnd)
 {
 	int RetCode=FALSE;
 	string strPathName;
 
-	if (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9) // шорткаты?
+	if (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9) // С€РѕСЂС‚РєР°С‚С‹?
 	{
 		if (Shortcuts().Get(Key-KEY_RCTRL0,&strPathName,nullptr,nullptr,nullptr))
 			RetCode=TRUE;
 	}
-	else // Пути/имена?
+	else // РџСѓС‚Рё/РёРјРµРЅР°?
 	{
 		RetCode=_MakePath1(Key,strPathName,L"");
 	}
 
-	// Если что-нить получилось, именно его и вставим (PathName)
+	// Р•СЃР»Рё С‡С‚Рѕ-РЅРёС‚СЊ РїРѕР»СѓС‡РёР»РѕСЃСЊ, РёРјРµРЅРЅРѕ РµРіРѕ Рё РІСЃС‚Р°РІРёРј (PathName)
 	if (RetCode)
 	{
 		if (m_Flags.Check(FEDITLINE_CLEARFLAG))
@@ -688,7 +688,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 		Show();
 	}
 
-	// Здесь - вызов функции вставки путей/файлов
+	// Р—РґРµСЃСЊ - РІС‹Р·РѕРІ С„СѓРЅРєС†РёРё РІСЃС‚Р°РІРєРё РїСѓС‚РµР№/С„Р°Р№Р»РѕРІ
 	if (ProcessInsPath(LocalKey,PrevSelStart,PrevSelEnd))
 	{
 		Show();
@@ -955,7 +955,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 #if defined(MOUSEKEY)
 
 			if (m_CurPos >= m_SelStart && m_CurPos <= m_SelEnd)
-			{ // выделяем ВСЮ строку при повторном двойном клике
+			{ // РІС‹РґРµР»СЏРµРј Р’РЎР® СЃС‚СЂРѕРєСѓ РїСЂРё РїРѕРІС‚РѕСЂРЅРѕРј РґРІРѕР№РЅРѕРј РєР»РёРєРµ
 				Select(0,m_StrSize);
 			}
 			else
@@ -967,7 +967,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 					Select(static_cast<int>(SBegin), static_cast<int>(SEnd));
 			}
 
-			m_CurPos=OldCurPos; // возвращаем обратно
+			m_CurPos=OldCurPos; // РІРѕР·РІСЂР°С‰Р°РµРј РѕР±СЂР°С‚РЅРѕ
 			Show();
 			return TRUE;
 		}
@@ -975,7 +975,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 		{
 			if (!m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
 			{
-				if (m_SelStart != -1 || m_Flags.Check(FEDITLINE_CLEARFLAG)) // BugZ#1053 - Неточности в $Text
+				if (m_SelStart != -1 || m_Flags.Check(FEDITLINE_CLEARFLAG)) // BugZ#1053 - РќРµС‚РѕС‡РЅРѕСЃС‚Рё РІ $Text
 					RecurseProcessKey(KEY_DEL);
 			}
 
@@ -1285,7 +1285,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 						SetClipboard(m_Str);
 					}
 				}
-				else if (m_SelEnd <= m_Str.size()) // TODO: если в начало условия добавить "StrSize &&", то пропадет баг "Ctrl-Ins в пустой строке очищает клипборд"
+				else if (m_SelEnd <= m_Str.size()) // TODO: РµСЃР»Рё РІ РЅР°С‡Р°Р»Рѕ СѓСЃР»РѕРІРёСЏ РґРѕР±Р°РІРёС‚СЊ "StrSize &&", С‚Рѕ РїСЂРѕРїР°РґРµС‚ Р±Р°Рі "Ctrl-Ins РІ РїСѓСЃС‚РѕР№ СЃС‚СЂРѕРєРµ РѕС‡РёС‰Р°РµС‚ РєР»РёРїР±РѕСЂРґ"
 				{
 					SetClipboard(m_Str.substr(m_SelStart, m_SelEnd - m_SelStart));
 				}
@@ -1390,7 +1390,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 	return FALSE;
 }
 
-// обработка Ctrl-Q
+// РѕР±СЂР°Р±РѕС‚РєР° Ctrl-Q
 int Edit::ProcessCtrlQ()
 {
 	INPUT_RECORD rec;
@@ -1490,7 +1490,7 @@ int Edit::InsertKey(int Key)
 			}
 			else
 			{
-				// Здесь вариант для "ввели символ из маски", например для SetAttr - ввели '.'
+				// Р—РґРµСЃСЊ РІР°СЂРёР°РЅС‚ РґР»СЏ "РІРІРµР»Рё СЃРёРјРІРѕР» РёР· РјР°СЃРєРё", РЅР°РїСЂРёРјРµСЂ РґР»СЏ SetAttr - РІРІРµР»Рё '.'
 				;// char *Ptr=strchr(Mask+CurPos,Key);
 			}
 		}
@@ -1609,16 +1609,16 @@ const wchar_t *Edit::GetEOL() const
 }
 
 /* $ 25.07.2000 tran
-   примечание:
-   в этом методе DropDownBox не обрабатывается
-   ибо он вызывается только из SetString и из класса Editor
-   в Dialog он нигде не вызывается */
+   РїСЂРёРјРµС‡Р°РЅРёРµ:
+   РІ СЌС‚РѕРј РјРµС‚РѕРґРµ DropDownBox РЅРµ РѕР±СЂР°Р±Р°С‚С‹РІР°РµС‚СЃСЏ
+   РёР±Рѕ РѕРЅ РІС‹Р·С‹РІР°РµС‚СЃСЏ С‚РѕР»СЊРєРѕ РёР· SetString Рё РёР· РєР»Р°СЃСЃР° Editor
+   РІ Dialog РѕРЅ РЅРёРіРґРµ РЅРµ РІС‹Р·С‹РІР°РµС‚СЃСЏ */
 void Edit::SetBinaryString(const wchar_t *Str, size_t Length)
 {
 	if (m_Flags.Check(FEDITLINE_READONLY))
 		return;
 
-	// коррекция вставляемого размера, если определен GetMaxLength()
+	// РєРѕСЂСЂРµРєС†РёСЏ РІСЃС‚Р°РІР»СЏРµРјРѕРіРѕ СЂР°Р·РјРµСЂР°, РµСЃР»Рё РѕРїСЂРµРґРµР»РµРЅ GetMaxLength()
 	if (GetMaxLength() != -1 && Length > static_cast<size_t>(GetMaxLength()))
 	{
 		Length=GetMaxLength(); // ??
@@ -1687,9 +1687,9 @@ void Edit::SetBinaryString(const wchar_t *Str, size_t Length)
 			i++;
 		}
 
-		/* Здесь необходимо условие (!*Str), т.к. для очистки строки
-		   обычно вводится нечто вроде SetBinaryString("",0)
-		   Т.е. таким образом мы добиваемся "инициализации" строки с маской
+		/* Р—РґРµСЃСЊ РЅРµРѕР±С…РѕРґРёРјРѕ СѓСЃР»РѕРІРёРµ (!*Str), С‚.Рє. РґР»СЏ РѕС‡РёСЃС‚РєРё СЃС‚СЂРѕРєРё
+		   РѕР±С‹С‡РЅРѕ РІРІРѕРґРёС‚СЃСЏ РЅРµС‡С‚Рѕ РІСЂРѕРґРµ SetBinaryString("",0)
+		   Рў.Рµ. С‚Р°РєРёРј РѕР±СЂР°Р·РѕРј РјС‹ РґРѕР±РёРІР°РµРјСЃСЏ "РёРЅРёС†РёР°Р»РёР·Р°С†РёРё" СЃС‚СЂРѕРєРё СЃ РјР°СЃРєРѕР№
 		*/
 		RefreshStrByMask(!*Str);
 	}
@@ -1797,8 +1797,8 @@ void Edit::InsertBinaryString(const wchar_t *Str, size_t Length)
 			const size_t StrLen = (MaskLen - Pos > Length) ? Length : MaskLen - Pos;
 
 			/* $ 15.11.2000 KM
-			   Внесены исправления для правильной работы PasteFromClipboard
-			   в строке с маской
+			   Р’РЅРµСЃРµРЅС‹ РёСЃРїСЂР°РІР»РµРЅРёСЏ РґР»СЏ РїСЂР°РІРёР»СЊРЅРѕР№ СЂР°Р±РѕС‚С‹ PasteFromClipboard
+			   РІ СЃС‚СЂРѕРєРµ СЃ РјР°СЃРєРѕР№
 			*/
 			for (size_t i = Pos, j = 0; j < StrLen + Pos;)
 			{
@@ -1839,7 +1839,7 @@ void Edit::InsertBinaryString(const wchar_t *Str, size_t Length)
 	{
 		if (GetMaxLength() != -1 && m_Str.size() + Length > static_cast<size_t>(GetMaxLength()))
 		{
-			// коррекция вставляемого размера, если определен GetMaxLength()
+			// РєРѕСЂСЂРµРєС†РёСЏ РІСЃС‚Р°РІР»СЏРµРјРѕРіРѕ СЂР°Р·РјРµСЂР°, РµСЃР»Рё РѕРїСЂРµРґРµР»РµРЅ GetMaxLength()
 			if (m_Str.size() < GetMaxLength())
 			{
 				Length = GetMaxLength() - m_Str.size();
@@ -1880,7 +1880,7 @@ int Edit::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	        MouseEvent->dwMousePosition.Y!=m_Y1)
 		return FALSE;
 
-	//SetClearFlag(0); // пусть едитор сам заботится о снятии clear-текста?
+	//SetClearFlag(0); // РїСѓСЃС‚СЊ РµРґРёС‚РѕСЂ СЃР°Рј Р·Р°Р±РѕС‚РёС‚СЃСЏ Рѕ СЃРЅСЏС‚РёРё clear-С‚РµРєСЃС‚Р°?
 	SetTabCurPos(MouseEvent->dwMousePosition.X - m_X1 + LeftPos);
 
 	if (!m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
@@ -1921,8 +1921,8 @@ int Edit::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 }
 
 /* $ 03.08.2000 KM
-   Немного изменён алгоритм из-за необходимости
-   добавления поиска целых слов.
+   РќРµРјРЅРѕРіРѕ РёР·РјРµРЅС‘РЅ Р°Р»РіРѕСЂРёС‚Рј РёР·-Р·Р° РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё
+   РґРѕР±Р°РІР»РµРЅРёСЏ РїРѕРёСЃРєР° С†РµР»С‹С… СЃР»РѕРІ.
 */
 int Edit::Search(const string& Str, const string &UpperStr, const string &LowerStr, RegExp &re, RegExpMatch *pm, MatchHash* hm, string& ReplaceStr, int Position, int Case, int WholeWords, int Reverse, int Regexp, int PreserveStyle, int *SearchLength)
 {
@@ -2021,37 +2021,37 @@ int Edit::RealPosToTab(int Pos) const
 
 int Edit::RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos) const
 {
-	// Корректировка табов
+	// РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° С‚Р°Р±РѕРІ
 	bool bCorrectPos = CorrectPos && *CorrectPos;
 
 	if (CorrectPos)
 		*CorrectPos = 0;
 
-	// Если у нас все табы преобразуются в пробелы, то просто вычисляем расстояние
+	// Р•СЃР»Рё Сѓ РЅР°СЃ РІСЃРµ С‚Р°Р±С‹ РїСЂРµРѕР±СЂР°Р·СѓСЋС‚СЃСЏ РІ РїСЂРѕР±РµР»С‹, С‚Рѕ РїСЂРѕСЃС‚Рѕ РІС‹С‡РёСЃР»СЏРµРј СЂР°СЃСЃС‚РѕСЏРЅРёРµ
 	if (GetTabExpandMode() == EXPAND_ALLTABS)
 		return PrevLength+Pos-PrevPos;
 
-	// Инциализируем результирующую длину предыдущим значением
+	// РРЅС†РёР°Р»РёР·РёСЂСѓРµРј СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰СѓСЋ РґР»РёРЅСѓ РїСЂРµРґС‹РґСѓС‰РёРј Р·РЅР°С‡РµРЅРёРµРј
 	int TabPos = PrevLength;
 
-	// Если предыдущая позиция за концом строки, то табов там точно нет и
-	// вычислять особо ничего не надо, иначе производим вычисление
+	// Р•СЃР»Рё РїСЂРµРґС‹РґСѓС‰Р°СЏ РїРѕР·РёС†РёСЏ Р·Р° РєРѕРЅС†РѕРј СЃС‚СЂРѕРєРё, С‚Рѕ С‚Р°Р±РѕРІ С‚Р°Рј С‚РѕС‡РЅРѕ РЅРµС‚ Рё
+	// РІС‹С‡РёСЃР»СЏС‚СЊ РѕСЃРѕР±Рѕ РЅРёС‡РµРіРѕ РЅРµ РЅР°РґРѕ, РёРЅР°С‡Рµ РїСЂРѕРёР·РІРѕРґРёРј РІС‹С‡РёСЃР»РµРЅРёРµ
 	if (PrevPos >= m_Str.size())
 		TabPos += Pos-PrevPos;
 	else
 	{
-		// Начинаем вычисление с предыдущей позиции
+		// РќР°С‡РёРЅР°РµРј РІС‹С‡РёСЃР»РµРЅРёРµ СЃ РїСЂРµРґС‹РґСѓС‰РµР№ РїРѕР·РёС†РёРё
 		int Index = PrevPos;
 
-		// Проходим по всем символам до позиции поиска, если она ещё в пределах строки,
-		// либо до конца строки, если позиция поиска за пределами строки
+		// РџСЂРѕС…РѕРґРёРј РїРѕ РІСЃРµРј СЃРёРјРІРѕР»Р°Рј РґРѕ РїРѕР·РёС†РёРё РїРѕРёСЃРєР°, РµСЃР»Рё РѕРЅР° РµС‰С‘ РІ РїСЂРµРґРµР»Р°С… СЃС‚СЂРѕРєРё,
+		// Р»РёР±Рѕ РґРѕ РєРѕРЅС†Р° СЃС‚СЂРѕРєРё, РµСЃР»Рё РїРѕР·РёС†РёСЏ РїРѕРёСЃРєР° Р·Р° РїСЂРµРґРµР»Р°РјРё СЃС‚СЂРѕРєРё
 		for (; Index < std::min(Pos, m_Str.size()); Index++)
 
-			// Обрабатываем табы
+			// РћР±СЂР°Р±Р°С‚С‹РІР°РµРј С‚Р°Р±С‹
 			if (m_Str[Index] == L'\t')
 			{
-				// Если есть необходимость делать корректировку табов и эта корректировка
-				// ещё не проводилась, то увеличиваем длину обрабатываемой строки на единицу
+				// Р•СЃР»Рё РµСЃС‚СЊ РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚СЊ РґРµР»Р°С‚СЊ РєРѕСЂСЂРµРєС‚РёСЂРѕРІРєСѓ С‚Р°Р±РѕРІ Рё СЌС‚Р° РєРѕСЂСЂРµРєС‚РёСЂРѕРІРєР°
+				// РµС‰С‘ РЅРµ РїСЂРѕРІРѕРґРёР»Р°СЃСЊ, С‚Рѕ СѓРІРµР»РёС‡РёРІР°РµРј РґР»РёРЅСѓ РѕР±СЂР°Р±Р°С‚С‹РІР°РµРјРѕР№ СЃС‚СЂРѕРєРё РЅР° РµРґРёРЅРёС†Сѓ
 				if (bCorrectPos)
 				{
 					++Pos;
@@ -2059,14 +2059,14 @@ int Edit::RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos) co
 					bCorrectPos = false;
 				}
 
-				// Рассчитываем длину таба с учётом настроек и текущей позиции в строке
+				// Р Р°СЃСЃС‡РёС‚С‹РІР°РµРј РґР»РёРЅСѓ С‚Р°Р±Р° СЃ СѓС‡С‘С‚РѕРј РЅР°СЃС‚СЂРѕРµРє Рё С‚РµРєСѓС‰РµР№ РїРѕР·РёС†РёРё РІ СЃС‚СЂРѕРєРµ
 				TabPos += static_cast<int>(GetTabSize() - (TabPos%GetTabSize()));
 			}
-		// Обрабатываем все остальные символы
+		// РћР±СЂР°Р±Р°С‚С‹РІР°РµРј РІСЃРµ РѕСЃС‚Р°Р»СЊРЅС‹Рµ СЃРёРјРІРѕР»С‹
 			else
 				TabPos++;
 
-		// Если позиция находится за пределами строки, то там точно нет табов и всё просто
+		// Р•СЃР»Рё РїРѕР·РёС†РёСЏ РЅР°С…РѕРґРёС‚СЃСЏ Р·Р° РїСЂРµРґРµР»Р°РјРё СЃС‚СЂРѕРєРё, С‚Рѕ С‚Р°Рј С‚РѕС‡РЅРѕ РЅРµС‚ С‚Р°Р±РѕРІ Рё РІСЃС‘ РїСЂРѕСЃС‚Рѕ
 		if (Pos >= m_Str.size())
 			TabPos += Pos-Index;
 	}
@@ -2235,7 +2235,7 @@ void Edit::DeleteBlock()
 	m_SelEnd=0;
 	m_Flags.Clear(FEDITLINE_MARKINGBLOCK);
 
-	// OT: Проверка на корректность поведения строки при удалении и вставке
+	// OT: РџСЂРѕРІРµСЂРєР° РЅР° РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚СЊ РїРѕРІРµРґРµРЅРёСЏ СЃС‚СЂРѕРєРё РїСЂРё СѓРґР°Р»РµРЅРёРё Рё РІСЃС‚Р°РІРєРµ
 	if (m_Flags.Check((FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE)))
 	{
 		LeftPos = std::min(LeftPos, m_CurPos);
@@ -2308,13 +2308,13 @@ bool Edit::GetColor(ColorItem& col, size_t Item) const
 
 void Edit::ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos)
 {
-	// Для оптимизации сохраняем вычисленные позиции между итерациями цикла
+	// Р”Р»СЏ РѕРїС‚РёРјРёР·Р°С†РёРё СЃРѕС…СЂР°РЅСЏРµРј РІС‹С‡РёСЃР»РµРЅРЅС‹Рµ РїРѕР·РёС†РёРё РјРµР¶РґСѓ РёС‚РµСЂР°С†РёСЏРјРё С†РёРєР»Р°
 	int Pos = INT_MIN, TabPos = INT_MIN, TabEditorPos = INT_MIN;
 
-	// Обрабатываем элементы раскраски
+	// РћР±СЂР°Р±Р°С‚С‹РІР°РµРј СЌР»РµРјРµРЅС‚С‹ СЂР°СЃРєСЂР°СЃРєРё
 	FOR(const auto& CurItem, ColorList)
 	{
-		// Пропускаем элементы у которых начало больше конца
+		// РџСЂРѕРїСѓСЃРєР°РµРј СЌР»РµРјРµРЅС‚С‹ Сѓ РєРѕС‚РѕСЂС‹С… РЅР°С‡Р°Р»Рѕ Р±РѕР»СЊС€Рµ РєРѕРЅС†Р°
 		if (CurItem.StartPos > CurItem.EndPos)
 			continue;
 
@@ -2325,55 +2325,55 @@ void Edit::ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos)
 		if (CurItem.StartPos + Length >= m_Str.size())
 			Length = m_Str.size() - CurItem.StartPos;
 
-		// Получаем начальную позицию
+		// РџРѕР»СѓС‡Р°РµРј РЅР°С‡Р°Р»СЊРЅСѓСЋ РїРѕР·РёС†РёСЋ
 		int RealStart, Start;
 
-		// Если предыдущая позиция равна текущей, то ничего не вычисляем
-		// и сразу берём ранее вычисленное значение
+		// Р•СЃР»Рё РїСЂРµРґС‹РґСѓС‰Р°СЏ РїРѕР·РёС†РёСЏ СЂР°РІРЅР° С‚РµРєСѓС‰РµР№, С‚Рѕ РЅРёС‡РµРіРѕ РЅРµ РІС‹С‡РёСЃР»СЏРµРј
+		// Рё СЃСЂР°Р·Сѓ Р±РµСЂС‘Рј СЂР°РЅРµРµ РІС‹С‡РёСЃР»РµРЅРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ
 		if (Pos == CurItem.StartPos)
 		{
 			RealStart = TabPos;
 			Start = TabEditorPos;
 		}
-		// Если вычисление идёт первый раз или предыдущая позиция больше текущей,
-		// то производим вычисление с начала строки
+		// Р•СЃР»Рё РІС‹С‡РёСЃР»РµРЅРёРµ РёРґС‘С‚ РїРµСЂРІС‹Р№ СЂР°Р· РёР»Рё РїСЂРµРґС‹РґСѓС‰Р°СЏ РїРѕР·РёС†РёСЏ Р±РѕР»СЊС€Рµ С‚РµРєСѓС‰РµР№,
+		// С‚Рѕ РїСЂРѕРёР·РІРѕРґРёРј РІС‹С‡РёСЃР»РµРЅРёРµ СЃ РЅР°С‡Р°Р»Р° СЃС‚СЂРѕРєРё
 		else if (Pos == INT_MIN || CurItem.StartPos < Pos)
 		{
 			RealStart = RealPosToTab(CurItem.StartPos);
 			Start = RealStart-FocusedLeftPos;
 		}
-		// Для оптимизации делаем вычисление относительно предыдущей позиции
+		// Р”Р»СЏ РѕРїС‚РёРјРёР·Р°С†РёРё РґРµР»Р°РµРј РІС‹С‡РёСЃР»РµРЅРёРµ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РїСЂРµРґС‹РґСѓС‰РµР№ РїРѕР·РёС†РёРё
 		else
 		{
 			RealStart = RealPosToTab(TabPos, Pos, CurItem.StartPos, nullptr);
 			Start = RealStart-FocusedLeftPos;
 		}
 
-		// Запоминаем вычисленные значения для их дальнейшего повторного использования
+		// Р—Р°РїРѕРјРёРЅР°РµРј РІС‹С‡РёСЃР»РµРЅРЅС‹Рµ Р·РЅР°С‡РµРЅРёСЏ РґР»СЏ РёС… РґР°Р»СЊРЅРµР№С€РµРіРѕ РїРѕРІС‚РѕСЂРЅРѕРіРѕ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ
 		Pos = CurItem.StartPos;
 		TabPos = RealStart;
 		TabEditorPos = Start;
 
-		// Пропускаем элементы раскраски у которых начальная позиция за экраном
+		// РџСЂРѕРїСѓСЃРєР°РµРј СЌР»РµРјРµРЅС‚С‹ СЂР°СЃРєСЂР°СЃРєРё Сѓ РєРѕС‚РѕСЂС‹С… РЅР°С‡Р°Р»СЊРЅР°СЏ РїРѕР·РёС†РёСЏ Р·Р° СЌРєСЂР°РЅРѕРј
 		if (Start >= Width)
 			continue;
 
-		// Корректировка относительно табов (отключается, если присутствует флаг ECF_TABMARKFIRST)
+		// РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ С‚Р°Р±РѕРІ (РѕС‚РєР»СЋС‡Р°РµС‚СЃСЏ, РµСЃР»Рё РїСЂРёСЃСѓС‚СЃС‚РІСѓРµС‚ С„Р»Р°Рі ECF_TABMARKFIRST)
 		int CorrectPos = CurItem.Flags & ECF_TABMARKFIRST ? 0 : 1;
 
-		// Получаем конечную позицию
+		// РџРѕР»СѓС‡Р°РµРј РєРѕРЅРµС‡РЅСѓСЋ РїРѕР·РёС†РёСЋ
 		int EndPos = CurItem.EndPos;
 		int RealEnd, End;
 
 		bool TabMarkCurrent=false;
 
-		// Обрабатываем случай, когда предыдущая позиция равна текущей, то есть
-		// длина раскрашиваемой строки равна 1
+		// РћР±СЂР°Р±Р°С‚С‹РІР°РµРј СЃР»СѓС‡Р°Р№, РєРѕРіРґР° РїСЂРµРґС‹РґСѓС‰Р°СЏ РїРѕР·РёС†РёСЏ СЂР°РІРЅР° С‚РµРєСѓС‰РµР№, С‚Рѕ РµСЃС‚СЊ
+		// РґР»РёРЅР° СЂР°СЃРєСЂР°С€РёРІР°РµРјРѕР№ СЃС‚СЂРѕРєРё СЂР°РІРЅР° 1
 		if (Pos == EndPos)
 		{
-			// Если необходимо делать корректировку относительно табов и единственный
-			// символ строки -- это таб, то делаем расчёт с учётом корректировки,
-			// иначе ничего не вычисляем и берём старые значения
+			// Р•СЃР»Рё РЅРµРѕР±С…РѕРґРёРјРѕ РґРµР»Р°С‚СЊ РєРѕСЂСЂРµРєС‚РёСЂРѕРІРєСѓ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ С‚Р°Р±РѕРІ Рё РµРґРёРЅСЃС‚РІРµРЅРЅС‹Р№
+			// СЃРёРјРІРѕР» СЃС‚СЂРѕРєРё -- СЌС‚Рѕ С‚Р°Р±, С‚Рѕ РґРµР»Р°РµРј СЂР°СЃС‡С‘С‚ СЃ СѓС‡С‘С‚РѕРј РєРѕСЂСЂРµРєС‚РёСЂРѕРІРєРё,
+			// РёРЅР°С‡Рµ РЅРёС‡РµРіРѕ РЅРµ РІС‹С‡РёСЃР»СЏРµРј Рё Р±РµСЂС‘Рј СЃС‚Р°СЂС‹Рµ Р·РЅР°С‡РµРЅРёСЏ
 			if (CorrectPos && EndPos < m_Str.size() && m_Str[EndPos] == L'\t')
 			{
 				RealEnd = RealPosToTab(TabPos, Pos, ++EndPos, nullptr);
@@ -2387,21 +2387,21 @@ void Edit::ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos)
 				End = TabEditorPos;
 			}
 		}
-		// Если предыдущая позиция больше текущей, то производим вычисление
-		// с начала строки (с учётом корректировки относительно табов)
+		// Р•СЃР»Рё РїСЂРµРґС‹РґСѓС‰Р°СЏ РїРѕР·РёС†РёСЏ Р±РѕР»СЊС€Рµ С‚РµРєСѓС‰РµР№, С‚Рѕ РїСЂРѕРёР·РІРѕРґРёРј РІС‹С‡РёСЃР»РµРЅРёРµ
+		// СЃ РЅР°С‡Р°Р»Р° СЃС‚СЂРѕРєРё (СЃ СѓС‡С‘С‚РѕРј РєРѕСЂСЂРµРєС‚РёСЂРѕРІРєРё РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ С‚Р°Р±РѕРІ)
 		else if (EndPos < Pos)
 		{
-			// TODO: возможно так же нужна коррекция с учетом табов (на предмет Mantis#0001718)
+			// TODO: РІРѕР·РјРѕР¶РЅРѕ С‚Р°Рє Р¶Рµ РЅСѓР¶РЅР° РєРѕСЂСЂРµРєС†РёСЏ СЃ СѓС‡РµС‚РѕРј С‚Р°Р±РѕРІ (РЅР° РїСЂРµРґРјРµС‚ Mantis#0001718)
 			RealEnd = RealPosToTab(0, 0, EndPos, &CorrectPos);
 			EndPos += CorrectPos;
 			End = RealEnd-FocusedLeftPos;
 		}
-		// Для оптимизации делаем вычисление относительно предыдущей позиции (с учётом
-		// корректировки относительно табов)
+		// Р”Р»СЏ РѕРїС‚РёРјРёР·Р°С†РёРё РґРµР»Р°РµРј РІС‹С‡РёСЃР»РµРЅРёРµ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РїСЂРµРґС‹РґСѓС‰РµР№ РїРѕР·РёС†РёРё (СЃ СѓС‡С‘С‚РѕРј
+		// РєРѕСЂСЂРµРєС‚РёСЂРѕРІРєРё РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ С‚Р°Р±РѕРІ)
 		else
 		{
-			// Mantis#0001718: Отсутствие ECF_TABMARKFIRST не всегда корректно отрабатывает
-			// Коррекция с учетом последнего таба
+			// Mantis#0001718: РћС‚СЃСѓС‚СЃС‚РІРёРµ ECF_TABMARKFIRST РЅРµ РІСЃРµРіРґР° РєРѕСЂСЂРµРєС‚РЅРѕ РѕС‚СЂР°Р±Р°С‚С‹РІР°РµС‚
+			// РљРѕСЂСЂРµРєС†РёСЏ СЃ СѓС‡РµС‚РѕРј РїРѕСЃР»РµРґРЅРµРіРѕ С‚Р°Р±Р°
 			if (CorrectPos && EndPos < m_Str.size() && m_Str[EndPos] == L'\t')
 				RealEnd = RealPosToTab(TabPos, Pos, ++EndPos, nullptr);
 			else
@@ -2412,7 +2412,7 @@ void Edit::ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos)
 			End = RealEnd-FocusedLeftPos;
 		}
 
-		// Запоминаем вычисленные значения для их дальнейшего повторного использования
+		// Р—Р°РїРѕРјРёРЅР°РµРј РІС‹С‡РёСЃР»РµРЅРЅС‹Рµ Р·РЅР°С‡РµРЅРёСЏ РґР»СЏ РёС… РґР°Р»СЊРЅРµР№С€РµРіРѕ РїРѕРІС‚РѕСЂРЅРѕРіРѕ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ
 		Pos = EndPos;
 		TabPos = RealEnd;
 		TabEditorPos = End;
@@ -2424,11 +2424,11 @@ void Edit::ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos)
 		}
 		else
 		{
-			// Пропускаем элементы раскраски у которых конечная позиция меньше левой границы экрана
+			// РџСЂРѕРїСѓСЃРєР°РµРј СЌР»РµРјРµРЅС‚С‹ СЂР°СЃРєСЂР°СЃРєРё Сѓ РєРѕС‚РѕСЂС‹С… РєРѕРЅРµС‡РЅР°СЏ РїРѕР·РёС†РёСЏ РјРµРЅСЊС€Рµ Р»РµРІРѕР№ РіСЂР°РЅРёС†С‹ СЌРєСЂР°РЅР°
 			if (End < 0)
 				continue;
 
-			// Обрезаем раскраску элемента по экрану
+			// РћР±СЂРµР·Р°РµРј СЂР°СЃРєСЂР°СЃРєСѓ СЌР»РµРјРµРЅС‚Р° РїРѕ СЌРєСЂР°РЅСѓ
 			if (Start < 0)
 				Start = 0;
 
@@ -2438,7 +2438,7 @@ void Edit::ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos)
 				End -= CorrectPos;
 		}
 
-		// Раскрашиваем элемент, если есть что раскрашивать
+		// Р Р°СЃРєСЂР°С€РёРІР°РµРј СЌР»РµРјРµРЅС‚, РµСЃР»Рё РµСЃС‚СЊ С‡С‚Рѕ СЂР°СЃРєСЂР°С€РёРІР°С‚СЊ
 		if (End >= Start)
 		{
 			Global->ScrBuf->ApplyColor(
@@ -2447,7 +2447,7 @@ void Edit::ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos)
 			    m_X1+End,
 			    m_Y1,
 			    CurItem.GetColor(),
-			    // Не раскрашиваем выделение
+			    // РќРµ СЂР°СЃРєСЂР°С€РёРІР°РµРј РІС‹РґРµР»РµРЅРёРµ
 			    SelColor,
 			    true
 			);
@@ -2456,7 +2456,7 @@ void Edit::ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos)
 }
 
 /* $ 24.09.2000 SVS $
-  Функция Xlat - перекодировка по принципу QWERTY <-> ЙЦУКЕН
+  Р¤СѓРЅРєС†РёСЏ Xlat - РїРµСЂРµРєРѕРґРёСЂРѕРІРєР° РїРѕ РїСЂРёРЅС†РёРїСѓ QWERTY <-> Р™Р¦РЈРљР•Рќ
 */
 void Edit::Xlat(bool All)
 {
@@ -2467,7 +2467,7 @@ void Edit::Xlat(bool All)
 		m_Str.assign(Buffer.data(), Buffer.size());
 	};
 
-	//   Для CmdLine - если нет выделения, преобразуем всю строку
+	//   Р”Р»СЏ CmdLine - РµСЃР»Рё РЅРµС‚ РІС‹РґРµР»РµРЅРёСЏ, РїСЂРµРѕР±СЂР°Р·СѓРµРј РІСЃСЋ СЃС‚СЂРѕРєСѓ
 	if (All && m_SelStart == -1 && !m_SelEnd)
 	{
 		XLatStr(0, m_Str.size());
@@ -2486,14 +2486,14 @@ void Edit::Xlat(bool All)
 		Show();
 	}
 	/* $ 25.11.2000 IS
-	 Если нет выделения, то обработаем текущее слово. Слово определяется на
-	 основе специальной группы разделителей.
+	 Р•СЃР»Рё РЅРµС‚ РІС‹РґРµР»РµРЅРёСЏ, С‚Рѕ РѕР±СЂР°Р±РѕС‚Р°РµРј С‚РµРєСѓС‰РµРµ СЃР»РѕРІРѕ. РЎР»РѕРІРѕ РѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ РЅР°
+	 РѕСЃРЅРѕРІРµ СЃРїРµС†РёР°Р»СЊРЅРѕР№ РіСЂСѓРїРїС‹ СЂР°Р·РґРµР»РёС‚РµР»РµР№.
 	*/
 	else
 	{
 		/* $ 10.12.2000 IS
-		   Обрабатываем только то слово, на котором стоит курсор, или то слово, что
-		   находится левее позиции курсора на 1 символ
+		   РћР±СЂР°Р±Р°С‚С‹РІР°РµРј С‚РѕР»СЊРєРѕ С‚Рѕ СЃР»РѕРІРѕ, РЅР° РєРѕС‚РѕСЂРѕРј СЃС‚РѕРёС‚ РєСѓСЂСЃРѕСЂ, РёР»Рё С‚Рѕ СЃР»РѕРІРѕ, С‡С‚Рѕ
+		   РЅР°С…РѕРґРёС‚СЃСЏ Р»РµРІРµРµ РїРѕР·РёС†РёРё РєСѓСЂСЃРѕСЂР° РЅР° 1 СЃРёРјРІРѕР»
 		*/
 		int start = m_CurPos, StrSize = m_Str.size();
 		bool DoXlat=true;
@@ -2524,8 +2524,8 @@ void Edit::Xlat(bool All)
 }
 
 /* $ 15.11.2000 KM
-   Проверяет: попадает ли символ в разрешённый
-   диапазон символов, пропускаемых маской
+   РџСЂРѕРІРµСЂСЏРµС‚: РїРѕРїР°РґР°РµС‚ Р»Рё СЃРёРјРІРѕР» РІ СЂР°Р·СЂРµС€С‘РЅРЅС‹Р№
+   РґРёР°РїР°Р·РѕРЅ СЃРёРјРІРѕР»РѕРІ, РїСЂРѕРїСѓСЃРєР°РµРјС‹С… РјР°СЃРєРѕР№
 */
 int Edit::KeyMatchedMask(int Key, const string& Mask) const
 {
@@ -2571,7 +2571,7 @@ void Edit::SetDialogParent(DWORD Sets)
 
 void Edit::FixLeftPos(int TabCurPos)
 {
-	if (TabCurPos<0) TabCurPos=GetTabCurPos(); //оптимизация, чтобы два раза не дёргать
+	if (TabCurPos<0) TabCurPos=GetTabCurPos(); //РѕРїС‚РёРјРёР·Р°С†РёСЏ, С‡С‚РѕР±С‹ РґРІР° СЂР°Р·Р° РЅРµ РґС‘СЂРіР°С‚СЊ
 	if (TabCurPos-LeftPos>ObjWidth()-1)
 		LeftPos=TabCurPos-ObjWidth()+1;
 

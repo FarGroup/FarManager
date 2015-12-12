@@ -1,11 +1,11 @@
-/*
+Ôªø/*
 treelist.cpp
 
 Tree panel
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright ¬© 1996 Eugene Roshal
+Copyright ¬© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -89,33 +89,33 @@ static int LastScrY = -1;
 
 
 /*
-  Global->Opt->Tree.LocalDisk          ’‡ÌËÚ¸ Ù‡ÈÎ ÒÚÛÍÚÛ˚ Ô‡ÔÓÍ ‰Îˇ ÎÓÍ‡Î¸Ì˚ı ‰ËÒÍÓ‚
-  Global->Opt->Tree.NetDisk            ’‡ÌËÚ¸ Ù‡ÈÎ ÒÚÛÍÚÛ˚ Ô‡ÔÓÍ ‰Îˇ ÒÂÚÂ‚˚ı ‰ËÒÍÓ‚
-  Global->Opt->Tree.NetPath            ’‡ÌËÚ¸ Ù‡ÈÎ ÒÚÛÍÚÛ˚ Ô‡ÔÓÍ ‰Îˇ ÒÂÚÂ‚˚ı ÔÛÚÂÈ
-  Global->Opt->Tree.RemovableDisk      ’‡ÌËÚ¸ Ù‡ÈÎ ÒÚÛÍÚÛ˚ Ô‡ÔÓÍ ‰Îˇ ÒÏÂÌÌ˚ı ‰ËÒÍÓ‚
-  Global->Opt->Tree.CDDisk             ’‡ÌËÚ¸ Ù‡ÈÎ ÒÚÛÍÚÛ˚ Ô‡ÔÓÍ ‰Îˇ CD/DVD/BD/etc ‰ËÒÍÓ‚
+  Global->Opt->Tree.LocalDisk          –•—Ä–∞–Ω–∏—Ç—å —Ñ–∞–π–ª —Å—Ç—Ä—É–∫—Ç—É—Ä—ã –ø–∞–ø–æ–∫ –¥–ª—è –ª–æ–∫–∞–ª—å–Ω—ã—Ö –¥–∏—Å–∫–æ–≤
+  Global->Opt->Tree.NetDisk            –•—Ä–∞–Ω–∏—Ç—å —Ñ–∞–π–ª —Å—Ç—Ä—É–∫—Ç—É—Ä—ã –ø–∞–ø–æ–∫ –¥–ª—è —Å–µ—Ç–µ–≤—ã—Ö –¥–∏—Å–∫–æ–≤
+  Global->Opt->Tree.NetPath            –•—Ä–∞–Ω–∏—Ç—å —Ñ–∞–π–ª —Å—Ç—Ä—É–∫—Ç—É—Ä—ã –ø–∞–ø–æ–∫ –¥–ª—è —Å–µ—Ç–µ–≤—ã—Ö –ø—É—Ç–µ–π
+  Global->Opt->Tree.RemovableDisk      –•—Ä–∞–Ω–∏—Ç—å —Ñ–∞–π–ª —Å—Ç—Ä—É–∫—Ç—É—Ä—ã –ø–∞–ø–æ–∫ –¥–ª—è —Å–º–µ–Ω–Ω—ã—Ö –¥–∏—Å–∫–æ–≤
+  Global->Opt->Tree.CDDisk             –•—Ä–∞–Ω–∏—Ç—å —Ñ–∞–π–ª —Å—Ç—Ä—É–∫—Ç—É—Ä—ã –ø–∞–ø–æ–∫ –¥–ª—è CD/DVD/BD/etc –¥–∏—Å–∫–æ–≤
 
-  Global->Opt->Tree.strLocalDisk;      ¯‡·ÎÓÌ ËÏÂÌË Ù‡ÈÎ‡-‰ÂÂ‚ˇıË ‰Îˇ ÎÓÍ‡Î¸Ì˚ı ‰ËÒÍÓ‚
+  Global->Opt->Tree.strLocalDisk;      —à–∞–±–ª–æ–Ω –∏–º–µ–Ω–∏ —Ñ–∞–π–ª–∞-–¥–µ—Ä–µ–≤—è—Ö–∏ –¥–ª—è –ª–æ–∫–∞–ª—å–Ω—ã—Ö –¥–∏—Å–∫–æ–≤
      constLocalDiskTemplate=L"LD.%D.%SN.tree"
-  Global->Opt->Tree.strNetDisk;        ¯‡·ÎÓÌ ËÏÂÌË Ù‡ÈÎ‡-‰ÂÂ‚ˇıË ‰Îˇ ÒÂÚÂ‚˚ı ‰ËÒÍÓ‚
+  Global->Opt->Tree.strNetDisk;        —à–∞–±–ª–æ–Ω –∏–º–µ–Ω–∏ —Ñ–∞–π–ª–∞-–¥–µ—Ä–µ–≤—è—Ö–∏ –¥–ª—è —Å–µ—Ç–µ–≤—ã—Ö –¥–∏—Å–∫–æ–≤
      constNetDiskTemplate=L"ND.%D.%SN.tree";
-  Global->Opt->Tree.strNetPath;        ¯‡·ÎÓÌ ËÏÂÌË Ù‡ÈÎ‡-‰ÂÂ‚ˇıË ‰Îˇ ÒÂÚÂ‚˚ı ÔÛÚÂÈ
+  Global->Opt->Tree.strNetPath;        —à–∞–±–ª–æ–Ω –∏–º–µ–Ω–∏ —Ñ–∞–π–ª–∞-–¥–µ—Ä–µ–≤—è—Ö–∏ –¥–ª—è —Å–µ—Ç–µ–≤—ã—Ö –ø—É—Ç–µ–π
      constNetPathTemplate=L"NP.%SR.%SH.tree";
-  Global->Opt->Tree.strRemovableDisk;  ¯‡·ÎÓÌ ËÏÂÌË Ù‡ÈÎ‡-‰ÂÂ‚ˇıË ‰Îˇ ÒÏÂÌÌ˚ı ‰ËÒÍÓ‚
+  Global->Opt->Tree.strRemovableDisk;  —à–∞–±–ª–æ–Ω –∏–º–µ–Ω–∏ —Ñ–∞–π–ª–∞-–¥–µ—Ä–µ–≤—è—Ö–∏ –¥–ª—è —Å–º–µ–Ω–Ω—ã—Ö –¥–∏—Å–∫–æ–≤
      constRemovableDiskTemplate=L"RD.%SN.tree";
-  Global->Opt->Tree.strCDDisk;         ¯‡·ÎÓÌ ËÏÂÌË Ù‡ÈÎ‡-‰ÂÂ‚ˇıË ‰Îˇ CD/DVD/BD/etc ‰ËÒÍÓ‚
+  Global->Opt->Tree.strCDDisk;         —à–∞–±–ª–æ–Ω –∏–º–µ–Ω–∏ —Ñ–∞–π–ª–∞-–¥–µ—Ä–µ–≤—è—Ö–∏ –¥–ª—è CD/DVD/BD/etc –¥–∏—Å–∫–æ–≤
      constCDDiskTemplate=L"CD.%L.%SN.tree";
 
-     %D    - ·ÛÍ‚‡ ‰ËÒÍ‡
-     %SN   - ÒÂËÈÌ˚È ÌÓÏÂ
-     %L    - ÏÂÚÍ‡ ‰ËÒÍ‡
+     %D    - –±—É–∫–≤–∞ –¥–∏—Å–∫–∞
+     %SN   - —Å–µ—Ä–∏–π–Ω—ã–π –Ω–æ–º–µ—Ä
+     %L    - –º–µ—Ç–∫–∞ –¥–∏—Å–∫–∞
      %SR   - server name
      %SH   - share name
 
-  Global->Opt->Tree.strExceptPath;     // ‰Îˇ ÔÂÂ˜ËÒÎÂÌÌ˚ı Á‰ÂÒ¸ ÌÂ ı‡ÌËÚ¸
+  Global->Opt->Tree.strExceptPath;     // –¥–ª—è –ø–µ—Ä–µ—á–∏—Å–ª–µ–Ω–Ω—ã—Ö –∑–¥–µ—Å—å –Ω–µ —Ö—Ä–∞–Ω–∏—Ç—å
 
-  Global->Opt->Tree.strSaveLocalPath;  // Ò˛‰‡ ÒÓı‡ÌˇÂÏ ÎÓÍ‡Î¸Ì˚Â ‰ËÒÍË
-  Global->Opt->Tree.strSaveNetPath;    // Ò˛‰‡ ÒÓı‡ÌˇÂÏ ÒÂÚÂ‚˚Â ‰ËÒÍË
+  Global->Opt->Tree.strSaveLocalPath;  // —Å—é–¥–∞ —Å–æ—Ö—Ä–∞–Ω—è–µ–º –ª–æ–∫–∞–ª—å–Ω—ã–µ –¥–∏—Å–∫–∏
+  Global->Opt->Tree.strSaveNetPath;    // —Å—é–¥–∞ —Å–æ—Ö—Ä–∞–Ω—è–µ–º —Å–µ—Ç–µ–≤—ã–µ –¥–∏—Å–∫–∏
 */
 
 #if defined(TREEFILE_PROJECT)
@@ -128,9 +128,9 @@ string& ConvertTemplateTreeName(string &strDest, const string &strTemplate, cons
 				fmt::MinWidth(4) << fmt::FillChar(L'0') << fmt::Radix(16) << HIWORD(SN) << L'-' <<
 				fmt::MinWidth(4) << fmt::FillChar(L'0') << fmt::Radix(16) << LOWORD(SN);
 	/*
-    	 %D    - ·ÛÍ‚‡ ‰ËÒÍ‡
-	     %SN   - ÒÂËÈÌ˚È ÌÓÏÂ
-    	 %L    - ÏÂÚÍ‡ ‰ËÒÍ‡
+    	 %D    - –±—É–∫–≤–∞ –¥–∏—Å–∫–∞
+	     %SN   - —Å–µ—Ä–∏–π–Ω—ã–π –Ω–æ–º–µ—Ä
+    	 %L    - –º–µ—Ç–∫–∞ –¥–∏—Å–∫–∞
 	     %SR   - server name
     	 %SH   - share name
 	*/
@@ -175,7 +175,7 @@ string& CreateTreeFileName(const string& Path, string &strDest)
 	PATH_PIPE,
 	*/
 
-	// ÔÓÎÛ˜ÂÌËÂ ËÌÙ˚ Ó ÚÓÏÂ
+	// –ø–æ–ª—É—á–µ–Ω–∏–µ –∏–Ω—Ñ—ã –æ —Ç–æ–º–µ
 	string strVolumeName, strFileSystemName;
 	DWORD MaxNameLength = 0, FileSystemFlags = 0, VolumeNumber = 0;
 
@@ -183,7 +183,7 @@ string& CreateTreeFileName(const string& Path, string &strDest)
 		&VolumeNumber, &MaxNameLength, &FileSystemFlags,
 		&strFileSystemName))
 	{
-		if (DriveType == DRIVE_SUBSTITUTE) // –‡Á‚Ó‡˜Ë‚‡ÂÏ Ë ‰ÂÎ‡ÂÏ ÔÓ‰ÏÂÌÛ
+		if (DriveType == DRIVE_SUBSTITUTE) // –†–∞–∑–≤–æ—Ä–∞—á–∏–≤–∞–µ–º –∏ –¥–µ–ª–∞–µ–º –ø–æ–¥–º–µ–Ω—É
 		{
 			DriveType = DRIVE_FIXED; //????
 		}
@@ -273,21 +273,21 @@ string& CreateTreeFileName(const string& Path, string &strDest)
 	return strDest;
 }
 
-// TODO: ‘‡ÈÎ˚ "Tree3.Far" ‰Îˇ ÎÓÍ‡Î¸Ì˚ı ‰ËÒÍÓ‚ ‰ÓÎÊÌ˚ ı‡ÌËÚ¸Òˇ ‚ "Local AppData\Far Manager"
-// TODO: ‘‡ÈÎ˚ "Tree3.Far" ‰Îˇ ÒÏÂÌÌ˚ı ‰ËÒÍÓ‚ ‰ÓÎÊÌ˚ ı‡ÌËÚ¸Òˇ Ì‡ Ò‡ÏËı "‰ËÒÍ‡ı"
-// TODO: ‘‡ÈÎ˚ "Tree3.Far" ‰Îˇ ÒÂÚÂ‚˚ı ‰ËÒÍÓ‚ ‰ÓÎÊÌ˚ ı‡ÌËÚ¸Òˇ ‚ "%HOMEDRIVE%\%HOMEPATH%",
-//                        ÂÒÎË ˝ÚË ÔÂÂÏÂÌÌ˚Â ÒÂ‰˚ ÌÂ ÓÔÂ‰ÂÎÂÌ˚, ÚÓ "%APPDATA%\Far Manager"
+// TODO: –§–∞–π–ª—ã "Tree3.Far" –¥–ª—è –ª–æ–∫–∞–ª—å–Ω—ã—Ö –¥–∏—Å–∫–æ–≤ –¥–æ–ª–∂–Ω—ã —Ö—Ä–∞–Ω–∏—Ç—å—Å—è –≤ "Local AppData\Far Manager"
+// TODO: –§–∞–π–ª—ã "Tree3.Far" –¥–ª—è —Å–º–µ–Ω–Ω—ã—Ö –¥–∏—Å–∫–æ–≤ –¥–æ–ª–∂–Ω—ã —Ö—Ä–∞–Ω–∏—Ç—å—Å—è –Ω–∞ —Å–∞–º–∏—Ö "–¥–∏—Å–∫–∞—Ö"
+// TODO: –§–∞–π–ª—ã "Tree3.Far" –¥–ª—è —Å–µ—Ç–µ–≤—ã—Ö –¥–∏—Å–∫–æ–≤ –¥–æ–ª–∂–Ω—ã —Ö—Ä–∞–Ω–∏—Ç—å—Å—è –≤ "%HOMEDRIVE%\%HOMEPATH%",
+//                        –µ—Å–ª–∏ —ç—Ç–∏ –ø–µ—Ä–µ–º–µ–Ω–Ω—ã–µ —Å—Ä–µ–¥—ã –Ω–µ –æ–ø—Ä–µ–¥–µ–ª–µ–Ω—ã, —Ç–æ "%APPDATA%\Far Manager"
 string& MkTreeFileName(const string& RootDir, string &strDest)
 {
 	CreateTreeFileName(RootDir, strDest);
 	return strDest;
 }
 
-// ˝ÚÓÏÛ Í‡Ú‡ÎÓ„Û (Tree.Cache) ÏÂÒÚÓ ÌÂ ‚ FarPath, ‡ ‚ "Local AppData\Far\"
+// —ç—Ç–æ–º—É –∫–∞—Ç–∞–ª–æ–≥—É (Tree.Cache) –º–µ—Å—Ç–æ –Ω–µ –≤ FarPath, –∞ –≤ "Local AppData\Far\"
 string& MkTreeCacheFolderName(const string& RootDir, string &strDest)
 {
 #if defined(TREEFILE_PROJECT)
-	// ‚ ÔÓÂÍÚÂ TREEFILE_PROJECT Ì‡ÎË˜ËÂ Í‡Ú‡ÎÓ„‡ tree3.cache ÌÂ ÔÂ‰ÔÓÎ‡„‡ÂÚÒˇ
+	// –≤ –ø—Ä–æ–µ–∫—Ç–µ TREEFILE_PROJECT –Ω–∞–ª–∏—á–∏–µ –∫–∞—Ç–∞–ª–æ–≥–∞ tree3.cache –Ω–µ –ø—Ä–µ–¥–ø–æ–ª–∞–≥–∞–µ—Ç—Å—è
 	CreateTreeFileName(RootDir, strDest);
 #else
 	strDest = RootDir;
@@ -664,7 +664,7 @@ void TreeList::DisplayTree(int Fast)
 	}
 
 	UpdateViewPanel();
-	SetTitle(); // ÌÂ Á‡·Û‰ÂÏ ÔÓËÒÓ‚‡Ú¸ Á‡„ÓÎÓ‚ÓÍ
+	SetTitle(); // –Ω–µ –∑–∞–±—É–¥–µ–º –ø—Ä–æ—Ä–∏—Å–æ–≤–∞—Ç—å –∑–∞–≥–æ–ª–æ–≤–æ–∫
 }
 
 void TreeList::DisplayTreeName(const wchar_t *Name, size_t Pos)
@@ -763,7 +763,7 @@ struct TreePreRedrawItem: public PreRedrawItem
 static int MsgReadTree(size_t TreeCount, int FirstCall)
 {
 	/* $ 24.09.2001 VVM
-	! œËÒ‡Ú¸ ÒÓÓ·˘ÂÌËÂ Ó ˜ÚÂÌËË ‰ÂÂ‚‡ ÚÓÎ¸ÍÓ, ÂÒÎË ˝ÚÓ Á‡ÌˇÎÓ ·ÓÎÂÂ 500 ÏÒÂÍ. */
+	! –ü–∏—Å–∞—Ç—å —Å–æ–æ–±—â–µ–Ω–∏–µ –æ —á—Ç–µ–Ω–∏–∏ –¥–µ—Ä–µ–≤–∞ —Ç–æ–ª—å–∫–æ, –µ—Å–ª–∏ —ç—Ç–æ –∑–∞–Ω—è–ª–æ –±–æ–ª–µ–µ 500 –º—Å–µ–∫. */
 	BOOL IsChangeConsole = LastScrX != ScrX || LastScrY != ScrY;
 
 	if (IsChangeConsole)
@@ -809,11 +809,11 @@ static bool MustBeCached(const string& Root)
 
 	if (type==DRIVE_UNKNOWN || type==DRIVE_NO_ROOT_DIR || type==DRIVE_REMOVABLE || IsDriveTypeCDROM(type))
 	{
-		// ÍÂ¯ËÛ˛ÚÒˇ CD, removable Ë ÌÂËÁ‚ÂÒÚÌÓ ˜ÚÓ :)
+		// –∫–µ—à–∏—Ä—É—é—Ç—Å—è CD, removable –∏ –Ω–µ–∏–∑–≤–µ—Å—Ç–Ω–æ —á—Ç–æ :)
 		return true;
 	}
 
-	/* ÓÒÚ‡ÎËÒ¸
+	/* –æ—Å—Ç–∞–ª–∏—Å—å
 	    DRIVE_REMOTE
 	    DRIVE_RAMDISK
 	    DRIVE_FIXED
@@ -858,7 +858,7 @@ static void ReadLines(os::fs::file& TreeFile, const std::function<void(string&)>
 template<class string_type, class container_type, class opener_type>
 static inline void WriteTree(string_type& Name, const container_type& Container, const opener_type& Opener, size_t offset)
 {
-	// ÔÓÎÛ˜ËÏ Ë Ò‡ÁÛ Ò·ÓÒËÏ ‡ÚË·ÛÚ˚ (ÂÒÎË ÔÓÎÛ˜ËÚÒˇ)
+	// –ø–æ–ª—É—á–∏–º –∏ —Å—Ä–∞–∑—É —Å–±—Ä–æ—Å–∏–º –∞—Ç—Ä–∏–±—É—Ç—ã (–µ—Å–ª–∏ –ø–æ–ª—É—á–∏—Ç—Å—è)
 	DWORD SavedAttributes = os::GetFileAttributes(Name);
 
 	if (SavedAttributes != INVALID_FILE_ATTRIBUTES)
@@ -892,7 +892,7 @@ static inline void WriteTree(string_type& Name, const container_type& Container,
 
 	if (Result)
 	{
-		if (SavedAttributes != INVALID_FILE_ATTRIBUTES) // ‚ÂÌÂÏ ‡ÚË·ÛÚ˚ (ÂÒÎË ÔÓÎÛ˜ËÚÒˇ :-)
+		if (SavedAttributes != INVALID_FILE_ATTRIBUTES) // –≤–µ—Ä–Ω–µ–º –∞—Ç—Ä–∏–±—É—Ç—ã (–µ—Å–ª–∏ –ø–æ–ª—É—á–∏—Ç—Å—è :-)
 			os::SetFileAttributes(Name, SavedAttributes);
 	}
 	else
@@ -922,8 +922,8 @@ int TreeList::ReadTree()
 	m_ListData.emplace_back(m_Root);
 	SaveScreen SaveScrTree;
 	SCOPED_ACTION(UndoGlobalSaveScrPtr)(&SaveScrTree);
-	/* “.Í. Ï˚ ÏÓÊÂÏ ‚˚Á‚‡Ú¸ ‰Ë‡ÎÓ„ ÔÓ‰Ú‚ÂÊ‰ÂÌËˇ (ÍÓÚÓ˚È ÌÂ ÔÂÂËÒÓ‚˚‚‡ÂÚ Ô‡ÌÂÎ¸ÍË,
-	   ‡ ‚ÓÒÒÚ‡Ì‡‚ÎË‚‡ÂÚ ÒÓı‡ÌÂÌÌ˚È Ó·‡Á ˝Í‡Ì‡, ÚÓ Ì‡ËÒÛÂÏ ˜ËÒÚÛ˛ Ô‡ÌÂÎ¸ */
+	/* –¢.–∫. –º—ã –º–æ–∂–µ–º –≤—ã–∑–≤–∞—Ç—å –¥–∏–∞–ª–æ–≥ –ø–æ–¥—Ç–≤–µ—Ä–∂–¥–µ–Ω–∏—è (–∫–æ—Ç–æ—Ä—ã–π –Ω–µ –ø–µ—Ä–µ—Ä–∏—Å–æ–≤—ã–≤–∞–µ—Ç –ø–∞–Ω–µ–ª—å–∫–∏,
+	   –∞ –≤–æ—Å—Å—Ç–∞–Ω–∞–≤–ª–∏–≤–∞–µ—Ç —Å–æ—Ö—Ä–∞–Ω–µ–Ω–Ω—ã–π –æ–±—Ä–∞–∑ —ç–∫—Ä–∞–Ω–∞, —Ç–æ –Ω–∞—Ä–∏—Å—É–µ–º —á–∏—Å—Ç—É—é –ø–∞–Ω–µ–ª—å */
 	//Redraw();
 	int FirstCall=TRUE, AscAbort=FALSE;
 	TreeStartTime = clock();
@@ -979,7 +979,7 @@ int TreeList::ReadTree()
 
 	if (!FirstCall && !m_Flags.Check(FTREELIST_ISPANEL))
 	{
-		// œÂÂËÒÛÂÏ ‰Û„Û˛ Ô‡ÌÂÎ¸ - Û‰‡ÎËÏ ÒÎÂ‰˚ ÒÓÓ·˘ÂÌËÈ :)
+		// –ü–µ—Ä–µ—Ä–∏—Å—É–µ–º –¥—Ä—É–≥—É—é –ø–∞–Ω–µ–ª—å - —É–¥–∞–ª–∏–º —Å–ª–µ–¥—ã —Å–æ–æ–±—â–µ–Ω–∏–π :)
 		Parent()->GetAnotherPanel(this)->Redraw();
 	}
 
@@ -1263,7 +1263,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 				             !Global->CtrlObject->Plugins->UseFarCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES);
 				int Link=((LocalKey==KEY_ALTF6||LocalKey==KEY_RALTF6) && !ToPlugin);
 
-				if ((LocalKey==KEY_ALTF6||LocalKey==KEY_RALTF6) && !Link) // ÏÓÎ˜‡ ÓÚ‚‡ÎËÏ :-)
+				if ((LocalKey==KEY_ALTF6||LocalKey==KEY_RALTF6) && !Link) // –º–æ–ª—á–∞ –æ—Ç–≤–∞–ª–∏–º :-)
 					return TRUE;
 
 				{
@@ -1301,14 +1301,14 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 			return TRUE;
 		}
 		/*
-		  ”‰‡ÎÂÌËÂ                                   Shift-Del, Shift-F8, F8
+		  –£–¥–∞–ª–µ–Ω–∏–µ                                   Shift-Del, Shift-F8, F8
 
-		  ”‰‡ÎÂÌËÂ Ù‡ÈÎÓ‚ Ë Ô‡ÔÓÍ. F8 Ë Shift-Del Û‰‡Îˇ˛Ú ‚ÒÂ ‚˚·‡ÌÌ˚Â
-		 Ù‡ÈÎ˚, Shift-F8 - ÚÓÎ¸ÍÓ Ù‡ÈÎ ÔÓ‰ ÍÛÒÓÓÏ. Shift-Del ‚ÒÂ„‰‡ Û‰‡ÎˇÂÚ
-		 Ù‡ÈÎ˚, ÌÂ ËÒÔÓÎ¸ÁÛˇ  ÓÁËÌÛ (Recycle Bin). »ÒÔÓÎ¸ÁÓ‚‡ÌËÂ  ÓÁËÌ˚
-		 ÍÓÏ‡Ì‰‡ÏË F8 Ë Shift-F8 Á‡‚ËÒËÚ ÓÚ ÍÓÌÙË„Û‡ˆËË.
+		  –£–¥–∞–ª–µ–Ω–∏–µ —Ñ–∞–π–ª–æ–≤ –∏ –ø–∞–ø–æ–∫. F8 –∏ Shift-Del —É–¥–∞–ª—è—é—Ç –≤—Å–µ –≤—ã–±—Ä–∞–Ω–Ω—ã–µ
+		 —Ñ–∞–π–ª—ã, Shift-F8 - —Ç–æ–ª—å–∫–æ —Ñ–∞–π–ª –ø–æ–¥ –∫—É—Ä—Å–æ—Ä–æ–º. Shift-Del –≤—Å–µ–≥–¥–∞ —É–¥–∞–ª—è–µ—Ç
+		 —Ñ–∞–π–ª—ã, –Ω–µ –∏—Å–ø–æ–ª—å–∑—É—è –ö–æ—Ä–∑–∏–Ω—É (Recycle Bin). –ò—Å–ø–æ–ª—å–∑–æ–≤–∞–Ω–∏–µ –ö–æ—Ä–∑–∏–Ω—ã
+		 –∫–æ–º–∞–Ω–¥–∞–º–∏ F8 –∏ Shift-F8 –∑–∞–≤–∏—Å–∏—Ç –æ—Ç –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏–∏.
 
-		  ”ÌË˜ÚÓÊÂÌËÂ Ù‡ÈÎÓ‚ Ë Ô‡ÔÓÍ                                 Alt-Del
+		  –£–Ω–∏—á—Ç–æ–∂–µ–Ω–∏–µ —Ñ–∞–π–ª–æ–≤ –∏ –ø–∞–ø–æ–∫                                 Alt-Del
 		*/
 		case KEY_F8:
 		case KEY_SHIFTDEL:
@@ -1329,7 +1329,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 					Global->Opt->DeleteToRecycleBin = false;
 
 				ShellDelete(this,LocalKey==KEY_ALTDEL||LocalKey==KEY_RALTDEL||LocalKey==KEY_ALTNUMDEL||LocalKey==KEY_RALTNUMDEL||LocalKey==KEY_ALTDECIMAL||LocalKey==KEY_RALTDECIMAL);
-				// Õ‡‰Ó·ÌÓ ÌÂ Á‡·˚Ú¸ Ó·ÌÓ‚ËÚ¸ ÔÓÚË‚ÓÔÓÎÓÊÌÛ˛ Ô‡ÌÂÎ¸...
+				// –ù–∞–¥–æ–±–Ω–æ –Ω–µ –∑–∞–±—ã—Ç—å –æ–±–Ω–æ–≤–∏—Ç—å –ø—Ä–æ—Ç–∏–≤–æ–ø–æ–ª–æ–∂–Ω—É—é –ø–∞–Ω–µ–ª—å...
 				const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 				AnotherPanel->Update(UPDATE_KEEP_SELECTION);
 				AnotherPanel->Redraw();
@@ -1461,7 +1461,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 		case KEY_APPS:
 		case KEY_SHIFTAPPS:
 		{
-			//‚˚ÁÓ‚ÂÏ EMenu ÂÒÎË ÓÌ ÂÒÚ¸
+			//–≤—ã–∑–æ–≤–µ–º EMenu –µ—Å–ª–∏ –æ–Ω –µ—Å—Ç—å
 			if (Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu.Id))
 			{
 				Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, OPEN_FILEPANEL, ToPtr(1)); // EMenu Plugin :-)
@@ -1693,7 +1693,7 @@ int TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		{
 			DWORD control=MouseEvent->dwControlKeyState&(SHIFT_PRESSED|LEFT_ALT_PRESSED|LEFT_CTRL_PRESSED|RIGHT_ALT_PRESSED|RIGHT_CTRL_PRESSED);
 
-			//‚˚ÁÓ‚ÂÏ EMenu ÂÒÎË ÓÌ ÂÒÚ¸
+			//–≤—ã–∑–æ–≤–µ–º EMenu –µ—Å–ª–∏ –æ–Ω –µ—Å—Ç—å
 			if (!Global->Opt->RightClickSelect && MouseEvent->dwButtonState == RIGHTMOST_BUTTON_PRESSED && (control == 0 || control == SHIFT_PRESSED) && Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu.Id))
 			{
 				Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, OPEN_FILEPANEL, nullptr); // EMenu Plugin :-)

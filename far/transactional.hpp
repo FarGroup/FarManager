@@ -1,10 +1,12 @@
+﻿#ifndef TRANSACTIONAL_HPP_94BF5BB0_AC7B_4D4F_AEE1_BA3BE0C1BE29
+#define TRANSACTIONAL_HPP_94BF5BB0_AC7B_4D4F_AEE1_BA3BE0C1BE29
 #pragma once
 
 /*
 transactional.hpp
 */
 /*
-Copyright � 2015 Far Group
+Copyright © 2015 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -43,3 +45,5 @@ public:
 	scoped_transaction ScopedTransaction() { return scoped_transaction(this, &transactional::BeginTransaction, &transactional::EndTransaction); }
 };
 
+
+#endif // TRANSACTIONAL_HPP_94BF5BB0_AC7B_4D4F_AEE1_BA3BE0C1BE29

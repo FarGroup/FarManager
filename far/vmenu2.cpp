@@ -1,10 +1,10 @@
-/*
+п»ї/*
 vmenu2.cpp
 
-Вертикальное меню
+Р’РµСЂС‚РёРєР°Р»СЊРЅРѕРµ РјРµРЅСЋ
 */
 /*
-Copyright © 2012 Far Group
+Copyright В© 2012 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -61,21 +61,21 @@ intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void*
 		{
 			static const PaletteColors MenuColors[]=
 			{
-				COL_MENUBOX,                               // подложка
-				COL_MENUBOX,                               // рамка
-				COL_MENUTITLE,                             // заголовок - верхний и нижний
-				COL_MENUTEXT,                              // Текст пункта
+				COL_MENUBOX,                               // РїРѕРґР»РѕР¶РєР°
+				COL_MENUBOX,                               // СЂР°РјРєР°
+				COL_MENUTITLE,                             // Р·Р°РіРѕР»РѕРІРѕРє - РІРµСЂС…РЅРёР№ Рё РЅРёР¶РЅРёР№
+				COL_MENUTEXT,                              // РўРµРєСЃС‚ РїСѓРЅРєС‚Р°
 				COL_MENUHIGHLIGHT,                         // HotKey
 				COL_MENUBOX,                               // separator
-				COL_MENUSELECTEDTEXT,                      // Выбранный
-				COL_MENUSELECTEDHIGHLIGHT,                 // Выбранный - HotKey
+				COL_MENUSELECTEDTEXT,                      // Р’С‹Р±СЂР°РЅРЅС‹Р№
+				COL_MENUSELECTEDHIGHLIGHT,                 // Р’С‹Р±СЂР°РЅРЅС‹Р№ - HotKey
 				COL_MENUSCROLLBAR,                         // ScrollBar
 				COL_MENUDISABLEDTEXT,                      // Disabled
 				COL_MENUARROWS,                            // Arrow
-				COL_MENUARROWSSELECTED,                    // Выбранный - Arrow
+				COL_MENUARROWSSELECTED,                    // Р’С‹Р±СЂР°РЅРЅС‹Р№ - Arrow
 				COL_MENUARROWSDISABLED,                    // Arrow Disabled
-				COL_MENUGRAYTEXT,                          // "серый"
-				COL_MENUSELECTEDGRAYTEXT,                  // выбранный "серый"
+				COL_MENUGRAYTEXT,                          // "СЃРµСЂС‹Р№"
+				COL_MENUSELECTEDGRAYTEXT,                  // РІС‹Р±СЂР°РЅРЅС‹Р№ "СЃРµСЂС‹Р№"
 			};
 
 			const auto colors = static_cast<FarDialogItemColors*>(Param2);
@@ -151,9 +151,9 @@ intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void*
 }
 
 /*
-   VMenu2:Call() (т.е. функция обработки меню)
-   должна возвращать true если она обработала событие и дальше ничего делать не надо
-   (вне зависимости что говорит енц. о кодах возврата различных DN_*).
+   VMenu2:Call() (С‚.Рµ. С„СѓРЅРєС†РёСЏ РѕР±СЂР°Р±РѕС‚РєРё РјРµРЅСЋ)
+   РґРѕР»Р¶РЅР° РІРѕР·РІСЂР°С‰Р°С‚СЊ true РµСЃР»Рё РѕРЅР° РѕР±СЂР°Р±РѕС‚Р°Р»Р° СЃРѕР±С‹С‚РёРµ Рё РґР°Р»СЊС€Рµ РЅРёС‡РµРіРѕ РґРµР»Р°С‚СЊ РЅРµ РЅР°РґРѕ
+   (РІРЅРµ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё С‡С‚Рѕ РіРѕРІРѕСЂРёС‚ РµРЅС†. Рѕ РєРѕРґР°С… РІРѕР·РІСЂР°С‚Р° СЂР°Р·Р»РёС‡РЅС‹С… DN_*).
 */
 int VMenu2::Call(int Msg, void *param)
 {
@@ -485,7 +485,7 @@ int VMenu2::SetSelectPos(int Pos, int Direct)
 {
 /*
 	FarListPos flp={sizeof(FarListPos), Pos, -1};
-	return SendMessage(DM_LISTSETCURPOS, 0, &flp); //!! DM_LISTSETCURPOS не работает для скрытого диалога
+	return SendMessage(DM_LISTSETCURPOS, 0, &flp); //!! DM_LISTSETCURPOS РЅРµ СЂР°Р±РѕС‚Р°РµС‚ РґР»СЏ СЃРєСЂС‹С‚РѕРіРѕ РґРёР°Р»РѕРіР°
 */
 	return ListBox().SetSelectPos(Pos, Direct);
 }

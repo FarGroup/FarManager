@@ -1,3 +1,5 @@
+﻿#ifndef ELEVATION_HPP_19857862_0EE5_4709_B3E9_C7E50239C2E0
+#define ELEVATION_HPP_19857862_0EE5_4709_B3E9_C7E50239C2E0
 #pragma once
 
 /*
@@ -6,7 +8,7 @@ elevation.hpp
 Elevation
 */
 /*
-Copyright � 2010 Far Group
+Copyright © 2010 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -107,3 +109,5 @@ private:
 bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus = true);
 int ElevationMain(const wchar_t* guid, DWORD PID, bool UsePrivileges);
 bool IsElevationArgument(const wchar_t* Argument);
+
+#endif // ELEVATION_HPP_19857862_0EE5_4709_B3E9_C7E50239C2E0

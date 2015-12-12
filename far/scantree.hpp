@@ -1,14 +1,16 @@
+п»ї#ifndef SCANTREE_HPP_43BA8967_D0CF_4462_8AA7_93728B999585
+#define SCANTREE_HPP_43BA8967_D0CF_4462_8AA7_93728B999585
 #pragma once
 
 /*
 scantree.hpp
 
-Сканирование текущего каталога и, опционально, подкаталогов на
-предмет имен файлов
+РЎРєР°РЅРёСЂРѕРІР°РЅРёРµ С‚РµРєСѓС‰РµРіРѕ РєР°С‚Р°Р»РѕРіР° Рё, РѕРїС†РёРѕРЅР°Р»СЊРЅРѕ, РїРѕРґРєР°С‚Р°Р»РѕРіРѕРІ РЅР°
+РїСЂРµРґРјРµС‚ РёРјРµРЅ С„Р°Р№Р»РѕРІ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -39,20 +41,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 enum
 {
-	// эту фигню может ставить плагин (младшие 8 бит)
+	// СЌС‚Сѓ С„РёРіРЅСЋ РјРѕР¶РµС‚ СЃС‚Р°РІРёС‚СЊ РїР»Р°РіРёРЅ (РјР»Р°РґС€РёРµ 8 Р±РёС‚)
 	FSCANTREE_RETUPDIR         = 0x00000001, // = FRS_RETUPDIR
 	// FSCANTREE_RETUPDIR causes GetNextName() to return every directory twice:
 	// 1. when scanning its parent directory 2. after directory scan is finished
 	FSCANTREE_RECUR            = 0x00000002, // = FRS_RECUR
 	FSCANTREE_SCANSYMLINK      = 0x00000004, // = FRS_SCANSYMLINK
 
-	// в младшем слове старшие 8 бита служебные!
-	FSCANTREE_SECONDPASS       = 0x00002000, // то, что раньше было было SecondPass[]
+	// РІ РјР»Р°РґС€РµРј СЃР»РѕРІРµ СЃС‚Р°СЂС€РёРµ 8 Р±РёС‚Р° СЃР»СѓР¶РµР±РЅС‹Рµ!
+	FSCANTREE_SECONDPASS       = 0x00002000, // С‚Рѕ, С‡С‚Рѕ СЂР°РЅСЊС€Рµ Р±С‹Р»Рѕ Р±С‹Р»Рѕ SecondPass[]
 	FSCANTREE_SECONDDIRNAME    = 0x00004000, // set when FSCANTREE_RETUPDIR is enabled and directory scan is finished
-	FSCANTREE_INSIDEJUNCTION   = 0x00008000, // - мы внутри симлинка?
+	FSCANTREE_INSIDEJUNCTION   = 0x00008000, // - РјС‹ РІРЅСѓС‚СЂРё СЃРёРјР»РёРЅРєР°?
 
-	// здесь те флаги, которые могут выставляться в 3-м параметре SetFindPath()
-	FSCANTREE_FILESFIRST       = 0x00010000, // Сканирование каталога за два прохода. Сначала файлы, затем каталоги
+	// Р·РґРµСЃСЊ С‚Рµ С„Р»Р°РіРё, РєРѕС‚РѕСЂС‹Рµ РјРѕРіСѓС‚ РІС‹СЃС‚Р°РІР»СЏС‚СЊСЃСЏ РІ 3-Рј РїР°СЂР°РјРµС‚СЂРµ SetFindPath()
+	FSCANTREE_FILESFIRST       = 0x00010000, // РЎРєР°РЅРёСЂРѕРІР°РЅРёРµ РєР°С‚Р°Р»РѕРіР° Р·Р° РґРІР° РїСЂРѕС…РѕРґР°. РЎРЅР°С‡Р°Р»Р° С„Р°Р№Р»С‹, Р·Р°С‚РµРј РєР°С‚Р°Р»РѕРіРё
 };
 
 class ScanTree: noncopyable
@@ -61,7 +63,7 @@ public:
 	ScanTree(bool RetUpDir, bool Recurse=true, int ScanJunction=-1);
 	~ScanTree();
 
-	// 3-й параметр - флаги из старшего слова
+	// 3-Р№ РїР°СЂР°РјРµС‚СЂ - С„Р»Р°РіРё РёР· СЃС‚Р°СЂС€РµРіРѕ СЃР»РѕРІР°
 	void SetFindPath(const string& Path,const string& Mask, const DWORD NewScanFlags = FSCANTREE_FILESFIRST);
 	bool GetNextName(os::FAR_FIND_DATA& fdata, string &strFullName);
 	void SkipDir();
@@ -79,3 +81,5 @@ private:
 	string strFindPathOriginal;
 	string strFindMask;
 };
+
+#endif // SCANTREE_HPP_43BA8967_D0CF_4462_8AA7_93728B999585

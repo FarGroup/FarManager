@@ -1,13 +1,15 @@
+п»ї#ifndef FILEFILTER_HPP_DC322D87_FC69_401A_8EF8_9710B11909CB
+#define FILEFILTER_HPP_DC322D87_FC69_401A_8EF8_9710B11909CB
 #pragma once
 
 /*
 filefilter.hpp
 
-Файловый фильтр
+Р¤Р°Р№Р»РѕРІС‹Р№ С„РёР»СЊС‚СЂ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -38,12 +40,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VMenu2;
 class Panel;
 
-// почему FileInFilter вернул true или false
+// РїРѕС‡РµРјСѓ FileInFilter РІРµСЂРЅСѓР» true РёР»Рё false
 enum enumFileInFilterType
 {
-	FIFT_NOTINTFILTER = 0,   // файловый объект не попал ни в один из фильтров
-	FIFT_INCLUDE,            // файловый объект попал в Include
-	FIFT_EXCLUDE,            // файловый объект попал в Exclude
+	FIFT_NOTINTFILTER = 0,   // С„Р°Р№Р»РѕРІС‹Р№ РѕР±СЉРµРєС‚ РЅРµ РїРѕРїР°Р» РЅРё РІ РѕРґРёРЅ РёР· С„РёР»СЊС‚СЂРѕРІ
+	FIFT_INCLUDE,            // С„Р°Р№Р»РѕРІС‹Р№ РѕР±СЉРµРєС‚ РїРѕРїР°Р» РІ Include
+	FIFT_EXCLUDE,            // С„Р°Р№Р»РѕРІС‹Р№ РѕР±СЉРµРєС‚ РїРѕРїР°Р» РІ Exclude
 };
 
 
@@ -77,3 +79,5 @@ private:
 	FAR_FILE_FILTER_TYPE m_FilterType;
 	unsigned __int64 CurrentTime;
 };
+
+#endif // FILEFILTER_HPP_DC322D87_FC69_401A_8EF8_9710B11909CB

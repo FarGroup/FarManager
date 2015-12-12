@@ -1,13 +1,15 @@
+п»ї#ifndef PALETTE_HPP_8CFE8272_39B6_4198_9046_E94FEAD9832C
+#define PALETTE_HPP_8CFE8272_39B6_4198_9046_E94FEAD9832C
 #pragma once
 
 /*
 palette.hpp
 
-Таблица цветов
+РўР°Р±Р»РёС†Р° С†РІРµС‚РѕРІ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -51,3 +53,5 @@ private:
 	std::vector<FarColor> CurrentPalette;
 	bool PaletteChanged;
 };
+
+#endif // PALETTE_HPP_8CFE8272_39B6_4198_9046_E94FEAD9832C

@@ -1,13 +1,15 @@
+п»ї#ifndef STRMIX_HPP_66F8DC2A_61A6_4C06_9B54_E0513A9735FA
+#define STRMIX_HPP_66F8DC2A_61A6_4C06_9B54_E0513A9735FA
 #pragma once
 
 /*
 strmix.hpp
 
-Куча разных вспомогательных функций по работе со строками
+РљСѓС‡Р° СЂР°Р·РЅС‹С… РІСЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹С… С„СѓРЅРєС†РёР№ РїРѕ СЂР°Р±РѕС‚Рµ СЃРѕ СЃС‚СЂРѕРєР°РјРё
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -44,21 +46,21 @@ static const FILEPANEL_COLUMN_MODES
 	COLUMN_NAMEONLY               = 0x4000000000000000LL,
 	COLUMN_RIGHTALIGN             = 0x2000000000000000LL,
 	COLUMN_FORMATTED              = 0x1000000000000000LL,
-	COLUMN_COMMAS                 = 0x0800000000000000LL, // Вставлять разделитель между тысячами
-	COLUMN_THOUSAND               = 0x0400000000000000LL, // Вместо делителя 1024 использовать делитель 1000
+	COLUMN_COMMAS                 = 0x0800000000000000LL, // Р’СЃС‚Р°РІР»СЏС‚СЊ СЂР°Р·РґРµР»РёС‚РµР»СЊ РјРµР¶РґСѓ С‚С‹СЃСЏС‡Р°РјРё
+	COLUMN_THOUSAND               = 0x0400000000000000LL, // Р’РјРµСЃС‚Рѕ РґРµР»РёС‚РµР»СЏ 1024 РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РґРµР»РёС‚РµР»СЊ 1000
 	COLUMN_BRIEF                  = 0x0200000000000000LL,
 	COLUMN_MONTH                  = 0x0100000000000000LL,
-	COLUMN_FLOATSIZE              = 0x0080000000000000LL, // Показывать размер файла в стиле Windows Explorer (т.е. 999 байт будут показаны как 999, а 1000 байт как 0.97 K)
-	COLUMN_ECONOMIC               = 0x0040000000000000LL, // Экономичный режим, не показывать пробел перед суффиксом размера файла (т.е. 0.97K)
-	COLUMN_MINSIZEINDEX           = 0x0020000000000000LL, // Минимально допустимый индекс при форматировании
-	COLUMN_SHOWBYTESINDEX         = 0x0010000000000000LL, // Показывать суффиксы B,K,M,G,T,P,E
+	COLUMN_FLOATSIZE              = 0x0080000000000000LL, // РџРѕРєР°Р·С‹РІР°С‚СЊ СЂР°Р·РјРµСЂ С„Р°Р№Р»Р° РІ СЃС‚РёР»Рµ Windows Explorer (С‚.Рµ. 999 Р±Р°Р№С‚ Р±СѓРґСѓС‚ РїРѕРєР°Р·Р°РЅС‹ РєР°Рє 999, Р° 1000 Р±Р°Р№С‚ РєР°Рє 0.97 K)
+	COLUMN_ECONOMIC               = 0x0040000000000000LL, // Р­РєРѕРЅРѕРјРёС‡РЅС‹Р№ СЂРµР¶РёРј, РЅРµ РїРѕРєР°Р·С‹РІР°С‚СЊ РїСЂРѕР±РµР» РїРµСЂРµРґ СЃСѓС„С„РёРєСЃРѕРј СЂР°Р·РјРµСЂР° С„Р°Р№Р»Р° (С‚.Рµ. 0.97K)
+	COLUMN_MINSIZEINDEX           = 0x0020000000000000LL, // РњРёРЅРёРјР°Р»СЊРЅРѕ РґРѕРїСѓСЃС‚РёРјС‹Р№ РёРЅРґРµРєСЃ РїСЂРё С„РѕСЂРјР°С‚РёСЂРѕРІР°РЅРёРё
+	COLUMN_SHOWBYTESINDEX         = 0x0010000000000000LL, // РџРѕРєР°Р·С‹РІР°С‚СЊ СЃСѓС„С„РёРєСЃС‹ B,K,M,G,T,P,E
 	COLUMN_FULLOWNER              = 0x0008000000000000LL,
 	COLUMN_NOEXTENSION            = 0x0004000000000000LL,
 	COLUMN_CENTERALIGN            = 0x0002000000000000LL,
 	COLUMN_RIGHTALIGNFORCE        = 0x0001000000000000LL,
 	COLUMN_MARK_DYNAMIC           = 0x0000800000000000LL,
 
-	COLUMN_MINSIZEINDEX_MASK      = 0x0000000000000003LL; // MINSIZEINDEX может быть только 0, 1, 2 или 3 (K,M,G,T), например, 1 - "размер как минимум в мегабайтах"
+	COLUMN_MINSIZEINDEX_MASK      = 0x0000000000000003LL; // MINSIZEINDEX РјРѕР¶РµС‚ Р±С‹С‚СЊ С‚РѕР»СЊРєРѕ 0, 1, 2 РёР»Рё 3 (K,M,G,T), РЅР°РїСЂРёРјРµСЂ, 1 - "СЂР°Р·РјРµСЂ РєР°Рє РјРёРЅРёРјСѓРј РІ РјРµРіР°Р±Р°Р№С‚Р°С…"
 
 
 wchar_t* QuoteSpace(wchar_t *Str);
@@ -163,13 +165,13 @@ inline wchar_t* UNSAFE_CSTR(const string& s) {return const_cast<wchar_t*>(s.data
 
 enum STL_FLAGS
 {
-	STLF_PACKASTERISKS   = BIT(0), // вместо "*.*" в список помещать просто "*", вместо "***" в список помещать просто "*"
-	STLF_PROCESSBRACKETS = BIT(1), // учитывать квадратные скобки при анализе строки инициализации
+	STLF_PACKASTERISKS   = BIT(0), // РІРјРµСЃС‚Рѕ "*.*" РІ СЃРїРёСЃРѕРє РїРѕРјРµС‰Р°С‚СЊ РїСЂРѕСЃС‚Рѕ "*", РІРјРµСЃС‚Рѕ "***" РІ СЃРїРёСЃРѕРє РїРѕРјРµС‰Р°С‚СЊ РїСЂРѕСЃС‚Рѕ "*"
+	STLF_PROCESSBRACKETS = BIT(1), // СѓС‡РёС‚С‹РІР°С‚СЊ РєРІР°РґСЂР°С‚РЅС‹Рµ СЃРєРѕР±РєРё РїСЂРё Р°РЅР°Р»РёР·Рµ СЃС‚СЂРѕРєРё РёРЅРёС†РёР°Р»РёР·Р°С†РёРё
 	STLF_ALLOWEMPTY      = BIT(2), // allow empty items
-	STLF_UNIQUE          = BIT(3), // убирать дублирующиеся элементы
-	STLF_SORT            = BIT(4), // отсортировать (с учетом регистра)
-	STLF_NOTRIM          = BIT(5), // не удалять пробелы
-	STLF_NOUNQUOTE       = BIT(6), // не раскавычивать
+	STLF_UNIQUE          = BIT(3), // СѓР±РёСЂР°С‚СЊ РґСѓР±Р»РёСЂСѓСЋС‰РёРµСЃСЏ СЌР»РµРјРµРЅС‚С‹
+	STLF_SORT            = BIT(4), // РѕС‚СЃРѕСЂС‚РёСЂРѕРІР°С‚СЊ (СЃ СѓС‡РµС‚РѕРј СЂРµРіРёСЃС‚СЂР°)
+	STLF_NOTRIM          = BIT(5), // РЅРµ СѓРґР°Р»СЏС‚СЊ РїСЂРѕР±РµР»С‹
+	STLF_NOUNQUOTE       = BIT(6), // РЅРµ СЂР°СЃРєР°РІС‹С‡РёРІР°С‚СЊ
 	STLF_NOQUOTING       = BIT(7), // do not give special meaning for quotes
 };
 
@@ -261,3 +263,5 @@ struct string_i_less
 };
 
 using namespace strmix;
+
+#endif // STRMIX_HPP_66F8DC2A_61A6_4C06_9B54_E0513A9735FA

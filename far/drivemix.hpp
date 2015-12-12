@@ -1,3 +1,5 @@
+ï»¿#ifndef DRIVEMIX_HPP_55D4E32D_1B01_4FDB_879E_E5CB54401677
+#define DRIVEMIX_HPP_55D4E32D_1B01_4FDB_879E_E5CB54401677
 #pragma once
 
 /*
@@ -6,8 +8,8 @@ drivemix.hpp
 Misc functions for drive/disk info
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright Â© 1996 Eugene Roshal
+Copyright Â© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -68,3 +70,5 @@ enum CHECKEDPROPS_TYPE
 bool IsDriveTypeRemote(UINT DriveType);
 os::drives_set FarGetLogicalDrives();
 int CheckDisksProps(const string& SrcPath, const string&DestPath, int CheckedType);
+
+#endif // DRIVEMIX_HPP_55D4E32D_1B01_4FDB_879E_E5CB54401677

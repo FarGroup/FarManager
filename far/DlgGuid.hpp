@@ -1,12 +1,14 @@
+п»ї#ifndef DLGGUID_HPP_760BACF0_E0D8_4C67_A732_5C075A1CC176
+#define DLGGUID_HPP_760BACF0_E0D8_4C67_A732_5C075A1CC176
 #pragma once
 
 /*
 DlgGuid.hpp
 
-GUID'ы диалогов.
+GUID'С‹ РґРёР°Р»РѕРіРѕРІ.
 */
 /*
-Copyright © 2010 Far Group
+Copyright В© 2010 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -199,3 +201,5 @@ DEFINE_GUID(RecycleFolderConfirmDeleteLinkId,0x26a7ab9f,0x51f5,0x40f7,0x90,0x61,
 DEFINE_GUID(CannotRecycleFileId,0x52ceb5a5,0x6fa,0x43dd,0xb3,0x7c,0x23,0x9c,0x2,0x65,0x2c,0x99);
 // {BBD9B7AE-9F6B-4444-89BF-C6124A5A83A4}
 DEFINE_GUID(CannotRecycleFolderId,0xbbd9b7ae,0x9f6b,0x4444,0x89,0xbf,0xc6,0x12,0x4a,0x5a,0x83,0xa4);
+
+#endif // DLGGUID_HPP_760BACF0_E0D8_4C67_A732_5C075A1CC176

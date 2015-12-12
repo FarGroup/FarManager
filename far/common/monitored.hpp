@@ -1,7 +1,9 @@
+﻿#ifndef MONITORED_HPP_2F3A1061_FB63_4B9F_8EB9_9DA8C7B7CF22
+#define MONITORED_HPP_2F3A1061_FB63_4B9F_8EB9_9DA8C7B7CF22
 #pragma once
 
 /*
-Copyright � 2015 Far Group
+Copyright © 2015 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -62,3 +64,5 @@ private:
 	T m_Value;
 	bool m_Touched;
 };
+
+#endif // MONITORED_HPP_2F3A1061_FB63_4B9F_8EB9_9DA8C7B7CF22

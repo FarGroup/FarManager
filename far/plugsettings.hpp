@@ -1,12 +1,14 @@
+п»ї#ifndef PLUGSETTINGS_HPP_E3377566_8E58_48BB_9A8A_B205A943BD6F
+#define PLUGSETTINGS_HPP_E3377566_8E58_48BB_9A8A_B205A943BD6F
 #pragma once
 
 /*
 plugsettings.hpp
 
-API для хранения плагинами настроек.
+API РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РїР»Р°РіРёРЅР°РјРё РЅР°СЃС‚СЂРѕРµРє.
 */
 /*
-Copyright © 2011 Far Group
+Copyright В© 2011 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -56,3 +58,5 @@ private:
 private:
 	std::list<char_ptr> m_Data;
 };
+
+#endif // PLUGSETTINGS_HPP_E3377566_8E58_48BB_9A8A_B205A943BD6F

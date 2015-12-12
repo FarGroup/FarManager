@@ -1,13 +1,15 @@
+п»ї#ifndef HELP_HPP_B6683B98_B047_4D77_AD11_1AB7392B9A2E
+#define HELP_HPP_B6683B98_B047_4D77_AD11_1AB7392B9A2E
 #pragma once
 
 /*
 help.hpp
 
-Помощь
+РџРѕРјРѕС‰СЊ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -51,7 +53,7 @@ public:
 	virtual void InitKeyBar() override;
 	virtual void SetScreenPosition() override;
 	virtual void ResizeConsole() override;
-	virtual bool CanFastHide() const override; // Введена для нужд CtrlAltShift
+	virtual bool CanFastHide() const override; // Р’РІРµРґРµРЅР° РґР»СЏ РЅСѓР¶Рґ CtrlAltShift
 	virtual int GetTypeAndName(string &strType, string &strName) override;
 	virtual int GetType() const override { return windowtype_help; }
 	virtual __int64 VMProcess(int OpCode,void *vParam,__int64 iParam) override;
@@ -84,23 +86,23 @@ private:
 	int JumpTopic();
 
 	std::unique_ptr<StackHelpData> StackData;
-	std::stack<StackHelpData, std::vector<StackHelpData>> Stack; // стек возврата
-	std::vector<HelpRecord> HelpList; // "хелп" в памяти.
+	std::stack<StackHelpData, std::vector<StackHelpData>> Stack; // СЃС‚РµРє РІРѕР·РІСЂР°С‚Р°
+	std::vector<HelpRecord> HelpList; // "С…РµР»Рї" РІ РїР°РјСЏС‚Рё.
 	string  strFullHelpPathName;
-	string strCtrlColorChar;    // CtrlColorChar - опция! для спецсимвола-
-	string strCurPluginContents; // помним PluginContents (для отображения в заголовке)
+	string strCtrlColorChar;    // CtrlColorChar - РѕРїС†РёСЏ! РґР»СЏ СЃРїРµС†СЃРёРјРІРѕР»Р°-
+	string strCurPluginContents; // РїРѕРјРЅРёРј PluginContents (РґР»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ РІ Р·Р°РіРѕР»РѕРІРєРµ)
 	string strCtrlStartPosChar;
 	string strLastSearchStr;
 
-	int FixCount;             // количество строк непрокручиваемой области
-	int FixSize;              // Размер непрокручиваемой области
+	int FixCount;             // РєРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂРѕРє РЅРµРїСЂРѕРєСЂСѓС‡РёРІР°РµРјРѕР№ РѕР±Р»Р°СЃС‚Рё
+	int FixSize;              // Р Р°Р·РјРµСЂ РЅРµРїСЂРѕРєСЂСѓС‡РёРІР°РµРјРѕР№ РѕР±Р»Р°СЃС‚Рё
 
 	int MouseDownX, MouseDownY, BeforeMouseDownX, BeforeMouseDownY;
 	int MsX, MsY;
 
-	// символа - для атрибутов
-	FarColor CurColor;             // CurColor - текущий цвет отрисовки
-	int CtrlTabSize;          // CtrlTabSize - опция! размер табуляции
+	// СЃРёРјРІРѕР»Р° - РґР»СЏ Р°С‚СЂРёР±СѓС‚РѕРІ
+	FarColor CurColor;             // CurColor - С‚РµРєСѓС‰РёР№ С†РІРµС‚ РѕС‚СЂРёСЃРѕРІРєРё
+	int CtrlTabSize;          // CtrlTabSize - РѕРїС†РёСЏ! СЂР°Р·РјРµСЂ С‚Р°Р±СѓР»СЏС†РёРё
 
 	DWORD LastStartPos;
 	DWORD StartPos;
@@ -111,3 +113,5 @@ private:
 	bool ErrorHelp;
 	bool LastSearchCase, LastSearchWholeWords, LastSearchRegexp;
 };
+
+#endif // HELP_HPP_B6683B98_B047_4D77_AD11_1AB7392B9A2E

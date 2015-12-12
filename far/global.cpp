@@ -1,11 +1,11 @@
-/*
+п»ї/*
 global.cpp
 
-Глобальные переменные
+Р“Р»РѕР±Р°Р»СЊРЅС‹Рµ РїРµСЂРµРјРµРЅРЅС‹Рµ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -69,18 +69,18 @@ global::global():
 
 	// BUGBUG
 
-	// идет процесс назначения клавиши в макросе?
+	// РёРґРµС‚ РїСЂРѕС†РµСЃСЃ РЅР°Р·РЅР°С‡РµРЅРёСЏ РєР»Р°РІРёС€Рё РІ РјР°РєСЂРѕСЃРµ?
 	IsProcessAssignMacroKey=FALSE;
-	// Идёт процесс перерисовки всех окон
+	// РРґС‘С‚ РїСЂРѕС†РµСЃСЃ РїРµСЂРµСЂРёСЃРѕРІРєРё РІСЃРµС… РѕРєРѕРЅ
 	IsRedrawWindowInProcess=FALSE;
 	PluginPanelsCount = 0;
-	// идет процесс быстрого поиска в панелях?
+	// РёРґРµС‚ РїСЂРѕС†РµСЃСЃ Р±С‹СЃС‚СЂРѕРіРѕ РїРѕРёСЃРєР° РІ РїР°РЅРµР»СЏС…?
 	WaitInFastFind=FALSE;
-	// мы крутимся в основном цикле?
+	// РјС‹ РєСЂСѓС‚РёРјСЃСЏ РІ РѕСЃРЅРѕРІРЅРѕРј С†РёРєР»Рµ?
 	WaitInMainLoop=FALSE;
 	StartIdleTime=0;
 	GlobalSearchCase=false;
-	GlobalSearchWholeWords=false; // значение "Whole words" для поиска
+	GlobalSearchWholeWords=false; // Р·РЅР°С‡РµРЅРёРµ "Whole words" РґР»СЏ РїРѕРёСЃРєР°
 	GlobalSearchReverse=false;
 	ScreenSaverActive=FALSE;
 	CloseFAR=FALSE;
@@ -99,7 +99,7 @@ global::global():
 	GlobalSaveScrPtr=nullptr;
 	CriticalInternalError=FALSE;
 	KeepUserScreen = 0;
-	Macro_DskShowPosType=0; // для какой панели вызывали меню выбора дисков (0 - ничерта не вызывали, 1 - левая (AltF1), 2 - правая (AltF2))
+	Macro_DskShowPosType=0; // РґР»СЏ РєР°РєРѕР№ РїР°РЅРµР»Рё РІС‹Р·С‹РІР°Р»Рё РјРµРЅСЋ РІС‹Р±РѕСЂР° РґРёСЃРєРѕРІ (0 - РЅРёС‡РµСЂС‚Р° РЅРµ РІС‹Р·С‹РІР°Р»Рё, 1 - Р»РµРІР°СЏ (AltF1), 2 - РїСЂР°РІР°СЏ (AltF2))
 	ErrorMode = SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX;
 
 	// BUGBUG end

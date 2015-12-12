@@ -1,13 +1,15 @@
+п»ї#ifndef FILEMASKS_HPP_80DC5089_9F1B_484C_BC52_39A6AA1C7299
+#define FILEMASKS_HPP_80DC5089_9F1B_484C_BC52_39A6AA1C7299
 #pragma once
 
 /*
 filemasks.hpp
 
-Класс для работы с масками файлов (учитывается наличие масок исключения).
+РљР»Р°СЃСЃ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РјР°СЃРєР°РјРё С„Р°Р№Р»РѕРІ (СѓС‡РёС‚С‹РІР°РµС‚СЃСЏ РЅР°Р»РёС‡РёРµ РјР°СЃРѕРє РёСЃРєР»СЋС‡РµРЅРёСЏ).
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -61,3 +63,5 @@ private:
 
 	std::list<masks> Include, Exclude;
 };
+
+#endif // FILEMASKS_HPP_80DC5089_9F1B_484C_BC52_39A6AA1C7299

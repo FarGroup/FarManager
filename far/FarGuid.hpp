@@ -1,12 +1,14 @@
+ï»¿#ifndef FARGUID_HPP_49C263EE_12A1_48FD_BA02_52CCE8950C28
+#define FARGUID_HPP_49C263EE_12A1_48FD_BA02_52CCE8950C28
 #pragma once
 
 /*
 FarGuid.hpp
 
-GUID'û ôàðà.
+GUID'Ñ‹ Ñ„Ð°Ñ€Ð°.
 */
 /*
-Copyright © 2010 Far Group
+Copyright Â© 2010 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -34,3 +36,5 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // {00000000-0000-0000-0000-000000000000}
 DEFINE_GUID(FarGuid,0,0,0,0,0,0,0,0,0,0,0);
+
+#endif // FARGUID_HPP_49C263EE_12A1_48FD_BA02_52CCE8950C28

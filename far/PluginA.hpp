@@ -1,8 +1,10 @@
+ï»¿#ifndef PLUGINA_HPP_174AA538_EA2A_43CC_B242_146456B477DB
+#define PLUGINA_HPP_174AA538_EA2A_43CC_B242_146456B477DB
 #pragma once
 
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright Â© 1996 Eugene Roshal
+Copyright Â© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -127,3 +129,5 @@ private:
 
 };
 #endif // NO_WRAPPER
+
+#endif // PLUGINA_HPP_174AA538_EA2A_43CC_B242_146456B477DB

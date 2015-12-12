@@ -1,7 +1,9 @@
+﻿#ifndef SMART_PTR_HPP_DE65D1E8_C925_40F7_905A_B7E3FF40B486
+#define SMART_PTR_HPP_DE65D1E8_C925_40F7_905A_B7E3FF40B486
 #pragma once
 
 /*
-Copyright � 2014 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -90,3 +92,5 @@ struct file_closer
 };
 
 typedef std::unique_ptr<FILE, file_closer> file_ptr;
+
+#endif // SMART_PTR_HPP_DE65D1E8_C925_40F7_905A_B7E3FF40B486

@@ -1,13 +1,15 @@
+п»ї#ifndef DATETIME_HPP_58256A07_E483_4DB7_9DAC_DFA9D90D8A32
+#define DATETIME_HPP_58256A07_E483_4DB7_9DAC_DFA9D90D8A32
 #pragma once
 
 /*
 datetime.hpp
 
-Функции для работы с датой и временем
+Р¤СѓРЅРєС†РёРё РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РґР°С‚РѕР№ Рё РІСЂРµРјРµРЅРµРј
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -116,3 +118,5 @@ private:
 	const clock_t m_Interval;
 };
 
+
+#endif // DATETIME_HPP_58256A07_E483_4DB7_9DAC_DFA9D90D8A32

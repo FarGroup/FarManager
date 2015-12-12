@@ -1,13 +1,15 @@
+п»ї#ifndef POSCACHE_HPP_A2B06FC5_F1DF_4C1B_A438_D656CAA4AA61
+#define POSCACHE_HPP_A2B06FC5_F1DF_4C1B_A438_D656CAA4AA61
 #pragma once
 
 /*
 poscache.hpp
 
-Кэш позиций в файлах для viewer/editor
+РљСЌС€ РїРѕР·РёС†РёР№ РІ С„Р°Р№Р»Р°С… РґР»СЏ viewer/editor
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -35,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 const int POS_NONE = -1;
 
-// Количество закладок в редакторе/вьювере на одну позицию
+// РљРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РєР»Р°РґРѕРє РІ СЂРµРґР°РєС‚РѕСЂРµ/РІСЊСЋРІРµСЂРµ РЅР° РѕРґРЅСѓ РїРѕР·РёС†РёСЋ
 const size_t BOOKMARK_COUNT = 10;
 
 template<class T>
@@ -107,3 +109,5 @@ public:
 
 	static void CompactHistory();
 };
+
+#endif // POSCACHE_HPP_A2B06FC5_F1DF_4C1B_A438_D656CAA4AA61

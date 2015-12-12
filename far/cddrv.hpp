@@ -1,13 +1,15 @@
+Ôªø#ifndef CDDRV_HPP_58900C1C_4DCC_4B5F_B2E1_2B118547DC70
+#define CDDRV_HPP_58900C1C_4DCC_4B5F_B2E1_2B118547DC70
 #pragma once
 
 /*
 cddrv.hpp
 
-ÔÓ ÒË‰˛Í
+–ø—Ä–æ —Å–∏–¥—é–∫
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright ¬© 1996 Eugene Roshal
+Copyright ¬© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -36,3 +38,5 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 bool IsDriveTypeCDROM(UINT DriveType);
 bool DriveCanBeVirtual(UINT DriveType);
 UINT FAR_GetDriveType(const string& RootDir, DWORD Detect=0);
+
+#endif // CDDRV_HPP_58900C1C_4DCC_4B5F_B2E1_2B118547DC70

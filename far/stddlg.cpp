@@ -1,11 +1,11 @@
-/*
+п»ї/*
 stddlg.cpp
 
-Куча разных стандартных диалогов
+РљСѓС‡Р° СЂР°Р·РЅС‹С… СЃС‚Р°РЅРґР°СЂС‚РЅС‹С… РґРёР°Р»РѕРіРѕРІ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -253,7 +253,7 @@ int GetString(
 	const GUID* Id
 )
 {
-	int Substract=5; // дополнительная величина :-)
+	int Substract=5; // РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ РІРµР»РёС‡РёРЅР° :-)
 	int ExitCode;
 	bool addCheckBox=Flags&FIB_CHECKBOX && CheckBoxValue && CheckBoxText;
 	int offset=addCheckBox?2:0;
@@ -365,14 +365,14 @@ int GetString(
 }
 
 /*
-  Стандартный диалог ввода пароля.
-  Умеет сам запоминать последнего юзвера и пароль.
+  РЎС‚Р°РЅРґР°СЂС‚РЅС‹Р№ РґРёР°Р»РѕРі РІРІРѕРґР° РїР°СЂРѕР»СЏ.
+  РЈРјРµРµС‚ СЃР°Рј Р·Р°РїРѕРјРёРЅР°С‚СЊ РїРѕСЃР»РµРґРЅРµРіРѕ СЋР·РІРµСЂР° Рё РїР°СЂРѕР»СЊ.
 
-  Name      - сюда будет помещен юзвер (max 256 символов!!!)
-  Password  - сюда будет помещен пароль (max 256 символов!!!)
-  Title     - заголовок диалога (может быть nullptr)
-  HelpTopic - тема помощи (может быть nullptr)
-  Flags     - флаги (GNP_*)
+  Name      - СЃСЋРґР° Р±СѓРґРµС‚ РїРѕРјРµС‰РµРЅ СЋР·РІРµСЂ (max 256 СЃРёРјРІРѕР»РѕРІ!!!)
+  Password  - СЃСЋРґР° Р±СѓРґРµС‚ РїРѕРјРµС‰РµРЅ РїР°СЂРѕР»СЊ (max 256 СЃРёРјРІРѕР»РѕРІ!!!)
+  Title     - Р·Р°РіРѕР»РѕРІРѕРє РґРёР°Р»РѕРіР° (РјРѕР¶РµС‚ Р±С‹С‚СЊ nullptr)
+  HelpTopic - С‚РµРјР° РїРѕРјРѕС‰Рё (РјРѕР¶РµС‚ Р±С‹С‚СЊ nullptr)
+  Flags     - С„Р»Р°РіРё (GNP_*)
 */
 int GetNameAndPassword(const string& Title, string &strUserName, string &strPassword,const wchar_t *HelpTopic,DWORD Flags)
 {
@@ -420,7 +420,7 @@ int GetNameAndPassword(const string& Title, string &strUserName, string &strPass
 	if (ExitCode!=6)
 		return FALSE;
 
-	// запоминаем всегда.
+	// Р·Р°РїРѕРјРёРЅР°РµРј РІСЃРµРіРґР°.
 	strUserName = PassDlg[2].strData;
 	strLastName = strUserName;
 	strPassword = PassDlg[4].strData;

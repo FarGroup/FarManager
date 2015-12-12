@@ -1,13 +1,15 @@
+п»ї#ifndef DIZLIST_HPP_0115E7F4_A98B_42CE_A43A_275B8A6DFFEF
+#define DIZLIST_HPP_0115E7F4_A98B_42CE_A43A_275B8A6DFFEF
 #pragma once
 
 /*
 dizlist.hpp
 
-Описания файлов
+РћРїРёСЃР°РЅРёСЏ С„Р°Р№Р»РѕРІ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -66,3 +68,5 @@ private:
 	bool Modified;
 	uintptr_t OrigCodePage;
 };
+
+#endif // DIZLIST_HPP_0115E7F4_A98B_42CE_A43A_275B8A6DFFEF

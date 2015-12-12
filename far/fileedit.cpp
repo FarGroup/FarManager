@@ -1,11 +1,11 @@
-/*
+п»ї/*
 fileedit.cpp
 
-Редактирование файла - надстройка над editor.cpp
+Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ С„Р°Р№Р»Р° - РЅР°РґСЃС‚СЂРѕР№РєР° РЅР°Рґ editor.cpp
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -369,11 +369,11 @@ fileeditor_ptr FileEditor::create(const string& Name, uintptr_t codepage, DWORD 
 }
 
 /* $ 07.05.2001 DJ
-   в деструкторе грохаем EditNamesList, если он был создан, а в SetNamesList()
-   создаем EditNamesList и копируем туда значения
+   РІ РґРµСЃС‚СЂСѓРєС‚РѕСЂРµ РіСЂРѕС…Р°РµРј EditNamesList, РµСЃР»Рё РѕРЅ Р±С‹Р» СЃРѕР·РґР°РЅ, Р° РІ SetNamesList()
+   СЃРѕР·РґР°РµРј EditNamesList Рё РєРѕРїРёСЂСѓРµРј С‚СѓРґР° Р·РЅР°С‡РµРЅРёСЏ
 */
 /*
-  Вызов деструкторов идет так:
+  Р’С‹Р·РѕРІ РґРµСЃС‚СЂСѓРєС‚РѕСЂРѕРІ РёРґРµС‚ С‚Р°Рє:
     FileEditor::~FileEditor()
     Editor::~Editor()
     ...
@@ -383,12 +383,12 @@ FileEditor::~FileEditor()
 	if (!m_Flags.Check(FFILEEDIT_OPENFAILED))
 	{
 		/* $ 11.10.2001 IS
-		   Удалим файл вместе с каталогом, если это просится и файла с таким же
-		   именем не открыто в других окнах.
+		   РЈРґР°Р»РёРј С„Р°Р№Р» РІРјРµСЃС‚Рµ СЃ РєР°С‚Р°Р»РѕРіРѕРј, РµСЃР»Рё СЌС‚Рѕ РїСЂРѕСЃРёС‚СЃСЏ Рё С„Р°Р№Р»Р° СЃ С‚Р°РєРёРј Р¶Рµ
+		   РёРјРµРЅРµРј РЅРµ РѕС‚РєСЂС‹С‚Рѕ РІ РґСЂСѓРіРёС… РѕРєРЅР°С….
 		*/
 		/* $ 14.06.2001 IS
-		   Если установлен FEDITOR_DELETEONLYFILEONCLOSE и сброшен
-		   FEDITOR_DELETEONCLOSE, то удаляем только файл.
+		   Р•СЃР»Рё СѓСЃС‚Р°РЅРѕРІР»РµРЅ FEDITOR_DELETEONLYFILEONCLOSE Рё СЃР±СЂРѕС€РµРЅ
+		   FEDITOR_DELETEONCLOSE, С‚Рѕ СѓРґР°Р»СЏРµРј С‚РѕР»СЊРєРѕ С„Р°Р№Р».
 		*/
 		if (m_Flags.Check(FFILEEDIT_DELETEONCLOSE|FFILEEDIT_DELETEONLYFILEONCLOSE) &&
 		        !Global->WindowManager->CountWindowsWithName(strFullFileName))
@@ -429,7 +429,7 @@ void FileEditor::Init(
 	};
 
 	int BlankFileName = Name == MSG(MNewFileName) || Name.empty();
-	//AY: флаг оповещающий закрытие редактора.
+	//AY: С„Р»Р°Рі РѕРїРѕРІРµС‰Р°СЋС‰РёР№ Р·Р°РєСЂС‹С‚РёРµ СЂРµРґР°РєС‚РѕСЂР°.
 	m_bClosing = false;
 	bEE_READ_Sent = false;
 	bLoaded = false;
@@ -446,7 +446,7 @@ void FileEditor::Init(
 	SetTitle(Title);
 	m_KeyBarVisible = Global->Opt->EdOpt.ShowKeyBar;
 	m_TitleBarVisible = Global->Opt->EdOpt.ShowTitleBar;
-	// $ 17.08.2001 KM - Добавлено для поиска по AltF7. При редактировании найденного файла из архива для клавиши F2 сделать вызов ShiftF2.
+	// $ 17.08.2001 KM - Р”РѕР±Р°РІР»РµРЅРѕ РґР»СЏ РїРѕРёСЃРєР° РїРѕ AltF7. РџСЂРё СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёРё РЅР°Р№РґРµРЅРЅРѕРіРѕ С„Р°Р№Р»Р° РёР· Р°СЂС…РёРІР° РґР»СЏ РєР»Р°РІРёС€Рё F2 СЃРґРµР»Р°С‚СЊ РІС‹Р·РѕРІ ShiftF2.
 	m_Flags.Change(FFILEEDIT_SAVETOSAVEAS, BlankFileName != 0);
 
 	if (BlankFileName && !m_Flags.Check(FFILEEDIT_CANNEWFILE))
@@ -518,7 +518,7 @@ void FileEditor::Init(
 						break;
 					case 2:         // Reload
 					{
-						//файл могли уже закрыть. например макросом в диалоговой процедуре предыдущего Message.
+						//С„Р°Р№Р» РјРѕРіР»Рё СѓР¶Рµ Р·Р°РєСЂС‹С‚СЊ. РЅР°РїСЂРёРјРµСЂ РјР°РєСЂРѕСЃРѕРј РІ РґРёР°Р»РѕРіРѕРІРѕР№ РїСЂРѕС†РµРґСѓСЂРµ РїСЂРµРґС‹РґСѓС‰РµРіРѕ Message.
 						EditorWindow = Global->WindowManager->FindWindowByFile(windowtype_editor, strFullFileName);
 						if (EditorWindow)
 						{
@@ -547,7 +547,7 @@ void FileEditor::Init(
 
 			if (SwitchTo)
 			{
-				//файл могли уже закрыть. например макросом в диалоговой процедуре предыдущего Message.
+				//С„Р°Р№Р» РјРѕРіР»Рё СѓР¶Рµ Р·Р°РєСЂС‹С‚СЊ. РЅР°РїСЂРёРјРµСЂ РјР°РєСЂРѕСЃРѕРј РІ РґРёР°Р»РѕРіРѕРІРѕР№ РїСЂРѕС†РµРґСѓСЂРµ РїСЂРµРґС‹РґСѓС‰РµРіРѕ Message.
 				EditorWindow = Global->WindowManager->FindWindowByFile(windowtype_editor, strFullFileName);
 				if (EditorWindow)
 				{
@@ -559,19 +559,19 @@ void FileEditor::Init(
 	}
 
 	/* $ 29.11.2000 SVS
-	   Если файл имеет атрибут ReadOnly или System или Hidden,
-	   И параметр на запрос выставлен, то сначала спросим.
+	   Р•СЃР»Рё С„Р°Р№Р» РёРјРµРµС‚ Р°С‚СЂРёР±СѓС‚ ReadOnly РёР»Рё System РёР»Рё Hidden,
+	   Р РїР°СЂР°РјРµС‚СЂ РЅР° Р·Р°РїСЂРѕСЃ РІС‹СЃС‚Р°РІР»РµРЅ, С‚Рѕ СЃРЅР°С‡Р°Р»Р° СЃРїСЂРѕСЃРёРј.
 	*/
 	/* $ 03.12.2000 SVS
-	   System или Hidden - задаются отдельно
+	   System РёР»Рё Hidden - Р·Р°РґР°СЋС‚СЃСЏ РѕС‚РґРµР»СЊРЅРѕ
 	*/
 	/* $ 15.12.2000 SVS
-	  - Shift-F4, новый файл. Выдает сообщение :-(
+	  - Shift-F4, РЅРѕРІС‹Р№ С„Р°Р№Р». Р’С‹РґР°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ :-(
 	*/
 	DWORD FAttr=os::GetFileAttributes(Name);
 
 	/* $ 05.06.2001 IS
-	   + посылаем подальше всех, кто пытается отредактировать каталог
+	   + РїРѕСЃС‹Р»Р°РµРј РїРѕРґР°Р»СЊС€Рµ РІСЃРµС…, РєС‚Рѕ РїС‹С‚Р°РµС‚СЃСЏ РѕС‚СЂРµРґР°РєС‚РёСЂРѕРІР°С‚СЊ РєР°С‚Р°Р»РѕРі
 	*/
 	if (FAttr!=INVALID_FILE_ATTRIBUTES && FAttr&FILE_ATTRIBUTE_DIRECTORY)
 	{
@@ -587,10 +587,10 @@ void FileEditor::Init(
 	        FAttr != INVALID_FILE_ATTRIBUTES &&
 	        (FAttr &
 	         (FILE_ATTRIBUTE_READONLY|
-	          /* Hidden=0x2 System=0x4 - располагаются во 2-м полубайте,
-	             поэтому применяем маску 0110.0000 и
-	             сдвигаем на свое место => 0000.0110 и получаем
-	             те самые нужные атрибуты  */
+	          /* Hidden=0x2 System=0x4 - СЂР°СЃРїРѕР»Р°РіР°СЋС‚СЃСЏ РІРѕ 2-Рј РїРѕР»СѓР±Р°Р№С‚Рµ,
+	             РїРѕСЌС‚РѕРјСѓ РїСЂРёРјРµРЅСЏРµРј РјР°СЃРєСѓ 0110.0000 Рё
+	             СЃРґРІРёРіР°РµРј РЅР° СЃРІРѕРµ РјРµСЃС‚Рѕ => 0000.0110 Рё РїРѕР»СѓС‡Р°РµРј
+	             С‚Рµ СЃР°РјС‹Рµ РЅСѓР¶РЅС‹Рµ Р°С‚СЂРёР±СѓС‚С‹  */
 	          ((m_editor->EdOpt.ReadOnlyLock&0x60)>>4)
 	         )
 	        )
@@ -612,8 +612,8 @@ void FileEditor::Init(
 	int UserBreak;
 
 	/* $ 06.07.2001 IS
-	   При создании файла с нуля так же посылаем плагинам событие EE_READ, дабы
-	   не нарушать однообразие.
+	   РџСЂРё СЃРѕР·РґР°РЅРёРё С„Р°Р№Р»Р° СЃ РЅСѓР»СЏ С‚Р°Рє Р¶Рµ РїРѕСЃС‹Р»Р°РµРј РїР»Р°РіРёРЅР°Рј СЃРѕР±С‹С‚РёРµ EE_READ, РґР°Р±С‹
+	   РЅРµ РЅР°СЂСѓС€Р°С‚СЊ РѕРґРЅРѕРѕР±СЂР°Р·РёРµ.
 	*/
 	if (FAttr == INVALID_FILE_ATTRIBUTES)
 		m_Flags.Set(FFILEEDIT_NEW);
@@ -631,7 +631,7 @@ void FileEditor::Init(
 	{
 		if (BlankFileName)
 		{
-			m_Flags.Clear(FFILEEDIT_OPENFAILED); //AY: ну так как редактор мы открываем то видимо надо и сбросить ошибку открытия
+			m_Flags.Clear(FFILEEDIT_OPENFAILED); //AY: РЅСѓ С‚Р°Рє РєР°Рє СЂРµРґР°РєС‚РѕСЂ РјС‹ РѕС‚РєСЂС‹РІР°РµРј С‚Рѕ РІРёРґРёРјРѕ РЅР°РґРѕ Рё СЃР±СЂРѕСЃРёС‚СЊ РѕС€РёР±РєСѓ РѕС‚РєСЂС‹С‚РёСЏ
 			UserBreak=0;
 		}
 
@@ -649,11 +649,11 @@ void FileEditor::Init(
 				SetExitCode(XC_LOADING_INTERRUPTED);
 			}
 
-			// Ахтунг. Ниже комментарии оставлены в назидании потомкам (до тех пор, пока не измениться манагер)
-			//WindowManager->DeleteWindow(this); // BugZ#546 - Editor валит фар!
-			//Global->CtrlObject->Cp()->Redraw(); //AY: вроде как не надо, делает проблемы с прорисовкой если в редакторе из истории попытаться выбрать несуществующий файл
+			// РђС…С‚СѓРЅРі. РќРёР¶Рµ РєРѕРјРјРµРЅС‚Р°СЂРёРё РѕСЃС‚Р°РІР»РµРЅС‹ РІ РЅР°Р·РёРґР°РЅРёРё РїРѕС‚РѕРјРєР°Рј (РґРѕ С‚РµС… РїРѕСЂ, РїРѕРєР° РЅРµ РёР·РјРµРЅРёС‚СЊСЃСЏ РјР°РЅР°РіРµСЂ)
+			//WindowManager->DeleteWindow(this); // BugZ#546 - Editor РІР°Р»РёС‚ С„Р°СЂ!
+			//Global->CtrlObject->Cp()->Redraw(); //AY: РІСЂРѕРґРµ РєР°Рє РЅРµ РЅР°РґРѕ, РґРµР»Р°РµС‚ РїСЂРѕР±Р»РµРјС‹ СЃ РїСЂРѕСЂРёСЃРѕРІРєРѕР№ РµСЃР»Рё РІ СЂРµРґР°РєС‚РѕСЂРµ РёР· РёСЃС‚РѕСЂРёРё РїРѕРїС‹С‚Р°С‚СЊСЃСЏ РІС‹Р±СЂР°С‚СЊ РЅРµСЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ С„Р°Р№Р»
 
-			// если прервали загрузку, то фреймы нужно проапдейтить, чтобы предыдущие месаги не оставались на экране
+			// РµСЃР»Рё РїСЂРµСЂРІР°Р»Рё Р·Р°РіСЂСѓР·РєСѓ, С‚Рѕ С„СЂРµР№РјС‹ РЅСѓР¶РЅРѕ РїСЂРѕР°РїРґРµР№С‚РёС‚СЊ, С‡С‚РѕР±С‹ РїСЂРµРґС‹РґСѓС‰РёРµ РјРµСЃР°РіРё РЅРµ РѕСЃС‚Р°РІР°Р»РёСЃСЊ РЅР° СЌРєСЂР°РЅРµ
 			if (!Global->Opt->Confirm.Esc && UserBreak && GetExitCode() == XC_LOADING_INTERRUPTED)
 				Global->WindowManager->RefreshWindow();
 
@@ -705,7 +705,7 @@ void FileEditor::ReadEvent(void)
 {
 	Global->CtrlObject->Plugins->ProcessEditorEvent(EE_READ,nullptr,m_editor->EditorID);
 	bEE_READ_Sent = true;
-	Show(); //в EE_READ поменялась позиция курсора или размер табуляции.
+	Show(); //РІ EE_READ РїРѕРјРµРЅСЏР»Р°СЃСЊ РїРѕР·РёС†РёСЏ РєСѓСЂСЃРѕСЂР° РёР»Рё СЂР°Р·РјРµСЂ С‚Р°Р±СѓР»СЏС†РёРё.
 }
 
 void FileEditor::InitKeyBar()
@@ -845,13 +845,13 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 	if (m_Flags.Check(FFILEEDIT_REDRAWTITLE) && (((unsigned int)LocalKey & 0x00ffffff) < KEY_END_FKEY || IsInternalKeyReal((unsigned int)LocalKey & 0x00ffffff)))
 		ShowConsoleTitle();
 
-	// Все остальные необработанные клавиши пустим далее
+	// Р’СЃРµ РѕСЃС‚Р°Р»СЊРЅС‹Рµ РЅРµРѕР±СЂР°Р±РѕС‚Р°РЅРЅС‹Рµ РєР»Р°РІРёС€Рё РїСѓСЃС‚РёРј РґР°Р»РµРµ
 	/* $ 28.04.2001 DJ
-	   не передаем KEY_MACRO* плагину - поскольку ReadRec в этом случае
-	   никак не соответствует обрабатываемой клавише, возникают разномастные
-	   глюки
+	   РЅРµ РїРµСЂРµРґР°РµРј KEY_MACRO* РїР»Р°РіРёРЅСѓ - РїРѕСЃРєРѕР»СЊРєСѓ ReadRec РІ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ
+	   РЅРёРєР°Рє РЅРµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ РѕР±СЂР°Р±Р°С‚С‹РІР°РµРјРѕР№ РєР»Р°РІРёС€Рµ, РІРѕР·РЅРёРєР°СЋС‚ СЂР°Р·РЅРѕРјР°СЃС‚РЅС‹Рµ
+	   РіР»СЋРєРё
 	*/
-	if (((unsigned int)LocalKey >= KEY_MACRO_BASE && (unsigned int)LocalKey <= KEY_MACRO_ENDBASE) || ((unsigned int)LocalKey>=KEY_OP_BASE && (unsigned int)LocalKey <=KEY_OP_ENDBASE)) // исключаем MACRO
+	if (((unsigned int)LocalKey >= KEY_MACRO_BASE && (unsigned int)LocalKey <= KEY_MACRO_ENDBASE) || ((unsigned int)LocalKey>=KEY_OP_BASE && (unsigned int)LocalKey <=KEY_OP_ENDBASE)) // РёСЃРєР»СЋС‡Р°РµРј MACRO
 	{
 		; //
 	}
@@ -865,10 +865,10 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 				int FirstSave=1;
 				UINT cp=m_codepage;
 
-				// проверка на "а может это говно удалили уже?"
-				// возможно здесь она и не нужна!
-				// хотя, раз уж были изменения, то
-				if (m_editor->IsFileChanged() && // в текущем сеансе были изменения?
+				// РїСЂРѕРІРµСЂРєР° РЅР° "Р° РјРѕР¶РµС‚ СЌС‚Рѕ РіРѕРІРЅРѕ СѓРґР°Р»РёР»Рё СѓР¶Рµ?"
+				// РІРѕР·РјРѕР¶РЅРѕ Р·РґРµСЃСЊ РѕРЅР° Рё РЅРµ РЅСѓР¶РЅР°!
+				// С…РѕС‚СЏ, СЂР°Р· СѓР¶ Р±С‹Р»Рё РёР·РјРµРЅРµРЅРёСЏ, С‚Рѕ
+				if (m_editor->IsFileChanged() && // РІ С‚РµРєСѓС‰РµРј СЃРµР°РЅСЃРµ Р±С‹Р»Рё РёР·РјРµРЅРµРЅРёСЏ?
 				        !os::fs::exists(strFullFileName))
 				{
 					switch (Message(MSG_WARNING, MSG(MEditTitle),
@@ -894,7 +894,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 					const auto FilePos = m_editor->GetCurPos(true, m_bAddSignature);
 
 					/* $ 01.02.2001 IS
-					   ! Открываем viewer с указанием длинного имени файла, а не короткого
+					   ! РћС‚РєСЂС‹РІР°РµРј viewer СЃ СѓРєР°Р·Р°РЅРёРµРј РґР»РёРЅРЅРѕРіРѕ РёРјРµРЅРё С„Р°Р№Р»Р°, Р° РЅРµ РєРѕСЂРѕС‚РєРѕРіРѕ
 					*/
 					int NeedQuestion = 1;
 					if (ProcessQuitKey(FirstSave,NeedQuestion,false))
@@ -920,10 +920,10 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 				return TRUE;
 			}
 
-			break; // отдадим F6 плагинам, если есть запрет на переключение
+			break; // РѕС‚РґР°РґРёРј F6 РїР»Р°РіРёРЅР°Рј, РµСЃР»Рё РµСЃС‚СЊ Р·Р°РїСЂРµС‚ РЅР° РїРµСЂРµРєР»СЋС‡РµРЅРёРµ
 		}
 		/* $ 10.05.2001 DJ
-		   Alt-F11 - показать view/edit history
+		   Alt-F11 - РїРѕРєР°Р·Р°С‚СЊ view/edit history
 		*/
 		case KEY_ALTF11:
 		case KEY_RALTF11:
@@ -934,7 +934,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 				return TRUE;
 			}
 
-			break; // отдадим Alt-F11 на растерзание плагинам, если редактор модальный
+			break; // РѕС‚РґР°РґРёРј Alt-F11 РЅР° СЂР°СЃС‚РµСЂР·Р°РЅРёРµ РїР»Р°РіРёРЅР°Рј, РµСЃР»Рё СЂРµРґР°РєС‚РѕСЂ РјРѕРґР°Р»СЊРЅС‹Р№
 		}
 	}
 
@@ -967,7 +967,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 				return TRUE;
 			}
 			/* $ 25.04.2001 IS
-			     ctrl+f - вставить в строку полное имя редактируемого файла
+			     ctrl+f - РІСЃС‚Р°РІРёС‚СЊ РІ СЃС‚СЂРѕРєСѓ РїРѕР»РЅРѕРµ РёРјСЏ СЂРµРґР°РєС‚РёСЂСѓРµРјРѕРіРѕ С„Р°Р№Р»Р°
 			*/
 			case KEY_CTRLF:
 			case KEY_RCTRLF:
@@ -995,7 +995,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 				return TRUE;
 			}
 			/* $ 24.08.2000 SVS
-			   + Добавляем реакцию показа бакграунда на клавишу CtrlAltShift
+			   + Р”РѕР±Р°РІР»СЏРµРј СЂРµР°РєС†РёСЋ РїРѕРєР°Р·Р° Р±Р°РєРіСЂР°СѓРЅРґР° РЅР° РєР»Р°РІРёС€Сѓ CtrlAltShift
 			*/
 			case KEY_CTRLO:
 			case KEY_RCTRLO:
@@ -1017,21 +1017,21 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 			{
 				BOOL Done=FALSE;
 				const auto strOldCurDir = os::GetCurrentDirectory();
-				while (!Done) // бьемся до упора
+				while (!Done) // Р±СЊРµРјСЃСЏ РґРѕ СѓРїРѕСЂР°
 				{
-					// проверим путь к файлу, может его уже снесли...
-					// BUGBUG, похоже, не работает
+					// РїСЂРѕРІРµСЂРёРј РїСѓС‚СЊ Рє С„Р°Р№Р»Сѓ, РјРѕР¶РµС‚ РµРіРѕ СѓР¶Рµ СЃРЅРµСЃР»Рё...
+					// BUGBUG, РїРѕС…РѕР¶Рµ, РЅРµ СЂР°Р±РѕС‚Р°РµС‚
 					const auto pos = FindLastSlash(strFullFileName);
 					if (pos != string::npos)
 					{
 						string Path = strFullFileName.substr(pos);
 
-						// В корне?
+						// Р’ РєРѕСЂРЅРµ?
 						if(IsRootPath(Path))
 						{
-							// а дальше? каталог существует?
+							// Р° РґР°Р»СЊС€Рµ? РєР°С‚Р°Р»РѕРі СЃСѓС‰РµСЃС‚РІСѓРµС‚?
 							if (!os::fs::is_directory(Path)
-							        //|| LocalStricmp(OldCurDir,FullFileName)  // <- это видимо лишнее.
+							        //|| LocalStricmp(OldCurDir,FullFileName)  // <- СЌС‚Рѕ РІРёРґРёРјРѕ Р»РёС€РЅРµРµ.
 							   )
 								m_Flags.Set(FFILEEDIT_SAVETOSAVEAS);
 						}
@@ -1059,7 +1059,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 						NameChanged=StrCmpI(strSaveAsName, m_Flags.Check(FFILEEDIT_SAVETOSAVEAS)? strFullFileName : strFileName);
 
 						if (!NameChanged)
-							FarChDir(strStartDir); // ПОЧЕМУ? А нужно ли???
+							FarChDir(strStartDir); // РџРћР§Р•РњРЈ? Рђ РЅСѓР¶РЅРѕ Р»Рё???
 
 						if (NameChanged)
 						{
@@ -1070,8 +1070,8 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 							}
 						}
 
-						ConvertNameToFull(strSaveAsName, strFullSaveAsName);  //BUGBUG, не проверяем имя на правильность
-						//это не про нас, про нас ниже, все куда страшнее
+						ConvertNameToFull(strSaveAsName, strFullSaveAsName);  //BUGBUG, РЅРµ РїСЂРѕРІРµСЂСЏРµРј РёРјСЏ РЅР° РїСЂР°РІРёР»СЊРЅРѕСЃС‚СЊ
+						//СЌС‚Рѕ РЅРµ РїСЂРѕ РЅР°СЃ, РїСЂРѕ РЅР°СЃ РЅРёР¶Рµ, РІСЃРµ РєСѓРґР° СЃС‚СЂР°С€РЅРµРµ
 						/*string strFileNameTemp = strSaveAsName;
 
 						if(!SetFileName(strFileNameTemp))
@@ -1103,7 +1103,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 					}
 					else if (SaveResult==SAVEFILE_SUCCESS)
 					{
-						//здесь идет полная жопа, проверка на ошибки вообще пока отсутствует
+						//Р·РґРµСЃСЊ РёРґРµС‚ РїРѕР»РЅР°СЏ Р¶РѕРїР°, РїСЂРѕРІРµСЂРєР° РЅР° РѕС€РёР±РєРё РІРѕРѕР±С‰Рµ РїРѕРєР° РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚
 						{
 							bool bInPlace = /*(!IsUnicodeOrUtfCodePage(m_codepage) && !IsUnicodeOrUtfCodePage(codepage)) || */(m_codepage == codepage);
 
@@ -1121,12 +1121,12 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 								//Message(MSG_WARNING, 1, L"WARNING!", L"Editor will be reopened with new file!", MSG(MOk));
 								int UserBreak;
 								LoadFile(strFullSaveAsName, UserBreak);
-								// TODO: возможно подобный ниже код здесь нужен (copy/paste из FileEditor::Init()). оформить его нужно по иному
+								// TODO: РІРѕР·РјРѕР¶РЅРѕ РїРѕРґРѕР±РЅС‹Р№ РЅРёР¶Рµ РєРѕРґ Р·РґРµСЃСЊ РЅСѓР¶РµРЅ (copy/paste РёР· FileEditor::Init()). РѕС„РѕСЂРјРёС‚СЊ РµРіРѕ РЅСѓР¶РЅРѕ РїРѕ РёРЅРѕРјСѓ
 								//if(!Global->Opt->Confirm.Esc && UserBreak && GetExitCode()==XC_LOADING_INTERRUPTED && WindowManager)
 								//  WindowManager->RefreshWindow();
 							}
 
-							// перерисовывать надо как минимум когда изменилась кодировка или имя файла
+							// РїРµСЂРµСЂРёСЃРѕРІС‹РІР°С‚СЊ РЅР°РґРѕ РєР°Рє РјРёРЅРёРјСѓРј РєРѕРіРґР° РёР·РјРµРЅРёР»Р°СЃСЊ РєРѕРґРёСЂРѕРІРєР° РёР»Рё РёРјСЏ С„Р°Р№Р»Р°
 							ShowConsoleTitle();
 							Show();//!!! BUGBUG
 						}
@@ -1141,7 +1141,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 
 				return TRUE;
 			}
-			// $ 30.05.2003 SVS - Shift-F4 в редакторе/вьювере позволяет открывать другой редактор/вьювер (пока только редактор)
+			// $ 30.05.2003 SVS - Shift-F4 РІ СЂРµРґР°РєС‚РѕСЂРµ/РІСЊСЋРІРµСЂРµ РїРѕР·РІРѕР»СЏРµС‚ РѕС‚РєСЂС‹РІР°С‚СЊ РґСЂСѓРіРѕР№ СЂРµРґР°РєС‚РѕСЂ/РІСЊСЋРІРµСЂ (РїРѕРєР° С‚РѕР»СЊРєРѕ СЂРµРґР°РєС‚РѕСЂ)
 			case KEY_SHIFTF4:
 			{
 				if (!Global->OnlyEditorViewerUsed && GetCanLoseFocus())
@@ -1152,7 +1152,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 				}
 				return TRUE;
 			}
-			// $ 21.07.2000 SKV + выход с позиционированием на редактируемом файле по CTRLF10
+			// $ 21.07.2000 SKV + РІС‹С…РѕРґ СЃ РїРѕР·РёС†РёРѕРЅРёСЂРѕРІР°РЅРёРµРј РЅР° СЂРµРґР°РєС‚РёСЂСѓРµРјРѕРј С„Р°Р№Р»Рµ РїРѕ CTRLF10
 			case KEY_CTRLF10:
 			case KEY_RCTRLF10:
 			{
@@ -1163,12 +1163,12 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 
 				string strFullFileNameTemp = strFullFileName;
 
-				if (!os::fs::exists(strFullFileName)) // а сам файл то еще на месте?
+				if (!os::fs::exists(strFullFileName)) // Р° СЃР°Рј С„Р°Р№Р» С‚Рѕ РµС‰Рµ РЅР° РјРµСЃС‚Рµ?
 				{
 					if (!CheckShortcutFolder(strFullFileNameTemp, true, false))
 						return FALSE;
 
-					strFullFileNameTemp += L"\\."; // для вваливания внутрь :-)
+					strFullFileNameTemp += L"\\."; // РґР»СЏ РІРІР°Р»РёРІР°РЅРёСЏ РІРЅСѓС‚СЂСЊ :-)
 				}
 
 				Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
@@ -1211,7 +1211,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 			}
 			case KEY_SHIFTF10:
 
-				if (!ProcessKey(Manager::Key(KEY_F2))) // учтем факт того, что могли отказаться от сохранения
+				if (!ProcessKey(Manager::Key(KEY_F2))) // СѓС‡С‚РµРј С„Р°РєС‚ С‚РѕРіРѕ, С‡С‚Рѕ РјРѕРіР»Рё РѕС‚РєР°Р·Р°С‚СЊСЃСЏ РѕС‚ СЃРѕС…СЂР°РЅРµРЅРёСЏ
 					return FALSE;
 
 			case KEY_F4:
@@ -1222,12 +1222,12 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 			{
 				int FirstSave=1, NeedQuestion=1;
 
-				if (LocalKey != KEY_SHIFTF10)   // KEY_SHIFTF10 не учитываем!
+				if (LocalKey != KEY_SHIFTF10)   // KEY_SHIFTF10 РЅРµ СѓС‡РёС‚С‹РІР°РµРј!
 				{
 					bool FilePlaced = !os::fs::exists(strFullFileName) && !m_Flags.Check(FFILEEDIT_NEW);
 
-					if (m_editor->IsFileChanged() || // в текущем сеансе были изменения?
-					        FilePlaced) // а сам файл то еще на месте?
+					if (m_editor->IsFileChanged() || // РІ С‚РµРєСѓС‰РµРј СЃРµР°РЅСЃРµ Р±С‹Р»Рё РёР·РјРµРЅРµРЅРёСЏ?
+					        FilePlaced) // Р° СЃР°Рј С„Р°Р№Р» С‚Рѕ РµС‰Рµ РЅР° РјРµСЃС‚Рµ?
 					{
 						int Res=100;
 
@@ -1250,7 +1250,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 						{
 							case 0:
 
-								if (!ProcessKey(Manager::Key(KEY_F2))) // попытка сначала сохранить
+								if (!ProcessKey(Manager::Key(KEY_F2))) // РїРѕРїС‹С‚РєР° СЃРЅР°С‡Р°Р»Р° СЃРѕС…СЂР°РЅРёС‚СЊ
 									NeedQuestion=0;
 
 								FirstSave=0;
@@ -1294,11 +1294,11 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 			case KEY_ALTSHIFTF9:
 			case KEY_RALTSHIFTF9:
 			{
-				// Работа с локальной копией EditorOptions
+				// Р Р°Р±РѕС‚Р° СЃ Р»РѕРєР°Р»СЊРЅРѕР№ РєРѕРїРёРµР№ EditorOptions
 				Options::EditorOptions EdOpt;
 				GetEditorOptions(EdOpt);
-				Global->Opt->LocalEditorConfig(EdOpt); // $ 27.11.2001 DJ - Local в EditorConfig
-				m_windowKeyBar->Show(); //???? Нужно ли????
+				Global->Opt->LocalEditorConfig(EdOpt); // $ 27.11.2001 DJ - Local РІ EditorConfig
+				m_windowKeyBar->Show(); //???? РќСѓР¶РЅРѕ Р»Рё????
 				SetEditorOptions(EdOpt);
 
 				if (Global->Opt->EdOpt.ShowKeyBar)
@@ -1420,7 +1420,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion,bool DeleteWindow
 
 	for (;;)
 	{
-		FarChDir(strStartDir); // ПОЧЕМУ? А нужно ли???
+		FarChDir(strStartDir); // РџРћР§Р•РњРЈ? Рђ РЅСѓР¶РЅРѕ Р»Рё???
 		int SaveCode=SAVEFILE_SUCCESS;
 
 		if (NeedQuestion)
@@ -1434,7 +1434,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion,bool DeleteWindow
 		if (SaveCode==SAVEFILE_SUCCESS)
 		{
 			/* $ 09.02.2002 VVM
-			  + Обновить панели, если писали в текущий каталог */
+			  + РћР±РЅРѕРІРёС‚СЊ РїР°РЅРµР»Рё, РµСЃР»Рё РїРёСЃР°Р»Рё РІ С‚РµРєСѓС‰РёР№ РєР°С‚Р°Р»РѕРі */
 			if (NeedQuestion)
 			{
 				if (os::fs::exists(strFullFileName))
@@ -1506,7 +1506,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 			if (FileSize > static_cast<UINT64>(Global->Opt->EdOpt.FileSizeLimit))
 			{
 				string strTempStr1, strTempStr2;
-				// Ширина = 8 - это будет... в Kb и выше...
+				// РЁРёСЂРёРЅР° = 8 - СЌС‚Рѕ Р±СѓРґРµС‚... РІ Kb Рё РІС‹С€Рµ...
 				FileSizeToStr(strTempStr1, FileSize, 8);
 				FileSizeToStr(strTempStr2, Global->Opt->EdOpt.FileSizeLimit, 8);
 
@@ -1624,8 +1624,8 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 				SetCursorType(false, 0);
 				const auto CurPos = EditFile.GetPointer();
 				int Percent = static_cast<int>(CurPos*100/FileSize);
-				// В случае если во время загрузки файл увеличивается размере, то количество
-				// процентов может быть больше 100. Обрабатываем эту ситуацию.
+				// Р’ СЃР»СѓС‡Р°Рµ РµСЃР»Рё РІРѕ РІСЂРµРјСЏ Р·Р°РіСЂСѓР·РєРё С„Р°Р№Р» СѓРІРµР»РёС‡РёРІР°РµС‚СЃСЏ СЂР°Р·РјРµСЂРµ, С‚Рѕ РєРѕР»РёС‡РµСЃС‚РІРѕ
+				// РїСЂРѕС†РµРЅС‚РѕРІ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ 100. РћР±СЂР°Р±Р°С‚С‹РІР°РµРј СЌС‚Сѓ СЃРёС‚СѓР°С†РёСЋ.
 				if (Percent > 100)
 				{
 					EditFile.GetSize(FileSize);
@@ -1733,7 +1733,7 @@ bool FileEditor::ReloadFile(uintptr_t codepage)
 	return loaded != FALSE;
 }
 
-//TextFormat и codepage используются ТОЛЬКО, если bSaveAs = true!
+//TextFormat Рё codepage РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ РўРћР›Р¬РљРћ, РµСЃР»Рё bSaveAs = true!
 int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextFormat, uintptr_t codepage, bool AddSignature)
 {
 	if (!bSaveAs)
@@ -1787,7 +1787,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 
 	if ((m_FileAttributes=os::GetFileAttributes(Name))!=INVALID_FILE_ATTRIBUTES)
 	{
-		// Проверка времени модификации...
+		// РџСЂРѕРІРµСЂРєР° РІСЂРµРјРµРЅРё РјРѕРґРёС„РёРєР°С†РёРё...
 		if (!m_Flags.Check(FFILEEDIT_SAVEWQUESTIONS))
 		{
 			os::FAR_FIND_DATA FInfo;
@@ -1833,7 +1833,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			if (AskOverwrite)
 				return SAVEFILE_CANCEL;
 
-			os::SetFileAttributes(Name,m_FileAttributes & ~FILE_ATTRIBUTE_READONLY); // сняты атрибуты
+			os::SetFileAttributes(Name,m_FileAttributes & ~FILE_ATTRIBUTE_READONLY); // СЃРЅСЏС‚С‹ Р°С‚СЂРёР±СѓС‚С‹
 			FileAttributesModified=true;
 		}
 
@@ -1845,14 +1845,14 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 	}
 	else
 	{
-		// проверим путь к файлу, может его уже снесли...
+		// РїСЂРѕРІРµСЂРёРј РїСѓС‚СЊ Рє С„Р°Р№Р»Сѓ, РјРѕР¶РµС‚ РµРіРѕ СѓР¶Рµ СЃРЅРµСЃР»Рё...
 		string strCreatedPath = Name;
 		if (CutToParent(strCreatedPath))
 		{
 			if (!os::fs::exists(strCreatedPath))
 			{
-				// и попробуем создать.
-				// Раз уж
+				// Рё РїРѕРїСЂРѕР±СѓРµРј СЃРѕР·РґР°С‚СЊ.
+				// Р Р°Р· СѓР¶
 				CreatePath(strCreatedPath);
 				if (!os::fs::exists(strCreatedPath))
 					return SAVEFILE_ERROR;
@@ -1899,7 +1899,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 	{
 		//SaveScreen SaveScr;
 		/* $ 11.10.2001 IS
-		   Если было произведено сохранение с любым результатом, то не удалять файл
+		   Р•СЃР»Рё Р±С‹Р»Рѕ РїСЂРѕРёР·РІРµРґРµРЅРѕ СЃРѕС…СЂР°РЅРµРЅРёРµ СЃ Р»СЋР±С‹Рј СЂРµР·СѓР»СЊС‚Р°С‚РѕРј, С‚Рѕ РЅРµ СѓРґР°Р»СЏС‚СЊ С„Р°Р№Р»
 		*/
 		m_Flags.Clear(FFILEEDIT_DELETEONCLOSE|FFILEEDIT_DELETEONLYFILEONCLOSE);
 //_D(SysLog(L"%08d EE_SAVE",__LINE__));
@@ -2129,15 +2129,15 @@ end:
 	if (m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED) || NewFile)
 		m_editor->m_Flags.Set(Editor::FEDITOR_WASCHANGED);
 
-	/* Этот кусок раскомметировать в том случае, если народ решит, что
-	   для если файл был залочен и мы его переписали под други именем...
-	   ...то "лочка" должна быть снята.
+	/* Р­С‚РѕС‚ РєСѓСЃРѕРє СЂР°СЃРєРѕРјРјРµС‚РёСЂРѕРІР°С‚СЊ РІ С‚РѕРј СЃР»СѓС‡Р°Рµ, РµСЃР»Рё РЅР°СЂРѕРґ СЂРµС€РёС‚, С‡С‚Рѕ
+	   РґР»СЏ РµСЃР»Рё С„Р°Р№Р» Р±С‹Р» Р·Р°Р»РѕС‡РµРЅ Рё РјС‹ РµРіРѕ РїРµСЂРµРїРёСЃР°Р»Рё РїРѕРґ РґСЂСѓРіРё РёРјРµРЅРµРј...
+	   ...С‚Рѕ "Р»РѕС‡РєР°" РґРѕР»Р¶РЅР° Р±С‹С‚СЊ СЃРЅСЏС‚Р°.
 	*/
 
 //  if(SaveAs)
 //    Flags.Clear(FEDITOR_LOCKMODE);
 	/* 28.12.2001 VVM
-	  ! Проверить на успешную запись */
+	  ! РџСЂРѕРІРµСЂРёС‚СЊ РЅР° СѓСЃРїРµС€РЅСѓСЋ Р·Р°РїРёСЃСЊ */
 	if (RetCode==SAVEFILE_SUCCESS)
 	{
 		m_editor->TextChanged(false);
@@ -2199,7 +2199,7 @@ void FileEditor::OnDestroy()
 	if (Global->CtrlObject && !m_Flags.Check(FFILEEDIT_DISABLEHISTORY) && StrCmpI(strFileName.data(), MSG(MNewFileName)))
 		Global->CtrlObject->ViewHistory->AddToHistory(strFullFileName, m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE) ? HR_EDITOR_RO : HR_EDITOR);
 
-	//AY: флаг оповещающий закрытие редактора.
+	//AY: С„Р»Р°Рі РѕРїРѕРІРµС‰Р°СЋС‰РёР№ Р·Р°РєСЂС‹С‚РёРµ СЂРµРґР°РєС‚РѕСЂР°.
 	m_bClosing = true;
 
 	int FEditEditorID=m_editor->EditorID;
@@ -2282,7 +2282,7 @@ BOOL FileEditor::SetFileName(const string& NewFileName)
 				strFileName=PointToName(strFullFileName);
 		}
 
-		//Дабы избежать бардака, развернём слешики...
+		//Р”Р°Р±С‹ РёР·Р±РµР¶Р°С‚СЊ Р±Р°СЂРґР°РєР°, СЂР°Р·РІРµСЂРЅС‘Рј СЃР»РµС€РёРєРё...
 		ReplaceSlashToBackslash(strFullFileName);
 	}
 	else
@@ -2334,7 +2334,7 @@ void FileEditor::ShowStatus()
 	else
 		TruncPathStr(strLocalTitle, NameLength);
 
-	//предварительный расчет
+	//РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅС‹Р№ СЂР°СЃС‡РµС‚
 	strLineStr = std::to_wstring(m_editor->m_LinesCount) + L'/' + std::to_wstring(m_editor->m_LinesCount);
 	int SizeLineStr = (int)strLineStr.size();
 
@@ -2375,7 +2375,7 @@ void FileEditor::ShowStatus()
 			GotoXY(m_X2-((Global->Opt->ViewerEditorClock && m_Flags.Check(FFILEEDIT_FULLSCREEN)) ? 14:8)-(!m_editor->EdOpt.CharCodeBase?3:0),m_Y1);
 			SetColor(COL_EDITORSTATUS);
 			/* $ 27.02.2001 SVS
-			Показываем в зависимости от базы */
+			РџРѕРєР°Р·С‹РІР°РµРј РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ Р±Р°Р·С‹ */
 			switch(m_editor->EdOpt.CharCodeBase)
 			{
 			case 0:
@@ -2422,8 +2422,8 @@ void FileEditor::ShowStatus()
 }
 
 /* $ 13.02.2001
-     Узнаем атрибуты файла и заодно сформируем готовую строку атрибутов для
-     статуса.
+     РЈР·РЅР°РµРј Р°С‚СЂРёР±СѓС‚С‹ С„Р°Р№Р»Р° Рё Р·Р°РѕРґРЅРѕ СЃС„РѕСЂРјРёСЂСѓРµРј РіРѕС‚РѕРІСѓСЋ СЃС‚СЂРѕРєСѓ Р°С‚СЂРёР±СѓС‚РѕРІ РґР»СЏ
+     СЃС‚Р°С‚СѓСЃР°.
 */
 DWORD FileEditor::EditorGetFileAttributes(const string& Name)
 {
@@ -2443,7 +2443,7 @@ DWORD FileEditor::EditorGetFileAttributes(const string& Name)
 	return m_FileAttributes;
 }
 
-/* true - панель обновили
+/* true - РїР°РЅРµР»СЊ РѕР±РЅРѕРІРёР»Рё
 */
 bool FileEditor::UpdateFileList()
 {
@@ -2469,10 +2469,10 @@ void FileEditor::SetPluginData(const string* PluginData)
 }
 
 /* $ 14.06.2002 IS
-   DeleteOnClose стал int:
-     0 - не удалять ничего
-     1 - удалять файл и каталог
-     2 - удалять только файл
+   DeleteOnClose СЃС‚Р°Р» int:
+     0 - РЅРµ СѓРґР°Р»СЏС‚СЊ РЅРёС‡РµРіРѕ
+     1 - СѓРґР°Р»СЏС‚СЊ С„Р°Р№Р» Рё РєР°С‚Р°Р»РѕРі
+     2 - СѓРґР°Р»СЏС‚СЊ С‚РѕР»СЊРєРѕ С„Р°Р№Р»
 */
 void FileEditor::SetDeleteOnClose(int NewMode)
 {
@@ -2616,20 +2616,20 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			return TRUE;
 		}
 		/*
-			Функция установки Keybar Labels
-			Param2 = nullptr - восстановить, пред. значение
-			Param2 = -1   - обновить полосу (перерисовать)
+			Р¤СѓРЅРєС†РёСЏ СѓСЃС‚Р°РЅРѕРІРєРё Keybar Labels
+			Param2 = nullptr - РІРѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ, РїСЂРµРґ. Р·РЅР°С‡РµРЅРёРµ
+			Param2 = -1   - РѕР±РЅРѕРІРёС‚СЊ РїРѕР»РѕСЃСѓ (РїРµСЂРµСЂРёСЃРѕРІР°С‚СЊ)
 			Param2 = KeyBarTitles
 		*/
 		case ECTL_SETKEYBAR:
 		{
 			FarSetKeyBarTitles *Kbt = (FarSetKeyBarTitles*)Param2;
 
-			if (!Kbt)   //восстановить изначальное
+			if (!Kbt)   //РІРѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ РёР·РЅР°С‡Р°Р»СЊРЅРѕРµ
 				InitKeyBar();
 			else
 			{
-				if ((intptr_t)Param2 != (intptr_t)-1) // не только перерисовать?
+				if ((intptr_t)Param2 != (intptr_t)-1) // РЅРµ С‚РѕР»СЊРєРѕ РїРµСЂРµСЂРёСЃРѕРІР°С‚СЊ?
 				{
 					if(CheckStructSize(Kbt))
 						m_windowKeyBar->Change(Kbt->Titles);
@@ -2686,7 +2686,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					}
 
 					m_Flags.Set(FFILEEDIT_SAVEWQUESTIONS);
-					//всегда записываем в режиме save as - иначе не сменить кодировку и концы линий.
+					//РІСЃРµРіРґР° Р·Р°РїРёСЃС‹РІР°РµРј РІ СЂРµР¶РёРјРµ save as - РёРЅР°С‡Рµ РЅРµ СЃРјРµРЅРёС‚СЊ РєРѕРґРёСЂРѕРІРєСѓ Рё РєРѕРЅС†С‹ Р»РёРЅРёР№.
 					return SaveFile(strName,FALSE,true,EOL,codepage,m_bAddSignature);
 				}
 			}
@@ -2702,7 +2702,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			else
 			{
 				Global->WindowManager->DeleteWindow(shared_from_this());
-				SetExitCode(XC_OPEN_ERROR); // что-то меня терзают смутные сомнения ...??? SAVEFILE_ERROR ???
+				SetExitCode(XC_OPEN_ERROR); // С‡С‚Рѕ-С‚Рѕ РјРµРЅСЏ С‚РµСЂР·Р°СЋС‚ СЃРјСѓС‚РЅС‹Рµ СЃРѕРјРЅРµРЅРёСЏ ...??? SAVEFILE_ERROR ???
 				Global->WindowManager->PluginCommit();
 			}
 			return TRUE;
@@ -2723,7 +2723,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					DWORD Key=GetInputRecord(rec);
 
 					if ((!rec->EventType || rec->EventType == KEY_EVENT) &&
-					        ((Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE) || (Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE))) // исключаем MACRO
+					        ((Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE) || (Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE))) // РёСЃРєР»СЋС‡Р°РµРј MACRO
 						ReProcessKey(Manager::Key(Key, *rec));
 					else
 						break;

@@ -1,11 +1,11 @@
-/*
+п»ї/*
 eject.cpp
 
-Eject съёмных носителей
+Eject СЃСЉС‘РјРЅС‹С… РЅРѕСЃРёС‚РµР»РµР№
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -47,8 +47,8 @@ static BOOL DismountVolume(HANDLE hVolume)
 }
 #endif
 
-/* Функция by Vadim Yegorov <zg@matrica.apollo.lv>
-   Доработанная! Умеет "вставлять" диск :-)
+/* Р¤СѓРЅРєС†РёСЏ by Vadim Yegorov <zg@matrica.apollo.lv>
+   Р”РѕСЂР°Р±РѕС‚Р°РЅРЅР°СЏ! РЈРјРµРµС‚ "РІСЃС‚Р°РІР»СЏС‚СЊ" РґРёСЃРє :-)
 */
 bool EjectVolume(wchar_t Letter,UINT64 Flags)
 {
@@ -106,10 +106,10 @@ bool EjectVolume(wchar_t Letter,UINT64 Flags)
 
 #if 0
 
-// TODO: ЭТОТ КУСОК НУЖНО РАСКОММЕНТИТЬ ВМЕСТЕ С ПОДЪЕМОМ ПРОЕКТА ПО USB
+// TODO: Р­РўРћРў РљРЈРЎРћРљ РќРЈР–РќРћ Р РђРЎРљРћРњРњР•РќРўРРўР¬ Р’РњР•РЎРўР• РЎ РџРћР”РЄР•РњРћРњ РџР РћР•РљРўРђ РџРћ USB
 				/*
-				  ЭТО чудо нужно для того, чтобы, скажем, имея картридер на 3 карточки,
-				  дисмоунтить только 1 карточку, а не отключать все устройство!
+				  Р­РўРћ С‡СѓРґРѕ РЅСѓР¶РЅРѕ РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹, СЃРєР°Р¶РµРј, РёРјРµСЏ РєР°СЂС‚СЂРёРґРµСЂ РЅР° 3 РєР°СЂС‚РѕС‡РєРё,
+				  РґРёСЃРјРѕСѓРЅС‚РёС‚СЊ С‚РѕР»СЊРєРѕ 1 РєР°СЂС‚РѕС‡РєСѓ, Р° РЅРµ РѕС‚РєР»СЋС‡Р°С‚СЊ РІСЃРµ СѓСЃС‚СЂРѕР№СЃС‚РІРѕ!
 				*/
 				if (!(Flags&EJECT_LOAD_MEDIA))
 				{
@@ -129,14 +129,14 @@ bool EjectVolume(wchar_t Letter,UINT64 Flags)
 					{
 #if 1
 
-						// чистой воды шаманство...
+						// С‡РёСЃС‚РѕР№ РІРѕРґС‹ С€Р°РјР°РЅСЃС‚РІРѕ...
 						if (Flags&EJECT_READY)
 						{
 							fAutoEject = Disk.IoControl(IOCTL_STORAGE_CHECK_VERIFY, nullptr, 0, nullptr, 0, &temp);
 
-							// ...если ошибка = "нет доступа", то это похоже на то,
-							// что диск вставлен
-							// Способ экспериментальный, потому афишировать не имеет смысла.
+							// ...РµСЃР»Рё РѕС€РёР±РєР° = "РЅРµС‚ РґРѕСЃС‚СѓРїР°", С‚Рѕ СЌС‚Рѕ РїРѕС…РѕР¶Рµ РЅР° С‚Рѕ,
+							// С‡С‚Рѕ РґРёСЃРє РІСЃС‚Р°РІР»РµРЅ
+							// РЎРїРѕСЃРѕР± СЌРєСЃРїРµСЂРёРјРµРЅС‚Р°Р»СЊРЅС‹Р№, РїРѕС‚РѕРјСѓ Р°С„РёС€РёСЂРѕРІР°С‚СЊ РЅРµ РёРјРµРµС‚ СЃРјС‹СЃР»Р°.
 							if (!fAutoEject && GetLastError() == ERROR_ACCESS_DENIED)
 								fAutoEject=TRUE;
 

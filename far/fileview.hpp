@@ -1,13 +1,15 @@
+п»ї#ifndef FILEVIEW_HPP_BC5E36F0_1E01_45AE_A121_A8D6EED6A14C
+#define FILEVIEW_HPP_BC5E36F0_1E01_45AE_A121_A8D6EED6A14C
 #pragma once
 
 /*
 fileview.hpp
 
-Просмотр файла - надстройка над viewer.cpp
+РџСЂРѕСЃРјРѕС‚СЂ С„Р°Р№Р»Р° - РЅР°РґСЃС‚СЂРѕР№РєР° РЅР°Рґ viewer.cpp
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -59,22 +61,22 @@ public:
 	virtual void OnChangeFocus(bool focus) override;
 	virtual int GetTypeAndName(string &strType, string &strName) override;
 	virtual int GetType() const override { return windowtype_viewer; }
-	/* $ Введена для нужд CtrlAltShift OT */
+	/* $ Р’РІРµРґРµРЅР° РґР»СЏ РЅСѓР¶Рґ CtrlAltShift OT */
 	virtual bool CanFastHide() const override;
 	virtual string GetTitle() const override;
 	virtual Viewer* GetViewer(void) override;
 	virtual Viewer* GetById(int ID) override;
 
 	/* $ 14.06.2002 IS
-	   Параметр DeleteFolder - удалить не только файл, но и каталог, его
-	   содержащий (если каталог пуст). По умолчанию - TRUE (получаем
-	   поведение SetTempViewName такое же, как и раньше)
+	   РџР°СЂР°РјРµС‚СЂ DeleteFolder - СѓРґР°Р»РёС‚СЊ РЅРµ С‚РѕР»СЊРєРѕ С„Р°Р№Р», РЅРѕ Рё РєР°С‚Р°Р»РѕРі, РµРіРѕ
+	   СЃРѕРґРµСЂР¶Р°С‰РёР№ (РµСЃР»Рё РєР°С‚Р°Р»РѕРі РїСѓСЃС‚). РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ - TRUE (РїРѕР»СѓС‡Р°РµРј
+	   РїРѕРІРµРґРµРЅРёРµ SetTempViewName С‚Р°РєРѕРµ Р¶Рµ, РєР°Рє Рё СЂР°РЅСЊС€Рµ)
 	*/
 	void SetTempViewName(const string& Name,BOOL DeleteFolder=TRUE);
 	void SetEnableF6(int AEnable) { DisableEdit = !AEnable; InitKeyBar(); }
 	/* $ 17.08.2001 KM
-		Добавлено для поиска по AltF7. При редактировании найденного файла из
-		архива для клавиши F2 сделать вызов ShiftF2.
+		Р”РѕР±Р°РІР»РµРЅРѕ РґР»СЏ РїРѕРёСЃРєР° РїРѕ AltF7. РџСЂРё СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёРё РЅР°Р№РґРµРЅРЅРѕРіРѕ С„Р°Р№Р»Р° РёР·
+		Р°СЂС…РёРІР° РґР»СЏ РєР»Р°РІРёС€Рё F2 СЃРґРµР»Р°С‚СЊ РІС‹Р·РѕРІ ShiftF2.
 	*/
 	void SetSaveToSaveAs(bool ToSaveAs) { SaveToSaveAs=ToSaveAs; InitKeyBar(); }
 	int  ViewerControl(int Command, intptr_t Param1, void *Param2);
@@ -104,3 +106,5 @@ private:
 	int delete_on_close;
 	string str_title;
 };
+
+#endif // FILEVIEW_HPP_BC5E36F0_1E01_45AE_A121_A8D6EED6A14C

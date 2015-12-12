@@ -1,11 +1,11 @@
-/*
+п»ї/*
 codepage.cpp
 
-Работа с кодовыми страницами
+Р Р°Р±РѕС‚Р° СЃ РєРѕРґРѕРІС‹РјРё СЃС‚СЂР°РЅРёС†Р°РјРё
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

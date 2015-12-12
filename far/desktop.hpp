@@ -1,3 +1,5 @@
+﻿#ifndef DESKTOP_HPP_16E84F3B_443F_487F_A5E6_FC6432462DB5
+#define DESKTOP_HPP_16E84F3B_443F_487F_A5E6_FC6432462DB5
 #pragma once
 
 /*
@@ -6,7 +8,7 @@ desktop.hpp
 
 */
 /*
-Copyright � 2014 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -57,3 +59,5 @@ private:
 
 	std::unique_ptr<SaveScreen> m_Background;
 };
+
+#endif // DESKTOP_HPP_16E84F3B_443F_487F_A5E6_FC6432462DB5

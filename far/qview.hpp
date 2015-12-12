@@ -1,3 +1,5 @@
+ï»¿#ifndef QVIEW_HPP_944492CA_F3F6_49F8_854A_2C5D30567B9E
+#define QVIEW_HPP_944492CA_F3F6_49F8_854A_2C5D30567B9E
 #pragma once
 
 /*
@@ -6,8 +8,8 @@ qview.hpp
 Quick view panel
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright Â© 1996 Eugene Roshal
+Copyright Â© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -81,3 +83,5 @@ private:
 	bool m_TemporaryFile;
 	bool uncomplete_dirscan;
 };
+
+#endif // QVIEW_HPP_944492CA_F3F6_49F8_854A_2C5D30567B9E

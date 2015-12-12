@@ -1,10 +1,12 @@
+п»ї#ifndef NONCOPYABLE_HPP_AD5ABD9E_DA14_463E_84DE_CDA0B230F816
+#define NONCOPYABLE_HPP_AD5ABD9E_DA14_463E_84DE_CDA0B230F816
 #pragma once
 
 /*
 noncopyable.hpp
-Класс для бысторого запрета оператора присваивания и конструктора копирования.
+РљР»Р°СЃСЃ РґР»СЏ Р±С‹СЃС‚РѕСЂРѕРіРѕ Р·Р°РїСЂРµС‚Р° РѕРїРµСЂР°С‚РѕСЂР° РїСЂРёСЃРІР°РёРІР°РЅРёСЏ Рё РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂР° РєРѕРїРёСЂРѕРІР°РЅРёСЏ.
 
-Пример использования:
+РџСЂРёРјРµСЂ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ:
 
 #include "noncopyable.hpp"
 class YourClass:noncopyable
@@ -13,7 +15,7 @@ class YourClass:noncopyable
 
 */
 /*
-Copyright © 2009 Far Group
+Copyright В© 2009 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -58,3 +60,5 @@ public:
 	noncopyable& operator=(const noncopyable&) = delete;
 #endif
 };
+
+#endif // NONCOPYABLE_HPP_AD5ABD9E_DA14_463E_84DE_CDA0B230F816

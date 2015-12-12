@@ -1,11 +1,11 @@
-/*
+п»ї/*
 delete.cpp
 
-Удаление файлов
+РЈРґР°Р»РµРЅРёРµ С„Р°Р№Р»РѕРІ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -234,7 +234,7 @@ static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel, Console
 			static bool BufInit = false;
 			if(!BufInit)
 			{
-				Buf.fill(Global->Opt->WipeSymbol); // используем символ заполнитель
+				Buf.fill(Global->Opt->WipeSymbol); // РёСЃРїРѕР»СЊР·СѓРµРј СЃРёРјРІРѕР» Р·Р°РїРѕР»РЅРёС‚РµР»СЊ
 				BufInit = true;
 			}
 
@@ -304,7 +304,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 	int Ret;
 	BOOL NeedUpdate=TRUE, NeedSetUpADir=FALSE;
 	bool Opt_DeleteToRecycleBin=Global->Opt->DeleteToRecycleBin;
-	/*& 31.05.2001 OT Запретить перерисовку текущего окна*/
+	/*& 31.05.2001 OT Р—Р°РїСЂРµС‚РёС‚СЊ РїРµСЂРµСЂРёСЃРѕРІРєСѓ С‚РµРєСѓС‰РµРіРѕ РѕРєРЅР°*/
 	const auto WindowFromLaunched = Global->WindowManager->GetCurrentWindow();
 	WindowFromLaunched->Lock();
 	bool DeleteAllFolders=!Global->Opt->Confirm.DeleteFolder;
@@ -315,7 +315,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 	SCOPE_EXIT
 	{
 		Global->Opt->DeleteToRecycleBin=Opt_DeleteToRecycleBin;
-		// Разрешить перерисовку окна
+		// Р Р°Р·СЂРµС€РёС‚СЊ РїРµСЂРµСЂРёСЃРѕРІРєСѓ РѕРєРЅР°
 		WindowFromLaunched->Unlock();
 
 		if (NeedUpdate)
@@ -329,7 +329,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		return;
 
 	DWORD FileAttr;
-	// Удаление в корзину только для  FIXED-дисков
+	// РЈРґР°Р»РµРЅРёРµ РІ РєРѕСЂР·РёРЅСѓ С‚РѕР»СЊРєРѕ РґР»СЏ  FIXED-РґРёСЃРєРѕРІ
 	{
 		string strRoot;
 		SrcPanel->GetSelName(nullptr,FileAttr);
@@ -357,7 +357,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 	}
 	else
 	{
-		// в зависимости от числа ставим нужное окончание
+		// РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ С‡РёСЃР»Р° СЃС‚Р°РІРёРј РЅСѓР¶РЅРѕРµ РѕРєРѕРЅС‡Р°РЅРёРµ
 		const wchar_t *Ends;
 		FormatString StrItems;
 		StrItems << SelCount;
@@ -378,7 +378,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 
 	Ret=1;
 
-	//   Обработка "удаления" линков
+	//   РћР±СЂР°Р±РѕС‚РєР° "СѓРґР°Р»РµРЅРёСЏ" Р»РёРЅРєРѕРІ
 	if ((FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) && SelCount==1)
 	{
 		string strJuncName;
@@ -600,7 +600,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 
 					if (os::fs::is_not_empty_directory(strFullName))
 					{
-						int MsgCode = 0; // для symlink не нужно подтверждение
+						int MsgCode = 0; // РґР»СЏ symlink РЅРµ РЅСѓР¶РЅРѕ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ
 						if (!(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT)) {
 							const GUID* guidId = &DeleteFolderId;
 							LNGID tit = MDeleteFolderTitle, con = MDeleteFolderConfirm, del = MDeleteFileDelete;
@@ -773,8 +773,8 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 
 					int DeleteCode;
 
-					// нефига здесь выделываться, а надо учесть, что удаление
-					// симлинка в корзину чревато потерей оригинала.
+					// РЅРµС„РёРіР° Р·РґРµСЃСЊ РІС‹РґРµР»С‹РІР°С‚СЊСЃСЏ, Р° РЅР°РґРѕ СѓС‡РµСЃС‚СЊ, С‡С‚Рѕ СѓРґР°Р»РµРЅРёРµ
+					// СЃРёРјР»РёРЅРєР° РІ РєРѕСЂР·РёРЅСѓ С‡СЂРµРІР°С‚Рѕ РїРѕС‚РµСЂРµР№ РѕСЂРёРіРёРЅР°Р»Р°.
 					DIRDELTYPE Type = Wipe ? D_WIPE : (Global->Opt->DeleteToRecycleBin && !(DirSymLink && !IsWindowsVistaOrGreater()) ? D_RECYCLE : D_DEL);
 					DeleteCode=ERemoveDirectory(strSelName, Type);
 
@@ -888,11 +888,11 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int Total
 			else if (GetNumberOfLinks(strFullName)>1)
 			{
 				/*
-				                            Файл
-				                         "имя файла"
-				                Файл имеет несколько жестких ссылок.
-				  Уничтожение файла приведет к обнулению всех ссылающихся на него файлов.
-				                        Уничтожать файл?
+				                            Р¤Р°Р№Р»
+				                         "РёРјСЏ С„Р°Р№Р»Р°"
+				                Р¤Р°Р№Р» РёРјРµРµС‚ РЅРµСЃРєРѕР»СЊРєРѕ Р¶РµСЃС‚РєРёС… СЃСЃС‹Р»РѕРє.
+				  РЈРЅРёС‡С‚РѕР¶РµРЅРёРµ С„Р°Р№Р»Р° РїСЂРёРІРµРґРµС‚ Рє РѕР±РЅСѓР»РµРЅРёСЋ РІСЃРµС… СЃСЃС‹Р»Р°СЋС‰РёС…СЃСЏ РЅР° РЅРµРіРѕ С„Р°Р№Р»РѕРІ.
+				                        РЈРЅРёС‡С‚РѕР¶Р°С‚СЊ С„Р°Р№Р»?
 				*/
 				MsgCode=Message(MSG_WARNING, MSG(MError),
 								make_vector<string>(strFullName, MSG(MDeleteHardLink1), MSG(MDeleteHardLink2), MSG(MDeleteHardLink3)),
@@ -1031,7 +1031,7 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 	string strFullName;
 	ConvertNameToFull(Name, strFullName);
 
-	// При удалении в корзину папки с симлинками получим траблу, если предварительно линки не убрать.
+	// РџСЂРё СѓРґР°Р»РµРЅРёРё РІ РєРѕСЂР·РёРЅСѓ РїР°РїРєРё СЃ СЃРёРјР»РёРЅРєР°РјРё РїРѕР»СѓС‡РёРј С‚СЂР°Р±Р»Сѓ, РµСЃР»Рё РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕ Р»РёРЅРєРё РЅРµ СѓР±СЂР°С‚СЊ.
 	if (!IsWindowsVistaOrGreater() && os::fs::is_directory(Name))
 	{
 		string strFullName2;

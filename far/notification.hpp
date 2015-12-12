@@ -1,3 +1,5 @@
+﻿#ifndef NOTIFICATION_HPP_B0BB0D31_61E8_49C3_AA4F_E8C1D7D71A25
+#define NOTIFICATION_HPP_B0BB0D31_61E8_49C3_AA4F_E8C1D7D71A25
 #pragma once
 
 /*
@@ -5,7 +7,7 @@ notification.hpp
 
 */
 /*
-Copyright � 2013 Far Group
+Copyright © 2013 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -159,3 +161,5 @@ namespace detail
 
 typedef detail::listener_t<detail::event_handler> listener;
 typedef detail::listener_t<detail::parametrized_event_handler> listener_ex;
+
+#endif // NOTIFICATION_HPP_B0BB0D31_61E8_49C3_AA4F_E8C1D7D71A25

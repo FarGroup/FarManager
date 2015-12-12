@@ -1,11 +1,11 @@
-/*
+п»ї/*
 setattr.cpp
 
-Установка атрибутов файлов
+РЈСЃС‚Р°РЅРѕРІРєР° Р°С‚СЂРёР±СѓС‚РѕРІ С„Р°Р№Р»РѕРІ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -131,7 +131,7 @@ struct SetAttrDlgParam
 	string strSelName;
 	string strOwner;
 	bool OwnerChanged;
-	// значения CheckBox`ов на момент старта диалога
+	// Р·РЅР°С‡РµРЅРёСЏ CheckBox`РѕРІ РЅР° РјРѕРјРµРЅС‚ СЃС‚Р°СЂС‚Р° РґРёР°Р»РѕРіР°
 	struct cb_data
 	{
 		FARDIALOGITEMFLAGS Flags;
@@ -184,7 +184,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 				// =1|2 Multi
 				else
 				{
-					// отработаем взаимоисключения
+					// РѕС‚СЂР°Р±РѕС‚Р°РµРј РІР·Р°РёРјРѕРёСЃРєР»СЋС‡РµРЅРёСЏ
 					if (((DlgParam->FileSystemFlags & (FILE_FILE_COMPRESSION|FILE_SUPPORTS_ENCRYPTION))==
 					        (FILE_FILE_COMPRESSION|FILE_SUPPORTS_ENCRYPTION)) &&
 					        (FocusPos == SA_CHECKBOX_COMPRESSED || FocusPos == SA_CHECKBOX_ENCRYPTED))
@@ -204,7 +204,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 								Dlg->SendMessage(DM_SETCHECK,SA_CHECKBOX_COMPRESSED,ToPtr(BSTATE_3STATE));
 						}
 
-						// еще одна проверка
+						// РµС‰Рµ РѕРґРЅР° РїСЂРѕРІРµСЂРєР°
 						if (reinterpret_cast<intptr_t>(Param2)==BSTATE_CHECKED)
 						{
 							if (FocusPos == SA_CHECKBOX_COMPRESSED && EncryptState)
@@ -219,14 +219,14 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 						}
 					}
 
-					// если снимаем атрибуты для SubFolders
-					// этот кусок всегда работает если есть хотя бы одна папка
-					// иначе SA_CHECKBOX_SUBFOLDERS недоступен и всегда снят.
+					// РµСЃР»Рё СЃРЅРёРјР°РµРј Р°С‚СЂРёР±СѓС‚С‹ РґР»СЏ SubFolders
+					// СЌС‚РѕС‚ РєСѓСЃРѕРє РІСЃРµРіРґР° СЂР°Р±РѕС‚Р°РµС‚ РµСЃР»Рё РµСЃС‚СЊ С…РѕС‚СЏ Р±С‹ РѕРґРЅР° РїР°РїРєР°
+					// РёРЅР°С‡Рµ SA_CHECKBOX_SUBFOLDERS РЅРµРґРѕСЃС‚СѓРїРµРЅ Рё РІСЃРµРіРґР° СЃРЅСЏС‚.
 					if (FocusPos == SA_CHECKBOX_SUBFOLDERS)
 					{
-						if (DlgParam->DialogMode==MODE_FOLDER) // каталог однозначно!
+						if (DlgParam->DialogMode==MODE_FOLDER) // РєР°С‚Р°Р»РѕРі РѕРґРЅРѕР·РЅР°С‡РЅРѕ!
 						{
-							if (DlgParam->OSubfoldersState != SubfoldersState) // Состояние изменилось?
+							if (DlgParam->OSubfoldersState != SubfoldersState) // РЎРѕСЃС‚РѕСЏРЅРёРµ РёР·РјРµРЅРёР»РѕСЃСЊ?
 							{
 								const auto Owner = reinterpret_cast<LPCWSTR>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, SA_EDIT_OWNER, nullptr));
 								if(*Owner)
@@ -237,7 +237,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 									}
 									DlgParam->strOwner=Owner;
 								}
-								// установили?
+								// СѓСЃС‚Р°РЅРѕРІРёР»Рё?
 								if (SubfoldersState)
 								{
 									for (int i=SA_ATTR_FIRST; i<=SA_ATTR_LAST; i++)
@@ -253,7 +253,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 										Dlg->SendMessage(DM_SETTEXTPTR,SA_EDIT_OWNER,nullptr);
 									}
 								}
-								// сняли?
+								// СЃРЅСЏР»Рё?
 								else
 								{
 									for (int i=SA_ATTR_FIRST; i<=SA_ATTR_LAST; i++)
@@ -286,10 +286,10 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 								}
 							}
 						}
-						// много объектов
+						// РјРЅРѕРіРѕ РѕР±СЉРµРєС‚РѕРІ
 						else
 						{
-							// Состояние изменилось?
+							// РЎРѕСЃС‚РѕСЏРЅРёРµ РёР·РјРµРЅРёР»РѕСЃСЊ?
 							if (DlgParam->OSubfoldersState!=SubfoldersState)
 							{
 								const auto Owner = reinterpret_cast<LPCWSTR>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, SA_EDIT_OWNER, nullptr));
@@ -301,7 +301,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 									}
 									DlgParam->strOwner=Owner;
 								}
-								// установили?
+								// СѓСЃС‚Р°РЅРѕРІРёР»Рё?
 								if (SubfoldersState)
 								{
 									for (int i=SA_ATTR_FIRST; i<= SA_ATTR_LAST; i++)
@@ -317,7 +317,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 										Dlg->SendMessage(DM_SETTEXTPTR,SA_EDIT_OWNER,nullptr);
 									}
 								}
-								// сняли?
+								// СЃРЅСЏР»Рё?
 								else
 								{
 									for (int i=SA_ATTR_FIRST; i<= SA_ATTR_LAST; i++)
@@ -378,7 +378,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 			}
 
 			break;
-		//BUGBUG: DefDlgProc вызывается дважды, второй раз Param1 может быть другим.
+		//BUGBUG: DefDlgProc РІС‹Р·С‹РІР°РµС‚СЃСЏ РґРІР°Р¶РґС‹, РІС‚РѕСЂРѕР№ СЂР°Р· Param1 РјРѕР¶РµС‚ Р±С‹С‚СЊ РґСЂСѓРіРёРј.
 		case DN_CONTROLINPUT:
 		{
 			const INPUT_RECORD* record=(const INPUT_RECORD *)Param2;
@@ -389,7 +389,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 				{
 					if (record->Event.MouseEvent.dwEventFlags==DOUBLE_CLICK)
 					{
-						// Дадим Менеджеру диалогов "попотеть"
+						// Р”Р°РґРёРј РњРµРЅРµРґР¶РµСЂСѓ РґРёР°Р»РѕРіРѕРІ "РїРѕРїРѕС‚РµС‚СЊ"
 						Dlg->DefProc(Msg,Param1,Param2);
 						Dlg->SendMessage(DM_SETATTR,Param1,ToPtr(-1));
 					}
@@ -465,7 +465,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 				ConvertDate(ft,strDate,strTime,12,FALSE,FALSE,2);
 			}
 
-			// Глянем на место, где был клик
+			// Р“Р»СЏРЅРµРј РЅР° РјРµСЃС‚Рѕ, РіРґРµ Р±С‹Р» РєР»РёРє
 			int Set1=-1;
 			int Set2=Param1;
 
@@ -994,7 +994,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				}
 			}
 
-			// обработка случая "несколько хардлинков"
+			// РѕР±СЂР°Р±РѕС‚РєР° СЃР»СѓС‡Р°СЏ "РЅРµСЃРєРѕР»СЊРєРѕ С…Р°СЂРґР»РёРЅРєРѕРІ"
 			if (0 == (FileAttr&FILE_ATTRIBUTE_DIRECTORY))
 			{
 				if ((NameList.ItemsNumber = GetNumberOfLinks(strSelName)) > 1)
@@ -1098,8 +1098,8 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				AttrDlg[i].Selected=BSTATE_UNCHECKED;
 			}
 
-			// проверка - есть ли среди выделенных - каталоги?
-			// так же проверка на атрибуты
+			// РїСЂРѕРІРµСЂРєР° - РµСЃС‚СЊ Р»Рё СЃСЂРµРґРё РІС‹РґРµР»РµРЅРЅС‹С… - РєР°С‚Р°Р»РѕРіРё?
+			// С‚Р°Рє Р¶Рµ РїСЂРѕРІРµСЂРєР° РЅР° Р°С‚СЂРёР±СѓС‚С‹
 			if(SrcPanel)
 			{
 				SrcPanel->GetSelName(nullptr,FileAttr);
@@ -1181,11 +1181,11 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				SrcPanel->GetSelName(&strSelName,FileAttr,nullptr,&FindData);
 			}
 
-			// выставим "неопределенку" или то, что нужно
+			// РІС‹СЃС‚Р°РІРёРј "РЅРµРѕРїСЂРµРґРµР»РµРЅРєСѓ" РёР»Рё С‚Рѕ, С‡С‚Рѕ РЅСѓР¶РЅРѕ
 			for (size_t i=SA_ATTR_FIRST; i<=SA_ATTR_LAST; i++)
 			{
-				// снимаем 3-state, если "есть все или нет ничего"
-				// за исключением случая, если есть Фолдер среди объектов
+				// СЃРЅРёРјР°РµРј 3-state, РµСЃР»Рё "РµСЃС‚СЊ РІСЃРµ РёР»Рё РЅРµС‚ РЅРёС‡РµРіРѕ"
+				// Р·Р° РёСЃРєР»СЋС‡РµРЅРёРµРј СЃР»СѓС‡Р°СЏ, РµСЃР»Рё РµСЃС‚СЊ Р¤РѕР»РґРµСЂ СЃСЂРµРґРё РѕР±СЉРµРєС‚РѕРІ
 				if ((!AttrDlg[i].Selected || static_cast<size_t>(AttrDlg[i].Selected) >= SelCount) && !FolderPresent)
 				{
 					AttrDlg[i].Flags&=~DIF_3STATE;
@@ -1195,7 +1195,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			}
 		}
 
-		// запомним состояние переключателей.
+		// Р·Р°РїРѕРјРЅРёРј СЃРѕСЃС‚РѕСЏРЅРёРµ РїРµСЂРµРєР»СЋС‡Р°С‚РµР»РµР№.
 		for (size_t i=SA_ATTR_FIRST; i<=SA_ATTR_LAST; i++)
 		{
 			DlgParam.cb[i - SA_ATTR_FIRST].Flags = AttrDlg[i].Flags;
@@ -1205,7 +1205,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		DlgParam.strOwner=AttrDlg[SA_EDIT_OWNER].strData;
 		string strInitOwner=AttrDlg[SA_EDIT_OWNER].strData;
 
-		// поведение для каталогов как у 1.65?
+		// РїРѕРІРµРґРµРЅРёРµ РґР»СЏ РєР°С‚Р°Р»РѕРіРѕРІ РєР°Рє Сѓ 1.65?
 		if (FolderPresent && !Global->Opt->SetAttrFolderRules)
 		{
 			AttrDlg[SA_CHECKBOX_SUBFOLDERS].Selected=BSTATE_CHECKED;
@@ -1231,7 +1231,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		DlgParam.OSubfoldersState=static_cast<FARCHECKEDSTATE>(AttrDlg[SA_CHECKBOX_SUBFOLDERS].Selected);
 
 		const auto Dlg = Dialog::create(AttrDlg, SetAttrDlgProc, &DlgParam);
-		Dlg->SetHelp(L"FileAttrDlg");                 //  ^ - это одиночный диалог!
+		Dlg->SetHelp(L"FileAttrDlg");                 //  ^ - СЌС‚Рѕ РѕРґРёРЅРѕС‡РЅС‹Р№ РґРёР°Р»РѕРі!
 		Dlg->SetId(FileAttrDlgId);
 
 		if (LinkPresent)

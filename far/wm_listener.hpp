@@ -1,11 +1,13 @@
+п»ї#ifndef WM_LISTENER_HPP_6C668719_5279_4CB7_81B0_448AC5165C00
+#define WM_LISTENER_HPP_6C668719_5279_4CB7_81B0_448AC5165C00
 #pragma once
 /*
 wm_listener.hpp
 
-Обработка оконных сообщений
+РћР±СЂР°Р±РѕС‚РєР° РѕРєРѕРЅРЅС‹С… СЃРѕРѕР±С‰РµРЅРёР№
 */
 /*
-Copyright © 2010 Far Group
+Copyright В© 2010 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -48,3 +50,5 @@ private:
 
 	Event m_exitEvent;
 };
+
+#endif // WM_LISTENER_HPP_6C668719_5279_4CB7_81B0_448AC5165C00

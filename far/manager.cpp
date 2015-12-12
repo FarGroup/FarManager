@@ -1,11 +1,11 @@
-/*
+ï»¿/*
 manager.cpp
 
-Ïåðåêëþ÷åíèå ìåæäó íåñêîëüêèìè file panels, viewers, editors, dialogs
+ÐŸÐµÑ€ÐµÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ðµ Ð¼ÐµÐ¶Ð´Ñƒ Ð½ÐµÑÐºÐ¾Ð»ÑŒÐºÐ¸Ð¼Ð¸ file panels, viewers, editors, dialogs
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright Â© 1996 Eugene Roshal
+Copyright Â© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -240,9 +240,9 @@ Manager::~Manager()
 }
 
 /* $ 29.12.2000 IS
-  Àíàëîã CloseAll, íî ðàçðåøàåò ïðîäîëæåíèå ïîëíîöåííîé ðàáîòû â ôàðå,
-  åñëè ïîëüçîâàòåëü ïðîäîëæèë ðåäàêòèðîâàòü ôàéë.
-  Âîçâðàùàåò TRUE, åñëè âñå çàêðûëè è ìîæíî âûõîäèòü èç ôàðà.
+  ÐÐ½Ð°Ð»Ð¾Ð³ CloseAll, Ð½Ð¾ Ñ€Ð°Ð·Ñ€ÐµÑˆÐ°ÐµÑ‚ Ð¿Ñ€Ð¾Ð´Ð¾Ð»Ð¶ÐµÐ½Ð¸Ðµ Ð¿Ð¾Ð»Ð½Ð¾Ñ†ÐµÐ½Ð½Ð¾Ð¹ Ñ€Ð°Ð±Ð¾Ñ‚Ñ‹ Ð² Ñ„Ð°Ñ€Ðµ,
+  ÐµÑÐ»Ð¸ Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»ÑŒ Ð¿Ñ€Ð¾Ð´Ð¾Ð»Ð¶Ð¸Ð» Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ Ñ„Ð°Ð¹Ð».
+  Ð’Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÑ‚ TRUE, ÐµÑÐ»Ð¸ Ð²ÑÐµ Ð·Ð°ÐºÑ€Ñ‹Ð»Ð¸ Ð¸ Ð¼Ð¾Ð¶Ð½Ð¾ Ð²Ñ‹Ñ…Ð¾Ð´Ð¸Ñ‚ÑŒ Ð¸Ð· Ñ„Ð°Ñ€Ð°.
 */
 BOOL Manager::ExitAll()
 {
@@ -408,7 +408,7 @@ int Manager::GetModalExitCode() const
 }
 
 /* $ 11.10.2001 IS
-   Ïîäñ÷èòàòü êîëè÷åñòâî îêîí ñ óêàçàííûì èìåíåì.
+   ÐŸÐ¾Ð´ÑÑ‡Ð¸Ñ‚Ð°Ñ‚ÑŒ ÐºÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ Ð¾ÐºÐ¾Ð½ Ñ ÑƒÐºÐ°Ð·Ð°Ð½Ð½Ñ‹Ð¼ Ð¸Ð¼ÐµÐ½ÐµÐ¼.
 */
 int Manager::CountWindowsWithName(const string& Name, BOOL IgnoreCase)
 {
@@ -426,16 +426,16 @@ int Manager::CountWindowsWithName(const string& Name, BOOL IgnoreCase)
 }
 
 /*!
-  \return Âîçâðàùàåò nullptr åñëè íàæàò "îòêàç" èëè åñëè íàæàòî òåêóùåå îêíî.
-  Äðóãèìè ñëîâàìè, åñëè íåìîäàëüíîå îêíî íå ïîìåíÿëîñü.
-  Åñëè æå ïîìåíÿëîñü, òî òîãäà ôóíêöèÿ äîëæíà âîçâðàòèòü
-  óêàçàòåëü íà ïðåäûäóùåå îêíî.
+  \return Ð’Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÑ‚ nullptr ÐµÑÐ»Ð¸ Ð½Ð°Ð¶Ð°Ñ‚ "Ð¾Ñ‚ÐºÐ°Ð·" Ð¸Ð»Ð¸ ÐµÑÐ»Ð¸ Ð½Ð°Ð¶Ð°Ñ‚Ð¾ Ñ‚ÐµÐºÑƒÑ‰ÐµÐµ Ð¾ÐºÐ½Ð¾.
+  Ð”Ñ€ÑƒÐ³Ð¸Ð¼Ð¸ ÑÐ»Ð¾Ð²Ð°Ð¼Ð¸, ÐµÑÐ»Ð¸ Ð½ÐµÐ¼Ð¾Ð´Ð°Ð»ÑŒÐ½Ð¾Ðµ Ð¾ÐºÐ½Ð¾ Ð½Ðµ Ð¿Ð¾Ð¼ÐµÐ½ÑÐ»Ð¾ÑÑŒ.
+  Ð•ÑÐ»Ð¸ Ð¶Ðµ Ð¿Ð¾Ð¼ÐµÐ½ÑÐ»Ð¾ÑÑŒ, Ñ‚Ð¾ Ñ‚Ð¾Ð³Ð´Ð° Ñ„ÑƒÐ½ÐºÑ†Ð¸Ñ Ð´Ð¾Ð»Ð¶Ð½Ð° Ð²Ð¾Ð·Ð²Ñ€Ð°Ñ‚Ð¸Ñ‚ÑŒ
+  ÑƒÐºÐ°Ð·Ð°Ñ‚ÐµÐ»ÑŒ Ð½Ð° Ð¿Ñ€ÐµÐ´Ñ‹Ð´ÑƒÑ‰ÐµÐµ Ð¾ÐºÐ½Ð¾.
 */
 window_ptr Manager::WindowMenu()
 {
 	/* $ 28.04.2002 KM
-	    Ôëàã äëÿ îïðåäåëåíèÿ òîãî, ÷òî ìåíþ ïåðåêëþ÷åíèÿ
-	    ýêðàíîâ óæå àêòèâèðîâàíî.
+	    Ð¤Ð»Ð°Ð³ Ð´Ð»Ñ Ð¾Ð¿Ñ€ÐµÐ´ÐµÐ»ÐµÐ½Ð¸Ñ Ñ‚Ð¾Ð³Ð¾, Ñ‡Ñ‚Ð¾ Ð¼ÐµÐ½ÑŽ Ð¿ÐµÑ€ÐµÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ñ
+	    ÑÐºÑ€Ð°Ð½Ð¾Ð² ÑƒÐ¶Ðµ Ð°ÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¾.
 	*/
 	static int AlreadyShown=FALSE;
 
@@ -467,7 +467,7 @@ window_ptr Manager::WindowMenu()
 
 			//TruncPathStr(strName,ScrX-24);
 			ReplaceStrings(strName, L"&", L"&&");
-			/*  äîáàâëÿåòñÿ "*" åñëè ôàéë èçìåíåí */
+			/*  Ð´Ð¾Ð±Ð°Ð²Ð»ÑÐµÑ‚ÑÑ "*" ÐµÑÐ»Ð¸ Ñ„Ð°Ð¹Ð» Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½ */
 			ModalMenuItem.strName = str_printf(L"%s%-10.10s %c %s", strNumText.data(), strType.data(),(i->IsFileModified()?L'*':L' '), strName.data());
 			const auto tmp = i.get();
 			ModalMenuItem.UserData = tmp;
@@ -503,7 +503,7 @@ int Manager::GetWindowCountByType(int Type)
 	});
 }
 
-/*$ 11.05.2001 OT Òåïåðü ìîæíî èñêàòü ôàéë íå òîëüêî ïî ïîëíîìó èìåíè, íî è îòäåëüíî - ïóòü, îòäåëüíî èìÿ */
+/*$ 11.05.2001 OT Ð¢ÐµÐ¿ÐµÑ€ÑŒ Ð¼Ð¾Ð¶Ð½Ð¾ Ð¸ÑÐºÐ°Ñ‚ÑŒ Ñ„Ð°Ð¹Ð» Ð½Ðµ Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ð¿Ð¾ Ð¿Ð¾Ð»Ð½Ð¾Ð¼Ñƒ Ð¸Ð¼ÐµÐ½Ð¸, Ð½Ð¾ Ð¸ Ð¾Ñ‚Ð´ÐµÐ»ÑŒÐ½Ð¾ - Ð¿ÑƒÑ‚ÑŒ, Ð¾Ñ‚Ð´ÐµÐ»ÑŒÐ½Ð¾ Ð¸Ð¼Ñ */
 window_ptr Manager::FindWindowByFile(int ModalType,const string& FileName, const wchar_t *Dir)
 {
 	string strBufFileName;
@@ -521,7 +521,7 @@ window_ptr Manager::FindWindowByFile(int ModalType,const string& FileName, const
 	{
 		string strType, strName;
 
-		// Mantis#0000469 - ïîëó÷àòü Name áóäåì òîëüêî ïðè ñîâïàäåíèè ModalType
+		// Mantis#0000469 - Ð¿Ð¾Ð»ÑƒÑ‡Ð°Ñ‚ÑŒ Name Ð±ÑƒÐ´ÐµÐ¼ Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ð¿Ñ€Ð¸ ÑÐ¾Ð²Ð¿Ð°Ð´ÐµÐ½Ð¸Ð¸ ModalType
 		if (!i->IsDeleting() && i->GetType() == ModalType)
 		{
 			i->GetTypeAndName(strType, strName);
@@ -648,7 +648,7 @@ void Manager::ProcessMainLoop()
 	}
 	else
 	{
-		// Mantis#0000073: Íå ðàáîòàåò àâòîñêðîëèíã â QView
+		// Mantis#0000073: ÐÐµ Ñ€Ð°Ð±Ð¾Ñ‚Ð°ÐµÑ‚ Ð°Ð²Ñ‚Ð¾ÑÐºÑ€Ð¾Ð»Ð¸Ð½Ð³ Ð² QView
 		Global->WaitInMainLoop=IsPanelsActive(true);
 		//WaitInFastFind++;
 		INPUT_RECORD rec;
@@ -661,7 +661,7 @@ void Manager::ProcessMainLoop()
 
 		if (rec.EventType==MOUSE_EVENT && !(Key==KEY_MSWHEEL_UP || Key==KEY_MSWHEEL_DOWN || Key==KEY_MSWHEEL_RIGHT || Key==KEY_MSWHEEL_LEFT))
 		{
-				// èñïîëüçóåì êîïèþ ñòðóêòóðû, ò.ê. LastInputRecord ìîæåò âíåçàïíî èçìåíèòüñÿ âî âðåìÿ âûïîëíåíèÿ ProcessMouse
+				// Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·ÑƒÐµÐ¼ ÐºÐ¾Ð¿Ð¸ÑŽ ÑÑ‚Ñ€ÑƒÐºÑ‚ÑƒÑ€Ñ‹, Ñ‚.Ðº. LastInputRecord Ð¼Ð¾Ð¶ÐµÑ‚ Ð²Ð½ÐµÐ·Ð°Ð¿Ð½Ð¾ Ð¸Ð·Ð¼ÐµÐ½Ð¸Ñ‚ÑŒÑÑ Ð²Ð¾ Ð²Ñ€ÐµÐ¼Ñ Ð²Ñ‹Ð¿Ð¾Ð»Ð½ÐµÐ½Ð¸Ñ ProcessMouse
 				MOUSE_EVENT_RECORD mer=rec.Event.MouseEvent;
 				ProcessMouse(&mer);
 		}
@@ -691,8 +691,8 @@ void Manager::ExitMainLoop(int Ask)
 		nullptr, nullptr, &FarAskQuitId))
 	{
 		/* $ 29.12.2000 IS
-		   + Ïðîâåðÿåì, ñîõðàíåíû ëè âñå èçìåíåííûå ôàéëû. Åñëè íåò, òî íå âûõîäèì
-		     èç ôàðà.
+		   + ÐŸÑ€Ð¾Ð²ÐµÑ€ÑÐµÐ¼, ÑÐ¾Ñ…Ñ€Ð°Ð½ÐµÐ½Ñ‹ Ð»Ð¸ Ð²ÑÐµ Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½Ð½Ñ‹Ðµ Ñ„Ð°Ð¹Ð»Ñ‹. Ð•ÑÐ»Ð¸ Ð½ÐµÑ‚, Ñ‚Ð¾ Ð½Ðµ Ð²Ñ‹Ñ…Ð¾Ð´Ð¸Ð¼
+		     Ð¸Ð· Ñ„Ð°Ñ€Ð°.
 		*/
 		if (ExitAll() || Global->CloseFAR)
 		{
@@ -716,8 +716,8 @@ int Manager::ProcessKey(Key key)
 {
 	if (m_currentWindow)
 	{
-		/*** ÁËÎÊ ÏÐÈÂÈËÅÃÈÐÎÂÀÍÍÛÕ ÊËÀÂÈØ ! ***/
-		/***   ÊÎÒÎÐÛÅ ÍÅËÜÇß ÍÀÌÀÊÐÎÑÈÒÜ    ***/
+		/*** Ð‘Ð›ÐžÐš ÐŸÐ Ð˜Ð’Ð˜Ð›Ð•Ð“Ð˜Ð ÐžÐ’ÐÐÐÐ«Ð¥ ÐšÐ›ÐÐ’Ð˜Ð¨ ! ***/
+		/***   ÐšÐžÐ¢ÐžÐ Ð«Ð• ÐÐ•Ð›Ð¬Ð—Ð¯ ÐÐÐœÐÐšÐ ÐžÐ¡Ð˜Ð¢Ð¬    ***/
 
 		switch (key.FarKey())
 		{
@@ -735,7 +735,7 @@ int Manager::ProcessKey(Key key)
 				return TRUE;
 		}
 
-		/*** À âîò çäåñü - âñå îñòàëüíîå! ***/
+		/*** Ð Ð²Ð¾Ñ‚ Ð·Ð´ÐµÑÑŒ - Ð²ÑÐµ Ð¾ÑÑ‚Ð°Ð»ÑŒÐ½Ð¾Ðµ! ***/
 		if (!Global->IsProcessAssignMacroKey)
 		{
 			if (std::any_of(CONST_RANGE(m_GlobalKeyHandlers, i) { return i(key); }))
@@ -775,11 +775,11 @@ int Manager::ProcessKey(Key key)
 					SetVideoMode();
 					Sleep(1);
 
-					/* Â ïðîöåññå èñïîëíåíèÿ Alt-F9 (â íîðìàëüíîì ðåæèìå) â î÷åðåäü
-					   êîíñîëè ïîïàäàåò WINDOW_BUFFER_SIZE_EVENT, ôîðìèðóåòñÿ â
+					/* Ð’ Ð¿Ñ€Ð¾Ñ†ÐµÑÑÐµ Ð¸ÑÐ¿Ð¾Ð»Ð½ÐµÐ½Ð¸Ñ Alt-F9 (Ð² Ð½Ð¾Ñ€Ð¼Ð°Ð»ÑŒÐ½Ð¾Ð¼ Ñ€ÐµÐ¶Ð¸Ð¼Ðµ) Ð² Ð¾Ñ‡ÐµÑ€ÐµÐ´ÑŒ
+					   ÐºÐ¾Ð½ÑÐ¾Ð»Ð¸ Ð¿Ð¾Ð¿Ð°Ð´Ð°ÐµÑ‚ WINDOW_BUFFER_SIZE_EVENT, Ñ„Ð¾Ñ€Ð¼Ð¸Ñ€ÑƒÐµÑ‚ÑÑ Ð²
 					   ChangeVideoMode().
-					   Â ðåæèìå èñïîëíåíèÿ ìàêðîñîâ ÝÒÎ íå ïðîèñõîäèò ïî âïîëíå ïîíÿòíûì
-					   ïðè÷èíàì.
+					   Ð’ Ñ€ÐµÐ¶Ð¸Ð¼Ðµ Ð¸ÑÐ¿Ð¾Ð»Ð½ÐµÐ½Ð¸Ñ Ð¼Ð°ÐºÑ€Ð¾ÑÐ¾Ð² Ð­Ð¢Ðž Ð½Ðµ Ð¿Ñ€Ð¾Ð¸ÑÑ…Ð¾Ð´Ð¸Ñ‚ Ð¿Ð¾ Ð²Ð¿Ð¾Ð»Ð½Ðµ Ð¿Ð¾Ð½ÑÑ‚Ð½Ñ‹Ð¼
+					   Ð¿Ñ€Ð¸Ñ‡Ð¸Ð½Ð°Ð¼.
 					*/
 					if (Global->CtrlObject->Macro.IsExecuting())
 					{
@@ -815,7 +815,7 @@ int Manager::ProcessKey(Key key)
 						return TRUE;
 					}
 
-					break; // îòäàäèì F12 äàëüøå ïî öåïî÷êå
+					break; // Ð¾Ñ‚Ð´Ð°Ð´Ð¸Ð¼ F12 Ð´Ð°Ð»ÑŒÑˆÐµ Ð¿Ð¾ Ñ†ÐµÐ¿Ð¾Ñ‡ÐºÐµ
 				}
 				case KEY_CTRLTAB:
 				case KEY_RCTRLTAB:
@@ -863,9 +863,9 @@ void Manager::PluginsMenu() const
 	if (curType == windowtype_panels || curType == windowtype_editor || curType == windowtype_viewer || curType == windowtype_dialog || curType == windowtype_menu)
 	{
 		/* 02.01.2002 IS
-		   ! Âûâîä ïðàâèëüíîé ïîìîùè ïî Shift-F1 â ìåíþ ïëàãèíîâ â ðåäàêòîðå/viewer-å/äèàëîãå
-		   ! Åñëè íà ïàíåëè QVIEW èëè INFO îòêðûò ôàéë, òî ñ÷èòàåì, ÷òî ýòî
-		     ïîëíîöåííûé viewer è çàïóñêàåì ñ ñîîòâåòñòâóþùèì ïàðàìåòðîì ïëàãèíû
+		   ! Ð’Ñ‹Ð²Ð¾Ð´ Ð¿Ñ€Ð°Ð²Ð¸Ð»ÑŒÐ½Ð¾Ð¹ Ð¿Ð¾Ð¼Ð¾Ñ‰Ð¸ Ð¿Ð¾ Shift-F1 Ð² Ð¼ÐµÐ½ÑŽ Ð¿Ð»Ð°Ð³Ð¸Ð½Ð¾Ð² Ð² Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¾Ñ€Ðµ/viewer-Ðµ/Ð´Ð¸Ð°Ð»Ð¾Ð³Ðµ
+		   ! Ð•ÑÐ»Ð¸ Ð½Ð° Ð¿Ð°Ð½ÐµÐ»Ð¸ QVIEW Ð¸Ð»Ð¸ INFO Ð¾Ñ‚ÐºÑ€Ñ‹Ñ‚ Ñ„Ð°Ð¹Ð», Ñ‚Ð¾ ÑÑ‡Ð¸Ñ‚Ð°ÐµÐ¼, Ñ‡Ñ‚Ð¾ ÑÑ‚Ð¾
+		     Ð¿Ð¾Ð»Ð½Ð¾Ñ†ÐµÐ½Ð½Ñ‹Ð¹ viewer Ð¸ Ð·Ð°Ð¿ÑƒÑÐºÐ°ÐµÐ¼ Ñ ÑÐ¾Ð¾Ñ‚Ð²ÐµÑ‚ÑÑ‚Ð²ÑƒÑŽÑ‰Ð¸Ð¼ Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ð¾Ð¼ Ð¿Ð»Ð°Ð³Ð¸Ð½Ñ‹
 		*/
 		if (curType==windowtype_panels)
 		{
@@ -878,14 +878,14 @@ void Manager::PluginsMenu() const
 
 				if (!strCurFileName.empty())
 				{
-					// èíòåðåñóþò òîëüêî îáû÷íûå ôàéëû
+					// Ð¸Ð½Ñ‚ÐµÑ€ÐµÑÑƒÑŽÑ‚ Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ð¾Ð±Ñ‹Ñ‡Ð½Ñ‹Ðµ Ñ„Ð°Ð¹Ð»Ñ‹
 					if (os::fs::is_file(strCurFileName))
 						curType=windowtype_viewer;
 				}
 			}
 		}
 
-		// â ðåäàêòîðå, viewer-å èëè äèàëîãå ïîêàæåì ñâîþ ïîìîùü ïî Shift-F1
+		// Ð² Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¾Ñ€Ðµ, viewer-Ðµ Ð¸Ð»Ð¸ Ð´Ð¸Ð°Ð»Ð¾Ð³Ðµ Ð¿Ð¾ÐºÐ°Ð¶ÐµÐ¼ ÑÐ²Ð¾ÑŽ Ð¿Ð¾Ð¼Ð¾Ñ‰ÑŒ Ð¿Ð¾ Shift-F1
 		const wchar_t *Topic=curType==windowtype_editor?L"Editor":
 		                     curType==windowtype_viewer?L"Viewer":
 		                     curType==windowtype_dialog?L"Dialog":nullptr;
@@ -1054,8 +1054,8 @@ void Manager::ActivateCommit(window_ptr_ref Param)
 	}
 
 	/* 14.05.2002 SKV
-	  Åñëè ìû ïûòàåìñÿ àêòèâèðîâàòü ïîëóìîäàëüíûé ôðýéì,
-	  òî íàäî åãî âûòàùèò íà âåðõ ñòýêà ìîäàëîâ.
+	  Ð•ÑÐ»Ð¸ Ð¼Ñ‹ Ð¿Ñ‹Ñ‚Ð°ÐµÐ¼ÑÑ Ð°ÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ Ð¿Ð¾Ð»ÑƒÐ¼Ð¾Ð´Ð°Ð»ÑŒÐ½Ñ‹Ð¹ Ñ„Ñ€ÑÐ¹Ð¼,
+	  Ñ‚Ð¾ Ð½Ð°Ð´Ð¾ ÐµÐ³Ð¾ Ð²Ñ‹Ñ‚Ð°Ñ‰Ð¸Ñ‚ Ð½Ð° Ð²ÐµÑ€Ñ… ÑÑ‚ÑÐºÐ° Ð¼Ð¾Ð´Ð°Ð»Ð¾Ð².
 	*/
 
 	const auto ItemIterator = std::find(ALL_RANGE(m_modalWindows), Param);
@@ -1097,7 +1097,7 @@ void Manager::RefreshCommit(window_ptr_ref Param)
 			return i->Locked();
 		});
 
-		//åñëè îäíî èç îêîí çàáëîêèðîâàíî, áîëüøîãî ñìûñëà â ïåðåðèñîâêå ïîêà íåò
+		//ÐµÑÐ»Ð¸ Ð¾Ð´Ð½Ð¾ Ð¸Ð· Ð¾ÐºÐ¾Ð½ Ð·Ð°Ð±Ð»Ð¾ÐºÐ¸Ñ€Ð¾Ð²Ð°Ð½Ð¾, Ð±Ð¾Ð»ÑŒÑˆÐ¾Ð³Ð¾ ÑÐ¼Ñ‹ÑÐ»Ð° Ð² Ð¿ÐµÑ€ÐµÑ€Ð¸ÑÐ¾Ð²ÐºÐµ Ð¿Ð¾ÐºÐ° Ð½ÐµÑ‚
 		if (ItemIterator == List.end())
 		{
 			std::for_each(first, List.end(), LAMBDA_PREDICATE(List, i)
@@ -1176,33 +1176,33 @@ bool Manager::AddWindow(window_ptr_ref Param)
 }
 
 /*$ 26.06.2001 SKV
-  Äëÿ âûçîâà èç ïëàãèíîâ ïîñðåäñòâîì ACTL_COMMIT
+  Ð”Ð»Ñ Ð²Ñ‹Ð·Ð¾Ð²Ð° Ð¸Ð· Ð¿Ð»Ð°Ð³Ð¸Ð½Ð¾Ð² Ð¿Ð¾ÑÑ€ÐµÐ´ÑÑ‚Ð²Ð¾Ð¼ ACTL_COMMIT
 */
 void Manager::PluginCommit()
 {
 	Commit();
 }
 
-/* $ Ââåäåíà äëÿ íóæä CtrlAltShift OT */
+/* $ Ð’Ð²ÐµÐ´ÐµÐ½Ð° Ð´Ð»Ñ Ð½ÑƒÐ¶Ð´ CtrlAltShift OT */
 void Manager::ImmediateHide()
 {
 	if (m_windows.empty())
 		return;
 
-	// Ñíà÷àëà ïðîâåðÿåì, åñòü ëè ó ñêðûâàåìîãî îêíà SaveScreen
+	// Ð¡Ð½Ð°Ñ‡Ð°Ð»Ð° Ð¿Ñ€Ð¾Ð²ÐµÑ€ÑÐµÐ¼, ÐµÑÑ‚ÑŒ Ð»Ð¸ Ñƒ ÑÐºÑ€Ñ‹Ð²Ð°ÐµÐ¼Ð¾Ð³Ð¾ Ð¾ÐºÐ½Ð° SaveScreen
 	if (m_currentWindow->HasSaveScreen())
 	{
 		m_currentWindow->Hide();
 		return;
 	}
 
-	// Îêíà ïåðåðèñîâûâàþòñÿ, çíà÷èò äëÿ íèæíèõ
-	// íå âûñòàâëÿåì çàãîëîâîê êîíñîëè, ÷òîáû íå ìåëüêàë.
+	// ÐžÐºÐ½Ð° Ð¿ÐµÑ€ÐµÑ€Ð¸ÑÐ¾Ð²Ñ‹Ð²Ð°ÑŽÑ‚ÑÑ, Ð·Ð½Ð°Ñ‡Ð¸Ñ‚ Ð´Ð»Ñ Ð½Ð¸Ð¶Ð½Ð¸Ñ…
+	// Ð½Ðµ Ð²Ñ‹ÑÑ‚Ð°Ð²Ð»ÑÐµÐ¼ Ð·Ð°Ð³Ð¾Ð»Ð¾Ð²Ð¾Ðº ÐºÐ¾Ð½ÑÐ¾Ð»Ð¸, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð½Ðµ Ð¼ÐµÐ»ÑŒÐºÐ°Ð».
 	if (!m_modalWindows.empty())
 	{
 		/* $ 28.04.2002 KM
-		    Ïðîâåðèì, à íå ìîäàëüíûé ëè ðåäàêòîð èëè âüþâåð íà âåðøèíå
-		    ìîäàëüíîãî ñòåêà? È åñëè äà, ïîêàæåì User screen.
+		    ÐŸÑ€Ð¾Ð²ÐµÑ€Ð¸Ð¼, Ð° Ð½Ðµ Ð¼Ð¾Ð´Ð°Ð»ÑŒÐ½Ñ‹Ð¹ Ð»Ð¸ Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¾Ñ€ Ð¸Ð»Ð¸ Ð²ÑŒÑŽÐ²ÐµÑ€ Ð½Ð° Ð²ÐµÑ€ÑˆÐ¸Ð½Ðµ
+		    Ð¼Ð¾Ð´Ð°Ð»ÑŒÐ½Ð¾Ð³Ð¾ ÑÑ‚ÐµÐºÐ°? Ð˜ ÐµÑÐ»Ð¸ Ð´Ð°, Ð¿Ð¾ÐºÐ°Ð¶ÐµÐ¼ User screen.
 		*/
 		if (m_modalWindows.back()->GetType()==windowtype_editor || m_modalWindows.back()->GetType()==windowtype_viewer)
 		{
@@ -1237,9 +1237,9 @@ void Manager::ImmediateHide()
 			}
 
 			/* $ 04.04.2002 KM
-			   Ïåðåðèñóåì çàãîëîâîê òîëüêî ó àêòèâíîãî îêíà.
-			   Ýòèì ìû ïðåäîòâðàùàåì ìåëüêàíèå çàãîëîâêà êîíñîëè
-			   ïðè ïåðåðèñîâêå âñåõ îêîí.
+			   ÐŸÐµÑ€ÐµÑ€Ð¸ÑÑƒÐµÐ¼ Ð·Ð°Ð³Ð¾Ð»Ð¾Ð²Ð¾Ðº Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ñƒ Ð°ÐºÑ‚Ð¸Ð²Ð½Ð¾Ð³Ð¾ Ð¾ÐºÐ½Ð°.
+			   Ð­Ñ‚Ð¸Ð¼ Ð¼Ñ‹ Ð¿Ñ€ÐµÐ´Ð¾Ñ‚Ð²Ñ€Ð°Ñ‰Ð°ÐµÐ¼ Ð¼ÐµÐ»ÑŒÐºÐ°Ð½Ð¸Ðµ Ð·Ð°Ð³Ð¾Ð»Ð¾Ð²ÐºÐ° ÐºÐ¾Ð½ÑÐ¾Ð»Ð¸
+			   Ð¿Ñ€Ð¸ Ð¿ÐµÑ€ÐµÑ€Ð¸ÑÐ¾Ð²ÐºÐµ Ð²ÑÐµÑ… Ð¾ÐºÐ¾Ð½.
 			*/
 			Global->IsRedrawWindowInProcess--;
 			m_currentWindow->ShowConsoleTitle();

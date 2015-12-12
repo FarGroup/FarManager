@@ -1,3 +1,5 @@
+ï»¿#ifndef HILIGHT_HPP_DE941BF9_997F_45B6_A454_3F455C156548
+#define HILIGHT_HPP_DE941BF9_997F_45B6_A454_3F455C156548
 #pragma once
 
 /*
@@ -6,8 +8,8 @@ hilight.hpp
 Files highlighting
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright Â© 1996 Eugene Roshal
+Copyright Â© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -117,3 +119,5 @@ private:
 	unsigned __int64 CurrentTime;
 	bool Changed;
 };
+
+#endif // HILIGHT_HPP_DE941BF9_997F_45B6_A454_3F455C156548

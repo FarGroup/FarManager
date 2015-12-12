@@ -1,13 +1,15 @@
+п»ї#ifndef FILEFILTERPARAMS_HPP_E3E125BE_F0C2_4DAC_9582_FE7EDD2DA264
+#define FILEFILTERPARAMS_HPP_E3E125BE_F0C2_4DAC_9582_FE7EDD2DA264
 #pragma once
 
 /*
 filefilterparams.hpp
 
-Параметры Файлового фильтра
+РџР°СЂР°РјРµС‚СЂС‹ Р¤Р°Р№Р»РѕРІРѕРіРѕ С„РёР»СЊС‚СЂР°
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -43,7 +45,7 @@ enum
 
 enum enumFileFilterFlagsType
 {
-	FFFT_FIRST = 0, //обязан быть первым
+	FFFT_FIRST = 0, //РѕР±СЏР·Р°РЅ Р±С‹С‚СЊ РїРµСЂРІС‹Рј
 
 	FFFT_LEFTPANEL = FFFT_FIRST,
 	FFFT_RIGHTPANEL,
@@ -52,7 +54,7 @@ enum enumFileFilterFlagsType
 	FFFT_SELECT,
 	FFFT_CUSTOM,
 
-	FFFT_COUNT, //обязан быть последним
+	FFFT_COUNT, //РѕР±СЏР·Р°РЅ Р±С‹С‚СЊ РїРѕСЃР»РµРґРЅРёРј
 };
 
 enum enumFileFilterFlags
@@ -70,7 +72,7 @@ enum enumFDateType
 	FDATE_OPENED,
 	FDATE_CHANGED,
 
-	FDATE_COUNT, // всегда последний !!!
+	FDATE_COUNT, // РІСЃРµРіРґР° РїРѕСЃР»РµРґРЅРёР№ !!!
 };
 
 class FileFilterParams: noncopyable, swapable<FileFilterParams>
@@ -124,10 +126,10 @@ public:
 	void RefreshMask() {if(FMask.Used) FMask.FilterMask.Set(FMask.strMask, FMF_SILENT);}
 
 
-	// Данный метод вызывается "снаружи" и служит для определения:
-	// попадает ли файл fd под условие установленного фильтра.
-	// Возвращает true  - попадает;
-	//            false - не попадает.
+	// Р”Р°РЅРЅС‹Р№ РјРµС‚РѕРґ РІС‹Р·С‹РІР°РµС‚СЃСЏ "СЃРЅР°СЂСѓР¶Рё" Рё СЃР»СѓР¶РёС‚ РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ:
+	// РїРѕРїР°РґР°РµС‚ Р»Рё С„Р°Р№Р» fd РїРѕРґ СѓСЃР»РѕРІРёРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕРіРѕ С„РёР»СЊС‚СЂР°.
+	// Р’РѕР·РІСЂР°С‰Р°РµС‚ true  - РїРѕРїР°РґР°РµС‚;
+	//            false - РЅРµ РїРѕРїР°РґР°РµС‚.
 	bool FileInFilter(const FileListItem* fli, unsigned __int64 CurrentTime) const;
 	bool FileInFilter(const os::FAR_FIND_DATA& fde, unsigned __int64 CurrentTime,const string* FullName=nullptr) const; //Used in dirinfo, copy, findfile
 	bool FileInFilter(const PluginPanelItem& fd, unsigned __int64 CurrentTime) const;
@@ -140,7 +142,7 @@ private:
 	{
 		bool Used;
 		string strMask;
-		filemasks FilterMask; // Хранилище скомпилированной маски.
+		filemasks FilterMask; // РҐСЂР°РЅРёР»РёС‰Рµ СЃРєРѕРјРїРёР»РёСЂРѕРІР°РЅРЅРѕР№ РјР°СЃРєРё.
 
 		fmask():Used(false) {}
 		fmask(fmask&& rhs) noexcept: Used(false) { *this = std::move(rhs); }
@@ -173,14 +175,14 @@ private:
 			Used()
 		{}
 
-		unsigned __int64 SizeAboveReal; // Здесь всегда будет размер в байтах
-		unsigned __int64 SizeBelowReal; // Здесь всегда будет размер в байтах
-		string SizeAbove; // Здесь всегда будет размер как его ввёл юзер
-		string SizeBelow; // Здесь всегда будет размер как его ввёл юзер
+		unsigned __int64 SizeAboveReal; // Р—РґРµСЃСЊ РІСЃРµРіРґР° Р±СѓРґРµС‚ СЂР°Р·РјРµСЂ РІ Р±Р°Р№С‚Р°С…
+		unsigned __int64 SizeBelowReal; // Р—РґРµСЃСЊ РІСЃРµРіРґР° Р±СѓРґРµС‚ СЂР°Р·РјРµСЂ РІ Р±Р°Р№С‚Р°С…
+		string SizeAbove; // Р—РґРµСЃСЊ РІСЃРµРіРґР° Р±СѓРґРµС‚ СЂР°Р·РјРµСЂ РєР°Рє РµРіРѕ РІРІС‘Р» СЋР·РµСЂ
+		string SizeBelow; // Р—РґРµСЃСЊ РІСЃРµРіРґР° Р±СѓРґРµС‚ СЂР°Р·РјРµСЂ РєР°Рє РµРіРѕ РІРІС‘Р» СЋР·РµСЂ
 		bool Used;
 	} FSize;
 
-	struct // Новая структура в фильтре, чтобы считать количество жестких ссылок. Пока что реально используем только флаг Used и априорно заданное условие "ссылок больше чем одна"
+	struct // РќРѕРІР°СЏ СЃС‚СЂСѓРєС‚СѓСЂР° РІ С„РёР»СЊС‚СЂРµ, С‡С‚РѕР±С‹ СЃС‡РёС‚Р°С‚СЊ РєРѕР»РёС‡РµСЃС‚РІРѕ Р¶РµСЃС‚РєРёС… СЃСЃС‹Р»РѕРє. РџРѕРєР° С‡С‚Рѕ СЂРµР°Р»СЊРЅРѕ РёСЃРїРѕР»СЊР·СѓРµРј С‚РѕР»СЊРєРѕ С„Р»Р°Рі Used Рё Р°РїСЂРёРѕСЂРЅРѕ Р·Р°РґР°РЅРЅРѕРµ СѓСЃР»РѕРІРёРµ "СЃСЃС‹Р»РѕРє Р±РѕР»СЊС€Рµ С‡РµРј РѕРґРЅР°"
 	{
 		bool Used;
 		DWORD CountAbove;
@@ -206,5 +208,7 @@ private:
 
 bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig=false);
 
-//Централизованная функция для создания строк меню различных фильтров.
+//Р¦РµРЅС‚СЂР°Р»РёР·РѕРІР°РЅРЅР°СЏ С„СѓРЅРєС†РёСЏ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ СЃС‚СЂРѕРє РјРµРЅСЋ СЂР°Р·Р»РёС‡РЅС‹С… С„РёР»СЊС‚СЂРѕРІ.
 string MenuString(const FileFilterParams* FF, bool bHighlightType=false, int Hotkey=0, bool bPanelType=false, const wchar_t *FMask=nullptr, const wchar_t *Title=nullptr);
+
+#endif // FILEFILTERPARAMS_HPP_E3E125BE_F0C2_4DAC_9582_FE7EDD2DA264

@@ -1,11 +1,11 @@
-/*
+ï»¿/*
 hotplug.cpp
 
-Îòêëþ÷åíèå Hotplug-óñòðîéñòâ
+ÐžÑ‚ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ðµ Hotplug-ÑƒÑÑ‚Ñ€Ð¾Ð¹ÑÑ‚Ð²
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright Â© 1996 Eugene Roshal
+Copyright Â© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -182,7 +182,7 @@ static bool IsDeviceHotplug(DEVINST hDevInst)
 				if (CM_Get_DevNode_Status(&Status, &Problem, hDevInst, 0) == CR_SUCCESS)
 				{
 					if ((Problem != CM_PROB_DEVICE_NOT_THERE) &&
-							(Problem != CM_PROB_HELD_FOR_EJECT) && //âîçìîæíî, íàäî ïðîâåðÿòü íà íàëè÷èå ïðîáëåì âîîáùå
+							(Problem != CM_PROB_HELD_FOR_EJECT) && //Ð²Ð¾Ð·Ð¼Ð¾Ð¶Ð½Ð¾, Ð½Ð°Ð´Ð¾ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÑÑ‚ÑŒ Ð½Ð° Ð½Ð°Ð»Ð¸Ñ‡Ð¸Ðµ Ð¿Ñ€Ð¾Ð±Ð»ÐµÐ¼ Ð²Ð¾Ð¾Ð±Ñ‰Ðµ
 							(Problem != CM_PROB_DISABLED) &&
 							(Capabilities & CM_DEVCAP_REMOVABLE) &&
 							(!(Capabilities & CM_DEVCAP_SURPRISEREMOVALOK) || IsChildDeviceHotplug(hDevInst)) &&
@@ -416,7 +416,7 @@ static int RemoveHotplugDevice(const DeviceInfo& Info, DWORD Flags)
 		PNP_VETO_TYPE pvtVeto = PNP_VetoTypeUnknown;
 		wchar_t VetoName[MAX_PATH];
 		CONFIGRET crResult = CM_Request_Device_Eject(Info.DevInst, &pvtVeto, VetoName, ARRAYSIZE(VetoName), 0);
-		if ((crResult != CR_SUCCESS) || (pvtVeto != PNP_VetoTypeUnknown))   //M$ áàã, åñëè åñòü VetoName, òî äàæå ïðè îøèáêå âîçâðàùàåòñÿ CR_SUCCESS
+		if ((crResult != CR_SUCCESS) || (pvtVeto != PNP_VetoTypeUnknown))   //M$ Ð±Ð°Ð³, ÐµÑÐ»Ð¸ ÐµÑÑ‚ÑŒ VetoName, Ñ‚Ð¾ Ð´Ð°Ð¶Ðµ Ð¿Ñ€Ð¸ Ð¾ÑˆÐ¸Ð±ÐºÐµ Ð²Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÑ‚ÑÑ CR_SUCCESS
 		{
 			SetLastError((pvtVeto != PNP_VetoTypeUnknown)?ERROR_DRIVE_LOCKED:ERROR_UNABLE_TO_UNLOAD_MEDIA); // "The disk is in use or locked by another process."
 			bResult = 0;
@@ -553,7 +553,7 @@ void ShowHotplugDevices()
 					}
 					else if (bResult != -1)
 					{
-						SetLastError(ERROR_DRIVE_LOCKED); // ...þ "The disk is in use or locked by another process."
+						SetLastError(ERROR_DRIVE_LOCKED); // ...ÑŽ "The disk is in use or locked by another process."
 						Global->CatchError();
 						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
 						        MSG(MChangeCouldNotEjectHotPlugMedia2),HotPlugList->at(I).strName.data(),MSG(MOk));

@@ -1,7 +1,9 @@
+﻿#ifndef CONDITIONAL_HPP_18900E4A_F2F5_48B9_A92A_DEE70617591B
+#define CONDITIONAL_HPP_18900E4A_F2F5_48B9_A92A_DEE70617591B
 #pragma once
 
 /*
-Copyright � 2015 Far Group
+Copyright © 2015 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -67,3 +69,5 @@ struct conditional
 	}
 #endif
 };
+
+#endif // CONDITIONAL_HPP_18900E4A_F2F5_48B9_A92A_DEE70617591B

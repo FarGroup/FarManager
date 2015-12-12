@@ -1,11 +1,11 @@
-/*
+п»ї/*
 infolist.cpp
 
-Информационная панель
+РРЅС„РѕСЂРјР°С†РёРѕРЅРЅР°СЏ РїР°РЅРµР»СЊ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,7 @@ static bool LastDizShowScrollbar = false;
 
 enum InfoListSectionStateIndex
 {
-	// Порядок не менять! Только добавлять в конец!
+	// РџРѕСЂСЏРґРѕРє РЅРµ РјРµРЅСЏС‚СЊ! РўРѕР»СЊРєРѕ РґРѕР±Р°РІР»СЏС‚СЊ РІ РєРѕРЅРµС†!
 	ILSS_DISKINFO,
 	ILSS_MEMORYINFO,
 	ILSS_DIRDESCRIPTION,
@@ -80,8 +80,8 @@ enum InfoListSectionStateIndex
 
 struct InfoList::InfoListSectionState
 {
-	bool Show;   // раскрыть/свернуть?
-	SHORT Y;     // Где?
+	bool Show;   // СЂР°СЃРєСЂС‹С‚СЊ/СЃРІРµСЂРЅСѓС‚СЊ?
+	SHORT Y;     // Р“РґРµ?
 };
 
 
@@ -123,7 +123,7 @@ InfoList::~InfoList()
 	CloseFile();
 }
 
-// перерисовка, только если мы текущее окно
+// РїРµСЂРµСЂРёСЃРѕРІРєР°, С‚РѕР»СЊРєРѕ РµСЃР»Рё РјС‹ С‚РµРєСѓС‰РµРµ РѕРєРЅРѕ
 void InfoList::Update(int Mode)
 {
 	if (!m_EnableUpdate)
@@ -271,8 +271,8 @@ void InfoList::DisplayObject()
 			m_CurDir = os::GetCurrentDirectory();
 
 		/*
-			Корректно отображать инфу при заходе в Juction каталог
-			Рут-диск может быть другим
+			РљРѕСЂСЂРµРєС‚РЅРѕ РѕС‚РѕР±СЂР°Р¶Р°С‚СЊ РёРЅС„Сѓ РїСЂРё Р·Р°С…РѕРґРµ РІ Juction РєР°С‚Р°Р»РѕРі
+			Р СѓС‚-РґРёСЃРє РјРѕР¶РµС‚ Р±С‹С‚СЊ РґСЂСѓРіРёРј
 		*/
 		if (os::fs::file_status(m_CurDir).check(FILE_ATTRIBUTE_REPARSE_POINT))
 		{
@@ -716,9 +716,9 @@ int InfoList::ProcessKey(const Manager::Key& Key)
 			return TRUE;
 		case KEY_F4:
 			/* $ 30.04.2001 DJ
-			не показываем редактор, если ничего не задано в именах файлов;
-			не редактируем имена описаний со звездочками;
-			убираем лишнюю перерисовку панелей
+			РЅРµ РїРѕРєР°Р·С‹РІР°РµРј СЂРµРґР°РєС‚РѕСЂ, РµСЃР»Рё РЅРёС‡РµРіРѕ РЅРµ Р·Р°РґР°РЅРѕ РІ РёРјРµРЅР°С… С„Р°Р№Р»РѕРІ;
+			РЅРµ СЂРµРґР°РєС‚РёСЂСѓРµРј РёРјРµРЅР° РѕРїРёСЃР°РЅРёР№ СЃРѕ Р·РІРµР·РґРѕС‡РєР°РјРё;
+			СѓР±РёСЂР°РµРј Р»РёС€РЅСЋСЋ РїРµСЂРµСЂРёСЃРѕРІРєСѓ РїР°РЅРµР»РµР№
 			*/
 		{
 			const auto AnotherPanel = Parent()->GetAnotherPanel(this);
@@ -1046,7 +1046,7 @@ int InfoList::OpenDizFile(const string& DizFile,int YPos)
 	}
 	else
 	{
-		//не будем менять внутренности если мы посреди операции со вьювером.
+		//РЅРµ Р±СѓРґРµРј РјРµРЅСЏС‚СЊ РІРЅСѓС‚СЂРµРЅРЅРѕСЃС‚Рё РµСЃР»Рё РјС‹ РїРѕСЃСЂРµРґРё РѕРїРµСЂР°С†РёРё СЃРѕ РІСЊСЋРІРµСЂРѕРј.
 		bOK = !DizView->InRecursion;
 	}
 
@@ -1098,7 +1098,7 @@ void InfoList::DynamicUpdateKeyBar() const
 		Keybar[KBL_MAIN][F3].clear();
 		Keybar[KBL_MAIN][F8].clear();
 		Keybar[KBL_SHIFT][F8].clear();
-		Keybar[KBL_ALT][F8] = MSG(MAltF8);  // стандартный для панели - "хистори"
+		Keybar[KBL_ALT][F8] = MSG(MAltF8);  // СЃС‚Р°РЅРґР°СЂС‚РЅС‹Р№ РґР»СЏ РїР°РЅРµР»Рё - "С…РёСЃС‚РѕСЂРё"
 	}
 
 	Keybar.SetCustomLabels(KBA_INFO);

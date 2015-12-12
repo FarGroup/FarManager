@@ -1,3 +1,5 @@
+﻿#ifndef PRIVILEGE_HPP_08ED45C7_0FD0_43D5_8838_F9B6F8EFD31C
+#define PRIVILEGE_HPP_08ED45C7_0FD0_43D5_8838_F9B6F8EFD31C
 #pragma once
 
 /*
@@ -6,7 +8,7 @@ privilege.hpp
 Privileges
 */
 /*
-Copyright � 2010 Far Group
+Copyright © 2010 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -51,3 +53,4 @@ namespace os
 
 	}
 }
+#endif // PRIVILEGE_HPP_08ED45C7_0FD0_43D5_8838_F9B6F8EFD31C

@@ -1,11 +1,11 @@
-/*
+п»ї/*
 usermenu.cpp
 
-User menu и есть
+User menu Рё РµСЃС‚СЊ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -64,29 +64,29 @@ enum
 
 #if defined(PROJECT_DI_MEMOEDIT)
 /*
-  Идея в следующем.
-  1. Строки в реестре хранятся как и раньше, т.к. CommandXXX
-  2. Для DI_MEMOEDIT мы из только преобразовываем в один массив
+  РРґРµСЏ РІ СЃР»РµРґСѓСЋС‰РµРј.
+  1. РЎС‚СЂРѕРєРё РІ СЂРµРµСЃС‚СЂРµ С…СЂР°РЅСЏС‚СЃСЏ РєР°Рє Рё СЂР°РЅСЊС€Рµ, С‚.Рє. CommandXXX
+  2. Р”Р»СЏ DI_MEMOEDIT РјС‹ РёР· С‚РѕР»СЊРєРѕ РїСЂРµРѕР±СЂР°Р·РѕРІС‹РІР°РµРј РІ РѕРґРёРЅ РјР°СЃСЃРёРІ
 */
 #endif
 
 
-// Режимы показа меню (Menu mode)
+// Р РµР¶РёРјС‹ РїРѕРєР°Р·Р° РјРµРЅСЋ (Menu mode)
 ENUM(MENUMODE)
 {
-	MM_LOCAL,  // Локальное меню
-	MM_USER,   // Пользовательское меню
-	MM_GLOBAL, // Глобальное меню
+	MM_LOCAL,  // Р›РѕРєР°Р»СЊРЅРѕРµ РјРµРЅСЋ
+	MM_USER,   // РџРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРѕРµ РјРµРЅСЋ
+	MM_GLOBAL, // Р“Р»РѕР±Р°Р»СЊРЅРѕРµ РјРµРЅСЋ
 };
 
-// Коды выхода из меню (Exit codes)
+// РљРѕРґС‹ РІС‹С…РѕРґР° РёР· РјРµРЅСЋ (Exit codes)
 enum
 {
-	EC_CLOSE_LEVEL      = -1, // Выйти из меню на один уровень вверх
-	EC_CLOSE_MENU       = -2, // Выйти из меню по SHIFT+F10
-	EC_PARENT_MENU      = -3, // Показать меню родительского каталога
-	EC_MAIN_MENU        = -4, // Показать главное меню
-	EC_COMMAND_SELECTED = -5, // Выбрана команда - закрыть меню и обновить папку
+	EC_CLOSE_LEVEL      = -1, // Р’С‹Р№С‚Рё РёР· РјРµРЅСЋ РЅР° РѕРґРёРЅ СѓСЂРѕРІРµРЅСЊ РІРІРµСЂС…
+	EC_CLOSE_MENU       = -2, // Р’С‹Р№С‚Рё РёР· РјРµРЅСЋ РїРѕ SHIFT+F10
+	EC_PARENT_MENU      = -3, // РџРѕРєР°Р·Р°С‚СЊ РјРµРЅСЋ СЂРѕРґРёС‚РµР»СЊСЃРєРѕРіРѕ РєР°С‚Р°Р»РѕРіР°
+	EC_MAIN_MENU        = -4, // РџРѕРєР°Р·Р°С‚СЊ РіР»Р°РІРЅРѕРµ РјРµРЅСЋ
+	EC_COMMAND_SELECTED = -5, // Р’С‹Р±СЂР°РЅР° РєРѕРјР°РЅРґР° - Р·Р°РєСЂС‹С‚СЊ РјРµРЅСЋ Рё РѕР±РЅРѕРІРёС‚СЊ РїР°РїРєСѓ
 };
 
 static int PrepareHotKey(string &strHotKey)
@@ -95,7 +95,7 @@ static int PrepareHotKey(string &strHotKey)
 
 	if (strHotKey.size() > 1)
 	{
-		// если хоткей больше 1 символа, считаем это случаем "F?", причем при кривизне всегда будет "F1"
+		// РµСЃР»Рё С…РѕС‚РєРµР№ Р±РѕР»СЊС€Рµ 1 СЃРёРјРІРѕР»Р°, СЃС‡РёС‚Р°РµРј СЌС‚Рѕ СЃР»СѓС‡Р°РµРј "F?", РїСЂРёС‡РµРј РїСЂРё РєСЂРёРІРёР·РЅРµ РІСЃРµРіРґР° Р±СѓРґРµС‚ "F1"
 		FuncNum = static_cast<int>(std::wcstoul(strHotKey.data() + 1, nullptr, 10));
 
 		if (FuncNum < 1 || FuncNum > 24)
@@ -106,7 +106,7 @@ static int PrepareHotKey(string &strHotKey)
 	}
 	else
 	{
-		// при наличии "&" продублируем
+		// РїСЂРё РЅР°Р»РёС‡РёРё "&" РїСЂРѕРґСѓР±Р»РёСЂСѓРµРј
 		if (strHotKey == L"&")
 			strHotKey += L"&";
 	}
@@ -317,7 +317,7 @@ void UserMenu::SaveMenu(const string& MenuFileName)
 		}
 		else
 		{
-			// если файл FarMenu.ini пуст, то удалим его
+			// РµСЃР»Рё С„Р°Р№Р» FarMenu.ini РїСѓСЃС‚, С‚Рѕ СѓРґР°Р»РёРј РµРіРѕ
 			os::DeleteFile(MenuFileName);
 		}
 	}
@@ -351,9 +351,9 @@ static string GetMenuTitle(MENUMODE MenuMode)
 
 void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 {
-	// Путь к текущему каталогу с файлом LocalMenuFileName
+	// РџСѓС‚СЊ Рє С‚РµРєСѓС‰РµРјСѓ РєР°С‚Р°Р»РѕРіСѓ СЃ С„Р°Р№Р»РѕРј LocalMenuFileName
 	auto strMenuFilePath = Global->CtrlObject->CmdLine()->GetCurDir();
-	// по умолчанию меню - это FarMenu.ini
+	// РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РјРµРЅСЋ - СЌС‚Рѕ FarMenu.ini
 	m_MenuMode = MM_LOCAL;
 	m_MenuModified = false;
 
@@ -371,7 +371,7 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 		}
 	}
 
-	// основной цикл обработки
+	// РѕСЃРЅРѕРІРЅРѕР№ С†РёРєР» РѕР±СЂР°Р±РѕС‚РєРё
 	bool FirstRun=true;
 	int ExitCode = 0;
 
@@ -391,7 +391,7 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 
 		m_Menu.clear();
 
-		// Пытаемся открыть файл на локальном диске
+		// РџС‹С‚Р°РµРјСЃСЏ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» РЅР° Р»РѕРєР°Р»СЊРЅРѕРј РґРёСЃРєРµ
 		os::fs::file MenuFile;
 		bool FileOpened = PathCanHoldRegularFile(strMenuFilePath) ? MenuFile.Open(strMenuFileFullPath,GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING) : false;
 		if (FileOpened)
@@ -401,8 +401,8 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 		}
 		else if (m_MenuMode != MM_USER)
 		{
-			// Файл не открылся. Смотрим дальше.
-			if (m_MenuMode == MM_GLOBAL) // был в %FARHOME%?
+			// Р¤Р°Р№Р» РЅРµ РѕС‚РєСЂС‹Р»СЃСЏ. РЎРјРѕС‚СЂРёРј РґР°Р»СЊС€Рµ.
+			if (m_MenuMode == MM_GLOBAL) // Р±С‹Р» РІ %FARHOME%?
 			{
 				m_MenuMode = MM_USER;
 				strMenuFilePath = Global->Opt->ProfilePath;
@@ -412,7 +412,7 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 			{
 				if (!FirstRun)
 				{
-					// подымаемся выше...
+					// РїРѕРґС‹РјР°РµРјСЃСЏ РІС‹С€Рµ...
 					if(!IsRootPath(strMenuFilePath))
 					{
 						const auto pos = FindLastSlash(strMenuFilePath);
@@ -431,16 +431,16 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 			}
 		}
 
-		// вызываем меню
+		// РІС‹Р·С‹РІР°РµРј РјРµРЅСЋ
 		ExitCode=ProcessSingleMenu(m_Menu, 0, m_Menu, strMenuFileFullPath, GetMenuTitle(m_MenuMode));
 
-		// ...запишем изменения обратно в файл
+		// ...Р·Р°РїРёС€РµРј РёР·РјРµРЅРµРЅРёСЏ РѕР±СЂР°С‚РЅРѕ РІ С„Р°Р№Р»
 		SaveMenu(strMenuFileFullPath);
 
-		// что было после вызова меню?
+		// С‡С‚Рѕ Р±С‹Р»Рѕ РїРѕСЃР»Рµ РІС‹Р·РѕРІР° РјРµРЅСЋ?
 		switch (ExitCode)
 		{
-				// Показать меню родительского каталога
+				// РџРѕРєР°Р·Р°С‚СЊ РјРµРЅСЋ СЂРѕРґРёС‚РµР»СЊСЃРєРѕРіРѕ РєР°С‚Р°Р»РѕРіР°
 			case EC_PARENT_MENU:
 			{
 				if (m_MenuMode == MM_LOCAL)
@@ -466,10 +466,10 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 
 				break;
 			}
-			// Показать главное меню
+			// РџРѕРєР°Р·Р°С‚СЊ РіР»Р°РІРЅРѕРµ РјРµРЅСЋ
 			case EC_MAIN_MENU:
 			{
-				// $ 14.07.2000 VVM: Shift+F2 переключает Главное меню/локальное в цикле
+				// $ 14.07.2000 VVM: Shift+F2 РїРµСЂРµРєР»СЋС‡Р°РµС‚ Р“Р»Р°РІРЅРѕРµ РјРµРЅСЋ/Р»РѕРєР°Р»СЊРЅРѕРµ РІ С†РёРєР»Рµ
 				switch (m_MenuMode)
 				{
 					case MM_LOCAL:
@@ -496,7 +496,7 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 		ShellUpdatePanels(Global->CtrlObject->Cp()->ActivePanel(), FALSE);
 }
 
-// заполнение меню
+// Р·Р°РїРѕР»РЅРµРЅРёРµ РјРµРЅСЋ
 static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, int MenuPos, int *FuncPos, const string& Name, const string& ShortName)
 {
 	FarUserMenu.clear();
@@ -508,7 +508,7 @@ static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, in
 		MenuItemEx FarUserMenuItem;
 		int FuncNum=0;
 
-		// сепаратором является случай, когда хоткей == "--"
+		// СЃРµРїР°СЂР°С‚РѕСЂРѕРј СЏРІР»СЏРµС‚СЃСЏ СЃР»СѓС‡Р°Р№, РєРѕРіРґР° С…РѕС‚РєРµР№ == "--"
 		if (MenuItem->strHotKey == L"--")
 		{
 			FarUserMenuItem.Flags|=LIF_SEPARATOR;
@@ -549,19 +549,19 @@ static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, in
 	}
 }
 
-// обработка единичного меню
+// РѕР±СЂР°Р±РѕС‚РєР° РµРґРёРЅРёС‡РЅРѕРіРѕ РјРµРЅСЋ
 int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std::list<UserMenuItem>& MenuRoot, const string& MenuFileName, const string& Title)
 {
 	for (;;)
 	{
 		int ExitCode, FuncPos[24];
 
-		// очистка F-хоткеев
+		// РѕС‡РёСЃС‚РєР° F-С…РѕС‚РєРµРµРІ
 		std::fill(ALL_RANGE(FuncPos), -1);
 
 		string strName,strShortName;
 		Global->CtrlObject->Cp()->ActivePanel()->GetCurName(strName,strShortName);
-		/* $ 24.07.2000 VVM + При показе главного меню в заголовок добавляет тип - FAR/Registry */
+		/* $ 24.07.2000 VVM + РџСЂРё РїРѕРєР°Р·Рµ РіР»Р°РІРЅРѕРіРѕ РјРµРЅСЋ РІ Р·Р°РіРѕР»РѕРІРѕРє РґРѕР±Р°РІР»СЏРµС‚ С‚РёРї - FAR/Registry */
 
 		const auto UserMenu = VMenu2::create(Title, nullptr, 0, ScrY - 4);
 		UserMenu->SetMenuFlags(VMENU_WRAPMODE);
@@ -599,13 +599,13 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					return 1;
 				}
 			}
-			else if (Key == L' ') // исключаем пробел из "хоткеев"!
+			else if (Key == L' ') // РёСЃРєР»СЋС‡Р°РµРј РїСЂРѕР±РµР» РёР· "С…РѕС‚РєРµРµРІ"!
 				return 1;
 
 			int KeyProcessed = 1;
 			switch (Key)
 			{
-					/* $ 24.08.2001 VVM + Стрелки вправо/влево открывают/закрывают подменю соответственно */
+					/* $ 24.08.2001 VVM + РЎС‚СЂРµР»РєРё РІРїСЂР°РІРѕ/РІР»РµРІРѕ РѕС‚РєСЂС‹РІР°СЋС‚/Р·Р°РєСЂС‹РІР°СЋС‚ РїРѕРґРјРµРЅСЋ СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ */
 				case KEY_RIGHT:
 				case KEY_NUMPAD6:
 				case KEY_MSWHEEL_RIGHT:
@@ -675,7 +675,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				}
 				break;
 
-				case KEY_ALTF4:       // редактировать все меню
+				case KEY_ALTF4:       // СЂРµРґР°РєС‚РёСЂРѕРІР°С‚СЊ РІСЃРµ РјРµРЅСЋ
 				case KEY_RALTF4:
 				{
 					os::fs::file MenuFile;
@@ -700,25 +700,25 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					ReturnCode=0;
 					UserMenu->Close(-1);
 
-					return 1; // Закрыть меню
+					return 1; // Р—Р°РєСЂС‹С‚СЊ РјРµРЅСЋ
 				}
 
 				/* $ 28.06.2000 tran
-				выход из пользовательского меню по ShiftF10 из любого уровня
-				вложенности просто задаем ExitCode -1, и возвращаем FALSE -
-				по FALSE оно и выйдет откуда угодно */
+				РІС‹С…РѕРґ РёР· РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРѕРіРѕ РјРµРЅСЋ РїРѕ ShiftF10 РёР· Р»СЋР±РѕРіРѕ СѓСЂРѕРІРЅСЏ
+				РІР»РѕР¶РµРЅРЅРѕСЃС‚Рё РїСЂРѕСЃС‚Рѕ Р·Р°РґР°РµРј ExitCode -1, Рё РІРѕР·РІСЂР°С‰Р°РµРј FALSE -
+				РїРѕ FALSE РѕРЅРѕ Рё РІС‹Р№РґРµС‚ РѕС‚РєСѓРґР° СѓРіРѕРґРЅРѕ */
 				case KEY_SHIFTF10:
 					//UserMenu->SetExitCode(-1);
 					ReturnCode=EC_CLOSE_MENU;
 					UserMenu->Close(-1);
 					return 1;
 
-				case KEY_SHIFTF2: // Показать главное меню
+				case KEY_SHIFTF2: // РџРѕРєР°Р·Р°С‚СЊ РіР»Р°РІРЅРѕРµ РјРµРЅСЋ
 					ReturnCode=EC_MAIN_MENU;
 					UserMenu->Close(-1);
 					return 1;
 
-				case KEY_BS: // Показать меню из родительского каталога только в MM_LOCAL режиме
+				case KEY_BS: // РџРѕРєР°Р·Р°С‚СЊ РјРµРЅСЋ РёР· СЂРѕРґРёС‚РµР»СЊСЃРєРѕРіРѕ РєР°С‚Р°Р»РѕРіР° С‚РѕР»СЊРєРѕ РІ MM_LOCAL СЂРµР¶РёРјРµ
 
 					if (m_MenuMode == MM_LOCAL)
 					{
@@ -738,13 +738,13 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			return ReturnCode;
 
 		if (ExitCode < 0 || UserMenu->empty())
-			return EC_CLOSE_LEVEL; //  вверх на один уровень
+			return EC_CLOSE_LEVEL; //  РІРІРµСЂС… РЅР° РѕРґРёРЅ СѓСЂРѕРІРµРЅСЊ
 
 		const auto CurrentMenuItem = UserMenu->GetUserDataPtr<ITERATOR(Menu)>(UserMenu->GetSelectPos());
 
 		if ((*CurrentMenuItem)->Submenu)
 		{
-			/* $ 20.08.2001 VVM + При вложенных меню показывает заголовки предыдущих */
+			/* $ 20.08.2001 VVM + РџСЂРё РІР»РѕР¶РµРЅРЅС‹С… РјРµРЅСЋ РїРѕРєР°Р·С‹РІР°РµС‚ Р·Р°РіРѕР»РѕРІРєРё РїСЂРµРґС‹РґСѓС‰РёС… */
 			string strSubMenuLabel = (*CurrentMenuItem)->strLabel;
 			SubstFileName(nullptr,strSubMenuLabel,strName,strShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
 			strSubMenuLabel = os::env::expand_strings(strSubMenuLabel);
@@ -753,7 +753,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			if (pos != string::npos)
 				strSubMenuLabel.erase(pos, 1);
 
-			/* $ 14.07.2000 VVM ! Если закрыли подменю, то остаться. Иначе передать управление выше */
+			/* $ 14.07.2000 VVM ! Р•СЃР»Рё Р·Р°РєСЂС‹Р»Рё РїРѕРґРјРµРЅСЋ, С‚Рѕ РѕСЃС‚Р°С‚СЊСЃСЏ. РРЅР°С‡Рµ РїРµСЂРµРґР°С‚СЊ СѓРїСЂР°РІР»РµРЅРёРµ РІС‹С€Рµ */
 			MenuPos = ProcessSingleMenu((*CurrentMenuItem)->Menu, 0, MenuRoot, MenuFileName, Title + L" \xbb " + strSubMenuLabel);
 
 			if (MenuPos!=EC_CLOSE_LEVEL)
@@ -763,12 +763,12 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			continue;
 		}
 
-		/* $ 01.05.2001 IS Отключим до лучших времен */
+		/* $ 01.05.2001 IS РћС‚РєР»СЋС‡РёРј РґРѕ Р»СѓС‡С€РёС… РІСЂРµРјРµРЅ */
 		//int LeftVisible,RightVisible,PanelsHidden=0;
 		const auto strCmdLineDir = Global->CtrlObject->CmdLine()->GetCurDir();
 		Global->CtrlObject->CmdLine()->LockUpdatePanel(true);
 
-		// Цикл исполнения команд меню (CommandX)
+		// Р¦РёРєР» РёСЃРїРѕР»РЅРµРЅРёСЏ РєРѕРјР°РЅРґ РјРµРЅСЋ (CommandX)
 		std::for_each(CONST_RANGE((*CurrentMenuItem)->Commands, str)
 		{
 			string strCommand = str;
@@ -779,18 +779,18 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			if (!((!StrCmpNI(strCommand.data(),L"REM",3) && (strCommand.size() == 3 || IsSpace(strCommand[3]))) || !StrCmpNI(strCommand.data(),L"::",2)))
 			{
 				/*
-				  Осталось корректно обработать ситуацию, например:
+				  РћСЃС‚Р°Р»РѕСЃСЊ РєРѕСЂСЂРµРєС‚РЅРѕ РѕР±СЂР°Р±РѕС‚Р°С‚СЊ СЃРёС‚СѓР°С†РёСЋ, РЅР°РїСЂРёРјРµСЂ:
 				  if exist !#!\!^!.! far:edit < diff -c -p !#!\!^!.! !\!.!
-				  Т.е. сначала "вычислить" кусок "if exist !#!\!^!.!", ну а если
-				  выполнится, то делать дальше.
-				  Или еще пример,
-				  if exist ..\a.bat D:\FAR\170\DIFF.MY\mkdiff.bat !?&Номер патча?!
-				  ЭТО выполняется всегда, т.к. парсинг всей строки идет, а надо
-				  проверить фазу "if exist ..\a.bat", а уж потом делать выводы...
+				  Рў.Рµ. СЃРЅР°С‡Р°Р»Р° "РІС‹С‡РёСЃР»РёС‚СЊ" РєСѓСЃРѕРє "if exist !#!\!^!.!", РЅСѓ Р° РµСЃР»Рё
+				  РІС‹РїРѕР»РЅРёС‚СЃСЏ, С‚Рѕ РґРµР»Р°С‚СЊ РґР°Р»СЊС€Рµ.
+				  РР»Рё РµС‰Рµ РїСЂРёРјРµСЂ,
+				  if exist ..\a.bat D:\FAR\170\DIFF.MY\mkdiff.bat !?&РќРѕРјРµСЂ РїР°С‚С‡Р°?!
+				  Р­РўРћ РІС‹РїРѕР»РЅСЏРµС‚СЃСЏ РІСЃРµРіРґР°, С‚.Рє. РїР°СЂСЃРёРЅРі РІСЃРµР№ СЃС‚СЂРѕРєРё РёРґРµС‚, Р° РЅР°РґРѕ
+				  РїСЂРѕРІРµСЂРёС‚СЊ С„Р°Р·Сѓ "if exist ..\a.bat", Р° СѓР¶ РїРѕС‚РѕРј РґРµР»Р°С‚СЊ РІС‹РІРѕРґС‹...
 				*/
 				//if(ExtractIfExistCommand(Command))
 				{
-					/* $ 01.05.2001 IS Отключим до лучших времен */
+					/* $ 01.05.2001 IS РћС‚РєР»СЋС‡РёРј РґРѕ Р»СѓС‡С€РёС… РІСЂРµРјРµРЅ */
 					/*
 					if (!PanelsHidden)
 					{
@@ -834,7 +834,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 
 		Global->CtrlObject->CmdLine()->LockUpdatePanel(false);
 
-		/* $ 01.05.2001 IS Отключим до лучших времен */
+		/* $ 01.05.2001 IS РћС‚РєР»СЋС‡РёРј РґРѕ Р»СѓС‡С€РёС… РІСЂРµРјРµРЅ */
 		/*
 		if (PanelsHidden)
 		{
@@ -848,8 +848,8 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				Global->CtrlObject->Cp()->LeftPanel->Show();
 		}
 		*/
-		/* $ 14.07.2000 VVM ! Закрыть меню */
-		/* $ 25.04.2001 DJ - сообщаем, что была выполнена команда (нужно перерисовать панели) */
+		/* $ 14.07.2000 VVM ! Р—Р°РєСЂС‹С‚СЊ РјРµРЅСЋ */
+		/* $ 25.04.2001 DJ - СЃРѕРѕР±С‰Р°РµРј, С‡С‚Рѕ Р±С‹Р»Р° РІС‹РїРѕР»РЅРµРЅР° РєРѕРјР°РЅРґР° (РЅСѓР¶РЅРѕ РїРµСЂРµСЂРёСЃРѕРІР°С‚СЊ РїР°РЅРµР»Рё) */
 		return EC_COMMAND_SELECTED;
 	}
 }
@@ -1025,7 +1025,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 #if defined(PROJECT_DI_MEMOEDIT)
 			/*
 				...
-				здесь добавка строк из "Command%d" в EMR_MEMOEDIT
+				Р·РґРµСЃСЊ РґРѕР±Р°РІРєР° СЃС‚СЂРѕРє РёР· "Command%d" РІ EMR_MEMOEDIT
 				...
 			*/
 			string strBuffer;
@@ -1072,7 +1072,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 #if defined(PROJECT_DI_MEMOEDIT)
 				/*
 				...
-				здесь преобразование содержимого элемента EMR_MEMOEDIT в "Command%d"
+				Р·РґРµСЃСЊ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ СЃРѕРґРµСЂР¶РёРјРѕРіРѕ СЌР»РµРјРµРЅС‚Р° EMR_MEMOEDIT РІ "Command%d"
 				...
 				*/
 #else

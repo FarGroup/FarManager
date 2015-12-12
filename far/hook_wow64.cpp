@@ -1,8 +1,8 @@
-/*
+﻿/*
 hook_wow64.cpp
 */
 /*
-Copyright � 2007 Far Group
+Copyright © 2007 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

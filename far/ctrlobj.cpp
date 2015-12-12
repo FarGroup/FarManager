@@ -1,11 +1,11 @@
-/*
+п»ї/*
 ctrlobj.cpp
 
-Управление остальными объектами, раздача сообщений клавиатуры и мыши
+РЈРїСЂР°РІР»РµРЅРёРµ РѕСЃС‚Р°Р»СЊРЅС‹РјРё РѕР±СЉРµРєС‚Р°РјРё, СЂР°Р·РґР°С‡Р° СЃРѕРѕР±С‰РµРЅРёР№ РєР»Р°РІРёР°С‚СѓСЂС‹ Рё РјС‹С€Рё
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

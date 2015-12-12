@@ -1,13 +1,15 @@
+п»ї#ifndef FILELIST_HPP_825FE8AE_1E34_4DFD_B167_2D6A121B1777
+#define FILELIST_HPP_825FE8AE_1E34_4DFD_B167_2D6A121B1777
 #pragma once
 
 /*
 filelist.hpp
 
-Файловая панель - общие функции
+Р¤Р°Р№Р»РѕРІР°СЏ РїР°РЅРµР»СЊ - РѕР±С‰РёРµ С„СѓРЅРєС†РёРё
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -376,7 +378,7 @@ private:
 	void Select(FileListItem& SelItem, int Selection);
 	long SelectFiles(int Mode,const wchar_t *Mask=nullptr);
 	void ProcessEnter(bool EnableExec,bool SeparateWindow, bool EnableAssoc, bool RunAs, OPENFILEPLUGINTYPE Type);
-	// ChangeDir возвращает false, eсли не смогла выставить заданный путь
+	// ChangeDir РІРѕР·РІСЂР°С‰Р°РµС‚ false, eСЃР»Рё РЅРµ СЃРјРѕРіР»Р° РІС‹СЃС‚Р°РІРёС‚СЊ Р·Р°РґР°РЅРЅС‹Р№ РїСѓС‚СЊ
 	bool ChangeDir(const string& NewDir,bool ResolvePath=false,bool IsUpdated=true,const FileListItem *CurPtr=nullptr);
 	void CountDirSize(UINT64 PluginFlags);
 	void ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, int DrawMessage);
@@ -418,8 +420,8 @@ private:
 	DizList Diz;
 	int DizRead;
 	/* $ 09.11.2001 IS
-	     Открывающий и закрывающий символ, которые используются для показа
-	     имени, которое не помещается в панели. По умолчанию - фигурные скобки.
+	     РћС‚РєСЂС‹РІР°СЋС‰РёР№ Рё Р·Р°РєСЂС‹РІР°СЋС‰РёР№ СЃРёРјРІРѕР», РєРѕС‚РѕСЂС‹Рµ РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ РґР»СЏ РїРѕРєР°Р·Р°
+	     РёРјРµРЅРё, РєРѕС‚РѕСЂРѕРµ РЅРµ РїРѕРјРµС‰Р°РµС‚СЃСЏ РІ РїР°РЅРµР»Рё. РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ - С„РёРіСѓСЂРЅС‹Рµ СЃРєРѕР±РєРё.
 	*/
 	wchar_t openBracket[2], closeBracket[2];
 
@@ -450,7 +452,7 @@ private:
 	int ShiftSelection;
 	int MouseSelection;
 	bool SelectedFirst;
-	int empty; // указывает на полностью пустую колонку
+	int empty; // СѓРєР°Р·С‹РІР°РµС‚ РЅР° РїРѕР»РЅРѕСЃС‚СЊСЋ РїСѓСЃС‚СѓСЋ РєРѕР»РѕРЅРєСѓ
 	int AccessTimeUpdateRequired;
 
 	int UpdateRequired,UpdateRequiredMode,UpdateDisabled;
@@ -462,3 +464,5 @@ private:
 
 	wchar_t CustomSortIndicator[2];
 };
+
+#endif // FILELIST_HPP_825FE8AE_1E34_4DFD_B167_2D6A121B1777

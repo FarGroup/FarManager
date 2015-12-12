@@ -1,10 +1,12 @@
+﻿#ifndef ANY_HPP_A07ADDF9_9BA4_4CE8_AE6E_14C3B7A61D35
+#define ANY_HPP_A07ADDF9_9BA4_4CE8_AE6E_14C3B7A61D35
 #pragma once
 
 /*
 any.hpp
 */
 /*
-Copyright � 2015 Far Group
+Copyright © 2015 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -145,3 +147,5 @@ const T& any_cast(const any& Any)
 {
 	return any_cast<T>(const_cast<any&>(Any));
 }
+
+#endif // ANY_HPP_A07ADDF9_9BA4_4CE8_AE6E_14C3B7A61D35

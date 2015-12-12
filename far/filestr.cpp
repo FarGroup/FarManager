@@ -1,11 +1,11 @@
-/*
+п»ї/*
 filestr.cpp
 
-Класс GetFileString
+РљР»Р°СЃСЃ GetFileString
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -52,9 +52,9 @@ enum EolType
 	FEOL_UNIX,
 	// \r
 	FEOL_MAC,
-	// \r\r (это не реальное завершение строки, а состояние парсера)
+	// \r\r (СЌС‚Рѕ РЅРµ СЂРµР°Р»СЊРЅРѕРµ Р·Р°РІРµСЂС€РµРЅРёРµ СЃС‚СЂРѕРєРё, Р° СЃРѕСЃС‚РѕСЏРЅРёРµ РїР°СЂСЃРµСЂР°)
 	FEOL_MAC2,
-	// \r\r\n (появление таких концов строк вызвано багом Notepad-а)
+	// \r\r\n (РїРѕСЏРІР»РµРЅРёРµ С‚Р°РєРёС… РєРѕРЅС†РѕРІ СЃС‚СЂРѕРє РІС‹Р·РІР°РЅРѕ Р±Р°РіРѕРј Notepad-Р°)
 	FEOL_NOTEPAD
 };
 
@@ -268,8 +268,8 @@ bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, bool bB
 
 	To.clear();
 
-	// Обработка ситуации, когда у нас пришёл двойной \r\r, а потом не было \n.
-	// В этом случаем считаем \r\r двумя MAC окончаниями строк.
+	// РћР±СЂР°Р±РѕС‚РєР° СЃРёС‚СѓР°С†РёРё, РєРѕРіРґР° Сѓ РЅР°СЃ РїСЂРёС€С‘Р» РґРІРѕР№РЅРѕР№ \r\r, Р° РїРѕС‚РѕРј РЅРµ Р±С‹Р»Рѕ \n.
+	// Р’ СЌС‚РѕРј СЃР»СѓС‡Р°РµРј СЃС‡РёС‚Р°РµРј \r\r РґРІСѓРјСЏ MAC РѕРєРѕРЅС‡Р°РЅРёСЏРјРё СЃС‚СЂРѕРє.
 	if (bCrCr)
 	{
 		To.emplace_back(m_Eol.cr<T>());
@@ -342,7 +342,7 @@ bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, bool bB
 				}
 				else
 				{
-					// Пришёл \r\r, а \n не пришёл, поэтому считаем \r\r двумя MAC окончаниями строк
+					// РџСЂРёС€С‘Р» \r\r, Р° \n РЅРµ РїСЂРёС€С‘Р», РїРѕСЌС‚РѕРјСѓ СЃС‡РёС‚Р°РµРј \r\r РґРІСѓРјСЏ MAC РѕРєРѕРЅС‡Р°РЅРёСЏРјРё СЃС‚СЂРѕРє
 					To.pop_back();
 					bCrCr = true;
 					break;

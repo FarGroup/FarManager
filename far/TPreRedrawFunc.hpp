@@ -1,13 +1,15 @@
+п»ї#ifndef TPREREDRAWFUNC_HPP_57AEAD28_BBC8_4C43_A40A_5B46CBEA2425
+#define TPREREDRAWFUNC_HPP_57AEAD28_BBC8_4C43_A40A_5B46CBEA2425
 #pragma once
 
 /*
 TPreRedrawFunc.hpp
 
-Фоновый апдейт
+Р¤РѕРЅРѕРІС‹Р№ Р°РїРґРµР№С‚
 
 */
 /*
-Copyright © 2000 Far Group
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -77,3 +79,5 @@ public:
 		PreRedrawStack().pop();
 	}
 };
+
+#endif // TPREREDRAWFUNC_HPP_57AEAD28_BBC8_4C43_A40A_5B46CBEA2425

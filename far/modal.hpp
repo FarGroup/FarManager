@@ -1,14 +1,16 @@
+п»ї#ifndef MODAL_HPP_A6E3BDC6_D983_486E_98E6_E5956E64CC15
+#define MODAL_HPP_A6E3BDC6_D983_486E_98E6_E5956E64CC15
 #pragma once
 
 /*
 modal.hpp
 
-привет автодетектор кодировки!
-Parent class для модальных объектов
+РїСЂРёРІРµС‚ Р°РІС‚РѕРґРµС‚РµРєС‚РѕСЂ РєРѕРґРёСЂРѕРІРєРё!
+Parent class РґР»СЏ РјРѕРґР°Р»СЊРЅС‹С… РѕР±СЉРµРєС‚РѕРІ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -73,3 +75,5 @@ private:
 	int m_ReadKey;
 	int m_WriteKey;
 };
+
+#endif // MODAL_HPP_A6E3BDC6_D983_486E_98E6_E5956E64CC15

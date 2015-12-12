@@ -1,11 +1,11 @@
-/*
+﻿/*
 tinyxml.cpp
 
 tinyxml wrapper
 
 */
 /*
-Copyright � 2011 Far Group
+Copyright © 2011 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

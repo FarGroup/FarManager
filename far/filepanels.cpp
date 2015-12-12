@@ -1,11 +1,11 @@
-/*
+п»ї/*
 filepanels.cpp
 
-Файловые панели
+Р¤Р°Р№Р»РѕРІС‹Рµ РїР°РЅРµР»Рё
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -166,7 +166,7 @@ void FilePanels::Init(int DirCount)
 	}
 
 	m_ActivePanel->SetFocus();
-	// пытаемся избавится от зависания при запуске
+	// РїС‹С‚Р°РµРјСЃСЏ РёР·Р±Р°РІРёС‚СЃСЏ РѕС‚ Р·Р°РІРёСЃР°РЅРёСЏ РїСЂРё Р·Р°РїСѓСЃРєРµ
 	int IsLocalPath_FarPath = ParsePath(Global->g_strFarPath)==PATH_DRIVELETTER;
 	string strLeft = Global->Opt->LeftPanel.Folder.Get(), strRight = Global->Opt->RightPanel.Folder.Get();
 	PrepareOptFolder(strLeft, IsLocalPath_FarPath);
@@ -210,7 +210,7 @@ void FilePanels::Init(int DirCount)
 
 #if 1
 
-	//! Вначале "показываем" пассивную панель
+	//! Р’РЅР°С‡Р°Р»Рµ "РїРѕРєР°Р·С‹РІР°РµРј" РїР°СЃСЃРёРІРЅСѓСЋ РїР°РЅРµР»СЊ
 	if (PassiveIsLeftFlag)
 	{
 		if (Global->Opt->LeftPanel.Visible)
@@ -238,7 +238,7 @@ void FilePanels::Init(int DirCount)
 
 #endif
 
-	// при погашенных панелях не забыть бы выставить корректно каталог в CmdLine
+	// РїСЂРё РїРѕРіР°С€РµРЅРЅС‹С… РїР°РЅРµР»СЏС… РЅРµ Р·Р°Р±С‹С‚СЊ Р±С‹ РІС‹СЃС‚Р°РІРёС‚СЊ РєРѕСЂСЂРµРєС‚РЅРѕ РєР°С‚Р°Р»РѕРі РІ CmdLine
 	if (!Global->Opt->RightPanel.Visible && !Global->Opt->LeftPanel.Visible)
 	{
 		CmdLine->SetCurDir(PassiveIsLeftFlag?Global->Opt->RightPanel.Folder:Global->Opt->LeftPanel.Folder);
@@ -377,7 +377,7 @@ int FilePanels::SetAnhoterPanelFocus()
 
 int FilePanels::SwapPanels()
 {
-	int Ret=FALSE; // это значит ни одна из панелей не видна
+	int Ret=FALSE; // СЌС‚Рѕ Р·РЅР°С‡РёС‚ РЅРё РѕРґРЅР° РёР· РїР°РЅРµР»РµР№ РЅРµ РІРёРґРЅР°
 
 	if (LeftPanel->IsVisible() || RightPanel->IsVisible())
 	{
@@ -555,14 +555,14 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 				{
 					if (AnotherPanel->GetType()==NewType)
 						/* $ 19.09.2000 IS
-						  Повторное нажатие на ctrl-l|q|t всегда включает файловую панель
+						  РџРѕРІС‚РѕСЂРЅРѕРµ РЅР°Р¶Р°С‚РёРµ РЅР° ctrl-l|q|t РІСЃРµРіРґР° РІРєР»СЋС‡Р°РµС‚ С„Р°Р№Р»РѕРІСѓСЋ РїР°РЅРµР»СЊ
 						*/
 						AnotherPanel=ChangePanel(AnotherPanel,FILE_PANEL,FALSE,FALSE);
 					else
 						AnotherPanel=ChangePanel(AnotherPanel,NewType,FALSE,FALSE);
 
 					/* $ 07.09.2001 VVM
-					  ! При возврате из CTRL+Q, CTRL+L восстановим каталог, если активная панель - дерево. */
+					  ! РџСЂРё РІРѕР·РІСЂР°С‚Рµ РёР· CTRL+Q, CTRL+L РІРѕСЃСЃС‚Р°РЅРѕРІРёРј РєР°С‚Р°Р»РѕРі, РµСЃР»Рё Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ - РґРµСЂРµРІРѕ. */
 					if (m_ActivePanel->GetType() == TREE_PANEL)
 					{
 						string strCurDir(m_ActivePanel->GetCurDir());
@@ -653,10 +653,10 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 			break;
 		}
 		/* $ 08.04.2002 IS
-		   При смене диска установим принудительно текущий каталог на активной
-		   панели, т.к. система не знает ничего о том, что у Фара две панели, и
-		   текущим для системы после смены диска может быть каталог и на пассивной
-		   панели
+		   РџСЂРё СЃРјРµРЅРµ РґРёСЃРєР° СѓСЃС‚Р°РЅРѕРІРёРј РїСЂРёРЅСѓРґРёС‚РµР»СЊРЅРѕ С‚РµРєСѓС‰РёР№ РєР°С‚Р°Р»РѕРі РЅР° Р°РєС‚РёРІРЅРѕР№
+		   РїР°РЅРµР»Рё, С‚.Рє. СЃРёСЃС‚РµРјР° РЅРµ Р·РЅР°РµС‚ РЅРёС‡РµРіРѕ Рѕ С‚РѕРј, С‡С‚Рѕ Сѓ Р¤Р°СЂР° РґРІРµ РїР°РЅРµР»Рё, Рё
+		   С‚РµРєСѓС‰РёРј РґР»СЏ СЃРёСЃС‚РµРјС‹ РїРѕСЃР»Рµ СЃРјРµРЅС‹ РґРёСЃРєР° РјРѕР¶РµС‚ Р±С‹С‚СЊ РєР°С‚Р°Р»РѕРі Рё РЅР° РїР°СЃСЃРёРІРЅРѕР№
+		   РїР°РЅРµР»Рё
 		*/
 		case KEY_ALTF1:
 		case KEY_RALTF1:
@@ -852,7 +852,7 @@ int FilePanels::ChangePanelViewMode(Panel *Current, int Mode, BOOL RefreshWindow
 		Current->SetViewMode(Mode);
 		Current=ChangePanelToFilled(Current,FILE_PANEL);
 		Current->SetViewMode(Mode);
-		// ВНИМАНИЕ! Костыль! Но Работает!
+		// Р’РќРРњРђРќРР•! РљРѕСЃС‚С‹Р»СЊ! РќРѕ Р Р°Р±РѕС‚Р°РµС‚!
 		SetScreenPosition();
 
 		if (RefreshWindow)
@@ -893,7 +893,7 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 {
 	Panel *NewPanel;
 	std::unique_ptr<SaveScreen> TemporarySaveScr;
-	// OldType не инициализировался...
+	// OldType РЅРµ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°Р»СЃСЏ...
 	int OldType=Current->GetType(),X1,Y1,X2,Y2;
 	int OldPanelMode=Current->GetMode();
 
@@ -1106,7 +1106,7 @@ void FilePanels::DisplayObject()
 		PassiveIsLeftFlag=TRUE;
 	}
 
-	//! Вначале "показываем" пассивную панель
+	//! Р’РЅР°С‡Р°Р»Рµ "РїРѕРєР°Р·С‹РІР°РµРј" РїР°СЃСЃРёРІРЅСѓСЋ РїР°РЅРµР»СЊ
 	if (PassiveIsLeftFlag)
 	{
 		if (Global->Opt->LeftPanel.Visible)
@@ -1200,14 +1200,14 @@ void FilePanels::GoToFile(const string& FileName)
 		string strNameDir = FileName;
 		CutToSlash(strNameDir);
 		/* $ 10.04.2001 IS
-		     Не делаем SetCurDir, если нужный путь уже есть на открытых
-		     панелях, тем самым добиваемся того, что выделение с элементов
-		     панелей не сбрасывается.
+		     РќРµ РґРµР»Р°РµРј SetCurDir, РµСЃР»Рё РЅСѓР¶РЅС‹Р№ РїСѓС‚СЊ СѓР¶Рµ РµСЃС‚СЊ РЅР° РѕС‚РєСЂС‹С‚С‹С…
+		     РїР°РЅРµР»СЏС…, С‚РµРј СЃР°РјС‹Рј РґРѕР±РёРІР°РµРјСЃСЏ С‚РѕРіРѕ, С‡С‚Рѕ РІС‹РґРµР»РµРЅРёРµ СЃ СЌР»РµРјРµРЅС‚РѕРІ
+		     РїР°РЅРµР»РµР№ РЅРµ СЃР±СЂР°СЃС‹РІР°РµС‚СЃСЏ.
 		*/
 		BOOL AExist=(ActiveMode==NORMAL_PANEL) && !StrCmpI(ADir, strNameDir);
 		BOOL PExist=(PassiveMode==NORMAL_PANEL) && !StrCmpI(PDir, strNameDir);
 
-		// если нужный путь есть на пассивной панели
+		// РµСЃР»Рё РЅСѓР¶РЅС‹Р№ РїСѓС‚СЊ РµСЃС‚СЊ РЅР° РїР°СЃСЃРёРІРЅРѕР№ РїР°РЅРµР»Рё
 		if (!AExist && PExist)
 			ProcessKey(Manager::Key(KEY_TAB));
 
@@ -1215,8 +1215,8 @@ void FilePanels::GoToFile(const string& FileName)
 			m_ActivePanel->SetCurDir(strNameDir, true);
 
 		m_ActivePanel->GoToFile(strNameFile);
-		// всегда обновим заголовок панели, чтобы дать обратную связь, что
-		// Ctrl-F10 обработан
+		// РІСЃРµРіРґР° РѕР±РЅРѕРІРёРј Р·Р°РіРѕР»РѕРІРѕРє РїР°РЅРµР»Рё, С‡С‚РѕР±С‹ РґР°С‚СЊ РѕР±СЂР°С‚РЅСѓСЋ СЃРІСЏР·СЊ, С‡С‚Рѕ
+		// Ctrl-F10 РѕР±СЂР°Р±РѕС‚Р°РЅ
 		m_ActivePanel->SetTitle();
 	}
 }

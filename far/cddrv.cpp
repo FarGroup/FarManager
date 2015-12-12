@@ -1,11 +1,11 @@
-/*
+п»ї/*
 cddrv.cpp
 
-про сидюк
+РїСЂРѕ СЃРёРґСЋРє
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -403,7 +403,7 @@ UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
 
 	UINT DrvType = GetDriveType(strRootDir.data());
 
-	// анализ CD-привода
+	// Р°РЅР°Р»РёР· CD-РїСЂРёРІРѕРґР°
 	if ((Detect&1) && DrvType == DRIVE_CDROM)
 	{
 		string VolumePath = strRootDir;
@@ -420,8 +420,8 @@ UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
 			DrvType = GetDeviceTypeByCaps(GetDeviceCapabilities(Device));
 		}
 
-		if (DrvType == DRIVE_UNKNOWN) // фигня могла кака-нить произойти, посему...
-			DrvType=DRIVE_CDROM;       // ...вертаем в зад сидюк.
+		if (DrvType == DRIVE_UNKNOWN) // С„РёРіРЅСЏ РјРѕРіР»Р° РєР°РєР°-РЅРёС‚СЊ РїСЂРѕРёР·РѕР№С‚Рё, РїРѕСЃРµРјСѓ...
+			DrvType=DRIVE_CDROM;       // ...РІРµСЂС‚Р°РµРј РІ Р·Р°Рґ СЃРёРґСЋРє.
 	}
 
 	if ( 0 != (Detect & 2) && DrvType == DRIVE_REMOVABLE )

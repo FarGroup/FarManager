@@ -1,3 +1,5 @@
+﻿#ifndef MATRIX_HPP_FD448106_F9CF_43E3_8148_E9680D79AFB7
+#define MATRIX_HPP_FD448106_F9CF_43E3_8148_E9680D79AFB7
 #pragma once
 
 /*
@@ -5,7 +7,7 @@ matrix.hpp
 
 */
 /*
-Copyright � 2014 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -121,3 +123,5 @@ private:
 	size_t m_rows;
 	size_t m_cols;
 };
+
+#endif // MATRIX_HPP_FD448106_F9CF_43E3_8148_E9680D79AFB7

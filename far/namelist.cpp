@@ -1,11 +1,11 @@
-/*
+п»ї/*
 namelist.cpp
 
-Список имен файлов, используется в viewer при нажатии Gray+/Gray-
+РЎРїРёСЃРѕРє РёРјРµРЅ С„Р°Р№Р»РѕРІ, РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РІ viewer РїСЂРё РЅР°Р¶Р°С‚РёРё Gray+/Gray-
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

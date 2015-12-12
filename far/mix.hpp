@@ -1,3 +1,5 @@
+ï»¿#ifndef MIX_HPP_67869A41_F20D_4C95_86E1_4D598A356EE1
+#define MIX_HPP_67869A41_F20D_4C95_86E1_4D598A356EE1
 #pragma once
 
 /*
@@ -6,8 +8,8 @@ mix.hpp
 Mix
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright Â© 1996 Eugene Roshal
+Copyright Â© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -90,3 +92,5 @@ struct uuid_equal
 void ReloadEnvironment();
 
 unsigned int CRC32(unsigned int crc, const void* buffer, size_t size);
+
+#endif // MIX_HPP_67869A41_F20D_4C95_86E1_4D598A356EE1

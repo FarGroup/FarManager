@@ -1,184 +1,184 @@
-Логирование работы FAR
+п»їР›РѕРіРёСЂРѕРІР°РЅРёРµ СЂР°Р±РѕС‚С‹ FAR
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Введение
+Р’РІРµРґРµРЅРёРµ
 ~~~~~~~~
-  В дебажной версии предусмотрен механизм логирования.
+  Р’ РґРµР±Р°Р¶РЅРѕР№ РІРµСЂСЃРёРё РїСЂРµРґСѓСЃРјРѕС‚СЂРµРЅ РјРµС…Р°РЅРёР·Рј Р»РѕРіРёСЂРѕРІР°РЅРёСЏ.
 
-  Логирование будет только если: 
+  Р›РѕРіРёСЂРѕРІР°РЅРёРµ Р±СѓРґРµС‚ С‚РѕР»СЊРєРѕ РµСЃР»Рё: 
 
-  1. включен режим ScrollLock 
-  2. в параметрах компиляции указаны макросы вида: 
+  1. РІРєР»СЋС‡РµРЅ СЂРµР¶РёРј ScrollLock 
+  2. РІ РїР°СЂР°РјРµС‚СЂР°С… РєРѕРјРїРёР»СЏС†РёРё СѓРєР°Р·Р°РЅС‹ РјР°РєСЂРѕСЃС‹ РІРёРґР°: 
      - SYSLOG_XXX 
      - SYSLOG_FARSYSLOG 
      - SYSLOG 
-  3. по сорцам в нужных местах раскиданы макросы типа _XXX() 
+  3. РїРѕ СЃРѕСЂС†Р°Рј РІ РЅСѓР¶РЅС‹С… РјРµСЃС‚Р°С… СЂР°СЃРєРёРґР°РЅС‹ РјР°РєСЂРѕСЃС‹ С‚РёРїР° _XXX() 
 
-  Если указан SYSLOG_FARSYSLOG, то FAR экспортирует 3 функции, которые можно 
-  использовать в плагинах совместно с дебажной версий FAR: 
+  Р•СЃР»Рё СѓРєР°Р·Р°РЅ SYSLOG_FARSYSLOG, С‚Рѕ FAR СЌРєСЃРїРѕСЂС‚РёСЂСѓРµС‚ 3 С„СѓРЅРєС†РёРё, РєРѕС‚РѕСЂС‹Рµ РјРѕР¶РЅРѕ 
+  РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РІ РїР»Р°РіРёРЅР°С… СЃРѕРІРјРµСЃС‚РЅРѕ СЃ РґРµР±Р°Р¶РЅРѕР№ РІРµСЂСЃРёР№ FAR: 
 
     void WINAPIV _export FarSysLog(const wchar_t *ModuleName,int l,const wchar_t *fmt,...);
     void WINAPI _export FarSysLogDump(const wchar_t *ModuleName,DWORD StartAddress,LPBYTE Buf,int SizeBuf);
     void WINAPI _export FarSysLog_INPUT_RECORD_Dump(const wchar_t *ModuleName,INPUT_RECORD *rec);
 
-  В MSVC кроме вывода в файл логирование передается в окно результатов (используется 
+  Р’ MSVC РєСЂРѕРјРµ РІС‹РІРѕРґР° РІ С„Р°Р№Р» Р»РѕРіРёСЂРѕРІР°РЅРёРµ РїРµСЂРµРґР°РµС‚СЃСЏ РІ РѕРєРЅРѕ СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ (РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ 
   OutputDebugString()) 
 
-  Вся математика логирования находится в файлах syslog.cpp/syslog.hpp.
+  Р’СЃСЏ РјР°С‚РµРјР°С‚РёРєР° Р»РѕРіРёСЂРѕРІР°РЅРёСЏ РЅР°С…РѕРґРёС‚СЃСЏ РІ С„Р°Р№Р»Р°С… syslog.cpp/syslog.hpp.
 
 
-Макросы
+РњР°РєСЂРѕСЃС‹
 ~~~~~~~
-  общие макросы
+  РѕР±С‰РёРµ РјР°РєСЂРѕСЃС‹
   ~~~~~~~~~~~~~
-  ___FILEFUNCLINE___  выводит отдельной строкой Файл+Функция+Строка (формат "[{%s} %s() #%d]")
-  _D()                включается, если в параметрах компиляции включен _DEBUG 
-  _ALGO()             предназначен для логирования "алгоритмов работы" тех или иных 
-                      функций АПИ  (макрос компиляции SYSLOG_ALGO). 
-  _DIALOG()           диалоги (макрос компиляции SYSLOG_DIALOG) 
-  _KEYMACRO()         макросы (макрос компиляции SYSLOG_KEYMACRO) 
-  _KEYMACRO_PARSE()   макросы (макрос компиляции SYSLOG_KEYMACRO_PARSE) 
-  _ECTLLOG()          ECTL_* команды (макрос компиляции SYSLOG_ECTL) 
-  _FCTLLOG()          FCTL_* команды (макрос компиляции SYSLOG_FCTL) 
-  _ACTLLOG()          ACTL_* команды (макрос компиляции SYSLOG_ACTL) 
-  _VCTLLOG()          VCTL_* команды (макрос компиляции SYSLOG_VCTL) 
-  _SYS_EE_REDRAW()    логирование прорисовки в редакторе (макрос компиляции SYSLOG_EE_REDRAW) 
-  _NWZ()              что-то про "новый двиг" (макрос компиляции SYSLOG_NWZ) 
-  _LOGCOPYR()         функция копирования (макрос компиляции SYSLOG_COPYR) 
-  _MANAGER()          логирование менеджера
+  ___FILEFUNCLINE___  РІС‹РІРѕРґРёС‚ РѕС‚РґРµР»СЊРЅРѕР№ СЃС‚СЂРѕРєРѕР№ Р¤Р°Р№Р»+Р¤СѓРЅРєС†РёСЏ+РЎС‚СЂРѕРєР° (С„РѕСЂРјР°С‚ "[{%s} %s() #%d]")
+  _D()                РІРєР»СЋС‡Р°РµС‚СЃСЏ, РµСЃР»Рё РІ РїР°СЂР°РјРµС‚СЂР°С… РєРѕРјРїРёР»СЏС†РёРё РІРєР»СЋС‡РµРЅ _DEBUG 
+  _ALGO()             РїСЂРµРґРЅР°Р·РЅР°С‡РµРЅ РґР»СЏ Р»РѕРіРёСЂРѕРІР°РЅРёСЏ "Р°Р»РіРѕСЂРёС‚РјРѕРІ СЂР°Р±РѕС‚С‹" С‚РµС… РёР»Рё РёРЅС‹С… 
+                      С„СѓРЅРєС†РёР№ РђРџР  (РјР°РєСЂРѕСЃ РєРѕРјРїРёР»СЏС†РёРё SYSLOG_ALGO). 
+  _DIALOG()           РґРёР°Р»РѕРіРё (РјР°РєСЂРѕСЃ РєРѕРјРїРёР»СЏС†РёРё SYSLOG_DIALOG) 
+  _KEYMACRO()         РјР°РєСЂРѕСЃС‹ (РјР°РєСЂРѕСЃ РєРѕРјРїРёР»СЏС†РёРё SYSLOG_KEYMACRO) 
+  _KEYMACRO_PARSE()   РјР°РєСЂРѕСЃС‹ (РјР°РєСЂРѕСЃ РєРѕРјРїРёР»СЏС†РёРё SYSLOG_KEYMACRO_PARSE) 
+  _ECTLLOG()          ECTL_* РєРѕРјР°РЅРґС‹ (РјР°РєСЂРѕСЃ РєРѕРјРїРёР»СЏС†РёРё SYSLOG_ECTL) 
+  _FCTLLOG()          FCTL_* РєРѕРјР°РЅРґС‹ (РјР°РєСЂРѕСЃ РєРѕРјРїРёР»СЏС†РёРё SYSLOG_FCTL) 
+  _ACTLLOG()          ACTL_* РєРѕРјР°РЅРґС‹ (РјР°РєСЂРѕСЃ РєРѕРјРїРёР»СЏС†РёРё SYSLOG_ACTL) 
+  _VCTLLOG()          VCTL_* РєРѕРјР°РЅРґС‹ (РјР°РєСЂРѕСЃ РєРѕРјРїРёР»СЏС†РёРё SYSLOG_VCTL) 
+  _SYS_EE_REDRAW()    Р»РѕРіРёСЂРѕРІР°РЅРёРµ РїСЂРѕСЂРёСЃРѕРІРєРё РІ СЂРµРґР°РєС‚РѕСЂРµ (РјР°РєСЂРѕСЃ РєРѕРјРїРёР»СЏС†РёРё SYSLOG_EE_REDRAW) 
+  _NWZ()              С‡С‚Рѕ-С‚Рѕ РїСЂРѕ "РЅРѕРІС‹Р№ РґРІРёРі" (РјР°РєСЂРѕСЃ РєРѕРјРїРёР»СЏС†РёРё SYSLOG_NWZ) 
+  _LOGCOPYR()         С„СѓРЅРєС†РёСЏ РєРѕРїРёСЂРѕРІР°РЅРёСЏ (РјР°РєСЂРѕСЃ РєРѕРјРїРёР»СЏС†РёРё SYSLOG_COPYR) 
+  _MANAGER()          Р»РѕРіРёСЂРѕРІР°РЅРёРµ РјРµРЅРµРґР¶РµСЂР°
 
 
-  персональные макросы
+  РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹Рµ РјР°РєСЂРѕСЃС‹
   ~~~~~~~~~~~~~~~~~~~~
-  _OT()    - Олег Тараненко (макрос компиляции SYSLOG_OT) 
-  _DJ()    - Дмитрий Жемеров (макрос компиляции SYSLOG_DJ) 
-  _WARP()  - ... (макрос компиляции SYSLOG_WARP) 
-  _VVM()   - ... (макрос компиляции SYSLOG_VVM) 
-  _IS()    - ... (макрос компиляции SYSLOG_IS) 
-  _AT()    - ... (макрос компиляции SYSLOG_AT) 
-  _tran()  - ... (макрос компиляции SYSLOG_tran) 
-  _SKV()   - ... (макрос компиляции SYSLOG_SKV) 
-  _KM()    - ... (макрос компиляции SYSLOG_KM) 
-  _TREX()  - ... (макрос компиляции SYSLOG_TREX) 
-  _YJH()   - ... (макрос компиляции SYSLOG_YJH) 
+  _OT()    - РћР»РµРі РўР°СЂР°РЅРµРЅРєРѕ (РјР°РєСЂРѕСЃ РєРѕРјРїРёР»СЏС†РёРё SYSLOG_OT) 
+  _DJ()    - Р”РјРёС‚СЂРёР№ Р–РµРјРµСЂРѕРІ (РјР°РєСЂРѕСЃ РєРѕРјРїРёР»СЏС†РёРё SYSLOG_DJ) 
+  _WARP()  - ... (РјР°РєСЂРѕСЃ РєРѕРјРїРёР»СЏС†РёРё SYSLOG_WARP) 
+  _VVM()   - ... (РјР°РєСЂРѕСЃ РєРѕРјРїРёР»СЏС†РёРё SYSLOG_VVM) 
+  _IS()    - ... (РјР°РєСЂРѕСЃ РєРѕРјРїРёР»СЏС†РёРё SYSLOG_IS) 
+  _AT()    - ... (РјР°РєСЂРѕСЃ РєРѕРјРїРёР»СЏС†РёРё SYSLOG_AT) 
+  _tran()  - ... (РјР°РєСЂРѕСЃ РєРѕРјРїРёР»СЏС†РёРё SYSLOG_tran) 
+  _SKV()   - ... (РјР°РєСЂРѕСЃ РєРѕРјРїРёР»СЏС†РёРё SYSLOG_SKV) 
+  _KM()    - ... (РјР°РєСЂРѕСЃ РєРѕРјРїРёР»СЏС†РёРё SYSLOG_KM) 
+  _TREX()  - ... (РјР°РєСЂРѕСЃ РєРѕРјРїРёР»СЏС†РёРё SYSLOG_TREX) 
+  _YJH()   - ... (РјР°РєСЂРѕСЃ РєРѕРјРїРёР»СЏС†РёРё SYSLOG_YJH) 
 
 
 
-Функции
+Р¤СѓРЅРєС†РёРё
 ~~~~~~~
 
-  функции преобразования
+  С„СѓРЅРєС†РёРё РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ
   ~~~~~~~~~~~~~~~~~~~~~~
-    Код клавиши в строку
+    РљРѕРґ РєР»Р°РІРёС€Рё РІ СЃС‚СЂРѕРєСѓ
      string __FARKEY_ToName(int Key);
 
-    Код макро-опкода в строку
+    РљРѕРґ РјР°РєСЂРѕ-РѕРїРєРѕРґР° РІ СЃС‚СЂРѕРєСѓ
      string __MCODE_ToName(int OpCode)
     
-    Код виртуальной клавиши в строку
+    РљРѕРґ РІРёСЂС‚СѓР°Р»СЊРЅРѕР№ РєР»Р°РІРёС€Рё РІ СЃС‚СЂРѕРєСѓ
      string __VK_KEY_ToName(int VkKey)
 
-    "Разжевать" ECTL-команду
+    "Р Р°Р·Р¶РµРІР°С‚СЊ" ECTL-РєРѕРјР°РЅРґСѓ
      string __ECTL_ToName(int Command)
 
-     Если добавили новую ECTL-команду, то в функцию syslog.cpp::_ECTL_ToName()
-     нужно добавить дефайн. Например, вводим ECTL_FOOBAR, в этом случае 
-     добавляем строку: 
+     Р•СЃР»Рё РґРѕР±Р°РІРёР»Рё РЅРѕРІСѓСЋ ECTL-РєРѕРјР°РЅРґСѓ, С‚Рѕ РІ С„СѓРЅРєС†РёСЋ syslog.cpp::_ECTL_ToName()
+     РЅСѓР¶РЅРѕ РґРѕР±Р°РІРёС‚СЊ РґРµС„Р°Р№РЅ. РќР°РїСЂРёРјРµСЂ, РІРІРѕРґРёРј ECTL_FOOBAR, РІ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ 
+     РґРѕР±Р°РІР»СЏРµРј СЃС‚СЂРѕРєСѓ: 
  
      DEF_ECTL_(FOOBAR),
 
-    "Разжевать" FCTL-команду
+    "Р Р°Р·Р¶РµРІР°С‚СЊ" FCTL-РєРѕРјР°РЅРґСѓ
      string __FCTL_ToName(int Command)
     
-    "Разжевать" ACTL-команду
+    "Р Р°Р·Р¶РµРІР°С‚СЊ" ACTL-РєРѕРјР°РЅРґСѓ
      string __ACTL_ToName(int Command)
     
-    "Разжевать" VCTL-команду
+    "Р Р°Р·Р¶РµРІР°С‚СЊ" VCTL-РєРѕРјР°РЅРґСѓ
      string __VCTL_ToName(int Command)
 
-    EE-команду в текст
+    EE-РєРѕРјР°РЅРґСѓ РІ С‚РµРєСЃС‚
      string __EE_ToName(int Command)
 
-    EEREDRAW-* в текст
+    EEREDRAW-* РІ С‚РµРєСЃС‚
      string __EEREDRAW_ToName(int Command)
 
-    ESPT-* в текст
+    ESPT-* РІ С‚РµРєСЃС‚
      string __ESPT_ToName(int Command)
 
-    VE-команду в текст
+    VE-РєРѕРјР°РЅРґСѓ РІ С‚РµРєСЃС‚
      string __VE_ToName(int Command)
 
-    Сообщение/события диалоговые в текст
+    РЎРѕРѕР±С‰РµРЅРёРµ/СЃРѕР±С‹С‚РёСЏ РґРёР°Р»РѕРіРѕРІС‹Рµ РІ С‚РµРєСЃС‚
      string __DLGMSG_ToName(int Msg)
 
-    Диалоговые флаги
+    Р”РёР°Р»РѕРіРѕРІС‹Рµ С„Р»Р°РіРё
      string __DLGDIF_ToName(int Msg)
 
-    "Разжевать" INPUT_RECORD
+    "Р Р°Р·Р¶РµРІР°С‚СЊ" INPUT_RECORD
      string __INPUT_RECORD_Dump(INPUT_RECORD *Rec)
 
-    "Разжевать" MOUSE_EVENT_RECORD
+    "Р Р°Р·Р¶РµРІР°С‚СЊ" MOUSE_EVENT_RECORD
      string __MOUSE_EVENT_RECORD_Dump(MOUSE_EVENT_RECORD *Rec)
 
 
-    Линейный дамп памяти
-     Получить строковый буфер линейного дампа памяти (после вызова этой 
-     функции нужно освободить память) 
+    Р›РёРЅРµР№РЅС‹Р№ РґР°РјРї РїР°РјСЏС‚Рё
+     РџРѕР»СѓС‡РёС‚СЊ СЃС‚СЂРѕРєРѕРІС‹Р№ Р±СѓС„РµСЂ Р»РёРЅРµР№РЅРѕРіРѕ РґР°РјРїР° РїР°РјСЏС‚Рё (РїРѕСЃР»Рµ РІС‹Р·РѕРІР° СЌС‚РѕР№ 
+     С„СѓРЅРєС†РёРё РЅСѓР¶РЅРѕ РѕСЃРІРѕР±РѕРґРёС‚СЊ РїР°РјСЏС‚СЊ) 
 
      string __SysLog_LinearDump(LPBYTE Buf,int SizeBuf)
 
 
-  функции логирования
+  С„СѓРЅРєС†РёРё Р»РѕРіРёСЂРѕРІР°РЅРёСЏ
   ~~~~~~~~~~~~~~~~~~~
-    Дамп памяти 
+    Р”Р°РјРї РїР°РјСЏС‚Рё 
      void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp=NULL)
 
-    Сделать отступ 
+    РЎРґРµР»Р°С‚СЊ РѕС‚СЃС‚СѓРї 
      void SysLog(int l);
    
-    Вывести в формате (аля printf) 
+    Р’С‹РІРµСЃС‚Рё РІ С„РѕСЂРјР°С‚Рµ (Р°Р»СЏ printf) 
      void SysLog(const wchar_t *fmt,...)
  
-    Вывести в формате (аля printf) с отступом 
+    Р’С‹РІРµСЃС‚Рё РІ С„РѕСЂРјР°С‚Рµ (Р°Р»СЏ printf) СЃ РѕС‚СЃС‚СѓРїРѕРј 
      void SysLog(int l,const wchar_t *fmt,...)
  
-    Вывод в лог результата GetLastError() 
+    Р’С‹РІРѕРґ РІ Р»РѕРі СЂРµР·СѓР»СЊС‚Р°С‚Р° GetLastError() 
      void SysLogLastError(void);
  
-    Вывести состояние хипа 
+    Р’С‹РІРµСЃС‚Рё СЃРѕСЃС‚РѕСЏРЅРёРµ С…РёРїР° 
      void ShowHeap();
  
-    Проверить хип на corrupt 
+    РџСЂРѕРІРµСЂРёС‚СЊ С…РёРї РЅР° corrupt 
      void CheckHeap(int NumLine);
  
-    Дамп структуры OpenPluginInfo 
+    Р”Р°РјРї СЃС‚СЂСѓРєС‚СѓСЂС‹ OpenPluginInfo 
      void GetOpenPluginInfo_Dump(const wchar_t *Title,const struct OpenPluginInfo *Info,FILE *fp)
 
-    Дамп входного консольного буфера ("скока там еще осталось то") 
+    Р”Р°РјРї РІС…РѕРґРЅРѕРіРѕ РєРѕРЅСЃРѕР»СЊРЅРѕРіРѕ Р±СѓС„РµСЂР° ("СЃРєРѕРєР° С‚Р°Рј РµС‰Рµ РѕСЃС‚Р°Р»РѕСЃСЊ С‚Рѕ") 
      void INPUT_RECORD_DumpBuffer(FILE *fp=NULL);
  
-    Дамп структуры PanelViewSettings 
+    Р”Р°РјРї СЃС‚СЂСѓРєС‚СѓСЂС‹ PanelViewSettings 
      void PanelViewSettings_Dump(const wchar_t *Title,const struct PanelViewSettings &ViewSettings,FILE *fp=NULL)
  
-    Дамп массива структуры PluginsStackItem 
+    Р”Р°РјРї РјР°СЃСЃРёРІР° СЃС‚СЂСѓРєС‚СѓСЂС‹ PluginsStackItem 
      void PluginsStackItem_Dump(const wchar_t *Title,const struct PluginsStackItem *StackItems,int ItemNumber,FILE *fp=NULL)
 
-    Дамп экрана 
+    Р”Р°РјРї СЌРєСЂР°РЅР° 
      void SaveScreenDumpBuffer(const wchar_t *Title,const FAR_CHAR_INFO *Buffer,int X1,int Y1,int X2,int Y2,int RealScreen,FILE *fp=NULL)
  
-    Дамп класса Manager 
+    Р”Р°РјРї РєР»Р°СЃСЃР° Manager 
      void ManagerClass_Dump(const wchar_t *Title,const Manager *m=NULL,FILE *fp=NULL)
  
-    Дамп GetVolumeInformation 
+    Р”Р°РјРї GetVolumeInformation 
      void GetVolumeInformation_Dump(const wchar_t *Title,LPCWSTR lpRootPathName,
                                     LPCWSTR lpVolumeNameBuffer,DWORD nVolumeNameSize,
                                     DWORD lpVolumeSerialNumber, DWORD lpMaximumComponentLength, 
                                     DWORD lpFileSystemFlags, LPCWSTR lpFileSystemNameBuffer, 
                                     DWORD nFileSystemNameSize,FILE *fp=NULL)
-    Дамп WIN32_FIND_DATA 
+    Р”Р°РјРї WIN32_FIND_DATA 
      void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &fd,FILE *fp=NULL)
 
-  Классы
+  РљР»Р°СЃСЃС‹
   ~~~~~~
-    CleverSysLog - "умный логер": конструктор делает отступ, в 
-    деструкторе отступ возвращается обратно.
+    CleverSysLog - "СѓРјРЅС‹Р№ Р»РѕРіРµСЂ": РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РґРµР»Р°РµС‚ РѕС‚СЃС‚СѓРї, РІ 
+    РґРµСЃС‚СЂСѓРєС‚РѕСЂРµ РѕС‚СЃС‚СѓРї РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ РѕР±СЂР°С‚РЅРѕ.

@@ -1,3 +1,5 @@
+ï»¿#ifndef PRESERVELONGNAME_HPP_6F71AC08_0FE5_40EF_B4F4_61B50EA512EA
+#define PRESERVELONGNAME_HPP_6F71AC08_0FE5_40EF_B4F4_61B50EA512EA
 #pragma once
 
 /*
@@ -6,8 +8,8 @@ preservelongname.hpp
 class PreserveLongName
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright Â© 1996 Eugene Roshal
+Copyright Â© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -44,3 +46,5 @@ private:
 	string strSaveShortName;
 	int Preserve;
 };
+
+#endif // PRESERVELONGNAME_HPP_6F71AC08_0FE5_40EF_B4F4_61B50EA512EA

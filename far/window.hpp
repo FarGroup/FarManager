@@ -1,13 +1,15 @@
+п»ї#ifndef WINDOW_HPP_1A177508_4749_4C46_AE24_0D274332C03A
+#define WINDOW_HPP_1A177508_4749_4C46_AE24_0D274332C03A
 #pragma once
 
 /*
 window.hpp
 
-Немодальное окно (базовый класс для FilePanels, FileEditor, FileViewer)
+РќРµРјРѕРґР°Р»СЊРЅРѕРµ РѕРєРЅРѕ (Р±Р°Р·РѕРІС‹Р№ РєР»Р°СЃСЃ РґР»СЏ FilePanels, FileEditor, FileViewer)
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -63,8 +65,8 @@ public:
 	virtual BOOL IsFileModified() const { return FALSE; }
 	virtual int GetTypeAndName(string &strType, string &strName) = 0;
 	virtual int GetType() const = 0;
-	virtual void OnDestroy() {}  // вызывается перед уничтожением окна
-	virtual void OnChangeFocus(bool focus); // вызывается при смене фокуса
+	virtual void OnDestroy() {}  // РІС‹Р·С‹РІР°РµС‚СЃСЏ РїРµСЂРµРґ СѓРЅРёС‡С‚РѕР¶РµРЅРёРµРј РѕРєРЅР°
+	virtual void OnChangeFocus(bool focus); // РІС‹Р·С‹РІР°РµС‚СЃСЏ РїСЂРё СЃРјРµРЅРµ С„РѕРєСѓСЃР°
 	virtual void InitKeyBar() {}
 	virtual void RedrawKeyBar() { UpdateKeyBar(); }
 	virtual FARMACROAREA GetMacroArea() const { return m_MacroArea; }
@@ -110,3 +112,5 @@ private:
 	long m_BlockCounter;
 	FARMACROAREA m_MacroArea;
 };
+
+#endif // WINDOW_HPP_1A177508_4749_4C46_AE24_0D274332C03A

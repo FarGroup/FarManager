@@ -1,10 +1,10 @@
-/*
+﻿/*
 pipe.cpp
 
 Pipe-based IPC
 */
 /*
-Copyright � 2014 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

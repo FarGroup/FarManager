@@ -1,11 +1,11 @@
-/*
+п»ї/*
 filefilterparams.cpp
 
-Параметры Файлового фильтра
+РџР°СЂР°РјРµС‚СЂС‹ Р¤Р°Р№Р»РѕРІРѕРіРѕ С„РёР»СЊС‚СЂР°
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -228,36 +228,36 @@ bool FileFilterParams::FileInFilter(const FileListItem* fli, unsigned __int64 Cu
 
 bool FileFilterParams::FileInFilter(const os::FAR_FIND_DATA& fde, unsigned __int64 CurrentTime,const string* FullName) const
 {
-	// Режим проверки атрибутов файла включен?
+	// Р РµР¶РёРј РїСЂРѕРІРµСЂРєРё Р°С‚СЂРёР±СѓС‚РѕРІ С„Р°Р№Р»Р° РІРєР»СЋС‡РµРЅ?
 	if (FAttr.Used)
 	{
-		// Проверка попадания файла по установленным атрибутам
+		// РџСЂРѕРІРµСЂРєР° РїРѕРїР°РґР°РЅРёСЏ С„Р°Р№Р»Р° РїРѕ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹Рј Р°С‚СЂРёР±СѓС‚Р°Рј
 		if ((fde.dwFileAttributes & FAttr.AttrSet) != FAttr.AttrSet)
 			return false;
 
-		// Проверка попадания файла по отсутствующим атрибутам
+		// РџСЂРѕРІРµСЂРєР° РїРѕРїР°РґР°РЅРёСЏ С„Р°Р№Р»Р° РїРѕ РѕС‚СЃСѓС‚СЃС‚РІСѓСЋС‰РёРј Р°С‚СЂРёР±СѓС‚Р°Рј
 		if (fde.dwFileAttributes & FAttr.AttrClear)
 			return false;
 	}
 
-	// Режим проверки размера файла включен?
+	// Р РµР¶РёРј РїСЂРѕРІРµСЂРєРё СЂР°Р·РјРµСЂР° С„Р°Р№Р»Р° РІРєР»СЋС‡РµРЅ?
 	if (FSize.Used)
 	{
 		if (!FSize.SizeAbove.empty())
 		{
-			if (fde.nFileSize < FSize.SizeAboveReal) // Размер файла меньше минимального разрешённого по фильтру?
-				return false;                          // Не пропускаем этот файл
+			if (fde.nFileSize < FSize.SizeAboveReal) // Р Р°Р·РјРµСЂ С„Р°Р№Р»Р° РјРµРЅСЊС€Рµ РјРёРЅРёРјР°Р»СЊРЅРѕРіРѕ СЂР°Р·СЂРµС€С‘РЅРЅРѕРіРѕ РїРѕ С„РёР»СЊС‚СЂСѓ?
+				return false;                          // РќРµ РїСЂРѕРїСѓСЃРєР°РµРј СЌС‚РѕС‚ С„Р°Р№Р»
 		}
 
 		if (!FSize.SizeBelow.empty())
 		{
-			if (fde.nFileSize > FSize.SizeBelowReal) // Размер файла больше максимального разрешённого по фильтру?
-				return false;                          // Не пропускаем этот файл
+			if (fde.nFileSize > FSize.SizeBelowReal) // Р Р°Р·РјРµСЂ С„Р°Р№Р»Р° Р±РѕР»СЊС€Рµ РјР°РєСЃРёРјР°Р»СЊРЅРѕРіРѕ СЂР°Р·СЂРµС€С‘РЅРЅРѕРіРѕ РїРѕ С„РёР»СЊС‚СЂСѓ?
+				return false;                          // РќРµ РїСЂРѕРїСѓСЃРєР°РµРј СЌС‚РѕС‚ С„Р°Р№Р»
 		}
 	}
 
-	// Режим проверки количества жестких ссылок на файл включен?
-	// Пока что, при включенном условии, срабатывание происходит при случае "ссылок больше чем одна"
+	// Р РµР¶РёРј РїСЂРѕРІРµСЂРєРё РєРѕР»РёС‡РµСЃС‚РІР° Р¶РµСЃС‚РєРёС… СЃСЃС‹Р»РѕРє РЅР° С„Р°Р№Р» РІРєР»СЋС‡РµРЅ?
+	// РџРѕРєР° С‡С‚Рѕ, РїСЂРё РІРєР»СЋС‡РµРЅРЅРѕРј СѓСЃР»РѕРІРёРё, СЃСЂР°Р±Р°С‚С‹РІР°РЅРёРµ РїСЂРѕРёСЃС…РѕРґРёС‚ РїСЂРё СЃР»СѓС‡Р°Рµ "СЃСЃС‹Р»РѕРє Р±РѕР»СЊС€Рµ С‡РµРј РѕРґРЅР°"
 	if (FHardLinks.Used)
 	{
 		if (fde.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
@@ -271,7 +271,7 @@ bool FileFilterParams::FileInFilter(const os::FAR_FIND_DATA& fde, unsigned __int
 		}
 	}
 
-	// Режим проверки времени файла включен?
+	// Р РµР¶РёРј РїСЂРѕРІРµСЂРєРё РІСЂРµРјРµРЅРё С„Р°Р№Р»Р° РІРєР»СЋС‡РµРЅ?
 	if (FDate.Used)
 	{
 		auto before = FDate.DateBefore, after = FDate.DateAfter;
@@ -306,39 +306,39 @@ bool FileFilterParams::FileInFilter(const os::FAR_FIND_DATA& fde, unsigned __int
 
 			const auto ftime = FileTimeToUI64(*ft);
 
-			// Есть введённая пользователем начальная дата?
+			// Р•СЃС‚СЊ РІРІРµРґС‘РЅРЅР°СЏ РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј РЅР°С‡Р°Р»СЊРЅР°СЏ РґР°С‚Р°?
 			if (after)
 			{
-				// Дата файла меньше начальной даты по фильтру?
+				// Р”Р°С‚Р° С„Р°Р№Р»Р° РјРµРЅСЊС€Рµ РЅР°С‡Р°Р»СЊРЅРѕР№ РґР°С‚С‹ РїРѕ С„РёР»СЊС‚СЂСѓ?
 				if (ftime < after)
-					// Не пропускаем этот файл
+					// РќРµ РїСЂРѕРїСѓСЃРєР°РµРј СЌС‚РѕС‚ С„Р°Р№Р»
 					return false;
 			}
 
-			// Есть введённая пользователем конечная дата?
+			// Р•СЃС‚СЊ РІРІРµРґС‘РЅРЅР°СЏ РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј РєРѕРЅРµС‡РЅР°СЏ РґР°С‚Р°?
 			if (before)
 			{
-				// Дата файла больше конечной даты по фильтру?
+				// Р”Р°С‚Р° С„Р°Р№Р»Р° Р±РѕР»СЊС€Рµ РєРѕРЅРµС‡РЅРѕР№ РґР°С‚С‹ РїРѕ С„РёР»СЊС‚СЂСѓ?
 				if (ftime > before)
 					return false;
 			}
 		}
 	}
 
-	// Режим проверки маски файла включен?
+	// Р РµР¶РёРј РїСЂРѕРІРµСЂРєРё РјР°СЃРєРё С„Р°Р№Р»Р° РІРєР»СЋС‡РµРЅ?
 	if (FMask.Used)
 	{
-		// ЭТО ЕСТЬ УЗКОЕ МЕСТО ДЛЯ СКОРОСТНЫХ ХАРАКТЕРИСТИК Far Manager
-		// при считывании директории
+		// Р­РўРћ Р•РЎРўР¬ РЈР—РљРћР• РњР•РЎРўРћ Р”Р›РЇ РЎРљРћР РћРЎРўРќР«РҐ РҐРђР РђРљРўР•Р РРЎРўРРљ Far Manager
+		// РїСЂРё СЃС‡РёС‚С‹РІР°РЅРёРё РґРёСЂРµРєС‚РѕСЂРёРё
 
-		// Файл не попадает под маску введённую в фильтре?
+		// Р¤Р°Р№Р» РЅРµ РїРѕРїР°РґР°РµС‚ РїРѕРґ РјР°СЃРєСѓ РІРІРµРґС‘РЅРЅСѓСЋ РІ С„РёР»СЊС‚СЂРµ?
 		if (!FMask.FilterMask.Compare(fde.strFileName))
-			// Не пропускаем этот файл
+			// РќРµ РїСЂРѕРїСѓСЃРєР°РµРј СЌС‚РѕС‚ С„Р°Р№Р»
 			return false;
 	}
 
-	// Да! Файл выдержал все испытания и будет допущен к использованию
-	// в вызвавшей эту функцию операции.
+	// Р”Р°! Р¤Р°Р№Р» РІС‹РґРµСЂР¶Р°Р» РІСЃРµ РёСЃРїС‹С‚Р°РЅРёСЏ Рё Р±СѓРґРµС‚ РґРѕРїСѓС‰РµРЅ Рє РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЋ
+	// РІ РІС‹Р·РІР°РІС€РµР№ СЌС‚Сѓ С„СѓРЅРєС†РёСЋ РѕРїРµСЂР°С†РёРё.
 	return true;
 }
 
@@ -349,7 +349,7 @@ bool FileFilterParams::FileInFilter(const PluginPanelItem& fd, unsigned __int64 
 	return FileInFilter(fde, CurrentTime, &fde.strFileName);
 }
 
-//Централизованная функция для создания строк меню различных фильтров.
+//Р¦РµРЅС‚СЂР°Р»РёР·РѕРІР°РЅРЅР°СЏ С„СѓРЅРєС†РёСЏ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ СЃС‚СЂРѕРє РјРµРЅСЋ СЂР°Р·Р»РёС‡РЅС‹С… С„РёР»СЊС‚СЂРѕРІ.
 string MenuString(const FileFilterParams *FF, bool bHighlightType, int Hotkey, bool bPanelType, const wchar_t *FMask, const wchar_t *Title)
 {
 	string strDest;
@@ -639,7 +639,7 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 		}
 		case DN_BTNCLICK:
 		{
-			if (Param1==ID_FF_CURRENT || Param1==ID_FF_BLANK) //Current и Blank
+			if (Param1==ID_FF_CURRENT || Param1==ID_FF_BLANK) //Current Рё Blank
 			{
 				FILETIME ft;
 				string strDate, strTime;
@@ -741,7 +741,7 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 				block_ptr<FarDialogItem> Buffer(Size);
 				FarGetDialogItem gdi = {sizeof(FarGetDialogItem), Size, Buffer.get()};
 				Dlg->SendMessage(DM_GETDLGITEM,ID_HER_COLOREXAMPLE,&gdi);
-				//MarkChar это FIXEDIT размером в 1 символ
+				//MarkChar СЌС‚Рѕ FIXEDIT СЂР°Р·РјРµСЂРѕРј РІ 1 СЃРёРјРІРѕР»
 				wchar_t MarkChar[2];
 				FarDialogItemData item={sizeof(FarDialogItemData),1,MarkChar};
 				Dlg->SendMessage(DM_GETTEXT,ID_HER_MARKEDIT,&item);
@@ -761,7 +761,7 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 				block_ptr<FarDialogItem> Buffer(Size);
 				FarGetDialogItem gdi = {sizeof(FarGetDialogItem), Size, Buffer.get()};
 				Dlg->SendMessage(DM_GETDLGITEM,ID_HER_COLOREXAMPLE,&gdi);
-				//MarkChar это FIXEDIT размером в 1 символ
+				//MarkChar СЌС‚Рѕ FIXEDIT СЂР°Р·РјРµСЂРѕРј РІ 1 СЃРёРјРІРѕР»
 				wchar_t MarkChar[2];
 				FarDialogItemData item={sizeof(FarDialogItemData),1,MarkChar};
 				Dlg->SendMessage(DM_GETTEXT,ID_HER_MARKEDIT,&item);
@@ -801,17 +801,17 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 
 bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 {
-	// Временная маска.
+	// Р’СЂРµРјРµРЅРЅР°СЏ РјР°СЃРєР°.
 	filemasks FileMask;
-	// История для маски файлов
+	// РСЃС‚РѕСЂРёСЏ РґР»СЏ РјР°СЃРєРё С„Р°Р№Р»РѕРІ
 	const wchar_t FilterMasksHistoryName[] = L"FilterMasks";
-	// История для имени фильтра
+	// РСЃС‚РѕСЂРёСЏ РґР»СЏ РёРјРµРЅРё С„РёР»СЊС‚СЂР°
 	const wchar_t FilterNameHistoryName[] = L"FilterName";
-	// Маски для диалога настройки
-	// Маска для ввода дней для относительной даты
+	// РњР°СЃРєРё РґР»СЏ РґРёР°Р»РѕРіР° РЅР°СЃС‚СЂРѕР№РєРё
+	// РњР°СЃРєР° РґР»СЏ РІРІРѕРґР° РґРЅРµР№ РґР»СЏ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕР№ РґР°С‚С‹
 	const wchar_t DaysMask[] = L"9999";
 	string strDateMask, strTimeMask;
-	// Определение параметров даты и времени в системе.
+	// РћРїСЂРµРґРµР»РµРЅРёРµ РїР°СЂР°РјРµС‚СЂРѕРІ РґР°С‚С‹ Рё РІСЂРµРјРµРЅРё РІ СЃРёСЃС‚РµРјРµ.
 	wchar_t DateSeparator = locale::GetDateSeparator();
 	wchar_t TimeSeparator = locale::GetTimeSeparator();
 	wchar_t DecimalSeparator = locale::GetDecimalSeparator();
@@ -820,20 +820,20 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	switch (DateFormat)
 	{
 		case 0:
-			// Маска даты для форматов DD.MM.YYYYY и MM.DD.YYYYY
+			// РњР°СЃРєР° РґР°С‚С‹ РґР»СЏ С„РѕСЂРјР°С‚РѕРІ DD.MM.YYYYY Рё MM.DD.YYYYY
 			strDateMask = string(L"99") + DateSeparator + L"99" + DateSeparator + L"9999N";
 			break;
 		case 1:
-			// Маска даты для форматов DD.MM.YYYYY и MM.DD.YYYYY
+			// РњР°СЃРєР° РґР°С‚С‹ РґР»СЏ С„РѕСЂРјР°С‚РѕРІ DD.MM.YYYYY Рё MM.DD.YYYYY
 			strDateMask = string(L"99") + DateSeparator + L"99" + DateSeparator + L"9999N";
 			break;
 		default:
-			// Маска даты для формата YYYYY.MM.DD
+			// РњР°СЃРєР° РґР°С‚С‹ РґР»СЏ С„РѕСЂРјР°С‚Р° YYYYY.MM.DD
 			strDateMask = string(L"N9999") + DateSeparator + L"99" + DateSeparator + L"99";
 			break;
 	}
 
-	// Маска времени
+	// РњР°СЃРєР° РІСЂРµРјРµРЅРё
 	strTimeMask = string(L"99") + TimeSeparator + L"99" + TimeSeparator + L"99" + DecimalSeparator + L"999";
 	const wchar_t VerticalLine[] = {BoxSymbols[BS_T_H1V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_B_H1V1],0};
 	FarDialogItem FilterDlgData[]=
@@ -910,8 +910,8 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
 		{DI_TEXT,-1,19,0,19,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 
-		{DI_CHECKBOX,5,20,0,20,0,nullptr,nullptr,0,MSG(MFileHardLinksCount)},//добавляем новый чекбокс в панель
-		{DI_TEXT,-1,21,0,21,0,nullptr,nullptr,DIF_SEPARATOR,L""},// и разделитель
+		{DI_CHECKBOX,5,20,0,20,0,nullptr,nullptr,0,MSG(MFileHardLinksCount)},//РґРѕР±Р°РІР»СЏРµРј РЅРѕРІС‹Р№ С‡РµРєР±РѕРєСЃ РІ РїР°РЅРµР»СЊ
+		{DI_TEXT,-1,21,0,21,0,nullptr,nullptr,DIF_SEPARATOR,L""},// Рё СЂР°Р·РґРµР»РёС‚РµР»СЊ
 
 		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
 		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,MSG(MFileFilterReset)},
@@ -975,16 +975,16 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	FilterDlg[ID_FF_MATCHSIZE].Selected = FF->IsSizeUsed();
 	FilterDlg[ID_FF_SIZEFROMEDIT].strData = FF->GetSizeAbove();
 	FilterDlg[ID_FF_SIZETOEDIT].strData = FF->GetSizeBelow();
-	FilterDlg[ID_FF_HARDLINKS].Selected=FF->GetHardLinks(nullptr,nullptr)?1:0; //пока что мы проверяем только флаг использования данного условия
+	FilterDlg[ID_FF_HARDLINKS].Selected=FF->GetHardLinks(nullptr,nullptr)?1:0; //РїРѕРєР° С‡С‚Рѕ РјС‹ РїСЂРѕРІРµСЂСЏРµРј С‚РѕР»СЊРєРѕ С„Р»Р°Рі РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ РґР°РЅРЅРѕРіРѕ СѓСЃР»РѕРІРёСЏ
 
 	if (!FilterDlg[ID_FF_MATCHSIZE].Selected)
 		for (int i=ID_FF_SIZEFROMSIGN; i <= ID_FF_SIZETOEDIT; i++)
 			FilterDlg[i].Flags|=DIF_DISABLE;
 
-	// Лист для комбобокса времени файла
+	// Р›РёСЃС‚ РґР»СЏ РєРѕРјР±РѕР±РѕРєСЃР° РІСЂРµРјРµРЅРё С„Р°Р№Р»Р°
 	FarList DateList={sizeof(FarList)};
 	FarListItem TableItemDate[FDATE_COUNT]={};
-	// Настройка списка типов дат файла
+	// РќР°СЃС‚СЂРѕР№РєР° СЃРїРёСЃРєР° С‚РёРїРѕРІ РґР°С‚ С„Р°Р№Р»Р°
 	DateList.Items=TableItemDate;
 	DateList.ItemsNumber=FDATE_COUNT;
 
@@ -1083,7 +1083,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
 		if (ExitCode==ID_FF_OK) // Ok
 		{
-			// Если введённая пользователем маска не корректна, тогда вернёмся в диалог
+			// Р•СЃР»Рё РІРІРµРґС‘РЅРЅР°СЏ РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј РјР°СЃРєР° РЅРµ РєРѕСЂСЂРµРєС‚РЅР°, С‚РѕРіРґР° РІРµСЂРЅС‘РјСЃСЏ РІ РґРёР°Р»РѕРі
 			if (FilterDlg[ID_FF_MATCHMASK].Selected && !FileMask.Set(FilterDlg[ID_FF_MASKEDIT].strData,0))
 				continue;
 
@@ -1097,7 +1097,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 			FF->SetSize(FilterDlg[ID_FF_MATCHSIZE].Selected!=0,
 			            FilterDlg[ID_FF_SIZEFROMEDIT].strData,
 			            FilterDlg[ID_FF_SIZETOEDIT].strData);
-			FF->SetHardLinks(FilterDlg[ID_FF_HARDLINKS].Selected!=0,0,0); //пока устанавливаем только флаг использования признака
+			FF->SetHardLinks(FilterDlg[ID_FF_HARDLINKS].Selected!=0,0,0); //РїРѕРєР° СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј С‚РѕР»СЊРєРѕ С„Р»Р°Рі РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ РїСЂРёР·РЅР°РєР°
 			bRelative = FilterDlg[ID_FF_DATERELATIVE].Selected!=0;
 
 			FilterDlg[ID_FF_TIMEBEFOREEDIT].strData[8] = TimeSeparator;

@@ -1,11 +1,11 @@
-/*
+п»ї/*
 filetype.cpp
 
-Работа с ассоциациями файлов
+Р Р°Р±РѕС‚Р° СЃ Р°СЃСЃРѕС†РёР°С†РёСЏРјРё С„Р°Р№Р»РѕРІ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -55,9 +55,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 
 /* $ 25.04.2001 DJ
-   обработка @ в IF EXIST: функция, которая извлекает команду из строки
-   с IF EXIST с учетом @ и возвращает TRUE, если условие IF EXIST
-   выполено, и FALSE в противном случае/
+   РѕР±СЂР°Р±РѕС‚РєР° @ РІ IF EXIST: С„СѓРЅРєС†РёСЏ, РєРѕС‚РѕСЂР°СЏ РёР·РІР»РµРєР°РµС‚ РєРѕРјР°РЅРґСѓ РёР· СЃС‚СЂРѕРєРё
+   СЃ IF EXIST СЃ СѓС‡РµС‚РѕРј @ Рё РІРѕР·РІСЂР°С‰Р°РµС‚ TRUE, РµСЃР»Рё СѓСЃР»РѕРІРёРµ IF EXIST
+   РІС‹РїРѕР»РµРЅРѕ, Рё FALSE РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ/
 */
 
 bool ExtractIfExistCommand(string &strCommandText)
@@ -65,9 +65,9 @@ bool ExtractIfExistCommand(string &strCommandText)
 	bool Result=true;
 	const wchar_t *wPtrCmd=PrepareOSIfExist(strCommandText);
 
-	// Во! Условие не выполнено!!!
-	// (например, пока рассматривали менюху, в это время)
-	// какой-то злобный чебурашка стер файл!
+	// Р’Рѕ! РЈСЃР»РѕРІРёРµ РЅРµ РІС‹РїРѕР»РЅРµРЅРѕ!!!
+	// (РЅР°РїСЂРёРјРµСЂ, РїРѕРєР° СЂР°СЃСЃРјР°С‚СЂРёРІР°Р»Рё РјРµРЅСЋС…Сѓ, РІ СЌС‚Рѕ РІСЂРµРјСЏ)
+	// РєР°РєРѕР№-С‚Рѕ Р·Р»РѕР±РЅС‹Р№ С‡РµР±СѓСЂР°С€РєР° СЃС‚РµСЂ С„Р°Р№Р»!
 	if (wPtrCmd)
 	{
 		if (!*wPtrCmd)
@@ -76,7 +76,7 @@ bool ExtractIfExistCommand(string &strCommandText)
 		}
 		else
 		{
-			// прокинем "if exist"
+			// РїСЂРѕРєРёРЅРµРј "if exist"
 			if (strCommandText.front() == L'@')
 			{
 				strCommandText.resize(1);
@@ -114,18 +114,18 @@ size_t GetDescriptionWidth()
 }
 
 /* $ 14.01.2001 SVS
-   Добавим интеллектуальности.
-   Если встречается "IF" и оно выполняется, то команда
-   помещается в список
+   Р”РѕР±Р°РІРёРј РёРЅС‚РµР»Р»РµРєС‚СѓР°Р»СЊРЅРѕСЃС‚Рё.
+   Р•СЃР»Рё РІСЃС‚СЂРµС‡Р°РµС‚СЃСЏ "IF" Рё РѕРЅРѕ РІС‹РїРѕР»РЅСЏРµС‚СЃСЏ, С‚Рѕ РєРѕРјР°РЅРґР°
+   РїРѕРјРµС‰Р°РµС‚СЃСЏ РІ СЃРїРёСЃРѕРє
 
-   Вызывается для F3, F4 - ассоциации
-   Enter в ком строке - ассоциации.
+   Р’С‹Р·С‹РІР°РµС‚СЃСЏ РґР»СЏ F3, F4 - Р°СЃСЃРѕС†РёР°С†РёРё
+   Enter РІ РєРѕРј СЃС‚СЂРѕРєРµ - Р°СЃСЃРѕС†РёР°С†РёРё.
 */
 /* $ 06.07.2001
-   + Используем filemasks вместо GetCommaWord, этим самым добиваемся того, что
-     можно использовать маски исключения
-   - Убрал непонятный мне запрет на использование маски файлов типа "*.*"
-     (был когда-то, вроде, такой баг-репорт)
+   + РСЃРїРѕР»СЊР·СѓРµРј filemasks РІРјРµСЃС‚Рѕ GetCommaWord, СЌС‚РёРј СЃР°РјС‹Рј РґРѕР±РёРІР°РµРјСЃСЏ С‚РѕРіРѕ, С‡С‚Рѕ
+     РјРѕР¶РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РјР°СЃРєРё РёСЃРєР»СЋС‡РµРЅРёСЏ
+   - РЈР±СЂР°Р» РЅРµРїРѕРЅСЏС‚РЅС‹Р№ РјРЅРµ Р·Р°РїСЂРµС‚ РЅР° РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ РјР°СЃРєРё С„Р°Р№Р»РѕРІ С‚РёРїР° "*.*"
+     (Р±С‹Р» РєРѕРіРґР°-С‚Рѕ, РІСЂРѕРґРµ, С‚Р°РєРѕР№ Р±Р°Рі-СЂРµРїРѕСЂС‚)
 */
 bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE_MODE Mode, bool AlwaysWaitFinish)
 {
@@ -136,8 +136,8 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 		TypesMenu->SetMenuFlags(VMENU_WRAPMODE);
 		TypesMenu->SetId(SelectAssocMenuId);
 
-		int ActualCmdCount=0; // отображаемых ассоциаций в меню
-		filemasks FMask; // для работы с масками файлов
+		int ActualCmdCount=0; // РѕС‚РѕР±СЂР°Р¶Р°РµРјС‹С… Р°СЃСЃРѕС†РёР°С†РёР№ РІ РјРµРЅСЋ
+		filemasks FMask; // РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РјР°СЃРєР°РјРё С„Р°Р№Р»РѕРІ
 
 		int CommandCount=0;
 		DWORD Index=0;
@@ -168,7 +168,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 			string strCommandText = strCommand;
 			SubstFileName(nullptr,strCommandText,Name, ShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
 
-			// все "подставлено", теперь проверим условия "if exist"
+			// РІСЃРµ "РїРѕРґСЃС‚Р°РІР»РµРЅРѕ", С‚РµРїРµСЂСЊ РїСЂРѕРІРµСЂРёРј СѓСЃР»РѕРІРёСЏ "if exist"
 			if (!ExtractIfExistCommand(strCommandText))
 				continue;
 
@@ -217,7 +217,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 	int PreserveLFN=SubstFileName(nullptr,strCommand, Name, ShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
 	const auto ListFileUsed = !std::all_of(ALL_CONST_RANGE(ListNames), std::mem_fn(&string::empty));
 
-	// Снова все "подставлено", теперь проверим условия "if exist"
+	// РЎРЅРѕРІР° РІСЃРµ "РїРѕРґСЃС‚Р°РІР»РµРЅРѕ", С‚РµРїРµСЂСЊ РїСЂРѕРІРµСЂРёРј СѓСЃР»РѕРІРёСЏ "if exist"
 	if (ExtractIfExistCommand(strCommand))
 	{
 		SCOPED_ACTION(PreserveLongName)(ShortName, PreserveLFN);
@@ -326,7 +326,7 @@ void ProcessGlobalFileTypes(const string& Name, bool AlwaysWaitFinish, bool RunA
 }
 
 /*
-  Используется для запуска внешнего редактора и вьювера
+  РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ Р·Р°РїСѓСЃРєР° РІРЅРµС€РЅРµРіРѕ СЂРµРґР°РєС‚РѕСЂР° Рё РІСЊСЋРІРµСЂР°
 */
 void ProcessExternal(const string& Command, const string& Name, const string& ShortName, bool AlwaysWaitFinish)
 {
@@ -345,7 +345,7 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 		int PreserveLFN = SubstFileName(nullptr, strExecStr, Name, ShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
 		const auto ListFileUsed = !std::all_of(ALL_CONST_RANGE(ListNames), std::mem_fn(&string::empty));
 
-		// Снова все "подставлено", теперь проверим условия "if exist"
+		// РЎРЅРѕРІР° РІСЃРµ "РїРѕРґСЃС‚Р°РІР»РµРЅРѕ", С‚РµРїРµСЂСЊ РїСЂРѕРІРµСЂРёРј СѓСЃР»РѕРІРёСЏ "if exist"
 		if (!ExtractIfExistCommand(strExecStr))
 			return;
 
@@ -358,7 +358,7 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 		string strFullExecStr = Command;
 		SubstFileName(nullptr, strFullExecStr, strFullName, strFullShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
 
-		// Снова все "подставлено", теперь проверим условия "if exist"
+		// РЎРЅРѕРІР° РІСЃРµ "РїРѕРґСЃС‚Р°РІР»РµРЅРѕ", С‚РµРїРµСЂСЊ РїСЂРѕРІРµСЂРёРј СѓСЃР»РѕРІРёСЏ "if exist"
 		if (!ExtractIfExistCommand(strFullExecStr))
 			return;
 

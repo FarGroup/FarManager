@@ -1,3 +1,5 @@
+п»ї#ifndef DIRMIX_HPP_7386031B_A22B_4851_8BC6_24E90C9798D5
+#define DIRMIX_HPP_7386031B_A22B_4851_8BC6_24E90C9798D5
 #pragma once
 
 /*
@@ -6,8 +8,8 @@ dirmix.hpp
 Misc functions for working with directories
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -43,10 +45,10 @@ enum TESTFOLDERCONST  // for TestFolder()
 };
 
 /* $ 15.02.2002 IS
-   Установка нужного диска и каталога и установление соответствующей переменной
-   окружения. В случае успеха возвращается не ноль.
-   Если ChangeDir==FALSE, то не меняем текущий  диск, а только устанавливаем
-   переменные окружения.
+   РЈСЃС‚Р°РЅРѕРІРєР° РЅСѓР¶РЅРѕРіРѕ РґРёСЃРєР° Рё РєР°С‚Р°Р»РѕРіР° Рё СѓСЃС‚Р°РЅРѕРІР»РµРЅРёРµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РµР№ РїРµСЂРµРјРµРЅРЅРѕР№
+   РѕРєСЂСѓР¶РµРЅРёСЏ. Р’ СЃР»СѓС‡Р°Рµ СѓСЃРїРµС…Р° РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ РЅРµ РЅРѕР»СЊ.
+   Р•СЃР»Рё ChangeDir==FALSE, С‚Рѕ РЅРµ РјРµРЅСЏРµРј С‚РµРєСѓС‰РёР№  РґРёСЃРє, Р° С‚РѕР»СЊРєРѕ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј
+   РїРµСЂРµРјРµРЅРЅС‹Рµ РѕРєСЂСѓР¶РµРЅРёСЏ.
 */
 BOOL FarChDir(const string& NewDir,BOOL ChangeDir=TRUE);
 
@@ -54,3 +56,5 @@ int TestFolder(const string& Name);
 bool CheckShortcutFolder(string& pTestPath, bool TryClosest, bool Silent);
 
 void CreatePath(const string &Path, bool Simple=false);
+
+#endif // DIRMIX_HPP_7386031B_A22B_4851_8BC6_24E90C9798D5

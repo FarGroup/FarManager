@@ -1,3 +1,5 @@
+﻿#ifndef COMPILER_HPP_6A237B14_5BAA_4106_9D7F_7C7BA14A36B0
+#define COMPILER_HPP_6A237B14_5BAA_4106_9D7F_7C7BA14A36B0
 #pragma once
 
 /*
@@ -6,7 +8,7 @@ compiler.hpp
 Compiler-specific macros and definitions
 */
 /*
-Copyright � 2015 Far Group
+Copyright © 2015 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -108,3 +110,5 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define NO_DEFAULTED_FUNCTIONS
 #define NO_DELETED_FUNCTIONS
 #endif
+
+#endif // COMPILER_HPP_6A237B14_5BAA_4106_9D7F_7C7BA14A36B0

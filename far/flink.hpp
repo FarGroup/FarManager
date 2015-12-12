@@ -1,13 +1,15 @@
+п»ї#ifndef FLINK_HPP_76B08BB3_29AE_4BCA_B01B_C600603A2996
+#define FLINK_HPP_76B08BB3_29AE_4BCA_B01B_C600603A2996
 #pragma once
 
 /*
 flink.hpp
 
-Заголовочный файл для работы с Hard & SymLink
+Р—Р°РіРѕР»РѕРІРѕС‡РЅС‹Р№ С„Р°Р№Р» РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ Hard & SymLink
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -35,13 +37,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ENUM(ReparsePointTypes)
 {
-	RP_EXACTCOPY,   // для копирования/переноса ссылок, копия существующего
-	RP_HARDLINK,    // жёсткая ссылка
-	RP_JUNCTION,    // связь
-	RP_VOLMOUNT,    // монтированный том
-	RP_SYMLINK, // ссылка, NT>=6
-	RP_SYMLINKFILE, // файл-ссылка, NT>=6
-	RP_SYMLINKDIR,  // каталог-ссылка, NT>=6
+	RP_EXACTCOPY,   // РґР»СЏ РєРѕРїРёСЂРѕРІР°РЅРёСЏ/РїРµСЂРµРЅРѕСЃР° СЃСЃС‹Р»РѕРє, РєРѕРїРёСЏ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµРіРѕ
+	RP_HARDLINK,    // Р¶С‘СЃС‚РєР°СЏ СЃСЃС‹Р»РєР°
+	RP_JUNCTION,    // СЃРІСЏР·СЊ
+	RP_VOLMOUNT,    // РјРѕРЅС‚РёСЂРѕРІР°РЅРЅС‹Р№ С‚РѕРј
+	RP_SYMLINK, // СЃСЃС‹Р»РєР°, NT>=6
+	RP_SYMLINKFILE, // С„Р°Р№Р»-СЃСЃС‹Р»РєР°, NT>=6
+	RP_SYMLINKDIR,  // РєР°С‚Р°Р»РѕРі-СЃСЃС‹Р»РєР°, NT>=6
 };
 
 int MkHardLink(const string& ExistingName,const string& NewName, bool Silent = false);
@@ -61,9 +63,9 @@ bool GetVHDInfo(const string& DeviceName, string &strVolumePath, VIRTUAL_STORAGE
 bool DelSubstDrive(const string& DeviceName);
 void GetPathRoot(const string& Path, string &strRoot);
 
-// перечислятель для EnumNTFSStreams
-// в параметре sid поле cStreamName не актуально, т.к. готовое имя потока
-//    передается в параметре StreamName
+// РїРµСЂРµС‡РёСЃР»СЏС‚РµР»СЊ РґР»СЏ EnumNTFSStreams
+// РІ РїР°СЂР°РјРµС‚СЂРµ sid РїРѕР»Рµ cStreamName РЅРµ Р°РєС‚СѓР°Р»СЊРЅРѕ, С‚.Рє. РіРѕС‚РѕРІРѕРµ РёРјСЏ РїРѕС‚РѕРєР°
+//    РїРµСЂРµРґР°РµС‚СЃСЏ РІ РїР°СЂР°РјРµС‚СЂРµ StreamName
 //typedef BOOL (WINAPI *ENUMFILESTREAMS)(int Idx,const WCHAR *StreamName,const WIN32_STREAM_ID *sid);
 //int WINAPI EnumNTFSStreams(const char *FileName,ENUMFILESTREAMS fpEnum,__int64 *SizeStreams);
 
@@ -74,3 +76,5 @@ bool DuplicateReparsePoint(const string& Src,const string& Dst);
 void NormalizeSymlinkName(string &strLinkName);
 
 int MkSymLink(const string& Target,const string& LinkName, ReparsePointTypes LinkType, bool Silent=false, bool HoldTarget=false);
+
+#endif // FLINK_HPP_76B08BB3_29AE_4BCA_B01B_C600603A2996

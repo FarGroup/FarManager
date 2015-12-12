@@ -1,7 +1,9 @@
+﻿#ifndef SWAPABLE_HPP_681890D0_0B8D_4C94_BB0A_2C6D3281332A
+#define SWAPABLE_HPP_681890D0_0B8D_4C94_BB0A_2C6D3281332A
 #pragma once
 
 /*
-Copyright � 2015 Far Group
+Copyright © 2015 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -35,3 +37,5 @@ struct swapable
 		a.swap(b);
 	}
 };
+
+#endif // SWAPABLE_HPP_681890D0_0B8D_4C94_BB0A_2C6D3281332A

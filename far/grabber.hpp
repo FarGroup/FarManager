@@ -1,3 +1,5 @@
+ï»¿#ifndef GRABBER_HPP_C0A772E7_F4E4_487E_BA04_DE4A8D3AE4B7
+#define GRABBER_HPP_C0A772E7_F4E4_487E_BA04_DE4A8D3AE4B7
 #pragma once
 
 /*
@@ -6,8 +8,8 @@ grabber.hpp
 Screen grabber
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright Â© 1996 Eugene Roshal
+Copyright Â© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -73,3 +75,5 @@ private:
 };
 
 bool RunGraber();
+
+#endif // GRABBER_HPP_C0A772E7_F4E4_487E_BA04_DE4A8D3AE4B7

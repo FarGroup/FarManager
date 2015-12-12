@@ -1,15 +1,17 @@
+п»ї#ifndef TVAR_HPP_684F1D24_C3BA_43F6_9099_C617C30385EE
+#define TVAR_HPP_684F1D24_C3BA_43F6_9099_C617C30385EE
 #pragma once
 
 /*
 tvar.hpp
 
-Реализация класса TVar ("кастрированый" вариант - только целое и строковое значение)
-(для макросов)
+Р РµР°Р»РёР·Р°С†РёСЏ РєР»Р°СЃСЃР° TVar ("РєР°СЃС‚СЂРёСЂРѕРІР°РЅС‹Р№" РІР°СЂРёР°РЅС‚ - С‚РѕР»СЊРєРѕ С†РµР»РѕРµ Рё СЃС‚СЂРѕРєРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ)
+(РґР»СЏ РјР°РєСЂРѕСЃРѕРІ)
 
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -115,3 +117,5 @@ private:
 	mutable string str;
 	TVarType vType;
 };
+
+#endif // TVAR_HPP_684F1D24_C3BA_43F6_9099_C617C30385EE

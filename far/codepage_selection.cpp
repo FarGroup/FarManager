@@ -1,9 +1,9 @@
-/*
+п»ї/*
 codepage_selection.hpp
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -52,11 +52,11 @@ codepages& Codepages()
 	return cp;
 }
 
-// Ключ где хранятся имена кодовых страниц
+// РљР»СЋС‡ РіРґРµ С…СЂР°РЅСЏС‚СЃСЏ РёРјРµРЅР° РєРѕРґРѕРІС‹С… СЃС‚СЂР°РЅРёС†
 static const wchar_t NamesOfCodePagesKey[] = L"CodePages.Names";
 static const wchar_t FavoriteCodePagesKey[] = L"CodePages.Favorites";
 
-// Источник вызова каллбака прохода по кодовым страницам
+// РСЃС‚РѕС‡РЅРёРє РІС‹Р·РѕРІР° РєР°Р»Р»Р±Р°РєР° РїСЂРѕС…РѕРґР° РїРѕ РєРѕРґРѕРІС‹Рј СЃС‚СЂР°РЅРёС†Р°Рј
 ENUM(CodePagesCallbackCallSource)
 {
 	CodePageSelect,
@@ -65,7 +65,7 @@ ENUM(CodePagesCallbackCallSource)
 	CodePageCheck
 };
 
-// Стандартные элементы меню кодовых страниц
+// РЎС‚Р°РЅРґР°СЂС‚РЅС‹Рµ СЌР»РµРјРµРЅС‚С‹ РјРµРЅСЋ РєРѕРґРѕРІС‹С… СЃС‚СЂР°РЅРёС†
 enum StandardCodePagesMenuItems
 {
 	SearchAll = BIT(0), // Find-in-Files dialog
@@ -96,7 +96,7 @@ codepages::codepages():
 codepages::~codepages()
 {}
 
-// Получаем кодовую страницу для элемента в меню
+// РџРѕР»СѓС‡Р°РµРј РєРѕРґРѕРІСѓСЋ СЃС‚СЂР°РЅРёС†Сѓ РґР»СЏ СЌР»РµРјРµРЅС‚Р° РІ РјРµРЅСЋ
 inline uintptr_t codepages::GetMenuItemCodePage(size_t Position)
 {
 	const auto DataPtr = CodePagesMenu->GetUserDataPtr<uintptr_t>(Position);
@@ -109,25 +109,25 @@ inline size_t codepages::GetListItemCodePage(size_t Position)
 	return DataPtr? *DataPtr : 0;
 }
 
-// Проверяем попадает или нет позиция в диапазон стандартных кодовых страниц (правильность работы для разделителей не гарантируется)
+// РџСЂРѕРІРµСЂСЏРµРј РїРѕРїР°РґР°РµС‚ РёР»Рё РЅРµС‚ РїРѕР·РёС†РёСЏ РІ РґРёР°РїР°Р·РѕРЅ СЃС‚Р°РЅРґР°СЂС‚РЅС‹С… РєРѕРґРѕРІС‹С… СЃС‚СЂР°РЅРёС† (РїСЂР°РІРёР»СЊРЅРѕСЃС‚СЊ СЂР°Р±РѕС‚С‹ РґР»СЏ СЂР°Р·РґРµР»РёС‚РµР»РµР№ РЅРµ РіР°СЂР°РЅС‚РёСЂСѓРµС‚СЃСЏ)
 inline bool codepages::IsPositionStandard(UINT position)
 {
 	return position <= (UINT)CodePagesMenu->size() - favoriteCodePages - (favoriteCodePages?1:0) - normalCodePages - (normalCodePages?1:0);
 }
 
-// Проверяем попадает или нет позиция в диапазон избранных кодовых страниц (правильность работы для разделителей не гарантируется)
+// РџСЂРѕРІРµСЂСЏРµРј РїРѕРїР°РґР°РµС‚ РёР»Рё РЅРµС‚ РїРѕР·РёС†РёСЏ РІ РґРёР°РїР°Р·РѕРЅ РёР·Р±СЂР°РЅРЅС‹С… РєРѕРґРѕРІС‹С… СЃС‚СЂР°РЅРёС† (РїСЂР°РІРёР»СЊРЅРѕСЃС‚СЊ СЂР°Р±РѕС‚С‹ РґР»СЏ СЂР°Р·РґРµР»РёС‚РµР»РµР№ РЅРµ РіР°СЂР°РЅС‚РёСЂСѓРµС‚СЃСЏ)
 inline bool codepages::IsPositionFavorite(UINT position)
 {
 	return !IsPositionStandard(position) && !IsPositionNormal(position);
 }
 
-// Проверяем попадает или нет позиция в диапазон обыкновенных кодовых страниц (правильность работы для разделителей не гарантируется)
+// РџСЂРѕРІРµСЂСЏРµРј РїРѕРїР°РґР°РµС‚ РёР»Рё РЅРµС‚ РїРѕР·РёС†РёСЏ РІ РґРёР°РїР°Р·РѕРЅ РѕР±С‹РєРЅРѕРІРµРЅРЅС‹С… РєРѕРґРѕРІС‹С… СЃС‚СЂР°РЅРёС† (РїСЂР°РІРёР»СЊРЅРѕСЃС‚СЊ СЂР°Р±РѕС‚С‹ РґР»СЏ СЂР°Р·РґРµР»РёС‚РµР»РµР№ РЅРµ РіР°СЂР°РЅС‚РёСЂСѓРµС‚СЃСЏ)
 inline bool codepages::IsPositionNormal(UINT position)
 {
 	return position >= static_cast<UINT>(CodePagesMenu->size() - normalCodePages);
 }
 
-// Формируем строку для визуального представления таблицы символов
+// Р¤РѕСЂРјРёСЂСѓРµРј СЃС‚СЂРѕРєСѓ РґР»СЏ РІРёР·СѓР°Р»СЊРЅРѕРіРѕ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёСЏ С‚Р°Р±Р»РёС†С‹ СЃРёРјРІРѕР»РѕРІ
 string codepages::FormatCodePageString(uintptr_t CodePage, const string& CodePageName, bool IsCodePageNameCustom) const
 {
 	string result;
@@ -142,12 +142,12 @@ string codepages::FormatCodePageString(uintptr_t CodePage, const string& CodePag
 	return result;
 }
 
-// Добавляем таблицу символов
+// Р”РѕР±Р°РІР»СЏРµРј С‚Р°Р±Р»РёС†Сѓ СЃРёРјРІРѕР»РѕРІ
 void codepages::AddCodePage(const string& codePageName, uintptr_t codePage, size_t position, bool enabled, bool checked, bool IsCodePageNameCustom)
 {
 	if (CallbackCallSource == CodePagesFill)
 	{
-		// Вычисляем позицию вставляемого элемента
+		// Р’С‹С‡РёСЃР»СЏРµРј РїРѕР·РёС†РёСЋ РІСЃС‚Р°РІР»СЏРµРјРѕРіРѕ СЌР»РµРјРµРЅС‚Р°
 		if (position == size_t(-1))
 		{
 			FarListInfo info = { sizeof(FarListInfo) };
@@ -155,7 +155,7 @@ void codepages::AddCodePage(const string& codePageName, uintptr_t codePage, size
 			position = info.ItemsNumber;
 		}
 
-		// Вставляем элемент
+		// Р’СЃС‚Р°РІР»СЏРµРј СЌР»РµРјРµРЅС‚
 		FarListInsert item = { sizeof(FarListInsert), static_cast<intptr_t>(position) };
 
 		string name = FormatCodePageString(codePage, codePageName, IsCodePageNameCustom);
@@ -176,7 +176,7 @@ void codepages::AddCodePage(const string& codePageName, uintptr_t codePage, size
 	}
 	else if (CallbackCallSource == CodePagesFill2)
 	{
-		// Вставляем элемент
+		// Р’СЃС‚Р°РІР»СЏРµРј СЌР»РµРјРµРЅС‚
 		DialogBuilderListItem2 item;
 
 		item.Text = FormatCodePageString(codePage, codePageName, IsCodePageNameCustom);
@@ -194,7 +194,7 @@ void codepages::AddCodePage(const string& codePageName, uintptr_t codePage, size
 
 		item.ItemValue = static_cast<int>(codePage);
 
-		// Вычисляем позицию вставляемого элемента
+		// Р’С‹С‡РёСЃР»СЏРµРј РїРѕР·РёС†РёСЋ РІСЃС‚Р°РІР»СЏРµРјРѕРіРѕ СЌР»РµРјРµРЅС‚Р°
 		if (position == size_t(-1) || position >= DialogBuilderList->size())
 		{
 			DialogBuilderList->emplace_back(item);
@@ -206,19 +206,19 @@ void codepages::AddCodePage(const string& codePageName, uintptr_t codePage, size
 	}
 	else
 	{
-		// Создаём новый элемент меню
+		// РЎРѕР·РґР°С‘Рј РЅРѕРІС‹Р№ СЌР»РµРјРµРЅС‚ РјРµРЅСЋ
 		MenuItemEx item(FormatCodePageString(codePage, codePageName, IsCodePageNameCustom));
 		if (!enabled)
 			item.Flags |= MIF_GRAYED;
 		item.UserData = codePage;
 
-		// Добавляем новый элемент в меню
+		// Р”РѕР±Р°РІР»СЏРµРј РЅРѕРІС‹Р№ СЌР»РµРјРµРЅС‚ РІ РјРµРЅСЋ
 		if (position == size_t(-1))
 			CodePagesMenu->AddItem(item);
 		else
 			CodePagesMenu->AddItem(item, static_cast<int>(position));
 
-		// Если надо позиционируем курсор на добавленный элемент
+		// Р•СЃР»Рё РЅР°РґРѕ РїРѕР·РёС†РёРѕРЅРёСЂСѓРµРј РєСѓСЂСЃРѕСЂ РЅР° РґРѕР±Р°РІР»РµРЅРЅС‹Р№ СЌР»РµРјРµРЅС‚
 		if (currentCodePage == codePage)
 		{
 			if ((CodePagesMenu->GetSelectPos() == -1 || GetMenuItemCodePage() != codePage))
@@ -229,7 +229,7 @@ void codepages::AddCodePage(const string& codePageName, uintptr_t codePage, size
 	}
 }
 
-// Добавляем стандартную таблицу символов
+// Р”РѕР±Р°РІР»СЏРµРј СЃС‚Р°РЅРґР°СЂС‚РЅСѓСЋ С‚Р°Р±Р»РёС†Сѓ СЃРёРјРІРѕР»РѕРІ
 void codepages::AddStandardCodePage(const wchar_t *codePageName, uintptr_t codePage, int position, bool enabled)
 {
 	bool checked = false;
@@ -243,7 +243,7 @@ void codepages::AddStandardCodePage(const wchar_t *codePageName, uintptr_t codeP
 	AddCodePage(codePageName, codePage, position, enabled, checked, false);
 }
 
-// Добавляем разделитель
+// Р”РѕР±Р°РІР»СЏРµРј СЂР°Р·РґРµР»РёС‚РµР»СЊ
 void codepages::AddSeparator(LPCWSTR Label, size_t position)
 {
 	if (CallbackCallSource == CodePagesFill)
@@ -262,13 +262,13 @@ void codepages::AddSeparator(LPCWSTR Label, size_t position)
 	}
 	else if (CallbackCallSource == CodePagesFill2)
 	{
-		// Вставляем элемент
+		// Р’СЃС‚Р°РІР»СЏРµРј СЌР»РµРјРµРЅС‚
 		DialogBuilderListItem2 item;
 		item.Text = Label;
 		item.Flags = LIF_SEPARATOR;
 		item.ItemValue = 0;
 
-		// Вычисляем позицию вставляемого элемента
+		// Р’С‹С‡РёСЃР»СЏРµРј РїРѕР·РёС†РёСЋ РІСЃС‚Р°РІР»СЏРµРјРѕРіРѕ СЌР»РµРјРµРЅС‚Р°
 		if (position == size_t(-1) || position >= DialogBuilderList->size())
 		{
 			DialogBuilderList->emplace_back(item);
@@ -291,7 +291,7 @@ void codepages::AddSeparator(LPCWSTR Label, size_t position)
 	}
 }
 
-// Получаем количество элементов в списке
+// РџРѕР»СѓС‡Р°РµРј РєРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РІ СЃРїРёСЃРєРµ
 size_t codepages::size() const
 {
 	if (CallbackCallSource == CodePageSelect)
@@ -310,7 +310,7 @@ size_t codepages::size() const
 	}
 }
 
-// Получаем позицию для вставки таблицы с учётом сортировки по номеру кодовой страницы
+// РџРѕР»СѓС‡Р°РµРј РїРѕР·РёС†РёСЋ РґР»СЏ РІСЃС‚Р°РІРєРё С‚Р°Р±Р»РёС†С‹ СЃ СѓС‡С‘С‚РѕРј СЃРѕСЂС‚РёСЂРѕРІРєРё РїРѕ РЅРѕРјРµСЂСѓ РєРѕРґРѕРІРѕР№ СЃС‚СЂР°РЅРёС†С‹
 size_t codepages::GetCodePageInsertPosition(uintptr_t codePage, size_t start, size_t length)
 {
 	const auto GetCodePage = [this](size_t position) -> uintptr_t
@@ -327,7 +327,7 @@ size_t codepages::GetCodePageInsertPosition(uintptr_t codePage, size_t start, si
 	return *std::find_if(CONST_RANGE(iRange, i) { return GetCodePage(i) >= codePage; });
 }
 
-// Добавляем все необходимые таблицы символов
+// Р”РѕР±Р°РІР»СЏРµРј РІСЃРµ РЅРµРѕР±С…РѕРґРёРјС‹Рµ С‚Р°Р±Р»РёС†С‹ СЃРёРјРІРѕР»РѕРІ
 void codepages::AddCodePages(DWORD codePages)
 {
 	// default & re-detect
@@ -378,14 +378,14 @@ void codepages::AddCodePages(DWORD codePages)
 
 		long long selectType = GetFavorite(cp);
 
-		// Добавляем таблицу символов либо в нормальные, либо в выбранные таблицы символов
+		// Р”РѕР±Р°РІР»СЏРµРј С‚Р°Р±Р»РёС†Сѓ СЃРёРјРІРѕР»РѕРІ Р»РёР±Рѕ РІ РЅРѕСЂРјР°Р»СЊРЅС‹Рµ, Р»РёР±Рѕ РІ РІС‹Р±СЂР°РЅРЅС‹Рµ С‚Р°Р±Р»РёС†С‹ СЃРёРјРІРѕР»РѕРІ
 		if (selectType & CPST_FAVORITE)
 		{
-			// Если надо добавляем разделитель между выбранными и нормальными таблицами символов
+			// Р•СЃР»Рё РЅР°РґРѕ РґРѕР±Р°РІР»СЏРµРј СЂР°Р·РґРµР»РёС‚РµР»СЊ РјРµР¶РґСѓ РІС‹Р±СЂР°РЅРЅС‹РјРё Рё РЅРѕСЂРјР°Р»СЊРЅС‹РјРё С‚Р°Р±Р»РёС†Р°РјРё СЃРёРјРІРѕР»РѕРІ
 			if (!favoriteCodePages)
 				AddSeparator(MSG(MGetCodePageFavorites), size() - normalCodePages - (normalCodePages?1:0));
 
-			// Добавляем таблицу символов в выбранные
+			// Р”РѕР±Р°РІР»СЏРµРј С‚Р°Р±Р»РёС†Сѓ СЃРёРјРІРѕР»РѕРІ РІ РІС‹Р±СЂР°РЅРЅС‹Рµ
 			AddCodePage(
 				CodepageName, cp,
 				GetCodePageInsertPosition(
@@ -393,28 +393,28 @@ void codepages::AddCodePages(DWORD codePages)
 				),
 				true, (selectType & CPST_FIND) != 0, IsCodePageNameCustom
 				);
-			// Увеличиваем счётчик выбранных таблиц символов
+			// РЈРІРµР»РёС‡РёРІР°РµРј СЃС‡С‘С‚С‡РёРє РІС‹Р±СЂР°РЅРЅС‹С… С‚Р°Р±Р»РёС† СЃРёРјРІРѕР»РѕРІ
 			favoriteCodePages++;
 		}
 		else if (CallbackCallSource == CodePagesFill || CallbackCallSource == CodePagesFill2 || !Global->Opt->CPMenuMode)
 		{
-			// добавляем разделитель между стандартными и системными таблицами символов
+			// РґРѕР±Р°РІР»СЏРµРј СЂР°Р·РґРµР»РёС‚РµР»СЊ РјРµР¶РґСѓ СЃС‚Р°РЅРґР°СЂС‚РЅС‹РјРё Рё СЃРёСЃС‚РµРјРЅС‹РјРё С‚Р°Р±Р»РёС†Р°РјРё СЃРёРјРІРѕР»РѕРІ
 			if (!normalCodePages)
 				AddSeparator(MSG(MGetCodePageOther));
 
-			// Добавляем таблицу символов в нормальные
+			// Р”РѕР±Р°РІР»СЏРµРј С‚Р°Р±Р»РёС†Сѓ СЃРёРјРІРѕР»РѕРІ РІ РЅРѕСЂРјР°Р»СЊРЅС‹Рµ
 			AddCodePage(
 				CodepageName, cp,
 				GetCodePageInsertPosition(cp, size() - normalCodePages, normalCodePages),
 				true, (selectType & CPST_FIND) != 0, IsCodePageNameCustom
 				);
-			// Увеличиваем счётчик выбранных таблиц символов
+			// РЈРІРµР»РёС‡РёРІР°РµРј СЃС‡С‘С‚С‡РёРє РІС‹Р±СЂР°РЅРЅС‹С… С‚Р°Р±Р»РёС† СЃРёРјРІРѕР»РѕРІ
 			normalCodePages++;
 		}
 	}
 }
 
-// Обработка добавления/удаления в/из список выбранных таблиц символов
+// РћР±СЂР°Р±РѕС‚РєР° РґРѕР±Р°РІР»РµРЅРёСЏ/СѓРґР°Р»РµРЅРёСЏ РІ/РёР· СЃРїРёСЃРѕРє РІС‹Р±СЂР°РЅРЅС‹С… С‚Р°Р±Р»РёС† СЃРёРјРІРѕР»РѕРІ
 void codepages::SetFavorite(bool State)
 {
 	if (Global->Opt->CPMenuMode && State)
@@ -425,10 +425,10 @@ void codepages::SetFavorite(bool State)
 
 	if ((State && IsPositionNormal(itemPosition)) || (!State && IsPositionFavorite(itemPosition)))
 	{
-		// Получаем текущее состояние флага в реестре
+		// РџРѕР»СѓС‡Р°РµРј С‚РµРєСѓС‰РµРµ СЃРѕСЃС‚РѕСЏРЅРёРµ С„Р»Р°РіР° РІ СЂРµРµСЃС‚СЂРµ
 		long long selectType = GetFavorite(codePage);
 
-		// Удаляем/добавляем в реестре информацию о выбранной кодовой странице
+		// РЈРґР°Р»СЏРµРј/РґРѕР±Р°РІР»СЏРµРј РІ СЂРµРµСЃС‚СЂРµ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РІС‹Р±СЂР°РЅРЅРѕР№ РєРѕРґРѕРІРѕР№ СЃС‚СЂР°РЅРёС†Рµ
 		if (State)
 			SetFavorite(codePage, CPST_FAVORITE | (selectType & CPST_FIND ? CPST_FIND : 0));
 		else if (selectType & CPST_FIND)
@@ -436,55 +436,55 @@ void codepages::SetFavorite(bool State)
 		else
 			DeleteFavorite(codePage);
 
-		// Создаём новый элемент меню
+		// РЎРѕР·РґР°С‘Рј РЅРѕРІС‹Р№ СЌР»РµРјРµРЅС‚ РјРµРЅСЋ
 		MenuItemEx newItem(CodePagesMenu->current().strName);
 		newItem.UserData = codePage;
-		// Сохраняем позицию курсора
+		// РЎРѕС…СЂР°РЅСЏРµРј РїРѕР·РёС†РёСЋ РєСѓСЂСЃРѕСЂР°
 		size_t position = CodePagesMenu->GetSelectPos();
-		// Удаляем старый пункт меню
+		// РЈРґР°Р»СЏРµРј СЃС‚Р°СЂС‹Р№ РїСѓРЅРєС‚ РјРµРЅСЋ
 		CodePagesMenu->DeleteItem(CodePagesMenu->GetSelectPos());
 
-		// Добавляем пункт меню в новое место
+		// Р”РѕР±Р°РІР»СЏРµРј РїСѓРЅРєС‚ РјРµРЅСЋ РІ РЅРѕРІРѕРµ РјРµСЃС‚Рѕ
 		if (State)
 		{
-			// Добавляем разделитель, если выбранных кодовых страниц ещё не было
-			// и после добавления останутся нормальные кодовые страницы
+			// Р”РѕР±Р°РІР»СЏРµРј СЂР°Р·РґРµР»РёС‚РµР»СЊ, РµСЃР»Рё РІС‹Р±СЂР°РЅРЅС‹С… РєРѕРґРѕРІС‹С… СЃС‚СЂР°РЅРёС† РµС‰С‘ РЅРµ Р±С‹Р»Рѕ
+			// Рё РїРѕСЃР»Рµ РґРѕР±Р°РІР»РµРЅРёСЏ РѕСЃС‚Р°РЅСѓС‚СЃСЏ РЅРѕСЂРјР°Р»СЊРЅС‹Рµ РєРѕРґРѕРІС‹Рµ СЃС‚СЂР°РЅРёС†С‹
 			if (!favoriteCodePages && normalCodePages>1)
 				AddSeparator(MSG(MGetCodePageFavorites), CodePagesMenu->size() - normalCodePages);
 
-			// Ищем позицию, куда добавить элемент
+			// РС‰РµРј РїРѕР·РёС†РёСЋ, РєСѓРґР° РґРѕР±Р°РІРёС‚СЊ СЌР»РµРјРµРЅС‚
 			const auto newPosition = GetCodePageInsertPosition(
 				codePage,
 				CodePagesMenu->size() - normalCodePages - favoriteCodePages,
 				favoriteCodePages
 				);
-			// Добавляем кодовою страницу в выбранные
+			// Р”РѕР±Р°РІР»СЏРµРј РєРѕРґРѕРІРѕСЋ СЃС‚СЂР°РЅРёС†Сѓ РІ РІС‹Р±СЂР°РЅРЅС‹Рµ
 			CodePagesMenu->AddItem(newItem, static_cast<int>(newPosition));
 
-			// Удаляем разделитель, если нет обыкновенных кодовых страниц
+			// РЈРґР°Р»СЏРµРј СЂР°Р·РґРµР»РёС‚РµР»СЊ, РµСЃР»Рё РЅРµС‚ РѕР±С‹РєРЅРѕРІРµРЅРЅС‹С… РєРѕРґРѕРІС‹С… СЃС‚СЂР°РЅРёС†
 			if (normalCodePages == 1)
 				CodePagesMenu->DeleteItem(static_cast<int>(CodePagesMenu->size() - 1));
 
-			// Изменяем счётчики нормальных и выбранных кодовых страниц
+			// РР·РјРµРЅСЏРµРј СЃС‡С‘С‚С‡РёРєРё РЅРѕСЂРјР°Р»СЊРЅС‹С… Рё РІС‹Р±СЂР°РЅРЅС‹С… РєРѕРґРѕРІС‹С… СЃС‚СЂР°РЅРёС†
 			favoriteCodePages++;
 			normalCodePages--;
 			position++;
 		}
 		else
 		{
-			// Удаляем разделитель, если после удаления не останется ни одной
-			// выбранной таблицы символов
+			// РЈРґР°Р»СЏРµРј СЂР°Р·РґРµР»РёС‚РµР»СЊ, РµСЃР»Рё РїРѕСЃР»Рµ СѓРґР°Р»РµРЅРёСЏ РЅРµ РѕСЃС‚Р°РЅРµС‚СЃСЏ РЅРё РѕРґРЅРѕР№
+			// РІС‹Р±СЂР°РЅРЅРѕР№ С‚Р°Р±Р»РёС†С‹ СЃРёРјРІРѕР»РѕРІ
 			if (favoriteCodePages == 1 && normalCodePages>0)
 				CodePagesMenu->DeleteItem(static_cast<int>(CodePagesMenu->size() - normalCodePages - 2));
 
-			// Переносим элемент в нормальные таблицы, только если они показываются
+			// РџРµСЂРµРЅРѕСЃРёРј СЌР»РµРјРµРЅС‚ РІ РЅРѕСЂРјР°Р»СЊРЅС‹Рµ С‚Р°Р±Р»РёС†С‹, С‚РѕР»СЊРєРѕ РµСЃР»Рё РѕРЅРё РїРѕРєР°Р·С‹РІР°СЋС‚СЃСЏ
 			if (!Global->Opt->CPMenuMode)
 			{
-				// Добавляем разделитель, если не было ни одной нормальной кодовой страницы
+				// Р”РѕР±Р°РІР»СЏРµРј СЂР°Р·РґРµР»РёС‚РµР»СЊ, РµСЃР»Рё РЅРµ Р±С‹Р»Рѕ РЅРё РѕРґРЅРѕР№ РЅРѕСЂРјР°Р»СЊРЅРѕР№ РєРѕРґРѕРІРѕР№ СЃС‚СЂР°РЅРёС†С‹
 				if (!normalCodePages)
 					AddSeparator(MSG(MGetCodePageOther));
 
-				// Добавляем кодовою страницу в нормальные
+				// Р”РѕР±Р°РІР»СЏРµРј РєРѕРґРѕРІРѕСЋ СЃС‚СЂР°РЅРёС†Сѓ РІ РЅРѕСЂРјР°Р»СЊРЅС‹Рµ
 				CodePagesMenu->AddItem(
 					newItem,
 					static_cast<int>(GetCodePageInsertPosition(
@@ -495,7 +495,7 @@ void codepages::SetFavorite(bool State)
 					);
 				normalCodePages++;
 			}
-			// Если в режиме скрытия нормальных таблиц мы удалили последнюю выбранную таблицу, то удаляем и разделитель
+			// Р•СЃР»Рё РІ СЂРµР¶РёРјРµ СЃРєСЂС‹С‚РёСЏ РЅРѕСЂРјР°Р»СЊРЅС‹С… С‚Р°Р±Р»РёС† РјС‹ СѓРґР°Р»РёР»Рё РїРѕСЃР»РµРґРЅСЋСЋ РІС‹Р±СЂР°РЅРЅСѓСЋ С‚Р°Р±Р»РёС†Сѓ, С‚Рѕ СѓРґР°Р»СЏРµРј Рё СЂР°Р·РґРµР»РёС‚РµР»СЊ
 			else if (favoriteCodePages == 1)
 				CodePagesMenu->DeleteItem(static_cast<int>(CodePagesMenu->size() - normalCodePages - 1));
 
@@ -505,16 +505,16 @@ void codepages::SetFavorite(bool State)
 				position--;
 		}
 
-		// Устанавливаем позицию в меню
+		// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїРѕР·РёС†РёСЋ РІ РјРµРЅСЋ
 		CodePagesMenu->SetSelectPos(static_cast<int>(position >= CodePagesMenu->size()? CodePagesMenu->size() - 1 : position), 1);
 
-		// Показываем меню
+		// РџРѕРєР°Р·С‹РІР°РµРј РјРµРЅСЋ
 		if (Global->Opt->CPMenuMode)
 			CodePagesMenu->SetPosition(-1, -1, 0, 0);
 	}
 }
 
-// Заполняем меню выбора таблиц символов
+// Р—Р°РїРѕР»РЅСЏРµРј РјРµРЅСЋ РІС‹Р±РѕСЂР° С‚Р°Р±Р»РёС† СЃРёРјРІРѕР»РѕРІ
 void codepages::FillCodePagesVMenu(bool bShowUnicode, bool bViewOnly, bool bShowAutoDetect)
 {
 	uintptr_t codePage = currentCodePage;
@@ -522,7 +522,7 @@ void codepages::FillCodePagesVMenu(bool bShowUnicode, bool bViewOnly, bool bShow
 	if (CodePagesMenu->GetSelectPos() != -1 && static_cast<size_t>(CodePagesMenu->GetSelectPos()) < CodePagesMenu->size() - normalCodePages)
 		currentCodePage = GetMenuItemCodePage();
 
-	// Очищаем меню
+	// РћС‡РёС‰Р°РµРј РјРµРЅСЋ
 	favoriteCodePages = normalCodePages = 0;
 	CodePagesMenu->clear();
 
@@ -531,33 +531,33 @@ void codepages::FillCodePagesVMenu(bool bShowUnicode, bool bViewOnly, bool bShow
 		title += L" *";
 	CodePagesMenu->SetTitle(title);
 
-	// Добавляем таблицы символов
+	// Р”РѕР±Р°РІР»СЏРµРј С‚Р°Р±Р»РёС†С‹ СЃРёРјРІРѕР»РѕРІ
 	AddCodePages(::OEM | ::ANSI | ::UTF8
 		| (bShowUnicode ? (::UTF16BE | ::UTF16LE) : 0)
 		| (bViewOnly ? ::VOnly : 0)
 		| (bShowAutoDetect ? ::AutoCP : 0)
 		);
-	// Восстанавливаем оригинальную таблицу символов
+	// Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµРј РѕСЂРёРіРёРЅР°Р»СЊРЅСѓСЋ С‚Р°Р±Р»РёС†Сѓ СЃРёРјРІРѕР»РѕРІ
 	currentCodePage = codePage;
-	// Позиционируем меню
+	// РџРѕР·РёС†РёРѕРЅРёСЂСѓРµРј РјРµРЅСЋ
 	CodePagesMenu->SetPosition(-1, -1, 0, 0);
-	// Показываем меню
+	// РџРѕРєР°Р·С‹РІР°РµРј РјРµРЅСЋ
 }
 
-// Форматируем имя таблицы символов
+// Р¤РѕСЂРјР°С‚РёСЂСѓРµРј РёРјСЏ С‚Р°Р±Р»РёС†С‹ СЃРёРјРІРѕР»РѕРІ
 string& codepages::FormatCodePageName(uintptr_t CodePage, string& CodePageName) const
 {
 	bool IsCodePageNameCustom;
 	return FormatCodePageName(CodePage, CodePageName, IsCodePageNameCustom);
 }
 
-// Форматируем имя таблицы символов
+// Р¤РѕСЂРјР°С‚РёСЂСѓРµРј РёРјСЏ С‚Р°Р±Р»РёС†С‹ СЃРёРјРІРѕР»РѕРІ
 string& codepages::FormatCodePageName(uintptr_t CodePage, string& CodePageName, bool &IsCodePageNameCustom) const
 {
 	string strCodePage = std::to_wstring(CodePage);
 	string CurrentCodePageName;
 
-	// Пытаемся получить заданное пользователем имя таблицы символов
+	// РџС‹С‚Р°РµРјСЃСЏ РїРѕР»СѓС‡РёС‚СЊ Р·Р°РґР°РЅРЅРѕРµ РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј РёРјСЏ С‚Р°Р±Р»РёС†С‹ СЃРёРјРІРѕР»РѕРІ
 	if (ConfigProvider().GeneralCfg()->GetValue(NamesOfCodePagesKey, strCodePage, CurrentCodePageName, L""))
 	{
 		IsCodePageNameCustom = true;
@@ -575,7 +575,7 @@ string& codepages::FormatCodePageName(uintptr_t CodePage, string& CodePageName, 
 	return CodePageName;
 }
 
-// Номера контролов диалога редактирования имени кодовой страницы
+// РќРѕРјРµСЂР° РєРѕРЅС‚СЂРѕР»РѕРІ РґРёР°Р»РѕРіР° СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ РёРјРµРЅРё РєРѕРґРѕРІРѕР№ СЃС‚СЂР°РЅРёС†С‹
 enum EditCodePagesDialogControls
 {
 	EDITCP_BORDER,
@@ -586,7 +586,7 @@ enum EditCodePagesDialogControls
 	EDITCP_RESET,
 };
 
-// Каллбак для диалога редактирования имени кодовой страницы
+// РљР°Р»Р»Р±Р°Рє РґР»СЏ РґРёР°Р»РѕРіР° СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ РёРјРµРЅРё РєРѕРґРѕРІРѕР№ СЃС‚СЂР°РЅРёС†С‹
 intptr_t codepages::EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	if (Msg == DN_CLOSE)
@@ -601,21 +601,21 @@ intptr_t codepages::EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 			{
 				strCodePageName = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EDITCP_EDIT, nullptr));
 			}
-			// Если имя кодовой страницы пустое, то считаем, что имя не задано
+			// Р•СЃР»Рё РёРјСЏ РєРѕРґРѕРІРѕР№ СЃС‚СЂР°РЅРёС†С‹ РїСѓСЃС‚РѕРµ, С‚Рѕ СЃС‡РёС‚Р°РµРј, С‡С‚Рѕ РёРјСЏ РЅРµ Р·Р°РґР°РЅРѕ
 			if (strCodePageName.empty())
 				ConfigProvider().GeneralCfg()->DeleteValue(NamesOfCodePagesKey, strCodePage);
 			else
 				ConfigProvider().GeneralCfg()->SetValue(NamesOfCodePagesKey, strCodePage, strCodePageName);
-			// Получаем информацию о кодовой странице
+			// РџРѕР»СѓС‡Р°РµРј РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РєРѕРґРѕРІРѕР№ СЃС‚СЂР°РЅРёС†Рµ
 			string CodepageName;
 			UINT len = 0;
 			std::tie(len, CodepageName) = GetCodePageInfo(static_cast<UINT>(CodePage));
 			if (len)
 			{
-				// Формируем имя таблиц символов
+				// Р¤РѕСЂРјРёСЂСѓРµРј РёРјСЏ С‚Р°Р±Р»РёС† СЃРёРјРІРѕР»РѕРІ
 				bool IsCodePageNameCustom = false;
 				FormatCodePageName(CodePage, CodepageName, IsCodePageNameCustom);
-				// Обновляем имя кодовой страницы
+				// РћР±РЅРѕРІР»СЏРµРј РёРјСЏ РєРѕРґРѕРІРѕР№ СЃС‚СЂР°РЅРёС†С‹
 				int Position = CodePagesMenu->GetSelectPos();
 				CodePagesMenu->DeleteItem(Position);
 				MenuItemEx NewItem(FormatCodePageString(CodePage, CodepageName, IsCodePageNameCustom));
@@ -628,7 +628,7 @@ intptr_t codepages::EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 	return Dlg->DefProc(Msg, Param1, Param2);
 }
 
-// Вызов редактора имени кодовой страницы
+// Р’С‹Р·РѕРІ СЂРµРґР°РєС‚РѕСЂР° РёРјРµРЅРё РєРѕРґРѕРІРѕР№ СЃС‚СЂР°РЅРёС†С‹
 void codepages::EditCodePageName()
 {
 	UINT Position = CodePagesMenu->GetSelectPos();
@@ -660,41 +660,41 @@ bool codepages::SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bVie
 	bool Result = false;
 	CallbackCallSource = CodePageSelect;
 	currentCodePage = CodePage;
-	// Создаём меню
+	// РЎРѕР·РґР°С‘Рј РјРµРЅСЋ
 	CodePagesMenu = VMenu2::create(L"", nullptr, 0, ScrY - 4);
 	CodePagesMenu->SetBottomTitle(MSG(!Global->Opt->CPMenuMode?MGetCodePageBottomTitle:MGetCodePageBottomShortTitle));
 	CodePagesMenu->SetMenuFlags(VMENU_WRAPMODE | VMENU_AUTOHIGHLIGHT);
 	CodePagesMenu->SetHelp(L"CodePagesMenu");
 	CodePagesMenu->SetId(CodePagesMenuId);
-	// Добавляем таблицы символов
+	// Р”РѕР±Р°РІР»СЏРµРј С‚Р°Р±Р»РёС†С‹ СЃРёРјРІРѕР»РѕРІ
 	FillCodePagesVMenu(bShowUnicode, bViewOnly, bShowAutoDetect);
-	// Показываем меню
+	// РџРѕРєР°Р·С‹РІР°РµРј РјРµРЅСЋ
 
-	// Цикл обработки сообщений меню
+	// Р¦РёРєР» РѕР±СЂР°Р±РѕС‚РєРё СЃРѕРѕР±С‰РµРЅРёР№ РјРµРЅСЋ
 	intptr_t r = CodePagesMenu->Run([&](const Manager::Key& RawKey)->int
 	{
 		const auto ReadKey = RawKey.FarKey();
 		int KeyProcessed = 1;
 		switch (ReadKey)
 		{
-			// Обработка скрытия/показа системных таблиц символов
+			// РћР±СЂР°Р±РѕС‚РєР° СЃРєСЂС‹С‚РёСЏ/РїРѕРєР°Р·Р° СЃРёСЃС‚РµРјРЅС‹С… С‚Р°Р±Р»РёС† СЃРёРјРІРѕР»РѕРІ
 		case KEY_CTRLH:
 		case KEY_RCTRLH:
 			Global->Opt->CPMenuMode = !Global->Opt->CPMenuMode;
 			CodePagesMenu->SetBottomTitle(MSG(!Global->Opt->CPMenuMode?MGetCodePageBottomTitle:MGetCodePageBottomShortTitle));
 			FillCodePagesVMenu(bShowUnicode, bViewOnly, bShowAutoDetect);
 			break;
-			// Обработка удаления таблицы символов из списка выбранных
+			// РћР±СЂР°Р±РѕС‚РєР° СѓРґР°Р»РµРЅРёСЏ С‚Р°Р±Р»РёС†С‹ СЃРёРјРІРѕР»РѕРІ РёР· СЃРїРёСЃРєР° РІС‹Р±СЂР°РЅРЅС‹С…
 		case KEY_DEL:
 		case KEY_NUMDEL:
 			SetFavorite(false);
 			break;
-			// Обработка добавления таблицы символов в список выбранных
+			// РћР±СЂР°Р±РѕС‚РєР° РґРѕР±Р°РІР»РµРЅРёСЏ С‚Р°Р±Р»РёС†С‹ СЃРёРјРІРѕР»РѕРІ РІ СЃРїРёСЃРѕРє РІС‹Р±СЂР°РЅРЅС‹С…
 		case KEY_INS:
 		case KEY_NUMPAD0:
 			SetFavorite(true);
 			break;
-			// Редактируем имя таблицы символов
+			// Р РµРґР°РєС‚РёСЂСѓРµРј РёРјСЏ С‚Р°Р±Р»РёС†С‹ СЃРёРјРІРѕР»РѕРІ
 		case KEY_F4:
 			EditCodePageName();
 			break;
@@ -704,7 +704,7 @@ bool codepages::SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bVie
 		return KeyProcessed;
 	});
 
-	// Получаем выбранную таблицу символов
+	// РџРѕР»СѓС‡Р°РµРј РІС‹Р±СЂР°РЅРЅСѓСЋ С‚Р°Р±Р»РёС†Сѓ СЃРёРјРІРѕР»РѕРІ
 	if (r >= 0)
 	{
 		CodePage = GetMenuItemCodePage();
@@ -714,15 +714,15 @@ bool codepages::SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bVie
 	return Result;
 }
 
-// Заполняем список таблицами символов
+// Р—Р°РїРѕР»РЅСЏРµРј СЃРїРёСЃРѕРє С‚Р°Р±Р»РёС†Р°РјРё СЃРёРјРІРѕР»РѕРІ
 void codepages::FillCodePagesList(std::vector<DialogBuilderListItem2> &List, bool allowAuto, bool allowAll, bool allowDefault, bool allowChecked, bool bViewOnly)
 {
 	CallbackCallSource = CodePagesFill2;
-	// Устанавливаем переменные для доступа из каллбака
+	// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїРµСЂРµРјРµРЅРЅС‹Рµ РґР»СЏ РґРѕСЃС‚СѓРїР° РёР· РєР°Р»Р»Р±Р°РєР°
 	DialogBuilderList = &List;
 	favoriteCodePages = normalCodePages = 0;
 	selectedCodePages = allowChecked;
-	// Добавляем стандартные элементы в список
+	// Р”РѕР±Р°РІР»СЏРµРј СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рµ СЌР»РµРјРµРЅС‚С‹ РІ СЃРїРёСЃРѕРє
 	AddCodePages
 		((allowDefault ? ::DefaultCP : 0)
 		| (allowAuto ? ::AutoCP : 0)
@@ -734,17 +734,17 @@ void codepages::FillCodePagesList(std::vector<DialogBuilderListItem2> &List, boo
 }
 
 
-// Заполняем список таблицами символов
+// Р—Р°РїРѕР»РЅСЏРµРј СЃРїРёСЃРѕРє С‚Р°Р±Р»РёС†Р°РјРё СЃРёРјРІРѕР»РѕРІ
 UINT codepages::FillCodePagesList(Dialog* Dlg, UINT controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault, bool allowChecked, bool bViewOnly)
 {
 	CallbackCallSource = CodePagesFill;
-	// Устанавливаем переменные для доступа из каллбака
+	// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїРµСЂРµРјРµРЅРЅС‹Рµ РґР»СЏ РґРѕСЃС‚СѓРїР° РёР· РєР°Р»Р»Р±Р°РєР°
 	dialog = Dlg;
 	control = controlId;
 	currentCodePage = codePage;
 	favoriteCodePages = normalCodePages = 0;
 	selectedCodePages = allowChecked;
-	// Добавляем стандартные элементы в список
+	// Р”РѕР±Р°РІР»СЏРµРј СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рµ СЌР»РµРјРµРЅС‚С‹ РІ СЃРїРёСЃРѕРє
 	AddCodePages
 		((allowDefault ? ::DefaultCP : 0)
 		| (allowAuto ? ::AutoCP : 0)
@@ -755,7 +755,7 @@ UINT codepages::FillCodePagesList(Dialog* Dlg, UINT controlId, uintptr_t codePag
 
 	if (CallbackCallSource == CodePagesFill)
 	{
-		// Если надо выбираем элемент
+		// Р•СЃР»Рё РЅР°РґРѕ РІС‹Р±РёСЂР°РµРј СЌР»РµРјРµРЅС‚
 		FarListInfo info = { sizeof(FarListInfo) };
 		Dlg->SendMessage(DM_LISTINFO, control, &info);
 
@@ -773,7 +773,7 @@ UINT codepages::FillCodePagesList(Dialog* Dlg, UINT controlId, uintptr_t codePag
 		}
 	}
 
-	// Возвращаем число избранных таблиц символов
+	// Р’РѕР·РІСЂР°С‰Р°РµРј С‡РёСЃР»Рѕ РёР·Р±СЂР°РЅРЅС‹С… С‚Р°Р±Р»РёС† СЃРёРјРІРѕР»РѕРІ
 	return favoriteCodePages;
 }
 

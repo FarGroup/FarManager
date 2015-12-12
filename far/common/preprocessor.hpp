@@ -1,7 +1,9 @@
+﻿#ifndef PREPROCESSOR_HPP_35FF3F1D_40F4_4741_9366_6A0723C14CBB
+#define PREPROCESSOR_HPP_35FF3F1D_40F4_4741_9366_6A0723C14CBB
 #pragma once
 
 /*
-Copyright � 2014 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -103,3 +105,5 @@ const RAII_type ADD_SUFFIX(scoped_object_, __LINE__)
 
 #define STR(x) #x
 #define WSTR(x) L###x
+
+#endif // PREPROCESSOR_HPP_35FF3F1D_40F4_4741_9366_6A0723C14CBB

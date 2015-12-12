@@ -1,13 +1,15 @@
+п»ї#ifndef EDITOR_HPP_79DE09D5_8F9C_467E_A3BF_8E1BB34E4BD3
+#define EDITOR_HPP_79DE09D5_8F9C_467E_A3BF_8E1BB34E4BD3
 #pragma once
 
 /*
 editor.hpp
 
-Редактор
+Р РµРґР°РєС‚РѕСЂ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -101,8 +103,8 @@ public:
 	bool GetSearchRegexp() const { return EdOpt.SearchRegexp; }
 	void SetShowWhiteSpace(int NewMode);
 	void GetSavePosMode(int &SavePos, int &SaveShortPos) const;
-	// передавайте в качестве значения параметра "-1" для параметра,
-	// который не нужно менять
+	// РїРµСЂРµРґР°РІР°Р№С‚Рµ РІ РєР°С‡РµСЃС‚РІРµ Р·РЅР°С‡РµРЅРёСЏ РїР°СЂР°РјРµС‚СЂР° "-1" РґР»СЏ РїР°СЂР°РјРµС‚СЂР°,
+	// РєРѕС‚РѕСЂС‹Р№ РЅРµ РЅСѓР¶РЅРѕ РјРµРЅСЏС‚СЊ
 	void SetSavePosMode(int SavePos, int SaveShortPos);
 	void GetRowCol(const string& argv, int& row, int& col);
 	int GetLineCurPos() const;
@@ -319,7 +321,7 @@ private:
 	void BeginStreamMarking(const numbered_iterator& Where);
 	void BeginVBlockMarking(const numbered_iterator& Where);
 
-	// Младший байт (маска 0xFF) юзается классом ScreenObject!!!
+	// РњР»Р°РґС€РёР№ Р±Р°Р№С‚ (РјР°СЃРєР° 0xFF) СЋР·Р°РµС‚СЃСЏ РєР»Р°СЃСЃРѕРј ScreenObject!!!
 	enum editor_flags
 	{
 		FEDITOR_MODIFIED = BIT(8),
@@ -329,12 +331,12 @@ private:
 		FEDITOR_OVERTYPE = BIT(12),
 		FEDITOR_NEWUNDO = BIT(13),
 		FEDITOR_UNDOSAVEPOSLOST = BIT(14),
-		FEDITOR_DISABLEUNDO = BIT(15),   // возможно процесс Undo уже идет?
+		FEDITOR_DISABLEUNDO = BIT(15),   // РІРѕР·РјРѕР¶РЅРѕ РїСЂРѕС†РµСЃСЃ Undo СѓР¶Рµ РёРґРµС‚?
 		FEDITOR_LOCKMODE = BIT(16),
-		FEDITOR_CURPOSCHANGEDBYPLUGIN = BIT(17),   // установлен, если позиция в редакторе была изменена плагином (ECTL_SETPOSITION)
+		FEDITOR_CURPOSCHANGEDBYPLUGIN = BIT(17),   // СѓСЃС‚Р°РЅРѕРІР»РµРЅ, РµСЃР»Рё РїРѕР·РёС†РёСЏ РІ СЂРµРґР°РєС‚РѕСЂРµ Р±С‹Р»Р° РёР·РјРµРЅРµРЅР° РїР»Р°РіРёРЅРѕРј (ECTL_SETPOSITION)
 		FEDITOR_ISRESIZEDCONSOLE = BIT(18),
-		FEDITOR_PROCESSCTRLQ = BIT(19),   // нажата Ctrl-Q и идет процесс вставки кода символа
-		FEDITOR_DIALOGMEMOEDIT = BIT(20),   // Editor используется в диалоге в качестве DI_MEMOEDIT
+		FEDITOR_PROCESSCTRLQ = BIT(19),   // РЅР°Р¶Р°С‚Р° Ctrl-Q Рё РёРґРµС‚ РїСЂРѕС†РµСЃСЃ РІСЃС‚Р°РІРєРё РєРѕРґР° СЃРёРјРІРѕР»Р°
+		FEDITOR_DIALOGMEMOEDIT = BIT(20),   // Editor РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РІ РґРёР°Р»РѕРіРµ РІ РєР°С‡РµСЃС‚РІРµ DI_MEMOEDIT
 	};
 
 	editor_container Lines;
@@ -350,13 +352,13 @@ private:
 	int LastChangeStrPos;
 	int m_LinesCount;
 	/* $ 26.02.2001 IS
-	Сюда запомним размер табуляции и в дальнейшем будем использовать его,
-	а не Global->Opt->TabSize
+	РЎСЋРґР° Р·Р°РїРѕРјРЅРёРј СЂР°Р·РјРµСЂ С‚Р°Р±СѓР»СЏС†РёРё Рё РІ РґР°Р»СЊРЅРµР№С€РµРј Р±СѓРґРµРј РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РµРіРѕ,
+	Р° РЅРµ Global->Opt->TabSize
 	*/
 	Options::EditorOptions EdOpt;
 	int Pasting;
 	string GlobalEOL;
-	// работа с блоками из макросов (MCODE_F_EDITOR_SEL)
+	// СЂР°Р±РѕС‚Р° СЃ Р±Р»РѕРєР°РјРё РёР· РјР°РєСЂРѕСЃРѕРІ (MCODE_F_EDITOR_SEL)
 	numbered_iterator m_it_MBlockStart;
 	numbered_iterator m_it_AnyBlockStart;
 	EDITOR_BLOCK_TYPES m_BlockType;
@@ -417,3 +419,5 @@ public:
 	virtual ~EditorContainer() {}
 	virtual Editor* GetEditor(void) = 0;
 };
+
+#endif // EDITOR_HPP_79DE09D5_8F9C_467E_A3BF_8E1BB34E4BD3

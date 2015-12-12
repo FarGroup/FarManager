@@ -1,11 +1,11 @@
-/*
+п»ї/*
 local.cpp
 
-Сравнение без учета регистра, преобразование регистра
+РЎСЂР°РІРЅРµРЅРёРµ Р±РµР· СѓС‡РµС‚Р° СЂРµРіРёСЃС‚СЂР°, РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ СЂРµРіРёСЃС‚СЂР°
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

@@ -1,11 +1,11 @@
-/*
+п»ї/*
 strmix.cpp
 
-Куча разных вспомогательных функций по работе со строками
+РљСѓС‡Р° СЂР°Р·РЅС‹С… РІСЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹С… С„СѓРЅРєС†РёР№ РїРѕ СЂР°Р±РѕС‚Рµ СЃРѕ СЃС‚СЂРѕРєР°РјРё
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -140,7 +140,7 @@ string& InsertQuote(string &strStr)
 
 string& InsertRegexpQuote(string &strStr)
 {
-	//выражение вида /regexp/i не дополняем слешами
+	//РІС‹СЂР°Р¶РµРЅРёРµ РІРёРґР° /regexp/i РЅРµ РґРѕРїРѕР»РЅСЏРµРј СЃР»РµС€Р°РјРё
 	if (!strStr.empty() && strStr[0] != L'/')
 	{
 		strStr.insert(0, 1, L'/');
@@ -363,7 +363,7 @@ string& RemoveLeadingSpaces(string &strStr)
 	return strStr;
 }
 
-// удалить конечные пробелы
+// СѓРґР°Р»РёС‚СЊ РєРѕРЅРµС‡РЅС‹Рµ РїСЂРѕР±РµР»С‹
 wchar_t* RemoveTrailingSpaces(wchar_t *Str)
 {
 	const auto REnd = std::reverse_iterator<decltype(Str)>(Str);
@@ -389,8 +389,8 @@ string& RemoveExternalSpaces(string &strStr)
 
 
 /* $ 02.02.2001 IS
-   Заменяет пробелами непечатные символы в строке. В настоящий момент
-   обрабатываются только cr и lf.
+   Р—Р°РјРµРЅСЏРµС‚ РїСЂРѕР±РµР»Р°РјРё РЅРµРїРµС‡Р°С‚РЅС‹Рµ СЃРёРјРІРѕР»С‹ РІ СЃС‚СЂРѕРєРµ. Р’ РЅР°СЃС‚РѕСЏС‰РёР№ РјРѕРјРµРЅС‚
+   РѕР±СЂР°Р±Р°С‚С‹РІР°СЋС‚СЃСЏ С‚РѕР»СЊРєРѕ cr Рё lf.
 */
 string& RemoveUnprintableCharacters(string &strStr)
 {
@@ -401,7 +401,7 @@ string& RemoveUnprintableCharacters(string &strStr)
 string& CenterStr(const string& Src, string &strDest, int Length)
 {
 	int SrcLength=static_cast<int>(Src.size());
-	string strTempStr = Src; //если Src == strDest, то надо копировать Src!
+	string strTempStr = Src; //РµСЃР»Рё Src == strDest, С‚Рѕ РЅР°РґРѕ РєРѕРїРёСЂРѕРІР°С‚СЊ Src!
 
 	if (SrcLength >= Length)
 	{
@@ -420,7 +420,7 @@ string& CenterStr(const string& Src, string &strDest, int Length)
 string& RightStr(const string& Src, string &strDest, int Length)
 {
 	int SrcLength = static_cast<int>(Src.size());
-	string strTempStr = Src; //если Src == strDest, то надо копировать Src!
+	string strTempStr = Src; //РµСЃР»Рё Src == strDest, С‚Рѕ РЅР°РґРѕ РєРѕРїРёСЂРѕРІР°С‚СЊ Src!
 
 	if (SrcLength >= Length)
 	{
@@ -507,7 +507,7 @@ void UnquoteExternal(string &strStr)
 
 
 /* FileSizeToStr()
-   Форматирование размера файла в удобочитаемый вид.
+   Р¤РѕСЂРјР°С‚РёСЂРѕРІР°РЅРёРµ СЂР°Р·РјРµСЂР° С„Р°Р№Р»Р° РІ СѓРґРѕР±РѕС‡РёС‚Р°РµРјС‹Р№ РІРёРґ.
 */
 enum
 {
@@ -536,7 +536,7 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 	unsigned __int64 Divider;
 	size_t IndexDiv, IndexB;
 
-	// подготовительные мероприятия
+	// РїРѕРґРіРѕС‚РѕРІРёС‚РµР»СЊРЅС‹Рµ РјРµСЂРѕРїСЂРёСЏС‚РёСЏ
 	if (UnitStr(0, 0).empty())
 	{
 		PrepareUnitStr();
@@ -566,8 +566,8 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 	{
 		unsigned __int64 Divider64F = 1, Divider64F_mul = 1000, Divider64F2 = 1, Divider64F2_mul = Divider;
 
-		//выравнивание идёт по 1000 но само деление происходит на Divider
-		//например 999 bytes покажутся как 999 а вот 1000 bytes уже покажутся как 0.97 K
+		//РІС‹СЂР°РІРЅРёРІР°РЅРёРµ РёРґС‘С‚ РїРѕ 1000 РЅРѕ СЃР°РјРѕ РґРµР»РµРЅРёРµ РїСЂРѕРёСЃС…РѕРґРёС‚ РЅР° Divider
+		//РЅР°РїСЂРёРјРµСЂ 999 bytes РїРѕРєР°Р¶СѓС‚СЃСЏ РєР°Рє 999 Р° РІРѕС‚ 1000 bytes СѓР¶Рµ РїРѕРєР°Р¶СѓС‚СЃСЏ РєР°Рє 0.97 K
 		for (IndexB=0; IndexB<UNIT_COUNT-1; IndexB++)
 		{
 			if (Sz < Divider64F*Divider64F_mul)
@@ -665,9 +665,9 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 }
 
 
-// Заменить в строке Str Count вхождений подстроки FindStr на подстроку ReplStr
-// Если Count == npos - заменять "до полной победы"
-// Return - количество замен
+// Р—Р°РјРµРЅРёС‚СЊ РІ СЃС‚СЂРѕРєРµ Str Count РІС…РѕР¶РґРµРЅРёР№ РїРѕРґСЃС‚СЂРѕРєРё FindStr РЅР° РїРѕРґСЃС‚СЂРѕРєСѓ ReplStr
+// Р•СЃР»Рё Count == npos - Р·Р°РјРµРЅСЏС‚СЊ "РґРѕ РїРѕР»РЅРѕР№ РїРѕР±РµРґС‹"
+// Return - РєРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РјРµРЅ
 size_t ReplaceStrings(string &strStr, const wchar_t* FindStr, size_t FindStrSize, const wchar_t* ReplStr, size_t ReplStrSize, bool IgnoreCase, size_t Count)
 {
 	if ( !FindStrSize || !Count )
@@ -694,42 +694,42 @@ size_t ReplaceStrings(string &strStr, const wchar_t* FindStr, size_t FindStrSize
 
 /*
 From PHP 4.x.x
-Форматирует исходный текст по заданной ширине, используя
-разделительную строку. Возвращает строку SrcText свёрнутую
-в колонке, заданной параметром Width. Строка рубится при
-помощи строки Break.
+Р¤РѕСЂРјР°С‚РёСЂСѓРµС‚ РёСЃС…РѕРґРЅС‹Р№ С‚РµРєСЃС‚ РїРѕ Р·Р°РґР°РЅРЅРѕР№ С€РёСЂРёРЅРµ, РёСЃРїРѕР»СЊР·СѓСЏ
+СЂР°Р·РґРµР»РёС‚РµР»СЊРЅСѓСЋ СЃС‚СЂРѕРєСѓ. Р’РѕР·РІСЂР°С‰Р°РµС‚ СЃС‚СЂРѕРєСѓ SrcText СЃРІС‘СЂРЅСѓС‚СѓСЋ
+РІ РєРѕР»РѕРЅРєРµ, Р·Р°РґР°РЅРЅРѕР№ РїР°СЂР°РјРµС‚СЂРѕРј Width. РЎС‚СЂРѕРєР° СЂСѓР±РёС‚СЃСЏ РїСЂРё
+РїРѕРјРѕС‰Рё СЃС‚СЂРѕРєРё Break.
 
-Разбивает на строки с выравниваением влево.
+Р Р°Р·Р±РёРІР°РµС‚ РЅР° СЃС‚СЂРѕРєРё СЃ РІС‹СЂР°РІРЅРёРІР°РµРЅРёРµРј РІР»РµРІРѕ.
 
-Если параметр Flahs & FFTM_BREAKLONGWORD, то строка всегда
-сворачивается по заданной ширине. Так если у вас есть слово,
-которое больше заданной ширины, то оно будет разрезано на части.
+Р•СЃР»Рё РїР°СЂР°РјРµС‚СЂ Flahs & FFTM_BREAKLONGWORD, С‚Рѕ СЃС‚СЂРѕРєР° РІСЃРµРіРґР°
+СЃРІРѕСЂР°С‡РёРІР°РµС‚СЃСЏ РїРѕ Р·Р°РґР°РЅРЅРѕР№ С€РёСЂРёРЅРµ. РўР°Рє РµСЃР»Рё Сѓ РІР°СЃ РµСЃС‚СЊ СЃР»РѕРІРѕ,
+РєРѕС‚РѕСЂРѕРµ Р±РѕР»СЊС€Рµ Р·Р°РґР°РЅРЅРѕР№ С€РёСЂРёРЅС‹, С‚Рѕ РѕРЅРѕ Р±СѓРґРµС‚ СЂР°Р·СЂРµР·Р°РЅРѕ РЅР° С‡Р°СЃС‚Рё.
 
 Example 1.
-FarFormatText("Пример строки, которая будет разбита на несколько строк по ширине в 20 символов.", 20 ,Dest, "\n", 0);
-Этот пример вернет:
+FarFormatText("РџСЂРёРјРµСЂ СЃС‚СЂРѕРєРё, РєРѕС‚РѕСЂР°СЏ Р±СѓРґРµС‚ СЂР°Р·Р±РёС‚Р° РЅР° РЅРµСЃРєРѕР»СЊРєРѕ СЃС‚СЂРѕРє РїРѕ С€РёСЂРёРЅРµ РІ 20 СЃРёРјРІРѕР»РѕРІ.", 20 ,Dest, "\n", 0);
+Р­С‚РѕС‚ РїСЂРёРјРµСЂ РІРµСЂРЅРµС‚:
 ---
-Пример строки,
-которая будет
-разбита на
-несколько строк по
-ширине в 20
-символов.
+РџСЂРёРјРµСЂ СЃС‚СЂРѕРєРё,
+РєРѕС‚РѕСЂР°СЏ Р±СѓРґРµС‚
+СЂР°Р·Р±РёС‚Р° РЅР°
+РЅРµСЃРєРѕР»СЊРєРѕ СЃС‚СЂРѕРє РїРѕ
+С€РёСЂРёРЅРµ РІ 20
+СЃРёРјРІРѕР»РѕРІ.
 ---
 
 Example 2.
-FarFormatText( "Эта строка содержит оооооооооооооччччччччеееень длиное слово", 9, Dest, nullptr, FFTM_BREAKLONGWORD);
-Этот пример вернет:
+FarFormatText( "Р­С‚Р° СЃС‚СЂРѕРєР° СЃРѕРґРµСЂР¶РёС‚ РѕРѕРѕРѕРѕРѕРѕРѕРѕРѕРѕРѕРѕС‡С‡С‡С‡С‡С‡С‡С‡РµРµРµРµРЅСЊ РґР»РёРЅРѕРµ СЃР»РѕРІРѕ", 9, Dest, nullptr, FFTM_BREAKLONGWORD);
+Р­С‚РѕС‚ РїСЂРёРјРµСЂ РІРµСЂРЅРµС‚:
 
 ---
-Эта
-строка
-содержит
-ооооооооо
-ооооччччч
-чччеееень
-длиное
-слово
+Р­С‚Р°
+СЃС‚СЂРѕРєР°
+СЃРѕРґРµСЂР¶РёС‚
+РѕРѕРѕРѕРѕРѕРѕРѕРѕ
+РѕРѕРѕРѕС‡С‡С‡С‡С‡
+С‡С‡С‡РµРµРµРµРЅСЊ
+РґР»РёРЅРѕРµ
+СЃР»РѕРІРѕ
 ---
 
 */
@@ -739,11 +739,11 @@ enum FFTMODE
 	FFTM_BREAKLONGWORD = 0x00000001,
 };
 
-string& FarFormatText(const string& SrcText,      // источник
-                            int Width,            // заданная ширина
-                            string &strDestText,  // приёмник
-                            const wchar_t* Break, // разделитель, если = nullptr, принимается "\n"
-                            DWORD Flags)          // один из FFTM_*
+string& FarFormatText(const string& SrcText,      // РёСЃС‚РѕС‡РЅРёРє
+                            int Width,            // Р·Р°РґР°РЅРЅР°СЏ С€РёСЂРёРЅР°
+                            string &strDestText,  // РїСЂРёС‘РјРЅРёРє
+                            const wchar_t* Break, // СЂР°Р·РґРµР»РёС‚РµР»СЊ, РµСЃР»Рё = nullptr, РїСЂРёРЅРёРјР°РµС‚СЃСЏ "\n"
+                            DWORD Flags)          // РѕРґРёРЅ РёР· FFTM_*
 {
 	const wchar_t *breakchar;
 	breakchar = Break?Break:L"\n";
@@ -1200,8 +1200,8 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 				{
 					CurPos=I;
 
-					// В случае PreserveStyle: если не получилось сделать замену c помощью PreserveStyleReplaceString,
-					// то хотя бы сохранить регистр первой буквы.
+					// Р’ СЃР»СѓС‡Р°Рµ PreserveStyle: РµСЃР»Рё РЅРµ РїРѕР»СѓС‡РёР»РѕСЃСЊ СЃРґРµР»Р°С‚СЊ Р·Р°РјРµРЅСѓ c РїРѕРјРѕС‰СЊСЋ PreserveStyleReplaceString,
+					// С‚Рѕ С…РѕС‚СЏ Р±С‹ СЃРѕС…СЂР°РЅРёС‚СЊ СЂРµРіРёСЃС‚СЂ РїРµСЂРІРѕР№ Р±СѓРєРІС‹.
 					if (PreserveStyle && !ReplaceStr.empty() && IsAlpha(ReplaceStr.front()) && IsAlpha(Source[I]))
 					{
 						if (IsUpper(Source[I]))
@@ -1276,8 +1276,8 @@ string str_vprintf(const wchar_t * format, va_list argptr)
 	{
 		buffer.reset(size *= 2);
 
-		//_vsnwprintf не всегда ставит '\0' в конце.
-		//Поэтому надо обнулить и передать в _vsnwprintf размер-1.
+		//_vsnwprintf РЅРµ РІСЃРµРіРґР° СЃС‚Р°РІРёС‚ '\0' РІ РєРѕРЅС†Рµ.
+		//РџРѕСЌС‚РѕРјСѓ РЅР°РґРѕ РѕР±РЅСѓР»РёС‚СЊ Рё РїРµСЂРµРґР°С‚СЊ РІ _vsnwprintf СЂР°Р·РјРµСЂ-1.
 		buffer[size - 1] = 0;
 		length = _vsnwprintf(buffer.get(), size - 1, format, argptr);
 	}
@@ -1394,9 +1394,9 @@ string str_printf(const wchar_t * format, ...)
 			bool InBrackets = false;
 			bool InQuotes = false;
 
-			while (cur != List.cend()) // важно! проверка *cur должна стоять первой
+			while (cur != List.cend()) // РІР°Р¶РЅРѕ! РїСЂРѕРІРµСЂРєР° *cur РґРѕР»Р¶РЅР° СЃС‚РѕСЏС‚СЊ РїРµСЂРІРѕР№
 			{
-				if (Flags.Check(STLF_PROCESSBRACKETS)) // чтобы не сортировать уже отсортированное
+				if (Flags.Check(STLF_PROCESSBRACKETS)) // С‡С‚РѕР±С‹ РЅРµ СЃРѕСЂС‚РёСЂРѕРІР°С‚СЊ СѓР¶Рµ РѕС‚СЃРѕСЂС‚РёСЂРѕРІР°РЅРЅРѕРµ
 				{
 					if (*cur == L']')
 						InBrackets = false;

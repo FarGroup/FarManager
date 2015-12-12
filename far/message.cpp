@@ -1,11 +1,11 @@
-/*
+п»ї/*
 message.cpp
 
-Вывод MessageBox
+Р’С‹РІРѕРґ MessageBox
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -256,15 +256,15 @@ void Message::Init(
 	{
 		strClipText += strErrStr + L"\r\n";
 
-		// вычисление "красивого" размера
+		// РІС‹С‡РёСЃР»РµРЅРёРµ "РєСЂР°СЃРёРІРѕРіРѕ" СЂР°Р·РјРµСЂР°
 		auto LenErrStr = strErrStr.size();
 
 		if (LenErrStr > MAX_MESSAGE_WIDTH)
 		{
-			// половина меньше?
+			// РїРѕР»РѕРІРёРЅР° РјРµРЅСЊС€Рµ?
 			if (LenErrStr / 2 < MAX_MESSAGE_WIDTH)
 			{
-				// а половина + 1/3?
+				// Р° РїРѕР»РѕРІРёРЅР° + 1/3?
 				if ((LenErrStr + LenErrStr / 3) / 2 < MAX_MESSAGE_WIDTH)
 					LenErrStr=(LenErrStr+LenErrStr/3)/2;
 				else
@@ -276,7 +276,7 @@ void Message::Init(
 
 		MaxLength = std::max(MaxLength, LenErrStr);
 
-		// а теперь проврапим
+		// Р° С‚РµРїРµСЂСЊ РїСЂРѕРІСЂР°РїРёРј
 		FarFormatText(strErrStr, static_cast<int>(LenErrStr), strErrStr, L"\n", 0); //?? MaxLength ??
 		std::vector<string> ErrorStrings;
 		split(ErrorStrings, strErrStr, 0, L"\n");
@@ -343,7 +343,7 @@ void Message::Init(
 	MessageY1 = Y1;
 	MessageY2 = Y2;
 
-	// *** Вариант с Диалогом ***
+	// *** Р’Р°СЂРёР°РЅС‚ СЃ Р”РёР°Р»РѕРіРѕРј ***
 
 	if (!Buttons.empty())
 	{
@@ -451,7 +451,7 @@ void Message::Init(
 		if (HelpTopic)
 			Dlg->SetHelp(HelpTopic);
 
-		Dlg->SetPluginOwner(PluginNumber); // Запомним номер плагина
+		Dlg->SetPluginOwner(PluginNumber); // Р—Р°РїРѕРјРЅРёРј РЅРѕРјРµСЂ РїР»Р°РіРёРЅР°
 
 		if (IsWarningStyle)
 		{
@@ -475,7 +475,7 @@ void Message::Init(
 	}
 	else
 	{
-	// *** Без Диалога! ***
+	// *** Р‘РµР· Р”РёР°Р»РѕРіР°! ***
 	SetCursorType(0,0);
 
 	if (!(Flags & MSG_KEEPBACKGROUND))
@@ -557,10 +557,10 @@ void Message::Init(
 	}
 
 	/* $ 13.01.2003 IS
-	   - Принудительно уберем запрет отрисовки экрана, если количество кнопок
-	     в сообщении равно нулю и макрос закончил выполняться. Это необходимо,
-	     чтобы заработал прогресс-бар от плагина, который был запущен при помощи
-	     макроса запретом отрисовки (bugz#533).
+	   - РџСЂРёРЅСѓРґРёС‚РµР»СЊРЅРѕ СѓР±РµСЂРµРј Р·Р°РїСЂРµС‚ РѕС‚СЂРёСЃРѕРІРєРё СЌРєСЂР°РЅР°, РµСЃР»Рё РєРѕР»РёС‡РµСЃС‚РІРѕ РєРЅРѕРїРѕРє
+	     РІ СЃРѕРѕР±С‰РµРЅРёРё СЂР°РІРЅРѕ РЅСѓР»СЋ Рё РјР°РєСЂРѕСЃ Р·Р°РєРѕРЅС‡РёР» РІС‹РїРѕР»РЅСЏС‚СЊСЃСЏ. Р­С‚Рѕ РЅРµРѕР±С…РѕРґРёРјРѕ,
+	     С‡С‚РѕР±С‹ Р·Р°СЂР°Р±РѕС‚Р°Р» РїСЂРѕРіСЂРµСЃСЃ-Р±Р°СЂ РѕС‚ РїР»Р°РіРёРЅР°, РєРѕС‚РѕСЂС‹Р№ Р±С‹Р» Р·Р°РїСѓС‰РµРЅ РїСЂРё РїРѕРјРѕС‰Рё
+	     РјР°РєСЂРѕСЃР° Р·Р°РїСЂРµС‚РѕРј РѕС‚СЂРёСЃРѕРІРєРё (bugz#533).
 	*/
 
 	if (Buttons.empty())
@@ -583,11 +583,11 @@ void Message::GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2) const
 }
 
 /* $ 12.03.2002 VVM
-  Новая функция - пользователь попытался прервать операцию.
-  Зададим вопрос.
-  Возвращает:
-   FALSE - продолжить операцию
-   TRUE  - прервать операцию
+  РќРѕРІР°СЏ С„СѓРЅРєС†РёСЏ - РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РїРѕРїС‹С‚Р°Р»СЃСЏ РїСЂРµСЂРІР°С‚СЊ РѕРїРµСЂР°С†РёСЋ.
+  Р—Р°РґР°РґРёРј РІРѕРїСЂРѕСЃ.
+  Р’РѕР·РІСЂР°С‰Р°РµС‚:
+   FALSE - РїСЂРѕРґРѕР»Р¶РёС‚СЊ РѕРїРµСЂР°С†РёСЋ
+   TRUE  - РїСЂРµСЂРІР°С‚СЊ РѕРїРµСЂР°С†РёСЋ
 */
 bool AbortMessage()
 {

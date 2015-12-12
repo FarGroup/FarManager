@@ -1,3 +1,5 @@
+ï»¿#ifndef PANELMIX_HPP_AF7AAF02_56C0_4E41_B1D9_D1F1A5B4025D
+#define PANELMIX_HPP_AF7AAF02_56C0_4E41_B1D9_D1F1A5B4025D
 #pragma once
 
 /*
@@ -6,8 +8,8 @@ panelmix.hpp
 Misc functions for processing of path names
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright Â© 1996 Eugene Roshal
+Copyright Â© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -49,3 +51,5 @@ const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 St
 void TextToViewSettings(const string& ColumnTitles, const string& ColumnWidths, std::vector<column>& Destination);
 void ViewSettingsToText(const std::vector<column>& Source, string& strColumnTitles, string& strColumnWidths);
 int GetDefaultWidth(uint64_t Type);
+
+#endif // PANELMIX_HPP_AF7AAF02_56C0_4E41_B1D9_D1F1A5B4025D

@@ -1,13 +1,15 @@
+п»ї#ifndef MKDIR_HPP_9E28490A_749A_4AA1_9754_4006E7285597
+#define MKDIR_HPP_9E28490A_749A_4AA1_9754_4006E7285597
 #pragma once
 
 /*
 mkdir.hpp
 
-Создание каталога
+РЎРѕР·РґР°РЅРёРµ РєР°С‚Р°Р»РѕРіР°
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -36,3 +38,5 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class Panel;
 
 void ShellMakeDir(Panel *SrcPanel);
+
+#endif // MKDIR_HPP_9E28490A_749A_4AA1_9754_4006E7285597

@@ -1,8 +1,10 @@
+п»ї#ifndef PLCLASS_HPP_E324EC16_24F2_4402_BA87_74212799246D
+#define PLCLASS_HPP_E324EC16_24F2_4402_BA87_74212799246D
 #pragma once
 
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -80,11 +82,11 @@ enum EXPORTS_ENUM
 
 enum PLUGINWORKFLAGS
 {
-	PIWF_LOADED        = BIT(0), // DLL загружена
-	PIWF_CACHED        = BIT(1), // кешируется
+	PIWF_LOADED        = BIT(0), // DLL Р·Р°РіСЂСѓР¶РµРЅР°
+	PIWF_CACHED        = BIT(1), // РєРµС€РёСЂСѓРµС‚СЃСЏ
 	PIWF_PRELOADED     = BIT(2), //
-	PIWF_DONTLOADAGAIN = BIT(3), // не загружать плагин снова, ставится в результате проверки требуемой версии фара
-	PIWF_DATALOADED    = BIT(4), // LoadData успешно выполнилась
+	PIWF_DONTLOADAGAIN = BIT(3), // РЅРµ Р·Р°РіСЂСѓР¶Р°С‚СЊ РїР»Р°РіРёРЅ СЃРЅРѕРІР°, СЃС‚Р°РІРёС‚СЃСЏ РІ СЂРµР·СѓР»СЊС‚Р°С‚Рµ РїСЂРѕРІРµСЂРєРё С‚СЂРµР±СѓРµРјРѕР№ РІРµСЂСЃРёРё С„Р°СЂР°
+	PIWF_DATALOADED    = BIT(4), // LoadData СѓСЃРїРµС€РЅРѕ РІС‹РїРѕР»РЅРёР»Р°СЃСЊ
 };
 
 extern PluginStartupInfo NativeInfo;
@@ -262,7 +264,7 @@ private:
 	string m_strModuleName;
 	string m_strCacheName;
 
-	BitFlags WorkFlags;      // рабочие флаги текущего плагина
+	BitFlags WorkFlags;      // СЂР°Р±РѕС‡РёРµ С„Р»Р°РіРё С‚РµРєСѓС‰РµРіРѕ РїР»Р°РіРёРЅР°
 
 	GenericPluginModel::plugin_instance m_Instance;
 
@@ -309,3 +311,5 @@ private:
 #define EXECUTE_FUNCTION(f) ExecuteFunction(es, [&]{ f; });
 #define FUNCTION(id) reinterpret_cast<id##Prototype>(Exports[id])
 #define WA(string) {L##string, string}
+
+#endif // PLCLASS_HPP_E324EC16_24F2_4402_BA87_74212799246D

@@ -1,7 +1,9 @@
+﻿#ifndef ENUM_HPP_3B45F837_E295_40BC_B3EE_A7D344E8B1ED
+#define ENUM_HPP_3B45F837_E295_40BC_B3EE_A7D344E8B1ED
 #pragma once
 
 /*
-Copyright � 2014 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -32,3 +34,5 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #else
 #define ENUM(ENUM_NAME) enum ENUM_NAME:int
 #endif
+
+#endif // ENUM_HPP_3B45F837_E295_40BC_B3EE_A7D344E8B1ED

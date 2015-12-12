@@ -1,13 +1,15 @@
+п»ї#ifndef EJECT_HPP_AD63D84D_40CB_40BF_A4A1_E61FE3CE6E6D
+#define EJECT_HPP_AD63D84D_40CB_40BF_A4A1_E61FE3CE6E6D
 #pragma once
 
 /*
 eject.hpp
 
-Eject съемных носителей
+Eject СЃСЉРµРјРЅС‹С… РЅРѕСЃРёС‚РµР»РµР№
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -35,3 +37,5 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 bool EjectVolume(wchar_t Letter,UINT64 Flags);
 bool IsEjectableMedia(wchar_t Letter);
+
+#endif // EJECT_HPP_AD63D84D_40CB_40BF_A4A1_E61FE3CE6E6D

@@ -1,11 +1,11 @@
-/*
+п»ї/*
 findfile.cpp
 
-Поиск (Alt-F7)
+РџРѕРёСЃРє (Alt-F7)
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -80,7 +80,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelctype.hpp"
 #include "filetype.hpp"
 
-// Список архивов. Если файл найден в архиве, то FindList->ArcIndex указывает сюда.
+// РЎРїРёСЃРѕРє Р°СЂС…РёРІРѕРІ. Р•СЃР»Рё С„Р°Р№Р» РЅР°Р№РґРµРЅ РІ Р°СЂС…РёРІРµ, С‚Рѕ FindList->ArcIndex СѓРєР°Р·С‹РІР°РµС‚ СЃСЋРґР°.
 struct ArcListItem
 {
 	string strArcName;
@@ -89,7 +89,7 @@ struct ArcListItem
 	string strRootPath; // Root path in plugin after opening.
 };
 
-// Список найденных файлов. Индекс из списка хранится в меню.
+// РЎРїРёСЃРѕРє РЅР°Р№РґРµРЅРЅС‹С… С„Р°Р№Р»РѕРІ. РРЅРґРµРєСЃ РёР· СЃРїРёСЃРєР° С…СЂР°РЅРёС‚СЃСЏ РІ РјРµРЅСЋ.
 struct FindListItem
 {
 	os::FAR_FIND_DATA FindData;
@@ -369,7 +369,7 @@ struct background_searcher::CodePageInfo
 			CPINFO cpi;
 
 			if (!GetCPInfo(CodePage, &cpi))
-				cpi.MaxCharSize = 0; //Считаем, что ошибка и потом такие таблицы в поиске пропускаем
+				cpi.MaxCharSize = 0; //РЎС‡РёС‚Р°РµРј, С‡С‚Рѕ РѕС€РёР±РєР° Рё РїРѕС‚РѕРј С‚Р°РєРёРµ С‚Р°Р±Р»РёС†С‹ РІ РїРѕРёСЃРєРµ РїСЂРѕРїСѓСЃРєР°РµРј
 
 			MaxCharSize = cpi.MaxCharSize;
 		}
@@ -394,7 +394,7 @@ void background_searcher::InitInFileSearch()
 	if (!InFileSearchInited && !strFindStr.empty())
 	{
 		size_t findStringCount = strFindStr.size();
-		// Инициализируем буферы чтения из файла
+		// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј Р±СѓС„РµСЂС‹ С‡С‚РµРЅРёСЏ РёР· С„Р°Р№Р»Р°
 		const size_t readBufferSize = 32768;
 
 		readBufferA.resize(readBufferSize);
@@ -402,7 +402,7 @@ void background_searcher::InitInFileSearch()
 
 		if (!SearchHex)
 		{
-			// Формируем строку поиска
+			// Р¤РѕСЂРјРёСЂСѓРµРј СЃС‚СЂРѕРєСѓ РїРѕРёСЃРєР°
 			if (!CmpCase)
 			{
 				string UpperVersion(strFindStr), LowerVersion(strFindStr);
@@ -414,7 +414,7 @@ void background_searcher::InitInFileSearch()
 			else
 				findString = strFindStr.data();
 
-			// Инициализируем данные для алгоритма поиска
+			// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РґР°РЅРЅС‹Рµ РґР»СЏ Р°Р»РіРѕСЂРёС‚РјР° РїРѕРёСЃРєР°
 			skipCharsTable.assign(std::numeric_limits<wchar_t>::max() + 1, findStringCount);
 
 			for (size_t index = 0; index < findStringCount-1; index++)
@@ -424,10 +424,10 @@ void background_searcher::InitInFileSearch()
 				for (size_t index = 0; index < findStringCount-1; index++)
 					skipCharsTable[findString[index+findStringCount]] = findStringCount-1-index;
 
-			// Формируем список кодовых страниц
+			// Р¤РѕСЂРјРёСЂСѓРµРј СЃРїРёСЃРѕРє РєРѕРґРѕРІС‹С… СЃС‚СЂР°РЅРёС†
 			if (CodePage == CP_SET)
 			{
-				// Проверяем наличие выбранных страниц символов
+				// РџСЂРѕРІРµСЂСЏРµРј РЅР°Р»РёС‡РёРµ РІС‹Р±СЂР°РЅРЅС‹С… СЃС‚СЂР°РЅРёС† СЃРёРјРІРѕР»РѕРІ
 				const auto CpEnum = Codepages().GetFavoritesEnumerator();
 				bool hasSelected = std::any_of(CONST_RANGE(CpEnum, i) { return i.second & CPST_FIND; });
 
@@ -437,19 +437,19 @@ void background_searcher::InitInFileSearch()
 				}
 				else
 				{
-					// Добавляем стандартные таблицы символов
+					// Р”РѕР±Р°РІР»СЏРµРј СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рµ С‚Р°Р±Р»РёС†С‹ СЃРёРјРІРѕР»РѕРІ
 					const uintptr_t Predefined[] = { GetOEMCP(), GetACP(), CP_UTF8, CP_UNICODE, CP_REVERSEBOM };
 					m_CodePages.insert(m_CodePages.end(), ALL_CONST_RANGE(Predefined));
 				}
 
-				// Добавляем избранные таблицы символов
+				// Р”РѕР±Р°РІР»СЏРµРј РёР·Р±СЂР°РЅРЅС‹Рµ С‚Р°Р±Р»РёС†С‹ СЃРёРјРІРѕР»РѕРІ
 				std::for_each(CONST_RANGE(CpEnum, i)
 				{
 					if (i.second & (hasSelected?CPST_FIND:CPST_FAVORITE))
 					{
 						uintptr_t codePage = std::stoi(i.first);
 
-						// Проверяем дубли
+						// РџСЂРѕРІРµСЂСЏРµРј РґСѓР±Р»Рё
 						if (hasSelected || !std::any_of(CONST_RANGE(m_CodePages, i) { return i.CodePage == CodePage; }))
 							m_CodePages.emplace_back(codePage);
 					}
@@ -468,13 +468,13 @@ void background_searcher::InitInFileSearch()
 		}
 		else
 		{
-			// Формируем hex-строку для поиска
+			// Р¤РѕСЂРјРёСЂСѓРµРј hex-СЃС‚СЂРѕРєСѓ РґР»СЏ РїРѕРёСЃРєР°
 			if (SearchHex)
 			{
 				hexFindString = HexStringToBlob(strFindStr.data());
 			}
 
-			// Инициализируем данные для аглоритма поиска
+			// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РґР°РЅРЅС‹Рµ РґР»СЏ Р°РіР»РѕСЂРёС‚РјР° РїРѕРёСЃРєР°
 			skipCharsTable.assign(std::numeric_limits<unsigned char>::max() + 1, hexFindString.size());
 
 			for (size_t index = 0; index < hexFindString.size() - 1; index++)
@@ -521,10 +521,10 @@ string& FindFiles::PrepareDriveNameStr(string &strSearchFromRoot)
 	return strSearchFromRoot;
 }
 
-// Проверяем символ на принадлежность разделителям слов
+// РџСЂРѕРІРµСЂСЏРµРј СЃРёРјРІРѕР» РЅР° РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚СЊ СЂР°Р·РґРµР»РёС‚РµР»СЏРј СЃР»РѕРІ
 bool FindFiles::IsWordDiv(const wchar_t symbol)
 {
-	// Так же разделителем является конец строки и пробельные символы
+	// РўР°Рє Р¶Рµ СЂР°Р·РґРµР»РёС‚РµР»РµРј СЏРІР»СЏРµС‚СЃСЏ РєРѕРЅРµС† СЃС‚СЂРѕРєРё Рё РїСЂРѕР±РµР»СЊРЅС‹Рµ СЃРёРјРІРѕР»С‹
 	return !symbol||IsSpace(symbol)||IsEol(symbol)||::IsWordDiv(Global->Opt->strWordDiv,symbol);
 }
 
@@ -582,7 +582,7 @@ void FindFiles::SetPluginDirectory(const string& DirName, PluginHandle* hPlugin,
 			}
 		}
 
-		// Отрисуем панель при необходимости.
+		// РћС‚СЂРёСЃСѓРµРј РїР°РЅРµР»СЊ РїСЂРё РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё.
 		if (UpdatePanel)
 		{
 			Global->CtrlObject->Cp()->ActivePanel()->Update(UPDATE_KEEP_SELECTION);
@@ -682,13 +682,13 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			Dlg->SendMessage(DM_SETCOMBOBOXEVENT,FAD_COMBOBOX_CP,ToPtr(CBET_KEY));
 			FarListTitles Titles={sizeof(FarListTitles),0,nullptr,0,MSG(MFindFileCodePageBottom)};
 			Dlg->SendMessage(DM_LISTSETTITLES,FAD_COMBOBOX_CP,&Titles);
-			// Установка запомненных ранее параметров
+			// РЈСЃС‚Р°РЅРѕРІРєР° Р·Р°РїРѕРјРЅРµРЅРЅС‹С… СЂР°РЅРµРµ РїР°СЂР°РјРµС‚СЂРѕРІ
 			CodePage = Global->Opt->FindCodePage;
 			favoriteCodePages = Codepages().FillCodePagesList(Dlg, FAD_COMBOBOX_CP, CodePage, true, true, false, true, false);
 			SetAllCpTitle();
 
-			// Текущее значение в списке выбора кодовых страниц в общем случае может не совпадать с CodePage,
-			// так что получаем CodePage из списка выбора
+			// РўРµРєСѓС‰РµРµ Р·РЅР°С‡РµРЅРёРµ РІ СЃРїРёСЃРєРµ РІС‹Р±РѕСЂР° РєРѕРґРѕРІС‹С… СЃС‚СЂР°РЅРёС† РІ РѕР±С‰РµРј СЃР»СѓС‡Р°Рµ РјРѕР¶РµС‚ РЅРµ СЃРѕРІРїР°РґР°С‚СЊ СЃ CodePage,
+			// С‚Р°Рє С‡С‚Рѕ РїРѕР»СѓС‡Р°РµРј CodePage РёР· СЃРїРёСЃРєР° РІС‹Р±РѕСЂР°
 			FarListPos Position={sizeof(FarListPos)};
 			Dlg->SendMessage( DM_LISTGETCURPOS, FAD_COMBOBOX_CP, &Position);
 			FarListGetItem Item = { sizeof(FarListGetItem), Position.SelectPos };
@@ -713,8 +713,8 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				{
 					Global->IsRedrawWindowInProcess++;
 					Global->CtrlObject->Cp()->ActivePanel()->ChangeDisk();
-					// Ну что ж, раз пошла такая пьянка рефрешить окна
-					// будем таким способом.
+					// РќСѓ С‡С‚Рѕ Р¶, СЂР°Р· РїРѕС€Р»Р° С‚Р°РєР°СЏ РїСЊСЏРЅРєР° СЂРµС„СЂРµС€РёС‚СЊ РѕРєРЅР°
+					// Р±СѓРґРµРј С‚Р°РєРёРј СЃРїРѕСЃРѕР±РѕРј.
 					//WindowManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
 					Global->WindowManager->ResizeAllWindows();
 					Global->IsRedrawWindowInProcess--;
@@ -828,27 +828,27 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 						case KEY_NUMPAD0:
 						case KEY_SPACE:
 						{
-							// Обработка установки/снятия флажков для стандартных и избранных таблиц символов
-							// Получаем текущую позицию в выпадающем списке таблиц символов
+							// РћР±СЂР°Р±РѕС‚РєР° СѓСЃС‚Р°РЅРѕРІРєРё/СЃРЅСЏС‚РёСЏ С„Р»Р°Р¶РєРѕРІ РґР»СЏ СЃС‚Р°РЅРґР°СЂС‚РЅС‹С… Рё РёР·Р±СЂР°РЅРЅС‹С… С‚Р°Р±Р»РёС† СЃРёРјРІРѕР»РѕРІ
+							// РџРѕР»СѓС‡Р°РµРј С‚РµРєСѓС‰СѓСЋ РїРѕР·РёС†РёСЋ РІ РІС‹РїР°РґР°СЋС‰РµРј СЃРїРёСЃРєРµ С‚Р°Р±Р»РёС† СЃРёРјРІРѕР»РѕРІ
 							FarListPos Position={sizeof(FarListPos)};
 							Dlg->SendMessage( DM_LISTGETCURPOS, FAD_COMBOBOX_CP, &Position);
-							// Получаем номер выбранной таблицы символов
+							// РџРѕР»СѓС‡Р°РµРј РЅРѕРјРµСЂ РІС‹Р±СЂР°РЅРЅРѕР№ С‚Р°Р±Р»РёС†С‹ СЃРёРјРІРѕР»РѕРІ
 							FarListGetItem Item = { sizeof(FarListGetItem), Position.SelectPos };
 							Dlg->SendMessage( DM_LISTGETITEM, FAD_COMBOBOX_CP, &Item);
 							const auto SelectedCodePage = *Dlg->GetListItemDataPtr<uintptr_t>(FAD_COMBOBOX_CP, Position.SelectPos);
-							// Разрешаем отмечать только стандартные и избранные таблицы символов
+							// Р Р°Р·СЂРµС€Р°РµРј РѕС‚РјРµС‡Р°С‚СЊ С‚РѕР»СЊРєРѕ СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рµ Рё РёР·Р±СЂР°РЅРЅС‹Рµ С‚Р°Р±Р»РёС†С‹ СЃРёРјРІРѕР»РѕРІ
 							int FavoritesIndex = 2 + StandardCPCount + 2;
 
 							if (Position.SelectPos > 1)
 							{
-								// Получаем текущее состояние флага в реестре
+								// РџРѕР»СѓС‡Р°РµРј С‚РµРєСѓС‰РµРµ СЃРѕСЃС‚РѕСЏРЅРёРµ С„Р»Р°РіР° РІ СЂРµРµСЃС‚СЂРµ
 								long long SelectType = Codepages().GetFavorite(SelectedCodePage);
 
-								// Отмечаем/разотмечаем таблицу символов
+								// РћС‚РјРµС‡Р°РµРј/СЂР°Р·РѕС‚РјРµС‡Р°РµРј С‚Р°Р±Р»РёС†Сѓ СЃРёРјРІРѕР»РѕРІ
 								if (Item.Item.Flags & LIF_CHECKED)
 								{
-									// Для стандартных таблиц символов просто удаляем значение из реестра, для
-									// избранных же оставляем в реестре флаг, что таблица символов избранная
+									// Р”Р»СЏ СЃС‚Р°РЅРґР°СЂС‚РЅС‹С… С‚Р°Р±Р»РёС† СЃРёРјРІРѕР»РѕРІ РїСЂРѕСЃС‚Рѕ СѓРґР°Р»СЏРµРј Р·РЅР°С‡РµРЅРёРµ РёР· СЂРµРµСЃС‚СЂР°, РґР»СЏ
+									// РёР·Р±СЂР°РЅРЅС‹С… Р¶Рµ РѕСЃС‚Р°РІР»СЏРµРј РІ СЂРµРµСЃС‚СЂРµ С„Р»Р°Рі, С‡С‚Рѕ С‚Р°Р±Р»РёС†Р° СЃРёРјРІРѕР»РѕРІ РёР·Р±СЂР°РЅРЅР°СЏ
 									if (SelectType & CPST_FAVORITE)
 										Codepages().SetFavorite(SelectedCodePage, CPST_FAVORITE);
 									else
@@ -864,23 +864,23 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 								SetAllCpTitle();
 
-								// Обновляем текущий элемент в выпадающем списке
+								// РћР±РЅРѕРІР»СЏРµРј С‚РµРєСѓС‰РёР№ СЌР»РµРјРµРЅС‚ РІ РІС‹РїР°РґР°СЋС‰РµРј СЃРїРёСЃРєРµ
 								Dlg->SendMessage( DM_LISTUPDATE, FAD_COMBOBOX_CP, &Item);
 
 								FarListPos Pos={sizeof(FarListPos),Position.SelectPos+1,Position.TopPos};
 								Dlg->SendMessage( DM_LISTSETCURPOS, FAD_COMBOBOX_CP,&Pos);
 
-								// Обрабатываем случай, когда таблица символов может присутствовать, как в стандартных, так и в избранных,
-								// т.е. выбор/снятие флага автоматически происходит у обоих элементов
+								// РћР±СЂР°Р±Р°С‚С‹РІР°РµРј СЃР»СѓС‡Р°Р№, РєРѕРіРґР° С‚Р°Р±Р»РёС†Р° СЃРёРјРІРѕР»РѕРІ РјРѕР¶РµС‚ РїСЂРёСЃСѓС‚СЃС‚РІРѕРІР°С‚СЊ, РєР°Рє РІ СЃС‚Р°РЅРґР°СЂС‚РЅС‹С…, С‚Р°Рє Рё РІ РёР·Р±СЂР°РЅРЅС‹С…,
+								// С‚.Рµ. РІС‹Р±РѕСЂ/СЃРЅСЏС‚РёРµ С„Р»Р°РіР° Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё РїСЂРѕРёСЃС…РѕРґРёС‚ Сѓ РѕР±РѕРёС… СЌР»РµРјРµРЅС‚РѕРІ
 								bool bStandardCodePage = Position.SelectPos < FavoritesIndex;
 
 								for (int Index = bStandardCodePage ? FavoritesIndex : 0; Index < (bStandardCodePage ? FavoritesIndex + favoriteCodePages : FavoritesIndex); Index++)
 								{
-									// Получаем элемент таблицы символов
+									// РџРѕР»СѓС‡Р°РµРј СЌР»РµРјРµРЅС‚ С‚Р°Р±Р»РёС†С‹ СЃРёРјРІРѕР»РѕРІ
 									FarListGetItem CheckItem = { sizeof(FarListGetItem), Index };
 									Dlg->SendMessage( DM_LISTGETITEM, FAD_COMBOBOX_CP, &CheckItem);
 
-									// Обрабатываем только таблицы символов
+									// РћР±СЂР°Р±Р°С‚С‹РІР°РµРј С‚РѕР»СЊРєРѕ С‚Р°Р±Р»РёС†С‹ СЃРёРјРІРѕР»РѕРІ
 									if (!(CheckItem.Item.Flags&LIF_SEPARATOR))
 									{
 										if (SelectedCodePage == *Dlg->GetListItemDataPtr<uintptr_t>(FAD_COMBOBOX_CP, Index))
@@ -913,7 +913,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			{
 				case FAD_EDIT_TEXT:
 					{
-						// Строка "Содержащих текст"
+						// РЎС‚СЂРѕРєР° "РЎРѕРґРµСЂР¶Р°С‰РёС… С‚РµРєСЃС‚"
 						if (!FindFoldersChanged)
 						{
 							BOOL Checked = (Item.Data && *Item.Data)?FALSE:(int)Global->Opt->FindOpt.FindFolders;
@@ -926,7 +926,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 				case FAD_COMBOBOX_CP:
 				{
-					// Получаем выбранную в выпадающем списке таблицу символов
+					// РџРѕР»СѓС‡Р°РµРј РІС‹Р±СЂР°РЅРЅСѓСЋ РІ РІС‹РїР°РґР°СЋС‰РµРј СЃРїРёСЃРєРµ С‚Р°Р±Р»РёС†Сѓ СЃРёРјРІРѕР»РѕРІ
 					CodePage = *Dlg->GetListItemDataPtr<uintptr_t>(FAD_COMBOBOX_CP, Dlg->SendMessage(DM_LISTGETCURPOS, FAD_COMBOBOX_CP, nullptr));
 				}
 				return TRUE;
@@ -994,7 +994,7 @@ bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const os::FAR_FIND_DATA& Fin
 }
 
 
-// Алгоритма Бойера-Мура-Хорспула поиска подстроки
+// РђР»РіРѕСЂРёС‚РјР° Р‘РѕР№РµСЂР°-РњСѓСЂР°-РҐРѕСЂСЃРїСѓР»Р° РїРѕРёСЃРєР° РїРѕРґСЃС‚СЂРѕРєРё
 template<class T, class Pred>
 int background_searcher::FindStringBMH(const T* searchBuffer, size_t searchBufferCount, size_t findStringCount, Pred p) const
 {
@@ -1037,15 +1037,15 @@ int background_searcher::FindStringBMH(const unsigned char* searchBuffer, size_t
 
 bool background_searcher::LookForString(const string& Name)
 {
-	// Длина строки поиска
+	// Р”Р»РёРЅР° СЃС‚СЂРѕРєРё РїРѕРёСЃРєР°
 	size_t findStringCount = strFindStr.size();
 
-	// Если строки поиска пустая, то считаем, что мы всегда что-нибудь найдём
+	// Р•СЃР»Рё СЃС‚СЂРѕРєРё РїРѕРёСЃРєР° РїСѓСЃС‚Р°СЏ, С‚Рѕ СЃС‡РёС‚Р°РµРј, С‡С‚Рѕ РјС‹ РІСЃРµРіРґР° С‡С‚Рѕ-РЅРёР±СѓРґСЊ РЅР°Р№РґС‘Рј
 	if (!findStringCount)
 		return true;
 
 	os::fs::file file;
-	// Открываем файл
+	// РћС‚РєСЂС‹РІР°РµРј С„Р°Р№Р»
 	if(!file.Open(Name, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 	{
 		return false;
@@ -1061,11 +1061,11 @@ bool background_searcher::LookForString(const string& Name)
 		m_CodePages.front().initialize();
 	}
 
-	// Количество считанных из файла байт
+	// РљРѕР»РёС‡РµСЃС‚РІРѕ СЃС‡РёС‚Р°РЅРЅС‹С… РёР· С„Р°Р№Р»Р° Р±Р°Р№С‚
 	size_t readBlockSize = 0;
-	// Количество прочитанных из файла байт
+	// РљРѕР»РёС‡РµСЃС‚РІРѕ РїСЂРѕС‡РёС‚Р°РЅРЅС‹С… РёР· С„Р°Р№Р»Р° Р±Р°Р№С‚
 	unsigned __int64 alreadyRead = 0;
-	// Смещение на которое мы отступили при переходе между блоками
+	// РЎРјРµС‰РµРЅРёРµ РЅР° РєРѕС‚РѕСЂРѕРµ РјС‹ РѕС‚СЃС‚СѓРїРёР»Рё РїСЂРё РїРµСЂРµС…РѕРґРµ РјРµР¶РґСѓ Р±Р»РѕРєР°РјРё
 	size_t offset = 0;
 
 	if (SearchHex)
@@ -1081,7 +1081,7 @@ bool background_searcher::LookForString(const string& Name)
 
 	UINT LastPercents=0;
 
-	// Основной цикл чтения из файла
+	// РћСЃРЅРѕРІРЅРѕР№ С†РёРєР» С‡С‚РµРЅРёСЏ РёР· С„Р°Р№Р»Р°
 	while (!Stopped() && file.Read
 		(readBufferA.data(), (!SearchInFirst || alreadyRead + readBufferA.size() <= SearchInFirst)? readBufferA.size() : SearchInFirst - alreadyRead, readBlockSize))
 	{
@@ -1093,17 +1093,17 @@ bool background_searcher::LookForString(const string& Name)
 			LastPercents=Percents;
 		}
 
-		// Увеличиваем счётчик прочитаннх байт
+		// РЈРІРµР»РёС‡РёРІР°РµРј СЃС‡С‘С‚С‡РёРє РїСЂРѕС‡РёС‚Р°РЅРЅС… Р±Р°Р№С‚
 		alreadyRead += readBlockSize;
 
-		// Для hex и обыкновенного поиска разные ветки
+		// Р”Р»СЏ hex Рё РѕР±С‹РєРЅРѕРІРµРЅРЅРѕРіРѕ РїРѕРёСЃРєР° СЂР°Р·РЅС‹Рµ РІРµС‚РєРё
 		if (SearchHex)
 		{
-			// Выходим, если ничего не прочитали или прочитали мало
+			// Р’С‹С…РѕРґРёРј, РµСЃР»Рё РЅРёС‡РµРіРѕ РЅРµ РїСЂРѕС‡РёС‚Р°Р»Рё РёР»Рё РїСЂРѕС‡РёС‚Р°Р»Рё РјР°Р»Рѕ
 			if (!readBlockSize || readBlockSize < hexFindString.size())
 				return false;
 
-			// Ищем
+			// РС‰РµРј
 			if (FindStringBMH((unsigned char *)readBufferA.data(), readBlockSize)!=-1)
 				return true;
 		}
@@ -1113,25 +1113,25 @@ bool background_searcher::LookForString(const string& Name)
 			FOR(auto& i, m_CodePages)
 			{
 				ErrorState = false;
-				// Пропускаем ошибочные кодовые страницы
+				// РџСЂРѕРїСѓСЃРєР°РµРј РѕС€РёР±РѕС‡РЅС‹Рµ РєРѕРґРѕРІС‹Рµ СЃС‚СЂР°РЅРёС†С‹
 				if (!i.MaxCharSize)
 				{
 					ErrorState = true;
 					continue;
 				}
 
-				// Если начало файла очищаем информацию о поиске по словам
+				// Р•СЃР»Рё РЅР°С‡Р°Р»Рѕ С„Р°Р№Р»Р° РѕС‡РёС‰Р°РµРј РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РїРѕРёСЃРєРµ РїРѕ СЃР»РѕРІР°Рј
 				if (WholeWords && alreadyRead==readBlockSize)
 				{
 					i.WordFound = false;
 					i.LastSymbol = 0;
 				}
 
-				// Если ничего не прочитали
+				// Р•СЃР»Рё РЅРёС‡РµРіРѕ РЅРµ РїСЂРѕС‡РёС‚Р°Р»Рё
 				if (!readBlockSize)
 				{
-					// Если поиск по словам и в конце предыдущего блока было что-то найдено,
-					// то считаем, что нашли то, что нужно
+					// Р•СЃР»Рё РїРѕРёСЃРє РїРѕ СЃР»РѕРІР°Рј Рё РІ РєРѕРЅС†Рµ РїСЂРµРґС‹РґСѓС‰РµРіРѕ Р±Р»РѕРєР° Р±С‹Р»Рѕ С‡С‚Рѕ-С‚Рѕ РЅР°Р№РґРµРЅРѕ,
+					// С‚Рѕ СЃС‡РёС‚Р°РµРј, С‡С‚Рѕ РЅР°С€Р»Рё С‚Рѕ, С‡С‚Рѕ РЅСѓР¶РЅРѕ
 					if(WholeWords && i.WordFound)
 						return true;
 					else
@@ -1139,7 +1139,7 @@ bool background_searcher::LookForString(const string& Name)
 						ErrorState = true;
 						continue;
 					}
-					// Выходим, если прочитали меньше размера строки поиска и нет поиска по словам
+					// Р’С‹С…РѕРґРёРј, РµСЃР»Рё РїСЂРѕС‡РёС‚Р°Р»Рё РјРµРЅСЊС€Рµ СЂР°Р·РјРµСЂР° СЃС‚СЂРѕРєРё РїРѕРёСЃРєР° Рё РЅРµС‚ РїРѕРёСЃРєР° РїРѕ СЃР»РѕРІР°Рј
 				}
 
 				if (readBlockSize < findStringCount && !(WholeWords && i.WordFound))
@@ -1148,66 +1148,66 @@ bool background_searcher::LookForString(const string& Name)
 					continue;
 				}
 
-				// Количество символов в выходном буфере
+				// РљРѕР»РёС‡РµСЃС‚РІРѕ СЃРёРјРІРѕР»РѕРІ РІ РІС‹С…РѕРґРЅРѕРј Р±СѓС„РµСЂРµ
 				size_t bufferCount;
 
-				// Буфер для поиска
+				// Р‘СѓС„РµСЂ РґР»СЏ РїРѕРёСЃРєР°
 				wchar_t *buffer;
 
-				// Перегоняем буфер в UTF-16
+				// РџРµСЂРµРіРѕРЅСЏРµРј Р±СѓС„РµСЂ РІ UTF-16
 				if (IsUnicodeCodePage(i.CodePage))
 				{
-					// Вычисляем размер буфера в UTF-16
+					// Р’С‹С‡РёСЃР»СЏРµРј СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РІ UTF-16
 					bufferCount = readBlockSize/sizeof(wchar_t);
 
-					// Выходим, если размер буфера меньше длины строки поиска
+					// Р’С‹С…РѕРґРёРј, РµСЃР»Рё СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РјРµРЅСЊС€Рµ РґР»РёРЅС‹ СЃС‚СЂРѕРєРё РїРѕРёСЃРєР°
 					if (bufferCount < findStringCount)
 					{
 						ErrorState = true;
 						continue;
 					}
 
-					// Копируем буфер чтения в буфер сравнения
+					// РљРѕРїРёСЂСѓРµРј Р±СѓС„РµСЂ С‡С‚РµРЅРёСЏ РІ Р±СѓС„РµСЂ СЃСЂР°РІРЅРµРЅРёСЏ
 					if (i.CodePage==CP_REVERSEBOM)
 					{
-						// Для UTF-16 (big endian) преобразуем буфер чтения в буфер сравнения
+						// Р”Р»СЏ UTF-16 (big endian) РїСЂРµРѕР±СЂР°Р·СѓРµРј Р±СѓС„РµСЂ С‡С‚РµРЅРёСЏ РІ Р±СѓС„РµСЂ СЃСЂР°РІРЅРµРЅРёСЏ
 						swap_bytes(readBufferA.data(), readBuffer.data(), readBlockSize);
-						// Устанавливаем буфер сравнения
+						// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј Р±СѓС„РµСЂ СЃСЂР°РІРЅРµРЅРёСЏ
 						buffer = readBuffer.data();
 					}
 					else
 					{
-						// Если поиск в UTF-16 (little endian), то используем исходный буфер
+						// Р•СЃР»Рё РїРѕРёСЃРє РІ UTF-16 (little endian), С‚Рѕ РёСЃРїРѕР»СЊР·СѓРµРј РёСЃС…РѕРґРЅС‹Р№ Р±СѓС„РµСЂ
 						buffer = (wchar_t *)readBufferA.data();
 					}
 				}
 				else
 				{
-					// Конвертируем буфер чтения из кодировки поиска в UTF-16
+					// РљРѕРЅРІРµСЂС‚РёСЂСѓРµРј Р±СѓС„РµСЂ С‡С‚РµРЅРёСЏ РёР· РєРѕРґРёСЂРѕРІРєРё РїРѕРёСЃРєР° РІ UTF-16
 					bufferCount = unicode::from(i.CodePage, readBufferA.data(), readBlockSize, readBuffer.data(), readBuffer.size());
 
-					// Выходим, если нам не удалось сконвертировать строку
+					// Р’С‹С…РѕРґРёРј, РµСЃР»Рё РЅР°Рј РЅРµ СѓРґР°Р»РѕСЃСЊ СЃРєРѕРЅРІРµСЂС‚РёСЂРѕРІР°С‚СЊ СЃС‚СЂРѕРєСѓ
 					if (!bufferCount)
 					{
 						ErrorState = true;
 						continue;
 					}
 
-					// Если у нас поиск по словам и в конце предыдущего блока было вхождение
+					// Р•СЃР»Рё Сѓ РЅР°СЃ РїРѕРёСЃРє РїРѕ СЃР»РѕРІР°Рј Рё РІ РєРѕРЅС†Рµ РїСЂРµРґС‹РґСѓС‰РµРіРѕ Р±Р»РѕРєР° Р±С‹Р»Рѕ РІС…РѕР¶РґРµРЅРёРµ
 					if (WholeWords && i.WordFound)
 					{
-						// Если конец файла, то считаем, что есть разделитель в конце
+						// Р•СЃР»Рё РєРѕРЅРµС† С„Р°Р№Р»Р°, С‚Рѕ СЃС‡РёС‚Р°РµРј, С‡С‚Рѕ РµСЃС‚СЊ СЂР°Р·РґРµР»РёС‚РµР»СЊ РІ РєРѕРЅС†Рµ
 						if (findStringCount-1>=bufferCount)
 							return true;
 
-						// Проверяем первый символ текущего блока с учётом обратного смещения, которое делается
-						// при переходе между блоками
+						// РџСЂРѕРІРµСЂСЏРµРј РїРµСЂРІС‹Р№ СЃРёРјРІРѕР» С‚РµРєСѓС‰РµРіРѕ Р±Р»РѕРєР° СЃ СѓС‡С‘С‚РѕРј РѕР±СЂР°С‚РЅРѕРіРѕ СЃРјРµС‰РµРЅРёСЏ, РєРѕС‚РѕСЂРѕРµ РґРµР»Р°РµС‚СЃСЏ
+						// РїСЂРё РїРµСЂРµС…РѕРґРµ РјРµР¶РґСѓ Р±Р»РѕРєР°РјРё
 						i.LastSymbol = readBuffer[findStringCount-1];
 
 						if (FindFiles::IsWordDiv(i.LastSymbol))
 							return true;
 
-						// Если размер буфера меньше размера слова, то выходим
+						// Р•СЃР»Рё СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РјРµРЅСЊС€Рµ СЂР°Р·РјРµСЂР° СЃР»РѕРІР°, С‚Рѕ РІС‹С…РѕРґРёРј
 						if (readBlockSize < findStringCount)
 						{
 							ErrorState = true;
@@ -1215,7 +1215,7 @@ bool background_searcher::LookForString(const string& Name)
 						}
 					}
 
-					// Устанавливаем буфер сравнения
+					// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј Р±СѓС„РµСЂ СЃСЂР°РІРЅРµРЅРёСЏ
 					buffer = readBuffer.data();
 				}
 
@@ -1224,47 +1224,47 @@ bool background_searcher::LookForString(const string& Name)
 
 				do
 				{
-					// Ищем подстроку в буфере и возвращаем индекс её начала в случае успеха
+					// РС‰РµРј РїРѕРґСЃС‚СЂРѕРєСѓ РІ Р±СѓС„РµСЂРµ Рё РІРѕР·РІСЂР°С‰Р°РµРј РёРЅРґРµРєСЃ РµС‘ РЅР°С‡Р°Р»Р° РІ СЃР»СѓС‡Р°Рµ СѓСЃРїРµС…Р°
 					int foundIndex = FindStringBMH(buffer+index, bufferCount-index);
 
-					// Если подстрока не найдена идём на следующий шаг
+					// Р•СЃР»Рё РїРѕРґСЃС‚СЂРѕРєР° РЅРµ РЅР°Р№РґРµРЅР° РёРґС‘Рј РЅР° СЃР»РµРґСѓСЋС‰РёР№ С€Р°Рі
 					if (foundIndex == -1)
 						break;
 
-					// Если подстрока найдена и отключен поиск по словам, то считаем что всё хорошо
+					// Р•СЃР»Рё РїРѕРґСЃС‚СЂРѕРєР° РЅР°Р№РґРµРЅР° Рё РѕС‚РєР»СЋС‡РµРЅ РїРѕРёСЃРє РїРѕ СЃР»РѕРІР°Рј, С‚Рѕ СЃС‡РёС‚Р°РµРј С‡С‚Рѕ РІСЃС‘ С…РѕСЂРѕС€Рѕ
 					if (!WholeWords)
 						return true;
-					// Устанавливаем позицию в исходном буфере
+					// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїРѕР·РёС†РёСЋ РІ РёСЃС…РѕРґРЅРѕРј Р±СѓС„РµСЂРµ
 					index += foundIndex;
 
-					// Если идёт поиск по словам, то делаем соответствующие проверки
+					// Р•СЃР»Рё РёРґС‘С‚ РїРѕРёСЃРє РїРѕ СЃР»РѕРІР°Рј, С‚Рѕ РґРµР»Р°РµРј СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёРµ РїСЂРѕРІРµСЂРєРё
 					bool firstWordDiv = false;
 
-					// Если мы находимся вначале блока
+					// Р•СЃР»Рё РјС‹ РЅР°С…РѕРґРёРјСЃСЏ РІРЅР°С‡Р°Р»Рµ Р±Р»РѕРєР°
 					if (!index)
 					{
-						// Если мы находимся вначале файла, то считаем, что разделитель есть
-						// Если мы находимся вначале блока, то проверяем является
-						// или нет последний символ предыдущего блока разделителем
+						// Р•СЃР»Рё РјС‹ РЅР°С…РѕРґРёРјСЃСЏ РІРЅР°С‡Р°Р»Рµ С„Р°Р№Р»Р°, С‚Рѕ СЃС‡РёС‚Р°РµРј, С‡С‚Рѕ СЂР°Р·РґРµР»РёС‚РµР»СЊ РµСЃС‚СЊ
+						// Р•СЃР»Рё РјС‹ РЅР°С…РѕРґРёРјСЃСЏ РІРЅР°С‡Р°Р»Рµ Р±Р»РѕРєР°, С‚Рѕ РїСЂРѕРІРµСЂСЏРµРј СЏРІР»СЏРµС‚СЃСЏ
+						// РёР»Рё РЅРµС‚ РїРѕСЃР»РµРґРЅРёР№ СЃРёРјРІРѕР» РїСЂРµРґС‹РґСѓС‰РµРіРѕ Р±Р»РѕРєР° СЂР°Р·РґРµР»РёС‚РµР»РµРј
 						if (alreadyRead == readBlockSize || FindFiles::IsWordDiv(i.LastSymbol))
 							firstWordDiv = true;
 					}
 					else
 					{
-						// Проверяем является или нет предыдущий найденному символ блока разделителем
+						// РџСЂРѕРІРµСЂСЏРµРј СЏРІР»СЏРµС‚СЃСЏ РёР»Рё РЅРµС‚ РїСЂРµРґС‹РґСѓС‰РёР№ РЅР°Р№РґРµРЅРЅРѕРјСѓ СЃРёРјРІРѕР» Р±Р»РѕРєР° СЂР°Р·РґРµР»РёС‚РµР»РµРј
 						i.LastSymbol = buffer[index-1];
 
 						if (FindFiles::IsWordDiv(i.LastSymbol))
 							firstWordDiv = true;
 					}
 
-					// Проверяем разделитель в конце, только если найден разделитель вначале
+					// РџСЂРѕРІРµСЂСЏРµРј СЂР°Р·РґРµР»РёС‚РµР»СЊ РІ РєРѕРЅС†Рµ, С‚РѕР»СЊРєРѕ РµСЃР»Рё РЅР°Р№РґРµРЅ СЂР°Р·РґРµР»РёС‚РµР»СЊ РІРЅР°С‡Р°Р»Рµ
 					if (firstWordDiv)
 					{
-						// Если блок выбран не до конца
+						// Р•СЃР»Рё Р±Р»РѕРє РІС‹Р±СЂР°РЅ РЅРµ РґРѕ РєРѕРЅС†Р°
 						if (index+findStringCount!=bufferCount)
 						{
-							// Проверяем является или нет последующий за найденным символ блока разделителем
+							// РџСЂРѕРІРµСЂСЏРµРј СЏРІР»СЏРµС‚СЃСЏ РёР»Рё РЅРµС‚ РїРѕСЃР»РµРґСѓСЋС‰РёР№ Р·Р° РЅР°Р№РґРµРЅРЅС‹Рј СЃРёРјРІРѕР» Р±Р»РѕРєР° СЂР°Р·РґРµР»РёС‚РµР»РµРј
 							i.LastSymbol = buffer[index+findStringCount];
 
 							if (FindFiles::IsWordDiv(i.LastSymbol))
@@ -1276,27 +1276,27 @@ bool background_searcher::LookForString(const string& Name)
 				}
 				while (++index<=bufferCount-findStringCount);
 
-				// Выходим, если мы вышли за пределы количества байт разрешённых для поиска
+				// Р’С‹С…РѕРґРёРј, РµСЃР»Рё РјС‹ РІС‹С€Р»Рё Р·Р° РїСЂРµРґРµР»С‹ РєРѕР»РёС‡РµСЃС‚РІР° Р±Р°Р№С‚ СЂР°Р·СЂРµС€С‘РЅРЅС‹С… РґР»СЏ РїРѕРёСЃРєР°
 				if (SearchInFirst && SearchInFirst>=alreadyRead)
 				{
 					ErrorState = true;
 					continue;
 				}
-				// Запоминаем последний символ блока
+				// Р—Р°РїРѕРјРёРЅР°РµРј РїРѕСЃР»РµРґРЅРёР№ СЃРёРјРІРѕР» Р±Р»РѕРєР°
 				i.LastSymbol = buffer[bufferCount-1];
 			}
 
 			if (ErrorState)
 				return false;
 
-			// Получаем смещение на которое мы отступили при переходе между блоками
+			// РџРѕР»СѓС‡Р°РµРј СЃРјРµС‰РµРЅРёРµ РЅР° РєРѕС‚РѕСЂРѕРµ РјС‹ РѕС‚СЃС‚СѓРїРёР»Рё РїСЂРё РїРµСЂРµС…РѕРґРµ РјРµР¶РґСѓ Р±Р»РѕРєР°РјРё
 			offset = (CodePage == CP_SET? sizeof(wchar_t) : m_CodePages.begin()->MaxCharSize) * (findStringCount - 1);
 		}
 
-		// Если мы потенциально прочитали не весь файл
+		// Р•СЃР»Рё РјС‹ РїРѕС‚РµРЅС†РёР°Р»СЊРЅРѕ РїСЂРѕС‡РёС‚Р°Р»Рё РЅРµ РІРµСЃСЊ С„Р°Р№Р»
 		if (readBlockSize == readBuffer.size())
 		{
-			// Отступаем назад на длину слова поиска минус 1
+			// РћС‚СЃС‚СѓРїР°РµРј РЅР°Р·Р°Рґ РЅР° РґР»РёРЅСѓ СЃР»РѕРІР° РїРѕРёСЃРєР° РјРёРЅСѓСЃ 1
 			if (!file.SetPointer(-1ll*offset, nullptr, FILE_CURRENT))
 				return false;
 			alreadyRead -= offset;
@@ -1318,7 +1318,7 @@ bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, const string
 
 	if (FileFound)
 	{
-		// Если включен режим поиска hex-кодов, тогда папки в поиск не включаем
+		// Р•СЃР»Рё РІРєР»СЋС‡РµРЅ СЂРµР¶РёРј РїРѕРёСЃРєР° hex-РєРѕРґРѕРІ, С‚РѕРіРґР° РїР°РїРєРё РІ РїРѕРёСЃРє РЅРµ РІРєР»СЋС‡Р°РµРј
 		if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (!Global->Opt->FindOpt.FindFolders || SearchHex))
 			return false;
 
@@ -1338,7 +1338,7 @@ bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, const string
 					if (!Global->CtrlObject->Plugins->UseFarCommand(hPlugin, PLUGIN_FARGETFILES))
 					{
 						string strTempDir;
-						FarMkTempEx(strTempDir); // А проверка на nullptr???
+						FarMkTempEx(strTempDir); // Рђ РїСЂРѕРІРµСЂРєР° РЅР° nullptr???
 						os::CreateDirectory(strTempDir,nullptr);
 
 						bool GetFileResult=false;
@@ -1456,7 +1456,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 		{
 			Dlg->DefProc(Msg,Param1,Param2);
 
-			// Переместим фокус на кнопку [Go To]
+			// РџРµСЂРµРјРµСЃС‚РёРј С„РѕРєСѓСЃ РЅР° РєРЅРѕРїРєСѓ [Go To]
 			if ((itd->GetDirCount() || itd->GetFileCount()) && !FindPositionChanged)
 			{
 				FindPositionChanged=true;
@@ -1632,7 +1632,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					{
 						if(!(FindItem->Arc->Flags & OPIF_REALNAMES))
 						{
-							// Плагины надо закрывать, если открыли.
+							// РџР»Р°РіРёРЅС‹ РЅР°РґРѕ Р·Р°РєСЂС‹РІР°С‚СЊ, РµСЃР»Рё РѕС‚РєСЂС‹Р»Рё.
 							bool ClosePanel=false;
 							real_name = false;
 
@@ -1745,9 +1745,9 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			case FD_BUTTON_GOTO:
 			case FD_BUTTON_PANEL:
 				{
-					// Переход и посыл на панель будем делать не в диалоге, а после окончания поиска.
-					// Иначе возможна ситуация, когда мы ищем на панели, потом ее грохаем и создаем новую
-					// (а поиск-то идет!) и в результате ФАР трапается.
+					// РџРµСЂРµС…РѕРґ Рё РїРѕСЃС‹Р» РЅР° РїР°РЅРµР»СЊ Р±СѓРґРµРј РґРµР»Р°С‚СЊ РЅРµ РІ РґРёР°Р»РѕРіРµ, Р° РїРѕСЃР»Рµ РѕРєРѕРЅС‡Р°РЅРёСЏ РїРѕРёСЃРєР°.
+					// РРЅР°С‡Рµ РІРѕР·РјРѕР¶РЅР° СЃРёС‚СѓР°С†РёСЏ, РєРѕРіРґР° РјС‹ РёС‰РµРј РЅР° РїР°РЅРµР»Рё, РїРѕС‚РѕРј РµРµ РіСЂРѕС…Р°РµРј Рё СЃРѕР·РґР°РµРј РЅРѕРІСѓСЋ
+					// (Р° РїРѕРёСЃРє-С‚Рѕ РёРґРµС‚!) Рё РІ СЂРµР·СѓР»СЊС‚Р°С‚Рµ Р¤РђР  С‚СЂР°РїР°РµС‚СЃСЏ.
 					if(ListBox->empty())
 					{
 						return TRUE;
@@ -1893,7 +1893,7 @@ void FindFiles::OpenFile(string strSearchFileName, int openKey, const FindListIt
 			NamesList ViewList;
 			int list_count = 0;
 
-			// Возьмем все файлы, которые имеют реальные имена...
+			// Р’РѕР·СЊРјРµРј РІСЃРµ С„Р°Р№Р»С‹, РєРѕС‚РѕСЂС‹Рµ РёРјРµСЋС‚ СЂРµР°Р»СЊРЅС‹Рµ РёРјРµРЅР°...
 			itd->ForEachFindItem([&list_count, &ViewList](const FindListItem& i)
 			{
 				if (!i.Arc || (i.Arc->Flags & OPIF_REALNAMES))
@@ -1918,7 +1918,7 @@ void FindFiles::OpenFile(string strSearchFileName, int openKey, const FindListIt
 					ShellViewer->SetSaveToSaveAs(true);
 
 				Global->WindowManager->ExecuteModal(ShellViewer);
-				// заставляем рефрешится экран
+				// Р·Р°СЃС‚Р°РІР»СЏРµРј СЂРµС„СЂРµС€РёС‚СЃСЏ СЌРєСЂР°РЅ
 				Global->WindowManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
 			}
 			Dlg->SendMessage(DM_ENABLEREDRAW, TRUE, nullptr);
@@ -1937,7 +1937,7 @@ void FindFiles::OpenFile(string strSearchFileName, int openKey, const FindListIt
 			if (editorExitCode != XC_OPEN_ERROR && editorExitCode != XC_LOADING_INTERRUPTED)
 			{
 				Global->WindowManager->ExecuteModal(ShellEditor);
-				// заставляем рефрешится экран
+				// Р·Р°СЃС‚Р°РІР»СЏРµРј СЂРµС„СЂРµС€РёС‚СЃСЏ СЌРєСЂР°РЅ
 				Global->WindowManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
 			}
 		}
@@ -1991,12 +1991,12 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, string& strLas
 			case DIZ_COLUMN:
 			case OWNER_COLUMN:
 			{
-				// пропускаем, не реализовано
+				// РїСЂРѕРїСѓСЃРєР°РµРј, РЅРµ СЂРµР°Р»РёР·РѕРІР°РЅРѕ
 				break;
 			}
 			case NAME_COLUMN:
 			{
-				// даже если указали, пропускаем, т.к. поле имени обязательное и идет в конце.
+				// РґР°Р¶Рµ РµСЃР»Рё СѓРєР°Р·Р°Р»Рё, РїСЂРѕРїСѓСЃРєР°РµРј, С‚.Рє. РїРѕР»Рµ РёРјРµРЅРё РѕР±СЏР·Р°С‚РµР»СЊРЅРѕРµ Рё РёРґРµС‚ РІ РєРѕРЅС†Рµ.
 				break;
 			}
 
@@ -2072,10 +2072,10 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, string& strLas
 	}
 
 
-	// В плагинах принудительно поставим указатель в имени на имя
-	// для корректного его отображения в списке, отбросив путь,
-	// т.к. некоторые плагины возвращают имя вместе с полным путём,
-	// к примеру временная панель.
+	// Р’ РїР»Р°РіРёРЅР°С… РїСЂРёРЅСѓРґРёС‚РµР»СЊРЅРѕ РїРѕСЃС‚Р°РІРёРј СѓРєР°Р·Р°С‚РµР»СЊ РІ РёРјРµРЅРё РЅР° РёРјСЏ
+	// РґР»СЏ РєРѕСЂСЂРµРєС‚РЅРѕРіРѕ РµРіРѕ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ РІ СЃРїРёСЃРєРµ, РѕС‚Р±СЂРѕСЃРёРІ РїСѓС‚СЊ,
+	// С‚.Рє. РЅРµРєРѕС‚РѕСЂС‹Рµ РїР»Р°РіРёРЅС‹ РІРѕР·РІСЂР°С‰Р°СЋС‚ РёРјСЏ РІРјРµСЃС‚Рµ СЃ РїРѕР»РЅС‹Рј РїСѓС‚С‘Рј,
+	// Рє РїСЂРёРјРµСЂСѓ РІСЂРµРјРµРЅРЅР°СЏ РїР°РЅРµР»СЊ.
 
 	const wchar_t *DisplayName0=DisplayName;
 	if (itd->GetFindFileArcItem())
@@ -2122,13 +2122,13 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, string& strLas
 			}
 		}
 		FindListItem& FindItem = itd->AddFindListItem(FindData,Data,nullptr);
-		// Сбросим данные в FindData. Они там от файла
+		// РЎР±СЂРѕСЃРёРј РґР°РЅРЅС‹Рµ РІ FindData. РћРЅРё С‚Р°Рј РѕС‚ С„Р°Р№Р»Р°
 		FindItem.FindData.Clear();
-		// Используем LastDirName, т.к. PathName уже может быть искажена
+		// РСЃРїРѕР»СЊР·СѓРµРј LastDirName, С‚.Рє. PathName СѓР¶Рµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РёСЃРєР°Р¶РµРЅР°
 		FindItem.FindData.strFileName = strLastDirName;
-		// Used=0 - Имя не попадёт во временную панель.
+		// Used=0 - РРјСЏ РЅРµ РїРѕРїР°РґС‘С‚ РІРѕ РІСЂРµРјРµРЅРЅСѓСЋ РїР°РЅРµР»СЊ.
 		FindItem.Used=0;
-		// Поставим атрибут у каталога, чтобы он не был файлом :)
+		// РџРѕСЃС‚Р°РІРёРј Р°С‚СЂРёР±СѓС‚ Сѓ РєР°С‚Р°Р»РѕРіР°, С‡С‚РѕР±С‹ РѕРЅ РЅРµ Р±С‹Р» С„Р°Р№Р»РѕРј :)
 		FindItem.FindData.dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY;
 		FindItem.Arc = itd->GetFindFileArcItem();;
 
@@ -2150,7 +2150,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, string& strLas
 		ListPos = ListBox->AddItem(std::move(ListItem));
 	}
 
-	// Выделим как положено - в списке.
+	// Р’С‹РґРµР»РёРј РєР°Рє РїРѕР»РѕР¶РµРЅРѕ - РІ СЃРїРёСЃРєРµ.
 	int FC=itd->GetFileCount(), DC=itd->GetDirCount(), LF=itd->GetLastFoundNumber();
 	if (!FC && !DC)
 	{
@@ -2179,7 +2179,7 @@ void background_searcher::AddMenuRecord(Dialog* Dlg, const string& FullName, str
 	os::FAR_FIND_DATA fdata;
 	PluginPanelItemToFindDataEx(FindData, fdata);
 	m_Owner->AddMenuRecord(Dlg, FullName, LastDirName, fdata, FindData.UserData.Data, FindData.UserData.FreeData);
-	FindData.UserData.FreeData = nullptr; //передано в FINDLIST
+	FindData.UserData.FreeData = nullptr; //РїРµСЂРµРґР°РЅРѕ РІ FINDLIST
 }
 
 void background_searcher::ArchiveSearch(Dialog* Dlg, const string& ArcName)
@@ -2221,11 +2221,11 @@ void background_searcher::ArchiveSearch(Dialog* Dlg, const string& ArcName)
 		OpenPanelInfo Info;
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(hArc,&Info);
 		m_Owner->itd->SetFindFileArcItem(&m_Owner->itd->AddArcListItem(ArcName, hArc, Info.Flags, NullToEmpty(Info.CurDir)));
-		// Запомним каталог перед поиском в архиве. И если ничего не нашли - не рисуем его снова.
+		// Р—Р°РїРѕРјРЅРёРј РєР°С‚Р°Р»РѕРі РїРµСЂРµРґ РїРѕРёСЃРєРѕРј РІ Р°СЂС…РёРІРµ. Р РµСЃР»Рё РЅРёС‡РµРіРѕ РЅРµ РЅР°С€Р»Рё - РЅРµ СЂРёСЃСѓРµРј РµРіРѕ СЃРЅРѕРІР°.
 		{
 			string strSaveDirName, strSaveSearchPath;
 			size_t SaveListCount = m_Owner->itd->GetFindListCount();
-			// Запомним пути поиска в плагине, они могут измениться.
+			// Р—Р°РїРѕРјРЅРёРј РїСѓС‚Рё РїРѕРёСЃРєР° РІ РїР»Р°РіРёРЅРµ, РѕРЅРё РјРѕРіСѓС‚ РёР·РјРµРЅРёС‚СЊСЃСЏ.
 			strSaveSearchPath = strPluginSearchPath;
 			strSaveDirName = strLastDirName;
 			strLastDirName.clear();
@@ -2362,9 +2362,9 @@ void background_searcher::DoScanTree(Dialog* Dlg, const string& strRoot)
 
 					if (!m_Owner->GetFilter()->FileInFilter(FindData, &foundType, &strFullName))
 					{
-						// сюда заходим, если не попали в фильтр или попали в Exclude-фильтр
+						// СЃСЋРґР° Р·Р°С…РѕРґРёРј, РµСЃР»Рё РЅРµ РїРѕРїР°Р»Рё РІ С„РёР»СЊС‚СЂ РёР»Рё РїРѕРїР°Р»Рё РІ Exclude-С„РёР»СЊС‚СЂ
 						if ((FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && foundType==FIFT_EXCLUDE)
-							ScTree.SkipDir(); // скипаем только по Exclude-фильтру, т.к. глубже тоже нужно просмотреть
+							ScTree.SkipDir(); // СЃРєРёРїР°РµРј С‚РѕР»СЊРєРѕ РїРѕ Exclude-С„РёР»СЊС‚СЂСѓ, С‚.Рє. РіР»СѓР±Р¶Рµ С‚РѕР¶Рµ РЅСѓР¶РЅРѕ РїСЂРѕСЃРјРѕС‚СЂРµС‚СЊ
 
 						{
 							bContinue=true;
@@ -2660,7 +2660,7 @@ unsigned int background_searcher::ThreadRoutine(THREADPARAM* Param)
 bool FindFiles::FindFilesProcess()
 {
 	_ALGO(CleverSysLog clv(L"FindFiles::FindFilesProcess()"));
-	// Если используется фильтр операций, то во время поиска сообщаем об этом
+	// Р•СЃР»Рё РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ С„РёР»СЊС‚СЂ РѕРїРµСЂР°С†РёР№, С‚Рѕ РІРѕ РІСЂРµРјСЏ РїРѕРёСЃРєР° СЃРѕРѕР±С‰Р°РµРј РѕР± СЌС‚РѕРј
 	string strTitle=MSG(MFindFileTitle);
 
 	itd->Init();
@@ -2762,8 +2762,8 @@ bool FindFiles::FindFilesProcess()
 			// BUGBUG
 			m_Searcher = &BC;
 
-			// Надо бы показать диалог, а то инициализация элементов запаздывает
-			// иногда при поиске и первые элементы не добавляются
+			// РќР°РґРѕ Р±С‹ РїРѕРєР°Р·Р°С‚СЊ РґРёР°Р»РѕРі, Р° С‚Рѕ РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ СЌР»РµРјРµРЅС‚РѕРІ Р·Р°РїР°Р·РґС‹РІР°РµС‚
+			// РёРЅРѕРіРґР° РїСЂРё РїРѕРёСЃРєРµ Рё РїРµСЂРІС‹Рµ СЌР»РµРјРµРЅС‚С‹ РЅРµ РґРѕР±Р°РІР»СЏСЋС‚СЃСЏ
 			Dlg->InitDialog();
 			Dlg->Show();
 			
@@ -2781,7 +2781,7 @@ bool FindFiles::FindFilesProcess()
 			}
 
 			case FD_BUTTON_PANEL:
-			// Отработаем переброску на временную панель
+			// РћС‚СЂР°Р±РѕС‚Р°РµРј РїРµСЂРµР±СЂРѕСЃРєСѓ РЅР° РІСЂРµРјРµРЅРЅСѓСЋ РїР°РЅРµР»СЊ
 			{
 				std::vector<PluginPanelItem> PanelItems;
 				PanelItems.reserve(itd->GetFindListCount());
@@ -2790,11 +2790,11 @@ bool FindFiles::FindFilesProcess()
 				{
 					if (!i.FindData.strFileName.empty() && i.Used)
 					{
-					// Добавляем всегда, если имя задано
-						// Для плагинов с виртуальными именами заменим имя файла на имя архива.
-						// панель сама уберет лишние дубли.
+					// Р”РѕР±Р°РІР»СЏРµРј РІСЃРµРіРґР°, РµСЃР»Рё РёРјСЏ Р·Р°РґР°РЅРѕ
+						// Р”Р»СЏ РїР»Р°РіРёРЅРѕРІ СЃ РІРёСЂС‚СѓР°Р»СЊРЅС‹РјРё РёРјРµРЅР°РјРё Р·Р°РјРµРЅРёРј РёРјСЏ С„Р°Р№Р»Р° РЅР° РёРјСЏ Р°СЂС…РёРІР°.
+						// РїР°РЅРµР»СЊ СЃР°РјР° СѓР±РµСЂРµС‚ Р»РёС€РЅРёРµ РґСѓР±Р»Рё.
 						const auto IsArchive = i.Arc && !(i.Arc->Flags&OPIF_REALNAMES);
-						// Добавляем только файлы или имена архивов или папки когда просили
+						// Р”РѕР±Р°РІР»СЏРµРј С‚РѕР»СЊРєРѕ С„Р°Р№Р»С‹ РёР»Рё РёРјРµРЅР° Р°СЂС…РёРІРѕРІ РёР»Рё РїР°РїРєРё РєРѕРіРґР° РїСЂРѕСЃРёР»Рё
 						if (IsArchive || (Global->Opt->FindOpt.FindFolders && !SearchHex) ||
 							    !(i.FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
 						{							
@@ -2909,15 +2909,15 @@ bool FindFiles::FindFilesProcess()
 						FindPanel=Global->CtrlObject->Cp()->GetAnotherPanel(FindPanel);
 
 					if ((FindPanel->GetType()!=FILE_PANEL) || (FindPanel->GetMode()!=NORMAL_PANEL))
-					// Сменим панель на обычную файловую...
+					// РЎРјРµРЅРёРј РїР°РЅРµР»СЊ РЅР° РѕР±С‹С‡РЅСѓСЋ С„Р°Р№Р»РѕРІСѓСЋ...
 					{
 						FindPanel=Global->CtrlObject->Cp()->ChangePanel(FindPanel,FILE_PANEL,TRUE,TRUE);
 						FindPanel->SetVisible(true);
 						FindPanel->Update(0);
 					}
 
-					// ! Не меняем каталог, если мы уже в нем находимся.
-					// Тем самым добиваемся того, что выделение с элементов панели не сбрасывается.
+					// ! РќРµ РјРµРЅСЏРµРј РєР°С‚Р°Р»РѕРі, РµСЃР»Рё РјС‹ СѓР¶Рµ РІ РЅРµРј РЅР°С…РѕРґРёРјСЃСЏ.
+					// РўРµРј СЃР°РјС‹Рј РґРѕР±РёРІР°РµРјСЃСЏ С‚РѕРіРѕ, С‡С‚Рѕ РІС‹РґРµР»РµРЅРёРµ СЃ СЌР»РµРјРµРЅС‚РѕРІ РїР°РЅРµР»Рё РЅРµ СЃР±СЂР°СЃС‹РІР°РµС‚СЃСЏ.
 					string strDirTmp = FindPanel->GetCurDir();
 					Length=strDirTmp.size();
 
@@ -3095,7 +3095,7 @@ FindFiles::FindFiles():
 		Dlg->SetPosition(-1,-1,80,21);
 		Dlg->Process();
 		ExitCode=Dlg->GetExitCode();
-		//Рефреш текущему времени для фильтра сразу после выхода из диалога
+		//Р РµС„СЂРµС€ С‚РµРєСѓС‰РµРјСѓ РІСЂРµРјРµРЅРё РґР»СЏ С„РёР»СЊС‚СЂР° СЃСЂР°Р·Сѓ РїРѕСЃР»Рµ РІС‹С…РѕРґР° РёР· РґРёР°Р»РѕРіР°
 		Filter->UpdateCurrentTime();
 
 		if (ExitCode!=FAD_BUTTON_FIND)

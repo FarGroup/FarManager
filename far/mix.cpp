@@ -1,11 +1,11 @@
-/*
+п»ї/*
 mix.cpp
 
-Куча разных вспомогательных функций
+РљСѓС‡Р° СЂР°Р·РЅС‹С… РІСЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹С… С„СѓРЅРєС†РёР№
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 /*
-             v - точка
+             v - С‚РѕС‡РєР°
    prefXXX X X XXX
        \ / ^   ^^^\ PID + TID
         |  \------/

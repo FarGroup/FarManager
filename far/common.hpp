@@ -1,3 +1,5 @@
+﻿#ifndef COMMON_HPP_1BD5AB87_3379_4AFE_9F63_DB850DCF72B4
+#define COMMON_HPP_1BD5AB87_3379_4AFE_9F63_DB850DCF72B4
 #pragma once
 
 /*
@@ -7,7 +9,7 @@ Some useful classes, templates && macros.
 
 */
 /*
-Copyright � 2013 Far Group
+Copyright © 2013 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -237,3 +239,5 @@ namespace \
 #define EOL_STR L"\r\n"
 
 typedef std::wstring string;
+
+#endif // COMMON_HPP_1BD5AB87_3379_4AFE_9F63_DB850DCF72B4

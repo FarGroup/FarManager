@@ -1,3 +1,5 @@
+﻿#ifndef WAKEFUL_HPP_31CAF435_8064_4F9A_8F28_FD16436E949A
+#define WAKEFUL_HPP_31CAF435_8064_4F9A_8F28_FD16436E949A
 #pragma once
 
 /*
@@ -6,7 +8,7 @@ wakeful.hpp
 Preventing the system from entering sleep
 */
 /*
-Copyright � 2010 Far Group
+Copyright © 2010 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -47,3 +49,5 @@ public:
 private:
 	EXECUTION_STATE PreviousState;
 };
+
+#endif // WAKEFUL_HPP_31CAF435_8064_4F9A_8F28_FD16436E949A

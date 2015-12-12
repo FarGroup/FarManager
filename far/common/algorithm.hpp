@@ -1,7 +1,9 @@
+﻿#ifndef ALGORITHM_HPP_BBD588C0_4752_46B2_AAB9_65450622FFF0
+#define ALGORITHM_HPP_BBD588C0_4752_46B2_AAB9_65450622FFF0
 #pragma once
 
 /*
-Copyright � 2014 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -93,3 +95,4 @@ void for_submatrix(T& Matrix, size_t X1, size_t Y1, size_t X2, size_t Y2, P Pred
 		}
 	}
 }
+#endif // ALGORITHM_HPP_BBD588C0_4752_46B2_AAB9_65450622FFF0

@@ -1,13 +1,15 @@
+п»ї#ifndef HISTORY_HPP_B662E92D_BF1B_4B20_AD60_8959531FA6EE
+#define HISTORY_HPP_B662E92D_BF1B_4B20_AD60_8959531FA6EE
 #pragma once
 
 /*
 history.hpp
 
-История (Alt-F8, Alt-F11, Alt-F12)
+РСЃС‚РѕСЂРёСЏ (Alt-F8, Alt-F11, Alt-F12)
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -104,3 +106,5 @@ private:
 	int m_RemoveDups;
 	unsigned __int64 m_CurrentItem;
 };
+
+#endif // HISTORY_HPP_B662E92D_BF1B_4B20_AD60_8959531FA6EE

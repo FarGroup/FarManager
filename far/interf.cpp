@@ -1,11 +1,11 @@
-/*
+ï»¿/*
 interf.cpp
 
-Êîíñîëüíûå ôóíêöèè ââîäà-âûâîäà
+ÐšÐ¾Ð½ÑÐ¾Ð»ÑŒÐ½Ñ‹Ðµ Ñ„ÑƒÐ½ÐºÑ†Ð¸Ð¸ Ð²Ð²Ð¾Ð´Ð°-Ð²Ñ‹Ð²Ð¾Ð´Ð°
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright Â© 1996 Eugene Roshal
+Copyright Â© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -200,7 +200,7 @@ BOOL WINAPI CtrlHandler(DWORD CtrlType)
 
 static int ConsoleScrollHook(const Manager::Key& key)
 {
-	// Óäàëèòü ïîñëå ïîÿâëåíèÿ ìàêðîôóíêöèè Scroll
+	// Ð£Ð´Ð°Ð»Ð¸Ñ‚ÑŒ Ð¿Ð¾ÑÐ»Ðµ Ð¿Ð¾ÑÐ²Ð»ÐµÐ½Ð¸Ñ Ð¼Ð°ÐºÑ€Ð¾Ñ„ÑƒÐ½ÐºÑ†Ð¸Ð¸ Scroll
 	if (Global->Opt->WindowMode && Global->WindowManager->IsPanelsActive())
 	{
 		switch (key.FarKey())
@@ -318,8 +318,8 @@ void InitConsole(int FirstInit)
 	SetFarConsoleMode();
 
 	/* $ 09.04.2002 DJ
-	   åñëè ðàçìåð êîíñîëüíîãî áóôåðà áîëüøå ðàçìåðà îêíà, âûñòàâèì
-	   èõ ðàâíûìè
+	   ÐµÑÐ»Ð¸ Ñ€Ð°Ð·Ð¼ÐµÑ€ ÐºÐ¾Ð½ÑÐ¾Ð»ÑŒÐ½Ð¾Ð³Ð¾ Ð±ÑƒÑ„ÐµÑ€Ð° Ð±Ð¾Ð»ÑŒÑˆÐµ Ñ€Ð°Ð·Ð¼ÐµÑ€Ð° Ð¾ÐºÐ½Ð°, Ð²Ñ‹ÑÑ‚Ð°Ð²Ð¸Ð¼
+	   Ð¸Ñ… Ñ€Ð°Ð²Ð½Ñ‹Ð¼Ð¸
 	*/
 	if (FirstInit)
 	{
@@ -388,7 +388,7 @@ void SetFarConsoleMode(BOOL SetsActiveBuffer)
 	}
 	else
 	{
-		//åñëè âäðóã èçìåíèëè îïöèþ âî âðåìÿ ðàáîòû ôàðà, òî âêëþ÷èì òî ÷òî íàäî
+		//ÐµÑÐ»Ð¸ Ð²Ð´Ñ€ÑƒÐ³ Ð¸Ð·Ð¼ÐµÐ½Ð¸Ð»Ð¸ Ð¾Ð¿Ñ†Ð¸ÑŽ Ð²Ð¾ Ð²Ñ€ÐµÐ¼Ñ Ñ€Ð°Ð±Ð¾Ñ‚Ñ‹ Ñ„Ð°Ñ€Ð°, Ñ‚Ð¾ Ð²ÐºÐ»ÑŽÑ‡Ð¸Ð¼ Ñ‚Ð¾ Ñ‡Ñ‚Ð¾ Ð½Ð°Ð´Ð¾
 		Mode|=InitialConsoleMode&(ENABLE_EXTENDED_FLAGS|ENABLE_QUICK_EDIT_MODE);
 	}
 
@@ -397,7 +397,7 @@ void SetFarConsoleMode(BOOL SetsActiveBuffer)
 
 	ChangeConsoleMode(Mode);
 
-	//âîñòàíîâèì äåôîëòíûé ðåæèì âûâîäà, à òî åñòü òàêèå ïðîãè ÷òî ñáðàñûâàþò
+	//Ð²Ð¾ÑÑ‚Ð°Ð½Ð¾Ð²Ð¸Ð¼ Ð´ÐµÑ„Ð¾Ð»Ñ‚Ð½Ñ‹Ð¹ Ñ€ÐµÐ¶Ð¸Ð¼ Ð²Ñ‹Ð²Ð¾Ð´Ð°, Ð° Ñ‚Ð¾ ÐµÑÑ‚ÑŒ Ñ‚Ð°ÐºÐ¸Ðµ Ð¿Ñ€Ð¾Ð³Ð¸ Ñ‡Ñ‚Ð¾ ÑÐ±Ñ€Ð°ÑÑ‹Ð²Ð°ÑŽÑ‚
 	ChangeConsoleMode(ENABLE_PROCESSED_OUTPUT|ENABLE_WRAP_AT_EOL_OUTPUT, 1);
 	ChangeConsoleMode(ENABLE_PROCESSED_OUTPUT|ENABLE_WRAP_AT_EOL_OUTPUT, 2);
 }
@@ -530,7 +530,7 @@ void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx, int Sy)
 
 void GetVideoMode(COORD& Size)
 {
-	//÷òîá ðåøèòü áàã âèíäû ïðèâîäÿùèé ê ïîÿâëåíèþ ñêðîëîâ è ò.ï. ïîñëå ïîòåðè ôîêóñà
+	//Ñ‡Ñ‚Ð¾Ð± Ñ€ÐµÑˆÐ¸Ñ‚ÑŒ Ð±Ð°Ð³ Ð²Ð¸Ð½Ð´Ñ‹ Ð¿Ñ€Ð¸Ð²Ð¾Ð´ÑÑ‰Ð¸Ð¹ Ðº Ð¿Ð¾ÑÐ²Ð»ÐµÐ½Ð¸ÑŽ ÑÐºÑ€Ð¾Ð»Ð¾Ð² Ð¸ Ñ‚.Ð¿. Ð¿Ð¾ÑÐ»Ðµ Ð¿Ð¾Ñ‚ÐµÑ€Ð¸ Ñ„Ð¾ÐºÑƒÑÐ°
 	SaveConsoleWindowRect();
 	Size.X=0;
 	Size.Y=0;
@@ -690,7 +690,7 @@ void InitRecodeOutTable()
 		Buffer[BS_H2] = L'=';
 	};
 
-	// ïåðåä [ïåðå]èíèöèàëèçàöèåé âîññòàíîâèì áóôåð (ëèáî èç ðååñòðà, ëèáî...)
+	// Ð¿ÐµÑ€ÐµÐ´ [Ð¿ÐµÑ€Ðµ]Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸ÐµÐ¹ Ð²Ð¾ÑÑÑ‚Ð°Ð½Ð¾Ð²Ð¸Ð¼ Ð±ÑƒÑ„ÐµÑ€ (Ð»Ð¸Ð±Ð¾ Ð¸Ð· Ñ€ÐµÐµÑÑ‚Ñ€Ð°, Ð»Ð¸Ð±Ð¾...)
 	xwcsncpy(BoxSymbols, Global->Opt->strBoxSymbols.data(), ARRAYSIZE(BoxSymbols) - 1);
 
 	if (Global->Opt->NoGraphics)
@@ -765,7 +765,7 @@ static void HiTextBase(const string& Str, const std::function<void(const string&
 		if (AmpEnd == string::npos)
 			AmpEnd = Str.size();
 
-		if ((AmpEnd - AmpBegin) & 1) // íå÷åò?
+		if ((AmpEnd - AmpBegin) & 1) // Ð½ÐµÑ‡ÐµÑ‚?
 		{
 			TextHandler(Str.substr(0, AmpBegin));
 
@@ -919,7 +919,7 @@ void BoxText(const wchar_t* Str, size_t Size, bool IsVert)
 
 
 /*
-   Îòðèñîâêà ïðÿìîóãîëüíèêà.
+   ÐžÑ‚Ñ€Ð¸ÑÐ¾Ð²ÐºÐ° Ð¿Ñ€ÑÐ¼Ð¾ÑƒÐ³Ð¾Ð»ÑŒÐ½Ð¸ÐºÐ°.
 */
 void Box(int x1,int y1,int x2,int y2,const FarColor& Color,int Type)
 {
@@ -1029,7 +1029,7 @@ void DrawLine(int Length,int Type, const wchar_t* UserSep)
 	}
 }
 
-// "Íàðèñîâàòü" ñåïàðàòîð â ïàìÿòè.
+// "ÐÐ°Ñ€Ð¸ÑÐ¾Ð²Ð°Ñ‚ÑŒ" ÑÐµÐ¿Ð°Ñ€Ð°Ñ‚Ð¾Ñ€ Ð² Ð¿Ð°Ð¼ÑÑ‚Ð¸.
 string MakeSeparator(int Length, int Type, const wchar_t* UserSep)
 {
 	// left-center-right/top-center-bottom
@@ -1140,7 +1140,7 @@ size_t HiStrlen(const string& str)
 			const auto Count = AmpEnd - i;
 			i = AmpEnd - 1;
 
-			if (Count & 1) //íå÷¸ò?
+			if (Count & 1) //Ð½ÐµÑ‡Ñ‘Ñ‚?
 			{
 				if (Hi)
 					++Length;

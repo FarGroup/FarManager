@@ -1,13 +1,15 @@
+п»ї#ifndef INTERF_HPP_A91E1A99_C78E_41EC_B0F8_5C35A6C99116
+#define INTERF_HPP_A91E1A99_C78E_41EC_B0F8_5C35A6C99116
 #pragma once
 
 /*
 interf.hpp
 
-Консольные функции ввода-вывода
+РљРѕРЅСЃРѕР»СЊРЅС‹Рµ С„СѓРЅРєС†РёРё РІРІРѕРґР°-РІС‹РІРѕРґР°
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -43,7 +45,7 @@ extern SHORT ScrX,ScrY;
 extern SHORT PrevScrX,PrevScrY;
 extern DWORD InitialConsoleMode;
 
-// типы рамок
+// С‚РёРїС‹ СЂР°РјРѕРє
 enum
 {
 	NO_BOX,
@@ -71,22 +73,22 @@ enum BOX_DEF_SYMBOLS
 	BS_RB_H1V2,       // 0xBD
 	BS_RB_H2V1,       // 0xBE
 	BS_RT_H1V1,       // 0xBF
-	BS_LB_H1V1,       // 0xС0
-	BS_B_H1V1,        // 0xС1
-	BS_T_H1V1,        // 0xС2
-	BS_L_H1V1,        // 0xС3
-	BS_H1,            // 0xС4
-	BS_C_H1V1,        // 0xС5
-	BS_L_H2V1,        // 0xС6
-	BS_L_H1V2,        // 0xС7
-	BS_LB_H2V2,       // 0xС8
-	BS_LT_H2V2,       // 0xС9
-	BS_B_H2V2,        // 0xСA
-	BS_T_H2V2,        // 0xСB
-	BS_L_H2V2,        // 0xСC
-	BS_H2,            // 0xСD
-	BS_C_H2V2,        // 0xСE
-	BS_B_H2V1,        // 0xСF
+	BS_LB_H1V1,       // 0xРЎ0
+	BS_B_H1V1,        // 0xРЎ1
+	BS_T_H1V1,        // 0xРЎ2
+	BS_L_H1V1,        // 0xРЎ3
+	BS_H1,            // 0xРЎ4
+	BS_C_H1V1,        // 0xРЎ5
+	BS_L_H2V1,        // 0xРЎ6
+	BS_L_H1V2,        // 0xРЎ7
+	BS_LB_H2V2,       // 0xРЎ8
+	BS_LT_H2V2,       // 0xРЎ9
+	BS_B_H2V2,        // 0xРЎA
+	BS_T_H2V2,        // 0xРЎB
+	BS_L_H2V2,        // 0xРЎC
+	BS_H2,            // 0xРЎD
+	BS_C_H2V2,        // 0xРЎE
+	BS_B_H2V1,        // 0xРЎF
 	BS_B_H1V2,        // 0xD0
 	BS_T_H2V1,        // 0xD1
 	BS_T_H1V2,        // 0xD2
@@ -110,9 +112,9 @@ enum BOX_DEF_SYMBOLS
 void ShowTime(int ShowAlways);
 
 /*$ 14.02.2001 SKV
-  Инитить ли палитру default значениями.
-  По умолчанию - да.
-  С 0 используется для ConsoleDetach.
+  РРЅРёС‚РёС‚СЊ Р»Рё РїР°Р»РёС‚СЂСѓ default Р·РЅР°С‡РµРЅРёСЏРјРё.
+  РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ - РґР°.
+  РЎ 0 РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ ConsoleDetach.
 */
 void InitConsole(int FirstInit=TRUE);
 void CloseConsole();
@@ -221,3 +223,5 @@ private:
 };
 
 consoleicons& ConsoleIcons();
+
+#endif // INTERF_HPP_A91E1A99_C78E_41EC_B0F8_5C35A6C99116

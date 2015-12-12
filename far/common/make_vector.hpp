@@ -1,7 +1,9 @@
+﻿#ifndef MAKE_VECTOR_HPP_AA2FFCDD_0DEC_4857_83CB_9DB6C1494EF1
+#define MAKE_VECTOR_HPP_AA2FFCDD_0DEC_4857_83CB_9DB6C1494EF1
 #pragma once
 
 /*
-Copyright � 2014 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -56,3 +58,5 @@ std::vector<T> make_vector(Args&&... args)
 	return std::vector<T>{ std::forward<Args>(args)... };
 }
 #endif
+
+#endif // MAKE_VECTOR_HPP_AA2FFCDD_0DEC_4857_83CB_9DB6C1494EF1

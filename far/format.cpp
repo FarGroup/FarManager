@@ -1,10 +1,10 @@
-/*
+п»ї/*
 format.cpp
 
-Форматирование строк
+Р¤РѕСЂРјР°С‚РёСЂРѕРІР°РЅРёРµ СЃС‚СЂРѕРє
 */
 /*
-Copyright © 2009 Far Group
+Copyright В© 2009 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

@@ -1,40 +1,40 @@
-                           Far Manager
-                     Поддерживается FAR Group
+п»ї                           Far Manager
+                     РџРѕРґРґРµСЂР¶РёРІР°РµС‚СЃСЏ FAR Group
                     http://www.farmanager.com
 
 
-Форум поддержки
+Р¤РѕСЂСѓРј РїРѕРґРґРµСЂР¶РєРё
 http://forum.farmanager.com/
 
-Баг трекер
+Р‘Р°Рі С‚СЂРµРєРµСЂ
 http://bugs.farmanager.com/
 
-Рассылка для разработчиков (русскоязычная)
+Р Р°СЃСЃС‹Р»РєР° РґР»СЏ СЂР°Р·СЂР°Р±РѕС‚С‡РёРєРѕРІ (СЂСѓСЃСЃРєРѕСЏР·С‹С‡РЅР°СЏ)
 http://groups.google.com/group/fardev
 fardev@googlegroups.com
 
-Рассылка для разработчиков (англоязычная)
+Р Р°СЃСЃС‹Р»РєР° РґР»СЏ СЂР°Р·СЂР°Р±РѕС‚С‡РёРєРѕРІ (Р°РЅРіР»РѕСЏР·С‹С‡РЅР°СЏ)
 http://groups.google.com/group/fardeven
 fardeven@googlegroups.com
 
-Рассылка коммитов
+Р Р°СЃСЃС‹Р»РєР° РєРѕРјРјРёС‚РѕРІ
 http://groups.google.com/group/farcommits
 farcommits@googlegroups.com
 
-Взять исходный код
+Р’Р·СЏС‚СЊ РёСЃС…РѕРґРЅС‹Р№ РєРѕРґ
 svn co http://svn.code.sf.net/p/farmanager/code/trunk/unicode_far unicode_far
 
-Плагины
+РџР»Р°РіРёРЅС‹
 svn co http://svn.code.sf.net/p/farmanager/code/trunk/plugins plugins
 
-Документация Фара
+Р”РѕРєСѓРјРµРЅС‚Р°С†РёСЏ Р¤Р°СЂР°
 svn co http://svn.code.sf.net/p/farmanager/code/trunk/docs docs
 
-Addons Фара
+Addons Р¤Р°СЂР°
 svn co http://svn.code.sf.net/p/farmanager/code/trunk/addons addons
 
-Энциклопедия
+Р­РЅС†РёРєР»РѕРїРµРґРёСЏ
 svn co http://svn.code.sf.net/p/farmanager/code/trunk/enc enc
 
-Взять всё вместе
+Р’Р·СЏС‚СЊ РІСЃС‘ РІРјРµСЃС‚Рµ
 svn co http://svn.code.sf.net/p/farmanager/code/trunk fardev

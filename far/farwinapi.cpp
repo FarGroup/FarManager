@@ -1,11 +1,11 @@
-/*
+п»ї/*
 farwinapi.cpp
 
-Враперы вокруг некоторых WinAPI функций
+Р’СЂР°РїРµСЂС‹ РІРѕРєСЂСѓРі РЅРµРєРѕС‚РѕСЂС‹С… WinAPI С„СѓРЅРєС†РёР№
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -376,7 +376,7 @@ bool enum_file::get(size_t index, value_type& FindData)
 	// skip ".." & "."
 	if(Result && FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY && FindData.strFileName[0] == L'.' &&
 		((FindData.strFileName.size() == 2 && FindData.strFileName[1] == L'.') || FindData.strFileName.size() == 1) &&
-		// хитрый способ - у виртуальных папок не бывает SFN, в отличие от. (UPD: или бывает, но такое же)
+		// С…РёС‚СЂС‹Р№ СЃРїРѕСЃРѕР± - Сѓ РІРёСЂС‚СѓР°Р»СЊРЅС‹С… РїР°РїРѕРє РЅРµ Р±С‹РІР°РµС‚ SFN, РІ РѕС‚Р»РёС‡РёРµ РѕС‚. (UPD: РёР»Рё Р±С‹РІР°РµС‚, РЅРѕ С‚Р°РєРѕРµ Р¶Рµ)
 		(FindData.strAlternateFileName.empty() || FindData.strAlternateFileName == FindData.strFileName))
 	{
 		// index not important here, anything but 0 is fine
@@ -1098,7 +1098,7 @@ bool GetFindDataEx(const string& FileName, FAR_FIND_DATA& FindData,bool ScanSymL
 
 			if (dwAttr!=INVALID_FILE_ATTRIBUTES)
 			{
-				// Ага, значит файл таки есть. Заполним структуру ручками.
+				// РђРіР°, Р·РЅР°С‡РёС‚ С„Р°Р№Р» С‚Р°РєРё РµСЃС‚СЊ. Р—Р°РїРѕР»РЅРёРј СЃС‚СЂСѓРєС‚СѓСЂСѓ СЂСѓС‡РєР°РјРё.
 				FindData.Clear();
 				FindData.dwFileAttributes=dwAttr;
 				fs::file file;

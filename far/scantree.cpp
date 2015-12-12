@@ -1,12 +1,12 @@
-/*
+п»ї/*
 scantree.cpp
 
-Сканирование текущего каталога и, опционально, подкаталогов на
-предмет имен файлов
+РЎРєР°РЅРёСЂРѕРІР°РЅРёРµ С‚РµРєСѓС‰РµРіРѕ РєР°С‚Р°Р»РѕРіР° Рё, РѕРїС†РёРѕРЅР°Р»СЊРЅРѕ, РїРѕРґРєР°С‚Р°Р»РѕРіРѕРІ РЅР°
+РїСЂРµРґРјРµС‚ РёРјРµРЅ С„Р°Р№Р»РѕРІ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -208,7 +208,7 @@ bool ScanTree::GetNextName(os::FAR_FIND_DATA& fdata,string &strFullName)
 				strFindPath += L"\\";
 				strFindPath += strFindMask;
 				scantree_item Data;
-				Data.Flags = ScanItems.back().Flags; // наследуем флаг
+				Data.Flags = ScanItems.back().Flags; // РЅР°СЃР»РµРґСѓРµРј С„Р»Р°Рі
 				Data.Flags.Clear(FSCANTREE_SECONDPASS);
 				Data.RealPath = RealPath;
 

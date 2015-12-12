@@ -1,11 +1,11 @@
-/*
+п»ї/*
 qview.cpp
 
 Quick view panel
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -145,7 +145,7 @@ void QuickView::DisplayObject()
 		GotoXY(m_X1+2,m_Y1+2);
 		PrintText(FString);
 
-		DWORD currAttr=os::GetFileAttributes(strCurFileName); // обламывается, если нет доступа
+		DWORD currAttr=os::GetFileAttributes(strCurFileName); // РѕР±Р»Р°РјС‹РІР°РµС‚СЃСЏ, РµСЃР»Рё РЅРµС‚ РґРѕСЃС‚СѓРїР°
 		if (currAttr != INVALID_FILE_ATTRIBUTES && (currAttr&FILE_ATTRIBUTE_REPARSE_POINT))
 		{
 			string Tmp, Target;
@@ -455,7 +455,7 @@ void QuickView::ShowFile(const string& FileName, bool TempFile, PluginHandle* hD
 
 	if (hDirPlugin || os::fs::is_directory(strCurFileName))
 	{
-		// Не показывать тип файла для каталогов в "Быстром просмотре"
+		// РќРµ РїРѕРєР°Р·С‹РІР°С‚СЊ С‚РёРї С„Р°Р№Р»Р° РґР»СЏ РєР°С‚Р°Р»РѕРіРѕРІ РІ "Р‘С‹СЃС‚СЂРѕРј РїСЂРѕСЃРјРѕС‚СЂРµ"
 		strCurFileType.clear();
 
 		if (SameFile && !hDirPlugin)
@@ -627,7 +627,7 @@ void QuickView::DynamicUpdateKeyBar() const
 		Keybar[KBL_MAIN][F8].clear();
 		Keybar[KBL_SHIFT][F2].clear();
 		Keybar[KBL_SHIFT][F8].clear();
-		Keybar[KBL_ALT][F8] = MSG(MAltF8);  // стандартный для панели - "хистори"
+		Keybar[KBL_ALT][F8] = MSG(MAltF8);  // СЃС‚Р°РЅРґР°СЂС‚РЅС‹Р№ РґР»СЏ РїР°РЅРµР»Рё - "С…РёСЃС‚РѕСЂРё"
 	}
 	else
 	{

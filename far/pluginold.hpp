@@ -1,3 +1,5 @@
+п»ї#ifndef PLUGINOLD_HPP_96AE0ACB_C412_4257_B0FC_28CB838E19B4
+#define PLUGINOLD_HPP_96AE0ACB_C412_4257_B0FC_28CB838E19B4
 #pragma once
 
 
@@ -987,9 +989,9 @@ PACK_PUSH(2)
 	enum WINDOWINFO_TYPE
 	{
 		WTYPE_VIRTUAL,
-		// ПРОСЬБА НЕ ЗАБЫВАТЬ СИНХРОНИЗИРОВАТЬ ИЗМЕНЕНИЯ
-		// WTYPE_* и MODALTYPE_* (window.hpp)!!!
-		// (и не надо убирать этот комментарий, пока ситуация не изменится ;)
+		// РџР РћРЎР¬Р‘Рђ РќР• Р—РђР‘Р«Р’РђРўР¬ РЎРРќРҐР РћРќРР—РР РћР’РђРўР¬ РР—РњР•РќР•РќРРЇ
+		// WTYPE_* Рё MODALTYPE_* (window.hpp)!!!
+		// (Рё РЅРµ РЅР°РґРѕ СѓР±РёСЂР°С‚СЊ СЌС‚РѕС‚ РєРѕРјРјРµРЅС‚Р°СЂРёР№, РїРѕРєР° СЃРёС‚СѓР°С†РёСЏ РЅРµ РёР·РјРµРЅРёС‚СЃСЏ ;)
 		WTYPE_PANELS=1,
 		WTYPE_VIEWER,
 		WTYPE_EDITOR,
@@ -1763,3 +1765,5 @@ PACK_POP()
 
 WARNING_POP()
 }
+
+#endif // PLUGINOLD_HPP_96AE0ACB_C412_4257_B0FC_28CB838E19B4

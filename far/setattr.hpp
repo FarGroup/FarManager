@@ -1,13 +1,15 @@
+п»ї#ifndef SETATTR_HPP_D50369FC_0EA6_4A01_8567_AA7CEDE94A04
+#define SETATTR_HPP_D50369FC_0EA6_4A01_8567_AA7CEDE94A04
 #pragma once
 
 /*
 setattr.cpp
 
-Установка атрибутов файлов
+РЈСЃС‚Р°РЅРѕРІРєР° Р°С‚СЂРёР±СѓС‚РѕРІ С„Р°Р№Р»РѕРІ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -34,3 +36,5 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object=nullptr);
+
+#endif // SETATTR_HPP_D50369FC_0EA6_4A01_8567_AA7CEDE94A04

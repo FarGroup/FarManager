@@ -1,11 +1,11 @@
-/*
+п»ї/*
 dizlist.cpp
 
-Описания файлов
+РћРїРёСЃР°РЅРёСЏ С„Р°Р№Р»РѕРІ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -237,7 +237,7 @@ DizList::desc_map::iterator DizList::Find(const string& Name, const string& Shor
 	if(i == DizData.end())
 		i = DizData.find(ShortName);
 
-	//если файл описаний был в OEM/ANSI то имена файлов могут не совпадать с юникодными
+	//РµСЃР»Рё С„Р°Р№Р» РѕРїРёСЃР°РЅРёР№ Р±С‹Р» РІ OEM/ANSI С‚Рѕ РёРјРµРЅР° С„Р°Р№Р»РѕРІ РјРѕРіСѓС‚ РЅРµ СЃРѕРІРїР°РґР°С‚СЊ СЃ СЋРЅРёРєРѕРґРЅС‹РјРё
 	if (i == DizData.end() && !IsUnicodeOrUtfCodePage(OrigCodePage) && OrigCodePage!=CP_DEFAULT)
 	{
 		const auto tmp = unicode::to(OrigCodePage, Name.data(), Name.size());

@@ -1,11 +1,11 @@
-/*
+п»ї/*
 config.cpp
 
-Конфигурация
+РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -77,10 +77,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static const size_t predefined_panel_modes_count = 10;
 
-// Стандартный набор разделителей
+// РЎС‚Р°РЅРґР°СЂС‚РЅС‹Р№ РЅР°Р±РѕСЂ СЂР°Р·РґРµР»РёС‚РµР»РµР№
 static const wchar_t WordDiv0[] = L"~!%^&*()+|{}:\"<>?`-=\\[];',./";
 
-// Стандартный набор разделителей для функции Xlat
+// РЎС‚Р°РЅРґР°СЂС‚РЅС‹Р№ РЅР°Р±РѕСЂ СЂР°Р·РґРµР»РёС‚РµР»РµР№ РґР»СЏ С„СѓРЅРєС†РёРё Xlat
 static const wchar_t WordDivForXlat0[] = L" \t!#$%^&*()+|=\\/@?";
 
 static const wchar_t constBatchExt[] = L".BAT;.CMD;";
@@ -313,7 +313,7 @@ void Options::InterfaceSettings()
 		Global->CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
 		Global->CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
 		Global->CtrlObject->Cp()->SetScreenPosition();
-		// $ 10.07.2001 SKV ! надо это делать, иначе если кейбар спрятали, будет полный рамс.
+		// $ 10.07.2001 SKV ! РЅР°РґРѕ СЌС‚Рѕ РґРµР»Р°С‚СЊ, РёРЅР°С‡Рµ РµСЃР»Рё РєРµР№Р±Р°СЂ СЃРїСЂСЏС‚Р°Р»Рё, Р±СѓРґРµС‚ РїРѕР»РЅС‹Р№ СЂР°РјСЃ.
 		Global->CtrlObject->Cp()->Redraw();
 	}
 }
@@ -1225,7 +1225,7 @@ struct FARConfigItem
 	size_t ApiRoot;
 	const wchar_t *KeyName;
 	const wchar_t *ValName;
-	Option* Value;   // адрес переменной, куда помещаем данные
+	Option* Value;   // Р°РґСЂРµСЃ РїРµСЂРµРјРµРЅРЅРѕР№, РєСѓРґР° РїРѕРјРµС‰Р°РµРј РґР°РЅРЅС‹Рµ
 	any Default;
 
 	string ListItemString;
@@ -1478,7 +1478,7 @@ Options::Options():
 	m_ViewSettings(predefined_panel_modes_count),
 	m_ViewSettingsChanged(false)
 {
-	// По умолчанию - брать плагины из основного каталога
+	// РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ - Р±СЂР°С‚СЊ РїР»Р°РіРёРЅС‹ РёР· РѕСЃРЅРѕРІРЅРѕРіРѕ РєР°С‚Р°Р»РѕРіР°
 	LoadPlug.MainPluginDir = true;
 	LoadPlug.PluginsPersonal = true;
 	LoadPlug.PluginsCacheOnly = false;
@@ -1944,14 +1944,14 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 
 	InitConfig();
 
-	/* <ПРЕПРОЦЕССЫ> *************************************************** */
+	/* <РџР Р•РџР РћР¦Р•РЎРЎР«> *************************************************** */
 
 	/* BUGBUG??
 	SetRegRootKey(HKEY_LOCAL_MACHINE);
 	DWORD OptPolicies_ShowHiddenDrives=GetRegKey(NKeyPolicies,L"ShowHiddenDrives",1)&1;
 	SetRegRootKey(HKEY_CURRENT_USER);
 	*/
-	/* *************************************************** </ПРЕПРОЦЕССЫ> */
+	/* *************************************************** </РџР Р•РџР РћР¦Р•РЎРЎР«> */
 
 	FOR(auto& i, Config)
 	{
@@ -1971,7 +1971,7 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 		}
 	}
 
-	/* <ПОСТПРОЦЕССЫ> *************************************************** */
+	/* <РџРћРЎРўРџР РћР¦Р•РЎРЎР«> *************************************************** */
 
 	Palette.Load();
 	GlobalUserMenuDir = GetFarIniString(L"General", L"GlobalUserMenuDir", Global->g_strFarPath);
@@ -1996,11 +1996,11 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 	else if (ViOpt.MaxLineSize > ViewerOptions::eMaxLineSize)
 		ViOpt.MaxLineSize = ViewerOptions::eMaxLineSize;
 
-	// Исключаем случайное стирание разделителей ;-)
+	// РСЃРєР»СЋС‡Р°РµРј СЃР»СѓС‡Р°Р№РЅРѕРµ СЃС‚РёСЂР°РЅРёРµ СЂР°Р·РґРµР»РёС‚РµР»РµР№ ;-)
 	if (EdOpt.strWordDiv.empty())
 		EdOpt.strWordDiv = WordDiv0;
 
-	// Исключаем случайное стирание разделителей
+	// РСЃРєР»СЋС‡Р°РµРј СЃР»СѓС‡Р°Р№РЅРѕРµ СЃС‚РёСЂР°РЅРёРµ СЂР°Р·РґРµР»РёС‚РµР»РµР№
 	if (XLat.strWordDivForXlat.empty())
 		XLat.strWordDivForXlat = WordDivForXlat0;
 
@@ -2013,7 +2013,7 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 	if (ViOpt.TabSize<1 || ViOpt.TabSize>512)
 		ViOpt.TabSize = DefaultTabSize;
 
-	HelpTabSize = DefaultTabSize; // пока жестко пропишем...
+	HelpTabSize = DefaultTabSize; // РїРѕРєР° Р¶РµСЃС‚РєРѕ РїСЂРѕРїРёС€РµРј...
 
 	static const struct
 	{
@@ -2038,12 +2038,12 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 	ReadPanelModes();
 
 	/* BUGBUG??
-	// уточняем системную политику
-	// для дисков юзер может только отменять показ
+	// СѓС‚РѕС‡РЅСЏРµРј СЃРёСЃС‚РµРјРЅСѓСЋ РїРѕР»РёС‚РёРєСѓ
+	// РґР»СЏ РґРёСЃРєРѕРІ СЋР·РµСЂ РјРѕР¶РµС‚ С‚РѕР»СЊРєРѕ РѕС‚РјРµРЅСЏС‚СЊ РїРѕРєР°Р·
 	Policies.ShowHiddenDrives&=OptPolicies_ShowHiddenDrives;
 	*/
 
-	if (Exec.strExecuteBatchType.empty()) // предохраняемся
+	if (Exec.strExecuteBatchType.empty()) // РїСЂРµРґРѕС…СЂР°РЅСЏРµРјСЃСЏ
 		Exec.strExecuteBatchType=constBatchExt;
 
 	xlat_initialize();
@@ -2070,7 +2070,7 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 		}
 	}
 
-/* *************************************************** </ПОСТПРОЦЕССЫ> */
+/* *************************************************** </РџРћРЎРўРџР РћР¦Р•РЎРЎР«> */
 
 	// we assume that any changes after this point will be made by the user
 	std::for_each(RANGE(Config, i)
@@ -2089,7 +2089,7 @@ void Options::Save(bool Manual)
 	if (Manual && Message(0,2,MSG(MSaveSetupTitle),MSG(MSaveSetupAsk1),MSG(MSaveSetupAsk2),MSG(MSaveSetup),MSG(MCancel)))
 		return;
 
-	/* <ПРЕПРОЦЕССЫ> *************************************************** */
+	/* <РџР Р•РџР РћР¦Р•РЎРЎР«> *************************************************** */
 
 	const auto StorePanelOptions = [](Panel* PanelPtr, PanelOptions& Panel)
 	{
@@ -2118,7 +2118,7 @@ void Options::Save(bool Manual)
 
 	LeftFocus = Global->CtrlObject->Cp()->ActivePanel() == Global->CtrlObject->Cp()->LeftPanel;
 
-	/* *************************************************** </ПРЕПРОЦЕССЫ> */
+	/* *************************************************** </РџР Р•РџР РћР¦Р•РЎРЎР«> */
 
 	Global->CtrlObject->HiFiles->Save(Manual);
 
@@ -2722,7 +2722,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 
 	SetLeftRightMenuChecks(LeftMenu, true);
 	SetLeftRightMenuChecks(RightMenu, false);
-	// Навигация по меню
+	// РќР°РІРёРіР°С†РёСЏ РїРѕ РјРµРЅСЋ
 	{
 		const auto HOptMenu = HMenu::create(MainMenu, ARRAYSIZE(MainMenu));
 		HOptMenu->SetHelp(L"Menus");
@@ -2768,7 +2768,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		HOptMenu->GetExitCode(HItem,VItem);
 	}
 
-	// "Исполнятор команд меню"
+	// "РСЃРїРѕР»РЅСЏС‚РѕСЂ РєРѕРјР°РЅРґ РјРµРЅСЋ"
 	switch (HItem)
 	{
 	case MENU_LEFT:
@@ -3045,8 +3045,8 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 	}
 
 	int CurrentWindowType = Global->WindowManager->GetCurrentWindow()->GetType();
-	// TODO:Здесь как то нужно изменить, чтобы учесть будущие новые типы полноэкранных окон
-	//      или то, что, скажем редактор/вьювер может быть не полноэкранным
+	// TODO:Р—РґРµСЃСЊ РєР°Рє С‚Рѕ РЅСѓР¶РЅРѕ РёР·РјРµРЅРёС‚СЊ, С‡С‚РѕР±С‹ СѓС‡РµСЃС‚СЊ Р±СѓРґСѓС‰РёРµ РЅРѕРІС‹Рµ С‚РёРїС‹ РїРѕР»РЅРѕСЌРєСЂР°РЅРЅС‹С… РѕРєРѕРЅ
+	//      РёР»Рё С‚Рѕ, С‡С‚Рѕ, СЃРєР°Р¶РµРј СЂРµРґР°РєС‚РѕСЂ/РІСЊСЋРІРµСЂ РјРѕР¶РµС‚ Р±С‹С‚СЊ РЅРµ РїРѕР»РЅРѕСЌРєСЂР°РЅРЅС‹Рј
 
 	if (!(CurrentWindowType == windowtype_viewer || CurrentWindowType == windowtype_editor))
 		Global->CtrlObject->CmdLine()->Show();

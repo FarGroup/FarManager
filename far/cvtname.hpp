@@ -1,13 +1,15 @@
+п»ї#ifndef CVTNAME_HPP_6F805D7A_7988_492E_9583_A5668BCA99D2
+#define CVTNAME_HPP_6F805D7A_7988_492E_9583_A5668BCA99D2
 #pragma once
 
 /*
 cvtname.hpp
 
-Функций для преобразования имен файлов/путей.
+Р¤СѓРЅРєС†РёР№ РґР»СЏ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ РёРјРµРЅ С„Р°Р№Р»РѕРІ/РїСѓС‚РµР№.
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -46,3 +48,5 @@ void ConvertNameToUNC(string &strFileName);
 string& PrepareDiskPath(string &strPath, bool CheckFullPath=true);
 
 size_t GetMountPointLen(const string& abs_path, const string& drive_root);
+
+#endif // CVTNAME_HPP_6F805D7A_7988_492E_9583_A5668BCA99D2

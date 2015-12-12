@@ -1,13 +1,15 @@
+п»ї#ifndef REFRESHWINDOWMANAGER_HPP_D95D197C_2FDC_4A4E_9110_0AFAA3ABCDAB
+#define REFRESHWINDOWMANAGER_HPP_D95D197C_2FDC_4A4E_9110_0AFAA3ABCDAB
 #pragma once
 
 /*
 RefreshWindowManager.hpp
 
-Класс для рефрешки
+РљР»Р°СЃСЃ РґР»СЏ СЂРµС„СЂРµС€РєРё
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -52,3 +54,5 @@ private:
 	int OScrX,OScrY;
 	bool m_Force;
 };
+
+#endif // REFRESHWINDOWMANAGER_HPP_D95D197C_2FDC_4A4E_9110_0AFAA3ABCDAB

@@ -1,10 +1,10 @@
-/*
+п»ї/*
 wm_listener.cpp
 
-Обработка оконных сообщений
+РћР±СЂР°Р±РѕС‚РєР° РѕРєРѕРЅРЅС‹С… СЃРѕРѕР±С‰РµРЅРёР№
 */
 /*
-Copyright © 2010 Far Group
+Copyright В© 2010 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

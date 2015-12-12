@@ -1,11 +1,13 @@
+п»ї#ifndef CODEPAGE_SELECTION_HPP_AD209CF7_F280_4E6D_83A7_F0601E4EBB71
+#define CODEPAGE_SELECTION_HPP_AD209CF7_F280_4E6D_83A7_F0601E4EBB71
 #pragma once
 
 /*
 codepage_selection.hpp
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -34,11 +36,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "windowsfwd.hpp"
 
-// Тип выбранной таблицы символов
+// РўРёРї РІС‹Р±СЂР°РЅРЅРѕР№ С‚Р°Р±Р»РёС†С‹ СЃРёРјРІРѕР»РѕРІ
 enum CPSelectType
 {
-	CPST_FAVORITE = 1, // Избранная таблица символов
-	CPST_FIND = 2  // Таблица символов участвующая в поиске по всем таблицам символов
+	CPST_FAVORITE = 1, // РР·Р±СЂР°РЅРЅР°СЏ С‚Р°Р±Р»РёС†Р° СЃРёРјРІРѕР»РѕРІ
+	CPST_FIND = 2  // РўР°Р±Р»РёС†Р° СЃРёРјРІРѕР»РѕРІ СѓС‡Р°СЃС‚РІСѓСЋС‰Р°СЏ РІ РїРѕРёСЃРєРµ РїРѕ РІСЃРµРј С‚Р°Р±Р»РёС†Р°Рј СЃРёРјРІРѕР»РѕРІ
 };
 
 enum
@@ -116,3 +118,5 @@ private:
 	mutable string m_Number;
 	std::vector<UINT> m_F8CpOrder;
 };
+
+#endif // CODEPAGE_SELECTION_HPP_AD209CF7_F280_4E6D_83A7_F0601E4EBB71

@@ -1,13 +1,15 @@
+п»ї#ifndef FILEATTR_HPP_1920BF1F_BD95_4A22_B3D9_33F2544760D1
+#define FILEATTR_HPP_1920BF1F_BD95_4A22_B3D9_33F2544760D1
 #pragma once
 
 /*
 fileattr.hpp
 
-Работа с атрибутами файлов
+Р Р°Р±РѕС‚Р° СЃ Р°С‚СЂРёР±СѓС‚Р°РјРё С„Р°Р№Р»РѕРІ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -51,3 +53,5 @@ int EDeleteReparsePoint(const string& Name, DWORD FileAttr, int SkipMode=-1);
 
 void enum_attributes(const std::function<bool(DWORD, wchar_t)>& Pred);
 
+
+#endif // FILEATTR_HPP_1920BF1F_BD95_4A22_B3D9_33F2544760D1

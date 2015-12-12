@@ -1,3 +1,5 @@
+ï»¿#ifndef LOCKSCRN_HPP_EACA1E80_32E9_4284_87C4_493B61FE33BC
+#define LOCKSCRN_HPP_EACA1E80_32E9_4284_87C4_493B61FE33BC
 #pragma once
 
 /*
@@ -6,8 +8,8 @@ lockscrn.hpp
 class LockScreen
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright Â© 1996 Eugene Roshal
+Copyright Â© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -39,3 +41,5 @@ public:
 	LockScreen();
 	~LockScreen();
 };
+
+#endif // LOCKSCRN_HPP_EACA1E80_32E9_4284_87C4_493B61FE33BC

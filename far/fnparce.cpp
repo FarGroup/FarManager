@@ -1,11 +1,11 @@
-/*
+п»ї/*
 fnparce.cpp
 
-Парсер файловых ассоциаций
+РџР°СЂСЃРµСЂ С„Р°Р№Р»РѕРІС‹С… Р°СЃСЃРѕС†РёР°С†РёР№
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -52,9 +52,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct TSubstData
 {
-	// параметры функции SubstFileName
-	const wchar_t *Name;           // Длинное имя
-	const wchar_t *ShortName;      // Короткое имя
+	// РїР°СЂР°РјРµС‚СЂС‹ С„СѓРЅРєС†РёРё SubstFileName
+	const wchar_t *Name;           // Р”Р»РёРЅРЅРѕРµ РёРјСЏ
+	const wchar_t *ShortName;      // РљРѕСЂРѕС‚РєРѕРµ РёРјСЏ
 
 	string *pListName;
 	string *pAnotherListName;
@@ -62,7 +62,7 @@ struct TSubstData
 	string *pShortListName;
 	string *pAnotherShortListName;
 
-	// локальные переменные
+	// Р»РѕРєР°Р»СЊРЅС‹Рµ РїРµСЂРµРјРµРЅРЅС‹Рµ
 	string strAnotherName;
 	string strAnotherShortName;
 	string strNameOnly;
@@ -92,7 +92,7 @@ static int ReplaceVariables(const wchar_t *DlgTitle,string &strStr, TSubstData& 
 
 static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstData, string &strOut)
 {
-	// рассмотрим переключатели активности/пассивности панели.
+	// СЂР°СЃСЃРјРѕС‚СЂРёРј РїРµСЂРµРєР»СЋС‡Р°С‚РµР»Рё Р°РєС‚РёРІРЅРѕСЃС‚Рё/РїР°СЃСЃРёРІРЅРѕСЃС‚Рё РїР°РЅРµР»Рё.
 	if (!StrCmpN(CurStr,L"!#",2))
 	{
 		CurStr+=2;
@@ -107,7 +107,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 		return CurStr;
 	}
 
-	// !! символ '!'
+	// !! СЃРёРјРІРѕР» '!'
 	if (!StrCmpN(CurStr,L"!!",2) && CurStr[2] != L'?')
 	{
 		strOut += L"!";
@@ -115,7 +115,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 		return CurStr;
 	}
 
-	// !.!      Длинное имя файла с расширением
+	// !.!      Р”Р»РёРЅРЅРѕРµ РёРјСЏ С„Р°Р№Р»Р° СЃ СЂР°СЃС€РёСЂРµРЅРёРµРј
 	if (!StrCmpN(CurStr,L"!.!",3) && CurStr[3] != L'?')
 	{
 		if (SubstData.PassivePanel)
@@ -127,7 +127,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 		return CurStr;
 	}
 
-	// !~       Короткое имя файла без расширения
+	// !~       РљРѕСЂРѕС‚РєРѕРµ РёРјСЏ С„Р°Р№Р»Р° Р±РµР· СЂР°СЃС€РёСЂРµРЅРёСЏ
 	if (!StrCmpN(CurStr,L"!~",2))
 	{
 		strOut += SubstData.PassivePanel ? SubstData.strAnotherShortNameOnly : SubstData.strShortNameOnly;
@@ -135,7 +135,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 		return CurStr;
 	}
 
-	// !`  Длинное расширение файла без имени
+	// !`  Р”Р»РёРЅРЅРѕРµ СЂР°СЃС€РёСЂРµРЅРёРµ С„Р°Р№Р»Р° Р±РµР· РёРјРµРЅРё
 	if (!StrCmpN(CurStr,L"!`",2))
 	{
 		const wchar_t *Ext;
@@ -157,7 +157,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 		return CurStr;
 	}
 
-	// !& !&~  список файлов разделенных пробелом.
+	// !& !&~  СЃРїРёСЃРѕРє С„Р°Р№Р»РѕРІ СЂР°Р·РґРµР»РµРЅРЅС‹С… РїСЂРѕР±РµР»РѕРј.
 	if ((!StrCmpN(CurStr,L"!&~",3) && CurStr[3] != L'?') ||
 	        (!StrCmpN(CurStr,L"!&",2) && CurStr[2] != L'?'))
 	{
@@ -180,14 +180,14 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 		{
 			if (ShortN0)
 				strFileNameL = strShortNameL;
-			else // в список все же должно попасть имя в кавычках.
+			else // РІ СЃРїРёСЃРѕРє РІСЃРµ Р¶Рµ РґРѕР»Р¶РЅРѕ РїРѕРїР°СЃС‚СЊ РёРјСЏ РІ РєР°РІС‹С‡РєР°С….
 				QuoteSpaceOnly(strFileNameL);
 
-// Вот здесь фиг его знает - нужно/ненужно...
-//   если будет нужно - раскомментируем :-)
+// Р’РѕС‚ Р·РґРµСЃСЊ С„РёРі РµРіРѕ Р·РЅР°РµС‚ - РЅСѓР¶РЅРѕ/РЅРµРЅСѓР¶РЅРѕ...
+//   РµСЃР»Рё Р±СѓРґРµС‚ РЅСѓР¶РЅРѕ - СЂР°СЃРєРѕРјРјРµРЅС‚РёСЂСѓРµРј :-)
 //          if(FileAttrL & FILE_ATTRIBUTE_DIRECTORY)
 //            AddEndSlash(FileNameL);
-			// А нужен ли нам пробел в самом начале?
+			// Рђ РЅСѓР¶РµРЅ Р»Рё РЅР°Рј РїСЂРѕР±РµР» РІ СЃР°РјРѕРј РЅР°С‡Р°Р»Рµ?
 			if (First)
 				First = FALSE;
 			else
@@ -200,11 +200,11 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 		return CurStr;
 	}
 
-	// !@  Имя файла, содержащего имена помеченных файлов
-	// !$!      Имя файла, содержащего короткие имена помеченных файлов
-	// Ниже идет совмещение кода для разбора как !@! так и !$!
-	//Вообще-то (по исторической справедливости как бы) - в !$! нужно выбрасывать модификаторы Q и A
-	// Но нафиг нада:)
+	// !@  РРјСЏ С„Р°Р№Р»Р°, СЃРѕРґРµСЂР¶Р°С‰РµРіРѕ РёРјРµРЅР° РїРѕРјРµС‡РµРЅРЅС‹С… С„Р°Р№Р»РѕРІ
+	// !$!      РРјСЏ С„Р°Р№Р»Р°, СЃРѕРґРµСЂР¶Р°С‰РµРіРѕ РєРѕСЂРѕС‚РєРёРµ РёРјРµРЅР° РїРѕРјРµС‡РµРЅРЅС‹С… С„Р°Р№Р»РѕРІ
+	// РќРёР¶Рµ РёРґРµС‚ СЃРѕРІРјРµС‰РµРЅРёРµ РєРѕРґР° РґР»СЏ СЂР°Р·Р±РѕСЂР° РєР°Рє !@! С‚Р°Рє Рё !$!
+	//Р’РѕРѕР±С‰Рµ-С‚Рѕ (РїРѕ РёСЃС‚РѕСЂРёС‡РµСЃРєРѕР№ СЃРїСЂР°РІРµРґР»РёРІРѕСЃС‚Рё РєР°Рє Р±С‹) - РІ !$! РЅСѓР¶РЅРѕ РІС‹Р±СЂР°СЃС‹РІР°С‚СЊ РјРѕРґРёС„РёРєР°С‚РѕСЂС‹ Q Рё A
+	// РќРѕ РЅР°С„РёРі РЅР°РґР°:)
 	if (!StrCmpN(CurStr,L"!@",2) || !StrCmpN(CurStr,L"!$",2))
 	{
 		string *pListName;
@@ -262,7 +262,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 		}
 	}
 
-	// !-!      Короткое имя файла с расширением
+	// !-!      РљРѕСЂРѕС‚РєРѕРµ РёРјСЏ С„Р°Р№Р»Р° СЃ СЂР°СЃС€РёСЂРµРЅРёРµРј
 	if (!StrCmpN(CurStr,L"!-!",3) && CurStr[3] != L'?')
 	{
 		if (SubstData.PassivePanel)
@@ -274,8 +274,8 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 		return CurStr;
 	}
 
-	// !+!      Аналогично !-!, но если длинное имя файла утеряно
-	//          после выполнения команды, FAR восстановит его
+	// !+!      РђРЅР°Р»РѕРіРёС‡РЅРѕ !-!, РЅРѕ РµСЃР»Рё РґР»РёРЅРЅРѕРµ РёРјСЏ С„Р°Р№Р»Р° СѓС‚РµСЂСЏРЅРѕ
+	//          РїРѕСЃР»Рµ РІС‹РїРѕР»РЅРµРЅРёСЏ РєРѕРјР°РЅРґС‹, FAR РІРѕСЃСЃС‚Р°РЅРѕРІРёС‚ РµРіРѕ
 	if (!StrCmpN(CurStr,L"!+!",3) && CurStr[3] != L'?')
 	{
 		if (SubstData.PassivePanel)
@@ -288,7 +288,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 		return CurStr;
 	}
 
-	// !:       Текущий диск
+	// !:       РўРµРєСѓС‰РёР№ РґРёСЃРє
 	if (!StrCmpN(CurStr,L"!:",2))
 	{
 		string strCurDir;
@@ -308,9 +308,9 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 		return CurStr;
 	}
 
-	// !\       Текущий путь
-	// !/       Короткое имя текущего пути
-	// Ниже идет совмещение кода для разбора как !\ так и !/
+	// !\       РўРµРєСѓС‰РёР№ РїСѓС‚СЊ
+	// !/       РљРѕСЂРѕС‚РєРѕРµ РёРјСЏ С‚РµРєСѓС‰РµРіРѕ РїСѓС‚Рё
+	// РќРёР¶Рµ РёРґРµС‚ СЃРѕРІРјРµС‰РµРЅРёРµ РєРѕРґР° РґР»СЏ СЂР°Р·Р±РѕСЂР° РєР°Рє !\ С‚Р°Рє Рё !/
 	if (!StrCmpN(CurStr,L"!\\",2) || !StrCmpN(CurStr,L"!=\\",3) || !StrCmpN(CurStr,L"!/",2) || !StrCmpN(CurStr,L"!=/",3))
 	{
 		string strCurDir;
@@ -370,7 +370,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 		return CurStr;
 	}
 
-	// !        Длинное имя файла без расширения
+	// !        Р”Р»РёРЅРЅРѕРµ РёРјСЏ С„Р°Р№Р»Р° Р±РµР· СЂР°СЃС€РёСЂРµРЅРёСЏ
 	if (*CurStr==L'!')
 	{
 		strOut += PointToName(SubstData.PassivePanel ? SubstData.strAnotherNameOnly : SubstData.strNameOnly);
@@ -383,20 +383,20 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 
 /*
   SubstFileName()
-  Преобразование метасимволов ассоциации файлов в реальные значения
+  РџСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ РјРµС‚Р°СЃРёРјРІРѕР»РѕРІ Р°СЃСЃРѕС†РёР°С†РёРё С„Р°Р№Р»РѕРІ РІ СЂРµР°Р»СЊРЅС‹Рµ Р·РЅР°С‡РµРЅРёСЏ
 
 */
 int SubstFileName(const wchar_t *DlgTitle,
-                  string &strStr,            // результирующая строка
-                  const string& Name,           // Длинное имя
-                  const string& ShortName,      // Короткое имя
+                  string &strStr,            // СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰Р°СЏ СЃС‚СЂРѕРєР°
+                  const string& Name,           // Р”Р»РёРЅРЅРѕРµ РёРјСЏ
+                  const string& ShortName,      // РљРѕСЂРѕС‚РєРѕРµ РёРјСЏ
 
                   string *pListName,
                   string *pAnotherListName,
                   string *pShortListName,
                   string *pAnotherShortListName,
-                  int   IgnoreInput,    // TRUE - не исполнять "!?<title>?<init>!"
-                  const wchar_t *CmdLineDir)     // Каталог исполнения
+                  int   IgnoreInput,    // TRUE - РЅРµ РёСЃРїРѕР»РЅСЏС‚СЊ "!?<title>?<init>!"
+                  const wchar_t *CmdLineDir)     // РљР°С‚Р°Р»РѕРі РёСЃРїРѕР»РЅРµРЅРёСЏ
 {
 	string* Lists[] = { pListName, pAnotherListName, pShortListName, pAnotherShortListName };
 	FOR(auto& i, Lists)
@@ -406,27 +406,27 @@ int SubstFileName(const wchar_t *DlgTitle,
 	}
 
 	/* $ 19.06.2001 SVS
-	  ВНИМАНИЕ! Для альтернативных метасимволов, не основанных на "!",
-	  нужно будет либо убрать эту проверку либо изменить условие (последнее
-	  предпочтительнее!)
+	  Р’РќРРњРђРќРР•! Р”Р»СЏ Р°Р»СЊС‚РµСЂРЅР°С‚РёРІРЅС‹С… РјРµС‚Р°СЃРёРјРІРѕР»РѕРІ, РЅРµ РѕСЃРЅРѕРІР°РЅРЅС‹С… РЅР° "!",
+	  РЅСѓР¶РЅРѕ Р±СѓРґРµС‚ Р»РёР±Рѕ СѓР±СЂР°С‚СЊ СЌС‚Сѓ РїСЂРѕРІРµСЂРєСѓ Р»РёР±Рѕ РёР·РјРµРЅРёС‚СЊ СѓСЃР»РѕРІРёРµ (РїРѕСЃР»РµРґРЅРµРµ
+	  РїСЂРµРґРїРѕС‡С‚РёС‚РµР»СЊРЅРµРµ!)
 	*/
 	if (strStr.find(L'!') == string::npos)
 		return FALSE;
 
 	TSubstData SubstData;
-	SubstData.Name=Name.data();                    // Длинное имя
-	SubstData.ShortName=ShortName.data();          // Короткое имя
-	SubstData.pListName=pListName;            // Длинное имя файла-списка
-	SubstData.pAnotherListName=pAnotherListName;            // Длинное имя файла-списка
-	SubstData.pShortListName=pShortListName;  // Короткое имя файла-списка
-	SubstData.pAnotherShortListName=pAnotherShortListName;  // Короткое имя файла-списка
-	// Если имя текущего каталога не задано...
+	SubstData.Name=Name.data();                    // Р”Р»РёРЅРЅРѕРµ РёРјСЏ
+	SubstData.ShortName=ShortName.data();          // РљРѕСЂРѕС‚РєРѕРµ РёРјСЏ
+	SubstData.pListName=pListName;            // Р”Р»РёРЅРЅРѕРµ РёРјСЏ С„Р°Р№Р»Р°-СЃРїРёСЃРєР°
+	SubstData.pAnotherListName=pAnotherListName;            // Р”Р»РёРЅРЅРѕРµ РёРјСЏ С„Р°Р№Р»Р°-СЃРїРёСЃРєР°
+	SubstData.pShortListName=pShortListName;  // РљРѕСЂРѕС‚РєРѕРµ РёРјСЏ С„Р°Р№Р»Р°-СЃРїРёСЃРєР°
+	SubstData.pAnotherShortListName=pAnotherShortListName;  // РљРѕСЂРѕС‚РєРѕРµ РёРјСЏ С„Р°Р№Р»Р°-СЃРїРёСЃРєР°
+	// Р•СЃР»Рё РёРјСЏ С‚РµРєСѓС‰РµРіРѕ РєР°С‚Р°Р»РѕРіР° РЅРµ Р·Р°РґР°РЅРѕ...
 	if (CmdLineDir)
 		SubstData.strCmdDir = CmdLineDir;
-	else // ...спросим у ком.строки
+	else // ...СЃРїСЂРѕСЃРёРј Сѓ РєРѕРј.СЃС‚СЂРѕРєРё
 		SubstData.strCmdDir = Global->CtrlObject->CmdLine()->GetCurDir();
 
-	// Предварительно получим некоторые "константы" :-)
+	// РџСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕ РїРѕР»СѓС‡РёРј РЅРµРєРѕС‚РѕСЂС‹Рµ "РєРѕРЅСЃС‚Р°РЅС‚С‹" :-)
 	SubstData.strNameOnly = Name;
 
 	size_t pos = SubstData.strNameOnly.rfind(L'.');
@@ -452,7 +452,7 @@ int SubstFileName(const wchar_t *DlgTitle,
 		SubstData.strAnotherShortNameOnly.resize(pos);
 
 	SubstData.PreserveLFN=FALSE;
-	SubstData.PassivePanel=FALSE; // первоначально речь идет про активную панель!
+	SubstData.PassivePanel=FALSE; // РїРµСЂРІРѕРЅР°С‡Р°Р»СЊРЅРѕ СЂРµС‡СЊ РёРґРµС‚ РїСЂРѕ Р°РєС‚РёРІРЅСѓСЋ РїР°РЅРµР»СЊ!
 
 	const wchar_t *CurStr = strStr.data();
 	string strOut;
@@ -523,9 +523,9 @@ int ReplaceVariables(const wchar_t *DlgTitle, string &strStr, TSubstData& SubstD
 		if (!*Str)
 			break;
 
-		// теперича все не просто
-		// придется сразу определить наличие операторных скобок
-		// запомнить их позицию
+		// С‚РµРїРµСЂРёС‡Р° РІСЃРµ РЅРµ РїСЂРѕСЃС‚Рѕ
+		// РїСЂРёРґРµС‚СЃСЏ СЃСЂР°Р·Сѓ РѕРїСЂРµРґРµР»РёС‚СЊ РЅР°Р»РёС‡РёРµ РѕРїРµСЂР°С‚РѕСЂРЅС‹С… СЃРєРѕР±РѕРє
+		// Р·Р°РїРѕРјРЅРёС‚СЊ РёС… РїРѕР·РёС†РёСЋ
 		int scr,end, beg_t,end_t,beg_s,end_s;
 		scr = end = beg_t = end_t = beg_s = end_s = 0;
 		int ii = IsReplaceVariable(Str-2,&scr,&end,&beg_t,&end_t,&beg_s,&end_s);
@@ -621,10 +621,10 @@ int ReplaceVariables(const wchar_t *DlgTitle, string &strStr, TSubstData& SubstD
 			strTitle += strTitle2;
 		}
 
-		//do it - типа здесь все уже раскрыто и преобразовано
+		//do it - С‚РёРїР° Р·РґРµСЃСЊ РІСЃРµ СѓР¶Рµ СЂР°СЃРєСЂС‹С‚Рѕ Рё РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРѕ
 		DlgData[DlgData.size() - 2].strData = os::env::expand_strings(strTitle);
 
-		// Заполняем поле ввода заданным шаблоном - если есть
+		// Р—Р°РїРѕР»РЅСЏРµРј РїРѕР»Рµ РІРІРѕРґР° Р·Р°РґР°РЅРЅС‹Рј С€Р°Р±Р»РѕРЅРѕРј - РµСЃР»Рё РµСЃС‚СЊ
 		string strTxt;
 
 		if ((end-scr) > 1)  //if between ? and ! exist some
@@ -796,7 +796,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 
 				if (!Modifers.empty())
 				{
-					if (Modifers.find(L'F') != string::npos && PointToName(strFileName) == strFileName.data()) // 'F' - использовать полный путь; //BUGBUG ?
+					if (Modifers.find(L'F') != string::npos && PointToName(strFileName) == strFileName.data()) // 'F' - РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РїРѕР»РЅС‹Р№ РїСѓС‚СЊ; //BUGBUG ?
 					{
 						string strTempFileName(m_CurDir);
 
@@ -808,10 +808,10 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 						strFileName=strTempFileName;
 					}
 
-					if (Modifers.find(L'Q') != string::npos) // 'Q' - заключать имена с пробелами в кавычки;
+					if (Modifers.find(L'Q') != string::npos) // 'Q' - Р·Р°РєР»СЋС‡Р°С‚СЊ РёРјРµРЅР° СЃ РїСЂРѕР±РµР»Р°РјРё РІ РєР°РІС‹С‡РєРё;
 						QuoteSpaceOnly(strFileName);
 
-					if (Modifers.find(L'S') != string::npos) // 'S' - использовать '/' вместо '\' в путях файлов;
+					if (Modifers.find(L'S') != string::npos) // 'S' - РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ '/' РІРјРµСЃС‚Рѕ '\' РІ РїСѓС‚СЏС… С„Р°Р№Р»РѕРІ;
 					{
 						ReplaceBackslashToSlash(strFileName);
 					}
@@ -871,11 +871,11 @@ static int IsReplaceVariable(const wchar_t *str,
                              int *end_scr_break,
                              int *beg_txt_break,
                              int *end_txt_break)
-// все очень сложно - последниe 4 указателя - это смещения от str
-// начало скобок в строке описания, конец этих скобок, начало скобок в строке начального заполнения, ну и соотв конец.
-// Вообще при простом вызове (который я собираюсь юзать) это выглядит просто:
-// i = IsReplaceVariable(str) - ведь нам надо только проверять семантику скобок и всяких ?!
-// где  i - тот прыжок, который надо совершить, чтоб прыгнуть на конец ! структуры !??!
+// РІСЃРµ РѕС‡РµРЅСЊ СЃР»РѕР¶РЅРѕ - РїРѕСЃР»РµРґРЅРёe 4 СѓРєР°Р·Р°С‚РµР»СЏ - СЌС‚Рѕ СЃРјРµС‰РµРЅРёСЏ РѕС‚ str
+// РЅР°С‡Р°Р»Рѕ СЃРєРѕР±РѕРє РІ СЃС‚СЂРѕРєРµ РѕРїРёСЃР°РЅРёСЏ, РєРѕРЅРµС† СЌС‚РёС… СЃРєРѕР±РѕРє, РЅР°С‡Р°Р»Рѕ СЃРєРѕР±РѕРє РІ СЃС‚СЂРѕРєРµ РЅР°С‡Р°Р»СЊРЅРѕРіРѕ Р·Р°РїРѕР»РЅРµРЅРёСЏ, РЅСѓ Рё СЃРѕРѕС‚РІ РєРѕРЅРµС†.
+// Р’РѕРѕР±С‰Рµ РїСЂРё РїСЂРѕСЃС‚РѕРј РІС‹Р·РѕРІРµ (РєРѕС‚РѕСЂС‹Р№ СЏ СЃРѕР±РёСЂР°СЋСЃСЊ СЋР·Р°С‚СЊ) СЌС‚Рѕ РІС‹РіР»СЏРґРёС‚ РїСЂРѕСЃС‚Рѕ:
+// i = IsReplaceVariable(str) - РІРµРґСЊ РЅР°Рј РЅР°РґРѕ С‚РѕР»СЊРєРѕ РїСЂРѕРІРµСЂСЏС‚СЊ СЃРµРјР°РЅС‚РёРєСѓ СЃРєРѕР±РѕРє Рё РІСЃСЏРєРёС… ?!
+// РіРґРµ  i - С‚РѕС‚ РїСЂС‹Р¶РѕРє, РєРѕС‚РѕСЂС‹Р№ РЅР°РґРѕ СЃРѕРІРµСЂС€РёС‚СЊ, С‡С‚РѕР± РїСЂС‹РіРЅСѓС‚СЊ РЅР° РєРѕРЅРµС† ! СЃС‚СЂСѓРєС‚СѓСЂС‹ !??!
 {
 	const wchar_t *s      = str;
 	int count_scob = 0;

@@ -1,11 +1,11 @@
-/*
+п»ї/*
 help.cpp
 
-Помощь
+РџРѕРјРѕС‰СЊ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -67,8 +67,8 @@ static const wchar_t HelpEndLink = L'>';
 
 enum HELPDOCUMENTSHELPTYPE
 {
-	HIDX_PLUGINS,                 // Индекс плагинов
-	HIDX_DOCUMS,                  // Индекс документов
+	HIDX_PLUGINS,                 // РРЅРґРµРєСЃ РїР»Р°РіРёРЅРѕРІ
+	HIDX_DOCUMS,                  // РРЅРґРµРєСЃ РґРѕРєСѓРјРµРЅС‚РѕРІ
 };
 
 enum
@@ -152,14 +152,14 @@ struct Help::StackHelpData: swapable<StackHelpData>
 		swap(CurY, rhs.CurY);
 	}
 
-	string strHelpMask;           // значение маски
-	string strHelpPath;           // путь к хелпам
-	string strHelpTopic;          // текущий топик
-	string strSelTopic;           // выделенный топик (???)
+	string strHelpMask;           // Р·РЅР°С‡РµРЅРёРµ РјР°СЃРєРё
+	string strHelpPath;           // РїСѓС‚СЊ Рє С…РµР»РїР°Рј
+	string strHelpTopic;          // С‚РµРєСѓС‰РёР№ С‚РѕРїРёРє
+	string strSelTopic;           // РІС‹РґРµР»РµРЅРЅС‹Р№ С‚РѕРїРёРє (???)
 
-	UINT64 Flags;                 // флаги
-	int   TopStr;                 // номер верхней видимой строки темы
-	int   CurX, CurY;             // координаты (???)
+	UINT64 Flags;                 // С„Р»Р°РіРё
+	int   TopStr;                 // РЅРѕРјРµСЂ РІРµСЂС…РЅРµР№ РІРёРґРёРјРѕР№ СЃС‚СЂРѕРєРё С‚РµРјС‹
+	int   CurX, CurY;             // РєРѕРѕСЂРґРёРЅР°С‚С‹ (???)
 };
 
 string Help::MakeLink(const string& path, const string& topic)
@@ -207,7 +207,7 @@ void Help::init(const string& Topic, const wchar_t *Mask, UINT64 Flags)
 	SetRestoreScreenMode(true);
 
 	StackData->Flags=Flags;
-	StackData->strHelpMask = NullToEmpty(Mask); // сохраним маску файла
+	StackData->strHelpMask = NullToEmpty(Mask); // СЃРѕС…СЂР°РЅРёРј РјР°СЃРєСѓ С„Р°Р№Р»Р°
 	StackData->strHelpTopic = Topic;
 
 	if (Global->Opt->FullScreenHelp)
@@ -333,7 +333,7 @@ int Help::ReadHelp(const string& Mask)
 		strCtrlStartPosChar.clear();
 
 	/* $ 29.11.2001 DJ
-	   запомним, чего там написано в PluginContents
+	   Р·Р°РїРѕРјРЅРёРј, С‡РµРіРѕ С‚Р°Рј РЅР°РїРёСЃР°РЅРѕ РІ PluginContents
 	*/
 	if (!GetLangParam(HelpFile,L"PluginContents",&strCurPluginContents, nullptr, nCodePage))
 		strCurPluginContents.clear();
@@ -442,7 +442,7 @@ int Help::ReadHelp(const string& Mask)
 			ReplaceStrings(strKeyName, L"#", L"##");
 			ReplaceStrings(strKeyName, L"@", L"@@");
 
-			if (strKeyName.find(L'~') != string::npos) // коррекция размера
+			if (strKeyName.find(L'~') != string::npos) // РєРѕСЂСЂРµРєС†РёСЏ СЂР°Р·РјРµСЂР°
 				SizeKeyName++;
 
 			strReadStr += FormatString() << L" #" << fmt::LeftAlign() << fmt::ExactWidth(SizeKeyName) << strKeyName << L"# ";
@@ -467,7 +467,7 @@ int Help::ReadHelp(const string& Mask)
 			{
 				strReadStr[PosTab] = L' ';
 
-				if (CtrlTabSize > 1) // заменим табулятор по всем правилам
+				if (CtrlTabSize > 1) // Р·Р°РјРµРЅРёРј С‚Р°Р±СѓР»СЏС‚РѕСЂ РїРѕ РІСЃРµРј РїСЂР°РІРёР»Р°Рј
 					strReadStr.insert(PosTab, strTabSpace.data(), CtrlTabSize - (PosTab % CtrlTabSize));
 			}
 		}
@@ -511,8 +511,8 @@ int Help::ReadHelp(const string& Mask)
 				}
 
 				// @=[Symbol]
-				// '@=' - одинарная горизонтальная линия на всю ширину окна хелпа
-				// '@=*' - она же из символов '*'
+				// '@=' - РѕРґРёРЅР°СЂРЅР°СЏ РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅР°СЏ Р»РёРЅРёСЏ РЅР° РІСЃСЋ С€РёСЂРёРЅСѓ РѕРєРЅР° С…РµР»РїР°
+				// '@=*' - РѕРЅР° Р¶Рµ РёР· СЃРёРјРІРѕР»РѕРІ '*'
 				if (strReadStr[1] == L'=')
 				{
 					DrawLineChar = strReadStr[2]; // TODO: hex! ==> \xHHHH
@@ -578,9 +578,9 @@ m1:
 				if (!((!strReadStr.empty() && strReadStr[0]==L'$') && NearTopicFound && (PrevSymbol == L'$' || PrevSymbol == L'@')))
 					NearTopicFound=0;
 
-				/* $<text> в начале строки, определение темы
-				   Определяет не прокручиваемую область помощи
-				   Если идут несколько подряд сразу после строки обозначения темы...
+				/* $<text> РІ РЅР°С‡Р°Р»Рµ СЃС‚СЂРѕРєРё, РѕРїСЂРµРґРµР»РµРЅРёРµ С‚РµРјС‹
+				   РћРїСЂРµРґРµР»СЏРµС‚ РЅРµ РїСЂРѕРєСЂСѓС‡РёРІР°РµРјСѓСЋ РѕР±Р»Р°СЃС‚СЊ РїРѕРјРѕС‰Рё
+				   Р•СЃР»Рё РёРґСѓС‚ РЅРµСЃРєРѕР»СЊРєРѕ РїРѕРґСЂСЏРґ СЃСЂР°Р·Сѓ РїРѕСЃР»Рµ СЃС‚СЂРѕРєРё РѕР±РѕР·РЅР°С‡РµРЅРёСЏ С‚РµРјС‹...
 				*/
 				if (NearTopicFound)
 				{
@@ -797,8 +797,8 @@ void Help::DisplayObject()
 {
 	if (!m_TopicFound)
 	{
-		if (!ErrorHelp) // если это убрать, то при несуществующей ссылке
-		{               // с нынешним манагером попадаем в бесконечный цикл.
+		if (!ErrorHelp) // РµСЃР»Рё СЌС‚Рѕ СѓР±СЂР°С‚СЊ, С‚Рѕ РїСЂРё РЅРµСЃСѓС‰РµСЃС‚РІСѓСЋС‰РµР№ СЃСЃС‹Р»РєРµ
+		{               // СЃ РЅС‹РЅРµС€РЅРёРј РјР°РЅР°РіРµСЂРѕРј РїРѕРїР°РґР°РµРј РІ Р±РµСЃРєРѕРЅРµС‡РЅС‹Р№ С†РёРєР».
 			ErrorHelp = true;
 
 			if (!(StackData->Flags&FHELP_NOSHOWERROR))
@@ -845,8 +845,8 @@ void Help::FastShow()
 	CorrectPosition();
 	StackData->strSelTopic.clear();
 	/* $ 01.09.2000 SVS
-	   Установим по умолчанию текущий цвет отрисовки...
-	   чтобы новая тема начиналась с нормальными атрибутами
+	   РЈСЃС‚Р°РЅРѕРІРёРј РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ С‚РµРєСѓС‰РёР№ С†РІРµС‚ РѕС‚СЂРёСЃРѕРІРєРё...
+	   С‡С‚РѕР±С‹ РЅРѕРІР°СЏ С‚РµРјР° РЅР°С‡РёРЅР°Р»Р°СЃСЊ СЃ РЅРѕСЂРјР°Р»СЊРЅС‹РјРё Р°С‚СЂРёР±СѓС‚Р°РјРё
 	*/
 	CurColor = colors::PaletteColorToFarColor(COL_HELPTEXT);
 
@@ -1113,7 +1113,7 @@ void Help::OutString(const wchar_t *Str)
 			}
 
 			/* $ 24.09.2001 VVM
-			  ! Обрежем длинные строки при показе. Такое будет только при длинных ссылках... */
+			  ! РћР±СЂРµР¶РµРј РґР»РёРЅРЅС‹Рµ СЃС‚СЂРѕРєРё РїСЂРё РїРѕРєР°Р·Рµ. РўР°РєРѕРµ Р±СѓРґРµС‚ С‚РѕР»СЊРєРѕ РїСЂРё РґР»РёРЅРЅС‹С… СЃСЃС‹Р»РєР°С…... */
 			if (StrLength(OutStr) + WhereX() > m_X2)
 				OutStr[m_X2 - WhereX()] = 0;
 
@@ -1306,7 +1306,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 			return TRUE;
 		}
 		/* $ 26.07.2001 VVM
-		  + С альтом скролим по 1 */
+		  + РЎ Р°Р»СЊС‚РѕРј СЃРєСЂРѕР»РёРј РїРѕ 1 */
 		case KEY_MSWHEEL_UP:
 		case KEY_MSWHEEL_UP | KEY_ALT:
 		case KEY_MSWHEEL_UP | KEY_RALT:
@@ -1374,7 +1374,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_F1:
 		{
-			// не поганим SelTopic, если и так в Help on Help
+			// РЅРµ РїРѕРіР°РЅРёРј SelTopic, РµСЃР»Рё Рё С‚Р°Рє РІ Help on Help
 			if (StrCmpI(StackData->strHelpTopic.data(),HelpOnHelpTopic))
 			{
 				Stack.emplace(*StackData);
@@ -1388,7 +1388,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_SHIFTF1:
 		{
-			//   не поганим SelTopic, если и так в теме Contents
+			//   РЅРµ РїРѕРіР°РЅРёРј SelTopic, РµСЃР»Рё Рё С‚Р°Рє РІ С‚РµРјРµ Contents
 			if (StrCmpI(StackData->strHelpTopic.data(),HelpContents))
 			{
 				Stack.emplace(*StackData);
@@ -1402,7 +1402,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_F7:
 		{
-			// не поганим SelTopic, если и так в FoundContents
+			// РЅРµ РїРѕРіР°РЅРёРј SelTopic, РµСЃР»Рё Рё С‚Р°Рє РІ FoundContents
 			if (StrCmpI(StackData->strHelpTopic.data(),FoundContents))
 			{
 				string strLastSearchStr0=strLastSearchStr;
@@ -1434,7 +1434,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_SHIFTF2:
 		{
-			//   не поганим SelTopic, если и так в PluginContents
+			//   РЅРµ РїРѕРіР°РЅРёРј SelTopic, РµСЃР»Рё Рё С‚Р°Рє РІ PluginContents
 			if (StrCmpI(StackData->strHelpTopic.data(),PluginContents))
 			{
 				Stack.emplace(*StackData);
@@ -1450,7 +1450,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 		case KEY_RALTF1:
 		case KEY_BS:
 		{
-			// Если стек возврата пуст - выходим из хелпа
+			// Р•СЃР»Рё СЃС‚РµРє РІРѕР·РІСЂР°С‚Р° РїСѓСЃС‚ - РІС‹С…РѕРґРёРј РёР· С…РµР»РїР°
 			if (!Stack.empty())
 			{
 				*StackData = std::move(Stack.top());
@@ -1474,7 +1474,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 				{
 					*StackData = std::move(Stack.top());
 					Stack.pop();
-					ReadHelp(StackData->strHelpMask); // вернем то, что отображали.
+					ReadHelp(StackData->strHelpMask); // РІРµСЂРЅРµРј С‚Рѕ, С‡С‚Рѕ РѕС‚РѕР±СЂР°Р¶Р°Р»Рё.
 				}
 
 				ErrorHelp = false;
@@ -1500,12 +1500,12 @@ int Help::JumpTopic()
 	size_t pos = 0;
 
 	/* $ 14.07.2002 IS
-	     При переходе по ссылкам используем всегда только абсолютные пути,
-	     если это возможно.
+	     РџСЂРё РїРµСЂРµС…РѕРґРµ РїРѕ СЃСЃС‹Р»РєР°Рј РёСЃРїРѕР»СЊР·СѓРµРј РІСЃРµРіРґР° С‚РѕР»СЊРєРѕ Р°Р±СЃРѕР»СЋС‚РЅС‹Рµ РїСѓС‚Рё,
+	     РµСЃР»Рё СЌС‚Рѕ РІРѕР·РјРѕР¶РЅРѕ.
 	*/
 
-	// Если ссылка на другой файл, путь относительный и есть то, от чего можно
-	// вычислить абсолютный путь, то сделаем это
+	// Р•СЃР»Рё СЃСЃС‹Р»РєР° РЅР° РґСЂСѓРіРѕР№ С„Р°Р№Р», РїСѓС‚СЊ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅС‹Р№ Рё РµСЃС‚СЊ С‚Рѕ, РѕС‚ С‡РµРіРѕ РјРѕР¶РЅРѕ
+	// РІС‹С‡РёСЃР»РёС‚СЊ Р°Р±СЃРѕР»СЋС‚РЅС‹Р№ РїСѓС‚СЊ, С‚Рѕ СЃРґРµР»Р°РµРј СЌС‚Рѕ
 	if (StackData->strSelTopic.front()==HelpBeginLink
 	        && (pos = StackData->strSelTopic.find(HelpEndLink,2)) != string::npos
 	        && !IsAbsolutePath(StackData->strSelTopic.data()+1)
@@ -1513,7 +1513,7 @@ int Help::JumpTopic()
 	{
 		strNewTopic = StackData->strSelTopic.substr(1, pos);
 		string strFullPath = StackData->strHelpPath;
-		// уберем _все_ конечные слеши и добавим один
+		// СѓР±РµСЂРµРј _РІСЃРµ_ РєРѕРЅРµС‡РЅС‹Рµ СЃР»РµС€Рё Рё РґРѕР±Р°РІРёРј РѕРґРёРЅ
 		DeleteEndSlash(strFullPath);
 		strFullPath.append(L"\\").append(strNewTopic.data()+(IsSlash(strNewTopic.front())?1:0));
 		BOOL EndSlash = IsSlash(strFullPath.back());
@@ -1524,12 +1524,12 @@ int Help::JumpTopic()
 	}
 
 	//_SVS(SysLog(L"JumpTopic() = SelTopic=%s",StackData->SelTopic));
-	// URL активатор - это ведь так просто :-)))
+	// URL Р°РєС‚РёРІР°С‚РѕСЂ - СЌС‚Рѕ РІРµРґСЊ С‚Р°Рє РїСЂРѕСЃС‚Рѕ :-)))
 	{
 		strNewTopic = StackData->strSelTopic;
 		pos = strNewTopic.find(L':');
 
-		if (pos != string::npos && strNewTopic.front() != L':') // наверное подразумевается URL
+		if (pos != string::npos && strNewTopic.front() != L':') // РЅР°РІРµСЂРЅРѕРµ РїРѕРґСЂР°Р·СѓРјРµРІР°РµС‚СЃСЏ URL
 		{
 			string Protocol(strNewTopic.data(), pos);
 
@@ -1539,7 +1539,7 @@ int Help::JumpTopic()
 			}
 		}
 	}
-	// а вот теперь попробуем...
+	// Р° РІРѕС‚ С‚РµРїРµСЂСЊ РїРѕРїСЂРѕР±СѓРµРј...
 
 	//_SVS(SysLog(L"JumpTopic() = SelTopic=%s, StackData->HelpPath=%s",StackData->SelTopic,StackData->HelpPath));
 	if (!StackData->strHelpPath.empty() && StackData->strSelTopic.front() !=HelpBeginLink && StackData->strSelTopic != HelpOnHelpTopic)
@@ -1559,7 +1559,7 @@ int Help::JumpTopic()
 		strNewTopic = StackData->strSelTopic.substr(StackData->strSelTopic == HelpOnHelpTopic? 1 : 0);
 	}
 
-	// удалим ссылку на .DLL
+	// СѓРґР°Р»РёРј СЃСЃС‹Р»РєСѓ РЅР° .DLL
 	size_t EndPos = strNewTopic.rfind(HelpEndLink);
 
 	if (EndPos != string::npos)
@@ -1648,7 +1648,7 @@ int Help::JumpTopic()
 
 	// ResizeConsole();
 	if (IsNewTopic
-	        || !(StrCmpI(StackData->strSelTopic.data(),PluginContents)||StrCmpI(StackData->strSelTopic.data(),FoundContents)) // Это неприятный костыль :-((
+	        || !(StrCmpI(StackData->strSelTopic.data(),PluginContents)||StrCmpI(StackData->strSelTopic.data(),FoundContents)) // Р­С‚Рѕ РЅРµРїСЂРёСЏС‚РЅС‹Р№ РєРѕСЃС‚С‹Р»СЊ :-((
 	   )
 		MoveToReference(1,1);
 
@@ -1675,11 +1675,11 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	if ((MsX<m_X1 || MsY<m_Y1 || MsX>m_X2 || MsY>m_Y2) && IntKeyState.MouseEventFlags != MOUSE_MOVED)
 	{
-		static const int HELPMODE_CLICKOUTSIDE = 0x20000000; // было нажатие мыши вне хелпа?
+		static const int HELPMODE_CLICKOUTSIDE = 0x20000000; // Р±С‹Р»Рѕ РЅР°Р¶Р°С‚РёРµ РјС‹С€Рё РІРЅРµ С…РµР»РїР°?
 
 		if (m_Flags.Check(HELPMODE_CLICKOUTSIDE))
 		{
-			// Вываливаем если предыдущий эвент не был двойным кликом
+			// Р’С‹РІР°Р»РёРІР°РµРј РµСЃР»Рё РїСЂРµРґС‹РґСѓС‰РёР№ СЌРІРµРЅС‚ РЅРµ Р±С‹Р» РґРІРѕР№РЅС‹Рј РєР»РёРєРѕРј
 			if (IntKeyState.PreMouseEventFlags != DOUBLE_CLICK)
 				ProcessKey(Manager::Key(KEY_ESC));
 		}
@@ -1714,7 +1714,7 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	}
 
 	/* $ 15.03.2002 DJ
-	   обработаем щелчок в середине скроллбара
+	   РѕР±СЂР°Р±РѕС‚Р°РµРј С‰РµР»С‡РѕРє РІ СЃРµСЂРµРґРёРЅРµ СЃРєСЂРѕР»Р»Р±Р°СЂР°
 	*/
 	if (IntKeyState.MouseX == m_X2)
 	{
@@ -1738,7 +1738,7 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		simple_move = false;
 	}
 
-	// DoubliClock - свернуть/развернуть хелп.
+	// DoubliClock - СЃРІРµСЂРЅСѓС‚СЊ/СЂР°Р·РІРµСЂРЅСѓС‚СЊ С…РµР»Рї.
 	if (MouseEvent->dwEventFlags==DOUBLE_CLICK &&
 	        (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) &&
 	        MouseEvent->dwMousePosition.Y<m_Y1+1+FixSize)
@@ -1764,7 +1764,7 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	}
 
 	/* $ 26.11.2001 VVM
-	  + Запомнить нажатие клавиши мышки и только в этом случае реагировать при отпускании */
+	  + Р—Р°РїРѕРјРЅРёС‚СЊ РЅР°Р¶Р°С‚РёРµ РєР»Р°РІРёС€Рё РјС‹С€РєРё Рё С‚РѕР»СЊРєРѕ РІ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ СЂРµР°РіРёСЂРѕРІР°С‚СЊ РїСЂРё РѕС‚РїСѓСЃРєР°РЅРёРё */
 	if (!MouseEvent->dwEventFlags
 	 && (MouseEvent->dwButtonState & (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED)))
 	{
@@ -1880,7 +1880,7 @@ void Help::MoveToReference(int Forward,int CurScreen)
 				StartSelection=0;
 			else
 			{
-				// небольшая заплата, артефакты есть но уже меньше :-)
+				// РЅРµР±РѕР»СЊС€Р°СЏ Р·Р°РїР»Р°С‚Р°, Р°СЂС‚РµС„Р°РєС‚С‹ РµСЃС‚СЊ РЅРѕ СѓР¶Рµ РјРµРЅСЊС€Рµ :-)
 				if (ReferencePresent && CurScreen)
 					StartSelection=0;
 
@@ -1925,7 +1925,7 @@ void Help::Search(os::fs::file& HelpFile,uintptr_t nCodePage)
 
 	if (LastSearchRegexp)
 	{
-		// Q: что важнее: опция диалога или опция RegExp`а?
+		// Q: С‡С‚Рѕ РІР°Р¶РЅРµРµ: РѕРїС†РёСЏ РґРёР°Р»РѕРіР° РёР»Рё РѕРїС†РёСЏ RegExp`Р°?
 		if (!re.Compile(strSlash.data(), OP_PERLSTYLE|OP_OPTIMIZE|(!LastSearchCase?OP_IGNORECASE:0)))
 		{
 			ReCompileErrorMessage(re, strSlash);
@@ -1974,7 +1974,7 @@ void Help::Search(os::fs::file& HelpFile,uintptr_t nCodePage)
 
 		if (TopicFound && !strEntryName.empty())
 		{
-			// !!!BUGBUG: необходимо "очистить" строку strReadStr от элементов разметки !!!
+			// !!!BUGBUG: РЅРµРѕР±С…РѕРґРёРјРѕ "РѕС‡РёСЃС‚РёС‚СЊ" СЃС‚СЂРѕРєСѓ strReadStr РѕС‚ СЌР»РµРјРµРЅС‚РѕРІ СЂР°Р·РјРµС‚РєРё !!!
 			string ReplaceStr;
 			int CurPos=0;
 			int SearchLength;
@@ -2018,8 +2018,8 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 
 	AddTitle(PtrTitle);
 	/* TODO:
-	   1. Поиск (для "документов") не только в каталоге Documets, но
-	      и в плагинах
+	   1. РџРѕРёСЃРє (РґР»СЏ "РґРѕРєСѓРјРµРЅС‚РѕРІ") РЅРµ С‚РѕР»СЊРєРѕ РІ РєР°С‚Р°Р»РѕРіРµ Documets, РЅРѕ
+	      Рё РІ РїР»Р°РіРёРЅР°С…
 	*/
 	switch (TypeIndex)
 	{
@@ -2053,13 +2053,13 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 		}
 	}
 
-	// сортируем по алфавиту
+	// СЃРѕСЂС‚РёСЂСѓРµРј РїРѕ Р°Р»С„Р°РІРёС‚Сѓ
 	std::sort(HelpList.begin()+1, HelpList.end());
-	// $ 26.06.2000 IS - Устранение глюка с хелпом по f1, shift+f2, end (решение предложил IG)
+	// $ 26.06.2000 IS - РЈСЃС‚СЂР°РЅРµРЅРёРµ РіР»СЋРєР° СЃ С…РµР»РїРѕРј РїРѕ f1, shift+f2, end (СЂРµС€РµРЅРёРµ РїСЂРµРґР»РѕР¶РёР» IG)
 	AddLine(L"");
 }
 
-// Формирование топика с учетом разных факторов
+// Р¤РѕСЂРјРёСЂРѕРІР°РЅРёРµ С‚РѕРїРёРєР° СЃ СѓС‡РµС‚РѕРј СЂР°Р·РЅС‹С… С„Р°РєС‚РѕСЂРѕРІ
 bool Help::MkTopic(const Plugin* pPlugin, const string& HelpTopic, string &strTopic)
 {
 	strTopic.clear();
@@ -2091,27 +2091,27 @@ bool Help::MkTopic(const Plugin* pPlugin, const string& HelpTopic, string &strTo
 				}
 				else
 				{
-					if (EndPos == strTopic.size() - 1) // Вона как поперло то...
-						strTopic += HelpContents; // ... значит покажем основную тему. //BUGBUG
+					if (EndPos == strTopic.size() - 1) // Р’РѕРЅР° РєР°Рє РїРѕРїРµСЂР»Рѕ С‚Рѕ...
+						strTopic += HelpContents; // ... Р·РЅР°С‡РёС‚ РїРѕРєР°Р¶РµРј РѕСЃРЅРѕРІРЅСѓСЋ С‚РµРјСѓ. //BUGBUG
 
-					/* А вот теперь разгребем...
-					   Формат может быть :
-					     "<FullPath>Topic" или "<FullModuleName>Topic"
-					   Для случая "FullPath" путь ДОЛЖЕН заканчиваться СЛЕШЕМ!
-					   Т.о. мы отличим ЧТО ЭТО - имя модуля или путь!
+					/* Рђ РІРѕС‚ С‚РµРїРµСЂСЊ СЂР°Р·РіСЂРµР±РµРј...
+					   Р¤РѕСЂРјР°С‚ РјРѕР¶РµС‚ Р±С‹С‚СЊ :
+					     "<FullPath>Topic" РёР»Рё "<FullModuleName>Topic"
+					   Р”Р»СЏ СЃР»СѓС‡Р°СЏ "FullPath" РїСѓС‚СЊ Р”РћР›Р–Р•Рќ Р·Р°РєР°РЅС‡РёРІР°С‚СЊСЃСЏ РЎР›Р•РЁР•Рњ!
+					   Рў.Рѕ. РјС‹ РѕС‚Р»РёС‡РёРј Р§РўРћ Р­РўРћ - РёРјСЏ РјРѕРґСѓР»СЏ РёР»Рё РїСѓС‚СЊ!
 					*/
 
 					size_t SlashPos = EndPos - 1;
 
-					if (!IsSlash(strTopic[SlashPos])) // Это имя модуля?
+					if (!IsSlash(strTopic[SlashPos])) // Р­С‚Рѕ РёРјСЏ РјРѕРґСѓР»СЏ?
 					{
-						// значит удалим это чертово имя :-)
+						// Р·РЅР°С‡РёС‚ СѓРґР°Р»РёРј СЌС‚Рѕ С‡РµСЂС‚РѕРІРѕ РёРјСЏ :-)
 						const auto pos = FindLastSlash(strTopic);
 						if (pos != string::npos)
 						{
 							SlashPos = pos;
 						}
-						else // ВО! Фигня какая-то :-(
+						else // Р’Рћ! Р¤РёРіРЅСЏ РєР°РєР°СЏ-С‚Рѕ :-(
 						{
 							strTopic.clear();
 						}
@@ -2150,14 +2150,14 @@ void Help::InitKeyBar()
 }
 
 /* $ 25.08.2000 SVS
-   Запуск URL-ссылок... ;-)
-   Это ведь так просто... ась?
-   Вернет:
-     0 - это не URL ссылка (не похожа)
-     1 - CreateProcess вернул FALSE
-     2 - Все Ок
+   Р—Р°РїСѓСЃРє URL-СЃСЃС‹Р»РѕРє... ;-)
+   Р­С‚Рѕ РІРµРґСЊ С‚Р°Рє РїСЂРѕСЃС‚Рѕ... Р°СЃСЊ?
+   Р’РµСЂРЅРµС‚:
+     0 - СЌС‚Рѕ РЅРµ URL СЃСЃС‹Р»РєР° (РЅРµ РїРѕС…РѕР¶Р°)
+     1 - CreateProcess РІРµСЂРЅСѓР» FALSE
+     2 - Р’СЃРµ РћРє
 
-   Параметры (например):
+   РџР°СЂР°РјРµС‚СЂС‹ (РЅР°РїСЂРёРјРµСЂ):
      Protocol="mailto"
      URLPath ="mailto:vskirdin@mail.ru?Subject=Reversi"
 */
@@ -2189,9 +2189,9 @@ static int RunURL(const string& Protocol, const string& URLPath)
 				strAction = os::env::expand_strings(strAction);
 
 				string FilteredURLPath(URLPath);
-				// удалим два идущих подряд ~~
+				// СѓРґР°Р»РёРј РґРІР° РёРґСѓС‰РёС… РїРѕРґСЂСЏРґ ~~
 				ReplaceStrings(FilteredURLPath, L"~~", L"~");
-				// удалим два идущих подряд ##
+				// СѓРґР°Р»РёРј РґРІР° РёРґСѓС‰РёС… РїРѕРґСЂСЏРґ ##
 				ReplaceStrings(FilteredURLPath, L"##", L"#");
 
 				int Disposition=0;
@@ -2208,13 +2208,13 @@ static int RunURL(const string& Protocol, const string& URLPath)
 						                MSG(MYes),MSG(MNo));
 				}
 
-				EditCode=2; // Все Ok!
+				EditCode=2; // Р’СЃРµ Ok!
 
 				if (!Disposition)
 				{
 					/*
-					СЮДЫ НУЖНО ВПИНДЮЛИТЬ МЕНЮХУ С ВОЗМОЖНОСТЬЮ ВЫБОРА
-					ТОГО ИЛИ ИНОГО АКТИВАТОРА - ИХ МОЖЕТ БЫТЬ НЕСКОЛЬКО!!!!!
+					РЎР®Р”Р« РќРЈР–РќРћ Р’РџРРќР”Р®Р›РРўР¬ РњР•РќР®РҐРЈ РЎ Р’РћР—РњРћР–РќРћРЎРўР¬Р® Р’Р«Р‘РћР Рђ
+					РўРћР“Рћ РР›Р РРќРћР“Рћ РђРљРўРР’РђРўРћР Рђ - РРҐ РњРћР–Р•Рў Р‘Р«РўР¬ РќР•РЎРљРћР›Р¬РљРћ!!!!!
 					*/
 					const auto strCurDir = os::GetCurrentDirectory();
 
@@ -2270,7 +2270,7 @@ void Help::ResizeConsole()
 
 	ReadHelp(StackData->strHelpMask);
 	ErrorHelp = false;
-	//StackData->CurY--; // ЭТО ЕСМЬ КОСТЫЛЬ (пусть пока будет так!)
+	//StackData->CurY--; // Р­РўРћ Р•РЎРњР¬ РљРћРЎРўР«Р›Р¬ (РїСѓСЃС‚СЊ РїРѕРєР° Р±СѓРґРµС‚ С‚Р°Рє!)
 	StackData->CurX--;
 	MoveToReference(1,1);
 	IsNewTopic=OldIsNewTopic;

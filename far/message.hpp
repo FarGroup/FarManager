@@ -1,13 +1,15 @@
+п»ї#ifndef MESSAGE_HPP_640AC104_875B_41AE_8EF5_8A99913A6896
+#define MESSAGE_HPP_640AC104_875B_41AE_8EF5_8A99913A6896
 #pragma once
 
 /*
 message.hpp
 
-Вывод MessageBox
+Р’С‹РІРѕРґ MessageBox
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -90,12 +92,14 @@ private:
 };
 
 /* $ 12.03.2002 VVM
-  Новая функция - пользователь попытался прервать операцию.
-  Зададим вопрос.
-  Возвращает:
-   FALSE - продолжить операцию
-   TRUE  - прервать операцию
+  РќРѕРІР°СЏ С„СѓРЅРєС†РёСЏ - РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РїРѕРїС‹С‚Р°Р»СЃСЏ РїСЂРµСЂРІР°С‚СЊ РѕРїРµСЂР°С†РёСЋ.
+  Р—Р°РґР°РґРёРј РІРѕРїСЂРѕСЃ.
+  Р’РѕР·РІСЂР°С‰Р°РµС‚:
+   FALSE - РїСЂРѕРґРѕР»Р¶РёС‚СЊ РѕРїРµСЂР°С†РёСЋ
+   TRUE  - РїСЂРµСЂРІР°С‚СЊ РѕРїРµСЂР°С†РёСЋ
 */
 bool AbortMessage();
 
 string GetErrorString();
+
+#endif // MESSAGE_HPP_640AC104_875B_41AE_8EF5_8A99913A6896

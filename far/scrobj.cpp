@@ -1,11 +1,11 @@
-/*
+п»ї/*
 scrobj.cpp
 
-Parent class для всех screen objects
+Parent class РґР»СЏ РІСЃРµС… screen objects
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -170,10 +170,10 @@ void ScreenObject::HideButKeepSaveScreen()
 void ScreenObject::SetPosition(int X1, int Y1, int X2, int Y2)
 {
 	/* $ 13.04.2002 KM
-	- Раз меняем позицию объекта на экране, то тогда
-	перед этим восстановим изображение под ним для
-	предотвращения восстановления ранее сохранённого
-	изображения в новом месте.
+	- Р Р°Р· РјРµРЅСЏРµРј РїРѕР·РёС†РёСЋ РѕР±СЉРµРєС‚Р° РЅР° СЌРєСЂР°РЅРµ, С‚Рѕ С‚РѕРіРґР°
+	РїРµСЂРµРґ СЌС‚РёРј РІРѕСЃСЃС‚Р°РЅРѕРІРёРј РёР·РѕР±СЂР°Р¶РµРЅРёРµ РїРѕРґ РЅРёРј РґР»СЏ
+	РїСЂРµРґРѕС‚РІСЂР°С‰РµРЅРёСЏ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ СЂР°РЅРµРµ СЃРѕС…СЂР°РЅС‘РЅРЅРѕРіРѕ
+	РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РІ РЅРѕРІРѕРј РјРµСЃС‚Рµ.
 	*/
 	SaveScr.reset();
 

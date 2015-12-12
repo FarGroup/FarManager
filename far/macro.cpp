@@ -1,11 +1,11 @@
-/*
+п»ї/*
 macro.cpp
 
-Макросы
+РњР°РєСЂРѕСЃС‹
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -82,7 +82,7 @@ void print_opcodes()
 	if (!fp) return;
 
 	/* ************************************************************************* */
-	// функции
+	// С„СѓРЅРєС†РёРё
 	fprintf(fp, "MCODE_F_NOFUNC=0x%X\n", MCODE_F_NOFUNC);
 	fprintf(fp, "MCODE_F_ABS=0x%X // N=abs(N)\n", MCODE_F_ABS);
 	fprintf(fp, "MCODE_F_AKEY=0x%X // V=akey(Mode[,Type])\n", MCODE_F_AKEY);
@@ -136,17 +136,17 @@ void print_opcodes()
 	fprintf(fp, "MCODE_F_CALLPLUGIN=0x%X // V=callplugin(SysID[,param])\n", MCODE_F_CALLPLUGIN);
 	fprintf(fp, "MCODE_F_REPLACE=0x%X // S=replace(sS,sF,sR[,Count[,Mode]])\n", MCODE_F_REPLACE);
 	fprintf(fp, "MCODE_F_PROMPT=0x%X // S=prompt([\"Title\"[,\"Prompt\"[,flags[, \"Src\"[, \"History\"]]]]])\n", MCODE_F_PROMPT);
-	fprintf(fp, "MCODE_F_BM_ADD=0x%X // N=BM.Add()  - добавить текущие координаты и обрезать хвост\n", MCODE_F_BM_ADD);
-	fprintf(fp, "MCODE_F_BM_CLEAR=0x%X // N=BM.Clear() - очистить все закладки\n", MCODE_F_BM_CLEAR);
-	fprintf(fp, "MCODE_F_BM_DEL=0x%X // N=BM.Del([Idx]) - удаляет закладку с указанным индексом (x=1...), 0 - удаляет текущую закладку\n", MCODE_F_BM_DEL);
-	fprintf(fp, "MCODE_F_BM_GET=0x%X // N=BM.Get(Idx,M) - возвращает координаты строки (M==0) или колонки (M==1) закладки с индексом (Idx=1...)\n", MCODE_F_BM_GET);
-	fprintf(fp, "MCODE_F_BM_GOTO=0x%X // N=BM.Goto([n]) - переход на закладку с указанным индексом (0 --> текущую)\n", MCODE_F_BM_GOTO);
-	fprintf(fp, "MCODE_F_BM_NEXT=0x%X // N=BM.Next() - перейти на следующую закладку\n", MCODE_F_BM_NEXT);
-	fprintf(fp, "MCODE_F_BM_POP=0x%X // N=BM.Pop() - восстановить текущую позицию из закладки в конце стека и удалить закладку\n", MCODE_F_BM_POP);
-	fprintf(fp, "MCODE_F_BM_PREV=0x%X // N=BM.Prev() - перейти на предыдущую закладку\n", MCODE_F_BM_PREV);
-	fprintf(fp, "MCODE_F_BM_BACK=0x%X // N=BM.Back() - перейти на предыдущую закладку с возможным сохранением текущей позиции\n", MCODE_F_BM_BACK);
-	fprintf(fp, "MCODE_F_BM_PUSH=0x%X // N=BM.Push() - сохранить текущую позицию в виде закладки в конце стека\n", MCODE_F_BM_PUSH);
-	fprintf(fp, "MCODE_F_BM_STAT=0x%X // N=BM.Stat([M]) - возвращает информацию о закладках, N=0 - текущее количество закладок\n", MCODE_F_BM_STAT);
+	fprintf(fp, "MCODE_F_BM_ADD=0x%X // N=BM.Add()  - РґРѕР±Р°РІРёС‚СЊ С‚РµРєСѓС‰РёРµ РєРѕРѕСЂРґРёРЅР°С‚С‹ Рё РѕР±СЂРµР·Р°С‚СЊ С…РІРѕСЃС‚\n", MCODE_F_BM_ADD);
+	fprintf(fp, "MCODE_F_BM_CLEAR=0x%X // N=BM.Clear() - РѕС‡РёСЃС‚РёС‚СЊ РІСЃРµ Р·Р°РєР»Р°РґРєРё\n", MCODE_F_BM_CLEAR);
+	fprintf(fp, "MCODE_F_BM_DEL=0x%X // N=BM.Del([Idx]) - СѓРґР°Р»СЏРµС‚ Р·Р°РєР»Р°РґРєСѓ СЃ СѓРєР°Р·Р°РЅРЅС‹Рј РёРЅРґРµРєСЃРѕРј (x=1...), 0 - СѓРґР°Р»СЏРµС‚ С‚РµРєСѓС‰СѓСЋ Р·Р°РєР»Р°РґРєСѓ\n", MCODE_F_BM_DEL);
+	fprintf(fp, "MCODE_F_BM_GET=0x%X // N=BM.Get(Idx,M) - РІРѕР·РІСЂР°С‰Р°РµС‚ РєРѕРѕСЂРґРёРЅР°С‚С‹ СЃС‚СЂРѕРєРё (M==0) РёР»Рё РєРѕР»РѕРЅРєРё (M==1) Р·Р°РєР»Р°РґРєРё СЃ РёРЅРґРµРєСЃРѕРј (Idx=1...)\n", MCODE_F_BM_GET);
+	fprintf(fp, "MCODE_F_BM_GOTO=0x%X // N=BM.Goto([n]) - РїРµСЂРµС…РѕРґ РЅР° Р·Р°РєР»Р°РґРєСѓ СЃ СѓРєР°Р·Р°РЅРЅС‹Рј РёРЅРґРµРєСЃРѕРј (0 --> С‚РµРєСѓС‰СѓСЋ)\n", MCODE_F_BM_GOTO);
+	fprintf(fp, "MCODE_F_BM_NEXT=0x%X // N=BM.Next() - РїРµСЂРµР№С‚Рё РЅР° СЃР»РµРґСѓСЋС‰СѓСЋ Р·Р°РєР»Р°РґРєСѓ\n", MCODE_F_BM_NEXT);
+	fprintf(fp, "MCODE_F_BM_POP=0x%X // N=BM.Pop() - РІРѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ С‚РµРєСѓС‰СѓСЋ РїРѕР·РёС†РёСЋ РёР· Р·Р°РєР»Р°РґРєРё РІ РєРѕРЅС†Рµ СЃС‚РµРєР° Рё СѓРґР°Р»РёС‚СЊ Р·Р°РєР»Р°РґРєСѓ\n", MCODE_F_BM_POP);
+	fprintf(fp, "MCODE_F_BM_PREV=0x%X // N=BM.Prev() - РїРµСЂРµР№С‚Рё РЅР° РїСЂРµРґС‹РґСѓС‰СѓСЋ Р·Р°РєР»Р°РґРєСѓ\n", MCODE_F_BM_PREV);
+	fprintf(fp, "MCODE_F_BM_BACK=0x%X // N=BM.Back() - РїРµСЂРµР№С‚Рё РЅР° РїСЂРµРґС‹РґСѓС‰СѓСЋ Р·Р°РєР»Р°РґРєСѓ СЃ РІРѕР·РјРѕР¶РЅС‹Рј СЃРѕС…СЂР°РЅРµРЅРёРµРј С‚РµРєСѓС‰РµР№ РїРѕР·РёС†РёРё\n", MCODE_F_BM_BACK);
+	fprintf(fp, "MCODE_F_BM_PUSH=0x%X // N=BM.Push() - СЃРѕС…СЂР°РЅРёС‚СЊ С‚РµРєСѓС‰СѓСЋ РїРѕР·РёС†РёСЋ РІ РІРёРґРµ Р·Р°РєР»Р°РґРєРё РІ РєРѕРЅС†Рµ СЃС‚РµРєР°\n", MCODE_F_BM_PUSH);
+	fprintf(fp, "MCODE_F_BM_STAT=0x%X // N=BM.Stat([M]) - РІРѕР·РІСЂР°С‰Р°РµС‚ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ Р·Р°РєР»Р°РґРєР°С…, N=0 - С‚РµРєСѓС‰РµРµ РєРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РєР»Р°РґРѕРє\n", MCODE_F_BM_STAT);
 	fprintf(fp, "MCODE_F_TRIM=0x%X // S=trim(S[,N])\n", MCODE_F_TRIM);
 	fprintf(fp, "MCODE_F_FLOAT=0x%X // N=float(V)\n", MCODE_F_FLOAT);
 	fprintf(fp, "MCODE_F_TESTFOLDER=0x%X // N=testfolder(S)\n", MCODE_F_TESTFOLDER);
@@ -184,70 +184,70 @@ void print_opcodes()
 	fprintf(fp, "MCODE_F_EDITOR_INSSTR=0x%X // N=Editor.InsStr([S[,Line]])\n", MCODE_F_EDITOR_INSSTR);
 	fprintf(fp, "MCODE_F_EDITOR_SETSTR=0x%X // N=Editor.SetStr([S[,Line]])\n", MCODE_F_EDITOR_SETSTR);
 	/* ************************************************************************* */
-	fprintf(fp, "MCODE_F_CHECKALL=0x%X // Проверить предварительные условия исполнения макроса\n", MCODE_F_CHECKALL);
-	fprintf(fp, "MCODE_F_GETOPTIONS=0x%X // Получить значения некоторых опций Фара\n", MCODE_F_GETOPTIONS);
-	fprintf(fp, "MCODE_F_USERMENU=0x%X // Вывести меню пользователя\n", MCODE_F_USERMENU);
-	fprintf(fp, "MCODE_F_SETCUSTOMSORTMODE=0x%X // Установить пользовательский режим сортировки\n", MCODE_F_SETCUSTOMSORTMODE);
-	fprintf(fp, "MCODE_F_KEYMACRO=0x%X // Набор простых операций\n", MCODE_F_KEYMACRO);
+	fprintf(fp, "MCODE_F_CHECKALL=0x%X // РџСЂРѕРІРµСЂРёС‚СЊ РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅС‹Рµ СѓСЃР»РѕРІРёСЏ РёСЃРїРѕР»РЅРµРЅРёСЏ РјР°РєСЂРѕСЃР°\n", MCODE_F_CHECKALL);
+	fprintf(fp, "MCODE_F_GETOPTIONS=0x%X // РџРѕР»СѓС‡РёС‚СЊ Р·РЅР°С‡РµРЅРёСЏ РЅРµРєРѕС‚РѕСЂС‹С… РѕРїС†РёР№ Р¤Р°СЂР°\n", MCODE_F_GETOPTIONS);
+	fprintf(fp, "MCODE_F_USERMENU=0x%X // Р’С‹РІРµСЃС‚Рё РјРµРЅСЋ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ\n", MCODE_F_USERMENU);
+	fprintf(fp, "MCODE_F_SETCUSTOMSORTMODE=0x%X // РЈСЃС‚Р°РЅРѕРІРёС‚СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёР№ СЂРµР¶РёРј СЃРѕСЂС‚РёСЂРѕРІРєРё\n", MCODE_F_SETCUSTOMSORTMODE);
+	fprintf(fp, "MCODE_F_KEYMACRO=0x%X // РќР°Р±РѕСЂ РїСЂРѕСЃС‚С‹С… РѕРїРµСЂР°С†РёР№\n", MCODE_F_KEYMACRO);
 	fprintf(fp, "MCODE_F_FAR_GETCONFIG=0x%X // V=Far.GetConfig(Key,Name)\n", MCODE_F_FAR_GETCONFIG);
 	fprintf(fp, "MCODE_F_LAST=0x%X // marker\n", MCODE_F_LAST);
 	/* ************************************************************************* */
-	// булевые переменные - различные состояния
-	fprintf(fp, "MCODE_C_AREA_OTHER=0x%X // Режим копирования текста с экрана, вертикальные меню\n", MCODE_C_AREA_OTHER);
-	fprintf(fp, "MCODE_C_AREA_SHELL=0x%X // Файловые панели\n", MCODE_C_AREA_SHELL);
-	fprintf(fp, "MCODE_C_AREA_VIEWER=0x%X // Внутренняя программа просмотра\n", MCODE_C_AREA_VIEWER);
-	fprintf(fp, "MCODE_C_AREA_EDITOR=0x%X // Редактор\n", MCODE_C_AREA_EDITOR);
-	fprintf(fp, "MCODE_C_AREA_DIALOG=0x%X // Диалоги\n", MCODE_C_AREA_DIALOG);
-	fprintf(fp, "MCODE_C_AREA_SEARCH=0x%X // Быстрый поиск в панелях\n", MCODE_C_AREA_SEARCH);
-	fprintf(fp, "MCODE_C_AREA_DISKS=0x%X // Меню выбора дисков\n", MCODE_C_AREA_DISKS);
-	fprintf(fp, "MCODE_C_AREA_MAINMENU=0x%X // Основное меню\n", MCODE_C_AREA_MAINMENU);
-	fprintf(fp, "MCODE_C_AREA_MENU=0x%X // Прочие меню\n", MCODE_C_AREA_MENU);
-	fprintf(fp, "MCODE_C_AREA_HELP=0x%X // Система помощи\n", MCODE_C_AREA_HELP);
-	fprintf(fp, "MCODE_C_AREA_INFOPANEL=0x%X // Информационная панель\n", MCODE_C_AREA_INFOPANEL);
-	fprintf(fp, "MCODE_C_AREA_QVIEWPANEL=0x%X // Панель быстрого просмотра\n", MCODE_C_AREA_QVIEWPANEL);
-	fprintf(fp, "MCODE_C_AREA_TREEPANEL=0x%X // Панель дерева папок\n", MCODE_C_AREA_TREEPANEL);
-	fprintf(fp, "MCODE_C_AREA_FINDFOLDER=0x%X // Поиск папок\n", MCODE_C_AREA_FINDFOLDER);
-	fprintf(fp, "MCODE_C_AREA_USERMENU=0x%X // Меню пользователя\n", MCODE_C_AREA_USERMENU);
-	fprintf(fp, "MCODE_C_AREA_SHELL_AUTOCOMPLETION=0x%X // Список автодополнения в панелях в ком.строке\n", MCODE_C_AREA_SHELL_AUTOCOMPLETION);
-	fprintf(fp, "MCODE_C_AREA_DIALOG_AUTOCOMPLETION=0x%X // Список автодополнения в диалоге\n", MCODE_C_AREA_DIALOG_AUTOCOMPLETION);
+	// Р±СѓР»РµРІС‹Рµ РїРµСЂРµРјРµРЅРЅС‹Рµ - СЂР°Р·Р»РёС‡РЅС‹Рµ СЃРѕСЃС‚РѕСЏРЅРёСЏ
+	fprintf(fp, "MCODE_C_AREA_OTHER=0x%X // Р РµР¶РёРј РєРѕРїРёСЂРѕРІР°РЅРёСЏ С‚РµРєСЃС‚Р° СЃ СЌРєСЂР°РЅР°, РІРµСЂС‚РёРєР°Р»СЊРЅС‹Рµ РјРµРЅСЋ\n", MCODE_C_AREA_OTHER);
+	fprintf(fp, "MCODE_C_AREA_SHELL=0x%X // Р¤Р°Р№Р»РѕРІС‹Рµ РїР°РЅРµР»Рё\n", MCODE_C_AREA_SHELL);
+	fprintf(fp, "MCODE_C_AREA_VIEWER=0x%X // Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РїСЂРѕРіСЂР°РјРјР° РїСЂРѕСЃРјРѕС‚СЂР°\n", MCODE_C_AREA_VIEWER);
+	fprintf(fp, "MCODE_C_AREA_EDITOR=0x%X // Р РµРґР°РєС‚РѕСЂ\n", MCODE_C_AREA_EDITOR);
+	fprintf(fp, "MCODE_C_AREA_DIALOG=0x%X // Р”РёР°Р»РѕРіРё\n", MCODE_C_AREA_DIALOG);
+	fprintf(fp, "MCODE_C_AREA_SEARCH=0x%X // Р‘С‹СЃС‚СЂС‹Р№ РїРѕРёСЃРє РІ РїР°РЅРµР»СЏС…\n", MCODE_C_AREA_SEARCH);
+	fprintf(fp, "MCODE_C_AREA_DISKS=0x%X // РњРµРЅСЋ РІС‹Р±РѕСЂР° РґРёСЃРєРѕРІ\n", MCODE_C_AREA_DISKS);
+	fprintf(fp, "MCODE_C_AREA_MAINMENU=0x%X // РћСЃРЅРѕРІРЅРѕРµ РјРµРЅСЋ\n", MCODE_C_AREA_MAINMENU);
+	fprintf(fp, "MCODE_C_AREA_MENU=0x%X // РџСЂРѕС‡РёРµ РјРµРЅСЋ\n", MCODE_C_AREA_MENU);
+	fprintf(fp, "MCODE_C_AREA_HELP=0x%X // РЎРёСЃС‚РµРјР° РїРѕРјРѕС‰Рё\n", MCODE_C_AREA_HELP);
+	fprintf(fp, "MCODE_C_AREA_INFOPANEL=0x%X // РРЅС„РѕСЂРјР°С†РёРѕРЅРЅР°СЏ РїР°РЅРµР»СЊ\n", MCODE_C_AREA_INFOPANEL);
+	fprintf(fp, "MCODE_C_AREA_QVIEWPANEL=0x%X // РџР°РЅРµР»СЊ Р±С‹СЃС‚СЂРѕРіРѕ РїСЂРѕСЃРјРѕС‚СЂР°\n", MCODE_C_AREA_QVIEWPANEL);
+	fprintf(fp, "MCODE_C_AREA_TREEPANEL=0x%X // РџР°РЅРµР»СЊ РґРµСЂРµРІР° РїР°РїРѕРє\n", MCODE_C_AREA_TREEPANEL);
+	fprintf(fp, "MCODE_C_AREA_FINDFOLDER=0x%X // РџРѕРёСЃРє РїР°РїРѕРє\n", MCODE_C_AREA_FINDFOLDER);
+	fprintf(fp, "MCODE_C_AREA_USERMENU=0x%X // РњРµРЅСЋ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ\n", MCODE_C_AREA_USERMENU);
+	fprintf(fp, "MCODE_C_AREA_SHELL_AUTOCOMPLETION=0x%X // РЎРїРёСЃРѕРє Р°РІС‚РѕРґРѕРїРѕР»РЅРµРЅРёСЏ РІ РїР°РЅРµР»СЏС… РІ РєРѕРј.СЃС‚СЂРѕРєРµ\n", MCODE_C_AREA_SHELL_AUTOCOMPLETION);
+	fprintf(fp, "MCODE_C_AREA_DIALOG_AUTOCOMPLETION=0x%X // РЎРїРёСЃРѕРє Р°РІС‚РѕРґРѕРїРѕР»РЅРµРЅРёСЏ РІ РґРёР°Р»РѕРіРµ\n", MCODE_C_AREA_DIALOG_AUTOCOMPLETION);
 
-	fprintf(fp, "MCODE_C_FULLSCREENMODE=0x%X // полноэкранный режим?\n", MCODE_C_FULLSCREENMODE);
+	fprintf(fp, "MCODE_C_FULLSCREENMODE=0x%X // РїРѕР»РЅРѕСЌРєСЂР°РЅРЅС‹Р№ СЂРµР¶РёРј?\n", MCODE_C_FULLSCREENMODE);
 	fprintf(fp, "MCODE_C_ISUSERADMIN=0x%X // Administrator status\n", MCODE_C_ISUSERADMIN);
-	fprintf(fp, "MCODE_C_BOF=0x%X // начало файла/активного каталога?\n", MCODE_C_BOF);
-	fprintf(fp, "MCODE_C_EOF=0x%X // конец файла/активного каталога?\n", MCODE_C_EOF);
-	fprintf(fp, "MCODE_C_EMPTY=0x%X // ком.строка пуста?\n", MCODE_C_EMPTY);
-	fprintf(fp, "MCODE_C_SELECTED=0x%X // выделенный блок есть?\n", MCODE_C_SELECTED);
-	fprintf(fp, "MCODE_C_ROOTFOLDER=0x%X // аналог MCODE_C_APANEL_ROOT для активной панели\n", MCODE_C_ROOTFOLDER);
+	fprintf(fp, "MCODE_C_BOF=0x%X // РЅР°С‡Р°Р»Рѕ С„Р°Р№Р»Р°/Р°РєС‚РёРІРЅРѕРіРѕ РєР°С‚Р°Р»РѕРіР°?\n", MCODE_C_BOF);
+	fprintf(fp, "MCODE_C_EOF=0x%X // РєРѕРЅРµС† С„Р°Р№Р»Р°/Р°РєС‚РёРІРЅРѕРіРѕ РєР°С‚Р°Р»РѕРіР°?\n", MCODE_C_EOF);
+	fprintf(fp, "MCODE_C_EMPTY=0x%X // РєРѕРј.СЃС‚СЂРѕРєР° РїСѓСЃС‚Р°?\n", MCODE_C_EMPTY);
+	fprintf(fp, "MCODE_C_SELECTED=0x%X // РІС‹РґРµР»РµРЅРЅС‹Р№ Р±Р»РѕРє РµСЃС‚СЊ?\n", MCODE_C_SELECTED);
+	fprintf(fp, "MCODE_C_ROOTFOLDER=0x%X // Р°РЅР°Р»РѕРі MCODE_C_APANEL_ROOT РґР»СЏ Р°РєС‚РёРІРЅРѕР№ РїР°РЅРµР»Рё\n", MCODE_C_ROOTFOLDER);
 
-	fprintf(fp, "MCODE_C_APANEL_BOF=0x%X // начало активного  каталога?\n", MCODE_C_APANEL_BOF);
-	fprintf(fp, "MCODE_C_PPANEL_BOF=0x%X // начало пассивного каталога?\n", MCODE_C_PPANEL_BOF);
-	fprintf(fp, "MCODE_C_APANEL_EOF=0x%X // конец активного  каталога?\n", MCODE_C_APANEL_EOF);
-	fprintf(fp, "MCODE_C_PPANEL_EOF=0x%X // конец пассивного каталога?\n", MCODE_C_PPANEL_EOF);
-	fprintf(fp, "MCODE_C_APANEL_ISEMPTY=0x%X // активная панель:  пуста?\n", MCODE_C_APANEL_ISEMPTY);
-	fprintf(fp, "MCODE_C_PPANEL_ISEMPTY=0x%X // пассивная панель: пуста?\n", MCODE_C_PPANEL_ISEMPTY);
-	fprintf(fp, "MCODE_C_APANEL_SELECTED=0x%X // активная панель:  выделенные элементы есть?\n", MCODE_C_APANEL_SELECTED);
-	fprintf(fp, "MCODE_C_PPANEL_SELECTED=0x%X // пассивная панель: выделенные элементы есть?\n", MCODE_C_PPANEL_SELECTED);
-	fprintf(fp, "MCODE_C_APANEL_ROOT=0x%X // это корневой каталог активной панели?\n", MCODE_C_APANEL_ROOT);
-	fprintf(fp, "MCODE_C_PPANEL_ROOT=0x%X // это корневой каталог пассивной панели?\n", MCODE_C_PPANEL_ROOT);
-	fprintf(fp, "MCODE_C_APANEL_VISIBLE=0x%X // активная панель:  видима?\n", MCODE_C_APANEL_VISIBLE);
-	fprintf(fp, "MCODE_C_PPANEL_VISIBLE=0x%X // пассивная панель: видима?\n", MCODE_C_PPANEL_VISIBLE);
-	fprintf(fp, "MCODE_C_APANEL_PLUGIN=0x%X // активная панель:  плагиновая?\n", MCODE_C_APANEL_PLUGIN);
-	fprintf(fp, "MCODE_C_PPANEL_PLUGIN=0x%X // пассивная панель: плагиновая?\n", MCODE_C_PPANEL_PLUGIN);
-	fprintf(fp, "MCODE_C_APANEL_FILEPANEL=0x%X // активная панель:  файловая?\n", MCODE_C_APANEL_FILEPANEL);
-	fprintf(fp, "MCODE_C_PPANEL_FILEPANEL=0x%X // пассивная панель: файловая?\n", MCODE_C_PPANEL_FILEPANEL);
-	fprintf(fp, "MCODE_C_APANEL_FOLDER=0x%X // активная панель:  текущий элемент каталог?\n", MCODE_C_APANEL_FOLDER);
-	fprintf(fp, "MCODE_C_PPANEL_FOLDER=0x%X // пассивная панель: текущий элемент каталог?\n", MCODE_C_PPANEL_FOLDER);
-	fprintf(fp, "MCODE_C_APANEL_LEFT=0x%X // активная панель левая?\n", MCODE_C_APANEL_LEFT);
-	fprintf(fp, "MCODE_C_PPANEL_LEFT=0x%X // пассивная панель левая?\n", MCODE_C_PPANEL_LEFT);
-	fprintf(fp, "MCODE_C_APANEL_LFN=0x%X // на активной панели длинные имена?\n", MCODE_C_APANEL_LFN);
-	fprintf(fp, "MCODE_C_PPANEL_LFN=0x%X // на пассивной панели длинные имена?\n", MCODE_C_PPANEL_LFN);
-	fprintf(fp, "MCODE_C_APANEL_FILTER=0x%X // на активной панели включен фильтр?\n", MCODE_C_APANEL_FILTER);
-	fprintf(fp, "MCODE_C_PPANEL_FILTER=0x%X // на пассивной панели включен фильтр?\n", MCODE_C_PPANEL_FILTER);
+	fprintf(fp, "MCODE_C_APANEL_BOF=0x%X // РЅР°С‡Р°Р»Рѕ Р°РєС‚РёРІРЅРѕРіРѕ  РєР°С‚Р°Р»РѕРіР°?\n", MCODE_C_APANEL_BOF);
+	fprintf(fp, "MCODE_C_PPANEL_BOF=0x%X // РЅР°С‡Р°Р»Рѕ РїР°СЃСЃРёРІРЅРѕРіРѕ РєР°С‚Р°Р»РѕРіР°?\n", MCODE_C_PPANEL_BOF);
+	fprintf(fp, "MCODE_C_APANEL_EOF=0x%X // РєРѕРЅРµС† Р°РєС‚РёРІРЅРѕРіРѕ  РєР°С‚Р°Р»РѕРіР°?\n", MCODE_C_APANEL_EOF);
+	fprintf(fp, "MCODE_C_PPANEL_EOF=0x%X // РєРѕРЅРµС† РїР°СЃСЃРёРІРЅРѕРіРѕ РєР°С‚Р°Р»РѕРіР°?\n", MCODE_C_PPANEL_EOF);
+	fprintf(fp, "MCODE_C_APANEL_ISEMPTY=0x%X // Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  РїСѓСЃС‚Р°?\n", MCODE_C_APANEL_ISEMPTY);
+	fprintf(fp, "MCODE_C_PPANEL_ISEMPTY=0x%X // РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: РїСѓСЃС‚Р°?\n", MCODE_C_PPANEL_ISEMPTY);
+	fprintf(fp, "MCODE_C_APANEL_SELECTED=0x%X // Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  РІС‹РґРµР»РµРЅРЅС‹Рµ СЌР»РµРјРµРЅС‚С‹ РµСЃС‚СЊ?\n", MCODE_C_APANEL_SELECTED);
+	fprintf(fp, "MCODE_C_PPANEL_SELECTED=0x%X // РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: РІС‹РґРµР»РµРЅРЅС‹Рµ СЌР»РµРјРµРЅС‚С‹ РµСЃС‚СЊ?\n", MCODE_C_PPANEL_SELECTED);
+	fprintf(fp, "MCODE_C_APANEL_ROOT=0x%X // СЌС‚Рѕ РєРѕСЂРЅРµРІРѕР№ РєР°С‚Р°Р»РѕРі Р°РєС‚РёРІРЅРѕР№ РїР°РЅРµР»Рё?\n", MCODE_C_APANEL_ROOT);
+	fprintf(fp, "MCODE_C_PPANEL_ROOT=0x%X // СЌС‚Рѕ РєРѕСЂРЅРµРІРѕР№ РєР°С‚Р°Р»РѕРі РїР°СЃСЃРёРІРЅРѕР№ РїР°РЅРµР»Рё?\n", MCODE_C_PPANEL_ROOT);
+	fprintf(fp, "MCODE_C_APANEL_VISIBLE=0x%X // Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  РІРёРґРёРјР°?\n", MCODE_C_APANEL_VISIBLE);
+	fprintf(fp, "MCODE_C_PPANEL_VISIBLE=0x%X // РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: РІРёРґРёРјР°?\n", MCODE_C_PPANEL_VISIBLE);
+	fprintf(fp, "MCODE_C_APANEL_PLUGIN=0x%X // Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  РїР»Р°РіРёРЅРѕРІР°СЏ?\n", MCODE_C_APANEL_PLUGIN);
+	fprintf(fp, "MCODE_C_PPANEL_PLUGIN=0x%X // РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: РїР»Р°РіРёРЅРѕРІР°СЏ?\n", MCODE_C_PPANEL_PLUGIN);
+	fprintf(fp, "MCODE_C_APANEL_FILEPANEL=0x%X // Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  С„Р°Р№Р»РѕРІР°СЏ?\n", MCODE_C_APANEL_FILEPANEL);
+	fprintf(fp, "MCODE_C_PPANEL_FILEPANEL=0x%X // РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: С„Р°Р№Р»РѕРІР°СЏ?\n", MCODE_C_PPANEL_FILEPANEL);
+	fprintf(fp, "MCODE_C_APANEL_FOLDER=0x%X // Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  С‚РµРєСѓС‰РёР№ СЌР»РµРјРµРЅС‚ РєР°С‚Р°Р»РѕРі?\n", MCODE_C_APANEL_FOLDER);
+	fprintf(fp, "MCODE_C_PPANEL_FOLDER=0x%X // РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: С‚РµРєСѓС‰РёР№ СЌР»РµРјРµРЅС‚ РєР°С‚Р°Р»РѕРі?\n", MCODE_C_PPANEL_FOLDER);
+	fprintf(fp, "MCODE_C_APANEL_LEFT=0x%X // Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ Р»РµРІР°СЏ?\n", MCODE_C_APANEL_LEFT);
+	fprintf(fp, "MCODE_C_PPANEL_LEFT=0x%X // РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ Р»РµРІР°СЏ?\n", MCODE_C_PPANEL_LEFT);
+	fprintf(fp, "MCODE_C_APANEL_LFN=0x%X // РЅР° Р°РєС‚РёРІРЅРѕР№ РїР°РЅРµР»Рё РґР»РёРЅРЅС‹Рµ РёРјРµРЅР°?\n", MCODE_C_APANEL_LFN);
+	fprintf(fp, "MCODE_C_PPANEL_LFN=0x%X // РЅР° РїР°СЃСЃРёРІРЅРѕР№ РїР°РЅРµР»Рё РґР»РёРЅРЅС‹Рµ РёРјРµРЅР°?\n", MCODE_C_PPANEL_LFN);
+	fprintf(fp, "MCODE_C_APANEL_FILTER=0x%X // РЅР° Р°РєС‚РёРІРЅРѕР№ РїР°РЅРµР»Рё РІРєР»СЋС‡РµРЅ С„РёР»СЊС‚СЂ?\n", MCODE_C_APANEL_FILTER);
+	fprintf(fp, "MCODE_C_PPANEL_FILTER=0x%X // РЅР° РїР°СЃСЃРёРІРЅРѕР№ РїР°РЅРµР»Рё РІРєР»СЋС‡РµРЅ С„РёР»СЊС‚СЂ?\n", MCODE_C_PPANEL_FILTER);
 
-	fprintf(fp, "MCODE_C_CMDLINE_BOF=0x%X // курсор в начале cmd-строки редактирования?\n", MCODE_C_CMDLINE_BOF);
-	fprintf(fp, "MCODE_C_CMDLINE_EOF=0x%X // курсор в конце cmd-строки редактирования?\n", MCODE_C_CMDLINE_EOF);
-	fprintf(fp, "MCODE_C_CMDLINE_EMPTY=0x%X // ком.строка пуста?\n", MCODE_C_CMDLINE_EMPTY);
-	fprintf(fp, "MCODE_C_CMDLINE_SELECTED=0x%X // в ком.строке есть выделение блока?\n", MCODE_C_CMDLINE_SELECTED);
+	fprintf(fp, "MCODE_C_CMDLINE_BOF=0x%X // РєСѓСЂСЃРѕСЂ РІ РЅР°С‡Р°Р»Рµ cmd-СЃС‚СЂРѕРєРё СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ?\n", MCODE_C_CMDLINE_BOF);
+	fprintf(fp, "MCODE_C_CMDLINE_EOF=0x%X // РєСѓСЂСЃРѕСЂ РІ РєРѕРЅС†Рµ cmd-СЃС‚СЂРѕРєРё СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ?\n", MCODE_C_CMDLINE_EOF);
+	fprintf(fp, "MCODE_C_CMDLINE_EMPTY=0x%X // РєРѕРј.СЃС‚СЂРѕРєР° РїСѓСЃС‚Р°?\n", MCODE_C_CMDLINE_EMPTY);
+	fprintf(fp, "MCODE_C_CMDLINE_SELECTED=0x%X // РІ РєРѕРј.СЃС‚СЂРѕРєРµ РµСЃС‚СЊ РІС‹РґРµР»РµРЅРёРµ Р±Р»РѕРєР°?\n", MCODE_C_CMDLINE_SELECTED);
 
 	fprintf(fp, "MCODE_C_MSX=0x%X          // Mouse.X\n", MCODE_C_MSX);
 	fprintf(fp, "MCODE_C_MSY=0x%X          // Mouse.Y\n", MCODE_C_MSY);
@@ -257,61 +257,61 @@ void print_opcodes()
 	fprintf(fp, "MCODE_C_MSLASTCTRLSTATE=0x%X  // Mouse.LastCtrlState\n", MCODE_C_MSLASTCTRLSTATE);
 
 	/* ************************************************************************* */
-	// не булевые переменные
-	fprintf(fp, "MCODE_V_FAR_WIDTH=0x%X // Far.Width - ширина консольного окна\n", MCODE_V_FAR_WIDTH);
-	fprintf(fp, "MCODE_V_FAR_HEIGHT=0x%X // Far.Height - высота консольного окна\n", MCODE_V_FAR_HEIGHT);
-	fprintf(fp, "MCODE_V_FAR_TITLE=0x%X // Far.Title - текущий заголовок консольного окна\n", MCODE_V_FAR_TITLE);
-	fprintf(fp, "MCODE_V_FAR_UPTIME=0x%X // Far.UpTime - время работы Far в миллисекундах\n", MCODE_V_FAR_UPTIME);
-	fprintf(fp, "MCODE_V_FAR_PID=0x%X // Far.PID - содержит ИД текущей запущенной копии Far Manager\n", MCODE_V_FAR_PID);
-	fprintf(fp, "MCODE_V_MACRO_AREA=0x%X // MacroArea - имя текущей макрос области\n", MCODE_V_MACRO_AREA);
+	// РЅРµ Р±СѓР»РµРІС‹Рµ РїРµСЂРµРјРµРЅРЅС‹Рµ
+	fprintf(fp, "MCODE_V_FAR_WIDTH=0x%X // Far.Width - С€РёСЂРёРЅР° РєРѕРЅСЃРѕР»СЊРЅРѕРіРѕ РѕРєРЅР°\n", MCODE_V_FAR_WIDTH);
+	fprintf(fp, "MCODE_V_FAR_HEIGHT=0x%X // Far.Height - РІС‹СЃРѕС‚Р° РєРѕРЅСЃРѕР»СЊРЅРѕРіРѕ РѕРєРЅР°\n", MCODE_V_FAR_HEIGHT);
+	fprintf(fp, "MCODE_V_FAR_TITLE=0x%X // Far.Title - С‚РµРєСѓС‰РёР№ Р·Р°РіРѕР»РѕРІРѕРє РєРѕРЅСЃРѕР»СЊРЅРѕРіРѕ РѕРєРЅР°\n", MCODE_V_FAR_TITLE);
+	fprintf(fp, "MCODE_V_FAR_UPTIME=0x%X // Far.UpTime - РІСЂРµРјСЏ СЂР°Р±РѕС‚С‹ Far РІ РјРёР»Р»РёСЃРµРєСѓРЅРґР°С…\n", MCODE_V_FAR_UPTIME);
+	fprintf(fp, "MCODE_V_FAR_PID=0x%X // Far.PID - СЃРѕРґРµСЂР¶РёС‚ РР” С‚РµРєСѓС‰РµР№ Р·Р°РїСѓС‰РµРЅРЅРѕР№ РєРѕРїРёРё Far Manager\n", MCODE_V_FAR_PID);
+	fprintf(fp, "MCODE_V_MACRO_AREA=0x%X // MacroArea - РёРјСЏ С‚РµРєСѓС‰РµР№ РјР°РєСЂРѕСЃ РѕР±Р»Р°СЃС‚Рё\n", MCODE_V_MACRO_AREA);
 
-	fprintf(fp, "MCODE_V_APANEL_CURRENT=0x%X // APanel.Current - имя файла на активной панели\n", MCODE_V_APANEL_CURRENT);
-	fprintf(fp, "MCODE_V_PPANEL_CURRENT=0x%X // PPanel.Current - имя файла на пассивной панели\n", MCODE_V_PPANEL_CURRENT);
-	fprintf(fp, "MCODE_V_APANEL_SELCOUNT=0x%X // APanel.SelCount - активная панель:  число выделенных элементов\n", MCODE_V_APANEL_SELCOUNT);
-	fprintf(fp, "MCODE_V_PPANEL_SELCOUNT=0x%X // PPanel.SelCount - пассивная панель: число выделенных элементов\n", MCODE_V_PPANEL_SELCOUNT);
-	fprintf(fp, "MCODE_V_APANEL_PATH=0x%X // APanel.Path - активная панель:  путь на панели\n", MCODE_V_APANEL_PATH);
-	fprintf(fp, "MCODE_V_PPANEL_PATH=0x%X // PPanel.Path - пассивная панель: путь на панели\n", MCODE_V_PPANEL_PATH);
-	fprintf(fp, "MCODE_V_APANEL_PATH0=0x%X // APanel.Path0 - активная панель:  путь на панели до вызова плагинов\n", MCODE_V_APANEL_PATH0);
-	fprintf(fp, "MCODE_V_PPANEL_PATH0=0x%X // PPanel.Path0 - пассивная панель: путь на панели до вызова плагинов\n", MCODE_V_PPANEL_PATH0);
-	fprintf(fp, "MCODE_V_APANEL_UNCPATH=0x%X // APanel.UNCPath - активная панель:  UNC-путь на панели\n", MCODE_V_APANEL_UNCPATH);
-	fprintf(fp, "MCODE_V_PPANEL_UNCPATH=0x%X // PPanel.UNCPath - пассивная панель: UNC-путь на панели\n", MCODE_V_PPANEL_UNCPATH);
-	fprintf(fp, "MCODE_V_APANEL_WIDTH=0x%X // APanel.Width - активная панель:  ширина панели\n", MCODE_V_APANEL_WIDTH);
-	fprintf(fp, "MCODE_V_PPANEL_WIDTH=0x%X // PPanel.Width - пассивная панель: ширина панели\n", MCODE_V_PPANEL_WIDTH);
-	fprintf(fp, "MCODE_V_APANEL_TYPE=0x%X // APanel.Type - тип активной панели\n", MCODE_V_APANEL_TYPE);
-	fprintf(fp, "MCODE_V_PPANEL_TYPE=0x%X // PPanel.Type - тип пассивной панели\n", MCODE_V_PPANEL_TYPE);
-	fprintf(fp, "MCODE_V_APANEL_ITEMCOUNT=0x%X // APanel.ItemCount - активная панель:  число элементов\n", MCODE_V_APANEL_ITEMCOUNT);
-	fprintf(fp, "MCODE_V_PPANEL_ITEMCOUNT=0x%X // PPanel.ItemCount - пассивная панель: число элементов\n", MCODE_V_PPANEL_ITEMCOUNT);
-	fprintf(fp, "MCODE_V_APANEL_CURPOS=0x%X // APanel.CurPos - активная панель:  текущий индекс\n", MCODE_V_APANEL_CURPOS);
-	fprintf(fp, "MCODE_V_PPANEL_CURPOS=0x%X // PPanel.CurPos - пассивная панель: текущий индекс\n", MCODE_V_PPANEL_CURPOS);
-	fprintf(fp, "MCODE_V_APANEL_OPIFLAGS=0x%X // APanel.OPIFlags - активная панель: флаги открытого плагина\n", MCODE_V_APANEL_OPIFLAGS);
-	fprintf(fp, "MCODE_V_PPANEL_OPIFLAGS=0x%X // PPanel.OPIFlags - пассивная панель: флаги открытого плагина\n", MCODE_V_PPANEL_OPIFLAGS);
-	fprintf(fp, "MCODE_V_APANEL_DRIVETYPE=0x%X // APanel.DriveType - активная панель: тип привода\n", MCODE_V_APANEL_DRIVETYPE);
-	fprintf(fp, "MCODE_V_PPANEL_DRIVETYPE=0x%X // PPanel.DriveType - пассивная панель: тип привода\n", MCODE_V_PPANEL_DRIVETYPE);
-	fprintf(fp, "MCODE_V_APANEL_HEIGHT=0x%X // APanel.Height - активная панель:  высота панели\n", MCODE_V_APANEL_HEIGHT);
-	fprintf(fp, "MCODE_V_PPANEL_HEIGHT=0x%X // PPanel.Height - пассивная панель: высота панели\n", MCODE_V_PPANEL_HEIGHT);
-	fprintf(fp, "MCODE_V_APANEL_COLUMNCOUNT=0x%X // APanel.ColumnCount - активная панель:  количество колонок\n", MCODE_V_APANEL_COLUMNCOUNT);
-	fprintf(fp, "MCODE_V_PPANEL_COLUMNCOUNT=0x%X // PPanel.ColumnCount - пассивная панель: количество колонок\n", MCODE_V_PPANEL_COLUMNCOUNT);
-	fprintf(fp, "MCODE_V_APANEL_HOSTFILE=0x%X // APanel.HostFile - активная панель:  имя Host-файла\n", MCODE_V_APANEL_HOSTFILE);
-	fprintf(fp, "MCODE_V_PPANEL_HOSTFILE=0x%X // PPanel.HostFile - пассивная панель: имя Host-файла\n", MCODE_V_PPANEL_HOSTFILE);
+	fprintf(fp, "MCODE_V_APANEL_CURRENT=0x%X // APanel.Current - РёРјСЏ С„Р°Р№Р»Р° РЅР° Р°РєС‚РёРІРЅРѕР№ РїР°РЅРµР»Рё\n", MCODE_V_APANEL_CURRENT);
+	fprintf(fp, "MCODE_V_PPANEL_CURRENT=0x%X // PPanel.Current - РёРјСЏ С„Р°Р№Р»Р° РЅР° РїР°СЃСЃРёРІРЅРѕР№ РїР°РЅРµР»Рё\n", MCODE_V_PPANEL_CURRENT);
+	fprintf(fp, "MCODE_V_APANEL_SELCOUNT=0x%X // APanel.SelCount - Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  С‡РёСЃР»Рѕ РІС‹РґРµР»РµРЅРЅС‹С… СЌР»РµРјРµРЅС‚РѕРІ\n", MCODE_V_APANEL_SELCOUNT);
+	fprintf(fp, "MCODE_V_PPANEL_SELCOUNT=0x%X // PPanel.SelCount - РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: С‡РёСЃР»Рѕ РІС‹РґРµР»РµРЅРЅС‹С… СЌР»РµРјРµРЅС‚РѕРІ\n", MCODE_V_PPANEL_SELCOUNT);
+	fprintf(fp, "MCODE_V_APANEL_PATH=0x%X // APanel.Path - Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  РїСѓС‚СЊ РЅР° РїР°РЅРµР»Рё\n", MCODE_V_APANEL_PATH);
+	fprintf(fp, "MCODE_V_PPANEL_PATH=0x%X // PPanel.Path - РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: РїСѓС‚СЊ РЅР° РїР°РЅРµР»Рё\n", MCODE_V_PPANEL_PATH);
+	fprintf(fp, "MCODE_V_APANEL_PATH0=0x%X // APanel.Path0 - Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  РїСѓС‚СЊ РЅР° РїР°РЅРµР»Рё РґРѕ РІС‹Р·РѕРІР° РїР»Р°РіРёРЅРѕРІ\n", MCODE_V_APANEL_PATH0);
+	fprintf(fp, "MCODE_V_PPANEL_PATH0=0x%X // PPanel.Path0 - РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: РїСѓС‚СЊ РЅР° РїР°РЅРµР»Рё РґРѕ РІС‹Р·РѕРІР° РїР»Р°РіРёРЅРѕРІ\n", MCODE_V_PPANEL_PATH0);
+	fprintf(fp, "MCODE_V_APANEL_UNCPATH=0x%X // APanel.UNCPath - Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  UNC-РїСѓС‚СЊ РЅР° РїР°РЅРµР»Рё\n", MCODE_V_APANEL_UNCPATH);
+	fprintf(fp, "MCODE_V_PPANEL_UNCPATH=0x%X // PPanel.UNCPath - РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: UNC-РїСѓС‚СЊ РЅР° РїР°РЅРµР»Рё\n", MCODE_V_PPANEL_UNCPATH);
+	fprintf(fp, "MCODE_V_APANEL_WIDTH=0x%X // APanel.Width - Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  С€РёСЂРёРЅР° РїР°РЅРµР»Рё\n", MCODE_V_APANEL_WIDTH);
+	fprintf(fp, "MCODE_V_PPANEL_WIDTH=0x%X // PPanel.Width - РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: С€РёСЂРёРЅР° РїР°РЅРµР»Рё\n", MCODE_V_PPANEL_WIDTH);
+	fprintf(fp, "MCODE_V_APANEL_TYPE=0x%X // APanel.Type - С‚РёРї Р°РєС‚РёРІРЅРѕР№ РїР°РЅРµР»Рё\n", MCODE_V_APANEL_TYPE);
+	fprintf(fp, "MCODE_V_PPANEL_TYPE=0x%X // PPanel.Type - С‚РёРї РїР°СЃСЃРёРІРЅРѕР№ РїР°РЅРµР»Рё\n", MCODE_V_PPANEL_TYPE);
+	fprintf(fp, "MCODE_V_APANEL_ITEMCOUNT=0x%X // APanel.ItemCount - Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  С‡РёСЃР»Рѕ СЌР»РµРјРµРЅС‚РѕРІ\n", MCODE_V_APANEL_ITEMCOUNT);
+	fprintf(fp, "MCODE_V_PPANEL_ITEMCOUNT=0x%X // PPanel.ItemCount - РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: С‡РёСЃР»Рѕ СЌР»РµРјРµРЅС‚РѕРІ\n", MCODE_V_PPANEL_ITEMCOUNT);
+	fprintf(fp, "MCODE_V_APANEL_CURPOS=0x%X // APanel.CurPos - Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  С‚РµРєСѓС‰РёР№ РёРЅРґРµРєСЃ\n", MCODE_V_APANEL_CURPOS);
+	fprintf(fp, "MCODE_V_PPANEL_CURPOS=0x%X // PPanel.CurPos - РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: С‚РµРєСѓС‰РёР№ РёРЅРґРµРєСЃ\n", MCODE_V_PPANEL_CURPOS);
+	fprintf(fp, "MCODE_V_APANEL_OPIFLAGS=0x%X // APanel.OPIFlags - Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ: С„Р»Р°РіРё РѕС‚РєСЂС‹С‚РѕРіРѕ РїР»Р°РіРёРЅР°\n", MCODE_V_APANEL_OPIFLAGS);
+	fprintf(fp, "MCODE_V_PPANEL_OPIFLAGS=0x%X // PPanel.OPIFlags - РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: С„Р»Р°РіРё РѕС‚РєСЂС‹С‚РѕРіРѕ РїР»Р°РіРёРЅР°\n", MCODE_V_PPANEL_OPIFLAGS);
+	fprintf(fp, "MCODE_V_APANEL_DRIVETYPE=0x%X // APanel.DriveType - Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ: С‚РёРї РїСЂРёРІРѕРґР°\n", MCODE_V_APANEL_DRIVETYPE);
+	fprintf(fp, "MCODE_V_PPANEL_DRIVETYPE=0x%X // PPanel.DriveType - РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: С‚РёРї РїСЂРёРІРѕРґР°\n", MCODE_V_PPANEL_DRIVETYPE);
+	fprintf(fp, "MCODE_V_APANEL_HEIGHT=0x%X // APanel.Height - Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  РІС‹СЃРѕС‚Р° РїР°РЅРµР»Рё\n", MCODE_V_APANEL_HEIGHT);
+	fprintf(fp, "MCODE_V_PPANEL_HEIGHT=0x%X // PPanel.Height - РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: РІС‹СЃРѕС‚Р° РїР°РЅРµР»Рё\n", MCODE_V_PPANEL_HEIGHT);
+	fprintf(fp, "MCODE_V_APANEL_COLUMNCOUNT=0x%X // APanel.ColumnCount - Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  РєРѕР»РёС‡РµСЃС‚РІРѕ РєРѕР»РѕРЅРѕРє\n", MCODE_V_APANEL_COLUMNCOUNT);
+	fprintf(fp, "MCODE_V_PPANEL_COLUMNCOUNT=0x%X // PPanel.ColumnCount - РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: РєРѕР»РёС‡РµСЃС‚РІРѕ РєРѕР»РѕРЅРѕРє\n", MCODE_V_PPANEL_COLUMNCOUNT);
+	fprintf(fp, "MCODE_V_APANEL_HOSTFILE=0x%X // APanel.HostFile - Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  РёРјСЏ Host-С„Р°Р№Р»Р°\n", MCODE_V_APANEL_HOSTFILE);
+	fprintf(fp, "MCODE_V_PPANEL_HOSTFILE=0x%X // PPanel.HostFile - РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: РёРјСЏ Host-С„Р°Р№Р»Р°\n", MCODE_V_PPANEL_HOSTFILE);
 	fprintf(fp, "MCODE_V_APANEL_PREFIX=0x%X // APanel.Prefix\n", MCODE_V_APANEL_PREFIX);
 	fprintf(fp, "MCODE_V_PPANEL_PREFIX=0x%X // PPanel.Prefix\n", MCODE_V_PPANEL_PREFIX);
 	fprintf(fp, "MCODE_V_APANEL_FORMAT=0x%X // APanel.Format\n", MCODE_V_APANEL_FORMAT);
 	fprintf(fp, "MCODE_V_PPANEL_FORMAT=0x%X // PPanel.Format\n", MCODE_V_PPANEL_FORMAT);
 
-	fprintf(fp, "MCODE_V_ITEMCOUNT=0x%X // ItemCount - число элементов в текущем объекте\n", MCODE_V_ITEMCOUNT);
-	fprintf(fp, "MCODE_V_CURPOS=0x%X // CurPos - текущий индекс в текущем объекте\n", MCODE_V_CURPOS);
-	fprintf(fp, "MCODE_V_TITLE=0x%X // Title - заголовок текущего объекта\n", MCODE_V_TITLE);
-	fprintf(fp, "MCODE_V_HEIGHT=0x%X // Height - высота текущего объекта\n", MCODE_V_HEIGHT);
-	fprintf(fp, "MCODE_V_WIDTH=0x%X // Width - ширина текущего объекта\n", MCODE_V_WIDTH);
+	fprintf(fp, "MCODE_V_ITEMCOUNT=0x%X // ItemCount - С‡РёСЃР»Рѕ СЌР»РµРјРµРЅС‚РѕРІ РІ С‚РµРєСѓС‰РµРј РѕР±СЉРµРєС‚Рµ\n", MCODE_V_ITEMCOUNT);
+	fprintf(fp, "MCODE_V_CURPOS=0x%X // CurPos - С‚РµРєСѓС‰РёР№ РёРЅРґРµРєСЃ РІ С‚РµРєСѓС‰РµРј РѕР±СЉРµРєС‚Рµ\n", MCODE_V_CURPOS);
+	fprintf(fp, "MCODE_V_TITLE=0x%X // Title - Р·Р°РіРѕР»РѕРІРѕРє С‚РµРєСѓС‰РµРіРѕ РѕР±СЉРµРєС‚Р°\n", MCODE_V_TITLE);
+	fprintf(fp, "MCODE_V_HEIGHT=0x%X // Height - РІС‹СЃРѕС‚Р° С‚РµРєСѓС‰РµРіРѕ РѕР±СЉРµРєС‚Р°\n", MCODE_V_HEIGHT);
+	fprintf(fp, "MCODE_V_WIDTH=0x%X // Width - С€РёСЂРёРЅР° С‚РµРєСѓС‰РµРіРѕ РѕР±СЉРµРєС‚Р°\n", MCODE_V_WIDTH);
 
-	fprintf(fp, "MCODE_V_EDITORFILENAME=0x%X // Editor.FileName - имя редактируемого файла\n", MCODE_V_EDITORFILENAME);
-	fprintf(fp, "MCODE_V_EDITORLINES=0x%X // Editor.Lines - количество строк в редакторе\n", MCODE_V_EDITORLINES);
-	fprintf(fp, "MCODE_V_EDITORCURLINE=0x%X // Editor.CurLine - текущая линия в редакторе (в дополнении к Count)\n", MCODE_V_EDITORCURLINE);
-	fprintf(fp, "MCODE_V_EDITORCURPOS=0x%X // Editor.CurPos - текущая поз. в редакторе\n", MCODE_V_EDITORCURPOS);
-	fprintf(fp, "MCODE_V_EDITORREALPOS=0x%X // Editor.RealPos - текущая поз. в редакторе без привязки к размеру табуляции\n", MCODE_V_EDITORREALPOS);
+	fprintf(fp, "MCODE_V_EDITORFILENAME=0x%X // Editor.FileName - РёРјСЏ СЂРµРґР°РєС‚РёСЂСѓРµРјРѕРіРѕ С„Р°Р№Р»Р°\n", MCODE_V_EDITORFILENAME);
+	fprintf(fp, "MCODE_V_EDITORLINES=0x%X // Editor.Lines - РєРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂРѕРє РІ СЂРµРґР°РєС‚РѕСЂРµ\n", MCODE_V_EDITORLINES);
+	fprintf(fp, "MCODE_V_EDITORCURLINE=0x%X // Editor.CurLine - С‚РµРєСѓС‰Р°СЏ Р»РёРЅРёСЏ РІ СЂРµРґР°РєС‚РѕСЂРµ (РІ РґРѕРїРѕР»РЅРµРЅРёРё Рє Count)\n", MCODE_V_EDITORCURLINE);
+	fprintf(fp, "MCODE_V_EDITORCURPOS=0x%X // Editor.CurPos - С‚РµРєСѓС‰Р°СЏ РїРѕР·. РІ СЂРµРґР°РєС‚РѕСЂРµ\n", MCODE_V_EDITORCURPOS);
+	fprintf(fp, "MCODE_V_EDITORREALPOS=0x%X // Editor.RealPos - С‚РµРєСѓС‰Р°СЏ РїРѕР·. РІ СЂРµРґР°РєС‚РѕСЂРµ Р±РµР· РїСЂРёРІСЏР·РєРё Рє СЂР°Р·РјРµСЂСѓ С‚Р°Р±СѓР»СЏС†РёРё\n", MCODE_V_EDITORREALPOS);
 	fprintf(fp, "MCODE_V_EDITORSTATE=0x%X // Editor.State\n", MCODE_V_EDITORSTATE);
-	fprintf(fp, "MCODE_V_EDITORVALUE=0x%X // Editor.Value - содержимое текущей строки\n", MCODE_V_EDITORVALUE);
-	fprintf(fp, "MCODE_V_EDITORSELVALUE=0x%X // Editor.SelValue - содержит содержимое выделенного блока\n", MCODE_V_EDITORSELVALUE);
+	fprintf(fp, "MCODE_V_EDITORVALUE=0x%X // Editor.Value - СЃРѕРґРµСЂР¶РёРјРѕРµ С‚РµРєСѓС‰РµР№ СЃС‚СЂРѕРєРё\n", MCODE_V_EDITORVALUE);
+	fprintf(fp, "MCODE_V_EDITORSELVALUE=0x%X // Editor.SelValue - СЃРѕРґРµСЂР¶РёС‚ СЃРѕРґРµСЂР¶РёРјРѕРµ РІС‹РґРµР»РµРЅРЅРѕРіРѕ Р±Р»РѕРєР°\n", MCODE_V_EDITORSELVALUE);
 
 	fprintf(fp, "MCODE_V_DLGITEMTYPE=0x%X // Dlg->ItemType\n", MCODE_V_DLGITEMTYPE);
 	fprintf(fp, "MCODE_V_DLGITEMCOUNT=0x%X // Dlg->ItemCount\n", MCODE_V_DLGITEMCOUNT);
@@ -320,15 +320,15 @@ void print_opcodes()
 	fprintf(fp, "MCODE_V_DLGINFOID=0x%X // Dlg->Info.Id\n", MCODE_V_DLGINFOID);
 	fprintf(fp, "MCODE_V_DLGINFOOWNER=0x%X // Dlg->Info.Owner\n", MCODE_V_DLGINFOOWNER);
 
-	fprintf(fp, "MCODE_V_VIEWERFILENAME=0x%X // Viewer.FileName - имя просматриваемого файла\n", MCODE_V_VIEWERFILENAME);
+	fprintf(fp, "MCODE_V_VIEWERFILENAME=0x%X // Viewer.FileName - РёРјСЏ РїСЂРѕСЃРјР°С‚СЂРёРІР°РµРјРѕРіРѕ С„Р°Р№Р»Р°\n", MCODE_V_VIEWERFILENAME);
 	fprintf(fp, "MCODE_V_VIEWERSTATE=0x%X // Viewer.State\n", MCODE_V_VIEWERSTATE);
 
 	fprintf(fp, "MCODE_V_CMDLINE_ITEMCOUNT=0x%X // CmdLine.ItemCount\n", MCODE_V_CMDLINE_ITEMCOUNT);
 	fprintf(fp, "MCODE_V_CMDLINE_CURPOS=0x%X // CmdLine.CurPos\n", MCODE_V_CMDLINE_CURPOS);
 	fprintf(fp, "MCODE_V_CMDLINE_VALUE=0x%X // CmdLine.Value\n", MCODE_V_CMDLINE_VALUE);
 
-	fprintf(fp, "MCODE_V_DRVSHOWPOS=0x%X // Drv.ShowPos - меню выбора дисков отображено: 1=слева (Alt-F1), 2=справа (Alt-F2), 0=\"нету его\"\n", MCODE_V_DRVSHOWPOS);
-	fprintf(fp, "MCODE_V_DRVSHOWMODE=0x%X // Drv.ShowMode - режимы отображения меню выбора дисков\n", MCODE_V_DRVSHOWMODE);
+	fprintf(fp, "MCODE_V_DRVSHOWPOS=0x%X // Drv.ShowPos - РјРµРЅСЋ РІС‹Р±РѕСЂР° РґРёСЃРєРѕРІ РѕС‚РѕР±СЂР°Р¶РµРЅРѕ: 1=СЃР»РµРІР° (Alt-F1), 2=СЃРїСЂР°РІР° (Alt-F2), 0=\"РЅРµС‚Сѓ РµРіРѕ\"\n", MCODE_V_DRVSHOWPOS);
+	fprintf(fp, "MCODE_V_DRVSHOWMODE=0x%X // Drv.ShowMode - СЂРµР¶РёРјС‹ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ РјРµРЅСЋ РІС‹Р±РѕСЂР° РґРёСЃРєРѕРІ\n", MCODE_V_DRVSHOWMODE);
 
 	fprintf(fp, "MCODE_V_HELPFILENAME=0x%X // Help.FileName\n", MCODE_V_HELPFILENAME);
 	fprintf(fp, "MCODE_V_HELPTOPIC=0x%X // Help.Topic\n", MCODE_V_HELPTOPIC);
@@ -346,31 +346,31 @@ typedef unsigned __int64 MACROFLAGS_MFLAGS;
 static const MACROFLAGS_MFLAGS
 	// public flags, read from/saved to config
 	MFLAGS_PUBLIC_MASK             =0x000000000FFFFFFF,
-	MFLAGS_ENABLEOUTPUT            =0x0000000000000001, // не подавлять обновление экрана во время выполнения макроса
-	MFLAGS_NOSENDKEYSTOPLUGINS     =0x0000000000000002, // НЕ передавать плагинам клавиши во время записи/воспроизведения макроса
-	MFLAGS_RUNAFTERFARSTART        =0x0000000000000008, // этот макрос запускается при старте ФАРа
-	MFLAGS_EMPTYCOMMANDLINE        =0x0000000000000010, // запускать, если командная линия пуста
-	MFLAGS_NOTEMPTYCOMMANDLINE     =0x0000000000000020, // запускать, если командная линия не пуста
-	MFLAGS_EDITSELECTION           =0x0000000000000040, // запускать, если есть выделение в редакторе
-	MFLAGS_EDITNOSELECTION         =0x0000000000000080, // запускать, если есть нет выделения в редакторе
-	MFLAGS_SELECTION               =0x0000000000000100, // активная:  запускать, если есть выделение
-	MFLAGS_PSELECTION              =0x0000000000000200, // пассивная: запускать, если есть выделение
-	MFLAGS_NOSELECTION             =0x0000000000000400, // активная:  запускать, если есть нет выделения
-	MFLAGS_PNOSELECTION            =0x0000000000000800, // пассивная: запускать, если есть нет выделения
-	MFLAGS_NOFILEPANELS            =0x0000000000001000, // активная:  запускать, если это плагиновая панель
-	MFLAGS_PNOFILEPANELS           =0x0000000000002000, // пассивная: запускать, если это плагиновая панель
-	MFLAGS_NOPLUGINPANELS          =0x0000000000004000, // активная:  запускать, если это файловая панель
-	MFLAGS_PNOPLUGINPANELS         =0x0000000000008000, // пассивная: запускать, если это файловая панель
-	MFLAGS_NOFOLDERS               =0x0000000000010000, // активная:  запускать, если текущий объект "файл"
-	MFLAGS_PNOFOLDERS              =0x0000000000020000, // пассивная: запускать, если текущий объект "файл"
-	MFLAGS_NOFILES                 =0x0000000000040000, // активная:  запускать, если текущий объект "папка"
-	MFLAGS_PNOFILES                =0x0000000000080000, // пассивная: запускать, если текущий объект "папка"
+	MFLAGS_ENABLEOUTPUT            =0x0000000000000001, // РЅРµ РїРѕРґР°РІР»СЏС‚СЊ РѕР±РЅРѕРІР»РµРЅРёРµ СЌРєСЂР°РЅР° РІРѕ РІСЂРµРјСЏ РІС‹РїРѕР»РЅРµРЅРёСЏ РјР°РєСЂРѕСЃР°
+	MFLAGS_NOSENDKEYSTOPLUGINS     =0x0000000000000002, // РќР• РїРµСЂРµРґР°РІР°С‚СЊ РїР»Р°РіРёРЅР°Рј РєР»Р°РІРёС€Рё РІРѕ РІСЂРµРјСЏ Р·Р°РїРёСЃРё/РІРѕСЃРїСЂРѕРёР·РІРµРґРµРЅРёСЏ РјР°РєСЂРѕСЃР°
+	MFLAGS_RUNAFTERFARSTART        =0x0000000000000008, // СЌС‚РѕС‚ РјР°РєСЂРѕСЃ Р·Р°РїСѓСЃРєР°РµС‚СЃСЏ РїСЂРё СЃС‚Р°СЂС‚Рµ Р¤РђР Р°
+	MFLAGS_EMPTYCOMMANDLINE        =0x0000000000000010, // Р·Р°РїСѓСЃРєР°С‚СЊ, РµСЃР»Рё РєРѕРјР°РЅРґРЅР°СЏ Р»РёРЅРёСЏ РїСѓСЃС‚Р°
+	MFLAGS_NOTEMPTYCOMMANDLINE     =0x0000000000000020, // Р·Р°РїСѓСЃРєР°С‚СЊ, РµСЃР»Рё РєРѕРјР°РЅРґРЅР°СЏ Р»РёРЅРёСЏ РЅРµ РїСѓСЃС‚Р°
+	MFLAGS_EDITSELECTION           =0x0000000000000040, // Р·Р°РїСѓСЃРєР°С‚СЊ, РµСЃР»Рё РµСЃС‚СЊ РІС‹РґРµР»РµРЅРёРµ РІ СЂРµРґР°РєС‚РѕСЂРµ
+	MFLAGS_EDITNOSELECTION         =0x0000000000000080, // Р·Р°РїСѓСЃРєР°С‚СЊ, РµСЃР»Рё РµСЃС‚СЊ РЅРµС‚ РІС‹РґРµР»РµРЅРёСЏ РІ СЂРµРґР°РєС‚РѕСЂРµ
+	MFLAGS_SELECTION               =0x0000000000000100, // Р°РєС‚РёРІРЅР°СЏ:  Р·Р°РїСѓСЃРєР°С‚СЊ, РµСЃР»Рё РµСЃС‚СЊ РІС‹РґРµР»РµРЅРёРµ
+	MFLAGS_PSELECTION              =0x0000000000000200, // РїР°СЃСЃРёРІРЅР°СЏ: Р·Р°РїСѓСЃРєР°С‚СЊ, РµСЃР»Рё РµСЃС‚СЊ РІС‹РґРµР»РµРЅРёРµ
+	MFLAGS_NOSELECTION             =0x0000000000000400, // Р°РєС‚РёРІРЅР°СЏ:  Р·Р°РїСѓСЃРєР°С‚СЊ, РµСЃР»Рё РµСЃС‚СЊ РЅРµС‚ РІС‹РґРµР»РµРЅРёСЏ
+	MFLAGS_PNOSELECTION            =0x0000000000000800, // РїР°СЃСЃРёРІРЅР°СЏ: Р·Р°РїСѓСЃРєР°С‚СЊ, РµСЃР»Рё РµСЃС‚СЊ РЅРµС‚ РІС‹РґРµР»РµРЅРёСЏ
+	MFLAGS_NOFILEPANELS            =0x0000000000001000, // Р°РєС‚РёРІРЅР°СЏ:  Р·Р°РїСѓСЃРєР°С‚СЊ, РµСЃР»Рё СЌС‚Рѕ РїР»Р°РіРёРЅРѕРІР°СЏ РїР°РЅРµР»СЊ
+	MFLAGS_PNOFILEPANELS           =0x0000000000002000, // РїР°СЃСЃРёРІРЅР°СЏ: Р·Р°РїСѓСЃРєР°С‚СЊ, РµСЃР»Рё СЌС‚Рѕ РїР»Р°РіРёРЅРѕРІР°СЏ РїР°РЅРµР»СЊ
+	MFLAGS_NOPLUGINPANELS          =0x0000000000004000, // Р°РєС‚РёРІРЅР°СЏ:  Р·Р°РїСѓСЃРєР°С‚СЊ, РµСЃР»Рё СЌС‚Рѕ С„Р°Р№Р»РѕРІР°СЏ РїР°РЅРµР»СЊ
+	MFLAGS_PNOPLUGINPANELS         =0x0000000000008000, // РїР°СЃСЃРёРІРЅР°СЏ: Р·Р°РїСѓСЃРєР°С‚СЊ, РµСЃР»Рё СЌС‚Рѕ С„Р°Р№Р»РѕРІР°СЏ РїР°РЅРµР»СЊ
+	MFLAGS_NOFOLDERS               =0x0000000000010000, // Р°РєС‚РёРІРЅР°СЏ:  Р·Р°РїСѓСЃРєР°С‚СЊ, РµСЃР»Рё С‚РµРєСѓС‰РёР№ РѕР±СЉРµРєС‚ "С„Р°Р№Р»"
+	MFLAGS_PNOFOLDERS              =0x0000000000020000, // РїР°СЃСЃРёРІРЅР°СЏ: Р·Р°РїСѓСЃРєР°С‚СЊ, РµСЃР»Рё С‚РµРєСѓС‰РёР№ РѕР±СЉРµРєС‚ "С„Р°Р№Р»"
+	MFLAGS_NOFILES                 =0x0000000000040000, // Р°РєС‚РёРІРЅР°СЏ:  Р·Р°РїСѓСЃРєР°С‚СЊ, РµСЃР»Рё С‚РµРєСѓС‰РёР№ РѕР±СЉРµРєС‚ "РїР°РїРєР°"
+	MFLAGS_PNOFILES                =0x0000000000080000, // РїР°СЃСЃРёРІРЅР°СЏ: Р·Р°РїСѓСЃРєР°С‚СЊ, РµСЃР»Рё С‚РµРєСѓС‰РёР№ РѕР±СЉРµРєС‚ "РїР°РїРєР°"
 
 	// private flags, for runtime purposes only
 	MFLAGS_PRIVATE_MASK            =0xFFFFFFFFF0000000,
-	MFLAGS_POSTFROMPLUGIN          =0x0000000010000000; // последовательность пришла от АПИ
+	MFLAGS_POSTFROMPLUGIN          =0x0000000010000000; // РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ РїСЂРёС€Р»Р° РѕС‚ РђРџР
 
-// для диалога назначения клавиши
+// РґР»СЏ РґРёР°Р»РѕРіР° РЅР°Р·РЅР°С‡РµРЅРёСЏ РєР»Р°РІРёС€Рё
 struct DlgParam
 {
 	UINT64 Flags;
@@ -566,7 +566,7 @@ void KeyMacro::RestoreMacroChar() const
 					Global->WindowManager->GetCurrentViewer() &&
 					Global->WindowManager->GetCurrentViewer()->IsVisible())
 	{
-		Global->WindowManager->GetCurrentViewer()->Show(); // иначе может быть неправильный верхний левый символ экрана
+		Global->WindowManager->GetCurrentViewer()->Show(); // РёРЅР°С‡Рµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РЅРµРїСЂР°РІРёР»СЊРЅС‹Р№ РІРµСЂС…РЅРёР№ Р»РµРІС‹Р№ СЃРёРјРІРѕР» СЌРєСЂР°РЅР°
 	}
 }
 
@@ -614,7 +614,7 @@ static void LM_ProcessRecordedMacro(FARMACROAREA Area, const string& TextKey, co
 
 int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 {
-	if (m_InternalInput || Rec->IntKey==KEY_IDLE || Rec->IntKey==KEY_NONE || !Global->WindowManager->GetCurrentWindow()) //FIXME: избавиться от Rec->IntKey
+	if (m_InternalInput || Rec->IntKey==KEY_IDLE || Rec->IntKey==KEY_NONE || !Global->WindowManager->GetCurrentWindow()) //FIXME: РёР·Р±Р°РІРёС‚СЊСЃСЏ РѕС‚ Rec->IntKey
 		return false;
 
 	string textKey;
@@ -637,10 +637,10 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 					return false;
 				}
 
-				// Где мы?
+				// Р“РґРµ РјС‹?
 				m_StartMode=(m_Area==MACROAREA_SHELL&&!Global->WaitInMainLoop)?MACROAREA_OTHER:m_Area;
-				// В зависимости от того, КАК НАЧАЛИ писать макрос, различаем общий режим (Ctrl-.
-				// с передачей плагину кеев) или специальный (Ctrl-Shift-. - без передачи клавиш плагину)
+				// Р’ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ С‚РѕРіРѕ, РљРђРљ РќРђР§РђР›Р РїРёСЃР°С‚СЊ РјР°РєСЂРѕСЃ, СЂР°Р·Р»РёС‡Р°РµРј РѕР±С‰РёР№ СЂРµР¶РёРј (Ctrl-.
+				// СЃ РїРµСЂРµРґР°С‡РµР№ РїР»Р°РіРёРЅСѓ РєРµРµРІ) РёР»Рё СЃРїРµС†РёР°Р»СЊРЅС‹Р№ (Ctrl-Shift-. - Р±РµР· РїРµСЂРµРґР°С‡Рё РєР»Р°РІРёС€ РїР»Р°РіРёРЅСѓ)
 				m_Recording=ctrldot?MACROSTATE_RECORDING_COMMON:MACROSTATE_RECORDING;
 
 				m_RecCode.clear();
@@ -671,24 +671,24 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 		}
 		else // m_Recording!=MACROSTATE_NOMACRO
 		{
-			if (ctrldot||ctrlshiftdot) // признак конца записи?
+			if (ctrldot||ctrlshiftdot) // РїСЂРёР·РЅР°Рє РєРѕРЅС†Р° Р·Р°РїРёСЃРё?
 			{
 				int WaitInMainLoop0=Global->WaitInMainLoop;
 				m_InternalInput=1;
 				Global->WaitInMainLoop=FALSE;
-				// Залочить _текущее_ окно а не _последнее немодальное_
-				Global->WindowManager->GetCurrentWindow()->Lock(); // отменим прорисовку окна
+				// Р—Р°Р»РѕС‡РёС‚СЊ _С‚РµРєСѓС‰РµРµ_ РѕРєРЅРѕ Р° РЅРµ _РїРѕСЃР»РµРґРЅРµРµ РЅРµРјРѕРґР°Р»СЊРЅРѕРµ_
+				Global->WindowManager->GetCurrentWindow()->Lock(); // РѕС‚РјРµРЅРёРј РїСЂРѕСЂРёСЃРѕРІРєСѓ РѕРєРЅР°
 				DWORD MacroKey;
-				// выставляем флаги по умолчанию.
+				// РІС‹СЃС‚Р°РІР»СЏРµРј С„Р»Р°РіРё РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ.
 				UINT64 Flags=0;
 				int AssignRet=AssignMacroKey(MacroKey,Flags);
-				Global->WindowManager->GetCurrentWindow()->Unlock(); // теперь можно :-)
+				Global->WindowManager->GetCurrentWindow()->Unlock(); // С‚РµРїРµСЂСЊ РјРѕР¶РЅРѕ :-)
 
 				if (AssignRet && AssignRet!=2 && !m_RecCode.empty())
 				{
 					m_RecCode = L"Keys(\"" + m_RecCode + L"\")";
-					// добавим проверку на удаление
-					// если удаляем или был вызван диалог изменения, то не нужно выдавать диалог настройки.
+					// РґРѕР±Р°РІРёРј РїСЂРѕРІРµСЂРєСѓ РЅР° СѓРґР°Р»РµРЅРёРµ
+					// РµСЃР»Рё СѓРґР°Р»СЏРµРј РёР»Рё Р±С‹Р» РІС‹Р·РІР°РЅ РґРёР°Р»РѕРі РёР·РјРµРЅРµРЅРёСЏ, С‚Рѕ РЅРµ РЅСѓР¶РЅРѕ РІС‹РґР°РІР°С‚СЊ РґРёР°Р»РѕРі РЅР°СЃС‚СЂРѕР№РєРё.
 					//if (MacroKey != (DWORD)-1 && (Key==KEY_CTRLSHIFTDOT || Recording==2) && RecBufferSize)
 					if (ctrlshiftdot && !GetMacroSettings(MacroKey,Flags))
 					{
@@ -713,7 +713,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 				Global->WaitInFastFind++;
 
 				if (Global->Opt->AutoSaveSetup)
-					SaveMacros(false); // записать только изменения!
+					SaveMacros(false); // Р·Р°РїРёСЃР°С‚СЊ С‚РѕР»СЊРєРѕ РёР·РјРµРЅРµРЅРёСЏ!
 
 				return true;
 			}
@@ -828,16 +828,16 @@ int KeyMacro::GetKey()
 						cpInfo.Command = Arg;
 					}
 
-					// Чтобы вернуть результат "выполнения" нужно проверить наличие плагина/пункта
+					// Р§С‚РѕР±С‹ РІРµСЂРЅСѓС‚СЊ СЂРµР·СѓР»СЊС‚Р°С‚ "РІС‹РїРѕР»РЅРµРЅРёСЏ" РЅСѓР¶РЅРѕ РїСЂРѕРІРµСЂРёС‚СЊ РЅР°Р»РёС‡РёРµ РїР»Р°РіРёРЅР°/РїСѓРЅРєС‚Р°
 					if (Global->CtrlObject->Plugins->CallPluginItem(guid,&cpInfo))
 					{
-						// Если нашли успешно - то теперь выполнение
+						// Р•СЃР»Рё РЅР°С€Р»Рё СѓСЃРїРµС€РЅРѕ - С‚Рѕ С‚РµРїРµСЂСЊ РІС‹РїРѕР»РЅРµРЅРёРµ
 						SetMacroValue(true);
 						cpInfo.CallFlags&=~CPT_CHECKONLY;
 						Global->CtrlObject->Plugins->CallPluginItem(guid,&cpInfo);
 					}
 					Global->WindowManager->RefreshWindow();
-					//с текущим переключением окон могут быть проблемы с заголовком консоли.
+					//СЃ С‚РµРєСѓС‰РёРј РїРµСЂРµРєР»СЋС‡РµРЅРёРµРј РѕРєРѕРЅ РјРѕРіСѓС‚ Р±С‹С‚СЊ РїСЂРѕР±Р»РµРјС‹ СЃ Р·Р°РіРѕР»РѕРІРєРѕРј РєРѕРЅСЃРѕР»Рё.
 					Global->WindowManager->PluginCommit();
 				}
 				break;
@@ -881,7 +881,7 @@ bool KeyMacro::CheckWaitKeyFunc() const
 	return m_WaitKey != 0;
 }
 
-// Функция, запускающая макросы при старте ФАРа
+// Р¤СѓРЅРєС†РёСЏ, Р·Р°РїСѓСЃРєР°СЋС‰Р°СЏ РјР°РєСЂРѕСЃС‹ РїСЂРё СЃС‚Р°СЂС‚Рµ Р¤РђР Р°
 void KeyMacro::RunStartMacro()
 {
 	if (Global->Opt->Macro.DisableMacro & (MDOL_ALL|MDOL_AUTOSTART))
@@ -1025,11 +1025,11 @@ static BOOL CheckFileFolder(Panel *CheckPanel,UINT64 CurFlags, BOOL IsPassivePan
 static BOOL CheckAll (FARMACROAREA Area, UINT64 CurFlags)
 {
 	/* $TODO:
-		Здесь вместо Check*() попробовать заюзать IfCondition()
-		для исключения повторяющегося кода.
+		Р—РґРµСЃСЊ РІРјРµСЃС‚Рѕ Check*() РїРѕРїСЂРѕР±РѕРІР°С‚СЊ Р·Р°СЋР·Р°С‚СЊ IfCondition()
+		РґР»СЏ РёСЃРєР»СЋС‡РµРЅРёСЏ РїРѕРІС‚РѕСЂСЏСЋС‰РµРіРѕСЃСЏ РєРѕРґР°.
 	*/
 
-	// проверка на пусто/не пусто в ком.строке (а в редакторе? :-)
+	// РїСЂРѕРІРµСЂРєР° РЅР° РїСѓСЃС‚Рѕ/РЅРµ РїСѓСЃС‚Рѕ РІ РєРѕРј.СЃС‚СЂРѕРєРµ (Р° РІ СЂРµРґР°РєС‚РѕСЂРµ? :-)
 	if (CurFlags&(MFLAGS_EMPTYCOMMANDLINE|MFLAGS_NOTEMPTYCOMMANDLINE))
 		if (Global->CtrlObject->CmdLine() && !CheckCmdLine(Global->CtrlObject->CmdLine()->GetLength(),CurFlags))
 			return FALSE;
@@ -1039,7 +1039,7 @@ static BOOL CheckAll (FARMACROAREA Area, UINT64 CurFlags)
 	if (!Cp)
 		return FALSE;
 
-	// проверки панели и типа файла
+	// РїСЂРѕРІРµСЂРєРё РїР°РЅРµР»Рё Рё С‚РёРїР° С„Р°Р№Р»Р°
 	Panel *ActivePanel = Cp->ActivePanel();
 	Panel *PassivePanel = Cp->PassivePanel();
 
@@ -1162,24 +1162,24 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 	/*
 	          1         2         3         4         5         6
 	   3456789012345678901234567890123456789012345678901234567890123456789
-	 1 г=========== Параметры макрокоманды для 'CtrlP' ==================¬
-	 2 | Последовательность:                                             |
+	 1 Рі=========== РџР°СЂР°РјРµС‚СЂС‹ РјР°РєСЂРѕРєРѕРјР°РЅРґС‹ РґР»СЏ 'CtrlP' ==================В¬
+	 2 | РџРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ:                                             |
 	 3 | _______________________________________________________________ |
-	 4 | Описание:                                                       |
+	 4 | РћРїРёСЃР°РЅРёРµ:                                                       |
 	 5 | _______________________________________________________________ |
 	 6 |-----------------------------------------------------------------|
-	 7 | [ ] Разрешить во время выполнения вывод на экран                |
-	 8 | [ ] Выполнять после запуска FAR                                 |
+	 7 | [ ] Р Р°Р·СЂРµС€РёС‚СЊ РІРѕ РІСЂРµРјСЏ РІС‹РїРѕР»РЅРµРЅРёСЏ РІС‹РІРѕРґ РЅР° СЌРєСЂР°РЅ                |
+	 8 | [ ] Р’С‹РїРѕР»РЅСЏС‚СЊ РїРѕСЃР»Рµ Р·Р°РїСѓСЃРєР° FAR                                 |
 	 9 |-----------------------------------------------------------------|
-	10 | [ ] Активная панель             [ ] Пассивная панель            |
-	11 |   [?] На панели плагина           [?] На панели плагина         |
-	12 |   [?] Выполнять для папок         [?] Выполнять для папок       |
-	13 |   [?] Отмечены файлы              [?] Отмечены файлы            |
+	10 | [ ] РђРєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ             [ ] РџР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ            |
+	11 |   [?] РќР° РїР°РЅРµР»Рё РїР»Р°РіРёРЅР°           [?] РќР° РїР°РЅРµР»Рё РїР»Р°РіРёРЅР°         |
+	12 |   [?] Р’С‹РїРѕР»РЅСЏС‚СЊ РґР»СЏ РїР°РїРѕРє         [?] Р’С‹РїРѕР»РЅСЏС‚СЊ РґР»СЏ РїР°РїРѕРє       |
+	13 |   [?] РћС‚РјРµС‡РµРЅС‹ С„Р°Р№Р»С‹              [?] РћС‚РјРµС‡РµРЅС‹ С„Р°Р№Р»С‹            |
 	14 |-----------------------------------------------------------------|
-	15 | [?] Пустая командная строка                                     |
-	16 | [?] Отмечен блок                                                |
+	15 | [?] РџСѓСЃС‚Р°СЏ РєРѕРјР°РЅРґРЅР°СЏ СЃС‚СЂРѕРєР°                                     |
+	16 | [?] РћС‚РјРµС‡РµРЅ Р±Р»РѕРє                                                |
 	17 |-----------------------------------------------------------------|
-	18 |               [ Продолжить ]  [ Отменить ]                      |
+	18 |               [ РџСЂРѕРґРѕР»Р¶РёС‚СЊ ]  [ РћС‚РјРµРЅРёС‚СЊ ]                      |
 	19 L=================================================================+
 
 	*/
@@ -1244,12 +1244,12 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 	const auto BottomWindow = Global->WindowManager->GetBottomWindow();
 	if(BottomWindow)
 	{
-		BottomWindow->Lock(); // отменим прорисовку окна
+		BottomWindow->Lock(); // РѕС‚РјРµРЅРёРј РїСЂРѕСЂРёСЃРѕРІРєСѓ РѕРєРЅР°
 	}
 	Dlg->Process();
 	if(BottomWindow)
 	{
-		BottomWindow->Unlock(); // теперь можно :-)
+		BottomWindow->Unlock(); // С‚РµРїРµСЂСЊ РјРѕР¶РЅРѕ :-)
 	}
 
 	if (Dlg->GetExitCode()!=MS_BUTTON_OK)
@@ -1290,8 +1290,8 @@ bool KeyMacro::ParseMacroString(const wchar_t* Sequence, FARKEYMACROFLAGS Flags,
 	const wchar_t* lang = GetMacroLanguage(Flags);
 	bool onlyCheck = (Flags&KMFLAGS_SILENTCHECK) != 0;
 
-	// Перекладываем вывод сообщения об ошибке на плагин, т.к. штатный Message()
-	// не умеет сворачивать строки и обрезает сообщение.
+	// РџРµСЂРµРєР»Р°РґС‹РІР°РµРј РІС‹РІРѕРґ СЃРѕРѕР±С‰РµРЅРёСЏ РѕР± РѕС€РёР±РєРµ РЅР° РїР»Р°РіРёРЅ, С‚.Рє. С€С‚Р°С‚РЅС‹Р№ Message()
+	// РЅРµ СѓРјРµРµС‚ СЃРІРѕСЂР°С‡РёРІР°С‚СЊ СЃС‚СЂРѕРєРё Рё РѕР±СЂРµР·Р°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ.
 	FarMacroValue values[]={lang,Sequence,onlyCheck,skipFile};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_MACROPARSE,&fmc};
@@ -1311,7 +1311,7 @@ bool KeyMacro::ParseMacroString(const wchar_t* Sequence, FARKEYMACROFLAGS Flags,
 			if (!onlyCheck)
 			{
 				RestoreMacroChar();
-				Global->WindowManager->RefreshWindow(); // Нужно после вывода сообщения плагином. Иначе панели не перерисовываются.
+				Global->WindowManager->RefreshWindow(); // РќСѓР¶РЅРѕ РїРѕСЃР»Рµ РІС‹РІРѕРґР° СЃРѕРѕР±С‰РµРЅРёСЏ РїР»Р°РіРёРЅРѕРј. РРЅР°С‡Рµ РїР°РЅРµР»Рё РЅРµ РїРµСЂРµСЂРёСЃРѕРІС‹РІР°СЋС‚СЃСЏ.
 			}
 		}
 	}
@@ -1509,7 +1509,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 	string strFileName;
 	DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
 
-	// проверка на область
+	// РїСЂРѕРІРµСЂРєР° РЅР° РѕР±Р»Р°СЃС‚СЊ
 	if (CheckCode == 0)
 	{
 		return PassNumber (Global->WaitInMainLoop ?
@@ -1560,8 +1560,8 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_DRVSHOWMODE: // Drv.ShowMode
 			return Global->Opt->ChangeDriveMode;
 
-		case MCODE_C_CMDLINE_BOF:              // CmdLine.Bof - курсор в начале cmd-строки редактирования?
-		case MCODE_C_CMDLINE_EOF:              // CmdLine.Eof - курсор в конце cmd-строки редактирования?
+		case MCODE_C_CMDLINE_BOF:              // CmdLine.Bof - РєСѓСЂСЃРѕСЂ РІ РЅР°С‡Р°Р»Рµ cmd-СЃС‚СЂРѕРєРё СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ?
+		case MCODE_C_CMDLINE_EOF:              // CmdLine.Eof - РєСѓСЂСЃРѕСЂ РІ РєРѕРЅС†Рµ cmd-СЃС‚СЂРѕРєРё СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ?
 		case MCODE_C_CMDLINE_EMPTY:            // CmdLine.Empty
 		case MCODE_C_CMDLINE_SELECTED:         // CmdLine.Selected
 		{
@@ -1767,8 +1767,8 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			return SelPanel ? SelPanel->GetRealSelCount() : 0;
 		}
 
-		case MCODE_V_APANEL_COLUMNCOUNT:       // APanel.ColumnCount - активная панель:  количество колонок
-		case MCODE_V_PPANEL_COLUMNCOUNT:       // PPanel.ColumnCount - пассивная панель: количество колонок
+		case MCODE_V_APANEL_COLUMNCOUNT:       // APanel.ColumnCount - Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  РєРѕР»РёС‡РµСЃС‚РІРѕ РєРѕР»РѕРЅРѕРє
+		case MCODE_V_PPANEL_COLUMNCOUNT:       // PPanel.ColumnCount - РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: РєРѕР»РёС‡РµСЃС‚РІРѕ РєРѕР»РѕРЅРѕРє
 		{
 			Panel *SelPanel = CheckCode == MCODE_V_APANEL_COLUMNCOUNT ? ActivePanel : PassivePanel;
 			return SelPanel ? SelPanel->GetColumnsCount() : 0;
@@ -1881,7 +1881,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				else
 					strFileName = SelPanel->GetCurDir();
 
-				DeleteEndSlash(strFileName); // - чтобы у корня диска было C:, тогда можно писать так: APanel.Path + "\\file"
+				DeleteEndSlash(strFileName); // - С‡С‚РѕР±С‹ Сѓ РєРѕСЂРЅСЏ РґРёСЃРєР° Р±С‹Р»Рѕ C:, С‚РѕРіРґР° РјРѕР¶РЅРѕ РїРёСЃР°С‚СЊ С‚Р°Рє: APanel.Path + "\\file"
 				ptr = strFileName.data();
 			}
 			return PassString(ptr, Data);
@@ -1908,8 +1908,8 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			return SelPanel ? SelPanel->GetType() : 0;
 		}
 
-		case MCODE_V_APANEL_DRIVETYPE: // APanel.DriveType - активная панель: тип привода
-		case MCODE_V_PPANEL_DRIVETYPE: // PPanel.DriveType - пассивная панель: тип привода
+		case MCODE_V_APANEL_DRIVETYPE: // APanel.DriveType - Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ: С‚РёРї РїСЂРёРІРѕРґР°
+		case MCODE_V_PPANEL_DRIVETYPE: // PPanel.DriveType - РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: С‚РёРї РїСЂРёРІРѕРґР°
 		{
 			Panel *SelPanel = CheckCode == MCODE_V_APANEL_DRIVETYPE ? ActivePanel : PassivePanel;
 			ret=-1;
@@ -1975,8 +1975,8 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			return PassString(strFileName, Data);
 		}
 
-		case MCODE_V_HEIGHT:  // Height - высота текущего объекта
-		case MCODE_V_WIDTH:   // Width - ширина текущего объекта
+		case MCODE_V_HEIGHT:  // Height - РІС‹СЃРѕС‚Р° С‚РµРєСѓС‰РµРіРѕ РѕР±СЉРµРєС‚Р°
+		case MCODE_V_WIDTH:   // Width - С€РёСЂРёРЅР° С‚РµРєСѓС‰РµРіРѕ РѕР±СЉРµРєС‚Р°
 		{
 			if (const auto f = Global->WindowManager->GetCurrentWindow())
 			{
@@ -2029,8 +2029,8 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			return PassString(ptr, Data);
 		}
 
-		case MCODE_V_ITEMCOUNT: // ItemCount - число элементов в текущем объекте
-		case MCODE_V_CURPOS: // CurPos - текущий индекс в текущем объекте
+		case MCODE_V_ITEMCOUNT: // ItemCount - С‡РёСЃР»Рѕ СЌР»РµРјРµРЅС‚РѕРІ РІ С‚РµРєСѓС‰РµРј РѕР±СЉРµРєС‚Рµ
+		case MCODE_V_CURPOS: // CurPos - С‚РµРєСѓС‰РёР№ РёРЅРґРµРєСЃ РІ С‚РµРєСѓС‰РµРј РѕР±СЉРµРєС‚Рµ
 		{
 			if (const auto Window = Global->WindowManager->GetCurrentWindow())
 			{
@@ -2039,7 +2039,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			return ret;
 		}
 
-		case MCODE_V_EDITORCURLINE: // Editor.CurLine - текущая линия в редакторе (в дополнении к Count)
+		case MCODE_V_EDITORCURLINE: // Editor.CurLine - С‚РµРєСѓС‰Р°СЏ Р»РёРЅРёСЏ РІ СЂРµРґР°РєС‚РѕСЂРµ (РІ РґРѕРїРѕР»РЅРµРЅРёРё Рє Count)
 		case MCODE_V_EDITORSTATE:   // Editor.State
 		case MCODE_V_EDITORLINES:   // Editor.Lines
 		case MCODE_V_EDITORCURPOS:  // Editor.CurPos
@@ -2200,7 +2200,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 					if (SyncCall) m_InternalInput--;
 
-					//в windows гарантируется, что не бывает указателей меньше 0x10000
+					//РІ windows РіР°СЂР°РЅС‚РёСЂСѓРµС‚СЃСЏ, С‡С‚Рѕ РЅРµ Р±С‹РІР°РµС‚ СѓРєР°Р·Р°С‚РµР»РµР№ РјРµРЅСЊС€Рµ 0x10000
 					if (reinterpret_cast<uintptr_t>(ResultCallPlugin) >= 0x10000 && ResultCallPlugin != INVALID_HANDLE_VALUE)
 					{
 						FarMacroValue Result(ResultCallPlugin);
@@ -2299,11 +2299,11 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_F_BM_PREV:             // N=BM.Prev()
 		case MCODE_F_BM_BACK:             // N=BM.Back()
 		case MCODE_F_BM_STAT:             // N=BM.Stat([N])
-		case MCODE_F_BM_DEL:              // N=BM.Del([Idx]) - удаляет закладку с указанным индексом (x=1...), 0 - удаляет текущую закладку
-		case MCODE_F_BM_GET:              // N=BM.Get(Idx,M) - возвращает координаты строки (M==0) или колонки (M==1) закладки с индексом (Idx=1...)
-		case MCODE_F_BM_GOTO:             // N=BM.Goto([n]) - переход на закладку с указанным индексом (0 --> текущую)
-		case MCODE_F_BM_PUSH:             // N=BM.Push() - сохранить текущую позицию в виде закладки в конце стека
-		case MCODE_F_BM_POP:              // N=BM.Pop() - восстановить текущую позицию из закладки в конце стека и удалить закладку
+		case MCODE_F_BM_DEL:              // N=BM.Del([Idx]) - СѓРґР°Р»СЏРµС‚ Р·Р°РєР»Р°РґРєСѓ СЃ СѓРєР°Р·Р°РЅРЅС‹Рј РёРЅРґРµРєСЃРѕРј (x=1...), 0 - СѓРґР°Р»СЏРµС‚ С‚РµРєСѓС‰СѓСЋ Р·Р°РєР»Р°РґРєСѓ
+		case MCODE_F_BM_GET:              // N=BM.Get(Idx,M) - РІРѕР·РІСЂР°С‰Р°РµС‚ РєРѕРѕСЂРґРёРЅР°С‚С‹ СЃС‚СЂРѕРєРё (M==0) РёР»Рё РєРѕР»РѕРЅРєРё (M==1) Р·Р°РєР»Р°РґРєРё СЃ РёРЅРґРµРєСЃРѕРј (Idx=1...)
+		case MCODE_F_BM_GOTO:             // N=BM.Goto([n]) - РїРµСЂРµС…РѕРґ РЅР° Р·Р°РєР»Р°РґРєСѓ СЃ СѓРєР°Р·Р°РЅРЅС‹Рј РёРЅРґРµРєСЃРѕРј (0 --> С‚РµРєСѓС‰СѓСЋ)
+		case MCODE_F_BM_PUSH:             // N=BM.Push() - СЃРѕС…СЂР°РЅРёС‚СЊ С‚РµРєСѓС‰СѓСЋ РїРѕР·РёС†РёСЋ РІ РІРёРґРµ Р·Р°РєР»Р°РґРєРё РІ РєРѕРЅС†Рµ СЃС‚РµРєР°
+		case MCODE_F_BM_POP:              // N=BM.Pop() - РІРѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ С‚РµРєСѓС‰СѓСЋ РїРѕР·РёС†РёСЋ РёР· Р·Р°РєР»Р°РґРєРё РІ РєРѕРЅС†Рµ СЃС‚РµРєР° Рё СѓРґР°Р»РёС‚СЊ Р·Р°РєР»Р°РґРєСѓ
 		{
 			auto Params = parseParams(2, Data);
 			TVar& p1(Params[0]);
@@ -2489,15 +2489,15 @@ static bool substrFunc(FarMacroCall* Data)
 {
 	/*
 		TODO: http://bugs.farmanager.com/view.php?id=1480
-			если start  >= 0, то вернётся подстрока, начиная со start-символа от начала строки.
-			если start  <  0, то вернётся подстрока, начиная со start-символа от конца строки.
-			если length >  0, то возвращаемая подстрока будет состоять максимум из length символов исходной строки начиная с start
-			если length <  0, то в возвращаемой подстроке будет отсутствовать length символов от конца исходной строки, при том, что она будет начинаться с символа start.
-								Или: length - длина того, что берем (если >=0) или отбрасываем (если <0).
+			РµСЃР»Рё start  >= 0, С‚Рѕ РІРµСЂРЅС‘С‚СЃСЏ РїРѕРґСЃС‚СЂРѕРєР°, РЅР°С‡РёРЅР°СЏ СЃРѕ start-СЃРёРјРІРѕР»Р° РѕС‚ РЅР°С‡Р°Р»Р° СЃС‚СЂРѕРєРё.
+			РµСЃР»Рё start  <  0, С‚Рѕ РІРµСЂРЅС‘С‚СЃСЏ РїРѕРґСЃС‚СЂРѕРєР°, РЅР°С‡РёРЅР°СЏ СЃРѕ start-СЃРёРјРІРѕР»Р° РѕС‚ РєРѕРЅС†Р° СЃС‚СЂРѕРєРё.
+			РµСЃР»Рё length >  0, С‚Рѕ РІРѕР·РІСЂР°С‰Р°РµРјР°СЏ РїРѕРґСЃС‚СЂРѕРєР° Р±СѓРґРµС‚ СЃРѕСЃС‚РѕСЏС‚СЊ РјР°РєСЃРёРјСѓРј РёР· length СЃРёРјРІРѕР»РѕРІ РёСЃС…РѕРґРЅРѕР№ СЃС‚СЂРѕРєРё РЅР°С‡РёРЅР°СЏ СЃ start
+			РµСЃР»Рё length <  0, С‚Рѕ РІ РІРѕР·РІСЂР°С‰Р°РµРјРѕР№ РїРѕРґСЃС‚СЂРѕРєРµ Р±СѓРґРµС‚ РѕС‚СЃСѓС‚СЃС‚РІРѕРІР°С‚СЊ length СЃРёРјРІРѕР»РѕРІ РѕС‚ РєРѕРЅС†Р° РёСЃС…РѕРґРЅРѕР№ СЃС‚СЂРѕРєРё, РїСЂРё С‚РѕРј, С‡С‚Рѕ РѕРЅР° Р±СѓРґРµС‚ РЅР°С‡РёРЅР°С‚СЊСЃСЏ СЃ СЃРёРјРІРѕР»Р° start.
+								РР»Рё: length - РґР»РёРЅР° С‚РѕРіРѕ, С‡С‚Рѕ Р±РµСЂРµРј (РµСЃР»Рё >=0) РёР»Рё РѕС‚Р±СЂР°СЃС‹РІР°РµРј (РµСЃР»Рё <0).
 
-			пустая строка возвращается:
-				если length = 0
-				если ...
+			РїСѓСЃС‚Р°СЏ СЃС‚СЂРѕРєР° РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ:
+				РµСЃР»Рё length = 0
+				РµСЃР»Рё ...
 	*/
 	auto Params = parseParams(3, Data);
 	bool Ret=false;
@@ -2801,7 +2801,7 @@ static bool keyFunc(FarMacroCall* Data)
 	}
 	else
 	{
-		// Проверим...
+		// РџСЂРѕРІРµСЂРёРј...
 		int Key=KeyNameToKey(Params[0].asString());
 
 		if (Key != -1)
@@ -2944,17 +2944,17 @@ static bool beepFunc(FarMacroCall* Data)
 	auto Params = parseParams(1, Data);
 	/*
 		MB_ICONASTERISK = 0x00000040
-			Звук Звездочка
+			Р—РІСѓРє Р—РІРµР·РґРѕС‡РєР°
 		MB_ICONEXCLAMATION = 0x00000030
-		    Звук Восклицание
+		    Р—РІСѓРє Р’РѕСЃРєР»РёС†Р°РЅРёРµ
 		MB_ICONHAND = 0x00000010
-		    Звук Критическая ошибка
+		    Р—РІСѓРє РљСЂРёС‚РёС‡РµСЃРєР°СЏ РѕС€РёР±РєР°
 		MB_ICONQUESTION = 0x00000020
-		    Звук Вопрос
+		    Р—РІСѓРє Р’РѕРїСЂРѕСЃ
 		MB_OK = 0x0
-		    Стандартный звук
+		    РЎС‚Р°РЅРґР°СЂС‚РЅС‹Р№ Р·РІСѓРє
 		SIMPLE_BEEP = 0xffffffff
-		    Встроенный динамик
+		    Р’СЃС‚СЂРѕРµРЅРЅС‹Р№ РґРёРЅР°РјРёРє
 	*/
 	bool Ret=MessageBeep((UINT)Params[0].asInteger()) != FALSE;
 
@@ -2980,13 +2980,13 @@ static bool beepFunc(FarMacroCall* Data)
 /*
 Res=kbdLayout([N])
 
-Параметр N:
-а) конкретика: 0x0409 или 0x0419 или...
-б) 1 - следующую системную (по кругу)
-в) -1 - предыдущую системную (по кругу)
-г) 0 или не указан - вернуть текущую раскладку.
+РџР°СЂР°РјРµС‚СЂ N:
+Р°) РєРѕРЅРєСЂРµС‚РёРєР°: 0x0409 РёР»Рё 0x0419 РёР»Рё...
+Р±) 1 - СЃР»РµРґСѓСЋС‰СѓСЋ СЃРёСЃС‚РµРјРЅСѓСЋ (РїРѕ РєСЂСѓРіСѓ)
+РІ) -1 - РїСЂРµРґС‹РґСѓС‰СѓСЋ СЃРёСЃС‚РµРјРЅСѓСЋ (РїРѕ РєСЂСѓРіСѓ)
+Рі) 0 РёР»Рё РЅРµ СѓРєР°Р·Р°РЅ - РІРµСЂРЅСѓС‚СЊ С‚РµРєСѓС‰СѓСЋ СЂР°СЃРєР»Р°РґРєСѓ.
 
-Возвращает предыдущую раскладку (для N=0 текущую)
+Р’РѕР·РІСЂР°С‰Р°РµС‚ РїСЂРµРґС‹РґСѓС‰СѓСЋ СЂР°СЃРєР»Р°РґРєСѓ (РґР»СЏ N=0 С‚РµРєСѓС‰СѓСЋ)
 */
 // N=kbdLayout([N])
 static bool kbdLayoutFunc(FarMacroCall* Data)
@@ -3070,8 +3070,8 @@ static bool promptFunc(FarMacroCall* Data)
 
 	DWORD oldHistoryDisable=GetHistoryDisableMask();
 
-	if (!(history && *history)) // Mantis#0001743: Возможность отключения истории
-		SetHistoryDisableMask(8); // если не указан history, то принудительно отключаем историю для ЭТОГО prompt()
+	if (!(history && *history)) // Mantis#0001743: Р’РѕР·РјРѕР¶РЅРѕСЃС‚СЊ РѕС‚РєР»СЋС‡РµРЅРёСЏ РёСЃС‚РѕСЂРёРё
+		SetHistoryDisableMask(8); // РµСЃР»Рё РЅРµ СѓРєР°Р·Р°РЅ history, С‚Рѕ РїСЂРёРЅСѓРґРёС‚РµР»СЊРЅРѕ РѕС‚РєР»СЋС‡Р°РµРј РёСЃС‚РѕСЂРёСЋ РґР»СЏ Р­РўРћР“Рћ prompt()
 
 	if (GetString(title,prompt,history,src,strDest,nullptr,(Flags&~FIB_CHECKBOX)|FIB_ENABLEEMPTY,nullptr,nullptr))
 	{
@@ -3128,14 +3128,14 @@ static bool msgBoxFunc(FarMacroCall* Data)
 //0x001 - BoxType
 //0x002 - BoxType
 //0x004 - BoxType
-//0x008 - возвращаемый результат - индекс или строка
-//0x010 - разрешена отметка нескольких пунктов
-//0x020 - отсортировать (с учетом регистра)
-//0x040 - убирать дублирующиеся пункты
-//0x080 - автоматически назначать хоткеи |= VMENU_AUTOHIGHLIGHT
-//0x100 - FindOrFilter - найти или отфильтровать
-//0x200 - автоматическая нумерация строк
-//0x400 - однократное выполнение цикла меню
+//0x008 - РІРѕР·РІСЂР°С‰Р°РµРјС‹Р№ СЂРµР·СѓР»СЊС‚Р°С‚ - РёРЅРґРµРєСЃ РёР»Рё СЃС‚СЂРѕРєР°
+//0x010 - СЂР°Р·СЂРµС€РµРЅР° РѕС‚РјРµС‚РєР° РЅРµСЃРєРѕР»СЊРєРёС… РїСѓРЅРєС‚РѕРІ
+//0x020 - РѕС‚СЃРѕСЂС‚РёСЂРѕРІР°С‚СЊ (СЃ СѓС‡РµС‚РѕРј СЂРµРіРёСЃС‚СЂР°)
+//0x040 - СѓР±РёСЂР°С‚СЊ РґСѓР±Р»РёСЂСѓСЋС‰РёРµСЃСЏ РїСѓРЅРєС‚С‹
+//0x080 - Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё РЅР°Р·РЅР°С‡Р°С‚СЊ С…РѕС‚РєРµРё |= VMENU_AUTOHIGHLIGHT
+//0x100 - FindOrFilter - РЅР°Р№С‚Рё РёР»Рё РѕС‚С„РёР»СЊС‚СЂРѕРІР°С‚СЊ
+//0x200 - Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєР°СЏ РЅСѓРјРµСЂР°С†РёСЏ СЃС‚СЂРѕРє
+//0x400 - РѕРґРЅРѕРєСЂР°С‚РЅРѕРµ РІС‹РїРѕР»РЅРµРЅРёРµ С†РёРєР»Р° РјРµРЅСЋ
 //0x800 -
 static bool menushowFunc(FarMacroCall* Data)
 {
@@ -3547,7 +3547,7 @@ static bool _fattrFunc(int Type, FarMacroCall* Data)
 	DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
 	long Pos=-1;
 
-	if (!Type || Type == 2) // не панели: fattr(0) & fexist(2)
+	if (!Type || Type == 2) // РЅРµ РїР°РЅРµР»Рё: fattr(0) & fexist(2)
 	{
 		auto Params = parseParams(1, Data);
 		TVar& Str(Params[0]);
@@ -4170,7 +4170,7 @@ static bool clipFunc(FarMacroCall* Data)
 	TVar& Val(Params[1]);
 	int cmdType=(int)Params[0].asInteger();
 
-	// принудительно второй параметр ставим AS string
+	// РїСЂРёРЅСѓРґРёС‚РµР»СЊРЅРѕ РІС‚РѕСЂРѕР№ РїР°СЂР°РјРµС‚СЂ СЃС‚Р°РІРёРј AS string
 	if (cmdType != 5 && Val.isInteger() && !Val.asInteger())
 	{
 		Val=L"";
@@ -4250,7 +4250,7 @@ static bool clipFunc(FarMacroCall* Data)
 		}
 		case 5: // ClipMode
 		{
-			// 0 - flip, 1 - виндовый буфер, 2 - внутренний, -1 - что сейчас?
+			// 0 - flip, 1 - РІРёРЅРґРѕРІС‹Р№ Р±СѓС„РµСЂ, 2 - РІРЅСѓС‚СЂРµРЅРЅРёР№, -1 - С‡С‚Рѕ СЃРµР№С‡Р°СЃ?
 			int Action=(int)Val.asInteger();
 			bool mode=Clipboard::GetUseInternalClipboardState();
 			if (Action >= 0)
@@ -4314,7 +4314,7 @@ static bool panelsetposidxFunc(FarMacroCall* Data)
 
 					bool found=false;
 
-					for (intptr_t I=StartPos ; ; I+=Direct ) // Важно: переменная I должна быть signed!
+					for (intptr_t I=StartPos ; ; I+=Direct ) // Р’Р°Р¶РЅРѕ: РїРµСЂРµРјРµРЅРЅР°СЏ I РґРѕР»Р¶РЅР° Р±С‹С‚СЊ signed!
 					{
 						if (Direct > 0)
 						{
@@ -4345,7 +4345,7 @@ static bool panelsetposidxFunc(FarMacroCall* Data)
 					if (idxItem != -1 && SelPanel->GoToFile(idxItem))
 					{
 						SelPanel->Show();
-						// <Mantis#0000289> - грозно, но со вкусом :-)
+						// <Mantis#0000289> - РіСЂРѕР·РЅРѕ, РЅРѕ СЃРѕ РІРєСѓСЃРѕРј :-)
 						//ShellUpdatePanels(SelPanel);
 						//SelPanel->UpdateIfChanged(UIC_UPDATE_NORMAL);
 						//WindowManager->RefreshWindow(WindowManager->GetCurrentWindow());
@@ -4358,7 +4358,7 @@ static bool panelsetposidxFunc(FarMacroCall* Data)
 					}
 				}
 			}
-			else // = 0 - вернем текущую позицию
+			else // = 0 - РІРµСЂРЅРµРј С‚РµРєСѓС‰СѓСЋ РїРѕР·РёС†РёСЋ
 			{
 				if ( !InSelection )
 					Ret=(__int64)(SelPanel->GetCurrentPos()+1);
@@ -4414,15 +4414,15 @@ static bool panelsetpathFunc(FarMacroCall* Data)
 				PassivePanel = Global->CtrlObject->Cp()->PassivePanel();
 				SelPanel = typePanel? (typePanel == 1?PassivePanel:nullptr):ActivePanel;
 
-				//восстановим текущую папку из активной панели.
+				//РІРѕСЃСЃС‚Р°РЅРѕРІРёРј С‚РµРєСѓС‰СѓСЋ РїР°РїРєСѓ РёР· Р°РєС‚РёРІРЅРѕР№ РїР°РЅРµР»Рё.
 				if (ActivePanel)
 					ActivePanel->SetCurPath();
 				// Need PointToName()?
 				if (SelPanel)
 				{
-					SelPanel->GoToFile(ValFileName.isInteger()? L"" : ValFileName.asString()); // здесь без проверки, т.к. параметр fileName аля опциональный
+					SelPanel->GoToFile(ValFileName.isInteger()? L"" : ValFileName.asString()); // Р·РґРµСЃСЊ Р±РµР· РїСЂРѕРІРµСЂРєРё, С‚.Рє. РїР°СЂР°РјРµС‚СЂ fileName Р°Р»СЏ РѕРїС†РёРѕРЅР°Р»СЊРЅС‹Р№
 					//SelPanel->Show();
-					// <Mantis#0000289> - грозно, но со вкусом :-)
+					// <Mantis#0000289> - РіСЂРѕР·РЅРѕ, РЅРѕ СЃРѕ РІРєСѓСЃРѕРј :-)
 					//ShellUpdatePanels(SelPanel);
 					SelPanel->UpdateIfChanged(false);
 				}
@@ -4458,7 +4458,7 @@ static bool panelsetposFunc(FarMacroCall* Data)
 			if (SelPanel->GoToFile(fileName))
 			{
 				//SelPanel->Show();
-				// <Mantis#0000289> - грозно, но со вкусом :-)
+				// <Mantis#0000289> - РіСЂРѕР·РЅРѕ, РЅРѕ СЃРѕ РІРєСѓСЃРѕРј :-)
 				//ShellUpdatePanels(SelPanel);
 				SelPanel->UpdateIfChanged(false);
 				Global->WindowManager->RefreshWindow(Global->WindowManager->GetCurrentWindow());
@@ -4476,7 +4476,7 @@ static bool panelsetposFunc(FarMacroCall* Data)
 /*
 Find=="" - return Str
 Cnt==0 - return Str
-Replace=="" - return Str (с удалением всех подстрок Find)
+Replace=="" - return Str (СЃ СѓРґР°Р»РµРЅРёРµРј РІСЃРµС… РїРѕРґСЃС‚СЂРѕРє Find)
 Str=="" return ""
 
 Mode:
@@ -5045,13 +5045,13 @@ static bool pluginunloadFunc(FarMacroCall* Data)
 
 // N=testfolder(S)
 /*
-возвращает одно состояний тестируемого каталога:
+РІРѕР·РІСЂР°С‰Р°РµС‚ РѕРґРЅРѕ СЃРѕСЃС‚РѕСЏРЅРёР№ С‚РµСЃС‚РёСЂСѓРµРјРѕРіРѕ РєР°С‚Р°Р»РѕРіР°:
 
-TSTFLD_NOTFOUND   (2) - нет такого
-TSTFLD_NOTEMPTY   (1) - не пусто
-TSTFLD_EMPTY      (0) - пусто
-TSTFLD_NOTACCESS (-1) - нет доступа
-TSTFLD_ERROR     (-2) - ошибка (кривые параметры или не хватило памяти для выделения промежуточных буферов)
+TSTFLD_NOTFOUND   (2) - РЅРµС‚ С‚Р°РєРѕРіРѕ
+TSTFLD_NOTEMPTY   (1) - РЅРµ РїСѓСЃС‚Рѕ
+TSTFLD_EMPTY      (0) - РїСѓСЃС‚Рѕ
+TSTFLD_NOTACCESS (-1) - РЅРµС‚ РґРѕСЃС‚СѓРїР°
+TSTFLD_ERROR     (-2) - РѕС€РёР±РєР° (РєСЂРёРІС‹Рµ РїР°СЂР°РјРµС‚СЂС‹ РёР»Рё РЅРµ С…РІР°С‚РёР»Рѕ РїР°РјСЏС‚Рё РґР»СЏ РІС‹РґРµР»РµРЅРёСЏ РїСЂРѕРјРµР¶СѓС‚РѕС‡РЅС‹С… Р±СѓС„РµСЂРѕРІ)
 */
 static bool testfolderFunc(FarMacroCall* Data)
 {
@@ -5069,7 +5069,7 @@ static bool testfolderFunc(FarMacroCall* Data)
 	return Ret != 0;
 }
 
-// обработчик диалогового окна назначения клавиши
+// РѕР±СЂР°Р±РѕС‚С‡РёРє РґРёР°Р»РѕРіРѕРІРѕРіРѕ РѕРєРЅР° РЅР°Р·РЅР°С‡РµРЅРёСЏ РєР»Р°РІРёС€Рё
 intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	string strKeyText;
@@ -5094,7 +5094,7 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 	{
 		KMParam=reinterpret_cast<DlgParam*>(Param2);
 		LastKey=0;
-		// <Клавиши, которые нельзя ввести в диалоге назначения>
+		// <РљР»Р°РІРёС€Рё, РєРѕС‚РѕСЂС‹Рµ РЅРµР»СЊР·СЏ РІРІРµСЃС‚Рё РІ РґРёР°Р»РѕРіРµ РЅР°Р·РЅР°С‡РµРЅРёСЏ>
 		static const DWORD PreDefKeyMain[]=
 		{
 			//KEY_CTRLDOWN,KEY_RCTRLDOWN,KEY_ENTER,KEY_NUMENTER,KEY_ESC,KEY_F1,KEY_CTRLF5,KEY_RCTRLF5,
@@ -5133,7 +5133,7 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 		});
 
 		Dlg->SendMessage(DM_SETTEXTPTR,2,nullptr);
-		// </Клавиши, которые нельзя ввести в диалоге назначения>
+		// </РљР»Р°РІРёС€Рё, РєРѕС‚РѕСЂС‹Рµ РЅРµР»СЊР·СЏ РІРІРµСЃС‚Рё РІ РґРёР°Р»РѕРіРµ РЅР°Р·РЅР°С‡РµРЅРёСЏ>
 	}
 	else if (Param1 == 2 && Msg == DN_EDITCHANGE)
 	{
@@ -5151,8 +5151,8 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 		//key|=KEY_SHIFT;
 
 		//_SVS(SysLog(L"Macro: Key=%s",_FARKEY_ToName(key)));
-		// <Обработка особых клавиш: F1 & Enter>
-		// Esc & (Enter и предыдущий Enter) - не обрабатываем
+		// <РћР±СЂР°Р±РѕС‚РєР° РѕСЃРѕР±С‹С… РєР»Р°РІРёС€: F1 & Enter>
+		// Esc & (Enter Рё РїСЂРµРґС‹РґСѓС‰РёР№ Enter) - РЅРµ РѕР±СЂР°Р±Р°С‚С‹РІР°РµРј
 		if (key == KEY_ESC ||
 		        ((key == KEY_ENTER||key == KEY_NUMENTER) && (LastKey == KEY_ENTER||LastKey == KEY_NUMENTER)) ||
 		        key == KEY_CTRLDOWN || key == KEY_RCTRLDOWN ||
@@ -5162,22 +5162,22 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 		}
 
 		/*
-		// F1 - особый случай - нужно жать 2 раза
-		// первый раз будет выведен хелп,
-		// а второй раз - второй раз уже назначение
+		// F1 - РѕСЃРѕР±С‹Р№ СЃР»СѓС‡Р°Р№ - РЅСѓР¶РЅРѕ Р¶Р°С‚СЊ 2 СЂР°Р·Р°
+		// РїРµСЂРІС‹Р№ СЂР°Р· Р±СѓРґРµС‚ РІС‹РІРµРґРµРЅ С…РµР»Рї,
+		// Р° РІС‚РѕСЂРѕР№ СЂР°Р· - РІС‚РѕСЂРѕР№ СЂР°Р· СѓР¶Рµ РЅР°Р·РЅР°С‡РµРЅРёРµ
 		if(key == KEY_F1 && LastKey!=KEY_F1)
 		{
 		  LastKey=KEY_F1;
 		  return FALSE;
 		}
 		*/
-		// Было что-то уже нажато и Enter`ом подтверждаем
+		// Р‘С‹Р»Рѕ С‡С‚Рѕ-С‚Рѕ СѓР¶Рµ РЅР°Р¶Р°С‚Рѕ Рё Enter`РѕРј РїРѕРґС‚РІРµСЂР¶РґР°РµРј
 		_SVS(SysLog(L"[%d] Assign ==> Param2='%s',LastKey='%s'",__LINE__,_FARKEY_ToName((DWORD)key),(LastKey?_FARKEY_ToName(LastKey):L"")));
 
 		if ((key == KEY_ENTER||key == KEY_NUMENTER) && LastKey && !(LastKey == KEY_ENTER||LastKey == KEY_NUMENTER))
 			return FALSE;
 
-		// </Обработка особых клавиш: F1 & Enter>
+		// </РћР±СЂР°Р±РѕС‚РєР° РѕСЃРѕР±С‹С… РєР»Р°РІРёС€: F1 & Enter>
 M1:
 		_SVS(SysLog(L"[%d] Assign ==> Param2='%s',LastKey='%s'",__LINE__,_FARKEY_ToName((DWORD)key),LastKey?_FARKEY_ToName(LastKey):L""));
 
@@ -5193,11 +5193,11 @@ M1:
 		KMParam->Key=(DWORD)key;
 		KeyToText(key, strKeyText);
 
-		// если УЖЕ есть такой макрос...
+		// РµСЃР»Рё РЈР–Р• РµСЃС‚СЊ С‚Р°РєРѕР№ РјР°РєСЂРѕСЃ...
 		GetMacroData Data;
 		if (LM_GetMacro(&Data,KMParam->Area,strKeyText,true))
 		{
-			// общие макросы учитываем только при удалении.
+			// РѕР±С‰РёРµ РјР°РєСЂРѕСЃС‹ СѓС‡РёС‚С‹РІР°РµРј С‚РѕР»СЊРєРѕ РїСЂРё СѓРґР°Р»РµРЅРёРё.
 			if (m_RecCode.empty() || Data.Area!=MACROAREA_COMMON)
 			{
 				string strBufKey=Data.Code;
@@ -5208,12 +5208,12 @@ M1:
 				if (Data.Area==MACROAREA_COMMON)
 				{
 					MessageTemplate = SetChange? MMacroCommonDeleteKey : MMacroCommonReDefinedKey;
-					//"Общая макроклавиша '%1'   будет удалена : уже определена."
+					//"РћР±С‰Р°СЏ РјР°РєСЂРѕРєР»Р°РІРёС€Р° '%1'   Р±СѓРґРµС‚ СѓРґР°Р»РµРЅР° : СѓР¶Рµ РѕРїСЂРµРґРµР»РµРЅР°."
 				}
 				else
 				{
 					MessageTemplate = SetChange? MMacroDeleteKey : MMacroReDefinedKey;
-					//"Макроклавиша '%1'   будет удалена : уже определена."
+					//"РњР°РєСЂРѕРєР»Р°РІРёС€Р° '%1'   Р±СѓРґРµС‚ СѓРґР°Р»РµРЅР° : СѓР¶Рµ РѕРїСЂРµРґРµР»РµРЅР°."
 				}
 				const auto strBuf = string_format(MessageTemplate, strKeyText);
 
@@ -5232,7 +5232,7 @@ M1:
 
 				if (!Result)
 				{
-					// в любом случае - вываливаемся
+					// РІ Р»СЋР±РѕРј СЃР»СѓС‡Р°Рµ - РІС‹РІР°Р»РёРІР°РµРјСЃСЏ
 					Dlg->SendMessage(DM_CLOSE, 1, nullptr);
 					return TRUE;
 				}
@@ -5250,14 +5250,14 @@ M1:
 					{
 						KMParam->Flags = Data.Flags;
 						KMParam->Changed = true;
-						// в любом случае - вываливаемся
+						// РІ Р»СЋР±РѕРј СЃР»СѓС‡Р°Рµ - РІС‹РІР°Р»РёРІР°РµРјСЃСЏ
 						Dlg->SendMessage(DM_CLOSE, 1, nullptr);
 						return TRUE;
 					}
 				}
 
-				// здесь - здесь мы нажимали "Нет", ну а на нет и суда нет
-				//  и значит очистим поле ввода.
+				// Р·РґРµСЃСЊ - Р·РґРµСЃСЊ РјС‹ РЅР°Р¶РёРјР°Р»Рё "РќРµС‚", РЅСѓ Р° РЅР° РЅРµС‚ Рё СЃСѓРґР° РЅРµС‚
+				//  Рё Р·РЅР°С‡РёС‚ РѕС‡РёСЃС‚РёРј РїРѕР»Рµ РІРІРѕРґР°.
 				strKeyText.clear();
 			}
 		}

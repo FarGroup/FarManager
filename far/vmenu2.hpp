@@ -1,12 +1,14 @@
+п»ї#ifndef VMENU2_HPP_FA09A29A_2D5A_4F42_B16E_753DE520AB92
+#define VMENU2_HPP_FA09A29A_2D5A_4F42_B16E_753DE520AB92
 #pragma once
 
 /*
 vmenu2.hpp
 
-Вертикальное меню
+Р’РµСЂС‚РёРєР°Р»СЊРЅРѕРµ РјРµРЅСЋ
 */
 /*
-Copyright © 2012 Far Group
+Copyright В© 2012 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -69,8 +71,8 @@ public:
 	void UpdateItemFlags(int Pos, UINT64 NewFlags);
 	void SetMaxHeight(int NewMaxHeight){MaxHeight=NewMaxHeight; Resize();}
 	/*
-		функция обработки меню должна возвращать true если она обработала событие и дальше ничего делать не надо
-		(вне зависимости что говорит енц. о кодах возврата различных DN_*).
+		С„СѓРЅРєС†РёСЏ РѕР±СЂР°Р±РѕС‚РєРё РјРµРЅСЋ РґРѕР»Р¶РЅР° РІРѕР·РІСЂР°С‰Р°С‚СЊ true РµСЃР»Рё РѕРЅР° РѕР±СЂР°Р±РѕС‚Р°Р»Р° СЃРѕР±С‹С‚РёРµ Рё РґР°Р»СЊС€Рµ РЅРёС‡РµРіРѕ РґРµР»Р°С‚СЊ РЅРµ РЅР°РґРѕ
+		(РІРЅРµ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё С‡С‚Рѕ РіРѕРІРѕСЂРёС‚ РµРЅС†. Рѕ РєРѕРґР°С… РІРѕР·РІСЂР°С‚Р° СЂР°Р·Р»РёС‡РЅС‹С… DN_*).
 	*/
 	intptr_t Run(const std::function<int(const Manager::Key& RawKey)>& fn=nullptr);
 	intptr_t RunEx(const std::function<int(int Msg, void *param)>& fn);
@@ -112,3 +114,5 @@ private:
 	bool ForceClosing;
 	std::function<int(int Msg, void *param)> mfn;
 };
+
+#endif // VMENU2_HPP_FA09A29A_2D5A_4F42_B16E_753DE520AB92

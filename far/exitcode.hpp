@@ -1,3 +1,5 @@
+ï»¿#ifndef EXITCODE_HPP_FE67089F_1E83_43FB_B26D_E640FDED6A53
+#define EXITCODE_HPP_FE67089F_1E83_43FB_B26D_E640FDED6A53
 #pragma once
 
 /*
@@ -6,8 +8,8 @@ exitcode.hpp
 Commonly used exit codes
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright Â© 1996 Eugene Roshal
+Copyright Â© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -45,3 +47,5 @@ enum
 	XC_OPEN_NEWINSTANCE    = 6,
 	XC_RELOAD              = 7,
 };
+
+#endif // EXITCODE_HPP_FE67089F_1E83_43FB_B26D_E640FDED6A53

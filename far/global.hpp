@@ -1,14 +1,16 @@
+ï»¿#ifndef GLOBAL_HPP_178AC66B_7DAB_4AD7_BBE7_D5D590BB9675
+#define GLOBAL_HPP_178AC66B_7DAB_4AD7_BBE7_D5D590BB9675
 #pragma once
 
 /*
 global.hpp
 
-Îïèñàíèå ãëîáàëüíûõ ïåðåìåííûõ
-Âêëþ÷àòü ïîñëåäíèì.
+ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð³Ð»Ð¾Ð±Ð°Ð»ÑŒÐ½Ñ‹Ñ… Ð¿ÐµÑ€ÐµÐ¼ÐµÐ½Ð½Ñ‹Ñ…
+Ð’ÐºÐ»ÑŽÑ‡Ð°Ñ‚ÑŒ Ð¿Ð¾ÑÐ»ÐµÐ´Ð½Ð¸Ð¼.
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright Â© 1996 Eugene Roshal
+Copyright Â© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -64,7 +66,7 @@ public:
 	string g_strFarPath;
 	string strInitTitle;
 	bool GlobalSearchCase;
-	bool GlobalSearchWholeWords; // çíà÷åíèå "Whole words" äëÿ ïîèñêà
+	bool GlobalSearchWholeWords; // Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ "Whole words" Ð´Ð»Ñ Ð¿Ð¾Ð¸ÑÐºÐ°
 	bool GlobalSearchReverse;
 	int ScreenSaverActive;
 	int CloseFAR, CloseFARMenu, AllowCancelExit;
@@ -85,7 +87,7 @@ public:
 	class SaveScreen *GlobalSaveScrPtr;
 	int CriticalInternalError;
 	int KeepUserScreen;
-	int Macro_DskShowPosType; // äëÿ êàêîé ïàíåëè âûçûâàëè ìåíþ âûáîðà äèñêîâ (0 - íè÷åðòà íå âûçûâàëè, 1 - ëåâàÿ (AltF1), 2 - ïðàâàÿ (AltF2))
+	int Macro_DskShowPosType; // Ð´Ð»Ñ ÐºÐ°ÐºÐ¾Ð¹ Ð¿Ð°Ð½ÐµÐ»Ð¸ Ð²Ñ‹Ð·Ñ‹Ð²Ð°Ð»Ð¸ Ð¼ÐµÐ½ÑŽ Ð²Ñ‹Ð±Ð¾Ñ€Ð° Ð´Ð¸ÑÐºÐ¾Ð² (0 - Ð½Ð¸Ñ‡ÐµÑ€Ñ‚Ð° Ð½Ðµ Ð²Ñ‹Ð·Ñ‹Ð²Ð°Ð»Ð¸, 1 - Ð»ÐµÐ²Ð°Ñ (AltF1), 2 - Ð¿Ñ€Ð°Ð²Ð°Ñ (AltF2))
 	DWORD ErrorMode;
 #ifndef NO_WRAPPER
 	string strRegUser;
@@ -119,3 +121,5 @@ public:
 #define MSG(ID) Global->Lang->GetMsg(ID)
 
 extern global* Global;
+
+#endif // GLOBAL_HPP_178AC66B_7DAB_4AD7_BBE7_D5D590BB9675

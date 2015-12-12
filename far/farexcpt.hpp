@@ -1,13 +1,15 @@
+п»ї#ifndef FAREXCPT_HPP_F7B85E85_71DD_483D_BD7F_B26B8566AC8E
+#define FAREXCPT_HPP_F7B85E85_71DD_483D_BD7F_B26B8566AC8E
 #pragma once
 
 /*
 exception.cpp
 
-Все про исключения
+Р’СЃРµ РїСЂРѕ РёСЃРєР»СЋС‡РµРЅРёСЏ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -76,3 +78,5 @@ void EnableVectoredExceptionHandling();
 void attach_debugger();
 
 void RegisterTestExceptionsHook();
+
+#endif // FAREXCPT_HPP_F7B85E85_71DD_483D_BD7F_B26B8566AC8E

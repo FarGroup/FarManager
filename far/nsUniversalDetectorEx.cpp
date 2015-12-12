@@ -1,11 +1,11 @@
-/*
+п»ї/*
 nsUniversalDetectorEx.cpp
 
 UCD wrapper
 
 */
 /*
-Copyright © 2011 Far Group
+Copyright В© 2011 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -100,7 +100,7 @@ static const std::unordered_map<std::string, uintptr_t>& CpMap()
 			{ "IBM866", 866 },
 			{ "KOI8-R", 20866 },
 			{ "x-mac-hebrew", 10005 },
-			{ "x-mac-cyrillic", /*10007*/ 1251 }, //Оно слишком похоже на 1251 и детектор, бывает, путает
+			{ "x-mac-cyrillic", /*10007*/ 1251 }, //РћРЅРѕ СЃР»РёС€РєРѕРј РїРѕС…РѕР¶Рµ РЅР° 1251 Рё РґРµС‚РµРєС‚РѕСЂ, Р±С‹РІР°РµС‚, РїСѓС‚Р°РµС‚
 			{ "ISO-8859-2", 28592 },
 			{ "ISO-8859-5", 28595 },
 			{ "ISO-8859-7", 28597 },

@@ -1,7 +1,9 @@
+﻿#ifndef SCOPE_EXIT_HPP_EDB9D84F_7B9F_408C_8FC8_94626C4B3CE3
+#define SCOPE_EXIT_HPP_EDB9D84F_7B9F_408C_8FC8_94626C4B3CE3
 #pragma once
 
 /*
-Copyright � 2014 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -51,3 +53,5 @@ namespace scope_exit
 
 #define SCOPE_EXIT \
 const auto ADD_SUFFIX(scope_exit_guard_, __LINE__) = scope_exit::make_guard() << [&]() /* lambda body here */
+
+#endif // SCOPE_EXIT_HPP_EDB9D84F_7B9F_408C_8FC8_94626C4B3CE3

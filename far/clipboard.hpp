@@ -1,13 +1,15 @@
+п»ї#ifndef CLIPBOARD_HPP_989E040C_4D10_4D7C_88C0_5EF499171878
+#define CLIPBOARD_HPP_989E040C_4D10_4D7C_88C0_5EF499171878
 #pragma once
 
 /*
 clipboard.hpp
 
-Работа с буфером обмена.
+Р Р°Р±РѕС‚Р° СЃ Р±СѓС„РµСЂРѕРј РѕР±РјРµРЅР°.
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -84,3 +86,5 @@ private:
 	static bool InternalClipboardOpened;
 	static bool SystemClipboardOpened;
 };
+
+#endif // CLIPBOARD_HPP_989E040C_4D10_4D7C_88C0_5EF499171878

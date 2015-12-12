@@ -1,13 +1,15 @@
+п»ї#ifndef MENUBAR_HPP_E5C002A7_9CB0_41C3_9BB6_5C7A02A23355
+#define MENUBAR_HPP_E5C002A7_9CB0_41C3_9BB6_5C7A02A23355
 #pragma once
 
 /*
 menubar.hpp
 
-Показ горизонтального меню при включенном "Always show menu bar"
+РџРѕРєР°Р· РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅРѕРіРѕ РјРµРЅСЋ РїСЂРё РІРєР»СЋС‡РµРЅРЅРѕРј "Always show menu bar"
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -44,3 +46,5 @@ public:
 private:
 	virtual void DisplayObject() override;
 };
+
+#endif // MENUBAR_HPP_E5C002A7_9CB0_41C3_9BB6_5C7A02A23355

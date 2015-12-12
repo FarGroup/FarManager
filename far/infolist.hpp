@@ -1,13 +1,15 @@
+п»ї#ifndef INFOLIST_HPP_938248E2_BB38_43DF_BDD3_D582C383A102
+#define INFOLIST_HPP_938248E2_BB38_43DF_BDD3_D582C383A102
 #pragma once
 
 /*
 infolist.hpp
 
-Информационная панель
+РРЅС„РѕСЂРјР°С†РёРѕРЅРЅР°СЏ РїР°РЅРµР»СЊ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -78,3 +80,5 @@ private:
 	std::vector<InfoListSectionState> SectionState;
 	listener PowerListener;
 };
+
+#endif // INFOLIST_HPP_938248E2_BB38_43DF_BDD3_D582C383A102

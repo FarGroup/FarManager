@@ -1,10 +1,10 @@
-/*
+п»ї/*
 colormix.cpp
 
-Работа с цветами
+Р Р°Р±РѕС‚Р° СЃ С†РІРµС‚Р°РјРё
 */
 /*
-Copyright © 2011 Far Group
+Copyright В© 2011 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

@@ -1,10 +1,10 @@
-/*
+п»ї/*
 sqlitedb.cpp
 
-обёртка sqlite api для c++.
+РѕР±С‘СЂС‚РєР° sqlite api РґР»СЏ c++.
 */
 /*
-Copyright © 2011 Far Group
+Copyright В© 2011 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

@@ -1,12 +1,14 @@
+п»ї#ifndef PANELCTYPE_HPP_C90AC741_F7E6_44D6_92BA_B4C0047E9E19
+#define PANELCTYPE_HPP_C90AC741_F7E6_44D6_92BA_B4C0047E9E19
 #pragma once
 
 /*
 panelctype.hpp
 
-Файловая панель - типы панелей
+Р¤Р°Р№Р»РѕРІР°СЏ РїР°РЅРµР»СЊ - С‚РёРїС‹ РїР°РЅРµР»РµР№
 */
 /*
-Copyright © 2010 Far Group
+Copyright В© 2010 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -63,3 +65,5 @@ enum
 	COUNT_WIDTH,
 	PERCENT_WIDTH
 };
+
+#endif // PANELCTYPE_HPP_C90AC741_F7E6_44D6_92BA_B4C0047E9E19

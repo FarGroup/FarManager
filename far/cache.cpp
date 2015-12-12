@@ -1,10 +1,10 @@
-/*
+п»ї/*
 cache.cpp
 
-Кеширование записи в файл/чтения из файла
+РљРµС€РёСЂРѕРІР°РЅРёРµ Р·Р°РїРёСЃРё РІ С„Р°Р№Р»/С‡С‚РµРЅРёСЏ РёР· С„Р°Р№Р»Р°
 */
 /*
-Copyright © 2009 Far Group
+Copyright В© 2009 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

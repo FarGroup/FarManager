@@ -1,3 +1,5 @@
+﻿#ifndef NSUNIVERSALDETECTOREX_HPP_7F1F1121_B057_4058_8645_ACE66F719838
+#define NSUNIVERSALDETECTOREX_HPP_7F1F1121_B057_4058_8645_ACE66F719838
 #pragma once
 
 /*
@@ -6,7 +8,7 @@ nsUniversalDetectorEx.hpp
 UCD
 */
 /*
-Copyright � 2009 Far Group
+Copyright © 2009 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -33,3 +35,5 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 uintptr_t GetCpUsingUniversalDetector(const void* data, size_t size);
+
+#endif // NSUNIVERSALDETECTOREX_HPP_7F1F1121_B057_4058_8645_ACE66F719838

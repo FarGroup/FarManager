@@ -1,3 +1,5 @@
+ï»¿#ifndef CPP_HPP_95E41B70_5DB2_4E5B_A468_95343C6438AD
+#define CPP_HPP_95E41B70_5DB2_4E5B_A468_95343C6438AD
 #pragma once
 
 /*
@@ -8,7 +10,7 @@ Some workarounds & emulations for C++11/14 features, missed in currently used co
 Here be dragons
 */
 /*
-Copyright © 2013 Far Group
+Copyright Â© 2013 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -39,8 +41,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #if VS_OLDER_THAN(VS_2012)
 // In VC++ 2010, there are three overloads of std::to_wstring taking long long, unsigned long long, and long double.
 // Clearly, int is none of these, and no one conversion is better than another, so the conversion cannot be done implicitly/unambiguously.
-// In terms of real C++11 support, this is a failing on the part of VC++ 2010's standard library implementation –
-// the C++11 standard itself actually calls for nine overloads of std::to_wstring (§21.5)
+// In terms of real C++11 support, this is a failing on the part of VC++ 2010's standard library implementation â€“
+// the C++11 standard itself actually calls for nine overloads of std::to_wstring (Â§21.5)
 namespace std
 {
 	inline wstring to_wstring(int val) {return to_wstring(static_cast<long long>(val));}
@@ -163,3 +165,5 @@ using std::wsctoull;
 // operator :: doesn't work with decltype(T) in VC prior to 2013, this trick fixes it:
 #define decltype(T) std::enable_if<true, decltype(T)>::type
 #endif
+
+#endif // CPP_HPP_95E41B70_5DB2_4E5B_A468_95343C6438AD

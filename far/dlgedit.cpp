@@ -1,12 +1,12 @@
-/*
+п»ї/*
 dlgedit.cpp
 
-Одиночная строка редактирования для диалога (как наследник класса Edit)
-Мультиредактор
+РћРґРёРЅРѕС‡РЅР°СЏ СЃС‚СЂРѕРєР° СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ РґР»СЏ РґРёР°Р»РѕРіР° (РєР°Рє РЅР°СЃР»РµРґРЅРёРє РєР»Р°СЃСЃР° Edit)
+РњСѓР»СЊС‚РёСЂРµРґР°РєС‚РѕСЂ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

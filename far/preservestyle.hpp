@@ -1,3 +1,5 @@
+﻿#ifndef PRESERVESTYLE_HPP_07024896_908E_4C05_9275_59B20F7E8AA2
+#define PRESERVESTYLE_HPP_07024896_908E_4C05_9275_59B20F7E8AA2
 #pragma once
 
 /*
@@ -5,7 +7,7 @@ preservestyle.hpp
 
 */
 /*
-Copyright � 2013 Far Group
+Copyright © 2013 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -32,3 +34,5 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const string& Str, string& ReplaceStr, int& CurPos, int Position, int Case, int WholeWords, const wchar_t *WordDiv, int Reverse, int& SearchLength);
+
+#endif // PRESERVESTYLE_HPP_07024896_908E_4C05_9275_59B20F7E8AA2

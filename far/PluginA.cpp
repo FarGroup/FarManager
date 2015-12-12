@@ -1,6 +1,6 @@
-/*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+п»ї/*
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -289,9 +289,9 @@ static wchar_t *AnsiToUnicode(const char *lpszAnsiString)
 static char *UnicodeToAnsiBin(const wchar_t *lpwszUnicodeString, size_t nLength, uintptr_t CodePage = CP_OEMCP)
 {
 	/* $ 06.01.2008 TS
-	! Увеличил размер выделяемой под строку памяти на 1 байт для нормальной
-	работы старых плагинов, которые не знали, что надо смотреть на длину,
-	а не на завершающий ноль (например в EditorGetString.StringText).
+	! РЈРІРµР»РёС‡РёР» СЂР°Р·РјРµСЂ РІС‹РґРµР»СЏРµРјРѕР№ РїРѕРґ СЃС‚СЂРѕРєСѓ РїР°РјСЏС‚Рё РЅР° 1 Р±Р°Р№С‚ РґР»СЏ РЅРѕСЂРјР°Р»СЊРЅРѕР№
+	СЂР°Р±РѕС‚С‹ СЃС‚Р°СЂС‹С… РїР»Р°РіРёРЅРѕРІ, РєРѕС‚РѕСЂС‹Рµ РЅРµ Р·РЅР°Р»Рё, С‡С‚Рѕ РЅР°РґРѕ СЃРјРѕС‚СЂРµС‚СЊ РЅР° РґР»РёРЅСѓ,
+	Р° РЅРµ РЅР° Р·Р°РІРµСЂС€Р°СЋС‰РёР№ РЅРѕР»СЊ (РЅР°РїСЂРёРјРµСЂ РІ EditorGetString.StringText).
 	*/
 	if (!lpwszUnicodeString)
 		return nullptr;
@@ -829,7 +829,7 @@ static FAR_CHAR_INFO* AnsiVBufToUnicode(const oldfar::FarDialogItem &diA)
 	if (diA.VBuf)
 	{
 		size_t Size = GetAnsiVBufSize(diA);
-		// + 1 потому что там храним поинтер на анси vbuf.
+		// + 1 РїРѕС‚РѕРјСѓ С‡С‚Рѕ С‚Р°Рј С…СЂР°РЅРёРј РїРѕРёРЅС‚РµСЂ РЅР° Р°РЅСЃРё vbuf.
 		VBuf = new FAR_CHAR_INFO[Size + 1];
 
 		AnsiVBufToUnicode(diA.VBuf, VBuf, Size, (diA.Flags&oldfar::DIF_NOTCVTUSERCONTROL) == oldfar::DIF_NOTCVTUSERCONTROL);
@@ -1032,7 +1032,7 @@ static void AnsiDialogItemToUnicode(const oldfar::FarDialogItem &diA, FarDialogI
 	else
 		di.Data = AnsiToUnicode(diA.Data);
 
-	//BUGBUG тут надо придумать как сделать лучше: maxlen=513 например и также подумать что делать для DIF_VAREDIT
+	//BUGBUG С‚СѓС‚ РЅР°РґРѕ РїСЂРёРґСѓРјР°С‚СЊ РєР°Рє СЃРґРµР»Р°С‚СЊ Р»СѓС‡С€Рµ: maxlen=513 РЅР°РїСЂРёРјРµСЂ Рё С‚Р°РєР¶Рµ РїРѕРґСѓРјР°С‚СЊ С‡С‚Рѕ РґРµР»Р°С‚СЊ РґР»СЏ DIF_VAREDIT
 	//di->MaxLen = 0;
 }
 
@@ -1879,9 +1879,9 @@ static BOOL WINAPI AddEndSlashA(char *Path) noexcept
 	{
 		BOOL Result = FALSE;
 		/* $ 06.12.2000 IS
-		! Теперь функция работает с обоими видами слешей, также происходит
-		изменение уже существующего конечного слеша на такой, который
-		встречается чаще.
+		! РўРµРїРµСЂСЊ С„СѓРЅРєС†РёСЏ СЂР°Р±РѕС‚Р°РµС‚ СЃ РѕР±РѕРёРјРё РІРёРґР°РјРё СЃР»РµС€РµР№, С‚Р°РєР¶Рµ РїСЂРѕРёСЃС…РѕРґРёС‚
+		РёР·РјРµРЅРµРЅРёРµ СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµРіРѕ РєРѕРЅРµС‡РЅРѕРіРѕ СЃР»РµС€Р° РЅР° С‚Р°РєРѕР№, РєРѕС‚РѕСЂС‹Р№
+		РІСЃС‚СЂРµС‡Р°РµС‚СЃСЏ С‡Р°С‰Рµ.
 		*/
 		char *end;
 		int Slash = 0, BackSlash = 0;
@@ -1993,7 +1993,7 @@ static int WINAPI ProcessNameA(const char *Param1, char *Param2, DWORD Flags) no
 	try
 	{
 		const auto strP1 = wide(Param1), strP2 = wide(Param2);
-		const int size = (int)(strP1.size() + strP2.size() + oldfar::NM) + 1; //а хрен ещё как угадать скока там этот Param2 для PN_GENERATENAME
+		const int size = (int)(strP1.size() + strP2.size() + oldfar::NM) + 1; //Р° С…СЂРµРЅ РµС‰С‘ РєР°Рє СѓРіР°РґР°С‚СЊ СЃРєРѕРєР° С‚Р°Рј СЌС‚РѕС‚ Param2 РґР»СЏ PN_GENERATENAME
 		wchar_t_ptr p(size);
 		*std::copy(ALL_CONST_RANGE(strP2), p.get()) = L'\0';
 		int newFlags = 0;
@@ -2430,7 +2430,7 @@ static const char * WINAPI FarGetMsgFnA(intptr_t PluginHandle, int MsgId) noexce
 {
 	try
 	{
-		//BUGBUG, надо проверять, что PluginHandle - плагин
+		//BUGBUG, РЅР°РґРѕ РїСЂРѕРІРµСЂСЏС‚СЊ, С‡С‚Рѕ PluginHandle - РїР»Р°РіРёРЅ
 		const auto pPlugin = reinterpret_cast<PluginA*>(PluginHandle);
 		string strPath = pPlugin->GetModuleName();
 		CutToSlash(strPath);
@@ -2824,10 +2824,10 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 					return NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, nullptr);
 
 				const auto didA = static_cast<oldfar::FarDialogItemData*>(Param2);
-				if (!didA->PtrLength) //вот такой хреновый API!!!
+				if (!didA->PtrLength) //РІРѕС‚ С‚Р°РєРѕР№ С…СЂРµРЅРѕРІС‹Р№ API!!!
 					didA->PtrLength = static_cast<int>(NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, nullptr));
 				std::vector<wchar_t> text(didA->PtrLength + 1);
-				//BUGBUG: если didA->PtrLength=0, то вернётся с учётом '\0', в Энц написано, что без, хз как правильно.
+				//BUGBUG: РµСЃР»Рё didA->PtrLength=0, С‚Рѕ РІРµСЂРЅС‘С‚СЃСЏ СЃ СѓС‡С‘С‚РѕРј '\0', РІ Р­РЅС† РЅР°РїРёСЃР°РЅРѕ, С‡С‚Рѕ Р±РµР·, С…Р· РєР°Рє РїСЂР°РІРёР»СЊРЅРѕ.
 				FarDialogItemData did = {sizeof(FarDialogItemData), (size_t)didA->PtrLength, text.data()};
 				intptr_t ret = NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, &did);
 				didA->PtrLength = (unsigned)did.PtrLength;
@@ -2885,7 +2885,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 
 				if (!didA->PtrData) return 0;
 
-				//BUGBUG - PtrLength ни на что не влияет.
+				//BUGBUG - PtrLength РЅРё РЅР° С‡С‚Рѕ РЅРµ РІР»РёСЏРµС‚.
 				string text(wide(didA->PtrData));
 				FarDialogItemData di = {sizeof(FarDialogItemData), text.size(), UNSAFE_CSTR(text)};
 				return NativeInfo.SendDlgMessage(hDlg, DM_SETTEXT, Param1, &di);
@@ -2951,7 +2951,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 			}
 			case oldfar::DM_SET3STATE: Msg = DM_SET3STATE; break;
 			case oldfar::DM_LISTSORT:  Msg = DM_LISTSORT; break;
-			case oldfar::DM_LISTGETITEM: //BUGBUG, недоделано в фаре
+			case oldfar::DM_LISTGETITEM: //BUGBUG, РЅРµРґРѕРґРµР»Р°РЅРѕ РІ С„Р°СЂРµ
 			{
 				if (!Param2) return FALSE;
 
@@ -3484,8 +3484,8 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 				static int Reenter=0;
 				if (Reenter)
 				{
-					//Попытка борьбы с рекурсией (вызов GET*PANELINFO из GetOpenPanelInfo).
-					//Так как у нас всё статик то должно сработать нормально в 99% случаев
+					//РџРѕРїС‹С‚РєР° Р±РѕСЂСЊР±С‹ СЃ СЂРµРєСѓСЂСЃРёРµР№ (РІС‹Р·РѕРІ GET*PANELINFO РёР· GetOpenPanelInfo).
+					//РўР°Рє РєР°Рє Сѓ РЅР°СЃ РІСЃС‘ СЃС‚Р°С‚РёРє С‚Рѕ РґРѕР»Р¶РЅРѕ СЃСЂР°Р±РѕС‚Р°С‚СЊ РЅРѕСЂРјР°Р»СЊРЅРѕ РІ 99% СЃР»СѓС‡Р°РµРІ
 					*static_cast<oldfar::PanelInfo*>(Param) = Passive? AnotherPanelInfoA.Info : PanelInfoA.Info;
 					return TRUE;
 				}
@@ -3787,7 +3787,7 @@ static int WINAPI FarGetDirListA(const char *Dir, oldfar::PluginPanelItem **pPan
 
 		if (ret && ItemsNumber)
 		{
-			// + 1 чтоб хранить ItemsNumber ибо в FarFreeDirListA как то надо знать
+			// + 1 С‡С‚РѕР± С…СЂР°РЅРёС‚СЊ ItemsNumber РёР±Рѕ РІ FarFreeDirListA РєР°Рє С‚Рѕ РЅР°РґРѕ Р·РЅР°С‚СЊ
 			*pPanelItem = new oldfar::PluginPanelItem[ItemsNumber + 1]();
 			*pItemsNumber = static_cast<int>(ItemsNumber);
 			(*pPanelItem)[0].Reserved[0] = *pItemsNumber;
@@ -3823,7 +3823,7 @@ static int WINAPI FarGetPluginDirListA(intptr_t PluginNumber, HANDLE hPlugin, co
 
 		if (ret && ItemsNumber)
 		{
-			// + 1 чтоб хранить ItemsNumber ибо в FarFreeDirListA как то надо знать
+			// + 1 С‡С‚РѕР± С…СЂР°РЅРёС‚СЊ ItemsNumber РёР±Рѕ РІ FarFreeDirListA РєР°Рє С‚Рѕ РЅР°РґРѕ Р·РЅР°С‚СЊ
 			*pPanelItem = new oldfar::PluginPanelItem[ItemsNumber + 1]();
 
 			*pItemsNumber = static_cast<int>(ItemsNumber);
@@ -3851,7 +3851,7 @@ static void WINAPI FarFreeDirListA(const oldfar::PluginPanelItem *PanelItem) noe
 {
 	try
 	{
-		//Тут хранится ItemsNumber полученный в FarGetDirListA или FarGetPluginDirListA
+		//РўСѓС‚ С…СЂР°РЅРёС‚СЃСЏ ItemsNumber РїРѕР»СѓС‡РµРЅРЅС‹Р№ РІ FarGetDirListA РёР»Рё FarGetPluginDirListA
 		--PanelItem;
 		size_t count = PanelItem->Reserved[0];
 		FreePanelItemA(PanelItem, count, false);
@@ -4465,7 +4465,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 						case oldfar::ESPT_TABSIZE:
 							newsp.Type = ESPT_TABSIZE;
 							break;
-						case oldfar::ESPT_CHARTABLE: //BUGBUG, недоделано в фаре
+						case oldfar::ESPT_CHARTABLE: //BUGBUG, РЅРµРґРѕРґРµР»Р°РЅРѕ РІ С„Р°СЂРµ
 						{
 							if (!oldsp->iParam) return FALSE;
 
@@ -4873,11 +4873,11 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize) noexc
 }
 
 char* WINAPI XlatA(
-	char *Line,                    // исходная строка
-	int StartPos,                  // начало переконвертирования
-	int EndPos,                    // конец переконвертирования
-	const oldfar::CharTableSet *TableSet, // перекодировочная таблица (может быть nullptr)
-	DWORD Flags)                   // флаги (см. enum XLATMODE)
+	char *Line,                    // РёСЃС…РѕРґРЅР°СЏ СЃС‚СЂРѕРєР°
+	int StartPos,                  // РЅР°С‡Р°Р»Рѕ РїРµСЂРµРєРѕРЅРІРµСЂС‚РёСЂРѕРІР°РЅРёСЏ
+	int EndPos,                    // РєРѕРЅРµС† РїРµСЂРµРєРѕРЅРІРµСЂС‚РёСЂРѕРІР°РЅРёСЏ
+	const oldfar::CharTableSet *TableSet, // РїРµСЂРµРєРѕРґРёСЂРѕРІРѕС‡РЅР°СЏ С‚Р°Р±Р»РёС†Р° (РјРѕР¶РµС‚ Р±С‹С‚СЊ nullptr)
+	DWORD Flags)                   // С„Р»Р°РіРё (СЃРј. enum XLATMODE)
 {
 	try
 	{
@@ -4998,7 +4998,7 @@ static int SendKeyToPluginHook(const Manager::Key& key)
 {
 	DWORD KeyM = (key.FarKey()&(~KEY_CTRLMASK));
 
-	if (!((KeyM >= KEY_MACRO_BASE && KeyM <= KEY_MACRO_ENDBASE) || (KeyM >= KEY_OP_BASE && KeyM <= KEY_OP_ENDBASE))) // пропустим макро-коды
+	if (!((KeyM >= KEY_MACRO_BASE && KeyM <= KEY_MACRO_ENDBASE) || (KeyM >= KEY_OP_BASE && KeyM <= KEY_OP_ENDBASE))) // РїСЂРѕРїСѓСЃС‚РёРј РјР°РєСЂРѕ-РєРѕРґС‹
 	{
 		if (Global->WindowManager->IsPanelsActive())
 		{
@@ -5216,7 +5216,7 @@ bool PluginA::SetStartupInfo(PluginStartupInfo* Info)
 		oldfar::PluginStartupInfo _info;
 		oldfar::FarStandardFunctions _fsf;
 		CreatePluginStartupInfoA(this, &_info, &_fsf);
-		// скорректируем адреса и плагино-зависимые поля
+		// СЃРєРѕСЂСЂРµРєС‚РёСЂСѓРµРј Р°РґСЂРµСЃР° Рё РїР»Р°РіРёРЅРѕ-Р·Р°РІРёСЃРёРјС‹Рµ РїРѕР»СЏ
 
 		_info.RootKey = static_cast<OEMPluginModel*>(m_model)->getUserName().data();
 
@@ -5624,7 +5624,7 @@ int PluginA::ProcessPanelInput(ProcessPanelInputInfo* Info)
 		bool Prepocess = (Info->Rec.EventType & 0x4000) != 0;
 		Info->Rec.EventType &= ~0x4000;
 
-		//BUGBUG: здесь можно проще.
+		//BUGBUG: Р·РґРµСЃСЊ РјРѕР¶РЅРѕ РїСЂРѕС‰Рµ.
 		TranslateKeyToVK(InputRecordToKey(&Info->Rec),VirtKey,dwControlState);
 		if (dwControlState&PKF_RALT)
 			dwControlState = (dwControlState & (~PKF_RALT)) | PKF_ALT;

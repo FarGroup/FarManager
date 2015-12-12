@@ -1,12 +1,14 @@
+п»ї#ifndef FARDLGBUILDER_HPP_4AD5C50D_B9AC_49DE_B34B_BAD22219BCBD
+#define FARDLGBUILDER_HPP_4AD5C50D_B9AC_49DE_B34B_BAD22219BCBD
 #pragma once
 
 /*
 FarDlgBuilder.hpp
 
-Динамическое конструирование диалогов - версия для внутреннего употребления в FAR
+Р”РёРЅР°РјРёС‡РµСЃРєРѕРµ РєРѕРЅСЃС‚СЂСѓРёСЂРѕРІР°РЅРёРµ РґРёР°Р»РѕРіРѕРІ - РІРµСЂСЃРёСЏ РґР»СЏ РІРЅСѓС‚СЂРµРЅРЅРµРіРѕ СѓРїРѕС‚СЂРµР±Р»РµРЅРёСЏ РІ FAR
 */
 /*
-Copyright © 2010 Far Group
+Copyright В© 2010 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -38,15 +40,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct DialogItemEx;
 
-// Элемент выпадающего списка в диалоге.
+// Р­Р»РµРјРµРЅС‚ РІС‹РїР°РґР°СЋС‰РµРіРѕ СЃРїРёСЃРєР° РІ РґРёР°Р»РѕРіРµ.
 struct DialogBuilderListItem2
 {
-	// Строчка, которая будет показана в диалоге.
+	// РЎС‚СЂРѕС‡РєР°, РєРѕС‚РѕСЂР°СЏ Р±СѓРґРµС‚ РїРѕРєР°Р·Р°РЅР° РІ РґРёР°Р»РѕРіРµ.
 	string Text;
 
 	LISTITEMFLAGS Flags;
 
-	// Значение, которое будет записано в поле Value при выборе этой строчки.
+	// Р—РЅР°С‡РµРЅРёРµ, РєРѕС‚РѕСЂРѕРµ Р±СѓРґРµС‚ Р·Р°РїРёСЃР°РЅРѕ РІ РїРѕР»Рµ Value РїСЂРё РІС‹Р±РѕСЂРµ СЌС‚РѕР№ СЃС‚СЂРѕС‡РєРё.
 	int ItemValue;
 };
 
@@ -86,14 +88,14 @@ struct ListControlBinding: public DialogItemBinding<T>
 };
 
 /*
-Класс для динамического построения диалогов, используемый внутри кода FAR.
-Использует FAR'овский класс string для работы с текстовыми полями.
+РљР»Р°СЃСЃ РґР»СЏ РґРёРЅР°РјРёС‡РµСЃРєРѕРіРѕ РїРѕСЃС‚СЂРѕРµРЅРёСЏ РґРёР°Р»РѕРіРѕРІ, РёСЃРїРѕР»СЊР·СѓРµРјС‹Р№ РІРЅСѓС‚СЂРё РєРѕРґР° FAR.
+РСЃРїРѕР»СЊР·СѓРµС‚ FAR'РѕРІСЃРєРёР№ РєР»Р°СЃСЃ string РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ С‚РµРєСЃС‚РѕРІС‹РјРё РїРѕР»СЏРјРё.
 
-Для того, чтобы сместить элемент относительно дефолтного
-положения по горизонтали, можно использовать метод DialogItemEx::Indent().
+Р”Р»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ СЃРјРµСЃС‚РёС‚СЊ СЌР»РµРјРµРЅС‚ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РґРµС„РѕР»С‚РЅРѕРіРѕ
+РїРѕР»РѕР¶РµРЅРёСЏ РїРѕ РіРѕСЂРёР·РѕРЅС‚Р°Р»Рё, РјРѕР¶РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РјРµС‚РѕРґ DialogItemEx::Indent().
 
-Поддерживает automation (изменение флагов одного элемента в зависимости от состояния
-другого). Реализуется при помощи метода LinkFlags().
+РџРѕРґРґРµСЂР¶РёРІР°РµС‚ automation (РёР·РјРµРЅРµРЅРёРµ С„Р»Р°РіРѕРІ РѕРґРЅРѕРіРѕ СЌР»РµРјРµРЅС‚Р° РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ СЃРѕСЃС‚РѕСЏРЅРёСЏ
+РґСЂСѓРіРѕРіРѕ). Р РµР°Р»РёР·СѓРµС‚СЃСЏ РїСЂРё РїРѕРјРѕС‰Рё РјРµС‚РѕРґР° LinkFlags().
 */
 class DialogBuilder: noncopyable, public DialogBuilderBase<DialogItemEx>
 {
@@ -102,23 +104,23 @@ public:
 	DialogBuilder();
 	~DialogBuilder();
 
-	// Добавляет поле типа DI_FIXEDIT для редактирования указанного числового значения.
+	// Р”РѕР±Р°РІР»СЏРµС‚ РїРѕР»Рµ С‚РёРїР° DI_FIXEDIT РґР»СЏ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ СѓРєР°Р·Р°РЅРЅРѕРіРѕ С‡РёСЃР»РѕРІРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ.
 	virtual DialogItemEx *AddIntEditField(int *Value, int Width) override;
 	virtual DialogItemEx *AddIntEditField(IntOption& Value, int Width);
 	virtual DialogItemEx *AddHexEditField(IntOption& Value, int Width);
 
-	// Добавляет поле типа DI_EDIT для редактирования указанного строкового значения.
+	// Р”РѕР±Р°РІР»СЏРµС‚ РїРѕР»Рµ С‚РёРїР° DI_EDIT РґР»СЏ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ СѓРєР°Р·Р°РЅРЅРѕРіРѕ СЃС‚СЂРѕРєРѕРІРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ.
 	DialogItemEx *AddEditField(string& Value, int Width, const wchar_t *HistoryID = nullptr, FARDIALOGITEMFLAGS Flags = 0);
 	DialogItemEx *AddEditField(StringOption& Value, int Width, const wchar_t *HistoryID = nullptr, FARDIALOGITEMFLAGS Flags = 0);
 
-	// Добавляет поле типа DI_FIXEDIT для редактирования указанного строкового значения.
+	// Р”РѕР±Р°РІР»СЏРµС‚ РїРѕР»Рµ С‚РёРїР° DI_FIXEDIT РґР»СЏ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ СѓРєР°Р·Р°РЅРЅРѕРіРѕ СЃС‚СЂРѕРєРѕРІРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ.
 	DialogItemEx *AddFixEditField(string& Value, int Width, const wchar_t *Mask = nullptr);
 	DialogItemEx *AddFixEditField(StringOption& Value, int Width, const wchar_t *Mask = nullptr);
 
-	// Добавляет неизменяемое поле типа DI_EDIT для посмотра указанного строкового значения.
+	// Р”РѕР±Р°РІР»СЏРµС‚ РЅРµРёР·РјРµРЅСЏРµРјРѕРµ РїРѕР»Рµ С‚РёРїР° DI_EDIT РґР»СЏ РїРѕСЃРјРѕС‚СЂР° СѓРєР°Р·Р°РЅРЅРѕРіРѕ СЃС‚СЂРѕРєРѕРІРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ.
 	DialogItemEx *AddConstEditField(const string& Value, int Width, FARDIALOGITEMFLAGS Flags = 0);
 
-	// Добавляет выпадающий список с указанными значениями.
+	// Р”РѕР±Р°РІР»СЏРµС‚ РІС‹РїР°РґР°СЋС‰РёР№ СЃРїРёСЃРѕРє СЃ СѓРєР°Р·Р°РЅРЅС‹РјРё Р·РЅР°С‡РµРЅРёСЏРјРё.
 	DialogItemEx *AddComboBox(int& Value, string *Text, int Width, const DialogBuilderListItem *Items, size_t ItemCount, FARDIALOGITEMFLAGS Flags = DIF_NONE);
 	DialogItemEx *AddComboBox(IntOption& Value, string *Text, int Width, const DialogBuilderListItem *Items, size_t ItemCount, FARDIALOGITEMFLAGS Flags = DIF_NONE);
 	DialogItemEx *AddComboBox(int& Value, string *Text, int Width, const std::vector<DialogBuilderListItem2> &Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
@@ -140,11 +142,11 @@ public:
 
 	void AddRadioButtons(IntOption& Value, int OptionCount, const int MessageIDs[], bool FocusOnSelected=false);
 
-	// Связывает состояние элементов Parent и Target. Когда Parent->Selected равно
-	// false, устанавливает флаги Flags у элемента Target; когда равно true -
-	// сбрасывает флаги.
-	// Если LinkLabels установлено в true, то текстовые элементы, добавленные к элементу Target
-	// методами AddTextBefore и AddTextAfter, также связываются с элементом Parent.
+	// РЎРІСЏР·С‹РІР°РµС‚ СЃРѕСЃС‚РѕСЏРЅРёРµ СЌР»РµРјРµРЅС‚РѕРІ Parent Рё Target. РљРѕРіРґР° Parent->Selected СЂР°РІРЅРѕ
+	// false, СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ С„Р»Р°РіРё Flags Сѓ СЌР»РµРјРµРЅС‚Р° Target; РєРѕРіРґР° СЂР°РІРЅРѕ true -
+	// СЃР±СЂР°СЃС‹РІР°РµС‚ С„Р»Р°РіРё.
+	// Р•СЃР»Рё LinkLabels СѓСЃС‚Р°РЅРѕРІР»РµРЅРѕ РІ true, С‚Рѕ С‚РµРєСЃС‚РѕРІС‹Рµ СЌР»РµРјРµРЅС‚С‹, РґРѕР±Р°РІР»РµРЅРЅС‹Рµ Рє СЌР»РµРјРµРЅС‚Сѓ Target
+	// РјРµС‚РѕРґР°РјРё AddTextBefore Рё AddTextAfter, С‚Р°РєР¶Рµ СЃРІСЏР·С‹РІР°СЋС‚СЃСЏ СЃ СЌР»РµРјРµРЅС‚РѕРј Parent.
 	void LinkFlags(DialogItemEx *Parent, DialogItemEx *Target, FARDIALOGITEMFLAGS Flags, bool LinkLabels=true);
 
 	void AddOKCancel();
@@ -185,3 +187,5 @@ private:
 	bool m_IdExist;
 	Dialog::dialog_handler m_handler;
 };
+
+#endif // FARDLGBUILDER_HPP_4AD5C50D_B9AC_49DE_B34B_BAD22219BCBD

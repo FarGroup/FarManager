@@ -1,3 +1,5 @@
+﻿#ifndef KNOWNGUIDS_HPP_346A7786_E86B_4C38_A02F_68FDAABB07AE
+#define KNOWNGUIDS_HPP_346A7786_E86B_4C38_A02F_68FDAABB07AE
 #pragma once
 
 /*
@@ -5,7 +7,7 @@ KnownGuids.hpp
 
 */
 /*
-Copyright � 2010 Far Group
+Copyright © 2010 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -41,3 +43,5 @@ DEFINE_GUID(ArcliteGuid, 0x65642111, 0xaa69, 0x4b84, 0xb4, 0xb8, 0x92, 0x49, 0x5
 DEFINE_GUID(LuamacroGuid, 0x4ebbefc8, 0x2084, 0x4b7f, 0x94, 0xc0, 0x69, 0x2c, 0xe1, 0x36, 0x89, 0x4d);
 // {42E4AEB1-A230-44F4-B33C-F195BB654931}
 DEFINE_GUID(NetBoxGuid, 0x42e4aeb1, 0xa230, 0x44f4, 0xb3, 0x3c, 0xf1, 0x95, 0xbb, 0x65, 0x49, 0x31);
+
+#endif // KNOWNGUIDS_HPP_346A7786_E86B_4C38_A02F_68FDAABB07AE

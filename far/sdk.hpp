@@ -1,7 +1,9 @@
+﻿#ifndef SDK_HPP_7C458548_5D23_4CD0_B49D_F5C7AB43C26C
+#define SDK_HPP_7C458548_5D23_4CD0_B49D_F5C7AB43C26C
 #pragma once
 
 /*
-Copyright � 2015 Far Group
+Copyright © 2015 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -36,3 +38,5 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef __GNUC__
 # include "SDK/sdk.gcc.h"
 #endif // __GNUC__
+
+#endif // SDK_HPP_7C458548_5D23_4CD0_B49D_F5C7AB43C26C

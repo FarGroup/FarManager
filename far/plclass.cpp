@@ -1,9 +1,9 @@
-/*
+п»ї/*
 plclass.cpp
 
 */
 /*
-Copyright © 2011 Far Group
+Copyright В© 2011 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -585,10 +585,10 @@ bool Plugin::LoadData()
 	if (!m_Instance)
 	{
 		string strCurPlugDiskPath;
-		wchar_t Drive[]={0,L' ',L':',0}; //ставим 0, как признак того, что вертать обратно ненадо!
+		wchar_t Drive[]={0,L' ',L':',0}; //СЃС‚Р°РІРёРј 0, РєР°Рє РїСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ РІРµСЂС‚Р°С‚СЊ РѕР±СЂР°С‚РЅРѕ РЅРµРЅР°РґРѕ!
 		const auto strCurPath = os::GetCurrentDirectory();
 
-		if (ParsePath(m_strModuleName) == PATH_DRIVELETTER)  // если указан локальный путь, то...
+		if (ParsePath(m_strModuleName) == PATH_DRIVELETTER)  // РµСЃР»Рё СѓРєР°Р·Р°РЅ Р»РѕРєР°Р»СЊРЅС‹Р№ РїСѓС‚СЊ, С‚Рѕ...
 		{
 			Drive[0] = L'=';
 			Drive[1] = m_strModuleName.front();
@@ -599,16 +599,16 @@ bool Plugin::LoadData()
 		m_Instance = m_model->Create(m_strModuleName);
 		FarChDir(strCurPath);
 
-		if (Drive[0]) // вернем ее (переменную окружения) обратно
+		if (Drive[0]) // РІРµСЂРЅРµРј РµРµ (РїРµСЂРµРјРµРЅРЅСѓСЋ РѕРєСЂСѓР¶РµРЅРёСЏ) РѕР±СЂР°С‚РЅРѕ
 			os::env::set_variable(Drive, strCurPlugDiskPath);
 	}
 
 	if (!m_Instance)
 	{
-		//чтоб не пытаться загрузить опять а то ошибка будет постоянно показываться.
+		//С‡С‚РѕР± РЅРµ РїС‹С‚Р°С‚СЊСЃСЏ Р·Р°РіСЂСѓР·РёС‚СЊ РѕРїСЏС‚СЊ Р° С‚Рѕ РѕС€РёР±РєР° Р±СѓРґРµС‚ РїРѕСЃС‚РѕСЏРЅРЅРѕ РїРѕРєР°Р·С‹РІР°С‚СЊСЃСЏ.
 		WorkFlags.Set(PIWF_DONTLOADAGAIN);
 
-		if (!Global->Opt->LoadPlug.SilentLoadPlugin) //убрать в PluginSet
+		if (!Global->Opt->LoadPlug.SilentLoadPlugin) //СѓР±СЂР°С‚СЊ РІ PluginSet
 		{
 			Message(MSG_WARNING|MSG_ERRORTYPE|MSG_NOPLUGINS, MSG(MError),
 				make_vector<string>(MSG(MPlgLoadPluginError), m_strModuleName),
@@ -660,7 +660,7 @@ bool Plugin::LoadData()
 		}
 	}
 	Unload();
-	//чтоб не пытаться загрузить опять а то ошибка будет постоянно показываться.
+	//С‡С‚РѕР± РЅРµ РїС‹С‚Р°С‚СЊСЃСЏ Р·Р°РіСЂСѓР·РёС‚СЊ РѕРїСЏС‚СЊ Р° С‚Рѕ РѕС€РёР±РєР° Р±СѓРґРµС‚ РїРѕСЃС‚РѕСЏРЅРЅРѕ РїРѕРєР°Р·С‹РІР°С‚СЊСЃСЏ.
 	WorkFlags.Set(PIWF_DONTLOADAGAIN);
 	return false;
 }
@@ -696,7 +696,7 @@ bool Plugin::Load()
 			Unload();
 		}
 
-		//чтоб не пытаться загрузить опять а то ошибка будет постоянно показываться.
+		//С‡С‚РѕР± РЅРµ РїС‹С‚Р°С‚СЊСЃСЏ Р·Р°РіСЂСѓР·РёС‚СЊ РѕРїСЏС‚СЊ Р° С‚Рѕ РѕС€РёР±РєР° Р±СѓРґРµС‚ РїРѕСЃС‚РѕСЏРЅРЅРѕ РїРѕРєР°Р·С‹РІР°С‚СЊСЃСЏ.
 		WorkFlags.Set(PIWF_DONTLOADAGAIN);
 
 		return false;
@@ -722,7 +722,7 @@ bool Plugin::LoadFromCache(const os::FAR_FIND_DATA &FindData)
 			const auto strCurPluginID = MakeSignature(FindData);
 			const auto strPluginID = PlCache.GetSignature(id);
 
-			if (strPluginID != strCurPluginID)   //одинаковые ли бинарники?
+			if (strPluginID != strCurPluginID)   //РѕРґРёРЅР°РєРѕРІС‹Рµ Р»Рё Р±РёРЅР°СЂРЅРёРєРё?
 				return false;
 		}
 

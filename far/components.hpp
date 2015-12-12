@@ -1,3 +1,5 @@
+﻿#ifndef COMPONENTS_HPP_5EB4061D_47B2_4941_8B57_FE405EBD3D83
+#define COMPONENTS_HPP_5EB4061D_47B2_4941_8B57_FE405EBD3D83
 #pragma once
 
 /*
@@ -6,7 +8,7 @@ components.hpp
 static list of third-party components
 */
 /*
-Copyright � 2014 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -69,3 +71,5 @@ namespace components
 
 	std::set<string>& GetComponentsInfo();
 }
+
+#endif // COMPONENTS_HPP_5EB4061D_47B2_4941_8B57_FE405EBD3D83

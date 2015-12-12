@@ -1,3 +1,5 @@
+п»ї#ifndef NETWORK_HPP_D0F37D40_93B4_46B1_98E1_627B1E02B45D
+#define NETWORK_HPP_D0F37D40_93B4_46B1_98E1_627B1E02B45D
 #pragma once
 
 /*
@@ -6,7 +8,7 @@ network.hpp
 misc network functions
 */
 /*
-Copyright © 2009 Far Group
+Copyright В© 2009 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -38,5 +40,7 @@ void ConnectToNetworkDrive(const string& NewDir);
 
 string ExtractComputerName(const string& CurDir, string* strTail = nullptr);
 
-// Получить из имени диска RemoteName
+// РџРѕР»СѓС‡РёС‚СЊ РёР· РёРјРµРЅРё РґРёСЃРєР° RemoteName
 bool DriveLocalToRemoteName(int DriveType,wchar_t Letter,string &strDest);
+
+#endif // NETWORK_HPP_D0F37D40_93B4_46B1_98E1_627B1E02B45D

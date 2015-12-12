@@ -1,13 +1,15 @@
+п»ї#ifndef PLUGINS_HPP_1BFC0299_8B63_4CCD_AC6B_1D48977E7A97
+#define PLUGINS_HPP_1BFC0299_8B63_4CCD_AC6B_1D48977E7A97
 #pragma once
 
 /*
 plugins.hpp
 
-Работа с плагинами (низкий уровень, кое-что повыше в filelist.cpp)
+Р Р°Р±РѕС‚Р° СЃ РїР»Р°РіРёРЅР°РјРё (РЅРёР·РєРёР№ СѓСЂРѕРІРµРЅСЊ, РєРѕРµ-С‡С‚Рѕ РїРѕРІС‹С€Рµ РІ filelist.cpp)
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -65,7 +67,7 @@ ENUM(OPENFILEPLUGINTYPE)
 	OFP_COMMANDS,
 };
 
-// параметры вызова макрофункций plugin.call и т.п.
+// РїР°СЂР°РјРµС‚СЂС‹ РІС‹Р·РѕРІР° РјР°РєСЂРѕС„СѓРЅРєС†РёР№ plugin.call Рё С‚.Рї.
 typedef unsigned int CALLPLUGINFLAGS;
 static const CALLPLUGINFLAGS
 	CPT_MENU        = 0x00000001L,
@@ -145,7 +147,7 @@ public:
 			GUID *ItemGuid;
 			const wchar_t *Command;
 		};
-		// Используется в функции CallPluginItem для внутренних нужд
+		// РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РІ С„СѓРЅРєС†РёРё CallPluginItem РґР»СЏ РІРЅСѓС‚СЂРµРЅРЅРёС… РЅСѓР¶Рґ
 		Plugin *pPlugin;
 		GUID FoundGuid;
 	};
@@ -163,7 +165,7 @@ public:
 	void ReloadLanguage();
 	int ProcessCommandLine(const string& Command,Panel *Target=nullptr);
 	size_t GetPluginInformation(Plugin *pPlugin, FarGetPluginInformation *pInfo, size_t BufferSize);
-	// $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
+	// $ .09.2000 SVS - Р¤СѓРЅРєС†РёСЏ CallPlugin - РЅР°Р№С‚Рё РїР»Р°РіРёРЅ РїРѕ ID Рё Р·Р°РїСѓСЃС‚РёС‚СЊ OpenFrom = OPEN_*
 	int CallPlugin(const GUID& SysID,int OpenFrom, void *Data, void **Ret=nullptr);
 	int CallPluginItem(const GUID& Guid, CallPluginInfo *Data);
 	void RefreshPluginsList();
@@ -198,3 +200,5 @@ private:
 #endif // NO_WRAPPER
 	bool m_PluginsLoaded;
 };
+
+#endif // PLUGINS_HPP_1BFC0299_8B63_4CCD_AC6B_1D48977E7A97

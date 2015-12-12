@@ -1,13 +1,15 @@
+ο»Ώ#ifndef PANEL_HPP_FFA15B35_5546_4AA9_84B2_B60D8AA904C7
+#define PANEL_HPP_FFA15B35_5546_4AA9_84B2_B60D8AA904C7
 #pragma once
 
 /*
 panel.hpp
 
-Parent class δλÿ οΰνελει
+Parent class Π΄Π»Ρ ΠΏΠ°Π½ΠµΠ»ΠµΠΉ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright Β© 1996 Eugene Roshal
+Copyright Β© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -413,3 +415,4 @@ private:
 	virtual void Update(int Mode) override {};
 	virtual void UpdateKeyBar() override {}
 };
+#endif // PANEL_HPP_FFA15B35_5546_4AA9_84B2_B60D8AA904C7

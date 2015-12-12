@@ -1,11 +1,11 @@
-/*
+п»ї/*
 execute.cpp
 
-"Запускатель" программ.
+"Р—Р°РїСѓСЃРєР°С‚РµР»СЊ" РїСЂРѕРіСЂР°РјРј.
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -114,12 +114,12 @@ static bool GetImageSubsystem(const string& FileName,DWORD& ImageSubsystem)
 						else if ((WORD)PEHeader.Signature==IMAGE_OS2_SIGNATURE)
 						{
 							/*
-							NE,  хмм...  а как определить что оно ГУЕВОЕ?
+							NE,  С…РјРј...  Р° РєР°Рє РѕРїСЂРµРґРµР»РёС‚СЊ С‡С‚Рѕ РѕРЅРѕ Р“РЈР•Р’РћР•?
 
 							Andrzej Novosiolov <andrzej@se.kiev.ua>
-							AN> ориентироваться по флагу "Target operating system" NE-заголовка
-							AN> (1 байт по смещению 0x36). Если там Windows (значения 2, 4) - подразумеваем
-							AN> GUI, если OS/2 и прочая экзотика (остальные значения) - подразумеваем консоль.
+							AN> РѕСЂРёРµРЅС‚РёСЂРѕРІР°С‚СЊСЃСЏ РїРѕ С„Р»Р°РіСѓ "Target operating system" NE-Р·Р°РіРѕР»РѕРІРєР°
+							AN> (1 Р±Р°Р№С‚ РїРѕ СЃРјРµС‰РµРЅРёСЋ 0x36). Р•СЃР»Рё С‚Р°Рј Windows (Р·РЅР°С‡РµРЅРёСЏ 2, 4) - РїРѕРґСЂР°Р·СѓРјРµРІР°РµРј
+							AN> GUI, РµСЃР»Рё OS/2 Рё РїСЂРѕС‡Р°СЏ СЌРєР·РѕС‚РёРєР° (РѕСЃС‚Р°Р»СЊРЅС‹Рµ Р·РЅР°С‡РµРЅРёСЏ) - РїРѕРґСЂР°Р·СѓРјРµРІР°РµРј РєРѕРЅСЃРѕР»СЊ.
 							*/
 							const auto OS2Hdr = reinterpret_cast<const IMAGE_OS2_HEADER*>(&PEHeader);
 							if (OS2Hdr->ne_exetyp==2 || OS2Hdr->ne_exetyp==4)
@@ -136,34 +136,34 @@ static bool GetImageSubsystem(const string& FileName,DWORD& ImageSubsystem)
 
 					/*else
 					{
-						// обломс вышел с чтением следующего заголовка ;-(
+						// РѕР±Р»РѕРјСЃ РІС‹С€РµР» СЃ С‡С‚РµРЅРёРµРј СЃР»РµРґСѓСЋС‰РµРіРѕ Р·Р°РіРѕР»РѕРІРєР° ;-(
 					}*/
 				}
 
 				/*else
 				{
-					// видимо улетели куда нить в трубу, т.к. dos_head.e_lfanew указал
-					// слишком в неправдоподобное место (например это чистой воды DOS-файл)
+					// РІРёРґРёРјРѕ СѓР»РµС‚РµР»Рё РєСѓРґР° РЅРёС‚СЊ РІ С‚СЂСѓР±Сѓ, С‚.Рє. dos_head.e_lfanew СѓРєР°Р·Р°Р»
+					// СЃР»РёС€РєРѕРј РІ РЅРµРїСЂР°РІРґРѕРїРѕРґРѕР±РЅРѕРµ РјРµСЃС‚Рѕ (РЅР°РїСЂРёРјРµСЂ СЌС‚Рѕ С‡РёСЃС‚РѕР№ РІРѕРґС‹ DOS-С„Р°Р№Р»)
 				}*/
 			}
 
 			/*else
 			{
-				// это не исполняемый файл - у него нету заголовка MZ, например, NLM-модуль
-				// TODO: здесь можно разбирать POSIX нотацию, например "/usr/bin/sh"
+				// СЌС‚Рѕ РЅРµ РёСЃРїРѕР»РЅСЏРµРјС‹Р№ С„Р°Р№Р» - Сѓ РЅРµРіРѕ РЅРµС‚Сѓ Р·Р°РіРѕР»РѕРІРєР° MZ, РЅР°РїСЂРёРјРµСЂ, NLM-РјРѕРґСѓР»СЊ
+				// TODO: Р·РґРµСЃСЊ РјРѕР¶РЅРѕ СЂР°Р·Р±РёСЂР°С‚СЊ POSIX РЅРѕС‚Р°С†РёСЋ, РЅР°РїСЂРёРјРµСЂ "/usr/bin/sh"
 			}*/
 		}
 
 		/*else
 		{
-			// ошибка чтения
+			// РѕС€РёР±РєР° С‡С‚РµРЅРёСЏ
 		}*/
 		ModuleFile.Close();
 	}
 
 	/*else
 	{
-		// ошибка открытия
+		// РѕС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ
 	}*/
 	return Result;
 }
@@ -174,9 +174,9 @@ static bool IsProperProgID(const string& ProgID)
 }
 
 /*
-Ищем валидный ProgID для файлового расширения по списку возможных
-hExtKey - корневой ключ для поиска (ключ расширения)
-strType - сюда запишется результат, если будет найден
+РС‰РµРј РІР°Р»РёРґРЅС‹Р№ ProgID РґР»СЏ С„Р°Р№Р»РѕРІРѕРіРѕ СЂР°СЃС€РёСЂРµРЅРёСЏ РїРѕ СЃРїРёСЃРєСѓ РІРѕР·РјРѕР¶РЅС‹С…
+hExtKey - РєРѕСЂРЅРµРІРѕР№ РєР»СЋС‡ РґР»СЏ РїРѕРёСЃРєР° (РєР»СЋС‡ СЂР°СЃС€РёСЂРµРЅРёСЏ)
+strType - СЃСЋРґР° Р·Р°РїРёС€РµС‚СЃСЏ СЂРµР·СѓР»СЊС‚Р°С‚, РµСЃР»Рё Р±СѓРґРµС‚ РЅР°Р№РґРµРЅ
 */
 static bool SearchExtHandlerFromList(const os::reg::key& hExtKey, string &strType)
 {
@@ -192,15 +192,15 @@ static bool SearchExtHandlerFromList(const os::reg::key& hExtKey, string &strTyp
 }
 
 /*
-Функция FindModule пытается найти исполняемый модуль (в т.ч. и по
-%PATHEXT%). В случае успеха заменяет в Module порцию, ответственную за
-исполняемый модуль на найденное значение, копирует результат в strDest и
-пытается проверить заголовок PE на ГУЕВОСТЬ (чтобы запустить процесс
-в отдельном окне и не ждать завершения).
-В случае неудачи strDest не заполняется!
-Return: true/false - нашли/не нашли
-Команда в функцию передается уже без кавычек. Ничего не меняем.
-И подменять ничего не надо, т.к. все параметры мы отсекли раньше
+Р¤СѓРЅРєС†РёСЏ FindModule РїС‹С‚Р°РµС‚СЃСЏ РЅР°Р№С‚Рё РёСЃРїРѕР»РЅСЏРµРјС‹Р№ РјРѕРґСѓР»СЊ (РІ С‚.С‡. Рё РїРѕ
+%PATHEXT%). Р’ СЃР»СѓС‡Р°Рµ СѓСЃРїРµС…Р° Р·Р°РјРµРЅСЏРµС‚ РІ Module РїРѕСЂС†РёСЋ, РѕС‚РІРµС‚СЃС‚РІРµРЅРЅСѓСЋ Р·Р°
+РёСЃРїРѕР»РЅСЏРµРјС‹Р№ РјРѕРґСѓР»СЊ РЅР° РЅР°Р№РґРµРЅРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ, РєРѕРїРёСЂСѓРµС‚ СЂРµР·СѓР»СЊС‚Р°С‚ РІ strDest Рё
+РїС‹С‚Р°РµС‚СЃСЏ РїСЂРѕРІРµСЂРёС‚СЊ Р·Р°РіРѕР»РѕРІРѕРє PE РЅР° Р“РЈР•Р’РћРЎРўР¬ (С‡С‚РѕР±С‹ Р·Р°РїСѓСЃС‚РёС‚СЊ РїСЂРѕС†РµСЃСЃ
+РІ РѕС‚РґРµР»СЊРЅРѕРј РѕРєРЅРµ Рё РЅРµ Р¶РґР°С‚СЊ Р·Р°РІРµСЂС€РµРЅРёСЏ).
+Р’ СЃР»СѓС‡Р°Рµ РЅРµСѓРґР°С‡Рё strDest РЅРµ Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ!
+Return: true/false - РЅР°С€Р»Рё/РЅРµ РЅР°С€Р»Рё
+РљРѕРјР°РЅРґР° РІ С„СѓРЅРєС†РёСЋ РїРµСЂРµРґР°РµС‚СЃСЏ СѓР¶Рµ Р±РµР· РєР°РІС‹С‡РµРє. РќРёС‡РµРіРѕ РЅРµ РјРµРЅСЏРµРј.
+Р РїРѕРґРјРµРЅСЏС‚СЊ РЅРёС‡РµРіРѕ РЅРµ РЅР°РґРѕ, С‚.Рє. РІСЃРµ РїР°СЂР°РјРµС‚СЂС‹ РјС‹ РѕС‚СЃРµРєР»Рё СЂР°РЅСЊС€Рµ
 */
 static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsystem,bool &Internal)
 {
@@ -210,9 +210,9 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 
 	if (!Module.empty())
 	{
-		// нулевой проход - смотрим исключения
-		// Берем "исключения" из реестра, которые должны исполняться директом,
-		// например, некоторые внутренние команды ком. процессора.
+		// РЅСѓР»РµРІРѕР№ РїСЂРѕС…РѕРґ - СЃРјРѕС‚СЂРёРј РёСЃРєР»СЋС‡РµРЅРёСЏ
+		// Р‘РµСЂРµРј "РёСЃРєР»СЋС‡РµРЅРёСЏ" РёР· СЂРµРµСЃС‚СЂР°, РєРѕС‚РѕСЂС‹Рµ РґРѕР»Р¶РЅС‹ РёСЃРїРѕР»РЅСЏС‚СЊСЃСЏ РґРёСЂРµРєС‚РѕРј,
+		// РЅР°РїСЂРёРјРµСЂ, РЅРµРєРѕС‚РѕСЂС‹Рµ РІРЅСѓС‚СЂРµРЅРЅРёРµ РєРѕРјР°РЅРґС‹ РєРѕРј. РїСЂРѕС†РµСЃСЃРѕСЂР°.
 		std::vector<string> ExcludeCmdsList;
 		split(ExcludeCmdsList, os::env::expand_strings(Global->Opt->Exec.strExcludeCmds), STLF_UNIQUE);
 
@@ -231,7 +231,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 			std::vector<string> PathExtList;
 			split(PathExtList, strPathExt, STLF_UNIQUE);
 
-			FOR(const auto& i, PathExtList) // первый проход - в текущем каталоге
+			FOR(const auto& i, PathExtList) // РїРµСЂРІС‹Р№ РїСЂРѕС…РѕРґ - РІ С‚РµРєСѓС‰РµРј РєР°С‚Р°Р»РѕРіРµ
 			{
 				string strTmpName=strFullName;
 
@@ -253,7 +253,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 				}
 			}
 
-			if (!Result) // второй проход - по правилам SearchPath
+			if (!Result) // РІС‚РѕСЂРѕР№ РїСЂРѕС…РѕРґ - РїРѕ РїСЂР°РІРёР»Р°Рј SearchPath
 			{
 				const auto strPathEnv(os::env::get_variable(L"PATH"));
 				if (!strPathEnv.empty())
@@ -299,13 +299,13 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 					}
 				}
 
-				// третий проход - лезем в реестр в "App Paths"
+				// С‚СЂРµС‚РёР№ РїСЂРѕС…РѕРґ - Р»РµР·РµРј РІ СЂРµРµСЃС‚СЂ РІ "App Paths"
 				if (!Result && Global->Opt->Exec.ExecuteUseAppPath && strFullName.find(L'\\') == string::npos)
 				{
 					static const WCHAR RegPath[] = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
-					// В строке Module заменить исполняемый модуль на полный путь, который
-					// берется из SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths
-					// Сначала смотрим в HKCU, затем - в HKLM
+					// Р’ СЃС‚СЂРѕРєРµ Module Р·Р°РјРµРЅРёС‚СЊ РёСЃРїРѕР»РЅСЏРµРјС‹Р№ РјРѕРґСѓР»СЊ РЅР° РїРѕР»РЅС‹Р№ РїСѓС‚СЊ, РєРѕС‚РѕСЂС‹Р№
+					// Р±РµСЂРµС‚СЃСЏ РёР· SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths
+					// РЎРЅР°С‡Р°Р»Р° СЃРјРѕС‚СЂРёРј РІ HKCU, Р·Р°С‚РµРј - РІ HKLM
 					static const HKEY RootFindKey[]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE,HKEY_LOCAL_MACHINE};
 					strFullName=RegPath;
 					strFullName+=Module;
@@ -356,7 +356,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 				}
 			}
 
-			if (Result) // некоторые "подмены" данных
+			if (Result) // РЅРµРєРѕС‚РѕСЂС‹Рµ "РїРѕРґРјРµРЅС‹" РґР°РЅРЅС‹С…
 			{
 				GetImageSubsystem(strFullName,ImageSubsystem);
 				strDest=strFullName;
@@ -368,7 +368,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 }
 
 /*
- возвращает 2*PipeFound + 1*Escaped
+ РІРѕР·РІСЂР°С‰Р°РµС‚ 2*PipeFound + 1*Escaped
 */
 static int PartCmdLine(const string& CmdStr, string &strNewCmdStr, string &strNewCmdPar)
 {
@@ -379,9 +379,9 @@ static int PartCmdLine(const string& CmdStr, string &strNewCmdStr, string &strNe
 	const wchar_t * const NewCmdStr = strNewCmdStr.data();
 	const wchar_t *CmdPtr = NewCmdStr;
 	const wchar_t *ParPtr = nullptr;
-	// Разделим собственно команду для исполнения и параметры.
-	// При этом заодно определим наличие символов переопределения потоков
-	// Работаем с учетом кавычек. Т.е. пайп в кавычках - не пайп.
+	// Р Р°Р·РґРµР»РёРј СЃРѕР±СЃС‚РІРµРЅРЅРѕ РєРѕРјР°РЅРґСѓ РґР»СЏ РёСЃРїРѕР»РЅРµРЅРёСЏ Рё РїР°СЂР°РјРµС‚СЂС‹.
+	// РџСЂРё СЌС‚РѕРј Р·Р°РѕРґРЅРѕ РѕРїСЂРµРґРµР»РёРј РЅР°Р»РёС‡РёРµ СЃРёРјРІРѕР»РѕРІ РїРµСЂРµРѕРїСЂРµРґРµР»РµРЅРёСЏ РїРѕС‚РѕРєРѕРІ
+	// Р Р°Р±РѕС‚Р°РµРј СЃ СѓС‡РµС‚РѕРј РєР°РІС‹С‡РµРє. Рў.Рµ. РїР°Р№Рї РІ РєР°РІС‹С‡РєР°С… - РЅРµ РїР°Р№Рї.
 
 	static const wchar_t ending_chars[] = L"/ <>|&";
 
@@ -390,10 +390,10 @@ static int PartCmdLine(const string& CmdStr, string &strNewCmdStr, string &strNe
 		if (*CmdPtr == L'"')
 			quoted = !quoted;
 
-		if (!quoted && *CmdPtr == L'^' && CmdPtr[1] > L' ') // "^>" и иже с ним
+		if (!quoted && *CmdPtr == L'^' && CmdPtr[1] > L' ') // "^>" Рё РёР¶Рµ СЃ РЅРёРј
 		{
 			Escaped = 1; //
-			CmdPtr++;    // ??? может быть '^' надо удалить...
+			CmdPtr++;    // ??? РјРѕР¶РµС‚ Р±С‹С‚СЊ '^' РЅР°РґРѕ СѓРґР°Р»РёС‚СЊ...
 		}
 		else if (!quoted && CmdPtr != NewCmdStr)
 		{
@@ -408,17 +408,17 @@ static int PartCmdLine(const string& CmdStr, string &strNewCmdStr, string &strNe
 			}
 		}
 
-		if (ParPtr && PipeFound) // Нам больше ничего не надо узнавать
+		if (ParPtr && PipeFound) // РќР°Рј Р±РѕР»СЊС€Рµ РЅРёС‡РµРіРѕ РЅРµ РЅР°РґРѕ СѓР·РЅР°РІР°С‚СЊ
 			break;
 
 		CmdPtr++;
 	}
 
-	if (ParPtr) // Мы нашли параметры и отделяем мух от котлет
+	if (ParPtr) // РњС‹ РЅР°С€Р»Рё РїР°СЂР°РјРµС‚СЂС‹ Рё РѕС‚РґРµР»СЏРµРј РјСѓС… РѕС‚ РєРѕС‚Р»РµС‚
 	{
 		size_t Pos = ParPtr - NewCmdStr;
-		if (*ParPtr == L' ') //AY: первый пробел между командой и параметрами не нужен,
-			++ParPtr;        //    он добавляется заново в Execute.
+		if (*ParPtr == L' ') //AY: РїРµСЂРІС‹Р№ РїСЂРѕР±РµР» РјРµР¶РґСѓ РєРѕРјР°РЅРґРѕР№ Рё РїР°СЂР°РјРµС‚СЂР°РјРё РЅРµ РЅСѓР¶РµРЅ,
+			++ParPtr;        //    РѕРЅ РґРѕР±Р°РІР»СЏРµС‚СЃСЏ Р·Р°РЅРѕРІРѕ РІ Execute.
 
 		strNewCmdPar = ParPtr;
 		strNewCmdStr.resize(Pos);
@@ -437,9 +437,9 @@ static bool RunAsSupported(LPCWSTR Name)
 }
 
 /*
-по имени файла (по его расширению) получить команду активации
-Дополнительно смотрится гуевость команды-активатора
-(чтобы не ждать завершения)
+РїРѕ РёРјРµРЅРё С„Р°Р№Р»Р° (РїРѕ РµРіРѕ СЂР°СЃС€РёСЂРµРЅРёСЋ) РїРѕР»СѓС‡РёС‚СЊ РєРѕРјР°РЅРґСѓ Р°РєС‚РёРІР°С†РёРё
+Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕ СЃРјРѕС‚СЂРёС‚СЃСЏ РіСѓРµРІРѕСЃС‚СЊ РєРѕРјР°РЅРґС‹-Р°РєС‚РёРІР°С‚РѕСЂР°
+(С‡С‚РѕР±С‹ РЅРµ Р¶РґР°С‚СЊ Р·Р°РІРµСЂС€РµРЅРёСЏ)
 */
 static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsystem,DWORD& Error)
 {
@@ -504,21 +504,21 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 			strValue += strAction;
 		}
 
-		if (RetEnum != ERROR_NO_MORE_ITEMS) // Если ничего не нашли, то...
+		if (RetEnum != ERROR_NO_MORE_ITEMS) // Р•СЃР»Рё РЅРёС‡РµРіРѕ РЅРµ РЅР°С€Р»Рё, С‚Рѕ...
 			RetPtr=nullptr;
 	}
 	else
 	{
 		// This member defaults to "Open" if no verb is specified.
-		// Т.е. если мы вернули nullptr, то подразумевается команда "Open"
+		// Рў.Рµ. РµСЃР»Рё РјС‹ РІРµСЂРЅСѓР»Рё nullptr, С‚Рѕ РїРѕРґСЂР°Р·СѓРјРµРІР°РµС‚СЃСЏ РєРѕРјР°РЅРґР° "Open"
 		RetPtr=nullptr;
 	}
 
-	// Если RetPtr==nullptr - мы не нашли default action.
-	// Посмотрим - есть ли вообще что-нибудь у этого расширения
+	// Р•СЃР»Рё RetPtr==nullptr - РјС‹ РЅРµ РЅР°С€Р»Рё default action.
+	// РџРѕСЃРјРѕС‚СЂРёРј - РµСЃС‚СЊ Р»Рё РІРѕРѕР±С‰Рµ С‡С‚Рѕ-РЅРёР±СѓРґСЊ Сѓ СЌС‚РѕРіРѕ СЂР°СЃС€РёСЂРµРЅРёСЏ
 	if (!RetPtr)
 	{
-		// Сначала проверим "open"...
+		// РЎРЅР°С‡Р°Р»Р° РїСЂРѕРІРµСЂРёРј "open"...
 		strAction = L"open";
 		strNewValue = strValue;
 		strNewValue += strAction;
@@ -531,12 +531,12 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 		}
 		else
 		{
-			// ... а теперь все остальное, если "open" нету
+			// ... Р° С‚РµРїРµСЂСЊ РІСЃРµ РѕСЃС‚Р°Р»СЊРЅРѕРµ, РµСЃР»Рё "open" РЅРµС‚Сѓ
 			FOR(const auto& i, os::reg::enum_key(Key))
 			{
 				strAction = i;
 
-				// Проверим наличие "команды" у этого ключа
+				// РџСЂРѕРІРµСЂРёРј РЅР°Р»РёС‡РёРµ "РєРѕРјР°РЅРґС‹" Сѓ СЌС‚РѕРіРѕ РєР»СЋС‡Р°
 				strNewValue = strValue;
 				strNewValue += strAction;
 				strNewValue += command_action;
@@ -555,12 +555,12 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 	{
 		strValue += command_action;
 
-		// а теперь проверим ГУЕвость запускаемой проги
+		// Р° С‚РµРїРµСЂСЊ РїСЂРѕРІРµСЂРёРј Р“РЈР•РІРѕСЃС‚СЊ Р·Р°РїСѓСЃРєР°РµРјРѕР№ РїСЂРѕРіРё
 		if (os::reg::GetValue(HKEY_CLASSES_ROOT, strValue, L"", strNewValue) && !strNewValue.empty())
 		{
 			strNewValue = os::env::expand_strings(strNewValue);
 
-			// Выделяем имя модуля
+			// Р’С‹РґРµР»СЏРµРј РёРјСЏ РјРѕРґСѓР»СЏ
 			if (strNewValue.front() == L'\"')
 			{
 				size_t QuotePos = strNewValue.find(L'\"', 1);
@@ -628,7 +628,7 @@ bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
 
 		if (aType == AT_FILEEXTENSION)
 		{
-			// Смотрим дефолтный обработчик расширения в HKEY_CURRENT_USER
+			// РЎРјРѕС‚СЂРёРј РґРµС„РѕР»С‚РЅС‹Р№ РѕР±СЂР°Р±РѕС‚С‡РёРє СЂР°СЃС€РёСЂРµРЅРёСЏ РІ HKEY_CURRENT_USER
 			if ((hUserKey = os::reg::open_key(HKEY_CURRENT_USER, (L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\" + Ext).data(), KEY_QUERY_VALUE)))
 			{
 				if (os::reg::GetValue(hUserKey, L"ProgID", strFoundValue) && IsProperProgID(strFoundValue))
@@ -638,7 +638,7 @@ bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
 			}
 		}
 
-		// Смотрим дефолтный обработчик расширения в HKEY_CLASSES_ROOT
+		// РЎРјРѕС‚СЂРёРј РґРµС„РѕР»С‚РЅС‹Р№ РѕР±СЂР°Р±РѕС‚С‡РёРє СЂР°СЃС€РёСЂРµРЅРёСЏ РІ HKEY_CLASSES_ROOT
 		if (strType.empty() && (hCRKey = os::reg::open_key(HKEY_CLASSES_ROOT, Ext.data(), KEY_QUERY_VALUE)))
 		{
 			if (os::reg::GetValue(hCRKey, L"", strFoundValue) && IsProperProgID(strFoundValue))
@@ -658,14 +658,14 @@ bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
 }
 
 /*
-Функция-пускатель внешних процессов
-Возвращает -1 в случае ошибки или...
+Р¤СѓРЅРєС†РёСЏ-РїСѓСЃРєР°С‚РµР»СЊ РІРЅРµС€РЅРёС… РїСЂРѕС†РµСЃСЃРѕРІ
+Р’РѕР·РІСЂР°С‰Р°РµС‚ -1 РІ СЃР»СѓС‡Р°Рµ РѕС€РёР±РєРё РёР»Рё...
 */
-int Execute(const string& CmdStr,  // Ком.строка для исполнения
-            bool AlwaysWaitFinish, // Ждать завершение процесса?
-            bool SeparateWindow,   // Выполнить в отдельном окне?
-            bool DirectRun,        // Выполнять директом? (без CMD)
-            bool FolderRun,        // Это фолдер?
+int Execute(const string& CmdStr,  // РљРѕРј.СЃС‚СЂРѕРєР° РґР»СЏ РёСЃРїРѕР»РЅРµРЅРёСЏ
+            bool AlwaysWaitFinish, // Р–РґР°С‚СЊ Р·Р°РІРµСЂС€РµРЅРёРµ РїСЂРѕС†РµСЃСЃР°?
+            bool SeparateWindow,   // Р’С‹РїРѕР»РЅРёС‚СЊ РІ РѕС‚РґРµР»СЊРЅРѕРј РѕРєРЅРµ?
+            bool DirectRun,        // Р’С‹РїРѕР»РЅСЏС‚СЊ РґРёСЂРµРєС‚РѕРј? (Р±РµР· CMD)
+            bool FolderRun,        // Р­С‚Рѕ С„РѕР»РґРµСЂ?
             bool WaitForIdle,      // for list files
             bool Silent,
             bool RunAs             // elevation
@@ -716,7 +716,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 
 	if (FolderRun && DirectRun)
 	{
-		AddEndSlash(strNewCmdStr); // НАДА, иначе ShellExecuteEx "возьмет" BAT/CMD/пр.ересь, но не каталог
+		AddEndSlash(strNewCmdStr); // РќРђР”Рђ, РёРЅР°С‡Рµ ShellExecuteEx "РІРѕР·СЊРјРµС‚" BAT/CMD/РїСЂ.РµСЂРµСЃСЊ, РЅРѕ РЅРµ РєР°С‚Р°Р»РѕРі
 	}
 	else
 	{
@@ -740,7 +740,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 					}
 				}
 
-				if (dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN && !StrCmpNI(strNewCmdStr.data(),L"ECHO.",5)) // вариант "echo."
+				if (dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN && !StrCmpNI(strNewCmdStr.data(),L"ECHO.",5)) // РІР°СЂРёР°РЅС‚ "echo."
 				{
 					strNewCmdStr.replace(4, 1, 1, L' ');
 					PartCmdLine(strNewCmdStr,strNewCmdStr,strNewCmdPar);
@@ -757,7 +757,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		{
 			if ( !DirectRun )
 			{
-				DirectRun = (PipeOrEscaped < 1); //??? <= 1 если бы '^' были удалены
+				DirectRun = (PipeOrEscaped < 1); //??? <= 1 РµСЃР»Рё Р±С‹ '^' Р±С‹Р»Рё СѓРґР°Р»РµРЅС‹
 			}
 			if(DirectRun && Global->Opt->Exec.ExecuteSilentExternal)
 			{
@@ -767,7 +767,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		}
 		else if (dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_CUI && !DirectRun && !internal)
 		{
-			DirectRun = (PipeOrEscaped < 1); //??? <= 1 если бы '^' были удалены
+			DirectRun = (PipeOrEscaped < 1); //??? <= 1 РµСЃР»Рё Р±С‹ '^' Р±С‹Р»Рё СѓРґР°Р»РµРЅС‹
 		}
 	}
 
@@ -807,8 +807,8 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 
 	if(!Silent)
 	{
-		// BUGBUG: если команда начинается с "@", то эта строка херит все начинания
-		// TODO: здесь необходимо подставить виртуальный буфер, а потом его корректно подсунуть в ScrBuf
+		// BUGBUG: РµСЃР»Рё РєРѕРјР°РЅРґР° РЅР°С‡РёРЅР°РµС‚СЃСЏ СЃ "@", С‚Рѕ СЌС‚Р° СЃС‚СЂРѕРєР° С…РµСЂРёС‚ РІСЃРµ РЅР°С‡РёРЅР°РЅРёСЏ
+		// TODO: Р·РґРµСЃСЊ РЅРµРѕР±С…РѕРґРёРјРѕ РїРѕРґСЃС‚Р°РІРёС‚СЊ РІРёСЂС‚СѓР°Р»СЊРЅС‹Р№ Р±СѓС„РµСЂ, Р° РїРѕС‚РѕРј РµРіРѕ РєРѕСЂСЂРµРєС‚РЅРѕ РїРѕРґСЃСѓРЅСѓС‚СЊ РІ ScrBuf
 		Global->ScrBuf->SetLockCount(0);
 		Global->ScrBuf->Flush(true);
 
@@ -843,7 +843,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		{
 			seInfo.lpParameters = strNewCmdPar.data();
 		}
-		//Maximus: рушилась dwSubSystem
+		//Maximus: СЂСѓС€РёР»Р°СЃСЊ dwSubSystem
 		DWORD dwSubSystem2 = IMAGE_SUBSYSTEM_UNKNOWN;
 		DWORD dwError = 0;
 		seInfo.lpVerb = IsDirectory? nullptr : lpVerb? lpVerb : GetShellAction(strNewCmdStr, dwSubSystem2, dwError);
@@ -884,7 +884,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	seInfo.fMask = SEE_MASK_NOASYNC|SEE_MASK_NOCLOSEPROCESS|(SeparateWindow?0:SEE_MASK_NO_CONSOLE);
 #if 0
 	seInfo.fMask |= SEE_MASK_FLAG_NO_UI;
-	if (dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN)  // для .exe НЕ включать - бывают проблемы с запуском
+	if (dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN)  // РґР»СЏ .exe РќР• РІРєР»СЋС‡Р°С‚СЊ - Р±С‹РІР°СЋС‚ РїСЂРѕР±Р»РµРјС‹ СЃ Р·Р°РїСѓСЃРєРѕРј
 		if (IsWindowsVistaOrGreater()) // ShellExecuteEx error, see
 			seInfo.fMask |= SEE_MASK_INVOKEIDLIST; // http://us.generation-nt.com/answer/shellexecuteex-does-not-allow-openas-verb-windows-7-help-31497352.html
 #endif
@@ -945,9 +945,9 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 				else
 				{
 					/*$ 12.02.2001 SKV
-					  супер фитча ;)
-					  Отделение фаровской консоли от неинтерактивного процесса.
-					  Задаётся кнопкой в System/ConsoleDetachKey
+					  СЃСѓРїРµСЂ С„РёС‚С‡Р° ;)
+					  РћС‚РґРµР»РµРЅРёРµ С„Р°СЂРѕРІСЃРєРѕР№ РєРѕРЅСЃРѕР»Рё РѕС‚ РЅРµРёРЅС‚РµСЂР°РєС‚РёРІРЅРѕРіРѕ РїСЂРѕС†РµСЃСЃР°.
+					  Р—Р°РґР°С‘С‚СЃСЏ РєРЅРѕРїРєРѕР№ РІ System/ConsoleDetachKey
 					*/
 					HANDLE hOutput = Console().GetOutputHandle();
 					HANDLE hInput = Console().GetInputHandle();
@@ -961,7 +961,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 					bool bAlt, bShift, bCtrl;
 					DWORD dwControlKeyState;
 
-					//Тут нельзя делать WaitForMultipleObjects из за бага в Win7 при работе в телнет
+					//РўСѓС‚ РЅРµР»СЊР·СЏ РґРµР»Р°С‚СЊ WaitForMultipleObjects РёР· Р·Р° Р±Р°РіР° РІ Win7 РїСЂРё СЂР°Р±РѕС‚Рµ РІ С‚РµР»РЅРµС‚
 					while (!Process.wait(100))
 					{
 						if (WaitForSingleObject(hInput, 100)==WAIT_OBJECT_0 && Console().PeekInput(ir, 256, rd) && rd)
@@ -988,9 +988,9 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 
 										Console().ReadInput(ir, 256, rd);
 										/*
-										  Не будем вызывать CloseConsole, потому, что она поменяет
-										  ConsoleMode на тот, что был до запуска Far'а,
-										  чего работающее приложение могло и не ожидать.
+										  РќРµ Р±СѓРґРµРј РІС‹Р·С‹РІР°С‚СЊ CloseConsole, РїРѕС‚РѕРјСѓ, С‡С‚Рѕ РѕРЅР° РїРѕРјРµРЅСЏРµС‚
+										  ConsoleMode РЅР° С‚РѕС‚, С‡С‚Рѕ Р±С‹Р» РґРѕ Р·Р°РїСѓСЃРєР° Far'Р°,
+										  С‡РµРіРѕ СЂР°Р±РѕС‚Р°СЋС‰РµРµ РїСЂРёР»РѕР¶РµРЅРёРµ РјРѕРіР»Рѕ Рё РЅРµ РѕР¶РёРґР°С‚СЊ.
 										*/
 										CloseHandle(hInput);
 										CloseHandle(hOutput);
@@ -999,7 +999,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 										Console().Allocate();
 
 										HWND hWnd = Console().GetWindow();
-										if (hWnd)   // если окно имело HOTKEY, то старое должно его забыть.
+										if (hWnd)   // РµСЃР»Рё РѕРєРЅРѕ РёРјРµР»Рѕ HOTKEY, С‚Рѕ СЃС‚Р°СЂРѕРµ РґРѕР»Р¶РЅРѕ РµРіРѕ Р·Р°Р±С‹С‚СЊ.
 											SendMessage(hWnd, WM_SETHOTKEY, 0, 0);
 
 										Console().SetSize(ConsoleSize);
@@ -1064,8 +1064,8 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	Global->ProcessShowClock -= add_show_clock;
 
 	SetFarConsoleMode(TRUE);
-	/* Принудительная установка курсора, т.к. SetCursorType иногда не спасает
-	    вследствие своей оптимизации, которая в данном случае выходит боком.
+	/* РџСЂРёРЅСѓРґРёС‚РµР»СЊРЅР°СЏ СѓСЃС‚Р°РЅРѕРІРєР° РєСѓСЂСЃРѕСЂР°, С‚.Рє. SetCursorType РёРЅРѕРіРґР° РЅРµ СЃРїР°СЃР°РµС‚
+	    РІСЃР»РµРґСЃС‚РІРёРµ СЃРІРѕРµР№ РѕРїС‚РёРјРёР·Р°С†РёРё, РєРѕС‚РѕСЂР°СЏ РІ РґР°РЅРЅРѕРј СЃР»СѓС‡Р°Рµ РІС‹С…РѕРґРёС‚ Р±РѕРєРѕРј.
 	*/
 	SetCursorType(Visible, CursorSize);
 	CONSOLE_CURSOR_INFO cci = { CursorSize, Visible };
@@ -1087,7 +1087,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 
 	if (Global->Opt->Exec.RestoreCPAfterExecute)
 	{
-		// восстановим CP-консоли после исполнения проги
+		// РІРѕСЃСЃС‚Р°РЅРѕРІРёРј CP-РєРѕРЅСЃРѕР»Рё РїРѕСЃР»Рµ РёСЃРїРѕР»РЅРµРЅРёСЏ РїСЂРѕРіРё
 		Console().SetInputCodepage(ConsoleCP);
 		Console().SetOutputCodepage(ConsoleOutputCP);
 	}
@@ -1126,21 +1126,21 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 
 
 /* $ 14.01.2001 SVS
-   + В ProcessOSCommands добавлена обработка
+   + Р’ ProcessOSCommands РґРѕР±Р°РІР»РµРЅР° РѕР±СЂР°Р±РѕС‚РєР°
      "IF [NOT] EXIST filename command"
      "IF [NOT] DEFINED variable command"
 
-   Эта функция предназначена для обработки вложенного IF`а
-   CmdLine - полная строка вида
+   Р­С‚Р° С„СѓРЅРєС†РёСЏ РїСЂРµРґРЅР°Р·РЅР°С‡РµРЅР° РґР»СЏ РѕР±СЂР°Р±РѕС‚РєРё РІР»РѕР¶РµРЅРЅРѕРіРѕ IF`Р°
+   CmdLine - РїРѕР»РЅР°СЏ СЃС‚СЂРѕРєР° РІРёРґР°
      if exist file if exist file2 command
-   Return - указатель на "command"
-            пуская строка - условие не выполнимо
-            nullptr - не попался "IF" или ошибки в предложении, например
-                   не exist, а exist или предложение неполно.
+   Return - СѓРєР°Р·Р°С‚РµР»СЊ РЅР° "command"
+            РїСѓСЃРєР°СЏ СЃС‚СЂРѕРєР° - СѓСЃР»РѕРІРёРµ РЅРµ РІС‹РїРѕР»РЅРёРјРѕ
+            nullptr - РЅРµ РїРѕРїР°Р»СЃСЏ "IF" РёР»Рё РѕС€РёР±РєРё РІ РїСЂРµРґР»РѕР¶РµРЅРёРё, РЅР°РїСЂРёРјРµСЂ
+                   РЅРµ exist, Р° exist РёР»Рё РїСЂРµРґР»РѕР¶РµРЅРёРµ РЅРµРїРѕР»РЅРѕ.
 
-   DEFINED - подобно EXIST, но оперирует с переменными среды
+   DEFINED - РїРѕРґРѕР±РЅРѕ EXIST, РЅРѕ РѕРїРµСЂРёСЂСѓРµС‚ СЃ РїРµСЂРµРјРµРЅРЅС‹РјРё СЃСЂРµРґС‹
 
-   Исходная строка (CmdLine) не модифицируется!!! - на что явно указывает const
+   РСЃС…РѕРґРЅР°СЏ СЃС‚СЂРѕРєР° (CmdLine) РЅРµ РјРѕРґРёС„РёС†РёСЂСѓРµС‚СЃСЏ!!! - РЅР° С‡С‚Рѕ СЏРІРЅРѕ СѓРєР°Р·С‹РІР°РµС‚ const
                                                     IS 20.03.2002 :-)
 */
 const wchar_t *PrepareOSIfExist(const string& CmdLine)
@@ -1152,16 +1152,16 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 	string strExpandedStr;
 	const wchar_t *PtrCmd=CmdLine.data(), *CmdStart;
 	int Not=FALSE;
-	int Exist=0; // признак наличия конструкции "IF [NOT] EXIST filename command"
-	// > 0 - есть такая конструкция
+	int Exist=0; // РїСЂРёР·РЅР°Рє РЅР°Р»РёС‡РёСЏ РєРѕРЅСЃС‚СЂСѓРєС†РёРё "IF [NOT] EXIST filename command"
+	// > 0 - РµСЃС‚СЊ С‚Р°РєР°СЏ РєРѕРЅСЃС‚СЂСѓРєС†РёСЏ
 
 	/* $ 25.04.2001 DJ
-	   обработка @ в IF EXIST
+	   РѕР±СЂР°Р±РѕС‚РєР° @ РІ IF EXIST
 	*/
 	if (*PtrCmd == L'@')
 	{
-		// здесь @ игнорируется; ее вставит в правильное место функция
-		// ExtractIfExistCommand в filetype.cpp
+		// Р·РґРµСЃСЊ @ РёРіРЅРѕСЂРёСЂСѓРµС‚СЃСЏ; РµРµ РІСЃС‚Р°РІРёС‚ РІ РїСЂР°РІРёР»СЊРЅРѕРµ РјРµСЃС‚Рѕ С„СѓРЅРєС†РёСЏ
+		// ExtractIfExistCommand РІ filetype.cpp
 		PtrCmd++;
 
 		while (*PtrCmd && IsSpace(*PtrCmd))
@@ -1170,7 +1170,7 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 
 	for (;;)
 	{
-		if (!PtrCmd || !*PtrCmd || StrCmpNI(PtrCmd,L"IF ",3)) //??? IF/I не обрабатывается
+		if (!PtrCmd || !*PtrCmd || StrCmpNI(PtrCmd,L"IF ",3)) //??? IF/I РЅРµ РѕР±СЂР°Р±Р°С‚С‹РІР°РµС‚СЃСЏ
 			break;
 
 		PtrCmd+=3;
@@ -1207,7 +1207,7 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 
 			CmdStart=PtrCmd;
 			/* $ 25.04.01 DJ
-			   обработка кавычек внутри имени файла в IF EXIST
+			   РѕР±СЂР°Р±РѕС‚РєР° РєР°РІС‹С‡РµРє РІРЅСѓС‚СЂРё РёРјРµРЅРё С„Р°Р№Р»Р° РІ IF EXIST
 			*/
 			BOOL InQuotes=FALSE;
 
@@ -1238,7 +1238,7 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 
 				size_t DirOffset = 0;
 				ParsePath(strExpandedStr, &DirOffset);
-				if (strExpandedStr.find_first_of(L"*?", DirOffset) != string::npos) // это маска?
+				if (strExpandedStr.find_first_of(L"*?", DirOffset) != string::npos) // СЌС‚Рѕ РјР°СЃРєР°?
 				{
 					os::FAR_FIND_DATA wfd;
 					FileExists = os::GetFindDataEx(strFullPath, wfd);
@@ -1311,7 +1311,7 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 }
 
 /*
-Проверить "Это батник?"
+РџСЂРѕРІРµСЂРёС‚СЊ "Р­С‚Рѕ Р±Р°С‚РЅРёРє?"
 */
 bool IsBatchExtType(const string& ExtPtr)
 {

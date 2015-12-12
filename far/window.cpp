@@ -1,11 +1,11 @@
-/*
+п»ї/*
 window.cpp
 
-Parent class для немодальных объектов
+Parent class РґР»СЏ РЅРµРјРѕРґР°Р»СЊРЅС‹С… РѕР±СЉРµРєС‚РѕРІ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

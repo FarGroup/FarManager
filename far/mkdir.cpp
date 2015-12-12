@@ -1,11 +1,11 @@
-/*
+п»ї/*
 mkdir.cpp
 
-Создание каталога
+РЎРѕР·РґР°РЅРёРµ РєР°С‚Р°Р»РѕРіР°
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -84,19 +84,19 @@ intptr_t MkDirDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 				string strDirName = reinterpret_cast<LPCWSTR>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, MKDIR_EDIT, nullptr));
 				Global->Opt->MultiMakeDir = (Dlg->SendMessage(DM_GETCHECK, MKDIR_CHECKBOX, nullptr) == BSTATE_CHECKED);
 
-				// это по поводу создания одиночного каталога, который
-				// начинается с пробела! Чтобы ручками не заключать
-				// такой каталог в кавычки
+				// СЌС‚Рѕ РїРѕ РїРѕРІРѕРґСѓ СЃРѕР·РґР°РЅРёСЏ РѕРґРёРЅРѕС‡РЅРѕРіРѕ РєР°С‚Р°Р»РѕРіР°, РєРѕС‚РѕСЂС‹Р№
+				// РЅР°С‡РёРЅР°РµС‚СЃСЏ СЃ РїСЂРѕР±РµР»Р°! Р§С‚РѕР±С‹ СЂСѓС‡РєР°РјРё РЅРµ Р·Р°РєР»СЋС‡Р°С‚СЊ
+				// С‚Р°РєРѕР№ РєР°С‚Р°Р»РѕРі РІ РєР°РІС‹С‡РєРё
 				if (Global->Opt->MultiMakeDir && strDirName.find_first_of(L";,\"") == string::npos)
 				{
 					QuoteSpaceOnly(strDirName);
 				}
 
-				// нужно создать только ОДИН каталог
+				// РЅСѓР¶РЅРѕ СЃРѕР·РґР°С‚СЊ С‚РѕР»СЊРєРѕ РћР”РРќ РєР°С‚Р°Р»РѕРі
 				if (!Global->Opt->MultiMakeDir)
 				{
-					// уберем все лишние кавычки
-					// возьмем в кавычки, т.к. могут быть разделители
+					// СѓР±РµСЂРµРј РІСЃРµ Р»РёС€РЅРёРµ РєР°РІС‹С‡РєРё
+					// РІРѕР·СЊРјРµРј РІ РєР°РІС‹С‡РєРё, С‚.Рє. РјРѕРіСѓС‚ Р±С‹С‚СЊ СЂР°Р·РґРµР»РёС‚РµР»Рё
 					InsertQuote(Unquote(strDirName));
 				}
 

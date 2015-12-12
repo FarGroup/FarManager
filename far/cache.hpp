@@ -1,12 +1,14 @@
+п»ї#ifndef CACHE_HPP_2D98721D_C727_4F3B_86A2_BEDD0B1D6D8A
+#define CACHE_HPP_2D98721D_C727_4F3B_86A2_BEDD0B1D6D8A
 #pragma once
 
 /*
 cache.hpp
 
-Кеширование записи в файл/чтения из файла
+РљРµС€РёСЂРѕРІР°РЅРёРµ Р·Р°РїРёСЃРё РІ С„Р°Р№Р»/С‡С‚РµРЅРёСЏ РёР· С„Р°Р№Р»Р°
 */
 /*
-Copyright © 2009 Far Group
+Copyright В© 2009 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -67,3 +69,5 @@ private:
 	size_t FreeSize;
 	bool Flushed;
 };
+
+#endif // CACHE_HPP_2D98721D_C727_4F3B_86A2_BEDD0B1D6D8A

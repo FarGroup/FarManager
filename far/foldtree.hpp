@@ -1,13 +1,15 @@
+п»ї#ifndef FOLDTREE_HPP_B257EC6E_953F_44BB_9F98_D55AEB1D584A
+#define FOLDTREE_HPP_B257EC6E_953F_44BB_9F98_D55AEB1D584A
 #pragma once
 
 /*
 foldtree.hpp
 
-Поиск каталога по Alt-F10
+РџРѕРёСЃРє РєР°С‚Р°Р»РѕРіР° РїРѕ Alt-F10
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -54,7 +56,7 @@ public:
 	virtual void InitKeyBar() override;
 	virtual void SetScreenPosition() override;
 	virtual void ResizeConsole() override;
-	/* $ Введена для нужд CtrlAltShift OT */
+	/* $ Р’РІРµРґРµРЅР° РґР»СЏ РЅСѓР¶Рґ CtrlAltShift OT */
 	virtual bool CanFastHide() const override;
 	virtual int GetTypeAndName(string &strType, string &strName) override;
 	virtual int GetType() const override { return windowtype_findfolder; }
@@ -75,3 +77,5 @@ private:
 	string strNewFolder;
 	string strLastName;
 };
+
+#endif // FOLDTREE_HPP_B257EC6E_953F_44BB_9F98_D55AEB1D584A

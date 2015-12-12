@@ -1,13 +1,15 @@
+п»ї#ifndef EDIT_HPP_5A787FA0_4FFF_4A61_811F_F8BAEDEF241B
+#define EDIT_HPP_5A787FA0_4FFF_4A61_811F_F8BAEDEF241B
 #pragma once
 
 /*
 edit.hpp
 
-Строка редактора
+РЎС‚СЂРѕРєР° СЂРµРґР°РєС‚РѕСЂР°
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -37,7 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "bitflags.hpp"
 #include "RegExp.hpp"
 
-// Младший байт (маска 0xFF) юзается классом ScreenObject!!!
+// РњР»Р°РґС€РёР№ Р±Р°Р№С‚ (РјР°СЃРєР° 0xFF) СЋР·Р°РµС‚СЃСЏ РєР»Р°СЃСЃРѕРј ScreenObject!!!
 enum FLAGS_CLASS_EDITLINE
 {
 	FEDITLINE_MARKINGBLOCK         = 0x00000100,
@@ -47,17 +49,17 @@ enum FLAGS_CLASS_EDITLINE
 	FEDITLINE_EDITBEYONDEND        = 0x00001000,
 	FEDITLINE_EDITORMODE           = 0x00002000,
 	FEDITLINE_OVERTYPE             = 0x00004000,
-	FEDITLINE_DELREMOVESBLOCKS     = 0x00008000,  // Del удаляет блоки (Global->Opt->EditorDelRemovesBlocks)
-	FEDITLINE_PERSISTENTBLOCKS     = 0x00010000,  // Постоянные блоки (Global->Opt->EditorPersistentBlocks)
+	FEDITLINE_DELREMOVESBLOCKS     = 0x00008000,  // Del СѓРґР°Р»СЏРµС‚ Р±Р»РѕРєРё (Global->Opt->EditorDelRemovesBlocks)
+	FEDITLINE_PERSISTENTBLOCKS     = 0x00010000,  // РџРѕСЃС‚РѕСЏРЅРЅС‹Рµ Р±Р»РѕРєРё (Global->Opt->EditorPersistentBlocks)
 	FEDITLINE_SHOWWHITESPACE       = 0x00020000,
 	FEDITLINE_SHOWLINEBREAK        = 0x00040000,
 	FEDITLINE_READONLY             = 0x00080000,
 	FEDITLINE_CURSORVISIBLE        = 0x00100000,
-	// Если ни один из FEDITLINE_PARENT_ не указан (или указаны оба), то Edit
-	// явно не в диалоге юзается.
-	FEDITLINE_PARENT_SINGLELINE    = 0x00200000,  // обычная строка ввода в диалоге
-	FEDITLINE_PARENT_MULTILINE     = 0x00400000,  // для будущего Memo-Edit (DI_EDITOR или DIF_MULTILINE)
-	FEDITLINE_PARENT_EDITOR        = 0x00800000,  // "вверху" обычный редактор
+	// Р•СЃР»Рё РЅРё РѕРґРёРЅ РёР· FEDITLINE_PARENT_ РЅРµ СѓРєР°Р·Р°РЅ (РёР»Рё СѓРєР°Р·Р°РЅС‹ РѕР±Р°), С‚Рѕ Edit
+	// СЏРІРЅРѕ РЅРµ РІ РґРёР°Р»РѕРіРµ СЋР·Р°РµС‚СЃСЏ.
+	FEDITLINE_PARENT_SINGLELINE    = 0x00200000,  // РѕР±С‹С‡РЅР°СЏ СЃС‚СЂРѕРєР° РІРІРѕРґР° РІ РґРёР°Р»РѕРіРµ
+	FEDITLINE_PARENT_MULTILINE     = 0x00400000,  // РґР»СЏ Р±СѓРґСѓС‰РµРіРѕ Memo-Edit (DI_EDITOR РёР»Рё DIF_MULTILINE)
+	FEDITLINE_PARENT_EDITOR        = 0x00800000,  // "РІРІРµСЂС…Сѓ" РѕР±С‹С‡РЅС‹Р№ СЂРµРґР°РєС‚РѕСЂ
 	FEDITLINE_CMP_CHANGED          = 0x01000000,
 };
 
@@ -171,7 +173,7 @@ public:
 	int GetLeftPos() const {return LeftPos;}
 	void SetLeftPos(int NewPos) {LeftPos=NewPos;}
 	void SetPasswordMode(bool Mode) {m_Flags.Change(FEDITLINE_PASSWORDMODE,Mode);}
-	// Получение максимального значения строки для потребностей Dialod API
+	// РџРѕР»СѓС‡РµРЅРёРµ РјР°РєСЃРёРјР°Р»СЊРЅРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ СЃС‚СЂРѕРєРё РґР»СЏ РїРѕС‚СЂРµР±РЅРѕСЃС‚РµР№ Dialod API
 	virtual int GetMaxLength() const {return -1;}
 	void SetOvertypeMode(bool Mode) {m_Flags.Change(FEDITLINE_OVERTYPE, Mode);}
 	bool GetOvertypeMode() const {return m_Flags.Check(FEDITLINE_OVERTYPE);}
@@ -267,3 +269,5 @@ private:
 	TBitFlags<unsigned char> ColorListFlags;
 	unsigned char EndType;
 };
+
+#endif // EDIT_HPP_5A787FA0_4FFF_4A61_811F_F8BAEDEF241B

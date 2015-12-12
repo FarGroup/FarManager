@@ -1,11 +1,11 @@
-/*
+п»ї/*
 flink.cpp
 
-Куча разных функций по обработке Link`ов - Hard&Sym
+РљСѓС‡Р° СЂР°Р·РЅС‹С… С„СѓРЅРєС†РёР№ РїРѕ РѕР±СЂР°Р±РѕС‚РєРµ Link`РѕРІ - Hard&Sym
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -404,10 +404,10 @@ bool GetSubstName(int DriveType,const string& DeviceName, string &strTargetPath)
 {
 	bool Ret=false;
 	/*
-	+ Обработка в зависимости от Global->Opt->SubstNameRule
-	битовая маска:
-	0 - если установлен, то опрашивать сменные диски
-	1 - если установлен, то опрашивать все остальные
+	+ РћР±СЂР°Р±РѕС‚РєР° РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ Global->Opt->SubstNameRule
+	Р±РёС‚РѕРІР°СЏ РјР°СЃРєР°:
+	0 - РµСЃР»Рё СѓСЃС‚Р°РЅРѕРІР»РµРЅ, С‚Рѕ РѕРїСЂР°С€РёРІР°С‚СЊ СЃРјРµРЅРЅС‹Рµ РґРёСЃРєРё
+	1 - РµСЃР»Рё СѓСЃС‚Р°РЅРѕРІР»РµРЅ, С‚Рѕ РѕРїСЂР°С€РёРІР°С‚СЊ РІСЃРµ РѕСЃС‚Р°Р»СЊРЅС‹Рµ
 	*/
 	bool DriveRemovable = (DriveType==DRIVE_REMOVABLE || DriveType==DRIVE_CDROM);
 
@@ -550,13 +550,13 @@ void NormalizeSymlinkName(string &strLinkName)
 	}
 }
 
-// Кусок для создания SymLink для каталогов.
+// РљСѓСЃРѕРє РґР»СЏ СЃРѕР·РґР°РЅРёСЏ SymLink РґР»СЏ РєР°С‚Р°Р»РѕРіРѕРІ.
 int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes LinkType, bool Silent, bool HoldTarget)
 {
 	if (!Target.empty() && !LinkName.empty())
 	{
 		string strFullTarget, strFullLink, strSelOnlyName;
-		// выделим имя
+		// РІС‹РґРµР»РёРј РёРјСЏ
 		strSelOnlyName = Target;
 		DeleteEndSlash(strSelOnlyName);
 		const auto SlashPos = FindLastSlash(strSelOnlyName);
@@ -564,7 +564,7 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 
 		bool symlink = LinkType==RP_SYMLINK || LinkType==RP_SYMLINKFILE || LinkType==RP_SYMLINKDIR;
 
-		if (Target[1] == L':' && (!Target[2] || (IsSlash(Target[2]) && !Target[3]))) // C: или C:/
+		if (Target[1] == L':' && (!Target[2] || (IsSlash(Target[2]) && !Target[3]))) // C: РёР»Рё C:/
 		{
 //      if(Flags&FCOPY_VOLMOUNT)
 			{
@@ -572,9 +572,9 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 				AddEndSlash(strFullTarget);
 			}
 			/*
-			  Вот здесь - ну очень умное поведение!
-			  Т.е. если в качестве SelName передали "C:", то в этом куске происходит
-			  коррекция типа линка - с symlink`а на volmount
+			  Р’РѕС‚ Р·РґРµСЃСЊ - РЅСѓ РѕС‡РµРЅСЊ СѓРјРЅРѕРµ РїРѕРІРµРґРµРЅРёРµ!
+			  Рў.Рµ. РµСЃР»Рё РІ РєР°С‡РµСЃС‚РІРµ SelName РїРµСЂРµРґР°Р»Рё "C:", С‚Рѕ РІ СЌС‚РѕРј РєСѓСЃРєРµ РїСЂРѕРёСЃС…РѕРґРёС‚
+			  РєРѕСЂСЂРµРєС†РёСЏ С‚РёРїР° Р»РёРЅРєР° - СЃ symlink`Р° РЅР° volmount
 			*/
 			LinkType=RP_VOLMOUNT;
 		}
@@ -601,7 +601,7 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 
 			if (symlink)
 			{
-				// в этом случае создается путь, но не сам каталог
+				// РІ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ СЃРѕР·РґР°РµС‚СЃСЏ РїСѓС‚СЊ, РЅРѕ РЅРµ СЃР°Рј РєР°С‚Р°Р»РѕРі
 				string strPath=strFullLink;
 
 				if (CutToSlash(strPath))
@@ -616,7 +616,7 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 
 				if (LinkType==RP_EXACTCOPY)
 				{
-					// в этом случае создается или каталог, или пустой файл
+					// РІ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ СЃРѕР·РґР°РµС‚СЃСЏ РёР»Рё РєР°С‚Р°Р»РѕРі, РёР»Рё РїСѓСЃС‚РѕР№ С„Р°Р№Р»
 					if (os::fs::is_file(strFullTarget))
 						CreateDir=false;
 				}

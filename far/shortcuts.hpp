@@ -1,3 +1,5 @@
+ï»¿#ifndef SHORTCUTS_HPP_29F659B5_FECB_4C3C_8499_D17E01487D1C
+#define SHORTCUTS_HPP_29F659B5_FECB_4C3C_8499_D17E01487D1C
 #pragma once
 
 /*
@@ -6,8 +8,8 @@ shortcuts.hpp
 Folder shortcuts
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright Â© 1996 Eugene Roshal
+Copyright Â© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -57,3 +59,5 @@ private:
 	std::array<std::list<shortcut>, 10> Items;
 	bool Changed;
 };
+
+#endif // SHORTCUTS_HPP_29F659B5_FECB_4C3C_8499_D17E01487D1C

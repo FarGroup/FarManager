@@ -1,17 +1,19 @@
+п»ї#ifndef KEYS_HPP_C9983354_D8EA_4A70_9E16_722A332B503D
+#define KEYS_HPP_C9983354_D8EA_4A70_9E16_722A332B503D
 #pragma once
 /*
 keys.hpp
 
-Внутренние фаровские имена клавиш
+Р’РЅСѓС‚СЂРµРЅРЅРёРµ С„Р°СЂРѕРІСЃРєРёРµ РёРјРµРЅР° РєР»Р°РІРёС€
 
-ВНИМАНИЕ!
-  Новые пвсевдоклавиши, типа KEY_FOCUS_CHANGED и KEY_CONSOLE_BUFFER_RESIZE
-  добавлять между KEY_END_FKEY и KEY_END_SKEY
+Р’РќРРњРђРќРР•!
+  РќРѕРІС‹Рµ РїРІСЃРµРІРґРѕРєР»Р°РІРёС€Рё, С‚РёРїР° KEY_FOCUS_CHANGED Рё KEY_CONSOLE_BUFFER_RESIZE
+  РґРѕР±Р°РІР»СЏС‚СЊ РјРµР¶РґСѓ KEY_END_FKEY Рё KEY_END_SKEY
 */
 
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -233,11 +235,11 @@ enum far_key_code
 	KEY_END_SKEY             =0x0003FFFF,
 	KEY_LAST_BASE            =KEY_END_SKEY,
 
-	// см macroopcode.hpp
+	// СЃРј macroopcode.hpp
 	KEY_MACRO_BASE           =INTERNAL_MACRO_BASE,
-	KEY_MACRO_C_BASE         =INTERNAL_MACRO_BASE+0x0400,     // булевые условия    0x00080400 - 0x000807FF
-	KEY_MACRO_V_BASE         =INTERNAL_MACRO_BASE+0x0800,     // разные переменные  0x00080800 - 0x00080BFF
-	KEY_MACRO_F_BASE         =INTERNAL_MACRO_BASE+0x0C00,     // функции            0x00080C00 -
+	KEY_MACRO_C_BASE         =INTERNAL_MACRO_BASE+0x0400,     // Р±СѓР»РµРІС‹Рµ СѓСЃР»РѕРІРёСЏ    0x00080400 - 0x000807FF
+	KEY_MACRO_V_BASE         =INTERNAL_MACRO_BASE+0x0800,     // СЂР°Р·РЅС‹Рµ РїРµСЂРµРјРµРЅРЅС‹Рµ  0x00080800 - 0x00080BFF
+	KEY_MACRO_F_BASE         =INTERNAL_MACRO_BASE+0x0C00,     // С„СѓРЅРєС†РёРё            0x00080C00 -
 
 	KEY_MACRO_ENDBASE        =0x000FFFFF,
 
@@ -1295,3 +1297,5 @@ inline bool IsCharKey(unsigned int Key)
 {
 	return Key < 0x1000 || (Key >= KEY_NUMPAD0 && Key <= KEY_DIVIDE);
 }
+
+#endif // KEYS_HPP_C9983354_D8EA_4A70_9E16_722A332B503D

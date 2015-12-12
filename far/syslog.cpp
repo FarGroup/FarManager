@@ -1,11 +1,11 @@
-/*
+п»ї/*
 syslog.cpp
 
-Системный отладочный лог :-)
+РЎРёСЃС‚РµРјРЅС‹Р№ РѕС‚Р»Р°РґРѕС‡РЅС‹Р№ Р»РѕРі :-)
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -732,7 +732,7 @@ void WINAPI FarSysLog_INPUT_RECORD_Dump(const wchar_t *ModuleName, const INPUT_R
 }
 #endif
 
-// "Умный класс для SysLog
+// "РЈРјРЅС‹Р№ РєР»Р°СЃСЃ РґР»СЏ SysLog
 CleverSysLog::CleverSysLog(const wchar_t *Title)
 {
 #if defined(SYSLOG)
@@ -1104,17 +1104,17 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(F_CALLPLUGIN),               // V=callplugin(SysID[,param])
 		DEF_MCODE_(F_REPLACE),                  // S=replace(sS,sF,sR[,Count[,Mode]])
 		DEF_MCODE_(F_PROMPT),                   // S=prompt(["Title"[,"Prompt"[,flags[, "Src"[, "History"]]]]])
-		DEF_MCODE_(F_BM_ADD),                   // N=BM.Add()  - добавить текущие координаты и обрезать хвост
-		DEF_MCODE_(F_BM_CLEAR),                 // N=BM.Clear() - очистить все закладки
-		DEF_MCODE_(F_BM_DEL),                   // N=BM.Del([Idx]) - удаляет закладку с указанным индексом (x=1...), 0 - удаляет текущую закладку
-		DEF_MCODE_(F_BM_GET),                   // N=BM.Get(Idx,M) - возвращает координаты строки (M==0) или колонки (M==1) закладки с индексом (Idx=1...)
-		DEF_MCODE_(F_BM_GOTO),                  // N=BM.Goto([n]) - переход на закладку с указанным индексом (0 --> текущую)
-		DEF_MCODE_(F_BM_NEXT),                  // N=BM.Next() - перейти на следующую закладку
-		DEF_MCODE_(F_BM_POP),                   // N=BM.Pop() - восстановить текущую позицию из закладки в конце стека и удалить закладку
-		DEF_MCODE_(F_BM_PREV),                  // N=BM.Prev() - перейти на предыдущую закладку
-		DEF_MCODE_(F_BM_BACK),                  // N=BM.Back() - перейти на предыдущую закладку с возможным сохранением текущей позиции
-		DEF_MCODE_(F_BM_PUSH),                  // N=BM.Push() - сохранить текущую позицию в виде закладки в конце стека
-		DEF_MCODE_(F_BM_STAT),                  // N=BM.Stat([M]) - возвращает информацию о закладках, N=0 - текущее количество закладок
+		DEF_MCODE_(F_BM_ADD),                   // N=BM.Add()  - РґРѕР±Р°РІРёС‚СЊ С‚РµРєСѓС‰РёРµ РєРѕРѕСЂРґРёРЅР°С‚С‹ Рё РѕР±СЂРµР·Р°С‚СЊ С…РІРѕСЃС‚
+		DEF_MCODE_(F_BM_CLEAR),                 // N=BM.Clear() - РѕС‡РёСЃС‚РёС‚СЊ РІСЃРµ Р·Р°РєР»Р°РґРєРё
+		DEF_MCODE_(F_BM_DEL),                   // N=BM.Del([Idx]) - СѓРґР°Р»СЏРµС‚ Р·Р°РєР»Р°РґРєСѓ СЃ СѓРєР°Р·Р°РЅРЅС‹Рј РёРЅРґРµРєСЃРѕРј (x=1...), 0 - СѓРґР°Р»СЏРµС‚ С‚РµРєСѓС‰СѓСЋ Р·Р°РєР»Р°РґРєСѓ
+		DEF_MCODE_(F_BM_GET),                   // N=BM.Get(Idx,M) - РІРѕР·РІСЂР°С‰Р°РµС‚ РєРѕРѕСЂРґРёРЅР°С‚С‹ СЃС‚СЂРѕРєРё (M==0) РёР»Рё РєРѕР»РѕРЅРєРё (M==1) Р·Р°РєР»Р°РґРєРё СЃ РёРЅРґРµРєСЃРѕРј (Idx=1...)
+		DEF_MCODE_(F_BM_GOTO),                  // N=BM.Goto([n]) - РїРµСЂРµС…РѕРґ РЅР° Р·Р°РєР»Р°РґРєСѓ СЃ СѓРєР°Р·Р°РЅРЅС‹Рј РёРЅРґРµРєСЃРѕРј (0 --> С‚РµРєСѓС‰СѓСЋ)
+		DEF_MCODE_(F_BM_NEXT),                  // N=BM.Next() - РїРµСЂРµР№С‚Рё РЅР° СЃР»РµРґСѓСЋС‰СѓСЋ Р·Р°РєР»Р°РґРєСѓ
+		DEF_MCODE_(F_BM_POP),                   // N=BM.Pop() - РІРѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ С‚РµРєСѓС‰СѓСЋ РїРѕР·РёС†РёСЋ РёР· Р·Р°РєР»Р°РґРєРё РІ РєРѕРЅС†Рµ СЃС‚РµРєР° Рё СѓРґР°Р»РёС‚СЊ Р·Р°РєР»Р°РґРєСѓ
+		DEF_MCODE_(F_BM_PREV),                  // N=BM.Prev() - РїРµСЂРµР№С‚Рё РЅР° РїСЂРµРґС‹РґСѓС‰СѓСЋ Р·Р°РєР»Р°РґРєСѓ
+		DEF_MCODE_(F_BM_BACK),                  // N=BM.Back() - РїРµСЂРµР№С‚Рё РЅР° РїСЂРµРґС‹РґСѓС‰СѓСЋ Р·Р°РєР»Р°РґРєСѓ СЃ РІРѕР·РјРѕР¶РЅС‹Рј СЃРѕС…СЂР°РЅРµРЅРёРµРј С‚РµРєСѓС‰РµР№ РїРѕР·РёС†РёРё
+		DEF_MCODE_(F_BM_PUSH),                  // N=BM.Push() - СЃРѕС…СЂР°РЅРёС‚СЊ С‚РµРєСѓС‰СѓСЋ РїРѕР·РёС†РёСЋ РІ РІРёРґРµ Р·Р°РєР»Р°РґРєРё РІ РєРѕРЅС†Рµ СЃС‚РµРєР°
+		DEF_MCODE_(F_BM_STAT),                  // N=BM.Stat([M]) - РІРѕР·РІСЂР°С‰Р°РµС‚ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ Р·Р°РєР»Р°РґРєР°С…, N=0 - С‚РµРєСѓС‰РµРµ РєРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РєР»Р°РґРѕРє
 		DEF_MCODE_(F_TRIM),                     // S=trim(S[,N])
 		DEF_MCODE_(F_FLOAT),                    // N=float(V)
 		DEF_MCODE_(F_TESTFOLDER),               // N=testfolder(S)
@@ -1156,128 +1156,128 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(F_SETCUSTOMSORTMODE),        //
 		DEF_MCODE_(F_KEYMACRO),                 //
 		DEF_MCODE_(F_FAR_GETCONFIG),            //
-		DEF_MCODE_(C_AREA_OTHER),               // Режим копирования текста с экрана, вертикальные меню
-		DEF_MCODE_(C_AREA_SHELL),               // Файловые панели
-		DEF_MCODE_(C_AREA_VIEWER),              // Внутренняя программа просмотра
-		DEF_MCODE_(C_AREA_EDITOR),              // Редактор
-		DEF_MCODE_(C_AREA_DIALOG),              // Диалоги
-		DEF_MCODE_(C_AREA_SEARCH),              // Быстрый поиск в панелях
-		DEF_MCODE_(C_AREA_DISKS),               // Меню выбора дисков
-		DEF_MCODE_(C_AREA_MAINMENU),            // Основное меню
-		DEF_MCODE_(C_AREA_MENU),                // Прочие меню
-		DEF_MCODE_(C_AREA_HELP),                // Система помощи
-		DEF_MCODE_(C_AREA_INFOPANEL),           // Информационная панель
-		DEF_MCODE_(C_AREA_QVIEWPANEL),          // Панель быстрого просмотра
-		DEF_MCODE_(C_AREA_TREEPANEL),           // Панель дерева папок
-		DEF_MCODE_(C_AREA_FINDFOLDER),          // Поиск папок
-		DEF_MCODE_(C_AREA_USERMENU),            // Меню пользователя
-		DEF_MCODE_(C_AREA_SHELL_AUTOCOMPLETION),// Список автодополнения в панелях в ком.строке
-		DEF_MCODE_(C_AREA_DIALOG_AUTOCOMPLETION),// Список автодополнения в диалоге
-		DEF_MCODE_(C_FULLSCREENMODE),           // полноэкранный режим?
+		DEF_MCODE_(C_AREA_OTHER),               // Р РµР¶РёРј РєРѕРїРёСЂРѕРІР°РЅРёСЏ С‚РµРєСЃС‚Р° СЃ СЌРєСЂР°РЅР°, РІРµСЂС‚РёРєР°Р»СЊРЅС‹Рµ РјРµРЅСЋ
+		DEF_MCODE_(C_AREA_SHELL),               // Р¤Р°Р№Р»РѕРІС‹Рµ РїР°РЅРµР»Рё
+		DEF_MCODE_(C_AREA_VIEWER),              // Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РїСЂРѕРіСЂР°РјРјР° РїСЂРѕСЃРјРѕС‚СЂР°
+		DEF_MCODE_(C_AREA_EDITOR),              // Р РµРґР°РєС‚РѕСЂ
+		DEF_MCODE_(C_AREA_DIALOG),              // Р”РёР°Р»РѕРіРё
+		DEF_MCODE_(C_AREA_SEARCH),              // Р‘С‹СЃС‚СЂС‹Р№ РїРѕРёСЃРє РІ РїР°РЅРµР»СЏС…
+		DEF_MCODE_(C_AREA_DISKS),               // РњРµРЅСЋ РІС‹Р±РѕСЂР° РґРёСЃРєРѕРІ
+		DEF_MCODE_(C_AREA_MAINMENU),            // РћСЃРЅРѕРІРЅРѕРµ РјРµРЅСЋ
+		DEF_MCODE_(C_AREA_MENU),                // РџСЂРѕС‡РёРµ РјРµРЅСЋ
+		DEF_MCODE_(C_AREA_HELP),                // РЎРёСЃС‚РµРјР° РїРѕРјРѕС‰Рё
+		DEF_MCODE_(C_AREA_INFOPANEL),           // РРЅС„РѕСЂРјР°С†РёРѕРЅРЅР°СЏ РїР°РЅРµР»СЊ
+		DEF_MCODE_(C_AREA_QVIEWPANEL),          // РџР°РЅРµР»СЊ Р±С‹СЃС‚СЂРѕРіРѕ РїСЂРѕСЃРјРѕС‚СЂР°
+		DEF_MCODE_(C_AREA_TREEPANEL),           // РџР°РЅРµР»СЊ РґРµСЂРµРІР° РїР°РїРѕРє
+		DEF_MCODE_(C_AREA_FINDFOLDER),          // РџРѕРёСЃРє РїР°РїРѕРє
+		DEF_MCODE_(C_AREA_USERMENU),            // РњРµРЅСЋ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
+		DEF_MCODE_(C_AREA_SHELL_AUTOCOMPLETION),// РЎРїРёСЃРѕРє Р°РІС‚РѕРґРѕРїРѕР»РЅРµРЅРёСЏ РІ РїР°РЅРµР»СЏС… РІ РєРѕРј.СЃС‚СЂРѕРєРµ
+		DEF_MCODE_(C_AREA_DIALOG_AUTOCOMPLETION),// РЎРїРёСЃРѕРє Р°РІС‚РѕРґРѕРїРѕР»РЅРµРЅРёСЏ РІ РґРёР°Р»РѕРіРµ
+		DEF_MCODE_(C_FULLSCREENMODE),           // РїРѕР»РЅРѕСЌРєСЂР°РЅРЅС‹Р№ СЂРµР¶РёРј?
 		DEF_MCODE_(C_ISUSERADMIN),              // Administrator status
-		DEF_MCODE_(C_BOF),                      // начало файла/активного каталога?
-		DEF_MCODE_(C_EOF),                      // конец файла/активного каталога?
-		DEF_MCODE_(C_EMPTY),                    // ком.строка пуста?
-		DEF_MCODE_(C_SELECTED),                 // выделенный блок есть?
-		DEF_MCODE_(C_ROOTFOLDER),               // аналог MCODE_C_APANEL_ROOT для активной панели
-		DEF_MCODE_(C_APANEL_BOF),               // начало активного  каталога?
-		DEF_MCODE_(C_PPANEL_BOF),               // начало пассивного каталога?
-		DEF_MCODE_(C_APANEL_EOF),               // конец активного  каталога?
-		DEF_MCODE_(C_PPANEL_EOF),               // конец пассивного каталога?
-		DEF_MCODE_(C_APANEL_ISEMPTY),           // активная панель:  пуста?
-		DEF_MCODE_(C_PPANEL_ISEMPTY),           // пассивная панель: пуста?
-		DEF_MCODE_(C_APANEL_SELECTED),          // активная панель:  выделенные элементы есть?
-		DEF_MCODE_(C_PPANEL_SELECTED),          // пассивная панель: выделенные элементы есть?
-		DEF_MCODE_(C_APANEL_ROOT),              // это корневой каталог активной панели?
-		DEF_MCODE_(C_PPANEL_ROOT),              // это корневой каталог пассивной панели?
-		DEF_MCODE_(C_APANEL_VISIBLE),           // активная панель:  видима?
-		DEF_MCODE_(C_PPANEL_VISIBLE),           // пассивная панель: видима?
-		DEF_MCODE_(C_APANEL_PLUGIN),            // активная панель:  плагиновая?
-		DEF_MCODE_(C_PPANEL_PLUGIN),            // пассивная панель: плагиновая?
-		DEF_MCODE_(C_APANEL_FILEPANEL),         // активная панель:  файловая?
-		DEF_MCODE_(C_PPANEL_FILEPANEL),         // пассивная панель: файловая?
-		DEF_MCODE_(C_APANEL_FOLDER),            // активная панель:  текущий элемент каталог?
-		DEF_MCODE_(C_PPANEL_FOLDER),            // пассивная панель: текущий элемент каталог?
-		DEF_MCODE_(C_APANEL_LEFT),              // активная панель левая?
-		DEF_MCODE_(C_PPANEL_LEFT),              // пассивная панель левая?
-		DEF_MCODE_(C_APANEL_LFN),               // на активной панели длинные имена?
-		DEF_MCODE_(C_PPANEL_LFN),               // на пассивной панели длинные имена?
-		DEF_MCODE_(C_APANEL_FILTER),            // на активной панели включен фильтр?
-		DEF_MCODE_(C_PPANEL_FILTER),            // на пассивной панели включен фильтр?
-		DEF_MCODE_(C_CMDLINE_BOF),              // курсор в начале cmd-строки редактирования?
-		DEF_MCODE_(C_CMDLINE_EOF),              // курсор в конце cmd-строки редактирования?
-		DEF_MCODE_(C_CMDLINE_EMPTY),            // ком.строка пуста?
-		DEF_MCODE_(C_CMDLINE_SELECTED),         // в ком.строке есть выделение блока?
+		DEF_MCODE_(C_BOF),                      // РЅР°С‡Р°Р»Рѕ С„Р°Р№Р»Р°/Р°РєС‚РёРІРЅРѕРіРѕ РєР°С‚Р°Р»РѕРіР°?
+		DEF_MCODE_(C_EOF),                      // РєРѕРЅРµС† С„Р°Р№Р»Р°/Р°РєС‚РёРІРЅРѕРіРѕ РєР°С‚Р°Р»РѕРіР°?
+		DEF_MCODE_(C_EMPTY),                    // РєРѕРј.СЃС‚СЂРѕРєР° РїСѓСЃС‚Р°?
+		DEF_MCODE_(C_SELECTED),                 // РІС‹РґРµР»РµРЅРЅС‹Р№ Р±Р»РѕРє РµСЃС‚СЊ?
+		DEF_MCODE_(C_ROOTFOLDER),               // Р°РЅР°Р»РѕРі MCODE_C_APANEL_ROOT РґР»СЏ Р°РєС‚РёРІРЅРѕР№ РїР°РЅРµР»Рё
+		DEF_MCODE_(C_APANEL_BOF),               // РЅР°С‡Р°Р»Рѕ Р°РєС‚РёРІРЅРѕРіРѕ  РєР°С‚Р°Р»РѕРіР°?
+		DEF_MCODE_(C_PPANEL_BOF),               // РЅР°С‡Р°Р»Рѕ РїР°СЃСЃРёРІРЅРѕРіРѕ РєР°С‚Р°Р»РѕРіР°?
+		DEF_MCODE_(C_APANEL_EOF),               // РєРѕРЅРµС† Р°РєС‚РёРІРЅРѕРіРѕ  РєР°С‚Р°Р»РѕРіР°?
+		DEF_MCODE_(C_PPANEL_EOF),               // РєРѕРЅРµС† РїР°СЃСЃРёРІРЅРѕРіРѕ РєР°С‚Р°Р»РѕРіР°?
+		DEF_MCODE_(C_APANEL_ISEMPTY),           // Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  РїСѓСЃС‚Р°?
+		DEF_MCODE_(C_PPANEL_ISEMPTY),           // РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: РїСѓСЃС‚Р°?
+		DEF_MCODE_(C_APANEL_SELECTED),          // Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  РІС‹РґРµР»РµРЅРЅС‹Рµ СЌР»РµРјРµРЅС‚С‹ РµСЃС‚СЊ?
+		DEF_MCODE_(C_PPANEL_SELECTED),          // РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: РІС‹РґРµР»РµРЅРЅС‹Рµ СЌР»РµРјРµРЅС‚С‹ РµСЃС‚СЊ?
+		DEF_MCODE_(C_APANEL_ROOT),              // СЌС‚Рѕ РєРѕСЂРЅРµРІРѕР№ РєР°С‚Р°Р»РѕРі Р°РєС‚РёРІРЅРѕР№ РїР°РЅРµР»Рё?
+		DEF_MCODE_(C_PPANEL_ROOT),              // СЌС‚Рѕ РєРѕСЂРЅРµРІРѕР№ РєР°С‚Р°Р»РѕРі РїР°СЃСЃРёРІРЅРѕР№ РїР°РЅРµР»Рё?
+		DEF_MCODE_(C_APANEL_VISIBLE),           // Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  РІРёРґРёРјР°?
+		DEF_MCODE_(C_PPANEL_VISIBLE),           // РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: РІРёРґРёРјР°?
+		DEF_MCODE_(C_APANEL_PLUGIN),            // Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  РїР»Р°РіРёРЅРѕРІР°СЏ?
+		DEF_MCODE_(C_PPANEL_PLUGIN),            // РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: РїР»Р°РіРёРЅРѕРІР°СЏ?
+		DEF_MCODE_(C_APANEL_FILEPANEL),         // Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  С„Р°Р№Р»РѕРІР°СЏ?
+		DEF_MCODE_(C_PPANEL_FILEPANEL),         // РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: С„Р°Р№Р»РѕРІР°СЏ?
+		DEF_MCODE_(C_APANEL_FOLDER),            // Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  С‚РµРєСѓС‰РёР№ СЌР»РµРјРµРЅС‚ РєР°С‚Р°Р»РѕРі?
+		DEF_MCODE_(C_PPANEL_FOLDER),            // РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: С‚РµРєСѓС‰РёР№ СЌР»РµРјРµРЅС‚ РєР°С‚Р°Р»РѕРі?
+		DEF_MCODE_(C_APANEL_LEFT),              // Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ Р»РµРІР°СЏ?
+		DEF_MCODE_(C_PPANEL_LEFT),              // РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ Р»РµРІР°СЏ?
+		DEF_MCODE_(C_APANEL_LFN),               // РЅР° Р°РєС‚РёРІРЅРѕР№ РїР°РЅРµР»Рё РґР»РёРЅРЅС‹Рµ РёРјРµРЅР°?
+		DEF_MCODE_(C_PPANEL_LFN),               // РЅР° РїР°СЃСЃРёРІРЅРѕР№ РїР°РЅРµР»Рё РґР»РёРЅРЅС‹Рµ РёРјРµРЅР°?
+		DEF_MCODE_(C_APANEL_FILTER),            // РЅР° Р°РєС‚РёРІРЅРѕР№ РїР°РЅРµР»Рё РІРєР»СЋС‡РµРЅ С„РёР»СЊС‚СЂ?
+		DEF_MCODE_(C_PPANEL_FILTER),            // РЅР° РїР°СЃСЃРёРІРЅРѕР№ РїР°РЅРµР»Рё РІРєР»СЋС‡РµРЅ С„РёР»СЊС‚СЂ?
+		DEF_MCODE_(C_CMDLINE_BOF),              // РєСѓСЂСЃРѕСЂ РІ РЅР°С‡Р°Р»Рµ cmd-СЃС‚СЂРѕРєРё СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ?
+		DEF_MCODE_(C_CMDLINE_EOF),              // РєСѓСЂСЃРѕСЂ РІ РєРѕРЅС†Рµ cmd-СЃС‚СЂРѕРєРё СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ?
+		DEF_MCODE_(C_CMDLINE_EMPTY),            // РєРѕРј.СЃС‚СЂРѕРєР° РїСѓСЃС‚Р°?
+		DEF_MCODE_(C_CMDLINE_SELECTED),         // РІ РєРѕРј.СЃС‚СЂРѕРєРµ РµСЃС‚СЊ РІС‹РґРµР»РµРЅРёРµ Р±Р»РѕРєР°?
 		DEF_MCODE_(C_MSX),                      // "MsX"
 		DEF_MCODE_(C_MSY),                      // "MsY"
 		DEF_MCODE_(C_MSBUTTON),                 // "MsButton"
 		DEF_MCODE_(C_MSCTRLSTATE),              // "MsCtrlState"
 		DEF_MCODE_(C_MSEVENTFLAGS),             // "MsEventFlags"
 		DEF_MCODE_(C_MSLASTCTRLSTATE),          // "MsLastCtrlState"
-		DEF_MCODE_(V_FAR_WIDTH),                // Far.Width - ширина консольного окна
-		DEF_MCODE_(V_FAR_HEIGHT),               // Far.Height - высота консольного окна
-		DEF_MCODE_(V_FAR_TITLE),                // Far.Title - текущий заголовок консольного окна
-		DEF_MCODE_(V_FAR_UPTIME),               // Far.UpTime - время работы Far в миллисекундах
-		DEF_MCODE_(V_FAR_PID),                  // Far.PID - содержит ИД текущей запущенной копии Far Manager
-		DEF_MCODE_(V_MACRO_AREA),               // Macro.Area - имя текущей макрос области
-		DEF_MCODE_(V_APANEL_CURRENT),           // APanel.Current - имя файла на активной панели
-		DEF_MCODE_(V_PPANEL_CURRENT),           // PPanel.Current - имя файла на пассивной панели
-		DEF_MCODE_(V_APANEL_SELCOUNT),          // APanel.SelCount - активная панель:  число выделенных элементов
-		DEF_MCODE_(V_PPANEL_SELCOUNT),          // PPanel.SelCount - пассивная панель: число выделенных элементов
-		DEF_MCODE_(V_APANEL_PATH),              // APanel.Path - активная панель:  путь на панели
-		DEF_MCODE_(V_PPANEL_PATH),              // PPanel.Path - пассивная панель: путь на панели
-		DEF_MCODE_(V_APANEL_PATH0),             // APanel.Path0 - активная панель:  путь на панели до вызова плагинов
-		DEF_MCODE_(V_PPANEL_PATH0),             // PPanel.Path0 - пассивная панель: путь на панели до вызова плагинов
-		DEF_MCODE_(V_APANEL_UNCPATH),           // APanel.UNCPath - активная панель:  UNC-путь на панели
-		DEF_MCODE_(V_PPANEL_UNCPATH),           // PPanel.UNCPath - пассивная панель: UNC-путь на панели
-		DEF_MCODE_(V_APANEL_WIDTH),             // APanel.Width - активная панель:  ширина панели
-		DEF_MCODE_(V_PPANEL_WIDTH),             // PPanel.Width - пассивная панель: ширина панели
-		DEF_MCODE_(V_APANEL_TYPE),              // APanel.Type - тип активной панели
-		DEF_MCODE_(V_PPANEL_TYPE),              // PPanel.Type - тип пассивной панели
-		DEF_MCODE_(V_APANEL_ITEMCOUNT),         // APanel.ItemCount - активная панель:  число элементов
-		DEF_MCODE_(V_PPANEL_ITEMCOUNT),         // PPanel.ItemCount - пассивная панель: число элементов
-		DEF_MCODE_(V_APANEL_CURPOS),            // APanel.CurPos - активная панель:  текущий индекс
-		DEF_MCODE_(V_PPANEL_CURPOS),            // PPanel.CurPos - пассивная панель: текущий индекс
-		DEF_MCODE_(V_APANEL_OPIFLAGS),          // APanel.OPIFlags - активная панель: флаги открытого плагина
-		DEF_MCODE_(V_PPANEL_OPIFLAGS),          // PPanel.OPIFlags - пассивная панель: флаги открытого плагина
-		DEF_MCODE_(V_APANEL_DRIVETYPE),         // APanel.DriveType - активная панель: тип привода
-		DEF_MCODE_(V_PPANEL_DRIVETYPE),         // PPanel.DriveType - пассивная панель: тип привода
-		DEF_MCODE_(V_APANEL_HEIGHT),            // APanel.Height - активная панель:  высота панели
-		DEF_MCODE_(V_PPANEL_HEIGHT),            // PPanel.Height - пассивная панель: высота панели
-		DEF_MCODE_(V_APANEL_COLUMNCOUNT),       // APanel.ColumnCount - активная панель:  количество колонок
-		DEF_MCODE_(V_PPANEL_COLUMNCOUNT),       // PPanel.ColumnCount - пассивная панель: количество колонок
-		DEF_MCODE_(V_APANEL_HOSTFILE),          // APanel.HostFile - активная панель:  имя Host-файла
-		DEF_MCODE_(V_PPANEL_HOSTFILE),          // PPanel.HostFile - пассивная панель: имя Host-файла
+		DEF_MCODE_(V_FAR_WIDTH),                // Far.Width - С€РёСЂРёРЅР° РєРѕРЅСЃРѕР»СЊРЅРѕРіРѕ РѕРєРЅР°
+		DEF_MCODE_(V_FAR_HEIGHT),               // Far.Height - РІС‹СЃРѕС‚Р° РєРѕРЅСЃРѕР»СЊРЅРѕРіРѕ РѕРєРЅР°
+		DEF_MCODE_(V_FAR_TITLE),                // Far.Title - С‚РµРєСѓС‰РёР№ Р·Р°РіРѕР»РѕРІРѕРє РєРѕРЅСЃРѕР»СЊРЅРѕРіРѕ РѕРєРЅР°
+		DEF_MCODE_(V_FAR_UPTIME),               // Far.UpTime - РІСЂРµРјСЏ СЂР°Р±РѕС‚С‹ Far РІ РјРёР»Р»РёСЃРµРєСѓРЅРґР°С…
+		DEF_MCODE_(V_FAR_PID),                  // Far.PID - СЃРѕРґРµСЂР¶РёС‚ РР” С‚РµРєСѓС‰РµР№ Р·Р°РїСѓС‰РµРЅРЅРѕР№ РєРѕРїРёРё Far Manager
+		DEF_MCODE_(V_MACRO_AREA),               // Macro.Area - РёРјСЏ С‚РµРєСѓС‰РµР№ РјР°РєСЂРѕСЃ РѕР±Р»Р°СЃС‚Рё
+		DEF_MCODE_(V_APANEL_CURRENT),           // APanel.Current - РёРјСЏ С„Р°Р№Р»Р° РЅР° Р°РєС‚РёРІРЅРѕР№ РїР°РЅРµР»Рё
+		DEF_MCODE_(V_PPANEL_CURRENT),           // PPanel.Current - РёРјСЏ С„Р°Р№Р»Р° РЅР° РїР°СЃСЃРёРІРЅРѕР№ РїР°РЅРµР»Рё
+		DEF_MCODE_(V_APANEL_SELCOUNT),          // APanel.SelCount - Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  С‡РёСЃР»Рѕ РІС‹РґРµР»РµРЅРЅС‹С… СЌР»РµРјРµРЅС‚РѕРІ
+		DEF_MCODE_(V_PPANEL_SELCOUNT),          // PPanel.SelCount - РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: С‡РёСЃР»Рѕ РІС‹РґРµР»РµРЅРЅС‹С… СЌР»РµРјРµРЅС‚РѕРІ
+		DEF_MCODE_(V_APANEL_PATH),              // APanel.Path - Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  РїСѓС‚СЊ РЅР° РїР°РЅРµР»Рё
+		DEF_MCODE_(V_PPANEL_PATH),              // PPanel.Path - РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: РїСѓС‚СЊ РЅР° РїР°РЅРµР»Рё
+		DEF_MCODE_(V_APANEL_PATH0),             // APanel.Path0 - Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  РїСѓС‚СЊ РЅР° РїР°РЅРµР»Рё РґРѕ РІС‹Р·РѕРІР° РїР»Р°РіРёРЅРѕРІ
+		DEF_MCODE_(V_PPANEL_PATH0),             // PPanel.Path0 - РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: РїСѓС‚СЊ РЅР° РїР°РЅРµР»Рё РґРѕ РІС‹Р·РѕРІР° РїР»Р°РіРёРЅРѕРІ
+		DEF_MCODE_(V_APANEL_UNCPATH),           // APanel.UNCPath - Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  UNC-РїСѓС‚СЊ РЅР° РїР°РЅРµР»Рё
+		DEF_MCODE_(V_PPANEL_UNCPATH),           // PPanel.UNCPath - РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: UNC-РїСѓС‚СЊ РЅР° РїР°РЅРµР»Рё
+		DEF_MCODE_(V_APANEL_WIDTH),             // APanel.Width - Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  С€РёСЂРёРЅР° РїР°РЅРµР»Рё
+		DEF_MCODE_(V_PPANEL_WIDTH),             // PPanel.Width - РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: С€РёСЂРёРЅР° РїР°РЅРµР»Рё
+		DEF_MCODE_(V_APANEL_TYPE),              // APanel.Type - С‚РёРї Р°РєС‚РёРІРЅРѕР№ РїР°РЅРµР»Рё
+		DEF_MCODE_(V_PPANEL_TYPE),              // PPanel.Type - С‚РёРї РїР°СЃСЃРёРІРЅРѕР№ РїР°РЅРµР»Рё
+		DEF_MCODE_(V_APANEL_ITEMCOUNT),         // APanel.ItemCount - Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  С‡РёСЃР»Рѕ СЌР»РµРјРµРЅС‚РѕРІ
+		DEF_MCODE_(V_PPANEL_ITEMCOUNT),         // PPanel.ItemCount - РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: С‡РёСЃР»Рѕ СЌР»РµРјРµРЅС‚РѕРІ
+		DEF_MCODE_(V_APANEL_CURPOS),            // APanel.CurPos - Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  С‚РµРєСѓС‰РёР№ РёРЅРґРµРєСЃ
+		DEF_MCODE_(V_PPANEL_CURPOS),            // PPanel.CurPos - РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: С‚РµРєСѓС‰РёР№ РёРЅРґРµРєСЃ
+		DEF_MCODE_(V_APANEL_OPIFLAGS),          // APanel.OPIFlags - Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ: С„Р»Р°РіРё РѕС‚РєСЂС‹С‚РѕРіРѕ РїР»Р°РіРёРЅР°
+		DEF_MCODE_(V_PPANEL_OPIFLAGS),          // PPanel.OPIFlags - РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: С„Р»Р°РіРё РѕС‚РєСЂС‹С‚РѕРіРѕ РїР»Р°РіРёРЅР°
+		DEF_MCODE_(V_APANEL_DRIVETYPE),         // APanel.DriveType - Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ: С‚РёРї РїСЂРёРІРѕРґР°
+		DEF_MCODE_(V_PPANEL_DRIVETYPE),         // PPanel.DriveType - РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: С‚РёРї РїСЂРёРІРѕРґР°
+		DEF_MCODE_(V_APANEL_HEIGHT),            // APanel.Height - Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  РІС‹СЃРѕС‚Р° РїР°РЅРµР»Рё
+		DEF_MCODE_(V_PPANEL_HEIGHT),            // PPanel.Height - РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: РІС‹СЃРѕС‚Р° РїР°РЅРµР»Рё
+		DEF_MCODE_(V_APANEL_COLUMNCOUNT),       // APanel.ColumnCount - Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  РєРѕР»РёС‡РµСЃС‚РІРѕ РєРѕР»РѕРЅРѕРє
+		DEF_MCODE_(V_PPANEL_COLUMNCOUNT),       // PPanel.ColumnCount - РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: РєРѕР»РёС‡РµСЃС‚РІРѕ РєРѕР»РѕРЅРѕРє
+		DEF_MCODE_(V_APANEL_HOSTFILE),          // APanel.HostFile - Р°РєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ:  РёРјСЏ Host-С„Р°Р№Р»Р°
+		DEF_MCODE_(V_PPANEL_HOSTFILE),          // PPanel.HostFile - РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ: РёРјСЏ Host-С„Р°Р№Р»Р°
 		DEF_MCODE_(V_APANEL_PREFIX),            // APanel.Prefix
 		DEF_MCODE_(V_PPANEL_PREFIX),            // PPanel.Prefix
 		DEF_MCODE_(V_APANEL_FORMAT),            // APanel.Format
 		DEF_MCODE_(V_PPANEL_FORMAT),            // PPanel.Format
-		DEF_MCODE_(V_ITEMCOUNT),                // ItemCount - число элементов в текущем объекте
-		DEF_MCODE_(V_CURPOS),                   // CurPos - текущий индекс в текущем объекте
-		DEF_MCODE_(V_TITLE),                    // Title - заголовок текущего объекта
-		DEF_MCODE_(V_HEIGHT),                   // Height - высота текущего объекта
-		DEF_MCODE_(V_WIDTH),                    // Width - ширина текущего объекта
-		DEF_MCODE_(V_EDITORFILENAME),           // Editor.FileName - имя редактируемого файла
-		DEF_MCODE_(V_EDITORLINES),              // Editor.Lines - количество строк в редакторе
-		DEF_MCODE_(V_EDITORCURLINE),            // Editor.CurLine - текущая линия в редакторе (в дополнении к Count)
-		DEF_MCODE_(V_EDITORCURPOS),             // Editor.CurPos - текущая поз. в редакторе
-		DEF_MCODE_(V_EDITORREALPOS),            // Editor.RealPos - текущая поз. в редакторе без привязки к размеру табуляции
+		DEF_MCODE_(V_ITEMCOUNT),                // ItemCount - С‡РёСЃР»Рѕ СЌР»РµРјРµРЅС‚РѕРІ РІ С‚РµРєСѓС‰РµРј РѕР±СЉРµРєС‚Рµ
+		DEF_MCODE_(V_CURPOS),                   // CurPos - С‚РµРєСѓС‰РёР№ РёРЅРґРµРєСЃ РІ С‚РµРєСѓС‰РµРј РѕР±СЉРµРєС‚Рµ
+		DEF_MCODE_(V_TITLE),                    // Title - Р·Р°РіРѕР»РѕРІРѕРє С‚РµРєСѓС‰РµРіРѕ РѕР±СЉРµРєС‚Р°
+		DEF_MCODE_(V_HEIGHT),                   // Height - РІС‹СЃРѕС‚Р° С‚РµРєСѓС‰РµРіРѕ РѕР±СЉРµРєС‚Р°
+		DEF_MCODE_(V_WIDTH),                    // Width - С€РёСЂРёРЅР° С‚РµРєСѓС‰РµРіРѕ РѕР±СЉРµРєС‚Р°
+		DEF_MCODE_(V_EDITORFILENAME),           // Editor.FileName - РёРјСЏ СЂРµРґР°РєС‚РёСЂСѓРµРјРѕРіРѕ С„Р°Р№Р»Р°
+		DEF_MCODE_(V_EDITORLINES),              // Editor.Lines - РєРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂРѕРє РІ СЂРµРґР°РєС‚РѕСЂРµ
+		DEF_MCODE_(V_EDITORCURLINE),            // Editor.CurLine - С‚РµРєСѓС‰Р°СЏ Р»РёРЅРёСЏ РІ СЂРµРґР°РєС‚РѕСЂРµ (РІ РґРѕРїРѕР»РЅРµРЅРёРё Рє Count)
+		DEF_MCODE_(V_EDITORCURPOS),             // Editor.CurPos - С‚РµРєСѓС‰Р°СЏ РїРѕР·. РІ СЂРµРґР°РєС‚РѕСЂРµ
+		DEF_MCODE_(V_EDITORREALPOS),            // Editor.RealPos - С‚РµРєСѓС‰Р°СЏ РїРѕР·. РІ СЂРµРґР°РєС‚РѕСЂРµ Р±РµР· РїСЂРёРІСЏР·РєРё Рє СЂР°Р·РјРµСЂСѓ С‚Р°Р±СѓР»СЏС†РёРё
 		DEF_MCODE_(V_EDITORSTATE),              // Editor.State
-		DEF_MCODE_(V_EDITORVALUE),              // Editor.Value - содержимое текущей строки
-		DEF_MCODE_(V_EDITORSELVALUE),           // Editor.SelValue - содержит содержимое выделенного блока
+		DEF_MCODE_(V_EDITORVALUE),              // Editor.Value - СЃРѕРґРµСЂР¶РёРјРѕРµ С‚РµРєСѓС‰РµР№ СЃС‚СЂРѕРєРё
+		DEF_MCODE_(V_EDITORSELVALUE),           // Editor.SelValue - СЃРѕРґРµСЂР¶РёС‚ СЃРѕРґРµСЂР¶РёРјРѕРµ РІС‹РґРµР»РµРЅРЅРѕРіРѕ Р±Р»РѕРєР°
 		DEF_MCODE_(V_DLGITEMTYPE),              // Dlg->ItemType
 		DEF_MCODE_(V_DLGITEMCOUNT),             // Dlg->ItemCount
 		DEF_MCODE_(V_DLGCURPOS),                // Dlg->CurPos
 		DEF_MCODE_(V_DLGPREVPOS),               // Dlg->PrevPos
 		DEF_MCODE_(V_DLGINFOID),                // Dlg->Info.Id
 		DEF_MCODE_(V_DLGINFOOWNER),             // Dlg->Info.Owner
-		DEF_MCODE_(V_VIEWERFILENAME),           // Viewer.FileName - имя просматриваемого файла
+		DEF_MCODE_(V_VIEWERFILENAME),           // Viewer.FileName - РёРјСЏ РїСЂРѕСЃРјР°С‚СЂРёРІР°РµРјРѕРіРѕ С„Р°Р№Р»Р°
 		DEF_MCODE_(V_VIEWERSTATE),              // Viewer.State
 		DEF_MCODE_(V_CMDLINE_ITEMCOUNT),        // CmdLine.ItemCount
 		DEF_MCODE_(V_CMDLINE_CURPOS),           // CmdLine.CurPos
 		DEF_MCODE_(V_CMDLINE_VALUE),            // CmdLine.Value
-		DEF_MCODE_(V_DRVSHOWPOS),               // Drv.ShowPos - меню выбора дисков отображено: 1=слева (Alt-F1), 2=справа (Alt-F2), 0="нету его"
-		DEF_MCODE_(V_DRVSHOWMODE),              // Drv.ShowMode - режимы отображения меню выбора дисков
+		DEF_MCODE_(V_DRVSHOWPOS),               // Drv.ShowPos - РјРµРЅСЋ РІС‹Р±РѕСЂР° РґРёСЃРєРѕРІ РѕС‚РѕР±СЂР°Р¶РµРЅРѕ: 1=СЃР»РµРІР° (Alt-F1), 2=СЃРїСЂР°РІР° (Alt-F2), 0="РЅРµС‚Сѓ РµРіРѕ"
+		DEF_MCODE_(V_DRVSHOWMODE),              // Drv.ShowMode - СЂРµР¶РёРјС‹ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ РјРµРЅСЋ РІС‹Р±РѕСЂР° РґРёСЃРєРѕРІ
 		DEF_MCODE_(V_HELPFILENAME),             // Help.FileName
 		DEF_MCODE_(V_HELPTOPIC),                // Help.Topic
 		DEF_MCODE_(V_HELPSELTOPIC),             // Help.SelTopic
@@ -1748,7 +1748,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
 
 	int InternalLog = !fp;
 	size_t ReadCount2;
-	// берем количество оставшейся порции эвентов
+	// Р±РµСЂРµРј РєРѕР»РёС‡РµСЃС‚РІРѕ РѕСЃС‚Р°РІС€РµР№СЃСЏ РїРѕСЂС†РёРё СЌРІРµРЅС‚РѕРІ
 	Console().GetNumberOfInputEvents(ReadCount2);
 
 	if (ReadCount2 <= 1)
@@ -1789,7 +1789,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
 #endif
 }
 
-// после вызова этой функции нужно освободить память!!!
+// РїРѕСЃР»Рµ РІС‹Р·РѕРІР° СЌС‚РѕР№ С„СѓРЅРєС†РёРё РЅСѓР¶РЅРѕ РѕСЃРІРѕР±РѕРґРёС‚СЊ РїР°РјСЏС‚СЊ!!!
 string __SysLog_LinearDump(LPBYTE Buf,int SizeBuf)
 {
 #if defined(SYSLOG)

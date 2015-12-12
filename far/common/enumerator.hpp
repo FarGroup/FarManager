@@ -1,7 +1,9 @@
+﻿#ifndef ENUMERATOR_HPP_6BCD3B36_3A68_400C_82B5_AB3644D0A874
+#define ENUMERATOR_HPP_6BCD3B36_3A68_400C_82B5_AB3644D0A874
 #pragma once
 
 /*
-Copyright � 2014 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -77,3 +79,5 @@ public:
 private:
 	friend iterator;
 };
+
+#endif // ENUMERATOR_HPP_6BCD3B36_3A68_400C_82B5_AB3644D0A874

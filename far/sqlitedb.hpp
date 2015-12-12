@@ -1,12 +1,14 @@
+п»ї#ifndef SQLITEDB_HPP_1C228281_1C8E_467F_9070_520E01F7DB70
+#define SQLITEDB_HPP_1C228281_1C8E_467F_9070_520E01F7DB70
 #pragma once
 
 /*
 sqlitedb.hpp
 
-обёртка sqlite api для c++.
+РѕР±С‘СЂС‚РєР° sqlite api РґР»СЏ c++.
 */
 /*
-Copyright © 2011 Far Group
+Copyright В© 2011 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -186,3 +188,5 @@ private:
 	int init_status;
 	int db_exists;
 };
+
+#endif // SQLITEDB_HPP_1C228281_1C8E_467F_9070_520E01F7DB70

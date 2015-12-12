@@ -1,11 +1,11 @@
-/*
+п»ї/*
 filemasks.cpp
 
-Класс для работы с масками файлов (учитывается наличие масок исключения).
+РљР»Р°СЃСЃ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РјР°СЃРєР°РјРё С„Р°Р№Р»РѕРІ (СѓС‡РёС‚С‹РІР°РµС‚СЃСЏ РЅР°Р»РёС‡РёРµ РјР°СЃРѕРє РёСЃРєР»СЋС‡РµРЅРёСЏ).
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -252,7 +252,7 @@ void filemasks::clear()
 	Exclude.clear();
 }
 
-// Путь к файлу в FileName НЕ игнорируется
+// РџСѓС‚СЊ Рє С„Р°Р№Р»Сѓ РІ FileName РќР• РёРіРЅРѕСЂРёСЂСѓРµС‚СЃСЏ
 
 bool filemasks::Compare(const string& FileName) const
 {
@@ -330,7 +330,7 @@ void filemasks::masks::Free()
 	bRE = false;
 }
 
-// Путь к файлу в FileName НЕ игнорируется
+// РџСѓС‚СЊ Рє С„Р°Р№Р»Сѓ РІ FileName РќР• РёРіРЅРѕСЂРёСЂСѓРµС‚СЃСЏ
 
 bool filemasks::masks::operator ==(const string& FileName) const
 {

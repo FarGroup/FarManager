@@ -1,3 +1,5 @@
+ï»¿#ifndef DIRINFO_HPP_DA86BD11_D517_4EC9_8324_44EDF0CC7C9A
+#define DIRINFO_HPP_DA86BD11_D517_4EC9_8324_44EDF0CC7C9A
 #pragma once
 
 /*
@@ -6,8 +8,8 @@ dirinfo.hpp
 GetDirInfo & GetPluginDirInfo
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright Â© 1996 Eugene Roshal
+Copyright Â© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -72,3 +74,5 @@ int GetPluginDirInfo(PluginHandle* hPlugin,const string& DirName,unsigned long &
 
 int GetPluginDirList(class Plugin* PluginNumber,HANDLE hPlugin,const string& Dir, PluginPanelItem **pPanelItem,size_t *pItemsNumber);
 void FreePluginDirList(HANDLE hPlugin, const PluginPanelItem *pPanelItem);
+
+#endif // DIRINFO_HPP_DA86BD11_D517_4EC9_8324_44EDF0CC7C9A

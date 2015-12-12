@@ -1,13 +1,15 @@
+п»ї#ifndef BITFLAGS_HPP_0F0A29FB_5389_4343_9C50_A84459FAF9D2
+#define BITFLAGS_HPP_0F0A29FB_5389_4343_9C50_A84459FAF9D2
 #pragma once
 
 /*
 bitflags.hpp
 
-Флаги
+Р¤Р»Р°РіРё
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -41,20 +43,22 @@ public:
 	TBitFlags(const T& Flags):m_Flags(Flags) {}
 
 	const T& Flags() const { return m_Flags; }
-	// установить набор флагов
+	// СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РЅР°Р±РѕСЂ С„Р»Р°РіРѕРІ
 	const T& Set(const T& FlagsToSet) { m_Flags |= FlagsToSet; return m_Flags;}
-	// сбросить набор флагов
+	// СЃР±СЂРѕСЃРёС‚СЊ РЅР°Р±РѕСЂ С„Р»Р°РіРѕРІ
 	const T& Clear(const T& FlagsToClear) { m_Flags &=~ FlagsToClear; return m_Flags; }
-	// проверить набор флагов
+	// РїСЂРѕРІРµСЂРёС‚СЊ РЅР°Р±РѕСЂ С„Р»Р°РіРѕРІ
 	bool Check(const T& FlagsToCheck) const { return (m_Flags & FlagsToCheck) != 0; }
-	// изменить состояние набора флагов в заивисмости от Status
+	// РёР·РјРµРЅРёС‚СЊ СЃРѕСЃС‚РѕСЏРЅРёРµ РЅР°Р±РѕСЂР° С„Р»Р°РіРѕРІ РІ Р·Р°РёРІРёСЃРјРѕСЃС‚Рё РѕС‚ Status
 	const T& Change(const T& FlagsToChange, bool set) { return set? Set(FlagsToChange) : Clear(FlagsToChange); }
-	// инвертировать состояние флагов
+	// РёРЅРІРµСЂС‚РёСЂРѕРІР°С‚СЊ СЃРѕСЃС‚РѕСЏРЅРёРµ С„Р»Р°РіРѕРІ
 	const T& Swap(const T& FlagsToSwap) { return Check(FlagsToSwap)? Clear(FlagsToSwap) : Set(FlagsToSwap); }
-	//сбросить все флаги
+	//СЃР±СЂРѕСЃРёС‚СЊ РІСЃРµ С„Р»Р°РіРё
 	void ClearAll() { m_Flags = 0; }
 private:
 	T m_Flags;
 };
 
 typedef TBitFlags<DWORD> BitFlags;
+
+#endif // BITFLAGS_HPP_0F0A29FB_5389_4343_9C50_A84459FAF9D2

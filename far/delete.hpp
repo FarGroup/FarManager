@@ -1,13 +1,15 @@
+п»ї#ifndef DELETE_HPP_835E1D6F_E70E_4AF7_8D20_1668C007B16C
+#define DELETE_HPP_835E1D6F_E70E_4AF7_8D20_1668C007B16C
 #pragma once
 
 /*
 delete.hpp
 
-Удаление файлов
+РЈРґР°Р»РµРЅРёРµ С„Р°Р№Р»РѕРІ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -56,3 +58,5 @@ private:
 
 void DeleteDirTree(const string& Dir);
 bool DeleteFileWithFolder(const string& FileName);
+
+#endif // DELETE_HPP_835E1D6F_E70E_4AF7_8D20_1668C007B16C

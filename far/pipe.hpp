@@ -1,3 +1,5 @@
+﻿#ifndef PIPE_HPP_C460EC90_9861_4D55_B47D_D1E8F6EEBC78
+#define PIPE_HPP_C460EC90_9861_4D55_B47D_D1E8F6EEBC78
 #pragma once
 
 /*
@@ -6,7 +8,7 @@ pipe.hpp
 Pipe-based IPC
 */
 /*
-Copyright � 2014 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -62,3 +64,5 @@ namespace pipe
 
 	bool Write(HANDLE Pipe, const string& Data);
 }
+
+#endif // PIPE_HPP_C460EC90_9861_4D55_B47D_D1E8F6EEBC78

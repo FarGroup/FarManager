@@ -1,6 +1,7 @@
+п»ї#ifndef COLORS_HPP_57151931_4591_44A5_92CF_8E51D1FBC57E
+#define COLORS_HPP_57151931_4591_44A5_92CF_8E51D1FBC57E
 #pragma once
-#ifndef __COLORS_HPP__
-#define __COLORS_HPP__
+
 #ifndef FAR_USE_INTERNALS
 #define FAR_USE_INTERNALS
 #endif // END FAR_USE_INTERNALS
@@ -8,7 +9,7 @@
 /*
 colors.hpp
 
-Цвета
+Р¦РІРµС‚Р°
 
 */
 #else // ELSE FAR_USE_INTERNALS
@@ -20,8 +21,8 @@ colors.hpp
 #endif // END FAR_USE_INTERNALS
 
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -53,11 +54,11 @@ other possible license with no implications from the above license on them.
 
 #ifdef FAR_USE_INTERNALS
 /*
-  Внимание!
-  Пункт COL_LASTPALETTECOLOR должен быть самым последним!!!!!!
+  Р’РЅРёРјР°РЅРёРµ!
+  РџСѓРЅРєС‚ COL_LASTPALETTECOLOR РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СЃР°РјС‹Рј РїРѕСЃР»РµРґРЅРёРј!!!!!!
 */
 
-// Стандартные цвета Far Manager
+// РЎС‚Р°РЅРґР°СЂС‚РЅС‹Рµ С†РІРµС‚Р° Far Manager
 enum
 {
 	F_BLACK=0,
@@ -272,4 +273,4 @@ enum PaletteColors
 	COL_LASTPALETTECOLOR
 };
 
-#endif  // __COLORS_HPP__
+#endif // COLORS_HPP_57151931_4591_44A5_92CF_8E51D1FBC57E

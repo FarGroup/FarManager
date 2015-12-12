@@ -1,3 +1,5 @@
+п»ї#ifndef VIEWER_HPP_D8E79984_1BC4_413A_90BA_3CFE88B613B3
+#define VIEWER_HPP_D8E79984_1BC4_413A_90BA_3CFE88B613B3
 #pragma once
 
 /*
@@ -6,8 +8,8 @@ viewer.hpp
 Internal viewer
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -108,9 +110,9 @@ private:
 	void ShowDump();
 	void ShowStatus();
 	/* $ 27.04.2001 DJ
-		функции для рисования скроллбара, для корректировки ширины в
-		зависимости от наличия скроллбара и для корректировки позиции файла
-		на границу строки
+		С„СѓРЅРєС†РёРё РґР»СЏ СЂРёСЃРѕРІР°РЅРёСЏ СЃРєСЂРѕР»Р»Р±Р°СЂР°, РґР»СЏ РєРѕСЂСЂРµРєС‚РёСЂРѕРІРєРё С€РёСЂРёРЅС‹ РІ
+		Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РЅР°Р»РёС‡РёСЏ СЃРєСЂРѕР»Р»Р±Р°СЂР° Рё РґР»СЏ РєРѕСЂСЂРµРєС‚РёСЂРѕРІРєРё РїРѕР·РёС†РёРё С„Р°Р№Р»Р°
+		РЅР° РіСЂР°РЅРёС†Сѓ СЃС‚СЂРѕРєРё
 	*/
 	void DrawScrollbar();
 	void AdjustWidth();
@@ -219,7 +221,7 @@ private:
 	std::list<ViewerUndoData> UndoData;
 
 	int LastKeyUndo;
-	int Width,XX2;  // , используется при расчете ширины при скролбаре
+	int Width,XX2;  // , РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РїСЂРё СЂР°СЃС‡РµС‚Рµ С€РёСЂРёРЅС‹ РїСЂРё СЃРєСЂРѕР»Р±Р°СЂРµ
 	int ViewerID;
 	bool OpenFailed;
 	bool bVE_READ_Sent;
@@ -278,3 +280,5 @@ public:
 	virtual Viewer* GetViewer(void)=0;
 	virtual Viewer* GetById(int ID)=0;
 };
+
+#endif // VIEWER_HPP_D8E79984_1BC4_413A_90BA_3CFE88B613B3

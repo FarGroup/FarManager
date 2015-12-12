@@ -1,11 +1,11 @@
-/*
+п»ї/*
 viewer.cpp
 
 Internal viewer
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -178,14 +178,14 @@ Viewer::~Viewer()
 
 	_tran(SysLog(L"[%p] Viewer::~Viewer, TempViewName=[%s]",this,TempViewName));
 	/* $ 11.10.2001 IS
-	   Удаляем файл только, если нет открытых окон с таким именем.
+	   РЈРґР°Р»СЏРµРј С„Р°Р№Р» С‚РѕР»СЊРєРѕ, РµСЃР»Рё РЅРµС‚ РѕС‚РєСЂС‹С‚С‹С… РѕРєРѕРЅ СЃ С‚Р°РєРёРј РёРјРµРЅРµРј.
 	*/
 
 	if (!strTempViewName.empty() && !Global->WindowManager->CountWindowsWithName(strTempViewName))
 	{
 		/* $ 14.06.2002 IS
-		   Если DeleteFolder сброшен, то удаляем только файл. Иначе - удаляем еще
-		   и каталог.
+		   Р•СЃР»Рё DeleteFolder СЃР±СЂРѕС€РµРЅ, С‚Рѕ СѓРґР°Р»СЏРµРј С‚РѕР»СЊРєРѕ С„Р°Р№Р». РРЅР°С‡Рµ - СѓРґР°Р»СЏРµРј РµС‰Рµ
+		   Рё РєР°С‚Р°Р»РѕРі.
 		*/
 		if (m_DeleteFolder)
 			DeleteFileWithFolder(strTempViewName);
@@ -252,7 +252,7 @@ int Viewer::OpenFile(const string& Name,int warning)
 	Reader.Clear();
 	vgetc_ready = lcache_ready = false;
 
-	SelectSize = -1; // Сбросим выделение
+	SelectSize = -1; // РЎР±СЂРѕСЃРёРј РІС‹РґРµР»РµРЅРёРµ
 	strFileName = Name;
 
 	if (Global->OnlyEditorViewerUsed && strFileName == L"-")
@@ -467,7 +467,7 @@ bool Viewer::CheckChanged()
 	SetFileSize();
 	if ( changed ) // do not reset caches if file just enlarged [make sense on Win7, doesn't matter on XP]
 	{
-		Reader.Clear(); // иначе зачем вся эта возня?
+		Reader.Clear(); // РёРЅР°С‡Рµ Р·Р°С‡РµРј РІСЃСЏ СЌС‚Р° РІРѕР·РЅСЏ?
 		ViewFile.FlushBuffers();
 		vseek(0, FILE_CURRENT); // reset vgetc state
 		lcache_ready = false; // reset start-lines cache
@@ -730,8 +730,8 @@ int Viewer::txt_dump(const char *Src, size_t Size, size_t ClientWidth, string& O
 
 			if (first && w1[iw] == Utf::REPLACE_CHAR && w2[iw] == L'?')
 			{
-				OutStr.push_back(Utf::CONTINUE_CHAR); // это может быть не совсем корректно для 'плохих' utf-8
-			}                                         // но усложнять из-за этого код на мой взгляд не стоит...
+				OutStr.push_back(Utf::CONTINUE_CHAR); // СЌС‚Рѕ РјРѕР¶РµС‚ Р±С‹С‚СЊ РЅРµ СЃРѕРІСЃРµРј РєРѕСЂСЂРµРєС‚РЅРѕ РґР»СЏ 'РїР»РѕС…РёС…' utf-8
+			}                                         // РЅРѕ СѓСЃР»РѕР¶РЅСЏС‚СЊ РёР·-Р·Р° СЌС‚РѕРіРѕ РєРѕРґ РЅР° РјРѕР№ РІР·РіР»СЏРґ РЅРµ СЃС‚РѕРёС‚...
 			else
 			{
 				first = false;
@@ -1013,7 +1013,7 @@ void Viewer::ShowHex()
 }
 
 /* $ 27.04.2001 DJ
-   отрисовка скроллбара - в отдельную функцию
+   РѕС‚СЂРёСЃРѕРІРєР° СЃРєСЂРѕР»Р»Р±Р°СЂР° - РІ РѕС‚РґРµР»СЊРЅСѓСЋ С„СѓРЅРєС†РёСЋ
 */
 void Viewer::DrawScrollbar()
 {
@@ -1321,8 +1321,8 @@ __int64 Viewer::BegOfScreen()
 				col += ViOpt.TabSize - (col % ViOpt.TabSize);
 			else
 				++col;
-			if ( col > LeftPos )	//!! шеврон закрывает первый символ
-				break;				//!! при LeftPos=1 не видны 2 символа
+			if ( col > LeftPos )	//!! С€РµРІСЂРѕРЅ Р·Р°РєСЂС‹РІР°РµС‚ РїРµСЂРІС‹Р№ СЃРёРјРІРѕР»
+				break;				//!! РїСЂРё LeftPos=1 РЅРµ РІРёРґРЅС‹ 2 СЃРёРјРІРѕР»Р°
 		}
 		if ( pos < 0 )
 			pos = (col > LeftPos ? prev_pos : vtell());
@@ -1444,9 +1444,9 @@ __int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			MacroViewerState |= HostFileViewer && !HostFileViewer->GetCanLoseFocus()?0x00000800:0;
 			return MacroViewerState;
 		}
-		case MCODE_V_ITEMCOUNT: // ItemCount - число элементов в текущем объекте
+		case MCODE_V_ITEMCOUNT: // ItemCount - С‡РёСЃР»Рѕ СЌР»РµРјРµРЅС‚РѕРІ РІ С‚РµРєСѓС‰РµРј РѕР±СЉРµРєС‚Рµ
 			return GetViewFileSize();
-		case MCODE_V_CURPOS: // CurPos - текущий индекс в текущем объекте
+		case MCODE_V_CURPOS: // CurPos - С‚РµРєСѓС‰РёР№ РёРЅРґРµРєСЃ РІ С‚РµРєСѓС‰РµРј РѕР±СЉРµРєС‚Рµ
 			return GetViewFilePos()+1;
 	}
 
@@ -1555,7 +1555,7 @@ int Viewer::process_key(const Manager::Key& Key)
 			}
 			return TRUE;
 		}
-		//   включить/выключить скролбар
+		//   РІРєР»СЋС‡РёС‚СЊ/РІС‹РєР»СЋС‡РёС‚СЊ СЃРєСЂРѕР»Р±Р°СЂ
 		case KEY_CTRLS:
 		case KEY_RCTRLS:
 		{
@@ -1942,7 +1942,7 @@ int Viewer::process_key(const Manager::Key& Key)
 		case KEY_CTRLSHIFTLEFT:    case KEY_CTRLSHIFTNUMPAD4:
 		case KEY_RCTRLSHIFTLEFT:   case KEY_RCTRLSHIFTNUMPAD4:
 		{
-			// Перейти на начало строк
+			// РџРµСЂРµР№С‚Рё РЅР° РЅР°С‡Р°Р»Рѕ СЃС‚СЂРѕРє
 			if (ViewFile)
 			{
 				LeftPos = 0;
@@ -1954,7 +1954,7 @@ int Viewer::process_key(const Manager::Key& Key)
 		case KEY_CTRLSHIFTRIGHT:     case KEY_CTRLSHIFTNUMPAD6:
 		case KEY_RCTRLSHIFTRIGHT:    case KEY_RCTRLSHIFTNUMPAD6:
 		{
-			// Перейти на конец строк
+			// РџРµСЂРµР№С‚Рё РЅР° РєРѕРЅРµС† СЃС‚СЂРѕРє
 			if (ViewFile)
 			{
 				const size_t MaxLen = std::accumulate(ALL_CONST_RANGE(Strings), size_t(0), [](size_t Value, const ViewerString& i)
@@ -1970,7 +1970,7 @@ int Viewer::process_key(const Manager::Key& Key)
 		case KEY_CTRLHOME:    case KEY_CTRLNUMPAD7:
 		case KEY_RCTRLHOME:   case KEY_RCTRLNUMPAD7:
 		case KEY_HOME:        case KEY_NUMPAD7:   case KEY_SHIFTNUMPAD7:
-			// Перейти на начало файла
+			// РџРµСЂРµР№С‚Рё РЅР° РЅР°С‡Р°Р»Рѕ С„Р°Р№Р»Р°
 			if (ViewFile)
 				LeftPos=0;
 
@@ -1986,7 +1986,7 @@ int Viewer::process_key(const Manager::Key& Key)
 		case KEY_CTRLEND:     case KEY_CTRLNUMPAD1:
 		case KEY_RCTRLEND:    case KEY_RCTRLNUMPAD1:
 		case KEY_END:         case KEY_NUMPAD1: case KEY_SHIFTNUMPAD1:
-			// Перейти на конец файла
+			// РџРµСЂРµР№С‚Рё РЅР° РєРѕРЅРµС† С„Р°Р№Р»Р°
 			if (ViewFile)
 				LeftPos=0;
 
@@ -3300,10 +3300,10 @@ SEARCHER_RESULT Viewer::search_regex_backward(search_data* sd)
 }
 
 /*
- + Параметр Next может принимать значения:
- 0 - Новый поиск
- 1 - Продолжить поиск со следующей позиции
--1 - Продолжить поиск со следующей позиции в противоположном направлении
+ + РџР°СЂР°РјРµС‚СЂ Next РјРѕР¶РµС‚ РїСЂРёРЅРёРјР°С‚СЊ Р·РЅР°С‡РµРЅРёСЏ:
+ 0 - РќРѕРІС‹Р№ РїРѕРёСЃРє
+ 1 - РџСЂРѕРґРѕР»Р¶РёС‚СЊ РїРѕРёСЃРє СЃРѕ СЃР»РµРґСѓСЋС‰РµР№ РїРѕР·РёС†РёРё
+-1 - РџСЂРѕРґРѕР»Р¶РёС‚СЊ РїРѕРёСЃРє СЃРѕ СЃР»РµРґСѓСЋС‰РµР№ РїРѕР·РёС†РёРё РІ РїСЂРѕС‚РёРІРѕРїРѕР»РѕР¶РЅРѕРј РЅР°РїСЂР°РІР»РµРЅРёРё
 */
 void Viewer::Search(int Next,int FirstChar)
 {
@@ -3579,7 +3579,7 @@ void Viewer::Search(int Next,int FirstChar)
 		SelectText(sd.MatchPos, sd.search_len, ReverseSearch?0x2:0);
 		LastSelectSize = SelectSize;
 
-		// Покажем найденное на расстоянии четверти экрана от верха.
+		// РџРѕРєР°Р¶РµРј РЅР°Р№РґРµРЅРЅРѕРµ РЅР° СЂР°СЃСЃС‚РѕСЏРЅРёРё С‡РµС‚РІРµСЂС‚Рё СЌРєСЂР°РЅР° РѕС‚ РІРµСЂС…Р°.
 		int FromTop=(ScrY-(Global->Opt->ViOpt.ShowKeyBar?2:1))/4;
 
 		if (FromTop<0 || FromTop>ScrY)
@@ -3996,7 +3996,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 			if (Dlg->GetExitCode()<=0)
 				return;
 
-			if (GoToDlg[1].strData.front()==L'+' || GoToDlg[1].strData.front()==L'-')       // юзер хочет относительности
+			if (GoToDlg[1].strData.front()==L'+' || GoToDlg[1].strData.front()==L'-')       // СЋР·РµСЂ С…РѕС‡РµС‚ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕСЃС‚Рё
 			{
 				if (GoToDlg[1].strData.front()==L'+')
 					Relative=1;
@@ -4006,7 +4006,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 				GoToDlg[1].strData.erase(0, 1);
 			}
 
-			if (GoToDlg[1].strData.find(L'%') != string::npos)     // он хочет процентов
+			if (GoToDlg[1].strData.find(L'%') != string::npos)     // РѕРЅ С…РѕС‡РµС‚ РїСЂРѕС†РµРЅС‚РѕРІ
 			{
 				GoToDlg[RB_HEX].Selected = GoToDlg[RB_DEC].Selected = 0;
 				GoToDlg[RB_PRC].Selected = 1;
@@ -4014,7 +4014,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 			else if (!StrCmpNI(GoToDlg[1].strData.data(),L"0x",2)
 					 || GoToDlg[1].strData.front()==L'$'
 					 || GoToDlg[1].strData.find(L'h') != string::npos
-					 || GoToDlg[1].strData.find(L'H') != string::npos)  // он умный - hex код ввел!
+					 || GoToDlg[1].strData.find(L'H') != string::npos)  // РѕРЅ СѓРјРЅС‹Р№ - hex РєРѕРґ РІРІРµР»!
 			{
 				GoToDlg[RB_PRC].Selected=GoToDlg[RB_DEC].Selected=0;
 				GoToDlg[RB_HEX].Selected=1;
@@ -4024,7 +4024,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 				else if (GoToDlg[1].strData.front()==L'$')
 					GoToDlg[1].strData.erase(0, 1);
 
-				//Relative=0; // при hex значении никаких относительных значений?
+				//Relative=0; // РїСЂРё hex Р·РЅР°С‡РµРЅРёРё РЅРёРєР°РєРёС… РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅС‹С… Р·РЅР°С‡РµРЅРёР№?
 			}
 
 			try
@@ -4143,8 +4143,8 @@ void Viewer::GetSelectedParam(__int64 &Pos, __int64 &Length, DWORD &Flags) const
 	Flags=SelectFlags;
 }
 
-// Flags=0x01 - показывать [делать Show()]
-//       0x02 - "обратный поиск" ?
+// Flags=0x01 - РїРѕРєР°Р·С‹РІР°С‚СЊ [РґРµР»Р°С‚СЊ Show()]
+//       0x02 - "РѕР±СЂР°С‚РЅС‹Р№ РїРѕРёСЃРє" ?
 //
 void Viewer::SelectText(const __int64 &match_pos,const __int64 &search_len, const DWORD flags)
 {
@@ -4228,8 +4228,8 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 		}
 		/*
 		   Param2 = ViewerSetPosition
-		           сюда же будет записано новое смещение
-		           В основном совпадает с переданным
+		           СЃСЋРґР° Р¶Рµ Р±СѓРґРµС‚ Р·Р°РїРёСЃР°РЅРѕ РЅРѕРІРѕРµ СЃРјРµС‰РµРЅРёРµ
+		           Р’ РѕСЃРЅРѕРІРЅРѕРј СЃРѕРІРїР°РґР°РµС‚ СЃ РїРµСЂРµРґР°РЅРЅС‹Рј
 		*/
 		case VCTL_SETPOSITION:
 		{
@@ -4286,9 +4286,9 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 
 			break;
 		}
-		/* Функция установки Keybar Labels
-		     Param2 = nullptr - восстановить, пред. значение
-		     Param2 = -1   - обновить полосу (перерисовать)
+		/* Р¤СѓРЅРєС†РёСЏ СѓСЃС‚Р°РЅРѕРІРєРё Keybar Labels
+		     Param2 = nullptr - РІРѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ, РїСЂРµРґ. Р·РЅР°С‡РµРЅРёРµ
+		     Param2 = -1   - РѕР±РЅРѕРІРёС‚СЊ РїРѕР»РѕСЃСѓ (РїРµСЂРµСЂРёСЃРѕРІР°С‚СЊ)
 		     Param2 = KeyBarTitles
 		*/
 		case VCTL_SETKEYBAR:
@@ -4296,13 +4296,13 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 			FarSetKeyBarTitles *Kbt=(FarSetKeyBarTitles*)Param2;
 
 			if (!Kbt)
-			{        // восстановить пред значение!
+			{        // РІРѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ РїСЂРµРґ Р·РЅР°С‡РµРЅРёРµ!
 				if (HostFileViewer)
 					HostFileViewer->InitKeyBar();
 			}
 			else
 			{
-				if ((intptr_t)Param2 != -1) // не только перерисовать?
+				if ((intptr_t)Param2 != -1) // РЅРµ С‚РѕР»СЊРєРѕ РїРµСЂРµСЂРёСЃРѕРІР°С‚СЊ?
 				{
 					if(CheckStructSize(Kbt))
 						m_ViewKeyBar->Change(Kbt->Titles);
@@ -4332,14 +4332,14 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 		case VCTL_QUIT:
 		{
 			/* $ 28.12.2002 IS
-			   Разрешаем выполнение VCTL_QUIT только для viewer-а, который
-			   не является панелью информации и быстрого просмотра (т.е.
-			   фактически панелей на экране не видно)
+			   Р Р°Р·СЂРµС€Р°РµРј РІС‹РїРѕР»РЅРµРЅРёРµ VCTL_QUIT С‚РѕР»СЊРєРѕ РґР»СЏ viewer-Р°, РєРѕС‚РѕСЂС‹Р№
+			   РЅРµ СЏРІР»СЏРµС‚СЃСЏ РїР°РЅРµР»СЊСЋ РёРЅС„РѕСЂРјР°С†РёРё Рё Р±С‹СЃС‚СЂРѕРіРѕ РїСЂРѕСЃРјРѕС‚СЂР° (С‚.Рµ.
+			   С„Р°РєС‚РёС‡РµСЃРєРё РїР°РЅРµР»РµР№ РЅР° СЌРєСЂР°РЅРµ РЅРµ РІРёРґРЅРѕ)
 			*/
 			if (!Global->WindowManager->IsPanelsActive())
 			{
 				/* $ 29.09.2002 IS
-				   без этого не закрывался viewer, а просили именно это
+				   Р±РµР· СЌС‚РѕРіРѕ РЅРµ Р·Р°РєСЂС‹РІР°Р»СЃСЏ viewer, Р° РїСЂРѕСЃРёР»Рё РёРјРµРЅРЅРѕ СЌС‚Рѕ
 				*/
 				if (HostFileViewer)
 				{
@@ -4351,7 +4351,7 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 				return TRUE;
 			}
 		}
-		/* Функция установки режимов
+		/* Р¤СѓРЅРєС†РёСЏ СѓСЃС‚Р°РЅРѕРІРєРё СЂРµР¶РёРјРѕРІ
 		     Param2 = ViewerSetMode
 		*/
 		case VCTL_SETMODE:

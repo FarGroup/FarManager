@@ -1,12 +1,14 @@
+п»ї#ifndef DIZVIEWER_HPP_689FBC27_88B8_4A44_966E_7EAE71EE7B25
+#define DIZVIEWER_HPP_689FBC27_88B8_4A44_966E_7EAE71EE7B25
 #pragma once
 
 /*
 dizviewer.hpp
 
-Отображение файла описания папок
+РћС‚РѕР±СЂР°Р¶РµРЅРёРµ С„Р°Р№Р»Р° РѕРїРёСЃР°РЅРёСЏ РїР°РїРѕРє
 */
 /*
-Copyright © 2012 Far Group
+Copyright В© 2012 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -59,3 +61,5 @@ class DizViewer: public Viewer
 			return res;
 		}
 };
+
+#endif // DIZVIEWER_HPP_689FBC27_88B8_4A44_966E_7EAE71EE7B25

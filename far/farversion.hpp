@@ -1,13 +1,15 @@
+п»ї#ifndef FARVERSION_HPP_2DFC77DA_8558_4EF9_9F2E_3B8B848F7C84
+#define FARVERSION_HPP_2DFC77DA_8558_4EF9_9F2E_3B8B848F7C84
 #pragma once
 
 /*
 farversion.hpp
 
-Версия Far Manager
+Р’РµСЂСЃРёСЏ Far Manager
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -36,3 +38,5 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 
 extern const VersionInfo FAR_VERSION;
+
+#endif // FARVERSION_HPP_2DFC77DA_8558_4EF9_9F2E_3B8B848F7C84

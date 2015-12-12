@@ -1,13 +1,15 @@
+п»ї#ifndef SETCOLOR_HPP_6E3A8440_946E_46AA_AAE1_372CAD23A7E6
+#define SETCOLOR_HPP_6E3A8440_946E_46AA_AAE1_372CAD23A7E6
 #pragma once
 
 /*
 setcolor.hpp
 
-Установка фаровских цветов
+РЈСЃС‚Р°РЅРѕРІРєР° С„Р°СЂРѕРІСЃРєРёС… С†РІРµС‚РѕРІ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -35,3 +37,5 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void SetColors();
 bool GetColorDialogInternal(FarColor& Color,bool bCentered=false,bool bAddTransparent=false);
+
+#endif // SETCOLOR_HPP_6E3A8440_946E_46AA_AAE1_372CAD23A7E6

@@ -1,13 +1,15 @@
+п»ї#ifndef FILEEDIT_HPP_4BC43BC9_43BB_4F5B_ADAE_E2C370D65E69
+#define FILEEDIT_HPP_4BC43BC9_43BB_4F5B_ADAE_E2C370D65E69
 #pragma once
 
 /*
 fileedit.hpp
 
-Редактирование файла - надстройка над editor.cpp
+Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ С„Р°Р№Р»Р° - РЅР°РґСЃС‚СЂРѕР№РєР° РЅР°Рґ editor.cpp
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -39,32 +41,32 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "namelist.hpp"
 #include "codepage_selection.hpp"
 
-// коды возврата Editor::SaveFile()
+// РєРѕРґС‹ РІРѕР·РІСЂР°С‚Р° Editor::SaveFile()
 enum
 {
-	SAVEFILE_ERROR   = 0,         // пытались сохранять, не получилось
-	SAVEFILE_SUCCESS = 1,         // либо успешно сохранили, либо сохранять было не надо
-	SAVEFILE_CANCEL  = 2          // сохранение отменено, редактор не закрывать
+	SAVEFILE_ERROR   = 0,         // РїС‹С‚Р°Р»РёСЃСЊ СЃРѕС…СЂР°РЅСЏС‚СЊ, РЅРµ РїРѕР»СѓС‡РёР»РѕСЃСЊ
+	SAVEFILE_SUCCESS = 1,         // Р»РёР±Рѕ СѓСЃРїРµС€РЅРѕ СЃРѕС…СЂР°РЅРёР»Рё, Р»РёР±Рѕ СЃРѕС…СЂР°РЅСЏС‚СЊ Р±С‹Р»Рѕ РЅРµ РЅР°РґРѕ
+	SAVEFILE_CANCEL  = 2          // СЃРѕС…СЂР°РЅРµРЅРёРµ РѕС‚РјРµРЅРµРЅРѕ, СЂРµРґР°РєС‚РѕСЂ РЅРµ Р·Р°РєСЂС‹РІР°С‚СЊ
 };
 
 enum FFILEEDIT_FLAGS
 {
-	FFILEEDIT_NEW                   = 0x00010000,  // Этот файл СОВЕРШЕННО! новый или его успели стереть! Нету такого и все тут.
-	FFILEEDIT_REDRAWTITLE           = 0x00020000,  // Нужно редравить заголовок?
-	FFILEEDIT_FULLSCREEN            = 0x00040000,  // Полноэкранный режим?
-	FFILEEDIT_DISABLEHISTORY        = 0x00080000,  // Запретить запись в историю?
-	FFILEEDIT_ENABLEF6              = 0x00100000,  // Переключаться во вьювер можно?
-	FFILEEDIT_SAVETOSAVEAS          = 0x00200000,  // $ 17.08.2001 KM  Добавлено для поиска по AltF7.
-	//   При редактировании найденного файла из архива для
-	//   клавиши F2 сделать вызов ShiftF2.
-	FFILEEDIT_SAVEWQUESTIONS        = 0x00400000,  // сохранить без вопросов
-	FFILEEDIT_LOCKED                = 0x00800000,  // заблокировать?
-	FFILEEDIT_OPENFAILED            = 0x01000000,  // файл открыть не удалось
-	FFILEEDIT_DELETEONCLOSE         = 0x02000000,  // удалить в деструкторе файл вместе с каталогом (если тот пуст)
-	FFILEEDIT_DELETEONLYFILEONCLOSE = 0x04000000,  // удалить в деструкторе только файл
-	FFILEEDIT_DISABLESAVEPOS        = 0x08000000,  // не сохранять позицию для файла
-	FFILEEDIT_CANNEWFILE            = 0x10000000,  // допускается новый файл?
-	FFILEEDIT_SERVICEREGION         = 0x20000000,  // используется сервисная область
+	FFILEEDIT_NEW                   = 0x00010000,  // Р­С‚РѕС‚ С„Р°Р№Р» РЎРћР’Р•Р РЁР•РќРќРћ! РЅРѕРІС‹Р№ РёР»Рё РµРіРѕ СѓСЃРїРµР»Рё СЃС‚РµСЂРµС‚СЊ! РќРµС‚Сѓ С‚Р°РєРѕРіРѕ Рё РІСЃРµ С‚СѓС‚.
+	FFILEEDIT_REDRAWTITLE           = 0x00020000,  // РќСѓР¶РЅРѕ СЂРµРґСЂР°РІРёС‚СЊ Р·Р°РіРѕР»РѕРІРѕРє?
+	FFILEEDIT_FULLSCREEN            = 0x00040000,  // РџРѕР»РЅРѕСЌРєСЂР°РЅРЅС‹Р№ СЂРµР¶РёРј?
+	FFILEEDIT_DISABLEHISTORY        = 0x00080000,  // Р—Р°РїСЂРµС‚РёС‚СЊ Р·Р°РїРёСЃСЊ РІ РёСЃС‚РѕСЂРёСЋ?
+	FFILEEDIT_ENABLEF6              = 0x00100000,  // РџРµСЂРµРєР»СЋС‡Р°С‚СЊСЃСЏ РІРѕ РІСЊСЋРІРµСЂ РјРѕР¶РЅРѕ?
+	FFILEEDIT_SAVETOSAVEAS          = 0x00200000,  // $ 17.08.2001 KM  Р”РѕР±Р°РІР»РµРЅРѕ РґР»СЏ РїРѕРёСЃРєР° РїРѕ AltF7.
+	//   РџСЂРё СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёРё РЅР°Р№РґРµРЅРЅРѕРіРѕ С„Р°Р№Р»Р° РёР· Р°СЂС…РёРІР° РґР»СЏ
+	//   РєР»Р°РІРёС€Рё F2 СЃРґРµР»Р°С‚СЊ РІС‹Р·РѕРІ ShiftF2.
+	FFILEEDIT_SAVEWQUESTIONS        = 0x00400000,  // СЃРѕС…СЂР°РЅРёС‚СЊ Р±РµР· РІРѕРїСЂРѕСЃРѕРІ
+	FFILEEDIT_LOCKED                = 0x00800000,  // Р·Р°Р±Р»РѕРєРёСЂРѕРІР°С‚СЊ?
+	FFILEEDIT_OPENFAILED            = 0x01000000,  // С„Р°Р№Р» РѕС‚РєСЂС‹С‚СЊ РЅРµ СѓРґР°Р»РѕСЃСЊ
+	FFILEEDIT_DELETEONCLOSE         = 0x02000000,  // СѓРґР°Р»РёС‚СЊ РІ РґРµСЃС‚СЂСѓРєС‚РѕСЂРµ С„Р°Р№Р» РІРјРµСЃС‚Рµ СЃ РєР°С‚Р°Р»РѕРіРѕРј (РµСЃР»Рё С‚РѕС‚ РїСѓСЃС‚)
+	FFILEEDIT_DELETEONLYFILEONCLOSE = 0x04000000,  // СѓРґР°Р»РёС‚СЊ РІ РґРµСЃС‚СЂСѓРєС‚РѕСЂРµ С‚РѕР»СЊРєРѕ С„Р°Р№Р»
+	FFILEEDIT_DISABLESAVEPOS        = 0x08000000,  // РЅРµ СЃРѕС…СЂР°РЅСЏС‚СЊ РїРѕР·РёС†РёСЋ РґР»СЏ С„Р°Р№Р»Р°
+	FFILEEDIT_CANNEWFILE            = 0x10000000,  // РґРѕРїСѓСЃРєР°РµС‚СЃСЏ РЅРѕРІС‹Р№ С„Р°Р№Р»?
+	FFILEEDIT_SERVICEREGION         = 0x20000000,  // РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ СЃРµСЂРІРёСЃРЅР°СЏ РѕР±Р»Р°СЃС‚СЊ
 };
 
 class FileEditor: public window,public EditorContainer
@@ -89,8 +91,8 @@ public:
 	bool IsFullScreen() { return m_Flags.Check(FFILEEDIT_FULLSCREEN); }
 	void SetNamesList(NamesList& Names);
 	void SetEnableF6(bool AEnableF6) { m_Flags.Change(FFILEEDIT_ENABLEF6, AEnableF6); InitKeyBar(); }
-	// Добавлено для поиска по AltF7. При редактировании найденного файла из
-	// архива для клавиши F2 сделать вызов ShiftF2.
+	// Р”РѕР±Р°РІР»РµРЅРѕ РґР»СЏ РїРѕРёСЃРєР° РїРѕ AltF7. РџСЂРё СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёРё РЅР°Р№РґРµРЅРЅРѕРіРѕ С„Р°Р№Р»Р° РёР·
+	// Р°СЂС…РёРІР° РґР»СЏ РєР»Р°РІРёС€Рё F2 СЃРґРµР»Р°С‚СЊ РІС‹Р·РѕРІ ShiftF2.
 	void SetSaveToSaveAs(bool ToSaveAs) { m_Flags.Change(FFILEEDIT_SAVETOSAVEAS, ToSaveAs); InitKeyBar(); }
 	intptr_t EditorControl(int Command, intptr_t Param1, void *Param2);
 	bool SetCodePage(uintptr_t codepage);  //BUGBUG
@@ -114,25 +116,25 @@ private:
 	virtual int GetType() const override { return windowtype_editor; }
 	virtual void OnDestroy() override;
 	virtual int GetCanLoseFocus(int DynamicMode = FALSE) const override;
-	virtual bool CanFastHide() const override; // для нужд CtrlAltShift
+	virtual bool CanFastHide() const override; // РґР»СЏ РЅСѓР¶Рґ CtrlAltShift
 	virtual void ResizeConsole() override;
 	virtual string GetTitle() const override;
 
 	/* Ret:
-		0 - не удалять ничего
-		1 - удалять файл и каталог
-		2 - удалять только файл
+		0 - РЅРµ СѓРґР°Р»СЏС‚СЊ РЅРёС‡РµРіРѕ
+		1 - СѓРґР°Р»СЏС‚СЊ С„Р°Р№Р» Рё РєР°С‚Р°Р»РѕРі
+		2 - СѓРґР°Р»СЏС‚СЊ С‚РѕР»СЊРєРѕ С„Р°Р№Р»
 	*/
 	void SetDeleteOnClose(int NewMode);
 	int ReProcessKey(const Manager::Key& Key, int CalledFromControl = TRUE);
 	bool AskOverwrite(const string& FileName);
-	// возвращает признак того, является ли файл временным
-	// используется для принятия решения переходить в каталог по CtrlF10
+	// РІРѕР·РІСЂР°С‰Р°РµС‚ РїСЂРёР·РЅР°Рє С‚РѕРіРѕ, СЏРІР»СЏРµС‚СЃСЏ Р»Рё С„Р°Р№Р» РІСЂРµРјРµРЅРЅС‹Рј
+	// РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РїСЂРёРЅСЏС‚РёСЏ СЂРµС€РµРЅРёСЏ РїРµСЂРµС…РѕРґРёС‚СЊ РІ РєР°С‚Р°Р»РѕРі РїРѕ CtrlF10
 	bool isTemporary() const;
 	void Init(const string& Name, uintptr_t codepage, const string* Title, int StartLine, int StartChar, const string* PluginData, int DeleteOnClose, window_ptr_ref Update, EDITOR_FLAGS OpenModeExstFile);
 	int LoadFile(const string& Name, int &UserBreak);
 	bool ReloadFile(uintptr_t codepage);
-	//TextFormat, Codepage и AddSignature используются ТОЛЬКО, если bSaveAs = true!
+	//TextFormat, Codepage Рё AddSignature РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ РўРћР›Р¬РљРћ, РµСЃР»Рё bSaveAs = true!
 	int SaveFile(const string& Name, int Ask, bool bSaveAs, int TextFormat = 0, uintptr_t Codepage = CP_UNICODE, bool AddSignature = false);
 	void SetTitle(const string* Title);
 	BOOL SetFileName(const string& NewFileName);
@@ -158,10 +160,10 @@ private:
 	string strPluginTitle;
 	string strPluginData;
 	os::FAR_FIND_DATA FileInfo;
-	wchar_t AttrStr[4];            // 13.02.2001 IS - Сюда запомним буквы атрибутов, чтобы не вычислять их много раз
-	DWORD m_FileAttributes;          // 12.02.2001 IS - сюда запомним атрибуты файла при открытии, пригодятся где-нибудь...
-	BOOL  FileAttributesModified;  // 04.11.2003 SKV - надо ли восстанавливать аттрибуты при save
-	bool m_bClosing;               // 28.04.2005 AY: true когда редактор закрываеться (т.е. в деструкторе)
+	wchar_t AttrStr[4];            // 13.02.2001 IS - РЎСЋРґР° Р·Р°РїРѕРјРЅРёРј Р±СѓРєРІС‹ Р°С‚СЂРёР±СѓС‚РѕРІ, С‡С‚РѕР±С‹ РЅРµ РІС‹С‡РёСЃР»СЏС‚СЊ РёС… РјРЅРѕРіРѕ СЂР°Р·
+	DWORD m_FileAttributes;          // 12.02.2001 IS - СЃСЋРґР° Р·Р°РїРѕРјРЅРёРј Р°С‚СЂРёР±СѓС‚С‹ С„Р°Р№Р»Р° РїСЂРё РѕС‚РєСЂС‹С‚РёРё, РїСЂРёРіРѕРґСЏС‚СЃСЏ РіРґРµ-РЅРёР±СѓРґСЊ...
+	BOOL  FileAttributesModified;  // 04.11.2003 SKV - РЅР°РґРѕ Р»Рё РІРѕСЃСЃС‚Р°РЅР°РІР»РёРІР°С‚СЊ Р°С‚С‚СЂРёР±СѓС‚С‹ РїСЂРё save
+	bool m_bClosing;               // 28.04.2005 AY: true РєРѕРіРґР° СЂРµРґР°РєС‚РѕСЂ Р·Р°РєСЂС‹РІР°РµС‚СЊСЃСЏ (С‚.Рµ. РІ РґРµСЃС‚СЂСѓРєС‚РѕСЂРµ)
 	bool bEE_READ_Sent;
 	bool bLoaded;
 	bool m_bAddSignature;
@@ -173,3 +175,5 @@ private:
 
 bool dlgOpenEditor(string &strFileName, uintptr_t &codepage);
 bool dlgBadEditorCodepage(uintptr_t &codepage);
+
+#endif // FILEEDIT_HPP_4BC43BC9_43BB_4F5B_ADAE_E2C370D65E69

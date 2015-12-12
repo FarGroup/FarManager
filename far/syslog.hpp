@@ -1,13 +1,15 @@
+п»ї#ifndef SYSLOG_HPP_FCA31EB6_90F2_4E46_95C0_C037BA00B624
+#define SYSLOG_HPP_FCA31EB6_90F2_4E46_95C0_C037BA00B624
 #pragma once
 
 /*
 syslog.hpp
 
-Системный отладочный лог :-)
+РЎРёСЃС‚РµРјРЅС‹Р№ РѕС‚Р»Р°РґРѕС‡РЅС‹Р№ Р»РѕРі :-)
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -116,7 +118,7 @@ extern "C"
 #define _D(x)
 #endif
 
-// для "алгоритмов работы" - внимание! лог будет большим!
+// РґР»СЏ "Р°Р»РіРѕСЂРёС‚РјРѕРІ СЂР°Р±РѕС‚С‹" - РІРЅРёРјР°РЅРёРµ! Р»РѕРі Р±СѓРґРµС‚ Р±РѕР»СЊС€РёРј!
 #if defined(_DEBUG) && defined(SYSLOG_ALGO)
 #define _ALGO(x)  x
 #else
@@ -303,3 +305,5 @@ class CleverSysLog  // ;-)
 };
 
 void PrintSysLogStat();
+
+#endif // SYSLOG_HPP_FCA31EB6_90F2_4E46_95C0_C037BA00B624

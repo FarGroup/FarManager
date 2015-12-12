@@ -1,11 +1,11 @@
-/*
+п»ї/*
 dirinfo.cpp
 
 GetDirInfo & GetPluginDirInfo
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -113,7 +113,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, g
 	SetCursorType(false, 0);
 	GetPathRoot(strFullDirName,strDriveRoot);
 	/* $ 20.03.2002 DJ
-	   для . - покажем имя родительского каталога
+	   РґР»СЏ . - РїРѕРєР°Р¶РµРј РёРјСЏ СЂРѕРґРёС‚РµР»СЊСЃРєРѕРіРѕ РєР°С‚Р°Р»РѕРіР°
 	*/
 	const wchar_t *ShowDirName = DirName.data();
 
@@ -137,7 +137,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, g
 	if (GetDiskFreeSpace(strDriveRoot.data(),&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters))
 		Data.ClusterSize=SectorsPerCluster*BytesPerSector;
 
-	// Временные хранилища имён каталогов
+	// Р’СЂРµРјРµРЅРЅС‹Рµ С…СЂР°РЅРёР»РёС‰Р° РёРјС‘РЅ РєР°С‚Р°Р»РѕРіРѕРІ
 	strLastDirName.clear();
 	strCurDirName.clear();
 	Data.DirCount=Data.FileCount=0;
@@ -203,22 +203,22 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, g
 		{
 			StartTime=CurTime;
 			MessageDelay = getdirinfo_default_delay;
-			OldTitle << MSG(MScanningFolder) << L" " << ShowDirName << fmt::Flush(); // покажем заголовок консоли
+			OldTitle << MSG(MScanningFolder) << L" " << ShowDirName << fmt::Flush(); // РїРѕРєР°Р¶РµРј Р·Р°РіРѕР»РѕРІРѕРє РєРѕРЅСЃРѕР»Рё
 			SetCursorType(false, 0);
 			DrawGetDirInfoMsg(Title,ShowDirName, Data.FileSize);
 		}
 
 		if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
-			// Счётчик каталогов наращиваем только если не включен фильтр,
-			// в противном случае это будем делать в подсчёте количества файлов
+			// РЎС‡С‘С‚С‡РёРє РєР°С‚Р°Р»РѕРіРѕРІ РЅР°СЂР°С‰РёРІР°РµРј С‚РѕР»СЊРєРѕ РµСЃР»Рё РЅРµ РІРєР»СЋС‡РµРЅ С„РёР»СЊС‚СЂ,
+			// РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ СЌС‚Рѕ Р±СѓРґРµРј РґРµР»Р°С‚СЊ РІ РїРѕРґСЃС‡С‘С‚Рµ РєРѕР»РёС‡РµСЃС‚РІР° С„Р°Р№Р»РѕРІ
 			if (!(Flags&GETDIRINFO_USEFILTER))
 				Data.DirCount++;
 			else
 			{
-				// Если каталог не попадает под фильтр то его надо полностью
-				// пропустить - иначе при включенном подсчёте total
-				// он учтётся (mantis 551)
+				// Р•СЃР»Рё РєР°С‚Р°Р»РѕРі РЅРµ РїРѕРїР°РґР°РµС‚ РїРѕРґ С„РёР»СЊС‚СЂ С‚Рѕ РµРіРѕ РЅР°РґРѕ РїРѕР»РЅРѕСЃС‚СЊСЋ
+				// РїСЂРѕРїСѓСЃС‚РёС‚СЊ - РёРЅР°С‡Рµ РїСЂРё РІРєР»СЋС‡РµРЅРЅРѕРј РїРѕРґСЃС‡С‘С‚Рµ total
+				// РѕРЅ СѓС‡С‚С‘С‚СЃСЏ (mantis 551)
 				if (!Filter->FileInFilter(FindData, nullptr, &strFullName))
 					ScTree.SkipDir();
 			}
@@ -226,7 +226,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, g
 		else
 		{
 			/* $ 17.04.2005 KM
-			   Проверка попадания файла в условия фильтра
+			   РџСЂРѕРІРµСЂРєР° РїРѕРїР°РґР°РЅРёСЏ С„Р°Р№Р»Р° РІ СѓСЃР»РѕРІРёСЏ С„РёР»СЊС‚СЂР°
 			*/
 			if ((Flags&GETDIRINFO_USEFILTER))
 			{
@@ -234,9 +234,9 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, g
 					continue;
 			}
 
-			// Наращиваем счётчик каталогов при включенном фильтре только тогда,
-			// когда в таком каталоге найден файл, удовлетворяющий условиям
-			// фильтра.
+			// РќР°СЂР°С‰РёРІР°РµРј СЃС‡С‘С‚С‡РёРє РєР°С‚Р°Р»РѕРіРѕРІ РїСЂРё РІРєР»СЋС‡РµРЅРЅРѕРј С„РёР»СЊС‚СЂРµ С‚РѕР»СЊРєРѕ С‚РѕРіРґР°,
+			// РєРѕРіРґР° РІ С‚Р°РєРѕРј РєР°С‚Р°Р»РѕРіРµ РЅР°Р№РґРµРЅ С„Р°Р№Р», СѓРґРѕРІР»РµС‚РІРѕСЂСЏСЋС‰РёР№ СѓСЃР»РѕРІРёСЏРј
+			// С„РёР»СЊС‚СЂР°.
 			if ((Flags&GETDIRINFO_USEFILTER))
 			{
 				strCurDirName = strFullName;
@@ -345,7 +345,7 @@ static void ScanPluginDir(OPERATION_MODES OpMode,string& strPluginSearchPath, st
 
 	if (CheckForEscSilent())
 	{
-		if (Global->Opt->Confirm.Esc) // Будет выдаваться диалог?
+		if (Global->Opt->Confirm.Esc) // Р‘СѓРґРµС‚ РІС‹РґР°РІР°С‚СЊСЃСЏ РґРёР°Р»РѕРі?
 			AbortOp=TRUE;
 
 		if (ConfirmAbortOp())
@@ -376,8 +376,8 @@ static void ScanPluginDir(OPERATION_MODES OpMode,string& strPluginSearchPath, st
 		        !TestParentFolderName(CurPanelItem->FileName))
 		{
 			/* $ 30.11.2001 DJ
-					используем общую функцию для копирования FindData (не забываем
-					обработать PPIF_USERDATA)
+					РёСЃРїРѕР»СЊР·СѓРµРј РѕР±С‰СѓСЋ С„СѓРЅРєС†РёСЋ РґР»СЏ РєРѕРїРёСЂРѕРІР°РЅРёСЏ FindData (РЅРµ Р·Р°Р±С‹РІР°РµРј
+					РѕР±СЂР°Р±РѕС‚Р°С‚СЊ PPIF_USERDATA)
 			*/
 			PushPluginDirItem(PluginDirList, CurPanelItem, strPluginSearchPath);
 			string strFileName = CurPanelItem->FileName;
@@ -418,11 +418,11 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, Pl
 	if (Global->CtrlObject->Cp()->PassivePanel()->GetType()==QVIEW_PANEL || Global->CtrlObject->Cp()->ActivePanel()->GetType()==QVIEW_PANEL)
 		OpMode|=OPM_QUICKVIEW;
 
-	// А не хочет ли плагин посмотреть на текущую панель?
+	// Рђ РЅРµ С…РѕС‡РµС‚ Р»Рё РїР»Р°РіРёРЅ РїРѕСЃРјРѕС‚СЂРµС‚СЊ РЅР° С‚РµРєСѓС‰СѓСЋ РїР°РЅРµР»СЊ?
 	if (!hPlugin || hPlugin==PANEL_ACTIVE || hPlugin==PANEL_PASSIVE)
 	{
 		/* $ 30.11.2001 DJ
-			А плагиновая ли это панель?
+			Рђ РїР»Р°РіРёРЅРѕРІР°СЏ Р»Рё СЌС‚Рѕ РїР°РЅРµР»СЊ?
 		*/
 		const auto Handle = ((!hPlugin || hPlugin == PANEL_ACTIVE) ? Global->CtrlObject->Cp()->ActivePanel() : Global->CtrlObject->Cp()->PassivePanel())->GetPluginHandle();
 

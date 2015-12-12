@@ -1,11 +1,11 @@
-/*
+п»ї/*
 farversion.cpp
 
-Версия Far Manager
+Р’РµСЂСЃРёСЏ Far Manager
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farversion.hpp"
 
 /* $ 07.12.2000 SVS
-   + Версия берется из файла farversion.inc
+   + Р’РµСЂСЃРёСЏ Р±РµСЂРµС‚СЃСЏ РёР· С„Р°Р№Р»Р° farversion.inc
 */
 #include "bootstrap/farversion.inc"

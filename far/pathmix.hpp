@@ -1,3 +1,5 @@
+ï»¿#ifndef PATHMIX_HPP_4A60B3C3_4328_407E_A0E8_F55A9A9BE343
+#define PATHMIX_HPP_4A60B3C3_4328_407E_A0E8_F55A9A9BE343
 #pragma once
 
 /*
@@ -6,8 +8,8 @@ pathmix.hpp
 Misc functions for processing of path names
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright Â© 1996 Eugene Roshal
+Copyright Â© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -99,3 +101,5 @@ string ExtractFilePath(const string &Path);
 int MatchNtPathRoot(const string &NtPath, const string& DeviceName);
 void TestPathParser();
 
+
+#endif // PATHMIX_HPP_4A60B3C3_4328_407E_A0E8_F55A9A9BE343

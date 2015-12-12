@@ -1,3 +1,5 @@
+ï»¿#ifndef SCRSAVER_HPP_D7350E24_3DC9_40F1_8693_140B02767F9D
+#define SCRSAVER_HPP_D7350E24_3DC9_40F1_8693_140B02767F9D
 #pragma once
 
 /*
@@ -6,8 +8,8 @@ scrsaver.hpp
 ScreenSaver
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright Â© 1996 Eugene Roshal
+Copyright Â© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -34,3 +36,5 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 int ScreenSaver();
+
+#endif // SCRSAVER_HPP_D7350E24_3DC9_40F1_8693_140B02767F9D

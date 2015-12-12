@@ -1,13 +1,15 @@
+п»ї#ifndef FARWINAPI_HPP_632CB91D_08A9_4793_8FC7_2E38C30CE234
+#define FARWINAPI_HPP_632CB91D_08A9_4793_8FC7_2E38C30CE234
 #pragma once
 
 /*
 farwinapi.hpp
 
-Враперы вокруг некоторых WinAPI функций
+Р’СЂР°РїРµСЂС‹ РІРѕРєСЂСѓРі РЅРµРєРѕС‚РѕСЂС‹С… WinAPI С„СѓРЅРєС†РёР№
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -706,3 +708,5 @@ namespace os
 		uint64_t m_StartTime;
 	};
 }
+
+#endif // FARWINAPI_HPP_632CB91D_08A9_4793_8FC7_2E38C30CE234

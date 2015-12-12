@@ -1,13 +1,15 @@
+п»ї#ifndef CONFIG_HPP_E468759B_688C_4D45_A5BA_CF1D4FCC9A08
+#define CONFIG_HPP_E468759B_688C_4D45_A5BA_CF1D4FCC9A08
 #pragma once
 
 /*
 config.hpp
 
-Конфигурация
+РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -49,17 +51,17 @@ enum
 
 enum ExcludeCmdHistoryType
 {
-	EXCLUDECMDHISTORY_NOTWINASS    = 0x00000001,  // не помещать в историю команды ассоциаций Windows
-	EXCLUDECMDHISTORY_NOTFARASS    = 0x00000002,  // не помещать в историю команды выполнения ассоциаций файлов
-	EXCLUDECMDHISTORY_NOTPANEL     = 0x00000004,  // не помещать в историю команды выполнения с панели
-	EXCLUDECMDHISTORY_NOTCMDLINE   = 0x00000008,  // не помещать в историю команды выполнения с ком.строки
-	//EXCLUDECMDHISTORY_NOTAPPLYCMD   = 0x00000010,  // не помещать в историю команды выполнения из "Apply Command"
+	EXCLUDECMDHISTORY_NOTWINASS    = 0x00000001,  // РЅРµ РїРѕРјРµС‰Р°С‚СЊ РІ РёСЃС‚РѕСЂРёСЋ РєРѕРјР°РЅРґС‹ Р°СЃСЃРѕС†РёР°С†РёР№ Windows
+	EXCLUDECMDHISTORY_NOTFARASS    = 0x00000002,  // РЅРµ РїРѕРјРµС‰Р°С‚СЊ РІ РёСЃС‚РѕСЂРёСЋ РєРѕРјР°РЅРґС‹ РІС‹РїРѕР»РЅРµРЅРёСЏ Р°СЃСЃРѕС†РёР°С†РёР№ С„Р°Р№Р»РѕРІ
+	EXCLUDECMDHISTORY_NOTPANEL     = 0x00000004,  // РЅРµ РїРѕРјРµС‰Р°С‚СЊ РІ РёСЃС‚РѕСЂРёСЋ РєРѕРјР°РЅРґС‹ РІС‹РїРѕР»РЅРµРЅРёСЏ СЃ РїР°РЅРµР»Рё
+	EXCLUDECMDHISTORY_NOTCMDLINE   = 0x00000008,  // РЅРµ РїРѕРјРµС‰Р°С‚СЊ РІ РёСЃС‚РѕСЂРёСЋ РєРѕРјР°РЅРґС‹ РІС‹РїРѕР»РЅРµРЅРёСЏ СЃ РєРѕРј.СЃС‚СЂРѕРєРё
+	//EXCLUDECMDHISTORY_NOTAPPLYCMD   = 0x00000010,  // РЅРµ РїРѕРјРµС‰Р°С‚СЊ РІ РёСЃС‚РѕСЂРёСЋ РєРѕРјР°РЅРґС‹ РІС‹РїРѕР»РЅРµРЅРёСЏ РёР· "Apply Command"
 };
 
 enum QUOTEDNAMETYPE
 {
-	QUOTEDNAME_INSERT         = 0x00000001,            // кавычить при сбросе в командную строку, в диалогах и редакторе
-	QUOTEDNAME_CLIPBOARD      = 0x00000002,            // кавычить при помещении в буфер обмена
+	QUOTEDNAME_INSERT         = 0x00000001,            // РєР°РІС‹С‡РёС‚СЊ РїСЂРё СЃР±СЂРѕСЃРµ РІ РєРѕРјР°РЅРґРЅСѓСЋ СЃС‚СЂРѕРєСѓ, РІ РґРёР°Р»РѕРіР°С… Рё СЂРµРґР°РєС‚РѕСЂРµ
+	QUOTEDNAME_CLIPBOARD      = 0x00000002,            // РєР°РІС‹С‡РёС‚СЊ РїСЂРё РїРѕРјРµС‰РµРЅРёРё РІ Р±СѓС„РµСЂ РѕР±РјРµРЅР°
 };
 
 enum
@@ -336,11 +338,11 @@ public:
 
 		HKL Layouts[10];
 		StringOption strLayouts;
-		StringOption Rules[3]; // правила:
-		// [0] "если предыдущий символ латинский"
-		// [1] "если предыдущий символ нелатинский символ"
-		// [2] "если предыдущий символ не рус/lat"
-		StringOption Table[2]; // [0] non-english буквы, [1] english буквы
+		StringOption Rules[3]; // РїСЂР°РІРёР»Р°:
+		// [0] "РµСЃР»Рё РїСЂРµРґС‹РґСѓС‰РёР№ СЃРёРјРІРѕР» Р»Р°С‚РёРЅСЃРєРёР№"
+		// [1] "РµСЃР»Рё РїСЂРµРґС‹РґСѓС‰РёР№ СЃРёРјРІРѕР» РЅРµР»Р°С‚РёРЅСЃРєРёР№ СЃРёРјРІРѕР»"
+		// [2] "РµСЃР»Рё РїСЂРµРґС‹РґСѓС‰РёР№ СЃРёРјРІРѕР» РЅРµ СЂСѓСЃ/lat"
+		StringOption Table[2]; // [0] non-english Р±СѓРєРІС‹, [1] english Р±СѓРєРІС‹
 		StringOption strWordDivForXlat;
 		IntOption Flags;
 		mutable int CurrentLayout;
@@ -418,19 +420,19 @@ public:
 
 	struct PoliciesOptions
 	{
-		BoolOption ShowHiddenDrives; // показывать скрытые логические диски
+		BoolOption ShowHiddenDrives; // РїРѕРєР°Р·С‹РІР°С‚СЊ СЃРєСЂС‹С‚С‹Рµ Р»РѕРіРёС‡РµСЃРєРёРµ РґРёСЃРєРё
 	};
 
 	struct DialogsOptions
 	{
-		BoolOption EditBlock;            // Постоянные блоки в строках ввода
-		BoolOption EditHistory;          // Добавлять в историю?
-		BoolOption AutoComplete;         // Разрешено автодополнение?
-		BoolOption EULBsClear;           // = 1 - BS в диалогах для UnChanged строки удаляет такую строку также, как и Del
-		IntOption EditLine;             // общая информация о строке ввода (сейчас это пока... позволяет управлять выделением)
-		IntOption MouseButton;          // Отключение восприятие правой/левой кнопки мыши как команд закрытия окна диалога
+		BoolOption EditBlock;            // РџРѕСЃС‚РѕСЏРЅРЅС‹Рµ Р±Р»РѕРєРё РІ СЃС‚СЂРѕРєР°С… РІРІРѕРґР°
+		BoolOption EditHistory;          // Р”РѕР±Р°РІР»СЏС‚СЊ РІ РёСЃС‚РѕСЂРёСЋ?
+		BoolOption AutoComplete;         // Р Р°Р·СЂРµС€РµРЅРѕ Р°РІС‚РѕРґРѕРїРѕР»РЅРµРЅРёРµ?
+		BoolOption EULBsClear;           // = 1 - BS РІ РґРёР°Р»РѕРіР°С… РґР»СЏ UnChanged СЃС‚СЂРѕРєРё СѓРґР°Р»СЏРµС‚ С‚Р°РєСѓСЋ СЃС‚СЂРѕРєСѓ С‚Р°РєР¶Рµ, РєР°Рє Рё Del
+		IntOption EditLine;             // РѕР±С‰Р°СЏ РёРЅС„РѕСЂРјР°С†РёСЏ Рѕ СЃС‚СЂРѕРєРµ РІРІРѕРґР° (СЃРµР№С‡Р°СЃ СЌС‚Рѕ РїРѕРєР°... РїРѕР·РІРѕР»СЏРµС‚ СѓРїСЂР°РІР»СЏС‚СЊ РІС‹РґРµР»РµРЅРёРµРј)
+		IntOption MouseButton;          // РћС‚РєР»СЋС‡РµРЅРёРµ РІРѕСЃРїСЂРёСЏС‚РёРµ РїСЂР°РІРѕР№/Р»РµРІРѕР№ РєРЅРѕРїРєРё РјС‹С€Рё РєР°Рє РєРѕРјР°РЅРґ Р·Р°РєСЂС‹С‚РёСЏ РѕРєРЅР° РґРёР°Р»РѕРіР°
 		BoolOption DelRemovesBlocks;
-		IntOption CBoxMaxHeight;        // максимальный размер открываемого списка (по умолчанию=8)
+		IntOption CBoxMaxHeight;        // РјР°РєСЃРёРјР°Р»СЊРЅС‹Р№ СЂР°Р·РјРµСЂ РѕС‚РєСЂС‹РІР°РµРјРѕРіРѕ СЃРїРёСЃРєР° (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ=8)
 	};
 
 	struct VMenuOptions
@@ -451,22 +453,22 @@ public:
 
 	struct NowellOptions
 	{
-		// перед операцией Move снимать R/S/H атрибуты, после переноса - выставлять обратно
+		// РїРµСЂРµРґ РѕРїРµСЂР°С†РёРµР№ Move СЃРЅРёРјР°С‚СЊ R/S/H Р°С‚СЂРёР±СѓС‚С‹, РїРѕСЃР»Рµ РїРµСЂРµРЅРѕСЃР° - РІС‹СЃС‚Р°РІР»СЏС‚СЊ РѕР±СЂР°С‚РЅРѕ
 		BoolOption MoveRO;
 	};
 
 	struct ScreenSizes
 	{
-		// на сколько поз. изменить размеры для распахнутого экрана
+		// РЅР° СЃРєРѕР»СЊРєРѕ РїРѕР·. РёР·РјРµРЅРёС‚СЊ СЂР°Р·РјРµСЂС‹ РґР»СЏ СЂР°СЃРїР°С…РЅСѓС‚РѕРіРѕ СЌРєСЂР°РЅР°
 		IntOption DeltaX;
 		IntOption DeltaY;
 	};
 
 	struct LoadPluginsOptions
 	{
-		string strCustomPluginsPath;  // путь для поиска плагинов, указанный в /p
+		string strCustomPluginsPath;  // РїСѓС‚СЊ РґР»СЏ РїРѕРёСЃРєР° РїР»Р°РіРёРЅРѕРІ, СѓРєР°Р·Р°РЅРЅС‹Р№ РІ /p
 		string strPersonalPluginsPath;
-		bool MainPluginDir; // true - использовать стандартный путь к основным плагинам
+		bool MainPluginDir; // true - РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ СЃС‚Р°РЅРґР°СЂС‚РЅС‹Р№ РїСѓС‚СЊ Рє РѕСЃРЅРѕРІРЅС‹Рј РїР»Р°РіРёРЅР°Рј
 		bool PluginsCacheOnly; // set by '/co' switch, not saved
 		bool PluginsPersonal;
 
@@ -506,60 +508,60 @@ public:
 	{
 		BoolOption TurnOffCompletely;   // Turn OFF SlowlyAndBuglyTreeView
 
-		IntOption MinTreeCount;         // Минимальное количество папок для сохранения дерева в файле.
-		BoolOption AutoChangeFolder;    // Автосмена папок при перемещении по дереву
-		IntOption TreeFileAttr;         // Файловые атрибуты для файлов-деревях
+		IntOption MinTreeCount;         // РњРёРЅРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РїР°РїРѕРє РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ РґРµСЂРµРІР° РІ С„Р°Р№Р»Рµ.
+		BoolOption AutoChangeFolder;    // РђРІС‚РѕСЃРјРµРЅР° РїР°РїРѕРє РїСЂРё РїРµСЂРµРјРµС‰РµРЅРёРё РїРѕ РґРµСЂРµРІСѓ
+		IntOption TreeFileAttr;         // Р¤Р°Р№Р»РѕРІС‹Рµ Р°С‚СЂРёР±СѓС‚С‹ РґР»СЏ С„Р°Р№Р»РѕРІ-РґРµСЂРµРІСЏС…
 
 #if defined(TREEFILE_PROJECT)
-		BoolOption LocalDisk;           // Хранить файл структуры папок для локальных дисков
-		BoolOption NetDisk;             // Хранить файл структуры папок для сетевых дисков
-		BoolOption NetPath;             // Хранить файл структуры папок для сетевых путей
-		BoolOption RemovableDisk;       // Хранить файл структуры папок для сменных дисков
-		BoolOption CDDisk;              // Хранить файл структуры папок для CD/DVD/BD/etc дисков
+		BoolOption LocalDisk;           // РҐСЂР°РЅРёС‚СЊ С„Р°Р№Р» СЃС‚СЂСѓРєС‚СѓСЂС‹ РїР°РїРѕРє РґР»СЏ Р»РѕРєР°Р»СЊРЅС‹С… РґРёСЃРєРѕРІ
+		BoolOption NetDisk;             // РҐСЂР°РЅРёС‚СЊ С„Р°Р№Р» СЃС‚СЂСѓРєС‚СѓСЂС‹ РїР°РїРѕРє РґР»СЏ СЃРµС‚РµРІС‹С… РґРёСЃРєРѕРІ
+		BoolOption NetPath;             // РҐСЂР°РЅРёС‚СЊ С„Р°Р№Р» СЃС‚СЂСѓРєС‚СѓСЂС‹ РїР°РїРѕРє РґР»СЏ СЃРµС‚РµРІС‹С… РїСѓС‚РµР№
+		BoolOption RemovableDisk;       // РҐСЂР°РЅРёС‚СЊ С„Р°Р№Р» СЃС‚СЂСѓРєС‚СѓСЂС‹ РїР°РїРѕРє РґР»СЏ СЃРјРµРЅРЅС‹С… РґРёСЃРєРѕРІ
+		BoolOption CDDisk;              // РҐСЂР°РЅРёС‚СЊ С„Р°Р№Р» СЃС‚СЂСѓРєС‚СѓСЂС‹ РїР°РїРѕРє РґР»СЏ CD/DVD/BD/etc РґРёСЃРєРѕРІ
 
-		StringOption strLocalDisk;      // шаблон имени файла-деревяхи для локальных дисков
-		StringOption strNetDisk;        // шаблон имени файла-деревяхи для сетевых дисков
-		StringOption strNetPath;        // шаблон имени файла-деревяхи для сетевых путей
-		StringOption strRemovableDisk;  // шаблон имени файла-деревяхи для сменных дисков
-		StringOption strCDDisk;         // шаблон имени файла-деревяхи для CD/DVD/BD/etc дисков
+		StringOption strLocalDisk;      // С€Р°Р±Р»РѕРЅ РёРјРµРЅРё С„Р°Р№Р»Р°-РґРµСЂРµРІСЏС…Рё РґР»СЏ Р»РѕРєР°Р»СЊРЅС‹С… РґРёСЃРєРѕРІ
+		StringOption strNetDisk;        // С€Р°Р±Р»РѕРЅ РёРјРµРЅРё С„Р°Р№Р»Р°-РґРµСЂРµРІСЏС…Рё РґР»СЏ СЃРµС‚РµРІС‹С… РґРёСЃРєРѕРІ
+		StringOption strNetPath;        // С€Р°Р±Р»РѕРЅ РёРјРµРЅРё С„Р°Р№Р»Р°-РґРµСЂРµРІСЏС…Рё РґР»СЏ СЃРµС‚РµРІС‹С… РїСѓС‚РµР№
+		StringOption strRemovableDisk;  // С€Р°Р±Р»РѕРЅ РёРјРµРЅРё С„Р°Р№Р»Р°-РґРµСЂРµРІСЏС…Рё РґР»СЏ СЃРјРµРЅРЅС‹С… РґРёСЃРєРѕРІ
+		StringOption strCDDisk;         // С€Р°Р±Р»РѕРЅ РёРјРµРЅРё С„Р°Р№Р»Р°-РґРµСЂРµРІСЏС…Рё РґР»СЏ CD/DVD/BD/etc РґРёСЃРєРѕРІ
 
-		StringOption strExceptPath;     // для перечисленных здесь не хранить
+		StringOption strExceptPath;     // РґР»СЏ РїРµСЂРµС‡РёСЃР»РµРЅРЅС‹С… Р·РґРµСЃСЊ РЅРµ С…СЂР°РЅРёС‚СЊ
 
-		StringOption strSaveLocalPath;  // сюда сохраняем локальные диски
-		StringOption strSaveNetPath;    // сюда сохраняем сетевые диски
+		StringOption strSaveLocalPath;  // СЃСЋРґР° СЃРѕС…СЂР°РЅСЏРµРј Р»РѕРєР°Р»СЊРЅС‹Рµ РґРёСЃРєРё
+		StringOption strSaveNetPath;    // СЃСЋРґР° СЃРѕС…СЂР°РЅСЏРµРј СЃРµС‚РµРІС‹Рµ РґРёСЃРєРё
 #endif
 	};
 
 	struct CopyMoveOptions
 	{
-		BoolOption UseSystemCopy;         // использовать системную функцию копирования
-		BoolOption CopyOpened;            // копировать открытые на запись файлы
-		BoolOption CopyShowTotal;         // показать общий индикатор копирования
-		BoolOption MultiCopy;             // "разрешить мультикопирование/перемещение/создание связей"
-		IntOption CopySecurityOptions; // для операции Move - что делать с опцией "Copy access rights"
-		IntOption CopyTimeRule;          // $ 30.01.2001 VVM  Показывает время копирования,оставшееся время и среднюю скорость
+		BoolOption UseSystemCopy;         // РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ СЃРёСЃС‚РµРјРЅСѓСЋ С„СѓРЅРєС†РёСЋ РєРѕРїРёСЂРѕРІР°РЅРёСЏ
+		BoolOption CopyOpened;            // РєРѕРїРёСЂРѕРІР°С‚СЊ РѕС‚РєСЂС‹С‚С‹Рµ РЅР° Р·Р°РїРёСЃСЊ С„Р°Р№Р»С‹
+		BoolOption CopyShowTotal;         // РїРѕРєР°Р·Р°С‚СЊ РѕР±С‰РёР№ РёРЅРґРёРєР°С‚РѕСЂ РєРѕРїРёСЂРѕРІР°РЅРёСЏ
+		BoolOption MultiCopy;             // "СЂР°Р·СЂРµС€РёС‚СЊ РјСѓР»СЊС‚РёРєРѕРїРёСЂРѕРІР°РЅРёРµ/РїРµСЂРµРјРµС‰РµРЅРёРµ/СЃРѕР·РґР°РЅРёРµ СЃРІСЏР·РµР№"
+		IntOption CopySecurityOptions; // РґР»СЏ РѕРїРµСЂР°С†РёРё Move - С‡С‚Рѕ РґРµР»Р°С‚СЊ СЃ РѕРїС†РёРµР№ "Copy access rights"
+		IntOption CopyTimeRule;          // $ 30.01.2001 VVM  РџРѕРєР°Р·С‹РІР°РµС‚ РІСЂРµРјСЏ РєРѕРїРёСЂРѕРІР°РЅРёСЏ,РѕСЃС‚Р°РІС€РµРµСЃСЏ РІСЂРµРјСЏ Рё СЃСЂРµРґРЅСЋСЋ СЃРєРѕСЂРѕСЃС‚СЊ
 		IntOption BufferSize;
 	};
 
 	struct DeleteOptions
 	{
-		BoolOption ShowTotal;         // показать общий индикатор удаления
+		BoolOption ShowTotal;         // РїРѕРєР°Р·Р°С‚СЊ РѕР±С‰РёР№ РёРЅРґРёРєР°С‚РѕСЂ СѓРґР°Р»РµРЅРёСЏ
 		BoolOption HighlightSelected;
 		IntOption  ShowSelected;
 	};
 
 	struct MacroOptions
 	{
-		int DisableMacro; // параметры /m или /ma или /m....
+		int DisableMacro; // РїР°СЂР°РјРµС‚СЂС‹ /m РёР»Рё /ma РёР»Рё /m....
 		// config
-		StringOption strKeyMacroCtrlDot, strKeyMacroRCtrlDot; // аля KEY_CTRLDOT/KEY_RCTRLDOT
-		StringOption strKeyMacroCtrlShiftDot, strKeyMacroRCtrlShiftDot; // аля KEY_CTRLSHIFTDOT/KEY_RCTRLSHIFTDOT
+		StringOption strKeyMacroCtrlDot, strKeyMacroRCtrlDot; // Р°Р»СЏ KEY_CTRLDOT/KEY_RCTRLDOT
+		StringOption strKeyMacroCtrlShiftDot, strKeyMacroRCtrlShiftDot; // Р°Р»СЏ KEY_CTRLSHIFTDOT/KEY_RCTRLSHIFTDOT
 		// internal
 		DWORD KeyMacroCtrlDot, KeyMacroRCtrlDot;
 		DWORD KeyMacroCtrlShiftDot, KeyMacroRCtrlShiftDot;
-		StringOption strMacroCONVFMT; // формат преобразования double в строку
-		StringOption strDateFormat; // Для $Date
-		BoolOption ShowPlayIndicator; // показать вывод 'P' во время проигрывания макроса
+		StringOption strMacroCONVFMT; // С„РѕСЂРјР°С‚ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ double РІ СЃС‚СЂРѕРєСѓ
+		StringOption strDateFormat; // Р”Р»СЏ $Date
+		BoolOption ShowPlayIndicator; // РїРѕРєР°Р·Р°С‚СЊ РІС‹РІРѕРґ 'P' РІРѕ РІСЂРµРјСЏ РїСЂРѕРёРіСЂС‹РІР°РЅРёСЏ РјР°РєСЂРѕСЃР°
 	};
 
 	struct KnownModulesIDs
@@ -608,13 +610,13 @@ public:
 	BoolOption ReverseSort;
 	BoolOption SortFolderExt;
 	BoolOption DeleteToRecycleBin;
-	IntOption WipeSymbol; // символ заполнитель для "ZAP-операции"
+	IntOption WipeSymbol; // СЃРёРјРІРѕР» Р·Р°РїРѕР»РЅРёС‚РµР»СЊ РґР»СЏ "ZAP-РѕРїРµСЂР°С†РёРё"
 
 	CopyMoveOptions CMOpt;
 
 	DeleteOptions DelOpt;
 
-	BoolOption MultiMakeDir; // Опция создания нескольких каталогов за один сеанс
+	BoolOption MultiMakeDir; // РћРїС†РёСЏ СЃРѕР·РґР°РЅРёСЏ РЅРµСЃРєРѕР»СЊРєРёС… РєР°С‚Р°Р»РѕРіРѕРІ Р·Р° РѕРґРёРЅ СЃРµР°РЅСЃ
 
 	BoolOption UseRegisteredTypes;
 
@@ -681,7 +683,7 @@ public:
 
 	AutoCompleteOptions AutoComplete;
 
-	// выше этого количество автоматически не обновлять панели.
+	// РІС‹С€Рµ СЌС‚РѕРіРѕ РєРѕР»РёС‡РµСЃС‚РІРѕ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё РЅРµ РѕР±РЅРѕРІР»СЏС‚СЊ РїР°РЅРµР»Рё.
 	IntOption  AutoUpdateLimit;
 	BoolOption AutoUpdateRemoteDrive;
 
@@ -690,11 +692,11 @@ public:
 	BoolOption SetAdminIcon;
 	IntOption PanelRightClickRule;
 	IntOption PanelCtrlAltShiftRule;
-	// поведение Ctrl-F. Если = 0, то штампуется файл как есть, иначе - с учетом отображения на панели
+	// РїРѕРІРµРґРµРЅРёРµ Ctrl-F. Р•СЃР»Рё = 0, С‚Рѕ С€С‚Р°РјРїСѓРµС‚СЃСЏ С„Р°Р№Р» РєР°Рє РµСЃС‚СЊ, РёРЅР°С‡Рµ - СЃ СѓС‡РµС‚РѕРј РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ РЅР° РїР°РЅРµР»Рё
 	BoolOption PanelCtrlFRule;
 	/*
-	поведение Ctrl-Alt-Shift
-	бит установлен - функция включена:
+	РїРѕРІРµРґРµРЅРёРµ Ctrl-Alt-Shift
+	Р±РёС‚ СѓСЃС‚Р°РЅРѕРІР»РµРЅ - С„СѓРЅРєС†РёСЏ РІРєР»СЋС‡РµРЅР°:
 	0 - Panel
 	1 - Edit
 	2 - View
@@ -703,69 +705,69 @@ public:
 	*/
 	IntOption AllCtrlAltShiftRule;
 
-	IntOption CASRule; // 18.12.2003 - Пробуем различать левый и правый CAS (попытка #1).
+	IntOption CASRule; // 18.12.2003 - РџСЂРѕР±СѓРµРј СЂР°Р·Р»РёС‡Р°С‚СЊ Р»РµРІС‹Р№ Рё РїСЂР°РІС‹Р№ CAS (РїРѕРїС‹С‚РєР° #1).
 	/*
-	  задает поведение Esc для командной строки:
-	    =1 - Не изменять положение в History, если после Ctrl-E/Ctrl/-X
-	         нажали ESC (поведение - аля VC).
-	    =0 - поведение как и было - изменять положение в History
+	  Р·Р°РґР°РµС‚ РїРѕРІРµРґРµРЅРёРµ Esc РґР»СЏ РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРё:
+	    =1 - РќРµ РёР·РјРµРЅСЏС‚СЊ РїРѕР»РѕР¶РµРЅРёРµ РІ History, РµСЃР»Рё РїРѕСЃР»Рµ Ctrl-E/Ctrl/-X
+	         РЅР°Р¶Р°Р»Рё ESC (РїРѕРІРµРґРµРЅРёРµ - Р°Р»СЏ VC).
+	    =0 - РїРѕРІРµРґРµРЅРёРµ РєР°Рє Рё Р±С‹Р»Рѕ - РёР·РјРµРЅСЏС‚СЊ РїРѕР»РѕР¶РµРЅРёРµ РІ History
 	*/
 	BoolOption CmdHistoryRule;
 
 	IntOption ExcludeCmdHistory;
 
-	BoolOption SubstPluginPrefix; // 1 = подстанавливать префикс плагина (для Ctrl-[ и ему подобные)
+	BoolOption SubstPluginPrefix; // 1 = РїРѕРґСЃС‚Р°РЅР°РІР»РёРІР°С‚СЊ РїСЂРµС„РёРєСЃ РїР»Р°РіРёРЅР° (РґР»СЏ Ctrl-[ Рё РµРјСѓ РїРѕРґРѕР±РЅС‹Рµ)
 	BoolOption SetAttrFolderRules;
 
 	BoolOption ExceptUsed;
 	StringOption strExceptEventSvc;
 	/*
-	Правило на счет выбора механизма трансляции
-	Alt-Буква для нелатинским буковок и символов "`-=[]\;',./" с
-	модификаторами Alt-, Ctrl-, Alt-Shift-, Ctrl-Shift-, Ctrl-Alt-
+	РџСЂР°РІРёР»Рѕ РЅР° СЃС‡РµС‚ РІС‹Р±РѕСЂР° РјРµС…Р°РЅРёР·РјР° С‚СЂР°РЅСЃР»СЏС†РёРё
+	Alt-Р‘СѓРєРІР° РґР»СЏ РЅРµР»Р°С‚РёРЅСЃРєРёРј Р±СѓРєРѕРІРѕРє Рё СЃРёРјРІРѕР»РѕРІ "`-=[]\;',./" СЃ
+	РјРѕРґРёС„РёРєР°С‚РѕСЂР°РјРё Alt-, Ctrl-, Alt-Shift-, Ctrl-Shift-, Ctrl-Alt-
 	*/
 	BoolOption ShiftsKeyRules;
 	IntOption CursorSize[4];
 
 	CodeXLAT XLat;
 
-	StringOption ConsoleDetachKey; // Комбинация клавиш для детача Far'овской консоли от длятельного неинтерактивного процесса в ней запущенного.
+	StringOption ConsoleDetachKey; // РљРѕРјР±РёРЅР°С†РёСЏ РєР»Р°РІРёС€ РґР»СЏ РґРµС‚Р°С‡Р° Far'РѕРІСЃРєРѕР№ РєРѕРЅСЃРѕР»Рё РѕС‚ РґР»СЏС‚РµР»СЊРЅРѕРіРѕ РЅРµРёРЅС‚РµСЂР°РєС‚РёРІРЅРѕРіРѕ РїСЂРѕС†РµСЃСЃР° РІ РЅРµР№ Р·Р°РїСѓС‰РµРЅРЅРѕРіРѕ.
 
 	StringOption strHelpLanguage;
 	BoolOption FullScreenHelp;
 	IntOption HelpTabSize;
 
-	IntOption HelpURLRules; // =0 отключить возможность запуска URL-приложений
+	IntOption HelpURLRules; // =0 РѕС‚РєР»СЋС‡РёС‚СЊ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ Р·Р°РїСѓСЃРєР° URL-РїСЂРёР»РѕР¶РµРЅРёР№
 	BoolOption HelpSearchRegexp;
 
-	// запоминать логические диски и не опрашивать каждый раз. Для предотвращения "просыпания" "зеленых" винтов.
+	// Р·Р°РїРѕРјРёРЅР°С‚СЊ Р»РѕРіРёС‡РµСЃРєРёРµ РґРёСЃРєРё Рё РЅРµ РѕРїСЂР°С€РёРІР°С‚СЊ РєР°Р¶РґС‹Р№ СЂР°Р·. Р”Р»СЏ РїСЂРµРґРѕС‚РІСЂР°С‰РµРЅРёСЏ "РїСЂРѕСЃС‹РїР°РЅРёСЏ" "Р·РµР»РµРЅС‹С…" РІРёРЅС‚РѕРІ.
 	BoolOption RememberLogicalDrives;
 	BoolOption FlagPosixSemantics;
 
-	IntOption MsWheelDelta; // задает смещение для прокрутки
+	IntOption MsWheelDelta; // Р·Р°РґР°РµС‚ СЃРјРµС‰РµРЅРёРµ РґР»СЏ РїСЂРѕРєСЂСѓС‚РєРё
 	IntOption MsWheelDeltaView;
 	IntOption MsWheelDeltaEdit;
 	IntOption MsWheelDeltaHelp;
-	// горизонтальная прокрутка
+	// РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅР°СЏ РїСЂРѕРєСЂСѓС‚РєР°
 	IntOption MsHWheelDelta;
 	IntOption MsHWheelDeltaView;
 	IntOption MsHWheelDeltaEdit;
 
 	/*
-	битовая маска:
-	    0 - если установлен, то опрашивать сменные диски при GetSubstName()
-	    1 - если установлен, то опрашивать все остальные при GetSubstName()
+	Р±РёС‚РѕРІР°СЏ РјР°СЃРєР°:
+	    0 - РµСЃР»Рё СѓСЃС‚Р°РЅРѕРІР»РµРЅ, С‚Рѕ РѕРїСЂР°С€РёРІР°С‚СЊ СЃРјРµРЅРЅС‹Рµ РґРёСЃРєРё РїСЂРё GetSubstName()
+	    1 - РµСЃР»Рё СѓСЃС‚Р°РЅРѕРІР»РµРЅ, С‚Рѕ РѕРїСЂР°С€РёРІР°С‚СЊ РІСЃРµ РѕСЃС‚Р°Р»СЊРЅС‹Рµ РїСЂРё GetSubstName()
 	*/
 	IntOption SubstNameRule;
 
 	/* $ 23.05.2001 AltF9
-	  + Флаг позволяет выбрать механизм  работы комбинации Alt-F9
-	       (Изменение размера экрана) в оконном режиме. По умолчанию - 1.
-	    0 - использовать механизм, совместимый с FAR версии 1.70 beta 3 и
-	       ниже, т.е. переключение 25/50 линий.
-	    1 - использовать усовершенствованный механизм - окно FAR Manager
-	       будет переключаться с нормального на максимально доступный размер
-	       консольного окна и обратно.*/
+	  + Р¤Р»Р°Рі РїРѕР·РІРѕР»СЏРµС‚ РІС‹Р±СЂР°С‚СЊ РјРµС…Р°РЅРёР·Рј  СЂР°Р±РѕС‚С‹ РєРѕРјР±РёРЅР°С†РёРё Alt-F9
+	       (РР·РјРµРЅРµРЅРёРµ СЂР°Р·РјРµСЂР° СЌРєСЂР°РЅР°) РІ РѕРєРѕРЅРЅРѕРј СЂРµР¶РёРјРµ. РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ - 1.
+	    0 - РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РјРµС…Р°РЅРёР·Рј, СЃРѕРІРјРµСЃС‚РёРјС‹Р№ СЃ FAR РІРµСЂСЃРёРё 1.70 beta 3 Рё
+	       РЅРёР¶Рµ, С‚.Рµ. РїРµСЂРµРєР»СЋС‡РµРЅРёРµ 25/50 Р»РёРЅРёР№.
+	    1 - РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ СѓСЃРѕРІРµСЂС€РµРЅСЃС‚РІРѕРІР°РЅРЅС‹Р№ РјРµС…Р°РЅРёР·Рј - РѕРєРЅРѕ FAR Manager
+	       Р±СѓРґРµС‚ РїРµСЂРµРєР»СЋС‡Р°С‚СЊСЃСЏ СЃ РЅРѕСЂРјР°Р»СЊРЅРѕРіРѕ РЅР° РјР°РєСЃРёРјР°Р»СЊРЅРѕ РґРѕСЃС‚СѓРїРЅС‹Р№ СЂР°Р·РјРµСЂ
+	       РєРѕРЅСЃРѕР»СЊРЅРѕРіРѕ РѕРєРЅР° Рё РѕР±СЂР°С‚РЅРѕ.*/
 	BoolOption AltF9;
 
 	BoolOption ClearType;
@@ -773,7 +775,7 @@ public:
 	Bool3Option PgUpChangeDisk;
 	BoolOption ShowDotsInRoot;
 	BoolOption ShowCheckingFile;
-	BoolOption CloseCDGate;       // автомонтирование CD
+	BoolOption CloseCDGate;       // Р°РІС‚РѕРјРѕРЅС‚РёСЂРѕРІР°РЅРёРµ CD
 	BoolOption UpdateEnvironment;
 
 	ExecuteOptions Exec;
@@ -782,7 +784,7 @@ public:
 	BoolOption ScanJunction;
 
 	IntOption RedrawTimeout;
-	IntOption DelThreadPriority; // приоритет процесса удаления, по умолчанию = THREAD_PRIORITY_NORMAL
+	IntOption DelThreadPriority; // РїСЂРёРѕСЂРёС‚РµС‚ РїСЂРѕС†РµСЃСЃР° СѓРґР°Р»РµРЅРёСЏ, РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ = THREAD_PRIORITY_NORMAL
 
 	LoadPluginsOptions LoadPlug;
 
@@ -801,14 +803,14 @@ public:
 
 	BoolOption CPMenuMode;
 	StringOption strNoAutoDetectCP;
-	// Перечисленные здесь кодовые страницы будут исключены из детектирования nsUniversalDetectorEx.
-	// Автодетект юникодных страниц от этого не зависит, поэтому UTF-8 будет определяться даже если
-	// 65001 здесь присутствует. Если UniversalDetector выдаст страницу из этого списка, она будет
-	// заменена на умолчательную ANSI или OEM, в зависимости от настроек.
-	// пример: L"1250,1252,1253,1255,855,10005,28592,28595,28597,28598,38598,65001"
-	// Если строка пустая никакой фильтрации кодовых страниц в UCD детекте не будет.
-	// Если "-1", то в зависимости CPMenuMode (Ctrl-H в меню кодовых страниц фильтрация UCD либо будет
-	// отключена, либо будут разрешенны только избранные и системные (OEM ANSI) кодовые страницы.
+	// РџРµСЂРµС‡РёСЃР»РµРЅРЅС‹Рµ Р·РґРµСЃСЊ РєРѕРґРѕРІС‹Рµ СЃС‚СЂР°РЅРёС†С‹ Р±СѓРґСѓС‚ РёСЃРєР»СЋС‡РµРЅС‹ РёР· РґРµС‚РµРєС‚РёСЂРѕРІР°РЅРёСЏ nsUniversalDetectorEx.
+	// РђРІС‚РѕРґРµС‚РµРєС‚ СЋРЅРёРєРѕРґРЅС‹С… СЃС‚СЂР°РЅРёС† РѕС‚ СЌС‚РѕРіРѕ РЅРµ Р·Р°РІРёСЃРёС‚, РїРѕСЌС‚РѕРјСѓ UTF-8 Р±СѓРґРµС‚ РѕРїСЂРµРґРµР»СЏС‚СЊСЃСЏ РґР°Р¶Рµ РµСЃР»Рё
+	// 65001 Р·РґРµСЃСЊ РїСЂРёСЃСѓС‚СЃС‚РІСѓРµС‚. Р•СЃР»Рё UniversalDetector РІС‹РґР°СЃС‚ СЃС‚СЂР°РЅРёС†Сѓ РёР· СЌС‚РѕРіРѕ СЃРїРёСЃРєР°, РѕРЅР° Р±СѓРґРµС‚
+	// Р·Р°РјРµРЅРµРЅР° РЅР° СѓРјРѕР»С‡Р°С‚РµР»СЊРЅСѓСЋ ANSI РёР»Рё OEM, РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РЅР°СЃС‚СЂРѕРµРє.
+	// РїСЂРёРјРµСЂ: L"1250,1252,1253,1255,855,10005,28592,28595,28597,28598,38598,65001"
+	// Р•СЃР»Рё СЃС‚СЂРѕРєР° РїСѓСЃС‚Р°СЏ РЅРёРєР°РєРѕР№ С„РёР»СЊС‚СЂР°С†РёРё РєРѕРґРѕРІС‹С… СЃС‚СЂР°РЅРёС† РІ UCD РґРµС‚РµРєС‚Рµ РЅРµ Р±СѓРґРµС‚.
+	// Р•СЃР»Рё "-1", С‚Рѕ РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё CPMenuMode (Ctrl-H РІ РјРµРЅСЋ РєРѕРґРѕРІС‹С… СЃС‚СЂР°РЅРёС† С„РёР»СЊС‚СЂР°С†РёСЏ UCD Р»РёР±Рѕ Р±СѓРґРµС‚
+	// РѕС‚РєР»СЋС‡РµРЅР°, Р»РёР±Рѕ Р±СѓРґСѓС‚ СЂР°Р·СЂРµС€РµРЅРЅС‹ С‚РѕР»СЊРєРѕ РёР·Р±СЂР°РЅРЅС‹Рµ Рё СЃРёСЃС‚РµРјРЅС‹Рµ (OEM ANSI) РєРѕРґРѕРІС‹Рµ СЃС‚СЂР°РЅРёС†С‹.
 
 	StringOption strTitleAddons;
 	StringOption strEditorTitleFormat;
@@ -874,3 +876,5 @@ string GetFarIniString(const string& AppName, const string& KeyName, const strin
 int GetFarIniInt(const string& AppName, const string& KeyName, int Default);
 
 clock_t GetRedrawTimeout();
+
+#endif // CONFIG_HPP_E468759B_688C_4D45_A5BA_CF1D4FCC9A08

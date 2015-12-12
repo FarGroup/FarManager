@@ -1,13 +1,15 @@
+ï»¿#ifndef PRINT_HPP_5CD92351_EF4B_45BE_A165_4C13312E85EB
+#define PRINT_HPP_5CD92351_EF4B_45BE_A165_4C13312E85EB
 #pragma once
 
 /*
 print.hpp
 
-Ïå÷àòü (Alt-F5)
+ÐŸÐµÑ‡Ð°Ñ‚ÑŒ (Alt-F5)
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright Â© 1996 Eugene Roshal
+Copyright Â© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -34,3 +36,5 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 void PrintFiles(FileList* SrcPanel);
+
+#endif // PRINT_HPP_5CD92351_EF4B_45BE_A165_4C13312E85EB

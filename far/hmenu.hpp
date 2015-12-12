@@ -1,13 +1,15 @@
+п»ї#ifndef HMENU_HPP_4850D545_465D_434F_B439_23DF6445EEFC
+#define HMENU_HPP_4850D545_465D_434F_B439_23DF6445EEFC
 #pragma once
 
 /*
 hmenu.hpp
 
-Горизонтальное меню
+Р“РѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅРѕРµ РјРµРЅСЋ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -85,3 +87,5 @@ private:
 	CriticalSection CS;
 	bool m_SubmenuOpened;
 };
+
+#endif // HMENU_HPP_4850D545_465D_434F_B439_23DF6445EEFC

@@ -1,13 +1,15 @@
+п»ї#ifndef PLIST_HPP_BBF31143_FD8F_4358_9884_8909B050A576
+#define PLIST_HPP_BBF31143_FD8F_4358_9884_8909B050A576
 #pragma once
 
 /*
 plist.hpp
 
-Список процессов (Ctrl-W)
+РЎРїРёСЃРѕРє РїСЂРѕС†РµСЃСЃРѕРІ (Ctrl-W)
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -34,3 +36,5 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 void ShowProcessList();
+
+#endif // PLIST_HPP_BBF31143_FD8F_4358_9884_8909B050A576

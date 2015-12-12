@@ -1,14 +1,16 @@
+п»ї#ifndef EDITCONTROL_HPP_ECD19E42_9258_4A76_99C9_67FF54F11289
+#define EDITCONTROL_HPP_ECD19E42_9258_4A76_99C9_67FF54F11289
 #pragma once
 
 /*
 editcontrol.hpp
 
-Надстройка над Edit.
-Одиночная строка ввода для диалогов и комстроки (не для редактора)
+РќР°РґСЃС‚СЂРѕР№РєР° РЅР°Рґ Edit.
+РћРґРёРЅРѕС‡РЅР°СЏ СЃС‚СЂРѕРєР° РІРІРѕРґР° РґР»СЏ РґРёР°Р»РѕРіРѕРІ Рё РєРѕРјСЃС‚СЂРѕРєРё (РЅРµ РґР»СЏ СЂРµРґР°РєС‚РѕСЂР°)
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -126,7 +128,7 @@ private:
 	int MaxLength;
 	int CursorSize;
 	int CursorPos;
-	int PrevCurPos; //Для определения направления передвижения курсора при наличии маски
+	int PrevCurPos; //Р”Р»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ РЅР°РїСЂР°РІР»РµРЅРёСЏ РїРµСЂРµРґРІРёР¶РµРЅРёСЏ РєСѓСЂСЃРѕСЂР° РїСЂРё РЅР°Р»РёС‡РёРё РјР°СЃРєРё
 	int MacroSelectionStart;
 	int SelectionStart;
 	FARMACROAREA MacroAreaAC;
@@ -137,3 +139,5 @@ private:
 	bool ACState;
 	bool CallbackSaveState;
 };
+
+#endif // EDITCONTROL_HPP_ECD19E42_9258_4A76_99C9_67FF54F11289

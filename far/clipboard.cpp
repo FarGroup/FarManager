@@ -1,11 +1,11 @@
-/*
+п»ї/*
 clipboard.cpp
 
-Работа с буфером обмена.
+Р Р°Р±РѕС‚Р° СЃ Р±СѓС„РµСЂРѕРј РѕР±РјРµРЅР°.
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -238,7 +238,7 @@ bool Clipboard::IsFormatAvailable(UINT Format)
 	return IsClipboardFormatAvailable(Format) != FALSE;
 }
 
-// Перед вставкой производится очистка буфера
+// РџРµСЂРµРґ РІСЃС‚Р°РІРєРѕР№ РїСЂРѕРёР·РІРѕРґРёС‚СЃСЏ РѕС‡РёСЃС‚РєР° Р±СѓС„РµСЂР°
 bool Clipboard::Set(const wchar_t *Data)
 {
 	Clear();
@@ -258,7 +258,7 @@ bool Clipboard::Set(const wchar_t *Data)
 	return true;
 }
 
-// вставка без очистки буфера - на добавление
+// РІСЃС‚Р°РІРєР° Р±РµР· РѕС‡РёСЃС‚РєРё Р±СѓС„РµСЂР° - РЅР° РґРѕР±Р°РІР»РµРЅРёРµ
 bool Clipboard::SetFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data)
 {
 	const auto FormatType = RegisterFormat(Format);
@@ -376,7 +376,7 @@ bool Clipboard::Get(string& data)
 	return Result;
 }
 
-// max - без учета символа конца строки!
+// max - Р±РµР· СѓС‡РµС‚Р° СЃРёРјРІРѕР»Р° РєРѕРЅС†Р° СЃС‚СЂРѕРєРё!
 bool Clipboard::GetEx(int max, string& data)
 {
 	bool Result = false;
@@ -468,7 +468,7 @@ bool GetClipboard(string& data)
 	return clip.Open() ? clip.Get(data) : false;
 }
 
-// max - без учета символа конца строки!
+// max - Р±РµР· СѓС‡РµС‚Р° СЃРёРјРІРѕР»Р° РєРѕРЅС†Р° СЃС‚СЂРѕРєРё!
 bool GetClipboardEx(int max, string& data)
 {
 	Clipboard clip;

@@ -1,11 +1,11 @@
-/*
+ï»¿/*
 foldtree.cpp
 
-Ïîèñê êàòàëîãà ïî Alt-F10
+ÐŸÐ¾Ð¸ÑÐº ÐºÐ°Ñ‚Ð°Ð»Ð¾Ð³Ð° Ð¿Ð¾ Alt-F10
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright Â© 1996 Eugene Roshal
+Copyright Â© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -70,7 +70,7 @@ void FolderTree::init(string &strResultFolder)
 	SetRestoreScreenMode(true);
 	if (ModalMode != MODALTREE_FREE)
 		strResultFolder.clear();
-	m_KeyBarVisible = TRUE;  // Çàñòàâèì îáíîâëÿòüñÿ êåéáàð
+	m_KeyBarVisible = TRUE;  // Ð—Ð°ÑÑ‚Ð°Ð²Ð¸Ð¼ Ð¾Ð±Ð½Ð¾Ð²Ð»ÑÑ‚ÑŒÑÑ ÐºÐµÐ¹Ð±Ð°Ñ€
 	//TopScreen=new SaveScreen;
 	SetCoords();
 
@@ -87,7 +87,7 @@ void FolderTree::init(string &strResultFolder)
 		Tree->SetVisible(true);
 		Tree->Update(0);
 
-		// åñëè áûëî ïðåðûâàíèå â ïðîöåññå ñêàíèðîâàíèÿ è ýòî áûëî äåðåâî êîïèðà...
+		// ÐµÑÐ»Ð¸ Ð±Ñ‹Ð»Ð¾ Ð¿Ñ€ÐµÑ€Ñ‹Ð²Ð°Ð½Ð¸Ðµ Ð² Ð¿Ñ€Ð¾Ñ†ÐµÑÑÐµ ÑÐºÐ°Ð½Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ñ Ð¸ ÑÑ‚Ð¾ Ð±Ñ‹Ð»Ð¾ Ð´ÐµÑ€ÐµÐ²Ð¾ ÐºÐ¾Ð¿Ð¸Ñ€Ð°...
 		if (Tree->GetExitCode())
 		{
 			FindEdit = std::make_unique<EditControl>(shared_from_this(),shared_from_this().get());

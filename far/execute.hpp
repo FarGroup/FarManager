@@ -1,13 +1,15 @@
+п»ї#ifndef EXECUTE_HPP_B0216961_CCAB_46EA_87F4_789AA3A18A43
+#define EXECUTE_HPP_B0216961_CCAB_46EA_87F4_789AA3A18A43
 #pragma once
 
 /*
 execute.hpp
 
-"Запускатель" программ.
+"Р—Р°РїСѓСЃРєР°С‚РµР»СЊ" РїСЂРѕРіСЂР°РјРј.
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -42,3 +44,5 @@ bool IsBatchExtType(const string&ExtPtr);
 const wchar_t *PrepareOSIfExist(const string& CmdLine);
 
 bool ProcessOSAliases(string &strStr);
+
+#endif // EXECUTE_HPP_B0216961_CCAB_46EA_87F4_789AA3A18A43

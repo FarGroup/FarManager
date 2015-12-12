@@ -1,3 +1,5 @@
+п»ї#ifndef KEYBAR_HPP_8575C258_EBCC_4620_8657_6C56564AD9DE
+#define KEYBAR_HPP_8575C258_EBCC_4620_8657_6C56564AD9DE
 #pragma once
 
 /*
@@ -6,8 +8,8 @@ keybar.hpp
 Keybar
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -35,10 +37,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "scrobj.hpp"
 
-//   Группы меток
+//   Р“СЂСѓРїРїС‹ РјРµС‚РѕРє
 enum keybar_group
 {
-	// порядок соответствует .lng файлу
+	// РїРѕСЂСЏРґРѕРє СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ .lng С„Р°Р№Р»Сѓ
 	KBL_MAIN,
 	KBL_SHIFT,
 	KBL_ALT,
@@ -110,3 +112,5 @@ private:
 	int AltState,CtrlState,ShiftState;
 	bool CustomLabelsReaded;
 };
+
+#endif // KEYBAR_HPP_8575C258_EBCC_4620_8657_6C56564AD9DE

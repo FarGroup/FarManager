@@ -1,13 +1,15 @@
+п»ї#ifndef LANGUAGE_HPP_36726BFA_4EBB_4CFF_A8F0_42434C4F4865
+#define LANGUAGE_HPP_36726BFA_4EBB_4CFF_A8F0_42434C4F4865
 #pragma once
 
 /*
 language.hpp
 
-Работа с LNG-файлами
+Р Р°Р±РѕС‚Р° СЃ LNG-С„Р°Р№Р»Р°РјРё
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -85,3 +87,5 @@ inline LNGID operator++(LNGID& Id, int)
 	Id = Id + 1;
 	return Value;
 }
+
+#endif // LANGUAGE_HPP_36726BFA_4EBB_4CFF_A8F0_42434C4F4865

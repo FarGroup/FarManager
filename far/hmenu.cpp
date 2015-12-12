@@ -1,11 +1,11 @@
-/*
+ï»¿/*
 hmenu.cpp
 
-Ãîðèçîíòàëüíîå ìåíþ
+Ð“Ð¾Ñ€Ð¸Ð·Ð¾Ð½Ñ‚Ð°Ð»ÑŒÐ½Ð¾Ðµ Ð¼ÐµÐ½ÑŽ
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright Â© 1996 Eugene Roshal
+Copyright Â© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -238,7 +238,7 @@ int HMenu::ProcessKey(const Manager::Key& Key)
 		{
 			Item[SelectPos].Selected=0;
 
-			/* Êóñîê äëÿ "íåêðàéíèõ" ìåíþ - ïðûæîê ê ìåíþ ïàññèâíîé ïàíåëè */
+			/* ÐšÑƒÑÐ¾Ðº Ð´Ð»Ñ "Ð½ÐµÐºÑ€Ð°Ð¹Ð½Ð¸Ñ…" Ð¼ÐµÐ½ÑŽ - Ð¿Ñ€Ñ‹Ð¶Ð¾Ðº Ðº Ð¼ÐµÐ½ÑŽ Ð¿Ð°ÑÑÐ¸Ð²Ð½Ð¾Ð¹ Ð¿Ð°Ð½ÐµÐ»Ð¸ */
 			if (SelectPos  && SelectPos != Item.size() - 1)
 			{
 				if (Global->CtrlObject->Cp()->ActivePanel() == Global->CtrlObject->Cp()->RightPanel)

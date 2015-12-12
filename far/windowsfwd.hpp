@@ -1,3 +1,5 @@
+﻿#ifndef WINDOWSFWD_HPP_5F5E7997_B435_44BD_83DF_300F2E8BB155
+#define WINDOWSFWD_HPP_5F5E7997_B435_44BD_83DF_300F2E8BB155
 #pragma once
 
 /*
@@ -5,7 +7,7 @@ windowsfwd.hpp
 
 */
 /*
-Copyright � 2014 Far Group
+Copyright © 2014 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -60,3 +62,5 @@ typedef std::shared_ptr<HMenu> hmenu_ptr;
 typedef std::shared_ptr<Search> search_ptr;
 
 typedef const window_ptr& window_ptr_ref;
+
+#endif // WINDOWSFWD_HPP_5F5E7997_B435_44BD_83DF_300F2E8BB155

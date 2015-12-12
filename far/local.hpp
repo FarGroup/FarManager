@@ -1,13 +1,15 @@
+п»ї#ifndef LOCAL_HPP_82ECD8BE_D484_4023_AB42_21D93B2DF8B9
+#define LOCAL_HPP_82ECD8BE_D484_4023_AB42_21D93B2DF8B9
 #pragma once
 
 /*
 local.hpp
 
-Сравнение без учета регистра, преобразование регистра
+РЎСЂР°РІРЅРµРЅРёРµ Р±РµР· СѓС‡РµС‚Р° СЂРµРіРёСЃС‚СЂР°, РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ СЂРµРіРёСЃС‚СЂР°
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 1996 Eugene Roshal
+Copyright В© 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -142,3 +144,5 @@ int NumStrCmpNC(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2);
 int NumStrCmp(const wchar_t *s1, const wchar_t *s2);
 int NumStrCmpI(const wchar_t *s1, const wchar_t *s2);
 int NumStrCmpC(const wchar_t *s1, const wchar_t *s2);
+
+#endif // LOCAL_HPP_82ECD8BE_D484_4023_AB42_21D93B2DF8B9
