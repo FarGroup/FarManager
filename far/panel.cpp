@@ -408,29 +408,28 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 			DiskMenuItem NewItem;
 
-			wchar_t Drv[]={L'&',static_cast<wchar_t>(L'A'+i),L':',L'\\',L'\0'};
-			string strRootDir=Drv+1;
-			Drv[3] = 0;
-			NewItem.Letter = Drv;
+			const wchar_t Drv[] = {static_cast<wchar_t>(L'A' + i), L':', L'\0'};
+			const string LocalName = Drv;
+			const auto strRootDir = LocalName + L"\\";
+			NewItem.Letter = L"&" + LocalName;
+
 			NewItem.DriveType = FAR_GetDriveType(strRootDir, Global->Opt->ChangeDriveMode & DRIVE_SHOW_CDROM?0x01:0);
 
 			if (NetworkMask[i])
+			{
 				NewItem.DriveType = DRIVE_REMOTE_NOT_CONNECTED;
+			}
+			else if (GetSubstName(NewItem.DriveType, LocalName, NewItem.Path))
+			{
+				NewItem.DriveType = DRIVE_SUBSTITUTE;
+			}
+			else if (DriveCanBeVirtual(NewItem.DriveType) && GetVHDInfo(LocalName, NewItem.Path))
+			{
+				NewItem.DriveType = DRIVE_VIRTUAL;
+			}
 
 			if (Global->Opt->ChangeDriveMode & (DRIVE_SHOW_TYPE|DRIVE_SHOW_NETNAME))
 			{
-				string LocalName(L"?:");
-				LocalName[0] = strRootDir[0];
-
-				if (GetSubstName(NewItem.DriveType, LocalName, NewItem.Path))
-				{
-					NewItem.DriveType=DRIVE_SUBSTITUTE;
-				}
-				else if(DriveCanBeVirtual(NewItem.DriveType) && GetVHDInfo(LocalName, NewItem.Path))
-				{
-					NewItem.DriveType=DRIVE_VIRTUAL;
-				}
-
 				static const simple_pair<int, LNGID> DrTMsg[]=
 				{
 					{DRIVE_REMOVABLE,MChangeDriveRemovable},
