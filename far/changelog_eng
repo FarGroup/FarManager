@@ -3,6 +3,48 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 12.12.2015 18:50:14 +0200
+
+1. Whole source code is now utf-8.
+
+2. Add include guards to *.hpp as gcc cannot into #pragma once for files with BOM. /o
+
+drkns 12.12.2015 15:41:11 +0200 - build 4472
+
+1. С форума: If volume types are hidden (Ctrl-1) then del does not remove subst volume.
+
+drkns 11.12.2015 22:58:53 +0200 - build 4471
+
+1. 0003131: Disappearing checkboxes for codepages checked in "Using codepage" menu
+
+drkns 11.12.2015 22:02:06 +0200 - build 4470
+
+1. Forum: if a single group is given as a search string then substrings in replace string are treated as metacharacters up to $1
+
+drkns 11.12.2015 21:24:01 +0200 - build 4469
+
+1. Crash on regex replace.
+
+drkns 09.12.2015 20:28:43 +0200 - build 4468
+
+1. debug & gcc.
+
+2. syslog & gcc.
+
+drkns 08.12.2015 00:25:17 +0200 - build 4467
+
+1. Refactoring.
+
+2. Some more on 4461.
+
+shmuel 07.12.2015 21:04:04 +0200 - build 4466
+
+1. M#3129: Several lines get merged to one
+
+drkns 07.12.2015 21:03:09 +0200 - build 4465
+
+1. Correction of 4461.
+
 drkns 04.12.2015 00:24:07 +0200 - build 4464
 
 1. Refactoring.
