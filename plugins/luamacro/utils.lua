@@ -1057,20 +1057,23 @@ local function RunStartMacro()
   local opt = band(MacroCallFar(MCODE_F_GETOPTIONS),0x3)
   local mtable = opt==1 and Areas.editor or opt==2 and Areas.viewer or Areas.shell
 
-  for _,macros in pairs(mtable) do
-    local m = macros.recorded
-    if m and not m.disabled and m.flags and band(m.flags,0x8)~=0 and not m.autostartdone then
-      m.autostartdone=true
-      if MacroCallFar(MCODE_F_CHECKALL, mode, m.flags) then
-        Shared.keymacro.PostNewMacro(m, m.flags, nil, true)
-      end
-    end
-    for _,m in ipairs(macros) do
-      if not m.disabled and m.flags and band(m.flags,0x8)~=0 and not m.autostartdone then
+  for k=1,2 do
+    if k==2 then mtable = Areas.common end
+    for _,macros in pairs(mtable) do
+      local m = macros.recorded
+      if m and not m.disabled and m.flags and band(m.flags,0x8)~=0 and not m.autostartdone then
         m.autostartdone=true
         if MacroCallFar(MCODE_F_CHECKALL, mode, m.flags) then
-          if not m.condition or m.condition() then
-            Shared.keymacro.PostNewMacro(m, m.flags, nil, true)
+          Shared.keymacro.PostNewMacro(m, m.flags, nil, true)
+        end
+      end
+      for _,m in ipairs(macros) do
+        if not m.disabled and m.flags and band(m.flags,0x8)~=0 and not m.autostartdone then
+          m.autostartdone=true
+          if MacroCallFar(MCODE_F_CHECKALL, mode, m.flags) then
+            if not m.condition or m.condition() then
+              Shared.keymacro.PostNewMacro(m, m.flags, nil, true)
+            end
           end
         end
       end
