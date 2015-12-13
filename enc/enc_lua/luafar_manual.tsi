@@ -2604,7 +2604,7 @@ id=64
 lv=2
 dt=Text
 nm=far.Menu
-mtime=3618833534
+mtime=3659167690
 <article>
 #_Item, Position = far.Menu (Properties, Items [, BreakKeys])
 #_
@@ -2636,7 +2636,7 @@ mtime=3618833534
 #_  BreakKeys: table (array of break key items)
 #_      a break key item is a table;
 #_      fields of a break key item:
-#_        BreakKey:     string (see **NOTE 1**)
+#_        BreakKey:     string (see **NOTE 2**)
 #_
 #_**Returns:**
 #_  Item:     table   Either the selected element of *Items* array (if *Enter* was pressed)

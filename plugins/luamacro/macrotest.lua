@@ -1591,7 +1591,8 @@ local function test_issue_3129()
   local fname = (win.GetEnv("TEMP") or ".").."\\far3-"..win.Uuid(win.Uuid()):sub(1,8)
   local fp = assert(io.open(fname, "w"))
   fp:close()
-  assert(editor.Editor(fname,nil,nil,nil,nil,nil,{EF_NONMODAL=1,EF_IMMEDIATERETURN=1})==F.EEC_MODIFIED)
+  local flags = {EF_NONMODAL=1, EF_IMMEDIATERETURN=1, EF_DISABLEHISTORY=1}
+  assert(editor.Editor(fname,nil,nil,nil,nil,nil,flags) == F.EEC_MODIFIED)
   for k=1,3 do
     editor.InsertString()
     editor.SetString(nil, k, "foo")
