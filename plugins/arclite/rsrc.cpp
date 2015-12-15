@@ -10,7 +10,7 @@ private:
   WORD id;
   void set(LPCTSTR name_id) {
     if (IS_INTRESOURCE(name_id)) {
-      id = reinterpret_cast<WORD>(name_id);
+      id = static_cast<WORD>(reinterpret_cast<size_t>(name_id));
       name.clear();
     }
     else {

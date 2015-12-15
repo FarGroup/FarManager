@@ -648,11 +648,11 @@ void Dialog::set_focus(unsigned ctrl_id) {
 }
 
 void Dialog::enable(unsigned ctrl_id, bool enable) {
-  g_far.SendDlgMessage(h_dlg, DM_ENABLE, ctrl_id, reinterpret_cast<void*>(enable ? TRUE : FALSE));
+  g_far.SendDlgMessage(h_dlg, DM_ENABLE, ctrl_id, reinterpret_cast<void*>(static_cast<size_t>(enable ? TRUE : FALSE)));
 }
 
 void Dialog::set_visible(unsigned ctrl_id, bool visible) {
-  g_far.SendDlgMessage(h_dlg, DM_SHOWITEM, ctrl_id, reinterpret_cast<void*>(visible ? 1 : 0));
+  g_far.SendDlgMessage(h_dlg, DM_SHOWITEM, ctrl_id, reinterpret_cast<void*>(static_cast<size_t>(visible ? 1 : 0)));
 }
 
 Regex::Regex(): h_regex(INVALID_HANDLE_VALUE) {
@@ -661,7 +661,10 @@ Regex::Regex(): h_regex(INVALID_HANDLE_VALUE) {
 
 Regex::~Regex() {
   if (h_regex != INVALID_HANDLE_VALUE)
-    CHECK(g_far.RegExpControl(h_regex, RECTL_FREE, 0, nullptr));
+    //CHECK(
+	 g_far.RegExpControl(h_regex, RECTL_FREE, 0, nullptr)
+	 //)
+	 ;
 }
 
 size_t Regex::search(const wstring& expr, const wstring& text) {
@@ -690,7 +693,7 @@ Selection::~Selection() {
 }
 
 void Selection::select(unsigned idx, bool value) {
-  g_far.PanelControl(h_plugin, FCTL_SETSELECTION, idx, reinterpret_cast<void*>(value ? TRUE : FALSE));
+  g_far.PanelControl(h_plugin, FCTL_SETSELECTION, idx, reinterpret_cast<void*>(static_cast<size_t>(value ? TRUE : FALSE)));
 }
 
 FileFilter::FileFilter(): h_filter(INVALID_HANDLE_VALUE) {
