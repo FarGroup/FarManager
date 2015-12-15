@@ -29,29 +29,29 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace scope_exit
+namespace detail
 {
 	template<typename F>
-	class guard
+	class scope_guard
 	{
 	public:
-		guard(const F& f) : m_f(f) {}
-		~guard() { m_f(); }
+		scope_guard(F&& f) : m_f(std::move(f)) {}
+		~scope_guard() { m_f(); }
 
 	private:
 		const F m_f;
 	};
 
-	class make_guard
+	class make_scope_guard
 	{
 	public:
 		template<typename F>
-		guard<F> operator << (const F &f) { return guard<F>(f); }
+		scope_guard<F> operator << (F&& f) { return scope_guard<F>(std::move(f)); }
 	};
 
 };
 
 #define SCOPE_EXIT \
-const auto ADD_SUFFIX(scope_exit_guard_, __LINE__) = scope_exit::make_guard() << [&]() /* lambda body here */
+const auto ANONYMOUS_VARIABLE(scope_exit_guard) = detail::make_scope_guard() << [&]() /* lambda body here */
 
 #endif // SCOPE_EXIT_HPP_EDB9D84F_7B9F_408C_8FC8_94626C4B3CE3

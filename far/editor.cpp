@@ -3515,20 +3515,48 @@ BOOL Editor::Search(int Next)
 
 	if (!Next)
 	{
-		if (EdOpt.SearchPickUpWord)
+		const auto Picker = [this](bool PickSelection) -> string
 		{
-			size_t PickBegin, PickEnd;
-			const auto& Str = m_it_CurLine->GetString();
-			if (FindWordInString(Str, m_it_CurLine->GetCurPos(), PickBegin, PickEnd, EdOpt.strWordDiv))
+			PickSelection = PickSelection && IsAnySelection();
+
+			if (PickSelection)
 			{
-				strSearchStr = Str.substr(PickBegin, PickEnd - PickBegin);
+				if (IsStreamSelection())
+				{
+					intptr_t StartSel, EndSel;
+					m_it_AnyBlockStart->GetSelection(StartSel, EndSel);
+					if (StartSel != -1)
+					{
+						return m_it_AnyBlockStart->m_Str.substr(StartSel, EndSel == -1? string::npos : EndSel - StartSel);
+					}
+				}
+				else
+				{
+					const auto TBlockX = m_it_AnyBlockStart->TabPosToReal(VBlockX);
+					const auto TBlockSizeX = m_it_AnyBlockStart->TabPosToReal(VBlockX + VBlockSizeX) - TBlockX;
+					if (TBlockX <= m_it_AnyBlockStart->m_Str.size())
+					{
+						auto CopySize = std::min(m_it_AnyBlockStart->m_Str.size() - TBlockX, TBlockSizeX);
+						return m_it_AnyBlockStart->m_Str.substr(TBlockX, CopySize);
+					}
+				}
 			}
-		}
+			else
+			{
+				size_t PickBegin, PickEnd;
+				const auto& Str = m_it_CurLine->GetString();
+				if (FindWordInString(Str, m_it_CurLine->GetCurPos(), PickBegin, PickEnd, EdOpt.strWordDiv))
+				{
+					return Str.substr(PickBegin, PickEnd - PickBegin);
+				}
+			}
+			return string();
+		};
 
 		const wchar_t *TextHistoryName=L"SearchText",*ReplaceHistoryName=L"ReplaceText";
 		int DlgResult = GetSearchReplaceString(ReplaceMode, nullptr, nullptr, strSearchStr, strReplaceStr,
 					TextHistoryName, ReplaceHistoryName, &Case, &WholeWords, &ReverseSearch, &Regexp, &PreserveStyle, L"EditorSearch", false,
-					ReplaceMode?&EditorReplaceId:&EditorSearchId);
+					ReplaceMode? &EditorReplaceId : &EditorSearchId, Picker);
 		if (!DlgResult)
 		{
 			return FALSE;

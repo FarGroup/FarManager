@@ -91,7 +91,6 @@ public:
 	void SetReadOnlyLock(int NewMode) { EdOpt.ReadOnlyLock = NewMode & 3; }
 	int GetReadOnlyLock() const { return EdOpt.ReadOnlyLock; }
 	void SetShowScrollBar(bool NewMode) { EdOpt.ShowScrollBar = NewMode; }
-	void SetSearchPickUpWord(bool NewMode) { EdOpt.SearchPickUpWord = NewMode; }
 	void SetSearchCursorAtEnd(bool NewMode) { EdOpt.SearchCursorAtEnd = NewMode; }
 	void SetWordDiv(const wchar_t *WordDiv) { EdOpt.strWordDiv = WordDiv; }
 	const string& GetWordDiv() const { return EdOpt.strWordDiv; }

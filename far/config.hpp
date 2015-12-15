@@ -375,7 +375,6 @@ public:
 		BoolOption SearchSelFound;
 		BoolOption SearchCursorAtEnd;
 		BoolOption SearchRegexp;
-		BoolOption SearchPickUpWord;
 		Bool3Option ShowWhiteSpace;
 
 		StringOption strWordDiv;

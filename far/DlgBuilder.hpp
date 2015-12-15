@@ -548,6 +548,10 @@ class DialogBuilderBase
 
 			m_ColumnStartIndex = -1;
 			m_ColumnBreakIndex = -1;
+			if (m_NextY < m_ColumnEndY)
+			{
+				m_NextY = m_ColumnEndY;
+			}
 		}
 
 		// Начинает располагать поля диалога внутри single box

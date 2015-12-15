@@ -114,7 +114,8 @@ int GetSearchReplaceString(
     bool* PreserveStyle,
     const wchar_t *HelpTopic=nullptr,
     bool HideAll=false,
-    const GUID* Id = nullptr
+    const GUID* Id = nullptr,
+    const std::function<string(bool)>& Picker = nullptr
 );
 
 int GetString(

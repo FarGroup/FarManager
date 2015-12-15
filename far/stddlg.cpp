@@ -61,7 +61,8 @@ int GetSearchReplaceString(
 	bool* pPreserveStyle,
 	const wchar_t *HelpTopic,
 	bool HideAll,
-	const GUID* Id)
+	const GUID* Id,
+	const std::function<string(bool)>& Picker)
 {
 	int Result = 0;
 
@@ -84,7 +85,17 @@ int GetSearchReplaceString(
 	bool Regexp=pRegexp?*pRegexp:false;
 	bool PreserveStyle=pPreserveStyle?*pPreserveStyle:false;
 
+	const auto DlgWidth = 76;
+	const auto WordLabel = MSG(MEditSearchPickWord);
+	const auto SelectionLabel = MSG(MEditSearchPickSelection);
+	const auto WordButtonSize = wcslen(WordLabel) + 4;
+	const auto SelectionButtonSize = wcslen(SelectionLabel) + 4;
+	const auto SelectionButtonX2 = static_cast<intptr_t>(DlgWidth - 4 - 1);
+	const auto SelectionButtonX1 = static_cast<intptr_t>(SelectionButtonX2 - SelectionButtonSize);
+	const auto WordButtonX2 = static_cast<intptr_t>(SelectionButtonX1 - 1);
+	const auto WordButtonX1 = static_cast<intptr_t>(WordButtonX2 - WordButtonSize);
 
+	// BUGBUG, awful copy-paste
 	if (IsReplaceMode)
 	{
 		/*
@@ -105,13 +116,36 @@ int GetSearchReplaceString(
 		12   +--------------------------------------------------------------------+
 		13
 		*/
+
+		enum item_id
+		{
+			dlg_border,
+			dlg_label_search,
+			dlg_edit_search,
+			dlg_label_replace,
+			dlg_edit_replace,
+			dlg_button_word,
+			dlg_button_selection,
+			dlg_separator_1,
+			dlg_checkbox_case,
+			dlg_checkbox_words,
+			dlg_checkbox_reverse,
+			dlg_checkbox_regex,
+			dlg_checkbox_style,
+			dlg_separator_2,
+			dlg_button_replace,
+			dlg_button_cancel,
+		};
+
 		FarDialogItem ReplaceDlgData[]=
 		{
-			{DI_DOUBLEBOX,3,1,72,12,0,nullptr,nullptr,0,Title},
+			{DI_DOUBLEBOX,3,1,DlgWidth-4,12,0,nullptr,nullptr,0,Title},
 			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,SubTitle},
 			{DI_EDIT,5,3,70,3,0,TextHistoryName,nullptr,DIF_FOCUS|DIF_USELASTHISTORY|(*TextHistoryName?DIF_HISTORY:0),SearchStr.data()},
 			{DI_TEXT,5,4,0,4,0,nullptr,nullptr,0,MSG(MEditReplaceWith)},
 			{DI_EDIT,5,5,70,5,0,ReplaceHistoryName,nullptr,(*ReplaceHistoryName?DIF_HISTORY:0)/*|DIF_USELASTHISTORY*/,ReplaceStr.data()},
+			{DI_BUTTON, WordButtonX1, 2, WordButtonX2, 2, 0, nullptr, nullptr, 0, WordLabel},
+			{DI_BUTTON, SelectionButtonX1, 2, SelectionButtonX2, 2, 0, nullptr, nullptr, 0, SelectionLabel},
 			{DI_TEXT,-1,6,0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 			{DI_CHECKBOX,5,7,0,7,Case,nullptr,nullptr,0,MSG(MEditSearchCase)},
 			{DI_CHECKBOX,5,8,0,8,WholeWords,nullptr,nullptr,0,MSG(MEditSearchWholeWords)},
@@ -124,19 +158,37 @@ int GetSearchReplaceString(
 		};
 		auto ReplaceDlg = MakeDialogItemsEx(ReplaceDlgData);
 
-		if (!pCase)
-			ReplaceDlg[6].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
-		if (!pWholeWords)
-			ReplaceDlg[7].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
-		if (!pReverse)
-			ReplaceDlg[8].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
-		if (!pRegexp)
-			ReplaceDlg[9].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
-		if (!pPreserveStyle)
-			ReplaceDlg[10].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
+		if (!Picker)
+		{
+			ReplaceDlg[dlg_button_word].Flags |= DIF_HIDDEN;
+			ReplaceDlg[dlg_button_selection].Flags |= DIF_HIDDEN;
+		}
 
-		const auto Dlg = Dialog::create(ReplaceDlg);
-		Dlg->SetPosition(-1,-1,76,14);
+		if (!pCase)
+			ReplaceDlg[dlg_checkbox_case].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
+		if (!pWholeWords)
+			ReplaceDlg[dlg_checkbox_words].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
+		if (!pReverse)
+			ReplaceDlg[dlg_checkbox_reverse].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
+		if (!pRegexp)
+			ReplaceDlg[dlg_checkbox_regex].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
+		if (!pPreserveStyle)
+			ReplaceDlg[dlg_checkbox_style].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
+
+		// explicit variables to make buggy VC10 happy
+		const auto word_id = dlg_button_word, selection_id = dlg_button_selection, edit_id = dlg_edit_search;
+		const auto Handler = [&](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) -> intptr_t
+		{
+			if (Msg == DN_CLOSE && Picker && (Param1 == word_id || Param1 == selection_id))
+			{
+				Dlg->SendMessage(DM_SETTEXTPTR, edit_id, UNSAFE_CSTR(Picker(Param1 == selection_id)));
+				return FALSE;
+			}
+			return Dlg->DefProc(Msg, Param1, Param2);
+		};
+
+		const auto Dlg = Dialog::create(ReplaceDlg, Handler);
+		Dlg->SetPosition(-1, -1, DlgWidth, 14);
 
 		if (HelpTopic && *HelpTopic)
 			Dlg->SetHelp(HelpTopic);
@@ -145,16 +197,16 @@ int GetSearchReplaceString(
 
 		Dlg->Process();
 
-		if(Dlg->GetExitCode() == 12)
+		if(Dlg->GetExitCode() == dlg_button_replace)
 		{
 			Result = 1;
-			SearchStr = ReplaceDlg[2].strData;
-			ReplaceStr = ReplaceDlg[4].strData;
-			Case=ReplaceDlg[6].Selected == BSTATE_CHECKED;
-			WholeWords=ReplaceDlg[7].Selected == BSTATE_CHECKED;
-			Reverse=ReplaceDlg[8].Selected == BSTATE_CHECKED;
-			Regexp=ReplaceDlg[9].Selected == BSTATE_CHECKED;
-			PreserveStyle=ReplaceDlg[10].Selected == BSTATE_CHECKED;
+			SearchStr = ReplaceDlg[dlg_edit_search].strData;
+			ReplaceStr = ReplaceDlg[dlg_edit_replace].strData;
+			Case=ReplaceDlg[dlg_checkbox_case].Selected == BSTATE_CHECKED;
+			WholeWords=ReplaceDlg[dlg_checkbox_words].Selected == BSTATE_CHECKED;
+			Reverse=ReplaceDlg[dlg_checkbox_reverse].Selected == BSTATE_CHECKED;
+			Regexp=ReplaceDlg[dlg_checkbox_regex].Selected == BSTATE_CHECKED;
+			PreserveStyle=ReplaceDlg[dlg_checkbox_style].Selected == BSTATE_CHECKED;
 		}
 	}
 	else
@@ -173,11 +225,32 @@ int GetSearchReplaceString(
 		08   |                   { Search } [ All ] [ Cancel ]                    |
 		09   +--------------------------------------------------------------------+
 		*/
+
+		enum item_id
+		{
+			dlg_border,
+			dlg_label_search,
+			dlg_edit_search,
+			dlg_button_word,
+			dlg_button_selection,
+			dlg_separator_1,
+			dlg_checkbox_case,
+			dlg_checkbox_words,
+			dlg_checkbox_regex,
+			dlg_checkbox_reverse,
+			dlg_separator_2,
+			dlg_button_search,
+			dlg_button_all,
+			dlg_button_cancel,
+		};
+
 		FarDialogItem SearchDlgData[]=
 		{
-			{DI_DOUBLEBOX,3,1,72,9,0,nullptr,nullptr,0,Title},
+			{DI_DOUBLEBOX,3,1,DlgWidth-4,9,0,nullptr,nullptr,0,Title},
 			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,SubTitle},
 			{DI_EDIT,5,3,70,3,0,TextHistoryName,nullptr,DIF_FOCUS|DIF_USELASTHISTORY|(*TextHistoryName?DIF_HISTORY:0),SearchStr.data()},
+			{DI_BUTTON, WordButtonX1, 2, WordButtonX2, 2, 0, nullptr, nullptr, 0, WordLabel},
+			{DI_BUTTON, SelectionButtonX1, 2, SelectionButtonX2, 2, 0, nullptr, nullptr, 0, SelectionLabel},
 			{DI_TEXT,-1,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 			{DI_CHECKBOX,5,5,0,5,Case,nullptr,nullptr,0,MSG(MEditSearchCase)},
 			{DI_CHECKBOX,5,6,0,6,WholeWords,nullptr,nullptr,0,MSG(MEditSearchWholeWords)},
@@ -190,20 +263,38 @@ int GetSearchReplaceString(
 		};
 		auto SearchDlg = MakeDialogItemsEx(SearchDlgData);
 
+		if (!Picker)
+		{
+			SearchDlg[dlg_button_word].Flags |= DIF_HIDDEN;
+			SearchDlg[dlg_button_selection].Flags |= DIF_HIDDEN;
+		}
+
 		if (!pCase)
-			SearchDlg[4].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
+			SearchDlg[dlg_checkbox_case].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
 		if (!pWholeWords)
-			SearchDlg[5].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
+			SearchDlg[dlg_checkbox_words].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
 		if (!pRegexp)
-			SearchDlg[6].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
+			SearchDlg[dlg_checkbox_regex].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
 		if (!pReverse)
-			SearchDlg[7].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
+			SearchDlg[dlg_checkbox_reverse].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
 
 		if (HideAll)
-			SearchDlg[10].Flags |= DIF_HIDDEN;
+			SearchDlg[dlg_button_all].Flags |= DIF_HIDDEN;
 
-		const auto Dlg = Dialog::create(SearchDlg);
-		Dlg->SetPosition(-1,-1,76,11);
+		// explicit variables to make buggy VC10 happy
+		const auto word_id = dlg_button_word, selection_id = dlg_button_selection, edit_id = dlg_edit_search;
+		const auto Handler = [&](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) -> intptr_t
+		{
+			if (Msg == DN_CLOSE && Picker && (Param1 == word_id || Param1 == selection_id))
+			{
+				Dlg->SendMessage(DM_SETTEXTPTR, edit_id, UNSAFE_CSTR(Picker(Param1 == selection_id)));
+				return FALSE;
+			}
+			return Dlg->DefProc(Msg, Param1, Param2);
+		};
+
+		const auto Dlg = Dialog::create(SearchDlg, Handler);
+		Dlg->SetPosition(-1, -1, DlgWidth, 11);
 
 		if (HelpTopic && *HelpTopic)
 			Dlg->SetHelp(HelpTopic);
@@ -213,15 +304,15 @@ int GetSearchReplaceString(
 		Dlg->Process();
 		int ExitCode = Dlg->GetExitCode();
 
-		if (ExitCode == 9 || ExitCode == 10)
+		if (ExitCode == dlg_button_search || ExitCode == dlg_button_all)
 		{
 			Result = ExitCode == 9? 1 : 2;
-			SearchStr = SearchDlg[2].strData;
+			SearchStr = SearchDlg[dlg_edit_search].strData;
 			ReplaceStr.clear();
-			Case=SearchDlg[4].Selected == BSTATE_CHECKED;
-			WholeWords=SearchDlg[5].Selected == BSTATE_CHECKED;
-			Regexp=SearchDlg[6].Selected == BSTATE_CHECKED;
-			Reverse=SearchDlg[7].Selected == BSTATE_CHECKED;
+			Case=SearchDlg[dlg_checkbox_case].Selected == BSTATE_CHECKED;
+			WholeWords=SearchDlg[dlg_checkbox_words].Selected == BSTATE_CHECKED;
+			Regexp=SearchDlg[dlg_checkbox_regex].Selected == BSTATE_CHECKED;
+			Reverse=SearchDlg[dlg_checkbox_reverse].Selected == BSTATE_CHECKED;
 		}
 	}
 

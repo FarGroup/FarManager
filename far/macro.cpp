@@ -4097,8 +4097,6 @@ static bool editorsetFunc(FarMacroCall* Data)
 				Ret=(__int64)EdOpt.SearchSelFound; break;
 			case 18: // SearchRegexp;
 				Ret=(__int64)EdOpt.SearchRegexp; break;
-			case 19: // SearchPickUpWord;
-				Ret=(__int64)EdOpt.SearchPickUpWord; break;
 			case 20: // ShowWhiteSpace;
 				Ret=static_cast<INT64>(EdOpt.ShowWhiteSpace); break;
 			default:
@@ -4143,8 +4141,6 @@ static bool editorsetFunc(FarMacroCall* Data)
 					EdOpt.SearchSelFound=longState != 0; break;
 				case 18: // SearchRegexp;
 					EdOpt.SearchRegexp=longState != 0; break;
-				case 19: // SearchPickUpWord;
-					EdOpt.SearchPickUpWord=longState != 0; break;
 				case 20: // ShowWhiteSpace;
 					EdOpt.ShowWhiteSpace=longState; break;
 				default:

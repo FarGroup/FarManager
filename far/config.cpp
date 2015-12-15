@@ -829,7 +829,6 @@ void Options::EditorConfig(Options::EditorOptions &EdOptRef, bool Local)
 	Builder.AddCheckbox(MEditShowWhiteSpace, EdOptRef.ShowWhiteSpace);
 	Builder.ColumnBreak();
 	Builder.AddCheckbox(MEditCursorBeyondEnd, EdOptRef.CursorBeyondEOL);
-	Builder.AddCheckbox(MEditConfigPickUpWord, EdOptRef.SearchPickUpWord);
 	Builder.AddCheckbox(MEditConfigSelFound, EdOptRef.SearchSelFound);
 	Builder.AddCheckbox(MEditConfigCursorAtEnd, EdOptRef.SearchCursorAtEnd);
 	Builder.AddCheckbox(MEditConfigScrollbar, EdOptRef.ShowScrollBar);
@@ -1574,7 +1573,6 @@ void Options::InitConfigData()
 		{FSSF_PRIVATE,       NKeyEditor,L"ReadOnlyLock", OPT_DEF(EdOpt.ReadOnlyLock, 0)},
 		{FSSF_PRIVATE,       NKeyEditor,L"SaveEditorPos", OPT_DEF(EdOpt.SavePos, true)},
 		{FSSF_PRIVATE,       NKeyEditor,L"SaveEditorShortPos", OPT_DEF(EdOpt.SaveShortPos, true)},
-		{FSSF_PRIVATE,       NKeyEditor,L"SearchPickUpWord", OPT_DEF(EdOpt.SearchPickUpWord, false)},
 		{FSSF_PRIVATE,       NKeyEditor,L"SearchRegexp", OPT_DEF(EdOpt.SearchRegexp, false)},
 		{FSSF_PRIVATE,       NKeyEditor,L"SearchSelFound", OPT_DEF(EdOpt.SearchSelFound, false)},
 		{FSSF_PRIVATE,       NKeyEditor,L"SearchCursorAtEnd", OPT_DEF(EdOpt.SearchCursorAtEnd, false)},

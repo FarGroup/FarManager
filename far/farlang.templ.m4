@@ -3560,18 +3560,6 @@ upd:"Show white space"
 "Mostra Spazi Bianchi"
 "Пробіл&ьні символи"
 
-MEditConfigPickUpWord
-"Слово под к&урсором"
-"Pick &up the word"
-upd:"Pick &up the word"
-upd:"Pick &up the word"
-upd:"Pick &up the word"
-upd:"Pick &up the word"
-"Tomar la &palabra"
-"Pick &up the word"
-"Sele&ziona La Parola"
-"Слово під к&урсором"
-
 MEditConfigSelFound
 "&Выделять найденное"
 "Se&lect found"
@@ -5995,6 +5983,30 @@ MEditSearchFor
 "&Hľadať"
 "Ricerca &Di"
 "&Шукати"
+
+MEditSearchPickWord
+"Слово"
+"Word"
+upd:"Word"
+upd:"Word"
+upd:"Word"
+upd:"Word"
+upd:"Word"
+upd:"Word"
+upd:"Word"
+"Слово"
+
+MEditSearchPickSelection
+"Выделение"
+"Selection"
+upd:"Selection"
+upd:"Selection"
+upd:"Selection"
+upd:"Selection"
+upd:"Selection"
+upd:"Selection"
+upd:"Selection"
+"Виділення"
 
 MEditSearchCase
 "&Учитывать регистр"
