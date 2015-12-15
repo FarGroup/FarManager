@@ -6,6 +6,7 @@
 #include "ui.hpp"
 #include "msearch.hpp"
 #include "archive.hpp"
+#include <algorithm>
 
 OpenOptions::OpenOptions(): detect(false) {
 }
@@ -320,6 +321,38 @@ bool Archive::get_stream(UInt32 index, IInStream** stream) {
   return true;
 }
 
+HRESULT Archive::copy_prologue(IOutStream *out_stream)
+{
+	auto prologue_size = arc_chain.back().sig_pos;
+	if (prologue_size <= 0)
+		return S_OK;
+
+	if (!base_stream)
+		return E_FAIL;
+
+	auto res = base_stream->Seek(0, STREAM_SEEK_SET, nullptr);
+	if (res != S_OK)
+		return res;
+
+	while (prologue_size > 0)
+	{
+		char buf[16 * 1024];
+		UInt32 nr = 0, nw = 0, nb = static_cast<UInt32>(sizeof(buf));
+		if (prologue_size < nb) nb = static_cast<UInt32>(prologue_size);
+		res = base_stream->Read(buf, nb, &nr);
+		if (res != S_OK || nr == 0)
+			break;
+		res = out_stream->Write(buf, nr, &nw);
+		if (res != S_OK || nr != nw)
+			break;
+		prologue_size -= nr;
+	}
+
+	if (res == S_OK && prologue_size > 0)
+		res = E_FAIL;
+	return res;
+}
+
 bool Archive::open(IInStream* stream, const ArcType& type) {
   ArcAPI::create_in_archive(type, in_arc.ref());
   CHECK_COM(stream->Seek(0, STREAM_SEEK_SET, nullptr));
@@ -440,6 +473,8 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
 	 else {
 		 archive->arc_info.set_size(arc_info.size() - arc_entry->sig_pos);
 		 opened = archive->open(new ArchiveSubStream(stream, arc_entry->sig_pos), arc_entry->type);
+		 if (opened)
+			 archive->base_stream = stream;
 	 }
     if (opened) {
       if (parent_idx != -1)

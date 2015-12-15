@@ -22,7 +22,7 @@
     <ProjectName>7z</ProjectName>
     <SccProjectName />
     <SccLocalPath />
-    <ProjectGuid>{A32F8808-4FCF-4AC0-B10A-BACBB4646E79}</ProjectGuid>
+    <ProjectGuid>{3AAF130C-999A-BC41-F53A-BC1339658B86}</ProjectGuid>
   </PropertyGroup>
   <PropertyGroup>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '10.0'">v100</PlatformToolset>
@@ -115,6 +115,7 @@
       <PrecompiledHeaderFile>StdAfx.h</PrecompiledHeaderFile>
       <CallingConvention>FastCall</CallingConvention>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -207,6 +208,8 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>StdAfx.h</PrecompiledHeaderFile>
       <CallingConvention>FastCall</CallingConvention>
+      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>

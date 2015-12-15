@@ -169,6 +169,7 @@ class Archive: public enable_shared_from_this<Archive> {
   // open
 private:
   ComObject<IInArchive> in_arc;
+  IInStream *base_stream;
   bool open(IInStream* in_stream, const ArcType& type);
   static ArcEntries detect(Byte *buffer, UInt32 size, bool eof, const wstring& file_ext, const ArcTypes& arc_types);
   static void open(const OpenOptions& options, Archives& archives);
@@ -197,6 +198,8 @@ public:
   bool is_pure_7z() const {
     return arc_chain.size() == 1 && arc_chain.back().type == c_7z && arc_chain.back().sig_pos == 0;
   }
+
+  HRESULT copy_prologue(IOutStream *out_stream);
 
   // archive contents
 public:
@@ -261,6 +264,5 @@ public:
   AttrList get_attr_list(UInt32 item_index);
 
 public:
-  Archive(): update_props_defined(false) {
-  }
+  Archive() : base_stream(nullptr), update_props_defined(false) {}
 };

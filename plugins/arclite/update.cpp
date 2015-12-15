@@ -963,6 +963,8 @@ void Archive::update(const wstring& src_dir, const vector<wstring>& file_names, 
     ComObject<IArchiveUpdateCallback> updater(new ArchiveUpdater(src_dir, dst_dir, num_indices, file_index_map, options, ignore_errors, error_log, progress));
     ComObject<IOutStream> update_stream(new SimpleUpdateStream(temp_arc_name, progress));
 
+	 COM_ERROR_CHECK(copy_prologue(update_stream));
+
     COM_ERROR_CHECK(out_arc->UpdateItems(update_stream, new_index, updater));
     close();
     update_stream.Release();

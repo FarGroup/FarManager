@@ -205,9 +205,10 @@ void KeyBar::SetLabels(LNGID StartIndex)
 	{
 		std::for_each(RANGE(Group, i)
 		{
-			i.first = MSG(StartIndex);
 			if (no_tree && (StartIndex == MAltF10 || StartIndex == MInfoAltF10 || StartIndex == MQViewAltF10))
 				i.first = L"";
+			else
+				i.first = MSG(StartIndex);
 			StartIndex++;
 		});
 	});

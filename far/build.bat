@@ -42,8 +42,12 @@
 goto :EOF
 
 :set_gcc
-  if "32" == "%~1" (set gccdir=%MINGW32%) else (set gccdir=%MINGW64%)
-  if "" == "%gccdir%" if "32" == "%~1" (set gccdir=C:\MinGW\32\) else (set gccdir=C:\MinGW\64\)
+  set "hostbit=%~1"
+  set "hostbit=%hostbit:~-2%"
+echo %~1, %hostbit%
+exit
+  if "32" == "%hostbit%" (set gccdir=%MINGW32%) else (set gccdir=%MINGW64%)
+  if "" == "%gccdir%" if "32" == "%hostbit%" (set gccdir=C:\MinGW\32\) else (set gccdir=C:\MinGW\64\)
   PATH=%gccdir%bin;%opath%
 goto :EOF
 
