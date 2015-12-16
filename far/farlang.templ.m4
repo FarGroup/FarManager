@@ -5985,8 +5985,8 @@ MEditSearchFor
 "&Шукати"
 
 MEditSearchPickWord
-"Слово"
-"Word"
+"&Слово"
+"W&ord"
 upd:"Word"
 upd:"Word"
 upd:"Word"
@@ -5994,11 +5994,11 @@ upd:"Word"
 upd:"Word"
 upd:"Word"
 upd:"Word"
-"Слово"
+"&Слово"
 
 MEditSearchPickSelection
-"Выделение"
-"Selection"
+"&Выделение"
+"&Selection"
 upd:"Selection"
 upd:"Selection"
 upd:"Selection"
@@ -6006,7 +6006,7 @@ upd:"Selection"
 upd:"Selection"
 upd:"Selection"
 upd:"Selection"
-"Виділення"
+"В&иділення"
 
 MEditSearchCase
 "&Учитывать регистр"
@@ -6042,7 +6042,7 @@ MEditSearchReverse
 "Búsqueda in&versa"
 "Opačné h&ľadanie"
 "Ricerca In&versa"
-"Зворотн&ий пошук"
+"Зворотний пошу&к"
 
 MEditSearchRegexp
 "&Регулярные выражения"
