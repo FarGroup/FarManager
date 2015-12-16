@@ -306,7 +306,7 @@ int GetSearchReplaceString(
 
 		if (ExitCode == dlg_button_search || ExitCode == dlg_button_all)
 		{
-			Result = ExitCode == 9? 1 : 2;
+			Result = ExitCode == dlg_button_search? 1 : 2;
 			SearchStr = SearchDlg[dlg_edit_search].strData;
 			ReplaceStr.clear();
 			Case=SearchDlg[dlg_checkbox_case].Selected == BSTATE_CHECKED;
