@@ -739,7 +739,6 @@ local function test_Far_GetConfig()
     "Editor.ReadOnlyLock", "integer",
     "Editor.SaveEditorPos", "boolean",
     "Editor.SaveEditorShortPos", "boolean",
-    "Editor.SearchPickUpWord", "boolean",
     "Editor.SearchRegexp", "boolean",
     "Editor.SearchSelFound", "boolean",
     "Editor.SearchCursorAtEnd", "boolean",
