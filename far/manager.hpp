@@ -48,6 +48,7 @@ public:
 		INPUT_RECORD m_Event;
 		unsigned int m_FarKey;
 		bool m_EventFilled;
+		void Fill(unsigned int Key);
 	public:
 		Key(): m_Event(), m_FarKey(0), m_EventFilled(false) {}
 		explicit Key(int Key);
@@ -56,6 +57,7 @@ public:
 		bool IsEvent(void)const {return m_EventFilled;}
 		bool IsReal(void)const;
 		unsigned int FarKey(void) const {return m_FarKey;}
+		Key& operator=(unsigned int Key);
 	};
 
 	class MessageAbstract;

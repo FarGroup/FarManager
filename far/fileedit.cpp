@@ -1148,7 +1148,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 				{
 					if (!m_Flags.Check(FFILEEDIT_DISABLESAVEPOS) && (m_editor->EdOpt.SavePos || m_editor->EdOpt.SaveShortPos)) // save position/codepage before reload
 						SaveToCache();
-					Global->CtrlObject->Cp()->ActivePanel()->ProcessKey(Manager::Key(LocalKey));
+					Global->CtrlObject->Cp()->ActivePanel()->ProcessKey(Key);
 				}
 				return TRUE;
 			}
@@ -1313,8 +1313,8 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 					if (Global->Opt->EdOpt.ShowKeyBar)
 						m_windowKeyBar->Show();
 
-				if (!m_windowKeyBar->ProcessKey(Manager::Key(LocalKey)))
-					return m_editor->ProcessKey(Manager::Key(LocalKey));
+				if (!m_windowKeyBar->ProcessKey(Key))
+					return m_editor->ProcessKey(Key);
 			}
 		}
 	}

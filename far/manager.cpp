@@ -109,15 +109,27 @@ public:
 	virtual bool Process(void) override { return false; }
 };
 
-Manager::Key::Key(int Key): m_Event(), m_FarKey(Key), m_EventFilled(false)
+void Manager::Key::Fill(unsigned int Key)
 {
+	m_FarKey = Key;
 	m_EventFilled = KeyToInputRecord(m_FarKey, &m_Event);
 	assert(m_EventFilled);
+}
+
+Manager::Key::Key(int Key): m_Event(), m_FarKey(), m_EventFilled(false)
+{
+	Fill(Key);
 }
 
 bool Manager::Key::IsReal(void)const
 {
 	return m_FarKey!=KEY_IDLE && m_Event.EventType!=0;
+}
+
+Manager::Key& Manager::Key::operator=(unsigned int Key)
+{
+	Fill(Key);
+	return *this;
 }
 
 static int CASHook(const Manager::Key& key)
