@@ -123,8 +123,8 @@ int GetSearchReplaceString(
 	{
 		{ DI_DOUBLEBOX, 3, 1, DlgWidth - 4, 12 - YCorrection, 0, nullptr, nullptr, 0, Title },
 		{ DI_TEXT, 5, 2, 0, 2, 0, nullptr, nullptr, 0, SubTitle },
-		{ DI_BUTTON, WordButtonX1, 2, WordButtonX2, 2, 0, nullptr, nullptr, 0, WordLabel },
-		{ DI_BUTTON, SelectionButtonX1, 2, SelectionButtonX2, 2, 0, nullptr, nullptr, 0, SelectionLabel },
+		{ DI_BUTTON, WordButtonX1, 2, WordButtonX2, 2, 0, nullptr, nullptr, DIF_BTNNOCLOSE, WordLabel },
+		{ DI_BUTTON, SelectionButtonX1, 2, SelectionButtonX2, 2, 0, nullptr, nullptr, DIF_BTNNOCLOSE, SelectionLabel },
 		{ DI_EDIT, 5, 3, 70, 3, 0, TextHistoryName, nullptr, DIF_FOCUS | DIF_USELASTHISTORY | (*TextHistoryName? DIF_HISTORY : 0), SearchStr.data() },
 		{ DI_TEXT, 5, 4, 0, 4, 0, nullptr, nullptr, 0, MSG(MEditReplaceWith) },
 		{ DI_EDIT, 5, 5, 70, 5, 0, ReplaceHistoryName, nullptr, DIF_USELASTHISTORY | (*ReplaceHistoryName? DIF_HISTORY : 0), ReplaceStr.data() },
@@ -174,11 +174,11 @@ int GetSearchReplaceString(
 	const auto search_id = dlg_edit_search, word_id = dlg_button_word, selection_id = dlg_button_selection, edit_id = dlg_edit_search;
 	const auto Handler = [&](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) -> intptr_t
 	{
-		if (Msg == DN_CLOSE && Picker && (Param1 == word_id || Param1 == selection_id))
+		if (Msg == DN_BTNCLICK && Picker && (Param1 == word_id || Param1 == selection_id))
 		{
 			Dlg->SendMessage(DM_SETTEXTPTR, edit_id, UNSAFE_CSTR(Picker(Param1 == selection_id)));
 			Dlg->SendMessage(DM_SETFOCUS, search_id, nullptr);
-			return FALSE;
+			return TRUE;
 		}
 		return Dlg->DefProc(Msg, Param1, Param2);
 	};
