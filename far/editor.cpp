@@ -3518,28 +3518,34 @@ BOOL Editor::Search(int Next)
 	{
 		const auto Picker = [this](bool PickSelection) -> string
 		{
-			PickSelection = PickSelection && IsAnySelection();
-
 			if (PickSelection)
 			{
-				if (IsStreamSelection())
+				if (IsAnySelection())
 				{
-					intptr_t StartSel, EndSel;
-					m_it_AnyBlockStart->GetSelection(StartSel, EndSel);
-					if (StartSel != -1)
+					if (IsStreamSelection())
 					{
-						return m_it_AnyBlockStart->m_Str.substr(StartSel, EndSel == -1? string::npos : EndSel - StartSel);
+						intptr_t StartSel, EndSel;
+						m_it_AnyBlockStart->GetSelection(StartSel, EndSel);
+						if (StartSel != -1)
+						{
+							return m_it_AnyBlockStart->GetString().substr(StartSel, EndSel == -1 ? string::npos : EndSel - StartSel);
+						}
+					}
+					else
+					{
+						const size_t TBlockX = m_it_AnyBlockStart->TabPosToReal(VBlockX);
+						const size_t TBlockSizeX = m_it_AnyBlockStart->TabPosToReal(VBlockX + VBlockSizeX) - TBlockX;
+						const auto& Str = m_it_AnyBlockStart->GetString();
+						if (TBlockX <= Str.size())
+						{
+							auto CopySize = std::min(Str.size() - TBlockX, TBlockSizeX);
+							return Str.substr(TBlockX, CopySize);
+						}
 					}
 				}
 				else
 				{
-					const auto TBlockX = m_it_AnyBlockStart->TabPosToReal(VBlockX);
-					const auto TBlockSizeX = m_it_AnyBlockStart->TabPosToReal(VBlockX + VBlockSizeX) - TBlockX;
-					if (TBlockX <= m_it_AnyBlockStart->m_Str.size())
-					{
-						auto CopySize = std::min(m_it_AnyBlockStart->m_Str.size() - TBlockX, TBlockSizeX);
-						return m_it_AnyBlockStart->m_Str.substr(TBlockX, CopySize);
-					}
+					return m_it_CurLine->GetString();
 				}
 			}
 			else
