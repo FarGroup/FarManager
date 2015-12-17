@@ -5998,7 +5998,7 @@ upd:"Word"
 
 MEditSearchPickSelection
 "&Выделение"
-"&Selection"
+"Se&lection"
 upd:"Selection"
 upd:"Selection"
 upd:"Selection"

@@ -578,6 +578,9 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		{
 			const auto Key=RawKey.FarKey();
 			MenuPos=UserMenu->GetSelectPos();
+			// CurrentMenuItem can be nullptr if:
+			// - menu is empty
+			// - menu is not empty, but insidiously consists only of separators
 			const auto CurrentMenuItem = UserMenu->GetUserDataPtr<ITERATOR(Menu)>(MenuPos);
 			if (Key==KEY_SHIFTF1)
 			{
@@ -609,7 +612,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				case KEY_RIGHT:
 				case KEY_NUMPAD6:
 				case KEY_MSWHEEL_RIGHT:
-					if (!UserMenu->empty() && (*CurrentMenuItem)->Submenu)
+					if (CurrentMenuItem && (*CurrentMenuItem)->Submenu)
 						UserMenu->Close(MenuPos);
 					break;
 
@@ -622,7 +625,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 
 				case KEY_NUMDEL:
 				case KEY_DEL:
-					if (!UserMenu->empty())
+					if (CurrentMenuItem)
 					{
 						DeleteMenuRecord(Menu, *CurrentMenuItem);
 						FillUserMenu(*UserMenu, Menu, MenuPos, FuncPos, strName, strShortName);
@@ -635,7 +638,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				case KEY_NUMPAD0:
 				{
 					bool bNew = Key == KEY_INS || Key == KEY_NUMPAD0;
-					if (!bNew && UserMenu->empty())
+					if (!bNew && !CurrentMenuItem)
 						break;
 
 					EditMenu(Menu, CurrentMenuItem, bNew);
@@ -649,7 +652,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				case KEY_RCTRLDOWN:
 				{
 
-					if (!UserMenu->empty())
+					if (CurrentMenuItem)
 					{
 						int Pos=UserMenu->GetSelectPos();
 						if (!((Key == KEY_CTRLUP || Key == KEY_RCTRLUP) && !Pos) && !((Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN) && Pos == static_cast<int>(UserMenu->size() - 1)))
@@ -737,10 +740,11 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		if (ReturnCode!=1)
 			return ReturnCode;
 
-		if (ExitCode < 0 || UserMenu->empty())
+		if (ExitCode < 0)
 			return EC_CLOSE_LEVEL; //  вверх на один уровень
 
-		const auto CurrentMenuItem = UserMenu->GetUserDataPtr<ITERATOR(Menu)>(UserMenu->GetSelectPos());
+		// This time CurrentMenuItem shall never be nullptr - for all weird cases ExitCode must be -1
+ 		const auto CurrentMenuItem = UserMenu->GetUserDataPtr<ITERATOR(Menu)>(UserMenu->GetSelectPos());
 
 		if ((*CurrentMenuItem)->Submenu)
 		{
