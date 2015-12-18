@@ -543,5 +543,5 @@ _G.band, _G.bnot, _G.bor, _G.bxor, _G.lshift, _G.rshift =
 
 _G.eval, _G.msgbox, _G.prompt = mf.eval, mf.msgbox, mf.prompt
 
-mf.Keys, mf.exit, mf.print, mf.printf = _G.Keys, _G.exit, _G.print, _G.printf
+mf.Keys, mf.exit, mf.print = _G.Keys, _G.exit, _G.print
 --------------------------------------------------------------------------------

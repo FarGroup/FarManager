@@ -171,7 +171,7 @@ lv=2
 dt=Text
 nm=Global properties and functions
 ctime=3552221109
-mtime=3607865667
+mtime=3659609142
 <article>
 #_**Properties:** none.
 #_
@@ -185,7 +185,6 @@ mtime=3607865667
 #_  mmode
 #_  msgbox
 #_  print
-#_  `printf`
 #_  prompt
 #_
 #_**Notes:**
@@ -203,7 +202,6 @@ mtime=3607865667
 #_
 #_@@@
 #_[exit]: 61.html
-#_[printf]: 60.html
 #_[mf]: 44.html
 #_[Keys]: 4.html
 #_
@@ -273,61 +271,28 @@ mtime=3632495627
 </article>
 </node>
 <node>
-id=60
-lv=3
-dt=Text
-nm=printf
-ctime=3554233087
-mtime=3643817828
-<article>
-#_printf (fmt, ...)
-#_
-#_**Parameters:**
-#_  fmt :  string
-#_  ... :  0 or more arguments, according to format specified by argument *fmt*.
-#_
-#_**Returns:**
-#_  nothing
-#_
-#_**Description:**
-#_  Works just like the macro language function *print*, but with additional
-#_  ability of formatting. Formatting rules are described in the `Lua manual`.
-#_
-#_**NOTE:**
-#_  **DO NOT USE THIS FUNCTION IN NEW DEVELOPMENTS AND REMOVE IT FROM THE EXISTING ONES.**
-#_  **THIS FUNCTION WILL BE REMOVED IN DECEMBER 2015.**
-#_
-#_@@@
-#_[Lua manual]: http://www.lua.org/manual/5.1/manual.html#pdf-string.format
-#_
-#_{print}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#print
-#_
-#_
-</article>
-</node>
-<node>
 id=44
 lv=2
 dt=Text
 nm=mf
 ctime=3553243522
-mtime=3614688576
+mtime=3659609153
 <article>
 #_**Properties:** none.
 #_
 #_**Functions:**
 #_
-#_  abs                max
-#_  `acall`              `mdelete`
-#_  akey               min
-#_  asc                `mload`
-#_  atoi               mmode
-#_  beep               mod
-#_  chr                `msave`
-#_  clip               msgbox
-#_  date               `postmacro`
-#_  env                print
-#_  `eval`               `printf`
+#_  abs                len
+#_  `acall`              max
+#_  akey               `mdelete`
+#_  asc                min
+#_  atoi               `mload`
+#_  beep               mmode
+#_  chr                mod
+#_  clip               `msave`
+#_  date               msgbox
+#_  env                `postmacro`
+#_  `eval`               print
 #_  `exit`               prompt
 #_  fattr              replace
 #_  fexist             rindex
@@ -343,7 +308,6 @@ mtime=3614688576
 #_  key                `usermenu`
 #_  `Keys`               waitkey
 #_  lcase              xlat
-#_  len
 #_
 #_@@@
 #_[acall]: 91.html
@@ -355,7 +319,6 @@ mtime=3614688576
 #_[mload]: 13.html
 #_[msave]: 12.html
 #_[postmacro]: 85.html
-#_[printf]: 60.html
 #_[usermenu]: 69.html
 #_
 #_
@@ -2087,7 +2050,7 @@ lv=2
 dt=Text
 nm=Restrictions in the use of some functions
 ctime=3557323094
-mtime=3614688692
+mtime=3659609163
 <article>
 #_<markdown>
 #_The following functions have certain restrictions on their use in macros: 
@@ -2101,7 +2064,6 @@ mtime=3614688692
 #_* `Plugin.Config`
 #_* `Plugin.Menu`
 #_* `print`
-#_* [`printf`][printf]
 #_
 #_1. If a macro creates coroutines with `coroutine.wrap(f)`, then the above listed functions will not work when called from the body of `f` function.<br>
 #_This restriction does not exist if coroutines are created with `coroutine.create(f)`.
@@ -2123,7 +2085,6 @@ mtime=3614688692
 #_[plugincall]: 65.html
 #_[exit]: 61.html
 #_[keys]: 4.html
-#_[printf]: 60.html
 #_
 #_@@@
 #_{plugin.command}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#plugin.command

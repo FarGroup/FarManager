@@ -569,17 +569,6 @@ local function test_print()
   assert(panel.GetCmdLine() == "")
 end
 
-local function test_printf()
-  assert(printf == mf.printf)
-  assert(type(printf) == "function")
-
-  Keys("Esc")
-  printf("%d + %d = %d", 5, 6, 5+6)
-  assert(panel.GetCmdLine() == "5 + 6 = 11")
-  Keys("Esc")
-  assert(panel.GetCmdLine() == "")
-end
-
 local function test_postmacro()
   assert(type(mf.postmacro) == "function")
 end
@@ -628,7 +617,6 @@ function MT.test_mf()
   test_msgbox()
   test_postmacro()
   test_print()
-  test_printf()
   test_prompt()
   test_replace()
   test_rindex()
@@ -676,7 +664,7 @@ function MT.test_CmdLine()
   assert(CmdLine.Value=="foo Бар")
 
   Keys"Esc"
-  printf("%s %d %s", "foo", 5+7, "Бар")
+  print(("%s %d %s"):format("foo", 5+7, "Бар"))
   assert(CmdLine.Value=="foo 12 Бар")
 
   Keys"Esc"

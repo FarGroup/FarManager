@@ -165,7 +165,7 @@ lv=2
 dt=Text
 nm=Глобальные свойства и функции
 ctime=3552221109
-mtime=3607865481
+mtime=3659608671
 <article>
 #_**Свойства:** нет.
 #_
@@ -179,7 +179,6 @@ mtime=3607865481
 #_  mmode
 #_  msgbox
 #_  print
-#_  `printf`
 #_  prompt
 #_
 #_**Примечания:**
@@ -195,7 +194,6 @@ mtime=3607865481
 #_
 #_@@@
 #_[exit]: 61.html
-#_[printf]: 60.html
 #_[mf]: 44.html
 #_[Keys]: 4.html
 #_
@@ -265,62 +263,28 @@ mtime=3607090414
 </article>
 </node>
 <node>
-id=60
-lv=3
-dt=Text
-nm=printf
-ctime=3554233087
-mtime=3643817861
-<article>
-#_printf (fmt, ...)
-#_
-#_**Параметры:**
-#_  fmt :  string
-#_  ... :  0 или более параметров, в соответствии с форматом,
-#_         заданным аргументом *fmt*.
-#_
-#_**Возвращает:**
-#_  ничего
-#_
-#_**Описание:**
-#_  Работает аналогично функции макроязыка *print*, но с дополнительной
-#_  возможностью форматирования. Правила форматирования описаны в `мануале Lua`.
-#_
-#_**ПРИМЕЧАНИЕ:**
-#_  **НЕ ИСПОЛЬЗУЙТЕ ДАННУЮ ФУНКЦИЮ В НОВЫХ РАЗРАБОТКАХ И УДАЛИТЕ ИЗ СУЩЕСТВУЮЩИХ.**
-#_  **ФУНКЦИЯ БУДЕТ УДАЛЕНА В ДЕКАБРЕ 2015 ГОДА.**
-#_
-#_@@@
-#_[мануале Lua]: http://www.lua.org/manual/5.1/manual.html#pdf-string.format
-#_
-#_{print}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#print
-#_
-#_
-</article>
-</node>
-<node>
 id=44
 lv=2
 dt=Text
 nm=mf
 ctime=3553243522
-mtime=3614686660
+mtime=3659609053
 <article>
 #_**Свойства:** нет.
 #_
 #_**Функции:**
 #_
-#_  abs                max
-#_  `acall`              `mdelete`
-#_  akey               min
-#_  asc                `mload`
-#_  atoi               mmode
-#_  beep               mod
-#_  chr                `msave`
-#_  clip               msgbox
-#_  date               `postmacro`
-#_  env                print
-#_  `eval`               `printf`
+#_  abs                len
+#_  `acall`              max
+#_  akey               `mdelete`
+#_  asc                min
+#_  atoi               `mload`
+#_  beep               mmode
+#_  chr                mod
+#_  clip               `msave`
+#_  date               msgbox
+#_  env                `postmacro`
+#_  `eval`               print
 #_  `exit`               prompt
 #_  fattr              replace
 #_  fexist             rindex
@@ -336,7 +300,6 @@ mtime=3614686660
 #_  key                `usermenu`
 #_  `Keys`               waitkey
 #_  lcase              xlat
-#_  len
 #_
 #_@@@
 #_[acall]: 91.html
@@ -348,7 +311,6 @@ mtime=3614686660
 #_[mload]: 13.html
 #_[msave]: 12.html
 #_[postmacro]: 85.html
-#_[printf]: 60.html
 #_[usermenu]: 69.html
 #_
 #_
@@ -2080,7 +2042,7 @@ lv=2
 dt=Text
 nm=Ограничения в использовании некоторых функций
 ctime=3557323094
-mtime=3614687514
+mtime=3659608712
 <article>
 #_<markdown>
 #_Следующие функции имеют особенности реализации, которые накладывают определённые ограничения на их использование в макросах:
@@ -2094,7 +2056,6 @@ mtime=3614687514
 #_* `Plugin.Config`
 #_* `Plugin.Menu`
 #_* `print`
-#_* [`printf`][printf]
 #_
 #_1. Если макрос создаёт корутины с помощью `coroutine.wrap(f)`, то вышеперечисленные функции не будут работать, будучи вызванными из тела функции `f`.<br>
 #_Данного ограничения нет, если корутины создаются с помощью `coroutine.create(f)`.
@@ -2117,7 +2078,6 @@ mtime=3614687514
 #_[plugincall]: 65.html
 #_[exit]: 61.html
 #_[keys]: 4.html
-#_[printf]: 60.html
 #_
 #_@@@
 #_{plugin.command}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#plugin.command

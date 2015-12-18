@@ -72,11 +72,6 @@ function _G.print (...)
   co_yield(PROPAGATE, F.MPRT_PRINT, tostring(param))
 end
 
-function _G.printf (fmt, ...)
-  checkarg(fmt,1,"string")
-  return _G.print(fmt:format(...))
-end
-
 function _G.exit ()
   co_yield(PROPAGATE, "exit")
 end
