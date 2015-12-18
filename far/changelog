@@ -1,4 +1,8 @@
-﻿drkns 17.12.2015 21:32:47 +0200 - build 4479
+﻿w17 18.12.2015 13:24:46 +0300 - build 4480
+
+1. Experimental: M#1910: "Add to archive" hotkey does not wok in Temporary Panel.
+
+drkns 17.12.2015 21:32:47 +0200 - build 4479
 
 1. Уточнение 4473: Selection при отсутствии блока берёт всю строку.
 

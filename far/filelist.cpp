@@ -1545,8 +1545,19 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			_ALGO(CleverSysLog clv(L"Shift-F1"));
 			_ALGO(SysLog(L"%s, FileCount=%d",(m_PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
 
-			if (!m_ListData.empty() && m_PanelMode!=PLUGIN_PANEL && SetCurPath())
-				PluginPutFilesToNew();
+			if (!m_ListData.empty())
+			{
+				bool real_files = m_PanelMode != PLUGIN_PANEL;
+				if (!real_files && GetType() == FILE_PANEL)
+				{
+					OpenPanelInfo Info;
+					Global->CtrlObject->Plugins->GetOpenPanelInfo(m_hPlugin, &Info);
+					real_files = (Info.Flags & OPIF_REALNAMES) != 0;
+				}
+
+				if (real_files && SetCurPath())
+					PluginPutFilesToNew();
+			}
 
 			return TRUE;
 		}

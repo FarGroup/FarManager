@@ -459,10 +459,14 @@ public:
       FAIL_MSG(Far::get_msg(MSG_ERROR_NOT_UPDATABLE));
     }
     if (new_arc) {
-      if (items_number == 1 || is_root_path(src_path))
-        options.arc_path = panel_items[0].FileName;
+      if (!is_absolute_path(panel_items[0].FileName))
+        if (items_number == 1 || is_root_path(src_path))
+          options.arc_path = panel_items[0].FileName;
+        else
+           options.arc_path = extract_file_name(src_path);
       else
-        options.arc_path = extract_file_name(src_path);
+        options.arc_path = add_trailing_slash(src_path) + (is_root_path(src_path) ? wstring(L"_") : extract_file_name(src_path));
+
       ArcTypes arc_types = ArcAPI::formats().find_by_name(g_options.update_arc_format_name);
       if (arc_types.empty())
         options.arc_type = c_7z;
@@ -516,17 +520,45 @@ public:
       archive->encrypted = options.encrypt;
     }
 
+    bool all_path_abs = true;
+    wstring common_src_path(src_path);
     vector<wstring> file_names;
     file_names.reserve(items_number);
     for (int i = 0; i < items_number; i++) {
       file_names.push_back(panel_items[i].FileName);
+      all_path_abs = all_path_abs && is_absolute_path(file_names.back());
+    }
+    if (all_path_abs) {
+      wstring common_start = add_trailing_slash(upcase(src_path));
+      for (int i = 0; i < items_number; i++) {
+        wstring upcase_name = upcase(file_names[i]);
+        while (common_start.size() > 1 && !substr_match(upcase_name, 0, common_start.c_str())) {
+          size_t next_slash = common_start.size() - 1;
+          while (next_slash > 0 && !is_slash(common_start[next_slash-1])) { --next_slash; }
+          common_start.resize(next_slash);
+        }
+        if (common_start.size() <= 1)
+          break;
+      }
+      if (common_start.size() <= 1) {
+        common_start.clear();
+      }
+      else {
+        size_t common_len = common_start.size() - 1;
+        common_src_path.assign(src_path, common_len);
+        if (common_src_path.back() == L':')
+          common_src_path += L"\\";
+        for (int i = 0; i < items_number; i++) {
+          file_names[i] = file_names[i].substr(common_len+1);
+        }
+      }
     }
 
     shared_ptr<ErrorLog> error_log(new ErrorLog());
     if (new_arc)
-      archive->create(src_path, file_names, options, error_log);
+      archive->create(common_src_path, file_names, options, error_log);
     else
-      archive->update(src_path, file_names, remove_path_root(current_dir), options, error_log);
+      archive->update(common_src_path, file_names, remove_path_root(current_dir), options, error_log);
 
     if (!error_log->empty()) {
       show_error_log(*error_log);
