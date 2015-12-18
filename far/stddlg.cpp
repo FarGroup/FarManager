@@ -101,9 +101,9 @@ int GetSearchReplaceString(
 	enum item_id
 	{
 		dlg_border,
-		dlg_label_search,
 		dlg_button_word,
 		dlg_button_selection,
+		dlg_label_search,
 		dlg_edit_search,
 		dlg_label_replace,
 		dlg_edit_replace,
@@ -122,9 +122,9 @@ int GetSearchReplaceString(
 	FarDialogItem ReplaceDlgData[]=
 	{
 		{ DI_DOUBLEBOX, 3, 1, DlgWidth - 4, 12 - YCorrection, 0, nullptr, nullptr, 0, Title },
-		{ DI_TEXT, 5, 2, 0, 2, 0, nullptr, nullptr, 0, SubTitle },
 		{ DI_BUTTON, WordButtonX1, 2, WordButtonX2, 2, 0, nullptr, nullptr, DIF_BTNNOCLOSE, WordLabel },
 		{ DI_BUTTON, SelectionButtonX1, 2, SelectionButtonX2, 2, 0, nullptr, nullptr, DIF_BTNNOCLOSE, SelectionLabel },
+		{ DI_TEXT, 5, 2, 0, 2, 0, nullptr, nullptr, 0, SubTitle },
 		{ DI_EDIT, 5, 3, 70, 3, 0, TextHistoryName, nullptr, DIF_FOCUS | DIF_USELASTHISTORY | (*TextHistoryName? DIF_HISTORY : 0), SearchStr.data() },
 		{ DI_TEXT, 5, 4, 0, 4, 0, nullptr, nullptr, 0, MSG(MEditReplaceWith) },
 		{ DI_EDIT, 5, 5, 70, 5, 0, ReplaceHistoryName, nullptr, DIF_USELASTHISTORY | (*ReplaceHistoryName? DIF_HISTORY : 0), ReplaceStr.data() },
