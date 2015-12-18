@@ -202,8 +202,13 @@ static int win_DeleteRegValue(lua_State *L)
 	HKEY hRoot = CheckHKey(L, 1);
 	const wchar_t* Key = check_utf8_string(L, 2, NULL);
 	const wchar_t* Name = opt_utf8_string(L, 3, NULL);
-	lua_pushboolean(L, RegOpenKeyExW(hRoot, Key, 0, KEY_SET_VALUE, &hKey)==ERROR_SUCCESS &&
-		RegDeleteValueW(hKey, Name)==ERROR_SUCCESS);
+	int res = 0;
+	if (RegOpenKeyExW(hRoot, Key, 0, KEY_SET_VALUE, &hKey) == ERROR_SUCCESS)
+	{
+		res = (RegDeleteValueW(hKey, Name) == ERROR_SUCCESS);
+		RegCloseKey(hKey);
+	}
+	lua_pushboolean(L, res);
 	return 1;
 }
 
