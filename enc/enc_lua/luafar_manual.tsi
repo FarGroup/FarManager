@@ -9636,13 +9636,14 @@ lv=2
 dt=Text
 nm=win.DeleteRegValue
 ctime=3659625870
-mtime=3659625928
+mtime=3659631399
 <article>
-#_result = win.DeleteRegValue (RootKey, ValueName)
+#_result = win.DeleteRegValue (RootKey, Key[, ValueName])
 #_
 #_**Parameters:**
 #_  RootKey:   string (one of: "HKLM", "HKCC", "HKCR", "HKCU", "HKU")
-#_  ValueName: string
+#_  Key:       string
+#_  ValueName: string (optional)
 #_
 #_**Returns:**
 #_  result: boolean
