@@ -191,6 +191,19 @@ static int win_DeleteRegKey(lua_State *L)
 	return 1;
 }
 
+// Result = DeleteRegValue (Root, ValueName)
+//   Root:      [string], one of "HKLM", "HKCC", "HKCR", "HKCU", "HKU"
+//   ValueName: value name, [string]
+//   Result:    TRUE if success, FALSE if failure, [boolean]
+static int win_DeleteRegValue(lua_State *L)
+{
+	HKEY hRoot = CheckHKey(L, 1);
+	const wchar_t* Name = check_utf8_string(L, 2, NULL);
+	long res = RegDeleteValueW(hRoot, Name);
+	lua_pushboolean(L, res==ERROR_SUCCESS);
+	return 1;
+}
+
 // Result = EnumRegKey (Root, Key, Index)
 //   Root:      [string], one of "HKLM", "HKCC", "HKCR", "HKCU", "HKU"
 //   Key:       registry key, [string]
@@ -666,6 +679,7 @@ const luaL_Reg win_funcs[] =
 	{"CreateDir",           win_CreateDir},
 	{"DeleteFile",          win_DeleteFile},
 	{"DeleteRegKey",        win_DeleteRegKey},
+	{"DeleteRegValue",      win_DeleteRegValue},
 	{"EnumRegKey",          win_EnumRegKey},
 	{"EnumRegValue",        win_EnumRegValue},
 	{"ExtractKey",          win_ExtractKey},

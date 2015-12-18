@@ -1,4 +1,8 @@
-﻿shmuel 18.12.2015 14:09:39 +0200 - build 548
+﻿shmuel 18.12.2015 18:48:29 +0200 - build 549
+
+1. LuaFAR: добавлена функция win.DeleteRegValue.
+
+shmuel 18.12.2015 14:09:39 +0200 - build 548
 
 1. Удалена макрофункция printf (mf.printf и _G.printf).
 

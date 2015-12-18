@@ -9631,6 +9631,28 @@ mtime=3540381906
 </article>
 </node>
 <node>
+id=515
+lv=2
+dt=Text
+nm=win.DeleteRegValue
+ctime=3659625870
+mtime=3659625928
+<article>
+#_result = win.DeleteRegValue (RootKey, ValueName)
+#_
+#_**Parameters:**
+#_  RootKey:   string (one of: "HKLM", "HKCC", "HKCR", "HKCU", "HKU")
+#_  ValueName: string
+#_
+#_**Returns:**
+#_  result: boolean
+#_
+#_**Description:**
+#_  This function deletes a registry value.
+#_
+</article>
+</node>
+<node>
 id=482
 lv=2
 dt=Text
