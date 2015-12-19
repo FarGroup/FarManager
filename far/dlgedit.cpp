@@ -283,19 +283,6 @@ int DlgEdit::GetClearFlag() const
 		return lineEdit->GetClearFlag();
 }
 
-const wchar_t* DlgEdit::GetStringAddr() const
-{
-#if defined(PROJECT_DI_MEMOEDIT)
-
-	if (Type == DLGEDIT_MULTILINE)
-	{
-		return nullptr; //??? //multiEdit;
-	}
-	else
-#endif
-		return lineEdit->GetStringAddr();
-}
-
 void DlgEdit::SetHiString(const string& Str)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
@@ -333,7 +320,7 @@ void DlgEdit::SetString(const string& Str, bool disable_autocomplete, int pos)
 		if (disable_autocomplete && (acompl = lineEdit->GetAutocomplete()) != false)
 			lineEdit->SetAutocomplete(false);
 
-		lineEdit->SetString(Str.data(), static_cast<int>(Str.size()));
+		lineEdit->SetString(Str.data(), Str.size());
 		if (pos >= 0)
 			lineEdit->SetCurPos(pos);
 
@@ -354,17 +341,18 @@ void DlgEdit::InsertString(const string& Str)
 		lineEdit->InsertString(Str);
 }
 
-void DlgEdit::GetString(string &strStr,int Row) const
+const string& DlgEdit::GetString(int Row) const
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
 	if (Type == DLGEDIT_MULTILINE)
 	{
 		; //multiEdit;
+		static_assert(0, "no implementation");
 	}
 	else
 #endif
-		lineEdit->GetString(strStr);
+		return lineEdit->GetString();
 }
 
 void DlgEdit::SetCurPos(int NewCol, int NewRow) // Row==-1 - current line
@@ -568,6 +556,19 @@ void DlgEdit::Select(int Start,int End)
 	{
 		lineEdit->Select(Start,End);
 		lineEdit->AdjustMarkBlock();
+	}
+}
+
+void DlgEdit::RemoveSelection()
+{
+#if defined(PROJECT_DI_MEMOEDIT)
+
+	if (Type == DLGEDIT_MULTILINE)
+		;//multiEdit->RemoveSelection();
+	else
+#endif
+	{
+		lineEdit->RemoveSelection();
 	}
 }
 

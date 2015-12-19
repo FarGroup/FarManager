@@ -205,7 +205,7 @@ private:
 	};
 
 	typedef numbered_iterator_t<iterator> numbered_iterator;
-	typedef numbered_iterator_t<const_iterator> numbered_line_iterator;
+	typedef numbered_iterator_t<const_iterator> numbered_const_iterator;
 
 	virtual void DisplayObject() override;
 	void ShowEditor();
@@ -226,8 +226,8 @@ private:
 	void UnmarkBlock();
 	void UnmarkEmptyBlock();
 	void UnmarkMacroBlock();
-	void AddUndoData(int Type) { return AddUndoData(Type, nullptr, nullptr, 0, 0, 0); }
-	void AddUndoData(int Type,const wchar_t *Str, const wchar_t *Eol, int StrNum, int StrPos, size_t Length);
+	void AddUndoData(int Type) { return AddUndoData(Type, string(), nullptr, 0, 0); }
+	void AddUndoData(int Type, const string& Str, const wchar_t *Eol, int StrNum, int StrPos);
 	void Undo(int redo);
 	void SelectAll();
 	void BlockLeft();
@@ -298,13 +298,13 @@ private:
 	void UpdateIteratorAndKeepPos(numbered_iterator& Iter, const F& Func);
 
 	numbered_iterator EndIterator();
-	numbered_line_iterator EndIterator() const;
+	numbered_const_iterator EndIterator() const;
 
 	numbered_iterator FirstLine();
-	numbered_line_iterator FirstLine() const;
+	numbered_const_iterator FirstLine() const;
 
 	numbered_iterator LastLine();
-	numbered_line_iterator LastLine() const;
+	numbered_const_iterator LastLine() const;
 
 	bool IsLastLine(const iterator& Line) const;
 

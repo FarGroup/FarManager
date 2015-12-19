@@ -148,19 +148,27 @@ public:
 	void SetShowWhiteSpace(int Mode) {m_Flags.Change(FEDITLINE_SHOWWHITESPACE, Mode!=0); m_Flags.Change(FEDITLINE_SHOWLINEBREAK, Mode == 1);}
 	void GetString(string &strStr) const;
 	const string& GetString() const { return m_Str; }
-	const wchar_t* GetStringAddr() const;
 	void SetHiString(const string& Str);
-	void SetString(const wchar_t *Str,int Length=-1);
-	void SetBinaryString(const wchar_t *Str, size_t Length);
-	void GetBinaryString(const wchar_t **Str, const wchar_t **EOL, size_t& Length) const;
+
 	void SetEOL(const wchar_t *EOL);
+	void SetEOL(const string& EOL) { return SetEOL(EOL.data()); }
+
 	const wchar_t *GetEOL() const;
-	int GetSelString(wchar_t *Str,int MaxSize);
-	int GetSelString(string &strStr, size_t MaxSize = string::npos) const;
+	string GetSelString() const;
 	int GetLength() const;
-	void AppendString(const wchar_t *Str);
-	void InsertString(const string& Str);
-	void InsertBinaryString(const wchar_t *Str, size_t Length);
+
+	void SetString(const string& Str) { SetString(Str.data(), Str.size()); }
+	void SetString(const wchar_t *Str) { SetString(Str, wcslen(Str)); }
+	void SetString(const wchar_t *Str, size_t Length);
+
+	void InsertString(const string& Str) { InsertString(Str.data(), Str.size()); }
+	void InsertString(const wchar_t *Str) { InsertString(Str, wcslen(Str)); }
+	void InsertString(const wchar_t *Str, size_t Length);
+
+	void AppendString(const string& Str) { AppendString(Str.data(), Str.size()); }
+	void AppendString(const wchar_t *Str) { AppendString(Str, wcslen(Str)); }
+	void AppendString(const wchar_t *Str, size_t Length);
+
 	int Search(const string& Str,const string &UpperStr, const string &LowerStr, RegExp &re, RegExpMatch *pm, MatchHash* hm, string& ReplaceStr,int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength);
 	void SetClearFlag(bool Flag) {m_Flags.Change(FEDITLINE_CLEARFLAG,Flag);}
 	int GetClearFlag() const {return m_Flags.Check(FEDITLINE_CLEARFLAG);}
@@ -180,6 +188,7 @@ public:
 	int RealPosToTab(int Pos) const;
 	int TabPosToReal(int Pos) const;
 	void Select(int Start,int End);
+	void RemoveSelection();
 	void AddSelect(int Start,int End);
 	void GetSelection(intptr_t &Start,intptr_t &End) const;
 	bool IsSelection() const {return !(m_SelStart==-1 && !m_SelEnd); }
@@ -234,7 +243,6 @@ private:
 	int GetNextCursorPos(int Position,int Where) const;
 	int KeyMatchedMask(int Key, const string& Mask) const;
 	int ProcessCtrlQ();
-	int ProcessInsPlainText(const wchar_t *Str);
 	int ProcessInsPath(unsigned int Key,int PrevSelStart=-1,int PrevSelEnd=0);
 	int RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos) const;
 	void FixLeftPos(int TabCurPos=-1);

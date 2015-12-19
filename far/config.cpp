@@ -1548,7 +1548,6 @@ void Options::InitConfigData()
 		{FSSF_PRIVATE,       NKeyDialog,L"CBoxMaxHeight", OPT_DEF(Dialogs.CBoxMaxHeight, 8)},
 		{FSSF_DIALOG,        NKeyDialog,L"EditBlock", OPT_DEF(Dialogs.EditBlock, false)},
 		{FSSF_PRIVATE,       NKeyDialog,L"EditHistory", OPT_DEF(Dialogs.EditHistory, true)},
-		{FSSF_PRIVATE,       NKeyDialog,L"EditLine", OPT_DEF(Dialogs.EditLine, 0)},
 		{FSSF_DIALOG,        NKeyDialog,L"DelRemovesBlocks", OPT_DEF(Dialogs.DelRemovesBlocks, true)},
 		{FSSF_DIALOG,        NKeyDialog,L"EULBsClear", OPT_DEF(Dialogs.EULBsClear, false)},
 		{FSSF_PRIVATE,       NKeyDialog,L"MouseButton", OPT_DEF(Dialogs.MouseButton, 0xFFFF)},

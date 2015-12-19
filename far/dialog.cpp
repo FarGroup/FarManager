@@ -69,15 +69,6 @@ enum CVTITEMFLAGS
 	CVTITEM_FROMPLUGINSHORT = 3
 };
 
-enum DLGEDITLINEFLAGS
-{
-	DLGEDITLINE_CLEARSELONKILLFOCUS = 0x00000001, // управляет выделением блока при потере фокуса ввода
-	DLGEDITLINE_SELALLGOTFOCUS      = 0x00000002, // управляет выделением блока при получении фокуса ввода
-	DLGEDITLINE_NOTSELONGOTFOCUS    = 0x00000004, // не восстанавливать выделение строки редактирования при получении фокуса ввода
-	DLGEDITLINE_NEWSELONGOTFOCUS    = 0x00000008, // управляет процессом выделения блока при получении фокуса
-	DLGEDITLINE_GOTOEOLGOTFOCUS     = 0x00000010, // при получении фокуса ввода переместить курсор в конец строки
-};
-
 enum DLGITEMINTERNALFLAGS
 {
 	DLGIIF_COMBOBOXNOREDRAWEDIT     = 0x00000008, // не прорисовывать строку редактирования при изменениях в комбо
@@ -197,7 +188,7 @@ size_t ItemStringAndSize(const DialogItemEx *Data,string& ItemString)
 	if (IsEdit(Data->Type))
 	{
 		if (const auto EditPtr = static_cast<DlgEdit*>(Data->ObjPtr))
-			EditPtr->GetString(ItemString);
+			ItemString = EditPtr->GetString();
 	}
 
 	size_t sz = ItemString.size();
@@ -294,7 +285,6 @@ void ItemToItemEx(const FarDialogItem* Items, DialogItemEx *ItemsEx, size_t Coun
 				ItemEx.strData.assign(Item.Data, Length);
 			}
 		}
-		ItemEx.SelStart=-1;
 
 		ItemEx.X2 = std::max(ItemEx.X1, ItemEx.X2);
 		ItemEx.Y2 = std::max(ItemEx.Y1, ItemEx.Y2);
@@ -325,9 +315,7 @@ DialogItemEx::DialogItemEx():
 	FarDialogItem(),
 	ListPos(),
 	ObjPtr(),
-	UCData(),
-	SelStart(),
-	SelEnd()
+	UCData()
 {}
 
 DialogItemEx::DialogItemEx(const DialogItemEx& rhs):
@@ -340,9 +328,7 @@ DialogItemEx::DialogItemEx(const DialogItemEx& rhs):
 	Auto(rhs.Auto),
 	ObjPtr(rhs.ObjPtr),
 	ListPtr(rhs.ListPtr),
-	UCData(rhs.UCData),
-	SelStart(rhs.SelStart),
-	SelEnd(rhs.SelEnd)
+	UCData(rhs.UCData)
 {}
 
 DialogItemEx::DialogItemEx(DialogItemEx&& rhs) noexcept:
@@ -350,9 +336,7 @@ DialogItemEx::DialogItemEx(DialogItemEx&& rhs) noexcept:
 	ListPos(),
 	ObjPtr(),
 	ListPtr(),
-	UCData(),
-	SelStart(),
-	SelEnd()
+	UCData()
 {
 	*this = std::move(rhs);
 }
@@ -374,8 +358,6 @@ void DialogItemEx::swap(DialogItemEx& rhs) noexcept
 	swap(ObjPtr, rhs.ObjPtr);
 	swap(ListPtr, rhs.ListPtr);
 	swap(UCData, rhs.UCData);
-	swap(SelStart, rhs.SelStart);
-	swap(SelEnd, rhs.SelEnd);
 }
 
 bool DialogItemEx::AddAutomation(DialogItemEx* DlgItem,
@@ -857,8 +839,6 @@ size_t Dialog::InitDialogObjects(size_t ID)
 					Items[I].ListPtr = VMenu::create(string(), nullptr, 0, Global->Opt->Dialogs.CBoxMaxHeight, VMENU_ALWAYSSCROLLBAR, this);
 					Items[I].ListPtr->SetVDialogItemID(I);
 				}
-
-				Items[I].SelStart=-1;
 			}
 
 			const auto DialogEdit = static_cast<DlgEdit*>(Items[I].ObjPtr);
@@ -1330,12 +1310,11 @@ void Dialog::GetDialogObjectsExpandData()
 			{
 				if (i.ObjPtr && (i.Flags&DIF_EDITEXPAND))
 				{
-					string strData;
 					const auto EditPtr = static_cast<DlgEdit*>(i.ObjPtr);
 
 					// подготовим данные
 					// получим данные
-					EditPtr->GetString(strData);
+					auto strData = EditPtr->GetString();
 
 					/* $ 01.08.2000 SVS
 					   ! В History должно заносится значение (для DIF_EXPAND...) перед
@@ -1393,12 +1372,11 @@ void Dialog::GetDialogObjectsData()
 			{
 				if (i.ObjPtr)
 				{
-					string strData;
 					const auto EditPtr = static_cast<DlgEdit*>(i.ObjPtr);
 
 					// подготовим данные
 					// получим данные
-					EditPtr->GetString(strData);
+					const auto& strData = EditPtr->GetString();
 
 					if (m_ExitCode >=0 &&
 					        (IFlags & DIF_HISTORY) &&
@@ -2760,7 +2738,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 					return TRUE;
 
 				const auto focus = static_cast<DlgEdit*>(Items[m_FocusPos].ObjPtr);
-				focus->GetString(strStr);
+				strStr = focus->GetString();
 				int CurPos = focus->GetCurPos();
 				string strMove;
 				if (CurPos < static_cast<int>(strStr.size()))
@@ -2774,7 +2752,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 				for (I=m_FocusPos+1; I <= EditorLastPos; ++I)
 				{
 					const auto next = static_cast<DlgEdit*>(Items[I].ObjPtr);
-					next->GetString(strStr);
+					strStr = next->GetString();
 					next->SetString(strMove, true, 0);
 					strMove = strStr;
 				}
@@ -2999,7 +2977,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 				else if (LocalKey() == KEY_CTRLU || LocalKey() == KEY_RCTRLU)
 				{
 					edt->SetClearFlag(0);
-					edt->Select(-1,0);
+					edt->RemoveSelection();
 					edt->Show();
 					return TRUE;
 				}
@@ -3015,16 +2993,16 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 								{	// добавляем к предыдущему и...
 									bool last = false;
 									const auto prev = static_cast<DlgEdit*>(Items[m_FocusPos - 1].ObjPtr);
-									prev->GetString(strStr);
+									strStr = prev->GetString();
 									int pos = static_cast<int>(strStr.size());
 									for (size_t I = m_FocusPos; !last && I < Items.size(); ++I)
 									{
 										const auto next = static_cast<DlgEdit*>(Items[I].ObjPtr);
 										last = (0 == (Items[I].Flags & DIF_EDITOR));
-										string strNext;
 										if (!last)
-											next->GetString(strNext);
-										strStr += strNext;
+										{
+											strStr += next->GetString();
+										}
 										static_cast<DlgEdit*>(Items[I-1].ObjPtr)->SetString(strStr, true, 0);
 										strStr.clear();
 									}
@@ -3050,7 +3028,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 								last = (0 == (Items[I].Flags & DIF_EDITOR));
 								string strNext;
 								if (!last)
-									static_cast<DlgEdit*>(Items[I].ObjPtr)->GetString(strNext);
+									strNext = static_cast<DlgEdit*>(Items[I].ObjPtr)->GetString();
 								const auto prev = static_cast<DlgEdit*>(Items[I - 1].ObjPtr);
 								int CurPos = prev->GetCurPos();
 								prev->SetString(strNext, true, CurPos);
@@ -3071,7 +3049,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 								int Length=edt->GetLength();
 								intptr_t SelStart, SelEnd;
 								edt->GetSelection(SelStart, SelEnd);
-								edt->GetString(strStr);
+								strStr = edt->GetString();
 
 								if (SelStart > -1)
 								{
@@ -3090,9 +3068,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 									{
 										strStr.resize(CurPos, L' ');
 									}
-									string strAdd;
-									edt_1->GetString(strAdd);
-									edt_1->SetString(strStr+strAdd, true);
+									edt_1->SetString(strStr + edt_1->GetString(), true);
 									return ProcessKey(Manager::Key(KEY_CTRLY));
 								}
 							}
@@ -3124,7 +3100,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 					edt->Xlat();
 
 					// иначе неправильно работает ctrl-end
-					edt->GetString(edt->strLastStr);
+					edt->strLastStr = edt->GetString();
 					edt->LastPartLength=static_cast<int>(edt->strLastStr.size());
 
 					Redraw(); // Перерисовка должна идти после DN_EDITCHANGE (imho)
@@ -3134,13 +3110,6 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 				if (!(Items[m_FocusPos].Flags & DIF_READONLY) ||
 				        ((Items[m_FocusPos].Flags & DIF_READONLY) && IsNavKey(LocalKey())))
 				{
-					// "только что ломанулись и начинать выделение с нуля"?
-					if ((Global->Opt->Dialogs.EditLine&DLGEDITLINE_NEWSELONGOTFOCUS) && Items[m_FocusPos].SelStart != -1 && PrevFocusPos != m_FocusPos)// && Items[FocusPos].SelEnd)
-					{
-						edt->Flags().Clear(FEDITLINE_MARKINGBLOCK);
-						PrevFocusPos=m_FocusPos;
-					}
-
 					if(LocalKey() == KEY_CTRLSPACE || LocalKey() == KEY_RCTRLSPACE)
 					{
 						SCOPED_ACTION(SetAutocomplete)(edt, true);
@@ -3157,7 +3126,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 						if ((LocalKey()==KEY_CTRLEND || LocalKey()==KEY_RCTRLEND || LocalKey()==KEY_CTRLNUMPAD1 || LocalKey()==KEY_RCTRLNUMPAD1) && edt->GetCurPos()==edt->GetLength())
 						{
 							if (edt->LastPartLength ==-1)
-								edt->GetString(edt->strLastStr);
+								edt->strLastStr = edt->GetString();
 
 							strStr = edt->strLastStr;
 							int CurCmdPartLength=static_cast<int>(strStr.size());
@@ -3165,7 +3134,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 
 							if (edt->LastPartLength == -1)
 							{
-								edt->GetString(edt->strLastStr);
+								edt->strLastStr = edt->GetString();
 								edt->LastPartLength = CurCmdPartLength;
 							}
 							{
@@ -3630,7 +3599,6 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 int Dialog::ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem, size_t CurFocusPos)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
-	string strStr;
 
 	// для user-типа вываливаем
 	if (Type == DI_USERCONTROL)
@@ -3645,8 +3613,7 @@ int Dialog::ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem, s
 	        !(CurItem->Flags & DIF_READONLY))
 	{
 		// Передаем то, что в строке ввода в функцию выбора из истории для выделения нужного пункта в истории.
-		CurEditLine->GetString(strStr);
-		SelectFromEditHistory(CurItem,CurEditLine,CurItem->strHistory,strStr);
+		SelectFromEditHistory(CurItem, CurEditLine, CurItem->strHistory);
 	}
 	// $ 18.07.2000 SVS:  +обработка DI_COMBOBOX - выбор из списка!
 	else if (Type == DI_COMBOBOX && CurItem->ListPtr &&
@@ -3939,44 +3906,12 @@ void Dialog::ChangeFocus2(size_t SetFocusPos)
 			i.Flags&=~DIF_FOCUS;
 		});
 
-		// "снимать выделение при потере фокуса?"
-		if (IsEdit(Items[m_FocusPos].Type) &&
-		        !(Items[m_FocusPos].Type == DI_COMBOBOX && (Items[m_FocusPos].Flags & DIF_DROPDOWNLIST)))
-		{
-			const auto EditPtr = static_cast<DlgEdit*>(Items[m_FocusPos].ObjPtr);
-			EditPtr->GetSelection(Items[m_FocusPos].SelStart,Items[m_FocusPos].SelEnd);
-
-			if ((Global->Opt->Dialogs.EditLine&DLGEDITLINE_CLEARSELONKILLFOCUS))
-			{
-				EditPtr->Select(-1,0);
-			}
-		}
-
 		Items[SetFocusPos].Flags|=DIF_FOCUS;
 
-		// "не восстанавливать выделение при получении фокуса?"
-		if (IsEdit(Items[SetFocusPos].Type) &&
-		        !(Items[SetFocusPos].Type == DI_COMBOBOX && (Items[SetFocusPos].Flags & DIF_DROPDOWNLIST)))
+		if (IsEdit(Items[SetFocusPos].Type) && !(Items[SetFocusPos].Type == DI_COMBOBOX && (Items[SetFocusPos].Flags & DIF_DROPDOWNLIST)))
 		{
 			const auto EditPtr = static_cast<DlgEdit*>(Items[SetFocusPos].ObjPtr);
-
-			if (!(Global->Opt->Dialogs.EditLine&DLGEDITLINE_NOTSELONGOTFOCUS))
-			{
-				if (Global->Opt->Dialogs.EditLine&DLGEDITLINE_SELALLGOTFOCUS)
-					EditPtr->Select(0,EditPtr->GetStrSize());
-				else
-					EditPtr->Select(Items[SetFocusPos].SelStart,Items[SetFocusPos].SelEnd);
-			}
-			else
-			{
-				EditPtr->Select(-1,0);
-			}
-
-			// при получении фокуса ввода переместить курсор в конец строки?
-			if (Global->Opt->Dialogs.EditLine&DLGEDITLINE_GOTOEOLGOTFOCUS)
-			{
-				EditPtr->SetCurPos(EditPtr->GetStrSize());
-			}
+			EditPtr->RemoveSelection();
 		}
 
 		//   проинформируем листбокс, есть ли у него фокус
@@ -4015,7 +3950,7 @@ void Dialog::SelectOnEntry(size_t Pos,BOOL Selected)
 			if (Selected)
 				edt->Select(0,edt->GetLength());
 			else
-				edt->Select(-1,0);
+				edt->RemoveSelection();
 
 			//_SVS(SysLog(L"Selected=%d edt->GetLength()=%d",Selected,edt->GetLength()));
 		}
@@ -4052,7 +3987,6 @@ int Dialog::SelectFromComboBox(
 {
 		SCOPED_ACTION(CriticalSectionLock)(CS);
 		_DIALOG(CleverSysLog CL(L"Dialog::SelectFromComboBox()"));
-		string strStr;
 		int I,Dest, OriginalPos;
 		int EditX1,EditY1,EditX2,EditY2;
 		EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
@@ -4077,7 +4011,7 @@ int Dialog::SelectFromComboBox(
 
 		// Выставим то, что есть в строке ввода!
 		// if(EditLine->GetDropDownBox()) //???
-		EditLine->GetString(strStr);
+		auto strStr = EditLine->GetString();
 
 		if (CurItem->Flags & (DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND))
 			strStr = HiText2Str(strStr);
@@ -4190,8 +4124,7 @@ int Dialog::SelectFromComboBox(
 */
 BOOL Dialog::SelectFromEditHistory(const DialogItemEx *CurItem,
                                    DlgEdit *EditLine,
-                                   const string& HistoryName,
-                                   string &strIStr)
+                                   const string& HistoryName)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 	_DIALOG(CleverSysLog CL(L"Dialog::SelectFromEditHistory()"));
@@ -5105,7 +5038,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 	const wchar_t *Ptr= CurItem->strData.data();
 
 	if (IsEdit(Type) && CurItem->ObjPtr)
-		Ptr = static_cast<DlgEdit*>(CurItem->ObjPtr)->GetStringAddr();
+		Ptr = static_cast<DlgEdit*>(CurItem->ObjPtr)->GetString().data();
 
 	switch (Msg)
 	{
@@ -5364,7 +5297,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 								Edit->SetHiString(ListMenuItem.strName);
 							else
 								Edit->SetString(ListMenuItem.strName);
-							Edit->Select(-1, -1); // снимаем выделение
+							Edit->RemoveSelection();
 						}
 					}
 
@@ -5813,7 +5746,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						const auto edit = static_cast<DlgEdit*>(CurItem->ObjPtr);
 						if (edit)
 						{
-							Ptr = edit->GetStringAddr();
+							Ptr = edit->GetString().data();
 							Len = edit->GetLength();
 							InitItemData();
 						}
@@ -6002,9 +5935,6 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 							if (DialogMode.Check(DMODE_OBJECTS_INITED)) // не меняем clear-флаг, пока не проиницализировались
 								EditLine->SetClearFlag(0);
-
-							EditLine->Select(-1,0); // снимаем выделение
-							// ...оно уже снимается в DlgEdit::SetString()
 						}
 
 						break;
@@ -6256,7 +6186,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				if (reinterpret_cast<intptr_t>(Param2) >= 0)
 				{
 					EditLine->SetClearFlag(Param2 != nullptr);
-					EditLine->Select(-1,0); // снимаем выделение
+					EditLine->RemoveSelection();
 
 					if (DialogMode.Check(DMODE_SHOW)) //???
 					{
@@ -6302,7 +6232,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 					//EdSel->BlockStartLine=0;
 					//EdSel->BlockHeight=1;
 					if (EdSel->BlockType==BTYPE_NONE)
-						EditLine->Select(-1,0);
+						EditLine->RemoveSelection();
 					else
 						EditLine->Select(EdSel->BlockStartPos,EdSel->BlockStartPos+EdSel->BlockWidth);
 

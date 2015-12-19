@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "datetime.hpp"
 #include "interf.hpp"
+#include "dlgedit.hpp"
 
 int GetSearchReplaceString(
 	bool IsReplaceMode,
@@ -171,12 +172,13 @@ int GetSearchReplaceString(
 		ReplaceDlg[dlg_checkbox_style].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
 
 	// explicit variables to make buggy VC10 happy
-	const auto search_id = dlg_edit_search, word_id = dlg_button_word, selection_id = dlg_button_selection, edit_id = dlg_edit_search;
+	const auto search_id = dlg_edit_search, word_id = dlg_button_word, selection_id = dlg_button_selection;
 	const auto Handler = [&](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) -> intptr_t
 	{
 		if (Msg == DN_BTNCLICK && Picker && (Param1 == word_id || Param1 == selection_id))
 		{
-			Dlg->SendMessage(DM_SETTEXTPTR, edit_id, UNSAFE_CSTR(Picker(Param1 == selection_id)));
+			// BUGBUG: #0003136: DM_INSERTTEXT or something like that
+			static_cast<DlgEdit*>(Dlg->GetAllItem()[search_id].ObjPtr)->InsertString(Picker(Param1 == selection_id));
 			Dlg->SendMessage(DM_SETFOCUS, search_id, nullptr);
 			return TRUE;
 		}

@@ -464,23 +464,13 @@ int Edit::ProcessInsPath(unsigned int Key,int PrevSelStart,int PrevSelEnd)
 	// Если что-нить получилось, именно его и вставим (PathName)
 	if (RetCode)
 	{
-		if (m_Flags.Check(FEDITLINE_CLEARFLAG))
-		{
-			LeftPos=0;
-			SetString(L"");
-		}
-
 		if (PrevSelStart!=-1)
 		{
 			m_SelStart=PrevSelStart;
 			m_SelEnd=PrevSelEnd;
 		}
 
-		if (!m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
-			DeleteBlock();
-
 		InsertString(strPathName);
-		m_Flags.Clear(FEDITLINE_CLEARFLAG);
 	}
 
 	return RetCode;
@@ -561,7 +551,7 @@ __int64 Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 								if (GetMacroSelectionStart() != GetTabCurPos())
 									Select(GetMacroSelectionStart(),GetTabCurPos());
 								else
-									Select(-1,0);
+									RemoveSelection();
 
 								Show();
 								SetMacroSelectionStart(-1);
@@ -576,7 +566,7 @@ __int64 Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				}
 				case 4: // UnMark sel block
 				{
-					Select(-1,0);
+					RemoveSelection();
 					SetMacroSelectionStart(-1);
 					Show();
 					return 1;
@@ -662,7 +652,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 			{
 				PrevSelStart=m_SelStart;
 				PrevSelEnd=m_SelEnd;
-				Select(-1,0);
+				RemoveSelection();
 				Show();
 			}
 		}
@@ -724,7 +714,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 
 				if (!m_Flags.Check(FEDITLINE_MARKINGBLOCK))
 				{
-					Select(-1,0);
+					RemoveSelection();
 					m_Flags.Set(FEDITLINE_MARKINGBLOCK);
 				}
 
@@ -755,14 +745,14 @@ int Edit::ProcessKey(const Manager::Key& Key)
 
 			if (!m_Flags.Check(FEDITLINE_MARKINGBLOCK))
 			{
-				Select(-1,0);
+				RemoveSelection();
 				m_Flags.Set(FEDITLINE_MARKINGBLOCK);
 			}
 
 			if ((m_SelStart!=-1 && m_SelEnd==-1) || m_SelEnd>m_CurPos)
 			{
 				if (m_CurPos+1==m_SelEnd)
-					Select(-1,0);
+					RemoveSelection();
 				else
 					Select(m_CurPos+1,m_SelEnd);
 			}
@@ -973,14 +963,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_OP_PLAINTEXT:
 		{
-			if (!m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
-			{
-				if (m_SelStart != -1 || m_Flags.Check(FEDITLINE_CLEARFLAG)) // BugZ#1053 - Неточности в $Text
-					RecurseProcessKey(KEY_DEL);
-			}
-
-			ProcessInsPlainText(Global->CtrlObject->Macro.GetStringToPrint());
-
+			InsertString(Global->CtrlObject->Macro.GetStringToPrint());
 			Show();
 			return TRUE;
 		}
@@ -1051,7 +1034,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 			SetPrevCurPos(m_CurPos);
 			LeftPos=m_CurPos=0;
 			clear_and_shrink(m_Str);
-			Select(-1,0);
+			RemoveSelection();
 			Changed();
 			Show();
 			return TRUE;
@@ -1308,13 +1291,6 @@ int Edit::ProcessKey(const Manager::Key& Key)
 					return TRUE;
 			}
 
-			if (!m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
-			{
-				DisableCallback();
-				DeleteBlock();
-				RevertCallback();
-			}
-
 			for (size_t i=0; i < ClipText.size(); ++i)
 			{
 				if (IsEol(ClipText[i]))
@@ -1329,17 +1305,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 				}
 			}
 
-			if (m_Flags.Check(FEDITLINE_CLEARFLAG))
-			{
-				LeftPos=0;
-				m_Flags.Clear(FEDITLINE_CLEARFLAG);
-				SetString(ClipText.data());
-			}
-			else
-			{
-				InsertString(ClipText.data());
-			}
-
+			InsertString(ClipText);
 			Show();
 			return TRUE;
 		}
@@ -1421,17 +1387,6 @@ int Edit::ProcessCtrlQ()
 	  EditOutDisabled--;
 	*/
 	return InsertKey(rec.Event.KeyEvent.uChar.AsciiChar);
-}
-
-int Edit::ProcessInsPlainText(const wchar_t *str)
-{
-	if (*str)
-	{
-		InsertString(str);
-		return TRUE;
-	}
-
-	return FALSE;
 }
 
 int Edit::InsertKey(int Key)
@@ -1561,28 +1516,14 @@ void Edit::GetString(string &strStr) const
 	strStr = m_Str;
 }
 
-const wchar_t* Edit::GetStringAddr() const
-{
-	return m_Str.data();
-}
-
 void Edit::SetHiString(const string& Str)
 {
 	if (m_Flags.Check(FEDITLINE_READONLY))
 		return;
 
 	const auto NewStr = HiText2Str(Str);
-	Select(-1,0);
-	SetBinaryString(NewStr.data(), NewStr.size());
-}
-
-void Edit::SetString(const wchar_t *Str, int Length)
-{
-	if (m_Flags.Check(FEDITLINE_READONLY))
-		return;
-
-	Select(-1,0);
-	SetBinaryString(Str,Length==-1? StrLength(Str) : Length);
+	RemoveSelection();
+	SetString(NewStr);
 }
 
 void Edit::SetEOL(const wchar_t *EOL)
@@ -1613,7 +1554,7 @@ const wchar_t *Edit::GetEOL() const
    в этом методе DropDownBox не обрабатывается
    ибо он вызывается только из SetString и из класса Editor
    в Dialog он нигде не вызывается */
-void Edit::SetBinaryString(const wchar_t *Str, size_t Length)
+void Edit::SetString(const wchar_t *Str, size_t Length)
 {
 	if (m_Flags.Check(FEDITLINE_READONLY))
 		return;
@@ -1623,6 +1564,8 @@ void Edit::SetBinaryString(const wchar_t *Str, size_t Length)
 	{
 		Length=GetMaxLength(); // ??
 	}
+
+	RemoveSelection();
 
 	if (Length && !m_Flags.Check(FEDITLINE_PARENT_SINGLELINE))
 	{
@@ -1688,7 +1631,7 @@ void Edit::SetBinaryString(const wchar_t *Str, size_t Length)
 		}
 
 		/* Здесь необходимо условие (!*Str), т.к. для очистки строки
-		   обычно вводится нечто вроде SetBinaryString("",0)
+		   обычно вводится нечто вроде SetString("",0)
 		   Т.е. таким образом мы добиваемся "инициализации" строки с маской
 		*/
 		RefreshStrByMask(!*Str);
@@ -1707,67 +1650,25 @@ void Edit::SetBinaryString(const wchar_t *Str, size_t Length)
 	Changed();
 }
 
-void Edit::GetBinaryString(const wchar_t **Str,const wchar_t **EOL, size_t& Length) const
-{
-	*Str = m_Str.data();
-
-	if (EOL)
-		*EOL=EOL_TYPE_CHARS[EndType];
-
-	Length = m_Str.size(); //???
-}
-
-int Edit::GetSelString(wchar_t *Str, int MaxSize)
-{
-	if (m_SelStart==-1 || (m_SelEnd!=-1 && m_SelEnd<=m_SelStart) ||
-		m_SelStart >= m_Str.size())
-	{
-		*Str=0;
-		return FALSE;
-	}
-
-	int CopyLength;
-
-	if (m_SelEnd==-1)
-		CopyLength=MaxSize;
-	else
-		CopyLength=std::min(MaxSize,m_SelEnd-m_SelStart+1);
-
-	xwcsncpy(Str, m_Str.data() + m_SelStart, CopyLength);
-	return TRUE;
-}
-
-int Edit::GetSelString(string &strStr, size_t MaxSize) const
+string Edit::GetSelString() const
 {
 	if (m_SelStart==-1 || (m_SelEnd!=-1 && m_SelEnd<=m_SelStart) || m_SelStart >= m_Str.size())
 	{
-		strStr.clear();
-		return FALSE;
+		return string();
 	}
 
-	size_t CopyLength;
-
-	if (MaxSize == string::npos)
-		MaxSize = m_Str.size();
-
-	if (m_SelEnd==-1)
-		CopyLength=MaxSize;
-	else
-		CopyLength=std::min(MaxSize, static_cast<size_t>(m_SelEnd-m_SelStart+1));
-
-	strStr.assign(m_Str.data() + m_SelStart, CopyLength);
-	return TRUE;
+	return string(m_Str.cbegin() + m_SelStart, m_SelEnd == -1? m_Str.cend() : m_Str.cbegin() + m_SelEnd);
 }
 
-void Edit::AppendString(const wchar_t *Str)
+void Edit::AppendString(const wchar_t *Str, size_t Length)
 {
 	int LastPos = m_CurPos;
 	m_CurPos = GetLength();
-	InsertString(Str);
+	InsertString(Str, Length);
 	m_CurPos = LastPos;
 }
 
-void Edit::InsertString(const string& Str)
+void Edit::InsertString(const wchar_t *Str, size_t Length)
 {
 	if (m_Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
 		return;
@@ -1775,15 +1676,13 @@ void Edit::InsertString(const string& Str)
 	if (!m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
 		DeleteBlock();
 
-	InsertBinaryString(Str.data(), Str.size());
-}
-
-void Edit::InsertBinaryString(const wchar_t *Str, size_t Length)
-{
-	if (m_Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
+	if (m_Flags.Check(FEDITLINE_CLEARFLAG))
+	{
+		LeftPos = 0;
+		m_Flags.Clear(FEDITLINE_CLEARFLAG);
+		SetString(Str, Length);
 		return;
-
-	m_Flags.Clear(FEDITLINE_CLEARFLAG);
+	}
 
 	const auto Mask = GetInputMask();
 	if (!Mask.empty())
@@ -1793,7 +1692,7 @@ void Edit::InsertBinaryString(const wchar_t *Str, size_t Length)
 
 		if (Pos<MaskLen)
 		{
-			//_SVS(SysLog(L"InsertBinaryString ==> Str='%s' (Length=%d) Mask='%s'",Str,Length,Mask+Pos));
+			//_SVS(SysLog(L"InsertString ==> Str='%s' (Length=%d) Mask='%s'",Str,Length,Mask+Pos));
 			const size_t StrLen = (MaskLen - Pos > Length) ? Length : MaskLen - Pos;
 
 			/* $ 15.11.2000 KM
@@ -1809,7 +1708,7 @@ void Edit::InsertBinaryString(const wchar_t *Str, size_t Length)
 					if (j < Length && KeyMatchedMask(Str[j], Mask))
 					{
 						InsertKey(Str[j]);
-						//_SVS(SysLog(L"InsertBinaryString ==> InsertKey(Str[%d]='%c');",j,Str[j]));
+						//_SVS(SysLog(L"InsertString ==> InsertKey(Str[%d]='%c');",j,Str[j]));
 					}
 					else
 						goLoop=TRUE;
@@ -1833,7 +1732,7 @@ void Edit::InsertBinaryString(const wchar_t *Str, size_t Length)
 		}
 
 		RefreshStrByMask();
-		//_SVS(SysLog(L"InsertBinaryString ==> Str='%s'", Str));
+		//_SVS(SysLog(L"InsertString ==> Str='%s'", Str));
 	}
 	else
 	{
@@ -1884,7 +1783,7 @@ int Edit::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	SetTabCurPos(MouseEvent->dwMousePosition.X - m_X1 + LeftPos);
 
 	if (!m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
-		Select(-1,0);
+		RemoveSelection();
 
 	if (MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED)
 	{
@@ -2123,6 +2022,12 @@ void Edit::Select(int Start,int End)
 		m_SelStart=-1;
 		m_SelEnd=0;
 	}
+}
+
+void Edit::RemoveSelection()
+{
+	Select(-1, 0);
+	m_Flags.Clear(FEDITLINE_MARKINGBLOCK);
 }
 
 void Edit::AddSelect(int Start,int End)

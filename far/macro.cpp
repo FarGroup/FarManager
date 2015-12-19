@@ -3856,7 +3856,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 					if (IsEdit(ItemType))
 					{
 						if (const auto EditPtr = static_cast<const DlgEdit*>(Item.ObjPtr))
-							Ret=EditPtr->GetStringAddr();
+							Ret=EditPtr->GetString().data();
 					}
 
 					break;

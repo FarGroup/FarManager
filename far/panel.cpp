@@ -1476,7 +1476,7 @@ int Search::ProcessKey(const Manager::Key& Key)
 				        && strName[strName.size()-2] == L'*')
 				{
 					strName.pop_back();
-					m_FindEdit->SetString(strName.data());
+					m_FindEdit->SetString(strName);
 				}
 
 				/* $ 09.04.2001 SVS
@@ -1486,7 +1486,7 @@ int Search::ProcessKey(const Manager::Key& Key)
 				if (!strName.empty() && strName.front() == L'"')
 				{
 					strName.erase(0, 1);
-					m_FindEdit->SetString(strName.data());
+					m_FindEdit->SetString(strName);
 				}
 
 				if (m_Owner->FindPartName(strName, FALSE, 1))
@@ -1502,7 +1502,7 @@ int Search::ProcessKey(const Manager::Key& Key)
 						;
 					}
 
-					m_FindEdit->SetString(strLastName.data());
+					m_FindEdit->SetString(strLastName);
 				}
 
 				Redraw();
@@ -1552,7 +1552,7 @@ void Search::ProcessName(const string& Src, string &strName)
 
 	if (!Buffer.empty())
 	{
-		m_FindEdit->SetString(Buffer.data());
+		m_FindEdit->SetString(Buffer);
 		m_FindEdit->Show();
 		strName = Buffer;
 	}

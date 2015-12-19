@@ -983,8 +983,6 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 						m_editor->DeleteBlock();
 					}
 
-					//AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
-					//                CurLine->EditLine.GetCurPos(),UNDO_EDIT);
 					m_editor->Paste(strFullFileName.data()); //???
 					//if (!EdOpt.PersistentBlocks)
 					m_editor->UnmarkBlock();
@@ -1911,11 +1909,10 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			FOR_RANGE(m_editor->Lines, CurPtr)
 			{
 				++LineNumber;
-				const wchar_t *SaveStr, *EndSeq;
-				size_t Length;
-				CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
+				const auto& SaveStr = CurPtr->GetString();
+				auto EndSeq = CurPtr->GetEOL();
 				BOOL UsedDefaultCharStr=FALSE,UsedDefaultCharEOL=FALSE;
-				WideCharToMultiByte(codepage, WC_NO_BEST_FIT_CHARS, SaveStr, static_cast<int>(Length), nullptr, 0, nullptr, &UsedDefaultCharStr);
+				WideCharToMultiByte(codepage, WC_NO_BEST_FIT_CHARS, SaveStr.data(), static_cast<int>(SaveStr.size()), nullptr, 0, nullptr, &UsedDefaultCharStr);
 
 				if (!*EndSeq && !m_editor->IsLastLine(CurPtr))
 					EndSeq = m_editor->GlobalEOL.empty() ? Editor::GetDefaultEOL() : m_editor->GlobalEOL.data();
@@ -1941,15 +1938,16 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 							m_editor->GoToLine(LineNumber);
 							if(UsedDefaultCharStr)
 							{
-								for (size_t Pos = 0; Pos < Length; ++Pos)
+								const auto BadCharIterator = std::find_if(CONST_RANGE(SaveStr, i) -> bool
 								{
-									BOOL UseDefChar=0;
-									WideCharToMultiByte(codepage,WC_NO_BEST_FIT_CHARS,SaveStr+Pos,1,nullptr,0,nullptr,&UseDefChar);
-									if(UseDefChar)
-									{
-										CurPtr->SetCurPos(static_cast<int>(Pos));
-										break;
-									}
+									BOOL UseDefChar = FALSE;
+									WideCharToMultiByte(codepage, WC_NO_BEST_FIT_CHARS, &i, 1, nullptr, 0, nullptr, &UseDefChar);
+									return UseDefChar == TRUE;
+								});
+
+								if (BadCharIterator != SaveStr.cend())
+								{
+									CurPtr->SetCurPos(BadCharIterator - SaveStr.cbegin());
 								}
 							}
 							else
@@ -2039,11 +2037,8 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 				Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditSaving),Name,(int)(LineNumber*100/m_editor->m_LinesCount));
 			}
 
-			const wchar_t *SaveStr, *EndSeq;
-
-			size_t Length;
-
-			CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
+			const auto& SaveStr = CurPtr->GetString();
+			auto EndSeq = CurPtr->GetEOL();
 
 			if (!*EndSeq && !m_editor->IsLastLine(CurPtr) && (*CurPtr->GetEOL()))
 				EndSeq = m_editor->GlobalEOL.empty() ? Editor::GetDefaultEOL() : m_editor->GlobalEOL.data();
@@ -2060,9 +2055,9 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			if (codepage == CP_UNICODE)
 			{
 				if (
-				    (Length && !Cache.Write(SaveStr,Length*sizeof(wchar_t))) ||
+				    (!SaveStr.empty() && !Cache.Write(SaveStr.data(), SaveStr.size() * sizeof(wchar_t))) ||
 				    (EndLength && !Cache.Write(EndSeq,EndLength*sizeof(wchar_t)))
-						)
+				   )
 				{
 					Global->CatchError();
 					bError = true;
@@ -2085,7 +2080,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 					}
 				};
 
-				EncodeAndWriteBlock(SaveStr, Length);
+				EncodeAndWriteBlock(SaveStr.data(), SaveStr.size());
 
 				if (!bError)
 				{
@@ -2365,12 +2360,10 @@ void FileEditor::ShowStatus()
 
 	Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(StatusWidth)<<FString;
 	{
-		const wchar_t *Str;
-		size_t Length;
-		m_editor->m_it_CurLine->GetBinaryString(&Str,nullptr,Length);
+		const auto& Str = m_editor->m_it_CurLine->GetString();
 		size_t CurPos = m_editor->m_it_CurLine->GetCurPos();
 
-		if (CurPos<Length)
+		if (CurPos < Str.size())
 		{
 			GotoXY(m_X2-((Global->Opt->ViewerEditorClock && m_Flags.Check(FFILEEDIT_FULLSCREEN)) ? 14:8)-(!m_editor->EdOpt.CharCodeBase?3:0),m_Y1);
 			SetColor(COL_EDITORSTATUS);

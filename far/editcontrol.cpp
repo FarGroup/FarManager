@@ -522,7 +522,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 						if(CurPos>=0 && PrevPos!=CurPos)
 						{
 							PrevPos=CurPos;
-							SetString(CurPos ? ComplMenu->at(CurPos).strName.data() : strTemp.data());
+							SetString(CurPos? ComplMenu->at(CurPos).strName : strTemp);
 							Show();
 						}
 					}
@@ -731,7 +731,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 				{
 					if(Global->Opt->AutoComplete.ModalList)
 					{
-						SetString(ComplMenu->at(ExitCode).strName.data());
+						SetString(ComplMenu->at(ExitCode).strName);
 						Show();
 					}
 					else

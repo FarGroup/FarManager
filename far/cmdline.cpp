@@ -191,7 +191,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 
 		{
 			SCOPED_ACTION(SetAutocomplete)(&CmdStr);
-			CmdStr.SetString(strStr.data());
+			CmdStr.SetString(strStr);
 			CmdStr.Select(LastCmdPartLength,static_cast<int>(strStr.size()));
 		}
 
@@ -401,7 +401,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 		case KEY_RCTRLALTNUMENTER:
 		{
 			Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
-			CmdStr.Select(-1,0);
+			CmdStr.RemoveSelection();
 			Refresh();
 			CmdStr.GetString(strStr);
 
@@ -422,7 +422,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 		return TRUE;
 		case KEY_CTRLU:
 		case KEY_RCTRLU:
-			CmdStr.Select(-1,0);
+			CmdStr.RemoveSelection();
 			Refresh();
 			return TRUE;
 		case KEY_OP_XLAT:
@@ -474,7 +474,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 
 				if (std::find(ALL_CONST_RANGE(UnmarkKeys), LocalKey()) != std::cend(UnmarkKeys))
 				{
-					CmdStr.Select(-1,0);
+					CmdStr.RemoveSelection();
 				}
 			}
 
@@ -515,7 +515,7 @@ void CommandLine::SetCurDir(const string& CurDir)
 void CommandLine::SetString(const string& Str, bool Redraw)
 {
 	LastCmdPartLength=-1;
-	CmdStr.SetString(Str.data());
+	CmdStr.SetString(Str);
 	CmdStr.SetLeftPos(0);
 
 	if (Redraw)

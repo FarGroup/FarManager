@@ -1662,13 +1662,8 @@ struct EditorGetString
 	size_t StructSize;
 	intptr_t StringNumber;
 	intptr_t StringLength;
-#ifdef FAR_USE_INTERNALS
-	wchar_t *StringText;
-	wchar_t *StringEOL;
-#else // ELSE FAR_USE_INTERNALS
 	const wchar_t *StringText;
 	const wchar_t *StringEOL;
-#endif // END FAR_USE_INTERNALS
 	intptr_t SelStart;
 	intptr_t SelEnd;
 };

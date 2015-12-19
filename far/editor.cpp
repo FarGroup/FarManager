@@ -776,7 +776,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				{
 					const auto NewEditPtr = InsertString((const wchar_t *)vParam, StrLength((const wchar_t *)vParam), std::next(EditPtr));
 					NewEditPtr->SetEOL(EditPtr->GetEOL());
-					AddUndoData(UNDO_INSSTR,NewEditPtr->GetStringAddr(),EditPtr->GetEOL(),DestLine,0,NewEditPtr->GetLength());
+					AddUndoData(UNDO_INSSTR, NewEditPtr->GetString(), EditPtr->GetEOL(), DestLine,0);
 					Change(ECTYPE_ADDED,DestLine+1);
 					TextChanged(1);
 					return 1;
@@ -784,9 +784,9 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				case MCODE_F_EDITOR_SETSTR:  // N=Editor.SetStr([S[,Line]])
 				{
 					string strEOL=EditPtr->GetEOL();
-					AddUndoData(UNDO_EDIT, EditPtr->GetStringAddr(), strEOL.data(), DestLine, EditPtr->GetCurPos(), EditPtr->GetLength());
+					AddUndoData(UNDO_EDIT, EditPtr->GetString(), strEOL.data(), DestLine, EditPtr->GetCurPos());
 					EditPtr->SetString((const wchar_t *)vParam,-1);
-					EditPtr->SetEOL(strEOL.data());
+					EditPtr->SetEOL(strEOL);
 					Change(ECTYPE_CHANGED,DestLine);
 					TextChanged(1);
 					return 1;
@@ -1141,7 +1141,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 				}
 				else // курсор в конце блока
 				{
-					m_it_CurLine->Select(-1,0);
+					m_it_CurLine->RemoveSelection();
 					PrevLine->GetRealSelection(SelStart, SelEnd);
 					PrevLine->Select(SelStart, PrevLine->GetLength());
 				}
@@ -1192,7 +1192,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 			{
 				if (SelAtBeginning)
 				{
-					OldCur->Select(-1,0);
+					OldCur->RemoveSelection();
 					m_it_AnyBlockStart=m_it_CurLine;
 				}
 				else
@@ -1216,15 +1216,13 @@ int Editor::ProcessKey(const Manager::Key& Key)
 
 				for (;;)
 				{
-					const wchar_t *Str;
-					size_t Length;
-					m_it_CurLine->GetBinaryString(&Str,nullptr,Length);
+					const auto& Str = m_it_CurLine->GetString();
 					/* $ 12.11.2002 DJ
 					   обеспечим корректную работу Ctrl-Shift-Left за концом строки
 					*/
 					size_t LocalCurPos = m_it_CurLine->GetCurPos();
 
-					if (LocalCurPos>Length)
+					if (LocalCurPos > Str.size())
 					{
 						size_t SelStartPos = LocalCurPos;
 						m_it_CurLine->ProcessKey(Manager::Key(KEY_END));
@@ -1277,12 +1275,10 @@ int Editor::ProcessKey(const Manager::Key& Key)
 
 				for (;;)
 				{
-					const wchar_t *Str;
-					size_t Length;
-					m_it_CurLine->GetBinaryString(&Str,nullptr,Length);
+					const auto& Str = m_it_CurLine->GetString();
 					const size_t LocalCurPos = m_it_CurLine->GetCurPos();
 
-					if (LocalCurPos >= Length)
+					if (LocalCurPos >= Str.size())
 						break;
 
 					if (IsSpace(Str[LocalCurPos]) || IsWordDiv(EdOpt.strWordDiv, Str[LocalCurPos]))
@@ -1318,7 +1314,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 			{
 				if (SelEnd==-1)
 				{
-					m_it_CurLine->Select(-1,0);
+					m_it_CurLine->RemoveSelection();
 					m_it_AnyBlockStart = NextLine;
 				}
 				else
@@ -1394,7 +1390,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 
 			/*
 			if(!SelStart && !SelEnd)
-				NextLine->Select(-1,0);
+				NextLine->RemoveSelection();
 			else
 			*/
 				NextLine->Select(SelStart,SelEnd);
@@ -1428,7 +1424,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 
 				if (!SelStart)
 				{
-					m_it_CurLine->Select(-1,0);
+					m_it_CurLine->RemoveSelection();
 				}
 				else
 				{
@@ -1664,7 +1660,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 					if (CurPos>=m_it_CurLine->GetLength())
 					{
 						AddUndoData(UNDO_BEGIN);
-						AddUndoData(UNDO_EDIT, m_it_CurLine->GetStringAddr(), m_it_CurLine->GetEOL(), m_it_CurLine.Number(), m_it_CurLine->GetCurPos(), m_it_CurLine->GetLength());
+						AddUndoData(UNDO_EDIT, m_it_CurLine->GetString(), m_it_CurLine->GetEOL(), m_it_CurLine.Number(), m_it_CurLine->GetCurPos());
 
 						const auto NextLine = std::next(m_it_CurLine);
 						if (NextLine == Lines.end())
@@ -1678,10 +1674,8 @@ int Editor::ProcessKey(const Manager::Key& Key)
 							m_it_CurLine->GetSelection(CurSelStart, CurSelEnd);
 							NextLine->GetSelection(NextSelStart, NextSelEnd);
 							const wchar_t *NextEOL = NextLine->GetEOL();
-							const wchar_t *Str;
-							size_t NextLength;
-							NextLine->GetBinaryString(&Str, nullptr, NextLength);
-							m_it_CurLine->InsertBinaryString(Str,NextLength);
+							const auto& Str = NextLine->GetString();
+							m_it_CurLine->InsertString(Str);
 							m_it_CurLine->SetEOL(NextLine->GetEOL());
 							m_it_CurLine->SetCurPos(CurPos);
 
@@ -1711,7 +1705,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 					}
 					else
 					{
-						AddUndoData(UNDO_EDIT, m_it_CurLine->GetStringAddr(), m_it_CurLine->GetEOL(), m_it_CurLine.Number(), m_it_CurLine->GetCurPos(), m_it_CurLine->GetLength());
+						AddUndoData(UNDO_EDIT, m_it_CurLine->GetString(), m_it_CurLine->GetEOL(), m_it_CurLine.Number(), m_it_CurLine->GetCurPos());
 						m_it_CurLine->ProcessKey(Manager::Key(KEY_DEL));
 					}
 					Change(ECTYPE_CHANGED, m_it_CurLine.Number());
@@ -1757,7 +1751,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 				}
 				else
 				{
-					AddUndoData(UNDO_EDIT, m_it_CurLine->GetStringAddr(), m_it_CurLine->GetEOL(), m_it_CurLine.Number(), m_it_CurLine->GetCurPos(), m_it_CurLine->GetLength());
+					AddUndoData(UNDO_EDIT, m_it_CurLine->GetString(), m_it_CurLine->GetEOL(), m_it_CurLine.Number(), m_it_CurLine->GetCurPos());
 					m_it_CurLine->ProcessKey(Manager::Key(KEY_BS));
 					Change(ECTYPE_CHANGED, m_it_CurLine.Number());
 				}
@@ -1780,7 +1774,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 					ProcessKey(Manager::Key(KEY_BS));
 				else
 				{
-					AddUndoData(UNDO_EDIT, m_it_CurLine->GetStringAddr(), m_it_CurLine->GetEOL(), m_it_CurLine.Number(), m_it_CurLine->GetCurPos(), m_it_CurLine->GetLength());
+					AddUndoData(UNDO_EDIT, m_it_CurLine->GetString(), m_it_CurLine->GetEOL(), m_it_CurLine.Number(), m_it_CurLine->GetCurPos());
 					m_it_CurLine->ProcessKey(Manager::Key(KEY_CTRLBS));
 					Change(ECTYPE_CHANGED, m_it_CurLine.Number());
 				}
@@ -2258,12 +2252,10 @@ int Editor::ProcessKey(const Manager::Key& Key)
 
 				for (;;)
 				{
-					const wchar_t *Str;
-					size_t Length;
-					m_it_CurLine->GetBinaryString(&Str,nullptr,Length);
+					const auto& Str = m_it_CurLine->GetString();
 					size_t LocalCurPos = m_it_CurLine->GetCurPos();
 
-					while (LocalCurPos>Length)
+					while (LocalCurPos > Str.size())
 					{
 						ProcessKey(Manager::Key(KEY_ALTSHIFTLEFT));
 						LocalCurPos = m_it_CurLine->GetCurPos();
@@ -2302,12 +2294,10 @@ int Editor::ProcessKey(const Manager::Key& Key)
 
 				for (;;)
 				{
-					const wchar_t *Str;
-					size_t Length;
-					m_it_CurLine->GetBinaryString(&Str,nullptr,Length);
+					const auto& Str = m_it_CurLine->GetString();
 					const size_t LocalCurPos = m_it_CurLine->GetCurPos();
 
-					if (LocalCurPos >= Length)
+					if (LocalCurPos >= Str.size())
 						break;
 
 					if (IsSpace(Str[LocalCurPos]) || IsWordDiv(EdOpt.strWordDiv, Str[LocalCurPos]))
@@ -2529,7 +2519,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 					DeleteBlock();
 				}
 
-				AddUndoData(UNDO_EDIT, m_it_CurLine->GetStringAddr(), m_it_CurLine->GetEOL(), m_it_CurLine.Number(), m_it_CurLine->GetCurPos(), m_it_CurLine->GetLength());
+				AddUndoData(UNDO_EDIT, m_it_CurLine->GetString(), m_it_CurLine->GetEOL(), m_it_CurLine.Number(), m_it_CurLine->GetCurPos());
 				m_it_CurLine->ProcessKey(Key);
 				Change(ECTYPE_CHANGED, m_it_CurLine.Number());
 				Pasting--;
@@ -2556,7 +2546,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 					DeleteBlock();
 				}
 
-				AddUndoData(UNDO_EDIT, m_it_CurLine->GetStringAddr(), m_it_CurLine->GetEOL(), m_it_CurLine.Number(), m_it_CurLine->GetCurPos(), m_it_CurLine->GetLength());
+				AddUndoData(UNDO_EDIT, m_it_CurLine->GetString(), m_it_CurLine->GetEOL(), m_it_CurLine.Number(), m_it_CurLine->GetCurPos());
 				m_it_CurLine->ProcessCtrlQ();
 				Change(ECTYPE_CHANGED, m_it_CurLine.Number());
 				m_Flags.Clear(FEDITOR_PROCESSCTRLQ);
@@ -2611,7 +2601,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 					DeleteBlock();
 				}
 
-				//AddUndoData(UNDO_EDIT,CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,CurLine->GetCurPos(),CurLine->GetLength());
+				//AddUndoData(UNDO_EDIT,CurLine->GetString(),CurLine->GetEOL(),NumLine,CurLine->GetCurPos());
 				Paste(strTStr.data());
 				//if (!EdOpt.PersistentBlocks && IsBlock)
 				UnmarkBlock();
@@ -2713,16 +2703,11 @@ int Editor::ProcessKey(const Manager::Key& Key)
 					return TRUE;
 				}
 
-				const wchar_t *Str;
-
-				string CmpStr;
-
-				size_t Length;
-				m_it_CurLine->GetBinaryString(&Str,nullptr,Length);
+				const auto& Str = m_it_CurLine->GetString();
 
 				intptr_t LocalCurPos = m_it_CurLine->GetCurPos();
 
-				if (IsCharKey(LocalKey()) && LocalCurPos>0 && !Length)
+				if (IsCharKey(LocalKey()) && LocalCurPos>0 && Str.empty())
 				{
 					auto PrevLine = m_it_CurLine == Lines.begin()? Lines.end() : std::prev(m_it_CurLine);
 
@@ -2742,11 +2727,9 @@ int Editor::ProcessKey(const Manager::Key& Key)
 					{
 						int TabPos=m_it_CurLine->GetTabCurPos();
 						m_it_CurLine->SetCurPos(0);
-						const wchar_t *PrevStr=nullptr;
-						size_t PrevLength = 0;
-						PrevLine->GetBinaryString(&PrevStr,nullptr,PrevLength);
+						const auto PrevStr = PrevLine->GetString();
 
-						for (size_t I = 0; I<PrevLength && IsSpace(PrevStr[I]); ++I)
+						for (size_t I = 0; I != PrevStr.size() && IsSpace(PrevStr[I]); ++I)
 						{
 							int NewTabPos=m_it_CurLine->GetTabCurPos();
 
@@ -2771,11 +2754,12 @@ int Editor::ProcessKey(const Manager::Key& Key)
 					}
 				}
 
+				string CmpStr;
+
 				if (!SkipCheckUndo)
 				{
-					m_it_CurLine->GetBinaryString(&Str,nullptr,Length);
 					LocalCurPos=m_it_CurLine->GetCurPos();
-					CmpStr.assign(Str, Length);
+					CmpStr = Str;
 				}
 
 				if (LocalKey() == KEY_OP_XLAT)
@@ -2810,13 +2794,11 @@ int Editor::ProcessKey(const Manager::Key& Key)
 
 					if (!SkipCheckUndo)
 					{
-						const wchar_t *NewCmpStr;
-						size_t NewLength;
-						m_it_CurLine->GetBinaryString(&NewCmpStr,nullptr,NewLength);
+						const auto& NewCmpStr = m_it_CurLine->GetString();
 
-						if (NewLength != Length || !std::equal(CmpStr.begin(), CmpStr.begin() + Length, NewCmpStr))
+						if (CmpStr != NewCmpStr)
 						{
-							AddUndoData(UNDO_EDIT, CmpStr.data(), m_it_CurLine->GetEOL(), m_it_CurLine.Number(), CurPos, Length); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
+							AddUndoData(UNDO_EDIT, CmpStr, m_it_CurLine->GetEOL(), m_it_CurLine.Number(), CurPos); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
 							Change(ECTYPE_CHANGED, m_it_CurLine.Number());
 							TextChanged(1);
 						}
@@ -2846,7 +2828,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 							}
 							else
 							{
-								m_it_CurLine->Select(-1,-1);
+								m_it_CurLine->RemoveSelection();
 								++m_it_AnyBlockStart;
 							}
 						}
@@ -2875,7 +2857,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 								}
 								else
 								{
-									m_it_CurLine->Select(-1,-1);
+									m_it_CurLine->RemoveSelection();
 									++CurPtrBlock2;
 								}
 							}
@@ -3103,7 +3085,7 @@ Editor::numbered_iterator Editor::DeleteString(numbered_iterator DelPtr, bool De
 
 	if (IsLastLine(DelPtr) && (!DeleteLast || DelPtr == Lines.begin()))
 	{
-		AddUndoData(UNDO_EDIT, DelPtr->GetStringAddr(), DelPtr->GetEOL(), DelPtr.Number(), DelPtr->GetCurPos(), DelPtr->GetLength());
+		AddUndoData(UNDO_EDIT, DelPtr->GetString(), DelPtr->GetEOL(), DelPtr.Number(), DelPtr->GetCurPos());
 		DelPtr->SetString(L"");
 		Change(ECTYPE_CHANGED, DelPtr.Number());
 		return DelPtr;
@@ -3126,7 +3108,7 @@ Editor::numbered_iterator Editor::DeleteString(numbered_iterator DelPtr, bool De
 		std::prev(DelPtr)->SetEOL(L"");
 	}
 
-	AddUndoData(UNDO_DELSTR, DelPtr->GetStringAddr(), DelPtr->GetEOL(), DelPtr.Number(), 0, DelPtr->GetLength());
+	AddUndoData(UNDO_DELSTR, DelPtr->GetString(), DelPtr->GetEOL(), DelPtr.Number(), 0);
 
 	std::for_each(RANGE(m_SavePos, i)
 	{
@@ -3189,11 +3171,6 @@ void Editor::InsertString()
 
 	Change(ECTYPE_ADDED, m_it_CurLine.Number() + 1);
 	//NewString->SetTables(UseDecodeTable ? &TableSet:nullptr); // ??
-	size_t Length;
-	const wchar_t *CurLineStr;
-	const wchar_t *EndSeq;
-	m_it_CurLine->GetBinaryString(&CurLineStr,&EndSeq,Length);
-
 
 	size_t CurPos=m_it_CurLine->GetCurPos();
 	m_it_CurLine->GetSelection(SelStart,SelEnd);
@@ -3221,15 +3198,12 @@ void Editor::InsertString()
 
 		while (PrevLine != Lines.end())
 		{
-			const wchar_t *Str;
-			size_t PrevLineLength;
-			PrevLine->GetBinaryString(&Str, nullptr, PrevLineLength);
+			const auto& Str = PrevLine->GetString();
 
-			const auto Begin = Str, End = Str + PrevLineLength;
-			const auto It = std::find_if_not(Begin, End, IsSpace);
-			if (It != End)
+			const auto It = std::find_if_not(ALL_CONST_RANGE(Str), IsSpace);
+			if (It != Str.cend())
 			{
-				PrevLine->SetCurPos(static_cast<int>(It - Begin));
+				PrevLine->SetCurPos(static_cast<int>(It - Str.cbegin()));
 				IndentPos = PrevLine->GetTabCurPos();
 				SrcIndent = PrevLine;
 				break;
@@ -3244,23 +3218,27 @@ void Editor::InsertString()
 
 	int SpaceOnly=TRUE;
 
-	if (CurPos<Length)
+	auto EndSeq = m_it_CurLine->GetEOL();
+
+	if (CurPos < static_cast<size_t>(m_it_CurLine->GetLength()))
 	{
-		if (IndentPos > 0 && !std::all_of(CurLineStr, CurLineStr + CurPos, IsSpace))
+		const auto& CurLineStr = m_it_CurLine->GetString();
+
+		if (IndentPos > 0 && !std::all_of(CurLineStr.cbegin(), CurLineStr.cbegin() + CurPos, IsSpace))
 		{
 			SpaceOnly = FALSE;
 		}
 
-		NewString->SetBinaryString(CurLineStr + CurPos, Length - CurPos);
+		NewString->SetString(CurLineStr.data() + CurPos, CurLineStr.size() - CurPos);
 
-		if (!std::all_of(CurLineStr + CurPos, CurLineStr + Length, IsSpace))
+		if (!std::all_of(CurLineStr.cbegin() + CurPos, CurLineStr.cend(), IsSpace))
 		{
 			NewLineEmpty = FALSE;
 		}
 
 		AddUndoData(UNDO_BEGIN);
-		AddUndoData(UNDO_EDIT, m_it_CurLine->GetStringAddr(), m_it_CurLine->GetEOL(), m_it_CurLine.Number(), m_it_CurLine->GetCurPos(),m_it_CurLine->GetLength());
-		AddUndoData(UNDO_INSSTR, nullptr, m_it_CurLine->GetEOL(), m_it_CurLine.Number() + 1, 0, 0);
+		AddUndoData(UNDO_EDIT, m_it_CurLine->GetString(), m_it_CurLine->GetEOL(), m_it_CurLine.Number(), m_it_CurLine->GetCurPos());
+		AddUndoData(UNDO_INSSTR, string(), m_it_CurLine->GetEOL(), m_it_CurLine.Number() + 1, 0);
 		AddUndoData(UNDO_END);
 
 		string NewCurLineStr(CurLineStr, CurPos);
@@ -3270,7 +3248,7 @@ void Editor::InsertString()
 			RemoveTrailingSpaces(NewCurLineStr);
 		}
 
-		m_it_CurLine->SetBinaryString(NewCurLineStr.data(), NewCurLineStr.size());
+		m_it_CurLine->SetString(NewCurLineStr);
 
 		if (m_FoundLine == m_it_CurLine && static_cast<size_t>(m_FoundPos) >= CurPos)
 		{
@@ -3283,7 +3261,7 @@ void Editor::InsertString()
 	else
 	{
 		NewString->SetString(L"");
-		AddUndoData(UNDO_INSSTR, nullptr, m_it_CurLine->GetEOL(), m_it_CurLine.Number() + 1, 0, 0);
+		AddUndoData(UNDO_INSSTR, string(), m_it_CurLine->GetEOL(), m_it_CurLine.Number() + 1, 0);
 	}
 
 	if (EndSeq && *EndSeq)
@@ -3312,7 +3290,7 @@ void Editor::InsertString()
 		}
 		else
 		{
-			m_it_CurLine->Select(-1,0);
+			m_it_CurLine->RemoveSelection();
 			NewString->Select(static_cast<int>(SelStart - CurPos), SelEnd == -1? -1 : static_cast<int>(SelEnd - CurPos));
 			m_it_AnyBlockStart = numbered_iterator(NewString, m_it_AnyBlockStart.Number() + 1);
 		}
@@ -3327,16 +3305,15 @@ void Editor::InsertString()
 	{
 		size_t OrgIndentPos = IndentPos;
 		ShowEditor();
-		m_it_CurLine->GetBinaryString(&CurLineStr,nullptr,Length);
 
 		if (SpaceOnly)
 		{
 			int Decrement=0;
-
-			const auto MaxI = std::min(static_cast<size_t>(IndentPos), Length);
-			for (size_t I = 0; I != MaxI && IsSpace(CurLineStr[I]); ++I)
+			const auto& Str = m_it_CurLine->GetString();
+			const auto MaxI = std::min(static_cast<size_t>(IndentPos), Str.size());
+			for (size_t I = 0; I != MaxI && IsSpace(Str[I]); ++I)
 			{
-				if (CurLineStr[I]==L' ')
+				if (Str[I]==L' ')
 					Decrement++;
 				else
 				{
@@ -3355,21 +3332,25 @@ void Editor::InsertString()
 				m_it_CurLine->ProcessKey(Manager::Key(KEY_HOME));
 				int SaveOvertypeMode=m_it_CurLine->GetOvertypeMode();
 				m_it_CurLine->SetOvertypeMode(false);
-				const wchar_t *PrevStr=nullptr;
-				size_t PrevLength = 0;
 
 				if (SrcIndent != Lines.end())
 				{
-					SrcIndent->GetBinaryString(&PrevStr,nullptr,PrevLength);
-				}
-
-				for (size_t I = 0; m_it_CurLine->GetTabCurPos()<IndentPos; ++I)
-				{
-					if (SrcIndent != Lines.end() && I<PrevLength && IsSpace(PrevStr[I]))
+					const auto& PrevStr = SrcIndent->GetString();
+					for (size_t I = 0; m_it_CurLine->GetTabCurPos() < IndentPos; ++I)
 					{
-						m_it_CurLine->ProcessKey(Manager::Key(PrevStr[I]));
+						if (I < PrevStr.size() && IsSpace(PrevStr[I]))
+						{
+							m_it_CurLine->ProcessKey(Manager::Key(PrevStr[I]));
+						}
+						else
+						{
+							m_it_CurLine->ProcessKey(Manager::Key(KEY_SPACE));
+						}
 					}
-					else
+				}
+				else
+				{
+					for (size_t I = 0; m_it_CurLine->GetTabCurPos() < IndentPos; ++I)
 					{
 						m_it_CurLine->ProcessKey(Manager::Key(KEY_SPACE));
 					}
@@ -3385,17 +3366,14 @@ void Editor::InsertString()
 			m_it_CurLine->SetTabCurPos(IndentPos);
 		}
 
-		m_it_CurLine->GetBinaryString(&CurLineStr,nullptr,Length);
+		const auto& Str = m_it_CurLine->GetString();
 		CurPos=m_it_CurLine->GetCurPos();
 
 		if (SpaceOnly)
 		{
-			size_t NewPos = std::find_if_not(CurLineStr, CurLineStr + Length, IsSpace) - CurLineStr;
-
-			if (NewPos>OrgIndentPos)
-				NewPos=OrgIndentPos;
-
-			if (NewPos>CurPos)
+			const auto SpaceIterator = std::find_if_not(ALL_CONST_RANGE(Str), IsSpace);
+			const auto NewPos = std::min<size_t>(SpaceIterator - Str.cbegin(), OrgIndentPos);
+			if (NewPos > CurPos)
 				m_it_CurLine->SetCurPos(static_cast<int>(NewPos));
 		}
 	}
@@ -3697,7 +3675,7 @@ BOOL Editor::Search(int Next)
 					int NextPos = CurPos + (SearchLength? SearchLength : 1);
 
 					const int service_len = 12;
-					MenuItemEx Item(FormatString() << fmt::LeftAlign() << fmt::ExactWidth(service_len) << fmt::FillChar(L' ') << (FormatString() << CurPtr.Number() + 1 << L':' << CurPos+1) << BoxSymbols[BS_V1] << CurPtr->GetStringAddr());
+					MenuItemEx Item(FormatString() << fmt::LeftAlign() << fmt::ExactWidth(service_len) << fmt::FillChar(L' ') << (FormatString() << CurPtr.Number() + 1 << L':' << CurPos+1) << BoxSymbols[BS_V1] << CurPtr->GetString());
 					Item.Annotations.emplace_back(VALUE_TYPE(Item.Annotations)(CurPos + service_len + 1, NextPos - CurPos));
 					FindCoord coord = { (UINT)CurPtr.Number(), (UINT)CurPos, (UINT)SearchLength };
 					Item.UserData = coord;
@@ -3760,7 +3738,7 @@ BOOL Editor::Search(int Next)
 							int lpos = CurPtr->LeftPos;
 							int endX = CurPtr->RealPosToTab(CurPtr->TabPosToReal(lpos + CurX) + SearchLength - 1) - lpos;
 							ChangeBlockColor(CurX,CurY, endX,CurY, colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT));
-							string strQSearchStr(CurPtr->GetStringAddr()+CurPtr->GetCurPos(),SearchLength), strQReplaceStr=strReplaceStrCurrent;
+							string strQSearchStr(CurPtr->GetString().data() + CurPtr->GetCurPos(),SearchLength), strQReplaceStr=strReplaceStrCurrent;
 
 							// do not use InsertQuote, AI is not suitable here
 							strQSearchStr.insert(0, 1, L'"');
@@ -3868,17 +3846,15 @@ BOOL Editor::Search(int Next)
 							else
 							{
 								/* Fast method */
-								const wchar_t *Str,*Eol;
-								size_t StrLen;
 								int SStrLen=SearchLength;
-								m_it_CurLine->GetBinaryString(&Str,&Eol,StrLen);
+								const auto& Str = m_it_CurLine->GetString();
 								int LocalCurPos = m_it_CurLine->GetCurPos();
 								string NewStr(Str, LocalCurPos);
 								NewStr += strReplaceStrCurrent;
-								NewStr.append(Str + LocalCurPos + SStrLen, StrLen - LocalCurPos - SStrLen);
-								NewStr += Eol;
-								AddUndoData(UNDO_EDIT, m_it_CurLine->GetStringAddr(), m_it_CurLine->GetEOL(), m_it_CurLine.Number(), m_it_CurLine->GetCurPos(), m_it_CurLine->GetLength());
-								m_it_CurLine->SetBinaryString(NewStr.data(), NewStr.size());
+								NewStr.append(Str.cbegin() + LocalCurPos + SStrLen, Str.cend());
+								NewStr += m_it_CurLine->GetEOL();
+								AddUndoData(UNDO_EDIT, m_it_CurLine->GetString(), m_it_CurLine->GetEOL(), m_it_CurLine.Number(), m_it_CurLine->GetCurPos());
+								m_it_CurLine->SetString(NewStr);
 								m_it_CurLine->SetCurPos(LocalCurPos + static_cast<int>(strReplaceStrCurrent.size()));
 
 								if (EdOpt.SearchSelFound && !ReplaceMode)
@@ -4139,7 +4115,7 @@ void Editor::Paste(const wchar_t *Src)
 					PrevLine->SetEOL(keep_eol);
 				else
 				{
-					PrevLine->SetEOL(string(Src+I, eol_len).data());
+					PrevLine->SetEOL(string(Src+I, eol_len));
 				}
 
 				I += eol_len;
@@ -4163,12 +4139,10 @@ void Editor::Paste(const wchar_t *Src)
 
 				if (Pos>I)
 				{
-					const wchar_t *Str;
-					size_t Length, CurPos;
-					m_it_CurLine->GetBinaryString(&Str,nullptr,Length);
-					CurPos=m_it_CurLine->GetCurPos();
-					AddUndoData(UNDO_EDIT, Str, m_it_CurLine->GetEOL(), m_it_CurLine.Number(), static_cast<int>(CurPos), Length); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
-					m_it_CurLine->InsertBinaryString(Src + I,Pos-I);
+					const auto& Str = m_it_CurLine->GetString();
+					const auto CurPos = m_it_CurLine->GetCurPos();
+					AddUndoData(UNDO_EDIT, Str, m_it_CurLine->GetEOL(), m_it_CurLine.Number(), static_cast<int>(CurPos)); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
+					m_it_CurLine->InsertString(Src + I,Pos-I);
 					Change(ECTYPE_CHANGED, m_it_CurLine.Number());
 				}
 
@@ -4218,19 +4192,23 @@ string Editor::Block2Text(const wchar_t* InitData, size_t size)
 {
 	size_t TotalChars = size;
 
-	FOR(const auto& i, make_range(m_it_AnyBlockStart.base(), Lines.end()))
+	iterator SelEnd = m_it_AnyBlockStart;
+
+	for (iterator i = m_it_AnyBlockStart.base(), end = Lines.end(); i != end; ++i)
 	{
-		intptr_t StartSel, EndSel;
-		i.GetSelection(StartSel, EndSel);
-		if (StartSel == -1)
+		if (!i->IsSelection())
+		{
+			SelEnd = i;
 			break;
+		}
+
+		intptr_t StartSel, EndSel;
+		i->GetSelection(StartSel, EndSel);
+
 		if (EndSel == -1)
 		{
-			// BUGBUG, don't use i.GetLength() here: Ptr->Str may contain \0
-			//TotalChars += i.GetLength() - StartSel;
-			TotalChars += wcslen(i.m_Str.data() + StartSel);
-			TotalChars += wcslen(i.GetEOL()); // CRLF/CRCRLF/...
-
+			TotalChars += i->GetLength() - StartSel;
+			TotalChars += wcslen(NullToEmpty(i->GetEOL()));
 		}
 		else
 			TotalChars += EndSel - StartSel;
@@ -4244,25 +4222,12 @@ string Editor::Block2Text(const wchar_t* InitData, size_t size)
 		CopyData.assign(InitData, size);
 	}
 
-	FOR(const auto& i, make_range(m_it_AnyBlockStart.base(), Lines.end()))
+	FOR(const auto& i, make_range(m_it_AnyBlockStart.base(), SelEnd))
 	{
+		CopyData += i.GetSelString();
+
 		intptr_t StartSel, EndSel;
 		i.GetSelection(StartSel, EndSel);
-		if (StartSel==-1)
-			break;
-
-		int Length;
-		if (EndSel == -1)
-			// BUGBUG, don't use i.GetLength() here: i.Str may contain \0
-			//Length = i.GetLength() - StartSel;
-			Length = StrLength(i.m_Str.data() + StartSel);
-		else
-			Length = EndSel - StartSel;
-
-		string tmp;
-		i.GetSelString(tmp, Length);
-		CopyData +=tmp;
-
 		if (EndSel == -1)
 		{
 			CopyData += i.GetEOL();
@@ -4317,24 +4282,21 @@ void Editor::DeleteBlock()
 		size_t Length = CurPtr->GetLength();
 
 		if (StartSel || EndSel)
-			AddUndoData(UNDO_EDIT, CurPtr->GetStringAddr(), CurPtr->GetEOL(), m_it_AnyBlockStart.Number(), CurPtr->GetCurPos(), CurPtr->GetLength());
+			AddUndoData(UNDO_EDIT, CurPtr->GetString(), CurPtr->GetEOL(), m_it_AnyBlockStart.Number(), CurPtr->GetCurPos());
 
 		/* $ 17.09.2002 SKV
 		  опять про выделение за концом строки.
-		  InsertBinaryString добавит trailing space'ов
+		  InsertString добавит trailing space'ов
 		*/
 		if (StartSel > static_cast<intptr_t>(Length))
 		{
 			Length=StartSel;
 			CurPtr->SetCurPos(static_cast<int>(Length));
-			CurPtr->InsertBinaryString(L"",0);
+			CurPtr->InsertString(L"",0);
 		}
 
-		const wchar_t *CurStr,*EndSeq;
-
-		CurPtr->GetBinaryString(&CurStr,&EndSeq,Length);
-
-		string TmpStr(CurStr, Length);
+		string TmpStr(CurPtr->GetString());
+		string EndSeq = CurPtr->GetEOL();
 
 		int DeleteNext=FALSE;
 
@@ -4363,21 +4325,21 @@ void Editor::DeleteBlock()
 			const auto NextLine = std::next(CurPtr);
 			NextLine->GetSelection(NextStartSel,NextEndSel);
 
-			if (NextStartSel==-1)
-				NextEndSel=0;
+			if (NextStartSel == -1)
+			{
+				NextEndSel = 0;
+			}
 
-			if (NextEndSel==-1)
-				EndSel=-1;
+			if (NextEndSel == -1)
+			{
+				EndSel = -1;
+			}
 			else
 			{
-				size_t NextLength;
-				const wchar_t *NextStr, *NextEndSeq;
-				NextLine->GetBinaryString(&NextStr, &NextEndSeq, NextLength);
-				NextLength-=NextEndSel;
-
-				if (NextLength>0)
+				const auto& NextStr = NextLine->GetString();
+				if (NextStr.size() > static_cast<size_t>(NextEndSel))
 				{
-					TmpStr.append(NextStr + NextEndSel, NextLength);
+					TmpStr.append(NextStr.cbegin() + NextEndSel, NextStr.cend());
 				}
 			}
 
@@ -4395,7 +4357,7 @@ void Editor::DeleteBlock()
 		}
 
 		TmpStr+=EndSeq;
-		CurPtr->SetBinaryString(TmpStr.data(), static_cast<int>(TmpStr.size()));
+		CurPtr->SetString(TmpStr);
 
 		CurPtr->SetCurPos(CurPos);
 		if (StartSel || EndSel)
@@ -4409,7 +4371,7 @@ void Editor::DeleteBlock()
 		}
 		else
 		{
-			CurPtr->Select(-1,0);
+			CurPtr->RemoveSelection();
 			++CurPtr;
 		}
 	}
@@ -4454,7 +4416,7 @@ void Editor::UnmarkBlock()
 				break;
 		}
 
-		m_it_AnyBlockStart->Select(-1,0);
+		m_it_AnyBlockStart->RemoveSelection();
 		++m_it_AnyBlockStart;
 	}
 
@@ -4694,13 +4656,13 @@ private:
 public:
 	static size_t GetUndoDataSize() { return UndoDataSize; }
 
-	EditorUndoData(int Type, const wchar_t *Str, const wchar_t *Eol, int StrNum, int StrPos, size_t Length) :
+	EditorUndoData(int Type, const string& Str, const wchar_t *Eol, int StrNum, int StrPos):
 		m_Type(),
 		m_StrPos(),
 		m_StrNum(),
 		m_EOL()
 	{
-		SetData(Type, Str, Eol, StrNum, StrPos, Length);
+		SetData(Type, Str, Eol, StrNum, StrPos);
 	}
 
 	~EditorUndoData()
@@ -4730,15 +4692,15 @@ public:
 		m_BM.swap(rhs.m_BM);
 	}
 
-	void SetData(int Type, const wchar_t *Str, const wchar_t *Eol, int StrNum, int StrPos, size_t Length)
+	void SetData(int Type, const string& Str, const wchar_t *Eol, int StrNum, int StrPos)
 	{
 		m_Type = Type;
 		m_StrPos = StrPos;
 		m_StrNum = StrNum;
 		UndoDataSize -= m_Str.size();
-		UndoDataSize += Length;
+		UndoDataSize += Str.size();
 		xwcsncpy(m_EOL, Eol ? Eol : L"", ARRAYSIZE(m_EOL) - 1);
-		m_Str.assign(Str, Str + Length);
+		m_Str.assign(ALL_CONST_RANGE(Str));
 		m_BM.clear();
 	}
 
@@ -4752,7 +4714,7 @@ public:
 
 size_t Editor::EditorUndoData::UndoDataSize = 0;
 
-void Editor::AddUndoData(int Type, const wchar_t *Str, const wchar_t *Eol, int StrNum, int StrPos, size_t Length)
+void Editor::AddUndoData(int Type, const string& Str, const wchar_t *Eol, int StrNum, int StrPos)
 {
 	if (m_Flags.Check(FEDITOR_DISABLEUNDO))
 		return;
@@ -4818,7 +4780,7 @@ void Editor::AddUndoData(int Type, const wchar_t *Str, const wchar_t *Eol, int S
 	}
 
 	m_Flags.Clear(FEDITOR_NEWUNDO);
-	UndoData.emplace_back(VALUE_TYPE(UndoData)(Type,Str,Eol,StrNum,StrPos,Length));
+	UndoData.emplace_back(VALUE_TYPE(UndoData)(Type,Str,Eol,StrNum,StrPos));
 	UndoPos=UndoData.end();
 	--UndoPos;
 
@@ -4912,7 +4874,7 @@ void Editor::Undo(int redo)
 		switch (ud->m_Type)
 		{
 			case UNDO_INSSTR:
-				ud->SetData(UNDO_DELSTR,m_it_CurLine->GetStringAddr(),m_it_CurLine->GetEOL(),ud->m_StrNum,ud->m_StrPos,m_it_CurLine->GetLength());
+				ud->SetData(UNDO_DELSTR,m_it_CurLine->GetString(),m_it_CurLine->GetEOL(),ud->m_StrNum,ud->m_StrPos);
 				DeleteString(m_it_CurLine, true);
 				break;
 			case UNDO_DELSTR:
@@ -4935,21 +4897,22 @@ void Editor::Undo(int redo)
 
 				MoveSavedSessionBookmarksBack(ud->m_BM);
 
-				m_it_CurLine->SetString(ud->m_Str.data(), static_cast<int>(ud->m_Str.size()));
-				m_it_CurLine->SetEOL(ud->m_EOL); // необходимо дополнительно выставлять, т.к. SetString вызывает Edit::SetBinaryString и... дальше по тексту
+				m_it_CurLine->SetString(ud->m_Str.data(), ud->m_Str.size());
+				m_it_CurLine->SetEOL(ud->m_EOL); // необходимо дополнительно выставлять, т.к. SetString вызывает Edit::SetString и... дальше по тексту
 				Change(ECTYPE_CHANGED, m_it_CurLine.Number());
 
 				break;
 			case UNDO_EDIT:
 			{
-				EditorUndoData tmp(UNDO_EDIT,m_it_CurLine->GetStringAddr(),m_it_CurLine->GetEOL(),ud->m_StrNum,ud->m_StrPos,m_it_CurLine->GetLength());
+				EditorUndoData tmp(UNDO_EDIT, m_it_CurLine->GetString(), m_it_CurLine->GetEOL(), ud->m_StrNum, ud->m_StrPos);
 
-				m_it_CurLine->SetString(ud->m_Str.data(), static_cast<int>(ud->m_Str.size()));
-				m_it_CurLine->SetEOL(ud->m_EOL); // необходимо дополнительно выставлять, т.к. SetString вызывает Edit::SetBinaryString и... дальше по тексту
+				m_it_CurLine->SetString(ud->m_Str.data(), ud->m_Str.size());
+				m_it_CurLine->SetEOL(ud->m_EOL); // необходимо дополнительно выставлять, т.к. SetString вызывает Edit::SetString и... дальше по тексту
 				Change(ECTYPE_CHANGED, m_it_CurLine.Number());
 
 				m_it_CurLine->SetCurPos(ud->m_StrPos);
-				ud->SetData(tmp.m_Type, tmp.m_Str.data(), tmp.m_EOL, tmp.m_StrNum, tmp.m_StrPos, tmp.m_Str.size());
+				// BUGBUG
+				ud->SetData(tmp.m_Type, string(ALL_CONST_RANGE(tmp.m_Str)), tmp.m_EOL, tmp.m_StrNum, tmp.m_StrPos);
 				break;
 			}
 		}
@@ -5026,7 +4989,8 @@ int64_t Editor::GetCurPos(bool file_pos, bool add_bom) const
 			if (add_bom)
 				bom += 3;
 		}
-		else {
+		else
+		{
 			string cp_name;
 			UINT cp_maxlen = 0;
 			std::tie(cp_maxlen, cp_name) = GetCodePageInfo(m_codepage);
@@ -5037,13 +5001,13 @@ int64_t Editor::GetCurPos(bool file_pos, bool add_bom) const
 
 	while (CurPtr!=m_it_TopScreen)
 	{
-		const wchar_t *SaveStr,*EndSeq;
-		size_t Length;
-		CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
-		if (mult > 0)
-			TotalSize += Length + wcslen(EndSeq);
-		else
-			TotalSize -= unicode::to(m_codepage, SaveStr, Length, nullptr, 0) + wcslen(EndSeq);
+		const auto& SaveStr = CurPtr->GetString();
+		const auto EndSeq = CurPtr->GetEOL();
+		TotalSize += mult > 0? SaveStr.size() : unicode::to(m_codepage, SaveStr.data(), SaveStr.size(), nullptr, 0);
+		if (EndSeq)
+		{
+			TotalSize += wcslen(EndSeq);
+		}
 		++CurPtr;
 	}
 
@@ -5087,32 +5051,36 @@ void Editor::BlockLeft()
 		if (StartSel==-1)
 			break;
 
-		size_t Length=CurPtr->GetLength();
 		string TmpStr;
-		const wchar_t *CurStr,*EndSeq;
-		CurPtr->GetBinaryString(&CurStr,&EndSeq,Length);
+		const auto& CurStr = CurPtr->GetString();
+		const auto EndSeq = CurPtr->GetEOL();
 
-		if (*CurStr==L' ')
-			TmpStr.assign(CurStr + 1, Length - 1);
-		else if (*CurStr==L'\t')
+		if (!CurStr.empty())
 		{
-			TmpStr.assign(EdOpt.TabSize - 1, L' ');
-			TmpStr.append(CurStr + 1, Length - 1);
-		}
+			if (CurStr.front() == L' ')
+			{
+				TmpStr = CurStr.substr(1);
+			}
+			else if (CurStr.front() == L'\t')
+			{
+				TmpStr.assign(EdOpt.TabSize - 1, L' ');
+				TmpStr += CurStr.substr(1);
+			}
 
-		if ((EndSel==-1 || EndSel>StartSel) && IsSpace(*CurStr))
-		{
-			TmpStr.append(EndSeq);
-			AddUndoData(UNDO_EDIT, CurStr, CurPtr->GetEOL(), CurPtr.Number(), 0, CurPtr->GetLength()); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
-			int CurPos=CurPtr->GetCurPos();
-			CurPtr->SetBinaryString(TmpStr.data(), TmpStr.size());
-			CurPtr->SetCurPos(CurPos>0 ? CurPos-1:CurPos);
+			if ((EndSel == -1 || EndSel > StartSel) && IsSpace(CurStr.front()))
+			{
+				TmpStr.append(EndSeq);
+				AddUndoData(UNDO_EDIT, CurStr, CurPtr->GetEOL(), CurPtr.Number(), 0); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
+				int CurPos = CurPtr->GetCurPos();
+				CurPtr->SetString(TmpStr);
+				CurPtr->SetCurPos(CurPos > 0? CurPos - 1 : CurPos);
 
-			if (!MoveLine)
-				CurPtr->Select(StartSel>0 ? StartSel-1:StartSel,EndSel>0 ? EndSel-1:EndSel);
+				if (!MoveLine)
+					CurPtr->Select(StartSel > 0? StartSel - 1 : StartSel, EndSel > 0? EndSel - 1 : EndSel);
 
-			Change(ECTYPE_CHANGED, CurPtr.Number());
-			TextChanged(1);
+				Change(ECTYPE_CHANGED, CurPtr.Number());
+				TextChanged(1);
+			}
 		}
 		++CurPtr;
 		MoveLine = 0;
@@ -5162,16 +5130,16 @@ void Editor::BlockRight()
 
 		if (Length && (EndSel == -1 || EndSel > StartSel))
 		{
-			const wchar_t *CurStr, *EndSeq;
-			CurPtr->GetBinaryString(&CurStr, &EndSeq, Length);
+			const auto& CurStr = CurPtr->GetString();
+			const auto EndSeq = CurPtr->GetEOL();
 			string TmpStr(1, L' ');
-			TmpStr.append(CurStr, Length);
+			TmpStr += CurStr;
 			TmpStr += EndSeq;
 
-			AddUndoData(UNDO_EDIT, CurStr, CurPtr->GetEOL(), CurPtr.Number(), 0, CurPtr->GetLength()); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
+			AddUndoData(UNDO_EDIT, CurStr, CurPtr->GetEOL(), CurPtr.Number(), 0); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
 			int CurPos=CurPtr->GetCurPos();
 
-			CurPtr->SetBinaryString(TmpStr.data(), TmpStr.size());
+			CurPtr->SetString(TmpStr);
 
 			CurPtr->SetCurPos(CurPos+1);
 
@@ -5225,24 +5193,22 @@ void Editor::DeleteVBlock()
 		TextChanged(1);
 		size_t TBlockX = CurPtr->TabPosToReal(VBlockX);
 		size_t TBlockSizeX=CurPtr->TabPosToReal(VBlockX+VBlockSizeX) - CurPtr->TabPosToReal(VBlockX);
-		const wchar_t *CurStr,*EndSeq;
-		size_t Length;
-		CurPtr->GetBinaryString(&CurStr,&EndSeq,Length);
+		const auto& CurStr = CurPtr->GetString();
 
-		if (TBlockX>=Length)
+		if (TBlockX >= CurStr.size())
 			continue;
 
-		AddUndoData(UNDO_EDIT, CurPtr->GetStringAddr(), CurPtr->GetEOL(), CurPtr.Number(), CurPtr->GetCurPos(), CurPtr->GetLength());
+		AddUndoData(UNDO_EDIT, CurPtr->GetString(), CurPtr->GetEOL(), CurPtr.Number(), CurPtr->GetCurPos());
 		string TmpStr(CurStr, TBlockX);
 
-		if (Length>TBlockX+TBlockSizeX)
+		if (CurStr.size() > TBlockX + TBlockSizeX)
 		{
-			TmpStr.append(CurStr + TBlockX + TBlockSizeX, Length-(TBlockX+TBlockSizeX));
+			TmpStr.append(CurStr.cbegin() + TBlockX + TBlockSizeX, CurStr.cend());
 		}
 
-		TmpStr.append(EndSeq);
+		TmpStr.append(CurPtr->GetEOL());
 		size_t CurPos = CurPtr->GetCurPos();
-		CurPtr->SetBinaryString(TmpStr.data(), TmpStr.size());
+		CurPtr->SetString(TmpStr);
 
 		if (CurPos>TBlockX)
 		{
@@ -5299,18 +5265,16 @@ string Editor::VBlock2Text(const wchar_t* InitData, size_t size)
 	{
 		size_t TBlockX = CurPtr->TabPosToReal(VBlockX);
 		size_t TBlockSizeX = CurPtr->TabPosToReal(VBlockX + VBlockSizeX) - TBlockX;
-		const wchar_t *CurStr,*EndSeq;
-		size_t Length;
-		CurPtr->GetBinaryString(&CurStr,&EndSeq,Length);
+		const auto& CurStr = CurPtr->GetString();
 
-		if (Length>TBlockX)
+		if (CurStr.size() > TBlockX)
 		{
-			size_t CopySize = Length - TBlockX;
+			size_t CopySize = CurStr.size() - TBlockX;
 
 			if (CopySize>TBlockSizeX)
 				CopySize=TBlockSizeX;
 
-			CopyData.append(CurStr+TBlockX, CopySize);
+			CopyData.append(CurStr.data() + TBlockX, CopySize);
 
 			if (CopySize<TBlockSizeX)
 				CopyData.append(TBlockSizeX-CopySize, L' ');
@@ -5426,26 +5390,26 @@ void Editor::VBlockShift(int Left)
 		TextChanged(1);
 		size_t TBlockX = CurPtr->TabPosToReal(VBlockX);
 		size_t TBlockSizeX = CurPtr->TabPosToReal(VBlockX + VBlockSizeX) - CurPtr->TabPosToReal(VBlockX);
-		const wchar_t *CurStr,*EndSeq;
-		size_t Length;
-		CurPtr->GetBinaryString(&CurStr,&EndSeq,Length);
-
-		if (TBlockX>Length)
-			continue;
-
-		if ((Left && CurStr[TBlockX-1]==L'\t') ||
-		        (!Left && TBlockX+TBlockSizeX<Length && CurStr[TBlockX+TBlockSizeX]==L'\t'))
 		{
-			CurPtr->ReplaceTabs();
-			CurPtr->GetBinaryString(&CurStr,&EndSeq,Length);
-			TBlockX=CurPtr->TabPosToReal(VBlockX);
-			TBlockSizeX=CurPtr->TabPosToReal(VBlockX+VBlockSizeX)-
-			            CurPtr->TabPosToReal(VBlockX);
+			const auto& CurStr = CurPtr->GetString();
+
+			if (TBlockX > CurStr.size())
+				continue;
+
+			if ((Left && CurStr[TBlockX - 1] == L'\t') || (!Left && TBlockX + TBlockSizeX < CurStr.size() && CurStr[TBlockX + TBlockSizeX] == L'\t'))
+			{
+				CurPtr->ReplaceTabs();
+				TBlockX = CurPtr->TabPosToReal(VBlockX);
+				TBlockSizeX = CurPtr->TabPosToReal(VBlockX + VBlockSizeX) -
+					CurPtr->TabPosToReal(VBlockX);
+			}
 		}
 
-		AddUndoData(UNDO_EDIT, CurPtr->GetStringAddr(), CurPtr->GetEOL(), CurPtr.Number(), CurPtr->GetCurPos(), CurPtr->GetLength());
-		string TmpStr(CurStr, Length);
-		TmpStr.append(std::max(Length,TBlockX+TBlockSizeX+!Left) - Length, L' ');
+		AddUndoData(UNDO_EDIT, CurPtr->GetString(), CurPtr->GetEOL(), CurPtr.Number(), CurPtr->GetCurPos());
+
+		const auto& CurStr = CurPtr->GetString();
+		auto TmpStr = CurStr;
+		TmpStr.append(std::max(CurStr.size(), TBlockX + TBlockSizeX + !Left) - CurStr.size(), L' ');
 
 		if (Left)
 		{
@@ -5461,8 +5425,8 @@ void Editor::VBlockShift(int Left)
 		while (!TmpStr.empty() && TmpStr.back() == L' ')
 			TmpStr.pop_back();
 
-		TmpStr += EndSeq;
-		CurPtr->SetBinaryString(TmpStr.data(), TmpStr.size());
+		TmpStr += CurPtr->GetEOL();
+		CurPtr->SetString(TmpStr);
 		Change(ECTYPE_CHANGED, CurPtr.Number());
 	}
 
@@ -5493,11 +5457,10 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					return FALSE;
 				}
 
-				size_t StrSize;
-				CurPtr->GetBinaryString(const_cast<const wchar_t **>(&GetString->StringText),
-				                        const_cast<const wchar_t **>(&GetString->StringEOL),
-				                        StrSize);
-				GetString->StringLength = StrSize;
+				const auto& Str = CurPtr->GetString();
+				GetString->StringText = Str.data();
+				GetString->StringEOL = CurPtr->GetEOL();
+				GetString->StringLength = Str.size();
 				GetString->SelStart=-1;
 				GetString->SelEnd=0;
 				int DestLine=GetString->StringNumber;
@@ -5647,9 +5610,9 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				string NewStr(SetString->StringText, Length);
 				NewStr.append(EOL);
 
-				AddUndoData(UNDO_EDIT,CurPtr->GetStringAddr(),CurPtr->GetEOL(),DestLine,CurPtr->GetCurPos(),CurPtr->GetLength());
+				AddUndoData(UNDO_EDIT, CurPtr->GetString(), CurPtr->GetEOL(), DestLine, CurPtr->GetCurPos());
 				int CurPos=CurPtr->GetCurPos();
-				CurPtr->SetBinaryString(NewStr.data(), NewStr.size());
+				CurPtr->SetString(NewStr);
 				CurPtr->SetCurPos(CurPos);
 				Change(ECTYPE_CHANGED,DestLine);
 				TextChanged(1);    // 10.08.2000 skv - Modified->TextChanged
@@ -5964,7 +5927,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					return FALSE;
 				}
 
-				AddUndoData(UNDO_EDIT,CurPtr->GetStringAddr(),CurPtr->GetEOL(),StringNumber,CurPtr->GetCurPos(),CurPtr->GetLength());
+				AddUndoData(UNDO_EDIT, CurPtr->GetString(), CurPtr->GetEOL(), StringNumber, CurPtr->GetCurPos());
 				if(CurPtr->ReplaceTabs()) Change(ECTYPE_CHANGED,StringNumber);
 			}
 
@@ -6755,15 +6718,12 @@ void Editor::Xlat()
 		{
 			size_t TBlockX = CurPtr->TabPosToReal(VBlockX);
 			size_t TBlockSizeX = CurPtr->TabPosToReal(VBlockX + VBlockSizeX) - CurPtr->TabPosToReal(VBlockX);
-			const wchar_t *CurStr,*EndSeq;
-			size_t Length;
-			CurPtr->GetBinaryString(&CurStr,&EndSeq,Length);
-			size_t CopySize = Length - TBlockX;
+			size_t CopySize = CurPtr->GetLength() - TBlockX;
 
 			if (CopySize>TBlockSizeX)
 				CopySize=TBlockSizeX;
 
-			AddUndoData(UNDO_EDIT, CurPtr->GetStringAddr(), CurPtr->GetEOL(), CurPtr.Number(), m_it_CurLine->GetCurPos(), CurPtr->GetLength());
+			AddUndoData(UNDO_EDIT, CurPtr->GetString(), CurPtr->GetEOL(), CurPtr.Number(), m_it_CurLine->GetCurPos());
 			XLatStr(CurPtr->m_Str, static_cast<int>(TBlockX), static_cast<int>(TBlockX + CopySize));
 			Change(ECTYPE_CHANGED, CurPtr.Number());
 		}
@@ -6790,7 +6750,7 @@ void Editor::Xlat()
 				if (EndSel == -1)
 					EndSel=CurPtr->GetLength();//StrLength(CurPtr->Str);
 
-				AddUndoData(UNDO_EDIT, CurPtr->GetStringAddr(), CurPtr->GetEOL(), CurPtr.Number(), m_it_CurLine->GetCurPos(), CurPtr->GetLength());
+				AddUndoData(UNDO_EDIT, CurPtr->GetString(), CurPtr->GetEOL(), CurPtr.Number(), m_it_CurLine->GetCurPos());
 				XLatStr(CurPtr->m_Str, StartSel, EndSel);
 				Change(ECTYPE_CHANGED, CurPtr.Number());
 				++CurPtr;
@@ -6825,7 +6785,7 @@ void Editor::Xlat()
 				while (end<StrSize && !IsWordDiv(Global->Opt->XLat.strWordDivForXlat,Str[end]))
 					end++;
 
-				AddUndoData(UNDO_EDIT, m_it_CurLine->GetStringAddr(), m_it_CurLine->GetEOL(), m_it_CurLine.Number(), start, m_it_CurLine->GetLength());
+				AddUndoData(UNDO_EDIT, m_it_CurLine->GetString(), m_it_CurLine->GetEOL(), m_it_CurLine.Number(), start);
 				XLatStr(Str, start, end);
 				Change(ECTYPE_CHANGED, m_it_CurLine.Number());
 			}
@@ -7017,7 +6977,7 @@ Editor::numbered_iterator Editor::InsertString(const wchar_t *lpwszStr, int nLen
 	NewLine->SetPersistentBlocks(EdOpt.PersistentBlocks);
 
 	if (lpwszStr)
-		NewLine->SetBinaryString(lpwszStr, nLength);
+		NewLine->SetString(lpwszStr, nLength);
 
 	NewLine->SetCurPos(0);
 	NewLine->SetEditorMode(true);
@@ -7064,13 +7024,22 @@ void Editor::SetCacheParams(EditorPosCache &pc, bool count_bom)
 
 		while (!IsLastLine(CurPtr))
 		{
-			const wchar_t *SaveStr,*EndSeq;
-			size_t Length;
-			CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
-			if (m_codepage == CP_UTF8)
-				Length = unicode::to(CP_UTF8, SaveStr, Length, nullptr, 0);
+			const auto& SaveStr = CurPtr->GetString();
+			const auto EndSeq = CurPtr->GetEOL();
 
-			TotalSize += Length + StrLength(EndSeq);
+			if (m_codepage == CP_UTF8)
+			{
+				TotalSize += unicode::to(CP_UTF8, SaveStr.data(), SaveStr.size(), nullptr, 0);
+			}
+			else
+			{
+				TotalSize += SaveStr.size();
+			}
+			
+			if (EndSeq)
+			{
+				TotalSize += wcslen(EndSeq);
+			}
 
 			if (static_cast<int>(TotalSize) > StartChar)
 				break;
@@ -7409,9 +7378,9 @@ Editor::numbered_iterator Editor::EndIterator()
 	return numbered_iterator(Lines.end(), m_LinesCount);
 }
 
-Editor::numbered_line_iterator Editor::EndIterator() const
+Editor::numbered_const_iterator Editor::EndIterator() const
 {
-	return numbered_line_iterator(Lines.end(), m_LinesCount);
+	return numbered_const_iterator(Lines.end(), m_LinesCount);
 }
 
 Editor::numbered_iterator Editor::FirstLine()
@@ -7419,9 +7388,9 @@ Editor::numbered_iterator Editor::FirstLine()
 	return numbered_iterator(Lines.begin(), 0);
 }
 
-Editor::numbered_line_iterator Editor::FirstLine() const
+Editor::numbered_const_iterator Editor::FirstLine() const
 {
-	return numbered_line_iterator(Lines.begin(), 0);
+	return numbered_const_iterator(Lines.begin(), 0);
 }
 
 Editor::numbered_iterator Editor::LastLine()
@@ -7429,7 +7398,7 @@ Editor::numbered_iterator Editor::LastLine()
 	return std::prev(EndIterator());
 }
 
-Editor::numbered_line_iterator Editor::LastLine() const
+Editor::numbered_const_iterator Editor::LastLine() const
 {
 	return std::prev(EndIterator());
 }

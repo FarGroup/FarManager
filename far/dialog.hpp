@@ -92,8 +92,6 @@ struct DialogItemEx: public FarDialogItem, swapable<DialogItemEx>
 	void *ObjPtr;
 	vmenu_ptr ListPtr;
 	class DlgUserControl *UCData;
-	intptr_t SelStart;
-	intptr_t SelEnd;
 
 	DialogItemEx();
 	DialogItemEx(const DialogItemEx& rhs);
@@ -265,7 +263,7 @@ private:
 	*/
 	void ChangeFocus2(size_t SetFocusPos);
 	size_t ChangeFocus(size_t FocusPos,int Step,int SkipGroup) const;
-	BOOL SelectFromEditHistory(const DialogItemEx *CurItem,DlgEdit *EditLine,const string& HistoryName,string &strStr);
+	BOOL SelectFromEditHistory(const DialogItemEx *CurItem, DlgEdit *EditLine, const string& HistoryName);
 	int SelectFromComboBox(DialogItemEx *CurItem,DlgEdit*EditLine,VMenu *List);
 	int AddToEditHistory(const DialogItemEx* CurItem, const string& AddStr) const;
 	void ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex);  // обработка DIF_USELASTHISTORY
