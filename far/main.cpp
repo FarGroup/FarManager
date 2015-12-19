@@ -678,10 +678,17 @@ static int mainImpl(const range<wchar_t**>& Args)
 					break;
 
 				case L'R':
-					if (ToUpper(Arg[2]) == L'O') // -ro
-						Global->Opt->ReadOnlyConfig = TRUE;
-					if (ToUpper(Arg[2]) == L'W') // -rw
-						Global->Opt->ReadOnlyConfig = FALSE;
+					if (ToUpper(Arg[2]) == L'O')
+					{
+						if (!Arg[3]) // -ro
+						{
+							Global->Opt->ReadOnlyConfig = TRUE;
+						}
+						else if (Arg[3] == L'-') // -ro-
+						{
+							Global->Opt->ReadOnlyConfig = FALSE;
+						}
+					}
 					break;
 			}
 		}
