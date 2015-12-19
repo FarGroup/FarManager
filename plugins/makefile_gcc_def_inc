@@ -19,11 +19,11 @@
 #
 #USERRC - user defined switches for windres
 #
-#NEEDENTRY - set if you want to disable the -nostartfiles link flag
+#NOENTRY - set if you want to use the -nostartfiles link flag
 #
-#NEEDDEFLIB - set if you want to disable the -nodefaultlibs link flag
+#NODEFLIB - set if you want to use the -nodefaultlibs link flag
 #
-#EXCLUDECRT - set if you do not want to link with common/crt lib.
+#INCLUDECRT - set if you want to link with common/crt lib.
 #
 #SRCS - a list of the *.cpp source files.
 #
@@ -84,17 +84,17 @@ endif
 RC_NAME ?= $(NAME)
 RES = $(OBJDIR)/$(NAME).res.o
 
-NOSTART = $(if $(NEEDENTRY),,-nostartfiles)
-NODEFLIBS = $(if $(NEEDDEFLIB),,-nodefaultlibs)
+NOSTART = $(if $(NOENTRY),-nostartfiles,)
+NODEFLIBS = $(if $(NODEFLIB),-nodefaultlibs,)
 
-ifdef EXCLUDECRT
-COMMONLIB = 
-else
+ifdef INCLUDECRT
 ifeq ($(DIRBIT),32)
 COMMONLIB = -L $(COMMON) -lCRT
 else
 COMMONLIB = -L $(COMMON) -lCRT64
 endif
+else
+COMMONLIB = 
 endif
 
 C_FLAGS  := -m$(DIRBIT) -Wall -funsigned-char $(C_DEBUG) -fstrict-aliasing -fno-exceptions

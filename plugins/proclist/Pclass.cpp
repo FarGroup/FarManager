@@ -1,5 +1,4 @@
-#define _CRT_NON_CONFORMING_WCSTOK
-#include <wchar.h>
+#include <cwchar>
 #include "Proclist.hpp"
 #include "perfthread.hpp"
 #include "Proclng.hpp"

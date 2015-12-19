@@ -3,7 +3,7 @@
 // This plugin can change case to: lower case, Title Case, UPPER CASE and tOGGLE cASE
 // Besides, it has ability of cyclic case change like MS Word by ShiftF3
 #include <algorithm>
-#include <wchar.h>
+#include <cwchar>
 #include <plugin.hpp>
 #include <PluginSettings.hpp>
 #include "EditLng.hpp"

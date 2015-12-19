@@ -1,6 +1,5 @@
 #ifndef __NETCFG_HPP__
 #define __NETCFG_HPP__
-#include <CRT/crt.hpp>
 
 extern const wchar_t *StrAddToDisksMenu;
 extern const wchar_t *StrAddToPluginsMenu;

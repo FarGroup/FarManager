@@ -12,9 +12,6 @@ FARDIR=..\..\unicode_far
 DOCS=luasdk\$(DIRBIT)\lua$(LUA_VER).dll luasdk\$(DIRBIT)\$(LUA_PROXY) \
      luasdk\$(DIRBIT)\lpeg.dll
 
-NEEDENTRY = 1
-NEEDDEFLIB = 1
-EXCLUDECRT=1
 GEN_IMPLIB=1
 
 RC_NAME=luafar\$(NAME)

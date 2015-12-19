@@ -1,4 +1,3 @@
-#include <CRT/crt.hpp>
 #include "NetFavorites.hpp"
 #include "NetCommon.hpp"
 

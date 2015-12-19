@@ -1,4 +1,5 @@
-#include <CRT/crt.hpp>
+#include <algorithm>
+#include <cwchar>
 #include <plugin.hpp>
 #include <PluginSettings.hpp>
 #include <SimpleString.hpp>
@@ -10,28 +11,6 @@
 #define GetCheck(i) (int)Info.SendDlgMessage(hDlg,DM_GETCHECK,i,0)
 #define GetDataPtr(i) ((const wchar_t *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,i,0))
 #define CheckDisabled(i) (!((int)Info.SendDlgMessage(hDlg,DM_ENABLE,i,(void *)-1)))
-
-/****************************************************************************
- * Нужны для отключения генерации startup-кода при компиляции под GCC
- ****************************************************************************/
-#if defined(__GNUC__)
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-	BOOL WINAPI DllMainCRTStartup(HANDLE hDll, DWORD dwReason, LPVOID lpReserved);
-#ifdef __cplusplus
-};
-#endif
-
-BOOL WINAPI DllMainCRTStartup(HANDLE hDll, DWORD dwReason, LPVOID lpReserved)
-{
-	(void) lpReserved;
-	(void) dwReason;
-	(void) hDll;
-	return TRUE;
-}
-#endif
 
 /****************************************************************************
  * Текущие настройки плагина
@@ -145,7 +124,7 @@ static int SplitCopy(
 	while (i < nitems)
 	{
 		items[i] = (i > 0 ? new wchar_t[iTruncLen + 1] : name1);
-		int nw = Min(iLen, iTruncLen);
+		int nw = std::min(iLen, iTruncLen);
 		wmemcpy(items[i], cpName, nw);
 		wmemset(items[i]+nw, L' ', iTruncLen-nw);
 		items[i][iTruncLen] = L'\0';
@@ -786,7 +765,7 @@ static bool CompareFiles(const PluginPanelItem *AData, const PluginPanelItem *PD
 				} Precision, Difference, TimeDelta, temp;
 				Precision.hilo.hi = 0;
 				Precision.hilo.lo = Opt.LowPrecisionTime ? 20000000 : 0; //2s or 0s
-				Difference.num = _i64(9000000000); //15m
+				Difference.num = 9000000000ll; //15m
 
 				if (AData->LastWriteTime.dwHighDateTime > PData->LastWriteTime.dwHighDateTime)
 				{
@@ -801,8 +780,8 @@ static bool CompareFiles(const PluginPanelItem *AData, const PluginPanelItem *PD
 					if (AData->LastWriteTime.dwHighDateTime == PData->LastWriteTime.dwHighDateTime)
 					{
 						TimeDelta.hilo.hi = 0;
-						TimeDelta.hilo.lo = Max(PData->LastWriteTime.dwLowDateTime,AData->LastWriteTime.dwLowDateTime)-
-						                    Min(PData->LastWriteTime.dwLowDateTime,AData->LastWriteTime.dwLowDateTime);
+						TimeDelta.hilo.lo = std::max(PData->LastWriteTime.dwLowDateTime,AData->LastWriteTime.dwLowDateTime)-
+						                    std::min(PData->LastWriteTime.dwLowDateTime,AData->LastWriteTime.dwLowDateTime);
 					}
 					else
 					{
@@ -835,7 +814,7 @@ static bool CompareFiles(const PluginPanelItem *AData, const PluginPanelItem *PD
 					if (counter<=26*4 && TimeDelta.hilo.hi == Difference.hilo.hi)
 					{
 						TimeDelta.hilo.hi = 0;
-						TimeDelta.hilo.lo = Max(TimeDelta.hilo.lo,Difference.hilo.lo) - Min(TimeDelta.hilo.lo,Difference.hilo.lo);
+						TimeDelta.hilo.lo = std::max(TimeDelta.hilo.lo,Difference.hilo.lo) - std::min(TimeDelta.hilo.lo,Difference.hilo.lo);
 					}
 				}
 

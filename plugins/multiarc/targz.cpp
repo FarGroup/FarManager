@@ -10,59 +10,11 @@
 //#define USE_TAR_H
 
 
-#include <CRT/crt.hpp>
 #include <windows.h>
 #include <string.h>
 #include <dos.h>
 #include <plugin.hpp>
 #include "fmt.hpp"
-
-#if defined(__BORLANDC__)
-  #pragma option -a1
-#elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
-  #pragma pack(1)
-  #if defined(__LCC__)
-    #define _export __declspec(dllexport)
-  #endif
-#else
-  #pragma pack(push,1)
-  #if _MSC_VER
-    #define _export
-  #endif
-#endif
-
-#if defined(__GNUC__)
-#ifdef __cplusplus
-extern "C"{
-#endif
-  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
-#ifdef __cplusplus
-};
-#endif
-
-BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
-{
-  (void) lpReserved;
-  (void) dwReason;
-  (void) hDll;
-  return TRUE;
-}
-#endif
-
-/*
-#ifdef _MSC_VER
-#if _MSC_VER < 1310
-#pragma comment(linker, "/ignore:4078")
-#pragma comment(linker, "-subsystem:console")
-#pragma comment(linker, "-merge:.rdata=.text")
-
-#endif
-#endif
-*/
-
-unsigned __int64 __cdecl _strtoui64 (const char *nptr,char **endptr,int ibase);
-static unsigned __int64 __cdecl _strtoxq (const char *nptr,const char **endptr,int ibase,int flags);
-__int64 __cdecl _strtoi64(const char *nptr,char **endptr,int ibase);
 
 #if defined(USE_TAR_H)
 #include "tar.h"
@@ -183,11 +135,11 @@ void  WINAPI _export SetFarInfo(const struct PluginStartupInfo *Info)
 }
 
 // Number of 100 nanosecond units from 01.01.1601 to 01.01.1970
-#define EPOCH_BIAS    _i64(116444736000000000)
+#define EPOCH_BIAS    116444736000000000ll
 
 void WINAPI UnixTimeToFileTime( DWORD time, FILETIME * ft )
 {
-  *(__int64*)ft = EPOCH_BIAS + (__int64)time * _i64(10000000);
+  *(__int64*)ft = EPOCH_BIAS + (__int64)time * 10000000ll;
 }
 
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
@@ -422,10 +374,10 @@ int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
 
     FAR_INT64 PrevPosition=NextPosition;
     // for LNKTYPE - only sizeof(TAR_hdr)
-    NextPosition.i64+=(__int64)sizeof(TAR_hdr)+(TAR_hdr.header.typeflag == LNKTYPE?_i64(0):TarItemSize.i64);
+    NextPosition.i64+=(__int64)sizeof(TAR_hdr)+(TAR_hdr.header.typeflag == LNKTYPE? 0 : TarItemSize.i64);
 
-    if (NextPosition.i64 & _i64(511))
-      NextPosition.i64+=_i64(512)-(NextPosition.i64 & _i64(511));
+    if (NextPosition.i64 & 511ll)
+      NextPosition.i64+=512ll-(NextPosition.i64 & 511ll);
 
     if (PrevPosition.i64 >= NextPosition.i64)
       return(GETARC_BROKEN);
@@ -679,200 +631,3 @@ static __int64 Oct2Size (const char *where0, size_t digs0)
 out_of_range:
   return -1;
 }
-
-//#if _MSC_VER < 1310
-
-// strtoq.c
-
-/***
-*strtoi64, strtoui64(nptr,endptr,ibase) - Convert ascii string to __int64 un/signed
-*    int.
-*
-*Purpose:
-*    Convert an ascii string to a 64-bit __int64 value.  The base
-*    used for the caculations is supplied by the caller.  The base
-*    must be in the range 0, 2-36.  If a base of 0 is supplied, the
-*    ascii string must be examined to determine the base of the
-*    number:
-*        (a) First char = '0', second char = 'x' or 'X',
-*            use base 16.
-*        (b) First char = '0', use base 8
-*        (c) First char in range '1' - '9', use base 10.
-*
-*    If the 'endptr' value is non-NULL, then strtoq/strtouq places
-*    a pointer to the terminating character in this value.
-*    See ANSI standard for details
-*
-*Entry:
-*    nptr == NEAR/FAR pointer to the start of string.
-*    endptr == NEAR/FAR pointer to the end of the string.
-*    ibase == integer base to use for the calculations.
-*
-*    string format: [whitespace] [sign] [0] [x] [digits/letters]
-*
-*Exit:
-*    Good return:
-*        result
-*
-*    Overflow return:
-*        strtoi64 -- _I64_MAX or _I64_MIN
-*        strtoui64 -- _UI64_MAX
-*        strtoi64/strtoui64 -- errno == ERANGE
-*
-*    No digits or bad base return:
-*        0
-*        endptr = nptr*
-*
-*Exceptions:
-*    None.
-*******************************************************************************/
-
-static unsigned __int64 __cdecl _strtoxq (const char *nptr,const char **endptr,int ibase,int flags)
-{
-/* flag values */
-#define FL_UNSIGNED   1       /* strtouq called */
-#define FL_NEG        2       /* negative sign found */
-#define FL_OVERFLOW   4       /* overflow occured */
-#define FL_READDIGIT  8       /* we've read at least one correct digit */
-#undef _UI64_MAX
-#define _UI64_MAX     _ui64(0xFFFFFFFFFFFFFFFF)
-#define _UI64_MAXDIV8 _ui64(0x1FFFFFFFFFFFFFFF)
-#undef _I64_MIN
-#define _I64_MIN    (_i64(-9223372036854775807) - 1)
-#undef _I64_MAX
-#define _I64_MAX      _i64(9223372036854775807)
-
-    const char *p;
-    char c;
-    unsigned __int64 number;
-    unsigned digval;
-    unsigned __int64 maxval;
-
-    p = nptr;            /* p is our scanning pointer */
-    number = 0;            /* start with zero */
-
-    c = *p++;            /* read char */
-    while (c == 0x09 || c == 0x0D || c == 0x20)
-        c = *p++;        /* skip whitespace */
-
-    if (c == '-') {
-        flags |= FL_NEG;    /* remember minus sign */
-        c = *p++;
-    }
-    else if (c == '+')
-        c = *p++;        /* skip sign */
-
-    if (ibase < 0 || ibase == 1 || ibase > 36) {
-        /* bad base! */
-        if (endptr)
-            /* store beginning of string in endptr */
-            *endptr = nptr;
-        return 0L;        /* return 0 */
-    }
-    else if (ibase == 0) {
-        /* determine base free-lance, based on first two chars of
-           string */
-        if (c != '0')
-            ibase = 10;
-        else if (*p == 'x' || *p == 'X')
-            ibase = 16;
-        else
-            ibase = 8;
-    }
-
-    if (ibase == 16) {
-        /* we might have 0x in front of number; remove if there */
-        if (c == '0' && (*p == 'x' || *p == 'X')) {
-            ++p;
-            c = *p++;    /* advance past prefix */
-        }
-    }
-
-    /* if our number exceeds this, we will overflow on multiply */
-#ifdef _MSC_VER
-#if _MSC_VER >= 1310
-    maxval = (unsigned __int64)0x1FFFFFFFFFFFFFFFi64; // hack for VC.2003 = _UI64_MAX/8 :-)
-#else
-    maxval = _UI64_MAX / (unsigned __int64)ibase;
-#endif
-#else
-    maxval = _UI64_MAX / (unsigned __int64)ibase;
-#endif
-
-    for (;;) {    /* exit in middle of loop */
-        /* convert c to value */
-        if ( (BYTE)c >= '0' && (BYTE)c <= '9' )
-            digval = c - '0';
-        else if ( (BYTE)c >= 'A' && (BYTE)c <= 'Z')
-            digval = c - 'A' + 10;
-        else if ((BYTE)c >= 'a' && (BYTE)c <= 'z')
-            digval = c - 'a' + 10;
-        else
-            break;
-        if (digval >= (unsigned)ibase)
-            break;        /* exit loop if bad digit found */
-
-        /* record the fact we have read one digit */
-        flags |= FL_READDIGIT;
-
-        /* we now need to compute number = number * base + digval,
-           but we need to know if overflow occured.  This requires
-           a tricky pre-check. */
-
-        if (number < maxval || (number == maxval &&
-        (unsigned __int64)digval <= _UI64_MAX % (unsigned __int64)ibase)) {
-            /* we won't overflow, go ahead and multiply */
-            number = number * (unsigned __int64)ibase + (unsigned __int64)digval;
-        }
-        else {
-            /* we would have overflowed -- set the overflow flag */
-            flags |= FL_OVERFLOW;
-        }
-
-        c = *p++;        /* read next digit */
-    }
-
-    --p;                /* point to place that stopped scan */
-
-    if (!(flags & FL_READDIGIT)) {
-        /* no number there; return 0 and point to beginning of
-           string */
-        if (endptr)
-            /* store beginning of string in endptr later on */
-            p = nptr;
-        number = _i64(0);        /* return 0 */
-    }
-    else if ( (flags & FL_OVERFLOW) ||
-              ( !(flags & FL_UNSIGNED) &&
-                ( ( (flags & FL_NEG) && (number > 0-(unsigned __int64)_I64_MIN) ) ||
-                  ( !(flags & FL_NEG) && (number > _I64_MAX) ) ) ) )
-    {
-        /* overflow or signed overflow occurred */
-//        errno = ERANGE;
-        if ( flags & FL_UNSIGNED )
-            number = _UI64_MAX;
-        else if ( flags & FL_NEG )
-            number = _I64_MIN;
-        else
-            number = _I64_MAX;
-    }
-    if (endptr != NULL)
-        /* store pointer to char that stopped the scan */
-        *endptr = p;
-
-    if (flags & FL_NEG)
-        /* negate result if there was a neg sign */
-        number = (unsigned __int64)(-(__int64)number);
-
-    return number;            /* done. */
-}
-
-__int64 __cdecl _strtoi64(const char *nptr,char **endptr,int ibase)
-{
-    return (__int64) _strtoxq(nptr, (const char **)endptr, ibase, 0);
-}
-unsigned __int64 __cdecl _strtoui64 (const char *nptr,char **endptr,int ibase)
-{
-    return _strtoxq(nptr, (const char **)endptr, ibase, FL_UNSIGNED);
-}
-//#endif

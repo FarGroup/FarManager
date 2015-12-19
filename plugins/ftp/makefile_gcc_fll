@@ -12,9 +12,6 @@ SRCDIR = lib/$(FLL)
 
 include $(SRCDIR)/makefile_gcc.inc
 
-NEEDDEFLIB=1
-NEEDENTRY=1
-EXCLUDECRT=1
 DISABLEAUTODEPS = 1
 
 USERCPP = -I $(SRCDIR) -I ./lib -I ./FStdLib -D__USE_TRAPLOGER__=1 -Wno-unknown-pragmas

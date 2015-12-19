@@ -5,7 +5,6 @@ Temporary panel miscellaneous utility functions
 
 */
 
-#include <CRT/crt.hpp>
 #include "plugin.hpp"
 
 #include "TmpPanel.hpp"
@@ -42,7 +41,7 @@ wchar_t *ParseParam(wchar_t *& str)
 	if (*p==L'|')
 	{
 		parm=++p;
-		p=_tcschr(p,L'|');
+		p=wcschr(p,L'|');
 
 		if (p)
 		{
@@ -211,7 +210,7 @@ bool FindListFile(const wchar_t *FileName, StrBuf &output)
 
 	ExpandEnvStrs(L"%FARHOME%;%PATH%",Path);
 
-	for (wchar_t *str=Path, *p=_tcschr(Path,L';'); *str; p=_tcschr(str,L';'))
+	for (wchar_t *str=Path, *p=wcschr(Path,L';'); *str; p=wcschr(str,L';'))
 	{
 		if (p)
 			*p = 0;

@@ -1,3 +1,9 @@
+drkns 19.12.2015 13:23:26 +0200
+
+1. NEEDENTRY -> !NOENTRY
+   NEEDDEFLIB -> !NODEFLIB
+   EXCLUDECRT -> !INCLUDECRT
+
 w17 05.10.2013 11:57:54 +0400
 
 1. makefile_all_vc clean: fix (from CyberShadow)

@@ -5,7 +5,6 @@ Temporary panel main plugin code
 
 */
 
-#include <CRT/crt.hpp>
 #include "plugin.hpp"
 #include <shellapi.h>
 #include <PluginSettings.hpp>
@@ -25,26 +24,6 @@ struct PluginStartupInfo Info;
 struct FarStandardFunctions FSF;
 
 PluginPanels CommonPanels[COMMONPANELSNUMBER];
-
-#if defined(__GNUC__)
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-	BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
-#ifdef __cplusplus
-};
-#endif
-
-BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
-{
-	(void) lpReserved;
-	(void) dwReason;
-	(void) hDll;
-	return TRUE;
-}
-#endif
 
 static void ProcessList(HANDLE hPlugin, wchar_t *Name, int Mode);
 static void ShowMenuFromList(wchar_t *Name);

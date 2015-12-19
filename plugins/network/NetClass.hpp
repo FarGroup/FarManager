@@ -6,7 +6,6 @@
 #pragma warning(disable : 4121)
 #endif // _MSC_VER
 
-#include <CRT/crt.hpp>
 #include <plugin.hpp>
 #ifdef NETWORK_LOGGING
 #include <stdio.h>

@@ -1,7 +1,6 @@
 #ifndef __MULTIARC_HPP__
 #define __MULTIARC_HPP__
 
-#include <CRT/crt.hpp>
 #include <plugin.hpp>
 #include "fmt.hpp"
 

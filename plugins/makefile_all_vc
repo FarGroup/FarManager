@@ -51,7 +51,7 @@ VC=10
 !include ./makefile_vc_base
 
 ##########################
-all:    libcrt $(OUTPATH) $(ALLDIRS)
+all:    $(OUTPATH) $(ALLDIRS)
 
 !ifdef __MAKE__
 .PHONY: libcrt $(OUTPATH) $(ALLDIRS) clean
@@ -109,13 +109,7 @@ $(ALLDIRS): $(FICTIVE) $(OUTPATH)
 fdir=..\unicode_far\$(_ODF_).$(DIRBIT).vc
 adir=%d\$(_ODN_).$(DIRBIT).vc
 wdir=%d\$(_ODN_).$(DIRBIT)W.vc
-cdir=Common\CRT\obj.$(DIRBIT).vc
 pdir=multiarc\libpcre\obj.$(DIRBIT).vc
-!if "$(DIRBIT)" == "32"
-clib=Common\libCRT.lib
-!else
-clib=Common\libCRT$(DIRBIT).lib
-!endif
 
 clean:
 	@if exist $(fdir)\lua*.* echo del $(fdir)\lua*.*& del /q $(fdir)\lua*.* 1>nul

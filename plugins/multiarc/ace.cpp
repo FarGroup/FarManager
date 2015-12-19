@@ -7,7 +7,6 @@
   Copyrigth (c) 2000 FAR group
 */
 
-#include <CRT/crt.hpp>
 #include <windows.h>
 #include <string.h>
 #include <dos.h>
@@ -16,50 +15,6 @@
 #include <memory.h>
 #include <plugin.hpp>
 #include "fmt.hpp"
-
-#if defined(__BORLANDC__)
-  #pragma option -a1
-#elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
-  #pragma pack(1)
-  #if defined(__LCC__)
-    #define _export __declspec(dllexport)
-  #endif
-#else
-  #pragma pack(push,1)
-  #if _MSC_VER
-    #define _export
-  #endif
-#endif
-
-#if defined(__GNUC__)
-#ifdef __cplusplus
-extern "C"{
-#endif
-  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
-#ifdef __cplusplus
-};
-#endif
-
-BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
-{
-  (void) lpReserved;
-  (void) dwReason;
-  (void) hDll;
-  return TRUE;
-}
-#endif
-
-/*
-#ifdef _MSC_VER
-#if _MSC_VER < 1310
-#pragma comment(linker, "/ignore:4078")
-#pragma comment(linker, "/merge:.data=.")
-#pragma comment(linker, "/merge:.rdata=.")
-#pragma comment(linker, "/merge:.text=.")
-#pragma comment(linker, "/section:.,RWE")
-#endif
-#endif
-*/
 
 //#define CALC_CRC
 

@@ -1,5 +1,4 @@
-#include <CRT/crt.hpp>
-#include <objbase.h>
+#include <cwchar>
 #include <shlobj.h>
 #include <plugin.hpp>
 #include <DlgBuilder.hpp>
@@ -10,26 +9,6 @@
 #include "version.hpp"
 #include <initguid.h>
 #include "guid.hpp"
-
-#if defined(__GNUC__)
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-	BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
-#ifdef __cplusplus
-};
-#endif
-
-BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
-{
-	(void) lpReserved;
-	(void) dwReason;
-	(void) hDll;
-	return TRUE;
-}
-#endif
 
 struct OptionsName OptName={
 	L"ShowCmdOutput",

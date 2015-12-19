@@ -5,7 +5,6 @@ Temporary panel configuration
 
 */
 
-#include <CRT/crt.hpp>
 #include "plugin.hpp"
 #include <shellapi.h>
 #include <PluginSettings.hpp>

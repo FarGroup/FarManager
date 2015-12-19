@@ -1,4 +1,4 @@
-#include <CRT/crt.hpp>
+#include <cwchar>
 #include <plugin.hpp>
 #include "DrawLng.hpp"
 #include "version.hpp"
@@ -6,26 +6,6 @@
 #include "guid.hpp"
 
 #define DRAWLINE_MULTIEDITSTYLE 1
-
-#if defined(__GNUC__)
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-	BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
-#ifdef __cplusplus
-};
-#endif
-
-BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
-{
-	(void) lpReserved;
-	(void) dwReason;
-	(void) hDll;
-	return TRUE;
-}
-#endif
 
 void ProcessShiftKey(int KeyCode,int LineWidth);
 void GetEnvType(wchar_t *NewString,intptr_t StringLength,struct EditorInfo *ei, int &LeftLine,int &UpLine,int &RightLine,int &DownLine);

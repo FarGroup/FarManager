@@ -12,37 +12,10 @@
 #include <windows.h>
 #include <string.h>
 #include <dos.h>
-#include <CRT/crt.hpp>
 #include <plugin.hpp>
 #include "fmt.hpp"
 #include "marclng.hpp"
 #include "unrar.h"
-
-#if defined(__BORLANDC__)
-  #pragma option -a1
-#elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
-  #pragma pack(1)
-#else
-  #pragma pack(push,1)
-#endif
-
-#if defined(__GNUC__)
-#ifdef __cplusplus
-extern "C"{
-#endif
-  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
-#ifdef __cplusplus
-};
-#endif
-
-BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
-{
-  (void) lpReserved;
-  (void) dwReason;
-  (void) hDll;
-  return TRUE;
-}
-#endif
 
 #define  LHD_LARGE          0x0100
 #define  LHD_UNICODE        0x0200

@@ -5,10 +5,6 @@ LINK_OBJS = $(OBJDIR)\EditCase.obj
 
 DOCS = ECaseEng.hlf ECaseRus.hlf ECaseEng.lng ECaseRus.lng ECaseSky.lng ECaseSpa.lng
 
-NEEDENTRY = 1
-NEEDDEFLIB = 1
-EXCLUDECRT = 1
-
 !include ..\makefile_vc_def_inc
 
 !include ..\makefile_vc_target_inc

@@ -14,10 +14,6 @@ DOCS = ProcEng.hlf ProcRus.hlf ProcEng.lng ProcRus.lng
 
 USERCPP = /I".\WMI" -D"_WIN32_DCOM"
 
-NEEDENTRY = 1
-NEEDDEFLIB = 1
-EXCLUDECRT = 1
-
 !include ..\makefile_vc_def_inc
 
 !include ..\makefile_vc_target_inc

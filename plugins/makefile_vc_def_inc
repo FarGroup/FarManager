@@ -39,11 +39,11 @@
 #
 #ULINK - set if you want to use ulink for linking
 #
-#NEEDENTRY - set if you want to disable the /noentry link flag
+#NOENTRY - set if you want to use the /noentry link flag
 #
-#NEEDDEFLIB - set if you want to disable the /nodefaultlib link flag
+#NODEFLIB - set if you want to use the /nodefaultlib link flag
 #
-#EXCLUDECRT - set if you do not want to link with common/crt lib.
+#INCLUDECRT - set if you want to link with common/crt lib.
 #
 #AMD64 - set for x64 build
 #  or
@@ -129,13 +129,10 @@ CPPFLAGS=$(CPPFLAGS) /Zi
 !endif
 
 !if "$(BUILD_PLATFORM)" == "AMD64"
-COMMONLIB = $(COMMON)\libCRT64.lib
 ULOUT=-Tpd+
 !elseif "$(BUILD_PLATFORM)" == "IA64"
-COMMONLIB = $(COMMON)\libCRTIA64.lib
 ULOUT=-Tpd+
 !else
-COMMONLIB = $(COMMON)\libCRT.lib
 !ifdef CPP_UNALIGN
 CPP_ALIGN=/Zp1
 !endif
@@ -143,8 +140,14 @@ CPPFLAGS=$(CPPFLAGS) $(CPP_ALIGN)
 ULOUT=-Tpd -Re
 !endif
 
-!ifdef EXCLUDECRT
-!undef COMMONLIB
+!ifdef INCLUDECRT
+!if "$(BUILD_PLATFORM)" == "AMD64"
+COMMONLIB = $(COMMON)\libCRT64.lib
+!elseif "$(BUILD_PLATFORM)" == "IA64"
+COMMONLIB = $(COMMON)\libCRTIA64.lib
+!else
+COMMONLIB = $(COMMON)\libCRT.lib
+!endif
 !endif
 
 LIBS = $(COMMONLIB) chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib Netapi32.lib version.lib oleaut32.lib wbemuuid.lib $(USERLIBS)
@@ -167,17 +170,17 @@ _LINK_PATH_=$(_BIN_PATH_)
 
 !ifndef ULINK
 LNK=$(_LINK_PATH_)link.exe
-!ifndef NEEDENTRY
-NOENTRY = /noentry
+!ifdef NOENTRY
+NOENTRY_FLAG = /noentry
 !endif
-!ifndef NEEDDEFLIB
-NODEFLIB = /nodefaultlib
+!ifdef NODEFLIB
+NODEFLIB_FLAG = /nodefaultlib
 !endif
 
 !if "$(BUILD_PLATFORM)" == "X86" && $(VC) < 11
 SUBSYSTEM=/subsystem:windows,5.0
 !endif
-LINK_FLAGS=$(SUBSYSTEM) /nologo /dll /release /dynamicbase /merge:.rdata=.text $(NOENTRY) $(NODEFLIB) $(ENV_LIB_OPT) $(DEFOPT) /map:"$(MAP)" /out:"$(DLLFULLNAME)"
+LINK_FLAGS=$(SUBSYSTEM) /nologo /dll /release /dynamicbase /merge:.rdata=.text $(NOENTRY_FLAG) $(NODEFLIB_FLAG) $(ENV_LIB_OPT) $(DEFOPT) /map:"$(MAP)" /out:"$(DLLFULLNAME)"
 !ifndef NO_RELEASE_PDB
 LINK_FLAGS=$(LINK_FLAGS) /debug
 !endif
@@ -186,11 +189,11 @@ LINK_FLAGS=$(LINK_FLAGS) /incremental:no /OPT:REF /OPT:ICF
 !endif
 !else
 LNK=$(_ULINK_PATH_)ulink.exe +-
-!ifndef NEEDENTRY
-NOENTRY = -e-
+!ifdef NOENTRY
+NOENTRY_FLAG = -e-
 !endif
-!ifndef NEEDDEFLIB
-NODEFLIB = -n
+!ifndef NODEFLIB
+NODEFLIB_FLAG = -n
 !endif
 !ifdef DEFFILE
 LINK_DEF_OPT=/ZD:"$(DEFFILE)"
@@ -198,7 +201,7 @@ LINK_DEF_OPT=/ZD:"$(DEFFILE)"
 !ifdef GEN_IMPLIB
 LINK_GEN_IMPLIB=-Gic
 !endif
-LINK_FLAGS=-q -V5.0 -W5.0 -b* $(ULOUT) $(ULN_DELAY) -Gz -m- -v -Gh -Gh- $(NOENTRY) $(NODEFLIB) $(LINK_DEF_OPT) /ZM:"$(MAP)" /ZO:"$(DLLFULLNAME)" $(LINK_GEN_IMPLIB) $(ENV_LIB_OPT)
+LINK_FLAGS=-q -V5.0 -W5.0 -b* $(ULOUT) $(ULN_DELAY) -Gz -m- -v -Gh -Gh- $(NOENTRY_FLAG) $(NODEFLIB_FLAG) $(LINK_DEF_OPT) /ZM:"$(MAP)" /ZO:"$(DLLFULLNAME)" $(LINK_GEN_IMPLIB) $(ENV_LIB_OPT)
 !endif
 
 !ifndef AS

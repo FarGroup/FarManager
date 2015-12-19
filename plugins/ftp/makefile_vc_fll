@@ -6,9 +6,6 @@
 #!endif
 
 ANSI=1
-NEEDDEFLIB=1
-NEEDENTRY=1
-EXCLUDECRT=1
 
 NAME = ftp$(FLL)
 EXT = fll

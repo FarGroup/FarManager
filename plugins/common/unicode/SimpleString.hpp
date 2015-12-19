@@ -1,4 +1,5 @@
 #pragma once
+#include <cwchar>
 
 #define __SIMPLE_STRING_USED
 

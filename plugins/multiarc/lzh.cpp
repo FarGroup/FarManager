@@ -7,57 +7,12 @@
   Copyrigth (c) 2000 FAR group
 */
 
-#include <CRT/crt.hpp>
 #include <windows.h>
 #include <string.h>
 #include <dos.h>
 #include <plugin.hpp>
 #include "fmt.hpp"
 
-
-#if defined(__BORLANDC__)
-  #pragma option -a1
-#elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
-  #pragma pack(1)
-  #if defined(__LCC__)
-    #define _export __declspec(dllexport)
-  #endif
-#else
-  #pragma pack(push,1)
-  #if _MSC_VER
-    #define _export
-  #endif
-#endif
-
-#if defined(__GNUC__)
-#ifdef __cplusplus
-extern "C"{
-#endif
-  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
-#ifdef __cplusplus
-};
-#endif
-
-BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
-{
-  (void) lpReserved;
-  (void) dwReason;
-  (void) hDll;
-  return TRUE;
-}
-#endif
-
-/*
-#ifdef _MSC_VER
-#if _MSC_VER < 1310
-#pragma comment(linker, "/ignore:4078")
-#pragma comment(linker, "/merge:.data=.")
-#pragma comment(linker, "/merge:.rdata=.")
-#pragma comment(linker, "/merge:.text=.")
-#pragma comment(linker, "/section:.,RWE")
-#endif
-#endif
-*/
 
 // OS ID - Host OS
 static struct OSIDType{
@@ -88,11 +43,11 @@ static HANDLE ArcHandle;
 static DWORD NextPosition,SFXSize,FileSize;
 
 // Number of 100 nanosecond units from 01.01.1601 to 01.01.1970
-#define EPOCH_BIAS    _i64(116444736000000000)
+#define EPOCH_BIAS    116444736000000000ll
 
 void WINAPI UnixTimeToFileTime( DWORD time, FILETIME * ft )
 {
-  *(__int64*)ft = EPOCH_BIAS + time * _i64(10000000);
+  *(__int64*)ft = EPOCH_BIAS + time * 10000000ll;
 }
 
 void  WINAPI _export SetFarInfo(const struct PluginStartupInfo *Info)

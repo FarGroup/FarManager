@@ -8,7 +8,6 @@
   Copyrigth (c) 2000 FAR group
 */
 
-#include <CRT/crt.hpp>
 #include <windows.h>
 #include <string.h>
 #include <dos.h>
@@ -19,45 +18,8 @@
 #include "pcre++.h"
 using namespace PCRE;
 
-#if defined(__BORLANDC__)
-    #pragma option -a1
-#elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
-    #pragma pack(1)
-    #if defined(__LCC__)
-        #define _export __declspec(dllexport)
-    #endif
-#else
-    #pragma pack(push,1)
-    #if _MSC_VER
-        #define _export
-    #endif
-#endif
-
-#if defined(__GNUC__)
-#ifdef __cplusplus
-extern "C"{
-#endif
-  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
-#ifdef __cplusplus
-};
-#endif
-
-BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
-{
-  (void) lpReserved;
-  (void) dwReason;
-  (void) hDll;
-  return TRUE;
-}
-#endif
-
 #undef isspace
 #define isspace(c) ((c)==' ' || (c)=='\t')
-
-#ifdef _MSC_VER
-//#pragma comment(linker, "-subsystem:console")
-//#pragma comment(linker, "-merge:.rdata=.text")
-#endif
 
 typedef union {
   __int64 i64;

@@ -1,10 +1,10 @@
 ALLDIRS = align autowrap brackets compare drawline editcase farcmds \
-          filecase hlfviewer luamacro network proclist tmppanel samefolder
+          filecase hlfviewer luamacro network proclist tmppanel samefolder\
 #ftp multiarc
 
-.PHONY: all clean libcrt $(ALLDIRS)
+.PHONY: all clean $(ALLDIRS)
 
-all clean: libcrt $(ALLDIRS)
+all clean: $(ALLDIRS)
 
 FICTIVE=_fictive_
 $(FICTIVE):

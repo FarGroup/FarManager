@@ -12,7 +12,6 @@
    td32 ma_emu archive.rar
 */
 
-#include <CRT/crt.hpp>
 #include <plugin.hpp>
 
 #ifndef __STDIO_H

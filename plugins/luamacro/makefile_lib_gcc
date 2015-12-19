@@ -32,10 +32,6 @@ endif
 USERLIBS = luasdk/$(DIRBIT)/lua$(LUAVER).dll -lrpcrt4
 USERCPP  = -Iluasdk/include -DBUILD_DLL -DWINVER=0x500 -DLUADLL=\"lua$(LUAVER).dll\"
 
-NEEDENTRY  = 1
-NEEDDEFLIB = 1
-EXCLUDECRT = 1
-
 RC_NAME = luafar/$(NAME)
 DEF_NAME = -
 

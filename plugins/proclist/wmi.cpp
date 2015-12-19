@@ -1,4 +1,3 @@
-#include <objbase.h>
 #include <wbemidl.h>
 #include "Proclist.hpp"
 #include "perfthread.hpp"

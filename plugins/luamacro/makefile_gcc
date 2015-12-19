@@ -19,10 +19,6 @@ USERCPP = -Iluasdk/include -DEXPORT_OPEN -DEXPORT_EXITFAR -DEXPORT_CONFIGURE \
           -DRUN_LUAFAR_INIT
 USERLIBS = $(LUALIB) luasdk/$(DIRBIT)/lua$(LUAVER).dll
 
-NEEDENTRY  = 1
-NEEDDEFLIB = 1
-EXCLUDECRT = 1
-
 DEF_NAME = -
 include ../makefile_gcc_def_inc
 

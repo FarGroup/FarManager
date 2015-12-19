@@ -1,27 +1,6 @@
-#include <CRT/crt.hpp>
 #include <initguid.h>
 #include "Network.hpp"
 #include "version.hpp"
-
-//-----------------------------------------------------------------------------
-#if defined(__GNUC__)
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-	BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
-#ifdef __cplusplus
-};
-#endif
-
-BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
-{
-	(void) hDll;
-	(void) dwReason;
-	(void) lpReserved;
-	return TRUE;
-}
-#endif
 
 void WINAPI GetGlobalInfoW(GlobalInfo *Info)
 {

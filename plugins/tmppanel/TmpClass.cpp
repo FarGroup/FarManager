@@ -6,7 +6,7 @@ Temporary panel plugin class implementation
 */
 
 
-#include <CRT/crt.hpp>
+#include <cwchar>
 #include "plugin.hpp"
 #include <shellapi.h>
 #include <PluginSettings.hpp>
@@ -461,7 +461,7 @@ void TmpPanel::UpdateItems(int ShowOwners,int ShowLinks)
 	{
 		HANDLE FindHandle;
 		const wchar_t *lpFullName = CurItem->FileName;
-		const wchar_t *lpSlash = _tcsrchr(lpFullName,L'\\');
+		const wchar_t *lpSlash = wcsrchr(lpFullName,L'\\');
 		int Length=lpSlash ? (int)(lpSlash-lpFullName+1):0;
 		int SameFolderItems=1;
 
@@ -475,7 +475,7 @@ void TmpPanel::UpdateItems(int ShowOwners,int ShowLinks)
 			for (size_t j=1; i+j<TmpItemsNumber; j++)
 			{
 				if (memcmp(lpFullName,CurItem[j].FileName,Length*sizeof(wchar_t))==0 &&
-				        _tcschr((const wchar_t*)CurItem[j].FileName+Length,L'\\')==NULL)
+				        wcschr((const wchar_t*)CurItem[j].FileName+Length,L'\\')==NULL)
 				{
 					SameFolderItems++;
 				}
@@ -552,7 +552,7 @@ void TmpPanel::UpdateItems(int ShowOwners,int ShowLinks)
 				}
 
 				if (FSF.GetFileOwner(NULL,CurItem->FileName,Owner,80))
-					CurItem->Owner=_tcsdup(Owner);
+					CurItem->Owner=wcsdup(Owner);
 			}
 
 			if (ShowLinks)
@@ -815,14 +815,14 @@ void TmpPanel::ProcessSaveListKey()
 
 	wchar_t ExtBuf [512];
 	lstrcpy(ExtBuf, Opt.Mask);
-	wchar_t *comma = _tcschr(ExtBuf, L',');
+	wchar_t *comma = wcschr(ExtBuf, L',');
 
 	if (comma)
 		*comma = L'\0';
 
-	wchar_t *ext = _tcschr(ExtBuf, L'.');
+	wchar_t *ext = wcschr(ExtBuf, L'.');
 
-	if (ext && !_tcschr(ext, L'*') && !_tcschr(ext, L'?'))
+	if (ext && !wcschr(ext, L'*') && !wcschr(ext, L'?'))
 	{
 		ListPath += ext;
 	}
