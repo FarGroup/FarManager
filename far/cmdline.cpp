@@ -172,9 +172,9 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 {
 	const wchar_t *PStr;
 	string strStr;
-	auto LocalKey = Key.FarKey();
+	auto LocalKey = Key;
 
-	if ((LocalKey==KEY_CTRLEND || LocalKey==KEY_RCTRLEND || LocalKey==KEY_CTRLNUMPAD1 || LocalKey==KEY_RCTRLNUMPAD1) && (CmdStr.GetCurPos()==CmdStr.GetLength()))
+	if ((LocalKey()==KEY_CTRLEND || LocalKey()==KEY_RCTRLEND || LocalKey()==KEY_CTRLNUMPAD1 || LocalKey()==KEY_RCTRLNUMPAD1) && (CmdStr.GetCurPos()==CmdStr.GetLength()))
 	{
 		if (LastCmdPartLength==-1)
 			CmdStr.GetString(strLastCmdStr);
@@ -199,14 +199,14 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 		return TRUE;
 	}
 
-	if (LocalKey == KEY_UP || LocalKey == KEY_NUMPAD8)
+	if (LocalKey() == KEY_UP || LocalKey() == KEY_NUMPAD8)
 	{
 		if (Global->CtrlObject->Cp()->LeftPanel->IsVisible() || Global->CtrlObject->Cp()->RightPanel->IsVisible())
 			return FALSE;
 
 		LocalKey=KEY_CTRLE;
 	}
-	else if (LocalKey == KEY_DOWN || LocalKey == KEY_NUMPAD2)
+	else if (LocalKey() == KEY_DOWN || LocalKey() == KEY_NUMPAD2)
 	{
 		if (Global->CtrlObject->Cp()->LeftPanel->IsVisible() || Global->CtrlObject->Cp()->RightPanel->IsVisible())
 			return FALSE;
@@ -217,7 +217,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 	// $ 25.03.2002 VVM + При погашенных панелях колесом крутим историю
 	if (!Global->CtrlObject->Cp()->LeftPanel->IsVisible() && !Global->CtrlObject->Cp()->RightPanel->IsVisible())
 	{
-		switch (LocalKey)
+		switch (LocalKey())
 		{
 			case KEY_MSWHEEL_UP:    LocalKey = KEY_CTRLE; break;
 			case KEY_MSWHEEL_DOWN:  LocalKey = KEY_CTRLX; break;
@@ -226,7 +226,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 		}
 	}
 
-	switch (LocalKey)
+	switch (LocalKey())
 	{
 		case KEY_CTRLE:
 		case KEY_RCTRLE:
@@ -238,7 +238,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 					CmdStr.GetString(m_CurCmdStr);
 				}
 
-				if (LocalKey == KEY_CTRLE || LocalKey == KEY_RCTRLE)
+				if (LocalKey() == KEY_CTRLE || LocalKey() == KEY_RCTRLE)
 				{
 					Global->CtrlObject->CmdHistory->GetPrev(strStr);
 				}
@@ -257,7 +257,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 
 		case KEY_ESC:
 
-			if (LocalKey == KEY_ESC)
+			if (LocalKey() == KEY_ESC)
 			{
 				// $ 24.09.2000 SVS - Если задано поведение по "Несохранению при Esc", то позицию в хистори не меняем и ставим в первое положение.
 				if (Global->Opt->CmdHistoryRule)
@@ -415,9 +415,9 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 
 
 			if (!ActivePanel->ProcessPluginEvent(FE_COMMAND, UNSAFE_CSTR(strStr)))
-				ExecString(strStr, false, LocalKey==KEY_SHIFTENTER||LocalKey==KEY_SHIFTNUMENTER, false, false,
-						LocalKey == KEY_CTRLALTENTER || LocalKey == KEY_RCTRLRALTENTER || LocalKey == KEY_CTRLRALTENTER || LocalKey == KEY_RCTRLALTENTER ||
-						LocalKey == KEY_CTRLALTNUMENTER || LocalKey == KEY_RCTRLRALTNUMENTER || LocalKey == KEY_CTRLRALTNUMENTER || LocalKey == KEY_RCTRLALTNUMENTER);
+				ExecString(strStr, false, LocalKey()==KEY_SHIFTENTER||LocalKey()==KEY_SHIFTNUMENTER, false, false,
+						LocalKey() == KEY_CTRLALTENTER || LocalKey() == KEY_RCTRLRALTENTER || LocalKey() == KEY_CTRLRALTENTER || LocalKey() == KEY_RCTRLALTENTER ||
+						LocalKey() == KEY_CTRLALTNUMENTER || LocalKey() == KEY_RCTRLRALTNUMENTER || LocalKey() == KEY_CTRLRALTNUMENTER || LocalKey() == KEY_RCTRLALTNUMENTER);
 		}
 		return TRUE;
 		case KEY_CTRLU:
@@ -472,23 +472,23 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 					KEY_END,        KEY_NUMPAD1
 				};
 
-				if (std::find(ALL_CONST_RANGE(UnmarkKeys), LocalKey) != std::cend(UnmarkKeys))
+				if (std::find(ALL_CONST_RANGE(UnmarkKeys), LocalKey()) != std::cend(UnmarkKeys))
 				{
 					CmdStr.Select(-1,0);
 				}
 			}
 
-			if (LocalKey == KEY_CTRLD || LocalKey == KEY_RCTRLD)
+			if (LocalKey() == KEY_CTRLD || LocalKey() == KEY_RCTRLD)
 				LocalKey=KEY_RIGHT;
 
-			if(LocalKey == KEY_CTRLSPACE || LocalKey == KEY_RCTRLSPACE)
+			if(LocalKey() == KEY_CTRLSPACE || LocalKey() == KEY_RCTRLSPACE)
 			{
 				SCOPED_ACTION(SetAutocomplete)(&CmdStr, true);
 				CmdStr.AutoComplete(true,false);
 				return TRUE;
 			}
 
-			if (!CmdStr.ProcessKey(Manager::Key(LocalKey)))
+			if (!CmdStr.ProcessKey(LocalKey))
 				return Global->CtrlObject->Desktop->ProcessKey(Key);
 
 			LastCmdPartLength=-1;

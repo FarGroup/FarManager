@@ -173,7 +173,7 @@ int FolderTree::GetTypeAndName(string &strType, string &strName)
 
 int FolderTree::ProcessKey(const Manager::Key& Key)
 {
-	auto LocalKey = Key.FarKey();
+	auto LocalKey = Key();
 	if (LocalKey>=KEY_ALT_BASE+0x01 && LocalKey<=KEY_ALT_BASE+65535)
 		LocalKey=ToLower(LocalKey-KEY_ALT_BASE);
 	else if (LocalKey>=KEY_RALT_BASE+0x01 && LocalKey<=KEY_RALT_BASE+65535)

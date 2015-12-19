@@ -621,7 +621,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		ChDisk->Run([&](const Manager::Key& RawKey)->int
 		{
-			auto Key = RawKey.FarKey();
+			auto Key = RawKey();
 			if(Key==KEY_NONE && NeedRefresh)
 			{
 				Key=KEY_CTRLR;
@@ -1298,7 +1298,7 @@ public:
 	virtual int GetType() const override { return windowtype_search; }
 	virtual int GetTypeAndName(string &, string &) override { return windowtype_search; }
 	virtual void ResizeConsole(void) override;
-	int KeyToProcess(void) const { return m_KeyToProcess; }
+	const Manager::Key& KeyToProcess(void) const { return m_KeyToProcess; }
 
 private:
 	void InitPositionAndSize(void);
@@ -1307,7 +1307,7 @@ private:
 	Panel* m_Owner;
 	int m_FirstKey;
 	std::unique_ptr<EditControl> m_FindEdit;
-	int m_KeyToProcess;
+	Manager::Key m_KeyToProcess;
 	virtual void DisplayObject(void) override;
 	virtual string GetTitle() const override { return string(); }
 	void ProcessName(const string& Src, string &strName);
@@ -1319,7 +1319,7 @@ Search::Search(private_tag, Panel* Owner, int FirstKey):
 	m_Owner(Owner),
 	m_FirstKey(FirstKey),
 	m_FindEdit(),
-	m_KeyToProcess(0)
+	m_KeyToProcess()
 {
 }
 
@@ -1361,11 +1361,11 @@ void Search::Process(void)
 
 int Search::ProcessKey(const Manager::Key& Key)
 {
-	auto LocalKey = Key.FarKey();
+	auto LocalKey = Key;
 	string strName;
 
 	// для вставки воспользуемся макродвижком...
-	if (LocalKey==KEY_CTRLV || LocalKey==KEY_RCTRLV || LocalKey==KEY_SHIFTINS || LocalKey==KEY_SHIFTNUMPAD0)
+	if (LocalKey()==KEY_CTRLV || LocalKey()==KEY_RCTRLV || LocalKey()==KEY_SHIFTINS || LocalKey()==KEY_SHIFTNUMPAD0)
 	{
 		string ClipText;
 		if (GetClipboard(ClipText))
@@ -1379,7 +1379,7 @@ int Search::ProcessKey(const Manager::Key& Key)
 
 		return TRUE;
 	}
-	else if (LocalKey == KEY_OP_XLAT)
+	else if (LocalKey() == KEY_OP_XLAT)
 	{
 		string strTempName;
 		m_FindEdit->Xlat();
@@ -1389,10 +1389,10 @@ int Search::ProcessKey(const Manager::Key& Key)
 		Redraw();
 		return TRUE;
 	}
-	else if (LocalKey == KEY_OP_PLAINTEXT)
+	else if (LocalKey() == KEY_OP_PLAINTEXT)
 	{
 		string strTempName;
-		m_FindEdit->ProcessKey(Manager::Key(LocalKey));
+		m_FindEdit->ProcessKey(LocalKey);
 		m_FindEdit->GetString(strTempName);
 		m_FindEdit->SetString(L"");
 		ProcessName(strTempName, strName);
@@ -1400,9 +1400,9 @@ int Search::ProcessKey(const Manager::Key& Key)
 		return TRUE;
 	}
 	else
-		LocalKey=_CorrectFastFindKbdLayout(Key.Event(),LocalKey);
+		LocalKey=_CorrectFastFindKbdLayout(Key.Event(),LocalKey());
 
-	if (LocalKey==KEY_ESC || LocalKey==KEY_F10)
+	if (LocalKey()==KEY_ESC || LocalKey()==KEY_F10)
 	{
 		m_KeyToProcess=KEY_NONE;
 		Close();
@@ -1410,20 +1410,20 @@ int Search::ProcessKey(const Manager::Key& Key)
 	}
 
 	// // _SVS(if (!FirstKey) SysLog(L"Panel::FastFind  Key=%s  %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(&rec)));
-	if (LocalKey>=KEY_ALT_BASE+0x01 && LocalKey<=KEY_ALT_BASE+65535)
-		LocalKey=ToLower(static_cast<WCHAR>(LocalKey-KEY_ALT_BASE));
-	else if (LocalKey>=KEY_RALT_BASE+0x01 && LocalKey<=KEY_RALT_BASE+65535)
-		LocalKey=ToLower(static_cast<WCHAR>(LocalKey-KEY_RALT_BASE));
+	if (LocalKey()>=KEY_ALT_BASE+0x01 && LocalKey()<=KEY_ALT_BASE+65535)
+		LocalKey=ToLower(static_cast<WCHAR>(LocalKey()-KEY_ALT_BASE));
+	else if (LocalKey()>=KEY_RALT_BASE+0x01 && LocalKey()<=KEY_RALT_BASE+65535)
+		LocalKey=ToLower(static_cast<WCHAR>(LocalKey()-KEY_RALT_BASE));
 
-	if (LocalKey>=KEY_ALTSHIFT_BASE+0x01 && LocalKey<=KEY_ALTSHIFT_BASE+65535)
-		LocalKey=ToLower(static_cast<WCHAR>(LocalKey-KEY_ALTSHIFT_BASE));
-	else if (LocalKey>=KEY_RALTSHIFT_BASE+0x01 && LocalKey<=KEY_RALTSHIFT_BASE+65535)
-		LocalKey=ToLower(static_cast<WCHAR>(LocalKey-KEY_RALTSHIFT_BASE));
+	if (LocalKey()>=KEY_ALTSHIFT_BASE+0x01 && LocalKey()<=KEY_ALTSHIFT_BASE+65535)
+		LocalKey=ToLower(static_cast<WCHAR>(LocalKey()-KEY_ALTSHIFT_BASE));
+	else if (LocalKey()>=KEY_RALTSHIFT_BASE+0x01 && LocalKey()<=KEY_RALTSHIFT_BASE+65535)
+		LocalKey=ToLower(static_cast<WCHAR>(LocalKey()-KEY_RALTSHIFT_BASE));
 
-	if (LocalKey==KEY_MULTIPLY)
+	if (LocalKey()==KEY_MULTIPLY)
 		LocalKey=L'*';
 
-	switch (LocalKey)
+	switch (LocalKey())
 	{
 		case KEY_F1:
 		{
@@ -1451,12 +1451,12 @@ int Search::ProcessKey(const Manager::Key& Key)
 			break;
 		default:
 
-			if ((LocalKey<32 || LocalKey>=65536) && LocalKey!=KEY_BS && LocalKey!=KEY_CTRLY && LocalKey!=KEY_RCTRLY &&
-			        LocalKey!=KEY_CTRLBS && LocalKey!=KEY_RCTRLBS && LocalKey!=KEY_ALT && LocalKey!=KEY_SHIFT &&
-			        LocalKey!=KEY_CTRL && LocalKey!=KEY_RALT && LocalKey!=KEY_RCTRL &&
-			        !(LocalKey==KEY_CTRLINS||LocalKey==KEY_CTRLNUMPAD0) && // KEY_RCTRLINS/NUMPAD0 passed to panels
-			        !(LocalKey==KEY_SHIFTINS||LocalKey==KEY_SHIFTNUMPAD0) &&
-			        !((LocalKey == KEY_KILLFOCUS || LocalKey == KEY_GOTFOCUS) && IsWindowsVistaOrGreater()) // Mantis #2903
+			if ((LocalKey()<32 || LocalKey()>=65536) && LocalKey()!=KEY_BS && LocalKey()!=KEY_CTRLY && LocalKey()!=KEY_RCTRLY &&
+			        LocalKey()!=KEY_CTRLBS && LocalKey()!=KEY_RCTRLBS && LocalKey()!=KEY_ALT && LocalKey()!=KEY_SHIFT &&
+			        LocalKey()!=KEY_CTRL && LocalKey()!=KEY_RALT && LocalKey()!=KEY_RCTRL &&
+			        !(LocalKey()==KEY_CTRLINS||LocalKey()==KEY_CTRLNUMPAD0) && // KEY_RCTRLINS/NUMPAD0 passed to panels
+			        !(LocalKey()==KEY_SHIFTINS||LocalKey()==KEY_SHIFTNUMPAD0) &&
+			        !((LocalKey() == KEY_KILLFOCUS || LocalKey() == KEY_GOTFOCUS) && IsWindowsVistaOrGreater()) // Mantis #2903
 			        )
 			{
 				m_KeyToProcess=LocalKey;
@@ -1466,7 +1466,7 @@ int Search::ProcessKey(const Manager::Key& Key)
 
 			string strLastName;
 			m_FindEdit->GetString(strLastName);
-			if (m_FindEdit->ProcessKey(Manager::Key(LocalKey)))
+			if (m_FindEdit->ProcessKey(LocalKey))
 			{
 				m_FindEdit->GetString(strName);
 
@@ -1572,7 +1572,7 @@ void Search::Close(void)
 void Panel::FastFind(int FirstKey)
 {
 	// // _SVS(CleverSysLog Clev(L"Panel::FastFind"));
-	int KeyToProcess=0;
+	Manager::Key KeyToProcess;
 	Global->WaitInFastFind++;
 	{
 		const auto search = Search::create(this, FirstKey);
@@ -1585,10 +1585,10 @@ void Panel::FastFind(int FirstKey)
 	Global->ScrBuf->Flush();
 
 	const auto TreePanel = dynamic_cast<TreeList*>(Parent()->ActivePanel());
-	if (TreePanel && (KeyToProcess == KEY_ENTER || KeyToProcess == KEY_NUMENTER))
+	if (TreePanel && (KeyToProcess() == KEY_ENTER || KeyToProcess() == KEY_NUMENTER))
 		TreePanel->ProcessEnter();
 	else
-		Parent()->ProcessKey(Manager::Key(KeyToProcess));
+		Parent()->ProcessKey(KeyToProcess);
 }
 
 void Panel::SetFocus()

@@ -132,6 +132,13 @@ Manager::Key& Manager::Key::operator=(unsigned int Key)
 	return *this;
 }
 
+Manager::Key& Manager::Key::operator&=(unsigned int Key)
+{
+	assert(m_EventFilled);
+	Fill(m_FarKey&Key);
+	return *this;
+}
+
 static int CASHook(const Manager::Key& key)
 {
 	if (key.IsEvent())
@@ -731,7 +738,7 @@ int Manager::ProcessKey(Key key)
 		/*** БЛОК ПРИВИЛЕГИРОВАННЫХ КЛАВИШ ! ***/
 		/***   КОТОРЫЕ НЕЛЬЗЯ НАМАКРОСИТЬ    ***/
 
-		switch (key.FarKey())
+		switch (key())
 		{
 			case KEY_ALT|KEY_NUMPAD0:
 			case KEY_RALT|KEY_NUMPAD0:
@@ -755,7 +762,7 @@ int Manager::ProcessKey(Key key)
 				return TRUE;
 			}
 
-			switch (key.FarKey())
+			switch (key())
 			{
 				case KEY_CTRLW:
 				case KEY_RCTRLW:
@@ -836,7 +843,7 @@ int Manager::ProcessKey(Key key)
 
 					if (m_currentWindow->GetCanLoseFocus())
 					{
-						SwitchWindow((key.FarKey()==KEY_CTRLTAB||key.FarKey()==KEY_RCTRLTAB)?NextWindow:PreviousWindow);
+						SwitchWindow((key()==KEY_CTRLTAB||key()==KEY_RCTRLTAB)?NextWindow:PreviousWindow);
 					}
 					else
 						break;

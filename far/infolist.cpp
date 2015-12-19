@@ -623,7 +623,7 @@ void InfoList::SelectShowMode()
 
 		ShowCode=ShowModeMenu->Run([&](const Manager::Key& RawKey)->int
 		{
-			const auto Key=RawKey.FarKey();
+			const auto Key=RawKey();
 			int KeyProcessed = 1;
 			switch (Key)
 			{
@@ -681,7 +681,7 @@ void InfoList::SelectShowMode()
 
 int InfoList::ProcessKey(const Manager::Key& Key)
 {
-	const auto LocalKey = Key.FarKey();
+	const auto LocalKey = Key();
 	if (!IsVisible())
 		return FALSE;
 

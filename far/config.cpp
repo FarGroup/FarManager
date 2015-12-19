@@ -435,7 +435,7 @@ void Options::MaskGroupsSettings()
 	{
 		MasksMenu->Run([&](const Manager::Key& RawKey)->int
 		{
-			const auto Key=RawKey.FarKey();
+			const auto Key=RawKey();
 			if(Filter)
 			{
 				if(Key == KEY_ESC || Key == KEY_F10 || Key == KEY_ENTER || Key == KEY_NUMENTER)
@@ -1023,7 +1023,7 @@ void Options::SetFilePanelModes()
 			ModeList->SetId(PanelViewModesId);
 			ModeNumber=ModeList->Run([&](const Manager::Key& RawKey)->int
 			{
-				const auto Key=RawKey.FarKey();
+				const auto Key=RawKey();
 				switch (Key)
 				{
 				case KEY_CTRLENTER:

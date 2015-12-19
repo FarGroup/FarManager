@@ -93,7 +93,7 @@ void ShowProcessList()
 
 		ProcList->Run([&](const Manager::Key& RawKey)->int
 		{
-			const auto Key=RawKey.FarKey();
+			const auto Key=RawKey();
 			int KeyProcessed = 1;
 			switch (Key)
 			{

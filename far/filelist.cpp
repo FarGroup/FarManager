@@ -960,7 +960,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 int FileList::ProcessKey(const Manager::Key& Key)
 {
-	auto LocalKey = Key.FarKey();
+	auto LocalKey = Key();
 	Global->Elevation->ResetApprove();
 
 	FileListItem *CurPtr=nullptr;
@@ -4645,7 +4645,7 @@ void FileList::SelectSortMode()
 
 		SortCode=SortModeMenu->Run([&](const Manager::Key& RawKey)->int
 		{
-			const auto Key=RawKey.FarKey();
+			const auto Key=RawKey();
 			bool KeyProcessed = false;
 
 			switch (Key)

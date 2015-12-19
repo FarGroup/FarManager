@@ -807,8 +807,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 int Editor::ProcessKey(const Manager::Key& Key)
 {
 	auto LocalKey = Key;
-	const auto LocalFarKey = Key.FarKey();
-	if (LocalFarKey==KEY_IDLE)
+	if (LocalKey()==KEY_IDLE)
 	{
 		if (Global->Opt->ViewerEditorClock && HostFileEditor && HostFileEditor->IsFullScreen() && Global->Opt->EdOpt.ShowTitleBar)
 			ShowTime(FALSE);
@@ -816,10 +815,10 @@ int Editor::ProcessKey(const Manager::Key& Key)
 		return TRUE;
 	}
 
-	if (LocalFarKey==KEY_NONE)
+	if (LocalKey()==KEY_NONE)
 		return TRUE;
 
-	switch (LocalFarKey)
+	switch (LocalKey())
 	{
 		case KEY_CTRLSHIFTUP:   case KEY_CTRLSHIFTNUMPAD8: LocalKey = KEY_SHIFTUP;   break;
 		case KEY_CTRLSHIFTDOWN:	case KEY_CTRLSHIFTNUMPAD2: LocalKey = KEY_SHIFTDOWN; break;
@@ -839,13 +838,13 @@ int Editor::ProcessKey(const Manager::Key& Key)
 	}
 
 	_KEYMACRO(CleverSysLog SL(L"Editor::ProcessKey()"));
-	_KEYMACRO(SysLog(L"Key=%s",_FARKEY_ToName(LocalFarKey)));
+	_KEYMACRO(SysLog(L"Key=%s",_FARKEY_ToName(LocalKey())));
 	int CurPos=m_it_CurLine->GetCurPos();
 	int CurVisPos=GetLineCurPos();
-	int isk = IsShiftKey(LocalFarKey);
-	int ick = (LocalFarKey==KEY_CTRLC || LocalFarKey==KEY_RCTRLC || LocalFarKey==KEY_CTRLINS || LocalFarKey==KEY_CTRLNUMPAD0 || LocalFarKey==KEY_RCTRLINS || LocalFarKey==KEY_RCTRLNUMPAD0);
-	int imk = ((unsigned int)LocalFarKey >= KEY_MACRO_BASE && (unsigned int)LocalFarKey <= KEY_MACRO_ENDBASE);
-	int ipk = ((unsigned int)LocalFarKey >= KEY_OP_BASE && (unsigned int)LocalFarKey <= KEY_OP_ENDBASE);
+	int isk = IsShiftKey(LocalKey());
+	int ick = (LocalKey()==KEY_CTRLC || LocalKey()==KEY_RCTRLC || LocalKey()==KEY_CTRLINS || LocalKey()==KEY_CTRLNUMPAD0 || LocalKey()==KEY_RCTRLINS || LocalKey()==KEY_RCTRLNUMPAD0);
+	int imk = ((unsigned int)LocalKey() >= KEY_MACRO_BASE && (unsigned int)LocalKey() <= KEY_MACRO_ENDBASE);
+	int ipk = ((unsigned int)LocalKey() >= KEY_OP_BASE && (unsigned int)LocalKey() <= KEY_OP_ENDBASE);
 
 	_SVS(SysLog(L"[%d] isk=%d",__LINE__,isk));
 
@@ -889,7 +888,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 					KEY_CTRLS,     KEY_RCTRLS,
 				};
 
-				if (std::find(ALL_CONST_RANGE(UnmarkKeys), LocalFarKey) != std::cend(UnmarkKeys))
+				if (std::find(ALL_CONST_RANGE(UnmarkKeys), LocalKey()) != std::cend(UnmarkKeys))
 				{
 					UnmarkBlock();
 				}
@@ -908,25 +907,25 @@ int Editor::ProcessKey(const Manager::Key& Key)
 		}
 	}
 
-	if (LocalFarKey==KEY_ALTD || LocalFarKey==KEY_RALTD)
+	if (LocalKey()==KEY_ALTD || LocalKey()==KEY_RALTD)
 		LocalKey=KEY_CTRLK;
 
 	// работа с закладками
-	if (LocalFarKey>=KEY_CTRL0 && LocalFarKey<=KEY_CTRL9)
-		return GotoBookmark(LocalFarKey-KEY_CTRL0);
+	if (LocalKey()>=KEY_CTRL0 && LocalKey()<=KEY_CTRL9)
+		return GotoBookmark(LocalKey()-KEY_CTRL0);
 
-	if (LocalFarKey>=KEY_CTRLSHIFT0 && LocalFarKey<=KEY_CTRLSHIFT9)
-		LocalKey=LocalFarKey-KEY_CTRLSHIFT0+KEY_RCTRL0;
+	if (LocalKey()>=KEY_CTRLSHIFT0 && LocalKey()<=KEY_CTRLSHIFT9)
+		LocalKey=LocalKey()-KEY_CTRLSHIFT0+KEY_RCTRL0;
 
-	if (LocalFarKey>=KEY_RCTRL0 && LocalFarKey<=KEY_RCTRL9)
-		return SetBookmark(LocalFarKey-KEY_RCTRL0);
+	if (LocalKey()>=KEY_RCTRL0 && LocalKey()<=KEY_RCTRL9)
+		return SetBookmark(LocalKey()-KEY_RCTRL0);
 
 	intptr_t SelStart=0,SelEnd=0;
 	int SelFirst=FALSE;
 	int SelAtBeginning=FALSE;
 	EditorBlockGuard _bg(*this,&Editor::UnmarkEmptyBlock);
 
-	switch (LocalFarKey)
+	switch (LocalKey())
 	{
 		case KEY_SHIFTLEFT:      case KEY_SHIFTRIGHT:
 		case KEY_SHIFTUP:        case KEY_SHIFTDOWN:
@@ -989,7 +988,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 		}
 	}
 
-	switch (LocalFarKey)
+	switch (LocalKey())
 	{
 		case KEY_CTRLSHIFTPGUP:   case KEY_CTRLSHIFTNUMPAD9:
 		case KEY_RCTRLSHIFTPGUP:  case KEY_RCTRLSHIFTNUMPAD9:
@@ -1004,7 +1003,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 				ProcessKey(Manager::Key(KEY_SHIFTPGUP));
 			}
 
-			if (LocalFarKey == KEY_CTRLSHIFTHOME || LocalFarKey == KEY_CTRLSHIFTNUMPAD7 || LocalFarKey == KEY_RCTRLSHIFTHOME || LocalFarKey == KEY_RCTRLSHIFTNUMPAD7)
+			if (LocalKey() == KEY_CTRLSHIFTHOME || LocalKey() == KEY_CTRLSHIFTNUMPAD7 || LocalKey() == KEY_RCTRLSHIFTHOME || LocalKey() == KEY_RCTRLSHIFTNUMPAD7)
 				ProcessKey(Manager::Key(KEY_SHIFTHOME));
 
 			Pasting--;
@@ -1025,7 +1024,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 				ProcessKey(Manager::Key(KEY_SHIFTPGDN));
 			}
 
-			if (LocalFarKey == KEY_CTRLSHIFTEND || LocalFarKey == KEY_CTRLSHIFTNUMPAD1 || LocalFarKey == KEY_RCTRLSHIFTEND || LocalFarKey == KEY_RCTRLSHIFTNUMPAD1)
+			if (LocalKey() == KEY_CTRLSHIFTEND || LocalKey() == KEY_CTRLSHIFTNUMPAD1 || LocalKey() == KEY_RCTRLSHIFTEND || LocalKey() == KEY_RCTRLSHIFTNUMPAD1)
 				ProcessKey(Manager::Key(KEY_SHIFTEND));
 
 			Pasting--;
@@ -1548,13 +1547,13 @@ int Editor::ProcessKey(const Manager::Key& Key)
 
 				Pasting++;
 				bool OldUseInternalClipboard=Clipboard::SetUseInternalClipboardState(true);
-				ProcessKey(Manager::Key((LocalFarKey==KEY_CTRLP || LocalFarKey==KEY_RCTRLP) ? KEY_CTRLINS:KEY_SHIFTDEL));
+				ProcessKey(Manager::Key((LocalKey()==KEY_CTRLP || LocalKey()==KEY_RCTRLP) ? KEY_CTRLINS:KEY_SHIFTDEL));
 
 				/* $ 10.04.2001 SVS
 				  ^P/^M - некорректно работали: условие для CurPos должно быть ">=",
 				   а не "меньше".
 				*/
-				if ((LocalFarKey == KEY_CTRLM || LocalFarKey == KEY_RCTRLM) && CurSelStart != -1 && CurSelEnd != -1)
+				if ((LocalKey() == KEY_CTRLM || LocalKey() == KEY_RCTRLM) && CurSelStart != -1 && CurSelEnd != -1)
 				{
 					if (CurPos >= CurSelEnd)
 						m_it_CurLine->SetCurPos(CurPos - (CurSelEnd - CurSelStart));
@@ -1841,7 +1840,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 		case(KEY_MSWHEEL_UP | KEY_ALT):
 		case(KEY_MSWHEEL_UP | KEY_RALT):
 		{
-			int Roll = (LocalFarKey & (KEY_ALT|KEY_RALT))?1:(int)Global->Opt->MsWheelDeltaEdit;
+			int Roll = (LocalKey() & (KEY_ALT|KEY_RALT))?1:(int)Global->Opt->MsWheelDeltaEdit;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(Manager::Key(KEY_CTRLUP));
@@ -1852,7 +1851,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 		case(KEY_MSWHEEL_DOWN | KEY_ALT):
 		case(KEY_MSWHEEL_DOWN | KEY_RALT):
 		{
-			int Roll = (LocalFarKey & (KEY_ALT|KEY_RALT))?1:(int)Global->Opt->MsWheelDeltaEdit;
+			int Roll = (LocalKey() & (KEY_ALT|KEY_RALT))?1:(int)Global->Opt->MsWheelDeltaEdit;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(Manager::Key(KEY_CTRLDOWN));
@@ -1863,7 +1862,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 		case(KEY_MSWHEEL_LEFT | KEY_ALT):
 		case(KEY_MSWHEEL_LEFT | KEY_RALT):
 		{
-			int Roll = (LocalFarKey & (KEY_ALT|KEY_RALT))?1:(int)Global->Opt->MsHWheelDeltaEdit;
+			int Roll = (LocalKey() & (KEY_ALT|KEY_RALT))?1:(int)Global->Opt->MsHWheelDeltaEdit;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(Manager::Key(KEY_LEFT));
@@ -1874,7 +1873,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 		case(KEY_MSWHEEL_RIGHT | KEY_ALT):
 		case(KEY_MSWHEEL_RIGHT | KEY_RALT):
 		{
-			int Roll = (LocalFarKey & (KEY_ALT|KEY_RALT))?1:(int)Global->Opt->MsHWheelDeltaEdit;
+			int Roll = (LocalKey() & (KEY_ALT|KEY_RALT))?1:(int)Global->Opt->MsHWheelDeltaEdit;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(Manager::Key(KEY_RIGHT));
@@ -1927,7 +1926,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 				int StartPos=m_it_CurLine->GetTabCurPos();
 				m_it_TopScreen = m_it_CurLine = FirstLine();
 
-				if (LocalFarKey == KEY_CTRLHOME || LocalFarKey == KEY_RCTRLHOME || LocalFarKey == KEY_CTRLNUMPAD7 || LocalFarKey == KEY_RCTRLNUMPAD7)
+				if (LocalKey() == KEY_CTRLHOME || LocalKey() == KEY_RCTRLHOME || LocalKey() == KEY_CTRLNUMPAD7 || LocalKey() == KEY_RCTRLNUMPAD7)
 				{
 					m_it_CurLine->SetCurPos(0);
 					m_it_CurLine->SetLeftPos(0);
@@ -1957,7 +1956,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 
 				m_it_CurLine->SetLeftPos(0);
 
-				if (LocalFarKey == KEY_CTRLEND || LocalFarKey == KEY_RCTRLEND || LocalFarKey == KEY_CTRLNUMPAD1 || LocalFarKey == KEY_RCTRLNUMPAD1)
+				if (LocalKey() == KEY_CTRLEND || LocalKey() == KEY_RCTRLEND || LocalKey() == KEY_CTRLNUMPAD1 || LocalKey() == KEY_RCTRLNUMPAD1)
 				{
 					m_it_CurLine->SetCurPos(m_it_CurLine->GetLength());
 					m_it_CurLine->FastShow();
@@ -2111,7 +2110,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 			if (!m_Flags.Check(FEDITOR_LOCKMODE))
 			{
 				Lock();
-				Undo(LocalFarKey==KEY_CTRLSHIFTZ || LocalFarKey==KEY_RCTRLSHIFTZ);
+				Undo(LocalKey()==KEY_CTRLSHIFTZ || LocalKey()==KEY_RCTRLSHIFTZ);
 				Unlock();
 				Show();
 			}
@@ -2625,8 +2624,8 @@ int Editor::ProcessKey(const Manager::Key& Key)
 		default:
 		{
 			{
-				if ((LocalFarKey==KEY_CTRLDEL || LocalFarKey==KEY_RCTRLDEL || LocalFarKey==KEY_CTRLNUMDEL || LocalFarKey==KEY_RCTRLNUMDEL
-					|| LocalFarKey==KEY_CTRLDECIMAL || LocalFarKey==KEY_RCTRLDECIMAL || LocalFarKey==KEY_CTRLT || LocalFarKey==KEY_RCTRLT)
+				if ((LocalKey()==KEY_CTRLDEL || LocalKey()==KEY_RCTRLDEL || LocalKey()==KEY_CTRLNUMDEL || LocalKey()==KEY_RCTRLNUMDEL
+					|| LocalKey()==KEY_CTRLDECIMAL || LocalKey()==KEY_RCTRLDECIMAL || LocalKey()==KEY_CTRLT || LocalKey()==KEY_RCTRLT)
 					&& CurPos>=m_it_CurLine->GetLength())
 				{
 					/*$ 08.12.2000 skv
@@ -2641,7 +2640,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 				}
 
 				if (!Pasting && !EdOpt.PersistentBlocks && IsStreamSelection())
-					if (IsCharKey(LocalFarKey))
+					if (IsCharKey(LocalKey()))
 					{
 						DeleteBlock();
 						/* $ 19.09.2002 SKV
@@ -2654,22 +2653,22 @@ int Editor::ProcessKey(const Manager::Key& Key)
 						Show();
 					}
 
-				int SkipCheckUndo=(LocalFarKey==KEY_RIGHT      || LocalFarKey==KEY_NUMPAD6      ||
-				                   LocalFarKey==KEY_CTRLLEFT   || LocalFarKey==KEY_CTRLNUMPAD4  ||
-				                   LocalFarKey==KEY_RCTRLLEFT  || LocalFarKey==KEY_RCTRLNUMPAD4 ||
-				                   LocalFarKey==KEY_CTRLRIGHT  || LocalFarKey==KEY_CTRLNUMPAD6  ||
-				                   LocalFarKey==KEY_RCTRLRIGHT || LocalFarKey==KEY_RCTRLNUMPAD6 ||
-				                   LocalFarKey==KEY_HOME       || LocalFarKey==KEY_NUMPAD7      ||
-				                   LocalFarKey==KEY_END        || LocalFarKey==KEY_NUMPAD1      ||
-				                   LocalFarKey==KEY_CTRLS      || LocalFarKey==KEY_RCTRLS);
+				int SkipCheckUndo=(LocalKey()==KEY_RIGHT      || LocalKey()==KEY_NUMPAD6      ||
+				                   LocalKey()==KEY_CTRLLEFT   || LocalKey()==KEY_CTRLNUMPAD4  ||
+				                   LocalKey()==KEY_RCTRLLEFT  || LocalKey()==KEY_RCTRLNUMPAD4 ||
+				                   LocalKey()==KEY_CTRLRIGHT  || LocalKey()==KEY_CTRLNUMPAD6  ||
+				                   LocalKey()==KEY_RCTRLRIGHT || LocalKey()==KEY_RCTRLNUMPAD6 ||
+				                   LocalKey()==KEY_HOME       || LocalKey()==KEY_NUMPAD7      ||
+				                   LocalKey()==KEY_END        || LocalKey()==KEY_NUMPAD1      ||
+				                   LocalKey()==KEY_CTRLS      || LocalKey()==KEY_RCTRLS);
 
 				if (m_Flags.Check(FEDITOR_LOCKMODE) && !SkipCheckUndo)
 					return TRUE;
 
-				if (LocalFarKey == KEY_HOME || LocalFarKey == KEY_NUMPAD7)
+				if (LocalKey() == KEY_HOME || LocalKey() == KEY_NUMPAD7)
 					m_Flags.Set(FEDITOR_NEWUNDO);
 
-				if ((LocalFarKey==KEY_CTRLLEFT || LocalFarKey==KEY_RCTRLLEFT || LocalFarKey==KEY_CTRLNUMPAD4 || LocalFarKey==KEY_RCTRLNUMPAD4) && !m_it_CurLine->GetCurPos())
+				if ((LocalKey()==KEY_CTRLLEFT || LocalKey()==KEY_RCTRLLEFT || LocalKey()==KEY_CTRLNUMPAD4 || LocalKey()==KEY_RCTRLNUMPAD4) && !m_it_CurLine->GetCurPos())
 				{
 					Pasting++;
 					ProcessKey(Manager::Key(KEY_LEFT));
@@ -2687,8 +2686,8 @@ int Editor::ProcessKey(const Manager::Key& Key)
 					return TRUE;
 				}
 
-				if (((!EdOpt.CursorBeyondEOL && (LocalFarKey==KEY_RIGHT || LocalFarKey==KEY_NUMPAD6))
-					|| LocalFarKey==KEY_CTRLRIGHT || LocalFarKey==KEY_RCTRLRIGHT || LocalFarKey==KEY_CTRLNUMPAD6 || LocalFarKey==KEY_RCTRLNUMPAD6) &&
+				if (((!EdOpt.CursorBeyondEOL && (LocalKey()==KEY_RIGHT || LocalKey()==KEY_NUMPAD6))
+					|| LocalKey()==KEY_CTRLRIGHT || LocalKey()==KEY_RCTRLRIGHT || LocalKey()==KEY_CTRLNUMPAD6 || LocalKey()==KEY_RCTRLNUMPAD6) &&
 				        m_it_CurLine->GetCurPos()>=m_it_CurLine->GetLength() &&
 				        !IsLastLine(m_it_CurLine))
 				{
@@ -2723,7 +2722,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 
 				intptr_t LocalCurPos = m_it_CurLine->GetCurPos();
 
-				if (IsCharKey(LocalFarKey) && LocalCurPos>0 && !Length)
+				if (IsCharKey(LocalKey()) && LocalCurPos>0 && !Length)
 				{
 					auto PrevLine = m_it_CurLine == Lines.begin()? Lines.end() : std::prev(m_it_CurLine);
 
@@ -2779,7 +2778,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 					CmpStr.assign(Str, Length);
 				}
 
-				if (LocalFarKey == KEY_OP_XLAT)
+				if (LocalKey() == KEY_OP_XLAT)
 				{
 					Xlat();
 					Show();
@@ -2803,7 +2802,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 					  в начале строки, и нажимаем tab, который заменяется
 					  на пробелы, выделение съедет. Это фикс.
 					*/
-					if (LocalFarKey==KEY_TAB && GetConvertTabs() && IsStreamSelection() && m_it_AnyBlockStart != m_it_CurLine)
+					if (LocalKey()==KEY_TAB && GetConvertTabs() && IsStreamSelection() && m_it_AnyBlockStart != m_it_CurLine)
 					{
 						m_it_CurLine->GetSelection(CurSelStart, CurSelEnd);
 						m_it_CurLine->Select(CurSelStart==-1?-1:0,CurSelEnd);
@@ -2825,7 +2824,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 
 					// <Bug 794>
 					// обработаем только первую и последнюю строку с блоком
-					if ((LocalFarKey == KEY_CTRLK || LocalFarKey == KEY_RCTRLK) && EdOpt.PersistentBlocks)
+					if ((LocalKey() == KEY_CTRLK || LocalKey() == KEY_RCTRLK) && EdOpt.PersistentBlocks)
 					{
 						if (m_it_CurLine == m_it_AnyBlockStart)
 						{
@@ -3951,7 +3950,7 @@ BOOL Editor::Search(int Next)
 
 		int ExitCode=FindAllList->Run([&](const Manager::Key& RawKey)->int
 		{
-			const auto Key=RawKey.FarKey();
+			const auto Key=RawKey();
 			int SelectedPos=FindAllList->GetSelectPos();
 			int KeyProcessed = 1;
 

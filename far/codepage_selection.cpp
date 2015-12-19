@@ -673,7 +673,7 @@ bool codepages::SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bVie
 	// Цикл обработки сообщений меню
 	intptr_t r = CodePagesMenu->Run([&](const Manager::Key& RawKey)->int
 	{
-		const auto ReadKey = RawKey.FarKey();
+		const auto ReadKey = RawKey();
 		int KeyProcessed = 1;
 		switch (ReadKey)
 		{

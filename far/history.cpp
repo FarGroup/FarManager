@@ -299,7 +299,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 
 		MenuExitCode=HistoryMenu.Run([&](const Manager::Key& RawKey)->int
 		{
-			const auto Key=RawKey.FarKey();
+			const auto Key=RawKey();
 			if (m_TypeHistory == HISTORYTYPE_DIALOG && Key==KEY_TAB) // Tab в списке хистори диалогов - аналог Enter
 			{
 				HistoryMenu.Close();

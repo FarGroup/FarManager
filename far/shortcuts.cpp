@@ -343,7 +343,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 
 			int ExitCode=FolderList->Run([&](const Manager::Key& RawKey)->int
 			{
-				const auto Key=RawKey.FarKey();
+				const auto Key=RawKey();
 				int ItemPos = FolderList->GetSelectPos();
 				const auto Item = FolderList->GetUserDataPtr<ITERATOR(Items[Pos])>(ItemPos);
 				int KeyProcessed = 1;
@@ -576,7 +576,7 @@ void Shortcuts::Configure()
 
 	int ExitCode=FolderList->Run([&](const Manager::Key& RawKey)->int
 	{
-		const auto Key=RawKey.FarKey();
+		const auto Key=RawKey();
 		int Pos = FolderList->GetSelectPos();
 		auto ItemIterator = Items[Pos].begin();
 		int KeyProcessed = 1;

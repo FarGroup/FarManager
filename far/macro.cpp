@@ -3332,7 +3332,7 @@ static bool menushowFunc(FarMacroCall* Data)
 	Menu->Key(KEY_NONE);
 	Menu->Run([&](const Manager::Key& RawKey)->int
 	{
-		const auto Key=RawKey.FarKey();
+		const auto Key=RawKey();
 		if (bSetMenuFilter && !VFindOrFilter.isUnknown())
 		{
 			string NewStr=VFindOrFilter.toString();

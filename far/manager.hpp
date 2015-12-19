@@ -56,8 +56,9 @@ public:
 		const INPUT_RECORD& Event(void)const {return m_Event;}
 		bool IsEvent(void)const {return m_EventFilled;}
 		bool IsReal(void)const;
-		unsigned int FarKey(void) const {return m_FarKey;}
 		Key& operator=(unsigned int Key);
+		Key& operator&=(unsigned int Key);
+		unsigned int operator()(void) const {return m_FarKey;}
 	};
 
 	class MessageAbstract;

@@ -838,7 +838,7 @@ int FileEditor::ProcessKey(const Manager::Key& Key)
 
 int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 {
-	const auto LocalKey = Key.FarKey();
+	const auto LocalKey = Key();
 	if (LocalKey!=KEY_F4 && LocalKey!=KEY_IDLE)
 		F4KeyOnly=false;
 

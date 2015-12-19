@@ -1132,7 +1132,7 @@ __int64 TreeList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 int TreeList::ProcessKey(const Manager::Key& Key)
 {
-	const auto LocalKey = Key.FarKey();
+	const auto LocalKey = Key();
 	if (!IsVisible())
 		return FALSE;
 

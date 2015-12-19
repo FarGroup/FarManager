@@ -1119,7 +1119,7 @@ int VMenu::ProcessFilterKey(int Key)
 
 int VMenu::ProcessKey(const Manager::Key& Key)
 {
-	auto LocalKey = Key.FarKey();
+	auto LocalKey = Key();
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
 	if (LocalKey==KEY_NONE || LocalKey==KEY_IDLE)

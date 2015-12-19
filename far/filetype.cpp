@@ -247,7 +247,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 
 bool GetFiletypeOpenMode(int keyPressed, FILETYPE_MODE& mode, bool& shouldForceInternal)
 {
-	bool isModeFound = false; 
+	bool isModeFound = false;
 
 	switch (keyPressed)
 	{
@@ -305,7 +305,7 @@ bool GetFiletypeOpenMode(int keyPressed, FILETYPE_MODE& mode, bool& shouldForceI
 		break;
 
 	default:
-		// non-default key may be pressed, it's ok. 
+		// non-default key may be pressed, it's ok.
 		break;
 	}
 
@@ -574,7 +574,7 @@ void EditFileTypes()
 		int NumLine = FillFileTypesMenu(TypesMenu.get(), MenuPos);
 		int ExitCode=TypesMenu->Run([&](const Manager::Key& RawKey)->int
 		{
-			const auto Key=RawKey.FarKey();
+			const auto Key=RawKey();
 			MenuPos=TypesMenu->GetSelectPos();
 
 			int KeyProcessed = 1;

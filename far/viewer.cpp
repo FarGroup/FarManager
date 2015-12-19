@@ -1463,7 +1463,7 @@ int Viewer::ProcessKey(const Manager::Key& Key)
 
 int Viewer::process_key(const Manager::Key& Key)
 {
-	unsigned int LocalKey = Key.FarKey();
+	unsigned int LocalKey = Key();
 
 	if ((LocalKey & ~KEY_SHIFT) == 0)
 		LocalKey = KEY_NONE;

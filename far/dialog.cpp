@@ -2545,7 +2545,7 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
 */
 int Dialog::ProcessKey(const Manager::Key& Key)
 {
-	auto LocalKey = Key.FarKey();
+	auto LocalKey = Key;
 	// flag to call global ProcessKey out of critical section, Mantis#2511
 	bool doGlobalProcessKey = false;
 
@@ -2553,7 +2553,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 	{
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 	_DIALOG(CleverSysLog CL(L"Dialog::ProcessKey"));
-	_DIALOG(SysLog(L"Param: Key=%s",_FARKEY_ToName(LocalKey)));
+	_DIALOG(SysLog(L"Param: Key=%s",_FARKEY_ToName(LocalKey())));
 
 	string strStr;
 
@@ -2565,19 +2565,19 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 			return TRUE;
 	}
 
-	if (LocalKey==KEY_NONE || LocalKey==KEY_IDLE)
+	if (LocalKey()==KEY_NONE || LocalKey()==KEY_IDLE)
 	{
 		DlgProc(DN_ENTERIDLE, 0, nullptr); // $ 28.07.2000 SVS Передадим этот факт в обработчик :-)
 		return FALSE;
 	}
 
-	if (ProcessMoveDialog(LocalKey))
+	if (ProcessMoveDialog(LocalKey()))
 		return TRUE;
 
-	if (!(((unsigned int)LocalKey>=KEY_OP_BASE && (unsigned int)LocalKey <=KEY_OP_ENDBASE)) && !DialogMode.Check(DMODE_KEY))
+	if (!(((unsigned int)LocalKey()>=KEY_OP_BASE && (unsigned int)LocalKey() <=KEY_OP_ENDBASE)) && !DialogMode.Check(DMODE_KEY))
 	{
 		// wrap-stop mode for user lists
-		if ((LocalKey==KEY_UP || LocalKey==KEY_NUMPAD8 || LocalKey==KEY_DOWN || LocalKey==KEY_NUMPAD2) && IsRepeatedKey())
+		if ((LocalKey()==KEY_UP || LocalKey()==KEY_NUMPAD8 || LocalKey()==KEY_DOWN || LocalKey()==KEY_NUMPAD2) && IsRepeatedKey())
 		{
 			int n = -1;
 
@@ -2593,7 +2593,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 				if (SendMessage(DN_GETVALUE,m_FocusPos,&fgv) && fgv.Value.Type==FMVT_INTEGER)
 					pos = static_cast<int>(fgv.Value.Integer);
 
-				bool up = (LocalKey==KEY_UP || LocalKey==KEY_NUMPAD8);
+				bool up = (LocalKey()==KEY_UP || LocalKey()==KEY_NUMPAD8);
 
 				if ((pos==1 && up) || (pos==n && !up))
 					return TRUE;
@@ -2621,11 +2621,11 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 	{
 		if (!(Items[m_FocusPos].Flags&DIF_3STATE))
 		{
-			if (LocalKey == KEY_MULTIPLY) // в CheckBox 2-state Gray* не работает!
+			if (LocalKey() == KEY_MULTIPLY) // в CheckBox 2-state Gray* не работает!
 				LocalKey = KEY_NONE;
 
-			if ((LocalKey == KEY_ADD      && !Items[m_FocusPos].Selected) ||
-			        (LocalKey == KEY_SUBTRACT &&  Items[m_FocusPos].Selected))
+			if ((LocalKey() == KEY_ADD      && !Items[m_FocusPos].Selected) ||
+			        (LocalKey() == KEY_SUBTRACT &&  Items[m_FocusPos].Selected))
 				LocalKey=KEY_SPACE;
 		}
 
@@ -2633,19 +2633,19 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 		  блок else не нужен, т.к. ниже клавиши будут обработаны...
 		*/
 	}
-	else if (LocalKey == KEY_ADD)
+	else if (LocalKey() == KEY_ADD)
 		LocalKey='+';
-	else if (LocalKey == KEY_SUBTRACT)
+	else if (LocalKey() == KEY_SUBTRACT)
 		LocalKey='-';
-	else if (LocalKey == KEY_MULTIPLY)
+	else if (LocalKey() == KEY_MULTIPLY)
 		LocalKey='*';
 
-	if (Items[m_FocusPos].Type==DI_BUTTON && LocalKey == KEY_SPACE)
+	if (Items[m_FocusPos].Type==DI_BUTTON && LocalKey() == KEY_SPACE)
 		LocalKey=KEY_ENTER;
 
 	if (Items[m_FocusPos].Type == DI_LISTBOX)
 	{
-		switch (LocalKey)
+		switch (LocalKey())
 		{
 			case KEY_HOME:     case KEY_NUMPAD7:
 			case KEY_LEFT:     case KEY_NUMPAD4:
@@ -2675,12 +2675,12 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 						ShowDialog(m_FocusPos); // FocusPos
 				}
 
-				if (!(LocalKey == KEY_ENTER || LocalKey == KEY_NUMENTER) || (Items[m_FocusPos].Flags&DIF_LISTNOCLOSE))
+				if (!(LocalKey() == KEY_ENTER || LocalKey() == KEY_NUMENTER) || (Items[m_FocusPos].Flags&DIF_LISTNOCLOSE))
 					return TRUE;
 		}
 	}
 
-	switch (LocalKey)
+	switch (LocalKey())
 	{
 		case KEY_F1:
 
@@ -2695,7 +2695,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 		case KEY_ESC:
 		case KEY_BREAK:
 		case KEY_F10:
-			m_ExitCode=(LocalKey==KEY_BREAK) ? -2:-1;
+			m_ExitCode=(LocalKey()==KEY_BREAK) ? -2:-1;
 			CloseDialog();
 			return TRUE;
 		case KEY_HOME: case KEY_NUMPAD7:
@@ -2706,7 +2706,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 			return Do_ProcessFirstCtrl();
 		case KEY_TAB:
 		case KEY_SHIFTTAB:
-			return Do_ProcessTab(LocalKey==KEY_TAB);
+			return Do_ProcessTab(LocalKey()==KEY_TAB);
 		case KEY_SPACE:
 			return Do_ProcessSpace();
 		case KEY_CTRLNUMENTER:
@@ -2839,9 +2839,9 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 			if (Items[m_FocusPos].Type==DI_CHECKBOX)
 			{
 				unsigned int CHKState=
-				    (LocalKey == KEY_ADD?1:
-				     (LocalKey == KEY_SUBTRACT?0:
-				      ((LocalKey == KEY_MULTIPLY)?2:
+				    (LocalKey() == KEY_ADD?1:
+				     (LocalKey() == KEY_SUBTRACT?0:
+				      ((LocalKey() == KEY_MULTIPLY)?2:
 				       Items[m_FocusPos].Selected)));
 
 				if (Items[m_FocusPos].Selected != (int)CHKState)
@@ -2877,7 +2877,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 					{
 						int Dist = i.X1-Items[m_FocusPos].X1;
 
-						if (((LocalKey==KEY_LEFT||LocalKey==KEY_SHIFTNUMPAD4) && Dist<0) || ((LocalKey==KEY_RIGHT||LocalKey==KEY_SHIFTNUMPAD6) && Dist>0))
+						if (((LocalKey()==KEY_LEFT||LocalKey()==KEY_SHIFTNUMPAD4) && Dist<0) || ((LocalKey()==KEY_RIGHT||LocalKey()==KEY_SHIFTNUMPAD6) && Dist>0))
 						{
 							if (static_cast<size_t>(abs(Dist))<MinDist)
 							{
@@ -2912,7 +2912,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 			if (Items[m_FocusPos].Type == DI_USERCONTROL) // для user-типа вываливаем
 				return TRUE;
 
-			return Do_ProcessNextCtrl(LocalKey==KEY_LEFT || LocalKey==KEY_UP || LocalKey == KEY_NUMPAD4 || LocalKey == KEY_NUMPAD8);
+			return Do_ProcessNextCtrl(LocalKey()==KEY_LEFT || LocalKey()==KEY_UP || LocalKey() == KEY_NUMPAD4 || LocalKey() == KEY_NUMPAD8);
 			// $ 27.04.2001 VVM - Обработка колеса мышки
 		case KEY_MSWHEEL_UP:
 		case KEY_MSWHEEL_DOWN:
@@ -2992,11 +2992,11 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 			{
 				const auto edt = static_cast<DlgEdit*>(Items[m_FocusPos].ObjPtr);
 
-				if (LocalKey == KEY_CTRLL || LocalKey == KEY_RCTRLL) // исключим смену режима RO для поля ввода с клавиатуры
+				if (LocalKey() == KEY_CTRLL || LocalKey() == KEY_RCTRLL) // исключим смену режима RO для поля ввода с клавиатуры
 				{
 					return TRUE;
 				}
-				else if (LocalKey == KEY_CTRLU || LocalKey == KEY_RCTRLU)
+				else if (LocalKey() == KEY_CTRLU || LocalKey() == KEY_RCTRLU)
 				{
 					edt->SetClearFlag(0);
 					edt->Select(-1,0);
@@ -3005,7 +3005,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 				}
 				else if ((Items[m_FocusPos].Flags & DIF_EDITOR) && !(Items[m_FocusPos].Flags & DIF_READONLY))
 				{
-					switch (LocalKey)
+					switch (LocalKey())
 					{
 						case KEY_BS:
 						{	// В начале строки????
@@ -3105,10 +3105,10 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 							size_t I = m_FocusPos;
 
 							while (Items[I].Flags & DIF_EDITOR)
-								I=ChangeFocus(I,(LocalKey == KEY_PGUP || LocalKey == KEY_NUMPAD9)?-1:1,FALSE);
+								I=ChangeFocus(I,(LocalKey() == KEY_PGUP || LocalKey() == KEY_NUMPAD9)?-1:1,FALSE);
 
 							if (!(Items[I].Flags & DIF_EDITOR))
-								I=ChangeFocus(I,(LocalKey == KEY_PGUP || LocalKey == KEY_NUMPAD9)?1:-1,FALSE);
+								I=ChangeFocus(I,(LocalKey() == KEY_PGUP || LocalKey() == KEY_NUMPAD9)?1:-1,FALSE);
 
 							ChangeFocus2(I);
 							ShowDialog();
@@ -3118,7 +3118,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 					}
 				}
 
-				if (LocalKey == KEY_OP_XLAT && !(Items[m_FocusPos].Flags & DIF_READONLY))
+				if (LocalKey() == KEY_OP_XLAT && !(Items[m_FocusPos].Flags & DIF_READONLY))
 				{
 					edt->SetClearFlag(0);
 					edt->Xlat();
@@ -3132,7 +3132,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 				}
 
 				if (!(Items[m_FocusPos].Flags & DIF_READONLY) ||
-				        ((Items[m_FocusPos].Flags & DIF_READONLY) && IsNavKey(LocalKey)))
+				        ((Items[m_FocusPos].Flags & DIF_READONLY) && IsNavKey(LocalKey())))
 				{
 					// "только что ломанулись и начинать выделение с нуля"?
 					if ((Global->Opt->Dialogs.EditLine&DLGEDITLINE_NEWSELONGOTFOCUS) && Items[m_FocusPos].SelStart != -1 && PrevFocusPos != m_FocusPos)// && Items[FocusPos].SelEnd)
@@ -3141,7 +3141,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 						PrevFocusPos=m_FocusPos;
 					}
 
-					if(LocalKey == KEY_CTRLSPACE || LocalKey == KEY_RCTRLSPACE)
+					if(LocalKey() == KEY_CTRLSPACE || LocalKey() == KEY_RCTRLSPACE)
 					{
 						SCOPED_ACTION(SetAutocomplete)(edt, true);
 						edt->AutoComplete(true,false);
@@ -3154,7 +3154,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 						if (Items[m_FocusPos].Flags & DIF_READONLY)
 							return TRUE;
 
-						if ((LocalKey==KEY_CTRLEND || LocalKey==KEY_RCTRLEND || LocalKey==KEY_CTRLNUMPAD1 || LocalKey==KEY_RCTRLNUMPAD1) && edt->GetCurPos()==edt->GetLength())
+						if ((LocalKey()==KEY_CTRLEND || LocalKey()==KEY_RCTRLEND || LocalKey()==KEY_CTRLNUMPAD1 || LocalKey()==KEY_RCTRLNUMPAD1) && edt->GetCurPos()==edt->GetLength())
 						{
 							if (edt->LastPartLength ==-1)
 								edt->GetString(edt->strLastStr);
@@ -3183,14 +3183,14 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 						return TRUE;
 					}
 				}
-				else if (!(LocalKey&(KEY_ALT|KEY_RALT)))
+				else if (!(LocalKey()&(KEY_ALT|KEY_RALT)))
 					return TRUE;
 			}
 
-			if (ProcessHighlighting(LocalKey,m_FocusPos,FALSE))
+			if (ProcessHighlighting(LocalKey(),m_FocusPos,FALSE))
 				return TRUE;
 
-			return ProcessHighlighting(LocalKey,m_FocusPos,TRUE);
+			return ProcessHighlighting(LocalKey(),m_FocusPos,TRUE);
 		}
 	}
 	} // exit from critical section

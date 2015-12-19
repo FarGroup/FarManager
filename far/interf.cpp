@@ -203,7 +203,7 @@ static int ConsoleScrollHook(const Manager::Key& key)
 	// Удалить после появления макрофункции Scroll
 	if (Global->Opt->WindowMode && Global->WindowManager->IsPanelsActive())
 	{
-		switch (key.FarKey())
+		switch (key())
 		{
 		case KEY_CTRLALTUP:
 		case KEY_RCTRLRALTUP:

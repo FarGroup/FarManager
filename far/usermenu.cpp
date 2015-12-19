@@ -576,7 +576,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 
 		ExitCode=UserMenu->Run([&](const Manager::Key& RawKey)->int
 		{
-			const auto Key=RawKey.FarKey();
+			const auto Key=RawKey();
 			MenuPos=UserMenu->GetSelectPos();
 			// CurrentMenuItem can be nullptr if:
 			// - menu is empty

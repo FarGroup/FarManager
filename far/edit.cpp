@@ -592,7 +592,7 @@ __int64 Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 int Edit::ProcessKey(const Manager::Key& Key)
 {
-	auto LocalKey = Key.FarKey();
+	auto LocalKey = Key();
 	const auto Mask = GetInputMask();
 	switch (LocalKey)
 	{

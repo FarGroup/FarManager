@@ -208,7 +208,7 @@ static bool EnumFiles(VMenu2& Menu, const string& Str)
 		if (!Token.empty())
 		{
 			std::set<string, string_i_less> ResultStrings;
-			
+
 			string strExp = os::env::expand_strings(Token);
 			os::fs::enum_file Find(strExp+L"*");
 			std::for_each(CONST_RANGE(Find, i)
@@ -513,7 +513,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 
 				int ExitCode=ComplMenu->Run([&](const Manager::Key& RawKey)->int
 				{
-					auto MenuKey = RawKey.FarKey();
+					auto MenuKey = RawKey();
 					::SetCursorType(Visible, Size);
 
 					if(!Global->Opt->AutoComplete.ModalList)
@@ -756,7 +756,7 @@ void EditControl::AutoComplete(bool Manual,bool DelBlock)
 		// BUGBUG, hack
 		int Wait=Global->WaitInMainLoop;
 		Global->WaitInMainLoop=1;
-		struct FAR_INPUT_RECORD irec={(DWORD)Key.FarKey(), Key.Event()};
+		struct FAR_INPUT_RECORD irec={(DWORD)Key(), Key.Event()};
 		if(!Global->CtrlObject->Macro.ProcessEvent(&irec))
 			m_ParentProcessKey(Manager::Key(Key));
 		Global->WaitInMainLoop=Wait;

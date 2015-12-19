@@ -609,10 +609,10 @@ static int ExceptionTestHook(Manager::Key key)
 {
 	// сей код для проверки исключатор, просьба не трогать :-)
 	if (
-		key.FarKey() == KEY_CTRLALTAPPS ||
-		key.FarKey() == KEY_RCTRLRALTAPPS ||
-		key.FarKey() == KEY_CTRLRALTAPPS ||
-		key.FarKey() == KEY_RCTRLALTAPPS
+		key() == KEY_CTRLALTAPPS ||
+		key() == KEY_RCTRLRALTAPPS ||
+		key() == KEY_CTRLRALTAPPS ||
+		key() == KEY_RCTRLALTAPPS
 		)
 	{
 		static const struct ECODE

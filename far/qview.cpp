@@ -324,7 +324,7 @@ __int64 QuickView::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 int QuickView::ProcessKey(const Manager::Key& Key)
 {
-	const auto LocalKey = Key.FarKey();
+	const auto LocalKey = Key();
 	if (!IsVisible())
 		return FALSE;
 

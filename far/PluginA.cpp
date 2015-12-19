@@ -786,7 +786,7 @@ static std::stack<FarDialogEvent>& OriginalEvents()
 {
 	static FN_RETURN_TYPE(OriginalEvents) sOriginalEvents;
 	return sOriginalEvents;
-}	
+}
 
 static size_t GetAnsiVBufSize(const oldfar::FarDialogItem &diA)
 {
@@ -4996,7 +4996,7 @@ private:
 
 static int SendKeyToPluginHook(const Manager::Key& key)
 {
-	DWORD KeyM = (key.FarKey()&(~KEY_CTRLMASK));
+	DWORD KeyM = (key()&(~KEY_CTRLMASK));
 
 	if (!((KeyM >= KEY_MACRO_BASE && KeyM <= KEY_MACRO_ENDBASE) || (KeyM >= KEY_OP_BASE && KeyM <= KEY_OP_ENDBASE))) // пропустим макро-коды
 	{
@@ -5005,7 +5005,7 @@ static int SendKeyToPluginHook(const Manager::Key& key)
 			if (Global->CtrlObject->Cp()->ActivePanel()->GetMode() == PLUGIN_PANEL)
 			{
 				const auto ph = Global->CtrlObject->Cp()->ActivePanel()->GetPluginHandle();
-				if (ph && ph->pPlugin->IsOemPlugin() && Global->CtrlObject->Cp()->ActivePanel()->SendKeyToPlugin(key.FarKey(), true))
+				if (ph && ph->pPlugin->IsOemPlugin() && Global->CtrlObject->Cp()->ActivePanel()->SendKeyToPlugin(key(), true))
 					return TRUE;
 			}
 		}
@@ -5678,7 +5678,7 @@ void PluginA::ConvertOpenPanelInfo(const oldfar::OpenPanelInfo &Src, OpenPanelIn
 	FreeOpenPanelInfo();
 	OPI.StructSize = sizeof(OPI);
 	OPI.Flags = OPIF_NONE;
-	
+
 	static const simple_pair<oldfar::OPENPANELINFO_FLAGS, OPENPANELINFO_FLAGS> PanelInfoFlagsMap[] =
 	{
 		OLDFAR_TO_FAR_MAP(OPIF_ADDDOTS),

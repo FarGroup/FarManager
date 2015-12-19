@@ -183,7 +183,7 @@ __int64 HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 int HMenu::ProcessKey(const Manager::Key& Key)
 {
-	auto LocalKey = Key.FarKey();
+	auto LocalKey = Key();
 
 	UpdateSelectPos();
 

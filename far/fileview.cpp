@@ -260,7 +260,7 @@ __int64 FileViewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 int FileViewer::ProcessKey(const Manager::Key& Key)
 {
-	const auto LocalKey = Key.FarKey();
+	const auto LocalKey = Key();
 	if (RedrawTitle && (((unsigned int)LocalKey & 0x00ffffff) < KEY_END_FKEY || IsInternalKeyReal((unsigned int)LocalKey & 0x00ffffff)))
 		ShowConsoleTitle();
 
