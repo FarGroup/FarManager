@@ -5196,7 +5196,7 @@ void Editor::DeleteVBlock()
 			continue;
 
 		AddUndoData(UNDO_EDIT, CurPtr->GetString(), CurPtr->GetEOL(), CurPtr.Number(), CurPtr->GetCurPos());
-		string TmpStr(CurStr, TBlockX);
+		string TmpStr(CurStr.data(), TBlockX);
 
 		if (CurStr.size() > TBlockX + TBlockSizeX)
 		{
