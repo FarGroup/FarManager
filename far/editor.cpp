@@ -5609,8 +5609,11 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 				AddUndoData(UNDO_EDIT, CurPtr->GetString(), CurPtr->GetEOL(), DestLine, CurPtr->GetCurPos());
 				int CurPos=CurPtr->GetCurPos();
+				intptr_t SelStart, SelEnd;
+				CurPtr->GetSelection(SelStart, SelEnd);
 				CurPtr->SetString(NewStr);
 				CurPtr->SetCurPos(CurPos);
+				CurPtr->Select(SelStart, SelEnd);
 				Change(ECTYPE_CHANGED,DestLine);
 				TextChanged(1);    // 10.08.2000 skv - Modified->TextChanged
 			}
