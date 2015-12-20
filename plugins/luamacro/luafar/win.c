@@ -76,8 +76,7 @@ static int win_SetRegKey(lua_State *L)
 
 	if(!strcmp("string", DataType))
 	{
-		SetRegKeyStr(hRoot, Key, ValueName,
-		             (wchar_t*)check_utf8_string(L, 5, NULL));
+		SetRegKeyStr(hRoot, Key, ValueName, (wchar_t*)check_utf8_string(L, 5, NULL));
 	}
 	else if(!strcmp("dword", DataType))
 	{
@@ -90,16 +89,16 @@ static int win_SetRegKey(lua_State *L)
 	}
 	else if(!strcmp("expandstring", DataType))
 	{
-		const wchar_t* data = check_utf8_string(L, 5, NULL);
+		const wchar_t* data = check_utf8_string(L, 5, &len);
 		HKEY hKey = CreateRegKey(hRoot, Key);
-		RegSetValueExW(hKey, ValueName, 0, REG_EXPAND_SZ, (BYTE*)data, 1+(DWORD)wcslen(data));
+		RegSetValueExW(hKey, ValueName, 0, REG_EXPAND_SZ, (BYTE*)data, (DWORD)((1+len)*sizeof(wchar_t)));
 		RegCloseKey(hKey);
 	}
 	else if(!strcmp("multistring", DataType))
 	{
-		const char* data = luaL_checklstring(L, 5, &len);
+		const wchar_t* data = check_utf8_string(L, 5, &len);
 		HKEY hKey = CreateRegKey(hRoot, Key);
-		RegSetValueExW(hKey, ValueName, 0, REG_MULTI_SZ, (BYTE*)data, (DWORD)len);
+		RegSetValueExW(hKey, ValueName, 0, REG_MULTI_SZ, (BYTE*)data, (DWORD)((1+len)*sizeof(wchar_t)));
 		RegCloseKey(hKey);
 	}
 	else

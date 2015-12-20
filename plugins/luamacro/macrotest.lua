@@ -705,7 +705,7 @@ local function test_Far_GetConfig()
     "Dialog.CBoxMaxHeight", "integer",
     "Dialog.EditBlock", "boolean",
     "Dialog.EditHistory", "boolean",
-    "Dialog.EditLine", "integer",
+    --"Dialog.EditLine", "integer",
     "Dialog.DelRemovesBlocks", "boolean",
     "Dialog.EULBsClear", "boolean",
     "Dialog.MouseButton", "integer",

@@ -1,4 +1,8 @@
-﻿shmuel 18.12.2015 22:09:39 +0200 - build 551
+﻿shmuel 20.12.2015 15:08:21 +0200 - build 552
+
+1. LuaFAR: fix function win.SetRegKey.
+
+shmuel 18.12.2015 22:09:39 +0200 - build 551
 
 1. Ещё одно уточнение 549.
 
