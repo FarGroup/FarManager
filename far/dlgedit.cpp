@@ -305,7 +305,7 @@ void DlgEdit::Changed()
 	}
 }
 
-void DlgEdit::SetString(const string& Str, bool disable_autocomplete, int pos)
+void DlgEdit::SetString(const string& Str)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -316,16 +316,7 @@ void DlgEdit::SetString(const string& Str, bool disable_autocomplete, int pos)
 	else
 #endif
 	{
-		bool acompl = false;
-		if (disable_autocomplete && (acompl = lineEdit->GetAutocomplete()) != false)
-			lineEdit->SetAutocomplete(false);
-
-		lineEdit->SetString(Str.data(), Str.size());
-		if (pos >= 0)
-			lineEdit->SetCurPos(pos);
-
-		if (acompl)
-			lineEdit->SetAutocomplete(true);
+		lineEdit->SetString(Str);
 	}
 }
 

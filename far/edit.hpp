@@ -146,8 +146,9 @@ public:
 	void SetPersistentBlocks(bool Mode) {m_Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Mode);}
 	int GetPersistentBlocks() const {return m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS); }
 	void SetShowWhiteSpace(int Mode) {m_Flags.Change(FEDITLINE_SHOWWHITESPACE, Mode!=0); m_Flags.Change(FEDITLINE_SHOWLINEBREAK, Mode == 1);}
-	void GetString(string &strStr) const;
+
 	const string& GetString() const { return m_Str; }
+
 	void SetHiString(const string& Str);
 
 	void SetEOL(const wchar_t *EOL);
@@ -158,16 +159,15 @@ public:
 	int GetLength() const;
 
 	void SetString(const string& Str) { SetString(Str.data(), Str.size()); }
-	void SetString(const wchar_t *Str) { SetString(Str, wcslen(Str)); }
 	void SetString(const wchar_t *Str, size_t Length);
 
 	void InsertString(const string& Str) { InsertString(Str.data(), Str.size()); }
-	void InsertString(const wchar_t *Str) { InsertString(Str, wcslen(Str)); }
 	void InsertString(const wchar_t *Str, size_t Length);
 
 	void AppendString(const string& Str) { AppendString(Str.data(), Str.size()); }
-	void AppendString(const wchar_t *Str) { AppendString(Str, wcslen(Str)); }
 	void AppendString(const wchar_t *Str, size_t Length);
+
+	void ClearString() { SetString(L"", 0); }
 
 	int Search(const string& Str,const string &UpperStr, const string &LowerStr, RegExp &re, RegExpMatch *pm, MatchHash* hm, string& ReplaceStr,int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength);
 	void SetClearFlag(bool Flag) {m_Flags.Change(FEDITLINE_CLEARFLAG,Flag);}

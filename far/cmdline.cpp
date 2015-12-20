@@ -170,22 +170,20 @@ __int64 CommandLine::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 int CommandLine::ProcessKey(const Manager::Key& Key)
 {
-	const wchar_t *PStr;
-	string strStr;
 	auto LocalKey = Key;
 
 	if ((LocalKey()==KEY_CTRLEND || LocalKey()==KEY_RCTRLEND || LocalKey()==KEY_CTRLNUMPAD1 || LocalKey()==KEY_RCTRLNUMPAD1) && (CmdStr.GetCurPos()==CmdStr.GetLength()))
 	{
 		if (LastCmdPartLength==-1)
-			CmdStr.GetString(strLastCmdStr);
+			strLastCmdStr = CmdStr.GetString();
 
-		strStr = strLastCmdStr;
+		auto strStr = strLastCmdStr;
 		int CurCmdPartLength=(int)strStr.size();
 		Global->CtrlObject->CmdHistory->GetSimilar(strStr,LastCmdPartLength);
 
 		if (LastCmdPartLength==-1)
 		{
-			CmdStr.GetString(strLastCmdStr);
+			strLastCmdStr = CmdStr.GetString();
 			LastCmdPartLength=CurCmdPartLength;
 		}
 
@@ -235,9 +233,10 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 			{
 				if (Global->CtrlObject->CmdHistory->IsOnTop())
 				{
-					CmdStr.GetString(m_CurCmdStr);
+					m_CurCmdStr = CmdStr.GetString();
 				}
 
+				string strStr;
 				if (LocalKey() == KEY_CTRLE || LocalKey() == KEY_RCTRLE)
 				{
 					Global->CtrlObject->CmdHistory->GetPrev(strStr);
@@ -249,27 +248,21 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 
 				{
 					SCOPED_ACTION(SetAutocomplete)(&CmdStr);
-					SetString(Global->CtrlObject->CmdHistory->IsOnTop()? m_CurCmdStr : strStr);
+					SetString(Global->CtrlObject->CmdHistory->IsOnTop()? m_CurCmdStr : strStr, true);
 				}
 
 			}
 			return TRUE;
 
 		case KEY_ESC:
-
-			if (LocalKey() == KEY_ESC)
-			{
-				// $ 24.09.2000 SVS - Если задано поведение по "Несохранению при Esc", то позицию в хистори не меняем и ставим в первое положение.
-				if (Global->Opt->CmdHistoryRule)
-					Global->CtrlObject->CmdHistory->ResetPosition();
-
-				PStr=L"";
-			}
-			else
-				PStr=strStr.data();
-
-			SetString(PStr);
+		{
+			// $ 24.09.2000 SVS - Если задано поведение по "Несохранению при Esc", то позицию в хистори не меняем и ставим в первое положение.
+			if (Global->Opt->CmdHistoryRule)
+				Global->CtrlObject->CmdHistory->ResetPosition();
+			SetString(L"", true);
 			return TRUE;
+		}
+
 		case KEY_F2:
 		{
 			UserMenu(false);
@@ -279,6 +272,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 		case KEY_RALTF8:
 		{
 			history_record_type Type;
+			string strStr;
 			const auto SelectType = Global->CtrlObject->CmdHistory->Select(MSG(MHistoryTitle), L"History", strStr, Type);
 			if (SelectType == HRT_ENTER || SelectType == HRT_SHIFTETNER || SelectType == HRT_CTRLENTER || SelectType == HRT_CTRLALTENTER)
 			{
@@ -287,7 +281,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 				{
 					disable = std::make_unique<SetAutocomplete>(&CmdStr);
 				}
-				SetString(strStr);
+				SetString(strStr, true);
 
 				if (SelectType != HRT_CTRLENTER)
 				{
@@ -300,6 +294,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 		case KEY_RALTF10:
 		if (!Global->Opt->Tree.TurnOffCompletely)
 		{
+			string strStr;
 			Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 			{
 				// TODO: здесь можно добавить проверку, что мы в корне диска и отсутствие файла Tree.Far...
@@ -340,7 +335,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 		{
 			history_record_type Type;
 			GUID Guid;
-			string strFile, strData;
+			string strFile, strData, strStr;
 			const auto SelectType = Global->CtrlObject->FolderHistory->Select(MSG(MFolderHistoryTitle), L"HistoryFolders", strStr, Type, &Guid, &strFile, &strData);
 
 			switch(SelectType)
@@ -379,7 +374,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 				break;
 
 			case HRT_CTRLENTER:
-				SetString(strStr);
+				SetString(strStr, true);
 				break;
 
 			default:
@@ -403,7 +398,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 			Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 			CmdStr.RemoveSelection();
 			Refresh();
-			CmdStr.GetString(strStr);
+			const auto& strStr = CmdStr.GetString();
 
 			if (strStr.empty())
 				break;
@@ -431,7 +426,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 			CmdStr.Xlat((Global->Opt->XLat.Flags&XLAT_CONVERTALLCMDLINE) != 0);
 
 			// иначе неправильно работает ctrl-end
-			CmdStr.GetString(strLastCmdStr);
+			strLastCmdStr = CmdStr.GetString();
 			LastCmdPartLength=(int)strLastCmdStr.size();
 
 			return TRUE;
@@ -813,7 +808,7 @@ void CommandLine::ShowViewEditHistory()
 		break;
 
 	case HRT_CTRLENTER:
-		SetString(strStr);
+		SetString(strStr, true);
 		break;
 
 	default:
@@ -838,7 +833,7 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 			{
 				OldCmdLineCurPos = Global->CtrlObject->CmdLine()->GetCurPos();
 				OldCmdLineLeftPos = Global->CtrlObject->CmdLine()->GetLeftPos();
-				Global->CtrlObject->CmdLine()->GetString(strOldCmdLine);
+				strOldCmdLine = Global->CtrlObject->CmdLine()->GetString();
 				Global->CtrlObject->CmdLine()->GetSelection(OldCmdLineSelStart,OldCmdLineSelEnd);
 			}
 		}
@@ -896,7 +891,7 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 
 	{
 		SCOPED_ACTION(SetAutocomplete)(&CmdStr);
-		SetString(CmdLine);
+		SetString(CmdLine, true);
 	}
 
 	int Code;

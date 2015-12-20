@@ -400,11 +400,7 @@ private:
 
 	struct EditorPreRedrawItem : public PreRedrawItem
 	{
-		EditorPreRedrawItem():
-			PreRedrawItem(PR_EditorShowMsg),
-			Percent()
-		{}
-
+		EditorPreRedrawItem();
 		string Title;
 		string Msg;
 		string Name;

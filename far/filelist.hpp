@@ -42,105 +42,63 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class FileFilter;
 
-struct FileListItem: noncopyable, swapable<FileListItem>
+namespace detail
+{
+	struct FileListItemPod
+	{
+		// KEEP ALIGNED!
+		FILETIME CreationTime;
+		FILETIME AccessTime;
+		FILETIME WriteTime;
+		FILETIME ChangeTime;
+
+		unsigned long long FileSize;
+		unsigned long long AllocationSize;
+		unsigned long long StreamsSize;
+
+		UINT64 UserFlags;
+		void* UserData;
+
+		DWORD FileAttr;
+		DWORD ReparseTag;
+		DWORD NumberOfLinks;
+		DWORD NumberOfStreams;
+
+		const HighlightFiles::highlight_item* Colors;
+		FARPANELITEMFREECALLBACK Callback;
+
+		wchar_t **CustomColumnData;
+		size_t CustomColumnNumber;
+		size_t Position;
+
+		int SortGroup;
+		DWORD CRC32;
+
+		const wchar_t *DizText;
+		bool DeleteDiz;
+
+		char Selected;
+		char PrevSelected;
+		char ShowFolderSize;
+		char ShortNamePresent;
+	};
+}
+
+struct FileListItem: public detail::FileListItemPod, noncopyable, swapable<FileListItem>
 {
 	string strName;
-	char Selected;
-	char PrevSelected;
-	char ShowFolderSize;
-	char ShortNamePresent;
-	const HighlightFiles::highlight_item* Colors;
-
-	DWORD NumberOfLinks;
-	DWORD NumberOfStreams;
-	UINT64 UserFlags;
-	void* UserData;
-	FARPANELITEMFREECALLBACK Callback;
-
-	size_t Position;
-	int SortGroup;
-	const wchar_t *DizText;
-	bool DeleteDiz;
-	string strOwner;
-	wchar_t **CustomColumnData;
-	size_t CustomColumnNumber;
-	DWORD CRC32;
-
-	//BUGBUG!!
-	DWORD FileAttr;
-	FILETIME CreationTime;
-	FILETIME AccessTime;
-	FILETIME WriteTime;
-	FILETIME ChangeTime;
-
-	unsigned __int64 FileSize;
-	unsigned __int64 AllocationSize;
-	unsigned __int64 StreamsSize;
-
 	string strShortName;
+	string strOwner;
+	std::unique_ptr<std::unordered_map<string, string>> ContentData;
 
-	DWORD ReparseTag;
-
-	std::unordered_map<string,string> ContentData;
-
-	FileListItem():
-		Selected(),
-		PrevSelected(),
-		ShowFolderSize(),
-		ShortNamePresent(),
-		Colors(),
-		NumberOfLinks(),
-		NumberOfStreams(),
-		UserFlags(),
-		UserData(),
-		Callback(),
-		Position(),
-		SortGroup(),
-		DizText(),
-		DeleteDiz(),
-		CustomColumnData(),
-		CustomColumnNumber(),
-		CRC32(),
-		FileAttr(),
-		CreationTime(),
-		AccessTime(),
-		WriteTime(),
-		ChangeTime(),
-		FileSize(),
-		AllocationSize(),
-		StreamsSize(),
-		ReparseTag()
+	FileListItem()
 	{
+		ClearStruct(static_cast<detail::FileListItemPod&>(*this));
 	}
 
-	FileListItem(FileListItem&& rhs) noexcept:
-		Selected(),
-		PrevSelected(),
-		ShowFolderSize(),
-		ShortNamePresent(),
-		Colors(),
-		NumberOfLinks(),
-		NumberOfStreams(),
-		UserFlags(),
-		UserData(),
-		Callback(),
-		Position(),
-		SortGroup(),
-		DizText(),
-		DeleteDiz(),
-		CustomColumnData(),
-		CustomColumnNumber(),
-		CRC32(),
-		FileAttr(),
-		CreationTime(),
-		AccessTime(),
-		WriteTime(),
-		ChangeTime(),
-		FileSize(),
-		AllocationSize(),
-		StreamsSize(),
-		ReparseTag()
+	FileListItem(FileListItem&& rhs) noexcept
 	{
+		ClearStruct(static_cast<detail::FileListItemPod&>(*this));
 		*this = std::move(rhs);
 	}
 
@@ -151,35 +109,10 @@ struct FileListItem: noncopyable, swapable<FileListItem>
 	void swap(FileListItem& rhs) noexcept
 	{
 		using std::swap;
+		swap(static_cast<detail::FileListItemPod&>(*this), static_cast<detail::FileListItemPod&>(rhs));
 		strName.swap(rhs.strName);
-		swap(Selected, rhs.Selected);
-		swap(PrevSelected, rhs.PrevSelected);
-		swap(ShowFolderSize, rhs.ShowFolderSize);
-		swap(ShortNamePresent, rhs.ShortNamePresent);
-		swap(Colors, rhs.Colors);
-		swap(NumberOfLinks, rhs.NumberOfLinks);
-		swap(NumberOfStreams, rhs.NumberOfStreams);
-		swap(UserFlags, rhs.UserFlags);
-		swap(UserData, rhs.UserData);
-		swap(Callback, rhs.Callback);
-		swap(Position, rhs.Position);
-		swap(SortGroup, rhs.SortGroup);
-		swap(DizText, rhs.DizText);
-		swap(DeleteDiz, rhs.DeleteDiz);
-		strOwner.swap(rhs.strOwner);
-		swap(CustomColumnData, rhs.CustomColumnData);
-		swap(CustomColumnNumber, rhs.CustomColumnNumber);
-		swap(CRC32, rhs.CRC32);
-		swap(FileAttr, rhs.FileAttr);
-		swap(CreationTime, rhs.CreationTime);
-		swap(AccessTime, rhs.AccessTime);
-		swap(WriteTime, rhs.WriteTime);
-		swap(ChangeTime, rhs.ChangeTime);
-		swap(FileSize, rhs.FileSize);
-		swap(AllocationSize, rhs.AllocationSize);
-		swap(StreamsSize, rhs.StreamsSize);
 		strShortName.swap(rhs.strShortName);
-		swap(ReparseTag, rhs.ReparseTag);
+		strOwner.swap(rhs.strOwner);
 		ContentData.swap(rhs.ContentData);
 	}
 };

@@ -48,12 +48,15 @@ public:
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
 
-	string GetCurDir() const { return m_CurDir; }
+	const string& GetCurDir() const { return m_CurDir; }
 	void SetCurDir(const string& CurDir);
-	void GetString(string &strStr) const { CmdStr.GetString(strStr); }
-	int GetLength() const { return CmdStr.GetLength(); }
-	void SetString(const string& Str,bool Redraw=true);
+
+	const string& GetString() const { return CmdStr.GetString(); }
+	void SetString(const string& Str, bool Redraw);
 	void InsertString(const string& Str);
+
+	int GetLength() const { return CmdStr.GetLength(); }
+
 	int ExecString(const string& Str, bool AlwaysWaitFinish, bool SeparateWindow = false, bool DirectRun = false, bool WaitForIdle = false, bool RunAs = false, bool RestoreCmd = false, bool FromPanel=false);
 	void ShowViewEditHistory();
 	void SetCurPos(int Pos, int LeftPos=0, bool Redraw=true);

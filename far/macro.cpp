@@ -1577,7 +1577,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_CMDLINE_VALUE:            // CmdLine.Value
 		{
 			if (Global->CtrlObject->CmdLine())
-				Global->CtrlObject->CmdLine()->GetString(strFileName);
+				strFileName = Global->CtrlObject->CmdLine()->GetString();
 			return PassString(strFileName, Data);
 		}
 

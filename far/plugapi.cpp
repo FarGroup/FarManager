@@ -1426,14 +1426,13 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 
 		case FCTL_GETCMDLINE:
 		{
-			string strParam;
-
-			CmdLine->GetString(strParam);
-
+			const auto& Str = CmdLine->GetString();
 			if (Param1&&Param2)
-				xwcsncpy((wchar_t*)Param2,strParam.data(),Param1);
+			{
+				xwcsncpy((wchar_t*)Param2, Str.data(), Param1);
+			}
 
-			return (int)strParam.size()+1;
+			return Str.size() + 1;
 		}
 
 		case FCTL_SETCMDLINE:
@@ -1442,7 +1441,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 			{
 				SCOPED_ACTION(SetAutocomplete)(CmdLine);
 				if (Command==FCTL_SETCMDLINE)
-					CmdLine->SetString((const wchar_t*)Param2);
+					CmdLine->SetString((const wchar_t*)Param2, true);
 				else
 					CmdLine->InsertString((const wchar_t*)Param2);
 			}

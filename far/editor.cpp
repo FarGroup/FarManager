@@ -3086,7 +3086,7 @@ Editor::numbered_iterator Editor::DeleteString(numbered_iterator DelPtr, bool De
 	if (IsLastLine(DelPtr) && (!DeleteLast || DelPtr == Lines.begin()))
 	{
 		AddUndoData(UNDO_EDIT, DelPtr->GetString(), DelPtr->GetEOL(), DelPtr.Number(), DelPtr->GetCurPos());
-		DelPtr->SetString(L"");
+		DelPtr->ClearString();
 		Change(ECTYPE_CHANGED, DelPtr.Number());
 		return DelPtr;
 	}
@@ -3260,7 +3260,7 @@ void Editor::InsertString()
 	}
 	else
 	{
-		NewString->SetString(L"");
+		NewString->ClearString();
 		AddUndoData(UNDO_INSSTR, string(), m_it_CurLine->GetEOL(), m_it_CurLine.Number() + 1, 0);
 	}
 
@@ -5004,10 +5004,7 @@ int64_t Editor::GetCurPos(bool file_pos, bool add_bom) const
 		const auto& SaveStr = CurPtr->GetString();
 		const auto EndSeq = CurPtr->GetEOL();
 		TotalSize += mult > 0? SaveStr.size() : unicode::to(m_codepage, SaveStr.data(), SaveStr.size(), nullptr, 0);
-		if (EndSeq)
-		{
-			TotalSize += wcslen(EndSeq);
-		}
+		TotalSize += wcslen(EndSeq);
 		++CurPtr;
 	}
 
@@ -6959,6 +6956,12 @@ void Editor::PR_EditorShowMsg()
 	}
 }
 
+Editor::EditorPreRedrawItem::EditorPreRedrawItem():
+	PreRedrawItem(PR_EditorShowMsg),
+	Percent()
+{
+}
+
 Editor::numbered_iterator Editor::InsertString(const wchar_t *lpwszStr, int nLength, const numbered_iterator& Where)
 {
 	bool Empty = Lines.empty();
@@ -7036,10 +7039,7 @@ void Editor::SetCacheParams(EditorPosCache &pc, bool count_bom)
 				TotalSize += SaveStr.size();
 			}
 			
-			if (EndSeq)
-			{
-				TotalSize += wcslen(EndSeq);
-			}
+			TotalSize += wcslen(EndSeq);
 
 			if (static_cast<int>(TotalSize) > StartChar)
 				break;

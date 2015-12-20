@@ -581,9 +581,7 @@ void QuickView::SetTitle()
 		}
 		else
 		{
-			string strCmdText;
-			Parent()->GetCmdLine()->GetString(strCmdText);
-			strTitleDir += strCmdText;
+			strTitleDir += Parent()->GetCmdLine()->GetString();
 		}
 
 		strTitleDir += L"}";

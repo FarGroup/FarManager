@@ -1920,7 +1920,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 				if (TextFormat&&*EndSeq)
 					EndSeq=m_editor->GlobalEOL.data();
 
-				WideCharToMultiByte(codepage,WC_NO_BEST_FIT_CHARS,EndSeq,StrLength(EndSeq),nullptr,0,nullptr,&UsedDefaultCharEOL);
+				WideCharToMultiByte(codepage, WC_NO_BEST_FIT_CHARS, EndSeq, static_cast<int>(wcslen(EndSeq)), nullptr, 0, nullptr, &UsedDefaultCharEOL);
 
 				if (!BadSaveConfirmed && (UsedDefaultCharStr||UsedDefaultCharEOL))
 				{
@@ -2049,7 +2049,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 				CurPtr->SetEOL(EndSeq);
 			}
 
-			int EndLength=StrLength(EndSeq);
+			const auto EndLength = wcslen(EndSeq);
 			bool bError = false;
 
 			if (codepage == CP_UNICODE)

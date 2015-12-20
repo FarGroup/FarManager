@@ -222,9 +222,7 @@ int FolderTree::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLENTER:          case KEY_RCTRLENTER:
 		case KEY_CTRLSHIFTENTER:     case KEY_RCTRLSHIFTENTER:
 		{
-			string strName;
-			FindEdit->GetString(strName);
-			Tree->FindPartName(strName, TRUE, LocalKey == KEY_CTRLSHIFTENTER || LocalKey == KEY_RCTRLSHIFTENTER || LocalKey == KEY_CTRLSHIFTNUMENTER || LocalKey == KEY_RCTRLSHIFTNUMENTER? -1 : 1);
+			Tree->FindPartName(FindEdit->GetString(), TRUE, LocalKey == KEY_CTRLSHIFTENTER || LocalKey == KEY_RCTRLSHIFTENTER || LocalKey == KEY_CTRLSHIFTNUMENTER || LocalKey == KEY_RCTRLSHIFTNUMENTER? -1 : 1);
 			DrawEdit();
 		}
 		break;
@@ -246,7 +244,7 @@ int FolderTree::ProcessKey(const Manager::Key& Key)
 		case KEY_MSWHEEL_DOWN:
 		case(KEY_MSWHEEL_DOWN | KEY_ALT):
 		case(KEY_MSWHEEL_DOWN | KEY_RALT):
-			FindEdit->SetString(L"");
+			FindEdit->ClearString();
 			Tree->ProcessKey(Key);
 			DrawEdit();
 			break;
@@ -270,15 +268,13 @@ int FolderTree::ProcessKey(const Manager::Key& Key)
 			*/
 			if (FindEdit->ProcessKey(Key))
 			{
-				string strName;
-				FindEdit->GetString(strName);
+				const auto& strName = FindEdit->GetString();
 
 				if (Tree->FindPartName(strName, FALSE, 1))
 					strLastName = strName;
 				else
 				{
 					FindEdit->SetString(strLastName);
-					strName = strLastName;
 				}
 
 				DrawEdit();

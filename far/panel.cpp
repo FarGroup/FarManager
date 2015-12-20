@@ -1310,7 +1310,7 @@ private:
 	Manager::Key m_KeyToProcess;
 	virtual void DisplayObject(void) override;
 	virtual string GetTitle() const override { return string(); }
-	void ProcessName(const string& Src, string &strName);
+	void ProcessName(const string& Src);
 	void ShowBorder(void);
 	void Close(void);
 };
@@ -1362,7 +1362,6 @@ void Search::Process(void)
 int Search::ProcessKey(const Manager::Key& Key)
 {
 	auto LocalKey = Key;
-	string strName;
 
 	// для вставки воспользуемся макродвижком...
 	if (LocalKey()==KEY_CTRLV || LocalKey()==KEY_RCTRLV || LocalKey()==KEY_SHIFTINS || LocalKey()==KEY_SHIFTNUMPAD0)
@@ -1372,7 +1371,7 @@ int Search::ProcessKey(const Manager::Key& Key)
 		{
 			if (!ClipText.empty())
 			{
-				ProcessName(ClipText, strName);
+				ProcessName(ClipText);
 				ShowBorder();
 			}
 		}
@@ -1381,21 +1380,19 @@ int Search::ProcessKey(const Manager::Key& Key)
 	}
 	else if (LocalKey() == KEY_OP_XLAT)
 	{
-		string strTempName;
 		m_FindEdit->Xlat();
-		m_FindEdit->GetString(strTempName);
-		m_FindEdit->SetString(L"");
-		ProcessName(strTempName, strName);
+		const auto strTempName = m_FindEdit->GetString();
+		m_FindEdit->ClearString();
+		ProcessName(strTempName);
 		Redraw();
 		return TRUE;
 	}
 	else if (LocalKey() == KEY_OP_PLAINTEXT)
 	{
-		string strTempName;
 		m_FindEdit->ProcessKey(LocalKey);
-		m_FindEdit->GetString(strTempName);
-		m_FindEdit->SetString(L"");
-		ProcessName(strTempName, strName);
+		const auto strTempName = m_FindEdit->GetString();
+		m_FindEdit->ClearString();
+		ProcessName(strTempName);
 		Redraw();
 		return TRUE;
 	}
@@ -1436,14 +1433,12 @@ int Search::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_CTRLNUMENTER:   case KEY_RCTRLNUMENTER:
 		case KEY_CTRLENTER:      case KEY_RCTRLENTER:
-			m_FindEdit->GetString(strName);
-			m_Owner->FindPartName(strName, TRUE, 1);
+			m_Owner->FindPartName(m_FindEdit->GetString(), TRUE, 1);
 			Redraw();
 			break;
 		case KEY_CTRLSHIFTNUMENTER:  case KEY_RCTRLSHIFTNUMENTER:
 		case KEY_CTRLSHIFTENTER:     case KEY_RCTRLSHIFTENTER:
-			m_FindEdit->GetString(strName);
-			m_Owner->FindPartName(strName, TRUE, -1);
+			m_Owner->FindPartName(m_FindEdit->GetString(), TRUE, -1);
 			Redraw();
 			break;
 		case KEY_NONE:
@@ -1463,12 +1458,10 @@ int Search::ProcessKey(const Manager::Key& Key)
 				Close();
 				return TRUE;
 			}
-
-			string strLastName;
-			m_FindEdit->GetString(strLastName);
+			auto strLastName = m_FindEdit->GetString();
 			if (m_FindEdit->ProcessKey(LocalKey))
 			{
-				m_FindEdit->GetString(strName);
+				auto strName = m_FindEdit->GetString();
 
 				// уберем двойные '**'
 				if (strName.size() > 1
@@ -1541,10 +1534,9 @@ void Search::DisplayObject(void)
 	m_FindEdit->Show();
 }
 
-void Search::ProcessName(const string& Src, string &strName)
+void Search::ProcessName(const string& Src)
 {
-	string Buffer;
-	m_FindEdit->GetString(Buffer);
+	auto Buffer = m_FindEdit->GetString();
 	Buffer = Unquote(Buffer + Src);
 
 	for (; !Buffer.empty() && !m_Owner->FindPartName(Buffer, FALSE, 1); Buffer.pop_back())
@@ -1554,7 +1546,6 @@ void Search::ProcessName(const string& Src, string &strName)
 	{
 		m_FindEdit->SetString(Buffer);
 		m_FindEdit->Show();
-		strName = Buffer;
 	}
 }
 

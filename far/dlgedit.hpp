@@ -101,7 +101,7 @@ public:
 	int   GetClearFlag() const;
 
 	void  Changed();
-	void  SetString(const string& Str, bool disable_autocomplete = false, int pos = -1);
+	void  SetString(const string& Str);
 	void  InsertString(const string& Str);
 	void  SetHiString(const string& Str);
 	const string& GetString(int Row = -1) const;            // Row==-1 - current line
@@ -137,7 +137,7 @@ public:
 	void SetCursorType(bool Visible, DWORD Size);
 	void GetCursorType(bool& Visible, DWORD& Size) const;
 
-	bool  GetReadOnly() const;
+	bool GetReadOnly() const;
 	void SetReadOnly(bool NewReadOnly);
 
 	void SetCallbackState(bool Enable){lineEdit->SetCallbackState(Enable);}

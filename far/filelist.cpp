@@ -6716,56 +6716,62 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 		if ((Global->Opt->ShowHidden || !(fdata.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))) && (!UseFilter || m_Filter->FileInFilter(fdata, nullptr, &fdata.strFileName)))
 		{
-			m_ListData.emplace_back(VALUE_TYPE(m_ListData)());
-			auto& NewItem = m_ListData.back();
-
-			NewItem.FileAttr = fdata.dwFileAttributes;
-			NewItem.CreationTime = fdata.ftCreationTime;
-			NewItem.AccessTime = fdata.ftLastAccessTime;
-			NewItem.WriteTime = fdata.ftLastWriteTime;
-			NewItem.ChangeTime = fdata.ftChangeTime;
-			NewItem.FileSize = fdata.nFileSize;
-			NewItem.AllocationSize = fdata.nAllocationSize;
-			NewItem.strName = fdata.strFileName;
-			NewItem.strShortName = fdata.strAlternateFileName;
-			NewItem.Position = m_ListData.size() - 1;
-			NewItem.NumberOfLinks=1;
-
-			if (fdata.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
 			{
-				NewItem.ReparseTag=fdata.dwReserved0; //MSDN
+				auto NewItem = VALUE_TYPE(m_ListData)();
+
+				NewItem.FileAttr = fdata.dwFileAttributes;
+				NewItem.CreationTime = fdata.ftCreationTime;
+				NewItem.AccessTime = fdata.ftLastAccessTime;
+				NewItem.WriteTime = fdata.ftLastWriteTime;
+				NewItem.ChangeTime = fdata.ftChangeTime;
+				NewItem.FileSize = fdata.nFileSize;
+				NewItem.AllocationSize = fdata.nAllocationSize;
+				NewItem.strName = fdata.strFileName;
+				NewItem.strShortName = fdata.strAlternateFileName;
+				NewItem.Position = m_ListData.size() - 1;
+				NewItem.NumberOfLinks = 1;
+
+				if (fdata.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
+				{
+					NewItem.ReparseTag = fdata.dwReserved0; //MSDN
+				}
+				if (!(fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+				{
+					TotalFileSize += NewItem.FileSize;
+
+					if (ReadNumLinks)
+						NewItem.NumberOfLinks = GetNumberOfLinks(fdata.strFileName, true);
+				}
+				else
+				{
+					NewItem.AllocationSize = 0;
+				}
+
+				NewItem.SortGroup = DEFAULT_SORT_GROUP;
+
+				if (ReadOwners)
+				{
+					string strOwner;
+					GetFileOwner(strComputerName, NewItem.strName, strOwner);
+					NewItem.strOwner = strOwner;
+				}
+
+				NewItem.NumberOfStreams = NewItem.FileAttr&FILE_ATTRIBUTE_DIRECTORY ? 0 : 1;
+				NewItem.StreamsSize = NewItem.FileSize;
+
+				if (ReadNumStreams || ReadStreamsSize)
+				{
+					EnumStreams(TestParentFolderName(fdata.strFileName) ? m_CurDir : fdata.strFileName, NewItem.StreamsSize, NewItem.NumberOfStreams);
+				}
+
+				if (!ContentPlugins.empty())
+				{
+					NewItem.ContentData = std::make_unique<decltype(NewItem.ContentData)::element_type>();
+					Global->CtrlObject->Plugins->GetContentData(ContentPlugins, NewItem.strName, ContentNames, ContentValues, *NewItem.ContentData.get());
+				}
+
+				m_ListData.emplace_back(std::move(NewItem));
 			}
-			if (!(fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-			{
-				TotalFileSize += NewItem.FileSize;
-
-				if (ReadNumLinks)
-					NewItem.NumberOfLinks = GetNumberOfLinks(fdata.strFileName, true);
-			}
-			else
-			{
-				NewItem.AllocationSize = 0;
-			}
-
-			NewItem.SortGroup=DEFAULT_SORT_GROUP;
-
-			if (ReadOwners)
-			{
-				string strOwner;
-				GetFileOwner(strComputerName, NewItem.strName,strOwner);
-				NewItem.strOwner = strOwner;
-			}
-
-			NewItem.NumberOfStreams=NewItem.FileAttr&FILE_ATTRIBUTE_DIRECTORY?0:1;
-			NewItem.StreamsSize=NewItem.FileSize;
-
-			if (ReadNumStreams||ReadStreamsSize)
-			{
-				EnumStreams(TestParentFolderName(fdata.strFileName)? m_CurDir : fdata.strFileName, NewItem.StreamsSize, NewItem.NumberOfStreams);
-			}
-
-			if (!ContentPlugins.empty())
-				Global->CtrlObject->Plugins->GetContentData(ContentPlugins, NewItem.strName, ContentNames, ContentValues, NewItem.ContentData);
 
 			if (fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 			{
@@ -8312,7 +8318,15 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 					if (!ColumnData)
 					{
-						ColumnData = m_ListData[ListPos].ContentData[Columns[K].title].data();
+						const auto& ContentMapPtr = m_ListData[ListPos].ContentData;
+						if (ContentMapPtr)
+						{
+							const auto Iterator = ContentMapPtr->find(Columns[K].title);
+							if (Iterator != ContentMapPtr->cend())
+							{
+								ColumnData = Iterator->second.data();
+							}
+						}
 					}
 
 					int CurLeftPos=0;

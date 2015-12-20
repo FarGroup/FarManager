@@ -533,11 +533,10 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 						// ввод
 						if((MenuKey>=L' ' && MenuKey<=static_cast<int>(WCHAR_MAX)) || MenuKey==KEY_BS || MenuKey==KEY_DEL || MenuKey==KEY_NUMDEL)
 						{
-							string strPrev;
 							DeleteBlock();
-							GetString(strPrev);
+							const auto strPrev = GetString();
 							ProcessKey(Manager::Key(MenuKey));
-							GetString(strTemp);
+							strTemp = GetString();
 							if(strPrev != strTemp)
 							{
 								ComplMenu->clear();

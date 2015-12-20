@@ -2740,20 +2740,24 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 				const auto focus = static_cast<DlgEdit*>(Items[m_FocusPos].ObjPtr);
 				strStr = focus->GetString();
 				int CurPos = focus->GetCurPos();
+				SCOPED_ACTION(SetAutocomplete)(focus);
 				string strMove;
 				if (CurPos < static_cast<int>(strStr.size()))
 				{
 					strMove = strStr.substr(CurPos);
 					strStr.resize(CurPos);
-					focus->SetString(strStr, true, 0);
+					focus->SetString(strStr);
+					focus->SetCurPos(0);
 				}
-				focus->SetString(strStr, true, 0);
+				focus->SetString(strStr);
+				focus->SetCurPos(0);
 
 				for (I=m_FocusPos+1; I <= EditorLastPos; ++I)
 				{
 					const auto next = static_cast<DlgEdit*>(Items[I].ObjPtr);
 					strStr = next->GetString();
-					next->SetString(strMove, true, 0);
+					next->SetString(strMove);
+					focus->SetCurPos(0);
 					strMove = strStr;
 				}
 				Do_ProcessNextCtrl(false, true);
@@ -3003,7 +3007,9 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 										{
 											strStr += next->GetString();
 										}
-										static_cast<DlgEdit*>(Items[I-1].ObjPtr)->SetString(strStr, true, 0);
+										const auto LocalPrev = static_cast<DlgEdit*>(Items[I - 1].ObjPtr);
+										SCOPED_ACTION(SetAutocomplete)(LocalPrev);
+										LocalPrev->SetString(strStr);
 										strStr.clear();
 									}
 									Do_ProcessNextCtrl(true);
@@ -3031,7 +3037,9 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 									strNext = static_cast<DlgEdit*>(Items[I].ObjPtr)->GetString();
 								const auto prev = static_cast<DlgEdit*>(Items[I - 1].ObjPtr);
 								int CurPos = prev->GetCurPos();
-								prev->SetString(strNext, true, CurPos);
+								SCOPED_ACTION(SetAutocomplete)(prev);
+								prev->SetString(strNext);
+								prev->SetCurPos(CurPos);
 								empty = empty && strNext.empty();
 							}
 							if (empty)
@@ -3068,7 +3076,8 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 									{
 										strStr.resize(CurPos, L' ');
 									}
-									edt_1->SetString(strStr + edt_1->GetString(), true);
+									SCOPED_ACTION(SetAutocomplete)(edt_1);
+									edt_1->SetString(strStr + edt_1->GetString());
 									return ProcessKey(Manager::Key(KEY_CTRLY));
 								}
 							}

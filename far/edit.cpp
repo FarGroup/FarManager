@@ -673,7 +673,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 	{
 		LeftPos=0;
 		DisableCallback();
-		SetString(L""); // mantis#0001722
+		ClearString(); // mantis#0001722
 		RevertCallback();
 		Show();
 	}
@@ -1509,11 +1509,6 @@ int Edit::InsertKey(int Key)
 		Changed();
 
 	return TRUE;
-}
-
-void Edit::GetString(string &strStr) const
-{
-	strStr = m_Str;
 }
 
 void Edit::SetHiString(const string& Str)
