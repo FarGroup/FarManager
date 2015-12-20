@@ -3241,7 +3241,7 @@ void Editor::InsertString()
 		AddUndoData(UNDO_INSSTR, string(), m_it_CurLine->GetEOL(), m_it_CurLine.Number() + 1, 0);
 		AddUndoData(UNDO_END);
 
-		string NewCurLineStr(CurLineStr, CurPos);
+		string NewCurLineStr(CurLineStr.data(), CurPos);
 
 		if (EdOpt.AutoIndent && NewLineEmpty)
 		{
@@ -3264,7 +3264,7 @@ void Editor::InsertString()
 		AddUndoData(UNDO_INSSTR, string(), m_it_CurLine->GetEOL(), m_it_CurLine.Number() + 1, 0);
 	}
 
-	if (EndSeq && *EndSeq)
+	if (*EndSeq)
 	{
 		m_it_CurLine->SetEOL(EndSeq);
 	}
@@ -4192,7 +4192,7 @@ string Editor::Block2Text(const wchar_t* InitData, size_t size)
 {
 	size_t TotalChars = size;
 
-	iterator SelEnd = m_it_AnyBlockStart;
+	iterator SelEnd = Lines.end();
 
 	for (iterator i = m_it_AnyBlockStart.base(), end = Lines.end(); i != end; ++i)
 	{
@@ -4295,8 +4295,8 @@ void Editor::DeleteBlock()
 			CurPtr->InsertString(L"",0);
 		}
 
-		string TmpStr(CurPtr->GetString());
-		string EndSeq = CurPtr->GetEOL();
+		auto TmpStr = CurPtr->GetString();
+		const auto EndSeq = CurPtr->GetEOL();
 
 		int DeleteNext=FALSE;
 
