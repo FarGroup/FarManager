@@ -3,6 +3,79 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 20.12.2015 19:10:39 +0200 - build 4488
+
+1. And more.
+
+drkns 20.12.2015 16:47:03 +0200 - build 4487
+
+1. Another correction of 4484.1.
+
+drkns 20.12.2015 16:20:08 +0200 - build 4486
+
+1. Refactoring, continuation of 4484.
+
+drkns 20.12.2015 03:05:03 +0200 - build 4485
+
+1. Correction of 4484.1.
+
+drkns 19.12.2015 21:59:59 +0200 - build 4484
+
+1. Refactoring. Massive reworking in input lines and therefore the editor. Consequences are expected.
+
+2. Continuation of 4473 according to users' wishes: buttons insert new text into cursor position instead of replacing everything.
+
+zg 19.12.2015 14:36:32 +0200 - build 4483
+
+1. remove duplicate conversion of INPUT_RECORD to FarKey and vice versa.
+
+drkns 19.12.2015 14:07:47 +0200 - build 4482
+
+1. 0003137: A typo in Far.exe -? output
+   Actually the output is correct, the error is in another place.
+
+drkns 18.12.2015 19:39:04 +0200 - build 4481
+
+1. Another correction of 4473.
+
+w17 18.12.2015 13:24:46 +0300 - build 4480
+
+1. Experimental: M#1910: "Add to archive" hotkey does not wok in Temporary Panel.
+
+drkns 17.12.2015 21:32:47 +0200 - build 4479
+
+1. Correction of 4473: Selection takes the whole string in absence of a block.
+
+drkns 17.12.2015 20:56:42 +0200 - build 4478
+
+1. User menu composed entirely of separators caused AV.
+
+zg 16.12.2015 22:53:06 +0200 - build 4477
+
+1. assert on alt-65536 input in editor.
+
+drkns 16.12.2015 20:53:34 +0200 - build 4476
+
+1. Another correction of 4473.
+
+drkns 16.12.2015 19:48:28 +0200 - build 4475
+
+1. Continuation of 4473 according to users' wishes.
+
+drkns 16.12.2015 11:48:50 +0200 - build 4474
+
+1. Correction of 4473.
+
+drkns 16.12.2015 00:42:39 +0200 - build 4473
+
+1. 'Editor settings - [x] Pick up the word' option deleted.
+   Instead there are [ Word ] and [ Selection ] buttons right in search dialog which insert the written into the line.
+   Selection takes only the first line of the block. It takes a word if there is no block.
+
+2. DlgBuilder calculated vertical coordinates incorrectly for two columns of different size.
+
+3. Refactoring.
+
 drkns 12.12.2015 18:50:14 +0200
 
 1. Whole source code is now utf-8.
