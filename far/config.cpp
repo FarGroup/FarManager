@@ -2124,7 +2124,7 @@ void Options::Save(bool Manual)
 	std::for_each(CONST_RANGE(Config, i)
 	{
 		const auto Cfg = i.GetConfig();
-		SCOPED_ACTION(auto) = Cfg->ScopedTransaction();
+		SCOPED_ACTION(auto)(Cfg->ScopedTransaction());
 		std::for_each(CONST_RANGE(i, j)
 		{
 			j.Value->StoreValue(Cfg, j.KeyName, j.ValName, Manual);

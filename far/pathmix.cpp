@@ -473,7 +473,7 @@ string ExtractPathRoot(const string &Path)
 
 	if (PathRootLen)
 	{
-		string result(Path.data(), PathRootLen);
+		string result(Path, 0, PathRootLen);
 		AddEndSlash(result);
 		return result;
 	}
@@ -501,7 +501,7 @@ string ExtractFilePath(const string &Path)
 
 	if (p <= PathRootLen && PathRootLen)
 	{
-		string result(Path.data(), PathRootLen);
+		string result(Path, 0, PathRootLen);
 		AddEndSlash(result);
 		return result;
 	}

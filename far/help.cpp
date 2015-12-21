@@ -1515,7 +1515,7 @@ int Help::JumpTopic()
 		string strFullPath = StackData->strHelpPath;
 		// уберем _все_ конечные слеши и добавим один
 		DeleteEndSlash(strFullPath);
-		strFullPath.append(L"\\").append(strNewTopic.data()+(IsSlash(strNewTopic.front())?1:0));
+		strFullPath.append(L"\\").append(strNewTopic, IsSlash(strNewTopic.front())? 1 : 0, string::npos);
 		BOOL EndSlash = IsSlash(strFullPath.back());
 		DeleteEndSlash(strFullPath);
 		ConvertNameToFull(strFullPath,strNewTopic);
@@ -1531,7 +1531,7 @@ int Help::JumpTopic()
 
 		if (pos != string::npos && strNewTopic.front() != L':') // наверное подразумевается URL
 		{
-			string Protocol(strNewTopic.data(), pos);
+			string Protocol(strNewTopic, 0, pos);
 
 			if (RunURL(Protocol, StackData->strSelTopic))
 			{

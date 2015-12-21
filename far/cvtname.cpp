@@ -346,7 +346,7 @@ void ConvertNameToReal(const string& Src, string &strDest)
 			if (FullPath.size() > Path.size() + 1)
 			{
 				AddEndSlash(FinalFilePath);
-				FinalFilePath.append(FullPath.data() + Path.size() + 1, FullPath.size() - Path.size() - 1);
+				FinalFilePath.append(FullPath, Path.size() + 1, string::npos);
 			}
 
 			FinalFilePath = TryConvertVolumeGuidToDrivePath(FinalFilePath);

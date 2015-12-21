@@ -277,7 +277,7 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 	SetLineCursorPos(TabCurPos);
 	int RealLeftPos=TabPosToReal(LeftPos);
 
-	OutStrTmp.assign(m_Str.data() + RealLeftPos, std::max(0, std::min(static_cast<int>(EditLength), m_Str.size() - RealLeftPos)));
+	OutStrTmp.assign(m_Str, RealLeftPos, std::max(0, std::min(static_cast<int>(EditLength), m_Str.size() - RealLeftPos)));
 
 	{
 		auto TrailingSpaces = OutStrTmp.cend();
@@ -672,9 +672,10 @@ int Edit::ProcessKey(const Manager::Key& Key)
 	        LocalKey==KEY_CTRLSHIFTBACKBRACKET || LocalKey==KEY_RCTRLSHIFTBACKBRACKET || LocalKey==KEY_SHIFTENTER || LocalKey==KEY_SHIFTNUMENTER))
 	{
 		LeftPos=0;
-		DisableCallback();
-		ClearString(); // mantis#0001722
-		RevertCallback();
+		{
+			SCOPED_ACTION(auto)(SupressCallback());
+			ClearString(); // mantis#0001722
+		}
 		Show();
 	}
 
@@ -876,14 +877,15 @@ int Edit::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLSHIFTBS:
 		case KEY_RCTRLSHIFTBS:
 		{
-			DisableCallback();
-
-			// BUGBUG
-			for (int i=m_CurPos; i>=0; i--)
 			{
-				RecurseProcessKey(KEY_BS);
+				SCOPED_ACTION(auto)(SupressCallback());
+
+				// BUGBUG
+				for (int i = m_CurPos; i >= 0; i--)
+				{
+					RecurseProcessKey(KEY_BS);
+				}
 			}
-			RevertCallback();
 			Changed(true);
 			Show();
 			return TRUE;
@@ -897,29 +899,29 @@ int Edit::ProcessKey(const Manager::Key& Key)
 				m_CurPos = m_Str.size();
 			}
 
-			Lock();
-
-			DisableCallback();
-
-			// BUGBUG
-			for (;;)
 			{
-				int StopDelete=FALSE;
+				Lock();
+				SCOPED_ACTION(auto)(SupressCallback());
 
-				if (m_CurPos>1 && IsSpace(m_Str[m_CurPos-1])!=IsSpace(m_Str[m_CurPos-2]))
-					StopDelete=TRUE;
+				// BUGBUG
+				for (;;)
+				{
+					int StopDelete = FALSE;
 
-				RecurseProcessKey(KEY_BS);
+					if (m_CurPos > 1 && IsSpace(m_Str[m_CurPos - 1]) != IsSpace(m_Str[m_CurPos - 2]))
+						StopDelete = TRUE;
 
-				if (!m_CurPos || StopDelete)
-					break;
+					RecurseProcessKey(KEY_BS);
 
-				if (IsWordDiv(WordDiv(),m_Str[m_CurPos-1]))
-					break;
+					if (!m_CurPos || StopDelete)
+						break;
+
+					if (IsWordDiv(WordDiv(), m_Str[m_CurPos - 1]))
+						break;
+				}
+
+				Unlock();
 			}
-
-			Unlock();
-			RevertCallback();
 			Changed(true);
 			Show();
 			return TRUE;
@@ -978,49 +980,50 @@ int Edit::ProcessKey(const Manager::Key& Key)
 		{
 			if (m_CurPos >= m_Str.size())
 				return FALSE;
-
-			Lock();
-			DisableCallback();
-			if (!Mask.empty())
 			{
-				int MaskLen = static_cast<int>(Mask.size());
-				int ptr=m_CurPos;
+				SCOPED_ACTION(auto)(SupressCallback());
+				Lock();
 
-				while (ptr<MaskLen)
+				if (!Mask.empty())
 				{
-					ptr++;
+					int MaskLen = static_cast<int>(Mask.size());
+					int ptr = m_CurPos;
 
-					if (!CheckCharMask(Mask[ptr]) ||
-					        (IsSpace(m_Str[ptr]) && !IsSpace(m_Str[ptr+1])) ||
-					        (IsWordDiv(WordDiv(), m_Str[ptr])))
-						break;
+					while (ptr < MaskLen)
+					{
+						ptr++;
+
+						if (!CheckCharMask(Mask[ptr]) ||
+							(IsSpace(m_Str[ptr]) && !IsSpace(m_Str[ptr + 1])) ||
+							(IsWordDiv(WordDiv(), m_Str[ptr])))
+							break;
+					}
+
+					// BUGBUG
+					for (int i = 0; i < ptr - m_CurPos; i++)
+						RecurseProcessKey(KEY_DEL);
+				}
+				else
+				{
+					for (;;)
+					{
+						int StopDelete = FALSE;
+
+						if (m_CurPos < m_Str.size() - 1 && IsSpace(m_Str[m_CurPos]) && !IsSpace(m_Str[m_CurPos + 1]))
+							StopDelete = TRUE;
+
+						RecurseProcessKey(KEY_DEL);
+
+						if (m_CurPos >= m_Str.size() || StopDelete)
+							break;
+
+						if (IsWordDiv(WordDiv(), m_Str[m_CurPos]))
+							break;
+					}
 				}
 
-				// BUGBUG
-				for (int i=0; i<ptr-m_CurPos; i++)
-					RecurseProcessKey(KEY_DEL);
+				Unlock();
 			}
-			else
-			{
-				for (;;)
-				{
-					int StopDelete=FALSE;
-
-					if (m_CurPos<m_Str.size() - 1 && IsSpace(m_Str[m_CurPos]) && !IsSpace(m_Str[m_CurPos + 1]))
-						StopDelete=TRUE;
-
-					RecurseProcessKey(KEY_DEL);
-
-					if (m_CurPos >= m_Str.size() || StopDelete)
-						break;
-
-					if (IsWordDiv(WordDiv(), m_Str[m_CurPos]))
-						break;
-				}
-			}
-
-			Unlock();
-			RevertCallback();
 			Changed(true);
 			Show();
 			return TRUE;
@@ -1336,9 +1339,9 @@ int Edit::ProcessKey(const Manager::Key& Key)
 					m_SelStart=PrevSelStart;
 					m_SelEnd=PrevSelEnd;
 				}
-				DisableCallback();
+
+				SCOPED_ACTION(auto)(SupressCallback());
 				DeleteBlock();
-				RevertCallback();
 			}
 
 			if (InsertKey(LocalKey))
@@ -1668,8 +1671,11 @@ void Edit::InsertString(const wchar_t *Str, size_t Length)
 	if (m_Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
 		return;
 
-	if (!m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
-		DeleteBlock();
+	{
+		SCOPED_ACTION(auto)(SupressCallback());
+		if (!m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
+			DeleteBlock();
+	}
 
 	if (m_Flags.Check(FEDITLINE_CLEARFLAG))
 	{

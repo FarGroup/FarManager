@@ -257,7 +257,7 @@ std::string unicode::to(uintptr_t Codepage, const wchar_t *Data, size_t Size, bo
 {
 	if (const auto NewSize = unicode::to(Codepage, Data, Size, nullptr, 0))
 	{
-		std::string Buffer(NewSize, 0);
+		std::string Buffer(NewSize, L'\0');
 		unicode::to(Codepage, Data, Size, &Buffer[0], Buffer.size(), UsedDefaultChar);
 		return Buffer;
 	}
@@ -290,7 +290,7 @@ string unicode::from(uintptr_t Codepage, const char* Data, size_t Size)
 {
 	if (const auto NewSize = unicode::from(Codepage, Data, Size, nullptr, 0))
 	{
-		string Buffer(NewSize, 0);
+		string Buffer(NewSize, L'\0');
 		unicode::from(Codepage, Data, Size, &Buffer[0], Buffer.size());
 		return Buffer;
 	}

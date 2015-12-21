@@ -210,15 +210,19 @@ public:
 	void SetHorizontalPosition(int X1, int X2) {SetPosition(X1, m_Y2, X2, m_Y2);}
 
 protected:
-	virtual void DisableCallback() {}
-	virtual void RevertCallback() {}
 	virtual void RefreshStrByMask(int InitMode=FALSE) {}
+
+	typedef raii_wrapper<Edit*, void (Edit::*)(), void (Edit::*)()> supress_calllback;
+	supress_calllback SupressCallback() { return supress_calllback(this, &Edit::DisableCallback, &Edit::RevertCallback); }
 
 	void DeleteBlock();
 
 	static int CheckCharMask(wchar_t Chr);
 
 private:
+	virtual void DisableCallback() {}
+	virtual void RevertCallback() {}
+
 	virtual void DisplayObject() override;
 	virtual const FarColor& GetNormalColor() const;
 	virtual const FarColor& GetSelectedColor() const;

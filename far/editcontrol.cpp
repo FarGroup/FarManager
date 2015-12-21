@@ -578,12 +578,13 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 											m_CurPos--;
 										}
 
-										DisableCallback();
-										AppendString(ComplMenu->at(0).strName.data()+SelStart);
-										if(m_X2-m_X1>GetLength())
-											SetLeftPos(0);
-										Select(SelStart, GetLength());
-										RevertCallback();
+										{
+											SCOPED_ACTION(auto)(SupressCallback());
+											AppendString(ComplMenu->at(0).strName.data() + SelStart);
+											if (m_X2 - m_X1 > GetLength())
+												SetLeftPos(0);
+											Select(SelStart, GetLength());
+										}
 									}
 									ComplMenu->AddItem(MenuItemEx(), 0);
 									SetMenuPos(*ComplMenu);

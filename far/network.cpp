@@ -152,7 +152,7 @@ string ExtractComputerName(const string& CurDir, string* strTail)
 	}
 	else
 	{
-		string LocalName(CurDir.data(), 2);
+		string LocalName(CurDir, 0, 2);
 		os::WNetGetConnection(LocalName, strNetDir);
 	}
 

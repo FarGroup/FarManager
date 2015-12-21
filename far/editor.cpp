@@ -3241,7 +3241,7 @@ void Editor::InsertString()
 		AddUndoData(UNDO_INSSTR, string(), m_it_CurLine->GetEOL(), m_it_CurLine.Number() + 1, 0);
 		AddUndoData(UNDO_END);
 
-		string NewCurLineStr(CurLineStr.data(), CurPos);
+		string NewCurLineStr(CurLineStr, 0, CurPos);
 
 		if (EdOpt.AutoIndent && NewLineEmpty)
 		{
@@ -3849,7 +3849,7 @@ BOOL Editor::Search(int Next)
 								int SStrLen=SearchLength;
 								const auto& Str = m_it_CurLine->GetString();
 								int LocalCurPos = m_it_CurLine->GetCurPos();
-								string NewStr(Str.data(), LocalCurPos);
+								string NewStr(Str, 0, LocalCurPos);
 								NewStr += strReplaceStrCurrent;
 								NewStr.append(Str.cbegin() + LocalCurPos + SStrLen, Str.cend());
 								NewStr += m_it_CurLine->GetEOL();
@@ -5196,7 +5196,7 @@ void Editor::DeleteVBlock()
 			continue;
 
 		AddUndoData(UNDO_EDIT, CurPtr->GetString(), CurPtr->GetEOL(), CurPtr.Number(), CurPtr->GetCurPos());
-		string TmpStr(CurStr.data(), TBlockX);
+		string TmpStr(CurStr, 0, TBlockX);
 
 		if (CurStr.size() > TBlockX + TBlockSizeX)
 		{
@@ -5271,7 +5271,7 @@ string Editor::VBlock2Text(const wchar_t* InitData, size_t size)
 			if (CopySize>TBlockSizeX)
 				CopySize=TBlockSizeX;
 
-			CopyData.append(CurStr.data() + TBlockX, CopySize);
+			CopyData.append(CurStr, TBlockX, CopySize);
 
 			if (CopySize<TBlockSizeX)
 				CopyData.append(TBlockSizeX-CopySize, L' ');
