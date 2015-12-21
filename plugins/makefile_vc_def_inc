@@ -192,7 +192,7 @@ LNK=$(_ULINK_PATH_)ulink.exe +-
 !ifdef NOENTRY
 NOENTRY_FLAG = -e-
 !endif
-!ifndef NODEFLIB
+!ifdef NODEFLIB
 NODEFLIB_FLAG = -n
 !endif
 !ifdef DEFFILE
