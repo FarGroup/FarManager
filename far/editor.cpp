@@ -3849,7 +3849,7 @@ BOOL Editor::Search(int Next)
 								int SStrLen=SearchLength;
 								const auto& Str = m_it_CurLine->GetString();
 								int LocalCurPos = m_it_CurLine->GetCurPos();
-								string NewStr(Str, LocalCurPos);
+								string NewStr(Str.data(), LocalCurPos);
 								NewStr += strReplaceStrCurrent;
 								NewStr.append(Str.cbegin() + LocalCurPos + SStrLen, Str.cend());
 								NewStr += m_it_CurLine->GetEOL();
