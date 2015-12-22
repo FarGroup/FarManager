@@ -1,7 +1,7 @@
 F=far.Flags
 color = far.AdvControl(F.ACTL_GETCOLOR, far.Colors.COL_EDITORTEXT)
 color.ForegroundColor, color.BackgroundColor  = color.BackgroundColor, color.ForegroundColor
-olorguid=win.Uuid "507CFA2A-3BA3-4f2b-8A80-318F5A831235"
+colorguid=win.Uuid "507CFA2A-3BA3-4f2b-8A80-318F5A831235"
 word=false
 
 Macro

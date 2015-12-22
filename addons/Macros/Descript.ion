@@ -10,6 +10,7 @@ Edit.Notepad.lua Editor: like Notepad
 Edit.OpenURL.lua Editor: Open URL or UNC under cursor
 Edit.SaveAndExit.lua Editor: Save File and Exit
 Edit.SaveFile.lua Editor: Save File
+Editor.ColorWord.moon Editor: Color Word Under Cursor
 F3.lua Use internal editor as viewer
 F9DeactivateMenu.lua Use F9 to deactivate main menu
 F9Table.lua Use F9 to change current table in viewer and editor
