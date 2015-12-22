@@ -1295,7 +1295,7 @@ inline bool IsInternalKeyReal(unsigned int Key)
 
 inline bool IsCharKey(unsigned int Key)
 {
-	return Key < 0x1000 || (Key >= KEY_NUMPAD0 && Key <= KEY_DIVIDE);
+	return Key < 0x1000 || (Key >= KEY_MULTIPLY && Key <= KEY_DIVIDE);
 }
 
 #endif // KEYS_HPP_C9983354_D8EA_4A70_9E16_722A332B503D

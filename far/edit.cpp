@@ -277,7 +277,10 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 	SetLineCursorPos(TabCurPos);
 	int RealLeftPos=TabPosToReal(LeftPos);
 
-	OutStrTmp.assign(m_Str, RealLeftPos, std::max(0, std::min(static_cast<int>(EditLength), m_Str.size() - RealLeftPos)));
+	if (m_Str.size() > RealLeftPos)
+	{
+		OutStrTmp.assign(m_Str, RealLeftPos, std::min(static_cast<int>(EditLength), m_Str.size() - RealLeftPos));
+	}
 
 	{
 		auto TrailingSpaces = OutStrTmp.cend();

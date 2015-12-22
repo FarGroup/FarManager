@@ -458,11 +458,14 @@ Dialog::~Dialog()
 	DeleteDialogObjects();
 
 	Hide();
-	if (Global->Opt->Clock && Global->WindowManager->IsPanelsActive(true))
-		ShowTime(0);
+	if (Global)
+	{
+		if (Global->Opt->Clock && Global->WindowManager->IsPanelsActive(true))
+			ShowTime(0);
 
-	if(!CheckDialogMode(DMODE_ISMENU))
-		Global->ScrBuf->Flush();
+		if (!CheckDialogMode(DMODE_ISMENU))
+			Global->ScrBuf->Flush();
+	}
 
 //	INPUT_RECORD rec;
 //	PeekInputRecord(&rec);
