@@ -323,6 +323,9 @@
           <Component Id="WheelScreenSwitch.lua" Guid="$(var.Guid.WheelScreenSwitch.lua)" Win64="$(var.Win64)">
             <File Id="WheelScreenSwitch.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\WheelScreenSwitch.lua" />
           </Component>
+          <Component Id="Editor.ColorWord.moon" Guid="$(var.Guid.Editor.ColorWord.moon)" Win64="$(var.Win64)">
+            <File Id="Editor.ColorWord.moon" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Editor.ColorWord.moon" />
+          </Component>
         </Directory>
         <Directory Id="SetUp" Name="SetUp">
           <Component Id="Default165.farconfig" Guid="$(var.Guid.Default165.farconfig)" Win64="$(var.Win64)">

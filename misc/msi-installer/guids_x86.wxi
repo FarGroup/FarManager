@@ -113,6 +113,7 @@
 <?define Guid.View.ShiftInsSearch.lua = "EA20B433-D76C-4EC6-8675-167FED64A2CD" ?>
 <?define Guid.View.Space.lua = "2CB0ED75-7E68-47F8-B069-EC31B209AF71" ?>
 <?define Guid.WheelScreenSwitch.lua = "3723CD53-1846-4C77-993B-9FD634AD74AC" ?>
+<?define Guid.Editor.ColorWord.moon = "5D62E549-E310-4302-B04E-E57801B25FD8" ?>
 <?define Guid.Default165.farconfig = "4120318A-A58C-423C-BE28-3997F7440A4A" ?>
 <?define Guid.Descript.ion_7 = "F4B19DFA-6ABC-4FC5-99FC-2B796068DFE6" ?>
 <?define Guid.Executor.4NT.farconfig = "E10CCA0C-AE1D-4636-92F7-4471E3C50286" ?>

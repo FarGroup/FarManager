@@ -92,6 +92,7 @@
           <ComponentRef Id="View.ShiftInsSearch.lua" />
           <ComponentRef Id="View.Space.lua" />
           <ComponentRef Id="WheelScreenSwitch.lua" />
+          <ComponentRef Id="Editor.ColorWord.moon" />
         </Feature>
         <Feature Id="SetUp" Level="2" Title="!(loc.Feature.Title.SetUp)" AllowAdvertise="no" Description="!(loc.Feature.Description.SetUp)">
           <ComponentRef Id="Default165.farconfig" />
