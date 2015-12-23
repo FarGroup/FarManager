@@ -1,3 +1,7 @@
+-- Options
+OptCaseSensitive=true
+-- End of options
+
 F=far.Flags
 color = far.AdvControl(F.ACTL_GETCOLOR, far.Colors.COL_EDITORTEXT)
 color.ForegroundColor, color.BackgroundColor = color.BackgroundColor, color.ForegroundColor
@@ -18,7 +22,7 @@ Macro
       if pos<=line\len()+1
         slab=pos>1 and line\sub(1,pos-1)\match('[%w_]+$') or ""
         tail=line\sub(pos)\match('^[%w_]+') or ""
-        if slab~="" or tail~="" then words[id]=slab..tail
+        if slab~="" or tail~="" then words[id]=OptCaseSensitive and slab..tail or (slab..tail)\lower!
 
 Event
   group:"EditorEvent"
@@ -32,6 +36,7 @@ Event
           while true
             jj,kk,curr=line\cfind("([%w_]+)",pos)
             if not jj then break
+            if not OptCaseSensitive then curr=curr\lower!
             if curr==words[id] then editor.AddColor ei.EditorID,ii,jj,kk,F.ECF_AUTODELETE,color,100,colorguid
             pos=kk+1
     elseif event==F.EE_CLOSE then words[id]=nil
