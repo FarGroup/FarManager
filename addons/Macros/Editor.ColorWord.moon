@@ -1,30 +1,30 @@
 F=far.Flags
 color = far.AdvControl(F.ACTL_GETCOLOR, far.Colors.COL_EDITORTEXT)
-color.ForegroundColor, color.BackgroundColor  = color.BackgroundColor, color.ForegroundColor
+color.ForegroundColor, color.BackgroundColor = color.BackgroundColor, color.ForegroundColor
 colorguid=win.Uuid "507CFA2A-3BA3-4f2b-8A80-318F5A831235"
-word=false
+words={}
 
 Macro
   area:"Editor"
   key:"F5"
   description:"Color Word Under Cursor"
   action:->
-    if word then word=false
-    else
-      ei=editor.GetInfo!
-      pos,row=ei.CurPos,ei.CurLine
+    ei=editor.GetInfo!
+    id=ei.EditorID
+    if words[id] then words[id]=nil
+    else      
+      pos=ei.CurPos
       line=editor.GetString!.StringText
       if pos<=line\len()+1
         slab=pos>1 and line\sub(1,pos-1)\match('[%w_]+$') or ""
         tail=line\sub(pos)\match('^[%w_]+') or ""
-        word=slab..tail
-      if word\len()<=0 then word=false
+        if slab~="" or tail~="" then words[id]=slab..tail
 
 Event
   group:"EditorEvent"
   action:(id,event,param)->
     if event==F.EE_REDRAW
-      if word
+      if words[id]
         ei=editor.GetInfo!
         start,finish=ei.TopScreenLine,math.min ei.TopScreenLine+ei.WindowSizeY,ei.TotalLines
         for ii=start,finish
@@ -32,5 +32,6 @@ Event
           while true
             jj,kk,curr=line\cfind("([%w_]+)",pos)
             if not jj then break
-            if curr==word then editor.AddColor ei.EditorID,ii,jj,kk,F.ECF_AUTODELETE,color,100,colorguid
+            if curr==words[id] then editor.AddColor ei.EditorID,ii,jj,kk,F.ECF_AUTODELETE,color,100,colorguid
             pos=kk+1
+    elseif event==F.EE_CLOSE then words[id]=nil
