@@ -151,8 +151,7 @@ typedef pair<FileIndex::const_iterator, FileIndex::const_iterator> FileIndexRang
 struct ArcEntry {
   ArcType type;
   size_t sig_pos;
-  ArcEntry(const ArcType& type, size_t sig_pos): type(type), sig_pos(sig_pos) {
-  }
+  ArcEntry(const ArcType& type, size_t sig_pos): type(type), sig_pos(sig_pos) {}
 };
 
 typedef list<ArcEntry> ArcEntries;
@@ -171,6 +170,7 @@ private:
   ComObject<IInArchive> in_arc;
   IInStream *base_stream;
   bool open(IInStream* in_stream, const ArcType& type);
+  size_t get_skip_header(IInStream *stream, const ArcType& type);
   static ArcEntries detect(Byte *buffer, UInt32 size, bool eof, const wstring& file_ext, const ArcTypes& arc_types);
   static void open(const OpenOptions& options, Archives& archives);
 public:

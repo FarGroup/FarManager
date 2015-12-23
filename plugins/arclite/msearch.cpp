@@ -65,6 +65,7 @@ StateMatrix* create_state_matrix(const vector<SigData>& str_list) {
 }
 
 vector<StrPos> msearch(unsigned char* data, size_t size, const vector<SigData>& str_list, bool eof) {
+  static bool uniq_by_type = false;
   vector<StrPos> result;
   if (str_list.empty())
     return result;
@@ -78,7 +79,7 @@ vector<StrPos> msearch(unsigned char* data, size_t size, const vector<SigData>& 
       if (st_elem.str_index) { // found signature
         StrIndex str_index = st_elem.str_index - 1;
         auto format = str_list[str_index].format;
-        if (i >= format.SignatureOffset && !found[str_index]) { // more detailed check
+        if (i >= format.SignatureOffset && (!uniq_by_type || !found[str_index])) { // more detailed check
           UInt32 is_arc = format.IsArc ? format.IsArc(data+i-format.SignatureOffset, size-i+format.SignatureOffset) : k_IsArc_Res_YES;
           if (is_arc == k_IsArc_Res_YES || (is_arc == k_IsArc_Res_NEED_MORE && !eof)) {
             found[str_index] = true;
