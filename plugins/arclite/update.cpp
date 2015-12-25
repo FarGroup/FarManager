@@ -655,6 +655,7 @@ private:
   shared_ptr<bool> ignore_errors;
   shared_ptr<ErrorLog> error_log;
   shared_ptr<ArchiveUpdateProgress> progress;
+  CriticalSection sync;
 
 public:
   ArchiveUpdater(const wstring& src_dir, const wstring& dst_dir, UInt32 num_indices, shared_ptr<FileIndexMap> file_index_map, const UpdateOptions& options, shared_ptr<bool> ignore_errors, shared_ptr<ErrorLog> error_log, shared_ptr<ArchiveUpdateProgress> progress): src_dir(src_dir), dst_dir(dst_dir), num_indices(num_indices), file_index_map(file_index_map), options(options), ignore_errors(ignore_errors), error_log(error_log), progress(progress) {
@@ -667,12 +668,14 @@ public:
   UNKNOWN_IMPL_END
 
   STDMETHODIMP SetTotal(UInt64 total) {
+    CriticalSectionLock lock(sync);
     COM_ERROR_HANDLER_BEGIN
     progress->on_total_update(total);
     return S_OK;
     COM_ERROR_HANDLER_END
   }
   STDMETHODIMP SetCompleted(const UInt64 *completeValue) {
+    CriticalSectionLock lock(sync);
     COM_ERROR_HANDLER_BEGIN
     if (completeValue)
       progress->on_completed_update(*completeValue);
@@ -746,6 +749,7 @@ public:
     COM_ERROR_HANDLER_END
   }
   STDMETHODIMP SetOperationResult(Int32 operationResult) {
+    CriticalSectionLock lock(sync);
     COM_ERROR_HANDLER_BEGIN
     if (operationResult == NArchive::NUpdate::NOperationResult::kOK)
       return S_OK;
@@ -759,6 +763,7 @@ public:
   }
 
   STDMETHODIMP CryptoGetTextPassword2(Int32 *passwordIsDefined, BSTR *password) {
+    CriticalSectionLock lock(sync);
     COM_ERROR_HANDLER_BEGIN
     *passwordIsDefined = !options.password.empty();
     BStr(options.password).detach(password);
