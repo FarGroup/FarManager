@@ -3,6 +3,28 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+w17 27.12.2015 11:08:48 +0300 - build 4492
+
+1. M#3142: Text insertion from Borland IDE is broken
+
+drkns 25.12.2015 21:54:47 +0200
+
+1. 0003145: New German translation
+
+drkns 22.12.2015 09:38:41 +0200 - build 4491
+
+1. Forum: Open the attached file in editor and press End to crash FAR.
+
+2. #0003143: Arrow movements add space characters in editor
+
+drkns 21.12.2015 20:25:07 +0200 - build 4490
+
+1. Refactoring, continuation of 4484.
+
+drkns 21.12.2015 08:13:52 +0200 - build 4489
+
+1. And more.
+
 drkns 20.12.2015 19:10:39 +0200 - build 4488
 
 1. And more.
