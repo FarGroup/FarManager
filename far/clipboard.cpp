@@ -396,13 +396,20 @@ bool Clipboard::GetFormat(FAR_CLIPBOARD_FORMAT Format, string& data)
 {
 	bool Result = false;
 	bool isOEMVBlock=false;
-	BOOL MBColumnSelect = IsFormatAvailable(RegisterFormat(FCF_MSDEVCOLUMNSELECT)) || IsFormatAvailable(RegisterFormat(FCF_BORLANDIDEVBLOCK));
+	bool ColumnSelect = IsFormatAvailable(RegisterFormat(FCF_MSDEVCOLUMNSELECT));
+	if (!ColumnSelect)
+	{
+		if (const auto hClipData = GetData(RegisterFormat(FCF_BORLANDIDEVBLOCK)))
+			if (const auto ClipAddr = os::memory::global::lock<const char*>(hClipData))
+				ColumnSelect = (ClipAddr.get()[0] & 0x02) != 0;
+	}
+
 	auto FormatType = RegisterFormat(Format);
 
 	if (!FormatType)
 		return false;
 
-	if (!MBColumnSelect)
+	if (!ColumnSelect)
 	{
 		if (Format == FCF_VERTICALBLOCK_UNICODE && !IsFormatAvailable(FormatType))
 		{
@@ -414,7 +421,7 @@ bool Clipboard::GetFormat(FAR_CLIPBOARD_FORMAT Format, string& data)
 			return false;
 	}
 
-	if (const auto hClipData = GetData(MBColumnSelect? CF_UNICODETEXT : FormatType))
+	if (const auto hClipData = GetData(ColumnSelect? CF_UNICODETEXT : FormatType))
 	{
 		if (const auto ClipAddr = os::memory::global::lock<const wchar_t*>(hClipData))
 		{
