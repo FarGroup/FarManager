@@ -47,9 +47,7 @@ int Config()
 		settings.Set(0,StrAddToDisksMenu,Opt.AddToDisksMenu);
 		settings.Set(0,StrAddToPluginsMenu,Opt.AddToPluginsMenu);
 		settings.Set(0,StrLocalNetwork,Opt.LocalNetwork);
-		settings.Set(0,StrHiddenShares,Opt.HiddenShares);
 		settings.Set(0,StrShowPrinters,Opt.ShowPrinters);
-		settings.Set(0,StrHiddenSharesAsHidden,Opt.HiddenSharesAsHidden);
 		settings.Set(0,StrFullPathShares,Opt.FullPathShares);
 		settings.Set(0,StrFavoritesFlags,Opt.FavoritesFlags);
 		settings.Set(0,StrNoRootDoublePoint,Opt.RootDoublePoint);
@@ -69,6 +67,9 @@ int Config()
 			Opt.HiddenSharesAsHidden = FALSE;
 			break;
 		}
+		settings.Set(0, StrHiddenShares, Opt.HiddenShares);
+		settings.Set(0, StrHiddenSharesAsHidden, Opt.HiddenSharesAsHidden);
+
 		return TRUE;
 	}
 
