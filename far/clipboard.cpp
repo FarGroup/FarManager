@@ -239,7 +239,7 @@ bool Clipboard::IsFormatAvailable(UINT Format)
 bool Clipboard::SetText(const wchar_t *Data, size_t Size)
 {
 	auto Result = Clear();
-	if (Data && Size)
+	if (Data)
 	{
 		if (auto hData = os::memory::global::copy(Data, Size))
 		{
@@ -263,7 +263,7 @@ bool Clipboard::SetFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data, size
 
 	bool Result = false;
 
-	if (Data && Size)
+	if (Data)
 	{
 		if (auto hData = os::memory::global::copy(Data, Size))
 		{
