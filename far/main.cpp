@@ -385,7 +385,7 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 		CreatePath(Global->Opt->ProfilePath + L"\\PluginsData", true);
 		if (Global->Opt->ProfilePath != Global->Opt->LocalProfilePath)
 		{
-			CreatePath(Global->Opt->LocalProfilePath, true);
+			CreatePath(Global->Opt->LocalProfilePath + L"\\PluginsData", true);
 		}
 	}
 }
