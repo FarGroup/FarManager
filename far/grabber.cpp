@@ -201,7 +201,7 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 		if (VerticalBlock)
 			clip.SetFormat(FCF_VERTICALBLOCK_UNICODE, CopyBuf);
 		else
-			clip.Set(CopyBuf);
+			clip.SetText(CopyBuf);
 	}
 }
 

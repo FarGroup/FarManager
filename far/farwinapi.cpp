@@ -1938,7 +1938,6 @@ DWORD GetAppPathsRedirectionFlag()
 		}
 	}
 
-
 	namespace env
 	{
 		provider::strings::strings()

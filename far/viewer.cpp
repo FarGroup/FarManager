@@ -1546,11 +1546,11 @@ int Viewer::process_key(const Manager::Key& Key)
 		{
 			if (SelectSize >= 0 && ViewFile)
 			{
-				wchar_t_ptr SelData(SelectSize+1, true);
+				wchar_t_ptr SelData(SelectSize);
 				__int64 CurFilePos=vtell();
 				vseek(SelectPos, FILE_BEGIN);
 				vread(SelData.get(), (int)SelectSize);
-				SetClipboard(SelData.get());
+				SetClipboard(SelData.get(), SelectSize);
 				vseek(CurFilePos, FILE_BEGIN);
 			}
 			return TRUE;

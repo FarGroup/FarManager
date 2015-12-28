@@ -611,6 +611,36 @@ namespace os
 
 			template<class T>
 			typename lock_t<T>::ptr lock(const ptr& Ptr) { return lock<T>(Ptr.get()); }
+
+			template<class T>
+			os::memory::global::ptr copy(const T& Object)
+			{
+				static_assert(std::is_pod<T>::value, "POD type is required");
+				if (auto Memory = os::memory::global::alloc(GMEM_MOVEABLE, sizeof(Object)))
+				{
+					if (const auto Copy = os::memory::global::lock<T*>(Memory))
+					{
+						*Copy = Object;
+						return Memory;
+					}
+				}
+				return nullptr;
+			}
+
+			inline os::memory::global::ptr copy(const wchar_t* Data, size_t Size)
+			{
+				if (auto Memory = os::memory::global::alloc(GMEM_MOVEABLE, (Size + 1) * sizeof(wchar_t)))
+				{
+					if (const auto Copy = os::memory::global::lock<wchar_t*>(Memory))
+					{
+						std::copy_n(Data, Size, Copy.get());
+						Copy.get()[Size] = L'\0';
+						return Memory;
+					}
+				}
+				return nullptr;
+			}
+
 		}
 
 		namespace local

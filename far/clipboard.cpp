@@ -199,17 +199,14 @@ bool Clipboard::SetData(UINT uFormat, HGLOBAL hMem)
 
 	if (SetClipboardData(uFormat, hMem))
 	{
-		if (auto hLC = os::memory::global::alloc(GMEM_MOVEABLE, sizeof(LCID)))
+		if (auto Locale = os::memory::global::copy<LCID>(LOCALE_USER_DEFAULT))
 		{
-			if (const auto pLc = os::memory::global::lock<PLCID>(hLC))
+			if (SetClipboardData(CF_LOCALE, Locale.get()))
 			{
-				*pLc=LOCALE_USER_DEFAULT;
-
-				if (SetClipboardData(CF_LOCALE, pLc.get()))
-					hLC.release();
+				Locale.release();
 			}
+			return true;
 		}
-		return true;
 	}
 
 	return false;
@@ -239,69 +236,59 @@ bool Clipboard::IsFormatAvailable(UINT Format)
 }
 
 // Перед вставкой производится очистка буфера
-bool Clipboard::Set(const wchar_t *Data)
+bool Clipboard::SetText(const wchar_t *Data, size_t Size)
 {
-	Clear();
-	if (Data)
+	auto Result = Clear();
+	if (Data && Size)
 	{
-		const size_t BufferSize = (wcslen(Data) + 1) * sizeof(wchar_t);
-		if (auto hData = os::memory::global::alloc(GMEM_MOVEABLE, BufferSize))
+		if (auto hData = os::memory::global::copy(Data, Size))
 		{
-			if (const auto GData = os::memory::global::lock<void*>(hData))
-			{
-				memcpy(GData.get(), Data, BufferSize);
-				SetData(CF_UNICODETEXT, std::move(hData));
-			}
+			Result = SetData(CF_UNICODETEXT, std::move(hData));
+		}
+		else
+		{
+			Result = false;
 		}
 	}
-
-	return true;
+	return Result;
 }
 
 // вставка без очистки буфера - на добавление
-bool Clipboard::SetFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data)
+bool Clipboard::SetFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data, size_t Size)
 {
 	const auto FormatType = RegisterFormat(Format);
 
 	if (!FormatType)
 		return false;
 
-	if (Data && *Data)
+	bool Result = false;
+
+	if (Data && Size)
 	{
-		const size_t BufferSize = (wcslen(Data) + 1) * sizeof(wchar_t);
-		if (auto hData = os::memory::global::alloc(GMEM_MOVEABLE, BufferSize))
+		if (auto hData = os::memory::global::copy(Data, Size))
 		{
-			if (const auto GData = os::memory::global::lock<void*>(hData))
-			{
-				memcpy(GData.get(), Data, BufferSize);
-				SetData(FormatType, std::move(hData));
-			}
+			Result = SetData(FormatType, std::move(hData));
 		}
 	}
+
 	if (Format == FCF_VERTICALBLOCK_UNICODE)
 	{
 		// support "Borland IDE Block Type"
-		if (auto hData = os::memory::global::alloc(GMEM_MOVEABLE, 1))
-		{
-			if (const auto GData = os::memory::global::lock<void*>(hData))
-			{
-				memcpy(GData.get(), "\x02", 1);
-				SetData(RegisterFormat(FCF_BORLANDIDEVBLOCK), std::move(hData));
-			}
-		}
+		SetData(RegisterFormat(FCF_BORLANDIDEVBLOCK), os::memory::global::copy(L'\2'));
 		// support "MSDEVColumnSelect"
 		SetData(RegisterFormat(FCF_MSDEVCOLUMNSELECT), nullptr);
 	}
 
-	return true;
+	return Result;
 }
 
-bool Clipboard::SetHDROP(const void* NamesArray, size_t NamesArraySize, bool bMoved)
+bool Clipboard::SetHDROP(const string& NamesData, bool bMoved)
 {
 	bool Result=false;
-	if (NamesArray && NamesArraySize)
+	if (!NamesData.empty())
 	{
-		if (auto hMemory = os::memory::global::alloc(GMEM_MOVEABLE, sizeof(DROPFILES) + NamesArraySize))
+		const auto RawDataSize = (NamesData.size() + 1) * sizeof(wchar_t);
+		if (auto hMemory = os::memory::global::alloc(GMEM_MOVEABLE, sizeof(DROPFILES) + RawDataSize))
 		{
 			if (const auto Drop = os::memory::global::lock<LPDROPFILES>(hMemory))
 			{
@@ -310,22 +297,17 @@ bool Clipboard::SetHDROP(const void* NamesArray, size_t NamesArraySize, bool bMo
 				Drop->pt.y=0;
 				Drop->fNC = TRUE;
 				Drop->fWide = TRUE;
-				memcpy(Drop.get() + 1, NamesArray, NamesArraySize);
+				memcpy(Drop.get() + 1, NamesData.data(), RawDataSize);
 				Clear();
 				if(SetData(CF_HDROP, std::move(hMemory)))
 				{
 					if(bMoved)
 					{
-						if (auto hMemoryMove = os::memory::global::alloc(GMEM_MOVEABLE, sizeof(DWORD)))
+						if (auto hMemoryMove = os::memory::global::copy<DWORD>(DROPEFFECT_MOVE))
 						{
-							if (const auto pData = os::memory::global::lock<DWORD*>(hMemoryMove))
+							if(SetData(RegisterFormat(FCF_CFSTR_PREFERREDDROPEFFECT), std::move(hMemoryMove)))
 							{
-								*pData = DROPEFFECT_MOVE;
-
-								if(SetData(RegisterFormat(FCF_CFSTR_PREFERREDDROPEFFECT), std::move(hMemoryMove)))
-								{
-									Result = true;
-								}
+								Result = true;
 							}
 						}
 					}
@@ -352,7 +334,7 @@ bool Clipboard::Get(string& data)
 	}
 	else if ((hClipData = GetData(CF_HDROP)) != nullptr)
 	{
-		if (const auto Files = os::memory::global::lock<const LPDROPFILES>(hClipData))
+		if (const auto Files = os::memory::global::lock<const DROPFILES*>(hClipData))
 		{
 			const auto StartA=reinterpret_cast<const char*>(Files.get())+Files->pFiles;
 			const auto Start = reinterpret_cast<const wchar_t*>(StartA);
@@ -395,19 +377,21 @@ bool Clipboard::GetEx(int max, string& data)
 bool Clipboard::GetFormat(FAR_CLIPBOARD_FORMAT Format, string& data)
 {
 	bool Result = false;
-	bool isOEMVBlock=false;
-	bool ColumnSelect = IsFormatAvailable(RegisterFormat(FCF_MSDEVCOLUMNSELECT));
-	if (!ColumnSelect)
-	{
-		if (const auto hClipData = GetData(RegisterFormat(FCF_BORLANDIDEVBLOCK)))
-			if (const auto ClipAddr = os::memory::global::lock<const char*>(hClipData))
-				ColumnSelect = (ClipAddr.get()[0] & 0x02) != 0;
-	}
 
 	auto FormatType = RegisterFormat(Format);
 
 	if (!FormatType)
 		return false;
+
+	bool ColumnSelect = IsFormatAvailable(RegisterFormat(FCF_MSDEVCOLUMNSELECT));
+	if (!ColumnSelect)
+	{
+		if (const auto hClipData = GetData(RegisterFormat(FCF_BORLANDIDEVBLOCK)))
+			if (const auto ClipAddr = os::memory::global::lock<const char*>(hClipData))
+				ColumnSelect = (*ClipAddr & 0x02) != 0;
+	}
+
+	bool isOEMVBlock = false;
 
 	if (!ColumnSelect)
 	{
@@ -457,16 +441,16 @@ bool Clipboard::InternalCopy(bool FromWin)
 }
 
 /* ------------------------------------------------------------ */
-int SetClipboard(const wchar_t* Data)
+int SetClipboard(const wchar_t* Data, size_t Size)
 {
 	Clipboard clip;
-	return clip.Open()? clip.Set(Data) : FALSE;
+	return clip.Open()? clip.SetText(Data, Size) : FALSE;
 }
 
-int SetClipboardFormat(FAR_CLIPBOARD_FORMAT Format,const wchar_t *Data)
+int SetClipboardFormat(FAR_CLIPBOARD_FORMAT Format,const wchar_t *Data, size_t Size)
 {
 	Clipboard clip;
-	return clip.Open()? clip.SetFormat(Format,Data) : FALSE;
+	return clip.Open()? clip.SetFormat(Format, Data, Size) : FALSE;
 }
 
 bool GetClipboard(string& data)

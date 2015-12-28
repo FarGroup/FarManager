@@ -4223,7 +4223,7 @@ static bool clipFunc(FarMacroCall* Data)
 					varClip = CopyData + Val.asString();
 				}
 
-				Ret=clip.Set(varClip.asString());
+				Ret=clip.SetText(varClip.asString());
 			}
 
 			PassNumber(Ret, Data); // 0!  ???

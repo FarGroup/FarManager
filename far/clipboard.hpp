@@ -46,9 +46,13 @@ enum FAR_CLIPBOARD_FORMAT
 	FCF_COUNT
 };
 
-int SetClipboardFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data);
-int SetClipboard(const wchar_t* Data);
-inline int SetClipboard(const string& Data) { return SetClipboard(Data.data()); }
+int SetClipboardFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data, size_t Size);
+inline int SetClipboardFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t* Data) { return SetClipboardFormat(Format, Data, wcslen(Data)); }
+inline int SetClipboardFormat(FAR_CLIPBOARD_FORMAT Format, const string& Data) { return SetClipboardFormat(Format, Data.data(), Data.size()); }
+
+int SetClipboard(const wchar_t* Data, size_t Size);
+inline int SetClipboard(const wchar_t* Data) { return SetClipboard(Data, wcslen(Data)); }
+inline int SetClipboard(const string& Data) { return SetClipboard(Data.data(), Data.size()); }
 
 bool GetClipboardFormat(FAR_CLIPBOARD_FORMAT Format, string& data);
 bool GetClipboard(string& data);
@@ -62,11 +66,13 @@ public:
 	static bool Open();
 	static bool Close();
 	static bool Clear();
-	static bool Set(const wchar_t *Data);
-	static bool Set(const string& Data) { return Set(Data.data()); }
-	static bool SetFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data);
-	static bool SetFormat(FAR_CLIPBOARD_FORMAT Format, const string& Data) { return SetFormat(Format, Data.data()); }
-	static bool SetHDROP(const void* NamesArray, size_t NamesArraySize, bool bMoved=false);
+	static bool SetText(const wchar_t *Data, size_t Size);
+	static bool SetText(const wchar_t *Data) { return SetText(Data, wcslen(Data)); }
+	static bool SetText(const string& Data) { return SetText(Data.data(), Data.size()); }
+	static bool SetFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data, size_t Size);
+	static bool SetFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data) { return SetFormat(Format, Data, wcslen(Data)); }
+	static bool SetFormat(FAR_CLIPBOARD_FORMAT Format, const string& Data) { return SetFormat(Format, Data.data(), Data.size()); }
+	static bool SetHDROP(const string& NamesData, bool bMoved = false);
 	static bool Get(string& data);
 	static bool GetEx(int max, string& data);
 	static bool GetFormat(FAR_CLIPBOARD_FORMAT Format, string& data);

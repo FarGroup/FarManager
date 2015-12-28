@@ -840,7 +840,7 @@ void Help::FastShow()
 		return;
 
 	if (!Locked())
-		DrawWindowWindow();
+		DrawWindowFrame();
 
 	CorrectPosition();
 	StackData->strSelTopic.clear();
@@ -902,7 +902,7 @@ void Help::FastShow()
 	}
 }
 
-void Help::DrawWindowWindow()
+void Help::DrawWindowFrame()
 {
 	SetScreen(m_X1,m_Y1,m_X2,m_Y2,L' ',colors::PaletteColorToFarColor(COL_HELPTEXT));
 	Box(m_X1,m_Y1,m_X2,m_Y2,colors::PaletteColorToFarColor(COL_HELPBOX),DOUBLE_BOX);

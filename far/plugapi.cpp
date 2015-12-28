@@ -2350,12 +2350,15 @@ BOOL WINAPI apiCopyToClipboard(enum FARCLIPBOARD_TYPE Type, const wchar_t *Data)
 		switch (Type)
 		{
 		case FCT_STREAM:
-			return SetClipboard(Data);
+			return SetClipboard(Data, Data? wcslen(Data) : 0);
 
 		case FCT_COLUMN:
-			SetClipboard(Data);
-			return SetClipboardFormat(FCF_VERTICALBLOCK_UNICODE, Data);
-
+		{
+			const auto Size = Data? wcslen(Data) : 0;
+			SetClipboard(Data, Size);
+			return SetClipboardFormat(FCF_VERTICALBLOCK_UNICODE, Data, Size);
+		}
+		
 		default:
 			return FALSE;
 		}

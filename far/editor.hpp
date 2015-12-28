@@ -220,7 +220,8 @@ private:
 	void GoToPosition();
 	void TextChanged(bool State);
 	int CalcDistance(const numbered_iterator& From, const numbered_iterator& To) const;
-	void Paste(const wchar_t *Src=nullptr);
+	void PasteFromClipboard();
+	void Paste(const string& Data);
 	void Copy(int Append);
 	void DeleteBlock();
 	void UnmarkBlock();
@@ -234,7 +235,7 @@ private:
 	void BlockRight();
 	void DeleteVBlock();
 	void VCopy(int Append);
-	void VPaste(const wchar_t *ClipText);
+	void VPaste(const string& Data);
 	void VBlockShift(int Left);
 	numbered_iterator GetStringByNumber(int DestLine);
 	// Set the numbered bookmark (CtrlShift-0..9)

@@ -1601,7 +1601,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 			if (!EdOpt.PersistentBlocks && !IsVerticalSelection())
 				DeleteBlock();
 
-			Paste();
+			PasteFromClipboard();
 			// MarkingBlock=!VBlockStart;
 			m_Flags.Change(FEDITOR_MARKINGBLOCK, IsStreamSelection());
 			m_Flags.Clear(FEDITOR_MARKINGVBLOCK);
@@ -2602,7 +2602,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 				}
 
 				//AddUndoData(UNDO_EDIT,CurLine->GetString(),CurLine->GetEOL(),NumLine,CurLine->GetCurPos());
-				Paste(strTStr.data());
+				Paste(strTStr);
 				//if (!EdOpt.PersistentBlocks && IsBlock)
 				UnmarkBlock();
 				Pasting--;
@@ -4026,37 +4026,36 @@ BOOL Editor::Search(int Next)
 	return TRUE;
 }
 
-void Editor::Paste(const wchar_t *Src)
+void Editor::PasteFromClipboard()
 {
 	if (m_Flags.Check(FEDITOR_LOCKMODE))
 		return;
 
 	string data;
 
-	if (!Src)
+	Clipboard clip;
+
+	if (!clip.Open())
+		return;
+
+	if (clip.GetFormat(FCF_VERTICALBLOCK_UNICODE, data))
 	{
-		Clipboard clip;
-
-		if (!clip.Open())
-			return;
-
-		if (clip.GetFormat(FCF_VERTICALBLOCK_UNICODE, data))
-		{
-			Src = data.data();
-			VPaste(Src);
-			return;
-		}
-
-		if (!clip.Get(data))
-		{
-			return;
-		}
-		Src = data.data();
-
-		clip.Close();
+		VPaste(data);
+		return;
 	}
 
-	if (*Src)
+	if (clip.Get(data))
+	{
+		Paste(data);
+	}
+}
+
+void Editor::Paste(const string& Data)
+{
+	if (m_Flags.Check(FEDITOR_LOCKMODE))
+		return;
+
+	if (!Data.empty())
 	{
 		AddUndoData(UNDO_BEGIN);
 		m_Flags.Set(FEDITOR_NEWUNDO);
@@ -4093,9 +4092,9 @@ void Editor::Paste(const wchar_t *Src)
 				keep_eol = nullptr;
 		}
 
-		for (int I=0; Src[I];)
+		for (size_t i = 0, size = Data.size(); i != size; )
 		{
-			if (IsEol(Src[I]))
+			if (IsEol(Data[i]))
 			{
 				m_it_CurLine->Select(StartPos,-1);
 				StartPos=0;
@@ -4104,49 +4103,52 @@ void Editor::Paste(const wchar_t *Src)
 				ProcessKey(Manager::Key(KEY_ENTER));
 
 				int eol_len = 1;   // LF or CR
-				if (Src[I] == L'\r') {
-					if (Src[I+1] == L'\n')
+				if (Data[i] == L'\r' && i + 1 != size)
+				{
+					if (Data[i + 1] == L'\n')
+					{
 						eol_len = 2; // CRLF
-					else if (Src[I+1] == L'\r' && Src[I+2] == L'\n')
+					}
+					else if (Data[i + 1] == L'\r' && i + 2 != size && Data[i + 2] == L'\n')
+					{
 						eol_len = 3; // CRCRLF
+					}
 				}
 
 				if (keep_eol)
+				{
 					PrevLine->SetEOL(keep_eol);
+				}
 				else
 				{
-					PrevLine->SetEOL(string(Src+I, eol_len));
+					PrevLine->SetEOL(string(Data, i, eol_len));
 				}
 
-				I += eol_len;
+				i += eol_len;
 			}
 			else
 			{
 				if (EdOpt.AutoIndent)      // первый символ вставим так, чтобы
 				{                          // сработал автоотступ
 					//ProcessKey(UseDecodeTable?TableSet.DecodeTable[(unsigned)ClipText[I]]:ClipText[I]); //BUGBUG
-					ProcessKey(Manager::Key(Src[I])); //BUGBUG
-					I++;
+					ProcessKey(Manager::Key(Data[i])); //BUGBUG
+					++i;
 					StartPos=m_it_CurLine->GetCurPos();
 
 					if (StartPos) StartPos--;
 				}
 
-				int Pos=I;
-
-				while (Src[Pos] && !IsEol(Src[Pos]))
-					Pos++;
-
-				if (Pos>I)
+				const size_t Pos = std::find_if(Data.cbegin() + i, Data.cend(), IsEol) - Data.cbegin();
+				if (Pos != i)
 				{
 					const auto& Str = m_it_CurLine->GetString();
 					const auto CurPos = m_it_CurLine->GetCurPos();
 					AddUndoData(UNDO_EDIT, Str, m_it_CurLine->GetEOL(), m_it_CurLine.Number(), static_cast<int>(CurPos)); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
-					m_it_CurLine->InsertString(Src + I,Pos-I);
+					m_it_CurLine->InsertString(Data.data() + i, Pos - i);
 					Change(ECTYPE_CHANGED, m_it_CurLine.Number());
 				}
 
-				I=Pos;
+				i = Pos;
 			}
 		}
 
@@ -4185,7 +4187,7 @@ void Editor::Copy(int Append)
 	if (Append)
 		clip.Get(CopyData);
 
-	clip.Set(Block2Text(CopyData));
+	clip.SetText(Block2Text(CopyData));
 }
 
 string Editor::Block2Text(const wchar_t* InitData, size_t size)
@@ -5239,7 +5241,7 @@ void Editor::VCopy(int Append)
 	}
 
 	CopyData = VBlock2Text(CopyData);
-	clip.Set(CopyData);
+	clip.SetText(CopyData);
 	clip.SetFormat(FCF_VERTICALBLOCK_UNICODE, CopyData);
 }
 
@@ -5287,12 +5289,12 @@ string Editor::VBlock2Text(const wchar_t* InitData, size_t size)
 	return CopyData;
 }
 
-void Editor::VPaste(const wchar_t *ClipText)
+void Editor::VPaste(const string& Data)
 {
 	if (m_Flags.Check(FEDITOR_LOCKMODE))
 		return;
 
-	if (*ClipText)
+	if (!Data.empty())
 	{
 		AddUndoData(UNDO_BEGIN);
 		m_Flags.Set(FEDITOR_NEWUNDO);
@@ -5313,12 +5315,25 @@ void Editor::VPaste(const wchar_t *ClipText)
 		VBlockSizeY=0;
 		const auto SavedTopScreen = m_it_TopScreen;
 
-		for (int I=0; ClipText[I]; )
+		for (size_t i = 0, size = Data.size(); i != size; )
 		{
-			int NewLineLen = ClipText[I]==L'\n' ? 1 : ClipText[I]==L'\r' ? ClipText[I+1]==L'\n' ? 2 : 1 : 0;
+			auto NewLineLen = 0;
+			if (Data[i] == L'\n')
+			{
+				NewLineLen = 1;
+			}
+			else
+			{
+				if (Data[i] == L'\r')
+				{
+					NewLineLen = (i + 1 < size && Data[i + 1] == L'\n')? 2 : 1;
+				}
+			}
 
 			if (!NewLineLen)
-				ProcessKey(Manager::Key(ClipText[I++]));
+			{
+				ProcessKey(Manager::Key(Data[i++]));
+			}
 			else
 			{
 				int CurWidth=m_it_CurLine->GetTabCurPos()-StartPos;
@@ -5330,7 +5345,7 @@ void Editor::VPaste(const wchar_t *ClipText)
 
 				if (IsLastLine(m_it_CurLine))
 				{
-					if (ClipText[I+NewLineLen])
+					if (i + NewLineLen < size)
 					{
 						ProcessKey(Manager::Key(KEY_END));
 						ProcessKey(Manager::Key(KEY_ENTER));
@@ -5346,7 +5361,7 @@ void Editor::VPaste(const wchar_t *ClipText)
 					m_it_CurLine->SetOvertypeMode(false);
 				}
 
-				I += NewLineLen;
+				i += NewLineLen;
 			}
 		}
 

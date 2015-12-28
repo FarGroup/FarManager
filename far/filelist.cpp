@@ -4309,7 +4309,7 @@ void FileList::CopyFiles(bool bMoved)
 			Clipboard clip;
 			if(clip.Open())
 			{
-				clip.SetHDROP(CopyData.data(), (CopyData.size()+1)*sizeof(wchar_t),bMoved);
+				clip.SetHDROP(CopyData, bMoved);
 			}
 		}
 	}

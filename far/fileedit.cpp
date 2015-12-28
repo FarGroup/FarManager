@@ -983,7 +983,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 						m_editor->DeleteBlock();
 					}
 
-					m_editor->Paste(strFullFileName.data()); //???
+					m_editor->Paste(strFullFileName); //???
 					//if (!EdOpt.PersistentBlocks)
 					m_editor->UnmarkBlock();
 					m_editor->Pasting--;

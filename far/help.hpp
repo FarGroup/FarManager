@@ -73,7 +73,7 @@ private:
 	void AddTitle(const string& Title);
 	static void HighlightsCorrection(string &strStr);
 	void FastShow();
-	void DrawWindowWindow();
+	void DrawWindowFrame();
 	void OutString(const wchar_t *Str);
 	int  StringLen(const string& Str);
 	void CorrectPosition();
