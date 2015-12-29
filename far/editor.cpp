@@ -4128,10 +4128,9 @@ void Editor::Paste(const string& Data)
 			}
 			else
 			{
-				if (EdOpt.AutoIndent)      // первый символ вставим так, чтобы
-				{                          // сработал автоотступ
-					//ProcessKey(UseDecodeTable?TableSet.DecodeTable[(unsigned)ClipText[I]]:ClipText[I]); //BUGBUG
-					ProcessKey(Manager::Key(Data[i])); //BUGBUG
+				if (EdOpt.AutoIndent)    // первый символ вставим так, чтобы
+				{                        // сработал автоотступ
+					ProcessChar(Data[i]); //BUGBUG
 					++i;
 					StartPos=m_it_CurLine->GetCurPos();
 
@@ -4168,6 +4167,19 @@ void Editor::Paste(const string& Data)
 	}
 }
 
+void Editor::ProcessChar(wchar_t Char)
+{
+	if (Char != L'\0')
+		ProcessKey(Manager::Key(Char));
+	else
+	{
+		auto cur_pos = m_it_CurLine->GetCurPos();
+		ProcessKey(Manager::Key(L' '));
+		auto& line = m_it_CurLine->m_Str;
+		if (line.size() > cur_pos && line[cur_pos] == L' ')
+			line[cur_pos] = L'\0';
+	}
+}
 
 void Editor::Copy(int Append)
 {
@@ -5332,7 +5344,7 @@ void Editor::VPaste(const string& Data)
 
 			if (!NewLineLen)
 			{
-				ProcessKey(Manager::Key(Data[i++]));
+				ProcessChar(Data[i++]);
 			}
 			else
 			{

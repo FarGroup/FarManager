@@ -52,6 +52,7 @@ InternalClipboard[] =
 	{ NO_FORMAT },
 	{ NO_FORMAT },
 	{ NO_FORMAT },
+	{ NO_FORMAT },
 };
 
 bool Clipboard::UseInternalClipboard = false;
@@ -79,7 +80,8 @@ UINT Clipboard::RegisterFormat(FAR_CLIPBOARD_FORMAT Format)
 		{ 0xFEB1, L"FAR_VerticalBlock_Unicode" },
 		{ 0xFEB2, CFSTR_PREFERREDDROPEFFECT },
 		{ 0xFEB3, L"MSDEVColumnSelect" },
-		{ 0xFEB4, L"Borland IDE Block Type" }
+		{ 0xFEB4, L"Borland IDE Block Type" },
+		{ 0xFEB5, L"Notepad++ binary text length" }
 	};
 
 	static_assert(ARRAYSIZE(FormatMap) == FCF_COUNT, "Wrong size of FormatMap");
@@ -244,6 +246,13 @@ bool Clipboard::SetText(const wchar_t *Data, size_t Size)
 		if (auto hData = os::memory::global::copy(Data, Size))
 		{
 			Result = SetData(CF_UNICODETEXT, std::move(hData));
+			if (Result && std::any_of(Data, Data + Size, [](const wchar_t& c) { return c == L'\0'; }))
+			{
+				// 'Notepad++ binary text length'
+				auto binary_length = static_cast<uint32_t>(Size);
+				auto hDataLen = os::memory::global::copy(binary_length);
+				SetData(RegisterFormat(FCF_NOTEPADPLUSPLUS_BINARYTEXTLENGTH), std::move(hDataLen));
+			}
 		}
 		else
 		{
@@ -273,9 +282,10 @@ bool Clipboard::SetFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data, size
 
 	if (Format == FCF_VERTICALBLOCK_UNICODE)
 	{
-		// support "Borland IDE Block Type"
-		SetData(RegisterFormat(FCF_BORLANDIDEVBLOCK), os::memory::global::copy(L'\2'));
-		// support "MSDEVColumnSelect"
+		// 'Borland IDE Block Type'
+		char Cx02 = '\x02';
+		SetData(RegisterFormat(FCF_BORLANDIDEVBLOCK), os::memory::global::copy(Cx02));
+		// 'MSDEVColumnSelect'
 		SetData(RegisterFormat(FCF_MSDEVCOLUMNSELECT), nullptr);
 	}
 
@@ -320,7 +330,7 @@ bool Clipboard::SetHDROP(const string& NamesData, bool bMoved)
 	return Result;
 }
 
-bool Clipboard::Get(string& data)
+bool Clipboard::GetText(string& data)
 {
 	bool Result = false;
 
@@ -330,9 +340,28 @@ bool Clipboard::Get(string& data)
 		{
 			Result = true;
 			data = ClipAddr.get();
+			size_t len = string::npos;
+			if (auto hClipDataLen = GetData(RegisterFormat(FCF_NOTEPADPLUSPLUS_BINARYTEXTLENGTH)))
+			{
+				if (const auto ClipLength = os::memory::global::lock<const uint32_t*>(hClipDataLen))
+					len = static_cast<size_t>(ClipLength.get()[0]);
+			}
+			if (len == string::npos)
+				data = ClipAddr.get();
+			else
+				data.assign(ClipAddr.get(), len);
 		}
 	}
-	else if ((hClipData = GetData(CF_HDROP)) != nullptr)
+	return Result;
+}
+
+bool Clipboard::Get(string& data)
+{
+	bool Result = GetText(data);
+	if (Result)
+		return true;
+
+	if (const auto hClipData = GetData(CF_HDROP))
 	{
 		if (const auto Files = os::memory::global::lock<const DROPFILES*>(hClipData))
 		{
@@ -405,7 +434,10 @@ bool Clipboard::GetFormat(FAR_CLIPBOARD_FORMAT Format, string& data)
 			return false;
 	}
 
-	if (const auto hClipData = GetData(ColumnSelect? CF_UNICODETEXT : FormatType))
+	if (ColumnSelect)
+		Result = GetText(data);
+
+	else if (const auto hClipData = GetData(FormatType))
 	{
 		if (const auto ClipAddr = os::memory::global::lock<const wchar_t*>(hClipData))
 		{

@@ -42,6 +42,7 @@ enum FAR_CLIPBOARD_FORMAT
 	FCF_CFSTR_PREFERREDDROPEFFECT,
 	FCF_MSDEVCOLUMNSELECT,
 	FCF_BORLANDIDEVBLOCK,
+	FCF_NOTEPADPLUSPLUS_BINARYTEXTLENGTH,
 
 	FCF_COUNT
 };
@@ -73,6 +74,7 @@ public:
 	static bool SetFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data) { return SetFormat(Format, Data, wcslen(Data)); }
 	static bool SetFormat(FAR_CLIPBOARD_FORMAT Format, const string& Data) { return SetFormat(Format, Data.data(), Data.size()); }
 	static bool SetHDROP(const string& NamesData, bool bMoved = false);
+	static bool GetText(string& data);
 	static bool Get(string& data);
 	static bool GetEx(int max, string& data);
 	static bool GetFormat(FAR_CLIPBOARD_FORMAT Format, string& data);
