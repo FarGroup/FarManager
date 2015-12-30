@@ -37,22 +37,31 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "tinyxml.hpp"
 #include "components.hpp"
 
-namespace tinyxml
+namespace tinyxml_impl
 {
+
 WARNING_PUSH()
 
-WARNING_DISABLE_MSC(4458) // no page                                                declaration of 'identifier' hides class member
+WARNING_DISABLE_MSC(4296) // https://msdn.microsoft.com/en-us/library/wz2y40yt.aspx 'operator' : expression is always true
 
-WARNING_DISABLE_GCC("-Wuseless-cast")
 WARNING_DISABLE_GCC("-Wzero-as-null-pointer-constant")
 
+#ifdef MEMCHECK
+#pragma push_macro("new")
+#undef new
+#endif
 
-#include "thirdparty/tinyxml/tinyxml.cpp"
-#include "thirdparty/tinyxml/tinyxmlerror.cpp"
-#include "thirdparty/tinyxml/tinyxmlparser.cpp"
+#include "thirdparty/tinyxml2/tinyxml2.cpp"
+
+#ifdef MEMCHECK
+#pragma pop_macro("new")
+#endif
 
 WARNING_POP()
 
-	static string getInfo() { return FormatString() << L"TinyXML, version " << TIXML_MAJOR_VERSION << L"." << TIXML_MINOR_VERSION << L"." << TIXML_PATCH_VERSION; }
+	static string getInfo() { return FormatString() << L"TinyXML-2, version " << TIXML2_MAJOR_VERSION << L"." << TIXML2_MINOR_VERSION << L"." << TIXML2_PATCH_VERSION; }
 	SCOPED_ACTION(components::component)(getInfo);
 }
+
+namespace tinyxml = tinyxml_impl::tinyxml2;
+

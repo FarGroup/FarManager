@@ -246,12 +246,11 @@ bool Clipboard::SetText(const wchar_t *Data, size_t Size)
 		if (auto hData = os::memory::global::copy(Data, Size))
 		{
 			Result = SetData(CF_UNICODETEXT, std::move(hData));
-			if (Result && std::any_of(Data, Data + Size, [](const wchar_t& c) { return c == L'\0'; }))
+			if (Result && std::find(Data, Data + Size, L'\0') != Data + Size)
 			{
 				// 'Notepad++ binary text length'
 				auto binary_length = static_cast<uint32_t>(Size);
-				auto hDataLen = os::memory::global::copy(binary_length);
-				SetData(RegisterFormat(FCF_NOTEPADPLUSPLUS_BINARYTEXTLENGTH), std::move(hDataLen));
+				SetData(RegisterFormat(FCF_NOTEPADPLUSPLUS_BINARYTEXTLENGTH), os::memory::global::copy(binary_length));
 			}
 		}
 		else

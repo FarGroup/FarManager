@@ -40,14 +40,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct VersionInfo;
 class blob;
-class representation;
+class representation_source;
+class representation_destination;
 
 class representable: noncopyable
 {
 public:
 	virtual ~representable() {}
-	virtual void Export(representation& Representation) = 0;
-	virtual void Import(const representation& Representation) = 0;
+	virtual void Export(representation_destination& Representation) = 0;
+	virtual void Import(const representation_source& Representation) = 0;
 };
 
 class GeneralConfig: public representable, virtual public transactional
@@ -344,7 +345,6 @@ private:
 	int m_LoadResult;
 	std::vector<Thread> m_Threads;
 	std::vector<string> m_Problems;
-	class representation_source;
 	std::unique_ptr<representation_source> m_TemplateSource;
 	mode m_Mode;
 

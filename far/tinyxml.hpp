@@ -31,17 +31,16 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace tinyxml
+namespace tinyxml_impl
 {
 WARNING_PUSH()
 
-WARNING_DISABLE_MSC(4458) // no page                                                declaration of 'identifier' hides class member
-
 WARNING_DISABLE_GCC("-Wzero-as-null-pointer-constant")
 
-#define TIXML_USE_STL
-
-#include "thirdparty/tinyxml/tinyxml.h"
+#include "thirdparty/tinyxml2/tinyxml2.h"
 
 WARNING_POP()
+
 }
+
+namespace tinyxml = tinyxml_impl::tinyxml2;
