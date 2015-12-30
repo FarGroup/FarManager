@@ -1246,8 +1246,9 @@ CustomPluginModel::ModuleImports::ModuleImports(const os::rtdl::module& Module):
 	INIT_IMPORT(CreateInstance),
 	INIT_IMPORT(GetFunctionAddress),
 	INIT_IMPORT(DestroyInstance),
-	INIT_IMPORT(Free)
+	INIT_IMPORT(Free),
 #undef INIT_IMPORT
+	m_IsValid(pInitialize && pIsPlugin && pCreateInstance && pGetFunctionAddress && pDestroyInstance && pFree)
 {
 }
 
@@ -1261,7 +1262,8 @@ CustomPluginModel::CustomPluginModel(PluginManager* owner, const string& filenam
 	{
 		GlobalInfo Info={sizeof(Info)};
 
-		if (m_Imports.pInitialize(&Info) &&
+		if (m_Imports.IsValid() &&
+			m_Imports.pInitialize(&Info) &&
 			Info.StructSize &&
 			Info.Title && *Info.Title &&
 			Info.Description && *Info.Description &&

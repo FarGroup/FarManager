@@ -303,6 +303,10 @@ private:
 		os::rtdl::function_pointer<void (WINAPI*)(const ExitInfo* info)> pFree;
 
 		ModuleImports(const os::rtdl::module& Module);
+		bool IsValid() const { return m_IsValid; }
+
+	private:
+		bool m_IsValid;
 	}
 	m_Imports;
 	bool m_Success;
