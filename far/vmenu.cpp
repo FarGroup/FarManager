@@ -911,7 +911,7 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 		case MCODE_F_MENU_ITEMSTATUS: // N=Menu.ItemStatus([N])
 		{
-			if (iParam == size_t(-1))
+			if (iParam == -1LL)
 				iParam = SelectPos;
 			else if (iParam > static_cast<int>(size()))
 				return -1;

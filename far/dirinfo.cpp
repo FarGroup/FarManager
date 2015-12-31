@@ -323,6 +323,15 @@ static void PushPluginDirItem(std::vector<PluginPanelItem>& PluginDirList, const
 
 	PluginDirList.back().FileName = DuplicateString(strFullName.data());
 	PluginDirList.back().AlternateFileName=nullptr;
+	PluginDirList.back().Description = DuplicateString(PluginDirList.back().Description);
+	PluginDirList.back().Owner = DuplicateString(PluginDirList.back().Owner);
+	if (PluginDirList.back().CustomColumnNumber>0)
+	{
+		auto CustomColumnData = new wchar_t*[PluginDirList.back().CustomColumnNumber];
+		for (size_t ii = 0; ii<PluginDirList.back().CustomColumnNumber; ii++)
+			CustomColumnData[ii] = DuplicateString(PluginDirList.back().CustomColumnData[ii]);
+		PluginDirList.back().CustomColumnData = CustomColumnData;
+	}
 
 	// UserData is not used in PluginDirList
 	PluginDirList.back().UserData.Data=nullptr;
@@ -513,6 +522,11 @@ void FreePluginDirList(HANDLE hPlugin, const PluginPanelItem *PanelItem)
 			i.UserData.FreeData(i.UserData.Data,&info);
 		}
 		FreePluginPanelItem(i);
+		delete[] i.Description;
+		delete[] i.Owner;
+		for(size_t jj=0; jj<i.CustomColumnNumber; ++jj)
+			delete[] i.CustomColumnData[jj];
+		delete[] i.CustomColumnData;
 	});
 
 	delete PluginDirList;
