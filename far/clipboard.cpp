@@ -246,7 +246,7 @@ bool Clipboard::SetText(const wchar_t *Data, size_t Size)
 		if (auto hData = os::memory::global::copy(Data, Size))
 		{
 			Result = SetData(CF_UNICODETEXT, std::move(hData));
-			if (Result && std::find(Data, Data + Size, L'\0') != Data + Size)
+			if (Result)
 			{
 				// 'Notepad++ binary text length'
 				auto binary_length = static_cast<uint32_t>(Size);
@@ -263,23 +263,14 @@ bool Clipboard::SetText(const wchar_t *Data, size_t Size)
 
 bool Clipboard::SetVText(const wchar_t *Data, size_t Size)
 {
-	auto Result = Clear();
+	auto Result = SetText(Data, Size);
 
-	if (Data)
+	if (Result && Data)
 	{
 		const auto FarVerticalBlock = RegisterFormat(FCF_VERTICALBLOCK_UNICODE);
 
 		if (!FarVerticalBlock)
 			return false;
-
-		if (auto hData = os::memory::global::copy(Data, Size))
-		{
-			Result = SetData(CF_UNICODETEXT, std::move(hData));
-		}
-		else
-		{
-			Result = false;
-		}
 
 		Result = Result && SetData(FarVerticalBlock, nullptr);
 
