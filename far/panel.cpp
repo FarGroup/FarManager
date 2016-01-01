@@ -1367,7 +1367,7 @@ int Search::ProcessKey(const Manager::Key& Key)
 	if (LocalKey()==KEY_CTRLV || LocalKey()==KEY_RCTRLV || LocalKey()==KEY_SHIFTINS || LocalKey()==KEY_SHIFTNUMPAD0)
 	{
 		string ClipText;
-		if (GetClipboard(ClipText))
+		if (GetClipboardText(ClipText))
 		{
 			if (!ClipText.empty())
 			{

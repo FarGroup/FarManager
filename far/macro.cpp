@@ -4180,7 +4180,7 @@ static bool clipFunc(FarMacroCall* Data)
 		case 0: // Get from Clipboard, "S" - ignore
 		{
 			string ClipText;
-			if (GetClipboard(ClipText))
+			if (GetClipboardText(ClipText))
 			{
 				PassString(ClipText, Data);
 				return true;
@@ -4202,7 +4202,7 @@ static bool clipFunc(FarMacroCall* Data)
 			}
 			else
 			{
-				Ret=SetClipboard(Str);
+				Ret=SetClipboardText(Str);
 			}
 
 			PassNumber(Ret, Data); // 0!  ???
@@ -4218,7 +4218,7 @@ static bool clipFunc(FarMacroCall* Data)
 			if (clip.Open())
 			{
 				string CopyData;
-				if (clip.Get(CopyData))
+				if (clip.GetText(CopyData))
 				{
 					varClip = CopyData + Val.asString();
 				}

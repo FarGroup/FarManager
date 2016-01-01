@@ -1370,7 +1370,7 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 			if (bFilterEnabled && !bFilterLocked)
 			{
 				string ClipText;
-				if (!GetClipboard(ClipText))
+				if (!GetClipboardText(ClipText))
 					return TRUE;
 
 				if (AddToFilter(ClipText.data()))

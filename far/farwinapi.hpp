@@ -39,7 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace os
 {
-	namespace detail 
+	namespace detail
 	{
 		struct handle_closer { static bool close(HANDLE Handle); };
 		struct find_handle_closer { static bool close(HANDLE Handle); };

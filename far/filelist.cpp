@@ -4417,7 +4417,7 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 		CopyData += strQuotedName;
 	}
 
-	SetClipboard(CopyData);
+	SetClipboardText(CopyData);
 }
 
 void FileList::SetTitle()

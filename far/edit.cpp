@@ -1267,16 +1267,16 @@ int Edit::ProcessKey(const Manager::Key& Key)
 					if (!Mask.empty())
 					{
 						string ShortStr = m_Str;
-						SetClipboard(RemoveTrailingSpaces(ShortStr));
+						SetClipboardText(RemoveTrailingSpaces(ShortStr));
 					}
 					else
 					{
-						SetClipboard(m_Str);
+						SetClipboardText(m_Str);
 					}
 				}
 				else if (m_SelEnd <= m_Str.size()) // TODO: если в начало условия добавить "StrSize &&", то пропадет баг "Ctrl-Ins в пустой строке очищает клипборд"
 				{
-					SetClipboard(m_Str.data() + m_SelStart, m_SelEnd - m_SelStart);
+					SetClipboardText(m_Str.data() + m_SelStart, m_SelEnd - m_SelStart);
 				}
 			}
 
@@ -1286,15 +1286,13 @@ int Edit::ProcessKey(const Manager::Key& Key)
 		{
 			string ClipText;
 
-			if (GetMaxLength()==-1)
+			if (!GetClipboardText(ClipText))
+				return TRUE;
+
+			const auto MaxLength = GetMaxLength();
+			if (MaxLength != -1 && ClipText.size() > static_cast<size_t>(MaxLength))
 			{
-				if (!GetClipboard(ClipText))
-					return TRUE;
-			}
-			else
-			{
-				if (!GetClipboardEx(GetMaxLength(), ClipText))
-					return TRUE;
+				ClipText.resize(MaxLength);
 			}
 
 			for (size_t i=0; i < ClipText.size(); ++i)

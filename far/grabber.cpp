@@ -188,7 +188,7 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 		if (Append)
 		{
 			string OldData;
-			if (clip.Get(OldData))
+			if (clip.GetText(OldData))
 			{
 				if (!OldData.empty() && OldData.back() != L'\n')
 				{
@@ -199,7 +199,7 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 		}
 
 		if (VerticalBlock)
-			clip.SetFormat(FCF_VERTICALBLOCK_UNICODE, CopyBuf);
+			clip.SetVText(CopyBuf);
 		else
 			clip.SetText(CopyBuf);
 	}

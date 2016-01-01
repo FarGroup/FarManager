@@ -417,7 +417,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 					{
 						string strName;
 						if (HistoryCfgRef()->Get(CurrentRecord, strName))
-							SetClipboard(strName);
+							SetClipboardText(strName);
 					}
 
 					break;

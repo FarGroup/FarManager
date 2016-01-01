@@ -158,7 +158,7 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 				case KEY_CTRLNUMPAD0:
 				case KEY_RCTRLNUMPAD0:
 					{
-						SetClipboard(*reinterpret_cast<string*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr)));
+						SetClipboardText(*reinterpret_cast<string*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr)));
 					}
 					break;
 				}

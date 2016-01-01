@@ -261,33 +261,34 @@ bool Clipboard::SetText(const wchar_t *Data, size_t Size)
 	return Result;
 }
 
-// вставка без очистки буфера - на добавление
-bool Clipboard::SetFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data, size_t Size)
+bool Clipboard::SetVText(const wchar_t *Data, size_t Size)
 {
-	const auto FormatType = RegisterFormat(Format);
-
-	if (!FormatType)
-		return false;
-
-	bool Result = false;
+	auto Result = Clear();
 
 	if (Data)
 	{
+		const auto FarVerticalBlock = RegisterFormat(FCF_VERTICALBLOCK_UNICODE);
+
+		if (!FarVerticalBlock)
+			return false;
+
 		if (auto hData = os::memory::global::copy(Data, Size))
 		{
-			Result = SetData(FormatType, std::move(hData));
+			Result = SetData(CF_UNICODETEXT, std::move(hData));
 		}
-	}
+		else
+		{
+			Result = false;
+		}
 
-	if (Format == FCF_VERTICALBLOCK_UNICODE)
-	{
+		Result = Result && SetData(FarVerticalBlock, nullptr);
+
 		// 'Borland IDE Block Type'
 		char Cx02 = '\x02';
 		SetData(RegisterFormat(FCF_BORLANDIDEVBLOCK), os::memory::global::copy(Cx02));
 		// 'MSDEVColumnSelect'
 		SetData(RegisterFormat(FCF_MSDEVCOLUMNSELECT), nullptr);
 	}
-
 	return Result;
 }
 
@@ -351,14 +352,17 @@ bool Clipboard::GetText(string& data)
 				data.assign(ClipAddr.get(), len);
 		}
 	}
+	else
+	{
+		Result = GetHDROPAsText(data);
+	}
+
 	return Result;
 }
 
-bool Clipboard::Get(string& data)
+bool Clipboard::GetHDROPAsText(string& data)
 {
-	bool Result = GetText(data);
-	if (Result)
-		return true;
+	bool Result = false;
 
 	if (const auto hClipData = GetData(CF_HDROP))
 	{
@@ -386,32 +390,17 @@ bool Clipboard::Get(string& data)
 	return Result;
 }
 
-// max - без учета символа конца строки!
-bool Clipboard::GetEx(int max, string& data)
+bool Clipboard::GetVText(string& data)
 {
 	bool Result = false;
-	if (const auto hClipData = GetData(CF_UNICODETEXT))
+
+	bool ColumnSelect = IsFormatAvailable(RegisterFormat(FCF_VERTICALBLOCK_UNICODE));
+
+	if (!ColumnSelect)
 	{
-		if (const auto ClipAddr = os::memory::global::lock<const wchar_t*>(hClipData))
-		{
-			data.assign(ClipAddr.get(), std::min(max, StrLength(ClipAddr.get())));
-			Result = true;
-		}
+		ColumnSelect = IsFormatAvailable(RegisterFormat(FCF_MSDEVCOLUMNSELECT));
 	}
 
-	return Result;
-}
-
-bool Clipboard::GetFormat(FAR_CLIPBOARD_FORMAT Format, string& data)
-{
-	bool Result = false;
-
-	auto FormatType = RegisterFormat(Format);
-
-	if (!FormatType)
-		return false;
-
-	bool ColumnSelect = IsFormatAvailable(RegisterFormat(FCF_MSDEVCOLUMNSELECT));
 	if (!ColumnSelect)
 	{
 		if (const auto hClipData = GetData(RegisterFormat(FCF_BORLANDIDEVBLOCK)))
@@ -419,29 +408,20 @@ bool Clipboard::GetFormat(FAR_CLIPBOARD_FORMAT Format, string& data)
 				ColumnSelect = (*ClipAddr & 0x02) != 0;
 	}
 
-	bool isOEMVBlock = false;
-
-	if (!ColumnSelect)
-	{
-		if (Format == FCF_VERTICALBLOCK_UNICODE && !IsFormatAvailable(FormatType))
-		{
-			FormatType = RegisterFormat(FCF_VERTICALBLOCK_OEM);
-			isOEMVBlock = true;
-		}
-
-		if (!FormatType || !IsFormatAvailable(FormatType))
-			return false;
-	}
-
 	if (ColumnSelect)
-		Result = GetText(data);
-
-	else if (const auto hClipData = GetData(FormatType))
 	{
-		if (const auto ClipAddr = os::memory::global::lock<const wchar_t*>(hClipData))
+		Result = GetText(data);
+	}
+	else
+	{
+		auto Far1xVerticalBlock = RegisterFormat(FCF_VERTICALBLOCK_OEM);
+		if (const auto hClipData = GetData(Far1xVerticalBlock))
 		{
-			data = isOEMVBlock? wide(reinterpret_cast<const char*>(ClipAddr.get())) : ClipAddr.get();
-			Result = true;
+			if (const auto OemData = os::memory::global::lock<const char*>(hClipData))
+			{
+				data = wide(OemData.get());
+				Result = true;
+			}
 		}
 	}
 
@@ -472,36 +452,28 @@ bool Clipboard::InternalCopy(bool FromWin)
 }
 
 /* ------------------------------------------------------------ */
-int SetClipboard(const wchar_t* Data, size_t Size)
+bool SetClipboardText(const wchar_t* Data, size_t Size)
 {
 	Clipboard clip;
-	return clip.Open()? clip.SetText(Data, Size) : FALSE;
+	return clip.Open() && clip.SetText(Data, Size);
 }
 
-int SetClipboardFormat(FAR_CLIPBOARD_FORMAT Format,const wchar_t *Data, size_t Size)
+bool SetClipboardVText(const wchar_t *Data, size_t Size)
 {
 	Clipboard clip;
-	return clip.Open()? clip.SetFormat(Format, Data, Size) : FALSE;
+	return clip.Open() && clip.SetVText(Data, Size);
 }
 
-bool GetClipboard(string& data)
+bool GetClipboardText(string& data)
 {
 	Clipboard clip;
-	return clip.Open() ? clip.Get(data) : false;
+	return clip.Open() && clip.GetText(data);
 }
 
-// max - без учета символа конца строки!
-bool GetClipboardEx(int max, string& data)
+bool GetClipboardVText(string& data)
 {
 	Clipboard clip;
-	return clip.Open()? clip.GetEx(max, data) : false;
-
-}
-
-bool GetClipboardFormat(FAR_CLIPBOARD_FORMAT Format, string& data)
-{
-	Clipboard clip;
-	return clip.Open()? clip.GetFormat(Format, data) : false;
+	return clip.Open() && clip.GetVText(data);
 }
 
 bool ClearInternalClipboard()

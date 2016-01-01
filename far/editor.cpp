@@ -4038,13 +4038,13 @@ void Editor::PasteFromClipboard()
 	if (!clip.Open())
 		return;
 
-	if (clip.GetFormat(FCF_VERTICALBLOCK_UNICODE, data))
+	if (clip.GetVText(data))
 	{
 		VPaste(data);
 		return;
 	}
 
-	if (clip.Get(data))
+	if (clip.GetText(data))
 	{
 		Paste(data);
 	}
@@ -4189,22 +4189,22 @@ void Editor::Copy(int Append)
 		return;
 	}
 
-	string CopyData;
-
 	Clipboard clip;
 
 	if (!clip.Open())
 		return;
 
-	if (Append)
-		clip.Get(CopyData);
+	string CopyData;
 
-	clip.SetText(Block2Text(CopyData));
+	if (Append)
+		clip.GetText(CopyData);
+
+	clip.SetText(CopyData + Block2Text());
 }
 
-string Editor::Block2Text(const wchar_t* InitData, size_t size)
+string Editor::Block2Text()
 {
-	size_t TotalChars = size;
+	size_t TotalChars = 0;
 
 	iterator SelEnd = Lines.end();
 
@@ -4230,11 +4230,6 @@ string Editor::Block2Text(const wchar_t* InitData, size_t size)
 
 	string CopyData;
 	CopyData.reserve(TotalChars);
-
-	if (InitData)
-	{
-		CopyData.assign(InitData, size);
-	}
 
 	FOR(const auto& i, make_range(m_it_AnyBlockStart.base(), SelEnd))
 	{
@@ -5248,27 +5243,20 @@ void Editor::VCopy(int Append)
 
 	if (Append)
 	{
-		if (!clip.GetFormat(FCF_VERTICALBLOCK_UNICODE, CopyData))
-			clip.Get(CopyData);
+		if (!clip.GetVText(CopyData))
+			clip.GetText(CopyData);
 	}
 
-	CopyData = VBlock2Text(CopyData);
-	clip.SetText(CopyData);
-	clip.SetFormat(FCF_VERTICALBLOCK_UNICODE, CopyData);
+	clip.SetVText(CopyData + VBlock2Text());
 }
 
-string Editor::VBlock2Text(const wchar_t* InitData, size_t size)
+string Editor::VBlock2Text()
 {
 	//RealPos всегда <= TabPos, поэтому берём максимальный размер буфера
-	size_t TotalChars = size + (VBlockSizeX + 2)*VBlockSizeY;
+	size_t TotalChars = (VBlockSizeX + 2)*VBlockSizeY;
 
 	string CopyData;
 	CopyData.reserve(TotalChars);
-
-	if (InitData)
-	{
-		CopyData.assign(InitData, size);
-	}
 
 	auto CurPtr = m_it_AnyBlockStart;
 

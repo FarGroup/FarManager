@@ -1550,7 +1550,7 @@ int Viewer::process_key(const Manager::Key& Key)
 				__int64 CurFilePos=vtell();
 				vseek(SelectPos, FILE_BEGIN);
 				vread(SelData.get(), (int)SelectSize);
-				SetClipboard(SelData.get(), SelectSize);
+				SetClipboardText(SelData.get(), SelectSize);
 				vseek(CurFilePos, FILE_BEGIN);
 			}
 			return TRUE;

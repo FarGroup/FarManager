@@ -283,12 +283,8 @@ private:
 	int BlockStart2NumLine(int *Pos);
 	int BlockEnd2NumLine(int *Pos);
 	bool CheckLine(const iterator& line);
-	string Block2Text(const wchar_t* InitData, size_t size);
-	string Block2Text(const string& InitData) { return Block2Text(InitData.data(), InitData.size()); }
-	string Block2Text() { return Block2Text(nullptr, 0); }
-	string VBlock2Text(const wchar_t* InitData, size_t size);
-	string VBlock2Text(const string& InitData) { return VBlock2Text(InitData.data(), InitData.size()); }
-	string VBlock2Text() { return VBlock2Text(nullptr, 0); }
+	string Block2Text();
+	string VBlock2Text();
 	void Change(EDITOR_CHANGETYPE Type,int StrNum);
 	DWORD EditSetCodePage(const iterator& edit, uintptr_t codepage, bool check_only);
 	numbered_iterator InsertString(const wchar_t *lpwszStr, int nLength, const numbered_iterator& Where);

@@ -1182,7 +1182,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 			if (LocalKey==KEY_CTRLALTINS||LocalKey==KEY_RCTRLRALTINS||LocalKey==KEY_CTRLRALTINS||LocalKey==KEY_RCTRLALTINS||
 				LocalKey==KEY_CTRLALTNUMPAD0||LocalKey==KEY_RCTRLRALTNUMPAD0||LocalKey==KEY_CTRLRALTNUMPAD0||LocalKey==KEY_RCTRLALTNUMPAD0)
 			{
-				SetClipboard(strQuotedName);
+				SetClipboardText(strQuotedName);
 			}
 			else
 			{
