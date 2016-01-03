@@ -770,7 +770,8 @@ int KeyMacro::GetKey()
 				if (ConsoleTitle::WasTitleModified())
 					ConsoleTitle::RestoreTitle();
 
-				Clipboard::SetUseInternalClipboardState(false);
+				default_clipboard_mode::set(default_clipboard_mode::system);
+
 				return 0;
 
 			case MPRT_KEYS:
@@ -2278,8 +2279,8 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					case 4: Global->ScrBuf->ResetLockCount(); break;
 					case 5: PassNumber(Global->ScrBuf->GetLockCount(), Data); break;
 					case 6: if (Data->Count > 1) Global->ScrBuf->SetLockCount(Data->Values[1].Double); break;
-					case 7: PassBoolean(Clipboard::GetUseInternalClipboardState(), Data); break;
-					case 8: if (Data->Count > 1) Clipboard::SetUseInternalClipboardState(Data->Values[1].Boolean != 0); break;
+					case 7: PassBoolean(default_clipboard_mode::get() == default_clipboard_mode::internal, Data); break;
+					case 8: if (Data->Count > 1) default_clipboard_mode::set(Data->Values[1].Boolean != 0? default_clipboard_mode::internal: default_clipboard_mode::system); break;
 					case 9: if (Data->Count > 1) PassNumber(KeyNameToKey(Data->Values[1].String), Data); break;
 					case 10:
 						if (Data->Count > 1)
@@ -4193,11 +4194,11 @@ static bool clipFunc(FarMacroCall* Data)
 			const auto& Str = Val.asString();
 			if (Str.empty())
 			{
-				Clipboard clip;
-				if (clip.Open())
+				clipboard_accessor Clip;
+				if (Clip->Open())
 				{
-					Ret=1;
-					clip.Clear();
+					Clip->Clear();
+					Ret = 1;
 				}
 			}
 			else
@@ -4211,19 +4212,19 @@ static bool clipFunc(FarMacroCall* Data)
 		case 2: // Add "S" into Clipboard
 		{
 			TVar varClip(Val.asString());
-			Clipboard clip;
+			clipboard_accessor Clip;
 
 			Ret=FALSE;
 
-			if (clip.Open())
+			if (Clip->Open())
 			{
 				string CopyData;
-				if (clip.GetText(CopyData))
+				if (Clip->GetText(CopyData))
 				{
 					varClip = CopyData + Val.asString();
 				}
 
-				Ret=clip.SetText(varClip.asString());
+				Ret = Clip->SetText(varClip.asString());
 			}
 
 			PassNumber(Ret, Data); // 0!  ???
@@ -4232,13 +4233,14 @@ static bool clipFunc(FarMacroCall* Data)
 		case 3: // Copy Win to internal, "S" - ignore
 		case 4: // Copy internal to Win, "S" - ignore
 		{
-			Clipboard clip;
+			clipboard_accessor ClipSystem(default_clipboard_mode::system);
+			clipboard_accessor ClipInternal(default_clipboard_mode::internal);
 
 			Ret=FALSE;
 
-			if (clip.Open())
+			if (ClipSystem->Open() && ClipInternal->Open())
 			{
-				Ret=clip.InternalCopy(cmdType == 4);
+				Ret = cmdType == 3? CopyData(ClipSystem, ClipInternal) : CopyData(ClipInternal, ClipSystem);
 			}
 
 			PassNumber(Ret, Data); // 0!  ???
@@ -4248,18 +4250,21 @@ static bool clipFunc(FarMacroCall* Data)
 		{
 			// 0 - flip, 1 - виндовый буфер, 2 - внутренний, -1 - что сейчас?
 			int Action=(int)Val.asInteger();
-			bool mode=Clipboard::GetUseInternalClipboardState();
+
+			const auto PreviousMode = default_clipboard_mode::get();
+
 			if (Action >= 0)
 			{
+				auto NewMode = PreviousMode;
 				switch (Action)
 				{
-					case 0: mode=!mode; break;
-					case 1: mode=false; break;
-					case 2: mode=true;  break;
+				case 0: NewMode = default_clipboard_mode::system? default_clipboard_mode::internal: default_clipboard_mode::system; break;
+				case 1: NewMode = default_clipboard_mode::system; break;
+				case 2: NewMode = default_clipboard_mode::internal; break;
 				}
-				mode=Clipboard::SetUseInternalClipboardState(mode);
+				default_clipboard_mode::set(NewMode);
 			}
-			PassNumber((mode?2:1), Data); // 0!  ???
+			PassNumber((PreviousMode == default_clipboard_mode::internal? 2 : 1), Data); // 0!  ???
 			return Ret != 0;
 		}
 	}

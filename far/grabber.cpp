@@ -181,14 +181,14 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 		CopyBuf += RemoveTrailingSpaces(Line);
 	}
 
-	Clipboard clip;
+	clipboard_accessor Clip;
 
-	if (clip.Open())
+	if (Clip->Open())
 	{
 		if (Append)
 		{
 			string OldData;
-			if (clip.GetText(OldData))
+			if (Clip->GetText(OldData))
 			{
 				if (!OldData.empty() && OldData.back() != L'\n')
 				{
@@ -199,9 +199,9 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 		}
 
 		if (VerticalBlock)
-			clip.SetVText(CopyBuf);
+			Clip->SetVText(CopyBuf);
 		else
-			clip.SetText(CopyBuf);
+			Clip->SetText(CopyBuf);
 	}
 }
 

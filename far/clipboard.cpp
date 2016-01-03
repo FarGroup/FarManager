@@ -38,206 +38,247 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "strmix.hpp"
 
-enum { NO_FORMAT = 0xffff };
-static struct internal_clipboard
+default_clipboard_mode::mode default_clipboard_mode::m_Mode = default_clipboard_mode::system;
+
+void default_clipboard_mode::set(default_clipboard_mode::mode Mode)
 {
-	UINT Format;
-	os::memory::global::ptr Handle;
+	m_Mode = Mode;
 }
-InternalClipboard[] =
+
+default_clipboard_mode::mode default_clipboard_mode::get()
 {
-	// CF_OEMTEXT CF_TEXT CF_UNICODETEXT CF_HDROP
-	{ NO_FORMAT },
-	{ NO_FORMAT },
-	{ NO_FORMAT },
-	{ NO_FORMAT },
-	{ NO_FORMAT },
-	{ NO_FORMAT },
+	return m_Mode;
+}
+
+//-----------------------------------------------------------------------------
+ENUM(FAR_CLIPBOARD_FORMAT)
+{
+	FCF_VERTICALBLOCK_OEM,
+	FCF_VERTICALBLOCK_UNICODE,
+	FCF_CFSTR_PREFERREDDROPEFFECT,
+	FCF_MSDEVCOLUMNSELECT,
+	FCF_BORLANDIDEVBLOCK,
+	FCF_NOTEPADPLUSPLUS_BINARYTEXTLENGTH,
+
+	FCF_COUNT
 };
 
-bool Clipboard::UseInternalClipboard = false;
-bool Clipboard::InternalClipboardOpened = false;
-bool Clipboard::SystemClipboardOpened = false;
-
-//Sets UseInternalClipboard to State, and returns previous state
-bool Clipboard::SetUseInternalClipboardState(bool State)
+//-----------------------------------------------------------------------------
+class system_clipboard: noncopyable, public Clipboard
 {
-	const bool OldState = UseInternalClipboard;
-	UseInternalClipboard = State;
-	return OldState;
-}
-
-bool Clipboard::GetUseInternalClipboardState()
-{
-	return UseInternalClipboard;
-}
-
-UINT Clipboard::RegisterFormat(FAR_CLIPBOARD_FORMAT Format)
-{
-	static const simple_pair<unsigned, const wchar_t*> FormatMap[] =
+public:
+	static Clipboard& GetInstance()
 	{
-		{ 0xFEB0, L"FAR_VerticalBlock" },
-		{ 0xFEB1, L"FAR_VerticalBlock_Unicode" },
-		{ 0xFEB2, CFSTR_PREFERREDDROPEFFECT },
-		{ 0xFEB3, L"MSDEVColumnSelect" },
-		{ 0xFEB4, L"Borland IDE Block Type" },
-		{ 0xFEB5, L"Notepad++ binary text length" }
-	};
+		static system_clipboard s_Clipboard;
+		return s_Clipboard;
+	}
 
-	static_assert(ARRAYSIZE(FormatMap) == FCF_COUNT, "Wrong size of FormatMap");
-	assert(Format < FCF_COUNT);
-
-	return UseInternalClipboard? FormatMap[Format].first : RegisterClipboardFormat(FormatMap[Format].second);
-}
-
-bool Clipboard::Open()
-{
-	if (UseInternalClipboard)
+	virtual ~system_clipboard()
 	{
-		if (!InternalClipboardOpened)
+		Close();
+	}
+
+	virtual bool Open() override
+	{
+		assert(!m_Opened);
+
+		if (!m_Opened)
 		{
-			InternalClipboardOpened=true;
-			return true;
+			if (OpenClipboard(Console().GetWindow()))
+			{
+				m_Opened = true;
+				return true;
+			}
 		}
-
 		return false;
 	}
 
-	if (!SystemClipboardOpened)
+	virtual bool Close() override
 	{
-		if (OpenClipboard(Console().GetWindow()))
+		// Closing already closed buffer is OK
+		if (m_Opened)
 		{
-			SystemClipboardOpened = true;
-			return true;
+			if (!CloseClipboard())
+				return false;
+			m_Opened = false;
 		}
-	}
-	return false;
-}
-
-bool Clipboard::Close()
-{
-	// Closing already closed buffer is OK
-
-	if (UseInternalClipboard)
-	{
-		InternalClipboardOpened = false;
 		return true;
 	}
 
-	if (SystemClipboardOpened)
+	virtual bool Clear() override
 	{
-		if (!CloseClipboard())
-			return false;
-		SystemClipboardOpened = false;
+		assert(m_Opened);
+
+		return EmptyClipboard() != FALSE;
 	}
-	return true;
-}
 
-bool Clipboard::Clear()
-{
-	if (UseInternalClipboard)
+private:
+	system_clipboard() {}
+
+	virtual HANDLE GetData(UINT uFormat) const override
 	{
-		if (InternalClipboardOpened)
+		assert(m_Opened);
+
+		return GetClipboardData(uFormat);
+	}
+
+	virtual bool SetData(UINT uFormat, os::memory::global::ptr&& hMem) override
+	{
+		assert(m_Opened);
+
+		if (SetClipboardData(uFormat, hMem.get()))
 		{
-			std::for_each(RANGE(InternalClipboard, i)
+			hMem.release();
+
+			if (auto Locale = os::memory::global::copy<LCID>(LOCALE_USER_DEFAULT))
 			{
-				if (i.Handle)
+				if (SetClipboardData(CF_LOCALE, Locale.get()))
 				{
-					i.Handle.reset();
-					i.Format = NO_FORMAT;
+					Locale.release();
 				}
-			});
-
-			return true;
+				return true;
+			}
 		}
-
 		return false;
 	}
 
-	return EmptyClipboard() != FALSE;
-}
-
-HANDLE Clipboard::GetData(UINT uFormat)
-{
-	if (UseInternalClipboard)
+	virtual UINT RegisterFormat(FAR_CLIPBOARD_FORMAT Format) const override
 	{
-		if (InternalClipboardOpened && uFormat != NO_FORMAT)
+		static const wchar_t* FormatNames[] =
 		{
-			const auto ItemIterator = std::find_if(CONST_RANGE(InternalClipboard, i)
-			{
-				return i.Format == uFormat;
-			});
+			L"FAR_VerticalBlock",
+			L"FAR_VerticalBlock_Unicode",
+			CFSTR_PREFERREDDROPEFFECT,
+			L"MSDEVColumnSelect",
+			L"Borland IDE Block Type",
+			L"Notepad++ binary text length",
+		};
 
-			if (ItemIterator != std::cend(InternalClipboard))
-				return ItemIterator->Handle.get();
+		static_assert(ARRAYSIZE(FormatNames) == FCF_COUNT, "Wrong size of FormatNames");
+		assert(Format < FCF_COUNT);
+		return RegisterClipboardFormat(FormatNames[Format]);
+	}
+
+	virtual bool IsFormatAvailable(UINT Format) override
+	{
+		return IsClipboardFormatAvailable(Format) != FALSE;
+	}
+};
+
+//-----------------------------------------------------------------------------
+class internal_clipboard: noncopyable, public Clipboard
+{
+public:
+	static Clipboard& GetInstance()
+	{
+		static internal_clipboard s_Clipboard;
+		return s_Clipboard;
+	}
+
+	virtual ~internal_clipboard()
+	{
+		Close();
+	}
+
+	virtual bool Open() override
+	{
+		assert(!m_Opened);
+
+		if (!m_Opened)
+		{
+			m_Opened = true;
+			return true;
+		}
+		return false;
+	}
+
+	virtual bool Close() override
+	{
+		// Closing already closed buffer is OK
+		m_Opened = false;
+		return true;
+	}
+
+	virtual bool Clear() override
+	{
+		assert(m_Opened);
+
+		if (m_Opened)
+		{
+			m_InternalData.clear();
+			return true;
+		}
+		return false;
+	}
+
+private:
+	internal_clipboard() {}
+
+	virtual HANDLE GetData(UINT uFormat) const override
+	{
+		assert(m_Opened);
+
+		if (m_Opened && uFormat)
+		{
+			const auto ItemIterator = m_InternalData.find(uFormat);
+			if (ItemIterator != m_InternalData.cend())
+				return ItemIterator->second.get();
 		}
 		return nullptr;
 	}
 
-	return GetClipboardData(uFormat);
-}
-
-bool Clipboard::SetData(UINT uFormat, HGLOBAL hMem)
-{
-	if (UseInternalClipboard)
+	virtual bool SetData(UINT uFormat, os::memory::global::ptr&& hMem) override
 	{
-		if (InternalClipboardOpened)
+		assert(m_Opened);
+
+		if (m_Opened)
 		{
-			const auto ItemIterator = std::find_if(RANGE(InternalClipboard, i)
-			{
-				return !i.Handle;
-			});
-
-			if (ItemIterator != std::cend(InternalClipboard))
-			{
-				ItemIterator->Handle.reset(hMem);
-				ItemIterator->Format = uFormat;
-				return true;
-			}
+			m_InternalData[uFormat] = std::move(hMem);
+			return true;
 		}
-
 		return false;
 	}
 
-	if (SetClipboardData(uFormat, hMem))
+	virtual UINT RegisterFormat(FAR_CLIPBOARD_FORMAT Format) const override
 	{
-		if (auto Locale = os::memory::global::copy<LCID>(LOCALE_USER_DEFAULT))
-		{
-			if (SetClipboardData(CF_LOCALE, Locale.get()))
-			{
-				Locale.release();
-			}
-			return true;
-		}
+		return Format + 0xFC; // magic number stands for "Far Clipboard"
 	}
 
-	return false;
-}
+	virtual bool IsFormatAvailable(UINT Format) override
+	{
+		return Format && m_InternalData.count(Format);
+	}
 
-bool Clipboard::SetData(UINT uFormat, os::memory::global::ptr&& hMem)
+	std::unordered_map<UINT, os::memory::global::ptr> m_InternalData;
+};
+
+//-----------------------------------------------------------------------------
+clipboard_accessor::clipboard_accessor(default_clipboard_mode::mode Mode):
+	m_Mode(Mode)
 {
-	const auto Result = SetData(uFormat, hMem.get());
-	if (Result)
-	{
-		hMem.release();
-	}
-	return Result;
 }
 
-bool Clipboard::IsFormatAvailable(UINT Format)
+Clipboard* clipboard_accessor::operator->() const
 {
-	if (UseInternalClipboard)
-	{
-		return Format != NO_FORMAT && std::any_of(CONST_RANGE(InternalClipboard, i)
-		{
-			return i.Format == Format;
-		});
-	}
-
-	return IsClipboardFormatAvailable(Format) != FALSE;
+	return &Clipboard::GetInstance(m_Mode);
 }
 
-// Перед вставкой производится очистка буфера
+clipboard_accessor::~clipboard_accessor()
+{
+	Clipboard::GetInstance(m_Mode).Close();
+}
+
+//-----------------------------------------------------------------------------
+Clipboard& Clipboard::GetInstance(default_clipboard_mode::mode Mode)
+{
+	return Mode == default_clipboard_mode::system? system_clipboard::GetInstance() : internal_clipboard::GetInstance();
+}
+
+Clipboard::Clipboard():
+	m_Opened()
+{
+}
+
 bool Clipboard::SetText(const wchar_t *Data, size_t Size)
 {
 	auto Result = Clear();
@@ -372,7 +413,7 @@ bool Clipboard::GetHDROPAsText(string& data)
 			{
 				FOR(const auto& i, (os::enum_strings_t<const char*, const char*>(StartA)))
 				{
-					data.append(wide(std::string(i.data(), i.size()))).append(L"\r\n");
+					data.append(wide(std::string(i.data(), i.size()), CP_ACP)).append(L"\r\n");
 				}
 			}
 			Result = true;
@@ -419,68 +460,55 @@ bool Clipboard::GetVText(string& data)
 	return Result;
 }
 
-bool Clipboard::InternalCopy(bool FromWin)
+//-----------------------------------------------------------------------------
+bool CopyData(const clipboard_accessor& From, clipboard_accessor& To)
 {
-	bool Ret=false;
-	const bool OldUseInternalClipboard = SetUseInternalClipboardState(!FromWin);
-
-	UINT uFormat;
-	auto hClipData = GetData(uFormat = CF_UNICODETEXT);
-
-	if (!hClipData)
-		hClipData = GetData(uFormat = CF_HDROP);
-
-	if (hClipData)
+	string Data;
+	if (From->GetVText(Data))
 	{
-		SetUseInternalClipboardState(!Clipboard::GetUseInternalClipboardState());
-		SetData(uFormat,hClipData);
-		Ret=true;
+		return To->SetVText(Data);
 	}
-
-	SetUseInternalClipboardState(OldUseInternalClipboard);
-
-	return Ret;
+	else if (From->GetText(Data))
+	{
+		return To->SetText(Data);
+	}
+	return false;
 }
 
-/* ------------------------------------------------------------ */
 bool SetClipboardText(const wchar_t* Data, size_t Size)
 {
-	Clipboard clip;
-	return clip.Open() && clip.SetText(Data, Size);
+	clipboard_accessor Clip;
+	return Clip->Open() && Clip->SetText(Data, Size);
 }
 
 bool SetClipboardVText(const wchar_t *Data, size_t Size)
 {
-	Clipboard clip;
-	return clip.Open() && clip.SetVText(Data, Size);
+	clipboard_accessor Clip;
+	return Clip->Open() && Clip->SetVText(Data, Size);
 }
 
 bool GetClipboardText(string& data)
 {
-	Clipboard clip;
-	return clip.Open() && clip.GetText(data);
+	clipboard_accessor Clip;
+	return Clip->Open() && Clip->GetText(data);
 }
 
 bool GetClipboardVText(string& data)
 {
-	Clipboard clip;
-	return clip.Open() && clip.GetVText(data);
+	clipboard_accessor Clip;
+	return Clip->Open() && Clip->GetVText(data);
 }
 
 bool ClearInternalClipboard()
 {
-	bool OldState = Clipboard::SetUseInternalClipboardState(true);
+	clipboard_accessor Clip(default_clipboard_mode::internal);
 
-	Clipboard clip;
-
-	if (!clip.Open())
+	if (!Clip->Open())
 		return false;
 
-	bool ret = clip.Clear();
+	bool ret = Clip->Clear();
 
-	clip.Close();
-
-	Clipboard::SetUseInternalClipboardState(OldState);
+	Clip->Close();
 
 	return ret;
 }

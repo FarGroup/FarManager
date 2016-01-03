@@ -35,18 +35,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-enum FAR_CLIPBOARD_FORMAT
-{
-	FCF_VERTICALBLOCK_OEM,
-	FCF_VERTICALBLOCK_UNICODE,
-	FCF_CFSTR_PREFERREDDROPEFFECT,
-	FCF_MSDEVCOLUMNSELECT,
-	FCF_BORLANDIDEVBLOCK,
-	FCF_NOTEPADPLUSPLUS_BINARYTEXTLENGTH,
-
-	FCF_COUNT
-};
-
 bool SetClipboardText(const wchar_t* Data, size_t Size);
 inline bool SetClipboardText(const wchar_t* Data) { return SetClipboardText(Data, wcslen(Data)); }
 inline bool SetClipboardText(const string& Data) { return SetClipboardText(Data.data(), Data.size()); }
@@ -60,43 +48,66 @@ bool GetClipboardVText(string& data);
 
 bool ClearInternalClipboard();
 
-class Clipboard: noncopyable
+class default_clipboard_mode
 {
 public:
-	~Clipboard() { Close(); }
-	static bool Open();
-	static bool Close();
-	static bool Clear();
-
-	static bool SetText(const wchar_t *Data, size_t Size);
-	static bool SetText(const wchar_t *Data) { return SetText(Data, wcslen(Data)); }
-	static bool SetText(const string& Data) { return SetText(Data.data(), Data.size()); }
-
-	static bool SetVText(const wchar_t *Data, size_t Size);
-	static bool SetVText(const wchar_t *Data) { return SetVText(Data, wcslen(Data)); }
-	static bool SetVText(const string& Data) { return SetVText(Data.data(), Data.size()); }
-
-	static bool SetHDROP(const string& NamesData, bool bMoved = false);
-
-	static bool GetText(string& data);
-	static bool GetVText(string& data);
-
-	static bool InternalCopy(bool FromWin);
-
-	static bool SetUseInternalClipboardState(bool State); //Sets UseInternalClipboard to State, and returns previous state
-	static bool GetUseInternalClipboardState();
+	enum mode { system, internal };
+	static void set(mode Mode);
+	static mode get();
 
 private:
-	static bool GetHDROPAsText(string& data);
-	static UINT RegisterFormat(FAR_CLIPBOARD_FORMAT Format);
-	static bool IsFormatAvailable(UINT Format);
-	static HANDLE GetData(UINT uFormat);
-	static bool SetData(UINT uFormat, HGLOBAL hMem);
-	static bool SetData(UINT uFormat, os::memory::global::ptr&& hMem);
-
-	static bool UseInternalClipboard;
-	static bool InternalClipboardOpened;
-	static bool SystemClipboardOpened;
+	static mode m_Mode;
 };
+
+ENUM(FAR_CLIPBOARD_FORMAT);
+
+class Clipboard
+{
+public:
+	static Clipboard& GetInstance(default_clipboard_mode::mode Mode);
+	virtual ~Clipboard() {}
+
+	virtual bool Open() = 0;
+	virtual bool Close() = 0;
+	virtual bool Clear() = 0;
+
+	bool SetText(const wchar_t *Data, size_t Size);
+	bool SetText(const wchar_t *Data) { return SetText(Data, wcslen(Data)); }
+	bool SetText(const string& Data) { return SetText(Data.data(), Data.size()); }
+
+	bool SetVText(const wchar_t *Data, size_t Size);
+	bool SetVText(const wchar_t *Data) { return SetVText(Data, wcslen(Data)); }
+	bool SetVText(const string& Data) { return SetVText(Data.data(), Data.size()); }
+
+	bool SetHDROP(const string& NamesData, bool bMoved);
+
+	bool GetText(string& data);
+	bool GetVText(string& data);
+
+protected:
+	Clipboard();
+	bool m_Opened;
+
+private:
+	virtual bool SetData(UINT uFormat, os::memory::global::ptr&& hMem) = 0;
+	virtual HANDLE GetData(UINT uFormat) const = 0;
+	virtual UINT RegisterFormat(FAR_CLIPBOARD_FORMAT Format) const = 0;
+	virtual bool IsFormatAvailable(UINT Format) = 0;
+
+	bool GetHDROPAsText(string& data);
+};
+
+class clipboard_accessor:noncopyable
+{
+public:
+	clipboard_accessor(default_clipboard_mode::mode Mode = default_clipboard_mode::get());
+	Clipboard* operator->() const;
+	~clipboard_accessor();
+
+private:
+	default_clipboard_mode::mode m_Mode;
+};
+
+bool CopyData(const clipboard_accessor& From, clipboard_accessor& To);
 
 #endif // CLIPBOARD_HPP_989E040C_4D10_4D7C_88C0_5EF499171878

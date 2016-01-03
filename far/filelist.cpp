@@ -4306,10 +4306,10 @@ void FileList::CopyFiles(bool bMoved)
 		}
 		if(!CopyData.empty())
 		{
-			Clipboard clip;
-			if(clip.Open())
+			clipboard_accessor Clip;
+			if(Clip->Open())
 			{
-				clip.SetHDROP(CopyData, bMoved);
+				Clip->SetHDROP(CopyData, bMoved);
 			}
 		}
 	}

@@ -1542,7 +1542,16 @@ int Editor::ProcessKey(const Manager::Key& Key)
 				}
 
 				Pasting++;
-				bool OldUseInternalClipboard=Clipboard::SetUseInternalClipboardState(true);
+
+				// BUGBUG, TODO
+				// Using an internal clipboard to copy/move block is a not a best design choice:
+				// it's accessible through macros and someone might keep something there.
+				// We should either implement it without using the clipboard,
+				// or substitute a new local instance of internal_clipboard for this purpose only.
+
+				const auto SavedClipboardMode = default_clipboard_mode::get();
+				default_clipboard_mode::set(default_clipboard_mode::internal);
+
 				ProcessKey(Manager::Key((LocalKey()==KEY_CTRLP || LocalKey()==KEY_RCTRLP) ? KEY_CTRLINS:KEY_SHIFTDEL));
 
 				/* $ 10.04.2001 SVS
@@ -1560,7 +1569,9 @@ int Editor::ProcessKey(const Manager::Key& Key)
 				ProcessKey(Manager::Key(KEY_SHIFTINS));
 				Pasting--;
 				ClearInternalClipboard();
-				Clipboard::SetUseInternalClipboardState(OldUseInternalClipboard);
+
+				default_clipboard_mode::set(SavedClipboardMode);
+
 				/*$ 08.02.2001 SKV
 				  всё делалось с pasting'ом, поэтому redraw плагинам не ушел.
 				  сделаем его.
@@ -4031,22 +4042,19 @@ void Editor::PasteFromClipboard()
 	if (m_Flags.Check(FEDITOR_LOCKMODE))
 		return;
 
-	string data;
+	clipboard_accessor Clip;
 
-	Clipboard clip;
-
-	if (!clip.Open())
-		return;
-
-	if (clip.GetVText(data))
+	if (Clip->Open())
 	{
-		VPaste(data);
-		return;
-	}
-
-	if (clip.GetText(data))
-	{
-		Paste(data);
+		string data;
+		if (Clip->GetVText(data))
+		{
+			VPaste(data);
+		}
+		else if (Clip->GetText(data))
+		{
+			Paste(data);
+		}
 	}
 }
 
@@ -4189,17 +4197,17 @@ void Editor::Copy(int Append)
 		return;
 	}
 
-	Clipboard clip;
+	clipboard_accessor Clip;
 
-	if (!clip.Open())
-		return;
+	if (Clip->Open())
+	{
+		string CopyData;
 
-	string CopyData;
+		if (Append)
+			Clip->GetText(CopyData);
 
-	if (Append)
-		clip.GetText(CopyData);
-
-	clip.SetText(CopyData + Block2Text());
+		Clip->SetText(CopyData + Block2Text());
+	}
 }
 
 string Editor::Block2Text()
@@ -5234,20 +5242,21 @@ void Editor::DeleteVBlock()
 
 void Editor::VCopy(int Append)
 {
-	Clipboard clip;
+	clipboard_accessor Clip;
 
-	if (!clip.Open())
-		return;
-
-	string CopyData;
-
-	if (Append)
+	if (Clip->Open())
 	{
-		if (!clip.GetVText(CopyData))
-			clip.GetText(CopyData);
-	}
 
-	clip.SetVText(CopyData + VBlock2Text());
+		string CopyData;
+
+		if (Append)
+		{
+			if (!Clip->GetVText(CopyData))
+				Clip->GetText(CopyData);
+		}
+
+		Clip->SetVText(CopyData + VBlock2Text());
+	}
 }
 
 string Editor::VBlock2Text()
