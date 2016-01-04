@@ -3,6 +3,64 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 04.01.2016 14:00:46 +0200 - build 4503
+
+1. Continuation of 4502.1.
+
+2. Correction of 4431.
+
+drkns 03.01.2016 21:18:13 +0200 - build 4502
+
+1. Continue refactoring of clipboard.
+
+2. Fix clip(3) and clip(4) malfunction.
+
+drkns 01.01.2016 16:05:03 +0200 - build 4501
+
+1. Apply 4496 to vertical blocks.
+
+2. Always write the size of data.
+
+drkns 01.01.2016 15:07:30 +0200 - build 4500
+
+1. Remove vertical block duplication in clipboard.
+
+2. Refactoring.
+
+zg 31.12.2015 20:03:12 +0200 - build 4499
+
+1. crash in GetPluginDirList. already freed memory was returned.
+
+2. gcc warning.
+
+drkns 30.12.2015 17:05:27 +0200 - build 4498
+
+1. Continuation of 3596. More paranoid handling of adapters.
+
+drkns 30.12.2015 10:59:13 +0200 - build 4497
+
+1. TinyXML-2 v3.0.0.
+
+2. A couple of issues.
+
+w17 29.12.2015 13:10:24 +0300 - build 4496
+
+1. Copy/paste text containing '\0' in editor. When copied text contains zero characters,
+   an additional 4 byte block containing the length of the text is created.
+   The block type is 'Notepad++ binary text length', it must be compatible with notepad++ Paste Special.
+
+drkns 28.12.2015 17:59:08 +0200 - build 4495
+
+1. %farlocalproflie%\PluginsData was not created automatically, which could lead to consequences.
+
+drkns 28.12.2015 16:32:20 +0200 - build 4494
+
+1. Correction of 4493.
+
+drkns 28.12.2015 15:28:08 +0200 - build 4493
+
+1. Refactoring.
+
 w17 27.12.2015 11:08:48 +0300 - build 4492
 
 1. M#3142: Text insertion from Borland IDE is broken
