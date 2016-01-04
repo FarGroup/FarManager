@@ -35,19 +35,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-bool SetClipboardText(const wchar_t* Data, size_t Size);
-inline bool SetClipboardText(const wchar_t* Data) { return SetClipboardText(Data, wcslen(Data)); }
-inline bool SetClipboardText(const string& Data) { return SetClipboardText(Data.data(), Data.size()); }
-
-bool SetClipboardVText(const wchar_t *Data, size_t Size);
-inline bool SetClipboardVText(const wchar_t* Data) { return SetClipboardVText(Data, wcslen(Data)); }
-inline bool SetClipboardVText(const string& Data) { return SetClipboardVText(Data.data(), Data.size()); }
-
-bool GetClipboardText(string& data);
-bool GetClipboardVText(string& data);
-
-bool ClearInternalClipboard();
-
 class default_clipboard_mode
 {
 public:
@@ -81,32 +68,47 @@ public:
 
 	bool SetHDROP(const string& NamesData, bool bMoved);
 
-	bool GetText(string& data);
-	bool GetVText(string& data);
+	bool GetText(string& data) const;
+	bool GetVText(string& data) const;
 
 protected:
-	Clipboard();
+	Clipboard(): m_Opened() {}
+
 	bool m_Opened;
 
 private:
 	virtual bool SetData(UINT uFormat, os::memory::global::ptr&& hMem) = 0;
 	virtual HANDLE GetData(UINT uFormat) const = 0;
 	virtual UINT RegisterFormat(FAR_CLIPBOARD_FORMAT Format) const = 0;
-	virtual bool IsFormatAvailable(UINT Format) = 0;
+	virtual bool IsFormatAvailable(UINT Format) const = 0;
 
-	bool GetHDROPAsText(string& data);
+	bool GetHDROPAsText(string& data) const;
 };
 
 class clipboard_accessor:noncopyable
 {
 public:
-	clipboard_accessor(default_clipboard_mode::mode Mode = default_clipboard_mode::get());
-	Clipboard* operator->() const;
-	~clipboard_accessor();
+	clipboard_accessor(default_clipboard_mode::mode Mode = default_clipboard_mode::get()): m_Mode(Mode) {}
+	Clipboard* operator->() const { return &Clipboard::GetInstance(m_Mode); }
+	~clipboard_accessor() { Clipboard::GetInstance(m_Mode).Close(); }
 
 private:
 	default_clipboard_mode::mode m_Mode;
 };
+
+
+bool SetClipboardText(const wchar_t* Data, size_t Size);
+inline bool SetClipboardText(const wchar_t* Data) { return SetClipboardText(Data, wcslen(Data)); }
+inline bool SetClipboardText(const string& Data) { return SetClipboardText(Data.data(), Data.size()); }
+
+bool SetClipboardVText(const wchar_t *Data, size_t Size);
+inline bool SetClipboardVText(const wchar_t* Data) { return SetClipboardVText(Data, wcslen(Data)); }
+inline bool SetClipboardVText(const string& Data) { return SetClipboardVText(Data.data(), Data.size()); }
+
+bool GetClipboardText(string& data);
+bool GetClipboardVText(string& data);
+
+bool ClearInternalClipboard();
 
 bool CopyData(const clipboard_accessor& From, clipboard_accessor& To);
 

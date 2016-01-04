@@ -844,7 +844,7 @@ DEL_RESULT ShellDelete::AskDeleteReadOnly(const string& Name,DWORD Attr, bool Wi
 	else
 	{
 		MsgCode=Message(MSG_WARNING, MSG(MWarning),
-						make_vector<string>(MSG(MDeleteRO), MSG(Wipe?MAskWipeRO:MAskDeleteRO)),
+						make_vector<string>(MSG(MDeleteRO), Name, MSG(Wipe?MAskWipeRO:MAskDeleteRO)),
 						make_vector<string>(MSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),MSG(MDeleteFileAll),MSG(MDeleteFileSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteFileCancel)),
 						nullptr, nullptr, (Wipe?&DeleteAskWipeROId:&DeleteAskDeleteROId));
 	}

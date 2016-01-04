@@ -159,7 +159,7 @@ private:
 		return RegisterClipboardFormat(FormatNames[Format]);
 	}
 
-	virtual bool IsFormatAvailable(UINT Format) override
+	virtual bool IsFormatAvailable(UINT Format) const override
 	{
 		return IsClipboardFormatAvailable(Format) != FALSE;
 	}
@@ -244,7 +244,7 @@ private:
 		return Format + 0xFC; // magic number stands for "Far Clipboard"
 	}
 
-	virtual bool IsFormatAvailable(UINT Format) override
+	virtual bool IsFormatAvailable(UINT Format) const override
 	{
 		return Format && m_InternalData.count(Format);
 	}
@@ -253,30 +253,9 @@ private:
 };
 
 //-----------------------------------------------------------------------------
-clipboard_accessor::clipboard_accessor(default_clipboard_mode::mode Mode):
-	m_Mode(Mode)
-{
-}
-
-Clipboard* clipboard_accessor::operator->() const
-{
-	return &Clipboard::GetInstance(m_Mode);
-}
-
-clipboard_accessor::~clipboard_accessor()
-{
-	Clipboard::GetInstance(m_Mode).Close();
-}
-
-//-----------------------------------------------------------------------------
 Clipboard& Clipboard::GetInstance(default_clipboard_mode::mode Mode)
 {
 	return Mode == default_clipboard_mode::system? system_clipboard::GetInstance() : internal_clipboard::GetInstance();
-}
-
-Clipboard::Clipboard():
-	m_Opened()
-{
 }
 
 bool Clipboard::SetText(const wchar_t *Data, size_t Size)
@@ -362,7 +341,7 @@ bool Clipboard::SetHDROP(const string& NamesData, bool bMoved)
 	return Result;
 }
 
-bool Clipboard::GetText(string& data)
+bool Clipboard::GetText(string& data) const
 {
 	bool Result = false;
 
@@ -392,7 +371,7 @@ bool Clipboard::GetText(string& data)
 	return Result;
 }
 
-bool Clipboard::GetHDROPAsText(string& data)
+bool Clipboard::GetHDROPAsText(string& data) const
 {
 	bool Result = false;
 
@@ -422,7 +401,7 @@ bool Clipboard::GetHDROPAsText(string& data)
 	return Result;
 }
 
-bool Clipboard::GetVText(string& data)
+bool Clipboard::GetVText(string& data) const
 {
 	bool Result = false;
 
@@ -461,20 +440,6 @@ bool Clipboard::GetVText(string& data)
 }
 
 //-----------------------------------------------------------------------------
-bool CopyData(const clipboard_accessor& From, clipboard_accessor& To)
-{
-	string Data;
-	if (From->GetVText(Data))
-	{
-		return To->SetVText(Data);
-	}
-	else if (From->GetText(Data))
-	{
-		return To->SetText(Data);
-	}
-	return false;
-}
-
 bool SetClipboardText(const wchar_t* Data, size_t Size)
 {
 	clipboard_accessor Clip;
@@ -502,13 +467,20 @@ bool GetClipboardVText(string& data)
 bool ClearInternalClipboard()
 {
 	clipboard_accessor Clip(default_clipboard_mode::internal);
-
-	if (!Clip->Open())
-		return false;
-
-	bool ret = Clip->Clear();
-
-	Clip->Close();
-
-	return ret;
+	return Clip->Open() && Clip->Clear();
 }
+
+bool CopyData(const clipboard_accessor& From, clipboard_accessor& To)
+{
+	string Data;
+	if (From->GetVText(Data))
+	{
+		return To->SetVText(Data);
+	}
+	else if (From->GetText(Data))
+	{
+		return To->SetText(Data);
+	}
+	return false;
+}
+
