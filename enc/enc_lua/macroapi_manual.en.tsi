@@ -8,14 +8,16 @@ lv=0
 dt=Text
 nm=Far Manager macro system manual
 ctime=3551829092
-mtime=3602513805
+mtime=3661282778
 <article>
 #_<markdown>
 #_
 #_Since 30.09.2012 (Far 3.0.2851), Far Manager uses [Lua][1] programming language (version 5.1)
 #_instead of the built-in macro language.
 #_
-#_A macro is a Lua-script and its meta-data such as:
+#_Since 23.04.2014 (LuaMacro build 310), added support for [MoonScript][2] programming language.
+#_
+#_A macro is a script (written either in Lua or MoonScript) and its meta-data such as:
 #_
 #_* Areas from which the script may be executed
 #_* Keys that initiate execution of the script from those areas
@@ -28,11 +30,12 @@ mtime=3602513805
 #_* Macro recording and playback
 #_* Standard Lua libraries
 #_* LuaFAR libraries ("plugin API")
-#_* [Libraries of macro functions][2] ("macro API")
+#_* [Libraries of macro functions][3] ("macro API")
 #_* For plugins: function `MacroControl`
 #_
 #_[1]: http://www.lua.org/
-#_[2]: 42.html
+#_[2]: http://moonscript.org/
+#_[3]: 42.html
 #_
 #_@@@
 #_{macrocontrol}: http://api.farmanager.com/ru/service_functions/macrocontrol.html
