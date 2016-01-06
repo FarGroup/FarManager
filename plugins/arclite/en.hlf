@@ -2,7 +2,7 @@
 .PluginContents=<(NAME)>
 
 @Contents
-$^#<(NAME)> <(VER_MAJOR)>.<(VER_MINOR)>.<(VER_PATCH)>#
+$ #Arclite#
 	Archive management based on 7z.dll from ~7-Zip~@http://7-zip.org@ project.
 
 	~Plugin duscussion~@http://forum.farmanager.com/viewtopic.php?t=5637@
@@ -14,7 +14,6 @@ $^#<(NAME)> <(VER_MAJOR)>.<(VER_MINOR)>.<(VER_PATCH)>#
 	~Command line parameters~@Prefix@
 
 @Extract
-$^#<(NAME)> <(VER_MAJOR)>.<(VER_MINOR)>.<(VER_PATCH)>#
 $ #Extract archive#
 
 	Extract single archive by selecting it and pressing #Shift-F2#.
@@ -47,7 +46,6 @@ unpacking entire archive and archive's root directory contains more than one ele
 after successful extraction.
 
 @Update
-$^#<(NAME)> <(VER_MAJOR)>.<(VER_MINOR)>.<(VER_PATCH)>#
 $ #Create and update archive#
 
 	In order to create an archive select files and press #Shift-F1# or select #Create archive#
@@ -118,7 +116,6 @@ ask user, overwrite or skip file.
 Empty directories are not archived when filter is active.
 
 @Config
-$^#<(NAME)> <(VER_MAJOR)>.<(VER_MINOR)>.<(VER_PATCH)>#
 $ #Plugin settings#
 
 	Press #Alt-Shift-F9# to open Settings dialog.
@@ -149,7 +146,6 @@ with Ctrl-PgDn.
 	#max_check_size# - Maximum number of bytes to load when detecting archive format (DWORD). Default is 1 Mb.
 
 @Prefix
-$^#<(NAME)> <(VER_MAJOR)>.<(VER_MINOR)>.<(VER_PATCH)>#
 $ #Prefix command line format#
 
 	#Open archive#
@@ -197,7 +193,6 @@ $ #Prefix command line format#
 	<archive> ... = list of archives
 
 @SfxOptions
-$^#<(NAME)> <(VER_MAJOR)>.<(VER_MINOR)>.<(VER_PATCH)>#
 $ #Self-extracting archive options#
 
 	#Module name# - Select one of the available SFX modules:

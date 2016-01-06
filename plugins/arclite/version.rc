@@ -1,10 +1,10 @@
 #include <winresrc.h>
 1 VERSIONINFO
-FILEVERSION <(VER_MAJOR)>,<(VER_MINOR)>,<(VER_PATCH)>,0
+FILEVERSION <(VER_MAJOR)>,<(VER_MINOR)>,<(VER_BUILD)>,0
 PRODUCTVERSION <(FAR_VER_MAJOR)>,<(FAR_VER_MINOR)>,<(FAR_VER_BUILD)>,0
 FILEOS VOS_NT_WINDOWS32
 FILETYPE VFT_DLL
-#ifdef DEBUG 
+#ifdef DEBUG
 FILEFLAGS VS_FF_DEBUG
 #endif
 BEGIN
@@ -12,7 +12,7 @@ BEGIN
   BEGIN
     BLOCK "04090000"
     BEGIN
-      VALUE "FileVersion", "<(VER_MAJOR)>.<(VER_MINOR)>.<(VER_PATCH)>\0"
+      VALUE "FileVersion", "<(VER_MAJOR)>.<(VER_MINOR)>.<(VER_BUILD)>\0"
       VALUE "ProductVersion", "<(FAR_VER_MAJOR)>.<(FAR_VER_MINOR)>.<(FAR_VER_BUILD)>\0"
 #ifdef x64
       VALUE "FileDescription", "<(NAME)> for Far Manager <(FAR_VER_MAJOR)> x64\0"
@@ -20,7 +20,7 @@ BEGIN
       VALUE "FileDescription", "<(NAME)> for Far Manager <(FAR_VER_MAJOR)>\0"
 #endif
       VALUE "OriginalFilename", "<(MODULE)>.dll\0"
-#ifdef DEBUG 
+#ifdef DEBUG
       VALUE "SpecialBuild", "Debug build.\0"
 #endif
       VALUE "LegalCopyright", "Copyright © 2010-2015 Far Group\0"
