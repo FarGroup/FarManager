@@ -1,4 +1,5 @@
 #include "OleThread.h"
+#include <strsafe.h>
 #include <windows.h>
 #include <comdef.h>
 #include <cassert>
@@ -38,7 +39,6 @@ namespace OleThread
       assert(0);
     }
     DWORD nWaitTime=100;
-    IMallocPtr pMalloc;
     for(;;)
     {
       HANDLE phEvents[2]={*hStop, *hNeedInvoke};
@@ -46,17 +46,6 @@ namespace OleThread
       if (WAIT_OBJECT_0==nRes) break;
       if (WAIT_OBJECT_0+1==nRes)
       {
-        if (!pMalloc.GetInterfacePtr())
-        {
-          if (SUCCEEDED(SHGetMalloc(&pMalloc)))
-          {
-            thePlug->m_pMalloc=pMalloc;
-          }
-          else
-          {
-            assert(0);
-          }
-        }
         OpenPluginArgs::enRes=thePlug->OpenPluginBkg(OpenPluginArgs::nOpenFrom, OpenPluginArgs::nItem);
         if (!SetEvent(*hInvokeDone))
         {
@@ -90,7 +79,6 @@ namespace OleThread
         if (nWaitTime<100) nWaitTime+=1;
       }
     }
-    pMalloc.Release();
 //    В Build950 вызывает падение
 //    OleUninitialize();
     return 0;

@@ -8,7 +8,7 @@
 class CPidl
 {
 public:
-  CPidl(LPMALLOC pMalloc);
+  CPidl();
   ~CPidl();
   operator LPITEMIDLIST();
   LPCITEMIDLIST* GetArray();
@@ -23,7 +23,6 @@ protected:
   CPidl(const CPidl&);
   CPidl& operator =(const CPidl&);
   LPITEMIDLIST* m_ppidl;
-  LPMALLOC m_pMalloc;
   unsigned m_nSize;
   unsigned m_nCount;
 };

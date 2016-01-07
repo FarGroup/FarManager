@@ -23,14 +23,14 @@ protected:
   unsigned MenuItemLen(LPCWSTR szText);
 protected:
   LPCWSTR m_szHelp;
-  bool m_bArrowsAdded;
   FarMenuItem* m_pfmi;
   unsigned m_nItemCnt;
-  unsigned m_nMaxItems;
   LPCWSTR m_szArrow;
+  bool m_bArrowsAdded;
+  GUID* m_Id;
+  unsigned m_nMaxItems;
   bool* m_pbHasSubMenu;
   enum {MAX_HEIGHT=45};
-  GUID* m_Id;
 };
 
 #endif

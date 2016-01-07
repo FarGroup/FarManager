@@ -41,7 +41,7 @@ public:
   int Configure();
   void ExitFAR();
   HINSTANCE m_hModule;
-  IMalloc* m_pMalloc;
+
 protected:
   LPCWSTR GetMsg(int nMsgId);
   intptr_t Message(DWORD nFlags, LPCWSTR szHelpTopic, const LPCWSTR* pItems, int nItemsNumber, int nButtonsNumber);

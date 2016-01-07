@@ -3,7 +3,7 @@
 #include "guid.hpp"
 #include <cassert>
 
-static const wchar_t  empty_wstr;
+static const wchar_t empty_wstr[] = {0};
 
 CFarMenu::CFarMenu(LPCWSTR szHelp/*=NULL*/, const GUID* MenuId/*= nullptr*/, unsigned nMaxItems/*=40*/)
   : m_szHelp(szHelp)
@@ -21,7 +21,7 @@ CFarMenu::CFarMenu(LPCWSTR szHelp/*=NULL*/, const GUID* MenuId/*= nullptr*/, uns
 CFarMenu::~CFarMenu()
 {
   for(unsigned i = 0; i < m_nItemCnt; i++)
-    if(m_pfmi[i].Text != &empty_wstr)
+    if(m_pfmi[i].Text != empty_wstr)
       delete m_pfmi[i].Text;
   delete[] m_pfmi;
   delete[] m_pbHasSubMenu;
@@ -54,7 +54,7 @@ unsigned CFarMenu::InsertItem(unsigned nIndex, LPCWSTR szText, bool bHasSubMenu/
   {
     if(!*szText)
     {
-      m_pfmi[nIndex].Text=&empty_wstr;
+      m_pfmi[nIndex].Text = empty_wstr;
     }
     else
 	{
@@ -64,7 +64,7 @@ unsigned CFarMenu::InsertItem(unsigned nIndex, LPCWSTR szText, bool bHasSubMenu/
   }
   else
   {
-    m_pfmi[nIndex].Text=&empty_wstr;
+    m_pfmi[nIndex].Text = empty_wstr;
     m_pfmi[nIndex].Flags|=MIF_SEPARATOR;
   }
   switch (enChecked)
@@ -72,6 +72,10 @@ unsigned CFarMenu::InsertItem(unsigned nIndex, LPCWSTR szText, bool bHasSubMenu/
   case CHECKED:
     m_pfmi[nIndex].Flags|=MIF_CHECKED;
       break;
+
+  case UNCHECKED:
+    break;
+
   case RADIO:
     m_pfmi[nIndex].Flags|=7|MIF_CHECKED;
     break;
@@ -94,7 +98,6 @@ void CFarMenu::AddArrows()
     m_bArrowsAdded=true;
     unsigned nMaxLen=0;
     unsigned i;
-    size_t  arrLen = lstrlen(m_szArrow);
     for (i=0; i<m_nItemCnt; i++)
     {
       unsigned nLen=MenuItemLen(m_pfmi[i].Text);
@@ -109,7 +112,7 @@ void CFarMenu::AddArrows()
           size_t  len=lstrlen(m_pfmi[i].Text)+lstrlen(m_szArrow)+(nMaxLen-nLen);
           wchar_t *pn = new wchar_t[len+1];
           wcscpy(pn, m_pfmi[i].Text);
-          if (m_pfmi[i].Text != &empty_wstr)  // paranoya
+          if (m_pfmi[i].Text != empty_wstr)  // paranoya
             delete m_pfmi[i].Text;
           m_pfmi[i].Text = pn;
         }

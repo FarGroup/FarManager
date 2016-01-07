@@ -1,3 +1,8 @@
+#ifdef __GNUC__
+#include <cwchar>
+#define swprintf_s(buffer, size, format, ...) swprintf(buffer, format, __VA_ARGS__)
+#endif
+
 #include "Plugin.h"
 #include <comdef.h>
 #include <stddef.h>
@@ -13,20 +18,24 @@
 #include <DlgBuilder.hpp>
 #include <cassert>
 
-// new version of PSDK do not contains standard smart-pointer declaration
+// new version of PSDK doesn't contain standard smart-pointer declaration
 _COM_SMARTPTR_TYPEDEF(IContextMenu, __uuidof(IContextMenu));
 _COM_SMARTPTR_TYPEDEF(IContextMenu2, __uuidof(IContextMenu2));
 _COM_SMARTPTR_TYPEDEF(IContextMenu3, __uuidof(IContextMenu3));
 
-#ifdef _MSC_VER
-#pragma warning(disable : 4290)
+#ifdef __GNUC__
+_COM_SMARTPTR_TYPEDEF(IShellFolder, __uuidof(IShellFolder));
+_COM_SMARTPTR_TYPEDEF(IEnumIDList, __uuidof(IEnumIDList));
+_COM_SMARTPTR_TYPEDEF(IDropTarget, __uuidof(IDropTarget));
+_COM_SMARTPTR_TYPEDEF(IDataObject, __uuidof(IDataObject));
 #endif
-void __stdcall _com_issue_error(HRESULT) throw(_com_error)
-{
-  assert(0);
-}
-#ifdef _MSC_VER
-#pragma warning(default : 4290)
+
+#ifdef __GNUC__
+#define SEH_TRY if(true)
+#define SEH_EXCEPT(h) if(false)
+#else
+#define SEH_TRY __try
+#define SEH_EXCEPT(h) __except(h)
 #endif
 
 #if _WIN32_WINNT >= 0x0603
@@ -58,7 +67,6 @@ CPlugin::~CPlugin(void)
 CPlugin::CPlugin(const PluginStartupInfo *Info)
 {
   m_hModule=(HINSTANCE)GetModuleHandle(Info->ModuleName);
-  m_pMalloc=NULL;
   NULL_HWND=NULL;
   REG_WaitToContinue=L"WaitToContinue";
   REG_UseGUI=L"UseGUI";
@@ -266,7 +274,7 @@ HANDLE CPlugin::OpenPlugin(int nOpenFrom, INT_PTR nItem)
 CPlugin::EDoMenu CPlugin::OpenPluginBkg(int nOpenFrom, INT_PTR nItem)
 {
   LPWSTR szCmdLine=NULL;
-  CallMode Mode;
+  CallMode Mode = CALL_APPS;
   switch(nOpenFrom)
   {
   case OPEN_COMMANDLINE:
@@ -312,8 +320,6 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPWSTR szCmdLine, CallMode Mode)
   if (FAILED(SHGetDesktopFolder(&pDesktop)))
   	return DOMNU_ERR_SHOW;
   m_pDesktop=pDesktop;
-  if (!m_pMalloc)
-  	return DOMNU_ERR_SHOW;
 
   if (Mode == CALL_RIGHTCLICK || Mode == CALL_APPS)
   {
@@ -395,7 +401,7 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPWSTR szCmdLine, CallMode Mode)
 
 CPlugin::EDoMenu CPlugin::SelectDrive()
 {
-  CPidl oPidlMyComp(m_pMalloc);
+  CPidl oPidlMyComp;
   if (FAILED(SHGetSpecialFolderLocation(NULL_HWND, CSIDL_DRIVES, &oPidlMyComp)))
   {
     return DOMNU_ERR_SHOW;
@@ -419,7 +425,7 @@ CPlugin::EDoMenu CPlugin::SelectDrive()
   CFarMenu oDrivesMenu(g_szTopicMyComp);
   LPITEMIDLIST piid;
   ULONG nFetched;
-  CPidl oPiids(m_pMalloc);
+  CPidl oPiids;
   unsigned nLastDrivePos=0;
   while (SUCCEEDED(pEnum->Next(1, &piid, &nFetched)) && nFetched)
   {
@@ -552,7 +558,7 @@ CPlugin::EDoMenu CPlugin::MenuForPanelOrCmdLine(LPWSTR szCmdLine/*=NULL*/
       enRet=DOMNU_ERR_DIFFERENT_FOLDERS;
       break;
     }
-    CPidl oDirPidl(m_pMalloc);
+    CPidl oDirPidl;
     ULONG nCount;
     if (FAILED(m_pDesktop->ParseDisplayName(NULL_HWND, NULL, strFilesDir, &nCount, &oDirPidl, NULL)))
     {
@@ -565,7 +571,7 @@ CPlugin::EDoMenu CPlugin::MenuForPanelOrCmdLine(LPWSTR szCmdLine/*=NULL*/
       enRet=DOMNU_ERR_SHOW;
       break;
     }
-    CPidl oPidl(m_pMalloc);
+    CPidl oPidl;
     for (i=0; i<nFiles+nFolders; i++)
     {
       LPITEMIDLIST pidl;
@@ -866,7 +872,7 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* pPiids
     oTypeMenu.AddItem(GetMsg(LNG_MNU_TEXT));
     while (1)
     {
-      bool bGUI;
+      bool bGUI = false;
       if(2!=m_UseGUI)
       {
         bGUI=(0!=m_UseGUI);
@@ -1041,11 +1047,11 @@ bool CPlugin::GetAdditionalString(IContextMenu* pContextMenu, UINT nID, EAdditio
   }
   WCHAR szwAddInfo[200]=L"\0";
   HRESULT hr;
-  __try
+  SEH_TRY
   {
     hr = pContextMenu->GetCommandString(nID, nType, NULL, reinterpret_cast<LPSTR>(szwAddInfo), ARRAYSIZE(szwAddInfo));
   }
-  __except(EXCEPTION_EXECUTE_HANDLER)
+  SEH_EXCEPT(EXCEPTION_EXECUTE_HANDLER)
   {
     hr = E_UNEXPECTED;
   }
@@ -1146,8 +1152,7 @@ bool CPlugin::ShowTextMenu(HMENU hMenu, LPCONTEXTMENU pPreferredMenu, LPCONTEXTM
       bool bShowMenuRes;
       if (MENUID_SENDTO_WIN98==mii.wID)
       {
-        if (!m_pMalloc) return false;
-        CPidl oSendtoPidl(m_pMalloc);
+        CPidl oSendtoPidl;
         if (FAILED(SHGetSpecialFolderLocation(NULL, CSIDL_SENDTO, &oSendtoPidl)))
         {
           return false;
@@ -1225,8 +1230,7 @@ bool CPlugin::ShowFolder(LPSHELLFOLDER pParentFolder, LPCITEMIDLIST piid, int* p
     return false;
   }
   CFarMenu oFarMenu;
-  if (!m_pMalloc) return false;
-  CPidl oFolderPiids(m_pMalloc);
+  CPidl oFolderPiids;
   LPITEMIDLIST piidItem;
   ULONG nFetched;
   while (SUCCEEDED(pEnum->Next(1, &piidItem, &nFetched)) && nFetched)

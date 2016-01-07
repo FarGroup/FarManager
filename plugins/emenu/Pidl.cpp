@@ -1,21 +1,18 @@
 #include "Pidl.h"
 #include <cassert>
 
-CPidl::CPidl(LPMALLOC pMalloc)
-  : m_pMalloc(pMalloc)
-  , m_ppidl(NULL)
+CPidl::CPidl()
+  : m_ppidl(NULL)
   , m_nSize(0)
   , m_nCount(0)
 {
-  assert(pMalloc);
 }
 
 CPidl::~CPidl()
 {
-  assert(m_pMalloc);
   for (unsigned i=0; i<m_nCount; i++)
   {
-    m_pMalloc->Free(m_ppidl[i]);
+    CoTaskMemFree(m_ppidl[i]);
   }
   delete[] m_ppidl;
 }
