@@ -397,10 +397,8 @@ ArcEntries Archive::detect(Byte *buffer, UInt32 size, bool eof, const wstring& f
 
   for_each(sig_positions.begin(), sig_positions.end(), [&] (const StrPos& sig_pos) {
     auto format = signatures[sig_pos.idx].format;
-    if (found_types.insert(format.ClassID).second)
-    {
-        arc_entries.push_back(ArcEntry(format.ClassID, sig_pos.pos - format.SignatureOffset));
-    }
+    found_types.insert(format.ClassID);
+    arc_entries.push_back(ArcEntry(format.ClassID, sig_pos.pos - format.SignatureOffset));
   });
 
   // 2. find formats by file extension
@@ -487,6 +485,9 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
   size_t skip_header = 0;
   bool first_open = true;
   ArcEntries arc_entries = detect(buffer.data(), size, size < max_check_size, extract_file_ext(arc_info.cFileName), options.arc_types);
+
+  std::set<ArcType> found_types;
+
   for (ArcEntries::const_iterator arc_entry = arc_entries.begin(); arc_entry != arc_entries.end(); ++arc_entry) {
     shared_ptr<Archive> archive(new Archive());
     archive->arc_path = options.arc_path;
@@ -512,12 +513,15 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
        if (opened)
          archive->base_stream = stream;
     }
-    if (opened) {
+    if (opened && found_types.insert(arc_entry->type).second)
+    {
       if (parent_idx != -1)
         archive->arc_chain.assign(archives[parent_idx]->arc_chain.begin(), archives[parent_idx]->arc_chain.end());
       archive->arc_chain.push_back(*arc_entry);
+
       archives.push_back(archive);
       open(options, archives);
+
       if (!options.detect)
         break;
     }
