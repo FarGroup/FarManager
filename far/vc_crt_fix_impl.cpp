@@ -54,7 +54,6 @@ inline T GetFunctionPointer(const wchar_t* ModuleName, const char* FunctionName,
 static const auto Function = GetFunctionPointer(ModuleName, #FunctionName, &implementation::FunctionName)
 
 static const wchar_t kernel32[] = L"kernel32";
-static const wchar_t advapi32[] = L"advapi32";
 
 // EncodePointer (VC2010)
 extern "C" PVOID WINAPI EncodePointerWrapper(PVOID Ptr)
