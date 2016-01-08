@@ -1,10 +1,10 @@
-/*
+﻿/*
 vc_crt_fix_impl.cpp
 
 Workaround for Visual C++ CRT incompatibility with old Windows versions
 */
 /*
-Copyright � 2011 Far Group
+Copyright © 2011 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -18,7 +18,7 @@ are met:
 3. The name of the authors may not be used to endorse or promote products
    derived from this software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR `AS IS' AND ANY EXPRESS OR
 IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
 OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
 IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
@@ -35,14 +35,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 template<typename T>
 inline T GetFunctionPointer(const wchar_t* ModuleName, const char* FunctionName, T Replacement)
 {
-	auto Address = GetProcAddress(GetModuleHandleW(ModuleName), FunctionName);
+	const auto Address = GetProcAddress(GetModuleHandleW(ModuleName), FunctionName);
 	return Address? reinterpret_cast<T>(Address) : Replacement;
 }
 
 #define CREATE_FUNCTION_POINTER(ModuleName, FunctionName)\
-static auto Function = GetFunctionPointer(ModuleName, #FunctionName, &implementation::FunctionName)
+static const auto Function = GetFunctionPointer(ModuleName, #FunctionName, &implementation::FunctionName)
 
 static const wchar_t kernel32[] = L"kernel32";
+static const wchar_t advapi32[] = L"advapi32";
 
 // EncodePointer (VC2010)
 extern "C" PVOID WINAPI EncodePointerWrapper(PVOID Ptr)
@@ -82,7 +83,8 @@ extern "C" BOOL WINAPI GetModuleHandleExWWrapper(DWORD Flags, LPCWSTR ModuleName
 			}
 			else
 			{
-				if ((*Module = GetModuleHandleW(ModuleName)))
+				*Module = GetModuleHandleW(ModuleName);
+				if (*Module)
 				{
 					Result = TRUE;
 				}
@@ -93,4 +95,28 @@ extern "C" BOOL WINAPI GetModuleHandleExWWrapper(DWORD Flags, LPCWSTR ModuleName
 
 	CREATE_FUNCTION_POINTER(kernel32, GetModuleHandleExW);
 	return Function(Flags, ModuleName, Module);
+}
+
+// InitializeSListHead (VC2015)
+extern "C" void WINAPI InitializeSListHeadWrapper(PSLIST_HEADER ListHead)
+{
+	struct implementation
+	{
+		static void WINAPI InitializeSListHead(PSLIST_HEADER ListHead)
+		{
+			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+		}
+	};
+
+	CREATE_FUNCTION_POINTER(kernel32, InitializeSListHead);
+	return Function(ListHead);
+}
+
+// RtlGenRandom (VC2015)
+// RtlGenRandom is used in rand_s implementation in ucrt.
+// As long as we don't use the rand_s in the code (which is easy: it's non-standard, requires _CRT_RAND_S to be defined first and not recommended in general)
+// this function is never called so it's ok to provide this dummy implementation only to have the _SystemFunction036@8 symbol in binary to make their loader happy.
+extern "C" BOOLEAN WINAPI SystemFunction036(PVOID Buffer, ULONG Size)
+{
+	return TRUE;
 }

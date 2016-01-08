@@ -1,10 +1,10 @@
-/*
+﻿/*
 vc_crt_fix_ulink.cpp
 
 Workaround for Visual C++ CRT incompatibility with old Windows versions (ulink version)
 */
 /*
-Copyright � 2010 Far Group
+Copyright © 2010 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
