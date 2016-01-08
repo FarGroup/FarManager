@@ -54,6 +54,7 @@ inline T GetFunctionPointer(const wchar_t* ModuleName, const char* FunctionName,
 static const auto Function = GetFunctionPointer(ModuleName, #FunctionName, &implementation::FunctionName)
 
 static const wchar_t kernel32[] = L"kernel32";
+static const wchar_t advapi32[] = L"advapi32";
 
 // EncodePointer (VC2010)
 extern "C" PVOID WINAPI EncodePointerWrapper(PVOID Ptr)
@@ -105,4 +106,28 @@ extern "C" BOOL WINAPI GetModuleHandleExWWrapper(DWORD Flags, LPCWSTR ModuleName
 
 	CREATE_FUNCTION_POINTER(kernel32, GetModuleHandleExW);
 	return Function(Flags, ModuleName, Module);
+}
+
+// InitializeSListHead (VC2015)
+extern "C" void WINAPI InitializeSListHeadWrapper(PSLIST_HEADER ListHead)
+{
+	struct implementation
+	{
+		static void WINAPI InitializeSListHead(PSLIST_HEADER ListHead)
+		{
+			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+		}
+	};
+
+	CREATE_FUNCTION_POINTER(kernel32, InitializeSListHead);
+	return Function(ListHead);
+}
+
+// RtlGenRandom (VC2015)
+// RtlGenRandom is used in rand_s implementation in ucrt.
+// As long as we don't use the rand_s in the code (which is easy: it's non-standard, requires _CRT_RAND_S to be defined first and not recommended in general)
+// this function is never called so it's ok to provide this dummy implementation only to have the _SystemFunction036@8 symbol in binary to make their loader happy.
+extern "C" BOOLEAN WINAPI SystemFunction036(PVOID Buffer, ULONG Size)
+{
+	return TRUE;
 }

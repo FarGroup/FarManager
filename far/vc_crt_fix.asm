@@ -34,15 +34,18 @@
 EncodePointerWrapper proto stdcall :dword
 DecodePointerWrapper proto stdcall :dword
 GetModuleHandleExWWrapper proto stdcall :dword, :dword, :dword
+InitializeSListHeadWrapper proto stdcall :dword
 
 .const
 align 4
 __imp__EncodePointer@4 dd EncodePointerWrapper
 __imp__DecodePointer@4 dd DecodePointerWrapper
 __imp__GetModuleHandleExW@12 dd GetModuleHandleExWWrapper
+__imp__InitializeSListHead@4 dd InitializeSListHeadWrapper
+
 public \
 __imp__EncodePointer@4,
 __imp__DecodePointer@4,
-__imp__GetModuleHandleExW@12
-
+__imp__GetModuleHandleExW@12,
+__imp__InitializeSListHead@4
 end
