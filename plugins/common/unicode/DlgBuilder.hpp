@@ -9,7 +9,7 @@
 /*
   DlgBuilder.hpp
 
-  Dynamic construction of dialogs for FAR Manager 3.0 build 4472
+  Dynamic construction of dialogs for FAR Manager 3.0 build 4503
 */
 
 /*
@@ -545,6 +545,10 @@ class DialogBuilderBase
 
 			m_ColumnStartIndex = -1;
 			m_ColumnBreakIndex = -1;
+			if (m_NextY < m_ColumnEndY)
+			{
+				m_NextY = m_ColumnEndY;
+			}
 		}
 
 		// Начинает располагать поля диалога внутри single box
