@@ -1656,7 +1656,7 @@ string Edit::GetSelString() const
 		return string();
 	}
 
-	return string(m_Str.cbegin() + m_SelStart, m_SelEnd == -1? m_Str.cend() : m_Str.cbegin() + m_SelEnd);
+	return string(m_Str.cbegin() + m_SelStart, m_SelEnd == -1? m_Str.cend() : m_Str.cbegin() + std::min(m_Str.size(), m_SelEnd));
 }
 
 void Edit::AppendString(const wchar_t *Str, size_t Length)
