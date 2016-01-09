@@ -436,7 +436,7 @@ UInt64 Archive::get_physize()
   return physize;
 }
 
-size_t Archive::get_skip_header(IInStream *stream, const ArcType& type)
+UInt64 Archive::get_skip_header(IInStream *stream, const ArcType& type)
 {
   if (ArcAPI::formats().at(type).Flags_PreArc()) {
     ComObject<IArchiveAllowTail> allowTail;
