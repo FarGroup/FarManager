@@ -28,6 +28,8 @@ public:
   friend class CriticalSectionLock;
 };
 
+CriticalSection& GetSync();
+
 class CriticalSectionLock: private NonCopyable {
 private:
   CriticalSection& cs;

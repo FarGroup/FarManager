@@ -1,9 +1,9 @@
 #pragma once
 
+#define NOMINMAX
 #include <windows.h>
 #include <shobjidl.h>
 #include <winioctl.h>
-#undef max
 
 #include <assert.h>
 #include <process.h>

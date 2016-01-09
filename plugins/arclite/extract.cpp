@@ -47,7 +47,6 @@ private:
   unsigned __int64 cache_written;
   unsigned __int64 cache_total;
   wstring cache_file_path;
-  CriticalSection sync;
 
   virtual void do_update_ui() {
     const unsigned c_width = 60;
@@ -91,35 +90,35 @@ public:
   }
 
   void update_extract_file(const wstring& file_path) {
-    CriticalSectionLock lock(sync);
+    CriticalSectionLock lock(GetSync());
     extract_file_path = file_path;
     update_ui();
   }
   void set_extract_total(unsigned __int64 size) {
-    CriticalSectionLock lock(sync);
+    CriticalSectionLock lock(GetSync());
     extract_total = size;
   }
   void update_extract_completed(unsigned __int64 size) {
-    CriticalSectionLock lock(sync);
+    CriticalSectionLock lock(GetSync());
     extract_completed = size;
     update_ui();
   }
   void update_cache_file(const wstring& file_path) {
-    CriticalSectionLock lock(sync);
+    CriticalSectionLock lock(GetSync());
     cache_file_path = file_path;
     update_ui();
   }
   void set_cache_total(unsigned __int64 size) {
-    CriticalSectionLock lock(sync);
+    CriticalSectionLock lock(GetSync());
     cache_total = size;
   }
   void update_cache_stored(unsigned __int64 size) {
-    CriticalSectionLock lock(sync);
+    CriticalSectionLock lock(GetSync());
     cache_stored += size;
     update_ui();
   }
   void update_cache_written(unsigned __int64 size) {
-    CriticalSectionLock lock(sync);
+    CriticalSectionLock lock(GetSync());
     cache_written += size;
     update_ui();
   }
@@ -353,7 +352,6 @@ private:
   shared_ptr<FileWriteCache> cache;
   shared_ptr<ExtractProgress> progress;
   shared_ptr<set<UInt32>> skipped_indices;
-  CriticalSection sync;
 
 public:
   ArchiveExtractor(
@@ -384,14 +382,14 @@ public:
   UNKNOWN_IMPL_END
 
   STDMETHODIMP SetTotal(UInt64 total) {
-    CriticalSectionLock lock(sync);
+    CriticalSectionLock lock(GetSync());
     COM_ERROR_HANDLER_BEGIN
     progress->set_extract_total(total);
     return S_OK;
     COM_ERROR_HANDLER_END
   }
   STDMETHODIMP SetCompleted(const UInt64 *completeValue) {
-    CriticalSectionLock lock(sync);
+    CriticalSectionLock lock(GetSync());
     COM_ERROR_HANDLER_BEGIN
     if (completeValue)
       progress->update_extract_completed(*completeValue);
@@ -467,13 +465,13 @@ public:
     COM_ERROR_HANDLER_END
   }
   STDMETHODIMP PrepareOperation(Int32 askExtractMode) {
-    CriticalSectionLock lock(sync);
+    CriticalSectionLock lock(GetSync());
     COM_ERROR_HANDLER_BEGIN
     return S_OK;
     COM_ERROR_HANDLER_END
   }
   STDMETHODIMP SetOperationResult(Int32 resultEOperationResult) {
-    CriticalSectionLock lock(sync);
+    CriticalSectionLock lock(GetSync());
     COM_ERROR_HANDLER_BEGIN
     RETRY_OR_IGNORE_BEGIN
     if (resultEOperationResult == NArchive::NExtract::NOperationResult::kOK)
@@ -501,7 +499,7 @@ public:
   }
 
   STDMETHODIMP CryptoGetTextPassword(BSTR *password) {
-    CriticalSectionLock lock(sync);
+    CriticalSectionLock lock(GetSync());
     COM_ERROR_HANDLER_BEGIN
     if (archive->password.empty()) {
       ProgressSuspend ps(*progress);
@@ -528,7 +526,6 @@ private:
   bool& ignore_errors;
   ErrorLog& error_log;
   const wstring* file_path;
-  CriticalSection sync;
 
   virtual void do_update_ui() {
     const unsigned c_width = 60;
@@ -538,7 +535,7 @@ private:
   }
 
   void update_progress(const wstring& file_path) {
-    CriticalSectionLock lock(sync);
+    CriticalSectionLock lock(GetSync());
     this->file_path = &file_path;
     update_ui();
   }
@@ -582,7 +579,6 @@ private:
   bool& ignore_errors;
   ErrorLog& error_log;
   const wstring* file_path;
-  CriticalSection sync;
 
   virtual void do_update_ui() {
     const unsigned c_width = 60;
@@ -592,7 +588,7 @@ private:
   }
 
   void update_progress(const wstring& file_path) {
-    CriticalSectionLock lock(sync);
+    CriticalSectionLock lock(GetSync());
     this->file_path = &file_path;
     update_ui();
   }

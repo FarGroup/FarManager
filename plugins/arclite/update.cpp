@@ -26,7 +26,6 @@ private:
   UInt64 file_completed;
   unsigned __int64 total_data_read;
   unsigned __int64 total_data_written;
-  CriticalSection sync;
 
   virtual void do_update_ui() {
     const unsigned c_width = 60;
@@ -80,30 +79,30 @@ public:
   }
 
   void on_open_file(const wstring& file_path, unsigned __int64 size) {
-    CriticalSectionLock lock(sync);
+    CriticalSectionLock lock(GetSync());
     this->file_path = file_path;
     file_total = size;
     file_completed = 0;
     update_ui();
   }
   void on_read_file(unsigned size) {
-    CriticalSectionLock lock(sync);
+    CriticalSectionLock lock(GetSync());
     file_completed += size;
     total_data_read += size;
     update_ui();
   }
   void on_write_archive(unsigned size) {
-    CriticalSectionLock lock(sync);
+    CriticalSectionLock lock(GetSync());
     total_data_written += size;
     update_ui();
   }
   void on_total_update(UInt64 total) {
-    CriticalSectionLock lock(sync);
+    CriticalSectionLock lock(GetSync());
     this->total = total;
     update_ui();
   }
   void on_completed_update(UInt64 completed) {
-    CriticalSectionLock lock(sync);
+    CriticalSectionLock lock(GetSync());
     this->completed = completed;
     update_ui();
   }
@@ -655,7 +654,6 @@ private:
   shared_ptr<bool> ignore_errors;
   shared_ptr<ErrorLog> error_log;
   shared_ptr<ArchiveUpdateProgress> progress;
-  CriticalSection sync;
 
 public:
   ArchiveUpdater(const wstring& src_dir, const wstring& dst_dir, UInt32 num_indices, shared_ptr<FileIndexMap> file_index_map, const UpdateOptions& options, shared_ptr<bool> ignore_errors, shared_ptr<ErrorLog> error_log, shared_ptr<ArchiveUpdateProgress> progress): src_dir(src_dir), dst_dir(dst_dir), num_indices(num_indices), file_index_map(file_index_map), options(options), ignore_errors(ignore_errors), error_log(error_log), progress(progress) {
@@ -668,14 +666,14 @@ public:
   UNKNOWN_IMPL_END
 
   STDMETHODIMP SetTotal(UInt64 total) {
-    CriticalSectionLock lock(sync);
+    CriticalSectionLock lock(GetSync());
     COM_ERROR_HANDLER_BEGIN
     progress->on_total_update(total);
     return S_OK;
     COM_ERROR_HANDLER_END
   }
   STDMETHODIMP SetCompleted(const UInt64 *completeValue) {
-    CriticalSectionLock lock(sync);
+    CriticalSectionLock lock(GetSync());
     COM_ERROR_HANDLER_BEGIN
     if (completeValue)
       progress->on_completed_update(*completeValue);
@@ -749,7 +747,7 @@ public:
     COM_ERROR_HANDLER_END
   }
   STDMETHODIMP SetOperationResult(Int32 operationResult) {
-    CriticalSectionLock lock(sync);
+    CriticalSectionLock lock(GetSync());
     COM_ERROR_HANDLER_BEGIN
     if (operationResult == NArchive::NUpdate::NOperationResult::kOK)
       return S_OK;
@@ -763,7 +761,7 @@ public:
   }
 
   STDMETHODIMP CryptoGetTextPassword2(Int32 *passwordIsDefined, BSTR *password) {
-    CriticalSectionLock lock(sync);
+    CriticalSectionLock lock(GetSync());
     COM_ERROR_HANDLER_BEGIN
     *passwordIsDefined = !options.password.empty();
     BStr(options.password).detach(password);

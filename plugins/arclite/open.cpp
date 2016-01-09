@@ -6,7 +6,6 @@
 #include "ui.hpp"
 #include "msearch.hpp"
 #include "archive.hpp"
-#include <algorithm>
 
 OpenOptions::OpenOptions(): detect(false) {
 }
@@ -427,6 +426,16 @@ ArcEntries Archive::detect(Byte *buffer, UInt32 size, bool eof, const wstring& f
   return arc_entries;
 }
 
+UInt64 Archive::get_physize()
+{
+  UInt64 physize = 0;
+  PropVariant prop;
+  auto res = in_arc->GetArchiveProperty(kpidPhySize, prop.ref());
+  if (res == S_OK && prop.is_uint())
+    physize = prop.get_uint();
+  return physize;
+}
+
 size_t Archive::get_skip_header(IInStream *stream, const ArcType& type)
 {
   if (ArcAPI::formats().at(type).Flags_PreArc()) {
@@ -441,13 +450,9 @@ size_t Archive::get_skip_header(IInStream *stream, const ArcType& type)
     const UInt64 max_check_start_position = max_check_size;
     res = in_arc->Open(stream, &max_check_start_position, nullptr);
     if (res == S_OK) {
-      PropVariant prop;
-      res = in_arc->GetArchiveProperty(kpidPhySize, prop.ref());
-      if (res == S_OK && prop.is_uint()) {
-        auto physize = prop.get_uint();
-        if (physize < arc_info.size())
-          return static_cast<size_t>(physize);
-      }
+      auto physize = get_physize();
+      if (physize < arc_info.size())
+        return physize;
     }
   }
   return 0;
@@ -482,11 +487,9 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
   if (stream_impl)
     stream_impl->CacheHeader(buffer.data(), size);
 
-  size_t skip_header = 0;
+  UInt64 skip_header = 0;
   bool first_open = true;
   ArcEntries arc_entries = detect(buffer.data(), size, size < max_check_size, extract_file_ext(arc_info.cFileName), options.arc_types);
-
-  std::set<ArcType> found_types;
 
   for (ArcEntries::const_iterator arc_entry = arc_entries.begin(); arc_entry != arc_entries.end(); ++arc_entry) {
     shared_ptr<Archive> archive(new Archive());
@@ -513,8 +516,7 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
        if (opened)
          archive->base_stream = stream;
     }
-    if (opened && found_types.insert(arc_entry->type).second)
-    {
+    if (opened) {
       if (parent_idx != -1)
         archive->arc_chain.assign(archives[parent_idx]->arc_chain.begin(), archives[parent_idx]->arc_chain.end());
       archive->arc_chain.push_back(*arc_entry);
@@ -524,6 +526,7 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
 
       if (!options.detect)
         break;
+      skip_header = arc_entry->sig_pos + std::min(archive->arc_info.size(), archive->get_physize());
     }
     first_open = false;
   }
