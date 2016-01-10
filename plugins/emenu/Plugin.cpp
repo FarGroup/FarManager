@@ -274,7 +274,7 @@ HANDLE CPlugin::OpenPlugin(int nOpenFrom, INT_PTR nItem)
 CPlugin::EDoMenu CPlugin::OpenPluginBkg(int nOpenFrom, INT_PTR nItem)
 {
   LPWSTR szCmdLine=NULL;
-  CallMode Mode = CALL_APPS;
+  CallMode Mode = CALL_NORMAL;
   switch(nOpenFrom)
   {
   case OPEN_COMMANDLINE:
