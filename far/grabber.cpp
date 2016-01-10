@@ -51,7 +51,8 @@ Grabber::Grabber(private_tag):
 	PrevArea(),
 	GArea(),
 	ResetArea(true),
-	m_VerticalBlock(false)
+	m_VerticalBlock(false),
+	m_StreamSelection()
 {
 }
 
@@ -72,14 +73,14 @@ void Grabber::init()
 	GetCursorType(Visible,Size);
 
 	if (Visible)
-		GetCursorPos(GArea.CurX,GArea.CurY);
+		GetCursorPos(GArea.Current.X, GArea.Current.Y);
 	else
 	{
-		GArea.CurX=0;
-		GArea.CurY=0;
+		GArea.Current.X = 0;
+		GArea.Current.Y = 0;
 	}
 
-	GArea.X1=-1;
+	GArea.Begin.X = -1;
 	SetCursorType(true, 60);
 	PrevArea=GArea;
 	DisplayObject();
@@ -94,91 +95,133 @@ Grabber::~Grabber()
 {
 }
 
+static wchar_t GetChar(const FAR_CHAR_INFO& Cell)
+{
+	WORD Chr2 = Cell.Char;
+	wchar_t Chr = Cell.Char;
+	if (Global->Opt->CleanAscii)
+	{
+		switch (Chr2)
+		{
+		case 0x07: Chr = L'*'; break;
+		case 0x10: Chr = L'>'; break;
+		case 0x11: Chr = L'<'; break;
+		case 0x15: Chr = L'$'; break;
+		case 0x16: Chr = L'-'; break;
+		case 0x18: Chr = L'|'; break;
+		case 0x19: Chr = L'|'; break;
+		case 0x1A: Chr = L'>'; break;
+		case 0x1B: Chr = L'<'; break;
+		case 0x1E: Chr = L'X'; break;
+		case 0x1F: Chr = L'X'; break;
+		case 0x7F: Chr = L'X'; break;
+		case 0xFF: Chr = L' '; break;
+		default:
+			if (Chr2 < L' ')
+				Chr = L'.';
+			else if (Chr2 <= UCHAR_MAX)
+				Chr = Chr2;
+			break;
+		}
+	}
+
+	if (Global->Opt->NoGraphics && InRange(BoxSymbols[BS_V1], static_cast<wchar_t>(Chr2), BoxSymbols[BS_LT_H1V1]))
+	{
+		if (Chr2 == BoxSymbols[BS_V1] || Chr2 == BoxSymbols[BS_V2])
+		{
+			Chr = L'|';
+		}
+		else if (Chr2 == BoxSymbols[BS_H1])
+		{
+			Chr = L'-';
+		}
+		else if (Chr2 == BoxSymbols[BS_H2])
+		{
+			Chr = L'=';
+		}
+		else
+		{
+			Chr = L'+';
+		}
+	}
+	return Chr;
+}
 
 void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 {
-	if (GArea.X1 < 0)
+	if (GArea.Begin.X < 0)
 		return;
 
-	int X1,Y1,X2,Y2;
-	X1=std::min(GArea.X1,GArea.X2);
-	X2=std::max(GArea.X1,GArea.X2);
-	Y1=std::min(GArea.Y1,GArea.Y2);
-	Y2=std::max(GArea.Y1,GArea.Y2);
+	const auto X1 = std::min(GArea.Begin.X, GArea.End.X);
+	const auto X2 = std::max(GArea.Begin.X, GArea.End.X);
+	const auto Y1 = std::min(GArea.Begin.Y, GArea.End.Y);
+	const auto Y2 = std::max(GArea.Begin.Y, GArea.End.Y);
 
-	matrix<FAR_CHAR_INFO> CharBuf(Y2 - Y1 + 1, X2 - X1 + 1);
-	GetText(X1, Y1, X2, Y2, CharBuf);
+	auto FromX = X1;
+	auto ToX = X2;
+	const auto FromY = Y1;
+	const auto ToY = Y2;
+
+	if (m_StreamSelection)
+	{
+		FromX = 0;
+		ToX = ScrX;
+	}
+
+	matrix<FAR_CHAR_INFO> CharBuf(ToY - FromY + 1, ToX - FromX + 1);
+	GetText(FromX, FromY, ToX, ToY, CharBuf);
 
 	string CopyBuf;
+
 	CopyBuf.reserve(CharBuf.height() * (CharBuf.width() + 2));
 
 	string Line;
 	Line.reserve(CharBuf.width() + 2);
 
-	for (size_t I = 0; I != CharBuf.height(); ++I)
+	const auto& SelectionBegin = GArea.Begin.Y == GArea.End.Y?
+		GArea.Begin.X < GArea.End.X? GArea.Begin : GArea.End :
+		GArea.Begin.Y < GArea.End.Y? GArea.Begin : GArea.End;
+	const auto& SelectionEnd = &SelectionBegin == &GArea.Begin? GArea.End : GArea.Begin;
+
+
+	for (size_t i = 0; i != CharBuf.height(); ++i)
 	{
+		const auto& MatrixLine = CharBuf[i];
+		auto Begin = MatrixLine.cbegin(), End = MatrixLine.cend();
+
+		const auto IsFirstLine = i == 0;
+		const auto IsLastLine = i == CharBuf.height() - 1;
+
+		if (m_StreamSelection)
+		{
+			Begin += IsFirstLine? SelectionBegin.X : 0;
+			End -= IsLastLine? ScrX - SelectionEnd.X : 0;
+		}
 		Line.clear();
-
-		if (I)
+		std::transform(Begin, End, std::back_inserter(Line), GetChar);
+		bool AddEol = true;
+		if (m_StreamSelection)
 		{
-			CopyBuf.append(L"\r\n");
+			if (IsLastLine)
+			{
+				AddEol = false;
+			}
+			else
+			{
+				// in stream mode we want to preserve existing line breaks,
+				// but at the same time join lines that were split because of the text wrapping.
+				// The Windows console doesn't keep EOL characters at all, so we will try to guess.
+				// If the line ends with an alphanumeric character, it's probably has been wrapped.
+				// TODO: consider analysing the beginning of the next line too.
+				AddEol = !IsAlphaNum(Line.back());
+			}
 		}
-
-		FOR(const auto& Cell, CharBuf[I])
+		if (AddEol)
 		{
-			WORD Chr2 = Cell.Char;
-			wchar_t Chr = Cell.Char;
-			if (Global->Opt->CleanAscii)
-			{
-				switch (Chr2)
-				{
-					case 0x07: Chr=L'*'; break;
-					case 0x10: Chr=L'>'; break;
-					case 0x11: Chr=L'<'; break;
-					case 0x15: Chr=L'$'; break;
-					case 0x16: Chr=L'-'; break;
-					case 0x18: Chr=L'|'; break;
-					case 0x19: Chr=L'|'; break;
-					case 0x1A: Chr=L'>'; break;
-					case 0x1B: Chr=L'<'; break;
-					case 0x1E: Chr=L'X'; break;
-					case 0x1F: Chr=L'X'; break;
-					case 0x7F: Chr=L'X'; break;
-					case 0xFF: Chr=L' '; break;
-					default:
-
-						if (Chr2 < L' ')
-							Chr=L'.';
-						else if (Chr2 <= UCHAR_MAX)
-							Chr=Chr2;
-
-						break;
-				}
-			}
-
-			if (Global->Opt->NoGraphics && InRange(BoxSymbols[BS_V1], static_cast<wchar_t>(Chr2), BoxSymbols[BS_LT_H1V1]))
-			{
-				if (Chr2 == BoxSymbols[BS_V1] || Chr2 == BoxSymbols[BS_V2])
-				{
-					Chr = L'|';
-				}
-				else if (Chr2 == BoxSymbols[BS_H1])
-				{
-					Chr = L'-';
-				}
-				else if (Chr2 == BoxSymbols[BS_H2])
-				{
-					Chr = L'=';
-				}
-				else
-				{
-					Chr=L'+';
-				}
-			}
-
-			Line.push_back(Chr);
+			RemoveTrailingSpaces(Line);
+			Line += L"\r\n";
 		}
-		CopyBuf += RemoveTrailingSpaces(Line);
+		CopyBuf += Line;
 	}
 
 	clipboard_accessor Clip;
@@ -208,42 +251,82 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 
 void Grabber::DisplayObject()
 {
-	MoveCursor(GArea.CurX,GArea.CurY);
+	MoveCursor(GArea.Current.X, GArea.Current.Y);
 
-	if (PrevArea.X1!=GArea.X1 || PrevArea.X2!=GArea.X2 ||
-	        PrevArea.Y1!=GArea.Y1 || PrevArea.Y2!=GArea.Y2)
+	if (PrevArea.Begin.X != GArea.Begin.X || PrevArea.End.X != GArea.End.X ||
+	    PrevArea.Begin.Y != GArea.Begin.Y || PrevArea.End.Y != GArea.End.Y)
 	{
-		int X1,Y1,X2,Y2;
-		X1=std::min(GArea.X1,GArea.X2);
-		X2=std::max(GArea.X1,GArea.X2);
-		Y1=std::min(GArea.Y1,GArea.Y2);
-		Y2=std::max(GArea.Y1,GArea.Y2);
+		const auto X1 = std::min(GArea.Begin.X,GArea.End.X);
+		const auto X2 = std::max(GArea.Begin.X,GArea.End.X);
+		const auto Y1 = std::min(GArea.Begin.Y,GArea.End.Y);
+		const auto Y2 = std::max(GArea.Begin.Y,GArea.End.Y);
 
-		if (X1>std::min(PrevArea.X1,PrevArea.X2) || X2<std::max(PrevArea.X1,PrevArea.X2) ||
-		        Y1>std::min(PrevArea.Y1,PrevArea.Y2) || Y2<std::max(PrevArea.Y1,PrevArea.Y2))
+		if (X1 > std::min(PrevArea.Begin.X, PrevArea.End.X) || X2 < std::max(PrevArea.Begin.X, PrevArea.End.X) ||
+		    Y1 > std::min(PrevArea.Begin.Y, PrevArea.End.Y) || Y2 < std::max(PrevArea.Begin.Y, PrevArea.End.Y))
 			SaveScr->RestoreArea(FALSE);
 
-		if (GArea.X1!=-1)
+		if (GArea.Begin.X != -1)
 		{
-			matrix<FAR_CHAR_INFO> CharBuf(Y2 - Y1 + 1, X2 - X1 + 1);
-			GetText(X1, Y1, X2, Y2, CharBuf);
+			auto FromX = X1;
+			auto ToX = X2;
+			const auto FromY = Y1;
+			const auto ToY = Y2;
 
-			for (int Y = Y1; Y <= Y2; Y++)
+			if (m_StreamSelection)
 			{
-				for (int X = X1; X <= X2; X++)
+				FromX = 0;
+				ToX = ScrX;
+			}
+
+			matrix<FAR_CHAR_INFO> CharBuf(ToY - FromY + 1, ToX - FromX + 1);
+			GetText(FromX, FromY, ToX, ToY, CharBuf);
+
+			for (int Y = FromY; Y <= ToY; Y++)
+			{
+				for (int X = FromX; X <= ToX; X++)
 				{
-					const FarColor& CurColor = SaveScr->ScreenBuf[Y][X].Attributes;
-					CharBuf[Y - Y1][X - X1].Attributes.BackgroundColor = (CurColor.Flags&FCF_BG_4BIT? ~INDEXVALUE(CurColor.BackgroundColor) : ~COLORVALUE(CurColor.BackgroundColor)) | ALPHAVALUE(CurColor.BackgroundColor);
-					CharBuf[Y - Y1][X - X1].Attributes.ForegroundColor = (CurColor.Flags&FCF_FG_4BIT ? ~INDEXVALUE(CurColor.ForegroundColor) : ~COLORVALUE(CurColor.ForegroundColor)) | ALPHAVALUE(CurColor.ForegroundColor);
+					const auto& CurColor = SaveScr->ScreenBuf[Y][X].Attributes;
+					auto& Destination = CharBuf[Y - Y1][X - FromX].Attributes;
+					Destination = CurColor;
+
+					if (m_StreamSelection)
+					{
+						bool ToUp = GArea.Begin.Y < GArea.End.Y;
+						bool ToDown = !ToUp;
+						bool FirstLine = Y == FromY;
+						bool LastLine = Y == ToY;
+
+						if (ToDown)
+						{
+							if (FirstLine && LastLine)
+							{
+								if (X < X1 || X > X2)
+								{
+									continue;
+								}
+							}
+							else if ((FirstLine && X < GArea.End.X) || (LastLine && X > GArea.Begin.X))
+								continue;
+						}
+						else
+						{
+							if ((FirstLine && X < GArea.Begin.X) || (LastLine && X > GArea.End.X))
+								continue;
+						}
+					}
+
+					Destination.BackgroundColor = (CurColor.Flags & FCF_BG_4BIT? ~INDEXVALUE(CurColor.BackgroundColor) : ~COLORVALUE(CurColor.BackgroundColor)) | ALPHAVALUE(CurColor.BackgroundColor);
+					Destination.ForegroundColor = (CurColor.Flags & FCF_FG_4BIT? ~INDEXVALUE(CurColor.ForegroundColor) : ~COLORVALUE(CurColor.ForegroundColor)) | ALPHAVALUE(CurColor.ForegroundColor);
 				}
 			}
-			PutText(X1, Y1, X2, Y2, CharBuf.data());
+
+			PutText(FromX, FromY, ToX, ToY, CharBuf.data());
 		}
 
-		if (GArea.X1==-2)
+		if (GArea.Begin.X == -2)
 		{
 			SaveScr->RestoreArea(FALSE);
-			GArea.X1=GArea.X2;
+			GArea.Begin.X = GArea.End.X;
 		}
 
 		PrevArea=GArea;
@@ -282,22 +365,70 @@ int Grabber::ProcessKey(const Manager::Key& Key)
 			ResetArea = true;
 	}
 
+	const auto Move = [this](COORD& What, int Count, int Direction, int LimitX, int LimitY, int NewX)
+	{
+		for (; Count; --Count)
+		{
+			if (What.X != LimitX)
+			{
+				What.X += Direction;
+			}
+			else if (m_StreamSelection)
+			{
+				if (What.Y != LimitY)
+				{
+					What.Y += Direction;
+					What.X = NewX;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+	};
+
+	const auto MoveCoordLeft = [&](COORD& What, int Count)
+	{
+		return Move(What, Count, -1, 0, 0, ScrX);
+	};
+
+	const auto MoveCoordRight = [&](COORD& What, int Count)
+	{
+		return Move(What, Count, 1, ScrX, ScrY, 0);
+	};
+
+	const auto MoveLeft = [&](int Count)
+	{
+		return MoveCoordLeft(GArea.Current, Count);
+	};
+
+	const auto MoveRight = [&](int Count)
+	{
+		return MoveCoordRight(GArea.Current, Count);
+	};
+
 	switch (LocalKey)
 	{
 		case KEY_F1:
-		{
 			Help::create(L"MiscCmd");
 			break;
-		}
 
 		case KEY_CTRLU:
 		case KEY_RCTRLU:
 			Reset();
-			GArea.X1=-2;
+			GArea.Begin.X = -2;
 			break;
+
 		case KEY_ESC:
+		case KEY_F10:
 			Close(0);
 			break;
+
+		case KEY_SPACE:
+			m_StreamSelection = !m_StreamSelection;
+			break;
+
 		case KEY_NUMENTER:
 		case KEY_ENTER:
 		case KEY_CTRLINS:   case KEY_CTRLNUMPAD0:
@@ -307,250 +438,245 @@ int Grabber::ProcessKey(const Manager::Key& Key)
 			CopyGrabbedArea(LocalKey == KEY_CTRLADD || LocalKey == KEY_RCTRLADD,m_VerticalBlock);
 			Close(1);
 			break;
+
 		case KEY_LEFT:      case KEY_NUMPAD4:   case L'4':
-
-			if (GArea.CurX>0)
-				GArea.CurX--;
-
+			MoveLeft(1);
 			break;
+
 		case KEY_RIGHT:     case KEY_NUMPAD6:   case L'6':
-
-			if (GArea.CurX<ScrX)
-				GArea.CurX++;
-
+			MoveRight(1);
 			break;
+
 		case KEY_UP:        case KEY_NUMPAD8:   case L'8':
-
-			if (GArea.CurY>0)
-				GArea.CurY--;
-
+			if (GArea.Current.Y > 0)
+				--GArea.Current.Y;
 			break;
+
 		case KEY_DOWN:      case KEY_NUMPAD2:   case L'2':
-
-			if (GArea.CurY<ScrY)
-				GArea.CurY++;
-
+			if (GArea.Current.Y < ScrY)
+				++GArea.Current.Y;
 			break;
+
 		case KEY_HOME:      case KEY_NUMPAD7:   case L'7':
-			GArea.CurX=0;
+			GArea.Current.X = 0;
 			break;
+
 		case KEY_END:       case KEY_NUMPAD1:   case L'1':
-			GArea.CurX=ScrX;
+			GArea.Current.X = ScrX;
 			break;
+
 		case KEY_PGUP:      case KEY_NUMPAD9:   case L'9':
-			GArea.CurY=0;
+			GArea.Current.Y = 0;
 			break;
+
 		case KEY_PGDN:      case KEY_NUMPAD3:   case L'3':
-			GArea.CurY=ScrY;
+			GArea.Current.Y = ScrY;
 			break;
+
 		case KEY_CTRLHOME:  case KEY_CTRLNUMPAD7:
 		case KEY_RCTRLHOME: case KEY_RCTRLNUMPAD7:
-			GArea.CurX=GArea.CurY=0;
+			GArea.Current.X = GArea.Current.Y = 0;
 			break;
+
 		case KEY_CTRLEND:   case KEY_CTRLNUMPAD1:
 		case KEY_RCTRLEND:  case KEY_RCTRLNUMPAD1:
-			GArea.CurX=ScrX;
-			GArea.CurY=ScrY;
+			GArea.Current.X = ScrX;
+			GArea.Current.Y = ScrY;
 			break;
+
 		case KEY_CTRLLEFT:       case KEY_CTRLNUMPAD4:
 		case KEY_RCTRLLEFT:      case KEY_RCTRLNUMPAD4:
 		case KEY_CTRLSHIFTLEFT:  case KEY_CTRLSHIFTNUMPAD4:
 		case KEY_RCTRLSHIFTLEFT: case KEY_RCTRLSHIFTNUMPAD4:
-
-			if ((GArea.CurX-=10)<0)
-				GArea.CurX=0;
-
+			MoveLeft(10);
 			if (LocalKey == KEY_CTRLSHIFTLEFT || LocalKey == KEY_RCTRLSHIFTLEFT || LocalKey == KEY_CTRLSHIFTNUMPAD4 || LocalKey == KEY_RCTRLSHIFTNUMPAD4)
-				GArea.X1=GArea.CurX;
-
+			{
+				GArea.Begin = GArea.Current;
+			}
 			break;
+
 		case KEY_CTRLRIGHT:       case KEY_CTRLNUMPAD6:
 		case KEY_RCTRLRIGHT:      case KEY_RCTRLNUMPAD6:
 		case KEY_CTRLSHIFTRIGHT:  case KEY_CTRLSHIFTNUMPAD6:
 		case KEY_RCTRLSHIFTRIGHT: case KEY_RCTRLSHIFTNUMPAD6:
-
-			if ((GArea.CurX+=10)>ScrX)
-				GArea.CurX=ScrX;
-
+			MoveRight(10);
 			if (LocalKey == KEY_CTRLSHIFTRIGHT || LocalKey == KEY_RCTRLSHIFTRIGHT || LocalKey == KEY_CTRLSHIFTNUMPAD6 || LocalKey == KEY_RCTRLSHIFTNUMPAD6)
-				GArea.X1=GArea.CurX;
-
+			{
+				GArea.Begin = GArea.Current;
+			}
 			break;
+
 		case KEY_CTRLUP:        case KEY_CTRLNUMPAD8:
 		case KEY_RCTRLUP:       case KEY_RCTRLNUMPAD8:
 		case KEY_CTRLSHIFTUP:   case KEY_CTRLSHIFTNUMPAD8:
 		case KEY_RCTRLSHIFTUP:  case KEY_RCTRLSHIFTNUMPAD8:
-
-			if ((GArea.CurY-=5)<0)
-				GArea.CurY=0;
-
+			if ((GArea.Current.Y -= 5) < 0)
+				GArea.Current.Y = 0;
 			if (LocalKey == KEY_CTRLSHIFTUP || LocalKey == KEY_RCTRLSHIFTUP || LocalKey == KEY_CTRLSHIFTNUMPAD8 || LocalKey == KEY_RCTRLSHIFTNUMPAD8)
-				GArea.Y1=GArea.CurY;
-
+				GArea.Begin.Y = GArea.Current.Y;
 			break;
+
 		case KEY_CTRLDOWN:       case KEY_CTRLNUMPAD2:
 		case KEY_RCTRLDOWN:      case KEY_RCTRLNUMPAD2:
 		case KEY_CTRLSHIFTDOWN:  case KEY_CTRLSHIFTNUMPAD2:
 		case KEY_RCTRLSHIFTDOWN: case KEY_RCTRLSHIFTNUMPAD2:
-
-			if ((GArea.CurY+=5)>ScrY)
-				GArea.CurY=ScrY;
-
+			if ((GArea.Current.Y += 5) > ScrY)
+				GArea.Current.Y = ScrY;
 			if (LocalKey == KEY_CTRLSHIFTDOWN || LocalKey == KEY_RCTRLSHIFTDOWN || LocalKey == KEY_CTRLSHIFTNUMPAD8 || LocalKey == KEY_RCTRLSHIFTNUMPAD8)
-				GArea.Y1=GArea.CurY;
-
+				GArea.Begin.Y = GArea.Current.Y;
 			break;
+
 		case KEY_SHIFTLEFT:  case KEY_SHIFTNUMPAD4:
-
-			if (GArea.X1>0)
-				GArea.X1--;
-
-			GArea.CurX=GArea.X1;
-			GArea.CurY=GArea.Y1;
+			MoveLeft(1);
+			GArea.Begin = GArea.Current;
 			break;
+
 		case KEY_SHIFTRIGHT: case KEY_SHIFTNUMPAD6:
-
-			if (GArea.X1<ScrX)
-				GArea.X1++;
-
-			GArea.CurX=GArea.X1;
-			GArea.CurY=GArea.Y1;
+			MoveRight(1);
+			GArea.Begin = GArea.Current;
 			break;
+
 		case KEY_SHIFTUP:    case KEY_SHIFTNUMPAD8:
-
-			if (GArea.Y1>0)
-				GArea.Y1--;
-
-			GArea.CurX=GArea.X1;
-			GArea.CurY=GArea.Y1;
+			if (GArea.Begin.Y > 0)
+				--GArea.Begin.Y;
+			GArea.Current = GArea.Begin;
 			break;
+
 		case KEY_SHIFTDOWN:  case KEY_SHIFTNUMPAD2:
-
-			if (GArea.Y1<ScrY)
-				GArea.Y1++;
-
-			GArea.CurX=GArea.X1;
-			GArea.CurY=GArea.Y1;
+			if (GArea.Begin.Y < ScrY)
+				++GArea.Begin.Y;
+			GArea.Current = GArea.Begin;
 			break;
+
 		case KEY_SHIFTHOME:  case KEY_SHIFTNUMPAD7:
-			GArea.CurX=GArea.X1=0;
+			GArea.Current.X = GArea.Begin.X = 0;
 			break;
+
 		case KEY_SHIFTEND:   case KEY_SHIFTNUMPAD1:
-			GArea.CurX=GArea.X1=ScrX;
+			GArea.Current.X = GArea.Begin.X = ScrX;
 			break;
+
 		case KEY_SHIFTPGUP:  case KEY_SHIFTNUMPAD9:
-			GArea.CurY=GArea.Y1=0;
+			GArea.Current.Y = GArea.Begin.Y = 0;
 			break;
+
 		case KEY_SHIFTPGDN:  case KEY_SHIFTNUMPAD3:
-			GArea.CurY=GArea.Y1=ScrY;
+			GArea.Current.Y = GArea.Begin.Y = ScrY;
 			break;
 
 		case KEY_ALTSHIFTHOME:  case KEY_ALTSHIFTNUMPAD7:
 		case KEY_RALTSHIFTHOME: case KEY_RALTSHIFTNUMPAD7:
-			GArea.X2=0;
+			GArea.End.X = 0;
 			break;
+
 		case KEY_ALTSHIFTEND:   case KEY_ALTSHIFTNUMPAD1:
 		case KEY_RALTSHIFTEND:  case KEY_RALTSHIFTNUMPAD1:
-			GArea.X2=ScrX;
+			GArea.End.X = ScrX;
 			break;
+
 		case KEY_ALTSHIFTPGUP:  case KEY_ALTSHIFTNUMPAD9:
 		case KEY_RALTSHIFTPGUP: case KEY_RALTSHIFTNUMPAD9:
-			GArea.Y2=0;
+			GArea.End.Y = 0;
 			break;
+
 		case KEY_ALTSHIFTPGDN:  case KEY_ALTSHIFTNUMPAD3:
 		case KEY_RALTSHIFTPGDN: case KEY_RALTSHIFTNUMPAD3:
-			GArea.Y2=ScrY;
+			GArea.End.Y = ScrY;
 			break;
 
 		case KEY_ALTSHIFTLEFT:  case KEY_ALTSHIFTNUMPAD4:
 		case KEY_RALTSHIFTLEFT: case KEY_RALTSHIFTNUMPAD4:
-			if (GArea.X2>0)
-				GArea.X2--;
+			MoveCoordLeft(GArea.End, 1);
 			break;
+
 		case KEY_ALTSHIFTRIGHT:  case KEY_ALTSHIFTNUMPAD6:
 		case KEY_RALTSHIFTRIGHT: case KEY_RALTSHIFTNUMPAD6:
-			if (GArea.X2<ScrX)
-				GArea.X2++;
+			MoveCoordRight(GArea.End, 1);
 			break;
+
 		case KEY_ALTSHIFTUP:    case KEY_ALTSHIFTNUMPAD8:
 		case KEY_RALTSHIFTUP:   case KEY_RALTSHIFTNUMPAD8:
-			if (GArea.Y2>0)
-				GArea.Y2--;
+			if (GArea.End.Y > 0)
+				--GArea.End.Y;
 			break;
+
 		case KEY_ALTSHIFTDOWN:  case KEY_ALTSHIFTNUMPAD2:
 		case KEY_RALTSHIFTDOWN: case KEY_RALTSHIFTNUMPAD2:
-			if (GArea.Y2<ScrY)
-				GArea.Y2++;
+			if (GArea.End.Y < ScrY)
+				++GArea.End.Y;
 			break;
 
 		case KEY_CTRLA:
 		case KEY_RCTRLA:
-			GArea.X1=GArea.CurX=ScrX;
-			GArea.X2=0;
-			GArea.Y1=GArea.CurY=ScrY;
-			GArea.Y2=0;
+			GArea.Begin.X = ScrX;
+			GArea.Begin.Y = ScrY;
+			GArea.End.X = 0;
+			GArea.End.Y = 0;
+			GArea.Current = GArea.Begin;
 			break;
 
 		case KEY_ALTLEFT:
 		case KEY_RALTLEFT:
-			if ((GArea.X1>0) && (GArea.X2>0))
+			if (GArea.Begin.X && GArea.End.X)
 			{
-				GArea.X1--;
-				GArea.X2--;
-				GArea.CurX=GArea.X1;
-				GArea.CurY=GArea.Y1;
+				--GArea.Begin.X;
+				--GArea.End.X;
+				GArea.Current = GArea.Begin;
 			}
 			break;
+
 		case KEY_ALTRIGHT:
 		case KEY_RALTRIGHT:
-			if ((GArea.X1<ScrX) && (GArea.X2<ScrX))
+			if (GArea.Begin.X < ScrX && GArea.End.X < ScrX)
 			{
-				GArea.X1++;
-				GArea.X2++;
-				GArea.CurX=GArea.X1;
-				GArea.CurY=GArea.Y1;
+				++GArea.Begin.X;
+				++GArea.End.X;
+				GArea.Current = GArea.Begin;
 			}
 			break;
+
 		case KEY_ALTUP:
 		case KEY_RALTUP:
-			if ((GArea.Y1>0) && (GArea.Y2>0))
+			if (GArea.Begin.Y && GArea.End.Y)
 			{
-				GArea.Y1--;
-				GArea.Y2--;
-				GArea.CurX=GArea.X1;
-				GArea.CurY=GArea.Y1;
+				--GArea.Begin.Y;
+				--GArea.End.Y;
+				GArea.Current = GArea.Begin;
 			}
 			break;
+
 		case KEY_ALTDOWN:
 		case KEY_RALTDOWN:
-			if ((GArea.Y1<ScrY) && (GArea.Y2<ScrY))
+			if (GArea.Begin.Y < ScrY && GArea.End.Y < ScrY)
 			{
-				GArea.Y1++;
-				GArea.Y2++;
-				GArea.CurX=GArea.X1;
-				GArea.CurY=GArea.Y1;
+				++GArea.Begin.Y;
+				++GArea.End.Y;
+				GArea.Current = GArea.Begin;
 			}
 			break;
 
 		case KEY_ALTHOME:
 		case KEY_RALTHOME:
-			GArea.X1=GArea.CurX=abs(GArea.X1-GArea.X2);
-			GArea.X2=0;
+			GArea.Begin.X = GArea.Current.X = abs(GArea.Begin.X - GArea.End.X);
+			GArea.End.X = 0;
 			break;
+
 		case KEY_ALTEND:
 		case KEY_RALTEND:
-			GArea.X2=ScrX-abs(GArea.X1-GArea.X2);
-			GArea.X1=GArea.CurX=ScrX;
+			GArea.End.X = ScrX - abs(GArea.Begin.X - GArea.End.X);
+			GArea.Begin.X = GArea.Current.X = ScrX;
 			break;
+
 		case KEY_ALTPGUP:
 		case KEY_RALTPGUP:
-			GArea.Y1=GArea.CurY=abs(GArea.Y1-GArea.Y2);
-			GArea.Y2=0;
+			GArea.Begin.Y = GArea.Current.Y = abs(GArea.Begin.Y - GArea.End.Y);
+			GArea.End.Y = 0;
 			break;
+
 		case KEY_ALTPGDN:
 		case KEY_RALTPGDN:
-			GArea.Y2=ScrY-abs(GArea.Y1-GArea.Y2);
-			GArea.Y1=GArea.CurY=ScrY;
+			GArea.End.Y = ScrY - abs(GArea.Begin.Y - GArea.End.Y);
+			GArea.Begin.Y = GArea.Current.Y = ScrY;
 			break;
 
 	}
@@ -572,8 +698,8 @@ int Grabber::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (IntKeyState.MouseButtonState!=FROM_LEFT_1ST_BUTTON_PRESSED)
 		return FALSE;
 
-	GArea.CurX=std::min(std::max(SHORT(0), IntKeyState.MouseX), ScrX);
-	GArea.CurY=std::min(std::max(SHORT(0), IntKeyState.MouseY), ScrY);
+	GArea.Current.X = std::min(std::max(SHORT(0), IntKeyState.MouseX), ScrX);
+	GArea.Current.Y = std::min(std::max(SHORT(0), IntKeyState.MouseY), ScrY);
 
 	if (!MouseEvent->dwEventFlags)
 		ResetArea = true;
@@ -581,13 +707,11 @@ int Grabber::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	{
 		if (ResetArea)
 		{
-			GArea.X2=GArea.CurX;
-			GArea.Y2=GArea.CurY;
+			GArea.End = GArea.Current;
 			ResetArea = false;
 		}
 
-		GArea.X1=GArea.CurX;
-		GArea.Y1=GArea.CurY;
+		GArea.Begin = GArea.Current;
 	}
 
 	//VerticalBlock=MouseEvent->dwControlKeyState&(LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED);
@@ -597,8 +721,7 @@ int Grabber::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 void Grabber::Reset()
 {
-	GArea.X1=GArea.X2=GArea.CurX;
-	GArea.Y1=GArea.Y2=GArea.CurY;
+	GArea.Begin = GArea.End = GArea.Current;
 	ResetArea = false;
 	//DisplayObject();
 }

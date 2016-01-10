@@ -42,13 +42,13 @@ extern const wchar_t BAD_WIN_EOL_fmt[]; // <CR><CR><LF> // result of <CR><LF> te
 
 inline int StrLength(const wchar_t *str) { return (int) wcslen(str); }
 
-inline int IsSpace(wchar_t x) { return x==L' ' || x==L'\t';  }
+inline bool IsSpace(wchar_t x) { return x == L' ' || x == L'\t'; }
 
-inline int IsEol(wchar_t x) { return x==L'\r' || x==L'\n'; }
+inline bool IsEol(wchar_t x) { return x == L'\r' || x == L'\n'; }
 
-inline int IsSpaceOrEos(wchar_t x) { return IsSpace(x) || !x; }
+inline bool IsSpaceOrEos(wchar_t x) { return IsSpace(x) || !x; }
 
-inline int IsSpaceOrEol(wchar_t x) { return IsSpace(x) || IsEol(x); }
+inline bool IsSpaceOrEol(wchar_t x) { return IsSpace(x) || IsEol(x); }
 
 const string& GetSpaces();
 
@@ -60,13 +60,13 @@ inline wchar_t ToUpper(wchar_t Ch) { CharUpperBuff(&Ch, 1); return Ch; }
 
 inline wchar_t ToLower(wchar_t Ch) { CharLowerBuff(&Ch, 1); return Ch; }
 
-inline int IsUpper(wchar_t Ch) { return IsCharUpper(Ch); }
+inline bool IsUpper(wchar_t Ch) { return IsCharUpper(Ch) != FALSE; }
 
-inline int IsLower(wchar_t Ch) { return IsCharLower(Ch); }
+inline bool IsLower(wchar_t Ch) { return IsCharLower(Ch) != FALSE; }
 
-inline int IsAlpha(wchar_t Ch) { return IsCharAlpha(Ch); }
+inline bool IsAlpha(wchar_t Ch) { return IsCharAlpha(Ch) != FALSE; }
 
-inline int IsAlphaNum(wchar_t Ch) { return IsCharAlphaNumeric(Ch); }
+inline bool IsAlphaNum(wchar_t Ch) { return IsCharAlphaNumeric(Ch) != FALSE; }
 
 inline void UpperBuf(wchar_t *Buf, int Length) { CharUpperBuff(Buf, Length); }
 

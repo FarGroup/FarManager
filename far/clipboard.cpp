@@ -425,7 +425,7 @@ bool Clipboard::GetVText(string& data) const
 	}
 	else
 	{
-		auto Far1xVerticalBlock = RegisterFormat(FCF_VERTICALBLOCK_OEM);
+		const auto Far1xVerticalBlock = RegisterFormat(FCF_VERTICALBLOCK_OEM);
 		if (const auto hClipData = GetData(Far1xVerticalBlock))
 		{
 			if (const auto OemData = os::memory::global::lock<const char*>(hClipData))

@@ -95,7 +95,10 @@ elevation::~elevation()
 {
 	if (m_pipe)
 	{
-		SendCommand(C_SERVICE_EXIT);
+		if (m_process)
+		{
+			SendCommand(C_SERVICE_EXIT);
+		}
 		DisconnectNamedPipe(m_pipe.native_handle());
 	}
 }
@@ -177,13 +180,13 @@ bool elevation::Initialize()
 			strPipeID = GuidToStr(Id);
 			SID_IDENTIFIER_AUTHORITY NtAuthority=SECURITY_NT_AUTHORITY;
 
-			os::sid_object AdminSID(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
-			const auto pSD = os::memory::local::alloc<PSECURITY_DESCRIPTOR>(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH);
-			if(pSD)
+			if (const auto pSD = os::memory::local::alloc<PSECURITY_DESCRIPTOR>(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH))
 			{
 				if (InitializeSecurityDescriptor(pSD.get(), SECURITY_DESCRIPTOR_REVISION))
 				{
-					EXPLICIT_ACCESS ea={};
+					os::sid_object AdminSID(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
+
+					EXPLICIT_ACCESS ea = {};
 					ea.grfAccessPermissions = GENERIC_READ|GENERIC_WRITE;
 					ea.grfAccessMode = SET_ACCESS;
 					ea.grfInheritance= NO_INHERITANCE;

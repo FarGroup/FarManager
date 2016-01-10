@@ -64,14 +64,16 @@ private:
 
 	struct GrabberArea
 	{
-		SHORT X1, Y1, X2, Y2;
-		SHORT CurX, CurY;
+		COORD Begin;
+		COORD End;
+		COORD Current;
 	};
 
 	GrabberArea PrevArea;
 	GrabberArea GArea;
 	bool ResetArea;
 	bool m_VerticalBlock;
+	bool m_StreamSelection;
 };
 
 bool RunGraber();

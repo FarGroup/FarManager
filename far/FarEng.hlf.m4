@@ -391,8 +391,8 @@ $ #Panel control commands  #
    (if the command line is empty)
   Copy the files to clipboard                                 #Ctrl-C#
    (ignore command line state)
-   ^<wrap>При копировании имён файлов с панели в буфер обмена скопированные файлы 
-могут быть вставлены в других приложениях (Проводник и т.п.).
+   ^<wrap>Files, copied from the panels, can be pasted to other applications,
+e.g. Explorer.
   Copy the names of selected files to the clipboard   #Ctrl-Shift-Ins#
    (ignore command line state)
   Copy full names of selected files to the clipboard   #Alt-Shift-Ins#
@@ -758,7 +758,8 @@ $ #Common control commands#
 
   Screen grabber allows to select and copy to the clipboard any screen area.
 
-  Use #arrow# keys or click the #left mouse button# to move the cursor.
+  To switch between stream and block selection mode use the #Space# key.
+  To move the cursor use #arrow# keys or click the #left mouse button#.
   To select text use #Shift-arrow# keys or drag the mouse while holding the
 #left mouse button#.
   To extend or shrink selected area use #Alt-Shift-arrow# keys.
@@ -768,8 +769,8 @@ selected text to the clipboard, #Ctrl-<Gray +># appends it to the clipboard
 contents, #Esc# leaves the grabbing mode.
   #Ctrl-A# - select whole screen.
   #Ctrl-U# - deselect block.
-  #Ctrl-Shift-Left# и #Ctrl-Shift-Right# - перемещение с выделением на 10 позиций по горизонтали,
-  #Ctrl-Shift-Up# и #Ctrl-Shift-Down# - перемещение с выделением на 5 позиций по вертикали.
+  #Ctrl-Shift-Left# and #Ctrl-Shift-Right# - extend or shrink selection by 10 characters left or right.
+  #Ctrl-Shift-Up# and #Ctrl-Shift-Down# - extend or shrink selection by 5 lines up or down.
 
  #Keyboard macros#
 
@@ -1155,15 +1156,15 @@ for viewing the folder description file.
     ^<wrap>A list of possible folder description file names may be defined using
 "Folder description files" command in the ~Options menu~@OptMenu@.
 
- 5. Плагиновая панель
-    ^<wrap>Содержит информацию о противоположной плагиновой панели, если плагин предоставил такую информацию.
+ 5. Plugin panel
+    ^<wrap>Contains information about the opposite plugin panel, if provided by the plugin.
 
- 6. Состояние системы питания.
-    - ^<wrap>подключения к сети (отсутствует, подключено, не определено);
-    - ^<wrap>значение заряда батареи (в процентах);
-    - ^<wrap>статус заряда ("Высокий" - более 66%, "Низкий" - менее 33%, "Критичный" - критически низкий уровень, "Зарядка", "Батареи нет", "Не определено");
-    - ^<wrap>время до разряда;
-    - ^<wrap>полное время работы от батареи (система оценивает это время исходя из времени до разряда и значения заряда батареи;
+ 6. Power status.
+    - ^<wrap>AC power status (offline, online, unknown);
+    - ^<wrap>Battery percentage;
+    - ^<wrap>Charge status (High (more than 66%), low (less than 33%), critical, charging, no battery or unknown);
+    - ^<wrap>Battery life time;
+    - ^<wrap>Battery full time (система оценивает это время исходя из времени до разряда и значения заряда батареи;
 без наличия умных подсистем батареи это значение не актуально и обычно указано как "Не определено").
 
     ^<wrap>Состояние подключения к сети обновляется автоматически.
@@ -2112,8 +2113,8 @@ of time if a folder was located on a currently unavailable remote resource.
 
 @TaskList
 $ #Task list#
-    The task list displays active tasks. Каждая строка списка содержит PID 
-процесса и заголовок окна задачи или путь исполняемого модуля.
+    The task list displays active tasks. Every line contains PID and window
+caption or path to executable.
 
     From the task list you may switch to the task window, or kill the task with
 the #Del# key. Be careful when killing a task. It stops the task immediately,
@@ -2126,8 +2127,7 @@ editor.
 
     #Ctrl-R# allows to refresh the task list.
 
-    #F2# переключает отображение с заголовка окна задачи на путь к 
-исполняемому модулю и обратно.
+    #F2# Switch between displaying of window caption and path to executable.
 
     See also: common ~menu~@MenuCmd@ keyboard commands.
 
@@ -2441,7 +2441,7 @@ registered to process this file type will be executed.
 tray of a CD drive. Turn off this option if automatic CD-ROM mounting does not work
 correctly (this can happen because of bugs in the drivers of some CD-ROM drives).
 
-  #Автообновление переменных окружения#
+  #Automatic update of environment variables#
   При глобальном изменении переменных среды Far Manager автоматические корректирует значения своего окружения.
 
   #Запрос прав администратора#
@@ -4576,7 +4576,7 @@ to child processes:
 
     #FARDIRSTACK#        ^<wrap>the contents of directories stack top (the stack is managed with #pushd# and #popd# commands)
 
-    #FARADMINMODE#       ^<wrap>equals "1" if Far Manager was run by an administrator
+    #FARADMINMODE#       ^<wrap>equals "1" if Far Manager is running under an administrator account.
 
 @RegExp
 $ #Regular expressions#
