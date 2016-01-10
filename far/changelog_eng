@@ -3,6 +3,25 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 10.01.2016 17:18:42 +0200 - build 4506
+
+1. Grabber is added a stream selection mode. The modes are switched with spacebar.
+   Copying to clipboard tries to concatenate lines broken by wrapping, correctness of the result is not guaranteed.
+
+2. Grabber mode can be cancelled with F10.
+
+3. Some translation for English help.
+
+4. A couple of minor issues.
+
+drkns 08.01.2016 16:54:54 +0200 - build 4505
+
+1. 003148: Copying a few lines in FAR editor followed by pasting garbles the content
+
+drkns 08.01.2016 14:47:08 +0200 - build 4504
+
+1. A little black magic for VS2015 build to work in Win2k.
+
 drkns 04.01.2016 14:00:46 +0200 - build 4503
 
 1. Continuation of 4502.1.
