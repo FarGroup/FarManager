@@ -60,6 +60,8 @@ public:
 
 	bool touched() const noexcept { return m_Touched; }
 
+	void forget() noexcept { m_Touched = false; }
+
 private:
 	T m_Value;
 	bool m_Touched;

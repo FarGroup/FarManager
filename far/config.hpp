@@ -117,7 +117,7 @@ private:
 	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const = 0;
 	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const any& Default) = 0;
 
-	void MakeUnchanged() { decltype(m_Value)(std::move(m_Value.value())).swap(m_Value); }
+	void MakeUnchanged() { m_Value.forget(); }
 
 	monitored<any> m_Value;
 };

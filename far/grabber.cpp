@@ -172,11 +172,10 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 	GetText(FromX, FromY, ToX, ToY, CharBuf);
 
 	string CopyBuf;
-
 	CopyBuf.reserve(CharBuf.height() * (CharBuf.width() + 2));
 
 	string Line;
-	Line.reserve(CharBuf.width() + 2);
+	Line.reserve(CharBuf.width());
 
 	const auto& SelectionBegin = GArea.Begin.Y == GArea.End.Y?
 		GArea.Begin.X < GArea.End.X? GArea.Begin : GArea.End :
@@ -199,29 +198,27 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 		}
 		Line.clear();
 		std::transform(Begin, End, std::back_inserter(Line), GetChar);
-		bool AddEol = true;
+		bool AddEol = !IsLastLine;
 		if (m_StreamSelection)
 		{
-			if (IsLastLine)
-			{
-				AddEol = false;
-			}
-			else
-			{
-				// in stream mode we want to preserve existing line breaks,
-				// but at the same time join lines that were split because of the text wrapping.
-				// The Windows console doesn't keep EOL characters at all, so we will try to guess.
-				// If the line ends with an alphanumeric character, it's probably has been wrapped.
-				// TODO: consider analysing the beginning of the next line too.
-				AddEol = !IsAlphaNum(Line.back());
-			}
+			// in stream mode we want to preserve existing line breaks,
+			// but at the same time join lines that were split because of the text wrapping.
+			// The Windows console doesn't keep EOL characters at all, so we will try to guess.
+			// If the line ends with an alphanumeric character, it's probably has been wrapped.
+			// TODO: consider analysing the beginning of the next line too.
+			AddEol = !IsAlphaNum(Line.back());
 		}
-		if (AddEol)
+		else
 		{
 			RemoveTrailingSpaces(Line);
-			Line += L"\r\n";
 		}
+
 		CopyBuf += Line;
+
+		if (AddEol)
+		{
+			CopyBuf += L"\r\n";
+		}
 	}
 
 	clipboard_accessor Clip;
@@ -254,7 +251,8 @@ void Grabber::DisplayObject()
 	MoveCursor(GArea.Current.X, GArea.Current.Y);
 
 	if (PrevArea.Begin.X != GArea.Begin.X || PrevArea.End.X != GArea.End.X ||
-	    PrevArea.Begin.Y != GArea.Begin.Y || PrevArea.End.Y != GArea.End.Y)
+	    PrevArea.Begin.Y != GArea.Begin.Y || PrevArea.End.Y != GArea.End.Y ||
+	    m_StreamSelection.touched())
 	{
 		const auto X1 = std::min(GArea.Begin.X,GArea.End.X);
 		const auto X2 = std::max(GArea.Begin.X,GArea.End.X);
@@ -262,8 +260,11 @@ void Grabber::DisplayObject()
 		const auto Y2 = std::max(GArea.Begin.Y,GArea.End.Y);
 
 		if (X1 > std::min(PrevArea.Begin.X, PrevArea.End.X) || X2 < std::max(PrevArea.Begin.X, PrevArea.End.X) ||
-		    Y1 > std::min(PrevArea.Begin.Y, PrevArea.End.Y) || Y2 < std::max(PrevArea.Begin.Y, PrevArea.End.Y))
+		    Y1 > std::min(PrevArea.Begin.Y, PrevArea.End.Y) || Y2 < std::max(PrevArea.Begin.Y, PrevArea.End.Y) ||
+		    m_StreamSelection.touched())
 			SaveScr->RestoreArea(FALSE);
+
+		m_StreamSelection.forget();
 
 		if (GArea.Begin.X != -1)
 		{
@@ -361,7 +362,7 @@ int Grabber::ProcessKey(const Manager::Key& Key)
 	{
 		if ((IntKeyState.ShiftPressed || LocalKey!=KEY_SHIFT) && (LocalKey&KEY_SHIFT) && LocalKey!=KEY_NONE && LocalKey!=KEY_CTRLA && LocalKey!=KEY_RCTRLA && !IntKeyState.AltPressed && ResetArea)
 			Reset();
-		else if (LocalKey!=KEY_IDLE && LocalKey!=KEY_NONE && LocalKey!=KEY_SHIFT && LocalKey!=KEY_CTRLA && LocalKey!=KEY_RCTRLA && !IntKeyState.ShiftPressed && !IntKeyState.AltPressed && !(LocalKey&KEY_SHIFT) && LocalKey != KEY_F1)
+		else if (LocalKey!=KEY_IDLE && LocalKey!=KEY_NONE && LocalKey!=KEY_SHIFT && LocalKey!=KEY_CTRLA && LocalKey!=KEY_RCTRLA && !IntKeyState.ShiftPressed && !IntKeyState.AltPressed && !(LocalKey&KEY_SHIFT) && LocalKey != KEY_F1 && LocalKey != KEY_SPACE)
 			ResetArea = true;
 	}
 
