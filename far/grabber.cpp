@@ -147,6 +147,15 @@ static wchar_t GetChar(const FAR_CHAR_INFO& Cell)
 	return Chr;
 }
 
+std::tuple<COORD&, COORD&> Grabber::GetSelection()
+{
+	auto& SelectionBegin = GArea.Begin.Y == GArea.End.Y?
+	    GArea.Begin.X < GArea.End.X? GArea.Begin : GArea.End :
+	    GArea.Begin.Y < GArea.End.Y? GArea.Begin : GArea.End;
+	auto& SelectionEnd = &SelectionBegin == &GArea.Begin? GArea.End : GArea.Begin;
+	return std::tie(SelectionBegin, SelectionEnd);
+}
+
 void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 {
 	if (GArea.Begin.X < 0)
@@ -177,11 +186,7 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 	string Line;
 	Line.reserve(CharBuf.width());
 
-	const auto& SelectionBegin = GArea.Begin.Y == GArea.End.Y?
-		GArea.Begin.X < GArea.End.X? GArea.Begin : GArea.End :
-		GArea.Begin.Y < GArea.End.Y? GArea.Begin : GArea.End;
-	const auto& SelectionEnd = &SelectionBegin == &GArea.Begin? GArea.End : GArea.Begin;
-
+	const auto& Selection = GetSelection();
 
 	for (size_t i = 0; i != CharBuf.height(); ++i)
 	{
@@ -193,8 +198,8 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 
 		if (m_StreamSelection)
 		{
-			Begin += IsFirstLine? SelectionBegin.X : 0;
-			End -= IsLastLine? ScrX - SelectionEnd.X : 0;
+			Begin += IsFirstLine? std::get<0>(Selection).X : 0;
+			End -= IsLastLine? ScrX - std::get<1>(Selection).X : 0;
 		}
 		Line.clear();
 		std::transform(Begin, End, std::back_inserter(Line), GetChar);
@@ -366,7 +371,7 @@ int Grabber::ProcessKey(const Manager::Key& Key)
 			ResetArea = true;
 	}
 
-	const auto Move = [this](COORD& What, int Count, int Direction, int LimitX, int LimitY, int NewX)
+	const auto Move = [this](COORD& What, int Count, int Direction, int LimitX, int LimitY, int NewX) -> bool
 	{
 		for (; Count; --Count)
 		{
@@ -383,10 +388,15 @@ int Grabber::ProcessKey(const Manager::Key& Key)
 				}
 				else
 				{
-					break;
+					return false;
 				}
 			}
+			else
+			{
+				return false;
+			}
 		}
+		return true;
 	};
 
 	const auto MoveCoordLeft = [&](COORD& What, int Count)
@@ -618,21 +628,25 @@ int Grabber::ProcessKey(const Manager::Key& Key)
 
 		case KEY_ALTLEFT:
 		case KEY_RALTLEFT:
-			if (GArea.Begin.X && GArea.End.X)
 			{
-				--GArea.Begin.X;
-				--GArea.End.X;
-				GArea.Current = GArea.Begin;
+				const auto& Selection = GetSelection();
+				if (MoveCoordLeft(std::get<0>(Selection), 1))
+				{
+					MoveCoordLeft(std::get<1>(Selection), 1);
+					GArea.Current = GArea.Begin;
+				}
 			}
 			break;
 
 		case KEY_ALTRIGHT:
 		case KEY_RALTRIGHT:
-			if (GArea.Begin.X < ScrX && GArea.End.X < ScrX)
 			{
-				++GArea.Begin.X;
-				++GArea.End.X;
-				GArea.Current = GArea.Begin;
+				const auto& Selection = GetSelection();
+				if (MoveCoordRight(std::get<1>(Selection), 1))
+				{
+					MoveCoordRight(std::get<0>(Selection), 1);
+					GArea.Current = GArea.Begin;
+				}
 			}
 			break;
 

@@ -59,6 +59,7 @@ private:
 	virtual string GetTitle() const override { return string(); }
 
 	void init();
+	std::tuple<COORD&, COORD&> GetSelection();
 	void CopyGrabbedArea(bool Append, bool VerticalBlock);
 	void Reset();
 
