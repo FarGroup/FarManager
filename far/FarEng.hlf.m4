@@ -4918,8 +4918,8 @@ usually does as a reaction to this combination.
     ~hotkey assignment~@KeyMacroSetting@ dialog will appear, where the hotkey that
     will be used to execute the recorded sequence can be set.
 
-    Воспроизведение макроса сопровождается отображением в левом верхнем углу экрана символа '\2FP\-'.
-См. также "~Macros.ShowPlayIndicator~@Macros.ShowPlayIndicator@" для включения/отключения отображения символа.
+    Playing back a macro is indicated by showing the character '\2FP\-' in the upper-left screen corner.
+See also "~Macros.ShowPlayIndicator~@Macros.ShowPlayIndicator@" for turning that indication on/off.
 
 
 @KeyMacroDelete
