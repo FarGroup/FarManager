@@ -337,11 +337,11 @@ namespace os
 				DWORD Size;
 				Chunk(UINT64 Offset, DWORD Size):Offset(Offset), Size(Size) {}
 			};
-			std::list<Chunk> ChunkList;
+			std::vector<Chunk> ChunkList;
 			UINT64 FileSize;
 			UINT64 AllocSize;
 			UINT64 ProcessedSize;
-			std::list<Chunk>::iterator CurrentChunk;
+			std::vector<Chunk>::iterator CurrentChunk;
 			DWORD ChunkSize;
 			bool Sparse;
 		};

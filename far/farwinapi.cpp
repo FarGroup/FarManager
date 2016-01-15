@@ -642,7 +642,7 @@ bool file_walker::InitWalk(size_t BlockSize)
 		{
 			FILE_ALLOCATED_RANGE_BUFFER QueryRange = {};
 			QueryRange.Length.QuadPart = FileSize;
-			static FILE_ALLOCATED_RANGE_BUFFER Ranges[1024];
+			FILE_ALLOCATED_RANGE_BUFFER Ranges[1024];
 			DWORD BytesReturned;
 			for(;;)
 			{
@@ -655,7 +655,7 @@ bool file_walker::InitWalk(size_t BlockSize)
 						const UINT64 RangeEndOffset = i.FileOffset.QuadPart + i.Length.QuadPart;
 						for(UINT64 j = i.FileOffset.QuadPart; j < RangeEndOffset; j+=ChunkSize)
 						{
-							ChunkList.emplace_back(Chunk(j, std::min(static_cast<DWORD>(RangeEndOffset - j), ChunkSize)));
+							ChunkList.emplace_back(Chunk(j, static_cast<DWORD>(std::min(RangeEndOffset - j, static_cast<UINT64>(ChunkSize)))));
 						}
 					}
 					QueryRange.FileOffset.QuadPart = ChunkList.back().Offset+ChunkList.back().Size;
