@@ -47,12 +47,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "help.hpp"
 #include "strmix.hpp"
 
+monitored<bool> Grabber::m_StreamSelection;
+
 Grabber::Grabber(private_tag):
 	PrevArea(),
 	GArea(),
 	ResetArea(true),
-	m_VerticalBlock(false),
-	m_StreamSelection()
+	m_VerticalBlock(false)
 {
 }
 

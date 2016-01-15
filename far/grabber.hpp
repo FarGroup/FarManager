@@ -74,7 +74,7 @@ private:
 	GrabberArea GArea;
 	bool ResetArea;
 	bool m_VerticalBlock;
-	monitored<bool> m_StreamSelection;
+	static monitored<bool> m_StreamSelection;
 };
 
 bool RunGraber();
