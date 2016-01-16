@@ -27315,13 +27315,13 @@ MCopyTimeInfo
 l:
 "Время: %1    Осталось: %2    %3Б/с"
 "Time: %1    Remaining: %2    %3B/s"
-"Čas: %1      Zbývá: %2      %3B/s"
-"Zeit: %1   Verbleibende Zeit: %2   %3B/s"
-"Eltelt: %1    Maradt: %2    %3B/s"
+"Čas: %1      Zbývá: %2       %3B/s"
+"Zeit: %1     Restzeit: %2    %3B/s"
+"Eltelt: %1    Maradt: %2     %3B/s"
 "Czas: %1    Pozostało: %2    %3B/s"
-"Tiempo: %1    Restante: %2    %3b/s"
-"Čas: %1      Zostáva: %2      %3B/s"
-"Tempo: %1 Manca: %2    %3B/s"
+"Tiempo: %1    Restante: %2   %3b/s"
+"Čas: %1      Zostáva: %2     %3B/s"
+"Tempo: %1     Manca: %2      %3B/s"
 "Час: %1    Залишилося: %2    %3Б/с"
 
 MKeyESCWasPressed
