@@ -69,7 +69,6 @@ public:
 	std::unique_ptr<History> FolderHistory;
 	std::unique_ptr<History> ViewHistory;
 	CommandLine* CmdLine(void);
-	MenuBar* TopMenuBar(void);
 
 private:
 	filepanels_ptr FPanels;

@@ -64,6 +64,8 @@ public:
 	virtual bool CanFastHide() const override;
 	virtual void Refresh() override;
 	virtual FARMACROAREA GetMacroArea() const override;
+	virtual void Show() override;
+
 	virtual Viewer* GetViewer(void) override;
 	virtual Viewer* GetById(int ID) override;
 
@@ -79,7 +81,6 @@ public:
 
 	KeyBar& GetKeybar() { return *m_windowKeyBar; }
 	CommandLine* GetCmdLine(void);
-	MenuBar* GetTopMenuBar(void);
 
 private:
 	void Init(int DirCount);

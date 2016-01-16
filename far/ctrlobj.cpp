@@ -183,8 +183,3 @@ CommandLine* ControlObject::CmdLine(void)
 {
 	return FPanels->GetCmdLine();
 }
-
-MenuBar* ControlObject::TopMenuBar(void)
-{
-	return FPanels->GetTopMenuBar();
-}

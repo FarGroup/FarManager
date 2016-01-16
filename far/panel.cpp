@@ -1928,10 +1928,6 @@ void Panel::Show()
 
 	SCOPED_ACTION(DelayDestroy)(this);
 
-	/* $ 03.10.2001 IS перерисуем строчку меню */
-	if (Global->Opt->ShowMenuBar)
-		Parent()->GetTopMenuBar()->Show();
-
 	if (!GetModalMode())
 	{
 		const auto AnotherPanel = Parent()->GetAnotherPanel(this);

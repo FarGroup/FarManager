@@ -1256,7 +1256,12 @@ CommandLine* FilePanels::GetCmdLine(void)
 	return CmdLine.get();
 }
 
-MenuBar* FilePanels::GetTopMenuBar(void)
+void FilePanels::Show()
 {
-	return TopMenuBar.get();
+	window::Show();
+
+	if (Global->Opt->ShowMenuBar)
+	{
+		TopMenuBar->Show();
+	}
 }
