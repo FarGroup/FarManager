@@ -3,6 +3,37 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 17.01.2016 23:48:17 +0200 - build 4513
+
+1. Refactoring. Code for drive change menu moved from panel.cpp to a separate file.
+
+2. Command execution with Ctrl-G could cause unnecessary autocompletion in command line.
+
+drkns 16.01.2016 11:46:23 +0200 - build 4512
+
+1. 0002953: When the tree3.far cache file exists, calling the tree dialog (Alt-F10) crashes Far manager
+   Panel class is a big pile of mess, it contains everything and the kitchen sink.
+
+drkns 15.01.2016 23:27:57 +0200 - build 4511
+
+1. 0003153: Start next grabber session in the same mode as previous one (block/stream)
+
+drkns 15.01.2016 10:04:34 +0200 - build 4510
+
+1. Non-system copy function worked incorrectly on sparse files with block size more than 4 GB.
+
+drkns 14.01.2016 22:05:38 +0200 - build 4509
+
+1. 0003151: Go to new line when shifting grabber block in stream mode
+
+svs 12.01.2016 22:10:42 +0300 - build 4508
+
+1. SQLite 3.10.0
+
+drkns 11.01.2016 19:50:50 +0200 - build 4507
+
+1. Continuation of 4506.1.
+
 drkns 10.01.2016 17:18:42 +0200 - build 4506
 
 1. Grabber is added a stream selection mode. The modes are switched with spacebar.
