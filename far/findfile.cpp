@@ -79,6 +79,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exitcode.hpp"
 #include "panelctype.hpp"
 #include "filetype.hpp"
+#include "diskmenu.hpp"
 
 // Список архивов. Если файл найден в архиве, то FindList->ArcIndex указывает сюда.
 struct ArcListItem
@@ -712,7 +713,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				case FAD_BUTTON_DRIVE:
 				{
 					Global->IsRedrawWindowInProcess++;
-					Global->CtrlObject->Cp()->ActivePanel()->ChangeDisk();
+					ChangeDisk(Global->CtrlObject->Cp()->ActivePanel());
 					// Ну что ж, раз пошла такая пьянка рефрешить окна
 					// будем таким способом.
 					//WindowManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);

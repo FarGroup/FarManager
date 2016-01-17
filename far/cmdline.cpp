@@ -827,6 +827,7 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 	{
 	public:
 		preservecmdline(bool Preserve):
+			m_DisableAutoComplete(Global->CtrlObject->CmdLine()),
 			Preserve(Preserve)
 		{
 			if(Preserve)
@@ -848,6 +849,7 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 			}
 		}
 	private:
+		SetAutocomplete m_DisableAutoComplete;
 		bool Preserve;
 		string strOldCmdLine;
 		int OldCmdLineCurPos, OldCmdLineLeftPos;

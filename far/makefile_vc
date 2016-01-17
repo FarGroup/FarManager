@@ -122,6 +122,7 @@ LINK_OBJS = \
 	"$(INTDIR)\dialog.obj" \
 	"$(INTDIR)\dirinfo.obj" \
 	"$(INTDIR)\dirmix.obj" \
+	"$(INTDIR)\diskmenu.obj" \
 	"$(INTDIR)\dizlist.obj" \
 	"$(INTDIR)\dlgedit.obj" \
 	"$(INTDIR)\drivemix.obj" \

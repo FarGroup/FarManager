@@ -57,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "menubar.hpp"
 #include "strmix.hpp"
 #include "colormix.hpp"
+#include "diskmenu.hpp"
 
 FilePanels::FilePanels(private_tag):
 	LastLeftFilePanel(),
@@ -661,7 +662,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_ALTF1:
 		case KEY_RALTF1:
 		{
-			LeftPanel->ChangeDisk();
+			ChangeDisk(LeftPanel);
 
 			if (ActivePanel() != LeftPanel)
 				ActivePanel()->SetCurPath();
@@ -671,7 +672,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_ALTF2:
 		case KEY_RALTF2:
 		{
-			RightPanel->ChangeDisk();
+			ChangeDisk(RightPanel);
 
 			if (ActivePanel() != RightPanel)
 				ActivePanel()->SetCurPath();

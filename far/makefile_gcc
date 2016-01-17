@@ -41,6 +41,7 @@ SRCS = \
 	dialog.cpp \
 	dirinfo.cpp \
 	dirmix.cpp \
+	diskmenu.cpp \
 	dizlist.cpp \
 	dlgedit.cpp \
 	drivemix.cpp \

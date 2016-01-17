@@ -861,6 +861,9 @@
     <ClCompile Include="codepage_selection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="diskmenu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="bootstrap\lang.inc">
@@ -1044,6 +1047,9 @@
       <Filter>Header Files\common</Filter>
     </ClInclude>
     <ClInclude Include="codepage_selection.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="diskmenu.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

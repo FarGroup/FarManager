@@ -89,6 +89,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "keybar.hpp"
 #include "panelctype.hpp"
+#include "diskmenu.hpp"
 
 static int ListSortGroups,ListSelectedFirst,ListDirectoriesFirst;
 static int ListSortMode;
@@ -2836,7 +2837,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 						}
 					}
 				}
-				Parent()->ActivePanel()->ChangeDisk();
+				ChangeDisk(Parent()->ActivePanel());
 				return true;
 			}
 		}
@@ -2924,7 +2925,7 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		if (MouseEvent->dwButtonState)
 		{
 			if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
-				ChangeDisk();
+				ChangeDisk(this);
 			else
 				SelectSortMode();
 		}

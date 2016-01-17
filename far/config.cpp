@@ -74,6 +74,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "xlat.hpp"
 #include "panelctype.hpp"
 #include "colormix.hpp"
+#include "diskmenu.hpp"
 
 static const size_t predefined_panel_modes_count = 10;
 
@@ -2805,7 +2806,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 					pPanel->ProcessKey(Manager::Key(KEY_CTRLR));
 					break;
 				case MENU_LEFT_CHANGEDRIVE: // Change drive
-					pPanel->ChangeDisk();
+					ChangeDisk(pPanel);
 					break;
 				}
 			}

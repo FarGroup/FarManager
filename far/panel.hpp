@@ -133,22 +133,6 @@ enum SORT_MODE
 
 enum {VIEW_0=0,VIEW_1,VIEW_2,VIEW_3,VIEW_4,VIEW_5,VIEW_6,VIEW_7,VIEW_8,VIEW_9};
 
-enum
-{
-	DRIVE_SHOW_TYPE       = 0x00000001,
-	DRIVE_SHOW_NETNAME    = 0x00000002,
-	DRIVE_SHOW_LABEL      = 0x00000004,
-	DRIVE_SHOW_FILESYSTEM = 0x00000008,
-	DRIVE_SHOW_SIZE       = 0x00000010,
-	DRIVE_SHOW_REMOVABLE  = 0x00000020,
-	DRIVE_SHOW_PLUGINS    = 0x00000040,
-	DRIVE_SHOW_CDROM      = 0x00000080,
-	DRIVE_SHOW_SIZE_FLOAT = 0x00000100,
-	DRIVE_SHOW_REMOTE     = 0x00000200,
-	DRIVE_SORT_PLUGINS_BY_HOTKEY = 0x00000400,
-};
-
-
 enum {UPDATE_KEEP_SELECTION=1,UPDATE_SECONDARY=2,UPDATE_IGNORE_VISIBLE=4,UPDATE_DRAW_MESSAGE=8};
 
 enum {NORMAL_PANEL,PLUGIN_PANEL};
@@ -337,7 +321,6 @@ public:
 	bool SaveShortcutFolder(int Pos, bool Add) const;
 	int SetPluginCommand(int Command,int Param1,void* Param2);
 	int PanelProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent,int &RetCode);
-	void ChangeDisk();
 	bool GetFocus() const { return m_Focus; }
 	int GetType() const {return m_Type;}
 	void SetUpdateMode(int Mode) {m_EnableUpdate=Mode;}
@@ -347,7 +330,7 @@ public:
 	bool IsFullScreen() const { return (m_ViewSettings.Flags & PVS_FULLSCREEN) != 0; }
 	void SetFullScreen() { m_ViewSettings.Flags |= PVS_FULLSCREEN; }
 	bool CreateFullPathName(const string& Name, const string& ShortName, DWORD FileAttr, string &strDest, int UNC, int ShortNameAsIs = TRUE) const;
-
+	FilePanels* Parent() const;
 
 	static void EndDrag();
 
@@ -363,7 +346,6 @@ protected:
 	void ShowScreensCount();
 
 	static bool IsDragging();
-	FilePanels* Parent(void)const;
 
 private:
 	struct ShortcutInfo
@@ -374,10 +356,6 @@ private:
 		GUID PluginGuid;
 	};
 	bool GetShortcutInfo(ShortcutInfo& Info) const;
-	int ChangeDiskMenu(int Pos,int FirstCall);
-	int DisconnectDrive(const PanelMenuItem *item, VMenu2 &ChDisk);
-	void RemoveHotplugDevice(const PanelMenuItem *item, VMenu2 &ChDisk);
-	int ProcessDelDisk(wchar_t Drive, int DriveType);
 
 	static void DragMessage(int X,int Y,int Move);
 
