@@ -161,7 +161,7 @@ public:
     options.move_files = archive->updatable() ? (move ? triTrue : triFalse) : triUndef;
     options.delete_archive = false;
     bool show_dialog = (op_mode & (OPM_FIND | OPM_VIEW | OPM_EDIT | OPM_QUICKVIEW)) == 0;
-    if (show_dialog && (op_mode & OPM_SILENT) && (op_mode & OPM_TOPLEVEL) == 0)
+    if (show_dialog && (op_mode & OPM_SILENT))
       show_dialog = false;
     if (op_mode & (OPM_FIND | OPM_QUICKVIEW))
       options.ignore_errors = true;
