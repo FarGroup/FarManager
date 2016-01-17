@@ -768,8 +768,12 @@ bool panel_go_to_file(HANDLE h_panel, const wstring& file_path) {
   memzero(fpd);
   fpd.StructSize = sizeof(FarPanelDirectory);
   fpd.Name = dir.c_str();
-  if (!g_far.PanelControl(h_panel, FCTL_SETPANELDIRECTORY, 0, &fpd))
-    return false;
+  // we don't want to call FCTL_SETPANELDIRECTORY unless needed to not lose previous selection
+  if (upcase(Far::get_panel_dir(h_panel)) != upcase(extract_file_path(file_path)))
+  {
+    if (!g_far.PanelControl(h_panel, FCTL_SETPANELDIRECTORY, 0, &fpd))
+      return false;
+  }
   PanelInfo panel_info = {sizeof(PanelInfo)};
   if (!g_far.PanelControl(h_panel, FCTL_GETPANELINFO, 0, &panel_info))
     return false;
