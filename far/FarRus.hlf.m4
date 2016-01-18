@@ -5693,7 +5693,18 @@ $ #far:config System.Executor.~~#
 
     По умолчанию значение = "%FARHOME%".
 
+    См. также ~System.Executor.UseHomeDir~@System.Executor.UseHomeDir@
+
     Значение также можно поменять в диалоге ~Настройка командной строки~@CmdlineSettings@.
+
+@System.Executor.UseHomeDir
+$ #far:config System.Executor.UseHomeDir#
+    Параметр позволяет включать или отключать переход к домашней папке командой "~CD ~~~@OSCommands@".
+
+    По умолчанию значение = True.
+
+    Значение также можно поменять в диалоге ~Настройка командной строки~@CmdlineSettings@.
+
 
 @System.CmdHistoryRule
 $ #far:config System.CmdHistoryRule#
