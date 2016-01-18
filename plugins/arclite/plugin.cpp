@@ -157,6 +157,7 @@ public:
     if (single_item && wcscmp(panel_items.get(0)->FileName, L"..") == 0)
       return;
     ExtractOptions options;
+    static ExtractOptions batch_options;
     options.dst_dir = dst_dir;
     options.move_files = archive->updatable() ? (move ? triTrue : triFalse) : triUndef;
     options.delete_archive = false;
@@ -189,6 +190,13 @@ public:
       }
       if (!options.password.empty())
         archive->password = options.password;
+    }
+    if (op_mode & OPM_TOPLEVEL)
+    {
+      if(op_mode & OPM_SILENT)
+        options = batch_options;
+      else
+        batch_options = options;
     }
 
     UInt32 src_dir_index = archive->find_dir(current_dir);
