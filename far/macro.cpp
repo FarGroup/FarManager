@@ -4258,7 +4258,7 @@ static bool clipFunc(FarMacroCall* Data)
 				auto NewMode = PreviousMode;
 				switch (Action)
 				{
-				case 0: NewMode = default_clipboard_mode::system? default_clipboard_mode::internal: default_clipboard_mode::system; break;
+				case 0: NewMode = NewMode == default_clipboard_mode::system? default_clipboard_mode::internal : default_clipboard_mode::system; break;
 				case 1: NewMode = default_clipboard_mode::system; break;
 				case 2: NewMode = default_clipboard_mode::internal; break;
 				}
