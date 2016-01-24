@@ -98,6 +98,7 @@ private:
 	std::unique_ptr<Viewer> m_View;
 	int RedrawTitle;
 	bool F3KeyOnly;
+	bool m_bClosing;
 	bool FullScreen;
 	int DisableEdit;
 	int DisableHistory;

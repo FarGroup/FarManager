@@ -57,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keybar.hpp"
 
 FileViewer::FileViewer(private_tag, int DisableEdit, const wchar_t *Title):
+	m_bClosing(),
 	FullScreen(true),
 	DisableEdit(DisableEdit),
 	delete_on_close(),
@@ -458,6 +459,8 @@ void FileViewer::OnDestroy()
 {
 	_OT(SysLog(L"[%p] FileViewer::OnDestroy()",this));
 
+	m_bClosing = true;
+
 	if (!DisableHistory && (Global->CtrlObject->Cp()->ActivePanel() || m_Name != L"-"))
 	{
 		string strFullFileName;
@@ -531,7 +534,10 @@ void FileViewer::ShowStatus()
 void FileViewer::OnChangeFocus(bool focus)
 {
 	window::OnChangeFocus(focus);
-	Global->CtrlObject->Plugins->ProcessViewerEvent(focus? VE_GOTFOCUS : VE_KILLFOCUS, nullptr, m_View.get());
+	if (!m_bClosing)
+	{
+		Global->CtrlObject->Plugins->ProcessViewerEvent(focus? VE_GOTFOCUS : VE_KILLFOCUS, nullptr, m_View.get());
+	}
 }
 
 void FileViewer::OnReload(void)

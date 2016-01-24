@@ -318,7 +318,9 @@ bool dlgSaveFileAs(string &strFileName, int &TextFormat, uintptr_t &codepage,boo
 }
 
 FileEditor::FileEditor(private_tag):
-	BadConversion(false), f8cps(false)
+	m_bClosing(),
+	BadConversion(false),
+	f8cps(false)
 {
 }
 
@@ -429,8 +431,6 @@ void FileEditor::Init(
 	};
 
 	int BlankFileName = Name == MSG(MNewFileName) || Name.empty();
-	//AY: флаг оповещающий закрытие редактора.
-	m_bClosing = false;
 	bEE_READ_Sent = false;
 	bLoaded = false;
 	m_bAddSignature = false;
@@ -2488,7 +2488,10 @@ void FileEditor::SetEditorOptions(const Options::EditorOptions& EdOpt)
 void FileEditor::OnChangeFocus(bool focus)
 {
 	window::OnChangeFocus(focus);
-	Global->CtrlObject->Plugins->ProcessEditorEvent(focus?EE_GOTFOCUS:EE_KILLFOCUS, nullptr, m_editor.get());
+	if (!m_bClosing)
+	{
+		Global->CtrlObject->Plugins->ProcessEditorEvent(focus? EE_GOTFOCUS : EE_KILLFOCUS, nullptr, m_editor.get());
+	}
 }
 
 
