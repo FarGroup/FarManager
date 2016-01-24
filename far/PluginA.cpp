@@ -5002,7 +5002,7 @@ static int SendKeyToPluginHook(const Manager::Key& key)
 	{
 		if (Global->WindowManager->IsPanelsActive())
 		{
-			if (Global->CtrlObject->Cp()->ActivePanel()->GetMode() == PLUGIN_PANEL)
+			if (Global->CtrlObject->Cp()->ActivePanel()->GetMode() == panel_mode::PLUGIN_PANEL)
 			{
 				const auto ph = Global->CtrlObject->Cp()->ActivePanel()->GetPluginHandle();
 				if (ph && ph->pPlugin->IsOemPlugin() && Global->CtrlObject->Cp()->ActivePanel()->SendKeyToPlugin(key(), true))

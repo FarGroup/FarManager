@@ -145,9 +145,6 @@ static int MainProcess(
 
 			_tran(SysLog(L"create dummy panels"));
 			Global->CtrlObject->CreateDummyFilePanels();
-			const auto DummyPanel = new dummy_panel(Global->CtrlObject->Panels());
-			Global->CtrlObject->Cp()->LeftPanel = Global->CtrlObject->Cp()->RightPanel = DummyPanel;
-			Global->CtrlObject->Cp()->SetActivePanel(DummyPanel);
 			Global->WindowManager->PluginCommit();
 
 			Global->CtrlObject->Plugins->LoadPlugins();
@@ -177,10 +174,6 @@ static int MainProcess(
 			}
 
 			Global->WindowManager->EnterMainLoop();
-			Global->CtrlObject->Cp()->LeftPanel = Global->CtrlObject->Cp()->RightPanel = nullptr;
-			Global->CtrlObject->Cp()->SetActivePanel(nullptr);
-			DummyPanel->Destroy();
-			_tran(SysLog(L"editor/viewer closed, delete dummy panels"));
 		}
 		else
 		{
@@ -205,7 +198,7 @@ static int MainProcess(
 				}
 
 				auto& CurrentPanelOptions = (Global->Opt->LeftFocus == active)? Global->Opt->LeftPanel : Global->Opt->RightPanel;
-				CurrentPanelOptions.m_Type = FILE_PANEL;  // сменим моду панели
+				CurrentPanelOptions.m_Type = panel_type::FILE_PANEL;  // сменим моду панели
 				CurrentPanelOptions.Visible = true;     // и включим ее
 				CurrentPanelOptions.Folder = strPath;
 			};
@@ -226,8 +219,8 @@ static int MainProcess(
 			// а теперь "провалимся" в каталог или хост-файл (если получится ;-)
 			if (!apanel.empty())  // активная панель
 			{
-				Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
-				Panel *AnotherPanel = Global->CtrlObject->Cp()->PassivePanel();
+				const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
+				const auto AnotherPanel = Global->CtrlObject->Cp()->PassivePanel();
 
 				if (!ppanel.empty())  // пассивная панель
 				{
@@ -235,9 +228,9 @@ static int MainProcess(
 
 					if (IsPluginPrefixPath(ppanel))
 					{
-						AnotherPanel->SetFocus();
+						AnotherPanel->Parent()->SetActivePanel(AnotherPanel);
 						Global->CtrlObject->CmdLine()->ExecString(ppanel,0);
-						ActivePanel->SetFocus();
+						ActivePanel->Parent()->SetActivePanel(ActivePanel);
 					}
 					else
 					{

@@ -703,7 +703,7 @@ void FileEditor::Init(
 
 void FileEditor::ReadEvent(void)
 {
-	Global->CtrlObject->Plugins->ProcessEditorEvent(EE_READ,nullptr,m_editor->EditorID);
+	Global->CtrlObject->Plugins->ProcessEditorEvent(EE_READ, nullptr, m_editor.get());
 	bEE_READ_Sent = true;
 	Show(); //в EE_READ поменялась позиция курсора или размер табуляции.
 }
@@ -761,7 +761,7 @@ void FileEditor::DisplayObject()
 		if (m_editor->m_Flags.Check(Editor::FEDITOR_ISRESIZEDCONSOLE))
 		{
 			m_editor->m_Flags.Clear(Editor::FEDITOR_ISRESIZEDCONSOLE);
-			Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,m_editor->EditorID);
+			Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW, EEREDRAW_ALL, m_editor.get());
 		}
 
 		m_editor->Show();
@@ -1169,7 +1169,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 					strFullFileNameTemp += L"\\."; // для вваливания внутрь :-)
 				}
 
-				Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
+				const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 
 				if (m_Flags.Check(FFILEEDIT_NEW) || (ActivePanel && ActivePanel->FindFile(strFileName) == -1)) // Mantis#279
 				{
@@ -1963,7 +1963,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		}
 
 		EditorSaveFile esf = {sizeof(esf), Name.data(), m_editor->GlobalEOL.data(), codepage};
-		Global->CtrlObject->Plugins->ProcessEditorEvent(EE_SAVE, &esf, m_editor->EditorID);
+		Global->CtrlObject->Plugins->ProcessEditorEvent(EE_SAVE, &esf, m_editor.get());
 		os::fs::file EditFile;
 		size_t dwWritten = 0;
 		// Don't use CreationDisposition=CREATE_ALWAYS here - it's kills alternate streams
@@ -2197,11 +2197,9 @@ void FileEditor::OnDestroy()
 	//AY: флаг оповещающий закрытие редактора.
 	m_bClosing = true;
 
-	int FEditEditorID=m_editor->EditorID;
-
 	if (bEE_READ_Sent && Global->CtrlObject)
 	{
-		Global->CtrlObject->Plugins->ProcessEditorEvent(EE_CLOSE,nullptr,FEditEditorID);
+		Global->CtrlObject->Plugins->ProcessEditorEvent(EE_CLOSE, nullptr, m_editor.get());
 	}
 	if (!m_Flags.Check(FFILEEDIT_OPENFAILED) && !m_Flags.Check(FFILEEDIT_DISABLESAVEPOS) && (m_editor->EdOpt.SavePos || m_editor->EdOpt.SaveShortPos) && Global->CtrlObject)
 		SaveToCache();
@@ -2440,7 +2438,7 @@ DWORD FileEditor::EditorGetFileAttributes(const string& Name)
 */
 bool FileEditor::UpdateFileList()
 {
-	Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
+	const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 	const wchar_t *FileName = PointToName(strFullFileName);
 	string strFilePath(strFullFileName), strPanelPath(ActivePanel->GetCurDir());
 	strFilePath.resize(FileName - strFullFileName.data());
@@ -2490,8 +2488,7 @@ void FileEditor::SetEditorOptions(const Options::EditorOptions& EdOpt)
 void FileEditor::OnChangeFocus(bool focus)
 {
 	window::OnChangeFocus(focus);
-	int FEditEditorID=m_editor->EditorID;
-	Global->CtrlObject->Plugins->ProcessEditorEvent(focus?EE_GOTFOCUS:EE_KILLFOCUS,nullptr,FEditEditorID);
+	Global->CtrlObject->Plugins->ProcessEditorEvent(focus?EE_GOTFOCUS:EE_KILLFOCUS, nullptr, m_editor.get());
 }
 
 

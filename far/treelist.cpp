@@ -495,21 +495,25 @@ enum TREELIST_FLAGS
 {
 	FTREELIST_TREEISPREPARED = 0x00010000,
 	FTREELIST_UPDATEREQUIRED = 0x00020000,
-	FTREELIST_ISPANEL = 0x00040000,
 };
 
-TreeList::TreeList(window_ptr Owner, bool IsPanel):
+tree_panel_ptr TreeList::create(window_ptr Owner, int ModalMode)
+{
+	return std::make_shared<TreeList>(private_tag(), Owner, ModalMode);
+}
+
+TreeList::TreeList(private_tag, window_ptr Owner, int ModalMode):
 	Panel(Owner),
 	m_WorkDir(0),
 	m_SavedWorkDir(0),
 	m_GetSelPosition(0),
 	m_ExitCode(1)
 {
-	m_Type=TREE_PANEL;
+	m_Type = panel_type::TREE_PANEL;
 	m_CurFile=m_CurTopFile=0;
 	m_Flags.Set(FTREELIST_UPDATEREQUIRED);
 	m_Flags.Clear(FTREELIST_TREEISPREPARED);
-	m_Flags.Change(FTREELIST_ISPANEL,IsPanel);
+	m_ModalMode = ModalMode;
 }
 
 TreeList::~TreeList()
@@ -536,9 +540,9 @@ void TreeList::DisplayObject()
 
 	if (m_ExitCode)
 	{
-		Panel *RootPanel=GetRootPanel();
+		const auto RootPanel = GetRootPanel();
 
-		if (RootPanel->GetType()==FILE_PANEL)
+		if (RootPanel->GetType() == panel_type::FILE_PANEL)
 		{
 			bool RootCaseSensitiveSort=RootPanel->GetCaseSensitiveSort() != 0;
 			bool RootNumeric=RootPanel->GetNumericSort() != 0;
@@ -583,7 +587,7 @@ void TreeList::DisplayTree(int Fast)
 	string strTitle;
 	std::unique_ptr<LockScreen> LckScreen;
 
-	if (!m_ModalMode && Parent()->GetAnotherPanel(this)->GetType() == QVIEW_PANEL)
+	if (!m_ModalMode && Parent()->GetAnotherPanel(this)->GetType() == panel_type::QVIEW_PANEL)
 		LckScreen = std::make_unique<LockScreen>();
 
 	CorrectPosition();
@@ -600,7 +604,7 @@ void TreeList::DisplayTree(int Fast)
 
 		if (!strTitle.empty())
 		{
-			SetColor((m_Focus || m_ModalMode) ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
+			SetColor((IsFocused() || m_ModalMode) ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
 			GotoXY(m_X1+(m_X2-m_X1+1-(int)strTitle.size())/2,m_Y1);
 			Text(strTitle);
 		}
@@ -676,7 +680,7 @@ void TreeList::DisplayTreeName(const wchar_t *Name, size_t Pos)
 	{
 		GotoXY(WhereX()-1,WhereY());
 
-		if (m_Focus || m_ModalMode)
+		if (IsFocused() || m_ModalMode)
 		{
 			SetColor((Pos==m_WorkDir) ? COL_PANELSELECTEDCURSOR:COL_PANELCURSOR);
 			Global->FS << L" "<<fmt::MaxWidth(m_X2-WhereX()-3)<<Name<<L" ";
@@ -717,7 +721,7 @@ void TreeList::Update(int Mode)
 
 	m_Flags.Set(FTREELIST_TREEISPREPARED);
 
-	if (!RetFromReadTree && !m_Flags.Check(FTREELIST_ISPANEL))
+	if (!RetFromReadTree && m_ModalMode)
 	{
 		m_ExitCode=0;
 		return;
@@ -739,7 +743,7 @@ void TreeList::Update(int Mode)
 	{
 		Show();
 
-		if (!m_Flags.Check(FTREELIST_ISPANEL))
+		if (!m_ModalMode)
 		{
 			const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 			AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
@@ -961,7 +965,7 @@ int TreeList::ReadTree()
 		m_ListData.emplace_back(strFullName);
 	}
 
-	if (AscAbort && !m_Flags.Check(FTREELIST_ISPANEL))
+	if (AscAbort && m_ModalMode)
 	{
 		m_ListData.clear();
 		RestoreState();
@@ -977,7 +981,7 @@ int TreeList::ReadTree()
 	if (!AscAbort)
 		SaveTreeFile();
 
-	if (!FirstCall && !m_Flags.Check(FTREELIST_ISPANEL))
+	if (!FirstCall && m_ModalMode)
 	{
 		// Перерисуем другую панель - удалим следы сообщений :)
 		Parent()->GetAnotherPanel(this)->Redraw();
@@ -1015,16 +1019,16 @@ void TreeList::GetRoot()
 	m_Root = ExtractPathRoot(GetRootPanel()->GetCurDir());
 }
 
-Panel* TreeList::GetRootPanel()
+panel_ptr TreeList::GetRootPanel()
 {
-	Panel *RootPanel;
+	panel_ptr RootPanel;
 
 	if (m_ModalMode) // watch out, Parent() in nullptr
 	{
 		if (m_ModalMode==MODALTREE_ACTIVE)
 			RootPanel = Global->CtrlObject->Cp()->ActivePanel();
 		else if (m_ModalMode==MODALTREE_FREE)
-			RootPanel=this;
+			RootPanel = shared_from_this();
 		else
 		{
 			RootPanel = Global->CtrlObject->Cp()->PassivePanel();
@@ -1041,12 +1045,12 @@ Panel* TreeList::GetRootPanel()
 
 void TreeList::SyncDir()
 {
-	Panel *AnotherPanel=GetRootPanel();
+	const auto AnotherPanel = GetRootPanel();
 	string strPanelDir(AnotherPanel->GetCurDir());
 
 	if (!strPanelDir.empty())
 	{
-		if (AnotherPanel->GetType()==FILE_PANEL)
+		if (AnotherPanel->GetType() == panel_type::FILE_PANEL)
 		{
 			if (!SetDirPosition(strPanelDir))
 			{
@@ -1241,7 +1245,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 			if (SetCurPath())
 			{
 				int ToPlugin=0;
-				ShellCopy(this,LocalKey==KEY_SHIFTF6,FALSE,TRUE,TRUE,ToPlugin,nullptr);
+				ShellCopy(shared_from_this(), LocalKey == KEY_SHIFTF6, FALSE, TRUE, TRUE, ToPlugin, nullptr);
 			}
 
 			return TRUE;
@@ -1258,7 +1262,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 				const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 				int Ask=((LocalKey!=KEY_DRAGCOPY && LocalKey!=KEY_DRAGMOVE) || Global->Opt->Confirm.Drag);
 				int Move=(LocalKey==KEY_F6 || LocalKey==KEY_DRAGMOVE);
-				int ToPlugin=AnotherPanel->GetMode()==PLUGIN_PANEL &&
+				int ToPlugin = AnotherPanel->GetMode() == panel_mode::PLUGIN_PANEL &&
 				             AnotherPanel->IsVisible() &&
 				             !Global->CtrlObject->Plugins->UseFarCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES);
 				int Link=((LocalKey==KEY_ALTF6||LocalKey==KEY_RALTF6) && !ToPlugin);
@@ -1267,7 +1271,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 					return TRUE;
 
 				{
-					ShellCopy(this,Move,Link,FALSE,Ask,ToPlugin,nullptr);
+					ShellCopy(shared_from_this(), Move, Link, FALSE, Ask, ToPlugin, nullptr);
 				}
 
 				if (ToPlugin==1)
@@ -1328,7 +1332,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 				if (LocalKey==KEY_SHIFTDEL||LocalKey==KEY_SHIFTNUMDEL||LocalKey==KEY_SHIFTDECIMAL)
 					Global->Opt->DeleteToRecycleBin = false;
 
-				ShellDelete(this,LocalKey==KEY_ALTDEL||LocalKey==KEY_RALTDEL||LocalKey==KEY_ALTNUMDEL||LocalKey==KEY_RALTNUMDEL||LocalKey==KEY_ALTDECIMAL||LocalKey==KEY_RALTDECIMAL);
+				ShellDelete(shared_from_this(), LocalKey == KEY_ALTDEL || LocalKey == KEY_RALTDEL || LocalKey == KEY_ALTNUMDEL || LocalKey == KEY_RALTNUMDEL || LocalKey == KEY_ALTDECIMAL || LocalKey == KEY_RALTDECIMAL);
 				// Надобно не забыть обновить противоположную панель...
 				const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 				AnotherPanel->Update(UPDATE_KEEP_SELECTION);
@@ -1587,7 +1591,7 @@ bool TreeList::SetCurDir(const string& NewDir,bool ClosePanel,bool /*IsUpdated*/
 		SetDirPosition(NewDir);
 	}
 
-	if (GetFocus())
+	if (IsFocused())
 	{
 		Parent()->GetCmdLine()->SetCurDir(NewDir);
 		Parent()->GetCmdLine()->Show();
@@ -1628,8 +1632,16 @@ const string& TreeList::GetCurDir() const
 
 int TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
+	if (!IsMouseInClientArea(MouseEvent))
+		return FALSE;
+
+	if (Panel::ProcessMouseDrag(MouseEvent))
+		return TRUE;
+
+	if (!(MouseEvent->dwButtonState & MOUSE_ANY_BUTTON_PRESSED))
+		return FALSE;
+
 	int OldFile=m_CurFile;
-	int RetCode;
 
 	if (Global->Opt->ShowPanelScrollbar && IntKeyState.MouseX==m_X2 &&
 	        (MouseEvent->dwButtonState & 1) && !IsDragging())
@@ -1643,7 +1655,7 @@ int TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				ProcessKey(Manager::Key(KEY_UP));
 
 			if (!m_ModalMode)
-				SetFocus();
+				Parent()->SetActivePanel(this);
 
 			return TRUE;
 		}
@@ -1654,7 +1666,7 @@ int TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				ProcessKey(Manager::Key(KEY_DOWN));
 
 			if (!m_ModalMode)
-				SetFocus();
+				Parent()->SetActivePanel(this);
 
 			return TRUE;
 		}
@@ -1665,19 +1677,20 @@ int TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			DisplayTree(TRUE);
 
 			if (!m_ModalMode)
-				SetFocus();
+				Parent()->SetActivePanel(this);
 
 			return TRUE;
 		}
 	}
 
-	if (Panel::PanelProcessMouse(MouseEvent,RetCode))
-		return RetCode;
+	// BUGBUG
+	if (!(MouseEvent->dwButtonState & 3))
+		return FALSE;
 
 	if (MouseEvent->dwMousePosition.Y>m_Y1 && MouseEvent->dwMousePosition.Y<m_Y2-2)
 	{
 		if (!m_ModalMode)
-			SetFocus();
+			Parent()->SetActivePanel(this);
 
 		MoveToMouse(MouseEvent);
 		DisplayTree(TRUE);
@@ -1707,34 +1720,21 @@ int TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return TRUE;
 	}
 
-	if (MouseEvent->dwMousePosition.Y<=m_Y1+1)
+	if (MouseEvent->dwMousePosition.Y <= m_Y1 + 1 || MouseEvent->dwMousePosition.Y >= m_Y2 - 2)
 	{
 		if (!m_ModalMode)
-			SetFocus();
+			Parent()->SetActivePanel(this);
 
 		if (m_ListData.empty())
 			return TRUE;
 
-		while (IsMouseButtonPressed() && IntKeyState.MouseY<=m_Y1+1)
-			Up(1);
-
-		if (Global->Opt->Tree.AutoChangeFolder && !m_ModalMode)
-			ProcessKey(Manager::Key(KEY_ENTER));
-
-		return TRUE;
-	}
-
-	if (MouseEvent->dwMousePosition.Y>=m_Y2-2)
-	{
-		if (!m_ModalMode)
-			SetFocus();
-
-		if (m_ListData.empty())
-			return TRUE;
-
-		while (IsMouseButtonPressed() && IntKeyState.MouseY>=m_Y2-2)
-			Down(1);
-
+		while (IsMouseButtonPressed())
+		{
+			if (IntKeyState.MouseY <= m_Y1 + 1)
+				Up(1);
+			else if (IntKeyState.MouseY >= m_Y2 - 2)
+				Down(1);
+		}
 		if (Global->Opt->Tree.AutoChangeFolder && !m_ModalMode)
 			ProcessKey(Manager::Key(KEY_ENTER));
 
@@ -1757,7 +1757,7 @@ void TreeList::ProcessEnter()
 	{
 		if (!m_ModalMode && FarChDir(CurPtr.strName))
 		{
-			Panel *AnotherPanel=GetRootPanel();
+			const auto AnotherPanel=GetRootPanel();
 			SetCurDir(CurPtr.strName,true);
 			Show();
 			AnotherPanel->SetCurDir(CurPtr.strName,true);
@@ -2049,7 +2049,7 @@ void TreeList::UpdateViewPanel()
 {
 	if (!m_ModalMode)
 	{
-		const auto AnotherPanel = dynamic_cast<QuickView*>(GetRootPanel());
+		const auto AnotherPanel = std::dynamic_pointer_cast<QuickView>(GetRootPanel());
 		if (AnotherPanel && SetCurPath())
 		{
 			AnotherPanel->ShowFile(GetCurDir(), false, nullptr);
@@ -2115,15 +2115,9 @@ int TreeList::GetFileName(string &strName, int Pos, DWORD &FileAttr) const
 	return TRUE;
 }
 
-void TreeList::SetFocus()
+void TreeList::OnFocusChange(bool Get)
 {
-	Panel::SetFocus();
-	SetTitle();
-}
-
-void TreeList::KillFocus()
-{
-	if (static_cast<size_t>(m_CurFile) < m_ListData.size())
+	if (!Get && static_cast<size_t>(m_CurFile) < m_ListData.size())
 	{
 		if (!os::fs::exists(m_ListData[m_CurFile].strName))
 		{
@@ -2132,7 +2126,7 @@ void TreeList::KillFocus()
 		}
 	}
 
-	Panel::KillFocus();
+	Panel::OnFocusChange(Get);
 }
 
 void TreeList::UpdateKeyBar()
@@ -2144,7 +2138,7 @@ void TreeList::UpdateKeyBar()
 
 void TreeList::SetTitle()
 {
-	if (GetFocus())
+	if (IsFocused())
 	{
 		string strTitleDir(L"{");
 

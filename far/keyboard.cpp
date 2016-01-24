@@ -724,8 +724,8 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 						if (Global->WindowManager->IsPanelsActive())
 						{
 							UpdateReenter = true;
-							Global->CtrlObject->Cp()->LeftPanel->UpdateIfChanged(true);
-							Global->CtrlObject->Cp()->RightPanel->UpdateIfChanged(true);
+							Global->CtrlObject->Cp()->LeftPanel()->UpdateIfChanged(true);
+							Global->CtrlObject->Cp()->RightPanel()->UpdateIfChanged(true);
 							UpdateReenter = false;
 						}
 					}

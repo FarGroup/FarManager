@@ -349,7 +349,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	return ExitCode == 7;
 }
 
-static int ProcessDelDisk(Panel* Owner, wchar_t Drive, int DriveType)
+static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 {
 	string DiskLetter(L"?:");
 	DiskLetter[0] = Drive;
@@ -509,7 +509,7 @@ static int ProcessDelDisk(Panel* Owner, wchar_t Drive, int DriveType)
 	return DRIVE_DEL_FAIL;
 }
 
-static int DisconnectDrive(Panel* Owner, const PanelMenuItem *item, VMenu2 &ChDisk)
+static int DisconnectDrive(panel_ptr Owner, const PanelMenuItem *item, VMenu2 &ChDisk)
 {
 	if ((item->nDriveType == DRIVE_REMOVABLE) || IsDriveTypeCDROM(item->nDriveType))
 	{
@@ -521,8 +521,8 @@ static int DisconnectDrive(Panel* Owner, const PanelMenuItem *item, VMenu2 &ChDi
 		if (!EjectVolume(item->cDrive, EJECT_NO_MESSAGE))
 		{
 			// запоминаем состояние панелей
-			int CMode = Owner->GetMode();
-			int AMode = Owner->Parent()->GetAnotherPanel(Owner)->GetMode();
+			const auto CMode = Owner->GetMode();
+			const auto AMode = Owner->Parent()->GetAnotherPanel(Owner)->GetMode();
 			string strTmpCDir(Owner->GetCurDir()), strTmpADir(Owner->Parent()->GetAnotherPanel(Owner)->GetCurDir());
 			// "цикл до умопомрачения"
 			int DoneEject = FALSE;
@@ -538,10 +538,10 @@ static int DisconnectDrive(Panel* Owner, const PanelMenuItem *item, VMenu2 &ChDi
 				if (!ResEject)
 				{
 					// восстановим пути - это избавит нас от левых данных в панели.
-					if (AMode != PLUGIN_PANEL)
+					if (AMode != panel_mode::PLUGIN_PANEL)
 						Owner->Parent()->GetAnotherPanel(Owner)->SetCurDir(strTmpADir, false);
 
-					if (CMode != PLUGIN_PANEL)
+					if (CMode != panel_mode::PLUGIN_PANEL)
 						Owner->SetCurDir(strTmpCDir, false);
 
 					// ... и выведем месаг о...
@@ -562,15 +562,15 @@ static int DisconnectDrive(Panel* Owner, const PanelMenuItem *item, VMenu2 &ChDi
 	}
 }
 
-static void RemoveHotplugDevice(Panel* Owner, const PanelMenuItem *item, VMenu2 &ChDisk)
+static void RemoveHotplugDevice(panel_ptr Owner, const PanelMenuItem *item, VMenu2 &ChDisk)
 {
 	int Code = RemoveHotplugDisk(item->cDrive, EJECT_NOTIFY_AFTERREMOVE);
 
 	if (!Code)
 	{
 		// запоминаем состояние панелей
-		int CMode = Owner->GetMode();
-		int AMode = Owner->Parent()->GetAnotherPanel(Owner)->GetMode();
+		const auto CMode = Owner->GetMode();
+		const auto AMode = Owner->Parent()->GetAnotherPanel(Owner)->GetMode();
 		string strTmpCDir(Owner->GetCurDir()), strTmpADir(Owner->Parent()->GetAnotherPanel(Owner)->GetCurDir());
 		// "цикл до умопомрачения"
 		int DoneEject = FALSE;
@@ -586,10 +586,10 @@ static void RemoveHotplugDevice(Panel* Owner, const PanelMenuItem *item, VMenu2 
 			if (!Code)
 			{
 				// восстановим пути - это избавит нас от левых данных в панели.
-				if (AMode != PLUGIN_PANEL)
+				if (AMode != panel_mode::PLUGIN_PANEL)
 					Owner->Parent()->GetAnotherPanel(Owner)->SetCurDir(strTmpADir, false);
 
-				if (CMode != PLUGIN_PANEL)
+				if (CMode != panel_mode::PLUGIN_PANEL)
 					Owner->SetCurDir(strTmpCDir, false);
 
 				// ... и выведем месаг о...
@@ -607,7 +607,7 @@ static void RemoveHotplugDevice(Panel* Owner, const PanelMenuItem *item, VMenu2 
 	}
 }
 
-static int ChangeDiskMenu(Panel* Owner, int Pos, bool FirstCall)
+static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 {
 	int Panel_X1, Panel_X2, Panel_Y1, Panel_Y2;
 	Owner->GetPosition(Panel_X1, Panel_Y1, Panel_X2, Panel_Y2);
@@ -615,7 +615,7 @@ static int ChangeDiskMenu(Panel* Owner, int Pos, bool FirstCall)
 	class Guard_Macro_DskShowPosType  //фигня какая-то
 	{
 	public:
-		Guard_Macro_DskShowPosType(Panel *curPanel) { Global->Macro_DskShowPosType = (curPanel == curPanel->Parent()->LeftPanel) ? 1 : 2; }
+		Guard_Macro_DskShowPosType(panel_ptr curPanel) { Global->Macro_DskShowPosType = curPanel->Parent()->IsLeft(curPanel)? 1 : 2; }
 		~Guard_Macro_DskShowPosType() { Global->Macro_DskShowPosType = 0; }
 	};
 	SCOPED_ACTION(Guard_Macro_DskShowPosType)(Owner);
@@ -854,7 +854,7 @@ static int ChangeDiskMenu(Panel* Owner, int Pos, bool FirstCall)
 
 		int X = Panel_X1 + 5;
 
-		if ((Owner == Owner->Parent()->RightPanel) && Owner->IsFullScreen() && (Panel_X2 - Panel_X1 > 40))
+		if ((Owner == Owner->Parent()->RightPanel()) && Owner->IsFullScreen() && (Panel_X2 - Panel_X1 > 40))
 			X = (Panel_X2 - Panel_X1 + 1) / 2 + 5;
 
 		ChDisk->SetPosition(X, -1, 0, 0);
@@ -978,7 +978,7 @@ static int ChangeDiskMenu(Panel* Owner, int Pos, bool FirstCall)
 				{
 					const wchar_t DeviceName[] = { item->cDrive, L':', L'\\', 0 };
 					struct DiskMenuParam { const wchar_t* CmdLine; BOOL Apps; } p = { DeviceName, Key != KEY_MSRCLICK };
-					Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, (Owner->Parent()->LeftPanel == Owner) ? OPEN_LEFTDISKMENU : OPEN_RIGHTDISKMENU, &p); // EMenu Plugin :-)
+					Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, Owner->Parent()->IsLeft(Owner)? OPEN_LEFTDISKMENU : OPEN_RIGHTDISKMENU, &p); // EMenu Plugin :-)
 				}
 				break;
 			}
@@ -1206,8 +1206,8 @@ static int ChangeDiskMenu(Panel* Owner, int Pos, bool FirstCall)
 
 		const auto strNewCurDir = os::GetCurrentDirectory();
 
-		if ((Owner->GetMode() == NORMAL_PANEL) &&
-			(Owner->GetType() == FILE_PANEL) &&
+		if ((Owner->GetMode() == panel_mode::NORMAL_PANEL) &&
+			(Owner->GetType() == panel_type::FILE_PANEL) &&
 			!StrCmpI(Owner->GetCurDir(), strNewCurDir) &&
 			Owner->IsVisible())
 		{
@@ -1216,15 +1216,15 @@ static int ChangeDiskMenu(Panel* Owner, int Pos, bool FirstCall)
 		}
 		else
 		{
-			int Focus = Owner->GetFocus();
-			const auto NewPanel = Owner->Parent()->ChangePanel(Owner, FILE_PANEL, TRUE, FALSE);
+			const auto IsActive = Owner->IsFocused();
+			const auto NewPanel = Owner->Parent()->ChangePanel(Owner, panel_type::FILE_PANEL, TRUE, FALSE);
 			NewPanel->SetCurDir(strNewCurDir, true);
 			NewPanel->Show();
 
-			if (Focus || !NewPanel->Parent()->GetAnotherPanel(NewPanel)->IsVisible())
-				NewPanel->SetFocus();
+			if (IsActive || !NewPanel->Parent()->GetAnotherPanel(NewPanel)->IsVisible())
+				NewPanel->Parent()->SetActivePanel(NewPanel);
 
-			if (!Focus && NewPanel->Parent()->GetAnotherPanel(NewPanel)->GetType() == INFO_PANEL)
+			if (!IsActive && NewPanel->Parent()->GetAnotherPanel(NewPanel)->GetType() == panel_type::INFO_PANEL)
 				NewPanel->Parent()->GetAnotherPanel(NewPanel)->UpdateKeyBar();
 		}
 	}
@@ -1232,19 +1232,19 @@ static int ChangeDiskMenu(Panel* Owner, int Pos, bool FirstCall)
 	{
 		const auto hPlugin = Global->CtrlObject->Plugins->Open(
 			mitem->pPlugin,
-			(Owner->Parent()->LeftPanel == Owner)?OPEN_LEFTDISKMENU:OPEN_RIGHTDISKMENU,
+			Owner->Parent()->IsLeft(Owner)? OPEN_LEFTDISKMENU : OPEN_RIGHTDISKMENU,
 			mitem->Guid,
 			0);
 
 		if (hPlugin)
 		{
-			int Focus = Owner->GetFocus();
-			const auto NewPanel = Owner->Parent()->ChangePanel(Owner, FILE_PANEL, TRUE, TRUE);
-			NewPanel->SetPluginMode(hPlugin, L"", Focus || !NewPanel->Parent()->GetAnotherPanel(NewPanel)->IsVisible());
+			const auto IsActive = Owner->IsFocused();
+			const auto NewPanel = Owner->Parent()->ChangePanel(Owner, panel_type::FILE_PANEL, TRUE, TRUE);
+			NewPanel->SetPluginMode(hPlugin, L"", IsActive || !NewPanel->Parent()->GetAnotherPanel(NewPanel)->IsVisible());
 			NewPanel->Update(0);
 			NewPanel->Show();
 
-			if (!Focus && NewPanel->Parent()->GetAnotherPanel(NewPanel)->GetType() == INFO_PANEL)
+			if (!IsActive && NewPanel->Parent()->GetAnotherPanel(NewPanel)->GetType() == panel_type::INFO_PANEL)
 				NewPanel->Parent()->GetAnotherPanel(NewPanel)->UpdateKeyBar();
 		}
 	}
@@ -1252,7 +1252,7 @@ static int ChangeDiskMenu(Panel* Owner, int Pos, bool FirstCall)
 	return -1;
 }
 
-void ChangeDisk(Panel* Owner)
+void ChangeDisk(panel_ptr Owner)
 {
 	int Pos = 0;
 	bool FirstCall = true;

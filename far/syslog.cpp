@@ -493,7 +493,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 
 	if (fp)
 	{
-#define DEF_SORTMODE_(m) { m , L###m }
+#define DEF_SORTMODE_(m) { panel_sort::m , L###m }
 		static struct SORTMode
 		{
 			int Mode;
@@ -507,7 +507,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 			DEF_SORTMODE_(BY_NUMSTREAMS),DEF_SORTMODE_(BY_STREAMSSIZE),
 			DEF_SORTMODE_(BY_FULLNAME),DEF_SORTMODE_(BY_CUSTOMDATA)
 		};
-		static_assert(ARRAYSIZE(__SORT) == SORTMODE_COUNT, "Incomplete __SORT array");
+		static_assert(ARRAYSIZE(__SORT) == panel_sort::COUNT, "Incomplete __SORT array");
 
 		if (!ListItems || !ItemNumber)
 			fwprintf(fp,L"\tPluginsStackItem <EMPTY>");
@@ -529,7 +529,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 				         (ListItems[I].m_Modified?L"True ":L"False"),
 				         ListItems[I].m_PrevViewMode,
 				         ListItems[I].m_PrevSortMode,
-				         (ListItems[I].m_PrevSortMode<BY_CUSTOMDATA?__SORT[ListItems[I].m_PrevSortMode].Name:L"<Unknown>"),
+				         (ListItems[I].m_PrevSortMode < panel_sort::BY_CUSTOMDATA? __SORT[ListItems[I].m_PrevSortMode.value()].Name : L"<Unknown>"),
 				         ListItems[I].m_PrevSortOrder,
 				         ListItems[I].m_PrevNumericSort,
 						 ListItems[I].m_PrevCaseSensitiveSort,

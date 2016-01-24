@@ -315,8 +315,8 @@ static void FillMenu(VMenu2& Menu, std::list<Shortcuts::shortcut>& List, bool ra
 
 static bool Accept()
 {
-	Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
-	if (ActivePanel->GetMode() == PLUGIN_PANEL)
+	const auto& ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
+	if (ActivePanel->GetMode() == panel_mode::PLUGIN_PANEL)
 	{
 		OpenPanelInfo Info;
 		ActivePanel->GetOpenPanelInfo(&Info);
@@ -361,7 +361,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 							shortcut NewItem;
 							const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 							NewItem.strFolder = Global->CtrlObject->CmdLine()->GetCurDir();
-							if (ActivePanel->GetMode() == PLUGIN_PANEL)
+							if (ActivePanel->GetMode() == panel_mode::PLUGIN_PANEL)
 							{
 								OpenPanelInfo Info;
 								ActivePanel->GetOpenPanelInfo(&Info);
@@ -602,7 +602,7 @@ void Shortcuts::Configure()
 					}
 					const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 					ItemIterator->strFolder = Global->CtrlObject->CmdLine()->GetCurDir();
-					if (ActivePanel->GetMode() == PLUGIN_PANEL)
+					if (ActivePanel->GetMode() == panel_mode::PLUGIN_PANEL)
 					{
 						OpenPanelInfo Info;
 						ActivePanel->GetOpenPanelInfo(&Info);

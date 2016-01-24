@@ -71,8 +71,8 @@ static const wchar_t PluginsFolderName[] = L"Plugins";
 static void ReadUserBackgound(SaveScreen *SaveScr)
 {
 	FilePanels *FPanel = Global->CtrlObject->Cp();
-	FPanel->LeftPanel->ProcessingPluginCommand++;
-	FPanel->RightPanel->ProcessingPluginCommand++;
+	FPanel->LeftPanel()->ProcessingPluginCommand++;
+	FPanel->RightPanel()->ProcessingPluginCommand++;
 
 	if (Global->KeepUserScreen)
 	{
@@ -82,8 +82,8 @@ static void ReadUserBackgound(SaveScreen *SaveScr)
 		Global->CtrlObject->Desktop->FillFromConsole();
 	}
 
-	FPanel->LeftPanel->ProcessingPluginCommand--;
-	FPanel->RightPanel->ProcessingPluginCommand--;
+	FPanel->LeftPanel()->ProcessingPluginCommand--;
+	FPanel->RightPanel()->ProcessingPluginCommand--;
 }
 
 static void GetHotKeyPluginKey(Plugin *pPlugin, string &strPluginKey)
@@ -318,10 +318,10 @@ int PluginManager::UnloadPlugin(Plugin *pPlugin, int From)
 		if (bPanelPlugin /*&& bUpdatePanels*/)
 		{
 			Global->CtrlObject->Cp()->ActivePanel()->SetCurDir(L".",true);
-			Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
+			const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 			ActivePanel->Update(UPDATE_KEEP_SELECTION);
 			ActivePanel->Redraw();
-			Panel *AnotherPanel=Global->CtrlObject->Cp()->PassivePanel();
+			const auto AnotherPanel = Global->CtrlObject->Cp()->PassivePanel();
 			AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 			AnotherPanel->Redraw();
 		}
@@ -798,23 +798,23 @@ int PluginManager::ProcessEditorInput(const INPUT_RECORD *Rec) const
 }
 
 
-int PluginManager::ProcessEditorEvent(int Event,void *Param,int EditorID) const
+int PluginManager::ProcessEditorEvent(int Event, void *Param, const Editor* EditorInstance) const
 {
 	int nResult = 0;
-	if (const auto editor = Global->WindowManager->GetEditorContainerById(EditorID))
+	if (const auto Container = EditorInstance->GetOwner())
 	{
 		if (Event == EE_REDRAW)
 		{
-			const auto FED = std::dynamic_pointer_cast<FileEditor>(editor).get();
+			const auto FED = std::dynamic_pointer_cast<FileEditor>(Container).get();
 			FED->AutoDeleteColors();
 		}
 
 		ProcessEditorEventInfo Info = {sizeof(Info)};
 		Info.Event = Event;
 		Info.Param = Param;
-		Info.EditorID = EditorID;
+		Info.EditorID = EditorInstance->GetId();
 
-		SCOPED_ACTION(auto)(editor->GetPinner());
+		SCOPED_ACTION(auto)(Container->GetPinner());
 		std::for_each(CONST_RANGE(SortedPlugins, i)
 		{
 			if (i->has<iProcessEditorEvent>())
@@ -826,17 +826,17 @@ int PluginManager::ProcessEditorEvent(int Event,void *Param,int EditorID) const
 }
 
 
-int PluginManager::ProcessSubscribedEditorEvent(int Event, void *Param, int EditorID, const std::unordered_set<GUID, uuid_hash, uuid_equal>& PluginIds) const
+int PluginManager::ProcessSubscribedEditorEvent(int Event, void *Param, const Editor* EditorInstance, const std::unordered_set<GUID, uuid_hash, uuid_equal>& PluginIds) const
 {
 	int nResult = 0;
-	if (const auto editor = Global->WindowManager->GetEditorContainerById(EditorID))
+	if (const auto Container = EditorInstance->GetOwner())
 	{
 		ProcessEditorEventInfo Info = {sizeof(Info)};
 		Info.Event = Event;
 		Info.Param = Param;
-		Info.EditorID = EditorID;
+		Info.EditorID = EditorInstance->GetId();
 
-		SCOPED_ACTION(auto)(editor->GetPinner());
+		SCOPED_ACTION(auto)(Container->GetPinner());
 		std::for_each(CONST_RANGE(SortedPlugins, i)
 		{
 			if (i->has<iProcessEditorEvent>() && PluginIds.count(i->GetGUID()))
@@ -850,17 +850,17 @@ int PluginManager::ProcessSubscribedEditorEvent(int Event, void *Param, int Edit
 }
 
 
-int PluginManager::ProcessViewerEvent(int Event, void *Param,int ViewerID) const
+int PluginManager::ProcessViewerEvent(int Event, void *Param, const Viewer* ViewerInstance) const
 {
 	int nResult = 0;
-	if (const auto viewer = Global->WindowManager->GetViewerContainerById(ViewerID))
+	if (const auto Container = ViewerInstance->GetOwner())
 	{
 		ProcessViewerEventInfo Info = {sizeof(Info)};
 		Info.Event = Event;
 		Info.Param = Param;
-		Info.ViewerID = ViewerID;
+		Info.ViewerID = ViewerInstance->GetId();
 
-		SCOPED_ACTION(auto)(viewer->GetPinner());
+		SCOPED_ACTION(auto)(Container->GetPinner());
 		std::for_each(CONST_RANGE(SortedPlugins, i)
 		{
 			if (i->has<iProcessViewerEvent>())
@@ -1181,15 +1181,15 @@ void PluginManager::ConfigureCurrent(Plugin *pPlugin, const GUID& Guid)
 
 	if (pPlugin->Configure(&Info))
 	{
-		Panel* Panels[] =
+		panel_ptr Panels[] =
 		{
-			Global->CtrlObject->Cp()->LeftPanel,
-			Global->CtrlObject->Cp()->RightPanel,
+			Global->CtrlObject->Cp()->LeftPanel(),
+			Global->CtrlObject->Cp()->RightPanel(),
 		};
 
 		std::for_each(CONST_RANGE(Panels, i)
 		{
-			if (i->GetMode() == PLUGIN_PANEL)
+			if (i->GetMode() == panel_mode::PLUGIN_PANEL)
 			{
 				i->Update(UPDATE_KEEP_SELECTION);
 				i->SetViewMode(i->GetViewMode());
@@ -1552,7 +1552,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 		item = *PluginList->GetUserDataPtr<PluginMenuItemData>(ExitCode);
 	}
 
-	Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
+	const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 	int OpenCode=OPEN_PLUGINSMENU;
 	intptr_t Item=0;
 	OpenDlgPluginData pd={sizeof(OpenDlgPluginData)};
@@ -1582,7 +1582,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 			return FALSE;
 		}
 
-		Panel *NewPanel=Global->CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
+		const auto NewPanel = Global->CtrlObject->Cp()->ChangePanel(ActivePanel, panel_type::FILE_PANEL, TRUE, TRUE);
 		NewPanel->SetPluginMode(hPlugin,L"",true);
 		NewPanel->Update(0);
 		NewPanel->Show();
@@ -1922,7 +1922,7 @@ struct PluginData
 	UINT64 PluginFlags;
 };
 
-int PluginManager::ProcessCommandLine(const string& CommandParam,Panel *Target)
+int PluginManager::ProcessCommandLine(const string& CommandParam, panel_ptr Target)
 {
 	size_t PrefixLength=0;
 	string strCommand=CommandParam;
@@ -2036,7 +2036,7 @@ int PluginManager::ProcessCommandLine(const string& CommandParam,Panel *Target)
 
 	if (hPlugin)
 	{
-		Panel *NewPanel=Global->CtrlObject->Cp()->ChangePanel(CurPanel,FILE_PANEL,TRUE,TRUE);
+		const auto NewPanel = Global->CtrlObject->Cp()->ChangePanel(CurPanel, panel_type::FILE_PANEL, TRUE, TRUE);
 		NewPanel->SetPluginMode(hPlugin,L"",!Target || Target == ActivePanel);
 		NewPanel->Update(0);
 		NewPanel->Show();
@@ -2093,9 +2093,8 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void **
 
 			if (hNewPlugin && process)
 			{
-				int CurFocus=Global->CtrlObject->Cp()->ActivePanel()->GetFocus();
-				Panel *NewPanel = Global->CtrlObject->Cp()->ChangePanel(Global->CtrlObject->Cp()->ActivePanel(), FILE_PANEL, TRUE, TRUE);
-				NewPanel->SetPluginMode(hNewPlugin,L"",CurFocus || !Global->CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible());
+				const auto NewPanel = Global->CtrlObject->Cp()->ChangePanel(Global->CtrlObject->Cp()->ActivePanel(), panel_type::FILE_PANEL, TRUE, TRUE);
+				NewPanel->SetPluginMode(hNewPlugin,L"", true);
 				if (OpenFrom != OPEN_FROMMACRO)
 				{
 					if (Data && *(const wchar_t *)Data)
@@ -2254,7 +2253,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
 				return FALSE;
 
 			PluginHandle* hPlugin=nullptr;
-			Panel *ActivePanel=nullptr;
+			panel_ptr ActivePanel;
 
 			switch ((Data->CallFlags & CPT_MASK))
 			{
@@ -2316,7 +2315,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
 					return FALSE;
 				}
 
-				Panel *NewPanel=Global->CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
+				const auto NewPanel = Global->CtrlObject->Cp()->ChangePanel(ActivePanel, panel_type::FILE_PANEL, TRUE, TRUE);
 				NewPanel->SetPluginMode(hPlugin,L"",true);
 				NewPanel->Update(0);
 				NewPanel->Show();

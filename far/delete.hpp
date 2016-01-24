@@ -35,13 +35,15 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "panelfwd.hpp"
+
 ENUM(DIRDELTYPE);
 ENUM(DEL_RESULT);
 
 class ShellDelete: noncopyable
 {
 public:
-	ShellDelete(class Panel *SrcPanel, bool Wipe);
+	ShellDelete(panel_ptr SrcPanel, bool Wipe);
 
 private:
 	DEL_RESULT AskDeleteReadOnly(const string& Name, DWORD Attr, bool Wipe);

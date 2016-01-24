@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/preprocessor.hpp"
 #include "common/noncopyable.hpp"
 #include "common/swapable.hpp"
+#include "common/rel_ops.hpp"
 #include "common/enum.hpp"
 #include "common/conditional.hpp"
 #include "common/range_for.hpp"

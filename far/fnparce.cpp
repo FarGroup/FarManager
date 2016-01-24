@@ -73,8 +73,8 @@ struct TSubstData
 	int  PreserveLFN;
 	int  PassivePanel;
 
-	Panel *AnotherPanel;
-	Panel *ActivePanel;
+	panel_ptr AnotherPanel;
+	panel_ptr ActivePanel;
 };
 
 
@@ -162,7 +162,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 	        (!StrCmpN(CurStr,L"!&",2) && CurStr[2] != L'?'))
 	{
 		string strFileNameL, strShortNameL;
-		Panel *WPanel=SubstData.PassivePanel?SubstData.AnotherPanel:SubstData.ActivePanel;
+		const auto WPanel = SubstData.PassivePanel?SubstData.AnotherPanel:SubstData.ActivePanel;
 		DWORD FileAttrL;
 		int ShortN0=FALSE;
 		int CntSkip=2;

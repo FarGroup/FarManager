@@ -135,8 +135,6 @@ public:
 
 	Viewer* GetCurrentViewer(void) const;
 	FileEditor* GetCurrentEditor(void) const;
-	window_ptr GetViewerContainerById(int ID) const;
-	window_ptr GetEditorContainerById(int ID) const;
 	// BUGBUG, do we need this?
 	void ImmediateHide();
 	bool HaveAnyMessage() const;

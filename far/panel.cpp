@@ -51,7 +51,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cddrv.hpp"
 #include "interf.hpp"
 #include "clipboard.hpp"
-#include "scrsaver.hpp"
 #include "shortcuts.hpp"
 #include "dirmix.hpp"
 #include "constitle.hpp"
@@ -70,11 +69,10 @@ static SaveScreen *DragSaveScr=nullptr;
 Panel::Panel(window_ptr Owner):
 	ScreenObject(Owner),
 	ProcessingPluginCommand(0),
-	m_Focus(false),
-	m_Type(0),
+	m_Type(panel_type::FILE_PANEL),
 	m_EnableUpdate(TRUE),
-	m_PanelMode(NORMAL_PANEL),
-	m_SortMode(UNSORTED),
+	m_PanelMode(panel_mode::NORMAL_PANEL),
+	m_SortMode(panel_sort::UNSORTED),
 	m_ReverseSortOrder(false),
 	m_SortGroups(0),
 	m_PrevViewMode(VIEW_3),
@@ -425,84 +423,40 @@ void Panel::FastFind(int FirstKey)
 	Parent()->GetKeybar().Redraw();
 	Global->ScrBuf->Flush();
 
-	const auto TreePanel = dynamic_cast<TreeList*>(Parent()->ActivePanel());
+	const auto TreePanel = std::dynamic_pointer_cast<TreeList>(Parent()->ActivePanel());
 	if (TreePanel && (KeyToProcess() == KEY_ENTER || KeyToProcess() == KEY_NUMENTER))
 		TreePanel->ProcessEnter();
 	else
 		Parent()->ProcessKey(KeyToProcess);
 }
 
-void Panel::SetFocus()
+bool Panel::IsFocused() const
 {
-	if (Parent()->ActivePanel() != this)
+	if (const auto FilePanels = Parent())
 	{
-		Parent()->ActivePanel()->KillFocus();
-		Parent()->SetActivePanel(this);
+		return this == FilePanels->ActivePanel().get();
 	}
-
-	Global->WindowManager->UpdateMacroArea();
-	ProcessPluginEvent(FE_GOTFOCUS,nullptr);
-
-	if (!GetFocus())
-	{
-		Parent()->RedrawKeyBar();
-		m_Focus = true;
-		Redraw();
-		FarChDir(m_CurDir);
-	}
+	return true;
 }
 
-
-void Panel::KillFocus()
+void Panel::OnFocusChange(bool Get)
 {
-	m_Focus = false;
-	ProcessPluginEvent(FE_KILLFOCUS,nullptr);
+	ProcessPluginEvent(Get? FE_GOTFOCUS : FE_KILLFOCUS, nullptr);
 	Redraw();
 }
 
-
-int  Panel::PanelProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
+bool Panel::IsMouseInClientArea(const MOUSE_EVENT_RECORD* MouseEvent)
 {
-	RetCode=TRUE;
+	return IsVisible() &&
+		InRange(m_X1, MouseEvent->dwMousePosition.X, m_X2) &&
+		InRange(m_Y1, MouseEvent->dwMousePosition.Y, m_Y2);
+}
 
-	if (!m_ModalMode && !MouseEvent->dwMousePosition.Y)
-	{
-		if (MouseEvent->dwMousePosition.X==ScrX)
-		{
-			if (Global->Opt->ScreenSaver && !(MouseEvent->dwButtonState & 3))
-			{
-				EndDrag();
-				ScreenSaver();
-				return TRUE;
-			}
-		}
-		else
-		{
-			if ((MouseEvent->dwButtonState & 3) && !MouseEvent->dwEventFlags)
-			{
-				EndDrag();
-
-				if (!MouseEvent->dwMousePosition.X)
-					Parent()->ProcessKey(Manager::Key(KEY_CTRLO));
-				else
-					Global->Opt->ShellOptions(false,MouseEvent);
-
-				return TRUE;
-			}
-		}
-	}
-
-	if (!IsVisible() ||
-	        (MouseEvent->dwMousePosition.X<m_X1 || MouseEvent->dwMousePosition.X>m_X2 ||
-	         MouseEvent->dwMousePosition.Y<m_Y1 || MouseEvent->dwMousePosition.Y>m_Y2))
-	{
-		RetCode=FALSE;
-		return TRUE;
-	}
-
+int  Panel::ProcessMouseDrag(const MOUSE_EVENT_RECORD *MouseEvent)
+{
 	if (DragX!=-1)
 	{
-		if (!(MouseEvent->dwButtonState & 3))
+		if (!(MouseEvent->dwButtonState & MOUSE_ANY_BUTTON_PRESSED))
 		{
 			EndDrag();
 
@@ -523,13 +477,12 @@ int  Panel::PanelProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 			return TRUE;
 		}
 
-		if ((MouseEvent->dwButtonState & 2) && !MouseEvent->dwEventFlags)
+		if (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED && !MouseEvent->dwEventFlags)
 			DragMove=!DragMove;
 
-		if (MouseEvent->dwButtonState & 1)
+		if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
 		{
-			if ((abs(MouseEvent->dwMousePosition.X-DragX)>15 || SrcDragPanel!=this) &&
-			        !m_ModalMode)
+			if ((abs(MouseEvent->dwMousePosition.X-DragX)>15 || SrcDragPanel!=this) && !m_ModalMode)
 			{
 				if (SrcDragPanel->GetSelCount()==1 && !DragSaveScr)
 				{
@@ -548,11 +501,7 @@ int  Panel::PanelProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 		}
 	}
 
-	if (!(MouseEvent->dwButtonState & 3))
-		return TRUE;
-
-	if ((MouseEvent->dwButtonState & 1) && !MouseEvent->dwEventFlags &&
-	        m_X2-m_X1<ScrX)
+	if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED && !MouseEvent->dwEventFlags && m_X2 - m_X1<ScrX)
 	{
 		DWORD FileAttr;
 		MoveToMouse(MouseEvent);
@@ -656,7 +605,7 @@ void Panel::InitCurDir(const string& CurDir)
 	{
 		m_CurDir = CurDir;
 
-		if (m_PanelMode!=PLUGIN_PANEL)
+		if (m_PanelMode != panel_mode::PLUGIN_PANEL)
 		{
 			PrepareDiskPath(m_CurDir);
 			if(!IsRootPath(m_CurDir))
@@ -686,12 +635,12 @@ void Panel::InitCurDir(const string& CurDir)
 */
 int Panel::SetCurPath()
 {
-	if (GetMode()==PLUGIN_PANEL)
+	if (GetMode() == panel_mode::PLUGIN_PANEL)
 		return TRUE;
 
 	const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 
-	if (AnotherPanel->GetType()!=PLUGIN_PANEL)
+	if (AnotherPanel->GetMode() != panel_mode::PLUGIN_PANEL)
 	{
 		if (AnotherPanel->m_CurDir.size() > 1 && AnotherPanel->m_CurDir[1]==L':' &&
 		        (m_CurDir.empty() || ToUpper(AnotherPanel->m_CurDir[0])!=ToUpper(m_CurDir[0])))
@@ -727,7 +676,7 @@ int Panel::SetCurPath()
 			if (Global->WindowManager->ManagerStarted()) // сначала проверим - а запущен ли менеджер
 			{
 				SetCurDir(Global->g_strFarPath,true);                    // если запущен - выставим путь который мы точно знаем что существует
-				ChangeDisk(this);                           // и вызовем меню выбора дисков
+				ChangeDisk(shared_from_this());                          // и вызовем меню выбора дисков
 			}
 			else                                               // оппа...
 			{
@@ -763,9 +712,9 @@ void Panel::Hide()
 
 	if (AnotherPanel->IsVisible())
 	{
-		if (AnotherPanel->GetFocus())
-			if ((AnotherPanel->GetType()==FILE_PANEL && AnotherPanel->IsFullScreen()) ||
-			        (GetType()==FILE_PANEL && IsFullScreen()))
+		//if (AnotherPanel->IsFocused())
+		if ((AnotherPanel->GetType() == panel_type::FILE_PANEL && AnotherPanel->IsFullScreen()) ||
+			(GetType() == panel_type::FILE_PANEL && IsFullScreen()))
 				AnotherPanel->Show();
 	}
 }
@@ -775,8 +724,6 @@ void Panel::Show()
 {
 	if (Locked())
 		return;
-
-	SCOPED_ACTION(DelayDestroy)(this);
 
 	if (!GetModalMode())
 	{
@@ -788,7 +735,7 @@ void Panel::Show()
 				SaveScr->AppendArea(AnotherPanel->SaveScr.get());
 			}
 
-			if (AnotherPanel->GetFocus())
+			//if (AnotherPanel->IsFocused())
 			{
 				if (AnotherPanel->IsFullScreen())
 				{
@@ -796,7 +743,7 @@ void Panel::Show()
 					return;
 				}
 
-				if (GetType() == FILE_PANEL && IsFullScreen())
+				if (GetType() == panel_type::FILE_PANEL && IsFullScreen())
 				{
 					ScreenObject::Show();
 					AnotherPanel->Show();
@@ -807,8 +754,7 @@ void Panel::Show()
 	}
 
 	ScreenObject::Show();
-	if (!Destroyed())
-		ShowScreensCount();
+	ShowScreensCount();
 }
 
 
@@ -855,7 +801,7 @@ void Panel::ShowScreensCount()
 
 void Panel::SetTitle()
 {
-	if (GetFocus())
+	if (IsFocused())
 	{
 		ConsoleTitle::SetFarTitle(L"{" + (m_CurDir.empty()? Parent()->GetCmdLine()->GetCurDir() : m_CurDir) + L"}");
 	}
@@ -864,7 +810,7 @@ void Panel::SetTitle()
 string Panel::GetTitle() const
 {
 	string strTitle;
-	if (m_PanelMode==PLUGIN_PANEL)
+	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
 	{
 		OpenPanelInfo Info;
 		GetOpenPanelInfo(&Info);
@@ -893,7 +839,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 	switch (Command)
 	{
 		case FCTL_SETVIEWMODE:
-			Result = Parent()->ChangePanelViewMode(this, Param1, Parent()->IsTopWindow());
+			Result = Parent()->ChangePanelViewMode(shared_from_this(), Param1, Parent()->IsTopWindow());
 			break;
 
 		case FCTL_SETSORTMODE:
@@ -902,7 +848,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 			if ((Mode>SM_DEFAULT) && (Mode<=SM_CHTIME))
 			{
-				SetSortMode(--Mode); // Уменьшим на 1 из-за SM_DEFAULT
+				SetSortMode(panel_sort::value_type(Mode - 1)); // Уменьшим на 1 из-за SM_DEFAULT
 				Result=TRUE;
 			}
 			break;
@@ -956,20 +902,20 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			Info->OwnerGuid=FarGuid;
 			Info->PluginHandle=nullptr;
 
-			switch (GetType())
+			switch (GetType().value())
 			{
-				case FILE_PANEL:
-					Info->PanelType=PTYPE_FILEPANEL;
-					break;
-				case TREE_PANEL:
-					Info->PanelType=PTYPE_TREEPANEL;
-					break;
-				case QVIEW_PANEL:
-					Info->PanelType=PTYPE_QVIEWPANEL;
-					break;
-				case INFO_PANEL:
-					Info->PanelType=PTYPE_INFOPANEL;
-					break;
+			case panel_type::FILE_PANEL:
+				Info->PanelType=PTYPE_FILEPANEL;
+				break;
+			case panel_type::TREE_PANEL:
+				Info->PanelType=PTYPE_TREEPANEL;
+				break;
+			case panel_type::QVIEW_PANEL:
+				Info->PanelType=PTYPE_QVIEWPANEL;
+				break;
+			case panel_type::INFO_PANEL:
+				Info->PanelType=PTYPE_INFOPANEL;
+				break;
 			}
 
 			int X1,Y1,X2,Y2;
@@ -979,7 +925,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			Info->PanelRect.right=X2;
 			Info->PanelRect.bottom=Y2;
 			Info->ViewMode=GetViewMode();
-			Info->SortMode=static_cast<OPENPANELINFO_SORTMODES>(SM_UNSORTED-UNSORTED+GetSortMode());
+			Info->SortMode = static_cast<OPENPANELINFO_SORTMODES>(SM_UNSORTED - panel_sort::UNSORTED + GetSortMode().value());
 
 			Info->Flags |= Global->Opt->ShowHidden? PFLAGS_SHOWHIDDEN : 0;
 			Info->Flags |= Global->Opt->Highlight? PFLAGS_HIGHLIGHT : 0;
@@ -989,12 +935,12 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			Info->Flags |= GetDirectoriesFirst()? PFLAGS_DIRECTORIESFIRST : 0;
 			Info->Flags |= GetNumericSort()? PFLAGS_NUMERICSORT : 0;
 			Info->Flags |= GetCaseSensitiveSort()? PFLAGS_CASESENSITIVESORT : 0;
-			Info->Flags |= (GetMode()==PLUGIN_PANEL)? PFLAGS_PLUGIN : 0;
+			Info->Flags |= (GetMode() == panel_mode::PLUGIN_PANEL)? PFLAGS_PLUGIN : 0;
 			Info->Flags |= IsVisible()? PFLAGS_VISIBLE : 0;
-			Info->Flags |= GetFocus()? PFLAGS_FOCUS : 0;
-			Info->Flags |= this == Parent()->LeftPanel ? PFLAGS_PANELLEFT : 0;
+			Info->Flags |= IsFocused()? PFLAGS_FOCUS : 0;
+			Info->Flags |= Parent()->IsLeft(this)? PFLAGS_PANELLEFT : 0;
 
-			if (GetType()==FILE_PANEL)
+			if (GetType() == panel_type::FILE_PANEL)
 			{
 				FileList *DestFilePanel=(FileList *)this;
 
@@ -1039,7 +985,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 		{
 			string strTemp;
 
-			if (GetType()==FILE_PANEL && GetMode() == PLUGIN_PANEL)
+			if (GetType() == panel_type::FILE_PANEL && GetMode() == panel_mode::PLUGIN_PANEL)
 			{
 				PluginInfo PInfo = {sizeof(PInfo)};
 				FileList *DestPanel = ((FileList*)this);
@@ -1059,12 +1005,12 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 		{
 			string strTemp;
 
-			if (GetType()==FILE_PANEL)
+			if (GetType() == panel_type::FILE_PANEL)
 			{
 				FileList *DestFilePanel=(FileList *)this;
 				static int Reenter=0;
 
-				if (!Reenter && GetMode()==PLUGIN_PANEL)
+				if (!Reenter && GetMode() == panel_mode::PLUGIN_PANEL)
 				{
 					Reenter++;
 
@@ -1126,7 +1072,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 		case FCTL_GETCOLUMNTYPES:
 		case FCTL_GETCOLUMNWIDTHS:
 
-			if (GetType()==FILE_PANEL)
+			if (GetType() == panel_type::FILE_PANEL)
 			{
 				string strColumnTypes,strColumnWidths;
 				((FileList *)this)->PluginGetColumnTypesAndWidths(strColumnTypes,strColumnWidths);
@@ -1150,21 +1096,21 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 		case FCTL_GETPANELITEM:
 		{
-			if (GetType()==FILE_PANEL && CheckNullOrStructSize(static_cast<FarGetPluginPanelItem*>(Param2)))
+			if (GetType() == panel_type::FILE_PANEL && CheckNullOrStructSize(static_cast<FarGetPluginPanelItem*>(Param2)))
 				Result = static_cast<int>(static_cast<FileList*>(this)->PluginGetPanelItem(Param1, static_cast<FarGetPluginPanelItem*>(Param2)));
 			break;
 		}
 
 		case FCTL_GETSELECTEDPANELITEM:
 		{
-			if (GetType() == FILE_PANEL && CheckNullOrStructSize(static_cast<FarGetPluginPanelItem*>(Param2)))
+			if (GetType() == panel_type::FILE_PANEL && CheckNullOrStructSize(static_cast<FarGetPluginPanelItem*>(Param2)))
 				Result = static_cast<int>(static_cast<FileList*>(this)->PluginGetSelectedPanelItem(Param1, static_cast<FarGetPluginPanelItem*>(Param2)));
 			break;
 		}
 
 		case FCTL_GETCURRENTPANELITEM:
 		{
-			if (GetType() == FILE_PANEL && CheckNullOrStructSize(static_cast<FarGetPluginPanelItem*>(Param2)))
+			if (GetType() == panel_type::FILE_PANEL && CheckNullOrStructSize(static_cast<FarGetPluginPanelItem*>(Param2)))
 			{
 				PanelInfo Info;
 				const auto DestPanel = static_cast<FileList*>(this);
@@ -1176,7 +1122,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 		case FCTL_BEGINSELECTION:
 		{
-			if (GetType()==FILE_PANEL)
+			if (GetType() == panel_type::FILE_PANEL)
 			{
 				((FileList *)this)->PluginBeginSelection();
 				Result=TRUE;
@@ -1186,7 +1132,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 		case FCTL_SETSELECTION:
 		{
-			if (GetType()==FILE_PANEL)
+			if (GetType() == panel_type::FILE_PANEL)
 			{
 				((FileList *)this)->PluginSetSelection(Param1, Param2 != nullptr);
 				Result=TRUE;
@@ -1196,7 +1142,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 		case FCTL_CLEARSELECTION:
 		{
-			if (GetType()==FILE_PANEL)
+			if (GetType() == panel_type::FILE_PANEL)
 			{
 				static_cast<FileList*>(this)->PluginClearSelection(Param1);
 				Result=TRUE;
@@ -1206,7 +1152,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 		case FCTL_ENDSELECTION:
 		{
-			if (GetType()==FILE_PANEL)
+			if (GetType() == panel_type::FILE_PANEL)
 			{
 				((FileList *)this)->PluginEndSelection();
 				Result=TRUE;
@@ -1217,7 +1163,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 		case FCTL_UPDATEPANEL:
 			Update(Param1?UPDATE_KEEP_SELECTION:0);
 
-			if (GetType() == QVIEW_PANEL)
+			if (GetType() == panel_type::QVIEW_PANEL)
 				UpdateViewPanel();
 
 			Result=TRUE;
@@ -1251,10 +1197,9 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				// restore current directory to active panel path
 				if (Result)
 				{
-					const auto ActivePanel = Parent()->ActivePanel();
-					if (this != ActivePanel)
+					if (!IsFocused())
 					{
-						ActivePanel->SetCurPath();
+						Parent()->ActivePanel()->SetCurPath();
 					}
 				}
 			}
@@ -1265,7 +1210,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 		{
 			if (IsVisible())
 			{
-				SetFocus();
+				Parent()->SetActivePanel(this);
 				Result=TRUE;
 			}
 			break;
@@ -1305,7 +1250,7 @@ BOOL Panel::NeedUpdatePanel(const Panel *AnotherPanel)
 bool Panel::GetShortcutInfo(ShortcutInfo& ShortcutInfo) const
 {
 	bool result=true;
-	if (m_PanelMode==PLUGIN_PANEL)
+	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
 	{
 		const auto ph = GetPluginHandle();
 		ShortcutInfo.PluginGuid = ph->pPlugin->GetGUID();
@@ -1390,25 +1335,22 @@ bool Panel::ExecShortcutFolder(int Pos, bool raw)
 
 bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid, const string& strPluginFile, const string& strPluginData, bool CheckType, bool TryClosest, bool Silent)
 {
-	auto SrcPanel = this;
+	auto SrcPanel = shared_from_this();
 	const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 
 	if(CheckType)
 	{
-		switch (GetType())
+		switch (GetType().value())
 		{
-			case TREE_PANEL:
-				if (AnotherPanel->GetType()==FILE_PANEL)
-					SrcPanel=AnotherPanel;
-				break;
+		case panel_type::FILE_PANEL:
+			break;
 
-			case QVIEW_PANEL:
-			case INFO_PANEL:
-			{
-				if (AnotherPanel->GetType()==FILE_PANEL)
-					SrcPanel=AnotherPanel;
-				break;
-			}
+		case panel_type::TREE_PANEL:
+		case panel_type::QVIEW_PANEL:
+		case panel_type::INFO_PANEL:
+			if (AnotherPanel->GetType() == panel_type::FILE_PANEL)
+				SrcPanel=AnotherPanel;
+			break;
 		}
 	}
 
@@ -1439,20 +1381,19 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid
 					}
 				}
 
+				const auto IsActive = SrcPanel->IsFocused();
 				OpenShortcutInfo info=
 				{
 					sizeof(OpenShortcutInfo),
 					strPluginFile.empty()?nullptr:strPluginFile.data(),
 					strPluginData.empty()?nullptr:strPluginData.data(),
-					(SrcPanel == Parent()->ActivePanel()) ? FOSF_ACTIVE : FOSF_NONE
+					IsActive? FOSF_ACTIVE : FOSF_NONE
 				};
 
 				if (const auto hNewPlugin = Global->CtrlObject->Plugins->Open(pPlugin, OPEN_SHORTCUT, FarGuid, (intptr_t)&info))
 				{
-					int CurFocus=SrcPanel->GetFocus();
-
-					const auto NewPanel = Parent()->ChangePanel(SrcPanel, FILE_PANEL, TRUE, TRUE);
-					NewPanel->SetPluginMode(hNewPlugin, L"", CurFocus || !Parent()->GetAnotherPanel(NewPanel)->IsVisible());
+					const auto NewPanel = Parent()->ChangePanel(SrcPanel, panel_type::FILE_PANEL, TRUE, TRUE);
+					NewPanel->SetPluginMode(hNewPlugin, L"", IsActive || !Parent()->GetAnotherPanel(NewPanel)->IsVisible());
 
 					if (!strShortcutFolder.empty())
 					{

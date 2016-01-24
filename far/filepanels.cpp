@@ -60,19 +60,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "diskmenu.hpp"
 
 FilePanels::FilePanels(private_tag):
-	LastLeftFilePanel(),
-	LastRightFilePanel(),
-	LeftPanel(),
-	RightPanel(),
-	LastLeftType(),
-	LastRightType(),
-	LeftStateBeforeHide(),
-	RightStateBeforeHide(),
-	m_ActivePanel()
+	m_ActivePanelIndex(panel_left)
 {
 }
 
-filepanels_ptr FilePanels::create(bool CreatePanels, int DirCount)
+filepanels_ptr FilePanels::create(bool CreateRealPanels, int DirCount)
 {
 	const auto FilePanelsPtr = std::make_shared<FilePanels>(private_tag());
 
@@ -80,11 +72,16 @@ filepanels_ptr FilePanels::create(bool CreatePanels, int DirCount)
 	FilePanelsPtr->SetMacroMode(MACROAREA_SHELL);
 	FilePanelsPtr->m_KeyBarVisible = Global->Opt->ShowKeyBar;
 
-	if (CreatePanels)
+	if (CreateRealPanels)
 	{
-		FilePanelsPtr->LeftPanel = FilePanelsPtr->CreatePanel(Global->Opt->LeftPanel.m_Type);
-		FilePanelsPtr->RightPanel = FilePanelsPtr->CreatePanel(Global->Opt->RightPanel.m_Type);
+		FilePanelsPtr->m_Panels[panel_left].m_Panel = FilePanelsPtr->CreatePanel(panel_type::value_type(Global->Opt->LeftPanel.m_Type.Get()));
+		FilePanelsPtr->m_Panels[panel_right].m_Panel = FilePanelsPtr->CreatePanel(panel_type::value_type(Global->Opt->RightPanel.m_Type.Get()));
 		FilePanelsPtr->Init(DirCount);
+	}
+	else
+	{
+		FilePanelsPtr->m_Panels[panel_left].m_Panel.reset(new dummy_panel(FilePanelsPtr));
+		FilePanelsPtr->m_Panels[panel_right].m_Panel.reset(new dummy_panel(FilePanelsPtr));
 	}
 	return FilePanelsPtr;
 }
@@ -124,125 +121,114 @@ void FilePanels::Init(int DirCount)
 	CmdLine = std::make_unique<CommandLine>(shared_from_this());
 	TopMenuBar = std::make_unique<MenuBar>(shared_from_this());
 
-	SetPanelPositions(FileList::IsModeFullScreen(Global->Opt->LeftPanel.ViewMode),
-	                  FileList::IsModeFullScreen(Global->Opt->RightPanel.ViewMode));
-	LeftPanel->SetViewMode(Global->Opt->LeftPanel.ViewMode);
-	RightPanel->SetViewMode(Global->Opt->RightPanel.ViewMode);
+	m_ActivePanelIndex = Global->Opt->LeftFocus? panel_left : panel_right;
 
-	if (Global->Opt->LeftPanel.SortMode < SORTMODE_COUNT)
-		LeftPanel->SetSortMode(Global->Opt->LeftPanel.SortMode);
+	const auto Left = std::pair<panel_ptr, Options::PanelOptions&>(LeftPanel(), Global->Opt->LeftPanel);
+	const auto Right = std::pair<panel_ptr, Options::PanelOptions&>(RightPanel(), Global->Opt->RightPanel);
 
-	if (Global->Opt->RightPanel.SortMode < SORTMODE_COUNT)
-		RightPanel->SetSortMode(Global->Opt->RightPanel.SortMode);
+	SetPanelPositions(FileList::IsModeFullScreen(Left.second.ViewMode),
+	                  FileList::IsModeFullScreen(Right.second.ViewMode));
 
-	LeftPanel->SetNumericSort(Global->Opt->LeftPanel.NumericSort);
-	RightPanel->SetNumericSort(Global->Opt->RightPanel.NumericSort);
-	LeftPanel->SetCaseSensitiveSort(Global->Opt->LeftPanel.CaseSensitiveSort);
-	RightPanel->SetCaseSensitiveSort(Global->Opt->RightPanel.CaseSensitiveSort);
-	LeftPanel->SetSortOrder(Global->Opt->LeftPanel.ReverseSortOrder);
-	RightPanel->SetSortOrder(Global->Opt->RightPanel.ReverseSortOrder);
-	LeftPanel->SetSortGroups(Global->Opt->LeftPanel.SortGroups);
-	RightPanel->SetSortGroups(Global->Opt->RightPanel.SortGroups);
-	LeftPanel->SetShowShortNamesMode(Global->Opt->LeftPanel.ShowShortNames);
-	RightPanel->SetShowShortNamesMode(Global->Opt->RightPanel.ShowShortNames);
-	LeftPanel->SetSelectedFirstMode(Global->Opt->LeftPanel.SelectedFirst);
-	RightPanel->SetSelectedFirstMode(Global->Opt->RightPanel.SelectedFirst);
-	LeftPanel->SetDirectoriesFirst(Global->Opt->LeftPanel.DirectoriesFirst);
-	RightPanel->SetDirectoriesFirst(Global->Opt->RightPanel.DirectoriesFirst);
-	SetCanLoseFocus(TRUE);
-	Panel *PassivePanel=nullptr;
-	int PassiveIsLeftFlag=TRUE;
-
-	if (Global->Opt->LeftFocus)
+	const auto InitPanel = [](const std::pair<panel_ptr, const Options::PanelOptions&>& Params)
 	{
-		m_ActivePanel = LeftPanel;
-		PassivePanel=RightPanel;
-		PassiveIsLeftFlag=FALSE;
-	}
-	else
-	{
-		m_ActivePanel = RightPanel;
-		PassivePanel=LeftPanel;
-		PassiveIsLeftFlag=TRUE;
-	}
+		Params.first->SetViewMode(Params.second.ViewMode);
 
-	m_ActivePanel->SetFocus();
-	// пытаемся избавится от зависания при запуске
-	int IsLocalPath_FarPath = ParsePath(Global->g_strFarPath)==PATH_DRIVELETTER;
-	string strLeft = Global->Opt->LeftPanel.Folder.Get(), strRight = Global->Opt->RightPanel.Folder.Get();
-	PrepareOptFolder(strLeft, IsLocalPath_FarPath);
-	PrepareOptFolder(strRight, IsLocalPath_FarPath);
-	Global->Opt->LeftPanel.Folder = strLeft;
-	Global->Opt->RightPanel.Folder = strRight;
+		if (Params.second.SortMode < panel_sort::COUNT)
+			Params.first->SetSortMode(panel_sort::value_type(Params.second.SortMode.Get()));
 
-	const auto InitCurDir_checked = [&](const std::pair<Panel*, const Options::PanelOptions&>& Params)
-	{
-		Params.first->InitCurDir(os::fs::exists(Params.second.Folder.Get()) ? Params.second.Folder.Get() : Global->g_strFarPath);
+		Params.first->SetNumericSort(Params.second.NumericSort);
+		Params.first->SetCaseSensitiveSort(Params.second.CaseSensitiveSort);
+		Params.first->SetSortOrder(Params.second.ReverseSortOrder);
+		Params.first->SetSortGroups(Params.second.SortGroups);
+		Params.first->SetShowShortNamesMode(Params.second.ShowShortNames);
+		Params.first->SetSelectedFirstMode(Params.second.SelectedFirst);
+		Params.first->SetDirectoriesFirst(Params.second.DirectoriesFirst);
 	};
 
-	const auto LeftSet = std::make_pair(LeftPanel, Global->Opt->LeftPanel);
-	const auto RightSet = std::make_pair(RightPanel, Global->Opt->RightPanel);
+	InitPanel(Left);
+	InitPanel(Right);
+
+	SetCanLoseFocus(TRUE);
+
+	SetActivePanelInternal(ActivePanel());
+
+	// пытаемся избавится от зависания при запуске
+	int IsLocalPath_FarPath = ParsePath(Global->g_strFarPath)==PATH_DRIVELETTER;
+
+	const auto SetFolder = [&](const std::pair<panel_ptr, Options::PanelOptions&>& Params)
+	{
+		auto Folder = Params.second.Folder.Get();
+		PrepareOptFolder(Folder, IsLocalPath_FarPath);
+		Params.second.Folder = Folder;
+	};
+	SetFolder(Left);
+	SetFolder(Right);
+
+	const auto InitCurDir_checked = [&](const std::pair<panel_ptr, const Options::PanelOptions&>& Params)
+	{
+		Params.first->InitCurDir(os::fs::exists(Params.second.Folder.Get())? Params.second.Folder.Get() : Global->g_strFarPath);
+	};
 
 	if (Global->Opt->AutoSaveSetup || !DirCount)
 	{
-		InitCurDir_checked(LeftSet);
-		InitCurDir_checked(RightSet);
+		InitCurDir_checked(Left);
+		InitCurDir_checked(Right);
 	}
 
 	if (!Global->Opt->AutoSaveSetup)
 	{
 		if (DirCount >= 1)
 		{
-			InitCurDir_checked(m_ActivePanel == RightPanel? RightSet : LeftSet);
+			InitCurDir_checked(IsRightActive()? Right : Left);
 
 			if (DirCount == 2)
 			{
-				InitCurDir_checked(m_ActivePanel == LeftPanel? RightSet : LeftSet);
+				InitCurDir_checked(IsLeftActive()? Right : Left);
 			}
 		}
 
-		const string& PassiveFolder=PassiveIsLeftFlag?Global->Opt->LeftPanel.Folder:Global->Opt->RightPanel.Folder;
+		const string& PassiveFolder = m_ActivePanelIndex == panel_right? Left.second.Folder : Right.second.Folder;
 
 		if (DirCount < 2 && !PassiveFolder.empty() && os::fs::exists(PassiveFolder))
 		{
-			PassivePanel->InitCurDir(PassiveFolder);
+			PassivePanel()->InitCurDir(PassiveFolder);
 		}
 	}
 
 #if 1
 
 	//! Вначале "показываем" пассивную панель
-	if (PassiveIsLeftFlag)
+	if (m_ActivePanelIndex == panel_right)
 	{
-		if (Global->Opt->LeftPanel.Visible)
+		if (Left.second.Visible)
 		{
-			LeftPanel->Show();
+			Left.first->Show();
 		}
 
-		if (Global->Opt->RightPanel.Visible)
+		if (Right.second.Visible)
 		{
-			RightPanel->Show();
+			Right.first->Show();
 		}
 	}
 	else
 	{
-		if (Global->Opt->RightPanel.Visible)
+		if (Right.second.Visible)
 		{
-			RightPanel->Show();
+			Right.first->Show();
 		}
 
-		if (Global->Opt->LeftPanel.Visible)
+		if (Left.second.Visible)
 		{
-			LeftPanel->Show();
+			Left.first->Show();
 		}
 	}
 
 #endif
 
 	// при погашенных панелях не забыть бы выставить корректно каталог в CmdLine
-	if (!Global->Opt->RightPanel.Visible && !Global->Opt->LeftPanel.Visible)
+	if (!Right.second.Visible && !Left.second.Visible)
 	{
-		CmdLine->SetCurDir(PassiveIsLeftFlag?Global->Opt->RightPanel.Folder:Global->Opt->LeftPanel.Folder);
+		CmdLine->SetCurDir(m_ActivePanelIndex == panel_right? Right.second.Folder : Left.second.Folder);
 	}
 
 	SetScreenPosition();
@@ -250,18 +236,6 @@ void FilePanels::Init(int DirCount)
 
 FilePanels::~FilePanels()
 {
-	_OT(SysLog(L"[%p] FilePanels::~FilePanels()", this));
-
-	if (LastLeftFilePanel!=LeftPanel && LastLeftFilePanel!=RightPanel)
-		DeletePanel(LastLeftFilePanel);
-
-	if (LastRightFilePanel!=LeftPanel && LastRightFilePanel!=RightPanel)
-		DeletePanel(LastRightFilePanel);
-
-	DeletePanel(LeftPanel);
-	LeftPanel=nullptr;
-	DeletePanel(RightPanel);
-	RightPanel=nullptr;
 }
 
 void FilePanels::SetPanelPositions(bool LeftFullScreen, bool RightFullScreen)
@@ -275,24 +249,27 @@ void FilePanels::SetPanelPositions(bool LeftFullScreen, bool RightFullScreen)
 	Global->Opt->LeftHeightDecrement=std::max(0ll, std::min(Global->Opt->LeftHeightDecrement.Get(), ScrY-7ll));
 	Global->Opt->RightHeightDecrement=std::max(0ll, std::min(Global->Opt->RightHeightDecrement.Get(), ScrY-7ll));
 
+	const auto Left = LeftPanel();
+	const auto Right = RightPanel();
+
 	if (LeftFullScreen)
 	{
-		LeftPanel->SetPosition(0,Global->Opt->ShowMenuBar?1:0,ScrX,ScrY-1-(Global->Opt->ShowKeyBar)-Global->Opt->LeftHeightDecrement);
-		LeftPanel->SetFullScreen();
+		Left->SetPosition(0,Global->Opt->ShowMenuBar?1:0,ScrX,ScrY-1-(Global->Opt->ShowKeyBar)-Global->Opt->LeftHeightDecrement);
+		Left->SetFullScreen();
 	}
 	else
 	{
-		LeftPanel->SetPosition(0,Global->Opt->ShowMenuBar?1:0,ScrX/2-Global->Opt->WidthDecrement,ScrY-1-(Global->Opt->ShowKeyBar)-Global->Opt->LeftHeightDecrement);
+		Left->SetPosition(0,Global->Opt->ShowMenuBar?1:0,ScrX/2-Global->Opt->WidthDecrement,ScrY-1-(Global->Opt->ShowKeyBar)-Global->Opt->LeftHeightDecrement);
 	}
 
 	if (RightFullScreen)
 	{
-		RightPanel->SetPosition(0,Global->Opt->ShowMenuBar?1:0,ScrX,ScrY-1-(Global->Opt->ShowKeyBar)-Global->Opt->RightHeightDecrement);
-		RightPanel->SetFullScreen();
+		Right->SetPosition(0,Global->Opt->ShowMenuBar?1:0,ScrX,ScrY-1-(Global->Opt->ShowKeyBar)-Global->Opt->RightHeightDecrement);
+		Right->SetFullScreen();
 	}
 	else
 	{
-		RightPanel->SetPosition(ScrX/2+1-Global->Opt->WidthDecrement,Global->Opt->ShowMenuBar?1:0,ScrX,ScrY-1-(Global->Opt->ShowKeyBar)-Global->Opt->RightHeightDecrement);
+		Right->SetPosition(ScrX/2+1-Global->Opt->WidthDecrement,Global->Opt->ShowMenuBar?1:0,ScrX,ScrY-1-(Global->Opt->ShowKeyBar)-Global->Opt->RightHeightDecrement);
 	}
 }
 
@@ -302,77 +279,57 @@ void FilePanels::SetScreenPosition()
 	CmdLine->SetPosition(0,ScrY-(Global->Opt->ShowKeyBar),ScrX-1,ScrY-(Global->Opt->ShowKeyBar));
 	TopMenuBar->SetPosition(0, 0, ScrX, 0);
 	m_windowKeyBar->SetPosition(0, ScrY, ScrX, ScrY);
-	SetPanelPositions(LeftPanel->IsFullScreen(),RightPanel->IsFullScreen());
+	SetPanelPositions(LeftPanel()->IsFullScreen(), RightPanel()->IsFullScreen());
 	SetPosition(0,0,ScrX,ScrY);
 }
 
 void FilePanels::RedrawKeyBar()
 {
-	m_ActivePanel->UpdateKeyBar();
+	ActivePanel()->UpdateKeyBar();
 	m_windowKeyBar->Redraw();
 }
 
 
-Panel* FilePanels::CreatePanel(int Type)
+panel_ptr FilePanels::CreatePanel(panel_type Type)
 {
-	Panel *pResult = nullptr;
-
-	switch (Type)
+	switch (Type.value())
 	{
-		case FILE_PANEL:
-			pResult = new FileList(shared_from_this());
-			break;
-		case TREE_PANEL:
-			pResult = new TreeList(shared_from_this());
-			break;
-		case QVIEW_PANEL:
-			pResult = new QuickView(shared_from_this());
-			break;
-		case INFO_PANEL:
-			pResult = new InfoList(shared_from_this());
-			break;
+	default:
+	case panel_type::FILE_PANEL:
+		return FileList::create(shared_from_this());
+	case panel_type::TREE_PANEL:
+		return TreeList::create(shared_from_this());
+	case panel_type::QVIEW_PANEL:
+		return QuickView::create(shared_from_this());
+	case panel_type::INFO_PANEL:
+		return InfoList::create(shared_from_this());
 	}
-
-	return pResult;
-}
-
-
-void FilePanels::DeletePanel(Panel *Deleted)
-{
-	if (!Deleted)
-		return;
-
-	if (Deleted==LastLeftFilePanel)
-		LastLeftFilePanel=nullptr;
-
-	if (Deleted==LastRightFilePanel)
-		LastRightFilePanel=nullptr;
-
-	Deleted->Destroy();
 }
 
 int FilePanels::SetAnhoterPanelFocus()
 {
-	int Ret=FALSE;
+	bool Result = false;
 
-	if (m_ActivePanel == LeftPanel)
+	if (IsLeftActive())
 	{
-		if (RightPanel->IsVisible())
+		const auto Right = RightPanel();
+		if (Right->IsVisible())
 		{
-			RightPanel->SetFocus();
-			Ret=TRUE;
+			SetActivePanel(Right);
+			Result = true;
 		}
 	}
 	else
 	{
-		if (LeftPanel->IsVisible())
+		const auto Left = LeftPanel();
+		if (Left->IsVisible())
 		{
-			LeftPanel->SetFocus();
-			Ret=TRUE;
+			SetActivePanel(Left);
+			Result = true;
 		}
 	}
 
-	return Ret;
+	return Result;
 }
 
 
@@ -380,14 +337,14 @@ int FilePanels::SwapPanels()
 {
 	int Ret=FALSE; // это значит ни одна из панелей не видна
 
-	if (LeftPanel->IsVisible() || RightPanel->IsVisible())
+	if (LeftPanel()->IsVisible() || RightPanel()->IsVisible())
 	{
 		int XL1,YL1,XL2,YL2;
 		int XR1,YR1,XR2,YR2;
-		LeftPanel->GetPosition(XL1,YL1,XL2,YL2);
-		RightPanel->GetPosition(XR1,YR1,XR2,YR2);
+		LeftPanel()->GetPosition(XL1,YL1,XL2,YL2);
+		RightPanel()->GetPosition(XR1,YR1,XR2,YR2);
 
-		if (!LeftPanel->IsFullScreen() || !RightPanel->IsFullScreen())
+		if (!LeftPanel()->IsFullScreen() || !RightPanel()->IsFullScreen())
 		{
 			Global->Opt->WidthDecrement=-Global->Opt->WidthDecrement;
 
@@ -398,9 +355,10 @@ int FilePanels::SwapPanels()
 		}
 
 		using std::swap;
-		swap(LeftPanel, RightPanel);
-		swap(LastLeftFilePanel, LastRightFilePanel);
-		swap(LastLeftType, LastRightType);
+		swap(m_Panels[panel_left].m_Panel, m_Panels[panel_right].m_Panel);
+		swap(m_Panels[panel_left].m_LastFilePanel, m_Panels[panel_right].m_LastFilePanel);
+		swap(m_Panels[panel_left].m_LastType, m_Panels[panel_right].m_LastType);
+		swap(m_Panels[panel_left].m_StateBeforeHide, m_Panels[panel_right].m_StateBeforeHide);
 		FileFilter::SwapFilter();
 		Ret=TRUE;
 	}
@@ -441,7 +399,7 @@ __int64 FilePanels::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		}
 		return PrevMode;
 	}
-	return m_ActivePanel->VMProcess(OpCode, vParam, iParam);
+	return ActivePanel()->VMProcess(OpCode, vParam, iParam);
 }
 
 int FilePanels::ProcessKey(const Manager::Key& Key)
@@ -454,7 +412,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		|| LocalKey==KEY_RCTRLLEFT || LocalKey==KEY_RCTRLRIGHT || LocalKey==KEY_RCTRLNUMPAD4 || LocalKey==KEY_RCTRLNUMPAD6
 	        /* || LocalKey==KEY_CTRLUP   || LocalKey==KEY_CTRLDOWN || LocalKey==KEY_CTRLNUMPAD8 || LocalKey==KEY_CTRLNUMPAD2 */) &&
 	        (CmdLine->GetLength()>0 ||
-	         (!LeftPanel->IsVisible() && !RightPanel->IsVisible())))
+			(!LeftPanel()->IsVisible() && !RightPanel()->IsVisible())))
 	{
 		CmdLine->ProcessKey(Key);
 		return TRUE;
@@ -464,7 +422,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 	{
 		case KEY_F1:
 		{
-			if (!m_ActivePanel->ProcessKey(Manager::Key(KEY_F1)))
+			if (!ActivePanel()->ProcessKey(Manager::Key(KEY_F1)))
 			{
 				Help::create(L"Contents");
 			}
@@ -479,19 +437,19 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLF1:
 		case KEY_RCTRLF1:
 		{
-			if (LeftPanel->IsVisible())
+			if (LeftPanel()->IsVisible())
 			{
-				LeftPanel->Hide();
+				LeftPanel()->Hide();
 
-				if (RightPanel->IsVisible())
-					RightPanel->SetFocus();
+				if (RightPanel()->IsVisible())
+					SetActivePanel(RightPanel());
 			}
 			else
 			{
-				if (!RightPanel->IsVisible())
-					LeftPanel->SetFocus();
+				if (!RightPanel()->IsVisible())
+					SetActivePanel(LeftPanel());
 
-				LeftPanel->Show();
+				LeftPanel()->Show();
 			}
 
 			Redraw();
@@ -500,19 +458,19 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLF2:
 		case KEY_RCTRLF2:
 		{
-			if (RightPanel->IsVisible())
+			if (RightPanel()->IsVisible())
 			{
-				RightPanel->Hide();
+				RightPanel()->Hide();
 
-				if (LeftPanel->IsVisible())
-					LeftPanel->SetFocus();
+				if (LeftPanel()->IsVisible())
+					SetActivePanel(LeftPanel());
 			}
 			else
 			{
-				if (!LeftPanel->IsVisible())
-					RightPanel->SetFocus();
+				if (!LeftPanel()->IsVisible())
+					SetActivePanel(RightPanel());
 
-				RightPanel->Show();
+				RightPanel()->Show();
 			}
 
 			Redraw();
@@ -537,20 +495,20 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLL: case KEY_RCTRLL:
 		case KEY_CTRLQ: case KEY_RCTRLQ:
 		{
-			if (m_ActivePanel->IsVisible())
+			if (ActivePanel()->IsVisible())
 			{
-				Panel *AnotherPanel = PassivePanel();
-				int NewType;
+				auto AnotherPanel = PassivePanel();
+				panel_type NewType = panel_type::FILE_PANEL;
 
 				if (LocalKey==KEY_CTRLL || LocalKey==KEY_RCTRLL)
-					NewType=INFO_PANEL;
+					NewType = panel_type::INFO_PANEL;
 				else if (LocalKey==KEY_CTRLQ || LocalKey==KEY_RCTRLQ)
-					NewType=QVIEW_PANEL;
+					NewType = panel_type::QVIEW_PANEL;
 				else
-					NewType=TREE_PANEL;
+					NewType = panel_type::TREE_PANEL;
 
-				if (m_ActivePanel->GetType() == NewType)
-					AnotherPanel = m_ActivePanel;
+				if (ActivePanel()->GetType() == NewType)
+					AnotherPanel = ActivePanel();
 
 				if (!AnotherPanel->ProcessPluginEvent(FE_CLOSE,nullptr))
 				{
@@ -558,15 +516,15 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 						/* $ 19.09.2000 IS
 						  Повторное нажатие на ctrl-l|q|t всегда включает файловую панель
 						*/
-						AnotherPanel=ChangePanel(AnotherPanel,FILE_PANEL,FALSE,FALSE);
+						AnotherPanel = ChangePanel(AnotherPanel, panel_type::FILE_PANEL, FALSE, FALSE);
 					else
 						AnotherPanel=ChangePanel(AnotherPanel,NewType,FALSE,FALSE);
 
 					/* $ 07.09.2001 VVM
 					  ! При возврате из CTRL+Q, CTRL+L восстановим каталог, если активная панель - дерево. */
-					if (m_ActivePanel->GetType() == TREE_PANEL)
+					if (ActivePanel()->GetType() == panel_type::TREE_PANEL)
 					{
-						string strCurDir(m_ActivePanel->GetCurDir());
+						string strCurDir(ActivePanel()->GetCurDir());
 						AnotherPanel->SetCurDir(strCurDir, true);
 						AnotherPanel->Update(0);
 					}
@@ -575,8 +533,6 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 
 					AnotherPanel->Show();
 				}
-
-				m_ActivePanel->SetFocus();
 			}
 
 			break;
@@ -585,35 +541,32 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_RCTRLO:
 		{
 			{
-				int LeftVisible=LeftPanel->IsVisible();
-				int RightVisible=RightPanel->IsVisible();
+				int LeftVisible = LeftPanel()->IsVisible();
+				int RightVisible = RightPanel()->IsVisible();
 				int HideState=!LeftVisible && !RightVisible;
 
 				if (!HideState)
 				{
-					LeftStateBeforeHide=LeftVisible;
-					RightStateBeforeHide=RightVisible;
-					LeftPanel->Hide();
-					RightPanel->Hide();
+					m_Panels[panel_left].m_StateBeforeHide = LeftVisible;
+					m_Panels[panel_right].m_StateBeforeHide = RightVisible;
+					LeftPanel()->Hide();
+					RightPanel()->Hide();
 					Global->WindowManager->RefreshWindow();
 				}
 				else
 				{
-					if (!LeftStateBeforeHide && !RightStateBeforeHide)
-						LeftStateBeforeHide=RightStateBeforeHide=TRUE;
+					if (!m_Panels[panel_left].m_StateBeforeHide && !m_Panels[panel_right].m_StateBeforeHide)
+						m_Panels[panel_left].m_StateBeforeHide = m_Panels[panel_right].m_StateBeforeHide = TRUE;
 
-					if (LeftStateBeforeHide)
-						LeftPanel->Show();
+					if (m_Panels[panel_left].m_StateBeforeHide)
+						LeftPanel()->Show();
 
-					if (RightStateBeforeHide)
-						RightPanel->Show();
+					if (m_Panels[panel_right].m_StateBeforeHide)
+						RightPanel()->Show();
 
-					if (!m_ActivePanel->IsVisible())
+					if (!ActivePanel()->IsVisible())
 					{
-						if (m_ActivePanel == RightPanel)
-							LeftPanel->SetFocus();
-						else
-							RightPanel->SetFocus();
+						SetActivePanel(IsRightActive()? LeftPanel() : RightPanel());
 					}
 				}
 			}
@@ -622,9 +575,9 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLP:
 		case KEY_RCTRLP:
 		{
-			if (m_ActivePanel->IsVisible())
+			if (ActivePanel()->IsVisible())
 			{
-				Panel *AnotherPanel = PassivePanel();
+				const auto AnotherPanel = PassivePanel();
 
 				if (AnotherPanel->IsVisible())
 					AnotherPanel->Hide();
@@ -640,13 +593,13 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLI:
 		case KEY_RCTRLI:
 		{
-			m_ActivePanel->EditFilter();
+			ActivePanel()->EditFilter();
 			return TRUE;
 		}
 		case KEY_CTRLU:
 		case KEY_RCTRLU:
 		{
-			if (!LeftPanel->IsVisible() && !RightPanel->IsVisible())
+			if (!LeftPanel()->IsVisible() && !RightPanel()->IsVisible())
 				CmdLine->ProcessKey(Key);
 			else
 				SwapPanels();
@@ -662,9 +615,9 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_ALTF1:
 		case KEY_RALTF1:
 		{
-			ChangeDisk(LeftPanel);
+			ChangeDisk(LeftPanel());
 
-			if (ActivePanel() != LeftPanel)
+			if (!IsLeftActive())
 				ActivePanel()->SetCurPath();
 
 			break;
@@ -672,9 +625,9 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_ALTF2:
 		case KEY_RALTF2:
 		{
-			ChangeDisk(RightPanel);
+			ChangeDisk(RightPanel());
 
-			if (ActivePanel() != RightPanel)
+			if (!IsRightActive())
 				ActivePanel()->SetCurPath();
 
 			break;
@@ -733,7 +686,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLSHIFTUP:  case KEY_CTRLSHIFTNUMPAD8:
 		case KEY_RCTRLSHIFTUP: case KEY_RCTRLSHIFTNUMPAD8:
 		{
-			IntOption& HeightDecrement = (m_ActivePanel == LeftPanel) ? Global->Opt->LeftHeightDecrement : Global->Opt->RightHeightDecrement;
+			IntOption& HeightDecrement = IsLeftActive()? Global->Opt->LeftHeightDecrement : Global->Opt->RightHeightDecrement;
 			if (HeightDecrement<ScrY-7)
 			{
 				++HeightDecrement;
@@ -746,7 +699,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLSHIFTDOWN:  case KEY_CTRLSHIFTNUMPAD2:
 		case KEY_RCTRLSHIFTDOWN: case KEY_RCTRLSHIFTNUMPAD2:
 		{
-			IntOption& HeightDecrement = (m_ActivePanel == LeftPanel) ? Global->Opt->LeftHeightDecrement : Global->Opt->RightHeightDecrement;
+			IntOption& HeightDecrement = IsLeftActive()? Global->Opt->LeftHeightDecrement : Global->Opt->RightHeightDecrement;
 			if (HeightDecrement>0)
 			{
 				--HeightDecrement;
@@ -835,8 +788,8 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		default:
 		{
 			if (LocalKey >= KEY_CTRL0 && LocalKey <= KEY_CTRL9)
-				ChangePanelViewMode(m_ActivePanel, LocalKey - KEY_CTRL0, TRUE);
-			if (!m_ActivePanel->ProcessKey(Key))
+				ChangePanelViewMode(ActivePanel(), LocalKey - KEY_CTRL0, TRUE);
+			if (!ActivePanel()->ProcessKey(Key))
 				CmdLine->ProcessKey(Key);
 
 			break;
@@ -846,12 +799,12 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 	return TRUE;
 }
 
-int FilePanels::ChangePanelViewMode(Panel *Current, int Mode, BOOL RefreshWindow)
+int FilePanels::ChangePanelViewMode(panel_ptr Current, int Mode, BOOL RefreshWindow)
 {
 	if (Current && Mode >= VIEW_0 && Mode < (int)Global->Opt->ViewSettings.size())
 	{
 		Current->SetViewMode(Mode);
-		Current=ChangePanelToFilled(Current,FILE_PANEL);
+		Current = ChangePanelToFilled(Current, panel_type::FILE_PANEL);
 		Current->SetViewMode(Mode);
 		// ВНИМАНИЕ! Костыль! Но Работает!
 		SetScreenPosition();
@@ -865,7 +818,29 @@ int FilePanels::ChangePanelViewMode(Panel *Current, int Mode, BOOL RefreshWindow
 	return FALSE;
 }
 
-Panel* FilePanels::ChangePanelToFilled(Panel *Current,int NewType)
+void FilePanels::SetActivePanel(Panel* ToBeActive)
+{
+	if (ActivePanel().get() != ToBeActive)
+		SetActivePanelInternal(ToBeActive->shared_from_this());
+}
+
+void FilePanels::SetActivePanelInternal(panel_ptr ToBeActive)
+{
+	const auto ToBePassive = ActivePanel();
+	m_ActivePanelIndex = IsLeft(ToBeActive)? panel_left : panel_right;
+
+	Global->WindowManager->UpdateMacroArea();
+
+	ToBePassive->OnFocusChange(false);
+	ToBeActive->OnFocusChange(true);
+
+	FarChDir(ToBeActive->GetCurDir());
+	RedrawKeyBar();
+
+	ToBeActive->SetTitle();
+}
+
+panel_ptr FilePanels::ChangePanelToFilled(panel_ptr Current, panel_type NewType)
 {
 	if (Current->GetType()!=NewType && !Current->ProcessPluginEvent(FE_CLOSE,nullptr))
 	{
@@ -873,53 +848,52 @@ Panel* FilePanels::ChangePanelToFilled(Panel *Current,int NewType)
 		Current=ChangePanel(Current,NewType,FALSE,FALSE);
 		Current->Update(0);
 		Current->Show();
-
-		if (!GetAnotherPanel(Current)->GetFocus())
-			Current->SetFocus();
 	}
 
 	return Current;
 }
 
-Panel* FilePanels::GetAnotherPanel(const Panel *Current)
+panel_ptr FilePanels::GetAnotherPanel(const Panel* Current)
 {
-	if (Current==LeftPanel)
-		return RightPanel;
+	if (Current==LeftPanel().get())
+		return RightPanel();
 	else
-		return LeftPanel;
+		return LeftPanel();
 }
 
 
-Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Force)
+panel_ptr FilePanels::ChangePanel(panel_ptr Current, panel_type NewType, int CreateNew, int Force)
 {
-	Panel *NewPanel;
+	assert(Current == m_Panels[panel_left].m_Panel || Current == m_Panels[panel_right].m_Panel);
+
 	std::unique_ptr<SaveScreen> TemporarySaveScr;
 	// OldType не инициализировался...
-	int OldType=Current->GetType(),X1,Y1,X2,Y2;
-	int OldPanelMode=Current->GetMode();
+	const auto OldType = Current->GetType();
+	int X1, Y1, X2, Y2;
+	const auto OldPanelMode = Current->GetMode();
 
-	if (!Force && NewType==OldType && OldPanelMode==NORMAL_PANEL)
+	if (!Force && NewType == OldType && OldPanelMode == panel_mode::NORMAL_PANEL)
 		return Current;
 
-	int UseLastPanel=0;
+	bool UsedLastPanel = false;
 
 	int OldViewMode=Current->GetPrevViewMode();
 	bool OldFullScreen=Current->IsFullScreen();
-	int OldSortMode=Current->GetPrevSortMode();
+	const auto OldSortMode=Current->GetPrevSortMode();
 	bool OldSortOrder=Current->GetPrevSortOrder();
 	bool OldNumericSort=Current->GetPrevNumericSort();
 	bool OldCaseSensitiveSort=Current->GetPrevCaseSensitiveSort();
 	bool OldSortGroups=Current->GetSortGroups();
 	bool OldShowShortNames=Current->GetShowShortNamesMode();
-	int OldFocus=Current->GetFocus();
+	bool OldFocus = Current->IsFocused();
 	bool OldSelectedFirst=Current->GetSelectedFirstMode();
 	bool OldDirectoriesFirst=Current->GetPrevDirectoriesFirst();
-	bool LeftPosition=(Current==LeftPanel);
+	const auto LeftPosition = (Current == LeftPanel());
 
-	auto& LastFilePanel = LeftPosition? LastLeftFilePanel : LastRightFilePanel;
+	auto& LastFilePanel = m_Panels[LeftPosition? panel_left : panel_right].m_LastFilePanel;
 	Current->GetPosition(X1,Y1,X2,Y2);
-	int ChangePosition=((OldType==FILE_PANEL && NewType!=FILE_PANEL &&
-	                    OldFullScreen) || (NewType==FILE_PANEL &&
+	int ChangePosition = ((OldType == panel_type::FILE_PANEL && NewType != panel_type::FILE_PANEL &&
+	                    OldFullScreen) || (NewType==panel_type::FILE_PANEL &&
 	                                    ((OldFullScreen && !FileList::IsModeFullScreen(OldViewMode)) ||
 	                                     (!OldFullScreen && FileList::IsModeFullScreen(OldViewMode)))));
 
@@ -928,17 +902,12 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 		TemporarySaveScr = std::move(Current->SaveScr);
 	}
 
-	if (OldType==FILE_PANEL && NewType!=FILE_PANEL)
+	if (OldType == panel_type::FILE_PANEL && NewType != panel_type::FILE_PANEL)
 	{
 		Current->SaveScr.reset();
+		Current->Hide();
 
-		if (LastFilePanel!=Current)
-		{
-			DeletePanel(LastFilePanel);
-			LastFilePanel=Current;
-		}
-
-		LastFilePanel->Hide();
+		LastFilePanel = std::move(Current);
 
 		if (LastFilePanel->SaveScr)
 		{
@@ -949,16 +918,19 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 	else
 	{
 		Current->Hide();
-		DeletePanel(Current);
+		Current.reset();
 
-		if (OldType==FILE_PANEL && NewType==FILE_PANEL)
+		if (OldType == panel_type::FILE_PANEL && NewType == panel_type::FILE_PANEL)
 		{
-			DeletePanel(LastFilePanel);
-			LastFilePanel=nullptr;
+			LastFilePanel.reset();
 		}
 	}
 
-	if (!CreateNew && NewType==FILE_PANEL && LastFilePanel)
+	auto& NewPanel = m_Panels[LeftPosition? panel_left : panel_right].m_Panel;
+
+	m_Panels[LeftPosition? panel_left : panel_right].m_LastType = OldType;
+
+	if (!CreateNew && NewType == panel_type::FILE_PANEL && LastFilePanel)
 	{
 		int LastX1,LastY1,LastX2,LastY2;
 		LastFilePanel->GetPosition(LastX1,LastY1,LastX2,LastY2);
@@ -968,59 +940,47 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 		else
 			LastFilePanel->SetPosition(X1,Y1,X2,Y2);
 
-		NewPanel=LastFilePanel;
+		NewPanel = std::move(LastFilePanel);
 
 		if (!ChangePosition)
 		{
 			if ((NewPanel->IsFullScreen() && !OldFullScreen) ||
 			        (!NewPanel->IsFullScreen() && OldFullScreen))
 			{
-				Panel *AnotherPanel=GetAnotherPanel(Current);
+				const auto AnotherPanel = GetAnotherPanel(Current);
 
 				if (TemporarySaveScr && AnotherPanel->IsVisible() &&
-				        AnotherPanel->GetType()==FILE_PANEL && AnotherPanel->IsFullScreen())
+					AnotherPanel->GetType() == panel_type::FILE_PANEL && AnotherPanel->IsFullScreen())
 					TemporarySaveScr->Discard();
 			}
 			else
 				NewPanel->SaveScr = std::move(TemporarySaveScr);
 		}
 
-		if (!OldFocus && NewPanel->GetFocus())
-			NewPanel->KillFocus();
+		if (!OldFocus && NewPanel->IsFocused())
+			SetActivePanel(PassivePanel());
 
-		UseLastPanel=TRUE;
+		UsedLastPanel = true;
 	}
 	else
 	{
+		LastFilePanel.reset();
 		NewPanel=CreatePanel(NewType);
 	}
-	if (Current == m_ActivePanel)
-		m_ActivePanel = NewPanel;
 
-	if (LeftPosition)
-	{
-		LeftPanel=NewPanel;
-		LastLeftType=OldType;
-	}
-	else
-	{
-		RightPanel=NewPanel;
-		LastRightType=OldType;
-	}
-
-	if (!UseLastPanel)
+	if (!UsedLastPanel)
 	{
 		if (ChangePosition)
 		{
 			if (LeftPosition)
 			{
 				NewPanel->SetPosition(0,Y1,ScrX/2-Global->Opt->WidthDecrement,Y2);
-				RightPanel->Redraw();
+				RightPanel()->Redraw();
 			}
 			else
 			{
 				NewPanel->SetPosition(ScrX/2+1-Global->Opt->WidthDecrement,Y1,ScrX,Y2);
-				LeftPanel->Redraw();
+				LeftPanel()->Redraw();
 			}
 		}
 		else
@@ -1049,13 +1009,13 @@ int  FilePanels::GetTypeAndName(string &strType, string &strName)
 	strType = MSG(MScreensPanels);
 	string strFullName, strShortName;
 
-	switch (m_ActivePanel->GetType())
+	switch (ActivePanel()->GetType().value())
 	{
-		case TREE_PANEL:
-		case QVIEW_PANEL:
-		case FILE_PANEL:
-		case INFO_PANEL:
-			m_ActivePanel->GetCurName(strFullName, strShortName);
+		case panel_type::TREE_PANEL:
+		case panel_type::QVIEW_PANEL:
+		case panel_type::FILE_PANEL:
+		case panel_type::INFO_PANEL:
+			ActivePanel()->GetCurName(strFullName, strShortName);
 			ConvertNameToFull(strFullName, strFullName);
 			break;
 	}
@@ -1084,11 +1044,11 @@ void FilePanels::DisplayObject()
 	m_KeyBarVisible=Global->Opt->ShowKeyBar;
 #if 1
 
-	if (LeftPanel->IsVisible())
-		LeftPanel->Show();
+	if (LeftPanel()->IsVisible())
+		LeftPanel()->Show();
 
-	if (RightPanel->IsVisible())
-		RightPanel->Show();
+	if (RightPanel()->IsVisible())
+		RightPanel()->Show();
 
 #else
 	Panel *PassivePanel=nullptr;
@@ -1138,7 +1098,20 @@ void FilePanels::DisplayObject()
 
 int  FilePanels::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	if (!m_ActivePanel->ProcessMouse(MouseEvent))
+	if (!MouseEvent->dwMousePosition.Y)
+	{
+		if ((MouseEvent->dwButtonState & 3) && !MouseEvent->dwEventFlags)
+		{
+			if (!MouseEvent->dwMousePosition.X)
+				ProcessKey(Manager::Key(KEY_CTRLO));
+			else
+				Global->Opt->ShellOptions(false, MouseEvent);
+
+			return TRUE;
+		}
+	}
+
+	if (!ActivePanel()->ProcessMouse(MouseEvent))
 		if (!PassivePanel()->ProcessMouse(MouseEvent))
 			if (!m_windowKeyBar->ProcessMouse(MouseEvent))
 				CmdLine->ProcessMouse(MouseEvent);
@@ -1148,8 +1121,7 @@ int  FilePanels::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 void FilePanels::ShowConsoleTitle()
 {
-	if (m_ActivePanel)
-		m_ActivePanel->SetTitle();
+	ActivePanel()->SetTitle();
 }
 
 void FilePanels::ResizeConsole()
@@ -1171,8 +1143,8 @@ void FilePanels::Refresh()
 {
 	window::Refresh();
 	PassivePanel()->UpdateIfChanged(false);
-	m_ActivePanel->UpdateIfChanged(false);
-	m_ActivePanel->SetCurPath();
+	ActivePanel()->UpdateIfChanged(false);
+	ActivePanel()->SetCurPath();
 }
 
 void FilePanels::GoToFile(const string& FileName)
@@ -1180,20 +1152,20 @@ void FilePanels::GoToFile(const string& FileName)
 	if (FindSlash(FileName) != string::npos)
 	{
 		string ADir,PDir;
-		const auto Passive = PassivePanel();
-		int PassiveMode = Passive->GetMode();
 
-		if (PassiveMode == NORMAL_PANEL)
+		const auto PassiveMode = PassivePanel()->GetMode();
+
+		if (PassiveMode == panel_mode::NORMAL_PANEL)
 		{
-			PDir = Passive->GetCurDir();
+			PDir = PassivePanel()->GetCurDir();
 			AddEndSlash(PDir);
 		}
 
-		int ActiveMode = m_ActivePanel->GetMode();
+		const auto ActiveMode = ActivePanel()->GetMode();
 
-		if (ActiveMode==NORMAL_PANEL)
+		if (ActiveMode == panel_mode::NORMAL_PANEL)
 		{
-			ADir = m_ActivePanel->GetCurDir();
+			ADir = ActivePanel()->GetCurDir();
 			AddEndSlash(ADir);
 		}
 
@@ -1205,37 +1177,38 @@ void FilePanels::GoToFile(const string& FileName)
 		     панелях, тем самым добиваемся того, что выделение с элементов
 		     панелей не сбрасывается.
 		*/
-		BOOL AExist=(ActiveMode==NORMAL_PANEL) && !StrCmpI(ADir, strNameDir);
-		BOOL PExist=(PassiveMode==NORMAL_PANEL) && !StrCmpI(PDir, strNameDir);
+		BOOL AExist = (ActiveMode == panel_mode::NORMAL_PANEL) && !StrCmpI(ADir, strNameDir);
+		BOOL PExist = (PassiveMode == panel_mode::NORMAL_PANEL) && !StrCmpI(PDir, strNameDir);
 
 		// если нужный путь есть на пассивной панели
 		if (!AExist && PExist)
 			ProcessKey(Manager::Key(KEY_TAB));
 
 		if (!AExist && !PExist)
-			m_ActivePanel->SetCurDir(strNameDir, true);
+			ActivePanel()->SetCurDir(strNameDir, true);
 
-		m_ActivePanel->GoToFile(strNameFile);
+		ActivePanel()->GoToFile(strNameFile);
 		// всегда обновим заголовок панели, чтобы дать обратную связь, что
 		// Ctrl-F10 обработан
-		m_ActivePanel->SetTitle();
+		ActivePanel()->SetTitle();
 	}
 }
 
 
 FARMACROAREA FilePanels::GetMacroArea() const
 {
-	switch (m_ActivePanel->GetType())
+	switch (ActivePanel()->GetType().value())
 	{
-		case TREE_PANEL:
-			return MACROAREA_TREEPANEL;
-		case QVIEW_PANEL:
-			return MACROAREA_QVIEWPANEL;
-		case INFO_PANEL:
-			return MACROAREA_INFOPANEL;
-		default:
-			return MACROAREA_SHELL;
+	case panel_type::FILE_PANEL:
+		return MACROAREA_SHELL;
+	case panel_type::TREE_PANEL:
+		return MACROAREA_TREEPANEL;
+	case panel_type::QVIEW_PANEL:
+		return MACROAREA_QVIEWPANEL;
+	case panel_type::INFO_PANEL:
+		return MACROAREA_INFOPANEL;
 	}
+	return MACROAREA_INVALID;
 }
 
 Viewer* FilePanels::GetViewer(void)
@@ -1247,8 +1220,8 @@ Viewer* FilePanels::GetViewer(void)
 
 Viewer* FilePanels::GetById(int ID)
 {
-	auto result=LeftPanel->GetById(ID);
-	if (!result) result=RightPanel->GetById(ID);
+	auto result=LeftPanel()->GetById(ID);
+	if (!result) result=RightPanel()->GetById(ID);
 	return result;
 }
 

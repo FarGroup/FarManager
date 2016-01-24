@@ -35,4 +35,40 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define ENUM(ENUM_NAME) enum ENUM_NAME:int
 #endif
 
+/*
+Usage:
+
+namespace detail
+{
+	struct data { enum value_type
+	{
+		foo,
+		bar,
+	};};
+}
+typedef enum_class<detail::data> data;
+data Data(data::foo);
+*/
+
+template<class T>
+class enum_class: public T, public rel_ops<enum_class<T>>
+{
+public:
+	enum_class(typename T::value_type Value): m_Value(Value) {}
+	enum_class& operator=(typename T::value_type rhs) { m_Value = rhs; return *this; }
+
+	friend bool operator==(const enum_class& lhs, const enum_class& rhs) { return lhs.m_Value == rhs.m_Value; }
+	friend bool operator==(const enum_class& lhs, typename T::value_type rhs) { return lhs.m_Value == rhs; }
+	friend bool operator==(typename T::value_type lhs, const enum_class& rhs) { return lhs == rhs.m_Value; }
+
+	friend bool operator<(const enum_class& lhs, const enum_class& rhs) { return lhs.m_Value < rhs.m_Value; }
+	friend bool operator<(const enum_class& lhs, typename T::value_type rhs) { return lhs.m_Value < rhs; }
+	friend bool operator<(typename T::value_type lhs, const enum_class& rhs) { return lhs < rhs.m_Value; }
+
+	typename T::value_type value() const { return m_Value; }
+
+private:
+	typename T::value_type m_Value;
+};
+
 #endif // ENUM_HPP_3B45F837_E295_40BC_B3EE_A7D344E8B1ED

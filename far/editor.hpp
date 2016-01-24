@@ -136,6 +136,7 @@ public:
 	void SetLineCursorPos(int Value) { CursorPos = Value; }
 	bool IsLastLine(const Edit* line) const;
 	void AutoDeleteColors();
+	int GetId() const { return EditorID; }
 
 	static void PR_EditorShowMsg();
 	static void SetReplaceMode(bool Mode);

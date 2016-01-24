@@ -1052,5 +1052,11 @@
     <ClInclude Include="diskmenu.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="common\rel_ops.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="panelfwd.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

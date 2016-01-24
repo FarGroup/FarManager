@@ -86,6 +86,21 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static inline Plugin* GuidToPlugin(const GUID* Id) { return (Id && Global->CtrlObject) ? Global->CtrlObject->Plugins->FindPlugin(*Id) : nullptr; }
 
+static Panel* GetHostPanel(HANDLE Handle)
+{
+	if (!Handle || Handle == PANEL_ACTIVE)
+	{
+		return Global->CtrlObject->Cp()->ActivePanel().get();
+	}
+	else if (Handle == PANEL_PASSIVE)
+	{
+		return Global->CtrlObject->Cp()->PassivePanel().get();
+	}
+
+	return static_cast<Panel*>(Handle);
+}
+
+
 namespace cfunctions
 {
 	typedef int(WINAPI* comparer)(const void*, const void*, void*);
@@ -1345,7 +1360,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 
 			if (!hPlugin || hPlugin == PANEL_ACTIVE || hPlugin == PANEL_PASSIVE)
 			{
-				Panel *pPanel = (!hPlugin || hPlugin == PANEL_ACTIVE) ? FPanels->ActivePanel() : FPanels->PassivePanel();
+				const auto pPanel = (!hPlugin || hPlugin == PANEL_ACTIVE) ? FPanels->ActivePanel() : FPanels->PassivePanel();
 
 				if (Command == FCTL_SETACTIVEPANEL && hPlugin == PANEL_ACTIVE)
 					return TRUE;
@@ -1359,11 +1374,11 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 			}
 
 			HANDLE hInternal;
-			auto& LeftPanel = FPanels->LeftPanel;
-			auto& RightPanel = FPanels->RightPanel;
+			const auto LeftPanel = FPanels->LeftPanel();
+			const auto RightPanel = FPanels->RightPanel();
 			int Processed=FALSE;
 
-			if (LeftPanel && LeftPanel->GetMode()==PLUGIN_PANEL)
+			if (LeftPanel && LeftPanel->GetMode() == panel_mode::PLUGIN_PANEL)
 			{
 				if (const auto PlHandle = LeftPanel->GetPluginHandle())
 				{
@@ -1376,7 +1391,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 				}
 			}
 
-			if (RightPanel && RightPanel->GetMode()==PLUGIN_PANEL)
+			if (RightPanel && RightPanel->GetMode() == panel_mode::PLUGIN_PANEL)
 			{
 				if (const auto PlHandle = RightPanel->GetPluginHandle())
 				{
@@ -1394,17 +1409,17 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 
 		case FCTL_SETUSERSCREEN:
 		{
-			if (!FPanels || !FPanels->LeftPanel || !FPanels->RightPanel)
+			if (!FPanels || !FPanels->LeftPanel() || !FPanels->RightPanel())
 				return FALSE;
 
 			Global->KeepUserScreen++;
-			FPanels->LeftPanel->ProcessingPluginCommand++;
-			FPanels->RightPanel->ProcessingPluginCommand++;
+			FPanels->LeftPanel()->ProcessingPluginCommand++;
+			FPanels->RightPanel()->ProcessingPluginCommand++;
 			Console().ScrollScreenBuffer(1);
 			Global->CtrlObject->Desktop->FillFromConsole();
 			Global->KeepUserScreen--;
-			FPanels->LeftPanel->ProcessingPluginCommand--;
-			FPanels->RightPanel->ProcessingPluginCommand--;
+			FPanels->LeftPanel()->ProcessingPluginCommand--;
+			FPanels->RightPanel()->ProcessingPluginCommand--;
 
 			// BUGBUG
 			Global->WindowManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
@@ -1497,9 +1512,9 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 			if (!hPlugin || hPlugin == PANEL_ACTIVE)
 				return TRUE;
 
-			Panel *pPanel = FPanels->ActivePanel();
+			const auto pPanel = FPanels->ActivePanel();
 
-			if (pPanel && (pPanel->GetMode() == PLUGIN_PANEL))
+			if (pPanel && (pPanel->GetMode() == panel_mode::PLUGIN_PANEL))
 			{
 				if (const auto PlHandle = pPanel->GetPluginHandle())
 				{
@@ -2663,8 +2678,8 @@ intptr_t WINAPI apiFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COM
 			default:
 				return FALSE;
 			}
-
-			Filter = new FileFilter((Panel *)hHandle, (FAR_FILE_FILTER_TYPE)Param1);
+			
+			Filter = new FileFilter(GetHostPanel(hHandle), (FAR_FILE_FILTER_TYPE)Param1);
 			*((HANDLE *)Param2) = (HANDLE)Filter;
 			return TRUE;
 		}

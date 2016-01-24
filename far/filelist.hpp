@@ -119,7 +119,7 @@ struct FileListItem: public detail::FileListItemPod, noncopyable, swapable<FileL
 
 struct PluginsListItem: noncopyable, swapable<PluginsListItem>
 {
-	PluginsListItem(PluginHandle* hPlugin, const string& HostFile, const string& PrevOriginalCurDir, int Modified, int PrevViewMode, int PrevSortMode, bool PrevSortOrder, bool PrevNumericSort, bool PrevCaseSensitiveSort, bool PrevDirectoriesFirst, const PanelViewSettings& PrevViewSettings):
+	PluginsListItem(PluginHandle* hPlugin, const string& HostFile, const string& PrevOriginalCurDir, int Modified, int PrevViewMode, panel_sort PrevSortMode, bool PrevSortOrder, bool PrevNumericSort, bool PrevCaseSensitiveSort, bool PrevDirectoriesFirst, const PanelViewSettings& PrevViewSettings):
 		m_Plugin(hPlugin),
 		m_HostFile(HostFile),
 		m_PrevOriginalCurDir(PrevOriginalCurDir),
@@ -139,7 +139,7 @@ struct PluginsListItem: noncopyable, swapable<PluginsListItem>
 		m_PrevOriginalCurDir(),
 		m_Modified(),
 		m_PrevViewMode(),
-		m_PrevSortMode(),
+		m_PrevSortMode(panel_sort::UNSORTED),
 		m_PrevSortOrder(),
 		m_PrevNumericSort(),
 		m_PrevCaseSensitiveSort(),
@@ -172,7 +172,7 @@ struct PluginsListItem: noncopyable, swapable<PluginsListItem>
 	string m_PrevOriginalCurDir;
 	int m_Modified;
 	int m_PrevViewMode;
-	int m_PrevSortMode;
+	panel_sort m_PrevSortMode;
 	bool m_PrevSortOrder;
 	bool m_PrevNumericSort;
 	bool m_PrevCaseSensitiveSort;
@@ -184,14 +184,17 @@ ENUM(OPENFILEPLUGINTYPE);
 
 class FileList:public Panel
 {
+	struct private_tag {};
+
 public:
-	FileList(window_ptr Owner);
+	static file_panel_ptr create(window_ptr Owner);
+	FileList(private_tag, window_ptr Owner);
+	virtual ~FileList();
 
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
 	virtual void MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual void SetFocus() override;
 	virtual void Update(int Mode) override;
 	virtual bool UpdateIfChanged(bool Idle) override;
 	virtual void UpdateIfRequired() override;
@@ -200,14 +203,14 @@ public:
 	virtual void StopFSWatcher() override;
 	virtual void SortFileList(int KeepPosition) override;
 	virtual void SetViewMode(int ViewMode) override;
-	virtual void SetSortMode(int SortMode, bool KeepOrder = false) override;
+	virtual void SetSortMode(panel_sort SortMode, bool KeepOrder = false) override;
 	virtual void SetCustomSortMode(int SortMode, bool KeepOrder = false, bool InvertByDefault = false) override;
 	virtual void ChangeSortOrder(bool Reverse) override;
 	virtual void ChangeNumericSort(bool Mode) override;
 	virtual void ChangeCaseSensitiveSort(bool Mode) override;
 	virtual void ChangeDirectoriesFirst(bool Mode) override;
 	virtual bool SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated=true) override;
-	virtual int GetPrevSortMode() const override;
+	virtual panel_sort GetPrevSortMode() const override;
 	virtual bool GetPrevSortOrder() const override;
 	virtual int GetPrevViewMode() const override;
 	virtual bool GetPrevNumericSort() const override;
@@ -288,13 +291,12 @@ protected:
 	virtual void ClearAllItem() override;
 
 private:
-	virtual ~FileList();
 	virtual void SetSelectedFirstMode(bool Mode) override;
 	virtual void DisplayObject() override;
 	virtual int GetCurName(string &strName, string &strShortName) const override;
 	virtual int GetCurBaseName(string &strName, string &strShortName) const override;
 
-	void ApplySortMode(int Mode);
+	void ApplySortMode(panel_sort Mode);
 	void DeleteListData(std::vector<FileListItem>& ListData);
 	void ToBegin();
 	void ToEnd();
@@ -336,7 +338,7 @@ private:
 	void PluginToPluginFiles(int Move);
 	void PluginHostGetFiles();
 	void PluginPutFilesToNew();
-	int PluginPutFilesToAnother(int Move,Panel *AnotherPanel);
+	int PluginPutFilesToAnother(int Move, panel_ptr AnotherPanel);
 	void ProcessPluginCommand();
 	void PluginClearSelection(const std::vector<PluginPanelItem>& ItemList);
 	void ProcessCopyKeys(int Key);

@@ -57,10 +57,10 @@ void GetColor(PaletteColors PaletteIndex)
 	{
 		Global->Opt->Palette.Set(PaletteIndex, &NewColor, 1);
 		Global->ScrBuf->Lock(); // отменяем всякую прорисовку
-		Global->CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
-		Global->CtrlObject->Cp()->LeftPanel->Redraw();
-		Global->CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
-		Global->CtrlObject->Cp()->RightPanel->Redraw();
+		Global->CtrlObject->Cp()->LeftPanel()->Update(UPDATE_KEEP_SELECTION);
+		Global->CtrlObject->Cp()->LeftPanel()->Redraw();
+		Global->CtrlObject->Cp()->RightPanel()->Update(UPDATE_KEEP_SELECTION);
+		Global->CtrlObject->Cp()->RightPanel()->Redraw();
 
 
 		Global->WindowManager->ResizeAllWindows(); // рефрешим
@@ -374,8 +374,8 @@ void SetColors()
 		}
 	}
 	Global->CtrlObject->Cp()->SetScreenPosition();
-	Global->CtrlObject->Cp()->LeftPanel->Redraw();
-	Global->CtrlObject->Cp()->RightPanel->Redraw();
+	Global->CtrlObject->Cp()->LeftPanel()->Redraw();
+	Global->CtrlObject->Cp()->RightPanel()->Redraw();
 }
 
 

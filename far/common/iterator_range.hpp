@@ -81,7 +81,7 @@ inline range<iterator_type> make_range(iterator_type i_begin, iterator_type i_en
 }
 
 template<class T>
-class i_iterator: public std::iterator < std::random_access_iterator_tag, T>
+class i_iterator: public std::iterator<std::random_access_iterator_tag, T>, public rel_ops<i_iterator<T>>
 {
 public:
 	typedef T value_type;
@@ -102,10 +102,6 @@ public:
 	ptrdiff_t operator-(const i_iterator& rhs) const { return m_value - rhs.m_value; }
 	bool operator==(const i_iterator& rhs) const { return m_value == rhs.m_value; }
 	bool operator<(const i_iterator& rhs) const { return m_value < rhs.m_value; }
-	bool operator<=(const i_iterator& rhs) const { return m_value <= rhs.m_value; }
-	bool operator!=(const i_iterator& rhs) const { return !(*this == rhs); }
-	bool operator>=(const i_iterator& rhs) const { return !(*this < rhs); }
-	bool operator>(const i_iterator& rhs) const { return !(*this <= rhs); }
 
 private:
 	T m_value;

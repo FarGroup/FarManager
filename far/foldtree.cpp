@@ -74,11 +74,10 @@ void FolderTree::init(string &strResultFolder)
 	//TopScreen=new SaveScreen;
 	SetCoords();
 
-	Tree.reset(new TreeList(nullptr, false));
+	Tree = TreeList::create(nullptr, ModalMode);
 
 		SetMacroMode(MACROAREA_FINDFOLDER);
 		strLastName.clear();
-		Tree->SetModalMode(ModalMode);
 		Tree->SetPosition(m_X1,m_Y1,m_X2,m_Y2);
 
 		if (ModalMode == MODALTREE_FREE)

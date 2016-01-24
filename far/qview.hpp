@@ -42,14 +42,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class QuickView:public Panel
 {
+	struct private_tag {};
 public:
-	QuickView(window_ptr Owner);
-
+	static qview_panel_ptr create(window_ptr Owner);
+	QuickView(private_tag, window_ptr Owner);
+	virtual ~QuickView();
 	void ShowFile(const string& FileName, bool TempFile, PluginHandle* hDirPlugin);
 
 private:
-	virtual ~QuickView();
-
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual __int64 VMProcess(int OpCode, void *vParam = nullptr, __int64 iParam = 0) override;
@@ -59,7 +59,6 @@ private:
 	virtual bool UpdateIfChanged(bool Idle) override;
 	virtual void SetTitle() override;
 	virtual string GetTitle() const override;
-	virtual void SetFocus() override;
 	virtual void UpdateKeyBar() override;
 	virtual int GetCurName(string &strName, string &strShortName) const override;
 	virtual void DisplayObject() override;

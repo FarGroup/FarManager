@@ -36,8 +36,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "dizlist.hpp"
+#include "panel.hpp"
 
-class Panel;
 class Dialog;
 class CopyProgress;
 class FileFilter;
@@ -48,7 +48,7 @@ ENUM(ReparsePointTypes);
 class ShellCopy: noncopyable
 {
 public:
-	ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask, int &ToPlugin, const wchar_t* PluginDestPath, bool ToSubdir=false);
+	ShellCopy(panel_ptr SrcPanel, int Move, int Link, int CurrentOnly, int Ask, int &ToPlugin, const wchar_t* PluginDestPath, bool ToSubdir = false);
 	~ShellCopy();
 	DWORD CopyProgressRoutine(uint64_t TotalFileSize, uint64_t TotalBytesTransferred, uint64_t StreamSize, uint64_t StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE SourceFile, HANDLE DestinationFile);
 
@@ -72,8 +72,8 @@ private:
 	std::unique_ptr<CopyProgress> CP;
 	std::unique_ptr<FileFilter> m_Filter;
 	DWORD Flags;
-	Panel *SrcPanel,*DestPanel;
-	int SrcPanelMode,DestPanelMode;
+	panel_ptr SrcPanel, DestPanel;
+	panel_mode SrcPanelMode,DestPanelMode;
 	int SrcDriveType,DestDriveType;
 	string strSrcDriveRoot;
 	string strDestDriveRoot;

@@ -179,11 +179,11 @@ BOOL WINAPI CtrlHandler(DWORD CtrlType)
 
 		if (Global->CtrlObject && Global->CtrlObject->Cp())
 		{
-			if (Global->CtrlObject->Cp()->LeftPanel && Global->CtrlObject->Cp()->LeftPanel->GetMode()==PLUGIN_PANEL)
-				Global->CtrlObject->Plugins->ProcessEvent(Global->CtrlObject->Cp()->LeftPanel->GetPluginHandle(),FE_BREAK, ToPtr(CtrlType));
+			if (Global->CtrlObject->Cp()->LeftPanel() && Global->CtrlObject->Cp()->LeftPanel()->GetMode() == panel_mode::PLUGIN_PANEL)
+				Global->CtrlObject->Plugins->ProcessEvent(Global->CtrlObject->Cp()->LeftPanel()->GetPluginHandle(),FE_BREAK, ToPtr(CtrlType));
 
-			if (Global->CtrlObject->Cp()->RightPanel && Global->CtrlObject->Cp()->RightPanel->GetMode()==PLUGIN_PANEL)
-				Global->CtrlObject->Plugins->ProcessEvent(Global->CtrlObject->Cp()->RightPanel->GetPluginHandle(),FE_BREAK, ToPtr(CtrlType));
+			if (Global->CtrlObject->Cp()->RightPanel() && Global->CtrlObject->Cp()->RightPanel()->GetMode() == panel_mode::PLUGIN_PANEL)
+				Global->CtrlObject->Plugins->ProcessEvent(Global->CtrlObject->Cp()->RightPanel()->GetPluginHandle(),FE_BREAK, ToPtr(CtrlType));
 		}
 		return TRUE;
 

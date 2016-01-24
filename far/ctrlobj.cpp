@@ -92,18 +92,16 @@ void ControlObject::Init(int DirCount)
 	Plugins->LoadPlugins();
 	Console().SetTitle(strOldTitle);
 
-	Cp()->LeftPanel->Update(0);
-	Cp()->RightPanel->Update(0);
+	FPanels->LeftPanel()->Update(0);
+	FPanels->RightPanel()->Update(0);
+	FPanels->LeftPanel()->GoToFile(Global->Opt->LeftPanel.CurFile);
+	FPanels->RightPanel()->GoToFile(Global->Opt->RightPanel.CurFile);
 
-	Cp()->LeftPanel->GoToFile(Global->Opt->LeftPanel.CurFile);
-	Cp()->RightPanel->GoToFile(Global->Opt->RightPanel.CurFile);
-
-	FarChDir(Cp()->ActivePanel()->GetCurDir());
-	Cp()->ActivePanel()->SetFocus();
+	FarChDir(FPanels->ActivePanel()->GetCurDir());
 
 	Macro.LoadMacros(true);
-	Cp()->LeftPanel->SetCustomSortMode(Global->Opt->LeftPanel.SortMode, true);
-	Cp()->RightPanel->SetCustomSortMode(Global->Opt->RightPanel.SortMode, true);
+	FPanels->LeftPanel()->SetCustomSortMode(Global->Opt->LeftPanel.SortMode, true);
+	FPanels->RightPanel()->SetCustomSortMode(Global->Opt->RightPanel.SortMode, true);
 	Global->WindowManager->SwitchToPanels();  // otherwise panels are empty
 	/*
 		FarChDir(StartCurDir);
@@ -129,7 +127,7 @@ ControlObject::~ControlObject()
 		if (Global->Opt->AutoSaveSetup)
 			Global->Opt->Save(false);
 
-		if (Cp()->ActivePanel()->GetMode() != PLUGIN_PANEL)
+		if (Cp()->ActivePanel()->GetMode() != panel_mode::PLUGIN_PANEL)
 		{
 			FolderHistory->AddToHistory(Cp()->ActivePanel()->GetCurDir());
 		}

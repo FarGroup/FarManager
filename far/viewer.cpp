@@ -4318,15 +4318,9 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 		// Param2=0
 		case VCTL_REDRAW:
 		{
-			window_ptr parent=HostFileViewer->shared_from_this();
-			if (!parent) parent = Global->WindowManager->GetViewerContainerById(GetId());
-			if (parent)
-			{
-				Global->WindowManager->RefreshWindow(parent);
-				Global->WindowManager->PluginCommit();
-				return TRUE;
-			}
-			return FALSE;
+			Global->WindowManager->RefreshWindow(GetOwner());
+			Global->WindowManager->PluginCommit();
+			return TRUE;
 		}
 		// Param2=0
 		case VCTL_QUIT:
@@ -4486,7 +4480,7 @@ uintptr_t Viewer::GetDefaultCodePage()
 
 void Viewer::ReadEvent(void)
 {
-	Global->CtrlObject->Plugins->ProcessViewerEvent(VE_READ,nullptr,ViewerID);
+	Global->CtrlObject->Plugins->ProcessViewerEvent(VE_READ,nullptr, this);
 	bVE_READ_Sent = true;
 }
 
@@ -4495,7 +4489,7 @@ void Viewer::CloseEvent(void)
 	if (!OpenFailed && bVE_READ_Sent)
 	{
 		bVE_READ_Sent=false;
-		Global->CtrlObject->Plugins->ProcessViewerEvent(VE_CLOSE,nullptr,ViewerID);;
+		Global->CtrlObject->Plugins->ProcessViewerEvent(VE_CLOSE,nullptr, this);
 	}
 }
 

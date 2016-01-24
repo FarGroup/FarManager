@@ -191,7 +191,7 @@ void PrintFiles(FileList* SrcPanel)
 		SetCursorType(false, 0);
 		PR_PrintMsg();
 		const auto hPlugin = SrcPanel->GetPluginHandle();
-		int PluginMode=SrcPanel->GetMode()==PLUGIN_PANEL &&
+		int PluginMode = SrcPanel->GetMode() == panel_mode::PLUGIN_PANEL &&
 		               !Global->CtrlObject->Plugins->UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
 		SrcPanel->GetSelName(nullptr,FileAttr);
 

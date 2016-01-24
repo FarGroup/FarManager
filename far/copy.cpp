@@ -873,7 +873,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
+ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (активная)
                      int Move,               // =1 - операция Move
                      int Link,               // =1 - Sym/Hard Link
                      int CurrentOnly,        // =1 - только текущий файл, под курсором
@@ -881,12 +881,12 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (�
                      int &ToPlugin,          // =?
                      const wchar_t* PluginDestPath,
                      bool ToSubdir):
-	m_Filter(std::make_unique<FileFilter>(SrcPanel, FFT_COPY)),
+	m_Filter(std::make_unique<FileFilter>(SrcPanel.get(), FFT_COPY)),
 	Flags((Move? FCOPY_MOVE : FCOPY_NONE) | (Link? FCOPY_LINK : FCOPY_NONE) | (CurrentOnly? FCOPY_CURRENTONLY : FCOPY_NONE)),
 	SrcPanel(SrcPanel),
 	DestPanel(Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel)),
 	SrcPanelMode(SrcPanel->GetMode()),
-	DestPanelMode(ToPlugin? DestPanel->GetMode() : NORMAL_PANEL),
+	DestPanelMode(ToPlugin? DestPanel->GetMode().value() : panel_mode::NORMAL_PANEL),
 	SrcDriveType(),
 	DestDriveType(),
 	CopyBufferSize(!Global->Opt->CMOpt.BufferSize.Get()? default_copy_buffer_size : Global->Opt->CMOpt.BufferSize.Get()),
@@ -1042,7 +1042,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (�
 
 	if (SelCount==1)
 	{
-		if (SrcPanel->GetType()==TREE_PANEL)
+		if (SrcPanel->GetType() == panel_type::TREE_PANEL)
 		{
 			string strNewDir(strSelName);
 			const auto pos = FindLastSlash(strNewDir);
@@ -1095,7 +1095,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (�
 	CopyDlg[ID_SC_TITLE].strData = MSG(Move?MMoveDlgTitle :(Link?MLinkDlgTitle:MCopyDlgTitle));
 	CopyDlg[ID_SC_BTNCOPY].strData = MSG(Move?MCopyDlgRename:(Link?MCopyDlgLink:MCopyDlgCopy));
 
-	if (DestPanelMode == PLUGIN_PANEL)
+	if (DestPanelMode == panel_mode::PLUGIN_PANEL)
 	{
 		// Если противоположная панель - плагин, то дисаблим OnlyNewer //?????
 /*
@@ -1133,9 +1133,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (�
 	}
 	else
 	{
-		switch (DestPanelMode)
+		switch (DestPanelMode.value())
 		{
-			case NORMAL_PANEL:
+		case panel_mode::NORMAL_PANEL:
 			{
 				if ((strDestDir.empty() || !DestPanel->IsVisible() || !StrCmpI(strSrcDir, strDestDir)) && SelCount==1)
 					CopyDlg[ID_SC_TARGETEDIT].strData = strSelName;
@@ -1159,7 +1159,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (�
 				break;
 			}
 
-			case PLUGIN_PANEL:
+		case panel_mode::PLUGIN_PANEL:
 			{
 				OpenPanelInfo Info;
 				DestPanel->GetOpenPanelInfo(&Info);
@@ -1461,8 +1461,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (�
 	if ((Global->Opt->Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && SrcPanel->IsDizDisplayed()) ||
 	        Global->Opt->Diz.UpdateMode==DIZ_UPDATE_ALWAYS)
 	{
-		Global->CtrlObject->Cp()->LeftPanel->ReadDiz();
-		Global->CtrlObject->Cp()->RightPanel->ReadDiz();
+		Global->CtrlObject->Cp()->LeftPanel()->ReadDiz();
+		Global->CtrlObject->Cp()->RightPanel()->ReadDiz();
 	}
 
 	CopyBuffer.reset(CopyBufferSize);
@@ -1655,14 +1655,14 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (�
 
 #if 1
 
-	if (NeedUpdateAPanel && m_FileAttr != INVALID_FILE_ATTRIBUTES && (m_FileAttr&FILE_ATTRIBUTE_DIRECTORY) && DestPanelMode != PLUGIN_PANEL)
+	if (NeedUpdateAPanel && m_FileAttr != INVALID_FILE_ATTRIBUTES && (m_FileAttr&FILE_ATTRIBUTE_DIRECTORY) && DestPanelMode != panel_mode::PLUGIN_PANEL)
 	{
 		DestPanel->SetCurDir(SrcPanel->GetCurDir(), false);
 	}
 
 #else
 
-	if (m_FileAttr != INVALID_FILE_ATTRIBUTES && (m_FileAttr&FILE_ATTRIBUTE_DIRECTORY) && DestPanelMode != PLUGIN_PANEL)
+	if (m_FileAttr != INVALID_FILE_ATTRIBUTES && (m_FileAttr&FILE_ATTRIBUTE_DIRECTORY) && DestPanelMode != panel_mode::PLUGIN_PANEL)
 	{
 		// если SrcDir содержится в DestDir...
 		string strTmpDestDir;
@@ -1683,7 +1683,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (�
 		DestPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 	}
 
-	if (SrcPanelMode == PLUGIN_PANEL)
+	if (SrcPanelMode == panel_mode::PLUGIN_PANEL)
 		SrcPanel->SetPluginModified();
 
 	Global->CtrlObject->Cp()->Redraw();

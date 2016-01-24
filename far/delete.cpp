@@ -286,7 +286,7 @@ static int WipeDirectory(const string& Name)
 	return os::RemoveDirectory(strTempName);
 }
 
-ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
+ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 	ReadOnlyDeleteMode(-1),
 	m_SkipMode(-1),
 	SkipWipeMode(-1),
@@ -523,7 +523,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 	if ((NeedSetUpADir=CheckUpdateAnotherPanel(SrcPanel,strSelName)) == -1)
 		return;
 
-	if (SrcPanel->GetType()==TREE_PANEL)
+	if (SrcPanel->GetType() == panel_type::TREE_PANEL)
 		FarChDir(L"\\");
 
 	{

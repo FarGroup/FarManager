@@ -53,12 +53,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "keybar.hpp"
 #include "strmix.hpp"
+#include "keyboard.hpp"
 
 static bool LastMode = false;
 static bool LastWrapMode = false;
 static bool LastWrapType = false;
 
-QuickView::QuickView(window_ptr Owner):
+qview_panel_ptr QuickView::create(window_ptr Owner)
+{
+	return std::make_shared<QuickView>(private_tag(), Owner);
+}
+
+QuickView::QuickView(private_tag, window_ptr Owner):
 	Panel(Owner),
 	Directory(0),
 	Data(),
@@ -67,7 +73,7 @@ QuickView::QuickView(window_ptr Owner):
 	m_TemporaryFile(),
 	uncomplete_dirscan(false)
 {
-	m_Type=QVIEW_PANEL;
+	m_Type = panel_type::QVIEW_PANEL;
 	if (!LastMode)
 	{
 		LastMode = true;
@@ -102,15 +108,12 @@ void QuickView::DisplayObject()
 	if (!QView && !ProcessingPluginCommand)
 		Parent()->GetAnotherPanel(this)->UpdateViewPanel();
 
-	if (Destroyed())
-		return;
-
 	if (QView)
 		QView->SetPosition(m_X1+1,m_Y1+1,m_X2-1,m_Y2-3);
 
 	Box(m_X1,m_Y1,m_X2,m_Y2,colors::PaletteColorToFarColor(COL_PANELBOX),DOUBLE_BOX);
 	SetScreen(m_X1+1,m_Y1+1,m_X2-1,m_Y2-1,L' ',colors::PaletteColorToFarColor(COL_PANELTEXT));
-	SetColor(m_Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
+	SetColor(IsFocused()? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
 
 	string strTitle = GetTitle();
 	if (!strTitle.empty())
@@ -344,7 +347,7 @@ int QuickView::ProcessKey(const Manager::Key& Key)
 	{
 		const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 
-		if (AnotherPanel->GetType()==FILE_PANEL)
+		if (AnotherPanel->GetType() == panel_type::FILE_PANEL)
 			AnotherPanel->ProcessKey(Manager::Key(KEY_F3));
 
 		return TRUE;
@@ -354,7 +357,7 @@ int QuickView::ProcessKey(const Manager::Key& Key)
 	{
 		const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 
-		if (AnotherPanel->GetType()==FILE_PANEL)
+		if (AnotherPanel->GetType() == panel_type::FILE_PANEL)
 			AnotherPanel->ProcessKey(Manager::Key(LocalKey==KEY_ADD?KEY_DOWN:KEY_UP));
 
 		return TRUE;
@@ -392,15 +395,13 @@ int QuickView::ProcessKey(const Manager::Key& Key)
 
 int QuickView::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	int RetCode;
-
-	if (!IsVisible())
+	if (!IsMouseInClientArea(MouseEvent))
 		return FALSE;
 
-	if (Panel::PanelProcessMouse(MouseEvent,RetCode))
-		return RetCode;
+	if (!(MouseEvent->dwButtonState & MOUSE_ANY_BUTTON_PRESSED))
+		return FALSE;
 
-	SetFocus();
+	Parent()->SetActivePanel(this);
 
 	if (QView && !Directory)
 		return QView->ProcessMouse(MouseEvent);
@@ -492,14 +493,12 @@ void QuickView::ShowFile(const string& FileName, bool TempFile, PluginHandle* hD
 			QView->OpenFile(strCurFileName,FALSE);
 		}
 	}
-	if (Destroyed())
-		return;
 
 	m_TemporaryFile = TempFile;
 
 	Redraw();
 
-	if (Parent()->ActivePanel() == this)
+	if (IsFocused())
 	{
 		DynamicUpdateKeyBar();
 		Parent()->GetKeybar().Redraw();
@@ -570,7 +569,7 @@ bool QuickView::UpdateIfChanged(bool Idle)
 
 void QuickView::SetTitle()
 {
-	if (GetFocus())
+	if (IsFocused())
 	{
 		string strTitleDir(L"{");
 
@@ -588,12 +587,6 @@ void QuickView::SetTitle()
 
 		ConsoleTitle::SetFarTitle(strTitleDir);
 	}
-}
-
-void QuickView::SetFocus()
-{
-	Panel::SetFocus();
-	SetTitle();
 }
 
 int QuickView::GetCurName(string &strName, string &strShortName) const

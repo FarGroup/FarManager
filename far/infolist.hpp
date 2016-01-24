@@ -43,12 +43,14 @@ class DizViewer;
 
 class InfoList:public Panel
 {
-public:
-	InfoList(window_ptr Owner);
+	struct private_tag {};
 
-private:
+public:
+	static info_panel_ptr create(window_ptr Owner);
+	InfoList(private_tag, window_ptr Owner);
 	virtual ~InfoList();
 
+private:
 	virtual void DisplayObject() override;
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;

@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dizviewer.hpp"
 #include "locale.hpp"
 #include "keybar.hpp"
+#include "keyboard.hpp"
 
 static bool LastMode = false;
 static bool LastDizWrapMode = false;
@@ -84,15 +85,19 @@ struct InfoList::InfoListSectionState
 	SHORT Y;     // Где?
 };
 
+info_panel_ptr InfoList::create(window_ptr Owner)
+{
+	return std::make_shared<InfoList>(private_tag(), Owner);
+}
 
-InfoList::InfoList(window_ptr Owner):
+InfoList::InfoList(private_tag, window_ptr Owner):
 	Panel(Owner),
 	OldWrapMode(),
 	OldWrapType(),
 	SectionState(ILSS_SIZE),
 	PowerListener(update_power, [&]{ if (Global->Opt->InfoPanel.ShowPowerStatus && IsVisible() && SectionState[ILSS_POWERSTATUS].Show) { Redraw(); }})
 {
-	m_Type=INFO_PANEL;
+	m_Type = panel_type::INFO_PANEL;
 	if (Global->Opt->InfoPanel.strShowStatusInfo.empty())
 	{
 		std::for_each(RANGE(SectionState, i)
@@ -172,7 +177,7 @@ void InfoList::DisplayObject()
 
 	Box(m_X1,m_Y1,m_X2,m_Y2,colors::PaletteColorToFarColor(COL_PANELBOX),DOUBLE_BOX);
 	SetScreen(m_X1+1,m_Y1+1,m_X2-1,m_Y2-1,L' ',colors::PaletteColorToFarColor(COL_PANELTEXT));
-	SetColor(m_Focus? COL_PANELSELECTEDTITLE : COL_PANELTITLE);
+	SetColor(IsFocused()? COL_PANELSELECTEDTITLE : COL_PANELTITLE);
 
 	string strTitle = GetTitle();
 	if (!strTitle.empty())
@@ -533,7 +538,7 @@ void InfoList::DisplayObject()
 		}
 	}
 
-	if (AnotherPanel->GetMode() == FILE_PANEL)
+	if (AnotherPanel->GetMode() == panel_mode::NORMAL_PANEL)
 	{
 		/* #5 - description */
 		strTitle = MSG(MInfoDescription);
@@ -554,7 +559,7 @@ void InfoList::DisplayObject()
 		}
 	}
 
-	if (AnotherPanel->GetMode() == PLUGIN_PANEL)
+	if (AnotherPanel->GetMode() == panel_mode::PLUGIN_PANEL)
 	{
 		/* #6 - Plugin Description */
 		strTitle = MSG(MInfoPlugin);
@@ -798,15 +803,16 @@ int InfoList::ProcessKey(const Manager::Key& Key)
 
 int InfoList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	int RetCode;
+	if (!IsMouseInClientArea(MouseEvent))
+		return FALSE;
 
-	if (Panel::PanelProcessMouse(MouseEvent,RetCode))
-		return RetCode;
+	if (!(MouseEvent->dwButtonState & MOUSE_ANY_BUTTON_PRESSED))
+		return FALSE;
 
 	bool NeedRedraw=false;
 	const auto AnotherPanel = Parent()->GetAnotherPanel(this);
-	const auto ProcessDescription = AnotherPanel->GetMode() == FILE_PANEL;
-	const auto ProcessPluginDescription = AnotherPanel->GetMode() == PLUGIN_PANEL;
+	const auto ProcessDescription = AnotherPanel->GetMode() == panel_mode::NORMAL_PANEL;
+	const auto ProcessPluginDescription = AnotherPanel->GetMode() == panel_mode::PLUGIN_PANEL;
 	if ((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && !(MouseEvent->dwEventFlags & MOUSE_MOVED))
 	{
 		if (MouseEvent->dwMousePosition.Y == SectionState[ILSS_DISKINFO].Y)
@@ -868,7 +874,7 @@ int InfoList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (NeedRedraw)
 		Redraw();
 
-	SetFocus();
+	Parent()->SetActivePanel(this);
 
 	if (DizView)
 	{

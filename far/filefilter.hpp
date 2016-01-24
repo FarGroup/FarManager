@@ -36,9 +36,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "filefilterparams.hpp"
+#include "panelfwd.hpp"
 
 class VMenu2;
-class Panel;
 
 // почему FileInFilter вернул true или false
 enum enumFileInFilterType
@@ -68,7 +68,6 @@ public:
 	static void Save(bool always);
 
 private:
-	Panel *GetHostPanel();
 	void ProcessSelection(VMenu2 *FilterList);
 	enumFileFilterFlagsType GetFFFT();
 	int  GetCheck(const FileFilterParams& FFP);

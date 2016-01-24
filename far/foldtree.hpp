@@ -69,7 +69,7 @@ private:
 	void DrawEdit();
 	void SetCoords();
 
-	std::unique_ptr<TreeList, delayed_destroyer> Tree;
+	std::shared_ptr<TreeList> Tree;
 	std::unique_ptr<EditControl> FindEdit;
 	int ModalMode;
 	bool IsFullScreen;

@@ -687,7 +687,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		AttrDlg[SA_BUTTON_SYSTEMDLG].Flags&=~DIF_DISABLE;
 	}
 
-	if (SrcPanel && SrcPanel->GetMode()==PLUGIN_PANEL)
+	if (SrcPanel && SrcPanel->GetMode() == panel_mode::PLUGIN_PANEL)
 	{
 		OpenPanelInfo Info;
 		const auto hPlugin = SrcPanel->GetPluginHandle();

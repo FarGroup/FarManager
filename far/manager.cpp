@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "desktop.hpp"
 #include "keybar.hpp"
 #include "fileedit.hpp"
+#include "scrsaver.hpp"
 
 long Manager::CurrentWindowType=-1;
 
@@ -185,13 +186,13 @@ static int CASHook(const Manager::Key& key)
 
 							if (isPanelFocus)
 							{
-								const auto LeftVisible = Global->CtrlObject->Cp()->LeftPanel->IsVisible();
-								const auto RightVisible = Global->CtrlObject->Cp()->RightPanel->IsVisible();
+								const auto LeftVisible = Global->CtrlObject->Cp()->LeftPanel()->IsVisible();
+								const auto RightVisible = Global->CtrlObject->Cp()->RightPanel()->IsVisible();
 								const auto CmdLineVisible = Global->CtrlObject->CmdLine()->IsVisible();
 								const auto KeyBarVisible = Global->CtrlObject->Cp()->GetKeybar().IsVisible();
 								Manager::ShowBackground();
-								Global->CtrlObject->Cp()->LeftPanel->HideButKeepSaveScreen();
-								Global->CtrlObject->Cp()->RightPanel->HideButKeepSaveScreen();
+								Global->CtrlObject->Cp()->LeftPanel()->HideButKeepSaveScreen();
+								Global->CtrlObject->Cp()->RightPanel()->HideButKeepSaveScreen();
 
 								switch (Global->Opt->PanelCtrlAltShiftRule)
 								{
@@ -209,8 +210,8 @@ static int CASHook(const Manager::Key& key)
 
 								wait(maskCurrent);
 
-								if (LeftVisible)      Global->CtrlObject->Cp()->LeftPanel->Show();
-								if (RightVisible)     Global->CtrlObject->Cp()->RightPanel->Show();
+								if (LeftVisible)      Global->CtrlObject->Cp()->LeftPanel()->Show();
+								if (RightVisible)     Global->CtrlObject->Cp()->RightPanel()->Show();
 								if (CmdLineVisible)   Global->CtrlObject->CmdLine()->Show();
 								if (KeyBarVisible)    Global->CtrlObject->Cp()->GetKeybar().Show();
 							}
@@ -716,7 +717,7 @@ void Manager::ExitMainLoop(int Ask)
 		if (ExitAll() || Global->CloseFAR)
 		{
 			const auto cp = Global->CtrlObject->Cp();
-			if (!cp || (!cp->LeftPanel->ProcessPluginEvent(FE_CLOSE, nullptr) && !cp->RightPanel->ProcessPluginEvent(FE_CLOSE, nullptr)))
+			if (!cp || (!cp->LeftPanel()->ProcessPluginEvent(FE_CLOSE, nullptr) && !cp->RightPanel()->ProcessPluginEvent(FE_CLOSE, nullptr)))
 				EndLoop=true;
 		}
 		else
@@ -865,11 +866,18 @@ int Manager::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	int ret=FALSE;
 
-//    _D(SysLog(1,"Manager::ProcessMouse()"));
+	if (!MouseEvent->dwMousePosition.Y && MouseEvent->dwMousePosition.X == ScrX)
+	{
+		if (Global->Opt->ScreenSaver && !(MouseEvent->dwButtonState & 3))
+		{
+			ScreenSaver();
+			return TRUE;
+		}
+	}
+
 	if (m_currentWindow)
 		ret=m_currentWindow->ProcessMouse(MouseEvent);
 
-//    _D(SysLog(L"Manager::ProcessMouse() ret=%i",ret));
 	_MANAGER(SysLog(-1));
 	return ret;
 }
@@ -888,9 +896,9 @@ void Manager::PluginsMenu() const
 		*/
 		if (curType==windowtype_panels)
 		{
-			int pType=Global->CtrlObject->Cp()->ActivePanel()->GetType();
+			const auto pType = Global->CtrlObject->Cp()->ActivePanel()->GetType();
 
-			if (pType==QVIEW_PANEL || pType==INFO_PANEL)
+			if (pType == panel_type::QVIEW_PANEL || pType == panel_type::INFO_PANEL)
 			{
 				string strType, strCurFileName;
 				Global->CtrlObject->Cp()->GetTypeAndName(strType, strCurFileName);
@@ -919,7 +927,7 @@ bool Manager::IsPanelsActive(bool and_not_qview) const
 	if (!m_windows.empty() && m_currentWindow)
 	{
 		const auto fp = std::dynamic_pointer_cast<FilePanels>(m_currentWindow);
-		return fp && (!and_not_qview || fp->ActivePanel()->GetType() != QVIEW_PANEL);
+		return fp && (!and_not_qview || fp->ActivePanel()->GetType() != panel_type::QVIEW_PANEL);
 	}
 	else
 	{
@@ -1330,34 +1338,4 @@ FileEditor* Manager::GetCurrentEditor(void) const
 		return std::dynamic_pointer_cast<FileEditor>(*Iterator).get();
 	}
 	));
-}
-
-template<typename window_type, typename windows_type>
-static window_ptr GetContainerById(const windows_type& NonModal, const windows_type& Modal, int ID)
-{
-	const windows_type* Lists[] =
-	{
-		&NonModal,
-		&Modal
-	};
-	FOR(const auto& List, Lists)
-	{
-		const auto ItemIterator = std::find_if(CONST_RANGE(*List, i) -> bool
-		{
-			const auto window = std::dynamic_pointer_cast<window_type>(i);
-			return window && window->GetById(ID);
-		});
-		if (ItemIterator != List->cend()) return *ItemIterator;
-	}
-	return nullptr;
-}
-
-window_ptr Manager::GetViewerContainerById(int ID) const
-{
-	return GetContainerById<ViewerContainer>(m_windows, m_modalWindows, ID);
-}
-
-window_ptr Manager::GetEditorContainerById(int ID) const
-{
-	return GetContainerById<FileEditor>(m_windows, m_modalWindows, ID);
 }

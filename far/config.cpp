@@ -209,8 +209,8 @@ void Options::PanelSettings()
 		if (!AutoUpdate)
 			AutoUpdateLimit = 0;
 
-		Global->CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
-		Global->CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
+		Global->CtrlObject->Cp()->LeftPanel()->Update(UPDATE_KEEP_SELECTION);
+		Global->CtrlObject->Cp()->RightPanel()->Update(UPDATE_KEEP_SELECTION);
 		Global->CtrlObject->Cp()->Redraw();
 	}
 }
@@ -270,8 +270,8 @@ void Options::TreeSettings()
 
 	if (Builder.ShowDialog())
 	{
-		Global->CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
-		Global->CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
+		Global->CtrlObject->Cp()->LeftPanel()->Update(UPDATE_KEEP_SELECTION);
+		Global->CtrlObject->Cp()->RightPanel()->Update(UPDATE_KEEP_SELECTION);
 		Global->CtrlObject->Cp()->Redraw();
 	}
 }
@@ -311,8 +311,8 @@ void Options::InterfaceSettings()
 			CMOpt.CopyTimeRule = 3;
 
 		SetFarConsoleMode();
-		Global->CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
-		Global->CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
+		Global->CtrlObject->Cp()->LeftPanel()->Update(UPDATE_KEEP_SELECTION);
+		Global->CtrlObject->Cp()->RightPanel()->Update(UPDATE_KEEP_SELECTION);
 		Global->CtrlObject->Cp()->SetScreenPosition();
 		// $ 10.07.2001 SKV ! надо это делать, иначе если кейбар спрятали, будет полный рамс.
 		Global->CtrlObject->Cp()->Redraw();
@@ -370,14 +370,14 @@ void Options::InfoPanelSettings()
 	if (Builder.ShowDialog())
 	{
 		bool needRedraw=false;
-		if (Global->CtrlObject->Cp()->LeftPanel->GetType() == INFO_PANEL)
+		if (Global->CtrlObject->Cp()->LeftPanel()->GetType() == panel_type::INFO_PANEL)
 		{
-			Global->CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
+			Global->CtrlObject->Cp()->LeftPanel()->Update(UPDATE_KEEP_SELECTION);
 			needRedraw=true;
 		}
-		if (Global->CtrlObject->Cp()->RightPanel->GetType() == INFO_PANEL)
+		if (Global->CtrlObject->Cp()->RightPanel()->GetType() == panel_type::INFO_PANEL)
 		{
-			Global->CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
+			Global->CtrlObject->Cp()->RightPanel()->Update(UPDATE_KEEP_SELECTION);
 			needRedraw=true;
 		}
 		if (needRedraw)
@@ -867,11 +867,11 @@ void Options::SetFolderInfoFiles()
 	{
 		InfoPanel.strFolderInfoFiles = strFolderInfoFiles;
 
-		if (Global->CtrlObject->Cp()->LeftPanel->GetType() == INFO_PANEL)
-			Global->CtrlObject->Cp()->LeftPanel->Update(0);
+		if (Global->CtrlObject->Cp()->LeftPanel()->GetType() == panel_type::INFO_PANEL)
+			Global->CtrlObject->Cp()->LeftPanel()->Update(0);
 
-		if (Global->CtrlObject->Cp()->RightPanel->GetType() == INFO_PANEL)
-			Global->CtrlObject->Cp()->RightPanel->Update(0);
+		if (Global->CtrlObject->Cp()->RightPanel()->GetType() == panel_type::INFO_PANEL)
+			Global->CtrlObject->Cp()->RightPanel()->Update(0);
 	}
 }
 
@@ -966,7 +966,7 @@ void Options::SetFilePanelModes()
 {
 	size_t CurMode=0;
 
-	if (Global->CtrlObject->Cp()->ActivePanel()->GetType()==FILE_PANEL)
+	if (Global->CtrlObject->Cp()->ActivePanel()->GetType() == panel_type::FILE_PANEL)
 	{
 		CurMode=Global->CtrlObject->Cp()->ActivePanel()->GetViewMode();
 		CurMode = RealModeToDisplay(CurMode);
@@ -1071,7 +1071,7 @@ void Options::SetFilePanelModes()
 
 		if (DeleteMode)
 		{
-			const auto SwitchToAnotherMode = [&](Panel* p)
+			const auto SwitchToAnotherMode = [&](panel_ptr p)
 			{
 				const auto RealMode = static_cast<int>(DisplayModeToReal(CurMode));
 				if (p->GetViewMode() == RealMode)
@@ -1207,15 +1207,15 @@ void Options::SetFilePanelModes()
 			{
 				SetViewSettings(ModeNumber, std::move(NewSettings));
 			}
-			Global->CtrlObject->Cp()->LeftPanel->SortFileList(TRUE);
-			Global->CtrlObject->Cp()->RightPanel->SortFileList(TRUE);
+			Global->CtrlObject->Cp()->LeftPanel()->SortFileList(TRUE);
+			Global->CtrlObject->Cp()->RightPanel()->SortFileList(TRUE);
 			Global->CtrlObject->Cp()->SetScreenPosition();
-			int LeftMode=Global->CtrlObject->Cp()->LeftPanel->GetViewMode();
-			int RightMode=Global->CtrlObject->Cp()->RightPanel->GetViewMode();
-			Global->CtrlObject->Cp()->LeftPanel->SetViewMode(LeftMode);
-			Global->CtrlObject->Cp()->RightPanel->SetViewMode(RightMode);
-			Global->CtrlObject->Cp()->LeftPanel->Redraw();
-			Global->CtrlObject->Cp()->RightPanel->Redraw();
+			int LeftMode=Global->CtrlObject->Cp()->LeftPanel()->GetViewMode();
+			int RightMode=Global->CtrlObject->Cp()->RightPanel()->GetViewMode();
+			Global->CtrlObject->Cp()->LeftPanel()->SetViewMode(LeftMode);
+			Global->CtrlObject->Cp()->RightPanel()->SetViewMode(RightMode);
+			Global->CtrlObject->Cp()->LeftPanel()->Redraw();
+			Global->CtrlObject->Cp()->RightPanel()->Redraw();
 		}
 	}
 }
@@ -2089,13 +2089,13 @@ void Options::Save(bool Manual)
 
 	/* <ПРЕПРОЦЕССЫ> *************************************************** */
 
-	const auto StorePanelOptions = [](Panel* PanelPtr, PanelOptions& Panel)
+	const auto StorePanelOptions = [](panel_ptr PanelPtr, PanelOptions& Panel)
 	{
-		if (PanelPtr->GetMode()==NORMAL_PANEL)
+		if (PanelPtr->GetMode() == panel_mode::NORMAL_PANEL)
 		{
-			Panel.m_Type = PanelPtr->GetType();
+			Panel.m_Type = PanelPtr->GetType().value();
 			Panel.ViewMode = PanelPtr->GetViewMode();
-			Panel.SortMode = PanelPtr->GetSortMode();
+			Panel.SortMode = PanelPtr->GetSortMode().value();
 			Panel.ReverseSortOrder = PanelPtr->GetSortOrder();
 			Panel.SortGroups = PanelPtr->GetSortGroups();
 			Panel.ShowShortNames = PanelPtr->GetShowShortNamesMode();
@@ -2111,10 +2111,10 @@ void Options::Save(bool Manual)
 		Panel.CurFile = strTemp1;
 	};
 
-	StorePanelOptions(Global->CtrlObject->Cp()->LeftPanel, LeftPanel);
-	StorePanelOptions(Global->CtrlObject->Cp()->RightPanel, RightPanel);
+	StorePanelOptions(Global->CtrlObject->Cp()->LeftPanel(), LeftPanel);
+	StorePanelOptions(Global->CtrlObject->Cp()->RightPanel(), RightPanel);
 
-	LeftFocus = Global->CtrlObject->Cp()->ActivePanel() == Global->CtrlObject->Cp()->LeftPanel;
+	LeftFocus = Global->CtrlObject->Cp()->ActivePanel() == Global->CtrlObject->Cp()->LeftPanel();
 
 	/* *************************************************** </ПРЕПРОЦЕССЫ> */
 
@@ -2522,11 +2522,11 @@ enum enumOptionsMenu
 
 void SetLeftRightMenuChecks(MenuDataEx *pMenu, bool bLeft)
 {
-	Panel *pPanel = bLeft?Global->CtrlObject->Cp()->LeftPanel:Global->CtrlObject->Cp()->RightPanel;
+	const auto pPanel = bLeft? Global->CtrlObject->Cp()->LeftPanel() : Global->CtrlObject->Cp()->RightPanel();
 
-	switch (pPanel->GetType())
+	switch (pPanel->GetType().value())
 	{
-	case FILE_PANEL:
+	case panel_type::FILE_PANEL:
 		{
 			int MenuLine = pPanel->GetViewMode();
 
@@ -2539,13 +2539,13 @@ void SetLeftRightMenuChecks(MenuDataEx *pMenu, bool bLeft)
 			}
 		}
 		break;
-	case INFO_PANEL:
+	case panel_type::INFO_PANEL:
 		pMenu[MENU_LEFT_INFOPANEL].SetCheck(1);
 		break;
-	case TREE_PANEL:
+	case panel_type::TREE_PANEL:
 		pMenu[MENU_LEFT_TREEPANEL].SetCheck(1);
 		break;
-	case QVIEW_PANEL:
+	case panel_type::QVIEW_PANEL:
 		pMenu[MENU_LEFT_QUICKVIEW].SetCheck(1);
 		break;
 	}
@@ -2734,7 +2734,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 
 			if (HItemToShow == -1)
 			{
-				if (Global->CtrlObject->Cp()->ActivePanel() == Global->CtrlObject->Cp()->RightPanel &&
+				if (Global->CtrlObject->Cp()->ActivePanel() == Global->CtrlObject->Cp()->RightPanel() &&
 					Global->CtrlObject->Cp()->ActivePanel()->IsVisible())
 					HItemToShow = 4;
 				else
@@ -2749,7 +2749,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		}
 		else
 		{
-			if (Global->CtrlObject->Cp()->ActivePanel() == Global->CtrlObject->Cp()->RightPanel &&
+			if (Global->CtrlObject->Cp()->ActivePanel() == Global->CtrlObject->Cp()->RightPanel() &&
 				Global->CtrlObject->Cp()->ActivePanel()->IsVisible())
 			{
 				MainMenu[0].Selected = 0;
@@ -2772,12 +2772,12 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 	case MENU_LEFT:
 	case MENU_RIGHT:
 		{
-			Panel *pPanel = (HItem == MENU_LEFT)?Global->CtrlObject->Cp()->LeftPanel:Global->CtrlObject->Cp()->RightPanel;
+			auto pPanel = (HItem == MENU_LEFT)? Global->CtrlObject->Cp()->LeftPanel() : Global->CtrlObject->Cp()->RightPanel();
 
 			if (VItem >= MENU_LEFT_BRIEFVIEW && VItem <= MENU_LEFT_ALTERNATIVEVIEW)
 			{
-				Global->CtrlObject->Cp()->ChangePanelToFilled(pPanel, FILE_PANEL);
-				pPanel=(HItem == MENU_LEFT)?Global->CtrlObject->Cp()->LeftPanel:Global->CtrlObject->Cp()->RightPanel;
+				Global->CtrlObject->Cp()->ChangePanelToFilled(pPanel, panel_type::FILE_PANEL);
+				pPanel=(HItem == MENU_LEFT)?Global->CtrlObject->Cp()->LeftPanel():Global->CtrlObject->Cp()->RightPanel();
 				pPanel->SetViewMode((VItem == MENU_LEFT_ALTERNATIVEVIEW)?VIEW_0:VIEW_1+VItem);
 			}
 			else
@@ -2785,13 +2785,13 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 				switch (VItem)
 				{
 				case MENU_LEFT_INFOPANEL: // Info panel
-					Global->CtrlObject->Cp()->ChangePanelToFilled(pPanel, INFO_PANEL);
+					Global->CtrlObject->Cp()->ChangePanelToFilled(pPanel, panel_type::INFO_PANEL);
 					break;
 				case MENU_LEFT_TREEPANEL: // Tree panel
-					Global->CtrlObject->Cp()->ChangePanelToFilled(pPanel, TREE_PANEL);
+					Global->CtrlObject->Cp()->ChangePanelToFilled(pPanel, panel_type::TREE_PANEL);
 					break;
 				case MENU_LEFT_QUICKVIEW: // Quick view
-					Global->CtrlObject->Cp()->ChangePanelToFilled(pPanel, QVIEW_PANEL);
+					Global->CtrlObject->Cp()->ChangePanelToFilled(pPanel, panel_type::QVIEW_PANEL);
 					break;
 				case MENU_LEFT_SORTMODES: // Sort modes
 					pPanel->ProcessKey(Manager::Key(KEY_CTRLF12));

@@ -37,17 +37,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "window.hpp"
 #include "viewer.hpp"
+#include "panelfwd.hpp"
 
-class Panel;
 class CommandLine;
 class MenuBar;
 
-class FilePanels:public window,public ViewerContainer
+class FilePanels:public window, public ViewerContainer
 {
 	struct private_tag {};
 
 public:
-	static filepanels_ptr create(bool CreatePanels, int DirCount);
+	static filepanels_ptr create(bool CreateRealPanels, int DirCount);
 
 	FilePanels(private_tag);
 	virtual ~FilePanels();
@@ -65,30 +65,43 @@ public:
 	virtual void Refresh() override;
 	virtual FARMACROAREA GetMacroArea() const override;
 	virtual void Show() override;
+	virtual void DisplayObject() override;
+	virtual string GetTitle() const override { return string(); }
 
 	virtual Viewer* GetViewer(void) override;
 	virtual Viewer* GetById(int ID) override;
 
-	Panel* GetAnotherPanel(const Panel *Current);
-	Panel* ChangePanelToFilled(Panel *Current, int NewType);
-	Panel* ChangePanel(Panel *Current, int NewType, int CreateNew, int Force);
+	panel_ptr LeftPanel() const { return m_Panels[panel_left].m_Panel; }
+	panel_ptr RightPanel() const { return m_Panels[panel_right].m_Panel; }
+	panel_ptr ActivePanel() const { return m_Panels[m_ActivePanelIndex].m_Panel; }
+	panel_ptr PassivePanel() const { return m_Panels[!m_ActivePanelIndex].m_Panel; }
+
+	bool IsLeft(const Panel* What) { return What == LeftPanel().get(); }
+	bool IsRight(const Panel* What) { return What == RightPanel().get(); }
+	bool IsLeft(const panel_ptr& What) { return What == LeftPanel(); }
+	bool IsRight(const panel_ptr& What) { return What == RightPanel(); }
+	bool IsLeftActive() const { return m_ActivePanelIndex == panel_left; }
+	bool IsRightActive() const { return m_ActivePanelIndex == panel_right; }
+
+
+	panel_ptr GetAnotherPanel(panel_ptr Current) { return GetAnotherPanel(Current.get()); }
+	panel_ptr GetAnotherPanel(const Panel* Current);
+	panel_ptr ChangePanelToFilled(panel_ptr Current, panel_type NewType);
+	panel_ptr ChangePanel(panel_ptr Current, panel_type NewType, int CreateNew, int Force);
 	void GoToFile(const string& FileName);
-	int ChangePanelViewMode(Panel *Current, int Mode, BOOL RefreshWindow);
-	Panel* ActivePanel() { return m_ActivePanel; }
-	Panel* PassivePanel() { return GetAnotherPanel(m_ActivePanel); }
-	// BUGBUG
-	void SetActivePanel(Panel* p) { m_ActivePanel = p; }
+	int ChangePanelViewMode(panel_ptr Current, int Mode, BOOL RefreshWindow);
+	void SetActivePanel(panel_ptr p) { return SetActivePanel(p.get()); }
+	void SetActivePanel(Panel* p);
 
 	KeyBar& GetKeybar() { return *m_windowKeyBar; }
 	CommandLine* GetCmdLine(void);
 
 private:
-	void Init(int DirCount);
-	virtual void DisplayObject() override;
-	virtual string GetTitle() const override { return string(); }
 
-	Panel* CreatePanel(int Type);
-	void DeletePanel(Panel *Deleted);
+	void Init(int DirCount);
+	void SetActivePanelInternal(panel_ptr p);
+
+	panel_ptr CreatePanel(panel_type Type);
 	void SetPanelPositions(bool LeftFullScreen, bool RightFullScreen);
 	int SetAnhoterPanelFocus();
 	int SwapPanels();
@@ -96,19 +109,26 @@ private:
 	std::unique_ptr<CommandLine> CmdLine;
 	std::unique_ptr<MenuBar> TopMenuBar;
 
-public:
-	Panel *LastLeftFilePanel;
-	Panel *LastRightFilePanel;
-	Panel *LeftPanel;
-	Panel *RightPanel;
+	enum panel_index
+	{
+		panel_left,
+		panel_right,
 
-	int LastLeftType;
-	int LastRightType;
-	int LeftStateBeforeHide;
-	int RightStateBeforeHide;
+		panels_count
+	};
 
-private:
-	Panel *m_ActivePanel;
+	struct panel_data
+	{
+		panel_data(): m_LastType(panel_type::FILE_PANEL), m_StateBeforeHide() {}
+
+		panel_ptr m_Panel;
+		panel_ptr m_LastFilePanel;
+		panel_type m_LastType;
+		int m_StateBeforeHide;
+	}
+	m_Panels[panels_count];
+
+	panel_index m_ActivePanelIndex;
 };
 
 #endif // FILEPANELS_HPP_B2D6495E_DA8B_4E72_80F5_37282A14C316

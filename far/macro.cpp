@@ -475,7 +475,7 @@ static bool TryToPostMacro(FARMACROAREA Area,const string& TextKey,DWORD IntKey)
 	return CallMacroPlugin(&info);
 }
 
-static inline Panel* TypeToPanel(int Type)
+static inline panel_ptr TypeToPanel(int Type)
 {
 	const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 	const auto PassivePanel = Global->CtrlObject->Cp()->PassivePanel();
@@ -559,7 +559,7 @@ void KeyMacro::RestoreMacroChar() const
 					Global->WindowManager->GetCurrentEditor()->IsVisible()
 					/* && LockScr*/) // Mantis#0001595
 	{
-		Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,Global->WindowManager->GetCurrentEditor()->GetId());
+		Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW, EEREDRAW_ALL, Global->WindowManager->GetCurrentEditor()->GetEditor());
 		Global->WindowManager->GetCurrentEditor()->Show();
 	}
 	else if (m_Area==MACROAREA_VIEWER &&
@@ -761,7 +761,7 @@ int KeyMacro::GetKey()
 								Global->WindowManager->GetCurrentEditor()->IsVisible() &&
 								Global->ScrBuf->GetLockCount())
 				{
-					Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,Global->WindowManager->GetCurrentEditor()->GetId());
+					Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW, EEREDRAW_ALL, Global->WindowManager->GetCurrentEditor()->GetEditor());
 					Global->WindowManager->GetCurrentEditor()->Show();
 				}
 
@@ -984,23 +984,23 @@ static BOOL CheckCmdLine(int CmdLength,UINT64 CurFlags)
 	return TRUE;
 }
 
-static BOOL CheckPanel(int PanelMode,UINT64 CurFlags,BOOL IsPassivePanel)
+static BOOL CheckPanel(panel_mode PanelMode, UINT64 CurFlags, BOOL IsPassivePanel)
 {
 	if (IsPassivePanel)
 	{
-		if ((PanelMode == PLUGIN_PANEL && (CurFlags&MFLAGS_PNOPLUGINPANELS)) || (PanelMode == NORMAL_PANEL && (CurFlags&MFLAGS_PNOFILEPANELS)))
+		if ((PanelMode == panel_mode::PLUGIN_PANEL && (CurFlags&MFLAGS_PNOPLUGINPANELS)) || (PanelMode == panel_mode::NORMAL_PANEL && (CurFlags&MFLAGS_PNOFILEPANELS)))
 			return FALSE;
 	}
 	else
 	{
-		if ((PanelMode == PLUGIN_PANEL && (CurFlags&MFLAGS_NOPLUGINPANELS)) || (PanelMode == NORMAL_PANEL && (CurFlags&MFLAGS_NOFILEPANELS)))
+		if ((PanelMode == panel_mode::PLUGIN_PANEL && (CurFlags&MFLAGS_NOPLUGINPANELS)) || (PanelMode == panel_mode::NORMAL_PANEL && (CurFlags&MFLAGS_NOFILEPANELS)))
 			return FALSE;
 	}
 
 	return TRUE;
 }
 
-static BOOL CheckFileFolder(Panel *CheckPanel,UINT64 CurFlags, BOOL IsPassivePanel)
+static BOOL CheckFileFolder(panel_ptr CheckPanel,UINT64 CurFlags, BOOL IsPassivePanel)
 {
 	string strFileName;
 	DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
@@ -1041,8 +1041,8 @@ static BOOL CheckAll (FARMACROAREA Area, UINT64 CurFlags)
 		return FALSE;
 
 	// проверки панели и типа файла
-	Panel *ActivePanel = Cp->ActivePanel();
-	Panel *PassivePanel = Cp->PassivePanel();
+	const auto ActivePanel = Cp->ActivePanel();
+	const auto PassivePanel = Cp->PassivePanel();
 
 	if (ActivePanel && PassivePanel)// && (CurFlags&MFLAGS_MODEMASK)==MACROAREA_SHELL)
 	{
@@ -1585,7 +1585,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_C_APANEL_ROOT:  // APanel.Root
 		case MCODE_C_PPANEL_ROOT:  // PPanel.Root
 		{
-			Panel *SelPanel=(CheckCode==MCODE_C_APANEL_ROOT)?ActivePanel:PassivePanel;
+			const auto SelPanel = (CheckCode == MCODE_C_APANEL_ROOT)?ActivePanel:PassivePanel;
 			return PassBoolean((SelPanel ? SelPanel->VMProcess(MCODE_C_ROOTFOLDER) ? 1:0:0), Data);
 		}
 
@@ -1594,7 +1594,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_C_APANEL_EOF:
 		case MCODE_C_PPANEL_EOF:
 		{
-			Panel *SelPanel=(CheckCode==MCODE_C_APANEL_BOF || CheckCode==MCODE_C_APANEL_EOF)?ActivePanel:PassivePanel;
+			const auto SelPanel = (CheckCode == MCODE_C_APANEL_BOF || CheckCode == MCODE_C_APANEL_EOF)?ActivePanel:PassivePanel;
 			if (SelPanel)
 				ret=SelPanel->VMProcess(CheckCode==MCODE_C_APANEL_BOF || CheckCode==MCODE_C_PPANEL_BOF?MCODE_C_BOF:MCODE_C_EOF)?1:0;
 			return PassBoolean(ret, Data);
@@ -1674,14 +1674,14 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_C_APANEL_VISIBLE:  // APanel.Visible
 		case MCODE_C_PPANEL_VISIBLE:  // PPanel.Visible
 		{
-			Panel *SelPanel=CheckCode==MCODE_C_APANEL_VISIBLE?ActivePanel:PassivePanel;
+			const auto SelPanel = CheckCode == MCODE_C_APANEL_VISIBLE?ActivePanel:PassivePanel;
 			return PassBoolean(SelPanel && SelPanel->IsVisible(), Data);
 		}
 
 		case MCODE_C_APANEL_ISEMPTY: // APanel.Empty
 		case MCODE_C_PPANEL_ISEMPTY: // PPanel.Empty
 		{
-			Panel *SelPanel=CheckCode==MCODE_C_APANEL_ISEMPTY?ActivePanel:PassivePanel;
+			const auto SelPanel = CheckCode == MCODE_C_APANEL_ISEMPTY?ActivePanel:PassivePanel;
 			if (SelPanel)
 			{
 				SelPanel->GetFileName(strFileName,SelPanel->GetCurrentPos(),FileAttr);
@@ -1694,42 +1694,42 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_C_APANEL_FILTER:
 		case MCODE_C_PPANEL_FILTER:
 		{
-			Panel *SelPanel=(CheckCode==MCODE_C_APANEL_FILTER)?ActivePanel:PassivePanel;
+			const auto SelPanel = (CheckCode == MCODE_C_APANEL_FILTER)?ActivePanel:PassivePanel;
 			return PassBoolean(SelPanel && SelPanel->VMProcess(MCODE_C_APANEL_FILTER), Data);
 		}
 
 		case MCODE_C_APANEL_LFN:
 		case MCODE_C_PPANEL_LFN:
 		{
-			Panel *SelPanel = CheckCode == MCODE_C_APANEL_LFN ? ActivePanel : PassivePanel;
+			const auto SelPanel = CheckCode == MCODE_C_APANEL_LFN ? ActivePanel : PassivePanel;
 			return PassBoolean(SelPanel && !SelPanel->GetShowShortNamesMode(), Data);
 		}
 
 		case MCODE_C_APANEL_LEFT: // APanel.Left
 		case MCODE_C_PPANEL_LEFT: // PPanel.Left
 		{
-			Panel *SelPanel = CheckCode == MCODE_C_APANEL_LEFT ? ActivePanel : PassivePanel;
-			return PassBoolean(SelPanel && SelPanel==Global->CtrlObject->Cp()->LeftPanel, Data);
+			const auto SelPanel = CheckCode == MCODE_C_APANEL_LEFT ? ActivePanel : PassivePanel;
+			return PassBoolean(SelPanel && SelPanel==Global->CtrlObject->Cp()->LeftPanel(), Data);
 		}
 
 		case MCODE_C_APANEL_FILEPANEL: // APanel.FilePanel
 		case MCODE_C_PPANEL_FILEPANEL: // PPanel.FilePanel
 		{
-			Panel *SelPanel = CheckCode == MCODE_C_APANEL_FILEPANEL ? ActivePanel : PassivePanel;
-			return PassBoolean(SelPanel && SelPanel->GetType()==FILE_PANEL, Data);
+			const auto SelPanel = CheckCode == MCODE_C_APANEL_FILEPANEL ? ActivePanel : PassivePanel;
+			return PassBoolean(SelPanel && SelPanel->GetType() == panel_type::FILE_PANEL, Data);
 		}
 
 		case MCODE_C_APANEL_PLUGIN: // APanel.Plugin
 		case MCODE_C_PPANEL_PLUGIN: // PPanel.Plugin
 		{
-			Panel *SelPanel=CheckCode==MCODE_C_APANEL_PLUGIN?ActivePanel:PassivePanel;
-			return PassBoolean(SelPanel && SelPanel->GetMode()==PLUGIN_PANEL, Data);
+			const auto SelPanel = CheckCode == MCODE_C_APANEL_PLUGIN?ActivePanel:PassivePanel;
+			return PassBoolean(SelPanel && SelPanel->GetMode() == panel_mode::PLUGIN_PANEL, Data);
 		}
 
 		case MCODE_C_APANEL_FOLDER: // APanel.Folder
 		case MCODE_C_PPANEL_FOLDER: // PPanel.Folder
 		{
-			Panel *SelPanel=CheckCode==MCODE_C_APANEL_FOLDER?ActivePanel:PassivePanel;
+			const auto SelPanel = CheckCode == MCODE_C_APANEL_FOLDER?ActivePanel:PassivePanel;
 			if (SelPanel)
 			{
 				SelPanel->GetFileName(strFileName,SelPanel->GetCurrentPos(),FileAttr);
@@ -1743,14 +1743,14 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_C_APANEL_SELECTED: // APanel.Selected
 		case MCODE_C_PPANEL_SELECTED: // PPanel.Selected
 		{
-			Panel *SelPanel=CheckCode==MCODE_C_APANEL_SELECTED?ActivePanel:PassivePanel;
+			const auto SelPanel = CheckCode == MCODE_C_APANEL_SELECTED?ActivePanel:PassivePanel;
 			return PassBoolean(SelPanel && SelPanel->GetRealSelCount() > 0, Data);
 		}
 
 		case MCODE_V_APANEL_CURRENT: // APanel.Current
 		case MCODE_V_PPANEL_CURRENT: // PPanel.Current
 		{
-			Panel *SelPanel = CheckCode == MCODE_V_APANEL_CURRENT ? ActivePanel : PassivePanel;
+			const auto SelPanel = CheckCode == MCODE_V_APANEL_CURRENT ? ActivePanel : PassivePanel;
 			const wchar_t *ptr = L"";
 			if (SelPanel )
 			{
@@ -1764,14 +1764,14 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_APANEL_SELCOUNT: // APanel.SelCount
 		case MCODE_V_PPANEL_SELCOUNT: // PPanel.SelCount
 		{
-			Panel *SelPanel = CheckCode == MCODE_V_APANEL_SELCOUNT ? ActivePanel : PassivePanel;
+			const auto SelPanel = CheckCode == MCODE_V_APANEL_SELCOUNT ? ActivePanel : PassivePanel;
 			return SelPanel ? SelPanel->GetRealSelCount() : 0;
 		}
 
 		case MCODE_V_APANEL_COLUMNCOUNT:       // APanel.ColumnCount - активная панель:  количество колонок
 		case MCODE_V_PPANEL_COLUMNCOUNT:       // PPanel.ColumnCount - пассивная панель: количество колонок
 		{
-			Panel *SelPanel = CheckCode == MCODE_V_APANEL_COLUMNCOUNT ? ActivePanel : PassivePanel;
+			const auto SelPanel = CheckCode == MCODE_V_APANEL_COLUMNCOUNT ? ActivePanel : PassivePanel;
 			return SelPanel ? SelPanel->GetColumnsCount() : 0;
 		}
 
@@ -1780,7 +1780,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_APANEL_HEIGHT: // APanel.Height
 		case MCODE_V_PPANEL_HEIGHT: // PPanel.Height
 		{
-			Panel *SelPanel = CheckCode == MCODE_V_APANEL_WIDTH || CheckCode == MCODE_V_APANEL_HEIGHT? ActivePanel : PassivePanel;
+			const auto SelPanel = CheckCode == MCODE_V_APANEL_WIDTH || CheckCode == MCODE_V_APANEL_HEIGHT? ActivePanel : PassivePanel;
 
 			if (SelPanel )
 			{
@@ -1802,7 +1802,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_APANEL_FORMAT:           // APanel.Format
 		case MCODE_V_PPANEL_FORMAT:           // PPanel.Format
 		{
-			Panel *SelPanel =
+			const auto SelPanel =
 					CheckCode == MCODE_V_APANEL_OPIFLAGS ||
 					CheckCode == MCODE_V_APANEL_HOSTFILE ||
 					CheckCode == MCODE_V_APANEL_FORMAT? ActivePanel : PassivePanel;
@@ -1814,7 +1814,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			if (SelPanel )
 			{
-				if (SelPanel->GetMode() == PLUGIN_PANEL)
+				if (SelPanel->GetMode() == panel_mode::PLUGIN_PANEL)
 				{
 					OpenPanelInfo Info={};
 					Info.StructSize=sizeof(OpenPanelInfo);
@@ -1840,7 +1840,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_APANEL_PREFIX:           // APanel.Prefix
 		case MCODE_V_PPANEL_PREFIX:           // PPanel.Prefix
 		{
-			Panel *SelPanel = CheckCode == MCODE_V_APANEL_PREFIX ? ActivePanel : PassivePanel;
+			const auto SelPanel = CheckCode == MCODE_V_APANEL_PREFIX ? ActivePanel : PassivePanel;
 			const wchar_t *ptr = L"";
 			if (SelPanel)
 			{
@@ -1854,7 +1854,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_APANEL_PATH0:           // APanel.Path0
 		case MCODE_V_PPANEL_PATH0:           // PPanel.Path0
 		{
-			Panel *SelPanel = CheckCode == MCODE_V_APANEL_PATH0 ? ActivePanel : PassivePanel;
+			const auto SelPanel = CheckCode == MCODE_V_APANEL_PATH0 ? ActivePanel : PassivePanel;
 			const wchar_t *ptr = L"";
 			if (SelPanel )
 			{
@@ -1868,11 +1868,11 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_APANEL_PATH: // APanel.Path
 		case MCODE_V_PPANEL_PATH: // PPanel.Path
 		{
-			Panel *SelPanel = CheckCode == MCODE_V_APANEL_PATH ? ActivePanel : PassivePanel;
+			const auto SelPanel = CheckCode == MCODE_V_APANEL_PATH ? ActivePanel : PassivePanel;
 			const wchar_t *ptr = L"";
 			if (SelPanel)
 			{
-				if (SelPanel->GetMode() == PLUGIN_PANEL)
+				if (SelPanel->GetMode() == panel_mode::PLUGIN_PANEL)
 				{
 					OpenPanelInfo Info={};
 					Info.StructSize=sizeof(OpenPanelInfo);
@@ -1905,17 +1905,17 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_APANEL_TYPE: // APanel.Type
 		case MCODE_V_PPANEL_TYPE: // PPanel.Type
 		{
-			Panel *SelPanel = CheckCode == MCODE_V_APANEL_TYPE ? ActivePanel : PassivePanel;
-			return SelPanel ? SelPanel->GetType() : 0;
+			const auto SelPanel = CheckCode == MCODE_V_APANEL_TYPE ? ActivePanel : PassivePanel;
+			return SelPanel? SelPanel->GetType().value() : panel_type::FILE_PANEL;
 		}
 
 		case MCODE_V_APANEL_DRIVETYPE: // APanel.DriveType - активная панель: тип привода
 		case MCODE_V_PPANEL_DRIVETYPE: // PPanel.DriveType - пассивная панель: тип привода
 		{
-			Panel *SelPanel = CheckCode == MCODE_V_APANEL_DRIVETYPE ? ActivePanel : PassivePanel;
+			const auto SelPanel = CheckCode == MCODE_V_APANEL_DRIVETYPE ? ActivePanel : PassivePanel;
 			ret=-1;
 
-			if (SelPanel  && SelPanel->GetMode() != PLUGIN_PANEL)
+			if (SelPanel  && SelPanel->GetMode() != panel_mode::PLUGIN_PANEL)
 			{
 				strFileName = SelPanel->GetCurDir();
 				GetPathRoot(strFileName, strFileName);
@@ -1941,14 +1941,14 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_APANEL_ITEMCOUNT: // APanel.ItemCount
 		case MCODE_V_PPANEL_ITEMCOUNT: // PPanel.ItemCount
 		{
-			Panel *SelPanel = CheckCode == MCODE_V_APANEL_ITEMCOUNT ? ActivePanel : PassivePanel;
+			const auto SelPanel = CheckCode == MCODE_V_APANEL_ITEMCOUNT ? ActivePanel : PassivePanel;
 			return SelPanel ? SelPanel->GetFileCount() : 0;
 		}
 
 		case MCODE_V_APANEL_CURPOS: // APanel.CurPos
 		case MCODE_V_PPANEL_CURPOS: // PPanel.CurPos
 		{
-			Panel *SelPanel = CheckCode == MCODE_V_APANEL_CURPOS ? ActivePanel : PassivePanel;
+			const auto SelPanel = CheckCode == MCODE_V_APANEL_CURPOS ? ActivePanel : PassivePanel;
 			return SelPanel ? SelPanel->GetCurrentPos()+(SelPanel->GetFileCount()>0?1:0) : 0;
 		}
 
@@ -2255,7 +2255,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			if (Data->Count>=3 && Data->Values[0].Type==FMVT_DOUBLE  &&
 				Data->Values[1].Type==FMVT_DOUBLE && Data->Values[2].Type==FMVT_BOOLEAN)
 			{
-				Panel *panel = Global->CtrlObject->Cp()->ActivePanel();
+				auto panel = Global->CtrlObject->Cp()->ActivePanel();
 				if (panel && Data->Values[0].Double == 1)
 					panel = Global->CtrlObject->Cp()->GetAnotherPanel(panel);
 
@@ -4286,9 +4286,9 @@ static bool panelsetposidxFunc(FarMacroCall* Data)
 
 	if (const auto SelPanel = TypeToPanel(typePanel))
 	{
-		int TypePanel=SelPanel->GetType(); //FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
+		const auto PanelType = SelPanel->GetType(); //FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
 
-		if (TypePanel == FILE_PANEL || TypePanel ==TREE_PANEL)
+		if (PanelType == panel_type::FILE_PANEL || PanelType == panel_type::TREE_PANEL)
 		{
 			size_t EndPos=SelPanel->GetFileCount();
 			long idxFoundItem=0;
@@ -4400,20 +4400,20 @@ static bool panelsetpathFunc(FarMacroCall* Data)
 	{
 		const auto& pathName=Val.asString();
 
-		Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
-		Panel *PassivePanel = Global->CtrlObject->Cp()->PassivePanel();
+		auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
+		auto PassivePanel = Global->CtrlObject->Cp()->PassivePanel();
 
 		//const auto CurrentWindow=WindowManager->GetCurrentWindow();
-		Panel *SelPanel = typePanel? (typePanel == 1?PassivePanel:nullptr):ActivePanel;
+		auto SelPanel = typePanel? (typePanel == 1?PassivePanel:nullptr):ActivePanel;
 
 		if (SelPanel)
 		{
-			if (SelPanel->SetCurDir(pathName,SelPanel->GetMode()==PLUGIN_PANEL && IsAbsolutePath(pathName), Global->WindowManager->GetCurrentWindow()->GetType() == windowtype_panels))
+			if (SelPanel->SetCurDir(pathName, SelPanel->GetMode() == panel_mode::PLUGIN_PANEL && IsAbsolutePath(pathName), Global->WindowManager->GetCurrentWindow()->GetType() == windowtype_panels))
 			{
 				// BUGBUG, why again?
 				ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 				PassivePanel = Global->CtrlObject->Cp()->PassivePanel();
-				SelPanel = typePanel? (typePanel == 1?PassivePanel:nullptr):ActivePanel;
+				SelPanel = typePanel? (typePanel == 1? PassivePanel : panel_ptr()) : ActivePanel;
 
 				//восстановим текущую папку из активной панели.
 				if (ActivePanel)
@@ -4451,9 +4451,9 @@ static bool panelsetposFunc(FarMacroCall* Data)
 
 	if (const auto SelPanel = TypeToPanel(typePanel))
 	{
-		int TypePanel=SelPanel->GetType(); //FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
+		const auto PanelType = SelPanel->GetType(); //FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
 
-		if (TypePanel == FILE_PANEL || TypePanel ==TREE_PANEL)
+		if (PanelType == panel_type::FILE_PANEL || PanelType == panel_type::TREE_PANEL)
 		{
 			// Need PointToName()?
 			if (SelPanel->GoToFile(fileName))
@@ -4518,9 +4518,9 @@ static bool panelitemFunc(FarMacroCall* Data)
 		return false;
 	}
 
-	int TypePanel=SelPanel->GetType(); //FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
+	const auto PanelType = SelPanel->GetType(); //FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
 
-	if (!(TypePanel == FILE_PANEL || TypePanel ==TREE_PANEL))
+	if (!(PanelType == panel_type::FILE_PANEL || PanelType == panel_type::TREE_PANEL))
 	{
 		PassValue(Ret, Data);
 		return false;
@@ -4529,23 +4529,23 @@ static bool panelitemFunc(FarMacroCall* Data)
 	int Index=(int)(P1.toInteger())-1;
 	int TypeInfo=(int)P2.toInteger();
 
-	if (TypePanel == TREE_PANEL)
+	if (const auto Tree = std::dynamic_pointer_cast<TreeList>(SelPanel))
 	{
-		const auto treeItem = static_cast<const TreeList*>(SelPanel)->GetItem(Index);
+		const auto treeItem = Tree->GetItem(Index);
 		if (treeItem && !TypeInfo)
 		{
 			PassString(treeItem->strName, Data);
 			return true;
 		}
 	}
-	else
+	else if (const auto fileList = std::dynamic_pointer_cast<FileList>(SelPanel))
 	{
 		string strDate, strTime;
 
 		if (TypeInfo == 11)
-			SelPanel->ReadDiz();
+			fileList->ReadDiz();
 
-		const auto filelistItem = static_cast<FileList*>(SelPanel)->GetItem(Index);
+		const auto filelistItem = fileList->GetItem(Index);
 
 		if (!filelistItem)
 			TypeInfo=-1;

@@ -424,7 +424,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, Pl
 
 	static PluginHandle DirListPlugin;
 	OPERATION_MODES OpMode=0;
-	if (Global->CtrlObject->Cp()->PassivePanel()->GetType()==QVIEW_PANEL || Global->CtrlObject->Cp()->ActivePanel()->GetType()==QVIEW_PANEL)
+	if (Global->CtrlObject->Cp()->PassivePanel()->GetType() == panel_type::QVIEW_PANEL || Global->CtrlObject->Cp()->ActivePanel()->GetType() == panel_type::QVIEW_PANEL)
 		OpMode|=OPM_QUICKVIEW;
 
 	// А не хочет ли плагин посмотреть на текущую панель?

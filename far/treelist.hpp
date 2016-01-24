@@ -47,6 +47,8 @@ enum
 
 class TreeList: public Panel
 {
+	struct private_tag {};
+
 public:
 	struct TreeItem: ::noncopyable, swapable<TreeItem>
 	{
@@ -82,7 +84,9 @@ public:
 		operator string() const { return strName; }
 	};
 
-	TreeList(window_ptr Owner, bool IsPanel = true);
+	static tree_panel_ptr create(window_ptr Owner, int ModalMode = 0);
+	TreeList(private_tag, window_ptr Owner, int ModalMode);
+	virtual ~TreeList();
 
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
@@ -105,8 +109,6 @@ public:
 	static void FlushCache();
 
 private:
-	virtual ~TreeList();
-
 	virtual __int64 VMProcess(int OpCode, void *vParam = nullptr, __int64 iParam = 0) override;
 	virtual bool SetCurDir(const string& NewDir, bool ClosePanel, bool IsUpdated = true) override;
 	virtual int GetCurName(string &strName, string &strShortName) const override;
@@ -121,8 +123,7 @@ private:
 	virtual int GetFileName(string &strName, int Pos, DWORD &FileAttr) const override;
 	virtual void SetTitle() override;
 	virtual string GetTitle() const override;
-	virtual void SetFocus() override;
-	virtual void KillFocus() override;
+	virtual void OnFocusChange(bool Get) override;
 	virtual void UpdateKeyBar() override;
 	virtual int GetCurrentPos() const override;
 	virtual int GetSelName(string *strName, DWORD &FileAttr, string *ShortName = nullptr, os::FAR_FIND_DATA *fd = nullptr) override;
@@ -139,7 +140,7 @@ private:
 	bool FillLastData();
 	int SetDirPosition(const string& NewDir);
 	void GetRoot();
-	Panel* GetRootPanel();
+	panel_ptr GetRootPanel();
 	void SyncDir();
 	void SaveTreeFile();
 	int ReadTreeFile();

@@ -39,10 +39,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "mix.hpp"
 #include "notification.hpp"
+#include "panelfwd.hpp"
 
 class SaveScreen;
 class FileEditor;
 class Viewer;
+class Editor;
 class window;
 class Panel;
 class Dialog;
@@ -112,9 +114,9 @@ public:
 	static int ProcessEvent(PluginHandle* hPlugin,int Event,void *Param);
 	static int Compare(PluginHandle* hPlugin,const PluginPanelItem *Item1,const PluginPanelItem *Item2,unsigned int Mode);
 	int ProcessEditorInput(const INPUT_RECORD *Rec) const;
-	int ProcessEditorEvent(int Event,void *Param,int EditorID) const;
-	int ProcessSubscribedEditorEvent(int Event, void *Param, int EditorID, const std::unordered_set<GUID, uuid_hash, uuid_equal>& PluginIds) const;
-	int ProcessViewerEvent(int Event,void *Param,int ViewerID) const;
+	int ProcessEditorEvent(int Event, void *Param, const Editor* EditorInstance) const;
+	int ProcessSubscribedEditorEvent(int Event, void *Param, const Editor* EditorInstance, const std::unordered_set<GUID, uuid_hash, uuid_equal>& PluginIds) const;
+	int ProcessViewerEvent(int Event, void *Param, const Viewer* ViewerInstance) const;
 	int ProcessDialogEvent(int Event,FarDialogEvent *Param) const;
 	int ProcessConsoleInput(ProcessConsoleInputInfo *Info) const;
 	std::vector<Plugin*> GetContentPlugins(const std::vector<const wchar_t*>& ColNames) const;
@@ -163,7 +165,7 @@ public:
 	int CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName=nullptr);
 	bool GetDiskMenuItem(Plugin *pPlugin, size_t PluginItem, bool &ItemPresent, wchar_t& PluginHotkey, string &strPluginText, GUID &Guid);
 	void ReloadLanguage();
-	int ProcessCommandLine(const string& Command,Panel *Target=nullptr);
+	int ProcessCommandLine(const string& Command, panel_ptr Target = nullptr);
 	size_t GetPluginInformation(Plugin *pPlugin, FarGetPluginInformation *pInfo, size_t BufferSize);
 	// $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
 	int CallPlugin(const GUID& SysID,int OpenFrom, void *Data, void **Ret=nullptr);

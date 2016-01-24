@@ -84,20 +84,6 @@ FileFilter::~FileFilter()
 {
 }
 
-Panel *FileFilter::GetHostPanel()
-{
-	if (!m_HostPanel || m_HostPanel == (Panel *)PANEL_ACTIVE)
-	{
-		return Global->CtrlObject->Cp()->ActivePanel();
-	}
-	else if (m_HostPanel == (Panel *)PANEL_PASSIVE)
-	{
-		return Global->CtrlObject->Cp()->PassivePanel();
-	}
-
-	return m_HostPanel;
-}
-
 bool FileFilter::FilterEdit()
 {
 	if (bMenuOpen)
@@ -161,12 +147,12 @@ bool FileFilter::FilterEdit()
 			FilterList->AddItem(ListItem);
 		}
 
-		if (GetHostPanel()->GetMode()==NORMAL_PANEL)
+		if (m_HostPanel->GetMode() == panel_mode::NORMAL_PANEL)
 		{
 			string strFileName;
 			os::FAR_FIND_DATA fdata;
 			ScanTree ScTree(false, false);
-			ScTree.SetFindPath(GetHostPanel()->GetCurDir(), L"*");
+			ScTree.SetFindPath(m_HostPanel->GetCurDir(), L"*");
 
 			while (ScTree.GetNextName(fdata,strFileName))
 				if (!ParseAndAddMasks(Extensions, fdata.strFileName, fdata.dwFileAttributes, 0))
@@ -177,7 +163,7 @@ bool FileFilter::FilterEdit()
 			string strFileName;
 			DWORD FileAttr;
 
-			for (int i=0; GetHostPanel()->GetFileName(strFileName,i,FileAttr); i++)
+			for (int i = 0; m_HostPanel->GetFileName(strFileName, i, FileAttr); i++)
 				if (!ParseAndAddMasks(Extensions, strFileName, FileAttr, 0))
 					break;
 		}
@@ -417,8 +403,8 @@ bool FileFilter::FilterEdit()
 	{
 		if (m_FilterType == FFT_PANEL)
 		{
-			GetHostPanel()->Update(UPDATE_KEEP_SELECTION);
-			GetHostPanel()->Refresh();
+			m_HostPanel->Update(UPDATE_KEEP_SELECTION);
+			m_HostPanel->Refresh();
 		}
 	}
 
@@ -430,7 +416,7 @@ enumFileFilterFlagsType FileFilter::GetFFFT()
 {
 	switch (m_FilterType)
 	{
-	case FFT_PANEL: return GetHostPanel() == Global->CtrlObject->Cp()->RightPanel ? FFFT_RIGHTPANEL : FFFT_LEFTPANEL;
+	case FFT_PANEL: return m_HostPanel == Global->CtrlObject->Cp()->RightPanel().get()? FFFT_RIGHTPANEL : FFFT_LEFTPANEL;
 	case FFT_COPY: return FFFT_COPY;
 	case FFT_FINDFILE: return FFFT_FINDFILE;
 	case FFT_SELECT: return FFFT_SELECT;

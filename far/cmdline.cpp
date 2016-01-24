@@ -199,21 +199,21 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 
 	if (LocalKey() == KEY_UP || LocalKey() == KEY_NUMPAD8)
 	{
-		if (Global->CtrlObject->Cp()->LeftPanel->IsVisible() || Global->CtrlObject->Cp()->RightPanel->IsVisible())
+		if (Global->CtrlObject->Cp()->LeftPanel()->IsVisible() || Global->CtrlObject->Cp()->RightPanel()->IsVisible())
 			return FALSE;
 
 		LocalKey=KEY_CTRLE;
 	}
 	else if (LocalKey() == KEY_DOWN || LocalKey() == KEY_NUMPAD2)
 	{
-		if (Global->CtrlObject->Cp()->LeftPanel->IsVisible() || Global->CtrlObject->Cp()->RightPanel->IsVisible())
+		if (Global->CtrlObject->Cp()->LeftPanel()->IsVisible() || Global->CtrlObject->Cp()->RightPanel()->IsVisible())
 			return FALSE;
 
 		LocalKey=KEY_CTRLX;
 	}
 
 	// $ 25.03.2002 VVM + При погашенных панелях колесом крутим историю
-	if (!Global->CtrlObject->Cp()->LeftPanel->IsVisible() && !Global->CtrlObject->Cp()->RightPanel->IsVisible())
+	if (!Global->CtrlObject->Cp()->LeftPanel()->IsVisible() && !Global->CtrlObject->Cp()->RightPanel()->IsVisible())
 	{
 		switch (LocalKey())
 		{
@@ -295,7 +295,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 		if (!Global->Opt->Tree.TurnOffCompletely)
 		{
 			string strStr;
-			Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
+			const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 			{
 				// TODO: здесь можно добавить проверку, что мы в корне диска и отсутствие файла Tree.Far...
 				FolderTree::create(strStr, MODALTREE_ACTIVE, TRUE, false);
@@ -307,7 +307,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 				ActivePanel->SetCurDir(strStr,true);
 				ActivePanel->Show();
 
-				if (ActivePanel->GetType()==TREE_PANEL)
+				if (ActivePanel->GetType() == panel_type::TREE_PANEL)
 					ActivePanel->ProcessKey(Manager::Key(KEY_ENTER));
 			}
 			else
@@ -315,9 +315,9 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 				// TODO: ... а здесь проверить факт изменения/появления файла Tree.Far и мы опять же в корне (чтобы лишний раз не апдейтить панель)
 				ActivePanel->Update(UPDATE_KEEP_SELECTION);
 				ActivePanel->Redraw();
-				Panel *AnotherPanel = Global->CtrlObject->Cp()->PassivePanel();
+				const auto AnotherPanel = Global->CtrlObject->Cp()->PassivePanel();
 
-				if (AnotherPanel->NeedUpdatePanel(ActivePanel))
+				if (AnotherPanel->NeedUpdatePanel(ActivePanel.get()))
 				{
 					AnotherPanel->Update(UPDATE_KEEP_SELECTION);//|UPDATE_SECONDARY);
 					AnotherPanel->Redraw();
@@ -349,7 +349,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 						Global->CtrlObject->FolderHistory->SetAddMode(false,2,true);
 
 					// пусть плагин сам прыгает... ;-)
-					Panel *Panel = Global->CtrlObject->Cp()->ActivePanel();
+					auto Panel = Global->CtrlObject->Cp()->ActivePanel();
 
 					if (SelectType == HRT_CTRLSHIFTENTER)
 						Panel = Global->CtrlObject->Cp()->PassivePanel();
@@ -395,7 +395,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLRALTNUMENTER:
 		case KEY_RCTRLALTNUMENTER:
 		{
-			Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
+			const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 			CmdStr.RemoveSelection();
 			Refresh();
 			const auto& strStr = CmdStr.GetString();
@@ -956,7 +956,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	auto SetPanel = Global->CtrlObject->Cp()->ActivePanel();
 	PrintCommand=true;
 
-	if (SetPanel->GetType() != FILE_PANEL && Global->CtrlObject->Cp()->PassivePanel()->GetType() == FILE_PANEL)
+	if (SetPanel->GetType() != panel_type::FILE_PANEL && Global->CtrlObject->Cp()->PassivePanel()->GetType() == panel_type::FILE_PANEL)
 		SetPanel=Global->CtrlObject->Cp()->PassivePanel();
 
 	RemoveTrailingSpaces(strCmdLine);
@@ -1206,7 +1206,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 
 		SetUserTitle(*Title? Title + 1 : Title);
 
-		if (!(Global->CtrlObject->Cp()->LeftPanel->IsVisible() || Global->CtrlObject->Cp()->RightPanel->IsVisible()))
+		if (!(Global->CtrlObject->Cp()->LeftPanel()->IsVisible() || Global->CtrlObject->Cp()->RightPanel()->IsVisible()))
 		{
 			Global->CtrlObject->Cp()->ActivePanel()->SetTitle();
 		}
@@ -1292,12 +1292,12 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 {
 	auto SetPanel = Global->CtrlObject->Cp()->ActivePanel();
 
-	if (SetPanel->GetType() != FILE_PANEL && Global->CtrlObject->Cp()->PassivePanel()->GetType() == FILE_PANEL)
+	if (SetPanel->GetType() != panel_type::FILE_PANEL && Global->CtrlObject->Cp()->PassivePanel()->GetType() == panel_type::FILE_PANEL)
 		SetPanel=Global->CtrlObject->Cp()->PassivePanel();
 
 	string strExpandedDir = Unquote(os::env::expand_strings(CmdLine));
 
-	if (SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir[0] == L'~' && ((strExpandedDir.size() == 1 && !os::fs::exists(strExpandedDir)) || IsSlash(strExpandedDir[1])))
+	if (SetPanel->GetMode() != panel_mode::PLUGIN_PANEL && strExpandedDir[0] == L'~' && ((strExpandedDir.size() == 1 && !os::fs::exists(strExpandedDir)) || IsSlash(strExpandedDir[1])))
 	{
 		if (Global->Opt->Exec.UseHomeDir && !Global->Opt->Exec.strHomeDir.empty())
 		{
@@ -1364,7 +1364,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	}
 	*/
 
-	if (SetPanel->GetType()==FILE_PANEL && SetPanel->GetMode()==PLUGIN_PANEL)
+	if (SetPanel->GetType() == panel_type::FILE_PANEL && SetPanel->GetMode() == panel_mode::PLUGIN_PANEL)
 	{
 		SetPanel->SetCurDir(strExpandedDir,ClosePanel!=0);
 		return true;

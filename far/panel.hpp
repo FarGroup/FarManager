@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "scrobj.hpp"
+#include "panelfwd.hpp"
 
 class DizList;
 
@@ -101,115 +102,64 @@ enum
 	PVS_FILEUPPERTOLOWERCASE  = 0x00000020,
 };
 
-enum
-{
-	FILE_PANEL,
-	TREE_PANEL,
-	QVIEW_PANEL,
-	INFO_PANEL
-};
-
-enum SORT_MODE
-{
-	UNSORTED,
-	BY_NAME,
-	BY_EXT,
-	BY_MTIME,
-	BY_CTIME,
-	BY_ATIME,
-	BY_SIZE,
-	BY_DIZ,
-	BY_OWNER,
-	BY_COMPRESSEDSIZE,
-	BY_NUMLINKS,
-	BY_NUMSTREAMS,
-	BY_STREAMSSIZE,
-	BY_FULLNAME,
-	BY_CHTIME,
-	BY_CUSTOMDATA,
-
-	SORTMODE_COUNT
-};
-
 enum {VIEW_0=0,VIEW_1,VIEW_2,VIEW_3,VIEW_4,VIEW_5,VIEW_6,VIEW_7,VIEW_8,VIEW_9};
 
 enum {UPDATE_KEEP_SELECTION=1,UPDATE_SECONDARY=2,UPDATE_IGNORE_VISIBLE=4,UPDATE_DRAW_MESSAGE=8};
 
-enum {NORMAL_PANEL,PLUGIN_PANEL};
+namespace detail
+{
+	struct panel_type { enum value_type
+	{
+		FILE_PANEL,
+		TREE_PANEL,
+		QVIEW_PANEL,
+		INFO_PANEL
+	};};
+	
+	struct panel_mode { enum value_type
+	{
+		NORMAL_PANEL,
+		PLUGIN_PANEL
+	};};
+
+	struct panel_sort { enum value_type
+	{
+		UNSORTED,
+		BY_NAME,
+		BY_EXT,
+		BY_MTIME,
+		BY_CTIME,
+		BY_ATIME,
+		BY_SIZE,
+		BY_DIZ,
+		BY_OWNER,
+		BY_COMPRESSEDSIZE,
+		BY_NUMLINKS,
+		BY_NUMSTREAMS,
+		BY_STREAMSSIZE,
+		BY_FULLNAME,
+		BY_CHTIME,
+		BY_CUSTOMDATA,
+
+		COUNT
+	};};
+}
+typedef enum_class<detail::panel_type> panel_type;
+typedef enum_class<detail::panel_mode> panel_mode;
+typedef enum_class<detail::panel_sort> panel_sort;
 
 class VMenu2;
 class Edit;
 struct PanelMenuItem;
 class Viewer;
-
-class DelayedDestroy
-{
-public:
-	DelayedDestroy():
-		destroyed(false),
-		prevent_delete_count(0)
-	{}
-
-protected:
-	virtual ~DelayedDestroy() { assert(destroyed); }
-
-public:
-	bool Destroy()
-	{
-		assert(!destroyed);
-		destroyed = true;
-		if (prevent_delete_count > 0)
-		{
-			return false;
-		}
-		else
-		{
-			delete this;
-			return true;
-		}
-	}
-
-	bool Destroyed() const { return destroyed; }
-
-	int AddRef() { return ++prevent_delete_count; }
-
-	int Release()
-	{
-		assert(prevent_delete_count > 0);
-		if (--prevent_delete_count > 0 || !destroyed)
-			return prevent_delete_count;
-		else {
-			delete this;
-			return 0;
-		}
-	}
-
-private:
-	bool destroyed;
-	int prevent_delete_count;
-
-};
-
-class DelayDestroy: noncopyable
-{
-public:
-	DelayDestroy(DelayedDestroy *host):m_host(host) { m_host->AddRef(); }
-	~DelayDestroy() { m_host->Release(); }
-private:
-	DelayedDestroy *m_host;
-};
-
-struct delayed_destroyer
-{
-	void operator()(DelayedDestroy* Object) { Object->Destroy(); }
-};
-
 struct PluginHandle;
 class FilePanels;
 
-class Panel:public ScreenObject, public DelayedDestroy, public std::enable_shared_from_this<Panel>
+class Panel: public ScreenObject, public std::enable_shared_from_this<Panel>
 {
 public:
+	virtual ~Panel();
+
 	// TODO: make empty methods pure virtual, move empty implementations to dummy_panel class
 	virtual void CloseFile() {}
 	virtual void UpdateViewPanel() {}
@@ -254,8 +204,10 @@ public:
 	virtual int GetCurBaseName(string &strName, string &strShortName) const;
 	virtual int GetFileName(string &strName, int Pos, DWORD &FileAttr) const { return FALSE; }
 	virtual int GetCurrentPos() const {return 0;}
-	virtual void SetFocus();
-	virtual void KillFocus();
+	
+	virtual bool IsFocused() const;
+	virtual void OnFocusChange(bool Get);
+
 	virtual void Update(int Mode) = 0;
 	virtual bool UpdateIfChanged(bool Idle) {return false;}
 	virtual void UpdateIfRequired() {}
@@ -274,7 +226,7 @@ public:
 	virtual bool GetSelectedFirstMode() const { return false; }
 	virtual void SetViewMode(int ViewMode);
 	virtual int GetPrevViewMode() const {return m_PrevViewMode;}
-	virtual int GetPrevSortMode() const {return m_SortMode;}
+	virtual panel_sort GetPrevSortMode() const { return m_SortMode; }
 	virtual bool GetPrevSortOrder() const { return m_ReverseSortOrder; }
 	virtual bool GetPrevNumericSort() const { return m_NumericSort; }
 	virtual void ChangeNumericSort(bool Mode) { SetNumericSort(Mode); }
@@ -282,7 +234,7 @@ public:
 	virtual void ChangeCaseSensitiveSort(bool Mode) {SetCaseSensitiveSort(Mode);}
 	virtual bool GetPrevDirectoriesFirst() const { return m_DirectoriesFirst; }
 	virtual void ChangeDirectoriesFirst(bool Mode) { SetDirectoriesFirst(Mode); }
-	virtual void SetSortMode(int Mode, bool KeepOrder = false) {m_SortMode=Mode;}
+	virtual void SetSortMode(panel_sort Mode, bool KeepOrder = false) { m_SortMode = Mode; }
 	virtual void SetCustomSortMode(int SortMode, bool KeepOrder = false, bool InvertByDefault = false) {}
 	virtual void ChangeSortOrder(bool Reverse) {SetSortOrder(Reverse);}
 	virtual void IfGoHome(wchar_t Drive) {}
@@ -296,13 +248,12 @@ public:
 
 	static void exclude_sets(string& mask);
 
-	int GetMode() const { return m_PanelMode; }
-	void SetMode(int Mode) {m_PanelMode=Mode;}
+	panel_mode GetMode() const { return m_PanelMode; }
+	void SetMode(panel_mode Mode) { m_PanelMode = Mode; }
 	int GetModalMode() const { return m_ModalMode; }
-	void SetModalMode(int ModalMode) {m_ModalMode=ModalMode;}
 	int GetViewMode() const { return m_ViewMode; }
 	void SetPrevViewMode(int PrevViewMode) {m_PrevViewMode=PrevViewMode;}
-	int GetSortMode() const { return m_SortMode; }
+	panel_sort GetSortMode() const { return m_SortMode; }
 	bool GetNumericSort() const { return m_NumericSort; }
 	void SetNumericSort(bool Mode) { m_NumericSort = Mode; }
 	bool GetCaseSensitiveSort() const { return m_CaseSensitiveSort; }
@@ -320,9 +271,9 @@ public:
 	bool ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid, const string& strPluginFile, const string& strPluginData, bool CheckType, bool TryClosest = true, bool Silent = false);
 	bool SaveShortcutFolder(int Pos, bool Add) const;
 	int SetPluginCommand(int Command,int Param1,void* Param2);
-	int PanelProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent,int &RetCode);
-	bool GetFocus() const { return m_Focus; }
-	int GetType() const {return m_Type;}
+	int ProcessMouseDrag(const MOUSE_EVENT_RECORD *MouseEvent);
+	bool IsMouseInClientArea(const MOUSE_EVENT_RECORD *MouseEvent);
+	panel_type GetType() const {return m_Type;}
 	void SetUpdateMode(int Mode) {m_EnableUpdate=Mode;}
 	bool MakeListFile(string &strListFileName,bool ShortNames,const string& Modifers);
 	int SetCurPath();
@@ -338,7 +289,6 @@ public:
 
 protected:
 	Panel(window_ptr Owner);
-	virtual ~Panel();
 	virtual void ClearAllItem(){}
 
 	void FastFind(int FirstKey);
@@ -362,11 +312,10 @@ private:
 protected:
 	PanelViewSettings m_ViewSettings;
 	string m_CurDir;
-	bool m_Focus;
-	int m_Type;
+	panel_type m_Type;
 	int m_EnableUpdate;
-	int m_PanelMode;
-	int m_SortMode;
+	panel_mode m_PanelMode;
+	panel_sort m_SortMode;
 	bool m_ReverseSortOrder;
 	bool m_SortGroups;
 	int m_PrevViewMode;
@@ -389,8 +338,10 @@ class dummy_panel : public Panel
 {
 public:
 	dummy_panel(window_ptr Owner): Panel(Owner){}
+
 private:
 	virtual void Update(int Mode) override {};
 	virtual void UpdateKeyBar() override {}
 };
+
 #endif // PANEL_HPP_FFA15B35_5546_4AA9_84B2_B60D8AA904C7

@@ -589,10 +589,10 @@ void HighlightFiles::UpdateHighlighting(bool RefreshMasks)
 		std::for_each(ALL_RANGE(HiData), std::mem_fn(&FileFilterParams::RefreshMask));
 
 	//WindowManager->RefreshWindow(); // рефрешим
-	Global->CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
-	Global->CtrlObject->Cp()->LeftPanel->Redraw();
-	Global->CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
-	Global->CtrlObject->Cp()->RightPanel->Redraw();
+	Global->CtrlObject->Cp()->LeftPanel()->Update(UPDATE_KEEP_SELECTION);
+	Global->CtrlObject->Cp()->LeftPanel()->Redraw();
+	Global->CtrlObject->Cp()->RightPanel()->Update(UPDATE_KEEP_SELECTION);
+	Global->CtrlObject->Cp()->RightPanel()->Redraw();
 	Global->ScrBuf->Unlock(); // разрешаем прорисовку
 }
 

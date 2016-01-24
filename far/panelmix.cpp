@@ -80,23 +80,27 @@ ColumnInfo[] =
 
 static_assert(ARRAYSIZE(ColumnInfo) == COLUMN_TYPES_COUNT, "wrong size of ColumnInfo array");
 
-void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
+void ShellUpdatePanels(panel_ptr SrcPanel,BOOL NeedSetUpADir)
 {
 	if (!SrcPanel)
 		SrcPanel = Global->CtrlObject->Cp()->ActivePanel();
 
-	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
+	auto AnotherPanel = Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
 
-	switch (SrcPanel->GetType())
+	switch (SrcPanel->GetType().value())
 	{
-		case QVIEW_PANEL:
-		case INFO_PANEL:
-			SrcPanel=Global->CtrlObject->Cp()->GetAnotherPanel(AnotherPanel=SrcPanel);
+	case panel_type::FILE_PANEL:
+	case panel_type::TREE_PANEL:
+		break;
+
+	case panel_type::QVIEW_PANEL:
+	case panel_type::INFO_PANEL:
+		SrcPanel.swap(AnotherPanel);
 	}
 
-	int AnotherType=AnotherPanel->GetType();
+	const auto AnotherType = AnotherPanel->GetType();
 
-	if (AnotherType!=QVIEW_PANEL && AnotherType!=INFO_PANEL)
+	if (AnotherType != panel_type::QVIEW_PANEL && AnotherType != panel_type::INFO_PANEL)
 	{
 		if (NeedSetUpADir)
 		{
@@ -111,8 +115,10 @@ void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
 			//else
 			{
 				// Сбросим время обновления панели. Если там есть нотификация - обновится сама.
-				if (AnotherType==FILE_PANEL)
-					((FileList *)AnotherPanel)->ResetLastUpdateTime();
+				if (const auto AnotherFileList = std::dynamic_pointer_cast<FileList>(AnotherPanel))
+				{
+					AnotherFileList->ResetLastUpdateTime();
+				}
 
 				AnotherPanel->UpdateIfChanged(false);
 			}
@@ -121,13 +127,13 @@ void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
 
 	SrcPanel->Update(UPDATE_KEEP_SELECTION);
 
-	if (AnotherType==QVIEW_PANEL)
+	if (AnotherType == panel_type::QVIEW_PANEL)
 		AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 
 	Global->CtrlObject->Cp()->Redraw();
 }
 
-int CheckUpdateAnotherPanel(Panel *SrcPanel, const string& SelName)
+int CheckUpdateAnotherPanel(panel_ptr SrcPanel, const string& SelName)
 {
 	if (!SrcPanel)
 		SrcPanel = Global->CtrlObject->Cp()->ActivePanel();
@@ -135,7 +141,7 @@ int CheckUpdateAnotherPanel(Panel *SrcPanel, const string& SelName)
 	const auto AnotherPanel = Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
 	AnotherPanel->CloseFile();
 
-	if (AnotherPanel->GetMode() == NORMAL_PANEL)
+	if (AnotherPanel->GetMode() == panel_mode::NORMAL_PANEL)
 	{
 		string strFullName;
 		string strAnotherCurDir(AnotherPanel->GetCurDir());
@@ -189,7 +195,7 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 		case KEY_RCTRLSHIFTENTER:
 		case KEY_SHIFTENTER:           // Текущий файл с актив.панели
 		{
-			Panel *SrcPanel=nullptr;
+			panel_ptr SrcPanel;
 			FilePanels *Cp=Global->CtrlObject->Cp();
 
 			switch (Key)
@@ -200,7 +206,7 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 				case KEY_RCTRLALTBRACKET:
 				case KEY_CTRLBRACKET:
 				case KEY_RCTRLBRACKET:
-					SrcPanel=Cp->LeftPanel;
+					SrcPanel=Cp->LeftPanel();
 					break;
 				case KEY_CTRLALTBACKBRACKET:
 				case KEY_RCTRLRALTBACKBRACKET:
@@ -208,7 +214,7 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 				case KEY_RCTRLALTBACKBRACKET:
 				case KEY_CTRLBACKBRACKET:
 				case KEY_RCTRLBACKBRACKET:
-					SrcPanel=Cp->RightPanel;
+					SrcPanel=Cp->RightPanel();
 					break;
 				case KEY_SHIFTNUMENTER:
 				case KEY_SHIFTENTER:
@@ -242,12 +248,12 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 				}
 				else
 				{
-					if (!(SrcPanel->GetType()==FILE_PANEL || SrcPanel->GetType()==TREE_PANEL))
+					if (!(SrcPanel->GetType() == panel_type::FILE_PANEL || SrcPanel->GetType() == panel_type::TREE_PANEL))
 						return FALSE;
 
 					strPathName = SrcPanel->GetCurDir();
 
-					if (SrcPanel->GetMode()!=PLUGIN_PANEL)
+					if (SrcPanel->GetMode() != panel_mode::PLUGIN_PANEL)
 					{
 						if (NeedRealName)
 							SrcPanel->CreateFullPathName(strPathName, strPathName, FILE_ATTRIBUTE_DIRECTORY, strPathName, TRUE, ShortNameAsIs);
@@ -257,16 +263,18 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 					}
 					else
 					{
-						FileList *SrcFilePanel=(FileList *)SrcPanel;
-						OpenPanelInfo Info;
-						Global->CtrlObject->Plugins->GetOpenPanelInfo(SrcFilePanel->GetPluginHandle(),&Info);
-						FileList::AddPluginPrefix(SrcFilePanel,strPathName);
-						if (Info.HostFile && *Info.HostFile)
+						if (const auto SrcFileList = std::dynamic_pointer_cast<FileList>(SrcPanel))
 						{
-							strPathName += Info.HostFile;
-							strPathName += L"/";
+							OpenPanelInfo Info;
+							Global->CtrlObject->Plugins->GetOpenPanelInfo(SrcFileList->GetPluginHandle(), &Info);
+							FileList::AddPluginPrefix(SrcFileList.get(), strPathName);
+							if (Info.HostFile && *Info.HostFile)
+							{
+								strPathName += Info.HostFile;
+								strPathName += L"/";
+							}
+							strPathName += NullToEmpty(Info.CurDir);
 						}
-						strPathName += NullToEmpty(Info.CurDir);
 					}
 
 					AddEndSlash(strPathName);

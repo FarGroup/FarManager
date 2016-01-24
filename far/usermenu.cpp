@@ -798,12 +798,12 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					/*
 					if (!PanelsHidden)
 					{
-						LeftVisible=Global->CtrlObject->Cp()->LeftPanel->IsVisible();
-						RightVisible=Global->CtrlObject->Cp()->RightPanel->IsVisible();
-						Global->CtrlObject->Cp()->LeftPanel->Hide();
-						Global->CtrlObject->Cp()->RightPanel->Hide();
-						Global->CtrlObject->Cp()->LeftPanel->SetUpdateMode(FALSE);
-						Global->CtrlObject->Cp()->RightPanel->SetUpdateMode(FALSE);
+						LeftVisible=Global->CtrlObject->Cp()->LeftPanel()->IsVisible();
+						RightVisible=Global->CtrlObject->Cp()->RightPanel()->IsVisible();
+						Global->CtrlObject->Cp()->LeftPanel()->Hide();
+						Global->CtrlObject->Cp()->RightPanel()->Hide();
+						Global->CtrlObject->Cp()->LeftPanel()->SetUpdateMode(FALSE);
+						Global->CtrlObject->Cp()->RightPanel()->SetUpdateMode(FALSE);
 						PanelsHidden=TRUE;
 					}
 					*/
@@ -842,14 +842,14 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		/*
 		if (PanelsHidden)
 		{
-			Global->CtrlObject->Cp()->LeftPanel->SetUpdateMode(TRUE);
-			Global->CtrlObject->Cp()->RightPanel->SetUpdateMode(TRUE);
-			Global->CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
-			Global->CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
+			Global->CtrlObject->Cp()->LeftPanel()->SetUpdateMode(TRUE);
+			Global->CtrlObject->Cp()->RightPanel()->SetUpdateMode(TRUE);
+			Global->CtrlObject->Cp()->LeftPanel()->Update(UPDATE_KEEP_SELECTION);
+			Global->CtrlObject->Cp()->RightPanel()->Update(UPDATE_KEEP_SELECTION);
 			if (RightVisible)
-				Global->CtrlObject->Cp()->RightPanel->Show();
+				Global->CtrlObject->Cp()->RightPanel()->Show();
 			if (LeftVisible)
-				Global->CtrlObject->Cp()->LeftPanel->Show();
+				Global->CtrlObject->Cp()->LeftPanel()->Show();
 		}
 		*/
 		/* $ 14.07.2000 VVM ! Закрыть меню */

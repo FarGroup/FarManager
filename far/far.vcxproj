@@ -535,6 +535,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\noncopyable.hpp" />
     <ClInclude Include="common\preprocessor.hpp" />
     <ClInclude Include="common\range_for.hpp" />
+    <ClInclude Include="common\rel_ops.hpp" />
     <ClInclude Include="common\scope_exit.hpp" />
     <ClInclude Include="common\smart_ptr.hpp" />
     <ClInclude Include="common\swapable.hpp" />
@@ -627,6 +628,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="Include\DlgBuilder.hpp" />
     <ClInclude Include="nsUniversalDetectorEx.hpp" />
     <ClInclude Include="panelctype.hpp" />
+    <ClInclude Include="panelfwd.hpp" />
     <ClInclude Include="regex_helpers.hpp" />
     <ClInclude Include="sdk.hpp" />
     <ClInclude Include="shortcuts.hpp" />
