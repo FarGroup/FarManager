@@ -81,6 +81,24 @@ enum SHOW_MODES
 	SHOW_DUMP
 };
 
+enum saved_modes
+{
+	m_none            = 0,
+
+	m_mode_changed    = 0x10,
+
+	m_mode_text       = VMT_TEXT,
+	m_mode_hex        = VMT_HEX,
+	m_mode_dump       = VMT_DUMP,
+
+	m_mode_last       = m_mode_dump,
+	m_mode_mask       = 0xF,
+
+	m_mode_wrap       = 0x20,
+	m_mode_wrap_words = 0x40,
+};
+
+
 static void PR_ViewerSearchMsg();
 static void ViewerSearchMsg(const string& name, int percent, int search_hex);
 
@@ -221,8 +239,14 @@ void Viewer::SavePosition()
 
 		poscache.cur.FilePos = FilePos;
 		poscache.cur.LeftPos = LeftPos;
-		// BUGBUG, witchcraft!
-		poscache.Hex_Wrap = (m_DisplayMode & 0x03) | 0x10 | (m_Wrap? 0x20 : 0x00) | (m_WordWrap? 0x40 : 0x00);
+
+		poscache.ViewModeAndWrapState = m_none;
+
+		if (m_DisplayMode.touched() || m_Wrap.touched() || m_WordWrap.touched())
+		{
+			poscache.ViewModeAndWrapState |= m_mode_changed | m_DisplayMode | (m_Wrap? m_mode_wrap : m_none) | (m_WordWrap? m_mode_wrap_words : m_none);
+		}
+
 		poscache.CodePage = m_Codepage;
 		poscache.bm = BMSavePos;
 
@@ -237,8 +261,8 @@ void Viewer::KeepInitParameters() const
 	Global->GlobalSearchCase=LastSearchCase;
 	Global->GlobalSearchWholeWords=LastSearchWholeWords;
 	Global->GlobalSearchReverse=LastSearchReverse;
-	Global->Opt->ViOpt.ViewerIsWrap=m_Wrap != 0;
-	Global->Opt->ViOpt.ViewerWrap=m_WordWrap != 0;
+	Global->Opt->ViOpt.ViewerIsWrap = m_Wrap;
+	Global->Opt->ViOpt.ViewerWrap = m_WordWrap;
 	Global->Opt->ViOpt.SearchRegexp=LastSearchRegexp;
 }
 
@@ -321,7 +345,14 @@ int Viewer::OpenFile(const string& Name,int warning)
 			__int64 NewLeftPos=poscache.cur.LeftPos;
 			if (found && !m_DisplayMode.touched()) // keep Mode if file listed (Gray+-)
 			{
-				m_DisplayMode = static_cast<VIEWER_MODE_TYPE>(poscache.Hex_Wrap & 0x03);
+				if (poscache.ViewModeAndWrapState & m_mode_changed)
+				{
+					auto ViewMode = poscache.ViewModeAndWrapState & m_mode_mask;
+					if (ViewMode <= m_mode_last)
+					{
+						m_DisplayMode = static_cast<VIEWER_MODE_TYPE>(ViewMode);
+					}
+				}
 				if (m_DisplayMode != VMT_HEX)
 					m_DumpTextMode = m_DisplayMode == VMT_DUMP;
 			}
@@ -336,10 +367,10 @@ int Viewer::OpenFile(const string& Name,int warning)
 			if (CachedCodePage && !IsCodePageSupported(CachedCodePage))
 				CachedCodePage = 0;
 		}
-		if (Global->Opt->ViOpt.SaveWrapMode && 0 != (poscache.Hex_Wrap & 0x10))
+		if (Global->Opt->ViOpt.SaveWrapMode && poscache.ViewModeAndWrapState & m_mode_changed)
 		{
-			m_Wrap     = (poscache.Hex_Wrap & 0x20 ? 1 : 0);
-			m_WordWrap = (poscache.Hex_Wrap & 0x40 ? 1 : 0);
+			m_Wrap = (poscache.ViewModeAndWrapState & m_mode_wrap) != 0;
+			m_WordWrap = (poscache.ViewModeAndWrapState & m_mode_wrap_words) != 0;
 		}
 	}
 	else
@@ -376,11 +407,12 @@ int Viewer::OpenFile(const string& Name,int warning)
 	}
 	SetFileSize();
 
-	if (!m_DumpTextMode.touched())
-		m_DumpTextMode = isBinaryFile(m_Codepage);
-
 	if (!m_DisplayMode.touched())
+	{
+		m_DumpTextMode = isBinaryFile(m_Codepage);
 		m_DisplayMode = m_DumpTextMode? VMT_DUMP : VMT_TEXT;
+		m_DisplayMode.forget();
+	}
 
 	if (FilePos > FileSize)
 		FilePos=0;
@@ -2172,7 +2204,7 @@ void Viewer::CacheLine( __int64 start, int length, bool have_eol )
 		return;
 
 	if ( lcache_ready
-	 && (lcache_wrap != m_Wrap || lcache_wwrap != m_WordWrap || lcache_width != Width)
+		&& (lcache_wrap != static_cast<int>(m_Wrap) || lcache_wwrap != static_cast<int>(m_WordWrap) || lcache_width != Width)
 	){
 		lcache_ready = false;
 	}
@@ -2248,7 +2280,7 @@ void Viewer::CacheLine( __int64 start, int length, bool have_eol )
 int Viewer::CacheFindUp( __int64 start )
 {
 	if ( lcache_ready
-		&& (lcache_wrap != m_Wrap || lcache_wwrap != m_WordWrap || lcache_width != Width)
+		&& (lcache_wrap != static_cast<int>(m_Wrap) || lcache_wwrap != static_cast<int>(m_WordWrap) || lcache_width != Width)
 	){
 		lcache_ready = false;
 	}
@@ -3112,12 +3144,13 @@ int Viewer::read_line(wchar_t *buf, wchar_t *tbuf, INT64 cpos, int adjust, INT64
 	const auto OldFilePos = FilePos;
 	const auto OldLastPage = LastPage;
 	const auto OldWrap = m_Wrap;
+	const auto OldWrapTouched = m_Wrap.touched();
 	const auto OldWordWrap = m_WordWrap;
-
+	const auto OldWordWrapTouched = m_WordWrap.touched();
 	const auto OldDisplayMode = std::move(m_DisplayMode);
 
 	m_DisplayMode = VMT_TEXT;
-	m_Wrap = m_WordWrap = 0;
+	m_Wrap = m_WordWrap = false;
 
 	FilePos = cpos;
 	if (adjust)
@@ -3142,6 +3175,14 @@ int Viewer::read_line(wchar_t *buf, wchar_t *tbuf, INT64 cpos, int adjust, INT64
 
 	m_Wrap = OldWrap;
 	m_WordWrap = OldWordWrap;
+	if (!OldWrapTouched)
+	{
+		m_Wrap.forget();
+	}
+	if (!OldWordWrapTouched)
+	{
+		m_WordWrap.forget();
+	}
 	FilePos = OldFilePos;
 	LastPage = OldLastPage;
 
@@ -3596,7 +3637,7 @@ void Viewer::Search(int Next,int FirstChar)
 
 bool Viewer::GetWrapMode() const
 {
-	return m_Wrap != 0;
+	return m_Wrap;
 }
 
 void Viewer::SetWrapMode(bool Wrap)
@@ -3611,7 +3652,7 @@ void Viewer::EnableHideCursor(int HideCursor)
 
 bool Viewer::GetWrapType() const
 {
-	return m_WordWrap != 0;
+	return m_WordWrap;
 }
 
 void Viewer::SetWrapType(bool TypeWrap)
@@ -4460,7 +4501,7 @@ int Viewer::ProcessTypeWrapMode(int newMode, bool isRedraw)
 		Show();
 	}
 
-	Global->Opt->ViOpt.ViewerWrap = m_WordWrap != 0;
+	Global->Opt->ViOpt.ViewerWrap = m_WordWrap;
 	return oldTypeWrap;
 }
 

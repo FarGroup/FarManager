@@ -93,9 +93,9 @@ struct ViewerPosCache: noncopyable
 	Bookmarks<viewer_bookmark> bm;
 	viewer_bookmark cur;
 	uintptr_t CodePage;
-	int Hex_Wrap;
+	int ViewModeAndWrapState;
 
-	void Clear() { bm.Clear(); cur.FilePos = cur.LeftPos=0; Hex_Wrap=0; CodePage=0; }
+	void Clear() { bm.Clear(); cur.FilePos = cur.LeftPos = 0; ViewModeAndWrapState = 0; CodePage = 0; }
 };
 
 class FilePositionCache: noncopyable

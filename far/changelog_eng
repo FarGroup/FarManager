@@ -12,8 +12,8 @@ drkns 24.01.2016 14:35:53 +0200 - build 4516
 1. Attempt to open two info or qview panels via main menu crashes Far.
    The cause is common - the instance of panel is destroyed in its own call context.
    Further placing of 'delaydestroy' has no sense, so panel ownership logic is redone.
-   Now there is no lots of unclear raw pointers указателей referring to anything.
-   Each panel is a smaer pointer and lives as much as it is needed.
+   Now there is no lots of unclear raw pointers referring to anything.
+   Each panel is a smart pointer and lives as much as it is needed.
    Weird bugs are possible as usual.
 
 2. Continue moving code away from panel.cpp to more suitable places to get the tail less wag the dog.

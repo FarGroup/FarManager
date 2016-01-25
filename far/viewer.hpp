@@ -190,10 +190,10 @@ private:
 
 	uintptr_t m_DefCodepage;
 	uintptr_t m_Codepage;
-	int m_Wrap;
-	int m_WordWrap;
+	monitored<bool> m_Wrap;
+	monitored<bool> m_WordWrap;
 	monitored<VIEWER_MODE_TYPE> m_DisplayMode;
-	monitored<bool> m_DumpTextMode;
+	bool m_DumpTextMode;
 
 	MultibyteCodepageDecoder MB;
 

@@ -137,7 +137,7 @@ bool FilePositionCache::AddPosition(const string& Name, const ViewerPosCache& po
 		id=ConfigProvider().HistoryCfg()->SetViewerPos(strFullName,
 				Global->Opt->ViOpt.SavePos?poscache.cur.FilePos:0,
 				Global->Opt->ViOpt.SavePos?poscache.cur.LeftPos:0,
-				Global->Opt->ViOpt.SaveWrapMode?poscache.Hex_Wrap:0,
+				Global->Opt->ViOpt.SaveWrapMode?poscache.ViewModeAndWrapState:0,
 				Global->Opt->ViOpt.SaveCodepage?poscache.CodePage:0);
 	else if (Global->Opt->ViOpt.SaveShortPos)
 		id=ConfigProvider().HistoryCfg()->SetViewerPos(strFullName, 0, 0, 0, 0);
@@ -168,7 +168,7 @@ bool FilePositionCache::GetPosition(const string& Name, ViewerPosCache& poscache
 	unsigned __int64 id = 0;
 
 	if (Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SaveWrapMode || Global->Opt->ViOpt.SaveShortPos)
-		id = ConfigProvider().HistoryCfg()->GetViewerPos(strFullName, &poscache.cur.FilePos, &poscache.cur.LeftPos, &poscache.Hex_Wrap, &poscache.CodePage);
+		id = ConfigProvider().HistoryCfg()->GetViewerPos(strFullName, &poscache.cur.FilePos, &poscache.cur.LeftPos, &poscache.ViewModeAndWrapState, &poscache.CodePage);
 
 	if (!Global->Opt->ViOpt.SavePos && !Global->Opt->ViOpt.SaveCodepage && !Global->Opt->ViOpt.SaveWrapMode)
 	{
