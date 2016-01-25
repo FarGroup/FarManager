@@ -75,6 +75,9 @@
     <ClCompile Include="update.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Patch7zCP.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="archive.hpp">
@@ -145,6 +148,7 @@
     <None Include="ru.msg">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="es.msg" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="version.rc">

@@ -5,6 +5,7 @@
 #include "common.hpp"
 #include "ui.hpp"
 #include "archive.hpp"
+#include "options.hpp"
 
 const wchar_t* c_method_copy = L"Copy";
 const wchar_t* c_method_lzma = L"LZMA";
@@ -171,6 +172,7 @@ ArcAPI* ArcAPI::get() {
   if (arc_api == nullptr) {
     arc_api = new ArcAPI();
     arc_api->load();
+	 Patch7zCP::SetCP(static_cast<UINT>(g_options.oemCP), static_cast<UINT>(g_options.ansiCP));
   }
   return arc_api;
 }

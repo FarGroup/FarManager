@@ -195,3 +195,16 @@ public:
     }
   }
 };
+
+class Patch7zCP
+{
+public:
+  //Patch7zCP(UINT oemCP, UINT ansiCP);
+  //~Patch7zCP();
+  static void SetCP(UINT oemCP, UINT ansiCP);
+#if 0
+private:
+  UINT prev_oemCP;
+  UINT prev_ansiCP;
+#endif
+};

@@ -105,7 +105,10 @@ Options::Options():
   enabled_formats(),
   use_disabled_formats(false),
   disabled_formats(),
-  pgdn_formats(false)
+  pgdn_formats(false),
+  saveCP(false),
+  oemCP(0),
+  ansiCP(0)
 {}
 
 void load_sfx_options(OptionsKey& key, SfxOptions& sfx_options) {
@@ -194,6 +197,9 @@ void Options::load() {
   GET_VALUE(use_disabled_formats, bool);
   GET_VALUE(disabled_formats, str);
   GET_VALUE(pgdn_formats, bool);
+  GET_VALUE(saveCP, bool);
+  GET_VALUE(oemCP, int);
+  GET_VALUE(ansiCP, int);
 #undef GET_VALUE
 };
 
@@ -235,6 +241,11 @@ void Options::save() const {
   SET_VALUE(use_disabled_formats, bool);
   SET_VALUE(disabled_formats, str);
   SET_VALUE(pgdn_formats, bool);
+  SET_VALUE(saveCP, bool);
+  if (saveCP) {
+    SET_VALUE(oemCP, int);
+    SET_VALUE(ansiCP, int);
+  }
 #undef SET_VALUE
 }
 

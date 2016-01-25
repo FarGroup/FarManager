@@ -8,6 +8,7 @@
 #include "ui.hpp"
 #include "archive.hpp"
 #include "options.hpp"
+#include <algorithm>
 
 wstring get_error_dlg_title() {
   return Far::get_msg(MSG_PLUGIN_NAME);
@@ -1612,6 +1613,13 @@ public:
   }
 };
 
+static size_t llen(const wstring& label, int add)
+{
+  size_t len = label.length() + add;
+  if (label.find(L'&') != wstring::npos)
+	  --len;
+  return len;
+}
 
 class SettingsDialog: public Far::Dialog {
 private:
@@ -1624,6 +1632,9 @@ private:
   int handle_create_ctrl_id;
   int handle_commands_ctrl_id;
   int own_panel_view_mode_ctrl_id;
+  int oemCP_ctrl_id;
+  int ansiCP_ctrl_id;
+  int saveCPs_ctrl_id;
   int use_include_masks_ctrl_id;
   int edit_include_masks_ctrl_id;
   int include_masks_ctrl_id;
@@ -1649,7 +1660,10 @@ private:
       settings.handle_create = get_check(handle_create_ctrl_id);
       settings.handle_commands = get_check(handle_commands_ctrl_id);
       settings.own_panel_view_mode = get_check(own_panel_view_mode_ctrl_id);
-      settings.use_include_masks = get_check(use_include_masks_ctrl_id);
+		settings.oemCP = (UINT)str_to_uint(strip(get_text(oemCP_ctrl_id)));
+		settings.ansiCP = (UINT)str_to_uint(strip(get_text(ansiCP_ctrl_id)));
+		settings.saveCP = get_check(saveCPs_ctrl_id);
+		settings.use_include_masks = get_check(use_include_masks_ctrl_id);
       settings.include_masks = get_text(include_masks_ctrl_id);
       settings.use_exclude_masks = get_check(use_exclude_masks_ctrl_id);
       settings.exclude_masks = get_text(exclude_masks_ctrl_id);
@@ -1773,13 +1787,34 @@ public:
   }
 
   bool show() {
-    handle_create_ctrl_id = check_box(Far::get_msg(MSG_SETTINGS_DLG_HANDLE_CREATE), settings.handle_create);
+    wstring box1 = Far::get_msg(MSG_SETTINGS_DLG_HANDLE_CREATE);
+	 wstring box2 = Far::get_msg(MSG_SETTINGS_DLG_HANDLE_COMMANDS);
+	 wstring box3 = Far::get_msg(MSG_SETTINGS_DLG_OWN_PANEL_VIEW_MODE);
+	 handle_create_ctrl_id = check_box(box1, settings.handle_create);
     new_line();
-    handle_commands_ctrl_id = check_box(Far::get_msg(MSG_SETTINGS_DLG_HANDLE_COMMANDS), settings.handle_commands);
+    handle_commands_ctrl_id = check_box(box2, settings.handle_commands);
     new_line();
-    own_panel_view_mode_ctrl_id = check_box(Far::get_msg(MSG_SETTINGS_DLG_OWN_PANEL_VIEW_MODE), settings.own_panel_view_mode);
+    own_panel_view_mode_ctrl_id = check_box(box3, settings.own_panel_view_mode);
     new_line();
-    separator();
+	 separator();
+	 new_line();
+	 wstring label1 = Far::get_msg(MSG_SETTINGS_DLG_OEM_CODEPAGE);
+	 wstring label2 = Far::get_msg(MSG_SETTINGS_DLG_ANSI_CODEPAGE);
+	 wstring label3 = Far::get_msg(MSG_SETTINGS_DLG_SAVE_CODEPAGE);
+	 label(label1);
+	 wstring tmp1 = settings.oemCP ? uint_to_str(settings.oemCP) : wstring();
+	 oemCP_ctrl_id = edit_box(tmp1, 5);
+	 auto total = llen(label1,5) + llen(label2,5) + llen(label3,4);
+	 auto width = std::max(std::max(std::max(std::max(llen(box1,4), llen(box2,4)), llen(box3,4)), total+2), size_t(c_client_xs));
+	 auto space = (width - total) / 2;
+	 pad(llen(label1,5) + space);
+	 label(label2);
+	 wstring tmp2 = settings.ansiCP ? uint_to_str(settings.ansiCP) : wstring();
+	 ansiCP_ctrl_id = edit_box(tmp2, 5);
+	 pad(width - llen(label3,4));
+	 saveCPs_ctrl_id = check_box(label3, settings.saveCP);
+	 new_line();
+	 separator();
     new_line();
 
     label(Far::get_msg(MSG_SETTINGS_DLG_USE_INCLUDE_MASKS));
@@ -1788,7 +1823,7 @@ public:
     spacer(1);
     edit_include_masks_ctrl_id = button(Far::get_msg(MSG_SETTINGS_DLG_EDIT), DIF_BTNNOCLOSE);
     new_line();
-    include_masks_ctrl_id = edit_box(settings.include_masks, c_client_xs);
+    include_masks_ctrl_id = edit_box(settings.include_masks, width);
     new_line();
     label(Far::get_msg(MSG_SETTINGS_DLG_USE_EXCLUDE_MASKS));
     spacer(1);
@@ -1796,7 +1831,7 @@ public:
     spacer(1);
     edit_exclude_masks_ctrl_id = button(Far::get_msg(MSG_SETTINGS_DLG_EDIT), DIF_BTNNOCLOSE);
     new_line();
-    exclude_masks_ctrl_id = edit_box(settings.exclude_masks, c_client_xs);
+    exclude_masks_ctrl_id = edit_box(settings.exclude_masks, width);
     new_line();
     pgdn_masks_ctrl_id = check_box(Far::get_msg(MSG_SETTINGS_DLG_PGDN_MASKS), settings.pgdn_masks);
     new_line();
@@ -1813,7 +1848,7 @@ public:
     spacer(1);
     edit_enabled_formats_ctrl_id = button(Far::get_msg(MSG_SETTINGS_DLG_EDIT), DIF_BTNNOCLOSE);
     new_line();
-    enabled_formats_ctrl_id = edit_box(settings.enabled_formats, c_client_xs);
+    enabled_formats_ctrl_id = edit_box(settings.enabled_formats, width);
     new_line();
     label(Far::get_msg(MSG_SETTINGS_DLG_USE_DISABLED_FORMATS));
     spacer(1);
@@ -1821,7 +1856,7 @@ public:
     spacer(1);
     edit_disabled_formats_ctrl_id = button(Far::get_msg(MSG_SETTINGS_DLG_EDIT), DIF_BTNNOCLOSE);
     new_line();
-    disabled_formats_ctrl_id = edit_box(settings.disabled_formats, c_client_xs);
+    disabled_formats_ctrl_id = edit_box(settings.disabled_formats, width);
     new_line();
     pgdn_formats_ctrl_id = check_box(Far::get_msg(MSG_SETTINGS_DLG_PGDN_FORMATS), settings.pgdn_formats);
     new_line();

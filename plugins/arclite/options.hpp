@@ -39,6 +39,9 @@ struct Options {
   bool use_disabled_formats;
   wstring disabled_formats;
   bool pgdn_formats;
+  bool saveCP;
+  uintptr_t oemCP;
+  uintptr_t ansiCP;
   Options();
   // profiles
   void load();

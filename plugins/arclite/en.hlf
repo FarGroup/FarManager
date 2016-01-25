@@ -122,10 +122,28 @@ $ #Plugin settings#
 
 	The following settings are available:
 
+   #Handle archive creation (Shift-F1)# - Plugin handles archive creation command.
+
+   #Handle archive commands (Ctrl-PgDn, Shift-F2)# - Plugin handles alternative archive open command
+(#Ctrl-PgDn# files matching masks usually ignored here), extraction (#Shift-F2#) and test (#ShiftF3#) operations.
+
+   #Use own panel view mode# - Plugin uses its own panel mode configuration settings.
+
+   #OEM Codepage# - Allows to set 7z.dll OEM codepage (return value of the Win32 API #GetOEMCP# function).
+7z.dll uses that codepage when opening old archives with not detectable filelist codepage settings.
+You need to set this parameter only if current system OEM codepage is not suitable for stored file names.
+
+   #ANSI Codepage# - Same as previous parameter but for ANSI codepage (#GetACP#).
+
+   #Save Codepages# - If set codepage settings will be stored in the plugin configuration database. Otherwise it
+will be applied to the current far manager process only.
+
 	#Open files matching masks# - Plugin can be configured to open only those files matching list of file ~masks~@:FileMasks@.
 This option is not considered when calling plugin from F11 menu.
 
 	#Exclude files matching masks# - Do not open files matching list of ~masks~@:FileMasks@.
+
+   #Mask settings apply to Ctrl-PgDn# - files matching masks will be used when opening archive with Ctrl-PgDn.
 
 	#Generate masks# - Create standard list of masks for #Open files matching masks# field based on
 information from 7z.dll.
@@ -139,11 +157,7 @@ See #Available Formats# for full list of archive format names you can use.
 	#Format settings apply to Ctrl-PgDn# - enabled and disabled format lists will be consulted when opening archive
 with Ctrl-PgDn.
 
-	Some settings are available via registry only:
-
-	#plugin_prefix# - Plugin command line prefix (string). Default prefix is #arc#.
-
-	#max_check_size# - Maximum number of bytes to load when detecting archive format (DWORD). Default is 1 Mb.
+   #7z library info# - Shows 7z.dll location and version information.
 
 @Prefix
 $ #Prefix command line format#

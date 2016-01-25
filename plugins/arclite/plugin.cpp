@@ -1147,6 +1147,9 @@ intptr_t WINAPI ConfigureW(const struct ConfigureInfo* info) {
   settings.use_disabled_formats = g_options.use_disabled_formats;
   settings.disabled_formats = g_options.disabled_formats;
   settings.pgdn_formats = g_options.pgdn_formats;
+  settings.saveCP = g_options.saveCP;
+  settings.oemCP = (UINT)g_options.oemCP;
+  settings.ansiCP = (UINT)g_options.ansiCP;
   if (settings_dialog(settings)) {
     g_options.handle_create = settings.handle_create;
     g_options.handle_commands = settings.handle_commands;
@@ -1161,7 +1164,11 @@ intptr_t WINAPI ConfigureW(const struct ConfigureInfo* info) {
     g_options.use_disabled_formats = settings.use_disabled_formats;
     g_options.disabled_formats = settings.disabled_formats;
     g_options.pgdn_formats = settings.pgdn_formats;
+	 g_options.saveCP = settings.saveCP;
+	 g_options.oemCP = settings.oemCP;
+    g_options.ansiCP = settings.ansiCP;
     g_options.save();
+	 Patch7zCP::SetCP(settings.oemCP, settings.ansiCP);
     return TRUE;
   }
   else

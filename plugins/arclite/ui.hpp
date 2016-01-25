@@ -40,6 +40,9 @@ struct PluginSettings {
   bool use_disabled_formats;
   wstring disabled_formats;
   bool pgdn_formats;
+  bool saveCP;
+  UINT oemCP;
+  UINT ansiCP;
 };
 
 bool settings_dialog(PluginSettings& settings);

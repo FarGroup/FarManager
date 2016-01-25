@@ -30,6 +30,7 @@
     <ClCompile Include="msearch.cpp" />
     <ClCompile Include="open.cpp" />
     <ClCompile Include="options.cpp" />
+    <ClCompile Include="Patch7zCP.cpp" />
     <ClCompile Include="pathutils.cpp" />
     <ClCompile Include="plugin.cpp" />
     <ClCompile Include="rsrc.cpp" />
