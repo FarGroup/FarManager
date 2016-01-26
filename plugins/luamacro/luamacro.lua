@@ -314,7 +314,7 @@ end
 local function ShowAndPass(...) far.Show(...) return ... end
 
 local function ProcessCommandLine (strCmdLine)
-  local prefix, text = strCmdLine:match("^%s*(%w+):%s*(.-)%s*$")
+  local prefix, text = strCmdLine:match("^%s*([^:%s]+):%s*(.-)%s*$")
   if not prefix then return end -- this can occur with Plugin.Command()
   prefix = prefix:lower()
   if prefix == "lm" or prefix == "macro" then
