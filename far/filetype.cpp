@@ -568,7 +568,8 @@ void EditFileTypes()
 	TypesMenu->SetMenuFlags(VMENU_WRAPMODE);
 	TypesMenu->SetBottomTitle(MSG(MAssocBottom));
 	TypesMenu->SetId(FileAssocMenuId);
-
+	
+	bool Changed = false;
 	for (;;)
 	{
 		int NumLine = FillFileTypesMenu(TypesMenu.get(), MenuPos);
@@ -583,45 +584,41 @@ void EditFileTypes()
 			{
 				case KEY_NUMDEL:
 				case KEY_DEL:
-
 					if (MenuPos<NumLine)
 					{
 						if (const auto IdPtr = TypesMenu->GetUserDataPtr<unsigned __int64>(MenuPos))
 						{
-							DeleteTypeRecord(*IdPtr);
+							Changed = DeleteTypeRecord(*IdPtr);
 						}
-						NumLine = FillFileTypesMenu(TypesMenu.get(), MenuPos);
 					}
-
 					break;
+
 				case KEY_NUMPAD0:
 				case KEY_INS:
 					if (MenuPos - 1 >= 0)
 					{
 						if (const auto IdPtr = TypesMenu->GetUserDataPtr<unsigned __int64>(MenuPos - 1))
 						{
-							EditTypeRecord(*IdPtr, true);
+							Changed = EditTypeRecord(*IdPtr, true);
 						}
 					}
 					else
 					{
-						EditTypeRecord(0, true);
+						Changed = EditTypeRecord(0, true);
 					}
-					NumLine = FillFileTypesMenu(TypesMenu.get(), MenuPos);
 					break;
+
 				case KEY_NUMENTER:
 				case KEY_ENTER:
 				case KEY_F4:
-
 					if (MenuPos<NumLine)
 					{
 						if (const auto IdPtr = TypesMenu->GetUserDataPtr<unsigned __int64>(MenuPos))
 						{
-							EditTypeRecord(*IdPtr, false);
+							Changed = EditTypeRecord(*IdPtr, false);
 						}
-						NumLine = FillFileTypesMenu(TypesMenu.get(), MenuPos);
 					}
-					return 1;
+					break;
 
 				case KEY_CTRLUP:
 				case KEY_RCTRLUP:
@@ -639,16 +636,21 @@ void EditFileTypes()
 								if (ConfigProvider().AssocConfig()->SwapPositions(*IdPtr, *IdPtr2))
 								{
 									MenuPos = NewMenuPos;
+									Changed = true;
 								}
 							}
 						}
-						NumLine = FillFileTypesMenu(TypesMenu.get(), MenuPos);
 					}
 				}
 				break;
 
 				default:
 					KeyProcessed = 0;
+			}
+			if (Changed)
+			{
+				Changed = false;
+				NumLine = FillFileTypesMenu(TypesMenu.get(), MenuPos);
 			}
 			return KeyProcessed;
 		});
