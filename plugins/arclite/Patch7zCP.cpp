@@ -106,7 +106,7 @@ static bool patch_IAT(void **ppIAT, const void *pf)
 
 	*ppIAT = (void *)pf;
 
-	::VirtualProtect(mbi.BaseAddress, mbi.RegionSize, prot, &prot);
+	::VirtualProtect(mbi.BaseAddress, mbi.RegionSize, mbi.Protect, &prot);
 	return true;
 }
 
@@ -204,21 +204,6 @@ void Patch7zCP::SetCP(UINT oemCP, UINT ansiCP)
 		patched_7z_dll = true;
 	}
 }
-
-#if 0
-Patch7zCP::Patch7zCP(UINT oemCP, UINT ansiCP)
-{
-	prev_oemCP  = !is_valid_cp(over_oemCP)  ? ::GetOEMCP() : over_oemCP;
-	prev_ansiCP = !is_valid_cp(over_ansiCP) ? ::GetACP()  : over_ansiCP;
-	SetCP(oemCP, ansiCP);
-}
-
-Patch7zCP::~Patch7zCP()
-{
-	over_oemCP = prev_oemCP;
-   over_ansiCP = prev_ansiCP;
-}
-#endif
 
 //#############################################################################
 //#############################################################################
