@@ -360,6 +360,7 @@ int FilePanels::SwapPanels()
 		swap(m_Panels[panel_left].m_LastType, m_Panels[panel_right].m_LastType);
 		swap(m_Panels[panel_left].m_StateBeforeHide, m_Panels[panel_right].m_StateBeforeHide);
 		FileFilter::SwapFilter();
+		m_ActivePanelIndex = IsLeftActive()? panel_right : panel_left;
 		Ret=TRUE;
 	}
 	SetScreenPosition();
