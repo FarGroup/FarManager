@@ -1356,8 +1356,18 @@ int FileList::ProcessKey(const Manager::Key& Key)
 						}
 					}
 
-					if (Global->Opt->QuotedName&QUOTEDNAME_INSERT)
+					if (!strFileName.empty() && (Global->Opt->QuotedName&QUOTEDNAME_INSERT) != 0)
+					{
+						auto last_char = strFileName.back();
 						QuoteSpace(strFileName);
+						if (L'"' == strFileName.back() && IsSlash(last_char))
+						{/* "Path Name\" --> "Path Name"\ */
+							strFileName.pop_back();
+							strFileName.pop_back();
+							strFileName.push_back(L'"');
+							strFileName.push_back(last_char);
+						}
+					}
 
 					strFileName += L" ";
 				}
