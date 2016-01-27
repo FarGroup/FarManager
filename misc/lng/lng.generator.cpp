@@ -27,7 +27,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "lng.common.h"
 
-#define VERSION "v1.4"
+#define VERSION "v1.5"
 
 void UnquoteIfNeeded (char *lpStr)
 {
@@ -576,7 +576,7 @@ int main (int argc, const char* argv[])
 									pLangEntries[i].cNeedUpdate++;
 								}
 
-								sprintf (lpString, "%s\r\n", lpLNGString);
+								sprintf (lpString, "//[%s]\r\n%s\r\n", lpMsgID, lpLNGString);
 								SmartWrite (pLangEntries[i].hLNGFile, lpString, &pLangEntries[i].dwCRC32, pLangEntries[i].nEncoding);
 								free (lpLNGString);
 							}

@@ -319,6 +319,52 @@ static string ConvertString(const wchar_t *Src, size_t size)
 	return strDest;
 }
 
+static void parse_lng_line(const string& str, string& label, string& data, bool& have_data)
+{
+	have_data = false;
+
+	//-- //[Label]
+	if (str.size() > 4 && str[0] == L'/' && str[1] == L'/' && str[2] == L'[' && str.back() == L']')
+	{
+		label = str.substr(3);
+		label.pop_back();
+		auto eq_pos = label.find(L'=');
+		if (eq_pos != string::npos)
+			label.erase(eq_pos); //-- //[Label=0]
+		return;
+	}
+
+	//-- "Text"
+	if (!str.empty() && str.front() == L'\"')
+	{
+		have_data = true;
+		data = str.substr(1);
+		if (data.size() > 0 && data.back() == L'"')
+			data.pop_back();
+		return;
+	}
+
+	//-- MLabel="Text"
+	if (!str.empty() && str.back() == L'"')
+	{
+		auto eq_pos = str.find(L"=");
+		if (eq_pos != string::npos && ToUpper(str[0]) >= L'A' && ToUpper(str[0]) <= L'Z')
+		{
+			data = str.substr(eq_pos + 1);
+			RemoveExternalSpaces(data);
+			if (data.size() > 1 && data[0] == L'"')
+			{
+				label = str.substr(0, eq_pos);
+				RemoveExternalSpaces(label);
+				have_data = true;
+				data.pop_back();
+				data.erase(0, 1);
+			}
+		}
+	}
+	return;
+}
+
 void Language::init(const string& Path, int CountNeed)
 {
 	SCOPED_ACTION(GuardLastError);
@@ -339,26 +385,70 @@ void Language::init(const string& Path, int CountNeed)
 		reserve(CountNeed);
 	}
 
-	string Buffer;
+	std::map<string, int> id_map;
+	string last_id, Buffer, text;
 	while (GetStr.GetString(Buffer))
 	{
 		RemoveExternalSpaces(Buffer);
-
-		if (Buffer.empty() || Buffer.front() != L'\"')
-			continue;
-
-		if (Buffer.size() > 1 && Buffer.back() == L'\"')
+		bool have_text;
+		parse_lng_line(Buffer, last_id, text, have_text);
+		if (have_text)
 		{
-			Buffer.pop_back();
+			int idx = static_cast<int>(m_Messages.size());
+			add(ConvertString(text.data(), text.size()));
+			if (!last_id.empty())
+			{
+				id_map[last_id] = idx;
+				last_id.clear();
+			}
 		}
-
-		add(ConvertString(Buffer.data() + 1, Buffer.size() - 1));
 	}
 
 	//   Проведем проверку на количество строк в LNG-файлах
 	if (CountNeed != -1 && CountNeed != static_cast<int>(size()))
 	{
 		throw std::runtime_error("Language data is incorrect or damaged");
+	}
+
+	// try to load Far<LNG>.lng.custom file(s)
+	//
+	if (id_map.size() > 0) // if string IDs available
+	{
+		for (int j = 0; j < 2; ++j)
+		{
+			string custom_lng_file_path = m_FileName + L".custom";
+			if (j) {
+				auto tmp = Global->Opt->ProfilePath + L"\\" + ExtractFileName(custom_lng_file_path);
+				if (tmp == custom_lng_file_path)
+					continue;
+				else
+					std::swap(tmp, custom_lng_file_path);
+			}
+			os::fs::file lang_file;
+			if (lang_file.Open(custom_lng_file_path, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
+			{
+				GetFileFormat(lang_file, nCodePage, nullptr, false);
+				GetFileString get_str(lang_file, nCodePage);
+				string buffer, label, text;
+				while (get_str.GetString(buffer))
+				{
+					RemoveExternalSpaces(buffer);
+					bool have_text;
+					parse_lng_line(buffer, label, text, have_text);
+					if (have_text && !label.empty())
+					{
+						auto found = id_map.find(label);
+						if (found != id_map.end())
+						{
+							auto idx = found->second;
+							m_Messages[idx] = ConvertString(text.data(), text.size());
+						}
+						label.clear();
+					}
+				}
+				lang_file.Close();
+			}
+		}
 	}
 }
 

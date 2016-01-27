@@ -1,4 +1,28 @@
-﻿w17 26.01.2016 14:09:42 +0300 - build 4521
+﻿w17 27.01.2016 23:06:51 +0300 - build 4522
+
+1. Экспериментально: кастомизация языковых файлов без редактирования генерируемых 'родных' файлов .lng
+
+   Чтобы работало надо:
+   1) создать полные версии языковых файлов обновлённым генератором lng.generator.exe, в новой сборке должны быть.
+   2) создать свой файл с изменениями для нужных языков
+
+   Имя файла = <Оригинал>.custom, например FarRus.lng.custom, FarEng.lng.custom
+   Файл ищется в %FARHOME% и %FARPROFILE% (можно создать 2 файла)
+
+   Файл должен содержать строки вида:
+   MessageId = "Modified Text"
+   например:
+   MListFileSize = " %1 bytes in %2 files, %3 folders "
+   Нужный MessageId можно найти в оригинальном файле, там это выглядит так:
+   //[MessageId]
+   "Original text"
+   //[MListFileSize]
+   " Bytes: %1, files: %2, folders: %3 "
+   Такой формат также допустим в .lng.custom файлах.
+   //[MListFileSize]
+   " %1 bytes in %2 files, %3 folders "
+
+w17 26.01.2016 14:09:42 +0300 - build 4521
 
 1. M#3011: Ctrl+Enter works wrong for ".." for case if path have spaces
    "D:\Path Name\" --> "D:\Path Name"\ 
