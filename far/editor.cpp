@@ -5020,8 +5020,10 @@ int64_t Editor::GetCurPos(bool file_pos, bool add_bom) const
 	{
 		const auto& SaveStr = CurPtr->GetString();
 		const auto EndSeq = CurPtr->GetEOL();
-		TotalSize += mult > 0? SaveStr.size() : unicode::to(m_codepage, SaveStr.data(), SaveStr.size(), nullptr, 0);
-		TotalSize += wcslen(EndSeq);
+		if (mult > 0)
+			TotalSize += SaveStr.size() + wcslen(EndSeq);
+		else
+			TotalSize -= unicode::to(m_codepage, SaveStr.data(), SaveStr.size(), nullptr, 0) + wcslen(EndSeq);
 		++CurPtr;
 	}
 
