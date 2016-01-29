@@ -126,9 +126,18 @@ wchar_t * InsertQuote(wchar_t *Str)
 
 wchar_t* QuoteSpace(wchar_t *Str)
 {
-	if (wcspbrk(Str, Global->Opt->strQuotedSymbols.data()) )
-		InsertQuote(Str);
-
+	if (wcspbrk(Str, Global->Opt->strQuotedSymbols.data()))
+	{
+		auto l = wcslen(Str);
+		if (Str[l - 1] == L'\\')
+		{
+			Str[l - 1] = L'\0';
+			InsertQuote(Str);
+			wcscat(Str + l, L"\\");
+		}
+		else
+			InsertQuote(Str);
+	}
 	return Str;
 }
 
@@ -153,8 +162,16 @@ string& InsertRegexpQuote(string &strStr)
 string &QuoteSpace(string &strStr)
 {
 	if (strStr.find_first_of(Global->Opt->strQuotedSymbols) != string::npos)
-		InsertQuote(strStr);
-
+	{
+		if (strStr.back() == L'\\')
+		{
+			strStr.pop_back();
+			InsertQuote(strStr);
+			strStr.push_back(L'\\');
+		}
+		else
+			InsertQuote(strStr);
+	}
 	return strStr;
 }
 
