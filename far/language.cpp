@@ -386,20 +386,20 @@ void Language::init(const string& Path, int CountNeed)
 	}
 
 	std::map<string, int> id_map;
-	string last_id, Buffer, text;
+	string label, Buffer, text;
 	while (GetStr.GetString(Buffer))
 	{
 		RemoveExternalSpaces(Buffer);
 		bool have_text;
-		parse_lng_line(Buffer, last_id, text, have_text);
+		parse_lng_line(Buffer, label, text, have_text);
 		if (have_text)
 		{
 			int idx = static_cast<int>(m_Messages.size());
 			add(ConvertString(text.data(), text.size()));
-			if (!last_id.empty())
+			if (!label.empty())
 			{
-				id_map[last_id] = idx;
-				last_id.clear();
+				id_map[label] = idx;
+				label.clear();
 			}
 		}
 	}
@@ -429,12 +429,12 @@ void Language::init(const string& Path, int CountNeed)
 			{
 				GetFileFormat(lang_file, nCodePage, nullptr, false);
 				GetFileString get_str(lang_file, nCodePage);
-				string buffer, label, text;
-				while (get_str.GetString(buffer))
+				label.clear();
+				while (get_str.GetString(Buffer))
 				{
-					RemoveExternalSpaces(buffer);
+					RemoveExternalSpaces(Buffer);
 					bool have_text;
-					parse_lng_line(buffer, label, text, have_text);
+					parse_lng_line(Buffer, label, text, have_text);
 					if (have_text && !label.empty())
 					{
 						auto found = id_map.find(label);
