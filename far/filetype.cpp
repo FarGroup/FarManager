@@ -54,44 +54,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "DlgGuid.hpp"
 
-/* $ 25.04.2001 DJ
-   обработка @ в IF EXIST: функция, которая извлекает команду из строки
-   с IF EXIST с учетом @ и возвращает TRUE, если условие IF EXIST
-   выполено, и FALSE в противном случае/
-*/
-
-bool ExtractIfExistCommand(string &strCommandText)
-{
-	bool Result=true;
-	const wchar_t *wPtrCmd=PrepareOSIfExist(strCommandText);
-
-	// Во! Условие не выполнено!!!
-	// (например, пока рассматривали менюху, в это время)
-	// какой-то злобный чебурашка стер файл!
-	if (wPtrCmd)
-	{
-		if (!*wPtrCmd)
-		{
-			Result=false;
-		}
-		else
-		{
-			// прокинем "if exist"
-			if (strCommandText.front() == L'@')
-			{
-				strCommandText.resize(1);
-				strCommandText += wPtrCmd;
-			}
-			else
-			{
-				strCommandText = wPtrCmd;
-			}
-		}
-	}
-
-	return Result;
-}
-
 size_t GetDescriptionWidth()
 {
 	size_t Width = 0;
@@ -217,21 +179,23 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 	int PreserveLFN=SubstFileName(nullptr,strCommand, Name, ShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
 	const auto ListFileUsed = !std::all_of(ALL_CONST_RANGE(ListNames), std::mem_fn(&string::empty));
 
-	// Снова все "подставлено", теперь проверим условия "if exist"
-	if (ExtractIfExistCommand(strCommand))
+	if (!strCommand.empty())
 	{
 		SCOPED_ACTION(PreserveLongName)(ShortName, PreserveLFN);
-		RemoveExternalSpaces(strCommand);
 
-		if (!strCommand.empty())
+		execute_info Info;
+		Info.Command = strCommand;
+		Info.WaitMode = AlwaysWaitFinish? Info.wait_finish : ListFileUsed? Info.wait_idle : Info.no_wait;
+		Info.NewWindow = false;
+		Info.DirectRun = false;
+		Info.RunAs = false;
+
+		Global->CtrlObject->CmdLine()->ExecString(Info);
+
+		if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTFARASS) && !AlwaysWaitFinish) //AN
 		{
-			Global->CtrlObject->CmdLine()->ExecString(strCommand,AlwaysWaitFinish, false, false, ListFileUsed, false,
-				Mode == FILETYPE_VIEW || Mode == FILETYPE_ALTVIEW || Mode == FILETYPE_EDIT || Mode == FILETYPE_ALTEDIT);
-			if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTFARASS) && !AlwaysWaitFinish) //AN
-			{
-				const auto curDir = Global->CtrlObject->CmdLine()->GetCurDir();
-				Global->CtrlObject->CmdHistory->AddToHistory(strCommand, HR_DEFAULT, nullptr, nullptr, curDir.data());
-			}
+			const auto curDir = Global->CtrlObject->CmdLine()->GetCurDir();
+			Global->CtrlObject->CmdHistory->AddToHistory(strCommand, HR_DEFAULT, nullptr, nullptr, curDir.data());
 		}
 	}
 
@@ -312,11 +276,19 @@ bool GetFiletypeOpenMode(int keyPressed, FILETYPE_MODE& mode, bool& shouldForceI
 	return isModeFound;
 }
 
-void ProcessGlobalFileTypes(const string& Name, bool AlwaysWaitFinish, bool RunAs, bool FromPanel)
+void ProcessGlobalFileTypes(const string& Name, bool AlwaysWaitFinish, bool RunAs)
 {
 	string strName(Name);
 	QuoteSpace(strName);
-	Global->CtrlObject->CmdLine()->ExecString(strName, AlwaysWaitFinish, true, true, false, RunAs, false, FromPanel);
+
+	execute_info Info;
+	Info.Command = strName;
+	Info.WaitMode = AlwaysWaitFinish? Info.wait_finish : Info.no_wait;
+	Info.NewWindow = true;
+	Info.DirectRun = true;
+	Info.RunAs = RunAs;
+
+	Global->CtrlObject->CmdLine()->ExecString(Info);
 
 	if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTWINASS) && !AlwaysWaitFinish)
 	{
@@ -330,48 +302,39 @@ void ProcessGlobalFileTypes(const string& Name, bool AlwaysWaitFinish, bool RunA
 */
 void ProcessExternal(const string& Command, const string& Name, const string& ShortName, bool AlwaysWaitFinish)
 {
-	string strListName, strAnotherListName, strShortListName, strAnotherShortListName;
+	string strExecStr = Command;
+	std::vector<string> ListNames(4);
+	int PreserveLFN = SubstFileName(nullptr, strExecStr, Name, ShortName, &ListNames[0], &ListNames[1], &ListNames[2], &ListNames[3]);
+	const auto ListFileUsed = std::any_of(CONST_RANGE(ListNames, i) { return !i.empty(); });
 
-	const string* ListNames[] =
+	// It makes no sense at all to add command containing temporary files to the history - they are doomed anyway
+	if (!ListFileUsed)
 	{
-		&strListName,
-		&strAnotherListName,
-		&strShortListName,
-		&strAnotherShortListName
-	};
-
-	{
-		string strExecStr = Command;
-		int PreserveLFN = SubstFileName(nullptr, strExecStr, Name, ShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
-		const auto ListFileUsed = !std::all_of(ALL_CONST_RANGE(ListNames), std::mem_fn(&string::empty));
-
-		// Снова все "подставлено", теперь проверим условия "if exist"
-		if (!ExtractIfExistCommand(strExecStr))
-			return;
-
-		SCOPED_ACTION(PreserveLongName)(ShortName,PreserveLFN);
 		string strFullName;
 		ConvertNameToFull(Name, strFullName);
 		string strFullShortName;
-		ConvertNameToShort(strFullName,strFullShortName);
-		//BUGBUGBUGBUGBUGBUG !!! Same ListNames!!!
+		ConvertNameToShort(strFullName, strFullShortName);
 		string strFullExecStr = Command;
-		SubstFileName(nullptr, strFullExecStr, strFullName, strFullShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
-
-		// Снова все "подставлено", теперь проверим условия "if exist"
-		if (!ExtractIfExistCommand(strFullExecStr))
-			return;
-
+		SubstFileName(nullptr, strFullExecStr, strFullName, strFullShortName);
 		Global->CtrlObject->ViewHistory->AddToHistory(strFullExecStr, AlwaysWaitFinish? HR_EXTERNAL_WAIT : HR_EXTERNAL);
-
-		Global->CtrlObject->CmdLine()->ExecString(strExecStr,AlwaysWaitFinish, 0, 0, ListFileUsed, false, true);
 	}
 
-	std::for_each(CONST_RANGE(ListNames, i)
+	SCOPED_ACTION(PreserveLongName)(ShortName, PreserveLFN);
+
+	execute_info Info;
+	Info.Command = strExecStr;
+	Info.WaitMode = AlwaysWaitFinish? Info.wait_finish : ListFileUsed? Info.wait_idle : Info.no_wait;
+	Info.NewWindow = false;
+	Info.DirectRun = false;
+	Info.RunAs = false;
+
+	Global->CtrlObject->CmdLine()->ExecString(Info);
+
+	FOR(const auto& i, ListNames)
 	{
-		if (!i->empty())
-			os::DeleteFile(*i);
-	});
+		if (!i.empty())
+			os::DeleteFile(i);
+	}
 }
 
 static int FillFileTypesMenu(VMenu2 *TypesMenu,int MenuPos)

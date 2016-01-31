@@ -37,12 +37,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 bool GetShellType(const string&Ext, string &strType, ASSOCIATIONTYPE aType=AT_FILEEXTENSION);
 
-int Execute(const string& CmdStr, bool AlwaysWaitFinish, bool SeparateWindow = false, bool DirectRun = false, bool FolderRun = false, bool WaitForIdle = false, bool Silent = false, bool RunAs = false);
+void OpenFolderInShell(const string& Folder);
+
+bool Execute(struct execute_info& Info, bool FolderRun, bool Silent, const std::function<void()>& ConsoleActivator = nullptr);
 
 bool IsBatchExtType(const string&ExtPtr);
 
-const wchar_t *PrepareOSIfExist(const string& CmdLine);
+bool ExpandOSAliases(string &strStr);
 
-bool ProcessOSAliases(string &strStr);
+bool ExtractIfExistCommand(string &strCommandText);
 
 #endif // EXECUTE_HPP_B0216961_CCAB_46EA_87F4_789AA3A18A43

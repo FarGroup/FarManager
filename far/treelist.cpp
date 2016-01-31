@@ -1192,7 +1192,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 			{
 				if (LocalKey == KEY_SHIFTENTER||LocalKey == KEY_SHIFTNUMENTER)
 				{
-					Execute(strQuotedName, false, true, true, true);
+					OpenFolderInShell(strQuotedName);
 				}
 				else
 				{
@@ -1213,7 +1213,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 		case KEY_NUMENTER:
 		case KEY_ENTER:
 		{
-			if (!m_ModalMode && Parent()->GetCmdLine()->GetLength()>0)
+			if (!m_ModalMode && !Parent()->GetCmdLine()->GetString().empty())
 				break;
 
 			ProcessEnter();

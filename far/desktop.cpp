@@ -90,18 +90,8 @@ int desktop::ProcessKey(const Manager::Key& Key)
 	return FALSE;
 }
 
-void desktop::FillFromBuffer()
+void desktop::TakeSnapshot()
 {
-	if (!m_Background)
-		m_Background = std::make_unique<SaveScreen>(0, 0, ScrX, ScrY);
-	else
-		m_Background->SaveArea();
-}
-
-void desktop::FillFromConsole()
-{
-	Global->ScrBuf->FillBuf();
-
 	if (!m_Background)
 		m_Background = std::make_unique<SaveScreen>(0, 0, ScrX, ScrY);
 	else

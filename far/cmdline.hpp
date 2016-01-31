@@ -38,6 +38,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrobj.hpp"
 #include "editcontrol.hpp"
 
+struct execute_info
+{
+	enum wait_mode { no_wait, wait_idle, wait_finish };
+
+	string Command;
+	wait_mode WaitMode;
+	bool NewWindow;
+	bool DirectRun;
+	bool RunAs;
+};
+
 class CommandLine:public SimpleScreenObject
 {
 public:
@@ -54,10 +65,7 @@ public:
 	const string& GetString() const { return CmdStr.GetString(); }
 	void SetString(const string& Str, bool Redraw);
 	void InsertString(const string& Str);
-
-	int GetLength() const { return CmdStr.GetLength(); }
-
-	int ExecString(const string& Str, bool AlwaysWaitFinish, bool SeparateWindow = false, bool DirectRun = false, bool WaitForIdle = false, bool RunAs = false, bool RestoreCmd = false, bool FromPanel=false);
+	void ExecString(execute_info& Info);
 	void ShowViewEditHistory();
 	void SetCurPos(int Pos, int LeftPos=0, bool Redraw=true);
 	int GetCurPos() const { return CmdStr.GetCurPos(); }
@@ -70,14 +78,14 @@ public:
 	void LockUpdatePanel(bool Mode);
 	int GetPromptSize() const {return PromptSize;}
 	void SetPromptSize(int NewSize);
+	void DrawFakeCommand(const string& FakeCommand);
 
 private:
 	virtual void DisplayObject() override;
-	int ProcessOSCommands(const string& CmdLine,bool SeparateWindow, bool &PrintCommand);
+	size_t DrawPrompt();
+	bool ProcessOSCommands(const string& CmdLine, class execution_context& ExecutionContext);
 	std::list<std::pair<string, FarColor>> GetPrompt();
 	static bool IntChDir(const string& CmdLine,int ClosePanel,bool Selent=false);
-	static bool CheckCmdLineForHelp(const wchar_t *CmdLine);
-	static bool CheckCmdLineForSet(const string& CmdLine);
 
 	friend class SetAutocomplete;
 

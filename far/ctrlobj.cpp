@@ -64,7 +64,7 @@ ControlObject::ControlObject()
 
 	Desktop = desktop::create();
 	Global->WindowManager->InsertWindow(Desktop);
-	Desktop->FillFromBuffer();
+	Desktop->TakeSnapshot();
 
 	HiFiles = std::make_unique<HighlightFiles>();
 	Plugins = std::make_unique<PluginManager>();

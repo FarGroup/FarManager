@@ -814,15 +814,17 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					int PreserveLFN=SubstFileName(strTempStr.data(),strCommand, strName, strShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName, FALSE, strCmdLineDir.data());
 					bool ListFileUsed=!strListName.empty()||!strAnotherListName.empty()||!strShortListName.empty()||!strAnotherShortListName.empty();
 
-					if (ExtractIfExistCommand(strCommand))
+					if (!strCommand.empty())
 					{
 						SCOPED_ACTION(PreserveLongName)(strShortName, PreserveLFN);
-						RemoveExternalSpaces(strCommand);
 
-						if (!strCommand.empty())
-						{
-							Global->CtrlObject->CmdLine()->ExecString(strCommand, false, 0, 0, ListFileUsed, false, true);
-						}
+						execute_info Info;
+						Info.Command = strCommand;
+						Info.WaitMode = ListFileUsed? Info.wait_idle : Info.no_wait;
+						Info.NewWindow = false;
+						Info.DirectRun = false;
+						Info.RunAs = false;
+						Global->CtrlObject->CmdLine()->ExecString(Info);
 					}
 				}
 			} // strCommand != "REM"

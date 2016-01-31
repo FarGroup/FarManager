@@ -53,10 +53,9 @@ enum FILETYPE_MODE
  */
 bool GetFiletypeOpenMode(int keyPressed, FILETYPE_MODE& mode, bool& shouldForceInternal);
 
-void ProcessGlobalFileTypes(const string& Name, bool AlwaysWaitFinish, bool RunAs,bool FromPanel=false);
+void ProcessGlobalFileTypes(const string& Name, bool AlwaysWaitFinish, bool RunAs);
 bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE_MODE Mode, bool AlwaysWaitFinish);
 void ProcessExternal(const string& Command, const string& Name, const string& ShortName, bool AlwaysWaitFinish);
-bool ExtractIfExistCommand(string &strCommandText);
 void EditFileTypes();
 
 #endif // FILETYPE_HPP_E08E6BC3_545B_4343_9D79_A72830AC30F0

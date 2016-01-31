@@ -412,7 +412,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 	if ((LocalKey==KEY_CTRLLEFT || LocalKey==KEY_CTRLRIGHT || LocalKey==KEY_CTRLNUMPAD4 || LocalKey==KEY_CTRLNUMPAD6
 		|| LocalKey==KEY_RCTRLLEFT || LocalKey==KEY_RCTRLRIGHT || LocalKey==KEY_RCTRLNUMPAD4 || LocalKey==KEY_RCTRLNUMPAD6
 	        /* || LocalKey==KEY_CTRLUP   || LocalKey==KEY_CTRLDOWN || LocalKey==KEY_CTRLNUMPAD8 || LocalKey==KEY_CTRLNUMPAD2 */) &&
-	        (CmdLine->GetLength()>0 ||
+	        (!CmdLine->GetString().empty() ||
 			(!LeftPanel()->IsVisible() && !RightPanel()->IsVisible())))
 	{
 		CmdLine->ProcessKey(Key);

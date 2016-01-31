@@ -1407,6 +1407,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 			return Processed;
 		}
 
+		// BUGBUG consider replacing with execution_context
 		case FCTL_SETUSERSCREEN:
 		{
 			if (!FPanels || !FPanels->LeftPanel() || !FPanels->RightPanel())
@@ -1415,8 +1416,9 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 			Global->KeepUserScreen++;
 			FPanels->LeftPanel()->ProcessingPluginCommand++;
 			FPanels->RightPanel()->ProcessingPluginCommand++;
-			Console().ScrollScreenBuffer(1);
-			Global->CtrlObject->Desktop->FillFromConsole();
+			Console().Write(L"\n");
+			Global->ScrBuf->FillBuf();
+			Global->CtrlObject->Desktop->TakeSnapshot();
 			Global->KeepUserScreen--;
 			FPanels->LeftPanel()->ProcessingPluginCommand--;
 			FPanels->RightPanel()->ProcessingPluginCommand--;

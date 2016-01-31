@@ -125,20 +125,21 @@ public:
 
 	virtual bool ScrollWindowToEnd() const = 0;
 
-	virtual bool ScrollScreenBuffer(int Lines) const = 0;
-
 	virtual bool IsFullscreenSupported() const = 0;
 
 	virtual bool ResetPosition() const = 0;
 
 	virtual bool GetColorDialog(FarColor& Color, bool Centered = false, bool AddTransparent = false) const = 0;
 
+	bool ScrollNonClientArea(size_t NumLines, const FAR_CHAR_INFO& Fill);
+
 protected:
 	console(){};
 
 private:
-	friend console& Console();
+	virtual bool ScrollScreenBuffer(const SMALL_RECT& ScrollRectangle, const SMALL_RECT* ClipRectangle, COORD DestinationOrigin, const FAR_CHAR_INFO& Fill) const = 0;
 
+	friend console& Console();
 };
 
 console& Console();

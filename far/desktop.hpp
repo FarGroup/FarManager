@@ -50,8 +50,7 @@ public:
 	virtual void ResizeConsole() override;
 	virtual int ProcessKey(const Manager::Key& Key) override;
 
-	void FillFromBuffer();
-	void FillFromConsole();
+	void TakeSnapshot();
 
 private:
 	virtual string GetTitle() const override { return L"Desktop"; } // TODO: localization

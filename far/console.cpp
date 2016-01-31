@@ -670,16 +670,6 @@ virtual bool ScrollWindowToEnd() const override
 	return false;
 }
 
-virtual bool ScrollScreenBuffer(int Lines) const override
-{
-	CONSOLE_SCREEN_BUFFER_INFO csbi;
-	GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
-	SMALL_RECT ScrollRectangle={0, 0, static_cast<SHORT>(csbi.dwSize.X-1), static_cast<SHORT>(csbi.dwSize.Y-1)};
-	COORD DestinationOrigin={0,static_cast<SHORT>(-Lines)};
-	CHAR_INFO Fill={L' ', colors::FarColorToConsoleColor(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN))};
-	return ScrollConsoleScreenBuffer(GetOutputHandle(), &ScrollRectangle, nullptr, DestinationOrigin, &Fill)!=FALSE;
-}
-
 virtual bool IsFullscreenSupported() const override
 {
 #ifdef _WIN64
@@ -722,11 +712,34 @@ virtual short GetDelta() const
 	return csbi.dwSize.Y-(csbi.srWindow.Bottom-csbi.srWindow.Top+1);
 }
 
+protected:
+
+virtual bool ScrollScreenBuffer(const SMALL_RECT& ScrollRectangle, const SMALL_RECT* ClipRectangle, COORD DestinationOrigin, const FAR_CHAR_INFO& Fill) const override
+{
+	const CHAR_INFO SysFill = { Fill.Char, colors::FarColorToConsoleColor(Fill.Attributes) };
+	return ScrollConsoleScreenBuffer(GetOutputHandle(), &ScrollRectangle, ClipRectangle, DestinationOrigin, &SysFill) != FALSE;
+}
+
 private:
 	const unsigned int MAXSIZE;
 	HANDLE m_OriginalInputHandle;
 	mutable string m_Title;
 };
+
+bool console::ScrollNonClientArea(size_t NumLines, const FAR_CHAR_INFO& Fill)
+{
+	bool Result = false;
+
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	if (GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi) != FALSE)
+	{
+		SMALL_RECT ScrollRectangle = { 0, 0, static_cast<SHORT>(csbi.dwSize.X - 1), static_cast<SHORT>((csbi.dwSize.Y - 1) - (ScrY + 1) + NumLines) };
+		COORD DestinationOigin = { 0, static_cast<SHORT>(-static_cast<SHORT>(NumLines)) };
+		Result = ScrollScreenBuffer(ScrollRectangle, nullptr, DestinationOigin, Fill) != FALSE;
+	}
+	return Result;
+}
+
 
 class extendedconsole:public basicconsole
 {
@@ -803,6 +816,21 @@ public:
 		return Result;
 	}
 
+	virtual bool ScrollScreenBuffer(const SMALL_RECT& ScrollRectangle, const SMALL_RECT* ClipRectangle, COORD DestinationOrigin, const FAR_CHAR_INFO& Fill) const override
+	{
+		bool Result = false;
+		if (Imports.pScrollScreenBuffer)
+		{
+			Result = Imports.pScrollScreenBuffer(&ScrollRectangle, ClipRectangle, DestinationOrigin, &Fill) != FALSE;
+		}
+		else
+		{
+			Result = basicconsole::ScrollScreenBuffer(ScrollRectangle, ClipRectangle, DestinationOrigin, Fill);
+		}
+		return Result;
+
+	}
+
 	virtual bool ClearExtraRegions(const FarColor& Color, int Mode) const override
 	{
 		bool Result = false;
@@ -849,6 +877,7 @@ private:
 		os::rtdl::function_pointer<BOOL(WINAPI*)()> pCommit;
 		os::rtdl::function_pointer<BOOL(WINAPI*)(FarColor* Attributes) > pGetTextAttributes;
 		os::rtdl::function_pointer<BOOL(WINAPI*)(const FarColor* Attributes)> pSetTextAttributes;
+		os::rtdl::function_pointer<BOOL(WINAPI*)(const SMALL_RECT* ScrollRectangle, const SMALL_RECT* ClipRectangle, COORD DestinationOrigin, const FAR_CHAR_INFO* Fill)> pScrollScreenBuffer;
 		os::rtdl::function_pointer<BOOL(WINAPI*)(const FarColor* Color, int Mode)> pClearExtraRegions;
 		os::rtdl::function_pointer<BOOL(WINAPI*)(FarColor* Color, BOOL Centered, BOOL AddTransparent)> pGetColorDialog;
 
@@ -859,6 +888,7 @@ private:
 			INIT_IMPORT(Commit),
 			INIT_IMPORT(GetTextAttributes),
 			INIT_IMPORT(SetTextAttributes),
+			INIT_IMPORT(ScrollScreenBuffer),
 			INIT_IMPORT(ClearExtraRegions),
 			INIT_IMPORT(GetColorDialog)
 #undef INIT_IMPORT

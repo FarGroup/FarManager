@@ -575,8 +575,7 @@ void ShowTime(int ShowAlways)
 	string strClockText = str_printf(L"%02d:%02d",tm.wHour,tm.wMinute);
 	GotoXY(ScrX-4,0);
 
-	const auto CurrentWindow = Global->WindowManager->GetCurrentWindow();
-	if (CurrentWindow)
+	if (const auto CurrentWindow = Global->WindowManager->GetCurrentWindow())
 	{
 		int ModType=CurrentWindow->GetType();
 		SetColor(ModType==windowtype_viewer?COL_VIEWERCLOCK:(ModType==windowtype_editor?COL_EDITORCLOCK:COL_CLOCK));
@@ -893,7 +892,6 @@ const FarColor& GetColor()
 void ScrollScreen(int Count)
 {
 	Global->ScrBuf->Scroll(Count);
-	Global->ScrBuf->FillRect(0,ScrY+1-Count,ScrX,ScrY,L' ',colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 }
 
 

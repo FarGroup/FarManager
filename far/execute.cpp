@@ -657,31 +657,31 @@ bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
 	return !strType.empty();
 }
 
-/*
-Функция-пускатель внешних процессов
-Возвращает -1 в случае ошибки или...
-*/
-int Execute(const string& CmdStr,  // Ком.строка для исполнения
-            bool AlwaysWaitFinish, // Ждать завершение процесса?
-            bool SeparateWindow,   // Выполнить в отдельном окне?
-            bool DirectRun,        // Выполнять директом? (без CMD)
-            bool FolderRun,        // Это фолдер?
-            bool WaitForIdle,      // for list files
-            bool Silent,
-            bool RunAs             // elevation
-            )
+void OpenFolderInShell(const string& Folder)
 {
-	int nResult = -1;
+	execute_info Info;
+	Info.Command = Folder;
+	Info.WaitMode = Info.no_wait;
+	Info.NewWindow = true;
+	Info.DirectRun = true;
+	Info.RunAs = false;
+
+	Execute(Info, true, true);
+}
+
+bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::function<void()>& ConsoleActivator)
+{
+	bool Result = false;
 	string strNewCmdStr;
 	string strNewCmdPar;
 
-	int PipeOrEscaped = PartCmdLine(CmdStr, strNewCmdStr, strNewCmdPar);
+	int PipeOrEscaped = PartCmdLine(Info.Command, strNewCmdStr, strNewCmdPar);
 
 	const bool IsDirectory = os::fs::is_directory(strNewCmdStr);
 
-	if(RunAs)
+	if(Info.RunAs)
 	{
-		SeparateWindow = true;
+		Info.NewWindow = true;
 	}
 
 	if(FolderRun)
@@ -689,32 +689,30 @@ int Execute(const string& CmdStr,  // Ком.строка для исполне�
 		Silent = true;
 	}
 
-	if (SeparateWindow)
+	if (Info.NewWindow)
 	{
-		if(Global->Opt->Exec.ExecuteSilentExternal)
-		{
-			Silent = true;
-		}
+		Silent = true;
+
 		if (strNewCmdPar.empty() && IsDirectory)
 		{
 			ConvertNameToFull(strNewCmdStr, strNewCmdStr);
-			DirectRun = true;
+			Info.DirectRun = true;
 			FolderRun=true;
 		}
 	}
 
 	const auto strComspec(os::env::get_variable(L"COMSPEC"));
-	if (strComspec.empty() && !DirectRun)
+	if (strComspec.empty() && !Info.DirectRun)
 	{
 		Message(MSG_WARNING, 1, MSG(MError), MSG(MComspecNotFound), MSG(MOk));
-		return -1;
+		return false;
 	}
 
 	DWORD dwSubSystem = IMAGE_SUBSYSTEM_UNKNOWN;
 	os::handle Process;
 	LPCWSTR lpVerb = nullptr;
 
-	if (FolderRun && DirectRun)
+	if (FolderRun && Info.DirectRun)
 	{
 		AddEndSlash(strNewCmdStr); // НАДА, иначе ShellExecuteEx "возьмет" BAT/CMD/пр.ересь, но не каталог
 	}
@@ -755,19 +753,19 @@ int Execute(const string& CmdStr,  // Ком.строка для исполне�
 
 		if (dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)
 		{
-			if ( !DirectRun )
+			if (!Info.DirectRun)
 			{
-				DirectRun = (PipeOrEscaped < 1); //??? <= 1 если бы '^' были удалены
+				Info.DirectRun = (PipeOrEscaped < 1); //??? <= 1 если бы '^' были удалены
 			}
-			if(DirectRun && Global->Opt->Exec.ExecuteSilentExternal)
+			if (Info.DirectRun)
 			{
 				Silent = true;
 			}
-			SeparateWindow = true;
+			Info.NewWindow = true;
 		}
-		else if (dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_CUI && !DirectRun && !internal)
+		else if (dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_CUI && !Info.DirectRun && !internal)
 		{
-			DirectRun = (PipeOrEscaped < 1); //??? <= 1 если бы '^' были удалены
+			Info.DirectRun = (PipeOrEscaped < 1); //??? <= 1 если бы '^' были удалены
 		}
 	}
 
@@ -787,30 +785,10 @@ int Execute(const string& CmdStr,  // Ком.строка для исполне�
 	seInfo.lpDirectory=strCurDir.data();
 	seInfo.nShow = SW_SHOWNORMAL;
 
-	string strFarTitle;
 
 	if(!Silent)
 	{
-		int X1, X2, Y1, Y2;
-		Global->CtrlObject->CmdLine()->GetPosition(X1, Y1, X2, Y2);
-		Global->ProcessShowClock += (add_show_clock = 1);
-		Global->WindowManager->ShowBackground();
-		Global->CtrlObject->CmdLine()->Redraw();
-		GotoXY(X2+1,Y1);
-		Text(L' ');
-		MoveCursor(X1,Y1);
-		GetCursorType(Visible, CursorSize);
-		SetInitialCursorType();
-	}
-
-	Global->CtrlObject->CmdLine()->SetString(L"", Silent);
-
-	if(!Silent)
-	{
-		// BUGBUG: если команда начинается с "@", то эта строка херит все начинания
-		// TODO: здесь необходимо подставить виртуальный буфер, а потом его корректно подсунуть в ScrBuf
-		Global->ScrBuf->SetLockCount(0);
-		Global->ScrBuf->Flush(true);
+		ConsoleActivator();
 
 		ConsoleCP = Console().GetInputCodepage();
 		ConsoleOutputCP = Console().GetOutputCodepage();
@@ -821,22 +799,18 @@ int Execute(const string& CmdStr,  // Ком.строка для исполне�
 
 		if (Global->Opt->Exec.ExecuteFullTitle)
 		{
-			strFarTitle += strNewCmdStr;
+			auto strFarTitle = strNewCmdStr;
 			if (!strNewCmdPar.empty())
 			{
 				strFarTitle.append(L" ").append(strNewCmdPar);
 			}
+			ConsoleTitle::SetFarTitle(strFarTitle);
 		}
-		else
-		{
-			strFarTitle+=CmdStr;
-		}
-		ConsoleTitle::SetFarTitle(strFarTitle);
 	}
 
 	string ComSpecParams(Global->Opt->Exec.strComSpecParams);
 	ComSpecParams += L" ";
-	if (DirectRun)
+	if (Info.DirectRun)
 	{
 		seInfo.lpFile = strNewCmdStr.data();
 		if(!strNewCmdPar.empty())
@@ -876,22 +850,12 @@ int Execute(const string& CmdStr,  // Ком.строка для исполне�
 		seInfo.lpVerb = nullptr;
 	}
 
-	if(RunAs && RunAsSupported(seInfo.lpFile))
+	if (Info.RunAs && RunAsSupported(seInfo.lpFile))
 	{
 		seInfo.lpVerb = L"runas";
 	}
 
-	seInfo.fMask = SEE_MASK_NOASYNC|SEE_MASK_NOCLOSEPROCESS|(SeparateWindow?0:SEE_MASK_NO_CONSOLE);
-#if 0
-	seInfo.fMask |= SEE_MASK_FLAG_NO_UI;
-	if (dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN)  // для .exe НЕ включать - бывают проблемы с запуском
-		if (IsWindowsVistaOrGreater()) // ShellExecuteEx error, see
-			seInfo.fMask |= SEE_MASK_INVOKEIDLIST; // http://us.generation-nt.com/answer/shellexecuteex-does-not-allow-openas-verb-windows-7-help-31497352.html
-#endif
-	if(!Silent)
-	{
-		Console().ScrollScreenBuffer(((DirectRun && dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI) || SeparateWindow)?2:1);
-	}
+	seInfo.fMask = SEE_MASK_NOASYNC | SEE_MASK_NOCLOSEPROCESS | (Info.NewWindow? 0 : SEE_MASK_NO_CONSOLE);
 
 	// ShellExecuteEx fails if IE10 is installed and if current directory is symlink/junction
 	wchar_t CurDir[MAX_PATH];
@@ -910,16 +874,15 @@ int Execute(const string& CmdStr,  // Ком.строка для исполне�
 		}
 	}
 
-	DWORD dwError = 0;
+	Result = ShellExecuteEx(&seInfo) != FALSE;
 
-	if (ShellExecuteEx(&seInfo))
+	if (Result)
 	{
 		Process.reset(seInfo.hProcess);
 	}
 	else
 	{
 		Global->CatchError();
-		dwError = Global->CaughtError();
 	}
 
 	// ShellExecuteEx fails if IE10 is installed and if current directory is symlink/junction
@@ -928,15 +891,11 @@ int Execute(const string& CmdStr,  // Ком.строка для исполне�
 		SetCurrentDirectory(CurDir);
 	}
 
-	if (!dwError)
+	if (Result)
 	{
 		if (Process)
 		{
-			if (!Silent)
-			{
-				Global->ScrBuf->Flush();
-			}
-			if (AlwaysWaitFinish || !SeparateWindow)
+			if (Info.WaitMode == Info.wait_finish || !Info.NewWindow)
 			{
 				if (Global->Opt->ConsoleDetachKey.empty())
 				{
@@ -1021,44 +980,15 @@ int Execute(const string& CmdStr,  // Ком.строка для исполне�
 						}
 					}
 				}
-
-				if(!Silent)
-				{
-					bool SkipScroll = false;
-					COORD Size;
-					if(Console().GetSize(Size))
-					{
-						matrix<FAR_CHAR_INFO> Buffer(Global->Opt->ShowKeyBar ? 3 : 2, Size.X);
-						SMALL_RECT ReadRegion = {0, static_cast<SHORT>(Size.Y - Buffer.height()), static_cast<SHORT>(Size.X-1), static_cast<SHORT>(Size.Y-1)};
-						if(Console().ReadOutput(Buffer, ReadRegion))
-						{
-							FarColor Attributes = Buffer.back().back().Attributes;
-							SkipScroll = true;
-							FOR(const auto& i, Buffer.vector())
-							{
-								if(i.Char != L' ' || i.Attributes.ForegroundColor != Attributes.ForegroundColor || i.Attributes.BackgroundColor != Attributes.BackgroundColor || i.Attributes.Flags != Attributes.Flags)
-								{
-									SkipScroll = false;
-									break;
-								}
-							}
-						}
-					}
-					if(!SkipScroll)
-					{
-						Console().ScrollScreenBuffer(Global->Opt->ShowKeyBar?2:1);
-					}
-				}
-
 			}
-			if(WaitForIdle)
+			if(Info.WaitMode == Info.wait_idle)
 			{
 				WaitForInputIdle(Process.native_handle(), INFINITE);
 			}
 			Process.close();
 		}
 
-		nResult = 0;
+		Result = true;
 
 	}
 	Global->ProcessShowClock -= add_show_clock;
@@ -1077,13 +1007,6 @@ int Execute(const string& CmdStr,  // Ком.строка для исполне�
 	{
 		ChangeVideoMode(ConSize.Y, ConSize.X);
 	}
-	else
-	{
-		if(!Silent)
-		{
-			Global->CtrlObject->Desktop->FillFromConsole();
-		}
-	}
 
 	if (Global->Opt->Exec.RestoreCPAfterExecute)
 	{
@@ -1092,22 +1015,9 @@ int Execute(const string& CmdStr,  // Ком.строка для исполне�
 		Console().SetOutputCodepage(ConsoleOutputCP);
 	}
 
-	Console().SetTextAttributes(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
-
-	if(dwError)
+	if (!Result)
 	{
-		if (!Silent)
-		{
-			Global->CtrlObject->Cp()->Redraw();
-			if (Global->Opt->ShowKeyBar)
-			{
-				Global->CtrlObject->Cp()->GetKeybar().Show();
-			}
-			if (Global->Opt->Clock)
-				ShowTime(1);
-		}
-
-		const auto Strings = DirectRun?
+		const auto Strings = Info.DirectRun?
 			make_vector<string>(MSG(MCannotExecute), strNewCmdStr) :
 			make_vector<string>(MSG(MCannotInvokeComspec), strComspec, MSG(MCheckComspecVar));
 
@@ -1118,10 +1028,10 @@ int Execute(const string& CmdStr,  // Ком.строка для исполне�
 			L"ErrCannotExecute",
 			nullptr,
 			nullptr,
-			make_vector<string>(DirectRun? strNewCmdStr : strComspec));
+			make_vector<string>(Info.DirectRun? strNewCmdStr : strComspec));
 	}
 
-	return nResult;
+	return Result;
 }
 
 
@@ -1143,7 +1053,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполне�
    Исходная строка (CmdLine) не модифицируется!!! - на что явно указывает const
                                                     IS 20.03.2002 :-)
 */
-const wchar_t *PrepareOSIfExist(const string& CmdLine)
+static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 {
 	if (CmdLine.empty())
 		return nullptr;
@@ -1161,7 +1071,7 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 	if (*PtrCmd == L'@')
 	{
 		// здесь @ игнорируется; ее вставит в правильное место функция
-		// ExtractIfExistCommand в filetype.cpp
+		// ExtractIfExistCommand
 		PtrCmd++;
 
 		while (*PtrCmd && IsSpace(*PtrCmd))
@@ -1310,6 +1220,44 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 	return Exist?PtrCmd:nullptr;
 }
 
+/* $ 25.04.2001 DJ
+обработка @ в IF EXIST: функция, которая извлекает команду из строки
+с IF EXIST с учетом @ и возвращает TRUE, если условие IF EXIST
+выполено, и FALSE в противном случае/
+*/
+
+bool ExtractIfExistCommand(string &strCommandText)
+{
+	bool Result = true;
+	const wchar_t *wPtrCmd = PrepareOSIfExist(strCommandText);
+
+	// Во! Условие не выполнено!!!
+	// (например, пока рассматривали менюху, в это время)
+	// какой-то злобный чебурашка стер файл!
+	if (wPtrCmd)
+	{
+		if (!*wPtrCmd)
+		{
+			Result = false;
+		}
+		else
+		{
+			// прокинем "if exist"
+			if (strCommandText.front() == L'@')
+			{
+				strCommandText.resize(1);
+				strCommandText += wPtrCmd;
+			}
+			else
+			{
+				strCommandText = wPtrCmd;
+			}
+		}
+	}
+
+	return Result;
+}
+
 /*
 Проверить "Это батник?"
 */
@@ -1323,7 +1271,7 @@ bool IsBatchExtType(const string& ExtPtr)
 	return std::any_of(CONST_RANGE(BatchExtList, i) {return !StrCmpI(i, ExtPtr);});
 }
 
-bool ProcessOSAliases(string &strStr)
+bool ExpandOSAliases(string &strStr)
 {
 	string strNewCmdStr;
 	string strNewCmdPar;

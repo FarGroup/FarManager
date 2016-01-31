@@ -964,12 +964,12 @@ int FileList::ProcessKey(const Manager::Key& Key)
 
 	FileListItem *CurPtr=nullptr;
 	int N;
-	int CmdLength=Parent()->GetCmdLine()->GetLength();
+	const auto IsEmptyCmdline = Parent()->GetCmdLine()->GetString().empty();
 
 	if (IsVisible())
 	{
 		if (!InternalProcessKey)
-			if ((!(LocalKey==KEY_ENTER||LocalKey==KEY_NUMENTER) && !(LocalKey==KEY_SHIFTENTER||LocalKey==KEY_SHIFTNUMENTER)) || !CmdLength)
+			if ((!(LocalKey == KEY_ENTER || LocalKey == KEY_NUMENTER) && !(LocalKey == KEY_SHIFTENTER || LocalKey == KEY_SHIFTNUMENTER)) || IsEmptyCmdline)
 				if (SendKeyToPlugin(LocalKey))
 					return TRUE;
 	}
@@ -1082,7 +1082,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 	    [*] В панели с одной колонкой Shift-Left/Right аналогично нажатию
 	        Shift-PgUp/PgDn.
 	*/
-	if (m_Columns==1 && !CmdLength)
+	if (m_Columns == 1 && IsEmptyCmdline)
 	{
 		if (LocalKey == KEY_SHIFTLEFT || LocalKey == KEY_SHIFTNUMPAD4)
 			LocalKey=KEY_SHIFTPGUP;
@@ -1198,7 +1198,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLINS:      case KEY_CTRLNUMPAD0:
 		case KEY_RCTRLINS:     case KEY_RCTRLNUMPAD0:
 
-			if (CmdLength>0)
+			if (!IsEmptyCmdline)
 				return FALSE;
 
 		case KEY_CTRLSHIFTINS:  case KEY_CTRLSHIFTNUMPAD0:  // копировать имена
@@ -1496,7 +1496,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			if (m_ListData.empty())
 				break;
 
-			if (CmdLength)
+			if (!IsEmptyCmdline)
 			{
 				Parent()->GetCmdLine()->ProcessKey(Key);
 				return TRUE;
@@ -2153,7 +2153,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			return TRUE;
 		case KEY_LEFT:         case KEY_NUMPAD4:
 
-			if ((m_Columns==1 && Global->Opt->ShellRightLeftArrowsRule == 1) || m_Columns>1 || !CmdLength)
+			if ((m_Columns == 1 && Global->Opt->ShellRightLeftArrowsRule == 1) || m_Columns>1 || IsEmptyCmdline)
 			{
 				if (m_CurTopFile>=m_Height && m_CurFile-m_CurTopFile<m_Height)
 					m_CurTopFile-=m_Height;
@@ -2165,7 +2165,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			return FALSE;
 		case KEY_RIGHT:        case KEY_NUMPAD6:
 
-			if ((m_Columns==1 && Global->Opt->ShellRightLeftArrowsRule == 1) || m_Columns>1 || !CmdLength)
+			if ((m_Columns == 1 && Global->Opt->ShellRightLeftArrowsRule == 1) || m_Columns>1 || IsEmptyCmdline)
 			{
 				if (m_CurFile+m_Height < static_cast<int>(m_ListData.size()) && m_CurFile-m_CurTopFile>=(m_Columns-1)*(m_Height))
 					m_CurTopFile+=m_Height;
@@ -2524,7 +2524,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			}
 
 			QuoteSpace(strFullPath);
-			Execute(strFullPath, false, true, true, true);
+			OpenFolderInShell(strFullPath);
 		}
 		else
 		{
@@ -2594,8 +2594,14 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTPANEL) && !PluginMode) //AN
 				Global->CtrlObject->CmdHistory->AddToHistory(strFileName, HR_DEFAULT, nullptr, nullptr, m_CurDir.data());
 
+			execute_info Info;
+			Info.Command = strFileName;
+			Info.WaitMode = PluginMode? Info.wait_finish : Info.no_wait;
+			Info.NewWindow = SeparateWindow;
+			Info.DirectRun = true;
+			Info.RunAs = RunAs;
 
-			Parent()->GetCmdLine()->ExecString(strFileName, PluginMode, SeparateWindow, true, false, RunAs, false, true);
+			Parent()->GetCmdLine()->ExecString(Info);
 
 			if (PluginMode)
 				DeleteFileWithFolder(strFileName);
@@ -2624,7 +2630,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			{
 				if (EnableExec && hOpen!=PANEL_STOP)
 					if (SeparateWindow || Global->Opt->UseRegisteredTypes)
-						ProcessGlobalFileTypes(strFileName, PluginMode, RunAs, true);
+						ProcessGlobalFileTypes(strFileName, PluginMode, RunAs);
 
 				if (PluginMode)
 				{
@@ -4893,20 +4899,23 @@ bool FileList::ApplyCommand()
 		int PreserveLFN=SubstFileName(nullptr,strConvertedCommand,strSelName, strSelShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
 		bool ListFileUsed=!strListName.empty()||!strAnotherListName.empty()||!strShortListName.empty()||!strAnotherShortListName.empty();
 
-		if (ExtractIfExistCommand(strConvertedCommand))
+		if (!strConvertedCommand.empty())
 		{
-			SCOPED_ACTION(PreserveLongName)(strSelShortName,PreserveLFN);
-			RemoveExternalSpaces(strConvertedCommand);
+			SCOPED_ACTION(PreserveLongName)(strSelShortName, PreserveLFN);
 
-			if (!strConvertedCommand.empty())
-			{
-				Parent()->GetCmdLine()->ExecString(strConvertedCommand, false, 0, 0, ListFileUsed, false, true); // Param2 == TRUE?
-					//if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTAPPLYCMD))
-					//	Global->CtrlObject->CmdHistory->AddToHistory(strConvertedCommand);
-			}
+			execute_info Info;
+			Info.Command = strConvertedCommand;
+			Info.WaitMode = ListFileUsed? Info.wait_idle : Info.no_wait;
+			Info.NewWindow = false;
+			Info.DirectRun = false;
+			Info.RunAs = false;
 
-			ClearLastGetSelection();
+			Parent()->GetCmdLine()->ExecString(Info);
+			//if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTAPPLYCMD))
+			//	Global->CtrlObject->CmdHistory->AddToHistory(strConvertedCommand);
 		}
+
+		ClearLastGetSelection();
 
 		if (!strListName.empty())
 			os::DeleteFile(strListName);

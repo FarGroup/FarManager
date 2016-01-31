@@ -528,7 +528,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 				         ListItems[I].m_Plugin,
 				         (ListItems[I].m_Modified?L"True ":L"False"),
 				         ListItems[I].m_PrevViewMode,
-				         ListItems[I].m_PrevSortMode,
+				         ListItems[I].m_PrevSortMode.value(),
 				         (ListItems[I].m_PrevSortMode < panel_sort::BY_CUSTOMDATA? __SORT[ListItems[I].m_PrevSortMode.value()].Name : L"<Unknown>"),
 				         ListItems[I].m_PrevSortOrder,
 				         ListItems[I].m_PrevNumericSort,

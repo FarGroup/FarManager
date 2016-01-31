@@ -111,23 +111,30 @@ void CommandLine::SetAutoComplete(int Mode)
 	CmdStr.SetAutocomplete(Mode!=0);
 }
 
-void CommandLine::DisplayObject()
+size_t CommandLine::DrawPrompt()
 {
-	_OT(SysLog(L"[%p] CommandLine::DisplayObject()",this));
 	const auto PromptList = GetPrompt();
 	const size_t MaxLength = PromptSize*ObjWidth() / 100;
 	size_t CurLength = 0;
-	GotoXY(m_X1,m_Y1);
+	GotoXY(m_X1, m_Y1);
 
 	std::for_each(CONST_RANGE(PromptList, i)
 	{
 		SetColor(i.second);
 		string str(i.first);
-		if(CurLength + str.size() > MaxLength)
+		if (CurLength + str.size() > MaxLength)
 			TruncPathStr(str, std::max(0, static_cast<int>(MaxLength - CurLength)));
 		Text(str);
 		CurLength += str.size();
 	});
+	return CurLength;
+}
+
+void CommandLine::DisplayObject()
+{
+	_OT(SysLog(L"[%p] CommandLine::DisplayObject()",this));
+
+	size_t CurLength = DrawPrompt();
 
 	CmdStr.SetObjectColor(COL_COMMANDLINE,COL_COMMANDLINESELECTED);
 	CmdStr.SetPosition(m_X1+(int)CurLength,m_Y1,m_X2,m_Y2);
@@ -136,6 +143,13 @@ void CommandLine::DisplayObject()
 	GotoXY(m_X2+1,m_Y1);
 	SetColor(COL_COMMANDLINEPREFIX);
 	Text(L'\x2191'); // up arrow
+}
+
+void CommandLine::DrawFakeCommand(const string& FakeCommand)
+{
+	DrawPrompt();
+	// TODO: wrap & scroll if too long
+	Text(FakeCommand);
 }
 
 void CommandLine::SetCurPos(int Pos, int LeftPos, bool Redraw)
@@ -400,19 +414,33 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 			Refresh();
 			const auto& strStr = CmdStr.GetString();
 
-			if (strStr.empty())
-				break;
+			bool TryExecute = true;
 
-			ActivePanel->SetCurPath();
+			if (!strStr.empty())
+			{
+				ActivePanel->SetCurPath();
 
-			if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTCMDLINE))
-				Global->CtrlObject->CmdHistory->AddToHistory(strStr, HR_DEFAULT, nullptr, nullptr, m_CurDir.data());
+				if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTCMDLINE))
+					Global->CtrlObject->CmdHistory->AddToHistory(strStr, HR_DEFAULT, nullptr, nullptr, m_CurDir.data());
+				TryExecute = !ActivePanel->ProcessPluginEvent(FE_COMMAND, UNSAFE_CSTR(strStr));
+			}
 
+			if (TryExecute)
+			{
+				const auto KeyCode = LocalKey();
+				const auto IsNewWindow = (KeyCode & KEY_SHIFT) != 0;
+				const auto IsRunAs = (KeyCode & KEY_CTRL || KeyCode & KEY_RCTRL) && (KeyCode & KEY_ALT || KeyCode & KEY_RALT);
 
-			if (!ActivePanel->ProcessPluginEvent(FE_COMMAND, UNSAFE_CSTR(strStr)))
-				ExecString(strStr, false, LocalKey()==KEY_SHIFTENTER||LocalKey()==KEY_SHIFTNUMENTER, false, false,
-						LocalKey() == KEY_CTRLALTENTER || LocalKey() == KEY_RCTRLRALTENTER || LocalKey() == KEY_CTRLRALTENTER || LocalKey() == KEY_RCTRLALTENTER ||
-						LocalKey() == KEY_CTRLALTNUMENTER || LocalKey() == KEY_RCTRLRALTNUMENTER || LocalKey() == KEY_CTRLRALTNUMENTER || LocalKey() == KEY_RCTRLALTNUMENTER);
+				execute_info Info;
+				Info.Command = strStr;
+				Info.WaitMode = Info.no_wait;
+				Info.NewWindow = IsNewWindow;
+				Info.DirectRun = false;
+				Info.RunAs = IsRunAs;
+
+				SetString(L"", false);
+				ExecString(Info);
+			}
 		}
 		return TRUE;
 		case KEY_CTRLU:
@@ -490,8 +518,6 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 
 			return TRUE;
 	}
-
-	return FALSE;
 }
 
 
@@ -798,7 +824,14 @@ void CommandLine::ShowViewEditHistory()
 				case HR_EXTERNAL:
 				case HR_EXTERNAL_WAIT:
 				{
-					ExecString(strStr, Type == HR_EXTERNAL_WAIT, false, false, false, false, true);
+					execute_info Info;
+					Info.Command = strStr;
+					Info.WaitMode = Type == HR_EXTERNAL_WAIT? Info.wait_finish : Info.no_wait;
+					Info.NewWindow = false;
+					Info.DirectRun = false;
+					Info.RunAs = false;
+
+					ExecString(Info);
 					break;
 				}
 			}
@@ -821,414 +854,94 @@ void CommandLine::SetPromptSize(int NewSize)
 	PromptSize = NewSize? std::max(5, std::min(95, NewSize)) : DEFAULT_CMDLINE_WIDTH;
 }
 
-int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, bool SeparateWindow, bool DirectRun, bool WaitForIdle, bool RunAs, bool RestoreCmd, bool FromPanel)
+class execution_context: noncopyable
 {
-	class preservecmdline
+public:
+	execution_context(const string& Command):
+		m_CurrentWindow(Global->WindowManager->GetCurrentWindow()),
+		m_Command(Command),
+		m_Activated(),
+		m_Consolised()
 	{
-	public:
-		preservecmdline(bool Preserve):
-			m_DisableAutoComplete(Global->CtrlObject->CmdLine()),
-			Preserve(Preserve)
-		{
-			if(Preserve)
-			{
-				OldCmdLineCurPos = Global->CtrlObject->CmdLine()->GetCurPos();
-				OldCmdLineLeftPos = Global->CtrlObject->CmdLine()->GetLeftPos();
-				strOldCmdLine = Global->CtrlObject->CmdLine()->GetString();
-				Global->CtrlObject->CmdLine()->GetSelection(OldCmdLineSelStart,OldCmdLineSelEnd);
-			}
-		}
-		~preservecmdline()
-		{
-			if(Preserve)
-			{
-				bool redraw = Global->WindowManager->IsPanelsActive();
-				Global->CtrlObject->CmdLine()->SetString(strOldCmdLine, redraw);
-				Global->CtrlObject->CmdLine()->SetCurPos(OldCmdLineCurPos, OldCmdLineLeftPos, redraw);
-				Global->CtrlObject->CmdLine()->Select(OldCmdLineSelStart, OldCmdLineSelEnd);
-			}
-		}
-	private:
-		SetAutocomplete m_DisableAutoComplete;
-		bool Preserve;
-		string strOldCmdLine;
-		int OldCmdLineCurPos, OldCmdLineLeftPos;
-		intptr_t OldCmdLineSelStart, OldCmdLineSelEnd;
-	};
-
-	SCOPED_ACTION(preservecmdline)(RestoreCmd);
-
-	string CmdLine(InputCmdLine);
-
-	bool Silent=false;
-
-	if (!FromPanel && !CmdLine.empty() && CmdLine[0] == L'@')
-	{
-		CmdLine.erase(0, 1);
-		Silent=true;
+		++Global->ProcessShowClock;
 	}
 
-	if (!FromPanel)
+	void Activate()
 	{
-		ProcessOSAliases(CmdLine);
-	}
+		if (m_Activated)
+			return;
 
-	LastCmdPartLength=-1;
+		m_Activated = true;
 
-	if (!StrCmpI(CmdLine.data(),L"far:config"))
-	{
-		if (!RestoreCmd)
-		{
-			SetString(L"", false);
-			Show();
-		}
-		return Global->Opt->AdvancedConfig();
-	}
-
-	if (!SeparateWindow && Global->CtrlObject->Plugins->ProcessCommandLine(CmdLine))
-	{
-		Refresh();
-		return -1;
-	}
-
-	{
-		SCOPED_ACTION(SetAutocomplete)(&CmdStr);
-		SetString(CmdLine, true);
-	}
-
-	int Code;
-
-	if (m_CurDir.size() > 1 && m_CurDir[1]==L':')
-		FarChDir(m_CurDir);
-
-	const auto strPrevDir=m_CurDir;
-	bool PrintCommand=true;
-	if ((Code=ProcessOSCommands(CmdLine,SeparateWindow,PrintCommand)) == TRUE)
-	{
-		if (PrintCommand)
-		{
-			Global->WindowManager->ShowBackground();
-			string strNewDir=m_CurDir;
-			m_CurDir=strPrevDir;
-			Redraw();
-			m_CurDir=strNewDir;
-			GotoXY(m_X2+1,m_Y1);
-			Text(L' ');
-			ScrollScreen(2);
-			Global->CtrlObject->Desktop->FillFromBuffer();
-		}
-
-		SetString(L"", false);
-
-		Code=-1;
-	}
-	else
-	{
-		auto strTempStr = CmdLine;
-
-		if (Code == -1)
-			ReplaceSlashToBackslash(strTempStr);
-
-		Code=Execute(strTempStr,AlwaysWaitFinish,SeparateWindow,DirectRun, 0, WaitForIdle, Silent, RunAs);
-	}
-
-	if (!m_Flags.Check(FCMDOBJ_LOCKUPDATEPANEL))
-	{
-		ShellUpdatePanels(Global->CtrlObject->Cp()->ActivePanel(), FALSE);
-		if (Global->Opt->ShowKeyBar)
-		{
-			Global->CtrlObject->Cp()->GetKeybar().Show();
-		}
-	}
-	if (Global->Opt->Clock)
-		ShowTime(0);
-
-	if (!Silent)
-	{
-		Global->ScrBuf->Flush();
-	}
-	return Code;
-}
-
-int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, bool &PrintCommand)
-{
-	auto strCmdLine = CmdLine;
-	auto SetPanel = Global->CtrlObject->Cp()->ActivePanel();
-	PrintCommand=true;
-
-	if (SetPanel->GetType() != panel_type::FILE_PANEL && Global->CtrlObject->Cp()->PassivePanel()->GetType() == panel_type::FILE_PANEL)
-		SetPanel=Global->CtrlObject->Cp()->PassivePanel();
-
-	RemoveTrailingSpaces(strCmdLine);
-	bool SilentInt=false;
-
-	if (!CmdLine.empty() && CmdLine[0] == L'@')
-	{
-		SilentInt=true;
-		strCmdLine.erase(0, 1);
-	}
-
-	const auto IsCommand = [&strCmdLine](const string& cmd, bool bslash)->bool
-	{
-		const auto n = cmd.size();
-		return (!StrCmpNI(strCmdLine.data(), cmd.data(), n)
-		 && (n==strCmdLine.size() || nullptr != wcschr(L"/ \t",strCmdLine[n]) || (bslash && strCmdLine[n]==L'\\')));
-	};
-
-	if (!SeparateWindow && strCmdLine.size() == 2 && strCmdLine[1]==L':')
-	{
-		if(!FarChDir(strCmdLine))
-		{
-			wchar_t NewDir[]={ToUpper(strCmdLine[0]),L':',L'\\',0};
-			FarChDir(NewDir);
-		}
-		SetPanel->ChangeDirToCurrent();
-		return TRUE;
-	}
-	// SET [переменная=[строка]]
-	else if (IsCommand(L"SET",false))
-	{
-		size_t pos;
-		strCmdLine.erase(0, 3);
-		RemoveLeadingSpaces(strCmdLine);
-
-		if (CheckCmdLineForHelp(strCmdLine.data()))
-			return FALSE; // отдадимся COMSPEC`у
-
-		// "set" (display all) or "set var" (display all that begin with "var")
-		if (strCmdLine.empty() || ((pos = strCmdLine.find(L'=')) == string::npos) || !pos)
-		{
-			//forward "set [prefix]| command" and "set [prefix]> file" to COMSPEC
-			static const wchar_t CharsToFind[] = L"|>";
-			if (std::find_first_of(ALL_CONST_RANGE(strCmdLine), ALL_CONST_RANGE(CharsToFind)) != strCmdLine.cend())
-				return FALSE;
-
-			Global->WindowManager->ShowBackground();  //??? почему не отдаём COMSPEC'у
-			// display command //???
-			Redraw();
-			GotoXY(m_X2+1,m_Y1);
-			Text(L' ');
-			Global->ScrBuf->Flush();
-			Console().SetTextAttributes(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
-			string strOut(L"\n");
-			FOR(const auto& i, os::env::enum_strings())
-			{
-				if (!StrCmpNI(i.data(), strCmdLine.data(), strCmdLine.size()))
-				{
-					strOut.append(i.data(), i.size()).append(L"\n");
-				}
-			}
-			strOut.append(L"\n\n", Global->Opt->ShowKeyBar?2:1);
-			Console().Write(strOut);
-			Console().Commit();
-			Global->CtrlObject->Desktop->FillFromConsole();
-			PrintCommand = false;
-			return TRUE;
-		}
-
-		if (CheckCmdLineForSet(strCmdLine)) // вариант для /A и /P
-			return FALSE; //todo: /p - dialog, /a - calculation; then set variable ...
-
-		if (strCmdLine.size() == pos+1) //set var=
-		{
-			strCmdLine.resize(pos);
-			os::env::delete_variable(strCmdLine);
-		}
-		else
-		{
-			const auto strExpandedStr = os::env::expand_strings(strCmdLine.substr(pos + 1));
-			strCmdLine.resize(pos);
-			os::env::set_variable(strCmdLine, strExpandedStr);
-		}
-
-		return TRUE;
-	}
-	// REM все остальное
-	else if (IsCommand(L"REM",false))
-	{
-		if (CheckCmdLineForHelp(strCmdLine.data()+3))
-			return FALSE; // отдадимся COMSPEC`у
-	}
-	else if (!strCmdLine.compare(0, 2, L"::", 2))
-	{
-		return TRUE;
-	}
-	else if (IsCommand(L"CLS",false))
-	{
-		if (CheckCmdLineForHelp(strCmdLine.data()+3))
-			return FALSE; // отдадимся COMSPEC`у
-
-		ClearScreen(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
-		Global->CtrlObject->Desktop->FillFromBuffer();
-		PrintCommand=false;
-		return TRUE;
-	}
-	// PUSHD путь | ..
-	else if (IsCommand(L"PUSHD",false))
-	{
-		strCmdLine.erase(0, 5);
-		RemoveLeadingSpaces(strCmdLine);
-
-		if (CheckCmdLineForHelp(strCmdLine.data()))
-			return FALSE; // отдадимся COMSPEC`у
-
-		const auto PushDir = m_CurDir;
-
-		if (IntChDir(strCmdLine,true,SilentInt))
-		{
-			ppstack.push(PushDir);
-			os::env::set_variable(L"FARDIRSTACK", PushDir);
-		}
-		else
-		{
-			;
-		}
-
-		return TRUE;
-	}
-	// POPD
-	// TODO: добавить необязательный параметр - число, сколько уровней пропустить, после чего прыгнуть.
-	else if (IsCommand(L"POPD",false))
-	{
-		if (CheckCmdLineForHelp(strCmdLine.data()+4))
-			return FALSE; // отдадимся COMSPEC`у
-
-		if (!ppstack.empty())
-		{
-			const int Ret=IntChDir(ppstack.top(),true,SilentInt);
-			ppstack.pop();
-			if (!ppstack.empty())
-			{
-				os::env::set_variable(L"FARDIRSTACK", ppstack.top());
-			}
-			else
-			{
-				os::env::delete_variable(L"FARDIRSTACK");
-			}
-			return Ret;
-		}
-
-		return TRUE;
-	}
-	// CLRD
-	else if (IsCommand(L"CLRD",false))
-	{
-		clear_and_shrink(ppstack);
-		os::env::delete_variable(L"FARDIRSTACK");
-		return TRUE;
-	}
-	/*
-		Displays or sets the active code page number.
-		CHCP [nnn]
-			nnn   Specifies a code page number (Dec or Hex).
-		Type CHCP without a parameter to display the active code page number.
-	*/
-	else if (IsCommand(L"CHCP",false))
-	{
-		strCmdLine.erase(0, 4);
-
-		auto Ptr = RemoveExternalSpaces(strCmdLine).data();
-
-		if (CheckCmdLineForHelp(Ptr))
-			return FALSE; // отдадимся COMSPEC`у
-
-		if (!std::iswdigit(*Ptr))
-			return FALSE;
-
-		while (*Ptr)
-		{
-			if (!std::iswdigit(*Ptr))
-				break;
-
-			++Ptr;
-		}
-
-		UINT cp = std::stoul(strCmdLine, nullptr, 10); //BUGBUG
-		BOOL r1=Console().SetInputCodepage(cp);
-		BOOL r2=Console().SetOutputCodepage(cp);
-
-		if (r1 && r2) // Если все ОБИ, то так  и...
-		{
-			InitRecodeOutTable();
-			InitKeysArray();
-			Global->ScrBuf->ResetShadow();
-			Global->ScrBuf->Flush();
-			return TRUE;
-		}
-		else  // про траблы внешняя chcp сама скажет ;-)
-		{
-			return FALSE;
-		}
-	}
-	else if (IsCommand(L"IF",false))
-	{
-		if (CheckCmdLineForHelp(strCmdLine.data()+2))
-			return FALSE; // отдадимся COMSPEC`у
-
-		const wchar_t *PtrCmd=PrepareOSIfExist(strCmdLine);
-		// здесь PtrCmd - уже готовая команда, без IF
-
-		if (PtrCmd && *PtrCmd && Global->CtrlObject->Plugins->ProcessCommandLine(PtrCmd))
-		{
-			Refresh();
-			return TRUE;
-		}
-
-		return FALSE;
-	}
-	// пропускаем обработку, если нажат Shift-Enter
-	else if (!SeparateWindow && (IsCommand(L"CD",true) || IsCommand(L"CHDIR",true)))
-	{
-		const int Length = IsCommand(L"CD",true)? 2 : 5;
-
-		strCmdLine.erase(0, Length);
-		RemoveLeadingSpaces(strCmdLine);
-
-		//проигнорируем /D
-		//мы и так всегда меняем диск а некоторые в алайсах или по привычке набирают этот ключ
-		if (!StrCmpNI(strCmdLine.data(),L"/D",2) && IsSpaceOrEos(strCmdLine[2]))
-		{
-			strCmdLine.erase(0, 2);
-			RemoveLeadingSpaces(strCmdLine);
-		}
-
-		if (strCmdLine.empty() || CheckCmdLineForHelp(strCmdLine.data()))
-			return FALSE; // отдадимся COMSPEC`у
-
-		IntChDir(strCmdLine,Length==5,SilentInt);
-		return TRUE;
-	}
-	else if (IsCommand(L"TITLE", false))
-	{
-		const auto Title = strCmdLine.data() + 5; // wcslen(L"title")
-		if (CheckCmdLineForHelp(Title))
-			return FALSE; // отдадимся COMSPEC`у
-
-		SetUserTitle(*Title? Title + 1 : Title);
-
-		if (!(Global->CtrlObject->Cp()->LeftPanel()->IsVisible() || Global->CtrlObject->Cp()->RightPanel()->IsVisible()))
-		{
-			Global->CtrlObject->Cp()->ActivePanel()->SetTitle();
-		}
-		return TRUE;
-	}
-	else if (IsCommand(L"EXIT",false))
-	{
-		if (CheckCmdLineForHelp(strCmdLine.data()+4))
-			return FALSE; // отдадимся COMSPEC`у
-
-		Global->WindowManager->ExitMainLoop(FALSE);
-		return TRUE;
-	}
-	else if (IsCommand(L"FAR:ABOUT", false))
-	{
+		Global->WindowManager->ActivateWindow(Global->CtrlObject->Desktop);
 		Global->WindowManager->ShowBackground();
-		Redraw();
-		GotoXY(m_X2 + 1, m_Y1);
-		Text(L' ');
+		Global->CtrlObject->CmdLine()->DrawFakeCommand(m_Command);
+		ScrollScreen(1);
+		Global->CtrlObject->Desktop->TakeSnapshot();
+		int X1, Y1, X2, Y2;
+		Global->CtrlObject->CmdLine()->GetPosition(X1, Y1, X2, Y2);
+		GotoXY(0, Y1);
+	}
+
+	void ConsoleContext()
+	{
+		Activate();
+		if (m_Consolised)
+			return;
+		m_Consolised = true;
+		
+		Global->ScrBuf->MoveCursor(0, WhereY());
 		Global->ScrBuf->Flush();
 		Console().SetTextAttributes(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
-		string strOut(L"\n\n");
+	}
+
+	const string& Command() const
+	{
+		return m_Command;
+	}
+
+	~execution_context()
+	{
+		if (!m_Activated)
+			return;
+
+		if (m_Consolised)
+		{
+			if (Global->Opt->ShowKeyBar)
+			{
+				Console().Write(L"\n");
+			}
+			Console().Commit();
+			Global->ScrBuf->FillBuf();
+		}
+
+		if (!m_Command.empty())
+		{
+			ScrollScreen(1);
+		}
+
+		Global->CtrlObject->Desktop->TakeSnapshot();
+		Global->WindowManager->ActivateWindow(m_CurrentWindow);
+		--Global->ProcessShowClock;
+	}
+
+private:
+	const window_ptr m_CurrentWindow;
+	const string m_Command;
+	bool m_Activated;
+	bool m_Consolised;
+};
+
+static bool ProcessFarCommands(const string& Command, execution_context& ExecutionContext)
+{
+	if (!StrCmpI(Command.data(), L"far:config"))
+	{
+		Global->Opt->AdvancedConfig();
+		return true;
+	}
+	else if (!StrCmpI(Command.data(), L"far:about"))
+	{
+		string strOut(L"\n");
 
 		strOut.append(Global->Version()).append(1, L'\n');
 		strOut.append(Global->Copyright()).append(1, L'\n');
@@ -1244,6 +957,8 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			}
 		}
 
+		// TODO: enum model adapters
+
 		if (Global->CtrlObject->Plugins->size())
 		{
 			strOut += L"\nPlugins:\n";
@@ -1254,36 +969,321 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			}
 		}
 
-		strOut.append(L"\n\n", Global->Opt->ShowKeyBar ? 2 : 1);
-
+		ExecutionContext.ConsoleContext();
 		Console().Write(strOut);
-		Console().Commit();
-		Global->CtrlObject->Desktop->FillFromConsole();
-		PrintCommand = false;
-		return TRUE;
-	}
 
-	return FALSE;
-}
-
-bool CommandLine::CheckCmdLineForHelp(const wchar_t *CmdLine)
-{
-	if (CmdLine && *CmdLine)
-	{
-		while (IsSpace(*CmdLine))
-			CmdLine++;
-
-		if ((CmdLine[0] == L'/' || CmdLine[0] == L'-') && CmdLine[1] == L'?')
-			return true;
+		return true;
 	}
 
 	return false;
 }
 
-bool CommandLine::CheckCmdLineForSet(const string& CmdLine)
+void CommandLine::ExecString(execute_info& Info)
 {
-	if (CmdLine.size()>1 && CmdLine[0]==L'/' && IsSpaceOrEos(CmdLine[2]))
+	bool Silent = false;
+	bool IsUpdateNeeded = false;
+
+	SCOPE_EXIT
+	{
+		if (!IsUpdateNeeded)
+			return;
+
+		if (!m_Flags.Check(FCMDOBJ_LOCKUPDATEPANEL))
+		{
+			ShellUpdatePanels(Global->CtrlObject->Cp()->ActivePanel(), FALSE);
+			if (Global->Opt->ShowKeyBar)
+			{
+				Global->CtrlObject->Cp()->GetKeybar().Show();
+			}
+		}
+		if (Global->Opt->Clock)
+			ShowTime(0);
+
+		if (!Silent)
+		{
+			Global->ScrBuf->Flush();
+		}
+	};
+
+	execution_context ExecutionContext(Info.Command);
+
+	if (Info.Command.empty())
+	{
+		// Just scroll the screen
+		ExecutionContext.Activate();
+		return;
+	}
+
+	LastCmdPartLength = -1;
+
+	FarChDir(m_CurDir);
+
+	if (!Info.DirectRun)
+	{
+		if (!Info.Command.empty() && Info.Command[0] == L'@')
+		{
+			Info.Command.erase(0, 1);
+			Silent=true;
+		}
+
+		ExpandOSAliases(Info.Command);
+
+		if (!ExtractIfExistCommand(Info.Command))
+			return;
+
+		if (!Info.NewWindow && !Info.RunAs)
+		{
+			if (ProcessFarCommands(Info.Command, ExecutionContext))
+				return;
+
+			if (Global->CtrlObject->Plugins->ProcessCommandLine(Info.Command))
+				return;
+
+			if (ProcessOSCommands(Info.Command, ExecutionContext))
+				return;
+		}
+	}
+
+
+	SCOPED_ACTION(ConsoleTitle);
+	if (!Silent)
+	{
+		ConsoleTitle::SetFarTitle(ExecutionContext.Command());
+	}
+
+	ExecutionContext.Activate();
+	Execute(Info, false, Silent, [&ExecutionContext](){ ExecutionContext.ConsoleContext(); });
+	
+	// BUGBUG do we really need to update panels at all?
+	IsUpdateNeeded = true;
+}
+
+bool CommandLine::ProcessOSCommands(const string& CmdLine, class execution_context& ExecutionContext)
+{
+	auto SetPanel = Global->CtrlObject->Cp()->ActivePanel();
+	
+	if (SetPanel->GetType() != panel_type::FILE_PANEL && Global->CtrlObject->Cp()->PassivePanel()->GetType() == panel_type::FILE_PANEL)
+		SetPanel=Global->CtrlObject->Cp()->PassivePanel();
+
+	const auto IsCommand = [&CmdLine](const string& cmd, bool bslash)->bool
+	{
+		const auto n = cmd.size();
+		return (!StrCmpNI(CmdLine.data(), cmd.data(), n)
+			&& (n == CmdLine.size() || nullptr != wcschr(L"/ \t", CmdLine[n]) || (bslash && CmdLine[n] == L'\\')));
+	};
+
+	const auto FindKey = [&CmdLine](wchar_t Key) -> bool
+	{
+		const auto FirstSpacePos = CmdLine.find(L' ');
+		const auto NotSpacePos = CmdLine.find_first_not_of(L' ', FirstSpacePos);
+
+		return NotSpacePos != string::npos &&
+			CmdLine.size() > NotSpacePos + 1 &&
+			CmdLine[NotSpacePos] == L'/' &&
+			ToUpper(CmdLine[NotSpacePos + 1]) == ToUpper(Key);
+	};
+
+	const auto FindHelpKey = [&FindKey]() { return FindKey(L'?'); };
+
+	ExecutionContext.Activate();
+
+	if (CmdLine.size() > 1 && CmdLine[1] == L':' && (CmdLine.size() == 2 || !CmdLine.find_first_not_of(L' ', 2)))
+	{
+		wchar_t NewDir[] = { ToUpper(CmdLine[0]), L':', 0, 0 };
+
+		if (!FarChDir(NewDir))
+		{
+			NewDir[2] = L'\\';
+			FarChDir(NewDir);
+		}
+		SetPanel->ChangeDirToCurrent();
 		return true;
+	}
+
+	if (FindHelpKey())
+		return false;
+
+	// SET [variable=[value]]
+	if (IsCommand(L"SET",false))
+	{
+		if (FindKey(L'A') || FindKey(L'P'))
+			return false; //todo: /p - dialog, /a - calculation; then set variable ...
+
+		size_t pos;
+		auto strCmdLine = CmdLine.substr(3);
+		RemoveLeadingSpaces(strCmdLine);
+
+		// "set" (display all) or "set var" (display all that begin with "var")
+		if (strCmdLine.empty() || ((pos = strCmdLine.find(L'=')) == string::npos) || !pos)
+		{
+			//forward "set [prefix]| command" and "set [prefix]> file" to COMSPEC
+			static const wchar_t CharsToFind[] = L"|>";
+			if (std::find_first_of(ALL_CONST_RANGE(strCmdLine), ALL_CONST_RANGE(CharsToFind)) != strCmdLine.cend())
+				return false;
+
+			string strOut;
+			FOR(const auto& i, os::env::enum_strings())
+			{
+				if (!StrCmpNI(i.data(), strCmdLine.data(), strCmdLine.size()))
+				{
+					strOut.append(i.data(), i.size()).append(L"\n");
+				}
+			}
+
+			if (!strOut.empty())
+			{
+				ExecutionContext.ConsoleContext();
+				Console().Write(strOut);
+			}
+
+			return true;
+		}
+
+		if (strCmdLine.size() == pos+1) //set var=
+		{
+			strCmdLine.resize(pos);
+			os::env::delete_variable(strCmdLine);
+		}
+		else
+		{
+			const auto strExpandedStr = os::env::expand_strings(strCmdLine.substr(pos + 1));
+			strCmdLine.resize(pos);
+			os::env::set_variable(strCmdLine, strExpandedStr);
+		}
+
+		return true;
+	}
+	else if (IsCommand(L"CLS",false))
+	{
+		ClearScreen(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
+		return true;
+	}
+	// PUSHD путь | ..
+	else if (IsCommand(L"PUSHD",false))
+	{
+		auto strCmdLine = CmdLine.substr(0, 5);
+		RemoveLeadingSpaces(strCmdLine);
+
+		const auto PushDir = m_CurDir;
+
+		if (IntChDir(strCmdLine, true))
+		{
+			ppstack.push(PushDir);
+			os::env::set_variable(L"FARDIRSTACK", PushDir);
+		}
+		else
+		{
+			;
+		}
+
+		return true;
+	}
+	// POPD
+	// TODO: добавить необязательный параметр - число, сколько уровней пропустить, после чего прыгнуть.
+	else if (IsCommand(L"POPD",false))
+	{
+		if (!ppstack.empty())
+		{
+			const auto Result = IntChDir(ppstack.top(), true);
+			ppstack.pop();
+			if (!ppstack.empty())
+			{
+				os::env::set_variable(L"FARDIRSTACK", ppstack.top());
+			}
+			else
+			{
+				os::env::delete_variable(L"FARDIRSTACK");
+			}
+			return Result;
+		}
+
+		return true;
+	}
+	// CLRD
+	else if (IsCommand(L"CLRD",false))
+	{
+		clear_and_shrink(ppstack);
+		os::env::delete_variable(L"FARDIRSTACK");
+		return true;
+	}
+	/*
+		Displays or sets the active code page number.
+		CHCP [nnn]
+			nnn   Specifies a code page number (Dec or Hex).
+		Type CHCP without a parameter to display the active code page number.
+	*/
+	else if (IsCommand(L"CHCP",false))
+	{
+		auto strCmdLine = CmdLine.substr(4);
+		RemoveExternalSpaces(strCmdLine);
+		uintptr_t cp;
+		try
+		{
+			cp = std::stoul(strCmdLine);
+		}
+		catch (const std::exception&)
+		{
+			return false;
+		}
+
+		if (!Console().SetInputCodepage(cp) || !Console().SetOutputCodepage(cp))
+			return false;
+
+		Text(strCmdLine);
+		ScrollScreen(1);
+		return true;
+	}
+	/*else if (IsCommand(L"IF",false))
+	{
+		auto strCmdLine(CmdLine);
+		const wchar_t *PtrCmd=PrepareOSIfExist(strCmdLine);
+		// здесь PtrCmd - уже готовая команда, без IF
+
+		if (PtrCmd && *PtrCmd && Global->CtrlObject->Plugins->ProcessCommandLine(PtrCmd))
+		{
+			return true;
+		}
+
+		return false;
+	}*/
+	else if (IsCommand(L"CD",true) || IsCommand(L"CHDIR",true))
+	{
+		const int Length = IsCommand(L"CD", true)? 2 : 5;
+
+		auto strCmdLine = CmdLine.substr(Length);
+		RemoveLeadingSpaces(strCmdLine);
+
+		//проигнорируем /D
+		//мы и так всегда меняем диск а некоторые в алайсах или по привычке набирают этот ключ
+		if (!StrCmpNI(strCmdLine.data(),L"/D",2) && IsSpaceOrEos(strCmdLine[2]))
+		{
+			strCmdLine.erase(0, 2);
+			RemoveLeadingSpaces(strCmdLine);
+		}
+
+		if (strCmdLine.empty())
+			return false;
+
+		IntChDir(strCmdLine, Length == 5);
+		return true;
+	}
+	else if (IsCommand(L"TITLE", false))
+	{
+		auto Title = CmdLine.data() + 5; // wcslen(L"title")
+
+		SetUserTitle(*Title? Title + 1 : Title);
+
+		if (!(Global->CtrlObject->Cp()->LeftPanel()->IsVisible() || Global->CtrlObject->Cp()->RightPanel()->IsVisible()))
+		{
+			Global->CtrlObject->Cp()->ActivePanel()->SetTitle();
+		}
+		return true;
+	}
+	else if (IsCommand(L"EXIT",false))
+	{
+		Global->WindowManager->ExitMainLoop(FALSE);
+		return true;
+	}
 
 	return false;
 }
@@ -1345,24 +1345,6 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 		SetPanel->SetCurDir(strExpandedDir,true);
 		return true;
 	}
-
-	/* $ 20.09.2002 SKV
-	  Это отключает возможность выполнять такие команды как:
-	  cd net:server и cd ftp://server/dir
-	  Так как под ту же гребёнку попадают и
-	  cd s&r:, cd make: и т.д., которые к смене
-	  каталога не имеют никакого отношения.
-	*/
-	/*
-	if (Global->CtrlObject->Plugins->ProcessCommandLine(ExpandedDir))
-	{
-	  //CmdStr.SetString(L"");
-	  GotoXY(X1,Y1);
-	  Global->FS << fmt::Width(X2-X1+1)<<L"";
-	  Show();
-	  return true;
-	}
-	*/
 
 	if (SetPanel->GetType() == panel_type::FILE_PANEL && SetPanel->GetMode() == panel_mode::PLUGIN_PANEL)
 	{

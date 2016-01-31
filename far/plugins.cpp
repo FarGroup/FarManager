@@ -79,7 +79,8 @@ static void ReadUserBackgound(SaveScreen *SaveScr)
 		if (SaveScr)
 			SaveScr->Discard();
 
-		Global->CtrlObject->Desktop->FillFromConsole();
+		Global->ScrBuf->FillBuf();
+		Global->CtrlObject->Desktop->TakeSnapshot();
 	}
 
 	FPanel->LeftPanel()->ProcessingPluginCommand--;
@@ -2032,7 +2033,6 @@ int PluginManager::ProcessCommandLine(const string& CommandParam, panel_ptr Targ
 	RemoveTrailingSpaces(strPluginCommand);
 	OpenCommandLineInfo info={sizeof(OpenCommandLineInfo),strPluginCommand.data()}; //BUGBUG
 	const auto hPlugin = Open(PData->pPlugin, OPEN_COMMANDLINE, FarGuid, (intptr_t)&info);
-	Global->CtrlObject->CmdLine()->SetString(L"", false);
 
 	if (hPlugin)
 	{

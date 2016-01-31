@@ -229,7 +229,15 @@ static int MainProcess(
 					if (IsPluginPrefixPath(ppanel))
 					{
 						AnotherPanel->Parent()->SetActivePanel(AnotherPanel);
-						Global->CtrlObject->CmdLine()->ExecString(ppanel,0);
+
+						execute_info Info;
+						Info.Command = ppanel;
+						Info.WaitMode = Info.no_wait;
+						Info.NewWindow = false;
+						Info.DirectRun = false;
+						Info.RunAs = false;
+
+						Global->CtrlObject->CmdLine()->ExecString(Info);
 						ActivePanel->Parent()->SetActivePanel(ActivePanel);
 					}
 					else
@@ -248,7 +256,14 @@ static int MainProcess(
 
 				if (IsPluginPrefixPath(apanel))
 				{
-					Global->CtrlObject->CmdLine()->ExecString(apanel,0);
+					execute_info Info;
+					Info.Command = apanel;
+					Info.WaitMode = Info.no_wait;
+					Info.NewWindow = false;
+					Info.DirectRun = false;
+					Info.RunAs = false;
+
+					Global->CtrlObject->CmdLine()->ExecString(Info);
 				}
 				else
 				{

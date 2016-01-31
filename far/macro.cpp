@@ -976,12 +976,10 @@ static BOOL CheckEditSelected(FARMACROAREA Area, UINT64 CurFlags)
 	return TRUE;
 }
 
-static BOOL CheckCmdLine(int CmdLength,UINT64 CurFlags)
+static bool CheckCmdLine(bool IsEmpty, UINT64 CurFlags)
 {
-	if (((CurFlags&MFLAGS_EMPTYCOMMANDLINE) && CmdLength) || ((CurFlags&MFLAGS_NOTEMPTYCOMMANDLINE) && CmdLength==0))
-		return FALSE;
-
-	return TRUE;
+	return !(!IsEmpty && (CurFlags&MFLAGS_EMPTYCOMMANDLINE))
+		&& !(IsEmpty && (CurFlags&MFLAGS_NOTEMPTYCOMMANDLINE));
 }
 
 static BOOL CheckPanel(panel_mode PanelMode, UINT64 CurFlags, BOOL IsPassivePanel)
@@ -1032,7 +1030,7 @@ static BOOL CheckAll (FARMACROAREA Area, UINT64 CurFlags)
 
 	// проверка на пусто/не пусто в ком.строке (а в редакторе? :-)
 	if (CurFlags&(MFLAGS_EMPTYCOMMANDLINE|MFLAGS_NOTEMPTYCOMMANDLINE))
-		if (Global->CtrlObject->CmdLine() && !CheckCmdLine(Global->CtrlObject->CmdLine()->GetLength(),CurFlags))
+		if (Global->CtrlObject->CmdLine() && !CheckCmdLine(Global->CtrlObject->CmdLine()->GetString().empty(), CurFlags))
 			return FALSE;
 
 	FilePanels *Cp=Global->CtrlObject->Cp();
@@ -1634,7 +1632,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			if (!(m_Area == MACROAREA_USERMENU || m_Area == MACROAREA_MAINMENU || m_Area == MACROAREA_MENU) && CurrentWindow && CurrentWindow->GetType() == windowtype_panels && !(CurArea == MACROAREA_INFOPANEL || CurArea == MACROAREA_QVIEWPANEL || CurArea == MACROAREA_TREEPANEL))
 			{
 				if (CheckCode == MCODE_C_EMPTY)
-					ret=Global->CtrlObject->CmdLine()->GetLength()?0:1;
+					ret = Global->CtrlObject->CmdLine()->GetString().empty();
 				else
 					ret=Global->CtrlObject->CmdLine()->VMProcess(CheckCode);
 			}

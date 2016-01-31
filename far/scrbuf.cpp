@@ -512,6 +512,11 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 	}
 }
 
+// TODO, BUGBUG: Refactor & merge with regular Flush
+void PartialUnconditionalFlush(int NumberOfLines)
+{
+
+}
 
 void ScreenBuf::Lock()
 {
@@ -608,12 +613,29 @@ void ScreenBuf::Scroll(size_t Count)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
+	const auto Fill = FAR_CHAR_INFO::make(L' ', colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
+
+	if (Global->Opt->WindowMode)
+	{
+		SMALL_RECT Region = { 0, 0, ScrX, static_cast<SHORT>(Count - 1) };
+
+		matrix<FAR_CHAR_INFO> ConsoleBlock(Count, ScrX + 1);
+		Console().ReadOutput(ConsoleBlock, Region);
+
+		matrix<FAR_CHAR_INFO> BufferBlock(Count, ScrX + 1);
+		Read(Region.Left, Region.Top, Region.Right, Region.Bottom, BufferBlock);
+
+		Console().WriteOutput(BufferBlock, Region);
+		Console().ScrollNonClientArea(Count, Fill);
+		Console().WriteOutput(ConsoleBlock, Region);
+	}
+
 	if (Count && Count < Buf.height())
 	{
 		auto& RawBuf = Buf.vector();
 		size_t size = RawBuf.size();
 		RawBuf.erase(RawBuf.begin(), RawBuf.begin() + Count * Buf.width());
-		RawBuf.resize(size);
+		RawBuf.resize(size, Fill);
 	}
 
 #ifdef DIRECT_SCREEN_OUT

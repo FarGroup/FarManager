@@ -598,7 +598,6 @@ public:
 		BoolOption RestoreCPAfterExecute;
 		BoolOption ExecuteUseAppPath;
 		BoolOption ExecuteFullTitle;
-		BoolOption ExecuteSilentExternal;
 		StringOption strExecuteBatchType;
 		StringOption strExcludeCmds;
 		StringOption strComSpecParams;

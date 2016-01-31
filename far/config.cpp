@@ -553,7 +553,6 @@ void Options::MaskGroupsSettings()
 				Changed = false;
 
 				FillMasksMenu(*MasksMenu, MasksMenu->GetSelectPos());
-				MasksMenu->SetPosition(-1, -1, -1, -1);
 				Global->CtrlObject->HiFiles->UpdateHighlighting(true);
 			}
 			return KeyProcessed;
@@ -1818,7 +1817,6 @@ void Options::InitConfigData()
 		{FSSF_PRIVATE,       NKeySystemExecutor,L"ExcludeCmds", OPT_DEF(Exec.strExcludeCmds, L"")},
 		{FSSF_PRIVATE,       NKeySystemExecutor,L"FullTitle", OPT_DEF(Exec.ExecuteFullTitle, false)},
 		{FSSF_PRIVATE,       NKeySystemExecutor,L"RestoreCP", OPT_DEF(Exec.RestoreCPAfterExecute, true)},
-		{FSSF_PRIVATE,       NKeySystemExecutor,L"SilentExternal", OPT_DEF(Exec.ExecuteSilentExternal, false)},
 		{FSSF_PRIVATE,       NKeySystemExecutor,L"UseAppPath", OPT_DEF(Exec.ExecuteUseAppPath, true)},
 		{FSSF_PRIVATE,       NKeySystemExecutor,L"UseHomeDir", OPT_DEF(Exec.UseHomeDir, true)},
 		{FSSF_PRIVATE,       NKeySystemExecutor,L"NotQuotedShell", OPT_DEF(Exec.strNotQuotedShell, L"TCC.EXE;TCCLE.EXE")},

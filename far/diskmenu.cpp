@@ -894,7 +894,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				{
 					string DosDeviceName(L"?:\\");
 					DosDeviceName[0] = item->cDrive;
-					Execute(DosDeviceName, false, true, true, true);
+					OpenFolderInShell(DosDeviceName);
 				}
 			}
 			break;
