@@ -862,6 +862,17 @@ int Manager::ProcessKey(Key key)
 	return FALSE;
 }
 
+static bool FilterMouseMoveNoise(const MOUSE_EVENT_RECORD* MouseEvent)
+{
+	static COORD LastPosition = {};
+	if (MouseEvent->dwEventFlags == MOUSE_MOVED && LastPosition.X == MouseEvent->dwMousePosition.X && LastPosition.Y == MouseEvent->dwMousePosition.Y)
+	{
+		return false;
+	}
+	LastPosition = MouseEvent->dwMousePosition;
+	return true;
+}
+
 int Manager::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	int ret=FALSE;
@@ -875,7 +886,7 @@ int Manager::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		}
 	}
 
-	if (m_currentWindow)
+	if (m_currentWindow && FilterMouseMoveNoise(MouseEvent))
 		ret=m_currentWindow->ProcessMouse(MouseEvent);
 
 	_MANAGER(SysLog(-1));

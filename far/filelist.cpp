@@ -2974,25 +2974,6 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		}
 	}
 
-	if(MouseEvent->dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED && MouseEvent->dwEventFlags!=MOUSE_MOVED)
-	{
-		int Key = KEY_ENTER;
-		if(MouseEvent->dwControlKeyState&SHIFT_PRESSED)
-		{
-			Key |= KEY_SHIFT;
-		}
-		if(MouseEvent->dwControlKeyState&(LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED))
-		{
-			Key|=KEY_CTRL;
-		}
-		if(MouseEvent->dwControlKeyState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED))
-		{
-			Key|=KEY_ALT;
-		}
-		ProcessKey(Manager::Key(Key));
-		return TRUE;
-	}
-
 	static bool delayedShowEMenu = false;
 	if (delayedShowEMenu && MouseEvent->dwButtonState == 0)
 	{
