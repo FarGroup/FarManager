@@ -3,6 +3,58 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+w17 29.01.2016 21:57:57 +0300 - build 4524
+
+1. Fix 4484. aka M#3162: Text disappear in viewer
+
+w17 29.01.2016 16:55:57 +0300 - build 4523
+
+1. Continuation of 4521.
+   Now "D:\Path Name"\ is the global feature - that's the way QuoteSpace() works.
+
+w17 27.01.2016 23:06:51 +0300 - build 4522
+
+1. Experimental: language files customization without editing generated 'native' .lng files
+
+   Instructions:
+   1) create full versions of language files with lng.generator.exe, new builds contain them.
+   2) create own file containing changes for needed languages
+
+   The name of the file is <Original>.custom, for ex. FarRus.lng.custom, FarEng.lng.custom
+   The file is searched in %FARHOME% and %FARPROFILE% (both 2 files can be created)
+
+   The file must contain lines like these:
+   MessageId = "Modified Text"
+   for example:
+   MListFileSize = " %1 bytes in %2 files, %3 folders "
+   The needed MessageId can be found in the original file, it has the following form:
+   //[MessageId]
+   "Original text"
+   //[MListFileSize]
+   " Bytes: %1, files: %2, folders: %3 "
+   The same format is also allowed in .lng.custom files.
+   //[MListFileSize]
+   " %1 bytes in %2 files, %3 folders "
+
+w17 26.01.2016 14:09:42 +0300 - build 4521
+
+1. M#3011: Ctrl+Enter works wrong for ".." for case if path have spaces
+   "D:\Path Name\" --> "D:\Path Name"\ 
+
+drkns 26.01.2016 09:43:57 +0200 - build 4520
+
+1. Correction of 4516.
+
+2. Forum: excessive redraw of associations menu.
+
+drkns 26.01.2016 02:19:36 +0200 - build 4519
+
+1. Correction of 4516.
+
+drkns 26.01.2016 00:15:06 +0200 - build 4518
+
+1. Forum: Repeated file view with F3 renders differently
+
 drkns 24.01.2016 20:10:32 +0200 - build 4517
 
 1. A couple of corrections to 4516.
