@@ -929,7 +929,6 @@ local function test_Far_GetConfig()
     "System.Executor.ExcludeCmds", "string",
     "System.Executor.FullTitle", "boolean",
     "System.Executor.RestoreCP", "boolean",
-    "System.Executor.SilentExternal", "boolean",
     "System.Executor.UseAppPath", "boolean",
     "System.Executor.UseHomeDir", "boolean",
     "System.Executor.NotQuotedShell", "string",
