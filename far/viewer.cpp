@@ -3999,8 +3999,9 @@ wchar_t Viewer::vgetc_prev()
 	return Result;
 }
 
-void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
+void Viewer::GoTo(int ShowDlg, __int64 Offset, UINT64 Flags)
 {
+	__int64 new_leftpos = -1;
 	enum
 	{
 		RB_PRC = 3,
@@ -4070,9 +4071,10 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 
 			try
 			{
+				size_t pos = 0;
 				if (GoToDlg[RB_PRC].Selected)
 				{
-					unsigned long Percent = std::stoul(GoToDlg[1].strData);
+					unsigned long Percent = std::stoul(GoToDlg[1].strData, &pos);
 					if (Percent > 100)
 						return;
 					PrevMode = RB_PRC;
@@ -4084,8 +4086,29 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 				else
 				{
 					bool hex = GoToDlg[RB_HEX].Selected != 0;
-					Offset = std::stoull(GoToDlg[1].strData, nullptr, hex ? 16 : 10);
+					Offset = std::stoull(GoToDlg[1].strData, &pos, hex ? 16 : 10);
 					PrevMode = hex ? RB_HEX : RB_DEC;
+				}
+				if (m_DisplayMode == VMT_TEXT && !m_Wrap && pos < GoToDlg[1].strData.size()) // Pos[, LeftPos]
+				{
+					auto str = GoToDlg[1].strData.substr(pos);
+					if (!str.empty() && wcschr(L"hHdD", str.front())) str.erase(0, 1);
+					while (!str.empty() && IsSpace(str.front())) str.erase(0, 1);
+					if (!str.empty() && str.front() == L',') str.erase(0, 1);
+					while (!str.empty() && IsSpace(str.front())) str.erase(0, 1);
+					int rel = 0;
+					if (!str.empty() && str.front() == L'+' || str.front() == L'-')
+					{
+						rel = str.front() == L'+' ? +1 : -1;
+						str.erase(0, 1);
+					}
+					if (!str.empty() && str.front() >= L'0' && str.front() <= L'9')
+					{
+						auto v = std::stoll(str, nullptr, 0);
+						if (rel)
+							v = LeftPos + rel*v;
+						new_leftpos = std::min(std::max(0LL, v), ViOpt.MaxLineSize.Get());
+					}
 				}
 			}
 			catch (const std::exception&)
@@ -4118,6 +4141,8 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 		FilePos = (FilePos < 0 ? 0 : (FilePos > FileSize ? FileSize : FilePos));
 	}
 	AdjustFilePos();
+	if (new_leftpos >= 0)
+		LeftPos = new_leftpos;
 
 	if (!(Flags&VSP_NOREDRAW))
 		Show();

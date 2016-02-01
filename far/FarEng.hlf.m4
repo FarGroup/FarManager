@@ -2895,6 +2895,13 @@ by format specifiers added before or after the value.
   If you enter the value with one of the format specifiers (%, '0x', 'h',
 '$', 'd'), the radio buttons selected in the dialog will be ignored.
 
+    ^<wrap>If current view mode is #unwrapped text# It is possible to set additional parameter - first visible column.
+0=start of the line; really first visible-1 (one char is used to indicate special show mode).
+
+  Examples
+   #50%, 10#                 Go to middle of the file (50%), visible text start column = 10
+   #+0, +10#                 Increase current start offset by 10 symbols
+
 
 @ViewerSearch
 $ #Viewer: search#
