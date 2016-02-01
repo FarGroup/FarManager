@@ -1797,7 +1797,7 @@ void Options::InitConfigData()
 		{FSSF_PRIVATE,       NKeySystem,L"UseFilterInSearch", OPT_DEF(FindOpt.UseFilter, 0)},
 		{FSSF_PRIVATE,       NKeySystem,L"UseRegisteredTypes", OPT_DEF(UseRegisteredTypes, true)},
 		{FSSF_PRIVATE,       NKeySystem,L"UseSystemCopy", OPT_DEF(CMOpt.UseSystemCopy, true)},
-		{FSSF_PRIVATE,       NKeySystem,L"WindowMode", OPT_DEF(StoredWindowMode, false)},
+		{FSSF_PRIVATE,       NKeySystem,L"WindowMode", OPT_DEF(StoredWindowMode, true)},
 		{FSSF_PRIVATE,       NKeySystem,L"WipeSymbol", OPT_DEF(WipeSymbol, 0)},
 		{FSSF_SYSTEM,        NKeySystem,L"WordDiv", OPT_DEF(strWordDiv, WordDiv0)},
 

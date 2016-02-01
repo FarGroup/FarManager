@@ -619,15 +619,14 @@ void ScreenBuf::Scroll(size_t Count)
 	{
 		SMALL_RECT Region = { 0, 0, ScrX, static_cast<SHORT>(Count - 1) };
 
-		matrix<FAR_CHAR_INFO> ConsoleBlock(Count, ScrX + 1);
-		Console().ReadOutput(ConsoleBlock, Region);
-
+		// TODO: matrix_view to avoid copying
 		matrix<FAR_CHAR_INFO> BufferBlock(Count, ScrX + 1);
 		Read(Region.Left, Region.Top, Region.Right, Region.Bottom, BufferBlock);
 
-		Console().WriteOutput(BufferBlock, Region);
 		Console().ScrollNonClientArea(Count, Fill);
-		Console().WriteOutput(ConsoleBlock, Region);
+
+		Region.Top = Region.Bottom = static_cast<SHORT>(-static_cast<SHORT>(Count));
+		Console().WriteOutput(BufferBlock, Region);
 	}
 
 	if (Count && Count < Buf.height())

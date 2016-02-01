@@ -733,7 +733,7 @@ bool console::ScrollNonClientArea(size_t NumLines, const FAR_CHAR_INFO& Fill)
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	if (GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi) != FALSE)
 	{
-		SMALL_RECT ScrollRectangle = { 0, 0, static_cast<SHORT>(csbi.dwSize.X - 1), static_cast<SHORT>((csbi.dwSize.Y - 1) - (ScrY + 1) + NumLines) };
+		SMALL_RECT ScrollRectangle = { 0, 0, static_cast<SHORT>(csbi.dwSize.X - 1), static_cast<SHORT>((csbi.dwSize.Y - 1) - (ScrY + 1) + (NumLines - 1)) };
 		COORD DestinationOigin = { 0, static_cast<SHORT>(-static_cast<SHORT>(NumLines)) };
 		Result = ScrollScreenBuffer(ScrollRectangle, nullptr, DestinationOigin, Fill) != FALSE;
 	}
