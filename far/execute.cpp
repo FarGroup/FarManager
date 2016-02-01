@@ -1297,7 +1297,7 @@ bool ExpandOSAliases(string &strStr)
 
 	strNewCmdStr.assign(Buffer.get());
 
-	if (!ReplaceStrings(strNewCmdStr,L"$*",strNewCmdPar))
+	if (!ReplaceStrings(strNewCmdStr, L"$*", strNewCmdPar) && !strNewCmdPar.empty())
 		strNewCmdStr+=L" "+strNewCmdPar;
 
 	strStr=strNewCmdStr;
