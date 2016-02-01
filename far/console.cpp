@@ -816,21 +816,6 @@ public:
 		return Result;
 	}
 
-	virtual bool ScrollScreenBuffer(const SMALL_RECT& ScrollRectangle, const SMALL_RECT* ClipRectangle, COORD DestinationOrigin, const FAR_CHAR_INFO& Fill) const override
-	{
-		bool Result = false;
-		if (Imports.pScrollScreenBuffer)
-		{
-			Result = Imports.pScrollScreenBuffer(&ScrollRectangle, ClipRectangle, DestinationOrigin, &Fill) != FALSE;
-		}
-		else
-		{
-			Result = basicconsole::ScrollScreenBuffer(ScrollRectangle, ClipRectangle, DestinationOrigin, Fill);
-		}
-		return Result;
-
-	}
-
 	virtual bool ClearExtraRegions(const FarColor& Color, int Mode) const override
 	{
 		bool Result = false;
@@ -877,7 +862,6 @@ private:
 		os::rtdl::function_pointer<BOOL(WINAPI*)()> pCommit;
 		os::rtdl::function_pointer<BOOL(WINAPI*)(FarColor* Attributes) > pGetTextAttributes;
 		os::rtdl::function_pointer<BOOL(WINAPI*)(const FarColor* Attributes)> pSetTextAttributes;
-		os::rtdl::function_pointer<BOOL(WINAPI*)(const SMALL_RECT* ScrollRectangle, const SMALL_RECT* ClipRectangle, COORD DestinationOrigin, const FAR_CHAR_INFO* Fill)> pScrollScreenBuffer;
 		os::rtdl::function_pointer<BOOL(WINAPI*)(const FarColor* Color, int Mode)> pClearExtraRegions;
 		os::rtdl::function_pointer<BOOL(WINAPI*)(FarColor* Color, BOOL Centered, BOOL AddTransparent)> pGetColorDialog;
 
@@ -888,7 +872,6 @@ private:
 			INIT_IMPORT(Commit),
 			INIT_IMPORT(GetTextAttributes),
 			INIT_IMPORT(SetTextAttributes),
-			INIT_IMPORT(ScrollScreenBuffer),
 			INIT_IMPORT(ClearExtraRegions),
 			INIT_IMPORT(GetColorDialog)
 #undef INIT_IMPORT
