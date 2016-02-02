@@ -103,11 +103,6 @@ void ControlObject::Init(int DirCount)
 	FPanels->LeftPanel()->SetCustomSortMode(Global->Opt->LeftPanel.SortMode, true);
 	FPanels->RightPanel()->SetCustomSortMode(Global->Opt->RightPanel.SortMode, true);
 	Global->WindowManager->SwitchToPanels();  // otherwise panels are empty
-	/*
-		FarChDir(StartCurDir);
-	*/
-//  _SVS(SysLog(L"ActivePanel->GetCurDir='%s'",StartCurDir));
-//  _SVS(char PPP[NM];Cp()->GetAnotherPanel(Cp()->ActivePanel)->GetCurDir(PPP);SysLog(L"AnotherPanel->GetCurDir='%s'",PPP));
 }
 
 void ControlObject::CreateDummyFilePanels()
@@ -122,19 +117,19 @@ ControlObject::~ControlObject()
 
 	_OT(SysLog(L"[%p] ControlObject::~ControlObject()", this));
 
-	if (Cp() && Cp()->ActivePanel())
+	// dummy_panel indicates /v or /e mode
+	if (FPanels && FPanels->ActivePanel() && !std::dynamic_pointer_cast<dummy_panel>(FPanels->ActivePanel()))
 	{
 		if (Global->Opt->AutoSaveSetup)
 			Global->Opt->Save(false);
 
-		if (Cp()->ActivePanel()->GetMode() != panel_mode::PLUGIN_PANEL)
+		if (FPanels->ActivePanel()->GetMode() != panel_mode::PLUGIN_PANEL)
 		{
-			FolderHistory->AddToHistory(Cp()->ActivePanel()->GetCurDir());
+			FolderHistory->AddToHistory(FPanels->ActivePanel()->GetCurDir());
 		}
 	}
 
 	Global->WindowManager->CloseAll();
-	FPanels=nullptr;
 	FileFilter::CloseFilter();
 	History::CompactHistory();
 	FilePositionCache::CompactHistory();
