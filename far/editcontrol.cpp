@@ -510,7 +510,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 				DWORD Size;
 				::GetCursorType(Visible, Size);
 				ComplMenu->Key(KEY_NONE);
-
+				bool IsChanged = false;
 				int ExitCode=ComplMenu->Run([&](const Manager::Key& RawKey)->int
 				{
 					auto MenuKey = RawKey();
@@ -519,9 +519,10 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 					if(!Global->Opt->AutoComplete.ModalList)
 					{
 						int CurPos=ComplMenu->GetSelectPos();
-						if(CurPos>=0 && PrevPos!=CurPos)
+						if(CurPos>=0 && (PrevPos!=CurPos || IsChanged))
 						{
 							PrevPos=CurPos;
+							IsChanged = false;
 							SetString(CurPos? ComplMenu->at(CurPos).strName : strTemp);
 							Show();
 						}
@@ -624,6 +625,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 											ComplMenu->DeleteItem(ComplMenu->GetSelectPos());
 											if(ComplMenu->size() > 1)
 											{
+												IsChanged = true;
 												SetMenuPos(*ComplMenu);
 												Show();
 											}
