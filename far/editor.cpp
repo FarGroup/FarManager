@@ -785,7 +785,8 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				{
 					string strEOL=EditPtr->GetEOL();
 					AddUndoData(UNDO_EDIT, EditPtr->GetString(), strEOL.data(), DestLine, EditPtr->GetCurPos());
-					EditPtr->SetString((const wchar_t *)vParam,-1);
+					const auto Str = static_cast<const wchar_t*>(vParam);
+					EditPtr->SetString(Str, wcslen(Str));
 					EditPtr->SetEOL(strEOL);
 					Change(ECTYPE_CHANGED,DestLine);
 					TextChanged(1);
