@@ -891,7 +891,16 @@ public:
 		m_Consolised = true;
 		
 		Global->ScrBuf->MoveCursor(0, WhereY());
+
+		// BUGBUG, implement better & safer way to do this
+		const auto LockCount = Global->ScrBuf->GetLockCount();
+		Global->ScrBuf->SetLockCount(0);
+
 		Global->ScrBuf->Flush();
+
+		// BUGBUG, implement better & safer way to do this
+		Global->ScrBuf->SetLockCount(LockCount);
+
 		Console().SetTextAttributes(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 	}
 
