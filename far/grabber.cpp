@@ -714,19 +714,21 @@ int Grabber::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (IntKeyState.MouseButtonState!=FROM_LEFT_1ST_BUTTON_PRESSED)
 		return FALSE;
 
+	if (!MouseEvent->dwEventFlags)
+	{
+		ResetArea = true;
+	}
+	else if (MouseEvent->dwEventFlags == MOUSE_MOVED && ResetArea)
+	{
+		GArea.End = GArea.Current;
+		ResetArea = false;
+	}
+
 	GArea.Current.X = std::min(std::max(SHORT(0), IntKeyState.MouseX), ScrX);
 	GArea.Current.Y = std::min(std::max(SHORT(0), IntKeyState.MouseY), ScrY);
 
-	if (!MouseEvent->dwEventFlags)
-		ResetArea = true;
-	else if (MouseEvent->dwEventFlags==MOUSE_MOVED)
+	if (MouseEvent->dwEventFlags == MOUSE_MOVED)
 	{
-		if (ResetArea)
-		{
-			GArea.End = GArea.Current;
-			ResetArea = false;
-		}
-
 		GArea.Begin = GArea.Current;
 	}
 
