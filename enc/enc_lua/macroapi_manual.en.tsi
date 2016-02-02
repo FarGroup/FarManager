@@ -244,7 +244,7 @@ lv=3
 dt=Text
 nm=Keys
 ctime=3551902602
-mtime=3632495627
+mtime=3663579073
 <article>
 #_Keys (...)
 #_
@@ -265,6 +265,10 @@ mtime=3632495627
 #_     *"AKey"*    - send Far Manager the key that started this macro.
 #_     *"SelWord"* - select the word under cursor.
 #_     *"XLat"*    - convert the word under cursor.
+#_     *"EnOut"*   - enable  screen output (same effect as *mmode(1,0)*)
+#_     *"DisOut"*  - disable screen output (same effect as *mmode(1,1)*)
+#_
+#_  2. Each key may be preceded with a multiplier, e.g. "3*Down" is equivalent to "Down Down Down".
 #_
 #_**Example:**
 #_  mykeys = "CtrlF5 Esc"

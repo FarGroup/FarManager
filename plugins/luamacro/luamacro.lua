@@ -60,7 +60,17 @@ function _G.Keys (...)
     local str=select(n,...)
     if type(str)=="string" then
       for key in str:gmatch("%S+") do
-        co_yield(PROPAGATE, F.MPRT_KEYS, keymacro.TransformKey(key))
+        local cnt,name = key:match("^(%d+)%*(.+)")
+        if cnt then cnt = tonumber(cnt)
+        else        cnt,name = 1,key
+        end
+        local lname = name:lower()
+        if     lname == "disout" then keymacro.mmode(1,1)
+        elseif lname == "enout"  then keymacro.mmode(1,0)
+        else
+          local R1,R2 = keymacro.TransformKey(name)
+          for k=1,cnt do co_yield(PROPAGATE, F.MPRT_KEYS, R1, R2) end
+        end
       end
     end
   end
