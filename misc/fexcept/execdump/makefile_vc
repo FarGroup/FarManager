@@ -6,9 +6,6 @@ ANSI = 1
 NAME = ExcDump
 LINK_OBJS = $(OBJDIR)\ExcDump.obj
 
-NEEDENTRY = 1
-NEEDDEFLIB = 1
-EXCLUDECRT = 1
 COMMON = ..\..\..\plugins\common
 
 XXLIB=$(OBJDIR)\xxLib.lib

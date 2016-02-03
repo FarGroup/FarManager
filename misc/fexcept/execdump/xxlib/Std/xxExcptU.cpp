@@ -150,7 +150,11 @@ void MYRTLEXP MakeContextInfo( HPrintProc_t print,PCONTEXT ctx /*=NULL*/ )
               ctx->FloatSave.ErrorOffset, ctx->FloatSave.ErrorSelector, ctx->FloatSave.DataOffset,
               ctx->FloatSave.DataSelector);
 #ifndef _WIN64
+#if _MSC_VER < 1900
        print( "Cr0: %08X\n", ctx->FloatSave.Cr0NpxState );
+#else
+       print( "Cr0: %08X\n", ctx->FloatSave.Spare0 );
+#endif
 #else
 #undef FloatSave
        print( "MxCsr: %08X MxCsr_Mask: %08X\n", ctx->FltSave.MxCsr, ctx->FltSave.MxCsr_Mask );

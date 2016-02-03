@@ -2,10 +2,6 @@ NAME = FExcept
 SRCS = FExcept.cpp
 DOCS = SetFarExceptionHandler.farconfig demangle32.dll
 
-NEEDDEFLIB=1
-NEEDENTRY=1
-EXCLUDECRT=1
-
 COMMON = ../../plugins/common
 
 include ../../plugins/makefile_gcc_def_inc

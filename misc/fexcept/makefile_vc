@@ -9,10 +9,6 @@ LINK_OBJS = $(OBJDIR)\FExcept.obj
 LINK_OBJS = $(LINK_OBJS) $(OBJDIR)\vc_crt_fix.obj $(OBJDIR)\vc_crt_fix_impl.obj
 !endif
 
-NEEDENTRY = 1
-NEEDDEFLIB = 1
-EXCLUDECRT = 1
-
 COMMON = ..\..\plugins\common
 
 All: dirs
