@@ -702,11 +702,6 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	}
 
 	const auto strComspec(os::env::get_variable(L"COMSPEC"));
-	if (strComspec.empty() && !Info.DirectRun)
-	{
-		Message(MSG_WARNING, 1, MSG(MError), MSG(MComspecNotFound), MSG(MOk));
-		return false;
-	}
 
 	DWORD dwSubSystem = IMAGE_SUBSYSTEM_UNKNOWN;
 	os::handle Process;
@@ -810,6 +805,18 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 
 	string ComSpecParams(Global->Opt->Exec.strComSpecParams);
 	ComSpecParams += L" ";
+
+	// ShellExecuteEx Win8.1+ wrongly opens symlinks in the separate console window
+	// Workaround: execute through %comspec%
+	if (Info.DirectRun && !Info.NewWindow && IsWindows8Point1OrGreater())
+	{
+		os::fs::file_status fstatus(strNewCmdStr);
+		if (os::fs::is_file(fstatus) && fstatus.check(FILE_ATTRIBUTE_REPARSE_POINT))
+		{
+			Info.DirectRun = false;
+		}
+	}
+
 	if (Info.DirectRun)
 	{
 		seInfo.lpFile = strNewCmdStr.data();
@@ -826,6 +833,12 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	}
 	else
 	{
+		if (strComspec.empty())
+		{
+			Message(MSG_WARNING, 1, MSG(MError), MSG(MComspecNotFound), MSG(MOk));
+			return false;
+		}
+
 		std::vector<string> NotQuotedShellList;
 		split(NotQuotedShellList, os::env::expand_strings(Global->Opt->Exec.strNotQuotedShell), STLF_UNIQUE);
 		bool bQuotedShell = !(std::any_of(CONST_RANGE(NotQuotedShellList, i) { return !StrCmpI(i,PointToName(strComspec.data())); }));
@@ -871,27 +884,6 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 			string RealPath;
 			ConvertNameToReal(strCurDir, RealPath);
 			NeedFixCurDir = SetCurrentDirectory(RealPath.data()) != FALSE;
-		}
-	}
-
-	// ShellExecuteEx Win8.1+ wrongly opens symlinks in the separate console window
-	// Workaround: cmd /c Syslink.exe
-	string strParams;
-	if (seInfo.nShow == SW_SHOWNORMAL && !Info.NewWindow && IsWindows8Point1OrGreater())
-	{
-		if (seInfo.lpFile && seInfo.lpVerb && wcscmp(seInfo.lpVerb, L"open") == 0 && !strComspec.empty())
-		{
-			os::fs::file_status fstatus(seInfo.lpFile);
-			if (os::fs::is_file(fstatus) && fstatus.check(FILE_ATTRIBUTE_REPARSE_POINT))
-			{
-				string fname(seInfo.lpFile);
-				strParams = ComSpecParams + L" " + QuoteSpace(fname);
-				if (seInfo.lpParameters && seInfo.lpParameters[0])
-					strParams += string(L" ") + seInfo.lpParameters;
-
-				seInfo.lpFile = strComspec.data();
-				seInfo.lpParameters = strParams.data();
-			}
 		}
 	}
 
