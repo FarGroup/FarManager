@@ -11,7 +11,7 @@ if svnsync sync file://`pwd`/syncrepo; then
 
 	#start mspdbsrv.exe manually before compilation, with an infinite timeout
 	#prevents compilation being stuck when using cmake
-	wine c:/VC10/bin/mspdbsrv.exe -start -spawn -shutdowntime -1 &> /dev/null &
+	wine c:/VC_current/bin/mspdbsrv.exe -start -spawn -shutdowntime -1 &> /dev/null &
 
 
 	run "far" && run "plugins" && run "colorer" && run "netbox" && run "enc" && run "docs" && run "publish"
