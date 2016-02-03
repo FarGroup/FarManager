@@ -877,23 +877,20 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	// ShellExecuteEx Win8.1+ wrongly opens symlinks in the separate console window
 	// Workaround: cmd /c Syslink.exe
 	string strParams;
-	if (IsWindows8Point1OrGreater())
+	if (seInfo.nShow == SW_SHOWNORMAL && !Info.NewWindow && IsWindows8Point1OrGreater())
 	{
-		if (seInfo.lpFile != nullptr && wcscmp(seInfo.lpVerb, L"open") == 0 && !strComspec.empty())
+		if (seInfo.lpFile && seInfo.lpVerb && wcscmp(seInfo.lpVerb, L"open") == 0 && !strComspec.empty())
 		{
-			if (seInfo.nShow == SW_SHOWNORMAL && !Info.NewWindow)
+			os::fs::file_status fstatus(seInfo.lpFile);
+			if (os::fs::is_file(fstatus) && fstatus.check(FILE_ATTRIBUTE_REPARSE_POINT))
 			{
-				os::fs::file_status fstatus(seInfo.lpFile);
-				if (os::fs::is_file(fstatus) && fstatus.check(FILE_ATTRIBUTE_REPARSE_POINT))
-				{
-					string fname(seInfo.lpFile);
-					strParams = ComSpecParams + L" " + QuoteSpace(fname);
-					if (seInfo.lpParameters && seInfo.lpParameters[0])
-						strParams += string(L" ") + seInfo.lpParameters;
+				string fname(seInfo.lpFile);
+				strParams = ComSpecParams + L" " + QuoteSpace(fname);
+				if (seInfo.lpParameters && seInfo.lpParameters[0])
+					strParams += string(L" ") + seInfo.lpParameters;
 
-					seInfo.lpFile = strComspec.data();
-					seInfo.lpParameters = strParams.data();
-				}
+				seInfo.lpFile = strComspec.data();
+				seInfo.lpParameters = strParams.data();
 			}
 		}
 	}
