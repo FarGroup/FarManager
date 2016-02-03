@@ -3920,12 +3920,6 @@ void Dialog::ChangeFocus2(size_t SetFocusPos)
 
 		Items[SetFocusPos].Flags|=DIF_FOCUS;
 
-		if (IsEdit(Items[SetFocusPos].Type) && !(Items[SetFocusPos].Type == DI_COMBOBOX && (Items[SetFocusPos].Flags & DIF_DROPDOWNLIST)))
-		{
-			const auto EditPtr = static_cast<DlgEdit*>(Items[SetFocusPos].ObjPtr);
-			EditPtr->RemoveSelection();
-		}
-
 		//   проинформируем листбокс, есть ли у него фокус
 		if (Items[m_FocusPos].Type == DI_LISTBOX)
 			Items[m_FocusPos].ListPtr->ClearFlags(VMENU_LISTHASFOCUS);
