@@ -39,6 +39,10 @@ RCFLAGS = $(RCFLAGS) $(INCLUDES) $(DEFINES)
 ASFLAGS = $(ASFLAGS) -Fo$(OUTDIR)\ 
 
 !if $(VC) >= 14
+CPPFLAGS = /Zc:threadSafeInit-
+!endif
+
+!if $(VC) >= 14
 FIXCRT_CPPFLAGS = /Zc:threadSafeInit-
 !endif
 
