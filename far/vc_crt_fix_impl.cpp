@@ -122,6 +122,102 @@ extern "C" void WINAPI InitializeSListHeadWrapper(PSLIST_HEADER ListHead)
 	return Function(ListHead);
 }
 
+// InterlockedFlushSList (VC2015)
+extern "C" PSLIST_ENTRY WINAPI InterlockedFlushSListWrapper(PSLIST_HEADER ListHead)
+{
+	struct implementation
+	{
+		static PSLIST_ENTRY WINAPI InterlockedFlushSList(PSLIST_HEADER ListHead)
+		{
+			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+			return nullptr;
+		}
+	};
+
+	CREATE_FUNCTION_POINTER(kernel32, InterlockedFlushSList);
+	return Function(ListHead);
+}
+
+// InterlockedPopEntrySList (VC2015)
+extern "C" PSLIST_ENTRY WINAPI InterlockedPopEntrySListWrapper(PSLIST_HEADER ListHead)
+{
+	struct implementation
+	{
+		static PSLIST_ENTRY WINAPI InterlockedPopEntrySList(PSLIST_HEADER ListHead)
+		{
+			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+			return nullptr;
+		}
+	};
+
+	CREATE_FUNCTION_POINTER(kernel32, InterlockedPopEntrySList);
+	return Function(ListHead);
+}
+
+// InterlockedPushEntrySList (VC2015)
+extern "C" PSLIST_ENTRY WINAPI InterlockedPushEntrySListWrapper(PSLIST_HEADER ListHead, PSLIST_ENTRY ListEntry)
+{
+	struct implementation
+	{
+		static PSLIST_ENTRY WINAPI InterlockedPushEntrySList(PSLIST_HEADER ListHead, PSLIST_ENTRY ListEntry)
+		{
+			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+			return nullptr;
+		}
+	};
+
+	CREATE_FUNCTION_POINTER(kernel32, InterlockedPushEntrySList);
+	return Function(ListHead, ListEntry);
+}
+
+// InterlockedPushListSList (VC2015)
+extern "C" PSLIST_ENTRY WINAPI InterlockedPushListSListExWrapper(PSLIST_HEADER ListHead, PSLIST_ENTRY List, PSLIST_ENTRY ListEnd, ULONG Count)
+{
+	struct implementation
+	{
+		static PSLIST_ENTRY WINAPI InterlockedPushListSListEx(PSLIST_HEADER ListHead, PSLIST_ENTRY List, PSLIST_ENTRY ListEnd, ULONG Count)
+		{
+			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+			return nullptr;
+		}
+	};
+
+	CREATE_FUNCTION_POINTER(kernel32, InterlockedPushListSListEx);
+	return Function(ListHead, List, ListEnd, Count);
+}
+
+// RtlFirstEntrySList (VC2015)
+extern "C" PSLIST_ENTRY WINAPI RtlFirstEntrySListWrapper(PSLIST_HEADER ListHead)
+{
+	struct implementation
+	{
+		static PSLIST_ENTRY WINAPI RtlFirstEntrySList(PSLIST_HEADER ListHead)
+		{
+			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+			return nullptr;
+		}
+	};
+
+	CREATE_FUNCTION_POINTER(kernel32, RtlFirstEntrySList);
+	return Function(ListHead);
+}
+
+// QueryDepthSList (VC2015)
+extern "C" USHORT WINAPI QueryDepthSListWrapper(PSLIST_HEADER ListHead)
+{
+	struct implementation
+	{
+		static USHORT WINAPI QueryDepthSList(PSLIST_HEADER ListHead)
+		{
+			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+			return 0;
+		}
+	};
+
+	CREATE_FUNCTION_POINTER(kernel32, QueryDepthSList);
+	return Function(ListHead);
+}
+
 // RtlGenRandom (VC2015)
 // RtlGenRandom is used in rand_s implementation in ucrt.
 // As long as we don't use the rand_s in the code (which is easy: it's non-standard, requires _CRT_RAND_S to be defined first and not recommended in general)
