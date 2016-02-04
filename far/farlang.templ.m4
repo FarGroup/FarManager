@@ -15503,7 +15503,7 @@ MMenuSortByExt
 "ro&zszerzenia"
 "E&xtensión"
 "&Prípony"
-"Estensione
+"Estensione"
 "&Тип файлу"
 
 MMenuSortByWrite
