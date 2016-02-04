@@ -130,7 +130,7 @@ CPPFLAGS=$(CPPFLAGS) /Zi
 !endif
 
 !if $(VC) >= 14
-CPPFLAGS = /Zc:threadSafeInit-
+CPPFLAGS = $(CPPFLAGS) /Zc:threadSafeInit-
 !endif
 
 !if $(VC) >= 14
