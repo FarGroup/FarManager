@@ -128,6 +128,10 @@ CPPFLAGS=$(CPPFLAGS) /DDEBUG /Od
 CPPFLAGS=$(CPPFLAGS) /Zi
 !endif
 
+!if $(VC) >= 14
+FIXCRT_CPPFLAGS = /Zc:threadSafeInit-
+!endif
+
 !if "$(BUILD_PLATFORM)" == "AMD64"
 ULOUT=-Tpd+
 !elseif "$(BUILD_PLATFORM)" == "IA64"

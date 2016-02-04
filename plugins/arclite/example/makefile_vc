@@ -10,6 +10,10 @@ LINKFLAGS = -nologo -incremental:no -map -manifest:no -dynamicbase -nxcompat -la
 RCFLAGS = -nologo
 ASFLAGS = -nologo -c
 
+!if $(VC) >= 14
+FIXCRT_CPPFLAGS = /Zc:threadSafeInit-
+!endif
+
 !if "$(BUILD_PLATFORM)" == "AMD64"
 BITS = 64
 RCFLAGS = $(RCFLAGS) -Dx64
@@ -64,7 +68,7 @@ $(OUTDIR)\vc_crt_fix.obj: ..\..\common\vc_crt_fix.asm
   $(AS) $(ASFLAGS) ..\..\common\vc_crt_fix.asm
 
 $(OUTDIR)\vc_crt_fix_impl.obj: ..\..\common\vc_crt_fix_impl.cpp
-  $(CPP) $(CPPFLAGS) -Yuheaders.hpp -FIheaders.hpp -Fp$(OUTDIR)\headers.pch ..\..\common\vc_crt_fix_impl.cpp
+  $(CPP) $(CPPFLAGS) $(FIXCRT_CPPFLAGS) ..\..\common\vc_crt_fix_impl.cpp
 
 depfile: $(OUTDIR)
   $(TOOLSDIR)\tool gendep $(INCLUDES) > $(OUTDIR)\dep.mak

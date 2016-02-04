@@ -38,6 +38,10 @@ CPPFLAGS = $(CPPFLAGS) -Fo$(OUTDIR)\ -Fd$(OUTDIR)\ $(INCLUDES) $(DEFINES) $(USER
 RCFLAGS = $(RCFLAGS) $(INCLUDES) $(DEFINES)
 ASFLAGS = $(ASFLAGS) -Fo$(OUTDIR)\ 
 
+!if $(VC) >= 14
+FIXCRT_CPPFLAGS = /Zc:threadSafeInit-
+!endif
+
 !ifdef BUILD
 !include $(OUTDIR)\far.ini
 !endif
@@ -147,7 +151,7 @@ $(OUTDIR)\vc_crt_fix.obj: ..\common\vc_crt_fix.asm
   $(AS) $(ASFLAGS) ..\common\vc_crt_fix.asm
 
 $(OUTDIR)\vc_crt_fix_impl.obj: ..\common\vc_crt_fix_impl.cpp
-  $(CPP) $(CPPFLAGS) -Yuheaders.hpp -FIheaders.hpp -Fp$(OUTDIR)\headers.pch ..\common\vc_crt_fix_impl.cpp
+  $(CPP) $(CPPFLAGS) $(FIXCRT_CPPFLAGS) ..\common\vc_crt_fix_impl.cpp
 
 $(OUTDIR):
   if not exist $(OUTDIR) mkdir $(OUTDIR)
