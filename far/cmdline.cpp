@@ -1171,7 +1171,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, class execution_conte
 	// PUSHD путь | ..
 	else if (IsCommand(L"PUSHD",false))
 	{
-		auto strCmdLine = CmdLine.substr(0, 5);
+		auto strCmdLine = CmdLine.substr(5);
 		RemoveLeadingSpaces(strCmdLine);
 
 		const auto PushDir = m_CurDir;
@@ -1243,19 +1243,6 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, class execution_conte
 		ScrollScreen(1);
 		return true;
 	}
-	/*else if (IsCommand(L"IF",false))
-	{
-		auto strCmdLine(CmdLine);
-		const wchar_t *PtrCmd=PrepareOSIfExist(strCmdLine);
-		// здесь PtrCmd - уже готовая команда, без IF
-
-		if (PtrCmd && *PtrCmd && Global->CtrlObject->Plugins->ProcessCommandLine(PtrCmd))
-		{
-			return true;
-		}
-
-		return false;
-	}*/
 	else if (IsCommand(L"CD",true) || IsCommand(L"CHDIR",true))
 	{
 		const int Length = IsCommand(L"CD", true)? 2 : 5;
