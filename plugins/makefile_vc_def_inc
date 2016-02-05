@@ -129,6 +129,10 @@ CPPFLAGS=$(CPPFLAGS) /DDEBUG /Od
 CPPFLAGS=$(CPPFLAGS) /Zi
 !endif
 
+!if $(VC) >= 11 && "$(BUILD_PLATFORM)" == "X86"
+CPPFLAGS=$(CPPFLAGS) /arch:IA32
+!endif
+
 !if $(VC) >= 14
 CPPFLAGS = $(CPPFLAGS) /Zc:threadSafeInit-
 !endif

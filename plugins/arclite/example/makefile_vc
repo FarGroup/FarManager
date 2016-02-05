@@ -10,6 +10,10 @@ LINKFLAGS = -nologo -incremental:no -map -manifest:no -dynamicbase -nxcompat -la
 RCFLAGS = -nologo
 ASFLAGS = -nologo -c
 
+!if $(VC) >= 11 && "$(BUILD_PLATFORM)" == "X86"
+CPPFLAGS=$(CPPFLAGS) /arch:IA32
+!endif
+
 !if $(VC) >= 14
 FIXCRT_CPPFLAGS = /Zc:threadSafeInit-
 !endif
