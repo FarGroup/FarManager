@@ -891,6 +891,7 @@ public:
 		m_Consolised = true;
 		
 		Global->ScrBuf->MoveCursor(0, WhereY());
+		SetInitialCursorType();
 
 		// BUGBUG, implement better & safer way to do this
 		const auto LockCount = Global->ScrBuf->GetLockCount();
