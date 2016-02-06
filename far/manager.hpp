@@ -79,6 +79,7 @@ public:
 	void ActivateWindow(window_ptr_ref Activated);
 	void RefreshWindow(window_ptr_ref Refreshed = nullptr);
 	void ReplaceWindow(window_ptr_ref Old, window_ptr_ref New);
+	void SubmergeWindow(window_ptr_ref Window);
 	void CallbackWindow(const std::function<void(void)>& Callback);
 	//! Функции для запуска модальных окон.
 	void ExecuteWindow(window_ptr_ref Executed);
@@ -158,6 +159,7 @@ private:
 	void DeactivateCommit(window_ptr_ref Param);
 	void ExecuteCommit(window_ptr_ref Param);
 	void ReplaceCommit(window_ptr_ref Old, window_ptr_ref New);
+	void SubmergeCommit(window_ptr_ref Param);
 	int GetModalExitCode() const;
 
 	typedef void(Manager::*window_callback)(window_ptr_ref);

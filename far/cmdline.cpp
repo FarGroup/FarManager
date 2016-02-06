@@ -931,7 +931,9 @@ public:
 		}
 
 		Global->CtrlObject->Desktop->TakeSnapshot();
+		Global->WindowManager->SubmergeWindow(Global->CtrlObject->Desktop);
 		Global->WindowManager->ActivateWindow(m_CurrentWindow);
+		Global->WindowManager->RefreshAll();
 		--Global->ProcessShowClock;
 	}
 

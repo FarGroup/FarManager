@@ -613,6 +613,11 @@ void Manager::ReplaceWindow(window_ptr_ref Old, window_ptr_ref New)
 	m_Queue.push_back(std::make_unique<MessageTwoWindows>(Old, New, [this](window_ptr_ref Param1, window_ptr_ref Param2){ ReplaceCommit(Param1, Param2); }));
 }
 
+void Manager::SubmergeWindow(window_ptr_ref Window)
+{
+	CheckAndPushWindow(Window, &Manager::SubmergeCommit);
+}
+
 void Manager::SwitchToPanels()
 {
 	_MANAGER(CleverSysLog clv(L"Manager::SwitchToPanels()"));
@@ -1087,8 +1092,7 @@ void Manager::ActivateCommit(window_ptr_ref Param)
 
 	if (-1!=WindowIndex)
 	{
-		m_windows.erase(m_windows.begin() + WindowIndex);
-		m_windows.push_back(Param);
+		std::rotate(m_windows.begin() + WindowIndex, m_windows.begin() + WindowIndex + 1, m_windows.end());
 	}
 
 	/* 14.05.2002 SKV
@@ -1206,6 +1210,11 @@ void Manager::ReplaceCommit(window_ptr_ref Old, window_ptr_ref New)
 	{
 		_MANAGER(SysLog(L"ERROR! DeletedWindow not found"));
 	}
+}
+
+void Manager::SubmergeCommit(window_ptr_ref Param)
+{
+	std::rotate(m_windows.begin(), m_windows.begin() + IndexOf(Param), m_windows.end());
 }
 
 bool Manager::AddWindow(window_ptr_ref Param)
