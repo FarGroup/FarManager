@@ -227,8 +227,6 @@ void ReadFileLines(HANDLE hFileMapping, DWORD FileSizeLow, wchar_t **argv, wchar
 			continue;
 
 		TMP.Ptr()[Len]=0;
-		FSF.Trim(TMP);
-		FSF.Unquote(TMP);
 		Len = lstrlen(TMP);
 
 		if (!Len)
