@@ -4965,6 +4965,8 @@ void Editor::SelectAll()
 	}
 	Lines.back().Select(0, Lines.back().GetLength());
 
+	TurnOffMarkingBlock();
+
 	Show();
 }
 
