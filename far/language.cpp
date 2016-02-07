@@ -339,7 +339,7 @@ static void parse_lng_line(const string& str, string& label, string& data, bool&
 	{
 		have_data = true;
 		data = str.substr(1);
-		if (data.size() > 0 && data.back() == L'"')
+		if (!data.empty() && data.back() == L'"')
 			data.pop_back();
 		return;
 	}
@@ -362,7 +362,6 @@ static void parse_lng_line(const string& str, string& label, string& data, bool&
 			}
 		}
 	}
-	return;
 }
 
 void Language::init(const string& Path, int CountNeed)
@@ -385,7 +384,7 @@ void Language::init(const string& Path, int CountNeed)
 		reserve(CountNeed);
 	}
 
-	std::map<string, int> id_map;
+	std::unordered_map<string, size_t> id_map;
 	string label, Buffer, text;
 	while (GetStr.GetString(Buffer))
 	{
@@ -394,7 +393,7 @@ void Language::init(const string& Path, int CountNeed)
 		parse_lng_line(Buffer, label, text, have_text);
 		if (have_text)
 		{
-			int idx = static_cast<int>(m_Messages.size());
+			auto idx = m_Messages.size();
 			add(ConvertString(text.data(), text.size()));
 			if (!label.empty())
 			{
@@ -412,20 +411,12 @@ void Language::init(const string& Path, int CountNeed)
 
 	// try to load Far<LNG>.lng.custom file(s)
 	//
-	if (id_map.size() > 0) // if string IDs available
+	if (!id_map.empty())
 	{
-		for (int j = 0; j < 2; ++j)
+		const auto LoadStrings = [&](const string& FileName)
 		{
-			string custom_lng_file_path = m_FileName + L".custom";
-			if (j) {
-				auto tmp = Global->Opt->ProfilePath + L"\\" + ExtractFileName(custom_lng_file_path);
-				if (tmp == custom_lng_file_path)
-					continue;
-				else
-					std::swap(tmp, custom_lng_file_path);
-			}
 			os::fs::file lang_file;
-			if (lang_file.Open(custom_lng_file_path, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
+			if (lang_file.Open(FileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
 			{
 				GetFileFormat(lang_file, nCodePage, nullptr, false);
 				GetFileString get_str(lang_file, nCodePage);
@@ -437,18 +428,22 @@ void Language::init(const string& Path, int CountNeed)
 					parse_lng_line(Buffer, label, text, have_text);
 					if (have_text && !label.empty())
 					{
-						auto found = id_map.find(label);
+						const auto found = id_map.find(label);
 						if (found != id_map.end())
 						{
-							auto idx = found->second;
-							m_Messages[idx] = ConvertString(text.data(), text.size());
+							m_Messages[found->second] = ConvertString(text.data(), text.size());
 						}
 						label.clear();
 					}
 				}
-				lang_file.Close();
 			}
-		}
+		};
+
+		const auto CustomLngInSameDir = m_FileName + L".custom";
+		const auto CustomLngInProfileDir = Global->Opt->ProfilePath + L"\\" + ExtractFileName(CustomLngInSameDir);
+
+		LoadStrings(CustomLngInSameDir);
+		LoadStrings(CustomLngInProfileDir);
 	}
 }
 

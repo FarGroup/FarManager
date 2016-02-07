@@ -71,6 +71,7 @@ CFLAGS += \
 -Wno-missing-field-initializers \
 
 CCFLAGS = $(CFLAGS) -std=c++14 \
+-Wnon-virtual-dtor \
 -Woverloaded-virtual \
 -Wzero-as-null-pointer-constant \
 

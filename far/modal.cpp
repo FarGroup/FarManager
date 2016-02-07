@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 
 SimpleModal::SimpleModal():
+	m_ReadRec(INPUT_RECORD()),
 	m_EndLoop(false),
 	m_ReadKey(-1),
 	m_WriteKey(-1)

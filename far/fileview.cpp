@@ -57,9 +57,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keybar.hpp"
 
 FileViewer::FileViewer(private_tag, int DisableEdit, const wchar_t *Title):
+	RedrawTitle(),
+	F3KeyOnly(),
 	m_bClosing(),
 	FullScreen(true),
 	DisableEdit(DisableEdit),
+	DisableHistory(),
+	SaveToSaveAs(),
 	delete_on_close(),
 	str_title(NullToEmpty(Title))
 {

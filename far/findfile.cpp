@@ -3206,6 +3206,7 @@ background_searcher::background_searcher(
 	bool UseFilter):
 
 	m_Owner(Owner),
+	findString(),
 	InFileSearchInited(),
 	m_Autodetection(),
 	strFindStr(FindString),

@@ -196,7 +196,7 @@ public:
 			delete[] static_cast<const char*>(m_Data);
 	}
 
-	blob& operator=(const blob& rhs)
+	writable_blob& operator=(const blob& rhs)
 	{
 		if (m_Data)
 		{

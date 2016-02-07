@@ -43,6 +43,7 @@ WARNING_PUSH(1)
 WARNING_DISABLE_GCC("-Wcast-qual")
 WARNING_DISABLE_GCC("-Wuseless-cast")
 WARNING_DISABLE_GCC("-Wzero-as-null-pointer-constant")
+WARNING_DISABLE_GCC("-Wnon-virtual-dtor")
 
 
 #include "thirdparty/ucd/nsCore.h"

@@ -48,7 +48,8 @@ static const wchar_t* EventNames[] =
 static_assert(ARRAYSIZE(EventNames) == event_id_count, "Incomplete EventNames array");
 
 message_manager::message_manager():
-	m_Window(std::make_unique<wm_listener>())
+	m_Window(std::make_unique<wm_listener>()),
+	m_suppressions()
 {
 }
 

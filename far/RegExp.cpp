@@ -215,10 +215,11 @@ struct RegExp::UniSet
 		Setter(UniSet& s,wchar_t chr):set(s),idx(chr)
 		{
 		}
-		void operator=(int val)
+		Setter& operator=(int val)
 		{
 			if (val)set.SetBit(idx);
 			else set.ClearBit(idx);
+			return *this;
 		}
 		bool operator!()const
 		{

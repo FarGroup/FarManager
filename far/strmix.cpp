@@ -128,15 +128,14 @@ wchar_t* QuoteSpace(wchar_t *Str)
 {
 	if (wcspbrk(Str, Global->Opt->strQuotedSymbols.data()))
 	{
-		auto l = wcslen(Str);
-		if (Str[l - 1] == L'\\')
+		InsertQuote(Str);
+
+		// forward slash can't harm the quotation mark, but consistency is preferable
+		const auto Size = wcslen(Str);
+		if (IsSlash(Str[Size - 2]))
 		{
-			Str[l - 1] = L'\0';
-			InsertQuote(Str);
-			wcscat(Str + l, L"\\");
+			std::swap(Str[Size - 2], Str[Size - 1]);
 		}
-		else
-			InsertQuote(Str);
 	}
 	return Str;
 }
@@ -163,14 +162,13 @@ string &QuoteSpace(string &strStr)
 {
 	if (strStr.find_first_of(Global->Opt->strQuotedSymbols) != string::npos)
 	{
-		if (strStr.back() == L'\\')
+		InsertQuote(strStr);
+		
+		// forward slash can't harm the quotation mark, but consistency is preferable
+		if (IsSlash(*(strStr.end() - 2)))
 		{
-			strStr.pop_back();
-			InsertQuote(strStr);
-			strStr.push_back(L'\\');
+			std::iter_swap(strStr.end() - 2, strStr.end() - 1);
 		}
-		else
-			InsertQuote(strStr);
 	}
 	return strStr;
 }
@@ -1470,7 +1468,7 @@ int HexToInt(int h)
 	if (h >= 'A' && h <= 'F')
 		return h - 'A' + 10;
 
-	if (h >= '0' && h <= '9')
+	if (std::iswdigit(h))
 		return h - '0';
 
 	return 0;

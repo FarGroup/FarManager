@@ -4990,45 +4990,37 @@ bool Editor::IsFileModified() const
 // используется в FileEditor
 int64_t Editor::GetCurPos(bool file_pos, bool add_bom) const
 {
-	auto CurPtr = Lines.begin();
-	uint64_t TotalSize = 0;
-	int mult = 1, bom = 0;
+	const int Unknown = -1;
+	int Multiplier = 1;
+	uint64_t bom = 0;
+
 	if (file_pos)
 	{
 		if (m_codepage == CP_UNICODE || m_codepage == CP_REVERSEBOM)
 		{
-			mult = 2;
+			Multiplier = sizeof(wchar_t);
 			if (add_bom)
-				bom += 2;
+				bom = 1;
 		}
 		else if (m_codepage == CP_UTF8)
 		{
-			mult = -1;
+			Multiplier = Unknown;
 			if (add_bom)
-				bom += 3;
+				bom = 3;
 		}
-		else
+		else if (GetCodePageInfo(m_codepage).first > 1)
 		{
-			string cp_name;
-			UINT cp_maxlen = 0;
-			std::tie(cp_maxlen, cp_name) = GetCodePageInfo(m_codepage);
-			if (cp_maxlen > 1)
-				mult = -1;
+			Multiplier = Unknown;
 		}
 	}
 
-	while (CurPtr!=m_it_TopScreen)
+	const auto TotalSize = std::accumulate(Lines.cbegin(), m_it_TopScreen.cbase(), bom, [&](uint64_t Value, CONST_REFERENCE(Lines) line) -> uint64_t
 	{
-		const auto& SaveStr = CurPtr->GetString();
-		const auto EndSeq = CurPtr->GetEOL();
-		if (mult > 0)
-			TotalSize += SaveStr.size() + wcslen(EndSeq);
-		else
-			TotalSize -= unicode::to(m_codepage, SaveStr.data(), SaveStr.size(), nullptr, 0) + wcslen(EndSeq);
-		++CurPtr;
-	}
+		const auto& Str = line.GetString();
+		return Value + (Multiplier != Unknown? Str.size() : unicode::to(m_codepage, Str.data(), Str.size(), nullptr, 0)) + wcslen(line.GetEOL());
+	});
 
-	return TotalSize*mult + bom;
+	return Multiplier != Unknown? TotalSize * Multiplier : TotalSize;
 }
 
 

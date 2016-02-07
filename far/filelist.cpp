@@ -6225,6 +6225,8 @@ int FileList::ProcessOneHostFile(const FileListItem* Item)
 
 void FileList::SetPluginMode(PluginHandle* hPlugin,const string& PluginFile,bool SendOnFocus)
 {
+	const auto ParentWindow = Parent();
+
 	if (m_PanelMode != panel_mode::PLUGIN_PANEL)
 	{
 		Global->CtrlObject->FolderHistory->AddToHistory(m_CurDir);
@@ -6234,8 +6236,8 @@ void FileList::SetPluginMode(PluginHandle* hPlugin,const string& PluginFile,bool
 	m_hPlugin=hPlugin;
 	m_PanelMode = panel_mode::PLUGIN_PANEL;
 
-	if (SendOnFocus)
-		Parent()->SetActivePanel(shared_from_this());
+	if (SendOnFocus && ParentWindow)
+		ParentWindow->SetActivePanel(shared_from_this());
 
 	OpenPanelInfo Info;
 	Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
@@ -6249,13 +6251,13 @@ void FileList::SetPluginMode(PluginHandle* hPlugin,const string& PluginFile,bool
 		m_ReverseSortOrder = Info.StartSortOrder != 0;
 	}
 
-	if (Parent())
+	if (ParentWindow)
 	{
 		// BUGBUG, redraw logic shouldn't be here
 
-		Parent()->RedrawKeyBar();
+		ParentWindow->RedrawKeyBar();
 
-		const auto AnotherPanel = Parent()->GetAnotherPanel(this);
+		const auto AnotherPanel = ParentWindow->GetAnotherPanel(this);
 
 		if (AnotherPanel->GetType() != panel_type::FILE_PANEL)
 		{

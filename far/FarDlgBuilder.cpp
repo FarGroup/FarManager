@@ -237,7 +237,7 @@ DialogBuilder::DialogBuilder(LNGID TitleMessageId, const wchar_t *HelpTopic, Dia
 }
 
 DialogBuilder::DialogBuilder():
-	m_HelpTopic(L""),  m_Mode(0), m_IdExist(false)
+	m_HelpTopic(L""),  m_Mode(0), m_Id(GUID_NULL), m_IdExist(false)
 {
 	AddBorder(L"");
 }

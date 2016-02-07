@@ -153,7 +153,7 @@ bool IsKeyHighlighted(const string& str,int Key,int Translate,int AmpPos)
 
 		if (AltKey < 0xFFFF)
 		{
-			if ((unsigned int)AltKey >= L'0' && (unsigned int)AltKey <= L'9')
+			if (std::iswdigit(AltKey))
 				return AltKey==UpperStrKey;
 
 			if ((unsigned int)AltKey > L' ' && AltKey <= 0xFFFF)

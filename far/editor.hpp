@@ -158,7 +158,7 @@ private:
 
 	struct InternalEditorBookmark;
 
-	template<class T>
+	template<class T, class ConstT = T>
 	class numbered_iterator_t: public T
 	{
 	public:
@@ -190,12 +190,13 @@ private:
 		numbered_iterator_t& operator--() { --base(); --m_Number; return *this; }
 
 		bool operator==(const numbered_iterator_t& rhs) const { return base() == rhs.base(); }
-		bool operator==(const T& rhs) const { return base() == rhs; }
+		bool operator==(const T& rhs) const { return rhs == *this; }
 		template<class Y>
 		bool operator !=(const Y& rhs) const { return !(*this == rhs); }
 
-		T& base() { return static_cast<T&>(*this); }
-		const T& base() const { return static_cast<const T&>(*this); }
+		T& base() { return *this; }
+		const typename std::conditional<std::is_base_of<ConstT, T>::value, ConstT, T>::type& base() const { return *this; }
+		typename std::conditional<std::is_base_of<ConstT, T>::value, const ConstT&, ConstT>::type cbase() const { return *this; }
 
 	private:
 		// Intentionally not implemented, use prefix forms.
@@ -205,7 +206,7 @@ private:
 		size_t m_Number;
 	};
 
-	typedef numbered_iterator_t<iterator> numbered_iterator;
+	typedef numbered_iterator_t<iterator, const_iterator> numbered_iterator;
 	typedef numbered_iterator_t<const_iterator> numbered_const_iterator;
 
 	virtual void DisplayObject() override;

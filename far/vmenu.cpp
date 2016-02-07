@@ -2457,7 +2457,7 @@ void VMenu::AssignHighlights(int Reverse)
 			{
 				wchar_t Ch = Name[J];
 
-				if ((Ch == L'&' || IsAlpha(Ch) || (Ch >= L'0' && Ch <=L'9')) && !Used[ToUpper(Ch)] && !Used[ToLower(Ch)])
+				if ((Ch == L'&' || IsAlpha(Ch) || std::iswdigit(Ch)) && !Used[ToUpper(Ch)] && !Used[ToLower(Ch)])
 				{
 					wchar_t ChKey=KeyToKeyLayout(Ch);
 					Used[ToUpper(ChKey)] = true;

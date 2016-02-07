@@ -4091,23 +4091,35 @@ void Viewer::GoTo(int ShowDlg, __int64 Offset, UINT64 Flags)
 				}
 				if (m_DisplayMode == VMT_TEXT && !m_Wrap && pos < GoToDlg[1].strData.size()) // Pos[, LeftPos]
 				{
-					auto str = GoToDlg[1].strData.substr(pos);
-					if (!str.empty() && wcschr(L"hHdD", str.front())) str.erase(0, 1);
-					while (!str.empty() && IsSpace(str.front())) str.erase(0, 1);
-					if (!str.empty() && str.front() == L',') str.erase(0, 1);
-					while (!str.empty() && IsSpace(str.front())) str.erase(0, 1);
-					int rel = 0;
-					if (!str.empty() && str.front() == L'+' || str.front() == L'-')
+					auto Iter = GoToDlg[1].strData.cbegin() + pos;
+					const auto End = GoToDlg[1].strData.cend();
+
+					if (Iter != End && wcschr(L"%hHdD", *Iter))
 					{
-						rel = str.front() == L'+' ? +1 : -1;
-						str.erase(0, 1);
+						++Iter;
 					}
-					if (!str.empty() && str.front() >= L'0' && str.front() <= L'9')
+
+					Iter = std::find_if_not(Iter, End, IsSpace);
+
+					if (Iter != End && *Iter == L',')
 					{
-						auto v = std::stoll(str, nullptr, 0);
-						if (rel)
-							v = LeftPos + rel*v;
-						new_leftpos = std::min(std::max(0LL, v), ViOpt.MaxLineSize.Get());
+						++Iter;
+					}
+
+					Iter = std::find_if_not(Iter, End, IsSpace);
+
+					int Relative = 0;
+					if (Iter != End && (*Iter == L'+' || *Iter == L'-'))
+					{
+						Relative = *Iter == L'+' ? +1 : -1;
+						++Iter;
+					}
+					if (Iter != End && std::iswdigit(*Iter))
+					{
+						auto Column = std::stoll(&*Iter);
+						if (Relative)
+							Column = LeftPos + Relative * Column;
+						new_leftpos = std::min(std::max(0LL, Column), ViOpt.MaxLineSize.Get());
 					}
 				}
 			}
