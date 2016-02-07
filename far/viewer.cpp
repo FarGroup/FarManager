@@ -4108,17 +4108,17 @@ void Viewer::GoTo(int ShowDlg, __int64 Offset, UINT64 Flags)
 
 					Iter = std::find_if_not(Iter, End, IsSpace);
 
-					int Relative = 0;
+					int RelativeColumn = 0;
 					if (Iter != End && (*Iter == L'+' || *Iter == L'-'))
 					{
-						Relative = *Iter == L'+' ? +1 : -1;
+						RelativeColumn = *Iter == L'+' ? +1 : -1;
 						++Iter;
 					}
 					if (Iter != End && std::iswdigit(*Iter))
 					{
 						auto Column = std::stoll(&*Iter);
-						if (Relative)
-							Column = LeftPos + Relative * Column;
+						if (RelativeColumn)
+							Column = LeftPos + RelativeColumn * Column;
 						new_leftpos = std::min(std::max(0LL, Column), ViOpt.MaxLineSize.Get());
 					}
 				}
