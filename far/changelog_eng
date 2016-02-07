@@ -3,6 +3,95 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 07.02.2016 18:30:10 +0200 - build 4543
+
+1. Switching to a column with Alt-F8 in viewer did not work if the first parameter was specified in percents (example from help).
+
+2. Come refactoring. %another mantra about bad influence of one letter variables to you karma%.
+
+3. Warnings.
+
+drkns 06.02.2016 04:01:40 +0200 - build 4542
+
+1. 0003169: panels disappear after start of external editor
+
+drkns 05.02.2016 21:26:41 +0200 - build 4541
+
+1. Correction of 4525.
+
+drkns 05.02.2016 09:41:13 +0200 - build 4540
+
+1. Forum: Cursor disappears in launched external console applications.
+
+drkns 03.02.2016 19:25:05 +0200 - build 4539
+
+1. Move the hack for M#2922 to a more suitable place and simplify it.
+
+w17 03.02.2016 17:48:03 +0300 - build 4538
+
+1. Correction of 4537.
+
+w17 03.02.2016 16:10:50 +0300 - build 4537
+
+1. M#2922: symbolic link to an executable file creates a separate console after launch
+
+drkns 03.02.2016 09:11:50 +0200 - build 4536
+
+1. Restore behavior of selection in dialogs as it was up to 4484.
+
+drkns 02.02.2016 22:19:45 +0200 - build 4535
+
+1. Forum: start of far /v or far /e with active auto-saving garbled panel settings.
+
+drkns 02.02.2016 21:34:08 +0200 - build 4534
+
+1. Correction of 4525 for non-trivial launch conditions.
+
+drkns 02.02.2016 21:17:56 +0200 - build 4533
+
+1. Adaptation of grabber to 4526.
+
+drkns 02.02.2016 19:55:16 +0200 - build 4532
+
+1. Forum: Editor.SetStr was broken in one of builds 4482-4484
+
+drkns 02.02.2016 09:55:00 +0200 - build 4531
+
+1. Command line was not updated after deleting an item from completion list.
+
+drkns 01.02.2016 23:00:10 +0200 - build 4530
+
+1. Optimization of 4525 for System.WindowMode = true
+
+2. System.WindowMode is now true by default for:
+   - this is good;
+   - testing is needed.
+
+w17 01.02.2016 16:53:33 +0300 - build 4529
+
+1. M#3161: Extend GoTo (AltF8)
+
+drkns 01.02.2016 10:34:36 +0200 - build 4528
+
+1. Continuation of 4525.
+
+drkns 01.02.2016 03:16:02 +0200 - build 4527
+
+1. Continuation of 4525.
+
+drkns 01.02.2016 01:11:06 +0200 - build 4526
+
+1. Report goes that after 4516 middle mouse button worked odd in panels.
+
+drkns 31.01.2016 22:59:13 +0200 - build 4525
+
+1. 0002900: Menu from a list file: trouble with calls from User menu
+   Half of launcher is rewritten, a lot of bugs is fixed, possibly new ones are made.
+
+2. System.Executor.SilentExternal is gone.
+
+3. Enter with panels hidden now scrolls output as in cmd.
+
 w17 29.01.2016 21:57:57 +0300 - build 4524
 
 1. Fix 4484. aka M#3162: Text disappear in viewer
