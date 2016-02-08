@@ -46,6 +46,12 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '10.0'">v100</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '11.0'">v110</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
     <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
@@ -67,29 +73,29 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\..\unicode_far\Debug.32.vc\</OutDir>
-    <IntDir>debug.32W.vc\obj\</IntDir>
+    <OutDir>..\..\unicode_far\Debug.32.v$(VisualStudioVersion)\</OutDir>
+    <IntDir>debug.32W.v$(VisualStudioVersion)\obj_luafar3\</IntDir>
     <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\..\unicode_far\Debug.64.vc\</OutDir>
-    <IntDir>debug.64W.vc\obj\</IntDir>
+    <OutDir>..\..\unicode_far\Debug.64.v$(VisualStudioVersion)\</OutDir>
+    <IntDir>debug.64W.v$(VisualStudioVersion)\obj_luafar3\</IntDir>
     <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IntDir>final.32W.vc\obj\</IntDir>
-    <OutDir>..\..\unicode_far\Release.32.vc\</OutDir>
+    <IntDir>final.32W.v$(VisualStudioVersion)\obj_luafar3\</IntDir>
+    <OutDir>..\..\unicode_far\Release.32.v$(VisualStudioVersion)\</OutDir>
     <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\..\unicode_far\Release.64.vc\</OutDir>
-    <IntDir>final.64W.vc\obj\</IntDir>
+    <OutDir>..\..\unicode_far\Release.64.v$(VisualStudioVersion)\</OutDir>
+    <IntDir>final.64W.v$(VisualStudioVersion)\obj_luafar3\</IntDir>
     <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
@@ -106,6 +112,8 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <CallingConvention>Cdecl</CallingConvention>
       <CompileAs>Default</CompileAs>
+      <EnableEnhancedInstructionSet Condition="'$(VisualStudioVersion)'!='10.0'">NoExtensions</EnableEnhancedInstructionSet>
+      <AdditionalOptions Condition="'$(VisualStudioVersion)' &gt;= '14.0'">/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -142,6 +150,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <CallingConvention>Cdecl</CallingConvention>
       <CompileAs>Default</CompileAs>
+      <AdditionalOptions Condition="'$(VisualStudioVersion)' &gt;= '14.0'">/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -179,6 +188,9 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <CallingConvention>Cdecl</CallingConvention>
       <CompileAs>Default</CompileAs>
+      <DebugInformationFormat Condition="'$(VisualStudioVersion)'!='10.0'">None</DebugInformationFormat>
+      <EnableEnhancedInstructionSet Condition="'$(VisualStudioVersion)'!='10.0'">NoExtensions</EnableEnhancedInstructionSet>
+      <AdditionalOptions Condition="'$(VisualStudioVersion)' &gt;= '14.0'">/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -218,6 +230,8 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <CallingConvention>Cdecl</CallingConvention>
       <CompileAs>Default</CompileAs>
+      <DebugInformationFormat Condition="'$(VisualStudioVersion)'!='10.0'">None</DebugInformationFormat>
+      <AdditionalOptions Condition="'$(VisualStudioVersion)' &gt;= '14.0'">/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
