@@ -54,8 +54,7 @@
       </PrecompiledHeader>
       <ExceptionHandling>
       </ExceptionHandling>
-      <EnableEnhancedInstructionSet Condition="'$(VisualStudioVersion)' > '10.0'">NoExtensions</EnableEnhancedInstructionSet>
-      <AdditionalOptions Condition="'$(VisualStudioVersion)' >= '14.0'">/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(VisualStudioVersion)' &gt;= '14.0'">/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;advapi32.lib;shell32.lib;ole32.lib;uuid.lib;mpr.lib;netapi32.lib;version.lib;oleaut32.lib;wbemuuid.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -102,17 +101,18 @@
     <Link>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
-    <PostBuildEvent>
-      <Message>Fixing subsystem version</Message>
-      <Command>editbin /nologo /subsystem:console,5.0 /osversion:5.0 $(OutDir)$(TargetName)$(TargetExt) &gt; nul</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
 
   <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
     <ClCompile>
+      <EnableEnhancedInstructionSet Condition="'$(VisualStudioVersion)' &gt; '10.0'">NoExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
     </Link>
+    <PostBuildEvent>
+      <Message>Fixing subsystem version</Message>
+      <Command>editbin /nologo /subsystem:console,5.0 /osversion:5.0 $(OutDir)$(TargetName)$(TargetExt) &gt; nul</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
 
   <ItemDefinitionGroup Condition="'$(Platform)'=='x64'">
@@ -120,7 +120,12 @@
     </ClCompile>
     <Link>
     </Link>
+    <PostBuildEvent>
+      <Message>Fixing subsystem version</Message>
+      <Command>editbin /nologo /subsystem:console,5.2 /osversion:5.2 $(OutDir)$(TargetName)$(TargetExt) &gt; nul</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
+
   <ItemGroup>
     <ClCompile Include="*.cpp" />
     <ClCompile Include="*.c" />
@@ -130,7 +135,6 @@
     </MASM>
     <ClCompile Include="$(SrcRoot)plugins\common\vc_crt_fix_impl.cpp">
       <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
-      <AdditionalOptions Condition="'$(VisualStudioVersion)' == '14.0'">/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ClInclude Include="*.hpp" />
     <ResourceCompile Include="*.rc" />
