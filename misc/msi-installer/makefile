@@ -10,11 +10,32 @@
 !endif
 !endif
 
+!if !defined(VC) && defined(_NMAKE_VER)
+
+!if "$(_NMAKE_VER)">"14"
+VC=14
+!elseif "$(_NMAKE_VER)">"11"
+VC=11
+!else
+#default
+VC=10
+!endif
+!endif
+
+
 CPPFLAGS = -nologo -D_WIN32_WINNT=0x0500 -DUNICODE -D_UNICODE
 LINKFLAGS = -nologo -incremental:no -machine:$(PLATFORM)
 CANDLEFLAGS = -nologo -dSourceDir="$(SOURCE_DIR)" -dPlatform=$(PLATFORM) -dVerMajor=$(VER_MAJOR) -dVerMinor=$(VER_MINOR) -dVerBuild=$(VER_BUILD)
 LIGHTFLAGS = -nologo -spdb -sval
 ASFLAGS = -nologo -c
+
+!if $(VC) >= 11 && "$(PLATFORM)" == "x86"
+CPPFLAGS=$(CPPFLAGS) /arch:IA32
+!endif
+
+!if $(VC) >= 14
+CPPFLAGS = $(CPPFLAGS) /Zc:threadSafeInit-
+!endif
 
 !if "$(PLATFORM)" == "x86"
 LINKFLAGS = $(LINKFLAGS) -osversion:5.00
@@ -51,7 +72,7 @@ MSI_NAME = $(OUTDIR)\far.msi
 
 !if "$(PLATFORM)" == "x86"
 VC10OBJ = $(OUTDIR)\vc_crt_fix.obj
-VC10CPP = ..\..\unicode_far\vc_crt_fix_impl.cpp
+VC10CPP = ..\..\plugins\common\vc_crt_fix_impl.cpp
 !endif
 
 !ifdef NIGHTLY
@@ -85,7 +106,7 @@ $(WIXOBJ): params.mak defines.wxi guids_$(PLATFORM).wxi
 .wxs{$(OUTDIR)}.wixobj::
   candle $(CANDLEFLAGS) $<
 
-$(OUTDIR)\vc_crt_fix.obj: ..\..\unicode_far\vc_crt_fix.asm
+$(OUTDIR)\vc_crt_fix.obj: ..\..\plugins\common\vc_crt_fix.asm
   $(AS) $(ASFLAGS) $**
 
 $(OUTDIR):
