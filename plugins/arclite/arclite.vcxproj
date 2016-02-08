@@ -25,6 +25,7 @@
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
   </PropertyGroup>
   <ItemGroup>
+    <ClCompile Include="..\common\vc_crt_fix_impl.cpp" />
     <ClCompile Include="archive.cpp" />
     <ClCompile Include="attr.cpp" />
     <ClCompile Include="cmdline.cpp" />
@@ -64,6 +65,7 @@
     <ClInclude Include="utils.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\common\vc_crt_fix.asm" />
     <None Include="changelog" />
     <None Include="en.hlf" />
     <None Include="en.msg" />
@@ -85,26 +87,32 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <OutDir>debug.32W.vc</OutDir>
-    <IntDir>debug.32W.vc</IntDir>
+    <OutDir>debug.32W.v$(VisualStudioVersion)</OutDir>
+    <IntDir>debug.32W.v$(VisualStudioVersion)</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <OutDir>debug.64W.vc</OutDir>
-    <IntDir>debug.64W.vc</IntDir>
+    <OutDir>debug.64W.v$(VisualStudioVersion)</OutDir>
+    <IntDir>debug.64W.v$(VisualStudioVersion)</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <OutDir>final.32W.vc</OutDir>
-    <IntDir>final.32W.vc</IntDir>
+    <OutDir>final.32W.v$(VisualStudioVersion)</OutDir>
+    <IntDir>final.32W.v$(VisualStudioVersion)</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <OutDir>final.64W.vc</OutDir>
-    <IntDir>final.64W.vc</IntDir>
+    <OutDir>final.64W.v$(VisualStudioVersion)</OutDir>
+    <IntDir>final.64W.v$(VisualStudioVersion)</IntDir>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '10.0'">v100</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '11.0'">v110</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -124,9 +132,9 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;DEBUG;WIN32_LEAN_AND_MEAN;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;_WIN32_WINNT=0x0500;UNICODE;_UNICODE;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
-    <NMakeBuildCommandLine>nmake -nologo -f makefile_vc DEBUG=1</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>nmake -nologo -f makefile_vc DEBUG=1 VisualStudioVersion=$(VisualStudioVersion)</NMakeBuildCommandLine>
     <NMakeForcedIncludes>headers.hpp</NMakeForcedIncludes>
-    <NMakeCleanCommandLine>nmake -nologo -f makefile_vc DEBUG=1 clean</NMakeCleanCommandLine>
+    <NMakeCleanCommandLine>nmake -nologo -f makefile_vc DEBUG=1 VisualStudioVersion=$(VisualStudioVersion) clean</NMakeCleanCommandLine>
     <NMakeIncludeSearchPath>7z\h;..\common\unicode;$(OutDir)</NMakeIncludeSearchPath>
     <NMakeOutput>
     </NMakeOutput>
@@ -135,8 +143,8 @@
     <NMakeOutput>
     </NMakeOutput>
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;DEBUG;WIN32_LEAN_AND_MEAN;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;_WIN32_WINNT=0x0500;UNICODE;_UNICODE;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
-    <NMakeBuildCommandLine>nmake -nologo -f makefile_vc DEBUG=1 CPU=AMD64</NMakeBuildCommandLine>
-    <NMakeCleanCommandLine>nmake -nologo -f makefile_vc DEBUG=1 CPU=AMD64 clean</NMakeCleanCommandLine>
+    <NMakeBuildCommandLine>nmake -nologo -f makefile_vc DEBUG=1 CPU=AMD64 VisualStudioVersion=$(VisualStudioVersion)</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>nmake -nologo -f makefile_vc DEBUG=1 CPU=AMD64 VisualStudioVersion=$(VisualStudioVersion) clean</NMakeCleanCommandLine>
     <NMakeIncludeSearchPath>7z\h;..\common\unicode;$(OutDir)</NMakeIncludeSearchPath>
     <NMakeForcedIncludes>headers.hpp</NMakeForcedIncludes>
   </PropertyGroup>
@@ -144,8 +152,8 @@
     <NMakeOutput>
     </NMakeOutput>
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;WIN32_LEAN_AND_MEAN;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;_WIN32_WINNT=0x0500;UNICODE;_UNICODE;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
-    <NMakeBuildCommandLine>nmake -nologo -f makefile_vc</NMakeBuildCommandLine>
-    <NMakeCleanCommandLine>nmake -nologo -f makefile_vc clean</NMakeCleanCommandLine>
+    <NMakeBuildCommandLine>nmake -nologo -f makefile_vc VisualStudioVersion=$(VisualStudioVersion)</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>nmake -nologo -f makefile_vc VisualStudioVersion=$(VisualStudioVersion) clean</NMakeCleanCommandLine>
     <NMakeIncludeSearchPath>7z\h;..\common\unicode;$(OutDir)</NMakeIncludeSearchPath>
     <NMakeForcedIncludes>headers.hpp</NMakeForcedIncludes>
   </PropertyGroup>
@@ -153,8 +161,8 @@
     <NMakeOutput>
     </NMakeOutput>
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;WIN32_LEAN_AND_MEAN;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;_WIN32_WINNT=0x0500;UNICODE;_UNICODE;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
-    <NMakeBuildCommandLine>nmake -nologo -f makefile_vc CPU=AMD64</NMakeBuildCommandLine>
-    <NMakeCleanCommandLine>nmake -nologo -f makefile_vc CPU=AMD64 clean</NMakeCleanCommandLine>
+    <NMakeBuildCommandLine>nmake -nologo -f makefile_vc CPU=AMD64 VisualStudioVersion=$(VisualStudioVersion)</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>nmake -nologo -f makefile_vc CPU=AMD64 VisualStudioVersion=$(VisualStudioVersion) clean</NMakeCleanCommandLine>
     <NMakeIncludeSearchPath>7z\h;..\common\unicode;$(OutDir)</NMakeIncludeSearchPath>
     <NMakeForcedIncludes>headers.hpp</NMakeForcedIncludes>
   </PropertyGroup>

@@ -32,7 +32,7 @@ CPPFLAGS = $(CPPFLAGS) -O2 -GL -MT
 LINKFLAGS = $(LINKFLAGS) -opt:ref -opt:icf -LTCG
 !endif
 
-OUTDIR = $(OUTDIR).$(BITS)W.vc
+OUTDIR = $(OUTDIR).$(BITS)W.v$(VisualStudioVersion)
 INCLUDES = -I$(OUTDIR) -I7z\h -I$(FARSDK)
 CPPFLAGS = $(CPPFLAGS) -Fo$(OUTDIR)\ -Fd$(OUTDIR)\ $(INCLUDES) $(DEFINES) $(USERCPP)
 RCFLAGS = $(RCFLAGS) $(INCLUDES) $(DEFINES)
@@ -44,10 +44,6 @@ CPPFLAGS=$(CPPFLAGS) /arch:IA32
 
 !if $(VC) >= 14
 CPPFLAGS = $(CPPFLAGS) /Zc:threadSafeInit-
-!endif
-
-!if $(VC) >= 14
-FIXCRT_CPPFLAGS = /Zc:threadSafeInit-
 !endif
 
 !ifdef BUILD
@@ -78,7 +74,7 @@ _7Z = 7z\src\CPP\7zip\Bundles\Format7zF\Debug\7z.dll
 _7Z = 7z\src\CPP\7zip\Bundles\Format7zF\x64\Debug\7z.dll
 !endif
 !else
-_7Z = 7z\dll\$(OUTDIR)\7z.dll
+_7Z = 7z\dll\final.$(DIRBIT)W.vc\7z.dll
 !endif
 
 SFX = $(OUTDIR)\7z.sfx $(OUTDIR)\7zCon.sfx $(OUTDIR)\7zS2.sfx $(OUTDIR)\7zS2con.sfx $(OUTDIR)\7zSD.sfx
@@ -91,7 +87,7 @@ target = build_project
 !endif
 
 project: depfile instmak $(OUTDIR)\far.ini
-  $(MAKE) -nologo -f makefile_vc -$(MAKEFLAGS) $(target) BUILD=1
+  $(MAKE) -nologo -f makefile_vc -$(MAKEFLAGS) $(target) VisualStudioVersion=$(VisualStudioVersion) BUILD=1
 
 build_project: $(FILES)
 
@@ -159,7 +155,7 @@ $(OUTDIR)\vc_crt_fix.obj: ..\common\vc_crt_fix.asm
   $(AS) $(ASFLAGS) ..\common\vc_crt_fix.asm
 
 $(OUTDIR)\vc_crt_fix_impl.obj: ..\common\vc_crt_fix_impl.cpp
-  $(CPP) $(CPPFLAGS) $(FIXCRT_CPPFLAGS) ..\common\vc_crt_fix_impl.cpp
+  $(CPP) $(CPPFLAGS) ..\common\vc_crt_fix_impl.cpp
 
 $(OUTDIR):
   if not exist $(OUTDIR) mkdir $(OUTDIR)
