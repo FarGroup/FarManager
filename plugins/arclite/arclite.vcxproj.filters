@@ -78,6 +78,9 @@
     <ClCompile Include="Patch7zCP.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\common\vc_crt_fix_impl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="archive.hpp">
@@ -149,6 +152,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="es.msg" />
+    <None Include="..\common\vc_crt_fix.asm">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="version.rc">

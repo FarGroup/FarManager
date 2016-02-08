@@ -112,17 +112,15 @@ static bool patch_IAT(void **ppIAT, const void *pf)
 
 //#############################################################################
 
-static const char dll_7z[] = "7z.dll";
-static const char dll_kernel[] = "kernel32.dll";
-static const char f_GetOEMCP[] = "GetOEMCP";
-static const char f_GetACP[] = "GetACP";
-static const char f_MultiByteToWideChar[] = "MultiByteToWideChar";
-static const char f_WideCharToMultiByte[] = "WideCharToMultiByte";
-
-//#############################################################################
-
 static bool patch_7z_dll()
 {
+	static const char dll_7z[] = "7z.dll";
+	static const char dll_kernel[] = "kernel32.dll";
+	static const char f_GetOEMCP[] = "GetOEMCP";
+	static const char f_GetACP[] = "GetACP";
+	static const char f_MultiByteToWideChar[] = "MultiByteToWideChar";
+	static const char f_WideCharToMultiByte[] = "WideCharToMultiByte";
+
 	HMODULE hm = ::GetModuleHandleA("7z.dll");
 	if (!hm)
 		return false;
