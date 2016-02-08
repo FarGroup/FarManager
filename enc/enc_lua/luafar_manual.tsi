@@ -9492,45 +9492,18 @@ mtime=3509095202
 </article>
 </node>
 <node>
-id=274
+id=517
 lv=2
 dt=Text
-nm=win.CompareString
+nm=Files and directories
+ctime=3664132521
+mtime=3664132521
 <article>
-#_result = win.CompareString(s1, s2, [locale], [flags])
-#_
-#_**Parameters:**
-#_  s1     : string
-#_  s2     : string
-#_  locale : string, or nil (default="u")
-#_             either of:
-#_               "s" (system default)
-#_               "u" (user default)
-#_               "n" (neutral)
-#_  flags  : string, or nil (default="")
-#_             any combination of characters:
-#_               'c' =  NORM_IGNORECASE;
-#_               'k' =  NORM_IGNOREKANATYPE;
-#_               'n' =  NORM_IGNORENONSPACE;
-#_               's' =  NORM_IGNORESYMBOLS;
-#_               'w' =  NORM_IGNOREWIDTH;
-#_               'S' =  SORT_STRINGSORT;
-#_
-#_**Returns:**
-#_  result : integer (either of -1, 0, 1), or nil
-#_
-#_**Note:**
-#_  The underlying function *CompareStringW* seems to behave as if
-#_  flag NORM_IGNORECASE is always present, even if it is not.
-#_
-#_**Windows API used:**
-#_  CompareStringW
-#_
 </article>
 </node>
 <node>
 id=360
-lv=2
+lv=3
 dt=Text
 nm=win.CopyFile
 ctime=3484575029
@@ -9553,7 +9526,7 @@ mtime=3484575702
 </node>
 <node>
 id=372
-lv=2
+lv=3
 dt=Text
 nm=win.CreateDir
 ctime=3488896876
@@ -9590,7 +9563,7 @@ mtime=3582538169
 </node>
 <node>
 id=361
-lv=2
+lv=3
 dt=Text
 nm=win.DeleteFile
 ctime=3484575113
@@ -9610,275 +9583,8 @@ mtime=3484575728
 </article>
 </node>
 <node>
-id=18
-lv=2
-dt=Text
-nm=win.DeleteRegKey
-mtime=3540381906
-<article>
-#_result = win.DeleteRegKey (RootKey, Key)
-#_
-#_**Parameters:**
-#_  RootKey: string (one of: "HKLM", "HKCC", "HKCR", "HKCU", "HKU")
-#_  Key:     string
-#_
-#_**Returns:**
-#_  result: boolean
-#_
-#_**Description:**
-#_  This function deletes a registry key.
-#_
-</article>
-</node>
-<node>
-id=515
-lv=2
-dt=Text
-nm=win.DeleteRegValue
-ctime=3659625870
-mtime=3659631399
-<article>
-#_result = win.DeleteRegValue (RootKey, Key[, ValueName])
-#_
-#_**Parameters:**
-#_  RootKey:   string (one of: "HKLM", "HKCC", "HKCR", "HKCU", "HKU")
-#_  Key:       string
-#_  ValueName: string (optional)
-#_
-#_**Returns:**
-#_  result: boolean
-#_
-#_**Description:**
-#_  This function deletes a registry value.
-#_
-</article>
-</node>
-<node>
-id=482
-lv=2
-dt=Text
-nm=win.EnumRegKey
-ctime=3568652034
-mtime=3568712434
-<article>
-#_Subkey = win.EnumRegKey (RootKey, Key, Index)
-#_
-#_**Parameters:**
-#_  RootKey:   string (one of: "HKLM", "HKCC", "HKCR", "HKCU", "HKU")
-#_  Key:       string (specify "" if RootKey itself is enumerated)
-#_  Index:     integer
-#_
-#_**Returns:**
-#_  Subkey:    string, or nil
-#_
-#_**Description:**
-#_  This function enumerates subkeys of the given registry key.
-#_
-</article>
-</node>
-<node>
-id=483
-lv=2
-dt=Text
-nm=win.EnumRegValue
-ctime=3568712149
-mtime=3568712451
-<article>
-#_ValueName = win.EnumRegValue (RootKey, Key, Index)
-#_
-#_**Parameters:**
-#_  RootKey:   string (one of: "HKLM", "HKCC", "HKCR", "HKCU", "HKU")
-#_  Key:       string (specify "" if RootKey itself is enumerated)
-#_  Index:     integer
-#_
-#_**Returns:**
-#_  ValueName: string, or nil
-#_
-#_**Description:**
-#_  This function enumerates values of the given registry key.
-#_
-</article>
-</node>
-<node>
-id=394
-lv=2
-dt=Text
-nm=win.EnumSystemCodePages
-ctime=3500809326
-mtime=3500809371
-<article>
-#_pages = win.EnumSystemCodePages ([supported])
-#_
-#_**Parameters:**
-#_  supported : boolean
-#_                false means CP_INSTALLED
-#_                true  means CP_SUPPORTED
-#_
-#_**Returns:**
-#_  pages     : table (array of strings), or nil + error message
-#_
-#_**Windows API used:**
-#_  EnumSystemCodePagesW
-#_
-</article>
-</node>
-<node>
-id=51
-lv=2
-dt=Text
-nm=win.ExtractKey
-<article>
-#_result = win.ExtractKey ()
-#_
-#_**Parameters:**
-#_  none
-#_
-#_**Returns:**
-#_  result: string, or nil
-#_
-#_**Description:**
-#_  If a key was pressed, it is extracted, converted to a string and
-#_  returned. Otherwise, a nil is returned.
-#_
-#_**Windows API used:**
-#_  GetStdHandle, PeekConsoleInput, ReadConsoleInput
-#_
-#_@@@
-#_{peekconsoleinput}: http://api.farmanager.com/ru/winapi/peekconsoleinput.html
-#_{readconsoleinput}: http://api.farmanager.com/ru/winapi/readconsoleinput.html
-#_
-</article>
-</node>
-<node>
-id=462
-lv=2
-dt=Text
-nm=win.FileTimeToLocalFileTime
-ctime=3536488129
-mtime=3602448763
-<article>
-#_local_ftime = win.FileTimeToLocalFileTime (ftime)
-#_
-#_**Parameters:**
-#_  ftime       : number (number of milliseconds since January 1, 1601)
-#_
-#_**Returns:**
-#_  local_ftime : number (number of milliseconds since January 1, 1601)
-#_
-#_**Windows API used:**
-#_  FileTimeToLocalFileTime
-#_
-#_
-</article>
-</node>
-<node>
-id=215
-lv=2
-dt=Text
-nm=win.FileTimeToSystemTime
-mtime=3602448840
-<article>
-#_result = win.FileTimeToSystemTime (ftime)
-#_
-#_**Parameters:**
-#_  ftime :  number (number of milliseconds since January 1, 1601)
-#_
-#_**Returns:**
-#_  result : table `tSystemTime`, or nil
-#_
-#_**Windows API used:**
-#_  FileTimeToSystemTime
-#_
-#_@@@
-#_[tSystemTime]: 218.html
-#_
-</article>
-</node>
-<node>
-id=391
-lv=2
-dt=Text
-nm=win.GetACP
-ctime=3500653631
-mtime=3500653738
-<article>
-#_codepage = win.GetACP()
-#_
-#_**Parameters:**
-#_  none
-#_
-#_**Returns:**
-#_  codepage: integer
-#_
-#_**Windows API used:**
-#_  GetACP
-#_
-</article>
-</node>
-<node>
-id=359
-lv=2
-dt=Text
-nm=win.GetConsoleScreenBufferInfo
-ctime=3483001149
-mtime=3532720056
-<article>
-#_info = win.GetConsoleScreenBufferInfo ()
-#_
-#_**Parameters:**
-#_  none
-#_
-#_**Returns:**
-#_  info : table, or nil
-#_    fields of *info*:
-#_      SizeX:              integer
-#_      SizeY:              integer
-#_      CursorPositionX:    integer
-#_      CursorPositionY:    integer
-#_      Attributes:         integer
-#_      WindowLeft:         integer
-#_      WindowTop:          integer
-#_      WindowRight:        integer
-#_      WindowBottom:       integer
-#_      MaximumWindowSizeX: integer
-#_      MaximumWindowSizeY: integer
-#_
-#_**Windows API used:**
-#_  GetStdHandle(STD_OUTPUT_HANDLE), GetConsoleScreenBufferInfo
-#_
-</article>
-</node>
-<node>
-id=393
-lv=2
-dt=Text
-nm=win.GetCPInfo
-ctime=3500809281
-mtime=3500809349
-<article>
-#_info = win.GetCPInfo (codepage)
-#_
-#_**Parameters:**
-#_  codepage : integer
-#_
-#_**Returns:**
-#_  info : table, or nil + error message
-#_           fields of *info*:
-#_             MaxCharSize        : integer
-#_             DefaultChar        : string
-#_             LeadByte           : string
-#_             UnicodeDefaultChar : string
-#_             CodePage           : integer
-#_             CodePageName       : string
-#_
-#_**Windows API used:**
-#_  GetCPInfoExW
-#_
-</article>
-</node>
-<node>
 id=512
-lv=2
+lv=3
 dt=Text
 nm=win.GetCurrentDir
 ctime=3640178067
@@ -9899,7 +9605,7 @@ mtime=3640178294
 </node>
 <node>
 id=398
-lv=2
+lv=3
 dt=Text
 nm=win.GetDriveType
 ctime=3504253206
@@ -9926,28 +9632,8 @@ mtime=3504253386
 </article>
 </node>
 <node>
-id=152
-lv=2
-dt=Text
-nm=win.GetEnv
-<article>
-#_result = win.GetEnv (var)
-#_
-#_**Parameters:**
-#_  var:  string
-#_
-#_**Returns:**
-#_  result: string, or nil
-#_
-#_**Description:**
-#_  Use this instead of os.getenv, since the latter
-#_  does not always work correctly. 
-#_
-</article>
-</node>
-<node>
 id=433
-lv=2
+lv=3
 dt=Text
 nm=win.GetFileAttr
 ctime=3511264574
@@ -9971,7 +9657,7 @@ mtime=3602278956
 </node>
 <node>
 id=213
-lv=2
+lv=3
 dt=Text
 nm=win.GetFileInfo
 mtime=3602278965
@@ -10004,7 +9690,7 @@ mtime=3602278965
 </node>
 <node>
 id=397
-lv=2
+lv=3
 dt=Text
 nm=win.GetLogicalDriveStrings
 ctime=3504246962
@@ -10024,8 +9710,386 @@ mtime=3504247079
 </article>
 </node>
 <node>
-id=392
+id=362
+lv=3
+dt=Text
+nm=win.MoveFile
+ctime=3484575124
+mtime=3484631380
+<article>
+#_result = win.MoveFile (source, target [, flags])
+#_
+#_**Parameters:**
+#_  source:  string
+#_  target:  string
+#_  flags:   string (default = '')
+#_             'c' = MOVEFILE_COPY_ALLOWED
+#_             'd' = MOVEFILE_DELAY_UNTIL_REBOOT
+#_             'r' = MOVEFILE_REPLACE_EXISTING
+#_             'w' = MOVEFILE_WRITE_THROUGH
+#_
+#_**Returns:**
+#_  result:  true (or: nil, errormessage)
+#_
+#_**Windows API used:**
+#_  MoveFileExW
+#_
+</article>
+</node>
+<node>
+id=373
+lv=3
+dt=Text
+nm=win.RemoveDir
+ctime=3488896891
+mtime=3488897675
+<article>
+#_result = win.RemoveDir (path)
+#_
+#_**Parameters:**
+#_  path:   string
+#_
+#_**Returns:**
+#_  result: true (or: nil, errormessage)
+#_
+#_**Windows API used:**
+#_  RemoveDirectoryW
+#_
+</article>
+</node>
+<node>
+id=363
+lv=3
+dt=Text
+nm=win.RenameFile
+ctime=3484723553
+mtime=3484723622
+<article>
+#_<markdown>
+#_This function is an alias to [`win.MoveFile`](362.html).
+#_
+</article>
+</node>
+<node>
+id=429
+lv=3
+dt=Text
+nm=win.SearchPath
+ctime=3509085619
+mtime=3509095033
+<article>
+#_FullName, FilePart = win.SearchPath (Path, FileName, Extension)
+#_
+#_**Parameters:**
+#_  Path :     string, or nil
+#_  FileName:  string
+#_  Extension: string, or nil
+#_
+#_**Returns:**
+#_  FullName:  string, or nil
+#_  FilePart:  string, or nil
+#_
+#_**Windows API used:**
+#_  SearchPathW
+#_
+</article>
+</node>
+<node>
+id=513
+lv=3
+dt=Text
+nm=win.SetCurrentDir
+ctime=3640178091
+mtime=3640178534
+<article>
+#_result = win.SetCurrentDir (dir)
+#_
+#_**Parameters:**
+#_  dir    : string 
+#_
+#_**Returns:**
+#_  result : boolean
+#_
+#_**Windows API used:**
+#_  SetCurrentDirectoryW
+#_
+</article>
+</node>
+<node>
+id=434
+lv=3
+dt=Text
+nm=win.SetFileAttr
+ctime=3511264583
+mtime=3602278974
+<article>
+#_result = win.SetFileAttr (FileName, Attr)
+#_
+#_**Parameters:**
+#_  FileName: string
+#_  Attr:     string (see `tPluginPanelItem` page)
+#_
+#_**Returns:**
+#_  result:   boolean
+#_
+#_**Windows API used:**
+#_  SetFileAttributesW
+#_
+#_@@@
+#_[tPluginPanelItem]: 85.html
+#_
+</article>
+</node>
+<node>
+id=516
 lv=2
+dt=Text
+nm=Registry access
+ctime=3664128224
+mtime=3664128224
+<article>
+</article>
+</node>
+<node>
+id=18
+lv=3
+dt=Text
+nm=win.DeleteRegKey
+mtime=3664134703
+<article>
+#_result = win.DeleteRegKey (RootKey, Key)
+#_
+#_**Parameters:**
+#_  RootKey:   string (one of: "HKLM", "HKCC", "HKCR", "HKCU", "HKU")
+#_  Key:       string
+#_
+#_**Returns:**
+#_  result: boolean
+#_
+#_**Description:**
+#_  This function deletes a registry key.
+#_
+</article>
+</node>
+<node>
+id=515
+lv=3
+dt=Text
+nm=win.DeleteRegValue
+ctime=3659625870
+mtime=3664130894
+<article>
+#_result = win.DeleteRegValue (RootKey, Key, [ValueName], [AccessMask])
+#_
+#_**Parameters:**
+#_  RootKey:     string (one of: "HKLM", "HKCC", "HKCR", "HKCU", "HKU")
+#_  Key:         string
+#_  ValueName:   string (optional)
+#_  AccessMask:  flag ("KEY_WOW64_32KEY" or "KEY_WOW64_64KEY"; the default is 0)
+#_
+#_**Returns:**
+#_  result: boolean
+#_
+#_**Description:**
+#_  This function deletes a registry value.
+#_
+</article>
+</node>
+<node>
+id=482
+lv=3
+dt=Text
+nm=win.EnumRegKey
+ctime=3568652034
+mtime=3664130908
+<article>
+#_Subkey = win.EnumRegKey (RootKey, Key, Index, [AccessMask])
+#_
+#_**Parameters:**
+#_  RootKey:     string (one of: "HKLM", "HKCC", "HKCR", "HKCU", "HKU")
+#_  Key:         string (specify "" if RootKey itself is enumerated)
+#_  Index:       integer
+#_  AccessMask:  flag ("KEY_WOW64_32KEY" or "KEY_WOW64_64KEY"; the default is 0)
+#_
+#_**Returns:**
+#_  Subkey:    string, or nil
+#_
+#_**Description:**
+#_  This function enumerates subkeys of the given registry key.
+#_
+</article>
+</node>
+<node>
+id=483
+lv=3
+dt=Text
+nm=win.EnumRegValue
+ctime=3568712149
+mtime=3664130919
+<article>
+#_ValueName = win.EnumRegValue (RootKey, Key, Index, [AccessMask])
+#_
+#_**Parameters:**
+#_  RootKey:     string (one of: "HKLM", "HKCC", "HKCR", "HKCU", "HKU")
+#_  Key:         string (specify "" if RootKey itself is enumerated)
+#_  Index:       integer
+#_  AccessMask:  flag ("KEY_WOW64_32KEY" or "KEY_WOW64_64KEY"; the default is 0)
+#_
+#_**Returns:**
+#_  ValueName: string, or nil
+#_
+#_**Description:**
+#_  This function enumerates values of the given registry key.
+#_
+</article>
+</node>
+<node>
+id=61
+lv=3
+dt=Text
+nm=win.GetRegKey
+mtime=3664130929
+<article>
+#_ValueData, DataType = win.GetRegKey (RootKey, Key, ValueName, [AccessMask])
+#_
+#_**Parameters:**
+#_  RootKey:     string (one of: "HKLM", "HKCC", "HKCR", "HKCU", "HKU")
+#_  Key:         string
+#_  ValueName:   string
+#_  AccessMask:  flag ("KEY_WOW64_32KEY" or "KEY_WOW64_64KEY"; the default is 0)
+#_
+#_**Returns:**
+#_  ValueData: string, or number
+#_  DataType:  string (one of: "string", "expandstring", "multistring",
+#_                             "dword" and "binary")
+#_
+#_**Returns on failure:**
+#_  nil + error message
+#_
+#_**Description:**
+#_  This function gets a value from a registry key.
+#_
+</article>
+</node>
+<node>
+id=73
+lv=3
+dt=Text
+nm=win.SetRegKey
+mtime=3664130941
+<article>
+#_win.SetRegKey (RootKey, Key, ValueName, DataType, ValueData, [AccessMask])
+#_
+#_**Parameters:**
+#_  RootKey:     string (one of: "HKLM", "HKCC", "HKCR", "HKCU", "HKU")
+#_  Key:         string
+#_  ValueName:   string
+#_  DataType:    string (one of: "string", "expandstring", "multistring", "dword" and "binary")
+#_  ValueData:   string or number
+#_  AccessMask:  flag ("KEY_WOW64_32KEY" or "KEY_WOW64_64KEY"; the default is 0)
+#_
+#_**Returns:**
+#_  nothing
+#_
+#_**Description:**
+#_  This function sets a value in a registry key.
+#_
+</article>
+</node>
+<node>
+id=518
+lv=2
+dt=Text
+nm=Text related functions
+ctime=3664132713
+mtime=3664132713
+<article>
+</article>
+</node>
+<node>
+id=274
+lv=3
+dt=Text
+nm=win.CompareString
+<article>
+#_result = win.CompareString(s1, s2, [locale], [flags])
+#_
+#_**Parameters:**
+#_  s1     : string
+#_  s2     : string
+#_  locale : string, or nil (default="u")
+#_             either of:
+#_               "s" (system default)
+#_               "u" (user default)
+#_               "n" (neutral)
+#_  flags  : string, or nil (default="")
+#_             any combination of characters:
+#_               'c' =  NORM_IGNORECASE;
+#_               'k' =  NORM_IGNOREKANATYPE;
+#_               'n' =  NORM_IGNORENONSPACE;
+#_               's' =  NORM_IGNORESYMBOLS;
+#_               'w' =  NORM_IGNOREWIDTH;
+#_               'S' =  SORT_STRINGSORT;
+#_
+#_**Returns:**
+#_  result : integer (either of -1, 0, 1), or nil
+#_
+#_**Note:**
+#_  The underlying function *CompareStringW* seems to behave as if
+#_  flag NORM_IGNORECASE is always present, even if it is not.
+#_
+#_**Windows API used:**
+#_  CompareStringW
+#_
+</article>
+</node>
+<node>
+id=394
+lv=3
+dt=Text
+nm=win.EnumSystemCodePages
+ctime=3500809326
+mtime=3500809371
+<article>
+#_pages = win.EnumSystemCodePages ([supported])
+#_
+#_**Parameters:**
+#_  supported : boolean
+#_                false means CP_INSTALLED
+#_                true  means CP_SUPPORTED
+#_
+#_**Returns:**
+#_  pages     : table (array of strings), or nil + error message
+#_
+#_**Windows API used:**
+#_  EnumSystemCodePagesW
+#_
+</article>
+</node>
+<node>
+id=391
+lv=3
+dt=Text
+nm=win.GetACP
+ctime=3500653631
+mtime=3500653738
+<article>
+#_codepage = win.GetACP()
+#_
+#_**Parameters:**
+#_  none
+#_
+#_**Returns:**
+#_  codepage: integer
+#_
+#_**Windows API used:**
+#_  GetACP
+#_
+</article>
+</node>
+<node>
+id=392
+lv=3
 dt=Text
 nm=win.GetOEMCP
 ctime=3500653643
@@ -10045,35 +10109,252 @@ mtime=3500653766
 </article>
 </node>
 <node>
-id=61
-lv=2
+id=452
+lv=3
 dt=Text
-nm=win.GetRegKey
-mtime=3540381898
+nm=win.lenW
+ctime=3523918278
+mtime=3523940191
 <article>
-#_ValueData, DataType = win.GetRegKey (RootKey, Key, ValueName)
+#_length = win.lenW (str)
 #_
 #_**Parameters:**
-#_  RootKey:   string (one of: "HKLM", "HKCC", "HKCR", "HKCU", "HKU")
-#_  Key:       string
-#_  ValueName: string
+#_  str:    string
 #_
 #_**Returns:**
-#_  ValueData: string, or number
-#_  DataType:  string (one of: "string", "expandstring", "multistring",
-#_                             "dword" and "binary")
-#_
-#_**Returns on failure:**
-#_  nil + error message
+#_  length: integer
 #_
 #_**Description:**
-#_  This function gets a value from a registry key.
+#_  This function is similar to *string.len* except that it works on UTF-16LE strings
+#_  and returns their lengths as  number of characters rather than bytes.
+#_
+</article>
+</node>
+<node>
+id=370
+lv=3
+dt=Text
+nm=win.MultiByteToWideChar
+ctime=3487755325
+mtime=3500869003
+<article>
+#_str_out = win.MultiByteToWideChar (str_in, codepage [, flags])
+#_
+#_**Parameters:**
+#_  str_in   : string in multi-byte encoding
+#_  codepage : integer
+#_  flags    : string, a combination of 0 or more of the following
+#_             characters:
+#_               'p' -> MB_PRECOMPOSED
+#_               'c' -> MB_COMPOSITE
+#_               'e' -> MB_ERR_INVALID_CHARS
+#_               'u' -> MB_USEGLYPHCHARS
+#_
+#_**Returns:**
+#_  str_out  : string in wide character encoding, or nil+error message.
+#_
+#_**Windows API used:**
+#_  MultiByteToWideChar
+#_
+</article>
+</node>
+<node>
+id=256
+lv=3
+dt=Text
+nm=win.OemToUtf8
+<article>
+#_str_out = win.OemToUtf8 (str_in)
+#_
+#_**Parameters:**
+#_  str_in  : string in OEM encoding
+#_
+#_**Returns:**
+#_  str_out : string in UTF-8 encoding
+#_
+</article>
+</node>
+<node>
+id=451
+lv=3
+dt=Text
+nm=win.subW
+ctime=3523918268
+mtime=3602449058
+<article>
+#_strOut = win.subW (str, from, to)
+#_
+#_**Parameters:**
+#_  str:    string
+#_  from:   integer (default = 1)
+#_  to:     integer (default = -1)
+#_
+#_**Returns:**
+#_  strOut: string
+#_
+#_**Description:**
+#_  This function is similar to *string.sub* except that it works on UTF-16LE strings
+#_  and considers arguments *from* and *to* expressed in characters rather than bytes.
+#_
+</article>
+</node>
+<node>
+id=264
+lv=3
+dt=Text
+nm=win.Utf16ToUtf8
+mtime=3491909511
+<article>
+#_str_out = win.Utf16ToUtf8 (str_in)
+#_
+#_**Parameters:**
+#_  str_in  : string in UTF-16 (little endian) encoding
+#_
+#_**Returns:**
+#_  str_out : string in UTF-8 encoding
+#_
+</article>
+</node>
+<node>
+id=257
+lv=3
+dt=Text
+nm=win.Utf8ToOem
+<article>
+#_str_out = win.Utf8ToOem (str_in)
+#_
+#_**Parameters:**
+#_  str_in  : string in UTF-8 encoding
+#_
+#_**Returns:**
+#_  str_out : string in OEM encoding
+#_
+</article>
+</node>
+<node>
+id=265
+lv=3
+dt=Text
+nm=win.Utf8ToUtf16
+mtime=3491909525
+<article>
+#_str_out = win.Utf8ToUtf16 (str_in)
+#_
+#_**Parameters:**
+#_  str_in  : string in UTF-8 encoding
+#_
+#_**Returns:**
+#_  str_out : string in UTF-16 (little endian) encoding
+#_
+</article>
+</node>
+<node>
+id=275
+lv=3
+dt=Text
+nm=win.wcscmp
+<article>
+#_result = win.wcscmp(s1, s2 [, insens))
+#_
+#_**Parameters:**
+#_  s1     : string
+#_  s2     : string
+#_  insens : boolean (defaults to *false*)
+#_
+#_**Returns:**
+#_  result : integer (either of -1, 0, 1)
+#_
+#_**C API used:**
+#_  wcscmp, wcsicmp
+#_
+</article>
+</node>
+<node>
+id=456
+lv=3
+dt=Text
+nm=win.WideCharToMultiByte
+ctime=3528638377
+mtime=3528778037
+<article>
+#_str_out = win.WideCharToMultiByte (str_in, codepage [, flags])
+#_
+#_**Parameters:**
+#_  str_in   : string in UTF-16LE encoding
+#_  codepage : integer
+#_  flags    : string, a combination of 0 or more of the following
+#_             characters:
+#_               'c' -> WC_COMPOSITECHECK
+#_               'd' -> WC_DISCARDNS
+#_               's' -> WC_SEPCHARS
+#_               'f' -> WC_DEFAULTCHAR
+#_
+#_**Returns:**
+#_  str_out  : string in *codepage* encoding.
+#_
+#_**Windows API used:**
+#_  WideCharToMultiByte
+#_
+</article>
+</node>
+<node>
+id=520
+lv=2
+dt=Text
+nm=Time related functions
+ctime=3664133566
+mtime=3664133566
+<article>
+</article>
+</node>
+<node>
+id=462
+lv=3
+dt=Text
+nm=win.FileTimeToLocalFileTime
+ctime=3536488129
+mtime=3602448763
+<article>
+#_local_ftime = win.FileTimeToLocalFileTime (ftime)
+#_
+#_**Parameters:**
+#_  ftime       : number (number of milliseconds since January 1, 1601)
+#_
+#_**Returns:**
+#_  local_ftime : number (number of milliseconds since January 1, 1601)
+#_
+#_**Windows API used:**
+#_  FileTimeToLocalFileTime
+#_
+#_
+</article>
+</node>
+<node>
+id=215
+lv=3
+dt=Text
+nm=win.FileTimeToSystemTime
+mtime=3602448840
+<article>
+#_result = win.FileTimeToSystemTime (ftime)
+#_
+#_**Parameters:**
+#_  ftime :  number (number of milliseconds since January 1, 1601)
+#_
+#_**Returns:**
+#_  result : table `tSystemTime`, or nil
+#_
+#_**Windows API used:**
+#_  FileTimeToSystemTime
+#_
+#_@@@
+#_[tSystemTime]: 218.html
 #_
 </article>
 </node>
 <node>
 id=217
-lv=2
+lv=3
 dt=Text
 nm=win.GetSystemTimeAsFileTime
 mtime=3602279052
@@ -10096,8 +10377,150 @@ mtime=3602279052
 </article>
 </node>
 <node>
-id=315
+id=216
+lv=3
+dt=Text
+nm=win.SystemTimeToFileTime
+mtime=3602449161
+<article>
+#_result = win.SystemTimeToFileTime (systime)
+#_
+#_**Parameters:**
+#_  systime : table `tSystemTime` (missing fields default to 0)
+#_
+#_**Returns:**
+#_  result  : number, or nil
+#_            (number of milliseconds since January 1, 1601)
+#_
+#_**Windows API used:**
+#_  SystemTimeToFileTime
+#_
+#_@@@
+#_[tSystemTime]: 218.html
+#_
+</article>
+</node>
+<node>
+id=519
 lv=2
+dt=Text
+nm=Various functions
+ctime=3664133445
+mtime=3664133445
+<article>
+</article>
+</node>
+<node>
+id=51
+lv=3
+dt=Text
+nm=win.ExtractKey
+<article>
+#_result = win.ExtractKey ()
+#_
+#_**Parameters:**
+#_  none
+#_
+#_**Returns:**
+#_  result: string, or nil
+#_
+#_**Description:**
+#_  If a key was pressed, it is extracted, converted to a string and
+#_  returned. Otherwise, a nil is returned.
+#_
+#_**Windows API used:**
+#_  GetStdHandle, PeekConsoleInput, ReadConsoleInput
+#_
+#_@@@
+#_{peekconsoleinput}: http://api.farmanager.com/ru/winapi/peekconsoleinput.html
+#_{readconsoleinput}: http://api.farmanager.com/ru/winapi/readconsoleinput.html
+#_
+</article>
+</node>
+<node>
+id=359
+lv=3
+dt=Text
+nm=win.GetConsoleScreenBufferInfo
+ctime=3483001149
+mtime=3532720056
+<article>
+#_info = win.GetConsoleScreenBufferInfo ()
+#_
+#_**Parameters:**
+#_  none
+#_
+#_**Returns:**
+#_  info : table, or nil
+#_    fields of *info*:
+#_      SizeX:              integer
+#_      SizeY:              integer
+#_      CursorPositionX:    integer
+#_      CursorPositionY:    integer
+#_      Attributes:         integer
+#_      WindowLeft:         integer
+#_      WindowTop:          integer
+#_      WindowRight:        integer
+#_      WindowBottom:       integer
+#_      MaximumWindowSizeX: integer
+#_      MaximumWindowSizeY: integer
+#_
+#_**Windows API used:**
+#_  GetStdHandle(STD_OUTPUT_HANDLE), GetConsoleScreenBufferInfo
+#_
+</article>
+</node>
+<node>
+id=393
+lv=3
+dt=Text
+nm=win.GetCPInfo
+ctime=3500809281
+mtime=3500809349
+<article>
+#_info = win.GetCPInfo (codepage)
+#_
+#_**Parameters:**
+#_  codepage : integer
+#_
+#_**Returns:**
+#_  info : table, or nil + error message
+#_           fields of *info*:
+#_             MaxCharSize        : integer
+#_             DefaultChar        : string
+#_             LeadByte           : string
+#_             UnicodeDefaultChar : string
+#_             CodePage           : integer
+#_             CodePageName       : string
+#_
+#_**Windows API used:**
+#_  GetCPInfoExW
+#_
+</article>
+</node>
+<node>
+id=152
+lv=3
+dt=Text
+nm=win.GetEnv
+<article>
+#_result = win.GetEnv (var)
+#_
+#_**Parameters:**
+#_  var:  string
+#_
+#_**Returns:**
+#_  result: string, or nil
+#_
+#_**Description:**
+#_  Use this instead of os.getenv, since the latter
+#_  does not always work correctly. 
+#_
+</article>
+</node>
+<node>
+id=315
+lv=3
 dt=Text
 nm=win.GetVirtualKeys
 ctime=3477369087
@@ -10129,7 +10552,7 @@ mtime=3522050567
 </node>
 <node>
 id=431
-lv=2
+lv=3
 dt=Text
 nm=win.GlobalMemoryStatus
 ctime=3509698664
@@ -10160,101 +10583,8 @@ mtime=3509699035
 </article>
 </node>
 <node>
-id=452
-lv=2
-dt=Text
-nm=win.lenW
-ctime=3523918278
-mtime=3523940191
-<article>
-#_length = win.lenW (str)
-#_
-#_**Parameters:**
-#_  str:    string
-#_
-#_**Returns:**
-#_  length: integer
-#_
-#_**Description:**
-#_  This function is similar to *string.len* except that it works on UTF-16LE strings
-#_  and returns their lengths as  number of characters rather than bytes.
-#_
-</article>
-</node>
-<node>
-id=362
-lv=2
-dt=Text
-nm=win.MoveFile
-ctime=3484575124
-mtime=3484631380
-<article>
-#_result = win.MoveFile (source, target [, flags])
-#_
-#_**Parameters:**
-#_  source:  string
-#_  target:  string
-#_  flags:   string (default = '')
-#_             'c' = MOVEFILE_COPY_ALLOWED
-#_             'd' = MOVEFILE_DELAY_UNTIL_REBOOT
-#_             'r' = MOVEFILE_REPLACE_EXISTING
-#_             'w' = MOVEFILE_WRITE_THROUGH
-#_
-#_**Returns:**
-#_  result:  true (or: nil, errormessage)
-#_
-#_**Windows API used:**
-#_  MoveFileExW
-#_
-</article>
-</node>
-<node>
-id=370
-lv=2
-dt=Text
-nm=win.MultiByteToWideChar
-ctime=3487755325
-mtime=3500869003
-<article>
-#_str_out = win.MultiByteToWideChar (str_in, codepage [, flags])
-#_
-#_**Parameters:**
-#_  str_in   : string in multi-byte encoding
-#_  codepage : integer
-#_  flags    : string, a combination of 0 or more of the following
-#_             characters:
-#_               'p' -> MB_PRECOMPOSED
-#_               'c' -> MB_COMPOSITE
-#_               'e' -> MB_ERR_INVALID_CHARS
-#_               'u' -> MB_USEGLYPHCHARS
-#_
-#_**Returns:**
-#_  str_out  : string in wide character encoding, or nil+error message.
-#_
-#_**Windows API used:**
-#_  MultiByteToWideChar
-#_
-</article>
-</node>
-<node>
-id=256
-lv=2
-dt=Text
-nm=win.OemToUtf8
-<article>
-#_str_out = win.OemToUtf8 (str_in)
-#_
-#_**Parameters:**
-#_  str_in  : string in OEM encoding
-#_
-#_**Returns:**
-#_  str_out : string in UTF-8 encoding
-#_
-</article>
-</node>
-<node>
 id=507
-lv=2
+lv=3
 dt=Text
 nm=win.OutputDebugString
 ctime=3629787299
@@ -10276,87 +10606,8 @@ mtime=3629787570
 </article>
 </node>
 <node>
-id=373
-lv=2
-dt=Text
-nm=win.RemoveDir
-ctime=3488896891
-mtime=3488897675
-<article>
-#_result = win.RemoveDir (path)
-#_
-#_**Parameters:**
-#_  path:   string
-#_
-#_**Returns:**
-#_  result: true (or: nil, errormessage)
-#_
-#_**Windows API used:**
-#_  RemoveDirectoryW
-#_
-</article>
-</node>
-<node>
-id=363
-lv=2
-dt=Text
-nm=win.RenameFile
-ctime=3484723553
-mtime=3484723622
-<article>
-#_<markdown>
-#_This function is an alias to [`win.MoveFile`](362.html).
-#_
-</article>
-</node>
-<node>
-id=429
-lv=2
-dt=Text
-nm=win.SearchPath
-ctime=3509085619
-mtime=3509095033
-<article>
-#_FullName, FilePart = win.SearchPath (Path, FileName, Extension)
-#_
-#_**Parameters:**
-#_  Path :     string, or nil
-#_  FileName:  string
-#_  Extension: string, or nil
-#_
-#_**Returns:**
-#_  FullName:  string, or nil
-#_  FilePart:  string, or nil
-#_
-#_**Windows API used:**
-#_  SearchPathW
-#_
-</article>
-</node>
-<node>
-id=513
-lv=2
-dt=Text
-nm=win.SetCurrentDir
-ctime=3640178091
-mtime=3640178534
-<article>
-#_result = win.SetCurrentDir (dir)
-#_
-#_**Parameters:**
-#_  dir    : string 
-#_
-#_**Returns:**
-#_  result : boolean
-#_
-#_**Windows API used:**
-#_  SetCurrentDirectoryW
-#_
-</article>
-</node>
-<node>
 id=192
-lv=2
+lv=3
 dt=Text
 nm=win.SetEnv
 <article>
@@ -10375,58 +10626,8 @@ nm=win.SetEnv
 </article>
 </node>
 <node>
-id=434
-lv=2
-dt=Text
-nm=win.SetFileAttr
-ctime=3511264583
-mtime=3602278974
-<article>
-#_result = win.SetFileAttr (FileName, Attr)
-#_
-#_**Parameters:**
-#_  FileName: string
-#_  Attr:     string (see `tPluginPanelItem` page)
-#_
-#_**Returns:**
-#_  result:   boolean
-#_
-#_**Windows API used:**
-#_  SetFileAttributesW
-#_
-#_@@@
-#_[tPluginPanelItem]: 85.html
-#_
-</article>
-</node>
-<node>
-id=73
-lv=2
-dt=Text
-nm=win.SetRegKey
-mtime=3608364149
-<article>
-#_win.SetRegKey (RootKey, Key, ValueName, DataType, ValueData)
-#_
-#_**Parameters:**
-#_  RootKey:   string (one of: "HKLM", "HKCC", "HKCR", "HKCU", "HKU")
-#_  Key:       string
-#_  ValueName: string
-#_  DataType:  string (one of: "string", "expandstring", "multistring",
-#_                             "dword" and "binary")
-#_  ValueData: string or number
-#_
-#_**Returns:**
-#_  nothing
-#_
-#_**Description:**
-#_  This function sets a value in a registry key.
-#_
-</article>
-</node>
-<node>
 id=428
-lv=2
+lv=3
 dt=Text
 nm=win.ShellExecute
 ctime=3509050121
@@ -10452,7 +10653,7 @@ mtime=3509086519
 </node>
 <node>
 id=440
-lv=2
+lv=3
 dt=Text
 nm=win.SHGetFolderPath
 ctime=3512504855
@@ -10474,7 +10675,7 @@ mtime=3512540211
 </node>
 <node>
 id=432
-lv=2
+lv=3
 dt=Text
 nm=win.Sleep
 ctime=3510764612
@@ -10494,32 +10695,8 @@ mtime=3510764708
 </article>
 </node>
 <node>
-id=451
-lv=2
-dt=Text
-nm=win.subW
-ctime=3523918268
-mtime=3602449058
-<article>
-#_strOut = win.subW (str, from, to)
-#_
-#_**Parameters:**
-#_  str:    string
-#_  from:   integer (default = 1)
-#_  to:     integer (default = -1)
-#_
-#_**Returns:**
-#_  strOut: string
-#_
-#_**Description:**
-#_  This function is similar to *string.sub* except that it works on UTF-16LE strings
-#_  and considers arguments *from* and *to* expressed in characters rather than bytes.
-#_
-</article>
-</node>
-<node>
 id=508
-lv=2
+lv=3
 dt=Text
 nm=win.system
 ctime=3631633791
@@ -10544,82 +10721,8 @@ mtime=3631652700
 </article>
 </node>
 <node>
-id=216
-lv=2
-dt=Text
-nm=win.SystemTimeToFileTime
-mtime=3602449161
-<article>
-#_result = win.SystemTimeToFileTime (systime)
-#_
-#_**Parameters:**
-#_  systime : table `tSystemTime` (missing fields default to 0)
-#_
-#_**Returns:**
-#_  result  : number, or nil
-#_            (number of milliseconds since January 1, 1601)
-#_
-#_**Windows API used:**
-#_  SystemTimeToFileTime
-#_
-#_@@@
-#_[tSystemTime]: 218.html
-#_
-</article>
-</node>
-<node>
-id=264
-lv=2
-dt=Text
-nm=win.Utf16ToUtf8
-mtime=3491909511
-<article>
-#_str_out = win.Utf16ToUtf8 (str_in)
-#_
-#_**Parameters:**
-#_  str_in  : string in UTF-16 (little endian) encoding
-#_
-#_**Returns:**
-#_  str_out : string in UTF-8 encoding
-#_
-</article>
-</node>
-<node>
-id=257
-lv=2
-dt=Text
-nm=win.Utf8ToOem
-<article>
-#_str_out = win.Utf8ToOem (str_in)
-#_
-#_**Parameters:**
-#_  str_in  : string in UTF-8 encoding
-#_
-#_**Returns:**
-#_  str_out : string in OEM encoding
-#_
-</article>
-</node>
-<node>
-id=265
-lv=2
-dt=Text
-nm=win.Utf8ToUtf16
-mtime=3491909525
-<article>
-#_str_out = win.Utf8ToUtf16 (str_in)
-#_
-#_**Parameters:**
-#_  str_in  : string in UTF-8 encoding
-#_
-#_**Returns:**
-#_  str_out : string in UTF-16 (little endian) encoding
-#_
-</article>
-</node>
-<node>
 id=399
-lv=2
+lv=3
 dt=Text
 nm=win.Uuid
 ctime=3505937334
@@ -10643,55 +10746,6 @@ mtime=3508317882
 #_When the length is 16, the function makes conversion from binary
 #_to string GUID representation, otherwise it tries to convert from
 #_string GUID representation to binary one.
-#_
-</article>
-</node>
-<node>
-id=275
-lv=2
-dt=Text
-nm=win.wcscmp
-<article>
-#_result = win.wcscmp(s1, s2 [, insens))
-#_
-#_**Parameters:**
-#_  s1     : string
-#_  s2     : string
-#_  insens : boolean (defaults to *false*)
-#_
-#_**Returns:**
-#_  result : integer (either of -1, 0, 1)
-#_
-#_**C API used:**
-#_  wcscmp, wcsicmp
-#_
-</article>
-</node>
-<node>
-id=456
-lv=2
-dt=Text
-nm=win.WideCharToMultiByte
-ctime=3528638377
-mtime=3528778037
-<article>
-#_str_out = win.WideCharToMultiByte (str_in, codepage [, flags])
-#_
-#_**Parameters:**
-#_  str_in   : string in UTF-16LE encoding
-#_  codepage : integer
-#_  flags    : string, a combination of 0 or more of the following
-#_             characters:
-#_               'c' -> WC_COMPOSITECHECK
-#_               'd' -> WC_DISCARDNS
-#_               's' -> WC_SEPCHARS
-#_               'f' -> WC_DEFAULTCHAR
-#_
-#_**Returns:**
-#_  str_out  : string in *codepage* encoding.
-#_
-#_**Windows API used:**
-#_  WideCharToMultiByte
 #_
 </article>
 </node>

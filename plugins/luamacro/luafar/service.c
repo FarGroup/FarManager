@@ -299,7 +299,7 @@ static UINT64 CheckFlags(lua_State* L, int pos)
 	return Flags;
 }
 
-static UINT64 OptFlags(lua_State* L, int pos, UINT64 dflt)
+UINT64 OptFlags(lua_State* L, int pos, UINT64 dflt)
 {
 	return lua_isnoneornil(L, pos) ? dflt : CheckFlags(L, pos);
 }
@@ -3600,7 +3600,7 @@ intptr_t LF_DlgProc(lua_State *L, HANDLE hDlg, intptr_t Msg, intptr_t Param1, vo
 	ret = lua_isnil(L, -1) ?
 		Info->DefDlgProc(hDlg, Msg, Param1, Param2) :
 		ProcessDNResult(L, Msg, Param2);
-	
+
 	lua_pop(L, 1);
 	return ret;
 }
@@ -6004,7 +6004,7 @@ static int luaopen_far(lua_State *L)
 {
 	lua_newtable(L);
 	lua_setfield(L, LUA_REGISTRYINDEX, FAR_DN_STORAGE);
-	
+
 	NewVirtualKeyTable(L, FALSE);
 	lua_setfield(L, LUA_REGISTRYINDEX, FAR_VIRTUALKEYS);
 	luaL_register(L, "far", far_funcs);

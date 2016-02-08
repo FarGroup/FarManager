@@ -8,6 +8,7 @@ extern const char* VirtualKeyStrings[256];
 extern void pushFileTime(lua_State *L, const FILETIME *ft);
 extern void NewVirtualKeyTable(lua_State* L, BOOL twoways);
 extern BOOL dir_exist(const wchar_t* path);
+extern UINT64 OptFlags(lua_State* L, int pos, UINT64 dflt);
 
 // os.getenv does not always work correctly, hence the following.
 static int win_GetEnv(lua_State *L)
@@ -64,6 +65,7 @@ static HKEY CheckHKey(lua_State *L, int pos)
 //   ValueName:  registry value name, [string]
 //   DataType:   "string","expandstring","multistring","dword" or "binary", [string]
 //   ValueData:  registry value data, [string | number | lstring]
+//   samDesired: access mask, [flag] ("KEY_WOW64_32KEY" or "KEY_WOW64_64KEY"; the default is 0)
 // Returns:
 //   nothing.
 static int win_SetRegKey(lua_State *L)
@@ -72,32 +74,33 @@ static int win_SetRegKey(lua_State *L)
 	wchar_t* Key         = (wchar_t*)check_utf8_string(L, 2, NULL);
 	wchar_t* ValueName   = (wchar_t*)check_utf8_string(L, 3, NULL);
 	const char* DataType = luaL_checkstring(L, 4);
+	REGSAM samDesired    = (REGSAM) OptFlags(L, 6, 0);
 	size_t len;
 
 	if(!strcmp("string", DataType))
 	{
-		SetRegKeyStr(hRoot, Key, ValueName, (wchar_t*)check_utf8_string(L, 5, NULL));
+		SetRegKeyStr(hRoot, Key, ValueName, (wchar_t*)check_utf8_string(L, 5, NULL), samDesired);
 	}
 	else if(!strcmp("dword", DataType))
 	{
-		SetRegKeyDword(hRoot, Key, ValueName, (DWORD)luaL_checkinteger(L, 5));
+		SetRegKeyDword(hRoot, Key, ValueName, (DWORD)luaL_checkinteger(L, 5), samDesired);
 	}
 	else if(!strcmp("binary", DataType))
 	{
 		BYTE *data = (BYTE*)luaL_checklstring(L, 5, &len);
-		SetRegKeyArr(hRoot, Key, ValueName, data, (DWORD)len);
+		SetRegKeyArr(hRoot, Key, ValueName, data, (DWORD)len, samDesired);
 	}
 	else if(!strcmp("expandstring", DataType))
 	{
 		const wchar_t* data = check_utf8_string(L, 5, &len);
-		HKEY hKey = CreateRegKey(hRoot, Key);
+		HKEY hKey = CreateRegKey(hRoot, Key, samDesired);
 		RegSetValueExW(hKey, ValueName, 0, REG_EXPAND_SZ, (BYTE*)data, (DWORD)((1+len)*sizeof(wchar_t)));
 		RegCloseKey(hKey);
 	}
 	else if(!strcmp("multistring", DataType))
 	{
 		const wchar_t* data = check_utf8_string(L, 5, &len);
-		HKEY hKey = CreateRegKey(hRoot, Key);
+		HKEY hKey = CreateRegKey(hRoot, Key, samDesired);
 		RegSetValueExW(hKey, ValueName, 0, REG_MULTI_SZ, (BYTE*)data, (DWORD)((1+len)*sizeof(wchar_t)));
 		RegCloseKey(hKey);
 	}
@@ -111,9 +114,10 @@ static int win_SetRegKey(lua_State *L)
 //   Root:       [string], one of "HKLM", "HKCC", "HKCR", "HKCU", "HKU"
 //   Key:        registry key, [string]
 //   ValueName:  registry value name, [string]
+//   samDesired: access mask, [flag] ("KEY_WOW64_32KEY" or "KEY_WOW64_64KEY"; the default is 0)
+// Returns:
 //   ValueData:  registry value data, [string | number | lstring]
-//   DataType:   "string", "expandstring", "multistring", "dword"
-//                    or "binary", [string]
+//   DataType:   "string", "expandstring", "multistring", "dword" or "binary", [string]
 static int win_GetRegKey(lua_State *L)
 {
 	HKEY hKey;
@@ -123,7 +127,8 @@ static int win_GetRegKey(lua_State *L)
 	HKEY hRoot = CheckHKey(L, 1);
 	wchar_t* Key = (wchar_t*)check_utf8_string(L, 2, NULL);
 	const wchar_t* ValueName = check_utf8_string(L, 3, NULL);
-	hKey = OpenRegKey(hRoot, Key);
+	REGSAM samDesired = (REGSAM) OptFlags(L, 4, 0);
+	hKey = OpenRegKey(hRoot, Key, samDesired);
 
 	if(hKey == NULL)
 	{
@@ -177,10 +182,11 @@ static int win_GetRegKey(lua_State *L)
 	return 2;
 }
 
-// Result = DeleteRegKey (Root, Key)
-//   Root:      [string], one of "HKLM", "HKCC", "HKCR", "HKCU", "HKU"
-//   Key:       registry key, [string]
-//   Result:    TRUE if success, FALSE if failure, [boolean]
+// Result = DeleteRegKey (Root, Key [, samDesired])
+//   Root:       [string], one of "HKLM", "HKCC", "HKCR", "HKCU", "HKU"
+//   Key:        registry key, [string]
+// Returns:
+//   Result:     TRUE if success, FALSE if failure, [boolean]
 static int win_DeleteRegKey(lua_State *L)
 {
 	HKEY hRoot = CheckHKey(L, 1);
@@ -194,6 +200,8 @@ static int win_DeleteRegKey(lua_State *L)
 //   Root:      [string], one of "HKLM", "HKCC", "HKCR", "HKCU", "HKU"
 //   Key:       registry key, [string]
 //   ValueName: value name, [optional string]
+//   samDesired: access mask, [flag] ("KEY_WOW64_32KEY" or "KEY_WOW64_64KEY"; the default is 0)
+// Returns:
 //   Result:    TRUE if success, FALSE if failure, [boolean]
 static int win_DeleteRegValue(lua_State *L)
 {
@@ -201,8 +209,9 @@ static int win_DeleteRegValue(lua_State *L)
 	HKEY hRoot = CheckHKey(L, 1);
 	const wchar_t* Key = check_utf8_string(L, 2, NULL);
 	const wchar_t* Name = opt_utf8_string(L, 3, NULL);
+	REGSAM samDesired = (REGSAM) OptFlags(L, 4, 0) | KEY_SET_VALUE;
 	int res = 0;
-	if (RegOpenKeyExW(hRoot, Key, 0, KEY_SET_VALUE, &hKey) == ERROR_SUCCESS)
+	if (RegOpenKeyExW(hRoot, Key, 0, samDesired, &hKey) == ERROR_SUCCESS)
 	{
 		res = (RegDeleteValueW(hKey, Name) == ERROR_SUCCESS);
 		RegCloseKey(hKey);
@@ -215,6 +224,8 @@ static int win_DeleteRegValue(lua_State *L)
 //   Root:      [string], one of "HKLM", "HKCC", "HKCR", "HKCU", "HKU"
 //   Key:       registry key, [string]
 //   Index:     integer
+//   samDesired: access mask, [flag] ("KEY_WOW64_32KEY" or "KEY_WOW64_64KEY"; the default is 0)
+// Returns:
 //   Result:    string or nil
 static int win_EnumRegKey(lua_State *L)
 {
@@ -223,11 +234,12 @@ static int win_EnumRegKey(lua_State *L)
 	HKEY hRoot = CheckHKey(L, 1);
 	wchar_t* Key = (wchar_t*)check_utf8_string(L, 2, NULL);
 	DWORD dwIndex = (DWORD)luaL_checkinteger(L, 3);
+	REGSAM samDesired = (REGSAM) OptFlags(L, 4, 0) | KEY_ENUMERATE_SUB_KEYS;
 	wchar_t Name[512];
 	DWORD NameSize = ARRSIZE(Name);
 	FILETIME LastWriteTime;
 
-	if(RegOpenKeyExW(hRoot, Key, 0, KEY_ENUMERATE_SUB_KEYS, &hKey)!=ERROR_SUCCESS)
+	if(RegOpenKeyExW(hRoot, Key, 0, samDesired, &hKey)!=ERROR_SUCCESS)
 	{
 		lua_pushnil(L);
 		lua_pushstring(L, "RegOpenKeyExW failed.");
@@ -258,6 +270,8 @@ static int win_EnumRegKey(lua_State *L)
 //   Root:      [string], one of "HKLM", "HKCC", "HKCR", "HKCU", "HKU"
 //   Key:       registry key, [string]
 //   Index:     integer
+//   samDesired: access mask, [flag] ("KEY_WOW64_32KEY" or "KEY_WOW64_64KEY"; the default is 0)
+// Returns:
 //   Result:    string or nil
 static int win_EnumRegValue(lua_State *L)
 {
@@ -266,11 +280,12 @@ static int win_EnumRegValue(lua_State *L)
 	HKEY hRoot = CheckHKey(L, 1);
 	wchar_t* Key = (wchar_t*)check_utf8_string(L, 2, NULL);
 	DWORD dwIndex = (DWORD)luaL_checkinteger(L, 3);
+	REGSAM samDesired = (REGSAM) OptFlags(L, 4, 0) | KEY_QUERY_VALUE;
 	wchar_t Name[512];
 	DWORD NameSize = ARRSIZE(Name);
 	DWORD Type;
 
-	if(RegOpenKeyExW(hRoot, Key, 0, KEY_QUERY_VALUE, &hKey)!=ERROR_SUCCESS)
+	if(RegOpenKeyExW(hRoot, Key, 0, samDesired, &hKey)!=ERROR_SUCCESS)
 	{
 		lua_pushnil(L);
 		lua_pushstring(L, "RegOpenKeyExW failed.");
