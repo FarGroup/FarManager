@@ -394,9 +394,11 @@ public:
       indices.push_back(static_cast<UInt32>(reinterpret_cast<size_t>(panel_items[i].UserData.Data)));
     }
     archive->test(src_dir_index, indices);
-    for (int i = 0; i < items_number; i++) {
-      panel_items[i].Flags &= ~PPIF_SELECTED;
-    }
+    if (op_mode == OPM_NONE) {
+      for (int i = 0; i < items_number; i++) {
+        panel_items[i].Flags &= ~PPIF_SELECTED;
+      }
+	 }
     Far::info_dlg(c_test_ok_dialog_guid, Far::get_msg(MSG_PLUGIN_NAME), Far::get_msg(MSG_TEST_OK));
   }
 
@@ -1107,7 +1109,10 @@ intptr_t WINAPI ProcessHostFileW(const ProcessHostFileInfo* info) {
   intptr_t item = Far::menu(c_arccmd_menu_guid, Far::get_msg(MSG_PLUGIN_NAME), menu_items);
   if (item == 0) {
     reinterpret_cast<Plugin*>(info->hPanel)->test_files(info->PanelItem, info->ItemsNumber, info->OpMode);
-    return FALSE; // to avoid setting modification flag (there is readonly test operation)
+	 if (info->OpMode == OPM_NONE)
+      return FALSE; // to avoid setting modification flag (there is readonly test operation)
+	 else
+      return TRUE;
   }
   else
     return FALSE;
