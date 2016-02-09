@@ -311,14 +311,6 @@ BOOL Manager::ExitAll()
 	return TRUE;
 }
 
-void Manager::RefreshAll(void)
-{
-	if (!m_windows.empty())
-	{
-		RefreshWindow(m_windows.front());
-	}
-}
-
 void Manager::CloseAll()
 {
 	_MANAGER(CleverSysLog clv(L"Manager::CloseAll()"));
@@ -823,8 +815,8 @@ int Manager::ProcessKey(Key key)
 							PrevScrX=PScrX;
 							PrevScrY=PScrY;
 							//_MANAGER(SysLog(-1,"GetInputRecord(WINDOW_BUFFER_SIZE_EVENT); return KEY_CONSOLE_BUFFER_RESIZE"));
-							Sleep(1);
-							return ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
+							Global->WindowManager->ResizeAllWindows();
+							return TRUE;
 						}
 					}
 

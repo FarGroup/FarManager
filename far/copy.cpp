@@ -3534,7 +3534,7 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 
 				const auto Viewer = FileViewer::create(ViewName, FALSE, FALSE, TRUE, -1, nullptr, &List, false);
 				Global->WindowManager->ExecuteModal(Viewer);
-				Global->WindowManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
+				Global->WindowManager->ResizeAllWindows();
 			}
 		}
 		break;

@@ -1373,10 +1373,10 @@ int Edit::ProcessCtrlQ()
 
 		if (Key==KEY_CONSOLE_BUFFER_RESIZE)
 		{
-//      int Dis=EditOutDisabled;
-//      EditOutDisabled=0;
-			Show();
-//      EditOutDisabled=Dis;
+			// BUGBUG currently GetInputRecord will never return anything but KEY_NONE if manager queue isn't empty,
+			// and it will be non-empty if we allow async resizing here.
+			// It's better to exit from Ctrl-Q mode at all than hang.
+			return FALSE;
 		}
 	}
 

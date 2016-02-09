@@ -758,7 +758,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 
 		case ACTL_REDRAWALL:
 		{
-			Global->WindowManager->RefreshAll();
+			Global->WindowManager->ResizeAllWindows();
 			Global->WindowManager->PluginCommit();
 			return TRUE;
 		}
@@ -1424,7 +1424,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 			FPanels->RightPanel()->ProcessingPluginCommand--;
 
 			// BUGBUG
-			Global->WindowManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
+			Global->WindowManager->ResizeAllWindows();
 
 			return TRUE;
 		}

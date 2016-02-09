@@ -3944,11 +3944,6 @@ BOOL Editor::Search(int Next)
 
 			switch (Key)
 			{
-				case KEY_CONSOLE_BUFFER_RESIZE:
-				{
-					FindAllList->SetPosition(-1,-1,0,0);
-					break;
-				}
 				case KEY_ADD:
 					AddSessionBookmark();
 					break;

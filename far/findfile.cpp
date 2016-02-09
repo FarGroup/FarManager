@@ -716,7 +716,6 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					ChangeDisk(Global->CtrlObject->Cp()->ActivePanel());
 					// Ну что ж, раз пошла такая пьянка рефрешить окна
 					// будем таким способом.
-					//WindowManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
 					Global->WindowManager->ResizeAllWindows();
 					Global->IsRedrawWindowInProcess--;
 					string strSearchFromRoot;
@@ -1920,7 +1919,7 @@ void FindFiles::OpenFile(string strSearchFileName, int openKey, const FindListIt
 
 				Global->WindowManager->ExecuteModal(ShellViewer);
 				// заставляем рефрешится экран
-				Global->WindowManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
+				Global->WindowManager->ResizeAllWindows();
 			}
 			Dlg->SendMessage(DM_ENABLEREDRAW, TRUE, nullptr);
 			Dlg->SendMessage(DM_SHOWDIALOG, TRUE, nullptr);
@@ -1939,7 +1938,7 @@ void FindFiles::OpenFile(string strSearchFileName, int openKey, const FindListIt
 			{
 				Global->WindowManager->ExecuteModal(ShellEditor);
 				// заставляем рефрешится экран
-				Global->WindowManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
+				Global->WindowManager->ResizeAllWindows();
 			}
 		}
 

@@ -2722,8 +2722,6 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 						break;
 				}
 
-				//if(Key==KEY_CONSOLE_BUFFER_RESIZE) //????
-				//  Show();                          //????
 #if defined(SYSLOG_KEYMACRO)
 
 				if (rec->EventType == KEY_EVENT)
