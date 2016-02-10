@@ -20,6 +20,10 @@ using namespace PCRE;
 
 #undef isspace
 #define isspace(c) ((c)==' ' || (c)=='\t')
+#undef isdigit
+#define isdigit(c) ((c) >= '0' && (c) <= '9')
+#undef isxdigit
+#define isxdigit(c) (((c)>='0' && (c)<='9') || ((c)>='a' && (c)<='f') || ((c)>='A' && (c)<='F'))
 
 typedef union {
   __int64 i64;

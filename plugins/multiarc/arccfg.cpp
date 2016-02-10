@@ -2,6 +2,8 @@
 #include "marclng.hpp"
 #include <farkeys.hpp>
 
+#pragma warning (disable : 4838)
+
 int ConfigGeneral()
 {
   struct InitDialogItem InitItems[]={

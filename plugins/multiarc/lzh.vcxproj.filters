@@ -15,17 +15,25 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="lzh.cpp">
+    <ClCompile Include="..\common\vc_crt_fix_impl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ProjectName).cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="lzh.vc.def">
+    <MASM Include="..\common\vc_crt_fix.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(ProjectName).vc.def">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="lzh.rc">
+    <ResourceCompile Include="$(ProjectName).rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

@@ -179,7 +179,7 @@ extern "C"
   _CONST_RETURN char * __cdecl strstr(const char * str1, const char * str2);
   _CONST_RETURN_W wchar_t * __cdecl wcsstr(const wchar_t * str1, const wchar_t * str2);
   char * __cdecl strtok(char *string, const char *control);
-  wchar_t * __cdecl wcstok(wchar_t *string, const wchar_t *control);
+//  wchar_t * __cdecl wcstok(wchar_t *string, const wchar_t *control);
   long __cdecl strtol(const char *nptr, char **endptr, int ibase);
   long __cdecl wcstol(const wchar_t *nptr, wchar_t **endptr, int ibase);
   unsigned long __cdecl strtoul(const char *nptr, char **endptr, int ibase);

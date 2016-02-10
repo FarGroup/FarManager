@@ -3,6 +3,7 @@
 #include "marclng.hpp"
 
 //#define MAX_PASSW_LEN 256
+#pragma warning (disable : 4838)
 
 struct PutDlgData
 {

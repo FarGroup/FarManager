@@ -1,6 +1,7 @@
 #ifndef __MULTIARC_HPP__
 #define __MULTIARC_HPP__
 
+#pragma warning (disable : 4005)
 #include <plugin.hpp>
 #include "fmt.hpp"
 

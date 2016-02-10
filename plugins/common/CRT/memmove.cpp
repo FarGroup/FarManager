@@ -1,5 +1,10 @@
+#if defined(_MSC_VER) && _MSC_VER < 1900
 #define __midl  // do not include inline implementation
+#endif
+
 #include "crt.hpp"
+
+#if !(defined(_MSC_VER) && _MSC_VER >= 1900 && defined(UNICODE))
 
 #if defined(UNICODE) && !defined(__BORLANDC__)
 typedef wchar_t PTRTYP;
@@ -43,3 +48,5 @@ PTRTYP * __cdecl
   }
   return(ret);
 }
+
+#endif

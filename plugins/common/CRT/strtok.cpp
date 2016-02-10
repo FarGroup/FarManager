@@ -1,5 +1,7 @@
 #include "crt.hpp"
 
+#if !(defined(_MSC_VER) && _MSC_VER >= 1900 && defined(UNICODE))
+
 TCHAR * __cdecl
 #ifndef UNICODE
                strtok
@@ -72,3 +74,5 @@ typedef wchar_t       token_t;
   else
     return string;
 }
+
+#endif

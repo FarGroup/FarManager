@@ -560,18 +560,6 @@ int IsTarHeader(const BYTE *Data,int DataSize)
     Sum+=Data[I];
 
   return(Sum==GetOctal(Header->chksum));
-/*
-  if(lstrcmp(Header->name,"././@LongLink"))
-  {
-    __int64 Seconds=GetOctal(Header->mtime);
-    if (Seconds < 300000000i64 || Seconds > 1500000000i64)
-    {
-      if(Header->typeflag != DIRTYPE && Header->typeflag != SYMTYPE)
-        return(FALSE);
-    }
-  }
-  return(TRUE);
-*/
 }
 
 
@@ -590,9 +578,9 @@ char *AdjustTARFileName(char *FileName)
 
 __int64 GetOctal(const char *Str)
 {
-  char *endptr;
-  return _strtoi64(Str,&endptr,8);
-//  return(strtoul(Str,&endptr,8));
+  __int64 v = 0;
+  while (*Str >= '0' && *Str <= '7') { v = v * 8 + (*Str - '0'); ++Str; }
+  return v;
 }
 
 static __int64 Oct2Size (const char *where0, size_t digs0)
