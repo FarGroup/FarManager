@@ -63,52 +63,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 long Manager::CurrentWindowType=-1;
 
-class Manager::MessageAbstract
+bool Manager::window_comparer::operator()(window_ptr_ref lhs, window_ptr_ref rhs) const
 {
-public:
-	virtual ~MessageAbstract() {}
-	virtual bool Process(void) = 0;
-};
-
-class MessageCallback: public Manager::MessageAbstract
-{
-public:
-	MessageCallback(const std::function<void(void)>& Callback): m_Callback(Callback) {}
-	virtual bool Process(void) override { m_Callback(); return true; }
-
-private:
-	std::function<void(void)> m_Callback;
-};
-
-class MessageOneWindow: public Manager::MessageAbstract
-{
-public:
-	MessageOneWindow(window_ptr_ref Param, const std::function<void(window_ptr_ref)>& Callback): m_Param(Param), m_Callback(Callback) {}
-	virtual bool Process(void) override { m_Callback(m_Param); return true; }
-
-private:
-	window_ptr m_Param;
-	std::function<void(window_ptr_ref)> m_Callback;
-};
-
-class MessageTwoWindows: public Manager::MessageAbstract
-{
-public:
-	MessageTwoWindows(window_ptr_ref Param1, window_ptr_ref Param2, const std::function<void(window_ptr_ref, window_ptr_ref)>& Callback): m_Param1(Param1), m_Param2(Param2), m_Callback(Callback) {}
-	virtual bool Process(void) override { m_Callback(m_Param1, m_Param2); return true; }
-
-private:
-	window_ptr m_Param1;
-	window_ptr m_Param2;
-	std::function<void(window_ptr_ref, window_ptr_ref)> m_Callback;
-};
-
-class MessageStop: public Manager::MessageAbstract
-{
-public:
-	MessageStop() {}
-	virtual bool Process(void) override { return false; }
-};
+	return lhs->ID() < rhs->ID();
+}
 
 void Manager::Key::Fill(unsigned int Key)
 {
@@ -329,7 +287,7 @@ void Manager::CloseAll()
 
 void Manager::PushWindow(window_ptr_ref Param, window_callback Callback)
 {
-	m_Queue.push_back(std::make_unique<MessageOneWindow>(Param, [this, Callback](window_ptr_ref Param){(this->*Callback)(Param); }));
+	m_Queue.emplace([=]{ (this->*Callback)(Param); });
 }
 
 void Manager::CheckAndPushWindow(window_ptr_ref Param, window_callback Callback)
@@ -340,7 +298,7 @@ void Manager::CheckAndPushWindow(window_ptr_ref Param, window_callback Callback)
 
 void Manager::CallbackWindow(const std::function<void(void)>& Callback)
 {
-	m_Queue.push_back(std::make_unique<MessageCallback>(Callback));
+	m_Queue.emplace(Callback);
 }
 
 void Manager::InsertWindow(window_ptr_ref Inserted)
@@ -364,7 +322,7 @@ void Manager::DeleteWindow(window_ptr_ref Deleted)
 
 void Manager::RedeleteWindow(window_ptr_ref Deleted)
 {
-	m_Queue.push_back(std::make_unique<MessageStop>());
+	m_Queue.emplace(nullptr);
 	PushWindow(Deleted,&Manager::DeleteCommit);
 }
 
@@ -569,13 +527,13 @@ void Manager::SwitchWindow(DirectionType Direction)
 	{
 		if (Direction==Manager::NextWindow)
 		{
-			std::advance(pos,1);
+			++pos;
 			if (pos==windows.end()) pos = windows.begin();
 		}
 		else if (Direction==Manager::PreviousWindow)
 		{
 			if (pos==windows.begin()) pos=windows.end();
-			std::advance(pos,-1);
+			--pos;
 		}
 	};
 	process();
@@ -602,7 +560,7 @@ void Manager::ExecuteWindow(window_ptr_ref Executed)
 
 void Manager::ReplaceWindow(window_ptr_ref Old, window_ptr_ref New)
 {
-	m_Queue.push_back(std::make_unique<MessageTwoWindows>(Old, New, [this](window_ptr_ref Param1, window_ptr_ref Param2){ ReplaceCommit(Param1, Param2); }));
+	m_Queue.emplace([=]{ ReplaceCommit(Old, New); });
 }
 
 void Manager::SubmergeWindow(window_ptr_ref Window)
@@ -971,9 +929,11 @@ void Manager::Commit(void)
 	_MANAGER(ManagerClass_Dump(L"ManagerClass"));
 	while (!m_Queue.empty())
 	{
-		const auto message = std::move(m_Queue.front());
-		m_Queue.pop_front();
-		if (!message->Process()) break;
+		const auto Handler = std::move(m_Queue.front());
+		m_Queue.pop();
+		if (!Handler)
+			break;
+		Handler();
 	}
 }
 
@@ -1313,7 +1273,7 @@ void Manager::UpdateMacroArea(void)
 
 Manager::sorted_windows Manager::GetSortedWindows(void) const
 {
-	return sorted_windows(ALL_CONST_RANGE(m_windows), [](window_ptr_ref lhs, window_ptr_ref rhs){return lhs->ID()<rhs->ID(); });
+	return sorted_windows(ALL_CONST_RANGE(m_windows));
 }
 
 void* Manager::GetCurrent(std::function<void*(windows::const_reverse_iterator)> Check) const

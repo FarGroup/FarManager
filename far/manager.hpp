@@ -61,8 +61,6 @@ public:
 		unsigned int operator()(void) const {return m_FarKey;}
 	};
 
-	class MessageAbstract;
-
 	Manager();
 	~Manager();
 
@@ -130,9 +128,6 @@ public:
 
 	void UpdateMacroArea(void);
 
-	typedef std::set<window_ptr, std::function<bool(window_ptr_ref, window_ptr_ref)>> sorted_windows;
-	sorted_windows GetSortedWindows(void) const;
-
 	Viewer* GetCurrentViewer(void) const;
 	FileEditor* GetCurrentEditor(void) const;
 	// BUGBUG, do we need this?
@@ -140,6 +135,13 @@ public:
 	bool HaveAnyMessage() const;
 
 private:
+	struct window_comparer
+	{
+		bool operator()(window_ptr_ref lhs, window_ptr_ref rhs) const;
+	};
+	typedef std::set<window_ptr, window_comparer> sorted_windows;
+	sorted_windows GetSortedWindows(void) const;
+
 #if defined(SYSLOG)
 	friend void ManagerClass_Dump(const wchar_t *Title, FILE *fp);
 #endif
@@ -187,7 +189,7 @@ private:
 	int ModalExitCode;
 	bool StartManager;
 	static long CurrentWindowType;
-	std::list<std::unique_ptr<MessageAbstract>> m_Queue;
+	std::queue<std::function<void()>> m_Queue;
 	std::vector<std::function<int(const Key&)>> m_GlobalKeyHandlers;
 	std::unordered_map<window_ptr, bool*> m_Executed;
 	std::unordered_set<window_ptr> m_Added;
