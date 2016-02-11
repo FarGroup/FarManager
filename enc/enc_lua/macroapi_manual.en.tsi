@@ -2057,7 +2057,7 @@ lv=2
 dt=Text
 nm=Restrictions in the use of some functions
 ctime=3557323094
-mtime=3659609163
+mtime=3664364330
 <article>
 #_<markdown>
 #_The following functions have certain restrictions on their use in macros: 
@@ -2078,10 +2078,12 @@ mtime=3659609163
 #_1. The above listed functions, when called directly or indirectly with `pcall`, will cause the immediate failure of `pcall`.<br>
 #_This restriction does not exist if LuaJIT 2.x is used.
 #_
-#_1. The above listed functions will not work when called from:
+#_1. The above listed functions will only work when called from a **macro body** (usually it is function `action`).
+#_That means those functions will not work when called from:
 #_     - dialog procedures
 #_     - function *condition* of a macro
 #_     - [event handlers][event]
+#_     - etc. etc.
 #_
 #_The restrictions of p.3 do not exist, if the above listed functions are called via [`mf.postmacro`][postmacro] or `far.MacroPost`.
 #_
