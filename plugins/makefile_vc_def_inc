@@ -150,7 +150,7 @@ ULOUT=-Tpd+
 CPP_ALIGN=/Zp1
 !endif
 CPPFLAGS=$(CPPFLAGS) $(CPP_ALIGN)
-ULOUT=-Tpd -Re
+ULOUT=-Tpd -Rv
 !endif
 
 !ifdef INCLUDECRT
