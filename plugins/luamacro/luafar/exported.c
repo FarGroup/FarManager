@@ -367,16 +367,12 @@ void UpdateFileSelection(lua_State* L, struct PluginPanelItem *PanelItem,
 		{
 			lua_getfield(L,-1,"Flags");      //+2
 
-			if(lua_istable(L,-1))
+			if(lua_toboolean(L,-1))
 			{
-				lua_getfield(L,-1,"selected"); //+3
-
-				if(lua_toboolean(L,-1))
-					PanelItem[i].Flags |= PPIF_SELECTED;
-				else
+				int success = 0;
+				UINT64 Flags = GetFlagCombination(L,-1,&success);
+				if(success && ((Flags & PPIF_SELECTED) == 0))
 					PanelItem[i].Flags &= ~PPIF_SELECTED;
-
-				lua_pop(L,1);       //+2
 			}
 
 			lua_pop(L,1);         //+1

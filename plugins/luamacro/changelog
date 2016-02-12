@@ -1,4 +1,8 @@
-﻿shmuel 08.02.2016 23:14:30 +0200 - build 555
+﻿shmuel 12.02.2016 12:41:32 +0200 - build 556
+
+1. LuaFAR: fix handling PPIF_SELECTED.
+
+shmuel 08.02.2016 23:14:30 +0200 - build 555
 
 1. M#3175: "Отключить в LuaMacro редирект WOW64 для функций работы с реестром"
    LuaFAR: Во все функции работы с реестром, кроме win.DeleteRegKey, добавлен параметр "AccessMask".
