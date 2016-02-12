@@ -1710,7 +1710,7 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 		int DisableHistory = (Flags & VF_DISABLEHISTORY) != 0;
 
 		// $ 15.05.2002 SKV - Запретим вызов немодального редактора viewer-а из модального.
-	if (Global->WindowManager->InModal())
+		if (Global->WindowManager->InModal())
 		{
 			Flags&=~VF_NONMODAL;
 		}
@@ -1815,7 +1815,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 		  Запретим вызов немодального редактора, если находимся в модальном
 		  редакторе или viewer-е.
 		  */
-	if (Global->WindowManager->InModal())
+		if (Global->WindowManager->InModal())
 		{
 			Flags&=~EF_NONMODAL;
 		}

@@ -128,9 +128,6 @@ private:
 	void SetDeleteOnClose(int NewMode);
 	int ReProcessKey(const Manager::Key& Key, int CalledFromControl = TRUE);
 	bool AskOverwrite(const string& FileName);
-	// возвращает признак того, является ли файл временным
-	// используется для принятия решения переходить в каталог по CtrlF10
-	bool isTemporary() const;
 	void Init(const string& Name, uintptr_t codepage, const string* Title, int StartLine, int StartChar, const string* PluginData, int DeleteOnClose, window_ptr_ref Update, EDITOR_FLAGS OpenModeExstFile);
 	int LoadFile(const string& Name, int &UserBreak);
 	bool ReloadFile(uintptr_t codepage);

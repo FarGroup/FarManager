@@ -292,7 +292,7 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLF10:
 		case KEY_RCTRLF10:
 		{
-			if (m_View->isTemporary())
+			if (Global->WindowManager->InModal())
 			{
 				return TRUE;
 			}

@@ -89,7 +89,6 @@ public:
 	void SetShowScrollbar(bool newValue) { ViOpt.ShowScrollbar=newValue; }
 	uintptr_t GetCodePage() const { return m_Codepage; }
 	NamesList& GetNamesList() { return ViewNamesList; }
-	bool isTemporary() const;
 	bool ProcessDisplayMode(VIEWER_MODE_TYPE newMode, bool isRedraw = true);
 	int ProcessWrapMode(int newMode, bool isRedraw = true);
 	int ProcessTypeWrapMode(int newMode, bool isRedraw = true);

@@ -4463,11 +4463,6 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 	return FALSE;
 }
 
-bool Viewer::isTemporary() const
-{
-	return !strTempViewName.empty();
-}
-
 bool Viewer::ProcessDisplayMode(VIEWER_MODE_TYPE newMode, bool isRedraw)
 {
 	switch (newMode)

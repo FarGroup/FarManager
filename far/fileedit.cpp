@@ -1154,7 +1154,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 			case KEY_CTRLF10:
 			case KEY_RCTRLF10:
 			{
-				if (isTemporary())
+				if (Global->WindowManager->InModal())
 				{
 					return TRUE;
 				}
@@ -2233,11 +2233,6 @@ void FileEditor::SetLockEditor(BOOL LockMode)
 bool FileEditor::CanFastHide() const
 {
 	return (Global->Opt->AllCtrlAltShiftRule & CASR_EDITOR) != 0;
-}
-
-bool FileEditor::isTemporary() const
-{
-	return !m_Flags.Check(FFILEEDIT_ENABLEF6);
 }
 
 void FileEditor::ResizeConsole()
