@@ -133,6 +133,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <shlobj.h>
 #include <shellapi.h>
 #include <userenv.h>
+#include <DbgHelp.h>
 
 #ifdef _MSC_VER
 # include <ntstatus.h>

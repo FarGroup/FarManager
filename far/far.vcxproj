@@ -502,6 +502,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="syslog.cpp" />
     <ClCompile Include="TaskBar.cpp" />
     <ClCompile Include="tinyxml.cpp" />
+    <ClCompile Include="tracer.cpp" />
     <ClCompile Include="treelist.cpp" />
     <ClCompile Include="tvar.cpp" />
     <ClCompile Include="usermenu.cpp" />
@@ -736,6 +737,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="TaskBar.hpp" />
     <ClInclude Include="tinyxml.hpp" />
     <ClInclude Include="TPreRedrawFunc.hpp" />
+    <ClInclude Include="tracer.hpp" />
     <ClInclude Include="transactional.hpp" />
     <ClInclude Include="treelist.hpp" />
     <ClInclude Include="tvar.hpp" />

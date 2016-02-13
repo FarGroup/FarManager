@@ -308,7 +308,7 @@ namespace os
 			bool Close();
 			bool Eof();
 			const string& GetName() const { return name; }
-			//HANDLE GetHandle() const { return Handle.native_handle(); }
+			HANDLE native_handle() const { return Handle.native_handle(); }
 
 		private:
 			handle Handle;

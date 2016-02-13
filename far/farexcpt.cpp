@@ -50,27 +50,36 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu2.hpp"
 #include "interf.hpp"
 #include "strmix.hpp"
-
-#ifdef _MSC_VER
-# define WITH_MINIDUMP
-# ifdef WITH_MINIDUMP
-WARNING_PUSH()
-WARNING_DISABLE_MSC(4091) // https://msdn.microsoft.com/en-us/library/eehkcz60.aspx 'typedef ': ignored on left of 'type' when no variable is declared
-#  include <dbghelp.h>
-WARNING_POP()
-# endif
-#endif
+#include "tracer.hpp"
 
 static const wchar_t* gFrom = nullptr;
 static Plugin *PluginModule = nullptr;     // модуль, приведший к исключению.
 
 void CreatePluginStartupInfo(const Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
-#ifdef WITH_MINIDUMP
-# define LAST_BUTTON 13
-#else
-# define LAST_BUTTON 12
-#endif
+#define LAST_BUTTON 14
+
+void ShowStackTraceImpl(const std::vector<string>& Trace)
+{
+	if (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown())
+	{
+		Message(MSG_WARNING | MSG_LEFTALIGN, MSG(MExcTrappedException), Trace, make_vector<string>(MSG(MOk)));
+	}
+	else
+	{
+		FOR(const auto& Str, Trace)
+		{
+			std::wcerr << Str << L'\n';
+		}
+		std::wcerr.flush();
+	}
+}
+
+template<class T>
+void ShowStackTrace(const T& e)
+{
+	return ShowStackTraceImpl(tracer::GetInstance()->get(e));
+}
 
 intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
@@ -113,10 +122,15 @@ intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 
 		case DN_CLOSE:
 		{
-			if (Param1 == 11) // debug
+			switch (Param1)
 			{
+			case 11: // debug
 				// It's better to attach debugger ASAP, closing the dialog causes too much work in window manager
 				attach_debugger();
+				return FALSE;
+
+			case 12: // stack
+				ShowStackTrace(reinterpret_cast<const EXCEPTION_RECORD*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr)));
 				return FALSE;
 			}
 		}
@@ -137,22 +151,20 @@ enum reply
 {
 	reply_handle,
 	reply_debug,
-	reply_ignore,
-#ifdef WITH_MINIDUMP
 	reply_minidump,
-#endif
+	reply_ignore,
 };
 
-static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, LPVOID Adress)
+static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, const EXCEPTION_RECORD* xr)
 {
 	// TODO: Far Dialog is not the best choice for exception reporting
 	// replace with something trivial
 
-	const auto strAddr = L"0x" + to_hex_wstring(reinterpret_cast<uintptr_t>(Adress));
+	const auto strAddr = L"0x" + to_hex_wstring(reinterpret_cast<uintptr_t>(xr->ExceptionAddress));
 
 	FarDialogItem EditDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,72,8,0,nullptr,nullptr,0,MSG(MExcTrappedException)},
+		{DI_DOUBLEBOX,3,1,76,8,0,nullptr,nullptr,0,MSG(MExcTrappedException)},
 		{DI_TEXT,     5,2, 17,2,0,nullptr,nullptr,0,MSG(MExcException)},
 		{DI_TEXT,    18,2, 70,2,0,nullptr,nullptr,0,Exception},
 		{DI_TEXT,     5,3, 17,3,0,nullptr,nullptr,0,MSG(MExcAddress)},
@@ -164,15 +176,14 @@ static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, LPVOID Adres
 		{DI_TEXT,    -1,6, 0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_CENTERGROUP, MSG(PluginModule? MExcUnload : MExcTerminate)},
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MExcDebugger)},
+		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MExcStack)},
+		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MExcMinidump)},
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MIgnore)},
-#ifdef WITH_MINIDUMP
-		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP, L"MiniDump"},
-#endif
 	};
 	auto EditDlg = MakeDialogItemsEx(EditDlgData);
-	const auto Dlg = Dialog::create(EditDlg, ExcDlgProc);
+	const auto Dlg = Dialog::create(EditDlg, ExcDlgProc, const_cast<void*>(reinterpret_cast<const void*>(xr)));
 	Dlg->SetDialogMode(DMODE_WARNINGSTYLE|DMODE_NOPLUGINS);
-	Dlg->SetPosition(-1,-1,76,10);
+	Dlg->SetPosition(-1, -1, 80, 10);
 	Dlg->Process();
 
 	switch (Dlg->GetExitCode())
@@ -181,18 +192,17 @@ static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, LPVOID Adres
 		return reply_handle;
 	case 11:
 		return reply_debug;
-#ifdef WITH_MINIDUMP
+	// case 12 is handled in DlgProc entirely
 	case 13:
 		return reply_minidump;
-#endif
-	default: //case 12:
+	default: //case 14:
 		return reply_ignore;
 	}
 }
 
-static void ExcDump(const string& ModuleName,LPCWSTR Exception,LPVOID Adress)
+static void ExcDump(const string& ModuleName, LPCWSTR Exception, const EXCEPTION_RECORD* xr)
 {
-	const auto strAddr = L"0x" + to_hex_wstring(reinterpret_cast<uintptr_t>(Adress));
+	const auto strAddr = L"0x" + to_hex_wstring(reinterpret_cast<uintptr_t>(xr->ExceptionAddress));
 
 	string Msg[4];
 	if (LanguageLoaded())
@@ -217,6 +227,8 @@ static void ExcDump(const string& ModuleName,LPCWSTR Exception,LPVOID Adress)
 		Msg[3] + L" " + ModuleName + L"\n";
 
 	std::wcerr << Dump << std::endl;
+
+	ShowStackTrace(xr);
 }
 
 template<char c0, char c1, char c2, char c3>
@@ -230,54 +242,23 @@ enum FARRECORDTYPE
 	RTYPE_PLUGIN = MakeFourCC<'C', 'P', 'L', 'G'>::value, // информация о текущем плагине
 };
 
-#ifdef WITH_MINIDUMP
-static bool write_minidump(EXCEPTION_POINTERS *ex_pointers)
+static void write_minidump(EXCEPTION_POINTERS *ex_pointers)
 {
 #if 0
 	if (::IsDebuggerPresent())
-		return false;
+		return;
 #endif
-	bool written = false;
-	auto hm = ::LoadLibraryA("dbghelp.dll");
-	if (hm) {
-		typedef BOOL(WINAPI *MINIDUMP_WRITE_DUMP)(
-			IN HANDLE         hProcess,
-			IN DWORD          ProcessId,
-			IN HANDLE         hFile,
-			IN MINIDUMP_TYPE  DumpType,
-			IN CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam,
-			OPTIONAL IN PVOID UserStreamParam,
-			OPTIONAL IN PVOID CallbackParam
-		);
-		union {
-			void *pv;
-			MINIDUMP_WRITE_DUMP pf;
-		} u_MiniDumpWriteDump;
-
-		u_MiniDumpWriteDump.pv = ::GetProcAddress(hm, "MiniDumpWriteDump");
-		if (u_MiniDumpWriteDump.pv) {
-			string dump_file = os::env::get_variable(L"FARPROFILE") + L"\\Far.mdmp";
-			auto hDump_File = ::CreateFile(dump_file.data(),
-				GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr
-			);
-			if (INVALID_HANDLE_VALUE != hDump_File) {
-				MINIDUMP_EXCEPTION_INFORMATION m;
-				m.ThreadId = ::GetCurrentThreadId();
-				m.ExceptionPointers = ex_pointers;
-				m.ClientPointers = FALSE;
-
-				written = FALSE != (*u_MiniDumpWriteDump.pf) (
-					::GetCurrentProcess(), ::GetCurrentProcessId(), hDump_File, MiniDumpWithFullMemory,
-					ex_pointers ? &m : nullptr, nullptr, nullptr
-				);
-				::CloseHandle(hDump_File);
-			}
+	if (Imports().MiniDumpWriteDump)
+	{
+		// TODO: subdirectory && timestamp
+		os::fs::file DumpFile;
+		if (DumpFile.Open(Global->Opt->LocalProfilePath + L"\\Far.mdmp", GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS))
+		{
+			MINIDUMP_EXCEPTION_INFORMATION Mei = { GetCurrentThreadId(), ex_pointers };
+			Imports().MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.native_handle(), MiniDumpWithFullMemory, ex_pointers ? &Mei : nullptr, nullptr, nullptr);
 		}
-		::FreeLibrary(hm);
 	}
-	return written;
 }
-#endif
 
 static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 {
@@ -447,12 +428,12 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 
 	if (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 	{
-		MsgCode=ExcDialog(strFileName,Exception,xr->ExceptionAddress);
+		MsgCode = ExcDialog(strFileName, Exception, xr);
 		ShowMessages=TRUE;
 	}
 	else
 	{
-		ExcDump(strFileName, Exception, xr->ExceptionAddress);
+		ExcDump(strFileName, Exception, xr);
 	}
 
 	if (ShowMessages && !PluginModule)
@@ -465,11 +446,9 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 	case reply_handle: // terminate
 		return true;
 
-#ifdef WITH_MINIDUMP
-	case reply_minidump: // write %FARPROFILE%\Far.mdmp and terminate
+	case reply_minidump: // write %FARLOCALPROFILE%\Far.mdmp and terminate
 		write_minidump(xp);
 		return true;
-#endif
 
 	case reply_debug:
 		attach_debugger();
@@ -481,10 +460,10 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 	}
 }
 
-bool ProcessSEHException(Plugin *Module, const wchar_t* From, EXCEPTION_POINTERS *xp)
+bool ProcessSEHException(EXCEPTION_POINTERS *xp, const wchar_t* Function, Plugin *Module)
 {
 	// dummy parametrs setting
-	::gFrom=From;
+	::gFrom = Function;
 	::PluginModule = Module;
 
 	return ProcessSEHExceptionImpl(xp);
@@ -497,18 +476,38 @@ void attach_debugger()
 	SetErrorMode(Global->ErrorMode);
 }
 
-bool ProcessStdException(const std::exception& e, const Plugin* Module, const wchar_t* function)
+bool ProcessStdException(const std::exception& e, const wchar_t* Function, const Plugin* Module)
 {
 	if (Global)
 		Global->ProcessException = TRUE;
-	switch (Message(MSG_WARNING, 3, MSG(MExcTrappedException), wide(e.what()).data(), MSG(Module? MExcUnload : MExcTerminate), MSG(MExcDebugger), MSG(MIgnore)))
+
+	int Result = 0;
+
+	if (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown())
+	{
+		do
+		{
+			Result = Message(MSG_WARNING, 4, MSG(MExcTrappedException), wide(e.what()).data(), Function, MSG(Module? MExcUnload : MExcTerminate), MSG(MExcDebugger), MSG(MExcStack), MSG(MIgnore));
+			if (Result == 2)
+			{
+				ShowStackTrace(e);
+			}
+		}
+		while (Result == 2);
+	}
+	else
+	{
+		std::wcerr << L"\nException: " << e.what() << std::endl;
+	}
+
+	switch (Result)
 	{
 	case 0:
 		return true;
 	case 1:
 		attach_debugger();
 		return false;
-	case 2:
+	case 3:
 	default:
 		return false;
 	}
@@ -516,7 +515,7 @@ bool ProcessStdException(const std::exception& e, const Plugin* Module, const wc
 
 static DWORD WINAPI ProcessSEHExceptionWrapper(EXCEPTION_POINTERS* xp)
 {
-	ProcessSEHException(nullptr, nullptr, xp);
+	ProcessSEHException(xp, nullptr);
 	return 0;
 }
 
@@ -566,6 +565,16 @@ LONG WINAPI VectoredExceptionHandler(EXCEPTION_POINTERS *xp)
 	return EXCEPTION_CONTINUE_SEARCH;
 }
 
+veh_handler::veh_handler(PVECTORED_EXCEPTION_HANDLER Handler):
+	m_Handler(Imports().AddVectoredExceptionHandler(TRUE, Handler))
+{
+}
+
+veh_handler::~veh_handler()
+{
+	Imports().RemoveVectoredExceptionHandler(m_Handler);
+}
+
 inline void SETranslator(UINT Code, EXCEPTION_POINTERS* ExceptionInfo)
 {
 	throw SException(Code, ExceptionInfo);
@@ -576,16 +585,6 @@ void EnableSeTranslation()
 #ifdef _MSC_VER
 	_set_se_translator(SETranslator);
 #endif
-}
-
-void EnableVectoredExceptionHandling()
-{
-	static bool VEH_installed = false;
-	if (!VEH_installed)
-	{
-		Imports().AddVectoredExceptionHandler(TRUE, &VectoredExceptionHandler);
-		VEH_installed = true;
-	}
 }
 
 #if defined(FAR_ALPHA_VERSION)

@@ -220,6 +220,7 @@ LINK_OBJS = \
 	"$(INTDIR)\syslog.obj" \
 	"$(INTDIR)\tinyxml.obj" \
 	"$(INTDIR)\TaskBar.obj" \
+	"$(INTDIR)\tracer.obj" \
 	"$(INTDIR)\treelist.obj" \
 	"$(INTDIR)\tvar.obj" \
 	"$(INTDIR)\usermenu.obj" \

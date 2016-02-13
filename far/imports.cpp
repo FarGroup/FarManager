@@ -51,6 +51,7 @@ ImportedFunctions::ImportedFunctions():
 	m_virtdisk(L"virtdisk"),
 	m_rstrtmgr(L"rstrtmgr"),
 	m_netapi32(L"netapi32"),
+	m_dbghelp(L"dbghelp"),
 
 // just to make it more readable
 #define INIT_IMPORT(module, pointer) pointer(module)
@@ -83,6 +84,8 @@ ImportedFunctions::ImportedFunctions():
 	INIT_IMPORT(m_kernel32, QueryFullProcessImageNameW),
 	INIT_IMPORT(m_kernel32, TzSpecificLocalTimeToSystemTime),
 	INIT_IMPORT(m_kernel32, AddVectoredExceptionHandler),
+	INIT_IMPORT(m_kernel32, RemoveVectoredExceptionHandler),
+	INIT_IMPORT(m_kernel32, RtlCaptureStackBackTrace),
 
 	INIT_IMPORT(m_shell32, SHCreateAssociationRegistration),
 
@@ -98,7 +101,11 @@ ImportedFunctions::ImportedFunctions():
 	INIT_IMPORT(m_rstrtmgr, RmRegisterResources),
 	INIT_IMPORT(m_rstrtmgr, RmGetList),
 
-	INIT_IMPORT(m_netapi32, NetDfsGetInfo)
+	INIT_IMPORT(m_netapi32, NetDfsGetInfo),
+
+	INIT_IMPORT(m_dbghelp, MiniDumpWriteDump),
+	INIT_IMPORT(m_dbghelp, SymInitialize),
+	INIT_IMPORT(m_dbghelp, SymFromAddr)
 
 #undef INIT_IMPORT
 {
@@ -286,6 +293,20 @@ PVOID WINAPI ImportedFunctions::stub_AddVectoredExceptionHandler(ULONG First, PV
 	return nullptr;
 }
 
+ULONG WINAPI ImportedFunctions::stub_RemoveVectoredExceptionHandler(PVOID Handler)
+{
+	// TODO: log
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return 0;
+}
+
+USHORT WINAPI ImportedFunctions::stub_RtlCaptureStackBackTrace(ULONG FramesToSkip, ULONG FramesToCapture, PVOID BackTrace, PULONG BackTraceHash)
+{
+	// TODO: log
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return 0;
+}
+
 // shell32
 HRESULT STDAPICALLTYPE ImportedFunctions::stub_SHCreateAssociationRegistration(REFIID riid, void ** ppv)
 {
@@ -357,4 +378,23 @@ NET_API_STATUS NET_API_FUNCTION ImportedFunctions::stub_NetDfsGetInfo(LPWSTR pat
 {
 	// TODO: log
 	return NERR_InvalidAPI;
+}
+
+// dbghelp
+BOOL WINAPI ImportedFunctions::stub_MiniDumpWriteDump(HANDLE Process, DWORD ProcessId, HANDLE File, MINIDUMP_TYPE DumpType, PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam, PMINIDUMP_CALLBACK_INFORMATION CallbackParam)
+{
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return FALSE;
+}
+
+BOOL WINAPI ImportedFunctions::stub_SymInitialize(HANDLE Process, PCSTR UserSearchPath, BOOL InvadeProcess)
+{
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return FALSE;
+}
+
+BOOL WINAPI ImportedFunctions::stub_SymFromAddr(HANDLE Process, DWORD64 Address, PDWORD64 Displacement, PSYMBOL_INFO Symbol)
+{
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return FALSE;
 }

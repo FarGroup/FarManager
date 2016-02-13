@@ -22404,6 +22404,30 @@ upd:"Debug"
 "Debug"
 "Налагодження"
 
+MExcStack
+"Стек"
+"Stack"
+upd:"Stack"
+upd:"Stack"
+upd:"Stack"
+upd:"Stack"
+upd:"Stack"
+upd:"Stack"
+upd:"Stack"
+"Стек"
+
+MExcMinidump
+"Минидамп"
+"Minidump"
+upd:"Minidump"
+upd:"Minidump"
+upd:"Minidump"
+upd:"Minidump"
+upd:"Minidump"
+upd:"Minidump"
+upd:"Minidump"
+"Мінідамп"
+
 MNetUserName
 l:
 "Имя пользователя"

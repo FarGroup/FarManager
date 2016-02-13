@@ -2645,7 +2645,7 @@ unsigned int background_searcher::ThreadRoutine(THREADPARAM* Param)
 	}
 	catch (SException& e)
 	{
-		if (ProcessSEHException(L"FindFiles::ThreadRoutine", e.GetInfo()))
+		if (ProcessSEHException(e.GetInfo(), L"FindFiles::ThreadRoutine"))
 		{
 			std::terminate();
 		}

@@ -49,17 +49,8 @@ public:
 
 class Plugin;
 
-// for plugins
-bool ProcessSEHException(Plugin *Module, const wchar_t* function, EXCEPTION_POINTERS *xp);
-
-// for Far
-inline bool ProcessSEHException(const wchar_t* function, EXCEPTION_POINTERS *xp) { return ProcessSEHException(nullptr, function, xp); }
-
-// for plugins
-bool ProcessStdException(const std::exception& e, const Plugin* Module, const wchar_t* function);
-
-// for Far
-inline bool ProcessStdException(const std::exception& e, const wchar_t* function) { return ProcessStdException(e, nullptr, function); }
+bool ProcessSEHException(EXCEPTION_POINTERS *xp, const wchar_t* function, Plugin *Module = nullptr);
+bool ProcessStdException(const std::exception& e, const wchar_t* function, const Plugin* Module = nullptr);
 
 class SException: public std::exception
 {
@@ -73,8 +64,19 @@ private:
 	EXCEPTION_POINTERS* m_Info;
 };
 
+class veh_handler: noncopyable
+{
+public:
+	veh_handler(PVECTORED_EXCEPTION_HANDLER Handler);
+	~veh_handler();
+
+private:
+	void* m_Handler;
+};
+
+LONG WINAPI VectoredExceptionHandler(EXCEPTION_POINTERS *xp);
+
 void EnableSeTranslation();
-void EnableVectoredExceptionHandling();
 void attach_debugger();
 
 void RegisterTestExceptionsHook();

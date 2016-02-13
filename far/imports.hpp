@@ -72,6 +72,7 @@ private:
 	const os::rtdl::module m_virtdisk;
 	const os::rtdl::module m_rstrtmgr;
 	const os::rtdl::module m_netapi32;
+	const os::rtdl::module m_dbghelp;
 
 #define DECLARE_IMPORT_FUNCTION(RETTYPE, CALLTYPE, NAME, ...)\
 private: static RETTYPE CALLTYPE stub_##NAME(__VA_ARGS__);\
@@ -108,6 +109,8 @@ public: const unique_function_pointer<decltype(&ImportedFunctions::stub_##NAME),
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, QueryFullProcessImageNameW, HANDLE Process, DWORD Flags, LPWSTR ExeName, PDWORD Size);
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, TzSpecificLocalTimeToSystemTime, const TIME_ZONE_INFORMATION* TimeZoneInformation, const SYSTEMTIME* LocalTime, LPSYSTEMTIME UniversalTime);
 	DECLARE_IMPORT_FUNCTION(PVOID, WINAPI, AddVectoredExceptionHandler, ULONG First, PVECTORED_EXCEPTION_HANDLER Handler);
+	DECLARE_IMPORT_FUNCTION(ULONG, WINAPI, RemoveVectoredExceptionHandler, PVOID Handler);
+	DECLARE_IMPORT_FUNCTION(USHORT, WINAPI, RtlCaptureStackBackTrace, ULONG FramesToSkip, ULONG FramesToCapture, PVOID BackTrace, PULONG BackTraceHash);
 
 	// shell32
 	DECLARE_IMPORT_FUNCTION(HRESULT, STDAPICALLTYPE, SHCreateAssociationRegistration, REFIID riid, void** ppv);
@@ -129,6 +132,11 @@ public: const unique_function_pointer<decltype(&ImportedFunctions::stub_##NAME),
 
 	// netapi32
 	DECLARE_IMPORT_FUNCTION(NET_API_STATUS, NET_API_FUNCTION, NetDfsGetInfo, LPWSTR path, LPWSTR reserved_serv, LPWSTR reserved_share, DWORD level, LPBYTE *buff);
+
+	// dbghelp
+	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, MiniDumpWriteDump, HANDLE Process, DWORD ProcessId, HANDLE File, MINIDUMP_TYPE DumpType, PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam, PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
+	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, SymInitialize, HANDLE Process, PCSTR UserSearchPath, BOOL InvadeProcess);
+	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, SymFromAddr, HANDLE Process, DWORD64 Address, PDWORD64 Displacement, PSYMBOL_INFO Symbol);
 
 #undef DECLARE_IMPORT_FUNCTION
 

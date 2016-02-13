@@ -63,6 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "notification.hpp"
 #include "datetime.hpp"
+#include "tracer.hpp"
 
 global *Global = nullptr;
 
@@ -300,7 +301,7 @@ static int MainProcess(
 
 static LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS *ExceptionInfo)
 {
-	return ProcessSEHException(L"FarUnhandledExceptionFilter", ExceptionInfo)? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH;
+	return ProcessSEHException(ExceptionInfo, L"FarUnhandledExceptionFilter")? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH;
 }
 
 static void InitTemplateProfile(string &strTemplatePath)
@@ -776,7 +777,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 	}
 	catch (const SException& e)
 	{
-		if (ProcessSEHException(L"mainImpl", e.GetInfo()))
+		if (ProcessSEHException(e.GetInfo(), L"mainImpl"))
 		{
 			std::terminate();
 		}
@@ -788,7 +789,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 	}
 	catch (const std::exception& e)
 	{
-		if (ProcessStdException(e, nullptr, L"mainImpl"))
+		if (ProcessStdException(e, L"mainImpl"))
 		{
 			std::terminate();
 		}
@@ -806,6 +807,8 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 int wmain(int Argc, wchar_t *Argv[])
 {
+	tracer Tracer;
+
 	try
 	{
 		atexit(PrintMemory);
@@ -814,7 +817,7 @@ int wmain(int Argc, wchar_t *Argv[])
 #endif
 		setlocale(LC_ALL, "");
 		EnableSeTranslation();
-		EnableVectoredExceptionHandling();
+		SCOPED_ACTION(veh_handler)(VectoredExceptionHandler);
 		SetUnhandledExceptionFilter(FarUnhandledExceptionFilter);
 
 		// Must be static - dependent static objects exist
@@ -823,21 +826,15 @@ int wmain(int Argc, wchar_t *Argv[])
 	}
 	catch (const SException& e)
 	{
-		if (ProcessSEHException(L"wmain", e.GetInfo()))
-		{
-			std::terminate();
-		}
-		else
-		{
-			throw;
-		}
+		ProcessSEHException(e.GetInfo(), L"wmain");
 	}
 	catch (const std::exception& e)
 	{
-		std::wcerr << L"\nException: " << e.what() << std::endl;
+		ProcessStdException(e, L"wmain");
 	}
 	catch (...)
 	{
+		// TODO: ProcessUnknownException
 		std::wcerr << L"\nUnknown exception" << std::endl;
 	}
 	return 1;
