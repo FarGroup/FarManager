@@ -776,6 +776,7 @@ void XMLNode::DeleteChild( XMLNode* node )
     TIXMLASSERT( node );
     TIXMLASSERT( node->_document == _document );
     TIXMLASSERT( node->_parent == this );
+    Unlink( node );
     DeleteNode( node );
 }
 
@@ -1953,6 +1954,7 @@ XMLError XMLDocument::LoadFile( FILE* fp )
         SetError( XML_ERROR_FILE_READ_ERROR, 0, 0 );
         return _errorID;
     }
+    TIXMLASSERT( filelength >= 0 );
 
     if ( !LongFitsIntoSizeTMinusOne<>::Fits( filelength ) ) {
         // Cannot handle files which won't fit in buffer together with null terminator

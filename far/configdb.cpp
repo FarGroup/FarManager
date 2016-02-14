@@ -70,6 +70,8 @@ public:
 
 	void SetRoot(tinyxml::XMLHandle Root) { m_Root = Root; }
 
+	void PrintError() const { m_Document.PrintError(); }
+
 private:
 	tinyxml::XMLDocument m_Document;
 	string m_File;
@@ -114,14 +116,6 @@ private:
 };
 
 namespace {
-
-static inline void PrintError(const wchar_t *Title, const string& Error, int Row, int Col)
-{
-	string strResult(Title);
-	strResult += L" (" + std::to_wstring(Row) + L"," + std::to_wstring(Col) + L"): " + Error + L'\n';
-	Console().Write(strResult);
-	Console().Commit();
-}
 
 class xml_enum: noncopyable, public enumerator<xml_enum, const tinyxml::XMLElement*>
 {
@@ -2459,6 +2453,7 @@ bool config_provider::Import(const string& Filename)
 
 	if (!root.ToNode())
 	{
+		Representation.PrintError();
 		return false;
 	}
 
