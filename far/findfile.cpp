@@ -2643,7 +2643,7 @@ unsigned int background_searcher::ThreadRoutine(THREADPARAM* Param)
 		Param->PluginMode? DoPreparePluginList(Param->Dlg, false) : DoPrepareFileList(Param->Dlg);
 		ReleaseInFileSearch();
 	}
-	catch (SException& e)
+	catch (const SException& e)
 	{
 		if (ProcessSEHException(e.GetInfo(), L"FindFiles::ThreadRoutine"))
 		{

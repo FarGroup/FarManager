@@ -487,7 +487,7 @@ bool ProcessStdException(const std::exception& e, const wchar_t* Function, const
 	{
 		do
 		{
-			Result = Message(MSG_WARNING, 4, MSG(MExcTrappedException), wide(e.what()).data(), Function, MSG(Module? MExcUnload : MExcTerminate), MSG(MExcDebugger), MSG(MExcStack), MSG(MIgnore));
+			Result = Message(MSG_WARNING, 4, MSG(MExcTrappedException), wide(e.what(), CP_UTF8).data(), Function, MSG(Module? MExcUnload : MExcTerminate), MSG(MExcDebugger), MSG(MExcStack), MSG(MIgnore));
 			if (Result == 2)
 			{
 				ShowStackTrace(e);
@@ -497,7 +497,7 @@ bool ProcessStdException(const std::exception& e, const wchar_t* Function, const
 	}
 	else
 	{
-		std::wcerr << L"\nException: " << e.what() << std::endl;
+		std::wcerr << L"\nException: " << wide(e.what(), CP_UTF8) << std::endl;
 	}
 
 	switch (Result)

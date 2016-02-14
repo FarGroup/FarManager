@@ -1280,14 +1280,14 @@ inline bool ParseIntValue(const string& sValue, long long& iValue)
 		iValue = std::stoll(sValue);
 		Result = true;
 	}
-	catch (std::exception&)
+	catch (const std::exception&)
 	{
 		try
 		{
 			iValue = std::stoull(sValue);
 			Result = true;
 		}
-		catch (std::exception&)
+		catch (const std::exception&)
 		{
 			if (!StrCmpI(sValue, L"false"))
 			{
@@ -2962,7 +2962,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 						}
 						catch (const std::exception& e)
 						{
-							Message(MSG_WARNING, 1, MSG(MError), wide(e.what()).data(), MSG(MOk));
+							Message(MSG_WARNING, 1, MSG(MError), wide(e.what(), CP_UTF8).data(), MSG(MOk));
 							strLanguage = SavedLanguage;
 						}
 

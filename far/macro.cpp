@@ -2694,7 +2694,7 @@ static bool atoiFunc(FarMacroCall* Data)
 	{
 		Value = std::stoull(Params[0].toString(), nullptr, (int)Params[1].toInteger());
 	}
-	catch (std::exception&)
+	catch (const std::exception&)
 	{
 		// TODO: log
 	}

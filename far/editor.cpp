@@ -4564,7 +4564,7 @@ void Editor::GoToPosition()
 			m_it_CurLine->SetLeftPos(LeftPos);
 			m_it_CurLine->SetCurPos(NewCol);
 		}
-		catch(const std::exception&)
+		catch (const std::exception&)
 		{
 			// TODO: log
 			// maybe we need to display message in case of incorrect input

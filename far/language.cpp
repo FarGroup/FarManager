@@ -406,7 +406,7 @@ void Language::init(const string& Path, int CountNeed)
 	//   Проведем проверку на количество строк в LNG-файлах
 	if (CountNeed != -1 && CountNeed != static_cast<int>(size()))
 	{
-		throw std::runtime_error("Language data is incorrect or damaged");
+		throw std::runtime_error(Utf8String(m_FileName) + ": language data is incorrect or damaged");
 	}
 
 	// try to load Far<LNG>.lng.custom file(s)

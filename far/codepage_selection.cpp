@@ -838,9 +838,17 @@ F8CP::F8CP(bool viewer):
 				cp = CP_UTF8;
 			else if (s == L"DEFAULT")
 				cp = defcp;
-			else {
-				try { cp = std::stoul(s); }
-				catch (std::exception&) { cp = 0; }
+			else
+			{
+				try
+				{
+					cp = std::stoul(s);
+				}
+				catch (const std::exception&)
+				{
+					// TODO: log
+					cp = 0;
+				}
 			}
 			if (cp && Codepages().IsCodePageSupported(cp, viewer ? 2:20) && used_cps.find(cp) == used_cps.end())
 			{

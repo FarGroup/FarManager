@@ -257,7 +257,7 @@ bool NativePluginModel::IsPlugin2(const void* Module)
 			}
 		}
 	}
-	catch (SException&)
+	catch (const SException&)
 	{
 	}
 	return false;
@@ -439,7 +439,7 @@ void Plugin::ExecuteFunction(ExecuteStruct& es, const std::function<void()>& f)
 	{
 		f();
 	}
-	catch (SException &e)
+	catch (const SException &e)
 	{
 		if (ProcessSEHException(e.GetInfo(), m_model->GetExportName(es.id), this))
 		{
@@ -452,7 +452,7 @@ void Plugin::ExecuteFunction(ExecuteStruct& es, const std::function<void()>& f)
 			throw;
 		}
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		if (ProcessStdException(e, m_model->GetExportName(es.id), this))
 		{
@@ -1274,7 +1274,7 @@ CustomPluginModel::CustomPluginModel(PluginManager* owner, const string& filenam
 			// TODO: store info, show message if version is bad
 		}
 	}
-	catch(const SException&)
+	catch (const SException&)
 	{
 		// TODO: notification
 		throw;
@@ -1291,7 +1291,7 @@ CustomPluginModel::~CustomPluginModel()
 			m_Imports.pFree(&Info);
 		}
 	}
-	catch(const SException&)
+	catch (const SException&)
 	{
 		// TODO: notification
 	}
@@ -1303,7 +1303,7 @@ bool CustomPluginModel::IsPlugin(const string& filename)
 	{
 		return m_Imports.pIsPlugin(filename.data()) != FALSE;
 	}
-	catch(const SException&)
+	catch (const SException&)
 	{
 		// TODO: notification
 		throw;
@@ -1317,7 +1317,7 @@ GenericPluginModel::plugin_instance CustomPluginModel::Create(const string& file
 	{
 		return m_Imports.pCreateInstance(filename.data());
 	}
-	catch(const SException&)
+	catch (const SException&)
 	{
 		// TODO: notification
 		throw;
@@ -1334,7 +1334,7 @@ void CustomPluginModel::InitExports(GenericPluginModel::plugin_instance instance
 			return *i.UName ? reinterpret_cast<void*>(m_Imports.pGetFunctionAddress(static_cast<HANDLE>(instance), i.UName)) : nullptr;
 		});
 	}
-	catch(const SException&)
+	catch (const SException&)
 	{
 		// TODO: notification
 		throw;
@@ -1347,7 +1347,7 @@ bool CustomPluginModel::Destroy(GenericPluginModel::plugin_instance module)
 	{
 		return m_Imports.pDestroyInstance(module) != FALSE;
 	}
-	catch(const SException&)
+	catch (const SException&)
 	{
 		// TODO: notification
 		throw;

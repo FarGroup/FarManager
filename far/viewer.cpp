@@ -2419,7 +2419,7 @@ void Viewer::Up( int nlines, bool adjust )
 					if (process_back<char>(buff_size, j, fpos, BufferReader, eol))
 						break;
 				}
-				catch (std::runtime_error&)
+				catch (const std::runtime_error&)
 				{
 					return; //??? error handling
 				}
@@ -2435,7 +2435,7 @@ void Viewer::Up( int nlines, bool adjust )
 					if (process_back<wchar_t>(buff_size, j, fpos, BufferReader, eol))
 						break;
 				}
-				catch (std::runtime_error&)
+				catch (const std::runtime_error&)
 				{
 					return; //??? error handling
 				}

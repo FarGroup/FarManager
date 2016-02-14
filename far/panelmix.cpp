@@ -461,7 +461,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 		{
 			i.width = std::stoi(strArgName);
 		}
-		catch(const std::exception&)
+		catch (const std::exception&)
 		{
 			// TODO: diagnostics
 			i.width = 0;

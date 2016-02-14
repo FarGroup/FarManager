@@ -383,7 +383,7 @@ long long TVar::asInteger() const
 		{
 			ret = std::stoll(str);
 		}
-		catch (std::exception&)
+		catch (const std::exception&)
 		{
 			// TODO: log
 		}
@@ -413,7 +413,7 @@ double TVar::asDouble() const
 		{
 			ret = std::stod(str);
 		}
-		catch (std::exception&)
+		catch (const std::exception&)
 		{
 			// TODO: log
 		}

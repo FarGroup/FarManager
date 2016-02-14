@@ -299,6 +299,7 @@ void InitKeysArray()
 					}
 					catch (const std::exception&)
 					{
+						// TODO: log
 					}
 				}
 			}

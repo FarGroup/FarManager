@@ -1,4 +1,10 @@
-﻿drkns 14.02.2016 13:00:58 +0200 - build 4549
+﻿drkns 14.02.2016 20:45:46 +0200 - build 4550
+
+1. Вместо "Language data is incorrect or damaged" показываем "filename.lng: language data is incorrect or damaged" дабы не гадать, что там за файл.
+
+2. Текст во всех исключениях, унаследованных от std::exception, трактуется как UTF-8.
+
+drkns 14.02.2016 13:00:58 +0200 - build 4549
 
 1. Восстановим сообщение об ошибке импорта XML.
 
