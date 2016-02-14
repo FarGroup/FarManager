@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 std::vector<string> printStack()
 {
 	std::vector<string> Result;
-//#ifdef _MSC_VER
+
 	// ## Windows Server 2003 and Windows XP:
 	// ## The sum of the FramesToSkip and FramesToCapture parameters must be less than 63.
 	const int kMaxCallers = 62;
@@ -59,7 +59,6 @@ std::vector<string> printStack()
 		Result.emplace_back(s.str());
 		s.str(string());
 	}
-//#endif
 	return Result;
 }
 
