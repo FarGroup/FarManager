@@ -3,6 +3,43 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 14.02.2016 20:45:46 +0200 - build 4550
+
+1. Instead of "Language data is incorrect or damaged" show "filename.lng: language data is incorrect or damaged" to avoid guessing the file.
+
+2. Text of all exceptions inherited from std::exception is considered to be UTF-8.
+
+drkns 14.02.2016 13:00:58 +0200 - build 4549
+
+1. Restore XML import error message.
+
+2. Latest TinyXML-2.
+
+3. SQLite 3.10.2.
+
+drkns 13.02.2016 16:59:45 +0200 - build 4548
+
+1. Messages on exceptions are added a "Stack" button.
+   Far.pdb is needed to get it work correctly.
+
+2. Refactoring.
+
+drkns 12.02.2016 23:30:30 +0200 - build 4547
+
+1. Refine Ctrl+F10 blocking logic in editor/viewer: now it is blocked only for modal windows.
+
+drkns 10.02.2016 23:21:06 +0200 - build 4546
+
+1. Refactoring. Shorten code in the manager a bit.
+
+drkns 09.02.2016 22:33:44 +0200 - build 4545
+
+1. Refactoring.
+
+drkns 08.02.2016 01:30:51 +0200 - build 4544
+
+1. After 4320, selection sometimes worked incorrectly after Ctrl-A.
+
 drkns 07.02.2016 18:30:10 +0200 - build 4543
 
 1. Switching to a column with Alt-F8 in viewer did not work if the first parameter was specified in percents (example from help).
