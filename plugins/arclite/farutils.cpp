@@ -774,6 +774,10 @@ bool panel_go_to_file(HANDLE h_panel, const wstring& file_path) {
     if (!g_far.PanelControl(h_panel, FCTL_SETPANELDIRECTORY, 0, &fpd))
       return false;
   }
+  else
+  {
+    g_far.PanelControl(h_panel, FCTL_UPDATEPANEL, 1, nullptr);
+  }
   PanelInfo panel_info = {sizeof(PanelInfo)};
   if (!g_far.PanelControl(h_panel, FCTL_GETPANELINFO, 0, &panel_info))
     return false;
