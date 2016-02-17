@@ -148,6 +148,7 @@ void CommandLine::DisplayObject()
 void CommandLine::DrawFakeCommand(const string& FakeCommand)
 {
 	DrawPrompt();
+	SetColor(COL_COMMANDLINE);
 	// TODO: wrap & scroll if too long
 	Text(FakeCommand);
 }

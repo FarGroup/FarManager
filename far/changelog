@@ -1,4 +1,8 @@
-﻿drkns 14.02.2016 20:45:46 +0200 - build 4550
+﻿drkns 17.02.2016 19:43:48 +0200 - build 4551
+
+1. После 4525 текст команды в user screen отображался не тем цветом.
+
+drkns 14.02.2016 20:45:46 +0200 - build 4550
 
 1. Вместо "Language data is incorrect or damaged" показываем "filename.lng: language data is incorrect or damaged" дабы не гадать, что там за файл.
 
