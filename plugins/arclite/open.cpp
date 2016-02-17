@@ -559,8 +559,17 @@ void Archive::reopen() {
   ComObject<IInStream> stream(stream_impl);
   arc_info = stream_impl->get_info();
   ArcChain::const_iterator arc_entry = arc_chain.begin();
-  if (!open(stream, arc_entry->type))
-    FAIL(E_FAIL);
+  if (arc_entry->sig_pos > 0) {
+    auto opened = open(new ArchiveSubStream(stream, arc_entry->sig_pos), arc_entry->type);
+    if (opened)
+      base_stream = stream;
+    else
+      FAIL(E_FAIL);
+  }
+  else {
+    if (!open(stream, arc_entry->type))
+      FAIL(E_FAIL);
+  }
   arc_entry++;
   while (arc_entry != arc_chain.end()) {
     UInt32 main_file;
@@ -574,6 +583,7 @@ void Archive::reopen() {
 }
 
 void Archive::close() {
+  base_stream = nullptr;
   if (in_arc) {
     in_arc->Close();
     in_arc.Release();
