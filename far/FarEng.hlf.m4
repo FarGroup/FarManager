@@ -2882,7 +2882,7 @@ by format specifiers added before or after the value.
     Hexadecimal offsets must be specified in one of the following formats:
        0xNNNN, NNNNh, $NNNN
 
-    Decimal offsets (not percentages) must be specified in the format NNNNd.
+    Decimal offsets (not percentages) must be specified in the format NNNNm.
 
   Examples
    #50%#                     Go to middle of file (50%)
@@ -2893,7 +2893,7 @@ by format specifiers added before or after the value.
    #+0x300#                  Go 0x300 (768) bytes forward
 
   If you enter the value with one of the format specifiers (%, '0x', 'h',
-'$', 'd'), the radio buttons selected in the dialog will be ignored.
+'$', 'm'), the radio buttons selected in the dialog will be ignored.
 
     ^<wrap>If current view mode is #unwrapped text# It is possible to set additional parameter - first visible column.
 0=start of the line; really first visible-1 (one char is used to indicate special show mode).

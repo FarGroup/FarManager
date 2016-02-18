@@ -71,6 +71,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keybar.hpp"
 #include "stddlg.hpp"
 #include "strmix.hpp"
+#include "FarDlgBuilder.hpp"
 
 enum SHOW_MODES
 {
@@ -4001,160 +4002,131 @@ wchar_t Viewer::vgetc_prev()
 
 void Viewer::GoTo(int ShowDlg, __int64 Offset, UINT64 Flags)
 {
-	__int64 new_leftpos = -1;
-	enum
+	long long NewLeftPos = -1;
+
+	int IsOffsetRelative = 0;
+
+	const auto CalcPercent = [](long long Value, long long PercentBase) -> long long
 	{
-		RB_PRC = 3,
-		RB_HEX = 4,
-		RB_DEC = 5,
+		const auto Percent = std::min(Value, 100ll);
+		Value = PercentBase / 100 * Percent;
+		while (ToPercent(Value, PercentBase) < Percent)
+			++Value;
+		return Value;
 	};
 
-	FarDialogItem GoToDlgData[]=
+	if (ShowDlg)
 	{
-		{DI_DOUBLEBOX,3,1,31,7,0,nullptr,nullptr,0,MSG(MViewerGoTo)},
-		{DI_EDIT,5,2,29,2,0,L"ViewerOffset",nullptr,DIF_FOCUS|DIF_DEFAULTBUTTON|DIF_HISTORY|DIF_USELASTHISTORY,L""},
-		{DI_TEXT,-1,3,0,3,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_RADIOBUTTON,5,4,0,4,0,nullptr,nullptr,DIF_GROUP,MSG(MGoToPercent)},
-		{DI_RADIOBUTTON,5,5,0,5,0,nullptr,nullptr,0,MSG(MGoToHex)},
-		{DI_RADIOBUTTON,5,6,0,6,0,nullptr,nullptr,0,MSG(MGoToDecimal)},
-	};
-	auto GoToDlg = MakeDialogItemsEx(GoToDlgData);
-
-	static int PrevMode = -1;
-	if ( PrevMode < 0 )
-		PrevMode = m_DisplayMode == VMT_HEX? RB_HEX : RB_DEC;
-
-	GoToDlg[RB_PRC].Selected = GoToDlg[RB_HEX].Selected = GoToDlg[RB_DEC].Selected = 0;
-	GoToDlg[PrevMode].Selected = 1;
-	{
-		__int64 Relative=0;
-		if (ShowDlg)
+		enum input_mode
 		{
-			const auto Dlg = Dialog::create(GoToDlg);
-			Dlg->SetHelp(L"ViewerGotoPos");
-			Dlg->SetPosition(-1,-1,35,9);
-			Dlg->Process();
+			RB_PRC = 0,
+			RB_HEX = 1,
+			RB_DEC = 2,
+		};
 
-			if (Dlg->GetExitCode()<=0)
+		static int PrevMode = -1;
+
+		if (PrevMode == -1)
+			PrevMode = m_DisplayMode == VMT_HEX? RB_HEX : RB_DEC;
+
+		IntOption InputMode(PrevMode);
+		static const int MsgIds[] = { MGoToPercent, MGoToHex, MGoToDecimal };
+
+		DialogBuilder Builder(MViewerGoTo, L"ViewerGotoPos");
+		string InputString;
+		Builder.AddEditField(InputString, 29, L"LineNumber", DIF_FOCUS | DIF_HISTORY | DIF_USELASTHISTORY | DIF_NOAUTOCOMPLETE);
+		Builder.AddSeparator();
+		Builder.AddRadioButtons(InputMode, 3, MsgIds);
+		Builder.AddOKCancel();
+		if (!Builder.ShowDialog())
+			return;
+
+		PrevMode = InputMode;
+
+		const auto ParseInput = [CalcPercent](string Str, int InputMode, long long& Result, int& IsRelative, long long PercentBase)
+		{
+			if (Str.empty())
 				return;
 
-			if (GoToDlg[1].strData.front()==L'+' || GoToDlg[1].strData.front()==L'-')       // юзер хочет относительности
-			{
-				if (GoToDlg[1].strData.front()==L'+')
-					Relative=1;
-				else
-					Relative=-1;
+			size_t Pos = 0;
 
-				GoToDlg[1].strData.erase(0, 1);
+			// юзер хочет относительности
+			switch (Str[Pos])
+			{
+			case L'+': IsRelative = +1; ++Pos; break;
+			case L'-': IsRelative = -1; ++Pos; break; 
+			default: break;
 			}
 
-			if (GoToDlg[1].strData.find(L'%') != string::npos)     // он хочет процентов
+			// он хочет процентов
+			if (PercentBase && Str.find('%', Pos) != string::npos)
 			{
-				GoToDlg[RB_HEX].Selected = GoToDlg[RB_DEC].Selected = 0;
-				GoToDlg[RB_PRC].Selected = 1;
+				InputMode = RB_PRC;
 			}
-			else if (!StrCmpNI(GoToDlg[1].strData.data(),L"0x",2)
-					 || GoToDlg[1].strData.front()==L'$'
-					 || GoToDlg[1].strData.find(L'h') != string::npos
-					 || GoToDlg[1].strData.find(L'H') != string::npos)  // он умный - hex код ввел!
+			// он умный - hex код ввел!
+			else if (!StrCmpNI(&Str[Pos], L"0x", 2) || Str[Pos] == L'$' || Str.find_first_of(L"Hh", Pos) != string::npos)
 			{
-				GoToDlg[RB_PRC].Selected=GoToDlg[RB_DEC].Selected=0;
-				GoToDlg[RB_HEX].Selected=1;
-
-				if (!StrCmpNI(GoToDlg[1].strData.data(),L"0x",2))
-					GoToDlg[1].strData.erase(0, 2);
-				else if (GoToDlg[1].strData.front()==L'$')
-					GoToDlg[1].strData.erase(0, 1);
-
-				//Relative=0; // при hex значении никаких относительных значений?
+				InputMode = RB_HEX;
+				if (Str[Pos] == L'$')
+					++Pos;
+			}
+			else if (Str.find_first_of(L"Mm", Pos) != string::npos)
+			{
+				InputMode = RB_DEC;
 			}
 
 			try
 			{
-				size_t pos = 0;
-				if (GoToDlg[RB_PRC].Selected)
+				const auto Base = InputMode == RB_PRC? 10 : InputMode == RB_HEX? 16 : 10;
+				Result = std::stoull(Str.substr(Pos), nullptr, Base);
+
+				if (InputMode == RB_PRC)
 				{
-					unsigned long Percent = std::stoul(GoToDlg[1].strData, &pos);
-					if (Percent > 100)
-						return;
-					PrevMode = RB_PRC;
-					Offset = FileSize / 100 * Percent;
-
-					while (ToPercent(Offset, FileSize) < Percent)
-						Offset++;
-				}
-				else
-				{
-					bool hex = GoToDlg[RB_HEX].Selected != 0;
-					Offset = std::stoull(GoToDlg[1].strData, &pos, hex ? 16 : 10);
-					PrevMode = hex ? RB_HEX : RB_DEC;
-				}
-				if (m_DisplayMode == VMT_TEXT && !m_Wrap && pos < GoToDlg[1].strData.size()) // Pos[, LeftPos]
-				{
-					auto Iter = GoToDlg[1].strData.cbegin() + pos;
-					const auto End = GoToDlg[1].strData.cend();
-
-					if (Iter != End && wcschr(L"%hHdD", *Iter))
-					{
-						++Iter;
-					}
-
-					Iter = std::find_if_not(Iter, End, IsSpace);
-
-					if (Iter != End && *Iter == L',')
-					{
-						++Iter;
-					}
-
-					Iter = std::find_if_not(Iter, End, IsSpace);
-
-					int RelativeColumn = 0;
-					if (Iter != End && (*Iter == L'+' || *Iter == L'-'))
-					{
-						RelativeColumn = *Iter == L'+' ? +1 : -1;
-						++Iter;
-					}
-					if (Iter != End && std::iswdigit(*Iter))
-					{
-						auto Column = std::stoll(&*Iter);
-						if (RelativeColumn)
-							Column = LeftPos + RelativeColumn * Column;
-						new_leftpos = std::min(std::max(0LL, Column), ViOpt.MaxLineSize.Get());
-					}
+					Result = CalcPercent(Result, PercentBase);
 				}
 			}
 			catch (const std::exception&)
 			{
-				// wrong input, Offset unchanged.
+				// wrong input, Offset is unchanged.
 				// TODO: diagnostics
 			}
-		}// ShowDlg
-		else
+		};
+
+		std::vector<string> Strings;
+		split(Strings, InputString, STLF_ALLOWEMPTY);
+		if (Strings.empty())
+			return;
+
+		ParseInput(Strings[0], InputMode, Offset, IsOffsetRelative, FileSize);
+		if (m_DisplayMode == VMT_TEXT && !m_Wrap && Strings.size() > 1) // Pos[, LeftPos]
 		{
-			Relative=(Flags&VSP_RELATIVE)*(Offset<0?-1:1);
+			int IsColumnRelative = 0;
+			long long Column = 0;
+			ParseInput(Strings[1], InputMode, Column, IsColumnRelative, 0);
 
-			if (Flags&VSP_PERCENT)
+			if (IsColumnRelative)
 			{
-				__int64 Percent=Offset;
-
-				if (Percent>100)
-					return;
-
-				//if ( Percent<0 )
-				//  Percent=0;
-				Offset=FileSize/100*Percent;
-
-				while (ToPercent(Offset,FileSize)<Percent)
-					Offset++;
+				Column = LeftPos + IsColumnRelative * Column;
 			}
+			NewLeftPos = std::min(std::max(0LL, Column), ViOpt.MaxLineSize.Get());
 		}
-
-		FilePos = (Relative ? FilePos + Offset*Relative : Offset);
-		FilePos = (FilePos < 0 ? 0 : (FilePos > FileSize ? FileSize : FilePos));
 	}
+	else
+	{
+		IsOffsetRelative = (Flags&VSP_RELATIVE) * (Offset < 0? -1 : 1);
+
+		if (Flags&VSP_PERCENT)
+		{
+			Offset = CalcPercent(Offset, FileSize);
+		}
+	}
+
+	FilePos = IsOffsetRelative? FilePos + Offset * IsOffsetRelative : Offset;
+	FilePos = std::max(0ll, std::min(FilePos, FileSize));
+
 	AdjustFilePos();
-	if (new_leftpos >= 0)
-		LeftPos = new_leftpos;
+	if (NewLeftPos != -1)
+		LeftPos = NewLeftPos;
 
 	if (!(Flags&VSP_NOREDRAW))
 		Show();
