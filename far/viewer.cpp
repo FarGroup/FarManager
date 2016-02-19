@@ -4000,6 +4000,13 @@ wchar_t Viewer::vgetc_prev()
 	return Result;
 }
 
+enum input_mode
+{
+	RB_PRC = 0,
+	RB_HEX = 1,
+	RB_DEC = 2,
+};
+
 void Viewer::GoTo(int ShowDlg, __int64 Offset, UINT64 Flags)
 {
 	long long NewLeftPos = -1;
@@ -4017,13 +4024,6 @@ void Viewer::GoTo(int ShowDlg, __int64 Offset, UINT64 Flags)
 
 	if (ShowDlg)
 	{
-		enum input_mode
-		{
-			RB_PRC = 0,
-			RB_HEX = 1,
-			RB_DEC = 2,
-		};
-
 		static int PrevMode = -1;
 
 		if (PrevMode == -1)
