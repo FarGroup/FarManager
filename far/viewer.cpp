@@ -4046,7 +4046,12 @@ void Viewer::GoTo(int ShowDlg, __int64 Offset, UINT64 Flags)
 		const auto ParseInput = [CalcPercent](string Str, int InputMode, long long& Result, int& IsRelative, long long PercentBase)
 		{
 			if (Str.empty())
+			{
+				// empty string => don't change anything
+				Result = 0;
+				IsRelative = 1;
 				return;
+			}
 
 			size_t Pos = 0;
 
@@ -4054,7 +4059,7 @@ void Viewer::GoTo(int ShowDlg, __int64 Offset, UINT64 Flags)
 			switch (Str[Pos])
 			{
 			case L'+': IsRelative = +1; ++Pos; break;
-			case L'-': IsRelative = -1; ++Pos; break; 
+			case L'-': IsRelative = -1; ++Pos; break;
 			default: break;
 			}
 
@@ -4092,17 +4097,17 @@ void Viewer::GoTo(int ShowDlg, __int64 Offset, UINT64 Flags)
 			}
 		};
 
-		std::vector<string> Strings;
-		split(Strings, InputString, STLF_ALLOWEMPTY);
-		if (Strings.empty())
+		std::vector<string> InputStrings;
+		split(InputStrings, InputString, STLF_ALLOWEMPTY);
+		if (InputStrings.empty())
 			return;
 
-		ParseInput(Strings[0], InputMode, Offset, IsOffsetRelative, FileSize);
-		if (m_DisplayMode == VMT_TEXT && !m_Wrap && Strings.size() > 1) // Pos[, LeftPos]
+		ParseInput(InputStrings[0], InputMode, Offset, IsOffsetRelative, FileSize);
+		if (m_DisplayMode == VMT_TEXT && !m_Wrap && InputStrings.size() > 1) // Pos[, LeftPos]
 		{
 			int IsColumnRelative = 0;
 			long long Column = 0;
-			ParseInput(Strings[1], InputMode, Column, IsColumnRelative, 0);
+			ParseInput(InputStrings[1], InputMode, Column, IsColumnRelative, 0);
 
 			if (IsColumnRelative)
 			{

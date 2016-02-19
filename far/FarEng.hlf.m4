@@ -2900,7 +2900,7 @@ by format specifiers added before or after the value.
 
   Examples
    #50%, 10#                 Go to middle of the file (50%), visible text start column = 10
-   #+0, +10#                 Increase current start offset by 10 symbols
+   #, +10#                 Increase current start offset by 10 symbols
 
 
 @ViewerSearch
