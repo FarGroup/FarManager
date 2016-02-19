@@ -114,12 +114,13 @@ local function SetCustomSortMode (nMode, whatpanel)
 end
 
 local function CustomSortMenu()
+  local Id = win.Uuid("C323FBCF-6803-4F2C-B8B4-E576E7F125DC")
   local items, bkeys = {}, {{BreakKey="C+RETURN"},{BreakKey="CS+RETURN"}}
   for k,v in pairs(CustomSortModes) do
     items[#items+1] = { text=v.Description and tostring(v.Description) or Msg.PSDefaultMenuItemText..k; Mode=k; }
   end
   table.sort(items, function(a,b) return a.Mode < b.Mode end)
-  local r, pos = far.Menu({Title=Msg.PSMenuTitle}, items, bkeys)
+  local r, pos = far.Menu({Title=Msg.PSMenuTitle, Id=Id}, items, bkeys)
   if r then
     if r.BreakKey == "C+RETURN" then
       SetCustomSortMode(items[pos].Mode,1)
