@@ -1,4 +1,9 @@
-﻿shmuel 12.02.2016 12:41:32 +0200 - build 556
+﻿shmuel 19.02.2016 21:32:01 +0200 - build 557
+
+1. M#3175: "Отключить в LuaMacro редирект WOW64 для функций работы с реестром"
+   LuaFAR: добавлена функция win.DeleteRegKeyEx. Описание в мануале.
+
+shmuel 12.02.2016 12:41:32 +0200 - build 556
 
 1. LuaFAR: fix handling PPIF_SELECTED.
 

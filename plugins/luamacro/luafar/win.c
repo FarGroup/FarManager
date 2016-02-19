@@ -59,7 +59,7 @@ static HKEY CheckHKey(lua_State *L, int pos)
 	return 0;
 }
 
-// SetRegKey (Root, Key, ValueName, DataType, ValueData)
+// SetRegKey (Root, Key, ValueName, DataType, ValueData [, samDesired])
 //   Root:       root, [string], one of "HKLM", "HKCC", "HKCR", "HKCU", "HKU"
 //   Key:        registry key, [string]
 //   ValueName:  registry value name, [string]
@@ -110,7 +110,7 @@ static int win_SetRegKey(lua_State *L)
 	return 0;
 }
 
-// ValueData, DataType = GetRegKey (Root, Key, ValueName)
+// ValueData, DataType = GetRegKey (Root, Key, ValueName [, samDesired])
 //   Root:       [string], one of "HKLM", "HKCC", "HKCR", "HKCU", "HKU"
 //   Key:        registry key, [string]
 //   ValueName:  registry value name, [string]
@@ -182,7 +182,7 @@ static int win_GetRegKey(lua_State *L)
 	return 2;
 }
 
-// Result = DeleteRegKey (Root, Key [, samDesired])
+// Result = DeleteRegKey (Root, Key)
 //   Root:       [string], one of "HKLM", "HKCC", "HKCR", "HKCU", "HKU"
 //   Key:        registry key, [string]
 // Returns:
@@ -196,7 +196,29 @@ static int win_DeleteRegKey(lua_State *L)
 	return 1;
 }
 
-// Result = DeleteRegValue (Root, Key, ValueName)
+// Result = DeleteRegKeyEx (Root, Key [, samDesired])
+//   Root:       [string], one of "HKLM", "HKCC", "HKCR", "HKCU", "HKU"
+//   Key:        registry key, [string]
+//   samDesired: access mask, [flag] ("KEY_WOW64_32KEY" or "KEY_WOW64_64KEY"; the default is 0)
+// Returns:
+//   Result:     TRUE if success, FALSE if failure, [boolean]
+static int win_DeleteRegKeyEx(lua_State *L)
+{
+	FARPROC ProcAddr;
+	HMODULE module = GetModuleHandleW(L"Advapi32.dll");
+	if (module && (ProcAddr = GetProcAddress(module, "RegDeleteKeyExW")) != NULL)
+	{
+		typedef LONG (WINAPI *pRegDeleteKeyEx)(HKEY, LPCTSTR, REGSAM, DWORD);
+		HKEY hRoot = CheckHKey(L, 1);
+		const wchar_t* Key = check_utf8_string(L, 2, NULL);
+		REGSAM samDesired = (REGSAM) OptFlags(L, 3, 0);
+		long res = ((pRegDeleteKeyEx)ProcAddr)(hRoot, Key, samDesired, 0);
+		return lua_pushboolean(L, res==ERROR_SUCCESS), 1;
+	}
+	return lua_pushboolean(L,0), 1;
+}
+
+// Result = DeleteRegValue (Root, Key, ValueName [, samDesired])
 //   Root:      [string], one of "HKLM", "HKCC", "HKCR", "HKCU", "HKU"
 //   Key:       registry key, [string]
 //   ValueName: value name, [optional string]
@@ -220,7 +242,7 @@ static int win_DeleteRegValue(lua_State *L)
 	return 1;
 }
 
-// Result = EnumRegKey (Root, Key, Index)
+// Result = EnumRegKey (Root, Key, Index [, samDesired])
 //   Root:      [string], one of "HKLM", "HKCC", "HKCR", "HKCU", "HKU"
 //   Key:       registry key, [string]
 //   Index:     integer
@@ -266,7 +288,7 @@ static int win_EnumRegKey(lua_State *L)
 	return 1;
 }
 
-// Result = EnumRegValue (Root, Key, Index)
+// Result = EnumRegValue (Root, Key, Index [, samDesired])
 //   Root:      [string], one of "HKLM", "HKCC", "HKCR", "HKCU", "HKU"
 //   Key:       registry key, [string]
 //   Index:     integer
@@ -701,6 +723,7 @@ const luaL_Reg win_funcs[] =
 	{"CreateDir",           win_CreateDir},
 	{"DeleteFile",          win_DeleteFile},
 	{"DeleteRegKey",        win_DeleteRegKey},
+	{"DeleteRegKeyEx",      win_DeleteRegKeyEx},
 	{"DeleteRegValue",      win_DeleteRegValue},
 	{"EnumRegKey",          win_EnumRegKey},
 	{"EnumRegValue",        win_EnumRegValue},
