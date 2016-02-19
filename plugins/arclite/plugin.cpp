@@ -177,6 +177,15 @@ public:
       options.overwrite = oaOverwrite;
       options.separate_dir = triFalse;
     }
+
+    const auto update_dst_dir = [&]
+    {
+      if (options.separate_dir == triTrue || (options.separate_dir == triUndef && !single_item && (op_mode & OPM_TOPLEVEL)))
+      {
+        options.dst_dir = get_separate_dir_path(dst_dir, archive->arc_name());
+      }
+    };
+
     if (show_dialog) {
       if (!extract_dialog(options))
         FAIL(E_ABORT);
@@ -185,16 +194,17 @@ public:
       if (!is_absolute_path(options.dst_dir))
         options.dst_dir = Far::get_absolute_path(options.dst_dir);
       dst_dir = options.dst_dir;
-      if (options.separate_dir == triTrue || (options.separate_dir == triUndef && !single_item && (op_mode & OPM_TOPLEVEL))) {
-        options.dst_dir = get_separate_dir_path(options.dst_dir, archive->arc_name());
-      }
+      update_dst_dir();
       if (!options.password.empty())
         archive->password = options.password;
     }
     if (op_mode & OPM_TOPLEVEL)
     {
       if(op_mode & OPM_SILENT)
+      {
         options = batch_options;
+        update_dst_dir();
+      }
       else
         batch_options = options;
     }
