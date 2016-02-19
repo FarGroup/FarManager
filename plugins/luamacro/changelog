@@ -1,4 +1,8 @@
-﻿shmuel 19.02.2016 23:36:00 +0200 - build 558
+﻿shmuel 20.02.2016 00:08:38 +0200 - build 559
+
+1. Исправлен мелкий баг в функции Panel.CustomSortMenu.
+
+shmuel 19.02.2016 23:36:00 +0200 - build 558
 
 1. Меню, выводимому функцией Panel.CustomSortMenu, присвоен GUID "C323FBCF-6803-4F2C-B8B4-E576E7F125DC".
 

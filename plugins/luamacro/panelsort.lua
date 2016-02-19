@@ -121,7 +121,7 @@ local function CustomSortMenu()
   end
   table.sort(items, function(a,b) return a.Mode < b.Mode end)
   local r, pos = far.Menu({Title=Msg.PSMenuTitle, Id=Id}, items, bkeys)
-  if r then
+  if r and (pos > 0) then
     if r.BreakKey == "C+RETURN" then
       SetCustomSortMode(items[pos].Mode,1)
     elseif r.BreakKey == "CS+RETURN" then
