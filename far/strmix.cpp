@@ -525,7 +525,7 @@ void UnquoteExternal(string &strStr)
 			strStr.pop_back();
 			strStr.erase(0, 1);
 		}
-		else if (len >= 3 && strStr[len-1] == L'\\' && strStr[len-2] == L'\"') // '"D:\Path Name"\'
+		else if (len >= 3 && IsSlash(strStr[len-1]) && strStr[len-2] == L'\"') // '"D:\Path Name"\'
 		{
 			strStr.erase(len-2, 1);
 			strStr.erase(0, 1);

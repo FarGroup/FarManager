@@ -59,9 +59,8 @@ void CreatePluginStartupInfo(const Plugin *pPlugin, PluginStartupInfo *PSI, FarS
 
 #define LAST_BUTTON 14
 
-static void ShowStackTraceImpl(const std::vector<void*>& Trace)
+static void ShowStackTraceImpl(const std::vector<string>& Symbols)
 {
-	const auto Symbols = tracer::GetSymbols(Trace);
 	if (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 	{
 		Message(MSG_WARNING | MSG_LEFTALIGN, MSG(MExcTrappedException), Symbols, make_vector<string>(MSG(MOk)));
@@ -79,7 +78,7 @@ static void ShowStackTraceImpl(const std::vector<void*>& Trace)
 template<class T>
 void ShowStackTrace(const T& e)
 {
-	return ShowStackTraceImpl(tracer::GetInstance()->get(e));
+	return ShowStackTraceImpl(tracer::get(e));
 }
 
 intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
@@ -131,7 +130,7 @@ intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 				return FALSE;
 
 			case 12: // stack
-				ShowStackTrace(reinterpret_cast<const EXCEPTION_RECORD*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr)));
+				ShowStackTrace(reinterpret_cast<const EXCEPTION_POINTERS*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr)));
 				return FALSE;
 			}
 		}
@@ -156,24 +155,24 @@ enum reply
 	reply_ignore,
 };
 
-static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, const EXCEPTION_RECORD* xr)
+static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, const EXCEPTION_POINTERS* xp)
 {
 	// TODO: Far Dialog is not the best choice for exception reporting
 	// replace with something trivial
 
-	const auto strAddr = L"0x" + to_hex_wstring(reinterpret_cast<uintptr_t>(xr->ExceptionAddress));
+	const auto strAddr = tracer::get(xp->ExceptionRecord->ExceptionAddress);
 
 	FarDialogItem EditDlgData[]=
 	{
 		{DI_DOUBLEBOX,3,1,76,8,0,nullptr,nullptr,0,MSG(MExcTrappedException)},
 		{DI_TEXT,     5,2, 17,2,0,nullptr,nullptr,0,MSG(MExcException)},
-		{DI_TEXT,    18,2, 70,2,0,nullptr,nullptr,0,Exception},
+		{DI_TEXT,    18,2, 75,2,0,nullptr,nullptr,0,Exception},
 		{DI_TEXT,     5,3, 17,3,0,nullptr,nullptr,0,MSG(MExcAddress)},
-		{DI_TEXT,    18,3, 70,3,0,nullptr,nullptr,0,strAddr.data()},
+		{DI_EDIT,    18,3, 75,3,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,strAddr.data()},
 		{DI_TEXT,     5,4, 17,4,0,nullptr,nullptr,0,MSG(MExcFunction)},
-		{DI_TEXT,    18,4, 70,4,0,nullptr,nullptr,0,gFrom},
+		{DI_TEXT,    18,4, 75,4,0,nullptr,nullptr,0,gFrom},
 		{DI_TEXT,     5,5, 17,5,0,nullptr,nullptr,0,MSG(MExcModule)},
-		{DI_EDIT,    18,5, 70,5,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,ModuleName.data()},
+		{DI_EDIT,    18,5, 75,5,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,ModuleName.data()},
 		{DI_TEXT,    -1,6, 0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_CENTERGROUP, MSG(PluginModule? MExcUnload : MExcTerminate)},
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MExcDebugger)},
@@ -182,7 +181,7 @@ static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, const EXCEPT
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MIgnore)},
 	};
 	auto EditDlg = MakeDialogItemsEx(EditDlgData);
-	const auto Dlg = Dialog::create(EditDlg, ExcDlgProc, const_cast<void*>(reinterpret_cast<const void*>(xr)));
+	const auto Dlg = Dialog::create(EditDlg, ExcDlgProc, const_cast<void*>(reinterpret_cast<const void*>(xp)));
 	Dlg->SetDialogMode(DMODE_WARNINGSTYLE|DMODE_NOPLUGINS);
 	Dlg->SetPosition(-1, -1, 80, 10);
 	Dlg->Process();
@@ -201,9 +200,9 @@ static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, const EXCEPT
 	}
 }
 
-static void ExcDump(const string& ModuleName, LPCWSTR Exception, const EXCEPTION_RECORD* xr)
+static void ExcDump(const string& ModuleName, LPCWSTR Exception, const EXCEPTION_POINTERS* xp)
 {
-	const auto strAddr = L"0x" + to_hex_wstring(reinterpret_cast<uintptr_t>(xr->ExceptionAddress));
+	const auto strAddr = tracer::get(xp->ExceptionRecord->ExceptionAddress);
 
 	string Msg[4];
 	if (LanguageLoaded())
@@ -229,7 +228,7 @@ static void ExcDump(const string& ModuleName, LPCWSTR Exception, const EXCEPTION
 
 	std::wcerr << Dump << std::endl;
 
-	ShowStackTrace(xr);
+	ShowStackTrace(xp);
 }
 
 template<char c0, char c1, char c2, char c3>
@@ -429,12 +428,12 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 
 	if (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 	{
-		MsgCode = ExcDialog(strFileName, Exception, xr);
+		MsgCode = ExcDialog(strFileName, Exception, xp);
 		ShowMessages=TRUE;
 	}
 	else
 	{
-		ExcDump(strFileName, Exception, xr);
+		ExcDump(strFileName, Exception, xp);
 	}
 
 	if (ShowMessages && !PluginModule)

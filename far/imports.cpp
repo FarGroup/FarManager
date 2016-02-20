@@ -85,7 +85,6 @@ ImportedFunctions::ImportedFunctions():
 	INIT_IMPORT(m_kernel32, TzSpecificLocalTimeToSystemTime),
 	INIT_IMPORT(m_kernel32, AddVectoredExceptionHandler),
 	INIT_IMPORT(m_kernel32, RemoveVectoredExceptionHandler),
-	INIT_IMPORT(m_kernel32, RtlCaptureStackBackTrace),
 
 	INIT_IMPORT(m_shell32, SHCreateAssociationRegistration),
 
@@ -104,9 +103,12 @@ ImportedFunctions::ImportedFunctions():
 	INIT_IMPORT(m_netapi32, NetDfsGetInfo),
 
 	INIT_IMPORT(m_dbghelp, MiniDumpWriteDump),
+	INIT_IMPORT(m_dbghelp, StackWalk64),
 	INIT_IMPORT(m_dbghelp, SymInitialize),
 	INIT_IMPORT(m_dbghelp, SymCleanup),
-	INIT_IMPORT(m_dbghelp, SymFromAddr)
+	INIT_IMPORT(m_dbghelp, SymFromAddr),
+	INIT_IMPORT(m_dbghelp, SymSetOptions),
+	INIT_IMPORT(m_dbghelp, SymGetLineFromAddr64)
 
 #undef INIT_IMPORT
 {
@@ -301,13 +303,6 @@ ULONG WINAPI ImportedFunctions::stub_RemoveVectoredExceptionHandler(PVOID Handle
 	return 0;
 }
 
-USHORT WINAPI ImportedFunctions::stub_RtlCaptureStackBackTrace(ULONG FramesToSkip, ULONG FramesToCapture, PVOID BackTrace, PULONG BackTraceHash)
-{
-	// TODO: log
-	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-	return 0;
-}
-
 // shell32
 HRESULT STDAPICALLTYPE ImportedFunctions::stub_SHCreateAssociationRegistration(REFIID riid, void ** ppv)
 {
@@ -388,6 +383,12 @@ BOOL WINAPI ImportedFunctions::stub_MiniDumpWriteDump(HANDLE Process, DWORD Proc
 	return FALSE;
 }
 
+BOOL WINAPI ImportedFunctions::stub_StackWalk64(DWORD MachineType, HANDLE Process, HANDLE Thread, LPSTACKFRAME64 StackFrame, PVOID ContextRecord, PREAD_PROCESS_MEMORY_ROUTINE64 ReadMemoryRoutine, PFUNCTION_TABLE_ACCESS_ROUTINE64 FunctionTableAccessRoutine, PGET_MODULE_BASE_ROUTINE64 GetModuleBaseRoutine, PTRANSLATE_ADDRESS_ROUTINE64 TranslateAddress)
+{
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return FALSE;
+}
+
 BOOL WINAPI ImportedFunctions::stub_SymInitialize(HANDLE Process, PCSTR UserSearchPath, BOOL InvadeProcess)
 {
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
@@ -405,3 +406,17 @@ BOOL WINAPI ImportedFunctions::stub_SymFromAddr(HANDLE Process, DWORD64 Address,
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return FALSE;
 }
+
+DWORD WINAPI ImportedFunctions::stub_SymSetOptions(DWORD SymOptions)
+{
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return 0;
+}
+
+BOOL WINAPI ImportedFunctions::stub_SymGetLineFromAddr64(HANDLE Process, DWORD64 Addr, PDWORD Displacement, PIMAGEHLP_LINE64 Line)
+{
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return FALSE;
+}
+
+

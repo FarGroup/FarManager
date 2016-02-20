@@ -110,7 +110,6 @@ public: const unique_function_pointer<decltype(&ImportedFunctions::stub_##NAME),
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, TzSpecificLocalTimeToSystemTime, const TIME_ZONE_INFORMATION* TimeZoneInformation, const SYSTEMTIME* LocalTime, LPSYSTEMTIME UniversalTime);
 	DECLARE_IMPORT_FUNCTION(PVOID, WINAPI, AddVectoredExceptionHandler, ULONG First, PVECTORED_EXCEPTION_HANDLER Handler);
 	DECLARE_IMPORT_FUNCTION(ULONG, WINAPI, RemoveVectoredExceptionHandler, PVOID Handler);
-	DECLARE_IMPORT_FUNCTION(USHORT, WINAPI, RtlCaptureStackBackTrace, ULONG FramesToSkip, ULONG FramesToCapture, PVOID BackTrace, PULONG BackTraceHash);
 
 	// shell32
 	DECLARE_IMPORT_FUNCTION(HRESULT, STDAPICALLTYPE, SHCreateAssociationRegistration, REFIID riid, void** ppv);
@@ -135,10 +134,12 @@ public: const unique_function_pointer<decltype(&ImportedFunctions::stub_##NAME),
 
 	// dbghelp
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, MiniDumpWriteDump, HANDLE Process, DWORD ProcessId, HANDLE File, MINIDUMP_TYPE DumpType, PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam, PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
+	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, StackWalk64, DWORD MachineType, HANDLE Process, HANDLE Thread, LPSTACKFRAME64 StackFrame, PVOID ContextRecord, PREAD_PROCESS_MEMORY_ROUTINE64 ReadMemoryRoutine, PFUNCTION_TABLE_ACCESS_ROUTINE64 FunctionTableAccessRoutine, PGET_MODULE_BASE_ROUTINE64 GetModuleBaseRoutine, PTRANSLATE_ADDRESS_ROUTINE64 TranslateAddress);
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, SymInitialize, HANDLE Process, PCSTR UserSearchPath, BOOL InvadeProcess);
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, SymCleanup, HANDLE Process);
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, SymFromAddr, HANDLE Process, DWORD64 Address, PDWORD64 Displacement, PSYMBOL_INFO Symbol);
-
+	DECLARE_IMPORT_FUNCTION(DWORD,WINAPI, SymSetOptions, DWORD SymOptions);
+	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, SymGetLineFromAddr64, HANDLE Process, DWORD64 Addr, PDWORD Displacement, PIMAGEHLP_LINE64 Line);
 #undef DECLARE_IMPORT_FUNCTION
 
 private:
