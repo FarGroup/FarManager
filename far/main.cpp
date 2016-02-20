@@ -299,11 +299,6 @@ static int MainProcess(
 		return 0;
 }
 
-static LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS *ExceptionInfo)
-{
-	return ProcessSEHException(ExceptionInfo, L"FarUnhandledExceptionFilter")? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH;
-}
-
 static void InitTemplateProfile(string &strTemplatePath)
 {
 	if (strTemplatePath.empty())
@@ -783,7 +778,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 		}
 		else
 		{
-			SetErrorMode(Global->ErrorMode&~SEM_NOGPFAULTERRORBOX);
+			RestoreGPFaultUI();
 			throw;
 		}
 	}
@@ -795,10 +790,13 @@ static int mainImpl(const range<wchar_t**>& Args)
 		}
 		else
 		{
-			SetErrorMode(Global->ErrorMode&~SEM_NOGPFAULTERRORBOX);
+			RestoreGPFaultUI();
 			throw;
 		}
 	}
+	// Absence of catch (...) block here is deliberate:
+	// Unknown C++ exceptions will be caught by FarUnhandledExceptionFilter
+	// and processed as SEH exceptions in more advanced way
 
 	_OT(SysLog(L"[[[[[Exit of FAR]]]]]]]]]"));
 
@@ -826,17 +824,32 @@ int wmain(int Argc, wchar_t *Argv[])
 	}
 	catch (const SException& e)
 	{
-		ProcessSEHException(e.GetInfo(), L"wmain");
+		if (ProcessSEHException(e.GetInfo(), L"wmain"))
+		{
+			std::terminate();
+		}
+		else
+		{
+			SetUnhandledExceptionFilter(nullptr);
+			throw;
+		}
 	}
 	catch (const std::exception& e)
 	{
-		ProcessStdException(e, L"wmain");
+		if (ProcessStdException(e, L"wmain"))
+		{
+			std::terminate();
+		}
+		else
+		{
+			SetUnhandledExceptionFilter(nullptr);
+			throw;
+		}
 	}
-	catch (...)
-	{
-		// TODO: ProcessUnknownException
-		std::wcerr << L"\nUnknown exception" << std::endl;
-	}
+	// Absence of catch (...) block here is deliberate:
+	// Unknown C++ exceptions will be caught by FarUnhandledExceptionFilter
+	// and processed as SEH exceptions in more advanced way
+
 	return 1;
 }
 

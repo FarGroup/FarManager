@@ -22308,6 +22308,18 @@ MExcDatatypeMisalignment
 "Allineamento Fallito"
 "Спроба доступу до невирівняних даних"
 
+MExcCplusPlus
+"C++ исключение"
+"C++ exception"
+"C++ výjimka"
+"C++ Ausnahme"
+"C++ kivétel"
+"C++ wyjątek"
+"C++ excepción"
+"C++ výnimka"
+"C++ errore"
+"C++ виняток"
+
 MExcUnknown
 "Неизвестное исключение"
 "Unknown exception"

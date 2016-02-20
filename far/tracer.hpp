@@ -41,12 +41,13 @@ public:
 
 	static tracer* GetInstance();
 
-	void store(const std::exception& e, const EXCEPTION_POINTERS* ExceptionInfo);
+	void store(const void* CppObject, const EXCEPTION_POINTERS* ExceptionInfo);
 
-
-	static std::vector<string> get(const std::exception& e);
+	static std::vector<string> get(const void* CppObject);
 	static std::vector<string> get(const EXCEPTION_POINTERS* e);
-	static string get(const void* Address);
+	static string get_one (const void* Address);
+
+	static bool get_exception_context(const void* CppObject, EXCEPTION_RECORD& ExceptionRecord, CONTEXT& ContextRecord);
 
 private:
 	struct exception_context
@@ -54,15 +55,14 @@ private:
 		EXCEPTION_RECORD ExceptionRecord;
 		CONTEXT ContextRecord;
 	};
-
-	bool get_context(const std::exception& e, exception_context& Context) const;
+	bool get_context(const void* CppObject, exception_context& Context) const;
 
 	static bool SymInitialise();
 	static void SymCleanup();
 
 	static tracer* sTracer;
 	mutable CriticalSection m_CS;
-	std::map<const std::exception*, exception_context> m_StdMap;
+	std::map<const void*, exception_context> m_StdMap;
 	veh_handler m_Handler;
 	static bool m_SymInitialised;
 };

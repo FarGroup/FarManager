@@ -103,10 +103,13 @@ static std::vector<string> GetSymbols(const std::vector<const void*>& BackTrace)
 
 LONG WINAPI StackLogger(EXCEPTION_POINTERS *xp)
 {
-	static const auto MSCPPExceptionCode = 0xE06D7363;
-	if (xp->ExceptionRecord->ExceptionCode == MSCPPExceptionCode)
+	if (IsCppException(xp))
 	{
-		tracer::GetInstance()->store(*reinterpret_cast<const std::exception*>(xp->ExceptionRecord->ExceptionInformation[1]), xp);
+		// 0 indicates rethrow
+		if (xp->ExceptionRecord->ExceptionInformation[1])
+		{
+			tracer::GetInstance()->store(ToPtr(xp->ExceptionRecord->ExceptionInformation[1]), xp);
+		}
 	}
 	return EXCEPTION_CONTINUE_SEARCH;
 }
@@ -129,17 +132,22 @@ tracer::~tracer()
 	sTracer = nullptr;
 }
 
-void tracer::store(const std::exception& e, const EXCEPTION_POINTERS* ExceptionInfo)
+void tracer::store(const void* CppObject, const EXCEPTION_POINTERS* ExceptionInfo)
 {
 	SCOPED_ACTION(CriticalSectionLock)(m_CS);
 	exception_context Context = { *ExceptionInfo->ExceptionRecord, *ExceptionInfo->ContextRecord };
-	m_StdMap.insert(std::make_pair(&e, Context));
+	if (m_StdMap.size() > 2048)
+	{
+		// We can't store them forever
+		m_StdMap.clear();
+	}
+	m_StdMap.insert(std::make_pair(CppObject, Context));
 }
 
-bool tracer::get_context(const std::exception& e, exception_context& Context) const
+bool tracer::get_context(const void* CppObject, exception_context& Context) const
 {
 	SCOPED_ACTION(CriticalSectionLock)(m_CS);
-	auto Iter = m_StdMap.find(&e);
+	auto Iter = m_StdMap.find(CppObject);
 	if (Iter == m_StdMap.end())
 	{
 		return false;
@@ -148,10 +156,22 @@ bool tracer::get_context(const std::exception& e, exception_context& Context) co
 	return true;
 }
 
-std::vector<string> tracer::get(const std::exception& e)
+bool tracer::get_exception_context(const void* CppObject, EXCEPTION_RECORD& ExceptionRecord, CONTEXT& ContextRecord)
 {
 	exception_context Context;
-	if (!tracer::GetInstance()->get_context(e, Context))
+	if (!GetInstance()->get_context(CppObject, Context))
+	{
+		return false;
+	}
+	ExceptionRecord = Context.ExceptionRecord;
+	ContextRecord = Context.ContextRecord;
+	return true;
+}
+
+std::vector<string> tracer::get(const void* CppObject)
+{
+	exception_context Context;
+	if (!tracer::GetInstance()->get_context(CppObject, Context))
 	{
 		return std::vector<string>();
 	}
@@ -171,7 +191,7 @@ std::vector<string> tracer::get(const EXCEPTION_POINTERS* e)
 	return GetSymbols(GetBackTrace(e));
 }
 
-string tracer::get(const void* Address)
+string tracer::get_one(const void* Address)
 {
 	SymInitialise();
 	SCOPE_EXIT{ SymCleanup(); };

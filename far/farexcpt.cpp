@@ -52,14 +52,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "tracer.hpp"
 
-static const wchar_t* gFrom = nullptr;
-static Plugin *PluginModule = nullptr;     // модуль, приведший к исключению.
-
 void CreatePluginStartupInfo(const Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF);
+
+#define EXCEPTION_MICROSOFT_CPLUSPLUS 0xE06D7363
 
 #define LAST_BUTTON 14
 
-static void ShowStackTraceImpl(const std::vector<string>& Symbols)
+static void ShowStackTrace(const std::vector<string>& Symbols)
 {
 	if (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 	{
@@ -73,12 +72,6 @@ static void ShowStackTraceImpl(const std::vector<string>& Symbols)
 		}
 		std::wcerr.flush();
 	}
-}
-
-template<class T>
-void ShowStackTrace(const T& e)
-{
-	return ShowStackTraceImpl(tracer::get(e));
 }
 
 intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
@@ -130,7 +123,7 @@ intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 				return FALSE;
 
 			case 12: // stack
-				ShowStackTrace(reinterpret_cast<const EXCEPTION_POINTERS*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr)));
+				ShowStackTrace(tracer::get(reinterpret_cast<const EXCEPTION_POINTERS*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr))));
 				return FALSE;
 			}
 		}
@@ -155,12 +148,12 @@ enum reply
 	reply_ignore,
 };
 
-static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, const EXCEPTION_POINTERS* xp)
+static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, const EXCEPTION_POINTERS* xp, const wchar_t* Function, const Plugin* PluginModule)
 {
 	// TODO: Far Dialog is not the best choice for exception reporting
 	// replace with something trivial
 
-	const auto strAddr = tracer::get(xp->ExceptionRecord->ExceptionAddress);
+	const auto strAddr = tracer::get_one(xp->ExceptionRecord->ExceptionAddress);
 
 	FarDialogItem EditDlgData[]=
 	{
@@ -170,7 +163,7 @@ static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, const EXCEPT
 		{DI_TEXT,     5,3, 17,3,0,nullptr,nullptr,0,MSG(MExcAddress)},
 		{DI_EDIT,    18,3, 75,3,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,strAddr.data()},
 		{DI_TEXT,     5,4, 17,4,0,nullptr,nullptr,0,MSG(MExcFunction)},
-		{DI_TEXT,    18,4, 75,4,0,nullptr,nullptr,0,gFrom},
+		{DI_TEXT,    18,4, 75,4,0,nullptr,nullptr,0,Function},
 		{DI_TEXT,     5,5, 17,5,0,nullptr,nullptr,0,MSG(MExcModule)},
 		{DI_EDIT,    18,5, 75,5,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,ModuleName.data()},
 		{DI_TEXT,    -1,6, 0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
@@ -200,9 +193,9 @@ static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, const EXCEPT
 	}
 }
 
-static void ExcDump(const string& ModuleName, LPCWSTR Exception, const EXCEPTION_POINTERS* xp)
+static reply ExcConsole(const string& ModuleName, LPCWSTR Exception, const EXCEPTION_POINTERS* xp, const wchar_t* Function, const Plugin* Module)
 {
-	const auto strAddr = tracer::get(xp->ExceptionRecord->ExceptionAddress);
+	const auto strAddr = tracer::get_one(xp->ExceptionRecord->ExceptionAddress);
 
 	string Msg[4];
 	if (LanguageLoaded())
@@ -223,12 +216,27 @@ static void ExcDump(const string& ModuleName, LPCWSTR Exception, const EXCEPTION
 	string Dump =
 		Msg[0] + L" " + Exception + L"\n" +
 		Msg[1] + L" " + strAddr + L"\n" +
-		Msg[2] + L" " + gFrom + L"\n" +
+		Msg[2] + L" " + Function + L"\n" +
 		Msg[3] + L" " + ModuleName + L"\n";
 
 	std::wcerr << Dump << std::endl;
 
-	ShowStackTrace(xp);
+	ShowStackTrace(tracer::get(xp));
+
+	for (;;)
+	{
+		std::wcin.clear();
+		std::wcout << L"\nTerminate process? [Y/N]: ";
+		string Input;
+		std::wcin >> Input;
+		if (Input.size() == 1)
+		{
+			if (ToUpper(Input.front()) == L'Y')
+				return reply_handle;
+			else if (ToUpper(Input.front()) == L'N')
+				return reply_ignore;
+		}
+	}
 }
 
 template<char c0, char c1, char c2, char c3>
@@ -260,7 +268,7 @@ static void write_minidump(EXCEPTION_POINTERS *ex_pointers)
 	}
 }
 
-static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
+static bool ProcessGenericException(EXCEPTION_POINTERS *xp, const wchar_t* Function, Plugin *PluginModule, const char* Message)
 {
 	if (Global)
 		Global->ProcessException=TRUE;
@@ -341,12 +349,12 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 		{CODEANDTEXT(EXCEPTION_ILLEGAL_INSTRUCTION),MExcBadInstruction},
 		{CODEANDTEXT(EXCEPTION_PRIV_INSTRUCTION),MExcBadInstruction},
 		{CODEANDTEXT(EXCEPTION_DATATYPE_MISALIGNMENT), MExcDatatypeMisalignment},
+		{CODEANDTEXT(EXCEPTION_MICROSOFT_CPLUSPLUS), MExcCplusPlus},
 		// сюды добавляем.
 
 		#undef CODEANDTEXT
 	};
 
-	string strBuf1, strBuf2;
 	string strBuf;
 	string strFileName;
 	BOOL ShowMessages=FALSE;
@@ -400,40 +408,55 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 					break;
 			}
 
-			strBuf2 = L"0x" + to_hex_wstring(xr->ExceptionInformation[1]);
+			strBuf = L"0x" + to_hex_wstring(xr->ExceptionInformation[1]);
 
 			if (LanguageLoaded())
 			{
-				strBuf = string_format(MExcRAccess + Offset, strBuf2);
+				strBuf = string_format(MExcRAccess + Offset, strBuf);
 				Exception=strBuf.data();
 			}
 			else
 			{
 				const wchar_t* AVs[] = {L"read from ", L"write to ", L"execute at "};
-				strBuf1 = Exception;
-				strBuf1.append(L" (").append(AVs[Offset]).append(strBuf2).append(L")");
-				Exception=strBuf1.data();
+				strBuf = Exception;
+				strBuf.append(L" (").append(AVs[Offset]).append(Exception).append(L")");
+				Exception=strBuf.data();
 			}
+		}
+		else if (xr->ExceptionCode == static_cast<DWORD>(EXCEPTION_MICROSOFT_CPLUSPLUS))
+		{
+			strBuf = Exception;
+			strBuf.append(L" (");
+			if (Message)
+			{
+				strBuf.append(L"std::exception: ").append(wide(Message, CP_UTF8));
+			}
+			else
+			{
+				strBuf.append(L"other");
+			}
+			strBuf.append(L")");
+			Exception = strBuf.data();
 		}
 	}
 
 	if (!Exception)
 	{
 		const wchar_t* Template = LanguageLoaded()? MSG(MExcUnknown) : L"Unknown exception";
-		strBuf2.append(Template).append(L" (0x").append(to_hex_wstring(xr->ExceptionCode)).append(L")");
-		Exception = strBuf2.data();
+		strBuf.append(Template).append(L" (0x").append(to_hex_wstring(xr->ExceptionCode)).append(L")");
+		Exception = strBuf.data();
 	}
 
 	reply MsgCode = reply_handle;
 
 	if (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 	{
-		MsgCode = ExcDialog(strFileName, Exception, xp);
+		MsgCode = ExcDialog(strFileName, Exception, xp, Function, PluginModule);
 		ShowMessages=TRUE;
 	}
 	else
 	{
-		ExcDump(strFileName, Exception, xp);
+		MsgCode = ExcConsole(strFileName, Exception, xp, Function, PluginModule);
 	}
 
 	if (ShowMessages && !PluginModule)
@@ -443,7 +466,7 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 
 	switch (MsgCode)
 	{
-	case reply_handle: // terminate
+	case reply_handle: // terminate / unload
 		return true;
 
 	case reply_minidump: // write %FARLOCALPROFILE%\Far.mdmp and terminate
@@ -460,58 +483,66 @@ static bool ProcessSEHExceptionImpl(EXCEPTION_POINTERS *xp)
 	}
 }
 
-bool ProcessSEHException(EXCEPTION_POINTERS *xp, const wchar_t* Function, Plugin *Module)
-{
-	// dummy parametrs setting
-	::gFrom = Function;
-	::PluginModule = Module;
-
-	return ProcessSEHExceptionImpl(xp);
-}
-
 void attach_debugger()
 {
-	SetErrorMode(Global->ErrorMode&~SEM_NOGPFAULTERRORBOX);
-	DebugBreak();
+	if (IsDebuggerPresent())
+		return;
+
+	RestoreGPFaultUI();
+
+	// Get process ID and create the command line
+	auto Cmd = std::wstring(L"vsjitdebugger.exe -p ") + std::to_wstring(GetCurrentProcessId());
+
+	// Start debugger process
+	STARTUPINFO si = { sizeof(si) };
+	PROCESS_INFORMATION pi = {};
+	CreateProcess(NULL, &Cmd[0], nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &pi);
+
+	// Wait for the debugger to attach
+	while (!IsDebuggerPresent() && WaitForSingleObject(pi.hProcess, 0) != WAIT_OBJECT_0)
+		Sleep(500);
+
+	// Close debugger process handles to eliminate resource leak
+	CloseHandle(pi.hThread);
+	CloseHandle(pi.hProcess);
+
+	if (IsDebuggerPresent())
+	{
+		// Stop execution so the debugger can take over
+		DebugBreak();
+	}
 	SetErrorMode(Global->ErrorMode);
 }
 
-bool ProcessStdException(const std::exception& e, const wchar_t* Function, const Plugin* Module)
+void RestoreGPFaultUI()
 {
-	if (Global)
-		Global->ProcessException = TRUE;
-
-	int Result = 0;
-
-	if (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown())
-	{
-		do
-		{
-			Result = Message(MSG_WARNING, 4, MSG(MExcTrappedException), wide(e.what(), CP_UTF8).data(), Function, MSG(Module? MExcUnload : MExcTerminate), MSG(MExcDebugger), MSG(MExcStack), MSG(MIgnore));
-			if (Result == 2)
-			{
-				ShowStackTrace(e);
-			}
-		}
-		while (Result == 2);
-	}
-	else
-	{
-		std::wcerr << L"\nException: " << wide(e.what(), CP_UTF8) << std::endl;
-	}
-
-	switch (Result)
-	{
-	case 0:
-		return true;
-	case 1:
-		attach_debugger();
-		return false;
-	case 3:
-	default:
-		return false;
-	}
+	SetErrorMode(Global->ErrorMode&~SEM_NOGPFAULTERRORBOX);
 }
+
+bool ProcessSEHException(EXCEPTION_POINTERS *xp, const wchar_t* Function, Plugin *PluginModule)
+{
+	return ProcessGenericException(xp, Function, PluginModule, nullptr);
+}
+
+bool ProcessStdException(const std::exception& e, const wchar_t* Function, Plugin* Module)
+{
+	EXCEPTION_RECORD ExceptionRecord;
+	CONTEXT ContextRecord;
+	tracer::get_exception_context(&e, ExceptionRecord, ContextRecord);
+	EXCEPTION_POINTERS xp = { &ExceptionRecord, &ContextRecord };
+	return ProcessGenericException(&xp, Function, Module, e.what());
+}
+
+LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS *ExceptionInfo)
+{
+	if (ProcessGenericException(ExceptionInfo, L"FarUnhandledExceptionFilter", nullptr, nullptr))
+	{
+		std::terminate();
+	}
+	RestoreGPFaultUI();
+	return EXCEPTION_CONTINUE_SEARCH;
+}
+
 
 static DWORD WINAPI ProcessSEHExceptionWrapper(EXCEPTION_POINTERS* xp)
 {
@@ -702,7 +733,7 @@ static int ExceptionTestHook(Manager::Key key)
 			zero_const.d = 1.0 / zero_const.d;
 			break;
 		case 7:
-			attach_debugger();
+			DebugBreak();
 			break;
 #ifdef _M_IA64
 		case 8:
@@ -727,4 +758,10 @@ void RegisterTestExceptionsHook()
 #ifdef FAR_ALPHA_VERSION
 	Global->WindowManager->AddGlobalKeyHandler(ExceptionTestHook);
 #endif
+}
+
+bool IsCppException(const EXCEPTION_POINTERS* e)
+{
+	static const auto MSCPPExceptionCode = 0xE06D7363;
+	return e->ExceptionRecord->ExceptionCode == MSCPPExceptionCode;
 }

@@ -49,8 +49,12 @@ public:
 
 class Plugin;
 
-bool ProcessSEHException(EXCEPTION_POINTERS *xp, const wchar_t* function, Plugin *Module = nullptr);
-bool ProcessStdException(const std::exception& e, const wchar_t* function, const Plugin* Module = nullptr);
+bool ProcessSEHException(EXCEPTION_POINTERS *xp, const wchar_t* Function, Plugin *Module = nullptr);
+bool ProcessStdException(const std::exception& e, const wchar_t* Function, Plugin* Module = nullptr);
+
+LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS *ExceptionInfo);
+
+void RestoreGPFaultUI();
 
 class SException: public std::exception
 {
@@ -80,5 +84,7 @@ void EnableSeTranslation();
 void attach_debugger();
 
 void RegisterTestExceptionsHook();
+
+bool IsCppException(const EXCEPTION_POINTERS* e);
 
 #endif // FAREXCPT_HPP_F7B85E85_71DD_483D_BD7F_B26B8566AC8E
