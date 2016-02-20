@@ -54,7 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void CreatePluginStartupInfo(const Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
-#define EXCEPTION_MICROSOFT_CPLUSPLUS 0xE06D7363
+#define EXCEPTION_MICROSOFT_CPLUSPLUS ((NTSTATUS)0xE06D7363)
 
 #define LAST_BUTTON 14
 
@@ -496,7 +496,7 @@ void attach_debugger()
 	// Start debugger process
 	STARTUPINFO si = { sizeof(si) };
 	PROCESS_INFORMATION pi = {};
-	CreateProcess(NULL, &Cmd[0], nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &pi);
+	CreateProcess(nullptr, &Cmd[0], nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &pi);
 
 	// Wait for the debugger to attach
 	while (!IsDebuggerPresent() && WaitForSingleObject(pi.hProcess, 0) != WAIT_OBJECT_0)
