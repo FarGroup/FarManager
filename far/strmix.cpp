@@ -513,10 +513,23 @@ string& Unquote(string &strStr)
 
 void UnquoteExternal(string &strStr)
 {
-	if (!strStr.empty() && strStr.front() == L'\"' && strStr.back() == L'\"')
+	auto len = strStr.size();
+	if (len > 0 && strStr.front() == L'\"')
 	{
-		strStr.pop_back();
-		strStr.erase(0, 1);
+		if (len < 2) // '"'
+		{
+			strStr.clear();
+		}
+		else if (strStr.back() == L'\"') // '"D:\Path Name"'
+		{
+			strStr.pop_back();
+			strStr.erase(0, 1);
+		}
+		else if (len >= 3 && strStr[len-1] == L'\\' && strStr[len-2] == L'\"') // '"D:\Path Name"\'
+		{
+			strStr.erase(len-2, 1);
+			strStr.erase(0, 1);
+		}
 	}
 }
 
