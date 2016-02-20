@@ -59,15 +59,16 @@ void CreatePluginStartupInfo(const Plugin *pPlugin, PluginStartupInfo *PSI, FarS
 
 #define LAST_BUTTON 14
 
-void ShowStackTraceImpl(const std::vector<string>& Trace)
+static void ShowStackTraceImpl(const std::vector<void*>& Trace)
 {
+	const auto Symbols = tracer::GetSymbols(Trace);
 	if (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 	{
-		Message(MSG_WARNING | MSG_LEFTALIGN, MSG(MExcTrappedException), Trace, make_vector<string>(MSG(MOk)));
+		Message(MSG_WARNING | MSG_LEFTALIGN, MSG(MExcTrappedException), Symbols, make_vector<string>(MSG(MOk)));
 	}
 	else
 	{
-		FOR(const auto& Str, Trace)
+		FOR(const auto& Str, Symbols)
 		{
 			std::wcerr << Str << L'\n';
 		}

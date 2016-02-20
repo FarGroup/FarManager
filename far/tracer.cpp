@@ -34,30 +34,37 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "tracer.hpp"
 #include "imports.hpp"
 
-std::vector<string> printStack()
+static std::vector<void*> GetBackTrace()
+{
+	// ## Windows Server 2003 and Windows XP:
+	// ## The sum of the FramesToSkip and FramesToCapture parameters must be less than 63.
+	const int MaxCallers = 62;
+	std::vector<void*> Result(MaxCallers);
+	auto FramesCount = Imports().RtlCaptureStackBackTrace(0, MaxCallers, Result.data(), nullptr);
+	Result.resize(FramesCount);
+	return Result;
+}
+
+std::vector<string> tracer::GetSymbols(const std::vector<void*>& BackTrace)
 {
 	std::vector<string> Result;
 
-	// ## Windows Server 2003 and Windows XP:
-	// ## The sum of the FramesToSkip and FramesToCapture parameters must be less than 63.
-	const int kMaxCallers = 62;
+	const auto Process = GetCurrentProcess();
+	if (!Imports().SymInitialize(Process, nullptr, TRUE))
+		return Result;
+	SCOPE_EXIT{ Imports().SymCleanup(Process); };
 
-	void* callers_stack[kMaxCallers];
-	const auto process = GetCurrentProcess();
-	Imports().SymInitialize(process, nullptr, TRUE);
-	auto frames = Imports().RtlCaptureStackBackTrace(0, kMaxCallers, callers_stack, nullptr);
 	const auto MaxNameLen = 2047;
 	block_ptr<SYMBOL_INFO> Symbol(sizeof(SYMBOL_INFO) + MaxNameLen + 1);
 	Symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
 	Symbol->MaxNameLen = MaxNameLen;
-	frames = frames < kMaxCallers? frames : kMaxCallers;
-	std::wostringstream s;
-	for (unsigned int i = 0; i < frames; i++)
+	std::wostringstream Stream;
+	for (size_t i = 0, size = BackTrace.size(); i != size; ++i)
 	{
-		Imports().SymFromAddr(process, reinterpret_cast<DWORD_PTR>(callers_stack[i]), nullptr, Symbol.get());
-		s << i << ": " << callers_stack[i] << " " << Symbol->Name << " - 0x" << Symbol->Address;
-		Result.emplace_back(s.str());
-		s.str(string());
+		Imports().SymFromAddr(Process, reinterpret_cast<DWORD_PTR>(BackTrace[i]), nullptr, Symbol.get());
+		Stream << i << ": " << BackTrace[i] << " " << Symbol->Name << " - 0x" << Symbol->Address;
+		Result.emplace_back(Stream.str());
+		Stream.str(string());
 	}
 	return Result;
 }
@@ -65,9 +72,9 @@ std::vector<string> printStack()
 LONG WINAPI StackLogger(EXCEPTION_POINTERS *xp)
 {
 	if (xp->ExceptionRecord->ExceptionCode == 0xE06D7363) // MS C++ exception
-		tracer::GetInstance()->store(*reinterpret_cast<const std::exception*>(xp->ExceptionRecord->ExceptionInformation[1]), printStack());
+		tracer::GetInstance()->store(*reinterpret_cast<const std::exception*>(xp->ExceptionRecord->ExceptionInformation[1]), GetBackTrace());
 	else
-		tracer::GetInstance()->store(xp->ExceptionRecord, printStack());
+		tracer::GetInstance()->store(xp->ExceptionRecord, GetBackTrace());
 
 	return EXCEPTION_CONTINUE_SEARCH;
 }
@@ -91,25 +98,25 @@ tracer::~tracer()
 }
 
 
-void tracer::store(const EXCEPTION_RECORD* Record, std::vector<string>&& Trace)
+void tracer::store(const EXCEPTION_RECORD* Record, std::vector<void*>&& BackTrace)
 {
 	SCOPED_ACTION(CriticalSectionLock)(m_CS);
-	m_SehMap.insert(std::make_pair(Record, std::move(Trace)));
+	m_SehMap.insert(std::make_pair(Record, std::move(BackTrace)));
 }
 
-void tracer::store(const std::exception& e, std::vector<string>&& Trace)
+void tracer::store(const std::exception& e, std::vector<void*>&& BackTrace)
 {
 	SCOPED_ACTION(CriticalSectionLock)(m_CS);
-	m_StdMap.insert(std::make_pair(&e, std::move(Trace)));
+	m_StdMap.insert(std::make_pair(&e, std::move(BackTrace)));
 }
 
-std::vector<string> tracer::get(const EXCEPTION_RECORD* Record)
+std::vector<void*> tracer::get(const EXCEPTION_RECORD* Record)
 {
 	SCOPED_ACTION(CriticalSectionLock)(m_CS);
 	return m_SehMap[Record];
 }
 
-std::vector<string> tracer::get(const std::exception& e)
+std::vector<void*> tracer::get(const std::exception& e)
 {
 	SCOPED_ACTION(CriticalSectionLock)(m_CS);
 	return m_StdMap[&e];

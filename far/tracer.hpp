@@ -41,18 +41,20 @@ public:
 
 	static tracer* GetInstance();
 
-	void store(const EXCEPTION_RECORD* Record, std::vector<string>&& Trace);
-	void store(const std::exception& e, std::vector<string>&& Trace);
+	void store(const EXCEPTION_RECORD* Record, std::vector<void*>&& BackTrace);
+	void store(const std::exception& e, std::vector<void*>&& BackTrace);
 
-	std::vector<string> get(const EXCEPTION_RECORD* Record);
-	std::vector<string> get(const std::exception& e);
+	std::vector<void*> get(const EXCEPTION_RECORD* Record);
+	std::vector<void*> get(const std::exception& e);
+
+	static std::vector<string> GetSymbols(const std::vector<void*>& BackTrace);
 
 private:
 	static tracer* sTracer;
 
 	CriticalSection m_CS;
-	std::map<const EXCEPTION_RECORD*, std::vector<string>> m_SehMap;
-	std::map<const std::exception*, std::vector<string>> m_StdMap;
+	std::map<const EXCEPTION_RECORD*, std::vector<void*>> m_SehMap;
+	std::map<const std::exception*, std::vector<void*>> m_StdMap;
 
 	veh_handler m_Handler;
 };

@@ -105,6 +105,7 @@ ImportedFunctions::ImportedFunctions():
 
 	INIT_IMPORT(m_dbghelp, MiniDumpWriteDump),
 	INIT_IMPORT(m_dbghelp, SymInitialize),
+	INIT_IMPORT(m_dbghelp, SymCleanup),
 	INIT_IMPORT(m_dbghelp, SymFromAddr)
 
 #undef INIT_IMPORT
@@ -388,6 +389,12 @@ BOOL WINAPI ImportedFunctions::stub_MiniDumpWriteDump(HANDLE Process, DWORD Proc
 }
 
 BOOL WINAPI ImportedFunctions::stub_SymInitialize(HANDLE Process, PCSTR UserSearchPath, BOOL InvadeProcess)
+{
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return FALSE;
+}
+
+BOOL WINAPI ImportedFunctions::stub_SymCleanup(HANDLE Process)
 {
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return FALSE;

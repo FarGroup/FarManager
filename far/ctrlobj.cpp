@@ -113,7 +113,10 @@ void ControlObject::CreateDummyFilePanels()
 ControlObject::~ControlObject()
 {
 	if (Global->CriticalInternalError)
+	{
+		Global->WindowManager->CloseAll();
 		return;
+	}
 
 	_OT(SysLog(L"[%p] ControlObject::~ControlObject()", this));
 

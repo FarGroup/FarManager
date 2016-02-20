@@ -136,6 +136,7 @@ public: const unique_function_pointer<decltype(&ImportedFunctions::stub_##NAME),
 	// dbghelp
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, MiniDumpWriteDump, HANDLE Process, DWORD ProcessId, HANDLE File, MINIDUMP_TYPE DumpType, PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam, PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, SymInitialize, HANDLE Process, PCSTR UserSearchPath, BOOL InvadeProcess);
+	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, SymCleanup, HANDLE Process);
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, SymFromAddr, HANDLE Process, DWORD64 Address, PDWORD64 Displacement, PSYMBOL_INFO Symbol);
 
 #undef DECLARE_IMPORT_FUNCTION
