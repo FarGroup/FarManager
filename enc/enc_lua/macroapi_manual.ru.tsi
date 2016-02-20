@@ -830,7 +830,7 @@ lv=3
 dt=Text
 nm=LoadCustomSortMode
 ctime=3585324926
-mtime=3607097138
+mtime=3665124484
 <article>
 #_Panel.LoadCustomSortMode (Mode, Settings)
 #_
@@ -910,13 +910,11 @@ mtime=3607097138
 #_  *-- Загрузить сортировку по длине имени файла.*
 #_  local ffi = require "ffi"
 #_  local C = ffi.C
-#_  ffi.cdef [[
-#_    int wcslen(const wchar_t`*`,const wchar_t`*`);
-#_  ]]
 #_  Panel.LoadCustomSortMode (100,
 #_    { 
 #_      Compare = function(p1, p2, opt)
-#_        return C.wcslen(p1.FileName) - C.wcslen(p2.FileName)
+#_        local l1, l2 = C.wcslen(p1.FileName), C.wcslen(p2.FileName)
+#_        return l1<l2 and -1 or l1>l2 and 1 or 0
 #_      end;
 #_      Indicator = "bB";
 #_    })
