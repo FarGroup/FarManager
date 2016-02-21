@@ -9,6 +9,7 @@ BOOTSTRAPDIR = bootstrap/
 EXENAME = Far.exe
 EXEFULLNAME = $(EXEDIR)$(EXENAME)
 DEPFILE = $(BOOTSTRAPDIR)far.gcc.dep
+STATICDEPFILE = static.dep
 
 DEFINES += -D FAR_ALPHA_VERSION
 
@@ -316,6 +317,7 @@ $(FARINCLUDE)vc_crt_fix_ulink.cpp: vc_crt_fix_ulink.cpp
 
 ifeq ($(MAKECMDGOALS),build)
  include $(DEPFILE)
+ include $(STATICDEPFILE)
 endif
 
 .PHONY: clean

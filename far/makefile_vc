@@ -78,6 +78,7 @@ USEDEBUG=_DEBUG
 !endif
 
 DEPFILE=bootstrap\far.vc.dep
+STATICDEPFILE=static.dep
 
 OUTDIR=$(DIRNAME).$(DIRBIT).vc
 
@@ -432,6 +433,7 @@ $(RES_FILE): far.rc Far.ico FarA.ico bootstrap\Far.exe.manifest
 
 !ifdef USEDEPS
 !include "$(DEPFILE)"
+!include "$(STATICDEPFILE)"
 !endif
 
 $(INTDIR)\api_test_c.testobj: $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/farcolor.hpp api_test.c
