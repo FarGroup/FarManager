@@ -1,4 +1,4 @@
-#ifndef DISKMENU_HPP_E2359220_8A28_4DC8_B460_79B1A15CDB89
+﻿#ifndef DISKMENU_HPP_E2359220_8A28_4DC8_B460_79B1A15CDB89
 #define DISKMENU_HPP_E2359220_8A28_4DC8_B460_79B1A15CDB89
 #pragma once
 
@@ -6,7 +6,7 @@
 diskmenu.cpp
 */
 /*
-Copyright � 2016 Far Group
+Copyright © 2016 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

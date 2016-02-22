@@ -1,8 +1,8 @@
-/*
+п»ї/*
 diskmenu.cpp
 */
 /*
-Copyright © 2016 Far Group
+Copyright В© 2016 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -272,14 +272,14 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	0         1         2         3         4         5         6         7
 	0123456789012345678901234567890123456789012345678901234567890123456789012345
 	0
-	1   +-------- Отключение сетевого устройства --------+
-	2   | Вы хотите удалить соединение с устройством C:? |
-	3   | На устройство %c: отображен каталог            |
+	1   +-------- РћС‚РєР»СЋС‡РµРЅРёРµ СЃРµС‚РµРІРѕРіРѕ СѓСЃС‚СЂРѕР№СЃС‚РІР° --------+
+	2   | Р’С‹ С…РѕС‚РёС‚Рµ СѓРґР°Р»РёС‚СЊ СЃРѕРµРґРёРЅРµРЅРёРµ СЃ СѓСЃС‚СЂРѕР№СЃС‚РІРѕРј C:? |
+	3   | РќР° СѓСЃС‚СЂРѕР№СЃС‚РІРѕ %c: РѕС‚РѕР±СЂР°Р¶РµРЅ РєР°С‚Р°Р»РѕРі            |
 	4   | \\host\share                                   |
 	6   +------------------------------------------------+
-	7   | [ ] Восстанавливать при входе в систему        |
+	7   | [ ] Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°С‚СЊ РїСЂРё РІС…РѕРґРµ РІ СЃРёСЃС‚РµРјСѓ        |
 	8   +------------------------------------------------+
-	9   |              [ Да ]   [ Отмена ]               |
+	9   |              [ Р”Р° ]   [ РћС‚РјРµРЅР° ]               |
 	10  +------------------------------------------------+
 	11
 	*/
@@ -308,9 +308,9 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	string strMsgText;
 	DriveLocalToRemoteName(DRIVE_REMOTE, Letter, strMsgText);
 	DCDlg[3].strData = TruncPathStr(strMsgText, static_cast<int>(Len1));
-	// проверяем - это было постоянное соединение или нет?
-	// Если ветка в реестре HKCU\Network\БукваДиска есть - это
-	//   есть постоянное подключение.
+	// РїСЂРѕРІРµСЂСЏРµРј - СЌС‚Рѕ Р±С‹Р»Рѕ РїРѕСЃС‚РѕСЏРЅРЅРѕРµ СЃРѕРµРґРёРЅРµРЅРёРµ РёР»Рё РЅРµС‚?
+	// Р•СЃР»Рё РІРµС‚РєР° РІ СЂРµРµСЃС‚СЂРµ HKCU\Network\Р‘СѓРєРІР°Р”РёСЃРєР° РµСЃС‚СЊ - СЌС‚Рѕ
+	//   РµСЃС‚СЊ РїРѕСЃС‚РѕСЏРЅРЅРѕРµ РїРѕРґРєР»СЋС‡РµРЅРёРµ.
 
 	bool IsPersistent = true;
 	const wchar_t KeyName[] = { L'N', L'e', L't', L'w', L'o', L'r', L'k', L'\\', Letter, L'\0' };
@@ -326,7 +326,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 		IsPersistent = false;
 	}
 
-	// скорректируем размеры диалога - для дизайнУ
+	// СЃРєРѕСЂСЂРµРєС‚РёСЂСѓРµРј СЂР°Р·РјРµСЂС‹ РґРёР°Р»РѕРіР° - РґР»СЏ РґРёР·Р°Р№РЅРЈ
 	DCDlg[0].X2 = DCDlg[0].X1 + Len1 + 3;
 	int ExitCode = 7;
 
@@ -403,7 +403,7 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 				make_vector<string>(MSG(MOk)),
 				nullptr, nullptr, &SUBSTDisconnectDriveError2Id);
 		}
-		return DRIVE_DEL_FAIL; // блин. в прошлый раз забыл про это дело...
+		return DRIVE_DEL_FAIL; // Р±Р»РёРЅ. РІ РїСЂРѕС€Р»С‹Р№ СЂР°Р· Р·Р°Р±С‹Р» РїСЂРѕ СЌС‚Рѕ РґРµР»Рѕ...
 	}
 	break;
 
@@ -413,14 +413,14 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 		int UpdateProfile = CONNECT_UPDATE_PROFILE;
 		if (MessageRemoveConnection(Drive, UpdateProfile))
 		{
-			// <КОСТЫЛЬ>
+			// <РљРћРЎРўР«Р›Р¬>
 			SCOPED_ACTION(LockScreen);
-			// если мы находимся на удаляемом диске - уходим с него, чтобы не мешать
-			// удалению
+			// РµСЃР»Рё РјС‹ РЅР°С…РѕРґРёРјСЃСЏ РЅР° СѓРґР°Р»СЏРµРјРѕРј РґРёСЃРєРµ - СѓС…РѕРґРёРј СЃ РЅРµРіРѕ, С‡С‚РѕР±С‹ РЅРµ РјРµС€Р°С‚СЊ
+			// СѓРґР°Р»РµРЅРёСЋ
 			Owner->IfGoHome(Drive);
 			Global->WindowManager->ResizeAllWindows();
 			Global->WindowManager->GetCurrentWindow()->Show();
-			// </КОСТЫЛЬ>
+			// </РљРћРЎРўР«Р›Р¬>
 
 			if (WNetCancelConnection2(DiskLetter.data(), UpdateProfile, FALSE) == NO_ERROR)
 			{
@@ -516,36 +516,36 @@ static int DisconnectDrive(panel_ptr Owner, const PanelMenuItem *item, VMenu2 &C
 		if ((item->nDriveType == DRIVE_REMOVABLE) && !IsEjectableMedia(item->cDrive))
 			return -1;
 
-		// первая попытка извлечь диск
+		// РїРµСЂРІР°СЏ РїРѕРїС‹С‚РєР° РёР·РІР»РµС‡СЊ РґРёСЃРє
 
 		if (!EjectVolume(item->cDrive, EJECT_NO_MESSAGE))
 		{
-			// запоминаем состояние панелей
+			// Р·Р°РїРѕРјРёРЅР°РµРј СЃРѕСЃС‚РѕСЏРЅРёРµ РїР°РЅРµР»РµР№
 			const auto CMode = Owner->GetMode();
 			const auto AMode = Owner->Parent()->GetAnotherPanel(Owner)->GetMode();
 			string strTmpCDir(Owner->GetCurDir()), strTmpADir(Owner->Parent()->GetAnotherPanel(Owner)->GetCurDir());
-			// "цикл до умопомрачения"
+			// "С†РёРєР» РґРѕ СѓРјРѕРїРѕРјСЂР°С‡РµРЅРёСЏ"
 			int DoneEject = FALSE;
 
 			while (!DoneEject)
 			{
-				// "освободим диск" - перейдем при необходимости в домашний каталог
-				// TODO: А если домашний каталог - CD? ;-)
+				// "РѕСЃРІРѕР±РѕРґРёРј РґРёСЃРє" - РїРµСЂРµР№РґРµРј РїСЂРё РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё РІ РґРѕРјР°С€РЅРёР№ РєР°С‚Р°Р»РѕРі
+				// TODO: Рђ РµСЃР»Рё РґРѕРјР°С€РЅРёР№ РєР°С‚Р°Р»РѕРі - CD? ;-)
 				Owner->IfGoHome(item->cDrive);
-				// очередная попытка извлечения без вывода сообщения
+				// РѕС‡РµСЂРµРґРЅР°СЏ РїРѕРїС‹С‚РєР° РёР·РІР»РµС‡РµРЅРёСЏ Р±РµР· РІС‹РІРѕРґР° СЃРѕРѕР±С‰РµРЅРёСЏ
 				int ResEject = EjectVolume(item->cDrive, EJECT_NO_MESSAGE);
 
 				if (!ResEject)
 				{
-					// восстановим пути - это избавит нас от левых данных в панели.
+					// РІРѕСЃСЃС‚Р°РЅРѕРІРёРј РїСѓС‚Рё - СЌС‚Рѕ РёР·Р±Р°РІРёС‚ РЅР°СЃ РѕС‚ Р»РµРІС‹С… РґР°РЅРЅС‹С… РІ РїР°РЅРµР»Рё.
 					if (AMode != panel_mode::PLUGIN_PANEL)
 						Owner->Parent()->GetAnotherPanel(Owner)->SetCurDir(strTmpADir, false);
 
 					if (CMode != panel_mode::PLUGIN_PANEL)
 						Owner->SetCurDir(strTmpCDir, false);
 
-					// ... и выведем месаг о...
-					SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
+					// ... Рё РІС‹РІРµРґРµРј РјРµСЃР°Рі Рѕ...
+					SetLastError(ERROR_DRIVE_LOCKED); // ...Рѕ "The disk is in use or locked by another process."
 					Global->CatchError();
 					wchar_t Drive[] = { item->cDrive, L':', L'\\', 0 };
 					DoneEject = OperationFailed(Drive, MError, string_format(MChangeCouldNotEjectMedia, item->cDrive), false);
@@ -568,32 +568,32 @@ static void RemoveHotplugDevice(panel_ptr Owner, const PanelMenuItem *item, VMen
 
 	if (!Code)
 	{
-		// запоминаем состояние панелей
+		// Р·Р°РїРѕРјРёРЅР°РµРј СЃРѕСЃС‚РѕСЏРЅРёРµ РїР°РЅРµР»РµР№
 		const auto CMode = Owner->GetMode();
 		const auto AMode = Owner->Parent()->GetAnotherPanel(Owner)->GetMode();
 		string strTmpCDir(Owner->GetCurDir()), strTmpADir(Owner->Parent()->GetAnotherPanel(Owner)->GetCurDir());
-		// "цикл до умопомрачения"
+		// "С†РёРєР» РґРѕ СѓРјРѕРїРѕРјСЂР°С‡РµРЅРёСЏ"
 		int DoneEject = FALSE;
 
 		while (!DoneEject)
 		{
-			// "освободим диск" - перейдем при необходимости в домашний каталог
-			// TODO: А если домашний каталог - USB? ;-)
+			// "РѕСЃРІРѕР±РѕРґРёРј РґРёСЃРє" - РїРµСЂРµР№РґРµРј РїСЂРё РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё РІ РґРѕРјР°С€РЅРёР№ РєР°С‚Р°Р»РѕРі
+			// TODO: Рђ РµСЃР»Рё РґРѕРјР°С€РЅРёР№ РєР°С‚Р°Р»РѕРі - USB? ;-)
 			Owner->IfGoHome(item->cDrive);
-			// очередная попытка извлечения без вывода сообщения
+			// РѕС‡РµСЂРµРґРЅР°СЏ РїРѕРїС‹С‚РєР° РёР·РІР»РµС‡РµРЅРёСЏ Р±РµР· РІС‹РІРѕРґР° СЃРѕРѕР±С‰РµРЅРёСЏ
 			Code = RemoveHotplugDisk(item->cDrive, EJECT_NO_MESSAGE | EJECT_NOTIFY_AFTERREMOVE);
 
 			if (!Code)
 			{
-				// восстановим пути - это избавит нас от левых данных в панели.
+				// РІРѕСЃСЃС‚Р°РЅРѕРІРёРј РїСѓС‚Рё - СЌС‚Рѕ РёР·Р±Р°РІРёС‚ РЅР°СЃ РѕС‚ Р»РµРІС‹С… РґР°РЅРЅС‹С… РІ РїР°РЅРµР»Рё.
 				if (AMode != panel_mode::PLUGIN_PANEL)
 					Owner->Parent()->GetAnotherPanel(Owner)->SetCurDir(strTmpADir, false);
 
 				if (CMode != panel_mode::PLUGIN_PANEL)
 					Owner->SetCurDir(strTmpCDir, false);
 
-				// ... и выведем месаг о...
-				SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
+				// ... Рё РІС‹РІРµРґРµРј РјРµСЃР°Рі Рѕ...
+				SetLastError(ERROR_DRIVE_LOCKED); // ...Рѕ "The disk is in use or locked by another process."
 				Global->CatchError();
 				DoneEject = Message(MSG_WARNING | MSG_ERRORTYPE,
 					MSG(MError),
@@ -612,7 +612,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 	int Panel_X1, Panel_X2, Panel_Y1, Panel_Y2;
 	Owner->GetPosition(Panel_X1, Panel_Y1, Panel_X2, Panel_Y2);
 
-	class Guard_Macro_DskShowPosType  //фигня какая-то
+	class Guard_Macro_DskShowPosType  //С„РёРіРЅСЏ РєР°РєР°СЏ-С‚Рѕ
 	{
 	public:
 		Guard_Macro_DskShowPosType(panel_ptr curPanel) { Global->Macro_DskShowPosType = curPanel->Parent()->IsLeft(curPanel)? 1 : 2; }
@@ -625,7 +625,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 	const auto DiskCount = Mask.count();
 
 	PanelMenuItem Item, *mitem = nullptr;
-	{ // эта скобка надо, см. M#605
+	{ // СЌС‚Р° СЃРєРѕР±РєР° РЅР°РґРѕ, СЃРј. M#605
 		const auto ChDisk = VMenu2::create(MSG(MChangeDriveTitle), nullptr, 0, ScrY - Panel_Y1 - 3);
 		ChDisk->SetBottomTitle(MSG(MChangeDriveMenuFooter));
 		ChDisk->SetHelp(L"DriveDlg");
@@ -651,10 +651,10 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 		auto DE = std::make_unique<elevation::suppress>();
 		/* $ 02.04.2001 VVM
-		! Попытка не будить спящие диски... */
+		! РџРѕРїС‹С‚РєР° РЅРµ Р±СѓРґРёС‚СЊ СЃРїСЏС‰РёРµ РґРёСЃРєРё... */
 		for (size_t i = 0; i < Mask.size(); ++i)
 		{
-			if (!Mask[i])   //нету диска
+			if (!Mask[i])   //РЅРµС‚Сѓ РґРёСЃРєР°
 				continue;
 
 			DiskMenuItem NewItem;
@@ -744,13 +744,13 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				{
 					if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_SIZE)
 					{
-						//размер как минимум в мегабайтах
+						//СЂР°Р·РјРµСЂ РєР°Рє РјРёРЅРёРјСѓРј РІ РјРµРіР°Р±Р°Р№С‚Р°С…
 						FileSizeToStr(NewItem.TotalSize, TotalSize, 9, COLUMN_COMMAS | COLUMN_MINSIZEINDEX | 1);
 						FileSizeToStr(NewItem.FreeSize, UserFree, 9, COLUMN_COMMAS | COLUMN_MINSIZEINDEX | 1);
 					}
 					else
 					{
-						//размер с точкой и для 0 добавляем букву размера (B)
+						//СЂР°Р·РјРµСЂ СЃ С‚РѕС‡РєРѕР№ Рё РґР»СЏ 0 РґРѕР±Р°РІР»СЏРµРј Р±СѓРєРІСѓ СЂР°Р·РјРµСЂР° (B)
 						FileSizeToStr(NewItem.TotalSize, TotalSize, 9, COLUMN_FLOATSIZE | COLUMN_SHOWBYTESINDEX);
 						FileSizeToStr(NewItem.FreeSize, UserFree, 9, COLUMN_FLOATSIZE | COLUMN_SHOWBYTESINDEX);
 					}
@@ -886,7 +886,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 			switch (Key)
 			{
-				// Shift-Enter в меню выбора дисков вызывает проводник для данного диска
+				// Shift-Enter РІ РјРµРЅСЋ РІС‹Р±РѕСЂР° РґРёСЃРєРѕРІ РІС‹Р·С‹РІР°РµС‚ РїСЂРѕРІРѕРґРЅРёРє РґР»СЏ РґР°РЅРЅРѕРіРѕ РґРёСЃРєР°
 			case KEY_SHIFTNUMENTER:
 			case KEY_SHIFTENTER:
 			{
@@ -907,8 +907,8 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 					ChDisk->Close(-1);
 			}
 			break;
-			// Т.к. нет способа получить состояние "открытости" устройства,
-			// то добавим обработку Ins для CD - "закрыть диск"
+			// Рў.Рє. РЅРµС‚ СЃРїРѕСЃРѕР±Р° РїРѕР»СѓС‡РёС‚СЊ СЃРѕСЃС‚РѕСЏРЅРёРµ "РѕС‚РєСЂС‹С‚РѕСЃС‚Рё" СѓСЃС‚СЂРѕР№СЃС‚РІР°,
+			// С‚Рѕ РґРѕР±Р°РІРёРј РѕР±СЂР°Р±РѕС‚РєСѓ Ins РґР»СЏ CD - "Р·Р°РєСЂС‹С‚СЊ РґРёСЃРє"
 			case KEY_INS:
 			case KEY_NUMPAD0:
 			{
@@ -931,10 +931,10 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 					int Code = DisconnectDrive(Owner, item, *ChDisk);
 					if (Code != DRIVE_DEL_FAIL && Code != DRIVE_DEL_NONE)
 					{
-						Global->ScrBuf->Lock(); // отменяем всякую прорисовку
+						Global->ScrBuf->Lock(); // РѕС‚РјРµРЅСЏРµРј РІСЃСЏРєСѓСЋ РїСЂРѕСЂРёСЃРѕРІРєСѓ
 						Global->WindowManager->ResizeAllWindows();
-						Global->WindowManager->PluginCommit(); // коммитим.
-						Global->ScrBuf->Unlock(); // разрешаем прорисовку
+						Global->WindowManager->PluginCommit(); // РєРѕРјРјРёС‚РёРј.
+						Global->ScrBuf->Unlock(); // СЂР°Р·СЂРµС€Р°РµРј РїСЂРѕСЂРёСЃРѕРІРєСѓ
 						RetCode = (((DiskCount - SelPos) == 1) && (SelPos > 0) && (Code != DRIVE_DEL_EJECT))?SelPos - 1:SelPos;
 					}
 				}
@@ -973,7 +973,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			case KEY_SHIFTAPPS:
 			case KEY_MSRCLICK:
 			{
-				//вызовем EMenu если он есть
+				//РІС‹Р·РѕРІРµРј EMenu РµСЃР»Рё РѕРЅ РµСЃС‚СЊ
 				if (item && !item->bIsPlugin && Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu.Id))
 				{
 					const wchar_t DeviceName[] = { item->cDrive, L':', L'\\', 0 };
@@ -1061,7 +1061,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			{
 				if (item && item->bIsPlugin)
 				{
-					// Вызываем нужный топик, который передали в CommandsMenu()
+					// Р’С‹Р·С‹РІР°РµРј РЅСѓР¶РЅС‹Р№ С‚РѕРїРёРє, РєРѕС‚РѕСЂС‹Р№ РїРµСЂРµРґР°Р»Рё РІ CommandsMenu()
 					pluginapi::apiShowHelp(
 						item->pPlugin->GetModuleName().data(),
 						nullptr,
@@ -1105,7 +1105,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			return RetCode;
 
 		const auto& CurDir = Owner->GetCurDir();
-		
+
 		if (ChDisk->GetExitCode() < 0 && CurDir.size() > 2 && !(IsSlash(CurDir[0]) && IsSlash(CurDir[1])))
 		{
 			const wchar_t RootDir[] = { CurDir[0], L':', L'\\', L'\0' };
@@ -1124,7 +1124,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			Item = *mitem;
 			mitem = &Item;
 		}
-	} // эта скобка надо, см. M#605
+	} // СЌС‚Р° СЃРєРѕР±РєР° РЅР°РґРѕ, СЃРј. M#605
 
 	if (Global->Opt->CloseCDGate && mitem && !mitem->bIsPlugin && IsDriveTypeCDROM(mitem->nDriveType))
 	{
@@ -1211,7 +1211,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			!StrCmpI(Owner->GetCurDir(), strNewCurDir) &&
 			Owner->IsVisible())
 		{
-			// А нужно ли делать здесь Update????
+			// Рђ РЅСѓР¶РЅРѕ Р»Рё РґРµР»Р°С‚СЊ Р·РґРµСЃСЊ Update????
 			Owner->Update(UPDATE_KEEP_SELECTION);
 		}
 		else
@@ -1228,7 +1228,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				NewPanel->Parent()->GetAnotherPanel(NewPanel)->UpdateKeyBar();
 		}
 	}
-	else //эта плагин, да
+	else //СЌС‚Р° РїР»Р°РіРёРЅ, РґР°
 	{
 		const auto hPlugin = Global->CtrlObject->Plugins->Open(
 			mitem->pPlugin,

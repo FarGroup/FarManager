@@ -1,9 +1,9 @@
-#pragma once
+п»ї#pragma once
 
 /*
 sdk.gcc.h
 
-Типы и определения, отсутствующие в SDK (GCC).
+РўРёРїС‹ Рё РѕРїСЂРµРґРµР»РµРЅРёСЏ, РѕС‚СЃСѓС‚СЃС‚РІСѓСЋС‰РёРµ РІ SDK (GCC).
 */
 /*
 Copyright (c) 1996 Eugene Roshal

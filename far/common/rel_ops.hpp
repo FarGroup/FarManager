@@ -1,9 +1,9 @@
-#ifndef REL_OPS_HPP_216C5B74_491D_4AE0_AA85_4A424C1CF3BA
+﻿#ifndef REL_OPS_HPP_216C5B74_491D_4AE0_AA85_4A424C1CF3BA
 #define REL_OPS_HPP_216C5B74_491D_4AE0_AA85_4A424C1CF3BA
 #pragma once
 
 /*
-Copyright � 2016 Far Group
+Copyright © 2016 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

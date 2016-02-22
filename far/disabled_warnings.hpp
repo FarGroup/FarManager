@@ -1,5 +1,5 @@
-/*
-Copyright � 2015 Far Group
+﻿/*
+Copyright © 2015 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -73,7 +73,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning(disable: 4738) // https://msdn.microsoft.com/en-us/library/c24hdbz6.aspx storing 32-bit float result in memory, possible loss of performance
 #pragma warning(disable: 4820) // https://msdn.microsoft.com/en-us/library/t7khkyth.aspx 'bytes' bytes padding added after construct 'member_name'
 #pragma warning(disable: 4836) // https://msdn.microsoft.com/en-us/library/ms173717.aspx nonstandard extension used : 'type' : local types or unnamed types cannot be used as template arguments
-#pragma warning(disable: 4986) // https://msdn.microsoft.com/en-us/library/jj620898.aspx 'function': exception specification does not match previous declaration 
+#pragma warning(disable: 4986) // https://msdn.microsoft.com/en-us/library/jj620898.aspx 'function': exception specification does not match previous declaration
 #pragma warning(disable: 5025) // no page                                                'class': move assignment operator was implicitly defined as deleted
 #pragma warning(disable: 5026) // no page                                                'class': move constructor was implicitly defined as deleted because a base class move constructor is inaccessible or deleted
 #pragma warning(disable: 5027) // no page                                                'class': move assignment operator was implicitly defined as deleted because a base class move assignment operator is inaccessible or deleted

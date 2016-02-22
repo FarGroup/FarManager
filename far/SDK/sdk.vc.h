@@ -1,9 +1,9 @@
-#pragma once
+п»ї#pragma once
 
 /*
 sdk.vc.h
 
-Типы и определения, отсутствующие SDK (Microsoft).
+РўРёРїС‹ Рё РѕРїСЂРµРґРµР»РµРЅРёСЏ, РѕС‚СЃСѓС‚СЃС‚РІСѓСЋС‰РёРµ SDK (Microsoft).
 */
 /*
 Copyright (c) 1996 Eugene Roshal

@@ -1,9 +1,9 @@
-#pragma once
+п»ї#pragma once
 
 /*
 sdk.common.h
 
-Типы и определения, отсутствующие в SDK.
+РўРёРїС‹ Рё РѕРїСЂРµРґРµР»РµРЅРёСЏ, РѕС‚СЃСѓС‚СЃС‚РІСѓСЋС‰РёРµ РІ SDK.
 */
 /*
 Copyright (c) 1996 Eugene Roshal
