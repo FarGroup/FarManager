@@ -1,4 +1,8 @@
-﻿drkns 20.02.2016 22:01:11 +0200 - build 4559
+﻿drkns 23.02.2016 19:46:47 +0200 - build 4560
+
+1. 0003185: Panel in unsorted mode is showing the first file/folder as the last
+
+drkns 20.02.2016 22:01:11 +0200 - build 4559
 
 1. gcc build fix.
 

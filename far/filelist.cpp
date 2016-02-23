@@ -6727,7 +6727,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 				NewItem.AllocationSize = fdata.nAllocationSize;
 				NewItem.strName = fdata.strFileName;
 				NewItem.strShortName = fdata.strAlternateFileName;
-				NewItem.Position = m_ListData.size() - 1;
+				NewItem.Position = m_ListData.size();
 				NewItem.NumberOfLinks = 1;
 
 				if (fdata.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
