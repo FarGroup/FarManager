@@ -1,4 +1,8 @@
-﻿drkns 23.02.2016 19:46:47 +0200 - build 4560
+﻿svs 24.02.2016 09:40:36 +0300 - build 4561
+
+1. SQLite 3.11.0
+
+drkns 23.02.2016 19:46:47 +0200 - build 4560
 
 1. 0003185: Panel in unsorted mode is showing the first file/folder as the last
 
