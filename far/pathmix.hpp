@@ -42,6 +42,10 @@ public:
 	NTPath(const string& Src):string(Src) {Transform();}
 };
 
+
+string KernelPath(const string& NtPath);
+string KernelPath(string&& NtPath);
+
 inline bool IsSlash(wchar_t x) { return x==L'\\' || x==L'/'; }
 
 enum PATH_TYPE

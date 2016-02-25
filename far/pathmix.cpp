@@ -66,6 +66,21 @@ void NTPath::Transform()
 	}
 }
 
+string KernelPath(const string& NtPath)
+{
+	return KernelPath(string(NtPath));
+}
+
+string KernelPath(string&& NtPath)
+{
+	if (NtPath.size() > 1 && NtPath[1] == L'\\')
+	{
+		NtPath[1] = L'?';
+	}
+	return NtPath;
+}
+
+
 PATH_TYPE ParsePath(const string& path, size_t* DirectoryOffset, bool* Root)
 {
 	PATH_TYPE Result = PATH_UNKNOWN;

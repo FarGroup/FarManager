@@ -192,8 +192,7 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 
 							if (IsAbsolutePath(Target))
 							{
-								strSubstituteName=L"\\??\\";
-								strSubstituteName+=(strPrintName.data()+(HasPathPrefix(strPrintName)?4:0));
+								strSubstituteName = KernelPath(NTPath(strSubstituteName));
 								rdb->SymbolicLinkReparseBuffer.Flags=0;
 							}
 							else
@@ -216,10 +215,9 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 			case RP_JUNCTION:
 			case RP_VOLMOUNT:
 			{
-				string strPrintName,strSubstituteName;
+				string strPrintName;
 				ConvertNameToFull(Target,strPrintName);
-				strSubstituteName=L"\\??\\";
-				strSubstituteName+=(strPrintName.data()+(HasPathPrefix(strPrintName)?4:0));
+				auto strSubstituteName = KernelPath(NTPath(strPrintName));
 				block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
 				rdb->ReparseTag=IO_REPARSE_TAG_MOUNT_POINT;
 
@@ -388,16 +386,9 @@ bool EnumStreams(const string& FileName,UINT64 &StreamsSize,DWORD &StreamsCount)
 
 bool DelSubstDrive(const string& DeviceName)
 {
-	bool Result=false;
 	string strTargetPath;
-
-	if (GetSubstName(DRIVE_NOT_INIT,DeviceName,strTargetPath))
-	{
-		strTargetPath.insert(0, L"\\??\\", 4);
-		Result=(DefineDosDevice(DDD_RAW_TARGET_PATH|DDD_REMOVE_DEFINITION|DDD_EXACT_MATCH_ON_REMOVE,DeviceName.data(),strTargetPath.data())!=FALSE);
-	}
-
-	return Result;
+	return os::QueryDosDevice(DeviceName, strTargetPath) &&
+		DefineDosDevice(DDD_RAW_TARGET_PATH | DDD_REMOVE_DEFINITION | DDD_EXACT_MATCH_ON_REMOVE, DeviceName.data(), strTargetPath.data()) != FALSE;
 }
 
 bool GetSubstName(int DriveType,const string& DeviceName, string &strTargetPath)
@@ -419,7 +410,12 @@ bool GetSubstName(int DriveType,const string& DeviceName, string &strTargetPath)
 			string Name;
 			if (os::QueryDosDevice(DeviceName, Name))
 			{
-				if (Name.compare(0, 4, L"\\??\\") == 0)
+				if (Name.compare(0, 8, L"\\??\\UNC\\") == 0)
+				{
+					strTargetPath = L"\\\\" + Name.substr(8);
+					Ret = true;
+				}
+				else if (Name.compare(0, 4, L"\\??\\") == 0)
 				{
 					strTargetPath=Name.substr(4);
 					Ret=true;
@@ -489,22 +485,21 @@ bool ModifyReparsePoint(const string& Object,const string& NewData)
 		{
 		case IO_REPARSE_TAG_MOUNT_POINT:
 			{
-				string strPrintName,strSubstituteName;
-				ConvertNameToFull(NewData,strPrintName);
-				strSubstituteName=L"\\??\\";
-				strSubstituteName+=(strPrintName.data()+(HasPathPrefix(strPrintName)?4:0));
+				string strPrintName;
+				ConvertNameToFull(NewData, strPrintName);
+				const auto strSubstituteName = KernelPath(NTPath(strPrintName));
 				FillResult=FillREPARSE_DATA_BUFFER(rdb.get(), strPrintName, strSubstituteName);
 			}
 			break;
 
 		case IO_REPARSE_TAG_SYMLINK:
 			{
-				string strPrintName=NewData,strSubstituteName=NewData;
+				const auto& strPrintName = NewData;
+				auto strSubstituteName = NewData;
 
 				if (IsAbsolutePath(NewData))
 				{
-					strSubstituteName=L"\\??\\";
-					strSubstituteName+=(strPrintName.data()+(HasPathPrefix(strPrintName)?4:0));
+					strSubstituteName = KernelPath(NTPath(strSubstituteName));
 					rdb->SymbolicLinkReparseBuffer.Flags=0;
 				}
 				else

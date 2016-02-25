@@ -496,20 +496,21 @@ void attach_debugger()
 	// Start debugger process
 	STARTUPINFO si = { sizeof(si) };
 	PROCESS_INFORMATION pi = {};
-	CreateProcess(nullptr, &Cmd[0], nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &pi);
-
-	// Wait for the debugger to attach
-	while (!IsDebuggerPresent() && WaitForSingleObject(pi.hProcess, 0) != WAIT_OBJECT_0)
-		Sleep(500);
-
-	// Close debugger process handles to eliminate resource leak
-	CloseHandle(pi.hThread);
-	CloseHandle(pi.hProcess);
-
-	if (IsDebuggerPresent())
+	if (CreateProcess(nullptr, &Cmd[0], nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &pi))
 	{
-		// Stop execution so the debugger can take over
-		DebugBreak();
+		// Wait for the debugger to attach
+		while (!IsDebuggerPresent() && WaitForSingleObject(pi.hProcess, 0) != WAIT_OBJECT_0)
+			Sleep(500);
+
+		// Close debugger process handles to eliminate resource leak
+		CloseHandle(pi.hThread);
+		CloseHandle(pi.hProcess);
+
+		if (IsDebuggerPresent())
+		{
+			// Stop execution so the debugger can take over
+			DebugBreak();
+		}
 	}
 	SetErrorMode(Global->ErrorMode);
 }
