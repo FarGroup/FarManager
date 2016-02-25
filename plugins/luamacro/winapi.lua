@@ -281,7 +281,9 @@ enum {
   FILE_ATTRIBUTE_OFFLINE             = 0x00001000,
   FILE_ATTRIBUTE_NOT_CONTENT_INDEXED = 0x00002000,
   FILE_ATTRIBUTE_ENCRYPTED           = 0x00004000,
+  FILE_ATTRIBUTE_INTEGRITY_STREAM    = 0x00008000,
   FILE_ATTRIBUTE_VIRTUAL             = 0x00010000,
+  FILE_ATTRIBUTE_NO_SCRUB_DATA       = 0x00020000,
   FILE_ATTRIBUTE_VALID_FLAGS         = 0x00017fb7,
   FILE_ATTRIBUTE_VALID_SET_FLAGS     = 0x000031a7,
 };
@@ -305,8 +307,13 @@ int CompareStringW (/*LCID*/ DWORD Locale, DWORD dwCmpFlags, const wchar_t* lpSt
                     const wchar_t* lpString2, int cchCount2);
 //------------------------------------------------------------------------------
 
-size_t wcslen(const wchar_t*);
-int wcscmp(const wchar_t*, const wchar_t*);
-int _wcsicmp(const wchar_t*, const wchar_t*);
-int StrCmpLogicalW(const wchar_t*, const wchar_t*);
+int      StrCmpLogicalW(const wchar_t*, const wchar_t*);
+int      _wcsicmp(const wchar_t*, const wchar_t*);
+wchar_t* wcschr(const wchar_t*, wchar_t);
+int      wcscmp(const wchar_t*, const wchar_t*);
+size_t   wcslen(const wchar_t*);
+wchar_t* wcspbrk(const wchar_t *str, const wchar_t *strCharSet);
+wchar_t* wcsrchr(const wchar_t*, wchar_t);
+size_t   wcsspn(const wchar_t *str, const wchar_t *strCharSet);
+wchar_t* wcsstr(const wchar_t *str, const wchar_t *strSearch);
 ]]
