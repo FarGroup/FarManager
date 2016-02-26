@@ -436,6 +436,7 @@ UInt64 Archive::get_physize()
   return physize;
 }
 
+#if 0
 UInt32 Archive::get_nitems()
 {
   UInt32 nitems = 0;
@@ -444,6 +445,7 @@ UInt32 Archive::get_nitems()
     nitems = 0;
   return nitems;
 }
+#endif
 
 UInt64 Archive::get_skip_header(IInStream *stream, const ArcType& type)
 {
@@ -525,7 +527,7 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
        if (opened)
          archive->base_stream = stream;
     }
-	 if (opened && archive->get_nitems() > 0) {
+	 if (opened /*&& archive->get_nitems() > 0*/) {
       if (parent_idx != -1)
         archive->arc_chain.assign(archives[parent_idx]->arc_chain.begin(), archives[parent_idx]->arc_chain.end());
       archive->arc_chain.push_back(*arc_entry);

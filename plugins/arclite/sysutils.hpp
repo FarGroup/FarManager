@@ -32,13 +32,13 @@ CriticalSection& GetSync();
 
 class CriticalSectionLock: private NonCopyable {
 private:
-  CriticalSection& cs;
+  CriticalSection& m_cs;
 public:
-  CriticalSectionLock(CriticalSection& cs): cs(cs) {
-    EnterCriticalSection(&cs);
+  CriticalSectionLock(CriticalSection& cs): m_cs(cs) {
+    EnterCriticalSection(&m_cs);
   }
   ~CriticalSectionLock() {
-    LeaveCriticalSection(&cs);
+    LeaveCriticalSection(&m_cs);
   }
 };
 

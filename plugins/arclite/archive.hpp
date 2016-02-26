@@ -172,7 +172,6 @@ private:
   bool open(IInStream* in_stream, const ArcType& type);
   UInt64 get_physize();
   UInt64 get_skip_header(IInStream *stream, const ArcType& type);
-  UInt32 get_nitems();
   static ArcEntries detect(Byte *buffer, UInt32 size, bool eof, const wstring& file_ext, const ArcTypes& arc_types);
   static void open(const OpenOptions& options, Archives& archives);
 public:
