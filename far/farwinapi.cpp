@@ -1479,6 +1479,8 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 		// simple way to handle network paths
 		if (NtPath.compare(0, 24, L"\\Device\\LanmanRedirector") == 0)
 			FinalFilePath = NtPath.replace(0, 24, 1, L'\\');
+		else if (NtPath.compare(0, 11, L"\\Device\\Mup") == 0)
+			FinalFilePath = NtPath.replace(0, 11, 1, L'\\');
 
 		if (FinalFilePath.empty())
 		{

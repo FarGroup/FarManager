@@ -57,7 +57,8 @@ void NTPath::Transform()
 				Data=Prefix+Data;
 			}
 		}
-		if(Data.size() > 5 && Data[5] == L':')
+		static const bool is_win2k = !IsWindowsXPOrGreater();
+		if(is_win2k && Data.size() > 5 && Data[5] == L':')
 		{
 			// "\\?\C:" -> "\\?\c:"
 			// Some file operations fails on Win2k if a drive letter is in upper case

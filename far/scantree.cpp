@@ -64,6 +64,24 @@ public:
 	string RealPath;
 };
 
+static bool LinkToRealPath(const string& Src, string& Real)
+{
+	string Test;
+	ConvertNameToReal(Src, Test);
+	if (!Test.empty())
+	{
+		Test = NTPath(Test);
+		if (Src != Test)
+		{
+			Real = Test;
+			return true;
+		}
+	}
+
+	Real = Src;
+	return false;
+}
+
 ScanTree::ScanTree(bool RetUpDir, bool Recurse, int ScanJunction)
 {
 	Flags.Change(FSCANTREE_RETUPDIR,RetUpDir);
@@ -77,6 +95,7 @@ ScanTree::~ScanTree()
 
 void ScanTree::SetFindPath(const string& Path,const string& Mask, const DWORD NewScanFlags)
 {
+	VisitedDirs.clear();
 	ScanItems.clear();
 	ScanItems.emplace_back(scantree_item());
 	Flags.Clear(FSCANTREE_FILESFIRST);
@@ -87,6 +106,7 @@ void ScanTree::SetFindPath(const string& Path,const string& Mask, const DWORD Ne
 	ConvertNameToReal(strFindPath, strFindPath);
 	strFindPath = NTPath(strFindPath);
 	ScanItems.back().RealPath = strFindPath;
+	VisitedDirs.insert(strFindPath);
 	AddEndSlash(strFindPath);
 	strFindPath += strFindMask;
 	Flags.Set((Flags.Flags()&0x0000FFFF)|(NewScanFlags&0xFFFF0000));
@@ -186,18 +206,17 @@ bool ScanTree::GetNextName(os::FAR_FIND_DATA& fdata,string &strFullName)
 	}
 	else
 	{
-		if ((fdata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && Flags.Check(FSCANTREE_RECUR) &&
-		        (!(fdata.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) || Flags.Check(FSCANTREE_SCANSYMLINK)))
+		auto is_link = (fdata.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) != 0;
+		if ((fdata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && Flags.Check(FSCANTREE_RECUR) && (!is_link || Flags.Check(FSCANTREE_SCANSYMLINK)))
 		{
 			string RealPath(ScanItems.back().RealPath);
 			AddEndSlash(RealPath);
 			RealPath += fdata.strFileName;
 
-			if (fdata.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
-				ConvertNameToReal(RealPath, RealPath);
+			bool real_path = !is_link || LinkToRealPath(RealPath, RealPath);
 
 			//recursive symlinks guard
-			if (std::none_of(CONST_RANGE(ScanItems, i) {return i.RealPath == RealPath;}))
+			if (real_path && !VisitedDirs.count(RealPath))
 			{
 				CutToSlash(strFindPath);
 				CutToSlash(strFindPathOriginal);
@@ -212,12 +231,14 @@ bool ScanTree::GetNextName(os::FAR_FIND_DATA& fdata,string &strFullName)
 				Data.Flags.Clear(FSCANTREE_SECONDPASS);
 				Data.RealPath = RealPath;
 
-				if (fdata.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
+				if (is_link)
 				{
 					Data.Flags.Set(FSCANTREE_INSIDEJUNCTION);
 					Flags.Set(FSCANTREE_INSIDEJUNCTION);
 				}
 				ScanItems.emplace_back(std::move(Data));
+				if (Flags.Check(FSCANTREE_SCANSYMLINK))
+					VisitedDirs.insert(std::move(RealPath));
 
 				return true;
 			}
@@ -236,6 +257,7 @@ void ScanTree::SkipDir()
 	if (ScanItems.empty())
 		return;
 
+	VisitedDirs.erase(ScanItems.back().RealPath);
 	ScanItems.pop_back();
 
 	if (ScanItems.empty())
