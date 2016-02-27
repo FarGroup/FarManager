@@ -359,7 +359,7 @@ bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, bool bB
 			++ReadBufPtr;
 		}
 	}
-	To.push_back(0);
+	To.emplace_back(0);
 	return ExitCode;
 }
 

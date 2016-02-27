@@ -343,6 +343,7 @@ static void GetChildHotplugDevicesInfo(DEVINST hDevInst, std::vector<DeviceInfo>
 		if (IsDeviceHotplug(hDevInst))
 		{
 			DeviceInfo Item = {hDevInst, GetDisksForDevice(hDevInst)};
+			// TODO: direct emplace_back after decommissioning VC10
 			Info.emplace_back(Item);
 		}
 

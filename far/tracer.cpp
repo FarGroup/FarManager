@@ -62,7 +62,7 @@ static std::vector<const void*> GetBackTrace(const EXCEPTION_POINTERS* Exception
 
 	while (Imports().StackWalk64(machine_type, GetCurrentProcess(), GetCurrentThread(), &StackFrame, &ContextRecord, nullptr, nullptr, nullptr, nullptr))
 	{
-		Result.push_back((const void*)StackFrame.AddrPC.Offset);
+		Result.emplace_back(reinterpret_cast<const void*>(StackFrame.AddrPC.Offset));
 	}
 
 	return Result;
@@ -136,19 +136,20 @@ void tracer::store(const void* CppObject, const EXCEPTION_POINTERS* ExceptionInf
 {
 	SCOPED_ACTION(CriticalSectionLock)(m_CS);
 	exception_context Context = { *ExceptionInfo->ExceptionRecord, *ExceptionInfo->ContextRecord };
-	if (m_StdMap.size() > 2048)
+	if (m_CppMap.size() > 2048)
 	{
 		// We can't store them forever
-		m_StdMap.clear();
+		m_CppMap.clear();
 	}
-	m_StdMap.insert(std::make_pair(CppObject, Context));
+	// TODO: direct emplace after decommissioning VC10
+	m_CppMap.emplace(std::make_pair(CppObject, Context));
 }
 
 bool tracer::get_context(const void* CppObject, exception_context& Context) const
 {
 	SCOPED_ACTION(CriticalSectionLock)(m_CS);
-	auto Iter = m_StdMap.find(CppObject);
-	if (Iter == m_StdMap.end())
+	auto Iter = m_CppMap.find(CppObject);
+	if (Iter == m_CppMap.end())
 	{
 		return false;
 	}

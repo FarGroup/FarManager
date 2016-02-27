@@ -1291,17 +1291,17 @@ bool ExpandOSAliases(string &strStr)
 
 	PartCmdLine(strStr,strNewCmdStr,strNewCmdPar);
 
-	const wchar_t *lpwszExeName=PointToName(Global->g_strFarModuleName);
+	const wchar_t* ExeName=PointToName(Global->g_strFarModuleName);
 	wchar_t_ptr Buffer(4096);
-	int ret = Console().GetAlias(strNewCmdStr.data(), Buffer.get(), Buffer.size() * sizeof(wchar_t), lpwszExeName);
+	int ret = Console().GetAlias(strNewCmdStr.data(), Buffer.get(), Buffer.size() * sizeof(wchar_t), ExeName);
 
 	if (!ret)
 	{
 		const auto strComspec(os::env::get_variable(L"COMSPEC"));
 		if (!strComspec.empty())
 		{
-			lpwszExeName=PointToName(strComspec);
-			ret = Console().GetAlias(strNewCmdStr.data(), Buffer.get(), Buffer.size() * sizeof(wchar_t) , lpwszExeName);
+			ExeName=PointToName(strComspec);
+			ret = Console().GetAlias(strNewCmdStr.data(), Buffer.get(), Buffer.size() * sizeof(wchar_t) , ExeName);
 		}
 	}
 

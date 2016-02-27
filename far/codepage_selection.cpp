@@ -852,8 +852,8 @@ F8CP::F8CP(bool viewer):
 			}
 			if (cp && Codepages().IsCodePageSupported(cp, viewer ? 2:20) && used_cps.find(cp) == used_cps.end())
 			{
-				m_F8CpOrder.push_back(cp);
-				used_cps.insert(cp);
+				m_F8CpOrder.emplace_back(cp);
+				used_cps.emplace(cp);
 			}
 		});
 	}
@@ -862,11 +862,11 @@ F8CP::F8CP(bool viewer):
 		UINT acp = GetACP(), oemcp = GetOEMCP();
 		if (cps != L"-1")
 			defcp = acp;
-		m_F8CpOrder.push_back(defcp);
+		m_F8CpOrder.emplace_back(defcp);
 		if (acp != defcp)
-			m_F8CpOrder.push_back(acp);
+			m_F8CpOrder.emplace_back(acp);
 		if (oemcp != defcp && oemcp != acp)
-			m_F8CpOrder.push_back(oemcp);
+			m_F8CpOrder.emplace_back(oemcp);
 	}
 }
 

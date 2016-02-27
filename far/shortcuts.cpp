@@ -476,6 +476,7 @@ void Shortcuts::Set(size_t Pos, const string& Folder, const GUID& PluginGuid, co
 
 void Shortcuts::Add(size_t Pos, const string& Folder, const GUID& PluginGuid, const string& PluginFile, const string& PluginData)
 {
+	// TODO: direct emplace_back after decommissioning VC10
 	Items[Pos].emplace_back(VALUE_TYPE(Items[Pos])(string(), Folder, PluginFile, PluginData, PluginGuid));
 	Changed = true;
 }

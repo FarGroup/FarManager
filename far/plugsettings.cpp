@@ -323,16 +323,16 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 	int result=FALSE;
 	if(Enum.Root<m_Keys.size())
 	{
-		m_Enum.emplace_back(VALUE_TYPE(m_Enum)());
 		FarSettingsName item;
 		DWORD Index=0,Type;
 		string strName;
 
 		const auto& root = m_Keys[Enum.Root];
 		item.Type=FST_SUBKEY;
-		while (PluginsCfg->EnumKeys(root,Index++,strName))
+		FarSettingsNameItems NewEnumItem;
+		while (PluginsCfg->EnumKeys(root, Index++, strName))
 		{
-			m_Enum.back().add(item, strName);
+			NewEnumItem.add(item, strName);
 		}
 		Index=0;
 		while (PluginsCfg->EnumValues(root, Index++, strName, Type))
@@ -352,10 +352,11 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 			}
 			if(item.Type!=FST_UNKNOWN)
 			{
-				m_Enum.back().add(item, strName);
+				NewEnumItem.add(item, strName);
 			}
 		}
-		m_Enum.back().get(Enum);
+		NewEnumItem.get(Enum);
+		m_Enum.emplace_back(std::move(NewEnumItem));
 		result=TRUE;
 	}
 	return result;
@@ -449,15 +450,16 @@ int FarSettings::Enum(FarSettingsEnum& Enum)
 		case FSSF_FOLDERSHORTCUT_8:
 		case FSSF_FOLDERSHORTCUT_9:
 			{
-				m_Enum.emplace_back(VALUE_TYPE(m_Enum)());
 				FarSettingsHistory item = {};
 				string strName,strFile,strData;
 				GUID plugin; size_t index=0;
-				while(Shortcuts().Get(Enum.Root-FSSF_FOLDERSHORTCUT_0,index++,&strName,&plugin,&strFile,&strData))
+				FarSettingsHistoryItems NewEnumItem;
+				while (Shortcuts().Get(Enum.Root - FSSF_FOLDERSHORTCUT_0, index++, &strName, &plugin, &strFile, &strData))
 				{
-					m_Enum.back().add(item, strName, strData, plugin, strFile);
+					NewEnumItem.add(item, strName, strData, plugin, strFile);
 				}
-				m_Enum.back().get(Enum);
+				NewEnumItem.get(Enum);
+				m_Enum.emplace_back(std::move(NewEnumItem));
 				return TRUE;
 			}
 			break;
@@ -510,7 +512,6 @@ static const std::unique_ptr<HistoryConfig>& HistoryRef(int Type)
 
 int FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum, const std::function<bool(history_record_type)>& Filter)
 {
-	m_Enum.emplace_back(VALUE_TYPE(m_Enum)());
 	FarSettingsHistory item = {};
 	DWORD Index=0;
 	string strName,strGuid,strFile,strData;
@@ -519,7 +520,8 @@ int FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum&
 	history_record_type HType;
 	bool HLock;
 	unsigned __int64 Time;
-	while(HistoryRef(Type)->Enum(Index++,Type,HistoryName,&id,strName,&HType,&HLock,&Time,strGuid,strFile,strData))
+	FarSettingsHistoryItems NewEnumItem;
+	while (HistoryRef(Type)->Enum(Index++, Type, HistoryName, &id, strName, &HType, &HLock, &Time, strGuid, strFile, strData))
 	{
 		if(Filter(HType))
 		{
@@ -527,9 +529,10 @@ int FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum&
 			item.Lock=HLock;
 			GUID Guid;
 			if(strGuid.empty()||!StrToGuid(strGuid,Guid)) Guid=FarGuid;
-			m_Enum.back().add(item, strName, strData, Guid, strFile);
+			NewEnumItem.add(item, strName, strData, Guid, strFile);
 		}
 	}
-	m_Enum.back().get(Enum);
+	NewEnumItem.get(Enum);
+	m_Enum.emplace_back(std::move(NewEnumItem));
 	return TRUE;
 }

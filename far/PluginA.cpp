@@ -263,37 +263,37 @@ static const char *FirstSlashA(const char *String)
 	return nullptr;
 }
 
-static void AnsiToUnicodeBin(const char *lpszAnsiString, wchar_t *lpwszUnicodeString, size_t nLength, uintptr_t CodePage = CP_OEMCP)
+static void AnsiToUnicodeBin(const char* AnsiString, wchar_t* UnicodeString, size_t Length, uintptr_t CodePage = CP_OEMCP)
 {
-	if (lpszAnsiString && lpwszUnicodeString && nLength)
+	if (AnsiString && UnicodeString && Length)
 	{
 		// BUGBUG, error checking
-		*lpwszUnicodeString = 0;
-		unicode::from(CodePage, lpszAnsiString, nLength, lpwszUnicodeString, nLength);
+		*UnicodeString = 0;
+		unicode::from(CodePage, AnsiString, Length, UnicodeString, Length);
 	}
 }
 
-static wchar_t *AnsiToUnicodeBin(const char *lpszAnsiString, size_t nLength, uintptr_t CodePage = CP_OEMCP)
+static wchar_t *AnsiToUnicodeBin(const char* AnsiString, size_t Length, uintptr_t CodePage = CP_OEMCP)
 {
-	const auto Result = new wchar_t[nLength + 1];
-	AnsiToUnicodeBin(lpszAnsiString, Result, nLength, CodePage);
-	Result[nLength] = 0;
+	const auto Result = new wchar_t[Length + 1];
+	AnsiToUnicodeBin(AnsiString, Result, Length, CodePage);
+	Result[Length] = 0;
 	return Result;
 }
 
-static wchar_t *AnsiToUnicode(const char *lpszAnsiString)
+static wchar_t *AnsiToUnicode(const char* AnsiString)
 {
-	return lpszAnsiString? AnsiToUnicodeBin(lpszAnsiString, strlen(lpszAnsiString) + 1, CP_OEMCP) : nullptr;
+	return AnsiString? AnsiToUnicodeBin(AnsiString, strlen(AnsiString) + 1, CP_OEMCP) : nullptr;
 }
 
-static char *UnicodeToAnsiBin(const wchar_t *lpwszUnicodeString, size_t nLength, uintptr_t CodePage = CP_OEMCP)
+static char *UnicodeToAnsiBin(const wchar_t* UnicodeString, size_t nLength, uintptr_t CodePage = CP_OEMCP)
 {
 	/* $ 06.01.2008 TS
 	! Увеличил размер выделяемой под строку памяти на 1 байт для нормальной
 	работы старых плагинов, которые не знали, что надо смотреть на длину,
 	а не на завершающий ноль (например в EditorGetString.StringText).
 	*/
-	if (!lpwszUnicodeString)
+	if (!UnicodeString)
 		return nullptr;
 
 	const auto Result = new char[nLength + 1];
@@ -303,21 +303,34 @@ static char *UnicodeToAnsiBin(const wchar_t *lpwszUnicodeString, size_t nLength,
 	if (nLength)
 	{
 		// BUGBUG, error checking
-		unicode::to(CodePage, lpwszUnicodeString, nLength, Result, nLength);
+		unicode::to(CodePage, UnicodeString, nLength, Result, nLength);
 	}
 
 	return Result;
 }
 
-static char *UnicodeToAnsi(const wchar_t *lpwszUnicodeString)
+static char *UnicodeToAnsi(const wchar_t* UnicodeString)
 {
-	if (!lpwszUnicodeString)
+	if (!UnicodeString)
 		return nullptr;
 
-	return UnicodeToAnsiBin(lpwszUnicodeString, wcslen(lpwszUnicodeString), CP_OEMCP);
+	return UnicodeToAnsiBin(UnicodeString, wcslen(UnicodeString), CP_OEMCP);
 }
 
-static wchar_t **ArrayAnsiToUnicode(const char* const* lpaszAnsiString, size_t iCount)
+static wchar_t **AnsiArrayToUnicode(const char* const* lpaszAnsiString, size_t iCount)
+{
+	wchar_t** Result = nullptr;
+
+	if (lpaszAnsiString && iCount)
+	{
+		Result = new wchar_t*[iCount];
+		std::transform(lpaszAnsiString, lpaszAnsiString + iCount, Result, AnsiToUnicode);
+	}
+
+	return Result;
+}
+
+static wchar_t **AnsiArrayToUnicodeMagic(const char* const* lpaszAnsiString, size_t iCount)
 {
 	wchar_t** Result = nullptr;
 
@@ -332,13 +345,13 @@ static wchar_t **ArrayAnsiToUnicode(const char* const* lpaszAnsiString, size_t i
 	return Result;
 }
 
-static void FreeArrayUnicode(const wchar_t* const* lpawszUnicodeString)
+static void FreeUnicodeArrayMagic(const wchar_t* const* Array)
 {
-	if (lpawszUnicodeString)
+	if (Array)
 	{
-		const auto RealPtr = lpawszUnicodeString - 1;
+		const auto RealPtr = Array - 1;
 		const auto Size = reinterpret_cast<size_t>(RealPtr[0]);
-		std::for_each(lpawszUnicodeString, lpawszUnicodeString + Size, std::default_delete<const wchar_t[]>());
+		std::for_each(Array, Array + Size, std::default_delete<const wchar_t[]>());
 		delete[] RealPtr;
 	}
 }
@@ -463,7 +476,7 @@ static void ConvertPanelModesA(const oldfar::PanelMode *pnmA, PanelMode **ppnmW,
 
 			Dest.ColumnTypes = AnsiToUnicode(Src.ColumnTypes);
 			Dest.ColumnWidths = AnsiToUnicode(Src.ColumnWidths);
-			Dest.ColumnTitles = ArrayAnsiToUnicode(Src.ColumnTitles, iColumnCount);
+			Dest.ColumnTitles = AnsiArrayToUnicodeMagic(Src.ColumnTitles, iColumnCount);
 			Dest.StatusColumnTypes = AnsiToUnicode(Src.StatusColumnTypes);
 			Dest.StatusColumnWidths = AnsiToUnicode(Src.StatusColumnWidths);
 			Dest.Flags = 0;
@@ -483,7 +496,7 @@ static void FreeUnicodePanelModes(const PanelMode *pnmW, size_t iCount)
 	{
 		delete[] Item.ColumnTypes;
 		delete[] Item.ColumnWidths;
-		FreeArrayUnicode(Item.ColumnTitles);
+		FreeUnicodeArrayMagic(Item.ColumnTitles);
 		delete[] Item.StatusColumnTypes;
 		delete[] Item.StatusColumnWidths;
 	});
@@ -595,7 +608,7 @@ static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(const oldfar::PluginPanel
 		if (Src.CustomColumnNumber)
 		{
 			Dst.CustomColumnNumber = Src.CustomColumnNumber;
-			Dst.CustomColumnData = ArrayAnsiToUnicode(Src.CustomColumnData, Src.CustomColumnNumber);
+			Dst.CustomColumnData = AnsiArrayToUnicode(Src.CustomColumnData, Src.CustomColumnNumber);
 		}
 
 		if (Src.Flags&oldfar::PPIF_USERDATA)
@@ -690,7 +703,7 @@ static void FreeUnicodePanelItem(PluginPanelItem *PanelItem, size_t ItemsNumber)
 	{
 		delete[] i.Description;
 		delete[] i.Owner;
-		FreeArrayUnicode(i.CustomColumnData);
+		DeleteRawArray(i.CustomColumnData, i.CustomColumnNumber);
 		FreePluginPanelItem(i);
 	});
 
@@ -704,8 +717,7 @@ static void FreePanelItemA(const oldfar::PluginPanelItem *PanelItem, size_t Item
 		delete[] Item.Description;
 		delete[] Item.Owner;
 
-		std::for_each(Item.CustomColumnData, Item.CustomColumnData + Item.CustomColumnNumber, std::default_delete<char[]>());
-		delete[] Item.CustomColumnData;
+		DeleteRawArray(Item.CustomColumnData, Item.CustomColumnNumber);
 
 		if (Item.Flags & oldfar::PPIF_USERDATA)
 		{
@@ -1828,26 +1840,26 @@ static char* WINAPI TruncPathStrA(char *Str, int MaxLength) noexcept
 
 		if (nLength > MaxLength)
 		{
-			char *lpStart = nullptr;
+			char *Start = nullptr;
 
 			if (*Str && (Str[1] == ':') && IsSlash(Str[2]))
-				lpStart = Str + 3;
+				Start = Str + 3;
 			else
 			{
 				if ((Str[0] == '\\') && (Str[1] == '\\'))
 				{
-					if ((lpStart = const_cast<char*>(FirstSlashA(Str + 2))) != nullptr)
-						if ((lpStart = const_cast<char*>(FirstSlashA(lpStart + 1))) != nullptr)
-							lpStart++;
+					if ((Start = const_cast<char*>(FirstSlashA(Str + 2))) != nullptr)
+						if ((Start = const_cast<char*>(FirstSlashA(Start + 1))) != nullptr)
+							Start++;
 				}
 			}
 
-			if (!lpStart || (lpStart - Str > MaxLength - 5))
+			if (!Start || (Start - Str > MaxLength - 5))
 				return TruncStrA(Str, MaxLength);
 
-			const auto lpInPos = lpStart + 3 + (nLength - MaxLength);
-			std::copy_n(lpInPos, strlen(lpInPos) + 1, lpStart + 3);
-			std::copy_n("...", 3, lpStart);
+			const auto lpInPos = Start + 3 + (nLength - MaxLength);
+			std::copy_n(lpInPos, strlen(lpInPos) + 1, Start + 3);
+			std::copy_n("...", 3, Start);
 		}
 		return Str;
 	}
@@ -5024,8 +5036,8 @@ static void RegisterSendKeyToPluginHook()
 }
 
 
-PluginA::PluginA(OEMPluginModel* model, const string& lpwszModuleName) :
-	Plugin(model,lpwszModuleName),
+PluginA::PluginA(OEMPluginModel* model, const string& ModuleName) :
+	Plugin(model,ModuleName),
 	PI(),
 	OPI(),
 	pFDPanelItemA(nullptr),
@@ -5665,7 +5677,7 @@ void PluginA::FreeOpenPanelInfo()
 	delete[] OPI.Format;
 	delete[] OPI.PanelTitle;
 	FreeUnicodeInfoPanelLines(OPI.InfoLines, OPI.InfoLinesNumber);
-	FreeArrayUnicode(OPI.DescrFiles);
+	DeleteRawArray(OPI.DescrFiles, OPI.DescrFilesNumber);
 	FreeUnicodePanelModes(OPI.PanelModesArray, OPI.PanelModesNumber);
 	FreeUnicodeKeyBarTitles(const_cast<KeyBarTitles*>(OPI.KeyBar));
 	delete OPI.KeyBar;
@@ -5721,7 +5733,7 @@ void PluginA::ConvertOpenPanelInfo(const oldfar::OpenPanelInfo &Src, OpenPanelIn
 
 	if (Src.DescrFiles && Src.DescrFilesNumber)
 	{
-		OPI.DescrFiles = ArrayAnsiToUnicode(Src.DescrFiles, Src.DescrFilesNumber);
+		OPI.DescrFiles = AnsiArrayToUnicode(Src.DescrFiles, Src.DescrFilesNumber);
 		OPI.DescrFilesNumber = Src.DescrFilesNumber;
 	}
 

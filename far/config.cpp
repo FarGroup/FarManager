@@ -1872,9 +1872,9 @@ void Options::InitConfigData()
 
 	};
 
-	#undef MAGIC
-
+	// TODO: direct emplace_back after decommissioning VC10
 	Config.emplace_back(farconfig(RoamingData, ARRAYSIZE(RoamingData), ConfigProvider().GeneralCfg().get()));
+	// TODO: direct emplace_back after decommissioning VC10
 	Config.emplace_back(farconfig(LocalData, ARRAYSIZE(LocalData), ConfigProvider().LocalGeneralCfg().get()));
 }
 

@@ -169,6 +169,7 @@ PluginManager::~PluginManager()
 
 Plugin* PluginManager::AddPlugin(std::unique_ptr<Plugin>&& pPlugin)
 {
+	// TODO: direct emplace after decommissioning VC10
 	const auto Result = m_Plugins.emplace(VALUE_TYPE(m_Plugins)(pPlugin->GetGUID(), VALUE_TYPE(m_Plugins)::second_type()));
 	if (!Result.second)
 	{
@@ -179,7 +180,7 @@ Plugin* PluginManager::AddPlugin(std::unique_ptr<Plugin>&& pPlugin)
 
 	const auto PluginPtr = Result.first->second.get();
 
-	SortedPlugins.insert(PluginPtr);
+	SortedPlugins.emplace(PluginPtr);
 #ifndef NO_WRAPPER
 	if (PluginPtr->IsOemPlugin())
 	{
@@ -196,6 +197,7 @@ bool PluginManager::UpdateId(Plugin *pPlugin, const GUID& Id)
 	Iterator->second.release();
 	m_Plugins.erase(Iterator);
 	pPlugin->SetGuid(Id);
+	// TODO: direct emplace after decommissioning VC10
 	const auto Result = m_Plugins.emplace(VALUE_TYPE(m_Plugins)(pPlugin->GetGUID(), VALUE_TYPE(m_Plugins)::second_type()));
 	if (!Result.second)
 	{

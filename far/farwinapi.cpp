@@ -655,6 +655,7 @@ bool file_walker::InitWalk(size_t BlockSize)
 						const UINT64 RangeEndOffset = i.FileOffset.QuadPart + i.Length.QuadPart;
 						for(UINT64 j = i.FileOffset.QuadPart; j < RangeEndOffset; j+=ChunkSize)
 						{
+							// TODO: direct emplace_back after decommissioning VC10
 							ChunkList.emplace_back(Chunk(j, static_cast<DWORD>(std::min(RangeEndOffset - j, static_cast<UINT64>(ChunkSize)))));
 						}
 					}
@@ -671,6 +672,7 @@ bool file_walker::InitWalk(size_t BlockSize)
 		else
 		{
 			AllocSize = FileSize;
+			// TODO: direct emplace_back after decommissioning VC10
 			ChunkList.emplace_back(Chunk(0, static_cast<DWORD>(std::min(static_cast<UINT64>(BlockSize), FileSize))));
 			Result = true;
 		}
@@ -1443,6 +1445,7 @@ std::vector<string> GetLogicalDriveStrings()
 
 		FOR(const auto& i, os::enum_strings(Ptr))
 		{
+			// TODO: direct emplace_back after decommissioning VC10
 			Result.emplace_back(string(i.data(), i.size()));
 		}
 	}

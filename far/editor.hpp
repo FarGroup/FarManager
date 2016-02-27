@@ -289,7 +289,7 @@ private:
 	string VBlock2Text();
 	void Change(EDITOR_CHANGETYPE Type,int StrNum);
 	DWORD EditSetCodePage(const iterator& edit, uintptr_t codepage, bool check_only);
-	numbered_iterator InsertString(const wchar_t *lpwszStr, int nLength, const numbered_iterator& Where);
+	numbered_iterator InsertString(const wchar_t *Str, int Length, const numbered_iterator& Where);
 	numbered_iterator PushString(const wchar_t* Str, size_t Size) { return InsertString(Str, static_cast<int>(Size), EndIterator()); }
 	void TurnOffMarkingBlock();
 	void SwapState(Editor& swap_state);

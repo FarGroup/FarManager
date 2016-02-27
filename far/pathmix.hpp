@@ -72,11 +72,11 @@ bool CutToSlash(string &strStr, bool bInclude = false); // BUGBUG, deprecated. U
 bool CutToParent(string &strStr);
 string &CutToNameUNC(string &strPath);
 string &CutToFolderNameIfFolder(string &strPath);
-const wchar_t* PointToName(const wchar_t *lpwszPath);
-const wchar_t* PointToName(const wchar_t *lpwszPath,const wchar_t *lpwszEndPtr);
-const wchar_t* PointToFolderNameIfFolder(const wchar_t *lpwszPath);
-const wchar_t* PointToExt(const wchar_t *lpwszPath);
-const wchar_t* PointToExt(const wchar_t *lpwszPath,const wchar_t *lpwszEndPtr);
+const wchar_t* PointToName(const wchar_t *Path);
+const wchar_t* PointToName(const wchar_t *Path,const wchar_t* EndPtr);
+const wchar_t* PointToFolderNameIfFolder(const wchar_t *Path);
+const wchar_t* PointToExt(const wchar_t *Path);
+const wchar_t* PointToExt(const wchar_t *Path,const wchar_t* EndPtr);
 
 inline const wchar_t* PointToName(const string& Path) {return PointToName(Path.data(), Path.data() + Path.size());}
 inline const wchar_t* PointToExt(const string& Path) {return PointToExt(Path.data(), Path.data() + Path.size());}

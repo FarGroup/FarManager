@@ -349,7 +349,7 @@ private:
 	bool IsColumnDisplayed(std::function<bool(const column&)> Compare);
 
 	static void DeletePluginItemList(std::vector<PluginPanelItem> &ItemList);
-	static void AddParentPoint(FileListItem *CurPtr, size_t CurFilePos, const FILETIME* Times = nullptr, const string& Owner = string());
+	static void FillParentPoint(FileListItem& Item, size_t CurFilePos, const FILETIME* Times = nullptr, const string& Owner = string());
 
 	std::unique_ptr<FileFilter> m_Filter;
 	DizList Diz;

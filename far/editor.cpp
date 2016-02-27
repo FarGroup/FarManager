@@ -3688,6 +3688,7 @@ BOOL Editor::Search(int Next)
 
 					const int service_len = 12;
 					MenuItemEx Item(FormatString() << fmt::LeftAlign() << fmt::ExactWidth(service_len) << fmt::FillChar(L' ') << (FormatString() << CurPtr.Number() + 1 << L':' << CurPos+1) << BoxSymbols[BS_V1] << CurPtr->GetString());
+					// TODO: direct emplace_back after decommissioning VC10
 					Item.Annotations.emplace_back(VALUE_TYPE(Item.Annotations)(CurPos + service_len + 1, NextPos - CurPos));
 					FindCoord coord = { (UINT)CurPtr.Number(), (UINT)CurPos, (UINT)SearchLength };
 					Item.UserData = coord;
@@ -4793,6 +4794,7 @@ void Editor::AddUndoData(int Type, const string& Str, const wchar_t *Eol, int St
 	}
 
 	m_Flags.Clear(FEDITOR_NEWUNDO);
+	// TODO: direct emplace_back after decommissioning VC10
 	UndoData.emplace_back(VALUE_TYPE(UndoData)(Type,Str,Eol,StrNum,StrPos));
 	UndoPos=UndoData.end();
 	--UndoPos;
@@ -5978,7 +5980,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				}
 
 				CurPtr->AddColor(newcol, SortColorLocked());
-				if (col->Flags&ECF_AUTODELETE) m_AutoDeletedColors.insert(&*CurPtr);
+				if (col->Flags&ECF_AUTODELETE) m_AutoDeletedColors.emplace(&*CurPtr);
 				SortColorUpdate=true;
 				return TRUE;
 			}
@@ -6186,7 +6188,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					return TRUE;
 				}
 
-				ChangeEventSubscribers.insert(esce->PluginId);
+				ChangeEventSubscribers.emplace(esce->PluginId);
 				return TRUE;
 			}
 			break;
@@ -6981,10 +6983,11 @@ Editor::EditorPreRedrawItem::EditorPreRedrawItem():
 {
 }
 
-Editor::numbered_iterator Editor::InsertString(const wchar_t *lpwszStr, int nLength, const numbered_iterator& Where)
+Editor::numbered_iterator Editor::InsertString(const wchar_t* Str, int nLength, const numbered_iterator& Where)
 {
 	bool Empty = Lines.empty();
 
+	// TODO: direct emplace after decommissioning VC10
 	const auto NewLine = numbered_iterator(Lines.emplace(Where, Edit(GetOwner())), Where.Number());
 	m_LinesCount++;
 
@@ -6998,8 +7001,8 @@ Editor::numbered_iterator Editor::InsertString(const wchar_t *lpwszStr, int nLen
 
 	NewLine->SetPersistentBlocks(EdOpt.PersistentBlocks);
 
-	if (lpwszStr)
-		NewLine->SetString(lpwszStr, nLength);
+	if (Str)
+		NewLine->SetString(Str, nLength);
 
 	NewLine->SetCurPos(0);
 	NewLine->SetEditorMode(true);
@@ -7203,7 +7206,7 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 			bool def = false, *p_def = m_codepage == CP_UTF8? nullptr : &def;
 			for (int j = 0; j < i->m_Str.size(); ++j)
 			{
-				wchar_offsets.push_back(total_len);
+				wchar_offsets.emplace_back(total_len);
 				char *s = decoded.data() + total_len;
 
 				const size_t len = unicode::to(m_codepage, i->m_Str.data() + j, 1, s, 3, p_def);

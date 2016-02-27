@@ -102,6 +102,12 @@ bool FillREPARSE_DATA_BUFFER(PREPARSE_DATA_BUFFER rdb, const string& PrintName, 
 	return Result;
 }
 
+static DWORD GetDesiredAccessForReparsePointChange()
+{
+	static const auto DesiredAccess = IsWindowsXPOrGreater()? FILE_WRITE_ATTRIBUTES : GENERIC_WRITE;
+	return DesiredAccess;
+}
+
 bool SetREPARSE_DATA_BUFFER(const string& Object,PREPARSE_DATA_BUFFER rdb)
 {
 	bool Result=false;
@@ -109,31 +115,25 @@ bool SetREPARSE_DATA_BUFFER(const string& Object,PREPARSE_DATA_BUFFER rdb)
 	{
 		SCOPED_ACTION(os::security::privilege)(make_vector<const wchar_t*>(SE_CREATE_SYMBOLIC_LINK_NAME));
 
-		bool ForceElevation=false;
-
 		const auto Attributes = os::GetFileAttributes(Object);
 		if(Attributes&FILE_ATTRIBUTE_READONLY)
 		{
 			os::SetFileAttributes(Object, Attributes&~FILE_ATTRIBUTE_READONLY);
 		}
-		for(size_t i=0;i<2;i++)
+		const auto SetBuffer = [&](bool ForceElevation) -> bool
 		{
 			os::fs::file fObject;
-			if (fObject.Open(Object, FILE_WRITE_ATTRIBUTES, 0, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT, nullptr, ForceElevation))
-			{
-				DWORD dwBytesReturned;
-				if (fObject.IoControl(FSCTL_SET_REPARSE_POINT,rdb,rdb->ReparseDataLength+REPARSE_DATA_BUFFER_HEADER_SIZE,nullptr,0,&dwBytesReturned))
-				{
-					Result=true;
-				}
-				// Open() success, but IoControl() fails. We can't handle this automatically :(
-				if(!i && !Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
-				{
-					ForceElevation=true;
-					continue;
-				}
-				break;
-			}
+			DWORD dwBytesReturned;
+			return fObject.Open(Object, GetDesiredAccessForReparsePointChange(), 0, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT, nullptr, ForceElevation) &&
+				fObject.IoControl(FSCTL_SET_REPARSE_POINT, rdb, rdb->ReparseDataLength + REPARSE_DATA_BUFFER_HEADER_SIZE, nullptr, 0, &dwBytesReturned);
+		};
+
+		Result = SetBuffer(false);
+
+		if (!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
+		{
+			// Open() succeeded, but IoControl() failed. We can't handle this automatically :(
+			Result = SetBuffer(true);
 		}
 		if(Attributes&FILE_ATTRIBUTE_READONLY)
 		{
@@ -265,7 +265,7 @@ bool DeleteReparsePoint(const string& Object)
 	if (GetREPARSE_DATA_BUFFER(Object, rdb.get()))
 	{
 		os::fs::file fObject;
-		if (fObject.Open(Object, FILE_WRITE_ATTRIBUTES, 0, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
+		if (fObject.Open(Object, GetDesiredAccessForReparsePointChange(), 0, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
 		{
 			DWORD dwBytes;
 			REPARSE_GUID_DATA_BUFFER rgdb = {rdb->ReparseTag};
@@ -275,7 +275,7 @@ bool DeleteReparsePoint(const string& Object)
 	return Result;
 }
 
-bool GetReparsePointInfo(const string& Object, string &strDestBuff,LPDWORD lpReparseTag)
+bool GetReparsePointInfo(const string& Object, string &strDestBuff,LPDWORD ReparseTag)
 {
 	WORD NameLength=0;
 	block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
@@ -284,8 +284,8 @@ bool GetReparsePointInfo(const string& Object, string &strDestBuff,LPDWORD lpRep
 	{
 		const wchar_t *PathBuffer = nullptr;
 
-		if (lpReparseTag)
-			*lpReparseTag=rdb->ReparseTag;
+		if (ReparseTag)
+			*ReparseTag=rdb->ReparseTag;
 
 		switch (rdb->ReparseTag)
 		{

@@ -325,6 +325,7 @@ void HighlightFiles::InitHighlightFiles(HierarchicalConfig* cfg)
 				if (!cfg->GetValue(key,HLS.Mask,strMask))
 					break;
 
+				// TODO: direct emplace_back after decommissioning VC10
 				HiData.emplace_back(FileFilterParams());
 				LoadFilter(cfg, key, HiData.back(), strMask, Item.Delta + (Item.Delta == DEFAULT_SORT_GROUP? 0 : i), Item.Delta != DEFAULT_SORT_GROUP);
 				++*Item.Count;

@@ -55,11 +55,13 @@ message_manager::message_manager():
 
 message_manager::handlers_map::iterator message_manager::subscribe(event_id EventId, const detail::i_event_handler& EventHandler)
 {
+	// TODO: direct emplace after decommissioning VC10
 	return m_Handlers.insert(handlers_map::value_type(EventNames[EventId], &EventHandler));
 }
 
 message_manager::handlers_map::iterator message_manager::subscribe(const string& EventName, const detail::i_event_handler& EventHandler)
 {
+	// TODO: direct emplace after decommissioning VC10
 	return m_Handlers.insert(handlers_map::value_type(EventName, &EventHandler));
 }
 

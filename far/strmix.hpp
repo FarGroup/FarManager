@@ -181,7 +181,7 @@ template <class Container>
 void split(Container& C, const string& InitString, DWORD Flags = 0, const wchar_t* Separators = L";,")
 {
 	C.clear();
-	split(InitString, Flags, Separators, [&](string& str) { C.insert(C.end(), std::move(str)); });
+	split(InitString, Flags, Separators, [&](string& str) { C.emplace(C.end(), std::move(str)); });
 }
 
 template<class container>

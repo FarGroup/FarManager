@@ -97,6 +97,7 @@ void ScanTree::SetFindPath(const string& Path,const string& Mask, const DWORD Ne
 {
 	VisitedDirs.clear();
 	ScanItems.clear();
+	// TODO: direct emplace_back after decommissioning VC10
 	ScanItems.emplace_back(scantree_item());
 	Flags.Clear(FSCANTREE_FILESFIRST);
 	strFindMask = Mask;
@@ -106,7 +107,7 @@ void ScanTree::SetFindPath(const string& Path,const string& Mask, const DWORD Ne
 	ConvertNameToReal(strFindPath, strFindPath);
 	strFindPath = NTPath(strFindPath);
 	ScanItems.back().RealPath = strFindPath;
-	VisitedDirs.insert(strFindPath);
+	VisitedDirs.emplace(strFindPath);
 	AddEndSlash(strFindPath);
 	strFindPath += strFindMask;
 	Flags.Set((Flags.Flags()&0x0000FFFF)|(NewScanFlags&0xFFFF0000));
@@ -238,7 +239,7 @@ bool ScanTree::GetNextName(os::FAR_FIND_DATA& fdata,string &strFullName)
 				}
 				ScanItems.emplace_back(std::move(Data));
 				if (Flags.Check(FSCANTREE_SCANSYMLINK))
-					VisitedDirs.insert(std::move(RealPath));
+					VisitedDirs.emplace(std::move(RealPath));
 
 				return true;
 			}

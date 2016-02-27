@@ -75,7 +75,7 @@ public:
 private:
 	BitFlags Flags;
 	std::list<scantree_item> ScanItems;
-	std::set<string> VisitedDirs;
+	std::unordered_set<string> VisitedDirs;
 	// path in full NT format, used internally to get correct results
 	string strFindPath;
 	// relative path, it's what caller expects to receive

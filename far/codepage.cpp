@@ -45,7 +45,8 @@ public:
 private:
 	void insert(UINT Codepage, UINT MaxCharSize, const string& Name)
 	{
-		m_InstalledCp.insert(std::make_pair(Codepage, std::make_pair(MaxCharSize, Name)));
+		// TODO: direct emplace after decommissioning VC10
+		m_InstalledCp.emplace(std::make_pair(Codepage, std::make_pair(MaxCharSize, Name)));
 	}
 	friend class system_codepages_enumerator;
 

@@ -607,6 +607,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 					if (Ptr != Format.cbegin())
 					{
 						Str.resize(Str.find(L'('));
+						// TODO: direct emplace_back after decommissioning VC10
 						Result.emplace_back(VALUE_TYPE(Result)(Str, F));
 					}
 					Ptr += Pos+2;
@@ -628,6 +629,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 				}
 			}
 		}
+		// TODO: direct emplace_back after decommissioning VC10
 		Result.emplace_back(VALUE_TYPE(Result)(Str, F));
 
 		std::for_each(RANGE(Result, i)
@@ -779,6 +781,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 	else
 	{
 		// default prompt = "$p$g"
+		// TODO: direct emplace_back after decommissioning VC10
 		Result.emplace_back(VALUE_TYPE(Result)(m_CurDir + L">", PrefixColor));
 	}
 	SetPromptSize(NewPromptSize);

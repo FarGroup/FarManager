@@ -125,6 +125,7 @@ static bool SidToNameCached(PSID Sid, string& Name, const string& Computer)
 	{
 		if (SidToName(Sid, Name, Computer))
 		{
+			// TODO: direct emplace after decommissioning VC10
 			SIDCache.emplace(std::make_pair(std::move(SidCopy), Name));
 			Result = true;
 		}

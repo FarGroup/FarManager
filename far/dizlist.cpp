@@ -167,10 +167,11 @@ DizList::desc_map::iterator DizList::AddRecord(const string& Name, const string&
 	Modified=true;
 	std::list<string> DescStrings;
 	DescStrings.emplace_back(Description);
-	const auto Result = DizData.insert(VALUE_TYPE(DizData)(Name, std::move(DescStrings)));
+	// TODO: direct emplace after decommissioning VC10
+	const auto Result = DizData.emplace(VALUE_TYPE(DizData)(Name, std::move(DescStrings)));
 	if (Result.second)
 	{
-		m_OrderForWrite.push_back(&*Result.first);
+		m_OrderForWrite.emplace_back(&*Result.first);
 	}
 	return Result.first;
 }
@@ -423,10 +424,11 @@ bool DizList::CopyDiz(const string& Name, const string& ShortName, const string&
 		return false;
 
 	DestDiz->DeleteDiz(DestName, DestShortName);
-	const auto it = DestDiz->DizData.insert(VALUE_TYPE(DizData)(DestName, i->second));
+	// TODO: direct emplace after decommissioning VC10
+	const auto it = DestDiz->DizData.emplace(VALUE_TYPE(DizData)(DestName, i->second));
 	if (it.second)
 	{
-		DestDiz->m_OrderForWrite.push_back(&*it.first);
+		DestDiz->m_OrderForWrite.emplace_back(&*it.first);
 	}
 
 	DestDiz->Modified = true;

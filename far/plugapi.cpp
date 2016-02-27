@@ -1582,10 +1582,31 @@ void WINAPI apiRestoreScreen(HANDLE hScreen) noexcept
 	}
 }
 
-static void FreeDirList(std::vector<PluginPanelItem>* Items)
+static void ClearDirList(std::vector<PluginPanelItem>& Items)
 {
-	std::for_each(ALL_RANGE(*Items), FreePluginPanelItem);
-	delete Items;
+	std::for_each(ALL_RANGE(Items), FreePluginPanelItem);
+}
+
+namespace magic
+{
+	static std::tuple<PluginPanelItem*, size_t> CastVectorToRawData(std::unique_ptr<std::vector<PluginPanelItem>>&& Items)
+	{
+		FN_RETURN_TYPE(CastVectorToRawData) Result;
+		std::get<1>(Result) = Items->size();
+		PluginPanelItem Item;
+		Item.Reserved[0] = reinterpret_cast<intptr_t>(Items.get());
+		Items->emplace_back(Item);
+		std::get<0>(Result) = Items->data();
+		Items.release();
+		return Result;
+	}
+
+	static std::unique_ptr<std::vector<PluginPanelItem>> CastRawDataToVector(PluginPanelItem* RawItems, size_t Size)
+	{
+		auto Items = reinterpret_cast<std::vector<PluginPanelItem>*>(RawItems[Size].Reserved[0]);
+		Items->pop_back(); // not needed anymore
+		return FN_RETURN_TYPE(CastRawDataToVector)(Items);
+	}
 }
 
 intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,size_t *pItemsNumber) noexcept
@@ -1609,7 +1630,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 			*pItemsNumber=0;
 			*pPanelItem=nullptr;
 
-			const auto Items = new std::vector<PluginPanelItem>;
+			auto Items = std::make_unique<std::vector<PluginPanelItem>>();
 
 			time_check TimeCheck(time_check::delayed, GetRedrawTimeout());
 			bool MsgOut = false;
@@ -1619,7 +1640,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 				{
 					if (CheckForEsc())
 					{
-						FreeDirList(Items);
+						ClearDirList(*Items);
 						return FALSE;
 					}
 
@@ -1631,20 +1652,13 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 					}
 				}
 
-				Items->emplace_back(VALUE_TYPE(*Items)());
-				auto& Item = Items->back();
-				ClearStruct(Item);
 				FindData.strFileName = strFullName;
+				PluginPanelItem Item = {};
 				FindDataExToPluginPanelItem(FindData, Item);
+				Items->emplace_back(Item);
 			}
 
-			*pItemsNumber=Items->size();
-
-			// magic trick to store vector pointer for apiFreeDirList().
-			Items->emplace_back(VALUE_TYPE(*Items)());
-			Items->back().Reserved[0] = reinterpret_cast<intptr_t>(Items);
-
-			*pPanelItem=Items->data();
+			std::tie(*pPanelItem, *pItemsNumber) = magic::CastVectorToRawData(std::move(Items));
 		}
 		return TRUE;
 	}
@@ -1661,7 +1675,11 @@ intptr_t WINAPI apiGetPluginDirList(const GUID* PluginId, HANDLE hPlugin, const 
 	{
 		if (Global->WindowManager->ManagerIsDown())
 			return FALSE;
-		return GetPluginDirList(GuidToPlugin(PluginId), hPlugin, Dir, pPanelItem, pItemsNumber);
+
+		auto Items = std::make_unique<std::vector<PluginPanelItem>>();
+		auto Result = GetPluginDirList(GuidToPlugin(PluginId), hPlugin, Dir, *Items);
+		std::tie(*pPanelItem, *pItemsNumber) = magic::CastVectorToRawData(std::move(Items));
+		return Result;
 	}
 	catch (...)
 	{
@@ -1670,13 +1688,12 @@ intptr_t WINAPI apiGetPluginDirList(const GUID* PluginId, HANDLE hPlugin, const 
 	}
 }
 
-void WINAPI apiFreeDirList(PluginPanelItem *PanelItem, size_t nItemsNumber) noexcept
+void WINAPI apiFreeDirList(PluginPanelItem *PanelItems, size_t ItemsNumber) noexcept
 {
 	try
 	{
-		const auto Items = reinterpret_cast<std::vector<PluginPanelItem>*>(PanelItem[nItemsNumber].Reserved[0]);
-		Items->pop_back(); // not needed anymore, see magic trick above
-		return FreeDirList(Items);
+		auto Items = magic::CastRawDataToVector(PanelItems, ItemsNumber);
+		ClearDirList(*Items);
 	}
 	catch (...)
 	{
@@ -1685,11 +1702,12 @@ void WINAPI apiFreeDirList(PluginPanelItem *PanelItem, size_t nItemsNumber) noex
 	}
 }
 
-void WINAPI apiFreePluginDirList(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber) noexcept
+void WINAPI apiFreePluginDirList(HANDLE hPlugin, PluginPanelItem *PanelItems, size_t ItemsNumber) noexcept
 {
 	try
 	{
-		FreePluginDirList(hPlugin, PanelItem);
+		auto Items = magic::CastRawDataToVector(PanelItems, ItemsNumber);
+		FreePluginDirList(hPlugin, *Items);
 	}
 	catch (...)
 	{
@@ -2241,16 +2259,16 @@ wchar_t* WINAPI apiTruncPathStr(wchar_t *Str, intptr_t MaxLength) noexcept
 	}
 }
 
-const wchar_t* WINAPI apiPointToName(const wchar_t *lpwszPath) noexcept
+const wchar_t* WINAPI apiPointToName(const wchar_t* Path) noexcept
 {
 	try
 	{
-		return PointToName(lpwszPath);
+		return PointToName(Path);
 	}
 	catch (...)
 	{
 		// TODO: log
-		return lpwszPath;
+		return Path;
 	}
 }
 

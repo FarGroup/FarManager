@@ -785,7 +785,7 @@ void Plugin::ClearExports()
 
 void Plugin::AddDialog(window_ptr_ref Dlg)
 {
-	m_dialogs.insert(Dlg);
+	m_dialogs.emplace(Dlg);
 }
 
 bool Plugin::RemoveDialog(window_ptr_ref Dlg)

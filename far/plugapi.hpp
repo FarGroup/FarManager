@@ -75,7 +75,7 @@ namespace pluginapi
 	wchar_t* WINAPI apiTruncStrFromCenter(wchar_t *Str, intptr_t MaxLength) noexcept;
 	wchar_t* WINAPI apiTruncStrFromEnd(wchar_t *Str, intptr_t MaxLength) noexcept;
 	wchar_t* WINAPI apiTruncPathStr(wchar_t *Str, intptr_t MaxLength) noexcept;
-	LPCWSTR  WINAPI apiPointToName(const wchar_t *lpwszPath) noexcept;
+	LPCWSTR  WINAPI apiPointToName(const wchar_t* Path) noexcept;
 	size_t   WINAPI apiGetFileOwner(const wchar_t *Computer, const wchar_t *Name, wchar_t *Owner, size_t Size) noexcept;
 	size_t   WINAPI apiConvertPath(CONVERTPATHMODES Mode, const wchar_t *Src, wchar_t *Dest, size_t DestSize) noexcept;
 	size_t   WINAPI apiGetReparsePointInfo(const wchar_t *Src, wchar_t *Dest, size_t DestSize) noexcept;

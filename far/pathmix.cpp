@@ -61,7 +61,7 @@ void NTPath::Transform()
 		if(is_win2k && Data.size() > 5 && Data[5] == L':')
 		{
 			// "\\?\C:" -> "\\?\c:"
-			// Some file operations fails on Win2k if a drive letter is in upper case
+			// Some file operations fail on Win2k if a drive letter is in upper case
 			ToLower(Data, 4, 1);
 		}
 	}
@@ -200,32 +200,32 @@ bool TestCurrentDirectory(const string& TestDir)
 	return !StrCmpI(os::GetCurrentDirectory(), TestDir);
 }
 
-const wchar_t* PointToName(const wchar_t *lpwszPath)
+const wchar_t* PointToName(const wchar_t* Path)
 {
-	return PointToName(lpwszPath,nullptr);
+	return PointToName(Path,nullptr);
 }
 
-const wchar_t* PointToName(const wchar_t *lpwszPath,const wchar_t *lpwszEndPtr)
+const wchar_t* PointToName(const wchar_t* Path,const wchar_t* EndPtr)
 {
-	if (!lpwszPath)
+	if (!Path)
 		return nullptr;
 
-	if (*lpwszPath && *(lpwszPath+1)==L':') lpwszPath+=2;
+	if (*Path && *(Path+1)==L':') Path+=2;
 
-	auto lpwszNamePtr = lpwszEndPtr? lpwszEndPtr : lpwszPath + wcslen(lpwszPath);
+	auto NamePtr = EndPtr? EndPtr : Path + wcslen(Path);
 
-	while (lpwszNamePtr != lpwszPath)
+	while (NamePtr != Path)
 	{
-		if (IsSlash(*lpwszNamePtr))
-			return lpwszNamePtr+1;
+		if (IsSlash(*NamePtr))
+			return NamePtr+1;
 
-		lpwszNamePtr--;
+		NamePtr--;
 	}
 
-	if (IsSlash(*lpwszPath))
-		return lpwszPath+1;
+	if (IsSlash(*Path))
+		return Path+1;
 	else
-		return lpwszPath;
+		return Path;
 }
 
 //   Аналог PointToName, только для строк типа
@@ -253,40 +253,40 @@ const wchar_t* PointToFolderNameIfFolder(const wchar_t *Path)
 	return *NamePtr? NamePtr : prevNamePtr;
 }
 
-const wchar_t* PointToExt(const wchar_t *lpwszPath)
+const wchar_t* PointToExt(const wchar_t* Path)
 {
-	return lpwszPath? PointToExt(lpwszPath, lpwszPath + wcslen(lpwszPath)) : nullptr;
+	return Path? PointToExt(Path, Path + wcslen(Path)) : nullptr;
 }
 
-const wchar_t* PointToExt(const wchar_t *lpwszPath,const wchar_t *lpwszEndPtr)
+const wchar_t* PointToExt(const wchar_t* Path,const wchar_t* EndPtr)
 {
-	if (!lpwszPath || !lpwszEndPtr)
+	if (!Path || !EndPtr)
 		return nullptr;
 
-	const wchar_t *lpwszExtPtr = lpwszEndPtr;
+	const wchar_t* ExtPtr = EndPtr;
 
-	const auto IsPath = [&lpwszPath](const wchar_t* Ptr)
+	const auto IsPath = [&Path](const wchar_t* Ptr)
 	{
-		return IsSlash(*Ptr) || (*Ptr == L':' && Ptr - lpwszPath == 1); // ':' only in c:
+		return IsSlash(*Ptr) || (*Ptr == L':' && Ptr - Path == 1); // ':' only in c:
 	};
 
-	while (lpwszExtPtr != lpwszPath)
+	while (ExtPtr != Path)
 	{
-		if (*lpwszExtPtr==L'.')
+		if (*ExtPtr==L'.')
 		{
-			if (IsPath(lpwszExtPtr - 1))
-				return lpwszEndPtr;
+			if (IsPath(ExtPtr - 1))
+				return EndPtr;
 			else
-				return lpwszExtPtr;
+				return ExtPtr;
 		}
 
-		if (IsPath(lpwszExtPtr))
-			return lpwszEndPtr;
+		if (IsPath(ExtPtr))
+			return EndPtr;
 
-		lpwszExtPtr--;
+		ExtPtr--;
 	}
 
-	return lpwszEndPtr;
+	return EndPtr;
 }
 
 
@@ -408,54 +408,54 @@ bool CutToParent(string &strStr)
 
 string &CutToNameUNC(string &strPath)
 {
-	const wchar_t *lpwszPath = strPath.data();
+	const wchar_t* Path = strPath.data();
 
-	if (IsSlash(lpwszPath[0]) && IsSlash(lpwszPath[1]))
+	if (IsSlash(Path[0]) && IsSlash(Path[1]))
 	{
-		lpwszPath+=2;
+		Path+=2;
 
 		for (int i=0; i<2; i++)
 		{
-			while (*lpwszPath && !IsSlash(*lpwszPath))
-				lpwszPath++;
+			while (*Path && !IsSlash(*Path))
+				Path++;
 
-			if (*lpwszPath)
-				lpwszPath++;
+			if (*Path)
+				Path++;
 		}
 	}
 
-	const wchar_t *lpwszNamePtr = lpwszPath;
+	const wchar_t* NamePtr = Path;
 
-	while (*lpwszPath)
+	while (*Path)
 	{
-		if (IsSlash(*lpwszPath) || (*lpwszPath==L':' && lpwszPath == lpwszNamePtr+1))
-			lpwszNamePtr = lpwszPath+1;
+		if (IsSlash(*Path) || (*Path==L':' && Path == NamePtr+1))
+			NamePtr = Path+1;
 
-		lpwszPath++;
+		Path++;
 	}
 
-	strPath.resize(lpwszNamePtr - strPath.data());
+	strPath.resize(NamePtr - strPath.data());
 
 	return strPath;
 }
 
 string &CutToFolderNameIfFolder(string &strPath)
 {
-	const wchar_t *lpwszPath = strPath.data();
-	const wchar_t *lpwszNamePtr=lpwszPath, *lpwszprevNamePtr=lpwszPath;
+	const wchar_t* Path = strPath.data();
+	const wchar_t* NamePtr=Path, *prevNamePtr=Path;
 
-	while (*lpwszPath)
+	while (*Path)
 	{
-		if (IsSlash(*lpwszPath) || (*lpwszPath==L':' && lpwszPath==lpwszNamePtr+1))
+		if (IsSlash(*Path) || (*Path==L':' && Path==NamePtr+1))
 		{
-			lpwszprevNamePtr=lpwszNamePtr;
-			lpwszNamePtr=lpwszPath+1;
+			prevNamePtr=NamePtr;
+			NamePtr=Path+1;
 		}
 
-		++lpwszPath;
+		++Path;
 	}
 
-	size_t size = *lpwszNamePtr ? lpwszNamePtr - strPath.data() : lpwszprevNamePtr - strPath.data();
+	size_t size = *NamePtr ? NamePtr - strPath.data() : prevNamePtr - strPath.data();
 	strPath.resize(size);
 	return strPath;
 }

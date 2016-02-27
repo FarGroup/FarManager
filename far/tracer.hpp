@@ -62,7 +62,7 @@ private:
 
 	static tracer* sTracer;
 	mutable CriticalSection m_CS;
-	std::map<const void*, exception_context> m_StdMap;
+	std::unordered_map<const void*, exception_context> m_CppMap;
 	veh_handler m_Handler;
 	static bool m_SymInitialised;
 };

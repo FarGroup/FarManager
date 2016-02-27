@@ -555,51 +555,47 @@ void Viewer::ShowPage(int nMode)
 
 				for (int Y = m_Y1; Y<=m_Y2; ++Y)
 				{
-					Strings.emplace_back(VALUE_TYPE(Strings)());
-					Strings.back().nFilePos = vtell();
+					ViewerString NewString;
+					NewString.nFilePos = vtell();
 
 					if (Y==m_Y1+1 && !veof())
 						SecondPos=vtell();
 
-					ReadString(&Strings.back(), -1);
+					ReadString(&NewString, -1);
+					Strings.emplace_back(NewString);
+
 				}
 			}
 			break;
+
 		case SHOW_UP:
-			if (m_Y2 > m_Y1)
 			{
+				ViewerString NewString;
+				NewString.nFilePos = FilePos;
+
 				SecondPos = Strings.front().nFilePos;
+
+				Strings.emplace_front(NewString);
 				Strings.pop_back();
-				Strings.emplace_front(ViewerString());
-				Strings.front().nFilePos = FilePos;
+
+				ReadString(&Strings.front(), (int)(SecondPos - FilePos));
 			}
-			else
-			{
-				SecondPos = Strings.front().nFilePos;
-				Strings.front().nFilePos = FilePos;
-			}
-			ReadString(&Strings.front(),(int)(SecondPos-FilePos));
 			break;
 
 		case SHOW_DOWN:
-			if (m_Y2 > m_Y1)
 			{
+				ViewerString NewString;
+				NewString.nFilePos = Strings.back().nFilePos + Strings.back().linesize;
+
+				Strings.emplace_back(NewString);
 				Strings.pop_front();
-				Strings.emplace_back(VALUE_TYPE(Strings)());
+
 				FilePos = Strings.front().nFilePos;
-				const auto Second = std::next(Strings.begin());
-				SecondPos = Second->nFilePos;
-				const auto PreLast = std::prev(Strings.end(), 2);
-				Strings.back().nFilePos = PreLast->nFilePos + PreLast->linesize;
+				SecondPos = FilePos + Strings.front().linesize;
+
+				vseek(Strings.back().nFilePos, FILE_BEGIN);
+				ReadString(&Strings.back(), -1);
 			}
-			else
-			{
-				Strings.front().nFilePos += Strings.front().linesize;
-				FilePos = Strings.front().nFilePos;
-				SecondPos = FilePos;
-			}
-			vseek(Strings.back().nFilePos, FILE_BEGIN);
-			ReadString(&Strings.back(), -1);
 			break;
 	}
 
@@ -1525,6 +1521,7 @@ int Viewer::process_key(const Manager::Key& Key)
 
 		if (UndoData.size() == VIEWER_UNDO_COUNT)
 			UndoData.pop_front();
+		// TODO: direct emplace_back after decommissioning VC10
 		UndoData.emplace_back(VALUE_TYPE(UndoData)(FilePos, LeftPos));
 	}
 
@@ -2737,7 +2734,7 @@ void Viewer::SearchTextTransform(string &to, const wchar_t *from, size_t from_le
 		{
 			int v = CP_REVERSEBOM == m_Codepage ? 1 : 0;
 			if (Bytes.size() & 1)
-				Bytes.push_back('\0');
+				Bytes.emplace_back('\0');
 
 			for (size_t i = 0; i < Bytes.size(); i += 2)
 			{

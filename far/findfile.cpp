@@ -964,20 +964,20 @@ bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const os::FAR_FIND_DATA& Fin
 	Global->CtrlObject->Plugins->SetDirectory(ArcItem->hPlugin,L"\\",OPM_SILENT);
 	//SetPluginDirectory(ArcItem->strRootPath,hPlugin);
 	SetPluginDirectory(FindData.strFileName,ArcItem->hPlugin,false,UserData);
-	const wchar_t *lpFileNameToFind = PointToName(FindData.strFileName);
-	const wchar_t *lpFileNameToFindShort = PointToName(FindData.strAlternateFileName);
-	PluginPanelItem *pItems;
-	size_t nItemsNumber;
+	const wchar_t *FileNameToFind = PointToName(FindData.strFileName);
+	const wchar_t *FileNameToFindShort = PointToName(FindData.strAlternateFileName);
+	PluginPanelItem *Items;
+	size_t ItemsNumber;
 	bool nResult=false;
 
-	if (Global->CtrlObject->Plugins->GetFindData(ArcItem->hPlugin,&pItems,&nItemsNumber,OPM_SILENT))
+	if (Global->CtrlObject->Plugins->GetFindData(ArcItem->hPlugin, &Items, &ItemsNumber, OPM_SILENT))
 	{
-		const auto End = pItems + nItemsNumber;
-		const auto It = std::find_if(pItems, End, [&](PluginPanelItem& Item) -> bool
+		const auto End = Items + ItemsNumber;
+		const auto It = std::find_if(Items, End, [&](PluginPanelItem& Item) -> bool
 		{
 			Item.FileName = PointToName(NullToEmpty(Item.FileName));
 			Item.AlternateFileName = PointToName(NullToEmpty(Item.AlternateFileName));
-			return !StrCmp(lpFileNameToFind, Item.FileName) && !StrCmp(lpFileNameToFindShort, Item.AlternateFileName);
+			return !StrCmp(FileNameToFind, Item.FileName) && !StrCmp(FileNameToFindShort, Item.AlternateFileName);
 		});
 
 		if (It != End)
@@ -985,7 +985,7 @@ bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const os::FAR_FIND_DATA& Fin
 			nResult = Global->CtrlObject->Plugins->GetFile(ArcItem->hPlugin, &*It, DestPath, strResultName, OPM_SILENT) != 0;
 		}
 
-		Global->CtrlObject->Plugins->FreeFindData(ArcItem->hPlugin,pItems,nItemsNumber,true);
+		Global->CtrlObject->Plugins->FreeFindData(ArcItem->hPlugin, Items, ItemsNumber, true);
 	}
 
 	Global->CtrlObject->Plugins->SetDirectory(ArcItem->hPlugin,L"\\",OPM_SILENT);
@@ -2802,8 +2802,7 @@ bool FindFiles::FindFilesProcess()
 							{
 								i.FindData.strFileName = i.Arc->strArcName;
 							}
-							PanelItems.emplace_back(VALUE_TYPE(PanelItems)());
-							PluginPanelItem& pi = PanelItems.back();
+							PluginPanelItem pi = {};
 							FindDataExToPluginPanelItem(i.FindData, pi);
 
 							if (IsArchive)
@@ -2813,6 +2812,7 @@ bool FindFiles::FindFilesProcess()
 							{
 								DeleteEndSlash(const_cast<wchar_t*>(pi.FileName));
 							}
+							PanelItems.emplace_back(pi);
 						}
 					}
 				});

@@ -450,7 +450,7 @@ public:
 				string newName(NewName);
 				newName.append(i->data() + SrcLength, i->size() - SrcLength);
 				i = m_Names.erase(i);
-				m_Names.insert(std::move(newName));
+				m_Names.emplace(std::move(newName));
 				if (i == m_Names.end())
 					break;
 			}
@@ -1793,6 +1793,7 @@ int TreeList::ReadTreeFile()
 
 	m_ListData.clear();
 
+	// TODO: direct emplace_back after decommissioning VC10
 	ReadLines(TreeFile, [&](string& Name) { m_ListData.emplace_back(string(m_Root.data(), RootLength) + Name); });
 
 	TreeFile.Close();

@@ -117,10 +117,10 @@ static void show_help()
 }
 
 static int MainProcess(
-    const string& lpwszEditName,
-    const string& lpwszViewName,
-    const string& lpwszDestName1,
-    const string& lpwszDestName2,
+    const string& EditName,
+    const string& ViewName,
+    const string& DestName1,
+    const string& DestName2,
     int StartLine,
     int StartChar
 )
@@ -130,7 +130,7 @@ static int MainProcess(
 		Console().GetTextAttributes(InitAttributes);
 		SetRealColor(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 
-		string ename(lpwszEditName),vname(lpwszViewName), apanel(lpwszDestName1),ppanel(lpwszDestName2);
+		string ename(EditName),vname(ViewName), apanel(DestName1),ppanel(DestName2);
 		if (ConfigProvider().ShowProblems() > 0)
 		{
 			ename.clear();
@@ -607,7 +607,8 @@ static int mainImpl(const range<wchar_t**>& Args)
 					{
 						if (const auto EqualPtr = wcschr(Arg + 1, L'='))
 						{
-							Overridden.push_back(VALUE_TYPE(Overridden)(string(Arg + 1 + 4, EqualPtr), EqualPtr + 1));
+							// TODO: direct emplace_back after decommissioning VC10
+							Overridden.emplace_back(VALUE_TYPE(Overridden)(string(Arg + 1 + 4, EqualPtr), EqualPtr + 1));
 						}
 					}
 					else if (Iter + 1 != Args.end())
@@ -850,7 +851,7 @@ int wmain(int Argc, wchar_t *Argv[])
 	// Unknown C++ exceptions will be caught by FarUnhandledExceptionFilter
 	// and processed as SEH exceptions in more advanced way
 
-	return 1;
+	// return 1;
 }
 
 #if COMPILER == C_GCC

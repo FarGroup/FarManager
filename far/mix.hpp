@@ -56,6 +56,13 @@ void FreePluginPanelItem(const PluginPanelItem& Data);
 
 void FreePluginPanelItemsUserData(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber);
 
+template<class T>
+void DeleteRawArray(const T* const* Data, size_t Size)
+{
+	std::for_each(Data, Data + Size, std::default_delete<const T[]>());
+	delete[] Data;
+}
+
 WINDOWINFO_TYPE WindowTypeToPluginWindowType(const int fType);
 
 class SetAutocomplete: noncopyable

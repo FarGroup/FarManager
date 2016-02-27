@@ -121,7 +121,7 @@ public:
 	int ProcessConsoleInput(ProcessConsoleInputInfo *Info) const;
 	std::vector<Plugin*> GetContentPlugins(const std::vector<const wchar_t*>& ColNames) const;
 	void GetContentData(const std::vector<Plugin*>& Plugins, const string& FilePath, const std::vector<const wchar_t*>& Names, std::vector<const wchar_t*>& Values, std::unordered_map<string,string>& ContentData) const;
-	Plugin* LoadPluginExternal(const string& lpwszModuleName, bool LoadToMem);
+	Plugin* LoadPluginExternal(const string& ModuleName, bool LoadToMem);
 	int UnloadPluginExternal(Plugin* hPlugin);
 	bool IsPluginUnloaded(Plugin* pPlugin);
 	void LoadPlugins();
@@ -183,7 +183,7 @@ private:
 
 	void LoadModels();
 	void LoadIfCacheAbsent();
-	Plugin* LoadPlugin(const string& lpwszModuleName, const os::FAR_FIND_DATA &FindData, bool LoadToMem);
+	Plugin* LoadPlugin(const string& ModuleName, const os::FAR_FIND_DATA &FindData, bool LoadToMem);
 	Plugin* AddPlugin(std::unique_ptr<Plugin>&& pPlugin);
 	bool RemovePlugin(Plugin *pPlugin);
 	int UnloadPlugin(Plugin *pPlugin, int From);

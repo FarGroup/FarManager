@@ -274,7 +274,6 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, g
 	return 1;
 }
 
-static int StopSearch;
 static PluginHandle* hDirListPlugin;
 static int PluginSearchMsgOut;
 
@@ -338,7 +337,7 @@ static void PushPluginDirItem(std::vector<PluginPanelItem>& PluginDirList, const
 	PluginDirList.back().UserData.FreeData=nullptr;
 }
 
-static void ScanPluginDir(OPERATION_MODES OpMode,string& strPluginSearchPath, std::vector<PluginPanelItem>& PluginDirList)
+static void ScanPluginDir(OPERATION_MODES OpMode,string& strPluginSearchPath, std::vector<PluginPanelItem>& PluginDirList, bool StopSearch)
 {
 	PluginPanelItem *PanelData=nullptr;
 	size_t ItemCount=0;
@@ -358,7 +357,7 @@ static void ScanPluginDir(OPERATION_MODES OpMode,string& strPluginSearchPath, st
 			AbortOp=TRUE;
 
 		if (ConfirmAbortOp())
-			StopSearch=TRUE;
+			StopSearch = true;
 	}
 
 	FarGetPluginDirListMsg(strDirName,AbortOp?0:MSG_KEEPBACKGROUND);
@@ -395,7 +394,7 @@ static void ScanPluginDir(OPERATION_MODES OpMode,string& strPluginSearchPath, st
 			{
 				strPluginSearchPath += CurPanelItem->FileName;
 				strPluginSearchPath += L"\x1";
-				ScanPluginDir(OpMode,strPluginSearchPath, PluginDirList);
+				ScanPluginDir(OpMode,strPluginSearchPath, PluginDirList, StopSearch);
 				size_t pos = strPluginSearchPath.rfind(L'\x1');
 				if (pos != string::npos)
 					strPluginSearchPath.resize(pos);
@@ -407,7 +406,7 @@ static void ScanPluginDir(OPERATION_MODES OpMode,string& strPluginSearchPath, st
 
 				if (!Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,L"..",OPM_FIND|OpMode))
 				{
-					StopSearch=TRUE;
+					StopSearch = true;
 					break;
 				}
 			}
@@ -417,8 +416,10 @@ static void ScanPluginDir(OPERATION_MODES OpMode,string& strPluginSearchPath, st
 	Global->CtrlObject->Plugins->FreeFindData(hDirListPlugin,PanelData,ItemCount,true);
 }
 
-int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, PluginPanelItem **pPanelItem, size_t *pItemsNumber)
+int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, std::vector<PluginPanelItem>& Items)
 {
+	Items.clear();
+
 	if (Dir == L"." || TestParentFolderName(Dir))
 		return FALSE;
 
@@ -446,6 +447,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, Pl
 		DirListPlugin.hPlugin=hPlugin;
 	}
 
+	bool StopSearch = false;
 
 	{
 		SCOPED_ACTION(SaveScreen);
@@ -459,15 +461,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, Pl
 			FarGetPluginDirListMsg(strDirName,0);
 			PluginSearchMsgOut=FALSE;
 			hDirListPlugin = &DirListPlugin;
-			StopSearch=FALSE;
 
-			const auto PluginDirList = new std::vector<PluginPanelItem>;
-			// first item is reserved for internal needs
-			PluginDirList->emplace_back(VALUE_TYPE(*PluginDirList)());
-			PluginDirList->front().Reserved[0] = reinterpret_cast<intptr_t>(PluginDirList);
-
-			*pItemsNumber = 0;
-			*pPanelItem = nullptr;
 			OpenPanelInfo Info;
 			Global->CtrlObject->Plugins->GetOpenPanelInfo(hDirListPlugin,&Info);
 			string strPrevDir = NullToEmpty(Info.CurDir);
@@ -478,11 +472,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, Pl
 			{
 				string strPluginSearchPath = Dir;
 				strPluginSearchPath += L"\x1";
-				ScanPluginDir(OpMode,strPluginSearchPath, *PluginDirList);
-
-
-				*pPanelItem = PluginDirList->data() + 1;
-				*pItemsNumber = PluginDirList->size() - 1;
+				ScanPluginDir(OpMode,strPluginSearchPath, Items, StopSearch);
 
 				Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,L"..",OPM_SILENT|OpMode);
 				OpenPanelInfo NewInfo;
@@ -506,15 +496,9 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, Pl
 	return !StopSearch;
 }
 
-void FreePluginDirList(HANDLE hPlugin, const PluginPanelItem *PanelItem)
+void FreePluginDirList(HANDLE hPlugin, std::vector<PluginPanelItem>& Items)
 {
-	if (!PanelItem)
-		return;
-
-	const auto PluginDirList = reinterpret_cast<std::vector<PluginPanelItem>*>((PanelItem - 1)->Reserved[0]);
-
-	// first item is reserved for internal needs
-	std::for_each(PluginDirList->begin() + 1, PluginDirList->end(), LAMBDA_PREDICATE(*PluginDirList, i)
+	std::for_each(RANGE(Items, i)
 	{
 		if(i.UserData.FreeData)
 		{
@@ -524,27 +508,24 @@ void FreePluginDirList(HANDLE hPlugin, const PluginPanelItem *PanelItem)
 		FreePluginPanelItem(i);
 		delete[] i.Description;
 		delete[] i.Owner;
-		for(size_t jj=0; jj<i.CustomColumnNumber; ++jj)
-			delete[] i.CustomColumnData[jj];
-		delete[] i.CustomColumnData;
+		DeleteRawArray(i.CustomColumnData, i.CustomColumnNumber);
 	});
 
-	delete PluginDirList;
+	Items.clear();
 }
 
 int GetPluginDirInfo(PluginHandle* ph,const string& DirName,unsigned long &DirCount,
                      unsigned long &FileCount,unsigned __int64 &FileSize,
                      unsigned __int64 &CompressedFileSize)
 {
-	PluginPanelItem *PanelItem=nullptr;
-	size_t ItemsNumber=0;
 	int ExitCode;
 	DirCount=FileCount=0;
 	FileSize=CompressedFileSize=0;
 
-	if ((ExitCode=GetPluginDirList(ph->pPlugin, ph->hPlugin, DirName, &PanelItem,&ItemsNumber))==TRUE) //intptr_t - BUGBUG
+	std::vector<PluginPanelItem> PanelItems;
+	if ((ExitCode = GetPluginDirList(ph->pPlugin, ph->hPlugin, DirName, PanelItems)) == TRUE) //intptr_t - BUGBUG
 	{
-		std::for_each(PanelItem, PanelItem + ItemsNumber, [&](PluginPanelItem& i)
+		std::for_each(ALL_CONST_RANGE(PanelItems), [&](const PluginPanelItem& i)
 		{
 			if (i.FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 			{
@@ -559,10 +540,7 @@ int GetPluginDirInfo(PluginHandle* ph,const string& DirName,unsigned long &DirCo
 		});
 	}
 
-	if (PanelItem)
-	{
-		FreePluginDirList(ph->hPlugin, PanelItem);
-	}
+	FreePluginDirList(ph->hPlugin, PanelItems);
 
 	return ExitCode;
 }

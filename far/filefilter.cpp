@@ -289,6 +289,7 @@ bool FileFilter::FilterEdit()
 
 				SelPos = std::min(FilterData().size(), SelPos);
 
+				// TODO: direct emplace after decommissioning VC10
 				auto& NewFilter = *FilterData().emplace(FilterData().begin() + SelPos, FileFilterParams());
 
 				if (Key==KEY_F5)
@@ -524,6 +525,7 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList)
 
 			if (Check && !CurFilterData)
 			{
+				// TODO: direct emplace after decommissioning VC10
 				auto& NewFilter = *TempFilterData().emplace(TempFilterData().begin() + j, FileFilterParams());
 				NewFilter.SetMask(1, Mask);
 				//Авто фильтры они только для файлов, папки не должны к ним подходить
@@ -951,6 +953,7 @@ int FileFilter::ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, 
 	if (std::any_of(CONST_RANGE(Extensions, i) {return !StrCmpI(i.first, strMask);}))
 		return -1;
 
+	// TODO: direct emplace_back after decommissioning VC10
 	Extensions.emplace_back(VALUE_TYPE(Extensions)(strMask, Check));
 	return 1;
 }

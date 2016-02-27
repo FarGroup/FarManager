@@ -300,11 +300,11 @@ void SysLogLastError()
 
 	os::memory::local::ptr_t<wchar_t>::type MsgPtr;
 	{
-		wchar_t *lpMsgBuf = nullptr;
+		wchar_t *MsgBuf = nullptr;
 		FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS,
 		              nullptr,LastErr,MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),
-		              (LPWSTR) &lpMsgBuf,0,nullptr);
-		MsgPtr.reset(lpMsgBuf);
+		              (LPWSTR) &MsgBuf,0,nullptr);
+		MsgPtr.reset(MsgBuf);
 	}
 	OpenSysLog();
 

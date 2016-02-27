@@ -294,7 +294,7 @@ void InitKeysArray()
 						{
 							if (KbLayout <= 0xffff)
 								KbLayout |= KbLayout << 16;
-							Layout().push_back(reinterpret_cast<HKL>(KbLayout));
+							Layout().emplace_back(reinterpret_cast<HKL>(KbLayout));
 						}
 					}
 					catch (const std::exception&)
@@ -1184,7 +1184,7 @@ int WriteInput(int Key,DWORD Flags)
 	}
 	else if (KeyQueue().size() < 1024)
 	{
-		KeyQueue().push_back(Key | (Flags&SKEY_NOTMACROS ? 0x80000000 : 0));
+		KeyQueue().emplace_back(Key | (Flags&SKEY_NOTMACROS ? 0x80000000 : 0));
 		return TRUE;
 	}
 	else

@@ -2187,10 +2187,10 @@ int Dialog::LenStrItem(size_t ID)
 	return LenStrItem(Items[ID]);
 }
 
-int Dialog::LenStrItem(size_t ID, const string& lpwszStr) const
+int Dialog::LenStrItem(size_t ID, const string& Str) const
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
-	return static_cast<int>((Items[ID].Flags & DIF_SHOWAMPERSAND)? lpwszStr.size() : HiStrlen(lpwszStr));
+	return static_cast<int>((Items[ID].Flags & DIF_SHOWAMPERSAND)? Str.size() : HiStrlen(Str));
 }
 
 int Dialog::LenStrItem(const DialogItemEx& Item)
@@ -6344,7 +6344,7 @@ Dialog::dialogs_set& Dialog::DialogsList()
 
 void Dialog::AddToList()
 {
-	if (!DialogsList().insert(this).second) assert(false);
+	if (!DialogsList().emplace(this).second) assert(false);
 }
 
 void Dialog::RemoveFromList()

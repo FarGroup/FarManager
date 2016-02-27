@@ -194,11 +194,7 @@ struct FileList::PrevDataItem: swapable<PrevDataItem>
 
 FileListItem::~FileListItem()
 {
-	if (CustomColumnNumber && CustomColumnData)
-	{
-		std::for_each(CustomColumnData, CustomColumnData + CustomColumnNumber, std::default_delete<wchar_t[]>());
-		delete[] CustomColumnData;
-	}
+	DeleteRawArray(CustomColumnData, CustomColumnNumber);
 
 	if (DeleteDiz)
 		delete[] DizText;
@@ -377,11 +373,21 @@ static struct list_less
 		bool UseReverseNameSort = false;
 		const wchar_t *Ext1=nullptr,*Ext2=nullptr;
 
-		if (a.strName == L".." && (a.strShortName.empty() || a.strShortName == L".."))
-			return true;
+		const auto IsParentDir = [](const FileListItem& Item)
+		{
+			return (Item.FileAttr & FILE_ATTRIBUTE_DIRECTORY) && TestParentFolderName(Item.strName) && (Item.strShortName.empty() || TestParentFolderName(Item.strShortName));
+		};
 
-		if (b.strName == L".." && (b.strShortName.empty() || b.strShortName == L".."))
+		const auto IsParentDirB = IsParentDir(b);
+		
+		if (IsParentDir(a))
+		{
+			return IsParentDirB? a.Position < b.Position : true;
+		}
+		else if (IsParentDirB)
+		{
 			return false;
+		}
 
 		if (ListSortMode == panel_sort::UNSORTED)
 		{
@@ -2021,10 +2027,10 @@ int FileList::ProcessKey(const Manager::Key& Key)
 				if (m_PanelMode == panel_mode::PLUGIN_PANEL && !Global->CtrlObject->Plugins->UseFarCommand(m_hPlugin, PLUGIN_FARMAKEDIRECTORY))
 				{
 					string strDirName;
-					const wchar_t *lpwszDirName=strDirName.data();
-					int MakeCode=Global->CtrlObject->Plugins->MakeDirectory(m_hPlugin,&lpwszDirName,0);
+					const wchar_t* DirName=strDirName.data();
+					int MakeCode=Global->CtrlObject->Plugins->MakeDirectory(m_hPlugin,&DirName,0);
 					Global->CatchError();
-					strDirName=lpwszDirName;
+					strDirName = DirName;
 
 					if (!MakeCode)
 						Message(MSG_WARNING, 1, MSG(MError), MSG(MCannotCreateFolder), strDirName.data(), MSG(MOk));
@@ -4622,7 +4628,7 @@ void FileList::SelectSortMode()
 	static_assert(ARRAYSIZE(InitSortMenuOptions) == SortOptCount, "Incomplete InitSortMenuOptions array");
 
 	SortMenu.reserve(SortMenu.size() + 1 + ARRAYSIZE(InitSortMenuOptions)); // + 1 for separator
-	SortMenu.push_back(MenuSeparator);
+	SortMenu.emplace_back(MenuSeparator);
 	SortMenu.insert(SortMenu.end(), ALL_CONST_RANGE(InitSortMenuOptions));
 
 	int SortCode = -1;
@@ -5076,6 +5082,7 @@ PluginHandle* FileList::OpenFilePlugin(const string* FileName, int PushPrev, OPE
 	{
 		if (PushPrev)
 		{
+			// TODO: direct emplace_back after decommissioning VC10
 			PrevDataList.emplace_back(VALUE_TYPE(PrevDataList)(FileName? *FileName : L"", std::move(m_ListData), m_CurTopFile));
 		}
 
@@ -5160,11 +5167,11 @@ void FileList::ProcessCopyKeys(int Key)
 							}
 						}
 
-						const wchar_t *lpwszDestPath=strDestPath.data();
+						const wchar_t* DestPath=strDestPath.data();
 
-						PluginGetFiles(&lpwszDestPath,Move);
+						PluginGetFiles(&DestPath,Move);
 						// BUGBUG, never used
-						strDestPath=lpwszDestPath;
+						strDestPath=DestPath;
 					}
 				}
 			}
@@ -5324,6 +5331,7 @@ void FileList::ClearAllItem()
 
 void FileList::PushPlugin(PluginHandle* hPlugin,const string& HostFile)
 {
+	// TODO: direct emplace_back after decommissioning VC10
 	PluginsList.emplace_back(VALUE_TYPE(PluginsList)(hPlugin, HostFile, strOriginalCurDir, FALSE, m_ViewMode, m_SortMode, m_ReverseSortOrder, m_NumericSort, m_CaseSensitiveSort, m_DirectoriesFirst, m_ViewSettings));
 	++Global->PluginPanelsCount;
 }
@@ -5600,7 +5608,10 @@ void FileList::PluginToFileListItem(const PluginPanelItem& pi,FileListItem& fi)
 		fi.DeleteDiz=true;
 	}
 	else
-		fi.DizText=nullptr;
+	{
+		fi.DizText = nullptr;
+		fi.DeleteDiz = false;
+	}
 
 	fi.FileSize=pi.FileSize;
 	fi.AllocationSize=pi.AllocationSize;
@@ -5680,15 +5691,17 @@ std::vector<PluginPanelItem> FileList::CreatePluginItemList(bool AddTwoDot)
 	{
 		if ((!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) || !TestParentFolderName(strSelName)) && LastSelPosition>=0 && static_cast<size_t>(LastSelPosition) < m_ListData.size())
 		{
-			ItemList.emplace_back(VALUE_TYPE(ItemList)());
-			FileListToPluginItem(m_ListData[LastSelPosition], ItemList.back());
+			PluginPanelItem NewItem;
+			FileListToPluginItem(m_ListData[LastSelPosition], NewItem);
+			ItemList.emplace_back(NewItem);
 		}
 	}
 
 	if (AddTwoDot && ItemList.empty() && (FileAttr & FILE_ATTRIBUTE_DIRECTORY)) // это про ".."
 	{
-		ItemList.emplace_back(VALUE_TYPE(ItemList)());
-		FileListToPluginItem(m_ListData[0], ItemList.front());
+		PluginPanelItem NewItem;
+		FileListToPluginItem(m_ListData[0], NewItem);
+		ItemList.emplace_back(NewItem);
 	}
 
 	LastSelPosition=OldLastSelPosition;
@@ -5878,9 +5891,9 @@ void FileList::PluginToPluginFiles(int Move)
 
 	if (!ItemList.empty())
 	{
-		const wchar_t *lpwszTempDir=strTempDir.data();
-		int PutCode = Global->CtrlObject->Plugins->GetFiles(m_hPlugin, ItemList.data(), ItemList.size(), false, &lpwszTempDir, OPM_SILENT);
-		strTempDir=lpwszTempDir;
+		const wchar_t* TempDir=strTempDir.data();
+		int PutCode = Global->CtrlObject->Plugins->GetFiles(m_hPlugin, ItemList.data(), ItemList.size(), false, &TempDir, OPM_SILENT);
+		strTempDir=TempDir;
 
 		if (PutCode==1 || PutCode==2)
 		{
@@ -5964,9 +5977,9 @@ void FileList::PluginHostGetFiles()
 			if (Global->CtrlObject->Plugins->GetFindData(hCurPlugin,&ItemList,&ItemNumber,OpMode))
 			{
 				_ALGO(SysLog(L"call Plugins.GetFiles()"));
-				const wchar_t *lpwszDestPath=strDestPath.data();
-				ExitLoop = Global->CtrlObject->Plugins->GetFiles(hCurPlugin, ItemList, ItemNumber, false, &lpwszDestPath, OpMode) != 1;
-				strDestPath=lpwszDestPath;
+				const wchar_t* DestPath=strDestPath.data();
+				ExitLoop = Global->CtrlObject->Plugins->GetFiles(hCurPlugin, ItemList, ItemNumber, false, &DestPath, OpMode) != 1;
+				strDestPath=DestPath;
 
 				if (!ExitLoop)
 				{
@@ -6828,9 +6841,6 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 	if ((Global->Opt->ShowDotsInRoot || !bCurDirRoot) || (NetRoot && Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Network.Id))) // NetWork Plugin
 	{
-		m_ListData.emplace_back(VALUE_TYPE(m_ListData)());
-		auto& NewItem = m_ListData.back();
-
 		string TwoDotsOwner;
 		if (ReadOwners)
 		{
@@ -6840,7 +6850,9 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		FILETIME TwoDotsTimes[4]={};
 		os::GetFileTimeSimple(m_CurDir,&TwoDotsTimes[0],&TwoDotsTimes[1],&TwoDotsTimes[2],&TwoDotsTimes[3]);
 
-		AddParentPoint(&NewItem, m_ListData.size(), TwoDotsTimes, TwoDotsOwner);
+		FileListItem NewItem;
+		FillParentPoint(NewItem, m_ListData.size() + 1, TwoDotsTimes, TwoDotsOwner);
+		m_ListData.emplace_back(std::move(NewItem));
 	}
 
 	if (IsColumnDisplayed(DIZ_COLUMN))
@@ -7143,7 +7155,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	//Рефреш текущему времени для фильтра перед началом операции
 	m_Filter->UpdateCurrentTime();
 	Global->CtrlObject->HiFiles->UpdateCurrentTime();
-	int DotsPresent=FALSE;
+	bool TwoDotsPresent = false;
 	bool UseFilter=m_Filter->IsEnabledOnPanel();
 
 	m_ListData.reserve(PluginFileCount);
@@ -7160,31 +7172,27 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 		if (!Global->Opt->ShowHidden && (PanelData[i].FileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM)))
 			continue;
 
-		m_ListData.emplace_back(VALUE_TYPE(m_ListData)());
-		auto& CurListData = m_ListData.back();
+		FileListItem NewItem;
+		PluginToFileListItem(PanelData[i], NewItem);
+		NewItem.Position = i;
 
-		PluginToFileListItem(PanelData[i], CurListData);
-		CurListData.Position=i;
+		NewItem.SortGroup = (Info.Flags & OPIF_DISABLESORTGROUPS)? DEFAULT_SORT_GROUP : Global->CtrlObject->HiFiles->GetGroup(&NewItem);
 
-		if (!(Info.Flags & OPIF_DISABLESORTGROUPS)/* && !(CurListData->FileAttr & FILE_ATTRIBUTE_DIRECTORY)*/)
-			CurListData.SortGroup=Global->CtrlObject->HiFiles->GetGroup(&CurListData);
-		else
-			CurListData.SortGroup=DEFAULT_SORT_GROUP;
-
-		if (!CurListData.DizText)
+		const auto IsParentDirName = !(Info.Flags & OPIF_ADDDOTS) && !TwoDotsPresent && TestParentFolderName(NewItem.strName);
+		if (IsParentDirName)
 		{
-			CurListData.DeleteDiz=false;
-			//CurListData.DizText=nullptr;
+			TwoDotsPresent = TRUE;
+			NewItem.FileAttr |= FILE_ATTRIBUTE_DIRECTORY;
 		}
 
-		if (TestParentFolderName(CurListData.strName))
+		const auto IsDir = NewItem.FileAttr & FILE_ATTRIBUTE_DIRECTORY;
+		const auto Size = NewItem.FileSize;
+
+		m_ListData.emplace_back(std::move(NewItem));
+
+		if (!IsParentDirName)
 		{
-			DotsPresent=TRUE;
-			CurListData.FileAttr|=FILE_ATTRIBUTE_DIRECTORY;
-		}
-		else
-		{
-			if (CurListData.FileAttr & FILE_ATTRIBUTE_DIRECTORY)
+			if (IsDir)
 			{
 				++m_TotalDirCount;
 			}
@@ -7192,9 +7200,8 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 			{
 				++m_TotalFileCount;
 			}
+			TotalFileSize += Size;
 		}
-
-		TotalFileSize += CurListData.FileSize;
 	}
 
 	if (!(Info.Flags & OPIF_DISABLEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
@@ -7205,14 +7212,13 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 		});
 	}
 
-	if ((Info.Flags & OPIF_ADDDOTS) && !DotsPresent)
+	if ((Info.Flags & OPIF_ADDDOTS) && !TwoDotsPresent)
 	{
-		m_ListData.emplace_back(VALUE_TYPE(m_ListData)());
-		auto& NewItem = m_ListData.back();
-		AddParentPoint(&NewItem, m_ListData.size());
+		FileListItem NewItem;
+		FillParentPoint(NewItem, m_ListData.size() + 1);
 
 		if (!(Info.Flags & OPIF_DISABLEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
-			Global->CtrlObject->HiFiles->GetHiColor(&m_ListData.back(), (Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
+			Global->CtrlObject->HiFiles->GetHiColor(&NewItem, (Info.Flags&OPIF_USEATTRHIGHLIGHTING) != 0);
 
 		if (Info.HostFile && *Info.HostFile)
 		{
@@ -7226,6 +7232,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 				NewItem.ChangeTime=FindData.ftChangeTime;
 			}
 		}
+		m_ListData.emplace_back(std::move(NewItem));
 	}
 
 	if (m_CurFile >= static_cast<int>(m_ListData.size()))
@@ -7377,23 +7384,23 @@ void FileList::ReadSortGroups(bool UpdateFilterCurrentTime)
 	}
 }
 
-// занести предопределенные данные для каталога "..". Ожидается, что CurPtr пуст.
-void FileList::AddParentPoint(FileListItem *CurPtr, size_t CurFilePos, const FILETIME* Times, const string& Owner)
+// занести предопределенные данные для каталога ".."
+void FileList::FillParentPoint(FileListItem& Item, size_t CurFilePos, const FILETIME* Times, const string& Owner)
 {
-	CurPtr->FileAttr = FILE_ATTRIBUTE_DIRECTORY;
-	CurPtr->strName = L"..";
-	CurPtr->strShortName = L"..";
+	Item.FileAttr = FILE_ATTRIBUTE_DIRECTORY;
+	Item.strName = L"..";
+	Item.strShortName = L"..";
 
 	if (Times)
 	{
-		CurPtr->CreationTime = Times[0];
-		CurPtr->AccessTime = Times[1];
-		CurPtr->WriteTime = Times[2];
-		CurPtr->ChangeTime = Times[3];
+		Item.CreationTime = Times[0];
+		Item.AccessTime = Times[1];
+		Item.WriteTime = Times[2];
+		Item.ChangeTime = Times[3];
 	}
 
-	CurPtr->strOwner = Owner;
-	CurPtr->Position = CurFilePos;
+	Item.strOwner = Owner;
+	Item.Position = CurFilePos;
 }
 
 // flshow.cpp

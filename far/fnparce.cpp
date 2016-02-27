@@ -538,6 +538,7 @@ int ReplaceVariables(const wchar_t *DlgTitle, string &strStr, TSubstData& SubstD
 
 		{
 			pos_item Item = {Str - StartStr - 2, Str - StartStr - 2 + ii};
+			// TODO: direct emplace_back after decommissioning VC10
 			Positions.emplace_back(Item);
 		}
 

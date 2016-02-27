@@ -1056,7 +1056,7 @@ void Manager::ActivateCommit(window_ptr_ref Param)
 	if (ItemIterator != m_modalWindows.end())
 	{
 		m_modalWindows.erase(ItemIterator);
-		m_modalWindows.push_back(Param);
+		m_modalWindows.emplace_back(Param);
 	}
 
 	DeactivateCommit(m_currentWindow);
@@ -1171,7 +1171,7 @@ void Manager::SubmergeCommit(window_ptr_ref Param)
 
 bool Manager::AddWindow(window_ptr_ref Param)
 {
-	return m_Added.insert(Param).second;
+	return m_Added.emplace(Param).second;
 }
 
 /*$ 26.06.2001 SKV

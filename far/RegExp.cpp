@@ -2037,7 +2037,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 							st.pos=op;
 							st.min=match[op->bracket.index].start;
 							st.max=match[op->bracket.index].end;
-							stack.push_back(st);
+							stack.emplace_back(st);
 						}
 
 						match[op->bracket.index].start = str - start;
@@ -2049,7 +2049,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 						st.op = opAlternative;
 						st.pos=op->bracket.nextalt;
 						st.savestr=str;
-						stack.push_back(st);
+						stack.emplace_back(st);
 					}
 
 					continue;
@@ -2075,7 +2075,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 							st.pos = op;
 							st.min = m2->start;
 							st.max = m2->end;
-							stack.push_back(st);
+							stack.emplace_back(st);
 						}
 
 						m2->start = str - start;
@@ -2087,7 +2087,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 						st.op = opAlternative;
 						st.pos = op->bracket.nextalt;
 						st.savestr = str;
-						stack.push_back(st);
+						stack.emplace_back(st);
 					}
 
 					continue;
@@ -2171,7 +2171,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 								st.startstr=str;
 								st.savestr=str;
 								op=st.pos;
-								stack.push_back(st);
+								stack.emplace_back(st);
 
 								if (op->range.bracket.index>=0 && op->range.bracket.index<matchcount)
 								{
@@ -2181,7 +2181,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 									Item.pos=op;
 									Item.min=match[op->range.bracket.index].start;
 									Item.max=match[op->range.bracket.index].end;
-									stack.push_back(Item);
+									stack.emplace_back(Item);
 								}
 
 								if (op->range.bracket.nextalt)
@@ -2190,7 +2190,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 									Item.op=opAlternative;
 									Item.pos=op->range.bracket.nextalt;
 									Item.savestr=str;
-									stack.push_back(Item);
+									stack.emplace_back(Item);
 								}
 
 								continue;
@@ -2253,7 +2253,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 							st.startstr=str;
 							st.savestr=str;
 							op=st.pos;
-							stack.push_back(st);
+							stack.emplace_back(st);
 
 							if (op->range.bracket.index>=0 && op->range.bracket.index<matchcount)
 							{
@@ -2262,7 +2262,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 								Item.pos=tmp;
 								Item.min=match[op->range.bracket.index].start;
 								Item.max=match[op->range.bracket.index].end;
-								stack.push_back(Item);
+								stack.emplace_back(Item);
 								match[op->range.bracket.index].start = str-start;
 							}
 
@@ -2272,7 +2272,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 								Item.op=opAlternative;
 								Item.pos=op->range.bracket.nextalt;
 								Item.savestr=str;
-								stack.push_back(Item);
+								stack.emplace_back(Item);
 							}
 
 							continue;
@@ -2291,7 +2291,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 								st.startstr=str;
 								st.savestr=str;
 								op=st.pos;
-								stack.push_back(st);
+								stack.emplace_back(st);
 
 								if (op->range.bracket.index>=0 && op->range.bracket.index<matchcount)
 								{
@@ -2317,7 +2317,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 									st.pos=op;
 									st.min=match[op->range.bracket.index].start;
 									st.max=match[op->range.bracket.index].end;
-									stack.push_back(st);
+									stack.emplace_back(st);
 								}
 
 								if (op->range.bracket.nextalt)
@@ -2325,7 +2325,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 									st.op=opAlternative;
 									st.pos=op->range.bracket.nextalt;
 									st.savestr=str;
-									stack.push_back(st);
+									stack.emplace_back(st);
 								}
 
 								continue;
@@ -2361,14 +2361,14 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 							st.forward=str>ps.startstr?1:0;
 							st.startstr=str;
 							st.savestr=str;
-							stack.push_back(st);
+							stack.emplace_back(st);
 
 							if (op->range.bracket.nextalt)
 							{
 								st.op=opAlternative;
 								st.pos=op->range.bracket.nextalt;
 								st.savestr=str;
-								stack.push_back(st);
+								stack.emplace_back(st);
 							}
 
 							continue;
@@ -2532,7 +2532,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 
 					st.savestr=str;
 					st.pos=op;
-					stack.push_back(st);
+					stack.emplace_back(st);
 					continue;
 				}
 				case opSymbolRange:
@@ -2593,7 +2593,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 
 					st.savestr=str;
 					st.pos=op;
-					stack.push_back(st);
+					stack.emplace_back(st);
 					continue;
 				}
 				case opNotSymbolRange:
@@ -2654,7 +2654,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 
 					st.savestr=str;
 					st.pos=op;
-					stack.push_back(st);
+					stack.emplace_back(st);
 					continue;
 				}
 				case opClassRange:
@@ -2690,7 +2690,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 
 					st.savestr=str;
 					st.pos=op;
-					stack.push_back(st);
+					stack.emplace_back(st);
 					continue;
 				}
 				case opTypeRange:
@@ -2726,7 +2726,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 
 					st.savestr=str;
 					st.pos=op;
-					stack.push_back(st);
+					stack.emplace_back(st);
 					continue;
 				}
 				case opNotTypeRange:
@@ -2762,7 +2762,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 
 					st.savestr=str;
 					st.pos=op;
-					stack.push_back(st);
+					stack.emplace_back(st);
 					continue;
 				}
 				case opNamedRefRange:
@@ -2816,7 +2816,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 
 					st.savestr=str;
 					st.pos=op;
-					stack.push_back(st);
+					stack.emplace_back(st);
 					continue;
 				}
 				case opBracketRange:
@@ -2829,7 +2829,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 						st.pos=op->range.bracket.pairindex;
 						st.min=match[op->range.bracket.index].start;
 						st.max=match[op->range.bracket.index].end;
-						stack.push_back(st);
+						stack.emplace_back(st);
 					}
 
 					{
@@ -2841,7 +2841,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 						st.startstr = str;
 						st.savestr = str;
 						st.forward = 1;
-						stack.push_back(st);
+						stack.emplace_back(st);
 					}
 
 					if (op->range.nextalt)
@@ -2850,7 +2850,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 						st.op=opAlternative;
 						st.pos=op->range.bracket.nextalt;
 						st.savestr=str;
-						stack.push_back(st);
+						stack.emplace_back(st);
 					}
 
 					if (op->range.bracket.index>=0 && op->range.bracket.index<matchcount)
@@ -2878,7 +2878,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 					st.savestr=str;
 					st.pos=op;
 					st.forward=1;
-					stack.push_back(st);
+					stack.emplace_back(st);
 
 					if (op->assert.nextalt)
 					{
@@ -2886,7 +2886,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 						Item.op=opAlternative;
 						Item.pos=op->assert.nextalt;
 						Item.savestr=str;
-						stack.push_back(Item);
+						stack.emplace_back(Item);
 					}
 
 					continue;
@@ -2909,7 +2909,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 						st.pos = op;
 						st.forward = 1;
 						str -= op->assert.length;
-						stack.push_back(st);
+						stack.emplace_back(st);
 					}
 
 					if (op->assert.nextalt)
@@ -2918,7 +2918,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 						st.op=opAlternative;
 						st.pos=op->assert.nextalt;
 						st.savestr=str;
-						stack.push_back(st);
+						stack.emplace_back(st);
 					}
 
 					continue;
@@ -2927,7 +2927,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 				{
 					StateStackItem st;
 					st.op=opNoReturn;
-					stack.push_back(st);
+					stack.emplace_back(st);
 					continue;
 				}
 				case opRegExpEnd:return 1;
@@ -3223,7 +3223,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 							st.op=opAlternative;
 							st.pos=op->range.bracket.nextalt;
 							st.savestr=str;
-							stack.push_back(st);
+							stack.emplace_back(st);
 						}
 
 //            if(op->bracket.index>=0 && op->bracket.index<matchcount)
@@ -3274,7 +3274,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 							st.pos=op;
 							st.min=match[op->range.bracket.index].start;
 							st.max=match[op->range.bracket.index].end;
-							stack.push_back(st);
+							stack.emplace_back(st);
 						}
 
 						if (op->range.nextalt)
@@ -3283,7 +3283,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 							st.op=opAlternative;
 							st.pos=op->range.bracket.nextalt;
 							st.savestr=str;
-							stack.push_back(st);
+							stack.emplace_back(st);
 						}
 
 						inrangebracket++;

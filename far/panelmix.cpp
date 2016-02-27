@@ -311,15 +311,14 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 		if (!TextPtr)
 			break;
 
-		Columns.emplace_back(VALUE_TYPE(Columns)());
+		column NewColumn;
 
 		string strArgOrig = strArgName;
 		ToUpper(strArgName);
 
 		if (strArgName.front() == L'N')
 		{
-			unsigned __int64 &ColumnType = Columns.back().type;
-			ColumnType = NAME_COLUMN;
+			NewColumn.type = NAME_COLUMN;
 			const wchar_t *Ptr = strArgName.data() + 1;
 
 			while (*Ptr)
@@ -327,22 +326,22 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 				switch (*Ptr)
 				{
 				case L'M':
-					ColumnType |= COLUMN_MARK;
+					NewColumn.type |= COLUMN_MARK;
 					break;
 				case L'D':
-					ColumnType |= COLUMN_MARK_DYNAMIC;
+					NewColumn.type |= COLUMN_MARK_DYNAMIC;
 					break;
 				case L'O':
-					ColumnType |= COLUMN_NAMEONLY;
+					NewColumn.type |= COLUMN_NAMEONLY;
 					break;
 				case L'R':
-					ColumnType |= COLUMN_RIGHTALIGN;
+					NewColumn.type |= COLUMN_RIGHTALIGN;
 					break;
 				case L'F':
-					ColumnType |= COLUMN_RIGHTALIGNFORCE;
+					NewColumn.type |= COLUMN_RIGHTALIGNFORCE;
 					break;
 				case L'N':
-					ColumnType |= COLUMN_NOEXTENSION;
+					NewColumn.type |= COLUMN_NOEXTENSION;
 					break;
 				}
 
@@ -351,8 +350,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 		}
 		else if (strArgName.front() == L'S' || strArgName.front() == L'P' || strArgName.front() == L'G')
 		{
-			unsigned __int64 &ColumnType = Columns.back().type;
-			ColumnType = (strArgName.front() == L'S') ? SIZE_COLUMN : (strArgName.front() == L'P') ? PACKED_COLUMN : STREAMSSIZE_COLUMN;
+			NewColumn.type = (strArgName.front() == L'S') ? SIZE_COLUMN : (strArgName.front() == L'P') ? PACKED_COLUMN : STREAMSSIZE_COLUMN;
 			const wchar_t *Ptr = strArgName.data() + 1;
 
 			while (*Ptr)
@@ -360,16 +358,16 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 				switch (*Ptr)
 				{
 				case L'C':
-					ColumnType |= COLUMN_COMMAS;
+					NewColumn.type |= COLUMN_COMMAS;
 					break;
 				case L'E':
-					ColumnType |= COLUMN_ECONOMIC;
+					NewColumn.type |= COLUMN_ECONOMIC;
 					break;
 				case L'F':
-					ColumnType |= COLUMN_FLOATSIZE;
+					NewColumn.type |= COLUMN_FLOATSIZE;
 					break;
 				case L'T':
-					ColumnType |= COLUMN_THOUSAND;
+					NewColumn.type |= COLUMN_THOUSAND;
 					break;
 				}
 
@@ -378,21 +376,19 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 		}
 		else if (!StrCmpN(strArgName.data(), L"DM", 2) || !StrCmpN(strArgName.data(), L"DC", 2) || !StrCmpN(strArgName.data(), L"DA", 2) || !StrCmpN(strArgName.data(), L"DE", 2))
 		{
-			unsigned __int64 &ColumnType = Columns.back().type;
-
 			switch (strArgName[1])
 			{
 			case L'M':
-				ColumnType = WDATE_COLUMN;
+				NewColumn.type = WDATE_COLUMN;
 				break;
 			case L'C':
-				ColumnType = CDATE_COLUMN;
+				NewColumn.type = CDATE_COLUMN;
 				break;
 			case L'A':
-				ColumnType = ADATE_COLUMN;
+				NewColumn.type = ADATE_COLUMN;
 				break;
 			case L'E':
-				ColumnType = CHDATE_COLUMN;
+				NewColumn.type = CHDATE_COLUMN;
 				break;
 			}
 
@@ -403,10 +399,10 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 				switch (*Ptr)
 				{
 				case L'B':
-					ColumnType |= COLUMN_BRIEF;
+					NewColumn.type |= COLUMN_BRIEF;
 					break;
 				case L'M':
-					ColumnType |= COLUMN_MONTH;
+					NewColumn.type |= COLUMN_MONTH;
 					break;
 				}
 
@@ -415,37 +411,37 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 		}
 		else if (strArgName.front() == L'O')
 		{
-			unsigned __int64 &ColumnType = Columns.back().type;
-			ColumnType = OWNER_COLUMN;
+			NewColumn.type = OWNER_COLUMN;
 
 			if (strArgName.size() > 1 && strArgName[1] == L'L')
-				ColumnType |= COLUMN_FULLOWNER;
+				NewColumn.type |= COLUMN_FULLOWNER;
 		}
 		else if (strArgName.front() == L'X')
 		{
-			unsigned __int64 &ColumnType = Columns.back().type;
-			ColumnType = EXTENSION_COLUMN;
+			NewColumn.type = EXTENSION_COLUMN;
 
 			if (strArgName.size() > 1 && strArgName[1] == L'R')
-				ColumnType |= COLUMN_RIGHTALIGN;
+				NewColumn.type |= COLUMN_RIGHTALIGN;
 		}
 		else if (strArgOrig.size() > 2 && strArgOrig.front() == L'<' && strArgOrig.back() == L'>')
 		{
-			Columns.back().title = strArgOrig.substr(1, strArgOrig.size() - 2);
-			Columns.back().type = CUSTOM_COLUMN0;
+			NewColumn.title = strArgOrig.substr(1, strArgOrig.size() - 2);
+			NewColumn.type = CUSTOM_COLUMN0;
 		}
 		else
 		{
 			const auto ItemIterator = std::find_if(CONST_RANGE(ColumnInfo, i) { return strArgName == i.Symbol; });
 			if (ItemIterator != std::cend(ColumnInfo))
-				Columns.back().type = ItemIterator->Type;
+				NewColumn.type = ItemIterator->Type;
 			else if (strArgOrig.size() >= 2 && strArgOrig.size() <= 3 && strArgOrig.front() == L'C')
 			{
 				unsigned int num;
 				if (1 == swscanf(strArgOrig.data()+1, L"%u", &num))
-					Columns.back().type = CUSTOM_COLUMN0 + num;
+					NewColumn.type = CUSTOM_COLUMN0 + num;
 			}
 		}
+
+		Columns.emplace_back(NewColumn);
 	}
 
 	TextPtr=ColumnWidths.data();
@@ -482,8 +478,9 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 
 	if (Columns.empty())
 	{
-		Columns.emplace_back(VALUE_TYPE(Columns)());
-		Columns.front().type = NAME_COLUMN;
+		column NewColumn;
+		NewColumn.type = NAME_COLUMN;
+		Columns.emplace_back(NewColumn);
 	}
 }
 

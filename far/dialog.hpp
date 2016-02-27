@@ -252,7 +252,7 @@ private:
 	void Construct(const FarDialogItem* const* SrcItem, size_t SrcItemCount);
 	void Init();
 	void DeleteDialogObjects();
-	int LenStrItem(size_t ID, const string& lpwszStr) const;
+	int LenStrItem(size_t ID, const string& Str) const;
 	int LenStrItem(size_t ID);
 	int LenStrItem(const DialogItemEx& Item);
 	void ShowDialog(size_t ID=(size_t)-1);  //    ID=-1 - отрисовать весь диалог
