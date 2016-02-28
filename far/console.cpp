@@ -529,6 +529,47 @@ virtual bool GetAlias(LPCWSTR Source, LPWSTR TargetBuffer, size_t TargetBufferLe
 	return GetConsoleAlias(const_cast<LPWSTR>(Source), TargetBuffer, static_cast<DWORD>(TargetBufferLength), const_cast<LPWSTR>(ExeName))!=0;
 }
 
+virtual std::unordered_map<string, std::unordered_map<string, string>> GetAllAliases() const
+{
+	std::unordered_map<string, std::unordered_map<string, string>> Result;
+	if (const auto ExeLength = GetConsoleAliasExesLength())
+	{
+		std::vector<wchar_t> ExeBuffer(ExeLength / sizeof(wchar_t) + 1);
+		std::vector<wchar_t> AliasesBuffer;
+
+		if (GetConsoleAliasExes(ExeBuffer.data(), ExeLength))
+		{
+			FOR(const auto& ExeToken, os::enum_strings(ExeBuffer.data()))
+			{
+				string Exe(ALL_RANGE(ExeToken));
+				auto& ExeMap = Result[Exe];
+				const auto AliasesLength = GetConsoleAliasesLength(const_cast<wchar_t*>(Exe.data()));
+				AliasesBuffer.resize(AliasesLength / sizeof(wchar_t) + 1);
+				if (GetConsoleAliases(AliasesBuffer.data(), AliasesLength, const_cast<wchar_t*>(Exe.data())))
+				{
+					FOR(const auto& AliasToken, os::enum_strings(AliasesBuffer.data()))
+					{
+						auto SeparatorPos = std::find(ALL_RANGE(AliasToken), L'=');
+						ExeMap.insert(std::make_pair(string(AliasToken.begin(), SeparatorPos), string(SeparatorPos + 1, AliasToken.end())));
+					}
+				}
+			}
+		}
+	}
+	return Result;
+}
+
+virtual void SetAllAliases(const std::unordered_map<string, std::unordered_map<string, string>>& Aliases) const
+{
+	FOR(const auto& ExeItem, Aliases)
+	{
+		FOR(const auto& AliasesItem, ExeItem.second)
+		{
+			AddConsoleAlias(const_cast<wchar_t*>(AliasesItem.first.data()), const_cast<wchar_t*>(AliasesItem.second.data()), const_cast<wchar_t*>(ExeItem.first.data()));
+		}
+	}
+}
+
 virtual bool GetDisplayMode(DWORD& Mode) const override
 {
 	return GetConsoleDisplayMode(&Mode)!=FALSE;

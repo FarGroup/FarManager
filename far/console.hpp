@@ -111,6 +111,10 @@ public:
 
 	virtual bool GetAlias(LPCWSTR Source, LPWSTR TargetBuffer, size_t TargetBufferLength, LPCWSTR ExeName) const = 0;
 
+	virtual std::unordered_map<string, std::unordered_map<string, string>> GetAllAliases() const = 0;
+
+	virtual void SetAllAliases(const std::unordered_map<string, std::unordered_map<string, string>>& Aliases) const = 0;
+
 	virtual bool GetDisplayMode(DWORD& Mode) const = 0;
 
 	virtual COORD GetLargestWindowSize() const = 0;

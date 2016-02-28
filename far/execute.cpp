@@ -956,6 +956,8 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 									        (ctrl ?bCtrl:!bCtrl) &&
 									        (shift ?bShift:!bShift))
 									{
+										auto Aliases = Console().GetAllAliases();
+
 										ConsoleIcons().restorePreviousIcons();
 
 										Console().ReadInput(ir, 256, rd);
@@ -981,7 +983,7 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 										InitConsole(0);
 
 										ConsoleIcons().setFarIcons();
-
+										Console().SetAllAliases(Aliases);
 										stop=1;
 										break;
 									}
