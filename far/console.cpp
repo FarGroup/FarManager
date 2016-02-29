@@ -541,16 +541,17 @@ virtual std::unordered_map<string, std::unordered_map<string, string>> GetAllAli
 		{
 			FOR(const auto& ExeToken, os::enum_strings(ExeBuffer.data()))
 			{
-				string Exe(ALL_RANGE(ExeToken));
-				auto& ExeMap = Result[Exe];
-				const auto AliasesLength = GetConsoleAliasesLength(const_cast<wchar_t*>(Exe.data()));
+				const auto ExeNamePtr = const_cast<wchar_t*>(ExeToken.data());
+				const auto AliasesLength = GetConsoleAliasesLength(ExeNamePtr);
 				AliasesBuffer.resize(AliasesLength / sizeof(wchar_t) + 1);
-				if (GetConsoleAliases(AliasesBuffer.data(), AliasesLength, const_cast<wchar_t*>(Exe.data())))
+				AliasesBuffer.back() = L'\0';
+				if (GetConsoleAliases(AliasesBuffer.data(), AliasesLength, ExeNamePtr))
 				{
+					auto& ExeMap = Result[ExeNamePtr];
 					FOR(const auto& AliasToken, os::enum_strings(AliasesBuffer.data()))
 					{
-						auto SeparatorPos = std::find(ALL_RANGE(AliasToken), L'=');
-						ExeMap.insert(std::make_pair(string(AliasToken.begin(), SeparatorPos), string(SeparatorPos + 1, AliasToken.end())));
+						const auto SeparatorPos = std::find(ALL_RANGE(AliasToken), L'=');
+						ExeMap[string(AliasToken.begin(), SeparatorPos)].assign(SeparatorPos + 1, AliasToken.end());
 					}
 				}
 			}
