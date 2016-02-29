@@ -551,6 +551,9 @@ DWORD GetInputRecordNoMacroArea(INPUT_RECORD *rec,bool AllowSynchro)
 	Global->CtrlObject->Macro.SetArea(MACROAREA_LAST); // чтобы не срабатывали макросы :-)
 	DWORD Key = GetInputRecord(rec, false, false, AllowSynchro);
 	Global->CtrlObject->Macro.SetArea(MArea);
+	//BUGBUG: при чтении ввода мимо менеджера возможна непустая очередь событий и как следствие
+	//        ввод не будет читаться.
+	if (Key == KEY_NONE) Global->WindowManager->PluginCommit();
 	return Key;
 }
 
