@@ -2322,9 +2322,9 @@ lv=2
 dt=Text
 nm=export.GetContentData
 ctime=3627747467
-mtime=3627830213
+mtime=3666088780
 <article>
-#_Ret = export.GetContentFields (FilePath, Names)
+#_Ret = export.GetContentData (FilePath, Names)
 #_
 #_**Parameters:**
 #_  FilePath: full name of the file
