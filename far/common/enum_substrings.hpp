@@ -97,9 +97,10 @@ private:
 };
 
 template<class T>
-enum_substrings_t<T> enum_substrings(const T& Provider)
+enum_substrings_t<typename std::remove_reference<T>::type> enum_substrings(T&& Provider)
 {
-	return enum_substrings_t<T>(Provider);
+	static_assert(std::is_lvalue_reference<T>::value, "Argument must be lvalue");
+	return enum_substrings_t<typename std::remove_reference<T>::type>(Provider);
 }
 
 // TODO: remove this after decommissioning VC10
