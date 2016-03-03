@@ -289,7 +289,7 @@ namespace os
 
 			bool operator!() const noexcept { return !Handle; }
 
-			// TODO: half of these should be free functions
+				// TODO: half of these should be free functions
 			bool Open(const string& Object, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDistribution, DWORD dwFlagsAndAttributes = 0, file* TemplateFile = nullptr, bool ForceElevation = false);
 			bool Read(LPVOID Buffer, size_t NumberOfBytesToRead, size_t& NumberOfBytesRead, LPOVERLAPPED Overlapped = nullptr);
 			bool Write(LPCVOID Buffer, size_t NumberOfBytesToWrite, size_t& NumberOfBytesWritten, LPOVERLAPPED Overlapped = nullptr);
@@ -468,53 +468,30 @@ namespace os
 		};
 	}
 
-	// enumerator for string1\0string2\0string3\0...stringN\0\0
-	template<class Provider, class ResultType = const wchar_t*>
-	class enum_strings_t: noncopyable, public enumerator<enum_strings_t<Provider, ResultType>, range<ResultType>>
-	{
-	public:
-		enum_strings_t() {}
-		enum_strings_t(Provider Data): m_Provider(Data) {}
-		bool get(size_t index, typename enum_strings_t<Provider, ResultType>::value_type& value)
-		{
-			const auto Begin = index ? value.data() + value.size() + 1 : m_Provider;
-			auto End = Begin;
-			while (*End) ++End;
-			value = typename enum_strings_t<Provider, ResultType>::value_type(Begin, End);
-			return !value.empty();
-		}
-
-	private:
-		const Provider m_Provider;
-	};
-
-	typedef enum_strings_t<const wchar_t*> enum_strings;
-
 	namespace env
 	{
-		namespace detail
-		{
-			class provider
-			{
-			public:
-				operator const wchar_t*() const { return m_Environment; }
-				operator wchar_t*() { return m_Environment; }
-
-			protected:
-				wchar_t* m_Environment;
-			};
-		}
-
 		namespace provider
 		{
-			class strings: public detail::provider
+			namespace detail
+			{
+				class provider
+				{
+				public:
+					const wchar_t* data() const { return m_Data; }
+
+				protected:
+					wchar_t* m_Data;
+				};
+			}
+
+			class strings: noncopyable, public detail::provider
 			{
 			public:
 				strings();
 				~strings();
 			};
 
-			class block: public detail::provider
+			class block: noncopyable, public detail::provider
 			{
 			public:
 				block();
@@ -523,8 +500,6 @@ namespace os
 		}
 
 		std::pair<string, string> split(const wchar_t* Line);
-
-		typedef enum_strings_t<provider::strings> enum_strings;
 
 		bool get_variable(const wchar_t* Name, string& strBuffer);
 		inline bool get_variable(const string& Name, string& strBuffer) { return get_variable(Name.data(), strBuffer); }

@@ -247,7 +247,8 @@ static DWORD GetRelationDrivesMask(DEVINST hDevInst)
 			wchar_t_ptr DeviceIdList(dwSize);
 			if (CM_Get_Device_ID_List(szDeviceID, DeviceIdList.get(), dwSize, CM_GETIDLIST_FILTER_REMOVALRELATIONS) == CR_SUCCESS)
 			{
-				FOR(const auto& i, (os::enum_strings_t<wchar_t*, wchar_t*>(DeviceIdList.get())))
+				const auto DeviceIdListPtr = DeviceIdList.get();
+				FOR(const auto& i, enum_substrings(DeviceIdListPtr))
 				{
 					DEVINST hRelationDevInst;
 					if (CM_Locate_DevNode(&hRelationDevInst, i.data(), 0) == CR_SUCCESS)

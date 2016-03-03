@@ -62,6 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning(disable: 4480) // https://msdn.microsoft.com/en-us/library/ms173702.aspx nonstandard extension used: specifying underlying type for enum 'enum'
 #pragma warning(disable: 4481) // https://msdn.microsoft.com/en-us/library/ms173703.aspx nonstandard extension used: override specifier 'keyword'
 #pragma warning(disable: 4482) // https://msdn.microsoft.com/en-us/library/ms173704.aspx nonstandard extension used: enum 'enum' used in qualified name
+#pragma warning(disable: 4503) // https://msdn.microsoft.com/en-us/library/074af4b6.aspx 'identifier' : decorated name length exceeded, name was truncated
 #pragma warning(disable: 4512) // https://msdn.microsoft.com/en-us/library/hsyx7kbz.aspx 'class' : assignment operator could not be generated
 #pragma warning(disable: 4514) // https://msdn.microsoft.com/en-us/library/cw9x3tcf.aspx 'function' : unreferenced inline function has been removed
 #pragma warning(disable: 4625) // https://msdn.microsoft.com/en-us/library/306zwa5e.aspx 'derived class' : copy constructor could not be generated because a base class copy constructor is inaccessible

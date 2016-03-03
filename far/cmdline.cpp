@@ -1138,11 +1138,16 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, class execution_conte
 				return false;
 
 			string strOut;
-			FOR(const auto& i, os::env::enum_strings())
+
 			{
-				if (!StrCmpNI(i.data(), strCmdLine.data(), strCmdLine.size()))
+				const os::env::provider::strings EnvStrings;
+				const auto EnvStringsPtr = EnvStrings.data();
+				FOR(const auto& i, enum_substrings(EnvStringsPtr))
 				{
-					strOut.append(i.data(), i.size()).append(L"\n");
+					if (!StrCmpNI(i.data(), strCmdLine.data(), strCmdLine.size()))
+					{
+						strOut.append(i.data(), i.size()).append(L"\n");
+					}
 				}
 			}
 

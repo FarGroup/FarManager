@@ -1443,7 +1443,7 @@ std::vector<string> GetLogicalDriveStrings()
 			Ptr = vBuffer.get();
 		}
 
-		FOR(const auto& i, os::enum_strings(Ptr))
+		FOR(const auto& i, enum_substrings(Ptr))
 		{
 			// TODO: direct emplace_back after decommissioning VC10
 			Result.emplace_back(string(i.data(), i.size()));
@@ -1947,28 +1947,34 @@ DWORD GetAppPathsRedirectionFlag()
 	{
 		provider::strings::strings()
 		{
-			m_Environment = GetEnvironmentStrings();
+			m_Data = GetEnvironmentStrings();
 		}
 
 		provider::strings::~strings()
 		{
-			FreeEnvironmentStrings(*this);
+			if (m_Data)
+			{
+				FreeEnvironmentStrings(m_Data);
+			}
 		}
 
 		provider::block::block()
 		{
-			m_Environment = nullptr;
+			m_Data = nullptr;
 			HANDLE RawHandle = nullptr;
 			if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &RawHandle))
 			{
 				os::handle TokenHandle(RawHandle);
-				CreateEnvironmentBlock(reinterpret_cast<void**>(&m_Environment), TokenHandle.native_handle(), TRUE);
+				CreateEnvironmentBlock(reinterpret_cast<void**>(&m_Data), TokenHandle.native_handle(), TRUE);
 			}
 		}
 
 		provider::block::~block()
 		{
-			DestroyEnvironmentBlock(*this);
+			if (m_Data)
+			{
+				DestroyEnvironmentBlock(m_Data);
+			}
 		}
 
 		std::pair<string, string> split(const wchar_t* Line)

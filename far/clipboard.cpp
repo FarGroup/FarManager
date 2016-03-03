@@ -383,14 +383,14 @@ bool Clipboard::GetHDROPAsText(string& data) const
 			const auto Start = reinterpret_cast<const wchar_t*>(StartA);
 			if(Files->fWide)
 			{
-				FOR(const auto& i, os::enum_strings(Start))
+				FOR(const auto& i, enum_substrings(Start))
 				{
 					data.append(i.data(), i.size()).append(L"\r\n");
 				}
 			}
 			else
 			{
-				FOR(const auto& i, (os::enum_strings_t<const char*, const char*>(StartA)))
+				FOR(const auto& i, (enum_substrings(StartA)))
 				{
 					data.append(wide(std::string(i.data(), i.size()), CP_ACP)).append(L"\r\n");
 				}

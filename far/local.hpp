@@ -88,6 +88,7 @@ namespace detail
 	};
 }
 
+// TODO: remove this after decommissioning VC10
 #pragma push_macro("decltype")
 #undef decltype
 
@@ -119,6 +120,7 @@ auto RevStrStrI(T&& str1, const string& str2) -> decltype(std::begin(str1))
 	return std::find_end(ALL_RANGE(str1), ALL_CONST_RANGE(str2), detail::wchar_t_compare_icase());
 }
 
+// TODO: remove this after decommissioning VC10
 #pragma pop_macro("decltype")
 
 inline int StrCmpNNI(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2) { return CompareString(0, NORM_IGNORECASE | NORM_STOP_ON_NULL | SORT_STRINGSORT, s1, static_cast<int>(n1), s2, static_cast<int>(n2)) - 2; }
