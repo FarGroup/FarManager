@@ -375,6 +375,10 @@ local function AddRegularMacro (srctable, FileName)
     if type(priority)=="number" then
       macro.priority = priority>100 and 100 or priority<0 and 0 or priority
     end
+    priority = srctable.sortpriority
+    if type(priority)=="number" then
+      macro.sortpriority = priority>100 and 100 or priority<0 and 0 or priority
+    end
 
     if FileName then
       macro.FileName = FileName
@@ -833,7 +837,11 @@ local function GetFromMenu (macrolist)
     menuitems[i] = { text=descr, macro=macro }
   end
 
-  table.sort(menuitems, function(a,b) return far.LStricmp(a.text, b.text) < 0 end)
+  table.sort(menuitems,
+    function(item1,item2)
+      local p1,p2 = item1.macro.sortpriority or 50, item2.macro.sortpriority or 50
+      return p1>p2 or p1==p2 and far.LStricmp(item1.text, item2.text) < 0
+    end)
 
   for i,item in ipairs(menuitems) do
     local ch = i<10 and i or i<36 and string.char(i+55)

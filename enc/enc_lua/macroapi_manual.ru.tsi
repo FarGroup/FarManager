@@ -1602,7 +1602,7 @@ lv=2
 dt=Text
 nm=Стационарные макросы
 ctime=3580139016
-mtime=3655200038
+mtime=3666203478
 <article>
 #_<markdown>
 #_
@@ -1610,14 +1610,15 @@ mtime=3655200038
 #_
 #_```
 #_  Macro {
-#_    area        = "Shell Info Tree";                         -- string
-#_    key         = "CtrlF11 ShiftHome";                       -- string (опциональное поле)
-#_    description = "Macro example";                           -- string (опциональное поле)
-#_    flags       = "NoPluginPanels EmptyCommandLine";         -- string (опциональное поле)
-#_    filemask    = "*.txt,*.cpp";                             -- string (опциональное поле)
-#_    priority    = 50;                                        -- number (опциональное поле)
-#_    condition   = function(key) return Far.Height>30 end;    -- function (опциональное поле)
-#_    action      = function() msgbox("","Macro example") end; -- function
+#_    area         = "Shell Info Tree";                         -- string
+#_    key          = "CtrlF11 ShiftHome";                       -- string (опциональное поле)
+#_    description  = "Macro example";                           -- string (опциональное поле)
+#_    flags        = "NoPluginPanels EmptyCommandLine";         -- string (опциональное поле)
+#_    filemask     = "*.txt,*.cpp";                             -- string (опциональное поле)
+#_    priority     = 50;                                        -- number (опциональное поле)
+#_    sortpriority = 50;                                        -- number (опциональное поле)
+#_    condition    = function(key) return Far.Height>30 end;    -- function (опциональное поле)
+#_    action       = function() msgbox("","Macro example") end; -- function
 #_  }
 #_```
 #_
@@ -1639,6 +1640,9 @@ mtime=3655200038
 #_
 #_1. Опциональное поле `priority` (приоритет) - число от 0 до 100. Значение по умолчанию = 50.<br>
 #_   Макросы, добавляемые посредством `MCTL_ADDMACRO`, имеют приоритет = 50.
+#_
+#_1. Опциональное поле `sortpriority` (приоритет для сортировки) - число от 0 до 100. Значение по умолчанию = 50.<br>
+#_   Значение данного поля учитывается при определении порядка расположения макросов в меню выбора макроса.
 #_
 #_1. Опциональное поле `filemask` - строка.<br>
 #_   Применимо только для областей `Editor` и `Viewer`. Обрабатывается по правилам,
