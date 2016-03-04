@@ -37,11 +37,61 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace unicode
 {
+// TODO: replace after decommissioning VC10
+// #define NOT_PTR(T) typename T, typename std::enable_if<!std::is_pointer<T>::value>::type* = nullptr
+// typename<NOT_PTR(T)>
+
+#define NOT_PTR(result_type) typename std::enable_if<!std::is_pointer<T>::value, result_type>::type
+
 	size_t to(uintptr_t Codepage, const wchar_t* Data, size_t Size, char* Buffer, size_t BufferSize, bool* UsedDefaultChar = nullptr);
+	template<class T>
+	NOT_PTR(size_t) to(uintptr_t Codepage, const T& Data, char* Buffer, size_t BufferSize, bool* UsedDefaultChar = nullptr)
+	{
+		return to(Codepage, Data.data(), Data.size(), Buffer, BufferSize, UsedDefaultChar);
+	}
+	template<class T>
+	NOT_PTR(size_t) to(uintptr_t Codepage, const wchar_t* Data, size_t Size, T& Buffer, bool* UsedDefaultChar = nullptr)
+	{
+		return to(Codepage, Data, Size, Buffer.data(), Buffer.size(), UsedDefaultChar);
+	}
+	template<class T, class Y>
+	NOT_PTR(size_t) to(uintptr_t Codepage, const T& Data, Y& Buffer, bool* UsedDefaultChar = nullptr)
+	{
+		return to(Codepage, Data.data(), Data.size(), Buffer.data(), Buffer.size(), UsedDefaultChar);
+	}
+
 	std::string to(uintptr_t Codepage, const wchar_t* Data, size_t Size, bool* UsedDefaultChar = nullptr);
+	template<class T>
+	NOT_PTR(std::string) to(uintptr_t Codepage, const T& Data, bool* UsedDefaultChar = nullptr)
+	{
+		return to(Codepage, Data.data(), Data.size(), UsedDefaultChar);
+	}
 
 	size_t from(uintptr_t Codepage, const char* Data, size_t Size, wchar_t* Buffer, size_t BufferSize);
+	template<class T>
+	NOT_PTR(size_t) from(uintptr_t Codepage, const T& Data, wchar_t* Buffer, size_t BufferSize)
+	{
+		return from(Codepage, Data.data(), Data.size(), Buffer, BufferSize);
+	}
+	template<class T>
+	NOT_PTR(size_t) from(uintptr_t Codepage, const char* Data, size_t Size, T& Buffer)
+	{
+		return from(Codepage, Data, Size, Buffer.data(), Buffer.size());
+	}
+	template<class T, class Y>
+	NOT_PTR(size_t) from(uintptr_t Codepage, const T& Data, Y& Buffer)
+	{
+		return from(Codepage, Data.data(), Data.size(), Buffer.data(), Buffer.size());
+	}
+
 	string from(uintptr_t Codepage, const char* Data, size_t Size);
+	template<class T>
+	NOT_PTR(string) from(uintptr_t Codepage, const T& Data)
+	{
+		return from(Codepage, Data.data(), Data.size());
+	}
+
+#undef NOT_PTR
 }
 
 void swap_bytes(const void* Src, void* Dst, size_t SizeInBytes);

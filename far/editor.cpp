@@ -5016,7 +5016,7 @@ int64_t Editor::GetCurPos(bool file_pos, bool add_bom) const
 	const auto TotalSize = std::accumulate(Lines.cbegin(), m_it_TopScreen.cbase(), bom, [&](uint64_t Value, CONST_REFERENCE(Lines) line) -> uint64_t
 	{
 		const auto& Str = line.GetString();
-		return Value + (Multiplier != Unknown? Str.size() : unicode::to(m_codepage, Str.data(), Str.size(), nullptr, 0)) + wcslen(line.GetEOL());
+		return Value + (Multiplier != Unknown? Str.size() : unicode::to(m_codepage, Str, nullptr, 0)) + wcslen(line.GetEOL());
 	});
 
 	return Multiplier != Unknown? TotalSize * Multiplier : TotalSize;
@@ -7054,7 +7054,7 @@ void Editor::SetCacheParams(EditorPosCache &pc, bool count_bom)
 
 			if (m_codepage == CP_UTF8)
 			{
-				TotalSize += unicode::to(CP_UTF8, SaveStr.data(), SaveStr.size(), nullptr, 0);
+				TotalSize += unicode::to(CP_UTF8, SaveStr, nullptr, 0);
 			}
 			else
 			{
@@ -7144,7 +7144,7 @@ DWORD Editor::EditSetCodePage(const iterator& edit, uintptr_t codepage, bool che
 		if (3 * static_cast<size_t>(edit->m_Str.size()) + 1 > decoded.size())
 			decoded.resize(256 + 4 * edit->m_Str.size());
 
-		const size_t length = unicode::to(m_codepage, edit->m_Str.data(), edit->m_Str.size(), decoded.data(), decoded.size(), lpUsedDefaultChar);
+		const size_t length = unicode::to(m_codepage, edit->m_Str, decoded, lpUsedDefaultChar);
 		if (!length || UsedDefaultChar)
 		{
 			Ret |= SETCP_WC2MBERROR;

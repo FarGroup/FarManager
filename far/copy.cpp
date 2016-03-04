@@ -1937,7 +1937,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 					{
 						if (!strRenamedName.empty())
 						{
-							DestDiz.DeleteDiz(strSelName,strSelShortName);
+							DestDiz.Erase(strSelName,strSelShortName);
 							SrcPanel->CopyDiz(strSelName,strSelShortName,strRenamedName,strRenamedName,&DestDiz);
 						}
 						else

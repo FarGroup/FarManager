@@ -235,7 +235,7 @@ bool GetFileString::GetString(LPWSTR* DestStr, size_t& Length)
 				}
 				if (bGet)
 				{
-					nResultLength = unicode::from(m_CodePage, CharStr.data(), CharStr.size(), m_wStr.data(), m_wStr.size());
+					nResultLength = unicode::from(m_CodePage, CharStr, m_wStr);
 					if (!nResultLength)
 					{
 						Result = GetLastError();
@@ -243,9 +243,9 @@ bool GetFileString::GetString(LPWSTR* DestStr, size_t& Length)
 				}
 				if (Result == ERROR_INSUFFICIENT_BUFFER)
 				{
-					nResultLength = unicode::from(m_CodePage, CharStr.data(), CharStr.size(), nullptr, 0);
+					nResultLength = unicode::from(m_CodePage, CharStr, nullptr, 0);
 					m_wStr.resize(nResultLength);
-					nResultLength = unicode::from(m_CodePage, CharStr.data(), CharStr.size(), m_wStr.data(), m_wStr.size());
+					nResultLength = unicode::from(m_CodePage, CharStr, m_wStr);
 				}
 
 				m_wStr.resize(nResultLength);

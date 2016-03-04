@@ -48,8 +48,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cache.hpp"
 
 DizList::DizList():
-	Modified(false),
-	OrigCodePage(CP_DEFAULT)
+	m_CodePage(CP_DEFAULT),
+	m_Modified()
 {
 }
 
@@ -59,10 +59,10 @@ DizList::~DizList()
 
 void DizList::Reset()
 {
-	DizData.clear();
+	m_DizData.clear();
 	m_OrderForWrite.clear();
-	Modified=false;
-	OrigCodePage=CP_DEFAULT;
+	m_Modified = false;
+	m_CodePage = CP_DEFAULT;
 }
 
 static void PR_ReadingMsg()
@@ -86,13 +86,13 @@ void DizList::Read(const string& Path, const string* DizName)
 	{
 		if (DizName)
 		{
-			strDizFileName = *DizName;
+			m_DizFileName = *DizName;
 		}
 		else
 		{
-			strDizFileName = Path;
+			m_DizFileName = Path;
 
-			if (!PathCanHoldRegularFile(strDizFileName))
+			if (!PathCanHoldRegularFile(m_DizFileName))
 				break;
 
 			string strArgName;
@@ -101,12 +101,12 @@ void DizList::Read(const string& Path, const string* DizName)
 			if (!NamePtr)
 				break;
 
-			AddEndSlash(strDizFileName);
-			strDizFileName += strArgName;
+			AddEndSlash(m_DizFileName);
+			m_DizFileName += strArgName;
 		}
 
 		os::fs::file DizFile;
-		if (DizFile.Open(strDizFileName,GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
+		if (DizFile.Open(m_DizFileName,GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
 		{
 			clock_t StartTime=clock();
 			uintptr_t CodePage=CP_DEFAULT;
@@ -117,11 +117,11 @@ void DizList::Read(const string& Path, const string* DizName)
 
 			GetFileString GetStr(DizFile, CodePage);
 
-			auto LastAdded = DizData.end();
+			auto LastAdded = m_DizData.end();
 			string DizText;
 			while (GetStr.GetString(DizText))
 			{
-				if (!(DizData.size() & 127) && clock() - StartTime > CLOCKS_PER_SEC)
+				if (!(m_DizData.size() & 127) && clock() - StartTime > CLOCKS_PER_SEC)
 				{
 					SetCursorType(false, 0);
 					PR_ReadingMsg();
@@ -136,11 +136,32 @@ void DizList::Read(const string& Path, const string* DizName)
 				{
 					if(!IsSpace(DizText.front()))
 					{
-						LastAdded = AddRecord(DizText);
+						auto NameBegin = DizText.cbegin();
+						auto NameEnd = DizText.cend();
+						auto DescBegin = DizText.cend();
+
+						if (DizText.front() == L'"')
+						{
+							++NameBegin;
+							NameEnd = std::find(NameBegin, DizText.cend(), L'"');
+							if (NameEnd != DizText.cend())
+							{
+								DescBegin = NameEnd + 1;
+							}
+						}
+						else
+						{
+							DescBegin = NameEnd = std::find(NameBegin, DizText.cend(), L' ');
+						}
+
+						// Insert unconditionally
+						LastAdded = Insert(string(NameBegin, NameEnd));
+						// TODO: direct emplace_back after decommissioning VC10
+						LastAdded->second.emplace_back(string(DescBegin, DizText.end()));
 					}
 					else
 					{
-						if (LastAdded != DizData.end())
+						if (LastAdded != m_DizData.end())
 						{
 							LastAdded->second.emplace_back(DizText);
 						}
@@ -148,9 +169,8 @@ void DizList::Read(const string& Path, const string* DizName)
 				}
 			}
 
-			OrigCodePage=CodePage;
-			Modified=false;
-			DizFile.Close();
+			m_CodePage=CodePage;
+			m_Modified = false;
 			return;
 		}
 
@@ -158,136 +178,138 @@ void DizList::Read(const string& Path, const string* DizName)
 			break;
 	}
 
-	Modified=false;
-	strDizFileName.clear();
+	m_Modified = false;
+	m_DizFileName.clear();
 }
 
-DizList::desc_map::iterator DizList::AddRecord(const string& Name, const string& Description)
+const wchar_t* DizList::Get(const string& Name, const string& ShortName, const __int64 FileSize) const
 {
-	Modified=true;
-	std::list<string> DescStrings;
-	DescStrings.emplace_back(Description);
-	// TODO: direct emplace after decommissioning VC10
-	const auto Result = DizData.emplace(VALUE_TYPE(DizData)(Name, std::move(DescStrings)));
-	if (Result.second)
-	{
-		m_OrderForWrite.emplace_back(&*Result.first);
-	}
-	return Result.first;
-}
+	const auto Iterator = Find(Name, ShortName);
 
-DizList::desc_map::iterator DizList::AddRecord(const string& DizText)
-{
-	string::const_iterator NameBegin, NameEnd, DescBegin;
-
-	if (DizText.front() == L'"')
+	if (Iterator == m_DizData.end())
 	{
-		NameBegin = DizText.cbegin() + 1;
-		NameEnd = std::find(NameBegin, DizText.cend(), L'"');
-		DescBegin = NameEnd == DizText.cend()? NameEnd : NameEnd + 1;
-	}
-	else
-	{
-		NameBegin = DizText.cbegin();
-		NameEnd = std::find_if(ALL_CONST_RANGE(DizText), IsSpace);
-		DescBegin = NameEnd;
+		return nullptr;
 	}
 
-	return AddRecord(string(NameBegin, NameEnd), string(DescBegin, DizText.end()));
-}
-
-const wchar_t* DizList::GetDizTextAddr(const string& Name, const string& ShortName, const __int64 FileSize)
-{
-	const wchar_t *DizText=nullptr;
-	const auto DizPos = Find(Name, ShortName);
-
-	if (DizPos != DizData.end())
+	const auto& Description = Iterator->second.front();
+	if (Description.empty())
 	{
-		DizText=DizPos->second.front().data();
+		return nullptr;
+	}
 
-		if (std::iswdigit(*DizText))
+	auto Begin = Description.begin();
+
+	if (std::iswdigit(*Begin))
+	{
+		const auto SizeText = std::to_wstring(FileSize);
+		auto DescrIterator = Begin;
+		auto SkipSize = true;
+
+		for (size_t i = 0; i < SizeText.size() && DescrIterator != Description.cend() ; ++i, ++DescrIterator)
 		{
-			const auto SizeText = std::to_wstring(FileSize);
-			const wchar_t *DizPtr=DizText;
-			bool SkipSize=true;
-
-			for (size_t i = 0; i < SizeText.size(); ++i, ++DizPtr)
+			if (*DescrIterator != L',' && *DescrIterator != L'.' && *DescrIterator != SizeText[i])
 			{
-				if (*DizPtr!=L',' && *DizPtr!=L'.' && *DizPtr != SizeText[i])
-				{
-					SkipSize=false;
-					break;
-				}
-			}
-
-			if (SkipSize && IsSpace(*DizPtr))
-			{
-				DizText=DizPtr;
+				SkipSize=false;
+				break;
 			}
 		}
-		while (*DizText && IsSpace(*DizText))
-			DizText++;
+
+		if (SkipSize && IsSpace(*DescrIterator))
+		{
+			Begin = DescrIterator;
+		}
 	}
 
-	return DizText;
+	Begin = std::find_if_not(Begin, Description.cend(), IsSpace);
+	if (Begin == Description.cend())
+	{
+		return nullptr;
+	}
+
+	return &*Begin;
+}
+
+template<class T>
+// TODO: remove this after decommissioning VC10
+#pragma push_macro("decltype")
+#undef decltype
+auto Find_t(T& Map, const string& Name, const string& ShortName, uintptr_t Codepage) -> decltype(Map.begin())
+#pragma pop_macro("decltype")
+{
+	auto Iterator = Map.find(Name);
+	if (Iterator == Map.end())
+		Iterator = Map.find(ShortName);
+
+	//если файл описаний был в OEM/ANSI то имена файлов могут не совпадать с юникодными
+	if (Iterator == Map.end() && !IsUnicodeOrUtfCodePage(Codepage) && Codepage != CP_DEFAULT)
+	{
+		const auto strRecoded = unicode::from(Codepage, unicode::to(Codepage, Name));
+		if (strRecoded == Name)
+		{
+			return Iterator;
+		}
+		return Map.find(strRecoded);
+	}
+
+	return Iterator;
 }
 
 DizList::desc_map::iterator DizList::Find(const string& Name, const string& ShortName)
 {
-	auto i = DizData.find(Name);
-	if(i == DizData.end())
-		i = DizData.find(ShortName);
-
-	//если файл описаний был в OEM/ANSI то имена файлов могут не совпадать с юникодными
-	if (i == DizData.end() && !IsUnicodeOrUtfCodePage(OrigCodePage) && OrigCodePage!=CP_DEFAULT)
-	{
-		const auto tmp = unicode::to(OrigCodePage, Name.data(), Name.size());
-		const auto strRecoded = wide_n(tmp.data(), tmp.size(), OrigCodePage);
-
-		if (strRecoded==Name)
-			return DizData.end();
-
-		return DizData.find(strRecoded);
-	}
-
-	return i;
+	return Find_t(m_DizData, Name, ShortName, m_CodePage);
 }
 
-bool DizList::DeleteDiz(const string& Name,const string& ShortName)
+DizList::desc_map::const_iterator DizList::Find(const string& Name, const string& ShortName) const
 {
-	const auto i = Find(Name, ShortName);
-	if (i != DizData.end())
+	return Find_t(m_DizData, Name, ShortName, m_CodePage);
+}
+
+DizList::desc_map::iterator DizList::Insert(const string& Name)
+{
+	// TODO: direct emplace after decommissioning VC10
+	auto Iterator = m_DizData.insert(VALUE_TYPE(m_DizData)(Name, std::list<string>()));
+	m_OrderForWrite.push_back(&*Iterator);
+	return Iterator;
+}
+
+bool DizList::Erase(const string& Name,const string& ShortName)
+{
+	const auto Iterator = Find(Name, ShortName);
+	if (Iterator == m_DizData.end())
 	{
-		m_OrderForWrite.erase(std::find(ALL_RANGE(m_OrderForWrite), &*i));
-		DizData.erase(i);
-		Modified=true;
-		return true;
+		return false;
 	}
-	return false;
+
+	m_OrderForWrite.erase(std::find(ALL_RANGE(m_OrderForWrite), &*Iterator));
+	m_DizData.erase(Iterator);
+	m_Modified = true;
+	return true;
 }
 
 bool DizList::Flush(const string& Path,const string* DizName)
 {
-	if (!Modified)
+	if (!m_Modified)
+	{
 		return true;
+	}
 
 	if (DizName)
 	{
-		strDizFileName = *DizName;
+		m_DizFileName = *DizName;
 	}
-	else if (strDizFileName.empty())
+	else if (m_DizFileName.empty())
 	{
-		if (DizData.empty() || Path.empty())
+		if (m_DizData.empty() || Path.empty())
 			return false;
 
-		strDizFileName = Path;
-		AddEndSlash(strDizFileName);
+		m_DizFileName = Path;
+		AddEndSlash(m_DizFileName);
 		string strArgName;
 		GetCommaWord(Global->Opt->Diz.strListNames.data(),strArgName);
-		strDizFileName += strArgName;
+		m_DizFileName += strArgName;
 	}
 
-	DWORD FileAttr=os::GetFileAttributes(strDizFileName);
+	DWORD FileAttr=os::GetFileAttributes(m_DizFileName);
 
 	if (FileAttr != INVALID_FILE_ATTRIBUTES)
 	{
@@ -295,7 +317,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		{
 			if(Global->Opt->Diz.ROUpdate)
 			{
-				if(os::SetFileAttributes(strDizFileName,FileAttr))
+				if(os::SetFileAttributes(m_DizFileName,FileAttr))
 				{
 					FileAttr^=FILE_ATTRIBUTE_READONLY;
 				}
@@ -304,7 +326,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 
 		if(!(FileAttr&FILE_ATTRIBUTE_READONLY))
 		{
-			os::SetFileAttributes(strDizFileName,FILE_ATTRIBUTE_ARCHIVE);
+			os::SetFileAttributes(m_DizFileName,FILE_ATTRIBUTE_ARCHIVE);
 		}
 		else
 		{
@@ -318,8 +340,8 @@ bool DizList::Flush(const string& Path,const string* DizName)
 	bool AnyError=false;
 
 	bool EmptyDiz=true;
-	// Don't use CreationDisposition=CREATE_ALWAYS here - it's kills alternate streams
-	if(!DizData.empty() && DizFile.Open(strDizFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr==INVALID_FILE_ATTRIBUTES?CREATE_NEW:TRUNCATE_EXISTING))
+	// Don't use CreationDisposition=CREATE_ALWAYS here - it kills alternate streams
+	if(!m_DizData.empty() && DizFile.Open(m_DizFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr==INVALID_FILE_ATTRIBUTES?CREATE_NEW:TRUNCATE_EXISTING))
 	{
 		uintptr_t CodePage = Global->Opt->Diz.SaveInUTF ? CP_UTF8 : (Global->Opt->Diz.AnsiByDefault ? CP_ACP : CP_OEMCP);
 
@@ -341,29 +363,20 @@ bool DizList::Flush(const string& Path,const string* DizName)
 				const auto& i = *i_ptr;
 				string dump = i.first;
 				QuoteSpaceOnly(dump);
-				dump += i.second.front();
-				if(i.second.size() > 1)
+				FOR(const auto& j, i.second)
 				{
-					std::for_each(std::next(i.second.cbegin()), i.second.cend(), [&](CONST_REFERENCE(i.second) j)
-					{
-						dump.append(L"\r\n ").append(j);
-					});
+					dump.append(j).append(L"\r\n");
 				}
-				DWORD Size=static_cast<DWORD>((dump.size() + 1) * (CodePage == CP_UTF8? 3 : 1)); //UTF-8, up to 3 bytes per char support
+				const auto Size = dump.size() * (CodePage == CP_UTF8? 3 : 1); //UTF-8, up to 3 bytes per char support
 				char_ptr DizText(Size);
 
-				if (const auto BytesCount = unicode::to(CodePage, dump.data(), dump.size(), DizText.get(), Size))
+				if (const auto BytesCount = unicode::to(CodePage, dump, DizText.get(), Size))
 				{
 					if(Cache.Write(DizText.get(), BytesCount))
 					{
 						EmptyDiz=false;
 					}
 					else
-					{
-						AnyError=true;
-						break;
-					}
-					if(!Cache.Write("\r\n", 2))
 					{
 						AnyError=true;
 						break;
@@ -389,14 +402,14 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		{
 			FileAttr=FILE_ATTRIBUTE_ARCHIVE|(Global->Opt->Diz.SetHidden?FILE_ATTRIBUTE_HIDDEN:0);
 		}
-		os::SetFileAttributes(strDizFileName,FileAttr);
+		os::SetFileAttributes(m_DizFileName,FileAttr);
 	}
 	else
 	{
 		if(AnyError)
 			Global->CatchError();
 
-		os::DeleteFile(strDizFileName);
+		os::DeleteFile(m_DizFileName);
 		if(AnyError)
 		{
 			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotUpdateDiz),MSG(MOk));
@@ -404,40 +417,43 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		}
 	}
 
-	Modified=false;
+	m_Modified=false;
 	return true;
 }
 
-void DizList::AddDizText(const string& Name,const string& ShortName,const string& DizText)
+void DizList::Set(const string& Name,const string& ShortName,const string& DizText)
 {
-	DeleteDiz(Name, ShortName);
-	string strQuotedName = Name;
-	QuoteSpaceOnly(strQuotedName);
-	AddRecord(FormatString()<<fmt::LeftAlign()<<fmt::MinWidth(Global->Opt->Diz.StartPos>1?Global->Opt->Diz.StartPos-2:0)<<strQuotedName<<L" "<<DizText);
-}
-
-bool DizList::CopyDiz(const string& Name, const string& ShortName, const string& DestName, const string& DestShortName, DizList* DestDiz)
-{
-	const auto i = Find(Name, ShortName);
-
-	if (i == DizData.end())
-		return false;
-
-	DestDiz->DeleteDiz(DestName, DestShortName);
-	// TODO: direct emplace after decommissioning VC10
-	const auto it = DestDiz->DizData.emplace(VALUE_TYPE(DizData)(DestName, i->second));
-	if (it.second)
+	auto Iterator = Find(Name, ShortName);
+	if (Iterator == m_DizData.end())
 	{
-		DestDiz->m_OrderForWrite.emplace_back(&*it.first);
+		Iterator = Insert(Name);
 	}
 
-	DestDiz->Modified = true;
+	auto& List = Iterator->second;
+	List.clear();
+
+	const auto KeySize = Iterator->first.size();
+	const auto NumberOfSpaces = std::max(static_cast<int>(Global->Opt->Diz.StartPos - 1), static_cast<int>(KeySize + 1)) - KeySize;
+	List.emplace_back(string(NumberOfSpaces, L' ') + DizText);
+	m_Modified = true;
+}
+
+bool DizList::CopyDiz(const string& Name, const string& ShortName, const string& DestName, const string& DestShortName, DizList* DestDiz) const
+{
+	const auto Iterator = Find(Name, ShortName);
+	if (Iterator == m_DizData.end())
+	{
+		return false;
+	}
+
+	auto DestIterator = DestDiz->Find(DestName, DestShortName);
+	if (DestIterator == DestDiz->m_DizData.end())
+	{
+		DestIterator = DestDiz->Insert(DestName);
+	}
+
+	DestIterator->second = Iterator->second;
+	DestDiz->m_Modified = true;
 
 	return true;
 }
-
-bool DizList::diz_less::operator()(const string& a, const string& b) const
-{
-	return StrCmpI(a, b) < 0;
-}
-

@@ -109,9 +109,9 @@ PluginSettings::PluginSettings(const GUID& Guid, bool Local):
 			Diz.Read(strDbPath);
 			string strDbName = strGuid + L".db";
 			string Description = string(pPlugin->GetTitle()) + L" (" + pPlugin->GetDescription() + L")";
-			if(Description != NullToEmpty(Diz.GetDizTextAddr(strDbName, L"", 0)))
+			if(Description != NullToEmpty(Diz.Get(strDbName, L"", 0)))
 			{
-				Diz.AddDizText(strDbName, L"", Description);
+				Diz.Set(strDbName, L"", Description);
 				Diz.Flush(strDbPath);
 			}
 		}

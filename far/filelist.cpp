@@ -4752,7 +4752,7 @@ void FileList::SelectSortMode()
 void FileList::DeleteDiz(const string& Name, const string& ShortName)
 {
 	if (m_PanelMode == panel_mode::NORMAL_PANEL)
-		Diz.DeleteDiz(Name,ShortName);
+		Diz.Erase(Name,ShortName);
 }
 
 
@@ -4791,8 +4791,7 @@ void FileList::DescribeFiles()
 	while (GetSelName(&strSelName,FileAttr,&strSelShortName))
 	{
 		string strDizText, strMsg, strQuotedName;
-		const wchar_t *PrevText;
-		PrevText=Diz.GetDizTextAddr(strSelName,strSelShortName,GetLastSelectedSize());
+		const auto PrevText = NullToEmpty(Diz.Get(strSelName,strSelShortName,GetLastSelectedSize()));
 		strQuotedName = strSelName;
 		QuoteSpaceOnly(strQuotedName);
 		strMsg.append(MSG(MEnterDescription)).append(L" ").append(strQuotedName).append(L":");
@@ -4801,7 +4800,7 @@ void FileList::DescribeFiles()
 		   Для Ctrl-Z не нужно брать предыдущее значение!
 		*/
 		if (!GetString(MSG(MDescribeFiles),strMsg.data(),L"DizText",
-		               PrevText ? PrevText:L"",strDizText,
+		               PrevText, strDizText,
 		               L"FileDiz",FIB_ENABLEEMPTY|(!DizCount?FIB_NOUSELASTHISTORY:0)|FIB_BUTTONS,
 		               nullptr,nullptr,nullptr,&DescribeFileId))
 			break;
@@ -4810,11 +4809,11 @@ void FileList::DescribeFiles()
 
 		if (strDizText.empty())
 		{
-			Diz.DeleteDiz(strSelName,strSelShortName);
+			Diz.Erase(strSelName,strSelShortName);
 		}
 		else
 		{
-			Diz.AddDizText(strSelName,strSelShortName,strDizText);
+			Diz.Set(strSelName,strSelShortName,strDizText);
 		}
 
 		ClearLastGetSelection();
@@ -5770,13 +5769,13 @@ void FileList::PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanel
 				int Code;
 
 				if (Delete)
-					Code = DestPanel->Diz.DeleteDiz(i.FileName, i.AlternateFileName);
+					Code = DestPanel->Diz.Erase(i.FileName, i.AlternateFileName);
 				else
 				{
 					Code = SrcDiz->CopyDiz(i.FileName, i.AlternateFileName, i.FileName, i.AlternateFileName, &DestPanel->Diz);
 
 					if (Code && Move)
-						SrcDiz->DeleteDiz(i.FileName, i.AlternateFileName);
+						SrcDiz->Erase(i.FileName, i.AlternateFileName);
 				}
 
 				if (Code)
@@ -7360,7 +7359,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 		if (!i.DizText)
 		{
 			i.DeleteDiz = false;
-			i.DizText = Diz.GetDizTextAddr(i.strName, i.strShortName, i.FileSize);
+			i.DizText = Diz.Get(i.strName, i.strShortName, i.FileSize);
 		}
 	});
 }
