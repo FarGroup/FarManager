@@ -157,7 +157,7 @@ void DizList::Read(const string& Path, const string* DizName)
 						// Insert unconditionally
 						LastAdded = Insert(string(NameBegin, NameEnd));
 						// TODO: direct emplace_back after decommissioning VC10
-						LastAdded->second.emplace_back(string(DescBegin, DizText.end()));
+						LastAdded->second.emplace_back(string(DescBegin, DizText.cend()));
 					}
 					else
 					{
