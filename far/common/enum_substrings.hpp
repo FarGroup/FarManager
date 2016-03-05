@@ -48,7 +48,7 @@ namespace detail
 	template<class container>
 	bool IsEnd(const container& Container, decltype(std::begin(Container)) Iterator) { return Iterator == Container.cend(); }
 	template<class char_type>
-	bool IsEnd(const char_type* /*Container*/, const char_type* Iterator) { return !*Iterator; }
+	bool IsEnd(const char_type* Container, const char_type* Iterator) { return Iterator != Container && !*Iterator && !*(Iterator - 1); }
 }
 
 // Enumerator for string1\0string2\0string3\0...stringN
@@ -67,19 +67,18 @@ public:
 	bool get(size_t Index, typename enum_substrings_t<provider>::value_type& Value)
 	{
 		const auto Begin = detail::Begin(*m_Provider) + (Index? m_Offset : 0);
-		if (detail::IsEnd(*m_Provider, Begin))
-		{
-			return false;
-		}
-
 		auto End = Begin;
-		while (*End)
+		bool IsEnd;
+		for (; (IsEnd = detail::IsEnd(*m_Provider, End)) == false && *End; ++End);
+
+		if (End != Begin)
 		{
-			++End;
+			const auto Ptr = &*Begin;
+			Value = typename enum_substrings_t<provider>::value_type(Ptr, Ptr + (End - Begin));
+			m_Offset += Value.size() + (IsEnd? 0 : 1);
+			return true;
 		}
-		Value = typename enum_substrings_t<provider>::value_type(&*Begin, &*End);
-		m_Offset += Value.size() + 1;
-		return !Value.empty();
+		return false;
 	}
 
 	MOVE_OPERATOR_BY_SWAP(enum_substrings_t);

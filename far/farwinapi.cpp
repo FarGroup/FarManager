@@ -1593,19 +1593,24 @@ bool QueryDosDevice(const string& DeviceName, string &Path)
 {
 	SetLastError(NO_ERROR);
 	wchar_t Buffer[MAX_PATH];
-	DWORD Size = ::QueryDosDevice(DeviceName.data(), Buffer, ARRAYSIZE(Buffer));
+	const auto DeviceNamePtr = EmptyToNull(DeviceName.data());
+	DWORD Size = ::QueryDosDevice(DeviceNamePtr, Buffer, ARRAYSIZE(Buffer));
 	if (Size)
 	{
-		Path = Buffer; // don't copy trailing '\0'
+		Path.assign(Buffer, Size - 2); // two trailing '\0'
 	}
-	else if (::GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+	else
 	{
-		wchar_t_ptr vBuffer(NT_MAX_PATH);
-		SetLastError(NO_ERROR);
-		Size = ::QueryDosDevice(DeviceName.data(), vBuffer.get(), static_cast<DWORD>(vBuffer.size()));
-		if (Size)
+		DWORD BufferSize = 2048;
+		while (::GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 		{
-			Path = vBuffer.get();
+			wchar_t_ptr vBuffer(BufferSize *= 2);
+			SetLastError(NO_ERROR);
+			Size = ::QueryDosDevice(DeviceNamePtr, vBuffer.get(), BufferSize);
+			if (Size)
+			{
+				Path.assign(vBuffer.get(), Size - 2); // two trailing '\0'
+			}
 		}
 	}
 
