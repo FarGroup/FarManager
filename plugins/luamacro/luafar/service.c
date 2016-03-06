@@ -1312,7 +1312,7 @@ int GetFarColor(lua_State *L, int pos, struct FarColor* Color)
 	}
 	else if(lua_isnumber(L, pos))
 	{
-		intptr_t num = lua_tointeger(L, pos);
+		DWORD num = (DWORD)lua_tonumber(L, pos);
 		Color->Flags = FCF_4BITMASK;
 		Color->Foreground.ForegroundColor = num & 0x0F;
 		Color->Background.BackgroundColor = (num>>4) & 0x0F;
