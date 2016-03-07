@@ -182,40 +182,31 @@ static int win_GetRegKey(lua_State *L)
 	return 2;
 }
 
-// Result = DeleteRegKey (Root, Key)
-//   Root:       [string], one of "HKLM", "HKCC", "HKCR", "HKCU", "HKU"
-//   Key:        registry key, [string]
-// Returns:
-//   Result:     TRUE if success, FALSE if failure, [boolean]
-static int win_DeleteRegKey(lua_State *L)
-{
-	HKEY hRoot = CheckHKey(L, 1);
-	const wchar_t* Key = check_utf8_string(L, 2, NULL);
-	long res = RegDeleteKeyW(hRoot, Key);
-	lua_pushboolean(L, res==ERROR_SUCCESS);
-	return 1;
-}
-
-// Result = DeleteRegKeyEx (Root, Key [, samDesired])
+// Result = DeleteRegKey (Root, Key [, samDesired])
 //   Root:       [string], one of "HKLM", "HKCC", "HKCR", "HKCU", "HKU"
 //   Key:        registry key, [string]
 //   samDesired: access mask, [flag] ("KEY_WOW64_32KEY" or "KEY_WOW64_64KEY"; the default is 0)
 // Returns:
 //   Result:     TRUE if success, FALSE if failure, [boolean]
-static int win_DeleteRegKeyEx(lua_State *L)
+static int win_DeleteRegKey(lua_State *L)
 {
+	long res;
+	HKEY hRoot = CheckHKey(L, 1);
+	const wchar_t* Key = check_utf8_string(L, 2, NULL);
+	REGSAM samDesired = (REGSAM) OptFlags(L, 3, 0);
+
 	FARPROC ProcAddr;
 	HMODULE module = GetModuleHandleW(L"Advapi32.dll");
 	if (module && (ProcAddr = GetProcAddress(module, "RegDeleteKeyExW")) != NULL)
 	{
 		typedef LONG (WINAPI *pRegDeleteKeyEx)(HKEY, LPCTSTR, REGSAM, DWORD);
-		HKEY hRoot = CheckHKey(L, 1);
-		const wchar_t* Key = check_utf8_string(L, 2, NULL);
-		REGSAM samDesired = (REGSAM) OptFlags(L, 3, 0);
-		long res = ((pRegDeleteKeyEx)ProcAddr)(hRoot, Key, samDesired, 0);
-		return lua_pushboolean(L, res==ERROR_SUCCESS), 1;
+		res = ((pRegDeleteKeyEx)ProcAddr)(hRoot, Key, samDesired, 0);
 	}
-	return lua_pushboolean(L,0), 1;
+	else
+	{
+		res = RegDeleteKeyW(hRoot, Key);
+	}
+	return lua_pushboolean(L, res==ERROR_SUCCESS), 1;
 }
 
 // Result = DeleteRegValue (Root, Key, ValueName [, samDesired])
@@ -723,7 +714,6 @@ const luaL_Reg win_funcs[] =
 	{"CreateDir",           win_CreateDir},
 	{"DeleteFile",          win_DeleteFile},
 	{"DeleteRegKey",        win_DeleteRegKey},
-	{"DeleteRegKeyEx",      win_DeleteRegKeyEx},
 	{"DeleteRegValue",      win_DeleteRegValue},
 	{"EnumRegKey",          win_EnumRegKey},
 	{"EnumRegValue",        win_EnumRegValue},

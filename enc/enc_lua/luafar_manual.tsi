@@ -9851,35 +9851,14 @@ mtime=3664128224
 </article>
 </node>
 <node>
-id=18
-lv=3
-dt=Text
-nm=win.DeleteRegKey
-mtime=3664134703
-<article>
-#_result = win.DeleteRegKey (RootKey, Key)
-#_
-#_**Parameters:**
-#_  RootKey:   string (one of: "HKLM", "HKCC", "HKCR", "HKCU", "HKU")
-#_  Key:       string
-#_
-#_**Returns:**
-#_  result: boolean
-#_
-#_**Description:**
-#_  This function deletes a registry key.
-#_
-</article>
-</node>
-<node>
 id=521
 lv=3
 dt=Text
-nm=win.DeleteRegKeyEx
+nm=win.DeleteRegKey
 ctime=3665073013
-mtime=3665078849
+mtime=3666541346
 <article>
-#_result = win.DeleteRegKeyEx (RootKey, Key, [AccessMask])
+#_result = win.DeleteRegKey (RootKey, Key, [AccessMask])
 #_
 #_**Parameters:**
 #_  RootKey:     string (one of: "HKLM", "HKCC", "HKCR", "HKCU", "HKU")
@@ -9892,9 +9871,6 @@ mtime=3665078849
 #_**Description:**
 #_  This function deletes a registry key.
 #_
-#_**Note:**
-#_  This function will return **false** if the function **RegDeleteKeyExW** is not supported
-#_  by the operating system.
 </article>
 </node>
 <node>
