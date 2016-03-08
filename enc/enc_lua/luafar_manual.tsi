@@ -9903,14 +9903,14 @@ lv=3
 dt=Text
 nm=win.EnumRegKey
 ctime=3568652034
-mtime=3664130908
+mtime=3666604178
 <article>
 #_Subkey = win.EnumRegKey (RootKey, Key, Index, [AccessMask])
 #_
 #_**Parameters:**
 #_  RootKey:     string (one of: "HKLM", "HKCC", "HKCR", "HKCU", "HKU")
 #_  Key:         string (specify "" if RootKey itself is enumerated)
-#_  Index:       integer
+#_  Index:       integer (0-based)
 #_  AccessMask:  flag ("KEY_WOW64_32KEY" or "KEY_WOW64_64KEY"; the default is 0)
 #_
 #_**Returns:**
@@ -9927,14 +9927,14 @@ lv=3
 dt=Text
 nm=win.EnumRegValue
 ctime=3568712149
-mtime=3664130919
+mtime=3666604294
 <article>
 #_ValueName = win.EnumRegValue (RootKey, Key, Index, [AccessMask])
 #_
 #_**Parameters:**
 #_  RootKey:     string (one of: "HKLM", "HKCC", "HKCR", "HKCU", "HKU")
 #_  Key:         string (specify "" if RootKey itself is enumerated)
-#_  Index:       integer
+#_  Index:       integer (0-based)
 #_  AccessMask:  flag ("KEY_WOW64_32KEY" or "KEY_WOW64_64KEY"; the default is 0)
 #_
 #_**Returns:**
