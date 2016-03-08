@@ -96,15 +96,8 @@ private:
 	virtual void SetMacroSelectionStart(int Value) override {MacroSelectionStart = Value;}
 	virtual int GetLineCursorPos() const override {return CursorPos;}
 	virtual void SetLineCursorPos(int Value) override {CursorPos = Value;}
-	virtual void DisableCallback() override
-	{
-		CallbackSaveState = m_Callback.Active;
-		m_Callback.Active = false;
-	}
-	virtual void RevertCallback() override
-	{
-		m_Callback.Active = CallbackSaveState;
-	};
+	virtual void SuppressCallback() override { ++m_CallbackSuppressionsCount; }
+	virtual void RevertCallback() override { --m_CallbackSuppressionsCount; }
 
 	void SetMenuPos(VMenu2& menu);
 	int AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKey, FARMACROAREA Area);
@@ -134,10 +127,10 @@ private:
 	FARMACROAREA MacroAreaAC;
 	BitFlags ECFlags;
 	Callback m_Callback;
+	size_t m_CallbackSuppressionsCount;
 	bool Selection;
 	bool MenuUp;
 	bool ACState;
-	bool CallbackSaveState;
 };
 
 #endif // EDITCONTROL_HPP_ECD19E42_9258_4A76_99C9_67FF54F11289

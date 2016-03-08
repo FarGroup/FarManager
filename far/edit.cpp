@@ -676,7 +676,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 	{
 		LeftPos=0;
 		{
-			SCOPED_ACTION(auto)(SupressCallback());
+			SCOPED_ACTION(auto)(CallbackSuppressor());
 			ClearString(); // mantis#0001722
 		}
 		Show();
@@ -881,7 +881,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 		case KEY_RCTRLSHIFTBS:
 		{
 			{
-				SCOPED_ACTION(auto)(SupressCallback());
+				SCOPED_ACTION(auto)(CallbackSuppressor());
 
 				// BUGBUG
 				for (int i = m_CurPos; i >= 0; i--)
@@ -904,7 +904,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 
 			{
 				Lock();
-				SCOPED_ACTION(auto)(SupressCallback());
+				SCOPED_ACTION(auto)(CallbackSuppressor());
 
 				// BUGBUG
 				for (;;)
@@ -984,7 +984,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 			if (m_CurPos >= m_Str.size())
 				return FALSE;
 			{
-				SCOPED_ACTION(auto)(SupressCallback());
+				SCOPED_ACTION(auto)(CallbackSuppressor());
 				Lock();
 
 				if (!Mask.empty())
@@ -1341,7 +1341,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 					m_SelEnd=PrevSelEnd;
 				}
 
-				SCOPED_ACTION(auto)(SupressCallback());
+				SCOPED_ACTION(auto)(CallbackSuppressor());
 				DeleteBlock();
 			}
 
@@ -1673,7 +1673,7 @@ void Edit::InsertString(const wchar_t *Str, size_t Length)
 		return;
 
 	{
-		SCOPED_ACTION(auto)(SupressCallback());
+		SCOPED_ACTION(auto)(CallbackSuppressor());
 		if (!m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
 			DeleteBlock();
 	}

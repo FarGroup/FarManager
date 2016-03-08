@@ -65,10 +65,10 @@ EditControl::EditControl(window_ptr Owner, SimpleScreenObject* Parent, parent_pr
 	SelectionStart(-1),
 	MacroAreaAC(MACROAREA_DIALOGAUTOCOMPLETION),
 	ECFlags(iFlags),
+	m_CallbackSuppressionsCount(),
 	Selection(false),
 	MenuUp(false),
-	ACState(ECFlags.Check(EC_ENABLEAUTOCOMPLETE)),
-	CallbackSaveState(false)
+	ACState(ECFlags.Check(EC_ENABLEAUTOCOMPLETE))
 {
 	SetObjectColor();
 
@@ -99,7 +99,7 @@ void EditControl::Show()
 void EditControl::Changed(bool DelBlock)
 {
 	m_Flags.Set(FEDITLINE_CMP_CHANGED);
-	if(m_Callback.Active)
+	if(m_Callback.Active && !m_CallbackSuppressionsCount)
 	{
 		if(m_Callback.m_Callback)
 		{
@@ -576,8 +576,10 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 									{
 										int SelStart=GetLength();
 
+										const auto& FirstItem = ComplMenu->at(0).strName;
+
 										// magic
-										if(IsSlash(m_Str[SelStart-1]) && m_Str[SelStart-2] == L'"' && IsSlash(ComplMenu->at(0).strName[SelStart-2]))
+										if(IsSlash(m_Str[SelStart-1]) && m_Str[SelStart-2] == L'"' && IsSlash(FirstItem[SelStart-2]))
 										{
 											m_Str.erase(SelStart - 2, 1);
 											SelStart--;
@@ -585,8 +587,13 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 										}
 
 										{
-											SCOPED_ACTION(auto)(SupressCallback());
-											AppendString(ComplMenu->at(0).strName.data() + SelStart);
+											SCOPED_ACTION(auto)(CallbackSuppressor());
+											if (StrCmpI(FirstItem, m_Str + FirstItem.substr(SelStart)))
+											{
+												// New string contains opening quote, but not the original one
+												++SelStart;
+											}
+											SetString(ComplMenu->at(0).strName);
 											if (m_X2 - m_X1 > GetLength())
 												SetLeftPos(0);
 											Select(SelStart, GetLength());

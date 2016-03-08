@@ -212,15 +212,15 @@ public:
 protected:
 	virtual void RefreshStrByMask(int InitMode=FALSE) {}
 
-	typedef raii_wrapper<Edit*, void (Edit::*)(), void (Edit::*)()> supress_calllback;
-	supress_calllback SupressCallback() { return supress_calllback(this, &Edit::DisableCallback, &Edit::RevertCallback); }
+	typedef raii_wrapper<Edit*, void (Edit::*)(), void (Edit::*)()> callback_suppressor;
+	callback_suppressor CallbackSuppressor() { return callback_suppressor(this, &Edit::SuppressCallback, &Edit::RevertCallback); }
 
 	void DeleteBlock();
 
 	static int CheckCharMask(wchar_t Chr);
 
 private:
-	virtual void DisableCallback() {}
+	virtual void SuppressCallback() {}
 	virtual void RevertCallback() {}
 
 	virtual void DisplayObject() override;

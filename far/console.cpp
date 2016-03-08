@@ -529,7 +529,7 @@ virtual bool GetAlias(LPCWSTR Source, LPWSTR TargetBuffer, size_t TargetBufferLe
 	return GetConsoleAlias(const_cast<LPWSTR>(Source), TargetBuffer, static_cast<DWORD>(TargetBufferLength), const_cast<LPWSTR>(ExeName))!=0;
 }
 
-virtual std::unordered_map<string, std::unordered_map<string, string>> GetAllAliases() const
+virtual std::unordered_map<string, std::unordered_map<string, string>> GetAllAliases() const override
 {
 	std::unordered_map<string, std::unordered_map<string, string>> Result;
 	if (const auto ExeLength = GetConsoleAliasExesLength())
@@ -559,7 +559,7 @@ virtual std::unordered_map<string, std::unordered_map<string, string>> GetAllAli
 	return Result;
 }
 
-virtual void SetAllAliases(const std::unordered_map<string, std::unordered_map<string, string>>& Aliases) const
+virtual void SetAllAliases(const std::unordered_map<string, std::unordered_map<string, string>>& Aliases) const override
 {
 	FOR(const auto& ExeItem, Aliases)
 	{

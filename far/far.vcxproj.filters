@@ -420,6 +420,17 @@
     <ClCompile Include="filesystemwatcher.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="codepage_selection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="diskmenu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tracer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="elevation.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -858,113 +869,6 @@
     <ClInclude Include="vmenu2.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClCompile Include="codepage_selection.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="diskmenu.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tracer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="bootstrap\lang.inc">
-      <Filter>Generated Files</Filter>
-    </None>
-    <None Include="changelog" />
-    <None Include="bootstrap\copyright.inc">
-      <Filter>Generated Files</Filter>
-    </None>
-    <None Include="Far.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="FarA.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="bootstrap\farversion.inc">
-      <Filter>Generated Files</Filter>
-    </None>
-    <None Include="farversion.m4">
-      <Filter>Dependencies</Filter>
-    </None>
-    <None Include="headers.m4">
-      <Filter>Dependencies</Filter>
-    </None>
-    <None Include="bootstrap\lang.ini">
-      <Filter>Generated Files</Filter>
-    </None>
-    <None Include="svn_tag_build.m4">
-      <Filter>Dependencies</Filter>
-    </None>
-    <None Include="vbuild.m4">
-      <Filter>Dependencies</Filter>
-    </None>
-    <None Include="bootstrap\far.rc.inc">
-      <Filter>Generated Files</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="far.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="bootstrap\farlang.templ">
-      <Filter>Generated Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="colors.hpp">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="copyright.inc.m4">
-      <Filter>Dependencies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="bootstrap\Far.exe.manifest">
-      <Filter>Generated Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Far.exe.manifest.m4">
-      <Filter>Dependencies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="far.rc.inc.m4">
-      <Filter>Dependencies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="FarEng.hlf.m4">
-      <Filter>Dependencies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="FarHun.hlf.m4">
-      <Filter>Dependencies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="farlang.templ.m4">
-      <Filter>Dependencies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="FarRus.hlf.m4">
-      <Filter>Dependencies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="farversion.inc.m4">
-      <Filter>Dependencies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="File_id.diz.m4">
-      <Filter>Dependencies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="plugin.hpp">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Far.exe.example.ini">
-      <Filter>Dependencies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="api_test.c">
-      <Filter>Source Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="DlgBuilder.hpp">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
-    <MASM Include="vc_crt_fix.asm">
-      <Filter>Source Files</Filter>
-    </MASM>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Include\DlgBuilder.hpp">
       <Filter>Generated Files\API</Filter>
     </ClInclude>
@@ -1067,5 +971,104 @@
     <ClInclude Include="common\enum_substrings.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bootstrap\lang.inc">
+      <Filter>Generated Files</Filter>
+    </None>
+    <None Include="bootstrap\far.rc.inc">
+      <Filter>Generated Files</Filter>
+    </None>
+    <None Include="bootstrap\Far.exe.manifest">
+      <Filter>Generated Files</Filter>
+    </None>
+    <None Include="bootstrap\copyright.inc">
+      <Filter>Generated Files</Filter>
+    </None>
+    <None Include="bootstrap\farversion.inc">
+      <Filter>Generated Files</Filter>
+    </None>
+    <None Include="bootstrap\lang.ini">
+      <Filter>Generated Files</Filter>
+    </None>
+    <None Include="Far.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="FarA.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="farversion.m4">
+      <Filter>Dependencies</Filter>
+    </None>
+    <None Include="headers.m4">
+      <Filter>Dependencies</Filter>
+    </None>
+    <None Include="svn_tag_build.m4">
+      <Filter>Dependencies</Filter>
+    </None>
+    <None Include="vbuild.m4">
+      <Filter>Dependencies</Filter>
+    </None>
+    <None Include="changelog" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="far.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="bootstrap\farlang.templ">
+      <Filter>Generated Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="colors.hpp">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="copyright.inc.m4">
+      <Filter>Dependencies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="bootstrap\Far.exe.manifest">
+      <Filter>Generated Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Far.exe.manifest.m4">
+      <Filter>Dependencies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="far.rc.inc.m4">
+      <Filter>Dependencies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="FarEng.hlf.m4">
+      <Filter>Dependencies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="FarHun.hlf.m4">
+      <Filter>Dependencies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="farlang.templ.m4">
+      <Filter>Dependencies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="FarRus.hlf.m4">
+      <Filter>Dependencies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="farversion.inc.m4">
+      <Filter>Dependencies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="File_id.diz.m4">
+      <Filter>Dependencies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="plugin.hpp">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Far.exe.example.ini">
+      <Filter>Dependencies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="api_test.c">
+      <Filter>Source Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="DlgBuilder.hpp">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="vc_crt_fix.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
   </ItemGroup>
 </Project>

@@ -566,21 +566,41 @@ inline COLORREF ARGB2ABGR(COLORREF Color)
 	return (Color & 0xFF000000) | ((Color & 0x00FF0000) >> 16) | (Color & 0x0000FF00) | ((Color & 0x000000FF) << 16);
 }
 
-inline void AssignColor(const string& Color, COLORREF& Target, FARCOLORFLAGS& TargetFlags, FARCOLORFLAGS SetFlag)
+static inline bool AssignColor(const string& Color, COLORREF& Target, FARCOLORFLAGS& TargetFlags, FARCOLORFLAGS SetFlag)
 {
 	if (!Color.empty())
 	{
+		const auto Convert = [](const wchar_t* Ptr, COLORREF& Result) -> bool
+		{
+			wchar_t* EndPtr;
+			const auto Value = std::wcstoul(Ptr, &EndPtr, 16);
+			if (EndPtr == Ptr)
+			{
+				return false;
+			}
+			Result = Value;
+			return true;
+		};
+
 		if (ToUpper(Color[0]) == L'T')
 		{
+			if (!Convert(Color.data() + 1, Target))
+			{
+				return false;
+			}
+			Target = ARGB2ABGR(Target);
 			TargetFlags &= ~SetFlag;
-			Target = ARGB2ABGR(std::wcstoul(Color.data() + 1, nullptr, 16));
 		}
 		else
 		{
+			if (!Convert(Color.data(), Target))
+			{
+				return false;
+			}
 			TargetFlags |= SetFlag;
-			Target = std::stoul(Color, nullptr, 16);
 		}
 	}
+	return true;
 }
 
 std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
@@ -622,10 +642,11 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 
 					F = PrefixColor;
 
-					AssignColor(Color, F.ForegroundColor, F.Flags, FCF_FG_4BIT);
-					AssignColor(BgColor, F.BackgroundColor, F.Flags, FCF_BG_4BIT);
-
-					Str = &*Ptr;
+					if (AssignColor(Color, F.ForegroundColor, F.Flags, FCF_FG_4BIT) &&
+						AssignColor(BgColor, F.BackgroundColor, F.Flags, FCF_BG_4BIT))
+					{
+						Str = &*Ptr;
+					}
 				}
 			}
 		}
