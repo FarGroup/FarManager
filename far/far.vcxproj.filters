@@ -1026,9 +1026,6 @@
     <CustomBuild Include="copyright.inc.m4">
       <Filter>Dependencies</Filter>
     </CustomBuild>
-    <CustomBuild Include="bootstrap\Far.exe.manifest">
-      <Filter>Generated Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="Far.exe.manifest.m4">
       <Filter>Dependencies</Filter>
     </CustomBuild>

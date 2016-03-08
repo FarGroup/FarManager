@@ -51,7 +51,7 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Release.64.vc\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug.32.vc\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Debug.64.vc\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)obj\</IntDir>
+    <IntDir>$(OutDir)obj\</IntDir>
     <LinkIncremental Condition="'$(Configuration)'=='Release'">false</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)'=='Debug'">true</LinkIncremental>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
