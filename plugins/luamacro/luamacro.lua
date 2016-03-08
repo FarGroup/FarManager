@@ -440,6 +440,8 @@ end
 local function Init()
   Shared = { ErrMsg=ErrMsg, pack=pack, checkarg=checkarg, loadmacro=loadmacro, yieldcall=yieldcall,
              MacroInit=MacroInit, MacroStep=MacroStep, ExpandEnv=ExpandEnv }
+  Shared.MacroCallFar, far.MacroCallFar = far.MacroCallFar, nil
+  Shared.FarMacroCallToLua, far.FarMacroCallToLua = far.FarMacroCallToLua, nil
 
   local ModuleDir = far.PluginStartupInfo().ModuleDir
   local function RunPluginFile (fname, param)

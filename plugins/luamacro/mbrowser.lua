@@ -221,7 +221,7 @@ local function MenuLoop()
             check = filename and utils.CheckFileName(m.filemask, filename)
           end
           if check then
-            if far.MacroCallFar(MCODE_F_CHECKALL, area, m.flags, m.callback, m.callbackId) then
+            if Shared.MacroCallFar(MCODE_F_CHECKALL, area, m.flags, m.callback, m.callbackId) then
               if not m.keyregex then
                 local key1 = m.key:match("%S+")
                 if (not m.condition or m.condition(key1)) then

@@ -7,7 +7,7 @@ local MCODE_F_USERMENU = 0x80C66
 local MCODE_F_FAR_GETCONFIG = 0x80C69
 local F=far.Flags
 local band,bor = bit64.band,bit64.bor
-local MacroCallFar = far.MacroCallFar
+local MacroCallFar = Shared.MacroCallFar
 
 local function SetProperties (namespace, proptable)
   local meta = { __metatable="access denied", __newindex=function() end }
@@ -349,7 +349,7 @@ Plugin = {
 
   SyncCall = function(...)
     local v = Shared.keymacro.CallPlugin(Shared.pack(...), false)
-    if type(v)=="userdata" then return far.FarMacroCallToLua(v) else return v end
+    if type(v)=="userdata" then return Shared.FarMacroCallToLua(v) else return v end
   end
 }
 --------------------------------------------------------------------------------

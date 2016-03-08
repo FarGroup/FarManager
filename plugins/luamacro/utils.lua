@@ -5,7 +5,7 @@ local F = far.Flags
 local type = type
 local string_find, string_sub = string.find, string.sub
 local band, bor = bit64.band, bit64.bor
-local MacroCallFar = far.MacroCallFar
+local MacroCallFar = Shared.MacroCallFar
 local gmeta = { __index=_G }
 local LastMessage = {}
 --------------------------------------------------------------------------------

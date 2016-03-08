@@ -4,6 +4,8 @@ local Shared = ...
 local Msg, ErrMsg = Shared.Msg, Shared.ErrMsg
 local MacroInit, MacroStep = Shared.MacroInit, Shared.MacroStep
 local pack, loadmacro, utils = Shared.pack, Shared.loadmacro, Shared.utils
+local MacroCallFar = Shared.MacroCallFar
+local FarMacroCallToLua = Shared.FarMacroCallToLua
 Shared = nil
 
 local F = far.Flags
@@ -26,22 +28,20 @@ local MCODE_F_PLUGIN_CALL = 0x80C4F
 local type, setmetatable = type, setmetatable
 local bit = bit or bit64
 local band, bor, bxor, lshift = bit.band, bit.bor, bit.bxor, bit.lshift
-local far_MacroCallFar = far.MacroCallFar
-local far_FarMacroCallToLua = far.FarMacroCallToLua
 --------------------------------------------------------------------------------
 
 local MCODE_F_KEYMACRO = 0x80C68
 local Import = {
-  RestoreMacroChar        = function()  return far_MacroCallFar(MCODE_F_KEYMACRO, 1) end,
-  ScrBufLock              = function()  return far_MacroCallFar(MCODE_F_KEYMACRO, 2) end,
-  ScrBufUnlock            = function()  return far_MacroCallFar(MCODE_F_KEYMACRO, 3) end,
-  ScrBufResetLockCount    = function()  return far_MacroCallFar(MCODE_F_KEYMACRO, 4) end,
-  ScrBufGetLockCount      = function()  return far_MacroCallFar(MCODE_F_KEYMACRO, 5) end,
-  ScrBufSetLockCount      = function(v) return far_MacroCallFar(MCODE_F_KEYMACRO, 6, v) end,
-  GetUseInternalClipboard = function()  return far_MacroCallFar(MCODE_F_KEYMACRO, 7) end,
-  SetUseInternalClipboard = function(v) return far_MacroCallFar(MCODE_F_KEYMACRO, 8, v) end,
-  KeyNameToKey            = function(v) return far_MacroCallFar(MCODE_F_KEYMACRO, 9, v) end,
-  KeyToText               = function(v) return far_MacroCallFar(MCODE_F_KEYMACRO, 10, v) end,
+  RestoreMacroChar        = function()  return MacroCallFar(MCODE_F_KEYMACRO, 1) end,
+  ScrBufLock              = function()  return MacroCallFar(MCODE_F_KEYMACRO, 2) end,
+  ScrBufUnlock            = function()  return MacroCallFar(MCODE_F_KEYMACRO, 3) end,
+  ScrBufResetLockCount    = function()  return MacroCallFar(MCODE_F_KEYMACRO, 4) end,
+  ScrBufGetLockCount      = function()  return MacroCallFar(MCODE_F_KEYMACRO, 5) end,
+  ScrBufSetLockCount      = function(v) return MacroCallFar(MCODE_F_KEYMACRO, 6, v) end,
+  GetUseInternalClipboard = function()  return MacroCallFar(MCODE_F_KEYMACRO, 7) end,
+  SetUseInternalClipboard = function(v) return MacroCallFar(MCODE_F_KEYMACRO, 8, v) end,
+  KeyNameToKey            = function(v) return MacroCallFar(MCODE_F_KEYMACRO, 9, v) end,
+  KeyToText               = function(v) return MacroCallFar(MCODE_F_KEYMACRO, 10, v) end,
 }
 --------------------------------------------------------------------------------
 
@@ -255,7 +255,7 @@ local function GetInputFromMacro()
     local value, handle = macro:GetValue(), macro:GetHandle()
     local r1,r2
     if type(value) == "userdata" then  -- Plugin.Call/SyncCall
-      r1,r2 = MacroStep(handle, far_FarMacroCallToLua(value))
+      r1,r2 = MacroStep(handle, FarMacroCallToLua(value))
     elseif type(value) == "table" then -- mf.acall, eval
       r1,r2 = MacroStep(handle, unpack(value,1,value.n))
     elseif value ~= nil then           -- Plugin.Menu/Config/Command, ...
@@ -384,7 +384,7 @@ function KeyMacro.CallPlugin (Params, AsyncCall)
 
     local lockCount = Import.ScrBufGetLockCount()
     Import.ScrBufSetLockCount(0)
-    local ResultCallPlugin = far_MacroCallFar(MCODE_F_PLUGIN_CALL, AsyncCall, unpack(Params,1,Params.n))
+    local ResultCallPlugin = MacroCallFar(MCODE_F_PLUGIN_CALL, AsyncCall, unpack(Params,1,Params.n))
     Import.ScrBufSetLockCount(lockCount)
 
     local isSynchroCall = true

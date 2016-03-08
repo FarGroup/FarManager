@@ -109,7 +109,7 @@ local function SetCustomSortMode (nMode, whatpanel)
   local Settings = CustomSortModes[nMode]
   if Settings then
     whatpanel = whatpanel==1 and 1 or 0
-    far.MacroCallFar(MCODE_F_SETCUSTOMSORTMODE, whatpanel, nMode, Settings.InvertByDefault)
+    Shared.MacroCallFar(MCODE_F_SETCUSTOMSORTMODE, whatpanel, nMode, Settings.InvertByDefault)
   end
 end
 
