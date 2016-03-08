@@ -9856,7 +9856,7 @@ lv=3
 dt=Text
 nm=win.DeleteRegKey
 ctime=3665073013
-mtime=3666541346
+mtime=3666617532
 <article>
 #_result = win.DeleteRegKey (RootKey, Key, [AccessMask])
 #_
@@ -9870,6 +9870,18 @@ mtime=3666541346
 #_
 #_**Description:**
 #_  This function deletes a registry key.
+#_
+#_**Example of use:**
+#_*-- Recursively delete registry keys*
+#_function DeleteRegKey_Recurse(RootKey, Key, AccessMask)
+#_  for Index=0,math.huge do
+#_    local subkey = win.EnumRegKey(RootKey, Key, Index, AccessMask)
+#_    if subkey then DeleteRegKey_Recurse(RootKey, Key.."\\"..subkey, AccessMask)
+#_    else break
+#_    end
+#_  end
+#_  return win.DeleteRegKey(RootKey, Key, AccessMask)
+#_end
 #_
 </article>
 </node>
@@ -9903,7 +9915,7 @@ lv=3
 dt=Text
 nm=win.EnumRegKey
 ctime=3568652034
-mtime=3666604178
+mtime=3666617489
 <article>
 #_Subkey = win.EnumRegKey (RootKey, Key, Index, [AccessMask])
 #_
@@ -9918,6 +9930,18 @@ mtime=3666604178
 #_
 #_**Description:**
 #_  This function enumerates subkeys of the given registry key.
+#_
+#_**Example of use:**
+#_*-- Recursively delete registry keys*
+#_function DeleteRegKey_Recurse(RootKey, Key, AccessMask)
+#_  for Index=0,math.huge do
+#_    local subkey = win.EnumRegKey(RootKey, Key, Index, AccessMask)
+#_    if subkey then DeleteRegKey_Recurse(RootKey, Key.."\\"..subkey, AccessMask)
+#_    else break
+#_    end
+#_  end
+#_  return win.DeleteRegKey(RootKey, Key, AccessMask)
+#_end
 #_
 </article>
 </node>
