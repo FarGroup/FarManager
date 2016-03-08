@@ -236,6 +236,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="history.cpp" />
     <ClCompile Include="hmenu.cpp" />
     <ClCompile Include="hook_wow64.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="hotplug.cpp" />
