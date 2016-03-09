@@ -70,7 +70,7 @@ size_t WINAPI ProcessName(
     <td class="cont" width="60%">√енерировать им€ файла на основе существующего (<code>Param1</code>) и маски (<code>Param2</code>).
      –езультат, длиной <code>Size</code>, записываетс€ в <code>Param2</code> (учитывайте, что размер буфера <code>Param2</code> должен быть не менее <code>Size</code>).
      ¬озвращаетс€ функцией требуемый размер буфера <code>Param2</code>.<br>
-     ≈сли нужно преобразовать только часть <code>Param1</code>, то можно указать размер этой части (может быть до 255 байт) в <code>Flags</code> (добавить по принципу OR), например: <code>Param1=L"dir1\\file1"</code>, а нам нужно изменить только
+     ≈сли нужно преобразовать только часть <code>Param1</code>, то можно указать размер этой части (может быть до 65535 символов) в <code>Flags</code> (добавить по принципу OR), например: <code>Param1=L"dir1\\file1"</code>, а нам нужно изменить только
      "dir1", тогда параметр <code>Flags</code> должен быть равен <code>PN_GENERATENAME|4</code> </td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="PN_CHECKMASK">PN_CHECKMASK</a></td>
