@@ -681,7 +681,7 @@ int Panel::SetCurPath()
 			else                                               // оппа...
 			{
 				string strTemp(m_CurDir);
-				CutToFolderNameIfFolder(m_CurDir);             // подымаемся вверх, для очередной порции ChDir
+				CutToParent(m_CurDir);             // подымаемся вверх, для очередной порции ChDir
 
 				if (strTemp.size()==m_CurDir.size())  // здесь проблема - видимо диск недоступен
 				{

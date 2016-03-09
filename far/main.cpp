@@ -179,7 +179,6 @@ static int MainProcess(
 		else
 		{
 			int DirCount=0;
-			string strPath;
 
 			// воспользуемся тем, что ControlObject::Init() создает панели
 			// юзая Global->Opt->*
@@ -187,9 +186,11 @@ static int MainProcess(
 			const auto SetupPanel = [&](bool active)
 			{
 				++DirCount;
-				strPath = active? apanel : ppanel;
-				CutToNameUNC(strPath);
-				DeleteEndSlash(strPath); //BUGBUG!! если конечный слеш не убрать - получаем забавный эффект - отсутствует ".."
+				string strPath = active? apanel : ppanel;
+				if (os::fs::is_file(strPath))
+				{
+					CutToParent(strPath);
+				}
 
 				bool Root = false;
 				const auto Type = ParsePath(strPath, nullptr, &Root);
@@ -243,7 +244,7 @@ static int MainProcess(
 					}
 					else
 					{
-						strPath = PointToName(ppanel);
+						string strPath = PointToName(ppanel);
 
 						if (!strPath.empty())
 						{
@@ -268,7 +269,7 @@ static int MainProcess(
 				}
 				else
 				{
-					strPath = PointToName(apanel);
+					string strPath = PointToName(apanel);
 
 					if (!strPath.empty())
 					{

@@ -774,7 +774,11 @@ bool RemoveDirectory(const string& DirName)
 os::handle CreateFile(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile, bool ForceElevation)
 {
 	NTPath strObject(Object);
-	FlagsAndAttributes|=FILE_FLAG_BACKUP_SEMANTICS|(CreationDistribution==OPEN_EXISTING?FILE_FLAG_POSIX_SEMANTICS:0);
+	FlagsAndAttributes |= FILE_FLAG_BACKUP_SEMANTICS;
+	if (CreationDistribution == OPEN_EXISTING || CreationDistribution == TRUNCATE_EXISTING)
+	{
+		FlagsAndAttributes |= FILE_FLAG_POSIX_SEMANTICS;
+	}
 
 	os::handle Handle(::CreateFile(strObject.data(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile));
 	if(!Handle)

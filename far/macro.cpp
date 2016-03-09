@@ -3224,39 +3224,26 @@ static bool menushowFunc(FarMacroCall* Data)
 
 		if (NewItem.strName!=L"\n")
 		{
-		const wchar_t *CurrentChar = NewItem.strName.data();
-		bool bContunue=(*CurrentChar<=L'\x4');
-		while(*CurrentChar && bContunue)
-		{
-			switch (*CurrentChar)
+			const auto CharToFlag = [](wchar_t c) -> LISTITEMFLAGS
 			{
-				case L'\x1':
-					NewItem.Flags|=LIF_SEPARATOR;
-					CurrentChar++;
-					break;
+				switch (c)
+				{
+				case L'\x1': return LIF_SEPARATOR;
+				case L'\x2': return LIF_CHECKED;
+				case L'\x3': return LIF_DISABLE;
+				case L'\x4': return LIF_GRAYED;
+				default:     return 0;
+				}
+			};
 
-				case L'\x2':
-					NewItem.Flags|=LIF_CHECKED;
-					CurrentChar++;
-					break;
+			const auto NewBegin = std::find_if(CONST_RANGE(NewItem.strName, i) -> bool
+			{
+				auto Flag = CharToFlag(i);
+				NewItem.Flags |= Flag;
+				return !Flag;
+			});
 
-				case L'\x3':
-					NewItem.Flags|=LIF_DISABLE;
-					CurrentChar++;
-					break;
-
-				case L'\x4':
-					NewItem.Flags|=LIF_GRAYED;
-					CurrentChar++;
-					break;
-
-				default:
-				bContunue=false;
-				CurrentChar++;
-				break;
-			}
-		}
-		NewItem.strName=CurrentChar;
+			NewItem.strName.erase(NewItem.strName.cbegin(), NewBegin);
 		}
 		else
 			NewItem.strName.clear();

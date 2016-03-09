@@ -319,11 +319,9 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 		if (strArgName.front() == L'N')
 		{
 			NewColumn.type = NAME_COLUMN;
-			const wchar_t *Ptr = strArgName.data() + 1;
-
-			while (*Ptr)
+			FOR(const auto& i, make_range(strArgName.cbegin() + 1, strArgName.cend()))
 			{
-				switch (*Ptr)
+				switch (i)
 				{
 				case L'M':
 					NewColumn.type |= COLUMN_MARK;
@@ -344,18 +342,14 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 					NewColumn.type |= COLUMN_NOEXTENSION;
 					break;
 				}
-
-				Ptr++;
 			}
 		}
 		else if (strArgName.front() == L'S' || strArgName.front() == L'P' || strArgName.front() == L'G')
 		{
 			NewColumn.type = (strArgName.front() == L'S') ? SIZE_COLUMN : (strArgName.front() == L'P') ? PACKED_COLUMN : STREAMSSIZE_COLUMN;
-			const wchar_t *Ptr = strArgName.data() + 1;
-
-			while (*Ptr)
+			FOR(const auto& i, make_range(strArgName.cbegin() + 1, strArgName.cend()))
 			{
-				switch (*Ptr)
+				switch (i)
 				{
 				case L'C':
 					NewColumn.type |= COLUMN_COMMAS;
@@ -370,8 +364,6 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 					NewColumn.type |= COLUMN_THOUSAND;
 					break;
 				}
-
-				Ptr++;
 			}
 		}
 		else if (!StrCmpN(strArgName.data(), L"DM", 2) || !StrCmpN(strArgName.data(), L"DC", 2) || !StrCmpN(strArgName.data(), L"DA", 2) || !StrCmpN(strArgName.data(), L"DE", 2))
@@ -392,11 +384,9 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 				break;
 			}
 
-			const wchar_t *Ptr = strArgName.data() + 2;
-
-			while (*Ptr)
+			FOR(const auto& i, make_range(strArgName.cbegin() + 2, strArgName.cend()))
 			{
-				switch (*Ptr)
+				switch (i)
 				{
 				case L'B':
 					NewColumn.type |= COLUMN_BRIEF;
@@ -405,8 +395,6 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 					NewColumn.type |= COLUMN_MONTH;
 					break;
 				}
-
-				Ptr++;
 			}
 		}
 		else if (strArgName.front() == L'O')

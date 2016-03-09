@@ -418,8 +418,7 @@ static bool ProcessGenericException(EXCEPTION_POINTERS *xp, const wchar_t* Funct
 			else
 			{
 				const wchar_t* AVs[] = {L"read from ", L"write to ", L"execute at "};
-				strBuf = Exception;
-				strBuf.append(L" (").append(AVs[Offset]).append(Exception).append(L")");
+				strBuf = string(Exception) + L" (" + AVs[Offset] + strBuf + L")";
 				Exception=strBuf.data();
 			}
 		}

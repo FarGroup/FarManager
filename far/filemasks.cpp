@@ -43,39 +43,35 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stddlg.hpp"
 #include "strmix.hpp"
 
-const wchar_t ExcludeMaskSeparator = L'|';
-const wchar_t RE_start = L'/', RE_end = L'/';
+static const wchar_t ExcludeMaskSeparator = L'|';
+static const wchar_t RE_start = L'/', RE_end = L'/';
 
-static inline const wchar_t* SkipSeparators(const wchar_t* masks)
+static inline string::const_iterator SkipSeparators(const string::const_iterator& Iterator, const string::const_iterator& End)
 {
-	while(*masks == L' ' || *masks == L',' || *masks == L';')
-		++masks;
-	return masks;
+	return std::find_if_not(Iterator, End, [](wchar_t c) { return c == L' ' || c == L',' || c == L';'; });
 }
 
-static inline const wchar_t* SkipMasks(const wchar_t* masks)
+static inline string::const_iterator SkipMasks(const string::const_iterator& Iterator, const string::const_iterator& End)
 {
-	while(*masks && *masks != RE_start && *masks != ExcludeMaskSeparator)
-		masks++;
-	return masks;
+	return std::find_if(Iterator, End, [](wchar_t c) { return c == RE_start || c == ExcludeMaskSeparator; });
 }
 
-static inline const wchar_t* SkipRE(const wchar_t* masks)
+static inline string::const_iterator SkipRE(string::const_iterator Iterator, const string::const_iterator& End)
 {
-	if (*masks == RE_start)
+	if (*Iterator != RE_start)
 	{
-		masks++;
-
-		while (*masks && (*masks != RE_end || *(masks-1) == L'\\'))
-			masks++;
-
-		if (*masks == RE_end)
-			masks++;
-		// options
-		while (IsAlpha(*masks))
-			masks++;
+		return Iterator;
 	}
-	return masks;
+
+	++Iterator;
+
+	while (Iterator != End && (*Iterator != RE_end || *(Iterator - 1) == L'\\'))
+		++Iterator;
+
+	if (*Iterator == RE_end)
+		++Iterator;
+	// options
+	return std::find_if_not(Iterator, End, IsAlpha);
 }
 
 class filemasks::masks: noncopyable, swapable<masks>
@@ -157,7 +153,8 @@ bool filemasks::Set(const string& masks, DWORD Flags)
 
 		if (!expmasks.empty())
 		{
-			const wchar_t* ptr = expmasks.data();
+			auto ptr = expmasks.cbegin();
+			const auto End = expmasks.cend();
 
 			string SimpleMasksInclude, SimpleMasksExclude;
 
@@ -166,14 +163,14 @@ bool filemasks::Set(const string& masks, DWORD Flags)
 
 			Result = true;
 
-			while(*ptr)
+			while(ptr != End)
 			{
-				ptr = SkipSeparators(ptr);
-				auto nextpos = SkipRE(ptr);
+				ptr = SkipSeparators(ptr, End);
+				auto nextpos = SkipRE(ptr, End);
 				if (nextpos != ptr)
 				{
 					filemasks::masks m;
-					Result = m.Set(string(ptr, nextpos - ptr), Flags);
+					Result = m.Set(string(ptr, nextpos), Flags);
 					if (Result)
 					{
 						DestContainer->emplace_back(std::move(m));
@@ -185,14 +182,14 @@ bool filemasks::Set(const string& masks, DWORD Flags)
 					}
 					ptr = nextpos;
 				}
-				ptr = SkipSeparators(ptr);
-				nextpos = SkipMasks(ptr);
+				ptr = SkipSeparators(ptr, End);
+				nextpos = SkipMasks(ptr, End);
 				if (nextpos != ptr)
 				{
-					*DestString += string(ptr, nextpos-ptr);
+					*DestString += string(ptr, nextpos);
 					ptr = nextpos;
 				}
-				if (*ptr == ExcludeMaskSeparator)
+				if (ptr != End && *ptr == ExcludeMaskSeparator)
 				{
 					if (DestContainer != &Exclude)
 					{
@@ -339,12 +336,11 @@ bool filemasks::masks::operator ==(const string& FileName) const
 	if (bRE)
 	{
 		intptr_t i = m.size();
-		size_t len = FileName.size();
-		return re->Search(FileName.data(), FileName.data() + len, const_cast<RegExpMatch *>(m.data()), i) != 0; // BUGBUG
+		return re->Search(FileName.data(), FileName.data() + FileName.size(), const_cast<RegExpMatch *>(m.data()), i) != 0; // BUGBUG
 	}
 	else
 	{
-		return std::any_of(CONST_RANGE(Masks, i) {return CmpName(i.data(), FileName.data(), false) != 0;});
+		return std::any_of(CONST_RANGE(Masks, i) { return CmpName(i.data(), FileName.data(), false); });
 	}
 }
 

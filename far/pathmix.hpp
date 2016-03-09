@@ -70,8 +70,6 @@ bool PathCanHoldRegularFile(const string& Path);
 bool IsPluginPrefixPath(const string &Path);
 bool CutToSlash(string &strStr, bool bInclude = false); // BUGBUG, deprecated. Use CutToParent.
 bool CutToParent(string &strStr);
-string &CutToNameUNC(string &strPath);
-string &CutToFolderNameIfFolder(string &strPath);
 const wchar_t* PointToName(const wchar_t *Path);
 const wchar_t* PointToName(const wchar_t *Path,const wchar_t* EndPtr);
 const wchar_t* PointToFolderNameIfFolder(const wchar_t *Path);

@@ -4008,23 +4008,19 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 
 	if (!bUseFilter && WrapBrackets) // возьмем кв.скобки в скобки, чтобы получить
 	{                               // работоспособную маску
-		const wchar_t *src = strRawMask.data();
 		strMask.clear();
-
-		while (*src)
+		FOR(const auto& i, strRawMask)
 		{
-			if (*src==L']' || *src==L'[')
+			if (i == L']' || i == L'[')
 			{
 				strMask += L'[';
-				strMask += *src;
+				strMask += i;
 				strMask += L']';
 			}
 			else
 			{
-				strMask += *src;
+				strMask += i;
 			}
-
-			src++;
 		}
 	}
 

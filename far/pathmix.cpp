@@ -406,60 +406,6 @@ bool CutToParent(string &strStr)
 	return Result;
 }
 
-string &CutToNameUNC(string &strPath)
-{
-	const wchar_t* Path = strPath.data();
-
-	if (IsSlash(Path[0]) && IsSlash(Path[1]))
-	{
-		Path+=2;
-
-		for (int i=0; i<2; i++)
-		{
-			while (*Path && !IsSlash(*Path))
-				Path++;
-
-			if (*Path)
-				Path++;
-		}
-	}
-
-	const wchar_t* NamePtr = Path;
-
-	while (*Path)
-	{
-		if (IsSlash(*Path) || (*Path==L':' && Path == NamePtr+1))
-			NamePtr = Path+1;
-
-		Path++;
-	}
-
-	strPath.resize(NamePtr - strPath.data());
-
-	return strPath;
-}
-
-string &CutToFolderNameIfFolder(string &strPath)
-{
-	const wchar_t* Path = strPath.data();
-	const wchar_t* NamePtr=Path, *prevNamePtr=Path;
-
-	while (*Path)
-	{
-		if (IsSlash(*Path) || (*Path==L':' && Path==NamePtr+1))
-		{
-			prevNamePtr=NamePtr;
-			NamePtr=Path+1;
-		}
-
-		++Path;
-	}
-
-	size_t size = *NamePtr ? NamePtr - strPath.data() : prevNamePtr - strPath.data();
-	strPath.resize(size);
-	return strPath;
-}
-
 bool ContainsSlash(const wchar_t *Str)
 {
 	const auto Iterator = null_iterator(Str);
