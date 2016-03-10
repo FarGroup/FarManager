@@ -562,7 +562,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <CustomBuild Include="File_id.diz.m4">
       <FileType>Document</FileType>
       <Message>Compiling %(Identity)...</Message>
-      <Command>tools\m4 -P -DFARBIT=32 %(Identity) &gt; $(OutDir)%(FileName)</Command>
+      <Command>tools\m4 -P -DFARBIT=$(FarBit) %(Identity) &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>$(OutDir)%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
