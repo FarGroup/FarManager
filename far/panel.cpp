@@ -925,7 +925,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			Info->PanelRect.right=X2;
 			Info->PanelRect.bottom=Y2;
 			Info->ViewMode=GetViewMode();
-			Info->SortMode = static_cast<OPENPANELINFO_SORTMODES>(SM_UNSORTED - panel_sort::UNSORTED + GetSortMode().value());
+			Info->SortMode = static_cast<OPENPANELINFO_SORTMODES>((GetSortMode().value() < panel_sort::COUNT ? SM_UNSORTED - panel_sort::UNSORTED : 0) + GetSortMode().value());
 
 			Info->Flags |= Global->Opt->ShowHidden? PFLAGS_SHOWHIDDEN : 0;
 			Info->Flags |= Global->Opt->Highlight? PFLAGS_HIGHLIGHT : 0;
