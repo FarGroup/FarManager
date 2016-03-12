@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 4503
+  Plugin API for Far Manager 3.0 build 4577
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 4503
+#define FARMANAGERVERSION_BUILD 4577
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -2529,6 +2529,7 @@ enum MACROCALLTYPE
 	MCT_GETCUSTOMSORTMODES = 10,
 	MCT_ADDMACRO           = 11,
 	MCT_KEYMACRO           = 12,
+	MCT_CANPANELSORT       = 13,
 };
 
 enum MACROPLUGINRETURNTYPE
