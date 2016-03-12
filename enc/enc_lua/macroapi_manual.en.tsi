@@ -841,14 +841,18 @@ lv=3
 dt=Text
 nm=LoadCustomSortMode
 ctime=3585324926
-mtime=3665124528
+mtime=3666993887
 <article>
 #_Panel.LoadCustomSortMode (Mode, Settings)
 #_
 #_**Parameters:**
 #_  Mode:         sort mode; integer >=100 and <=0x7FFFFFFF
 #_  Settings:     a table containing the following fields:
-#_      *Compare* (required field):
+#_      *Condition*:
+#_         Function. If it is specified it will be called with one argument - sort mode.
+#_         If the return value is false then the sort is cancelled.
+#_         Note that this function can reload all sorting parameters by calling again Panel.LoadCustomSortMode().
+#_      *Compare*:
 #_         Function, see its description below.
 #_      *DirectoriesFirst, SelectedFirst, RevertSorting, SortGroups:*
 #_         These optional fields specify corresponding sorting options:

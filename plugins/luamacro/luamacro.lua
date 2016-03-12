@@ -393,6 +393,8 @@ function export.Open (OpenFrom, arg1, ...)
         TablePanelSort = panelsort.GetSortModes()
         return TablePanelSort
       end
+    elseif calltype==F.MCT_CANPANELSORT then
+      return panelsort and panelsort.CanDoPanelSort(...)
     end
 
   elseif OpenFrom == F.OPEN_COMMANDLINE then

@@ -10,6 +10,7 @@ local band, bor = bit.band, bit.bor -- 32 bits, be careful
 local tonumber = tonumber
 
 local CustomSortModes = {} -- key=integer, value=table
+local CanChangeSortMode = true
 
 -- shellsort [ http://lua-users.org/wiki/LuaSorting ]
 -- Written by Rici Lake. The author disclaims all copyright and offers no warranty.
@@ -79,37 +80,59 @@ local TernaryProperties = {
 
 local function LoadCustomSortMode (nMode, Settings)
   assert(type(nMode)=="number" and nMode==math.floor(nMode) and nMode>=100 and nMode<=0x7FFFFFFF)
-  if Settings then
-    assert(type(Settings)=="table")
-    assert(type(Settings.Compare)=="function")
+  if type(Settings) == "table" then
+    local t = {}
 
-    local t = { Compare=Settings.Compare }
-    if type(Settings.InitSort)=="function" then t.InitSort=Settings.InitSort end
-    if type(Settings.EndSort)=="function" then t.EndSort=Settings.EndSort end
-    if type(Settings.SortFunction)=="string" then t.SortFunction=Settings.SortFunction end
+    if type(Settings.Compare) == "function" then t.Compare=Settings.Compare end
+    local cond = Settings.Condition or Settings.condition -- allow lower case for 'Condition'
+    if type(cond) == "function" then t.Condition=cond end
+    if not (t.Compare or t.Condition) then
+      CustomSortModes[nMode] = nil
+      return
+    end
+
+    if type(Settings.InitSort)     == "function" then t.InitSort=Settings.InitSort end
+    if type(Settings.EndSort)      == "function" then t.EndSort=Settings.EndSort end
+    if type(Settings.SortFunction) == "string"   then t.SortFunction=Settings.SortFunction end
+    if type(Settings.Description)  == "string"   then t.Description=Settings.Description end
+
+    if type(Settings.Indicator) == "string" then t.Indicator=(Settings.Indicator.."  "):sub(1,2)
+    else t.Indicator = "  "
+    end
 
     for _,v in ipairs(BooleanProperties) do t[v] = not not Settings[v] end
     for _,v in ipairs(TernaryProperties) do t[v] = Settings[v]==0 and 0 or Settings[v]==1 and 1 or 2 end
 
-    if type(Settings.Description)=="string" then t.Description = Settings.Description end
-    if type(Settings.Indicator)=="string" then
-      t.Indicator = Settings.Indicator
-      local len = t.Indicator:len()
-      if len<2 then t.Indicator = t.Indicator..(" "):rep(2-len) end
-    else
-      t.Indicator = "  "
-    end
     CustomSortModes[nMode] = t
   else
     CustomSortModes[nMode] = nil
   end
 end
 
+local function CanDoPanelSort (SortMode)
+  local tSettings = CustomSortModes[SortMode]
+  if tSettings then
+    if tSettings.Condition then
+      CanChangeSortMode = false
+      local ok, ret = pcall(tSettings.Condition, SortMode)
+      CanChangeSortMode = true
+      if not ok then Shared.ErrMsg(ret); return; end
+      if not ret then return; end
+      tSettings = CustomSortModes[SortMode] -- retrieve again as it may be reloaded by Condition()
+      return tSettings and tSettings.Compare and true
+    else
+      return true
+    end
+  end
+end
+
 local function SetCustomSortMode (nMode, whatpanel)
-  local Settings = CustomSortModes[nMode]
-  if Settings then
-    whatpanel = whatpanel==1 and 1 or 0
-    Shared.MacroCallFar(MCODE_F_SETCUSTOMSORTMODE, whatpanel, nMode, Settings.InvertByDefault)
+  if CanChangeSortMode then
+    local Settings = CustomSortModes[nMode]
+    if Settings then
+      whatpanel = whatpanel==1 and 1 or 0
+      Shared.MacroCallFar(MCODE_F_SETCUSTOMSORTMODE, whatpanel, nMode, Settings.InvertByDefault)
+    end
   end
 end
 
@@ -190,7 +213,7 @@ local function SortPanelItems (params)
   jit.flush()
   params = ffi.cast("CustomSort*", params)
   local tSettings = CustomSortModes[tonumber(params.SortMode)]
-  if not tSettings then return end
+  if not (tSettings and tSettings.Compare) then return end
 
   local Compare = tSettings.Compare
   local SortEqualsByName = not tSettings.NoSortEqualsByName
@@ -295,4 +318,5 @@ return {
   CustomSortMenu=CustomSortMenu,
   GetSortModes=GetSortModes,
   DeleteSortModes=function() CustomSortModes={} end,
+  CanDoPanelSort=CanDoPanelSort,
 }

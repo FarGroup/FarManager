@@ -115,7 +115,7 @@ namespace detail
 		QVIEW_PANEL,
 		INFO_PANEL
 	};};
-	
+
 	struct panel_mode { enum value_type
 	{
 		NORMAL_PANEL,
@@ -204,7 +204,7 @@ public:
 	virtual int GetCurBaseName(string &strName, string &strShortName) const;
 	virtual int GetFileName(string &strName, int Pos, DWORD &FileAttr) const { return FALSE; }
 	virtual int GetCurrentPos() const {return 0;}
-	
+
 	virtual bool IsFocused() const;
 	virtual void OnFocusChange(bool Get);
 
@@ -235,6 +235,7 @@ public:
 	virtual bool GetPrevDirectoriesFirst() const { return m_DirectoriesFirst; }
 	virtual void ChangeDirectoriesFirst(bool Mode) { SetDirectoriesFirst(Mode); }
 	virtual void SetSortMode(panel_sort Mode, bool KeepOrder = false) { m_SortMode = Mode; }
+	virtual bool CanDoCustomSort(int SortMode) { return false; }
 	virtual void SetCustomSortMode(int SortMode, bool KeepOrder = false, bool InvertByDefault = false) {}
 	virtual void ChangeSortOrder(bool Reverse) {SetSortOrder(Reverse);}
 	virtual void IfGoHome(wchar_t Drive) {}

@@ -2260,8 +2260,11 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				if (panel)
 				{
 					int SortMode = (int)Data->Values[1].Double;
-					bool InvertByDefault = Data->Values[2].Boolean != 0;
-					panel->SetCustomSortMode(SortMode, false, InvertByDefault);
+					if (panel->CanDoCustomSort(SortMode))
+					{
+						bool InvertByDefault = Data->Values[2].Boolean != 0;
+						panel->SetCustomSortMode(SortMode, false, InvertByDefault);
+					}
 				}
 			}
 			break;

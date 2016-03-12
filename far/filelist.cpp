@@ -164,6 +164,22 @@ struct CustomSort
 	HANDLE               hSortPlugin;
 };
 
+bool SortFileList(CustomSort *cs, wchar_t *indicator)
+{
+	FarMacroValue values[]={cs};
+	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
+	OpenMacroPluginInfo info={MCT_PANELSORT,&fmc};
+	void *ptr;
+
+	if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Luamacro.Id, OPEN_LUAMACRO, &info, &ptr) && ptr)
+	{
+		indicator[0] = info.Ret.Values[0].String[0];
+		indicator[1] = info.Ret.Values[0].String[1];
+		return true;
+	}
+	return false;
+}
+
 };
 
 struct FileList::PrevDataItem: swapable<PrevDataItem>
@@ -379,7 +395,7 @@ static struct list_less
 		};
 
 		const auto IsParentDirB = IsParentDir(b);
-		
+
 		if (IsParentDir(a))
 		{
 			return IsParentDirB? a.Position < b.Position : true;
@@ -686,16 +702,7 @@ void FileList::SortFileList(int KeepPosition)
 			cs.ListCaseSensitiveSort = ListCaseSensitiveSort;
 			cs.hSortPlugin = hSortPlugin;
 
-			FarMacroValue values[]={&cs};
-			FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
-			OpenMacroPluginInfo info={MCT_PANELSORT,&fmc};
-			void *ptr;
-			if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Luamacro.Id, OPEN_LUAMACRO, &info, &ptr) && ptr)
-			{
-				CustomSortIndicator[0] = info.Ret.Values[0].String[0];
-				CustomSortIndicator[1] = info.Ret.Values[0].String[1];
-			}
-			else
+			if (!custom_sort::SortFileList(&cs, CustomSortIndicator))
 			{
 				SetSortMode(panel_sort::BY_NAME); // recursive call
 				return;
@@ -4695,19 +4702,22 @@ void FileList::SelectSortMode()
 	// custom sort modes
 	else if (SortCode>=(int)ARRAYSIZE(SortModes) + 1 && SortCode<(int)(ARRAYSIZE(SortModes) + 1 + extra - 1))
 	{
-		const int index = 3*(SortCode-ARRAYSIZE(SortModes)-1);
-		const int mode = (int)mpr->Values[index].Double;
-		const bool InvertByDefault = mpr->Values[index+1].Boolean != 0;
+		int index = 3*(SortCode-ARRAYSIZE(SortModes)-1);
+		int mode = (int)mpr->Values[index].Double;
 
-		bool KeepOrder = false;
-
-		if (!InvertPressed)
+		if (CanDoCustomSort(mode))
 		{
-			m_ReverseSortOrder = !PlusPressed;
-			KeepOrder = true;
-		}
+			bool InvertByDefault = mpr->Values[index+1].Boolean != 0;
+			bool KeepOrder = false;
 
-		SetCustomSortMode(mode, KeepOrder, InvertByDefault);
+			if (!InvertPressed)
+			{
+				m_ReverseSortOrder = !PlusPressed;
+				KeepOrder = true;
+			}
+
+			SetCustomSortMode(mode, KeepOrder, InvertByDefault);
+		}
 	}
 	// sort options
 	else
@@ -8750,4 +8760,14 @@ bool FileList::IsColumnDisplayed(std::function<bool(const column&)> Compare)
 bool FileList::IsColumnDisplayed(int Type)
 {
 	return IsColumnDisplayed([&Type](const column& i) {return static_cast<int>(i.type & 0xff) == Type;});
+}
+
+bool FileList::CanDoCustomSort(int SortMode)
+{
+	FarMacroValue values[] = {(double)SortMode};
+	FarMacroCall fmc = {sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
+	OpenMacroPluginInfo info = {MCT_CANPANELSORT,&fmc};
+	void *ptr;
+
+	return Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Luamacro.Id, OPEN_LUAMACRO, &info, &ptr) && ptr;
 }
