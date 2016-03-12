@@ -2694,9 +2694,12 @@ $ #Settings dialog: AutoComplete#
   #Подставлять первый подходящий вариант#
   По мере ввода строка будет дополняться первым подходящим значением.
 
-  Кроме того есть три параметра, для управления тем, что используется для построения списка автозавершения:
-#Interface.Completion.UseFilesystem#, #Interface.Completion.UseHistory# и #Interface.Completion.UsePath#.
-Все параметры могут принимаеть 3 состояния - да, нет, только в ручном режиме (после #Ctrl-Space#).
+  There are several additional options to control what data sources will be used to populate completion list:
+    #Interface.Completion.UseFilesystem#
+    #Interface.Completion.UseHistory#
+    #Interface.Completion.UsePath#
+    #Interface.Completion.UseEnvironment#
+  Все параметры могут принимаеть 3 состояния - да, нет, только в ручном режиме (после #Ctrl-Space#).
 Управлять этими параметрами можно через ~far:config~@FarConfig@
 
 
