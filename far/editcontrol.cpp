@@ -98,7 +98,6 @@ void EditControl::Show()
 
 void EditControl::Changed(bool DelBlock)
 {
-	m_Flags.Set(FEDITLINE_CMP_CHANGED);
 	if(m_Callback.Active && !m_CallbackSuppressionsCount)
 	{
 		if(m_Callback.m_Callback)
@@ -152,7 +151,7 @@ static void AddSeparatorOrSetTitle(VMenu2& Menu, LNGID TitleId)
 	}
 }
 
-static bool EnumFiles(VMenu2& Menu, const string& Str)
+static bool EnumWithQuoutes(VMenu2& Menu, const string& Str, const std::function<void(VMenu2&, const string&, const std::function<void(const string&)>&)>& Enumerator)
 {
 	bool Result = false;
 	if(!Str.empty())
@@ -209,25 +208,20 @@ static bool EnumFiles(VMenu2& Menu, const string& Str)
 		{
 			std::set<string, string_i_less> ResultStrings;
 
-			string strExp = os::env::expand_strings(Token);
-			os::fs::enum_file Find(strExp+L"*");
-			std::for_each(CONST_RANGE(Find, i)
+			Enumerator(Menu, Token, [&](string strAdd)
 			{
-				const wchar_t* FileName = PointToName(Token);
-				bool NameMatch=!StrCmpNI(FileName, i.strFileName.data(), StrLength(FileName)), AltNameMatch = NameMatch? false : !StrCmpNI(FileName, i.strAlternateFileName.data(), StrLength(FileName));
-				if(NameMatch || AltNameMatch)
+				if (!StartQuote)
 				{
-					Token.resize(FileName - Token.data());
-					string strAdd(Token + (NameMatch ? i.strFileName : i.strAlternateFileName));
-					if (!StartQuote)
-						QuoteSpace(strAdd);
-
-					string strTmp(strStart+strAdd);
-					if(StartQuote)
-						strTmp += L'"';
-
-					ResultStrings.emplace(strTmp);
+					QuoteSpace(strAdd);
 				}
+
+				string strTmp(strStart + strAdd);
+				if (StartQuote)
+				{
+					strTmp += L'"';
+				}
+
+				ResultStrings.emplace(strTmp);
 			});
 
 			if (!ResultStrings.empty())
@@ -246,24 +240,45 @@ static bool EnumFiles(VMenu2& Menu, const string& Str)
 	return Result;
 }
 
-static bool EnumModules(VMenu2& Menu, const string& Module)
+static bool EnumFiles(VMenu2& Menu, const string& Str)
 {
-	bool Result=false;
-
 	SCOPED_ACTION(elevation::suppress);
 
-	if(!Module.empty() && FindSlash(Module) == string::npos)
+	return EnumWithQuoutes(Menu, Str, [](VMenu2& Menu, const string& Token, const std::function<void(const string&)>& Inserter)
 	{
-		std::set<string, string_i_less> ResultStrings;
+		FOR(const auto& i, os::fs::enum_file(os::env::expand_strings(Token) + L"*"))
+		{
+			const auto FileName = PointToName(Token);
+			const auto NameMatch = !StrCmpNI(FileName, i.strFileName.data(), StrLength(FileName));
+			const auto AltNameMatch = !NameMatch && !StrCmpNI(FileName, i.strAlternateFileName.data(), StrLength(FileName));
+			if (NameMatch || AltNameMatch)
+			{
+				Inserter(Token.substr(0, FileName - Token.data()) + (NameMatch? i.strFileName : i.strAlternateFileName));
+			}
+		}
+	});
+}
+
+static bool EnumModules(VMenu2& Menu, const string& Module)
+{
+	SCOPED_ACTION(elevation::suppress);
+
+	if (FindSlash(Module) != string::npos)
+	{
+		return false;
+	}
+
+	return EnumWithQuoutes(Menu, Module, [](VMenu2& Menu, const string& Token, const std::function<void(const string&)>& Inserter)
+	{
 		{
 			std::vector<string> ExcludeCmds;
 			split(ExcludeCmds, Global->Opt->Exec.strExcludeCmds);
 
 			FOR(const auto& i, ExcludeCmds)
 			{
-				if (!StrCmpNI(Module.data(), i.data(), Module.size()))
+				if (!StrCmpNI(Token.data(), i.data(), Token.size()))
 				{
-					ResultStrings.emplace(i);
+					Inserter(i);
 				}
 			}
 		}
@@ -282,14 +297,14 @@ static bool EnumModules(VMenu2& Menu, const string& Module)
 				{
 					string str = Path;
 					AddEndSlash(str);
-					str.append(Module).append(L"*");
+					str.append(Token).append(L"*");
 					FOR(const auto& FindData, os::fs::enum_file(str))
 					{
 						FOR(const auto& Ext, PathExtList)
 						{
 							if (!StrCmpI(Ext.data(), PointToExt(FindData.strFileName)))
 							{
-								ResultStrings.emplace(FindData.strFileName);
+								Inserter(FindData.strFileName);
 							}
 						}
 					}
@@ -324,29 +339,16 @@ static bool EnumModules(VMenu2& Menu, const string& Module)
 					{
 						if(os::reg::GetValue(SubKey, L""))
 						{
-							if (!StrCmpNI(Module.data(), SubkeyName.data(), Module.size()))
+							if (!StrCmpNI(Token.data(), SubkeyName.data(), Token.size()))
 							{
-								ResultStrings.emplace(SubkeyName);
+								Inserter(SubkeyName);
 							}
 						}
 					}
 				}
 			}
 		}
-
-		if (!ResultStrings.empty())
-		{
-			AddSeparatorOrSetTitle(Menu, MCompletionFilesTitle);
-
-			std::for_each(CONST_RANGE(ResultStrings, i)
-			{
-				Menu.AddItem(i);
-			});
-
-			Result = true;
-		}
-	}
-	return Result;
+	});
 }
 
 static bool EnumEnvironment(VMenu2& Menu, const string& Str)
@@ -407,20 +409,11 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 {
 	int Result=0;
 	static int Reenter=0;
-	string CurrentLine;
 	size_t EventsCount = 0;
 	Console().GetNumberOfInputEvents(EventsCount);
 	if(ECFlags.Check(EC_ENABLEAUTOCOMPLETE) && !m_Str.empty() && !Reenter && !EventsCount && (Global->CtrlObject->Macro.GetState() == MACROSTATE_NOMACRO || Manual))
 	{
 		Reenter++;
-
-		if(Global->Opt->AutoComplete.AppendCompletion && !m_Flags.Check(FEDITLINE_CMP_CHANGED))
-		{
-			CurrentLine = m_Str;
-			DeleteBlock();
-		}
-		m_Flags.Clear(FEDITLINE_CMP_CHANGED);
-
 		const auto ComplMenu = VMenu2::create(string(), nullptr, 0, 0);
 		ComplMenu->SetDialogMode(DMODE_NODRAWSHADOW);
 		ComplMenu->SetModeMoving(false);
@@ -469,38 +462,40 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 
 		Complete(*ComplMenu, strTemp);
 
+		const auto AppendCmd = [&]
+		{
+			int SelStart = GetLength();
+
+			const auto& FirstItem = ComplMenu->at(0).strName;
+
+			// magic
+			if (SelStart > 1 && IsSlash(m_Str[SelStart - 1]) && m_Str[SelStart - 2] == L'"' && IsSlash(FirstItem[SelStart - 2]))
+			{
+				m_Str.erase(SelStart - 2, 1);
+				SelStart--;
+				m_CurPos--;
+			}
+
+			{
+				SCOPED_ACTION(auto)(CallbackSuppressor());
+				if (StrCmpI(FirstItem, m_Str + FirstItem.substr(SelStart)))
+				{
+					// New string contains opening quote, but not the original one
+					++SelStart;
+				}
+				SetString(ComplMenu->at(0).strName);
+				if (m_X2 - m_X1 > GetLength())
+					SetLeftPos(0);
+				Select(SelStart, GetLength());
+			}
+		};
+
 		if(ComplMenu->size() > 1 || (ComplMenu->size() == 1 && StrCmpI(strTemp, ComplMenu->at(0).strName)))
 		{
 			ComplMenu->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 			if(!DelBlock && Global->Opt->AutoComplete.AppendCompletion && (!m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS) || Global->Opt->AutoComplete.ShowList))
 			{
-				int SelStart=GetLength();
-
-				// magic
-				if (IsSlash(m_Str[SelStart - 1]) && m_Str[SelStart - 2] == L'"' && IsSlash(ComplMenu->at(0).strName[SelStart - 2]))
-				{
-					m_Str.erase(SelStart - 2, 1);
-					SelStart--;
-					m_CurPos--;
-				}
-				size_t Offset = 0;
-				if(!CurrentLine.empty())
-				{
-					const auto Count = ComplMenu->size();
-					while (Offset < Count && (StrCmpI(ComplMenu->at(Offset).strName, CurrentLine) || ComplMenu->at(Offset).Flags & LIF_SEPARATOR))
-						++Offset;
-					if(Offset < Count)
-						++Offset;
-					if (Offset < Count && (ComplMenu->at(Offset).Flags & LIF_SEPARATOR))
-						++Offset;
-					if(Offset >= Count)
-						Offset = 0;
-				}
-				AppendString(ComplMenu->at(Offset).strName.data() + SelStart);
-				Select(SelStart, GetLength());
-				m_Flags.Clear(FEDITLINE_CMP_CHANGED);
-				m_CurPos = GetLength();
-				Show();
+				AppendCmd();
 			}
 			if(Global->Opt->AutoComplete.ShowList)
 			{
@@ -574,30 +569,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 								{
 									if(MenuKey!=KEY_BS && MenuKey!=KEY_DEL && MenuKey!=KEY_NUMDEL && Global->Opt->AutoComplete.AppendCompletion)
 									{
-										int SelStart=GetLength();
-
-										const auto& FirstItem = ComplMenu->at(0).strName;
-
-										// magic
-										if(IsSlash(m_Str[SelStart-1]) && m_Str[SelStart-2] == L'"' && IsSlash(FirstItem[SelStart-2]))
-										{
-											m_Str.erase(SelStart - 2, 1);
-											SelStart--;
-											m_CurPos--;
-										}
-
-										{
-											SCOPED_ACTION(auto)(CallbackSuppressor());
-											if (StrCmpI(FirstItem, m_Str + FirstItem.substr(SelStart)))
-											{
-												// New string contains opening quote, but not the original one
-												++SelStart;
-											}
-											SetString(ComplMenu->at(0).strName);
-											if (m_X2 - m_X1 > GetLength())
-												SetLeftPos(0);
-											Select(SelStart, GetLength());
-										}
+										AppendCmd();
 									}
 									ComplMenu->AddItem(MenuItemEx(), 0);
 									SetMenuPos(*ComplMenu);

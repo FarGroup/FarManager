@@ -60,7 +60,6 @@ enum FLAGS_CLASS_EDITLINE
 	FEDITLINE_PARENT_SINGLELINE    = 0x00200000,  // обычная строка ввода в диалоге
 	FEDITLINE_PARENT_MULTILINE     = 0x00400000,  // для будущего Memo-Edit (DI_EDITOR или DIF_MULTILINE)
 	FEDITLINE_PARENT_EDITOR        = 0x00800000,  // "вверху" обычный редактор
-	FEDITLINE_CMP_CHANGED          = 0x01000000,
 };
 
 struct ColorItem
