@@ -180,6 +180,16 @@ bool SortFileList(CustomSort *cs, wchar_t *indicator)
 	return false;
 }
 
+bool CanSort(int SortMode)
+{
+	FarMacroValue values[] = {(double)SortMode};
+	FarMacroCall fmc = {sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
+	OpenMacroPluginInfo info = {MCT_CANPANELSORT,&fmc};
+	void *ptr;
+
+	return Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Luamacro.Id, OPEN_LUAMACRO, &info, &ptr) && ptr;
+}
+
 };
 
 struct FileList::PrevDataItem: swapable<PrevDataItem>
@@ -4705,7 +4715,7 @@ void FileList::SelectSortMode()
 		int index = 3*(SortCode-ARRAYSIZE(SortModes)-1);
 		int mode = (int)mpr->Values[index].Double;
 
-		if (CanDoCustomSort(mode))
+		if (custom_sort::CanSort(mode))
 		{
 			bool InvertByDefault = mpr->Values[index+1].Boolean != 0;
 			bool KeepOrder = false;
@@ -8760,14 +8770,4 @@ bool FileList::IsColumnDisplayed(std::function<bool(const column&)> Compare)
 bool FileList::IsColumnDisplayed(int Type)
 {
 	return IsColumnDisplayed([&Type](const column& i) {return static_cast<int>(i.type & 0xff) == Type;});
-}
-
-bool FileList::CanDoCustomSort(int SortMode)
-{
-	FarMacroValue values[] = {(double)SortMode};
-	FarMacroCall fmc = {sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
-	OpenMacroPluginInfo info = {MCT_CANPANELSORT,&fmc};
-	void *ptr;
-
-	return Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Luamacro.Id, OPEN_LUAMACRO, &info, &ptr) && ptr;
 }

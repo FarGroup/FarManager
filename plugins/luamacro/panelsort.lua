@@ -128,8 +128,8 @@ end
 
 local function SetCustomSortMode (nMode, whatpanel)
   if CanChangeSortMode then
-    local Settings = CustomSortModes[nMode]
-    if Settings then
+    if CanDoPanelSort(nMode) then
+      local Settings = CustomSortModes[nMode]
       whatpanel = whatpanel==1 and 1 or 0
       Shared.MacroCallFar(MCODE_F_SETCUSTOMSORTMODE, whatpanel, nMode, Settings.InvertByDefault)
     end
