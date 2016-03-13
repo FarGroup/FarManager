@@ -3,6 +3,38 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 13.03.2016 21:45:25 +0200 - build 4578
+
+1. Correction of 4577.
+
+shmuel 13.03.2016 01:35:20 +0200 - build 4577
+
+1. In Panel.LoadCustomSortMode function, parameter table can contain an optional field
+   'Condition' (a function). This function can be used for example in interactive mode
+   to change sorting parameters or to cancel sorting.
+
+drkns 12.03.2016 16:37:16 +0200 - build 4576
+
+1. 0003194: Strange behavior on insertion * and ? into command line, up to crash
+
+2. 0003195: Incorrect substitution of file/folder names containing spaces with "Append first matched item" option on
+
+3. 0003196: Autocompletion of executable file names from %PATH% proposed with no quotes even for files containing spaces in their names
+
+shmuel 11.03.2016 18:57:02 +0200 - build 4575
+
+1. FCTL_GETPANELINFO set SortMode value for custom sorting by 1 more than actual.
+
+drkns 10.03.2016 00:22:16 +0200 - build 4574
+
+1. Menu.Show("\2qwe\n\4asd") showed items without first characters.
+
+2. user menu got rid of fancy logic turning any incorrect hotkey into F1.
+
+3. Correction of 829.2 - substitute FILE_FLAG_POSIX_SEMANTICS for TRUNCATE_EXISTING too.
+
+4. Other minor refactoring.
+
 drkns 08.03.2016 13:23:22 +0200 - build 4573
 
 1. 0003189: Far 3.0 crash if command line format string contains "(%)"
