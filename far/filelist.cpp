@@ -4606,6 +4606,7 @@ void FileList::SelectSortMode()
 		if (ItemIterator != std::cend(SortModes))
 		{
 			SortMenu[ItemIterator - std::cbegin(SortModes)].SetCheck(Check);
+			SortMenu[ItemIterator - std::cbegin(SortModes)].SetSelect(TRUE);
 		}
 		else if (mpr)
 		{
@@ -4614,6 +4615,7 @@ void FileList::SelectSortMode()
 				if (mpr->Values[i].Double == m_SortMode.value())
 				{
 					SortMenu[ARRAYSIZE(SortModes) + 1 + i/3].SetCheck(Check);
+					SortMenu[ARRAYSIZE(SortModes) + 1 + i/3].SetSelect(TRUE);
 					break;
 				}
 			}
