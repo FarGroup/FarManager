@@ -85,6 +85,7 @@ public:
 	void ExecuteModal(window_ptr_ref Executed);
 	//! Запускает немодальное окно в модальном режиме
 	void ExecuteNonModal(window_ptr_ref NonModal);
+	void RefreshAll();
 	void CloseAll();
 	/* $ 29.12.2000 IS
 	Аналог CloseAll, но разрешает продолжение полноценной работы в фаре,

@@ -758,7 +758,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 
 		case ACTL_REDRAWALL:
 		{
-			Global->WindowManager->ResizeAllWindows();
+			Global->WindowManager->RefreshAll();
 			Global->WindowManager->PluginCommit();
 			return TRUE;
 		}
