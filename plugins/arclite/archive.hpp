@@ -24,23 +24,30 @@ extern const unsigned __int64 c_min_volume_size;
 extern const wchar_t* c_sfx_ext;
 extern const wchar_t* c_volume_ext;
 
+struct ICompressCodecsInfo;
+
 struct ArcLib {
   HMODULE h_module;
   unsigned __int64 version;
   wstring module_path;
-  typedef UInt32 (WINAPI *FCreateObject)(const GUID *clsID, const GUID *interfaceID, void **outObject);
   typedef UInt32 (WINAPI *FGetNumberOfMethods)(UInt32 *numMethods);
   typedef UInt32 (WINAPI *FGetMethodProperty)(UInt32 index, PROPID propID, PROPVARIANT *value);
   typedef UInt32 (WINAPI *FGetNumberOfFormats)(UInt32 *numFormats);
   typedef UInt32 (WINAPI *FGetHandlerProperty)(PROPID propID, PROPVARIANT *value);
   typedef UInt32 (WINAPI *FGetHandlerProperty2)(UInt32 index, PROPID propID, PROPVARIANT *value);
   typedef UInt32 (WINAPI *FSetLargePageMode)();
-  FCreateObject CreateObject;
+  typedef HRESULT(WINAPI *FSetCodecs)(ICompressCodecsInfo *compressCodecsInfo);
+  typedef HRESULT(WINAPI *FCreateDecoder)(UInt32 index, const GUID *iid, void **object);
+  typedef HRESULT(WINAPI *FCreateEncoder)(UInt32 index, const GUID *iid, void **object);
+  Func_CreateObject CreateObject;
   FGetNumberOfMethods GetNumberOfMethods;
   FGetMethodProperty GetMethodProperty;
   FGetNumberOfFormats GetNumberOfFormats;
   FGetHandlerProperty GetHandlerProperty;
   FGetHandlerProperty2 GetHandlerProperty2;
+  FSetCodecs SetCodecs;
+  FCreateDecoder CreateDecoder;
+  FCreateEncoder CreateEncoder;
   Func_GetIsArc GetIsArc;
 
   HRESULT get_prop(UInt32 index, PROPID prop_id, PROPVARIANT* prop) const;
@@ -88,6 +95,16 @@ struct ArcFormat {
 
 typedef vector<ArcLib> ArcLibs;
 
+struct CDllCodecInfo {
+  unsigned LibIndex;
+  UInt32 CodecIndex;
+  bool EncoderIsAssigned;
+  bool DecoderIsAssigned;
+  CLSID Encoder;
+  CLSID Decoder;
+  wstring Name;
+};
+
 class ArcFormats: public map<ArcType, ArcFormat> {
 public:
   ArcTypes get_arc_types() const;
@@ -107,13 +124,18 @@ public:
   uintptr_t find_by_name(const wstring& name) const;
 };
 
+class MyCompressCodecsInfo;
+
 class ArcAPI {
 private:
   ArcLibs arc_libs;
+  size_t n_format_libs;
+  vector <CDllCodecInfo> codecs;
+  MyCompressCodecsInfo *compressinfo;
   ArcFormats arc_formats;
   SfxModules sfx_modules;
   static ArcAPI* arc_api;
-  ArcAPI() {}
+  ArcAPI() { compressinfo = nullptr; }
   ~ArcAPI();
   void load_libs(const wstring& path);
   void find_sfx_modules(const wstring& path);
