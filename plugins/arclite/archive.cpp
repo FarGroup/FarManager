@@ -162,55 +162,55 @@ private:
 	const ArcLibs& libs_;
 	const vector<CDllCodecInfo> &codecs_;
 public:
-	MyCompressCodecsInfo(const ArcLibs& libs, const vector<CDllCodecInfo> &codecs)
-		: libs_(libs), codecs_(codecs) {}
+  MyCompressCodecsInfo(const ArcLibs& libs, const vector<CDllCodecInfo> &codecs)
+   : libs_(libs), codecs_(codecs) {}
 
-	~MyCompressCodecsInfo() {}
+  ~MyCompressCodecsInfo() {}
 
-	UNKNOWN_IMPL_BEGIN
-		UNKNOWN_IMPL_ITF(ICompressCodecsInfo)
-		UNKNOWN_IMPL_END
+  UNKNOWN_IMPL_BEGIN
+  UNKNOWN_IMPL_ITF(ICompressCodecsInfo)
+  UNKNOWN_IMPL_END
 
-		STDMETHODIMP GetNumMethods(UInt32 *numMethods) {
-		*numMethods = static_cast<UInt32>(codecs_.size());
-		return S_OK;
-	}
+  STDMETHODIMP GetNumMethods(UInt32 *numMethods) {
+    *numMethods = static_cast<UInt32>(codecs_.size());
+    return S_OK;
+  }
 
-	STDMETHODIMP GetProperty(UInt32 index, PROPID propID, PROPVARIANT *value) {
-		const CDllCodecInfo &ci = codecs_[index];
-		if (propID == NMethodPropID::kDecoderIsAssigned || propID == NMethodPropID::kEncoderIsAssigned) {
-			PropVariant prop;
-			prop = (bool)((propID == NMethodPropID::kDecoderIsAssigned) ? ci.DecoderIsAssigned : ci.EncoderIsAssigned);
-			prop.detach(value);
-			return S_OK;
-		}
-		const auto &lib = libs_[ci.LibIndex];
-		return lib.GetMethodProperty(ci.CodecIndex, propID, value);
-	}
+  STDMETHODIMP GetProperty(UInt32 index, PROPID propID, PROPVARIANT *value) {
+    const CDllCodecInfo &ci = codecs_[index];
+    if (propID == NMethodPropID::kDecoderIsAssigned || propID == NMethodPropID::kEncoderIsAssigned) {
+      PropVariant prop;
+      prop = (bool)((propID == NMethodPropID::kDecoderIsAssigned) ? ci.DecoderIsAssigned : ci.EncoderIsAssigned);
+      prop.detach(value);
+      return S_OK;
+    }
+    const auto &lib = libs_[ci.LibIndex];
+    return lib.GetMethodProperty(ci.CodecIndex, propID, value);
+  }
 
-	STDMETHODIMP CreateDecoder(UInt32 index, const GUID *iid, void **coder) {
-		const CDllCodecInfo &ci = codecs_[index];
-		if (ci.DecoderIsAssigned) {
-			const auto &lib = libs_[ci.LibIndex];
-			if (lib.CreateDecoder)
-				return lib.CreateDecoder(ci.CodecIndex, iid, (void **)coder);
-			else
-				return lib.CreateObject(&ci.Decoder, iid, (void **)coder);
-		}
-		return S_OK;
-	}
+  STDMETHODIMP CreateDecoder(UInt32 index, const GUID *iid, void **coder) {
+    const CDllCodecInfo &ci = codecs_[index];
+    if (ci.DecoderIsAssigned) {
+      const auto &lib = libs_[ci.LibIndex];
+      if (lib.CreateDecoder)
+        return lib.CreateDecoder(ci.CodecIndex, iid, (void **)coder);
+      else
+        return lib.CreateObject(&ci.Decoder, iid, (void **)coder);
+    }
+    return S_OK;
+  }
 
-	STDMETHODIMP CreateEncoder(UInt32 index, const GUID *iid, void **coder) {
-		const CDllCodecInfo &ci = codecs_[index];
-		if (ci.EncoderIsAssigned) {
-			const auto &lib = libs_[ci.LibIndex];
-			if (lib.CreateEncoder)
-				return lib.CreateEncoder(ci.CodecIndex, iid, (void **)coder);
-			else
-				return lib.CreateObject(&ci.Encoder, iid, (void **)coder);
-		}
-		return S_OK;
-	}
+  STDMETHODIMP CreateEncoder(UInt32 index, const GUID *iid, void **coder) {
+    const CDllCodecInfo &ci = codecs_[index];
+    if (ci.EncoderIsAssigned) {
+      const auto &lib = libs_[ci.LibIndex];
+      if (lib.CreateEncoder)
+        return lib.CreateEncoder(ci.CodecIndex, iid, (void **)coder);
+      else
+        return lib.CreateObject(&ci.Encoder, iid, (void **)coder);
+    }
+    return S_OK;
+  }
 };
 
 ArcAPI* ArcAPI::arc_api = nullptr;
@@ -232,7 +232,7 @@ ArcAPI* ArcAPI::get() {
   return arc_api;
 }
 
-static bool GetCoderInfo(ArcLib::FGetMethodProperty getMethodProperty, UInt32 index, CDllCodecInfo& info) {
+static bool GetCoderInfo(Func_GetMethodProperty getMethodProperty, UInt32 index, CDllCodecInfo& info) {
   info.DecoderIsAssigned = info.EncoderIsAssigned = false;
   std::fill((char *)&info.Decoder, sizeof(info.Decoder) + (char *)&info.Decoder, 0);
   info.Encoder = info.Decoder;
@@ -270,13 +270,13 @@ void ArcAPI::load_libs(const wstring& path) {
     if (arc_lib.h_module == nullptr)
       continue;
     arc_lib.CreateObject = reinterpret_cast<Func_CreateObject>(GetProcAddress(arc_lib.h_module, "CreateObject"));
-    arc_lib.GetNumberOfMethods = reinterpret_cast<ArcLib::FGetNumberOfMethods>(GetProcAddress(arc_lib.h_module, "GetNumberOfMethods"));
-    arc_lib.GetMethodProperty = reinterpret_cast<ArcLib::FGetMethodProperty>(GetProcAddress(arc_lib.h_module, "GetMethodProperty"));
-    arc_lib.GetNumberOfFormats = reinterpret_cast<ArcLib::FGetNumberOfFormats>(GetProcAddress(arc_lib.h_module, "GetNumberOfFormats"));
-    arc_lib.GetHandlerProperty = reinterpret_cast<ArcLib::FGetHandlerProperty>(GetProcAddress(arc_lib.h_module, "GetHandlerProperty"));
-    arc_lib.GetHandlerProperty2 = reinterpret_cast<ArcLib::FGetHandlerProperty2>(GetProcAddress(arc_lib.h_module, "GetHandlerProperty2"));
+    arc_lib.GetNumberOfMethods = reinterpret_cast<Func_GetNumberOfMethods>(GetProcAddress(arc_lib.h_module, "GetNumberOfMethods"));
+    arc_lib.GetMethodProperty = reinterpret_cast<Func_GetMethodProperty>(GetProcAddress(arc_lib.h_module, "GetMethodProperty"));
+    arc_lib.GetNumberOfFormats = reinterpret_cast<Func_GetNumberOfFormats>(GetProcAddress(arc_lib.h_module, "GetNumberOfFormats"));
+    arc_lib.GetHandlerProperty = reinterpret_cast<Func_GetHandlerProperty>(GetProcAddress(arc_lib.h_module, "GetHandlerProperty"));
+    arc_lib.GetHandlerProperty2 = reinterpret_cast<Func_GetHandlerProperty2>(GetProcAddress(arc_lib.h_module, "GetHandlerProperty2"));
     arc_lib.GetIsArc = reinterpret_cast<Func_GetIsArc>(GetProcAddress(arc_lib.h_module, "GetIsArc"));
-	 arc_lib.SetCodecs = reinterpret_cast<ArcLib::FSetCodecs>(GetProcAddress(arc_lib.h_module, "SetCodecs"));
+	 arc_lib.SetCodecs = reinterpret_cast<Func_SetCodecs>(GetProcAddress(arc_lib.h_module, "SetCodecs"));
 	 arc_lib.CreateDecoder = nullptr;
 	 arc_lib.CreateEncoder = nullptr;
 	 if (arc_lib.CreateObject && ((arc_lib.GetNumberOfFormats && arc_lib.GetHandlerProperty2) || arc_lib.GetHandlerProperty)) {
@@ -299,10 +299,10 @@ void ArcAPI::load_libs(const wstring& path) {
         if (arc_lib.h_module == nullptr)
           continue;
         arc_lib.CreateObject = reinterpret_cast<Func_CreateObject>(GetProcAddress(arc_lib.h_module, "CreateObject"));
-        arc_lib.CreateDecoder = reinterpret_cast<ArcLib::FCreateDecoder>(GetProcAddress(arc_lib.h_module, "CreateDecoder"));
-        arc_lib.CreateEncoder = reinterpret_cast<ArcLib::FCreateEncoder>(GetProcAddress(arc_lib.h_module, "CreateEncoder"));
-        arc_lib.GetNumberOfMethods = reinterpret_cast<ArcLib::FGetNumberOfMethods>(GetProcAddress(arc_lib.h_module, "GetNumberOfMethods"));
-        arc_lib.GetMethodProperty = reinterpret_cast<ArcLib::FGetMethodProperty>(GetProcAddress(arc_lib.h_module, "GetMethodProperty"));
+        arc_lib.CreateDecoder = reinterpret_cast<Func_CreateDecoder>(GetProcAddress(arc_lib.h_module, "CreateDecoder"));
+        arc_lib.CreateEncoder = reinterpret_cast<Func_CreateEncoder>(GetProcAddress(arc_lib.h_module, "CreateEncoder"));
+        arc_lib.GetNumberOfMethods = reinterpret_cast<Func_GetNumberOfMethods>(GetProcAddress(arc_lib.h_module, "GetNumberOfMethods"));
+        arc_lib.GetMethodProperty = reinterpret_cast<Func_GetMethodProperty>(GetProcAddress(arc_lib.h_module, "GetMethodProperty"));
         arc_lib.GetNumberOfFormats = nullptr;
         arc_lib.GetHandlerProperty = nullptr;
         arc_lib.GetHandlerProperty2 = nullptr;
