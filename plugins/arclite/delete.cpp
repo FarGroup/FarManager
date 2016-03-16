@@ -192,7 +192,7 @@ void Archive::delete_files(const vector<UInt32>& src_indices) {
     ComObject<IArchiveUpdateCallback> deleter(new ArchiveFileDeleter(new_indices, progress));
     ComObject<IOutStream> update_stream(new ArchiveFileDeleterStream(temp_arc_name, progress));
 
-	 COM_ERROR_CHECK(copy_prologue(update_stream));
+    COM_ERROR_CHECK(copy_prologue(update_stream));
 
     COM_ERROR_CHECK(out_arc->UpdateItems(update_stream, static_cast<UInt32>(new_indices.size()), deleter));
     close();

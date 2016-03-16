@@ -355,8 +355,8 @@ private:
 
   void read_controls(ExtractOptions& options) {
     auto dst = search_and_replace(strip(get_text(dst_dir_ctrl_id)), L"\"", wstring());
-	 bool expand_env = add_trailing_slash(options.dst_dir) != add_trailing_slash(dst);
-	 options.dst_dir = expand_env ? expand_env_vars(dst) : dst;
+    bool expand_env = add_trailing_slash(options.dst_dir) != add_trailing_slash(dst);
+    options.dst_dir = expand_env ? expand_env_vars(dst) : dst;
     options.ignore_errors = get_check(ignore_errors_ctrl_id);
     if (get_check(oa_ask_ctrl_id)) options.overwrite = oaAsk;
     else if (get_check(oa_overwrite_ctrl_id)) options.overwrite = oaOverwrite;
@@ -868,8 +868,9 @@ private:
       if (is_7z) {
         options.method.clear();
         unsigned method_sel = get_list_pos(method_ctrl_id);
-        if (method_sel < ARRAYSIZE(c_methods))
-          options.method = c_methods[method_sel].value;
+        const auto& codecs = ArcAPI::codecs();
+        if (method_sel < ARRAYSIZE(c_methods) + codecs.size())
+          options.method = method_sel < ARRAYSIZE(c_methods) ? c_methods[method_sel].value : codecs[method_sel-ARRAYSIZE(c_methods)].Name;
         if (options.method.empty()) {
           FAIL_MSG(Far::get_msg(MSG_UPDATE_DLG_WRONG_METHOD));
         }
@@ -969,8 +970,10 @@ private:
 
     wstring method = options.method.empty() && options.arc_type == c_7z ? c_methods[0].value : options.method;
     unsigned method_sel = 0;
-    for (unsigned i = 0; i < ARRAYSIZE(c_methods); i++) {
-      if (method == c_methods[i].value) {
+    const auto& codecs = ArcAPI::codecs();
+    for (unsigned i = 0; i < ARRAYSIZE(c_methods)+codecs.size(); ++i) {
+      wstring method_name = i < ARRAYSIZE(c_methods) ? c_methods[i].value : codecs[i-ARRAYSIZE(c_methods)].Name;
+      if (method == method_name) {
         method_sel = i;
         break;
       }
@@ -1280,12 +1283,19 @@ public:
     wstring method = options.method.empty() && options.arc_type == c_7z ? c_methods[0].value : options.method;
     vector<wstring> method_names;
     unsigned method_sel = 0;
-    for (unsigned i = 0; i < ARRAYSIZE(c_methods); i++) {
+    for (unsigned i = 0; i < ARRAYSIZE(c_methods); ++i) {
       wstring method_name = Far::get_msg(c_methods[i].name_id);
       method_names.push_back(method_name);
       if (method == c_methods[i].value)
         method_sel = i;
     }
+    const auto& codecs = ArcAPI::codecs();
+    for (size_t j = 0; j < codecs.size(); ++j) {
+       method_names.push_back(codecs[j].Name);
+       if (method == codecs[j].Name)
+         method_sel = static_cast<unsigned>(j + ARRAYSIZE(c_methods));
+    }
+
     method_ctrl_id = combo_box(method_names, method_sel, AUTO_SIZE, DIF_DROPDOWNLIST);
     spacer(2);
 
@@ -1617,7 +1627,7 @@ static size_t llen(const wstring& label, int add)
 {
   size_t len = label.length() + add;
   if (label.find(L'&') != wstring::npos)
-	  --len;
+    --len;
   return len;
 }
 
@@ -1660,10 +1670,10 @@ private:
       settings.handle_create = get_check(handle_create_ctrl_id);
       settings.handle_commands = get_check(handle_commands_ctrl_id);
       settings.own_panel_view_mode = get_check(own_panel_view_mode_ctrl_id);
-		settings.oemCP = (UINT)str_to_uint(strip(get_text(oemCP_ctrl_id)));
-		settings.ansiCP = (UINT)str_to_uint(strip(get_text(ansiCP_ctrl_id)));
-		settings.saveCP = get_check(saveCPs_ctrl_id);
-		settings.use_include_masks = get_check(use_include_masks_ctrl_id);
+      settings.oemCP = (UINT)str_to_uint(strip(get_text(oemCP_ctrl_id)));
+      settings.ansiCP = (UINT)str_to_uint(strip(get_text(ansiCP_ctrl_id)));
+      settings.saveCP = get_check(saveCPs_ctrl_id);
+      settings.use_include_masks = get_check(use_include_masks_ctrl_id);
       settings.include_masks = get_text(include_masks_ctrl_id);
       settings.use_exclude_masks = get_check(use_exclude_masks_ctrl_id);
       settings.exclude_masks = get_text(exclude_masks_ctrl_id);
@@ -1788,33 +1798,33 @@ public:
 
   bool show() {
     wstring box1 = Far::get_msg(MSG_SETTINGS_DLG_HANDLE_CREATE);
-	 wstring box2 = Far::get_msg(MSG_SETTINGS_DLG_HANDLE_COMMANDS);
-	 wstring box3 = Far::get_msg(MSG_SETTINGS_DLG_OWN_PANEL_VIEW_MODE);
-	 handle_create_ctrl_id = check_box(box1, settings.handle_create);
+    wstring box2 = Far::get_msg(MSG_SETTINGS_DLG_HANDLE_COMMANDS);
+    wstring box3 = Far::get_msg(MSG_SETTINGS_DLG_OWN_PANEL_VIEW_MODE);
+    handle_create_ctrl_id = check_box(box1, settings.handle_create);
     new_line();
     handle_commands_ctrl_id = check_box(box2, settings.handle_commands);
     new_line();
     own_panel_view_mode_ctrl_id = check_box(box3, settings.own_panel_view_mode);
     new_line();
-	 separator();
-	 new_line();
-	 wstring label1 = Far::get_msg(MSG_SETTINGS_DLG_OEM_CODEPAGE);
-	 wstring label2 = Far::get_msg(MSG_SETTINGS_DLG_ANSI_CODEPAGE);
-	 wstring label3 = Far::get_msg(MSG_SETTINGS_DLG_SAVE_CODEPAGE);
-	 label(label1);
-	 wstring tmp1 = settings.oemCP ? uint_to_str(settings.oemCP) : wstring();
-	 oemCP_ctrl_id = edit_box(tmp1, 5);
-	 auto total = llen(label1,5) + llen(label2,5) + llen(label3,4);
-	 auto width = std::max(std::max(std::max(std::max(llen(box1,4), llen(box2,4)), llen(box3,4)), total+2), size_t(c_client_xs));
-	 auto space = (width - total) / 2;
-	 pad(llen(label1,5) + space);
-	 label(label2);
-	 wstring tmp2 = settings.ansiCP ? uint_to_str(settings.ansiCP) : wstring();
-	 ansiCP_ctrl_id = edit_box(tmp2, 5);
-	 pad(width - llen(label3,4));
-	 saveCPs_ctrl_id = check_box(label3, settings.saveCP);
-	 new_line();
-	 separator();
+    separator();
+    new_line();
+    wstring label1 = Far::get_msg(MSG_SETTINGS_DLG_OEM_CODEPAGE);
+    wstring label2 = Far::get_msg(MSG_SETTINGS_DLG_ANSI_CODEPAGE);
+    wstring label3 = Far::get_msg(MSG_SETTINGS_DLG_SAVE_CODEPAGE);
+    label(label1);
+    wstring tmp1 = settings.oemCP ? uint_to_str(settings.oemCP) : wstring();
+    oemCP_ctrl_id = edit_box(tmp1, 5);
+    auto total = llen(label1,5) + llen(label2,5) + llen(label3,4);
+    auto width = std::max(std::max(std::max(std::max(llen(box1,4), llen(box2,4)), llen(box3,4)), total+2), size_t(c_client_xs));
+    auto space = (width - total) / 2;
+    pad(llen(label1,5) + space);
+    label(label2);
+    wstring tmp2 = settings.ansiCP ? uint_to_str(settings.ansiCP) : wstring();
+    ansiCP_ctrl_id = edit_box(tmp2, 5);
+    pad(width - llen(label3,4));
+    saveCPs_ctrl_id = check_box(label3, settings.saveCP);
+    new_line();
+    separator();
     new_line();
 
     label(Far::get_msg(MSG_SETTINGS_DLG_USE_INCLUDE_MASKS));

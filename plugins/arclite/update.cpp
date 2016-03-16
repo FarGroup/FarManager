@@ -752,8 +752,8 @@ public:
     if (operationResult == NArchive::NUpdate::NOperationResult::kOK)
       return S_OK;
 /*
-	if (operationResult == NArchive::NUpdate::NOperationResult::kError)
-      FAIL_MSG(Far::get_msg(MSG_ERROR_UPDATE_ERROR));
+  if (operationResult == NArchive::NUpdate::NOperationResult::kError)
+    FAIL_MSG(Far::get_msg(MSG_ERROR_UPDATE_ERROR));
     else
 */
     FAIL_MSG(Far::get_msg(MSG_ERROR_UPDATE_UNKNOWN));
@@ -781,7 +781,7 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
       if (options.method != c_method_lzma2) { // LZMA2 is default method
         names.push_back(L"0"); values.push_back(options.method);
       }
-		names.push_back(L"x"); values.push_back(options.level);
+      names.push_back(L"x"); values.push_back(options.level);
       if (options.level != 0) {
         names.push_back(L"s"); values.push_back(options.solid);
       }
@@ -791,7 +791,7 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
         }
       }
     }
-	 else if (options.arc_type == c_zip || options.arc_type == c_gzip || options.arc_type == c_xz) {
+    else if (options.arc_type == c_zip || options.arc_type == c_gzip || options.arc_type == c_xz) {
       names.push_back(L"x"); values.push_back(options.level);
     }
     else if (options.arc_type == c_bzip2) {
@@ -801,7 +801,7 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
     }
 
     list<wstring> adv_params = split(options.method == c_method_copy ? wstring() : options.advanced, L' ');
-	 for_each(adv_params.begin(), adv_params.end(), [&](const wstring& param) {
+    for_each(adv_params.begin(), adv_params.end(), [&](const wstring& param) {
       size_t sep = param.find(L'=');
       if (sep != wstring::npos) {
         wstring name = param.substr(0, sep);
@@ -966,7 +966,7 @@ void Archive::update(const wstring& src_dir, const vector<wstring>& file_names, 
     ComObject<IArchiveUpdateCallback> updater(new ArchiveUpdater(src_dir, dst_dir, num_indices, file_index_map, options, ignore_errors, error_log, progress));
     ComObject<IOutStream> update_stream(new SimpleUpdateStream(temp_arc_name, progress));
 
-	 COM_ERROR_CHECK(copy_prologue(update_stream));
+    COM_ERROR_CHECK(copy_prologue(update_stream));
 
     COM_ERROR_CHECK(out_arc->UpdateItems(update_stream, new_index, updater));
     close();

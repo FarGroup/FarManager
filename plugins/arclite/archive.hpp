@@ -21,7 +21,7 @@ extern const wchar_t* c_method_ppmd;
 
 extern const unsigned __int64 c_min_volume_size;
 
-extern const wchar_t* c_sfx_ext;
+extern const wchar_t* c_sfx_ext; 
 extern const wchar_t* c_volume_ext;
 
 struct ICompressCodecsInfo;
@@ -95,6 +95,7 @@ struct CDllCodecInfo {
   CLSID Decoder;
   wstring Name;
 };
+typedef vector<CDllCodecInfo> ArcCodecs;
 
 class ArcFormats: public map<ArcType, ArcFormat> {
 public:
@@ -121,7 +122,7 @@ class ArcAPI {
 private:
   ArcLibs arc_libs;
   size_t n_format_libs;
-  vector <CDllCodecInfo> codecs;
+  ArcCodecs arc_codecs;
   MyCompressCodecsInfo *compressinfo;
   ArcFormats arc_formats;
   SfxModules sfx_modules;
@@ -138,6 +139,9 @@ public:
   }
   static const ArcFormats& formats() {
     return get()->arc_formats;
+  }
+  static const ArcCodecs& codecs() {
+	  return get()->arc_codecs;
   }
   static const SfxModules& sfx() {
     return get()->sfx_modules;

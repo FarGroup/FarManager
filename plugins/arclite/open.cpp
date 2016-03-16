@@ -26,17 +26,17 @@ public:
   UNKNOWN_IMPL_END
 
   STDMETHODIMP Read(void *data, UInt32 size, UInt32 *processedSize) {
-	 return base_stream->Read(data, size, processedSize);
+    return base_stream->Read(data, size, processedSize);
   }
 
   STDMETHODIMP Seek(Int64 offset, UInt32 seekOrigin, UInt64 *newPosition) {
     if (seekOrigin == STREAM_SEEK_SET)
       offset += start_offset;
     UInt64 newPos = 0;
-	 auto res = base_stream->Seek(offset, seekOrigin, &newPos);
-	 if (res == S_OK && newPosition)
+    auto res = base_stream->Seek(offset, seekOrigin, &newPos);
+    if (res == S_OK && newPosition)
       *newPosition = newPos - start_offset;
-	 return res;
+    return res;
   }
 };
 
@@ -130,7 +130,7 @@ public:
           memcpy(data, cached_header + off, siz);
           size -= (size_read = siz);
           data = static_cast<void *>(static_cast<Byte *>(data)+siz);
-			 set_pos(static_cast<Int64>(siz), FILE_CURRENT);
+          set_pos(static_cast<Int64>(siz), FILE_CURRENT);
         }
       }
       if (size > 0)
@@ -322,34 +322,33 @@ bool Archive::get_stream(UInt32 index, IInStream** stream) {
 
 HRESULT Archive::copy_prologue(IOutStream *out_stream)
 {
-	auto prologue_size = arc_chain.back().sig_pos;
-	if (prologue_size <= 0)
-		return S_OK;
+  auto prologue_size = arc_chain.back().sig_pos;
+  if (prologue_size <= 0)
+    return S_OK;
 
-	if (!base_stream)
-		return E_FAIL;
+  if (!base_stream)
+    return E_FAIL;
 
-	auto res = base_stream->Seek(0, STREAM_SEEK_SET, nullptr);
-	if (res != S_OK)
-		return res;
+  auto res = base_stream->Seek(0, STREAM_SEEK_SET, nullptr);
+  if (res != S_OK)
+    return res;
 
-	while (prologue_size > 0)
-	{
-		char buf[16 * 1024];
-		UInt32 nr = 0, nw = 0, nb = static_cast<UInt32>(sizeof(buf));
-		if (prologue_size < nb) nb = static_cast<UInt32>(prologue_size);
-		res = base_stream->Read(buf, nb, &nr);
-		if (res != S_OK || nr == 0)
-			break;
-		res = out_stream->Write(buf, nr, &nw);
-		if (res != S_OK || nr != nw)
-			break;
-		prologue_size -= nr;
-	}
+  while (prologue_size > 0) {
+    char buf[16 * 1024];
+    UInt32 nr = 0, nw = 0, nb = static_cast<UInt32>(sizeof(buf));
+    if (prologue_size < nb) nb = static_cast<UInt32>(prologue_size);
+      res = base_stream->Read(buf, nb, &nr);
+    if (res != S_OK || nr == 0)
+      break;
+    res = out_stream->Write(buf, nr, &nw);
+    if (res != S_OK || nr != nw)
+      break;
+    prologue_size -= nr;
+  }
 
-	if (res == S_OK && prologue_size > 0)
-		res = E_FAIL;
-	return res;
+  if (res == S_OK && prologue_size > 0)
+    res = E_FAIL;
+  return res;
 }
 
 bool Archive::open(IInStream* stream, const ArcType& type) {
@@ -527,7 +526,7 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
        if (opened)
          archive->base_stream = stream;
     }
-	 if (opened /*&& archive->get_nitems() > 0*/) {
+    if (opened /*&& archive->get_nitems() > 0*/) {
       if (parent_idx != -1)
         archive->arc_chain.assign(archives[parent_idx]->arc_chain.begin(), archives[parent_idx]->arc_chain.end());
       archive->arc_chain.push_back(*arc_entry);

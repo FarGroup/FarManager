@@ -408,7 +408,7 @@ public:
       for (int i = 0; i < items_number; i++) {
         panel_items[i].Flags &= ~PPIF_SELECTED;
       }
-	 }
+    }
     Far::info_dlg(c_test_ok_dialog_guid, Far::get_msg(MSG_PLUGIN_NAME), Far::get_msg(MSG_TEST_OK));
   }
 
@@ -1119,9 +1119,9 @@ intptr_t WINAPI ProcessHostFileW(const ProcessHostFileInfo* info) {
   intptr_t item = Far::menu(c_arccmd_menu_guid, Far::get_msg(MSG_PLUGIN_NAME), menu_items);
   if (item == 0) {
     reinterpret_cast<Plugin*>(info->hPanel)->test_files(info->PanelItem, info->ItemsNumber, info->OpMode);
-	 if (info->OpMode == OPM_NONE)
+    if (info->OpMode == OPM_NONE)
       return FALSE; // to avoid setting modification flag (there is readonly test operation)
-	 else
+    else
       return TRUE;
   }
   else
@@ -1179,11 +1179,11 @@ intptr_t WINAPI ConfigureW(const struct ConfigureInfo* info) {
     g_options.use_disabled_formats = settings.use_disabled_formats;
     g_options.disabled_formats = settings.disabled_formats;
     g_options.pgdn_formats = settings.pgdn_formats;
-	 g_options.saveCP = settings.saveCP;
-	 g_options.oemCP = settings.oemCP;
+    g_options.saveCP = settings.saveCP;
+    g_options.oemCP = settings.oemCP;
     g_options.ansiCP = settings.ansiCP;
     g_options.save();
-	 Patch7zCP::SetCP(settings.oemCP, settings.ansiCP);
+    Patch7zCP::SetCP(settings.oemCP, settings.ansiCP);
     return TRUE;
   }
   else

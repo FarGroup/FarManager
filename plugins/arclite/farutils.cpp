@@ -662,9 +662,9 @@ Regex::Regex(): h_regex(INVALID_HANDLE_VALUE) {
 Regex::~Regex() {
   if (h_regex != INVALID_HANDLE_VALUE)
     //CHECK(
-	 g_far.RegExpControl(h_regex, RECTL_FREE, 0, nullptr)
-	 //)
-	 ;
+    g_far.RegExpControl(h_regex, RECTL_FREE, 0, nullptr)
+    //)
+    ;
 }
 
 size_t Regex::search(const wstring& expr, const wstring& text) {

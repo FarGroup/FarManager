@@ -6,8 +6,8 @@ HINSTANCE g_h_instance = nullptr;
 
 CriticalSection& GetSync()
 {
-	static CriticalSection sync;
-	return sync;
+  static CriticalSection sync;
+  return sync;
 }
 
 wstring get_system_message(HRESULT hr, DWORD lang_id) {

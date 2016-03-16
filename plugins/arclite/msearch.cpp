@@ -84,7 +84,7 @@ vector<StrPos> msearch(unsigned char* data, size_t size, const vector<SigData>& 
           if (is_arc == k_IsArc_Res_YES || (is_arc == k_IsArc_Res_NEED_MORE && !eof)) {
             found[str_index] = true;
             result.emplace_back(StrPos(str_index, i));
-			 }
+          }
         }
       }
       if (st_elem.next_state) {
