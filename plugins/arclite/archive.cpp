@@ -216,7 +216,7 @@ public:
 ArcAPI* ArcAPI::arc_api = nullptr;
 
 ArcAPI::~ArcAPI() {
-  delete compressinfo;
+  //delete compressinfo;
   for_each(arc_libs.begin(), arc_libs.end(), [&] (const ArcLib& arc_lib) {
     if (arc_lib.h_module)
       FreeLibrary(arc_lib.h_module);
