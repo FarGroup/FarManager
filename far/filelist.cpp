@@ -116,8 +116,9 @@ enum SELECT_MODES
 namespace custom_sort
 {
 
-static void FileListToSortingPanelItem(const FileListItem& fi, SortingPanelItem& pi)
+static void FileListToSortingPanelItem(const FileListItem *arr, int index, SortingPanelItem& pi)
 {
+	const FileListItem& fi = arr[index];
 	pi.FileName = fi.strName.data();               //! CHANGED
 	pi.AlternateFileName = fi.strShortName.data(); //! CHANGED
 	pi.FileSize=fi.FileSize;
@@ -150,9 +151,9 @@ static void FileListToSortingPanelItem(const FileListItem& fi, SortingPanelItem&
 
 struct CustomSort
 {
+	unsigned int        *Positions;
 	const FileListItem  *Items;
 	size_t               ItemsCount;
-	size_t               ItemSize;
 	decltype(FileListToSortingPanelItem)* FileListToPluginItem;
 	int                  ListSortGroups;
 	int                  ListSelectedFirst;
@@ -698,10 +699,19 @@ void FileList::SortFileList(int KeepPosition)
 		}
 		else
 		{
+			struct CustomLess
+			{
+				bool operator()(const FileListItem& a, const FileListItem& b) const
+				{
+					return a.CustomSortPosition < b.CustomSortPosition;
+				}
+			};
+
 			custom_sort::CustomSort cs;
+			cs.Positions = new unsigned int[m_ListData.size()];
+			for (size_t i=0; i < m_ListData.size(); i++) { cs.Positions[i] = i; }
 			cs.Items = m_ListData.data();
 			cs.ItemsCount = m_ListData.size();
-			cs.ItemSize = sizeof(FileListItem);
 			cs.FileListToPluginItem = custom_sort::FileListToSortingPanelItem;
 			cs.ListSortGroups = ListSortGroups;
 			cs.ListSelectedFirst = ListSelectedFirst;
@@ -712,7 +722,17 @@ void FileList::SortFileList(int KeepPosition)
 			cs.ListCaseSensitiveSort = ListCaseSensitiveSort;
 			cs.hSortPlugin = hSortPlugin;
 
-			if (!custom_sort::SortFileList(&cs, CustomSortIndicator))
+			bool result = custom_sort::SortFileList(&cs, CustomSortIndicator);
+			if (result)
+			{
+				for (size_t i=0; i<m_ListData.size(); i++)
+					m_ListData[cs.Positions[i]].CustomSortPosition = i;
+
+				std::sort(ALL_RANGE(m_ListData), CustomLess());
+			}
+			delete[] cs.Positions;
+
+			if (!result)
 			{
 				SetSortMode(panel_sort::BY_NAME); // recursive call
 				return;

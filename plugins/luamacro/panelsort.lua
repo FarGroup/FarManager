@@ -21,47 +21,39 @@ local incs = { 1391376,
                13776, 4592, 1968, 861, 336,
                112, 48, 21, 7, 3, 1 }
 
-local function shellsort(t, n, sz, before)
-  t = ffi.cast("char*", t)
-  local v = ffi.new("char[?]", sz)
+local function shellsort(t, n, before)
   for _, h in ipairs(incs) do
     for i = h, n - 1 do
-      ffi.copy(v, t+i*sz, sz)
+      local v = t[i]
       for j = i - h, 0, -h do
-        local testval = t+j*sz
+        local testval = t[j]
         if not before(v, testval) then break end
-        ffi.copy(t+i*sz, testval, sz); i = j
+        t[i] = testval
+        i = j
       end
-      ffi.copy(t+i*sz, v, sz)
+      t[i] = v
     end
   end
   return t
 end
 
 -- qsort [ extracted from Lua 5.1 distribution (file /test/sort.lua) ]
-local function qsort(x,l,u,sz,f)
-  x = ffi.cast("char*",x)
-  local v = ffi.new("char[?]",sz)
-
-  local function swap(i1,i2)
-    i1, i2 = x+i1*sz, x+i2*sz
-    ffi.copy(v,i1,sz); ffi.copy(i1,i2,sz); ffi.copy(i2,v,sz)
-  end
+local function qsort(x,l,u,f)
 
   local function recurse(l,u)
     if l<u then
       local m=math.random(u-(l-1))+l-1 -- choose a random pivot in range l..u
-      swap(l,m) -- swap pivot to first position
-      local t=x+l*sz        -- pivot value
-      m=l
+      x[l],x[m] = x[m],x[l] -- swap pivot to first position
+      local t = x[l]        -- pivot value
+      m = l
       for i=l+1, u do
         -- invariant: x[l+1..m] < t <= x[m+1..i-1]
-        if f(x+i*sz, t) then
+        if f(x[i], t) then
           m = m+1
-          swap(m,i)  -- swap x[i] and x[m]
+          x[m],x[i] = x[i],x[m]  -- swap x[i] and x[m]
         end
       end
-      swap(l,m)      -- swap pivot to a valid place
+      x[l],x[m] = x[m],x[l]      -- swap pivot to a valid place
       -- x[l+1..m-1] < x[m] <= x[m+1..u]
       recurse(l, m-1)
       recurse(m+1, u)
@@ -174,10 +166,10 @@ end
 ffi.cdef[[
   typedef struct
   {
+    unsigned int               *Positions;
     void                       *Items;
     size_t                      ItemsCount;
-    size_t                      ItemSize;
-    void                      (*FileListToPluginItem)(const void*, struct SortingPanelItem*);
+    void                      (*FileListToPluginItem)(const void*, int, struct SortingPanelItem*);
     int                         SortGroups;
     int                         SelectedFirst;
     int                         DirectoriesFirst;
@@ -252,9 +244,9 @@ local function SortPanelItems (params)
     CaseSensitiveSort = params.CaseSensitiveSort ~= 0;
   }
 
-  local function Before(e1, e2)
-    params.FileListToPluginItem(e1, pi1)
-    params.FileListToPluginItem(e2, pi2)
+  local function Before(n1, n2)
+    params.FileListToPluginItem(params.Items, n1, pi1)
+    params.FileListToPluginItem(params.Items, n2, pi2)
     ----------------------------------------------------------------------------
     -- TODO: fix in Far
     if IsTwoDots(pi1.FileName) then
@@ -301,9 +293,9 @@ local function SortPanelItems (params)
   if tSettings.InitSort then tSettings.InitSort(outParams) end
 
   if tSettings.SortFunction == "qsort" then
-    qsort(params.Items, 0, tonumber(params.ItemsCount)-1, params.ItemSize, Before)
+    qsort(params.Positions, 0, tonumber(params.ItemsCount)-1, Before)
   else -- default
-    shellsort(params.Items, tonumber(params.ItemsCount), params.ItemSize, Before)
+    shellsort(params.Positions, tonumber(params.ItemsCount), Before)
   end
 
   if tSettings.EndSort then tSettings.EndSort() end
