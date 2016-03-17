@@ -1282,20 +1282,16 @@ public:
     label(Far::get_msg(MSG_UPDATE_DLG_METHOD));
     wstring method = options.method.empty() && options.arc_type == c_7z ? c_methods[0].value : options.method;
     vector<wstring> method_names;
-    unsigned method_sel = 0;
-    for (unsigned i = 0; i < ARRAYSIZE(c_methods); ++i) {
-      wstring method_name = Far::get_msg(c_methods[i].name_id);
-      method_names.push_back(method_name);
-      if (method == c_methods[i].value)
-        method_sel = i;
-    }
     const auto& codecs = ArcAPI::codecs();
-    for (size_t j = 0; j < codecs.size(); ++j) {
-       method_names.push_back(codecs[j].Name);
-       if (method == codecs[j].Name)
-         method_sel = static_cast<unsigned>(j + ARRAYSIZE(c_methods));
+    unsigned method_sel = 0;
+    for (unsigned i = 0; i < ARRAYSIZE(c_methods)+codecs.size(); ++i) {
+      wstring method_name = i < ARRAYSIZE(c_methods) ? c_methods[i].value : codecs[i - ARRAYSIZE(c_methods)].Name;
+      if (method == method_name)
+        method_sel = i;
+      if (i < ARRAYSIZE(c_methods))
+        method_name = Far::get_msg(c_methods[i].name_id);
+      method_names.push_back(method_name);
     }
-
     method_ctrl_id = combo_box(method_names, method_sel, AUTO_SIZE, DIF_DROPDOWNLIST);
     spacer(2);
 

@@ -213,7 +213,10 @@ UpdateCommand parse_update_command(const CommandArgs& ca) {
     else if (param.name == L"m") {
       command.method_defined = true;
       command.options.method = param.value;
-      CHECK_FMT(find(c_methods, c_methods + ARRAYSIZE(c_methods), command.options.method) != c_methods + ARRAYSIZE(c_methods));
+      auto method = lc(command.options.method);
+      const auto& codecs = ArcAPI::codecs();
+      bool is_external = std::any_of(codecs.cbegin(), codecs.cend(), [method](const CDllCodecInfo& c) { return method == lc(c.Name); });
+      CHECK_FMT(is_external || find(c_methods, c_methods + ARRAYSIZE(c_methods), method) != c_methods + ARRAYSIZE(c_methods));
     }
     else if (param.name == L"s") {
       command.solid_defined = true;
