@@ -75,12 +75,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #undef _W32API_OLD
 
 #ifdef _MSC_VER
-# if _MSC_VER < 1600
-#  error Visual C++ 2010 (or higher) required
+# if _MSC_VER < 1900
+#  error Visual C++ 2015 (or higher) required
 # endif
 # include <sdkddkver.h>
-# if _WIN32_WINNT < 0x0601
-#  error Windows SDK v7.0 (or higher) required
+# if _WIN32_WINNT < 0x0603
+#  error Windows SDK v8.1 (or higher) required
 # endif
 #endif //_MSC_VER
 
@@ -88,8 +88,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # define GCC_VER_(gcc_major,gcc_minor,gcc_patch) (100*(gcc_major) + 10*(gcc_minor) + (gcc_patch))
 # define _GCC_VER GCC_VER_(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
 
-# if _GCC_VER < GCC_VER_(4,9,0)
-#  error gcc 4.9.0 (or higher) required
+# if _GCC_VER < GCC_VER_(5,0,0)
+#  error gcc 5.0.0 (or higher) required
 # endif
 
 # include <w32api.h>
@@ -103,8 +103,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # undef WINVER
 # undef _WIN32_WINNT
 # undef _WIN32_IE
-# define WINVER       0x0601
-# define _WIN32_WINNT 0x0601
+# define WINVER       0x0603
+# define _WIN32_WINNT 0x0603
 # define _WIN32_IE    0x0700
 #endif // __GNUC__
 
