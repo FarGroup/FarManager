@@ -70,7 +70,6 @@ namespace detail
 		wchar_t **CustomColumnData;
 		size_t CustomColumnNumber;
 		size_t Position;
-		size_t CustomSortPosition;
 
 		int SortGroup;
 		DWORD CRC32;

@@ -699,17 +699,10 @@ void FileList::SortFileList(int KeepPosition)
 		}
 		else
 		{
-			struct CustomLess
-			{
-				bool operator()(const FileListItem& a, const FileListItem& b) const
-				{
-					return a.CustomSortPosition < b.CustomSortPosition;
-				}
-			};
-
 			custom_sort::CustomSort cs;
-			cs.Positions = new unsigned int[m_ListData.size()];
-			for (size_t i=0; i < m_ListData.size(); i++) { cs.Positions[i] = i; }
+			std::vector<unsigned int> Positions(m_ListData.size());
+			std::iota(ALL_RANGE(Positions), 0);
+			cs.Positions = Positions.data();
 			cs.Items = m_ListData.data();
 			cs.ItemsCount = m_ListData.size();
 			cs.FileListToPluginItem = custom_sort::FileListToSortingPanelItem;
@@ -722,17 +715,11 @@ void FileList::SortFileList(int KeepPosition)
 			cs.ListCaseSensitiveSort = ListCaseSensitiveSort;
 			cs.hSortPlugin = hSortPlugin;
 
-			bool result = custom_sort::SortFileList(&cs, CustomSortIndicator);
-			if (result)
+			if (custom_sort::SortFileList(&cs, CustomSortIndicator))
 			{
-				for (size_t i=0; i<m_ListData.size(); i++)
-					m_ListData[cs.Positions[i]].CustomSortPosition = i;
-
-				std::sort(ALL_RANGE(m_ListData), CustomLess());
+				reorder(m_ListData, Positions);
 			}
-			delete[] cs.Positions;
-
-			if (!result)
+			else
 			{
 				SetSortMode(panel_sort::BY_NAME); // recursive call
 				return;

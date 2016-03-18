@@ -95,4 +95,35 @@ void for_submatrix(T& Matrix, size_t X1, size_t Y1, size_t X2, size_t Y2, P Pred
 		}
 	}
 }
+
+template <class T, class Y>
+void reorder(T& Values, Y& Indices)
+{
+	assert(Values.size() == Indices.size());
+
+	if (true)
+	{
+		// in place version: less memory, more swaps (and faster according to my measurements)
+		for (size_t i = 0, size = Values.size(); i != size; ++i)
+		{
+			while (i != Indices[i])
+			{
+				const auto j = Indices[i];
+				const auto k = Indices[j];
+				using std::swap;
+				swap(Values[j], Values[k]);
+				swap(Indices[i], Indices[j]);
+			}
+		}
+	}
+	else
+	{
+		// copy version: less swaps, more memory (and quite straightforward)
+		T TmpValues;
+		TmpValues.reserve(Values.size());
+		std::transform(ALL_CONST_RANGE(Indices), std::back_inserter(TmpValues), [&Values](const auto Index) { return std::move(Values[Index]); });
+		Values.swap(TmpValues);
+	}
+}
+
 #endif // ALGORITHM_HPP_BBD588C0_4752_46B2_AAB9_65450622FFF0
