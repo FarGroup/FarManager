@@ -200,7 +200,7 @@ static DWORD DriveMaskFromVolumeName(const string& VolumeName)
 	DWORD Result = 0;
 	string strCurrentVolumeName;
 	const auto Strings = os::GetLogicalDriveStrings();
-	const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Strings), [&](CONST_REFERENCE(Strings) item)
+	const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Strings), [&](const auto& item)
 	{
 		return os::GetVolumeNameForVolumeMountPoint(item, strCurrentVolumeName) && strCurrentVolumeName.compare(0, VolumeName.size(), VolumeName) == 0;
 	});
@@ -248,7 +248,7 @@ static DWORD GetRelationDrivesMask(DEVINST hDevInst)
 			if (CM_Get_Device_ID_List(szDeviceID, DeviceIdList.get(), dwSize, CM_GETIDLIST_FILTER_REMOVALRELATIONS) == CR_SUCCESS)
 			{
 				const auto DeviceIdListPtr = DeviceIdList.get();
-				FOR(const auto& i, enum_substrings(DeviceIdListPtr))
+				for (const auto& i: enum_substrings(DeviceIdListPtr))
 				{
 					DEVINST hRelationDevInst;
 					if (CM_Locate_DevNode(&hRelationDevInst, i.data(), 0) == CR_SUCCESS)
@@ -344,7 +344,6 @@ static void GetChildHotplugDevicesInfo(DEVINST hDevInst, std::vector<DeviceInfo>
 		if (IsDeviceHotplug(hDevInst))
 		{
 			DeviceInfo Item = {hDevInst, GetDisksForDevice(hDevInst)};
-			// TODO: direct emplace_back after decommissioning VC10
 			Info.emplace_back(Item);
 		}
 

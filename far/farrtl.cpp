@@ -167,6 +167,9 @@ thread_local bool inside_far_bad_alloc = false;
 class far_bad_alloc: public std::bad_alloc, public swapable<far_bad_alloc>
 {
 public:
+	TRIVIALLY_COPYABLE(far_bad_alloc);
+	TRIVIALLY_MOVABLE(far_bad_alloc);
+
 	far_bad_alloc(const char* File, int Line, const char* Function, ALLOCATION_TYPE Type, size_t Size) noexcept
 	{
 		if (!inside_far_bad_alloc)
@@ -182,17 +185,6 @@ public:
 			inside_far_bad_alloc = false;
 		}
 	}
-
-	far_bad_alloc(const far_bad_alloc& rhs):
-		std::bad_alloc(rhs),
-		m_What(rhs.m_What)
-	{
-	}
-
-	COPY_OPERATOR_BY_SWAP(far_bad_alloc);
-
-	far_bad_alloc(far_bad_alloc&& rhs) noexcept { *this = std::move(rhs); }
-	MOVE_OPERATOR_BY_SWAP(far_bad_alloc);
 
 	virtual const char* what() const noexcept override { return m_What.empty() ? std::bad_alloc::what() : m_What.data(); }
 

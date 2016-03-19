@@ -264,7 +264,7 @@ public:
 	virtual void Import(const representation_source& Representation) override
 	{
 		SCOPED_ACTION(auto)(ScopedTransaction());
-		FOR(const auto& e, xml_enum(Representation.GetRoot().FirstChildElement(GetKeyName()), "setting"))
+		for(const auto& e: xml_enum(Representation.GetRoot().FirstChildElement(GetKeyName()), "setting"))
 		{
 			const auto key = e->Attribute("key");
 			const auto name = e->Attribute("name");
@@ -574,7 +574,7 @@ public:
 	virtual void Import(const representation_source& Representation) override
 	{
 		SCOPED_ACTION(auto)(ScopedTransaction());
-		FOR(const auto& e, xml_enum(Representation.GetRoot().FirstChildElement("hierarchicalconfig"), "key"))
+		for (const auto& e: xml_enum(Representation.GetRoot().FirstChildElement("hierarchicalconfig"), "key"))
 		{
 			Import(root_key(), *e);
 		}
@@ -645,7 +645,7 @@ private:
 		if (!Key.get())
 			return;
 
-		FOR(const auto& e, xml_enum(key, "value"))
+		for (const auto& e: xml_enum(key, "value"))
 		{
 			const auto name = e->Attribute("name");
 			const auto type = e->Attribute("type");
@@ -678,7 +678,7 @@ private:
 			}
 		}
 
-		FOR(const auto& e, xml_enum(key, "key"))
+		for (const auto& e: xml_enum(key, "key"))
 		{
 			Import(Key, *e);
 		}
@@ -724,7 +724,7 @@ private:
 	Event AsyncDone;
 };
 
-static const simple_pair<FARCOLORFLAGS, const wchar_t*> ColorFlagNames[] =
+static const std::pair<FARCOLORFLAGS, const wchar_t*> ColorFlagNames[] =
 {
 	{FCF_FG_4BIT,      L"fg4bit"   },
 	{FCF_BG_4BIT,      L"bg4bit"   },
@@ -869,7 +869,7 @@ public:
 	virtual void Import(const representation_source& Representation) override
 	{
 		SCOPED_ACTION(auto)(ScopedTransaction());
-		FOR(const auto& e, xml_enum(Representation.GetRoot().FirstChildElement("colors"), "object"))
+		for (const auto& e: xml_enum(Representation.GetRoot().FirstChildElement("colors"), "object"))
 		{
 			const auto name = e->Attribute("name");
 			const auto background = e->Attribute("background");
@@ -1094,7 +1094,7 @@ public:
 		SCOPED_ACTION(auto)(ScopedTransaction());
 		Exec("DELETE FROM filetypes;"); //delete all before importing
 		unsigned __int64 id = 0;
-		FOR(const auto& e, xml_enum(base, "filetype"))
+		for (const auto& e: xml_enum(base, "filetype"))
 		{
 			const auto mask = e->Attribute("mask");
 			const auto description = e->Attribute("description");
@@ -1109,7 +1109,7 @@ public:
 			if (!id)
 				continue;
 
-			FOR(const auto& se, xml_enum(*e, "command"))
+			for (const auto& se: xml_enum(*e, "command"))
 			{
 				const auto command = se->Attribute("command");
 				if (!command)
@@ -1638,7 +1638,7 @@ public:
 	virtual void Import(const representation_source& Representation) override
 	{
 		SCOPED_ACTION(auto)(ScopedTransaction());
-		FOR(const auto& e, xml_enum(Representation.GetRoot().FirstChildElement("pluginhotkeys"), "plugin"))
+		for (const auto& e: xml_enum(Representation.GetRoot().FirstChildElement("pluginhotkeys"), "plugin"))
 		{
 			const auto key = e->Attribute("key");
 
@@ -1647,7 +1647,7 @@ public:
 
 			string Key = wide(key, CP_UTF8);
 
-			FOR(const auto& se, xml_enum(*e, "hotkey"))
+			for (const auto& se: xml_enum(*e, "hotkey"))
 			{
 				const auto stype = se->Attribute("menu");
 				const auto guid = se->Attribute("guid");
@@ -2306,7 +2306,7 @@ void config_provider::TryImportDatabase(representable *p, const char *son, bool 
 		}
 		else
 		{
-			FOR(const auto& i, xml_enum(root.FirstChildElement("pluginsconfig"), "plugin"))
+			for (const auto& i: xml_enum(root.FirstChildElement("pluginsconfig"), "plugin"))
 			{
 				const auto guid = i->Attribute("guid");
 				if (guid && 0 == strcmp(guid, son))
@@ -2349,12 +2349,12 @@ HierarchicalConfigUniquePtr config_provider::CreateHierarchicalConfig(dbcheck Db
 	return HierarchicalConfigUniquePtr(cfg.release());
 }
 
-ENUM(dbcheck)
+enum dbcheck: int
 {
-	CHECK_NONE = 0,
-	CHECK_FILTERS = BIT(0),
-	CHECK_HIGHLIGHT = BIT(1),
-	CHECK_SHORTCUTS = BIT(2),
+	CHECK_NONE       = 0,
+	CHECK_FILTERS    = BIT(0),
+	CHECK_HIGHLIGHT  = BIT(1),
+	CHECK_SHORTCUTS  = BIT(2),
 	CHECK_PANELMODES = BIT(3),
 };
 
@@ -2400,7 +2400,7 @@ config_provider::config_provider(mode Mode):
 config_provider::~config_provider()
 {
 	MultiWaiter ThreadWaiter;
-	FOR(const auto& i, m_Threads) { ThreadWaiter.Add(i); }
+	for (const auto& i: m_Threads) { ThreadWaiter.Add(i); }
 	ThreadWaiter.Wait();
 	SQLiteDb::library_free();
 }
@@ -2472,7 +2472,7 @@ bool config_provider::Import(const string& Filename)
 	CreateShortcutsConfig()->Import(Representation);
 
 	//TODO: import for local plugin settings
-	FOR(const auto& plugin, xml_enum(root.FirstChildElement("pluginsconfig"), "plugin"))
+	for (const auto& plugin: xml_enum(root.FirstChildElement("pluginsconfig"), "plugin"))
 	{
 		const auto guid = plugin->Attribute("guid");
 		if (!guid)

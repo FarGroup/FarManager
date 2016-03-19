@@ -310,15 +310,6 @@ TVar::TVar(const wchar_t* v):
 {
 }
 
-
-TVar::TVar(const TVar& v) :
-	inum(v.inum),
-	dnum(v.dnum),
-	str(v.str),
-	vType(v.vType)
-{
-}
-
 const string& TVar::toString()
 {
 	switch (vType)

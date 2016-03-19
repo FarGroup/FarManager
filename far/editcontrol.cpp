@@ -151,7 +151,9 @@ static void AddSeparatorOrSetTitle(VMenu2& Menu, LNGID TitleId)
 	}
 }
 
-static bool EnumWithQuoutes(VMenu2& Menu, const string& Str, const std::function<void(VMenu2&, const string&, const std::function<void(const string&)>&)>& Enumerator)
+using enumerator_type = void(VMenu2&, const string&, const std::function<void(const string&)>&);
+
+static bool EnumWithQuoutes(VMenu2& Menu, const string& Str, enumerator_type Enumerator)
 {
 	bool Result = false;
 	if(!Str.empty())
@@ -246,7 +248,7 @@ static bool EnumFiles(VMenu2& Menu, const string& Str)
 
 	return EnumWithQuoutes(Menu, Str, [](VMenu2& Menu, const string& Token, const std::function<void(const string&)>& Inserter)
 	{
-		FOR(const auto& i, os::fs::enum_file(os::env::expand_strings(Token) + L"*"))
+		for (const auto& i: os::fs::enum_file(os::env::expand_strings(Token) + L"*"))
 		{
 			const auto FileName = PointToName(Token);
 			const auto NameMatch = !StrCmpNI(FileName, i.strFileName.data(), StrLength(FileName));
@@ -274,7 +276,7 @@ static bool EnumModules(VMenu2& Menu, const string& Module)
 			std::vector<string> ExcludeCmds;
 			split(ExcludeCmds, Global->Opt->Exec.strExcludeCmds);
 
-			FOR(const auto& i, ExcludeCmds)
+			for (const auto& i: ExcludeCmds)
 			{
 				if (!StrCmpNI(Token.data(), i.data(), Token.size()))
 				{
@@ -293,14 +295,14 @@ static bool EnumModules(VMenu2& Menu, const string& Module)
 				std::vector<string> PathExtList;
 				split(PathExtList, os::env::get_pathext());
 
-				FOR(const auto& Path, PathList)
+				for (const auto& Path: PathList)
 				{
 					string str = Path;
 					AddEndSlash(str);
 					str.append(Token).append(L"*");
-					FOR(const auto& FindData, os::fs::enum_file(str))
+					for (const auto& FindData: os::fs::enum_file(str))
 					{
-						FOR(const auto& Ext, PathExtList)
+						for (const auto& Ext: PathExtList)
 						{
 							if (!StrCmpI(Ext.data(), PointToExt(FindData.strFileName)))
 							{
@@ -333,7 +335,7 @@ static bool EnumModules(VMenu2& Menu, const string& Module)
 
 			if (const auto Key = os::reg::open_key(RootFindKey[i], RegPath, samDesired))
 			{
-				FOR(const auto& SubkeyName, os::reg::enum_key(Key))
+				for (const auto& SubkeyName: os::reg::enum_key(Key))
 				{
 					if (const auto SubKey = os::reg::open_key(Key.get(), SubkeyName.data(), samDesired))
 					{
@@ -379,7 +381,7 @@ static bool EnumEnvironment(VMenu2& Menu, const string& Str)
 		{
 			const os::env::provider::strings EnvStrings;
 			const auto EnvStringsPtr = EnvStrings.data();
-			FOR(const auto& i, enum_substrings(EnvStringsPtr))
+			for (const auto& i: enum_substrings(EnvStringsPtr))
 			{
 				const auto VarName = L"%" + os::env::split(i.data()).first + L"%";
 

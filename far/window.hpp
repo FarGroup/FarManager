@@ -91,8 +91,7 @@ public:
 	void SetMacroMode(FARMACROAREA Area);
 	int ID(void) const {return m_ID;}
 
-	typedef raii_wrapper<window_ptr, void(window::*)(), void(window::*)()> pinner;
-	pinner GetPinner() { return pinner(shared_from_this(), &window::Pin, &window::UnPin); }
+	auto GetPinner() { return make_raii_wrapper(this, &window::Pin, &window::UnPin); }
 
 protected:
 	window();

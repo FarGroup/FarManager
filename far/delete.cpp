@@ -71,14 +71,14 @@ enum DEL_MODE
 	DEL_WIPEPROCESS
 };
 
-ENUM(DIRDELTYPE)
+enum DIRDELTYPE: int
 {
 	D_DEL,
 	D_RECYCLE,
 	D_WIPE,
 };
 
-ENUM(DEL_RESULT)
+enum DEL_RESULT: int
 {
 	DELETE_SUCCESS,
 	DELETE_YES,
@@ -472,7 +472,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 
 		intptr_t start_hilite = 0, end_hilite = 0;
 
-		DialogBuilder Builder(mTitle, nullptr, [&](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) -> intptr_t
+		DialogBuilder Builder(mTitle, nullptr, [&](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 		{
 			if (bHilite && Msg == DN_CTLCOLORDLGITEM && Param1 >= start_hilite && Param1 <= end_hilite)
 			{

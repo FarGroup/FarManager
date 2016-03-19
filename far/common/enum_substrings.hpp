@@ -32,21 +32,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "enumerator.hpp"
 #include "iterator_range.hpp"
 
-// TODO: remove this after decommissioning VC10
-#pragma push_macro("decltype")
-#undef decltype
-
 namespace detail
 {
 	template<class container>
-	auto Begin(const container& Container) -> decltype(std::begin(Container)) { return std::begin(Container); }
+	auto Begin(const container& Container) { return std::begin(Container); }
 	template<class char_type>
-	const char_type* Begin(const char_type* Container) { return Container; }
+	const auto Begin(const char_type* Container) { return Container; }
 	template<class char_type>
-	char_type* Begin(char_type* Container) { return Container; }
+	auto Begin(char_type* Container) { return Container; }
 
 	template<class container>
-	bool IsEnd(const container& Container, decltype(std::begin(Container)) Iterator) { return Iterator == Container.cend(); }
+	bool IsEnd(const container& Container, decltype(std::cbegin(Container)) Iterator) { return Iterator == Container.cend(); }
 	template<class char_type>
 	bool IsEnd(const char_type* Container, const char_type* Iterator) { return Iterator != Container && !*Iterator && !*(Iterator - 1); }
 }
@@ -55,14 +51,13 @@ namespace detail
 // Stops on double \0 or if end of container is reached.
 
 template<class provider>
-class enum_substrings_t:
-	noncopyable,
-	swapable<enum_substrings_t<provider>>,
-	public enumerator<enum_substrings_t<provider>, range<decltype(&*detail::Begin(*(typename std::decay<provider>::type*)nullptr))>>
+class enum_substrings_t: public enumerator<enum_substrings_t<provider>, range<decltype(&*detail::Begin(*(std::decay_t<provider>*)nullptr))>>
 {
 public:
+	NONCOPYABLE(enum_substrings_t);
+	TRIVIALLY_MOVABLE(enum_substrings_t);
+
 	enum_substrings_t(const provider& Provider): m_Provider(&Provider), m_Offset() {}
-	enum_substrings_t(enum_substrings_t&& rhs) noexcept: m_Provider(), m_Offset() { *this = std::move(rhs); }
 
 	bool get(size_t Index, typename enum_substrings_t<provider>::value_type& Value)
 	{
@@ -81,28 +76,16 @@ public:
 		return false;
 	}
 
-	MOVE_OPERATOR_BY_SWAP(enum_substrings_t);
-
-	void swap(enum_substrings_t& rhs) noexcept
-	{
-		using std::swap;
-		swap(m_Provider, rhs.m_Provider);
-		swap(m_Offset, rhs.m_Offset);
-	}
-
 private:
 	const provider* m_Provider;
 	size_t m_Offset;
 };
 
 template<class T>
-enum_substrings_t<typename std::remove_reference<T>::type> enum_substrings(T&& Provider)
+enum_substrings_t<std::remove_reference_t<T>> enum_substrings(T&& Provider)
 {
 	static_assert(std::is_lvalue_reference<T>::value, "Argument must be lvalue");
-	return enum_substrings_t<typename std::remove_reference<T>::type>(Provider);
+	return enum_substrings_t<std::remove_reference_t<T>>(Provider);
 }
-
-// TODO: remove this after decommissioning VC10
-#pragma pop_macro("decltype")
 
 #endif // ENUM_SUBSTRINGS_HPP_AD490DED_6C5F_4C74_82ED_F858919C4277

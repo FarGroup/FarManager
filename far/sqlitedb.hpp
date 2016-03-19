@@ -63,20 +63,13 @@ public:
 	static void library_free();
 
 protected:
-	class SQLiteStmt: noncopyable, swapable<SQLiteStmt>
+	class SQLiteStmt
 	{
 	public:
+		NONCOPYABLE(SQLiteStmt);
+		TRIVIALLY_MOVABLE(SQLiteStmt);
+
 		SQLiteStmt(sqlite::sqlite3_stmt* Stmt): m_Stmt(Stmt), m_Param(1) {}
-		SQLiteStmt(SQLiteStmt&& rhs) noexcept { *this = std::move(rhs); };
-
-		MOVE_OPERATOR_BY_SWAP(SQLiteStmt);
-
-		void swap(SQLiteStmt& rhs) noexcept
-		{
-			using std::swap;
-			swap(m_Param, rhs.m_Param);
-			swap(m_Stmt, rhs.m_Stmt);
-		}
 
 		template<class T>
 		struct transient_t
@@ -92,26 +85,11 @@ protected:
 		template<typename T>
 		SQLiteStmt& Bind(T&& Arg) { return BindImpl(std::forward<T>(Arg)); }
 
-#ifdef NO_VARIADIC_TEMPLATES
-		#define BIND_VTE(TYPENAME_LIST, ARG_LIST, REF_ARG_LIST, FWD_ARG_LIST) \
-		template<VTE_TYPENAME(first), TYPENAME_LIST> \
-		SQLiteStmt& Bind(VTE_REF_ARG(first), REF_ARG_LIST) \
-		{ \
-			return Bind(VTE_FWD_ARG(first)), Bind(FWD_ARG_LIST); \
-		}
-
-		#include "common/variadic_emulation_helpers_begin.hpp"
-		VTE_GENERATE(BIND_VTE)
-		#include "common/variadic_emulation_helpers_end.hpp"
-
-		#undef BIND_VTE
-#else
 		template<typename T, class... Args>
 		SQLiteStmt& Bind(T&& arg, Args&&... args)
 		{
 			return Bind(std::forward<T>(arg)), Bind(std::forward<Args>(args)...);
 		}
-#endif
 
 		const wchar_t *GetColText(int Col) const;
 		const char *GetColTextUTF8(int Col) const;
@@ -137,7 +115,7 @@ protected:
 		int m_Param;
 	};
 
-	typedef simple_pair<size_t, const wchar_t*> stmt_init_t;
+	typedef std::pair<size_t, const wchar_t*> stmt_init_t;
 
 	template<class T>
 	static SQLiteStmt::transient_t<T> transient(const T& Value) { return SQLiteStmt::transient_t<T>(Value); }

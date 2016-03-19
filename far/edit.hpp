@@ -100,7 +100,7 @@ enum SetCPFlags
 
 class Editor;
 
-class Edit: public SimpleScreenObject, swapable<Edit>
+class Edit: public SimpleScreenObject
 {
 	enum EDITCOLORLISTFLAGS
 	{
@@ -113,27 +113,13 @@ class Edit: public SimpleScreenObject, swapable<Edit>
 		int CurTabPos;
 	};
 public:
+	NONCOPYABLE(Edit);
+	TRIVIALLY_MOVABLE(Edit);
+
 	typedef std::function<bool(const ColorItem&)> delete_color_condition;
 
 	Edit(window_ptr Owner);
-	Edit(Edit&& rhs) noexcept;
-	virtual ~Edit() {}
-
-	MOVE_OPERATOR_BY_SWAP(Edit);
-
-	void swap(Edit& rhs) noexcept
-	{
-		using std::swap;
-		SimpleScreenObject::swap(rhs);
-		m_Str.swap(rhs.m_Str);
-		swap(m_CurPos, rhs.m_CurPos);
-		ColorList.swap(rhs.ColorList);
-		swap(m_SelStart, rhs.m_SelStart);
-		swap(m_SelEnd, rhs.m_SelEnd);
-		swap(LeftPos, rhs.LeftPos);
-		swap(ColorListFlags, rhs.ColorListFlags);
-		swap(EndType, rhs.EndType);
-	}
+	virtual ~Edit() = default;
 
 	void FastShow(const ShowInfo* Info=nullptr);
 	virtual int ProcessKey(const Manager::Key& Key) override;
@@ -211,8 +197,7 @@ public:
 protected:
 	virtual void RefreshStrByMask(int InitMode=FALSE) {}
 
-	typedef raii_wrapper<Edit*, void (Edit::*)(), void (Edit::*)()> callback_suppressor;
-	callback_suppressor CallbackSuppressor() { return callback_suppressor(this, &Edit::SuppressCallback, &Edit::RevertCallback); }
+	auto CallbackSuppressor() { return make_raii_wrapper(this, &Edit::SuppressCallback, &Edit::RevertCallback); }
 
 	void DeleteBlock();
 

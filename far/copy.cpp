@@ -86,7 +86,7 @@ enum
 	COPY_RULE_FILES  = 0x0002,
 };
 
-ENUM(COPY_CODES)
+enum COPY_CODES: int
 {
 	COPY_CANCEL,
 	COPY_SKIPPED,
@@ -554,7 +554,7 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 
 int CmpFullNames(const string& Src,const string& Dest)
 {
-	const auto ToFull = [](const string& in) -> string
+	const auto ToFull = [](const string& in)
 	{
 		string out;
 		// получим полные пути с учетом символических связей
@@ -584,7 +584,7 @@ string& GetParentFolder(const string& Src, string &strDest)
 
 int CmpFullPath(const string& Src, const string& Dest)
 {
-	const auto ToFull = [](const string& in) -> string
+	const auto ToFull = [](const string& in)
 	{
 		string out;
 		GetParentFolder(in, out);
@@ -886,7 +886,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 	SrcPanel(SrcPanel),
 	DestPanel(Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel)),
 	SrcPanelMode(SrcPanel->GetMode()),
-	DestPanelMode(ToPlugin? DestPanel->GetMode().value() : panel_mode::NORMAL_PANEL),
+	DestPanelMode(ToPlugin? DestPanel->GetMode() : panel_mode::NORMAL_PANEL),
 	SrcDriveType(),
 	DestDriveType(),
 	CopyBufferSize(!Global->Opt->CMOpt.BufferSize.Get()? default_copy_buffer_size : Global->Opt->CMOpt.BufferSize.Get()),
@@ -1133,7 +1133,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 	}
 	else
 	{
-		switch (DestPanelMode.value())
+		switch (DestPanelMode)
 		{
 		case panel_mode::NORMAL_PANEL:
 			{

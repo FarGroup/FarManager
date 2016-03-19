@@ -57,7 +57,7 @@ static const wchar_t NamesOfCodePagesKey[] = L"CodePages.Names";
 static const wchar_t FavoriteCodePagesKey[] = L"CodePages.Favorites";
 
 // Источник вызова каллбака прохода по кодовым страницам
-ENUM(CodePagesCallbackCallSource)
+enum CodePagesCallbackCallSource: int
 {
 	CodePageSelect,
 	CodePagesFill,
@@ -361,7 +361,7 @@ void codepages::AddCodePages(DWORD codePages)
 
 	// other codepages
 	//
-	FOR(const auto& i, InstalledCodepages())
+	for (const auto& i: InstalledCodepages())
 	{
 		UINT cp = i.first;
 		if (IsStandardCodePage(cp))

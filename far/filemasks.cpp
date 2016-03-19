@@ -74,22 +74,13 @@ static inline string::const_iterator SkipRE(string::const_iterator Iterator, con
 	return std::find_if_not(Iterator, End, IsAlpha);
 }
 
-class filemasks::masks: noncopyable, swapable<masks>
+class filemasks::masks
 {
 public:
-	masks(): bRE(false) {}
-	masks(masks&& rhs) noexcept: bRE(false) { *this = std::move(rhs); }
-	~masks() {};
-	MOVE_OPERATOR_BY_SWAP(masks);
+	NONCOPYABLE(masks);
+	TRIVIALLY_MOVABLE(masks);
 
-	void swap(masks& rhs) noexcept
-	{
-		using std::swap;
-		Masks.swap(rhs.Masks);
-		re.swap(rhs.re);
-		m.swap(rhs.m);
-		swap(bRE, rhs.bRE);
-	}
+	masks(): bRE() {}
 
 	bool Set(const string& Masks, DWORD Flags);
 	bool operator ==(const string& Name) const;
@@ -103,24 +94,10 @@ private:
 	bool bRE;
 };
 
-filemasks::filemasks()
-{
-}
-
-filemasks::~filemasks()
-{
-}
-
-filemasks::filemasks(filemasks&& rhs) noexcept
-{
-	*this = std::move(rhs);
-}
-
-void filemasks::swap(filemasks& rhs) noexcept
-{
-	Include.swap(rhs.Include);
-	Exclude.swap(rhs.Exclude);
-}
+filemasks::filemasks() = default;
+filemasks::~filemasks() = default;
+filemasks::filemasks(filemasks&&) = default;
+filemasks& filemasks::operator=(filemasks&&) = default;
 
 bool filemasks::Set(const string& masks, DWORD Flags)
 {

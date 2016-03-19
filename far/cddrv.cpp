@@ -90,7 +90,7 @@ static CDROM_DeviceCapabilities getCapsUsingProductId(const char* prodID)
 	const auto Iterator = null_iterator(prodID);
 	std::copy_if(Iterator, Iterator.end(), std::back_inserter(productID), IsAlpha);
 
-	static const simple_pair<const char*, int> Capabilities[] =
+	static const std::pair<const char*, int> Capabilities[] =
 	{
 		{"CD", CAPABILITIES_GENERIC_CDROM},
 		{"CDRW", CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_CDRW},
@@ -101,7 +101,7 @@ static CDROM_DeviceCapabilities getCapsUsingProductId(const char* prodID)
 		{"HDDVD", CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_DVDROM|CAPABILITIES_GENERIC_HDDVD},
 	};
 
-	return std::accumulate(ALL_CONST_RANGE(Capabilities), CAPABILITIES_NONE, [&productID](int Value, CONST_REFERENCE(Capabilities) i)
+	return std::accumulate(ALL_CONST_RANGE(Capabilities), CAPABILITIES_NONE, [&productID](auto Value, const auto& i)
 	{
 		return static_cast<CDROM_DeviceCapabilities>(Value | (productID.find(i.first) == std::string::npos ? 0 : i.second));
 	});
@@ -358,7 +358,7 @@ static CDROM_DeviceCapabilities GetDeviceCapabilities(os::fs::file& Device)
 
 static UINT GetDeviceTypeByCaps(CDROM_DeviceCapabilities caps)
 {
-	static const simple_pair<int, int> DeviceCaps[] =
+	static const std::pair<int, int> DeviceCaps[] =
 	{
 		{DRIVE_BD_RW, CAPABILITIES_GENERIC_BDRW},
 		{DRIVE_BD_ROM, CAPABILITIES_GENERIC_BDROM},

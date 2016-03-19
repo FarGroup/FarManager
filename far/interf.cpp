@@ -715,7 +715,7 @@ void Text(const wchar_t* Str, size_t Size)
 
 	std::vector<FAR_CHAR_INFO> Buffer;
 	Buffer.reserve(Size);
-	std::transform(Str, Str + Size, std::back_inserter(Buffer), [](wchar_t c) { return FAR_CHAR_INFO::make(c, CurColor); });
+	std::transform(Str, Str + Size, std::back_inserter(Buffer), [](wchar_t c) { return FAR_CHAR_INFO{ c, CurColor }; });
 
 	Global->ScrBuf->Write(CurX, CurY, Buffer.data(), Buffer.size());
 	CurX += static_cast<int>(Buffer.size());

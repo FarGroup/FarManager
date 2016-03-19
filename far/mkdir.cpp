@@ -157,7 +157,7 @@ void ShellMakeDir(Panel *SrcPanel)
 		string strDirName=MkDirDlg[MKDIR_EDIT].strData;
 		string strOriginalDirName;
 		bool SkipAll = false;
-		FOR(const auto& i, DirList)
+		for (const auto& i: DirList)
 		{
 			// TODO: almost the same code in dirmix::CreatePath()
 

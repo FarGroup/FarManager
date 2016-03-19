@@ -193,25 +193,16 @@ bool CanSort(int SortMode)
 
 };
 
-struct FileList::PrevDataItem: swapable<PrevDataItem>
+struct FileList::PrevDataItem
 {
+	NONCOPYABLE(PrevDataItem);
+	TRIVIALLY_MOVABLE(PrevDataItem);
+
 	PrevDataItem(const string& rhsPrevName, std::vector<FileListItem>&& rhsPrevListData, int rhsPrevTopFile):
 		strPrevName(rhsPrevName),
 		PrevTopFile(rhsPrevTopFile)
 	{
 		PrevListData.swap(rhsPrevListData);
-	}
-
-	PrevDataItem(PrevDataItem&& rhs) noexcept: PrevTopFile() { *this = std::move(rhs); }
-
-	MOVE_OPERATOR_BY_SWAP(PrevDataItem);
-
-	void swap(PrevDataItem& rhs) noexcept
-	{
-		using std::swap;
-		strPrevName.swap(rhs.strPrevName);
-		PrevListData.swap(rhs.PrevListData);
-		swap(PrevTopFile, rhs.PrevTopFile);
 	}
 
 	string strPrevName;
@@ -445,7 +436,7 @@ static struct list_less
 			FileList::FileListToPluginItem(b, pi2);
 			pi1.Flags = a.Selected? PPIF_SELECTED : 0;
 			pi2.Flags = b.Selected? PPIF_SELECTED : 0;
-			RetCode = Global->CtrlObject->Plugins->Compare(hSortPlugin, &pi1, &pi2, ListSortMode.value() + (SM_UNSORTED - panel_sort::UNSORTED));
+			RetCode = Global->CtrlObject->Plugins->Compare(hSortPlugin, &pi1, &pi2, static_cast<int>(ListSortMode) + (SM_UNSORTED - static_cast<int>(panel_sort::UNSORTED)));
 			FreePluginPanelItem(pi1);
 			FreePluginPanelItem(pi2);
 			if (RetCode!=-2 && RetCode)
@@ -459,7 +450,7 @@ static struct list_less
 			return CompareFileTime(a.*time, b.*time);
 		};
 
-		switch (ListSortMode.value())
+		switch (ListSortMode)
 		{
 		case panel_sort::UNSORTED:
 			break;
@@ -709,7 +700,7 @@ void FileList::SortFileList(int KeepPosition)
 			cs.ListSortGroups = ListSortGroups;
 			cs.ListSelectedFirst = ListSelectedFirst;
 			cs.ListDirectoriesFirst = ListDirectoriesFirst;
-			cs.ListSortMode = m_SortMode.value();
+			cs.ListSortMode = static_cast<int>(m_SortMode);
 			cs.RevertSorting = RevertSorting?1:0;
 			cs.ListNumericSort = ListNumericSort;
 			cs.ListCaseSensitiveSort = ListCaseSensitiveSort;
@@ -3156,7 +3147,7 @@ void FileList::MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	int PanelX=MouseEvent->dwMousePosition.X-m_X1-1;
 	int Level = 0;
 
-	FOR(const auto& i, m_ViewSettings.PanelColumns)
+	for (const auto& i: m_ViewSettings.PanelColumns)
 	{
 		if (Level == ColumnsInGlobal)
 		{
@@ -3321,11 +3312,11 @@ void FileList::SetSortMode(panel_sort Mode, bool KeepOrder)
 			true,  // BY_CHTIME,
 			false  // BY_CUSTOMDATA,
 		};
-		static_assert(ARRAYSIZE(InvertByDefault) == panel_sort::COUNT, "incomplete InvertByDefault array");
+		static_assert(ARRAYSIZE(InvertByDefault) == static_cast<size_t>(panel_sort::COUNT), "incomplete InvertByDefault array");
 
 		assert(Mode < panel_sort::COUNT);
 
-		m_ReverseSortOrder = (m_SortMode == Mode && Global->Opt->ReverseSort)? !m_ReverseSortOrder : InvertByDefault[Mode.value()];
+		m_ReverseSortOrder = (m_SortMode == Mode && Global->Opt->ReverseSort)? !m_ReverseSortOrder : InvertByDefault[static_cast<size_t>(Mode)];
 	}
 
 	ApplySortMode(Mode);
@@ -3333,14 +3324,14 @@ void FileList::SetSortMode(panel_sort Mode, bool KeepOrder)
 
 void FileList::SetCustomSortMode(int Mode, bool KeepOrder, bool InvertByDefault)
 {
-	if (Mode >= panel_sort::COUNT)
+	if (Mode >= static_cast<int>(panel_sort::COUNT))
 	{
 		if (!KeepOrder)
 		{
-			m_ReverseSortOrder = (m_SortMode.value() == Mode && Global->Opt->ReverseSort)? !m_ReverseSortOrder : InvertByDefault;
+			m_ReverseSortOrder = (static_cast<int>(m_SortMode) == Mode && Global->Opt->ReverseSort)? !m_ReverseSortOrder : InvertByDefault;
 		}
 
-		ApplySortMode(panel_sort::value_type(Mode));
+		ApplySortMode(panel_sort(Mode));
 	}
 }
 
@@ -4033,7 +4024,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 	if (!bUseFilter && WrapBrackets) // возьмем кв.скобки в скобки, чтобы получить
 	{                               // работоспособную маску
 		strMask.clear();
-		FOR(const auto& i, strRawMask)
+		for (const auto& i: strRawMask)
 		{
 			if (i == L']' || i == L'[')
 			{
@@ -4222,13 +4213,13 @@ void FileList::CompareDir()
 
 	// теперь начнем цикл по снятию выделений
 	// каждый элемент активной панели...
-	FOR(auto& i, m_ListData)
+	for (auto& i: m_ListData)
 	{
 		if (i.FileAttr & FILE_ATTRIBUTE_DIRECTORY)
 			continue;
 
 		// ...сравниваем с элементом пассивной панели...
-		FOR(auto& j, Another->m_ListData)
+		for (auto& j: Another->m_ListData)
 		{
 			if (j.FileAttr & FILE_ATTRIBUTE_DIRECTORY)
 				continue;
@@ -4553,7 +4544,7 @@ void FileList::SelectSortMode()
 		{MSG(MMenuSortByFullName),0,0},
 		{MSG(MMenuSortByCustomData),0,0},
 	};
-	static_assert(ARRAYSIZE(InitSortMenuModes) == panel_sort::COUNT, "Incomplete InitSortMenuModes array");
+	static_assert(ARRAYSIZE(InitSortMenuModes) == static_cast<size_t>(panel_sort::COUNT), "Incomplete InitSortMenuModes array");
 
 	std::vector<MenuDataEx> SortMenu(ALL_CONST_RANGE(InitSortMenuModes));
 
@@ -4585,7 +4576,7 @@ void FileList::SelectSortMode()
 		}
 	}
 
-	static const panel_sort::value_type SortModes[] =
+	static const panel_sort SortModes[] =
 	{
 		panel_sort::BY_NAME,
 		panel_sort::BY_EXT,
@@ -4604,7 +4595,7 @@ void FileList::SelectSortMode()
 		panel_sort::BY_FULLNAME,
 		panel_sort::BY_CUSTOMDATA
 	};
-	static_assert(ARRAYSIZE(SortModes) == panel_sort::COUNT, "Incomplete SortModes array");
+	static_assert(ARRAYSIZE(SortModes) == static_cast<size_t>(panel_sort::COUNT), "Incomplete SortModes array");
 
 	{
 		const auto ItemIterator = std::find(ALL_CONST_RANGE(SortModes), m_SortMode);
@@ -4619,7 +4610,7 @@ void FileList::SelectSortMode()
 		{
 			for (size_t i=0; i < mpr->Count; i += 3)
 			{
-				if (mpr->Values[i].Double == m_SortMode.value())
+				if (mpr->Values[i].Double == static_cast<int>(m_SortMode))
 				{
 					SortMenu[ARRAYSIZE(SortModes) + 1 + i/3].SetCheck(Check);
 					SortMenu[ARRAYSIZE(SortModes) + 1 + i/3].SetSelect(TRUE);
@@ -4984,7 +4975,7 @@ void FileList::CountDirSize(UINT64 PluginFlags)
 			DoubleDotDir->FileSize     = 0;
 			DoubleDotDir->AllocationSize    = 0;
 
-			FOR(const auto& i, make_range(m_ListData.begin() + 1, m_ListData.end()))
+			for (const auto& i: make_range(m_ListData.begin() + 1, m_ListData.end()))
 			{
 				if (i.FileAttr & FILE_ATTRIBUTE_DIRECTORY)
 				{
@@ -5007,7 +4998,7 @@ void FileList::CountDirSize(UINT64 PluginFlags)
 	m_Filter->UpdateCurrentTime();
 
 	auto MessageDelay = getdirinfo_default_delay;
-	FOR(auto& i, m_ListData)
+	for (auto& i: m_ListData)
 	{
 		if (i.Selected && (i.FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 		{
@@ -5106,8 +5097,7 @@ PluginHandle* FileList::OpenFilePlugin(const string* FileName, int PushPrev, OPE
 	{
 		if (PushPrev)
 		{
-			// TODO: direct emplace_back after decommissioning VC10
-			PrevDataList.emplace_back(VALUE_TYPE(PrevDataList)(FileName? *FileName : L"", std::move(m_ListData), m_CurTopFile));
+			PrevDataList.emplace_back(FileName? *FileName : L"", std::move(m_ListData), m_CurTopFile);
 		}
 
 		bool WasFullscreen = IsFullScreen();
@@ -5355,8 +5345,7 @@ void FileList::ClearAllItem()
 
 void FileList::PushPlugin(PluginHandle* hPlugin,const string& HostFile)
 {
-	// TODO: direct emplace_back after decommissioning VC10
-	PluginsList.emplace_back(VALUE_TYPE(PluginsList)(hPlugin, HostFile, strOriginalCurDir, FALSE, m_ViewMode, m_SortMode, m_ReverseSortOrder, m_NumericSort, m_CaseSensitiveSort, m_DirectoriesFirst, m_ViewSettings));
+	PluginsList.emplace_back(hPlugin, HostFile, strOriginalCurDir, FALSE, m_ViewMode, m_SortMode, m_ReverseSortOrder, m_NumericSort, m_CaseSensitiveSort, m_DirectoriesFirst, m_ViewSettings);
 	++Global->PluginPanelsCount;
 }
 
@@ -6188,7 +6177,7 @@ void FileList::ProcessHostFile()
 
 			if (SCount > 0)
 			{
-				FOR(auto& i, m_ListData)
+				for (auto& i: m_ListData)
 				{
 					if (i.Selected)
 					{
@@ -6284,7 +6273,7 @@ void FileList::SetPluginMode(PluginHandle* hPlugin,const string& PluginFile,bool
 
 	if (Info.StartSortMode)
 	{
-		m_SortMode = panel_sort::value_type(Info.StartSortMode - (SM_UNSORTED - panel_sort::UNSORTED));
+		m_SortMode = panel_sort(Info.StartSortMode - (SM_UNSORTED - static_cast<int>(panel_sort::UNSORTED)));
 		m_ReverseSortOrder = Info.StartSortOrder != 0;
 	}
 
@@ -6503,7 +6492,7 @@ void FileList::Update(int Mode)
 	_ALGO(SysLog(L"(Mode=[%d/0x%08X] %s)",Mode,Mode,(Mode==UPDATE_KEEP_SELECTION?L"UPDATE_KEEP_SELECTION":L"")));
 
 	if (m_EnableUpdate)
-		switch (m_PanelMode.value())
+		switch (m_PanelMode)
 		{
 		case panel_mode::NORMAL_PANEL:
 				ReadFileNames(Mode & UPDATE_KEEP_SELECTION, Mode & UPDATE_IGNORE_VISIBLE,Mode & UPDATE_DRAW_MESSAGE);
@@ -6639,7 +6628,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 		if (m_ListData[m_CurFile].Selected && !ReturnCurrentFile)
 		{
-			const auto NotSelectedIterator = std::find_if(m_ListData.begin() + m_CurFile + 1, m_ListData.end(), [](CONST_REFERENCE(m_ListData) i) { return !i.Selected; });
+			const auto NotSelectedIterator = std::find_if(m_ListData.begin() + m_CurFile + 1, m_ListData.end(), [](const auto& i) { return !i.Selected; });
 			if (NotSelectedIterator != m_ListData.cend())
 			{
 				strNextCurName = NotSelectedIterator->strName;
@@ -6724,9 +6713,9 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		std::unordered_set<string> ColumnsSet;
 		const std::vector<column>* ColumnsContainers[] = { &m_ViewSettings.PanelColumns, &m_ViewSettings.StatusColumns };
 
-		FOR(const auto& ColumnsContainer, ColumnsContainers)
+		for (const auto& ColumnsContainer: ColumnsContainers)
 		{
-			FOR(const auto& Column, *ColumnsContainer)
+			for (const auto& Column: *ColumnsContainer)
 			{
 				if ((Column.type & 0xff) == CUSTOM_COLUMN0)
 				{
@@ -6745,7 +6734,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 	time_check TimeCheck(time_check::delayed, GetRedrawTimeout());
 
-	std::all_of(CONST_RANGE(Find, fdata) -> bool
+	std::all_of(CONST_RANGE(Find, fdata)
 	{
 		Global->CatchError();
 		FindErrorCode = Global->CaughtError();
@@ -6905,7 +6894,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 			m_ListData.resize(m_ListData.size() + PanelCount);
 
 			auto PluginPtr = PanelData;
-			FOR(auto& i, make_range(m_ListData.begin() + OldSize, m_ListData.end()))
+			for (auto& i: make_range(m_ListData.begin() + OldSize, m_ListData.end()))
 			{
 				PluginToFileListItem(*PluginPtr, i);
 				i.Position = Position;
@@ -6930,7 +6919,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 			}
 
 			// цветовую боевую раскраску в самом конце, за один раз
-			FOR(auto& i, make_range(m_ListData.begin() + OldSize, m_ListData.begin() + OldSize + PanelCount))
+			for (auto& i: make_range(m_ListData.begin() + OldSize, m_ListData.begin() + OldSize + PanelCount))
 			{
 				Global->CtrlObject->HiFiles->GetHiColor(&i);
 			}
@@ -7152,7 +7141,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 
 		if (m_ListData[m_CurFile].Selected)
 		{
-			const auto ItemIterator = std::find_if(m_ListData.cbegin() + m_CurFile + 1, m_ListData.cend(), [](CONST_REFERENCE(m_ListData) i) { return !i.Selected; });
+			const auto ItemIterator = std::find_if(m_ListData.cbegin() + m_CurFile + 1, m_ListData.cend(), [](const auto& i) { return !i.Selected; });
 			if (ItemIterator != m_ListData.cend())
 			{
 				strNextCurName = ItemIterator->strName;
@@ -7610,7 +7599,7 @@ void FileList::ShowFileList(int Fast)
 		const wchar_t *Ch = nullptr;
 		if (m_SortMode < panel_sort::COUNT)
 		{
-			static const simple_pair<panel_sort::value_type, LNGID> ModeNames[] =
+			static const std::pair<panel_sort, LNGID> ModeNames[] =
 			{
 				{panel_sort::UNSORTED, MMenuUnsorted},
 				{panel_sort::BY_NAME, MMenuSortByName},
@@ -7629,7 +7618,7 @@ void FileList::ShowFileList(int Fast)
 				{panel_sort::BY_FULLNAME, MMenuSortByFullName},
 				{panel_sort::BY_CUSTOMDATA, MMenuSortByCustomData},
 			};
-			static_assert(ARRAYSIZE(ModeNames) == panel_sort::COUNT, "Incomplete ModeNames array");
+			static_assert(ARRAYSIZE(ModeNames) == static_cast<size_t>(panel_sort::COUNT), "Incomplete ModeNames array");
 
 			Ch = wcschr(MSG(std::find_if(CONST_RANGE(ModeNames, i) { return i.first == m_SortMode; })->second), L'&');
 		}
@@ -8103,7 +8092,7 @@ int FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen,
 	int TotalWidth = static_cast<int>(Columns.size()-1);
 	TotalPercentCount=TotalPercentWidth=0;
 
-	FOR(auto& i, Columns)
+	for (auto& i: Columns)
 	{
 		if (i.width < 0)
 		{
@@ -8145,7 +8134,7 @@ int FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen,
 		int ExtraPercentWidth=(TotalPercentWidth>100 || !ZeroLengthCount)?ExtraWidth:ExtraWidth*TotalPercentWidth/100;
 		int TempWidth=0;
 
-		FOR(auto& i, Columns)
+		for (auto& i: Columns)
 		{
 			if (!TotalPercentCount)
 				break;
@@ -8166,7 +8155,7 @@ int FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen,
 		ExtraWidth-=TempWidth;
 	}
 
-	FOR(auto& i, Columns)
+	for (auto& i: Columns)
 	{
 		if (!ZeroLengthCount)
 			break;

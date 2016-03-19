@@ -204,7 +204,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 		return sqlite::sqlite3_open_v2(Utf8String(Name).data(), &pDb, WAL? SQLITE_OPEN_READWRITE : SQLITE_OPEN_READONLY, nullptr);
 	};
 
-	const auto OpenDatabase = [](database_ptr& Db, const string& Name, const std::function<int(const string&, sqlite::sqlite3*&)>& opener) -> bool
+	const auto OpenDatabase = [](database_ptr& Db, const string& Name, const std::function<int(const string&, sqlite::sqlite3*&)>& opener)
 	{
 		sqlite::sqlite3* pDb;
 		const auto Result = opener(Name, pDb);
@@ -346,10 +346,11 @@ bool SQLiteDb::PrepareStatements(const stmt_init_t* Init, size_t Size)
 	assert(m_Statements.empty());
 
 	m_Statements.reserve(Size);
-	std::transform(Init, Init + Size, std::back_inserter(m_Statements), [this](decltype(*Init) i) -> SQLiteStmt
+	std::transform(Init, Init + Size, std::back_inserter(m_Statements), [this](const auto& i)
 	{
 		assert(i.first == m_Statements.size());
-		return create_stmt(i.second);
+		// gcc bug, this-> required
+		return this->create_stmt(i.second);
 	});
 	return true;
 }

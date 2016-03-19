@@ -35,19 +35,13 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class NamesList: noncopyable, swapable<NamesList>
+class NamesList
 {
 public:
-	NamesList(): CurPos(Names.end()) {};
-	NamesList(NamesList&& rhs) noexcept: CurPos(Names.end()) { *this = std::move(rhs); }
-	MOVE_OPERATOR_BY_SWAP(NamesList);
+	NONCOPYABLE(NamesList);
+	TRIVIALLY_MOVABLE(NamesList);
 
-	void swap(NamesList& rhs) noexcept
-	{
-		using std::swap;
-		Names.swap(rhs.Names);
-		swap(CurPos, rhs.CurPos);
-	}
+	NamesList(): CurPos(Names.end()) {};
 
 	void AddName(const string& Name);
 	bool GetNextName(string& strName);

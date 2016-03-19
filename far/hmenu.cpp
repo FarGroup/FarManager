@@ -88,7 +88,7 @@ void HMenu::ShowMenu()
 	string strTmpStr;
 	GotoXY(m_X1+2,m_Y1);
 
-	FOR(auto& i, Item)
+	for (auto& i: Item)
 	{
 		i.XPos = WhereX();
 
@@ -105,7 +105,7 @@ void HMenu::UpdateSelectPos()
 {
 	SelectPos = 0;
 
-	const auto Selected = std::find_if(Item.begin(), Item.end(), [](CONST_REFERENCE(Item) i) { return i.Selected; });
+	const auto Selected = std::find_if(Item.begin(), Item.end(), [](const auto& i) { return i.Selected; });
 	if (Selected != Item.end())
 	{
 		SelectPos = Selected - Item.begin();

@@ -271,7 +271,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 								os::FAR_FIND_DATA FindData;
 								if (os::GetFindDataEx(DlgParam->strSelName, FindData))
 								{
-									const simple_pair<SETATTRDLG, PFILETIME> Items[] =
+									const std::pair<SETATTRDLG, PFILETIME> Items[] =
 									{
 										{SA_TEXT_LASTWRITE, &FindData.ftLastWriteTime},
 										{SA_TEXT_CREATION, &FindData.ftCreationTime},
@@ -783,7 +783,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		AttrDlg[SA_EDIT_WTIME].strMask=AttrDlg[SA_EDIT_CTIME].strMask=AttrDlg[SA_EDIT_ATIME].strMask=AttrDlg[SA_EDIT_XTIME].strMask=strTMask;
 		bool FolderPresent=false,LinkPresent=false;
 		string strLinkName;
-		static const simple_pair<SETATTRDLG, DWORD> AttributePair[] =
+		static const std::pair<SETATTRDLG, DWORD> AttributePair[] =
 		{
 			{SA_CHECKBOX_RO,FILE_ATTRIBUTE_READONLY},
 			{SA_CHECKBOX_ARCHIVE,FILE_ATTRIBUTE_ARCHIVE},
@@ -1007,7 +1007,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					DeleteEndSlash(strRoot);
 
 					Links.reserve(NameList.ItemsNumber);
-					FOR(const auto& i, os::fs::enum_name(strSelName))
+					for (const auto& i: os::fs::enum_name(strSelName))
 					{
 						Links.emplace_back(strRoot + i);
 					}
@@ -1015,11 +1015,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					if (!Links.empty())
 					{
 						ListItems.reserve(Links.size());
-						std::transform(ALL_CONST_RANGE(Links), std::back_inserter(ListItems), [&](const string& i) -> FarListItem
-						{
-							FarListItem Item = { 0, i.data() };
-							return Item;
-						});
+						std::transform(ALL_CONST_RANGE(Links), std::back_inserter(ListItems), [&](const auto& i) { return FarListItem{ 0, i.data() }; });
 
 						NameList.Items = ListItems.data();
 						AttrDlg[SA_COMBO_HARDLINK].ListItems = &NameList;

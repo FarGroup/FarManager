@@ -259,7 +259,7 @@ static string TryConvertVolumeGuidToDrivePath(const string& Path, const wchar_t 
 		{
 			string strVolumeGuid;
 			const auto Strings = os::GetLogicalDriveStrings();
-			const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Strings), [&](CONST_REFERENCE(Strings) item)
+			const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Strings), [&](const auto& item)
 			{
 				return os::GetVolumeNameForVolumeMountPoint(item, strVolumeGuid) && Path.compare(0, DirectoryOffset, strVolumeGuid.data(), DirectoryOffset) == 0;
 			});
@@ -358,7 +358,7 @@ void ConvertNameToReal(const string& Src, string &strDest)
 void ConvertNameToShort(const string& Src, string &strDest)
 {
 
-	const auto GetShortName = [&strDest](const string& str) -> bool
+	const auto GetShortName = [&strDest](const string& str)
 	{
 		WCHAR Buffer[MAX_PATH];
 		DWORD Size = GetShortPathName(str.data(), Buffer, ARRAYSIZE(Buffer));

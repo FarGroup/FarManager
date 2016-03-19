@@ -108,18 +108,6 @@ Edit::Edit(window_ptr Owner):
 	m_Flags.Change(FEDITLINE_SHOWLINEBREAK,Global->Opt->EdOpt.ShowWhiteSpace==1);
 }
 
-Edit::Edit(Edit&& rhs) noexcept:
-	SimpleScreenObject(rhs.GetOwner()),
-	m_CurPos(),
-	m_SelStart(-1),
-	m_SelEnd(),
-	LeftPos(),
-	EndType(EOL_NONE)
-{
-	*this = std::move(rhs);
-}
-
-
 void Edit::DisplayObject()
 {
 	if (m_Flags.Check(FEDITLINE_DROPDOWNBOX))
@@ -146,14 +134,14 @@ void Edit::DisplayObject()
 		{
 			int NewCursorSize=IsConsoleFullscreen()?
 			                  (Global->Opt->CursorSize[3]?(int)Global->Opt->CursorSize[3]:99):
-					                  (Global->Opt->CursorSize[2]?(int)Global->Opt->CursorSize[2]:99);
+			                  (Global->Opt->CursorSize[2]?(int)Global->Opt->CursorSize[2]:99);
 			::SetCursorType(1,GetCursorSize()==-1?NewCursorSize:GetCursorSize());
 		}
 		else
 {
 			int NewCursorSize=IsConsoleFullscreen()?
 			                  (Global->Opt->CursorSize[1]?(int)Global->Opt->CursorSize[1]:10):
-					                  (Global->Opt->CursorSize[0]?(int)Global->Opt->CursorSize[0]:10);
+			                  (Global->Opt->CursorSize[0]?(int)Global->Opt->CursorSize[0]:10);
 			::SetCursorType(1,GetCursorSize()==-1?NewCursorSize:GetCursorSize());
 		}
 	}
@@ -2219,7 +2207,7 @@ void Edit::ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos)
 	int Pos = INT_MIN, TabPos = INT_MIN, TabEditorPos = INT_MIN;
 
 	// Обрабатываем элементы раскраски
-	FOR(const auto& CurItem, ColorList)
+	for (const auto& CurItem: ColorList)
 	{
 		// Пропускаем элементы у которых начало больше конца
 		if (CurItem.StartPos > CurItem.EndPos)

@@ -250,7 +250,7 @@ public:
 	void ForEachFindItem(const Visitor& visitor) const
 	{
 		SCOPED_ACTION(CriticalSectionLock)(DataCS);
-		FOR(const auto& i, FindList)
+		for (const auto& i: FindList)
 			visitor(i);
 	}
 
@@ -258,7 +258,7 @@ public:
 	void ForEachFindItem(const Visitor& visitor) 
 	{
 		SCOPED_ACTION(CriticalSectionLock)(DataCS);
-		FOR(auto& i, FindList)
+		for (auto& i: FindList)
 			visitor(i);
 	}
 };
@@ -973,7 +973,7 @@ bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const os::FAR_FIND_DATA& Fin
 	if (Global->CtrlObject->Plugins->GetFindData(ArcItem->hPlugin, &Items, &ItemsNumber, OPM_SILENT))
 	{
 		const auto End = Items + ItemsNumber;
-		const auto It = std::find_if(Items, End, [&](PluginPanelItem& Item) -> bool
+		const auto It = std::find_if(Items, End, [&](PluginPanelItem& Item)
 		{
 			Item.FileName = PointToName(NullToEmpty(Item.FileName));
 			Item.AlternateFileName = PointToName(NullToEmpty(Item.AlternateFileName));
@@ -1110,7 +1110,7 @@ bool background_searcher::LookForString(const string& Name)
 		else
 		{
 			bool ErrorState = false;
-			FOR(auto& i, m_CodePages)
+			for (auto& i: m_CodePages)
 			{
 				ErrorState = false;
 				// Пропускаем ошибочные кодовые страницы
@@ -1977,7 +1977,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, string& strLas
 
 	MenuText << L' ';
 
-	FOR(auto& i, Global->Opt->FindOpt.OutColumns)
+	for (auto& i: Global->Opt->FindOpt.OutColumns)
 	{
 		int CurColumnType = static_cast<int>(i.type & 0xFF);
 		int Width = i.width;
@@ -2581,7 +2581,7 @@ void background_searcher::DoPrepareFileList(Dialog* Dlg)
 
 	std::vector<string> Strings;
 	split(Strings, InitString, STLF_UNIQUE);
-	FOR(const auto& i, Strings)
+	for (const auto& i: Strings)
 	{
 		DoScanTree(Dlg, i);
 	}

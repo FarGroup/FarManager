@@ -47,7 +47,7 @@ class FileViewer;
 class KeyBar;
 class Dialog;
 class time_check;
-ENUM(SEARCHER_RESULT);
+enum SEARCHER_RESULT: int;
 
 class Viewer:public SimpleScreenObject
 {

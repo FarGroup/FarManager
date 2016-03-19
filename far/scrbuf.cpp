@@ -84,7 +84,7 @@ void ScreenBuf::DebugDump() const
 	for (size_t row_num = 0; row_num != Buf.height(); ++row_num)
 	{
 		const auto&& row = Buf[row_num];
-		std::transform(ALL_CONST_RANGE(row), s.begin(), [](CONST_REFERENCE(row) i) { return i.Char; });
+		std::transform(ALL_CONST_RANGE(row), s.begin(), [](const auto& i) { return i.Char; });
 		OutputDebugString(s.data());
 	}
 #endif
@@ -613,7 +613,7 @@ void ScreenBuf::Scroll(size_t Count)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
-	const auto Fill = FAR_CHAR_INFO::make(L' ', colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
+	const FAR_CHAR_INFO Fill{ L' ', colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN) };
 
 	if (Global->Opt->WindowMode)
 	{

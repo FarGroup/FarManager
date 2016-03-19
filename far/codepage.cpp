@@ -45,8 +45,7 @@ public:
 private:
 	void insert(UINT Codepage, UINT MaxCharSize, const string& Name)
 	{
-		// TODO: direct emplace after decommissioning VC10
-		m_InstalledCp.emplace(std::make_pair(Codepage, std::make_pair(MaxCharSize, Name)));
+		m_InstalledCp.emplace(Codepage, std::make_pair(MaxCharSize, Name));
 	}
 	friend class system_codepages_enumerator;
 
@@ -545,7 +544,7 @@ int Utf8::ToWideChar(const char *s, size_t U_nc, wchar_t *w1, wchar_t *w2, size_
 		wlen = 2;
 
 	int ic = 0, nw = 0, wc;
-	const auto InvalidChar = [](unsigned char c) -> int { return 0xDC00 + c; };
+	const auto InvalidChar = [](unsigned char c){ return 0xDC00 + c; };
 
 	while ( ic < nc )
 	{

@@ -75,8 +75,11 @@ static const wchar_t FolderShortcutsKey[] = L"Shortcuts";
 static const wchar_t HelpFolderShortcuts[] = L"FolderShortcuts";
 
 
-struct Shortcuts::shortcut: noncopyable, swapable<shortcut>
+struct Shortcuts::shortcut
 {
+	NONCOPYABLE(shortcut);
+	TRIVIALLY_MOVABLE(shortcut);
+
 	shortcut(): PluginGuid(FarGuid) {}
 
 	shortcut(const string& Name, const string& Folder, const string& PluginFile, const string& PluginData, const GUID& PluginGuid):
@@ -88,10 +91,6 @@ struct Shortcuts::shortcut: noncopyable, swapable<shortcut>
 	{
 	}
 
-	shortcut(shortcut&& rhs) noexcept: PluginGuid(FarGuid){ *this = std::move(rhs); }
-
-	MOVE_OPERATOR_BY_SWAP(shortcut);
-
 	bool operator==(const shortcut& Item) const
 	{
 		return
@@ -102,16 +101,6 @@ struct Shortcuts::shortcut: noncopyable, swapable<shortcut>
 			strPluginData == Item.strPluginData;
 	}
 	bool operator!=(const shortcut& Item) const { return !(*this == Item); }
-
-	void swap(shortcut& rhs) noexcept
-	{
-		using std::swap;
-		strName.swap(rhs.strName);
-		strFolder.swap(rhs.strFolder);
-		strPluginFile.swap(rhs.strPluginFile);
-		strPluginData.swap(rhs.strPluginData);
-		swap(PluginGuid, rhs.PluginGuid);
-	}
 
 	shortcut clone()
 	{
@@ -476,8 +465,7 @@ void Shortcuts::Set(size_t Pos, const string& Folder, const GUID& PluginGuid, co
 
 void Shortcuts::Add(size_t Pos, const string& Folder, const GUID& PluginGuid, const string& PluginFile, const string& PluginData)
 {
-	// TODO: direct emplace_back after decommissioning VC10
-	Items[Pos].emplace_back(VALUE_TYPE(Items[Pos])(string(), Folder, PluginFile, PluginData, PluginGuid));
+	Items[Pos].emplace_back(string(), Folder, PluginFile, PluginData, PluginGuid);
 	Changed = true;
 }
 

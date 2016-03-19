@@ -111,7 +111,7 @@ void VMenu::init(const MenuDataEx *Data, int ItemsCount, DWORD Flags)
 	// инициализируем перед добавлением элемента
 	UpdateMaxLengthFromTitles();
 
-	FOR(const auto& i, make_range(Data, Data + ItemsCount))
+	for (const auto& i: make_range(Data, Data + ItemsCount))
 	{
 		MenuItemEx NewItem;
 
@@ -1701,7 +1701,8 @@ int VMenu::GetVisualPos(int Pos)
 	if (Pos >= static_cast<int>(Items.size()))
 		return GetShowItemCount();
 
-	return std::count_if(Items.cbegin(), Items.cbegin() + Pos, [this](CONST_REFERENCE(Items) Item) { return ItemIsVisible(Item.Flags); });
+	// gcc bug, this-> required
+	return std::count_if(Items.cbegin(), Items.cbegin() + Pos, [this](const auto& Item) { return this->ItemIsVisible(Item.Flags); });
 }
 
 int VMenu::VisualPosToReal(int VPos)

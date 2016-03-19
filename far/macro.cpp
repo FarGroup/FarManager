@@ -1477,7 +1477,7 @@ static std::vector<TVar> parseParams(size_t Count, FarMacroCall* Data)
 	const auto argNum = std::min(Data->Count, Count);
 	std::vector<TVar> Params;
 	Params.reserve(Count);
-	std::transform(Data->Values, Data->Values + argNum, std::back_inserter(Params), [](const FarMacroValue& i) -> TVar
+	std::transform(Data->Values, Data->Values + argNum, std::back_inserter(Params), [](const auto& i) -> TVar
 	{
 		switch (i.Type)
 		{
@@ -1904,7 +1904,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_PPANEL_TYPE: // PPanel.Type
 		{
 			const auto SelPanel = CheckCode == MCODE_V_APANEL_TYPE ? ActivePanel : PassivePanel;
-			return SelPanel? SelPanel->GetType().value() : panel_type::FILE_PANEL;
+			return static_cast<intptr_t>(SelPanel? SelPanel->GetType() : panel_type::FILE_PANEL);
 		}
 
 		case MCODE_V_APANEL_DRIVETYPE: // APanel.DriveType - активная панель: тип привода
@@ -3224,7 +3224,7 @@ static bool menushowFunc(FarMacroCall* Data)
 
 		if (NewItem.strName!=L"\n")
 		{
-			const auto CharToFlag = [](wchar_t c) -> LISTITEMFLAGS
+			const auto CharToFlag = [](wchar_t c)
 			{
 				switch (c)
 				{
@@ -3232,11 +3232,11 @@ static bool menushowFunc(FarMacroCall* Data)
 				case L'\x2': return LIF_CHECKED;
 				case L'\x3': return LIF_DISABLE;
 				case L'\x4': return LIF_GRAYED;
-				default:     return 0;
+				default:     return LIF_NONE;
 				}
 			};
 
-			const auto NewBegin = std::find_if(CONST_RANGE(NewItem.strName, i) -> bool
+			const auto NewBegin = std::find_if(CONST_RANGE(NewItem.strName, i)
 			{
 				auto Flag = CharToFlag(i);
 				NewItem.Flags |= Flag;
@@ -3261,7 +3261,7 @@ static bool menushowFunc(FarMacroCall* Data)
 
 	if (bSorting)
 	{
-		Menu->SortItems([](const MenuItemEx& a, const MenuItemEx& b, const SortItemParam& Param) -> bool
+		Menu->SortItems([](const MenuItemEx& a, const MenuItemEx& b, const SortItemParam& Param)
 		{
 			if (a.Flags & LIF_SEPARATOR || b.Flags & LIF_SEPARATOR)
 				return false;

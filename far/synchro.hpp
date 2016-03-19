@@ -75,32 +75,18 @@ inline string make_name(const S& HashPart, const S& TextPart)
 class Thread: public os::HandleWrapper, swapable<Thread>
 {
 public:
-	typedef void (Thread::*mode)();
+	NONCOPYABLE(Thread);
+	TRIVIALLY_MOVABLE(Thread);
+
+	using mode = void (Thread::*)();
 
 	Thread(): m_Mode(), m_ThreadId() {}
-	Thread(Thread&& rhs) noexcept: m_Mode(), m_ThreadId() { *this = std::move(rhs); }
 
-#ifdef NO_VARIADIC_TEMPLATES
-
-	template<typename T> \
-	Thread(mode Mode, T&& Function): m_Mode(Mode) { Starter(std::bind(std::forward<T>(Function))); }
-
-	#define THREAD_VTE(TYPENAME_LIST, ARG_LIST, REF_ARG_LIST, FWD_ARG_LIST) \
-	template<typename T, TYPENAME_LIST> \
-	Thread(mode Mode, T&& Function, REF_ARG_LIST): m_Mode(Mode) { Starter(std::bind(std::forward<T>(Function), FWD_ARG_LIST)); }
-
-	#include "common/variadic_emulation_helpers_begin.hpp"
-	VTE_GENERATE(THREAD_VTE)
-	#include "common/variadic_emulation_helpers_end.hpp"
-
-	#undef THREAD_VTE
-#else
 	template<class T, class... Args>
 	Thread(mode Mode, T&& Function, Args&&... args): m_Mode(Mode)
 	{
 		Starter(std::bind(std::forward<T>(Function), std::forward<Args>(args)...));
 	}
-#endif
 
 	virtual ~Thread()
 	{
@@ -110,19 +96,9 @@ public:
 		}
 	}
 
-	MOVE_OPERATOR_BY_SWAP(Thread);
-
-	void swap(Thread& rhs) noexcept
-	{
-		using std::swap;
-		m_Handle.swap(rhs.m_Handle);
-		swap(m_Mode, rhs.m_Mode);
-		swap(m_ThreadId, rhs.m_ThreadId);
-	}
-
 	unsigned int get_id() const { return m_ThreadId; }
 
-	bool joinable() const { return m_ThreadId != 0; }
+	bool joinable() const { return !!m_Handle; }
 
 	void detach()
 	{
@@ -143,7 +119,7 @@ private:
 	void check_joinable()
 	{
 		if (!joinable())
-			throw std::runtime_error("Thread is not joinable"); // TODO: std::system_error
+			throw std::runtime_error("Thread is not joinable");
 	}
 
 	template<class T>
@@ -174,47 +150,37 @@ private:
 	unsigned int m_ThreadId;
 };
 
-class Mutex: public os::HandleWrapper, swapable<Mutex>
+class Mutex: public os::HandleWrapper
 {
 public:
-	Mutex(const wchar_t* Name = nullptr): HandleWrapper(CreateMutex(nullptr, false, EmptyToNull(Name))) {}
-	Mutex(Mutex&& rhs) noexcept { *this = std::move(rhs); }
+	NONCOPYABLE(Mutex);
+	TRIVIALLY_MOVABLE(Mutex);
 
-	virtual ~Mutex() {}
+	Mutex(const wchar_t* Name = nullptr): HandleWrapper(CreateMutex(nullptr, false, EmptyToNull(Name))) {}
+
+	virtual ~Mutex() = default;
 
 	static const wchar_t *GetNamespace() { return L"Far_Manager_Mutex_"; }
-
-	MOVE_OPERATOR_BY_SWAP(Mutex);
-
-	void swap(Mutex& rhs) noexcept
-	{
-		m_Handle.swap(rhs.m_Handle);
-	}
 
 	bool lock() const { return m_Handle.wait(); }
 
 	bool unlock() const { return ReleaseMutex(m_Handle.native_handle()) != FALSE; }
 };
 
-class Event: public os::HandleWrapper, swapable<Event>
+class Event: public os::HandleWrapper
 {
 public:
+	NONCOPYABLE(Event);
+	TRIVIALLY_MOVABLE(Event);
+
 	enum event_type { automatic, manual };
 	enum event_state { nonsignaled, signaled };
 
-	Event() {}
+	Event() = default;
 	Event(event_type Type, event_state InitialState, const wchar_t* Name = nullptr): HandleWrapper(CreateEvent(nullptr, Type == manual, InitialState == signaled, EmptyToNull(Name))) {}
-	Event(Event&& rhs) noexcept { *this = std::move(rhs); }
-	virtual ~Event() {}
+	virtual ~Event() = default;
 
 	static const wchar_t *GetNamespace() { return L"Far_Manager_Event_"; }
-
-	MOVE_OPERATOR_BY_SWAP(Event);
-
-	void swap(Event& rhs) noexcept
-	{
-		m_Handle.swap(rhs.m_Handle);
-	}
 
 	bool Set() const { check_valid(); return SetEvent(m_Handle.native_handle()) != FALSE; }
 
@@ -289,7 +255,7 @@ public:
 	};
 	MultiWaiter() { Objects.reserve(10); }
 	~MultiWaiter() {}
-	void Add(const os::HandleWrapper& Object) { assert(Objects.size() < MAXIMUM_WAIT_OBJECTS); Objects.emplace_back(Object.m_Handle.native_handle()); }
+	void Add(const os::HandleWrapper& Object) { assert(Objects.size() < MAXIMUM_WAIT_OBJECTS); Objects.emplace_back(Object.native_handle()); }
 	void Add(HANDLE handle) { assert(Objects.size() < MAXIMUM_WAIT_OBJECTS); Objects.emplace_back(handle); }
 	DWORD Wait(wait_mode Mode = wait_all, DWORD Milliseconds = INFINITE) const { return WaitForMultipleObjects(static_cast<DWORD>(Objects.size()), Objects.data(), Mode == wait_all, Milliseconds); }
 	void Clear() {Objects.clear();}

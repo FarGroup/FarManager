@@ -56,7 +56,7 @@ using namespace os::security;
 
 const int CallbackMagic= 0xCA11BAC6;
 
-ENUM(ELEVATION_COMMAND)
+enum ELEVATION_COMMAND: int
 {
 	C_SERVICE_EXIT,
 	C_FUNCTION_CREATEDIRECTORYEX,

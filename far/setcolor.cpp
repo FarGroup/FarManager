@@ -336,7 +336,7 @@ void SetColors()
 
 		const auto GroupsMenu = VMenu2::create(MSG(MSetColorGroupsTitle), nullptr, 0);
 
-		FOR(const auto& i, Groups)
+		for (const auto& i: Groups)
 		{
 			GroupsMenu->AddItem(MSG(i.MenuId));
 		}
@@ -383,7 +383,7 @@ static void SetItemColors(const color_item* Items, size_t Size)
 {
 	const auto ItemsMenu = VMenu2::create(MSG(MSetColorItemsTitle), nullptr, 0);
 
-	FOR(const auto& i, make_range(Items, Items + Size))
+	for (const auto& i: make_range(Items, Items + Size))
 	{
 		ItemsMenu->AddItem(MSG(i.LngId));
 	}

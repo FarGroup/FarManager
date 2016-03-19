@@ -256,7 +256,7 @@ virtual bool SetMode(HANDLE ConsoleHandle, DWORD Mode) const override
 
 static void AdjustMouseEvents(INPUT_RECORD* Buffer, size_t Length, short Delta, short MaxX)
 {
-	FOR(auto& i, make_range(Buffer, Buffer + Length))
+	for (auto& i: make_range(Buffer, Buffer + Length))
 	{
 		if (i.EventType == MOUSE_EVENT)
 		{
@@ -303,7 +303,7 @@ virtual bool WriteInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEve
 	{
 		const auto Delta = GetDelta();
 
-		FOR(auto& i, make_range(Buffer, Buffer + Length))
+		for (auto& i: make_range(Buffer, Buffer + Length))
 		{
 			if (i.EventType == MOUSE_EVENT)
 			{
@@ -354,9 +354,9 @@ virtual bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_
 	}
 
 	auto& ConsoleBufferVector = ConsoleBuffer.vector();
-	std::transform(ConsoleBufferVector.cbegin(), ConsoleBufferVector.cend(), Buffer.data() + Offset, [](CONST_REFERENCE(ConsoleBufferVector) i)
+	std::transform(ALL_CONST_RANGE(ConsoleBufferVector), Buffer.data() + Offset, [](const auto& i)
 	{
-		return FAR_CHAR_INFO::make(i.Char.UnicodeChar, colors::ConsoleColorToFarColor(i.Attributes));
+		return FAR_CHAR_INFO{ i.Char.UnicodeChar, colors::ConsoleColorToFarColor(i.Attributes) };
 	});
 
 	if(Global->Opt->WindowMode)
@@ -382,10 +382,9 @@ virtual bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord,
 	const size_t Size = BufferSize.X * (BufferSize.Y - BufferCoord.Y);
 
 	matrix<CHAR_INFO> ConsoleBuffer(BufferSize.Y - BufferCoord.Y, BufferSize.X);
-	std::transform(Buffer.data() + Offset, Buffer.data() + Offset + Size, ConsoleBuffer.data(), [](const FAR_CHAR_INFO& i) -> CHAR_INFO
+	std::transform(Buffer.data() + Offset, Buffer.data() + Offset + Size, ConsoleBuffer.data(), [](const auto& i)
 	{
-		CHAR_INFO CI = {i.Char, colors::FarColorToConsoleColor(i.Attributes)};
-		return CI;
+		return CHAR_INFO{i.Char, colors::FarColorToConsoleColor(i.Attributes)};
 	});
 
 	BufferSize.Y-=BufferCoord.Y;
@@ -539,7 +538,7 @@ virtual std::unordered_map<string, std::unordered_map<string, string>> GetAllAli
 
 		if (GetConsoleAliasExes(ExeBuffer.data(), ExeLength))
 		{
-			FOR(const auto& ExeToken, enum_substrings(ExeBuffer))
+			for (const auto& ExeToken: enum_substrings(ExeBuffer))
 			{
 				const auto ExeNamePtr = const_cast<wchar_t*>(ExeToken.data());
 				const auto AliasesLength = GetConsoleAliasesLength(ExeNamePtr);
@@ -547,7 +546,7 @@ virtual std::unordered_map<string, std::unordered_map<string, string>> GetAllAli
 				if (GetConsoleAliases(AliasesBuffer.data(), AliasesLength, ExeNamePtr))
 				{
 					auto& ExeMap = Result[ExeNamePtr];
-					FOR(const auto& AliasToken, enum_substrings(AliasesBuffer))
+					for (const auto& AliasToken: enum_substrings(AliasesBuffer))
 					{
 						const auto SeparatorPos = std::find(ALL_RANGE(AliasToken), L'=');
 						ExeMap[string(AliasToken.begin(), SeparatorPos)].assign(SeparatorPos + 1, AliasToken.end());
@@ -561,9 +560,9 @@ virtual std::unordered_map<string, std::unordered_map<string, string>> GetAllAli
 
 virtual void SetAllAliases(const std::unordered_map<string, std::unordered_map<string, string>>& Aliases) const override
 {
-	FOR(const auto& ExeItem, Aliases)
+	for (const auto& ExeItem: Aliases)
 	{
-		FOR(const auto& AliasesItem, ExeItem.second)
+		for (const auto& AliasesItem: ExeItem.second)
 		{
 			AddConsoleAlias(const_cast<wchar_t*>(AliasesItem.first.data()), const_cast<wchar_t*>(AliasesItem.second.data()), const_cast<wchar_t*>(ExeItem.first.data()));
 		}

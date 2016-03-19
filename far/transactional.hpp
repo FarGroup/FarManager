@@ -41,8 +41,7 @@ public:
 	virtual bool EndTransaction() = 0;
 	virtual bool RollbackTransaction() = 0;
 
-	typedef raii_wrapper<transactional*, bool (transactional::*)(), bool (transactional::*)()> scoped_transaction;
-	scoped_transaction ScopedTransaction() { return scoped_transaction(this, &transactional::BeginTransaction, &transactional::EndTransaction); }
+	auto ScopedTransaction() { return make_raii_wrapper(this, &transactional::BeginTransaction, &transactional::EndTransaction); }
 };
 
 

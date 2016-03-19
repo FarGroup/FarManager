@@ -40,23 +40,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "pathmix.hpp"
 
-struct ScanTree::scantree_item: noncopyable, swapable<scantree_item>
+struct ScanTree::scantree_item
 {
 public:
-	scantree_item() {}
+	NONCOPYABLE(scantree_item);
+	TRIVIALLY_MOVABLE(scantree_item);
 
-	scantree_item(scantree_item&& rhs) noexcept { *this = std::move(rhs); }
-
-	MOVE_OPERATOR_BY_SWAP(scantree_item);
-
-	void swap(scantree_item& rhs) noexcept
-	{
-		using std::swap;
-		swap(Flags, rhs.Flags);
-		Find.swap(rhs.Find);
-		swap(Iterator, rhs.Iterator);
-		RealPath.swap(rhs.RealPath);
-	}
+	scantree_item() = default;
 
 	BitFlags Flags;
 	std::unique_ptr<os::fs::enum_file> Find;
@@ -97,8 +87,7 @@ void ScanTree::SetFindPath(const string& Path,const string& Mask, const DWORD Ne
 {
 	VisitedDirs.clear();
 	ScanItems.clear();
-	// TODO: direct emplace_back after decommissioning VC10
-	ScanItems.emplace_back(scantree_item());
+	ScanItems.emplace_back();
 	Flags.Clear(FSCANTREE_FILESFIRST);
 	strFindMask = Mask;
 	strFindPath = Path;

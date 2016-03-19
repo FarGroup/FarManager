@@ -264,7 +264,7 @@ void KeyBar::SetCustomLabels(KEYBARAREA Area)
 		CustomArea = Area;
 		ClearKeyTitles(true);
 
-		FOR(auto& i, ConfigProvider().GeneralCfg()->GetStringValuesEnumerator(L"KeyBarLabels." + strLanguage + L"." + Names[Area]))
+		for (auto& i: ConfigProvider().GeneralCfg()->GetStringValuesEnumerator(L"KeyBarLabels." + strLanguage + L"." + Names[Area]))
 		{
 			DWORD Key = KeyNameToKey(i.first);
 			DWORD fnum = (Key & ~KEY_CTRLMASK) - KEY_F1;
@@ -400,7 +400,7 @@ size_t KeyBar::Change(const KeyBarTitles *Kbt)
 	size_t Result = 0;
 	if (Kbt)
 	{
-		FOR(const auto& i, make_range(Kbt->Labels, Kbt->Labels + Kbt->CountLabels))
+		for (const auto& i: make_range(Kbt->Labels, Kbt->Labels + Kbt->CountLabels))
 		{
 			DWORD Pos = i.Key.VirtualKeyCode - VK_F1;
 			if (Pos < KEY_COUNT)

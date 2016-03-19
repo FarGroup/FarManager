@@ -142,7 +142,7 @@ void FreePluginPanelItemsUserData(HANDLE hPlugin,PluginPanelItem *PanelItem,size
 
 WINDOWINFO_TYPE WindowTypeToPluginWindowType(const int fType)
 {
-	static const simple_pair<window_type, WINDOWINFO_TYPE> TypesMap[] =
+	static const std::pair<window_type, WINDOWINFO_TYPE> TypesMap[] =
 	{
 		{windowtype_desktop,    WTYPE_DESKTOP},
 		{windowtype_panels,     WTYPE_PANELS},
@@ -212,14 +212,14 @@ void ReloadEnvironment()
 	{
 		const os::env::provider::block EnvBlock;
 		const auto EnvBlockPtr = EnvBlock.data();
-		FOR(const auto& i, enum_substrings(EnvBlockPtr))
+		for (const auto& i: enum_substrings(EnvBlockPtr))
 		{
 			const auto Data = os::env::split(i.data());
 			os::env::set_variable(Data.first, Data.second);
 		}
 	}
 
-	FOR(const auto& i, PreservedVariables)
+	for (const auto& i: PreservedVariables)
 	{
 		os::env::set_variable(i.first, i.second);
 	}

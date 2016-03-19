@@ -76,19 +76,15 @@ enum
 	FHELPOBJ_ERRCANNOTOPENHELP  = 0x80000000,
 };
 
-class HelpRecord: noncopyable, swapable<HelpRecord>
+class HelpRecord
 {
 public:
+	NONCOPYABLE(HelpRecord);
+	TRIVIALLY_MOVABLE(HelpRecord);
+
 	string HelpStr;
 
 	HelpRecord(const string& HStr): HelpStr(HStr) {}
-	HelpRecord(HelpRecord&& rhs) noexcept { *this = std::move(rhs); }
-	MOVE_OPERATOR_BY_SWAP(HelpRecord);
-
-	void swap(HelpRecord& rhs) noexcept
-	{
-		HelpStr.swap(rhs.HelpStr);
-	}
 
 	bool operator ==(const HelpRecord& rhs) const
 	{
@@ -107,50 +103,17 @@ static const wchar_t HelpFormatLink[] = L"<%s\\>%s";
 static const wchar_t HelpFormatLinkModule[] = L"<%s>%s";
 
 
-struct Help::StackHelpData: swapable<StackHelpData>
+struct Help::StackHelpData
 {
+	TRIVIALLY_COPYABLE(StackHelpData);
+	TRIVIALLY_MOVABLE(StackHelpData);
+
 	StackHelpData():
 		Flags(),
 		TopStr(),
 		CurX(),
 		CurY()
 	{}
-
-	StackHelpData(const StackHelpData& rhs):
-		strHelpMask(rhs.strHelpMask),
-		strHelpPath(rhs.strHelpPath),
-		strHelpTopic(rhs.strHelpTopic),
-		strSelTopic(rhs.strSelTopic),
-		Flags(rhs.Flags),
-		TopStr(rhs.TopStr),
-		CurX(rhs.CurX),
-		CurY(rhs.CurY)
-	{}
-
-	StackHelpData(StackHelpData&& rhs) noexcept:
-		Flags(),
-		TopStr(),
-		CurX(),
-		CurY()
-	{
-		*this = std::move(rhs);
-	}
-
-	COPY_OPERATOR_BY_SWAP(StackHelpData);
-	MOVE_OPERATOR_BY_SWAP(StackHelpData);
-
-	void swap(StackHelpData& rhs) noexcept
-	{
-		using std::swap;
-		strHelpMask.swap(rhs.strHelpMask);
-		strHelpPath.swap(rhs.strHelpPath);
-		strHelpTopic.swap(rhs.strHelpTopic);
-		strSelTopic.swap(rhs.strSelTopic);
-		swap(Flags, rhs.Flags);
-		swap(TopStr, rhs.TopStr);
-		swap(CurX, rhs.CurX);
-		swap(CurY, rhs.CurY);
-	}
 
 	string strHelpMask;           // значение маски
 	string strHelpPath;           // путь к хелпам

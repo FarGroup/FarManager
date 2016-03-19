@@ -97,7 +97,7 @@ void xlat_initialize()
 		size_t I = 0;
 		std::vector<string> Strings;
 		split(Strings, XLat.strLayouts, STLF_UNIQUE);
-		FOR(const auto& i, Strings)
+		for (const auto& i: Strings)
 		{
 			DWORD res = std::stoul(i, nullptr, 16);
 			XLat.Layouts[I] = (HKL)(intptr_t)(HIWORD(res)? res : MAKELONG(res, res));

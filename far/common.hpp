@@ -42,9 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/noncopyable.hpp"
 #include "common/swapable.hpp"
 #include "common/rel_ops.hpp"
-#include "common/enum.hpp"
 #include "common/conditional.hpp"
-#include "common/range_for.hpp"
 #include "common/scope_exit.hpp"
 #include "common/function_traits.hpp"
 #include "common/smart_ptr.hpp"
@@ -106,16 +104,6 @@ bool CheckNullOrStructSize(const T* s) {return !s || (s->StructSize >= sizeof(T)
 template <typename T>
 bool CheckStructSize(const T* s) {return s && (s->StructSize >= sizeof(T));}
 
-template <typename type_1, typename type_2>
-struct simple_pair
-{
-	typedef type_1 first_type;
-	typedef type_2 second_type;
-
-	first_type first;
-	second_type second;
-};
-
 template<typename T>
 inline void ClearStruct(T& s)
 {
@@ -133,9 +121,9 @@ inline void ClearArray(T& a)
 }
 
 template<class T>
-inline const T* NullToEmpty(const T* Str) { static const T empty = T(); return Str? Str : &empty; }
+inline auto NullToEmpty(const T* Str) { static const T empty {}; return Str? Str : &empty; }
 template<class T>
-inline const T* EmptyToNull(const T* Str) { return (Str && !*Str)? nullptr : Str; }
+inline auto EmptyToNull(const T* Str) { return (Str && !*Str)? nullptr : Str; }
 
 template<class T>
 inline size_t make_hash(const T& value)
@@ -154,20 +142,26 @@ bool InRange(const T& from, const T& what, const T& to)
 	return from <= what && what <= to;
 };
 
-template<class owner, typename acquire, typename release>
-class raii_wrapper: ::noncopyable, swapable<raii_wrapper<owner, acquire, release>>
+template<class owner, typename acquire, typename release = acquire>
+class raii_wrapper
 {
 public:
-	raii_wrapper(const owner& Owner, const acquire& Acquire, const release& Release): m_Owner(Owner), m_Release(Release) { (*m_Owner.*Acquire)(); }
-	raii_wrapper(raii_wrapper&& rhs) noexcept: m_Owner(), m_Release() { *this = std::move(rhs); }
-	~raii_wrapper() { if (m_Owner && m_Release) (*m_Owner.*m_Release)(); }
-	MOVE_OPERATOR_BY_SWAP(raii_wrapper);
-	void swap(raii_wrapper& rhs) noexcept { using std::swap; swap(m_Owner, rhs.m_Owner); swap(m_Release, rhs.m_Release); }
+	NONCOPYABLE(raii_wrapper);
+	TRIVIALLY_MOVABLE(raii_wrapper);
+
+	raii_wrapper(owner* Owner, const acquire& Acquire, const release& Release): m_Owner(Owner), m_Release(Release) { (*m_Owner.*Acquire)(); }
+	~raii_wrapper() { if (m_Owner) (*m_Owner.*m_Release)(); }
 
 private:
-	owner m_Owner;
+	movalbe_ptr<owner> m_Owner;
 	release m_Release;
 };
+
+template<class owner, typename acquire, typename release = acquire>
+auto make_raii_wrapper(owner* Owner, const acquire& Acquire, const release& Release)
+{
+	return raii_wrapper<owner, acquire, release>(Owner, Acquire, Release);
+}
 
 class blob
 {

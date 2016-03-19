@@ -116,8 +116,7 @@ public:
 	// BUGBUG
 	void Lock() { PluginCS.lock(); }
 	void Unlock() { PluginCS.unlock(); }
-	typedef raii_wrapper<FindFiles*, void (FindFiles::*)(), void (FindFiles::*)()> scoped_lock;
-	scoped_lock ScopedLock() { return scoped_lock(this, &FindFiles::Lock, &FindFiles::Unlock); }
+	auto ScopedLock() { return make_raii_wrapper(this, &FindFiles::Lock, &FindFiles::Unlock); }
 
 private:
 	CriticalSection PluginCS;

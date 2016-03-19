@@ -396,7 +396,7 @@ int Manager::CountWindowsWithName(const string& Name, BOOL IgnoreCase)
 
 	string strType, strCurName;
 
-	return std::count_if(CONST_RANGE(m_windows, i) -> bool
+	return std::count_if(CONST_RANGE(m_windows, i)
 	{
 		i->GetTypeAndName(strType, strCurName);
 		return !CmpFunction(Name, strCurName);
@@ -495,7 +495,7 @@ window_ptr Manager::FindWindowByFile(int ModalType,const string& FileName, const
 		strFullFileName = strBufFileName;
 	}
 
-	const auto ItemIterator = std::find_if(CONST_RANGE(m_windows, i) -> bool
+	const auto ItemIterator = std::find_if(CONST_RANGE(m_windows, i)
 	{
 		string strType, strName;
 
@@ -581,7 +581,7 @@ void Manager::SwitchToPanels()
 	_MANAGER(CleverSysLog clv(L"Manager::SwitchToPanels()"));
 	if (!Global->OnlyEditorViewerUsed)
 	{
-		const auto PanelsWindow = std::find_if(ALL_CONST_RANGE(m_windows), [](CONST_REFERENCE(m_windows) item) { return std::dynamic_pointer_cast<FilePanels>(item) != nullptr; });
+		const auto PanelsWindow = std::find_if(ALL_CONST_RANGE(m_windows), [](const auto& item) { return std::dynamic_pointer_cast<FilePanels>(item) != nullptr; });
 		if (PanelsWindow != m_windows.cend())
 		{
 			ActivateWindow(*PanelsWindow);
@@ -1091,18 +1091,15 @@ void Manager::RefreshCommit(window_ptr_ref Param)
 
 	assert(!(-1!=WindowIndex && -1!=ModalIndex));
 
-	const auto process = [](const windows& List, int Index) -> void
+	const auto process = [](const windows& List, int Index)
 	{
 		const auto first = std::next(List.begin(), Index);
-		const auto ItemIterator = std::find_if(first, List.end(), LAMBDA_PREDICATE(List, i)
-		{
-			return i->Locked();
-		});
+		const auto ItemIterator = std::find_if(first, List.end(), [](const auto& i) { return i->Locked(); });
 
 		//если одно из окон заблокировано, большого смысла в перерисовке пока нет
 		if (ItemIterator == List.end())
 		{
-			std::for_each(first, List.end(), LAMBDA_PREDICATE(List, i)
+			std::for_each(first, List.end(), [](const auto& i)
 			{
 				i->Refresh();
 				if
@@ -1236,7 +1233,7 @@ void Manager::ImmediateHide()
 
 			if (m_modalWindows.size() > 1)
 			{
-				FOR(const auto& i, make_range(m_modalWindows.cbegin(), m_modalWindows.cend() - 1))
+				for (const auto& i: make_range(m_modalWindows.cbegin(), m_modalWindows.cend() - 1))
 				{
 					RefreshWindow(i);
 					Commit();
@@ -1286,7 +1283,7 @@ Manager::sorted_windows Manager::GetSortedWindows(void) const
 
 void* Manager::GetCurrent(std::function<void*(windows::const_reverse_iterator)> Check) const
 {
-	const auto process = [this, &Check](const windows& List, void*& Result) -> bool
+	const auto process = [this, &Check](const windows& List, void*& Result)
 	{
 		const auto iterator = std::find_if(CONST_REVERSE_RANGE(List, i) { return !std::dynamic_pointer_cast<Modal>(i); });
 		if (iterator!=List.crend())

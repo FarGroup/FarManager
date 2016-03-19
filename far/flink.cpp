@@ -120,7 +120,7 @@ bool SetREPARSE_DATA_BUFFER(const string& Object,PREPARSE_DATA_BUFFER rdb)
 		{
 			os::SetFileAttributes(Object, Attributes&~FILE_ATTRIBUTE_READONLY);
 		}
-		const auto SetBuffer = [&](bool ForceElevation) -> bool
+		const auto SetBuffer = [&](bool ForceElevation)
 		{
 			os::fs::file fObject;
 			DWORD dwBytesReturned;
@@ -368,7 +368,7 @@ bool EnumStreams(const string& FileName,UINT64 &StreamsSize,DWORD &StreamsCount)
 	UINT64 Size = 0;
 	DWORD Count = 0;
 
-	FOR(const auto& i, os::fs::enum_stream(FileName))
+	for (const auto& i: os::fs::enum_stream(FileName))
 	{
 		++Count;
 		Size += i.StreamSize.QuadPart;

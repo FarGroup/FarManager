@@ -50,7 +50,7 @@ enum history_type
 	HISTORYTYPE_DIALOG
 };
 
-ENUM(history_record_type)
+enum history_record_type: int
 {
 	HR_DEFAULT,
 	HR_VIEWER = HR_DEFAULT,
@@ -60,7 +60,7 @@ ENUM(history_record_type)
 	HR_EDITOR_RO,
 };
 
-ENUM(history_return_type)
+enum history_return_type
 {
 	HRT_CANCEL,
 	HRT_ENTER,

@@ -46,7 +46,7 @@ private:
 	static mode m_Mode;
 };
 
-ENUM(FAR_CLIPBOARD_FORMAT);
+enum FAR_CLIPBOARD_FORMAT: int;
 
 class Clipboard
 {

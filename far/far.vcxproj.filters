@@ -881,9 +881,6 @@
     <ClInclude Include="common\algorithm.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
-    <ClInclude Include="common\enum.hpp">
-      <Filter>Header Files\common</Filter>
-    </ClInclude>
     <ClInclude Include="common\enumerator.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
@@ -902,19 +899,10 @@
     <ClInclude Include="common\preprocessor.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
-    <ClInclude Include="common\range_for.hpp">
-      <Filter>Header Files\common</Filter>
-    </ClInclude>
     <ClInclude Include="common\scope_exit.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
     <ClInclude Include="common\smart_ptr.hpp">
-      <Filter>Header Files\common</Filter>
-    </ClInclude>
-    <ClInclude Include="common\variadic_emulation_helpers_begin.hpp">
-      <Filter>Header Files\common</Filter>
-    </ClInclude>
-    <ClInclude Include="common\variadic_emulation_helpers_end.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
     <ClInclude Include="transactional.hpp">

@@ -66,7 +66,7 @@ static void ShowStackTrace(const std::vector<string>& Symbols)
 	}
 	else
 	{
-		FOR(const auto& Str, Symbols)
+		for (const auto& Str: Symbols)
 		{
 			std::wcerr << Str << L'\n';
 		}

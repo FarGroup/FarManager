@@ -142,7 +142,7 @@ private:
 	virtual void Commit(const string& Data) override;
 };
 
-ENUM(LNGID);
+enum LNGID: int;
 
 namespace detail {
 // TODO: rename
@@ -172,35 +172,6 @@ namespace detail
 	}
 }
 
-#ifdef NO_VARIADIC_TEMPLATES
-#define STRING_FORMAT_IMPL_VTE(TYPENAME_LIST, ARG_LIST, REF_ARG_LIST, FWD_ARG_LIST) \
-namespace detail \
-{ \
-	template<class C, VTE_TYPENAME(first), TYPENAME_LIST> \
-	void string_format_impl(C& Container, VTE_REF_ARG(first), REF_ARG_LIST) \
-	{ \
-		Container << VTE_FWD_ARG(first); \
-		string_format_impl(Container, FWD_ARG_LIST); \
-	} \
-}
-
-#define STRING_FORMAT_VTE(TYPENAME_LIST, ARG_LIST, REF_ARG_LIST, FWD_ARG_LIST) \
-template<class T, TYPENAME_LIST> \
-string string_format(const T& Format, REF_ARG_LIST) \
-{ \
-	detail::LangString Container(Format); \
-	detail::string_format_impl(Container, FWD_ARG_LIST); \
-	return Container; \
-} \
-
-#include "common/variadic_emulation_helpers_begin.hpp"
-VTE_GENERATE(STRING_FORMAT_IMPL_VTE)
-VTE_GENERATE(STRING_FORMAT_VTE)
-#include "common/variadic_emulation_helpers_end.hpp"
-
-#undef STRING_FORMAT_VTE
-#undef STRING_FORMAT_IMPL_VTE
-#else
 namespace detail
 {
 	template<class C, class Arg1, class... Args>
@@ -219,6 +190,5 @@ string string_format(const T& Format, Args&&... args)
 	// slicing is ok
 	return Container;
 }
-#endif
 
 #endif // FORMAT_HPP_27C3F464_170B_432E_9D44_3884DDBB95AC

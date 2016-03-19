@@ -71,17 +71,6 @@ FileFilterParams::FileFilterParams():
 	FHighlight.SortGroup=DEFAULT_SORT_GROUP;
 }
 
-FileFilterParams::FileFilterParams(FileFilterParams&& rhs) noexcept:
-	FDate(),
-	FSize(),
-	FHardLinks(),
-	FAttr(),
-	FHighlight(),
-	FFlags()
-{
-	*this = std::move(rhs);
-}
-
 FileFilterParams FileFilterParams::Clone() const
 {
 	FileFilterParams Result;
@@ -395,7 +384,7 @@ string MenuString(const FileFilterParams *FF, bool bHighlightType, int Hotkey, b
 
 	string Attr;
 
-	enum_attributes([&](DWORD Attribute, wchar_t Character) -> bool
+	enum_attributes([&](DWORD Attribute, wchar_t Character)
 	{
 		if (IncludeAttr & Attribute)
 		{
@@ -553,7 +542,7 @@ void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const Highli
 	const PaletteColors PalColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
 	int VBufRow = 0;
 
-	for_each_2(ALL_CONST_RANGE(Colors.Color), PalColor, [&](CONST_REFERENCE(Colors.Color) i, PaletteColors pal)
+	for_each_2(ALL_CONST_RANGE(Colors.Color), PalColor, [&](const auto& i, PaletteColors pal)
 	{
 		Color = i.FileColor;
 

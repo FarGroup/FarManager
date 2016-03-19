@@ -51,7 +51,7 @@ default_clipboard_mode::mode default_clipboard_mode::get()
 }
 
 //-----------------------------------------------------------------------------
-ENUM(FAR_CLIPBOARD_FORMAT)
+enum FAR_CLIPBOARD_FORMAT: int
 {
 	FCF_VERTICALBLOCK_OEM,
 	FCF_VERTICALBLOCK_UNICODE,
@@ -383,14 +383,14 @@ bool Clipboard::GetHDROPAsText(string& data) const
 			const auto Start = reinterpret_cast<const wchar_t*>(StartA);
 			if(Files->fWide)
 			{
-				FOR(const auto& i, enum_substrings(Start))
+				for (const auto& i: enum_substrings(Start))
 				{
 					data.append(i.data(), i.size()).append(L"\r\n");
 				}
 			}
 			else
 			{
-				FOR(const auto& i, (enum_substrings(StartA)))
+				for (const auto& i: (enum_substrings(StartA)))
 				{
 					data.append(wide(std::string(i.data(), i.size()), CP_ACP)).append(L"\r\n");
 				}

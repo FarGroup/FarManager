@@ -419,7 +419,7 @@ DialogItemEx *DialogBuilder::AddListControl(FARDIALOGITEMTYPES Type, int& Value,
 	const auto ListItems = Items? new FarListItem[ItemCount] : nullptr;
 	if (Items)
 	{
-		std::transform(Items, Items + ItemCount, ListItems, [&Value](const DialogBuilderListItem& Item) -> FarListItem
+		std::transform(Items, Items + ItemCount, ListItems, [&Value](const auto& Item)
 		{
 			FarListItem NewItem = {};
 			NewItem.Text = MSG(static_cast<LNGID>(Item.MessageId));
@@ -451,7 +451,7 @@ DialogItemEx *DialogBuilder::AddListControl(FARDIALOGITEMTYPES Type, IntOption& 
 	const auto ListItems = Items? new FarListItem[ItemCount] : nullptr;
 	if (Items)
 	{
-		std::transform(Items, Items + ItemCount, ListItems, [&Value](const DialogBuilderListItem& Item) -> FarListItem
+		std::transform(Items, Items + ItemCount, ListItems, [&Value](const auto& Item)
 		{
 			FarListItem NewItem = {};
 			NewItem.Text = MSG(static_cast<LNGID>(Item.MessageId));
@@ -481,7 +481,7 @@ DialogItemEx *DialogBuilder::AddListControl(FARDIALOGITEMTYPES Type, int& Value,
 	m_NextY += Height;
 
 	const auto ListItems = new FarListItem[Items.size()];
-	std::transform(ALL_CONST_RANGE(Items), ListItems, [&Value](const DialogBuilderListItem2& Item) -> FarListItem
+	std::transform(ALL_CONST_RANGE(Items), ListItems, [&Value](const auto& Item)
 	{
 		FarListItem NewItem = {};
 		NewItem.Text = Item.Text.data();
@@ -510,7 +510,7 @@ DialogItemEx *DialogBuilder::AddListControl(FARDIALOGITEMTYPES Type, IntOption& 
 	m_NextY += Height;
 
 	const auto ListItems = new FarListItem[Items.size()];
-	std::transform(ALL_CONST_RANGE(Items), ListItems, [&Value](const DialogBuilderListItem2& Item) -> FarListItem
+	std::transform(ALL_CONST_RANGE(Items), ListItems, [&Value](const auto& Item)
 	{
 		FarListItem NewItem = {};
 		NewItem.Text = Item.Text.data();

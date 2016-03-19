@@ -50,8 +50,11 @@ class TreeList: public Panel
 	struct private_tag {};
 
 public:
-	struct TreeItem: ::noncopyable, swapable<TreeItem>
+	struct TreeItem
 	{
+		NONCOPYABLE(TreeItem);
+		TRIVIALLY_MOVABLE(TreeItem);
+
 		string strName;
 		std::vector<int> Last;
 		size_t Depth;
@@ -69,19 +72,7 @@ public:
 		{
 		}
 
-		TreeItem(TreeItem&& rhs) noexcept: Depth() { *this = std::move(rhs); }
-
-		MOVE_OPERATOR_BY_SWAP(TreeItem);
-
-		void swap(TreeItem& rhs) noexcept
-		{
-			using std::swap;
-			strName.swap(rhs.strName);
-			Last.swap(rhs.Last);
-			swap(Depth, rhs.Depth);
-		}
-
-		operator string() const { return strName; }
+		operator const string&() const { return strName; }
 	};
 
 	static tree_panel_ptr create(window_ptr Owner, int ModalMode = 0);

@@ -48,7 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CONST_REFERENCE(Object) DETAIL_REFERENCE_IMPL(Object, DETAIL_STD_CONST_MUTATOR)
 
 
-#define DETAIL_VALUE_TYPE_IMPL(Object, REFERENCE_PARAM) std::remove_reference<REFERENCE_PARAM(Object)>::type
+#define DETAIL_VALUE_TYPE_IMPL(Object, REFERENCE_PARAM) std::remove_reference_t<REFERENCE_PARAM(Object)>
 
 #define VALUE_TYPE(Object) DETAIL_VALUE_TYPE_IMPL(Object, REFERENCE)
 #define CONST_VALUE_TYPE(Object) DETAIL_VALUE_TYPE_IMPL(Object, CONST_REFERENCE)
@@ -89,21 +89,23 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define FOR_REVERSE_RANGE(Object, i) DETAIL_FOR_RANGE_IMPL(Object, i, DETAIL_STD_REVERSE_MUTATOR)
 #define FOR_CONST_REVERSE_RANGE(Object, i) DETAIL_FOR_RANGE_IMPL(Object, i, DETAIL_STD_CONST_REVERSE_MUTATOR)
 
+#define NONCOPYABLE(Type) \
+Type(const Type&) = delete; \
+Type& operator=(const Type&) = delete; \
 
-#define COPY_OPERATOR_BY_SWAP(Type) \
-Type& operator=(const Type& rhs) { Type(rhs).swap(*this); return *this; }
+#define TRIVIALLY_COPYABLE(Type) \
+Type(const Type&) = default; \
+Type& operator=(const Type& rhs) { Type Tmp(rhs); using std::swap; swap(*this, Tmp); return *this; }
+
+#define TRIVIALLY_MOVABLE(Type) \
+Type(Type&&) = default; \
+Type& operator=(Type&&) = default;
 
 #define MOVE_OPERATOR_BY_SWAP(Type) \
-Type& operator=(Type&& rhs) noexcept { swap(rhs); return *this; }
+Type& operator=(Type&& rhs) noexcept { using std::swap; swap(*this, rhs); return *this; }
 
 #define SCOPED_ACTION(RAII_type) \
 const RAII_type ANONYMOUS_VARIABLE(scoped_object_)
-
-#ifdef NO_DELETED_FUNCTIONS
-#define DELETED_FUNCTION(...) private: __VA_ARGS__
-#else
-#define DELETED_FUNCTION(...) __VA_ARGS__ = delete
-#endif
 
 #define STR(x) #x
 #define WSTR(x) L###x

@@ -87,7 +87,7 @@ void ShellUpdatePanels(panel_ptr SrcPanel,BOOL NeedSetUpADir)
 
 	auto AnotherPanel = Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
 
-	switch (SrcPanel->GetType().value())
+	switch (SrcPanel->GetType())
 	{
 	case panel_type::FILE_PANEL:
 	case panel_type::TREE_PANEL:
@@ -319,7 +319,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 		if (strArgName.front() == L'N')
 		{
 			NewColumn.type = NAME_COLUMN;
-			FOR(const auto& i, make_range(strArgName.cbegin() + 1, strArgName.cend()))
+			for (const auto& i: make_range(strArgName.cbegin() + 1, strArgName.cend()))
 			{
 				switch (i)
 				{
@@ -347,7 +347,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 		else if (strArgName.front() == L'S' || strArgName.front() == L'P' || strArgName.front() == L'G')
 		{
 			NewColumn.type = (strArgName.front() == L'S') ? SIZE_COLUMN : (strArgName.front() == L'P') ? PACKED_COLUMN : STREAMSSIZE_COLUMN;
-			FOR(const auto& i, make_range(strArgName.cbegin() + 1, strArgName.cend()))
+			for (const auto& i: make_range(strArgName.cbegin() + 1, strArgName.cend()))
 			{
 				switch (i)
 				{
@@ -384,7 +384,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 				break;
 			}
 
-			FOR(const auto& i, make_range(strArgName.cbegin() + 2, strArgName.cend()))
+			for (const auto& i: make_range(strArgName.cbegin() + 2, strArgName.cend()))
 			{
 				switch (i)
 				{
@@ -434,7 +434,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 
 	TextPtr=ColumnWidths.data();
 
-	FOR(auto& i, Columns)
+	for (auto& i: Columns)
 	{
 		string strArgName;
 		TextPtr = GetCommaWord(TextPtr, strArgName);
@@ -581,7 +581,7 @@ const string FormatStr_Attribute(DWORD FileAttributes, size_t Width)
 {
 	string OutStr;
 
-	enum_attributes([&](DWORD Attribute, wchar_t Character) -> bool
+	enum_attributes([&](DWORD Attribute, wchar_t Character)
 	{
 		if (FileAttributes & Attribute)
 		{

@@ -210,24 +210,19 @@ static wchar_t* AddString(const string& String)
 	return result;
 }
 
-class PluginSettings::FarSettingsNameItems: ::noncopyable, swapable<FarSettingsNameItems>
+class PluginSettings::FarSettingsNameItems
 {
 public:
-	FarSettingsNameItems() {}
-	FarSettingsNameItems(FarSettingsNameItems&& rhs) noexcept { *this = std::move(rhs); }
+	NONCOPYABLE(FarSettingsNameItems);
+	TRIVIALLY_MOVABLE(FarSettingsNameItems);
+
+	FarSettingsNameItems() = default;
 	~FarSettingsNameItems()
 	{
 		std::for_each(CONST_RANGE(Items, i)
 		{
 			delete[] i.Name;
 		});
-	}
-
-	MOVE_OPERATOR_BY_SWAP(FarSettingsNameItems);
-
-	void swap(FarSettingsNameItems& rhs) noexcept
-	{
-		Items.swap(rhs.Items);
 	}
 
 	void add(FarSettingsName& Item, const string& String);
@@ -275,11 +270,13 @@ AbstractSettings* AbstractSettings::CreateFarSettings()
 }
 
 
-class FarSettings::FarSettingsHistoryItems: ::noncopyable, swapable<FarSettingsHistoryItems>
+class FarSettings::FarSettingsHistoryItems
 {
 public:
-	FarSettingsHistoryItems() {}
-	FarSettingsHistoryItems(FarSettingsHistoryItems&& rhs) noexcept { *this = std::move(rhs); }
+	NONCOPYABLE(FarSettingsHistoryItems);
+	TRIVIALLY_MOVABLE(FarSettingsHistoryItems);
+
+	FarSettingsHistoryItems() = default;
 	~FarSettingsHistoryItems()
 	{
 		std::for_each(CONST_RANGE(Items, i)
@@ -288,13 +285,6 @@ public:
 			delete[] i.Param;
 			delete[] i.File;
 		});
-	}
-
-	MOVE_OPERATOR_BY_SWAP(FarSettingsHistoryItems);
-
-	void swap(FarSettingsHistoryItems& rhs) noexcept
-	{
-		Items.swap(rhs.Items);
 	}
 
 	void add(FarSettingsHistory& Item, const string& Name, const string& Param, const GUID& Guid, const string& File);

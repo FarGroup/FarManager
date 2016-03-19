@@ -390,7 +390,7 @@ void Options::InfoPanelSettings()
 
 static void ApplyDefaultMaskGroups()
 {
-	static const simple_pair<string, string> Sets[] =
+	static const std::pair<string, string> Sets[] =
 	{
 		{L"arc", L"*.rar,*.zip,*.[zj],*.[bg7x]z,*.[bg]zip,*.tar,*.t[agbx]z,*.ar[cj],*.r[0-9][0-9],*.a[0-9][0-9],*.bz2,*.cab,*.msi,*.jar,*.lha,*.lzh,*.ha,*.ac[bei],*.pa[ck],*.rk,*.cpio,*.rpm,*.zoo,*.hqx,*.sit,*.ice,*.uc2,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.sea,*.hpk,*.ddi,*.x2,*.rkv,*.[lw]sz,*.h[ay]p,*.lim,*.sqz,*.chz"},
 		{L"temp", L"*.bak,*.tmp"},
@@ -595,7 +595,7 @@ void Options::VMenuSettings()
 		{ MConfigVMenuClickIgnore, VMENUCLICK_IGNORE },  // Do nothing
 	};
 
-	static const simple_pair<LNGID, IntOption*> DialogItems[] =
+	static const std::pair<LNGID, IntOption*> DialogItems[] =
 	{
 		{ MConfigVMenuLBtnClick, &VMenu.LBtnClick },
 		{ MConfigVMenuRBtnClick, &VMenu.RBtnClick },
@@ -714,7 +714,7 @@ void Options::ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local)
 	intptr_t save_pos = 0, save_cp = 0, id = 0;
 	bool prev_save_cp_value = ViOpt.SaveCodepage, inside = false;
 
-	DialogBuilder Builder(MViewConfigTitle, L"ViewerSettings", [&](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) -> intptr_t
+	DialogBuilder Builder(MViewConfigTitle, L"ViewerSettings", [&](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 	{
 		if (Msg == DN_INITDIALOG && save_pos)
 		{
@@ -1418,36 +1418,21 @@ void StringOption::Export(FarSettingsItem& To) const
 }
 
 
-class Options::farconfig: noncopyable, swapable<farconfig>
+class Options::farconfig
 {
 public:
-	typedef FARConfigItem* iterator;
-	typedef const FARConfigItem* const_iterator;
-	typedef FARConfigItem value_type;
+	NONCOPYABLE(farconfig);
+	TRIVIALLY_MOVABLE(farconfig);
+
+	using iterator = FARConfigItem*;
+	using const_iterator = const FARConfigItem*;
+	using value_type = FARConfigItem;
 
 	farconfig(FARConfigItem* Items, size_t Size, GeneralConfig* cfg):
 		m_items(Items),
 		m_size(Size),
 		m_cfg(cfg)
 	{
-	}
-
-	farconfig(farconfig&& rhs) noexcept:
-		m_items(),
-		m_size(),
-		m_cfg()
-	{
-		*this = std::move(rhs);
-	}
-
-	MOVE_OPERATOR_BY_SWAP(farconfig);
-
-	void swap(farconfig& rhs) noexcept
-	{
-		using std::swap;
-		swap(m_items, rhs.m_items);
-		swap(m_size, rhs.m_size);
-		swap(m_cfg, rhs.m_cfg);
 	}
 
 	iterator begin() const { return m_items; }
@@ -1507,7 +1492,7 @@ void Options::InitConfigData()
 
 	string strDefaultLanguage = GetFarIniString(L"General", L"DefaultLanguage", L"English");
 
-	#define OPT_DEF(option, def) &option, std::remove_reference<decltype(option)>::type::type(def)
+	#define OPT_DEF(option, def) &option, std::remove_reference_t<decltype(option)>::type(def)
 
 	static FARConfigItem RoamingData[] =
 	{
@@ -1872,10 +1857,8 @@ void Options::InitConfigData()
 
 	};
 
-	// TODO: direct emplace_back after decommissioning VC10
-	Config.emplace_back(farconfig(RoamingData, ARRAYSIZE(RoamingData), ConfigProvider().GeneralCfg().get()));
-	// TODO: direct emplace_back after decommissioning VC10
-	Config.emplace_back(farconfig(LocalData, ARRAYSIZE(LocalData), ConfigProvider().LocalGeneralCfg().get()));
+	Config.emplace_back(RoamingData, ARRAYSIZE(RoamingData), ConfigProvider().GeneralCfg().get());
+	Config.emplace_back(LocalData, ARRAYSIZE(LocalData), ConfigProvider().LocalGeneralCfg().get());
 }
 
 template<class container, class pred>
@@ -1888,7 +1871,7 @@ static const Option* GetConfigValuePtr(const container& Config, const pred& Pred
 const Option* Options::GetConfigValue(const wchar_t *Key, const wchar_t *Name) const
 {
 	// TODO Use local too?
-	return GetConfigValuePtr(Config[cfg_roaming], [&](const FARConfigItem& i) { return !StrCmpI(i.KeyName, Key) && !StrCmpI(i.ValName, Name); });
+	return GetConfigValuePtr(Config[cfg_roaming], [&](const auto& i) { return !StrCmpI(i.KeyName, Key) && !StrCmpI(i.ValName, Name); });
 }
 
 const Option* Options::GetConfigValue(size_t Root, const wchar_t* Name) const
@@ -1923,13 +1906,28 @@ void Options::SetSearchColumns(const string& Columns, const string& Widths)
 void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 {
 	// KnownModulesIDs::GuidOption::Default pointer is used in the static config structure, so it MUST be initialized before calling InitConfig()
-	static simple_pair<GUID, string> DefaultKnownGuids[] = { { NetworkGuid }, { EMenuGuid }, { ArcliteGuid }, { LuamacroGuid }, { NetBoxGuid } };
+	static std::pair<GUID, string> DefaultKnownGuids[] =
+	{
+		{ NetworkGuid, L"" },
+		{ EMenuGuid, L"" },
+		{ ArcliteGuid, L"" },
+		{ LuamacroGuid, L"" },
+		{ NetBoxGuid, L"" },
+	};
+
 	static_assert(ARRAYSIZE(DefaultKnownGuids) == sizeof(Options::KnownModulesIDs) / sizeof(Options::KnownModulesIDs::GuidOption), "incomplete DefaultKnownGuids array");
 
-	KnownModulesIDs::GuidOption* GuidOptions[] = { &KnownIDs.Network, &KnownIDs.Emenu, &KnownIDs.Arclite, &KnownIDs.Luamacro, &KnownIDs.Netbox };
+	KnownModulesIDs::GuidOption* GuidOptions[] =
+	{
+		&KnownIDs.Network,
+		&KnownIDs.Emenu,
+		&KnownIDs.Arclite,
+		&KnownIDs.Luamacro,
+		&KnownIDs.Netbox,
+	};
 	static_assert(ARRAYSIZE(GuidOptions) == ARRAYSIZE(DefaultKnownGuids), "incomplete GuidOptions array");
 
-	for_each_2(ALL_RANGE(DefaultKnownGuids), GuidOptions, [](REFERENCE(DefaultKnownGuids) a, REFERENCE(GuidOptions) b)
+	for_each_2(ALL_RANGE(DefaultKnownGuids), GuidOptions, [](auto& a, const auto& b)
 	{
 		a.second = GuidToStr(a.first);
 		b->Default = a.second.data();
@@ -1949,14 +1947,14 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 	*/
 	/* *************************************************** </ПРЕПРОЦЕССЫ> */
 
-	FOR(auto& i, Config)
+	for (auto& i: Config)
 	{
 		const auto Cfg = i.GetConfig();
-		FOR(const auto& j, i)
+		for(const auto& j: i)
 		{
 			j.Value->ReceiveValue(Cfg, j.KeyName, j.ValName, j.Default);
 
-			FOR(const auto& ovr, Overridden)
+			for (const auto& ovr: Overridden)
 			{
 				const auto DotPos = ovr.first.rfind(L'.');
 				if (DotPos != string::npos && !StrCmpNI(ovr.first.data(), j.KeyName, DotPos) && !StrCmpI(ovr.first.data() + DotPos + 1, j.ValName))
@@ -2025,7 +2023,7 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 		{ &Macro.strKeyMacroRCtrlShiftDot, &Macro.KeyMacroRCtrlShiftDot, KEY_RCTRL | KEY_SHIFT | KEY_DOT },
 	};
 
-	FOR(const auto& i, MacroControlKeys)
+	for (const auto& i: MacroControlKeys)
 	{
 		if ((*i.RuntimePtr = KeyNameToKey(*i.ConfigPtr)) == static_cast<DWORD>(-1))
 			*i.RuntimePtr = i.Default;
@@ -2054,7 +2052,7 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 		ApplyDefaultMaskGroups();
 	}
 
-	FOR(auto& i, GuidOptions)
+	for(auto& i: GuidOptions)
 	{
 		if (i->StrId.empty())
 		{
@@ -2091,9 +2089,9 @@ void Options::Save(bool Manual)
 	{
 		if (PanelPtr->GetMode() == panel_mode::NORMAL_PANEL)
 		{
-			Panel.m_Type = PanelPtr->GetType().value();
+			Panel.m_Type = static_cast<int>(PanelPtr->GetType());
 			Panel.ViewMode = PanelPtr->GetViewMode();
-			Panel.SortMode = PanelPtr->GetSortMode().value();
+			Panel.SortMode = static_cast<int>(PanelPtr->GetSortMode());
 			Panel.ReverseSortOrder = PanelPtr->GetSortOrder();
 			Panel.SortGroups = PanelPtr->GetSortGroups();
 			Panel.ShowShortNames = PanelPtr->GetShowShortNamesMode();
@@ -2260,7 +2258,7 @@ bool Options::AdvancedConfig(farconfig_mode Mode)
 	auto AdvancedConfigDlg = MakeDialogItemsEx(AdvancedConfigDlgData);
 
 	std::vector<FarListItem> items(Config[CurrentConfig].size());
-	std::transform(ALL_RANGE(Config[CurrentConfig]), items.begin(), std::mem_fn(&FARConfigItem::MakeListItem));
+	std::transform(ALL_RANGE(Config[CurrentConfig]), items.begin(), [](auto& i) { return i.MakeListItem(); });
 
 	FarList Items={sizeof(FarList), items.size(), items.data()};
 
@@ -2310,7 +2308,7 @@ void Options::ReadPanelModes()
 
 	auto root = HierarchicalConfig::root_key();
 
-	const auto ReadMode = [&](REFERENCE(m_ViewSettings) i, size_t Index) -> bool
+	const auto ReadMode = [&](auto& i, size_t Index)
 	{
 		const auto Key = cfg->FindByName(root, std::to_wstring(Index));
 
@@ -2370,7 +2368,7 @@ void Options::SavePanelModes(bool always)
 	const auto cfg = ConfigProvider().CreatePanelModeConfig();
 	auto root = cfg->root_key();
 
-	const auto SaveMode = [&](CONST_REFERENCE(ViewSettings) i, size_t Index)
+	const auto SaveMode = [&](const auto& i, size_t Index)
 	{
 		string strColumnTitles, strColumnWidths;
 		string strStatusColumnTitles, strStatusColumnWidths;
@@ -2522,7 +2520,7 @@ void SetLeftRightMenuChecks(MenuDataEx *pMenu, bool bLeft)
 {
 	const auto pPanel = bLeft? Global->CtrlObject->Cp()->LeftPanel() : Global->CtrlObject->Cp()->RightPanel();
 
-	switch (pPanel->GetType().value())
+	switch (pPanel->GetType())
 	{
 	case panel_type::FILE_PANEL:
 		{
@@ -2958,7 +2956,8 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 						try
 						{
 							Language NewLanguage(Global->g_strFarPath, MNewFileName + 1);
-							Global->Lang->swap(NewLanguage);
+							using std::swap;
+							swap(*Global->Lang, NewLanguage);
 						}
 						catch (const std::exception& e)
 						{

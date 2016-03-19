@@ -45,13 +45,7 @@ private:
 		unique_function_pointer(const os::rtdl::module& Module): m_module(Module) {}
 		operator T() const { return get_pointer(); }
 		bool operator!() const noexcept { return get_pointer() == stub; }
-
-		// explicit operator bool emulation is implemented in terms of function pointer operator,
-		// but this class contains another function pointer operator, thus conversion is ambiguous.
-		// Implicit filthy operator bool resolves it.
-#ifdef NO_EXPLICIT_CONVERSION_OPERATORS
 		operator bool() const { return !!*this; }
-#endif
 
 	private:
 		T get_pointer() const

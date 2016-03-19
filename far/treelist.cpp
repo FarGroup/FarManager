@@ -155,7 +155,7 @@ string& CreateTreeFileName(const string& Path, string &strDest)
 
 	std::vector<string> Strings;
 	split(Strings, Global->Opt->Tree.strExceptPath, STLF_UNIQUE, L";");
-	FOR(const auto& i, Strings)
+	for (const auto& i: Strings)
 	{
 		if (strRootDir == i)
 		{
@@ -395,19 +395,13 @@ static struct list_less
 }
 ListLess;
 
-class TreeListCache: noncopyable, swapable<TreeListCache>
+class TreeListCache
 {
 public:
-	TreeListCache() {}
-	TreeListCache(TreeListCache&& rhs) noexcept { *this = std::move(rhs); }
+	NONCOPYABLE(TreeListCache);
+	TRIVIALLY_MOVABLE(TreeListCache);
 
-	MOVE_OPERATOR_BY_SWAP(TreeListCache);
-
-	void swap(TreeListCache& rhs) noexcept
-	{
-		m_TreeName.swap(rhs.m_TreeName);
-		m_Names.swap(rhs.m_Names);
-	}
+	TreeListCache() = default;
 
 	void clear()
 	{
@@ -1793,7 +1787,6 @@ int TreeList::ReadTreeFile()
 
 	m_ListData.clear();
 
-	// TODO: direct emplace_back after decommissioning VC10
 	ReadLines(TreeFile, [&](string& Name) { m_ListData.emplace_back(string(m_Root.data(), RootLength) + Name); });
 
 	TreeFile.Close();

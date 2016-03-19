@@ -200,7 +200,7 @@ static int MainProcess(
 				}
 
 				auto& CurrentPanelOptions = (Global->Opt->LeftFocus == active)? Global->Opt->LeftPanel : Global->Opt->RightPanel;
-				CurrentPanelOptions.m_Type = panel_type::FILE_PANEL;  // сменим моду панели
+				CurrentPanelOptions.m_Type = static_cast<int>(panel_type::FILE_PANEL);  // сменим моду панели
 				CurrentPanelOptions.Visible = true;     // и включим ее
 				CurrentPanelOptions.Folder = strPath;
 			};
@@ -608,8 +608,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 					{
 						if (const auto EqualPtr = wcschr(Arg + 1, L'='))
 						{
-							// TODO: direct emplace_back after decommissioning VC10
-							Overridden.emplace_back(VALUE_TYPE(Overridden)(string(Arg + 1 + 4, EqualPtr), EqualPtr + 1));
+							Overridden.emplace_back(string(Arg + 1 + 4, EqualPtr), EqualPtr + 1);
 						}
 					}
 					else if (Iter + 1 != Args.end())

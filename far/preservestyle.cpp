@@ -133,7 +133,7 @@ static std::list<PreserveStyleToken> InternalPreserveStyleTokenize(const string&
 	if (Result.size() > 1)
 	{
 		wchar_t PrependChar = std::next(Result.cbegin())->PrependChar;
-		FOR (const auto& i, make_range(std::next(Result.cbegin(), 2), Result.cend()))
+		for (const auto& i: make_range(std::next(Result.cbegin(), 2), Result.cend()))
 		{
 			if (PrependChar != i.PrependChar)
 			{
@@ -368,7 +368,7 @@ bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const str
 			bool Same = SourceTokens.size() == StrTokens.size();
 			if(Same)
 			{
-				Same = std::equal(ALL_CONST_RANGE(SourceTokens), StrTokens.cbegin(), [](CONST_REFERENCE(SourceTokens) a, CONST_REFERENCE(StrTokens) b)
+				Same = std::equal(ALL_CONST_RANGE(SourceTokens), StrTokens.cbegin(), [](const auto& a, const auto& b)
 				{
 					return a.Token.size() == b.Token.size();
 				});
@@ -411,7 +411,7 @@ bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const str
 						int AfterFirstCommonTypeMask = -1;
 						wchar_t PrependChar = SourceTokens.back().PrependChar;
 
-						FOR(const auto& SourceI, make_range(std::next(SourceTokens.cbegin()), SourceTokens.cend()))
+						for (const auto& SourceI: make_range(std::next(SourceTokens.cbegin()), SourceTokens.cend()))
 						{
 							if (AfterFirstCommonTypeMask == -1)
 								AfterFirstCommonTypeMask = SourceI.TypeMask;
@@ -428,7 +428,7 @@ bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const str
 							PrependChar = ReplaceStrTokens.back().PrependChar;
 						}
 
-						FOR(auto& ReplaceI, make_range(std::next(ReplaceStrTokens.begin()), ReplaceStrTokens.end()))
+						for (auto& ReplaceI: make_range(std::next(ReplaceStrTokens.begin()), ReplaceStrTokens.end()))
 						{
 							ToPreserveStyleType(ReplaceI.Token, ChoosePreserveStyleType(AfterFirstCommonTypeMask));
 							ReplaceI.PrependChar = PrependChar;

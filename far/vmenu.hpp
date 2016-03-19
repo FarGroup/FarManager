@@ -93,8 +93,11 @@ class Dialog;
 class SaveScreen;
 
 
-struct MenuItemEx: noncopyable, swapable<MenuItemEx>
+struct MenuItemEx
 {
+	NONCOPYABLE(MenuItemEx);
+	TRIVIALLY_MOVABLE(MenuItemEx);
+
 	MenuItemEx(const string& Text = L""):
 		strName(Text),
 		Flags(),
@@ -104,34 +107,6 @@ struct MenuItemEx: noncopyable, swapable<MenuItemEx>
 		Len(),
 		Idx2()
 	{
-	}
-
-	MenuItemEx(MenuItemEx&& rhs) noexcept:
-		strName(),
-		Flags(),
-		ShowPos(),
-		AccelKey(),
-		AmpPos(),
-		Len(),
-		Idx2()
-	{
-		*this = std::move(rhs);
-	}
-
-	MOVE_OPERATOR_BY_SWAP(MenuItemEx);
-
-	void swap(MenuItemEx& rhs) noexcept
-	{
-		using std::swap;
-		strName.swap(rhs.strName);
-		swap(Flags, rhs.Flags);
-		swap(UserData, rhs.UserData);
-		swap(ShowPos, rhs.ShowPos);
-		swap(AccelKey, rhs.AccelKey);
-		swap(AmpPos, rhs.AmpPos);
-		swap(Len, rhs.Len);
-		swap(Idx2, rhs.Idx2);
-		Annotations.swap(rhs.Annotations);
 	}
 
 	string strName;
@@ -290,14 +265,8 @@ public:
 	{
 		SCOPED_ACTION(CriticalSectionLock)(CS);
 
-		SortItemParam Param;
-		Param.Reverse = Reverse;
-		Param.Offset = Offset;
-
-		std::sort(Items.begin(), Items.end(), [&](const MenuItemEx& a, const MenuItemEx& b)->bool
-		{
-			return Pred(a, b, Param);
-		});
+		SortItemParam Param { Reverse, Offset };
+		std::sort(ALL_RANGE(Items), [&](const auto& a, const auto& b) { return Pred(a, b, Param); });
 
 		// скорректируем SelectPos
 		UpdateSelectPos();

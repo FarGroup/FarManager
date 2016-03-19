@@ -570,7 +570,7 @@ static inline bool AssignColor(const string& Color, COLORREF& Target, FARCOLORFL
 {
 	if (!Color.empty())
 	{
-		const auto Convert = [](const wchar_t* Ptr, COLORREF& Result) -> bool
+		const auto Convert = [](const wchar_t* Ptr, COLORREF& Result)
 		{
 			wchar_t* EndPtr;
 			const auto Value = std::wcstoul(Ptr, &EndPtr, 16);
@@ -627,8 +627,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 					if (Ptr != Format.cbegin())
 					{
 						Str.resize(Str.find(L'('));
-						// TODO: direct emplace_back after decommissioning VC10
-						Result.emplace_back(VALUE_TYPE(Result)(Str, F));
+						Result.emplace_back(Str, F);
 					}
 					Ptr += Pos+2;
 					Color.resize(Pos);
@@ -650,15 +649,15 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 				}
 			}
 		}
-		// TODO: direct emplace_back after decommissioning VC10
-		Result.emplace_back(VALUE_TYPE(Result)(Str, F));
+
+		Result.emplace_back(Str, F);
 
 		std::for_each(RANGE(Result, i)
 		{
 			auto& strDestStr = i.first;
 			const auto strExpandedDestStr = os::env::expand_strings(strDestStr);
 			strDestStr.clear();
-			static const simple_pair<wchar_t, wchar_t> ChrFmt[] =
+			static const std::pair<wchar_t, wchar_t> ChrFmt[] =
 			{
 				{L'A', L'&'},   // $A - & (Ampersand)
 				{L'B', L'|'},   // $B - | (pipe)
@@ -802,8 +801,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 	else
 	{
 		// default prompt = "$p$g"
-		// TODO: direct emplace_back after decommissioning VC10
-		Result.emplace_back(VALUE_TYPE(Result)(m_CurDir + L">", PrefixColor));
+		Result.emplace_back(m_CurDir + L">", PrefixColor);
 	}
 	SetPromptSize(NewPromptSize);
 	return Result;
@@ -988,7 +986,7 @@ static bool ProcessFarCommands(const string& Command, execution_context& Executi
 		{
 			strOut += L"\nLibraries:\n";
 
-			FOR(const auto& i, ComponentsInfo)
+			for (const auto& i: ComponentsInfo)
 			{
 				strOut.append(i).append(1, L'\n');
 			}
@@ -1000,7 +998,7 @@ static bool ProcessFarCommands(const string& Command, execution_context& Executi
 		{
 			strOut += L"\nPlugins:\n";
 
-			FOR(const auto& i, *Global->CtrlObject->Plugins)
+			for (const auto& i: *Global->CtrlObject->Plugins)
 			{
 				strOut.append(i->GetTitle()).append(L", version ").append(i->GetVersionString()).append(1, L'\n');
 			}
@@ -1109,7 +1107,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, class execution_conte
 			&& (n == CmdLine.size() || nullptr != wcschr(L"/ \t", CmdLine[n]) || (bslash && CmdLine[n] == L'\\')));
 	};
 
-	const auto FindKey = [&CmdLine](wchar_t Key) -> bool
+	const auto FindKey = [&CmdLine](wchar_t Key)
 	{
 		const auto FirstSpacePos = CmdLine.find(L' ');
 		const auto NotSpacePos = CmdLine.find_first_not_of(L' ', FirstSpacePos);
@@ -1163,7 +1161,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, class execution_conte
 			{
 				const os::env::provider::strings EnvStrings;
 				const auto EnvStringsPtr = EnvStrings.data();
-				FOR(const auto& i, enum_substrings(EnvStringsPtr))
+				for (const auto& i: enum_substrings(EnvStringsPtr))
 				{
 					if (!StrCmpNI(i.data(), strCmdLine.data(), strCmdLine.size()))
 					{

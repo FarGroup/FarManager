@@ -213,7 +213,7 @@ void Message::Init(
 		strErrStr = GetErrorString();
 		if (!strErrStr.empty())
 		{
-			FOR(const auto& i, Inserts)
+			for (const auto& i: Inserts)
 			{
 				strErrStr = string_format(strErrStr, i);
 			}
@@ -221,7 +221,7 @@ void Message::Init(
 	}
 
 	size_t MaxLength = 0;
-	FOR(const auto& i, Strings)
+	for (const auto& i: Strings)
 	{
 		MaxLength = std::max(MaxLength, i.size());
 	}
@@ -234,7 +234,7 @@ void Message::Init(
 		strClipText.append(Title).append(L"\r\n\r\n");
 	}
 
-	size_t BtnLength = std::accumulate(Buttons.cbegin(), Buttons.cend(), size_t(0), [](size_t Result, CONST_REFERENCE(Buttons) i)
+	size_t BtnLength = std::accumulate(Buttons.cbegin(), Buttons.cend(), size_t(0), [](size_t Result, const auto& i)
 	{
 		return Result + HiStrlen(i.data()) + 2 + 2 + 1; // "[ ", " ]", " "
 	});
@@ -288,7 +288,7 @@ void Message::Init(
 		MessageStrings.resize(1);
 	}
 
-	FOR(const auto& i, Strings)
+	for (const auto& i: Strings)
 	{
 		strClipText.append(i).append(L"\r\n");
 	}
@@ -296,7 +296,7 @@ void Message::Init(
 
 	if (!Buttons.empty())
 	{
-		FOR(const auto& i, Buttons)
+		for (const auto& i: Buttons)
 		{
 			strClipText.append(i).append(L" ");
 		}

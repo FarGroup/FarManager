@@ -61,7 +61,7 @@ public:
 	virtual bool SetValue(const string& Key, const string& Name, unsigned __int64 Value) = 0;
 	virtual bool SetValue(const string& Key, const string& Name, const blob& Value) = 0;
 	template<class T>
-	typename std::enable_if<!std::is_pointer<T>::value && !std::is_integral<T>::value, bool>::type
+	std::enable_if_t<!std::is_pointer<T>::value && !std::is_integral<T>::value, bool>
 	SetValue(const string& Key, const string& Name, const T& Value)
 	{
 		static_assert(std::is_pod<T>::value, "This template requires a POD type");
@@ -130,7 +130,7 @@ public:
 	virtual bool SetValue(const key& Root, const string& Name, unsigned long long Value) = 0;
 	virtual bool SetValue(const key& Root, const string& Name, const blob& Value) = 0;
 	template<class T>
-	typename std::enable_if<!std::is_pointer<T>::value && !std::is_integral<T>::value, bool>::type
+	std::enable_if_t<!std::is_pointer<T>::value && !std::is_integral<T>::value, bool>
 	SetValue(const key& Root, const string& Name, const T& Value)
 	{
 		static_assert(std::is_pod<T>::value, "This template requires a POD type");
@@ -141,7 +141,7 @@ public:
 	virtual bool GetValue(const key& Root, const string& Name, string &strValue) = 0;
 	virtual bool GetValue(const key& Root, const string& Name, writable_blob& Value) = 0;
 	template<class T>
-	typename std::enable_if<!std::is_pointer<T>::value && !std::is_integral<T>::value, bool>::type
+	std::enable_if_t<!std::is_pointer<T>::value && !std::is_integral<T>::value, bool>
 	GetValue(const key& Root, const string& Name, T& Value)
 	{
 		static_assert(std::is_pod<T>::value, "This template requires a POD type");
@@ -266,7 +266,7 @@ protected:
 	PluginsHotkeysConfig() {}
 };
 
-ENUM(history_record_type);
+enum history_record_type: int;
 
 class HistoryConfig: public representable, virtual public transactional
 {
@@ -305,7 +305,7 @@ protected:
 	HistoryConfig() {}
 };
 
-ENUM(dbcheck);
+enum dbcheck: int;
 
 class config_provider: noncopyable
 {

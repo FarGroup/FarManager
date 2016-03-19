@@ -180,7 +180,7 @@ strType - сюда запишется результат, если будет н
 */
 static bool SearchExtHandlerFromList(const os::reg::key& hExtKey, string &strType)
 {
-	FOR(const auto& i, os::reg::enum_value(hExtKey.get(), L"OpenWithProgids", KEY_ENUMERATE_SUB_KEYS))
+	for (const auto& i: os::reg::enum_value(hExtKey.get(), L"OpenWithProgids", KEY_ENUMERATE_SUB_KEYS))
 	{
 		if (i.Type() == REG_SZ && IsProperProgID(i.Name()))
 		{
@@ -231,7 +231,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 			std::vector<string> PathExtList;
 			split(PathExtList, strPathExt, STLF_UNIQUE);
 
-			FOR(const auto& i, PathExtList) // первый проход - в текущем каталоге
+			for (const auto& i: PathExtList) // первый проход - в текущем каталоге
 			{
 				string strTmpName=strFullName;
 
@@ -260,9 +260,9 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 				{
 					std::vector<string> Strings;
 					split(Strings, strPathEnv, STLF_UNIQUE);
-					FOR(const auto& Path, Strings)
+					for (const auto& Path: Strings)
 					{
-						FOR(const auto& Ext, PathExtList)
+						for (const auto& Ext: PathExtList)
 						{
 							string Dest;
 
@@ -283,7 +283,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 
 				if (!Result)
 				{
-					FOR(const auto& Ext, PathExtList)
+					for (const auto& Ext: PathExtList)
 					{
 						string Dest;
 
@@ -336,13 +336,13 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 
 					if (!Result)
 					{
-						Result = std::any_of(CONST_RANGE(PathExtList, Ext) -> bool
+						Result = std::any_of(CONST_RANGE(PathExtList, Ext)
 						{
 							strFullName=RegPath;
 							strFullName+=Module;
 							strFullName+=Ext;
 
-							return std::any_of(CONST_RANGE(RootFindKey, i) -> bool
+							return std::any_of(CONST_RANGE(RootFindKey, i)
 							{
 								if (os::reg::GetValue(i, strFullName, L"", strFullName))
 								{
@@ -482,7 +482,7 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 
 		if (RetPtr && !ActionList.empty())
 		{
-			FOR(const auto& i, ActionList)
+			for (const auto& i: ActionList)
 			{
 				strNewValue = strValue;
 				strNewValue += i;
@@ -532,7 +532,7 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 		else
 		{
 			// ... а теперь все остальное, если "open" нету
-			FOR(const auto& i, os::reg::enum_key(Key))
+			for (const auto& i: os::reg::enum_key(Key))
 			{
 				strAction = i;
 

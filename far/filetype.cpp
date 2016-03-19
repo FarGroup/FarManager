@@ -330,7 +330,7 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 
 	Global->CtrlObject->CmdLine()->ExecString(Info);
 
-	FOR(const auto& i, ListNames)
+	for (const auto& i: ListNames)
 	{
 		if (!i.empty())
 			os::DeleteFile(i);

@@ -62,10 +62,12 @@ namespace detail
 };
 
 
-class any: swapable<any>
+class any
 {
 public:
-	any() {}
+	TRIVIALLY_MOVABLE(any);
+
+	any() = default;
 
 	any(const any& rhs):
 		m_Data(construct(rhs))
@@ -78,24 +80,22 @@ public:
 	{
 	}
 
-	any(any&& rhs) noexcept { *this = std::move(rhs); }
-
 	any& operator=(const any& rhs)
 	{
-		any(rhs).swap(*this);
+		any Tmp(rhs);
+		using std::swap;
+		swap(*this, Tmp);
 		return *this;
 	}
 
 	template<class T>
 	any& operator=(T&& rhs)
 	{
-		any(std::forward<T>(rhs)).swap(*this);
+		any Tmp(std::forward<T>(rhs));
+		using std::swap;
+		swap(*this, Tmp);
 		return *this;
 	}
-
-	MOVE_OPERATOR_BY_SWAP(any);
-
-	void swap(any& rhs) noexcept { m_Data.swap(rhs.m_Data); }
 
 	bool empty() const noexcept { return m_Data != nullptr; }
 
@@ -112,9 +112,9 @@ public:
 
 private:
 	template<class T>
-	static typename std::enable_if<!std::is_same<typename std::decay<T>::type, any>::value, std::unique_ptr<detail::any_base>>::type construct(T&& rhs)
+	static std::enable_if_t<!std::is_same<std::decay_t<T>, any>::value, std::unique_ptr<detail::any_base>> construct(T&& rhs)
 	{
-		return std::make_unique<detail::any_impl<typename std::decay<T>::type>>(std::forward<T>(rhs));
+		return std::make_unique<detail::any_impl<std::decay_t<T>>>(std::forward<T>(rhs));
 	}
 
 	static std::unique_ptr<detail::any_base> construct(const any& rhs)

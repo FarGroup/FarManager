@@ -372,7 +372,7 @@ int Grabber::ProcessKey(const Manager::Key& Key)
 			ResetArea = true;
 	}
 
-	const auto Move = [this](COORD& What, int Count, int Direction, int LimitX, int LimitY, int NewX) -> bool
+	const auto Move = [this](COORD& What, int Count, int Direction, int LimitX, int LimitY, int NewX)
 	{
 		for (; Count; --Count)
 		{

@@ -1,4 +1,8 @@
-﻿drkns 19.03.2016 23:19:41 +0200
+﻿drkns 20.03.2016 00:41:42 +0200 - build 4584
+
+1. Убираем костыли, щедро расставленные повсеместно для поддержки VS2010 и компании.
+
+drkns 19.03.2016 23:19:41 +0200
 
 1. Given that our German users aren't happy with "#0003145: New German translation", I'm reverting it to the previous version.
    Only previously untranslated strings are picked from #0003145 now.

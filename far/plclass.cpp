@@ -218,7 +218,7 @@ bool NativePluginModel::IsPlugin2(const void* Module)
 		if (!(pPEHeader->FileHeader.Characteristics & IMAGE_FILE_DLL))
 			return false;
 
-		const auto GetMachineType = []() -> WORD
+		const auto GetMachineType = []
 		{
 			const auto FarModule = GetModuleHandle(nullptr);
 			return reinterpret_cast<const IMAGE_NT_HEADERS*>(reinterpret_cast<const char*>(FarModule) + reinterpret_cast<const IMAGE_DOS_HEADER*>(FarModule)->e_lfanew)->FileHeader.Machine;
@@ -234,7 +234,7 @@ bool NativePluginModel::IsPlugin2(const void* Module)
 		if (!dwExportAddr)
 			return false;
 
-		FOR(const auto& Section, make_range(IMAGE_FIRST_SECTION(pPEHeader), IMAGE_FIRST_SECTION(pPEHeader) + pPEHeader->FileHeader.NumberOfSections))
+		for (const auto& Section: make_range(IMAGE_FIRST_SECTION(pPEHeader), IMAGE_FIRST_SECTION(pPEHeader) + pPEHeader->FileHeader.NumberOfSections))
 		{
 			if ((Section.VirtualAddress == dwExportAddr) ||
 				((Section.VirtualAddress <= dwExportAddr) && ((Section.Misc.VirtualSize + Section.VirtualAddress) > dwExportAddr)))
@@ -278,11 +278,7 @@ FarStandardFunctions NativeFSF =
 	pluginapi::apiItoa,
 	pluginapi::apiItoa64,
 	pluginapi::apiSprintf,
-#if !VS_OLDER_THAN(VS_2013)
 	pluginapi::apiSscanf,
-#else
-	swscanf,
-#endif
 	pluginapi::apiQsort,
 	pluginapi::apiBsearch,
 	pluginapi::apiSnprintf,
@@ -504,7 +500,7 @@ bool Plugin::SaveToCache()
 		PlCache.SetSignature(id, MakeSignature(fdata));
 	}
 
-	const auto SaveItems = [&](decltype(&PluginsCacheConfig::SetPluginsMenuItem) Setter, const PluginMenuItem& Item)
+	const auto SaveItems = [&](const auto& Setter, const auto& Item)
 	{
 		for (size_t i = 0; i < Item.Count; i++)
 		{

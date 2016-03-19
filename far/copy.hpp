@@ -42,8 +42,8 @@ class Dialog;
 class CopyProgress;
 class FileFilter;
 
-ENUM(COPY_CODES);
-ENUM(ReparsePointTypes);
+enum COPY_CODES: int;
+enum ReparsePointTypes: int;
 
 class ShellCopy: noncopyable
 {

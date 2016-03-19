@@ -175,13 +175,13 @@ enum STL_FLAGS
 	STLF_NOQUOTING       = BIT(7), // do not give special meaning for quotes
 };
 
-void split(const string& InitString, DWORD Flags, const wchar_t* Separators, const std::function<void(string&)>& inserter); // don't use string&& here - VC2010 bug
+void split(const string& InitString, DWORD Flags, const wchar_t* Separators, const std::function<void(string&&)>& inserter);
 
 template <class Container>
 void split(Container& C, const string& InitString, DWORD Flags = 0, const wchar_t* Separators = L";,")
 {
 	C.clear();
-	split(InitString, Flags, Separators, [&](string& str) { C.emplace(C.end(), std::move(str)); });
+	split(InitString, Flags, Separators, [&](string&& str) { C.emplace(C.end(), std::move(str)); });
 }
 
 template<class container>
@@ -212,7 +212,7 @@ unsigned long long StringToFlags(const string& strFlags, const container& From, 
 	{
 		std::vector<string> Strings;
 		split(Strings, strFlags, STLF_UNIQUE, Separators);
-		FOR(const auto& i, Strings)
+		for (const auto& i: Strings)
 		{
 			const auto ItemIterator = std::find_if(CONST_RANGE(From, j)
 			{

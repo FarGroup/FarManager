@@ -602,7 +602,7 @@ void Viewer::ShowPage(int nMode)
 	if (nMode != SHOW_HEX && nMode != SHOW_DUMP)
 	{
 		int Y = m_Y1 - 1;
-		FOR (auto& i, Strings)
+		for (auto& i: Strings)
 		{
 			++Y;
 			SetColor(COL_VIEWERTEXT);
@@ -1398,7 +1398,7 @@ __int64 Viewer::XYfilepos(int col, int row)
 		break;
 
 	case VMT_TEXT:
-		FOR (auto& i, Strings)
+		for (auto& i: Strings)
 		{
 			if (i.linesize <= 0)
 			{
@@ -1521,8 +1521,7 @@ int Viewer::process_key(const Manager::Key& Key)
 
 		if (UndoData.size() == VIEWER_UNDO_COUNT)
 			UndoData.pop_front();
-		// TODO: direct emplace_back after decommissioning VC10
-		UndoData.emplace_back(VALUE_TYPE(UndoData)(FilePos, LeftPos));
+		UndoData.emplace_back(FilePos, LeftPos);
 	}
 
 	if (LocalKey!=KEY_ALTBS && LocalKey!=KEY_RALTBS && LocalKey!=KEY_CTRLZ && LocalKey!=KEY_RCTRLZ && LocalKey!=KEY_NONE && LocalKey!=KEY_IDLE)
@@ -2406,7 +2405,7 @@ void Viewer::Up( int nlines, bool adjust )
 
 			if ( ch_size <= 1 )
 			{
-				const auto BufferReader = [&](char* Buffer, size_t Size) -> int
+				const auto BufferReader = [&](char* Buffer, size_t Size)
 				{
 					size_t nread = 0;
 					Reader.Read(Buffer, buff_size, &nread);
@@ -2817,7 +2816,7 @@ struct Viewer::search_data
 	}
 };
 
-ENUM(SEARCHER_RESULT)
+enum SEARCHER_RESULT: int
 {
 	Search_NotFound  = 0,
 	Search_Continue  = 1,
@@ -2827,7 +2826,7 @@ ENUM(SEARCHER_RESULT)
 	Search_Found     = 5,
 };
 
-ENUM(SEARCH_WRAP_MODE)
+enum SEARCH_WRAP_MODE
 {
 	SearchWrap_NO    = 0,
 	SearchWrap_END   = 1,
@@ -4010,7 +4009,7 @@ void Viewer::GoTo(int ShowDlg, __int64 Offset, UINT64 Flags)
 
 	int IsOffsetRelative = 0;
 
-	const auto CalcPercent = [](long long Value, long long PercentBase) -> long long
+	const auto CalcPercent = [](long long Value, long long PercentBase)
 	{
 		const auto Percent = std::min(Value, 100ll);
 		Value = PercentBase / 100 * Percent;

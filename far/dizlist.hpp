@@ -61,7 +61,7 @@ private:
 	desc_map::const_iterator Find(const string& Name, const string& ShortName) const;
 
 	desc_map m_DizData;
-	std::list<std::add_pointer<desc_map::value_type>::type> m_OrderForWrite;
+	std::list<std::add_pointer_t<desc_map::value_type>> m_OrderForWrite;
 	string m_DizFileName;
 	uintptr_t m_CodePage;
 	bool m_Modified;

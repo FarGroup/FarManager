@@ -156,8 +156,7 @@ void DizList::Read(const string& Path, const string* DizName)
 
 						// Insert unconditionally
 						LastAdded = Insert(string(NameBegin, NameEnd));
-						// TODO: direct emplace_back after decommissioning VC10
-						LastAdded->second.emplace_back(string(DescBegin, DizText.cend()));
+						LastAdded->second.emplace_back(DescBegin, DizText.cend());
 					}
 					else
 					{
@@ -230,11 +229,7 @@ const wchar_t* DizList::Get(const string& Name, const string& ShortName, const _
 }
 
 template<class T>
-// TODO: remove this after decommissioning VC10
-#pragma push_macro("decltype")
-#undef decltype
-auto Find_t(T& Map, const string& Name, const string& ShortName, uintptr_t Codepage) -> decltype(Map.begin())
-#pragma pop_macro("decltype")
+auto Find_t(T& Map, const string& Name, const string& ShortName, uintptr_t Codepage)
 {
 	auto Iterator = Map.find(Name);
 	if (Iterator == Map.end())
@@ -266,8 +261,7 @@ DizList::desc_map::const_iterator DizList::Find(const string& Name, const string
 
 DizList::desc_map::iterator DizList::Insert(const string& Name)
 {
-	// TODO: direct emplace after decommissioning VC10
-	auto Iterator = m_DizData.insert(VALUE_TYPE(m_DizData)(Name, std::list<string>()));
+	auto Iterator = m_DizData.emplace(Name, std::list<string>());
 	m_OrderForWrite.push_back(&*Iterator);
 	return Iterator;
 }
@@ -358,12 +352,12 @@ bool DizList::Flush(const string& Path,const string* DizName)
 
 		if(!AnyError)
 		{
-			FOR(const auto& i_ptr, m_OrderForWrite)
+			for (const auto& i_ptr: m_OrderForWrite)
 			{
 				const auto& i = *i_ptr;
 				string dump = i.first;
 				QuoteSpaceOnly(dump);
-				FOR(const auto& j, i.second)
+				for (const auto& j: i.second)
 				{
 					dump.append(j).append(L"\r\n");
 				}

@@ -350,11 +350,7 @@ vmenu2_ptr VMenu2::create(const string& Title, const MenuDataEx *Data, size_t It
 	VMenu2Ptr->SendMessage(DM_SETINPUTNOTIFY, 1, nullptr);
 
 	std::vector<FarListItem> fli(ItemCount);
-	std::transform(Data, Data + ItemCount, fli.begin(), [](const MenuDataEx& i)->FarListItem
-	{
-		FarListItem Item = {i.Flags, i.Name};
-		return Item;
-	});
+	std::transform(Data, Data + ItemCount, fli.begin(), [](const auto& i) { return FarListItem{i.Flags, i.Name}; });
 
 	FarList fl={sizeof(FarList), ItemCount, fli.data()};
 

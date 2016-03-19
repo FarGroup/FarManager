@@ -29,34 +29,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef NO_VARIADIC_TEMPLATES
-template<class T, class T1>
-std::vector<T> make_vector(T1&& a1)
-{
-	return std::vector<T>(1, std::forward<T1>(a1));
-}
-
-#define MAKE_VECTOR_VTE(TYPENAME_LIST, ARG_LIST, REF_ARG_LIST, FWD_ARG_LIST) \
-template<class T, TYPENAME_LIST, VTE_TYPENAME(last)> \
-std::vector<T> make_vector(REF_ARG_LIST, VTE_REF_ARG(last)) \
-{ \
-	auto v = make_vector<T>(FWD_ARG_LIST); \
-	v.emplace_back(VTE_FWD_ARG(last)); \
-	return v; \
-}
-
-#include "variadic_emulation_helpers_begin.hpp"
-VTE_GENERATE(MAKE_VECTOR_VTE)
-#include "variadic_emulation_helpers_end.hpp"
-
-#undef MAKE_VECTOR_VTE
-
-#else
 template<class T, class... Args>
 std::vector<T> make_vector(Args&&... args)
 {
 	return std::vector<T>{ std::forward<Args>(args)... };
 }
-#endif
 
 #endif // MAKE_VECTOR_HPP_AA2FFCDD_0DEC_4857_83CB_9DB6C1494EF1

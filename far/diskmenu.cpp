@@ -63,29 +63,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dirmix.hpp"
 #include "lockscrn.hpp"
 
-class ChDiskPluginItem:noncopyable, swapable<ChDiskPluginItem>
+class ChDiskPluginItem
 {
 public:
+	NONCOPYABLE(ChDiskPluginItem);
+	TRIVIALLY_MOVABLE(ChDiskPluginItem);
+
 	ChDiskPluginItem():
 		HotKey()
 	{}
 
-	ChDiskPluginItem(ChDiskPluginItem&& rhs) noexcept:
-		HotKey()
-	{
-		*this = std::move(rhs);
-	}
-
-	MOVE_OPERATOR_BY_SWAP(ChDiskPluginItem);
-
-	void swap(ChDiskPluginItem& rhs) noexcept
-	{
-		using std::swap;
-		Item.swap(rhs.Item);
-		swap(HotKey, rhs.HotKey);
-	}
-
-		bool operator <(const ChDiskPluginItem& rhs) const
+	bool operator <(const ChDiskPluginItem& rhs) const
 	{
 		return (Global->Opt->ChangeDriveMode & DRIVE_SORT_PLUGINS_BY_HOTKEY && HotKey != rhs.HotKey)?
 			HotKey < rhs.HotKey :
@@ -129,7 +117,7 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 	string strPluginText;
 	size_t PluginMenuItemsCount = 0;
 
-	FOR(const auto& i, *Global->CtrlObject->Plugins)
+	for (const auto& i: *Global->CtrlObject->Plugins)
 	{
 		if (Done)
 			break;
@@ -681,7 +669,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 			if (Global->Opt->ChangeDriveMode & (DRIVE_SHOW_TYPE | DRIVE_SHOW_NETNAME))
 			{
-				static const simple_pair<int, LNGID> DrTMsg[] =
+				static const std::pair<int, LNGID> DrTMsg[] =
 				{
 					{ DRIVE_REMOVABLE, MChangeDriveRemovable },
 					{ DRIVE_FIXED, MChangeDriveFixed },

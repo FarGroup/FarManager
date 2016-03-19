@@ -84,6 +84,7 @@ namespace detail
 	};
 }
 
+// BUGBUG: refactor and make TRIVIALLY_MOVABLE
 struct FileListItem: public detail::FileListItemPod, noncopyable, swapable<FileListItem>
 {
 	string strName;
@@ -117,8 +118,11 @@ struct FileListItem: public detail::FileListItemPod, noncopyable, swapable<FileL
 	}
 };
 
-struct PluginsListItem: noncopyable, swapable<PluginsListItem>
+struct PluginsListItem
 {
+	NONCOPYABLE(PluginsListItem);
+	TRIVIALLY_MOVABLE(PluginsListItem);
+
 	PluginsListItem(PluginHandle* hPlugin, const string& HostFile, const string& PrevOriginalCurDir, int Modified, int PrevViewMode, panel_sort PrevSortMode, bool PrevSortOrder, bool PrevNumericSort, bool PrevCaseSensitiveSort, bool PrevDirectoriesFirst, const PanelViewSettings& PrevViewSettings):
 		m_Plugin(hPlugin),
 		m_HostFile(HostFile),
@@ -133,40 +137,6 @@ struct PluginsListItem: noncopyable, swapable<PluginsListItem>
 		m_PrevViewSettings(PrevViewSettings.clone())
 	{}
 
-	PluginsListItem(PluginsListItem&& rhs) noexcept:
-		m_Plugin(),
-		m_HostFile(),
-		m_PrevOriginalCurDir(),
-		m_Modified(),
-		m_PrevViewMode(),
-		m_PrevSortMode(panel_sort::UNSORTED),
-		m_PrevSortOrder(),
-		m_PrevNumericSort(),
-		m_PrevCaseSensitiveSort(),
-		m_PrevDirectoriesFirst(),
-		m_PrevViewSettings()
-	{
-		*this = std::move(rhs);
-	}
-
-	MOVE_OPERATOR_BY_SWAP(PluginsListItem);
-
-	void swap(PluginsListItem& rhs) noexcept
-	{
-		using std::swap;
-		swap(m_Plugin, rhs.m_Plugin);
-		m_HostFile.swap(rhs.m_HostFile);
-		m_PrevOriginalCurDir.swap(rhs.m_PrevOriginalCurDir);
-		swap(m_Modified, rhs.m_Modified);
-		swap(m_PrevViewMode, rhs.m_PrevViewMode);
-		swap(m_PrevSortMode, rhs.m_PrevSortMode);
-		swap(m_PrevSortOrder, rhs.m_PrevSortOrder);
-		swap(m_PrevNumericSort, rhs.m_PrevNumericSort);
-		swap(m_PrevCaseSensitiveSort, rhs.m_PrevCaseSensitiveSort);
-		swap(m_PrevDirectoriesFirst, rhs.m_PrevDirectoriesFirst);
-		m_PrevViewSettings.swap(rhs.m_PrevViewSettings);
-	}
-
 	PluginHandle* m_Plugin;
 	string m_HostFile;
 	string m_PrevOriginalCurDir;
@@ -180,7 +150,7 @@ struct PluginsListItem: noncopyable, swapable<PluginsListItem>
 	PanelViewSettings m_PrevViewSettings;
 };
 
-ENUM(OPENFILEPLUGINTYPE);
+enum OPENFILEPLUGINTYPE: int;
 
 class FileList:public Panel
 {

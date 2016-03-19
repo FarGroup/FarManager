@@ -399,7 +399,7 @@ int SubstFileName(const wchar_t *DlgTitle,
                   const wchar_t *CmdLineDir)     // Каталог исполнения
 {
 	string* Lists[] = { pListName, pAnotherListName, pShortListName, pAnotherShortListName };
-	FOR(auto& i, Lists)
+	for (auto& i: Lists)
 	{
 		if (i)
 			i->clear();
@@ -538,7 +538,6 @@ int ReplaceVariables(const wchar_t *DlgTitle, string &strStr, TSubstData& SubstD
 
 		{
 			pos_item Item = {Str - StartStr - 2, Str - StartStr - 2 + ii};
-			// TODO: direct emplace_back after decommissioning VC10
 			Positions.emplace_back(Item);
 		}
 

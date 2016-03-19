@@ -79,7 +79,7 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 			IntensityMask = 8,
 		};
 
-		FOR(auto& i, data)
+		for (auto& i: data)
 		{
 			if(i.Color != *i.LastColor)
 			{
@@ -131,7 +131,7 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 							});
 						}
 
-						const auto ToMask = [](size_t component, console_mask mask) -> BYTE { return component ? mask : 0; };
+						const auto ToMask = [](size_t component, console_mask mask) { return component ? mask : 0; };
 						*i.IndexColor = ToMask(R, RedMask) | ToMask(G, GreenMask) | ToMask(B, BlueMask) | ToMask(IntenseCount, IntensityMask);
 					}
 				}

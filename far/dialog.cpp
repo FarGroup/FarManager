@@ -318,47 +318,14 @@ DialogItemEx::DialogItemEx():
 	UCData()
 {}
 
-DialogItemEx::DialogItemEx(const DialogItemEx& rhs):
-	FarDialogItem(rhs),
-	ListPos(rhs.ListPos),
-	strHistory(rhs.strHistory),
-	strMask(rhs.strMask),
-	strData(rhs.strData),
-	IFlags(rhs.IFlags),
-	Auto(rhs.Auto),
-	ObjPtr(rhs.ObjPtr),
-	ListPtr(rhs.ListPtr),
-	UCData(rhs.UCData)
-{}
+DialogItemEx::~DialogItemEx() = default;
 
-DialogItemEx::DialogItemEx(DialogItemEx&& rhs) noexcept:
-	FarDialogItem(),
-	ListPos(),
-	ObjPtr(),
-	ListPtr(),
-	UCData()
-{
-	*this = std::move(rhs);
-}
+DialogItemEx::DialogItemEx(const DialogItemEx&) = default;
+DialogItemEx& DialogItemEx::operator=(const DialogItemEx&) = default;
 
-DialogItemEx::~DialogItemEx()
-{
-}
+DialogItemEx::DialogItemEx(DialogItemEx&&) = default;
+DialogItemEx& DialogItemEx::operator=(DialogItemEx&&) = default;
 
-void DialogItemEx::swap(DialogItemEx& rhs) noexcept
-{
-	using std::swap;
-	swap(*static_cast<FarDialogItem*>(this), static_cast<FarDialogItem&>(rhs));
-	swap(ListPos, rhs.ListPos);
-	strHistory.swap(rhs.strHistory);
-	strMask.swap(rhs.strMask);
-	strData.swap(rhs.strData);
-	swap(IFlags, rhs.IFlags);
-	Auto.swap(rhs.Auto);
-	swap(ObjPtr, rhs.ObjPtr);
-	swap(ListPtr, rhs.ListPtr);
-	swap(UCData, rhs.UCData);
-}
 
 bool DialogItemEx::AddAutomation(DialogItemEx* DlgItem,
 	FARDIALOGITEMFLAGS UncheckedSet, FARDIALOGITEMFLAGS UncheckedSkip,
@@ -611,7 +578,7 @@ void Dialog::ProcessCenterGroup()
 			const auto ButtonsEnd = std::find_if(i, Items.end(), [&](const DialogItemEx& Item) { return IsNotSuitableItem(Item, i->Y1); });
 			const auto FirstVisibleButton = std::find_if(i, ButtonsEnd, IsVisible);
 
-			const auto GetIncrement = [this](const DialogItemEx& Item) -> int
+			const auto GetIncrement = [this](const DialogItemEx& Item)
 			{
 				auto Result = LenStrItem(Item);
 				if (!Item.strData.empty())
@@ -4756,7 +4723,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 					_DIALOG(SysLog(L"[%d] DialogMode.Set(DMODE_DRAWING)",__LINE__));
 					DialogMode.Set(DMODE_DRAWING);
 
-					FOR(auto& i, Items)
+					for (auto& i: Items)
 					{
 						if (i.Flags&DIF_HIDDEN)
 							continue;

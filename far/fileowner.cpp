@@ -75,24 +75,17 @@ static bool SidToNameCached(PSID Sid, string& Name, const string& Computer)
 {
 	bool Result = false;
 
-	class sid: noncopyable
+	class sid
 	{
 	public:
+		NONCOPYABLE(sid);
+		TRIVIALLY_MOVABLE(sid);
+
 		sid(PSID rhs)
 		{
 			DWORD Size = GetLengthSid(rhs);
 			m_Data.reset(Size);
 			CopySid(Size, m_Data.get(), rhs);
-		}
-
-		sid(sid&& rhs) noexcept { *this = std::move(rhs); }
-
-		MOVE_OPERATOR_BY_SWAP(sid);
-
-		void swap(sid& rhs) noexcept
-		{
-			using std::swap;
-			swap(m_Data, rhs.m_Data);
 		}
 
 		bool operator==(const sid& rhs) const
@@ -125,8 +118,7 @@ static bool SidToNameCached(PSID Sid, string& Name, const string& Computer)
 	{
 		if (SidToName(Sid, Name, Computer))
 		{
-			// TODO: direct emplace after decommissioning VC10
-			SIDCache.emplace(std::make_pair(std::move(SidCopy), Name));
+			SIDCache.emplace(std::move(SidCopy), Name);
 			Result = true;
 		}
 	}
@@ -164,7 +156,7 @@ bool SetOwnerInternal(const string& Object, const string& Owner)
 	bool Result = false;
 
 	PSID Ptr = nullptr;
-	os::memory::local::ptr_t<void>::type Sid;
+	os::memory::local::ptr_t<void> Sid;
 	if (ConvertStringSidToSid(Owner.data(), &Ptr))
 	{
 		Sid.reset(Ptr);

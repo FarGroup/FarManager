@@ -35,7 +35,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-ENUM(ReparsePointTypes)
+enum ReparsePointTypes: int
 {
 	RP_EXACTCOPY,   // для копирования/переноса ссылок, копия существующего
 	RP_HARDLINK,    // жёсткая ссылка

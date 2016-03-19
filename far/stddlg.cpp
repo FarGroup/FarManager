@@ -171,15 +171,13 @@ int GetSearchReplaceString(
 	if (!pPreserveStyle)
 		ReplaceDlg[dlg_checkbox_style].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
 
-	// explicit variables to make buggy VC10 happy
-	const auto search_id = dlg_edit_search, word_id = dlg_button_word, selection_id = dlg_button_selection;
 	const auto Handler = [&](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) -> intptr_t
 	{
-		if (Msg == DN_BTNCLICK && Picker && (Param1 == word_id || Param1 == selection_id))
+		if (Msg == DN_BTNCLICK && Picker && (Param1 == dlg_button_word || Param1 == dlg_button_selection))
 		{
 			// BUGBUG: #0003136: DM_INSERTTEXT or something like that
-			static_cast<DlgEdit*>(Dlg->GetAllItem()[search_id].ObjPtr)->InsertString(Picker(Param1 == selection_id));
-			Dlg->SendMessage(DM_SETFOCUS, search_id, nullptr);
+			static_cast<DlgEdit*>(Dlg->GetAllItem()[dlg_edit_search].ObjPtr)->InsertString(Picker(Param1 == dlg_button_selection));
+			Dlg->SendMessage(DM_SETFOCUS, dlg_edit_search, nullptr);
 			return TRUE;
 		}
 		return Dlg->DefProc(Msg, Param1, Param2);
@@ -531,7 +529,7 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 					}
 					if(RmGetListResult ==ERROR_SUCCESS)
 					{
-						FOR(const auto& i, rgpi)
+						for (const auto& i: rgpi)
 						{
 							string tmp = i.strAppName;
 							if (*i.strServiceShortName)

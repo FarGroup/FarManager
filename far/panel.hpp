@@ -61,20 +61,12 @@ struct column: public column_base
 	string title;
 };
 
-struct PanelViewSettings: noncopyable, swapable<PanelViewSettings>
+struct PanelViewSettings
 {
-	PanelViewSettings(): Flags() {}
-	PanelViewSettings(PanelViewSettings&& rhs) noexcept: Flags() { *this = std::move(rhs); }
-	MOVE_OPERATOR_BY_SWAP(PanelViewSettings);
+	NONCOPYABLE(PanelViewSettings);
+	TRIVIALLY_MOVABLE(PanelViewSettings);
 
-	void swap(PanelViewSettings& rhs) noexcept
-	{
-		using std::swap;
-		PanelColumns.swap(rhs.PanelColumns);
-		StatusColumns.swap(rhs.StatusColumns);
-		Name.swap(rhs.Name);
-		swap(Flags, rhs.Flags);
-	}
+	PanelViewSettings(): Flags() {}
 
 	PanelViewSettings clone() const
 	{
@@ -106,47 +98,41 @@ enum {VIEW_0=0,VIEW_1,VIEW_2,VIEW_3,VIEW_4,VIEW_5,VIEW_6,VIEW_7,VIEW_8,VIEW_9};
 
 enum {UPDATE_KEEP_SELECTION=1,UPDATE_SECONDARY=2,UPDATE_IGNORE_VISIBLE=4,UPDATE_DRAW_MESSAGE=8};
 
-namespace detail
+enum class panel_type
 {
-	struct panel_type { enum value_type
-	{
-		FILE_PANEL,
-		TREE_PANEL,
-		QVIEW_PANEL,
-		INFO_PANEL
-	};};
+	FILE_PANEL,
+	TREE_PANEL,
+	QVIEW_PANEL,
+	INFO_PANEL
+};
 
-	struct panel_mode { enum value_type
-	{
-		NORMAL_PANEL,
-		PLUGIN_PANEL
-	};};
+enum class panel_mode
+{
+	NORMAL_PANEL,
+	PLUGIN_PANEL
+};
 
-	struct panel_sort { enum value_type
-	{
-		UNSORTED,
-		BY_NAME,
-		BY_EXT,
-		BY_MTIME,
-		BY_CTIME,
-		BY_ATIME,
-		BY_SIZE,
-		BY_DIZ,
-		BY_OWNER,
-		BY_COMPRESSEDSIZE,
-		BY_NUMLINKS,
-		BY_NUMSTREAMS,
-		BY_STREAMSSIZE,
-		BY_FULLNAME,
-		BY_CHTIME,
-		BY_CUSTOMDATA,
+enum class panel_sort
+{
+	UNSORTED,
+	BY_NAME,
+	BY_EXT,
+	BY_MTIME,
+	BY_CTIME,
+	BY_ATIME,
+	BY_SIZE,
+	BY_DIZ,
+	BY_OWNER,
+	BY_COMPRESSEDSIZE,
+	BY_NUMLINKS,
+	BY_NUMSTREAMS,
+	BY_STREAMSSIZE,
+	BY_FULLNAME,
+	BY_CHTIME,
+	BY_CUSTOMDATA,
 
-		COUNT
-	};};
-}
-typedef enum_class<detail::panel_type> panel_type;
-typedef enum_class<detail::panel_mode> panel_mode;
-typedef enum_class<detail::panel_sort> panel_sort;
+	COUNT
+};
 
 class VMenu2;
 class Edit;

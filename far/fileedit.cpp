@@ -1938,7 +1938,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 							m_editor->GoToLine(LineNumber);
 							if(UsedDefaultCharStr)
 							{
-								const auto BadCharIterator = std::find_if(CONST_RANGE(SaveStr, i) -> bool
+								const auto BadCharIterator = std::find_if(CONST_RANGE(SaveStr, i)
 								{
 									BOOL UseDefChar = FALSE;
 									WideCharToMultiByte(codepage, WC_NO_BEST_FIT_CHARS, &i, 1, nullptr, 0, nullptr, &UseDefChar);

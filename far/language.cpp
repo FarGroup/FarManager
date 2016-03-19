@@ -54,7 +54,7 @@ bool OpenLangFile(os::fs::file& LangFile, const string& Path,const string& Mask,
 
 	auto PathWithSlash = Path;
 	AddEndSlash(PathWithSlash);
-	FOR(const auto& FindData, os::fs::enum_file(PathWithSlash + Mask))
+	for (const auto& FindData: os::fs::enum_file(PathWithSlash + Mask))
 	{
 		strFileName = PathWithSlash + FindData.strFileName;
 
@@ -178,7 +178,7 @@ static bool SelectLanguage(bool HelpLanguage)
 
 	auto PathWithSlash = Global->g_strFarPath;
 	AddEndSlash(PathWithSlash);
-	FOR(const auto& FindData, os::fs::enum_file(PathWithSlash + Mask))
+	for (const auto& FindData: os::fs::enum_file(PathWithSlash + Mask))
 	{
 		os::fs::file LangFile;
 		if (!LangFile.Open(PathWithSlash + FindData.strFileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING))

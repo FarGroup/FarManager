@@ -43,7 +43,7 @@ enum ELEVATION_MODE
 	ELEVATION_USE_PRIVILEGES = 0xf0000000,
 };
 
-ENUM(ELEVATION_COMMAND);
+enum ELEVATION_COMMAND: int;
 
 class elevation: noncopyable
 {

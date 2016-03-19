@@ -75,25 +75,13 @@ enum enumFDateType
 	FDATE_COUNT, // всегда последний !!!
 };
 
-class FileFilterParams: noncopyable, swapable<FileFilterParams>
+class FileFilterParams
 {
 public:
-	FileFilterParams();
-	FileFilterParams(FileFilterParams&& rhs) noexcept;
-	MOVE_OPERATOR_BY_SWAP(FileFilterParams);
+	NONCOPYABLE(FileFilterParams);
+	TRIVIALLY_MOVABLE(FileFilterParams);
 
-	void swap(FileFilterParams& rhs) noexcept
-	{
-		using std::swap;
-		m_strTitle.swap(rhs.m_strTitle);
-		FMask.swap(rhs.FMask);
-		swap(FDate, rhs.FDate);
-		swap(FSize, rhs.FSize);
-		swap(FHardLinks, rhs.FHardLinks);
-		swap(FAttr, rhs.FAttr);
-		swap(FHighlight, rhs.FHighlight);
-		FFlags.swap(rhs.FFlags);
-	}
+	FileFilterParams();
 
 	FileFilterParams Clone() const;
 
@@ -138,23 +126,16 @@ public:
 private:
 	string m_strTitle;
 
-	struct fmask:noncopyable, swapable<fmask>
+	struct fmask
 	{
+		NONCOPYABLE(fmask);
+		TRIVIALLY_MOVABLE(fmask);
+
+		fmask(): Used() {}
+
 		bool Used;
 		string strMask;
 		filemasks FilterMask; // Хранилище скомпилированной маски.
-
-		fmask():Used(false) {}
-		fmask(fmask&& rhs) noexcept: Used(false) { *this = std::move(rhs); }
-		MOVE_OPERATOR_BY_SWAP(fmask);
-
-		void swap(fmask& rhs) noexcept
-		{
-			using std::swap;
-			swap(Used, rhs.Used);
-			strMask.swap(rhs.strMask);
-			FilterMask.swap(rhs.FilterMask);
-		}
 	} FMask;
 
 	struct
@@ -168,13 +149,6 @@ private:
 
 	struct f_size
 	{
-		// ctor required, VC doesn't support C++03 value initialization for non-POD types
-		f_size():
-			SizeAboveReal(),
-			SizeBelowReal(),
-			Used()
-		{}
-
 		unsigned __int64 SizeAboveReal; // Здесь всегда будет размер в байтах
 		unsigned __int64 SizeBelowReal; // Здесь всегда будет размер в байтах
 		string SizeAbove; // Здесь всегда будет размер как его ввёл юзер

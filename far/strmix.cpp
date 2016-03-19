@@ -1458,11 +1458,11 @@ string str_printf(const wchar_t * format, ...)
 		std::list<value_type> ItemsList;
 	};
 
-	void split(const string& InitString, DWORD Flags, const wchar_t* Separators, const std::function<void(string&)>& inserter)
+	void split(const string& InitString, DWORD Flags, const wchar_t* Separators, const std::function<void(string&&)>& inserter)
 	{
-		FOR(auto& i, UserDefinedList(InitString, Flags, Separators).ItemsList)
+		for (auto& i: UserDefinedList(InitString, Flags, Separators).ItemsList)
 		{
-			inserter(i.first);
+			inserter(std::move(i.first));
 		}
 	}
 

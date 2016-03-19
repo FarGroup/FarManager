@@ -83,7 +83,7 @@ static std::vector<string> GetSymbols(const std::vector<const void*>& BackTrace)
 	DWORD Displacement;
 
 	std::wostringstream Stream;
-	FOR(const auto i, BackTrace)
+	for (const auto i: BackTrace)
 	{
 		Stream << L"0x" << i;
 		const auto Address = reinterpret_cast<DWORD_PTR>(i);
@@ -141,8 +141,7 @@ void tracer::store(const void* CppObject, const EXCEPTION_POINTERS* ExceptionInf
 		// We can't store them forever
 		m_CppMap.clear();
 	}
-	// TODO: direct emplace after decommissioning VC10
-	m_CppMap.emplace(std::make_pair(CppObject, Context));
+	m_CppMap.emplace(CppObject, Context);
 }
 
 bool tracer::get_context(const void* CppObject, exception_context& Context) const

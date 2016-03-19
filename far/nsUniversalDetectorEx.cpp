@@ -87,7 +87,7 @@ static const std::unordered_map<std::string, uintptr_t>& CpMap()
 	
 	if (sCpMap.empty())
 	{
-		static const simple_pair<const char*, uintptr_t> CodepagesInit[] =
+		static const std::pair<const char*, uintptr_t> CodepagesInit[] =
 		{
 			{ "UTF16-LE", CP_UNICODE },
 			{ "UTF16-BE", CP_REVERSEBOM },

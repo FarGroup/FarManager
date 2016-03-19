@@ -44,21 +44,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class noncopyable
 {
 protected:
-#ifdef NO_DEFAULTED_FUNCTIONS
-	noncopyable() {};
-#else
 	noncopyable() = default;
-#endif
 
-#ifdef NO_DELETED_FUNCTIONS
-private:
-	noncopyable(const noncopyable&);
-	noncopyable& operator=(const noncopyable&);
-#else
 public:
 	noncopyable(const noncopyable&) = delete;
 	noncopyable& operator=(const noncopyable&) = delete;
-#endif
 };
 
 #endif // NONCOPYABLE_HPP_AD5ABD9E_DA14_463E_84DE_CDA0B230F816

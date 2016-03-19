@@ -154,7 +154,7 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 			};
 
 			size_t Index = 0;
-			FOR(auto& i, StdHighlightData)
+			for (auto& i: StdHighlightData)
 			{
 				i.NormalColor = colors::ConsoleColorToFarColor(i.InitNC);
 				MAKE_TRANSPARENT(i.NormalColor.BackgroundColor);
@@ -181,7 +181,7 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 					HLS.MarkCharSelectedCursorColor,
 				};
 
-				FOR(const auto& j, Names)
+				for (const auto& j: Names)
 				{
 					static const FarColor DefaultColor = {FCF_FG_4BIT | FCF_BG_4BIT, 0xff000000, 0x00000000};
 					cfg->SetValue(Key, j, DefaultColor);
@@ -325,9 +325,9 @@ void HighlightFiles::InitHighlightFiles(HierarchicalConfig* cfg)
 				if (!cfg->GetValue(key,HLS.Mask,strMask))
 					break;
 
-				// TODO: direct emplace_back after decommissioning VC10
-				HiData.emplace_back(FileFilterParams());
-				LoadFilter(cfg, key, HiData.back(), strMask, Item.Delta + (Item.Delta == DEFAULT_SORT_GROUP? 0 : i), Item.Delta != DEFAULT_SORT_GROUP);
+				FileFilterParams NewItem;
+				LoadFilter(cfg, key, NewItem, strMask, Item.Delta + (Item.Delta == DEFAULT_SORT_GROUP? 0 : i), Item.Delta != DEFAULT_SORT_GROUP);
+				HiData.emplace_back(std::move(NewItem));
 				++*Item.Count;
 			}
 		}
@@ -411,7 +411,7 @@ static void ApplyColors(HighlightFiles::highlight_item& DestColors, const Highli
 		Dst.Flags |= Src.Flags&FCF_EXTENDEDFLAGS;
 	};
 
-	for_each_2(ALL_RANGE(DestColors.Color), std::cbegin(SrcColors.Color), [&](REFERENCE(DestColors.Color) Dst, CONST_REFERENCE(SrcColors.Color) Src)
+	for_each_2(ALL_RANGE(DestColors.Color), std::cbegin(SrcColors.Color), [&](auto& Dst, const auto& Src)
 	{
 		ApplyColor(Dst.FileColor, Src.FileColor);
 		ApplyColor(Dst.MarkColor, Src.MarkColor);
@@ -468,7 +468,7 @@ void HighlightFiles::GetHiColor(FileListItem* To, bool UseAttrHighlighting)
 
 	ApplyDefaultStartingColors(item);
 
-	std::any_of(CONST_RANGE(HiData, i) -> bool
+	std::any_of(CONST_RANGE(HiData, i)
 	{
 		if (!(UseAttrHighlighting && i.IsMaskUsed()))
 		{
@@ -495,7 +495,7 @@ void HighlightFiles::GetHiColor(FileListItem* To, bool UseAttrHighlighting)
 int HighlightFiles::GetGroup(const FileListItem *fli)
 {
 	const auto Begin = HiData.cbegin() + FirstCount, End = Begin + UpperCount + LowerCount;
-	const auto It = std::find_if(Begin, End, [&](CONST_REFERENCE(HiData) i) { return i.FileInFilter(fli, CurrentTime); });
+	const auto It = std::find_if(Begin, End, [&](const auto& i) { return i.FileInFilter(fli, CurrentTime); });
 	return It != End? It->GetSortGroup() : DEFAULT_SORT_GROUP;
 }
 
@@ -519,7 +519,7 @@ void HighlightFiles::FillMenu(VMenu2 *HiMenu,int MenuPos)
 
 	std::for_each(CONST_RANGE(Data, i)
 	{
-		std::for_each(HiData.cbegin() + i.from, HiData.cbegin() + i.to, [&](CONST_REFERENCE(HiData) Item)
+		std::for_each(HiData.cbegin() + i.from, HiData.cbegin() + i.to, [&](const auto& Item)
 		{
 			HiMenu->AddItem(MenuString(&Item, true));
 		});
@@ -727,7 +727,8 @@ void HighlightFiles::HiEdit(int MenuPos)
 						}
 						else
 						{
-							HiData[RealSelectPos].swap(HiData[RealSelectPos-1]);
+							using std::swap;
+							swap(HiData[RealSelectPos], HiData[RealSelectPos-1]);
 						}
 						HiMenu->SetCheck(--SelectPos);
 						NeedUpdate=TRUE;
@@ -765,7 +766,8 @@ void HighlightFiles::HiEdit(int MenuPos)
 						}
 						else
 						{
-							HiData[RealSelectPos].swap(HiData[RealSelectPos+1]);
+							using std::swap;
+							swap(HiData[RealSelectPos], HiData[RealSelectPos+1]);
 						}
 						HiMenu->SetCheck(++SelectPos);
 						NeedUpdate=TRUE;

@@ -50,24 +50,10 @@ if (!Object)
 template<class T>
 struct conditional
 {
-#ifdef NO_EXPLICIT_CONVERSION_OPERATORS
-	struct unspecified_bool
-	{
-		struct OPERATORS_NOT_ALLOWED;
-		void true_value(OPERATORS_NOT_ALLOWED*) {}
-	};
-	typedef void (unspecified_bool::*unspecified_bool_type)(typename unspecified_bool::OPERATORS_NOT_ALLOWED*);
-
-	operator unspecified_bool_type() const
-	{
-		return !static_cast<const T&>(*this).operator!()? &unspecified_bool::true_value : unspecified_bool_type();
-	}
-#else
 	explicit operator bool() const
 	{
 		return !static_cast<const T&>(*this).operator!();
 	}
-#endif
 };
 
 #endif // CONDITIONAL_HPP_18900E4A_F2F5_48B9_A92A_DEE70617591B

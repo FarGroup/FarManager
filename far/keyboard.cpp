@@ -84,7 +84,7 @@ static int ShiftState=0;
 static int LastShiftEnterPressed=FALSE;
 
 /* ----------------------------------------------------------------- */
-static const simple_pair<int, int> Table_KeyToVK[] =
+static const std::pair<int, int> Table_KeyToVK[] =
 {
 	{KEY_BREAK,         VK_CANCEL},
 	{KEY_BS,            VK_BACK},
@@ -281,7 +281,7 @@ void InitKeysArray()
 	else // GetKeyboardLayoutList can return 0 in telnet mode
 	{
 		Layout().reserve(10);
-		FOR(const auto& i, os::reg::enum_value(HKEY_CURRENT_USER, L"Keyboard Layout\\Preload"))
+		for (const auto& i: os::reg::enum_value(HKEY_CURRENT_USER, L"Keyboard Layout\\Preload"))
 		{
 			if (i.Type() == REG_SZ && std::iswdigit(i.Name().front()))
 			{
@@ -1251,9 +1251,8 @@ bool CheckForEsc()
 	return CheckForEscSilent()? ConfirmAbortOp() : false;
 }
 
-// VC10 can't convert captureless lambda to pure function
-typedef std::function<const wchar_t*(const TFKey*)> tfkey_to_text;
-typedef std::function<void(string&)> add_separator;
+using tfkey_to_text = const wchar_t*(const TFKey*);
+using add_separator = void(string&);
 
 static void GetShiftKeyName(string& strName, DWORD Key, tfkey_to_text ToText, add_separator AddSeparator)
 {
@@ -1324,7 +1323,7 @@ int KeyNameToKey(const string& Name)
 	const auto Len = strTmpName.size();
 
 	// пройдемся по всем модификаторам
-	FOR(const auto& i, ModifKeyName)
+	for (const auto& i: ModifKeyName)
 	{
 		if (!(Key & i.Key) && strTmpName.find(i.UName) != string::npos)
 		{
@@ -1485,7 +1484,7 @@ bool KeyToText(int Key, string &strKeyText)
 bool KeyToLocalizedText(int Key, string &strKeyText)
 {
 	return KeyToTextImpl(Key, strKeyText,
-		[](const TFKey* i) -> const wchar_t*
+		[](const TFKey* i)
 		{
 			if (i->LocalizedNameId != LNGID(-1))
 			{
@@ -1580,7 +1579,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 		}
 		else if (!FKey)
 		{
-			static const simple_pair<far_key_code, DWORD> ExtKeyMap[]=
+			static const std::pair<far_key_code, DWORD> ExtKeyMap[]=
 			{
 				{KEY_SHIFT, VK_SHIFT},
 				{KEY_CTRL, VK_CONTROL},
@@ -1756,7 +1755,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 
 int IsNavKey(DWORD Key)
 {
-	static const simple_pair<DWORD, DWORD> NavKeysMap[] =
+	static const std::pair<DWORD, DWORD> NavKeysMap[] =
 	{
 		{0,KEY_CTRLC},
 		{0,KEY_RCTRLC},

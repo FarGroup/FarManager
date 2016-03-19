@@ -195,13 +195,13 @@ private:
 		bool operator !=(const Y& rhs) const { return !(*this == rhs); }
 
 		T& base() { return *this; }
-		const typename std::conditional<std::is_base_of<ConstT, T>::value, ConstT, T>::type& base() const { return *this; }
-		typename std::conditional<std::is_base_of<ConstT, T>::value, const ConstT&, ConstT>::type cbase() const { return *this; }
+		const std::conditional_t<std::is_base_of<ConstT, T>::value, ConstT, T>& base() const { return *this; }
+		std::conditional_t<std::is_base_of<ConstT, T>::value, const ConstT&, ConstT> cbase() const { return *this; }
 
 	private:
 		// Intentionally not implemented, use prefix forms.
-		DELETED_FUNCTION(numbered_iterator_t operator++(int));
-		DELETED_FUNCTION(numbered_iterator_t operator--(int));
+		numbered_iterator_t operator++(int) = delete;
+		numbered_iterator_t operator--(int) = delete;
 
 		size_t m_Number;
 	};

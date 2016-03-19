@@ -201,7 +201,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 			GetLocalTime(&st);
 			int LastDay=0, LastMonth = 0, LastYear = 0;
 
-			const auto GetTitle = [](history_record_type Type) -> const wchar_t*
+			const auto GetTitle = [](auto Type)
 			{
 				switch (Type)
 				{

@@ -172,8 +172,6 @@ int WINAPIV apiSnprintf(wchar_t* Dest, size_t Count, const wchar_t* Format, ...)
 	}
 }
 
-// vswscanf is not available in VS prior to 2013
-#if !VS_OLDER_THAN(VS_2013)
 int WINAPIV apiSscanf(const wchar_t* Src, const wchar_t* Format, ...) noexcept
 {
 	try
@@ -189,7 +187,6 @@ int WINAPIV apiSscanf(const wchar_t* Src, const wchar_t* Format, ...) noexcept
 		return -1;
 	}
 }
-#endif
 
 wchar_t *WINAPI apiItoa(int value, wchar_t *string, int radix) noexcept
 {
@@ -978,7 +975,7 @@ intptr_t WINAPI apiMenuFn(
 					if (ReadRec->Event.KeyEvent.wVirtualKeyCode==BreakKeys[I].VirtualKeyCode)
 					{
 
-						const auto NormalizeControlKeys = [](DWORD Value) -> DWORD
+						const auto NormalizeControlKeys = [](DWORD Value)
 						{
 							DWORD result = Value&(LEFT_CTRL_PRESSED | LEFT_ALT_PRESSED | SHIFT_PRESSED);
 							if (Value&RIGHT_CTRL_PRESSED) result |= LEFT_CTRL_PRESSED;
@@ -1026,7 +1023,7 @@ intptr_t WINAPI apiDefDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Par
 // Посылка сообщения диалогу
 intptr_t WINAPI apiSendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2) noexcept
 {
-	const auto ErrorResult = [Msg]() -> int
+	const auto ErrorResult = [Msg]
 	{
 		switch (Msg)
 		{
@@ -1999,13 +1996,13 @@ static intptr_t apiTControl(intptr_t Id, command_type Command, intptr_t Param1, 
 	}
 	else
 	{
-		static const simple_pair<decltype(&Manager::GetWindow), decltype(&Manager::GetWindowCount)> Functions[] =
+		static const std::pair<decltype(&Manager::GetWindow), decltype(&Manager::GetWindowCount)> Functions[] =
 		{
 			{ &Manager::GetWindow, &Manager::GetWindowCount },
 			{ &Manager::GetModalWindow, &Manager::GetModalWindowCount },
 		};
 
-		FOR(const auto& i, Functions)
+		for (const auto& i: Functions)
 		{
 			const size_t count = (*Global->WindowManager.*i.second)();
 			for (size_t j = 0; j < count; ++j)
@@ -2884,7 +2881,7 @@ size_t WINAPI apiFormatFileSize(unsigned __int64 Size, intptr_t Width, FARFORMAT
 {
 	try
 	{
-		static const simple_pair<unsigned __int64, unsigned __int64> FlagsPair[] =
+		static const std::pair<unsigned __int64, unsigned __int64> FlagsPair[] =
 		{
 			{FFFS_COMMAS,         COLUMN_COMMAS},         // Вставлять разделитель между тысячами
 			{FFFS_THOUSAND,       COLUMN_THOUSAND},       // Вместо делителя 1024 использовать делитель 1000

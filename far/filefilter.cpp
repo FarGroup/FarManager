@@ -115,7 +115,7 @@ bool FileFilter::FilterEdit()
 		{
 			const auto FFFT = GetFFFT();
 
-			FOR(const auto& i, TempFilterData())
+			for (const auto& i: TempFilterData())
 			{
 				//AY: Будем показывать только те выбранные авто фильтры
 				//(для которых нету файлов на панели) которые выбраны в области данного меню
@@ -174,7 +174,7 @@ bool FileFilter::FilterEdit()
 		});
 
 		wchar_t h = L'1';
-		FOR(const auto& i, Extensions)
+		for (const auto& i: Extensions)
 		{
 			MenuItemEx ListItem(MenuString(nullptr, false, h, true, i.first.data(), MSG(MPanelFileType)));
 			ListItem.SetCheck(i.second);
@@ -289,8 +289,7 @@ bool FileFilter::FilterEdit()
 
 				SelPos = std::min(FilterData().size(), SelPos);
 
-				// TODO: direct emplace after decommissioning VC10
-				auto& NewFilter = *FilterData().emplace(FilterData().begin() + SelPos, FileFilterParams());
+				auto& NewFilter = *FilterData().emplace(FilterData().begin() + SelPos);
 
 				if (Key==KEY_F5)
 				{
@@ -378,8 +377,9 @@ bool FileFilter::FilterEdit()
 					!((Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN) && SelPos == (int)(FilterData().size() - 1)))
 				{
 					int NewPos = SelPos + ((Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN) ? 1 : -1);
-					FilterList->at(SelPos).swap(FilterList->at(NewPos));
-					FilterData()[NewPos].swap(FilterData()[SelPos]);
+					using std::swap;
+					swap(FilterList->at(SelPos), FilterList->at(NewPos));
+					swap(FilterData()[NewPos], FilterData()[SelPos]);
 					FilterList->SetSelectPos(NewPos,1);
 					bNeedUpdate=true;
 				}
@@ -525,8 +525,7 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList)
 
 			if (Check && !CurFilterData)
 			{
-				// TODO: direct emplace after decommissioning VC10
-				auto& NewFilter = *TempFilterData().emplace(TempFilterData().begin() + j, FileFilterParams());
+				auto& NewFilter = *TempFilterData().emplace(TempFilterData().begin() + j);
 				NewFilter.SetMask(1, Mask);
 				//Авто фильтры они только для файлов, папки не должны к ним подходить
 				NewFilter.SetAttr(1, 0, FILE_ATTRIBUTE_DIRECTORY);
@@ -585,7 +584,7 @@ bool FileFilter::FileInFilter(const os::FAR_FIND_DATA& fde,enumFileInFilterType 
 	bool bFolder=(fde.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0;
 	DWORD Flags;
 
-	FOR(const auto& CurFilterData, FilterData())
+	for (const auto& CurFilterData: FilterData())
 	{
 		Flags = CurFilterData.GetFlags(FFFT);
 
@@ -647,7 +646,7 @@ bool FileFilter::FileInFilter(const os::FAR_FIND_DATA& fde,enumFileInFilterType 
 	}
 
 	//авто-фильтры
-	FOR(const auto& CurFilterData, TempFilterData())
+	for (const auto& CurFilterData: TempFilterData())
 	{
 		Flags = CurFilterData.GetFlags(FFFT);
 
@@ -953,7 +952,6 @@ int FileFilter::ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, 
 	if (std::any_of(CONST_RANGE(Extensions, i) {return !StrCmpI(i.first, strMask);}))
 		return -1;
 
-	// TODO: direct emplace_back after decommissioning VC10
-	Extensions.emplace_back(VALUE_TYPE(Extensions)(strMask, Check));
+	Extensions.emplace_back(strMask, Check);
 	return 1;
 }

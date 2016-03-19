@@ -3505,7 +3505,7 @@ BOOL Editor::Search(int Next)
 
 	if (!Next)
 	{
-		const auto Picker = [this](bool PickSelection) -> string
+		const auto Picker = [this](bool PickSelection)
 		{
 			if (PickSelection)
 			{
@@ -3688,8 +3688,7 @@ BOOL Editor::Search(int Next)
 
 					const int service_len = 12;
 					MenuItemEx Item(FormatString() << fmt::LeftAlign() << fmt::ExactWidth(service_len) << fmt::FillChar(L' ') << (FormatString() << CurPtr.Number() + 1 << L':' << CurPos+1) << BoxSymbols[BS_V1] << CurPtr->GetString());
-					// TODO: direct emplace_back after decommissioning VC10
-					Item.Annotations.emplace_back(VALUE_TYPE(Item.Annotations)(CurPos + service_len + 1, NextPos - CurPos));
+					Item.Annotations.emplace_back(CurPos + service_len + 1, NextPos - CurPos);
 					FindCoord coord = { (UINT)CurPtr.Number(), (UINT)CurPos, (UINT)SearchLength };
 					Item.UserData = coord;
 					FindAllList->AddItem(Item);
@@ -4236,7 +4235,7 @@ string Editor::Block2Text()
 	string CopyData;
 	CopyData.reserve(TotalChars);
 
-	FOR(const auto& i, make_range(m_it_AnyBlockStart.base(), SelEnd))
+	for (const auto& i: make_range(m_it_AnyBlockStart.base(), SelEnd))
 	{
 		CopyData += i.GetSelString();
 
@@ -4655,8 +4654,11 @@ void Editor::GetRowCol(const string& argv, int& row, int& col)
 	else throw std::invalid_argument("invalid syntax");
 }
 
-struct Editor::EditorUndoData: ::noncopyable, swapable<EditorUndoData>
+struct Editor::EditorUndoData
 {
+	NONCOPYABLE(EditorUndoData);
+	TRIVIALLY_MOVABLE(EditorUndoData);
+
 	int m_Type;
 	int m_StrPos;
 	int m_StrNum;
@@ -4682,28 +4684,6 @@ public:
 	~EditorUndoData()
 	{
 		UndoDataSize -= m_Str.size();
-	}
-
-	EditorUndoData(EditorUndoData&& rhs) noexcept:
-		m_Type(),
-		m_StrPos(),
-		m_StrNum(),
-		m_EOL()
-	{
-		*this = std::move(rhs);
-	}
-
-	MOVE_OPERATOR_BY_SWAP(EditorUndoData);
-
-	void swap(EditorUndoData& rhs) noexcept
-	{
-		using std::swap;
-		swap(m_Type, rhs.m_Type);
-		swap(m_StrPos, rhs.m_StrPos);
-		swap(m_StrNum, rhs.m_StrNum);
-		m_Str.swap(rhs.m_Str);
-		swap(m_EOL, rhs.m_EOL);
-		m_BM.swap(rhs.m_BM);
 	}
 
 	void SetData(int Type, const string& Str, const wchar_t *Eol, int StrNum, int StrPos)
@@ -4794,8 +4774,7 @@ void Editor::AddUndoData(int Type, const string& Str, const wchar_t *Eol, int St
 	}
 
 	m_Flags.Clear(FEDITOR_NEWUNDO);
-	// TODO: direct emplace_back after decommissioning VC10
-	UndoData.emplace_back(VALUE_TYPE(UndoData)(Type,Str,Eol,StrNum,StrPos));
+	UndoData.emplace_back(Type, Str, Eol, StrNum, StrPos);
 	UndoPos=UndoData.end();
 	--UndoPos;
 
@@ -4956,7 +4935,7 @@ void Editor::SelectAll()
 {
 	BeginStreamMarking(FirstLine());
 
-	FOR(auto& i, Lines)
+	for (auto& i: Lines)
 	{
 		i.Select(0, -1);
 	}
@@ -4989,7 +4968,7 @@ bool Editor::IsFileModified() const
 // используется в FileEditor
 int64_t Editor::GetCurPos(bool file_pos, bool add_bom) const
 {
-	const int Unknown = -1;
+	enum { Unknown = -1 };
 	int Multiplier = 1;
 	uint64_t bom = 0;
 
@@ -5013,7 +4992,7 @@ int64_t Editor::GetCurPos(bool file_pos, bool add_bom) const
 		}
 	}
 
-	const auto TotalSize = std::accumulate(Lines.cbegin(), m_it_TopScreen.cbase(), bom, [&](uint64_t Value, CONST_REFERENCE(Lines) line) -> uint64_t
+	const auto TotalSize = std::accumulate(Lines.cbegin(), m_it_TopScreen.cbase(), bom, [&](auto Value, const auto& line)
 	{
 		const auto& Str = line.GetString();
 		return Value + (Multiplier != Unknown? Str.size() : unicode::to(m_codepage, Str, nullptr, 0)) + wcslen(line.GetEOL());
@@ -6987,8 +6966,7 @@ Editor::numbered_iterator Editor::InsertString(const wchar_t* Str, int nLength, 
 {
 	bool Empty = Lines.empty();
 
-	// TODO: direct emplace after decommissioning VC10
-	const auto NewLine = numbered_iterator(Lines.emplace(Where, Edit(GetOwner())), Where.Number());
+	const auto NewLine = numbered_iterator(Lines.emplace(Where, GetOwner()), Where.Number());
 	m_LinesCount++;
 
 	auto UpdateIterator = [&NewLine, &Where](numbered_iterator& What)

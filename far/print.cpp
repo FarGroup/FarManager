@@ -76,7 +76,7 @@ static void AddToPrintersMenu(VMenu2 *PrinterList, const PRINTER_INFO *pi, int P
 	bool bDefaultPrinterFound = false;
 
 	// Заполняем список принтеров
-	FOR(const auto& printer, make_range(pi, pi + PrinterNumber))
+	for (const auto& printer: make_range(pi, pi + PrinterNumber))
 	{
 		MenuItemEx Item(printer.pPrinterName);
 

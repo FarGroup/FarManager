@@ -643,9 +643,9 @@ void TestPathParser()
 	};
 
 	string Path, Baseline;
-	FOR(const auto& Root, TestRoots)
+	for (const auto& Root: TestRoots)
 	{
-		FOR(const auto& Test, TestCases)
+		for (const auto& Test: TestCases)
 		{
 			if (!*Root && Test.RootMustExist)
 				continue;

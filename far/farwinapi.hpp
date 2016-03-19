@@ -41,69 +41,58 @@ namespace os
 {
 	namespace detail
 	{
-		struct handle_closer { static bool close(HANDLE Handle); };
-		struct find_handle_closer { static bool close(HANDLE Handle); };
-
 		template<class T>
-		class handle_t: noncopyable, swapable<handle_t<T>>, public conditional<handle_t<T>>
+		class handle_t: public conditional<handle_t<T>>
 		{
 		public:
-			explicit handle_t(HANDLE Handle = nullptr): m_Handle(normalise(Handle)) {}
+			NONCOPYABLE(handle_t);
+			TRIVIALLY_MOVABLE(handle_t);
 
-			handle_t(handle_t&& rhs) noexcept: m_Handle() { *this = std::move(rhs); }
-
-			~handle_t() { close(); }
-
-			MOVE_OPERATOR_BY_SWAP(handle_t);
-
-			void swap(handle_t& rhs) noexcept
-			{
-				using std::swap;
-				swap(m_Handle, rhs.m_Handle);
-			}
+			explicit handle_t(HANDLE Handle = nullptr) { reset(Handle); }
 
 			bool operator!() const noexcept { return !m_Handle; }
 
-			bool close()
-			{
-				if (!m_Handle)
-					return true;
-				bool ret = T::close(m_Handle);
-				m_Handle = nullptr;
-				return ret;
-			}
+			void reset(HANDLE Handle = nullptr) { m_Handle.reset(normalise(Handle)); }
 
-			void reset(HANDLE Handle = nullptr) { close(); m_Handle = normalise(Handle); }
+			void close() { m_Handle.reset(); }
 
-			HANDLE native_handle() const { return m_Handle; }
+			HANDLE native_handle() const { return m_Handle.get(); }
 
-			HANDLE release() { const auto Result = m_Handle; m_Handle = nullptr; return Result; }
+			HANDLE release() { return m_Handle.release(); }
 
-			bool wait(DWORD Milliseconds = INFINITE) const { return WaitForSingleObject(m_Handle, Milliseconds) == WAIT_OBJECT_0; }
+			bool wait(DWORD Milliseconds = INFINITE) const { return WaitForSingleObject(m_Handle.get(), Milliseconds) == WAIT_OBJECT_0; }
 
 			bool signaled() const { return wait(0); }
 
 		private:
 			static HANDLE normalise(HANDLE Handle) { return Handle == INVALID_HANDLE_VALUE? nullptr : Handle; }
 
-			HANDLE m_Handle;
+			std::unique_ptr<std::remove_pointer_t<HANDLE>, T> m_Handle;
 		};
+
+		struct handle_closer { void operator()(HANDLE Handle) const; };
+		struct find_handle_closer { void operator()(HANDLE Handle) const; };
 	}
 
-	typedef detail::handle_t<detail::handle_closer> handle;
-	typedef detail::handle_t<detail::find_handle_closer> find_handle;
+	using handle = detail::handle_t<detail::handle_closer>;
+	using find_handle = detail::handle_t<detail::find_handle_closer>;
 
 	class HandleWrapper
 	{
 	public:
+		NONCOPYABLE(HandleWrapper);
+		TRIVIALLY_MOVABLE(HandleWrapper);
+
 		explicit HandleWrapper(HANDLE Handle = nullptr): m_Handle(Handle) {}
 		virtual ~HandleWrapper() = 0;
 
 		bool Wait(DWORD Milliseconds = INFINITE) const { return m_Handle.wait(Milliseconds); }
 		bool Signaled() const { return m_Handle.signaled(); }
 		void Close() { m_Handle.reset(); }
+		auto native_handle() const { return m_Handle.native_handle(); }
 
-		os::handle m_Handle;
+	protected:
+		handle m_Handle;
 	};
 
 	enum
@@ -257,9 +246,12 @@ namespace os
 			find_handle m_Handle;
 		};
 
-		class file: noncopyable, swapable<file>, public conditional<file>
+		class file: public conditional<file>
 		{
 		public:
+			NONCOPYABLE(file);
+			TRIVIALLY_MOVABLE(file);
+
 			file():
 				Pointer(),
 				NeedSyncPointer(),
@@ -267,29 +259,9 @@ namespace os
 			{
 			}
 
-			file(file&& rhs) noexcept:
-				Pointer(),
-				NeedSyncPointer(),
-				share_mode()
-			{
-				*this = std::move(rhs);
-			}
-
-			MOVE_OPERATOR_BY_SWAP(file);
-
-			void swap(file& rhs) noexcept
-			{
-				using std::swap;
-				swap(Handle, rhs.Handle);
-				swap(Pointer, rhs.Pointer);
-				swap(NeedSyncPointer, rhs.NeedSyncPointer);
-				name.swap(rhs.name);
-				swap(share_mode, rhs.share_mode);
-			}
-
 			bool operator!() const noexcept { return !Handle; }
 
-				// TODO: half of these should be free functions
+			// TODO: half of these should be free functions
 			bool Open(const string& Object, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDistribution, DWORD dwFlagsAndAttributes = 0, file* TemplateFile = nullptr, bool ForceElevation = false);
 			bool Read(LPVOID Buffer, size_t NumberOfBytesToRead, size_t& NumberOfBytesRead, LPOVERLAPPED Overlapped = nullptr);
 			bool Write(LPCVOID Buffer, size_t NumberOfBytesToWrite, size_t& NumberOfBytesWritten, LPOVERLAPPED Overlapped = nullptr);
@@ -305,7 +277,7 @@ namespace os
 			bool GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed);
 			bool NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, bool ReturnSingleEntry, LPCWSTR FileName, bool RestartScan, NTSTATUS* Status = nullptr);
 			bool NtQueryInformationFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status = nullptr);
-			bool Close();
+			void Close();
 			bool Eof();
 			const string& GetName() const { return name; }
 			HANDLE native_handle() const { return Handle.native_handle(); }
@@ -387,7 +359,7 @@ namespace os
 			};
 		}
 
-		typedef std::unique_ptr<std::remove_pointer<HKEY>::type, detail::hkey_deleter> key;
+		using key = std::unique_ptr<std::remove_pointer_t<HKEY>, detail::hkey_deleter>;
 
 		key open_key(HKEY RootKey, const wchar_t* SubKey, DWORD SamDesired);
 
@@ -574,26 +546,26 @@ namespace os
 				struct unlocker { void operator()(const void* MemoryBlock) { GlobalUnlock(const_cast<HGLOBAL>(MemoryBlock)); } };
 			};
 
-			typedef std::unique_ptr<std::remove_pointer<HGLOBAL>::type, detail::deleter> ptr;
+			using ptr = std::unique_ptr<std::remove_pointer_t<HGLOBAL>, detail::deleter>;
 
 			inline ptr alloc(UINT Flags, size_t size) { return ptr(GlobalAlloc(Flags, size)); }
 
 			template<class T>
-			struct lock_t { typedef std::unique_ptr<typename std::remove_pointer<T>::type, detail::unlocker> ptr; };
+			using lock_t = std::unique_ptr<std::remove_pointer_t<T>, detail::unlocker>;
 
 			template<class T>
-			typename lock_t<T>::ptr lock(HGLOBAL Ptr) { return typename lock_t<T>::ptr(static_cast<T>(GlobalLock(Ptr))); }
+			lock_t<T> lock(HGLOBAL Ptr) { return lock_t<T>(static_cast<T>(GlobalLock(Ptr))); }
 
 			template<class T>
-			typename lock_t<T>::ptr lock(const ptr& Ptr) { return lock<T>(Ptr.get()); }
+			lock_t<T> lock(const ptr& Ptr) { return lock<T>(Ptr.get()); }
 
 			template<class T>
-			os::memory::global::ptr copy(const T& Object)
+			ptr copy(const T& Object)
 			{
 				static_assert(std::is_pod<T>::value, "POD type is required");
-				if (auto Memory = os::memory::global::alloc(GMEM_MOVEABLE, sizeof(Object)))
+				if (auto Memory = alloc(GMEM_MOVEABLE, sizeof(Object)))
 				{
-					if (const auto Copy = os::memory::global::lock<T*>(Memory))
+					if (const auto Copy = lock<T*>(Memory))
 					{
 						*Copy = Object;
 						return Memory;
@@ -602,11 +574,11 @@ namespace os
 				return nullptr;
 			}
 
-			inline os::memory::global::ptr copy(const wchar_t* Data, size_t Size)
+			inline ptr copy(const wchar_t* Data, size_t Size)
 			{
-				if (auto Memory = os::memory::global::alloc(GMEM_MOVEABLE, (Size + 1) * sizeof(wchar_t)))
+				if (auto Memory = alloc(GMEM_MOVEABLE, (Size + 1) * sizeof(wchar_t)))
 				{
-					if (const auto Copy = os::memory::global::lock<wchar_t*>(Memory))
+					if (const auto Copy = lock<wchar_t*>(Memory))
 					{
 						std::copy_n(Data, Size, Copy.get());
 						Copy.get()[Size] = L'\0';
@@ -626,16 +598,13 @@ namespace os
 			};
 
 			template<class T>
-			struct ptr_t
-			{
-				typedef std::unique_ptr<T, detail::deleter> type;
-			};
+			using ptr_t = std::unique_ptr<T, detail::deleter>;
 
 			template<class T>
-			inline typename ptr_t<T>::type ptr(T* Pointer) { return typename ptr_t<T>::type(Pointer); }
+			inline ptr_t<T> ptr(T* Pointer) { return ptr_t<T>(Pointer); }
 
 			template<class T>
-			inline typename ptr_t<T>::type alloc(UINT Flags, size_t size) { return ptr(static_cast<T*>(LocalAlloc(Flags, size))); }
+			inline ptr_t<T> alloc(UINT Flags, size_t size) { return ptr(static_cast<T*>(LocalAlloc(Flags, size))); }
 		};
 
 		bool is_pointer(const void* Address);
@@ -649,10 +618,10 @@ namespace os
 			};
 
 			template<class T>
-			struct ptr_t { typedef std::unique_ptr<T, detail::deleter<T>> type; };
+			using ptr_t = std::unique_ptr<T, detail::deleter<T>>;
 
 			template<class T>
-			typename ptr_t<T>::type ptr(T* RawPtr) { return typename ptr_t<T>::type(RawPtr); }
+			ptr_t<T> ptr(T* RawPtr) { return ptr_t<T>(RawPtr); }
 		}
 	}
 

@@ -51,7 +51,7 @@ enum
 class Dialog;
 struct DialogBuilderListItem2;
 class VMenu2;
-ENUM(CodePagesCallbackCallSource);
+enum CodePagesCallbackCallSource: int;
 
 class codepages: noncopyable
 {

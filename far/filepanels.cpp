@@ -74,8 +74,8 @@ filepanels_ptr FilePanels::create(bool CreateRealPanels, int DirCount)
 
 	if (CreateRealPanels)
 	{
-		FilePanelsPtr->m_Panels[panel_left].m_Panel = FilePanelsPtr->CreatePanel(panel_type::value_type(Global->Opt->LeftPanel.m_Type.Get()));
-		FilePanelsPtr->m_Panels[panel_right].m_Panel = FilePanelsPtr->CreatePanel(panel_type::value_type(Global->Opt->RightPanel.m_Type.Get()));
+		FilePanelsPtr->m_Panels[panel_left].m_Panel = FilePanelsPtr->CreatePanel(panel_type(Global->Opt->LeftPanel.m_Type.Get()));
+		FilePanelsPtr->m_Panels[panel_right].m_Panel = FilePanelsPtr->CreatePanel(panel_type(Global->Opt->RightPanel.m_Type.Get()));
 		FilePanelsPtr->Init(DirCount);
 	}
 	else
@@ -133,8 +133,8 @@ void FilePanels::Init(int DirCount)
 	{
 		Params.first->SetViewMode(Params.second.ViewMode);
 
-		if (Params.second.SortMode < panel_sort::COUNT)
-			Params.first->SetSortMode(panel_sort::value_type(Params.second.SortMode.Get()));
+		if (panel_sort(Params.second.SortMode.Get()) < panel_sort::COUNT)
+			Params.first->SetSortMode(panel_sort(Params.second.SortMode.Get()));
 
 		Params.first->SetNumericSort(Params.second.NumericSort);
 		Params.first->SetCaseSensitiveSort(Params.second.CaseSensitiveSort);
@@ -292,7 +292,7 @@ void FilePanels::RedrawKeyBar()
 
 panel_ptr FilePanels::CreatePanel(panel_type Type)
 {
-	switch (Type.value())
+	switch (Type)
 	{
 	default:
 	case panel_type::FILE_PANEL:
@@ -1009,7 +1009,7 @@ int  FilePanels::GetTypeAndName(string &strType, string &strName)
 	strType = MSG(MScreensPanels);
 	string strFullName, strShortName;
 
-	switch (ActivePanel()->GetType().value())
+	switch (ActivePanel()->GetType())
 	{
 		case panel_type::TREE_PANEL:
 		case panel_type::QVIEW_PANEL:
@@ -1219,7 +1219,7 @@ void FilePanels::GoToFile(const string& FileName)
 
 FARMACROAREA FilePanels::GetMacroArea() const
 {
-	switch (ActivePanel()->GetType().value())
+	switch (ActivePanel()->GetType())
 	{
 	case panel_type::FILE_PANEL:
 		return MACROAREA_SHELL;

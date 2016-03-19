@@ -1735,7 +1735,7 @@ struct RegExp::StateStackItem
 
 inline const RegExp::StateStackItem& FindStateByPos(const std::vector<RegExp::StateStackItem>& stack, RegExp::REOpCode* pos, int op)
 {
-	return *std::find_if(ALL_CONST_REVERSE_RANGE(stack), [&](CONST_REFERENCE(stack) i){ return i.pos == pos && i.op == op; });
+	return *std::find_if(ALL_CONST_REVERSE_RANGE(stack), [&](const auto& i){ return i.pos == pos && i.op == op; });
 }
 
 inline int RegExp::StrCmp(const wchar_t*& str, const wchar_t* _st, const wchar_t* ed) const

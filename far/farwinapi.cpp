@@ -53,11 +53,11 @@ namespace os
 		public:
 			virtual ~i_find_handle_impl() = 0;
 		};
-		i_find_handle_impl::~i_find_handle_impl() {}
+		i_find_handle_impl::~i_find_handle_impl() = default;
 
-		bool detail::find_handle_closer::close(HANDLE Handle) { delete static_cast<i_find_handle_impl*>(Handle); return true; }
-		bool detail::handle_closer::close(HANDLE Handle) { return CloseHandle(Handle) != FALSE; }
-		struct os_find_handle_closer { static bool close(HANDLE Handle) { return FindClose(Handle) != FALSE; } };
+		void detail::find_handle_closer::operator()(HANDLE Handle) const { delete static_cast<i_find_handle_impl*>(Handle); }
+		void detail::handle_closer::operator()(HANDLE Handle) const { if (Handle) CloseHandle(Handle); }
+		struct os_find_handle_closer { void operator()(HANDLE Handle) const { if (Handle) FindClose(Handle); } };
 
 		class far_find_handle_impl: public i_find_handle_impl
 		{
@@ -215,7 +215,8 @@ static bool FindNextFileInternal(const find_handle& Find, FAR_FIND_DATA& FindDat
 			if (Handle->Buffer2)
 			{
 				Handle->BufferBase.reset();
-				Handle->BufferBase.swap(Handle->Buffer2);
+				using std::swap;
+				swap(Handle->BufferBase, Handle->Buffer2);
 				DirectoryInfo = reinterpret_cast<PFILE_ID_BOTH_DIR_INFORMATION>(Handle->BufferBase.get());
 			}
 			else
@@ -606,9 +607,9 @@ bool file::NtQueryInformationFile(PVOID FileInformation, ULONG Length, FILE_INFO
 	return Result == STATUS_SUCCESS;
 }
 
-bool file::Close()
+void file::Close()
 {
-	return Handle.close();
+	Handle.close();
 }
 
 bool file::Eof()
@@ -649,14 +650,13 @@ bool file_walker::InitWalk(size_t BlockSize)
 				const bool QueryResult = IoControl(FSCTL_QUERY_ALLOCATED_RANGES, &QueryRange, sizeof(QueryRange), Ranges, sizeof(Ranges), &BytesReturned);
 				if((QueryResult || GetLastError() == ERROR_MORE_DATA) && BytesReturned)
 				{
-					FOR(const auto& i, make_range(Ranges, Ranges + BytesReturned / sizeof(*Ranges)))
+					for (const auto& i: make_range(Ranges, Ranges + BytesReturned / sizeof(*Ranges)))
 					{
 						AllocSize += i.Length.QuadPart;
 						const UINT64 RangeEndOffset = i.FileOffset.QuadPart + i.Length.QuadPart;
 						for(UINT64 j = i.FileOffset.QuadPart; j < RangeEndOffset; j+=ChunkSize)
 						{
-							// TODO: direct emplace_back after decommissioning VC10
-							ChunkList.emplace_back(Chunk(j, static_cast<DWORD>(std::min(RangeEndOffset - j, static_cast<UINT64>(ChunkSize)))));
+							ChunkList.emplace_back(j, static_cast<DWORD>(std::min(RangeEndOffset - j, static_cast<UINT64>(ChunkSize))));
 						}
 					}
 					QueryRange.FileOffset.QuadPart = ChunkList.back().Offset+ChunkList.back().Size;
@@ -672,8 +672,7 @@ bool file_walker::InitWalk(size_t BlockSize)
 		else
 		{
 			AllocSize = FileSize;
-			// TODO: direct emplace_back after decommissioning VC10
-			ChunkList.emplace_back(Chunk(0, static_cast<DWORD>(std::min(static_cast<UINT64>(BlockSize), FileSize))));
+			ChunkList.emplace_back(0, static_cast<DWORD>(std::min(static_cast<UINT64>(BlockSize), FileSize)));
 			Result = true;
 		}
 		CurrentChunk = ChunkList.begin();
@@ -1447,10 +1446,9 @@ std::vector<string> GetLogicalDriveStrings()
 			Ptr = vBuffer.get();
 		}
 
-		FOR(const auto& i, enum_substrings(Ptr))
+		for (const auto& i: enum_substrings(Ptr))
 		{
-			// TODO: direct emplace_back after decommissioning VC10
-			Result.emplace_back(string(i.data(), i.size()));
+			Result.emplace_back(i.data(), i.size());
 		}
 	}
 	return Result;
@@ -1493,7 +1491,7 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 		{
 			// try to convert NT path (\Device\HarddiskVolume1) to drive letter
 			const auto Strings = GetLogicalDriveStrings();
-			std::any_of(CONST_RANGE(Strings, i) -> bool
+			std::any_of(CONST_RANGE(Strings, i)
 			{
 				int Len = MatchNtPathRoot(NtPath, i);
 
@@ -1542,7 +1540,7 @@ bool GetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 {
 	if (Imports().GetFinalPathNameByHandleW)
 	{
-		const auto GetFinalPathNameByHandleGuarded = [](HANDLE File, wchar_t* Buffer, DWORD Size, DWORD Flags) -> DWORD
+		const auto GetFinalPathNameByHandleGuarded = [](HANDLE File, wchar_t* Buffer, DWORD Size, DWORD Flags)
 		{
 			try
 			{
@@ -1554,7 +1552,7 @@ bool GetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 			catch (const SException&)
 			{
 				SetLastError(ERROR_UNHANDLED_EXCEPTION);
-				return 0;
+				return 0ul;
 			}
 		};
 
@@ -1782,7 +1780,7 @@ string GetPrivateProfileString(const string& AppName, const string& KeyName, con
 
 DWORD GetAppPathsRedirectionFlag()
 {
-	const auto GetFlag = []() -> DWORD
+	const auto GetFlag = []
 	{
 		// App Paths key is shared in Windows 7 and above
 		if (!IsWindows7OrGreater())
@@ -2088,7 +2086,7 @@ DWORD GetAppPathsRedirectionFlag()
 	{
 		bool is_pointer(const void* Address)
 		{
-			const auto GetInfo = []() -> SYSTEM_INFO { SYSTEM_INFO Info; GetSystemInfo(&Info); return Info; };
+			const auto GetInfo = []{ SYSTEM_INFO Info; GetSystemInfo(&Info); return Info; };
 			static const auto info = GetInfo();
 
 			return InRange<const void*>(info.lpMinimumApplicationAddress, Address, info.lpMaximumApplicationAddress);
@@ -2099,7 +2097,7 @@ DWORD GetAppPathsRedirectionFlag()
 	{
 		bool is_admin()
 		{
-			const auto GetResult = []() -> bool
+			const auto GetResult = []
 			{
 				SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
 				try

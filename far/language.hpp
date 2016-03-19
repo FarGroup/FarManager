@@ -37,25 +37,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lang.hpp"
 
-class Language: noncopyable, swapable<Language>
+class Language
 {
 public:
-	Language(const string& Path, int CountNeed = -1) { init(Path, CountNeed); }
-	Language(Language&& rhs) noexcept { *this = std::move(rhs); }
-	virtual ~Language() {}
+	NONCOPYABLE(Language);
+	TRIVIALLY_MOVABLE(Language);
 
-	MOVE_OPERATOR_BY_SWAP(Language);
+	Language(const string& Path, int CountNeed = -1) { init(Path, CountNeed); }
+	virtual ~Language() = default;
 
 	const wchar_t* GetMsg(LNGID nID) const;
 
-	void swap(Language& rhs) noexcept
-	{
-		m_Messages.swap(rhs.m_Messages);
-		m_FileName.swap(rhs.m_FileName);
-	}
-
 protected:
-	Language() {}
+	Language() = default;
 
 	void init(const string& Path, int CountNeed = -1);
 	bool CheckMsgId(LNGID MsgId) const;

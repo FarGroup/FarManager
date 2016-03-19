@@ -549,7 +549,7 @@ void GetFileDateAndTime(const string& Src, LPWORD Dst, size_t Count, wchar_t Sep
 	std::vector<string> Components;
 	split(Components, Src, STLF_ALLOWEMPTY, Separators);
 	assert(Components.size() == Count);
-	std::transform(ALL_CONST_RANGE(Components), Dst, [](CONST_REFERENCE(Components) i) { return i.empty() ? -1 : std::stoul(i); });
+	std::transform(ALL_CONST_RANGE(Components), Dst, [](const auto& i) { return i.empty()? -1 : std::stoul(i); });
 }
 
 void StrToDateTime(const string& CDate, const string& CTime, FILETIME &ft, int DateFormat, wchar_t DateSeparator, wchar_t TimeSeparator, bool bRelative)

@@ -40,16 +40,19 @@ enum FM_FLAGS
 	FMF_SILENT = 1,
 };
 
-class filemasks: noncopyable, swapable<filemasks>
+class filemasks
 {
 public:
 	filemasks();
 	~filemasks();
-	filemasks(filemasks&& rhs) noexcept;
 
-	MOVE_OPERATOR_BY_SWAP(filemasks);
+	filemasks(const filemasks&) = delete;
+	filemasks& operator=(const filemasks&) = delete;
 
-	void swap(filemasks& rhs) noexcept;
+	filemasks(filemasks&&);
+	filemasks& operator=(filemasks&&);
+
+
 	bool Set(const string& Masks, DWORD Flags = 0);
 	bool Compare(const string& Name) const;
 	bool empty() const;

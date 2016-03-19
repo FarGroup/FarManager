@@ -30,16 +30,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 template<class T>
-class array_ptr: swapable<array_ptr<T>>, public conditional<array_ptr<T>>
+class array_ptr: public conditional<array_ptr<T>>
 {
 public:
+	NONCOPYABLE(array_ptr);
+	TRIVIALLY_MOVABLE(array_ptr);
+
 	array_ptr() : m_size() {}
-	array_ptr(array_ptr&& other) noexcept: m_size() { *this = std::move(other); }
 	array_ptr(size_t size, bool init = false) : m_array(init? new T[size]() : new T[size]), m_size(size) {}
-	MOVE_OPERATOR_BY_SWAP(array_ptr);
+
 	void reset(size_t size, bool init = false) { m_array.reset(init? new T[size]() : new T[size]); m_size = size;}
 	void reset() { m_array.reset(); m_size = 0; }
-	void swap(array_ptr& other) noexcept { using std::swap; m_array.swap(other.m_array); swap(m_size, other.m_size); }
 	size_t size() const noexcept { return m_size; }
 	bool operator!() const noexcept { return !m_array; }
 	T* get() const {return m_array.get();}
@@ -57,10 +58,11 @@ template<class T>
 class block_ptr:public char_ptr
 {
 public:
+	NONCOPYABLE(block_ptr);
+	TRIVIALLY_MOVABLE(block_ptr);
+
 	block_ptr(){}
-	block_ptr(block_ptr&& Right){char_ptr::swap(Right);}
 	block_ptr(size_t size, bool init = false):char_ptr(size, init){}
-	MOVE_OPERATOR_BY_SWAP(block_ptr);
 	T* get() const {return reinterpret_cast<T*>(char_ptr::get());}
 	T* operator->() const noexcept { return get(); }
 	T& operator*() const {return *get();}
@@ -92,5 +94,14 @@ struct file_closer
 };
 
 typedef std::unique_ptr<FILE, file_closer> file_ptr;
+
+namespace detail
+{
+	struct nop_deleter { void operator()(void* ptr) const {} };
+}
+
+template<class T>
+using movalbe_ptr = std::unique_ptr<T, detail::nop_deleter>;
+
 
 #endif // SMART_PTR_HPP_DE65D1E8_C925_40F7_905A_B7E3FF40B486

@@ -37,8 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "panelfwd.hpp"
 
-ENUM(DIRDELTYPE);
-ENUM(DEL_RESULT);
+enum DIRDELTYPE: int;
+enum DEL_RESULT: int;
 
 class ShellDelete: noncopyable
 {

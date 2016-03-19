@@ -848,7 +848,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 			if ((Mode>SM_DEFAULT) && (Mode<=SM_CHTIME))
 			{
-				SetSortMode(panel_sort::value_type(Mode - 1)); // Уменьшим на 1 из-за SM_DEFAULT
+				SetSortMode(panel_sort(Mode - 1)); // Уменьшим на 1 из-за SM_DEFAULT
 				Result=TRUE;
 			}
 			break;
@@ -902,7 +902,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			Info->OwnerGuid=FarGuid;
 			Info->PluginHandle=nullptr;
 
-			switch (GetType().value())
+			switch (GetType())
 			{
 			case panel_type::FILE_PANEL:
 				Info->PanelType=PTYPE_FILEPANEL;
@@ -925,7 +925,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			Info->PanelRect.right=X2;
 			Info->PanelRect.bottom=Y2;
 			Info->ViewMode=GetViewMode();
-			Info->SortMode = static_cast<OPENPANELINFO_SORTMODES>((GetSortMode().value() < panel_sort::COUNT ? SM_UNSORTED - panel_sort::UNSORTED : 0) + GetSortMode().value());
+			Info->SortMode = static_cast<OPENPANELINFO_SORTMODES>((GetSortMode() < panel_sort::COUNT? SM_UNSORTED - static_cast<int>(panel_sort::UNSORTED) : 0) + static_cast<int>(GetSortMode()));
 
 			Info->Flags |= Global->Opt->ShowHidden? PFLAGS_SHOWHIDDEN : 0;
 			Info->Flags |= Global->Opt->Highlight? PFLAGS_HIGHLIGHT : 0;
@@ -1340,7 +1340,7 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid
 
 	if(CheckType)
 	{
-		switch (GetType().value())
+		switch (GetType())
 		{
 		case panel_type::FILE_PANEL:
 			break;

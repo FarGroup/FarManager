@@ -72,7 +72,7 @@ enum
 
 
 // Режимы показа меню (Menu mode)
-ENUM(MENUMODE)
+enum MENUMODE: int
 {
 	MM_LOCAL,  // Локальное меню
 	MM_USER,   // Пользовательское меню
@@ -128,7 +128,7 @@ struct UserMenu::UserMenuItem
 static string SerializeMenu(const UserMenu::menu_container& Menu)
 {
 	string Result;
-	FOR(const auto& i, Menu)
+	for (const auto& i: Menu)
 	{
 		Result += i.strHotKey;
 		Result += L":  ";
@@ -143,7 +143,7 @@ static string SerializeMenu(const UserMenu::menu_container& Menu)
 		}
 		else
 		{
-			FOR(const auto& str, i.Commands)
+			for (const auto& str: i.Commands)
 			{
 				Result += L"    ";
 				Result += str;
@@ -830,7 +830,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 
 			const string* Names[] = { &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName };
 
-			FOR(auto& i, Names)
+			for (auto& i: Names)
 			{
 				if (!i->empty())
 					os::DeleteFile(*i);
@@ -1043,7 +1043,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 			EditDlg[EM_MEMOEDIT].strData = strBuffer; //???
 #else
 			int CommandNumber=0;
-			FOR(const auto& i, (*MenuItem)->Commands)
+			for (const auto& i: (*MenuItem)->Commands)
 			{
 				EditDlg[EM_EDITLINE_0+CommandNumber].strData = i;
 				if (++CommandNumber == DI_EDIT_COUNT)

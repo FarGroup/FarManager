@@ -33,11 +33,11 @@ template<class iterator_type>
 class range
 {
 public:
-	typedef iterator_type iterator;
-	typedef std::reverse_iterator<iterator> reverse_iterator;
-	typedef typename std::iterator_traits<iterator>::reference reference;
-	typedef typename std::iterator_traits<iterator>::pointer pointer;
-	typedef typename std::iterator_traits<iterator>::value_type value_type;
+	using iterator = iterator_type;
+	using reverse_iterator = std::reverse_iterator<iterator>;
+	using reference = typename std::iterator_traits<iterator>::reference;
+	using pointer = typename std::iterator_traits<iterator>::pointer;
+	using value_type = typename std::iterator_traits<iterator>::value_type;
 
 	range():
 		m_begin(),

@@ -53,30 +53,18 @@ enum TVarType
 typedef bool (*TVarFuncCmp)(TVarType vt,const void *, const void *);
 
 
-class TVar: swapable<TVar>
+class TVar
 {
 public:
+	TRIVIALLY_COPYABLE(TVar);
+	TRIVIALLY_MOVABLE(TVar);
+
 	TVar();
 	TVar(long long);
 	TVar(const string&);
 	TVar(const wchar_t*);
 	TVar(int);
 	TVar(double);
-	TVar(const TVar&);
-	TVar(TVar&& rhs) noexcept: inum(), dnum(), str(), vType(vtUnknown) { *this = std::move(rhs); }
-	~TVar() {};
-
-	void swap(TVar& rhs) noexcept
-	{
-		using std::swap;
-		swap(vType, rhs.vType);
-		swap(inum, rhs.inum);
-		swap(dnum, rhs.dnum);
-		swap(str, rhs.str);
-	}
-
-	COPY_OPERATOR_BY_SWAP(TVar);
-	MOVE_OPERATOR_BY_SWAP(TVar);
 
 	TVar& operator+=(const TVar& b)  { return *this = *this + b; }
 	TVar operator-() const;

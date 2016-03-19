@@ -78,7 +78,7 @@ enum DIALOG_MODES
 Описывает один элемент диалога - внутренне представление.
 Для плагинов это FarDialogItem
 */
-struct DialogItemEx: public FarDialogItem, swapable<DialogItemEx>
+struct DialogItemEx: public FarDialogItem
 {
 	// Структура, описывающая автоматизацию для DIF_AUTOMATION
 	struct DialogItemAutomation;
@@ -94,14 +94,11 @@ struct DialogItemEx: public FarDialogItem, swapable<DialogItemEx>
 	class DlgUserControl *UCData;
 
 	DialogItemEx();
-	DialogItemEx(const DialogItemEx& rhs);
-	DialogItemEx(DialogItemEx&& rhs) noexcept;
 	~DialogItemEx();
-
-	COPY_OPERATOR_BY_SWAP(DialogItemEx);
-	MOVE_OPERATOR_BY_SWAP(DialogItemEx);
-
-	void swap(DialogItemEx& rhs) noexcept;
+	DialogItemEx(const DialogItemEx&);
+	DialogItemEx& operator=(const DialogItemEx&);
+	DialogItemEx(DialogItemEx&&);
+	DialogItemEx& operator=(DialogItemEx&&);
 
 	void Indent(int Delta)
 	{

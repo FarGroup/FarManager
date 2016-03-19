@@ -169,8 +169,7 @@ PluginManager::~PluginManager()
 
 Plugin* PluginManager::AddPlugin(std::unique_ptr<Plugin>&& pPlugin)
 {
-	// TODO: direct emplace after decommissioning VC10
-	const auto Result = m_Plugins.emplace(VALUE_TYPE(m_Plugins)(pPlugin->GetGUID(), VALUE_TYPE(m_Plugins)::second_type()));
+	const auto Result = m_Plugins.emplace(pPlugin->GetGUID(), VALUE_TYPE(m_Plugins)::second_type());
 	if (!Result.second)
 	{
 		pPlugin->Unload(true);
@@ -197,8 +196,7 @@ bool PluginManager::UpdateId(Plugin *pPlugin, const GUID& Id)
 	Iterator->second.release();
 	m_Plugins.erase(Iterator);
 	pPlugin->SetGuid(Id);
-	// TODO: direct emplace after decommissioning VC10
-	const auto Result = m_Plugins.emplace(VALUE_TYPE(m_Plugins)(pPlugin->GetGUID(), VALUE_TYPE(m_Plugins)::second_type()));
+	const auto Result = m_Plugins.emplace(pPlugin->GetGUID(), VALUE_TYPE(m_Plugins)::second_type());
 	if (!Result.second)
 	{
 		return false;
@@ -430,7 +428,7 @@ void PluginManager::LoadPlugins()
 		// теперь пройдемся по всему ранее собранному списку
 		std::vector<string> Strings;
 		split(Strings, strPluginsDir, STLF_UNIQUE);
-		FOR(const auto& i, Strings)
+		for (const auto& i: Strings)
 		{
 			// расширяем значение пути
 			strFullName = Unquote(os::env::expand_strings(i)); //??? здесь ХЗ
@@ -517,7 +515,7 @@ PluginHandle* PluginManager::OpenFilePlugin(
 	std::vector<BYTE> Buffer(Global->Opt->PluginMaxReadData);
 
 	bool DataRead = false;
-	FOR(const auto& i, SortedPlugins)
+	for (const auto& i: SortedPlugins)
 	{
 		if (!i->has<iOpenFilePlugin>() && !(i->has<iAnalyse>() && i->has<iOpen>()))
 			continue;
@@ -693,7 +691,7 @@ PluginHandle* PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem
 	std::list<PluginHandle> items;
 	auto pResult = items.end();
 
-	FOR(const auto& i, SortedPlugins)
+	for (const auto& i: SortedPlugins)
 	{
 		if (!i->has<iSetFindList>())
 			continue;
@@ -886,7 +884,7 @@ int PluginManager::ProcessConsoleInput(ProcessConsoleInputInfo *Info) const
 {
 	int nResult = 0;
 
-	FOR(const auto& i, SortedPlugins)
+	for (const auto& i: SortedPlugins)
 	{
 		if (i->has<iProcessConsoleInput>())
 		{
@@ -1239,7 +1237,7 @@ void PluginManager::Configure(int StartPos)
 				string strHotKey, strName;
 				GUID guid;
 
-				FOR(const auto& i, SortedPlugins)
+				for (const auto& i: SortedPlugins)
 				{
 					bool bCached = i->CheckWorkFlags(PIWF_CACHED);
 					unsigned __int64 id = 0;
@@ -1399,7 +1397,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 				string strHotKey, strName;
 				GUID guid;
 
-				FOR(const auto& i, SortedPlugins)
+				for (const auto& i: SortedPlugins)
 				{
 					bool bCached = i->CheckWorkFlags(PIWF_CACHED);
 					UINT64 IFlags;
@@ -1745,7 +1743,7 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 		string Name;
 		GUID Guid;
 
-		const auto ReadCache = [&](decltype(&PluginsCacheConfig::GetPluginsMenuItem) Getter, menu_items& Items)
+		const auto ReadCache = [&](const auto& Getter, auto& Items)
 		{
 			for (size_t i = 0; (ConfigProvider().PlCacheCfg().get()->*Getter)(id, i, Name, Guid); ++i)
 			{
@@ -1940,7 +1938,7 @@ int PluginManager::ProcessCommandLine(const string& CommandParam, panel_ptr Targ
 	string strPluginPrefix;
 	std::list<PluginData> items;
 
-	FOR(const auto& i, SortedPlugins)
+	for (const auto& i: SortedPlugins)
 	{
 		UINT64 PluginFlags=0;
 
@@ -2411,12 +2409,13 @@ void PluginManager::RefreshPluginsList()
 {
 	if(!UnloadedPlugins.empty())
 	{
-		UnloadedPlugins.remove_if([&](CONST_REFERENCE(UnloadedPlugins) i) -> bool
+		UnloadedPlugins.remove_if([this](const auto& i)
 		{
 			if (!i->Active())
 			{
 				i->Unload(true);
-				RemovePlugin(i);
+				// gcc bug, this-> required
+				this->RemovePlugin(i);
 				return true;
 			}
 			return false;
