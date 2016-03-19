@@ -1,4 +1,9 @@
-﻿drkns 18.03.2016 18:03:45 +0200
+﻿drkns 19.03.2016 23:19:41 +0200
+
+1. Given that our German users aren't happy with "#0003145: New German translation", I'm reverting it to the previous version.
+   Only previously untranslated strings are picked from #0003145 now.
+
+drkns 18.03.2016 18:03:45 +0200
 
 1. Для сборки требуются VC++ 2015 / GCC 5.
 
