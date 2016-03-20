@@ -34,9 +34,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 template<class T>
-class matrix: swapable<matrix<T>>
+class matrix
 {
 public:
+	TRIVIALLY_COPYABLE(matrix);
+	TRIVIALLY_MOVABLE(matrix);
+
 	class row
 	{
 	public:
@@ -109,14 +112,6 @@ public:
 
 	std::vector<T>& vector() { return m_buffer; }
 	const std::vector<T>& vector() const { return m_buffer; }
-
-	void swap(matrix& rhs) noexcept
-	{
-		using std::swap;
-		m_buffer.swap(rhs.m_buffer);
-		swap(m_rows, rhs.m_rows);
-		swap(m_cols, rhs.m_cols);
-	}
 
 private:
 	std::vector<T> m_buffer;

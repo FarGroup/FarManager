@@ -72,7 +72,7 @@ inline string make_name(const S& HashPart, const S& TextPart)
 	return Str;
 }
 
-class Thread: public os::HandleWrapper, swapable<Thread>
+class Thread: public os::HandleWrapper
 {
 public:
 	NONCOPYABLE(Thread);

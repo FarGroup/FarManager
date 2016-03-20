@@ -162,23 +162,13 @@ private:
 	class numbered_iterator_t: public T
 	{
 	public:
+		TRIVIALLY_COPYABLE(numbered_iterator_t);
+		TRIVIALLY_MOVABLE(numbered_iterator_t);
+
 		numbered_iterator_t(const T& Iterator, size_t Number):
 			T(Iterator),
 			m_Number(Number)
 		{
-		}
-
-		numbered_iterator_t(const numbered_iterator_t& rhs):
-			T(rhs),
-			m_Number(rhs.m_Number)
-		{
-		}
-
-		void swap(numbered_iterator_t& rhs) noexcept
-		{
-			using std::swap;
-			swap(base(), rhs.base());
-			swap(m_Number, rhs.m_Number);
 		}
 
 		// BUGBUG, size_t

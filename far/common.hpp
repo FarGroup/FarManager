@@ -82,13 +82,17 @@ inline std::wostream& operator <<(std::wostream& stream, const write_exact& p)
 template<class T>
 inline void resize_nomove(T& container, size_t size)
 {
-	T(size).swap(container);
+	T Tmp(size);
+	using std::swap;
+	swap(container, Tmp);
 }
 
 template<class T>
 inline void clear_and_shrink(T& container)
 {
-	T().swap(container);
+	T Tmp;
+	using std::swap;
+	swap(container, Tmp);
 }
 
 template<class T>

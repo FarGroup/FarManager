@@ -75,18 +75,18 @@ namespace detail
 		DWORD CRC32;
 
 		const wchar_t *DizText;
-		bool DeleteDiz;
 
 		char Selected;
 		char PrevSelected;
 		char ShowFolderSize;
-		char ShortNamePresent;
 	};
 }
 
-// BUGBUG: refactor and make TRIVIALLY_MOVABLE
-struct FileListItem: public detail::FileListItemPod, noncopyable, swapable<FileListItem>
+struct FileListItem: public detail::FileListItemPod
 {
+	NONCOPYABLE(FileListItem);
+	TRIVIALLY_MOVABLE(FileListItem);
+
 	string strName;
 	string strShortName;
 	string strOwner;
@@ -95,26 +95,6 @@ struct FileListItem: public detail::FileListItemPod, noncopyable, swapable<FileL
 	FileListItem()
 	{
 		ClearStruct(static_cast<detail::FileListItemPod&>(*this));
-	}
-
-	FileListItem(FileListItem&& rhs) noexcept
-	{
-		ClearStruct(static_cast<detail::FileListItemPod&>(*this));
-		*this = std::move(rhs);
-	}
-
-	~FileListItem();
-
-	MOVE_OPERATOR_BY_SWAP(FileListItem);
-
-	void swap(FileListItem& rhs) noexcept
-	{
-		using std::swap;
-		swap(static_cast<detail::FileListItemPod&>(*this), static_cast<detail::FileListItemPod&>(rhs));
-		strName.swap(rhs.strName);
-		strShortName.swap(rhs.strShortName);
-		strOwner.swap(rhs.strOwner);
-		ContentData.swap(rhs.ContentData);
 	}
 };
 

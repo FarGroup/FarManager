@@ -84,18 +84,6 @@ private:
 	virtual void DisplayObject() = 0;
 
 protected:
-	void swap(SimpleScreenObject& rhs) noexcept
-	{
-		using std::swap;
-		swap(m_Owner, rhs.m_Owner);
-		swap(m_Flags, rhs.m_Flags);
-		swap(nLockCount, rhs.nLockCount);
-		swap(m_X1, rhs.m_X1);
-		swap(m_Y1, rhs.m_Y1);
-		swap(m_X2, rhs.m_X2);
-		swap(m_Y2, rhs.m_Y2);
-	}
-
 	// KEEP ALIGNED!
 	std::weak_ptr<window> m_Owner;
 	BitFlags m_Flags;
@@ -116,12 +104,6 @@ protected:
 	ScreenObject(window_ptr Owner);
 	virtual ~ScreenObject();
 
-	void swap(ScreenObject& rhs) noexcept
-	{
-		SimpleScreenObject::swap(rhs);
-		SaveScr.swap(rhs.SaveScr);
-	}
-
 public: // BUGBUG
 	std::unique_ptr<SaveScreen> SaveScr;
 };
@@ -137,11 +119,6 @@ protected:
 	virtual ~ScreenObjectWithShadow();
 
 	void Shadow(bool Full=false);
-	void swap(ScreenObjectWithShadow& rhs) noexcept
-	{
-		ScreenObject::swap(rhs);
-		ShadowSaveScr.swap(rhs.ShadowSaveScr);
-	}
 
 	std::unique_ptr<SaveScreen> ShadowSaveScr;
 };

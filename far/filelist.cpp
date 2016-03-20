@@ -210,15 +210,6 @@ struct FileList::PrevDataItem
 	int PrevTopFile;
 };
 
-FileListItem::~FileListItem()
-{
-	DeleteRawArray(CustomColumnData, CustomColumnNumber);
-
-	if (DeleteDiz)
-		delete[] DizText;
-
-}
-
 file_panel_ptr FileList::create(window_ptr Owner)
 {
 	return std::make_shared<FileList>(private_tag(), Owner);
@@ -313,11 +304,16 @@ void FileList::DeleteListData(std::vector<FileListItem>& ListData)
 {
 	std::for_each(CONST_RANGE(ListData, i)
 	{
-		if (m_PanelMode == panel_mode::PLUGIN_PANEL && i.Callback)
+		if (m_PanelMode == panel_mode::PLUGIN_PANEL)
 		{
-			FarPanelItemFreeInfo info = {sizeof(FarPanelItemFreeInfo), m_hPlugin};
-			i.Callback(i.UserData, &info);
+			if (i.Callback)
+			{
+				FarPanelItemFreeInfo info = { sizeof(FarPanelItemFreeInfo), m_hPlugin };
+				i.Callback(i.UserData, &info);
+			}
 		}
+		delete[] i.DizText;
+		DeleteRawArray(i.CustomColumnData, i.CustomColumnNumber);
 	});
 
 	ListData.clear();
@@ -5618,12 +5614,10 @@ void FileList::PluginToFileListItem(const PluginPanelItem& pi,FileListItem& fi)
 		auto Str = new wchar_t[wcslen(pi.Description)+1];
 		wcscpy(Str, pi.Description);
 		fi.DizText = Str;
-		fi.DeleteDiz=true;
 	}
 	else
 	{
 		fi.DizText = nullptr;
-		fi.DeleteDiz = false;
 	}
 
 	fi.FileSize=pi.FileSize;
@@ -7368,14 +7362,13 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 		}
 	}
 
-	std::for_each(RANGE(m_ListData, i)
+	for(auto& i: m_ListData)
 	{
 		if (!i.DizText)
 		{
-			i.DeleteDiz = false;
 			i.DizText = Diz.Get(i.strName, i.strShortName, i.FileSize);
 		}
-	});
+	}
 }
 
 

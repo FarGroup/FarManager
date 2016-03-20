@@ -258,7 +258,8 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 		}
 	}
 
-	ScreenBuf.swap(NewBuf);
+	using std::swap;
+	swap(ScreenBuf, NewBuf);
 	m_X1 = NX1; m_Y1 = NY1; m_X2 = NX2; m_Y2 = NY2;
 }
 

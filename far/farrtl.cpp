@@ -164,7 +164,7 @@ static std::string FormatLine(const char* File, int Line, const char* Function, 
 
 thread_local bool inside_far_bad_alloc = false;
 
-class far_bad_alloc: public std::bad_alloc, public swapable<far_bad_alloc>
+class far_bad_alloc: public std::bad_alloc
 {
 public:
 	TRIVIALLY_COPYABLE(far_bad_alloc);
@@ -187,11 +187,6 @@ public:
 	}
 
 	virtual const char* what() const noexcept override { return m_What.empty() ? std::bad_alloc::what() : m_What.data(); }
-
-	void swap(far_bad_alloc& rhs) noexcept
-	{
-		m_What.swap(rhs.m_What);
-	}
 
 private:
 	std::string m_What;

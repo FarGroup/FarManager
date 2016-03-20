@@ -101,9 +101,6 @@ Type& operator=(const Type& rhs) { Type Tmp(rhs); using std::swap; swap(*this, T
 Type(Type&&) = default; \
 Type& operator=(Type&&) = default;
 
-#define MOVE_OPERATOR_BY_SWAP(Type) \
-Type& operator=(Type&& rhs) noexcept { using std::swap; swap(*this, rhs); return *this; }
-
 #define SCOPED_ACTION(RAII_type) \
 const RAII_type ANONYMOUS_VARIABLE(scoped_object_)
 

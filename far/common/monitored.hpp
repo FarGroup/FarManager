@@ -30,28 +30,21 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 template<class T>
-class monitored: swapable<monitored<T>>
+class monitored
 {
 public:
+	TRIVIALLY_MOVABLE(monitored);
+
 	monitored(): m_Value(), m_Touched() {}
 	monitored(const T& Value): m_Value(Value), m_Touched() {}
 	monitored(const monitored& rhs): m_Value(rhs.m_Value), m_Touched() {}
 
 	monitored(T&& Value) noexcept: m_Value(std::move(Value)), m_Touched() {}
-	monitored(monitored&& rhs) noexcept: m_Value(std::move(rhs.m_Value)), m_Touched() {}
 
 	monitored& operator=(const T& Value) { m_Value = Value; m_Touched = true; return *this; }
 	monitored& operator=(const monitored& rhs) { m_Value = rhs.m_Value; m_Touched = true; return *this; }
 
 	monitored& operator=(T&& Value) noexcept { m_Value = std::move(Value); m_Touched = true; return *this; }
-	monitored& operator=(monitored&& rhs) noexcept { m_Value = std::move(rhs.m_Value); m_Touched = true; return *this; }
-
-	void swap(monitored& rhs) noexcept
-	{
-		using std::swap;
-		swap(m_Value, rhs.m_Value);
-		swap(m_Touched, rhs.m_Touched);
-	}
 
 	T& value() { return m_Value; }
 	const T& value() const { return m_Value; }
