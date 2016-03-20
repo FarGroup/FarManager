@@ -3,6 +3,46 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 20.03.2016 11:57:40 +0200 - build 4585
+
+1. Continuation of 4584.
+
+drkns 20.03.2016 00:41:42 +0200 - build 4584
+
+1. Remove hacks used widely for VS2010 support.
+
+drkns 19.03.2016 23:19:41 +0200
+
+1. Given that our German users aren't happy with "#0003145: New German translation", I'm reverting it to the previous version.
+   Only previously untranslated strings are picked from #0003145 now.
+
+drkns 18.03.2016 18:03:45 +0200
+
+1. Build requires VC++ 2015 / GCC 5.
+
+drkns 18.03.2016 12:00:11 +0200 - build 4583
+
+1. Continuation of 4582 - sort without expansion of FileListItem structure which is already big.
+   Also, it may be a little faster.
+
+shmuel 17.03.2016 18:18:54 +0200 - build 4582
+
+1. Custom panel sorting modes would corrupt inner FileListItem structures
+   (this happened in Far builds with GCC 5.2 or 5.3).
+   Custom sorting algorithm had to be changed, now there is no direct memory manipulation.
+
+drkns 14.03.2016 23:51:08 +0200 - build 4581
+
+1. Revert ACTL_REDRAWALL behavior before 4545.
+
+shmuel 14.03.2016 11:39:07 +0200 - build 4580
+
+1. On "Sort by" menu display (CtrlF12) the cursor is set to the current sorting mode.
+
+svs 14.03.2016 10:33:31 +0300 - build 4579
+
+1. SQLite 3.11.1
+
 shmuel 13.03.2016 21:45:25 +0200 - build 4578
 
 1. Correction of 4577.
