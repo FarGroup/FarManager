@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 4577
+  Plugin API for Far Manager 3.0 build 4587
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 4577
+#define FARMANAGERVERSION_BUILD 4587
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -808,6 +808,8 @@ enum OPENPANELINFO_SORTMODES
 	SM_STREAMSSIZE               = 13,
 	SM_FULLNAME                  = 14,
 	SM_CHTIME                    = 15,
+
+	SM_COUNT
 };
 
 struct PanelInfo
@@ -1565,6 +1567,8 @@ enum EDITOR_OPTIONS
 	EOPT_SHOWWHITESPACE    = 0x00000100,
 	EOPT_BOM               = 0x00000200,
 	EOPT_SHOWLINEBREAK     = 0x00000400,
+	EOPT_SHOWTITLEBAR      = 0x00000800,
+	EOPT_SHOWKEYBAR        = 0x00001000,
 };
 
 
