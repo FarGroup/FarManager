@@ -2546,7 +2546,7 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 
 				Macro.GetMacroParseError(&ErrCode, &ErrPos, &ErrSrc);
 
-				int Size = ALIGN(sizeof(MacroParseResult));
+				int Size = aligned_sizeof<MacroParseResult>::value;
 				size_t stringOffset = Size;
 				Size += static_cast<int>((ErrSrc.size() + 1)*sizeof(wchar_t));
 

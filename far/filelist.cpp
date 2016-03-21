@@ -5525,7 +5525,7 @@ void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItem& pi)
 
 size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelItem* gpi)
 {
-	size_t size=ALIGN(sizeof(PluginPanelItem)),offset=size;
+	size_t size = aligned_sizeof<PluginPanelItem>::value, offset = size;
 	size+=fi.CustomColumnNumber*sizeof(wchar_t*);
 	size+=sizeof(wchar_t)*(fi.strName.size()+1);
 	size+=sizeof(wchar_t)*(fi.strShortName.size()+1);

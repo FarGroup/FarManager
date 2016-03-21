@@ -34,7 +34,18 @@ void PrintMemory();
 char* xstrncpy(char* dest, const char* src, size_t DestSize);
 wchar_t* xwcsncpy(wchar_t* dest, const wchar_t* src, size_t DestSize);
 
-#define ALIGNAS(value, alignment) ((value+(alignment-1))&~(alignment-1))
-#define ALIGN(value) ALIGNAS(value, sizeof(void*))
+constexpr size_t aligned_size(size_t Size, size_t Alignment = MEMORY_ALLOCATION_ALIGNMENT)
+{
+	return (Size + (Alignment - 1)) & ~(Alignment - 1);
+}
+
+template<class T, int Alignment = MEMORY_ALLOCATION_ALIGNMENT>
+struct aligned_sizeof
+{
+	enum
+	{
+		value = aligned_size(sizeof(T), Alignment)
+	};
+};
 
 #endif // FARRTL_HPP_3DC127D2_3D5C_4E0C_BFDD_6CE23AE099DB

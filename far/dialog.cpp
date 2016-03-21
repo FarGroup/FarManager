@@ -201,7 +201,7 @@ size_t ItemStringAndSize(const DialogItemEx *Data,string& ItemString)
 
 static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 {
-	size_t size=ALIGN(sizeof(FarDialogItem)),offsetList=size,offsetListItems=size;
+	size_t size = aligned_sizeof<FarDialogItem>::value, offsetList = size, offsetListItems = size;
 	vmenu_ptr ListBox;
 	size_t ListBoxSize = 0;
 	if (ItemEx->Type==DI_LISTBOX || ItemEx->Type==DI_COMBOBOX)
@@ -209,7 +209,7 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 		ListBox=ItemEx->ListPtr;
 		if (ListBox)
 		{
-			size+=ALIGN(sizeof(FarList));
+			size += aligned_sizeof<FarList>::value;
 			offsetListItems=size;
 			ListBoxSize=ListBox->size();
 			size+=ListBoxSize*sizeof(FarListItem);

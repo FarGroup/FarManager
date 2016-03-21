@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning(disable: 4245) // https://msdn.microsoft.com/en-us/library/e9s7thk1.aspx 'conversion' : conversion from 'type1' to 'type2', signed/unsigned mismatch
 #pragma warning(disable: 4250) // https://msdn.microsoft.com/en-us/library/6b3sy7ae.aspx 'class1' : inherits 'class2::member' via dominance
 #pragma warning(disable: 4255) // https://msdn.microsoft.com/en-us/library/0k9z2ey4.aspx 'function' : no function prototype given: converting '()' to '(void)'
+#pragma warning(disable: 4324) // https://msdn.microsoft.com/en-us/library/92fdk6xx.aspx 'struct_name' : structure was padded due to __declspec(align())
 #pragma warning(disable: 4345) // https://msdn.microsoft.com/en-us/library/wewb47ee.aspx behavior change: an object of POD type constructed with an initializer of the form () will be default-initialized
 #pragma warning(disable: 4350) // https://msdn.microsoft.com/en-us/library/0eestyah.aspx behavior change: 'member1' called instead of 'member2'
 #pragma warning(disable: 4351) // https://msdn.microsoft.com/en-us/library/1ywe7hcy.aspx new behavior: elements of array 'array' will be default initialized

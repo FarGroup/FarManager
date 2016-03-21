@@ -38,28 +38,21 @@ enum ALLOCATION_TYPE
 
 static CRITICAL_SECTION CS;
 
-struct MEMINFO
+struct alignas(MEMORY_ALLOCATION_ALIGNMENT) MEMINFO
 {
-	union
-	{
-		struct
-		{
-			ALLOCATION_TYPE AllocationType;
-			int Line;
-			const char* File;
-			const char* Function;
-			size_t Size;
-			MEMINFO* prev;
-			MEMINFO* next;
-		};
-		char c[MEMORY_ALLOCATION_ALIGNMENT*4];
-	};
+	ALLOCATION_TYPE AllocationType;
+	int Line;
+	const char* File;
+	const char* Function;
+	size_t Size;
+	MEMINFO* prev;
+	MEMINFO* next;
 };
 
 static MEMINFO FirstMemBlock = {};
 static MEMINFO* LastMemBlock = &FirstMemBlock;
 
-static_assert(sizeof(MEMINFO) == MEMORY_ALLOCATION_ALIGNMENT*4, "MEMINFO not aligned");
+static_assert(alignof(MEMINFO) == MEMORY_ALLOCATION_ALIGNMENT, "MEMINFO not aligned");
 inline MEMINFO* ToReal(void* address) { return static_cast<MEMINFO*>(address) - 1; }
 inline void* ToUser(MEMINFO* address) { return address + 1; }
 
