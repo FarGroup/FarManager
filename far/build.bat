@@ -107,11 +107,11 @@ goto :EOF
 
 :set_vc
 :set_vcvars
+  if "" == "%vcver%" if not "" == "%VS140COMNTOOLS%" if exist "%VS140COMNTOOLS%\..\..\vc\vcvarsall.bat" set "vcver=14"
   if "" == "%vcver%" if not "" == "%VS120COMNTOOLS%" if exist "%VS120COMNTOOLS%\..\..\vc\vcvarsall.bat" set "vcver=12"
   if "" == "%vcver%" if not "" == "%VS100COMNTOOLS%" if exist "%VS100COMNTOOLS%\..\..\vc\vcvarsall.bat" set "vcver=10"
-  if "" == "%vcver%" if not "" == "%VS140COMNTOOLS%" if exist "%VS140COMNTOOLS%\..\..\vc\vcvarsall.bat" set "vcver=14"
   if "" == "%vcver%" if not "" == "%VS110COMNTOOLS%" if exist "%VS110COMNTOOLS%\..\..\vc\vcvarsall.bat" set "vcver=11"
-  if "" == "%vcver%" set "vcver=12"
+  if "" == "%vcver%" set "vcver=14"
   set "VisualStudioVersion=%vcver%.0"
   if "" == "%~1" goto :EOF
   set "vcmod=%~1"
