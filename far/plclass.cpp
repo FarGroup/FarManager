@@ -146,7 +146,7 @@ GenericPluginModel::GenericPluginModel(PluginManager* owner):
 		WA(""), // OpenFilePlugin not used
 		WA(""), // GetMinFarVersion not used
 	};
-	static_assert(ARRAYSIZE(ExportsNames) == ExportsCount, "Not all exports names are defined");
+	static_assert(std::size(ExportsNames) == ExportsCount, "Not all exports names are defined");
 	m_ExportsNames = make_range(std::cbegin(ExportsNames), std::cend(ExportsNames));
 }
 
@@ -560,7 +560,7 @@ static string VersionToString(const VersionInfo& PluginVersion)
 	const wchar_t* Stage[] = { L" Release", L" Alpha", L" Beta", L" RC"};
 	FormatString strVersion;
 	strVersion << PluginVersion.Major << L"." << PluginVersion.Minor << L"." << PluginVersion.Revision << L" (build " << PluginVersion.Build <<L")";
-	if(PluginVersion.Stage != VS_RELEASE && static_cast<size_t>(PluginVersion.Stage) < ARRAYSIZE(Stage))
+	if(PluginVersion.Stage != VS_RELEASE && static_cast<size_t>(PluginVersion.Stage) < std::size(Stage))
 	{
 		strVersion << Stage[PluginVersion.Stage];
 	}

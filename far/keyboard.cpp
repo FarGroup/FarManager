@@ -237,7 +237,7 @@ static TFKey ModifKeyName[]=
 	{KEY_M_OEM,    LNGID(-1),  3, L"Oem",    L"OEM"},
 };
 
-static_assert(ARRAYSIZE(ModifKeyName) == m_count, "Incomplete ModifKeyName array");
+static_assert(std::size(ModifKeyName) == m_count, "Incomplete ModifKeyName array");
 
 #if defined(SYSLOG)
 static TFKey SpecKeyName[]=
@@ -2132,7 +2132,7 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros)
 		{
 			static unsigned int ScanCodes[]={82,79,80,81,75,76,77,71,72,73};
 
-			for (int I=0; I<int(ARRAYSIZE(ScanCodes)); I++)
+			for (int I=0; I<int(std::size(ScanCodes)); I++)
 			{
 				if (ScanCodes[I]==ScanCode)
 				{

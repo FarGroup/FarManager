@@ -232,7 +232,7 @@ static int FnGroup(DWORD ControlState)
 		{KBL_CTRLALT, KEY_CTRLALT},
 		{KBL_CTRLALTSHIFT, KEY_CTRLALT|KEY_SHIFT}
 	};
-	static_assert(ARRAYSIZE(Area) == KBL_GROUP_COUNT, "Not all areas handled");
+	static_assert(std::size(Area) == KBL_GROUP_COUNT, "Not all areas handled");
 
 	const auto ItemIterator = std::find_if(CONST_RANGE(Area, i)
 	{
@@ -256,7 +256,7 @@ void KeyBar::SetCustomLabels(KEYBARAREA Area)
 		L"Help",
 	};
 
-	static_assert(ARRAYSIZE(Names) == KBA_COUNT, "Names not filled properly");
+	static_assert(std::size(Names) == KBA_COUNT, "Names not filled properly");
 
 	if (Area < KBA_COUNT && (!CustomLabelsReaded || StrCmpI(strLanguage, Global->Opt->strLanguage) || Area != CustomArea))
 	{

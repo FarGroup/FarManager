@@ -121,7 +121,7 @@ void ShellMakeDir(Panel *SrcPanel)
 {
 	FarList ComboList={sizeof(FarList)};
 	FarListItem LinkTypeItems[3]={};
-	ComboList.ItemsNumber=ARRAYSIZE(LinkTypeItems);
+	ComboList.ItemsNumber=std::size(LinkTypeItems);
 	ComboList.Items=LinkTypeItems;
 	ComboList.Items[0].Text=MSG(MMakeFolderLinkNone);
 	ComboList.Items[1].Text=MSG(MMakeFolderLinkJunction);

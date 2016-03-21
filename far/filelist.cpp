@@ -168,7 +168,7 @@ struct CustomSort
 bool SortFileList(CustomSort *cs, wchar_t *indicator)
 {
 	FarMacroValue values[]={cs};
-	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
+	FarMacroCall fmc={sizeof(FarMacroCall),std::size(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_PANELSORT,&fmc};
 	void *ptr;
 
@@ -184,7 +184,7 @@ bool SortFileList(CustomSort *cs, wchar_t *indicator)
 bool CanSort(int SortMode)
 {
 	FarMacroValue values[] = {(double)SortMode};
-	FarMacroCall fmc = {sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
+	FarMacroCall fmc = {sizeof(FarMacroCall),std::size(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info = {MCT_CANPANELSORT,&fmc};
 	void *ptr;
 
@@ -3308,7 +3308,7 @@ void FileList::SetSortMode(panel_sort Mode, bool KeepOrder)
 			true,  // BY_CHTIME,
 			false  // BY_CUSTOMDATA,
 		};
-		static_assert(ARRAYSIZE(InvertByDefault) == static_cast<size_t>(panel_sort::COUNT), "incomplete InvertByDefault array");
+		static_assert(std::size(InvertByDefault) == static_cast<size_t>(panel_sort::COUNT), "incomplete InvertByDefault array");
 
 		assert(Mode < panel_sort::COUNT);
 
@@ -4540,7 +4540,7 @@ void FileList::SelectSortMode()
 		{MSG(MMenuSortByFullName),0,0},
 		{MSG(MMenuSortByCustomData),0,0},
 	};
-	static_assert(ARRAYSIZE(InitSortMenuModes) == static_cast<size_t>(panel_sort::COUNT), "Incomplete InitSortMenuModes array");
+	static_assert(std::size(InitSortMenuModes) == static_cast<size_t>(panel_sort::COUNT), "Incomplete InitSortMenuModes array");
 
 	std::vector<MenuDataEx> SortMenu(ALL_CONST_RANGE(InitSortMenuModes));
 
@@ -4591,7 +4591,7 @@ void FileList::SelectSortMode()
 		panel_sort::BY_FULLNAME,
 		panel_sort::BY_CUSTOMDATA
 	};
-	static_assert(ARRAYSIZE(SortModes) == static_cast<size_t>(panel_sort::COUNT), "Incomplete SortModes array");
+	static_assert(std::size(SortModes) == static_cast<size_t>(panel_sort::COUNT), "Incomplete SortModes array");
 
 	{
 		const auto ItemIterator = std::find(ALL_CONST_RANGE(SortModes), m_SortMode);
@@ -4608,8 +4608,8 @@ void FileList::SelectSortMode()
 			{
 				if (mpr->Values[i].Double == static_cast<int>(m_SortMode))
 				{
-					SortMenu[ARRAYSIZE(SortModes) + 1 + i/3].SetCheck(Check);
-					SortMenu[ARRAYSIZE(SortModes) + 1 + i/3].SetSelect(TRUE);
+					SortMenu[std::size(SortModes) + 1 + i/3].SetCheck(Check);
+					SortMenu[std::size(SortModes) + 1 + i/3].SetSelect(TRUE);
 					break;
 				}
 			}
@@ -4634,9 +4634,9 @@ void FileList::SelectSortMode()
 		{MSG(MMenuSortSelectedFirst), SelectedFirst? (DWORD)MIF_CHECKED : 0, KEY_SHIFTF12},
 		{MSG(MMenuSortDirectoriesFirst), m_DirectoriesFirst? (DWORD)MIF_CHECKED : 0, 0},
 	};
-	static_assert(ARRAYSIZE(InitSortMenuOptions) == SortOptCount, "Incomplete InitSortMenuOptions array");
+	static_assert(std::size(InitSortMenuOptions) == SortOptCount, "Incomplete InitSortMenuOptions array");
 
-	SortMenu.reserve(SortMenu.size() + 1 + ARRAYSIZE(InitSortMenuOptions)); // + 1 for separator
+	SortMenu.reserve(SortMenu.size() + 1 + std::size(InitSortMenuOptions)); // + 1 for separator
 	SortMenu.emplace_back(MenuSeparator);
 	SortMenu.insert(SortMenu.end(), ALL_CONST_RANGE(InitSortMenuOptions));
 
@@ -4693,7 +4693,7 @@ void FileList::SelectSortMode()
 	}
 
 	// predefined sort modes
-	if (SortCode<(int)ARRAYSIZE(SortModes))
+	if (SortCode<(int)std::size(SortModes))
 	{
 		bool KeepOrder = false;
 
@@ -4706,9 +4706,9 @@ void FileList::SelectSortMode()
 		SetSortMode(SortModes[SortCode], KeepOrder);
 	}
 	// custom sort modes
-	else if (SortCode>=(int)ARRAYSIZE(SortModes) + 1 && SortCode<(int)(ARRAYSIZE(SortModes) + 1 + extra - 1))
+	else if (SortCode>=(int)std::size(SortModes) + 1 && SortCode<(int)(std::size(SortModes) + 1 + extra - 1))
 	{
-		int index = 3*(SortCode-ARRAYSIZE(SortModes)-1);
+		const auto index = 3*(SortCode-std::size(SortModes)-1);
 		int mode = (int)mpr->Values[index].Double;
 
 		if (custom_sort::CanSort(mode))
@@ -4733,7 +4733,7 @@ void FileList::SelectSortMode()
 			return PlusPressed? true : InvertPressed? !CurrentState : false;
 		};
 
-		switch (SortCode - ARRAYSIZE(SortModes) - extra - 1) // -1 for separator
+		switch (SortCode - std::size(SortModes) - extra - 1) // -1 for separator
 		{
 		case SortOptUseNumeric:
 			ChangeNumericSort(Switch(m_NumericSort));
@@ -7611,7 +7611,7 @@ void FileList::ShowFileList(int Fast)
 				{panel_sort::BY_FULLNAME, MMenuSortByFullName},
 				{panel_sort::BY_CUSTOMDATA, MMenuSortByCustomData},
 			};
-			static_assert(ARRAYSIZE(ModeNames) == static_cast<size_t>(panel_sort::COUNT), "Incomplete ModeNames array");
+			static_assert(std::size(ModeNames) == static_cast<size_t>(panel_sort::COUNT), "Incomplete ModeNames array");
 
 			Ch = wcschr(MSG(std::find_if(CONST_RANGE(ModeNames, i) { return i.first == m_SortMode; })->second), L'&');
 		}

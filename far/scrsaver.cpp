@@ -136,7 +136,7 @@ static void ShowSaver(int Step)
 	const auto NotStar = std::find_if(RANGE(Star, i) { return i.Type == STAR_NONE; });
 	if (NotStar != Star.end())
 	{
-		const auto random = [](int x)
+		const auto random = [](auto x)
 		{
 			return x * rand() / (RAND_MAX + 1);
 		};
@@ -145,7 +145,7 @@ static void ShowSaver(int Step)
 		NotStar->Type=random(77)<3 ? STAR_PLANET:STAR_NORMAL;
 		NotStar->X=(ScrX/2-ScrX/4+random(ScrX/2))*100;
 		NotStar->Y=(ScrY/2-ScrY/4+random(ScrY/2))*100;
-		NotStar->Color=Colors[random(ARRAYSIZE(Colors))];
+		NotStar->Color=Colors[random(std::size(Colors))];
 		NotStar->Speed=(NotStar->Type==STAR_PLANET) ? 1:2;
 	}
 }

@@ -621,7 +621,7 @@ void InfoList::SelectShowMode()
 		//DEFINE_GUID(InfoListSelectShowModeId,0xbfc64a26, 0xf433, 0x4cf3, 0xa1, 0xde, 0x83, 0x61, 0xcf, 0x76, 0x2f, 0x68);
 		// ?????
 
-		const auto ShowModeMenu = VMenu2::create(MSG(MMenuInfoShowModeTitle), ShowModeMenuItem, ARRAYSIZE(ShowModeMenuItem), 0);
+		const auto ShowModeMenu = VMenu2::create(MSG(MMenuInfoShowModeTitle), ShowModeMenuItem, std::size(ShowModeMenuItem), 0);
 		ShowModeMenu->SetHelp(L"InfoPanelShowMode");
 		ShowModeMenu->SetPosition(m_X1+4,-1,0,0);
 		ShowModeMenu->SetMenuFlags(VMENU_WRAPMODE);

@@ -72,10 +72,12 @@ namespace os
 
 		struct handle_closer { void operator()(HANDLE Handle) const; };
 		struct find_handle_closer { void operator()(HANDLE Handle) const; };
+		struct find_volume_handle_closer { void operator()(HANDLE Handle) const; };
 	}
 
 	using handle = detail::handle_t<detail::handle_closer>;
 	using find_handle = detail::handle_t<detail::find_handle_closer>;
+	using find_volume_handle = detail::handle_t<detail::find_volume_handle_closer>;
 
 	class HandleWrapper
 	{
@@ -241,9 +243,18 @@ namespace os
 			bool get(size_t index, value_type& value);
 
 		private:
-
 			string m_Object;
 			find_handle m_Handle;
+		};
+
+		class enum_volume: noncopyable, public enumerator<enum_volume, string>
+		{
+		public:
+			enum_volume() {};
+			bool get(size_t index, value_type& value);
+
+		private:
+			find_volume_handle m_Handle;
 		};
 
 		class file: public conditional<file>

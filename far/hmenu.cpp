@@ -395,7 +395,7 @@ void HMenu::GetExitCode(int &ExitCode,int &VExitCode) const
 }
 
 
-void HMenu::ProcessSubMenu(const MenuDataEx *Data,int DataCount,
+void HMenu::ProcessSubMenu(const MenuDataEx *Data, size_t DataCount,
                            const wchar_t *SubMenuHelp,int X,int Y,int &Position)
 {
 	m_SubmenuOpened = true;

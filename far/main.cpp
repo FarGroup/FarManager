@@ -112,7 +112,7 @@ static void show_help()
 		L"      View the specified file. If <filename> is -, data is read from the stdin." EOL_STR
 		L" -w[-] Stretch to console window instead of console buffer or vise versa." EOL_STR
 		;
-	Console().Write(HelpMsg, ARRAYSIZE(HelpMsg)-1);
+	Console().Write(HelpMsg, std::size(HelpMsg)-1);
 	Console().Commit();
 }
 

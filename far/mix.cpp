@@ -202,7 +202,7 @@ void ReloadEnvironment()
 		L"USERNAME", //absent
 	};
 
-	std::vector<std::pair<const wchar_t*, string>> PreservedVariables(ARRAYSIZE(PreservedNames));
+	std::vector<std::pair<const wchar_t*, string>> PreservedVariables(std::size(PreservedNames));
 
 	std::transform(ALL_CONST_RANGE(PreservedNames), PreservedVariables.begin(), [](const wchar_t* i)
 	{

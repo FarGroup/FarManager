@@ -319,9 +319,9 @@ static bool EnumModules(VMenu2& Menu, const string& Module)
 
 		DWORD samDesired = KEY_ENUMERATE_SUB_KEYS|KEY_QUERY_VALUE;
 
-		for (size_t i=0; i<ARRAYSIZE(RootFindKey); i++)
+		for (size_t i=0; i<std::size(RootFindKey); i++)
 		{
-			if (i==ARRAYSIZE(RootFindKey)-1)
+			if (i==std::size(RootFindKey)-1)
 			{
 				if (const auto RedirectionFlag = os::GetAppPathsRedirectionFlag())
 				{

@@ -45,21 +45,21 @@ int locale::GetDateFormat()
 wchar_t locale::GetDateSeparator()
 {
 	wchar_t Info[100];
-	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_SDATE,Info,ARRAYSIZE(Info));
+	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_SDATE, Info, static_cast<int>(std::size(Info)));
 	return *Info;
 }
 
 wchar_t locale::GetTimeSeparator()
 {
 	wchar_t Info[100];
-	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_STIME,Info,ARRAYSIZE(Info));
+	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_STIME, Info, static_cast<int>(std::size(Info)));
 	return *Info;
 }
 
 wchar_t locale::GetDecimalSeparator()
 {
 	wchar_t Separator[4];
-	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_SDECIMAL,Separator,ARRAYSIZE(Separator));
+	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_SDECIMAL,Separator, static_cast<int>(std::size(Separator)));
 	if (Global && Global->Opt && Global->Opt->FormatNumberSeparators.size() > 1)
 		*Separator = Global->Opt->FormatNumberSeparators[1];
 	return *Separator;
@@ -68,7 +68,7 @@ wchar_t locale::GetDecimalSeparator()
 wchar_t locale::GetThousandSeparator()
 {
 	wchar_t Separator[4];
-	GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_STHOUSAND, Separator, ARRAYSIZE(Separator));
+	GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_STHOUSAND, Separator, static_cast<int>(std::size(Separator)));
 	if (Global && Global->Opt && !Global->Opt->FormatNumberSeparators.empty())
 		*Separator = Global->Opt->FormatNumberSeparators[0];
 	return *Separator;

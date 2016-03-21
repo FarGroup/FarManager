@@ -2550,12 +2550,7 @@ void background_searcher::DoPrepareFileList(Dialog* Dlg)
 			}
 		});
 
-		WCHAR VolumeName[50];
-
-		bool End = false;
-		HANDLE hFind = INVALID_HANDLE_VALUE;
-
-		for(hFind = FindFirstVolume(VolumeName, ARRAYSIZE(VolumeName)); hFind != INVALID_HANDLE_VALUE && !End; End = !FindNextVolume(hFind, VolumeName, ARRAYSIZE(VolumeName)))
+		for (const auto& VolumeName: os::fs::enum_volume())
 		{
 			int DriveType=FAR_GetDriveType(VolumeName);
 
@@ -2564,14 +2559,10 @@ void background_searcher::DoPrepareFileList(Dialog* Dlg)
 				continue;
 			}
 
-			if (std::none_of(CONST_RANGE(Volumes, i) {return i.compare(0, wcslen(VolumeName), VolumeName) == 0;}))
+			if (std::none_of(CONST_RANGE(Volumes, i) {return i.compare(0, VolumeName.size(), VolumeName) == 0;}))
 			{
 				InitString.append(VolumeName).append(L";");
 			}
-		}
-		if (hFind != INVALID_HANDLE_VALUE)
-		{
-			FindVolumeClose(hFind);
 		}
 	}
 	else
@@ -3043,7 +3034,7 @@ FindFiles::FindFiles():
 			{0,MSG(MSearchInSelected)},
 		};
 		li[FADC_ALLDISKS+SearchMode].Flags|=LIF_SELECTED;
-		FarList l={sizeof(FarList),ARRAYSIZE(li),li};
+		FarList l={sizeof(FarList),std::size(li),li};
 		FindAskDlg[FAD_COMBOBOX_WHERE].ListItems=&l;
 
 		if (PluginMode)

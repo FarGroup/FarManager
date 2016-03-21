@@ -557,8 +557,8 @@ void StrToDateTime(const string& CDate, const string& CTime, FILETIME &ft, int D
 	WORD DateN[3]={},TimeN[4]={};
 	SYSTEMTIME st={};
 	// Преобразуем введённые пользователем дату и время
-	GetFileDateAndTime(CDate, DateN, ARRAYSIZE(DateN), DateSeparator);
-	GetFileDateAndTime(CTime, TimeN, ARRAYSIZE(TimeN), TimeSeparator);
+	GetFileDateAndTime(CDate, DateN, std::size(DateN), DateSeparator);
+	GetFileDateAndTime(CTime, TimeN, std::size(TimeN), TimeSeparator);
 
 	if (!bRelative)
 	{

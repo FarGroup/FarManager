@@ -154,7 +154,7 @@ private:
 			L"Notepad++ binary text length",
 		};
 
-		static_assert(ARRAYSIZE(FormatNames) == FCF_COUNT, "Wrong size of FormatNames");
+		static_assert(std::size(FormatNames) == FCF_COUNT, "Wrong size of FormatNames");
 		assert(Format < FCF_COUNT);
 		return RegisterClipboardFormat(FormatNames[Format]);
 	}

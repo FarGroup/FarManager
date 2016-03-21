@@ -74,7 +74,7 @@ void GetColor(PaletteColors PaletteIndex)
 	}
 }
 
-#define CheckSize(a, b) static_assert(ARRAYSIZE(a) == ARRAYSIZE(b), "wrong array size");
+#define CheckSize(a, b) static_assert(std::size(a) == std::size(b), "wrong array size");
 
 enum list_mode
 {
@@ -209,8 +209,8 @@ void SetColors()
 		{ MSetColorDialogSelectedDefaultButton,                    COL_DIALOGSELECTEDDEFAULTBUTTON },
 		{ MSetColorDialogHighlightedDefaultButton,                 COL_DIALOGHIGHLIGHTDEFAULTBUTTON },
 		{ MSetColorDialogSelectedHighlightedDefaultButton,         COL_DIALOGHIGHLIGHTSELECTEDDEFAULTBUTTON },
-		{ MSetColorDialogListBoxControl,                           ARRAYSIZE(ListItemsNormal), ListItemsNormal },
-		{ MSetColorDialogComboBoxControl,                          ARRAYSIZE(ComboItemsNormal), ComboItemsNormal },
+		{ MSetColorDialogListBoxControl,                           std::size(ListItemsNormal), ListItemsNormal },
+		{ MSetColorDialogComboBoxControl,                          std::size(ComboItemsNormal), ComboItemsNormal },
 	},
 
 	WarnDialogItems[] =
@@ -233,8 +233,8 @@ void SetColors()
 		{ MSetColorDialogSelectedDefaultButton,                    COL_WARNDIALOGSELECTEDDEFAULTBUTTON },
 		{ MSetColorDialogHighlightedDefaultButton,                 COL_WARNDIALOGHIGHLIGHTDEFAULTBUTTON },
 		{ MSetColorDialogSelectedHighlightedDefaultButton,         COL_WARNDIALOGHIGHLIGHTSELECTEDDEFAULTBUTTON },
-		{ MSetColorDialogListBoxControl,                           ARRAYSIZE(ListItemsWarn), ListItemsWarn },
-		{ MSetColorDialogComboBoxControl,                          ARRAYSIZE(ComboItemsWarn), ComboItemsWarn },
+		{ MSetColorDialogListBoxControl,                           std::size(ListItemsWarn), ListItemsWarn },
+		{ MSetColorDialogComboBoxControl,                          std::size(ComboItemsWarn), ComboItemsWarn },
 	},
 
 	MenuItems[] =
@@ -321,17 +321,17 @@ void SetColors()
 		}
 		Groups[] =
 		{
-			{ MSetColorPanel, PanelItems, ARRAYSIZE(PanelItems) },
-			{ MSetColorDialog, DialogItems, ARRAYSIZE(DialogItems) },
-			{ MSetColorWarning, WarnDialogItems, ARRAYSIZE(WarnDialogItems) },
-			{ MSetColorMenu, MenuItems, ARRAYSIZE(MenuItems) },
-			{ MSetColorHMenu, HMenuItems, ARRAYSIZE(HMenuItems) },
-			{ MSetColorKeyBar, KeyBarItems, ARRAYSIZE(KeyBarItems) },
-			{ MSetColorCommandLine, CommandLineItems, ARRAYSIZE(CommandLineItems) },
-			{ MSetColorClock, ClockItems, ARRAYSIZE(ClockItems) },
-			{ MSetColorViewer, ViewerItems, ARRAYSIZE(ViewerItems) },
-			{ MSetColorEditor, EditorItems, ARRAYSIZE(EditorItems) },
-			{ MSetColorHelp, HelpItems, ARRAYSIZE(HelpItems) },
+			{ MSetColorPanel, PanelItems, std::size(PanelItems) },
+			{ MSetColorDialog, DialogItems, std::size(DialogItems) },
+			{ MSetColorWarning, WarnDialogItems, std::size(WarnDialogItems) },
+			{ MSetColorMenu, MenuItems, std::size(MenuItems) },
+			{ MSetColorHMenu, HMenuItems, std::size(HMenuItems) },
+			{ MSetColorKeyBar, KeyBarItems, std::size(KeyBarItems) },
+			{ MSetColorCommandLine, CommandLineItems, std::size(CommandLineItems) },
+			{ MSetColorClock, ClockItems, std::size(ClockItems) },
+			{ MSetColorViewer, ViewerItems, std::size(ViewerItems) },
+			{ MSetColorEditor, EditorItems, std::size(EditorItems) },
+			{ MSetColorHelp, HelpItems, std::size(HelpItems) },
 		};
 
 		const auto GroupsMenu = VMenu2::create(MSG(MSetColorGroupsTitle), nullptr, 0);
@@ -357,7 +357,7 @@ void SetColors()
 		int GroupsCode=GroupsMenu->RunEx([&](int Msg, void *param)->int
 		{
 			intptr_t ItemsCode=(intptr_t)param;
-			if (Msg != DN_CLOSE || ItemsCode < 0 || static_cast<size_t>(ItemsCode) >= ARRAYSIZE(Groups))
+			if (Msg != DN_CLOSE || ItemsCode < 0 || static_cast<size_t>(ItemsCode) >= std::size(Groups))
 				return 0;
 			GroupsMenu->SendMessage(DM_ENABLEREDRAW, 1, nullptr);
 			SetItemColors(Groups[ItemsCode].Subitems, Groups[ItemsCode].SubItemsSize);

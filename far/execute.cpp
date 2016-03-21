@@ -312,9 +312,9 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 
 					DWORD samDesired = KEY_QUERY_VALUE;
 
-					for (size_t i=0; i<ARRAYSIZE(RootFindKey); i++)
+					for (size_t i=0; i<std::size(RootFindKey); i++)
 					{
-						if (i==ARRAYSIZE(RootFindKey)-1)
+						if (i==std::size(RootFindKey)-1)
 						{
 							if (const auto RedirectionFlag = os::GetAppPathsRedirectionFlag())
 							{
@@ -875,7 +875,7 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	bool NeedFixCurDir = os::fs::file_status(strCurDir).check(FILE_ATTRIBUTE_REPARSE_POINT);
 	if (NeedFixCurDir)
 	{
-		if (!GetCurrentDirectory(ARRAYSIZE(CurDir), CurDir))
+		if (!GetCurrentDirectory(static_cast<DWORD>(std::size(CurDir)), CurDir))
 		{
 			NeedFixCurDir = false;
 		}

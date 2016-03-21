@@ -131,7 +131,7 @@ static FILE* PrintBaner(FILE *fp,const wchar_t *Category,const wchar_t *Title)
 	if (fp)
 	{
 		static wchar_t timebuf[64];
-		fwprintf(fp,L"%s %s(%s) %s\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),NullToEmpty(Title),NullToEmpty(Category));
+		fwprintf(fp,L"%s %s(%s) %s\n",PrintTime(timebuf,std::size(timebuf)),MakeSpace(),NullToEmpty(Title),NullToEmpty(Category));
 	}
 
 	return fp;
@@ -203,7 +203,7 @@ void ShowHeap()
 	if (LogStream)
 	{
 		wchar_t timebuf[64];
-		fwprintf(LogStream,L"%s %s%s\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),L"Heap Status");
+		fwprintf(LogStream,L"%s %s%s\n",PrintTime(timebuf,std::size(timebuf)),MakeSpace(),L"Heap Status");
 		fwprintf(LogStream,L"   Size   Status\n");
 		fwprintf(LogStream,L"   ----   ------\n");
 		DWORD Sz=0;
@@ -279,7 +279,7 @@ void SysLog(const wchar_t *fmt,...)
 	if (LogStream)
 	{
 		wchar_t timebuf[64];
-		fwprintf(LogStream,L"%s %s%s\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),msg.data());
+		fwprintf(LogStream,L"%s %s%s\n",PrintTime(timebuf,std::size(timebuf)),MakeSpace(),msg.data());
 		fflush(LogStream);
 	}
 
@@ -312,7 +312,7 @@ void SysLogLastError()
 	{
 		wchar_t timebuf[64];
 		// RemoveUnprintableCharacters(MsgPtr.get());
-		fwprintf(LogStream, L"%s %sGetLastError()=[%lu/0x%lX] \"%s\"\n", PrintTime(timebuf, ARRAYSIZE(timebuf)), MakeSpace(), LastErr, LastErr, MsgPtr.get());
+		fwprintf(LogStream, L"%s %sGetLastError()=[%lu/0x%lX] \"%s\"\n", PrintTime(timebuf, std::size(timebuf)), MakeSpace(), LastErr, LastErr, MsgPtr.get());
 		fflush(LogStream);
 	}
 
@@ -343,7 +343,7 @@ void SysLog(int l,const wchar_t *fmt,...)
 		if (l < 0) SysLog(l);
 
 		wchar_t timebuf[64];
-		fwprintf(LogStream,L"%s %s%s\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),msg.data());
+		fwprintf(LogStream,L"%s %s%s\n",PrintTime(timebuf,std::size(timebuf)),MakeSpace(),msg.data());
 		fflush(LogStream);
 
 		if (l > 0) SysLog(l);
@@ -373,7 +373,7 @@ void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,unsigned Size
 	{
 		OpenSysLog();
 		fp=LogStream;
-		fwprintf(fp,L"%s %s<%s> [%u bytes]{\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),NullToEmpty(Title),SizeBuf);
+		fwprintf(fp,L"%s %s<%s> [%u bytes]{\n",PrintTime(timebuf,std::size(timebuf)),MakeSpace(),NullToEmpty(Title),SizeBuf);
 	}
 
 	if (fp)
@@ -386,7 +386,7 @@ void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,unsigned Size
 		for (int Y=0; Y < CY; ++Y)
 		{
 			//memset(TmpBuf,' ',16);
-			fwprintf(fp,L"%s %s ",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace());
+			fwprintf(fp,L"%s %s ",PrintTime(timebuf,std::size(timebuf)),MakeSpace());
 			fwprintf(fp, L" %08lX: ",StartAddress+Y*16);
 
 			for (size_t X=0; X < 16; ++X)
@@ -407,7 +407,7 @@ void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,unsigned Size
 			fwprintf(fp,L"| %s\n",TmpBuf);
 		}
 
-		fwprintf(fp,L"%s %s}</%s>\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),NullToEmpty(Title));
+		fwprintf(fp,L"%s %s}</%s>\n",PrintTime(timebuf,std::size(timebuf)),MakeSpace(),NullToEmpty(Title));
 		fflush(fp);
 	}
 
@@ -435,7 +435,7 @@ void SaveScreenDumpBuffer(const wchar_t *Title,const FAR_CHAR_INFO *Buffer,int X
 		if (fp)
 		{
 			wchar_t timebuf[64];
-			fwprintf(fp,L"%s %s(FAR_CHAR_INFO DumpBuffer: '%s')\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),NullToEmpty(Title));
+			fwprintf(fp,L"%s %s(FAR_CHAR_INFO DumpBuffer: '%s')\n",PrintTime(timebuf,std::size(timebuf)),MakeSpace(),NullToEmpty(Title));
 		}
 	}
 
@@ -507,7 +507,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 			DEF_SORTMODE_(BY_NUMSTREAMS),DEF_SORTMODE_(BY_STREAMSSIZE),
 			DEF_SORTMODE_(BY_FULLNAME),DEF_SORTMODE_(BY_CUSTOMDATA)
 		};
-		static_assert(ARRAYSIZE(__SORT) == static_cast<size_t>(panel_sort::COUNT), "Incomplete __SORT array");
+		static_assert(std::size(__SORT) == static_cast<size_t>(panel_sort::COUNT), "Incomplete __SORT array");
 
 		if (!ListItems || !ItemNumber)
 			fwprintf(fp,L"\tPluginsStackItem <EMPTY>");
@@ -706,7 +706,7 @@ void WINAPIV FarSysLog(const wchar_t *ModuleName,int l,const wchar_t *fmt,...)
 	if (LogStream)
 	{
 		wchar_t timebuf[64];
-		fwprintf(LogStream,L"%s %s%s:: %s\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),PointToName(ModuleName),msg.data());
+		fwprintf(LogStream,L"%s %s%s:: %s\n",PrintTime(timebuf,std::size(timebuf)),MakeSpace(),PointToName(ModuleName),msg.data());
 		fflush(LogStream);
 	}
 
@@ -836,7 +836,7 @@ string __ECTL_ToName(int Command)
 		DEF_ECTL_(DELCOLOR),
 		DEF_ECTL_(SERVICEREGION),
 	};
-	return _XXX_ToName(Command,L"ECTL",ECTL,ARRAYSIZE(ECTL));
+	return _XXX_ToName(Command,L"ECTL",ECTL,std::size(ECTL));
 #else
 	return L"";
 #endif
@@ -855,7 +855,7 @@ string __EE_ToName(int Command)
 		DEF_EE_(GOTFOCUS),
 		DEF_EE_(KILLFOCUS),
 	};
-	return _XXX_ToName(Command,L"EE",EE,ARRAYSIZE(EE));
+	return _XXX_ToName(Command,L"EE",EE,std::size(EE));
 #else
 	return L"";
 #endif
@@ -869,7 +869,7 @@ string __EEREDRAW_ToName(int Command)
 	{
 		DEF_EEREDRAW_(ALL),
 	};
-	return _XXX_ToName(Command,L"EEREDRAW",EEREDRAW,ARRAYSIZE(EEREDRAW));
+	return _XXX_ToName(Command,L"EEREDRAW",EEREDRAW,std::size(EEREDRAW));
 #else
 	return L"";
 #endif
@@ -894,7 +894,7 @@ string __ESPT_ToName(int Command)
 		DEF_ESPT_(SHOWWHITESPACE),
 		DEF_ESPT_(SETBOM),
 	};
-	return _XXX_ToName(Command,L"ESPT",ESPT,ARRAYSIZE(ESPT));
+	return _XXX_ToName(Command,L"ESPT",ESPT,std::size(ESPT));
 #else
 	return L"";
 #endif
@@ -915,7 +915,7 @@ string __MCTL_ToName(int Command)
 		DEF_MCTL_(DELMACRO),
 		DEF_MCTL_(GETLASTERROR),
 	};
-	return _XXX_ToName(Command,L"MCTL",MCTL,ARRAYSIZE(MCTL));
+	return _XXX_ToName(Command,L"MCTL",MCTL,std::size(MCTL));
 #else
 	return L"";
 #endif
@@ -932,7 +932,7 @@ string __VE_ToName(int Command)
 		DEF_VE_(GOTFOCUS),
 		DEF_VE_(KILLFOCUS),
 	};
-	return _XXX_ToName(Command,L"VE",VE,ARRAYSIZE(VE));
+	return _XXX_ToName(Command,L"VE",VE,std::size(VE));
 #else
 	return L"";
 #endif
@@ -980,7 +980,7 @@ string __FCTL_ToName(int Command)
 		DEF_FCTL_(SETCASESENSITIVESORT),
 		DEF_FCTL_(GETPANELPREFIX),
 	};
-	return _XXX_ToName(Command,L"FCTL",FCTL,ARRAYSIZE(FCTL));
+	return _XXX_ToName(Command,L"FCTL",FCTL,std::size(FCTL));
 #else
 	return L"";
 #endif
@@ -1016,7 +1016,7 @@ string __ACTL_ToName(int Command)
 		DEF_ACTL_(REMOVEMEDIA),
 		DEF_ACTL_(GETMEDIATYPE),
 	};
-	return _XXX_ToName(Command,L"ACTL",ACTL,ARRAYSIZE(ACTL));
+	return _XXX_ToName(Command,L"ACTL",ACTL,std::size(ACTL));
 #else
 	return L"";
 #endif
@@ -1037,7 +1037,7 @@ string __VCTL_ToName(int Command)
 		DEF_VCTL_(SELECT),
 		DEF_VCTL_(SETMODE),
 	};
-	return _XXX_ToName(Command,L"VCTL",VCTL,ARRAYSIZE(VCTL));
+	return _XXX_ToName(Command,L"VCTL",VCTL,std::size(VCTL));
 #else
 	return L"";
 #endif
@@ -1285,7 +1285,7 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(V_MENUINFOID),               // Menu.Info.Id
 	};
 
-	for (size_t i=0; i<ARRAYSIZE(MCODE); i++)
+	for (size_t i=0; i<std::size(MCODE); i++)
 	{
 		if (MCODE[i].Val == OpCode)
 		{
@@ -1368,7 +1368,7 @@ string __DLGDIF_ToName(DWORD Msg)
 		DEF_DIF_(NONE),
 	};
 
-	for (size_t i=0; i<ARRAYSIZE(Message); i++)
+	for (size_t i=0; i<std::size(Message); i++)
 	{
 		if (Message[i].Val == Msg)
 		{
@@ -1492,7 +1492,7 @@ string __DLGMSG_ToName(DWORD Msg)
 
 	if (Msg < DN_FIRST)
 	{
-		for (size_t i = 0; i < ARRAYSIZE(DM); i++)
+		for (size_t i = 0; i < std::size(DM); i++)
 		{
 			if (DM[i].Val == Msg)
 			{
@@ -1502,7 +1502,7 @@ string __DLGMSG_ToName(DWORD Msg)
 	}
 	else
 	{
-		for (size_t i = 0; i<ARRAYSIZE(DN); i++)
+		for (size_t i = 0; i<std::size(DN); i++)
 		{
 			if (DN[i].Val == Msg)
 			{
@@ -1608,7 +1608,7 @@ string __VK_KEY_ToName(int VkKey)
 		return str_printf(L"\"VK_%c\" [%d/0x%04X]",VkKey,VkKey,VkKey);
 	}
 	else
-		return _XXX_ToName(VkKey,L"VK",VK,ARRAYSIZE(VK));
+		return _XXX_ToName(VkKey,L"VK",VK,std::size(VK));
 
 #else
 	return L"";
@@ -1762,7 +1762,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
 		if (fp)
 		{
 			wchar_t timebuf[64];
-			fwprintf(fp,L"%s %s(Number Of Console Input Events = %u)\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),static_cast<unsigned>(ReadCount2));
+			fwprintf(fp,L"%s %s(Number Of Console Input Events = %u)\n",PrintTime(timebuf,std::size(timebuf)),MakeSpace(),static_cast<unsigned>(ReadCount2));
 		}
 	}
 

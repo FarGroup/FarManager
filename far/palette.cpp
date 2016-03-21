@@ -197,7 +197,7 @@ Init[]=
 
 
 palette::palette():
-	CurrentPalette(ARRAYSIZE(Init))
+	CurrentPalette(std::size(Init))
 {
 	ResetToDefault();
 	PaletteChanged = false;

@@ -43,7 +43,7 @@ struct HMenuData
 	const wchar_t *Name;
 	const wchar_t *SubMenuHelp;
 	struct MenuDataEx *SubMenu;
-	int SubMenuSize;
+	size_t SubMenuSize;
 	int Selected;
 	int XPos;
 };
@@ -75,7 +75,7 @@ private:
 	virtual string GetTitle() const override { return string(); }
 
 	void ShowMenu();
-	void ProcessSubMenu(const MenuDataEx *Data, int DataCount, const wchar_t *SubMenuHelp, int X, int Y, int &Position);
+	void ProcessSubMenu(const MenuDataEx *Data, size_t DataCount, const wchar_t *SubMenuHelp, int X, int Y, int &Position);
 	wchar_t GetHighlights(const HMenuData& Item);
 	size_t CheckHighlights(WORD CheckSymbol, int StartPos = 0);
 	bool TestMouse(const MOUSE_EVENT_RECORD *MouseEvent) const;

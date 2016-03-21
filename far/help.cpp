@@ -1039,7 +1039,7 @@ void Help::OutString(const wchar_t *Str)
 	int OutPos=0,Highlight=0,Topic=0;
 	wchar_t cColor = strCtrlColorChar.empty()? 0 : strCtrlColorChar[0];
 
-	while (OutPos<(int)(ARRAYSIZE(OutStr)-10))
+	while (OutPos<(int)(std::size(OutStr)-10))
 	{
 		if ((Str[0]==L'~' && Str[1]==L'~') ||
 		        (Str[0]==L'#' && Str[1]==L'#') ||

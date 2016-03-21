@@ -162,7 +162,7 @@ bool MultibyteCodepageDecoder::SetCP(uintptr_t Codepage)
 	{
 		DefUsed = FALSE;
 		const auto Char = static_cast<wchar_t>(i);
-		size_t CharSize = WideCharToMultiByte(Codepage, flags, &Char, 1, u.Buffer, ARRAYSIZE(u.Buffer), nullptr, pDefUsed);
+		size_t CharSize = WideCharToMultiByte(Codepage, flags, &Char, 1, u.Buffer, static_cast<int>(std::size(u.Buffer)), nullptr, pDefUsed);
 		if (!CharSize || DefUsed)
 			continue;
 

@@ -1253,7 +1253,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 
 		if (Link)
 		{
-			ComboList.ItemsNumber=ARRAYSIZE(LinkTypeItems);
+			ComboList.ItemsNumber=std::size(LinkTypeItems);
 			ComboList.Items=LinkTypeItems;
 			ComboList.Items[0].Text=MSG(MLinkTypeHardlink);
 			ComboList.Items[1].Text=MSG(MLinkTypeJunction);
@@ -1268,7 +1268,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 		}
 		else
 		{
-			ComboList.ItemsNumber=ARRAYSIZE(CopyModeItems);
+			ComboList.ItemsNumber=std::size(CopyModeItems);
 			ComboList.Items=CopyModeItems;
 			ComboList.Items[CM_ASK].Text=MSG(MCopyAsk);
 			ComboList.Items[CM_OVERWRITE].Text=MSG(MCopyOverwrite);

@@ -654,7 +654,7 @@ void GetRealCursorPos(SHORT& X,SHORT& Y)
 
 void InitRecodeOutTable()
 {
-	for (size_t i=0; i<ARRAYSIZE(Oem2Unicode); i++)
+	for (size_t i=0; i<std::size(Oem2Unicode); i++)
 	{
 		char c = static_cast<char>(i);
 		MultiByteToWideChar(CP_OEMCP, MB_USEGLYPHCHARS, &c, 1, &Oem2Unicode[i], 1);
@@ -690,7 +690,7 @@ void InitRecodeOutTable()
 	};
 
 	// перед [пере]инициализацией восстановим буфер (либо из реестра, либо...)
-	xwcsncpy(BoxSymbols, Global->Opt->strBoxSymbols.data(), ARRAYSIZE(BoxSymbols) - 1);
+	xwcsncpy(BoxSymbols, Global->Opt->strBoxSymbols.data(), std::size(BoxSymbols) - 1);
 
 	if (Global->Opt->NoGraphics)
 	{
@@ -1057,7 +1057,7 @@ string MakeSeparator(int Length, int Type, const wchar_t* UserSep)
 	{
 		wchar_t c[3];
 		bool stdUse=true;
-		if (Type >= static_cast<int>(ARRAYSIZE(BoxType)))
+		if (Type >= static_cast<int>(std::size(BoxType)))
 		{
 			if (UserSep)
 			{
@@ -1077,7 +1077,7 @@ string MakeSeparator(int Length, int Type, const wchar_t* UserSep)
 
 		if (stdUse)
 		{
-			Type%=ARRAYSIZE(BoxType);
+			Type%=std::size(BoxType);
 			c[0]=BoxType[Type][0];
 			c[1]=BoxType[Type][1];
 			c[2]=BoxType[Type][2];

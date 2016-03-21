@@ -68,9 +68,9 @@ inline bool IsAlpha(wchar_t Ch) { return IsCharAlpha(Ch) != FALSE; }
 
 inline bool IsAlphaNum(wchar_t Ch) { return IsCharAlphaNumeric(Ch) != FALSE; }
 
-inline void UpperBuf(wchar_t *Buf, int Length) { CharUpperBuff(Buf, Length); }
+inline void UpperBuf(wchar_t *Buf, size_t Length) { CharUpperBuff(Buf, static_cast<DWORD>(Length)); }
 
-inline void LowerBuf(wchar_t *Buf,int Length) { CharLowerBuff(Buf, Length); }
+inline void LowerBuf(wchar_t *Buf, size_t Length) { CharLowerBuff(Buf, static_cast<DWORD>(Length)); }
 
 inline void StrUpper(wchar_t *s1) { UpperBuf(s1, StrLength(s1)); }
 

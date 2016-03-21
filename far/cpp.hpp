@@ -5,7 +5,7 @@
 /*
 cpp.hpp
 
-Some workarounds & emulations for C++11/14 features, missed in currently used compilers & libraries.
+Some workarounds & emulations for C++ features, missed in currently used compilers & libraries.
 
 Here be dragons
 */
@@ -37,5 +37,66 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "common/compiler.hpp"
+
+#if COMPILER == C_GCC
+namespace std
+{
+	template <class C>
+	constexpr auto size(const C& c)
+	{
+		return c.size();
+	}
+
+	template <class T, size_t N>
+	constexpr auto size(const T (&array)[N]) noexcept
+	{
+		return N;
+	}
+
+
+	template <class C>
+	constexpr auto empty(const C& c)
+	{
+		return c.empty();
+	}
+
+	template <class T, size_t N>
+	constexpr auto empty(const T (&array)[N])
+	{
+		return false;
+	}
+
+	template <class E>
+	constexpr auto empty(initializer_list<E> il) noexcept
+	{
+		return !il.size();
+	}
+
+
+	template <class C>
+	constexpr auto data(C& c)
+	{
+		return c.data();
+	}
+
+	template <class C>
+	constexpr auto data(const C& c)
+	{
+		return c.data();
+	}
+
+	template <class T, size_t N>
+	constexpr T* data(T (&array)[N]) noexcept
+	{
+		return array;
+	}
+
+	template <class E>
+	constexpr const E* data(initializer_list<E> il) noexcept
+	{
+		return il.begin();
+	}
+}
+#endif
 
 #endif // CPP_HPP_95E41B70_5DB2_4E5B_A468_95343C6438AD

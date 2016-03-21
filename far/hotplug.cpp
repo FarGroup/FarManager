@@ -73,7 +73,7 @@ public:
 	bool Create(DEVINST DevInst)
 	{
 		wchar_t szDeviceID[MAX_DEVICE_ID_LEN];
-		if (CM_Get_Device_ID(DevInst, szDeviceID, ARRAYSIZE(szDeviceID), 0) == CR_SUCCESS)
+		if (CM_Get_Device_ID(DevInst, szDeviceID, static_cast<ULONG>(std::size(szDeviceID)), 0) == CR_SUCCESS)
 		{
 			m_id = szDeviceID;
 			m_info = SetupDiGetClassDevs(&GUID_DEVINTERFACE_VOLUME, m_id.data(), nullptr, DIGCF_DEVICEINTERFACE | DIGCF_PRESENT);
@@ -239,7 +239,7 @@ static DWORD GetRelationDrivesMask(DEVINST hDevInst)
 {
 	DWORD dwMask = 0;
 	wchar_t szDeviceID[MAX_DEVICE_ID_LEN];
-	if (CM_Get_Device_ID(hDevInst, szDeviceID, ARRAYSIZE(szDeviceID), 0) == CR_SUCCESS)
+	if (CM_Get_Device_ID(hDevInst, szDeviceID, static_cast<ULONG>(std::size(szDeviceID)), 0) == CR_SUCCESS)
 	{
 		DWORD dwSize = 0;
 		if (CM_Get_Device_ID_List_Size(&dwSize, szDeviceID, CM_GETIDLIST_FILTER_REMOVALRELATIONS) == CR_SUCCESS && dwSize)
@@ -416,7 +416,7 @@ static int RemoveHotplugDevice(const DeviceInfo& Info, DWORD Flags)
 	{
 		PNP_VETO_TYPE pvtVeto = PNP_VetoTypeUnknown;
 		wchar_t VetoName[MAX_PATH];
-		CONFIGRET crResult = CM_Request_Device_Eject(Info.DevInst, &pvtVeto, VetoName, ARRAYSIZE(VetoName), 0);
+		CONFIGRET crResult = CM_Request_Device_Eject(Info.DevInst, &pvtVeto, VetoName, static_cast<ULONG>(std::size(VetoName)), 0);
 		if ((crResult != CR_SUCCESS) || (pvtVeto != PNP_VetoTypeUnknown))   //M$ баг, если есть VetoName, то даже при ошибке возвращается CR_SUCCESS
 		{
 			SetLastError((pvtVeto != PNP_VetoTypeUnknown)?ERROR_DRIVE_LOCKED:ERROR_UNABLE_TO_UNLOAD_MEDIA); // "The disk is in use or locked by another process."

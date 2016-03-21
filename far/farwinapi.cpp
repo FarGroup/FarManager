@@ -57,6 +57,7 @@ namespace os
 
 		void detail::find_handle_closer::operator()(HANDLE Handle) const { delete static_cast<i_find_handle_impl*>(Handle); }
 		void detail::handle_closer::operator()(HANDLE Handle) const { if (Handle) CloseHandle(Handle); }
+		void detail::find_volume_handle_closer::operator()(HANDLE Handle) const { if (Handle) FindVolumeClose(Handle); }
 		struct os_find_handle_closer { void operator()(HANDLE Handle) const { if (Handle) FindClose(Handle); } };
 
 		class far_find_handle_impl: public i_find_handle_impl
@@ -414,6 +415,30 @@ bool enum_stream::get(size_t index, value_type& value)
 	{
 		return FindNextStream(m_Handle, &value);
 	}
+}
+
+//-------------------------------------------------------------------------
+
+bool enum_volume::get(size_t index, value_type& value)
+{
+	wchar_t VolumeName[50];
+	if (!index)
+	{
+		m_Handle.reset(FindFirstVolume(VolumeName, static_cast<DWORD>(std::size(VolumeName))));
+		if (!m_Handle)
+		{
+			return false;
+		}
+	}
+	else
+	{
+		if (!FindNextVolume(m_Handle.native_handle(), VolumeName, static_cast<DWORD>(std::size(VolumeName))))
+		{
+			return false;
+		}
+	}
+	value = VolumeName;
+	return true;
 }
 
 //-------------------------------------------------------------------------
@@ -893,11 +918,11 @@ void InitCurrentDirectory()
 {
 	//get real curdir:
 	WCHAR Buffer[MAX_PATH];
-	DWORD Size=::GetCurrentDirectory(ARRAYSIZE(Buffer),Buffer);
+	DWORD Size=::GetCurrentDirectory(static_cast<DWORD>(std::size(Buffer)), Buffer);
 	if(Size)
 	{
 		string strInitCurDir;
-		if(Size < ARRAYSIZE(Buffer))
+		if(Size < std::size(Buffer))
 		{
 			strInitCurDir.assign(Buffer, Size);
 		}
@@ -967,10 +992,10 @@ bool SetCurrentDirectory(const string& PathName, bool Validate)
 DWORD GetTempPath(string &strBuffer)
 {
 	WCHAR Buffer[MAX_PATH];
-	DWORD Size = ::GetTempPath(ARRAYSIZE(Buffer), Buffer);
+	DWORD Size = ::GetTempPath(static_cast<DWORD>(std::size(Buffer)), Buffer);
 	if(Size)
 	{
-		if(Size < ARRAYSIZE(Buffer))
+		if(Size < std::size(Buffer))
 		{
 			strBuffer.assign(Buffer, Size);
 		}
@@ -1037,7 +1062,7 @@ DWORD WNetGetConnection(const string& LocalName, string &RemoteName)
 	// However, it may fail with ERROR_NOT_CONNECTED for non-network too, in this case Buffer will not be initialised.
 	// Deliberately initialised with empty string to fix that.
 	Buffer[0] = L'\0';
-	DWORD Size = ARRAYSIZE(Buffer);
+	DWORD Size = static_cast<DWORD>(std::size(Buffer));
 	auto Result = ::WNetGetConnection(LocalName.data(), Buffer, &Size);
 	if (Result == NO_ERROR || Result == ERROR_NOT_CONNECTED || Result == ERROR_CONNECTION_UNAVAIL)
 	{
@@ -1428,14 +1453,14 @@ std::vector<string> GetLogicalDriveStrings()
 {
 	FN_RETURN_TYPE(GetLogicalDriveStrings) Result;
 	wchar_t Buffer[MAX_PATH];
-	DWORD Size = ::GetLogicalDriveStrings(ARRAYSIZE(Buffer), Buffer);
+	DWORD Size = ::GetLogicalDriveStrings(static_cast<DWORD>(std::size(Buffer)), Buffer);
 
 	if (Size)
 	{
 		const wchar_t* Ptr;
 		wchar_t_ptr vBuffer;
 
-		if (Size < ARRAYSIZE(Buffer))
+		if (Size < std::size(Buffer))
 		{
 			Ptr = Buffer;
 		}
@@ -1511,7 +1536,7 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 		{
 			// try to convert NT path (\Device\HarddiskVolume1) to \\?\Volume{...} path
 			wchar_t VolumeName[MAX_PATH];
-			HANDLE hEnum = FindFirstVolumeW(VolumeName, ARRAYSIZE(VolumeName));
+			HANDLE hEnum = FindFirstVolumeW(VolumeName, static_cast<DWORD>(std::size(VolumeName)));
 			BOOL Result = hEnum != INVALID_HANDLE_VALUE;
 
 			while (Result)
@@ -1525,7 +1550,7 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 					break;
 				}
 
-				Result = FindNextVolumeW(hEnum, VolumeName, ARRAYSIZE(VolumeName));
+				Result = FindNextVolumeW(hEnum, VolumeName, static_cast<DWORD>(std::size(VolumeName)));
 			}
 
 			if (hEnum != INVALID_HANDLE_VALUE)
@@ -1557,9 +1582,9 @@ bool GetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 		};
 
 		wchar_t Buffer[MAX_PATH];
-		if (size_t Size = GetFinalPathNameByHandleGuarded(hFile, Buffer, ARRAYSIZE(Buffer), VOLUME_NAME_GUID))
+		if (size_t Size = GetFinalPathNameByHandleGuarded(hFile, Buffer, static_cast<DWORD>(std::size(Buffer)), VOLUME_NAME_GUID))
 		{
-			if (Size < ARRAYSIZE(Buffer))
+			if (Size < std::size(Buffer))
 			{
 				FinalFilePath.assign(Buffer, Size);
 			}
@@ -1596,7 +1621,7 @@ bool QueryDosDevice(const string& DeviceName, string &Path)
 	SetLastError(NO_ERROR);
 	wchar_t Buffer[MAX_PATH];
 	const auto DeviceNamePtr = EmptyToNull(DeviceName.data());
-	DWORD Size = ::QueryDosDevice(DeviceNamePtr, Buffer, ARRAYSIZE(Buffer));
+	DWORD Size = ::QueryDosDevice(DeviceNamePtr, Buffer, static_cast<DWORD>(std::size(Buffer)));
 	if (Size)
 	{
 		Path.assign(Buffer, Size - 2); // two trailing '\0'
@@ -1625,7 +1650,7 @@ bool GetVolumeNameForVolumeMountPoint(const string& VolumeMountPoint,string& Vol
 	WCHAR VolumeNameBuffer[50];
 	NTPath strVolumeMountPoint(VolumeMountPoint);
 	AddEndSlash(strVolumeMountPoint);
-	if(::GetVolumeNameForVolumeMountPoint(strVolumeMountPoint.data(),VolumeNameBuffer,ARRAYSIZE(VolumeNameBuffer)))
+	if(::GetVolumeNameForVolumeMountPoint(strVolumeMountPoint.data(), VolumeNameBuffer, static_cast<DWORD>(std::size(VolumeNameBuffer))))
 	{
 		VolumeName=VolumeNameBuffer;
 		Result=true;
@@ -1995,12 +2020,12 @@ DWORD GetAppPathsRedirectionFlag()
 			WCHAR Buffer[MAX_PATH];
 			// GetEnvironmentVariable doesn't change error code on success
 			SetLastError(ERROR_SUCCESS);
-			DWORD Size = ::GetEnvironmentVariable(Name, Buffer, ARRAYSIZE(Buffer));
+			DWORD Size = ::GetEnvironmentVariable(Name, Buffer, static_cast<DWORD>(std::size(Buffer)));
 			const auto LastError = GetLastError();
 
 			if (Size)
 			{
-				if (Size < ARRAYSIZE(Buffer))
+				if (Size < std::size(Buffer))
 				{
 					strBuffer.assign(Buffer, Size);
 				}
@@ -2028,10 +2053,10 @@ DWORD GetAppPathsRedirectionFlag()
 		string expand_strings(const wchar_t* str)
 		{
 			WCHAR Buffer[MAX_PATH];
-			DWORD Size = ::ExpandEnvironmentStrings(str, Buffer, ARRAYSIZE(Buffer));
+			DWORD Size = ::ExpandEnvironmentStrings(str, Buffer, static_cast<DWORD>(std::size(Buffer)));
 			if (Size)
 			{
-				if (Size <= ARRAYSIZE(Buffer))
+				if (Size <= std::size(Buffer))
 				{
 					return string(Buffer, Size - 1);
 				}

@@ -223,7 +223,7 @@ BaseFormat& BaseFormat::ToString(T Value)
 	std::is_signed<T>::value? _i64tow(Value, Buffer, m_Radix) : _ui64tow(Value, Buffer, m_Radix);
 	if (m_Radix > 10)
 	{
-		UpperBuf(Buffer, ARRAYSIZE(Buffer));
+		UpperBuf(Buffer, std::size(Buffer));
 	}
 	return Put(Buffer, wcslen(Buffer));
 }

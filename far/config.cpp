@@ -362,9 +362,9 @@ void Options::InfoPanelSettings()
 	Builder.AddCheckbox(MConfigInfoPanelShowPowerStatus, InfoPanel.ShowPowerStatus);
 	Builder.AddCheckbox(MConfigInfoPanelShowCDInfo, InfoPanel.ShowCDInfo);
 	Builder.AddText(MConfigInfoPanelCNTitle);
-	Builder.AddComboBox(InfoPanel.ComputerNameFormat, nullptr, 50, CNListItems, ARRAYSIZE(CNListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	Builder.AddComboBox(InfoPanel.ComputerNameFormat, nullptr, 50, CNListItems, std::size(CNListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
 	Builder.AddText(MConfigInfoPanelUNTitle);
-	Builder.AddComboBox(InfoPanel.UserNameFormat, nullptr, 50, UNListItems, ARRAYSIZE(UNListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	Builder.AddComboBox(InfoPanel.UserNameFormat, nullptr, 50, UNListItems, std::size(UNListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
 	Builder.AddOKCancel();
 
 	if (Builder.ShowDialog())
@@ -607,7 +607,7 @@ void Options::VMenuSettings()
 	std::for_each(CONST_RANGE(DialogItems, i)
 	{
 		Builder.AddText(i.first);
-		Builder.AddComboBox(*i.second, nullptr, 40, CAListItems, ARRAYSIZE(CAListItems), DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
+		Builder.AddComboBox(*i.second, nullptr, 40, CAListItems, std::size(CAListItems), DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
 	});
 
 	Builder.AddOKCancel();
@@ -818,7 +818,7 @@ void Options::EditorConfig(Options::EditorOptions &EdOptRef, bool Local)
 		{ MEditConfigExpandTabs, EXPAND_NEWTABS },
 		{ MEditConfigConvertAllTabsToSpaces, EXPAND_ALLTABS }
 	};
-	Builder.AddComboBox(EdOptRef.ExpandTabs, nullptr, 64, ExpandTabsItems, ARRAYSIZE(ExpandTabsItems), DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
+	Builder.AddComboBox(EdOptRef.ExpandTabs, nullptr, 64, ExpandTabsItems, std::size(ExpandTabsItems), DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
 
 	Builder.StartColumns();
 	Builder.AddCheckbox(MEditConfigPersistentBlocks, EdOptRef.PersistentBlocks);
@@ -939,7 +939,7 @@ static void ResetViewModes(PanelViewSettings* Modes, int Index = -1)
 			PVS_ALIGNEXTENSIONS
 		},
 	};
-	static_assert(ARRAYSIZE(Init) == predefined_panel_modes_count, "not all initial modes defined");
+	static_assert(std::size(Init) == predefined_panel_modes_count, "not all initial modes defined");
 
 	const auto InitMode = [](const panelmode_init& src, PanelViewSettings& dst)
 	{
@@ -986,7 +986,7 @@ void Options::SetFilePanelModes()
 			MMenuLinksView,
 			MMenuAlternativeView,
 		};
-		static_assert(ARRAYSIZE(PredefinedNames) == predefined_panel_modes_count, "Not all panel modes defined");
+		static_assert(std::size(PredefinedNames) == predefined_panel_modes_count, "Not all panel modes defined");
 
 		const auto MenuCount = ViewSettings.size();
 		// +1 for separator
@@ -1488,7 +1488,7 @@ void Options::InitConfigData()
 		L'\x256A', L'\x2518', L'\x250C', L'\x2588', L'\x2584', L'\x258C', L'\x2590', L'\x2580',
 		L'\0'
 	};
-	static_assert(ARRAYSIZE(DefaultBoxSymbols) == BS_COUNT + 1, "Incomplete DefaultBoxSymbols array");
+	static_assert(std::size(DefaultBoxSymbols) == BS_COUNT + 1, "Incomplete DefaultBoxSymbols array");
 
 	string strDefaultLanguage = GetFarIniString(L"General", L"DefaultLanguage", L"English");
 
@@ -1857,8 +1857,8 @@ void Options::InitConfigData()
 
 	};
 
-	Config.emplace_back(RoamingData, ARRAYSIZE(RoamingData), ConfigProvider().GeneralCfg().get());
-	Config.emplace_back(LocalData, ARRAYSIZE(LocalData), ConfigProvider().LocalGeneralCfg().get());
+	Config.emplace_back(RoamingData, std::size(RoamingData), ConfigProvider().GeneralCfg().get());
+	Config.emplace_back(LocalData, std::size(LocalData), ConfigProvider().LocalGeneralCfg().get());
 }
 
 template<class container, class pred>
@@ -1915,7 +1915,7 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 		{ NetBoxGuid, L"" },
 	};
 
-	static_assert(ARRAYSIZE(DefaultKnownGuids) == sizeof(Options::KnownModulesIDs) / sizeof(Options::KnownModulesIDs::GuidOption), "incomplete DefaultKnownGuids array");
+	static_assert(std::size(DefaultKnownGuids) == sizeof(Options::KnownModulesIDs) / sizeof(Options::KnownModulesIDs::GuidOption), "incomplete DefaultKnownGuids array");
 
 	KnownModulesIDs::GuidOption* GuidOptions[] =
 	{
@@ -1925,7 +1925,7 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 		&KnownIDs.Luamacro,
 		&KnownIDs.Netbox,
 	};
-	static_assert(ARRAYSIZE(GuidOptions) == ARRAYSIZE(DefaultKnownGuids), "incomplete GuidOptions array");
+	static_assert(std::size(GuidOptions) == std::size(DefaultKnownGuids), "incomplete GuidOptions array");
 
 	for_each_2(ALL_RANGE(DefaultKnownGuids), GuidOptions, [](auto& a, const auto& b)
 	{
@@ -2586,8 +2586,8 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		MSG(MMenuChangeDrive),0,KEY_ALTF1,
 	};
 	ApplyViewModesNames(LeftMenu);
-	std::vector<string> LeftMenuStrings(ARRAYSIZE(LeftMenu));
-	VMenu::AddHotkeys(LeftMenuStrings, LeftMenu, ARRAYSIZE(LeftMenu));
+	std::vector<string> LeftMenuStrings(std::size(LeftMenu));
+	VMenu::AddHotkeys(LeftMenuStrings, LeftMenu, std::size(LeftMenu));
 
 	MenuDataEx FilesMenu[]=
 	{
@@ -2613,8 +2613,8 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		MSG(MMenuInvertSelection),0,KEY_MULTIPLY,
 		MSG(MMenuRestoreSelection),0,KEY_CTRLM,
 	};
-	std::vector<string> FilesMenuStrings(ARRAYSIZE(FilesMenu));
-	VMenu::AddHotkeys(FilesMenuStrings, FilesMenu, ARRAYSIZE(FilesMenu));
+	std::vector<string> FilesMenuStrings(std::size(FilesMenu));
+	VMenu::AddHotkeys(FilesMenuStrings, FilesMenu, std::size(FilesMenu));
 
 	MenuDataEx CmdMenu[]=
 	{
@@ -2639,8 +2639,8 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		MSG(MMenuProcessList),0,KEY_CTRLW,
 		MSG(MMenuHotPlugList),0,0,
 	};
-	std::vector<string> CmdMenuStrings(ARRAYSIZE(CmdMenu));
-	VMenu::AddHotkeys(CmdMenuStrings, CmdMenu, ARRAYSIZE(CmdMenu));
+	std::vector<string> CmdMenuStrings(std::size(CmdMenu));
+	VMenu::AddHotkeys(CmdMenuStrings, CmdMenu, std::size(CmdMenu));
 
 	MenuDataEx OptionsMenu[]=
 	{
@@ -2672,8 +2672,8 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		L"",LIF_SEPARATOR,0,
 		MSG(MMenuSaveSetup),0,KEY_SHIFTF9,
 	};
-	std::vector<string> OptionsMenuStrings(ARRAYSIZE(OptionsMenu));
-	VMenu::AddHotkeys(OptionsMenuStrings, OptionsMenu, ARRAYSIZE(OptionsMenu));
+	std::vector<string> OptionsMenuStrings(std::size(OptionsMenu));
+	VMenu::AddHotkeys(OptionsMenuStrings, OptionsMenu, std::size(OptionsMenu));
 
 	MenuDataEx RightMenu[]=
 	{
@@ -2699,17 +2699,17 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		MSG(MMenuChangeDriveRight),0,KEY_ALTF2,
 	};
 	ApplyViewModesNames(RightMenu);
-	std::vector<string> RightMenuStrings(ARRAYSIZE(RightMenu));
-	VMenu::AddHotkeys(RightMenuStrings, RightMenu, ARRAYSIZE(RightMenu));
+	std::vector<string> RightMenuStrings(std::size(RightMenu));
+	VMenu::AddHotkeys(RightMenuStrings, RightMenu, std::size(RightMenu));
 
 
 	HMenuData MainMenu[]=
 	{
-		{MSG(MMenuLeftTitle), L"LeftRightMenu", LeftMenu, ARRAYSIZE(LeftMenu), 1},
-		{MSG(MMenuFilesTitle), L"FilesMenu", FilesMenu, ARRAYSIZE(FilesMenu), 0},
-		{MSG(MMenuCommandsTitle), L"CmdMenu", CmdMenu, ARRAYSIZE(CmdMenu), 0},
-		{MSG(MMenuOptionsTitle), L"OptMenu", OptionsMenu, ARRAYSIZE(OptionsMenu), 0},
-		{MSG(MMenuRightTitle), L"LeftRightMenu", RightMenu, ARRAYSIZE(RightMenu), 0},
+		{MSG(MMenuLeftTitle), L"LeftRightMenu", LeftMenu, std::size(LeftMenu), 1},
+		{MSG(MMenuFilesTitle), L"FilesMenu", FilesMenu, std::size(FilesMenu), 0},
+		{MSG(MMenuCommandsTitle), L"CmdMenu", CmdMenu, std::size(CmdMenu), 0},
+		{MSG(MMenuOptionsTitle), L"OptMenu", OptionsMenu, std::size(OptionsMenu), 0},
+		{MSG(MMenuRightTitle), L"LeftRightMenu", RightMenu, std::size(RightMenu), 0},
 	};
 	static int LastHItem=-1,LastVItem=0;
 	int HItem,VItem;
@@ -2718,7 +2718,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 	SetLeftRightMenuChecks(RightMenu, false);
 	// Навигация по меню
 	{
-		const auto HOptMenu = HMenu::create(MainMenu, ARRAYSIZE(MainMenu));
+		const auto HOptMenu = HMenu::create(MainMenu, std::size(MainMenu));
 		HOptMenu->SetHelp(L"Menus");
 		HOptMenu->SetPosition(0,0,ScrX,0);
 		Global->WindowManager->ExecuteWindow(HOptMenu);

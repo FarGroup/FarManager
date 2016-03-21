@@ -1,4 +1,8 @@
-﻿shmuel 21.03.2016 16:05:35 +0200 - build 4587
+﻿drkns 21.03.2016 17:11:49 +0200 - build 4588
+
+1. Macro ARRAYSIZE -> constexpr std::size
+
+shmuel 21.03.2016 16:05:35 +0200 - build 4587
 
 1. ECTL_GETINFO: в перечисление EDITOR_OPTIONS добавлены флаги EOPT_SHOWTITLEBAR и EOPT_SHOWKEYBAR.
 
@@ -13071,7 +13075,7 @@ svs 22.08.2011 11:33:37 +0300 - build 2154
 
 drkns 17.08.2011 15:43:18 +0200 - build 2153
 
-1. Интеллектуальный ARRAYSIZE() для gcc.
+1. Интеллектуальный std::size() для gcc.
 
 2. C++0x warnings.
 

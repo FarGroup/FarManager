@@ -103,7 +103,7 @@ void xlat_initialize()
 			XLat.Layouts[I] = (HKL)(intptr_t)(HIWORD(res)? res : MAKELONG(res, res));
 			++I;
 
-			if (I >= ARRAYSIZE(XLat.Layouts))
+			if (I >= std::size(XLat.Layouts))
 				break;
 		}
 
@@ -283,7 +283,7 @@ wchar_t* Xlat(wchar_t *Line, int StartPos, int EndPos, unsigned __int64 Flags)
 
 			if (XLat.Layouts[0])
 			{
-				if (++XLat.CurrentLayout >= (int)ARRAYSIZE(XLat.Layouts) || !XLat.Layouts[XLat.CurrentLayout])
+				if (++XLat.CurrentLayout >= (int)std::size(XLat.Layouts) || !XLat.Layouts[XLat.CurrentLayout])
 					XLat.CurrentLayout = 0;
 
 				if (XLat.Layouts[XLat.CurrentLayout])

@@ -361,10 +361,10 @@ void ConvertNameToShort(const string& Src, string &strDest)
 	const auto GetShortName = [&strDest](const string& str)
 	{
 		WCHAR Buffer[MAX_PATH];
-		DWORD Size = GetShortPathName(str.data(), Buffer, ARRAYSIZE(Buffer));
+		DWORD Size = GetShortPathName(str.data(), Buffer, static_cast<DWORD>(std::size(Buffer)));
 		if (Size)
 		{
-			if (Size < ARRAYSIZE(Buffer))
+			if (Size < std::size(Buffer))
 			{
 				strDest.assign(Buffer, Size);
 			}
@@ -411,11 +411,11 @@ void ConvertNameToShort(const string& Src, string &strDest)
 void ConvertNameToLong(const string& Src, string &strDest)
 {
 	WCHAR Buffer[MAX_PATH];
-	DWORD nSize = GetLongPathName(Src.data(), Buffer, ARRAYSIZE(Buffer));
+	DWORD nSize = GetLongPathName(Src.data(), Buffer, static_cast<DWORD>(std::size(Buffer)));
 
 	if (nSize)
 	{
-		if (nSize < ARRAYSIZE(Buffer))
+		if (nSize < std::size(Buffer))
 		{
 			strDest.assign(Buffer, nSize);
 		}

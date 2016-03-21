@@ -65,7 +65,7 @@ struct EditFieldIntBinding: public DialogItemBinding<DialogItemEx>
 		: IntValue(aIntValue)
 	{
 		Mask[0] = L'#';
-		const auto MaskWidth = std::min(static_cast<int>(ARRAYSIZE(Mask) - 1), Width);
+		const auto MaskWidth = std::min(static_cast<int>(std::size(Mask) - 1), Width);
 		std::fill(Mask + 1, Mask + MaskWidth, L'9');
 		Mask[MaskWidth] = L'\0';
 	}
@@ -98,7 +98,7 @@ struct EditFieldHexBinding: public DialogItemBinding<DialogItemEx>
 	EditFieldHexBinding(T *aIntValue, int Width) : IntValue(aIntValue)
 	{
 		Mask[0] = L'x';
-		const auto MaskWidth = std::min(static_cast<int>(ARRAYSIZE(Mask) - 1), Width);
+		const auto MaskWidth = std::min(static_cast<int>(std::size(Mask) - 1), Width);
 		std::fill(Mask + 1, Mask + MaskWidth, L'H');
 		Mask[MaskWidth] = L'\0';
 	}

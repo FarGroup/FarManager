@@ -398,11 +398,6 @@ public:
 };
 #endif //OF_CAP_CANSWITCHTO
 
-template <typename T, size_t N>
-char (*RtlpNumberOf(T(&)[N]))[N];
-#undef ARRAYSIZE
-#define ARRAYSIZE(A) (sizeof(*RtlpNumberOf(A)))
-
 // shellapi.h
 #ifndef SEE_MASK_NOASYNC
 #define SEE_MASK_NOASYNC 0x00000100

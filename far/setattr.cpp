@@ -562,9 +562,9 @@ bool ReadFileTime(int Type,const string& Name,FILETIME& FileTime,const string& O
 		if(Utc2Local(*OriginalFileTime,ost))
 		{
 			WORD DateN[3]={};
-			GetFileDateAndTime(OSrcDate, DateN, ARRAYSIZE(DateN), locale::GetDateSeparator());
+			GetFileDateAndTime(OSrcDate, DateN, std::size(DateN), locale::GetDateSeparator());
 			WORD TimeN[4]={};
-			GetFileDateAndTime(OSrcTime, TimeN, ARRAYSIZE(TimeN), locale::GetTimeSeparator());
+			GetFileDateAndTime(OSrcTime, TimeN, std::size(TimeN), locale::GetTimeSeparator());
 			SYSTEMTIME st={};
 
 			switch (locale::GetDateFormat())
@@ -931,7 +931,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				}
 				AttrDlg[SA_DOUBLEBOX].Y2++;
 
-				for (size_t i=SA_TEXT_SYMLINK; i<ARRAYSIZE(AttrDlgData); i++)
+				for (size_t i=SA_TEXT_SYMLINK; i<std::size(AttrDlgData); i++)
 				{
 					AttrDlg[i].Y1++;
 

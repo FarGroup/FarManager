@@ -1695,7 +1695,7 @@ int Viewer::process_key(const Manager::Key& Key)
 			};
 			int MenuResult;
 			{
-				const auto vModes = VMenu2::create(MSG(MViewMode), ModeListMenu, ARRAYSIZE(ModeListMenu), ScrY - 4);
+				const auto vModes = VMenu2::create(MSG(MViewMode), ModeListMenu, std::size(ModeListMenu), ScrY - 4);
 				vModes->SetMenuFlags(VMENU_WRAPMODE | VMENU_AUTOHIGHLIGHT);
 				vModes->SetSelectPos(m_DisplayMode, +1);
 				MenuResult = vModes->Run();
@@ -2140,10 +2140,10 @@ int Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		int cp_len = static_cast<int>(std::to_wstring(m_Codepage).size());
 		//                           ViewMode     CopdePage             Goto
 		static const int keys[]   = {KEY_SHIFTF4, KEY_SHIFTF8,          KEY_ALTF8   };
-		int xpos[ARRAYSIZE(keys)] = {NameLen,     NameLen+3+(5-cp_len), NameLen+40-4};
-		int xlen[ARRAYSIZE(keys)] = {3,           cp_len,                          4};
+		int xpos[std::size(keys)] = {NameLen,     NameLen+3+(5-cp_len), NameLen+40-4};
+		int xlen[std::size(keys)] = {3,           cp_len,                          4};
 
-		for (int i = 0; i < static_cast<int>(ARRAYSIZE(keys)); ++i)
+		for (int i = 0; i < static_cast<int>(std::size(keys)); ++i)
 		{
 			if (IntKeyState.MouseX >= xpos[i] && IntKeyState.MouseX < xpos[i]+xlen[i])
 			{
@@ -3837,7 +3837,7 @@ bool Viewer::vgetc(wchar_t *pCh)
 		vgetc_ib = 0;
 
 		size_t nr = 0;
-		Reader.Read(vgetc_buffer + vgetc_cb, ARRAYSIZE(vgetc_buffer) - vgetc_cb, &nr);
+		Reader.Read(vgetc_buffer + vgetc_cb, std::size(vgetc_buffer) - vgetc_cb, &nr);
 		vgetc_cb += (int)nr;
 	}
 
@@ -3964,7 +3964,7 @@ wchar_t Viewer::vgetc_prev()
 			{
 				int tail = 0;
 				wchar_t CharBuffer[4];
-				int Length = Utf8::ToWideChar(RawBuffer, BytesRead, CharBuffer, nullptr, ARRAYSIZE(CharBuffer), tail);
+				int Length = Utf8::ToWideChar(RawBuffer, BytesRead, CharBuffer, nullptr, std::size(CharBuffer), tail);
 				if (!tail && Length > 0)
 				{
 					Result = CharBuffer[Length - 1];

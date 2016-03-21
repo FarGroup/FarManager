@@ -78,7 +78,7 @@ ColumnInfo[] =
 	{ CUSTOM_COLUMN0, 0, L"C0" },
 };
 
-static_assert(ARRAYSIZE(ColumnInfo) == COLUMN_TYPES_COUNT, "wrong size of ColumnInfo array");
+static_assert(std::size(ColumnInfo) == COLUMN_TYPES_COUNT, "wrong size of ColumnInfo array");
 
 void ShellUpdatePanels(panel_ptr SrcPanel,BOOL NeedSetUpADir)
 {
@@ -482,7 +482,7 @@ void ViewSettingsToText(const std::vector<column>& Columns, string &strColumnTit
 	{
 		string strType;
 		int ColumnType=static_cast<int>(i.type & 0xff);
-		// If ColumnType >= ARRAYSIZE(ColumnSymbol) ==> BUGBUG!!!
+		// If ColumnType >= std::size(ColumnSymbol) ==> BUGBUG!!!
 		if (ColumnType <= CUSTOM_COLUMN0)
 		{
 			strType = ColumnInfo[ColumnType].Symbol;

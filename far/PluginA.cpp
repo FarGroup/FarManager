@@ -135,7 +135,7 @@ OEMPluginModel::OEMPluginModel(PluginManager* owner):
 		WA("OpenFilePlugin"),
 		WA("GetMinFarVersion"),
 	};
-	static_assert(ARRAYSIZE(ExportsNames) == ExportsCount, "Not all exports names are defined");
+	static_assert(std::size(ExportsNames) == ExportsCount, "Not all exports names are defined");
 	m_ExportsNames = make_range(std::cbegin(ExportsNames), std::cend(ExportsNames));
 }
 
@@ -173,7 +173,7 @@ static bool LocalUpperInit()
 {
 	const auto Init = []
 	{
-		for (size_t I=0; I<ARRAYSIZE(LowerToUpper); I++)
+		for (size_t I=0; I<std::size(LowerToUpper); I++)
 		{
 			char CvtStr[]={static_cast<char>(I), L'\0'}, ReverseCvtStr[2];
 			LowerToUpper[I]=UpperToLower[I]=static_cast<char>(I);
@@ -1033,7 +1033,7 @@ static void AnsiDialogItemToUnicode(const oldfar::FarDialogItem &diA, FarDialogI
 
 	if (diA.Type == oldfar::DI_USERCONTROL)
 	{
-		const auto Buffer = new wchar_t[ARRAYSIZE(diA.Data)];
+		const auto Buffer = new wchar_t[std::size(diA.Data)];
 		memcpy(Buffer, diA.Data, sizeof(diA.Data));
 		di.Data = Buffer;
 		di.MaxLength = 0;
@@ -1942,8 +1942,8 @@ static void WINAPI GetPathRootA(const char *Path, char *Root) noexcept
 	try
 	{
 		wchar_t Buffer[MAX_PATH];
-		NativeFSF.GetPathRoot(wide(Path).data(), Buffer, ARRAYSIZE(Buffer));
-		UnicodeToOEM(Buffer, Root, ARRAYSIZE(Buffer));
+		NativeFSF.GetPathRoot(wide(Path).data(), Buffer, std::size(Buffer));
+		UnicodeToOEM(Buffer, Root, std::size(Buffer));
 	}
 	catch (...)
 	{
@@ -2092,7 +2092,7 @@ static char* WINAPI FarMkTempA(char *Dest, const char *Prefix) noexcept
 	try
 	{
 		wchar_t D[oldfar::NM] = {};
-		NativeFSF.MkTemp(D, ARRAYSIZE(D), wide(Prefix).data());
+		NativeFSF.MkTemp(D, std::size(D), wide(Prefix).data());
 		UnicodeToOEM(D, Dest, sizeof(D));
 		return Dest;
 	}
@@ -2175,7 +2175,7 @@ static int WINAPI FarGetReparsePointInfoA(const char *Src, char *Dest, int DestS
 		int Result = 0;
 		string strSrc = wide(Src);
 		wchar_t Buffer[MAX_PATH];
-		Result = static_cast<int>(NativeFSF.GetReparsePointInfo(strSrc.data(), Buffer, ARRAYSIZE(Buffer)));
+		Result = static_cast<int>(NativeFSF.GetReparsePointInfo(strSrc.data(), Buffer, std::size(Buffer)));
 		if (DestSize && Dest)
 		{
 			if (Result > MAX_PATH)
@@ -4925,7 +4925,7 @@ static int WINAPI GetFileOwnerA(const char *Computer, const char *Name, char *Ow
 	try
 	{
 		wchar_t wOwner[MAX_PATH];
-		int Ret = static_cast<int>(NativeFSF.GetFileOwner(wide(Computer).data(), wide(Name).data(), wOwner, ARRAYSIZE(wOwner)));
+		int Ret = static_cast<int>(NativeFSF.GetFileOwner(wide(Computer).data(), wide(Name).data(), wOwner, std::size(wOwner)));
 		if (Ret)
 		{
 			UnicodeToOEM(wOwner, Owner, oldfar::NM);
@@ -5498,7 +5498,7 @@ int PluginA::GetFiles(GetFilesInfo* Info)
 		UnicodeToOEM(Info->DestPath, DestA, sizeof(DestA));
 		EXECUTE_FUNCTION(es = FUNCTION(iGetFiles)(Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber), Info->Move, DestA, Info->OpMode));
 		static wchar_t DestW[oldfar::NM];
-		OEMToUnicode(DestA,DestW,ARRAYSIZE(DestW));
+		OEMToUnicode(DestA,DestW,std::size(DestW));
 		Info->DestPath=DestW;
 		FreePanelItemA(PanelItemA, Info->ItemsNumber);
 	}
@@ -5540,7 +5540,7 @@ int PluginA::MakeDirectory(MakeDirectoryInfo* Info)
 		UnicodeToOEM(Info->Name, NameA, sizeof(NameA));
 		EXECUTE_FUNCTION(es = FUNCTION(iMakeDirectory)(Info->hPanel, NameA, Info->OpMode));
 		static wchar_t NameW[oldfar::NM];
-		OEMToUnicode(NameA,NameW,ARRAYSIZE(NameW));
+		OEMToUnicode(NameA,NameW,std::size(NameW));
 		Info->Name=NameW;
 	}
 	return es;

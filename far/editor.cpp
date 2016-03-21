@@ -4693,7 +4693,7 @@ public:
 		m_StrNum = StrNum;
 		UndoDataSize -= m_Str.size();
 		UndoDataSize += Str.size();
-		xwcsncpy(m_EOL, Eol ? Eol : L"", ARRAYSIZE(m_EOL) - 1);
+		xwcsncpy(m_EOL, NullToEmpty(Eol), std::size(m_EOL) - 1);
 		m_Str.assign(ALL_CONST_RANGE(Str));
 		m_BM.clear();
 	}
