@@ -1,4 +1,8 @@
-﻿drkns 21.03.2016 15:31:02 +0200 - build 4586
+﻿shmuel 21.03.2016 16:05:35 +0200 - build 4587
+
+1. ECTL_GETINFO: в перечисление EDITOR_OPTIONS добавлены флаги EOPT_SHOWTITLEBAR и EOPT_SHOWKEYBAR.
+
+drkns 21.03.2016 15:31:02 +0200 - build 4586
 
 1. Продолжение 4584.
 

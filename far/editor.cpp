@@ -5696,6 +5696,12 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 						Info->Options|=EOPT_SHOWLINEBREAK;
 				}
 
+				if (Global->Opt->EdOpt.ShowTitleBar)
+					Info->Options|=EOPT_SHOWTITLEBAR;
+
+				if (Global->Opt->EdOpt.ShowKeyBar)
+					Info->Options|=EOPT_SHOWKEYBAR;
+
 				Info->TabSize=EdOpt.TabSize;
 				Info->BookmarkCount=BOOKMARK_COUNT;
 				Info->SessionBookmarkCount=GetSessionBookmarks(nullptr);
@@ -7038,7 +7044,7 @@ void Editor::SetCacheParams(EditorPosCache &pc, bool count_bom)
 			{
 				TotalSize += SaveStr.size();
 			}
-			
+
 			TotalSize += wcslen(EndSeq);
 
 			if (static_cast<int>(TotalSize) > StartChar)
