@@ -4266,9 +4266,23 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 				Info->CurMode.ViewMode = m_DisplayMode;
 				Info->Options=0;
 
-				if (Global->Opt->ViOpt.SavePos)   Info->Options|=VOPT_SAVEFILEPOSITION;
+				if (Global->Opt->ViOpt.SavePos)
+					Info->Options|=VOPT_SAVEFILEPOSITION;
 
-				if (ViOpt.AutoDetectCodePage)     Info->Options|=VOPT_AUTODETECTCODEPAGE;
+				if (ViOpt.AutoDetectCodePage)
+					Info->Options|=VOPT_AUTODETECTCODEPAGE;
+
+				if (Global->Opt->ViOpt.ShowTitleBar)
+					Info->Options |= VOPT_SHOWTITLEBAR;
+
+				if (Global->Opt->ViOpt.ShowKeyBar)
+					Info->Options |= VOPT_SHOWKEYBAR;
+
+				if (ViOpt.ShowScrollbar)
+					Info->Options |= VOPT_SHOWSCROLLBAR;
+
+				if (m_bQuickView)
+					Info->Options |= VOPT_QUICKVIEW;
 
 				Info->TabSize=ViOpt.TabSize;
 				Info->LeftPos=LeftPos;

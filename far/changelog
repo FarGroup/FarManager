@@ -1,4 +1,8 @@
-﻿drkns 22.03.2016 08:27:45 +0200 - build 4589
+﻿w17 22.03.2016 13:55:04 +0300 - build 4590
+
+1. Продолжение 4587 -- EOPT_SHOWSCROLLBAR; VCTL_GETINFO: VOPT_SHOWxxx, VOPT_QUICKVIEW.
+
+drkns 22.03.2016 08:27:45 +0200 - build 4589
 
 1. Уточнение 4585.
 
@@ -572,7 +576,7 @@ drkns 18.12.2015 19:39:04 +0200 - build 4481
 
 w17 18.12.2015 13:24:46 +0300 - build 4480
 
-1. Experimental: M#1910: "Add to archive" hotkey does not wok in Temporary Panel.
+1. Experimental: M#1910: "Add to archive" hotkey does not work in Temporary Panel.
 
 drkns 17.12.2015 21:32:47 +0200 - build 4479
 

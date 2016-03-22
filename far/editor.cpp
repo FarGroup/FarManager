@@ -243,7 +243,7 @@ void Editor::ShowEditor()
 
 	int LeftPos,CurPos,Y;
 
-	XX2=m_X2-(EdOpt.ShowScrollBar?1:0);
+	XX2=m_X2 - (EdOpt.ShowScrollBar && ScrollBarRequired(ObjHeight(), m_LinesCount) ? 1 : 0);
 	/* 17.04.2002 skv
 	  Что б курсор не бегал при Alt-F9 в конце длинного файла.
 	  Если на экране есть свободное место, и есть текст сверху,
@@ -2904,7 +2904,7 @@ int Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		}
 	}
 
-	if (EdOpt.ShowScrollBar && MouseEvent->dwMousePosition.X==m_X2 && !(MouseEvent->dwEventFlags & MOUSE_MOVED))
+	if (EdOpt.ShowScrollBar && ScrollBarRequired(ObjHeight(), m_LinesCount) && MouseEvent->dwMousePosition.X==m_X2 && !(MouseEvent->dwEventFlags & MOUSE_MOVED))
 	{
 		if (MouseEvent->dwMousePosition.Y==m_Y1)
 		{
@@ -5701,6 +5701,9 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 				if (Global->Opt->EdOpt.ShowKeyBar)
 					Info->Options|=EOPT_SHOWKEYBAR;
+
+				if (EdOpt.ShowScrollBar && ScrollBarRequired(ObjHeight(), m_LinesCount))
+					Info->Options |= EOPT_SHOWSCROLLBAR;
 
 				Info->TabSize=EdOpt.TabSize;
 				Info->BookmarkCount=BOOKMARK_COUNT;
