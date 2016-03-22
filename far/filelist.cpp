@@ -311,8 +311,8 @@ void FileList::DeleteListData(std::vector<FileListItem>& ListData)
 				FarPanelItemFreeInfo info = { sizeof(FarPanelItemFreeInfo), m_hPlugin };
 				i.Callback(i.UserData, &info);
 			}
+			delete[] i.DizText;
 		}
-		delete[] i.DizText;
 		DeleteRawArray(i.CustomColumnData, i.CustomColumnNumber);
 	});
 

@@ -1,4 +1,8 @@
-﻿drkns 21.03.2016 17:11:49 +0200 - build 4588
+﻿drkns 22.03.2016 08:27:45 +0200 - build 4589
+
+1. Уточнение 4585.
+
+drkns 21.03.2016 17:11:49 +0200 - build 4588
 
 1. Macro ARRAYSIZE -> constexpr std::size
 
