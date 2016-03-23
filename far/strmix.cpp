@@ -565,7 +565,7 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 	size_t IndexDiv, IndexB;
 
 	// подготовительные мероприятия
-	if (UnitStr(0, 0).empty())
+	if (UnitStr(0, 0) != ToLower(MSG(MListBytes)))
 	{
 		PrepareUnitStr();
 	}

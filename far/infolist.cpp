@@ -370,6 +370,14 @@ void InfoList::DisplayObject()
 		strTitle=MSG(MInfoDiskTitle);
 	DrawTitle(strTitle,ILSS_DISKINFO,CurY);
 
+	auto bytes_suffix = ToUpper(MSG(MListBytes));
+	auto size2str = [&bytes_suffix](ULONGLONG Size)
+	{
+		string str;
+		FileSizeToStr(str, Size, 16, COLUMN_FLOATSIZE | COLUMN_SHOWBYTESINDEX);
+		return str += bytes_suffix;
+	};
+
 	if (SectionState[ILSS_DISKINFO].Show)
 	{
 		/* #2.2 - disk info: size */
@@ -379,13 +387,11 @@ void InfoList::DisplayObject()
 		{
 			GotoXY(m_X1+2,CurY++);
 			PrintText(MInfoDiskTotal);
-			InsertCommas(TotalSize,strOutStr);
-			PrintInfo(strOutStr);
+			PrintInfo(size2str(TotalSize));
 
 			GotoXY(m_X1+2,CurY++);
 			PrintText(MInfoDiskFree);
-			InsertCommas(UserFree,strOutStr);
-			PrintInfo(strOutStr);
+			PrintInfo(size2str(UserFree));
 		}
 
 		/* #4 - disk info: label & SN */
@@ -393,7 +399,7 @@ void InfoList::DisplayObject()
 		PrintText(MInfoDiskLabel);
 		PrintInfo(strVolumeName);
 
-	    GotoXY(m_X1+2,CurY++);
+		GotoXY(m_X1+2,CurY++);
 		PrintText(MInfoDiskNumber);
 		PrintInfo(strDiskNumber);
 	}
@@ -419,39 +425,32 @@ void InfoList::DisplayObject()
 			{
 				GotoXY(m_X1+2,CurY++);
 				PrintText(MInfoMemoryInstalled);
-				InsertCommas(TotalMemoryInKilobytes<<10,strOutStr);
-				PrintInfo(strOutStr);
+				PrintInfo(size2str(TotalMemoryInKilobytes << 10));
 			}
 
 			GotoXY(m_X1+2,CurY++);
 			PrintText(MInfoMemoryTotal);
-			InsertCommas(ms.ullTotalPhys,strOutStr);
-			PrintInfo(strOutStr);
+			PrintInfo(size2str(ms.ullTotalPhys));
 
 			GotoXY(m_X1+2,CurY++);
 			PrintText(MInfoMemoryFree);
-			InsertCommas(ms.ullAvailPhys,strOutStr);
-			PrintInfo(strOutStr);
+			PrintInfo(size2str(ms.ullAvailPhys));
 
 			GotoXY(m_X1+2,CurY++);
 			PrintText(MInfoVirtualTotal);
-			InsertCommas(ms.ullTotalVirtual,strOutStr);
-			PrintInfo(strOutStr);
+			PrintInfo(size2str(ms.ullTotalVirtual));
 
 			GotoXY(m_X1+2,CurY++);
 			PrintText(MInfoVirtualFree);
-			InsertCommas(ms.ullAvailVirtual,strOutStr);
-			PrintInfo(strOutStr);
+			PrintInfo(size2str(ms.ullAvailVirtual));
 
 			GotoXY(m_X1+2,CurY++);
 			PrintText(MInfoPageFileTotal);
-			InsertCommas(ms.ullTotalPageFile,strOutStr);
-			PrintInfo(strOutStr);
+			PrintInfo(size2str(ms.ullTotalPageFile));
 
 			GotoXY(m_X1+2,CurY++);
 			PrintText(MInfoPageFileFree);
-			InsertCommas(ms.ullAvailPageFile,strOutStr);
-			PrintInfo(strOutStr);
+			PrintInfo(size2str(ms.ullAvailPageFile));
 		}
 	}
 

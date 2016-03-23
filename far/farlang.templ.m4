@@ -13866,8 +13866,8 @@ MInfoDisk
 "диск"
 
 MInfoDiskTotal
-"Всего байт"
-"Total bytes"
+"Общий размер"
+"Total size"
 "Celkem bytů"
 "Bytes gesamt"
 "Összes bájt"
@@ -13878,8 +13878,8 @@ MInfoDiskTotal
 "Разом байт"
 
 MInfoDiskFree
-"Свободно байт"
-"Free bytes"
+"Свободно"
+"Space free"
 "Volných bytů"
 "Bytes frei"
 "Szabad bájt"
@@ -13926,8 +13926,8 @@ MInfoMemory
 " Пам'ять "
 
 MInfoMemoryLoad
-"Загрузка памяти"
-"Memory load"
+"Используется"
+"In use"
 "Obsazení paměti"
 "Speicherverbrauch"
 "Használt memória"
@@ -13938,8 +13938,8 @@ MInfoMemoryLoad
 "Завантаж. пам'яті"
 
 MInfoMemoryInstalled
-"Установлено памяти"
-"Installed memory"
+"Установлено"
+"Installed"
 "Nainstalovaná paměť"
 "Installierter Speicher"
 upd:"Installed memory"
@@ -13950,8 +13950,8 @@ upd:"Installed memory"
 "Встановлено пам'яті"
 
 MInfoMemoryTotal
-"Всего памяти"
-"Total memory"
+"Всего доступно"
+"Total available"
 "Celková paměť"
 "Speicher gesamt"
 "Összes memória"
@@ -13962,8 +13962,8 @@ MInfoMemoryTotal
 "Усього пам'яті"
 
 MInfoMemoryFree
-"Свободно памяти"
-"Free memory"
+"Свободно"
+"Free"
 "Volná paměť"
 "Speicher frei"
 "Szabad memória"
@@ -13974,7 +13974,7 @@ MInfoMemoryFree
 "Вільно пам'яті"
 
 MInfoVirtualTotal
-"Всего вирт. памяти"
+"Виртуальная (всего)"
 "Total virtual"
 "Celkem virtuální"
 "Virtueller Speicher gesamt"
@@ -13986,7 +13986,7 @@ MInfoVirtualTotal
 "Усьго вірт. пам'яті"
 
 MInfoVirtualFree
-"Свободно вирт. памяти"
+"Виртуальная (свободно)"
 "Free virtual"
 "Volná virtuální"
 "Virtueller Speicher frei"
@@ -13998,7 +13998,7 @@ MInfoVirtualFree
 "Вільно вірт. пам'яті"
 
 MInfoPageFileTotal
-"Всего файла подкачки"
+"Файл подкачки (всего)"
 "Total paging file"
 "Stránkovací soubor celkem"
 "Auslagerungsdatei gesamt"
@@ -14010,7 +14010,7 @@ upd:"Total paging file"
 "Всього файлу довантаження"
 
 MInfoPageFileFree
-"Свободно файла подкачки"
+"Файла подкачки (свободно)"
 "Free paging file"
 "Stránkovací soubor volný"
 "Auslagerungsdatei frei"
