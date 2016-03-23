@@ -4899,7 +4899,7 @@ upd:"Files: %1 / %2"
 "Файлів: %1 / %2"
 
 MCopyBytesProcessed
-"Обработано байт: %1"
+"Обработано байт:   %1"
 "Bytes processed: %1"
 upd:"Bytes processed: %1"
 "Bytes verarbeitet: %1"
@@ -4911,7 +4911,7 @@ upd:"Bytes processed: %1"
 "Оброблено байт:   %1"
 
 MCopyBytesTotalInfo
-"Байт: %1 / %2"
+"Байт:   %1 / %2"
 "Bytes: %1 / %2"
 upd:"Bytes: %1 / %2"
 upd:"Bytes: %1 / %2"
