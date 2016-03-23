@@ -512,7 +512,7 @@ bool DeleteTypeRecord(unsigned __int64 DeletePos)
 	ConfigProvider().AssocConfig()->GetMask(DeletePos,strMask);
 	InsertQuote(strMask);
 
-	if (!Message(MSG_WARNING,2,MSG(MAssocTitle),MSG(MAskDelAssoc),strMask.data(),MSG(MDelete),MSG(MCancel)))
+	if (Message(MSG_WARNING,2,MSG(MAssocTitle),MSG(MAskDelAssoc),strMask.data(),MSG(MDelete),MSG(MCancel)) == Message::first_button)
 	{
 		ConfigProvider().AssocConfig()->DelType(DeletePos);
 		return true;

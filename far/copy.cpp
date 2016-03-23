@@ -1908,7 +1908,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 				CP->SetNames(strSelName,strDestPath);
 
 				if (Message(MSG_WARNING,2,MSG(MError),MSG(MCopyCannotFind),
-					          strSelName.data(),MSG(MSkip),MSG(MCancel))==1)
+					          strSelName.data(),MSG(MSkip),MSG(MCancel)) == Message::second_button)
 				{
 					return COPY_FAILURE;
 				}
@@ -3368,8 +3368,8 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::FAR_FIND_DATA &SrcD
 					else
 					{
 						if (!SplitCancelled && !SplitSkipped &&
-							!Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
-							MSG(MCopyWriteError),strDestName.data(),MSG(MRetry),MSG(MCancel)))
+							Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
+							MSG(MCopyWriteError),strDestName.data(),MSG(MRetry),MSG(MCancel)) == Message::first_button)
 						{
 							continue;
 						}

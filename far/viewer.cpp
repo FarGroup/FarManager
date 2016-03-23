@@ -3565,14 +3565,14 @@ void Viewer::Search(int Next,int FirstChar)
 				static_assert(MViewSearchFromEnd - MViewSearchBod==1, "Wrong .lng file order");
 				static_assert(MViewSearchRepeat -MViewSearchCycle==1, "Wrong .lng file order");
 				static_assert(MViewSearchBod-MViewSearchEod==2 && MViewSearchCycle-MViewSearchEod==4, "Wrong .lng file order");
-				int choice = Message(
+				if (Message(
 					0, 2, MSG(MViewSearchTitle),
 					MSG(MViewSearchEod+2*(found-Search_Eof)),
 					MSG(MViewSearchFromBegin+2*(found-Search_Eof)),
-					strMsgStr.data(),	MSG(MYes), MSG(MCancel)
-				);
-				if (choice < 0 || choice == 1) // cancel search
+					strMsgStr.data(), MSG(MYes), MSG(MCancel)) != Message::first_button) // cancel search
+				{
 					return;
+					}
 			}
 
 			if (TimeCheck)

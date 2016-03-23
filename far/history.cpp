@@ -457,11 +457,11 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 					if (!HistoryMenu.empty() &&
 					        (!Global->Opt->Confirm.HistoryClear ||
 					         (Global->Opt->Confirm.HistoryClear &&
-					          !Message(MSG_WARNING,2,
+					          Message(MSG_WARNING,2,
 					                  MSG((m_TypeHistory==HISTORYTYPE_CMD || m_TypeHistory==HISTORYTYPE_DIALOG?MHistoryTitle:
 					                       (m_TypeHistory==HISTORYTYPE_FOLDER?MFolderHistoryTitle:MViewHistoryTitle))),
 					                  MSG(MHistoryClear),
-					                  MSG(MClear),MSG(MCancel)))))
+					                  MSG(MClear),MSG(MCancel)) == Message::first_button)))
 					{
 						HistoryCfgRef()->DeleteAllUnlocked(m_TypeHistory,m_HistoryName);
 
@@ -502,7 +502,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 
 				if (SelectedRecordType == HR_EDITOR && m_TypeHistory == HISTORYTYPE_VIEW) // Edit? тогда спросим и если надо создадим
 				{
-					if (!Message(MSG_WARNING|MSG_ERRORTYPE,2,Title,strSelectedRecordName.data(),MSG(MViewHistoryIsCreate),MSG(MHYes),MSG(MHNo)))
+					if (Message(MSG_WARNING|MSG_ERRORTYPE,2,Title,strSelectedRecordName.data(),MSG(MViewHistoryIsCreate),MSG(MHYes),MSG(MHNo)) == Message::first_button)
 						break;
 				}
 				else

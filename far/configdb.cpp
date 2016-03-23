@@ -2503,7 +2503,7 @@ int config_provider::ShowProblems()
 		rc = Message(MSG_WARNING, MSG(MProblemDb),
 			m_Problems,
 			make_vector<string>(MSG(MShowConfigFolders), MSG(MIgnore))
-			) == 0 ? +1 : -1;
+			) == Message::first_button ? +1 : -1;
 	}
 	return rc;
 }

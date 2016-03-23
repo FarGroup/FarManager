@@ -49,16 +49,14 @@ string MkStrFTime(const wchar_t* Format = nullptr);
 
 inline uint64_t FileTimeToUI64(const FILETIME& ft)
 {
-	ULARGE_INTEGER t = {ft.dwLowDateTime, ft.dwHighDateTime};
-	return t.QuadPart;
+	return ULARGE_INTEGER {ft.dwLowDateTime, ft.dwHighDateTime}.QuadPart;
 }
 
 inline FILETIME UI64ToFileTime(uint64_t time)
 {
 	ULARGE_INTEGER i;
 	i.QuadPart = time;
-	FILETIME ft = { i.LowPart, i.HighPart };
-	return ft;
+	return FILETIME { i.LowPart, i.HighPart };
 }
 
 inline int CompareFileTime(const FILETIME& a, const FILETIME& b)

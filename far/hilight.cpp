@@ -629,7 +629,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 
 					if (Message(MSG_WARNING,2,MSG(MHighlightTitle),
 					            MSG(MHighlightWarning),MSG(MHighlightAskRestore),
-					            MSG(MYes),MSG(MCancel)) != 0)
+					            MSG(MYes),MSG(MCancel)) != Message::first_button)
 						break;
 
 					const auto cfg = ConfigProvider().CreateHighlightConfig();
@@ -650,7 +650,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 					{
 						if (Message(MSG_WARNING,2,MSG(MHighlightTitle),
 						            MSG(MHighlightAskDel), HiData[RealSelectPos].GetMask().data(),
-						            MSG(MDelete),MSG(MCancel)) != 0)
+						            MSG(MDelete),MSG(MCancel)) != Message::first_button)
 							break;
 						HiData.erase(HiData.begin()+RealSelectPos);
 						(*Count)--;

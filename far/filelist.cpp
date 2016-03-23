@@ -1685,7 +1685,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 										if (Message(MSG_WARNING, MSG(MWarning),
 											make_vector<string>(MSG(MEditNewPath1), MSG(MEditNewPath2), MSG(MEditNewPath3)),
 											make_vector<string>(MSG(MHYes), MSG(MHNo)),
-											L"WarnEditorPath") != 0)
+											L"WarnEditorPath") != Message::first_button)
 											return FALSE;
 									}
 								}
@@ -1696,7 +1696,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 							if (Message(MSG_WARNING, MSG(MWarning),
 								make_vector<string>(MSG(MEditNewPlugin1), MSG(MEditNewPath3)),
 								make_vector<string>(MSG(MCancel)),
-								L"WarnEditorPluginName") != 0)
+								L"WarnEditorPluginName") != Message::first_button)
 								return FALSE;
 						}
 						else

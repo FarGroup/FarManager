@@ -526,7 +526,7 @@ void Shortcuts::EditItem(VMenu2& Menu, shortcut& Item, bool Root, bool raw)
 			if ((!raw || !strTemp.empty()) && !os::fs::exists(strTemp))
 			{
 				Global->CatchError();
-				Save=!Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), NewItem.strFolder.data(), MSG(MSaveThisShortcut), MSG(MYes), MSG(MNo));
+				Save = Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), NewItem.strFolder.data(), MSG(MSaveThisShortcut), MSG(MYes), MSG(MNo)) == Message::first_button;
 			}
 		}
 

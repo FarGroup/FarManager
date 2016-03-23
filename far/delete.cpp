@@ -1058,7 +1058,7 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 					    ),
 					    make_vector<string>(MSG(MYes), MSG(MCancel)),
 					    nullptr, nullptr, &RecycleFolderConfirmDeleteLinkId
-					    ) != 0)
+					    ) != Message::first_button)
 					{
 						ret = DELETE_CANCEL;
 						return false;

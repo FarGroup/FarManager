@@ -348,8 +348,8 @@ bool FileFilter::FilterEdit()
 					string strQuotedTitle = FilterData()[SelPos].GetTitle();
 					InsertQuote(strQuotedTitle);
 
-					if (!Message(0,2,MSG(MFilterTitle),MSG(MAskDeleteFilter),
-					            strQuotedTitle.data(),MSG(MDelete),MSG(MCancel)))
+					if (Message(0,2,MSG(MFilterTitle),MSG(MAskDeleteFilter),
+					            strQuotedTitle.data(),MSG(MDelete),MSG(MCancel)) == Message::first_button)
 					{
 						FilterData().erase(FilterData().begin() + SelPos);
 						FilterList->DeleteItem(SelPos);

@@ -262,7 +262,7 @@ void PrintFiles(FileList* SrcPanel)
 			else
 			{
 				if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MPrintTitle),MSG(MCannotPrint),
-				            strSelName.data(),MSG(MSkip),MSG(MCancel)))
+				            strSelName.data(),MSG(MSkip),MSG(MCancel)) != Message::first_button)
 					break;
 			}
 		}

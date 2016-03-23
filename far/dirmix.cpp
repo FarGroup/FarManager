@@ -192,7 +192,7 @@ bool CheckShortcutFolder(string& pTestPath, bool TryClosest, bool Silent)
 		}
 		else // попытка найти!
 		{
-			if (Silent || !Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), strTarget.data(), MSG(MNeedNearPath), MSG(MHYes),MSG(MHNo)))
+			if (Silent || Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), strTarget.data(), MSG(MNeedNearPath), MSG(MHYes),MSG(MHNo)) == Message::first_button)
 			{
 				string strTestPathTemp = pTestPath;
 				for (;;)

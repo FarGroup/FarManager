@@ -67,6 +67,13 @@ public:
 		const wchar_t *Str6=nullptr, const wchar_t *Str7=nullptr, const wchar_t *Str8=nullptr, const wchar_t *Str9=nullptr,
 		const wchar_t *Str10=nullptr, const wchar_t *Str11=nullptr, const wchar_t *Str12=nullptr);
 
+	enum
+	{
+		first_button,
+		second_button,
+		third_button,
+	};
+
 	int GetExitCode() const {return m_ExitCode;}
 	void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2) const;
 	operator int() const { return GetExitCode(); }

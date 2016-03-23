@@ -474,7 +474,7 @@ bool Language::CheckMsgId(LNGID MsgId) const
 				L"Error",
 				strMsg1.data(),
 				(L"Message " + std::to_wstring(MsgId) + L" not found").data(),
-				L"Ok", L"Quit")==1)
+				L"Ok", L"Quit") == Message::second_button)
 				exit(0);
 		}
 

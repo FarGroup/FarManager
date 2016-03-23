@@ -122,8 +122,8 @@ void ShowProcessList()
 						DWORD ProcID;
 						GetWindowThreadProcessId(ProcWnd,&ProcID);
 
-						if (!Message(MSG_WARNING,2,MSG(MKillProcessTitle),MSG(MAskKillProcess),
-									NullToEmpty(Title.get()),MSG(MKillProcessWarning),MSG(MKillProcessKill),MSG(MCancel)))
+						if (Message(MSG_WARNING,2,MSG(MKillProcessTitle),MSG(MAskKillProcess),
+									NullToEmpty(Title.get()),MSG(MKillProcessWarning),MSG(MKillProcessKill),MSG(MCancel)) == Message::first_button)
 						{
 							if (!KillProcess(ProcID))
 							{

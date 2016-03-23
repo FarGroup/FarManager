@@ -599,7 +599,7 @@ void FileEditor::Init(
 		if (Message(MSG_WARNING, MSG(MEditTitle),
 			make_vector<string>(Name, MSG(MEditRSH), MSG(MEditROOpen)),
 			make_vector<string>(MSG(MYes), MSG(MNo)),
-			nullptr, nullptr, &EditorOpenRSHId))
+			nullptr, nullptr, &EditorOpenRSHId) != Message::first_button)
 		{
 			SetExitCode(XC_OPEN_ERROR);
 			return;
@@ -1388,13 +1388,13 @@ int FileEditor::SetCodePage(uintptr_t cp,	bool redetect_default, bool ascii2def)
 	{
 		if (IsFileModified())
 		{
-			int res = Message(
+			if (Message(
 				MSG_WARNING, 2, MSG(MEditTitle),
 				MSG(MEditorReloadCPWarnLost1), MSG(MEditorReloadCPWarnLost2),
-				MSG(MOk), MSG(MCancel));
-
-			if (res != 0)
+				MSG(MOk), MSG(MCancel)) != Message::first_button)
+			{
 				return EC_CP_NOTRELOAD_MODIFIED;
+			}
 		}
 		ReloadFile(cp);
 	}
@@ -1516,7 +1516,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 						string_format(MEditFileLong2, RemoveExternalSpaces(strTempStr2)),
 						MSG(MEditROOpen)),
 					make_vector<string>(MSG(MYes), MSG(MNo)),
-					nullptr, nullptr, &EditorFileLongId))
+					nullptr, nullptr, &EditorFileLongId) != Message::first_button)
 				{
 					EditFile.Close();
 					SetLastError(ERROR_OPEN_FAILED); //????
@@ -1532,7 +1532,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 			if (Message(MSG_WARNING, MSG(MEditTitle),
 				make_vector<string>(Name, MSG(MEditFileGetSizeError), MSG(MEditROOpen)),
 				make_vector<string>(MSG(MYes), MSG(MNo)),
-				nullptr, nullptr, &EditorFileGetSizeErrorId))
+				nullptr, nullptr, &EditorFileGetSizeErrorId) != Message::first_button)
 			{
 				EditFile.Close();
 				SetLastError(ERROR_OPEN_FAILED); //????
@@ -1860,13 +1860,13 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 
 	if (BadConversion)
 	{
-		if(Message(MSG_WARNING,2,MSG(MWarning),MSG(MEditDataLostWarn),MSG(MEditorSaveNotRecommended),MSG(MEditorSave),MSG(MCancel)))
+		if(Message(MSG_WARNING,2,MSG(MWarning),MSG(MEditDataLostWarn),MSG(MEditorSaveNotRecommended),MSG(MEditorSave),MSG(MCancel)) == Message::first_button)
 		{
-			return SAVEFILE_CANCEL;
+			BadConversion = false;
 		}
 		else
 		{
-			BadConversion = false;
+			return SAVEFILE_CANCEL;
 		}
 	}
 
@@ -2873,7 +2873,7 @@ bool FileEditor::AskOverwrite(const string& FileName)
 		if (Message(MSG_WARNING, MSG(MEditTitle),
 			make_vector<string>(FileName, MSG(MEditExists), MSG(MEditOvr)),
 			make_vector<string>(MSG(MYes), MSG(MNo)),
-			nullptr, nullptr, &EditorAskOverwriteId))
+			nullptr, nullptr, &EditorAskOverwriteId) != Message::first_button)
 		{
 			result=false;
 		}

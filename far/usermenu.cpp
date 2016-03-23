@@ -1110,7 +1110,7 @@ bool UserMenu::DeleteMenuRecord(std::list<UserMenuItem>& Menu, const std::list<U
 	string strItemName=MenuItem->strLabel;
 	InsertQuote(strItemName);
 
-	if (Message(MSG_WARNING,2,MSG(MUserMenuTitle),MSG(!MenuItem->Submenu?MAskDeleteMenuItem:MAskDeleteSubMenuItem),strItemName.data(),MSG(MDelete),MSG(MCancel)))
+	if (Message(MSG_WARNING,2,MSG(MUserMenuTitle),MSG(!MenuItem->Submenu?MAskDeleteMenuItem:MAskDeleteSubMenuItem),strItemName.data(),MSG(MDelete),MSG(MCancel)) != Message::first_button)
 		return false;
 
 	m_MenuModified=true;

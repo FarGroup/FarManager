@@ -460,7 +460,7 @@ void Options::MaskGroupsSettings()
 			{
 			case KEY_NUMDEL:
 			case KEY_DEL:
-				if(Item && !Message(0,2,MSG(MMenuMaskGroups),MSG(MMaskGroupAskDelete), Item->data(), MSG(MDelete), MSG(MCancel)))
+				if(Item && Message(0,2,MSG(MMenuMaskGroups),MSG(MMaskGroupAskDelete), Item->data(), MSG(MDelete), MSG(MCancel)) == Message::first_button)
 				{
 					ConfigProvider().GeneralCfg()->DeleteValue(L"Masks", *Item);
 					Changed = true;
@@ -505,10 +505,10 @@ void Options::MaskGroupsSettings()
 			case KEY_CTRLR:
 			case KEY_RCTRLR:
 				{
-					if (!Message(MSG_WARNING, 2,
+					if (Message(MSG_WARNING, 2,
 						MSG(MMenuMaskGroups),
 						MSG(MMaskGroupRestore),
-						MSG(MYes),MSG(MCancel)))
+						MSG(MYes),MSG(MCancel)) == Message::first_button)
 					{
 						ApplyDefaultMaskGroups();
 						Changed = true;
@@ -2080,7 +2080,7 @@ void Options::Save(bool Manual)
 {
 	InitConfig();
 
-	if (Manual && Message(0,2,MSG(MSaveSetupTitle),MSG(MSaveSetupAsk1),MSG(MSaveSetupAsk2),MSG(MSaveSetup),MSG(MCancel)))
+	if (Manual && Message(0,2,MSG(MSaveSetupTitle),MSG(MSaveSetupAsk1),MSG(MSaveSetupAsk2),MSG(MSaveSetup),MSG(MCancel)) != Message::first_button)
 		return;
 
 	/* <ПРЕПРОЦЕССЫ> *************************************************** */

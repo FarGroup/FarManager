@@ -74,8 +74,6 @@ void GetColor(PaletteColors PaletteIndex)
 	}
 }
 
-#define CheckSize(a, b) static_assert(std::size(a) == std::size(b), "wrong array size");
-
 enum list_mode
 {
 	lm_list_normal,
@@ -321,17 +319,21 @@ void SetColors()
 		}
 		Groups[] =
 		{
-			{ MSetColorPanel, PanelItems, std::size(PanelItems) },
-			{ MSetColorDialog, DialogItems, std::size(DialogItems) },
-			{ MSetColorWarning, WarnDialogItems, std::size(WarnDialogItems) },
-			{ MSetColorMenu, MenuItems, std::size(MenuItems) },
-			{ MSetColorHMenu, HMenuItems, std::size(HMenuItems) },
-			{ MSetColorKeyBar, KeyBarItems, std::size(KeyBarItems) },
-			{ MSetColorCommandLine, CommandLineItems, std::size(CommandLineItems) },
-			{ MSetColorClock, ClockItems, std::size(ClockItems) },
-			{ MSetColorViewer, ViewerItems, std::size(ViewerItems) },
-			{ MSetColorEditor, EditorItems, std::size(EditorItems) },
-			{ MSetColorHelp, HelpItems, std::size(HelpItems) },
+			#define NAME_AND_SIZE(x) x, std::size(x)
+
+			{ MSetColorPanel,                    NAME_AND_SIZE(PanelItems) },
+			{ MSetColorDialog,                   NAME_AND_SIZE(DialogItems) },
+			{ MSetColorWarning,                  NAME_AND_SIZE(WarnDialogItems) },
+			{ MSetColorMenu,                     NAME_AND_SIZE(MenuItems) },
+			{ MSetColorHMenu,                    NAME_AND_SIZE(HMenuItems) },
+			{ MSetColorKeyBar,                   NAME_AND_SIZE(KeyBarItems) },
+			{ MSetColorCommandLine,              NAME_AND_SIZE(CommandLineItems) },
+			{ MSetColorClock,                    NAME_AND_SIZE(ClockItems) },
+			{ MSetColorViewer,                   NAME_AND_SIZE(ViewerItems) },
+			{ MSetColorEditor,                   NAME_AND_SIZE(EditorItems) },
+			{ MSetColorHelp,                     NAME_AND_SIZE(HelpItems) },
+
+			#undef NAME_AND_SIZE
 		};
 
 		const auto GroupsMenu = VMenu2::create(MSG(MSetColorGroupsTitle), nullptr, 0);
@@ -412,26 +414,30 @@ static void SetItemColors(const color_item* Items, size_t Size)
 	});
 }
 
-int ColorIndex[]=
+template<class T>
+constexpr auto distinct(T value)
 {
-#define DISTINCT(x) ((~x & 0xff) >> 4 | x)
-	DISTINCT(B_BLACK),
-	DISTINCT(B_RED),
-	DISTINCT(B_DARKGRAY),
-	DISTINCT(B_LIGHTRED),
-	DISTINCT(B_BLUE),
-	DISTINCT(B_MAGENTA),
-	DISTINCT(B_LIGHTBLUE),
-	DISTINCT(B_LIGHTMAGENTA),
-	DISTINCT(B_GREEN),
-	DISTINCT(B_BROWN),
-	DISTINCT(B_LIGHTGREEN),
-	DISTINCT(B_YELLOW),
-	DISTINCT(B_CYAN),
-	DISTINCT(B_LIGHTGRAY),
-	DISTINCT(B_LIGHTCYAN),
-	DISTINCT(B_WHITE)
-#undef DISTINCT
+	return (~value & 0xff) >> 4 | value;
+}
+
+int ColorIndex[] =
+{
+	distinct(B_BLACK),
+	distinct(B_RED),
+	distinct(B_DARKGRAY),
+	distinct(B_LIGHTRED),
+	distinct(B_BLUE),
+	distinct(B_MAGENTA),
+	distinct(B_LIGHTBLUE),
+	distinct(B_LIGHTMAGENTA),
+	distinct(B_GREEN),
+	distinct(B_BROWN),
+	distinct(B_LIGHTGREEN),
+	distinct(B_YELLOW),
+	distinct(B_CYAN),
+	distinct(B_LIGHTGRAY),
+	distinct(B_LIGHTCYAN),
+	distinct(B_WHITE)
 };
 
 static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)

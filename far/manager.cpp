@@ -668,10 +668,10 @@ void Manager::ExitMainLoop(int Ask)
 		Global->CloseFARMenu=TRUE;
 	};
 
-	if (!Ask || !Global->Opt->Confirm.Exit || !Message(0, MSG(MQuit),
+	if (!Ask || !Global->Opt->Confirm.Exit || Message(0, MSG(MQuit),
 		make_vector<string>(MSG(MAskQuit)),
 		make_vector<string>(MSG(MYes), MSG(MNo)),
-		nullptr, nullptr, &FarAskQuitId))
+		nullptr, nullptr, &FarAskQuitId) == Message::first_button)
 	{
 		/* $ 29.12.2000 IS
 		   + Проверяем, сохранены ли все измененные файлы. Если нет, то не выходим
