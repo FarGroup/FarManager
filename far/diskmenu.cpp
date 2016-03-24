@@ -1146,12 +1146,6 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 		{
 			wchar_t NewDir[] = { mitem->cDrive, L':', 0, 0 };
 
-			// In general, mitem->cDrive can contain any unicode character
-			if (mitem->cDrive >= L'A' && mitem->cDrive <= L'Z' && NetworkMask[mitem->cDrive - L'A'])
-			{
-				ConnectToNetworkDrive(NewDir);
-			}
-
 			if (FarChDir(NewDir))
 			{
 				break;

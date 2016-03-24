@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 os::drives_set AddSavedNetworkDisks(os::drives_set& Mask);
 
-void ConnectToNetworkDrive(const string& NewDir);
+bool ConnectToNetworkResource(const string& NewDir);
 
 string ExtractComputerName(const string& CurDir, string* strTail = nullptr);
 

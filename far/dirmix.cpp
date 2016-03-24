@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "interf.hpp"
 #include "elevation.hpp"
+#include "network.hpp"
 
 BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 {
@@ -53,6 +54,8 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 	bool rc = false;
 	string Drive(L"=A:");
 	string strCurDir;
+
+	bool IsNetworkDrive = false;
 
 	// если указана только буква диска, то путь возьмем из переменной
 	if (NewDir.size() == 2 && NewDir[1]==L':')
@@ -70,6 +73,13 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 		{
 			rc=os::SetCurrentDirectory(strCurDir);
 		}
+
+		if (!rc && GetLastError() == ERROR_PATH_NOT_FOUND)
+		{
+			os::drives_set NetworkDrives;
+			AddSavedNetworkDisks(NetworkDrives);
+			IsNetworkDrive = NetworkDrives[Drive[1] - L'A'];
+		}
 	}
 	else
 	{
@@ -85,6 +95,12 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 			PrepareDiskPath(strCurDir,false); // resolving not needed, very slow
 			rc=os::SetCurrentDirectory(strCurDir);
 		}
+	}
+
+	if (!rc && (IsNetworkDrive || GetLastError() == ERROR_LOGON_FAILURE))
+	{
+		ConnectToNetworkResource(strCurDir);
+		rc = os::SetCurrentDirectory(strCurDir);
 	}
 
 	if (rc || !ChangeDir)

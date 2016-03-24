@@ -43,13 +43,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 
-void GetStoredUserName(wchar_t cDrive, string &strUserName)
+static bool GetStoredUserName(wchar_t Drive, string &strUserName)
 {
 	//Тут может быть надо заюзать WNetGetUser
 	strUserName.clear();
-	const wchar_t KeyName[]={L'N',L'e',L't',L'w',L'o',L'r',L'k',L'\\',cDrive,L'\0'};
+	wchar_t KeyName[] = L"Network\?";
+	*std::prev(std::end(KeyName)) = Drive;
 
-	os::reg::GetValue(HKEY_CURRENT_USER, KeyName, L"UserName", strUserName);
+	return os::reg::GetValue(HKEY_CURRENT_USER, KeyName, L"UserName", strUserName);
 }
 
 os::drives_set AddSavedNetworkDisks(os::drives_set& Mask)
@@ -97,32 +98,48 @@ os::drives_set AddSavedNetworkDisks(os::drives_set& Mask)
 	return Result;
 }
 
-void ConnectToNetworkDrive(const string& NewDir)
+bool ConnectToNetworkResource(const string& NewDir)
 {
-	string strRemoteName;
-	DriveLocalToRemoteName(DRIVE_REMOTE_NOT_CONNECTED,NewDir[0],strRemoteName);
+	string LocalName, RemoteName;
+
+	const auto IsDrive = ParsePath(NewDir) == PATH_DRIVELETTER;
+	if (IsDrive)
+	{
+		LocalName = NewDir.substr(0, 2);
+		DriveLocalToRemoteName(DRIVE_REMOTE_NOT_CONNECTED, NewDir[0], RemoteName);
+	}
+	else
+	{
+		LocalName = NewDir;
+		RemoteName = NewDir;
+	}
+
 	string strUserName, strPassword;
-	GetStoredUserName(NewDir[0], strUserName);
-	NETRESOURCE netResource;
+	if (IsDrive)
+	{
+		GetStoredUserName(NewDir[0], strUserName);
+	}
+
+	NETRESOURCE netResource {};
 	netResource.dwType = RESOURCETYPE_DISK;
-	netResource.lpLocalName = UNSAFE_CSTR(NewDir);
-	netResource.lpRemoteName = UNSAFE_CSTR(strRemoteName);
+	netResource.lpLocalName = IsDrive? UNSAFE_CSTR(LocalName) : nullptr;
+	netResource.lpRemoteName = UNSAFE_CSTR(RemoteName);
 	netResource.lpProvider = nullptr;
 	DWORD res = WNetAddConnection2(&netResource, nullptr, EmptyToNull(strUserName.data()), 0);
 
 	if (res == ERROR_SESSION_CREDENTIAL_CONFLICT)
 		res = WNetAddConnection2(&netResource, nullptr, nullptr, 0);
 
-	if (res)
+	if (res != NO_ERROR)
 	{
 		for (;;)
 		{
-			if (!GetNameAndPassword(strRemoteName, strUserName, strPassword, nullptr, GNP_USELAST))
+			if (!GetNameAndPassword(RemoteName, strUserName, strPassword, nullptr, GNP_USELAST))
 				break;
 
 			res = WNetAddConnection2(&netResource, strPassword.data(), EmptyToNull(strUserName.data()), 0);
 
-			if (!res)
+			if (res == NO_ERROR)
 				break;
 
 			Global->CatchError();
@@ -134,6 +151,7 @@ void ConnectToNetworkDrive(const string& NewDir)
 			}
 		}
 	}
+	return res == NO_ERROR;
 }
 
 string ExtractComputerName(const string& CurDir, string* strTail)
