@@ -68,7 +68,7 @@ static inline string::const_iterator SkipRE(string::const_iterator Iterator, con
 	while (Iterator != End && (*Iterator != RE_end || *(Iterator - 1) == L'\\'))
 		++Iterator;
 
-	if (*Iterator == RE_end)
+	if (Iterator != End && *Iterator == RE_end)
 		++Iterator;
 	// options
 	return std::find_if_not(Iterator, End, IsAlpha);
