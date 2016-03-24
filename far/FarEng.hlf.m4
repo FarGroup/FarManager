@@ -1140,7 +1140,7 @@ prompt, and set the '#Local Policies/Security Options/Devices: Restrict#
     ^<wrap>For virtual devices (SUBST-disk) the parameters of the primary disk are
 shown.
 
-    ^<wrap>#Ctrl-S# toggles size display mode: float with size suffixes or bytes.
+    ^<wrap>#Ctrl-Shift-S# toggles size display mode: float with size suffixes or bytes.
 Memory size display mode also changes. Current mode - far:config #Panel.Info.ShowBytes# (default=false).
 
  2. ^<wrap>name and type of the #current disk#, type of the file system, network

@@ -537,12 +537,15 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 			}
 			break;
 		}
-		case KEY_CTRLS:
-		case KEY_RCTRLS:
+		case KEY_CTRLSHIFTS:
+		case KEY_RCTRLSHIFTS:
 		{
-			if (ActivePanel()->IsVisible() && PassivePanel()->GetType() == panel_type::INFO_PANEL)
+			if (ActivePanel()->IsVisible())
 			{
-				PassivePanel()->ProcessKey(Key);
+				if (ActivePanel()->GetType() == panel_type::INFO_PANEL)
+					ActivePanel()->ProcessKey(Key);
+				else if (PassivePanel()->IsVisible() && PassivePanel()->GetType() == panel_type::INFO_PANEL)
+					PassivePanel()->ProcessKey(Key);
 			}
 			break;
 		}
