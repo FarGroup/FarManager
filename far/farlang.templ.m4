@@ -24416,16 +24416,16 @@ MInfoCtrlF11
 ""
 
 MInfoCtrlF12
-""
-""
-""
-""
-""
-""
-""
-""
-""
-""
+"Режим"
+"Mode"
+upd:"Mode"
+upd:"Mode"
+upd:"Mode"
+upd:"Mode"
+upd:"Mode"
+upd:"Mode"
+upd:"Mode"
+"Режим"
 
 MInfoAltShiftF1
 l:

@@ -48,6 +48,8 @@ public:
 	bool GetPrevName(string& strName);
 	bool SetCurName(const string& Name);
 
+	bool empty() const { return Names.empty(); }
+
 private:
 	typedef std::vector<string> names_list;
 	names_list Names;

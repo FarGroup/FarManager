@@ -1648,7 +1648,7 @@ int Viewer::process_key(const Manager::Key& Key)
 		case KEY_ADD:
 		case KEY_SUBTRACT:
 		{
-			if (strTempViewName.empty())
+			if (!ViewNamesList.empty())
 			{
 				string strName;
 				if (LocalKey == KEY_ADD? ViewNamesList.GetNextName(strName) : ViewNamesList.GetPrevName(strName))
