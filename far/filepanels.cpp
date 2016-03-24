@@ -419,6 +419,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		return TRUE;
 	}
 
+	bool process_default = false;
 	switch (LocalKey)
 	{
 		case KEY_F1:
@@ -535,6 +536,12 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 					AnotherPanel->Show();
 				}
 			}
+			break;
+		}
+		case KEY_CTRLSHIFTS:
+		case KEY_RCTRLSHIFTS:
+		{
+			process_default = !ActivePanel()->IsVisible() || PassivePanel()->GetType() != panel_type::INFO_PANEL || !PassivePanel()->ProcessKey(Key);
 			break;
 		}
 		case KEY_CTRLO:
@@ -787,13 +794,16 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		}
 		default:
 		{
-			if (LocalKey >= KEY_CTRL0 && LocalKey <= KEY_CTRL9)
-				ChangePanelViewMode(ActivePanel(), LocalKey - KEY_CTRL0, TRUE);
-			if (!ActivePanel()->ProcessKey(Key))
-				CmdLine->ProcessKey(Key);
-
+			process_default = true;
 			break;
 		}
+	}
+	if (process_default)
+	{
+		if (LocalKey >= KEY_CTRL0 && LocalKey <= KEY_CTRL9)
+			ChangePanelViewMode(ActivePanel(), LocalKey - KEY_CTRL0, TRUE);
+		if (!ActivePanel()->ProcessKey(Key))
+			CmdLine->ProcessKey(Key);
 	}
 
 	return TRUE;
