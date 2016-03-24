@@ -537,18 +537,6 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 			}
 			break;
 		}
-		case KEY_CTRLSHIFTS:
-		case KEY_RCTRLSHIFTS:
-		{
-			if (ActivePanel()->IsVisible())
-			{
-				if (ActivePanel()->GetType() == panel_type::INFO_PANEL)
-					ActivePanel()->ProcessKey(Key);
-				else if (PassivePanel()->IsVisible() && PassivePanel()->GetType() == panel_type::INFO_PANEL)
-					PassivePanel()->ProcessKey(Key);
-			}
-			break;
-		}
 		case KEY_CTRLO:
 		case KEY_RCTRLO:
 		{
