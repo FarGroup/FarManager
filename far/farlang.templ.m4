@@ -14010,7 +14010,7 @@ upd:"Total paging file"
 "Всього файлу довантаження"
 
 MInfoPageFileFree
-"Файла подкачки (свободно)"
+"Файл подкачки (свободно)"
 "Free paging file"
 "Stránkovací soubor volný"
 "Auslagerungsdatei frei"
