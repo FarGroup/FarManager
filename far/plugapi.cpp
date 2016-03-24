@@ -1224,25 +1224,7 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 		std::vector<string> MsgItems;
 		std::vector<string> Buttons;
 
-		if (Flags & FMSG_ALLINONE)
-		{
-			std::vector<string> Strings;
-			split(Strings, reinterpret_cast<const wchar_t*>(Items), STLF_NOTRIM | STLF_ALLOWEMPTY | STLF_NOUNQUOTE | STLF_NOQUOTING, L"\n");
-			if (!Strings.empty())
-			{
-				Title = Strings[0];
-				MsgItems.assign(Strings.cbegin() + 1, Strings.cend() - ButtonsNumber);
-				Buttons.assign(Strings.cend() - ButtonsNumber, Strings.cend());
-			}
-		}
-		else
-		{
-			Title = Items[0];
-			MsgItems.assign(Items + 1, Items + ItemsNumber - ButtonsNumber);
-			Buttons.assign(Items + ItemsNumber - ButtonsNumber, Items + ItemsNumber);
-		}
-
-		switch (Flags&0x000F0000)
+		switch (Flags & 0x000F0000)
 		{
 		case FMSG_MB_OK:
 			Buttons = make_vector<string>(MSG(MOk));
@@ -1267,6 +1249,32 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 		case FMSG_MB_RETRYCANCEL:
 			Buttons = make_vector<string>(MSG(MRetry), MSG(MCancel));
 			break;
+		}
+
+		if (Flags & FMSG_ALLINONE)
+		{
+			std::vector<string> Strings;
+			split(Strings, reinterpret_cast<const wchar_t*>(Items), STLF_NOTRIM | STLF_ALLOWEMPTY | STLF_NOUNQUOTE | STLF_NOQUOTING, L"\n");
+			if (!Strings.empty())
+			{
+				Title = Strings[0];
+				MsgItems.assign(Strings.cbegin() + 1, Strings.cend() - ButtonsNumber);
+				Buttons.assign(Strings.cend() - ButtonsNumber, Strings.cend());
+			}
+		}
+		else
+		{
+			Title = Items[0];
+			if (Buttons.empty())
+			{
+				MsgItems.assign(Items + 1, Items + ItemsNumber - ButtonsNumber);
+				Buttons.assign(Items + ItemsNumber - ButtonsNumber, Items + ItemsNumber);
+			}
+			else
+			{
+				// FMSG_MB_* is active
+				MsgItems.assign(Items + 1, Items + ItemsNumber);
+			}
 		}
 
 		Plugin* PluginNumber = GuidToPlugin(PluginId);

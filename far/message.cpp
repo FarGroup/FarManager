@@ -471,7 +471,7 @@ void Message::Init(
 
 		m_ExitCode = RetCode < 0?
 			RetCode:
-			RetCode - static_cast<int>(MessageStrings.size()) - 2;
+			RetCode - FirstButtonIndex;
 	}
 	else
 	{
