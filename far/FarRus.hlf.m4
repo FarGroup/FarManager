@@ -39,6 +39,7 @@
 @History.ViewEditHistory.Lifetime=History.Config
 @Viewer.F8CPs=Editor.F8CPs
 @Editor.WordDiv=System.WordDiv
+@Panel.InfoSettings=InfoPanel
 
 @Contents
 $^#Программа управления файлами и архивами#
@@ -1170,6 +1171,10 @@ $ #Панель информации#
 
     Для виртуальных устройств (SUBST-дисков) указываются параметры
 основного диска.
+
+    ^<wrap>#Ctrl-S# меняет режим отображения размеров: плавающий с суффиксами или байты.
+Это влияет также на отображение информации о состоянии памяти.
+Текущий режим - far:config #Panel.Info.ShowBytes# (default=false).
 
  3. Информацию о состоянии памяти
     ^<wrap>Уровень загрузки памяти (100% означает, что использована вся память),

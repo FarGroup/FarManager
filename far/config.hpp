@@ -515,6 +515,7 @@ public:
 		StringOption strShowStatusInfo;
 		StringOption strFolderInfoFiles;
 		BoolOption ShowCDInfo;
+		BoolOption ShowBytes;
 	};
 
 	struct TreeOptions

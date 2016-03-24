@@ -374,7 +374,12 @@ void InfoList::DisplayObject()
 	auto size2str = [&bytes_suffix](ULONGLONG Size)
 	{
 		string str;
-		FileSizeToStr(str, Size, 16, COLUMN_FLOATSIZE | COLUMN_SHOWBYTESINDEX);
+		if (Global->Opt->InfoPanel.ShowBytes) {
+			InsertCommas(Size, str); str += L" ";
+		}
+		else {
+			FileSizeToStr(str, Size, 16, COLUMN_FLOATSIZE | COLUMN_SHOWBYTESINDEX);
+		}
 		return str += bytes_suffix;
 	};
 
@@ -754,6 +759,9 @@ int InfoList::ProcessKey(const Manager::Key& Key)
 			Parent()->Redraw();
 			return TRUE;
 		}
+		case KEY_CTRLS:
+		case KEY_RCTRLS:
+			Global->Opt->InfoPanel.ShowBytes = !Global->Opt->InfoPanel.ShowBytes; // pass to Redraw()...
 		case KEY_CTRLR:
 		case KEY_RCTRLR:
 		{

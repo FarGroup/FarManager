@@ -535,7 +535,15 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 					AnotherPanel->Show();
 				}
 			}
-
+			break;
+		}
+		case KEY_CTRLS:
+		case KEY_RCTRLS:
+		{
+			if (ActivePanel()->IsVisible() && PassivePanel()->GetType() == panel_type::INFO_PANEL)
+			{
+				PassivePanel()->ProcessKey(Key);
+			}
 			break;
 		}
 		case KEY_CTRLO:

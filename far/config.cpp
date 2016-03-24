@@ -1650,6 +1650,7 @@ void Options::InitConfigData()
 		{FSSF_PRIVATE,       NKeyPanelInfo,L"InfoUserNameFormat", OPT_DEF(InfoPanel.UserNameFormat, NameUserPrincipal)},
 		{FSSF_PRIVATE,       NKeyPanelInfo,L"ShowCDInfo", OPT_DEF(InfoPanel.ShowCDInfo, true)},
 		{FSSF_PRIVATE,       NKeyPanelInfo,L"ShowPowerStatus", OPT_DEF(InfoPanel.ShowPowerStatus, false)},
+		{FSSF_PRIVATE,       NKeyPanelInfo,L"ShowBytes", OPT_DEF(InfoPanel.ShowBytes, false) },
 
 		{FSSF_PRIVATE,       NKeyPanelLayout,L"ColoredGlobalColumnSeparator", OPT_DEF(HighlightColumnSeparator, true)},
 		{FSSF_PANELLAYOUT,   NKeyPanelLayout,L"ColumnTitles", OPT_DEF(ShowColumnTitles, true)},
