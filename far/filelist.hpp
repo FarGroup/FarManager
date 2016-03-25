@@ -64,7 +64,7 @@ namespace detail
 		DWORD NumberOfLinks;
 		DWORD NumberOfStreams;
 
-		const HighlightFiles::highlight_item* Colors;
+		mutable const HighlightFiles::highlight_item* Colors;
 		FARPANELITEMFREECALLBACK Callback;
 
 		wchar_t **CustomColumnData;
@@ -227,13 +227,13 @@ public:
 	void PluginEndSelection();
 	int PluginPanelHelp(const PluginHandle* hPlugin) const;
 	void ResetLastUpdateTime() {LastUpdateTime = 0;}
+	string GetPluginPrefix() const;
 
 	static size_t FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelItem* pi);
 	static int FileNameToPluginItem(const string& Name,PluginPanelItem& pi);
 	static void FileListToPluginItem(const FileListItem& fi,PluginPanelItem& pi);
 	static void PluginToFileListItem(const PluginPanelItem& pi,FileListItem& fi);
 	static bool IsModeFullScreen(int Mode);
-	static string &AddPluginPrefix(const FileList *SrcPanel,string &strPrefix);
 
 	struct PrevDataItem;
 
@@ -281,7 +281,7 @@ private:
 	PluginHandle* OpenPluginForFile(const string* FileName,DWORD FileAttr, OPENFILEPLUGINTYPE Type);
 	int PreparePanelView(PanelViewSettings *PanelView);
 	int PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen, bool StatusLine);
-	void PrepareViewSettings(int ViewMode, const OpenPanelInfo *PlugInfo);
+	void PrepareViewSettings(int ViewMode);
 	void PluginDelete();
 	void PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanelItem>& ItemList, int Delete, int Move, DizList *SrcDiz);
 	void PluginGetFiles(const wchar_t **DestPath,int Move);
@@ -348,6 +348,8 @@ private:
 	long CacheSelClearIndex,CacheSelClearPos;
 
 	wchar_t CustomSortIndicator[2];
+
+	mutable OpenPanelInfo m_CachedOpenPanelInfo;
 };
 
 #endif // FILELIST_HPP_825FE8AE_1E34_4DFD_B167_2D6A121B1777

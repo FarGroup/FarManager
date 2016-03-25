@@ -462,7 +462,7 @@ void HighlightFiles::UpdateCurrentTime()
 	CurrentTime = GetCurrentUTCTimeInUI64();
 }
 
-void HighlightFiles::GetHiColor(FileListItem* To, bool UseAttrHighlighting)
+const HighlightFiles::highlight_item* HighlightFiles::GetHiColor(const FileListItem& Item, bool UseAttrHighlighting)
 {
 	highlight_item item = {};
 
@@ -472,7 +472,7 @@ void HighlightFiles::GetHiColor(FileListItem* To, bool UseAttrHighlighting)
 	{
 		if (!(UseAttrHighlighting && i.IsMaskUsed()))
 		{
-			if (i.FileInFilter(To, CurrentTime))
+			if (i.FileInFilter(&Item, CurrentTime))
 			{
 				ApplyColors(item, i.GetColors());
 				if (!i.GetContinueProcessing())
@@ -489,7 +489,7 @@ void HighlightFiles::GetHiColor(FileListItem* To, bool UseAttrHighlighting)
 	if (item.Mark.Transparent)
 		item.Mark.Char = 0;
 
-	To->Colors = &*Colors.emplace(item).first;
+	return &*Colors.emplace(item).first;
 }
 
 int HighlightFiles::GetGroup(const FileListItem *fli)

@@ -267,7 +267,7 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 						{
 							OpenPanelInfo Info;
 							Global->CtrlObject->Plugins->GetOpenPanelInfo(SrcFileList->GetPluginHandle(), &Info);
-							FileList::AddPluginPrefix(SrcFileList.get(), strPathName);
+							strPathName = SrcFileList->GetPluginPrefix();
 							if (Info.HostFile && *Info.HostFile)
 							{
 								strPathName += Info.HostFile;
