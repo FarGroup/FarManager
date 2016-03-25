@@ -1251,30 +1251,34 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 			break;
 		}
 
+		const auto AssignStrings = [&](const auto& Source)
+		{
+			if (!Source.empty())
+			{
+				Title = *Source.begin();
+				if (Buttons.empty())
+				{
+					MsgItems.assign(std::next(Source.begin()), Source.end() - ButtonsNumber);
+					Buttons.assign(Source.end() - ButtonsNumber, Source.end());
+				}
+				else
+				{
+					// FMSG_MB_* is active
+					MsgItems.assign(std::next(Source.begin()), Source.end());
+				}
+			}
+
+		};
+
 		if (Flags & FMSG_ALLINONE)
 		{
 			std::vector<string> Strings;
 			split(Strings, reinterpret_cast<const wchar_t*>(Items), STLF_NOTRIM | STLF_ALLOWEMPTY | STLF_NOUNQUOTE | STLF_NOQUOTING, L"\n");
-			if (!Strings.empty())
-			{
-				Title = Strings[0];
-				MsgItems.assign(Strings.cbegin() + 1, Strings.cend() - ButtonsNumber);
-				Buttons.assign(Strings.cend() - ButtonsNumber, Strings.cend());
-			}
+			AssignStrings(Strings);
 		}
 		else
 		{
-			Title = Items[0];
-			if (Buttons.empty())
-			{
-				MsgItems.assign(Items + 1, Items + ItemsNumber - ButtonsNumber);
-				Buttons.assign(Items + ItemsNumber - ButtonsNumber, Items + ItemsNumber);
-			}
-			else
-			{
-				// FMSG_MB_* is active
-				MsgItems.assign(Items + 1, Items + ItemsNumber);
-			}
+			AssignStrings(make_range(Items, Items + ItemsNumber));
 		}
 
 		Plugin* PluginNumber = GuidToPlugin(PluginId);
