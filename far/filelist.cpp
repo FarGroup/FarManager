@@ -267,7 +267,14 @@ const string& FileListItem::Owner(const FileList* Owner) const
 {
 	if (m_Owner.size() == 1 && m_Owner.front() == values::uninitialised(wchar_t()))
 	{
-		GetFileOwner(Owner->GetComputerName(), GetItemFullName(*this, Owner), m_Owner);
+		if (Owner->GetMode() == panel_mode::NORMAL_PANEL)
+		{
+			GetFileOwner(Owner->GetComputerName(), GetItemFullName(*this, Owner), m_Owner);
+		}
+		else
+		{
+			m_Owner.clear();
+		}
 	}
 	return m_Owner;
 }
@@ -5675,13 +5682,56 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 
 FileListItem::FileListItem(const PluginPanelItem& pi)
 {
-	strName = NullToEmpty(pi.FileName);
-	strShortName = NullToEmpty(pi.AlternateFileName);
-	m_Owner = NullToEmpty(pi.Owner);
+	CreationTime = pi.CreationTime;
+	AccessTime = pi.LastAccessTime;
+	WriteTime = pi.LastWriteTime;
+	ChangeTime = pi.ChangeTime;
+
+	FileSize = pi.FileSize;
+	AllocationSize = pi.AllocationSize;
+
+	UserFlags = pi.Flags;
+	UserData = pi.UserData.Data;
+	Callback = pi.UserData.FreeData;
+
+	FileAttr = pi.FileAttributes;
+	// we don't really know, but it's better than show it as 'unknown'
+	ReparseTag = (FileAttr & FILE_ATTRIBUTE_REPARSE_POINT)? IO_REPARSE_TAG_SYMLINK : 0;
+
+	Colors = nullptr;
+
+	CustomColumnNumber = pi.CustomColumnNumber;
+
+	if (CustomColumnNumber)
+	{
+		CustomColumnData = new wchar_t*[pi.CustomColumnNumber];
+
+		for (size_t I = 0; I < pi.CustomColumnNumber; I++)
+		{
+			if (pi.CustomColumnData && pi.CustomColumnData[I])
+			{
+				CustomColumnData[I] = new wchar_t[StrLength(pi.CustomColumnData[I]) + 1];
+				wcscpy(CustomColumnData[I], pi.CustomColumnData[I]);
+			}
+			else
+			{
+				CustomColumnData[I] = new wchar_t[1];
+				CustomColumnData[I][0] = 0;
+			}
+		}
+	}
+	else
+	{
+		CustomColumnData = nullptr;
+	}
+
+	Position = 0;
+	SortGroup = DEFAULT_SORT_GROUP;
+	CRC32 = pi.CRC32;
 
 	if (pi.Description)
 	{
-		auto Str = new wchar_t[wcslen(pi.Description)+1];
+		auto Str = new wchar_t[wcslen(pi.Description) + 1];
 		wcscpy(Str, pi.Description);
 		DizText = Str;
 	}
@@ -5690,45 +5740,18 @@ FileListItem::FileListItem(const PluginPanelItem& pi)
 		DizText = nullptr;
 	}
 
-	FileSize = pi.FileSize;
-	AllocationSize = pi.AllocationSize;
-	FileAttr = pi.FileAttributes;
-	WriteTime = pi.LastWriteTime;
-	CreationTime = pi.CreationTime;
-	AccessTime = pi.LastAccessTime;
-	ChangeTime = pi.ChangeTime;
+	Selected = 0;
+	PrevSelected = 0;
+	ShowFolderSize = 0;
+
+
+	strName = NullToEmpty(pi.FileName);
+	strShortName = NullToEmpty(pi.AlternateFileName);
+	m_Owner = NullToEmpty(pi.Owner);
+
 	m_NumberOfLinks = pi.NumberOfLinks;
 	m_NumberOfStreams = 1;
-	UserFlags = pi.Flags;
-
-	UserData = pi.UserData.Data;
-	Callback = pi.UserData.FreeData;
-
-	if (pi.CustomColumnNumber>0)
-	{
-		CustomColumnData = new wchar_t*[pi.CustomColumnNumber];
-
-		for (size_t I=0; I<pi.CustomColumnNumber; I++)
-			if (pi.CustomColumnData && pi.CustomColumnData[I])
-			{
-				CustomColumnData[I] = new wchar_t[StrLength(pi.CustomColumnData[I])+1];
-				wcscpy(CustomColumnData[I], pi.CustomColumnData[I]);
-			}
-			else
-			{
-				CustomColumnData[I] = new wchar_t[1];
-				CustomColumnData[I][0] = 0;
-			}
-	}
-
-	CustomColumnNumber = pi.CustomColumnNumber;
-	CRC32 = pi.CRC32;
-
-	if (FileAttr & FILE_ATTRIBUTE_REPARSE_POINT)
-	{
-		// we don't really know, but it's better than show it as 'unknown'
-		ReparseTag = IO_REPARSE_TAG_SYMLINK;
-	}
+	m_StreamsSize = FileSize;
 }
 
 

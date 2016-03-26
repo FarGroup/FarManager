@@ -57,12 +57,12 @@ namespace detail
 
 		UINT64 UserFlags;
 		void* UserData;
+		FARPANELITEMFREECALLBACK Callback;
 
 		DWORD FileAttr;
 		DWORD ReparseTag;
 
 		mutable const HighlightFiles::highlight_item* Colors;
-		FARPANELITEMFREECALLBACK Callback;
 
 		wchar_t **CustomColumnData;
 		size_t CustomColumnNumber;
