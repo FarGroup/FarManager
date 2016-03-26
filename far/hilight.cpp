@@ -53,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "datetime.hpp"
 #include "DlgGuid.hpp"
+#include "elevation.hpp"
 
 static const struct
 {
@@ -464,6 +465,8 @@ void HighlightFiles::UpdateCurrentTime()
 
 const HighlightFiles::highlight_item* HighlightFiles::GetHiColor(const FileListItem& Item, bool UseAttrHighlighting)
 {
+	SCOPED_ACTION(elevation::suppress);
+
 	highlight_item item = {};
 
 	ApplyDefaultStartingColors(item);
