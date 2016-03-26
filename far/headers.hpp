@@ -163,6 +163,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif // __GNUC__
 
 //----------------------------------------------------------------------------
+
+using string = std::wstring;
+using namespace std::string_literals;
+
 #include "disable_warnings_in_std_end.hpp"
 
 #include "sdk.hpp"

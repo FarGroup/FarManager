@@ -54,15 +54,12 @@ namespace detail
 
 		unsigned long long FileSize;
 		unsigned long long AllocationSize;
-		unsigned long long StreamsSize;
 
 		UINT64 UserFlags;
 		void* UserData;
 
 		DWORD FileAttr;
 		DWORD ReparseTag;
-		DWORD NumberOfLinks;
-		DWORD NumberOfStreams;
 
 		mutable const HighlightFiles::highlight_item* Colors;
 		FARPANELITEMFREECALLBACK Callback;
@@ -82,20 +79,40 @@ namespace detail
 	};
 }
 
-struct FileListItem: public detail::FileListItemPod
+typedef std::unique_ptr<std::unordered_map<string, string>> content_data_ptr;
+
+class FileListItem: public detail::FileListItemPod
 {
+public:
 	NONCOPYABLE(FileListItem);
 	TRIVIALLY_MOVABLE(FileListItem);
 
+	FileListItem();
+	FileListItem(const PluginPanelItem& pi);
+
+	DWORD NumberOfLinks(const FileList* Owner) const;
+	DWORD NumberOfStreams(const FileList* Owner) const;
+	unsigned long long StreamsSize(const FileList* Owner) const;
+	const string& Owner(const FileList* Owner) const;
+	const content_data_ptr& ContentData(const FileList* Owner) const;
+
 	string strName;
 	string strShortName;
-	string strOwner;
-	std::unique_ptr<std::unordered_map<string, string>> ContentData;
 
-	FileListItem()
+	struct values
 	{
-		ClearStruct(static_cast<detail::FileListItemPod&>(*this));
-	}
+		template<class T>
+		static constexpr T uninitialised(T) { return -2; }
+		template<class T>
+		static constexpr T unknown(T) { return -1; }
+	};
+
+private:
+	mutable string m_Owner;
+	mutable DWORD m_NumberOfLinks = values::uninitialised(m_NumberOfLinks);
+	mutable DWORD m_NumberOfStreams = values::uninitialised(m_NumberOfStreams);
+	mutable uint64_t m_StreamsSize = values::uninitialised(m_StreamsSize);
+	mutable content_data_ptr m_ContentData;
 };
 
 struct PluginsListItem
@@ -229,10 +246,9 @@ public:
 	void ResetLastUpdateTime() {LastUpdateTime = 0;}
 	string GetPluginPrefix() const;
 
-	static size_t FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelItem* pi);
+	size_t FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelItem* pi) const;
 	static int FileNameToPluginItem(const string& Name,PluginPanelItem& pi);
-	static void FileListToPluginItem(const FileListItem& fi,PluginPanelItem& pi);
-	static void PluginToFileListItem(const PluginPanelItem& pi,FileListItem& fi);
+	void FileListToPluginItem(const FileListItem& fi,PluginPanelItem& pi) const;
 	static bool IsModeFullScreen(int Mode);
 
 	struct PrevDataItem;
@@ -241,6 +257,12 @@ protected:
 	virtual void ClearAllItem() override;
 
 private:
+	friend class FileListItem;
+	bool HardlinksSupported() const { return m_HardlinksSupported; }
+	bool StreamsSupported() const { return m_StreamsSupported; }
+	const string& GetComputerName() const { return m_ComputerName; }
+	content_data_ptr GetContentData(const string& Item) const;
+
 	virtual void SetSelectedFirstMode(bool Mode) override;
 	virtual void DisplayObject() override;
 	virtual int GetCurName(string &strName, string &strShortName) const override;
@@ -299,7 +321,7 @@ private:
 	bool IsColumnDisplayed(std::function<bool(const column&)> Compare);
 
 	static void DeletePluginItemList(std::vector<PluginPanelItem> &ItemList);
-	static void FillParentPoint(FileListItem& Item, size_t CurFilePos, const FILETIME* Times = nullptr, const string& Owner = string());
+	static void FillParentPoint(FileListItem& Item, size_t CurFilePos, const FILETIME* Times = nullptr);
 
 	std::unique_ptr<FileFilter> m_Filter;
 	DizList Diz;
@@ -350,6 +372,14 @@ private:
 	wchar_t CustomSortIndicator[2];
 
 	mutable OpenPanelInfo m_CachedOpenPanelInfo;
+
+	bool m_HardlinksSupported;
+	bool m_StreamsSupported;
+	string m_ComputerName;
+	std::vector<string> m_ContentNames;
+	std::vector<const wchar_t*> m_ContentNamesPtrs;
+	mutable std::vector<const wchar_t*>m_ContentValues;
+	std::vector<Plugin*> m_ContentPlugins;
 };
 
 #endif // FILELIST_HPP_825FE8AE_1E34_4DFD_B167_2D6A121B1777

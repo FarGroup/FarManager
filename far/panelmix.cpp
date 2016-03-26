@@ -661,7 +661,7 @@ const string FormatStr_DateTime(const FILETIME *FileTime,int ColumnType,unsigned
 	return strResult;
 }
 
-const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 StreamsSize, const string& strName,
+const string FormatStr_Size(__int64 Size, const string& strName,
 							DWORD FileAttributes,DWORD ShowFolderSize,DWORD ReparseTag,int ColumnType,
 							unsigned __int64 Flags,int Width,const wchar_t *CurDir)
 {
@@ -678,7 +678,7 @@ const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 St
 
 	bool dir = (0 != (FileAttributes & FILE_ATTRIBUTE_DIRECTORY));
 	bool rpt = (0 != (FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT));
-	bool have_size = !dir && (!rpt || ReparseTag==IO_REPARSE_TAG_DEDUP || FileSize > 0);
+	bool have_size = !dir && (!rpt || ReparseTag==IO_REPARSE_TAG_DEDUP || Size > 0);
 
 	if (!Streams && !Packed && !have_size && !ShowFolderSize)
 	{
@@ -791,7 +791,7 @@ const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 St
 	else
 	{
 		string strOutStr;
-		strResult<<FileSizeToStr(strOutStr,Packed?AllocationSize:Streams?StreamsSize:FileSize,Width,Flags);
+		strResult << FileSizeToStr(strOutStr, Size, Width, Flags);
 	}
 
 	return strResult;

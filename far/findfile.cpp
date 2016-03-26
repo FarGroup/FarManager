@@ -2022,10 +2022,16 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, string& strLas
 						StreamsCount=GetNumberOfLinks(FindData.strFileName);
 				}
 
+				const auto SizeToDisplay = (CurColumnType == SIZE_COLUMN)
+					? FindData.nFileSize
+					: (CurColumnType == PACKED_COLUMN)
+					? FindData.nAllocationSize
+					: (CurColumnType == STREAMSSIZE_COLUMN)
+					? StreamsSize
+					: StreamsCount; // ???
+
 				MenuText << FormatStr_Size(
-								FindData.nFileSize,
-								FindData.nAllocationSize,
-								(CurColumnType == NUMSTREAMS_COLUMN || CurColumnType == NUMLINK_COLUMN)?StreamsCount:StreamsSize,
+								SizeToDisplay,
 								DisplayName,
 								FindData.dwFileAttributes,
 								0,

@@ -98,6 +98,7 @@ static panel_mode ListPanelMode(panel_mode::NORMAL_PANEL);
 static int ListNumericSort,ListCaseSensitiveSort;
 static PluginHandle* hSortPlugin;
 
+
 enum SELECT_MODES
 {
 	SELECT_INVERT,
@@ -115,10 +116,13 @@ enum SELECT_MODES
 
 namespace custom_sort
 {
+	static FileList* FileListPtr;
 
-static void FileListToSortingPanelItem(const FileListItem *arr, int index, SortingPanelItem& pi)
+static void FileListToSortingPanelItem(const FileListItem *arr, int index, SortingPanelItem* ppi)
 {
-	const FileListItem& fi = arr[index];
+	const auto& fi = arr[index];
+	auto& pi = *ppi;
+
 	pi.FileName = fi.strName.data();               //! CHANGED
 	pi.AlternateFileName = fi.strShortName.data(); //! CHANGED
 	pi.FileSize=fi.FileSize;
@@ -128,7 +132,7 @@ static void FileListToSortingPanelItem(const FileListItem *arr, int index, Sorti
 	pi.CreationTime=fi.CreationTime;
 	pi.LastAccessTime=fi.AccessTime;
 	pi.ChangeTime=fi.ChangeTime;
-	pi.NumberOfLinks=fi.NumberOfLinks;
+	pi.NumberOfLinks = fi.NumberOfLinks(FileListPtr);
 	pi.Flags=fi.UserFlags;
 
 	if (fi.Selected)
@@ -144,9 +148,9 @@ static void FileListToSortingPanelItem(const FileListItem *arr, int index, Sorti
 	pi.CRC32=fi.CRC32;
 	pi.Position=fi.Position;                        //! CHANGED
 	pi.SortGroup=fi.SortGroup - DEFAULT_SORT_GROUP; //! CHANGED
-	pi.Owner = EmptyToNull(fi.strOwner.data());
-	pi.NumberOfStreams=fi.NumberOfStreams;
-	pi.StreamsSize=fi.StreamsSize;
+	pi.Owner = EmptyToNull(fi.Owner(FileListPtr).data());
+	pi.NumberOfStreams=fi.NumberOfStreams(FileListPtr);
+	pi.StreamsSize=fi.StreamsSize(FileListPtr);
 }
 
 struct CustomSort
@@ -154,7 +158,7 @@ struct CustomSort
 	unsigned int        *Positions;
 	const FileListItem  *Items;
 	size_t               ItemsCount;
-	decltype(FileListToSortingPanelItem)* FileListToPluginItem;
+	void(*FileListToPluginItem)(const FileListItem*, int, SortingPanelItem*);
 	int                  ListSortGroups;
 	int                  ListSelectedFirst;
 	int                  ListDirectoriesFirst;
@@ -192,6 +196,90 @@ bool CanSort(int SortMode)
 }
 
 };
+
+FileListItem::FileListItem()
+{
+	ClearStruct(static_cast<detail::FileListItemPod&>(*this));
+	m_Owner.assign(1, values::uninitialised(wchar_t()));
+}
+
+inline static string GetItemFullName(const FileListItem& Item, const FileList* Owner)
+{
+	return Owner->GetCurDir() + L"\\"s + (TestParentFolderName(Item.strName) ? L""s : Item.strName);
+}
+
+DWORD FileListItem::NumberOfLinks(const FileList* Owner) const
+{
+	if (m_NumberOfLinks == values::uninitialised(m_NumberOfLinks))
+	{
+		if (FileAttr & FILE_ATTRIBUTE_DIRECTORY || !Owner->HardlinksSupported())
+		{
+			m_NumberOfLinks = 1;
+		}
+		else
+		{
+			SCOPED_ACTION(elevation::suppress);
+			auto Value = GetNumberOfLinks(GetItemFullName(*this, Owner), true);
+			m_NumberOfLinks = Value < 0 ? values::unknown(m_NumberOfLinks) : Value;
+		}
+	}
+	return m_NumberOfLinks;
+}
+
+static void GetStreamsCountAndSize(const FileList* Owner, const FileListItem& Item, uint64_t& StreamsSize, DWORD& NumberOfStreams, bool Supported)
+{
+	if (!Supported)
+	{
+		StreamsSize = Item.FileSize;
+		NumberOfStreams = 1;
+	}
+	else
+	{
+		SCOPED_ACTION(elevation::suppress);
+
+		if (!EnumStreams(GetItemFullName(Item, Owner), StreamsSize, NumberOfStreams))
+		{
+			StreamsSize = FileListItem::values::unknown(StreamsSize);
+			NumberOfStreams = FileListItem::values::unknown(NumberOfStreams);
+		}
+	}
+}
+
+DWORD FileListItem::NumberOfStreams(const FileList* Owner) const
+{
+	if (m_NumberOfStreams == values::uninitialised(m_NumberOfStreams))
+	{
+		GetStreamsCountAndSize(Owner, *this, m_StreamsSize, m_NumberOfStreams, Owner->StreamsSupported());
+	}
+	return m_NumberOfStreams;
+}
+
+unsigned long long FileListItem::StreamsSize(const FileList* Owner) const
+{
+	if (m_StreamsSize == values::uninitialised(m_StreamsSize))
+	{
+		GetStreamsCountAndSize(Owner, *this, m_StreamsSize, m_NumberOfStreams, Owner->StreamsSupported());
+	}
+	return m_StreamsSize;
+}
+
+const string& FileListItem::Owner(const FileList* Owner) const
+{
+	if (m_Owner.size() == 1 && m_Owner.front() == values::uninitialised(wchar_t()))
+	{
+		GetFileOwner(Owner->GetComputerName(), GetItemFullName(*this, Owner), m_Owner);
+	}
+	return m_Owner;
+}
+
+const content_data_ptr& FileListItem::ContentData(const FileList* Owner) const
+{
+	if (!m_ContentData)
+	{
+		m_ContentData = Owner->GetContentData(GetItemFullName(*this, Owner));
+	}
+	return m_ContentData;
+}
 
 struct FileList::PrevDataItem
 {
@@ -249,7 +337,9 @@ FileList::FileList(private_tag, window_ptr Owner):
 	CacheSelClearIndex(-1),
 	CacheSelClearPos(0),
 	CustomSortIndicator(),
-	m_CachedOpenPanelInfo()
+	m_CachedOpenPanelInfo(),
+	m_HardlinksSupported(),
+	m_StreamsSupported()
 {
 	_OT(SysLog(L"[%p] FileList::FileList()", this));
 	{
@@ -375,8 +465,10 @@ void FileList::CorrectPosition()
 		m_CurTopFile=m_CurFile-m_Columns*m_Height+1;
 }
 
-static struct list_less
+class list_less
 {
+public:
+	list_less(const FileList* Owner): m_Owner(Owner) {}
 	bool operator()(const FileListItem& a, const FileListItem& b) const
 	{
 		const auto less_opt = [](bool less)
@@ -429,8 +521,8 @@ static struct list_less
 		if (hSortPlugin)
 		{
 			PluginPanelItem pi1, pi2;
-			FileList::FileListToPluginItem(a, pi1);
-			FileList::FileListToPluginItem(b, pi2);
+			m_Owner->FileListToPluginItem(a, pi1);
+			m_Owner->FileListToPluginItem(b, pi2);
 			pi1.Flags = a.Selected? PPIF_SELECTED : 0;
 			pi2.Flags = b.Selected? PPIF_SELECTED : 0;
 			RetCode = Global->CtrlObject->Plugins->Compare(hSortPlugin, &pi1, &pi2, static_cast<int>(ListSortMode) + (SM_UNSORTED - static_cast<int>(panel_sort::UNSORTED)));
@@ -532,7 +624,7 @@ static struct list_less
 				break;
 
 		case panel_sort::BY_OWNER:
-				RetCode = StrCmpI(a.strOwner, b.strOwner);
+				RetCode = StrCmpI(a.Owner(m_Owner), b.Owner(m_Owner));
 				if (RetCode)
 					return less_opt(RetCode < 0);
 				break;
@@ -543,19 +635,28 @@ static struct list_less
 				break;
 
 		case panel_sort::BY_NUMLINKS:
-				if (a.NumberOfLinks != b.NumberOfLinks)
-					return less_opt(a.NumberOfLinks < b.NumberOfLinks);
-				break;
+			{
+				const auto aValue{ a.NumberOfLinks(m_Owner) }, bValue{ b.NumberOfLinks(m_Owner) };
+				if (aValue != bValue)
+					return less_opt(aValue < bValue);
+			}
+			break;
 
 		case panel_sort::BY_NUMSTREAMS:
-				if (a.NumberOfStreams != b.NumberOfStreams)
-					return less_opt(a.NumberOfStreams < b.NumberOfStreams);
-				break;
+			{
+				const auto aValue{ a.NumberOfStreams(m_Owner) }, bValue{ b.NumberOfStreams(m_Owner) };
+				if (aValue != bValue)
+					return less_opt(aValue < bValue);
+			}
+			break;
 
 		case panel_sort::BY_STREAMSSIZE:
-				if (a.StreamsSize != b.StreamsSize)
-					return less_opt(a.StreamsSize < b.StreamsSize);
-				break;
+			{
+				const auto aValue{ a.StreamsSize(m_Owner) }, bValue{ b.StreamsSize(m_Owner) };
+				if (aValue != bValue)
+					return less_opt(aValue < bValue);
+			}
+			break;
 
 		case panel_sort::BY_FULLNAME:
 				UseReverseNameSort = true;
@@ -649,8 +750,11 @@ static struct list_less
 
 		return UseReverseNameSort? less_opt(NameCmp < 0) : NameCmp < 0;
 	}
-}
-ListLess;
+
+private:
+	const FileList* const m_Owner;
+};
+
 
 void FileList::SortFileList(int KeepPosition)
 {
@@ -683,11 +787,12 @@ void FileList::SortFileList(int KeepPosition)
 
 		if (m_SortMode < panel_sort::COUNT)
 		{
-			std::sort(ALL_RANGE(m_ListData), ListLess);
+			std::sort(ALL_RANGE(m_ListData), list_less(this));
 		}
 		else
 		{
 			custom_sort::CustomSort cs;
+			custom_sort::FileListPtr = this;
 			std::vector<unsigned int> Positions(m_ListData.size());
 			std::iota(ALL_RANGE(Positions), 0);
 			cs.Positions = Positions.data();
@@ -3612,10 +3717,14 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 					case PACKED_COLUMN:
 					case STREAMSSIZE_COLUMN:
 					{
+						const auto SizeToDisplay = (ColumnType == PACKED_COLUMN)
+							? m_ListData[ListPos].AllocationSize
+							: (ColumnType == STREAMSSIZE_COLUMN)
+							? m_ListData[ListPos].StreamsSize()
+							: m_ListData[ListPos].FileSize;
+
 						Dest.append(FormatStr_Size(
-							m_ListData[ListPos].FileSize,
-							m_ListData[ListPos].AllocationSize,
-							m_ListData[ListPos].StreamsSize,
+							SizeToDisplay,
 							m_ListData[ListPos].strName,
 							m_ListData[ListPos].FileAttr,
 							m_ListData[ListPos].ShowFolderSize,
@@ -5455,7 +5564,7 @@ int FileList::FileNameToPluginItem(const string& Name,PluginPanelItem& pi)
 }
 
 
-void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItem& pi)
+void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItem& pi) const
 {
 	pi.FileName = DuplicateString(fi.strName.data());
 	pi.AlternateFileName = DuplicateString(fi.strShortName.data());
@@ -5466,7 +5575,7 @@ void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItem& pi)
 	pi.CreationTime=fi.CreationTime;
 	pi.LastAccessTime=fi.AccessTime;
 	pi.ChangeTime=fi.ChangeTime;
-	pi.NumberOfLinks=fi.NumberOfLinks;
+	pi.NumberOfLinks=fi.NumberOfLinks(this);
 	pi.Flags=fi.UserFlags;
 
 	if (fi.Selected)
@@ -5481,10 +5590,10 @@ void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItem& pi)
 
 	pi.CRC32=fi.CRC32;
 	pi.Reserved[0]=pi.Reserved[1]=0;
-	pi.Owner = EmptyToNull(fi.strOwner.data());
+	pi.Owner = EmptyToNull(fi.Owner(this).data());
 }
 
-size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelItem* gpi)
+size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelItem* gpi) const
 {
 	size_t size = aligned_sizeof<PluginPanelItem>::value, offset = size;
 	size+=fi.CustomColumnNumber*sizeof(wchar_t*);
@@ -5492,7 +5601,7 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 	size+=sizeof(wchar_t)*(fi.strShortName.size()+1);
 	size+=std::accumulate(fi.CustomColumnData, fi.CustomColumnData + fi.CustomColumnNumber, size_t(0), [](size_t size, const wchar_t* i) { return size + (i? (wcslen(i) + 1) * sizeof(wchar_t) : 0); });
 	size+=fi.DizText?sizeof(wchar_t)*(wcslen(fi.DizText)+1):0;
-	size+=fi.strOwner.empty()?0:sizeof(wchar_t)*(fi.strOwner.size()+1);
+	size += fi.Owner(this).empty()? 0 : sizeof(wchar_t) * (fi.Owner(this).size() + 1);
 
 	if (gpi)
 	{
@@ -5507,7 +5616,7 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 			gpi->Item->CreationTime=fi.CreationTime;
 			gpi->Item->LastAccessTime=fi.AccessTime;
 			gpi->Item->ChangeTime=fi.ChangeTime;
-			gpi->Item->NumberOfLinks=fi.NumberOfLinks;
+			gpi->Item->NumberOfLinks = fi.NumberOfLinks(this);
 			gpi->Item->Flags=fi.UserFlags;
 			if (fi.Selected)
 				gpi->Item->Flags|=PPIF_SELECTED;
@@ -5551,74 +5660,74 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 			}
 
 
-			if (fi.strOwner.empty())
+			if (fi.Owner(this).empty())
 			{
 				gpi->Item->Owner=nullptr;
 			}
 			else
 			{
-				gpi->Item->Owner=wcscpy((wchar_t*)data,fi.strOwner.data());
+				gpi->Item->Owner = wcscpy((wchar_t*)data, fi.Owner(this).data());
 			}
 		}
 	}
 	return size;
 }
 
-void FileList::PluginToFileListItem(const PluginPanelItem& pi,FileListItem& fi)
+FileListItem::FileListItem(const PluginPanelItem& pi)
 {
-	fi.strName = NullToEmpty(pi.FileName);
-	fi.strShortName = NullToEmpty(pi.AlternateFileName);
-	fi.strOwner = NullToEmpty(pi.Owner);
+	strName = NullToEmpty(pi.FileName);
+	strShortName = NullToEmpty(pi.AlternateFileName);
+	m_Owner = NullToEmpty(pi.Owner);
 
 	if (pi.Description)
 	{
 		auto Str = new wchar_t[wcslen(pi.Description)+1];
 		wcscpy(Str, pi.Description);
-		fi.DizText = Str;
+		DizText = Str;
 	}
 	else
 	{
-		fi.DizText = nullptr;
+		DizText = nullptr;
 	}
 
-	fi.FileSize=pi.FileSize;
-	fi.AllocationSize=pi.AllocationSize;
-	fi.FileAttr=pi.FileAttributes;
-	fi.WriteTime=pi.LastWriteTime;
-	fi.CreationTime=pi.CreationTime;
-	fi.AccessTime=pi.LastAccessTime;
-	fi.ChangeTime = pi.ChangeTime;
-	fi.NumberOfLinks=pi.NumberOfLinks;
-	fi.NumberOfStreams=1;
-	fi.UserFlags=pi.Flags;
+	FileSize = pi.FileSize;
+	AllocationSize = pi.AllocationSize;
+	FileAttr = pi.FileAttributes;
+	WriteTime = pi.LastWriteTime;
+	CreationTime = pi.CreationTime;
+	AccessTime = pi.LastAccessTime;
+	ChangeTime = pi.ChangeTime;
+	m_NumberOfLinks = pi.NumberOfLinks;
+	m_NumberOfStreams = 1;
+	UserFlags = pi.Flags;
 
-	fi.UserData=pi.UserData.Data;
-	fi.Callback=pi.UserData.FreeData;
+	UserData = pi.UserData.Data;
+	Callback = pi.UserData.FreeData;
 
 	if (pi.CustomColumnNumber>0)
 	{
-		fi.CustomColumnData=new wchar_t*[pi.CustomColumnNumber];
+		CustomColumnData = new wchar_t*[pi.CustomColumnNumber];
 
 		for (size_t I=0; I<pi.CustomColumnNumber; I++)
 			if (pi.CustomColumnData && pi.CustomColumnData[I])
 			{
-				fi.CustomColumnData[I]=new wchar_t[StrLength(pi.CustomColumnData[I])+1];
-				wcscpy(fi.CustomColumnData[I],pi.CustomColumnData[I]);
+				CustomColumnData[I] = new wchar_t[StrLength(pi.CustomColumnData[I])+1];
+				wcscpy(CustomColumnData[I], pi.CustomColumnData[I]);
 			}
 			else
 			{
-				fi.CustomColumnData[I]=new wchar_t[1];
-				fi.CustomColumnData[I][0]=0;
+				CustomColumnData[I] = new wchar_t[1];
+				CustomColumnData[I][0] = 0;
 			}
 	}
 
-	fi.CustomColumnNumber=pi.CustomColumnNumber;
-	fi.CRC32=pi.CRC32;
+	CustomColumnNumber = pi.CustomColumnNumber;
+	CRC32 = pi.CRC32;
 
-	if (fi.FileAttr & FILE_ATTRIBUTE_REPARSE_POINT)
+	if (FileAttr & FILE_ATTRIBUTE_REPARSE_POINT)
 	{
 		// we don't really know, but it's better than show it as 'unknown'
-		fi.ReparseTag = IO_REPARSE_TAG_SYMLINK;
+		ReparseTag = IO_REPARSE_TAG_SYMLINK;
 	}
 }
 
@@ -6604,38 +6713,30 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 	m_ListData.clear();
 
-	bool ReadOwners = IsColumnDisplayed(OWNER_COLUMN);
-	bool ReadNumLinks = IsColumnDisplayed(NUMLINK_COLUMN);
-	bool ReadNumStreams = IsColumnDisplayed(NUMSTREAMS_COLUMN);
-	bool ReadStreamsSize = IsColumnDisplayed(STREAMSSIZE_COLUMN);
+	m_HardlinksSupported = true;
+	m_StreamsSupported = true;
 
 	if (IsWindows7OrGreater())
 	{
 		if (!(FileSystemFlags & FILE_SUPPORTS_HARD_LINKS))
 		{
-			ReadNumLinks = false;
+			m_HardlinksSupported = false;
 		}
 	}
 	else
 	{
 		if (FileSystemName != L"NTFS")
 		{
-			ReadNumLinks = false;
+			m_HardlinksSupported = false;
 		}
 	}
 
 	if(!(FileSystemFlags&FILE_NAMED_STREAMS))
 	{
-		ReadNumStreams = false;
-		ReadStreamsSize = false;
+		m_StreamsSupported = false;
 	}
 
-	string strComputerName;
-
-	if (ReadOwners)
-	{
-		strComputerName = ExtractComputerName(m_CurDir);
-	}
+	m_ComputerName = ExtractComputerName(m_CurDir);
 
 	SetLastError(ERROR_SUCCESS);
 	// сформируем заголовок вне цикла
@@ -6659,9 +6760,12 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	DWORD FindErrorCode = ERROR_SUCCESS;
 	bool UseFilter=m_Filter->IsEnabledOnPanel();
 
-	std::vector<const wchar_t*> ContentNames, ContentValues;
-	std::vector<Plugin*> ContentPlugins;
 	{
+		m_ContentPlugins.clear();
+		m_ContentNames.clear();
+		m_ContentNamesPtrs.clear();
+		m_ContentValues.clear();
+
 		std::unordered_set<string> ColumnsSet;
 		const std::vector<column>* ColumnsContainers[] = { &m_ViewSettings.PanelColumns, &m_ViewSettings.StatusColumns };
 
@@ -6672,15 +6776,19 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 				if ((Column.type & 0xff) == CUSTOM_COLUMN0)
 				{
 					if (ColumnsSet.emplace(Column.title).second)
-						ContentNames.emplace_back(Column.title.data());
+					{
+						m_ContentNames.emplace_back(Column.title);
+					}
 				}
 			}
 		}
 
-		if (!ContentNames.empty())
+		if (!m_ContentNames.empty())
 		{
-			ContentPlugins = Global->CtrlObject->Plugins->GetContentPlugins(ContentNames);
-			ContentValues.resize(ContentNames.size());
+			m_ContentNamesPtrs.reserve(m_ContentNames.size());
+			std::transform(ALL_CONST_RANGE(m_ContentNames), std::back_inserter(m_ContentNamesPtrs), [](const auto& i) { return i.data(); });
+			m_ContentPlugins = Global->CtrlObject->Plugins->GetContentPlugins(m_ContentNamesPtrs);
+			m_ContentValues.resize(m_ContentNames.size());
 		}
 	}
 
@@ -6706,7 +6814,6 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 				NewItem.strName = fdata.strFileName;
 				NewItem.strShortName = fdata.strAlternateFileName;
 				NewItem.Position = m_ListData.size();
-				NewItem.NumberOfLinks = 1;
 
 				if (fdata.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
 				{
@@ -6715,37 +6822,9 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 				if (!(fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 				{
 					TotalFileSize += NewItem.FileSize;
-
-					if (ReadNumLinks)
-						NewItem.NumberOfLinks = GetNumberOfLinks(fdata.strFileName, true);
-				}
-				else
-				{
-					NewItem.AllocationSize = 0;
 				}
 
 				NewItem.SortGroup = DEFAULT_SORT_GROUP;
-
-				if (ReadOwners)
-				{
-					string strOwner;
-					GetFileOwner(strComputerName, NewItem.strName, strOwner);
-					NewItem.strOwner = strOwner;
-				}
-
-				NewItem.NumberOfStreams = NewItem.FileAttr&FILE_ATTRIBUTE_DIRECTORY ? 0 : 1;
-				NewItem.StreamsSize = NewItem.FileSize;
-
-				if (ReadNumStreams || ReadStreamsSize)
-				{
-					EnumStreams(TestParentFolderName(fdata.strFileName) ? m_CurDir : fdata.strFileName, NewItem.StreamsSize, NewItem.NumberOfStreams);
-				}
-
-				if (!ContentPlugins.empty())
-				{
-					NewItem.ContentData = std::make_unique<decltype(NewItem.ContentData)::element_type>();
-					Global->CtrlObject->Plugins->GetContentData(ContentPlugins, NewItem.strName, ContentNames, ContentValues, *NewItem.ContentData.get());
-				}
 
 				m_ListData.emplace_back(std::move(NewItem));
 			}
@@ -6806,17 +6885,11 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 	if ((Global->Opt->ShowDotsInRoot || !bCurDirRoot) || (NetRoot && Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Network.Id))) // NetWork Plugin
 	{
-		string TwoDotsOwner;
-		if (ReadOwners)
-		{
-			GetFileOwner(strComputerName,m_CurDir,TwoDotsOwner);
-		}
-
 		FILETIME TwoDotsTimes[4]={};
 		os::GetFileTimeSimple(m_CurDir,&TwoDotsTimes[0],&TwoDotsTimes[1],&TwoDotsTimes[2],&TwoDotsTimes[3]);
 
 		FileListItem NewItem;
-		FillParentPoint(NewItem, m_ListData.size() + 1, TwoDotsTimes, TwoDotsOwner);
+		FillParentPoint(NewItem, m_ListData.size() + 1, TwoDotsTimes);
 		m_ListData.emplace_back(std::move(NewItem));
 	}
 
@@ -6840,7 +6913,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 			auto PluginPtr = PanelData;
 			for (auto& i: make_range(m_ListData.begin() + OldSize, m_ListData.end()))
 			{
-				PluginToFileListItem(*PluginPtr, i);
+				i = *PluginPtr;
 				i.Position = Position;
 				TotalFileSize += PluginPtr->FileSize;
 				i.PrevSelected = i.Selected=0;
@@ -7124,8 +7197,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 		if (!Global->Opt->ShowHidden && (PanelData[i].FileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM)))
 			continue;
 
-		FileListItem NewItem;
-		PluginToFileListItem(PanelData[i], NewItem);
+		FileListItem NewItem = PanelData[i];
 		NewItem.Position = i;
 
 		NewItem.SortGroup = (m_CachedOpenPanelInfo.Flags & OPIF_DISABLESORTGROUPS)? DEFAULT_SORT_GROUP : Global->CtrlObject->HiFiles->GetGroup(&NewItem);
@@ -7325,7 +7397,7 @@ void FileList::ReadSortGroups(bool UpdateFilterCurrentTime)
 }
 
 // занести предопределенные данные для каталога ".."
-void FileList::FillParentPoint(FileListItem& Item, size_t CurFilePos, const FILETIME* Times, const string& Owner)
+void FileList::FillParentPoint(FileListItem& Item, size_t CurFilePos, const FILETIME* Times)
 {
 	Item.FileAttr = FILE_ATTRIBUTE_DIRECTORY;
 	Item.strName = L"..";
@@ -7339,7 +7411,6 @@ void FileList::FillParentPoint(FileListItem& Item, size_t CurFilePos, const FILE
 		Item.ChangeTime = Times[3];
 	}
 
-	Item.strOwner = Owner;
 	Item.Position = CurFilePos;
 }
 
@@ -8259,7 +8330,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 					if (!ColumnData)
 					{
-						const auto& ContentMapPtr = m_ListData[ListPos].ContentData;
+						const auto& ContentMapPtr = m_ListData[ListPos].ContentData(this);
 						if (ContentMapPtr)
 						{
 							const auto Iterator = ContentMapPtr->find(Columns[K].title);
@@ -8477,10 +8548,14 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 						case PACKED_COLUMN:
 						case STREAMSSIZE_COLUMN:
 						{
+							const auto SizeToDisplay = (ColumnType == PACKED_COLUMN)
+								? m_ListData[ListPos].AllocationSize
+								: (ColumnType == STREAMSSIZE_COLUMN)
+									? m_ListData[ListPos].StreamsSize(this)
+									: m_ListData[ListPos].FileSize;
+
 							Text(FormatStr_Size(
-								m_ListData[ListPos].FileSize,
-								m_ListData[ListPos].AllocationSize,
-								m_ListData[ListPos].StreamsSize,
+								SizeToDisplay,
 								m_ListData[ListPos].strName,
 								m_ListData[ListPos].FileAttr,
 								m_ListData[ListPos].ShowFolderSize,
@@ -8555,11 +8630,15 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 						case OWNER_COLUMN:
 						{
-							const wchar_t* Owner=m_ListData[ListPos].strOwner.data();
+							auto Owner = m_ListData[ListPos].Owner(this).data();
 
-							if (!(Columns[K].type & COLUMN_FULLOWNER) && m_PanelMode != panel_mode::PLUGIN_PANEL)
+							if (!*Owner)
 							{
-								const auto SlashPos = FindSlash(m_ListData[ListPos].strOwner);
+								Owner = L"?";
+							}
+							else if (!(Columns[K].type & COLUMN_FULLOWNER) && m_PanelMode != panel_mode::PLUGIN_PANEL)
+							{
+								const auto SlashPos = FindSlash(m_ListData[ListPos].Owner(this));
 								if (SlashPos != string::npos)
 								{
 									Owner += SlashPos + 1;
@@ -8588,17 +8667,21 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 						case NUMLINK_COLUMN:
 						{
-							int nlink = m_ListData[ListPos].NumberOfLinks;
-							if (nlink >= 0)
-								Global->FS << fmt::ExactWidth(ColumnWidth) << nlink;
-							else
+							const auto Value = m_ListData[ListPos].NumberOfLinks(this);
+							if (Value == FileListItem::values::unknown(Value))
 								Global->FS << fmt::ExactWidth(ColumnWidth) << L"?";
+							else
+								Global->FS << fmt::ExactWidth(ColumnWidth) << Value;
 							break;
 						}
 
 						case NUMSTREAMS_COLUMN:
 						{
-							Global->FS << fmt::ExactWidth(ColumnWidth)<<m_ListData[ListPos].NumberOfStreams;
+							const auto Value = m_ListData[ListPos].NumberOfStreams(this);
+							if (Value == FileListItem::values::unknown(Value))
+								Global->FS << fmt::ExactWidth(ColumnWidth) << L"?";
+							else
+								Global->FS << fmt::ExactWidth(ColumnWidth) << Value;
 							break;
 						}
 
@@ -8690,4 +8773,15 @@ bool FileList::IsColumnDisplayed(std::function<bool(const column&)> Compare)
 bool FileList::IsColumnDisplayed(int Type)
 {
 	return IsColumnDisplayed([&Type](const column& i) {return static_cast<int>(i.type & 0xff) == Type;});
+}
+
+content_data_ptr FileList::GetContentData(const string& Item) const
+{
+	content_data_ptr Result;
+	if (!m_ContentPlugins.empty())
+	{
+		Result = std::make_unique<decltype(Result)::element_type>();
+		Global->CtrlObject->Plugins->GetContentData(m_ContentPlugins, Item, m_ContentNamesPtrs, m_ContentValues, *Result.get());
+	}
+	return Result;
 }

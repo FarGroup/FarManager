@@ -59,12 +59,19 @@ public:
 	TRIVIALLY_COPYABLE(TVar);
 	TRIVIALLY_MOVABLE(TVar);
 
-	TVar();
-	TVar(long long);
-	TVar(const string&);
-	TVar(const wchar_t*);
-	TVar(int);
-	TVar(double);
+	explicit TVar();
+	explicit TVar(int);
+	explicit TVar(long long);
+	explicit TVar(const string&);
+	explicit TVar(const wchar_t*);
+	explicit TVar(double);
+
+	COPY_AND_SWAP(TVar, long long);
+	COPY_AND_SWAP(TVar, const string&);
+	COPY_AND_SWAP(TVar, const wchar_t*);
+	COPY_AND_SWAP(TVar, int);
+	COPY_AND_SWAP(TVar, double);
+
 
 	TVar& operator+=(const TVar& b)  { return *this = *this + b; }
 	TVar operator-() const;

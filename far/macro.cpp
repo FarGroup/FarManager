@@ -1477,14 +1477,14 @@ static std::vector<TVar> parseParams(size_t Count, FarMacroCall* Data)
 	const auto argNum = std::min(Data->Count, Count);
 	std::vector<TVar> Params;
 	Params.reserve(Count);
-	std::transform(Data->Values, Data->Values + argNum, std::back_inserter(Params), [](const auto& i) -> TVar
+	std::transform(Data->Values, Data->Values + argNum, std::back_inserter(Params), [](const auto& i)
 	{
 		switch (i.Type)
 		{
-			case FMVT_INTEGER: return i.Integer;
-			case FMVT_BOOLEAN: return i.Boolean;
-			case FMVT_DOUBLE: return i.Double;
-			case FMVT_STRING: return i.String;
+			case FMVT_INTEGER: return TVar(i.Integer);
+			case FMVT_BOOLEAN: return TVar(i.Boolean);
+			case FMVT_DOUBLE: return TVar(i.Double);
+			case FMVT_STRING: return TVar(i.String);
 			default: return TVar();
 		}
 	});
@@ -3157,7 +3157,7 @@ static bool menushowFunc(FarMacroCall* Data)
 	if (strItems.back() != L'\n')
 		strItems.append(L"\n");
 
-	TVar Result = -1;
+	TVar Result(-1);
 	int BoxType = (Flags & 0x7)?(Flags & 0x7)-1:3;
 	bool bResultAsIndex = (Flags & 0x08) != 0;
 	bool bMultiSelect = (Flags & 0x010) != 0;
@@ -3408,14 +3408,14 @@ static bool menushowFunc(FarMacroCall* Data)
 					if (bResultAsIndex)
 					{
 						_i64tow(i+1,temp,10);
-						Result+=temp;
+						Result += TVar(temp);
 					}
 					else
-						Result += Menu->at(i).strName.data() + nLeftShift;
-					Result+=L"\n";
+						Result += TVar(Menu->at(i).strName.data() + nLeftShift);
+					Result += TVar(L"\n");
 				}
 			}
-			if(Result==L"")
+			if(Result == TVar(L""))
 			{
 				if (bResultAsIndex)
 				{
@@ -4574,7 +4574,7 @@ static bool panelitemFunc(FarMacroCall* Data)
 				PassBoolean(filelistItem->Selected, Data);
 				return false;
 			case 9:  // NumberOfLinks
-				PassNumber(filelistItem->NumberOfLinks, Data);
+				PassNumber(filelistItem->NumberOfLinks(fileList.get()), Data);
 				return false;
 			case 10:  // SortGroup
 				PassBoolean(filelistItem->SortGroup, Data);
@@ -4583,7 +4583,7 @@ static bool panelitemFunc(FarMacroCall* Data)
 				Ret=TVar((const wchar_t *)filelistItem->DizText);
 				break;
 			case 12:  // Owner
-				Ret=TVar(filelistItem->strOwner);
+				Ret = TVar(filelistItem->Owner(fileList.get()));
 				break;
 			case 13:  // CRC32
 				PassNumber(filelistItem->CRC32, Data);
@@ -4601,10 +4601,10 @@ static bool panelitemFunc(FarMacroCall* Data)
 				PassInteger(FileTimeToUI64(filelistItem->WriteTime), Data);
 				return false;
 			case 18: // NumberOfStreams
-				PassNumber(filelistItem->NumberOfStreams, Data);
+				PassNumber(filelistItem->NumberOfStreams(fileList.get()), Data);
 				return false;
 			case 19: // StreamsSize
-				PassInteger(filelistItem->StreamsSize, Data);
+				PassInteger(filelistItem->StreamsSize(fileList.get()), Data);
 				return false;
 			case 20:  // ChangeTime
 				ConvertDate(filelistItem->ChangeTime,strDate,strTime,8,FALSE,FALSE,TRUE);
@@ -4776,7 +4776,7 @@ static bool absFunc(FarMacroCall* Data)
 	auto Params = parseParams(1, Data);
 	TVar& tmpVar(Params[0]);
 
-	if (tmpVar < 0ll)
+	if (tmpVar < TVar(0))
 		tmpVar=-tmpVar;
 
 	PassValue(tmpVar, Data);

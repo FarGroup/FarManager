@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VMenu2;
 class FileFilterParams;
 class FileList;
-struct FileListItem;
+class FileListItem;
 
 class HighlightFiles: noncopyable
 {

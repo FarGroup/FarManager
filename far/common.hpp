@@ -238,6 +238,4 @@ namespace \
 #define SIGN_UTF8       0xBFBBEF
 #define EOL_STR L"\r\n"
 
-typedef std::wstring string;
-
 #endif // COMMON_HPP_1BD5AB87_3379_4AFE_9F63_DB850DCF72B4
