@@ -1227,27 +1227,27 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 		switch (Flags & 0x000F0000)
 		{
 		case FMSG_MB_OK:
-			Buttons = make_vector<string>(MSG(MOk));
+			Buttons = { MSG(MOk) };
 			break;
 
 		case FMSG_MB_OKCANCEL:
-			Buttons = make_vector<string>(MSG(MOk), MSG(MCancel));
+			Buttons = { MSG(MOk), MSG(MCancel) };
 			break;
 
 		case FMSG_MB_ABORTRETRYIGNORE:
-			Buttons = make_vector<string>(MSG(MAbort), MSG(MRetry), MSG(MIgnore));
+			Buttons = { MSG(MAbort), MSG(MRetry), MSG(MIgnore) };
 			break;
 
 		case FMSG_MB_YESNO:
-			Buttons = make_vector<string>(MSG(MYes), MSG(MNo));
+			Buttons = { MSG(MYes), MSG(MNo) };
 			break;
 
 		case FMSG_MB_YESNOCANCEL:
-			Buttons = make_vector<string>(MSG(MYes), MSG(MNo), MSG(MCancel));
+			Buttons = { MSG(MYes), MSG(MNo), MSG(MCancel) };
 			break;
 
 		case FMSG_MB_RETRYCANCEL:
-			Buttons = make_vector<string>(MSG(MRetry), MSG(MCancel));
+			Buttons = { MSG(MRetry), MSG(MCancel) };
 			break;
 		}
 

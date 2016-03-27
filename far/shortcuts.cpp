@@ -465,7 +465,7 @@ void Shortcuts::Set(size_t Pos, const string& Folder, const GUID& PluginGuid, co
 
 void Shortcuts::Add(size_t Pos, const string& Folder, const GUID& PluginGuid, const string& PluginFile, const string& PluginData)
 {
-	Items[Pos].emplace_back(string(), Folder, PluginFile, PluginData, PluginGuid);
+	Items[Pos].emplace_back(string{}, Folder, PluginFile, PluginData, PluginGuid);
 	Changed = true;
 }
 

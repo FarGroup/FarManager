@@ -440,7 +440,7 @@ string ExtractPathRoot(const string &Path)
 		return result;
 	}
 	else
-		return string();
+		return {};
 }
 
 string ExtractFileName(const string &Path)

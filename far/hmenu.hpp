@@ -72,7 +72,7 @@ private:
 	void init();
 
 	virtual void DisplayObject() override;
-	virtual string GetTitle() const override { return string(); }
+	virtual string GetTitle() const override { return {}; }
 
 	void ShowMenu();
 	void ProcessSubMenu(const MenuDataEx *Data, size_t DataCount, const wchar_t *SubMenuHelp, int X, int Y, int &Position);

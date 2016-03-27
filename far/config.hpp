@@ -168,7 +168,7 @@ public:
 
 	virtual string toString() const override { return Get() ? L"true" : L"false"; }
 	virtual void fromString(const string& value) override;
-	virtual string ExInfo() const override { return string(); }
+	virtual string ExInfo() const override { return {}; }
 	virtual string typeToString() const override { return L"boolean"; }
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;
@@ -188,7 +188,7 @@ public:
 
 	virtual string toString() const override { int v = Get(); return v ? (v == 1 ? L"true" : L"other") : L"false"; }
 	virtual void fromString(const string& value) override;
-	virtual string ExInfo() const override { return string(); }
+	virtual string ExInfo() const override { return {}; }
 	virtual string typeToString() const override { return L"3-state"; }
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;
@@ -237,7 +237,7 @@ public:
 
 	virtual string toString() const override { return Get(); }
 	virtual void fromString(const string& value) override { Set(value); }
-	virtual string ExInfo() const override { return string(); }
+	virtual string ExInfo() const override { return {}; }
 	virtual string typeToString() const override { return L"string"; }
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;
@@ -248,7 +248,7 @@ public:
 	StringOption& operator+=(const string& Value) {Set(Get()+Value); return *this;}
 	wchar_t operator[] (size_t index) const { return Get()[index]; }
 	const wchar_t* data() const { return Get().data(); }
-	void clear() { Set(string()); }
+	void clear() { Set({}); }
 	bool empty() const { return Get().empty(); }
 	size_t size() const { return Get().size(); }
 

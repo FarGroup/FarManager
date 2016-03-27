@@ -56,7 +56,7 @@ bool ConvertWildcards(const string& SrcName, string &strDest, int SelectedFolder
 	}
 
 	const string strWildName = strDest.substr(DestNamePos);
-	const string strPartAfterFolderName = SelectedFolderNameLength? SrcName.substr(SelectedFolderNameLength) : string();
+	const string strPartAfterFolderName = SelectedFolderNameLength? SrcName.substr(SelectedFolderNameLength) : string{};
 
 	const string strSrc = SelectedFolderNameLength? SrcName.substr(0, SelectedFolderNameLength) : SrcName;
 	const wchar_t *Src = strSrc.data();

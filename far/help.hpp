@@ -66,7 +66,7 @@ public:
 
 private:
 	virtual void DisplayObject() override;
-	virtual string GetTitle() const override { return string(); }
+	virtual string GetTitle() const override { return {}; }
 	void init(const string& Topic, const wchar_t *Mask, UINT64 Flags);
 	int  ReadHelp(const string& Mask);
 	void AddLine(const string& Line);

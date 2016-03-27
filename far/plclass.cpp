@@ -417,13 +417,13 @@ static void ShowMessageAboutIllegalPluginVersion(const string& plg,const Version
 {
 	Message(MSG_WARNING|MSG_NOPLUGINS,
 		MSG(MError),
-		make_vector<string>(
+		{
 			MSG(MPlgBadVers),
 			plg,
 			string_format(MPlgRequired, (FormatString() << required.Major << L'.' << required.Minor << L'.' << required.Revision << L'.' << required.Build)),
 			string_format(MPlgRequired2, (FormatString() << FAR_VERSION.Major << L'.' << FAR_VERSION.Minor << L'.' << FAR_VERSION.Revision << L'.' << FAR_VERSION.Build))
-		),
-		make_vector<string>(MSG(MOk))
+		},
+		{ MSG(MOk) }
 	);
 }
 
@@ -607,8 +607,8 @@ bool Plugin::LoadData()
 		if (!Global->Opt->LoadPlug.SilentLoadPlugin) //убрать в PluginSet
 		{
 			Message(MSG_WARNING|MSG_ERRORTYPE|MSG_NOPLUGINS, MSG(MError),
-				make_vector<string>(MSG(MPlgLoadPluginError), m_strModuleName),
-				make_vector<string>(MSG(MOk)),
+				{ MSG(MPlgLoadPluginError), m_strModuleName },
+				{ MSG(MOk) },
 				L"ErrLoadPlugin");
 		}
 

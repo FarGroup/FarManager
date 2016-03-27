@@ -220,7 +220,7 @@ private:
 	void UnmarkBlock();
 	void UnmarkEmptyBlock();
 	void UnmarkMacroBlock();
-	void AddUndoData(int Type) { return AddUndoData(Type, string(), nullptr, 0, 0); }
+	void AddUndoData(int Type) { return AddUndoData(Type, {}, nullptr, 0, 0); }
 	void AddUndoData(int Type, const string& Str, const wchar_t *Eol, int StrNum, int StrPos);
 	void Undo(int redo);
 	void SelectAll();

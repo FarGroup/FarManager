@@ -396,9 +396,9 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 			}
 
 			Ret=Message(0, MSG(MDeleteLinkTitle),
-					make_vector<string>(strDeleteFilesMsg, strAskDeleteLink, strJuncName),
-					make_vector<string>(MSG(MDeleteLinkDelete), MSG(MCancel)),
-					nullptr, nullptr, &DeleteLinkId);
+				{ strDeleteFilesMsg, strAskDeleteLink, strJuncName },
+				{ MSG(MDeleteLinkDelete), MSG(MCancel) },
+				nullptr, nullptr, &DeleteLinkId);
 
 			if (Ret)
 				return;
@@ -614,9 +614,9 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 							}
 
 							MsgCode=Message(MSG_WARNING, MSG(tit),
-									make_vector<string>(MSG(con), strFullName),
-									make_vector<string>(MSG(del), MSG(MDeleteFileAll), MSG(MDeleteFileSkip), MSG(MDeleteFileCancel)),
-									nullptr, nullptr, guidId);
+								{ MSG(con), strFullName },
+								{ MSG(del), MSG(MDeleteFileAll), MSG(MDeleteFileSkip), MSG(MDeleteFileCancel) },
+								nullptr, nullptr, guidId);
 						}
 
 						if (MsgCode<0 || MsgCode==3)
@@ -705,9 +705,9 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 							if (!DeleteAllFolders && !ScTree.IsDirSearchDone() && os::fs::is_not_empty_directory(strFullName))
 							{
 								int MsgCode=Message(MSG_WARNING, MSG(Wipe?MWipeFolderTitle:MDeleteFolderTitle),
-											make_vector<string>(MSG(Wipe? MWipeFolderConfirm : MDeleteFolderConfirm), strFullName),
-											make_vector<string>(MSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),MSG(MDeleteFileAll),MSG(MDeleteFileSkip),MSG(MDeleteFileCancel)),
-											nullptr, nullptr, (Wipe?&WipeFolderId:&DeleteFolderId)); // ??? other GUID ???
+									{ MSG(Wipe? MWipeFolderConfirm : MDeleteFolderConfirm), strFullName },
+									{ MSG(Wipe? MDeleteFileWipe : MDeleteFileDelete), MSG(MDeleteFileAll), MSG(MDeleteFileSkip), MSG(MDeleteFileCancel) },
+									nullptr, nullptr, (Wipe?&WipeFolderId:&DeleteFolderId)); // ??? other GUID ???
 
 								if (MsgCode<0 || MsgCode==3)
 								{
@@ -844,9 +844,9 @@ DEL_RESULT ShellDelete::AskDeleteReadOnly(const string& Name,DWORD Attr, bool Wi
 	else
 	{
 		MsgCode=Message(MSG_WARNING, MSG(MWarning),
-						make_vector<string>(MSG(MDeleteRO), Name, MSG(Wipe?MAskWipeRO:MAskDeleteRO)),
-						make_vector<string>(MSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),MSG(MDeleteFileAll),MSG(MDeleteFileSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteFileCancel)),
-						nullptr, nullptr, (Wipe?&DeleteAskWipeROId:&DeleteAskDeleteROId));
+			{ MSG(MDeleteRO), Name, MSG(Wipe ? MAskWipeRO : MAskDeleteRO) },
+			{ MSG(Wipe ? MDeleteFileWipe : MDeleteFileDelete), MSG(MDeleteFileAll), MSG(MDeleteFileSkip), MSG(MDeleteFileSkipAll), MSG(MDeleteFileCancel) },
+			nullptr, nullptr, (Wipe?&DeleteAskWipeROId:&DeleteAskDeleteROId));
 	}
 
 	switch (MsgCode)
@@ -895,9 +895,9 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int Total
 				                        Уничтожать файл?
 				*/
 				MsgCode=Message(MSG_WARNING, MSG(MError),
-								make_vector<string>(strFullName, MSG(MDeleteHardLink1), MSG(MDeleteHardLink2), MSG(MDeleteHardLink3)),
-								make_vector<string>(MSG(MDeleteFileWipe),MSG(MDeleteFileAll),MSG(MDeleteFileSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel)),
-								nullptr, nullptr, &WipeHardLinkId);
+					{ strFullName, MSG(MDeleteHardLink1), MSG(MDeleteHardLink2), MSG(MDeleteHardLink3) },
+					{ MSG(MDeleteFileWipe), MSG(MDeleteFileAll), MSG(MDeleteFileSkip), MSG(MDeleteFileSkipAll), MSG(MDeleteCancel) },
+					nullptr, nullptr, &WipeHardLinkId);
 			}
 
 			switch (MsgCode)
@@ -1050,15 +1050,15 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 				{
 					MessageShown = true;
 					if (Message(MSG_WARNING, MSG(MWarning),
-					    make_vector<string>(
-					        MSG(MRecycleFolderConfirmDeleteLink1),
-					        MSG(MRecycleFolderConfirmDeleteLink2),
-					        MSG(MRecycleFolderConfirmDeleteLink3),
-					        MSG(MRecycleFolderConfirmDeleteLink4)
-					    ),
-					    make_vector<string>(MSG(MYes), MSG(MCancel)),
-					    nullptr, nullptr, &RecycleFolderConfirmDeleteLinkId
-					    ) != Message::first_button)
+						{
+							MSG(MRecycleFolderConfirmDeleteLink1),
+							MSG(MRecycleFolderConfirmDeleteLink2),
+							MSG(MRecycleFolderConfirmDeleteLink3),
+							MSG(MRecycleFolderConfirmDeleteLink4)
+						},
+						{ MSG(MYes), MSG(MCancel) },
+						nullptr, nullptr, &RecycleFolderConfirmDeleteLinkId
+						) != Message::first_button)
 					{
 						ret = DELETE_CANCEL;
 						return false;
@@ -1091,8 +1091,8 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 		QuoteOuterSpace(qName);
 
 		int MsgCode = Message(MSG_WARNING|MSG_ERRORTYPE, MSG(MError),
-			make_vector<string>(MSG(dir ? MCannotRecycleFolder : MCannotRecycleFile), qName),
-			make_vector<string>(MSG(MDeleteFileDelete), MSG(MDeleteSkip), MSG(MDeleteSkipAll), MSG(MDeleteCancel)),
+			{ MSG(dir ? MCannotRecycleFolder : MCannotRecycleFile), qName },
+			{ MSG(MDeleteFileDelete), MSG(MDeleteSkip), MSG(MDeleteSkipAll), MSG(MDeleteCancel) },
 			nullptr, nullptr, (dir ? &CannotRecycleFolderId : &CannotRecycleFileId));
 
 		switch (MsgCode) {

@@ -62,7 +62,7 @@ static void ShowStackTrace(const std::vector<string>& Symbols)
 {
 	if (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 	{
-		Message(MSG_WARNING | MSG_LEFTALIGN, MSG(MExcTrappedException), Symbols, make_vector<string>(MSG(MOk)));
+		Message(MSG_WARNING | MSG_LEFTALIGN, MSG(MExcTrappedException), Symbols, { MSG(MOk) });
 	}
 	else
 	{

@@ -1261,7 +1261,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				});
 
 				SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<AttrPreRedrawItem>());
-				ShellSetFileAttributesMsg(SelCount==1? strSelName : string());
+				ShellSetFileAttributesMsg(SelCount==1? strSelName : string{});
 				int SkipMode=-1;
 
 				if (SelCount==1 && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))

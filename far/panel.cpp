@@ -157,7 +157,7 @@ private:
 	std::unique_ptr<EditControl> m_FindEdit;
 	Manager::Key m_KeyToProcess;
 	virtual void DisplayObject(void) override;
-	virtual string GetTitle() const override { return string(); }
+	virtual string GetTitle() const override { return {}; }
 	void ProcessName(const string& Src);
 	void ShowBorder(void);
 	void Close(void);

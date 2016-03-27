@@ -340,7 +340,7 @@ void CopyProgress::SetScanName(const string& Name)
 void CopyProgress::CreateScanBackground()
 {
 	Bar = make_progressbar(BarSize, 0, false, false);
-	Message m(MSG_LEFTALIGN, MSG(Move? MMoveDlgTitle : MCopyDlgTitle), make_vector<string>(MSG(MCopyScanning), Bar), std::vector<string>());
+	Message m(MSG_LEFTALIGN, MSG(Move ? MMoveDlgTitle : MCopyDlgTitle), { MSG(MCopyScanning), Bar }, {});
 	int MX1,MY1,MX2,MY2;
 	m.GetMessagePosition(MX1,MY1,MX2,MY2);
 	Rect.Left=MX1;
@@ -354,11 +354,11 @@ void CopyProgress::CreateBackground()
 {
 	Bar = make_progressbar(BarSize, 0, false, false);
 
-	std::vector<string> Items;
 	const auto Title = MSG(Move? MMoveDlgTitle : MCopyDlgTitle);
 
-	Items = make_vector<string>(
-		MSG(Move? MCopyMoving : MCopyCopying),
+	std::vector<string> Items =
+	{
+		MSG(Move ? MCopyMoving : MCopyCopying),
 		L"", // source name
 		MSG(MCopyTo),
 		L"", // dest path
@@ -366,7 +366,7 @@ void CopyProgress::CreateBackground()
 		string(L"\x1") + MSG(MCopyDlgTotal),
 		L"", // files [total] <processed>
 		L""  // bytes [total] <processed>
-	);
+	};
 
 	// total progress bar
 	if (m_Total)
@@ -381,7 +381,7 @@ void CopyProgress::CreateBackground()
 		Items.emplace_back(L"");
 	}
 
-	Message m(MSG_LEFTALIGN, Title, Items, std::vector<string>());
+	Message m(MSG_LEFTALIGN, Title, Items, {});
 
 	int MX1,MY1,MX2,MY2;
 	m.GetMessagePosition(MX1,MY1,MX2,MY2);
@@ -2220,8 +2220,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				if (CmpCode==1)
 				{
 					Message(MSG_WARNING, MSG(MError),
-						make_vector<string>(MSG(MCannotCopyFolderToItself1), Src, MSG(MCannotCopyFolderToItself2)),
-						make_vector<string>(MSG(MOk)),
+						{ MSG(MCannotCopyFolderToItself1), Src, MSG(MCannotCopyFolderToItself2) },
+						{ MSG(MOk) },
 						L"ErrCopyItSelf");
 					return COPY_CANCEL;
 				}
@@ -3012,8 +3012,8 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::FAR_FIND_DATA &SrcD
 			string strSrcName(SrcName);
 			InsertQuote(strSrcName);
 			MsgCode = Message(MSG_WARNING, MSG(MWarning),
-				make_vector<string>(MSG(MCopyEncryptWarn1), strSrcName, MSG(MCopyEncryptWarn2), MSG(MCopyEncryptWarn3)),
-				make_vector<string>(MSG(MCopyIgnore), MSG(MCopyIgnoreAll), MSG(MCopyCancel)),
+				{ MSG(MCopyEncryptWarn1), strSrcName, MSG(MCopyEncryptWarn2), MSG(MCopyEncryptWarn3) },
+				{ MSG(MCopyIgnore), MSG(MCopyIgnoreAll), MSG(MCopyCancel) },
 				L"WarnCopyEncrypt");
 		}
 
@@ -3271,8 +3271,8 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::FAR_FIND_DATA &SrcD
 							{
 								DestFile.Close();
 								int MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE, MSG(MError),
-									make_vector<string>(strDestName),
-									make_vector<string>(MSG(MSplit), MSG(MSkip), MSG(MRetry), MSG(MCancel)),
+									{ strDestName },
+									{ MSG(MSplit), MSG(MSkip), MSG(MRetry), MSG(MCancel) },
 									L"CopyFiles");
 								PR_ShellCopyMsg();
 

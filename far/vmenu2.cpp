@@ -298,7 +298,7 @@ string VMenu2::GetMenuTitle(bool bottom)
 	wchar_t_ptr title;
 	FarListTitles titles={sizeof(FarListTitles)};
 	if(!SendMessage(DM_LISTGETTITLES, 0, &titles))
-		return string();
+		return {};
 	size_t size;
 	if(bottom)
 	{

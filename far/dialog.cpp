@@ -752,7 +752,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 		{
 			if (!DialogMode.Check(DMODE_OBJECTS_CREATED))
 			{
-				Items[I].ListPtr = VMenu::create(string(), nullptr, 0, Items[I].Y2 - Items[I].Y1 + 1, VMENU_ALWAYSSCROLLBAR | VMENU_LISTBOX, this);
+				Items[I].ListPtr = VMenu::create({}, nullptr, 0, Items[I].Y2 - Items[I].Y1 + 1, VMENU_ALWAYSSCROLLBAR | VMENU_LISTBOX, this);
 			}
 
 				auto& ListPtr = Items[I].ListPtr;
@@ -806,7 +806,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 
 				if (Type == DI_COMBOBOX)
 				{
-					Items[I].ListPtr = VMenu::create(string(), nullptr, 0, Global->Opt->Dialogs.CBoxMaxHeight, VMENU_ALWAYSSCROLLBAR, this);
+					Items[I].ListPtr = VMenu::create({}, nullptr, 0, Global->Opt->Dialogs.CBoxMaxHeight, VMENU_ALWAYSSCROLLBAR, this);
 					Items[I].ListPtr->SetVDialogItemID(I);
 				}
 			}
@@ -4113,7 +4113,7 @@ BOOL Dialog::SelectFromEditHistory(const DialogItemEx *CurItem,
 	{
 		DlgHist->ResetPosition();
 		// создание пустого вертикального меню
-		const auto HistoryMenu = VMenu2::create(string(), nullptr, 0, Global->Opt->Dialogs.CBoxMaxHeight, VMENU_ALWAYSSCROLLBAR | VMENU_COMBOBOX);
+		const auto HistoryMenu = VMenu2::create({}, nullptr, 0, Global->Opt->Dialogs.CBoxMaxHeight, VMENU_ALWAYSSCROLLBAR | VMENU_COMBOBOX);
 		HistoryMenu->SetDialogMode(DMODE_NODRAWSHADOW);
 		HistoryMenu->SetModeMoving(false);
 		HistoryMenu->SetMenuFlags(VMENU_SHOWAMPERSAND);

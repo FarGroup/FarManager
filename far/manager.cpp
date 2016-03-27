@@ -669,8 +669,8 @@ void Manager::ExitMainLoop(int Ask)
 	};
 
 	if (!Ask || !Global->Opt->Confirm.Exit || Message(0, MSG(MQuit),
-		make_vector<string>(MSG(MAskQuit)),
-		make_vector<string>(MSG(MYes), MSG(MNo)),
+		{ MSG(MAskQuit) },
+		{ MSG(MYes), MSG(MNo) },
 		nullptr, nullptr, &FarAskQuitId) == Message::first_button)
 	{
 		/* $ 29.12.2000 IS

@@ -214,7 +214,7 @@ private:
 	virtual size_t GetTabSize() const;
 	virtual EXPAND_TABS GetTabExpandMode() const;
 	virtual void SetInputMask(const string& InputMask) {}
-	virtual string GetInputMask() const {return string();}
+	virtual string GetInputMask() const {return {};}
 	virtual const string& WordDiv() const;
 	virtual int GetPrevCurPos() const { return 0; }
 	virtual void SetPrevCurPos(int Pos) {}

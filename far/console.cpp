@@ -189,7 +189,7 @@ virtual string GetPhysicalTitle() const override
 		return string(Buffer.data(), Length);
 	}
 
-	return string();
+	return {};
 }
 
 virtual string GetTitle() const override

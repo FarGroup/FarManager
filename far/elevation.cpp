@@ -461,7 +461,7 @@ bool elevation::fCreateDirectoryEx(const string& TemplateObject, const string& O
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)(make_vector<const wchar_t*>(SE_BACKUP_NAME, SE_RESTORE_NAME));
+			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
 			Result = (TemplateObject.empty()?CreateDirectory(Object.data(), Attributes) : CreateDirectoryEx(TemplateObject.data(), Object.data(), Attributes)) != FALSE;
 		}
 		else if(SendCommand(C_FUNCTION_CREATEDIRECTORYEX) && Write(TemplateObject) && Write(Object))
@@ -485,7 +485,7 @@ bool elevation::fRemoveDirectory(const string& Object)
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)(make_vector<const wchar_t*>(SE_BACKUP_NAME, SE_RESTORE_NAME));
+			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
 			Result = RemoveDirectory(Object.data()) != FALSE;
 		}
 		else if(SendCommand(C_FUNCTION_REMOVEDIRECTORY) && Write(Object))
@@ -508,7 +508,7 @@ bool elevation::fDeleteFile(const string& Object)
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)(make_vector<const wchar_t*>(SE_BACKUP_NAME, SE_RESTORE_NAME));
+			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
 			Result = DeleteFile(Object.data()) != FALSE;
 		}
 		else if(SendCommand(C_FUNCTION_DELETEFILE) && Write(Object))
@@ -550,7 +550,7 @@ bool elevation::fCopyFileEx(const string& From, const string& To, LPPROGRESS_ROU
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)(make_vector<const wchar_t*>(SE_BACKUP_NAME, SE_RESTORE_NAME));
+			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
 			Result = CopyFileEx(From.data(), To.data(), ProgressRoutine, Data, Cancel, Flags) != FALSE;
 		}
 		// BUGBUG: Cancel ignored
@@ -586,7 +586,7 @@ bool elevation::fMoveFileEx(const string& From, const string& To, DWORD Flags)
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)(make_vector<const wchar_t*>(SE_BACKUP_NAME, SE_RESTORE_NAME));
+			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
 			Result = MoveFileEx(From.data(), To.data(), Flags) != FALSE;
 		}
 		else if(SendCommand(C_FUNCTION_MOVEFILEEX) && Write(From) && Write(To) && Write(Flags))
@@ -609,7 +609,7 @@ DWORD elevation::fGetFileAttributes(const string& Object)
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)(make_vector<const wchar_t*>(SE_BACKUP_NAME, SE_RESTORE_NAME));
+			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
 			Result = GetFileAttributes(Object.data());
 		}
 		else if(SendCommand(C_FUNCTION_GETFILEATTRIBUTES) && Write(Object))
@@ -632,7 +632,7 @@ bool elevation::fSetFileAttributes(const string& Object, DWORD FileAttributes)
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)(make_vector<const wchar_t*>(SE_BACKUP_NAME, SE_RESTORE_NAME));
+			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
 			Result = SetFileAttributes(Object.data(), FileAttributes) != FALSE;
 		}
 		else if(SendCommand(C_FUNCTION_SETFILEATTRIBUTES) && Write(Object) && Write(FileAttributes))
@@ -655,7 +655,7 @@ bool elevation::fCreateHardLink(const string& Object, const string& Target, LPSE
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)(make_vector<const wchar_t*>(SE_BACKUP_NAME, SE_RESTORE_NAME));
+			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
 			Result = CreateHardLink(Object.data(), Target.data(), SecurityAttributes) != FALSE;
 		}
 		// BUGBUG: SecurityAttributes ignored.
@@ -679,7 +679,7 @@ bool elevation::fCreateSymbolicLink(const string& Object, const string& Target, 
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)(make_vector<const wchar_t*>(SE_BACKUP_NAME, SE_RESTORE_NAME));
+			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
 			Result = os::CreateSymbolicLinkInternal(Object, Target, Flags);
 		}
 		else if(SendCommand(C_FUNCTION_CREATESYMBOLICLINK) && Write(Object) && Write(Target) && Write(Flags))
@@ -702,7 +702,7 @@ int elevation::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)(make_vector<const wchar_t*>(SE_BACKUP_NAME, SE_RESTORE_NAME));
+			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
 			Result = SHFileOperation(&FileOpStruct);
 		}
 		else
@@ -731,7 +731,7 @@ bool elevation::fSetOwner(const string& Object, const string& Owner)
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)(make_vector<const wchar_t*>(SE_BACKUP_NAME, SE_RESTORE_NAME));
+			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
 			Result = SetOwnerInternal(Object, Owner);
 		}
 		else if(SendCommand(C_FUNCTION_SETOWNER) && Write(Object) && Write(Owner))
@@ -754,7 +754,7 @@ HANDLE elevation::fCreateFile(const string& Object, DWORD DesiredAccess, DWORD S
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)(make_vector<const wchar_t*>(SE_BACKUP_NAME, SE_RESTORE_NAME));
+			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
 			Result = CreateFile(Object.data(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
 		}
 		// BUGBUG: SecurityAttributes ignored
@@ -779,7 +779,7 @@ bool elevation::fSetFileEncryption(const string& Object, bool Encrypt)
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)(make_vector<const wchar_t*>(SE_BACKUP_NAME, SE_RESTORE_NAME));
+			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
 			Result = os::SetFileEncryptionInternal(Object.data(), Encrypt);
 		}
 		else if(SendCommand(C_FUNCTION_SETENCRYPTION) && Write(Object) && Write(Encrypt))
@@ -802,7 +802,7 @@ bool elevation::fDetachVirtualDisk(const string& Object, VIRTUAL_STORAGE_TYPE& V
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)(make_vector<const wchar_t*>(SE_BACKUP_NAME, SE_RESTORE_NAME));
+			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
 			Result = os::DetachVirtualDiskInternal(Object, VirtualStorageType);
 		}
 		else if (SendCommand(C_FUNCTION_DETACHVIRTUALDISK) && Write(Object) && Write(VirtualStorageType))
@@ -825,7 +825,7 @@ bool elevation::fGetDiskFreeSpaceEx(const string& Object, ULARGE_INTEGER* FreeBy
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)(make_vector<const wchar_t*>(SE_BACKUP_NAME, SE_RESTORE_NAME));
+			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
 			Result = GetDiskFreeSpaceEx(Object.data(), FreeBytesAvailableToCaller, TotalNumberOfBytes, TotalNumberOfFreeBytes) != FALSE;
 		}
 		else if(SendCommand(C_FUNCTION_GETDISKFREESPACEEX) && Write(Object))
@@ -888,7 +888,7 @@ public:
 
 		SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
 
-		auto Privileges = make_vector<const wchar_t*>(SE_TAKE_OWNERSHIP_NAME, SE_DEBUG_NAME, SE_CREATE_SYMBOLIC_LINK_NAME);
+		std::vector<const wchar_t*> Privileges{ SE_TAKE_OWNERSHIP_NAME, SE_DEBUG_NAME, SE_CREATE_SYMBOLIC_LINK_NAME };
 		if (UsePrivileges)
 		{
 			Privileges.emplace_back(SE_BACKUP_NAME);

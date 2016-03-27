@@ -66,7 +66,7 @@ public:
 	virtual FARMACROAREA GetMacroArea() const override;
 	virtual void Show() override;
 	virtual void DisplayObject() override;
-	virtual string GetTitle() const override { return string(); }
+	virtual string GetTitle() const override { return {}; }
 
 	virtual Viewer* GetViewer(void) override;
 	virtual Viewer* GetById(int ID) override;

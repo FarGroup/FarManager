@@ -62,7 +62,7 @@ public:
 	virtual int GetType() const override { return windowtype_findfolder; }
 
 private:
-	virtual string GetTitle() const override { return string(); }
+	virtual string GetTitle() const override { return {}; }
 	virtual void DisplayObject() override;
 
 	void init(string &strResultFolder);

@@ -189,7 +189,7 @@ Message::Message(DWORD Flags,size_t Buttons,const string& Title,const wchar_t *S
 	std::vector<string> StringsVector(std::cbegin(Str), std::cbegin(Str) + Size - Buttons);
 	std::vector<string> ButtonsVector(std::cbegin(Str) + Size - Buttons, std::cbegin(Str) + Size);
 
-	Init(Flags, Title, StringsVector, ButtonsVector, std::vector<string>(), nullptr, nullptr, nullptr);
+	Init(Flags, Title, StringsVector, ButtonsVector, {}, nullptr, nullptr, nullptr);
 }
 
 void Message::Init(

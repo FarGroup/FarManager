@@ -240,7 +240,7 @@ UserMenu::UserMenu(bool ChooseMenuType):
 	m_ItemChanged(false),
 	m_MenuCP(default_menu_file_codepage)
 {
-	ProcessUserMenu(ChooseMenuType, string());
+	ProcessUserMenu(ChooseMenuType, {});
 }
 
 UserMenu::UserMenu(const string& MenuFileName):

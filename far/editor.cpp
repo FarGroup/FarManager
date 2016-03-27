@@ -3250,7 +3250,7 @@ void Editor::InsertString()
 
 		AddUndoData(UNDO_BEGIN);
 		AddUndoData(UNDO_EDIT, m_it_CurLine->GetString(), m_it_CurLine->GetEOL(), m_it_CurLine.Number(), m_it_CurLine->GetCurPos());
-		AddUndoData(UNDO_INSSTR, string(), m_it_CurLine->GetEOL(), m_it_CurLine.Number() + 1, 0);
+		AddUndoData(UNDO_INSSTR, {}, m_it_CurLine->GetEOL(), m_it_CurLine.Number() + 1, 0);
 		AddUndoData(UNDO_END);
 
 		string NewCurLineStr(CurLineStr, 0, CurPos);
@@ -3273,7 +3273,7 @@ void Editor::InsertString()
 	else
 	{
 		NewString->ClearString();
-		AddUndoData(UNDO_INSSTR, string(), m_it_CurLine->GetEOL(), m_it_CurLine.Number() + 1, 0);
+		AddUndoData(UNDO_INSSTR, {}, m_it_CurLine->GetEOL(), m_it_CurLine.Number() + 1, 0);
 	}
 
 	if (*EndSeq)
@@ -3546,7 +3546,7 @@ BOOL Editor::Search(int Next)
 					return Str.substr(PickBegin, PickEnd - PickBegin);
 				}
 			}
-			return string();
+			return string{};
 		};
 
 		const wchar_t *TextHistoryName=L"SearchText",*ReplaceHistoryName=L"ReplaceText";
@@ -3582,7 +3582,7 @@ BOOL Editor::Search(int Next)
 	if (!EdOpt.PersistentBlocks || (EdOpt.SearchSelFound && !ReplaceMode))
 		UnmarkBlock();
 
-	const auto FindAllList = VMenu2::create(string(), nullptr, 0);
+	const auto FindAllList = VMenu2::create({}, nullptr, 0);
 	UINT AllRefLines = 0;
 	{
 		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<EditorPreRedrawItem>());

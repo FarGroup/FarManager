@@ -1032,18 +1032,20 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 
 	if (!Result)
 	{
-		const auto Strings = Info.DirectRun?
-			make_vector<string>(MSG(MCannotExecute), strNewCmdStr) :
-			make_vector<string>(MSG(MCannotInvokeComspec), strComspec, MSG(MCheckComspecVar));
+		std::vector<string> Strings;
+		if (Info.DirectRun)
+			Strings = { MSG(MCannotExecute), strNewCmdStr };
+		else
+			Strings = { MSG(MCannotInvokeComspec), strComspec, MSG(MCheckComspecVar) };
 
 		Message(MSG_WARNING | MSG_ERRORTYPE,
 			MSG(MError),
 			Strings,
-			make_vector<string>(MSG(MOk)),
+			{ MSG(MOk) },
 			L"ErrCannotExecute",
 			nullptr,
 			nullptr,
-			make_vector<string>(Info.DirectRun? strNewCmdStr : strComspec));
+			{ Info.DirectRun? strNewCmdStr : strComspec });
 	}
 
 	return Result;

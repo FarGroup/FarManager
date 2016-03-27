@@ -56,7 +56,7 @@ private:
 	virtual void DisplayObject() override;
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual string GetTitle() const override { return string(); }
+	virtual string GetTitle() const override { return {}; }
 
 	void init();
 	std::tuple<COORD&, COORD&> GetSelection();

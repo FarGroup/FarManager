@@ -96,7 +96,7 @@ static std::vector<string> GetSymbols(const std::vector<const void*>& BackTrace)
 			Stream << L" (" << Line.FileName << L":" << Line.LineNumber << L")";
 		}
 		Result.emplace_back(Stream.str());
-		Stream.str(string());
+		Stream.str({});
 	}
 	return Result;
 }
@@ -173,7 +173,7 @@ std::vector<string> tracer::get(const void* CppObject)
 	exception_context Context;
 	if (!tracer::GetInstance()->get_context(CppObject, Context))
 	{
-		return std::vector<string>();
+		return {};
 	}
 	EXCEPTION_POINTERS xp = { &Context.ExceptionRecord, &Context.ContextRecord };
 
@@ -196,7 +196,7 @@ string tracer::get_one(const void* Address)
 	SymInitialise();
 	SCOPE_EXIT{ SymCleanup(); };
 
-	return GetSymbols(make_vector<const void*>(Address)).front();
+	return GetSymbols({Address}).front();
 }
 
 bool tracer::m_SymInitialised;

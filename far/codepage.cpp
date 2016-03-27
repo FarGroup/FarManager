@@ -261,7 +261,7 @@ std::string unicode::to(uintptr_t Codepage, const wchar_t *Data, size_t Size, bo
 		unicode::to(Codepage, Data, Size, &Buffer[0], Buffer.size(), UsedDefaultChar);
 		return Buffer;
 	}
-	return std::string();
+	return {};
 }
 
 size_t unicode::from(uintptr_t Codepage, const char* Data, size_t Size, wchar_t* Buffer, size_t BufferSize)
@@ -294,7 +294,7 @@ string unicode::from(uintptr_t Codepage, const char* Data, size_t Size)
 		unicode::from(Codepage, Data, Size, &Buffer[0], Buffer.size());
 		return Buffer;
 	}
-	return string();
+	return {};
 }
 
 //################################################################################################

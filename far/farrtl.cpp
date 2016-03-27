@@ -244,7 +244,7 @@ string FindStr(const void* Data, size_t Size)
 		return string(WBegin, WEnd);
 	}
 
-	return string();
+	return {};
 }
 
 void PrintMemory()
@@ -270,7 +270,7 @@ void PrintMemory()
 
 		std::wcerr << oss.str();
 		OutputDebugString(oss.str().data());
-		oss.str(string());
+		oss.str({});
 
 		for(auto i = FirstMemBlock.next; i; i = i->next)
 		{
@@ -281,7 +281,7 @@ void PrintMemory()
 
 			std::wcerr << oss.str();
 			OutputDebugString(oss.str().data());
-			oss.str(string());
+			oss.str({});
 		}
 	}
 	MonitoringEnabled = MonitoringState;

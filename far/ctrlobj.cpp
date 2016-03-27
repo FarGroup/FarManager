@@ -69,12 +69,12 @@ ControlObject::ControlObject()
 	HiFiles = std::make_unique<HighlightFiles>();
 	Plugins = std::make_unique<PluginManager>();
 
-	CmdHistory = std::make_unique<History>(HISTORYTYPE_CMD, string(), Global->Opt->SaveHistory);
+	CmdHistory = std::make_unique<History>(HISTORYTYPE_CMD, string{}, Global->Opt->SaveHistory);
 
-	FolderHistory = std::make_unique<History>(HISTORYTYPE_FOLDER, string(), Global->Opt->SaveFoldersHistory);
+	FolderHistory = std::make_unique<History>(HISTORYTYPE_FOLDER, string{}, Global->Opt->SaveFoldersHistory);
 	FolderHistory->SetAddMode(true, 2, true);
 
-	ViewHistory = std::make_unique<History>(HISTORYTYPE_VIEW, string(), Global->Opt->SaveViewHistory);
+	ViewHistory = std::make_unique<History>(HISTORYTYPE_VIEW, string{}, Global->Opt->SaveViewHistory);
 	ViewHistory->SetAddMode(true,Global->Opt->FlagPosixSemantics?1:2,true);
 
 	FileFilter::InitFilter();

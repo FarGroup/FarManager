@@ -323,7 +323,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\conditional.hpp" />
     <ClInclude Include="common\function_traits.hpp" />
     <ClInclude Include="common\iterator_range.hpp" />
-    <ClInclude Include="common\make_vector.hpp" />
     <ClInclude Include="common\monitored.hpp" />
     <ClInclude Include="common\noncopyable.hpp" />
     <ClInclude Include="common\preprocessor.hpp" />

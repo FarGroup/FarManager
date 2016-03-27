@@ -1784,8 +1784,8 @@ int FileList::ProcessKey(const Manager::Key& Key)
 									if (!os::fs::exists(strFileName.substr(0, pos)))
 									{
 										if (Message(MSG_WARNING, MSG(MWarning),
-											make_vector<string>(MSG(MEditNewPath1), MSG(MEditNewPath2), MSG(MEditNewPath3)),
-											make_vector<string>(MSG(MHYes), MSG(MHNo)),
+											{ MSG(MEditNewPath1), MSG(MEditNewPath2), MSG(MEditNewPath3) },
+											{ MSG(MHYes), MSG(MHNo) },
 											L"WarnEditorPath") != Message::first_button)
 											return FALSE;
 									}
@@ -1795,8 +1795,8 @@ int FileList::ProcessKey(const Manager::Key& Key)
 						else if (PluginMode) // пустое имя файла в панели плагина не разрешается!
 						{
 							if (Message(MSG_WARNING, MSG(MWarning),
-								make_vector<string>(MSG(MEditNewPlugin1), MSG(MEditNewPath3)),
-								make_vector<string>(MSG(MCancel)),
+								{ MSG(MEditNewPlugin1), MSG(MEditNewPath3) },
+								{ MSG(MCancel) },
 								L"WarnEditorPluginName") != Message::first_button)
 								return FALSE;
 						}
@@ -5354,7 +5354,7 @@ string FileList::GetPluginPrefix() const
 		}
 	}
 
-	return string();
+	return {};
 }
 
 

@@ -59,7 +59,7 @@ public:
 		const wchar_t* HelpTopic = nullptr,
 		Plugin* PluginNumber = nullptr,
 		const GUID* Id = nullptr,
-		const std::vector<string>& Inserts = std::vector<string>()
+		const std::vector<string>& Inserts = {}
 	);
 
 	Message(DWORD Flags,size_t Buttons,const string& Title, const wchar_t *Str1,

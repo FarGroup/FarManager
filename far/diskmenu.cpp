@@ -353,8 +353,8 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 			string SubstitutedPath;
 			GetSubstName(DriveType, DiskLetter, SubstitutedPath);
 			if (Message(MSG_WARNING, MSG(MChangeSUBSTDisconnectDriveTitle),
-				make_vector<string>(Question, MappedTo, SubstitutedPath),
-				make_vector<string>(MSG(MYes), MSG(MNo)),
+				{ Question, MappedTo, SubstitutedPath },
+				{ MSG(MYes), MSG(MNo) },
 				nullptr, nullptr, &SUBSTDisconnectDriveId) != Message::first_button)
 			{
 				return DRIVE_DEL_FAIL;
@@ -372,8 +372,8 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 			if (LastError == ERROR_OPEN_FILES || LastError == ERROR_DEVICE_IN_USE)
 			{
 				if (Message(MSG_WARNING | MSG_ERRORTYPE, MSG(MError),
-					make_vector<string>(strMsgText, L"\x1", MSG(MChangeDriveOpenFiles), MSG(MChangeDriveAskDisconnect)),
-					make_vector<string>(MSG(MOk), MSG(MCancel)),
+					{ strMsgText, L"\x1", MSG(MChangeDriveOpenFiles), MSG(MChangeDriveAskDisconnect) },
+					{ MSG(MOk), MSG(MCancel) },
 					nullptr, nullptr, &SUBSTDisconnectDriveError1Id) == Message::first_button)
 				{
 					if (DelSubstDrive(DiskLetter))
@@ -387,8 +387,8 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 				}
 			}
 			Message(MSG_WARNING | MSG_ERRORTYPE, MSG(MError),
-				make_vector<string>(strMsgText),
-				make_vector<string>(MSG(MOk)),
+				{ strMsgText },
+				{ MSG(MOk) },
 				nullptr, nullptr, &SUBSTDisconnectDriveError2Id);
 		}
 		return DRIVE_DEL_FAIL; // блин. в прошлый раз забыл про это дело...
@@ -422,8 +422,8 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 				if (LastError == ERROR_OPEN_FILES || LastError == ERROR_DEVICE_IN_USE)
 				{
 					if (Message(MSG_WARNING | MSG_ERRORTYPE, MSG(MError),
-						make_vector<string>(strMsgText, L"\x1", MSG(MChangeDriveOpenFiles), MSG(MChangeDriveAskDisconnect)),
-						make_vector<string>(MSG(MOk), MSG(MCancel)),
+						{ strMsgText, L"\x1", MSG(MChangeDriveOpenFiles), MSG(MChangeDriveAskDisconnect) },
+						{ MSG(MOk), MSG(MCancel) },
 						nullptr, nullptr, &RemoteDisconnectDriveError1Id) == Message::first_button)
 					{
 						if (WNetCancelConnection2(DiskLetter.data(), UpdateProfile, TRUE) == NO_ERROR)
@@ -440,8 +440,8 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 				if (FAR_GetDriveType(RootDir) == DRIVE_REMOTE)
 				{
 					Message(MSG_WARNING | MSG_ERRORTYPE, MSG(MError),
-						make_vector<string>(strMsgText),
-						make_vector<string>(MSG(MOk)),
+						{ strMsgText },
+						{ MSG(MOk) },
 						nullptr, nullptr, &RemoteDisconnectDriveError2Id);
 				}
 			}
@@ -456,8 +456,8 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 		{
 			const auto Question = string_format(MChangeVHDDisconnectDriveQuestion, DiskLetter);
 			if (Message(MSG_WARNING, MSG(MChangeVHDDisconnectDriveTitle),
-				make_vector<string>(Question),
-				make_vector<string>(MSG(MYes), MSG(MNo)),
+				{ Question },
+				{ MSG(MYes), MSG(MNo) },
 				nullptr, nullptr, &VHDDisconnectDriveId) != Message::first_button)
 			{
 				return DRIVE_DEL_FAIL;
@@ -485,8 +485,8 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 		if (Result != DRIVE_DEL_SUCCESS)
 		{
 			Message(MSG_WARNING | MSG_ERRORTYPE, MSG(MError),
-				make_vector<string>(string_format(MChangeDriveCannotDetach, DiskLetter)),
-				make_vector<string>(MSG(MOk)),
+				{ string_format(MChangeDriveCannotDetach, DiskLetter) },
+				{ MSG(MOk) },
 				nullptr, nullptr, &VHDDisconnectDriveErrorId);
 		}
 		return Result;
@@ -585,8 +585,8 @@ static void RemoveHotplugDevice(panel_ptr Owner, const PanelMenuItem *item, VMen
 				Global->CatchError();
 				DoneEject = Message(MSG_WARNING | MSG_ERRORTYPE,
 					MSG(MError),
-					make_vector<string>(string_format(MChangeCouldNotEjectHotPlugMedia, item->cDrive)),
-					make_vector<string>(MSG(MHRetry), MSG(MHCancel)),
+					{ string_format(MChangeCouldNotEjectHotPlugMedia, item->cDrive) },
+					{ MSG(MHRetry), MSG(MHCancel) },
 					nullptr, nullptr, &EjectHotPlugMediaErrorId) != Message::first_button;
 			}
 			else
