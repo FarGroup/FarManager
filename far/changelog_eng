@@ -3,6 +3,98 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 27.03.2016 20:33:46 +0200 - build 4606
+
+1. Refactoring.
+
+drkns 26.03.2016 23:33:54 +0200 - build 4605
+
+1. Correction of 4603.
+
+drkns 26.03.2016 21:56:52 +0200 - build 4604
+
+1. Suppress querying of the rights on coloring.
+
+drkns 26.03.2016 21:16:07 +0200 - build 4603
+
+1. Continuation of 4602. Ask for additional information on files when it is needed. This is related to:
+   - the number of hard links
+   - the number of streams
+   - the size of streams
+   - owner
+   - content data
+   This means that including of this stuff must not slow down displaying of folders unless it is the criterion of sorting.
+
+drkns 26.03.2016 01:03:37 +0200 - build 4602
+
+1. Coloring is applied to files in panel when it is needed.
+   The effect must be noticeable on big number of groups and/or files.
+
+drkns 25.03.2016 10:08:48 +0200 - build 4601
+
+1. Correction of 4599.
+
+drkns 25.03.2016 01:21:22 +0200 - build 4600
+
+1. Correction of 4574.
+
+drkns 24.03.2016 23:40:39 +0200 - build 4599
+
+1. 0003201: Message returns value less by 1 than expected
+
+drkns 24.03.2016 23:04:54 +0200 - build 4598
+
+1. Ask for name & password for cd \\server\share
+
+w17 24.03.2016 20:32:59 +0300 - build 4597
+
+1. Correction of 4596. Revert switching for inactive Info panel.
+
+w17 24.03.2016 17:14:32 +0300 - build 4596
+
+1. Correction of 4595. Switching only if info panel is active.
+
+w17 24.03.2016 16:14:28 +0300 - build 4595
+
+1. Continuation of 4590, 4594 switching with Ctrl-Shift-S.
+
+w17 24.03.2016 14:55:56 +0300 - build 4594
+
+1. Continuation of 4590.
+   Configuration if size display mode: Panel.Info.ShowBytes (default=false); switch with Ctrl-S. 
+
+drkns 24.03.2016 02:05:31 +0200 - build 4593
+
+1. Crash on +/- key press in info panel if the viewer has been opened there.
+
+drkns 23.03.2016 20:31:08 +0200 - build 4592
+
+1. Forum: Illogical behavior on network volume removal
+
+w17 23.03.2016 17:59:00 +0300 - build 4591
+
+1. M#3089: Minor fix of info panel (Ctrl+L)
+
+w17 22.03.2016 13:55:04 +0300 - build 4590
+
+1. Continuation of 4587 -- EOPT_SHOWSCROLLBAR; VCTL_GETINFO: VOPT_SHOWxxx, VOPT_QUICKVIEW.
+
+drkns 22.03.2016 08:27:45 +0200 - build 4589
+
+1. Correction of 4585.
+
+drkns 21.03.2016 17:11:49 +0200 - build 4588
+
+1. Macro ARRAYSIZE -> constexpr std::size
+
+shmuel 21.03.2016 16:05:35 +0200 - build 4587
+
+1. ECTL_GETINFO: EOPT_SHOWTITLEBAR and EOPT_SHOWKEYBAR flags are added into EDITOR_OPTIONS enumeration.
+
+drkns 21.03.2016 15:31:02 +0200 - build 4586
+
+1. Continuation of 4584.
+
 drkns 20.03.2016 11:57:40 +0200 - build 4585
 
 1. Continuation of 4584.
