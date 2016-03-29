@@ -90,10 +90,19 @@ public:
 	FileListItem();
 	FileListItem(const PluginPanelItem& pi);
 
+	bool IsNumberOfLinksRead() const;
 	DWORD NumberOfLinks(const FileList* Owner) const;
+
+	bool IsNumberOfStreamsRead() const;
 	DWORD NumberOfStreams(const FileList* Owner) const;
+
+	bool IsStreamsSizeRead() const;
 	unsigned long long StreamsSize(const FileList* Owner) const;
+
+	bool IsOwnerRead() const;
 	const string& Owner(const FileList* Owner) const;
+
+	bool IsContentDataRead() const;
 	const content_data_ptr& ContentData(const FileList* Owner) const;
 
 	string strName;
@@ -207,8 +216,8 @@ public:
 	virtual void FlushDiz() override;
 	virtual void GetDizName(string &strDizName) const override;
 	virtual void CopyDiz(const string& Name, const string& ShortName, const string& DestName, const string& DestShortName, DizList *DestDiz) override;
-	virtual bool IsDizDisplayed() override;
-	virtual bool IsColumnDisplayed(int Type) override;
+	virtual bool IsDizDisplayed() const override;
+	virtual bool IsColumnDisplayed(int Type) const override;
 	virtual int GetColumnsCount() const override { return m_Columns; }
 	virtual void SetReturnCurrentFile(int Mode) override;
 	virtual void GetOpenPanelInfo(OpenPanelInfo *Info) const override;
@@ -318,7 +327,7 @@ private:
 	int ProcessOneHostFile(const FileListItem* Item);
 	void HighlightBorder(int Level, int ListPos) const;
 	void InitFSWatcher(bool CheckTree);
-	bool IsColumnDisplayed(std::function<bool(const column&)> Compare);
+	bool IsColumnDisplayed(std::function<bool(const column&)> Compare) const;
 
 	static void DeletePluginItemList(std::vector<PluginPanelItem> &ItemList);
 	static void FillParentPoint(FileListItem& Item, size_t CurFilePos, const FILETIME* Times = nullptr);

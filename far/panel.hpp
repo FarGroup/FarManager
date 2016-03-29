@@ -163,8 +163,8 @@ public:
 	virtual void GetDizName(string &strDizName) const {}
 	virtual void FlushDiz() {}
 	virtual void CopyDiz(const string& Name,const string& ShortName,const string& DestName, const string& DestShortName,DizList *DestDiz) {}
-	virtual bool IsDizDisplayed() { return false; }
-	virtual bool IsColumnDisplayed(int Type) {return false;}
+	virtual bool IsDizDisplayed() const { return false; }
+	virtual bool IsColumnDisplayed(int Type) const {return false;}
 	virtual int GetColumnsCount() const { return 1;}
 	virtual void SetReturnCurrentFile(int Mode) {}
 	virtual void QViewDelTempName() {}

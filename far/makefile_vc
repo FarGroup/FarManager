@@ -267,7 +267,7 @@ DEFINES=\
 DISABLED_WARNINGS=/FI disabled_warnings.hpp
 
 # common
-CPPFLAG1=/nologo /MP$(MP_LIMIT) /Wall $(DISABLED_WARNINGS) $(DEFUSERFLAGS) $(FARSYSLOG) $(DEFINES) /EHa /Gy /GF /Fd"$(INTDIR)\\" /J /c
+CPPFLAG1=/nologo /MP$(MP_LIMIT) /Wall $(DISABLED_WARNINGS) $(DEFUSERFLAGS) $(FARSYSLOG) $(DEFINES) /EHa /Gy /GF /Fd"$(INTDIR)\\" /J /Zc:inline /Zc:rvalueCast /Zc:strictStrings /c
 LINKFLAGS=/nologo /subsystem:console /release /nxcompat /largeaddressaware /dynamicbase /map /out:"$(OUTDIR)\Far.exe"
 ULINKFLAGS=-q -m- -ap -Gz -O- -o- -Gh -Gh- -GF:LARGEADDRESSAWARE -d*kernel32
 RFLAGS=/nologo /l 0x409 /fo"$(RES_FILE)" /d $(USEDEBUG)

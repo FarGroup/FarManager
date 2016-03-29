@@ -158,7 +158,7 @@ struct CustomSort
 	unsigned int        *Positions;
 	const FileListItem  *Items;
 	size_t               ItemsCount;
-	void(*FileListToPluginItem)(const FileListItem*, int, SortingPanelItem*);
+	void(*FileListToSortingPanelItem)(const FileListItem*, int, SortingPanelItem*);
 	int                  ListSortGroups;
 	int                  ListSelectedFirst;
 	int                  ListDirectoriesFirst;
@@ -208,9 +208,14 @@ inline static string GetItemFullName(const FileListItem& Item, const FileList* O
 	return Owner->GetCurDir() + L"\\"s + (TestParentFolderName(Item.strName) ? L""s : Item.strName);
 }
 
+bool FileListItem::IsNumberOfLinksRead() const
+{
+	return m_NumberOfLinks != values::uninitialised(m_NumberOfLinks);
+}
+
 DWORD FileListItem::NumberOfLinks(const FileList* Owner) const
 {
-	if (m_NumberOfLinks == values::uninitialised(m_NumberOfLinks))
+	if (!IsNumberOfLinksRead())
 	{
 		if (FileAttr & FILE_ATTRIBUTE_DIRECTORY || !Owner->HardlinksSupported())
 		{
@@ -245,27 +250,42 @@ static void GetStreamsCountAndSize(const FileList* Owner, const FileListItem& It
 	}
 }
 
+bool FileListItem::IsNumberOfStreamsRead() const
+{
+	return m_NumberOfStreams != values::uninitialised(m_NumberOfStreams);
+}
+
 DWORD FileListItem::NumberOfStreams(const FileList* Owner) const
 {
-	if (m_NumberOfStreams == values::uninitialised(m_NumberOfStreams))
+	if (!IsNumberOfStreamsRead())
 	{
 		GetStreamsCountAndSize(Owner, *this, m_StreamsSize, m_NumberOfStreams, Owner->StreamsSupported());
 	}
 	return m_NumberOfStreams;
 }
 
+bool FileListItem::IsStreamsSizeRead() const
+{
+	return m_StreamsSize != values::uninitialised(m_StreamsSize);
+}
+
 unsigned long long FileListItem::StreamsSize(const FileList* Owner) const
 {
-	if (m_StreamsSize == values::uninitialised(m_StreamsSize))
+	if (!IsStreamsSizeRead())
 	{
 		GetStreamsCountAndSize(Owner, *this, m_StreamsSize, m_NumberOfStreams, Owner->StreamsSupported());
 	}
 	return m_StreamsSize;
 }
 
+bool FileListItem::IsOwnerRead() const
+{
+	return !(m_Owner.size() == 1 && m_Owner.front() == values::uninitialised(wchar_t()));
+}
+
 const string& FileListItem::Owner(const FileList* Owner) const
 {
-	if (m_Owner.size() == 1 && m_Owner.front() == values::uninitialised(wchar_t()))
+	if (!IsOwnerRead())
 	{
 		if (Owner->GetMode() == panel_mode::NORMAL_PANEL)
 		{
@@ -279,9 +299,14 @@ const string& FileListItem::Owner(const FileList* Owner) const
 	return m_Owner;
 }
 
+bool FileListItem::IsContentDataRead() const
+{
+	return m_ContentData != nullptr; // bad
+}
+
 const content_data_ptr& FileListItem::ContentData(const FileList* Owner) const
 {
-	if (!m_ContentData)
+	if (!IsContentDataRead())
 	{
 		m_ContentData = Owner->GetContentData(GetItemFullName(*this, Owner));
 	}
@@ -805,7 +830,7 @@ void FileList::SortFileList(int KeepPosition)
 			cs.Positions = Positions.data();
 			cs.Items = m_ListData.data();
 			cs.ItemsCount = m_ListData.size();
-			cs.FileListToPluginItem = custom_sort::FileListToSortingPanelItem;
+			cs.FileListToSortingPanelItem = custom_sort::FileListToSortingPanelItem;
 			cs.ListSortGroups = ListSortGroups;
 			cs.ListSelectedFirst = ListSelectedFirst;
 			cs.ListDirectoriesFirst = ListDirectoriesFirst;
@@ -5582,7 +5607,7 @@ void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItem& pi)
 	pi.CreationTime=fi.CreationTime;
 	pi.LastAccessTime=fi.AccessTime;
 	pi.ChangeTime=fi.ChangeTime;
-	pi.NumberOfLinks=fi.NumberOfLinks(this);
+	pi.NumberOfLinks = fi.IsNumberOfLinksRead()? fi.NumberOfLinks(this) : 0;
 	pi.Flags=fi.UserFlags;
 
 	if (fi.Selected)
@@ -5597,7 +5622,7 @@ void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItem& pi)
 
 	pi.CRC32=fi.CRC32;
 	pi.Reserved[0]=pi.Reserved[1]=0;
-	pi.Owner = EmptyToNull(fi.Owner(this).data());
+	pi.Owner = EmptyToNull(fi.IsOwnerRead()? fi.Owner(this).data() : L"");
 }
 
 size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelItem* gpi) const
@@ -5608,7 +5633,7 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 	size+=sizeof(wchar_t)*(fi.strShortName.size()+1);
 	size+=std::accumulate(fi.CustomColumnData, fi.CustomColumnData + fi.CustomColumnNumber, size_t(0), [](size_t size, const wchar_t* i) { return size + (i? (wcslen(i) + 1) * sizeof(wchar_t) : 0); });
 	size+=fi.DizText?sizeof(wchar_t)*(wcslen(fi.DizText)+1):0;
-	size += fi.Owner(this).empty()? 0 : sizeof(wchar_t) * (fi.Owner(this).size() + 1);
+	size += (fi.IsOwnerRead() && !fi.Owner(this).empty())? sizeof(wchar_t) * (fi.Owner(this).size() + 1) : 0;
 
 	if (gpi)
 	{
@@ -5623,7 +5648,7 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 			gpi->Item->CreationTime=fi.CreationTime;
 			gpi->Item->LastAccessTime=fi.AccessTime;
 			gpi->Item->ChangeTime=fi.ChangeTime;
-			gpi->Item->NumberOfLinks = fi.NumberOfLinks(this);
+			gpi->Item->NumberOfLinks = fi.IsNumberOfLinksRead()? fi.NumberOfLinks(this) : 0;
 			gpi->Item->Flags=fi.UserFlags;
 			if (fi.Selected)
 				gpi->Item->Flags|=PPIF_SELECTED;
@@ -5667,13 +5692,13 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 			}
 
 
-			if (fi.Owner(this).empty())
+			if (fi.IsOwnerRead() && !fi.Owner(this).empty())
 			{
-				gpi->Item->Owner=nullptr;
+				gpi->Item->Owner = wcscpy((wchar_t*)data, fi.Owner(this).data());
 			}
 			else
 			{
-				gpi->Item->Owner = wcscpy((wchar_t*)data, fi.Owner(this).data());
+				gpi->Item->Owner = nullptr;
 			}
 		}
 	}
@@ -8782,18 +8807,18 @@ bool FileList::IsModeFullScreen(int Mode)
 }
 
 
-bool FileList::IsDizDisplayed()
+bool FileList::IsDizDisplayed() const
 {
 	return IsColumnDisplayed(DIZ_COLUMN);
 }
 
-bool FileList::IsColumnDisplayed(std::function<bool(const column&)> Compare)
+bool FileList::IsColumnDisplayed(std::function<bool(const column&)> Compare) const
 {
 	return std::any_of(ALL_CONST_RANGE(m_ViewSettings.PanelColumns), Compare) ||
 		std::any_of(ALL_CONST_RANGE(m_ViewSettings.StatusColumns), Compare);
 }
 
-bool FileList::IsColumnDisplayed(int Type)
+bool FileList::IsColumnDisplayed(int Type) const
 {
 	return IsColumnDisplayed([&Type](const column& i) {return static_cast<int>(i.type & 0xff) == Type;});
 }

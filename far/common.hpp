@@ -108,17 +108,16 @@ template <typename T>
 bool CheckStructSize(const T* s) {return s && (s->StructSize >= sizeof(T));}
 
 template<typename T>
-inline void ClearStruct(T& s)
+inline void ClearStruct(T& s) noexcept
 {
 	static_assert(!std::is_pointer<T>::value, "This template requires a reference to an object");
 	static_assert(std::is_pod<T>::value, "This template requires a POD type");
 	memset(&s, 0, sizeof(s));
 }
 
-template<typename T>
-inline void ClearArray(T& a)
+template<typename T, size_t N>
+inline void ClearArray(T(&a)[N]) noexcept
 {
-	static_assert(std::is_array<T>::value, "This template requires an array");
 	static_assert(std::is_pod<T>::value, "This template requires a POD type");
 	memset(a, 0, sizeof(a));
 }
