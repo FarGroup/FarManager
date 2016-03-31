@@ -44,7 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif // END FAR_USE_INTERNALS
 
 template<typename T>
-inline T GetFunctionPointer(const wchar_t* ModuleName, const char* FunctionName, T Replacement)
+T GetFunctionPointer(const wchar_t* ModuleName, const char* FunctionName, T Replacement)
 {
 	const auto Address = GetProcAddress(GetModuleHandleW(ModuleName), FunctionName);
 	return Address? reinterpret_cast<T>(Address) : Replacement;

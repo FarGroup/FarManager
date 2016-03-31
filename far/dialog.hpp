@@ -116,7 +116,7 @@ bool IsKeyHighlighted(const string& Str, int Key, int Translate, int AmpPos = -1
 void ItemToItemEx(const FarDialogItem *Data, DialogItemEx *Item, size_t Count, bool Short = false);
 
 template<size_t N>
-std::vector<DialogItemEx> MakeDialogItemsEx(const FarDialogItem (&InitData)[N])
+auto MakeDialogItemsEx(const FarDialogItem (&InitData)[N])
 {
 	std::vector<DialogItemEx> Items(N);
 	ItemToItemEx(InitData, Items.data(), N);

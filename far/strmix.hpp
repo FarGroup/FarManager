@@ -151,7 +151,7 @@ inline std::string narrow(const wchar_t *str, uintptr_t codepage = CP_OEMCP) { r
 inline std::string narrow(const string& str, uintptr_t codepage = CP_OEMCP) { return narrow_n(str.data(), str.size(), codepage); }
 
 template<class T>
-inline std::string Utf8String(const T& Str) { return narrow(Str, CP_UTF8); }
+std::string Utf8String(const T& Str) { return narrow(Str, CP_UTF8); }
 
 string str_printf(const wchar_t * format, ...);
 string str_vprintf(const wchar_t * format, va_list argptr);

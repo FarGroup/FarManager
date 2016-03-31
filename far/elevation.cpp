@@ -122,13 +122,13 @@ bool elevation::Write(const void* Data,size_t DataSize) const
 }
 
 template<typename T>
-inline bool elevation::Read(T& Data) const
+bool elevation::Read(T& Data) const
 {
 	return pipe::Read(m_pipe.native_handle(), Data);
 }
 
 template<typename T>
-inline bool elevation::Write(const T& Data) const
+bool elevation::Write(const T& Data) const
 {
 	return pipe::Write(m_pipe.native_handle(), Data);
 }
@@ -941,13 +941,13 @@ private:
 	}
 
 	template<typename T>
-	inline bool Read(T& Data) const
+	bool Read(T& Data) const
 	{
 		return pipe::Read(m_Pipe.native_handle(), Data);
 	}
 
 	template<typename T>
-	inline bool Write(const T& Data) const
+	bool Write(const T& Data) const
 	{
 		return pipe::Write(m_Pipe.native_handle(), Data);
 	}

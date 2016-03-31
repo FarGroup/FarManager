@@ -79,7 +79,7 @@ inline std::wostream& operator <<(std::wostream& stream, const write_exact& p)
 }
 
 template<class T>
-inline void resize_nomove(T& container, size_t size)
+void resize_nomove(T& container, size_t size)
 {
 	T Tmp(size);
 	using std::swap;
@@ -87,7 +87,7 @@ inline void resize_nomove(T& container, size_t size)
 }
 
 template<class T>
-inline void clear_and_shrink(T& container)
+void clear_and_shrink(T& container)
 {
 	T Tmp;
 	using std::swap;
@@ -95,7 +95,7 @@ inline void clear_and_shrink(T& container)
 }
 
 template<class T>
-inline void node_swap(T& Container, const typename T::const_iterator& a, const typename T::const_iterator& b)
+void node_swap(T& Container, const typename T::const_iterator& a, const typename T::const_iterator& b)
 {
 	const auto NextA = std::next(a), NextB = std::next(b);
 	Container.splice(NextA, Container, b);
@@ -108,7 +108,7 @@ template <typename T>
 bool CheckStructSize(const T* s) {return s && (s->StructSize >= sizeof(T));}
 
 template<typename T>
-inline void ClearStruct(T& s) noexcept
+void ClearStruct(T& s) noexcept
 {
 	static_assert(!std::is_pointer<T>::value, "This template requires a reference to an object");
 	static_assert(std::is_pod<T>::value, "This template requires a POD type");
@@ -116,19 +116,19 @@ inline void ClearStruct(T& s) noexcept
 }
 
 template<typename T, size_t N>
-inline void ClearArray(T(&a)[N]) noexcept
+void ClearArray(T(&a)[N]) noexcept
 {
 	static_assert(std::is_pod<T>::value, "This template requires a POD type");
 	memset(a, 0, sizeof(a));
 }
 
 template<class T>
-inline auto NullToEmpty(const T* Str) { static const T empty {}; return Str? Str : &empty; }
+auto NullToEmpty(const T* Str) { static const T empty {}; return Str? Str : &empty; }
 template<class T>
-inline auto EmptyToNull(const T* Str) { return (Str && !*Str)? nullptr : Str; }
+auto EmptyToNull(const T* Str) { return (Str && !*Str)? nullptr : Str; }
 
 template<class T>
-inline size_t make_hash(const T& value)
+size_t make_hash(const T& value)
 {
 	return std::hash<T>()(value);
 }

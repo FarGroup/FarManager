@@ -110,4 +110,6 @@ const RAII_type ANONYMOUS_VARIABLE(scoped_object_)
 #define STR(x) #x
 #define WSTR(x) L###x
 
+#define ENABLE_IF(...) std::enable_if_t<__VA_ARGS__>* = nullptr
+
 #endif // PREPROCESSOR_HPP_35FF3F1D_40F4_4741_9366_6A0723C14CBB

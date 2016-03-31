@@ -1512,7 +1512,7 @@ S BlobToHexStringT(const void* Blob, size_t Size, C Separator)
 }
 
 template<class C>
-std::vector<char> HexStringToBlobT(const C* Hex, size_t Size, C Separator)
+auto HexStringToBlobT(const C* Hex, size_t Size, C Separator)
 {
 	std::vector<char> Blob;
 	Blob.reserve((Size + 1) / 3);

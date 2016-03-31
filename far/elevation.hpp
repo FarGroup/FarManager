@@ -83,9 +83,9 @@ public:
 private:
 	bool Write(const void* Data, size_t DataSize) const;
 	template<typename T>
-	inline bool Read(T& Data) const;
+	bool Read(T& Data) const;
 	template<typename T>
-	inline bool Write(const T& Data) const;
+	bool Write(const T& Data) const;
 	bool SendCommand(ELEVATION_COMMAND Command);
 	bool ReceiveLastError() const;
 	bool Initialize();

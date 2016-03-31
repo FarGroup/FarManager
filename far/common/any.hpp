@@ -111,8 +111,8 @@ public:
 	}
 
 private:
-	template<class T>
-	static std::enable_if_t<!std::is_same<std::decay_t<T>, any>::value, std::unique_ptr<detail::any_base>> construct(T&& rhs)
+	template<class T, ENABLE_IF(!std::is_same<std::decay_t<T>, any>::value)>
+	static std::unique_ptr<detail::any_base> construct(T&& rhs)
 	{
 		return std::make_unique<detail::any_impl<std::decay_t<T>>>(std::forward<T>(rhs));
 	}

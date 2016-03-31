@@ -65,7 +65,7 @@ private:
 typedef lock_guard<CriticalSection> CriticalSectionLock;
 
 template<class T, class S>
-inline string make_name(const S& HashPart, const S& TextPart)
+string make_name(const S& HashPart, const S& TextPart)
 {
 	auto Str = T::GetNamespace() + std::to_wstring(make_hash(HashPart)) + L"_" + TextPart;
 	ReplaceBackslashToSlash(Str);

@@ -60,9 +60,8 @@ public:
 	virtual bool SetValue(const string& Key, const string& Name, const wchar_t* Value) = 0;
 	virtual bool SetValue(const string& Key, const string& Name, unsigned __int64 Value) = 0;
 	virtual bool SetValue(const string& Key, const string& Name, const blob& Value) = 0;
-	template<class T>
-	std::enable_if_t<!std::is_pointer<T>::value && !std::is_integral<T>::value, bool>
-	SetValue(const string& Key, const string& Name, const T& Value)
+	template<class T, ENABLE_IF(!std::is_pointer<T>::value && !std::is_integral<T>::value)>
+	bool SetValue(const string& Key, const string& Name, const T& Value)
 	{
 		static_assert(std::is_pod<T>::value, "This template requires a POD type");
 		return SetValue(Key, Name, &Value, sizeof(Value));
@@ -129,9 +128,8 @@ public:
 	virtual bool SetValue(const key& Root, const string& Name, const wchar_t* Value) = 0;
 	virtual bool SetValue(const key& Root, const string& Name, unsigned long long Value) = 0;
 	virtual bool SetValue(const key& Root, const string& Name, const blob& Value) = 0;
-	template<class T>
-	std::enable_if_t<!std::is_pointer<T>::value && !std::is_integral<T>::value, bool>
-	SetValue(const key& Root, const string& Name, const T& Value)
+	template<class T, ENABLE_IF(!std::is_pointer<T>::value && !std::is_integral<T>::value)>
+	bool SetValue(const key& Root, const string& Name, const T& Value)
 	{
 		static_assert(std::is_pod<T>::value, "This template requires a POD type");
 		return SetValue(Root, Name, blob(&Value, sizeof(Value)));
@@ -140,9 +138,8 @@ public:
 	virtual bool GetValue(const key& Root, const string& Name, unsigned long long& Value) = 0;
 	virtual bool GetValue(const key& Root, const string& Name, string &strValue) = 0;
 	virtual bool GetValue(const key& Root, const string& Name, writable_blob& Value) = 0;
-	template<class T>
-	std::enable_if_t<!std::is_pointer<T>::value && !std::is_integral<T>::value, bool>
-	GetValue(const key& Root, const string& Name, T& Value)
+	template<class T, ENABLE_IF(!std::is_pointer<T>::value && !std::is_integral<T>::value)>
+	bool GetValue(const key& Root, const string& Name, T& Value)
 	{
 		static_assert(std::is_pod<T>::value, "This template requires a POD type");
 		writable_blob Blob(&Value, sizeof(Value));

@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace unicode
 {
-	#define NOT_PTR(T) typename T, std::enable_if_t<!std::is_pointer<T>::value>* = nullptr
+	#define NOT_PTR(T) typename T, ENABLE_IF(!std::is_pointer<T>::value)
 
 	size_t to(uintptr_t Codepage, const wchar_t* Data, size_t Size, char* Buffer, size_t BufferSize, bool* UsedDefaultChar = nullptr);
 	template<NOT_PTR(T)>

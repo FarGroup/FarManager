@@ -75,7 +75,7 @@ private:
 };
 
 template<class iterator_type>
-inline range<iterator_type> make_range(iterator_type i_begin, iterator_type i_end)
+auto make_range(iterator_type i_begin, iterator_type i_end)
 {
 	return range<iterator_type>(i_begin, i_end);
 }
@@ -108,13 +108,13 @@ private:
 };
 
 template<class T>
-inline range<i_iterator<T>> make_irange(T i_begin, T i_end)
+auto make_irange(T i_begin, T i_end)
 {
 	return range<i_iterator<T>>(i_begin, i_end);
 }
 
 template<class T>
-inline range<i_iterator<T>> make_irange(T i_end)
+auto make_irange(T i_end)
 {
 	return range<i_iterator<T>>(0, i_end);
 }

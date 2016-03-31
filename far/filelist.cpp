@@ -8678,30 +8678,27 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 						case OWNER_COLUMN:
 						{
-							auto Owner = m_ListData[ListPos].Owner(this).data();
+							const auto& Owner = m_ListData[ListPos].Owner(this);
+							size_t Offset = 0;
 
-							if (!*Owner)
+							if (!(Columns[K].type & COLUMN_FULLOWNER) && m_PanelMode != panel_mode::PLUGIN_PANEL)
 							{
-								Owner = L"?";
-							}
-							else if (!(Columns[K].type & COLUMN_FULLOWNER) && m_PanelMode != panel_mode::PLUGIN_PANEL)
-							{
-								const auto SlashPos = FindSlash(m_ListData[ListPos].Owner(this));
+								const auto SlashPos = FindSlash(Owner);
 								if (SlashPos != string::npos)
 								{
-									Owner += SlashPos + 1;
+									Offset = SlashPos + 1;
 								}
 							}
-							else if(IsSlash(*Owner))
+							else if(!Owner.empty() && IsSlash(Owner.front()))
 							{
-								Owner++;
+								Offset = 1;
 							}
 
 							int CurLeftPos=0;
 
 							if (!ShowStatus && LeftPos>0)
 							{
-								int Length=StrLength(Owner);
+								int Length = static_cast<int>(Owner.size() - Offset);
 								if (Length>ColumnWidth)
 								{
 									CurLeftPos = std::min(LeftPos, Length-ColumnWidth);
@@ -8709,7 +8706,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								}
 							}
 
-							Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(ColumnWidth)<<Owner+CurLeftPos;
+							Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(ColumnWidth)<< Owner.data() + Offset + CurLeftPos;
 							break;
 						}
 

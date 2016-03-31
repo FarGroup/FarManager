@@ -487,7 +487,7 @@ namespace os
 		bool get_variable(const wchar_t* Name, string& strBuffer);
 		inline bool get_variable(const string& Name, string& strBuffer) { return get_variable(Name.data(), strBuffer); }
 		template<class T>
-		inline string get_variable(const T& Name) { string Result; get_variable(Name, Result); return Result; }
+		string get_variable(const T& Name) { string Result; get_variable(Name, Result); return Result; }
 
 		bool set_variable(const wchar_t* Name, const wchar_t* Value);
 		inline bool set_variable(const wchar_t* Name, const string& Value) { return set_variable(Name, Value.data()); }
@@ -565,10 +565,10 @@ namespace os
 			using lock_t = std::unique_ptr<std::remove_pointer_t<T>, detail::unlocker>;
 
 			template<class T>
-			lock_t<T> lock(HGLOBAL Ptr) { return lock_t<T>(static_cast<T>(GlobalLock(Ptr))); }
+			auto lock(HGLOBAL Ptr) { return lock_t<T>(static_cast<T>(GlobalLock(Ptr))); }
 
 			template<class T>
-			lock_t<T> lock(const ptr& Ptr) { return lock<T>(Ptr.get()); }
+			auto lock(const ptr& Ptr) { return lock<T>(Ptr.get()); }
 
 			template<class T>
 			ptr copy(const T& Object)
@@ -612,10 +612,10 @@ namespace os
 			using ptr_t = std::unique_ptr<T, detail::deleter>;
 
 			template<class T>
-			inline ptr_t<T> ptr(T* Pointer) { return ptr_t<T>(Pointer); }
+			auto ptr(T* Pointer) { return ptr_t<T>(Pointer); }
 
 			template<class T>
-			inline ptr_t<T> alloc(UINT Flags, size_t size) { return ptr(static_cast<T*>(LocalAlloc(Flags, size))); }
+			auto alloc(UINT Flags, size_t size) { return ptr(static_cast<T*>(LocalAlloc(Flags, size))); }
 		};
 
 		bool is_pointer(const void* Address);
@@ -632,7 +632,7 @@ namespace os
 			using ptr_t = std::unique_ptr<T, detail::deleter<T>>;
 
 			template<class T>
-			ptr_t<T> ptr(T* RawPtr) { return ptr_t<T>(RawPtr); }
+			auto ptr(T* RawPtr) { return ptr_t<T>(RawPtr); }
 		}
 	}
 

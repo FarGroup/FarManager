@@ -85,15 +85,18 @@ private:
 	std::unique_ptr<T> ptr;
 };
 
-struct file_closer
+namespace detail
 {
-	void operator()(FILE* Object) const
+	struct file_closer
 	{
-		fclose(Object);
-	}
-};
+		void operator()(FILE* Object) const
+		{
+			fclose(Object);
+		}
+	};
+}
 
-typedef std::unique_ptr<FILE, file_closer> file_ptr;
+typedef std::unique_ptr<FILE, detail::file_closer> file_ptr;
 
 namespace detail
 {
