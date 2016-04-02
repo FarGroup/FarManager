@@ -39,7 +39,6 @@ class DizList: noncopyable
 {
 public:
 	DizList();
-	~DizList();
 
 	void Read(const string& Path, const string* DizName = nullptr);
 
@@ -54,7 +53,8 @@ public:
 	const string& GetDizName() const { return m_DizFileName; }
 
 private:
-	typedef std::unordered_multimap<string, std::list<string>> desc_map;
+	struct map_pred { bool operator()(const string& a, const string& b) const; };
+	typedef std::unordered_multimap<string, std::list<string>, std::hash<string>, map_pred> desc_map;
 
 	desc_map::iterator Insert(const string& Name);
 	desc_map::iterator Find(const string& Name, const string& ShortName);

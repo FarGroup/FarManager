@@ -53,8 +53,9 @@ DizList::DizList():
 {
 }
 
-DizList::~DizList()
+bool DizList::map_pred::operator()(const string& a, const string& b) const
 {
+	return !StrCmpI(a, b);
 }
 
 void DizList::Reset()
