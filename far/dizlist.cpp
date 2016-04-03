@@ -53,7 +53,12 @@ DizList::DizList():
 {
 }
 
-bool DizList::map_pred::operator()(const string& a, const string& b) const
+size_t DizList::hasher::operator()(const string& Key) const
+{
+	return make_hash(Lower(Key));
+}
+
+bool DizList::key_equal::operator()(const string& a, const string& b) const
 {
 	return !StrCmpI(a, b);
 }

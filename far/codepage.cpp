@@ -115,7 +115,7 @@ cp_map::value_type::second_type GetCodePageInfo(UINT cp)
 	const auto& InstalledCp = InstalledCodepages();
 	const auto found = InstalledCp.find(cp);
 	if (InstalledCp.end() == found)
-		return cp_map::value_type::second_type();
+		return {};
 
 	return found->second;
 }

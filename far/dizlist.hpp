@@ -53,15 +53,16 @@ public:
 	const string& GetDizName() const { return m_DizFileName; }
 
 private:
-	struct map_pred { bool operator()(const string& a, const string& b) const; };
-	typedef std::unordered_multimap<string, std::list<string>, std::hash<string>, map_pred> desc_map;
+	struct hasher { size_t operator()(const string& Key) const; };
+	struct key_equal { bool operator()(const string& a, const string& b) const; };
+	typedef std::unordered_multimap<string, std::list<string>, hasher, key_equal> desc_map;
 
 	desc_map::iterator Insert(const string& Name);
 	desc_map::iterator Find(const string& Name, const string& ShortName);
 	desc_map::const_iterator Find(const string& Name, const string& ShortName) const;
 
 	desc_map m_DizData;
-	std::list<std::add_pointer_t<desc_map::value_type>> m_OrderForWrite;
+	std::list<desc_map::value_type*> m_OrderForWrite;
 	string m_DizFileName;
 	uintptr_t m_CodePage;
 	bool m_Modified;

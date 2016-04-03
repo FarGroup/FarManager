@@ -158,8 +158,10 @@ string str_vprintf(const wchar_t * format, va_list argptr);
 
 inline string& ToUpper(string& str, size_t pos = 0, size_t n = string::npos) {std::transform(str.begin() + pos, n == string::npos? str.end() : str.begin() + pos + n, str.begin() + pos, ::ToUpper); return str;}
 inline string& ToLower(string& str, size_t pos = 0, size_t n = string::npos) {std::transform(str.begin() + pos, n == string::npos? str.end() : str.begin() + pos + n, str.begin() + pos, ::ToLower); return str;}
-inline string ToUpper(string&& str, size_t pos = 0, size_t n = string::npos) { ToUpper(str, pos, n); return str; }
-inline string ToLower(string&& str, size_t pos = 0, size_t n = string::npos) { ToLower(str, pos, n); return str; }
+inline string Upper(string&& str, size_t pos = 0, size_t n = string::npos) { return ToUpper(str, pos, n); }
+inline string Lower(string&& str, size_t pos = 0, size_t n = string::npos) { return ToLower(str, pos, n); }
+inline string Upper(const string& str, size_t pos = 0, size_t n = string::npos) { return Upper(string(str), pos, n); }
+inline string Lower(const string& str, size_t pos = 0, size_t n = string::npos) { return Lower(string(str), pos, n); }
 
 inline wchar_t* UNSAFE_CSTR(const string& s) {return const_cast<wchar_t*>(s.data());}
 

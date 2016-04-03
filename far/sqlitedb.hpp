@@ -121,7 +121,7 @@ protected:
 	static SQLiteStmt::transient_t<T> transient(const T& Value) { return SQLiteStmt::transient_t<T>(Value); }
 
 	template<size_t ExpectedSize, class T, size_t N>
-	void CheckStmt(const T (&Stmts)[N])
+	static void CheckStmt(const T (&Stmts)[N])
 	{
 		static_assert(N == ExpectedSize, "Not all statements initialized");
 	}

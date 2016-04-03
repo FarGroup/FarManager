@@ -370,7 +370,7 @@ void InfoList::DisplayObject()
 		strTitle=MSG(MInfoDiskTitle);
 	DrawTitle(strTitle,ILSS_DISKINFO,CurY);
 
-	auto bytes_suffix = ToUpper(MSG(MListBytes));
+	const auto bytes_suffix = Upper(MSG(MListBytes));
 	auto size2str = [&bytes_suffix](ULONGLONG Size)
 	{
 		string str;
