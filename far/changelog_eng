@@ -3,6 +3,26 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 03.04.2016 14:37:41 +0200 - build 4610
+
+1. Once more 4609.1.
+
+2. A pair of minor issues.
+
+drkns 03.04.2016 00:05:57 +0200 - build 4609
+
+1. Forum: "For some time now file descriptions have been case dependent".
+
+drkns 31.03.2016 10:00:26 +0200 - build 4608
+
+1. Correction of 4603. Do not show "?" if the owner is undefined.
+
+2. Other minor refactoring.
+
+drkns 29.03.2016 19:15:04 +0200 - build 4607
+
+1. Correction of 4603. Pass the mentioned items to plugins only if they already have been read.
+
 drkns 27.03.2016 20:33:46 +0200 - build 4606
 
 1. Refactoring.
