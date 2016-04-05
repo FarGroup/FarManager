@@ -328,7 +328,7 @@ Dialog::Dialog(const wstring& title, const GUID* guid, unsigned width, const wch
 
 void Dialog::new_line() {
   x = c_x_frame;
-  y++;
+  ++y;
 }
 
 void Dialog::reset_line() {
@@ -342,7 +342,8 @@ void Dialog::spacer(size_t size) {
 }
 
 void Dialog::pad(size_t pos) {
-  if (pos > x - c_x_frame) spacer(pos - (x - c_x_frame));
+  if (pos > x - c_x_frame)
+    spacer(pos - (x - c_x_frame));
 }
 
 unsigned Dialog::separator() {

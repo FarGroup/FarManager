@@ -1214,12 +1214,14 @@ public:
       separator();
       new_line();
 
-      label(Far::get_msg(MSG_UPDATE_DLG_ARC_PATH));
-      spacer(1);
+      const auto label_text = Far::get_msg(MSG_UPDATE_DLG_ARC_PATH);
+      spacer(get_label_len(label_text, 0) + 1);
       arc_path_eval_ctrl_id = button(Far::get_msg(MSG_UPDATE_DLG_ARC_PATH_EVAL), DIF_BTNNOCLOSE);
       spacer(1);
       append_ext_ctrl_id = check_box(Far::get_msg(MSG_UPDATE_DLG_APPEND_EXT), options.append_ext);
-      new_line();
+      reset_line();
+		label(label_text);
+		new_line();
       arc_path_ctrl_id = history_edit_box(options.arc_path + old_ext, L"arclite.arc_path", c_client_xs, DIF_EDITPATH);
       new_line();
       separator();

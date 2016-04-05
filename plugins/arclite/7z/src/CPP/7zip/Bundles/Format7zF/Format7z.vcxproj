@@ -106,6 +106,7 @@
       <Optimization>Disabled</Optimization>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
       <MinimalRebuild>true</MinimalRebuild>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalIncludeDirectories>..\..\..\..\SDK;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -115,6 +116,8 @@
       <CallingConvention>FastCall</CallingConvention>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <EnableEnhancedInstructionSet Condition="'$(VisualStudioVersion)' != '10.0'">NoExtensions</EnableEnhancedInstructionSet>
+      <AdditionalOptions Condition="'$(VisualStudioVersion)' &gt;= '14.0'">/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+      <WarningVersion Condition="'$(VisualStudioVersion)' &gt;= '14.0'">18</WarningVersion>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -155,6 +158,7 @@
       <Optimization>Disabled</Optimization>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalIncludeDirectories>..\..\..\..\SDK;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;WIN32;_WINDOWS;_USRDLL;MY7Z_EXPORTS;NO_REGISTRY;EXTERNAL_CODECS;_7ZIP_LARGE_PAGES;_7ZIP_ST_9;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -162,6 +166,8 @@
       <PrecompiledHeaderFile>StdAfx.h</PrecompiledHeaderFile>
       <CallingConvention>FastCall</CallingConvention>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <AdditionalOptions Condition="'$(VisualStudioVersion)' &gt;= '14.0'">/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+      <WarningVersion Condition="'$(VisualStudioVersion)' &gt;= '14.0'">18</WarningVersion>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -200,6 +206,7 @@
       <Optimization>MinSpace</Optimization>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
       <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;_USRDLL;MY7Z_EXPORTS;NO_REGISTRY;EXTERNAL_CODECS;_7ZIP_LARGE_PAGES;_7ZIP_ST_9;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerOutput>NoListing</AssemblerOutput>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -207,6 +214,8 @@
       <CallingConvention>FastCall</CallingConvention>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <EnableEnhancedInstructionSet Condition="'$(VisualStudioVersion)' != '10.0'">NoExtensions</EnableEnhancedInstructionSet>
+      <AdditionalOptions Condition="'$(VisualStudioVersion)' &gt;= '14.0'">/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+      <WarningVersion Condition="'$(VisualStudioVersion)' &gt;= '14.0'">18</WarningVersion>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -247,11 +256,14 @@
       <Optimization>MinSpace</Optimization>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
       <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;_USRDLL;MY7Z_EXPORTS;NO_REGISTRY;EXTERNAL_CODECS;_7ZIP_LARGE_PAGES;_7ZIP_ST_9;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerOutput>NoListing</AssemblerOutput>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>StdAfx.h</PrecompiledHeaderFile>
       <CallingConvention>FastCall</CallingConvention>
+      <WarningVersion Condition="'$(VisualStudioVersion)' &gt;= '14.0'">18</WarningVersion>
+      <AdditionalOptions Condition="'$(VisualStudioVersion)' &gt;= '14.0'">/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -312,6 +324,7 @@
     <CustomBuild Include="..\..\Archive\Archive2.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\..\common\vc_crt_fix_impl.cpp" />
     <ClCompile Include="..\..\..\..\C\7zBuf2.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
@@ -1072,6 +1085,7 @@
     <ClInclude Include="StdAfx.h" />
   </ItemGroup>
   <ItemGroup>
+    <MASM Include="..\..\..\..\..\common\vc_crt_fix.asm" />
     <MASM Include="..\..\..\..\Asm\x86\7zAsm.asm">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
