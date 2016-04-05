@@ -1662,7 +1662,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 				}
 
 				FindData.strFileName = strFullName;
-				PluginPanelItem Item = {};
+				PluginPanelItem Item;
 				FindDataExToPluginPanelItem(FindData, Item);
 				Items->emplace_back(Item);
 			}
@@ -2946,7 +2946,7 @@ void WINAPI apiRecursiveSearch(const wchar_t *InitDir, const wchar_t *Mask, FRSU
 		{
 			if (FMask.Compare(FindData.strFileName))
 			{
-				PluginPanelItem fdata = {};
+				PluginPanelItem fdata;
 				FindDataExToPluginPanelItem(FindData, fdata);
 
 				Found = !Func(&fdata,strFullName.data(),Param);

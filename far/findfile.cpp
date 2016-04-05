@@ -959,13 +959,11 @@ bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const os::FAR_FIND_DATA& Fin
 	_ALGO(CleverSysLog clv(L"FindFiles::GetPluginFile()"));
 	OpenPanelInfo Info;
 	Global->CtrlObject->Plugins->GetOpenPanelInfo(ArcItem->hPlugin,&Info);
-	string strSaveDir = NullToEmpty(Info.CurDir);
-	AddEndSlash(strSaveDir);
+	const auto strSaveDir = NullToEmpty(Info.CurDir);
 	Global->CtrlObject->Plugins->SetDirectory(ArcItem->hPlugin,L"\\",OPM_SILENT);
-	//SetPluginDirectory(ArcItem->strRootPath,hPlugin);
 	SetPluginDirectory(FindData.strFileName,ArcItem->hPlugin,false,UserData);
-	const wchar_t *FileNameToFind = PointToName(FindData.strFileName);
-	const wchar_t *FileNameToFindShort = PointToName(FindData.strAlternateFileName);
+	const auto FileNameToFind = PointToName(FindData.strFileName);
+	const auto FileNameToFindShort = PointToName(FindData.strAlternateFileName);
 	PluginPanelItem *Items;
 	size_t ItemsNumber;
 	bool nResult=false;
@@ -973,11 +971,9 @@ bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const os::FAR_FIND_DATA& Fin
 	if (Global->CtrlObject->Plugins->GetFindData(ArcItem->hPlugin, &Items, &ItemsNumber, OPM_SILENT))
 	{
 		const auto End = Items + ItemsNumber;
-		const auto It = std::find_if(Items, End, [&](PluginPanelItem& Item)
+		const auto It = std::find_if(Items, End, [&](const auto& Item)
 		{
-			Item.FileName = PointToName(NullToEmpty(Item.FileName));
-			Item.AlternateFileName = PointToName(NullToEmpty(Item.AlternateFileName));
-			return !StrCmp(FileNameToFind, Item.FileName) && !StrCmp(FileNameToFindShort, Item.AlternateFileName);
+			return !StrCmp(FileNameToFind, NullToEmpty(Item.FileName)) && !StrCmp(FileNameToFindShort, NullToEmpty(Item.AlternateFileName));
 		});
 
 		if (It != End)
@@ -2799,7 +2795,7 @@ bool FindFiles::FindFilesProcess()
 							{
 								i.FindData.strFileName = i.Arc->strArcName;
 							}
-							PluginPanelItem pi = {};
+							PluginPanelItem pi;
 							FindDataExToPluginPanelItem(i.FindData, pi);
 
 							if (IsArchive)

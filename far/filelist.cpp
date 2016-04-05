@@ -5583,7 +5583,6 @@ int FileList::FileNameToPluginItem(const string& Name,PluginPanelItem& pi)
 		return FALSE;
 
 	FarChDir(strTempDir);
-	ClearStruct(pi);
 	os::FAR_FIND_DATA fdata;
 
 	if (os::GetFindDataEx(Name, fdata))

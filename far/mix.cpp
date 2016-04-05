@@ -98,20 +98,21 @@ bool FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithTempPath, cons
 
 void PluginPanelItemToFindDataEx(const PluginPanelItem& Src, os::FAR_FIND_DATA& Dest)
 {
-	Dest.dwFileAttributes = Src.FileAttributes;
 	Dest.ftCreationTime = Src.CreationTime;
 	Dest.ftLastAccessTime = Src.LastAccessTime;
 	Dest.ftLastWriteTime = Src.LastWriteTime;
 	Dest.ftChangeTime = Src.ChangeTime;
 	Dest.nFileSize = Src.FileSize;
 	Dest.nAllocationSize = Src.AllocationSize;
+	Dest.FileId = 0;
 	Dest.strFileName = NullToEmpty(Src.FileName);
 	Dest.strAlternateFileName = NullToEmpty(Src.AlternateFileName);
+	Dest.dwFileAttributes = Src.FileAttributes;
+	Dest.dwReserved0 = 0;
 }
 
 void FindDataExToPluginPanelItem(const os::FAR_FIND_DATA& Src, PluginPanelItem& Dest)
 {
-	Dest.FileAttributes = Src.dwFileAttributes;
 	Dest.CreationTime = Src.ftCreationTime;
 	Dest.LastAccessTime = Src.ftLastAccessTime;
 	Dest.LastWriteTime = Src.ftLastWriteTime;
@@ -120,6 +121,17 @@ void FindDataExToPluginPanelItem(const os::FAR_FIND_DATA& Src, PluginPanelItem& 
 	Dest.AllocationSize = Src.nAllocationSize;
 	Dest.FileName = DuplicateString(Src.strFileName.data());
 	Dest.AlternateFileName = DuplicateString(Src.strAlternateFileName.data());
+	Dest.Description = nullptr;
+	Dest.Owner = nullptr;
+	Dest.CustomColumnData = nullptr;
+	Dest.CustomColumnNumber = 0;
+	Dest.Flags = 0;
+	Dest.UserData.Data = nullptr;
+	Dest.UserData.FreeData = nullptr;
+	Dest.FileAttributes = Src.dwFileAttributes;
+	Dest.NumberOfLinks = 1;
+	Dest.CRC32 = 0;
+	ClearArray(Dest.Reserved);
 }
 
 void FreePluginPanelItem(const PluginPanelItem& Data)

@@ -118,7 +118,7 @@ protected:
 	typedef std::pair<size_t, const wchar_t*> stmt_init_t;
 
 	template<class T>
-	static SQLiteStmt::transient_t<T> transient(const T& Value) { return SQLiteStmt::transient_t<T>(Value); }
+	static auto transient(const T& Value) { return SQLiteStmt::transient_t<T>(Value); }
 
 	template<size_t ExpectedSize, class T, size_t N>
 	static void CheckStmt(const T (&Stmts)[N])

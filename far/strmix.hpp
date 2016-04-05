@@ -140,7 +140,12 @@ inline bool StrToGuid(const string& Value, GUID& Guid) { return StrToGuid(Value.
 bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const string &UpperStr, const string &LowerStr, class RegExp &re, RegExpMatch *pm, MatchHash* hm, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength,const wchar_t* WordDiv=nullptr);
 
 inline int StrCmp(const string& a, const string& b) { return ::StrCmp(a.data(), b.data()); }
+inline int StrCmp(const wchar_t* a, const string& b) { return ::StrCmp(a, b.data()); }
+inline int StrCmp(const string& a, const wchar_t* b) { return ::StrCmp(a.data(), b); }
+
 inline int StrCmpI(const string& a, const string& b) { return ::StrCmpI(a.data(), b.data()); }
+inline int StrCmpI(const wchar_t* a, const string& b) { return ::StrCmpI(a, b.data()); }
+inline int StrCmpI(const string& a, const wchar_t* b) { return ::StrCmpI(a.data(), b); }
 
 string wide_n(const char *str, size_t size, uintptr_t codepage = CP_OEMCP);
 inline string wide(const char *str, uintptr_t codepage = CP_OEMCP) { return wide_n(str, strlen(str), codepage); }
@@ -249,10 +254,10 @@ S to_hex_string_t(T Value)
 }
 
 template<class T>
-std::string to_hex_string(T Value) { return to_hex_string_t<std::string>(Value); }
+auto to_hex_string(T Value) { return to_hex_string_t<std::string>(Value); }
 
 template<class T>
-string to_hex_wstring(T Value) { return to_hex_string_t<string>(Value); }
+auto to_hex_wstring(T Value) { return to_hex_string_t<string>(Value); }
 
 struct string_i_less
 {

@@ -46,7 +46,7 @@ namespace detail
 	{
 	public:
 		template<typename F>
-		scope_guard<F> operator << (F&& f) { return scope_guard<F>(std::move(f)); }
+		auto operator << (F&& f) { return scope_guard<F>(std::move(f)); }
 	};
 
 };
