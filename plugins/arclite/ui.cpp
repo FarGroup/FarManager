@@ -1220,8 +1220,8 @@ public:
       spacer(1);
       append_ext_ctrl_id = check_box(Far::get_msg(MSG_UPDATE_DLG_APPEND_EXT), options.append_ext);
       reset_line();
-		label(label_text);
-		new_line();
+      label(label_text);
+      new_line();
       arc_path_ctrl_id = history_edit_box(options.arc_path + old_ext, L"arclite.arc_path", c_client_xs, DIF_EDITPATH);
       new_line();
       separator();
