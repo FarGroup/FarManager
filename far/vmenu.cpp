@@ -861,7 +861,10 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							Res = StrStrI(strTemp, str) == strTemp.cbegin();
 							break;
 						case 2: // end compare
-							Res = RevStrStrI(strTemp, str) + str.size() == strTemp.cend();
+							{
+								const auto Iter = RevStrStrI(strTemp, str);
+								Res = Iter != strTemp.cend() && Iter + str.size() == strTemp.cend();
+							}
 							break;
 						case 3: // in str
 							Res = StrStrI(strTemp, str) != strTemp.cend();
