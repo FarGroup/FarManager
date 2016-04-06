@@ -7227,10 +7227,10 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	//Рефреш текущему времени для фильтра перед началом операции
 	m_Filter->UpdateCurrentTime();
 	Global->CtrlObject->HiFiles->UpdateCurrentTime();
-	bool TwoDotsPresent = false;
 	bool UseFilter=m_Filter->IsEnabledOnPanel();
 
-	m_ListData.reserve(PluginFileCount);
+	m_ListData.reserve(PluginFileCount + ((m_CachedOpenPanelInfo.Flags & OPIF_ADDDOTS)? 1 : 0));
+	FileListItem* TwoDotsPtr = nullptr;
 
 	for (size_t i = 0; i < PluginFileCount; i++)
 	{
@@ -7249,51 +7249,57 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 
 		NewItem.SortGroup = (m_CachedOpenPanelInfo.Flags & OPIF_DISABLESORTGROUPS)? DEFAULT_SORT_GROUP : Global->CtrlObject->HiFiles->GetGroup(&NewItem);
 
-		const auto IsParentDirName = !TwoDotsPresent && TestParentFolderName(NewItem.strName);
-		if (IsParentDirName)
-		{
-			TwoDotsPresent = true;
-			if ((m_CachedOpenPanelInfo.Flags & OPIF_ADDDOTS) != 0)
-				NewItem.FileAttr |= FILE_ATTRIBUTE_DIRECTORY;
-		}
-
-		const auto IsDir = NewItem.FileAttr & FILE_ATTRIBUTE_DIRECTORY;
-		const auto Size = NewItem.FileSize;
+		const auto IsTwoDots = (!TwoDotsPtr || !(TwoDotsPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)) && TestParentFolderName(NewItem.strName);
+		const auto IsDir = (NewItem.FileAttr & FILE_ATTRIBUTE_DIRECTORY) != 0;
 
 		m_ListData.emplace_back(std::move(NewItem));
 
-		if (!IsParentDirName)
+		if (IsTwoDots)
 		{
-			if (IsDir)
+			// We keep the address of the first encountered ".." element for special treatment.
+			// However, if we found a file and after that we fond a directory - it's better to pick a directory.
+			if (!TwoDotsPtr || (IsDir && !(TwoDotsPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)))
 			{
-				++m_TotalDirCount;
+				// We reserve capacity so no reallocation will happen and pointer will stay valid.
+				TwoDotsPtr = &m_ListData.back();
 			}
-			else
-			{
-				++m_TotalFileCount;
-			}
-			TotalFileSize += Size;
 		}
 	}
 
-	if ((m_CachedOpenPanelInfo.Flags & OPIF_ADDDOTS) && !TwoDotsPresent)
+	if (!TwoDotsPtr)
 	{
-		FileListItem NewItem;
-		FillParentPoint(NewItem, m_ListData.size() + 1);
-
-		if (m_CachedOpenPanelInfo.HostFile && *m_CachedOpenPanelInfo.HostFile)
+		if (m_CachedOpenPanelInfo.Flags & OPIF_ADDDOTS)
 		{
-			os::FAR_FIND_DATA FindData;
+			FileListItem NewItem;
+			FillParentPoint(NewItem, m_ListData.size() + 1);
 
-			if (os::GetFindDataEx(m_CachedOpenPanelInfo.HostFile, FindData))
+			if (m_CachedOpenPanelInfo.HostFile && *m_CachedOpenPanelInfo.HostFile)
 			{
-				NewItem.WriteTime=FindData.ftLastWriteTime;
-				NewItem.CreationTime=FindData.ftCreationTime;
-				NewItem.AccessTime=FindData.ftLastAccessTime;
-				NewItem.ChangeTime=FindData.ftChangeTime;
+				os::FAR_FIND_DATA FindData;
+
+				if (os::GetFindDataEx(m_CachedOpenPanelInfo.HostFile, FindData))
+				{
+					NewItem.WriteTime = FindData.ftLastWriteTime;
+					NewItem.CreationTime = FindData.ftCreationTime;
+					NewItem.AccessTime = FindData.ftLastAccessTime;
+					NewItem.ChangeTime = FindData.ftChangeTime;
+				}
 			}
+			m_ListData.emplace_back(std::move(NewItem));
 		}
-		m_ListData.emplace_back(std::move(NewItem));
+	}
+	else
+	{
+		if (TwoDotsPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)
+		{
+			--m_TotalDirCount;
+		}
+		else
+		{
+			--m_TotalFileCount;
+			TwoDotsPtr->FileAttr |= FILE_ATTRIBUTE_DIRECTORY;
+		}
+		TotalFileSize -= TwoDotsPtr->FileSize;
 	}
 
 	if (m_CurFile >= static_cast<int>(m_ListData.size()))
