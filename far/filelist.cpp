@@ -1435,7 +1435,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 				}
 				else
 				{
-					int CurrentPath=FALSE;
+					bool add_slash = false;
 					assert(m_CurFile < static_cast<int>(m_ListData.size()));
 					CurPtr = &m_ListData[m_CurFile];
 
@@ -1451,10 +1451,10 @@ int FileList::ProcessKey(const Manager::Key& Key)
 						else
 							strFileName.resize(1); // "."
 
-						if (!(LocalKey==KEY_CTRLALTF || LocalKey==KEY_RCTRLRALTF || LocalKey==KEY_CTRLRALTF || LocalKey==KEY_RCTRLALTF))
-							LocalKey=KEY_CTRLF;
+						add_slash = (LocalKey & 0xFFFF) != (KEY_CTRLF & 0xFFFF);
 
-						CurrentPath=TRUE;
+						if (!(LocalKey==KEY_CTRLALTF || LocalKey==KEY_RCTRLRALTF || LocalKey==KEY_CTRLRALTF || LocalKey==KEY_RCTRLALTF))
+							LocalKey = KEY_CTRLF;
 					}
 
 					if (LocalKey==KEY_CTRLF || LocalKey==KEY_RCTRLF || LocalKey==KEY_CTRLALTF || LocalKey==KEY_RCTRLRALTF || LocalKey==KEY_CTRLRALTF || LocalKey==KEY_RCTRLALTF)
@@ -1493,7 +1493,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 						}
 					}
 
-					if (CurrentPath)
+					if (add_slash)
 						AddEndSlash(strFileName);
 
 					// добавим первый префикс!
