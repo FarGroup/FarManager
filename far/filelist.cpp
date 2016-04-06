@@ -7849,7 +7849,9 @@ FarColor FileList::GetShowColor(int Position, bool FileColor) const
 		else if (m_ListData[Position].Selected)
 			Pos = HighlightFiles::SELECTED_COLOR;
 
-		if (Global->Opt->Highlight && (m_PanelMode != panel_mode::PLUGIN_PANEL || !(m_CachedOpenPanelInfo.Flags & OPIF_DISABLEHIGHLIGHTING)))
+		const auto HighlightingEnabled = Global->Opt->Highlight && (m_PanelMode != panel_mode::PLUGIN_PANEL || !(m_CachedOpenPanelInfo.Flags & OPIF_DISABLEHIGHLIGHTING));
+
+		if (HighlightingEnabled)
 		{
 			if (!m_ListData[Position].Colors)
 			{
@@ -7862,7 +7864,7 @@ FarColor FileList::GetShowColor(int Position, bool FileColor) const
 			ColorAttr = FileColor ? Colors.FileColor : Colors.MarkColor;
 		}
 
-		if (!Global->Opt->Highlight || (!ColorAttr.ForegroundColor && !ColorAttr.BackgroundColor)) // black on black, default
+		if (!HighlightingEnabled || (!ColorAttr.ForegroundColor && !ColorAttr.BackgroundColor)) // black on black, default
 		{
 			static const PaletteColors PalColor[] = {COL_PANELTEXT, COL_PANELSELECTEDTEXT, COL_PANELCURSOR, COL_PANELSELECTEDCURSOR};
 			ColorAttr=colors::PaletteColorToFarColor(PalColor[Pos]);
