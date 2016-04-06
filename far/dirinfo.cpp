@@ -337,7 +337,7 @@ static void PushPluginDirItem(std::vector<PluginPanelItem>& PluginDirList, const
 	PluginDirList.back().UserData.FreeData=nullptr;
 }
 
-static void ScanPluginDir(OPERATION_MODES OpMode,string& strPluginSearchPath, std::vector<PluginPanelItem>& PluginDirList, bool StopSearch)
+static void ScanPluginDir(OPERATION_MODES OpMode,string& strPluginSearchPath, std::vector<PluginPanelItem>& PluginDirList, bool& StopSearch)
 {
 	PluginPanelItem *PanelData=nullptr;
 	size_t ItemCount=0;

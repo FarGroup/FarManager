@@ -7249,11 +7249,12 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 
 		NewItem.SortGroup = (m_CachedOpenPanelInfo.Flags & OPIF_DISABLESORTGROUPS)? DEFAULT_SORT_GROUP : Global->CtrlObject->HiFiles->GetGroup(&NewItem);
 
-		const auto IsParentDirName = !(m_CachedOpenPanelInfo.Flags & OPIF_ADDDOTS) && !TwoDotsPresent && TestParentFolderName(NewItem.strName);
+		const auto IsParentDirName = !TwoDotsPresent && TestParentFolderName(NewItem.strName);
 		if (IsParentDirName)
 		{
-			TwoDotsPresent = TRUE;
-			NewItem.FileAttr |= FILE_ATTRIBUTE_DIRECTORY;
+			TwoDotsPresent = true;
+			if ((m_CachedOpenPanelInfo.Flags & OPIF_ADDDOTS) != 0)
+				NewItem.FileAttr |= FILE_ATTRIBUTE_DIRECTORY;
 		}
 
 		const auto IsDir = NewItem.FileAttr & FILE_ATTRIBUTE_DIRECTORY;
