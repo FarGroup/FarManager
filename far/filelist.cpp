@@ -7251,19 +7251,23 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 
 		const auto IsTwoDots = (!TwoDotsPtr || !(TwoDotsPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)) && TestParentFolderName(NewItem.strName);
 		const auto IsDir = (NewItem.FileAttr & FILE_ATTRIBUTE_DIRECTORY) != 0;
+		const auto Size = NewItem.FileSize;
 
 		m_ListData.emplace_back(std::move(NewItem));
 
 		if (IsTwoDots)
 		{
 			// We keep the address of the first encountered ".." element for special treatment.
-			// However, if we found a file and after that we fond a directory - it's better to pick a directory.
+			// However, if we found a file and after that we found a directory - it's better to pick a directory.
 			if (!TwoDotsPtr || (IsDir && !(TwoDotsPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)))
 			{
 				// We reserve capacity so no reallocation will happen and pointer will stay valid.
 				TwoDotsPtr = &m_ListData.back();
 			}
 		}
+
+		IsDir? ++m_TotalDirCount : ++m_TotalFileCount;
+		TotalFileSize += Size;
 	}
 
 	if (!TwoDotsPtr)
