@@ -411,15 +411,16 @@ FileList::FileList(private_tag, window_ptr Owner):
 FileList::~FileList()
 {
 	_OT(SysLog(L"[%p] FileList::~FileList()", this));
+
+	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
+		while (PopPlugin(FALSE))
+			;
+
 	StopFSWatcher();
 
 	ClearAllItem();
 
 	DeleteListData(m_ListData);
-
-	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
-		while (PopPlugin(FALSE))
-			;
 }
 
 
