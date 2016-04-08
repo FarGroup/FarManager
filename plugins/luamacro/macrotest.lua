@@ -36,11 +36,11 @@ local function WriteTmpFile(...)
 end
 
 local function DeleteTmpFile()
-  assert(win.DeleteFile(TmpFileName))
+  win.DeleteFile(TmpFileName)
 end
 
 local function TestArea (area, msg)
-  assert(Area[area]==true and Area.Current==area, msg or "assertion failed")
+  assert(Area[area]==true and Area.Current==area, msg)
 end
 
 function MT.test_areas()
@@ -56,8 +56,10 @@ function MT.test_areas()
   Keys "F1"                  TestArea "Help"       Keys "Esc"
   Keys "CtrlL Tab"           TestArea "Info"       Keys "Tab CtrlL"
   Keys "CtrlQ Tab"           TestArea "QView"      Keys "Tab CtrlQ"
---Keys "CtrlT Tab"           TestArea "Tree"       Keys "Tab CtrlT"
---Keys "AltF10"              TestArea "FindFolder" Keys "Esc"
+  if Far.GetConfig("Panel.Tree.TurnOffCompletely") ~= true then
+    Keys "CtrlT Tab"         TestArea "Tree"       Keys "Tab CtrlT"
+    Keys "AltF10"            TestArea "FindFolder" Keys "Esc"
+  end
   Keys "F2"                  TestArea "UserMenu"   Keys "Esc"
 
   assert(Area.Current              =="Shell")
@@ -89,16 +91,27 @@ local function test_akey()
 end
 
 local function test_bit64()
-  assert(band==bit64.band)
-  assert(bnot==bit64.bnot)
-  assert(bor==bit64.bor)
-  assert(bxor==bit64.bxor)
-  assert(lshift==bit64.lshift)
-  assert(rshift==bit64.rshift)
+  for _,name in ipairs{"band","bnot","bor","bxor","lshift","rshift"} do
+    assert(_G[name] == bit64[name])
+    assert(type(bit64[name]) == "function")
+  end
 
-  assert(band(0xFF,0xFE,0xFD) == 0xFC)
-  assert(bor(1,2,4) == 7)
-  assert(bnot(5) == -6)
+  local a,b,c = 0xFF,0xFE,0xFD
+  assert(band(a,b,c,a,b,c) == 0xFC)
+  a,b,c = bit64.new(0xFF),bit64.new(0xFE),bit64.new(0xFD)
+  assert(band(a,b,c,a,b,c) == 0xFC)
+
+  a,b = bit64.new("0xFFFF0000FFFF0000"),bit64.new("0x0000FFFF0000FFFF")
+  assert(band(a,b) == 0)
+  assert(bor(a,b) == -1)
+  assert(a+b == -1)
+
+  a,b,c = 1,2,4
+  assert(bor(a,b,c,a,b,c) == 7)
+
+  for k=-3,3 do assert(bnot(k) == -1-k) end
+  assert(bnot(bit64.new(5)) == -6)
+
   assert(bxor(0x01,0xF0,0xAA) == 0x5B)
   assert(lshift(0xF731,4) == 0xF7310)
   assert(rshift(0xF7310,4) == 0xF731)
@@ -166,8 +179,8 @@ end
 local function test_acall()
   local a,b,c,d = mf.acall(function(p) return 3, nil, p, "foo" end, 77)
   assert(a==3 and b==nil and c==77 and d=="foo")
-  -- assert(true == mf.acall(far.Show))
-  -- Keys"Esc"
+  assert(true == mf.acall(far.Show))
+  Keys"Esc"
 end
 
 local function test_asc()
@@ -193,16 +206,36 @@ end
 
 local function test_clip()
   local oldval = far.PasteFromClipboard() -- store
+
   mf.clip(5,2) -- turn on the internal clipboard
   assert(mf.clip(5,-1)==2)
   assert(mf.clip(5,1)==2) -- turn on the OS clipboard
   assert(mf.clip(5,-1)==1)
-  for clipnum=2,1,-1 do -- leaves the OS clipboard active in the end
+
+  for clipnum=1,2 do
     mf.clip(5,clipnum)
     local str = "foo"..clipnum
-    assert(mf.clip(1,str) ~= 0)
-    assert(mf.clip(0,str) == str)
+    assert(mf.clip(1,str) > 0)
+    assert(mf.clip(0) == str)
+    assert(mf.clip(2,"bar") > 0)
+    assert(mf.clip(0) == str.."bar")
   end
+
+  mf.clip(5,1); mf.clip(1,"foo")
+  mf.clip(5,2); mf.clip(1,"bar")
+  assert(mf.clip(0) == "bar")
+  mf.clip(5,1); assert(mf.clip(0) == "foo")
+  mf.clip(5,2); assert(mf.clip(0) == "bar")
+
+  mf.clip(3);   assert(mf.clip(0) == "foo")
+  mf.clip(5,1); assert(mf.clip(0) == "foo")
+
+  mf.clip(5,2); mf.clip(1,"bar")
+  mf.clip(5,1); assert(mf.clip(0) == "foo")
+  mf.clip(4);   assert(mf.clip(0) == "bar")
+  mf.clip(5,2); assert(mf.clip(0) == "bar")
+
+  mf.clip(5,1) -- leave the OS clipboard active in the end
   far.CopyToClipboard(oldval) -- restore
 end
 
@@ -214,17 +247,19 @@ local function test_env()
 end
 
 local function test_fattr()
+  DeleteTmpFile()
+  assert(mf.fattr(TmpFileName) == -1)
   WriteTmpFile("")
   local attr = mf.fattr(TmpFileName)
   DeleteTmpFile()
-  assert(type(attr)=="number")
+  assert(attr >= 0)
 end
 
 local function test_fexist()
   WriteTmpFile("")
-  assert(mf.fexist(TmpFileName))
+  assert(mf.fexist(TmpFileName) == true)
   DeleteTmpFile()
-  assert(not mf.fexist(TmpFileName))
+  assert(mf.fexist(TmpFileName) == false)
 end
 
 local function test_msgbox()
@@ -844,6 +879,7 @@ local function test_Far_GetConfig()
     "Panel.Tree.AutoChangeFolder", "boolean",
     "Panel.Tree.MinTreeCount", "integer",
     "Panel.Tree.TreeFileAttr", "integer",
+    "Panel.Tree.TurnOffCompletely", "boolean",
     "PluginConfirmations.EvenIfOnlyOnePlugin", "boolean",
     "PluginConfirmations.OpenFilePlugin", "3-state",
     "PluginConfirmations.Prefix", "boolean",
