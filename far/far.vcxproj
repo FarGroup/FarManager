@@ -126,7 +126,6 @@ if not exist bootstrap mkdir bootstrap</Command>
       <Optimization>Disabled</Optimization>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <SmallerTypeCheck>true</SmallerTypeCheck>
       <PreprocessorDefinitions>_DEBUG;SYSLOG;SYSLOG_FARSYSLOG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile>
@@ -287,7 +286,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="setcolor.cpp" />
     <ClCompile Include="sqlite.c">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <SmallerTypeCheck>false</SmallerTypeCheck>
     </ClCompile>
     <ClCompile Include="sqlite_unicode.c">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
