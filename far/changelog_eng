@@ -3,6 +3,41 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 08.04.2016 16:05:19 +0200 - build 4618
+
+1. Forum: "Memory corruption somewhere leading to rare crashes."
+
+drkns 06.04.2016 23:43:12 +0200 - build 4617
+
+1. And once more.
+
+drkns 06.04.2016 22:42:14 +0200 - build 4616
+
+1. Fix of fix of 4564.
+
+drkns 06.04.2016 19:41:18 +0200 - build 4615
+
+1. Forum: ANSI plugins lost the file panel cursor (4602).
+
+drkns 06.04.2016 19:17:59 +0200 - build 4614
+
+1. Correction of 4425.
+
+w17 06.04.2016 18:13:35 +0300 - build 4613
+
+1. Fix 4564.
+
+w17 06.04.2016 13:29:38 +0300 - build 4612
+
+1. M#3200: Inconsistent behavior for Ctrl+F on "regular folder" and on ".."
+   [R]Ctrl+[[R]Alt+]F; on ".." now do not add the trailing '\'
+
+drkns 05.04.2016 21:49:33 +0200 - build 4611
+
+1. Under certain circumstances, search in plugin panel would crash the app.
+
+2. A pair of minor issues.
+
 drkns 03.04.2016 14:37:41 +0200 - build 4610
 
 1. Once more 4609.1.
