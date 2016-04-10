@@ -292,16 +292,23 @@ end
 
 local function test_fsplit()
   local path="C:\\Program Files\\Far\\Far.exe"
-  assert(mf.fsplit(path,1)=="C:\\")
-  assert(mf.fsplit(path,2)=="\\Program Files\\Far\\")
-  assert(mf.fsplit(path,4)=="Far")
-  assert(mf.fsplit(path,8)==".exe")
+  assert(mf.fsplit(path,0x01)=="C:\\")
+  assert(mf.fsplit(path,0x02)=="\\Program Files\\Far\\")
+  assert(mf.fsplit(path,0x04)=="Far")
+  assert(mf.fsplit(path,0x08)==".exe")
+
+  assert(mf.fsplit(path,0x03)=="C:\\Program Files\\Far\\")
+  assert(mf.fsplit(path,0x0C)=="Far.exe")
+  assert(mf.fsplit(path,0x0F)==path)
 end
 
 local function test_iif()
   assert(mf.iif(true,  1, 2)==1)
-  assert(mf.iif(false, 1, 2)==2)
   assert(mf.iif("a",   1, 2)==1)
+  assert(mf.iif(100,   1, 2)==1)
+  assert(mf.iif(false, 1, 2)==2)
+  assert(mf.iif(nil,   1, 2)==2)
+  assert(mf.iif(0,     1, 2)==2)
   assert(mf.iif("",    1, 2)==2)
 end
 
@@ -442,7 +449,13 @@ local function test_msave()
 end
 
 local function test_mod()
-  assert(mf.mod(11,4)==3)
+  assert(mf.mod(11,4) == 3)
+  assert(math.fmod(11,4) == 3)
+  assert(11 % 4 == 3)
+
+  assert(mf.mod(-1,4) == -1)
+  assert(math.fmod(-1,4) == -1)
+  assert(-1 % 4 == 3)
 end
 
 local function test_replace()
@@ -557,7 +570,7 @@ local function test_beep()
 end
 
 local function test_flock()
-  assert(type(mf.flock(0,-1))=="number")
+  for k=0,2 do assert(type(mf.flock(k,-1))=="number") end
 end
 
 local function test_GetMacroCopy()
@@ -595,13 +608,27 @@ end
 local function test_print()
   assert(print == mf.print)
   assert(type(print) == "function")
-
+  -- test on command line
   local str = "abc ABC абв АБВ"
   Keys("Esc")
   print(str)
   assert(panel.GetCmdLine() == str)
   Keys("Esc")
   assert(panel.GetCmdLine() == "")
+  -- test on dialog input field
+  Keys("F7 CtrlY")
+  print(str)
+  assert(Dlg.GetValue(-1,0) == str)
+  Keys("Esc")
+  -- test on editor
+  str = "abc ABC\r\nабв АБВ"
+  Keys("ShiftF4")
+  print(TmpFileName)
+  Keys("Enter CtrlHome Enter Up")
+  print(str)
+  Keys("CtrlHome"); assert(Editor.Value == "abc ABC")
+  Keys("Down");     assert(Editor.Value == "абв АБВ")
+  editor.Quit()
 end
 
 local function test_postmacro()
@@ -1016,11 +1043,20 @@ local function test_Far_GetConfig()
 end
 
 function MT.test_Far()
+  assert(type(Far.FullScreen) == "boolean")
+  assert(type(Far.Height) == "number")
+  assert(type(Far.IsUserAdmin) == "boolean")
+  assert(type(Far.PID) == "number")
+  assert(type(Far.Title) == "string")
+  assert(type(Far.Width) == "number")
+
   local temp = Far.UpTime
   mf.sleep(50)
   temp = Far.UpTime - temp
   assert(temp > 40 and temp < 70)
 
+  assert(type(Far.Cfg_Get)=="function")
+  assert(type(Far.DisableHistory)=="function")
   assert(type(Far.KbdLayout(0))=="number")
   assert(type(Far.KeyBar_Show(0))=="number")
   assert(type(Far.Window_Scroll)=="function")

@@ -66,7 +66,7 @@ mf = {
 }
 
 mf.iif = function(Expr, res1, res2)
-  if Expr and Expr~="" then return res1 else return res2 end
+  if Expr and Expr~=0 and Expr~="" then return res1 else return res2 end
 end
 
 mf.usermenu = function(mode, filename)
