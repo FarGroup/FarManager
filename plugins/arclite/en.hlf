@@ -63,7 +63,7 @@ Reduced version of this dialog is used when updating existing archives.
 #Delete# button deletes selected profile.
 
 	#Archive path# - Full or relative archive path. Far's macro sequences can be used to form path by enclosing them inside
-question marks. Example #archive-?date("%x")?.7z# puts current date into archive name. #Evaluate# button displays final archive path.
+question marks. Example #archive-?mf.date("%x")?.7z# puts current date into archive name. #Evaluate# button displays final archive path.
 
 	#Append extension# - Archive extension will be added automatically when not entered by user.
 
