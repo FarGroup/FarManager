@@ -106,7 +106,7 @@ void call_user_apc(void* param) {
 }
 
 bool post_macro(const wstring& macro) {
-  MacroSendMacroText mcmd = { sizeof(MacroSendMacroText) };
+  MacroSendMacroText mcmd = { sizeof(MacroSendMacroText), KMFLAGS_ENABLEOUTPUT };
   mcmd.SequenceText = macro.c_str();
   return g_far.MacroControl(0, MCTL_SENDSTRING, MSSC_POST, &mcmd) != 0;
 }
