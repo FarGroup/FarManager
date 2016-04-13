@@ -7356,6 +7356,7 @@ void Editor::SortColorUnlock()
 
 	if (SortColorLockCount == 0 && SortColorUpdate)
 	{
+		SortColorUpdate = false;
 		std::for_each(ALL_RANGE(Lines), std::mem_fn(&Edit::SortColorUnlocked));
 	}
 }
