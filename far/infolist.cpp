@@ -374,7 +374,7 @@ void InfoList::DisplayObject()
 	auto size2str = [&bytes_suffix](ULONGLONG Size)
 	{
 		string str;
-		if (Global->Opt->InfoPanel.ShowBytes) {
+		if (Global->Opt->ShowBytes) {
 			InsertCommas(Size, str); str += L" ";
 		}
 		else {
@@ -759,9 +759,6 @@ int InfoList::ProcessKey(const Manager::Key& Key)
 			Parent()->Redraw();
 			return TRUE;
 		}
-		case KEY_CTRLSHIFTS:
-		case KEY_RCTRLSHIFTS:
-			Global->Opt->InfoPanel.ShowBytes = !Global->Opt->InfoPanel.ShowBytes; // pass to Redraw()...
 		case KEY_CTRLR:
 		case KEY_RCTRLR:
 		{

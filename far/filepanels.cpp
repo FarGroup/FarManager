@@ -541,7 +541,27 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLSHIFTS:
 		case KEY_RCTRLSHIFTS:
 		{
-			process_default = !ActivePanel()->IsVisible() || PassivePanel()->GetType() != panel_type::INFO_PANEL || !PassivePanel()->ProcessKey(Key);
+			process_default = true;
+			if (ActivePanel()->IsVisible())
+			{
+				auto atype = ActivePanel()->GetType();
+				bool active_redraw = (atype == panel_type::FILE_PANEL || atype == panel_type::INFO_PANEL);
+				bool passive_redraw = false;
+				if (PassivePanel()->IsVisible())
+				{
+					auto ptype = PassivePanel()->GetType();
+					passive_redraw = (ptype == panel_type::FILE_PANEL || ptype == panel_type::INFO_PANEL);
+				}
+				if (active_redraw || passive_redraw)
+				{
+					process_default = false;
+					Global->Opt->ShowBytes = !Global->Opt->ShowBytes;
+					if (active_redraw)
+						ActivePanel()->Redraw();
+					if (passive_redraw)
+						PassivePanel()->Redraw();
+				}
+			}
 			break;
 		}
 		case KEY_CTRLO:

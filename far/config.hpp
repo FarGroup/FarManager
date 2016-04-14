@@ -515,7 +515,6 @@ public:
 		StringOption strShowStatusInfo;
 		StringOption strFolderInfoFiles;
 		BoolOption ShowCDInfo;
-		BoolOption ShowBytes;
 	};
 
 	struct TreeOptions
@@ -618,6 +617,7 @@ public:
 	BoolOption ShortcutAlwaysChdir;
 	BoolOption Highlight;
 	BoolOption RightClickSelect;
+	BoolOption ShowBytes;
 
 	BoolOption SelectFolders;
 	BoolOption ReverseSort;

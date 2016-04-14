@@ -327,6 +327,8 @@ $ #Panel control commands  #
   Restore default panels width                          #Ctrl-Numpad5#
   Restore default panels height                     #Ctrl-Alt-Numpad5#
   Show/Hide functional key bar at the bottom line.            #Ctrl-B#
+  Toggle total and free size show mode                  #Ctrl-Shift-S#
+   (in bytes or with size suffices K/M/G/T)
 
     #File panel commands#
 
@@ -1141,7 +1143,7 @@ prompt, and set the '#Local Policies/Security Options/Devices: Restrict#
 shown.
 
     ^<wrap>#Ctrl-Shift-S# toggles size display mode: float with size suffixes or bytes.
-Memory size display mode also changes. Current mode - far:config #Panel.Info.ShowBytes# (default=false).
+Memory size display mode also changes. Current mode - far:config #Panel.ShowBytes# (default=false).
 
  2. ^<wrap>name and type of the #current disk#, type of the file system, network
 name, total and free space, disk volume label and serial number;

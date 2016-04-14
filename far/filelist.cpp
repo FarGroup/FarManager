@@ -7890,6 +7890,33 @@ void FileList::SetShowColor(int Position, bool FileColor) const
 	SetColor(GetShowColor(Position,FileColor));
 }
 
+static string size2str(ULONGLONG Size, int width)
+{
+	if (width < 0 || Global->Opt->ShowBytes)
+	{
+		string str;
+		InsertCommas(Size, str);
+		return str;
+	}
+	else if (width <= 0) // float style
+	{
+		string str;
+		FileSizeToStr(str, Size, 10, COLUMN_FLOATSIZE | COLUMN_SHOWBYTESINDEX);
+		RemoveExternalSpaces(str);
+		return str;
+	}
+	else
+	{
+		string str = std::to_wstring(Size);
+		if (str.size() > static_cast<size_t>(width))
+		{
+			FileSizeToStr(str, Size, width, COLUMN_SHOWBYTESINDEX);
+			RemoveExternalSpaces(str);
+		}
+		return str;
+	}
+}
+
 void FileList::ShowSelectedSize()
 {
 
@@ -7913,8 +7940,7 @@ void FileList::ShowSelectedSize()
 
 	if (m_SelFileCount)
 	{
-		string strFormStr;
-		InsertCommas(SelFileSize,strFormStr);
+		auto strFormStr = size2str(SelFileSize, -6);
 		auto strSelStr = string_format(MListFileSize, strFormStr, m_SelFileCount - m_SelDirCount, m_SelDirCount);
 		TruncStr(strSelStr,m_X2-m_X1-1);
 		int Length=(int)strSelStr.size();
@@ -7930,20 +7956,13 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 	if (!Global->Opt->ShowPanelTotals && m_PanelMode == panel_mode::PLUGIN_PANEL && !(Info.Flags & OPIF_REALNAMES))
 		return;
 
-	string strFormSize, strFreeSize, strTotalStr;
+	string strFreeSize, strTotalStr;
 	int Length;
-	InsertCommas(TotalFileSize,strFormSize);
+	auto strFormSize = size2str(TotalFileSize, 6);
 
 	if (Global->Opt->ShowPanelFree && (m_PanelMode != panel_mode::PLUGIN_PANEL || (Info.Flags & OPIF_REALNAMES)))
 	{
-		if(FreeDiskSize != static_cast<unsigned __int64>(-1))
-		{
-			InsertCommas(FreeDiskSize,strFreeSize);
-		}
-		else
-		{
-			strFreeSize = L"?";
-		}
+		strFreeSize = (FreeDiskSize != static_cast<unsigned __int64>(-1)) ? size2str(FreeDiskSize, 0) : L"?";
 	}
 
 	if (Global->Opt->ShowPanelTotals)
