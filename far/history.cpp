@@ -118,7 +118,7 @@ void History::AddToHistory(const string& Str, history_record_type Type, const GU
 		{
 			if (EqualType(Type,HType))
 			{
-				typedef int (*CompareFunction)(const string&, const string&);
+				using CompareFunction = int (*)(const string&, const string&);
 				CompareFunction CaseSensitive = StrCmp, CaseInsensitive = StrCmpI;
 				CompareFunction CmpFunction = (m_RemoveDups == 2 ? CaseInsensitive : CaseSensitive);
 

@@ -38,7 +38,7 @@ class taskbar: noncopyable
 {
 public:
 	~taskbar();
-	TBPFLAG GetProgressState();
+	TBPFLAG GetProgressState() const;
 	void SetProgressState(TBPFLAG tbpFlags);
 	void SetProgressValue(UINT64 Completed, UINT64 Total);
 	static void Flash();
@@ -49,6 +49,7 @@ private:
 	taskbar();
 
 	TBPFLAG State;
+
 	ITaskbarList3* pTaskbarList;
 };
 

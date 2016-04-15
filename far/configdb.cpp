@@ -767,19 +767,17 @@ private:
 	{
 		if(!strcmp(Type, "color"))
 		{
-			const auto background = e.Attribute("background");
-			const auto foreground = e.Attribute("foreground");
-			const auto flags = e.Attribute("flags");
+			FarColor Color{};
 
-			std::vector<char> Blob;
-			if(background && foreground && flags)
-			{
-				Blob.resize(sizeof(FarColor));
-				auto& Color = *reinterpret_cast<FarColor*>(Blob.data());
+			if (const auto background = e.Attribute("background"))
 				Color.BackgroundColor = std::strtoul(background, nullptr, 16);
+			if (const auto foreground = e.Attribute("foreground"))
 				Color.ForegroundColor = std::strtoul(foreground, nullptr, 16);
+			if (const auto flags = e.Attribute("flags"))
 				Color.Flags = StringToFlags(wide(flags, CP_UTF8), ColorFlagNames);
-			}
+
+			std::vector<char> Blob(sizeof(FarColor));
+			std::memcpy(Blob.data(), &Color, sizeof(Color));
 			return Blob;
 		}
 		else
@@ -2269,10 +2267,10 @@ static const std::wregex& uuid_regex()
 void config_provider::CheckDatabase(SQLiteDb *pDb)
 {
 	string pname;
-	int rc = pDb->InitStatus(pname, m_Mode != default_mode);
+	int rc = pDb->InitStatus(pname, m_Mode != mode::m_default);
 	if ( rc > 0 )
 	{
-		if (m_Mode != default_mode)
+		if (m_Mode != mode::m_default)
 		{
 			Console().Write(L"problem with " + pname + (rc <= 1 ? L":\r\n  database file is renamed to *.bad and new one is created\r\n" : L":\r\n  database is opened in memory\r\n"));
 			Console().Commit();
@@ -2326,7 +2324,7 @@ std::unique_ptr<T> config_provider::CreateDatabase(const char *son)
 {
 	auto cfg = std::make_unique<T>();
 	CheckDatabase(cfg.get());
-	if (m_Mode != import_mode && cfg->IsNew())
+	if (m_Mode != mode::m_import && cfg->IsNew())
 	{
 		TryImportDatabase(cfg.get(), son);
 	}
@@ -2340,7 +2338,7 @@ HierarchicalConfigUniquePtr config_provider::CreateHierarchicalConfig(dbcheck Db
 	if (!CheckedDb.Check(DbId))
 	{
 		CheckDatabase(cfg.get());
-		if (m_Mode != import_mode && cfg->IsNew())
+		if (m_Mode != mode::m_import && cfg->IsNew())
 		{
 			TryImportDatabase(cfg.get(), xmln, plugin);
 		}
@@ -2443,6 +2441,11 @@ bool config_provider::Export(const string& File)
 	}
 
 	return Representation.Save(File);
+}
+
+bool config_provider::ServiceMode(const string& Filename)
+{
+	return m_Mode == mode::m_import? Import(Filename) : m_Mode == mode::m_export? Export(Filename) : throw std::logic_error("unexpected mode");
 }
 
 bool config_provider::Import(const string& Filename)

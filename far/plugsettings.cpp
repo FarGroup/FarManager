@@ -49,7 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 wchar_t* AbstractSettings::Add(const string& String)
 {
 	const auto size = (String.size() + 1) * sizeof(wchar_t);
-	return static_cast<wchar_t*>(memcpy(Allocate(size), String.data(), size));
+	return static_cast<wchar_t*>(Add(String.data(), size));
 }
 
 void* AbstractSettings::Add(const void* Data, size_t Size)

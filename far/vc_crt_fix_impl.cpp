@@ -226,3 +226,12 @@ extern "C" BOOLEAN WINAPI SystemFunction036(PVOID Buffer, ULONG Size)
 {
 	return TRUE;
 }
+
+// disable VS2015 telemetry
+extern "C"
+{
+	void __vcrt_initialize_telemetry_provider() {}
+	void __telemetry_main_invoke_trigger() {}
+	void __telemetry_main_return_trigger() {}
+	void __vcrt_uninitialize_telemetry_provider() {}
+};

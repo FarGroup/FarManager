@@ -191,7 +191,7 @@ private:
 	bool UpdateId(Plugin *pPlugin, const GUID& Id);
 	void LoadPluginsFromCache();
 
-	std::vector<std::unique_ptr<GenericPluginModel>> PluginModels;
+	std::vector<std::unique_ptr<plugin_factory>> PluginFactories;
 	std::unordered_map<GUID, std::unique_ptr<Plugin>, uuid_hash, uuid_equal> m_Plugins;
 	plugins_set SortedPlugins;
 	std::list<Plugin*> UnloadedPlugins;

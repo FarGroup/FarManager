@@ -47,64 +47,46 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "processname.hpp"
 #include "language.hpp"
 
-typedef void     (WINAPI *iClosePanelPrototype)          (const ClosePanelInfo *Info);
-typedef intptr_t (WINAPI *iComparePrototype)             (const CompareInfo *Info);
-typedef intptr_t (WINAPI *iConfigurePrototype)           (const ConfigureInfo *Info);
-typedef intptr_t (WINAPI *iDeleteFilesPrototype)         (const DeleteFilesInfo *Info);
-typedef void     (WINAPI *iExitFARPrototype)             (const ExitInfo *Info);
-typedef void     (WINAPI *iFreeFindDataPrototype)        (const FreeFindDataInfo *Info);
-typedef void     (WINAPI *iFreeVirtualFindDataPrototype) (const FreeFindDataInfo *Info);
-typedef intptr_t (WINAPI *iGetFilesPrototype)            (GetFilesInfo *Info);
-typedef intptr_t (WINAPI *iGetFindDataPrototype)         (GetFindDataInfo *Info);
-typedef void     (WINAPI *iGetGlobalInfoPrototype)       (GlobalInfo *Info);
-typedef void     (WINAPI *iGetOpenPanelInfoPrototype)    (OpenPanelInfo *Info);
-typedef void     (WINAPI *iGetPluginInfoPrototype)       (PluginInfo *Info);
-typedef intptr_t (WINAPI *iGetVirtualFindDataPrototype)  (GetVirtualFindDataInfo *Info);
-typedef intptr_t (WINAPI *iMakeDirectoryPrototype)       (MakeDirectoryInfo *Info);
-typedef HANDLE   (WINAPI *iOpenPrototype)                (const OpenInfo *Info);
-typedef intptr_t (WINAPI *iProcessEditorEventPrototype)  (const ProcessEditorEventInfo *Info);
-typedef intptr_t (WINAPI *iProcessEditorInputPrototype)  (const ProcessEditorInputInfo *Info);
-typedef intptr_t (WINAPI *iProcessPanelEventPrototype)   (const ProcessPanelEventInfo *Info);
-typedef intptr_t (WINAPI *iProcessHostFilePrototype)     (const ProcessHostFileInfo *Info);
-typedef intptr_t (WINAPI *iProcessPanelInputPrototype)   (const ProcessPanelInputInfo *Info);
-typedef intptr_t (WINAPI *iPutFilesPrototype)            (const PutFilesInfo *Info);
-typedef intptr_t (WINAPI *iSetDirectoryPrototype)        (const SetDirectoryInfo *Info);
-typedef intptr_t (WINAPI *iSetFindListPrototype)         (const SetFindListInfo *Info);
-typedef void     (WINAPI *iSetStartupInfoPrototype)      (const PluginStartupInfo *Info);
-typedef intptr_t (WINAPI *iProcessViewerEventPrototype)  (const ProcessViewerEventInfo *Info);
-typedef intptr_t (WINAPI *iProcessDialogEventPrototype)  (const ProcessDialogEventInfo *Info);
-typedef intptr_t (WINAPI *iProcessSynchroEventPrototype) (const ProcessSynchroEventInfo *Info);
-typedef intptr_t (WINAPI *iProcessConsoleInputPrototype) (const ProcessConsoleInputInfo *Info);
-typedef HANDLE   (WINAPI *iAnalysePrototype)             (const AnalyseInfo *Info);
-typedef void     (WINAPI *iCloseAnalysePrototype)        (const CloseAnalyseInfo *Info);
-typedef intptr_t (WINAPI *iGetContentFieldsPrototype)    (const GetContentFieldsInfo *Info);
-typedef intptr_t (WINAPI *iGetContentDataPrototype)      (GetContentDataInfo *Info);
-typedef void     (WINAPI *iFreeContentDataPrototype)     (const GetContentDataInfo *Info);
+using iClosePanelPrototype          = void     (WINAPI*)(const ClosePanelInfo *Info);
+using iComparePrototype             = intptr_t (WINAPI*)(const CompareInfo *Info);
+using iConfigurePrototype           = intptr_t (WINAPI*)(const ConfigureInfo *Info);
+using iDeleteFilesPrototype         = intptr_t (WINAPI*)(const DeleteFilesInfo *Info);
+using iExitFARPrototype             = void     (WINAPI*)(const ExitInfo *Info);
+using iFreeFindDataPrototype        = void     (WINAPI*)(const FreeFindDataInfo *Info);
+using iFreeVirtualFindDataPrototype = void     (WINAPI*)(const FreeFindDataInfo *Info);
+using iGetFilesPrototype            = intptr_t (WINAPI*)(GetFilesInfo *Info);
+using iGetFindDataPrototype         = intptr_t (WINAPI*)(GetFindDataInfo *Info);
+using iGetGlobalInfoPrototype       = void     (WINAPI*)(GlobalInfo *Info);
+using iGetOpenPanelInfoPrototype    = void     (WINAPI*)(OpenPanelInfo *Info);
+using iGetPluginInfoPrototype       = void     (WINAPI*)(PluginInfo *Info);
+using iGetVirtualFindDataPrototype  = intptr_t (WINAPI*)(GetVirtualFindDataInfo *Info);
+using iMakeDirectoryPrototype       = intptr_t (WINAPI*)(MakeDirectoryInfo *Info);
+using iOpenPrototype                = HANDLE   (WINAPI*)(const OpenInfo *Info);
+using iProcessEditorEventPrototype  = intptr_t (WINAPI*)(const ProcessEditorEventInfo *Info);
+using iProcessEditorInputPrototype  = intptr_t (WINAPI*)(const ProcessEditorInputInfo *Info);
+using iProcessPanelEventPrototype   = intptr_t (WINAPI*)(const ProcessPanelEventInfo *Info);
+using iProcessHostFilePrototype     = intptr_t (WINAPI*)(const ProcessHostFileInfo *Info);
+using iProcessPanelInputPrototype   = intptr_t (WINAPI*)(const ProcessPanelInputInfo *Info);
+using iPutFilesPrototype            = intptr_t (WINAPI*)(const PutFilesInfo *Info);
+using iSetDirectoryPrototype        = intptr_t (WINAPI*)(const SetDirectoryInfo *Info);
+using iSetFindListPrototype         = intptr_t (WINAPI*)(const SetFindListInfo *Info);
+using iSetStartupInfoPrototype      = void     (WINAPI*)(const PluginStartupInfo *Info);
+using iProcessViewerEventPrototype  = intptr_t (WINAPI*)(const ProcessViewerEventInfo *Info);
+using iProcessDialogEventPrototype  = intptr_t (WINAPI*)(const ProcessDialogEventInfo *Info);
+using iProcessSynchroEventPrototype = intptr_t (WINAPI*)(const ProcessSynchroEventInfo *Info);
+using iProcessConsoleInputPrototype = intptr_t (WINAPI*)(const ProcessConsoleInputInfo *Info);
+using iAnalysePrototype             = HANDLE   (WINAPI*)(const AnalyseInfo *Info);
+using iCloseAnalysePrototype        = void     (WINAPI*)(const CloseAnalyseInfo *Info);
+using iGetContentFieldsPrototype    = intptr_t (WINAPI*)(const GetContentFieldsInfo *Info);
+using iGetContentDataPrototype      = intptr_t (WINAPI*)(GetContentDataInfo *Info);
+using iFreeContentDataPrototype     = void     (WINAPI*)(const GetContentDataInfo *Info);
 
-std::unique_ptr<Plugin> GenericPluginModel::CreatePlugin(const string& filename)
+std::unique_ptr<Plugin> plugin_factory::CreatePlugin(const string& filename)
 {
 	return IsPlugin(filename)? std::make_unique<Plugin>(this, filename) : nullptr;
 }
 
-void GenericPluginModel::SaveExportsToCache(PluginsCacheConfig& cache, unsigned long long id, const exports_array& exports)
-{
-	for_each_2(ALL_RANGE(m_ExportsNames), exports.cbegin(), [&](const export_name& i, const void* Export)
-	{
-		if (*i.UName)
-			cache.SetExport(id, i.UName, Export != nullptr);
-	});
-}
-
-void GenericPluginModel::LoadExportsFromCache(const PluginsCacheConfig& cache, unsigned long long id, exports_array& exports)
-{
-	std::transform(ALL_RANGE(m_ExportsNames), exports.begin(), [&](const export_name& i)
-	{
-		return *i.UName? cache.GetExport(id, i.UName) : nullptr;
-	});
-}
-
-
-GenericPluginModel::GenericPluginModel(PluginManager* owner):
+plugin_factory::plugin_factory(PluginManager* owner):
 	m_owner(owner)
 {
 	static const export_name ExportsNames[] =
@@ -147,10 +129,10 @@ GenericPluginModel::GenericPluginModel(PluginManager* owner):
 		WA(""), // GetMinFarVersion not used
 	};
 	static_assert(std::size(ExportsNames) == ExportsCount, "Not all exports names are defined");
-	m_ExportsNames = make_range(std::cbegin(ExportsNames), std::cend(ExportsNames));
+	m_ExportsNames = make_range(ALL_CONST_RANGE(ExportsNames));
 }
 
-bool NativePluginModel::IsPlugin(const string& filename)
+bool native_plugin_factory::IsPlugin(const string& filename) const
 {
 	if (!CmpName(L"*.dll", filename.data(), false))
 		return false;
@@ -170,7 +152,7 @@ bool NativePluginModel::IsPlugin(const string& filename)
 	return Result;
 }
 
-GenericPluginModel::plugin_instance NativePluginModel::Create(const string& filename)
+plugin_factory::plugin_instance native_plugin_factory::Create(const string& filename)
 {
 	auto Module = std::make_unique<os::rtdl::module>(filename.data(), true);
 	if (!*Module)
@@ -181,28 +163,24 @@ GenericPluginModel::plugin_instance NativePluginModel::Create(const string& file
 	return Module.release();
 }
 
-bool NativePluginModel::Destroy(GenericPluginModel::plugin_instance instance)
+bool native_plugin_factory::Destroy(plugin_factory::plugin_instance instance)
 {
 	delete static_cast<os::rtdl::module*>(instance);
 	return true;
 }
 
-void NativePluginModel::InitExports(GenericPluginModel::plugin_instance instance, exports_array& exports)
+plugin_factory::function_address native_plugin_factory::GetFunction(plugin_factory::plugin_instance Instance, const plugin_factory::export_name& Name)
 {
-	const auto Module = static_cast<os::rtdl::module*>(instance);
-	std::transform(ALL_RANGE(m_ExportsNames), exports.begin(), [&](const export_name& i)
-	{
-		return *i.AName? reinterpret_cast<void*>(Module->GetProcAddress(i.AName)) : nullptr;
-	});
+	return Name.AName? static_cast<os::rtdl::module*>(Instance)->GetProcAddress(Name.AName) : nullptr;
 }
 
-bool NativePluginModel::FindExport(const char* ExportName)
+bool native_plugin_factory::FindExport(const char* ExportName) const
 {
 	// only module with GetGlobalInfoW can be native plugin
 	return !strcmp(ExportName, m_ExportsNames[iGetGlobalInfo].AName);
 }
 
-bool NativePluginModel::IsPlugin2(const void* Module)
+bool native_plugin_factory::IsPlugin2(const void* Module) const
 {
 	try
 	{
@@ -437,9 +415,9 @@ void Plugin::ExecuteFunction(ExecuteStruct& es, const std::function<void()>& f)
 	}
 	catch (const SException &e)
 	{
-		if (ProcessSEHException(e.GetInfo(), m_model->GetExportName(es.id), this))
+		if (ProcessSEHException(e.GetInfo(), m_Factory->ExportsNames()[es.id].UName, this))
 		{
-			m_model->GetOwner()->UnloadPlugin(this, es.id);
+			m_Factory->GetOwner()->UnloadPlugin(this, es.id);
 			es.Result = es.Default;
 			Global->ProcessException=FALSE;
 		}
@@ -450,9 +428,9 @@ void Plugin::ExecuteFunction(ExecuteStruct& es, const std::function<void()>& f)
 	}
 	catch (const std::exception &e)
 	{
-		if (ProcessStdException(e, m_model->GetExportName(es.id), this))
+		if (ProcessStdException(e, m_Factory->ExportsNames()[es.id].UName, this))
 		{
-			m_model->GetOwner()->UnloadPlugin(this, es.id);
+			m_Factory->GetOwner()->UnloadPlugin(this, es.id);
 			es.Result = es.Default;
 			Global->ProcessException = FALSE;
 		}
@@ -522,19 +500,26 @@ bool Plugin::SaveToCache()
 	PlCache.SetDescription(id, strDescription);
 	PlCache.SetAuthor(id, strAuthor);
 
-	m_model->SaveExportsToCache(PlCache, id, Exports);
+	for_each_2(ALL_CONST_RANGE(m_Factory->ExportsNames()), Exports.cbegin(), [&](const auto& i, const void* Export)
+	{
+		if (*i.UName)
+			PlCache.SetExport(id, i.UName, Export != nullptr);
+	});
 
 	return true;
 }
 
 void Plugin::InitExports()
 {
-	m_model->InitExports(m_Instance, Exports);
+	std::transform(ALL_CONST_RANGE(m_Factory->ExportsNames()), Exports.begin(), [&](const auto& i)
+	{
+		return m_Factory->GetFunction(m_Instance, i);
+	});
 }
 
-Plugin::Plugin(GenericPluginModel* model, const string& ModuleName):
+Plugin::Plugin(plugin_factory* Factory, const string& ModuleName):
 	Exports(),
-	m_model(model),
+	m_Factory(Factory),
 	Activity(0),
 	bPendingRemove(false),
 	m_strModuleName(ModuleName),
@@ -592,7 +577,7 @@ bool Plugin::LoadData()
 		}
 
 		PrepareModulePath(m_strModuleName);
-		m_Instance = m_model->Create(m_strModuleName);
+		m_Instance = m_Factory->Create(m_strModuleName);
 		FarChDir(strCurPath);
 
 		if (Drive[0]) // вернем ее (переменную окружения) обратно
@@ -620,7 +605,7 @@ bool Plugin::LoadData()
 	if(bPendingRemove)
 	{
 		bPendingRemove = false;
-		m_model->GetOwner()->UndoRemove(this);
+		m_Factory->GetOwner()->UndoRemove(this);
 	}
 	InitExports();
 
@@ -642,7 +627,7 @@ bool Plugin::LoadData()
 		bool ok=true;
 		if(m_Guid != FarGuid && m_Guid != Info.Guid)
 		{
-			ok = m_model->GetOwner()->UpdateId(this, Info.Guid);
+			ok = m_Factory->GetOwner()->UpdateId(this, Info.Guid);
 		}
 		else
 		{
@@ -739,7 +724,10 @@ bool Plugin::LoadFromCache(const os::FAR_FIND_DATA &FindData)
 		strDescription = PlCache.GetDescription(id);
 		strAuthor = PlCache.GetAuthor(id);
 
-		m_model->LoadExportsFromCache(PlCache, id, Exports);
+		std::transform(ALL_CONST_RANGE(m_Factory->ExportsNames()), Exports.begin(), [&](const auto& i)
+		{
+			return *i.UName ? PlCache.GetExport(id, i.UName) : nullptr;
+		});
 
 		WorkFlags.Set(PIWF_CACHED); //too much "cached" flags
 		return true;
@@ -761,7 +749,7 @@ int Plugin::Unload(bool bExitFAR)
 
 		if (!WorkFlags.Check(PIWF_CACHED))
 		{
-			nResult = m_model->Destroy(m_Instance);
+			nResult = m_Factory->Destroy(m_Instance);
 			ClearExports();
 		}
 
@@ -1235,118 +1223,150 @@ void Plugin::ExitFAR(ExitInfo *Info)
 	}
 }
 
-CustomPluginModel::ModuleImports::ModuleImports(const os::rtdl::module& Module):
-#define INIT_IMPORT(name) p ## name(Module, #name)
-	INIT_IMPORT(Initialize),
-	INIT_IMPORT(IsPlugin),
-	INIT_IMPORT(CreateInstance),
-	INIT_IMPORT(GetFunctionAddress),
-	INIT_IMPORT(DestroyInstance),
-	INIT_IMPORT(Free),
-#undef INIT_IMPORT
-	m_IsValid(pInitialize && pIsPlugin && pCreateInstance && pGetFunctionAddress && pDestroyInstance && pFree)
+class custom_plugin_factory: public plugin_factory
 {
-}
-
-CustomPluginModel::CustomPluginModel(PluginManager* owner, const string& filename):
-	GenericPluginModel(owner),
-	m_Module(filename.data()),
-	m_Imports(m_Module),
-	m_Success(false)
-{
-	try
+public:
+	custom_plugin_factory(PluginManager* Owner, const string& Filename):
+		plugin_factory(Owner),
+		m_Module(Filename.data()),
+		m_Imports(m_Module),
+		m_Success(false)
 	{
-		GlobalInfo Info={sizeof(Info)};
-
-		if (m_Imports.IsValid() &&
-			m_Imports.pInitialize(&Info) &&
-			Info.StructSize &&
-			Info.Title && *Info.Title &&
-			Info.Description && *Info.Description &&
-			Info.Author && *Info.Author)
+		try
 		{
-			m_Success = CheckVersion(&FAR_VERSION, &Info.MinFarVersion) != FALSE;
+			GlobalInfo Info = { sizeof(Info) };
 
-			// TODO: store info, show message if version is bad
+			if (m_Imports.IsValid() &&
+				m_Imports.pInitialize(&Info) &&
+				Info.StructSize &&
+				Info.Title && *Info.Title &&
+				Info.Description && *Info.Description &&
+				Info.Author && *Info.Author)
+			{
+				m_Success = CheckVersion(&FAR_VERSION, &Info.MinFarVersion) != FALSE;
+
+				// TODO: store info, show message if version is bad
+			}
+		}
+		catch (const SException&)
+		{
+			// TODO: notification
+			throw;
+		}
+	};
+
+	~custom_plugin_factory()
+	{
+		try
+		{
+			if (m_Success)
+			{
+				ExitInfo Info = { sizeof(Info) };
+				m_Imports.pFree(&Info);
+			}
+		}
+		catch (const SException&)
+		{
+			// TODO: notification
 		}
 	}
-	catch (const SException&)
+
+	bool Success() const { return m_Success; }
+
+	virtual bool IsPlugin(const string& Filename) const override
 	{
-		// TODO: notification
-		throw;
+		try
+		{
+			return m_Imports.pIsPlugin(Filename.data()) != FALSE;
+		}
+		catch (const SException&)
+		{
+			// TODO: notification
+			throw;
+			//return false;
+		}
 	}
+
+	virtual plugin_instance Create(const string& Filename) override
+	{
+		try
+		{
+			return m_Imports.pCreateInstance(Filename.data());
+		}
+		catch (const SException&)
+		{
+			// TODO: notification
+			throw;
+			//return nullptr;
+		}
+	}
+
+	virtual bool Destroy(plugin_instance Module) override
+	{
+		try
+		{
+			return m_Imports.pDestroyInstance(Module) != FALSE;
+		}
+		catch (const SException&)
+		{
+			// TODO: notification
+			throw;
+			//return false;
+		}
+	}
+
+	virtual function_address GetFunction(plugin_instance Instance, const export_name& Name) override
+	{
+		try
+		{
+			return Name.UName? m_Imports.pGetFunctionAddress(static_cast<HANDLE>(Instance), Name.UName) : nullptr;
+		}
+		catch (const SException&)
+		{
+			// TODO: notification
+			throw;
+		}
+	}
+
+private:
+	os::rtdl::module m_Module;
+	struct ModuleImports
+	{
+		os::rtdl::function_pointer<BOOL(WINAPI*)(GlobalInfo* info)> pInitialize;
+		os::rtdl::function_pointer<BOOL(WINAPI*)(const wchar_t* filename)> pIsPlugin;
+		os::rtdl::function_pointer<HANDLE(WINAPI*)(const wchar_t* filename)> pCreateInstance;
+		os::rtdl::function_pointer<FARPROC(WINAPI*)(HANDLE Instance, const wchar_t* functionname)> pGetFunctionAddress;
+		os::rtdl::function_pointer<BOOL(WINAPI*)(HANDLE Instance)> pDestroyInstance;
+		os::rtdl::function_pointer<void (WINAPI*)(const ExitInfo* info)> pFree;
+
+		ModuleImports(const os::rtdl::module& Module):
+			#define INIT_IMPORT(name) p ## name(Module, #name)
+			INIT_IMPORT(Initialize),
+			INIT_IMPORT(IsPlugin),
+			INIT_IMPORT(CreateInstance),
+			INIT_IMPORT(GetFunctionAddress),
+			INIT_IMPORT(DestroyInstance),
+			INIT_IMPORT(Free),
+			#undef INIT_IMPORT
+			m_IsValid(pInitialize && pIsPlugin && pCreateInstance && pGetFunctionAddress && pDestroyInstance && pFree)
+		{
+		}
+
+		bool IsValid() const { return m_IsValid; }
+
+	private:
+		bool m_IsValid;
+	}
+	m_Imports;
+	bool m_Success;
 };
 
-CustomPluginModel::~CustomPluginModel()
+plugin_factory_ptr CreateCustomPluginFactory(PluginManager* Owner, const string& Filename)
 {
-	try
+	auto Model = std::make_unique<custom_plugin_factory>(Owner, Filename);
+	if (!Model->Success())
 	{
-		if (m_Success)
-		{
-			ExitInfo Info = {sizeof(Info)};
-			m_Imports.pFree(&Info);
-		}
+		Model.reset();
 	}
-	catch (const SException&)
-	{
-		// TODO: notification
-	}
-}
-
-bool CustomPluginModel::IsPlugin(const string& filename)
-{
-	try
-	{
-		return m_Imports.pIsPlugin(filename.data()) != FALSE;
-	}
-	catch (const SException&)
-	{
-		// TODO: notification
-		throw;
-		//return false;
-	}
-}
-
-GenericPluginModel::plugin_instance CustomPluginModel::Create(const string& filename)
-{
-	try
-	{
-		return m_Imports.pCreateInstance(filename.data());
-	}
-	catch (const SException&)
-	{
-		// TODO: notification
-		throw;
-		//return nullptr;
-	}
-}
-
-void CustomPluginModel::InitExports(GenericPluginModel::plugin_instance instance, exports_array& Exports)
-{
-	try
-	{
-		std::transform(ALL_RANGE(m_ExportsNames), Exports.begin(), [&](const export_name& i)
-		{
-			return *i.UName ? reinterpret_cast<void*>(m_Imports.pGetFunctionAddress(static_cast<HANDLE>(instance), i.UName)) : nullptr;
-		});
-	}
-	catch (const SException&)
-	{
-		// TODO: notification
-		throw;
-	}
-}
-
-bool CustomPluginModel::Destroy(GenericPluginModel::plugin_instance module)
-{
-	try
-	{
-		return m_Imports.pDestroyInstance(module) != FALSE;
-	}
-	catch (const SException&)
-	{
-		// TODO: notification
-		throw;
-		//return false;
-	}
+	return std::move(Model);
 }

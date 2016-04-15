@@ -792,7 +792,7 @@ static void HiTextBase(const string& Str, const std::function<void(const string&
 
 void HiText(const string& Str,const FarColor& HiColor,int isVertText)
 {
-	typedef void(*text_func)(const string&);
+	using text_func = void (*)(const string&);
 	const text_func fText = Text, fVText = VText; //BUGBUG
 	const auto TextFunc  = isVertText ? fVText : fText;
 

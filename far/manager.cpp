@@ -390,7 +390,7 @@ int Manager::GetModalExitCode() const
 */
 int Manager::CountWindowsWithName(const string& Name, BOOL IgnoreCase)
 {
-	typedef int (*CompareFunction)(const string&, const string&);
+	using CompareFunction = int (*)(const string&, const string&);
 	CompareFunction CaseSenitive = StrCmp, CaseInsensitive = StrCmpI;
 	CompareFunction CmpFunction = IgnoreCase? CaseInsensitive : CaseSenitive;
 

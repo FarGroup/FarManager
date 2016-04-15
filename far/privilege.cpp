@@ -102,9 +102,9 @@ bool privilege::is_set(const wchar_t* PrivilegeName)
 					if (GetTokenInformation(Token.native_handle(), TokenPrivileges, TokenInformation.get(), TokenInformationLength, &TokenInformationLength))
 					{
 						const auto PrivilegesEnd = TokenInformation->Privileges + TokenInformation->PrivilegeCount;
-						const auto ItemIterator = std::find_if(TokenInformation->Privileges, PrivilegesEnd, [&State](const auto& i)
+						const auto ItemIterator = std::find_if(TokenInformation->Privileges, PrivilegesEnd, [&Luid = State.Privileges[0].Luid](const auto& i)
 						{
-							return i.Luid.LowPart == State.Privileges[0].Luid.LowPart && i.Luid.HighPart==State.Privileges[0].Luid.HighPart;
+							return i.Luid.LowPart == Luid.LowPart && i.Luid.HighPart == Luid.HighPart;
 						});
 						if (ItemIterator != PrivilegesEnd)
 							Result = (ItemIterator->Attributes & (SE_PRIVILEGE_ENABLED|SE_PRIVILEGE_ENABLED_BY_DEFAULT)) != 0;

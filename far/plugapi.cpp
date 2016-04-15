@@ -103,7 +103,7 @@ static Panel* GetHostPanel(HANDLE Handle)
 
 namespace cfunctions
 {
-	typedef int(WINAPI* comparer)(const void*, const void*, void*);
+	using comparer = int (WINAPI*)(const void*, const void*, void*);
 
 	static thread_local comparer bsearch_comparer;
 	static thread_local void* bsearch_param;
@@ -240,7 +240,7 @@ __int64 WINAPI apiAtoi64(const wchar_t *s) noexcept
 	}
 }
 
-void WINAPI apiQsort(void *base, size_t nelem, size_t width, int (WINAPI *fcmp)(const void *, const void *, void *), void *user) noexcept
+void WINAPI apiQsort(void *base, size_t nelem, size_t width, cfunctions::comparer fcmp, void *user) noexcept
 {
 	try
 	{
@@ -253,7 +253,7 @@ void WINAPI apiQsort(void *base, size_t nelem, size_t width, int (WINAPI *fcmp)(
 	}
 }
 
-void *WINAPI apiBsearch(const void *key, const void *base, size_t nelem, size_t width, int (WINAPI *fcmp)(const void *, const void *, void *), void *user) noexcept
+void *WINAPI apiBsearch(const void *key, const void *base, size_t nelem, size_t width, cfunctions::comparer fcmp, void *user) noexcept
 {
 	try
 	{

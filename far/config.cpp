@@ -2258,8 +2258,9 @@ bool Options::AdvancedConfig(farconfig_mode Mode)
 	};
 	auto AdvancedConfigDlg = MakeDialogItemsEx(AdvancedConfigDlgData);
 
-	std::vector<FarListItem> items(Config[CurrentConfig].size());
-	std::transform(ALL_RANGE(Config[CurrentConfig]), items.begin(), [](auto& i) { return i.MakeListItem(); });
+	std::vector<FarListItem> items;
+	items.reserve(Config[CurrentConfig].size());
+	std::transform(ALL_CONST_RANGE(Config[CurrentConfig]), std::back_inserter(items), [](auto& i) { return i.MakeListItem(); });
 
 	FarList Items={sizeof(FarList), items.size(), items.data()};
 

@@ -413,8 +413,8 @@ static bool ProcessServiceModes(const range<wchar_t**>& Args, int& ServiceResult
 		string strProfilePath(Args.size() > 2 ? Args[2] : L""), strLocalProfilePath(Args.size() > 3 ? Args[3] : L""), strTemplatePath(Args.size() > 4 ? Args[4] : L"");
 		InitTemplateProfile(strTemplatePath);
 		InitProfile(strProfilePath, strLocalProfilePath);
-		Global->m_ConfigProvider = new config_provider(Export ? config_provider::export_mode : config_provider::import_mode);
-		ServiceResult = !(Export ? ConfigProvider().Export(Args[1]) : ConfigProvider().Import(Args[1]));
+		Global->m_ConfigProvider = new config_provider(Export? config_provider::mode::m_export : config_provider::mode::m_import);
+		ServiceResult = !ConfigProvider().ServiceMode(Args[1]);
 		return true;
 	}
 	else if (InRange(size_t(1), Args.size(), size_t(3)) && isArg(Args[0], L"clearcache"))

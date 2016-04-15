@@ -159,11 +159,7 @@ class raw_eol
 {
 public:
 	raw_eol(): m_Cr('\r'), m_Lf('\n') {}
-	raw_eol(uintptr_t Codepage)
-	{
-		unicode::to(Codepage, L"\r", 1, &m_Cr, 1);
-		unicode::to(Codepage, L"\n", 1, &m_Lf, 1);
-	}
+	raw_eol(uintptr_t Codepage): m_Cr(to(Codepage, L'\r')), m_Lf(to(Codepage, L'\n')) {}
 
 	template <class T>
 	T cr() const;
@@ -171,8 +167,15 @@ public:
 	T lf() const;
 
 private:
-	char m_Cr;
-	char m_Lf;
+	static char to(uintptr_t Codepage, wchar_t WideChar)
+	{
+		char Char = WideChar;
+		unicode::to(Codepage, &WideChar, 1, &Char, 1);
+		return Char;
+	}
+
+	const char m_Cr;
+	const char m_Lf;
 };
 
 template<>

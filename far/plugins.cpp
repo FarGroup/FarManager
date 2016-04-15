@@ -223,7 +223,7 @@ Plugin* PluginManager::LoadPlugin(const string& FileName, const os::FAR_FIND_DAT
 {
 	std::unique_ptr<Plugin> pPlugin;
 
-	std::any_of(CONST_RANGE(PluginModels, i) { return (pPlugin = i->CreatePlugin(FileName)) != nullptr; });
+	std::any_of(CONST_RANGE(PluginFactories, i) { return (pPlugin = i->CreatePlugin(FileName)) != nullptr; });
 
 	if (pPlugin)
 	{
@@ -370,10 +370,10 @@ Plugin *PluginManager::FindPlugin(const string& ModuleName) const
 
 void PluginManager::LoadModels()
 {
-	PluginModels.emplace_back(std::make_unique<NativePluginModel>(this));
+	PluginFactories.emplace_back(std::make_unique<native_plugin_factory>(this));
 #ifndef NO_WRAPPER
 	if (Global->Opt->LoadPlug.OEMPluginsSupport)
-		PluginModels.emplace_back(std::make_unique<wrapper::OEMPluginModel>(this));
+		PluginFactories.emplace_back(wrapper::CreateOemPluginFactory(this));
 #endif // NO_WRAPPER
 
 	ScanTree ScTree(false, true, Global->Opt->LoadPlug.ScanSymlinks);
@@ -385,10 +385,9 @@ void PluginManager::LoadModels()
 	{
 		if (CmpName(L"*.dll", filename.data(), false) && !(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 		{
-			auto CustomModel = std::make_unique<CustomPluginModel>(this, filename);
-			if (CustomModel->Success())
+			if (auto CustomModel = CreateCustomPluginFactory(this, filename))
 			{
-				PluginModels.emplace_back(std::move(CustomModel));
+				PluginFactories.emplace_back(std::move(CustomModel));
 			}
 		}
 	}

@@ -39,7 +39,7 @@ namespace components
 	class component
 	{
 	public:
-		typedef string(*get_info)();
+		using get_info = string(*)();
 
 		component(get_info getInfo);
 

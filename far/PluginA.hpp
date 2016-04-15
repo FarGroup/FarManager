@@ -38,27 +38,16 @@ namespace wrapper
 
 #include "pluginold.hpp"
 
-class OEMPluginModel : public NativePluginModel
-{
-public:
-	OEMPluginModel(PluginManager* owner);
-
-	virtual std::unique_ptr<Plugin> CreatePlugin(const string& filename) override;
-	const std::string& getUserName();
-
-private:
-	virtual bool FindExport(const char* ExportName) override;
-	std::string m_userName;
-};
+plugin_factory_ptr CreateOemPluginFactory(PluginManager* Owner);
 
 class file_version;
 
 // TODO: PluginA class shouldn't be derived from Plugin.
-// All exports should be provided by OEMPluginModel.
+// All exports should be provided by oem_plugin_factory.
 class PluginA: public Plugin
 {
 public:
-	PluginA(OEMPluginModel* model, const string& ModuleName);
+	PluginA(plugin_factory* Factory, const string& ModuleName);
 	~PluginA();
 
 	virtual bool GetGlobalInfo(GlobalInfo *Info) override;

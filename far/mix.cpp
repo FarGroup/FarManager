@@ -214,9 +214,10 @@ void ReloadEnvironment()
 		L"USERNAME", //absent
 	};
 
-	std::vector<std::pair<const wchar_t*, string>> PreservedVariables(std::size(PreservedNames));
+	std::vector<std::pair<const wchar_t*, string>> PreservedVariables;
+	PreservedVariables.reserve(std::size(PreservedNames));
 
-	std::transform(ALL_CONST_RANGE(PreservedNames), PreservedVariables.begin(), [](const wchar_t* i)
+	std::transform(ALL_CONST_RANGE(PreservedNames), std::back_inserter(PreservedVariables), [](const wchar_t* i)
 	{
 		return std::make_pair(i, os::env::get_variable(i));
 	});

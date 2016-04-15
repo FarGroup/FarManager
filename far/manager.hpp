@@ -164,7 +164,7 @@ private:
 	void SubmergeCommit(window_ptr_ref Param);
 	int GetModalExitCode() const;
 
-	typedef void(Manager::*window_callback)(window_ptr_ref);
+	using window_callback = void (Manager::*)(window_ptr_ref);
 
 	void PushWindow(window_ptr_ref Param, window_callback Callback);
 	void CheckAndPushWindow(window_ptr_ref Param, window_callback Callback);

@@ -55,111 +55,136 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace wrapper
 {
-typedef void   (WINAPI *iClosePanelPrototype)          (HANDLE hPlugin);
-typedef int    (WINAPI *iComparePrototype)             (HANDLE hPlugin,const oldfar::PluginPanelItem *Item1,const oldfar::PluginPanelItem *Item2,unsigned int Mode);
-typedef int    (WINAPI *iConfigurePrototype)           (int ItemNumber);
-typedef int    (WINAPI *iDeleteFilesPrototype)         (HANDLE hPlugin,oldfar::PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
-typedef void   (WINAPI *iExitFARPrototype)             ();
-typedef void   (WINAPI *iFreeFindDataPrototype)        (HANDLE hPlugin,oldfar::PluginPanelItem *PanelItem,int ItemsNumber);
-typedef void   (WINAPI *iFreeVirtualFindDataPrototype) (HANDLE hPlugin,oldfar::PluginPanelItem *PanelItem,int ItemsNumber);
-typedef int    (WINAPI *iGetFilesPrototype)            (HANDLE hPlugin,oldfar::PluginPanelItem *PanelItem,int ItemsNumber,int Move,char *DestPath,int OpMode);
-typedef int    (WINAPI *iGetFindDataPrototype)         (HANDLE hPlugin,oldfar::PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
-typedef int    (WINAPI *iGetMinFarVersionPrototype)    ();
-typedef void   (WINAPI *iGetOpenPanelInfoPrototype)    (HANDLE hPlugin,oldfar::OpenPanelInfo *Info);
-typedef void   (WINAPI *iGetPluginInfoPrototype)       (oldfar::PluginInfo *Info);
-typedef int    (WINAPI *iGetVirtualFindDataPrototype)  (HANDLE hPlugin,oldfar::PluginPanelItem **pPanelItem,int *pItemsNumber,const char *Path);
-typedef int    (WINAPI *iMakeDirectoryPrototype)       (HANDLE hPlugin,char *Name,int OpMode);
-typedef HANDLE (WINAPI *iOpenFilePluginPrototype)      (char *Name,const unsigned char *Data,int DataSize);
-typedef HANDLE (WINAPI *iOpenPrototype)                (int OpenFrom,intptr_t Item);
-typedef int    (WINAPI *iProcessEditorEventPrototype)  (int Event,void *Param);
-typedef int    (WINAPI *iProcessEditorInputPrototype)  (const INPUT_RECORD *Rec);
-typedef int    (WINAPI *iProcessPanelEventPrototype)   (HANDLE hPlugin,int Event,void *Param);
-typedef int    (WINAPI *iProcessHostFilePrototype)     (HANDLE hPlugin,oldfar::PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
-typedef int    (WINAPI *iProcessPanelInputPrototype)   (HANDLE hPlugin,int Key,unsigned int ControlState);
-typedef int    (WINAPI *iPutFilesPrototype)            (HANDLE hPlugin,oldfar::PluginPanelItem *PanelItem,int ItemsNumber,int Move,int OpMode);
-typedef int    (WINAPI *iSetDirectoryPrototype)        (HANDLE hPlugin,const char *Dir,int OpMode);
-typedef int    (WINAPI *iSetFindListPrototype)         (HANDLE hPlugin,const oldfar::PluginPanelItem *PanelItem,int ItemsNumber);
-typedef void   (WINAPI *iSetStartupInfoPrototype)      (const oldfar::PluginStartupInfo *Info);
-typedef int    (WINAPI *iProcessViewerEventPrototype)  (int Event,void *Param);
-typedef int    (WINAPI *iProcessDialogEventPrototype)  (int Event,void *Param);
+using iClosePanelPrototype           = void   (WINAPI*)(HANDLE hPlugin);
+using iComparePrototype              = int    (WINAPI*)(HANDLE hPlugin,const oldfar::PluginPanelItem *Item1,const oldfar::PluginPanelItem *Item2,unsigned int Mode);
+using iConfigurePrototype            = int    (WINAPI*)(int ItemNumber);
+using iDeleteFilesPrototype          = int    (WINAPI*)(HANDLE hPlugin,oldfar::PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
+using iExitFARPrototype              = void   (WINAPI*)();
+using iFreeFindDataPrototype         = void   (WINAPI*)(HANDLE hPlugin,oldfar::PluginPanelItem *PanelItem,int ItemsNumber);
+using iFreeVirtualFindDataPrototype  = void   (WINAPI*)(HANDLE hPlugin,oldfar::PluginPanelItem *PanelItem,int ItemsNumber);
+using iGetFilesPrototype             = int    (WINAPI*)(HANDLE hPlugin,oldfar::PluginPanelItem *PanelItem,int ItemsNumber,int Move,char *DestPath,int OpMode);
+using iGetFindDataPrototype          = int    (WINAPI*)(HANDLE hPlugin,oldfar::PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
+using iGetMinFarVersionPrototype     = int    (WINAPI*)();
+using iGetOpenPanelInfoPrototype     = void   (WINAPI*)(HANDLE hPlugin,oldfar::OpenPanelInfo *Info);
+using iGetPluginInfoPrototype        = void   (WINAPI*)(oldfar::PluginInfo *Info);
+using iGetVirtualFindDataPrototype   = int    (WINAPI*)(HANDLE hPlugin,oldfar::PluginPanelItem **pPanelItem,int *pItemsNumber,const char *Path);
+using iMakeDirectoryPrototype        = int    (WINAPI*)(HANDLE hPlugin,char *Name,int OpMode);
+using iOpenFilePluginPrototype       = HANDLE (WINAPI*)(char *Name,const unsigned char *Data,int DataSize);
+using iOpenPrototype                 = HANDLE (WINAPI*)(int OpenFrom,intptr_t Item);
+using iProcessEditorEventPrototype   = int    (WINAPI*)(int Event,void *Param);
+using iProcessEditorInputPrototype   = int    (WINAPI*)(const INPUT_RECORD *Rec);
+using iProcessPanelEventPrototype    = int    (WINAPI*)(HANDLE hPlugin,int Event,void *Param);
+using iProcessHostFilePrototype      = int    (WINAPI*)(HANDLE hPlugin,oldfar::PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
+using iProcessPanelInputPrototype    = int    (WINAPI*)(HANDLE hPlugin,int Key,unsigned int ControlState);
+using iPutFilesPrototype             = int    (WINAPI*)(HANDLE hPlugin,oldfar::PluginPanelItem *PanelItem,int ItemsNumber,int Move,int OpMode);
+using iSetDirectoryPrototype         = int    (WINAPI*)(HANDLE hPlugin,const char *Dir,int OpMode);
+using iSetFindListPrototype          = int    (WINAPI*)(HANDLE hPlugin,const oldfar::PluginPanelItem *PanelItem,int ItemsNumber);
+using iSetStartupInfoPrototype       = void   (WINAPI*)(const oldfar::PluginStartupInfo *Info);
+using iProcessViewerEventPrototype   = int    (WINAPI*)(int Event,void *Param);
+using iProcessDialogEventPrototype   = int    (WINAPI*)(int Event,void *Param);
 
-inline int UnicodeToOEM(const wchar_t* src, char* dst, size_t lendst)
+static inline auto UnicodeToOEM(const wchar_t* src, char* dst, size_t lendst)
 {
 	return static_cast<int>(unicode::to(CP_OEMCP, src, wcslen(src) + 1, dst, lendst));
 }
 
-inline int OEMToUnicode(const char* src, wchar_t* dst, size_t lendst)
+template<size_t N>
+static inline auto UnicodeToOEM(const wchar_t* src, char(&dst)[N])
+{
+	return UnicodeToOEM(src, dst, N);
+}
+
+static inline auto OEMToUnicode(const char* src, wchar_t* dst, size_t lendst)
 {
 	return static_cast<int>(unicode::from(CP_OEMCP, src, strlen(src) + 1, dst, lendst));
 }
 
-OEMPluginModel::OEMPluginModel(PluginManager* owner):
-	NativePluginModel(owner)
+template<size_t N>
+static inline auto OEMToUnicode(const char* src, wchar_t(&dst)[N])
 {
-	static const GenericPluginModel::export_name ExportsNames[] =
+	return OEMToUnicode(src, dst, N);
+}
+
+class oem_plugin_factory: public native_plugin_factory
+{
+public:
+	oem_plugin_factory(PluginManager* Owner):
+		native_plugin_factory(Owner)
 	{
-		WA(""), // GetGlobalInfo not used
-		WA("SetStartupInfo"),
-		WA("OpenPlugin"),
-		WA("ClosePlugin"),
-		WA("GetPluginInfo"),
-		WA("GetOpenPluginInfo"),
-		WA("GetFindData"),
-		WA("FreeFindData"),
-		WA("GetVirtualFindData"),
-		WA("FreeVirtualFindData"),
-		WA("SetDirectory"),
-		WA("GetFiles"),
-		WA("PutFiles"),
-		WA("DeleteFiles"),
-		WA("MakeDirectory"),
-		WA("ProcessHostFile"),
-		WA("SetFindList"),
-		WA("Configure"),
-		WA("ExitFAR"),
-		WA("ProcessKey"),
-		WA("ProcessEvent"),
-		WA("ProcessEditorEvent"),
-		WA("Compare"),
-		WA("ProcessEditorInput"),
-		WA("ProcessViewerEvent"),
-		WA("ProcessDialogEvent"),
-		WA(""), // ProcessSynchroEvent not used
-		WA(""), // ProcessConsoleEvent not used
-		WA(""), // Analyze not used
-		WA(""), // CloseAnalyze not used
-		WA(""), // GetContentFields not used
-		WA(""), // GetContentData not used
-		WA(""), // FreeContentData not used
+		static const plugin_factory::export_name ExportsNames[] =
+		{
+			WA(""), // GetGlobalInfo not used
+			WA("SetStartupInfo"),
+			WA("OpenPlugin"),
+			WA("ClosePlugin"),
+			WA("GetPluginInfo"),
+			WA("GetOpenPluginInfo"),
+			WA("GetFindData"),
+			WA("FreeFindData"),
+			WA("GetVirtualFindData"),
+			WA("FreeVirtualFindData"),
+			WA("SetDirectory"),
+			WA("GetFiles"),
+			WA("PutFiles"),
+			WA("DeleteFiles"),
+			WA("MakeDirectory"),
+			WA("ProcessHostFile"),
+			WA("SetFindList"),
+			WA("Configure"),
+			WA("ExitFAR"),
+			WA("ProcessKey"),
+			WA("ProcessEvent"),
+			WA("ProcessEditorEvent"),
+			WA("Compare"),
+			WA("ProcessEditorInput"),
+			WA("ProcessViewerEvent"),
+			WA("ProcessDialogEvent"),
+			WA(""), // ProcessSynchroEvent not used
+			WA(""), // ProcessConsoleEvent not used
+			WA(""), // Analyze not used
+			WA(""), // CloseAnalyze not used
+			WA(""), // GetContentFields not used
+			WA(""), // GetContentData not used
+			WA(""), // FreeContentData not used
 
-		WA("OpenFilePlugin"),
-		WA("GetMinFarVersion"),
-	};
-	static_assert(std::size(ExportsNames) == ExportsCount, "Not all exports names are defined");
-	m_ExportsNames = make_range(std::cbegin(ExportsNames), std::cend(ExportsNames));
-}
+			WA("OpenFilePlugin"),
+			WA("GetMinFarVersion"),
+		};
+		static_assert(std::size(ExportsNames) == ExportsCount, "Not all exports names are defined");
+		m_ExportsNames = make_range(ALL_CONST_RANGE(ExportsNames));
+	}
 
-std::unique_ptr<Plugin> OEMPluginModel::CreatePlugin(const string& filename)
-{
-	return IsPlugin(filename)? std::make_unique<PluginA>(this, filename) : nullptr;
-}
-
-const std::string& OEMPluginModel::getUserName()
-{
-	if (m_userName.empty())
-		m_userName = "Software\\Far Manager" + (Global->strRegUser.empty() ? "" : "\\Users\\" + narrow(Global->strRegUser)) + "\\Plugins";
-	return m_userName;
-}
-
-bool OEMPluginModel::FindExport(const char* ExportName)
-{
-	// module with ANY known export can be OEM plugin
-	return std::find_if(ALL_RANGE(m_ExportsNames), [&](const export_name& i)
+	virtual std::unique_ptr<Plugin> CreatePlugin(const string& filename) override
 	{
-		return !strcmp(ExportName, i.AName);
-	}) != m_ExportsNames.end();
-}
+		return IsPlugin(filename)? std::make_unique<PluginA>(this, filename) : nullptr;
+	}
 
+	const std::string& getUserName()
+	{
+		if (m_userName.empty())
+		{
+			m_userName = "Software\\Far Manager" + (Global->strRegUser.empty()? "" : "\\Users\\" + narrow(Global->strRegUser)) + "\\Plugins";
+		}
+		return m_userName;
+	}
+
+private:
+	virtual bool FindExport(const char* ExportName) const override
+	{
+		// module with ANY known export can be OEM plugin
+		return std::find_if(ALL_RANGE(m_ExportsNames), [&](const export_name& i)
+		{
+			return !strcmp(ExportName, i.AName);
+		}) != m_ExportsNames.end();
+	}
+
+	std::string m_userName;
+};
+
+plugin_factory_ptr CreateOemPluginFactory(PluginManager* Owner)
+{
+	return std::make_unique<oem_plugin_factory>(Owner);
+}
 
 static inline int IsSpaceA(int x) { return x==' '  || x=='\t'; }
 static inline int IsEolA(int x)   { return x=='\r' || x=='\n'; }
@@ -200,8 +225,8 @@ static bool LocalUpperInit()
 	return InitOnce;
 }
 
-typedef int(*comparer)(const void*, const void*);
-typedef int(*comparer_ex)(const void*, const void*, void*);
+using comparer = int(*)(const void*, const void*);
+using comparer_ex = int(*)(const void*, const void*, void*);
 
 struct comparer_helper
 {
@@ -682,8 +707,8 @@ static void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::Plu
 	PanelItemA.FindData.nFileSizeHigh = (DWORD)(PanelItem.FileSize >> 32);
 	PanelItemA.PackSize = (DWORD)(PanelItem.AllocationSize & 0xFFFFFFFF);
 	PanelItemA.PackSizeHigh = (DWORD)(PanelItem.AllocationSize >> 32);
-	UnicodeToOEM(PanelItem.FileName + PathOffset, PanelItemA.FindData.cFileName, sizeof(PanelItemA.FindData.cFileName));
-	UnicodeToOEM(PanelItem.AlternateFileName, PanelItemA.FindData.cAlternateFileName, sizeof(PanelItemA.FindData.cAlternateFileName));
+	UnicodeToOEM(PanelItem.FileName + PathOffset, PanelItemA.FindData.cFileName);
+	UnicodeToOEM(PanelItem.AlternateFileName, PanelItemA.FindData.cAlternateFileName);
 }
 
 static void ConvertPanelItemsArrayToAnsi(const PluginPanelItem *PanelItemW, oldfar::PluginPanelItem *&PanelItemA, size_t ItemsNumber)
@@ -863,7 +888,7 @@ static const std::pair<oldfar::LISTITEMFLAGS, LISTITEMFLAGS> ListFlagsMap[] =
 
 static void UnicodeListItemToAnsi(const FarListItem* li, oldfar::FarListItem* liA)
 {
-	UnicodeToOEM(li->Text, liA->Text, sizeof(liA->Text) - 1);
+	UnicodeToOEM(li->Text, liA->Text, std::size(liA->Text) - 1);
 	liA->Flags = 0;
 	if (li->Flags)
 	{
@@ -1220,7 +1245,7 @@ static oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di, HANDLE 
 		UnicodeToOEM(di.Data, diA->Ptr.PtrData, diA->Ptr.PtrLength + 1);
 	}
 	else
-		UnicodeToOEM(di.Data, diA->Data, sizeof(diA->Data));
+		UnicodeToOEM(di.Data, diA->Data);
 
 	return diA;
 }
@@ -2093,7 +2118,7 @@ static char* WINAPI FarMkTempA(char *Dest, const char *Prefix) noexcept
 	{
 		wchar_t D[oldfar::NM] = {};
 		NativeFSF.MkTemp(D, std::size(D), wide(Prefix).data());
-		UnicodeToOEM(D, Dest, sizeof(D));
+		UnicodeToOEM(D, Dest, std::size(D));
 		return Dest;
 	}
 	catch (...)
@@ -2210,10 +2235,10 @@ static int WINAPI FarRecursiveSearchA_Callback(const PluginPanelItem *FData, con
 		FindData.ftLastWriteTime = FData->LastWriteTime;
 		FindData.nFileSizeLow = (DWORD)FData->FileSize;
 		FindData.nFileSizeHigh = (DWORD)(FData->FileSize >> 32);
-		UnicodeToOEM(FData->FileName, FindData.cFileName, sizeof(FindData.cFileName));
-		UnicodeToOEM(FData->AlternateFileName, FindData.cAlternateFileName, sizeof(FindData.cAlternateFileName));
+		UnicodeToOEM(FData->FileName, FindData.cFileName);
+		UnicodeToOEM(FData->AlternateFileName, FindData.cAlternateFileName);
 		char FullNameA[oldfar::NM];
-		UnicodeToOEM(FullName, FullNameA, sizeof(FullNameA));
+		UnicodeToOEM(FullName, FullNameA);
 		return pCallbackParam->Func(&FindData, FullNameA, pCallbackParam->Param);
 	}
 	catch (...)
@@ -3406,7 +3431,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber, int X1, int Y1, int X2, in
 					if ((di[i].Type==DI_EDIT || di[i].Type==DI_COMBOBOX) && Item[i].Flags&oldfar::DIF_VAREDIT)
 						UnicodeToOEM(res, Item[i].Ptr.PtrData, Item[i].Ptr.PtrLength+1);
 					else
-						UnicodeToOEM(res, Item[i].Data, sizeof(Item[i].Data));
+						UnicodeToOEM(res, Item[i].Data);
 
 					if (gdi.Item->Type==DI_USERCONTROL)
 					{
@@ -3569,14 +3594,14 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 						block_ptr<FarPanelDirectory> dirInfo(dirSize);
 						dirInfo->StructSize=sizeof(FarPanelDirectory);
 						NativeInfo.PanelControl(hPlugin, FCTL_GETPANELDIRECTORY, dirSize, dirInfo.get());
-						UnicodeToOEM(dirInfo->Name,OldPI->CurDir,sizeof(OldPI->CurDir));
+						UnicodeToOEM(dirInfo->Name,OldPI->CurDir);
 					}
 					wchar_t ColumnTypes[sizeof(OldPI->ColumnTypes)];
 					NativeInfo.PanelControl(hPlugin,FCTL_GETCOLUMNTYPES,sizeof(OldPI->ColumnTypes),ColumnTypes);
-					UnicodeToOEM(ColumnTypes,OldPI->ColumnTypes,sizeof(OldPI->ColumnTypes));
+					UnicodeToOEM(ColumnTypes,OldPI->ColumnTypes);
 					wchar_t ColumnWidths[sizeof(OldPI->ColumnWidths)];
 					NativeInfo.PanelControl(hPlugin,FCTL_GETCOLUMNWIDTHS,sizeof(OldPI->ColumnWidths),ColumnWidths);
-					UnicodeToOEM(ColumnWidths,OldPI->ColumnWidths,sizeof(OldPI->ColumnWidths));
+					UnicodeToOEM(ColumnWidths,OldPI->ColumnWidths);
 					*static_cast<oldfar::PanelInfo*>(Param) = *OldPI;
 				}
 				else
@@ -3611,14 +3636,14 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 						block_ptr<FarPanelDirectory> dirInfo(dirSize);
 						dirInfo->StructSize=sizeof(FarPanelDirectory);
 						NativeInfo.PanelControl(hPlugin, FCTL_GETPANELDIRECTORY, dirSize, dirInfo.get());
-						UnicodeToOEM(dirInfo->Name, OldPI->CurDir, sizeof(OldPI->CurDir));
+						UnicodeToOEM(dirInfo->Name, OldPI->CurDir);
 					}
 					wchar_t ColumnTypes[sizeof(OldPI->ColumnTypes)];
-					NativeInfo.PanelControl(hPlugin,FCTL_GETCOLUMNTYPES,sizeof(OldPI->ColumnTypes),ColumnTypes);
-					UnicodeToOEM(ColumnTypes,OldPI->ColumnTypes,sizeof(OldPI->ColumnTypes));
+					NativeInfo.PanelControl(hPlugin,FCTL_GETCOLUMNTYPES, std::size(OldPI->ColumnTypes),ColumnTypes);
+					UnicodeToOEM(ColumnTypes, OldPI->ColumnTypes);
 					wchar_t ColumnWidths[sizeof(OldPI->ColumnWidths)];
 					NativeInfo.PanelControl(hPlugin,FCTL_GETCOLUMNWIDTHS,sizeof(OldPI->ColumnWidths),ColumnWidths);
-					UnicodeToOEM(ColumnWidths,OldPI->ColumnWidths,sizeof(OldPI->ColumnWidths));
+					UnicodeToOEM(ColumnWidths, OldPI->ColumnWidths);
 				}
 
 				return ret;
@@ -3778,6 +3803,18 @@ static HANDLE WINAPI FarSaveScreenA(int X1, int Y1, int X2, int Y2) noexcept
 	{
 		// TODO: log
 		return nullptr;
+	}
+}
+
+static void WINAPI FarRestoreScreenA(HANDLE Screen) noexcept
+{
+	try
+	{
+		return NativeInfo.RestoreScreen(Screen);
+	}
+	catch (...)
+	{
+		// TODO: log
 	}
 }
 
@@ -4092,25 +4129,26 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 
 					if (Command==oldfar::ACTL_GETWINDOWINFO)
 					{
+						std::vector<wchar_t> TypeName, Name;
+
 						if (wi.TypeNameSize)
 						{
-							wi.TypeName=new wchar_t[wi.TypeNameSize];
+							TypeName.resize(wi.TypeNameSize);
+							wi.TypeName = TypeName.data();
 						}
 
 						if (wi.NameSize)
 						{
-							wi.Name=new wchar_t[wi.NameSize];
+							Name.resize(wi.NameSize);
+							wi.Name = Name.data();
 						}
 
 						if (wi.TypeName && wi.Name)
 						{
 							NativeInfo.AdvControl(GetPluginGuid(ModuleNumber),ACTL_GETWINDOWINFO, 0, &wi);
-							UnicodeToOEM(wi.TypeName,wiA->TypeName,sizeof(wiA->TypeName));
-							UnicodeToOEM(wi.Name,wiA->Name,sizeof(wiA->Name));
+							UnicodeToOEM(wi.TypeName, wiA->TypeName);
+							UnicodeToOEM(wi.Name, wiA->Name);
 						}
-
-						delete[] wi.TypeName;
-						delete[] wi.Name;
 					}
 					else
 					{
@@ -4864,7 +4902,7 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize) noexc
 			string sTableName = std::to_wstring(nCP);
 			sTableName.resize(std::max(sTableName.size(), size_t(5)), L' ');
 			sTableName.append(1, BoxSymbols[BS_V1]).append(1, L' ').append(CodepageName);
-			UnicodeToOEM(sTableName.data(), TableSet->TableName, sizeof(TableSet->TableName) - 1);
+			UnicodeToOEM(sTableName.data(), TableSet->TableName, std::size(TableSet->TableName) - 1);
 			std::unique_ptr<wchar_t[]> us(AnsiToUnicodeBin((char*)TableSet->DecodeTable, sizeof(TableSet->DecodeTable), nCP));
 			CharLowerBuff(us.get(), sizeof(TableSet->DecodeTable));
 			unicode::to(nCP, us.get(), sizeof(TableSet->DecodeTable), reinterpret_cast<char*>(TableSet->LowerTable), sizeof(TableSet->DecodeTable));
@@ -4950,58 +4988,53 @@ static void CheckScreenLock()
 	}
 }
 
-class file_version
+class file_version: noncopyable
 {
 public:
-	file_version(const string& file):file(file){}
-	~file_version(){};
+	file_version(const string& File): m_File(File) {}
 
 	bool Read()
 	{
-		bool Result = false;
-		DWORD dummy = 0, dwlen = GetFileVersionInfoSize(file.data(), &dummy);
-		if (dwlen)
+		if (const auto Size = GetFileVersionInfoSize(m_File.data(), nullptr))
 		{
-			buffer.reset(dwlen);
-			if (GetFileVersionInfo(file.data(), dummy, dwlen, buffer.get()))
+			m_Buffer.reset(Size);
+			if (GetFileVersionInfo(m_File.data(), 0, Size, m_Buffer.get()))
 			{
-				DWORD *Translation;
-				UINT len;
-				if (VerQueryValue(buffer.get(), L"\\VarFileInfo\\Translation", (void **)&Translation, &len) && len)
+				if (const auto Translation = GetValue<DWORD>(L"\\VarFileInfo\\Translation"))
 				{
 					std::wostringstream tmp;
 					tmp << std::hex << std::setw(4) << std::setfill(L'0') << LOWORD(*Translation)
 					    << std::hex << std::setw(4) << std::setfill(L'0') << HIWORD(*Translation);
-					path = L"\\StringFileInfo\\" + tmp.str() + L"\\";
-					Result = true;
+					m_BlockPath = L"\\StringFileInfo\\" + tmp.str() + L"\\";
+					return true;
 				}
 			}
 		}
-		return Result;
+		return false;
 	}
 
 	const wchar_t* GetStringValue(const string& value) const
 	{
-		wchar_t* Value;
-		UINT Length;
-		if (VerQueryValue(buffer.get(), (path + value).data(), reinterpret_cast<void**>(&Value), &Length) && Length > 1)
-			return Value;
-		return nullptr;
+		return GetValue<wchar_t>((m_BlockPath + value).data());
 	}
 
 	const VS_FIXEDFILEINFO* GetFixedInfo() const
 	{
-		VS_FIXEDFILEINFO* Info;
-		UINT Length;
-		if (VerQueryValue(buffer.get(), L"\\", reinterpret_cast<void**>(&Info), &Length) && Length)
-			return Info;
-		return nullptr;
+		return GetValue<VS_FIXEDFILEINFO>(L"\\");
 	}
 
 private:
-	string file;
-	string path;
-	wchar_t_ptr buffer;
+	template<class T>
+	const T* GetValue(const wchar_t* SubBlock) const
+	{
+		UINT Length;
+		T* Result;
+		return VerQueryValue(m_Buffer.get(), SubBlock, reinterpret_cast<void**>(&Result), &Length) && Length? Result : nullptr;
+	}
+
+	string m_File;
+	string m_BlockPath;
+	wchar_t_ptr m_Buffer;
 };
 
 
@@ -5035,8 +5068,8 @@ static void RegisterSendKeyToPluginHook()
 }
 
 
-PluginA::PluginA(OEMPluginModel* model, const string& ModuleName) :
-	Plugin(model,ModuleName),
+PluginA::PluginA(plugin_factory* Factory, const string& ModuleName):
+	Plugin(Factory, ModuleName),
 	PI(),
 	OPI(),
 	pFDPanelItemA(nullptr),
@@ -5120,7 +5153,7 @@ static oldfar::PluginStartupInfo StartupInfo =
 	wrapper::pluginapi::FarGetMsgFnA,
 	wrapper::pluginapi::FarPanelControlA,
 	wrapper::pluginapi::FarSaveScreenA,
-	nullptr, // copy from NativeInfo
+	wrapper::pluginapi::FarRestoreScreenA,
 	wrapper::pluginapi::FarGetDirListA,
 	wrapper::pluginapi::FarGetPluginDirListA,
 	wrapper::pluginapi::FarFreeDirListA,
@@ -5140,18 +5173,6 @@ static oldfar::PluginStartupInfo StartupInfo =
 	0,
 	wrapper::pluginapi::FarViewerControlA,
 };
-
-static void CreatePluginStartupInfoA(PluginA *pPlugin, oldfar::PluginStartupInfo *PSI, oldfar::FarStandardFunctions *FSF)
-{
-	StartupInfo.RestoreScreen = NativeInfo.RestoreScreen;
-
-	*PSI=StartupInfo;
-	*FSF=StandardFunctions;
-	PSI->ModuleNumber=(intptr_t)pPlugin;
-	PSI->FSF=FSF;
-	UnicodeToOEM(pPlugin->GetModuleName().data(), PSI->ModuleName, sizeof(PSI->ModuleName));
-}
-
 
 bool PluginA::GetGlobalInfo(GlobalInfo* Info)
 {
@@ -5179,19 +5200,18 @@ bool PluginA::GetGlobalInfo(GlobalInfo* Info)
 			Info->Author = Value;
 		}
 
-		if ((Value = FileVersion->GetStringValue(L"FileDescription")) != nullptr)
+		if (const auto Description = FileVersion->GetStringValue(L"FileDescription"))
 		{
-			Info->Description = Value;
+			Info->Description = Description;
 		}
 
-		if ((Value = FileVersion->GetStringValue(L"PluginGUID")) != nullptr)
+		if (const auto Uuid = FileVersion->GetStringValue(L"PluginGUID"))
 		{
-			if (UuidFromString(reinterpret_cast<RPC_WSTR>(const_cast<wchar_t*>(Value)), &PluginGuid) == RPC_S_OK)
+			if (UuidFromString(reinterpret_cast<RPC_WSTR>(const_cast<wchar_t*>(Uuid)), &PluginGuid) == RPC_S_OK)
 				GuidFound = true;
 		}
 
-		const auto FileInfo = FileVersion->GetFixedInfo();
-		if (FileInfo)
+		if (const auto FileInfo = FileVersion->GetFixedInfo())
 		{
 			Info->Version.Major = HIWORD(FileInfo->dwFileVersionMS);
 			Info->Version.Minor = LOWORD(FileInfo->dwFileVersionMS);
@@ -5224,19 +5244,20 @@ bool PluginA::SetStartupInfo(PluginStartupInfo* Info)
 	ExecuteStruct es = {iSetStartupInfo};
 	if (Exports[es.id] && !Global->ProcessException)
 	{
-		oldfar::PluginStartupInfo _info;
-		oldfar::FarStandardFunctions _fsf;
-		CreatePluginStartupInfoA(this, &_info, &_fsf);
+		auto InfoCopy = StartupInfo;
+		auto FsfCopy = StandardFunctions;
 		// скорректируем адреса и плагино-зависимые поля
-
-		_info.RootKey = static_cast<OEMPluginModel*>(m_model)->getUserName().data();
+		InfoCopy.ModuleNumber = reinterpret_cast<intptr_t>(this);
+		InfoCopy.FSF = &FsfCopy;
+		UnicodeToOEM(GetModuleName().data(), InfoCopy.ModuleName);
+		InfoCopy.RootKey = static_cast<oem_plugin_factory*>(m_Factory)->getUserName().data();
 
 		if (Global->strRegUser.empty())
 			os::env::delete_variable(L"FARUSER");
 		else
 			os::env::set_variable(L"FARUSER", Global->strRegUser);
 
-		EXECUTE_FUNCTION(FUNCTION(iSetStartupInfo)(&_info));
+		EXECUTE_FUNCTION(FUNCTION(iSetStartupInfo)(&InfoCopy));
 
 		if (bPendingRemove)
 		{
@@ -5495,10 +5516,10 @@ int PluginA::GetFiles(GetFilesInfo* Info)
 		oldfar::PluginPanelItem *PanelItemA = nullptr;
 		ConvertPanelItemsArrayToAnsi(Info->PanelItem, PanelItemA, Info->ItemsNumber);
 		char DestA[oldfar::NM];
-		UnicodeToOEM(Info->DestPath, DestA, sizeof(DestA));
+		UnicodeToOEM(Info->DestPath, DestA);
 		EXECUTE_FUNCTION(es = FUNCTION(iGetFiles)(Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber), Info->Move, DestA, Info->OpMode));
 		static wchar_t DestW[oldfar::NM];
-		OEMToUnicode(DestA,DestW,std::size(DestW));
+		OEMToUnicode(DestA, DestW);
 		Info->DestPath=DestW;
 		FreePanelItemA(PanelItemA, Info->ItemsNumber);
 	}
@@ -5537,10 +5558,10 @@ int PluginA::MakeDirectory(MakeDirectoryInfo* Info)
 	if (Exports[es.id] && !Global->ProcessException)
 	{
 		char NameA[oldfar::NM];
-		UnicodeToOEM(Info->Name, NameA, sizeof(NameA));
+		UnicodeToOEM(Info->Name, NameA);
 		EXECUTE_FUNCTION(es = FUNCTION(iMakeDirectory)(Info->hPanel, NameA, Info->OpMode));
 		static wchar_t NameW[oldfar::NM];
-		OEMToUnicode(NameA,NameW,std::size(NameW));
+		OEMToUnicode(NameA, NameW);
 		Info->Name=NameW;
 	}
 	return es;

@@ -231,13 +231,13 @@ LINK_OBJS = \
 	"$(INTDIR)\window.obj" \
 	"$(INTDIR)\wm_listener.obj" \
 	"$(INTDIR)\xlat.obj" \
+	"$(INTDIR)\vc_crt_fix_impl.obj" \
 !if defined(X86)
 !if !defined(DISABLE_WOW64_HOOK)
 	"$(INTDIR)\hook_wow64.obj" \
 !endif
 !ifndef LINK_ULINK
 	"$(INTDIR)\vc_crt_fix.obj" \
-	"$(INTDIR)\vc_crt_fix_impl.obj" \
 !else
 	"$(INTDIR)\vc_crt_fix_ulink.obj"
 !endif

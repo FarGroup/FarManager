@@ -307,12 +307,11 @@ enum dbcheck: int;
 class config_provider: noncopyable
 {
 public:
-	enum mode { default_mode, import_mode, export_mode };
-	config_provider(mode Mode = default_mode);
+	enum class mode { m_default, m_import, m_export };
+	config_provider(mode Mode = mode::m_default);
 	~config_provider();
-	bool Import(const string& File);
-	bool Export(const string& File);
 	int ShowProblems();
+	bool ServiceMode(const string& File);
 
 	void AddThread(Thread&& thread);
 
@@ -336,6 +335,8 @@ public:
 private:
 	template<class T> HierarchicalConfigUniquePtr CreateHierarchicalConfig(dbcheck DbId, const string& dbn, const char *xmln, bool Local = false, bool plugin = false);
 	template<class T> std::unique_ptr<T> CreateDatabase(const char *son = nullptr);
+	bool Import(const string& File);
+	bool Export(const string& File);
 	void TryImportDatabase(representable *p, const char *son = nullptr, bool plugin=false);
 	void CheckDatabase(class SQLiteDb *pDb);
 

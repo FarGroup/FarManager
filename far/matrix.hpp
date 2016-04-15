@@ -87,7 +87,7 @@ public:
 		m_cols = cols;
 
 		// don't call vector.resize() here:
-		// - it's never shrink
+		// - it never shrinks
 		// - we don't care about old content
 		m_buffer = std::vector<T>(m_rows * m_cols);
 	}

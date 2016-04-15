@@ -81,7 +81,7 @@ void taskbar::SetProgressValue(UINT64 Completed, UINT64 Total)
 	}
 }
 
-TBPFLAG taskbar::GetProgressState()
+TBPFLAG taskbar::GetProgressState() const
 {
 	return State;
 }

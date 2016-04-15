@@ -92,59 +92,59 @@ enum PLUGINWORKFLAGS
 extern PluginStartupInfo NativeInfo;
 extern FarStandardFunctions NativeFSF;
 
-class GenericPluginModel: noncopyable
+class plugin_factory: noncopyable
 {
 public:
-	typedef void* plugin_instance;
-	typedef std::array<void*, ExportsCount> exports_array;
+	using plugin_instance = void*;
+	using function_address = void*;
+	using exports_array = std::array<function_address, ExportsCount>;
 
-	GenericPluginModel(PluginManager* owner);
-	virtual ~GenericPluginModel() {};
-
-	virtual std::unique_ptr<Plugin> CreatePlugin(const string& filename);
-
-	virtual bool IsPlugin(const string& filename) = 0;
-	virtual plugin_instance Create(const string& filename) = 0;
-	virtual bool Destroy(plugin_instance module) = 0;
-	virtual void InitExports(plugin_instance instance, exports_array& exports) = 0;
-
-	void SaveExportsToCache(PluginsCacheConfig& cache, unsigned long long id, const exports_array& exports);
-	void LoadExportsFromCache(const PluginsCacheConfig& cache, unsigned long long id, exports_array& exports);
-
-	PluginManager* GetOwner() const { return m_owner; }
-	const wchar_t* GetExportName(size_t index) const { return m_ExportsNames[index].UName; }
-
-protected:
 	struct export_name
 	{
 		const wchar_t* UName;
 		const char* AName;
 	};
 
+	plugin_factory(PluginManager* owner);
+	virtual ~plugin_factory() = default;
+
+	virtual std::unique_ptr<Plugin> CreatePlugin(const string& filename);
+
+	virtual bool IsPlugin(const string& filename) const = 0;
+	virtual plugin_instance Create(const string& filename) = 0;
+	virtual bool Destroy(plugin_instance module) = 0;
+	virtual function_address GetFunction(plugin_instance Instance, const export_name& Name) = 0;
+
+	PluginManager* GetOwner() const { return m_owner; }
+	const auto ExportsNames() const { return m_ExportsNames; }
+
+protected:
 	range<const export_name*> m_ExportsNames;
-	PluginManager* m_owner;
+	PluginManager* const m_owner;
 };
 
-class NativePluginModel : public GenericPluginModel
+using plugin_factory_ptr = std::unique_ptr<plugin_factory>;
+
+class native_plugin_factory : public plugin_factory
 {
 public:
-	NativePluginModel(PluginManager* owner) : GenericPluginModel(owner) {}
+	native_plugin_factory(PluginManager* owner) : plugin_factory(owner) {}
 
-	virtual bool IsPlugin(const string& filename) override;
+	virtual bool IsPlugin(const string& filename) const override;
 	virtual plugin_instance Create(const string& filename) override;
 	virtual bool Destroy(plugin_instance module) override;
-	virtual void InitExports(plugin_instance instance, exports_array& exports) override;
+	virtual function_address GetFunction(plugin_instance Instance, const export_name& Name) override;
 
 private:
 	// the rest shouldn't be here, just an optimization for OEM plugins
-	bool IsPlugin2(const void* Module);
-	virtual bool FindExport(const char* ExportName);
+	bool IsPlugin2(const void* Module) const;
+	virtual bool FindExport(const char* ExportName) const;
 };
 
 class Plugin: noncopyable
 {
 public:
-	Plugin(GenericPluginModel* model, const string& ModuleName);
+	Plugin(plugin_factory* Factory, const string& ModuleName);
 	virtual ~Plugin();
 
 	virtual bool GetGlobalInfo(GlobalInfo *Info);
@@ -237,18 +237,18 @@ protected:
 
 	void ExecuteFunction(ExecuteStruct& es, const std::function<void()>& f);
 
-	GenericPluginModel::exports_array Exports;
+	plugin_factory::exports_array Exports;
 
 	std::unordered_set<window_ptr> m_dialogs;
-	GenericPluginModel *m_model;
+	plugin_factory* m_Factory;
 	std::unique_ptr<Language> PluginLang;
 	size_t Activity;
 	bool bPendingRemove;
 
 private:
 	friend class PluginManager;
-	friend class GenericPluginModel;
-	friend class NativePluginModel;
+	friend class plugin_factory;
+	friend class native_plugin_factory;
 
 	virtual void Prologue() {};
 	virtual void Epilogue() {};
@@ -266,7 +266,7 @@ private:
 
 	BitFlags WorkFlags;      // рабочие флаги текущего плагина
 
-	GenericPluginModel::plugin_instance m_Instance;
+	plugin_factory::plugin_instance m_Instance;
 
 	VersionInfo MinFarVersion;
 	VersionInfo PluginVersion;
@@ -277,40 +277,7 @@ private:
 	string m_strGuid;
 };
 
-
-class CustomPluginModel : public GenericPluginModel
-{
-public:
-	CustomPluginModel(PluginManager* owner, const string& filename);
-	~CustomPluginModel();
-
-	bool Success() const { return m_Success; }
-
-	virtual bool IsPlugin(const string& filename) override;
-	virtual plugin_instance Create(const string& filename) override;
-	virtual bool Destroy(plugin_instance module) override;
-	virtual void InitExports(plugin_instance instance, exports_array& exports) override;
-
-private:
-	os::rtdl::module m_Module;
-	struct ModuleImports
-	{
-		os::rtdl::function_pointer<BOOL(WINAPI*)(GlobalInfo* info)> pInitialize;
-		os::rtdl::function_pointer<BOOL(WINAPI*)(const wchar_t* filename)> pIsPlugin;
-		os::rtdl::function_pointer<HANDLE(WINAPI*)(const wchar_t* filename)> pCreateInstance;
-		os::rtdl::function_pointer<FARPROC(WINAPI*)(HANDLE Instance, const wchar_t* functionname)> pGetFunctionAddress;
-		os::rtdl::function_pointer<BOOL(WINAPI*)(HANDLE Instance)> pDestroyInstance;
-		os::rtdl::function_pointer<void (WINAPI*)(const ExitInfo* info)> pFree;
-
-		ModuleImports(const os::rtdl::module& Module);
-		bool IsValid() const { return m_IsValid; }
-
-	private:
-		bool m_IsValid;
-	}
-	m_Imports;
-	bool m_Success;
-};
+plugin_factory_ptr CreateCustomPluginFactory(PluginManager* Owner, const string& Filename);
 
 #define EXECUTE_FUNCTION(f) ExecuteFunction(es, [&]{ f; });
 #define FUNCTION(id) reinterpret_cast<id##Prototype>(Exports[id])
