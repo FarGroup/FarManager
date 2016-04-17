@@ -3,6 +3,28 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 16.04.2016 01:21:23 +0200 - build 4623
+
+1. Refactoring and renamings.
+
+w17 14.04.2016 16:24:08 +0300 - build 4622
+
+1. M#3183: Panel FreeInfo, TotalInfo - add options for human-readable format (e.g. "1.375 T" free space)
+   Ctrl-Shift-S (M#3089) now also affects displaying of total size and free space in file panel.
+   The Panel.Info.ShowBytes -> Panel.ShowBytes parameter has changed
+
+zg 14.04.2016 00:25:20 +0200 - build 4621
+
+1. 0003213: Editor redraw time is proportional to the file size for some reason.
+
+zg 13.04.2016 23:39:18 +0200 - build 4620
+
+1. 0003212: Freeze on ShowHelp/DialogRun call after VCTL_QUIT/ECTL_QUIT.
+
+svs 11.04.2016 10:16:53 +0300 - build 4619
+
+1. SQLite 3.12.1
+
 drkns 08.04.2016 16:05:19 +0200 - build 4618
 
 1. Forum: "Memory corruption somewhere leading to rare crashes."
