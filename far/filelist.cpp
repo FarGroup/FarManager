@@ -7890,9 +7890,12 @@ void FileList::SetShowColor(int Position, bool FileColor) const
 	SetColor(GetShowColor(Position,FileColor));
 }
 
-static string size2str(ULONGLONG Size, int width)
+static string size2str(ULONGLONG Size, int width, int short_mode = -1)
 {
-	if (width < 0 || Global->Opt->ShowBytes)
+	if (short_mode < 0)
+		short_mode = Global->Opt->ShowBytes ? 0 : +1;
+
+	if (!short_mode)
 	{
 		string str;
 		InsertCommas(Size, str);
@@ -7919,7 +7922,6 @@ static string size2str(ULONGLONG Size, int width)
 
 void FileList::ShowSelectedSize()
 {
-
 	if (Global->Opt->ShowPanelStatus)
 	{
 		SetColor(COL_PANELBOX);
@@ -7937,13 +7939,19 @@ void FileList::ShowSelectedSize()
 			ColumnPos++;
 		}
 	}
-
 	if (m_SelFileCount)
 	{
-		auto strFormStr = size2str(SelFileSize, -6);
-		auto strSelStr = string_format(MListFileSize, strFormStr, m_SelFileCount - m_SelDirCount, m_SelDirCount);
-		TruncStr(strSelStr,m_X2-m_X1-1);
-		int Length=(int)strSelStr.size();
+		auto strFormStr = size2str(SelFileSize, 6, 0);
+		auto strSelStr = string_format(MListFileSize, strFormStr, m_SelFileCount-m_SelDirCount, m_SelDirCount);
+		auto avail_width = static_cast<size_t>(std::max(0, m_X2 - m_X1 - 1));
+		if (strSelStr.size() > avail_width)
+		{
+			strFormStr = size2str(SelFileSize, 6, +1);
+			strSelStr = string_format(MListFileSize, strFormStr, m_SelFileCount-m_SelDirCount, m_SelDirCount);
+			if (strSelStr.size() > avail_width)
+				TruncStrFromEnd(strSelStr, static_cast<int>(avail_width));
+		}
+		auto Length = static_cast<int>(strSelStr.size());
 		SetColor(COL_PANELSELECTEDINFO);
 		GotoXY(m_X1+(m_X2-m_X1+1-Length)/2,m_Y2-2*Global->Opt->ShowPanelStatus);
 		Text(strSelStr);
@@ -7956,51 +7964,42 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 	if (!Global->Opt->ShowPanelTotals && m_PanelMode == panel_mode::PLUGIN_PANEL && !(Info.Flags & OPIF_REALNAMES))
 		return;
 
-	string strFreeSize, strTotalStr;
-	int Length;
-	auto strFormSize = size2str(TotalFileSize, 6);
-
-	if (Global->Opt->ShowPanelFree && (m_PanelMode != panel_mode::PLUGIN_PANEL || (Info.Flags & OPIF_REALNAMES)))
+	auto calc_total_string = [this, Info](int short_mode)
 	{
-		strFreeSize = (FreeDiskSize != static_cast<unsigned __int64>(-1)) ? size2str(FreeDiskSize, 0) : L"?";
-	}
+		string strFreeSize, strTotalSize;
+		auto strFormSize = size2str(TotalFileSize, 6, short_mode);
+		if (Global->Opt->ShowPanelFree && (m_PanelMode != panel_mode::PLUGIN_PANEL || (Info.Flags & OPIF_REALNAMES)))
+			strFreeSize = (FreeDiskSize != static_cast<unsigned __int64>(-1)) ? size2str(FreeDiskSize, 0, short_mode) : L"?";
 
-	if (Global->Opt->ShowPanelTotals)
-	{
-		if (!Global->Opt->ShowPanelFree || strFreeSize.empty())
+		if (Global->Opt->ShowPanelTotals)
 		{
-			strTotalStr = string_format(MListFileSize, strFormSize, m_TotalFileCount, m_TotalDirCount);
+			if (!Global->Opt->ShowPanelFree || strFreeSize.empty())
+			{
+				strTotalSize = string_format(MListFileSize, strFormSize, m_TotalFileCount, m_TotalDirCount);
+			}
+			else
+			{
+				const string DHLine(3, BoxSymbols[BS_H2]);
+				strTotalSize = string_format(MListFileSizeStatus, strFormSize, m_TotalFileCount, m_TotalDirCount, DHLine, strFreeSize);
+			}
 		}
 		else
 		{
-			const string DHLine(3, BoxSymbols[BS_H2]);
-			auto str = string_format(MListFileSizeStatus, strFormSize, m_TotalFileCount, m_TotalDirCount, DHLine, strFreeSize);
-			if (str.size() > size_t(m_X2-m_X1-1))
-			{
-				InsertCommas(TotalFileSize / 1024 / 1024, strFormSize);
-				if (FreeDiskSize != static_cast<unsigned __int64>(-1))
-				{
-					InsertCommas(FreeDiskSize / 1024 / 1024, strFreeSize);
-				}
-				else
-				{
-					strFreeSize = L"?";
-				}
-				str = string_format(MListFileSizeStatus, strFormSize + L" " + MSG(MListMb), m_TotalFileCount, m_TotalDirCount, DHLine, strFreeSize + L" " + MSG(MListMb));
-			}
-			strTotalStr = str;
+			strTotalSize = string_format(MListFreeSize, strFreeSize.empty() ? L"?" : strFreeSize);
 		}
-	}
-	else
+		return strTotalSize;
+	};
+
+	auto avail_width = static_cast<size_t>(std::max(0, m_X2 - m_X1 - 1));
+	auto strTotalStr = calc_total_string(-1);
+	if (strTotalStr.size() > avail_width)
 	{
-		strTotalStr = string_format(MListFreeSize, strFreeSize.empty()? L"?" : strFreeSize);
+		if (Global->Opt->ShowBytes)
+			strTotalStr = calc_total_string(+1);
+		TruncStrFromEnd(strTotalStr, static_cast<int>(avail_width));
 	}
 	SetColor(COL_PANELTOTALINFO);
-	/* $ 01.08.2001 VVM
-	  + Обрезаем строчку справа, а не слева */
-	TruncStrFromEnd(strTotalStr, std::max(0, m_X2-m_X1-1));
-	Length=(int)strTotalStr.size();
-	GotoXY(m_X1+(m_X2-m_X1+1-Length)/2,m_Y2);
+	GotoXY(m_X1 + (m_X2 - m_X1 + 1 - static_cast<int>(strTotalStr.size()))/2, m_Y2);
 	size_t BoxPos = strTotalStr.find(BoxSymbols[BS_H2]);
 	if (int BoxLength = BoxPos == string::npos? 0 : std::count(strTotalStr.begin() + BoxPos, strTotalStr.end(), BoxSymbols[BS_H2]))
 	{
