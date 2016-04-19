@@ -131,8 +131,6 @@ Editor::Editor(window_ptr Owner, bool DialogUsed):
 	NewSessionPos(),
 	EditorID(::EditorID++),
 	HostFileEditor(nullptr),
-	SortColorLockCount(0),
-	SortColorUpdate(false),
 	EditorControlLock(0),
 	Color(colors::PaletteColorToFarColor(COL_EDITORTEXT)),
 	SelColor(colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT)),
@@ -310,9 +308,7 @@ void Editor::ShowEditor()
 			if (!m_Flags.Check(FEDITOR_DIALOGMEMOEDIT))
 			{
 				_SYS_EE_REDRAW(SysLog(L"Call ProcessEditorEvent(EE_REDRAW)"));
-				SortColorLock();
 				Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW, EEREDRAW_ALL, this);
-				SortColorUnlock();
 			}
 		}
 		_SYS_EE_REDRAW(else SysLog(L"ScrBuf Locked !!!"));
@@ -2702,9 +2698,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 					{
 						//_D(SysLog(L"%08d EE_REDRAW",__LINE__));
 						_SYS_EE_REDRAW(SysLog(L"Editor::ProcessKey[%d](!EdOpt.CursorBeyondEOL): EE_REDRAW(EEREDRAW_ALL)",__LINE__));
-						SortColorLock();
 						Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW, EEREDRAW_ALL, this);
-						SortColorUnlock();
 					}
 
 					/*$ 03.02.2001 SKV
@@ -2987,9 +2981,7 @@ int Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			if (!m_Flags.Check(FEDITOR_DIALOGMEMOEDIT))
 			{
 				_SYS_EE_REDRAW(SysLog(L"Editor::ProcessMouse[%08d] ProcessEditorEvent(EE_REDRAW)",__LINE__));
-				SortColorLock();
 				Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW, EEREDRAW_ALL, this);
-				SortColorUnlock();
 			}
 			ShowEditor();
 		}
@@ -5967,9 +5959,8 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					return FALSE;
 				}
 
-				CurPtr->AddColor(newcol, SortColorLocked());
+				CurPtr->AddColor(newcol);
 				if (col->Flags&ECF_AUTODELETE) m_AutoDeletedColors.emplace(&*CurPtr);
-				SortColorUpdate=true;
 				return TRUE;
 			}
 
@@ -6027,12 +6018,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					_ECTLLOG(SysLog(L"GetStringByNumber(%d) return nullptr",col->StringNumber));
 					return FALSE;
 				}
-
-				SortColorUpdate=true;
-
-				CurPtr->DeleteColor(
-					[&](const ColorItem& Item) { return (col->StartPos == -1 || col->StartPos == Item.StartPos) && col->Owner == Item.GetOwner(); },
-					SortColorLocked());
+				CurPtr->DeleteColor([&](const ColorItem& Item) { return (col->StartPos == -1 || col->StartPos == Item.StartPos) && col->Owner == Item.GetOwner();});
 				return TRUE;
 			}
 
@@ -7342,30 +7328,6 @@ void Editor::DrawScrollbar()
 	}
 }
 
-void Editor::SortColorLock()
-{
-	SortColorLockCount++;
-}
-
-void Editor::SortColorUnlock()
-{
-	if (SortColorLockCount > 0)
-		SortColorLockCount--;
-	else
-		SortColorLockCount = 0;
-
-	if (SortColorLockCount == 0 && SortColorUpdate)
-	{
-		SortColorUpdate = false;
-		std::for_each(ALL_RANGE(Lines), std::mem_fn(&Edit::SortColorUnlocked));
-	}
-}
-
-bool Editor::SortColorLocked() const
-{
-	return SortColorLockCount > 0;
-}
-
 void Editor::Change(EDITOR_CHANGETYPE Type,int StrNum)
 {
 	if (ChangeEventSubscribers.empty())
@@ -7427,7 +7389,7 @@ void Editor::AutoDeleteColors()
 {
 	std::for_each(CONST_RANGE(m_AutoDeletedColors, i)
 	{
-		i->DeleteColor([](const ColorItem& Item){ return (Item.Flags & ECF_AUTODELETE) != 0; }, SortColorLocked());
+		i->DeleteColor([](const ColorItem& Item){ return (Item.Flags & ECF_AUTODELETE) != 0; });
 	});
 	m_AutoDeletedColors.clear();
 }

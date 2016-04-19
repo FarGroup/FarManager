@@ -2139,56 +2139,19 @@ void Edit::DeleteBlock()
 	Changed(true);
 }
 
-void Edit::AddColor(const ColorItem& col,bool skipsort)
+void Edit::AddColor(const ColorItem& col)
 {
-	if (skipsort && !ColorListFlags.Check(ECLF_NEEDSORT) && !ColorList.empty() && ColorList.back().Priority > col.Priority)
-	{
-		ColorListFlags.Set(ECLF_NEEDSORT);
-	}
-
-	ColorList.emplace_back(col);
-
-	if (!skipsort)
-	{
-		std::stable_sort(ALL_RANGE(ColorList));
-	}
+	ColorList.insert(col);
 }
 
-void Edit::SortColorUnlocked()
-{
-	if (ColorListFlags.Check(ECLF_NEEDFREE))
-	{
-		ColorListFlags.Clear(ECLF_NEEDFREE);
-		if (ColorList.empty())
-		{
-			clear_and_shrink(ColorList);
-		}
-	}
-
-	if (ColorListFlags.Check(ECLF_NEEDSORT))
-	{
-		ColorListFlags.Clear(ECLF_NEEDSORT);
-		std::stable_sort(ALL_RANGE(ColorList));
-	}
-}
-
-void Edit::DeleteColor(const delete_color_condition& Condition, bool skipfree)
+void Edit::DeleteColor(const delete_color_condition& Condition)
 {
 	if (!ColorList.empty())
 	{
-		ColorList.erase(std::remove_if(ALL_RANGE(ColorList), Condition), ColorList.end());
-
-		if (ColorList.empty())
+		std::for_each(RANGE(ColorList, color)
 		{
-			if (skipfree)
-			{
-				ColorListFlags.Set(ECLF_NEEDFREE);
-			}
-			else
-			{
-				clear_and_shrink(ColorList);
-			}
-		}
+			if (Condition(color)) ColorList.erase(color);
+		});
 	}
 }
 
@@ -2197,7 +2160,9 @@ bool Edit::GetColor(ColorItem& col, size_t Item) const
 	if (Item >= ColorList.size())
 		return false;
 
-	col = ColorList[Item];
+	auto it = ColorList.begin();
+	std::advance(it, Item);
+	col = *it;
 	return true;
 }
 

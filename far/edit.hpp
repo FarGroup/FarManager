@@ -102,11 +102,6 @@ class Editor;
 
 class Edit: public SimpleScreenObject
 {
-	enum EDITCOLORLISTFLAGS
-	{
-		ECLF_NEEDSORT = 0x1,
-		ECLF_NEEDFREE = 0x2,
-	};
 	struct ShowInfo
 	{
 		int LeftPos;
@@ -182,9 +177,8 @@ public:
 	void SetEditorMode(bool Mode) {m_Flags.Change(FEDITLINE_EDITORMODE, Mode);}
 	bool ReplaceTabs();
 	void InsertTab();
-	void AddColor(const ColorItem& col, bool skipsort);
-	void SortColorUnlocked();
-	void DeleteColor(const delete_color_condition& Condition,bool skipfree);
+	void AddColor(const ColorItem& col);
+	void DeleteColor(const delete_color_condition& Condition);
 	bool GetColor(ColorItem& col, size_t Item) const;
 	void Xlat(bool All=false);
 	void SetDialogParent(DWORD Sets);
@@ -258,11 +252,10 @@ private:
 	friend class FileEditor;
 
 	// KEEP ALIGNED!
-	std::vector<ColorItem> ColorList;
+	std::multiset<ColorItem> ColorList;
 	int m_SelStart;
 	int m_SelEnd;
 	int LeftPos;
-	TBitFlags<unsigned char> ColorListFlags;
 	unsigned char EndType;
 };
 

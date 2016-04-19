@@ -124,9 +124,6 @@ public:
 	int GetCurRow() const { return static_cast<int>(m_it_CurLine.Number()); }
 	void SetCurPos(int NewCol, int NewRow = -1);
 	void DrawScrollbar();
-	void SortColorLock();
-	void SortColorUnlock();
-	bool SortColorLocked() const;
 	bool EditorControlLocked() const { return EditorControlLock != 0; }
 	const FarColor& GetNormalColor() const { return Color; }
 	const FarColor& GetSelectedColor() const { return SelColor; }
@@ -372,8 +369,6 @@ private:
 	bool NewSessionPos;
 	int EditorID;
 	FileEditor *HostFileEditor;
-	int SortColorLockCount;
-	bool SortColorUpdate;
 	int EditorControlLock;
 	std::vector<char> decoded;
 	FarColor Color;
