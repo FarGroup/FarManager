@@ -1069,7 +1069,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				break;
 			case KEY_SHIFTF9:
 
-				if (item && item->bIsPlugin && item->pPlugin->has<iConfigure>())
+				if (item && item->bIsPlugin && item->pPlugin->has(iConfigure))
 					Global->CtrlObject->Plugins->ConfigureCurrent(item->pPlugin, item->Guid);
 
 				RetCode = SelPos;

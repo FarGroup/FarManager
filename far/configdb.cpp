@@ -1271,13 +1271,18 @@ public:
 		return GetTextFromID(Statement(stmtGetSignature), id);
 	}
 
-	virtual void *GetExport(unsigned __int64 id, const string& ExportName) const override
+	virtual bool GetExportState(unsigned __int64 id, const wchar_t* ExportName) const override
 	{
+		if (!*ExportName)
+		{
+			return false;
+		}
+
 		auto& Stmt = Statement(stmtGetExportState);
-		void *enabled = nullptr;
+		bool enabled = false;
 		if (Stmt.Bind(id, ExportName).Step())
 			if (Stmt.GetColInt(0))
-				enabled = ToPtr(1);
+				enabled = true;
 		Stmt.Reset();
 		return enabled;
 	}
@@ -1397,9 +1402,9 @@ public:
 		return Statement(stmtSetFlags).Bind(id, Flags).StepAndReset();
 	}
 
-	virtual bool SetExport(unsigned __int64 id, const string& ExportName, bool Exists) override
+	virtual bool SetExportState(unsigned __int64 id, const wchar_t* ExportName, bool Exists) override
 	{
-		return Statement(stmtSetExportState).Bind(id, ExportName, Exists).StepAndReset();
+		return *ExportName && Statement(stmtSetExportState).Bind(id, ExportName, Exists).StepAndReset();
 	}
 
 	virtual bool SetMinFarVersion(unsigned __int64 id, const VersionInfo *Version) override

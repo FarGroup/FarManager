@@ -453,21 +453,21 @@ bool Plugin::SaveToCache()
 	PluginInfo Info = {sizeof(Info)};
 	GetPluginInfo(&Info);
 
-	auto& PlCache = *ConfigProvider().PlCacheCfg();
+	auto& PlCache = ConfigProvider().PlCacheCfg();
 
-	SCOPED_ACTION(auto)(PlCache.ScopedTransaction());
+	SCOPED_ACTION(auto)(PlCache->ScopedTransaction());
 
-	PlCache.DeleteCache(m_strCacheName);
-	unsigned __int64 id = PlCache.CreateCache(m_strCacheName);
+	PlCache->DeleteCache(m_strCacheName);
+	const auto id = PlCache->CreateCache(m_strCacheName);
 
 	{
 		bool bPreload = (Info.Flags & PF_PRELOAD);
-		PlCache.SetPreload(id, bPreload);
+		PlCache->SetPreload(id, bPreload);
 		WorkFlags.Change(PIWF_PRELOADED, bPreload);
 
 		if (bPreload)
 		{
-			PlCache.EndTransaction();
+			PlCache->EndTransaction();
 			return true;
 		}
 	}
@@ -475,14 +475,14 @@ bool Plugin::SaveToCache()
 	{
 		os::FAR_FIND_DATA fdata;
 		os::GetFindDataEx(m_strModuleName, fdata);
-		PlCache.SetSignature(id, MakeSignature(fdata));
+		PlCache->SetSignature(id, MakeSignature(fdata));
 	}
 
-	const auto SaveItems = [&](const auto& Setter, const auto& Item)
+	const auto SaveItems = [&PlCache, &id](const auto& Setter, const auto& Item)
 	{
-		for (size_t i = 0; i < Item.Count; i++)
+		for (size_t i = 0; i != Item.Count; ++i)
 		{
-			(PlCache.*Setter)(id, i, Item.Strings[i], Item.Guids[i]);
+			((*PlCache).*Setter)(id, i, Item.Strings[i], Item.Guids[i]);
 		}
 	};
 
@@ -490,20 +490,19 @@ bool Plugin::SaveToCache()
 	SaveItems(&PluginsCacheConfig::SetDiskMenuItem, Info.DiskMenu);
 	SaveItems(&PluginsCacheConfig::SetPluginsConfigMenuItem, Info.PluginConfig);
 
-	PlCache.SetCommandPrefix(id, NullToEmpty(Info.CommandPrefix));
-	PlCache.SetFlags(id, Info.Flags);
+	PlCache->SetCommandPrefix(id, NullToEmpty(Info.CommandPrefix));
+	PlCache->SetFlags(id, Info.Flags);
 
-	PlCache.SetMinFarVersion(id, &MinFarVersion);
-	PlCache.SetGuid(id, m_strGuid);
-	PlCache.SetVersion(id, &PluginVersion);
-	PlCache.SetTitle(id, strTitle);
-	PlCache.SetDescription(id, strDescription);
-	PlCache.SetAuthor(id, strAuthor);
+	PlCache->SetMinFarVersion(id, &MinFarVersion);
+	PlCache->SetGuid(id, m_strGuid);
+	PlCache->SetVersion(id, &PluginVersion);
+	PlCache->SetTitle(id, strTitle);
+	PlCache->SetDescription(id, strDescription);
+	PlCache->SetAuthor(id, strAuthor);
 
-	for_each_2(ALL_CONST_RANGE(m_Factory->ExportsNames()), Exports.cbegin(), [&](const auto& i, const void* Export)
+	for_each_2(ALL_CONST_RANGE(m_Factory->ExportsNames()), Exports.cbegin(), [&PlCache, &id](const auto& i, const auto& Export)
 	{
-		if (*i.UName)
-			PlCache.SetExport(id, i.UName, Export != nullptr);
+		PlCache->SetExportState(id, i.UName, Export.second);
 	});
 
 	return true;
@@ -513,7 +512,8 @@ void Plugin::InitExports()
 {
 	std::transform(ALL_CONST_RANGE(m_Factory->ExportsNames()), Exports.begin(), [&](const auto& i)
 	{
-		return m_Factory->GetFunction(m_Instance, i);
+		const auto Address = m_Factory->GetFunction(m_Instance, i);
+		return std::make_pair(Address, Address != nullptr);
 	});
 }
 
@@ -689,11 +689,11 @@ bool Plugin::Load()
 
 bool Plugin::LoadFromCache(const os::FAR_FIND_DATA &FindData)
 {
-	const auto& PlCache = *ConfigProvider().PlCacheCfg();
+	const auto& PlCache = ConfigProvider().PlCacheCfg();
 
-	if (const auto id = PlCache.GetCacheID(m_strCacheName))
+	if (const auto id = PlCache->GetCacheID(m_strCacheName))
 	{
-		if (PlCache.IsPreload(id))   //PF_PRELOAD plugin, skip cache
+		if (PlCache->IsPreload(id))   //PF_PRELOAD plugin, skip cache
 		{
 			WorkFlags.Set(PIWF_PRELOADED);
 			return false;
@@ -701,32 +701,32 @@ bool Plugin::LoadFromCache(const os::FAR_FIND_DATA &FindData)
 
 		{
 			const auto strCurPluginID = MakeSignature(FindData);
-			const auto strPluginID = PlCache.GetSignature(id);
+			const auto strPluginID = PlCache->GetSignature(id);
 
 			if (strPluginID != strCurPluginID)   //одинаковые ли бинарники?
 				return false;
 		}
 
-		if (!PlCache.GetMinFarVersion(id, &MinFarVersion))
+		if (!PlCache->GetMinFarVersion(id, &MinFarVersion))
 		{
 			MinFarVersion = FAR_VERSION;
 		}
 
-		if (!PlCache.GetVersion(id, &PluginVersion))
+		if (!PlCache->GetVersion(id, &PluginVersion))
 		{
 			ClearStruct(PluginVersion);
 		}
 		VersionString = VersionToString(PluginVersion);
 
-		m_strGuid = PlCache.GetGuid(id);
+		m_strGuid = PlCache->GetGuid(id);
 		SetGuid(StrToGuid(m_strGuid,m_Guid)?m_Guid:FarGuid);
-		strTitle = PlCache.GetTitle(id);
-		strDescription = PlCache.GetDescription(id);
-		strAuthor = PlCache.GetAuthor(id);
+		strTitle = PlCache->GetTitle(id);
+		strDescription = PlCache->GetDescription(id);
+		strAuthor = PlCache->GetAuthor(id);
 
-		std::transform(ALL_CONST_RANGE(m_Factory->ExportsNames()), Exports.begin(), [&](const auto& i)
+		std::transform(ALL_CONST_RANGE(m_Factory->ExportsNames()), Exports.begin(), [&PlCache, &id](const auto& i)
 		{
-			return *i.UName ? PlCache.GetExport(id, i.UName) : nullptr;
+			return std::make_pair(nullptr, PlCache->GetExportState(id, i.UName));
 		});
 
 		WorkFlags.Set(PIWF_CACHED); //too much "cached" flags
@@ -764,7 +764,7 @@ int Plugin::Unload(bool bExitFAR)
 
 void Plugin::ClearExports()
 {
-	Exports.fill(nullptr);
+	Exports.fill({ nullptr, false });
 }
 
 void Plugin::AddDialog(window_ptr_ref Dlg)
@@ -806,14 +806,14 @@ bool Plugin::IsPanelPlugin()
 	};
 	return std::any_of(CONST_RANGE(PanelExports, i)
 	{
-		return Exports[i] != nullptr;
+		return Exports[i].second;
 	});
 }
 
 bool Plugin::SetStartupInfo(PluginStartupInfo *Info)
 {
 	ExecuteStruct es = {iSetStartupInfo};
-	if (Exports[es.id] && !Global->ProcessException)
+	if (has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(FUNCTION(iSetStartupInfo)(Info));
@@ -829,7 +829,7 @@ bool Plugin::SetStartupInfo(PluginStartupInfo *Info)
 bool Plugin::GetGlobalInfo(GlobalInfo *gi)
 {
 	ExecuteStruct es = {iGetGlobalInfo};
-	if (Exports[es.id])
+	if (has(es.id))
 	{
 		gi->Instance = m_Instance;
 		EXECUTE_FUNCTION(FUNCTION(iGetGlobalInfo)(gi));
@@ -884,7 +884,7 @@ void* Plugin::OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, siz
 void* Plugin::Analyse(AnalyseInfo *Info)
 {
 	ExecuteStruct es = {iAnalyse};
-	if (Load() && Exports[es.id] && !Global->ProcessException)
+	if (Load() && has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(es = FUNCTION(iAnalyse)(Info));
@@ -895,7 +895,7 @@ void* Plugin::Analyse(AnalyseInfo *Info)
 void Plugin::CloseAnalyse(CloseAnalyseInfo* Info)
 {
 	ExecuteStruct es = {iCloseAnalyse};
-	if (Exports[es.id] && !Global->ProcessException)
+	if (has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(FUNCTION(iCloseAnalyse)(Info));
@@ -906,7 +906,7 @@ void* Plugin::Open(OpenInfo* Info)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	ExecuteStruct es = {iOpen};
-	if (Load() && Exports[es.id] && !Global->ProcessException)
+	if (Load() && has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(es = FUNCTION(iOpen)(Info));
@@ -917,7 +917,7 @@ void* Plugin::Open(OpenInfo* Info)
 int Plugin::SetFindList(SetFindListInfo* Info)
 {
 	ExecuteStruct es = {iSetFindList};
-	if (Exports[es.id] && !Global->ProcessException)
+	if (has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(es = FUNCTION(iSetFindList)(Info));
@@ -928,7 +928,7 @@ int Plugin::SetFindList(SetFindListInfo* Info)
 int Plugin::ProcessEditorInput(ProcessEditorInputInfo* Info)
 {
 	ExecuteStruct es = {iProcessEditorInput};
-	if (Load() && Exports[es.id] && !Global->ProcessException)
+	if (Load() && has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(es = FUNCTION(iProcessEditorInput)(Info));
@@ -939,7 +939,7 @@ int Plugin::ProcessEditorInput(ProcessEditorInputInfo* Info)
 int Plugin::ProcessEditorEvent(ProcessEditorEventInfo* Info)
 {
 	ExecuteStruct es = {iProcessEditorEvent};
-	if (Load() && Exports[es.id] && !Global->ProcessException)
+	if (Load() && has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(es = FUNCTION(iProcessEditorEvent)(Info));
@@ -950,7 +950,7 @@ int Plugin::ProcessEditorEvent(ProcessEditorEventInfo* Info)
 int Plugin::ProcessViewerEvent(ProcessViewerEventInfo* Info)
 {
 	ExecuteStruct es = {iProcessViewerEvent};
-	if (Load() && Exports[es.id] && !Global->ProcessException)
+	if (Load() && has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(es = FUNCTION(iProcessViewerEvent)(Info));
@@ -961,7 +961,7 @@ int Plugin::ProcessViewerEvent(ProcessViewerEventInfo* Info)
 int Plugin::ProcessDialogEvent(ProcessDialogEventInfo* Info)
 {
 	ExecuteStruct es = {iProcessDialogEvent};
-	if (Load() && Exports[es.id] && !Global->ProcessException)
+	if (Load() && has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(es = FUNCTION(iProcessDialogEvent)(Info));
@@ -972,7 +972,7 @@ int Plugin::ProcessDialogEvent(ProcessDialogEventInfo* Info)
 int Plugin::ProcessSynchroEvent(ProcessSynchroEventInfo* Info)
 {
 	ExecuteStruct es = {iProcessSynchroEvent};
-	if (Load() && Exports[es.id] && !Global->ProcessException)
+	if (Load() && has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(es = FUNCTION(iProcessSynchroEvent)(Info));
@@ -983,7 +983,7 @@ int Plugin::ProcessSynchroEvent(ProcessSynchroEventInfo* Info)
 int Plugin::ProcessConsoleInput(ProcessConsoleInputInfo *Info)
 {
 	ExecuteStruct es = {iProcessConsoleInput};
-	if (Load() && Exports[es.id] && !Global->ProcessException)
+	if (Load() && has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(es = FUNCTION(iProcessConsoleInput)(Info));
@@ -994,7 +994,7 @@ int Plugin::ProcessConsoleInput(ProcessConsoleInputInfo *Info)
 int Plugin::GetVirtualFindData(GetVirtualFindDataInfo* Info)
 {
 	ExecuteStruct es = {iGetVirtualFindData};
-	if (Exports[es.id] && !Global->ProcessException)
+	if (has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(es = FUNCTION(iGetVirtualFindData)(Info));
@@ -1005,7 +1005,7 @@ int Plugin::GetVirtualFindData(GetVirtualFindDataInfo* Info)
 void Plugin::FreeVirtualFindData(FreeFindDataInfo* Info)
 {
 	ExecuteStruct es = {iFreeVirtualFindData};
-	if (Exports[es.id] && !Global->ProcessException)
+	if (has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(FUNCTION(iFreeVirtualFindData)(Info));
@@ -1015,7 +1015,7 @@ void Plugin::FreeVirtualFindData(FreeFindDataInfo* Info)
 int Plugin::GetFiles(GetFilesInfo* Info)
 {
 	ExecuteStruct es = {iGetFiles, -1};
-	if (Exports[es.id] && !Global->ProcessException)
+	if (has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(es = FUNCTION(iGetFiles)(Info));
@@ -1027,7 +1027,7 @@ int Plugin::PutFiles(PutFilesInfo* Info)
 {
 	ExecuteStruct es = {iPutFiles, -1};
 
-	if (Exports[es.id] && !Global->ProcessException)
+	if (has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(es = FUNCTION(iPutFiles)(Info));
@@ -1038,7 +1038,7 @@ int Plugin::PutFiles(PutFilesInfo* Info)
 int Plugin::DeleteFiles(DeleteFilesInfo* Info)
 {
 	ExecuteStruct es = {iDeleteFiles};
-	if (Exports[es.id] && !Global->ProcessException)
+	if (has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(es = FUNCTION(iDeleteFiles)(Info));
@@ -1049,7 +1049,7 @@ int Plugin::DeleteFiles(DeleteFilesInfo* Info)
 int Plugin::MakeDirectory(MakeDirectoryInfo* Info)
 {
 	ExecuteStruct es = {iMakeDirectory, -1};
-	if (Exports[es.id] && !Global->ProcessException)
+	if (has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(es = FUNCTION(iMakeDirectory)(Info));
@@ -1060,7 +1060,7 @@ int Plugin::MakeDirectory(MakeDirectoryInfo* Info)
 int Plugin::ProcessHostFile(ProcessHostFileInfo* Info)
 {
 	ExecuteStruct es = {iProcessHostFile};
-	if (Exports[es.id] && !Global->ProcessException)
+	if (has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(es = FUNCTION(iProcessHostFile)(Info));
@@ -1071,7 +1071,7 @@ int Plugin::ProcessHostFile(ProcessHostFileInfo* Info)
 int Plugin::ProcessPanelEvent(ProcessPanelEventInfo* Info)
 {
 	ExecuteStruct es = {iProcessPanelEvent};
-	if (Exports[es.id] && !Global->ProcessException)
+	if (has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(es = FUNCTION(iProcessPanelEvent)(Info));
@@ -1082,7 +1082,7 @@ int Plugin::ProcessPanelEvent(ProcessPanelEventInfo* Info)
 int Plugin::Compare(CompareInfo* Info)
 {
 	ExecuteStruct es = {iCompare, -2};
-	if (Exports[es.id] && !Global->ProcessException)
+	if (has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(es = FUNCTION(iCompare)(Info));
@@ -1093,7 +1093,7 @@ int Plugin::Compare(CompareInfo* Info)
 int Plugin::GetFindData(GetFindDataInfo* Info)
 {
 	ExecuteStruct es = {iGetFindData};
-	if (Exports[es.id] && !Global->ProcessException)
+	if (has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(es = FUNCTION(iGetFindData)(Info));
@@ -1104,7 +1104,7 @@ int Plugin::GetFindData(GetFindDataInfo* Info)
 void Plugin::FreeFindData(FreeFindDataInfo* Info)
 {
 	ExecuteStruct es = {iFreeFindData};
-	if (Exports[es.id] && !Global->ProcessException)
+	if (has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(FUNCTION(iFreeFindData)(Info));
@@ -1114,7 +1114,7 @@ void Plugin::FreeFindData(FreeFindDataInfo* Info)
 int Plugin::ProcessPanelInput(ProcessPanelInputInfo* Info)
 {
 	ExecuteStruct es = {iProcessPanelInput};
-	if (Exports[es.id] && !Global->ProcessException)
+	if (has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(es = FUNCTION(iProcessPanelInput)(Info));
@@ -1126,7 +1126,7 @@ int Plugin::ProcessPanelInput(ProcessPanelInputInfo* Info)
 void Plugin::ClosePanel(ClosePanelInfo* Info)
 {
 	ExecuteStruct es = {iClosePanel};
-	if (Exports[es.id] && !Global->ProcessException)
+	if (has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(FUNCTION(iClosePanel)(Info));
@@ -1137,7 +1137,7 @@ void Plugin::ClosePanel(ClosePanelInfo* Info)
 int Plugin::SetDirectory(SetDirectoryInfo* Info)
 {
 	ExecuteStruct es = {iSetDirectory};
-	if (Exports[es.id] && !Global->ProcessException)
+	if (has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(es = FUNCTION(iSetDirectory)(Info));
@@ -1148,7 +1148,7 @@ int Plugin::SetDirectory(SetDirectoryInfo* Info)
 void Plugin::GetOpenPanelInfo(OpenPanelInfo* Info)
 {
 	ExecuteStruct es = {iGetOpenPanelInfo};
-	if (Exports[es.id] && !Global->ProcessException)
+	if (has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(FUNCTION(iGetOpenPanelInfo)(Info));
@@ -1159,7 +1159,7 @@ void Plugin::GetOpenPanelInfo(OpenPanelInfo* Info)
 int Plugin::Configure(ConfigureInfo* Info)
 {
 	ExecuteStruct es = {iConfigure};
-	if (Load() && Exports[es.id] && !Global->ProcessException)
+	if (Load() && has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(es = FUNCTION(iConfigure)(Info));
@@ -1171,7 +1171,7 @@ int Plugin::Configure(ConfigureInfo* Info)
 bool Plugin::GetPluginInfo(PluginInfo* Info)
 {
 	ExecuteStruct es = {iGetPluginInfo};
-	if (Exports[es.id] && !Global->ProcessException)
+	if (has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(FUNCTION(iGetPluginInfo)(Info));
@@ -1184,7 +1184,7 @@ bool Plugin::GetPluginInfo(PluginInfo* Info)
 int Plugin::GetContentFields(const GetContentFieldsInfo *Info)
 {
 	ExecuteStruct es = {iGetContentFields};
-	if (Load() && Exports[es.id] && !Global->ProcessException)
+	if (Load() && has(es.id) && !Global->ProcessException)
 	{
 		const_cast<GetContentFieldsInfo*>(Info)->Instance = m_Instance;
 		EXECUTE_FUNCTION(es = FUNCTION(iGetContentFields)(Info));
@@ -1195,7 +1195,7 @@ int Plugin::GetContentFields(const GetContentFieldsInfo *Info)
 int Plugin::GetContentData(GetContentDataInfo *Info)
 {
 	ExecuteStruct es = {iGetContentData};
-	if (Load() && Exports[es.id] && !Global->ProcessException)
+	if (Load() && has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(es = FUNCTION(iGetContentData)(Info));
@@ -1206,7 +1206,7 @@ int Plugin::GetContentData(GetContentDataInfo *Info)
 void Plugin::FreeContentData(const GetContentDataInfo *Info)
 {
 	ExecuteStruct es = {iFreeContentData};
-	if (Load() && Exports[es.id] && !Global->ProcessException)
+	if (Load() && has(es.id) && !Global->ProcessException)
 	{
 		const_cast<GetContentDataInfo*>(Info)->Instance = m_Instance;
 		EXECUTE_FUNCTION(FUNCTION(iFreeContentData)(Info));
@@ -1216,7 +1216,7 @@ void Plugin::FreeContentData(const GetContentDataInfo *Info)
 void Plugin::ExitFAR(ExitInfo *Info)
 {
 	ExecuteStruct es = {iExitFAR};
-	if (Exports[es.id] && !Global->ProcessException)
+	if (has(es.id) && !Global->ProcessException)
 	{
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(FUNCTION(iExitFAR)(Info));

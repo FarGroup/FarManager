@@ -209,7 +209,7 @@ public:
 	virtual bool DeleteCache(const string& CacheName) = 0;
 	virtual bool IsPreload(unsigned __int64 id) const = 0;
 	virtual string GetSignature(unsigned __int64 id) const = 0;
-	virtual void *GetExport(unsigned __int64 id, const string& ExportName) const = 0;
+	virtual bool GetExportState(unsigned __int64 id, const wchar_t* ExportName) const = 0;
 	virtual string GetGuid(unsigned __int64 id) const = 0;
 	virtual string GetTitle(unsigned __int64 id) const = 0;
 	virtual string GetAuthor(unsigned __int64 id) const = 0;
@@ -228,7 +228,7 @@ public:
 	virtual bool SetPluginsConfigMenuItem(unsigned __int64 id, size_t index, const string& Text, const GUID& Guid) = 0;
 	virtual bool SetCommandPrefix(unsigned __int64 id, const string& Prefix) = 0;
 	virtual bool SetFlags(unsigned __int64 id, unsigned __int64 Flags) = 0;
-	virtual bool SetExport(unsigned __int64 id, const string& ExportName, bool Exists) = 0;
+	virtual bool SetExportState(unsigned __int64 id, const wchar_t* ExportName, bool Exists) = 0;
 	virtual bool SetMinFarVersion(unsigned __int64 id, const VersionInfo *Version) = 0;
 	virtual bool SetVersion(unsigned __int64 id, const VersionInfo *Version) = 0;
 	virtual bool SetGuid(unsigned __int64 id, const string& Guid) = 0;

@@ -1,4 +1,10 @@
-﻿svs 19.04.2016 18:18:01 +0300 - build 4625
+﻿drkns 19.04.2016 22:42:16 +0200 - build 4626
+
+1. gcc build fix.
+
+2. Refactoring.
+
+svs 19.04.2016 18:18:01 +0300 - build 4625
 
 1. SQLite 3.12.2
 

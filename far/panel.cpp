@@ -1365,7 +1365,7 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid
 
 		if (const auto pPlugin = Global->CtrlObject->Plugins->FindPlugin(PluginGuid))
 		{
-			if (pPlugin->has<iOpen>())
+			if (pPlugin->has(iOpen))
 			{
 				if (!strPluginFile.empty())
 				{

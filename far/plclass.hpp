@@ -96,8 +96,8 @@ class plugin_factory: noncopyable
 {
 public:
 	using plugin_instance = void*;
-	using function_address = void*;
-	using exports_array = std::array<function_address, ExportsCount>;
+	using function_address = FARPROC;
+	using exports_array = std::array<std::pair<function_address, bool>, ExportsCount>;
 
 	struct export_name
 	{
@@ -193,10 +193,8 @@ public:
 
 	virtual bool InitLang(const string& Path);
 	void CloseLang();
-	void* GetOpen() const { return Exports[iOpen]; }
 
-	template<EXPORTS_ENUM N>
-	bool has() const { static_assert(N != ExportsCount, "Wrong index"); return Exports[N] != nullptr; }
+	bool has(size_t ExportIndex) const { return Exports[ExportIndex].second; }
 
 	const string& GetModuleName() const { return m_strModuleName; }
 	const string& GetCacheName() const  { return m_strCacheName; }
@@ -280,7 +278,7 @@ private:
 plugin_factory_ptr CreateCustomPluginFactory(PluginManager* Owner, const string& Filename);
 
 #define EXECUTE_FUNCTION(f) ExecuteFunction(es, [&]{ f; });
-#define FUNCTION(id) reinterpret_cast<id##Prototype>(Exports[id])
+#define FUNCTION(id) reinterpret_cast<id##Prototype>(Exports[id].first)
 #define WA(string) {L##string, string}
 
 #endif // PLCLASS_HPP_E324EC16_24F2_4402_BA87_74212799246D

@@ -2730,7 +2730,7 @@ bool FindFiles::FindFilesProcess()
 
 	AnySetFindList = std::any_of(CONST_RANGE(*Global->CtrlObject->Plugins, i)
 	{
-		return i->has<iSetFindList>();
+		return i->has(iSetFindList);
 	});
 
 	if (!AnySetFindList)

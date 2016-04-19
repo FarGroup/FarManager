@@ -516,7 +516,7 @@ PluginHandle* PluginManager::OpenFilePlugin(
 	bool DataRead = false;
 	for (const auto& i: SortedPlugins)
 	{
-		if (!i->has<iOpenFilePlugin>() && !(i->has<iAnalyse>() && i->has<iOpen>()))
+		if (!i->has(iOpenFilePlugin) && !(i->has(iAnalyse) && i->has(iOpen)))
 			continue;
 
 		if(Name && !DataRead)
@@ -543,7 +543,7 @@ PluginHandle* PluginManager::OpenFilePlugin(
 			}
 		}
 
-		if (i->has<iOpenFilePlugin>())
+		if (i->has(iOpenFilePlugin))
 		{
 			if (Global->Opt->ShowCheckingFile)
 				ct << MSG(MCheckingFileInPlugin) << L" - [" << PointToName(i->GetModuleName()) << L"]..." << fmt::Flush();
@@ -692,7 +692,7 @@ PluginHandle* PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem
 
 	for (const auto& i: SortedPlugins)
 	{
-		if (!i->has<iSetFindList>())
+		if (!i->has(iSetFindList))
 			continue;
 
 		OpenInfo Info = {sizeof(Info)};
@@ -794,7 +794,7 @@ int PluginManager::ProcessEditorInput(const INPUT_RECORD *Rec) const
 	ProcessEditorInputInfo Info={sizeof(Info)};
 	Info.Rec=*Rec;
 
-	return std::any_of(CONST_RANGE(SortedPlugins, i) {return i->has<iProcessEditorInput>() && i->ProcessEditorInput(&Info);});
+	return std::any_of(CONST_RANGE(SortedPlugins, i) {return i->has(iProcessEditorInput) && i->ProcessEditorInput(&Info);});
 }
 
 
@@ -817,7 +817,7 @@ int PluginManager::ProcessEditorEvent(int Event, void *Param, const Editor* Edit
 		SCOPED_ACTION(auto)(Container->GetPinner());
 		std::for_each(CONST_RANGE(SortedPlugins, i)
 		{
-			if (i->has<iProcessEditorEvent>())
+			if (i->has(iProcessEditorEvent))
 				nResult = i->ProcessEditorEvent(&Info);
 		});
 	}
@@ -839,7 +839,7 @@ int PluginManager::ProcessSubscribedEditorEvent(int Event, void *Param, const Ed
 		SCOPED_ACTION(auto)(Container->GetPinner());
 		std::for_each(CONST_RANGE(SortedPlugins, i)
 		{
-			if (i->has<iProcessEditorEvent>() && PluginIds.count(i->GetGUID()))
+			if (i->has(iProcessEditorEvent) && PluginIds.count(i->GetGUID()))
 			{
 				nResult = i->ProcessEditorEvent(&Info);
 			}
@@ -863,7 +863,7 @@ int PluginManager::ProcessViewerEvent(int Event, void *Param, const Viewer* View
 		SCOPED_ACTION(auto)(Container->GetPinner());
 		std::for_each(CONST_RANGE(SortedPlugins, i)
 		{
-			if (i->has<iProcessViewerEvent>())
+			if (i->has(iProcessViewerEvent))
 				nResult = i->ProcessViewerEvent(&Info);
 		});
 	}
@@ -876,7 +876,7 @@ int PluginManager::ProcessDialogEvent(int Event, FarDialogEvent *Param) const
 	Info.Event = Event;
 	Info.Param = Param;
 
-	return std::any_of(CONST_RANGE(SortedPlugins, i) {return i->has<iProcessDialogEvent>() && i->ProcessDialogEvent(&Info);});
+	return std::any_of(CONST_RANGE(SortedPlugins, i) {return i->has(iProcessDialogEvent) && i->ProcessDialogEvent(&Info);});
 }
 
 int PluginManager::ProcessConsoleInput(ProcessConsoleInputInfo *Info) const
@@ -885,7 +885,7 @@ int PluginManager::ProcessConsoleInput(ProcessConsoleInputInfo *Info) const
 
 	for (const auto& i: SortedPlugins)
 	{
-		if (i->has<iProcessConsoleInput>())
+		if (i->has(iProcessConsoleInput))
 		{
 			int n = i->ProcessConsoleInput(Info);
 			if (n == 1)
@@ -1525,7 +1525,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 							NeedUpdateItems = true;
 							StartPos=SelPos;
 
-							if (ItemPtr->pPlugin->has<iConfigure>())
+							if (ItemPtr->pPlugin->has(iConfigure))
 								ConfigureCurrent(ItemPtr->pPlugin, ItemPtr->Guid);
 
 							PluginList->Close(SelPos);
@@ -1888,13 +1888,13 @@ int PluginManager::UseFarCommand(PluginHandle* hPlugin,int CommandType)
 	{
 		case PLUGIN_FARGETFILE:
 		case PLUGIN_FARGETFILES:
-			return !hPlugin->pPlugin->has<iGetFiles>() || (Info.Flags & OPIF_EXTERNALGET);
+			return !hPlugin->pPlugin->has(iGetFiles) || (Info.Flags & OPIF_EXTERNALGET);
 		case PLUGIN_FARPUTFILES:
-			return !hPlugin->pPlugin->has<iPutFiles>() || (Info.Flags & OPIF_EXTERNALPUT);
+			return !hPlugin->pPlugin->has(iPutFiles) || (Info.Flags & OPIF_EXTERNALPUT);
 		case PLUGIN_FARDELETEFILES:
-			return !hPlugin->pPlugin->has<iDeleteFiles>() || (Info.Flags & OPIF_EXTERNALDELETE);
+			return !hPlugin->pPlugin->has(iDeleteFiles) || (Info.Flags & OPIF_EXTERNALDELETE);
 		case PLUGIN_FARMAKEDIRECTORY:
-			return !hPlugin->pPlugin->has<iMakeDirectory>() || (Info.Flags & OPIF_EXTERNALMKDIR);
+			return !hPlugin->pPlugin->has(iMakeDirectory) || (Info.Flags & OPIF_EXTERNALMKDIR);
 	}
 
 	return TRUE;
@@ -1975,7 +1975,7 @@ int PluginManager::ProcessCommandLine(const string& CommandParam, panel_ptr Targ
 
 			if (!StrCmpNI(strPrefix.data(), PrStart, Len))
 			{
-				if (i->Load() && i->has<iOpen>())
+				if (i->Load() && i->has(iOpen))
 				{
 					PluginData pD;
 					pD.pPlugin = i;
@@ -2063,7 +2063,7 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void **
 
 	if (pPlugin)
 	{
-		if (pPlugin->has<iOpen>() && !Global->ProcessException)
+		if (pPlugin->has(iOpen) && !Global->ProcessException)
 		{
 			const auto hNewPlugin = Open(pPlugin, OpenFrom, FarGuid, (intptr_t)Data);
 			bool process=false;
@@ -2157,7 +2157,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
 				switch ((Data->CallFlags & CPT_MASK))
 				{
 					case CPT_MENU:
-						if (!Data->pPlugin->has<iOpen>())
+						if (!Data->pPlugin->has(iOpen))
 							return FALSE;
 						break;
 					case CPT_CONFIGURE:
@@ -2166,7 +2166,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
 							//TODO: Автокомплит не влияет?
 							return FALSE;
 						}
-						if (!Data->pPlugin->has<iConfigure>())
+						if (!Data->pPlugin->has(iConfigure))
 							return FALSE;
 						break;
 					case CPT_CMDLINE:
@@ -2176,12 +2176,12 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
 							return FALSE;
 						}
 						//TODO: OpenPanel или OpenFilePlugin?
-						if (!Data->pPlugin->has<iOpen>())
+						if (!Data->pPlugin->has(iOpen))
 							return FALSE;
 						break;
 					case CPT_INTERNAL:
 						//TODO: Уточнить функцию
-						if (!Data->pPlugin->has<iOpen>())
+						if (!Data->pPlugin->has(iOpen))
 							return FALSE;
 						break;
 				}
@@ -2363,7 +2363,7 @@ std::vector<Plugin*> PluginManager::GetContentPlugins(const std::vector<const wc
 	std::vector<Plugin*> Plugins;
 	std::copy_if(ALL_CONST_RANGE(SortedPlugins), std::back_inserter(Plugins), [&Info](Plugin* p)
 	{
-		return p->has<iGetContentData>() && p->has<iGetContentFields>() && p->GetContentFields(&Info);
+		return p->has(iGetContentData) && p->has(iGetContentFields) && p->GetContentFields(&Info);
 	});
 	return Plugins;
 }
@@ -2391,7 +2391,7 @@ void PluginManager::GetContentData(
 					ContentData[ColNames[k]] += GetInfo.Values[k];
 			}
 
-			if (i->has<iFreeContentData>())
+			if (i->has(iFreeContentData))
 			{
 				i->FreeContentData(&GetInfo);
 			}
