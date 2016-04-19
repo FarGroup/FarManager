@@ -416,7 +416,7 @@ bool Clipboard::GetVText(string& data) const
 	{
 		if (const auto hClipData = GetData(RegisterFormat(FCF_BORLANDIDEVBLOCK)))
 			if (const auto ClipAddr = os::memory::global::lock<const char*>(hClipData))
-				ColumnSelect = (*ClipAddr & 0x02) != 0;
+				ColumnSelect = *ClipAddr == 0x02;
 	}
 
 	if (ColumnSelect)
