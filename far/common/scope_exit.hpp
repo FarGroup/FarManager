@@ -35,23 +35,22 @@ namespace detail
 	class scope_guard
 	{
 	public:
-		scope_guard(F&& f) : m_f(std::move(f)) {}
+		scope_guard(F&& f): m_f(std::move(f)) {}
 		~scope_guard() { m_f(); }
 
 	private:
 		const F m_f;
 	};
+}
 
-	class make_scope_guard
-	{
-	public:
-		template<typename F>
-		auto operator << (F&& f) { return scope_guard<F>(std::move(f)); }
-	};
-
+class make_scope_guard
+{
+public:
+	template<typename F>
+	auto operator << (F&& f) { return detail::scope_guard<F>(std::move(f)); }
 };
 
 #define SCOPE_EXIT \
-const auto ANONYMOUS_VARIABLE(scope_exit_guard) = detail::make_scope_guard() << [&]() /* lambda body here */
+const auto ANONYMOUS_VARIABLE(scope_exit_guard) = make_scope_guard() << [&]() /* lambda body here */
 
 #endif // SCOPE_EXIT_HPP_EDB9D84F_7B9F_408C_8FC8_94626C4B3CE3

@@ -518,7 +518,7 @@ namespace os
 			{}
 			~module();
 
-			FARPROC GetProcAddress(const char* name) const { return ::GetProcAddress(get_module(), name); }
+			void* GetProcAddress(const char* name) const { return reinterpret_cast<void*>(::GetProcAddress(get_module(), name)); }
 			bool operator!() const noexcept { return !get_module(); }
 
 		private:

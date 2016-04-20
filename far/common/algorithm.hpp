@@ -126,4 +126,51 @@ void reorder(T& Values, Y& Indices)
 	}
 }
 
+namespace detail
+{
+	template <class Container, class Predicate>
+	void erase_if_set_map(Container& c, const Predicate& pred)
+	{
+		for (auto i = c.begin(), End = c.end(); i != End; )
+		{
+			if (pred(*i))
+			{
+				i = c.erase(i);
+			}
+			else
+			{
+				++i;
+			}
+		}
+	}
+}
+
+// TODO: add proper overloads as per Library fundamentals TS v2: Uniform container erasure.
+// Consider moving to cpp.hpp / std::experimental namespace for GCC, or just #include <experimental/...> for VS.
+
+template <class Key, class Compare, class Alloc, class Predicate>
+void erase_if(std::set<Key, Compare, Alloc>& Container, Predicate Pred) { detail::erase_if_set_map(Container, Pred); }
+
+template <class Key, class Compare, class Alloc, class Predicate>
+void erase_if(std::multiset<Key, Compare, Alloc>& Container, Predicate Pred) { detail::erase_if_set_map(Container, Pred); }
+
+template <class Key, class T, class Compare, class Alloc, class Predicate>
+void erase_if(std::map<Key, T, Compare, Alloc>& Container, Predicate Pred) { detail::erase_if_set_map(Container, Pred); }
+
+template <class Key, class T, class Compare, class Alloc, class Predicate>
+void erase_if(std::multimap<Key, T, Compare, Alloc>& Container, Predicate Pred) { detail::erase_if_set_map(Container, Pred); }
+
+template <class Key, class Hash, class KeyEqual, class Alloc, class Predicate>
+void erase_if(std::unordered_set<Key, Hash, KeyEqual, Alloc>& Container, Predicate Pred) { detail::erase_if_set_map(Container, Pred); }
+
+template <class Key, class Hash, class KeyEqual, class Alloc, class Predicate>
+void erase_if(std::unordered_multiset<Key, Hash, KeyEqual, Alloc>& Container, Predicate Pred) { detail::erase_if_set_map(Container, Pred); }
+
+template <class Key, class T, class Hash, class KeyEqual, class Alloc, class Predicate>
+void erase_if(std::unordered_map<Key, T, Hash, KeyEqual, Alloc>& Container, Predicate Pred) { detail::erase_if_set_map(Container, Pred); }
+
+template <class Key, class T, class Hash, class KeyEqual, class Alloc, class Predicate>
+void erase_if(std::unordered_multimap<Key, T, Hash, KeyEqual, Alloc>& Container, Predicate Pred) { detail::erase_if_set_map(Container, Pred); }
+
+
 #endif // ALGORITHM_HPP_BBD588C0_4752_46B2_AAB9_65450622FFF0

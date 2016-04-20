@@ -96,7 +96,7 @@ class plugin_factory: noncopyable
 {
 public:
 	using plugin_instance = void*;
-	using function_address = FARPROC;
+	using function_address = void*;
 	using exports_array = std::array<std::pair<function_address, bool>, ExportsCount>;
 
 	struct export_name
@@ -140,6 +140,39 @@ private:
 	bool IsPlugin2(const void* Module) const;
 	virtual bool FindExport(const char* ExportName) const;
 };
+
+template<EXPORTS_ENUM id>
+struct prototype;
+
+template<EXPORTS_ENUM id>
+using prototype_t = typename prototype<id>::type;
+
+namespace detail
+{
+	struct ExecuteStruct
+	{
+		ExecuteStruct& operator =(intptr_t value) { Result = value; return *this; }
+		ExecuteStruct& operator =(HANDLE value) { Result = reinterpret_cast<intptr_t>(value); return *this; }
+		operator intptr_t() const { return Result; }
+		operator void*() const { return ToPtr(Result); }
+
+		EXPORTS_ENUM id;
+
+		intptr_t Default, Result;
+	};
+
+	template<typename function, typename... args, ENABLE_IF(std::is_void<std::result_of_t<function(args...)>>::value)>
+	void ExecuteFunctionImpl(ExecuteStruct&, const function& Function, args&&... Args)
+	{
+		Function(std::forward<args>(Args)...);
+	}
+
+	template<typename function, typename... args, ENABLE_IF(!std::is_void<std::result_of_t<function(args...)>>::value)>
+	void ExecuteFunctionImpl(ExecuteStruct& es, const function& Function, args&&... Args)
+	{
+		es = Function(std::forward<args>(Args)...);
+	}
+}
 
 class Plugin: noncopyable
 {
@@ -221,19 +254,29 @@ public:
 	bool RemoveDialog(window_ptr_ref Dlg);
 
 protected:
-	struct ExecuteStruct
+	using ExecuteStruct = detail::ExecuteStruct;
+
+	template<EXPORTS_ENUM id, class... args>
+	void ExecuteFunction(ExecuteStruct& es, args&&... Args)
 	{
-		ExecuteStruct& operator =(intptr_t value) { Result = value; return *this; }
-		ExecuteStruct& operator =(HANDLE value) { Result = reinterpret_cast<intptr_t>(value); return *this; }
-		operator intptr_t() const { return Result; }
-		operator void*() const { return ToPtr(Result); }
+		Prologue(); ++Activity;
+		SCOPE_EXIT{ --Activity; Epilogue(); };
 
-		EXPORTS_ENUM id;
+		try
+		{
+			detail::ExecuteFunctionImpl(es, reinterpret_cast<prototype_t<id>>(Exports[id].first), std::forward<args>(Args)...);
+		}
+		catch (const SException &e)
+		{
+			ProcessSEHException(e.GetInfo(), m_Factory->ExportsNames()[es.id].UName, this)? HandleFailure(es) : throw;
+		}
+		catch (const std::exception &e)
+		{
+			ProcessStdException(e, m_Factory->ExportsNames()[es.id].UName, this)? HandleFailure(es) : throw;
+		}
+	}
 
-		intptr_t Default, Result;
-	};
-
-	void ExecuteFunction(ExecuteStruct& es, const std::function<void()>& f);
+	void HandleFailure(ExecuteStruct& es);
 
 	plugin_factory::exports_array Exports;
 
@@ -277,8 +320,7 @@ private:
 
 plugin_factory_ptr CreateCustomPluginFactory(PluginManager* Owner, const string& Filename);
 
-#define EXECUTE_FUNCTION(f) ExecuteFunction(es, [&]{ f; });
-#define FUNCTION(id) reinterpret_cast<id##Prototype>(Exports[id].first)
+#define DECLARE_PLUGIN_FUNCTION(name, signature) template<> struct prototype<name>  { using type = signature; };
 #define WA(string) {L##string, string}
 
 #endif // PLCLASS_HPP_E324EC16_24F2_4402_BA87_74212799246D

@@ -2146,13 +2146,7 @@ void Edit::AddColor(const ColorItem& col)
 
 void Edit::DeleteColor(const delete_color_condition& Condition)
 {
-	if (!ColorList.empty())
-	{
-		for (auto color = ColorList.cbegin(); color != ColorList.cend();)
-		{
-			if (Condition(*color)) ColorList.erase(color++); else ++color;
-		}
-	}
+	erase_if(ColorList, Condition);
 }
 
 bool Edit::GetColor(ColorItem& col, size_t Item) const
