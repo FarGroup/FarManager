@@ -405,44 +405,6 @@ static void ShowMessageAboutIllegalPluginVersion(const string& plg,const Version
 	);
 }
 
-/*void Plugin::ExecuteFunction(ExecuteStruct& es, const std::function<void()>& f)
-{
-	Prologue();
-	++Activity;
-	try
-	{
-		f();
-	}
-	catch (const SException &e)
-	{
-		if (ProcessSEHException(e.GetInfo(), m_Factory->ExportsNames()[es.id].UName, this))
-		{
-			m_Factory->GetOwner()->UnloadPlugin(this, es.id);
-			es.Result = es.Default;
-			Global->ProcessException=FALSE;
-		}
-		else
-		{
-			throw;
-		}
-	}
-	catch (const std::exception &e)
-	{
-		if (ProcessStdException(e, m_Factory->ExportsNames()[es.id].UName, this))
-		{
-			m_Factory->GetOwner()->UnloadPlugin(this, es.id);
-			es.Result = es.Default;
-			Global->ProcessException = FALSE;
-		}
-		else
-		{
-			throw;
-		}
-	}
-	--Activity;
-	Epilogue();
-}*/
-
 static string MakeSignature(const os::FAR_FIND_DATA& Data)
 {
 	return to_hex_wstring(Data.nFileSize) + to_hex_wstring(Data.ftCreationTime.dwLowDateTime) + to_hex_wstring(Data.ftLastWriteTime.dwLowDateTime);
