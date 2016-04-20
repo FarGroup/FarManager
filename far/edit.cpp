@@ -2148,10 +2148,10 @@ void Edit::DeleteColor(const delete_color_condition& Condition)
 {
 	if (!ColorList.empty())
 	{
-		std::for_each(RANGE(ColorList, color)
+		for (auto color = ColorList.cbegin(); color != ColorList.cend();)
 		{
-			if (Condition(color)) ColorList.erase(color);
-		});
+			if (Condition(*color)) ColorList.erase(color++); else ++color;
+		}
 	}
 }
 
