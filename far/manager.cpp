@@ -1123,12 +1123,6 @@ void Manager::RefreshCommit(window_ptr_ref Param)
 	{
 		process(m_modalWindows, ModalIndex);
 	}
-
-	assert(m_currentWindow);
-	if (!m_currentWindow->Locked())
-	{
-		if (!Global->IsRedrawWindowInProcess) m_currentWindow->ShowConsoleTitle();
-	}
 }
 
 void Manager::DeactivateCommit(window_ptr_ref Param)
@@ -1215,7 +1209,6 @@ void Manager::ImmediateHide()
 		else
 		{
 			int UnlockCount=0;
-			Global->IsRedrawWindowInProcess++;
 
 			while (m_windows.back()->Locked())
 			{
@@ -1239,14 +1232,6 @@ void Manager::ImmediateHide()
 					Commit();
 				}
 			}
-
-			/* $ 04.04.2002 KM
-			   Перерисуем заголовок только у активного окна.
-			   Этим мы предотвращаем мелькание заголовка консоли
-			   при перерисовке всех окон.
-			*/
-			Global->IsRedrawWindowInProcess--;
-			m_currentWindow->ShowConsoleTitle();
 		}
 	}
 	else

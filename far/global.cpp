@@ -71,8 +71,6 @@ global::global():
 
 	// идет процесс назначения клавиши в макросе?
 	IsProcessAssignMacroKey=FALSE;
-	// Идёт процесс перерисовки всех окон
-	IsRedrawWindowInProcess=FALSE;
 	PluginPanelsCount = 0;
 	// идет процесс быстрого поиска в панелях?
 	WaitInFastFind=FALSE;

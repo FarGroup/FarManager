@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "pipe.hpp"
 #include "console.hpp"
+#include "constitle.hpp"
 
 using namespace os::security;
 
@@ -396,7 +397,13 @@ void ElevationApproveDlgSync(const EAData& Data)
 	}
 	const auto Lock = Global->ScrBuf->GetLockCount();
 	Global->ScrBuf->SetLockCount(0);
+
+	// We're locking current window as it might not expect refresh at this time at all
+	// However, that also mean that title won't be restored after closing the dialog.
+	// So we do it manually.
+	const auto OldTitle = ConsoleTitle::GetTitle();
 	Dlg->Process();
+	ConsoleTitle::SetFarTitle(OldTitle);
 	Global->ScrBuf->SetLockCount(Lock);
 	if(Current)
 	{

@@ -46,10 +46,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 enum
 {
-	SBFLAGS_FLUSHED         = 0x00000001,
-	SBFLAGS_FLUSHEDCURPOS   = 0x00000002,
-	SBFLAGS_FLUSHEDCURTYPE  = 0x00000004,
-	SBFLAGS_USESHADOW       = 0x00000008,
+	SBFLAGS_FLUSHED         = BIT(0),
+	SBFLAGS_FLUSHEDCURPOS   = BIT(1),
+	SBFLAGS_FLUSHEDCURTYPE  = BIT(2),
+	SBFLAGS_FLUSHEDTITLE    = BIT(3),
+	SBFLAGS_USESHADOW       = BIT(4),
 };
 
 //#if defined(SYSLOG_OT)
@@ -64,7 +65,7 @@ static inline bool is_visible(int X1, int Y1, int X2, int Y2)
 ScreenBuf::ScreenBuf():
 	MacroChar(),
 	ElevationChar(),
-	SBFlags(SBFLAGS_FLUSHED|SBFLAGS_FLUSHEDCURPOS|SBFLAGS_FLUSHEDCURTYPE),
+	SBFlags(SBFLAGS_FLUSHED | SBFLAGS_FLUSHEDCURPOS | SBFLAGS_FLUSHEDCURTYPE | SBFLAGS_FLUSHEDTITLE),
 	LockCount(0),
 	CurSize(0),
 	CurX(0),
@@ -508,6 +509,12 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 			SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
 		}
 
+		if (!SBFlags.Check(SBFLAGS_FLUSHEDTITLE))
+		{
+			Console().SetTitle(m_Title);
+			SBFlags.Set(SBFLAGS_FLUSHEDTITLE);
+		}
+
 		SBFlags.Set(SBFLAGS_USESHADOW|SBFLAGS_FLUSHED);
 	}
 }
@@ -533,13 +540,11 @@ void ScreenBuf::Unlock()
 void ScreenBuf::SetLockCount(int Count)
 {
 	LockCount=Count;
-	if (!LockCount && ConsoleTitle::WasTitleModified())
-		ConsoleTitle::RestoreTitle();
 }
 
 void ScreenBuf::ResetShadow()
 {
-	SBFlags.Clear(SBFLAGS_FLUSHED|SBFLAGS_FLUSHEDCURTYPE|SBFLAGS_FLUSHEDCURPOS|SBFLAGS_USESHADOW);
+	SBFlags.Clear(SBFLAGS_FLUSHED | SBFLAGS_FLUSHEDCURTYPE | SBFLAGS_FLUSHEDCURPOS | SBFLAGS_FLUSHEDTITLE | SBFLAGS_USESHADOW);
 }
 
 
@@ -589,6 +594,14 @@ void ScreenBuf::GetCursorType(bool& Visible, DWORD& Size) const
 	Size=CurSize;
 }
 
+void ScreenBuf::SetTitle(const string& Title)
+{
+	if (Title != m_Title)
+	{
+		m_Title = Title;
+		SBFlags.Clear(SBFLAGS_FLUSHEDTITLE);
+	}
+}
 
 void ScreenBuf::RestoreMacroChar()
 {

@@ -3662,14 +3662,6 @@ void Viewer::GetFileName(string &strName) const
 	strName = strFullFileName;
 }
 
-void Viewer::ShowConsoleTitle()
-{
-	string strViewerTitleFormat=Global->Opt->strViewerTitleFormat.Get();
-	ReplaceStrings(strViewerTitleFormat, L"%Lng", MSG(MInViewer), true);
-	ReplaceStrings(strViewerTitleFormat, L"%File", PointToName(strFileName), true);
-	ConsoleTitle::SetFarTitle(strViewerTitleFormat);
-}
-
 void Viewer::SetTempViewName(const string& Name, BOOL DeleteFolder)
 {
 	if (!Name.empty())

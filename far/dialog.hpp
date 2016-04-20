@@ -124,7 +124,6 @@ auto MakeDialogItemsEx(const FarDialogItem (&InitData)[N])
 }
 
 class DlgEdit;
-class ConsoleTitle;
 class Plugin;
 class Dialog;
 
@@ -181,6 +180,7 @@ public:
 	virtual void SetPosition(int X1,int Y1,int X2,int Y2) override;
 	virtual void FastShow() {ShowDialog();}
 	virtual void SetDeleting(void) override;
+	virtual void ShowConsoleTitle() override;
 
 	bool InitOK() const {return bInitOK;}
 	void GetDialogObjectsData();
@@ -297,7 +297,6 @@ private:
 	void* DataDialog;        // Данные, специфические для конкретного экземпляра диалога (первоначально здесь параметр, переданный в конструктор)
 	std::vector<DialogItemEx> Items; // массив элементов диалога
 	DialogItemEx* SavedItems; // пользовательский массив элементов диалога
-	std::unique_ptr<ConsoleTitle> OldTitle;     // предыдущий заголовок
 
 	dialog_handler m_handler;
 
@@ -310,6 +309,7 @@ private:
 	GUID m_Id;
 	bool IdExist;
 	MOUSE_EVENT_RECORD PrevMouseRecord;
+	string m_ConsoleTitle;
 };
 
 #endif // DIALOG_HPP_7A9BE12B_EE5C_441F_84C9_64E9A63ABEFE

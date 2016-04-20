@@ -72,7 +72,6 @@ public:
 	int CloseFAR, CloseFARMenu, AllowCancelExit;
 	int DisablePluginsOutput;
 	BOOL IsProcessAssignMacroKey;
-	BOOL IsRedrawWindowInProcess;
 	size_t PluginPanelsCount;
 	BOOL ProcessException;
 	BOOL ProcessShowClock;

@@ -212,7 +212,6 @@ private:
 	uint64_t GetBytesDone() const { return m_Bytes.Copied + m_Bytes.Skipped; }
 
 	clock_t m_CopyStartTime;
-	ConsoleTitle CopyTitle;
 	IndeterminateTaskBar TB;
 	wakeful W;
 	SMALL_RECT Rect;
@@ -295,12 +294,12 @@ void CopyProgress::Flush()
 
 		if (m_Total || (m_Files.Total == 1))
 		{
-			CopyTitle
-				<< L"{"
-				<< (m_Total? ToPercent(GetBytesDone(), m_Bytes.Total) : Percents)
-				<< L"%} "
-				<< MSG(Move? MCopyMovingTitle : MCopyCopyingTitle)
-				<< fmt::Flush();
+			ConsoleTitle::SetFarTitle(
+				L"{"
+				+ std::to_wstring(m_Total? ToPercent(GetBytesDone(), m_Bytes.Total) : Percents)
+				+ L"%} "
+				+ MSG(Move? MCopyMovingTitle : MCopyCopyingTitle)
+				);
 		}
 	}
 }

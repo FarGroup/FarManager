@@ -1079,8 +1079,6 @@ void CommandLine::ExecString(execute_info& Info)
 		}
 	}
 
-
-	SCOPED_ACTION(ConsoleTitle);
 	if (!Silent)
 	{
 		ConsoleTitle::SetFarTitle(ExecutionContext.Command());
@@ -1298,11 +1296,11 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, class execution_conte
 	{
 		auto Title = CmdLine.data() + 5; // wcslen(L"title")
 
-		SetUserTitle(*Title? Title + 1 : Title);
+		ConsoleTitle::SetUserTitle(*Title? Title + 1 : Title);
 
 		if (!(Global->CtrlObject->Cp()->LeftPanel()->IsVisible() || Global->CtrlObject->Cp()->RightPanel()->IsVisible()))
 		{
-			Global->CtrlObject->Cp()->ActivePanel()->SetTitle();
+			Global->CtrlObject->Cp()->ActivePanel()->RefreshTitle();
 		}
 		return true;
 	}
@@ -1384,7 +1382,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 		SetPanel->ChangeDirToCurrent();
 
 		if (!SetPanel->IsVisible())
-			SetPanel->SetTitle();
+			SetPanel->RefreshTitle();
 	}
 	else
 	{

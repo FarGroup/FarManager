@@ -773,7 +773,6 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	int add_show_clock = 0;
 
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-	SCOPED_ACTION(ConsoleTitle);
 
 	SHELLEXECUTEINFO seInfo={sizeof(seInfo)};
 	const auto strCurDir = os::GetCurrentDirectory();

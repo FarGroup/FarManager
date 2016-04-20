@@ -683,10 +683,8 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					os::fs::file MenuFile;
 					Global->CtrlObject->Cp()->Unlock();
 					{
-						auto OldTitle = std::make_unique<ConsoleTitle>();
 						SaveMenu(MenuFileName);
 						const auto ShellEditor = FileEditor::create(MenuFileName, m_MenuCP, FFILEEDIT_DISABLEHISTORY, -1, -1, nullptr);
-						OldTitle.reset();
 						Global->WindowManager->ExecuteModal(ShellEditor);
 						if (!ShellEditor->IsFileChanged() || (!MenuFile.Open(MenuFileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING)))
 						{

@@ -386,6 +386,7 @@ void Dialog::Construct(const FarDialogItem* const* SrcItem, size_t SrcItemCount)
 
 void Dialog::Init()
 {
+	m_ConsoleTitle = ConsoleTitle::GetTitle();
 	_DIALOG(CleverSysLog CL(L"Dialog::Init()"));
 	AddToList();
 	SetMacroMode(MACROAREA_DIALOG);
@@ -406,9 +407,6 @@ void Dialog::Init()
 		DialogMode.Set(DMODE_OLDSTYLE);
 	}
 
-	//_SVS(SysLog(L"Dialog =%d",Global->CtrlObject->Macro.GetArea()));
-	// запоминаем предыдущий заголовок консоли
-	OldTitle = std::make_unique<ConsoleTitle>();
 	IdExist=false;
 	ClearStruct(m_Id);
 	bInitOK = true;
@@ -484,11 +482,6 @@ void Dialog::InitDialog()
 			{
 				// еще разок, т.к. данные могли быть изменены
 				InitFocus=InitDialogObjects(); // InitFocus=????
-			}
-
-			if (!DialogMode.Check(DMODE_KEEPCONSOLETITLE))
-			{
-				ConsoleTitle::SetFarTitle(GetTitle());
 			}
 		}
 
@@ -5874,10 +5867,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 						if (DialogMode.Check(DMODE_SHOW))
 						{
-							if (!DialogMode.Check(DMODE_KEEPCONSOLETITLE))
-							{
-								ConsoleTitle::SetFarTitle(GetTitle());
-							}
+							ShowConsoleTitle();
 							ShowDialog(Param1);
 							Global->ScrBuf->Flush();
 						}
@@ -5960,10 +5950,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				static_cast<DlgEdit*>(CurItem->ObjPtr)->SetMaxLength(static_cast<int>(reinterpret_cast<intptr_t>(Param2)));
 				//if (DialogMode.Check(DMODE_INITOBJECTS)) //???
 				InitDialogObjects(Param1); // переинициализируем элементы диалога
-				if (!DialogMode.Check(DMODE_KEEPCONSOLETITLE))
-				{
-					ConsoleTitle::SetFarTitle(GetTitle());
-				}
+				ShowConsoleTitle();
 				return MaxLen;
 			}
 
@@ -6004,10 +5991,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 			// еще разок, т.к. данные могли быть изменены
 			InitDialogObjects(Param1);
-			if (!DialogMode.Check(DMODE_KEEPCONSOLETITLE))
-			{
-				ConsoleTitle::SetFarTitle(GetTitle());
-			}
+			ShowConsoleTitle();
 			if (DialogMode.Check(DMODE_SHOW))
 			{
 				ShowDialog(Param1);
@@ -6326,4 +6310,9 @@ bool Dialog::IsValid(Dialog* Handle)
 
 void Dialog::SetDeleting(void)
 {
+}
+
+void Dialog::ShowConsoleTitle()
+{
+	ConsoleTitle::SetFarTitle(DialogMode.Check(DMODE_KEEPCONSOLETITLE)? m_ConsoleTitle : GetTitle());
 }

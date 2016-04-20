@@ -57,7 +57,7 @@ private:
 	virtual void CloseFile() override;
 	virtual void QViewDelTempName() override;
 	virtual bool UpdateIfChanged(bool Idle) override;
-	virtual void SetTitle() override;
+	virtual void RefreshTitle() override;
 	virtual string GetTitle() const override;
 	virtual void UpdateKeyBar() override;
 	virtual int GetCurName(string &strName, string &strShortName) const override;

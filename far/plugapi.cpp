@@ -1733,7 +1733,6 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 		if (Global->WindowManager->ManagerIsDown())
 			return FALSE;
 
-		SCOPED_ACTION(ConsoleTitle);
 		int DisableHistory = (Flags & VF_DISABLEHISTORY) != 0;
 
 		// $ 15.05.2002 SKV - Запретим вызов немодального редактора viewer-а из модального.
@@ -1813,7 +1812,6 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 		if (Global->WindowManager->ManagerIsDown())
 			return EEC_OPEN_ERROR;
 
-		SCOPED_ACTION(ConsoleTitle);
 		/* $ 12.07.2000 IS
 		 Проверка флагов редактора (раньше они игнорировались) и открытие
 		 немодального редактора, если есть соответствующий флаг

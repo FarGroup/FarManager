@@ -81,7 +81,6 @@ VMenu::VMenu(private_tag, const string& Title, int MaxHeight, Dialog *ParentDial
 	PrevCursorSize(),
 	ParentDialog(ParentDialog),
 	DialogItemID(),
-	OldTitle(nullptr),
 	bFilterEnabled(false),
 	bFilterLocked(false),
 	ItemHiddenCount(0),
@@ -1869,8 +1868,6 @@ void VMenu::Hide()
 	}
 
 	SetMenuFlags(VMENU_UPDATEREQUIRED);
-
-	OldTitle.reset();
 }
 
 void VMenu::DisplayObject()
@@ -2574,21 +2571,6 @@ void VMenu::SetTitle(const string& Title)
 	strTitle = Title;
 
 	UpdateMaxLength(strTitle.size() + 2);
-
-	if (CheckFlags(VMENU_CHANGECONSOLETITLE))
-	{
-		if (!strTitle.empty())
-		{
-			if (!OldTitle)
-				OldTitle = std::make_unique<ConsoleTitle>();
-
-			ConsoleTitle::SetFarTitle(strTitle);
-		}
-		else
-		{
-			OldTitle.reset();
-		}
-	}
 }
 
 void VMenu::ResizeConsole()
@@ -2599,6 +2581,14 @@ void VMenu::ResizeConsole()
 	{
 		SaveScr->Discard();
 		SaveScr.reset();
+	}
+}
+
+void VMenu::ShowConsoleTitle()
+{
+	if (CheckFlags(VMENU_CHANGECONSOLETITLE))
+	{
+		ConsoleTitle::SetFarTitle(strTitle);
 	}
 }
 

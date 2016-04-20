@@ -112,7 +112,7 @@ private:
 	virtual long FindNext(int StartPos, const string& Name) override;
 	virtual size_t GetFileCount() const override { return m_ListData.size(); }
 	virtual int GetFileName(string &strName, int Pos, DWORD &FileAttr) const override;
-	virtual void SetTitle() override;
+	virtual void RefreshTitle() override;
 	virtual string GetTitle() const override;
 	virtual void OnFocusChange(bool Get) override;
 	virtual void UpdateKeyBar() override;

@@ -757,6 +757,13 @@ void Panel::Show()
 	ShowScreensCount();
 }
 
+void Panel::ShowConsoleTitle()
+{
+	if (!IsFocused())
+		return;
+
+	ConsoleTitle::SetFarTitle(m_Title);
+}
 
 void Panel::DrawSeparator(int Y)
 {
@@ -768,6 +775,14 @@ void Panel::DrawSeparator(int Y)
 	}
 }
 
+string Panel::GetTitleForDisplay()
+{
+	string Title(1, L' ');
+	Title.append(GetTitle());
+	TruncStr(Title, m_X2 - m_X1 - 2);
+	Title.append(1, L' ');
+	return Title;
+}
 
 void Panel::ShowScreensCount()
 {
@@ -799,12 +814,9 @@ void Panel::ShowScreensCount()
 }
 
 
-void Panel::SetTitle()
+void Panel::RefreshTitle()
 {
-	if (IsFocused())
-	{
-		ConsoleTitle::SetFarTitle(L"{" + (m_CurDir.empty()? Parent()->GetCmdLine()->GetCurDir() : m_CurDir) + L"}");
-	}
+	m_Title = L"{" + GetTitle() + L"}";
 }
 
 string Panel::GetTitle() const

@@ -92,20 +92,18 @@ struct DelPreRedrawItem : public PreRedrawItem
 {
 	DelPreRedrawItem():
 		PreRedrawItem(PR_ShellDeleteMsg),
-		Title(),
 		Mode(),
 		Percent(),
 		WipePercent()
 	{}
 
 	string name;
-	ConsoleTitle* Title;
 	DEL_MODE Mode;
 	int Percent;
 	int WipePercent;
 };
 
-static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, int Percent, int WipePercent, ConsoleTitle* DeleteTitle)
+static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, int Percent, int WipePercent)
 {
 	string strProgress, strWipeProgress;
 	size_t Width=ScrX/2;
@@ -117,7 +115,7 @@ static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, int Percent, int W
 	if (Mode!=DEL_SCAN && Percent!=-1)
 	{
 		strProgress = make_progressbar(Width, Percent, true, true);
-		*DeleteTitle << L"{" << Percent << L"%} " << MSG((Mode==DEL_WIPE || Mode==DEL_WIPEPROCESS)?MDeleteWipeTitle:MDeleteTitle) << fmt::Flush();
+		ConsoleTitle::SetFarTitle(L"{"s + std::to_wstring(Percent) + L"%} "s + MSG((Mode==DEL_WIPE || Mode==DEL_WIPEPROCESS)? MDeleteWipeTitle : MDeleteTitle));
 	}
 
 	string strOutFileName(Name);
@@ -143,7 +141,6 @@ static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, int Percent, int W
 	{
 		auto item = dynamic_cast<DelPreRedrawItem*>(PreRedrawStack().top());
 		item->name = Name;
-		item->Title = DeleteTitle;
 		item->Mode = Mode;
 		item->Percent = Percent;
 		item->WipePercent = WipePercent;
@@ -155,7 +152,7 @@ static void PR_ShellDeleteMsg()
 	if (!PreRedrawStack().empty())
 	{
 		const auto item = dynamic_cast<const DelPreRedrawItem*>(PreRedrawStack().top());
-		ShellDeleteMsg(item->name, item->Mode, item->Percent, item->WipePercent, item->Title);
+		ShellDeleteMsg(item->name, item->Mode, item->Percent, item->WipePercent);
 	}
 }
 
@@ -217,7 +214,7 @@ static bool MoveToRecycleBinInternal(LPCWSTR Object)
 	return !Result && !fop.fAnyOperationsAborted;
 }
 
-static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel, ConsoleTitle* DeleteTitle)
+static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel)
 {
 	bool Result = false;
 
@@ -251,7 +248,7 @@ static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel, Console
 						return false;
 					}
 
-					ShellDeleteMsg(Name, DEL_WIPEPROCESS, TotalPercent, WipeFile.GetPercent(), DeleteTitle);
+					ShellDeleteMsg(Name, DEL_WIPEPROCESS, TotalPercent, WipeFile.GetPercent());
 				}
 			}
 			while(WipeFile.Step());
@@ -527,7 +524,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 		FarChDir(L"\\");
 
 	{
-		ConsoleTitle DeleteTitle(MSG(MDeletingTitle));
+		ConsoleTitle::SetFarTitle(MSG(MDeletingTitle));
 		SCOPED_ACTION(IndeterminateTaskBar);
 		SCOPED_ACTION(wakeful);
 		bool Cancel=false;
@@ -588,7 +585,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 					break;
 				}
 
-				ShellDeleteMsg(strSelName, Wipe?DEL_WIPE:DEL_DEL, TotalPercent, 0, &DeleteTitle);
+				ShellDeleteMsg(strSelName, Wipe?DEL_WIPE:DEL_DEL, TotalPercent, 0);
 			}
 
 			if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
@@ -671,7 +668,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 								}
 							}
 
-							ShellDeleteMsg(strFullName,Wipe?DEL_WIPE:DEL_DEL, TreeTotalPercent, 0, &DeleteTitle);
+							ShellDeleteMsg(strFullName,Wipe?DEL_WIPE:DEL_DEL, TreeTotalPercent, 0);
 						}
 
 						if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
@@ -757,7 +754,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 							}
 
 							if (AskCode==DELETE_YES)
-								if (ShellRemoveFile(strFullName,Wipe, TreeTotalPercent, &DeleteTitle)==DELETE_CANCEL)
+								if (ShellRemoveFile(strFullName, Wipe, TreeTotalPercent) == DELETE_CANCEL)
 								{
 									Cancel=true;
 									break;
@@ -810,7 +807,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 
 				if (AskCode==DELETE_YES)
 				{
-					int DeleteCode=ShellRemoveFile(strSelName,Wipe,TotalPercent, &DeleteTitle);
+					int DeleteCode = ShellRemoveFile(strSelName, Wipe, TotalPercent);
 
 					if (DeleteCode==DELETE_SUCCESS && UpdateDiz)
 					{
@@ -869,7 +866,7 @@ DEL_RESULT ShellDelete::AskDeleteReadOnly(const string& Name,DWORD Attr, bool Wi
 	return DELETE_YES;
 }
 
-DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int TotalPercent, ConsoleTitle* DeleteTitle)
+DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int TotalPercent)
 {
 	ProcessedItems++;
 	string strFullName;
@@ -913,7 +910,7 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int Total
 			case 0:
 				{
 					bool Cancel = false;
-					if (WipeFile(strFullName, TotalPercent, Cancel, DeleteTitle))
+					if (WipeFile(strFullName, TotalPercent, Cancel))
 						return DELETE_SUCCESS;
 					else if(Cancel)
 						return DELETE_CANCEL;

@@ -670,7 +670,6 @@ void FileEditor::Init(
 	if (GetExitCode() == XC_LOADING_INTERRUPTED || GetExitCode() == XC_OPEN_ERROR)
 		return;
 
-	ShowConsoleTitle();
 	InitKeyBar();
 	m_windowKeyBar->SetPosition(m_X1, m_Y2, m_X2, m_Y2);
 
@@ -1087,7 +1086,6 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 							FarChDir(strOldCurDir);
 					}
 
-					ShowConsoleTitle();
 					FarChDir(strStartDir); //???
 					int SaveResult=SaveFile(strFullSaveAsName, 0, SaveAs, TextFormat, codepage, m_bAddSignature);
 

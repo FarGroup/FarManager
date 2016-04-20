@@ -867,7 +867,8 @@ void FilePanels::SetActivePanelInternal(panel_ptr ToBeActive)
 	FarChDir(ToBeActive->GetCurDir());
 	RedrawKeyBar();
 
-	ToBeActive->SetTitle();
+	ToBeActive->RefreshTitle();
+	ToBeActive->ShowConsoleTitle();
 }
 
 panel_ptr FilePanels::ChangePanelToFilled(panel_ptr Current, panel_type NewType)
@@ -1173,7 +1174,8 @@ int  FilePanels::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 void FilePanels::ShowConsoleTitle()
 {
-	ActivePanel()->SetTitle();
+	ActivePanel()->RefreshTitle();
+	ActivePanel()->ShowConsoleTitle();
 }
 
 void FilePanels::ResizeConsole()
@@ -1242,7 +1244,7 @@ void FilePanels::GoToFile(const string& FileName)
 		ActivePanel()->GoToFile(strNameFile);
 		// всегда обновим заголовок панели, чтобы дать обратную связь, что
 		// Ctrl-F10 обработан
-		ActivePanel()->SetTitle();
+		ActivePanel()->RefreshTitle();
 	}
 }
 

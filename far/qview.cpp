@@ -91,11 +91,7 @@ QuickView::~QuickView()
 
 string QuickView::GetTitle() const
 {
-	string strTitle = L" ";
-	strTitle+=MSG(MQuickViewTitle);
-	strTitle+=L" ";
-	TruncStr(strTitle,m_X2-m_X1-3);
-	return strTitle;
+	return MSG(MQuickViewTitle);
 }
 
 void QuickView::DisplayObject()
@@ -115,7 +111,7 @@ void QuickView::DisplayObject()
 	SetScreen(m_X1+1,m_Y1+1,m_X2-1,m_Y2-1,L' ',colors::PaletteColorToFarColor(COL_PANELTEXT));
 	SetColor(IsFocused()? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
 
-	string strTitle = GetTitle();
+	const auto& strTitle = GetTitleForDisplay();
 	if (!strTitle.empty())
 	{
 		GotoXY(m_X1+(m_X2-m_X1+1-(int)strTitle.size())/2,m_Y1);
@@ -567,26 +563,14 @@ bool QuickView::UpdateIfChanged(bool Idle)
 	return false;
 }
 
-void QuickView::SetTitle()
+void QuickView::RefreshTitle()
 {
-	if (IsFocused())
+	m_Title = L"{";
+	if (!strCurFileName.empty())
 	{
-		string strTitleDir(L"{");
-
-		if (!strCurFileName.empty())
-		{
-			strTitleDir += strCurFileName;
-			strTitleDir += L" - QuickView";
-		}
-		else
-		{
-			strTitleDir += Parent()->GetCmdLine()->GetString();
-		}
-
-		strTitleDir += L"}";
-
-		ConsoleTitle::SetFarTitle(strTitleDir);
+		m_Title.append(strCurFileName).append(L" - ");
 	}
+	m_Title.append(MSG(MQuickViewTitle)).append(L"}");
 }
 
 int QuickView::GetCurName(string &strName, string &strShortName) const

@@ -173,7 +173,7 @@ public:
 	virtual void SetPluginModified() {}
 	virtual int ProcessPluginEvent(int Event,void *Param) {return FALSE;}
 	virtual PluginHandle* GetPluginHandle() const {return nullptr;}
-	virtual void SetTitle();
+	virtual void RefreshTitle();
 	virtual string GetTitle() const;
 	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
 	virtual int SendKeyToPlugin(DWORD Key,bool Pred=false) {return FALSE;}
@@ -231,6 +231,7 @@ public:
 	virtual void DisplayObject() override {}
 	virtual Viewer* GetViewer(void) {return nullptr;}
 	virtual Viewer* GetById(int ID) {(void)ID; return nullptr;}
+	virtual void ShowConsoleTitle() override;
 
 	static void exclude_sets(string& mask);
 
@@ -280,6 +281,7 @@ protected:
 	void FastFind(int FirstKey);
 	void DrawSeparator(int Y);
 	void ShowScreensCount();
+	string GetTitleForDisplay();
 
 	static bool IsDragging();
 
@@ -315,6 +317,7 @@ protected:
 	int m_ModalMode;
 	int m_PluginCommand;
 	string m_PluginParam;
+	string m_Title;
 
 private:
 	string strDragName;

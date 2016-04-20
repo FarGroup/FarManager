@@ -1368,7 +1368,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				/* Multi *********************************************************** */
 				else
 				{
-					SCOPED_ACTION(ConsoleTitle)(MSG(MSetAttrTitle));
+					ConsoleTitle::SetFarTitle(MSG(MSetAttrTitle));
 					if(SrcPanel)
 					{
 						Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->CloseFile();

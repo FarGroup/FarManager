@@ -126,8 +126,6 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, g
 		}
 	}
 
-	ConsoleTitle OldTitle;
-
 	std::unique_ptr<RefreshWindowManager> frref;
 	if (!(Flags & GETDIRINFO_NOREDRAW))
 		frref = std::make_unique<RefreshWindowManager>(ScrX, ScrY, MessageDelay != getdirinfo_infinite_delay);
@@ -203,7 +201,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, g
 		{
 			StartTime=CurTime;
 			MessageDelay = getdirinfo_default_delay;
-			OldTitle << MSG(MScanningFolder) << L" " << ShowDirName << fmt::Flush(); // покажем заголовок консоли
+			ConsoleTitle::SetFarTitle(MSG(MScanningFolder) + L" "s + ShowDirName);
 			SetCursorType(false, 0);
 			DrawGetDirInfoMsg(Title,ShowDirName, Data.FileSize);
 		}

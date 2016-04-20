@@ -82,56 +82,10 @@ static const string& GetFarTitleAddons()
 	return strTitleAddons;
 }
 
-static string& GetUserTitle()
+static string& UserTitle()
 {
 	static string str;
 	return str;
-}
-
-void SetUserTitle(const string& str)
-{
-	GetUserTitle() = str;
-}
-
-bool ConsoleTitle::TitleModified = false;
-DWORD ConsoleTitle::ShowTime = 0;
-
-CriticalSection TitleCS;
-
-ConsoleTitle::ConsoleTitle()
-{
-	SCOPED_ACTION(CriticalSectionLock)(TitleCS);
-	strOldTitle = Console().GetTitle();
-}
-
-ConsoleTitle::ConsoleTitle(const string& title)
-{
-	SCOPED_ACTION(CriticalSectionLock)(TitleCS);
-	strOldTitle = Console().GetTitle();
-	SetFarTitle(title);
-}
-
-ConsoleTitle::~ConsoleTitle()
-{
-	SCOPED_ACTION(CriticalSectionLock)(TitleCS);
-	const string &strTitleAddons = GetFarTitleAddons();
-	size_t OldLen = strOldTitle.size();
-	size_t AddonsLen = strTitleAddons.size();
-
-	if (AddonsLen <= OldLen)
-	{
-		if (!StrCmpI(strOldTitle.data()+OldLen-AddonsLen, strTitleAddons.data()))
-			strOldTitle.resize(OldLen-AddonsLen);
-	}
-
-	SetFarTitle(strOldTitle);
-}
-
-BaseFormat& ConsoleTitle::Flush()
-{
-	SetFarTitle(*this);
-	clear();
-	return *this;
 }
 
 static string& FarTitle()
@@ -139,43 +93,27 @@ static string& FarTitle()
 	static string strFarTitle;
 	return strFarTitle;
 }
+
+void ConsoleTitle::SetUserTitle(const string& Title)
+{
+	UserTitle() = Title;
+}
+
+CriticalSection TitleCS;
+
 void ConsoleTitle::SetFarTitle(const string& Title)
 {
 	SCOPED_ACTION(CriticalSectionLock)(TitleCS);
-	string strOldFarTitle;
 
-	strOldFarTitle = Console().GetTitle();
+	FarTitle() = Title;
 
-	if (!GetUserTitle().empty())
+	if (!Global->ScrBuf->GetLockCount())
 	{
-		FarTitle() = GetUserTitle();
-	}
-	else
-	{
-		FarTitle() = Title;
-		FarTitle() += GetFarTitleAddons();
-	}
-
-	TitleModified=true;
-
-	if (strOldFarTitle != FarTitle() && !Global->ScrBuf->GetLockCount())
-	{
-		Console().SetTitle(FarTitle());
-		TitleModified=true;
+		Global->ScrBuf->SetTitle(UserTitle().empty() ? FarTitle() + GetFarTitleAddons() : UserTitle());
 	}
 }
 
-void ConsoleTitle::RestoreTitle()
+const string& ConsoleTitle::GetTitle()
 {
-	if(Global->ScrBuf->GetLockCount()==0)
-	{
-		/*
-			RestoreTitle() для случая, когда нужно выставить пред.заголовок
-			Не для всех!
-			Этот вызов имеет право делать только макро-движок!
-		*/
-		Console().SetTitle(FarTitle());
-		TitleModified=false;
-		//_SVS(SysLog(L"  (nullptr)FarTitle='%s'",FarTitle));
-	}
+	return FarTitle();
 }

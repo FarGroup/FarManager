@@ -140,10 +140,7 @@ void InfoList::Update(int Mode)
 
 string InfoList::GetTitle() const
 {
-	string strTitle;
-	strTitle.append(L" ").append(MSG(MInfoTitle)).append(L" ");
-	TruncStr(strTitle,m_X2-m_X1-3);
-	return strTitle;
+	return MSG(MInfoTitle);
 }
 
 void InfoList::DrawTitle(string &strTitle,int Id,int &CurY)
@@ -179,7 +176,7 @@ void InfoList::DisplayObject()
 	SetScreen(m_X1+1,m_Y1+1,m_X2-1,m_Y2-1,L' ',colors::PaletteColorToFarColor(COL_PANELTEXT));
 	SetColor(IsFocused()? COL_PANELSELECTEDTITLE : COL_PANELTITLE);
 
-	string strTitle = GetTitle();
+	const auto& strTitle = GetTitleForDisplay();
 	if (!strTitle.empty())
 	{
 		GotoXY(m_X1+(m_X2-m_X1+1-(int)strTitle.size())/2,m_Y1);
@@ -267,6 +264,8 @@ void InfoList::DisplayObject()
 
 	}
 
+	string SectionTitle;
+
 	/* #2 - disk info */
 	if (SectionState[ILSS_DISKINFO].Show)
 	{
@@ -338,7 +337,7 @@ void InfoList::DisplayObject()
 				DriveType=DRIVE_VIRTUAL;
 			}
 
-			strTitle=string(L" ")+DiskType+L" "+MSG(MInfoDisk)+L" "+strDriveRoot+L" ("+strFileSystemName+L") ";
+			SectionTitle = string(L" ") + DiskType + L" " + MSG(MInfoDisk) + L" " + strDriveRoot + L" (" + strFileSystemName + L") ";
 
 			switch(DriveType)
 			{
@@ -352,8 +351,8 @@ void InfoList::DisplayObject()
 				case DRIVE_SUBSTITUTE:
 				case DRIVE_VIRTUAL:
 				{
-					strTitle += strAssocPath;
-					strTitle += L" ";
+					SectionTitle += strAssocPath;
+					SectionTitle += L" ";
 				}
 				break;
 			}
@@ -363,12 +362,12 @@ void InfoList::DisplayObject()
 				fmt::MinWidth(4) << fmt::FillChar(L'0') << fmt::Radix(16) << LOWORD(VolumeNumber);
 		}
 		else // Error!
-			strTitle = strDriveRoot;
+			SectionTitle = strDriveRoot;
 	}
 
 	if (!SectionState[ILSS_DISKINFO].Show)
-		strTitle=MSG(MInfoDiskTitle);
-	DrawTitle(strTitle,ILSS_DISKINFO,CurY);
+		SectionTitle = MSG(MInfoDiskTitle);
+	DrawTitle(SectionTitle,ILSS_DISKINFO,CurY);
 
 	const auto bytes_suffix = Upper(MSG(MListBytes));
 	auto size2str = [&bytes_suffix](ULONGLONG Size)
@@ -410,8 +409,8 @@ void InfoList::DisplayObject()
 	}
 
 	/* #3 - memory info */
-	strTitle = MSG(MInfoMemory);
-	DrawTitle(strTitle,ILSS_MEMORYINFO,CurY);
+	SectionTitle = MSG(MInfoMemory);
+	DrawTitle(SectionTitle, ILSS_MEMORYINFO, CurY);
 
 	if (SectionState[ILSS_MEMORYINFO].Show)
 	{
@@ -462,8 +461,8 @@ void InfoList::DisplayObject()
 	/* #4 - power status */
 	if (Global->Opt->InfoPanel.ShowPowerStatus)
 	{
-		strTitle = MSG(MInfoPowerStatus);
-		DrawTitle(strTitle,ILSS_POWERSTATUS,CurY);
+		SectionTitle = MSG(MInfoPowerStatus);
+		DrawTitle(SectionTitle, ILSS_POWERSTATUS, CurY);
 
 		if (SectionState[ILSS_POWERSTATUS].Show)
 		{
@@ -545,8 +544,8 @@ void InfoList::DisplayObject()
 	if (AnotherPanel->GetMode() == panel_mode::NORMAL_PANEL)
 	{
 		/* #5 - description */
-		strTitle = MSG(MInfoDescription);
-		DrawTitle(strTitle,ILSS_DIRDESCRIPTION,CurY);
+		SectionTitle = MSG(MInfoDescription);
+		DrawTitle(SectionTitle, ILSS_DIRDESCRIPTION, CurY);
 
 		if (SectionState[ILSS_DIRDESCRIPTION].Show)
 		{
@@ -566,8 +565,8 @@ void InfoList::DisplayObject()
 	if (AnotherPanel->GetMode() == panel_mode::PLUGIN_PANEL)
 	{
 		/* #6 - Plugin Description */
-		strTitle = MSG(MInfoPlugin);
-		DrawTitle(strTitle,ILSS_PLDESCRIPTION,CurY);
+		SectionTitle = MSG(MInfoPlugin);
+		DrawTitle(SectionTitle, ILSS_PLDESCRIPTION, CurY);
 		if (SectionState[ILSS_PLDESCRIPTION].Show)
 		{
 			if (ShowPluginDescription(CurY))

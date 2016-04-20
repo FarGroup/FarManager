@@ -35,25 +35,11 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class ConsoleTitle: public FormatString
+namespace ConsoleTitle
 {
-public:
-	ConsoleTitle();
-	ConsoleTitle(const string& title);
-	~ConsoleTitle();
-
-	static void SetFarTitle(const string& Title);
-	static void RestoreTitle();
-	static bool WasTitleModified() { return TitleModified; }
-
-private:
-	virtual BaseFormat& Flush() override;
-
-	string strOldTitle;
-	static bool TitleModified;
-	static DWORD ShowTime;
-};
-
-void SetUserTitle(const string& str);
+	void SetFarTitle(const string& Title);
+	void SetUserTitle(const string& Title);
+	const string& GetTitle();
+}
 
 #endif // CONSTITLE_HPP_BEA2E6A2_E52A_4741_9E40_E6B50FF79633

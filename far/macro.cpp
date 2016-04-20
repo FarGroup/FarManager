@@ -767,9 +767,6 @@ int KeyMacro::GetKey()
 
 				Global->ScrBuf->Unlock();
 
-				if (ConsoleTitle::WasTitleModified())
-					ConsoleTitle::RestoreTitle();
-
 				default_clipboard_mode::set(default_clipboard_mode::system);
 
 				return 0;

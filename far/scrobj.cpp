@@ -111,6 +111,7 @@ void SimpleScreenObject::Show()
 	m_Flags.Set(FSCROBJ_VISIBLE);
 
 	DisplayObject();
+	ShowConsoleTitle();
 }
 
 void SimpleScreenObject::Redraw()
@@ -156,6 +157,7 @@ void ScreenObject::Show()
 
 	SimpleScreenObject::Show();
 }
+
 void ScreenObject::Hide()
 {
 	SimpleScreenObject::Hide();

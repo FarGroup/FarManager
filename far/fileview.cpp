@@ -55,6 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "exitcode.hpp"
 #include "keybar.hpp"
+#include "constitle.hpp"
 
 FileViewer::FileViewer(private_tag, int DisableEdit, const wchar_t *Title):
 	RedrawTitle(),
@@ -442,7 +443,10 @@ int FileViewer::GetTypeAndName(string &strType, string &strName)
 
 void FileViewer::ShowConsoleTitle()
 {
-	m_View->ShowConsoleTitle();
+	string strViewerTitleFormat = Global->Opt->strViewerTitleFormat.Get();
+	ReplaceStrings(strViewerTitleFormat, L"%Lng", MSG(MInViewer), true);
+	ReplaceStrings(strViewerTitleFormat, L"%File", PointToName(GetViewer()->strFileName), true);
+	ConsoleTitle::SetFarTitle(strViewerTitleFormat);
 	RedrawTitle = FALSE;
 }
 

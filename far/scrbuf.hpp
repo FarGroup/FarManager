@@ -57,6 +57,7 @@ public:
 	void GetCursorPos(SHORT& X, SHORT& Y) const;
 	void SetCursorType(bool Visible, DWORD Size);
 	void GetCursorType(bool& Visible, DWORD& Size) const;
+	void SetTitle(const string& Title);
 
 	void FillBuf();
 	void Read(int X1, int Y1, int X2, int Y2, matrix<FAR_CHAR_INFO>& Dest);
@@ -80,6 +81,7 @@ private:
 	FAR_CHAR_INFO ElevationChar;
 	matrix<FAR_CHAR_INFO> Buf;
 	matrix<FAR_CHAR_INFO> Shadow;
+	string m_Title;
 	BitFlags SBFlags;
 	int LockCount;
 	DWORD CurSize;

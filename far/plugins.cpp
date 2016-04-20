@@ -492,7 +492,10 @@ PluginHandle* PluginManager::OpenFilePlugin(
 		bool operator !=(const PluginInfo& rhs) const {return !(*this == rhs);}
 	};
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-	ConsoleTitle ct(Global->Opt->ShowCheckingFile?MSG(MCheckingFileInPlugin):L"");
+	if (Global->Opt->ShowCheckingFile)
+	{
+		ConsoleTitle::SetFarTitle(MSG(MCheckingFileInPlugin));
+	}
 	PluginHandle* hResult = nullptr;
 	std::list<PluginInfo> items;
 	string strFullName;
@@ -546,7 +549,9 @@ PluginHandle* PluginManager::OpenFilePlugin(
 		if (i->has(iOpenFilePlugin))
 		{
 			if (Global->Opt->ShowCheckingFile)
-				ct << MSG(MCheckingFileInPlugin) << L" - [" << PointToName(i->GetModuleName()) << L"]..." << fmt::Flush();
+			{
+				ConsoleTitle::SetFarTitle(MSG(MCheckingFileInPlugin) + L" - ["s + PointToName(i->GetModuleName()) + L"]..."s);
+			}
 
 			const auto hPlugin = i->OpenFilePlugin(Name? Name->data() : nullptr, (BYTE*)Info.Buffer, Info.BufferSize, OpMode);
 

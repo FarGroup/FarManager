@@ -231,7 +231,7 @@ public:
 	virtual size_t GetRealSelCount() const override;
 	virtual void SetPluginModified() override;
 	virtual int ProcessPluginEvent(int Event,void *Param) override;
-	virtual void SetTitle() override;
+	virtual void RefreshTitle() override;
 	virtual size_t GetFileCount() const override { return m_ListData.size(); }
 	virtual void UpdateKeyBar() override;
 	virtual void IfGoHome(wchar_t Drive) override;

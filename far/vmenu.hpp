@@ -172,7 +172,6 @@ struct SortItemParam
 	int Offset;
 };
 
-class ConsoleTitle;
 class window;
 
 class VMenu: public SimpleModal
@@ -194,6 +193,7 @@ public:
 	virtual __int64 VMProcess(int OpCode, void *vParam = nullptr, __int64 iParam = 0) override;
 	virtual int ReadInput(INPUT_RECORD *GetReadRec = nullptr) override;
 	virtual void ResizeConsole() override;
+	virtual void ShowConsoleTitle() override;
 
 	void FastShow() { ShowMenu(); }
 	void ResetCursor();
@@ -318,7 +318,6 @@ private:
 	// Для LisBox - родитель в виде диалога
 	Dialog *ParentDialog;
 	size_t DialogItemID;
-	std::unique_ptr<ConsoleTitle> OldTitle;
 	mutable CriticalSection CS;
 	bool bFilterEnabled;
 	bool bFilterLocked;

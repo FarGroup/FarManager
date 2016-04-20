@@ -712,12 +712,10 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				}
 				case FAD_BUTTON_DRIVE:
 				{
-					Global->IsRedrawWindowInProcess++;
 					ChangeDisk(Global->CtrlObject->Cp()->ActivePanel());
 					// Ну что ж, раз пошла такая пьянка рефрешить окна
 					// будем таким способом.
 					Global->WindowManager->ResizeAllWindows();
-					Global->IsRedrawWindowInProcess--;
 					string strSearchFromRoot;
 					PrepareDriveNameStr(strSearchFromRoot);
 					FarListGetItem item={sizeof(FarListGetItem),FADC_ROOT};
@@ -3175,7 +3173,7 @@ FindFiles::FindFiles():
 	}
 	while (FindFilesProcess());
 
-	Global->CtrlObject->Cp()->ActivePanel()->SetTitle();
+	Global->CtrlObject->Cp()->ActivePanel()->RefreshTitle();
 }
 
 FindFiles::~FindFiles()

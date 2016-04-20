@@ -4263,7 +4263,7 @@ void FileList::UpdateViewPanel()
 		else
 			ViewPanel->ShowFile(L"", false, nullptr);
 
-		SetTitle();
+		RefreshTitle();
 	}
 }
 
@@ -4536,39 +4536,24 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 	SetClipboardText(CopyData);
 }
 
-void FileList::SetTitle()
+void FileList::RefreshTitle()
 {
-	/* $ 07.04.2002 KM
-	  ! Рисуем заголовок консоли фара только тогда, когда
-	    не идёт процесс перерисовки всех окон. В данном
-	    случае над панелями висит диалог и незачем выводить
-	    панельный заголовок.
-	*/
-	if (Global->IsRedrawWindowInProcess)
-		return;
+	m_Title = L"{";
 
-	if (IsFocused() || Parent()->GetAnotherPanel(this)->GetType() != panel_type::FILE_PANEL)
+	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
 	{
-		string strTitleDir(L"{");
-
-		if (m_PanelMode == panel_mode::PLUGIN_PANEL)
-		{
-			Global->CtrlObject->Plugins->GetOpenPanelInfo(m_hPlugin, &m_CachedOpenPanelInfo);
-			string strPluginTitle = NullToEmpty(m_CachedOpenPanelInfo.PanelTitle);
-			RemoveExternalSpaces(strPluginTitle);
-			strTitleDir += strPluginTitle;
-		}
-		else
-		{
-			strTitleDir += m_CurDir;
-		}
-
-		strTitleDir += L"}";
-
-		ConsoleTitle::SetFarTitle(strTitleDir);
+		Global->CtrlObject->Plugins->GetOpenPanelInfo(m_hPlugin, &m_CachedOpenPanelInfo);
+		string strPluginTitle = NullToEmpty(m_CachedOpenPanelInfo.PanelTitle);
+		RemoveExternalSpaces(strPluginTitle);
+		m_Title += strPluginTitle;
 	}
-}
+	else
+	{
+		m_Title += m_CurDir;
+	}
 
+	m_Title += L"}";
+}
 
 void FileList::ClearSelection()
 {
@@ -7027,7 +7012,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		SetTitle() - только если мы текущее окно!
 	*/
 	if (Parent() == Global->WindowManager->GetCurrentWindow().get())
-		SetTitle();
+		RefreshTitle();
 
 	FarChDir(strSaveDir); //???
 }
@@ -7348,7 +7333,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 		if (!GoToFile(strCurName) && !strNextCurName.empty())
 			GoToFile(strNextCurName);
 
-	SetTitle();
+	RefreshTitle();
 }
 
 
@@ -7749,7 +7734,7 @@ void FileList::ShowFileList(int Fast)
 	}
 
 	strTitle = GetTitle();
-	int TitleX2 = m_X2 == ScrX? m_X2 - 1 : m_X2;
+	int TitleX2 = m_X2;
 	if (Global->Opt->Clock && !Global->Opt->ShowMenuBar && m_X1 + strTitle.size() + 2 >= static_cast<size_t>(ScrX-5))
 		TitleX2 = std::min(ScrX-5,(int)m_X2);
 

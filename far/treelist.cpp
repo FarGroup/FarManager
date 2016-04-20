@@ -561,11 +561,7 @@ void TreeList::DisplayObject()
 
 string TreeList::GetTitle() const
 {
-	string strTitle = L" ";
-	strTitle += m_ModalMode? MSG(MFindFolderTitle) : MSG(MTreeTitle);
-	strTitle += L" ";
-	TruncStr(strTitle,m_X2-m_X1-3);
-	return strTitle;
+	return MSG(m_ModalMode? MFindFolderTitle : MTreeTitle);
 }
 
 void TreeList::DisplayTree(int Fast)
@@ -578,7 +574,6 @@ void TreeList::DisplayTree(int Fast)
 		{BoxSymbols[BS_L_H1V1], BoxSymbols[BS_H1],0},
 	};
 
-	string strTitle;
 	std::unique_ptr<LockScreen> LckScreen;
 
 	if (!m_ModalMode && Parent()->GetAnotherPanel(this)->GetType() == panel_type::QVIEW_PANEL)
@@ -594,8 +589,8 @@ void TreeList::DisplayTree(int Fast)
 	{
 		Box(m_X1,m_Y1,m_X2,m_Y2,colors::PaletteColorToFarColor(COL_PANELBOX),DOUBLE_BOX);
 		DrawSeparator(m_Y2-2-(m_ModalMode!=0));
-		strTitle = GetTitle();
 
+		const auto& strTitle = GetTitleForDisplay();
 		if (!strTitle.empty())
 		{
 			SetColor((IsFocused() || m_ModalMode) ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
@@ -662,7 +657,7 @@ void TreeList::DisplayTree(int Fast)
 	}
 
 	UpdateViewPanel();
-	SetTitle(); // не забудем прорисовать заголовок
+	RefreshTitle(); // не забудем прорисовать заголовок
 }
 
 void TreeList::DisplayTreeName(const wchar_t *Name, size_t Pos)
@@ -2130,24 +2125,14 @@ void TreeList::UpdateKeyBar()
 	Keybar.SetCustomLabels(KBA_TREE);
 }
 
-void TreeList::SetTitle()
+void TreeList::RefreshTitle()
 {
-	if (IsFocused())
+	m_Title = L"{";
+	if (!m_ListData.empty())
 	{
-		string strTitleDir(L"{");
-
-		const wchar_t *Ptr=m_ListData.empty()? L"" : m_ListData[m_CurFile].strName.data();
-
-		if (*Ptr)
-		{
-			strTitleDir += Ptr;
-			strTitleDir += L" - ";
-		}
-
-		strTitleDir += L"Tree}";
-
-		ConsoleTitle::SetFarTitle(strTitleDir);
+		m_Title.append(m_ListData[m_CurFile].strName).append(L" - ");
 	}
+	m_Title.append(m_ModalMode? MSG(MFindFolderTitle) : MSG(MTreeTitle)).append(L"}");
 }
 
 const TreeList::TreeItem* TreeList::GetItem(size_t Index) const
