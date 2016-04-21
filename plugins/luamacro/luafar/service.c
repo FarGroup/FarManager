@@ -4037,7 +4037,7 @@ static int far_PasteFromClipboard(lua_State *L)
 		if(buf)
 		{
 			FSF->PasteFromClipboard(type,buf,len);
-			push_utf8_string(L,buf,-1);
+			push_utf8_string(L,buf,len-1);
 			free(buf);
 			return 1;
 		}
