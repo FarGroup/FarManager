@@ -1598,9 +1598,9 @@ static void ClearDirList(std::vector<PluginPanelItem>& Items)
 
 namespace magic
 {
-	static std::tuple<PluginPanelItem*, size_t> CastVectorToRawData(std::unique_ptr<std::vector<PluginPanelItem>>&& Items)
+	static auto CastVectorToRawData(std::unique_ptr<std::vector<PluginPanelItem>>&& Items)
 	{
-		FN_RETURN_TYPE(CastVectorToRawData) Result;
+		std::tuple<PluginPanelItem*, size_t> Result;
 		std::get<1>(Result) = Items->size();
 		PluginPanelItem Item;
 		Item.Reserved[0] = reinterpret_cast<intptr_t>(Items.get());
@@ -1610,11 +1610,11 @@ namespace magic
 		return Result;
 	}
 
-	static std::unique_ptr<std::vector<PluginPanelItem>> CastRawDataToVector(PluginPanelItem* RawItems, size_t Size)
+	static auto CastRawDataToVector(PluginPanelItem* RawItems, size_t Size)
 	{
 		auto Items = reinterpret_cast<std::vector<PluginPanelItem>*>(RawItems[Size].Reserved[0]);
 		Items->pop_back(); // not needed anymore
-		return FN_RETURN_TYPE(CastRawDataToVector)(Items);
+		return std::unique_ptr<std::vector<PluginPanelItem>>(Items);
 	}
 }
 

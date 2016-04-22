@@ -417,38 +417,19 @@ public:
 
 	void remove(const wchar_t* Name)
 	{
-		size_t Length = wcslen(Name);
-
-		FOR_RANGE(m_Names, i)
+		erase_if(m_Names, [Name, Length = wcslen(Name)](const auto& i)
 		{
-			if (i->size() < Length)
-				continue;
-
-			if (!StrCmpNI(Name, i->data(), Length) && (i->size() == Length || IsSlash(i->at(Length))))
-			{
-				i = m_Names.erase(i);
-				if (i == m_Names.end())
-					break;
-			}
-		}
+			return i.size() >= Length && !StrCmpNI(Name, i.data(), Length) && (i.size() == Length || IsSlash(i[Length]));
+		});
 	}
 
 	void rename(const wchar_t* OldName, const wchar_t* NewName)
 	{
-		size_t SrcLength = wcslen(OldName);
-		FOR_RANGE(m_Names, i)
-		{
-			size_t iLen = i->size();
-			if ((iLen == SrcLength || (iLen > SrcLength && IsSlash((*i)[SrcLength]))) && !StrCmpNI(OldName, i->data(), SrcLength))
-			{
-				string newName(NewName);
-				newName.append(i->data() + SrcLength, i->size() - SrcLength);
-				i = m_Names.erase(i);
-				m_Names.emplace(std::move(newName));
-				if (i == m_Names.end())
-					break;
-			}
-		}
+		const auto Count = m_Names.size();
+		remove(OldName);
+		if (m_Names.size() == Count)
+			return;
+		m_Names.emplace(std::move(NewName));
 	}
 
 	const string& GetTreeName() const { return m_TreeName; }

@@ -269,7 +269,7 @@ void ItemToItemEx(const FarDialogItem* Items, DialogItemEx *ItemsEx, size_t Coun
 	if (!Items || !ItemsEx)
 		return;
 
-	for_each_2(Items, Items + Count, ItemsEx, [Short](const FarDialogItem& Item, DialogItemEx& ItemEx)
+	const auto Handler = [Short](const auto& Item, auto& ItemEx)
 	{
 		static_cast<FarDialogItem&>(ItemEx) = Item;
 
@@ -293,7 +293,8 @@ void ItemToItemEx(const FarDialogItem* Items, DialogItemEx *ItemsEx, size_t Coun
 		{
 			ItemEx.ListItems=nullptr;
 		}
-	});
+	};
+	for_each_zip(Handler, Items, Items + Count, ItemsEx);
 }
 
 intptr_t DefProcFunction(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
@@ -361,14 +362,16 @@ void Dialog::Construct(DialogItemEx* const* SrcItem, size_t SrcItemCount)
 	Items.assign(Src, Src + SrcItemCount);
 
 	// Items[i].Auto.Owner points to SrcItems, we need to update:
-	for_each_2(ALL_RANGE(Items), Src, [&](DialogItemEx& item, const DialogItemEx& initItem)
+	const auto ItemHandler = [&](auto& item, const auto& initItem)
 	{
-		for_each_2(ALL_RANGE(item.Auto), initItem.Auto.begin(), [&](DialogItemEx::DialogItemAutomation& itemAuto, const DialogItemEx::DialogItemAutomation& initAuto)
+		const auto AutoHandler = [&](auto& itemAuto, const auto& initAuto)
 		{
-			const auto ItemNumber = std::find_if(Src, Src + SrcItemCount, [&](const DialogItemEx& i) { return &i == initAuto.Owner; }) - Src;
+			const auto ItemNumber = std::find_if(Src, Src + SrcItemCount, [&](const auto& i) { return &i == initAuto.Owner; }) - Src;
 			itemAuto.Owner = &Items[ItemNumber];
-		});
-	});
+		};
+		for_each_zip(AutoHandler, ALL_RANGE(item.Auto), initItem.Auto.begin());
+	};
+	for_each_zip(ItemHandler, ALL_RANGE(Items), Src);
 
 	Init();
 }

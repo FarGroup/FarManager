@@ -328,6 +328,7 @@ private:
 	void HighlightBorder(int Level, int ListPos) const;
 	void InitFSWatcher(bool CheckTree);
 	bool IsColumnDisplayed(std::function<bool(const column&)> Compare) const;
+	void UpdateHeight();
 
 	static void DeletePluginItemList(std::vector<PluginPanelItem> &ItemList);
 	static void FillParentPoint(FileListItem& Item, size_t CurFilePos, const FILETIME* Times = nullptr);

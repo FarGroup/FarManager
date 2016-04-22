@@ -257,9 +257,9 @@ static TFKey SpecKeyName[]=
 
 /* ----------------------------------------------------------------- */
 
-static std::vector<HKL>& Layout()
+static auto& Layout()
 {
-	static FN_RETURN_TYPE(Layout) s_Layout;
+	static std::vector<HKL> s_Layout;
 	return s_Layout;
 }
 

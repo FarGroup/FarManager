@@ -55,15 +55,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "colormix.hpp"
 
-static std::vector<FileFilterParams>& FilterData()
+static auto& FilterData()
 {
-	static FN_RETURN_TYPE(FilterData) sFilterData;
+	static std::vector<FileFilterParams> sFilterData;
 	return sFilterData;
 }
 
-static std::vector<FileFilterParams>& TempFilterData()
+static auto& TempFilterData()
 {
-	static FN_RETURN_TYPE(FilterData) sTempFilterData;
+	static std::vector<FileFilterParams> sTempFilterData;
 	return sTempFilterData;
 }
 

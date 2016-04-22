@@ -4386,14 +4386,14 @@ void FileList::CompareDir()
 		}
 	}
 
-	const auto refresh = [](std::shared_ptr<FileList> Panel)
+	const auto refresh = [](FileList& Panel)
 	{
-		if (Panel->GetSelectedFirstMode())
-			Panel->SortFileList(TRUE);
-		Panel->Redraw();
+		if (Panel.GetSelectedFirstMode())
+			Panel.SortFileList(TRUE);
+		Panel.Redraw();
 	};
-	refresh(std::static_pointer_cast<FileList>(shared_from_this()));
-	refresh(Another);
+	refresh(*this);
+	refresh(*Another.get());
 
 	if (!m_SelFileCount && !Another->m_SelFileCount)
 		Message(0,1,MSG(MCompareTitle),MSG(MCompareSameFolders1),MSG(MCompareSameFolders2),MSG(MOk));
@@ -4745,8 +4745,7 @@ void FileList::SelectSortMode()
 	bool PlusPressed = false;
 
 	{
-		std::vector<string> MenuStrings(SortMenu.size());
-		VMenu::AddHotkeys(MenuStrings, SortMenu.data(), SortMenu.size());
+		const auto MenuStrings = VMenu::AddHotkeys(make_range(SortMenu.data(), SortMenu.data() + SortMenu.size()));
 
 		const auto SortModeMenu = VMenu2::create(MSG(MMenuSortTitle), SortMenu.data(), SortMenu.size(), 0);
 		SortModeMenu->SetHelp(L"PanelCmdSort");
@@ -7463,9 +7462,14 @@ void FileList::FillParentPoint(FileListItem& Item, size_t CurFilePos, const FILE
 
 static wchar_t OutCharacter[8]={};
 
+void FileList::UpdateHeight()
+{
+	m_Height = m_Y2 - m_Y1 - 1 - (Global->Opt->ShowColumnTitles? 1 : 0) - (Global->Opt->ShowPanelStatus? 2 : 0);
+}
+
 void FileList::DisplayObject()
 {
-	m_Height=m_Y2-m_Y1-4+!Global->Opt->ShowColumnTitles+(Global->Opt->ShowPanelStatus ? 0:2);
+	UpdateHeight();
 	_OT(SysLog(L"[%p] FileList::DisplayObject()",this));
 
 	if (UpdateRequired)
@@ -8125,13 +8129,7 @@ void FileList::PrepareViewSettings(int ViewMode)
 	}
 
 	m_Columns=PreparePanelView(&m_ViewSettings);
-	m_Height=m_Y2-m_Y1-4;
-
-	if (!Global->Opt->ShowColumnTitles)
-		m_Height++;
-
-	if (!Global->Opt->ShowPanelStatus)
-		m_Height+=2;
+	UpdateHeight();
 }
 
 

@@ -462,10 +462,11 @@ bool Plugin::SaveToCache()
 	PlCache->SetDescription(id, strDescription);
 	PlCache->SetAuthor(id, strAuthor);
 
-	for_each_2(ALL_CONST_RANGE(m_Factory->ExportsNames()), Exports.cbegin(), [&PlCache, &id](const auto& i, const auto& Export)
+	const auto Handler = [&PlCache, &id](const auto& i, const auto& Export)
 	{
 		PlCache->SetExportState(id, i.UName, Export.second);
-	});
+	};
+	for_each_zip(Handler, ALL_CONST_RANGE(m_Factory->ExportsNames()), Exports.cbegin());
 
 	return true;
 }

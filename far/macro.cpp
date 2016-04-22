@@ -1469,7 +1469,7 @@ static int PassValue (const TVar& Var, FarMacroCall* Data)
 	return 1;
 }
 
-static std::vector<TVar> parseParams(size_t Count, FarMacroCall* Data)
+static auto parseParams(size_t Count, FarMacroCall* Data)
 {
 	const auto argNum = std::min(Data->Count, Count);
 	std::vector<TVar> Params;

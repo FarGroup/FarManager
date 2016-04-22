@@ -2916,21 +2916,27 @@ const GUID& VMenu::Id() const
 	return MenuId;
 }
 
-void VMenu::AddHotkeys(std::vector<string>& Strings, MenuDataEx* Menu, size_t MenuSize)
+std::vector<string> VMenu::AddHotkeys(const range<MenuDataEx*>& MenuItems)
 {
-	const size_t MaxLength = std::accumulate(Menu, Menu + MenuSize, size_t(0), [](size_t Value, const MenuDataEx& i)
+	FN_RETURN_TYPE(VMenu::AddHotkeys) Result(MenuItems.size());
+
+	const size_t MaxLength = std::accumulate(ALL_CONST_RANGE(MenuItems), size_t(0), [](size_t Value, const auto& i)
 	{
 		return std::max(Value, wcslen(i.Name));
 	});
-	for (size_t i = 0; i < MenuSize; ++i)
+
+	const auto Handler = [MaxLength](MenuDataEx& Item, string& Str)
 	{
-		if (!(Menu[i].Flags & LIF_SEPARATOR) && Menu[i].AccelKey)
-		{
-			string Key;
-			KeyToLocalizedText(Menu[i].AccelKey, Key);
-			bool Hl = HiStrlen(Menu[i].Name) != wcslen(Menu[i].Name);
-			Strings[i] = FormatString() << fmt::ExactWidth(MaxLength + (Hl? 2 : 1)) << fmt::LeftAlign() << Menu[i].Name << Key;
-			Menu[i].Name = Strings[i].data();
-		}
-	}
+		if (Item.Flags & LIF_SEPARATOR || !Item.AccelKey)
+			return;
+
+		string Key;
+		KeyToLocalizedText(Item.AccelKey, Key);
+		const auto Hl = HiStrlen(Item.Name) != wcslen(Item.Name);
+		Str = FormatString() << fmt::ExactWidth(MaxLength + (Hl? 2 : 1)) << fmt::LeftAlign() << Item.Name << Key;
+		Item.Name = Str.data();
+	};
+	for_each_zip(Handler, ALL_RANGE(MenuItems), Result.begin());
+
+	return Result;
 }

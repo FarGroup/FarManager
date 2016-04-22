@@ -354,9 +354,9 @@ static void GetChildHotplugDevicesInfo(DEVINST hDevInst, std::vector<DeviceInfo>
 	while (CM_Get_Sibling(&hDevInst, hDevInst, 0) == CR_SUCCESS);
 }
 
-static std::vector<DeviceInfo> GetHotplugDevicesInfo()
+static auto GetHotplugDevicesInfo()
 {
-	FN_RETURN_TYPE(GetHotplugDevicesInfo) Result;
+	std::vector<DeviceInfo> Result;
 
 	DEVNODE hDevRoot;
 	if (CM_Locate_DevNodeW(&hDevRoot, nullptr, CM_LOCATE_DEVNODE_NORMAL) == CR_SUCCESS)

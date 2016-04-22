@@ -46,17 +46,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static const wchar_t ExcludeMaskSeparator = L'|';
 static const wchar_t RE_start = L'/', RE_end = L'/';
 
-static inline string::const_iterator SkipSeparators(const string::const_iterator& Iterator, const string::const_iterator& End)
+static inline auto SkipSeparators(const string::const_iterator& Iterator, const string::const_iterator& End)
 {
 	return std::find_if_not(Iterator, End, [](wchar_t c) { return c == L' ' || c == L',' || c == L';'; });
 }
 
-static inline string::const_iterator SkipMasks(const string::const_iterator& Iterator, const string::const_iterator& End)
+static inline auto SkipMasks(const string::const_iterator& Iterator, const string::const_iterator& End)
 {
 	return std::find_if(Iterator, End, [](wchar_t c) { return c == RE_start || c == ExcludeMaskSeparator; });
 }
 
-static inline string::const_iterator SkipRE(string::const_iterator Iterator, const string::const_iterator& End)
+static inline auto SkipRE(string::const_iterator Iterator, const string::const_iterator& End)
 {
 	if (*Iterator != RE_start)
 	{

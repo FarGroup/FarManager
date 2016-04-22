@@ -904,21 +904,22 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 									KnownReparsePoint = true;
 
-									NameList.ItemsNumber = DfsInfo->NumberOfStorages;
+									ListItems.resize(DfsInfo->NumberOfStorages);
+									Links.resize(DfsInfo->NumberOfStorages);
 
-									ListItems.resize(NameList.ItemsNumber);
-									Links.resize(NameList.ItemsNumber);
+									const auto Handler = [](auto& Link, auto& Item, const auto& Storage)
+									{
+										Link = string(L"\\\\") + Storage.ServerName + L'\\' + Storage.ShareName;
+										Item.Text = Link.data();
+										Item.Flags =
+											((Storage.State & DFS_STORAGE_STATE_ACTIVE)? (LIF_CHECKED | LIF_SELECTED) : LIF_NONE) |
+											((Storage.State & DFS_STORAGE_STATE_OFFLINE)? LIF_GRAYED : LIF_NONE);
+									};
+
+									for_each_zip(Handler, ALL_RANGE(Links), ListItems.begin(), DfsInfo->Storage);
 
 									NameList.Items = ListItems.data();
-
-									for (size_t i = 0; i < NameList.ItemsNumber; ++i)
-									{
-										Links[i] = string(L"\\\\") + DfsInfo->Storage[i].ServerName + L'\\' + DfsInfo->Storage[i].ShareName;
-										NameList.Items[i].Text = Links[i].data();
-										NameList.Items[i].Flags =
-											((DfsInfo->Storage[i].State & DFS_STORAGE_STATE_ACTIVE) ? (LIF_CHECKED | LIF_SELECTED) : LIF_NONE) |
-											((DfsInfo->Storage[i].State & DFS_STORAGE_STATE_OFFLINE) ? LIF_GRAYED : LIF_NONE);
-									}
+									NameList.ItemsNumber = DfsInfo->NumberOfStorages;
 
 									AttrDlg[SA_EDIT_SYMLINK].Flags |= DIF_HIDDEN;
 									AttrDlg[SA_COMBO_SYMLINK].Flags &= ~DIF_HIDDEN;

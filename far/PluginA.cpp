@@ -490,7 +490,7 @@ static void ConvertPanelModesA(const oldfar::PanelMode *pnmA, PanelMode **ppnmW,
 	{
 		std::unique_ptr<PanelMode[]> pnmW(new PanelMode[iCount]());
 		std::vector<string> Strings;
-		for_each_2(pnmA, pnmA + iCount, pnmW.get(), [&Strings](const oldfar::PanelMode& Src, PanelMode& Dest)
+		const auto Handler = [&Strings](const oldfar::PanelMode& Src, PanelMode& Dest)
 		{
 			size_t iColumnCount = 0;
 			if (Src.ColumnTypes)
@@ -509,7 +509,8 @@ static void ConvertPanelModesA(const oldfar::PanelMode *pnmA, PanelMode **ppnmW,
 			if (Src.DetailedStatus) Dest.Flags |= PMFLAGS_DETAILEDSTATUS;
 			if (Src.AlignExtensions) Dest.Flags |= PMFLAGS_ALIGNEXTENSIONS;
 			if (Src.CaseConversion) Dest.Flags |= PMFLAGS_CASECONVERSION;
-		});
+		};
+		for_each_zip(Handler, pnmA, pnmA + iCount, pnmW.get());
 
 		*ppnmW = pnmW.release();
 	}
@@ -614,7 +615,7 @@ static void WINAPI FreeUserData(void* UserData, const FarPanelItemFreeInfo* Info
 static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(const oldfar::PluginPanelItem *PanelItemA, size_t ItemsNumber)
 {
 	std::unique_ptr<PluginPanelItem[]> Result(new PluginPanelItem[ItemsNumber]());
-	for_each_2(PanelItemA, PanelItemA + ItemsNumber, Result.get(), [](const oldfar::PluginPanelItem& Src, PluginPanelItem& Dst)
+	const auto Handler = [](const auto& Src, auto& Dst)
 	{
 		Dst.Flags = 0;
 		if (Src.Flags&oldfar::PPIF_PROCESSDESCR)
@@ -658,7 +659,8 @@ static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(const oldfar::PluginPanel
 		Dst.AllocationSize = (unsigned __int64)Src.PackSize + (((unsigned __int64)Src.PackSizeHigh) << 32);
 		Dst.FileName = AnsiToUnicode(Src.FindData.cFileName);
 		Dst.AlternateFileName = AnsiToUnicode(Src.FindData.cAlternateFileName);
-	});
+	};
+	for_each_zip(Handler, PanelItemA, PanelItemA + ItemsNumber, Result.get());
 	return Result.release();
 }
 
@@ -773,7 +775,7 @@ static char *InsertQuoteA(char *Str)
 	return Str;
 }
 
-static inline const GUID* GetPluginGuid(intptr_t n) { return &reinterpret_cast<Plugin*>(n)->GetGUID(); }
+static inline auto GetPluginGuid(intptr_t n) { return &reinterpret_cast<Plugin*>(n)->GetGUID(); }
 
 struct DialogData
 {
@@ -784,15 +786,15 @@ struct DialogData
 	FarList *l;
 };
 
-static std::list<DialogData>& DialogList()
+static auto& DialogList()
 {
-	static FN_RETURN_TYPE(DialogList) s_DialogList;
+	static std::list<DialogData> s_DialogList;
 	return s_DialogList;
 }
 
 oldfar::FarDialogItem* OneDialogItem = nullptr;
 
-static DialogData* FindDialogData(HANDLE hDlg)
+static auto FindDialogData(HANDLE hDlg)
 {
 	const auto ItemIterator = std::find_if(RANGE(DialogList(), i)
 	{
@@ -803,25 +805,25 @@ static DialogData* FindDialogData(HANDLE hDlg)
 }
 
 // can be nullptr in case of the ansi dialog plugin
-static oldfar::FarDialogItem* CurrentDialogItemA(HANDLE hDlg, int ItemNumber)
+static auto CurrentDialogItemA(HANDLE hDlg, int ItemNumber)
 {
 	const auto current = FindDialogData(hDlg);
 	return current ? &current->diA[ItemNumber] : nullptr;
 }
 
-static FarDialogItem& CurrentDialogItem(HANDLE hDlg, int ItemNumber)
+static auto& CurrentDialogItem(HANDLE hDlg, int ItemNumber)
 {
 	return FindDialogData(hDlg)->di[ItemNumber];
 }
 
-static FarList& CurrentList(HANDLE hDlg, int ItemNumber)
+static auto& CurrentList(HANDLE hDlg, int ItemNumber)
 {
 	return FindDialogData(hDlg)->l[ItemNumber];
 }
 
-static std::stack<FarDialogEvent>& OriginalEvents()
+static auto& OriginalEvents()
 {
-	static FN_RETURN_TYPE(OriginalEvents) sOriginalEvents;
+	static std::stack<FarDialogEvent> sOriginalEvents;
 	return sOriginalEvents;
 }
 
@@ -830,36 +832,37 @@ static size_t GetAnsiVBufSize(const oldfar::FarDialogItem &diA)
 	return (diA.X2 - diA.X1 + 1)*(diA.Y2 - diA.Y1 + 1);
 }
 
-static PCHAR_INFO GetAnsiVBufPtr(FAR_CHAR_INFO* VBuf, size_t Size)
+static auto GetAnsiVBufPtr(FAR_CHAR_INFO* VBuf, size_t Size)
 {
 	return VBuf? *reinterpret_cast<PCHAR_INFO*>(&VBuf[Size]) : nullptr;
 }
 
-static void SetAnsiVBufPtr(FAR_CHAR_INFO* VBuf, PCHAR_INFO VBufA, size_t Size)
+static void SetAnsiVBufPtr(FAR_CHAR_INFO* VBuf, CHAR_INFO* VBufA, size_t Size)
 {
 	*reinterpret_cast<PCHAR_INFO*>(&VBuf[Size]) = VBufA;
 }
 
-static void AnsiVBufToUnicode(PCHAR_INFO VBufA, FAR_CHAR_INFO* VBuf, size_t Size, bool NoCvt)
+static void AnsiVBufToUnicode(CHAR_INFO* VBufA, FAR_CHAR_INFO* VBuf, size_t Size, bool NoCvt)
 {
-	if (VBuf && VBufA)
+	if (!VBuf || !VBufA)
+		return;
+
+	const auto Handler = [NoCvt](const auto& Src, auto& Dst)
 	{
-		for (size_t i = 0; i < Size; i++)
+		if (NoCvt)
 		{
-			if (NoCvt)
-			{
-				VBuf[i].Char = VBufA[i].Char.UnicodeChar;
-			}
-			else
-			{
-				AnsiToUnicodeBin(&VBufA[i].Char.AsciiChar, &VBuf[i].Char, 1);
-			}
-			VBuf[i].Attributes = colors::ConsoleColorToFarColor(VBufA[i].Attributes);
+			Dst.Char = Src.Char.UnicodeChar;
 		}
-	}
+		else
+		{
+			AnsiToUnicodeBin(&Src.Char.AsciiChar, &Dst.Char, 1);
+		}
+		Dst.Attributes = colors::ConsoleColorToFarColor(Src.Attributes);
+	};
+	for_each_zip(Handler, VBufA, VBufA + Size, VBuf);
 }
 
-static FAR_CHAR_INFO* AnsiVBufToUnicode(const oldfar::FarDialogItem &diA)
+static auto AnsiVBufToUnicode(const oldfar::FarDialogItem &diA)
 {
 	FAR_CHAR_INFO* VBuf = nullptr;
 
@@ -3372,10 +3375,11 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber, int X1, int Y1, int X2, in
 		std::vector<oldfar::FarDialogItem> diA(ItemsNumber);
 
 		// to save DIF_SETCOLOR state
-		for_each_2(ALL_RANGE(diA), Item, [](oldfar::FarDialogItem& diA_i, const oldfar::FarDialogItem& Item_i)
+		const auto Handler = [](auto& diA_i, const auto& Item_i)
 		{
 			diA_i.Flags = Item_i.Flags;
-		});
+		};
+		for_each_zip(Handler, ALL_RANGE(diA), Item);
 
 		std::vector<FarDialogItem> di(ItemsNumber);
 		std::vector<FarList> l(ItemsNumber);

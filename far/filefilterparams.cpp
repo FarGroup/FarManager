@@ -542,7 +542,7 @@ void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const Highli
 	const PaletteColors PalColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
 	int VBufRow = 0;
 
-	for_each_2(ALL_CONST_RANGE(Colors.Color), PalColor, [&](const auto& i, PaletteColors pal)
+	const auto Handler = [&](const auto& i, PaletteColors pal)
 	{
 		Color = i.FileColor;
 
@@ -580,7 +580,8 @@ void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const Highli
 
 		VBufColorExample[15 * VBufRow].Attributes = VBufColorExample[15 * VBufRow + 14].Attributes = colors::PaletteColorToFarColor(COL_PANELBOX);
 		++VBufRow;
-	});
+	};
+	for_each_zip(Handler, ALL_CONST_RANGE(Colors.Color), PalColor);
 }
 
 void FilterDlgRelativeDateItemsUpdate(Dialog* Dlg, bool bClear)

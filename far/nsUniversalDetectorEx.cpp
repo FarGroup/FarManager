@@ -81,10 +81,10 @@ WARNING_POP()
 static string getInfo() { return L"Mozilla Universal Charset Detector"; } // BUGBUG, version unknown
 SCOPED_ACTION(components::component)(getInfo);
 
-static const std::unordered_map<std::string, uintptr_t>& CpMap()
+static const auto& CpMap()
 {
-	static FN_RETURN_TYPE(CpMap) sCpMap;
-	
+	static std::unordered_map<std::string, uintptr_t> sCpMap;
+
 	if (sCpMap.empty())
 	{
 		static const std::pair<const char*, uintptr_t> CodepagesInit[] =

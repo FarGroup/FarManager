@@ -80,6 +80,12 @@ auto make_range(iterator_type i_begin, iterator_type i_end)
 	return range<iterator_type>(i_begin, i_end);
 }
 
+template<class container>
+auto make_range(container& Container)
+{
+	return make_range(std::begin(Container), std::end(Container));
+}
+
 template<class T>
 class i_iterator: public std::iterator<std::random_access_iterator_tag, T>, public rel_ops<i_iterator<T>>
 {

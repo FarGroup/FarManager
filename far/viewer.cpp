@@ -2715,7 +2715,7 @@ void ViewerSearchMsg(const string& MsgStr, int Percent, int SearchHex)
 	}
 }
 
-static std::vector<char> hex2ss(const wchar_t *from, size_t len, intptr_t *pos = nullptr)
+static auto hex2ss(const wchar_t *from, size_t len, intptr_t *pos = nullptr)
 {
 	string strFrom(from, len);
 	RemoveTrailingSpaces(strFrom);

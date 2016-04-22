@@ -61,9 +61,9 @@ const string& GetSpacesAndEols()
 	return SpacesOrEols;
 }
 
-static const std::vector<wchar_t> create_alt_sort_table()
+static auto create_alt_sort_table()
 {
-	FN_RETURN_TYPE(create_alt_sort_table) alt_sort_table(WCHAR_MAX + 1), chars(alt_sort_table.size());
+	std::vector<wchar_t> alt_sort_table(WCHAR_MAX + 1), chars(alt_sort_table.size());
 
 	std::iota(ALL_RANGE(chars), 0);
 

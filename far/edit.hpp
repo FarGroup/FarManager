@@ -66,11 +66,11 @@ struct ColorItem
 {
 	// Usually we have only 1-2 coloring plugins.
 	// Keeping a copy of GUID in each of thousands of color items is a giant waste of memory,
-	// so GUID's are stored in separate set and here is only a pointer.
+	// so GUIDs are stored in a separate set and here is only a pointer.
 	const GUID* Owner;
 	// Usually we have only 5-10 unique colors.
 	// Keeping a copy of FarColor in each of thousands of color items is a giant waste of memory,
-	// so FarColor's are stored in separate set and here is only a pointer.
+	// so FarColors are stored in a separate set and here is only a pointer.
 	const FarColor* Color;
 	unsigned int Priority;
 	int StartPos;

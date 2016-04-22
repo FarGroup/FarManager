@@ -479,7 +479,7 @@ int FarSettings::SubKey(const FarSettingsValue& Value, bool bCreate)
 	return result+FSSF_COUNT;
 }
 
-static const std::unique_ptr<HistoryConfig>& HistoryRef(int Type)
+static const auto& HistoryRef(int Type)
 {
 	bool Save=true;
 	switch(Type)

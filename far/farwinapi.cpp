@@ -91,9 +91,9 @@ namespace os
 		};
 	}
 
-static find_handle FindFirstFileInternal(const string& Name, FAR_FIND_DATA& FindData)
+static auto FindFirstFileInternal(const string& Name, FAR_FIND_DATA& FindData)
 {
-	FN_RETURN_TYPE(FindFirstFileInternal) Result;
+	find_handle Result;
 
 	if(!Name.empty() && !IsSlash(Name.back()))
 	{

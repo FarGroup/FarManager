@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "tracer.hpp"
 #include "imports.hpp"
 
-static std::vector<const void*> GetBackTrace(const EXCEPTION_POINTERS* ExceptionInfo)
+static auto GetBackTrace(const EXCEPTION_POINTERS* ExceptionInfo)
 {
 	std::vector<const void*> Result;
 
@@ -68,7 +68,7 @@ static std::vector<const void*> GetBackTrace(const EXCEPTION_POINTERS* Exception
 	return Result;
 }
 
-static std::vector<string> GetSymbols(const std::vector<const void*>& BackTrace)
+static auto GetSymbols(const std::vector<const void*>& BackTrace)
 {
 	std::vector<string> Result;
 

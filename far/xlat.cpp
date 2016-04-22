@@ -84,8 +84,8 @@ void xlat_initialize()
 
 					const auto SetIfEmpty = [](StringOption& opt, const wchar_t* table) { if (opt.empty()) opt = table; };
 
-					for_each_2(ALL_RANGE(XLat.Table), Tables, SetIfEmpty);
-					for_each_2(ALL_RANGE(XLat.Rules), Rules, SetIfEmpty);
+					for_each_zip(SetIfEmpty, ALL_RANGE(XLat.Table), Tables);
+					for_each_zip(SetIfEmpty, ALL_RANGE(XLat.Rules), Rules);
 				}
 			}
 		}

@@ -953,7 +953,7 @@ static void ResetViewModes(PanelViewSettings* Modes, int Index = -1)
 
 	if (Index < 0)
 	{
-		for_each_2(ALL_CONST_RANGE(Init), Modes, InitMode);
+		for_each_zip(InitMode, ALL_CONST_RANGE(Init), Modes);
 	}
 	else
 	{
@@ -1928,14 +1928,14 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 	};
 	static_assert(std::size(GuidOptions) == std::size(DefaultKnownGuids), "incomplete GuidOptions array");
 
-	for_each_2(ALL_RANGE(DefaultKnownGuids), GuidOptions, [](auto& a, const auto& b)
+	const auto Handler = [](auto& a, const auto& b)
 	{
 		a.second = GuidToStr(a.first);
 		b->Default = a.second.data();
 		b->Id = a.first;
 		b->StrId = a.second;
-	});
-
+	};
+	for_each_zip(Handler, ALL_RANGE(DefaultKnownGuids), GuidOptions);
 
 	InitConfig();
 
@@ -2588,8 +2588,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		MSG(MMenuChangeDrive),0,KEY_ALTF1,
 	};
 	ApplyViewModesNames(LeftMenu);
-	std::vector<string> LeftMenuStrings(std::size(LeftMenu));
-	VMenu::AddHotkeys(LeftMenuStrings, LeftMenu, std::size(LeftMenu));
+	const auto LeftMenuStrings = VMenu::AddHotkeys(make_range(LeftMenu));
 
 	MenuDataEx FilesMenu[]=
 	{
@@ -2615,8 +2614,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		MSG(MMenuInvertSelection),0,KEY_MULTIPLY,
 		MSG(MMenuRestoreSelection),0,KEY_CTRLM,
 	};
-	std::vector<string> FilesMenuStrings(std::size(FilesMenu));
-	VMenu::AddHotkeys(FilesMenuStrings, FilesMenu, std::size(FilesMenu));
+	const auto FilesMenuStrings = VMenu::AddHotkeys(make_range(FilesMenu));
 
 	MenuDataEx CmdMenu[]=
 	{
@@ -2641,8 +2639,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		MSG(MMenuProcessList),0,KEY_CTRLW,
 		MSG(MMenuHotPlugList),0,0,
 	};
-	std::vector<string> CmdMenuStrings(std::size(CmdMenu));
-	VMenu::AddHotkeys(CmdMenuStrings, CmdMenu, std::size(CmdMenu));
+	const auto CmdMenuStrings = VMenu::AddHotkeys(make_range(CmdMenu));
 
 	MenuDataEx OptionsMenu[]=
 	{
@@ -2674,8 +2671,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		L"",LIF_SEPARATOR,0,
 		MSG(MMenuSaveSetup),0,KEY_SHIFTF9,
 	};
-	std::vector<string> OptionsMenuStrings(std::size(OptionsMenu));
-	VMenu::AddHotkeys(OptionsMenuStrings, OptionsMenu, std::size(OptionsMenu));
+	const auto OptionsMenuStrings = VMenu::AddHotkeys(make_range(OptionsMenu));
 
 	MenuDataEx RightMenu[]=
 	{
@@ -2701,8 +2697,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		MSG(MMenuChangeDriveRight),0,KEY_ALTF2,
 	};
 	ApplyViewModesNames(RightMenu);
-	std::vector<string> RightMenuStrings(std::size(RightMenu));
-	VMenu::AddHotkeys(RightMenuStrings, RightMenu, std::size(RightMenu));
+	const auto RightMenuStrings = VMenu::AddHotkeys(make_range(RightMenu));
 
 
 	HMenuData MainMenu[]=
