@@ -5496,7 +5496,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 				m_Flags.Set(FEDITOR_NEWUNDO);
 				InsertString();
-				Show();
 
 				if (!Indent)
 					Pasting--;
