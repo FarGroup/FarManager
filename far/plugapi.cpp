@@ -1289,25 +1289,11 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 			Help::MkTopic(PluginNumber,NullToEmpty(HelpTopic),strTopic);
 		}
 
-		// непосредственно... вывод
-		const auto Window = Global->WindowManager->GetBottomWindow();
-
-		if (Window)
-			Window->Lock(); // отменим прорисовку окна
-
 		int MsgCode=Message(Flags&(FMSG_WARNING|FMSG_ERRORTYPE|FMSG_KEEPBACKGROUND|FMSG_LEFTALIGN),
 			Title,
 			MsgItems,
 			Buttons,
 			EmptyToNull(strTopic.data()), PluginNumber, Id);
-
-		/* $ 15.05.2002 SKV
-		  Однако разлочивать надо ровно то, что залочили.
-		*/
-		if (Window)
-			Window->Unlock(); // теперь можно :-)
-
-		//CheckScreenLock();
 
 		return MsgCode;
 	}
