@@ -1501,11 +1501,9 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		{
 			if (FileSize > static_cast<UINT64>(Global->Opt->EdOpt.FileSizeLimit))
 			{
-				string strTempStr1, strTempStr2;
 				// Ширина = 8 - это будет... в Kb и выше...
-				FileSizeToStr(strTempStr1, FileSize, 8);
-				FileSizeToStr(strTempStr2, Global->Opt->EdOpt.FileSizeLimit, 8);
-
+				auto strTempStr1 = FileSizeToStr(FileSize, 8);
+				auto strTempStr2 = FileSizeToStr(Global->Opt->EdOpt.FileSizeLimit, 8);
 
 				if (Message(MSG_WARNING, MSG(MEditTitle),
 					{

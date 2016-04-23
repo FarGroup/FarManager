@@ -659,7 +659,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 						key=KeyToKeyLayout(key&0x0000FFFF)|(key&~0x0000FFFF);
 
 					if (key<0xFFFF)
-						key=ToUpper(static_cast<wchar_t>(key));
+						key=Upper(static_cast<wchar_t>(key));
 
 					if (key != Rec->IntKey)
 						KeyToText(key,textKey);
@@ -2894,13 +2894,9 @@ static bool rindexFunc(FarMacroCall* Data)
 // S=Size2Str(Size,Flags[,Width])
 static bool size2strFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams(3, Data);
-	int Width = (int)Params[2].asInteger();
-
-	string strDestStr;
-	FileSizeToStr(strDestStr,Params[0].asInteger(), !Width?-1:Width, Params[1].asInteger());
-
-	PassString(strDestStr, Data);
+	const auto Params = parseParams(3, Data);
+	const auto Width = static_cast<int>(Params[2].asInteger());
+	PassString(FileSizeToStr(Params[0].asInteger(), !Width? -1 : Width, Params[1].asInteger()), Data);
 	return true;
 }
 
@@ -4640,8 +4636,7 @@ static bool ucaseFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams(1, Data);
 	TVar& Val(Params[0]);
-	string Copy = Val.toString();
-	Val = ToUpper(Copy);
+	Val = Upper(Val.toString());
 	PassValue(Val, Data);
 	return true;
 }
@@ -4650,8 +4645,7 @@ static bool lcaseFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams(1, Data);
 	TVar& Val(Params[0]);
-	string Copy = Val.toString();
-	Val = ToLower(Copy);
+	Val = Lower(Val.toString());
 	PassValue(Val, Data);
 	return true;
 }
@@ -5169,7 +5163,7 @@ M1:
 
 		if (key<0xFFFF)
 		{
-			key=ToUpper(static_cast<wchar_t>(key));
+			key=Upper(static_cast<wchar_t>(key));
 		}
 
 		_SVS(SysLog(L"[%d] Assign ==> Param2='%s',LastKey='%s'",__LINE__,_FARKEY_ToName((DWORD)key),LastKey?_FARKEY_ToName(LastKey):L""));

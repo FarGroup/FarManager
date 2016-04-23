@@ -313,8 +313,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 
 		column NewColumn;
 
-		string strArgOrig = strArgName;
-		ToUpper(strArgName);
+		auto strArgOrig = Upper(strArgName);
 
 		if (strArgName.front() == L'N')
 		{
@@ -790,8 +789,7 @@ const string FormatStr_Size(__int64 Size, const string& strName,
 	}
 	else
 	{
-		string strOutStr;
-		strResult << FileSizeToStr(strOutStr, Size, Width, Flags);
+		strResult << FileSizeToStr(Size, Width, Flags);
 	}
 
 	return strResult;

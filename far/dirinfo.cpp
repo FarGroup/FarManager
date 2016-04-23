@@ -75,8 +75,7 @@ struct DirInfoPreRedrawItem : public PreRedrawItem
 
 static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name, UINT64 Size)
 {
-	string strSize;
-	FileSizeToStr(strSize, Size, 8, COLUMN_FLOATSIZE|COLUMN_COMMAS);
+	auto strSize = FileSizeToStr(Size, 8, COLUMN_FLOATSIZE|COLUMN_COMMAS);
 	RemoveLeadingSpaces(strSize);
 	Message(0,0,Title,MSG(MScanningFolder),Name,strSize.data());
 	if (!PreRedrawStack().empty())

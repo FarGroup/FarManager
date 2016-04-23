@@ -3485,7 +3485,7 @@ void Viewer::Search(int Next,int FirstChar)
 
 	if (!Case && !SearchRegexp)
 	{
-		ToUpper(strSearchStr);
+		InplaceUpper(strSearchStr);
 		sd.search_text = strSearchStr.data();
 	}
 

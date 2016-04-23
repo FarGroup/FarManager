@@ -827,8 +827,7 @@ F8CP::F8CP(bool viewer):
 		split(f8list, cps, 0);
 		std::for_each(CONST_RANGE(f8list, str_cp)
 		{
-			string s(str_cp);
-			ToUpper(s);
+			auto s = Upper(str_cp);
 			UINT cp = 0;
 			if (s == L"ANSI" || s == L"ACP" || s == L"WIN")
 				cp = GetACP();

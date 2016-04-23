@@ -174,9 +174,9 @@ int FolderTree::ProcessKey(const Manager::Key& Key)
 {
 	auto LocalKey = Key();
 	if (LocalKey>=KEY_ALT_BASE+0x01 && LocalKey<=KEY_ALT_BASE+65535)
-		LocalKey=ToLower(LocalKey-KEY_ALT_BASE);
+		LocalKey=Lower(LocalKey-KEY_ALT_BASE);
 	else if (LocalKey>=KEY_RALT_BASE+0x01 && LocalKey<=KEY_RALT_BASE+65535)
-		LocalKey=ToLower(LocalKey-KEY_RALT_BASE);
+		LocalKey=Lower(LocalKey-KEY_RALT_BASE);
 
 	switch (LocalKey)
 	{

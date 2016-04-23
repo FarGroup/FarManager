@@ -106,11 +106,11 @@ const wchar_t *GetCommaWord(const wchar_t *Src,string &strWord,wchar_t Separator
 string& FarFormatText(const string& SrcText, int Width, string &strDestText, const wchar_t* Break, DWORD Flags);
 
 void PrepareUnitStr();
-string& FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width=-1, unsigned __int64 ViewFlags=COLUMN_COMMAS);
+string FileSizeToStr(unsigned long long Size, int Width = -1, unsigned long long ViewFlags = COLUMN_COMMAS);
 bool CheckFileSizeStringFormat(const string& FileSizeStr);
 unsigned __int64 ConvertFileSizeString(const string& FileSizeStr);
-string &FormatNumber(const string& Src, string &strDest, int NumDigits=0);
-string &InsertCommas(unsigned __int64 li, string &strDest);
+string FormatNumber(const string& Src, int NumDigits=0);
+inline string InsertCommas(unsigned long long Value) { return FormatNumber(std::to_wstring(Value)); }
 
 inline bool IsWordDiv(const string& WordDiv, wchar_t Chr) { return !Chr || WordDiv.find(Chr) != string::npos; }
 
@@ -161,12 +161,10 @@ std::string Utf8String(const T& Str) { return narrow(Str, CP_UTF8); }
 string str_printf(const wchar_t * format, ...);
 string str_vprintf(const wchar_t * format, va_list argptr);
 
-inline string& ToUpper(string& str, size_t pos = 0, size_t n = string::npos) {std::transform(str.begin() + pos, n == string::npos? str.end() : str.begin() + pos + n, str.begin() + pos, ::ToUpper); return str;}
-inline string& ToLower(string& str, size_t pos = 0, size_t n = string::npos) {std::transform(str.begin() + pos, n == string::npos? str.end() : str.begin() + pos + n, str.begin() + pos, ::ToLower); return str;}
-inline string Upper(string&& str, size_t pos = 0, size_t n = string::npos) { return ToUpper(str, pos, n); }
-inline string Lower(string&& str, size_t pos = 0, size_t n = string::npos) { return ToLower(str, pos, n); }
-inline string Upper(const string& str, size_t pos = 0, size_t n = string::npos) { return Upper(string(str), pos, n); }
-inline string Lower(const string& str, size_t pos = 0, size_t n = string::npos) { return Lower(string(str), pos, n); }
+inline string& InplaceUpper(string& str, size_t pos = 0, size_t n = string::npos) { std::transform(str.begin() + pos, n == string::npos? str.end() : str.begin() + pos + n, str.begin() + pos, ::Upper); return str; }
+inline string& InplaceLower(string& str, size_t pos = 0, size_t n = string::npos) { std::transform(str.begin() + pos, n == string::npos? str.end() : str.begin() + pos + n, str.begin() + pos, ::Lower); return str; }
+inline string Upper(string str, size_t pos = 0, size_t n = string::npos) { return InplaceUpper(str, pos, n); }
+inline string Lower(string str, size_t pos = 0, size_t n = string::npos) { return InplaceLower(str, pos, n); }
 
 inline wchar_t* UNSAFE_CSTR(const string& s) {return const_cast<wchar_t*>(s.data());}
 

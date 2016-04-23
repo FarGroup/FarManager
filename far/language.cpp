@@ -348,7 +348,7 @@ static void parse_lng_line(const string& str, string& label, string& data, bool&
 	if (!str.empty() && str.back() == L'"')
 	{
 		auto eq_pos = str.find(L"=");
-		if (eq_pos != string::npos && ToUpper(str[0]) >= L'A' && ToUpper(str[0]) <= L'Z')
+		if (eq_pos != string::npos && Upper(str[0]) >= L'A' && Upper(str[0]) <= L'Z')
 		{
 			data = str.substr(eq_pos + 1);
 			RemoveExternalSpaces(data);

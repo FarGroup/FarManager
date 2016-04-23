@@ -2351,7 +2351,7 @@ int VMenu::CheckHighlights(wchar_t CheckSymbol, int StartPos)
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
 	if (CheckSymbol)
-		CheckSymbol=ToUpper(CheckSymbol);
+		CheckSymbol=Upper(CheckSymbol);
 
 	for (size_t I=StartPos; I < Items.size(); I++)
 	{
@@ -2362,7 +2362,7 @@ int VMenu::CheckHighlights(wchar_t CheckSymbol, int StartPos)
 
 		if (Ch)
 		{
-			if (CheckSymbol == ToUpper(Ch) || CheckSymbol == ToUpper(KeyToKeyLayout(Ch)))
+			if (CheckSymbol == Upper(Ch) || CheckSymbol == Upper(KeyToKeyLayout(Ch)))
 				return static_cast<int>(I);
 		}
 		else if (!CheckSymbol)
@@ -2433,13 +2433,13 @@ void VMenu::AssignHighlights(int Reverse)
 				Ch = Items[I].strName[AmpPos + 1];
 		}
 
-		if (Ch && !Used[ToUpper(Ch)] && !Used[ToLower(Ch)])
+		if (Ch && !Used[Upper(Ch)] && !Used[Lower(Ch)])
 		{
 			wchar_t ChKey=KeyToKeyLayout(Ch);
-			Used[ToUpper(ChKey)] = true;
-			Used[ToLower(ChKey)] = true;
-			Used[ToUpper(Ch)] = true;
-			Used[ToLower(Ch)] = true;
+			Used[Upper(ChKey)] = true;
+			Used[Lower(ChKey)] = true;
+			Used[Upper(Ch)] = true;
+			Used[Lower(Ch)] = true;
 			Items[I].AmpPos = static_cast<short>(AmpPos + 1 + ShowPos);
 		}
 	}
@@ -2458,13 +2458,13 @@ void VMenu::AssignHighlights(int Reverse)
 			{
 				wchar_t Ch = Name[J];
 
-				if ((Ch == L'&' || IsAlpha(Ch) || std::iswdigit(Ch)) && !Used[ToUpper(Ch)] && !Used[ToLower(Ch)])
+				if ((Ch == L'&' || IsAlpha(Ch) || std::iswdigit(Ch)) && !Used[Upper(Ch)] && !Used[Lower(Ch)])
 				{
 					wchar_t ChKey=KeyToKeyLayout(Ch);
-					Used[ToUpper(ChKey)] = true;
-					Used[ToLower(ChKey)] = true;
-					Used[ToUpper(Ch)] = true;
-					Used[ToLower(Ch)] = true;
+					Used[Upper(ChKey)] = true;
+					Used[Lower(ChKey)] = true;
+					Used[Upper(Ch)] = true;
+					Used[Lower(Ch)] = true;
 					Items[I].AmpPos = J + ShowPos;
 					break;
 				}

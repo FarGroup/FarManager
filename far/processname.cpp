@@ -142,8 +142,8 @@ bool CmpName(const wchar_t *pattern, const wchar_t *str, bool skippath, bool Cmp
 		/* $ 01.05.2001 DJ
 		   используем инлайновые версии
 		*/
-		wchar_t stringc=ToUpper(*str);
-		wchar_t patternc=ToUpper(*pattern++);
+		wchar_t stringc=Upper(*str);
+		wchar_t patternc=Upper(*pattern++);
 
 		switch (patternc)
 		{
@@ -214,7 +214,7 @@ bool CmpName(const wchar_t *pattern, const wchar_t *str, bool skippath, bool Cmp
 
 				int match = 0;
 				wchar_t rangec;
-				while ((rangec = ToUpper(*pattern++)) != 0)
+				while ((rangec = Upper(*pattern++)) != 0)
 				{
 					if (rangec == L']')
 					{
@@ -229,8 +229,8 @@ bool CmpName(const wchar_t *pattern, const wchar_t *str, bool skippath, bool Cmp
 
 					if (rangec == L'-' && *(pattern - 2) != L'[' && *pattern != L']')
 					{
-						match = (stringc <= ToUpper(*pattern) &&
-									ToUpper(*(pattern - 2)) <= stringc);
+						match = (stringc <= Upper(*pattern) &&
+									Upper(*(pattern - 2)) <= stringc);
 						pattern++;
 					}
 					else

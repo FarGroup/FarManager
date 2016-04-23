@@ -74,7 +74,7 @@ os::drives_set AddSavedNetworkDisks(os::drives_set& Mask)
 
 				if (res == NO_ERROR && size > 0 && netResource->lpLocalName )
 				{
-					wchar_t letter = ToLower(netResource->lpLocalName[0]);
+					wchar_t letter = Lower(netResource->lpLocalName[0]);
 
 					if (letter >= L'a' && letter <= L'z' && !wcscmp(netResource->lpLocalName+1, L":"))
 					{

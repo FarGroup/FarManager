@@ -134,8 +134,6 @@ enum COPYSECURITYOPTIONS
 
 /* Общее время ожидания пользователя */
 extern long WaitUserTime;
-/* Для того, что бы время при ожидании пользователя тикало, а remaining/speed нет */
-static long OldCalcTime;
 
 static int OrigScrX, OrigScrY;
 
@@ -193,12 +191,27 @@ public:
 	bool Cancelled() const { return IsCancelled; }
 	void SetScanName(const string& Name);
 	void SetNames(const string& Src, const string& Dst);
-	void SetProgressValue(UINT64 CompletedSize, UINT64 TotalSize) { return SetProgress(false, CompletedSize, TotalSize); }
+	void SetProgressValue(UINT64 CompletedSize, UINT64 TotalSize)
+	{
+		SetProgress(false, CompletedSize, TotalSize);
+		Flush();
+	}
+
 	void UpdateTotalProgress()
 	{
+		auto BytesDone = GetBytesDone();
 		if (m_Total)
-			return SetProgress(true, GetBytesDone(), m_Bytes.Total);
+		{
+			SetProgress(true, BytesDone, m_Bytes.Total);
+		}
+		auto SizeToGo = (m_Bytes.Total > BytesDone)? (m_Bytes.Total - BytesDone) : 0;
+		if (m_Time)
+		{
+			UpdateTime(true, BytesDone, SizeToGo);
+		}
+		Flush();
 	}
+
 	bool TotalVisible() const { return m_Total; }
 
 	void UpdateCurrentBytesInfo(uint64_t NewValue);
@@ -209,7 +222,9 @@ private:
 	void DrawNames();
 	void CreateScanBackground();
 	void SetProgress(bool TotalProgress, UINT64 CompletedSize, UINT64 TotalSize);
+	void UpdateTime(bool TotalProgress, unsigned long long SizeDone, unsigned long long SizeToGo);
 	uint64_t GetBytesDone() const { return m_Bytes.Copied + m_Bytes.Skipped; }
+	size_t GetCanvasWidth() const { return Rect.Right - Rect.Left - 9; };
 
 	clock_t m_CopyStartTime;
 	IndeterminateTaskBar TB;
@@ -230,6 +245,8 @@ private:
 	string strTime;
 	string m_Speed;
 	string strFiles;
+	/* Для того, что бы время при ожидании пользователя тикало, а remaining/speed нет */
+	long m_CalcTime;
 
 	// BUGBUG
 public:
@@ -399,6 +416,27 @@ void CopyProgress::DrawNames()
 	Text(Rect.Left + 5, Rect.Top + 8, Color, strFiles);
 }
 
+static string FormatCounter(LNGID CounterId, LNGID AnotherId, uint64_t CurrentValue, uint64_t TotalValue, bool ShowTotal, size_t MaxWidth)
+{
+	string Label = MSG(CounterId);
+	const auto PaddedLabelSize = std::max(Label.size(), wcslen(MSG(AnotherId))) + 1;
+	Label.resize(PaddedLabelSize, L' ');
+
+	auto StrCurrent = InsertCommas(CurrentValue);
+	auto StrTotal = ShowTotal? InsertCommas(TotalValue) : string();
+
+	auto Value = ShowTotal? string_format(L"%1 / %2", StrCurrent, StrTotal) : StrCurrent;
+	if (MaxWidth > PaddedLabelSize)
+	{
+		const auto PaddedValueSize = MaxWidth - PaddedLabelSize;
+		if (PaddedValueSize > Value.size())
+		{
+			Value.insert(0, PaddedValueSize - Value.size(), L' ');
+		}
+	}
+	return Label + Value;
+}
+
 void CopyProgress::SetNames(const string& Src, const string& Dst)
 {
 	if (!BgInit)
@@ -408,15 +446,15 @@ void CopyProgress::SetNames(const string& Src, const string& Dst)
 
 	if (m_Time)
 	{
-		if (!m_Total || !m_Files.Copied)
+		if (!m_Files.Copied)
 		{
 			m_CopyStartTime = clock();
-			WaitUserTime = OldCalcTime = 0;
+			WaitUserTime = m_CalcTime = 0;
 		}
 	}
 
-	const int NameWidth = Rect.Right-Rect.Left-9;
-	string tmp(Src);
+	const int NameWidth = static_cast<int>(GetCanvasWidth());
+	auto tmp = Src;
 	TruncPathStr(tmp, NameWidth);
 	strSrc.clear();
 	strSrc<<fmt::LeftAlign()<<fmt::ExactWidth(NameWidth)<<tmp;
@@ -425,110 +463,85 @@ void CopyProgress::SetNames(const string& Src, const string& Dst)
 	strDst.clear();
 	strDst<<fmt::LeftAlign()<<fmt::ExactWidth(NameWidth)<<tmp;
 
-	if (m_Total)
-	{
-		strFiles = string_format(MCopyFilesTotalInfo, m_Files.Total, m_Files.Copied);
-	}
-	else
-	{
-		strFiles = string_format(MCopyFilesProcessed, m_Files.Copied);
-	}
+	strFiles = FormatCounter(MCopyFilesTotalInfo, MCopyBytesTotalInfo, m_Files.Copied, m_Files.Total, m_Total, GetCanvasWidth() - 5);
 
 	DrawNames();
 	Flush();
 }
 
-void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 TotalSize)
+void CopyProgress::SetProgress(bool TotalProgress, UINT64 CompletedSize, UINT64 TotalSize)
 {
 	if (!BgInit)
 	{
 		CreateBackground();
 	}
 
-	{
-		string strBytes;
-		string BytesProcessed;
-		InsertCommas(GetBytesDone(), BytesProcessed);
+	const auto Result = FormatCounter(MCopyBytesTotalInfo, MCopyFilesTotalInfo, GetBytesDone(), m_Bytes.Total, m_Total, GetCanvasWidth() - 5);
+	Text(Rect.Left + 5, Rect.Top + 9, Color, Result);
 
-		if (m_Total)
-		{
-			string BytesTotal;
-			InsertCommas(m_Bytes.Total, BytesTotal);
-			strBytes = string_format(MCopyBytesTotalInfo, BytesTotal, BytesProcessed);
-		}
-		else
-		{
-			strBytes = string_format(MCopyBytesProcessed, BytesProcessed);
-		}
+	const COORD BarCoord = { static_cast<SHORT>(Rect.Left + 5), static_cast<SHORT>(Rect.Top + (TotalProgress ? 10 : 6)) };
+	const size_t BarLength = Rect.Right - Rect.Left - 9;
 
-		Text(Rect.Left + 5, Rect.Top + 9, Color, strBytes);
-	}
-
-	UINT64 OldCompletedSize = CompletedSize;
-	UINT64 OldTotalSize = TotalSize;
-	CompletedSize>>=8;
-	TotalSize>>=8;
-	CompletedSize=std::min(CompletedSize,TotalSize);
-	COORD BarCoord = { static_cast<SHORT>(Rect.Left + 5), static_cast<SHORT>(Rect.Top + (TotalProgress? 10 : 6)) };
-	size_t BarLength = Rect.Right - Rect.Left - 9;
-
-	Percents = ToPercent(CompletedSize, TotalSize);
+	Percents = ToPercent(std::min(CompletedSize, TotalSize), TotalSize);
 	Bar = make_progressbar(BarLength, Percents, true, m_Total == TotalProgress);
 
-	Text(BarCoord.X,BarCoord.Y,Color,Bar);
+	Text(BarCoord.X, BarCoord.Y, Color, Bar);
+}
 
-	if (m_Time && (!m_Total || TotalProgress))
+void CopyProgress::UpdateTime(bool TotalProgress, unsigned long long SizeDone, unsigned long long SizeToGo)
+{
+	const auto CurrentTime = clock();
+
+	if (WaitUserTime!=-1) // -1 => находимся в процессе ожидания ответа юзера
 	{
-		auto WorkTime = clock() - m_CopyStartTime;
-		UINT64 SizeLeft=(OldTotalSize>OldCompletedSize)?(OldTotalSize-OldCompletedSize):0;
-		long CalcTime=OldCalcTime;
+		m_CalcTime = CurrentTime - m_CopyStartTime - WaitUserTime;
+	}
+	
+	string tmp[3];
 
-		if (WaitUserTime!=-1) // -1 => находимся в процессе ожидания ответа юзера
+	const auto CalcTime = m_CalcTime / CLOCKS_PER_SEC;
+
+	if (!CalcTime)
+	{
+		const auto Placeholder = L"        ";
+		tmp[0] = tmp[1] = tmp[2] = Placeholder;
+	}
+	else
+	{
+		if (TotalProgress)
 		{
-			OldCalcTime=CalcTime=WorkTime-WaitUserTime;
+			SizeDone -= m_Bytes.Skipped;
 		}
 
-		WorkTime /= CLOCKS_PER_SEC;
-		CalcTime /= CLOCKS_PER_SEC;
+		const auto CPS = SizeDone / CalcTime;
 
-		if (!WorkTime)
-		{
-			strTime = string_format(MCopyTimeInfo, L"        ", L"        ", L"        ");
-		}
-		else
-		{
-			if (TotalProgress)
-			{
-				OldCompletedSize -= m_Bytes.Skipped;
-			}
+		string strCalcTimeStr;
+		GetTimeText(CalcTime, strCalcTimeStr);
 
-			const auto CPS = CalcTime? OldCompletedSize / CalcTime : 0;
-			const auto TimeLeft = static_cast<DWORD>(CPS? SizeLeft / CPS : 0);
-			string strWorkTimeStr, strTimeLeftStr;
-			GetTimeText(WorkTime, strWorkTimeStr);
+		string strTimeLeftStr;
+		if (m_Total)
+		{
+			const auto TimeLeft = static_cast<DWORD>(CPS? SizeToGo / CPS : 0);
 			GetTimeText(TimeLeft, strTimeLeftStr);
-
-			if (m_SpeedUpdateCheck)
-			{
-				FileSizeToStr(m_Speed, CPS, 8, COLUMN_FLOATSIZE | COLUMN_COMMAS);
-				if (!m_Speed.empty() && m_Speed.front() == L' ' && std::iswdigit(m_Speed.back()))
-				{
-					m_Speed.erase(0, 1);
-					m_Speed += L" ";
-				}
-			}
-
-			string tmp[3];
-			tmp[0] = FormatString() << fmt::ExactWidth(8) << strWorkTimeStr;
-			tmp[1] = FormatString() << fmt::ExactWidth(8) << strTimeLeftStr;
-			tmp[2] = FormatString() << fmt::ExactWidth(8) << m_Speed;
-			strTime = string_format(MCopyTimeInfo, tmp[0], tmp[1], tmp[2]);
 		}
 
-		Text(Rect.Left + 5, Rect.Top + (m_Total? 12 : 11), Color, strTime);
+		if (m_SpeedUpdateCheck)
+		{
+			m_Speed = FileSizeToStr(CPS, 8, COLUMN_FLOATSIZE | COLUMN_COMMAS);
+			if (!m_Speed.empty() && m_Speed.front() == L' ' && std::iswdigit(m_Speed.back()))
+			{
+				m_Speed.erase(0, 1);
+				m_Speed += L" ";
+			}
+		}
+
+		tmp[0] = FormatString() << fmt::ExactWidth(8) << strCalcTimeStr;
+		tmp[1] = FormatString() << fmt::ExactWidth(8) << strTimeLeftStr;
+		tmp[2] = FormatString() << fmt::ExactWidth(8) << m_Speed;
 	}
 
-	Flush();
+	strTime = string_format(MCopyTimeInfo, tmp[0], tmp[1], tmp[2]);
+	Text(Rect.Left + 5, Rect.Top + (m_Total? 12 : 11), Color, strTime);
 }
 // CopyProgress end
 
@@ -1168,8 +1181,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 				while (CopyDlg[ID_SC_TARGETEDIT].strData.size()<2)
 					CopyDlg[ID_SC_TARGETEDIT].strData += L":";
 
-				strPluginFormat = CopyDlg[ID_SC_TARGETEDIT].strData;
-				ToUpper(strPluginFormat);
+				strPluginFormat = Upper(CopyDlg[ID_SC_TARGETEDIT].strData);
 				break;
 			}
 		}

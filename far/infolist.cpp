@@ -373,11 +373,13 @@ void InfoList::DisplayObject()
 	auto size2str = [&bytes_suffix](ULONGLONG Size)
 	{
 		string str;
-		if (Global->Opt->ShowBytes) {
-			InsertCommas(Size, str); str += L" ";
+		if (Global->Opt->ShowBytes)
+		{
+			str = InsertCommas(Size) + L" ";
 		}
-		else {
-			FileSizeToStr(str, Size, 16, COLUMN_FLOATSIZE | COLUMN_SHOWBYTESINDEX);
+		else
+		{
+			str = FileSizeToStr(Size, 16, COLUMN_FLOATSIZE | COLUMN_SHOWBYTESINDEX);
 		}
 		return str += bytes_suffix;
 	};

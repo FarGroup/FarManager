@@ -48,7 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace strmix
 {
 
-string &FormatNumber(const string& Src, string &strDest, int NumDigits)
+string FormatNumber(const string& Src, int NumDigits)
 {
 	static bool first = true;
 	static NUMBERFMT fmt;
@@ -73,13 +73,7 @@ string &FormatNumber(const string& Src, string &strDest, int NumDigits)
 	int Size=GetNumberFormat(LOCALE_USER_DEFAULT,0,strSrc.data(),&fmt,nullptr,0);
 	wchar_t_ptr Dest(Size);
 	GetNumberFormat(LOCALE_USER_DEFAULT,0,strSrc.data(),&fmt, Dest.get(), Size);
-	strDest.assign(Dest.get(), Size - 1);
-	return strDest;
-}
-
-string &InsertCommas(unsigned __int64 li,string &strDest)
-{
-	return FormatNumber(std::to_wstring(li), strDest);
+	return string(Dest.get(), Size - 1);
 }
 
 static wchar_t * InsertCustomQuote(wchar_t *Str,wchar_t QuoteChar)
@@ -552,16 +546,15 @@ void PrepareUnitStr()
 {
 	for (int i=0; i<UNIT_COUNT; i++)
 	{
-		UnitStr(i, 0) = UnitStr(i, 1) = MSG(MListBytes + i);
-		ToLower(UnitStr(i, 0));
-		ToUpper(UnitStr(i, 1));
+		UnitStr(i, 0) = Lower(MSG(MListBytes + i));
+		UnitStr(i, 1) = Upper(MSG(MListBytes + i));
 	}
 }
 
-string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, unsigned __int64 ViewFlags)
+string FileSizeToStr(unsigned long long Size, int Width, unsigned long long ViewFlags)
 {
 	FormatString strStr;
-	unsigned __int64 Divider;
+	unsigned long long Divider;
 	size_t IndexDiv, IndexB;
 
 	// подготовительные мероприятия
@@ -570,12 +563,12 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 		PrepareUnitStr();
 	}
 
-	bool Commas=(ViewFlags & COLUMN_COMMAS)!=0;
-	bool FloatSize=(ViewFlags & COLUMN_FLOATSIZE)!=0;
-	bool Economic=(ViewFlags & COLUMN_ECONOMIC)!=0;
-	bool UseMinSizeIndex=(ViewFlags & COLUMN_MINSIZEINDEX)!=0;
-	size_t MinSizeIndex=(ViewFlags & COLUMN_MINSIZEINDEX_MASK)+1;
-	bool ShowBytesIndex=(ViewFlags & COLUMN_SHOWBYTESINDEX)!=0;
+	const bool Commas=(ViewFlags & COLUMN_COMMAS)!=0;
+	const bool FloatSize=(ViewFlags & COLUMN_FLOATSIZE)!=0;
+	const bool Economic=(ViewFlags & COLUMN_ECONOMIC)!=0;
+	const bool UseMinSizeIndex=(ViewFlags & COLUMN_MINSIZEINDEX)!=0;
+	const size_t MinSizeIndex=(ViewFlags & COLUMN_MINSIZEINDEX_MASK)+1;
+	const bool ShowBytesIndex=(ViewFlags & COLUMN_SHOWBYTESINDEX)!=0;
 
 	if (ViewFlags & COLUMN_THOUSAND)
 	{
@@ -588,11 +581,11 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 		IndexDiv=1;
 	}
 
-	unsigned __int64 Sz = Size, Divider2 = Divider/2, Divider64 = Divider, OldSize;
+	unsigned long long Sz = Size, Divider2 = Divider/2, Divider64 = Divider, OldSize;
 
 	if (FloatSize)
 	{
-		unsigned __int64 Divider64F = 1, Divider64F_mul = 1000, Divider64F2 = 1, Divider64F2_mul = Divider;
+		unsigned long long Divider64F = 1, Divider64F_mul = 1000, Divider64F2 = 1, Divider64F2_mul = Divider;
 
 		//выравнивание идёт по 1000 но само деление происходит на Divider
 		//например 999 bytes покажутся как 999 а вот 1000 bytes уже покажутся как 0.97 K
@@ -622,7 +615,7 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 			}
 
 			strStr << Sz << L"." << fmt::MinWidth(2) << fmt::FillChar(L'0') << Decimal;
-			FormatNumber(strStr,strStr,2);
+			strStr.assign(FormatNumber(strStr, 2));
 		}
 
 		if (IndexB>0 || ShowBytesIndex)
@@ -632,16 +625,14 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 			if (Width<0)
 				Width=0;
 
-			strDestStr = str_printf(Economic ? L"%*.*s%1.1s" : L"%*.*s %1.1s", Width, Width, strStr.data(), UnitStr(IndexB, IndexDiv).data());
+			return str_printf(Economic ? L"%*.*s%1.1s" : L"%*.*s %1.1s", Width, Width, strStr.data(), UnitStr(IndexB, IndexDiv).data());
 		}
 		else
-			strDestStr = str_printf(L"%*.*s",Width,Width,strStr.data());
-
-		return strDestStr;
+			return str_printf(L"%*.*s",Width,Width,strStr.data());
 	}
 
 	if (Commas)
-		InsertCommas(Sz,strStr);
+		strStr << InsertCommas(Sz);
 	else
 		strStr << Sz;
 
@@ -649,15 +640,11 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 	{
 		if (ShowBytesIndex)
 		{
-			Width-=(Economic?1:2);
-
-			if (Width<0)
-				Width=0;
-
-			strDestStr = str_printf(Economic? L"%*.*s%1.1s" : L"%*.*s %1.1s", Width, Width, strStr.data(), UnitStr(0, IndexDiv).data());
+			Width = std::max(Width - (Economic? 1 : 2), 0);
+			return str_printf(Economic? L"%*.*s%1.1s" : L"%*.*s %1.1s", Width, Width, strStr.data(), UnitStr(0, IndexDiv).data());
 		}
 		else
-			strDestStr = str_printf(L"%*.*s",Width,Width,strStr.data());
+			return str_printf(L"%*.*s", Width, Width, strStr.data());
 	}
 	else
 	{
@@ -676,7 +663,7 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 
 			if (Commas)
 			{
-				InsertCommas(Sz,strStr);
+				strStr << InsertCommas(Sz);
 			}
 			else
 			{
@@ -686,10 +673,8 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 		}
 		while ((UseMinSizeIndex && IndexB<MinSizeIndex) || strStr.size() > static_cast<size_t>(Width));
 
-		strDestStr = str_printf(Economic? L"%*.*s%1.1s" : L"%*.*s %1.1s", Width, Width, strStr.data(), UnitStr(IndexB, IndexDiv).data());
+		return str_printf(Economic? L"%*.*s%1.1s" : L"%*.*s %1.1s", Width, Width, strStr.data(), UnitStr(IndexB, IndexDiv).data());
 	}
-
-	return strDestStr;
 }
 
 
@@ -1016,7 +1001,7 @@ unsigned __int64 ConvertFileSizeString(const string& FileSizeStr)
 		return 0;
 
 	unsigned __int64 n = std::stoull(FileSizeStr);
-	wchar_t c = ::ToUpper(FileSizeStr.back());
+	wchar_t c = ::Upper(FileSizeStr.back());
 
 	// http://en.wikipedia.org/wiki/SI_prefix
 	switch (c)
@@ -1138,7 +1123,7 @@ string GuidToStr(const GUID& Guid)
 		SCOPE_EXIT{ RpcStringFree(&str); };
 		result = reinterpret_cast<const wchar_t*>(str);
 	}
-	return ToUpper(result);
+	return Upper(result);
 }
 
 bool StrToGuid(const wchar_t* Value,GUID& Guid)
@@ -1233,9 +1218,9 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 					if (PreserveStyle && !ReplaceStr.empty() && IsAlpha(ReplaceStr.front()) && IsAlpha(Source[I]))
 					{
 						if (IsUpper(Source[I]))
-							ReplaceStr.front() = ::ToUpper(ReplaceStr.front());
+							ReplaceStr.front() = ::Upper(ReplaceStr.front());
 						if (IsLower(Source[I]))
-							ReplaceStr.front() = ::ToLower(ReplaceStr.front());
+							ReplaceStr.front() = ::Lower(ReplaceStr.front());
 					}
 
 					return true;

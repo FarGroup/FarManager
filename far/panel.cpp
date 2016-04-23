@@ -256,14 +256,14 @@ int Search::ProcessKey(const Manager::Key& Key)
 
 	// // _SVS(if (!FirstKey) SysLog(L"Panel::FastFind  Key=%s  %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(&rec)));
 	if (LocalKey()>=KEY_ALT_BASE+0x01 && LocalKey()<=KEY_ALT_BASE+65535)
-		LocalKey=ToLower(static_cast<WCHAR>(LocalKey()-KEY_ALT_BASE));
+		LocalKey=Lower(static_cast<WCHAR>(LocalKey()-KEY_ALT_BASE));
 	else if (LocalKey()>=KEY_RALT_BASE+0x01 && LocalKey()<=KEY_RALT_BASE+65535)
-		LocalKey=ToLower(static_cast<WCHAR>(LocalKey()-KEY_RALT_BASE));
+		LocalKey=Lower(static_cast<WCHAR>(LocalKey()-KEY_RALT_BASE));
 
 	if (LocalKey()>=KEY_ALTSHIFT_BASE+0x01 && LocalKey()<=KEY_ALTSHIFT_BASE+65535)
-		LocalKey=ToLower(static_cast<WCHAR>(LocalKey()-KEY_ALTSHIFT_BASE));
+		LocalKey=Lower(static_cast<WCHAR>(LocalKey()-KEY_ALTSHIFT_BASE));
 	else if (LocalKey()>=KEY_RALTSHIFT_BASE+0x01 && LocalKey()<=KEY_RALTSHIFT_BASE+65535)
-		LocalKey=ToLower(static_cast<WCHAR>(LocalKey()-KEY_RALTSHIFT_BASE));
+		LocalKey=Lower(static_cast<WCHAR>(LocalKey()-KEY_RALTSHIFT_BASE));
 
 	if (LocalKey()==KEY_MULTIPLY)
 		LocalKey=L'*';
@@ -643,7 +643,7 @@ int Panel::SetCurPath()
 	if (AnotherPanel->GetMode() != panel_mode::PLUGIN_PANEL)
 	{
 		if (AnotherPanel->m_CurDir.size() > 1 && AnotherPanel->m_CurDir[1]==L':' &&
-		        (m_CurDir.empty() || ToUpper(AnotherPanel->m_CurDir[0])!=ToUpper(m_CurDir[0])))
+		        (m_CurDir.empty() || Upper(AnotherPanel->m_CurDir[0])!=Upper(m_CurDir[0])))
 		{
 			// сначала установим переменные окружения для пассивной панели
 			// (без реальной смены пути, чтобы лишний раз пассивный каталог
@@ -1488,11 +1488,11 @@ bool Panel::CreateFullPathName(const string& Name, const string& ShortName,DWORD
 		{
 			if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
 			{
-				ToUpper(strFileName);
+				InplaceUpper(strFileName);
 			}
 			else
 			{
-				ToUpper(strFileName, 0, FindLastSlash(strFileName));
+				InplaceUpper(strFileName, 0, FindLastSlash(strFileName));
 			}
 		}
 
@@ -1501,7 +1501,7 @@ bool Panel::CreateFullPathName(const string& Name, const string& ShortName,DWORD
 			const auto pos = FindLastSlash(strFileName);
 			if (pos != string::npos && !IsCaseMixed(strFileName.data() + pos))
 			{
-				ToLower(strFileName, pos);
+				InplaceLower(strFileName, pos);
 			}
 		}
 
@@ -1510,7 +1510,7 @@ bool Panel::CreateFullPathName(const string& Name, const string& ShortName,DWORD
 			const auto pos = FindLastSlash(strFileName);
 			if (pos != string::npos)
 			{
-				ToLower(strFileName, pos);
+				InplaceLower(strFileName, pos);
 			}
 		}
 	}

@@ -582,7 +582,7 @@ static inline bool AssignColor(const string& Color, COLORREF& Target, FARCOLORFL
 			return true;
 		};
 
-		if (ToUpper(Color[0]) == L'T')
+		if (Upper(Color[0]) == L'T')
 		{
 			if (!Convert(Color.data() + 1, Target))
 			{
@@ -674,7 +674,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 			{
 				if (*it == L'$' && it + 1 != strExpandedDestStr.cend())
 				{
-					const auto Chr = ToUpper(*++it);
+					const auto Chr = Upper(*++it);
 
 					const auto ItemIterator = std::find_if(CONST_RANGE(ChrFmt, i)
 					{
@@ -744,9 +744,9 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 							{
 								const auto Type = ParsePath(m_CurDir);
 								if(Type == PATH_DRIVELETTER)
-									strDestStr += ToUpper(m_CurDir[0]);
+									strDestStr += Upper(m_CurDir[0]);
 								else if(Type == PATH_DRIVELETTERUNC)
-									strDestStr += ToUpper(m_CurDir[4]);
+									strDestStr += Upper(m_CurDir[4]);
 								else
 									strDestStr += L'?';
 								break;
@@ -1113,7 +1113,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, class execution_conte
 		return NotSpacePos != string::npos &&
 			CmdLine.size() > NotSpacePos + 1 &&
 			CmdLine[NotSpacePos] == L'/' &&
-			ToUpper(CmdLine[NotSpacePos + 1]) == ToUpper(Key);
+			Upper(CmdLine[NotSpacePos + 1]) == Upper(Key);
 	};
 
 	const auto FindHelpKey = [&FindKey]() { return FindKey(L'?'); };
@@ -1122,7 +1122,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, class execution_conte
 
 	if (CmdLine.size() > 1 && CmdLine[1] == L':' && (CmdLine.size() == 2 || !CmdLine.find_first_not_of(L' ', 2)))
 	{
-		wchar_t NewDir[] = { ToUpper(CmdLine[0]), L':', 0, 0 };
+		wchar_t NewDir[] = { Upper(CmdLine[0]), L':', 0, 0 };
 
 		if (!FarChDir(NewDir))
 		{

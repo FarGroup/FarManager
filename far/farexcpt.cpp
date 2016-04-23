@@ -231,9 +231,9 @@ static reply ExcConsole(const string& ModuleName, LPCWSTR Exception, const EXCEP
 		std::wcin >> Input;
 		if (Input.size() == 1)
 		{
-			if (ToUpper(Input.front()) == L'Y')
+			if (Upper(Input.front()) == L'Y')
 				return reply_handle;
-			else if (ToUpper(Input.front()) == L'N')
+			else if (Upper(Input.front()) == L'N')
 				return reply_ignore;
 		}
 	}

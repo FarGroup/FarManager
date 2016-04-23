@@ -733,14 +733,14 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 					if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_SIZE)
 					{
 						//размер как минимум в мегабайтах
-						FileSizeToStr(NewItem.TotalSize, TotalSize, 9, COLUMN_COMMAS | COLUMN_MINSIZEINDEX | 1);
-						FileSizeToStr(NewItem.FreeSize, UserFree, 9, COLUMN_COMMAS | COLUMN_MINSIZEINDEX | 1);
+						NewItem.TotalSize = FileSizeToStr(TotalSize, 9, COLUMN_COMMAS | COLUMN_MINSIZEINDEX | 1);
+						NewItem.FreeSize = FileSizeToStr(UserFree, 9, COLUMN_COMMAS | COLUMN_MINSIZEINDEX | 1);
 					}
 					else
 					{
 						//размер с точкой и для 0 добавляем букву размера (B)
-						FileSizeToStr(NewItem.TotalSize, TotalSize, 9, COLUMN_FLOATSIZE | COLUMN_SHOWBYTESINDEX);
-						FileSizeToStr(NewItem.FreeSize, UserFree, 9, COLUMN_FLOATSIZE | COLUMN_SHOWBYTESINDEX);
+						NewItem.TotalSize = FileSizeToStr(TotalSize, 9, COLUMN_FLOATSIZE | COLUMN_SHOWBYTESINDEX);
+						NewItem.FreeSize = FileSizeToStr(UserFree, 9, COLUMN_FLOATSIZE | COLUMN_SHOWBYTESINDEX);
 					}
 					RemoveExternalSpaces(NewItem.TotalSize);
 					RemoveExternalSpaces(NewItem.FreeSize);
@@ -1178,7 +1178,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 			if (Builder.ShowDialog())
 			{
-				mitem->cDrive = ToUpper(DriveLetter[0]);
+				mitem->cDrive = Upper(DriveLetter[0]);
 			}
 			else
 			{
@@ -1242,7 +1242,7 @@ void ChangeDisk(panel_ptr Owner)
 	const auto& CurDir = Owner->GetCurDir();
 	if (!CurDir.empty() && CurDir[1] == L':')
 	{
-		Pos = std::max(0, ToUpper(CurDir[0]) - L'A');
+		Pos = std::max(0, Upper(CurDir[0]) - L'A');
 	}
 
 	while (Pos != -1)

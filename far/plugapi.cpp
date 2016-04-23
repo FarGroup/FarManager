@@ -2099,7 +2099,7 @@ wchar_t WINAPI apiUpper(wchar_t Ch) noexcept
 {
 	try
 	{
-		return ToUpper(Ch);
+		return Upper(Ch);
 	}
 	catch (...)
 	{
@@ -2112,7 +2112,7 @@ wchar_t WINAPI apiLower(wchar_t Ch) noexcept
 {
 	try
 	{
-		return ToLower(Ch);
+		return Lower(Ch);
 	}
 	catch (...)
 	{
@@ -2894,8 +2894,7 @@ size_t WINAPI apiFormatFileSize(unsigned __int64 Size, intptr_t Width, FARFORMAT
 				FinalFlags |= i.second;
 		});
 
-		string strDestStr;
-		FileSizeToStr(strDestStr,Size,Width,FinalFlags);
+		auto strDestStr = FileSizeToStr(Size, Width, FinalFlags);
 
 		if (Dest && DestSize)
 		{

@@ -406,10 +406,7 @@ void background_searcher::InitInFileSearch()
 			// Формируем строку поиска
 			if (!CmpCase)
 			{
-				string UpperVersion(strFindStr), LowerVersion(strFindStr);
-				ToUpper(UpperVersion);
-				ToLower(LowerVersion);
-				findStringBuffer = UpperVersion + LowerVersion;
+				findStringBuffer = Upper(strFindStr) + Lower(strFindStr);
 				findString = findStringBuffer.data();
 			}
 			else

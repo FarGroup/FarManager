@@ -140,11 +140,11 @@ bool IsKeyHighlighted(const string& str,int Key,int Translate,int AmpPos)
 			AmpPos++;
 	}
 
-	int UpperStrKey=ToUpper((int)Str[AmpPos]);
+	int UpperStrKey=Upper((int)Str[AmpPos]);
 
 	if (Key < 0xFFFF)
 	{
-		return UpperStrKey == (int)ToUpper(Key) || (Translate && KeyToKeyLayoutCompare(Key,UpperStrKey));
+		return UpperStrKey == (int)Upper(Key) || (Translate && KeyToKeyLayoutCompare(Key,UpperStrKey));
 	}
 
 	if (Key&(KEY_ALT|KEY_RALT))
@@ -161,7 +161,7 @@ bool IsKeyHighlighted(const string& str,int Key,int Translate,int AmpPos)
 				//          AltKey=='\\' || AltKey=='=' || AltKey=='['  || AltKey==']' ||
 				//          AltKey==':'  || AltKey=='"' || AltKey=='~'))
 			{
-				return UpperStrKey==(int)ToUpper(AltKey) || (Translate && KeyToKeyLayoutCompare(AltKey,UpperStrKey));
+				return UpperStrKey==(int)Upper(AltKey) || (Translate && KeyToKeyLayoutCompare(AltKey,UpperStrKey));
 			}
 		}
 	}
@@ -4181,7 +4181,7 @@ int Dialog::CheckHighlights(WORD CheckSymbol,int StartPos)
 			{
 				const auto Ch = Items[I].strData[ChPos + 1];
 
-				if (Ch && ToUpper(CheckSymbol) == ToUpper(Ch))
+				if (Ch && Upper(CheckSymbol) == Upper(Ch))
 					return static_cast<int>(I);
 			}
 			else if (!CheckSymbol)

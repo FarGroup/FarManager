@@ -1472,7 +1472,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 							string strFullName = NullToEmpty(m_CachedOpenPanelInfo.CurDir);
 
 							if (Global->Opt->PanelCtrlFRule && (m_ViewSettings.Flags&PVS_FOLDERUPPERCASE))
-								ToUpper(strFullName);
+								InplaceUpper(strFullName);
 
 							if (!strFullName.empty())
 								AddEndSlash(strFullName,0);
@@ -1482,11 +1482,11 @@ int FileList::ProcessKey(const Manager::Key& Key)
 								/* $ 13.10.2000 tran
 								  по Ctrl-f имя должно отвечать условиям на панели */
 								if ((m_ViewSettings.Flags&PVS_FILELOWERCASE) && !(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-									ToLower(strFileName);
+									InplaceLower(strFileName);
 
 								if ((m_ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE))
 									if (!(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(strFileName))
-										ToLower(strFileName);
+										InplaceLower(strFileName);
 							}
 
 							strFullName += strFileName;
@@ -3616,7 +3616,7 @@ int FileList::FindPartName(const string& Name,int Next,int Direct)
 	string Dest;
 	int DirFind = 0;
 	string strMask = Name;
-	ToUpper(strMask);
+	Upper(strMask);
 
 	if (!Name.empty() && IsSlash(Name.back()))
 	{
@@ -3632,7 +3632,7 @@ int FileList::FindPartName(const string& Name,int Next,int Direct)
 
 	for (int I=m_CurFile+(Next?Direct:0); I >= 0 && I < m_ListData.size(); I+=Direct)
 	{
-		if (GetPlainString(Dest,I) && ToUpper(Dest).find(strMask) != string::npos)
+		if (GetPlainString(Dest,I) && Upper(Dest).find(strMask) != string::npos)
 		//if (CmpName(strMask,ListData[I].strName,true,I==CurFile))
 		{
 			if (!TestParentFolderName(m_ListData[I].strName))
@@ -3650,7 +3650,7 @@ int FileList::FindPartName(const string& Name,int Next,int Direct)
 
 	for (int I=(Direct > 0)?0:m_ListData.size()-1; (Direct > 0) ? I < m_CurFile:I > m_CurFile; I+=Direct)
 	{
-		if (GetPlainString(Dest,I) && ToUpper(Dest).find(strMask) != string::npos)
+		if (GetPlainString(Dest,I) && Upper(Dest).find(strMask) != string::npos)
 		{
 			if (!TestParentFolderName(m_ListData[I].strName))
 			{
@@ -4484,7 +4484,7 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 				string strFullName = NullToEmpty(m_CachedOpenPanelInfo.CurDir);
 
 				if (Global->Opt->PanelCtrlFRule && (m_ViewSettings.Flags&PVS_FOLDERUPPERCASE))
-					ToUpper(strFullName);
+					InplaceUpper(strFullName);
 
 				if (!strFullName.empty())
 					AddEndSlash(strFullName);
@@ -4493,11 +4493,11 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 				{
 					// имя должно отвечать условиям на панели
 					if ((m_ViewSettings.Flags&PVS_FILELOWERCASE) && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-						ToLower(strQuotedName);
+						InplaceLower(strQuotedName);
 
 					if (m_ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE)
 						if (!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(strQuotedName))
-							ToLower(strQuotedName);
+							InplaceLower(strQuotedName);
 				}
 
 				strFullName += strQuotedName;
@@ -7677,7 +7677,7 @@ void FileList::ShowFileList(int Fast)
 
 			SetColor(COL_PANELCOLUMNTITLE);
 			if (Ch)
-				OutCharacter[0] = m_ReverseSortOrder? ToUpper(Ch[1]) : ToLower(Ch[1]);
+				OutCharacter[0] = m_ReverseSortOrder? Upper(Ch[1]) : Lower(Ch[1]);
 			else
 				OutCharacter[0] = m_ReverseSortOrder? CustomSortIndicator[1] : CustomSortIndicator[0];
 
@@ -7886,14 +7886,11 @@ static string size2str(ULONGLONG Size, int width, int short_mode = -1)
 
 	if (!short_mode)
 	{
-		string str;
-		InsertCommas(Size, str);
-		return str;
+		return InsertCommas(Size);
 	}
 	else if (width <= 0) // float style
 	{
-		string str;
-		FileSizeToStr(str, Size, 10, COLUMN_FLOATSIZE | COLUMN_SHOWBYTESINDEX);
+		auto str = FileSizeToStr(Size, 10, COLUMN_FLOATSIZE | COLUMN_SHOWBYTESINDEX);
 		RemoveExternalSpaces(str);
 		return str;
 	}
@@ -7902,7 +7899,7 @@ static string size2str(ULONGLONG Size, int width, int short_mode = -1)
 		string str = std::to_wstring(Size);
 		if (str.size() > static_cast<size_t>(width))
 		{
-			FileSizeToStr(str, Size, width, COLUMN_SHOWBYTESINDEX);
+			str = FileSizeToStr(Size, width, COLUMN_SHOWBYTESINDEX);
 			RemoveExternalSpaces(str);
 		}
 		return str;
@@ -8529,13 +8526,13 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							{
 								if (m_ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE)
 									if (!(m_ListData[ListPos].FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(NameCopy))
-										ToLower(strName);
+										InplaceLower(strName);
 
 								if ((m_ViewSettings.Flags&PVS_FOLDERUPPERCASE) && (m_ListData[ListPos].FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-									ToUpper(strName);
+									InplaceUpper(strName);
 
 								if ((m_ViewSettings.Flags&PVS_FILELOWERCASE) && !(m_ListData[ListPos].FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-									ToLower(strName);
+									InplaceLower(strName);
 							}
 
 							Text(strName);

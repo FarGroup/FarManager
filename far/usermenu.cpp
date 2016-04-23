@@ -93,7 +93,7 @@ static int PrepareHotKey(string &strHotKey)
 {
 	int FuncNum=0;
 
-	if (strHotKey.size() > 1 && ToUpper(strHotKey.front()) == L'F')
+	if (strHotKey.size() > 1 && Upper(strHotKey.front()) == L'F')
 	{
 		FuncNum = static_cast<int>(std::wcstoul(strHotKey.data() + 1, nullptr, 10));
 
@@ -917,7 +917,7 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 					{
 						FocusPos=EM_HOTKEY_EDIT;
 
-						if (ToUpper(*HotKey)==L'F')
+						if (Upper(*HotKey)==L'F')
 						{
 							int FuncNum = static_cast<int>(std::wcstol(HotKey + 1, nullptr, 10));
 

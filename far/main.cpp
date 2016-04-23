@@ -540,10 +540,10 @@ static int mainImpl(const range<wchar_t**>& Args)
 		const auto& Arg = *Iter;
 		if ((Arg[0]==L'/' || Arg[0]==L'-') && Arg[1])
 		{
-			switch (ToUpper(Arg[1]))
+			switch (Upper(Arg[1]))
 			{
 				case L'A':
-					switch (ToUpper(Arg[2]))
+					switch (Upper(Arg[2]))
 					{
 					case 0:
 						Global->Opt->CleanAscii = true;
@@ -580,7 +580,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 					break;
 
 				case L'M':
-					switch (ToUpper(Arg[2]))
+					switch (Upper(Arg[2]))
 					{
 					case L'\0':
 						Global->Opt->Macro.DisableMacro|=MDOL_ALL;
@@ -650,7 +650,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 					break;
 
 				case L'C':
-					if (ToUpper(Arg[2])==L'O' && !Arg[3])
+					if (Upper(Arg[2])==L'O' && !Arg[3])
 					{
 						Global->Opt->LoadPlug.PluginsCacheOnly = true;
 						Global->Opt->LoadPlug.PluginsPersonal = false;
@@ -665,7 +665,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 #ifdef DIRECT_RT
 				case L'D':
-					if (ToUpper(Arg[2])==L'O' && !Arg[3])
+					if (Upper(Arg[2])==L'O' && !Arg[3])
 						Global->DirectRT=true;
 					break;
 #endif
@@ -683,7 +683,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 					break;
 
 				case L'R':
-					if (ToUpper(Arg[2]) == L'O')
+					if (Upper(Arg[2]) == L'O')
 					{
 						if (!Arg[3]) // -ro
 						{

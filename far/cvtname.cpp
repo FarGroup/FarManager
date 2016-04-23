@@ -159,7 +159,7 @@ static void MixToFullPath(const string& stPath, string& Dest, const string& stCu
 					}
 					else
 					{
-						if (ToUpper(stPath[0])==ToUpper(stCurrentDir[0]))
+						if (Upper(stPath[0])==Upper(stCurrentDir[0]))
 						{
 							strDest=stCurrentDir;
 						}
@@ -550,7 +550,7 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 
 			if (ParsePath(strPath) == PATH_DRIVELETTER)
 			{
-				strPath[0] = ToUpper(strPath[0]);
+				strPath[0] = Upper(strPath[0]);
 			}
 		}
 	}

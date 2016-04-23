@@ -3630,8 +3630,8 @@ BOOL Editor::Search(int Next)
 		string strSearchStrLower = strSearchStr;
 		if (!Case)
 		{
-			ToUpper(strSearchStrUpper);
-			ToLower(strSearchStrLower);
+			InplaceUpper(strSearchStrUpper);
+			InplaceLower(strSearchStrLower);
 		}
 
 		time_check TimeCheck(time_check::delayed, GetRedrawTimeout());

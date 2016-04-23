@@ -56,9 +56,9 @@ const string& GetEols();
 
 const string& GetSpacesAndEols();
 
-inline wchar_t ToUpper(wchar_t Ch) { CharUpperBuff(&Ch, 1); return Ch; }
+inline wchar_t Upper(wchar_t Ch) { CharUpperBuff(&Ch, 1); return Ch; }
 
-inline wchar_t ToLower(wchar_t Ch) { CharLowerBuff(&Ch, 1); return Ch; }
+inline wchar_t Lower(wchar_t Ch) { CharLowerBuff(&Ch, 1); return Ch; }
 
 inline bool IsUpper(wchar_t Ch) { return IsCharUpper(Ch) != FALSE; }
 
@@ -83,7 +83,7 @@ namespace detail
 	{
 		inline bool operator()(wchar_t c1, wchar_t c2) const
 		{
-			return ToLower(c1) == ToLower(c2);
+			return Lower(c1) == Lower(c2);
 		}
 	};
 }

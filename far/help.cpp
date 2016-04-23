@@ -1902,8 +1902,8 @@ void Help::Search(os::fs::file& HelpFile,uintptr_t nCodePage)
 	string strSearchStrLower = strLastSearchStr;
 	if (!LastSearchCase)
 	{
-		ToUpper(strSearchStrUpper);
-		ToLower(strSearchStrLower);
+		InplaceUpper(strSearchStrUpper);
+		InplaceLower(strSearchStrLower);
 	}
 
 	for (;;)

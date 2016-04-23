@@ -348,7 +348,7 @@ void InitKeysArray()
 			x = KeyToVKey[i];
 
 			if (x && !VKeyToASCII[x])
-				VKeyToASCII[x]=ToUpper(i);
+				VKeyToASCII[x]=Upper(i);
 		}
 	}
 }
@@ -1314,8 +1314,7 @@ int KeyNameToKey(const string& Name)
 
 	size_t Pos = 0;
 	static string strTmpName;
-	strTmpName = Name;
-	ToUpper(strTmpName);
+	strTmpName = Upper(Name);
 	const auto Len = strTmpName.size();
 
 	// пройдемся по всем модификаторам
@@ -1366,7 +1365,7 @@ int KeyNameToKey(const string& Name)
 					if (Chr > 0x7F)
 						Chr=KeyToKeyLayout(Chr);
 
-					Chr=ToUpper(Chr);
+					Chr=Upper(Chr);
 				}
 
 				Key|=Chr;
@@ -1446,7 +1445,7 @@ bool KeyToTextImpl(int Key0, string& strKeyText, tfkey_to_text ToText, add_separ
 			else
 #endif
 			{
-				FKey=ToUpper((wchar_t)(Key&0xFFFF));
+				FKey=Upper((wchar_t)(Key&0xFFFF));
 
 				wchar_t KeyText[2]={};
 
@@ -2797,7 +2796,7 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros)
 		if (Char)
 		{
 			if (!Global->Opt->ShiftsKeyRules || Global->WaitInFastFind > 0)
-				return ModifAlt|ToUpper(Char);
+				return ModifAlt|Upper(Char);
 			else if (Global->WaitInMainLoop)
 				return ModifAlt|Char;
 		}

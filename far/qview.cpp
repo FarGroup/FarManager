@@ -258,16 +258,13 @@ void QuickView::DisplayObject()
 			GotoXY(m_X1+2,m_Y1+8);
 			PrintText(MSG(MQuickViewBytes));
 			SetColor(iColor);
-			string strSize;
-			InsertCommas(Data.FileSize,strSize);
-			PrintText(prefix+strSize);
+			PrintText(prefix + InsertCommas(Data.FileSize));
 			SetColor(COL_PANELTEXT);
 			GotoXY(m_X1+2,m_Y1+9);
 			PrintText(MSG(MQuickViewAllocated));
 			SetColor(iColor);
-			InsertCommas(Data.AllocationSize,strSize);
 			FString.clear();
-			FString << prefix << strSize << L" (" << ToPercent(Data.AllocationSize,Data.FileSize) << L"%)";
+			FString << prefix << InsertCommas(Data.AllocationSize) << L" (" << ToPercent(Data.AllocationSize,Data.FileSize) << L"%)";
 			PrintText(FString);
 
 			if (Directory!=4)
@@ -276,25 +273,22 @@ void QuickView::DisplayObject()
 				GotoXY(m_X1+2,m_Y1+11);
 				PrintText(MSG(MQuickViewCluster));
 				SetColor(iColor);
-				InsertCommas(Data.ClusterSize,strSize);
-				PrintText(prefix+strSize);
+				PrintText(prefix + InsertCommas(Data.ClusterSize));
 
 				SetColor(COL_PANELTEXT);
 				GotoXY(m_X1+2,m_Y1+12);
 				PrintText(MSG(MQuickViewSlack));
 				SetColor(iColor);
-				InsertCommas(Data.FilesSlack, strSize);
 				FString.clear();
-				FString << prefix << strSize << L" (" << ToPercent(Data.FilesSlack, Data.AllocationSize) << L"%)";
+				FString << prefix << InsertCommas(Data.FilesSlack) << L" (" << ToPercent(Data.FilesSlack, Data.AllocationSize) << L"%)";
 				PrintText(FString);
 
 				SetColor(COL_PANELTEXT);
 				GotoXY(m_X1+2,m_Y1+13);
 				PrintText(MSG(MQuickViewMFTOverhead));
 				SetColor(iColor);
-				InsertCommas(Data.MFTOverhead, strSize);
 				FString.clear();
-				FString<<prefix<<strSize<<L" ("<<ToPercent(Data.MFTOverhead, Data.AllocationSize)<<L"%)";
+				FString << prefix << InsertCommas(Data.MFTOverhead) << L" (" << ToPercent(Data.MFTOverhead, Data.AllocationSize) << L"%)";
 				PrintText(FString);
 
 			}

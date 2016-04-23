@@ -2434,7 +2434,7 @@ bool config_provider::Export(const string& File)
 		std::for_each(RANGE(ff, i)
 		{
 			i.strFileName.resize(i.strFileName.size()-3);
-			ToUpper(i.strFileName);
+			InplaceUpper(i.strFileName);
 			if (std::regex_search(i.strFileName, uuid_regex()))
 			{
 				auto& PluginRoot = Representation.CreateChild(e, "plugin");
@@ -2485,8 +2485,7 @@ bool config_provider::Import(const string& Filename)
 		const auto guid = plugin->Attribute("guid");
 		if (!guid)
 			continue;
-		auto Guid = wide(guid, CP_UTF8);
-		ToUpper(Guid);
+		auto Guid = Upper(wide(guid, CP_UTF8));
 
 		if (std::regex_search(Guid, uuid_regex()))
 		{

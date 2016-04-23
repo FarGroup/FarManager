@@ -157,7 +157,7 @@ static void st_time(string &strDest, const tm *tmPtr, const locale_cache::names&
 			Names.Months[tmPtr->tm_mon].Short.data(),
 			tmPtr->tm_year+1900);
 
-		ToUpper(strDest, 3, 3);
+		InplaceUpper(strDest, 3, 3);
 	}
 	else
 		switch (LocaleCache().DateFormat())

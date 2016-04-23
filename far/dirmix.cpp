@@ -60,7 +60,7 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 	// если указана только буква диска, то путь возьмем из переменной
 	if (NewDir.size() == 2 && NewDir[1]==L':')
 	{
-		Drive[1] = ToUpper(NewDir[0]);
+		Drive[1] = Upper(NewDir[0]);
 		strCurDir = os::env::get_variable(Drive);
 		if (strCurDir.empty())
 		{
@@ -110,7 +110,7 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 
 		if (strCurDir.size() > 1 && strCurDir[1]==L':')
 		{
-			Drive[1] = ToUpper(strCurDir[0]);
+			Drive[1] = Upper(strCurDir[0]);
 			os::env::set_variable(Drive, strCurDir);
 		}
 	}

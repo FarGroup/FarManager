@@ -502,7 +502,7 @@ size_t HMenu::CheckHighlights(WORD CheckSymbol, int StartPos)
 
 		if (Ch)
 		{
-			if (ToUpper(CheckSymbol) == ToUpper(Ch))
+			if (Upper(CheckSymbol) == Upper(Ch))
 				return I;
 		}
 		else if (!CheckSymbol)
