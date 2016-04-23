@@ -8,6 +8,7 @@ Macro {
   description="Macro-engine test";
   area="Shell"; key="CtrlShiftF12";
   action = function()
+    Far.DisableHistory(0x0F)
     local f = assert(loadfile(far.PluginStartupInfo().ModuleDir.."macrotest.lua"))
     setfenv(f, getfenv())().test_all()
     far.Message("All tests OK", "LuaMacro")
