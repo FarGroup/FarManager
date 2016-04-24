@@ -3,6 +3,66 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 24.04.2016 11:15:15 +0200 - build 4637
+
+1. Correction of 4633.
+
+drkns 24.04.2016 10:02:26 +0200 - build 4636
+
+1. Correction of 4635.
+
+drkns 23.04.2016 19:19:54 +0200 - build 4635
+
+1. Copying progress indicator is displayed as "%done% / %total%".
+
+2. Refactoring.
+
+drkns 23.04.2016 02:03:50 +0200 - build 4634
+
+1. Forum: lua:far.Message"aaa". The console caption is not restored after closing the console.
+
+drkns 23.04.2016 01:59:07 +0200 - build 4633
+
+1. Refactoring.
+
+shmuel 23.04.2016 00:03:37 +0200 - build 4632
+
+1. Experimental: speeding up ECTL_INSERTSTRING (about 50 times faster).
+
+drkns 20.04.2016 22:42:13 +0200 - build 4631
+
+1. Invocation of dialogs via main menu did not set correct console caption.
+
+drkns 20.04.2016 17:33:13 +0200 - build 4630
+
+1. Refactoring.
+
+zg 20.04.2016 13:21:24 +0200 - build 4629
+
+1. correction of 4628.
+
+zg 20.04.2016 02:44:24 +0200 - build 4628
+
+1. remove deferred sorting of color areas in editor.
+
+w17 20.04.2016 01:39:19 +0300 - build 4627
+
+1. Fix 4492.
+
+drkns 19.04.2016 22:42:16 +0200 - build 4626
+
+1. gcc build fix.
+
+2. Refactoring.
+
+svs 19.04.2016 18:18:01 +0300 - build 4625
+
+1. SQLite 3.12.2
+
+w17 19.04.2016 13:18:14 +0300 - build 4624
+
+1. Correction of 4622.
+
 drkns 16.04.2016 01:21:23 +0200 - build 4623
 
 1. Refactoring and renamings.
