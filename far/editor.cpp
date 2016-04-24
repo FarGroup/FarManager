@@ -4708,8 +4708,8 @@ void Editor::AddUndoData(int Type, const string& Str, const wchar_t *Eol, int St
 	if (StrNum==-1)
 		StrNum = m_it_CurLine.Number();
 
-	auto Iterator = UndoPos == UndoData.end()? UndoData.begin() : std::next(UndoPos);
-	for (auto End = UndoData.end(); Iterator != End; ++Iterator)
+	const auto Begin = UndoPos == UndoData.end()? UndoData.begin() : std::next(UndoPos);
+	for (auto Iterator = Begin, End = UndoData.end(); Iterator != End; ++Iterator)
 	{
 		if (Iterator == UndoSavePos)
 		{
@@ -4718,7 +4718,7 @@ void Editor::AddUndoData(int Type, const string& Str, const wchar_t *Eol, int St
 			break;
 		}
 	}
-	UndoData.erase(Iterator, UndoData.end());
+	UndoData.erase(Begin, UndoData.end());
 
 	auto PrevUndo=UndoData.end();
 	if(!UndoData.empty())
