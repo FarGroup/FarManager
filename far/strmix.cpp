@@ -661,13 +661,14 @@ string FileSizeToStr(unsigned long long Size, int Width, unsigned long long View
 
 			IndexB++;
 
+			strStr.clear();
+
 			if (Commas)
 			{
 				strStr << InsertCommas(Sz);
 			}
 			else
 			{
-				strStr.clear();
 				strStr << Sz;
 			}
 		}
