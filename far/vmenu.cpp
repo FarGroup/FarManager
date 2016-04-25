@@ -467,7 +467,7 @@ int VMenu::AddItem(MenuItemEx&& NewItem,int PosAdd)
 	NewMenuItem.Flags = 0;
 	UpdateItemFlags(PosAdd, NewFlags);
 
-	SetMenuFlags(VMENU_UPDATEREQUIRED | (bFilterEnabled ? VMENU_REFILTERREQUIRED : 0));
+	SetMenuFlags(VMENU_UPDATEREQUIRED | (bFilterEnabled ? VMENU_REFILTERREQUIRED : VMENU_NONE));
 
 	return static_cast<int>(Items.size()-1);
 }
@@ -490,7 +490,7 @@ int VMenu::UpdateItem(const FarListUpdate *NewItem)
 
 		UpdateItemFlags(NewItem->Index, MItem.Flags);
 
-		SetMenuFlags(VMENU_UPDATEREQUIRED | (bFilterEnabled ? VMENU_REFILTERREQUIRED : 0));
+		SetMenuFlags(VMENU_UPDATEREQUIRED | (bFilterEnabled ? VMENU_REFILTERREQUIRED : VMENU_NONE));
 
 		return TRUE;
 	}
@@ -1124,6 +1124,19 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 	auto LocalKey = Key();
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
+	if (IsComboBox() && !ParentDialog->GetDropDownOpened())
+	{
+		Close(-1);
+		return FALSE;
+	}
+
+	if (IsComboBox() && CheckFlags(VMENU_COMBOBOXEVENTKEY))
+	{
+		auto Event = Key.Event();
+		if (ParentDialog->DlgProc(DN_CONTROLINPUT, ParentDialog->GetDlgFocusPos(), &Event))
+			return TRUE;
+	}
+
 	if (LocalKey==KEY_NONE || LocalKey==KEY_IDLE)
 		return FALSE;
 
@@ -1178,6 +1191,20 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 			LocalKey = L'/'|S;
 	}
 
+	auto ProcessEnter = [this]()
+	{
+		if (ItemCanBeEntered(Items[SelectPos].Flags))
+		{
+			if (IsComboBox())
+			{
+				Close(SelectPos);
+			}
+			else
+			{
+				SetExitCode(SelectPos);
+			}
+		}
+	};
 	switch (LocalKey)
 	{
 		case KEY_ALTF9:
@@ -1188,23 +1215,20 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 		case KEY_ENTER:
 		{
 			if (!ParentDialog || CheckFlags(VMENU_COMBOBOX))
-			{
-				if (ItemCanBeEntered(Items[SelectPos].Flags))
-				{
-					SetExitCode(SelectPos);
-				}
-			}
-
+				ProcessEnter();
 			break;
 		}
 		case KEY_ESC:
 		case KEY_F10:
 		{
-			if (!ParentDialog || CheckFlags(VMENU_COMBOBOX))
+			if (IsComboBox())
+			{
+				Close(-1);
+			}
+			else if(!ParentDialog)
 			{
 				SetExitCode(-1);
 			}
-
 			break;
 		}
 		case KEY_HOME:         case KEY_NUMPAD7:
@@ -1428,7 +1452,11 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 			break;
 		}
 		case KEY_TAB:
-		case KEY_SHIFTTAB:
+			if (IsComboBox())
+			{
+				ProcessEnter();
+				break;
+			}
 		default:
 		{
 			if (ProcessFilterKey(LocalKey))
@@ -1476,7 +1504,7 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 						}
 						else
 						{
-							CheckFlags(VMENU_COMBOBOX) ? SetDone() : ClearDone();
+							CheckFlags(VMENU_COMBOBOX) ? Close(GetExitCode()) : ClearDone();
 						}
 
 						break;
@@ -1495,7 +1523,22 @@ int VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
+	if (IsComboBox() && !ParentDialog->GetDropDownOpened())
+	{
+		Close(-1);
+		return FALSE;
+	}
+
 	SetMenuFlags(VMENU_UPDATEREQUIRED);
+
+	if (IsComboBox() && CheckFlags(VMENU_COMBOBOXEVENTMOUSE))
+	{
+		INPUT_RECORD Event = {};
+		Event.EventType = MOUSE_EVENT;
+		Event.Event.MouseEvent = *MouseEvent;
+		if (!ParentDialog->DlgProc(DN_INPUT, 0, &Event))
+			return TRUE;
+	}
 
 	if (!GetShowItemCount())
 	{
@@ -2472,7 +2515,7 @@ void VMenu::AssignHighlights(int Reverse)
 		}
 	}
 
-	SetMenuFlags(VMENU_AUTOHIGHLIGHT | (Reverse ? VMENU_REVERSEHIGHLIGHT : 0));
+	SetMenuFlags(VMENU_AUTOHIGHLIGHT | (Reverse ? VMENU_REVERSEHIGHLIGHT : VMENU_NONE));
 	ClearFlags(VMENU_SHOWAMPERSAND);
 }
 
@@ -2582,6 +2625,10 @@ void VMenu::ResizeConsole()
 		SaveScr->Discard();
 		SaveScr.reset();
 	}
+}
+
+void VMenu::SetDeleting(void)
+{
 }
 
 void VMenu::ShowConsoleTitle()

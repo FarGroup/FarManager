@@ -72,8 +72,6 @@ enum CVTITEMFLAGS
 enum DLGITEMINTERNALFLAGS
 {
 	DLGIIF_COMBOBOXNOREDRAWEDIT     = 0x00000008, // не прорисовывать строку редактирования при изменениях в комбо
-	DLGIIF_COMBOBOXEVENTKEY         = 0x00000010, // посылать события клавиатуры в диалоговую проц. для открытого комбобокса
-	DLGIIF_COMBOBOXEVENTMOUSE       = 0x00000020, // посылать события мыши в диалоговую проц. для открытого комбобокса
 };
 
 class DlgUserControl
@@ -3595,7 +3593,7 @@ int Dialog::ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem, s
 	         !(CurItem->Flags & DIF_READONLY) &&
 	         !CurItem->ListPtr->empty()) //??
 	{
-		SelectFromComboBox(CurItem, CurEditLine, CurItem->ListPtr.get());
+		SelectFromComboBox(CurItem, CurEditLine);
 	}
 
 	return TRUE;
@@ -3951,12 +3949,12 @@ int Dialog::SetAutomation(WORD IDParent,WORD id,
 */
 int Dialog::SelectFromComboBox(
     DialogItemEx *CurItem,
-    DlgEdit *EditLine,                   // строка редактирования
-    VMenu *ComboBox)    // список строк
+    DlgEdit *EditLine)                   // строка редактирования
 {
 		SCOPED_ACTION(CriticalSectionLock)(CS);
 		_DIALOG(CleverSysLog CL(L"Dialog::SelectFromComboBox()"));
-		int I,Dest, OriginalPos;
+		const auto ComboBox = CurItem->ListPtr;
+		int Dest, OriginalPos;
 		int EditX1,EditY1,EditX2,EditY2;
 		EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
 
@@ -3986,73 +3984,13 @@ int Dialog::SelectFromComboBox(
 			strStr = HiText2Str(strStr);
 
 		ComboBox->SetSelectPos(ComboBox->FindItem(0,strStr,LIFIND_EXACTMATCH),1);
-		ComboBox->Show();
 
-		OriginalPos=Dest=ComboBox->GetSelectPos();
+		OriginalPos = ComboBox->GetSelectPos();
 		CurItem->IFlags.Set(DLGIIF_COMBOBOXNOREDRAWEDIT);
-
-		while (!ComboBox->Done())
-		{
-			if (!GetDropDownOpened())
-			{
-				ComboBox->ProcessKey(Manager::Key(KEY_ESC));
-				continue;
-			}
-
-			INPUT_RECORD ReadRec;
-			int Key=ComboBox->ReadInput(&ReadRec);
-
-			if (CurItem->IFlags.Check(DLGIIF_COMBOBOXEVENTKEY) && ReadRec.EventType == KEY_EVENT)
-			{
-				if (DlgProc(DN_CONTROLINPUT, m_FocusPos, &ReadRec))
-				{
-					continue;
-				}
-			}
-			else if (CurItem->IFlags.Check(DLGIIF_COMBOBOXEVENTMOUSE) && ReadRec.EventType == MOUSE_EVENT)
-				if (!DlgProc(DN_INPUT, 0, &ReadRec))
-				{
-					continue;
-				}
-
-			// здесь можно добавить что-то свое, например,
-			I=ComboBox->GetSelectPos();
-
-			if (Key==KEY_TAB) // Tab в списке - аналог Enter
-			{
-				ComboBox->ProcessKey(Manager::Key(KEY_ENTER));
-				continue; //??
-			}
-#if 1
-			if (I != Dest)
-			{
-				Dest = I;
-				ComboBox->Show();
-#if 0
-
-				// во время навигации по DropDown листу - отобразим ЭТО дело в
-				// связанной строке
-				// ВНИМАНИЕ!!!
-				//  Очень медленная реакция!
-				if (EditLine->GetDropDownBox())
-				{
-					MenuItem *CurCBItem=ComboBox->GetItemPtr();
-					EditLine->SetString(CurCBItem->Name);
-					EditLine->Show();
-					//EditLine->FastShow();
-				}
-
-#endif
-			}
-#endif
-			// обработку multiselect ComboBox
-			// ...
-			ComboBox->ProcessInput();
-		}
+		ComboBox->Process();
 
 		CurItem->IFlags.Clear(DLGIIF_COMBOBOXNOREDRAWEDIT);
 		ComboBox->ClearDone();
-		ComboBox->Hide();
 
 		if (GetDropDownOpened()) // Закрылся не программным путём?
 			Dest=ComboBox->SimpleModal::GetExitCode();
@@ -4071,7 +4009,6 @@ int Dialog::SelectFromComboBox(
 			return KEY_ESC;
 		}
 
-		//ComboBox->GetUserData(Str,MaxLen,Dest);
 		const auto& ItemPtr = ComboBox->at(Dest);
 
 		if (CurItem->Flags & (DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND))
@@ -5236,19 +5173,22 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						}
 						case DM_GETCOMBOBOXEVENT: // Param1=ID Param2=0 Ret=Sets
 						{
-							return (CurItem->IFlags.Check(DLGIIF_COMBOBOXEVENTKEY)?CBET_KEY:0)|(CurItem->IFlags.Check(DLGIIF_COMBOBOXEVENTMOUSE)?CBET_MOUSE:0);
+							return (CurItem->ListPtr && CurItem->ListPtr->CheckFlags(VMENU_COMBOBOXEVENTKEY)?CBET_KEY:0)|(CurItem->ListPtr && CurItem->ListPtr->CheckFlags(VMENU_COMBOBOXEVENTMOUSE)?CBET_MOUSE:0);
 						}
 						case DM_SETCOMBOBOXEVENT: // Param1=ID Param2=FARCOMBOBOXEVENTTYPE Ret=OldSets
 						{
-							int OldSets=CurItem->IFlags.Flags();
-							CurItem->IFlags.Clear(DLGIIF_COMBOBOXEVENTKEY|DLGIIF_COMBOBOXEVENTMOUSE);
+							auto OldSets = SendMessage(DM_GETCOMBOBOXEVENT, Param1, nullptr);
+							if (CurItem->ListPtr)
+							{
+								CurItem->ListPtr->ClearFlags(VMENU_COMBOBOXEVENTKEY | VMENU_COMBOBOXEVENTMOUSE);
 
-							if (reinterpret_cast<intptr_t>(Param2)&CBET_KEY)
-								CurItem->IFlags.Set(DLGIIF_COMBOBOXEVENTKEY);
+								if (reinterpret_cast<intptr_t>(Param2)&CBET_KEY)
+									CurItem->ListPtr->SetMenuFlags(VMENU_COMBOBOXEVENTKEY);
 
-							if (reinterpret_cast<intptr_t>(Param2)&CBET_MOUSE)
-								CurItem->IFlags.Set(DLGIIF_COMBOBOXEVENTMOUSE);
+								if (reinterpret_cast<intptr_t>(Param2)&CBET_MOUSE)
+									CurItem->ListPtr->SetMenuFlags(VMENU_COMBOBOXEVENTMOUSE);
 
+							}
 							return OldSets;
 						}
 						default:

@@ -217,6 +217,7 @@ public:
 	intptr_t SendMessage(intptr_t Msg,intptr_t Param1,void* Param2);
 	intptr_t DefProc(intptr_t Msg,intptr_t Param1,void* Param2);
 	static bool IsValid(Dialog* Handle);
+	int GetDropDownOpened() const { return DropDownOpened; }
 
 	template<class T>
 	void SetListItemData(size_t ListId, size_t ItemId, const T& Data)
@@ -261,7 +262,7 @@ private:
 	void ChangeFocus2(size_t SetFocusPos);
 	size_t ChangeFocus(size_t FocusPos,int Step,int SkipGroup) const;
 	BOOL SelectFromEditHistory(const DialogItemEx *CurItem, DlgEdit *EditLine, const string& HistoryName);
-	int SelectFromComboBox(DialogItemEx *CurItem,DlgEdit*EditLine,VMenu *List);
+	int SelectFromComboBox(DialogItemEx *CurItem,DlgEdit*EditLine);
 	int AddToEditHistory(const DialogItemEx* CurItem, const string& AddStr) const;
 	void ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex);  // обработка DIF_USELASTHISTORY
 	int ProcessHighlighting(int Key,size_t FocusPos,int Translate);
@@ -272,7 +273,6 @@ private:
 	bool SetItemRect(size_t ID, const SMALL_RECT& Rect);
 	bool SetItemRect(DialogItemEx& item, const SMALL_RECT& Rect);
 	void SetDropDownOpened(int Status) { DropDownOpened=Status; }
-	int GetDropDownOpened() const { return DropDownOpened; }
 	void ProcessCenterGroup();
 	size_t ProcessRadioButton(size_t);
 	int ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem,size_t CurFocusPos);

@@ -68,6 +68,7 @@ enum vmenu_colors
 
 enum VMENU_FLAGS
 {
+	VMENU_NONE                 =0x00000000,
 	VMENU_ALWAYSSCROLLBAR      =0x00000100, // всегда показывать скроллбар
 	VMENU_LISTBOX              =0x00000200, // Это список в диалоге
 	VMENU_SHOWNOBOX            =0x00000400, // показать без рамки
@@ -87,6 +88,8 @@ enum VMENU_FLAGS
 	VMENU_NOMERGEBORDER        =0x08000000, //
 	VMENU_REFILTERREQUIRED     =0x10000000, // перед отрисовкой необходимо обновить фильтр
 	VMENU_LISTSINGLEBOX        =0x20000000, // список, всегда с одинарной рамкой
+	VMENU_COMBOBOXEVENTKEY     =0x40000000, // посылать события клавиатуры в диалоговую проц. для открытого комбобокса
+	VMENU_COMBOBOXEVENTMOUSE   =0x80000000, // посылать события мыши в диалоговую проц. для открытого комбобокса
 };
 
 class Dialog;
@@ -193,6 +196,7 @@ public:
 	virtual __int64 VMProcess(int OpCode, void *vParam = nullptr, __int64 iParam = 0) override;
 	virtual int ReadInput(INPUT_RECORD *GetReadRec = nullptr) override;
 	virtual void ResizeConsole() override;
+	virtual void SetDeleting(void) override;
 	virtual void ShowConsoleTitle() override;
 
 	void FastShow() { ShowMenu(); }
@@ -259,6 +263,7 @@ public:
 	void SetVDialogItemID(size_t NewDialogItemID) { DialogItemID = NewDialogItemID; }
 	void SetId(const GUID& Id);
 	const GUID& Id() const;
+	bool IsComboBox() const { return ParentDialog && CheckFlags(VMENU_COMBOBOX); }
 
 	template<class predicate>
 	void SortItems(predicate Pred, bool Reverse = false, int Offset = 0)
