@@ -1113,12 +1113,19 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 	if (IsComboBox() && CheckFlags(VMENU_COMBOBOXEVENTKEY))
 	{
 		auto Event = Key.Event();
-		if (ParentDialog->DlgProc(DN_CONTROLINPUT, ParentDialog->GetDlgFocusPos(), &Event))
+		if (!ParentDialog->DlgProc(DN_INPUT, 0, &Event))
 			return TRUE;
 	}
 
 	if (LocalKey==KEY_NONE || LocalKey==KEY_IDLE)
 		return FALSE;
+
+	if (IsComboBox() && CheckFlags(VMENU_COMBOBOXEVENTKEY))
+	{
+		auto Event = Key.Event();
+		if (ParentDialog->DlgProc(DN_CONTROLINPUT, ParentDialog->GetDlgFocusPos(), &Event))
+			return TRUE;
+	}
 
 	if (LocalKey == KEY_OP_PLAINTEXT)
 	{
@@ -1469,7 +1476,6 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 			{
 				if (ParentDialog->SendMessage(DN_LISTHOTKEY,DialogItemID,ToPtr(NewPos)))
 				{
-					UpdateItemFlags(OldSelectPos,Items[OldSelectPos].Flags|LIF_SELECTED);
 					ShowMenu(true);
 					ClearDone();
 					break;

@@ -496,7 +496,7 @@ void CopyProgress::UpdateTime(bool TotalProgress, unsigned long long SizeDone, u
 	{
 		m_CalcTime = CurrentTime - m_CopyStartTime - WaitUserTime;
 	}
-	
+
 	string tmp[3];
 
 	const auto CalcTime = m_CalcTime / CLOCKS_PER_SEC;
@@ -757,10 +757,17 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 
 				if (Param1 == ID_SC_COMBO)
 				{
-					if (key==KEY_ENTER || key==KEY_NUMENTER || key==KEY_INS || key==KEY_NUMPAD0 || key==KEY_SPACE)
+					if (Dlg->SendMessage(DM_LISTGETCURPOS, ID_SC_COMBO, nullptr) == CM_ASKRO)
 					{
-						if (Dlg->SendMessage(DM_LISTGETCURPOS, ID_SC_COMBO, nullptr) == CM_ASKRO)
+						if (key==KEY_ENTER || key==KEY_NUMENTER || key==KEY_INS || key==KEY_NUMPAD0 || key==KEY_SPACE)
+						{
 							return Dlg->SendMessage(DM_SWITCHRO, 0, nullptr);
+						}
+						else if (key == KEY_TAB)
+						{
+							Dlg->SendMessage(DM_SETDROPDOWNOPENED, 0, nullptr);
+							return TRUE;
+						}
 					}
 				}
 			}
@@ -770,26 +777,28 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 		case DN_LISTHOTKEY:
 			if(Param1==ID_SC_COMBO)
 			{
-				if (Dlg->SendMessage(DM_LISTGETCURPOS, ID_SC_COMBO, nullptr) == CM_ASKRO)
+				auto Index = reinterpret_cast<intptr_t>(Param2);
+				if (Index == CM_ASKRO)
 				{
 					Dlg->SendMessage(DM_SWITCHRO, 0, nullptr);
+					FarListPos flp = { sizeof(flp), Index, -1 };
+					Dlg->SendMessage(DM_LISTSETCURPOS, Param1, &flp);
 					return TRUE;
 				}
 			}
 			break;
 		case DN_INPUT:
-
-			if (Dlg->SendMessage(DM_GETDROPDOWNOPENED, ID_SC_COMBO, nullptr))
 			{
-				auto& mer = reinterpret_cast<INPUT_RECORD*>(Param2)->Event.MouseEvent;
-
-				if (Dlg->SendMessage(DM_LISTGETCURPOS, ID_SC_COMBO, nullptr) == CM_ASKRO && mer.dwButtonState && !(mer.dwEventFlags & MOUSE_MOVED))
+				auto ir = reinterpret_cast<INPUT_RECORD*>(Param2);
+				if (ir->EventType == MOUSE_EVENT && Dlg->SendMessage(DM_GETDROPDOWNOPENED, ID_SC_COMBO, nullptr))
 				{
-					Dlg->SendMessage(DM_SWITCHRO, 0, nullptr);
-					return FALSE;
+					if (Dlg->SendMessage(DM_LISTGETCURPOS, ID_SC_COMBO, nullptr) == CM_ASKRO && ir->Event.MouseEvent.dwButtonState && !(ir->Event.MouseEvent.dwEventFlags & MOUSE_MOVED))
+					{
+						Dlg->SendMessage(DM_SWITCHRO, 0, nullptr);
+						return FALSE;
+					}
 				}
 			}
-
 			break;
 		case DM_CALLTREE:
 		{
