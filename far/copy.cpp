@@ -925,7 +925,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 		return;
 
 	string strSelName;
-	uint64_t SingleSelectedFileSize;
+	uint64_t SingleSelectedFileSize = 0;
 
 	if (SelCount==1)
 	{
