@@ -207,7 +207,7 @@ public:
 		auto SizeToGo = (m_Bytes.Total > BytesDone)? (m_Bytes.Total - BytesDone) : 0;
 		if (m_Time)
 		{
-			UpdateTime(true, BytesDone, SizeToGo);
+			UpdateTime(BytesDone, SizeToGo);
 		}
 		Flush();
 	}
@@ -222,7 +222,7 @@ private:
 	void DrawNames();
 	void CreateScanBackground();
 	void SetProgress(bool TotalProgress, UINT64 CompletedSize, UINT64 TotalSize);
-	void UpdateTime(bool TotalProgress, unsigned long long SizeDone, unsigned long long SizeToGo);
+	void UpdateTime(unsigned long long SizeDone, unsigned long long SizeToGo);
 	uint64_t GetBytesDone() const { return m_Bytes.Copied + m_Bytes.Skipped; }
 	size_t GetCanvasWidth() const { return Rect.Right - Rect.Left - 9; };
 
@@ -243,6 +243,7 @@ private:
 	time_check m_SpeedUpdateCheck;
 	FormatString strSrc, strDst;
 	string strTime;
+	string m_TimeLeft;
 	string m_Speed;
 	string strFiles;
 	/* Для того, что бы время при ожидании пользователя тикало, а remaining/speed нет */
@@ -488,7 +489,7 @@ void CopyProgress::SetProgress(bool TotalProgress, UINT64 CompletedSize, UINT64 
 	Text(BarCoord.X, BarCoord.Y, Color, Bar);
 }
 
-void CopyProgress::UpdateTime(bool TotalProgress, unsigned long long SizeDone, unsigned long long SizeToGo)
+void CopyProgress::UpdateTime(unsigned long long SizeDone, unsigned long long SizeToGo)
 {
 	const auto CurrentTime = clock();
 
@@ -508,25 +509,21 @@ void CopyProgress::UpdateTime(bool TotalProgress, unsigned long long SizeDone, u
 	}
 	else
 	{
-		if (TotalProgress)
-		{
-			SizeDone -= m_Bytes.Skipped;
-		}
+		SizeDone -= m_Bytes.Skipped;
 
 		const auto CPS = SizeDone / CalcTime;
 
 		string strCalcTimeStr;
 		GetTimeText(CalcTime, strCalcTimeStr);
 
-		string strTimeLeftStr;
-		if (m_Total)
-		{
-			const auto TimeLeft = static_cast<DWORD>(CPS? SizeToGo / CPS : 0);
-			GetTimeText(TimeLeft, strTimeLeftStr);
-		}
-
 		if (m_SpeedUpdateCheck)
 		{
+			if (SizeToGo)
+			{
+				const auto TimeLeft = static_cast<DWORD>(CPS? SizeToGo / CPS : 0);
+				GetTimeText(TimeLeft, m_TimeLeft);
+			}
+
 			m_Speed = FileSizeToStr(CPS, 8, COLUMN_FLOATSIZE | COLUMN_COMMAS);
 			if (!m_Speed.empty() && m_Speed.front() == L' ' && std::iswdigit(m_Speed.back()))
 			{
@@ -536,7 +533,7 @@ void CopyProgress::UpdateTime(bool TotalProgress, unsigned long long SizeDone, u
 		}
 
 		tmp[0] = FormatString() << fmt::ExactWidth(8) << strCalcTimeStr;
-		tmp[1] = FormatString() << fmt::ExactWidth(8) << strTimeLeftStr;
+		tmp[1] = FormatString() << fmt::ExactWidth(8) << m_TimeLeft;
 		tmp[2] = FormatString() << fmt::ExactWidth(8) << m_Speed;
 	}
 
@@ -928,14 +925,16 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 		return;
 
 	string strSelName;
+	uint64_t SingleSelectedFileSize;
 
 	if (SelCount==1)
 	{
 		SrcPanel->GetSelName(nullptr,m_FileAttr); //????
-		SrcPanel->GetSelName(&strSelName,m_FileAttr);
-
+		os::FAR_FIND_DATA fd;
+		SrcPanel->GetSelName(&strSelName,m_FileAttr, nullptr, &fd);
 		if (TestParentFolderName(strSelName))
 			return;
+		SingleSelectedFileSize = fd.nFileSize;
 	}
 
 	ZoomedState=IsZoomed(Console().GetWindow());
@@ -1586,6 +1585,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 				if (SelCount == 1 && !FolderPresent)
 				{
 					CP->m_Files.Total = 1;
+					CP->m_Bytes.Total = SingleSelectedFileSize;
 				}
 
 				// Обнулим инфу про дизы
