@@ -759,26 +759,6 @@ bool VMenu::ShouldSendKeyToFilter(int Key) const
 	return false;
 }
 
-int VMenu::ReadInput(INPUT_RECORD *GetReadRec)
-{
-	int ReadKey;
-
-	for (;;)
-	{
-		ReadKey = SimpleModal::ReadInput(GetReadRec);
-
-		//фильтр должен обрабатывать нажатия раньше "пользователя" меню
-		if (ShouldSendKeyToFilter(ReadKey))
-		{
-			ProcessInput();
-			continue;
-		}
-		break;
-	}
-
-	return ReadKey;
-}
-
 __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
 	switch (OpCode)

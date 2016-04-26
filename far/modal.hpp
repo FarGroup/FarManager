@@ -49,14 +49,11 @@ protected:
 class SimpleModal: public Modal
 {
 public:
-	virtual int ReadInput(INPUT_RECORD *GetReadRec = nullptr);
 	virtual void SetExitCode(int Code) override;
 
 	bool Done() const;
 	void ClearDone();
 	void Process();
-	void WriteInput(int Key);
-	void ProcessInput();
 	void SetHelp(const wchar_t *Topic);
 	void ShowHelp();
 
@@ -67,13 +64,10 @@ protected:
 	void SetDone(void);
 	void Close(int Code);
 
-	INPUT_RECORD m_ReadRec;
 	string m_HelpTopic;
 
 private:
 	bool m_EndLoop;
-	int m_ReadKey;
-	int m_WriteKey;
 };
 
 #endif // MODAL_HPP_A6E3BDC6_D983_486E_98E6_E5956E64CC15

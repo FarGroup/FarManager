@@ -41,11 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lockscrn.hpp"
 #include "keyboard.hpp"
 
-SimpleModal::SimpleModal():
-	m_ReadRec(INPUT_RECORD()),
-	m_EndLoop(false),
-	m_ReadKey(-1),
-	m_WriteKey(-1)
+SimpleModal::SimpleModal(): m_EndLoop(false)
 {
 }
 
@@ -54,54 +50,6 @@ void SimpleModal::Process()
 {
 	Global->WindowManager->ExecuteWindow(shared_from_this());
 	Global->WindowManager->ExecuteModal(shared_from_this());
-}
-
-int SimpleModal::ReadInput(INPUT_RECORD *GetReadRec)
-{
-	if (GetReadRec)
-		ClearStruct(*GetReadRec);
-
-	if (m_WriteKey>=0)
-	{
-		m_ReadKey=m_WriteKey;
-		m_WriteKey=-1;
-	}
-	else
-	{
-		m_ReadKey=GetInputRecord(&m_ReadRec);
-
-		if (GetReadRec)
-		{
-			*GetReadRec=m_ReadRec;
-		}
-	}
-
-	if (m_ReadKey == KEY_CONSOLE_BUFFER_RESIZE)
-	{
-		SCOPED_ACTION(LockScreen);
-		Hide();
-		Show();
-	}
-
-	if (Global->CloseFARMenu)
-	{
-		SetExitCode(-1);
-	}
-
-	return m_ReadKey;
-}
-
-void SimpleModal::WriteInput(int Key)
-{
-	m_WriteKey=Key;
-}
-
-void SimpleModal::ProcessInput()
-{
-	if (m_ReadRec.EventType==MOUSE_EVENT && !(m_ReadKey==KEY_MSWHEEL_UP || m_ReadKey==KEY_MSWHEEL_DOWN || m_ReadKey==KEY_MSWHEEL_RIGHT || m_ReadKey==KEY_MSWHEEL_LEFT))
-		ProcessMouse(&m_ReadRec.Event.MouseEvent);
-	else
-		ProcessKey(Manager::Key(m_ReadKey));
 }
 
 bool SimpleModal::Done() const
