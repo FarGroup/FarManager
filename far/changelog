@@ -1,4 +1,8 @@
-﻿drkns 28.04.2016 16:47:33 +0200 - build 4644
+﻿drkns 28.04.2016 16:52:55 +0200 - build 4645
+
+1. Уточнение 4644.
+
+drkns 28.04.2016 16:47:33 +0200 - build 4644
 
 1. Продолжение экспериментальных изменений в запускателе:
    - System.Executor.NotQuotedShell и System.Executor.ComSpecParams больше нет. Однако, теперь есть System.Executor.ComspecArguments, управляющий одновременно и ключами, и кавычками.

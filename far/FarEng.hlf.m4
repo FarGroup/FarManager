@@ -5505,8 +5505,8 @@ $ #far:config System.Executor.ExcludeCmds#
 @System.Executor.ComspecArguments
 $ #far:config System.Executor.ComspecArguments#
 
-    Arguments for command processor. #{0}# is a placeholder for entire executing command.
-    If your processor uses differnt keys or quotes you can change it here.
+    Arguments for command processor. #{0}# is a placeholder for the entire executing command.
+    If your processor uses different keys or quotes you can change them here.
 
     Default value: #/S /C "{0}"# (compatible with cmd.exe)
 
