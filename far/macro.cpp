@@ -676,13 +676,10 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 				int WaitInMainLoop0=Global->WaitInMainLoop;
 				m_InternalInput=1;
 				Global->WaitInMainLoop=FALSE;
-				// Залочить _текущее_ окно а не _последнее немодальное_
-				Global->WindowManager->GetCurrentWindow()->Lock(); // отменим прорисовку окна
 				DWORD MacroKey;
 				// выставляем флаги по умолчанию.
 				UINT64 Flags=0;
 				int AssignRet=AssignMacroKey(MacroKey,Flags);
-				Global->WindowManager->GetCurrentWindow()->Unlock(); // теперь можно :-)
 
 				if (AssignRet && AssignRet!=2 && !m_RecCode.empty())
 				{
@@ -1237,16 +1234,7 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 	const auto Dlg = Dialog::create(MacroSettingsDlg, &KeyMacro::ParamMacroDlgProc, this, &Param);
 	Dlg->SetPosition(-1,-1,73,21);
 	Dlg->SetHelp(L"KeyMacroSetting");
-	const auto BottomWindow = Global->WindowManager->GetBottomWindow();
-	if(BottomWindow)
-	{
-		BottomWindow->Lock(); // отменим прорисовку окна
-	}
 	Dlg->Process();
-	if(BottomWindow)
-	{
-		BottomWindow->Unlock(); // теперь можно :-)
-	}
 
 	if (Dlg->GetExitCode()!=MS_BUTTON_OK)
 		return FALSE;
