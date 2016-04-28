@@ -492,8 +492,16 @@ PluginHandle* PluginManager::OpenFilePlugin(
 		bool operator !=(const PluginInfo& rhs) const {return !(*this == rhs);}
 	};
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
+
+	// We're conditionally messing with the title down there.
+	// However, we save & restore it unconditionally, as plugins could mess with it too.
+
+	string OldTitle(ConsoleTitle::GetTitle());
+	SCOPE_EXIT{ ConsoleTitle::SetFarTitle(OldTitle); };
+
 	if (Global->Opt->ShowCheckingFile)
 	{
+		OldTitle = ConsoleTitle::GetTitle();
 		ConsoleTitle::SetFarTitle(MSG(MCheckingFileInPlugin));
 	}
 	PluginHandle* hResult = nullptr;
