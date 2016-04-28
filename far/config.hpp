@@ -600,10 +600,9 @@ public:
 		BoolOption ExecuteFullTitle;
 		StringOption strExecuteBatchType;
 		StringOption strExcludeCmds;
-		StringOption strComSpecParams;
+		StringOption ComspecArguments;
 		BoolOption   UseHomeDir; // cd ~
 		StringOption strHomeDir; // cd ~
-		StringOption strNotQuotedShell;
 	};
 
 	palette Palette;

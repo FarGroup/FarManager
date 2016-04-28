@@ -130,7 +130,7 @@ private:
 	message_queue m_Messages;
 	handlers_map m_Handlers;
 	std::unique_ptr<wm_listener> m_Window;
-	volatile long m_suppressions;
+	std::atomic_ulong m_suppressions;
 };
 
 message_manager& MessageManager();

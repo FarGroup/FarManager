@@ -278,6 +278,9 @@ protected:
 
 	void HandleFailure(ExecuteStruct& es);
 
+	virtual void Prologue() {}
+	virtual void Epilogue() {}
+
 	plugin_factory::exports_array Exports;
 
 	std::unordered_set<window_ptr> m_dialogs;
@@ -290,9 +293,6 @@ private:
 	friend class PluginManager;
 	friend class plugin_factory;
 	friend class native_plugin_factory;
-
-	virtual void Prologue() {};
-	virtual void Epilogue() {};
 
 	void InitExports();
 	void ClearExports();

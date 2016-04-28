@@ -38,8 +38,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "disable_warnings_in_std_begin.hpp"
 //----------------------------------------------------------------------------
 
-#include <array>
 #include <algorithm>
+#include <array>
+#include <atomic>
 #include <bitset>
 #include <fstream>
 #include <functional>

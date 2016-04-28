@@ -819,7 +819,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 						Info.Command = strCommand;
 						Info.WaitMode = ListFileUsed? Info.wait_idle : Info.no_wait;
 						Info.NewWindow = false;
-						Info.DirectRun = false;
+						Info.ExecMode = Info.detect;
 						Info.RunAs = false;
 						Global->CtrlObject->CmdLine()->ExecString(Info);
 					}

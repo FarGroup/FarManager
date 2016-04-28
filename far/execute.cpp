@@ -368,66 +368,59 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 }
 
 /*
- возвращает 2*PipeFound + 1*Escaped
+ true: ok, found command & arguments.
+ false: it's too complex, let's comspec deal with it.
 */
-static int PartCmdLine(const string& CmdStr, string &strNewCmdStr, string &strNewCmdPar)
+static bool PartCmdLine(const string& CmdStr, string &strNewCmdStr, string &strNewCmdPar)
 {
-	int PipeFound = 0, Escaped = 0;
-	bool quoted = false;
-	strNewCmdStr = os::env::expand_strings(CmdStr);
-	RemoveExternalSpaces(strNewCmdStr);
-	const wchar_t * const NewCmdStr = strNewCmdStr.data();
-	const wchar_t *CmdPtr = NewCmdStr;
-	const wchar_t *ParPtr = nullptr;
+	auto Begin = CmdStr.cbegin() + CmdStr.find_first_not_of(L' ');
+	auto End = CmdStr.cend();
+	auto ParamsBegin = End;
+
 	// Разделим собственно команду для исполнения и параметры.
 	// При этом заодно определим наличие символов переопределения потоков
 	// Работаем с учетом кавычек. Т.е. пайп в кавычках - не пайп.
 
-	static const wchar_t ending_chars[] = L"/ <>|&";
+	static const wchar_t ending_chars[] = L" <>|&";
 
-	while (*CmdPtr)
+	bool InQuotes = false;
+	bool TooComplex = false;
+	for (auto i = Begin; i != End; ++i)
 	{
-		if (*CmdPtr == L'"')
-			quoted = !quoted;
-
-		if (!quoted && *CmdPtr == L'^' && CmdPtr[1] > L' ') // "^>" и иже с ним
+		if (*i == L'"')
 		{
-			Escaped = 1; //
-			CmdPtr++;    // ??? может быть '^' надо удалить...
+			InQuotes = !InQuotes;
 		}
-		else if (!quoted && CmdPtr != NewCmdStr)
-		{
-			const wchar_t *ending = wcschr(ending_chars, *CmdPtr);
-			if ( ending )
-			{
-				if (!ParPtr)
-					ParPtr = CmdPtr;
 
-				if (ending >= ending_chars+2)
-					PipeFound = 1;
+		if (!InQuotes)
+		{
+			if (const auto ending = wcschr(ending_chars, *i))
+			{
+				if (ParamsBegin == End)
+				{
+					ParamsBegin = i;
+				}
+				if (ending >= ending_chars + 1)
+				{
+					TooComplex = true;
+					break;
+				}
 			}
 		}
-
-		if (ParPtr && PipeFound) // Нам больше ничего не надо узнавать
-			break;
-
-		CmdPtr++;
 	}
 
-	if (ParPtr) // Мы нашли параметры и отделяем мух от котлет
+	strNewCmdStr.assign(Begin, ParamsBegin);
+
+	if (ParamsBegin != End) // Мы нашли параметры и отделяем мух от котлет
 	{
-		size_t Pos = ParPtr - NewCmdStr;
-		if (*ParPtr == L' ') //AY: первый пробел между командой и параметрами не нужен,
-			++ParPtr;        //    он добавляется заново в Execute.
-
-		strNewCmdPar = ParPtr;
-		strNewCmdStr.resize(Pos);
-
+		//AY: первый пробел между командой и параметрами не нужен, он добавляется заново в Execute.
+		if (*ParamsBegin == L' ')
+		{
+			++ParamsBegin;
+		}
+		strNewCmdPar.assign(ParamsBegin, End);
 	}
-
-	Unquote(strNewCmdStr);
-
-	return 2*PipeFound + 1*Escaped;
+	return !TooComplex;
 }
 
 static bool RunAsSupported(LPCWSTR Name)
@@ -663,7 +656,7 @@ void OpenFolderInShell(const string& Folder)
 	Info.Command = Folder;
 	Info.WaitMode = Info.no_wait;
 	Info.NewWindow = true;
-	Info.DirectRun = true;
+	Info.ExecMode = Info.direct;
 	Info.RunAs = false;
 
 	Execute(Info, true, true);
@@ -675,7 +668,11 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	string strNewCmdStr;
 	string strNewCmdPar;
 
-	int PipeOrEscaped = PartCmdLine(Info.Command, strNewCmdStr, strNewCmdPar);
+	if (!PartCmdLine(Info.Command, strNewCmdStr, strNewCmdPar))
+	{
+		strNewCmdStr = Info.Command;
+		Info.ExecMode = Info.external;
+	}
 
 	const bool IsDirectory = os::fs::is_directory(strNewCmdStr);
 
@@ -696,7 +693,7 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 		if (strNewCmdPar.empty() && IsDirectory)
 		{
 			ConvertNameToFull(strNewCmdStr, strNewCmdStr);
-			Info.DirectRun = true;
+			Info.ExecMode = Info.direct;
 			FolderRun=true;
 		}
 	}
@@ -707,11 +704,11 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	os::handle Process;
 	LPCWSTR lpVerb = nullptr;
 
-	if (FolderRun && Info.DirectRun)
+	if (FolderRun && Info.ExecMode == Info.direct)
 	{
 		AddEndSlash(strNewCmdStr); // НАДА, иначе ShellExecuteEx "возьмет" BAT/CMD/пр.ересь, но не каталог
 	}
-	else
+	else if (Info.ExecMode == Info.detect)
 	{
 		bool internal;
 		FindModule(strNewCmdStr,strNewCmdStr,dwSubSystem,internal);
@@ -732,35 +729,17 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 						dwSubSystem=dwSubSystem2;
 					}
 				}
-
-				if (dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN && !StrCmpNI(strNewCmdStr.data(),L"ECHO.",5)) // вариант "echo."
-				{
-					strNewCmdStr.replace(4, 1, 1, L' ');
-					PartCmdLine(strNewCmdStr,strNewCmdStr,strNewCmdPar);
-
-					if (strNewCmdPar.empty())
-						strNewCmdStr+=L'.';
-
-					FindModule(strNewCmdStr,strNewCmdStr,dwSubSystem,internal);
-				}
 			}
 		}
 
 		if (dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)
 		{
-			if (!Info.DirectRun)
+			if (Info.ExecMode == Info.detect)
 			{
-				Info.DirectRun = (PipeOrEscaped < 1); //??? <= 1 если бы '^' были удалены
-			}
-			if (Info.DirectRun)
-			{
+				Info.ExecMode = Info.direct;
 				Silent = true;
 			}
 			Info.NewWindow = true;
-		}
-		else if (dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_CUI && !Info.DirectRun && !internal)
-		{
-			Info.DirectRun = (PipeOrEscaped < 1); //??? <= 1 если бы '^' были удалены
 		}
 	}
 
@@ -802,21 +781,20 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 		}
 	}
 
-	string ComSpecParams(Global->Opt->Exec.strComSpecParams);
-	ComSpecParams += L" ";
-
 	// ShellExecuteEx Win8.1+ wrongly opens symlinks in the separate console window
 	// Workaround: execute through %comspec%
-	if (Info.DirectRun && !Info.NewWindow && IsWindows8Point1OrGreater())
+	if (Info.ExecMode == Info.direct && !Info.NewWindow && IsWindows8Point1OrGreater())
 	{
 		os::fs::file_status fstatus(strNewCmdStr);
 		if (os::fs::is_file(fstatus) && fstatus.check(FILE_ATTRIBUTE_REPARSE_POINT))
 		{
-			Info.DirectRun = false;
+			Info.ExecMode = Info.external;
 		}
 	}
 
-	if (Info.DirectRun)
+	string ComSpecParams;
+
+	if (Info.ExecMode == Info.direct)
 	{
 		seInfo.lpFile = strNewCmdStr.data();
 		if(!strNewCmdPar.empty())
@@ -838,24 +816,8 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 			return false;
 		}
 
-		std::vector<string> NotQuotedShellList;
-		split(NotQuotedShellList, os::env::expand_strings(Global->Opt->Exec.strNotQuotedShell), STLF_UNIQUE);
-		bool bQuotedShell = !(std::any_of(CONST_RANGE(NotQuotedShellList, i) { return !StrCmpI(i,PointToName(strComspec.data())); }));
-		QuoteSpace(strNewCmdStr);
-		bool bDoubleQ = strNewCmdStr.find_first_of(L"&<>()@^|=;, ") != string::npos;
-		if ((!strNewCmdPar.empty() || bDoubleQ) && bQuotedShell)
-		{
-			ComSpecParams += L"\"";
-		}
-		ComSpecParams += strNewCmdStr;
-		if (!strNewCmdPar.empty())
-		{
-			ComSpecParams.append(L" ").append(strNewCmdPar);
-		}
-		if ((!strNewCmdPar.empty() || bDoubleQ) && bQuotedShell)
-		{
-			ComSpecParams += L"\"";
-		}
+		ComSpecParams = Global->Opt->Exec.ComspecArguments;
+		ReplaceStrings(ComSpecParams, L"{0}", Info.Command);
 
 		seInfo.lpFile = strComspec.data();
 		seInfo.lpParameters = ComSpecParams.data();
@@ -1032,7 +994,7 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	if (!Result)
 	{
 		std::vector<string> Strings;
-		if (Info.DirectRun)
+		if (Info.ExecMode == Info.direct)
 			Strings = { MSG(MCannotExecute), strNewCmdStr };
 		else
 			Strings = { MSG(MCannotInvokeComspec), strComspec, MSG(MCheckComspecVar) };
@@ -1044,7 +1006,7 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 			L"ErrCannotExecute",
 			nullptr,
 			nullptr,
-			{ Info.DirectRun? strNewCmdStr : strComspec });
+			{ Info.ExecMode == Info.direct? strNewCmdStr : strComspec });
 	}
 
 	return Result;
@@ -1292,7 +1254,7 @@ bool ExpandOSAliases(string &strStr)
 	string strNewCmdStr;
 	string strNewCmdPar;
 
-	PartCmdLine(strStr,strNewCmdStr,strNewCmdPar);
+	PartCmdLine(strStr, strNewCmdStr, strNewCmdPar);
 
 	const wchar_t* ExeName=PointToName(Global->g_strFarModuleName);
 	wchar_t_ptr Buffer(4096);

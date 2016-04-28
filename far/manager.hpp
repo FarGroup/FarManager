@@ -189,7 +189,7 @@ private:
 	bool EndLoop;            // Признак выхода из цикла
 	int ModalExitCode;
 	bool StartManager;
-	static long CurrentWindowType;
+	static std::atomic_long CurrentWindowType;
 	std::queue<std::function<void()>> m_Queue;
 	std::vector<std::function<int(const Key&)>> m_GlobalKeyHandlers;
 	std::unordered_map<window_ptr, bool*> m_Executed;

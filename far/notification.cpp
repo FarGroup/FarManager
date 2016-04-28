@@ -98,12 +98,12 @@ bool message_manager::dispatch()
 message_manager::suppress::suppress():
 	m_owner(MessageManager())
 {
-	InterlockedIncrement(&m_owner.m_suppressions);
+	++m_owner.m_suppressions;
 }
 
 message_manager::suppress::~suppress()
 {
-	InterlockedDecrement(&m_owner.m_suppressions);
+	--m_owner.m_suppressions;
 }
 
 message_manager& MessageManager()

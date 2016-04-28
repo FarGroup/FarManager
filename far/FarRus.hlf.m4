@@ -5624,14 +5624,13 @@ $ #far:config System.Executor.ExcludeCmds#
 
     Изменение этого параметра возможно через ~far:config~@FarConfig@
 
-@System.Executor.NotQuotedShell
-$ #far:config System.Executor.NotQuotedShell#
-    При передаче строки командному процессору, она заключается в кавычки. Это необходимо для правильной работы CMD.EXE.
-    Параметр позволяет задать список командных процессоров, для которых строка в кавычки заключаться не будет. Имя командного процессора берётся из переменной среды %comspec%.
+@System.Executor.ComspecArguments
+$ #far:config System.Executor.ComspecArguments#
 
-    По умолчанию значение = "TCC.EXE;TCCLE.EXE".
+    Аргументы, передаваемые командному процессору. #{0}# заменяется непосредственно исполняемой командой.
+    Если ваш процессор использует другие ключи и/или кавычки, вы можете задать это здесь.
 
-    В параметре можно использовать переменные среды.
+    Значение по умолчанию: #/S /C "{0}"# (совместимо с cmd.exe)
 
     Изменение этого параметра возможно через ~far:config~@FarConfig@
 
@@ -5657,28 +5656,6 @@ $ #far:config Interface.FormatNumberSeparators#
     По умолчанию значение - "" (использовать региональные настройки ОС).
 
     Изменение этого параметра возможно через ~far:config~@FarConfig@
-
-@System.Executor.ComSpecParams
-$ #far:config System.Executor.ComSpecParams#
-    Параметр позволяет задавать ключи для командного процессора при запуске внешних программ.
-
-    Перед запуском внешней программы Far Manager формирует строку запуска подобно следующему шаблону:
-
-    COMSPEC ComSpecParams Program ProgramParams
-
-    Здесь 
-
-      COMSPEC       - значение переменной среды %COMSPEC%
-      ComSpecParams - этот параметр (для cmd.exe это '/C ') 
-      Program       - запускаемая программа
-      ProgramParams - параметры запускаемой программы
-
-    По умолчанию значение  = "/C"
-
-    Изменение этого параметра возможно через ~far:config~@FarConfig@
-
-    См. также ~System.Executor.NotQuotedShell~@System.Executor.NotQuotedShell@, 
-~System.Executor.ExcludeCmds~@System.Executor.ExcludeCmds@
 
 @System.Executor.BatchType
 $ #far:config System.Executor.BatchType#

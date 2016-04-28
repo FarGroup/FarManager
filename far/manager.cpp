@@ -61,7 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fileedit.hpp"
 #include "scrsaver.hpp"
 
-long Manager::CurrentWindowType=-1;
+std::atomic_long Manager::CurrentWindowType(-1);
 
 bool Manager::window_comparer::operator()(window_ptr_ref lhs, window_ptr_ref rhs) const
 {
@@ -980,7 +980,7 @@ void Manager::DeleteCommit(window_ptr_ref Param)
 	const auto ClearCurrentWindow = [this]
 	{
 		m_currentWindow = nullptr;
-		InterlockedExchange(&CurrentWindowType,-1);
+		CurrentWindowType = -1;
 	};
 	if (ModalIndex!=-1)
 	{
@@ -1069,7 +1069,7 @@ void Manager::ActivateCommit(window_ptr_ref Param)
 
 	DeactivateCommit(m_currentWindow);
 	m_currentWindow=Param;
-	InterlockedExchange(&CurrentWindowType,m_currentWindow->GetType());
+	CurrentWindowType = m_currentWindow->GetType();
 	UpdateMacroArea();
 	RefreshCommit(Param);
 	Param->OnChangeFocus(true);

@@ -1805,8 +1805,7 @@ void Options::InitConfigData()
 		{FSSF_PRIVATE,       NKeySystemExecutor,L"RestoreCP", OPT_DEF(Exec.RestoreCPAfterExecute, true)},
 		{FSSF_PRIVATE,       NKeySystemExecutor,L"UseAppPath", OPT_DEF(Exec.ExecuteUseAppPath, true)},
 		{FSSF_PRIVATE,       NKeySystemExecutor,L"UseHomeDir", OPT_DEF(Exec.UseHomeDir, true)},
-		{FSSF_PRIVATE,       NKeySystemExecutor,L"NotQuotedShell", OPT_DEF(Exec.strNotQuotedShell, L"TCC.EXE;TCCLE.EXE")},
-		{FSSF_PRIVATE,       NKeySystemExecutor,L"ComSpecParams", OPT_DEF(Exec.strComSpecParams, L"/C")},
+		{FSSF_PRIVATE,       NKeySystemExecutor,L"ComspecFormat", OPT_DEF(Exec.ComspecArguments, L"/S /C \"{0}\"")},
 
 		{FSSF_PRIVATE,       NKeyViewer,L"AutoDetectCodePage", OPT_DEF(ViOpt.AutoDetectCodePage, true)},
 		{FSSF_PRIVATE,       NKeyViewer,L"DefaultCodePage", OPT_DEF(ViOpt.DefaultCodePage, GetACP())},
@@ -3036,7 +3035,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		}
 	}
 
-	int CurrentWindowType = Global->WindowManager->GetCurrentWindow()->GetType();
+	const auto CurrentWindowType = Global->WindowManager->GetCurrentWindow()->GetType();
 	// TODO:Здесь как то нужно изменить, чтобы учесть будущие новые типы полноэкранных окон
 	//      или то, что, скажем редактор/вьювер может быть не полноэкранным
 

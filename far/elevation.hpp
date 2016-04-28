@@ -73,8 +73,8 @@ public:
 	class suppress: noncopyable
 	{
 	public:
-		suppress(): m_owner(Global? Global->Elevation : nullptr) { if (m_owner) InterlockedIncrement(&m_owner->m_suppressions); }
-		~suppress() { if (m_owner) InterlockedDecrement(&m_owner->m_suppressions); }
+		suppress(): m_owner(Global? Global->Elevation : nullptr) { if (m_owner) ++m_owner->m_suppressions; }
+		~suppress() { if (m_owner) --m_owner->m_suppressions; }
 
 	private:
 		elevation* m_owner;
@@ -91,7 +91,7 @@ private:
 	bool Initialize();
 	bool ElevationApproveDlg(LNGID Why, const string& Object);
 
-	volatile long m_suppressions;
+	std::atomic_ulong m_suppressions;
 	os::handle m_pipe;
 	os::handle m_process;
 	os::handle m_job;

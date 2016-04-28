@@ -2740,7 +2740,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			Info.Command = strFileName;
 			Info.WaitMode = PluginMode? Info.wait_finish : Info.no_wait;
 			Info.NewWindow = SeparateWindow;
-			Info.DirectRun = true;
+			Info.ExecMode = Info.direct;
 			Info.RunAs = RunAs;
 
 			Parent()->GetCmdLine()->ExecString(Info);
@@ -5004,7 +5004,7 @@ bool FileList::ApplyCommand()
 			Info.Command = strConvertedCommand;
 			Info.WaitMode = ListFileUsed? Info.wait_idle : Info.no_wait;
 			Info.NewWindow = false;
-			Info.DirectRun = false;
+			Info.ExecMode = Info.detect;
 			Info.RunAs = false;
 
 			Parent()->GetCmdLine()->ExecString(Info);

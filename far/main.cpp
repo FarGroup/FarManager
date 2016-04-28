@@ -236,7 +236,7 @@ static int MainProcess(
 						Info.Command = ppanel;
 						Info.WaitMode = Info.no_wait;
 						Info.NewWindow = false;
-						Info.DirectRun = false;
+						Info.ExecMode = Info.detect;
 						Info.RunAs = false;
 
 						Global->CtrlObject->CmdLine()->ExecString(Info);
@@ -262,7 +262,7 @@ static int MainProcess(
 					Info.Command = apanel;
 					Info.WaitMode = Info.no_wait;
 					Info.NewWindow = false;
-					Info.DirectRun = false;
+					Info.ExecMode = Info.detect;
 					Info.RunAs = false;
 
 					Global->CtrlObject->CmdLine()->ExecString(Info);

@@ -187,7 +187,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 		Info.Command = strCommand;
 		Info.WaitMode = AlwaysWaitFinish? Info.wait_finish : ListFileUsed? Info.wait_idle : Info.no_wait;
 		Info.NewWindow = false;
-		Info.DirectRun = false;
+		Info.ExecMode = Info.detect;
 		Info.RunAs = false;
 
 		Global->CtrlObject->CmdLine()->ExecString(Info);
@@ -285,7 +285,7 @@ void ProcessGlobalFileTypes(const string& Name, bool AlwaysWaitFinish, bool RunA
 	Info.Command = strName;
 	Info.WaitMode = AlwaysWaitFinish? Info.wait_finish : Info.no_wait;
 	Info.NewWindow = true;
-	Info.DirectRun = true;
+	Info.ExecMode = Info.direct;
 	Info.RunAs = RunAs;
 
 	Global->CtrlObject->CmdLine()->ExecString(Info);
@@ -325,7 +325,7 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 	Info.Command = strExecStr;
 	Info.WaitMode = AlwaysWaitFinish? Info.wait_finish : ListFileUsed? Info.wait_idle : Info.no_wait;
 	Info.NewWindow = false;
-	Info.DirectRun = false;
+	Info.ExecMode = Info.detect;
 	Info.RunAs = false;
 
 	Global->CtrlObject->CmdLine()->ExecString(Info);

@@ -4301,12 +4301,14 @@ void Dialog::Process()
 
 	if (m_ExitCode == -1)
 	{
-		static LONG in_dialog = -1;
+		static std::atomic_long DialogsCount(0);
 		clock_t btm = 0;
 		long    save = 0;
 		DialogMode.Set(DMODE_BEGINLOOP);
 
-		if (!InterlockedIncrement(&in_dialog))
+		++DialogsCount;
+
+		if (DialogsCount == 1)
 		{
 			btm = clock();
 			save = WaitUserTime;
@@ -4317,7 +4319,9 @@ void Dialog::Process()
 		Global->WindowManager->ExecuteModal(shared_from_this());
 		save += (clock() - btm);
 
-		if (InterlockedDecrement(&in_dialog) == -1)
+		--DialogsCount;
+
+		if (!DialogsCount)
 			WaitUserTime = save;
 	}
 

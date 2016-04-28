@@ -41,11 +41,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 struct execute_info
 {
 	enum wait_mode { no_wait, wait_idle, wait_finish };
+	enum exec_mode { detect, direct, external };
 
 	string Command;
 	wait_mode WaitMode;
 	bool NewWindow;
-	bool DirectRun;
+	exec_mode ExecMode;
 	bool RunAs;
 };
 

@@ -96,8 +96,8 @@ public:
 	const char *GetMsgA(LNGID nID) const;
 
 private:
-	virtual void Prologue() override { SetFileApisToOEM(); OEMApiCnt++; }
-	virtual void Epilogue() override { OEMApiCnt--; if(!OEMApiCnt) SetFileApisToANSI(); }
+	virtual void Prologue() override { Plugin::Prologue(); SetFileApisToOEM(); ++OEMApiCnt; }
+	virtual void Epilogue() override { Plugin::Epilogue(); --OEMApiCnt; if(!OEMApiCnt) SetFileApisToANSI(); }
 
 	void FreePluginInfo();
 	void ConvertPluginInfo(const oldfar::PluginInfo &Src, PluginInfo *Dest);
@@ -110,7 +110,7 @@ private:
 	oldfar::PluginPanelItem  *pFDPanelItemA;
 	oldfar::PluginPanelItem  *pVFDPanelItemA;
 
-	UINT64 OEMApiCnt;
+	std::atomic_ulong OEMApiCnt;
 
 	bool opif_shortcut;
 	std::unique_ptr<file_version> FileVersion;

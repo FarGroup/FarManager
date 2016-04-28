@@ -436,7 +436,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 				Info.Command = strStr;
 				Info.WaitMode = Info.no_wait;
 				Info.NewWindow = IsNewWindow;
-				Info.DirectRun = false;
+				Info.ExecMode = Info.detect;
 				Info.RunAs = IsRunAs;
 
 				SetString(L"", false);
@@ -851,7 +851,7 @@ void CommandLine::ShowViewEditHistory()
 					Info.Command = strStr;
 					Info.WaitMode = Type == HR_EXTERNAL_WAIT? Info.wait_finish : Info.no_wait;
 					Info.NewWindow = false;
-					Info.DirectRun = false;
+					Info.ExecMode = Info.detect;
 					Info.RunAs = false;
 
 					ExecString(Info);
@@ -1053,7 +1053,7 @@ void CommandLine::ExecString(execute_info& Info)
 
 	FarChDir(m_CurDir);
 
-	if (!Info.DirectRun)
+	if (Info.ExecMode != Info.direct)
 	{
 		if (!Info.Command.empty() && Info.Command[0] == L'@')
 		{
