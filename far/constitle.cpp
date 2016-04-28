@@ -106,11 +106,7 @@ void ConsoleTitle::SetFarTitle(const string& Title)
 	SCOPED_ACTION(CriticalSectionLock)(TitleCS);
 
 	FarTitle() = Title;
-
-	if (!Global->ScrBuf->GetLockCount())
-	{
-		Global->ScrBuf->SetTitle(UserTitle().empty() ? FarTitle() + GetFarTitleAddons() : UserTitle());
-	}
+	Global->ScrBuf->SetTitle(UserTitle().empty()? FarTitle() + GetFarTitleAddons() : UserTitle());
 }
 
 const string& ConsoleTitle::GetTitle()
