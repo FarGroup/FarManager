@@ -1482,19 +1482,16 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 				}
 				else
 				{
-					if (NewPos != OldSelectPos)
+					if (NewPos != OldSelectPos && SetSelectPos(NewPos, 1) < 0)
 					{
-						if (SetSelectPos(NewPos, 1) < 0)
-						{
-							ClearDone();
-						}
-						else
-						{
-							CheckFlags(VMENU_COMBOBOX) ? Close(GetExitCode()) : ClearDone();
-						}
-
-						break;
+						ClearDone();
 					}
+					else
+					{
+						CheckFlags(VMENU_COMBOBOX) ? Close(GetExitCode()) : ClearDone();
+					}
+
+					break;
 				}
 			}
 
