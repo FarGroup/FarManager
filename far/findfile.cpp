@@ -3173,10 +3173,7 @@ FindFiles::FindFiles():
 	Global->CtrlObject->Cp()->ActivePanel()->RefreshTitle();
 }
 
-FindFiles::~FindFiles()
-{
-	Global->ScrBuf->ResetShadow();
-}
+FindFiles::~FindFiles() = default;
 
 
 background_searcher::background_searcher(

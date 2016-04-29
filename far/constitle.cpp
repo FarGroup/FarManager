@@ -101,12 +101,16 @@ void ConsoleTitle::SetUserTitle(const string& Title)
 
 CriticalSection TitleCS;
 
-void ConsoleTitle::SetFarTitle(const string& Title)
+void ConsoleTitle::SetFarTitle(const string& Title, bool Flush)
 {
 	SCOPED_ACTION(CriticalSectionLock)(TitleCS);
 
 	FarTitle() = Title;
 	Global->ScrBuf->SetTitle(UserTitle().empty()? FarTitle() + GetFarTitleAddons() : UserTitle());
+	if (Flush)
+	{
+		Global->ScrBuf->Flush(flush_type::title);
+	}
 }
 
 const string& ConsoleTitle::GetTitle()

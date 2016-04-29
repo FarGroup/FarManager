@@ -502,7 +502,7 @@ PluginHandle* PluginManager::OpenFilePlugin(
 	if (Global->Opt->ShowCheckingFile)
 	{
 		OldTitle = ConsoleTitle::GetTitle();
-		ConsoleTitle::SetFarTitle(MSG(MCheckingFileInPlugin));
+		ConsoleTitle::SetFarTitle(MSG(MCheckingFileInPlugin), true);
 	}
 	PluginHandle* hResult = nullptr;
 	std::list<PluginInfo> items;
@@ -558,7 +558,7 @@ PluginHandle* PluginManager::OpenFilePlugin(
 		{
 			if (Global->Opt->ShowCheckingFile)
 			{
-				ConsoleTitle::SetFarTitle(MSG(MCheckingFileInPlugin) + L" - ["s + PointToName(i->GetModuleName()) + L"]..."s);
+				ConsoleTitle::SetFarTitle(MSG(MCheckingFileInPlugin) + L" - ["s + PointToName(i->GetModuleName()) + L"]..."s, true);
 			}
 
 			const auto hPlugin = i->OpenFilePlugin(Name? Name->data() : nullptr, (BYTE*)Info.Buffer, Info.BufferSize, OpMode);

@@ -39,7 +39,33 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "synchro.hpp"
 #include "matrix.hpp"
 
+enum class flush_type
+{
+	screen = BIT(0),
+	cursor = BIT(1),
+	title  = BIT(2),
+
+	all = screen | cursor | title
+};
+
+inline auto operator|(flush_type a, flush_type b)
+{
+	return static_cast<flush_type>(
+		static_cast<std::underlying_type<flush_type>::type>(a) |
+		static_cast<std::underlying_type<flush_type>::type>(b)
+	);
+}
+
+inline auto operator&(flush_type a, flush_type b)
+{
+	return
+		static_cast<std::underlying_type<flush_type>::type>(a) &
+		static_cast<std::underlying_type<flush_type>::type>(b);
+}
+
+
 class ScreenBuf: noncopyable
+
 {
 public:
 	ScreenBuf();
@@ -52,7 +78,6 @@ public:
 	int  GetLockCount() const {return LockCount;}
 	void SetLockCount(int Count);
 	void ResetLockCount() {LockCount=0;}
-	void ResetShadow();
 	void MoveCursor(int X,int Y);
 	void GetCursorPos(SHORT& X, SHORT& Y) const;
 	void SetCursorType(bool Visible, DWORD Size);
@@ -71,7 +96,7 @@ public:
 	void FillRect(int X1,int Y1,int X2,int Y2,WCHAR Ch,const FarColor& Color);
 
 	void Scroll(size_t Count);
-	void Flush(bool SuppressIndicators = false);
+	void Flush(flush_type FlushType = flush_type::all);
 
 	void PartialUnconditionalFlush(int NumberOfLines);
 

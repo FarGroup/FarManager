@@ -896,7 +896,6 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 
 			if (Global->WindowManager)
 			{
-				Global->ScrBuf->ResetShadow();
 				// апдейтим панели (именно они сейчас!)
 				SCOPED_ACTION(LockScreen);
 

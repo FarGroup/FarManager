@@ -645,7 +645,6 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 
 				m_RecCode.clear();
 				m_RecDescription.clear();
-				Global->ScrBuf->ResetShadow();
 				Global->ScrBuf->Flush();
 				Global->WaitInFastFind--;
 				return true;

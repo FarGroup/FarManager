@@ -292,7 +292,6 @@ static int MainProcess(
 		// очистим за собой!
 		SetScreen(0,0,ScrX,ScrY,L' ',colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 		Console().SetTextAttributes(InitAttributes);
-		Global->ScrBuf->ResetShadow();
 		Global->ScrBuf->ResetLockCount();
 		Global->ScrBuf->Flush();
 		MoveRealCursor(0,0);

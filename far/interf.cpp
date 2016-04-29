@@ -878,7 +878,6 @@ void ClearScreen(const FarColor& Color)
 	{
 		Console().ClearExtraRegions(Color, CR_BOTH);
 	}
-	Global->ScrBuf->ResetShadow();
 	Global->ScrBuf->Flush();
 	Console().SetTextAttributes(Color);
 }

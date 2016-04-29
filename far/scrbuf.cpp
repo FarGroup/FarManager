@@ -50,7 +50,6 @@ enum
 	SBFLAGS_FLUSHEDCURPOS   = BIT(1),
 	SBFLAGS_FLUSHEDCURTYPE  = BIT(2),
 	SBFLAGS_FLUSHEDTITLE    = BIT(3),
-	SBFLAGS_USESHADOW       = BIT(4),
 };
 
 //#if defined(SYSLOG_OT)
@@ -111,7 +110,6 @@ void ScreenBuf::FillBuf()
 	SMALL_RECT ReadRegion={0, 0, static_cast<SHORT>(Buf.width() - 1), static_cast<SHORT>(Buf.height() - 1)};
 	Console().ReadOutput(Buf, ReadRegion);
 	Shadow = Buf;
-	SBFlags.Set(SBFLAGS_USESHADOW);
 	COORD CursorPosition;
 	Console().GetCursorPosition(CursorPosition);
 	CurX=CursorPosition.X;
@@ -316,54 +314,49 @@ void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,WCHAR Ch,const FarColor& Co
 
 /* "Сбросить" виртуальный буфер на консоль
 */
-void ScreenBuf::Flush(bool SuppressIndicators)
+void ScreenBuf::Flush(flush_type FlushType)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
 	if (!LockCount)
 	{
-		if (!SuppressIndicators)
-		{
-			if(Global->CtrlObject &&
-				(Global->CtrlObject->Macro.IsRecording() ||
-				(Global->CtrlObject->Macro.IsExecuting() && Global->Opt->Macro.ShowPlayIndicator))
-			)
-			{
-				MacroChar = Buf[0][0];
-				MacroCharUsed=true;
-
-				if(Global->CtrlObject->Macro.IsRecording())
-				{
-					Buf[0][0].Char = L'R';
-					Buf[0][0].Attributes = colors::ConsoleColorToFarColor(B_LIGHTRED | F_WHITE);
-				}
-				else
-				{
-					Buf[0][0].Char = L'P';
-					Buf[0][0].Attributes = colors::ConsoleColorToFarColor(B_GREEN | F_WHITE);
-				}
-			}
-
-			if(Global->Elevation->Elevated())
-			{
-				ElevationChar = Buf.back().back();
-				ElevationCharUsed=true;
-
-				Buf.back().back().Char = L'A';
-				Buf.back().back().Attributes = colors::ConsoleColorToFarColor(B_LIGHTRED | F_WHITE);
-			}
-		}
-
-		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE) && !CurVisible)
+		if (FlushType & flush_type::cursor && !SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE) && !CurVisible)
 		{
 			CONSOLE_CURSOR_INFO cci={CurSize,CurVisible};
 			Console().SetCursorInfo(cci);
 			SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
 		}
 
-		if (!SBFlags.Check(SBFLAGS_FLUSHED))
+		if (FlushType & flush_type::screen && !SBFlags.Check(SBFLAGS_FLUSHED))
 		{
-			SBFlags.Set(SBFLAGS_FLUSHED);
+			auto SetMacroChar = [](FAR_CHAR_INFO& Where, wchar_t Char, WORD Color)
+			{
+				Where.Char = Char;
+				Where.Attributes = colors::ConsoleColorToFarColor(Color);
+			};
+
+			if (Global->CtrlObject &&
+				(Global->CtrlObject->Macro.IsRecording() ||
+				(Global->CtrlObject->Macro.IsExecuting() && Global->Opt->Macro.ShowPlayIndicator))
+				)
+			{
+				auto& Where = Buf[0][0];
+				MacroChar = Where;
+				MacroCharUsed = true;
+
+				Global->CtrlObject->Macro.IsRecording()?
+					SetMacroChar(Where, L'R', B_LIGHTRED | F_WHITE) :
+					SetMacroChar(Where, L'P', B_GREEN | F_WHITE);
+			}
+
+			if (Global->Elevation->Elevated())
+			{
+				auto& Where = Buf.back().back();
+				ElevationChar = Where;
+				ElevationCharUsed = true;
+
+				SetMacroChar(Where, L'A', B_LIGHTRED | F_WHITE);
+			}
 
 			if (Global->WaitInMainLoop && Global->Opt->Clock && !Global->ProcessShowClock)
 			{
@@ -373,8 +366,6 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 			std::vector<SMALL_RECT>WriteList;
 			bool Changes=false;
 
-			if (SBFlags.Check(SBFLAGS_USESHADOW))
-			{
 				if (Global->Opt->ClearType)
 				{
 					//Для полного избавления от артефактов ClearType будем перерисовывать на всю ширину.
@@ -461,13 +452,6 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 						WriteList.emplace_back(WriteRegion);
 					}
 				}
-			}
-			else
-			{
-				Changes=true;
-				SMALL_RECT WriteRegion = { 0, 0, static_cast<SHORT>(Buf.width() - 1), static_cast<SHORT>(Buf.height() - 1) };
-				WriteList.emplace_back(WriteRegion);
-			}
 
 			if (Changes)
 			{
@@ -480,19 +464,21 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 				Console().Commit();
 				Shadow = Buf;
 			}
+
+			if (MacroCharUsed)
+			{
+				Buf[0][0] = MacroChar;
+			}
+
+			if (ElevationCharUsed)
+			{
+				Buf.back().back() = ElevationChar;
+			}
+
+			SBFlags.Set(SBFLAGS_FLUSHED);
 		}
 
-		if (MacroCharUsed)
-		{
-			Buf[0][0] = MacroChar;
-		}
-
-		if (ElevationCharUsed)
-		{
-			Buf.back().back() = ElevationChar;
-		}
-
-		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURPOS))
+		if (FlushType & flush_type::cursor && !SBFlags.Check(SBFLAGS_FLUSHEDCURPOS))
 		{
 			if (is_visible(CurX, CurY, CurX, CurY))
 			{
@@ -502,34 +488,25 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 			SBFlags.Set(SBFLAGS_FLUSHEDCURPOS);
 		}
 
-		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE))
+		if (FlushType & flush_type::cursor && !SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE))
 		{
 			CONSOLE_CURSOR_INFO cci = { CurSize, CurVisible && is_visible(CurX, CurY, CurX, CurY) };
 			Console().SetCursorInfo(cci);
 			SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
 		}
 
-		if (!SBFlags.Check(SBFLAGS_FLUSHEDTITLE))
+		if (FlushType & flush_type::title && !SBFlags.Check(SBFLAGS_FLUSHEDTITLE))
 		{
 			Console().SetTitle(m_Title);
 			SBFlags.Set(SBFLAGS_FLUSHEDTITLE);
 		}
-
-		SBFlags.Set(SBFLAGS_USESHADOW|SBFLAGS_FLUSHED);
 	}
-}
-
-// TODO, BUGBUG: Refactor & merge with regular Flush
-void PartialUnconditionalFlush(int NumberOfLines)
-{
-
 }
 
 void ScreenBuf::Lock()
 {
 	LockCount++;
 }
-
 
 void ScreenBuf::Unlock()
 {
@@ -541,12 +518,6 @@ void ScreenBuf::SetLockCount(int Count)
 {
 	LockCount=Count;
 }
-
-void ScreenBuf::ResetShadow()
-{
-	SBFlags.Clear(SBFLAGS_FLUSHED | SBFLAGS_FLUSHEDCURTYPE | SBFLAGS_FLUSHEDCURPOS | SBFLAGS_FLUSHEDTITLE | SBFLAGS_USESHADOW);
-}
-
 
 void ScreenBuf::MoveCursor(int X,int Y)
 {
