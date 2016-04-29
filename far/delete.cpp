@@ -301,9 +301,6 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 	int Ret;
 	BOOL NeedUpdate=TRUE, NeedSetUpADir=FALSE;
 	bool Opt_DeleteToRecycleBin=Global->Opt->DeleteToRecycleBin;
-	/*& 31.05.2001 OT Запретить перерисовку текущего окна*/
-	const auto WindowFromLaunched = Global->WindowManager->GetCurrentWindow();
-	WindowFromLaunched->Lock();
 	bool DeleteAllFolders=!Global->Opt->Confirm.DeleteFolder;
 	const auto UpdateDiz=(Global->Opt->Diz.UpdateMode==DIZ_UPDATE_ALWAYS ||
 	           (SrcPanel->IsDizDisplayed() &&
@@ -312,8 +309,6 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 	SCOPE_EXIT
 	{
 		Global->Opt->DeleteToRecycleBin=Opt_DeleteToRecycleBin;
-		// Разрешить перерисовку окна
-		WindowFromLaunched->Unlock();
 
 		if (NeedUpdate)
 		{
