@@ -207,8 +207,6 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 	strDest = os::env::expand_strings(Module);
 
 	bool Result=false;
-	ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
-	Internal = false;
 
 	if (!Module.empty())
 	{
@@ -436,7 +434,9 @@ static bool RunAsSupported(LPCWSTR Name)
 Дополнительно смотрится гуевость команды-активатора
 (чтобы не ждать завершения)
 */
-static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsystem,DWORD& Error)
+
+// TODO: rewrite
+static const wchar_t *GetShellActionImpl(const string& FileName, string& strAction, DWORD& ImageSubsystem,DWORD& Error)
 {
 	string strValue;
 	string strNewValue;
@@ -465,8 +465,6 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 		return nullptr;
 
 	strValue += L"\\";
-
-	static string strAction;
 
 	if (os::reg::GetValue(Key, L"", strAction))
 	{
@@ -585,6 +583,12 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 	return RetPtr;
 }
 
+string GetShellAction(const string& FileName, DWORD& ImageSubsystem, DWORD& Error)
+{
+	string Action;
+	return NullToEmpty(GetShellActionImpl(FileName, Action, ImageSubsystem, Error));
+}
+
 bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
 {
 	bool bVistaType = false;
@@ -700,9 +704,7 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 		}
 	}
 
-	DWORD dwSubSystem = IMAGE_SUBSYSTEM_UNKNOWN;
-	os::handle Process;
-	LPCWSTR lpVerb = nullptr;
+	string Verb;
 
 	if (FolderRun && Info.ExecMode == Info.direct)
 	{
@@ -710,36 +712,40 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	}
 	else if (Info.ExecMode == Info.detect)
 	{
-		bool internal;
-		FindModule(strNewCmdStr,strNewCmdStr,dwSubSystem,internal);
-
-		if (/*!*NewCmdPar && */ dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN)
+		auto GetSubsystemFromShellAction = [&Verb](const string& Str, DWORD& Subsystem)
 		{
-
-			const wchar_t *ExtPtr=wcsrchr(PointToName(strNewCmdStr), L'.');
-			if (ExtPtr)
+			if (const auto ExtPtr = wcsrchr(PointToName(Str), L'.'))
 			{
-				if (!(!StrCmpI(ExtPtr,L".exe") || !StrCmpI(ExtPtr,L".com") || IsBatchExtType(ExtPtr)))
+				if (!(!StrCmpI(ExtPtr, L".exe") || !StrCmpI(ExtPtr, L".com") || IsBatchExtType(ExtPtr)))
 				{
-					DWORD Error=0, dwSubSystem2=0;
-					lpVerb=GetShellAction(strNewCmdStr,dwSubSystem2,Error);
+					DWORD SaError = 0, SaSubSystem = 0;
+					Verb = GetShellAction(Str, SaSubSystem, SaError);
 
-					if (lpVerb && Error != ERROR_NO_ASSOCIATION)
+					if (!Verb.empty() && SaError != ERROR_NO_ASSOCIATION)
 					{
-						dwSubSystem=dwSubSystem2;
+						Subsystem = SaSubSystem;
+						return true;
 					}
 				}
 			}
-		}
+			return false;
+		};
 
-		if (dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)
+		DWORD dwSubSystem;
+		bool Internal = false;
+		if (FindModule(strNewCmdStr, strNewCmdStr, dwSubSystem, Internal) || GetSubsystemFromShellAction(strNewCmdStr, dwSubSystem))
 		{
-			if (Info.ExecMode == Info.detect)
+			Info.ExecMode = Internal? Info.external : Info.direct;
+
+			if (dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)
 			{
-				Info.ExecMode = Info.direct;
 				Silent = true;
+				Info.NewWindow = true;
 			}
-			Info.NewWindow = true;
+		}
+		else
+		{
+			Info.ExecMode = Info.external;
 		}
 	}
 
@@ -801,12 +807,14 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 		{
 			seInfo.lpParameters = strNewCmdPar.data();
 		}
-		//Maximus: рушилась dwSubSystem
-		DWORD dwSubSystem2 = IMAGE_SUBSYSTEM_UNKNOWN;
-		DWORD dwError = 0;
-		seInfo.lpVerb = IsDirectory? nullptr : lpVerb? lpVerb : GetShellAction(strNewCmdStr, dwSubSystem2, dwError);
-		if (dwSubSystem2!=IMAGE_SUBSYSTEM_UNKNOWN && dwSubSystem==IMAGE_SUBSYSTEM_UNKNOWN)
-			dwSubSystem=dwSubSystem2;
+
+		auto GetVerb = [&Verb](const string& Str)
+		{
+			DWORD DummySubsystem, DummyError;
+			return GetShellAction(Str, DummySubsystem, DummyError);
+		};
+
+		seInfo.lpVerb = IsDirectory? nullptr : (Verb.empty()? Verb = GetVerb(strNewCmdStr) : Verb).data();
 	}
 	else
 	{
@@ -850,6 +858,8 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	}
 
 	Result = ShellExecuteEx(&seInfo) != FALSE;
+
+	os::handle Process;
 
 	if (Result)
 	{
