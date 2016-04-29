@@ -204,6 +204,8 @@ Return: true/false - нашли/не нашли
 */
 static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsystem,bool &Internal)
 {
+	strDest = os::env::expand_strings(Module);
+
 	bool Result=false;
 	ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
 	Internal = false;
@@ -698,8 +700,6 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 		}
 	}
 
-	const auto strComspec(os::env::get_variable(L"COMSPEC"));
-
 	DWORD dwSubSystem = IMAGE_SUBSYSTEM_UNKNOWN;
 	os::handle Process;
 	LPCWSTR lpVerb = nullptr;
@@ -792,7 +792,7 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 		}
 	}
 
-	string ComSpecParams;
+	string strComspec, ComSpecParams;
 
 	if (Info.ExecMode == Info.direct)
 	{
@@ -810,6 +810,7 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	}
 	else
 	{
+		strComspec = os::env::get_variable(L"COMSPEC");
 		if (strComspec.empty())
 		{
 			Message(MSG_WARNING, 1, MSG(MError), MSG(MComspecNotFound), MSG(MOk));
