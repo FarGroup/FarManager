@@ -2740,7 +2740,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			Info.Command = strFileName;
 			Info.WaitMode = PluginMode? Info.wait_finish : Info.no_wait;
 			Info.NewWindow = SeparateWindow;
-			Info.ExecMode = Info.direct;
+			Info.ExecMode = Info.detect;
 			Info.RunAs = RunAs;
 
 			Parent()->GetCmdLine()->ExecString(Info);
