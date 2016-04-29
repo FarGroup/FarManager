@@ -497,7 +497,13 @@ PluginHandle* PluginManager::OpenFilePlugin(
 	// However, we save & restore it unconditionally, as plugins could mess with it too.
 
 	string OldTitle(ConsoleTitle::GetTitle());
-	SCOPE_EXIT{ ConsoleTitle::SetFarTitle(OldTitle); };
+	SCOPE_EXIT
+	{
+		// Invalidate cache
+		ConsoleTitle::SetFarTitle({});
+		// Set & flush
+		ConsoleTitle::SetFarTitle(OldTitle, true);
+	};
 
 	if (Global->Opt->ShowCheckingFile)
 	{
