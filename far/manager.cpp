@@ -368,7 +368,7 @@ void Manager::ExecuteModal(window_ptr_ref Executed)
 	{
 		Commit();
 
-		if (stop)
+		if (stop || EndLoop)
 		{
 			break;
 		}
