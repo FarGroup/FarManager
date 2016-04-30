@@ -204,8 +204,6 @@ Return: true/false - нашли/не нашли
 */
 static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsystem,bool &Internal)
 {
-	strDest = os::env::expand_strings(Module);
-
 	bool Result=false;
 
 	if (!Module.empty())
@@ -676,6 +674,7 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 
 	if (!PartCmdLine(Info.Command, strNewCmdStr, strNewCmdPar))
 	{
+		// Complex expression (pipe or redirection): fallback to comspec as is
 		strNewCmdStr = Info.Command;
 		Info.ExecMode = Info.external;
 	}
@@ -733,19 +732,36 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 
 		DWORD dwSubSystem;
 		bool Internal = false;
-		if (FindModule(strNewCmdStr, strNewCmdStr, dwSubSystem, Internal) || GetSubsystemFromShellAction(strNewCmdStr, dwSubSystem))
-		{
-			Info.ExecMode = Internal? Info.external : Info.direct;
 
-			if (dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)
+		const auto ModuleName = Unquote(os::env::expand_strings(strNewCmdStr));
+		auto FoundModuleName = ModuleName;
+
+		if (FindModule(ModuleName, FoundModuleName, dwSubSystem, Internal) || GetSubsystemFromShellAction(ModuleName, dwSubSystem))
+		{
+			if (Internal)
 			{
-				Silent = true;
-				Info.NewWindow = true;
+				// Internal comspec command (one of ExcludeCmds): fallback to comspec as is
+				Info.ExecMode = Info.external;
+				strNewCmdStr = Info.Command;
+			}
+			else
+			{
+				// We can run it directly
+				Info.ExecMode = Info.direct;
+				strNewCmdStr = FoundModuleName;
+
+				if (dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)
+				{
+					Silent = true;
+					Info.NewWindow = true;
+				}
 			}
 		}
 		else
 		{
+			// Found nothing: fallback to comspec as is
 			Info.ExecMode = Info.external;
+			strNewCmdStr = Info.Command;
 		}
 	}
 
@@ -783,11 +799,11 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 			{
 				strFarTitle.append(L" ").append(strNewCmdPar);
 			}
-			ConsoleTitle::SetFarTitle(strFarTitle);
+			ConsoleTitle::SetFarTitle(strFarTitle, true);
 		}
 	}
 
-	// ShellExecuteEx Win8.1+ wrongly opens symlinks in the separate console window
+	// ShellExecuteEx Win8.1+ wrongly opens symlinks in a separate console window
 	// Workaround: execute through %comspec%
 	if (Info.ExecMode == Info.direct && !Info.NewWindow && IsWindows8Point1OrGreater())
 	{
