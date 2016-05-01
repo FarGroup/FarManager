@@ -3,6 +3,90 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 30.04.2016 20:54:00 +0200 - build 4655
+
+1. 0003225: Freeze on "close" button press from modal editor
+
+drkns 30.04.2016 15:16:06 +0200 - build 4654
+
+1. Continue fixing the launcher.
+
+drkns 29.04.2016 19:13:57 +0200 - build 4653
+
+1. Forum: nightly build does not find itself when starting FAR from FAR command line.
+
+drkns 29.04.2016 17:31:01 +0200 - build 4652
+
+1. Continuation of 4646 - remove unnecessary window locks.
+
+drkns 29.04.2016 16:10:52 +0200 - build 4651
+
+1. Continuation of 4648.
+
+drkns 29.04.2016 13:55:48 +0200 - build 4650
+
+1. And once more.
+
+drkns 29.04.2016 10:36:00 +0200 - build 4649
+
+1. Correction of 4644.
+
+drkns 29.04.2016 09:32:30 +0200 - build 4648
+
+1. Continuation of 4631 - restore System.ShowCheckingFile functioning.
+
+drkns 28.04.2016 19:43:18 +0200 - build 4647
+
+1. Continuation of 4631.
+
+drkns 28.04.2016 19:06:43 +0200 - build 4646
+
+1. Continuation of 4631 - remove unnecessary window locks.
+
+drkns 28.04.2016 16:52:55 +0200 - build 4645
+
+1. Correction of 4644.
+
+drkns 28.04.2016 16:47:33 +0200 - build 4644
+
+1. Continuation of experimental changes in launcher:
+   - System.Executor.NotQuotedShell and System.Executor.ComSpecParams are removed. Hovewer, there is now System.Executor.ComspecArguments managing both keys and quotes.
+     The default value is compatible with cmd.exe - /S /C "{0}" where {0} is replaced with the executed command.
+     For bash replace it to -c '{0}', for tcc - to -с {0}
+   - (partially) #0003223: when passing to comspec there was unwrapped more than needed.
+
+2. Use std::atomic<T> instead of Interlocked*().
+
+zg 28.04.2016 13:20:04 +0200 - build 4643
+
+1. hotkey did not work in combo box for current item.
+
+drkns 28.04.2016 10:40:27 +0200 - build 4642
+
+1. Correction of 4631.
+
+drkns 26.04.2016 22:50:38 +0200 - build 4641
+
+1. Correction of 4635: show "remaining:" when copying a single file and refresh it with the same frequency as for speed.
+
+zg 26.04.2016 16:23:31 +0200 - build 4640
+
+1. there was an opportunity to choose "Also ask on R/O files" in copy dialog.
+
+2. correction of sending DN_INPUT/DN_CONTROLINPUT for an open combo box.
+
+3. remove strange behavior restoring old list position if DN_LISTHOTKEY is processed.
+
+zg 26.04.2016 03:41:23 +0200 - build 4639
+
+1. remove unused code.
+
+zg 25.04.2016 23:43:02 +0200 - build 4638
+
+1. grabber did not work if a combo box was open.
+
+2. DM_SETCOMBOBOXEVENT returned garbage.
+
 drkns 24.04.2016 11:15:15 +0200 - build 4637
 
 1. Correction of 4633.
