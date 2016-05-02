@@ -186,9 +186,6 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 		execute_info Info;
 		Info.Command = strCommand;
 		Info.WaitMode = AlwaysWaitFinish? Info.wait_finish : ListFileUsed? Info.wait_idle : Info.no_wait;
-		Info.NewWindow = false;
-		Info.ExecMode = Info.detect;
-		Info.RunAs = false;
 
 		Global->CtrlObject->CmdLine()->ExecString(Info);
 
@@ -324,9 +321,6 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 	execute_info Info;
 	Info.Command = strExecStr;
 	Info.WaitMode = AlwaysWaitFinish? Info.wait_finish : ListFileUsed? Info.wait_idle : Info.no_wait;
-	Info.NewWindow = false;
-	Info.ExecMode = Info.detect;
-	Info.RunAs = false;
 
 	Global->CtrlObject->CmdLine()->ExecString(Info);
 
@@ -536,7 +530,7 @@ void EditFileTypes()
 	for (;;)
 	{
 		int NumLine = FillFileTypesMenu(TypesMenu.get(), MenuPos);
-		int ExitCode=TypesMenu->Run([&](const Manager::Key& RawKey)->int
+		int ExitCode=TypesMenu->Run([&](const Manager::Key& RawKey)
 		{
 			const auto Key=RawKey();
 			MenuPos=TypesMenu->GetSelectPos();

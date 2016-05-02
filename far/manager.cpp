@@ -1285,7 +1285,7 @@ void* Manager::GetCurrent(std::function<void*(windows::const_reverse_iterator)> 
 
 Viewer* Manager::GetCurrentViewer(void) const
 {
-	return reinterpret_cast<Viewer*>(GetCurrent([](windows::const_reverse_iterator Iterator)->void*
+	return reinterpret_cast<Viewer*>(GetCurrent([](windows::const_reverse_iterator Iterator)
 	{
 		const auto result = std::dynamic_pointer_cast<ViewerContainer>(*Iterator);
 		return result?result->GetViewer():nullptr;

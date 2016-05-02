@@ -434,7 +434,7 @@ void Options::MaskGroupsSettings()
 	bool Filter = false;
 	for(;;)
 	{
-		MasksMenu->Run([&](const Manager::Key& RawKey)->int
+		MasksMenu->Run([&](const Manager::Key& RawKey)
 		{
 			const auto Key=RawKey();
 			if(Filter)
@@ -450,7 +450,7 @@ void Options::MaskGroupsSettings()
 					MasksMenu->SetTitle(MSG(MMenuMaskGroups));
 					MasksMenu->SetBottomTitle(MSG(MMaskGroupBottom));
 				}
-				return true;
+				return 1;
 			}
 			int ItemPos = MasksMenu->GetSelectPos();
 			const auto* Item = MasksMenu->GetUserDataPtr<string>(ItemPos);
@@ -1021,7 +1021,7 @@ void Options::SetFilePanelModes()
 			ModeList->SetHelp(L"PanelViewModes");
 			ModeList->SetMenuFlags(VMENU_WRAPMODE);
 			ModeList->SetId(PanelViewModesId);
-			ModeNumber=ModeList->Run([&](const Manager::Key& RawKey)->int
+			ModeNumber=ModeList->Run([&](const Manager::Key& RawKey)
 			{
 				const auto Key=RawKey();
 				switch (Key)

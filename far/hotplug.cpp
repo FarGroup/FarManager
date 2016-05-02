@@ -517,7 +517,7 @@ void ShowHotplugDevices()
 		NeedRefresh = true;
 	});
 
-	HotPlugList->Run([&](const Manager::Key& RawKey)->int
+	HotPlugList->Run([&](const Manager::Key& RawKey)
 	{
 		auto Key=RawKey();
 		if(Key==KEY_NONE && NeedRefresh)

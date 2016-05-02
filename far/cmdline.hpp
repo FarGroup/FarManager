@@ -44,10 +44,10 @@ struct execute_info
 	enum exec_mode { detect, direct, external };
 
 	string Command;
-	wait_mode WaitMode;
-	bool NewWindow;
-	exec_mode ExecMode;
-	bool RunAs;
+	wait_mode WaitMode = no_wait;
+	bool NewWindow = false;
+	exec_mode ExecMode = detect;
+	bool RunAs = false;
 };
 
 class execution_context;

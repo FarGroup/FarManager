@@ -91,7 +91,7 @@ void ShowProcessList()
 		ProcList->SetBottomTitle(MSG(MProcessListBottom));
 		ProcList->SortItems(TaskSort);
 
-		ProcList->Run([&](const Manager::Key& RawKey)->int
+		ProcList->Run([&](const Manager::Key& RawKey)
 		{
 			const auto Key=RawKey();
 			int KeyProcessed = 1;

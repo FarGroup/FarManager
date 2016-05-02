@@ -513,7 +513,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 				::GetCursorType(Visible, Size);
 				ComplMenu->Key(KEY_NONE);
 				bool IsChanged = false;
-				int ExitCode=ComplMenu->Run([&](const Manager::Key& RawKey)->int
+				int ExitCode=ComplMenu->Run([&](const Manager::Key& RawKey)
 				{
 					auto MenuKey = RawKey();
 					::SetCursorType(Visible, Size);

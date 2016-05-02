@@ -1315,7 +1315,7 @@ void PluginManager::Configure(int StartPos)
 
 			string strPluginModuleName;
 
-			PluginList->Run([&](const Manager::Key& RawKey)->int
+			PluginList->Run([&](const Manager::Key& RawKey)
 			{
 				const auto Key=RawKey();
 				int SelPos=PluginList->GetSelectPos();
@@ -1485,7 +1485,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 				NeedUpdateItems = false;
 			}
 
-			PluginList->Run([&](const Manager::Key& RawKey)->int
+			PluginList->Run([&](const Manager::Key& RawKey)
 			{
 				const auto Key=RawKey();
 				int SelPos=PluginList->GetSelectPos();

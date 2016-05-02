@@ -1381,7 +1381,7 @@ string str_printf(const wchar_t * format, ...)
 
 					if (Flags.Check(STLF_UNIQUE))
 					{
-						ItemsList.unique([](value_type& a, value_type& b)->bool
+						ItemsList.unique([](value_type& a, value_type& b)
 						{
 							if (a.second > b.second)
 								a.second = b.second;

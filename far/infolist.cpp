@@ -631,7 +631,7 @@ void InfoList::SelectShowMode()
 		ShowModeMenu->SetPosition(m_X1+4,-1,0,0);
 		ShowModeMenu->SetMenuFlags(VMENU_WRAPMODE);
 
-		ShowCode=ShowModeMenu->Run([&](const Manager::Key& RawKey)->int
+		ShowCode=ShowModeMenu->Run([&](const Manager::Key& RawKey)
 		{
 			const auto Key=RawKey();
 			int KeyProcessed = 1;

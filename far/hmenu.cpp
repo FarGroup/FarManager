@@ -413,7 +413,7 @@ void HMenu::ProcessSubMenu(const MenuDataEx *Data, size_t DataCount,
 	MOUSE_EVENT_RECORD MouseEvent;
 	int SendKey=0;
 
-	Position=SubMenu->RunEx([&](int Msg, void *param)->int
+	Position=SubMenu->RunEx([&](int Msg, void *param)
 	{
 		if(Msg!=DN_INPUT)
 			return 0;

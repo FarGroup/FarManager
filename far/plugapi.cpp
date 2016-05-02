@@ -953,7 +953,7 @@ intptr_t WINAPI apiMenuFn(
 
 			FarMenu->SetTitle(NullToEmpty(Title));
 
-			ExitCode=FarMenu->RunEx([&](int Msg, void *param)->int
+			ExitCode=FarMenu->RunEx([&](int Msg, void *param)
 			{
 				if (Msg!=DN_INPUT || !BreakKeys)
 					return 0;

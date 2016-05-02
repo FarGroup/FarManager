@@ -614,7 +614,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 
 	for (;;)
 	{
-		HiMenu->Run([&](const Manager::Key& RawKey)->int
+		HiMenu->Run([&](const Manager::Key& RawKey)
 		{
 			const auto Key=RawKey();
 			int SelectPos=HiMenu->GetSelectPos();

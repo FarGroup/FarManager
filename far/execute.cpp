@@ -658,10 +658,8 @@ void OpenFolderInShell(const string& Folder)
 {
 	execute_info Info;
 	Info.Command = Folder;
-	Info.WaitMode = Info.no_wait;
 	Info.NewWindow = true;
 	Info.ExecMode = Info.direct;
-	Info.RunAs = false;
 
 	Execute(Info, true, true);
 }
@@ -754,6 +752,7 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 				// We can run it directly
 				Info.ExecMode = Info.direct;
 				strNewCmdStr = FoundModuleName;
+				strNewCmdPar = os::env::expand_strings(strNewCmdPar);
 
 				if (dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)
 				{

@@ -2901,7 +2901,7 @@ int VMenu::FindItem(int StartIndex,const string& Pattern,UINT64 Flags)
 // Offset - начало сравнения! по умолчанию =0
 void VMenu::SortItems(bool Reverse, int Offset)
 {
-	SortItems([](const MenuItemEx& a, const MenuItemEx& b, const SortItemParam& Param)->bool
+	SortItems([](const MenuItemEx& a, const MenuItemEx& b, const SortItemParam& Param)
 	{
 		string strName1(a.strName);
 		string strName2(b.strName);

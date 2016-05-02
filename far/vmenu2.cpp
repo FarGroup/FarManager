@@ -553,7 +553,7 @@ intptr_t VMenu2::Run(const std::function<int(const Manager::Key& RawKey)>& fn)
 	if(!fn)
 		return RunEx(nullptr);
 
-	return RunEx([&](int Msg, void *param)->int
+	return RunEx([&](int Msg, void *param)
 	{
 		if(Msg==DN_INPUT)
 		{

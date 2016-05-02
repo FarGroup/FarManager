@@ -573,7 +573,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 
 		FillUserMenu(*UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
 
-		ExitCode=UserMenu->Run([&](const Manager::Key& RawKey)->int
+		ExitCode=UserMenu->Run([&](const Manager::Key& RawKey)
 		{
 			const auto Key=RawKey();
 			MenuPos=UserMenu->GetSelectPos();
@@ -818,9 +818,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 						execute_info Info;
 						Info.Command = strCommand;
 						Info.WaitMode = ListFileUsed? Info.wait_idle : Info.no_wait;
-						Info.NewWindow = false;
-						Info.ExecMode = Info.detect;
-						Info.RunAs = false;
+
 						Global->CtrlObject->CmdLine()->ExecString(Info);
 					}
 				}

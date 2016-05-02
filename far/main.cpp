@@ -234,10 +234,6 @@ static int MainProcess(
 
 						execute_info Info;
 						Info.Command = ppanel;
-						Info.WaitMode = Info.no_wait;
-						Info.NewWindow = false;
-						Info.ExecMode = Info.detect;
-						Info.RunAs = false;
 
 						Global->CtrlObject->CmdLine()->ExecString(Info);
 						ActivePanel->Parent()->SetActivePanel(ActivePanel);
@@ -260,10 +256,6 @@ static int MainProcess(
 				{
 					execute_info Info;
 					Info.Command = apanel;
-					Info.WaitMode = Info.no_wait;
-					Info.NewWindow = false;
-					Info.ExecMode = Info.detect;
-					Info.RunAs = false;
 
 					Global->CtrlObject->CmdLine()->ExecString(Info);
 				}
@@ -858,7 +850,6 @@ int main()
 {
 	int nArgs;
 	const auto wstrCmdLineArgs = os::memory::local::ptr(CommandLineToArgvW(GetCommandLineW(), &nArgs));
-	int Result=wmain(nArgs, wstrCmdLineArgs.get());
-	return Result;
+	return wmain(nArgs, wstrCmdLineArgs.get());
 }
 #endif

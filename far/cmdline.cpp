@@ -436,9 +436,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 
 				execute_info Info;
 				Info.Command = strStr;
-				Info.WaitMode = Info.no_wait;
 				Info.NewWindow = IsNewWindow;
-				Info.ExecMode = Info.detect;
 				Info.RunAs = IsRunAs;
 
 				SetString(L"", false);
@@ -852,9 +850,6 @@ void CommandLine::ShowViewEditHistory()
 					execute_info Info;
 					Info.Command = strStr;
 					Info.WaitMode = Type == HR_EXTERNAL_WAIT? Info.wait_finish : Info.no_wait;
-					Info.NewWindow = false;
-					Info.ExecMode = Info.detect;
-					Info.RunAs = false;
 
 					ExecString(Info);
 					break;
@@ -1105,7 +1100,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, class execution_conte
 	if (SetPanel->GetType() != panel_type::FILE_PANEL && Global->CtrlObject->Cp()->PassivePanel()->GetType() == panel_type::FILE_PANEL)
 		SetPanel=Global->CtrlObject->Cp()->PassivePanel();
 
-	const auto IsCommand = [&CmdLine](const string& cmd, bool bslash)->bool
+	const auto IsCommand = [&CmdLine](const string& cmd, bool bslash)
 	{
 		const auto n = cmd.size();
 		return (!StrCmpNI(CmdLine.data(), cmd.data(), n)

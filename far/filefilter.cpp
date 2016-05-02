@@ -185,7 +185,7 @@ bool FileFilter::FilterEdit()
 		}
 	}
 
-	ExitCode=FilterList->RunEx([&](int Msg, void *param)->int
+	ExitCode=FilterList->RunEx([&](int Msg, void *param)
 	{
 		if (Msg==DN_LISTHOTKEY)
 			return 1;

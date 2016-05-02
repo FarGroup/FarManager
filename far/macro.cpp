@@ -3296,7 +3296,7 @@ static bool menushowFunc(FarMacroCall* Data)
 	bool CheckFlag;
 
 	Menu->Key(KEY_NONE);
-	Menu->Run([&](const Manager::Key& RawKey)->int
+	Menu->Run([&](const Manager::Key& RawKey)
 	{
 		const auto Key=RawKey();
 		if (bSetMenuFilter && !VFindOrFilter.isUnknown())

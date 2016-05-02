@@ -330,7 +330,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 			FolderList->SetId(FolderShortcutsMoreId);
 			FillMenu(*FolderList, Items[Pos], raw);
 
-			int ExitCode=FolderList->Run([&](const Manager::Key& RawKey)->int
+			int ExitCode=FolderList->Run([&](const Manager::Key& RawKey)
 			{
 				const auto Key=RawKey();
 				int ItemPos = FolderList->GetSelectPos();
@@ -563,7 +563,7 @@ void Shortcuts::Configure()
 
 	bool raw_mode = false;
 
-	int ExitCode=FolderList->Run([&](const Manager::Key& RawKey)->int
+	int ExitCode=FolderList->Run([&](const Manager::Key& RawKey)
 	{
 		const auto Key=RawKey();
 		int Pos = FolderList->GetSelectPos();

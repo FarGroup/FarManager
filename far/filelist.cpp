@@ -2740,7 +2740,6 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			Info.Command = strFileName;
 			Info.WaitMode = PluginMode? Info.wait_finish : Info.no_wait;
 			Info.NewWindow = SeparateWindow;
-			Info.ExecMode = Info.detect;
 			Info.RunAs = RunAs;
 
 			Parent()->GetCmdLine()->ExecString(Info);
@@ -4753,7 +4752,7 @@ void FileList::SelectSortMode()
 		SortModeMenu->SetMenuFlags(VMENU_WRAPMODE);
 		SortModeMenu->SetId(SelectSortModeId);
 
-		SortCode=SortModeMenu->Run([&](const Manager::Key& RawKey)->int
+		SortCode=SortModeMenu->Run([&](const Manager::Key& RawKey)
 		{
 			const auto Key=RawKey();
 			bool KeyProcessed = false;
@@ -5003,9 +5002,6 @@ bool FileList::ApplyCommand()
 			execute_info Info;
 			Info.Command = strConvertedCommand;
 			Info.WaitMode = ListFileUsed? Info.wait_idle : Info.no_wait;
-			Info.NewWindow = false;
-			Info.ExecMode = Info.detect;
-			Info.RunAs = false;
 
 			Parent()->GetCmdLine()->ExecString(Info);
 			//if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTAPPLYCMD))

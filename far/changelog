@@ -1,4 +1,10 @@
-﻿drkns 02.05.2016 12:23:29 +0200 - build 4656
+﻿drkns 02.05.2016 19:51:44 +0200 - build 4657
+
+1. C форума: Выполняем в комстроке FAR: notepad %FARHOME%\changelog. Получаем ошибку "The system cannot find the path specified."
+
+2. Рефакторинг.
+
+drkns 02.05.2016 12:23:29 +0200 - build 4656
 
 1. 0003227: Не работает открытие папки в проводнике через Shift+Enter
 
