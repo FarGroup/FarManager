@@ -141,7 +141,7 @@ template<class base_type, class derived>
 class OptionImpl: public Option
 {
 public:
-	typedef base_type type;
+	typedef base_type underlying_type;
 
 	OptionImpl(): Option(base_type()) {}
 	OptionImpl(const base_type& Value): Option(Value) {}

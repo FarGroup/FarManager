@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "cmdline.hpp"
 #include "dlgedit.hpp"
+#include "imports.hpp"
 
 
 /*
@@ -205,14 +206,18 @@ SetAutocomplete::~SetAutocomplete()
 void ReloadEnvironment()
 {
 	// these are handled incorrectly by CreateEnvironmentBlock
-	const wchar_t* PreservedNames[] =
+	std::vector<const wchar_t*> PreservedNames =
 	{
-#ifndef _WIN64 // TODO: Use IsWow64Process() too?
-		L"PROCESSOR_ARCHITECTURE", // incorrect under WOW64
-#endif
 		L"USERDOMAIN", // absent
 		L"USERNAME", //absent
 	};
+
+#ifndef _WIN64
+	if (os::IsWow64Process())
+	{
+		PreservedNames.emplace_back(L"PROCESSOR_ARCHITECTURE"); // Incorrect under WOW64
+	}
+#endif
 
 	std::vector<std::pair<const wchar_t*, string>> PreservedVariables;
 	PreservedVariables.reserve(std::size(PreservedNames));

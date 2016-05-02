@@ -1492,7 +1492,7 @@ void Options::InitConfigData()
 
 	string strDefaultLanguage = GetFarIniString(L"General", L"DefaultLanguage", L"English");
 
-	#define OPT_DEF(option, def) &option, std::remove_reference_t<decltype(option)>::type(def)
+	#define OPT_DEF(option, def) &option, std::remove_reference_t<decltype(option)>::underlying_type(def)
 
 	static FARConfigItem RoamingData[] =
 	{

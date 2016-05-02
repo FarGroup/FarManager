@@ -63,15 +63,13 @@ private:
 	void CopyGrabbedArea(bool Append, bool VerticalBlock);
 	void Reset();
 
-	struct GrabberArea
+	struct
 	{
 		COORD Begin;
 		COORD End;
 		COORD Current;
-	};
-
-	GrabberArea PrevArea;
-	GrabberArea GArea;
+	}
+	PrevArea, GArea;
 	bool ResetArea;
 	bool m_VerticalBlock;
 	static monitored<bool> m_StreamSelection;

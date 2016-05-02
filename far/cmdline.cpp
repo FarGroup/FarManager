@@ -96,6 +96,8 @@ CommandLine::CommandLine(window_ptr Owner):
 	SetDelRemovesBlocks(Global->Opt->CmdLine.DelRemovesBlocks);
 }
 
+CommandLine::~CommandLine() = default;
+
 void CommandLine::SetPersistentBlocks(bool Mode)
 {
 	CmdStr.SetPersistentBlocks(Mode);
@@ -880,9 +882,10 @@ void CommandLine::SetPromptSize(int NewSize)
 class execution_context: noncopyable
 {
 public:
-	execution_context(const string& Command):
+	execution_context(const string& Command, bool ShowCommand = true):
 		m_CurrentWindow(Global->WindowManager->GetCurrentWindow()),
 		m_Command(Command),
+		m_ShowCommand(ShowCommand),
 		m_Activated(),
 		m_Consolised()
 	{
@@ -898,7 +901,10 @@ public:
 
 		Global->WindowManager->ActivateWindow(Global->CtrlObject->Desktop);
 		Global->WindowManager->ShowBackground();
-		Global->CtrlObject->CmdLine()->DrawFakeCommand(m_Command);
+		if (m_ShowCommand)
+		{
+			Global->CtrlObject->CmdLine()->DrawFakeCommand(m_Command);
+		}
 		ScrollScreen(1);
 		Global->CtrlObject->Desktop->TakeSnapshot();
 		int X1, Y1, X2, Y2;
@@ -963,6 +969,7 @@ public:
 private:
 	const window_ptr m_CurrentWindow;
 	const string m_Command;
+	const bool m_ShowCommand;
 	bool m_Activated;
 	bool m_Consolised;
 };
@@ -1399,4 +1406,16 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 void CommandLine::LockUpdatePanel(bool Mode)
 {
 	m_Flags.Change(FCMDOBJ_LOCKUPDATEPANEL,Mode);
+}
+
+void CommandLine::EnterPluginExecutionContext()
+{
+	m_PluginExecutionContext = std::make_unique<execution_context>(string(), false);
+	m_PluginExecutionContext->Activate();
+	m_PluginExecutionContext->ConsoleContext();
+}
+
+void CommandLine::LeavePluginExecutionContext()
+{
+	m_PluginExecutionContext.reset();
 }

@@ -1402,37 +1402,15 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 			return Processed;
 		}
 
-		// BUGBUG consider replacing with execution_context
-		case FCTL_SETUSERSCREEN:
+		case FCTL_GETUSERSCREEN:
 		{
-			if (!FPanels || !FPanels->LeftPanel() || !FPanels->RightPanel())
-				return FALSE;
-
-			Global->KeepUserScreen++;
-			FPanels->LeftPanel()->ProcessingPluginCommand++;
-			FPanels->RightPanel()->ProcessingPluginCommand++;
-			Console().Write(L"\n");
-			Global->ScrBuf->FillBuf();
-			Global->CtrlObject->Desktop->TakeSnapshot();
-			Global->KeepUserScreen--;
-			FPanels->LeftPanel()->ProcessingPluginCommand--;
-			FPanels->RightPanel()->ProcessingPluginCommand--;
-
-			// BUGBUG
-			Global->WindowManager->ResizeAllWindows();
-
+			Global->CtrlObject->CmdLine()->EnterPluginExecutionContext();
 			return TRUE;
 		}
 
-		case FCTL_GETUSERSCREEN:
+		case FCTL_SETUSERSCREEN:
 		{
-			Global->WindowManager->ShowBackground();
-			int Lock=Global->ScrBuf->GetLockCount();
-			Global->ScrBuf->SetLockCount(0);
-			MoveCursor(0,ScrY-1);
-			SetInitialCursorType();
-			Global->ScrBuf->Flush();
-			Global->ScrBuf->SetLockCount(Lock);
+			Global->CtrlObject->CmdLine()->LeavePluginExecutionContext();
 			return TRUE;
 		}
 

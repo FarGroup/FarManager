@@ -202,6 +202,7 @@ namespace os
 	bool SetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, const FAR_SECURITY_DESCRIPTOR& SecurityDescriptor);
 	bool DetachVirtualDisk(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType);
 	string GetPrivateProfileString(const string& AppName, const string& KeyName, const string& Default, const string& FileName);
+	bool IsWow64Process();
 	DWORD GetAppPathsRedirectionFlag();
 
 	bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD dwFlags);
@@ -209,7 +210,6 @@ namespace os
 	bool GetFileTimeEx(HANDLE Object, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime);
 	bool SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime);
 	bool DetachVirtualDiskInternal(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType);
-
 
 	namespace fs
 	{

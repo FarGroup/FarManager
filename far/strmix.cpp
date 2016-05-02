@@ -1452,14 +1452,16 @@ string str_printf(const wchar_t * format, ...)
 		}
 	}
 
-int IntToHex(int h)
+char IntToHex(int h)
 {
+	if (h > 15)
+		throw std::runtime_error("not a hex char");
 	if (h >= 10)
 		return 'A' + h - 10;
 	return '0' + h;
 }
 
-int HexToInt(int h)
+int HexToInt(char h)
 {
 	if (h >= 'a' && h <= 'f')
 		return h - 'a' + 10;
@@ -1470,11 +1472,11 @@ int HexToInt(int h)
 	if (std::iswdigit(h))
 		return h - '0';
 
-	return 0;
+	throw std::runtime_error("not a hex char");
 }
 
 template<class S, class C>
-S BlobToHexStringT(const void* Blob, size_t Size, C Separator)
+static S BlobToHexStringT(const void* Blob, size_t Size, C Separator)
 {
 	S Hex;
 
@@ -1498,22 +1500,21 @@ S BlobToHexStringT(const void* Blob, size_t Size, C Separator)
 }
 
 template<class C>
-auto HexStringToBlobT(const C* Hex, size_t Size, C Separator)
+static auto HexStringToBlobT(const C* Hex, size_t Size, C Separator)
 {
+	// Size shall be either 3 * N + 2 or even
+	if (Size && (Separator? Size % 3 != 2 : Size & 1))
+		throw std::runtime_error("incomplete hex string");
+
+	const auto SeparatorSize = Separator? 1 : 0;
+	const auto StepSize = 2 + SeparatorSize;
+	const auto AlignedSize = Size + SeparatorSize;
+
 	std::vector<char> Blob;
-	Blob.reserve((Size + 1) / 3);
-	while (Hex[0] && Hex[1])
+	Blob.reserve(AlignedSize / StepSize);
+	for (size_t i = 0; i != AlignedSize; i += StepSize)
 	{
-		Blob.push_back((HexToInt(Hex[0])<<4) | HexToInt(Hex[1]));
-		Hex += 2;
-		if (!*Hex)
-		{
-			break;
-		}
-		if (Separator)
-		{
-			++Hex;
-		}
+		Blob.emplace_back(HexToInt(Hex[i]) << 4 | HexToInt(Hex[i + 1]));
 	}
 	return Blob;
 }

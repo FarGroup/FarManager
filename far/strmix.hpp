@@ -230,8 +230,8 @@ unsigned long long StringToFlags(const string& strFlags, const container& From, 
 	return Flags;
 }
 
-int IntToHex(int h);
-int HexToInt(int h);
+char IntToHex(int h);
+int HexToInt(char h);
 
 std::string BlobToHexString(const void* Blob, size_t Size, char Separator = ',');
 std::vector<char> HexStringToBlob(const char* Hex, char Separator = ',');

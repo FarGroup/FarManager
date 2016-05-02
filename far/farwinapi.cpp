@@ -1266,23 +1266,21 @@ bool CreateDirectory(const string& PathName,LPSECURITY_ATTRIBUTES lpSecurityAttr
 
 bool CreateDirectoryEx(const string& TemplateDirectory, const string& NewDirectory, LPSECURITY_ATTRIBUTES SecurityAttributes)
 {
-	NTPath NtTemplateDirectory(TemplateDirectory);
 	NTPath NtNewDirectory(NewDirectory);
-	BOOL Result = FALSE;
-	for(size_t i = 0; i < 2 && !Result; ++i)
+
+	auto Create = [&](const string& Template)
 	{
-		Result = NtTemplateDirectory.empty()? ::CreateDirectory(NtNewDirectory.data(), SecurityAttributes) : ::CreateDirectoryEx(NtTemplateDirectory.data(), NtNewDirectory.data(), SecurityAttributes);
-		if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
+		auto Result = Template.empty()? ::CreateDirectory(NtNewDirectory.data(), SecurityAttributes) != FALSE : ::CreateDirectoryEx(Template.data(), NtNewDirectory.data(), SecurityAttributes) != FALSE;
+		if (!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 		{
-			Result = Global->Elevation->fCreateDirectoryEx(NtTemplateDirectory, NtNewDirectory, SecurityAttributes);
+			Result = Global->Elevation->fCreateDirectoryEx(Template, NtNewDirectory, SecurityAttributes);
 		}
-		if(!Result)
-		{
-			// CreateDirectoryEx may fail on some FS, try to create anyway.
-			NtTemplateDirectory.clear();
-		}
-	}
-	return Result != FALSE;
+		return Result;
+	};
+
+	return Create(NTPath(TemplateDirectory)) ||
+		// CreateDirectoryEx may fail on some FS, try to create anyway.
+		Create({});
 }
 
 DWORD GetFileAttributes(const string& FileName)
@@ -1305,7 +1303,6 @@ bool SetFileAttributes(const string& FileName, DWORD dwFileAttributes)
 		Result = Global->Elevation->fSetFileAttributes(NtName, dwFileAttributes);
 	}
 	return Result;
-
 }
 
 bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD dwFlags)
@@ -1803,6 +1800,18 @@ string GetPrivateProfileString(const string& AppName, const string& KeyName, con
 	return string(Buffer.get(), size);
 }
 
+bool IsWow64Process()
+{
+#ifdef _WIN64
+	return false;
+#else
+	auto GetValue = [] { BOOL Value = FALSE; return Imports().IsWow64Process(GetCurrentProcess(), &Value) && Value; };
+	static const auto Wow64Process = GetValue();
+	return Wow64Process;
+#endif
+}
+
+
 DWORD GetAppPathsRedirectionFlag()
 {
 	const auto GetFlag = []
@@ -1813,8 +1822,7 @@ DWORD GetAppPathsRedirectionFlag()
 #ifdef _WIN64
 			return KEY_WOW64_32KEY;
 #else
-			BOOL Wow64Process = FALSE;
-			if (Imports().IsWow64Process(GetCurrentProcess(), &Wow64Process) && Wow64Process)
+			if (IsWow64Process())
 			{
 				return KEY_WOW64_64KEY;
 			}

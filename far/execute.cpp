@@ -679,7 +679,7 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 		Info.ExecMode = Info.external;
 	}
 
-	const bool IsDirectory = os::fs::is_directory(strNewCmdStr);
+	bool IsDirectory = false;
 
 	if(Info.RunAs)
 	{
@@ -695,8 +695,13 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	{
 		Silent = true;
 
+		auto Unquoted = strNewCmdStr;
+		Unquote(Unquoted);
+		IsDirectory = os::fs::is_directory(Unquoted);
+
 		if (strNewCmdPar.empty() && IsDirectory)
 		{
+			strNewCmdStr = Unquoted;
 			ConvertNameToFull(strNewCmdStr, strNewCmdStr);
 			Info.ExecMode = Info.direct;
 			FolderRun=true;

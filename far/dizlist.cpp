@@ -235,7 +235,7 @@ const wchar_t* DizList::Get(const string& Name, const string& ShortName, const _
 }
 
 template<class T>
-auto Find_t(T& Map, const string& Name, const string& ShortName, uintptr_t Codepage)
+static auto Find_t(T& Map, const string& Name, const string& ShortName, uintptr_t Codepage)
 {
 	auto Iterator = Map.find(Name);
 	if (Iterator == Map.end())

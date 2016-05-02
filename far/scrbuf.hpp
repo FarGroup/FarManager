@@ -51,16 +51,16 @@ enum class flush_type
 inline auto operator|(flush_type a, flush_type b)
 {
 	return static_cast<flush_type>(
-		static_cast<std::underlying_type<flush_type>::type>(a) |
-		static_cast<std::underlying_type<flush_type>::type>(b)
+		static_cast<std::underlying_type_t<flush_type>>(a) |
+		static_cast<std::underlying_type_t<flush_type>>(b)
 	);
 }
 
 inline auto operator&(flush_type a, flush_type b)
 {
 	return
-		static_cast<std::underlying_type<flush_type>::type>(a) &
-		static_cast<std::underlying_type<flush_type>::type>(b);
+		static_cast<std::underlying_type_t<flush_type>>(a) &
+		static_cast<std::underlying_type_t<flush_type>>(b);
 }
 
 
