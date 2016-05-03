@@ -1765,11 +1765,12 @@ bool SetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInforma
 
 bool DetachVirtualDiskInternal(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType)
 {
-	HANDLE Handle;
-	DWORD Result = Imports().OpenVirtualDisk(&VirtualStorageType, Object.data(), VIRTUAL_DISK_ACCESS_DETACH, OPEN_VIRTUAL_DISK_FLAG_NONE, nullptr, &Handle);
+	HANDLE RawHandle;
+	DWORD Result = Imports().OpenVirtualDisk(&VirtualStorageType, Object.data(), VIRTUAL_DISK_ACCESS_DETACH, OPEN_VIRTUAL_DISK_FLAG_NONE, nullptr, &RawHandle);
 	if (Result == ERROR_SUCCESS)
 	{
-		Result = Imports().DetachVirtualDisk(Handle, DETACH_VIRTUAL_DISK_FLAG_NONE, 0);
+		handle Handle(RawHandle);
+		Result = Imports().DetachVirtualDisk(Handle.native_handle(), DETACH_VIRTUAL_DISK_FLAG_NONE, 0);
 		if (Result != ERROR_SUCCESS)
 		{
 			SetLastError(Result);
