@@ -949,7 +949,9 @@ public:
 			Global->ScrBuf->FillBuf();
 		}
 
-		if (!m_Command.empty())
+		// Empty command means that user simply pressed Enter in command line, in this case we don't want additional scrolling
+		// ShowCommand is false when there is no "command" - class instantiated by FCTL_GETUSERSCREEN.
+		if (!m_Command.empty() || !m_ShowCommand)
 		{
 			ScrollScreen(1);
 		}
