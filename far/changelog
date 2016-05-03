@@ -1,4 +1,8 @@
-﻿drkns 02.05.2016 19:51:44 +0200 - build 4657
+﻿drkns 03.05.2016 11:28:32 +0200 - build 4658
+
+1. 0003228: Shell команда CD не находит путь есть в конце выполняемой стоки стоит пробел
+
+drkns 02.05.2016 19:51:44 +0200 - build 4657
 
 1. C форума: Выполняем в комстроке FAR: notepad %FARHOME%\changelog. Получаем ошибку "The system cannot find the path specified."
 

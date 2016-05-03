@@ -1278,7 +1278,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, class execution_conte
 		const int Length = IsCommand(L"CD", true)? 2 : 5;
 
 		auto strCmdLine = CmdLine.substr(Length);
-		RemoveLeadingSpaces(strCmdLine);
+		RemoveExternalSpaces(strCmdLine);
 
 		//проигнорируем /D
 		//мы и так всегда меняем диск а некоторые в алайсах или по привычке набирают этот ключ
