@@ -896,11 +896,14 @@ public:
 
 		Global->WindowManager->ActivateWindow(Global->CtrlObject->Desktop);
 		Global->WindowManager->ShowBackground();
+
+		// ShowCommand is false when there is no "command" - class instantiated by FCTL_GETUSERSCREEN.
 		if (m_ShowCommand)
 		{
 			Global->CtrlObject->CmdLine()->DrawFakeCommand(m_Command);
+			ScrollScreen(1);
 		}
-		ScrollScreen(1);
+
 		Global->CtrlObject->Desktop->TakeSnapshot();
 		int X1, Y1, X2, Y2;
 		Global->CtrlObject->CmdLine()->GetPosition(X1, Y1, X2, Y2);

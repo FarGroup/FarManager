@@ -213,6 +213,15 @@ private:
 	bool m_Allocated;
 };
 
+namespace enum_helpers
+{
+	template<class O, class R = void, class T>
+	constexpr auto operation(T a, T b)
+	{
+		return static_cast<std::conditional_t<std::is_same<R, void>::value, T, R>>(O()(static_cast<std::underlying_type_t<T>>(a), static_cast<std::underlying_type_t<T>>(b)));
+	}
+}
+
 #ifdef _DEBUG
 #define SELF_TEST(code) \
 namespace \
