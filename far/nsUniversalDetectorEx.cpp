@@ -83,56 +83,46 @@ SCOPED_ACTION(components::component)(getInfo);
 
 static const auto& CpMap()
 {
-	static std::unordered_map<std::string, uintptr_t> sCpMap;
-
-	if (sCpMap.empty())
+	static std::unordered_map<std::string, uintptr_t> sCpMap = 
 	{
-		static const std::pair<const char*, uintptr_t> CodepagesInit[] =
-		{
-			{ "UTF16-LE", CP_UNICODE },
-			{ "UTF16-BE", CP_REVERSEBOM },
-			{ "UTF-8", CP_UTF8 },
-			{ "windows-1250", 1250 },
-			{ "windows-1251", 1251 },
-			{ "windows-1252", 1252 },
-			{ "windows-1253", 1253 },
-			{ "windows-1255", 1255 },
-			{ "IBM855", 855 },
-			{ "IBM866", 866 },
-			{ "KOI8-R", 20866 },
-			{ "x-mac-hebrew", 10005 },
-			{ "x-mac-cyrillic", /*10007*/ 1251 }, //Оно слишком похоже на 1251 и детектор, бывает, путает
-			{ "ISO-8859-2", 28592 },
-			{ "ISO-8859-5", 28595 },
-			{ "ISO-8859-7", 28597 },
-			{ "ISO-8859-8", 28598 },
-			{ "ISO-8859-8-I", 38598 },
+		{ "UTF16-LE", CP_UNICODE },
+		{ "UTF16-BE", CP_REVERSEBOM },
+		{ "UTF-8", CP_UTF8 },
+		{ "windows-1250", 1250 },
+		{ "windows-1251", 1251 },
+		{ "windows-1252", 1252 },
+		{ "windows-1253", 1253 },
+		{ "windows-1255", 1255 },
+		{ "IBM855", 855 },
+		{ "IBM866", 866 },
+		{ "KOI8-R", 20866 },
+		{ "x-mac-hebrew", 10005 },
+		{ "x-mac-cyrillic", /*10007*/ 1251 }, //Оно слишком похоже на 1251 и детектор, бывает, путает
+		{ "ISO-8859-2", 28592 },
+		{ "ISO-8859-5", 28595 },
+		{ "ISO-8859-7", 28597 },
+		{ "ISO-8859-8", 28598 },
+		{ "ISO-8859-8-I", 38598 },
 
-			/*
-			and the rest:
+		/*
+		and the rest:
 
-			"Shift_JIS"
-			"gb18030"
-			"x-euc-tw"
-			"EUC-KR"
-			"EUC-JP"
-			"Big5"
-			"X-ISO-10646-UCS-4-3412" - UCS-4, unusual octet order BOM (3412)
-			"X-ISO-10646-UCS-4-2143" - UCS-4, unusual octet order BOM (2143)
-			"UTF-32BE"
-			"UTF-32LE"
-			"ISO-2022-CN"
-			"ISO-2022-JP"
-			"ISO-2022-KR"
-			"TIS-620"
-			*/
-		};
-
-		std::for_each(CONST_RANGE(CodepagesInit, i)
-		{
-			sCpMap[i.first] = i.second;
-		});
-	}
+		"Shift_JIS"
+		"gb18030"
+		"x-euc-tw"
+		"EUC-KR"
+		"EUC-JP"
+		"Big5"
+		"X-ISO-10646-UCS-4-3412" - UCS-4, unusual octet order BOM (3412)
+		"X-ISO-10646-UCS-4-2143" - UCS-4, unusual octet order BOM (2143)
+		"UTF-32BE"
+		"UTF-32LE"
+		"ISO-2022-CN"
+		"ISO-2022-JP"
+		"ISO-2022-KR"
+		"TIS-620"
+		*/
+	};
 	return sCpMap;
 }
 

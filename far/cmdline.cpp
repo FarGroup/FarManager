@@ -1410,9 +1410,7 @@ void CommandLine::LockUpdatePanel(bool Mode)
 
 void CommandLine::EnterPluginExecutionContext()
 {
-	m_PluginExecutionContext = std::make_unique<execution_context>(string(), false);
-	m_PluginExecutionContext->Activate();
-	m_PluginExecutionContext->ConsoleContext();
+	(m_PluginExecutionContext = std::make_unique<execution_context>(string(), false))->ConsoleContext();
 }
 
 void CommandLine::LeavePluginExecutionContext()

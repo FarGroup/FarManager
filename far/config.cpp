@@ -876,88 +876,180 @@ void Options::SetFolderInfoFiles()
 
 static void ResetViewModes(PanelViewSettings* Modes, int Index = -1)
 {
-	static const struct panelmode_init
+	static const struct
 	{
-		struct columns_init
-		{
-			size_t count;
-			column_base init[10]; // good enough
-		}
-		Columns, StatusColumns;
-		unsigned __int64 Flags;
+		std::initializer_list<column> PanelColumns, StatusColumns;
+		unsigned long long Flags;
 	}
-	Init[] =
+	InitialModes[] =
 	{
+		// Alternative full
 		{
-			{3, {{COLUMN_MARK|NAME_COLUMN, 0, COUNT_WIDTH}, {SIZE_COLUMN|COLUMN_COMMAS, 10, COUNT_WIDTH}, {DATE_COLUMN, 0, COUNT_WIDTH}}},
-			{1, {{COLUMN_RIGHTALIGN|NAME_COLUMN, 0, COUNT_WIDTH}}},
-			PVS_ALIGNEXTENSIONS
+			{
+				{NAME_COLUMN | COLUMN_MARK},
+				{SIZE_COLUMN | COLUMN_COMMAS, 10},
+				{DATE_COLUMN},
+			},
+			{
+				{NAME_COLUMN | COLUMN_RIGHTALIGN},
+			},
+			PVS_ALIGNEXTENSIONS,
 		},
+
+		// Brief
 		{
-			{3, {{NAME_COLUMN, 0, COUNT_WIDTH}, {NAME_COLUMN, 0, COUNT_WIDTH}, {NAME_COLUMN, 0, COUNT_WIDTH}}},
-			{4, {{COLUMN_RIGHTALIGN|NAME_COLUMN, 0, COUNT_WIDTH}, {SIZE_COLUMN, 6, COUNT_WIDTH}, {DATE_COLUMN, 0, COUNT_WIDTH}, {TIME_COLUMN, 5, COUNT_WIDTH}}},
-			PVS_ALIGNEXTENSIONS
+			{
+				{NAME_COLUMN},
+				{NAME_COLUMN},
+				{NAME_COLUMN},
+			},
+			{
+				{NAME_COLUMN | COLUMN_RIGHTALIGN},
+				{SIZE_COLUMN, 6},
+				{DATE_COLUMN},
+				{TIME_COLUMN, 5},
+			},
+			PVS_ALIGNEXTENSIONS,
 		},
+
+		// Medium
 		{
-			{2, {{NAME_COLUMN, 0, COUNT_WIDTH}, {NAME_COLUMN, 0, COUNT_WIDTH}}},
-			{4, {{COLUMN_RIGHTALIGN|NAME_COLUMN, 0, COUNT_WIDTH}, {SIZE_COLUMN, 6, COUNT_WIDTH}, {DATE_COLUMN, 0, COUNT_WIDTH}, {TIME_COLUMN, 5, COUNT_WIDTH}}},
-			0
+			{
+				{NAME_COLUMN},
+				{NAME_COLUMN},
+			},
+			{
+				{NAME_COLUMN | COLUMN_RIGHTALIGN},
+				{SIZE_COLUMN, 6},
+				{DATE_COLUMN},
+				{TIME_COLUMN, 5},
+			},
+			PVS_NONE,
 		},
+
+		// Full
 		{
-			{4, {{NAME_COLUMN, 0, COUNT_WIDTH}, {SIZE_COLUMN, 6, COUNT_WIDTH}, {DATE_COLUMN, 0, COUNT_WIDTH}, {TIME_COLUMN, 5, COUNT_WIDTH}}},
-			{1, {{COLUMN_RIGHTALIGN|NAME_COLUMN, 0, COUNT_WIDTH}}},
-			PVS_ALIGNEXTENSIONS
+			{
+				{NAME_COLUMN},
+				{SIZE_COLUMN, 6},
+				{DATE_COLUMN},
+				{TIME_COLUMN, 5},
+			},
+			{
+				{NAME_COLUMN | COLUMN_RIGHTALIGN},
+			},
+			PVS_ALIGNEXTENSIONS,
 		},
+
+		// Wide
 		{
-			{2, {{NAME_COLUMN, 0, COUNT_WIDTH}, {SIZE_COLUMN, 6, COUNT_WIDTH}}},
-			{4, {{COLUMN_RIGHTALIGN|NAME_COLUMN, 0, COUNT_WIDTH}, {SIZE_COLUMN, 6, COUNT_WIDTH}, {DATE_COLUMN, 0, COUNT_WIDTH}, {TIME_COLUMN, 5, COUNT_WIDTH}}},
-			0
+			{
+				{NAME_COLUMN},
+				{SIZE_COLUMN, 6},
+			},
+			{
+				{NAME_COLUMN | COLUMN_RIGHTALIGN},
+				{SIZE_COLUMN, 6},
+				{DATE_COLUMN},
+				{TIME_COLUMN, 5},
+			},
+			PVS_NONE
 		},
+
+		// Detailed
 		{
-			{7, {{NAME_COLUMN, 0, COUNT_WIDTH}, {SIZE_COLUMN, 6, COUNT_WIDTH}, {PACKED_COLUMN, 6, COUNT_WIDTH}, {WDATE_COLUMN, 14, COUNT_WIDTH}, {CDATE_COLUMN, 14, COUNT_WIDTH}, {ADATE_COLUMN, 14, COUNT_WIDTH}, {ATTR_COLUMN, 0, COUNT_WIDTH}}},
-			{1, {{COLUMN_RIGHTALIGN|NAME_COLUMN, 0, COUNT_WIDTH}}},
-			PVS_ALIGNEXTENSIONS|PVS_FULLSCREEN
+			{
+				{NAME_COLUMN},
+				{SIZE_COLUMN, 6},
+				{PACKED_COLUMN, 6},
+				{WDATE_COLUMN, 14},
+				{CDATE_COLUMN, 14},
+				{ADATE_COLUMN, 14},
+				{ATTR_COLUMN},
+			},
+			{
+				{NAME_COLUMN | COLUMN_RIGHTALIGN},
+			},
+			PVS_ALIGNEXTENSIONS|PVS_FULLSCREEN,
 		},
+
+		// Descriptions
 		{
-			{2, {{NAME_COLUMN, 40, PERCENT_WIDTH}, {DIZ_COLUMN, 0, COUNT_WIDTH}}},
-			{4, {{COLUMN_RIGHTALIGN|NAME_COLUMN, 0, COUNT_WIDTH}, {SIZE_COLUMN, 6, COUNT_WIDTH}, {DATE_COLUMN, 0, COUNT_WIDTH}, {TIME_COLUMN, 5, COUNT_WIDTH}}},
-			PVS_ALIGNEXTENSIONS
+			{
+				{NAME_COLUMN, 40, col_width::percent},
+				{DIZ_COLUMN},
+			},
+			{
+				{NAME_COLUMN | COLUMN_RIGHTALIGN},
+				{SIZE_COLUMN, 6},
+				{DATE_COLUMN},
+				{TIME_COLUMN, 5},
+			},
+			PVS_ALIGNEXTENSIONS,
 		},
+
+		// Long descriptions
 		{
-			{3, {{NAME_COLUMN, 0, COUNT_WIDTH}, {SIZE_COLUMN, 6, COUNT_WIDTH}, {DIZ_COLUMN, 70, PERCENT_WIDTH}}},
-			{1, {{COLUMN_RIGHTALIGN|NAME_COLUMN, 0, COUNT_WIDTH}}},
-			PVS_ALIGNEXTENSIONS|PVS_FULLSCREEN
+			{
+				{NAME_COLUMN},
+				{SIZE_COLUMN, 6},
+				{DIZ_COLUMN, 70, col_width::percent},
+			},
+			{
+				{NAME_COLUMN | COLUMN_RIGHTALIGN},
+			},
+			PVS_ALIGNEXTENSIONS|PVS_FULLSCREEN,
 		},
+
+		// File owners
 		{
-			{3, {{NAME_COLUMN, 0, COUNT_WIDTH}, {SIZE_COLUMN, 6, COUNT_WIDTH}, {OWNER_COLUMN, 15, COUNT_WIDTH}}},
-			{4, {{COLUMN_RIGHTALIGN|NAME_COLUMN, 0, COUNT_WIDTH}, {SIZE_COLUMN, 6, COUNT_WIDTH}, {DATE_COLUMN, 0, COUNT_WIDTH}, {TIME_COLUMN, 15, COUNT_WIDTH}}},
-			PVS_ALIGNEXTENSIONS
+			{
+				{NAME_COLUMN},
+				{SIZE_COLUMN, 6},
+				{OWNER_COLUMN, 15},
+			},
+			{
+				{NAME_COLUMN | COLUMN_RIGHTALIGN},
+				{SIZE_COLUMN, 6},
+				{DATE_COLUMN},
+				{TIME_COLUMN, 15},
+			},
+			PVS_ALIGNEXTENSIONS,
 		},
+
+		// File links
 		{
-			{3, {{NAME_COLUMN, 0, COUNT_WIDTH}, {SIZE_COLUMN, 6, COUNT_WIDTH}, {NUMLINK_COLUMN, 3, COUNT_WIDTH}}},
-			{4, {{COLUMN_RIGHTALIGN|NAME_COLUMN, 0, COUNT_WIDTH}, {SIZE_COLUMN, 6, COUNT_WIDTH}, {DATE_COLUMN, 0, COUNT_WIDTH}, {TIME_COLUMN, 5, COUNT_WIDTH}}},
-			PVS_ALIGNEXTENSIONS
+			{
+				{NAME_COLUMN},
+				{SIZE_COLUMN, 6},
+				{NUMLINK_COLUMN, 3},
+			},
+			{
+				{NAME_COLUMN | COLUMN_RIGHTALIGN},
+				{SIZE_COLUMN, 6},
+				{DATE_COLUMN},
+				{TIME_COLUMN, 5},
+			},
+			PVS_ALIGNEXTENSIONS,
 		},
 	};
-	static_assert(std::size(Init) == predefined_panel_modes_count, "not all initial modes defined");
+	static_assert(std::size(InitialModes) == predefined_panel_modes_count, "not all initial modes defined");
 
-	const auto InitMode = [](const panelmode_init& src, PanelViewSettings& dst)
+	const auto InitMode = [](const auto& src, auto& dst)
 	{
-		dst.PanelColumns.resize(src.Columns.count);
-		std::copy_n(src.Columns.init, src.Columns.count, dst.PanelColumns.begin());
-		dst.StatusColumns.resize(src.StatusColumns.count);
-		std::copy_n(src.StatusColumns.init, src.StatusColumns.count, dst.StatusColumns.begin());
+		dst.PanelColumns = src.PanelColumns;
+		dst.StatusColumns = src.StatusColumns;
 		dst.Flags = src.Flags;
 		dst.Name.clear();
 	};
 
 	if (Index < 0)
 	{
-		for_each_zip(InitMode, ALL_CONST_RANGE(Init), Modes);
+		for_each_zip(InitMode, ALL_CONST_RANGE(InitialModes), Modes);
 	}
 	else
 	{
-		InitMode(Init[Index], *Modes);
+		InitMode(InitialModes[Index], *Modes);
 	}
 }
 

@@ -203,7 +203,7 @@ FileListItem::FileListItem()
 	m_Owner.assign(1, values::uninitialised(wchar_t()));
 }
 
-inline static string GetItemFullName(const FileListItem& Item, const FileList* Owner)
+static inline string GetItemFullName(const FileListItem& Item, const FileList* Owner)
 {
 	return Owner->GetCurDir() + L"\\"s + (TestParentFolderName(Item.strName) ? L""s : Item.strName);
 }
@@ -8150,7 +8150,7 @@ int FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen,
 
 		if (!i.width)
 		{
-			i.width_type = COUNT_WIDTH; //manage all zero-width columns in same way
+			i.width_type = col_width::fixed; //manage all zero-width columns in same way
 			i.width = GetDefaultWidth(i.type);
 		}
 
@@ -8159,10 +8159,10 @@ int FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen,
 
 		switch (i.width_type)
 		{
-			case COUNT_WIDTH:
+			case col_width::fixed:
 				TotalWidth += i.width;
 				break;
-			case PERCENT_WIDTH:
+			case col_width::percent:
 				TotalPercentWidth += i.width;
 				TotalPercentCount++;
 				break;
@@ -8187,7 +8187,7 @@ int FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen,
 			if (!TotalPercentCount)
 				break;
 
-			if (i.width_type == PERCENT_WIDTH)
+			if (i.width_type == col_width::percent)
 			{
 				int PercentWidth = (TotalPercentCount > 1)? (ExtraPercentWidth * i.width / TotalPercentWidth) : (ExtraPercentWidth - TempWidth);
 
@@ -8196,7 +8196,7 @@ int FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen,
 
 				TempWidth+=PercentWidth;
 				i.width = PercentWidth;
-				i.width_type = COUNT_WIDTH;
+				i.width_type = col_width::fixed;
 				TotalPercentCount--;
 			}
 		}

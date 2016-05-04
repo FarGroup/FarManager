@@ -450,14 +450,14 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 			i.width = 0;
 		}
 
-		i.width_type = COUNT_WIDTH;
+		i.width_type = col_width::fixed;
 
 		if (strArgName.size()>1)
 		{
 			switch (strArgName.back())
 			{
 				case L'%':
-					i.width_type = PERCENT_WIDTH;
+					i.width_type = col_width::percent;
 					break;
 			}
 		}
@@ -561,7 +561,7 @@ void ViewSettingsToText(const std::vector<column>& Columns, string &strColumnTit
 
 		switch (i.width_type)
 		{
-			case PERCENT_WIDTH:
+			case col_width::percent:
 				strColumnWidths += L"%";
 				break;
 		}

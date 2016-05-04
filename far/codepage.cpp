@@ -120,7 +120,7 @@ cp_map::value_type::second_type GetCodePageInfo(UINT cp)
 	return found->second;
 }
 
-inline static bool IsValid(UINT cp)
+static inline bool IsValid(UINT cp)
 {
 	if (cp==CP_ACP || cp==CP_OEMCP || cp==CP_MACCP || cp==CP_THREAD_ACP || cp==CP_SYMBOL)
 		return false;

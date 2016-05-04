@@ -45,7 +45,7 @@ public:
 
 	static std::vector<string> get(const void* CppObject);
 	static std::vector<string> get(const EXCEPTION_POINTERS* e);
-	static string get_one (const void* Address);
+	static string get_one(const void* Address);
 
 	static bool get_exception_context(const void* CppObject, EXCEPTION_RECORD& ExceptionRecord, CONTEXT& ContextRecord);
 

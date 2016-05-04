@@ -74,6 +74,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "language.hpp"
 #include "colormix.hpp"
+#include "strmix.hpp"
 
 #if 0
 void print_opcodes()
@@ -340,10 +341,10 @@ void print_opcodes()
 	fclose(fp);
 }
 #endif
-#include "strmix.hpp"
 
 typedef unsigned __int64 MACROFLAGS_MFLAGS;
-static const MACROFLAGS_MFLAGS
+enum: MACROFLAGS_MFLAGS
+{
 	// public flags, read from/saved to config
 	MFLAGS_PUBLIC_MASK             =0x000000000FFFFFFF,
 	MFLAGS_ENABLEOUTPUT            =0x0000000000000001, // не подавлять обновление экрана во время выполнения макроса
@@ -368,7 +369,8 @@ static const MACROFLAGS_MFLAGS
 
 	// private flags, for runtime purposes only
 	MFLAGS_PRIVATE_MASK            =0xFFFFFFFFF0000000,
-	MFLAGS_POSTFROMPLUGIN          =0x0000000010000000; // последовательность пришла от АПИ
+	MFLAGS_POSTFROMPLUGIN          =0x0000000010000000  // последовательность пришла от АПИ
+};
 
 // для диалога назначения клавиши
 struct DlgParam

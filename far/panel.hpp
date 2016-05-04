@@ -40,24 +40,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class DizList;
 
-struct column_base
+struct column
 {
-	unsigned __int64 type;
+	unsigned long long type;
 	int width;
 	int width_type;
-};
-
-struct column: public column_base
-{
-	column():
-		column_base()
-	{}
-
-	column(const column_base& rhs)
-	{
-		static_cast<column_base&>(*this) = rhs;
-	}
-
 	string title;
 };
 
@@ -86,12 +73,13 @@ struct PanelViewSettings
 
 enum
 {
-	PVS_FULLSCREEN            = 0x00000001,
-	PVS_ALIGNEXTENSIONS       = 0x00000002,
-	PVS_FOLDERALIGNEXTENSIONS = 0x00000004,
-	PVS_FOLDERUPPERCASE       = 0x00000008,
-	PVS_FILELOWERCASE         = 0x00000010,
-	PVS_FILEUPPERTOLOWERCASE  = 0x00000020,
+	PVS_NONE                  = 0,
+	PVS_FULLSCREEN            = BIT(0),
+	PVS_ALIGNEXTENSIONS       = BIT(1),
+	PVS_FOLDERALIGNEXTENSIONS = BIT(2),
+	PVS_FOLDERUPPERCASE       = BIT(3),
+	PVS_FILELOWERCASE         = BIT(5),
+	PVS_FILEUPPERTOLOWERCASE  = BIT(6),
 };
 
 enum {VIEW_0=0,VIEW_1,VIEW_2,VIEW_3,VIEW_4,VIEW_5,VIEW_6,VIEW_7,VIEW_8,VIEW_9};

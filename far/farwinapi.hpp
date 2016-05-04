@@ -573,7 +573,7 @@ namespace os
 			template<class T>
 			ptr copy(const T& Object)
 			{
-				static_assert(std::is_pod<T>::value, "POD type is required");
+				static_assert(std::is_pod<T>::value, "This template requires a POD type");
 				if (auto Memory = alloc(GMEM_MOVEABLE, sizeof(Object)))
 				{
 					if (const auto Copy = lock<T*>(Memory))

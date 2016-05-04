@@ -311,7 +311,7 @@ void SetColors()
 	};
 
 	{
-		static const struct group_item
+		static const struct
 		{
 			LNGID MenuId;
 			const color_item* Subitems;

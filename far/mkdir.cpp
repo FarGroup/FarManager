@@ -77,39 +77,7 @@ intptr_t MkDirDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 				}
 			}
 			break;
-		case DN_CLOSE:
-		{
-			if (Param1==MKDIR_OK)
-			{
-				string strDirName = reinterpret_cast<LPCWSTR>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, MKDIR_EDIT, nullptr));
-				Global->Opt->MultiMakeDir = (Dlg->SendMessage(DM_GETCHECK, MKDIR_CHECKBOX, nullptr) == BSTATE_CHECKED);
 
-				// это по поводу создания одиночного каталога, который
-				// начинается с пробела! Чтобы ручками не заключать
-				// такой каталог в кавычки
-				if (Global->Opt->MultiMakeDir && strDirName.find_first_of(L";,\"") == string::npos)
-				{
-					QuoteSpaceOnly(strDirName);
-				}
-
-				// нужно создать только ОДИН каталог
-				if (!Global->Opt->MultiMakeDir)
-				{
-					// уберем все лишние кавычки
-					// возьмем в кавычки, т.к. могут быть разделители
-					InsertQuote(Unquote(strDirName));
-				}
-
-				auto& DirList = *reinterpret_cast<std::vector<string>*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
-				split(DirList, strDirName, STLF_UNIQUE);
-				if (DirList.empty())
-				{
-					Message(MSG_WARNING,1,MSG(MWarning),MSG(MIncorrectDirList),MSG(MOk));
-					return FALSE;
-				}
-			}
-		}
-		break;
 	default:
 		break;
 	}
@@ -145,8 +113,7 @@ void ShellMakeDir(Panel *SrcPanel)
 	};
 	auto MkDirDlg = MakeDialogItemsEx(MkDirDlgData);
 	MkDirDlg[MKDIR_COMBOBOX_LINKTYPE].ListItems=&ComboList;
-	std::vector<string> DirList;
-	const auto Dlg = Dialog::create(MkDirDlg, MkDirDlgProc, &DirList);
+	const auto Dlg = Dialog::create(MkDirDlg, MkDirDlgProc);
 	Dlg->SetPosition(-1,-1,76,12);
 	Dlg->SetHelp(L"MakeFolder");
 	Dlg->SetId(MakeFolderId);
@@ -155,6 +122,32 @@ void ShellMakeDir(Panel *SrcPanel)
 	if (Dlg->GetExitCode()==MKDIR_OK)
 	{
 		string strDirName=MkDirDlg[MKDIR_EDIT].strData;
+		Global->Opt->MultiMakeDir = MkDirDlg[MKDIR_CHECKBOX].Selected == BSTATE_CHECKED;
+
+		// это по поводу создания одиночного каталога, который
+		// начинается с пробела! Чтобы ручками не заключать
+		// такой каталог в кавычки
+		if (Global->Opt->MultiMakeDir && strDirName.find_first_of(L";,\"") == string::npos)
+		{
+			QuoteSpaceOnly(strDirName);
+		}
+
+		// нужно создать только ОДИН каталог
+		if (!Global->Opt->MultiMakeDir)
+		{
+			// уберем все лишние кавычки
+			// возьмем в кавычки, т.к. могут быть разделители
+			InsertQuote(Unquote(strDirName));
+		}
+
+		std::vector<string> DirList;
+		split(DirList, strDirName, STLF_UNIQUE);
+		if (DirList.empty())
+		{
+			Message(MSG_WARNING, 1, MSG(MWarning), MSG(MIncorrectDirList), MSG(MOk));
+			return;
+		}
+
 		string strOriginalDirName;
 		bool SkipAll = false;
 		for (const auto& i: DirList)
